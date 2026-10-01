@@ -13,11 +13,28 @@ func _ready():
 	_setup_static_obstacles()
 
 
+func _exit_tree():
+	for obstacle in _static_obstacles:
+		NavigationServer3D.free_rid(obstacle)
+
+
 func get_navigation_map_rid_by_domain(domain):
 	return {
 		Constants.Match.Navigation.Domain.AIR: air.navigation_map_rid,
 		Constants.Match.Navigation.Domain.TERRAIN: terrain.navigation_map_rid,
 	}[domain]
+
+
+func wait_until_synchronized(domain):
+	var navigation_map = get_navigation_map_rid_by_domain(domain)
+	# A baked mesh can still be waiting for the server's asynchronous synchronization.
+	while (
+		NavigationServer3D.map_get_iteration_id(navigation_map) == 0
+		or not (
+			NavigationServer3D.map_get_closest_point_owner(navigation_map, Vector3.ZERO).is_valid()
+		)
+	):
+		await get_tree().physics_frame
 
 
 func setup(map):

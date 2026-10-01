@@ -8,7 +8,9 @@ extends NavigationObstacle3D
 
 
 func _ready():
-	await get_tree().process_frame  # wait for navigation to be operational
+	if _match.navigation == null:
+		await _match.ready
+	await _match.navigation.wait_until_synchronized(domain)
 	set_navigation_map(_match.navigation.get_navigation_map_rid_by_domain(domain))
 	_align_unit_position_to_navigation()
 	_affect_navigation_if_needed()

@@ -51,8 +51,10 @@ func _physics_process(delta):
 
 
 func _ready():
+	set_physics_process(false)
 	if _match.navigation == null:
 		await _match.ready
+	await _match.navigation.wait_until_synchronized(domain)
 	velocity_computed.connect(_on_velocity_computed)
 	navigation_finished.connect(_on_navigation_finished)
 	set_navigation_map(_match.navigation.get_navigation_map_rid_by_domain(domain))
@@ -63,6 +65,7 @@ func _ready():
 			+ Vector3(randf(), 0, randf()).normalized() * INITIAL_DISPERSION_FACTOR
 		)
 	)
+	set_physics_process(true)
 
 
 func move(movement_target: Vector3):
@@ -74,7 +77,6 @@ func stop():
 
 
 func _align_unit_position_to_navigation():
-	await get_tree().process_frame  # wait for navigation to be operational
 	_unit.global_transform.origin = (
 		NavigationServer3D.map_get_closest_point(
 			get_navigation_map(), get_parent().global_transform.origin

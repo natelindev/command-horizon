@@ -13,10 +13,13 @@ func _ready():
 	NavigationServer3D.map_set_cell_height(
 		navigation_map_rid, Constants.Match.Air.Navmesh.CELL_HEIGHT
 	)
-	NavigationServer3D.region_set_map(_navigation_region.get_region_rid(), navigation_map_rid)
-	NavigationServer3D.map_force_update(navigation_map_rid)
+	_navigation_region.set_navigation_map(navigation_map_rid)
 	NavigationServer3D.map_set_active(navigation_map_rid, true)
 	_reference_static_collider_shape.global_transform.origin.y = Constants.Match.Air.Y
+
+
+func _exit_tree():
+	NavigationServer3D.free_rid(navigation_map_rid)
 
 
 func bake(map):

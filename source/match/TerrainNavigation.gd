@@ -19,7 +19,6 @@ func _ready():
 	NavigationServer3D.map_set_cell_height(
 		navigation_map_rid, Constants.Match.Terrain.Navmesh.CELL_HEIGHT
 	)
-	NavigationServer3D.map_force_update(navigation_map_rid)
 	MatchSignals.schedule_navigation_rebake.connect(_on_schedule_navigation_rebake)
 
 

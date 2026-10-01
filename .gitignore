@@ -4,3 +4,19 @@ tmp/
 *.translation
 misc/
 build/
+
+# Local caches, logs, and exported game builds.
+.DS_Store
+__pycache__/
+*.pyc
+*.log
+*.app/
+*.exe
+*.dll
+*.dylib
+*.so
+*.pck
+*.zip
+*.dmg
+*.apk
+*.ipa
