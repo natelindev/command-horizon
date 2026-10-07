@@ -1,0 +1,83 @@
+[
+  {
+    "name": "shared-foundry",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/headless/BrokenFoundryRegression.gd",
+      "--"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "shared-relay",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/headless/RelayFeedbackRegression.gd",
+      "--"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "mode-0",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/FoundryDifficultyMatches.gd",
+      "--",
+      "--difficulty=0",
+      "--evidence=res://docs/playtests/2026-10-07/foundry-feedback/mode-0"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "mode-1",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/FoundryDifficultyMatches.gd",
+      "--",
+      "--difficulty=1",
+      "--evidence=res://docs/playtests/2026-10-07/foundry-feedback/mode-1"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "mode-2",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/FoundryDifficultyMatches.gd",
+      "--",
+      "--difficulty=2",
+      "--evidence=res://docs/playtests/2026-10-07/foundry-feedback/mode-2"
+    ],
+    "exit_code": 0
+  }
+]

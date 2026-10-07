@@ -1,0 +1,95 @@
+extends "res://source/match/Map.gd"
+
+const OBSTACLE = preload("res://source/match/units/traits/MovementObstacle.tscn")
+const SITES = [Vector3(84, 0, 42), Vector3(100, 0, 62)]
+const SITE_NAMES = ["North battery", "South battery"]
+const LAUNCH = Vector3(20, 0, 52)
+const EXIT = Vector3(132, 0, 52)
+const SCREEN = Vector3(108, 0, 52)
+const ENTRIES = [Vector3(123, 0, 88), Vector3(123, 0, 16)]
+
+
+func _ready():
+	var match_node = get_parent()
+	match_node.get_node("Fog").hide()
+	var world = match_node.get_node("WorldEnvironment")
+	world.environment = world.environment.duplicate()
+	world.environment.fog_light_color = Color("a9bac1")
+	world.environment.ambient_light_color = Color("c5d6de")
+	match_node.get_node("DirectionalLight3D").light_color = Color("e4edf0")
+	# The industrial spoil wall has two ground bypasses. Aircraft can cross it.
+	for z in [29, 40, 51, 62, 73]:
+		var shelf = Node3D.new()
+		shelf.position = Vector3(66, 0, z)
+		$Decorations.add_child(shelf)
+		var rock = load("res://assets/models/bastion/demo/CliffCluster.glb").instantiate()
+		rock.scale = Vector3(2.5, 1.4, 2.5)
+		shelf.add_child(rock)
+		var shale = StandardMaterial3D.new()
+		shale.albedo_color = Color("47565f")
+		shale.roughness = 1.0
+		for mesh in rock.find_children("*", "MeshInstance3D", true, false):
+			mesh.material_override = shale
+		var obstacle = OBSTACLE.instantiate()
+		obstacle.radius = 6.5
+		obstacle.affect_navigation_mesh = true
+		shelf.add_child(obstacle)
+	_road(Vector3(28, 0, 18), Vector3(119, 0, 18))
+	_road(Vector3(28, 0, 87), Vector3(119, 0, 87))
+	_road(Vector3(28, 0, 18), Vector3(28, 0, 87))
+	_road(Vector3(119, 0, 18), Vector3(119, 0, 87))
+	for point in [LAUNCH, EXIT]:
+		_box(Vector3(13, 0.05, 12), point, Color("37444b"))
+		for z in [-4.5, 4.5]:
+			_box(Vector3(10, 0.07, 0.22), point + Vector3(0, 0, z), Color("ddbd72"))
+		_box(Vector3(0.4, 0.08, 4), point, Color("d2dce0"))
+		_box(Vector3(4, 0.08, 0.4), point, Color("d2dce0"))
+	for point in SITES:
+		_box(Vector3(9, 0.05, 9), point, Color("667173"))
+	for z in [27, 35, 76, 84]:
+		for x in [44, 49]:
+			_container(Vector3(x, 0, z))
+	for x in [80, 87, 94, 101, 108, 115]:
+		_box(Vector3(2.2, 0.06, 0.3), Vector3(x, 0.02, 52), Color("d0b979"))
+	for point in [Vector3(9, 0, 72), Vector3(42, 0, 93)]:
+		for offset in [-2.5, 0.0, 2.5]:
+			var deposit = load("res://source/match/units/non-player/ResourceA.tscn").instantiate()
+			deposit.resource_a = 200
+			deposit.position = point + Vector3(offset, 0, 0)
+			$Resources.add_child(deposit)
+		var electronics = load("res://source/match/units/non-player/ResourceB.tscn").instantiate()
+		electronics.resource_b = 240
+		electronics.position = point + Vector3(0, 0, 5)
+		$Resources.add_child(electronics)
+
+
+func _road(a, b):
+	var road = _box(Vector3(7, 0.04, a.distance_to(b)), (a + b) * 0.5, Color("485357"))
+	road.rotation.y = atan2(b.x - a.x, b.z - a.z)
+
+
+func _box(dimensions, point, color, parent = null):
+	var part = MeshInstance3D.new()
+	var mesh = BoxMesh.new()
+	mesh.size = dimensions
+	part.mesh = mesh
+	part.position = point
+	var material = StandardMaterial3D.new()
+	material.albedo_color = color
+	material.roughness = 0.95
+	part.material_override = material
+	(parent if parent != null else $Decorations).add_child(part)
+	return part
+
+
+func _container(point):
+	var crate = Node3D.new()
+	crate.position = point
+	$Decorations.add_child(crate)
+	_box(Vector3(3.2, 1.3, 5), Vector3(0, 0.65, 0), Color("486f77"), crate)
+	for z in [-2.1, -1.05, 0, 1.05, 2.1]:
+		_box(Vector3(3.25, 0.12, 0.1), Vector3(0, 1.32, z), Color("71868a"), crate)
+	var obstacle = OBSTACLE.instantiate()
+	obstacle.radius = 3.0
+	obstacle.affect_navigation_mesh = true
+	crate.add_child(obstacle)

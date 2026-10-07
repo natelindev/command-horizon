@@ -1,0 +1,90 @@
+extends "res://tests/headless/SaveRestoreEdges.gd"
+
+const CONTACT_ARCHIVE = "res://docs/playtests/2026-10-04/ai-coordination-stall.json"
+var contact_deadline = 0
+
+
+func _initialize():
+	contact_deadline = Time.get_ticks_msec() + 120000
+	_run.call_deferred()
+
+
+func _process(_delta):
+	if Time.get_ticks_msec() > contact_deadline:
+		push_error("Contact approach wall-clock timeout")
+		quit(1)
+	return false
+
+
+func _run():
+	root.get_node("SaveManager").autosaves_enabled = false
+	for repetition in 3:
+		await _captured_approach(repetition)
+	for error in errors:
+		push_error(error)
+	print("Contact approach: %d failures" % errors.size())
+	quit(0 if errors.is_empty() else 1)
+
+
+func _captured_approach(repetition):
+	var restore = Restore.new()
+	var loaded = await restore.restore(self, FileStore.new().read_file(CONTACT_ARCHIVE))
+	_check(loaded.ok, "Could not restore the captured approach")
+	if not loaded.ok:
+		return
+	game = loaded.game
+	for player in get_nodes_in_group("players"):
+		player.set_process(false)
+	var worker = restore.entities["unit-0"]
+	var deposit = restore.entities["resource-2"]
+	var start = worker.position
+	var cargo = worker.resource_a
+	var stock = deposit.resource_a
+	var maximum_step = 0.0
+	var previous = start
+	var excursion = 0.0
+	var progress_at_four = 0.0
+	var collected = -1.0
+	var started = game.simulation_time
+	_check(cargo == 3, "Captured engineer cargo changed")
+	paused = false
+	for frame in 480:
+		await physics_frame
+		maximum_step = maxf(maximum_step, worker.position.distance_to(previous))
+		previous = worker.position
+		excursion = maxf(excursion, worker.position.distance_to(start))
+		if frame == 239:
+			progress_at_four = excursion
+		if worker.resource_a > cargo and collected < 0:
+			collected = game.simulation_time - started
+			_check(
+				root.get_node("Utils").Match.Unit.Movement.units_adhere(worker, deposit),
+				"Collected outside contact range"
+			)
+	_check(
+		progress_at_four > 0.3,
+		"Captured engineer failed to leave the blocked approach within four seconds"
+	)
+	_check(
+		collected >= 0 and worker.resource_a == 4, "Captured engineer never completed its real work"
+	)
+	_check(
+		stock - deposit.resource_a == worker.resource_a - cargo,
+		"Contact recovery lost finite resource stock"
+	)
+	_check(
+		maximum_step <= worker.movement_speed / 60.0 + 0.002,
+		"Contact recovery teleported the engineer"
+	)
+	print(
+		"CAPTURED CONTACT ",
+		repetition,
+		" excursion_at_four=",
+		progress_at_four,
+		" collected=",
+		collected,
+		" max_step=",
+		maximum_step
+	)
+	game.queue_free()
+	await _frames(5)

@@ -1,0 +1,126 @@
+{
+	"control": 120.016666666661,
+	"difficulty": 2,
+	"dispatched": 3,
+	"elapsed": 22.9833333333124,
+	"errors": [],
+	"human": 8,
+	"network": 0.0,
+	"orders": 23,
+	"paid": [
+		88.0,
+		20.0
+	],
+	"relays": [
+		{
+			"contested": false,
+			"owner": "human",
+			"progress": 0.0,
+			"status": "North · Secured"
+		},
+		{
+			"contested": false,
+			"owner": "enemy",
+			"progress": 0.0,
+			"status": "East · Enemy owned"
+		},
+		{
+			"contested": false,
+			"owner": "human",
+			"progress": 0.0,
+			"status": "South · Secured"
+		}
+	],
+	"result": "Victory",
+	"time": 291.383333333397,
+	"timeline": [
+		{
+			"control": 117.449999999995,
+			"difficulty": 2,
+			"human": 12,
+			"network": 0.0,
+			"relays": [
+				{
+					"contested": true,
+					"owner": "human",
+					"progress": 0.0,
+					"status": "North · Unclaimed"
+				},
+				{
+					"contested": false,
+					"owner": "enemy",
+					"progress": 0.0,
+					"status": "East · Enemy capture 0 / 10 s"
+				},
+				{
+					"contested": true,
+					"owner": "human",
+					"progress": 0.0,
+					"status": "South · Unclaimed"
+				}
+			],
+			"result": "",
+			"time": 268.400000000085,
+			"waves": 6
+		},
+		{
+			"control": 117.449999999995,
+			"difficulty": 2,
+			"human": 6,
+			"network": 0.0,
+			"relays": [
+				{
+					"contested": true,
+					"owner": "human",
+					"progress": 1.35,
+					"status": "North · Enemy capture 1 / 10 s"
+				},
+				{
+					"contested": false,
+					"owner": "enemy",
+					"progress": 0.0,
+					"status": "East · Enemy owned"
+				},
+				{
+					"contested": false,
+					"owner": "human",
+					"progress": 0.0,
+					"status": "South · Secured"
+				}
+			],
+			"result": "",
+			"time": 278.416666666742,
+			"waves": 6
+		},
+		{
+			"control": 117.449999999995,
+			"difficulty": 2,
+			"human": 8,
+			"network": 0.0,
+			"relays": [
+				{
+					"contested": true,
+					"owner": "human",
+					"progress": 7.39999999999998,
+					"status": "North · Contested"
+				},
+				{
+					"contested": false,
+					"owner": "enemy",
+					"progress": 0.0,
+					"status": "East · Enemy owned"
+				},
+				{
+					"contested": false,
+					"owner": "human",
+					"progress": 0.0,
+					"status": "South · Secured"
+				}
+			],
+			"result": "",
+			"time": 288.4333333334,
+			"waves": 6
+		}
+	],
+	"waves": 6
+}

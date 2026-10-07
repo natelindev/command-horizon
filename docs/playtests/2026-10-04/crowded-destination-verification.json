@@ -1,0 +1,297 @@
+{
+  "engine": "Godot 4.6, development M1 Pro; fixed 60 Hz headless; normal-clock Metal preview",
+  "accepted_checks": [
+    {
+      "name": "CrowdedDestinationRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 24.0,
+      "log": "docs/playtests/2026-10-04/crowded-destination-final-CrowdedDestinationRegression.log",
+      "sha256": "ca6a6d4b2d6005237599ba08e4a3d64d474cc7af8121b97cf50be3d9eaa170ba",
+      "engine_warnings": [
+        "WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.",
+        "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).",
+        "ERROR: 2 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "name": "DirectOrdersRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 11.6,
+      "log": "docs/playtests/2026-10-04/crowded-destination-final-DirectOrdersRegression.log",
+      "sha256": "0fd4bcba645f9027228067e9e844b1593a081ecfeeb6b3b6e78195b081b69754",
+      "engine_warnings": [
+        "WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "name": "OrdersRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 5.2,
+      "log": "docs/playtests/2026-10-04/crowded-destination-final-OrdersRegression.log",
+      "sha256": "6f48fc42d51fd26f1f364ac563462a4dc6508b87052a3ff2e9e2d26179fdc0bd",
+      "engine_warnings": [
+        "WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.",
+        "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+      ]
+    },
+    {
+      "name": "NavigationRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 8.1,
+      "log": "docs/playtests/2026-10-04/crowded-destination-final-NavigationRegression.log",
+      "sha256": "b45e8434a9212e2dcce5562ba47758149cb8326355415bfd271bd04da436f332",
+      "engine_warnings": [
+        "WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.",
+        "ERROR: 2 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "name": "SaveRestoreRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 1.8,
+      "log": "docs/playtests/2026-10-04/crowded-destination-final-SaveRestoreRegression.log",
+      "sha256": "2e45e6a05de2674660236220eb9d0f4922229e30fc92651a26de0f16d3b11de2",
+      "engine_warnings": [
+        "WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.",
+        "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).",
+        "ERROR: 2 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "name": "SaveRestoreCombat",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 1.3,
+      "log": "docs/playtests/2026-10-04/crowded-destination-final-SaveRestoreCombat.log",
+      "sha256": "cba57545c1bf354c8af1988de0145270f3d3d5e801c45b05a4374d3bc6eea622",
+      "engine_warnings": [
+        "WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).",
+        "ERROR: 2 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "name": "ContactApproachRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 37.7,
+      "log": "docs/playtests/2026-10-04/crowded-destination-final-ContactApproachRegression.log",
+      "sha256": "73dab4230fa22a07be4bc35d05d4d4923e135e6fff6d2091dd64ab342065454f",
+      "engine_warnings": [
+        "WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.",
+        "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "name": "HarvestContinuity",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 1.3,
+      "log": "docs/playtests/2026-10-04/crowded-destination-final-HarvestContinuity.log",
+      "sha256": "22f5d65ad120e1be06c5e94a917d2b953026084b6491cb93817300d83abb9b2f",
+      "engine_warnings": [
+        "WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.",
+        "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "name": "PolicyAdvanceRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 1.4,
+      "log": "docs/playtests/2026-10-04/crowded-destination-final-PolicyAdvanceRegression.log",
+      "sha256": "02314fa0207a9c59175ee71921bb1ad74783dd8c0dfa390f2423d60a1698f750",
+      "engine_warnings": [
+        "WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "name": "PolicyRecoveryRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 5.5,
+      "log": "docs/playtests/2026-10-04/crowded-destination-final-PolicyRecoveryRegression.log",
+      "sha256": "2d39e2e35618ad67fc627078748cb6763f4cdb0378f024a4bb254c35f38e66bc",
+      "engine_warnings": [
+        "WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "name": "SupplyLineRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 14.0,
+      "log": "docs/playtests/2026-10-04/crowded-destination-final-SupplyLineRegression.log",
+      "sha256": "1248f11ca0a60c5ae52585786cf2bfed1bcd26b3f4a5e24392a8c669a023bb96",
+      "engine_warnings": [
+        "WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).",
+        "ERROR: 2 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "name": "SkirmishCoordinationRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 134.7,
+      "log": "docs/playtests/2026-10-04/crowded-destination-final-SkirmishCoordinationRegression.log",
+      "sha256": "ab3db8fe2e24218719831c640b3c640a8ea21503f6efa7b6a9c9c961557c7ac2",
+      "engine_warnings": [
+        "WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "name": "ResponsiveBastion",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 131.3,
+      "log": "docs/playtests/2026-10-04/crowded-destination-final-ResponsiveBastion.log",
+      "sha256": "3be7d2ff3ba25fe2c406cf1751b930154219f00412918cd7f66d3e59d5f645bf",
+      "engine_warnings": [
+        "WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.",
+        "ERROR: 2 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).",
+        "ERROR: 2 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "name": "ResponsiveHelix",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 70.7,
+      "log": "docs/playtests/2026-10-04/crowded-destination-final-ResponsiveHelix.log",
+      "sha256": "07e6f9b72b1b98ed811f3694aadfa206861aeb043237f32f55b00532adf73b82",
+      "engine_warnings": [
+        "WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.",
+        "ERROR: 2 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).",
+        "ERROR: 2 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "name": "import",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": null,
+      "wall_seconds": 3.3,
+      "log": "docs/playtests/2026-10-04/crowded-destination-final-import.log",
+      "sha256": "b2781a649f00b36f9713a65f7699a2ebbee590e0a5013812ef465970c9507f85",
+      "engine_warnings": []
+    },
+    {
+      "name": "format",
+      "exit": 0,
+      "log": "docs/playtests/2026-10-04/crowded-destination-static-format.log",
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": null,
+      "sha256": "249d4b42c1a7ebdd34aac5a30eded276e23131595c2fba019a8b052cb3692d79",
+      "engine_warnings": []
+    },
+    {
+      "name": "lint",
+      "exit": 0,
+      "log": "docs/playtests/2026-10-04/crowded-destination-static-lint.log",
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": null,
+      "sha256": "d2f45ecead8ebe024d64d724cef92d4c7b89f8d0150b30b296320bddb760e4be",
+      "engine_warnings": []
+    },
+    {
+      "name": "whitespace",
+      "exit": 0,
+      "log": "docs/playtests/2026-10-04/crowded-destination-static-whitespace.log",
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": null,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "engine_warnings": []
+    },
+    {
+      "name": "CrowdedDestinationPreview",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "log": "docs/playtests/2026-10-04/crowded-destination-preview.log",
+      "sha256": "073b3db4e51099cc865e3d19057e25fff70c527977cdfde73ee7b591a9e0b883",
+      "engine_warnings": [
+        "WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.",
+        "ERROR: 1 shaders of type ParticlesShaderRD were never freed",
+        "ERROR: 1 RID allocations of type 'N10RendererRD15MaterialStorage6ShaderE' were leaked at exit.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details)."
+      ]
+    }
+  ],
+  "cohort": "docs/playtests/2026-10-04/mixed-operations-cohort.json",
+  "audit": {
+    "matches": 18,
+    "accepted_checks": 19,
+    "all_terminal_results": true,
+    "no_coordination_violations": true,
+    "authored_blocked_events": 1
+  },
+  "files": {
+    "source/match/units/actions/Moving.gd": "885158c844ede9a08dfc3fe143694203cc1ae577ca1551ee4cff4d0ad4b37d93",
+    "tests/headless/CrowdedDestinationRegression.gd": "643c26fa53e9e2b57db89349a5eeebdcddbc6c32a0aa84e22a5807fe0d6a923b",
+    "tests/rendered/CrowdedDestinationPreview.gd": "58178a6cd50a38f2982ab1b67e1f526c7050d6b4ff4c47c4d7db246606ea097e",
+    "tests/headless/SkirmishDefensePolicy.gd": "85b129c4d37b5e27485094cf7d608baad46a52352f9aa5337edc86d3d993f661",
+    "tests/headless/PolicyAdvanceRegression.gd": "4975a04ced7e01b9bdbd6e0845f54e8e19f26a5f89c52b7105366e0faaa834fc",
+    "art/skirmish/crowded-destination-before.png": "bafad985a2a0c5888414708bfd687188ff40c2021b8ad1590eeb8fb308b82faa",
+    "art/skirmish/crowded-destination-healing.png": "11953a0a6b3d1fddebcf2641be1579ab0ead59ad9052c1b82b5393f67a8d9588",
+    "docs/playtests/2026-10-04/mixed-operations-responsive-bastion-stall.json": "f17e3e383b54b748ed63b9e0f4d545e316f5339a8248849c4573460d289a1129",
+    "tmp/MixedOperationsMatches.gd": "cff81f10bcd909e96823128b32343460582b55a8ee020567cbed8889bfe8f3d5",
+    "tmp/MixedStagedMatches.gd": "230d3180a78f975fcf715edf2bf71c298d5f5c45d042774ab211f05ce59e6740",
+    "tmp/MixedAllocationMatches.gd": "eab407b353f8f0e2aae266664a9325253cca56b30d91358d85ecedb1efe101c0",
+    "tmp/MixedResponsiveMatches.gd": "7e9c1ea0ab1b315bc8c8286c3871b5dacabe4f28182606213d15b896f28cbada",
+    "tmp/MixedReadinessMatches.gd": "43d149a2312d92eb972e090df0f6234b0e965e7d891a8e0791c5334fc21067b1",
+    "tmp/AuthoredGuardMatches.gd": "bfe25da87baf55b24a862c488f24a172a31ab531c452de9dbbb20d1038bb91eb",
+    "tmp/AuthoredRecoveryMatches.gd": "682ccb17e1794af36a56ce838097e82d9f21af753f57fee97a1b348592ab5c8a",
+    "tmp/PresetRecoveryMatches.gd": "9b882f07d43fc5c6e8ee83c9a88770a6c023a1d1d3474b6ef91cabf0401b8270",
+    "tmp/PolicyReadiness.gd": "27f85abaf0aaa89072d12dd9ae348a5ce0b469fe3035a86d3f9201c239175aa8"
+  }
+}

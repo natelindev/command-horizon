@@ -1,0 +1,130 @@
+extends "res://tests/headless/SaveRestoreEdges.gd"
+
+const Visual = preload("res://source/match/programs/VisualRules.gd")
+const Records = preload("res://source/match/programs/ProgramRecord.gd")
+const Application = preload("res://source/match/programs/ProgramApplication.gd")
+var guard
+var raider
+var observer
+var anchor = Vector3(40, 0, 10)
+var active_mode = ""
+
+
+func _run():
+	var manager = root.get_node("SaveManager")
+	var autosaves = manager.autosaves_enabled
+	manager.autosaves_enabled = false
+	for faction in ["bastion", "helix"]:
+		for mode in ["lua", "visual"]:
+			active_mode = mode
+			await _setup(faction)
+			await _firing_position()
+			await _sector_exit()
+			print("AUTHORED GUARD ", faction, " ", mode, " checked")
+			paused = false
+			game.queue_free()
+			await _frames(5)
+	manager.autosaves_enabled = autosaves
+	for error in errors:
+		push_error(error)
+	print("Authored guard: %d failures" % errors.size())
+	quit(0 if errors.is_empty() else 1)
+
+
+func _setup(faction):
+	await _skirmish(faction, "res://source/match/maps/DesertFrontier.tscn")
+	var human = game._get_human_player()
+	var enemy = get_nodes_in_group("players").filter(func(player): return player != human)[0]
+	enemy.set_process(false)
+	for unit in get_nodes_in_group("units"):
+		unit.process_mode = Node.PROCESS_MODE_DISABLED
+	guard = _actor("Tank", human, anchor + Vector3(0, 0, 3))
+	raider = _actor("Tank", enemy, anchor + Vector3(4, 0, 0))
+	observer = _actor("Worker", human, anchor + Vector3(5, 0, 3))
+	raider.process_mode = Node.PROCESS_MODE_DISABLED
+	observer.process_mode = Node.PROCESS_MODE_DISABLED
+	guard.program.installed = true
+	guard.program.anchor = anchor
+	guard.program.safe_point = anchor - Vector3(8, 0, 0)
+	await _frames(20)
+	game.battlefield.invalidate()
+
+
+func _start_guard():
+	var record = Records.visual("Authored guard", 1, Visual.starter(1), ["Tank"])
+	if active_mode == "lua":
+		record = Records.lua(
+			"Authored guard",
+			1,
+			FileAccess.get_file_as_string("res://assets/programs/guard.lua"),
+			["Tank"],
+			["movement", "attack"]
+		)
+	var result = Application.apply(record, [guard], guard.player)
+	_check(result.ok, "Authored guard application failed")
+
+
+func _firing_position():
+	_check(game.battlefield.can_fire(guard, raider), "Firing-position fixture cannot fire")
+	var point = guard.position
+	var hp = raider.hp
+	_start_guard()
+	await _frames(120)
+	_check(raider.hp < hp, "Assigned guard did not fire at legal in-area target")
+	_check(
+		guard.position.distance_to(point) < 0.25,
+		"Guard abandoned a legal firing position to crowd its anchor"
+	)
+	await _review("engaging")
+
+
+func _sector_exit():
+	raider.position = anchor + Vector3(30, 0, 0)
+	game.battlefield.invalidate()
+	guard.issue_manual_order(null)
+	await _frames(90)
+	guard.position = anchor + Vector3(3, 0, 0)
+	raider.position = anchor + Vector3(7, 0, 0)
+	observer.position = raider.position + Vector3(0, 0, 3)
+	raider.hp = raider.hp_max
+	game.battlefield.invalidate()
+	_check(
+		game.battlefield.can_fire(guard, raider),
+		"Outside-sector fixture is not within weapon range"
+	)
+	var hp = raider.hp
+	_start_guard()
+	await _frames(120)
+	print(
+		"SECTOR ",
+		guard.player.faction,
+		" ",
+		active_mode,
+		" ",
+		guard.position,
+		" anchor=",
+		guard.program.anchor,
+		" target=",
+		raider.position,
+		" hp=",
+		hp,
+		"->",
+		raider.hp,
+		" ",
+		guard.program.reason
+	)
+	_check(raider.hp == hp, "Guard attacked outside its assigned six-metre sector")
+	_check(
+		guard.position.distance_to(anchor) < 1.2,
+		"Guard did not return to its anchor after the target left"
+	)
+
+
+func _actor(role, player, point):
+	var unit = load("res://source/match/units/%s.tscn" % role).instantiate()
+	game._setup_and_spawn_unit(unit, Transform3D(Basis(), point), player, false)
+	return unit
+
+
+func _review(_label):
+	pass

@@ -1,0 +1,34 @@
+extends "res://tmp/LaborProbe.gd"
+
+var captured = {}
+
+func _probe_workers(faction, workers, seconds, funds):
+	super(faction, workers, seconds, funds)
+	if seconds < 40 or seconds > 110:
+		return
+	var rows = []
+	for worker in workers:
+		var movement = worker.get_node("Movement")
+		var action = worker.action
+		var sub = action._sub_action if action != null and "_sub_action" in action else null
+		rows.append({
+			"index": worker.get_index(), "position": str(worker.position),
+			"action": str(action), "sub": str(sub),
+			"revision": movement._command_revision, "destination": str(movement.target_position),
+			"recovery": movement._recovery_left, "direction": str(movement._recovery_direction),
+			"progress_elapsed": movement._progress_elapsed, "progress_position": str(movement._progress_position),
+			"path": str(movement.get_current_navigation_path()), "path_index": movement.get_current_navigation_path_index(),
+			"velocity": str(movement.velocity),
+			"contact_elapsed": sub._contact_elapsed if sub != null and "_contact_elapsed" in sub else null,
+			"orbit": sub._orbit_windows if sub != null and "_orbit_windows" in sub else null
+		})
+	print("TRAFFIC TRACE ", JSON.stringify({"faction":faction,"seconds":seconds,"funds":funds,"workers":rows}))
+	if seconds >= 60 and not captured.has(faction):
+		captured[faction] = true
+		paused = true
+		var capture = Snapshot.new()
+		var data = capture.capture(game)
+		var path = "res://tmp/harvest-traffic-" + faction + ".json"
+		_check(data != null and FileStore.new().write_file(path, data), "Traffic capture failed")
+		print("TRAFFIC CAPTURE ",path)
+		paused = false

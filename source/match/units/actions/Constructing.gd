@@ -28,6 +28,8 @@ func _init(target_unit):
 
 
 func _ready():
+	if restoring:
+		return
 	_construct_or_move_closer()
 
 
@@ -40,6 +42,17 @@ func _construct_or_move_closer():
 	_sub_action.tree_exited.connect(_on_sub_action_finished)
 	add_child(_sub_action)
 	_unit.action_updated.emit()
+
+
+func is_working_on(structure):
+	return (
+		_target_unit == structure
+		and not is_queued_for_deletion()
+		and is_instance_valid(_sub_action)
+		and _sub_action is ConstructingWhileInRange
+		and not _sub_action.is_queued_for_deletion()
+		and _sub_action.can_process()
+	)
 
 
 func _to_string():

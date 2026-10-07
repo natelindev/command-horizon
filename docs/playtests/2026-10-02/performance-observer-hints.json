@@ -1,0 +1,298 @@
+{
+  "hardware": "Apple M1 Pro",
+  "engine": "Godot 4.6 Metal Forward+",
+  "viewport": [
+    1920,
+    1080
+  ],
+  "population": {
+    "mobile_units": 200,
+    "lua_vms": 200,
+    "structures": 80,
+    "resource_nodes": 32
+  },
+  "note": "Single-machine development runs. Fixed-step throughput is not real-time frame delivery. Instrumented inclusive method times overlap and must not be added. Elevated HP retains the workload; this is not balance evidence.",
+  "runs": [
+    {
+      "run": "initial_fixed_cli_profile",
+      "arguments": "--fixed-fps 60 --profiling --lua",
+      "phases": {
+        "movement": {
+          "renderer": "macOS",
+          "mean_frame_ms": "28.69",
+          "p95_frame_ms": "45.25"
+        },
+        "combat": {
+          "renderer": "macOS",
+          "mean_frame_ms": "34.2",
+          "p95_frame_ms": "55.03"
+        }
+      },
+      "observations": [
+        "SCALE Lua VMs=200 peak_VM_bytes=59972 combat_evaluations=8944",
+        "SCALE moved=200/200 travelled=200/200 fired=96 peak_live_projectiles=13 resources=32 sampled_peak_tracers=13 sampled_peak_claims=0 viewport_pixels=(1920.0, 1080.0)",
+        "PASS: 200 mobile units + 80 structures; programs=true squads=false specialists=false lua=true visual=false"
+      ],
+      "field_profile": {}
+    },
+    {
+      "run": "instrumented_before",
+      "arguments": "--fixed-fps 60 --lua --profile-field (before change)",
+      "phases": {
+        "movement": {
+          "renderer": "macOS",
+          "mean_frame_ms": "30.61",
+          "p95_frame_ms": "50.79"
+        },
+        "combat": {
+          "renderer": "macOS",
+          "mean_frame_ms": "38.7",
+          "p95_frame_ms": "63.31"
+        }
+      },
+      "observations": [
+        "SCALE Lua VMs=200 peak_VM_bytes=59972 combat_evaluations=8923",
+        "SCALE moved=200/200 travelled=200/200 fired=95 peak_live_projectiles=12 resources=32 sampled_peak_tracers=12 sampled_peak_claims=0 viewport_pixels=(1920.0, 1080.0)",
+        "PASS: 200 mobile units + 80 structures; programs=true squads=false specialists=false lua=true visual=false"
+      ],
+      "field_profile": {
+        "movement": {
+          "can_observe_point": {
+            "calls": 1870497,
+            "microseconds": 2377505
+          },
+          "is_observed": {
+            "calls": 196913,
+            "microseconds": 4232652
+          },
+          "line_clear": {
+            "calls": 54289,
+            "microseconds": 121570
+          },
+          "nearby_units": {
+            "calls": 9040,
+            "microseconds": 641106
+          }
+        },
+        "combat": {
+          "can_observe_point": {
+            "calls": 3456072,
+            "microseconds": 4559141
+          },
+          "is_observed": {
+            "calls": 289164,
+            "microseconds": 7997515
+          },
+          "line_clear": {
+            "calls": 201067,
+            "microseconds": 408333
+          },
+          "nearby_units": {
+            "calls": 8923,
+            "microseconds": 702342
+          }
+        }
+      }
+    },
+    {
+      "run": "instrumented_after",
+      "arguments": "--fixed-fps 60 --lua --profile-field",
+      "phases": {
+        "movement": {
+          "renderer": "macOS",
+          "mean_frame_ms": "25.56",
+          "p95_frame_ms": "37.17"
+        },
+        "combat": {
+          "renderer": "macOS",
+          "mean_frame_ms": "27.88",
+          "p95_frame_ms": "41.07"
+        }
+      },
+      "observations": [
+        "SCALE Lua VMs=200 peak_VM_bytes=59724 combat_evaluations=8963",
+        "SCALE moved=200/200 travelled=200/200 fired=93 peak_live_projectiles=13 resources=32 sampled_peak_tracers=13 sampled_peak_claims=0 viewport_pixels=(1920.0, 1080.0)",
+        "PASS: 200 mobile units + 80 structures; programs=true squads=false specialists=false lua=true visual=false"
+      ],
+      "field_profile": {
+        "movement": {
+          "can_observe_point": {
+            "calls": 329932,
+            "microseconds": 512740
+          },
+          "is_observed": {
+            "calls": 195926,
+            "microseconds": 1141778
+          },
+          "line_clear": {
+            "calls": 53153,
+            "microseconds": 109926
+          },
+          "nearby_units": {
+            "calls": 9040,
+            "microseconds": 642806
+          }
+        },
+        "combat": {
+          "can_observe_point": {
+            "calls": 365667,
+            "microseconds": 743213
+          },
+          "is_observed": {
+            "calls": 287795,
+            "microseconds": 1541943
+          },
+          "line_clear": {
+            "calls": 199498,
+            "microseconds": 368606
+          },
+          "nearby_units": {
+            "calls": 8963,
+            "microseconds": 703966
+          }
+        }
+      }
+    },
+    {
+      "run": "fixed_after",
+      "arguments": "--fixed-fps 60 --lua",
+      "phases": {
+        "movement": {
+          "renderer": "macOS",
+          "mean_frame_ms": "25.05",
+          "p95_frame_ms": "36.49",
+          "p99_frame_ms": "42.13",
+          "frames_over_33ms": "58",
+          "samples": "600",
+          "simulation_seconds": "10.0",
+          "wall_seconds": "15.03",
+          "realtime": "false"
+        },
+        "combat": {
+          "renderer": "macOS",
+          "mean_frame_ms": "26.81",
+          "p95_frame_ms": "38.32",
+          "p99_frame_ms": "42.71",
+          "frames_over_33ms": "70",
+          "samples": "600",
+          "simulation_seconds": "10.0",
+          "wall_seconds": "16.09",
+          "realtime": "false"
+        }
+      },
+      "observations": [
+        "SCALE Lua VMs=200 peak_VM_bytes=59884 combat_evaluations=8949",
+        "SCALE moved=200/200 travelled=200/200 fired=93 peak_live_projectiles=11 resources=32 sampled_peak_tracers=11 sampled_peak_claims=0 viewport_pixels=(1920.0, 1080.0)",
+        "PASS: 200 mobile units + 80 structures; programs=true squads=false specialists=false lua=true visual=false"
+      ],
+      "field_profile": {}
+    },
+    {
+      "run": "realtime_before",
+      "arguments": "--lua --realtime --baseline-field",
+      "phases": {
+        "movement": {
+          "renderer": "macOS",
+          "mean_frame_ms": "117.42",
+          "p95_frame_ms": "219.41",
+          "p99_frame_ms": "229.48",
+          "frames_over_33ms": "108",
+          "samples": "114",
+          "simulation_seconds": "10.08",
+          "wall_seconds": "13.39",
+          "realtime": "true",
+          "baseline_field": "true"
+        },
+        "combat": {
+          "renderer": "macOS",
+          "mean_frame_ms": "223.48",
+          "p95_frame_ms": "271.29",
+          "p99_frame_ms": "278.77",
+          "frames_over_33ms": "76",
+          "samples": "76",
+          "simulation_seconds": "10.07",
+          "wall_seconds": "16.98",
+          "realtime": "true",
+          "baseline_field": "true"
+        }
+      },
+      "observations": [
+        "SCALE Lua VMs=200 peak_VM_bytes=59972 combat_evaluations=9017",
+        "SCALE moved=200/200 travelled=200/200 fired=90 peak_live_projectiles=3 resources=32 sampled_peak_tracers=3 sampled_peak_claims=0 viewport_pixels=(1920.0, 1080.0)",
+        "PASS: 200 mobile units + 80 structures; programs=true squads=false specialists=false lua=true visual=false"
+      ],
+      "field_profile": {}
+    },
+    {
+      "run": "realtime_after",
+      "arguments": "--lua --realtime",
+      "phases": {
+        "movement": {
+          "renderer": "macOS",
+          "mean_frame_ms": "108.07",
+          "p95_frame_ms": "174.29",
+          "p99_frame_ms": "182.21",
+          "frames_over_33ms": "104",
+          "samples": "104",
+          "simulation_seconds": "10.05",
+          "wall_seconds": "11.24",
+          "realtime": "true",
+          "baseline_field": "false"
+        },
+        "combat": {
+          "renderer": "macOS",
+          "mean_frame_ms": "147.89",
+          "p95_frame_ms": "179.0",
+          "p99_frame_ms": "181.77",
+          "frames_over_33ms": "81",
+          "samples": "81",
+          "simulation_seconds": "10.12",
+          "wall_seconds": "11.98",
+          "realtime": "true",
+          "baseline_field": "false"
+        }
+      },
+      "observations": [
+        "SCALE Lua VMs=200 peak_VM_bytes=59884 combat_evaluations=8995",
+        "SCALE moved=200/200 travelled=200/200 fired=96 peak_live_projectiles=6 resources=32 sampled_peak_tracers=5 sampled_peak_claims=0 viewport_pixels=(1920.0, 1080.0)",
+        "PASS: 200 mobile units + 80 structures; programs=true squads=false specialists=false lua=true visual=false"
+      ],
+      "field_profile": {}
+    },
+    {
+      "run": "fixed_reference_before",
+      "arguments": "--fixed-fps 60 --lua --baseline-field",
+      "phases": {
+        "movement": {
+          "renderer": "macOS",
+          "mean_frame_ms": "28.88",
+          "p95_frame_ms": "45.15",
+          "p99_frame_ms": "50.43",
+          "frames_over_33ms": "202",
+          "samples": "600",
+          "simulation_seconds": "10.0",
+          "wall_seconds": "17.33",
+          "realtime": "false",
+          "baseline_field": "true"
+        },
+        "combat": {
+          "renderer": "macOS",
+          "mean_frame_ms": "34.83",
+          "p95_frame_ms": "55.74",
+          "p99_frame_ms": "62.62",
+          "frames_over_33ms": "399",
+          "samples": "600",
+          "simulation_seconds": "10.0",
+          "wall_seconds": "20.9",
+          "realtime": "false",
+          "baseline_field": "true"
+        }
+      },
+      "observations": [
+        "SCALE Lua VMs=200 peak_VM_bytes=59868 combat_evaluations=8898",
+        "SCALE moved=200/200 travelled=200/200 fired=91 peak_live_projectiles=12 resources=32 sampled_peak_tracers=12 sampled_peak_claims=0 viewport_pixels=(1920.0, 1080.0)",
+        "PASS: 200 mobile units + 80 structures; programs=true squads=false specialists=false lua=true visual=false"
+      ]
+    }
+  ]
+}

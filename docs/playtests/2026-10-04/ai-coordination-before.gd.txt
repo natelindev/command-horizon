@@ -1,0 +1,73 @@
+extends "res://tests/headless/SaveRestoreEdges.gd"
+
+var catalog
+var opponent
+var human
+var actors = []
+var raider
+
+
+func _run():
+	catalog = load("res://source/match/BastionCatalog.gd")
+	var saves = root.get_node("SaveManager")
+	var autosaves = saves.autosaves_enabled
+	saves.autosaves_enabled = false
+	for faction in ["bastion", "helix"]:
+		for difficulty in 3:
+			await _fixture(faction, difficulty)
+			opponent._command_army(actors)
+			var points = []
+			for unit in actors:
+				if unit.type == "Worker" or unit.action == null:
+					continue
+				var point = null
+				if "destination" in unit.action:
+					point = unit.action.destination
+				elif "_target_position" in unit.action:
+					point = unit.action._target_position
+				if point != null and points.all(func(p): return p.distance_to(point) > 12):
+					points.append(point)
+			print("COORDINATION BEFORE ", faction, " difficulty=", difficulty, " goals=", points)
+			_check(points.size() <= difficulty + 1, "Combined army tasks exceed difficulty budget")
+			paused = false
+			game.queue_free()
+			await _frames(5)
+	saves.autosaves_enabled = autosaves
+	for error in errors:
+		push_error(error)
+	print("Global coordination: %d failures" % errors.size())
+	quit(0 if errors.is_empty() else 1)
+
+
+func _fixture(faction, difficulty):
+	await _skirmish(
+		"helix" if faction == "bastion" else "bastion", "res://source/match/maps/AlpineRelay.tscn"
+	)
+	human = game._get_human_player()
+	opponent = get_nodes_in_group("players").filter(func(p): return p != human)[0]
+	opponent.difficulty = difficulty
+	for player in get_nodes_in_group("players"):
+		player.set_process(false)
+	for unit in get_nodes_in_group("units"):
+		unit.process_mode = Node.PROCESS_MODE_DISABLED
+	actors = [_actor("Worker", opponent, Vector3(90, 0, 80))]
+	for i in 2:
+		actors.append(_actor("Tank", opponent, Vector3(85, 0, 78 + i * 3)))
+	for i in 4:
+		actors.append(_actor("Tank", opponent, Vector3(100 + i, 0, 90)))
+	for i in 2:
+		actors.append(_actor("Infantry", opponent, Vector3(95, 0, 62 + i * 3)))
+	actors.append(_actor("Drone", opponent, Vector3(100, 2, 70)))
+	raider = _actor("Tank", human, Vector3(93, 0, 80))
+	await _frames(30)
+	game.simulation_time = 240
+	opponent._last_wave = 0
+	game.battlefield.invalidate()
+	_check(game.battlefield.is_observed(opponent, raider), "Coordination raid fixture is hidden")
+
+
+func _actor(role, player, point):
+	var unit = load(catalog.scene_path(role)).instantiate()
+	game._setup_and_spawn_unit(unit, Transform3D(Basis(), point), player, false)
+	unit.process_mode = Node.PROCESS_MODE_DISABLED
+	return unit

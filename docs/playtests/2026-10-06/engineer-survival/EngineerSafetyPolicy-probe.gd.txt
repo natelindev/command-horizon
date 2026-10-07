@@ -1,0 +1,118 @@
+extends "res://tests/headless/CargoReturnRegression.gd"
+
+var safety
+
+
+func _run():
+	root.get_node("SaveManager").autosaves_enabled = false
+	for faction in ["bastion", "helix", "frontier"]:
+		await _cargo_fixture(faction)
+		await _safety_case(faction)
+		paused = false
+		game.queue_free()
+		await _frames(5)
+	for error in errors:
+		push_error(error)
+	print("Engineer safety policy: %d failures" % errors.size())
+	quit(0 if errors.is_empty() else 1)
+
+
+func _safety_case(faction):
+	safety = load("res://tests/playtest/reference/EngineerSafetyPolicy.gd").new()
+	var plan = load("res://source/match/SkirmishPlan.gd")
+	var hq = _units(owner, "CommandCenter")[0]
+	var enemy = get_nodes_in_group("players").filter(func(side): return side != owner)[0]
+	carrier.position = hq.position + Vector3(20, 0, 0)
+	var materials = get_nodes_in_group("resource_units").filter(
+		func(unit): return "resource_a" in unit
+	)
+	var deposit = materials[0]
+	carrier.issue_manual_order(harvest_rules.new(deposit))
+	var raider = _spawn_role(enemy, "Tank", carrier.position + Vector3(4, 0, 0))
+	raider.disable_mode = CollisionObject3D.DISABLE_MODE_KEEP_ACTIVE
+	raider.process_mode = Node.PROCESS_MODE_DISABLED
+	await _frames(5)
+	game.battlefield.invalidate()
+	_check(game.battlefield.is_observed(owner, raider), "Safety fixture raider unseen")
+	var old_action = carrier.action
+	var sights = {}
+	for unit in plan.owned_units(owner):
+		sights[unit] = unit.sight_range
+		unit.sight_range = .1
+	game.battlefield.invalidate()
+	safety.update(game, owner, plan.owned_units(owner))
+	_check(
+		not safety.protected(carrier) and carrier.action == old_action,
+		"Safety policy used an unseen raider"
+	)
+	for unit in sights:
+		unit.sight_range = sights[unit]
+	game.battlefield.invalidate()
+	var funds = Vector2i(owner.resource_a, owner.resource_b)
+	safety.update(game, owner, plan.owned_units(owner))
+	_check(safety.protected(carrier), faction + ": threatened gatherer did not withdraw")
+	_check(
+		(
+			carrier.manual_orders.pending.size() == 1
+			and carrier.manual_orders.pending[0].kind == "move"
+		),
+		"Withdrawal did not use ordinary Move"
+	)
+	_check(
+		(
+			carrier.resource_a == 3
+			and carrier.resource_b == 1
+			and Vector2i(owner.resource_a, owner.resource_b) == funds
+		),
+		"Withdrawal changed cargo or funds"
+	)
+	var queued = carrier.manual_orders.pending.duplicate(true)
+	for index in 5:
+		safety.update(game, owner, plan.owned_units(owner))
+	_check(
+		carrier.manual_orders.pending == queued and safety.episodes.size() == 1,
+		"Repeated policy check churned retreat orders"
+	)
+	raider.position = Vector3(115, 0, 85)
+	game.battlefield.invalidate()
+	game.hud._toggle_pause()
+	var stock = deposit.resource_a
+	for frame in 5400:
+		await _frames(1)
+		if frame % 30 == 0:
+			safety.update(game, owner, plan.owned_units(owner))
+		if not safety.protected(carrier) and owner.resource_a > funds.x + 3:
+			break
+	_check(
+		safety.episodes[0].result == "resumed", "Safe engineer did not resume its original field"
+	)
+	_check(
+		safety.episodes[0].get("delivered", false),
+		"Retained cargo was not delivered before resumption"
+	)
+	print(
+		"RESUME PROBE ",
+		faction,
+		" funds=",
+		owner.resource_a,
+		" initial=",
+		funds.x,
+		" selected_stock=",
+		deposit.resource_a,
+		" original_stock=",
+		stock,
+		" action=",
+		carrier.action,
+		" actual_target=",
+		(
+			carrier.action.get_resource_unit()
+			if carrier.action is Node and carrier.action.has_method("get_resource_unit")
+			else null
+		)
+	)
+	_check(
+		owner.resource_a > funds.x + 3 and deposit.resource_a < stock,
+		"Resumed field did not produce new income"
+	)
+	_check(owner.resource_b == funds.y + 1, "Cargo electronics accounting changed")
+	game.hud._toggle_pause()

@@ -4,9 +4,13 @@ const DOMAIN = Constants.Match.Navigation.Domain.TERRAIN
 
 var _earliest_frame_to_perform_next_rebake = null
 var _is_baking = false
+var _iteration_before_publication = -1
+var _region_before_publication = -1
 var _map_geometry = NavigationMeshSourceGeometryData3D.new()
 
-@onready var navigation_map_rid = get_world_3d().navigation_map
+# A match owns its navigation lifetime. Reusing the viewport's world map can
+# expose the previous battle's synchronized polygons during the next startup.
+@onready var navigation_map_rid = NavigationServer3D.map_create()
 
 @onready var _navigation_region = find_child("NavigationRegion3D")
 
@@ -19,7 +23,13 @@ func _ready():
 	NavigationServer3D.map_set_cell_height(
 		navigation_map_rid, Constants.Match.Terrain.Navmesh.CELL_HEIGHT
 	)
+	_navigation_region.set_navigation_map(navigation_map_rid)
+	NavigationServer3D.map_set_active(navigation_map_rid, true)
 	MatchSignals.schedule_navigation_rebake.connect(_on_schedule_navigation_rebake)
+
+
+func _exit_tree():
+	NavigationServer3D.free_rid(navigation_map_rid)
 
 
 func _process(_delta):
@@ -72,6 +82,25 @@ func _rebake():
 func _sync_navmesh_changes():
 	"""this function forces synchronization between server-level primitives and nodes"""
 	_navigation_region.navigation_mesh = _navigation_region.navigation_mesh
+	_iteration_before_publication = NavigationServer3D.map_get_iteration_id(navigation_map_rid)
+	_region_before_publication = NavigationServer3D.region_get_iteration_id(
+		_navigation_region.get_rid()
+	)
+
+
+func is_synchronized():
+	return (
+		not _is_baking
+		and _earliest_frame_to_perform_next_rebake == null
+		and (
+			NavigationServer3D.region_get_iteration_id(_navigation_region.get_rid())
+			> _region_before_publication
+		)
+		and (
+			NavigationServer3D.map_get_iteration_id(navigation_map_rid)
+			> _iteration_before_publication
+		)
+	)
 
 
 func _safety_checks():

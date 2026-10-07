@@ -1,0 +1,98 @@
+extends "res://tests/headless/BattlePlanRegression.gd"
+
+var tactics
+var combat_rules
+
+
+func _run():
+	root.get_node("SaveManager").autosaves_enabled = false
+	plan_rules = load("res://source/match/SkirmishPlan.gd")
+	tactics = load("res://source/match/SkirmishTactics.gd")
+	combat_rules = load("res://source/match/combat/CombatRules.gd")
+	for faction in ["bastion", "helix", "frontier"]:
+		await _air_advice(faction)
+	for message in errors:
+		push_error(message)
+	print("Air defense advice: %d failures" % errors.size())
+	quit(0 if errors.is_empty() else 1)
+
+
+func _air_advice(faction):
+	await _skirmish(faction, "res://source/match/maps/DesertFrontier.tscn", true)
+	var human = game._get_human_player()
+	var enemy = get_nodes_in_group("players").filter(func(side): return side != human)[0]
+	for side in get_nodes_in_group("players"):
+		side.set_process(false)
+	for unit in get_nodes_in_group("units"):
+		unit.process_mode = Node.PROCESS_MODE_DISABLED
+	game.hud._toggle_pause()
+	_check(paused, faction + ": air advice fixture did not pause")
+	var hq = _units(human, "CommandCenter")[0]
+	var attacker = _spawn_for_plan("Helicopter", enemy, hq.position + Vector3(4, 3, 0))
+	attacker.process_mode = Node.PROCESS_MODE_DISABLED
+	game.battlefield.invalidate()
+	_check(game.battlefield.is_observed(human, attacker), faction + ": aircraft raid is hidden")
+	var combatants = plan_rules.army(human)
+	_check(not combatants.is_empty(), "Air fixture lacks the original ground defenders")
+	_check(
+		combatants.all(func(unit): return not combat_rules.can_target(unit, attacker)),
+		"Ground-only fixture unexpectedly has an anti-air weapon"
+	)
+	for advice in [_defense(human), plan_rules.next_step(human)]:
+		_check(not advice.is_empty(), "Observed armed aircraft near HQ did not trigger defense")
+		if advice.is_empty():
+			continue
+		_check(
+			not advice.units.any(func(unit): return unit in combatants),
+			faction + ": ground-only army selected against an aircraft-only raid"
+		)
+		print(
+			"AIR ADVICE BASELINE ",
+			faction,
+			" id=",
+			advice.id,
+			" selected=",
+			advice.units.map(func(unit): return unit.type),
+			" legal_aa=",
+			advice.units.filter(func(unit): return combat_rules.can_target(unit, attacker)).size()
+		)
+	var ally = _spawn_for_plan("Helicopter", human, hq.position + Vector3(-3, 3, 0))
+	ally.process_mode = Node.PROCESS_MODE_DISABLED
+	_check(
+		combat_rules.can_target(ally, attacker), "Ready mobile anti-air fixture cannot hit aircraft"
+	)
+	var before = _authority(human)
+	for sample in 5:
+		for advice in [_defense(human), plan_rules.next_step(human)]:
+			_check(
+				advice.units.size() == 1 and ally in advice.units,
+				faction + ": aircraft advice did not select only the available legal interceptor"
+			)
+	await _frames(30)
+	_check(
+		_authority(human) == before,
+		faction + ": advice changed paused funds, position, orders or weapons"
+	)
+	print("AIR ADVICE AUTHORITY ", faction, " preserved=", _authority(human) == before)
+	paused = false
+	game.queue_free()
+	await _frames(5)
+	game = null
+
+
+func _defense(player):
+	return tactics.defense(player, plan_rules.owned_units(player), plan_rules.army(player))
+
+
+func _authority(player):
+	var result = [paused, game.simulation_time, player.resource_a, player.resource_b]
+	for unit in plan_rules.owned_units(player):
+		var row = [unit, unit.position, unit.action]
+		if unit.manual_orders != null:
+			row.append(unit.manual_orders.pending.duplicate(true))
+		if "weapon_mode" in unit:
+			row.append([unit.weapon_mode, unit.pending_weapon_mode, unit.weapon_switch_left])
+		if "production_queue" in unit and unit.production_queue != null:
+			row.append(unit.production_queue.get_elements().duplicate())
+		result.append(row)
+	return result

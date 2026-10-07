@@ -1,7 +1,9 @@
 static func find_resource_unit_closest_to_unit_yet_no_further_than(
 	unit, distance_max, filter_predicate = null
 ):
-	var resource_units = unit.get_tree().get_nodes_in_group("resource_units")
+	var resource_units = unit.get_tree().get_nodes_in_group("resource_units").filter(
+		func(deposit): return deposit.can_harvest(unit)
+	)
 	if filter_predicate != null:
 		resource_units = resource_units.filter(filter_predicate)
 	# TODO: Make anonymous-inline again once GDToolkit and Godot bugs are fixed.

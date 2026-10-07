@@ -17,6 +17,8 @@ func _init(target_unit, distance_to_reach):
 
 
 func _ready():
+	if restoring:
+		return
 	_timer = Timer.new()
 	_timer.timeout.connect(_refresh)
 	add_child(_timer)
@@ -36,6 +38,9 @@ func _refresh():
 
 
 func _teardown_if_distance_reached():
+	if not is_instance_valid(_target_unit) or _target_unit.is_queued_for_deletion():
+		queue_free()
+		return true
 	if (
 		_unit.global_position_yless.distance_to(_target_unit.global_position_yless)
 		<= _distance_to_reach
@@ -55,4 +60,5 @@ func _align_movement_if_needed():
 
 
 func _on_movement_finished():
-	_movement_trait.move(_target_unit.global_position)
+	if is_instance_valid(_target_unit):
+		_movement_trait.move(_target_unit.global_position)

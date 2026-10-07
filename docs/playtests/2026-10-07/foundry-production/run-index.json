@@ -1,0 +1,122 @@
+[
+  {
+    "log": "before.log",
+    "exit_code": 130,
+    "classification": "interrupted baseline",
+    "note": "Stopped after source changed during the multi-case process; replaced by frozen old-source probe. Partial before-late archive is not accepted comparison."
+  },
+  {
+    "log": "after.log",
+    "exit_code": 0,
+    "classification": "accepted",
+    "note": "All three production difficulties; before removal of redundant availability precheck and addition of source fingerprint output. Final Veteran rerun below."
+  },
+  {
+    "log": "legacy.log",
+    "exit_code": 1,
+    "classification": "expected old-code failure",
+    "note": "Frozen original mission loses one job per node; three expected assertions fail."
+  },
+  {
+    "log": "blocked.log",
+    "exit_code": 0,
+    "classification": "rejected parse fixture",
+    "note": "Godot parser rejected a multiline lambda; process exit alone was insufficient. Fixture corrected."
+  },
+  {
+    "log": "blocked-final.log",
+    "exit_code": 0,
+    "classification": "accepted",
+    "note": "Blocked admission, actual paused archive, normal production resumption and destruction branches."
+  },
+  {
+    "log": "ui.log",
+    "exit_code": 0,
+    "classification": "superseded tooltip fixture",
+    "note": "Property and control assertions pass; visual inspection found hover tooltip absent. Superseded by hover run."
+  },
+  {
+    "log": "hover.log",
+    "exit_code": 0,
+    "classification": "accepted",
+    "note": "Final label input fix, actual visible tooltip assertions and six inspected captures."
+  },
+  {
+    "log": "verified-budget.log",
+    "exit_code": 0,
+    "classification": "accepted",
+    "note": "Final mission fingerprint; full Veteran paid/completed job count and costs.",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/headless/FoundryProductionBudget.gd",
+      "--",
+      "--mode=2",
+      "--evidence=res://docs/playtests/2026-10-07/foundry-production/verified-budget"
+    ]
+  },
+  {
+    "log": "restores.log",
+    "exit_code": 0,
+    "classification": "accepted",
+    "note": "Actual natural old/new late-production saves restored and continued.",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/headless/FoundryProductionRestore.gd",
+      "--"
+    ]
+  },
+  {
+    "log": "shared-foundry.log",
+    "exit_code": 0,
+    "classification": "accepted",
+    "note": "Shared mission contracts and Standard full reference fight.",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/headless/BrokenFoundryRegression.gd",
+      "--"
+    ]
+  },
+  {
+    "log": "delayed-veteran.log",
+    "exit_code": 0,
+    "classification": "accepted",
+    "note": "Ordinary Veteran fight begins after all batches have been admitted.",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/FoundryDelayedAdvance.gd",
+      "--",
+      "--difficulty=2",
+      "--evidence=res://docs/playtests/2026-10-07/foundry-production/delayed-veteran"
+    ]
+  },
+  {
+    "log": "native-veteran.log",
+    "exit_code": 0,
+    "classification": "accepted",
+    "note": "Normal-clock early Veteran route; three inspected captures."
+  }
+]

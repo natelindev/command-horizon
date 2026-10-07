@@ -1,0 +1,304 @@
+[
+  {
+    "log": "before.log",
+    "exit_code": 1,
+    "classification": "superseded baseline fixture",
+    "note": "Nineteen old-code wording/state failures; unclaimed initial state was not explicitly isolated."
+  },
+  {
+    "log": "after.log",
+    "exit_code": 1,
+    "classification": "rejected runtime errors",
+    "note": "Initial revision: one invalid unclaimed-state assertion and initialization script errors."
+  },
+  {
+    "log": "before-corrected.log",
+    "exit_code": 1,
+    "classification": "expected old-code failure",
+    "note": "Explicit unclaimed state, exact original three shipping files; nineteen state/wording failures."
+  },
+  {
+    "log": "focused.log",
+    "exit_code": 0,
+    "classification": "rejected runtime errors",
+    "note": "Assertions passed but marker initialization queried a missing battlefield."
+  },
+  {
+    "log": "recovery-feedback.log",
+    "exit_code": 0,
+    "classification": "rejected runtime errors",
+    "note": "Assertions passed but initialization script errors invalidate this run."
+  },
+  {
+    "log": "shared-rules.log",
+    "exit_code": 0,
+    "classification": "rejected runtime errors",
+    "note": "Assertions passed but initialization script errors invalidate this run."
+  },
+  {
+    "log": "earned-recovery.log",
+    "exit_code": 0,
+    "classification": "rejected runtime errors",
+    "note": "Recovery reached victory but initialization script errors invalidate this run."
+  },
+  {
+    "log": "north-0.log",
+    "exit_code": null,
+    "classification": "interrupted invalid-source run",
+    "note": "SIGINT stopped the initial batch to correct initialization; child termination verified. No result accepted."
+  },
+  {
+    "log": "native.log",
+    "exit_code": 1,
+    "classification": "rejected runtime errors",
+    "note": "Initialization errors, one UI-frame timing assertion, and visually clipped tooltip; superseded."
+  },
+  {
+    "log": "final-native.log",
+    "exit_code": 0,
+    "classification": "accepted",
+    "note": "Corrected initialization, UI-frame waits, bounded actual hover tooltips and two explicit mouse/Enter/right-click returns."
+  },
+  {
+    "log": "final-focused.log",
+    "exit_code": 0,
+    "classification": "accepted",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/headless/HorizonControlRegression.gd",
+      "--",
+      "--evidence=res://docs/playtests/2026-10-07/horizon-control/final-focused"
+    ]
+  },
+  {
+    "log": "final-recovery-feedback.log",
+    "exit_code": 0,
+    "classification": "accepted",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/headless/HorizonRecoveryFeedback.gd",
+      "--"
+    ]
+  },
+  {
+    "log": "final-shared-rules.log",
+    "exit_code": 0,
+    "classification": "accepted",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/headless/CommandHorizonRules.gd",
+      "--"
+    ]
+  },
+  {
+    "log": "final-earned-recovery.log",
+    "exit_code": 0,
+    "classification": "accepted",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/HorizonDeploymentRecovery.gd",
+      "--",
+      "--evidence=res://docs/playtests/2026-10-07/horizon-control/final-earned-recovery"
+    ]
+  },
+  {
+    "log": "final-north-0.log",
+    "exit_code": 0,
+    "classification": "accepted",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/HorizonDifficultyMatches.gd",
+      "--",
+      "--difficulty=0",
+      "--alternate",
+      "--retake-deployment",
+      "--evidence=res://docs/playtests/2026-10-07/horizon-control/final-north-0"
+    ]
+  },
+  {
+    "log": "final-north-1.log",
+    "exit_code": 0,
+    "classification": "accepted",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/HorizonDifficultyMatches.gd",
+      "--",
+      "--difficulty=1",
+      "--alternate",
+      "--retake-deployment",
+      "--evidence=res://docs/playtests/2026-10-07/horizon-control/final-north-1"
+    ]
+  },
+  {
+    "log": "final-north-2.log",
+    "exit_code": 0,
+    "classification": "accepted",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/HorizonDifficultyMatches.gd",
+      "--",
+      "--difficulty=2",
+      "--alternate",
+      "--retake-deployment",
+      "--evidence=res://docs/playtests/2026-10-07/horizon-control/final-north-2"
+    ]
+  },
+  {
+    "log": "final-north-2-lean.log",
+    "exit_code": 1,
+    "classification": "victory with rejected purchase",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/HorizonDifficultyMatches.gd",
+      "--",
+      "--difficulty=2",
+      "--alternate",
+      "--retake-deployment",
+      "--evidence=res://docs/playtests/2026-10-07/horizon-control/final-north-2-lean",
+      "--lean"
+    ]
+  },
+  {
+    "log": "final-north-2-reinforced.log",
+    "exit_code": 0,
+    "classification": "accepted",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/HorizonDifficultyMatches.gd",
+      "--",
+      "--difficulty=2",
+      "--alternate",
+      "--retake-deployment",
+      "--evidence=res://docs/playtests/2026-10-07/horizon-control/final-north-2-reinforced",
+      "--reinforced"
+    ]
+  },
+  {
+    "log": "native-earned.log",
+    "exit_code": 0,
+    "classification": "accepted",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--path",
+      ".",
+      "--script",
+      "tests/rendered/HorizonRecoveryPreview.gd",
+      "--",
+      "--evidence=res://docs/playtests/2026-10-07/horizon-control/native-earned"
+    ]
+  },
+  {
+    "log": "native-north.log",
+    "exit_code": 0,
+    "classification": "accepted",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--path",
+      ".",
+      "--script",
+      "tests/rendered/HorizonDifficultyPreview.gd",
+      "--",
+      "--difficulty=2",
+      "--alternate",
+      "--retake-deployment",
+      "--evidence=res://docs/playtests/2026-10-07/horizon-control/native-north"
+    ]
+  },
+  {
+    "log": "lean-diagnostic.log",
+    "exit_code": 0,
+    "classification": "accepted",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/HorizonSupportPurchase.gd",
+      "--",
+      "--difficulty=2",
+      "--alternate",
+      "--lean",
+      "--retake-deployment",
+      "--evidence=res://docs/playtests/2026-10-07/horizon-control/lean-diagnostic"
+    ]
+  },
+  {
+    "log": "lean-paid-support.log",
+    "exit_code": 0,
+    "classification": "accepted",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/HorizonSupportPurchase.gd",
+      "--",
+      "--difficulty=2",
+      "--alternate",
+      "--lean",
+      "--retake-deployment",
+      "--evidence=res://docs/playtests/2026-10-07/horizon-control/lean-paid-support",
+      "--wait-assault-support"
+    ]
+  }
+]

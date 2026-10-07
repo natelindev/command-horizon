@@ -1,0 +1,107 @@
+extends "res://tests/headless/SkirmishLaborRegression.gd"
+
+var production_policy
+var mode = "routine"
+var ai_faction = "bastion"
+
+func _initialize():
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--mode="):
+			mode = arg.trim_prefix("--mode=")
+		if arg.begins_with("--faction="):
+			ai_faction = arg.trim_prefix("--faction=")
+	create_timer(1000).timeout.connect(func(): quit(2))
+	_run.call_deferred()
+
+func _run():
+	production_policy = load("res://source/match/players/skirmish-ai/SkirmishProduction.gd")
+	factions = load("res://source/match/FactionCatalog.gd")
+	catalog = load("res://source/match/BastionCatalog.gd")
+	harvest = load("res://source/match/units/actions/CollectingResourcesSequentially.gd")
+	labor = load("res://source/match/players/skirmish-ai/SkirmishLabor.gd")
+	root.get_node("SaveManager").autosaves_enabled = false
+	await _setup()
+	var player = get_nodes_in_group("players").filter(func(p): return p != game._get_human_player())[0]
+	_freeze(player)
+	paused = true
+	while _units(player, "Worker").size() < 6:
+		_spawn("Worker", player, Vector3(103 + _units(player, "Worker").size(), 0, 77))
+	while _units(player, "Infantry").size() < 6:
+		_spawn("Infantry", player, Vector3(86, 0, 85 + _units(player, "Infantry").size()))
+	for entry in [["AircraftFactory", Vector3(94,0,80)], ["AntiAirTurret",Vector3(80,0,80)], ["AntiGroundTurret",Vector3(76,0,80)], ["PowerPlant",Vector3(84,0,80)]]:
+		_spawn(entry[0], player, entry[1])
+	if mode == "cap":
+		while player.population() < catalog.POPULATION_LIMIT:
+			_spawn("Infantry", player, Vector3(60 + player.population() % 10, 0, 90 + player.population()/10))
+	var parked = 0
+	for unit in player._units():
+		if unit.movement_speed > 0 and unit.attack_range != null:
+			unit.position = Vector3(55 + parked % 15, 0, 88 + parked / 15)
+			parked += 1
+		if "production_queue" in unit and unit.production_queue != null:
+			unit.production_queue.cancel_all()
+			unit.process_mode = Node.PROCESS_MODE_INHERIT
+	var workers = _units(player, "Worker")
+	var hq = _units(player, "CommandCenter")[0]
+	var material = _deposit(hq, "resource_a")
+	var electronic = _deposit(hq, "resource_b")
+	for worker in workers:
+		worker.process_mode = Node.PROCESS_MODE_INHERIT
+		worker.issue_manual_order(harvest.new(material))
+	player.resource_a = 0
+	player.resource_b = 0
+	var start_material = material.resource_a
+	var start_electronic = electronic.resource_b
+	var first = -1.0
+	var max_e = 0
+	var start = game.simulation_time
+	print("START ", ai_faction, " mode=", mode, " pop=", player.population(), " demand=", production_policy.demand(game,player,player._units()), " split=", labor.plan(game,player,player._units()).values(), " next_build=", player._next_building(player._units()))
+	paused = false
+	for frame in 14400 if mode == "routine" else 7200:
+		if frame % 90 == 0:
+			var units = player._units()
+			player._harvest(units)
+			player._research(units, player._next_building(units))
+			if mode == "routine":
+				player._train(units, player._next_building(units))
+			if first < 0 and (player.coordination_left > 0 or player.coordination_unlocked):
+				first = game.simulation_time-start
+			max_e = maxi(max_e,player.resource_b)
+			for unit in player._units():
+				if unit.movement_speed > 0 and unit.type != "Worker":
+					unit.process_mode = Node.PROCESS_MODE_DISABLED
+		if frame % 1800 == 0:
+			print("TICK ", ai_faction, " time=",game.simulation_time-start," funds=",player.resource_a,"/",player.resource_b," demand=",production_policy.demand(game,player,player._units())," split=",labor.plan(game,player,player._units()).values()," pop=",player.population()," research=", player.technology.active, " coord=",player.coordination_left,"/",player.coordination_unlocked)
+		await physics_frame
+	print("RESULT ",ai_faction," mode=",mode," first_coord=",first," max_E=",max_e," funds=",player.resource_a,"/",player.resource_b," depleted=",start_material-material.resource_a,"/",start_electronic-electronic.resource_b," research=",player.technology.completed)
+	if mode == "cap":
+		workers[0].issue_manual_order(harvest.new(electronic))
+		var recovery = game.simulation_time
+		for frame in 9000:
+			if frame % 90 == 0:
+				player._harvest(player._units())
+				player._research(player._units(),player._next_building(player._units()))
+			if player.coordination_unlocked:
+				break
+			await physics_frame
+		print("RECOVERY ", ai_faction, " elapsed=",game.simulation_time-recovery," coord=",player.coordination_unlocked," funds=",player.resource_a,"/",player.resource_b," depletedE=",start_electronic-electronic.resource_b)
+	quit(0)
+
+func _setup():
+	var settings = load("res://source/data-model/MatchSettings.gd").new()
+	settings.skirmish = true
+	settings.advanced_start = true
+	settings.map_path = "res://source/match/maps/DesertFrontier.tscn"
+	for index in 2:
+		var side = load("res://source/data-model/PlayerSettings.gd").new()
+		side.controller = index + 1
+		side.difficulty = 1
+		side.faction = "helix" if index == 0 else ai_faction
+		settings.players.append(side)
+	game = load("res://source/match/Skirmish.tscn").instantiate()
+	game.settings = settings
+	game.map = load(settings.map_path).instantiate()
+	root.add_child(game)
+	current_scene = game
+	game.get_node("IsometricCamera3D").set_physics_process(false)
+	await _frames(60)

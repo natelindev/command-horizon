@@ -1,0 +1,50 @@
+{
+  "status": "passed",
+  "classified_runs": 12,
+  "reviewed_images": 9,
+  "old_completed": [
+    8,
+    8
+  ],
+  "new_completed": [
+    9,
+    9
+  ],
+  "current_source_sha256": "539401cf30b701fcb956cd010972b17d343d729950992baa06aa24250e8ed0e1",
+  "matches": {
+    "native-veteran": {
+      "result": "Victory",
+      "time": 145.850000000008,
+      "human": 14,
+      "infantry": 4,
+      "nodes": [
+        {
+          "batches": 1,
+          "disabled": true
+        },
+        {
+          "batches": 2,
+          "disabled": true
+        }
+      ],
+      "errors": []
+    },
+    "delayed-veteran": {
+      "result": "Victory",
+      "time": 320.116666666704,
+      "human": 6,
+      "infantry": 2,
+      "nodes": [
+        {
+          "batches": 3,
+          "disabled": true
+        },
+        {
+          "batches": 3,
+          "disabled": true
+        }
+      ],
+      "errors": []
+    }
+  }
+}

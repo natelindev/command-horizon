@@ -1,0 +1,15 @@
+{
+  "command": [
+    "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+    "--headless",
+    "--path",
+    ".",
+    "--fixed-fps",
+    "60",
+    "--script",
+    "tests/headless/HorizonControlRegression.gd",
+    "--",
+    "--evidence=res://docs/playtests/2026-10-07/horizon-control/before-corrected"
+  ],
+  "exit_code": 1
+}

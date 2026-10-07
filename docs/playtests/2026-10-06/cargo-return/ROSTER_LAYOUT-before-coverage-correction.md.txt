@@ -1,0 +1,34 @@
+# Roster layout audit — 2026-10-06
+
+The existing roster tiles fit. The earlier engineer-response report's claim of clipped Helix construction names and prices was a visual-review mistake. Reinspection of its full-resolution native capture and the follow-up geometry/capture checks do not support that diagnosis. No shipping layout, prices or controls changed.
+
+## Checks and evidence
+
+[RosterLayoutRegression.gd](../../../tests/headless/RosterLayoutRegression.gd) selects the engineer, HQ, infantry producer, vehicle producer and aircraft producer for Bastion, Helix and Frontier. It checks each roster button's horizontal bounds against the scroll viewport and the measured text, icon and theme padding against the button width. The initial headless run exits 0 with zero failures in [before.log](roster-layout/before.log). The initial scripts are retained in the evidence folder.
+
+[RosterLayoutPreview.gd](../../../tests/rendered/RosterLayoutPreview.gd) adds rendered panel containment, tile geometry and captures at 1280×720 with 150% UI scale. Both [initial](roster-layout/rendered-before.log) and [expanded](roster-layout/rendered-expanded-before.log) runs exit 0 with zero failures and no script errors. The expanded fixture enables Coordination directly for UI coverage, gives an engineer valid 3 M / 1 E cargo and a gathering order, and pays for three ordinary tank jobs. The aircraft producer is spawned for roster coverage. These are controlled layout fixtures, not earned progression or full-match acceptance.
+
+All six expanded captures were reviewed at full resolution:
+
+| Faction | Construction | Vehicle production and paid queue |
+| --- | --- | --- |
+| Bastion | [Engineer](roster-layout/expanded-before-bastion-Worker.png) | [Factory](roster-layout/expanded-before-bastion-VehicleFactory.png) |
+| Helix | [Engineer](roster-layout/expanded-before-helix-Worker.png) | [Foundry](roster-layout/expanded-before-helix-VehicleFactory.png) |
+| Frontier | [Engineer](roster-layout/expanded-before-frontier-Worker.png) | [Motor pool](roster-layout/expanded-before-frontier-VehicleFactory.png) |
+
+The three 154 px tiles and two 7 px gaps occupy 476 px inside a 478 px scroll viewport. Full construction names and prices are visible, including Helix's Robotics foundry and Skyward array. Expanded engineer panels remain within the 720 px viewport. The captures named `before` retain their original names; there is no production after-change comparison because no fix was warranted.
+
+Formatting and lint pass for both new scripts. Existing navigation readback warnings appear in the runs; the initial headless run also reports ObjectDB/resource cleanup diagnostics at exit. These are retained, separate from the zero script-error/assertion results.
+
+## Correction and limits
+
+[The original engineer-response report](roster-layout/ENGINEER_RESPONSE-before-correction.md.txt) preserves the mistaken statement and matches that report's entry in its historical evidence manifest. The live report now links this correction. [This audit's manifest](roster-layout/evidence.json) records the current scripts, corrected report, roadmap and retained artifacts; earlier manifests remain historical snapshots.
+
+This follow-up does not repeat native purchase/keyboard workflows or every supported scale and resolution. It does not establish screen-reader, contrast or novice acceptance. The tested 720p/150% state is the specific setting of the original claim. The broader gameplay goal remains active; strategy/pacing, final environments and platform acceptance remain open, with performance deferred.
+
+```sh
+tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot --headless --path . --fixed-fps 60 --script tests/headless/RosterLayoutRegression.gd
+tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot --path . --script tests/rendered/RosterLayoutPreview.gd -- --captures=res://tmp/roster-layout/review
+```
+
+Use a fresh capture prefix in an existing directory. The rendered runner applies temporary in-memory options and restores them; autosaves are disabled.

@@ -1,0 +1,884 @@
+--- before/source/match/units/traits/Movement.gd
++++ after/source/match/units/traits/Movement.gd
+@@ -207,6 +207,11 @@
+ 
+ 
+ func _ready():
++	if domain == Constants.Match.Navigation.Domain.TERRAIN:
++		# Near-collinear mesh portals can pin avoidance to an unnecessary point
++		# inside a neighbor. Remove them without broadening arrival tolerances.
++		simplify_path = true
++		simplify_epsilon = .01
+ 	set_physics_process(false)
+ 	if _match.navigation == null:
+ 		await _match.ready
+--- before/source/match/players/skirmish-ai/SkirmishLabor.gd
++++ after/source/match/players/skirmish-ai/SkirmishLabor.gd
+@@ -16,13 +16,14 @@
+ 	return target if "resource_a" in target or "resource_b" in target else null
+ 
+ 
+-static func handoff_ready(worker, hq):
++static func handoff_ready(worker):
++	# Queue the next job during the loaded return; the harvest action retires
++	# only after delivery. A short near-HQ window can fall between AI ticks.
+ 	return (
+ 		worker.action is Harvest
+ 		and worker.action._kind > 0
+ 		and worker.action._state == Harvest.State.MOVING_TO_CC
+ 		and worker.resource_a + worker.resource_b > 0
+-		and worker.global_position_yless.distance_to(hq.global_position_yless) <= hq.radius + 4.0
+ 	)
+ 
+ 
+--- before/source/match/players/skirmish-ai/SkirmishAI.gd
++++ after/source/match/players/skirmish-ai/SkirmishAI.gd
+@@ -195,7 +195,7 @@
+ 		if not assignments.has(worker):
+ 			continue
+ 		var available = Economy.available(worker)
+-		var handoff = not changed and Labor.handoff_ready(worker, hq)
++		var handoff = not changed and Labor.handoff_ready(worker)
+ 		if not available and not handoff:
+ 			continue
+ 		if available and worker.resource_a + worker.resource_b > 0:
+--- before/tests/headless/CornerRecoveryRegression.gd
++++ after/tests/headless/CornerRecoveryRegression.gd
+@@ -1,12 +1,16 @@
+ extends "res://tests/headless/SaveRestoreEdges.gd"
+ 
+ const CORNER_ARCHIVE = "res://docs/playtests/2026-10-04/guard-travel-after-3-0.json"
++const RETURN_ARCHIVE = (
++	"res://docs/playtests/2026-10-05/harvest-traffic/" + "simplified-corner-end-capture-0.json"
++)
+ var watched
+ var support
+ var anchor
+ var last_position
+ var recovery_origin
+ var maximum_excursion = 0.0
++var maximum_settled_distance = 0.0
+ var first_settled = -1.0
+ var observation_started = 0.0
+ var maximum_step = 0.0
+@@ -29,6 +33,7 @@
+ 		await _fresh_corner(faction)
+ 		await _travel("fresh-" + faction)
+ 		await _close()
++	await _displaced_return()
+ 	for error in errors:
+ 		push_error(error)
+ 	print("Corner recovery: %d failures" % errors.size())
+@@ -71,6 +76,7 @@
+ 	last_position = watched.position
+ 	recovery_origin = watched.position
+ 	maximum_excursion = 0.0
++	maximum_settled_distance = 0.0
+ 	first_settled = -1.0
+ 	observation_started = game.simulation_time
+ 	maximum_step = 0.0
+@@ -82,13 +88,16 @@
+ func _observe():
+ 	maximum_excursion = maxf(maximum_excursion, watched.position.distance_to(recovery_origin))
+ 	if (
+-		first_settled < 0
+-		and watched.action != null
++		watched.action != null
+ 		and watched.action.has_method("is_settled_guard")
+ 		and watched.action.is_settled_guard()
+ 		and not watched.get_node("Movement")._has_destination
+ 	):
+-		first_settled = game.simulation_time - observation_started
++		maximum_settled_distance = maxf(
++			maximum_settled_distance, watched.position.distance_to(anchor)
++		)
++		if first_settled < 0:
++			first_settled = game.simulation_time - observation_started
+ 	maximum_step = maxf(maximum_step, watched.position.distance_to(last_position))
+ 	last_position = watched.position
+ 	seen_recovery = seen_recovery or watched.get_node("Movement")._recovery_left > 0
+@@ -149,7 +158,16 @@
+ 			reviewed_arrival = true
+ 			await _review_corner(label + "-arrival")
+ 	_check(watched.program.mode == "Running", "Corner guard blocked: " + label)
+-	_check(first_settled >= 0, "Guard never reached its formation: " + label)
++	_check(
++		first_settled >= 0 and first_settled <= 20,
++		"Guard never reached its formation within 20 seconds: " + label
++	)
++	var return_after = 0.0
++	if not label.begins_with("fresh-") and watched.position.distance_to(anchor) > 6:
++		# Live workers can displace an arrived guard after it has formed up.
++		# A continuing trip to the same anchor is not a larger formation.
++		return_after = await _return_to_circle(label)
++	_check(maximum_settled_distance <= 6, "Formation settled outside its original circle: " + label)
+ 	# Live engineers keep pushing and reshaping the archived formation. An
+ 	# arrived guard can legitimately rejoin later; stationary fresh groups
+ 	# must still be settled at the end of the observation.
+@@ -171,6 +189,10 @@
+ 		watched.position,
+ 		" excursion=",
+ 		maximum_excursion,
++		" settled_radius=",
++		maximum_settled_distance,
++		" reentry_after=",
++		return_after,
+ 		" active_at_end=",
+ 		watched.get_node("Movement")._has_destination,
+ 		" settled_after=",
+@@ -183,6 +205,48 @@
+ 		minimum_static_clearance
+ 	)
+ 	await _review_corner(label)
++
++
++func _return_to_circle(label):
++	var movement = watched.get_node("Movement")
++	_check(not watched.action.is_settled_guard(), "Guard settled outside its circle: " + label)
++	_check(
++		movement._has_destination and movement.target_position.distance_to(anchor) < .1,
++		"Displaced guard did not return to its assignment: " + label
++	)
++	var return_started = game.simulation_time
++	paused = false
++	for frame in 600:
++		await physics_frame
++		_observe()
++		if watched.position.distance_to(anchor) <= 6:
++			break
++	_check(watched.position.distance_to(anchor) <= 6, "Guard did not re-enter within 10s: " + label)
++	return game.simulation_time - return_started
++
++
++func _displaced_return():
++	var restore = Restore.new()
++	var loaded = await restore.restore(self, FileStore.new().read_file(RETURN_ARCHIVE))
++	_check(loaded.ok, "Displaced guard archive did not restore")
++	if not loaded.ok:
++		return
++	game = loaded.game
++	for player in get_nodes_in_group("players"):
++		player.set_process(false)
++	watched = restore.entities["unit-13"]
++	support = restore.entities["unit-14"]
++	anchor = watched.program.anchor
++	_check(watched.position.distance_to(anchor) > 6, "Return fixture already inside the circle")
++	_reset_measurements()
++	trace_label = "displaced-return"
++	var elapsed = await _return_to_circle(trace_label)
++	_check(watched.program.anchor == anchor, "Displaced guard changed its assignment")
++	_check(maximum_step <= watched.movement_speed / 60.0 + .002, "Return exceeded movement speed")
++	_check(minimum_mobile_clearance >= -.08, "Return crossed another mobile footprint")
++	_check(minimum_static_clearance >= -.08, "Return crossed a building footprint")
++	print("CORNER REENTRY seconds=", elapsed, " distance=", watched.position.distance_to(anchor))
++	await _close()
+ 
+ 
+ func _archive_recovery():
+--- before/tests/headless/EndpointTailRegression.gd
++++ after/tests/headless/EndpointTailRegression.gd
+@@ -15,6 +15,15 @@
+ 		await _open_capture()
+ 		await _arrival("capture-%d" % repetition)
+ 		await _close()
++	# Retain coverage of short polygon tails even when the shipping path
++	# simplifier removes redundant points from the same captured route.
++	await _open_capture()
++	var movement = watched.get_node("Movement")
++	movement.simplify_path = false
++	var destination = movement.target_position
++	movement.target_position = destination
++	await _arrival("unsimplified-capture", true)
++	await _close()
+ 	await _disk_queue()
+ 	await _manual_replacement()
+ 	for faction in ["bastion", "helix"]:
+@@ -45,7 +54,7 @@
+ 	)
+ 
+ 
+-func _arrival(label):
++func _arrival(label, require_path_bend = false):
+ 	var movement = watched.get_node("Movement")
+ 	var origin = watched.position
+ 	var previous = origin
+@@ -76,7 +85,8 @@
+ 					least_clearance,
+ 					watched.position.distance_to(other.position) - watched.radius - other.radius
+ 				)
+-	_check(saw_short_tail, "Fixture did not exercise a remaining path bend: " + label)
++	if require_path_bend:
++		_check(saw_short_tail, "Fixture did not exercise a remaining path bend: " + label)
+ 	_check(
+ 		finished_after > 0 and finished_after < 4.2, "Short occupied route never finished: " + label
+ 	)
+--- before/tests/headless/FrontierSalvageAIRegression.gd
++++ after/tests/headless/FrontierSalvageAIRegression.gd
+@@ -64,10 +64,10 @@
+ 	for index in workers.size():
+ 		workers[index].issue_manual_order(harvest.new(material if index == 0 else electronics))
+ 	for frame in 3000:
+-		if labor.handoff_ready(engineer, hq):
++		if labor.handoff_ready(engineer):
+ 			break
+ 		await physics_frame
+-	_check(labor.handoff_ready(engineer, hq), "Did not reach a real loaded delivery boundary")
++	_check(labor.handoff_ready(engineer), "Did not reach a real loaded delivery boundary")
+ 	paused = true
+ 
+ 
+--- /dev/null
++++ after/tests/headless/HarvestTrafficRegression.gd
+@@ -0,0 +1,357 @@
++extends "res://tests/headless/SaveRestoreEdges.gd"
++
++const ARCHIVE_DIRECTORY = "res://docs/playtests/2026-10-05/harvest-traffic/"
++const WATCHED_IDS = {"bastion": ["unit-17"], "helix": ["unit-19", "unit-30"]}
++const BLOCKER_ID = "unit-29"
++const COLLECTION_DEADLINE = 12.0
++const RETURN_DEADLINE = 12.0
++var harvest_script
++
++
++func _run():
++	root.get_node("SaveManager").autosaves_enabled = false
++	harvest_script = load("res://source/match/units/actions/CollectingResourcesSequentially.gd")
++	if not OS.get_cmdline_user_args().has("--residual-only"):
++		for faction in ["bastion", "helix"]:
++			await _archived_traffic(faction)
++		await _manual_replacement()
++	await _residual_traffic()
++	for message in errors:
++		push_error(message)
++	print("Harvest traffic: %d failures" % errors.size())
++	quit(0 if errors.is_empty() else 1)
++
++
++func _open_archive(faction):
++	var file = FileStore.new()
++	var data = file.read_file(ARCHIVE_DIRECTORY + faction + "-capture.json")
++	var restore = Restore.new()
++	var loaded = await restore.restore(self, data)
++	_check(loaded.ok, faction + ": traffic archive failed to restore")
++	if not loaded.ok:
++		return null
++	game = loaded.game
++	var player = restore.entities[BLOCKER_ID].player
++	# Reproduce the captured labor fixture's processing, retaining every actor,
++	# footprint, position, order and cargo. In particular the settled repair
++	# robot remains on the route; no geometry is moved to make travel easier.
++	for side in get_nodes_in_group("players"):
++		side.set_process(false)
++	for unit in get_nodes_in_group("units"):
++		unit.process_mode = (
++			Node.PROCESS_MODE_INHERIT
++			if unit.player == player and unit.type == "Worker"
++			else Node.PROCESS_MODE_DISABLED
++		)
++	return restore
++
++
++func _archived_traffic(faction):
++	var restore = await _open_archive(faction)
++	if restore == null:
++		return
++	var blocker = restore.entities[BLOCKER_ID]
++	var player = blocker.player
++	var workers = _units(player, "Worker")
++	var watched = WATCHED_IDS[faction].map(func(id): return restore.entities[id])
++	var original = {}
++	var previous = {}
++	var first_collection = {}
++	var delivered = {}
++	var blocker_position = blocker.position
++	var clock = game.simulation_time
++	for worker in workers:
++		original[worker] = {
++			"position": worker.position,
++			"cargo": Vector2i(worker.resource_a, worker.resource_b),
++			"action": worker.action,
++			"orders": worker.manual_orders.current.duplicate(),
++			"pending": worker.manual_orders.pending.duplicate(),
++			"field": worker.action._field_origin,
++			"kind": worker.action._kind
++		}
++		previous[worker] = {"position": worker.position, "cargo": worker.resource_b}
++	await _frames(30)
++	_check(paused and game.simulation_time == clock, faction + ": paused archive advanced")
++	for worker in workers:
++		_check(
++			(
++				worker.position == original[worker].position
++				and Vector2i(worker.resource_a, worker.resource_b) == original[worker].cargo
++			),
++			faction + ": paused archive changed a worker or its cargo"
++		)
++		_check_order(worker, original[worker], faction)
++	await _review_traffic(faction + "-loaded", watched[-1], blocker)
++	var stock = _economy_total(player, workers)
++	var funds = player.resource_b
++	var maximum_step_ratio = 0.0
++	var minimum_clearance = INF
++	var reviewed_recovery = false
++	var reviewed_collection = false
++	var reviewed_delivery = false
++	var actors = get_nodes_in_group("units") + get_nodes_in_group("resource_units")
++	paused = false
++	for frame in 2400:
++		await physics_frame
++		for worker in workers:
++			var step = worker.position.distance_to(previous[worker].position)
++			maximum_step_ratio = maxf(
++				maximum_step_ratio, step / (worker.movement_speed / 60.0 + .002)
++			)
++			minimum_clearance = minf(minimum_clearance, _clearance(worker, actors))
++			if worker in watched:
++				if worker.resource_b > previous[worker].cargo and not first_collection.has(worker):
++					first_collection[worker] = game.simulation_time - clock
++					_check(
++						root.get_node("Utils").Match.Unit.Movement.units_adhere(
++							worker, worker.action.get_resource_unit()
++						),
++						faction + ": engineer collected outside contact range"
++					)
++					if not reviewed_collection:
++						reviewed_collection = true
++						await _review_paused(faction + "-collected", worker, blocker)
++				if (
++					first_collection.has(worker)
++					and previous[worker].cargo > 0
++					and worker.resource_b == 0
++				):
++					delivered[worker] = true
++					if not reviewed_delivery:
++						reviewed_delivery = true
++						await _review_paused(faction + "-delivered", worker, blocker)
++				if not reviewed_recovery and worker.get_node("Movement")._recovery_left > 0:
++					reviewed_recovery = true
++					await _review_paused(faction + "-recovery", worker, blocker)
++			previous[worker] = {"position": worker.position, "cargo": worker.resource_b}
++		if frame % 60 == 0:
++			_check(_economy_total(player, workers) == stock, faction + ": finite stock changed")
++	paused = true
++	_check(blocker.position == blocker_position, faction + ": traffic moved the settled blocker")
++	_check(maximum_step_ratio <= 1.0, faction + ": recovery exceeded movement speed")
++	_check(minimum_clearance >= -.08, faction + ": recovery crossed another footprint")
++	_check(player.resource_b > funds, faction + ": traffic never delivered electronics")
++	_check(_economy_total(player, workers) == stock, faction + ": final conservation failed")
++	for worker in workers:
++		_check_order(worker, original[worker], faction)
++	for index in watched.size():
++		var worker = watched[index]
++		var label = faction + " " + WATCHED_IDS[faction][index]
++		_check(first_collection.has(worker), label + ": never collected actual cargo")
++		if faction == "helix":
++			_check(delivered.has(worker), label + ": never delivered its collected cargo")
++			_check(
++				first_collection.get(worker, INF) <= COLLECTION_DEADLINE,
++				label + ": settled support blocked real collection beyond 12 seconds"
++			)
++		print("HARVEST TRAFFIC ", label, " first_cargo=", first_collection.get(worker, -1.0))
++	print(
++		"HARVEST BOUNDS ",
++		faction,
++		" income=",
++		player.resource_b - funds,
++		" step_ratio=",
++		maximum_step_ratio,
++		" clearance=",
++		minimum_clearance
++	)
++	await _close_archive()
++
++
++func _residual_traffic():
++	var restore = await _open_archive("helix-residual")
++	if restore == null:
++		return
++	var blocker = restore.entities[BLOCKER_ID]
++	var player = blocker.player
++	var workers = _units(player, "Worker")
++	var actors = get_nodes_in_group("units") + get_nodes_in_group("resource_units")
++	var original = {}
++	var previous = {}
++	var returning_since = {}
++	var delivered = 0
++	var reviewed_return = false
++	var reviewed_delivery = false
++	var longest_return = 0.0
++	var maximum_step_ratio = 0.0
++	var minimum_clearance = INF
++	var blocker_position = blocker.position
++	var clock = game.simulation_time
++	var stock = _economy_total(player, workers)
++	var funds = player.resource_b
++	for worker in workers:
++		original[worker] = {
++			"action": worker.action,
++			"orders": worker.manual_orders.current.duplicate(),
++			"pending": worker.manual_orders.pending.duplicate(),
++			"field": worker.action._field_origin,
++			"kind": worker.action._kind
++		}
++		previous[worker] = {"position": worker.position, "cargo": worker.resource_b}
++		if worker.resource_b > 0 and worker.action._state == harvest_script.State.MOVING_TO_CC:
++			returning_since[worker] = clock
++	await _review_traffic("helix-residual-loaded", workers[-2], blocker)
++	# This later archive organically recreates repeated loaded trips around the
++	# settled support. Lateral avoidance can keep moving without completing a leg;
++	# measure actual cargo delivery, including trips still unfinished at the end.
++	paused = false
++	for frame in 3600:
++		await physics_frame
++		for worker in workers:
++			maximum_step_ratio = maxf(
++				maximum_step_ratio,
++				(
++					worker.position.distance_to(previous[worker].position)
++					/ (worker.movement_speed / 60.0 + .002)
++				)
++			)
++			minimum_clearance = minf(minimum_clearance, _clearance(worker, actors))
++			if (
++				worker.resource_b > 0
++				and worker.action._state == harvest_script.State.MOVING_TO_CC
++				and not returning_since.has(worker)
++			):
++				returning_since[worker] = game.simulation_time
++			if returning_since.has(worker):
++				longest_return = maxf(
++					longest_return, game.simulation_time - returning_since[worker]
++				)
++				if not reviewed_return and worker.position.distance_to(blocker.position) < 2.0:
++					reviewed_return = true
++					await _review_paused("helix-residual-returning", worker, blocker)
++				if previous[worker].cargo > 0 and worker.resource_b == 0:
++					delivered += 1
++					returning_since.erase(worker)
++					_check(
++						root.get_node("Utils").Match.Unit.Movement.units_adhere(
++							worker, worker.action._cc_unit
++						),
++						"Residual traffic delivered outside HQ contact"
++					)
++					if not reviewed_delivery:
++						reviewed_delivery = true
++						await _review_paused("helix-residual-delivered", worker, blocker)
++			previous[worker] = {"position": worker.position, "cargo": worker.resource_b}
++		if frame % 60 == 0:
++			_check(
++				_economy_total(player, workers) == stock, "Residual traffic changed finite stock"
++			)
++	paused = true
++	_check(blocker.position == blocker_position, "Residual traffic moved the settled support")
++	_check(maximum_step_ratio <= 1.0, "Residual traffic exceeded movement speed")
++	_check(minimum_clearance >= -.08, "Residual traffic crossed another footprint")
++	_check(delivered >= 5 and player.resource_b > funds, "Residual traffic missed real deliveries")
++	_check(_economy_total(player, workers) == stock, "Residual traffic final conservation failed")
++	_check(
++		longest_return <= RETURN_DEADLINE, "Settled support delayed loaded return beyond 12 seconds"
++	)
++	for worker in workers:
++		_check_order(worker, original[worker], "Residual traffic")
++	print(
++		"HARVEST RESIDUAL deliveries=",
++		delivered,
++		" longest_return=",
++		longest_return,
++		" income=",
++		player.resource_b - funds,
++		" step_ratio=",
++		maximum_step_ratio,
++		" clearance=",
++		minimum_clearance
++	)
++	await _close_archive()
++
++
++func _check_order(worker, original, label):
++	_check(
++		(
++			worker.action == original.action
++			and worker.action._field_origin == original.field
++			and worker.action._kind == original.kind
++			and worker.manual_orders.current == original.orders
++			and worker.manual_orders.pending == original.pending
++		),
++		label + ": recovery replaced the harvest assignment or manual queue"
++	)
++
++
++func _economy_total(player, workers):
++	var result = Vector2i(player.resource_a, player.resource_b)
++	for worker in workers:
++		result += Vector2i(worker.resource_a, worker.resource_b)
++	for deposit in get_nodes_in_group("resource_units"):
++		if "resource_a" in deposit:
++			result.x += deposit.resource_a
++		else:
++			result.y += deposit.resource_b
++	return result
++
++
++func _clearance(worker, actors):
++	var result = INF
++	for other in actors:
++		if other == worker or not is_instance_valid(other) or other.is_queued_for_deletion():
++			continue
++		if "movement_domain" in other and other.movement_domain != worker.movement_domain:
++			continue
++		result = minf(
++			result,
++			(
++				worker.global_position_yless.distance_to(other.global_position_yless)
++				- worker.radius
++				- other.radius
++			)
++		)
++	return result
++
++
++func _manual_replacement():
++	var restore = await _open_archive("helix")
++	if restore == null:
++		return
++	var worker = restore.entities["unit-30"]
++	var blocker = restore.entities[BLOCKER_ID]
++	var movement = worker.get_node("Movement")
++	_check(movement._recovery_left > 0, "Manual replacement fixture missed saved recovery")
++	var position = worker.position
++	var cargo = Vector2i(worker.resource_a, worker.resource_b)
++	var goal = Vector3(108, 0, 58)
++	worker.issue_manual_order(load("res://source/match/units/actions/Moving.gd").new(goal))
++	_check(
++		movement.target_position == goal and movement._recovery_left == 0,
++		"Manual replacement retained the obsolete recovery"
++	)
++	await _frames(30)
++	_check(worker.position == position, "Paused replacement moved the engineer")
++	await _review_traffic("manual-replaced", worker, blocker)
++	paused = false
++	for frame in 600:
++		await physics_frame
++	paused = true
++	_check(worker.position.distance_to(goal) < .4, "Manual replacement did not reach its goal")
++	_check(
++		(
++			Vector2i(worker.resource_a, worker.resource_b) == cargo
++			and not is_instance_of(worker.action, harvest_script)
++		),
++		"Obsolete recovery resumed harvesting over the manual order"
++	)
++	await _review_traffic("manual-arrived", worker, blocker)
++	await _close_archive()
++
++
++func _review_paused(label, watched, blocker):
++	paused = true
++	await _review_traffic(label, watched, blocker)
++	paused = false
++
++
++func _review_traffic(_label, _watched, _blocker):
++	return true
++
++
++func _close_archive():
++	game.queue_free()
++	await _frames(5)
++	game = null
+--- /dev/null
++++ after/tests/headless/LaborHandoffRegression.gd
+@@ -0,0 +1,234 @@
++extends "res://tests/headless/SkirmishLaborRegression.gd"
++
++var ai
++var engineer
++var headquarters
++
++
++func _run():
++	factions = load("res://source/match/FactionCatalog.gd")
++	catalog = load("res://source/match/BastionCatalog.gd")
++	harvest = load("res://source/match/units/actions/CollectingResourcesSequentially.gd")
++	labor = load("res://source/match/players/skirmish-ai/SkirmishLabor.gd")
++	moving = load("res://source/match/units/actions/Moving.gd")
++	root.get_node("SaveManager").autosaves_enabled = false
++	await _delivery_between_decisions()
++	await _archived_handoff()
++	await _manual_replacement()
++	for message in errors:
++		push_error(message)
++	print("Labor handoff: %d failures" % errors.size())
++	quit(0 if errors.is_empty() else 1)
++
++
++func _fixture():
++	await _skirmish("helix", "res://source/match/maps/DesertFrontier.tscn", true)
++	ai = get_nodes_in_group("players").filter(func(p): return p != game._get_human_player())[0]
++	paused = true
++	for side in get_nodes_in_group("players"):
++		side.set_process(false)
++	for unit in get_nodes_in_group("units"):
++		unit.process_mode = Node.PROCESS_MODE_DISABLED
++	headquarters = _units(ai, "CommandCenter")[0]
++	var electronics = _deposit(headquarters, "resource_b")
++	# Retain every existing actor and footprint. The other frozen engineers keep
++	# electronics assignments, so the returning engineer needs a materials handoff.
++	for worker in _units(ai, "Worker"):
++		worker.issue_manual_order(harvest.new(electronics))
++	engineer = _spawn("Worker", ai, headquarters.position + Vector3(-10, 0, 0))
++	engineer.resource_b = 4
++	engineer.process_mode = Node.PROCESS_MODE_INHERIT
++	engineer.issue_manual_order(harvest.new(electronics))
++	ai.resource_a = 0
++	ai.resource_b = 200
++	await _frames(10)
++	_check(labor.plan(game, ai, ai._units()).get(engineer) == 1, "Fixture did not need materials")
++	_check(
++		engineer.resource_b == 4 and engineer.action._state == harvest.State.MOVING_TO_CC,
++		"Fixture did not retain a loaded electronics return"
++	)
++
++
++func _queue_handoff():
++	var action = engineer.action
++	var funds = Vector2i(ai.resource_a, ai.resource_b)
++	_check(engineer.position.distance_to(headquarters.position) > 9, "Fixture is already near HQ")
++	ai._harvest(ai._units())
++	var target = labor.queued_target(engineer)
++	_check(target != null and "resource_a" in target, "Far loaded return did not queue materials")
++	_check(
++		engineer.action == action and engineer.resource_b == 4, "Handoff interrupted cargo return"
++	)
++	_check(
++		Vector2i(ai.resource_a, ai.resource_b) == funds, "Queuing a handoff credited cargo early"
++	)
++	for repeat in 3:
++		ai._harvest(ai._units())
++	_check(
++		engineer.manual_orders.pending.size() == 1 and labor.queued_target(engineer) == target,
++		"Repeated decisions replaced or duplicated the queued handoff"
++	)
++
++
++func _delivery_between_decisions():
++	await _fixture()
++	var stock = _resource_total()
++	_queue_handoff()
++	var returning_action = engineer.action
++	var funds = ai.resource_b
++	var polled = false
++	paused = false
++	for frame in 600:
++		await physics_frame
++		var distance = engineer.position.distance_to(headquarters.position)
++		# The old eligibility window started at HQ radius + 4 m. This decision
++		# falls just before it; the next ordinary 1.5 s decision follows delivery.
++		if distance <= headquarters.radius + 4.1 and distance > headquarters.radius + 4.0:
++			polled = true
++			ai._harvest(ai._units())
++			break
++	_check(polled, "Fixture missed the decision before the old handoff window")
++	_check(
++		engineer.action == returning_action and engineer.resource_b == 4, "Travel interrupted cargo"
++	)
++	var delivered = false
++	for frame in 90:
++		await physics_frame
++		if engineer.resource_b == 0 and not delivered:
++			delivered = true
++			_check(
++				ai.resource_b == funds + 4 and engineer.resource_b == 0, "Switch preceded delivery"
++			)
++			_check(
++				root.get_node("Utils").Match.Unit.Movement.units_adhere(engineer, headquarters),
++				"Handoff delivered cargo outside HQ contact"
++			)
++		_check(_resource_total() == stock, "Handoff changed finite resources")
++	ai._harvest(ai._units())
++	_check(delivered and ai.resource_b == funds + 4, "The two decisions missed the cargo handoff")
++	# Delivery retires the harvest action through deferred signals. Keep the
++	# decision interval exact while allowing the queue its next physics ticks.
++	for frame in 3:
++		if engineer.action != returning_action and is_instance_of(engineer.action, harvest):
++			break
++		await physics_frame
++		_check(ai.resource_b == funds + 4 and engineer.resource_b == 0, "Retirement changed cargo")
++		_check(_resource_total() == stock, "Retirement changed finite resources")
++	_check(
++		is_instance_of(engineer.action, harvest) and engineer.action._kind == 1,
++		"Delivery did not start materials"
++	)
++	_check(engineer.manual_orders.pending.is_empty(), "Delivered handoff remained queued")
++	print("LABOR HANDOFF cargo_delivered=", ai.resource_b - funds, " decision_interval=1.5")
++	await _close_fixture()
++
++
++func _archived_handoff():
++	await _fixture()
++	var stock = _resource_total()
++	_queue_handoff()
++	var point = engineer.position
++	var clock = game.simulation_time
++	var capture = Snapshot.new()
++	var data = capture.capture(game)
++	_check(data != null, "Far handoff snapshot failed")
++	if data == null:
++		await _close_fixture()
++		return
++	var engineer_id = capture._reference(engineer)
++	var headquarters_id = capture._reference(headquarters)
++	var actor_count = get_nodes_in_group("units").size()
++	var path = "user://labor-handoff-%d.json" % OS.get_process_id()
++	var file = FileStore.new()
++	_check(file.write_file(path, data), "Far handoff disk write failed")
++	var restore = Restore.new()
++	var loaded = await restore.restore(self, file.read_file(path))
++	DirAccess.remove_absolute(path)
++	_check(loaded.ok, "Far handoff disk restore failed")
++	if not loaded.ok:
++		return
++	game = loaded.game
++	engineer = restore.entities[engineer_id]
++	headquarters = restore.entities[headquarters_id]
++	ai = engineer.player
++	for side in get_nodes_in_group("players"):
++		side.set_process(false)
++	for unit in get_nodes_in_group("units"):
++		unit.process_mode = Node.PROCESS_MODE_DISABLED
++	engineer.process_mode = Node.PROCESS_MODE_INHERIT
++	await _frames(30)
++	_check(paused and game.simulation_time == clock, "Paused handoff archive advanced")
++	_check(
++		engineer.position == point and engineer.resource_b == 4, "Archive moved or unloaded cargo"
++	)
++	_check(get_nodes_in_group("units").size() == actor_count, "Archive changed the traffic actors")
++	_check(labor.queued_target(engineer) != null, "Archive lost the pending materials handoff")
++	_check(_resource_total() == stock, "Archive changed finite resources")
++	var returning_action = engineer.action
++	var funds = ai.resource_b
++	var credited = false
++	var started = false
++	paused = false
++	for frame in 600:
++		await physics_frame
++		_check(_resource_total() == stock, "Restored handoff changed finite resources")
++		if engineer.resource_b == 0 and not credited:
++			credited = true
++			_check(ai.resource_b == funds + 4, "Restored return credited incorrect cargo")
++			_check(
++				root.get_node("Utils").Match.Unit.Movement.units_adhere(engineer, headquarters),
++				"Restored return delivered outside HQ contact"
++			)
++		if engineer.action != returning_action and is_instance_of(engineer.action, harvest):
++			started = true
++			break
++	_check(credited and started, "Restored handoff did not complete its ten-metre return")
++	_check(
++		is_instance_of(engineer.action, harvest) and engineer.action._kind == 1,
++		"Restored delivery did not start materials"
++	)
++	_check(engineer.manual_orders.pending.is_empty(), "Restored delivery retained a handoff")
++	print("LABOR HANDOFF archive_delivered=", ai.resource_b - funds)
++	await _close_fixture()
++
++
++func _manual_replacement():
++	await _fixture()
++	var stock = _resource_total()
++	_queue_handoff()
++	var goal = engineer.position + Vector3(0, 0, -3)
++	engineer.issue_manual_order(moving.new(goal))
++	_check(engineer.manual_orders.pending.is_empty(), "Manual Move retained the queued handoff")
++	_check(engineer.resource_b == 4, "Manual replacement lost existing cargo")
++	paused = false
++	await _frames(180)
++	_check(engineer.position.distance_to(goal) < .4, "Manual replacement did not reach its goal")
++	_check(
++		(
++			engineer.resource_b == 4
++			and ai.resource_b == 200
++			and not is_instance_of(engineer.action, harvest)
++		),
++		"Obsolete handoff resumed over the manual order"
++	)
++	_check(_resource_total() == stock, "Manual replacement changed finite resources")
++	await _close_fixture()
++
++
++func _resource_total():
++	var total = Vector2i(ai.resource_a, ai.resource_b)
++	for worker in _units(ai, "Worker"):
++		total += Vector2i(worker.resource_a, worker.resource_b)
++	for deposit in get_nodes_in_group("resource_units"):
++		if "resource_a" in deposit:
++			total.x += deposit.resource_a
++		else:
++			total.y += deposit.resource_b
++	return total
++
++
++func _close_fixture():
++	paused = false
++	game.queue_free()
++	await _frames(5)
++	game = null
+--- /dev/null
++++ after/tests/rendered/HarvestTrafficPreview.gd
+@@ -0,0 +1,55 @@
++extends "res://tests/headless/HarvestTrafficRegression.gd"
++
++var deadline = 0
++
++
++func _initialize():
++	Engine.max_fps = 60
++	deadline = Time.get_ticks_msec() + 300000
++	_run.call_deferred()
++
++
++func _process(_delta):
++	if Time.get_ticks_msec() > deadline:
++		push_error("Harvest traffic preview timed out")
++		quit(1)
++	return false
++
++
++func _run():
++	var options = root.get_node("Globals").options
++	var original = options.capture()
++	options.restore({"screen": 1, "interface_scale": 1.5, "edge_scrolling": false})
++	await create_timer(2).timeout
++	root.mode = Window.MODE_WINDOWED
++	root.size = Vector2i(1280, 720)
++	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
++	root.content_scale_size = Vector2i(1920, 1080)
++	await super()
++	options.restore(original)
++
++
++func _review_traffic(label, watched, blocker):
++	_check(paused, "Traffic review must preserve the paused scene")
++	var clock = game.simulation_time
++	# Spectator presentation changes neither gameplay observation nor actors.
++	game.visible_player = watched.player
++	game.settings.visibility = game.settings.Visibility.FULL
++	game.fog_of_war.reveal()
++	for unit in get_nodes_in_group("units"):
++		game.get_node("Handlers/UnitVisibilityHandler")._recalculate_unit_visibility(unit)
++	var camera = game.get_node("IsometricCamera3D")
++	camera.set_physics_process(false)
++	camera.set_size_safely(22)
++	camera.set_position_safely(blocker.position + Vector3(0, 0, -2))
++	root.get_node("MatchSignals").deselect_all_units.emit()
++	watched.get_node("Selection").select()
++	if game.hud.battle_plan._body.visible:
++		game.hud.battle_plan._toggle_body()
++	await _frames(12)
++	await RenderingServer.frame_post_draw
++	var frame = root.get_texture().get_image()
++	_check(frame.get_size() == Vector2i(1280, 720), "Traffic preview resolution changed")
++	frame.save_png("res://docs/playtests/2026-10-05/harvest-traffic/" + label + ".png")
++	_check(game.simulation_time == clock, "Traffic review advanced paused time")
++	print("HARVEST CAPTURE ", label, " action=", watched.action, " cargo=", watched.resource_b)

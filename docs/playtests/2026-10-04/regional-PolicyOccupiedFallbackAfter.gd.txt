@@ -1,0 +1,51 @@
+extends "res://tests/headless/PolicyRecoveryRegression.gd"
+
+
+func _recovery_fixture(faction):
+	if faction != "bastion":
+		return
+	var store = load("res://source/match/saves/SaveFile.gd").new()
+	var restore = load("res://source/match/saves/MatchRestore.gd").new()
+	var result = await restore.restore(self, store.read_file("res://docs/playtests/2026-10-04/regional-final-case-0-stall.json"))
+	_check(result.ok, "Occupied fallback archive failed")
+	game = result.game
+	human = game._get_human_player()
+	for player in get_nodes_in_group("players"):
+		player.set_process(false)
+	var unit = restore.entities["unit-12"]
+	for other in get_nodes_in_group("units"):
+		if other != unit:
+			other.process_mode = Node.PROCESS_MODE_DISABLED
+	var hq = _unit(human, "CommandCenter")
+	var before = unit.program.safe_point
+	unit.set_meta("policy_recovery_fallback", {"headquarters": hq.get_instance_id(), "point": before})
+	unit.set_meta("policy_programmed", true)
+	phase = "defend"
+	metrics = {"first_assault": null, "first_program": 0}
+	defense_point = unit.program.anchor
+	_command()
+	_check(unit.program.safe_point.distance_to(before) > .2, "Commander retained the newly occupied fallback")
+	_check(unit.program.mode in ["Ready", "Running"], "Commander did not resume the reassigned retreat")
+	paused = false
+	await _frames(900)
+	_check(unit.program.mode == "Running", "Reassigned fallback blocked again")
+	_check(unit.position.distance_to(unit.program.safe_point) < 1, "Reassigned fallback was not reached")
+	print("OCCUPIED FALLBACK before=", before, " after=", unit.program.safe_point, " point=", unit.position, " mode=", unit.program.mode)
+	game.queue_free()
+	await _frames(5)
+
+
+func _clear_fallback(unit, point, include_mobile = true):
+	return super(unit, point, include_mobile or (unit.program != null and unit.program.mode == "Blocked"))
+
+
+func _command():
+	var waiting = []
+	for unit in _policy_army():
+		if unit.program != null and unit.program.mode == "Blocked":
+			waiting.append({"unit": unit, "point": unit.program.safe_point})
+	super()
+	for row in waiting:
+		var unit = row.unit
+		if unit.program.mode == "Blocked" and unit.program.safe_point != row.point:
+			_check(unit.program.run(), "Reassigned fallback refused to resume")

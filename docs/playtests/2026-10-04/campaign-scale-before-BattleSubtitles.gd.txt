@@ -1,0 +1,45 @@
+extends CanvasLayer
+
+var voice
+var _card
+var _line = {}
+
+
+func _ready():
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	layer = 8
+	_card = load("res://source/match/hud/SubtitleCard.gd").new()
+	add_child(_card)
+	_card.resized.connect(_position_card)
+	_card.minimum_size_changed.connect(_fit_card)
+	get_viewport().size_changed.connect(_refresh)
+	Globals.options.changed.connect(_refresh)
+	voice.caption_changed.connect(_on_line)
+	_on_line(voice.current)
+
+
+func _on_line(line):
+	_line = line.duplicate()
+	_refresh()
+
+
+func _refresh():
+	_card.visible = Globals.options.subtitles and not _line.is_empty()
+	var width = get_viewport().get_visible_rect().size.x
+	# Leave the minimap and full-width unit/production panel unobscured at 720p.
+	_card.custom_minimum_size.x = minf(560, maxf(160, width - 228 - 570))
+	_card.size.x = _card.custom_minimum_size.x
+	if not _line.is_empty():
+		_card.set_line(_line.speaker, _line.text, Globals.options.subtitle_size)
+	_fit_card()
+
+
+func _fit_card():
+	_card.size = Vector2(_card.custom_minimum_size.x, _card.get_combined_minimum_size().y)
+	_position_card()
+
+
+func _position_card():
+	var viewport = get_viewport().get_visible_rect().size
+	var available = maxf(160, viewport.x - 228 - 570)
+	_card.position = Vector2(228 + (available - _card.size.x) / 2, viewport.y - _card.size.y - 20)

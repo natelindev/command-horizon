@@ -1,0 +1,71 @@
+extends "res://tmp/RegionalSkirmishMatches.gd"
+
+var history_rows = {}
+var captured_units = {}
+var probe_run = "0"
+
+
+func _initialize():
+	for argument in OS.get_cmdline_user_args():
+		if argument.begins_with("--probe-run="):
+			probe_run = argument.trim_prefix("--probe-run=")
+	super()
+
+
+func _measure():
+	super()
+	for unit in _policy_army():
+		var action = unit.action
+		if action == null or not action.has_method("_blocked_reason"):
+			continue
+		var movement = unit.get_node("Movement")
+		var id = unit.get_instance_id()
+		var rows = history_rows.get(id, [])
+		var row = {
+			"time": game.simulation_time,
+			"role": unit.type,
+			"position": str(unit.position),
+			"hp": unit.hp,
+			"mode": unit.program.mode,
+			"reason": unit.program.reason,
+			"anchor": str(unit.program.anchor),
+			"safe": str(unit.program.safe_point),
+			"program_destination": str(action._destination),
+			"stalled": action._stalled,
+			"last_progress": str(action._last_progress),
+			"target": str(movement.target_position),
+			"active": movement._has_destination,
+			"path": str(movement.get_current_navigation_path()),
+			"index": movement.get_current_navigation_path_index(),
+			"requested": str(movement.velocity),
+			"safe_velocity": str(avoidance_velocities.get(id)),
+			"recovery": movement._recovery_left,
+			"neighbors": _nearby_agents(unit),
+			"obstacles": _nearby_obstacles(unit)
+		}
+		rows.append(row)
+		if rows.size() > 20:
+			rows.pop_front()
+		history_rows[id] = rows
+		if captured_units.has(id):
+			print("GUARD FOLLOWUP ", JSON.stringify({"capture": captured_units[id], "sample": row}))
+			continue
+		if action._stalled < 3.5 or captured_units.size() >= 8:
+			continue
+		var stem = (
+			"res://docs/playtests/2026-10-04/guard-travel-%s-%d"
+			% [probe_run, captured_units.size()]
+		)
+		var was_paused = paused
+		paused = true
+		var builder = load("res://source/match/saves/MatchSnapshot.gd").new()
+		var data = builder.capture(game)
+		var disk = load("res://source/match/saves/SaveFile.gd").new()
+		_check(disk.write_file(stem + ".json", data), "Pre-block archive failed")
+		var reference = builder._reference(unit)
+		paused = was_paused
+		captured_units[id] = stem
+		var file = FileAccess.open(stem + "-trace.json", FileAccess.WRITE)
+		file.store_string(JSON.stringify({"unit": reference, "samples": rows}, "\t"))
+		file.close()
+		print("GUARD PREBLOCK ", stem, " unit=", reference, " seconds=", game.simulation_time)

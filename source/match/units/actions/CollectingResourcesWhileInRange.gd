@@ -14,6 +14,7 @@ static func is_applicable(source_unit, target_unit):
 	return (
 		source_unit is Worker
 		and target_unit is ResourceUnit
+		and target_unit.can_harvest(source_unit)
 		and not source_unit.is_full()
 		and Utils.Match.Unit.Movement.units_adhere(source_unit, target_unit)
 	)
@@ -24,8 +25,9 @@ func _init(resource_unit):
 
 
 func _ready():
+	if restoring:
+		return
 	_resource_unit.tree_exited.connect(queue_free)
-	_unit_movement_trait.passive_movement_started.connect(_on_passive_movement_started)
 	_unit_movement_trait.passive_movement_finished.connect(_on_passive_movement_finished)
 	_setup_timer()
 	_unit.get_node("Sparkling").enable()
@@ -46,7 +48,14 @@ func _setup_timer():
 
 
 func _transfer_single_resource_unit_from_resource_to_worker():
-	if not Utils.Match.Unit.Movement.units_adhere(_unit, _resource_unit):
+	# Crowd avoidance can keep a stationary worker gently moving indefinitely.
+	# Collection depends on contact range, not on perfectly zero avoidance velocity.
+	if (
+		not _resource_unit.can_harvest(_unit)
+		or _unit.is_full()
+		or not Utils.Match.Unit.Movement.units_adhere(_unit, _resource_unit)
+		or (get_parent().has_method("can_work") and not get_parent().can_work(_resource_unit))
+	):
 		queue_free()
 		return
 	if "resource_a" in _resource_unit:
@@ -70,10 +79,5 @@ func _rotate_unit_towards_resource_unit():
 	)
 
 
-func _on_passive_movement_started():
-	_timer.paused = true
-
-
 func _on_passive_movement_finished():
-	_timer.paused = false
 	_rotate_unit_towards_resource_unit()

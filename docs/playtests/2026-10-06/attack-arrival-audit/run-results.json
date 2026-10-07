@@ -1,0 +1,313 @@
+[
+  {
+    "log": "AirArrivalRegression.log",
+    "summary": [
+      "Air arrival: 0 failures"
+    ],
+    "script_errors": false,
+    "engine_errors": [
+      "ERROR: Parameter \"material\" is null."
+    ],
+    "classification": "passing-final",
+    "exit_code": 0
+  },
+  {
+    "log": "AttackMoveArrivalRegression.log",
+    "summary": [
+      "PASS: bastion occupied attack destination, queued handoff, dynamic blocker, disk restore and pause",
+      "PASS: helix occupied attack destination, queued handoff, dynamic blocker, disk restore and pause",
+      "PASS: frontier occupied attack destination, queued handoff, dynamic blocker, disk restore and pause",
+      "Attack-move arrival regression: 0 failures"
+    ],
+    "script_errors": false,
+    "engine_errors": [],
+    "classification": "passing-final",
+    "exit_code": 0
+  },
+  {
+    "log": "CornerRecoveryRegression.log",
+    "summary": [
+      "Corner recovery: 0 failures"
+    ],
+    "script_errors": false,
+    "engine_errors": [
+      "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+    ],
+    "classification": "passing-final",
+    "exit_code": 0
+  },
+  {
+    "log": "CrowdedDestinationRegression.log",
+    "summary": [
+      "Crowded destination: 0 failures"
+    ],
+    "script_errors": false,
+    "engine_errors": [
+      "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.",
+      "ERROR: 2 resources still in use at exit (run with --verbose for details)."
+    ],
+    "classification": "passing-final",
+    "exit_code": 0
+  },
+  {
+    "log": "EndpointTailRegression.log",
+    "summary": [
+      "Endpoint tail: 0 failures"
+    ],
+    "script_errors": false,
+    "engine_errors": [
+      "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+    ],
+    "classification": "passing-final",
+    "exit_code": 0
+  },
+  {
+    "log": "GuardEndpointRegression.log",
+    "summary": [
+      "Guard endpoint: 0 failures"
+    ],
+    "script_errors": false,
+    "engine_errors": [
+      "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+    ],
+    "classification": "passing-final",
+    "exit_code": 0
+  },
+  {
+    "log": "HQTrafficFactionsRegression.log",
+    "summary": [
+      "HQ faction traffic: 0 failures"
+    ],
+    "script_errors": false,
+    "engine_errors": [],
+    "classification": "passing-final",
+    "exit_code": 0
+  },
+  {
+    "log": "HQTrafficRegression.log",
+    "summary": [
+      "HQ traffic: 0 failures"
+    ],
+    "script_errors": false,
+    "engine_errors": [
+      "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+    ],
+    "classification": "passing-final",
+    "exit_code": 0
+  },
+  {
+    "log": "HarvestTrafficRegression.log",
+    "summary": [
+      "Harvest traffic: 0 failures"
+    ],
+    "script_errors": false,
+    "engine_errors": [
+      "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+    ],
+    "classification": "passing-final",
+    "exit_code": 0
+  },
+  {
+    "log": "SaveRestoreEdges.log",
+    "summary": [
+      "PASS: bastion reload/repeat/chip/targets/faults/memory/knowledge",
+      "PASS: helix reload/repeat/chip/targets/faults/memory/knowledge",
+      "PASS: actual reload preserves jobs, actions, programs, cargo, cooldowns and mission; resume works"
+    ],
+    "script_errors": false,
+    "engine_errors": [
+      "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+    ],
+    "classification": "passing-final",
+    "exit_code": 0
+  },
+  {
+    "log": "attack-regression.log",
+    "summary": [
+      "Crowded attack arrival: 0 failures"
+    ],
+    "script_errors": false,
+    "engine_errors": [
+      "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+    ],
+    "classification": "passing-final",
+    "exit_code": 0
+  },
+  {
+    "log": "audit-first.log",
+    "summary": [
+      "Attack arrival audit: 0 failures; res://docs/playtests/2026-10-06/attack-arrival-audit/audit-89054.json"
+    ],
+    "script_errors": false,
+    "engine_errors": [
+      "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+    ],
+    "classification": "before-observation",
+    "exit_code": 0,
+    "records": "audit-89054.json",
+    "trials": 12,
+    "missed_six_seconds": 0,
+    "max_arrival": 2.03333333333148
+  },
+  {
+    "log": "audit-process-1.log",
+    "summary": [
+      "Attack arrival audit: 0 failures; res://docs/playtests/2026-10-06/attack-arrival-audit/audit-89134.json"
+    ],
+    "script_errors": false,
+    "engine_errors": [
+      "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+    ],
+    "classification": "before-observation",
+    "exit_code": 0,
+    "records": "audit-89134.json",
+    "trials": 12,
+    "missed_six_seconds": 2,
+    "max_arrival": 8.08333333332598
+  },
+  {
+    "log": "audit-process-2.log",
+    "summary": [
+      "Attack arrival audit: 0 failures; res://docs/playtests/2026-10-06/attack-arrival-audit/audit-89135.json"
+    ],
+    "script_errors": false,
+    "engine_errors": [
+      "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+    ],
+    "classification": "before-observation",
+    "exit_code": 0,
+    "records": "audit-89135.json",
+    "trials": 12,
+    "missed_six_seconds": 1,
+    "max_arrival": 8.08333333332598
+  },
+  {
+    "log": "audit-process-3.log",
+    "summary": [
+      "Attack arrival audit: 0 failures; res://docs/playtests/2026-10-06/attack-arrival-audit/audit-89136.json"
+    ],
+    "script_errors": false,
+    "engine_errors": [
+      "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+    ],
+    "classification": "before-observation",
+    "exit_code": 0,
+    "records": "audit-89136.json",
+    "trials": 12,
+    "missed_six_seconds": 4,
+    "max_arrival": 18.1666666666501
+  },
+  {
+    "log": "baseline-progress.log",
+    "summary": [
+      "Attack arrival progress: 12 failures"
+    ],
+    "script_errors": false,
+    "engine_errors": [
+      "ERROR: Sideways travel reset arrival",
+      "ERROR: Retreat reset occupied arrival",
+      "ERROR: Earned AttackMove kept pushing at its occupied endpoint",
+      "ERROR: Arrived AttackMove retained movement",
+      "ERROR: Earned AttackMove kept pushing at its occupied endpoint",
+      "ERROR: Arrived AttackMove retained movement",
+      "ERROR: Earned AttackMove kept pushing at its occupied endpoint",
+      "ERROR: Arrived AttackMove retained movement",
+      "ERROR: Earned AttackMove kept pushing at its occupied endpoint",
+      "ERROR: Arrived AttackMove retained movement",
+      "ERROR: Earned AttackMove kept pushing at its occupied endpoint",
+      "ERROR: Arrived AttackMove retained movement",
+      "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+    ],
+    "classification": "expected-negative-control",
+    "exit_code": 1
+  },
+  {
+    "log": "fixed-audit-1.log",
+    "summary": [
+      "Attack arrival audit: 0 failures; res://docs/playtests/2026-10-06/attack-arrival-audit/audit-89691.json"
+    ],
+    "script_errors": false,
+    "engine_errors": [
+      "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+    ],
+    "classification": "after-observation",
+    "exit_code": 0,
+    "records": "audit-89691.json",
+    "trials": 12,
+    "missed_six_seconds": 0,
+    "max_arrival": 2.03333333333148
+  },
+  {
+    "log": "fixed-audit-2.log",
+    "summary": [
+      "Attack arrival audit: 0 failures; res://docs/playtests/2026-10-06/attack-arrival-audit/audit-90208.json"
+    ],
+    "script_errors": false,
+    "engine_errors": [
+      "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+    ],
+    "classification": "after-observation",
+    "exit_code": 0,
+    "records": "audit-90208.json",
+    "trials": 12,
+    "missed_six_seconds": 0,
+    "max_arrival": 2.03333333333148
+  },
+  {
+    "log": "fixed-audit-3.log",
+    "summary": [
+      "Attack arrival audit: 0 failures; res://docs/playtests/2026-10-06/attack-arrival-audit/audit-90209.json"
+    ],
+    "script_errors": false,
+    "engine_errors": [
+      "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+    ],
+    "classification": "after-observation",
+    "exit_code": 0,
+    "records": "audit-90209.json",
+    "trials": 12,
+    "missed_six_seconds": 0,
+    "max_arrival": 2.03333333333148
+  },
+  {
+    "log": "fixed-audit-4.log",
+    "summary": [
+      "Attack arrival audit: 0 failures; res://docs/playtests/2026-10-06/attack-arrival-audit/audit-90207.json"
+    ],
+    "script_errors": false,
+    "engine_errors": [
+      "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+    ],
+    "classification": "after-observation",
+    "exit_code": 0,
+    "records": "audit-90207.json",
+    "trials": 12,
+    "missed_six_seconds": 0,
+    "max_arrival": 2.03333333333148
+  },
+  {
+    "log": "progress-regression.log",
+    "summary": [
+      "Attack arrival progress: 0 failures"
+    ],
+    "script_errors": false,
+    "engine_errors": [
+      "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+    ],
+    "classification": "passing-final",
+    "exit_code": 0
+  },
+  {
+    "log": "render.log",
+    "summary": [
+      "Rendered attack arrival progress: 0 failures"
+    ],
+    "script_errors": false,
+    "engine_errors": [
+      "ERROR: 1 shaders of type ParticlesShaderRD were never freed",
+      "ERROR: 1 RID allocations of type 'N10RendererRD15MaterialStorage6ShaderE' were leaked at exit."
+    ],
+    "classification": "passing-final",
+    "exit_code": 0
+  }
+]

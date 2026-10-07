@@ -1,0 +1,42 @@
+{
+  "source": "../guarded-reassignment/control6.json",
+  "source_sha256": "e17188dcd79c34a6306a8f9b08387ba01d8af333d6fb72f9788d98a072fe30a9",
+  "hq_loss": [
+    {
+      "point": [
+        14.0,
+        50.0
+      ],
+      "role": "CommandCenter",
+      "seconds": 566.61666666648
+    }
+  ],
+  "post_loss_sample": [
+    {
+      "seconds": 600.7,
+      "funds": [
+        47,
+        3
+      ],
+      "queues": [
+        {
+          "blocked": "",
+          "jobs": [],
+          "producer": "VehicleFactory"
+        },
+        {
+          "blocked": "",
+          "jobs": [],
+          "producer": "Barracks"
+        }
+      ]
+    }
+  ],
+  "hq_cost": [
+    80,
+    20
+  ],
+  "cost_source": "source/match/FactionCatalog.gd",
+  "cost_source_sha256": "224ed467857c2e094cc6fcffdfd618df3ca6f778e3a7f17c171c1ae033167f27",
+  "scope": "Read-only observation, not funded reconstruction acceptance."
+}

@@ -1,0 +1,24 @@
+-- Assign an area and a safe point before running.
+-- Stay near the area; regroup below 30% health until healed to 80%.
+return function(snapshot, state)
+    local health = snapshot.self.hp / snapshot.self.hp_max
+    if health < 0.30 then state.retreating = true end
+    if health >= 0.80 then state.retreating = false end
+    if state.retreating then
+        return {intent = {kind = "move", assignment = "safe"}, state = state}
+    end
+    local point = snapshot.assignments.anchor
+    if point then
+        local dx = snapshot.self.position.x - point.x
+        local dz = snapshot.self.position.z - point.z
+        if dx * dx + dz * dz > 4 then
+            return {intent = {kind = "move", assignment = "anchor"}, state = state}
+        end
+    end
+    for _, enemy in ipairs(snapshot.enemies) do
+        if enemy.can_attack then
+            return {intent = {kind = "attack", target = enemy.id}, state = state}
+        end
+    end
+    return {intent = {kind = "hold"}, state = state}
+end

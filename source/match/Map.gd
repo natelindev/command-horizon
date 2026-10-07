@@ -14,3 +14,14 @@ const EXTRA_MARGIN = 2
 
 func get_topdown_polygon_2d():
 	return [Vector2(0, 0), Vector2(size.x, 0), size, Vector2(0, size.y)]
+
+
+func _enter_tree():
+	if Engine.is_editor_hint():
+		return
+	var catalog = load("res://source/match/ambient/AmbientCatalog.gd")
+	if catalog.entries(scene_file_path).is_empty():
+		return
+	var life = load("res://source/match/ambient/AmbientLife.gd").new()
+	life.name = "AmbientLife"
+	add_child(life)

@@ -1,0 +1,6 @@
+extends "res://tests/headless/EndpointTailRegression.gd"
+func _initialize():
+	var script = load("res://source/match/units/traits/Movement.gd")
+	script.source_code = FileAccess.get_file_as_string("res://docs/playtests/2026-10-04/endpoint-tail-Movement-before.gd.txt")
+	print("BEFORE MOVEMENT RELOAD ",script.reload())
+	super()

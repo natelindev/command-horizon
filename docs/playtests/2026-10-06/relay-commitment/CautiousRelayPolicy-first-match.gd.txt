@@ -1,0 +1,64 @@
+extends "res://tests/playtest/reference/RelayExpeditionPolicy.gd"
+
+const Rules = preload("res://source/match/combat/CombatRules.gd")
+var quiet_until = 0.0
+
+
+func update(game, player, units, phase, unavailable, home):
+	if game.get_tree().paused:
+		return _living_members()
+	var contacts = Economy.contacts(game, player)
+	var headquarters = units.filter(func(unit): return unit.type == "CommandCenter")
+	var approaching = contacts.any(
+		func(contact):
+			return headquarters.any(
+				func(hq):
+					return (
+						Rules.can_target(contact, hq)
+						and contact.position.distance_to(hq.position) < 30
+					)
+			)
+	)
+	if approaching or not Defense.plan(game, player, units, contacts).threats.is_empty():
+		quiet_until = game.simulation_time + 20
+	if phase == "defend" and game.simulation_time < quiet_until:
+		phase = "recover"
+	return super(game, player, units, phase, unavailable, home)
+
+
+func _choose_members(infantry, count, home, objective, contacts):
+	# The base policy sorts by distance to this objective. Count the remaining
+	# healthy conventional infantry at home, not troops still returning from a relay.
+	for size in range(count, 0, -1):
+		var held = infantry.slice(0, size)
+		var reserve = infantry.slice(size).filter(
+			func(unit): return unit.position.distance_to(home) <= 18
+		)
+		if reserve.size() >= 2 and not _mission_risk(objective, held, contacts):
+			return held
+	return []
+
+
+func _mission_risk(objective, held, contacts):
+	if held.is_empty():
+		return true
+	var opposition = contacts.filter(
+		func(contact):
+			return (
+				held.any(func(unit): return Rules.can_target(contact, unit))
+				and (
+					contact.position.distance_to(objective.position) <= 12
+					or held.any(
+						func(unit): return contact.position.distance_to(unit.position) <= 12
+					)
+				)
+			)
+	)
+	# An infantry scouting mission does not engage observed armor, aircraft or
+	# emplacements, or an equal/larger infantry group. This is a conservative
+	# commitment rule, not a general combined-arms strength estimator.
+	return (
+		opposition.size() >= held.size()
+		or opposition.any(func(unit): return unit.type != "Infantry")
+	)
+

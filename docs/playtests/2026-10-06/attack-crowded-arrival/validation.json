@@ -1,0 +1,22 @@
+{
+  "observed_exit_codes": {
+    "attack-arrival.log": 0,
+    "intact-replay.log": 0,
+    "after-initial.log": 0,
+    "orders.log": 0,
+    "expanded.log": 0,
+    "crowded-move.log": 0,
+    "snapshot.log": 0,
+    "native.log": 0,
+    "endpoint-tail.log": 0,
+    "infantry-recovery.log": 0,
+    "before.log": 1
+  },
+  "before": "three intact captures fail arrival and movement-stop checks, six assertions",
+  "after": "intact captures, disk/pause/queue, schema corruption/legacy, distant point and active combat pass",
+  "shared": "all-faction AttackMove, crowded Move, endpoint tails, general orders and typed snapshots pass",
+  "native": "two reviewed 1280x720 captures; live AI continuation arrives in 2.000 s, displacement 0.396 m",
+  "recovery_probe": "saved orders preserve wounded HP; existing Barracks recovery heals four soldiers to full in sixty seconds; commanders disabled",
+  "static": "eight GDScript files format/lint pass; git diff --check clean",
+  "limitations": "no post-fix complete-match claim; conventional reference recovery handoff remains to correct"
+}

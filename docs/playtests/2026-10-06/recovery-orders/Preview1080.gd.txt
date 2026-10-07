@@ -1,0 +1,109 @@
+extends "res://tests/headless/RecoveryOrdersRegression.gd"
+
+var deadline = 0
+var capture_prefix = ""
+
+
+func _initialize():
+	Engine.max_fps = 60
+	deadline = Time.get_ticks_msec() + 300000
+	_run.call_deferred()
+
+
+func _process(_delta):
+	if Time.get_ticks_msec() > deadline:
+		push_error("Native recovery review timed out")
+		quit(1)
+	return false
+
+
+func _run():
+	for argument in OS.get_cmdline_user_args():
+		if argument.begins_with("--captures="):
+			capture_prefix = argument.trim_prefix("--captures=")
+	if capture_prefix == "":
+		quit(2)
+		return
+	var options = root.get_node("Globals").options
+	var original = options.capture()
+	options.restore({"screen": 1, "interface_scale": 1.5, "edge_scrolling": false})
+	await create_timer(2).timeout
+	root.mode = Window.MODE_WINDOWED
+	root.size = Vector2i(1280, 720)
+	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	root.content_scale_size = Vector2i(1920, 1080)
+	root.get_node("SaveManager").autosaves_enabled = false
+	for faction in ["bastion", "helix", "frontier"]:
+		await _recovery_fixture(faction)
+		var camera = game.get_node("IsometricCamera3D")
+		camera.set_size_safely(24)
+		camera.set_position_safely(service.position)
+		game.fog_of_war._physics_process(0.0)
+		var menus = game.find_child("UnitMenus")
+		if faction == "frontier":
+			patient.manual_orders.submit(commands.Orders.point_order("move", patient.position))
+		menus._recover_health.grab_focus()
+		await _frames(8)
+		_check(root.get_visible_rect().encloses(menus.get_global_rect()), "Panel escapes viewport")
+		_check(
+			menus.get_global_rect().encloses(menus._recover_health.get_global_rect()),
+			"Recovery button outside panel"
+		)
+		await _capture(faction + "-ready")
+		print(
+			"NATIVE RECOVERY BUTTON ",
+			root.get_final_transform() * menus._recover_health.get_global_rect().get_center()
+		)
+		var clock = game.simulation_time
+		var hp = patient.hp
+		await _wait_input(
+			func():
+				return patient.manual_orders.pending.any(
+					func(order): return order.kind == "recover"
+				),
+			faction + ": activate recovery (Frontier Shift+Enter)"
+		)
+		_check(
+			paused and hp == patient.hp and clock == game.simulation_time,
+			"Native recovery changed paused simulation"
+		)
+		_check(
+			patient.manual_orders.pending.size() == (2 if faction == "frontier" else 1),
+			"Native recovery queue semantics failed"
+		)
+		await _capture(faction + "-queued")
+		await _wait_input(func(): return not paused, "Space to resume")
+		var end = Time.get_ticks_msec() + 45000
+		while patient.manual_orders._engaged and Time.get_ticks_msec() < end:
+			await _frames(1)
+		game.hud._toggle_pause()
+		_check(
+			patient.hp == patient.hp_max and not patient.manual_orders._engaged,
+			"Native recovery failed full-health completion"
+		)
+		menus._refresh_buttons()
+		await _frames(8)
+		await _capture(faction + "-healed")
+		paused = false
+		game.queue_free()
+		await _frames(5)
+	options.restore(original)
+	for error in errors:
+		push_error(error)
+	print("Recovery native: %d failures" % errors.size())
+	quit(0 if errors.is_empty() else 1)
+
+
+func _wait_input(predicate, label):
+	print("NATIVE RECOVERY INPUT: ", label)
+	while not predicate.call() and Time.get_ticks_msec() <= deadline:
+		await _frames(1)
+	_check(predicate.call(), "Missing native input: " + label)
+
+
+func _capture(label):
+	await RenderingServer.frame_post_draw
+	var destination = capture_prefix + "-" + label + ".png"
+	_check(not FileAccess.file_exists(destination), "Capture already exists: " + destination)
+	if not FileAccess.file_exists(destination):
+		_check(root.get_texture().get_image().save_png(destination) == OK, "Capture write failed")

@@ -21,6 +21,8 @@ func _init(target_unit):
 
 
 func _ready():
+	if restoring:
+		return
 	_target_unit.tree_exited.connect(queue_free)
 	_setup_refresh_timer()
 	_refresh()
@@ -38,12 +40,20 @@ func _setup_refresh_timer():
 
 
 func _refresh():
+	if not is_instance_valid(_target_unit) or _target_unit.is_queued_for_deletion():
+		queue_free()
+		return
+	if "player" in _target_unit and _target_unit.player != _unit.player:
+		if not _unit._match.battlefield.is_observed(_unit.player, _target_unit):
+			queue_free()
+			return
 	if (
 		_last_known_target_unit_position == null
 		or not _target_unit.global_position.is_equal_approx(_last_known_target_unit_position)
 	):
 		if _sub_action != null:
 			_sub_action.tree_exited.disconnect(_on_sub_action_finished)
+			_sub_action.queue_free()
 			remove_child(_sub_action)
 		_sub_action = MovingToUnit.new(_target_unit)
 		_sub_action.tree_exited.connect(_on_sub_action_finished)

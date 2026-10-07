@@ -1,0 +1,36 @@
+extends "res://tests/headless/CrowdBoundaryRegression.gd"
+var run_label = "after"
+
+func _initialize():
+	if "--before" in OS.get_cmdline_user_args():
+		run_label = "before"
+		var script = load("res://source/match/units/traits/Movement.gd")
+		script.source_code = FileAccess.get_file_as_string("res://docs/playtests/2026-10-04/endpoint-tail-Movement-before.gd.txt")
+		print("CROWD BEFORE RELOAD ",script.reload())
+	var tracked = load("res://source/match/units/traits/Movement.gd")
+	var argument = "final_segment_only" if run_label == "before" else "require_short_route"
+	var header = "func has_occupied_endpoint("+argument+" = true):"
+	tracked.source_code = tracked.source_code.replace(header, header+"\n\tif "+argument+":\n\t\tEngine.set_meta(\"endpoint_queries\", int(Engine.get_meta(\"endpoint_queries\", 0))+1)")
+	print("CROWD INSTRUMENT RELOAD ",tracked.reload())
+	super()
+
+func _run():
+	root.get_node("SaveManager").autosaves_enabled = false
+	harvest_action = load("res://source/match/units/actions/CollectingResourcesSequentially.gd")
+	for repetition in 20:
+		await _archived_traffic(repetition)
+		print("BOUNDED QUERIES ",Engine.get_meta("endpoint_queries",0))
+	for error in errors:push_error(error)
+	print("Crowd repeat ",run_label,": ",errors.size()," failures")
+	quit(0 if errors.is_empty() else 1)
+
+func _review_traffic(worker,label):
+	if label != "archive-after" or worker.resource_b > 0:return
+	var was_paused = paused
+	paused = true
+	var builder = Snapshot.new()
+	var data = builder.capture(game)
+	var id = builder._reference(worker)
+	var filename = "res://docs/playtests/2026-10-04/endpoint-crowd-"+run_label+"-"+str(Time.get_ticks_msec())+".json"
+	print("CROWD DIAGNOSTIC saved=",FileStore.new().write_file(filename,data)," file=",filename," unit=",id," position=",worker.position," action=",worker.action)
+	paused = was_paused

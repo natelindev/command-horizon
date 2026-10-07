@@ -1,0 +1,85 @@
+[
+  {
+    "name": "recovery-2",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/SplitClearanceRecovery.gd",
+      "--",
+      "--archive=res://docs/playtests/2026-10-07/relay-feedback/mode-2-archive.json",
+      "--evidence=res://docs/playtests/2026-10-07/relay-feedback/recovery-2"
+    ],
+    "exit_code": 1
+  },
+  {
+    "name": "split-rules-final",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/headless/SplitSignalRegression.gd",
+      "--"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "feedback-final",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/headless/RelayFeedbackRegression.gd",
+      "--"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "clear-0",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/SplitDifficultyMatches.gd",
+      "--",
+      "--difficulty=0",
+      "--clear-contests",
+      "--evidence=res://docs/playtests/2026-10-07/relay-feedback/clear-0"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "clear-2",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/SplitDifficultyMatches.gd",
+      "--",
+      "--difficulty=2",
+      "--clear-contests",
+      "--evidence=res://docs/playtests/2026-10-07/relay-feedback/clear-2"
+    ],
+    "exit_code": 0
+  }
+]

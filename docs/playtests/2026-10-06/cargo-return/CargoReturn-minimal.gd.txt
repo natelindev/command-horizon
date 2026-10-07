@@ -1,0 +1,23 @@
+extends "res://tests/headless/DirectOrdersRegression.gd"
+
+
+func _run():
+	root.get_node("SaveManager").autosaves_enabled = false
+	for faction in ["bastion", "helix", "frontier"]:
+		await _skirmish(faction, "res://source/match/maps/DesertFrontier.tscn", true)
+		for side in get_nodes_in_group("players"):
+			side.set_process(false)
+		game.hud._toggle_pause()
+		var worker = _units(game._get_human_player(), "Worker")[0]
+		worker.resource_a = 3
+		worker.resource_b = 1
+		await _select_units([worker])
+		var button = game.find_child("UnitMenus").find_child("ReturnCargo", true, false)
+		_check(button != null, faction + ": engineer command panel lacks Return cargo")
+		paused = false
+		game.queue_free()
+		await _frames(5)
+	for error in errors:
+		push_error(error)
+	print("Cargo return: %d failures" % errors.size())
+	quit(0 if errors.is_empty() else 1)

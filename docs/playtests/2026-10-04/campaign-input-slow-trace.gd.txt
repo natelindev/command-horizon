@@ -1,0 +1,73 @@
+extends "res://tests/rendered/SplitSignalPreview.gd"
+
+var click_id = 0
+
+func _run():
+	Engine.max_fps = 15
+	root.get_node("Globals").options.restore({"screen": 1, "edge_scrolling": false})
+	await create_timer(2).timeout
+	root.mode = Window.MODE_WINDOWED
+	root.size = Vector2i(1280, 720)
+	root.content_scale_mode = Window.CONTENT_SCALE_MODE_VIEWPORT
+	root.content_scale_size = root.size
+	path = "user://input-trace-%d.json" % OS.get_process_id()
+	root.get_node("SaveManager").autosaves_enabled = false
+	await _make_match()
+	var counts = [0, 0, 0]
+	for index in 3:
+		game.hud._relay_buttons[index].pressed.connect(func(): counts[index] += 1)
+	for step in 30:
+		var index = step % 3
+		var before = counts[index]
+		await _click(game.hud._relay_buttons[index])
+		_check(counts[index] == before + 1, "Missed trace click %d" % (step + 1))
+	await _cleanup()
+	for error in errors:
+		push_error(error)
+	print("Campaign trace: %d failures" % errors.size())
+	quit(0 if errors.is_empty() else 1)
+
+
+func _click(control):
+	click_id += 1
+	var id = click_id
+	var callbacks = []
+	for signal_name in ["mouse_entered", "mouse_exited", "button_down", "button_up", "pressed"]:
+		var callback = func(): _trace(id, control, signal_name)
+		control.connect(signal_name, callback)
+		callbacks.append([signal_name, callback])
+	var gui_callback = func(event):
+		if event is InputEventMouse:
+			_trace(id, control, "GUI " + event.as_text() + " device=" + str(event.device))
+	control.gui_input.connect(gui_callback)
+	var point = root.get_final_transform() * control.get_global_rect().get_center()
+	var motion = InputEventMouseMotion.new()
+	motion.device = 77
+	motion.position = point
+	motion.global_position = point
+	_trace(id, control, "BEFORE MOTION")
+	root.push_input(motion, false)
+	await _frames(2)
+	for pressed in [true, false]:
+		var event = InputEventMouseButton.new()
+		event.device = 77
+		event.position = point
+		event.global_position = point
+		event.button_index = MOUSE_BUTTON_LEFT
+		event.button_mask = MOUSE_BUTTON_MASK_LEFT if pressed else 0
+		event.pressed = pressed
+		_trace(id, control, "BEFORE " + str(pressed))
+		root.push_input(event, false)
+		_trace(id, control, "IMMEDIATE " + str(pressed))
+		await _frames(3)
+		_trace(id, control, "AFTER " + str(pressed))
+	if is_instance_valid(control):
+		for connection in callbacks:
+			control.disconnect(connection[0], connection[1])
+		control.gui_input.disconnect(gui_callback)
+
+func _trace(id, control, message):
+	print("TRACE ", id, " frame=", Engine.get_process_frames(), " ", message,
+		" control=", str(control), " hovered=", root.gui_get_hovered_control(),
+		" mouse=", root.get_mouse_position(), " rect=",
+		control.get_global_rect() if is_instance_valid(control) else Rect2())

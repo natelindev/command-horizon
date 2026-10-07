@@ -1,0 +1,42 @@
+[
+  {
+    "log": "initial-regression.log",
+    "exit_code": 0,
+    "classification": "passed initial delivery and authority fixture; before extra route checks"
+  },
+  {
+    "log": "final-regression.log",
+    "exit_code": 0,
+    "classification": "passed full all-faction regression"
+  },
+  {
+    "log": "original-policy.log",
+    "exit_code": 1,
+    "classification": "expected six failed assertions with reverse hook disabled"
+  },
+  {
+    "log": "ElectronicsHandoffRegression.log",
+    "exit_code": 0,
+    "classification": "passed shared forward handoff"
+  },
+  {
+    "log": "LaborHandoffRegression.log",
+    "exit_code": 0,
+    "classification": "passed shared delivery boundary"
+  },
+  {
+    "log": "earned-continuation.log",
+    "exit_code": 0,
+    "classification": "passed exact earned archive control/retain replay"
+  },
+  {
+    "log": "control.log",
+    "status_file": "control-exit.json",
+    "classification": "one resolved defeat and one unresolved at 30:00; exit 1, complete-match gate failed"
+  },
+  {
+    "log": "reverse.log",
+    "status_file": "reverse-exit.json",
+    "classification": "two resolved defeats; exit 0, no strategy promotion"
+  }
+]

@@ -1,0 +1,11 @@
+[configuration]
+entry_symbol = "rts_lua_init"
+compatibility_minimum = "4.5"
+reloadable = false
+
+[libraries]
+macos.arm64 = "res://source/native/bin/librts_lua.macos.arm64.dylib"
+macos.x86_64 = "res://source/native/bin/librts_lua.macos.x86_64.dylib"
+linux.x86_64 = "res://source/native/bin/librts_lua.linux.x86_64.so"
+linux.arm64 = "res://source/native/bin/librts_lua.linux.arm64.so"
+windows.x86_64 = "res://source/native/bin/rts_lua.windows.x86_64.dll"

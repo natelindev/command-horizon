@@ -1,0 +1,33 @@
+[
+  {
+    "name": "native-earned",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--path",
+      ".",
+      "--script",
+      "tests/rendered/HorizonRecoveryPreview.gd",
+      "--",
+      "--evidence=res://docs/playtests/2026-10-07/horizon-control/native-earned"
+    ],
+    "exit_code": 0,
+    "script_error": false
+  },
+  {
+    "name": "native-north",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--path",
+      ".",
+      "--script",
+      "tests/rendered/HorizonDifficultyPreview.gd",
+      "--",
+      "--difficulty=2",
+      "--alternate",
+      "--retake-deployment",
+      "--evidence=res://docs/playtests/2026-10-07/horizon-control/native-north"
+    ],
+    "exit_code": 0,
+    "script_error": false
+  }
+]

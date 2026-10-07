@@ -1,5 +1,6 @@
 extends PanelContainer
 
+const Ownership = preload("res://source/match/hud/Ownership.gd")
 const Unit = preload("res://source/match/units/Unit.gd")
 const Moving = preload("res://source/match/units/actions/Moving.gd")
 
@@ -24,6 +25,13 @@ func _ready():
 		_match.find_child("Map").size * MINIMAP_PIXELS_PER_WORLD_METER
 	)
 	_texture_rect.gui_input.connect(_on_gui_input)
+	_texture_rect.tooltip_text = Ownership.legend(_match)
+	_texture_rect.accessibility_name = "Battlefield minimap. " + Ownership.legend(_match)
+	if _match.map.has_method("overview"):
+		var features = load("res://source/match/hud/MapFeatures.gd").new()
+		features.map = _match.map
+		features.pixel_scale = MINIMAP_PIXELS_PER_WORLD_METER
+		_viewport_background.add_child(features)
 
 
 func _physics_process(_delta):
@@ -42,7 +50,7 @@ func _sync_real_units_with_minimap_representations():
 		get_tree().get_nodes_in_group("units") + get_tree().get_nodes_in_group("resource_units")
 	)
 	for unit in units_to_sync:
-		if not unit.visible:
+		if not Ownership.known_now(unit, _match):
 			continue
 		units_synced[unit] = 1
 		if not _unit_is_mapped(unit):
@@ -58,12 +66,8 @@ func _unit_is_mapped(unit):
 
 
 func _map_unit(unit):
-	var node_representing_unit = ColorRect.new()
-	node_representing_unit.size = Vector2(3, 3)
-	if not unit is Unit:
-		node_representing_unit.rotation_degrees = 45
+	var node_representing_unit = load("res://source/match/hud/MinimapUnitMarker.gd").new()
 	_viewport_background.add_sibling(node_representing_unit)
-	node_representing_unit.pivot_offset = node_representing_unit.size / 2.0
 	_unit_to_corresponding_node_mapping[unit] = node_representing_unit
 
 
@@ -71,6 +75,8 @@ func _sync_unit(unit):
 	var unit_pos_3d = unit.global_transform.origin
 	var unit_pos_2d = Vector2(unit_pos_3d.x, unit_pos_3d.z) * MINIMAP_PIXELS_PER_WORLD_METER
 	_unit_to_corresponding_node_mapping[unit].position = unit_pos_2d
+	_unit_to_corresponding_node_mapping[unit].kind = Ownership.kind(unit, _match)
+	_unit_to_corresponding_node_mapping[unit].queue_redraw()
 	_unit_to_corresponding_node_mapping[unit].color = (
 		unit.player.color if unit is Unit else unit.color
 	)
@@ -84,11 +90,12 @@ func _cleanup_mapping(unit):
 func _update_camera_indicator():
 	var viewport = get_viewport()
 	var camera = viewport.get_camera_3d()
+	var viewport_size = viewport.get_visible_rect().size
 	var camera_corners = [
 		Vector2.ZERO,
-		Vector2(0, viewport.size.y),
-		viewport.size,
-		Vector2(viewport.size.x, 0),
+		Vector2(0, viewport_size.y),
+		viewport_size,
+		Vector2(viewport_size.x, 0),
 		Vector2.ZERO
 	]
 	for index in range(camera_corners.size()):

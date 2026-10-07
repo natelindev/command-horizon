@@ -1,22 +1,20 @@
 extends "res://source/match/units/actions/Action.gd"
 
-const AttackingWhileInRange = preload("res://source/match/units/actions/AttackingWhileInRange.gd")
-const FollowingToReachDistance = preload(
-	"res://source/match/units/actions/FollowingToReachDistance.gd"
-)
-
+const Shooting = preload("res://source/match/units/actions/AttackingWhileInRange.gd")
+const Rules = preload("res://source/match/combat/CombatRules.gd")
 var _target_unit = null
-var _sub_action = null
+var _shot = null
+var _elapsed = 0.0
+var _last_known_position = Vector3.INF
+var _lost_contact = false
+var _blocked_elapsed = 0.0
+var _progress_position = Vector3.INF
 @onready var _unit = Utils.NodeEx.find_parent_with_group(self, "units")
+@onready var _movement = _unit.find_child("Movement")
 
 
 static func is_applicable(source_unit, target_unit):
-	return (
-		source_unit.attack_range != null
-		and "player" in target_unit
-		and source_unit.player != target_unit.player
-		and target_unit.movement_domain in source_unit.attack_domains
-	)
+	return Rules.can_target(source_unit, target_unit)
 
 
 func _init(target_unit):
@@ -24,39 +22,75 @@ func _init(target_unit):
 
 
 func _ready():
-	_target_unit.tree_exited.connect(_on_target_unit_removed)
-	_attack_or_move_closer()
-
-
-func _to_string():
-	return "{0}({1})".format([super(), str(_sub_action) if _sub_action != null else ""])
-
-
-func _target_in_range():
-	return (
-		_unit.global_position_yless.distance_to(_target_unit.global_position_yless)
-		<= _unit.attack_range
-	)
-
-
-func _attack_or_move_closer():
-	_sub_action = (
-		AttackingWhileInRange.new(_target_unit)
-		if _target_in_range()
-		else FollowingToReachDistance.new(_target_unit, _unit.attack_range)
-	)
-	_sub_action.tree_exited.connect(_on_sub_action_finished)
-	add_child(_sub_action)
-	_unit.action_updated.emit()
-
-
-func _on_target_unit_removed():
-	queue_free()
-
-
-func _on_sub_action_finished():
-	if not is_inside_tree():
+	if restoring:
 		return
-	if not _target_unit.is_inside_tree():
+	_refresh()
+
+
+func _physics_process(delta):
+	_elapsed += delta
+	if _elapsed >= 0.15:
+		_elapsed = 0.0
+		_refresh()
+
+
+func _refresh():
+	var field = _unit._match.battlefield
+	if _lost_contact:
+		_follow_last_known_position()
 		return
-	_attack_or_move_closer()
+	if not Rules.can_target(_unit, _target_unit):
+		queue_free()
+		return
+	if not field.is_observed(_unit.player, _target_unit):
+		_lost_contact = true
+		_target_unit = null
+		if is_instance_valid(_shot):
+			_shot.queue_free()
+		_follow_last_known_position()
+		return
+	_last_known_position = _target_unit.global_position
+	if is_instance_valid(_shot) and not _shot.is_queued_for_deletion():
+		return
+	if field.can_fire(_unit, _target_unit):
+		if _movement != null:
+			_movement.stop()
+		_shot = Shooting.new(_target_unit)
+		add_child(_shot)
+		_unit.action_updated.emit()
+	elif _movement != null:
+		# An allied spotter can reveal a target behind a wall, but cannot grant a shot
+		# through it. Navigate around it until a firing lane is available.
+		if (
+			_unit.global_position_yless.distance_to(_target_unit.global_position_yless)
+			> _unit.radius + _target_unit.radius + 0.3
+		):
+			_movement.move(_target_unit.global_position)
+		else:
+			_movement.stop()
+
+
+func _exit_tree():
+	if is_instance_valid(_movement):
+		_movement.stop()
+
+
+func _follow_last_known_position():
+	if _movement == null or not _last_known_position.is_finite():
+		queue_free()
+		return
+	if _unit.global_position_yless.distance_to(_last_known_position * Vector3(1, 0, 1)) < 0.6:
+		queue_free()
+		return
+	if (
+		_progress_position.is_finite()
+		and _unit.global_position.distance_to(_progress_position) < 0.15
+	):
+		_blocked_elapsed += 0.15
+	else:
+		_progress_position = _unit.global_position
+		_blocked_elapsed = 0.0
+	if _blocked_elapsed >= 5.0:
+		queue_free()
+		return
+	_movement.move(_last_known_position)

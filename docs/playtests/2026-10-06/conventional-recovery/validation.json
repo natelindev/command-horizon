@@ -1,0 +1,22 @@
+{
+  "accepted_exit_codes": {
+    "original.log": 1,
+    "recovery.log": 0,
+    "policy.log": 0,
+    "matches-2.log": 0,
+    "matches-6.log": 0,
+    "native.log": 0
+  },
+  "rejected_zero_exit_parse_error_logs": [
+    "original-parse-error.log",
+    "recovery-parse-error.log",
+    "policy-parse-error.log"
+  ],
+  "original": "three expected earned-army assertions fail; no healing/recommitment in 120 seconds",
+  "fixed": "all four healed and rejoined by 36.5 seconds; 292 treatment authority checks",
+  "all_factions": "thresholds, fog, unsafe-service pause, replacement facility, stockpile preservation and release pass",
+  "paid_matches": "four complete outcomes: one victory and three defeats; no general balance claim",
+  "native": "two live 45-second continuations reach full health, four reviewed 1280x720 captures",
+  "static": "six scripts format/lint pass; git diff --check clean",
+  "scope": "reference commander only; existing shipping service reused"
+}

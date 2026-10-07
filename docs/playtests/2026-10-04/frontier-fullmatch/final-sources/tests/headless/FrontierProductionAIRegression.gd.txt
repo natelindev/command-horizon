@@ -1,0 +1,120 @@
+extends "res://tests/headless/SaveRestoreEdges.gd"
+
+var factions
+var production
+
+
+func _run():
+	factions = load("res://source/match/FactionCatalog.gd")
+	production = load("res://source/match/players/skirmish-ai/SkirmishProduction.gd")
+	root.get_node("SaveManager").autosaves_enabled = false
+	for faction in factions.IDS:
+		_check(await _procurement(faction) == true, faction + ": procurement did not finish")
+	for message in errors:
+		push_error(message)
+	print("Frontier AI production: %d failures" % errors.size())
+	quit(0 if errors.is_empty() else 1)
+
+
+func _procurement(faction):
+	var settings = load("res://source/data-model/MatchSettings.gd").new()
+	settings.skirmish = true
+	settings.advanced_start = true
+	settings.map_path = "res://source/match/maps/PlainAndSimple.tscn"
+	for index in 2:
+		var side = load("res://source/data-model/PlayerSettings.gd").new()
+		side.controller = index + 1
+		side.faction = "bastion" if index == 0 else faction
+		settings.players.append(side)
+	game = load("res://source/match/Skirmish.tscn").instantiate()
+	game.settings = settings
+	game.map = load(settings.map_path).instantiate()
+	root.add_child(game)
+	current_scene = game
+	var human = game._get_human_player()
+	var player = get_nodes_in_group("players").filter(func(side): return side != human)[0]
+	player.set_process(false)
+	for unit in get_nodes_in_group("units"):
+		if unit.type == "Worker":
+			unit.issue_manual_order(null)
+	await _frames(60)
+	paused = true
+	var factory = _units(player, "VehicleFactory")[0]
+	var lab = _units(player, "CommandLab")[0]
+	factory.production_queue.cancel_all()
+	factory.production_queue.fit_chips = false
+	player._production_index = 0
+	var cost = factions.cost(player, "Tank")
+	var fitted = faction == "frontier"
+	var fee = factions.chip_cost(faction) if fitted else 0
+	var units = [factory, lab]
+	var requests = production.requests(game, player, units)
+	_check(requests.size() == 1 and requests[0].role == "Tank", "Expected one tank request")
+	if requests.size() != 1:
+		return false
+	_check(
+		requests[0].cost.resource_b == cost.resource_b + fee,
+		faction + ": AI forecast missed chip policy"
+	)
+	_check(not factory.production_queue.fit_chips, "Read-only forecast changed the queue")
+	if fitted:
+		player.resource_a = cost.resource_a
+		player.resource_b = cost.resource_b
+		player._train(units, "")
+		_check(
+			factory.production_queue.size() == 0,
+			"AI bought a fitted tank before its chip was funded"
+		)
+		_check(
+			player.resource_a == cost.resource_a and player.resource_b == cost.resource_b,
+			"Unfunded fitting partially spent resources"
+		)
+	player.resource_a = cost.resource_a
+	player.resource_b = cost.resource_b + fee
+	player._train(units, "")
+	var queue = factory.production_queue.get_elements()
+	_check(queue.size() == 1, "Funded AI job was not purchased")
+	if queue.size() != 1:
+		return false
+	var job = queue[0]
+	_check(job.fitted_chip == fitted, faction + ": AI bought wrong chip state")
+	_check(
+		job.paid_cost.resource_b == cost.resource_b + fee, "Actual AI charge differs from forecast"
+	)
+	_check(player.resource_a == 0 and player.resource_b == 0, "AI purchase did not use exact funds")
+	_check(
+		job.time_total == 20 + (3 if fitted else 0),
+		"AI fitting did not use actual factory duration"
+	)
+	var previous = _units(player, "Tank")
+	paused = false
+	await _frames(1500)
+	paused = true
+	var built = _units(player, "Tank").filter(func(tank): return tank not in previous)
+	_check(built.size() == 1, "Paid factory job did not deliver one tank")
+	if built.size() == 1:
+		_check(built[0].program.installed == fitted, "Delivered AI tank lost its paid hardware")
+	if faction == "frontier":
+		lab.hp = 0
+		await _frames(3)
+		player._production_index = 0
+		player.resource_a = cost.resource_a
+		player.resource_b = cost.resource_b
+		player._train([factory], "")
+		queue = factory.production_queue.get_elements()
+		_check(
+			queue.size() == 1 and not queue[0].fitted_chip, "Lost lab blocked conventional fallback"
+		)
+		_check(
+			player.resource_a == 0 and player.resource_b == 0,
+			"Lab-loss fallback charged unavailable chip"
+		)
+		factory.production_queue.cancel_all()
+		_check(
+			player.resource_a == cost.resource_a and player.resource_b == cost.resource_b,
+			"Fallback refund differs"
+		)
+	paused = false
+	game.queue_free()
+	await _frames(5)
+	return true

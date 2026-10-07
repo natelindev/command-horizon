@@ -1,0 +1,27 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="PackedScene" path="res://source/match/Map.tscn" id="base"]
+[ext_resource type="Script" path="res://source/match/maps/AlpineRelay.gd" id="script"]
+[ext_resource type="Shader" path="res://source/shaders/3d/alpine.gdshader" id="shader"]
+
+[sub_resource type="ShaderMaterial" id="snow"]
+shader = ExtResource("shader")
+
+[sub_resource type="PlaneMesh" id="terrain"]
+resource_local_to_scene = true
+material = SubResource("snow")
+size = Vector2(132, 108)
+center_offset = Vector3(64, 0, 52)
+
+[node name="Map" instance=ExtResource("base")]
+script = ExtResource("script")
+size = Vector2(128, 104)
+
+[node name="Terrain" parent="Geometry" index="1"]
+mesh = SubResource("terrain")
+
+[node name="West" type="Marker3D" parent="SpawnPoints" index="0"]
+position = Vector3(17, 0, 18)
+
+[node name="East" type="Marker3D" parent="SpawnPoints" index="1"]
+position = Vector3(111, 0, 86)

@@ -1,0 +1,45 @@
+[
+  {
+    "name": "lean-diagnostic",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/HorizonSupportPurchase.gd",
+      "--",
+      "--difficulty=2",
+      "--alternate",
+      "--lean",
+      "--retake-deployment",
+      "--evidence=res://docs/playtests/2026-10-07/horizon-control/lean-diagnostic"
+    ],
+    "exit_code": 0,
+    "script_error": false
+  },
+  {
+    "name": "lean-paid-support",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/HorizonSupportPurchase.gd",
+      "--",
+      "--difficulty=2",
+      "--alternate",
+      "--lean",
+      "--retake-deployment",
+      "--evidence=res://docs/playtests/2026-10-07/horizon-control/lean-paid-support",
+      "--wait-assault-support"
+    ],
+    "exit_code": 0,
+    "script_error": false
+  }
+]

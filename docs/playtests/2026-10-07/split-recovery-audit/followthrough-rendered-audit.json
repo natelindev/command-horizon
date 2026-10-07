@@ -1,0 +1,4414 @@
+[
+	{
+		"control": 117.449999999995,
+		"difficulty": 2,
+		"human": 12,
+		"network": 0.0,
+		"relays": [
+			{
+				"contested": true,
+				"owner": "human",
+				"progress": 0.0,
+				"status": "North · Contested"
+			},
+			{
+				"contested": false,
+				"owner": "enemy",
+				"progress": 0.0,
+				"status": "East · Enemy owned"
+			},
+			{
+				"contested": true,
+				"owner": "human",
+				"progress": 0.0,
+				"status": "South · Contested"
+			}
+		],
+		"result": "",
+		"time": 268.966666666751,
+		"units": [
+			{
+				"action": {
+
+				},
+				"hp": 35,
+				"human": true,
+				"id": 237884149625,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					10.0,
+					0.0,
+					53.0
+				],
+				"program": "none",
+				"role": "Worker"
+			},
+			{
+				"action": {
+
+				},
+				"hp": 35,
+				"human": true,
+				"id": 238572015518,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					13.0,
+					0.0,
+					53.0
+				],
+				"program": "none",
+				"role": "Worker"
+			},
+			{
+				"action": {
+
+				},
+				"hp": 35,
+				"human": true,
+				"id": 239259881411,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					16.0,
+					0.0,
+					57.0
+				],
+				"program": "none",
+				"role": "Worker"
+			},
+			{
+				"action": {
+
+				},
+				"hp": 25,
+				"human": true,
+				"id": 239947747304,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					28.0,
+					1.5,
+					39.0
+				],
+				"program": "Manual",
+				"role": "Drone"
+			},
+			{
+				"action": {
+					"_lost_contact": false,
+					"children": [],
+					"kind": "AutoAttacking.gd",
+					"target": 271321142530
+				},
+				"hp": 21.2666666666667,
+				"human": true,
+				"id": 241491251220,
+				"observed_enemies": [
+					{
+						"can_fire": false,
+						"distance": 4.47565460205078,
+						"id": 271321142530,
+						"role": "Infantry"
+					},
+					{
+						"can_fire": true,
+						"distance": 5.47320604324341,
+						"id": 259979744072,
+						"role": "Tank"
+					},
+					{
+						"can_fire": false,
+						"distance": 5.05120992660522,
+						"id": 272411661613,
+						"role": "Infantry"
+					},
+					{
+						"can_fire": false,
+						"distance": 5.17563343048096,
+						"id": 273502180696,
+						"role": "Tank"
+					}
+				],
+				"order": "attack",
+				"order_status": "Attack · 1 waiting",
+				"pending": [
+					"attack_move"
+				],
+				"position": [
+					43.2826385498047,
+					0.0,
+					23.2698211669922
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"_lost_contact": false,
+					"children": [],
+					"kind": "AutoAttacking.gd",
+					"target": 271321142530
+				},
+				"hp": 28.7333333333333,
+				"human": true,
+				"id": 242665656388,
+				"observed_enemies": [
+					{
+						"can_fire": false,
+						"distance": 6.27036762237549,
+						"id": 271321142530,
+						"role": "Infantry"
+					},
+					{
+						"can_fire": false,
+						"distance": 7.27158498764038,
+						"id": 259979744072,
+						"role": "Tank"
+					},
+					{
+						"can_fire": false,
+						"distance": 6.85530376434326,
+						"id": 272411661613,
+						"role": "Infantry"
+					},
+					{
+						"can_fire": false,
+						"distance": 6.88679075241089,
+						"id": 273502180696,
+						"role": "Tank"
+					}
+				],
+				"order": "attack",
+				"order_status": "Attack · 1 waiting",
+				"pending": [
+					"attack_move"
+				],
+				"position": [
+					41.5792083740234,
+					0.0,
+					23.8802680969238
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"_lost_contact": false,
+					"children": [],
+					"kind": "AutoAttacking.gd",
+					"target": 271321142530
+				},
+				"hp": 17.5,
+				"human": true,
+				"id": 243554848883,
+				"observed_enemies": [
+					{
+						"can_fire": false,
+						"distance": 4.52371454238892,
+						"id": 271321142530,
+						"role": "Infantry"
+					},
+					{
+						"can_fire": false,
+						"distance": 5.97283887863159,
+						"id": 259979744072,
+						"role": "Tank"
+					},
+					{
+						"can_fire": false,
+						"distance": 5.16829061508179,
+						"id": 272411661613,
+						"role": "Infantry"
+					},
+					{
+						"can_fire": false,
+						"distance": 4.70209789276123,
+						"id": 273502180696,
+						"role": "Tank"
+					}
+				],
+				"order": "attack",
+				"order_status": "Attack · 1 waiting",
+				"pending": [
+					"attack_move"
+				],
+				"position": [
+					44.0464744567871,
+					0.0,
+					25.1141357421875
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"_lost_contact": false,
+					"children": [],
+					"kind": "AutoAttacking.gd",
+					"target": 271321142530
+				},
+				"hp": 17.5,
+				"human": true,
+				"id": 244343378078,
+				"observed_enemies": [
+					{
+						"can_fire": true,
+						"distance": 2.78389024734497,
+						"id": 271321142530,
+						"role": "Infantry"
+					},
+					{
+						"can_fire": true,
+						"distance": 3.31914210319519,
+						"id": 259979744072,
+						"role": "Tank"
+					},
+					{
+						"can_fire": true,
+						"distance": 3.20647311210632,
+						"id": 272411661613,
+						"role": "Infantry"
+					},
+					{
+						"can_fire": false,
+						"distance": 3.89101648330688,
+						"id": 273502180696,
+						"role": "Tank"
+					}
+				],
+				"order": "attack",
+				"order_status": "Attack · 1 waiting",
+				"pending": [
+					"attack_move"
+				],
+				"position": [
+					44.9768028259277,
+					0.0,
+					21.7305335998535
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"_lost_contact": false,
+					"children": [],
+					"kind": "AutoAttacking.gd",
+					"target": 275800659334
+				},
+				"hp": 9.56666666666663,
+				"human": true,
+				"id": 245131907273,
+				"observed_enemies": [
+					{
+						"can_fire": false,
+						"distance": 4.65994024276733,
+						"id": 274710140295,
+						"role": "Infantry"
+					},
+					{
+						"can_fire": false,
+						"distance": 4.6425518989563,
+						"id": 275800659334,
+						"role": "Infantry"
+					},
+					{
+						"can_fire": true,
+						"distance": 5.58209657669067,
+						"id": 261187703671,
+						"role": "Tank"
+					},
+					{
+						"can_fire": false,
+						"distance": 5.78791666030884,
+						"id": 276891178460,
+						"role": "Tank"
+					}
+				],
+				"order": "attack",
+				"order_status": "Attack · 1 waiting",
+				"pending": [
+					"attack_move"
+				],
+				"position": [
+					43.0888404846191,
+					0.0,
+					65.0248184204102
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"_lost_contact": false,
+					"children": [],
+					"kind": "AutoAttacking.gd",
+					"target": 274710140295
+				},
+				"hp": 37.0,
+				"human": true,
+				"id": 246021099768,
+				"observed_enemies": [
+					{
+						"can_fire": false,
+						"distance": 5.46716690063477,
+						"id": 274710140295,
+						"role": "Infantry"
+					},
+					{
+						"can_fire": false,
+						"distance": 5.65947294235229,
+						"id": 275800659334,
+						"role": "Infantry"
+					},
+					{
+						"can_fire": true,
+						"distance": 5.86936140060425,
+						"id": 261187703671,
+						"role": "Tank"
+					},
+					{
+						"can_fire": false,
+						"distance": 6.89133167266846,
+						"id": 276891178460,
+						"role": "Tank"
+					}
+				],
+				"order": "attack",
+				"order_status": "Attack · 1 waiting",
+				"pending": [
+					"attack_move"
+				],
+				"position": [
+					42.5063972473145,
+					0.0,
+					66.7344284057617
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"_lost_contact": false,
+					"children": [],
+					"kind": "AutoAttacking.gd",
+					"target": 275800659334
+				},
+				"hp": 16.0,
+				"human": true,
+				"id": 246910292263,
+				"observed_enemies": [
+					{
+						"can_fire": false,
+						"distance": 3.49322175979614,
+						"id": 274710140295,
+						"role": "Infantry"
+					},
+					{
+						"can_fire": false,
+						"distance": 3.65220093727112,
+						"id": 275800659334,
+						"role": "Infantry"
+					},
+					{
+						"can_fire": true,
+						"distance": 4.15575551986694,
+						"id": 261187703671,
+						"role": "Tank"
+					},
+					{
+						"can_fire": false,
+						"distance": 4.88275909423828,
+						"id": 276891178460,
+						"role": "Tank"
+					}
+				],
+				"order": "attack",
+				"order_status": "Attack · 1 waiting",
+				"pending": [
+					"attack_move"
+				],
+				"position": [
+					44.3257942199707,
+					0.0,
+					65.8834533691406
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"_lost_contact": false,
+					"children": [],
+					"kind": "AutoAttacking.gd",
+					"target": 275800659334
+				},
+				"hp": 17.5,
+				"human": true,
+				"id": 247698821458,
+				"observed_enemies": [
+					{
+						"can_fire": false,
+						"distance": 3.20808863639832,
+						"id": 274710140295,
+						"role": "Infantry"
+					},
+					{
+						"can_fire": false,
+						"distance": 3.48893451690674,
+						"id": 275800659334,
+						"role": "Infantry"
+					},
+					{
+						"can_fire": true,
+						"distance": 3.62126278877258,
+						"id": 261187703671,
+						"role": "Tank"
+					},
+					{
+						"can_fire": false,
+						"distance": 4.73380422592163,
+						"id": 276891178460,
+						"role": "Tank"
+					}
+				],
+				"order": "attack",
+				"order_status": "Attack · 1 waiting",
+				"pending": [
+					"attack_move"
+				],
+				"position": [
+					44.7788314819336,
+					0.0,
+					66.3935775756836
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0494746666667114
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 248487350653,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					67.9232711791992,
+					0.0,
+					45.9555473327637
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0494746666667114
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 249779196340,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					72.3859329223633,
+					0.0,
+					47.2144470214844
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.116142333333333
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 250869715423,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					66.5549240112305,
+					0.0,
+					42.5836410522461
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0328080000000309
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 251960234506,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					73.9203796386719,
+					0.0,
+					43.0868492126465
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0994746666666979
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 253050753589,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					70.7130966186523,
+					0.0,
+					46.2613258361816
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.116142333333333
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 64,
+				"human": false,
+				"id": 254141272672,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					69.0442886352539,
+					0.0,
+					40.8232231140137
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.166141333333365
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 255517004441,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					68.9286880493164,
+					0.0,
+					46.3960838317871
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.149474666666699
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 256607523524,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					71.3018341064453,
+					0.0,
+					42.801815032959
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.132808000000032
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 257698042607,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					71.2059860229492,
+					0.0,
+					46.6711044311523
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.116142333333333
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 64,
+				"human": false,
+				"id": 258788561690,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					76.3608932495117,
+					0.0,
+					43.0190696716309
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0661413333333537
+						},
+						{
+							"_charge_left": -1.0,
+							"_shots": 1,
+							"children": [
+								{
+									"stopped": false,
+									"timer_left": 0.941703333333334
+								},
+								{
+									"stopped": false,
+									"timer_left": 0.0750366666666666
+								}
+							],
+							"kind": "AttackingWhileInRange.gd",
+							"target": 244343378078
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 63.1,
+				"human": false,
+				"id": 259979744072,
+				"observed_enemies": [
+					{
+						"can_fire": true,
+						"distance": 5.47320604324341,
+						"id": 241491251220,
+						"role": "Tank"
+					},
+					{
+						"can_fire": false,
+						"distance": 7.27158498764038,
+						"id": 242665656388,
+						"role": "Tank"
+					},
+					{
+						"can_fire": true,
+						"distance": 3.31914210319519,
+						"id": 244343378078,
+						"role": "Infantry"
+					},
+					{
+						"can_fire": false,
+						"distance": 5.97283887863159,
+						"id": 243554848883,
+						"role": "Infantry"
+					}
+				],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					48.1572036743164,
+					0.0,
+					20.7809257507324
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.132808000000021
+						},
+						{
+							"_charge_left": -1.0,
+							"_shots": 1,
+							"children": [
+								{
+									"stopped": false,
+									"timer_left": 1.00281444444444
+								},
+								{
+									"stopped": false,
+									"timer_left": 0.136147777777778
+								}
+							],
+							"kind": "AttackingWhileInRange.gd",
+							"target": 247698821458
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 1.0,
+				"human": false,
+				"id": 261187703671,
+				"observed_enemies": [
+					{
+						"can_fire": true,
+						"distance": 5.58209657669067,
+						"id": 245131907273,
+						"role": "Tank"
+					},
+					{
+						"can_fire": true,
+						"distance": 5.86936140060425,
+						"id": 246021099768,
+						"role": "Tank"
+					},
+					{
+						"can_fire": true,
+						"distance": 4.15575551986694,
+						"id": 246910292263,
+						"role": "Infantry"
+					},
+					{
+						"can_fire": true,
+						"distance": 3.62126278877258,
+						"id": 247698821458,
+						"role": "Infantry"
+					}
+				],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					48.3751678466797,
+					0.0,
+					66.8177337646484
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0994746666666896
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 262395663269,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					67.2210235595703,
+					0.0,
+					42.373722076416
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0328080000000218
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 263486182262,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					73.072883605957,
+					0.0,
+					43.1336212158203
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.166141333333356
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 264576701434,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					71.7000045776367,
+					0.0,
+					43.3685073852539
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0161413333333562
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 64,
+				"human": false,
+				"id": 265667220517,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					71.307373046875,
+					0.0,
+					40.8172035217285
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0661413333333567
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 266858402899,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					68.3999862670898,
+					0.0,
+					44.4318542480469
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.166141333333357
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 267948921982,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					72.5870513916016,
+					0.0,
+					46.552978515625
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0328080000000222
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 269039441065,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					71.507209777832,
+					0.0,
+					44.8927917480469
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0328080000000226
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 64,
+				"human": false,
+				"id": 270129960148,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					75.8337783813477,
+					0.0,
+					44.7406044006348
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.082808000000019
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 271321142530,
+				"observed_enemies": [
+					{
+						"can_fire": false,
+						"distance": 4.47565460205078,
+						"id": 241491251220,
+						"role": "Tank"
+					},
+					{
+						"can_fire": false,
+						"distance": 6.27036762237549,
+						"id": 242665656388,
+						"role": "Tank"
+					},
+					{
+						"can_fire": true,
+						"distance": 2.78389024734497,
+						"id": 244343378078,
+						"role": "Infantry"
+					},
+					{
+						"can_fire": false,
+						"distance": 4.52371454238892,
+						"id": 243554848883,
+						"role": "Infantry"
+					}
+				],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					47.6756134033203,
+					0.0,
+					22.413516998291
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.132808000000019
+						},
+						{
+							"_charge_left": -1.0,
+							"_shots": 1,
+							"children": [
+								{
+									"stopped": false,
+									"timer_left": 0.666702333333333
+								},
+								{
+									"stopped": false,
+									"timer_left": 0.133369
+								}
+							],
+							"kind": "AttackingWhileInRange.gd",
+							"target": 244343378078
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 272411661613,
+				"observed_enemies": [
+					{
+						"can_fire": false,
+						"distance": 5.05120992660522,
+						"id": 241491251220,
+						"role": "Tank"
+					},
+					{
+						"can_fire": false,
+						"distance": 6.85530376434326,
+						"id": 242665656388,
+						"role": "Tank"
+					},
+					{
+						"can_fire": true,
+						"distance": 3.20647311210632,
+						"id": 244343378078,
+						"role": "Infantry"
+					},
+					{
+						"can_fire": false,
+						"distance": 5.16829061508179,
+						"id": 243554848883,
+						"role": "Infantry"
+					}
+				],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					48.1718597412109,
+					0.0,
+					22.0008697509766
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.166141333333352
+						},
+						{
+							"_charge_left": -1.0,
+							"_shots": 1,
+							"children": [
+								{
+									"stopped": false,
+									"timer_left": 0.875062
+								},
+								{
+									"stopped": false,
+									"timer_left": 0.00839533333333331
+								}
+							],
+							"kind": "AttackingWhileInRange.gd",
+							"target": 243554848883
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 64,
+				"human": false,
+				"id": 273502180696,
+				"observed_enemies": [
+					{
+						"can_fire": false,
+						"distance": 5.17563343048096,
+						"id": 241491251220,
+						"role": "Tank"
+					},
+					{
+						"can_fire": false,
+						"distance": 6.88679075241089,
+						"id": 242665656388,
+						"role": "Tank"
+					},
+					{
+						"can_fire": false,
+						"distance": 3.89101648330688,
+						"id": 244343378078,
+						"role": "Infantry"
+					},
+					{
+						"can_fire": true,
+						"distance": 4.70209789276123,
+						"id": 243554848883,
+						"role": "Infantry"
+					}
+				],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					48.4541473388672,
+					0.0,
+					23.4764099121094
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0994746666666841
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 12.0,
+				"human": false,
+				"id": 274710140295,
+				"observed_enemies": [
+					{
+						"can_fire": false,
+						"distance": 4.65994024276733,
+						"id": 245131907273,
+						"role": "Tank"
+					},
+					{
+						"can_fire": false,
+						"distance": 5.46716690063477,
+						"id": 246021099768,
+						"role": "Tank"
+					},
+					{
+						"can_fire": false,
+						"distance": 3.49322175979614,
+						"id": 246910292263,
+						"role": "Infantry"
+					},
+					{
+						"can_fire": false,
+						"distance": 3.20808863639832,
+						"id": 247698821458,
+						"role": "Infantry"
+					}
+				],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					47.7463684082031,
+					0.0,
+					65.1747436523438
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.166141333333352
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 275800659334,
+				"observed_enemies": [
+					{
+						"can_fire": false,
+						"distance": 4.6425518989563,
+						"id": 245131907273,
+						"role": "Tank"
+					},
+					{
+						"can_fire": false,
+						"distance": 5.65947294235229,
+						"id": 246021099768,
+						"role": "Tank"
+					},
+					{
+						"can_fire": false,
+						"distance": 3.65220093727112,
+						"id": 246910292263,
+						"role": "Infantry"
+					},
+					{
+						"can_fire": false,
+						"distance": 3.48893451690674,
+						"id": 247698821458,
+						"role": "Infantry"
+					}
+				],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					47.7000007629395,
+					0.0,
+					64.4858474731445
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0328080000000183
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 62.65,
+				"human": false,
+				"id": 276891178460,
+				"observed_enemies": [
+					{
+						"can_fire": false,
+						"distance": 5.78791666030884,
+						"id": 245131907273,
+						"role": "Tank"
+					},
+					{
+						"can_fire": false,
+						"distance": 6.89133167266846,
+						"id": 246021099768,
+						"role": "Tank"
+					},
+					{
+						"can_fire": false,
+						"distance": 4.88275909423828,
+						"id": 246910292263,
+						"role": "Infantry"
+					},
+					{
+						"can_fire": false,
+						"distance": 4.73380422592163,
+						"id": 247698821458,
+						"role": "Infantry"
+					}
+				],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					48.7490043640137,
+					0.0,
+					63.8154716491699
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0994746666666809
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 278099138059,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					68.1924896240234,
+					0.0,
+					43.8145713806152
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.166141333333344
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 279189657098,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					72.2863082885742,
+					0.0,
+					43.7695503234863
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0161413333333452
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 280280176224,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					72.9753112792969,
+					0.0,
+					43.8565292358398
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0994746666666808
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 64,
+				"human": false,
+				"id": 281370695307,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					72.8336410522461,
+					0.0,
+					41.9148178100586
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.132808000000014
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 282561877689,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					68.2211227416992,
+					0.0,
+					42.4672203063965
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.166141333333348
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 283652396772,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					72.3172378540039,
+					0.0,
+					43.0530319213867
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0494746666666818
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 284742915855,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					71.7003479003906,
+					0.0,
+					44.0270957946777
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0161413333333476
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 64,
+				"human": false,
+				"id": 285833434938,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					74.0560150146484,
+					0.0,
+					44.4268569946289
+				],
+				"program": "Manual",
+				"role": "Tank"
+			}
+		],
+		"waves": 6
+	},
+	{
+		"control": 117.449999999995,
+		"difficulty": 2,
+		"human": 6,
+		"network": 0.0,
+		"relays": [
+			{
+				"contested": true,
+				"owner": "human",
+				"progress": 2.33333333333333,
+				"status": "North · Enemy capture 2 / 10 s"
+			},
+			{
+				"contested": false,
+				"owner": "enemy",
+				"progress": 0.0,
+				"status": "East · Enemy owned"
+			},
+			{
+				"contested": false,
+				"owner": "human",
+				"progress": 0.0,
+				"status": "South · Secured"
+			}
+		],
+		"result": "",
+		"time": 279.466666666741,
+		"units": [
+			{
+				"action": {
+
+				},
+				"hp": 35,
+				"human": true,
+				"id": 237884149625,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					10.0,
+					0.0,
+					53.0
+				],
+				"program": "none",
+				"role": "Worker"
+			},
+			{
+				"action": {
+
+				},
+				"hp": 35,
+				"human": true,
+				"id": 238572015518,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					13.0,
+					0.0,
+					53.0
+				],
+				"program": "none",
+				"role": "Worker"
+			},
+			{
+				"action": {
+
+				},
+				"hp": 35,
+				"human": true,
+				"id": 239259881411,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					16.0,
+					0.0,
+					57.0
+				],
+				"program": "none",
+				"role": "Worker"
+			},
+			{
+				"action": {
+
+				},
+				"hp": 25,
+				"human": true,
+				"id": 239947747304,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					28.0,
+					1.5,
+					39.0
+				],
+				"program": "Manual",
+				"role": "Drone"
+			},
+			{
+				"action": {
+					"_lost_contact": false,
+					"children": [],
+					"kind": "AutoAttacking.gd",
+					"target": 273502180696
+				},
+				"hp": 9.55,
+				"human": true,
+				"id": 246021099768,
+				"observed_enemies": [],
+				"order": "attack",
+				"order_status": "Attack · 1 waiting",
+				"pending": [
+					"attack_move"
+				],
+				"position": [
+					40.7608528137207,
+					0.0,
+					53.0631332397461
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"_lost_contact": false,
+					"children": [],
+					"kind": "AutoAttacking.gd",
+					"target": 273502180696
+				},
+				"hp": 22,
+				"human": true,
+				"id": 439479177542,
+				"observed_enemies": [],
+				"order": "attack",
+				"order_status": "Attack · 1 waiting",
+				"pending": [
+					"attack_move"
+				],
+				"position": [
+					30.0947666168213,
+					0.0,
+					32.2480278015137
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0497820000000461
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 248487350653,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					67.9232711791992,
+					0.0,
+					45.9555473327637
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0497820000000461
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 249779196340,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					72.3859329223633,
+					0.0,
+					47.2144470214844
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.116449666666668
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 250869715423,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					66.5549240112305,
+					0.0,
+					42.5836410522461
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0331153333333657
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 251960234506,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					73.9203796386719,
+					0.0,
+					43.0868492126465
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0997820000000327
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 253050753589,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					70.7130966186523,
+					0.0,
+					46.2613258361816
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.116449666666668
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 64,
+				"human": false,
+				"id": 254141272672,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					69.0442886352539,
+					0.0,
+					40.8232231140137
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.1664486666667
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 255517004441,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					68.9286880493164,
+					0.0,
+					46.3960838317871
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.149782000000033
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 256607523524,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					71.3018341064453,
+					0.0,
+					42.801815032959
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.133115333333367
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 257698042607,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					71.2059860229492,
+					0.0,
+					46.6711044311523
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.116449666666668
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 64,
+				"human": false,
+				"id": 258788561690,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					76.3608932495117,
+					0.0,
+					43.0190696716309
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0664486666666884
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 63.1,
+				"human": false,
+				"id": 259979744072,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					48.1572036743164,
+					0.0,
+					20.7809257507324
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.133115333333356
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 1.0,
+				"human": false,
+				"id": 261187703671,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					49.0801963806152,
+					0.0,
+					66.992546081543
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0997820000000244
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 262395663269,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					67.2210235595703,
+					0.0,
+					42.373722076416
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0331153333333566
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 263486182262,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					73.072883605957,
+					0.0,
+					43.1336212158203
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.16644866666669
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 264576701434,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					71.7000045776367,
+					0.0,
+					43.3685073852539
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.016448666666691
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 64,
+				"human": false,
+				"id": 265667220517,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					71.307373046875,
+					0.0,
+					40.8172035217285
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0664486666666914
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 266858402899,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					68.3999862670898,
+					0.0,
+					44.4318542480469
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.166448666666691
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 267948921982,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					72.5870513916016,
+					0.0,
+					46.552978515625
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.033115333333357
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 269039441065,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					71.507209777832,
+					0.0,
+					44.8927917480469
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0331153333333573
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 64,
+				"human": false,
+				"id": 270129960148,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					75.8337783813477,
+					0.0,
+					44.7406044006348
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.133115333333354
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 272411661613,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					48.1718597412109,
+					0.0,
+					22.0008697509766
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.166448666666687
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 0.0999999999999943,
+				"human": false,
+				"id": 273502180696,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					48.5691680908203,
+					0.0,
+					23.2807312011719
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0331153333333531
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 62.65,
+				"human": false,
+				"id": 276891178460,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					48.7490043640137,
+					0.0,
+					63.8154716491699
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0997820000000157
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 278099138059,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					68.1924896240234,
+					0.0,
+					43.8145713806152
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.166448666666679
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 279189657098,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					72.2863082885742,
+					0.0,
+					43.7695503234863
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.01644866666668
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 280280176224,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					72.9753112792969,
+					0.0,
+					43.8565292358398
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0997820000000156
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 64,
+				"human": false,
+				"id": 281370695307,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					72.8336410522461,
+					0.0,
+					41.9148178100586
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.133115333333349
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 282561877689,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					68.2211227416992,
+					0.0,
+					42.4672203063965
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.166448666666683
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 283652396772,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					72.3172378540039,
+					0.0,
+					43.0530319213867
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0497820000000166
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 284742915855,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					71.7003479003906,
+					0.0,
+					44.0270957946777
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0164486666666823
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 64,
+				"human": false,
+				"id": 285833434938,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					74.0560150146484,
+					0.0,
+					44.4268569946289
+				],
+				"program": "Manual",
+				"role": "Tank"
+			}
+		],
+		"waves": 6
+	},
+	{
+		"control": 117.449999999995,
+		"difficulty": 2,
+		"human": 7,
+		"network": 0.0,
+		"relays": [
+			{
+				"contested": true,
+				"owner": "human",
+				"progress": 8.61666666666667,
+				"status": "North · Enemy capture 8 / 10 s"
+			},
+			{
+				"contested": false,
+				"owner": "enemy",
+				"progress": 0.0,
+				"status": "East · Enemy owned"
+			},
+			{
+				"contested": false,
+				"owner": "human",
+				"progress": 0.0,
+				"status": "South · Secured"
+			}
+		],
+		"result": "",
+		"time": 289.966666666732,
+		"units": [
+			{
+				"action": {
+
+				},
+				"hp": 35,
+				"human": true,
+				"id": 237884149625,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					10.0,
+					0.0,
+					53.0
+				],
+				"program": "none",
+				"role": "Worker"
+			},
+			{
+				"action": {
+
+				},
+				"hp": 35,
+				"human": true,
+				"id": 238572015518,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					13.0,
+					0.0,
+					53.0
+				],
+				"program": "none",
+				"role": "Worker"
+			},
+			{
+				"action": {
+
+				},
+				"hp": 35,
+				"human": true,
+				"id": 239259881411,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					16.0,
+					0.0,
+					57.0
+				],
+				"program": "none",
+				"role": "Worker"
+			},
+			{
+				"action": {
+
+				},
+				"hp": 25,
+				"human": true,
+				"id": 239947747304,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					28.0,
+					1.5,
+					39.0
+				],
+				"program": "Manual",
+				"role": "Drone"
+			},
+			{
+				"action": {
+					"_lost_contact": false,
+					"children": [],
+					"kind": "AutoAttacking.gd",
+					"target": 272411661613
+				},
+				"hp": 9.55,
+				"human": true,
+				"id": 246021099768,
+				"observed_enemies": [
+					{
+						"can_fire": false,
+						"distance": 7.89755773544312,
+						"id": 259979744072,
+						"role": "Tank"
+					},
+					{
+						"can_fire": false,
+						"distance": 7.01077127456665,
+						"id": 272411661613,
+						"role": "Infantry"
+					}
+				],
+				"order": "attack",
+				"order_status": "Attack · 1 waiting",
+				"pending": [
+					"attack_move"
+				],
+				"position": [
+					43.1277046203613,
+					0.0,
+					26.8698959350586
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"_lost_contact": false,
+					"children": [],
+					"kind": "AutoAttacking.gd",
+					"target": 272411661613
+				},
+				"hp": 22,
+				"human": true,
+				"id": 541534983428,
+				"observed_enemies": [],
+				"order": "attack",
+				"order_status": "Attack · 1 waiting",
+				"pending": [
+					"attack_move"
+				],
+				"position": [
+					36.9809913635254,
+					0.0,
+					26.5209636688232
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"_lost_contact": false,
+					"children": [],
+					"kind": "AutoAttacking.gd",
+					"target": 272411661613
+				},
+				"hp": 80,
+				"human": true,
+				"id": 595842831085,
+				"observed_enemies": [],
+				"order": "attack",
+				"order_status": "Attack · 1 waiting",
+				"pending": [
+					"attack_move"
+				],
+				"position": [
+					28.7678813934326,
+					0.0,
+					45.6881828308105
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0500216666667129
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 248487350653,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					67.9232711791992,
+					0.0,
+					45.9555473327637
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0500216666667129
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 249779196340,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					72.3859329223633,
+					0.0,
+					47.2144470214844
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.116689333333335
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 250869715423,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					66.5549240112305,
+					0.0,
+					42.5836410522461
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0333550000000324
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 251960234506,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					73.9203796386719,
+					0.0,
+					43.0868492126465
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.1000216666667
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 253050753589,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					70.7130966186523,
+					0.0,
+					46.2613258361816
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.116689333333335
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 64,
+				"human": false,
+				"id": 254141272672,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					69.0442886352539,
+					0.0,
+					40.8232231140137
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0000216666666998377
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 255517004441,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					68.9286880493164,
+					0.0,
+					46.3960838317871
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.1500216666667
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 256607523524,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					71.3018341064453,
+					0.0,
+					42.801815032959
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.133355000000034
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 257698042607,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					71.2059860229492,
+					0.0,
+					46.6711044311523
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.116689333333335
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 64,
+				"human": false,
+				"id": 258788561690,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					76.3608932495117,
+					0.0,
+					43.0190696716309
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0666883333333552
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 63.1,
+				"human": false,
+				"id": 259979744072,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					48.1572036743164,
+					0.0,
+					20.7809257507324
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.133355000000023
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 1.0,
+				"human": false,
+				"id": 261187703671,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					49.0801963806152,
+					0.0,
+					66.992546081543
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.100021666666691
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 262395663269,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					67.2210235595703,
+					0.0,
+					42.373722076416
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0333550000000234
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 263486182262,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					73.072883605957,
+					0.0,
+					43.1336212158203
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0000216666666905674
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 264576701434,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					71.7000045776367,
+					0.0,
+					43.3685073852539
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0166883333333577
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 64,
+				"human": false,
+				"id": 265667220517,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					71.307373046875,
+					0.0,
+					40.8172035217285
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0666883333333582
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 266858402899,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					68.3999862670898,
+					0.0,
+					44.4318542480469
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0000216666666915111
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 267948921982,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					72.5870513916016,
+					0.0,
+					46.552978515625
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0333550000000238
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 269039441065,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					71.507209777832,
+					0.0,
+					44.8927917480469
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0333550000000241
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 64,
+				"human": false,
+				"id": 270129960148,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					75.8337783813477,
+					0.0,
+					44.7406044006348
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.133355000000021
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 3.0,
+				"human": false,
+				"id": 272411661613,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					48.1718597412109,
+					0.0,
+					22.0008697509766
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0333550000000198
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 62.65,
+				"human": false,
+				"id": 276891178460,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					48.7490043640137,
+					0.0,
+					63.8154716491699
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.100021666666682
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 278099138059,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					68.1924896240234,
+					0.0,
+					43.8145713806152
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0000216666666791321
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 279189657098,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					72.2863082885742,
+					0.0,
+					43.7695503234863
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0166883333333467
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 280280176224,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					72.9753112792969,
+					0.0,
+					43.8565292358398
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.100021666666682
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 64,
+				"human": false,
+				"id": 281370695307,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					72.8336410522461,
+					0.0,
+					41.9148178100586
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.133355000000016
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 282561877689,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					68.2211227416992,
+					0.0,
+					42.4672203063965
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0000216666666828513
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 283652396772,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					72.3172378540039,
+					0.0,
+					43.0530319213867
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0500216666666834
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 284742915855,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					71.7003479003906,
+					0.0,
+					44.0270957946777
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0166883333333491
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 64,
+				"human": false,
+				"id": 285833434938,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					74.0560150146484,
+					0.0,
+					44.4268569946289
+				],
+				"program": "Manual",
+				"role": "Tank"
+			}
+		],
+		"waves": 6
+	},
+	{
+		"control": 120.016666666661,
+		"difficulty": 2,
+		"human": 7,
+		"network": 0.0,
+		"relays": [
+			{
+				"contested": false,
+				"owner": "human",
+				"progress": 0.0,
+				"status": "North · Secured"
+			},
+			{
+				"contested": false,
+				"owner": "enemy",
+				"progress": 0.0,
+				"status": "East · Enemy owned"
+			},
+			{
+				"contested": false,
+				"owner": "human",
+				"progress": 0.0,
+				"status": "South · Secured"
+			}
+		],
+		"result": "Victory",
+		"time": 294.616666666727,
+		"units": [
+			{
+				"action": {
+
+				},
+				"hp": 35,
+				"human": true,
+				"id": 237884149625,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					10.0,
+					0.0,
+					53.0
+				],
+				"program": "none",
+				"role": "Worker"
+			},
+			{
+				"action": {
+
+				},
+				"hp": 35,
+				"human": true,
+				"id": 238572015518,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					13.0,
+					0.0,
+					53.0
+				],
+				"program": "none",
+				"role": "Worker"
+			},
+			{
+				"action": {
+
+				},
+				"hp": 35,
+				"human": true,
+				"id": 239259881411,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					16.0,
+					0.0,
+					57.0
+				],
+				"program": "none",
+				"role": "Worker"
+			},
+			{
+				"action": {
+
+				},
+				"hp": 25,
+				"human": true,
+				"id": 239947747304,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					28.0,
+					1.5,
+					39.0
+				],
+				"program": "Manual",
+				"role": "Drone"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.133421333333333
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 17.5,
+				"human": true,
+				"id": 541534983428,
+				"observed_enemies": [
+					{
+						"can_fire": false,
+						"distance": 4.80280065536499,
+						"id": 259979744072,
+						"role": "Tank"
+					}
+				],
+				"order": "none",
+				"order_status": "Orders complete · holding position.",
+				"pending": [],
+				"position": [
+					43.9620246887207,
+					0.0,
+					23.1191654205322
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [],
+					"kind": "AttackMoving.gd"
+				},
+				"hp": 80,
+				"human": true,
+				"id": 595842831085,
+				"observed_enemies": [],
+				"order": "attack_move",
+				"order_status": "Attack Move · 0 waiting",
+				"pending": [],
+				"position": [
+					35.5411148071289,
+					0.0,
+					35.8412780761719
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"children": [],
+					"kind": "AttackMoving.gd"
+				},
+				"hp": 22,
+				"human": true,
+				"id": 648170965963,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					27.1847972869873,
+					0.0,
+					32.976936340332
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0668743333333792
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 248487350653,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					67.9232711791992,
+					0.0,
+					45.9555473327637
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0668743333333792
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 249779196340,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					72.3859329223633,
+					0.0,
+					47.2144470214844
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.133542000000001
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 250869715423,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					66.5549240112305,
+					0.0,
+					42.5836410522461
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0502076666666987
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 251960234506,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					73.9203796386719,
+					0.0,
+					43.0868492126465
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.116874333333366
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 253050753589,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					70.7130966186523,
+					0.0,
+					46.2613258361816
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.133542000000001
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 64,
+				"human": false,
+				"id": 254141272672,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					69.0442886352539,
+					0.0,
+					40.8232231140137
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0168743333333662
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 255517004441,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					68.9286880493164,
+					0.0,
+					46.3960838317871
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.000207666666699802
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 256607523524,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					71.3018341064453,
+					0.0,
+					42.801815032959
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.1502076666667
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 257698042607,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					71.2059860229492,
+					0.0,
+					46.6711044311523
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.133542000000001
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 64,
+				"human": false,
+				"id": 258788561690,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					76.3608932495117,
+					0.0,
+					43.0190696716309
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0835410000000215
+						},
+						{
+							"_charge_left": -1.0,
+							"_shots": 1,
+							"children": [
+								{
+									"stopped": false,
+									"timer_left": 0.566692
+								},
+								{
+									"stopped": false,
+									"timer_left": 0.100069333333333
+								}
+							],
+							"kind": "AttackingWhileInRange.gd",
+							"target": 541534983428
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 63.1,
+				"human": false,
+				"id": 259979744072,
+				"observed_enemies": [
+					{
+						"can_fire": true,
+						"distance": 4.80280065536499,
+						"id": 541534983428,
+						"role": "Infantry"
+					}
+				],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					48.1572036743164,
+					0.0,
+					20.7809257507324
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.150207666666689
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 1.0,
+				"human": false,
+				"id": 261187703671,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					49.0801963806152,
+					0.0,
+					66.992546081543
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.116874333333358
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 262395663269,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					67.2210235595703,
+					0.0,
+					42.373722076416
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0502076666666897
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 263486182262,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					73.072883605957,
+					0.0,
+					43.1336212158203
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0168743333333569
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 264576701434,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					71.7000045776367,
+					0.0,
+					43.3685073852539
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0335410000000241
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 64,
+				"human": false,
+				"id": 265667220517,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					71.307373046875,
+					0.0,
+					40.8172035217285
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0835410000000245
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 266858402899,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					68.3999862670898,
+					0.0,
+					44.4318542480469
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0168743333333578
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 267948921982,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					72.5870513916016,
+					0.0,
+					46.552978515625
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0502076666666901
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 269039441065,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					71.507209777832,
+					0.0,
+					44.8927917480469
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0502076666666904
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 64,
+				"human": false,
+				"id": 270129960148,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					75.8337783813477,
+					0.0,
+					44.7406044006348
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0502076666666861
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 62.65,
+				"human": false,
+				"id": 276891178460,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					48.7490043640137,
+					0.0,
+					63.8154716491699
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.116874333333349
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 278099138059,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					68.1924896240234,
+					0.0,
+					43.8145713806152
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0168743333333455
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 279189657098,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					72.2863082885742,
+					0.0,
+					43.7695503234863
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0335410000000131
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 280280176224,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					72.9753112792969,
+					0.0,
+					43.8565292358398
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.116874333333349
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 64,
+				"human": false,
+				"id": 281370695307,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					72.8336410522461,
+					0.0,
+					41.9148178100586
+				],
+				"program": "Manual",
+				"role": "Tank"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.150207666666682
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 282561877689,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					68.2211227416992,
+					0.0,
+					42.4672203063965
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0168743333333492
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 283652396772,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					72.3172378540039,
+					0.0,
+					43.0530319213867
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0668743333333497
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 18,
+				"human": false,
+				"id": 284742915855,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					71.7003479003906,
+					0.0,
+					44.0270957946777
+				],
+				"program": "none",
+				"role": "Infantry"
+			},
+			{
+				"action": {
+					"children": [
+						{
+							"stopped": false,
+							"timer_left": 0.0335410000000154
+						}
+					],
+					"kind": "WaitingForTargets.gd"
+				},
+				"hp": 64,
+				"human": false,
+				"id": 285833434938,
+				"observed_enemies": [],
+				"order": "none",
+				"order_status": "Hold the queue key and right-click to queue orders.",
+				"pending": [],
+				"position": [
+					74.0560150146484,
+					0.0,
+					44.4268569946289
+				],
+				"program": "Manual",
+				"role": "Tank"
+			}
+		],
+		"waves": 6
+	}
+]

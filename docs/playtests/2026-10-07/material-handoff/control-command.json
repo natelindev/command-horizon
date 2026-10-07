@@ -1,0 +1,20 @@
+[
+  "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+  "--headless",
+  "--path",
+  ".",
+  "--fixed-fps",
+  "60",
+  "--script",
+  "tests/playtest/MaterialHandoffMatches.gd",
+  "--",
+  "--case=6",
+  "--repeats=2",
+  "--research=combined",
+  "--strategy=screened-air",
+  "--home-response",
+  "--electronics-handoff",
+  "--output=res://docs/playtests/2026-10-07/material-handoff/control.json",
+  "--archive=res://docs/playtests/2026-10-07/material-handoff/control-stationary.json",
+  "--archive-prefix=res://docs/playtests/2026-10-07/material-handoff/control"
+]

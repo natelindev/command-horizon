@@ -1,0 +1,39 @@
+from pathlib import Path
+import hashlib,json,re
+root=Path.cwd(); out=root/'docs/playtests/2026-10-04'
+def read(name):return json.loads((out/name).read_text())
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+revisions=[('regional-execution.json','regional-source.json',{'tests/headless/SkirmishDefensePolicy.gd':'regional-before-SkirmishDefensePolicy.gd.txt'}),('regional-final-execution.json','regional-final-source.json',{'tests/headless/SkirmishDefensePolicy.gd':'regional-interim-SkirmishDefensePolicy.gd.txt','tests/headless/PolicyFallbackRegression.gd':'regional-interim-PolicyFallbackRegression.gd.txt'}),('regional-reviewed-execution.json','regional-reviewed-source.json',{})]
+accepted=0
+for execution,source,archived in revisions:
+ rows=read(execution);assert len(rows)==8 and {r['case'] for r in rows}==set(range(8))
+ for r in rows:
+  assert r['exit_code']==0 and not r['script_error'] and r['terminal_checks'],r
+  log=(out/r['log']).read_text()
+  assert 'Skirmish matrix: 1 records, 0 unresolved checks' in log,r
+  assert not any(x in log for x in ['SCRIPT ERROR','Failed to load script','Parse Error','Failed loading resource']),r
+  data=read(r['record']);assert len(data)==1
+  d=data[0];i=r['case'];assert d['case']==i and d['seed']==4110
+  assert d['map']==['IndustrialCrossroads','CoastalFoundry'][(i//2)%2]
+  assert d['faction']==['bastion','helix'][i//4] and d['advanced']==(i%2==1)
+  assert d['result'] in ['Victory','Defeat','Draw'] and not d['ai_coordination']['violations']
+  accepted+=1
+ for r in read(source):
+  p=out/archived[r['path']] if r['path'] in archived else root/r['path']
+  assert sha(p)==r['sha256'],(source,r['path'])
+for r in read('regional-reviewed-checks.json'):
+ assert r['exit_code']==0 and not r['script_error'] and r['marker_found'],r
+ log=(out/r['log']).read_text()
+ assert not any(x in log for x in ['SCRIPT ERROR','Failed to load script','Parse Error','Failed loading resource']),r
+ if r['marker']:assert r['marker'] in log
+ accepted+=1
+cohort=read('regional-cohort.json');assert len(cohort)==24
+for r in cohort:
+ assert sha(out/r['record'])==r['record_sha256']
+ assert sha(out/r['log'])==r['log_sha256']
+for link in re.findall(r'\]\(([^)]+)\)',(out/'REGIONAL_MATCHES.md').read_text()):
+ if not link.startswith(('https://','http://','#')):assert (out/link.split('#')[0]).exists(),link
+artifacts=read('regional-integrity.json')
+for r in artifacts:assert sha(out/r['path'])==r['sha256'],r['path']
+assert accepted==31
+print(f'PASS: {accepted} execution/check records, 24 complete matches, all three source revisions, {len(artifacts)} evidence hashes and report links')

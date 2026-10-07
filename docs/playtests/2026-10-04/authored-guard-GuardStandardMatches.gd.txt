@@ -1,0 +1,25 @@
+extends "res://tests/headless/SkirmishDefensePolicy.gd"
+
+
+func _sample():
+	var row = super()
+	row.policy = load("res://tmp/PolicyReadiness.gd").sample(self)
+	return row
+
+
+func _review_match_end():
+	if game.finished:
+		return true
+	paused = true
+	var builder = load("res://source/match/saves/MatchSnapshot.gd").new()
+	var snapshot = builder.capture(game)
+	_check(snapshot != null, "Unresolved policy snapshot failed")
+	if snapshot != null:
+		_check(
+			load("res://source/match/saves/SaveFile.gd").new().write_file(
+				output_path.trim_suffix(".json") + "-unresolved.json", snapshot
+			),
+			"Unresolved policy save failed"
+		)
+	paused = false
+	return true

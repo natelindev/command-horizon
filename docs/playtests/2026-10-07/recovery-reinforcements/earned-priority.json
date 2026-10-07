@@ -1,0 +1,5634 @@
+[
+	{
+		"advanced": false,
+		"ai_aa_foundations": [
+			{
+				"observed": {
+					"air": 0,
+					"armor": 0,
+					"infantry": 0
+				},
+				"seconds": 1800.74999999869
+			}
+		],
+		"ai_coordination": {
+			"peak_groups": 1,
+			"samples": 584,
+			"violations": {
+
+			}
+		},
+		"ai_recovery": [],
+		"aircraft_produced": 2,
+		"allocation_policy": "screened_air",
+		"armor_recovery": [],
+		"army_policy": "screened-air",
+		"authored_applied": 2,
+		"authored_recovery_entries": 1,
+		"authored_recovery_returns": 1,
+		"authoring_mode": "visual",
+		"basic_unlock": 1800.74999999869,
+		"battle_record": {
+			"basic_at": 177.800000000034,
+			"complete_history": true,
+			"engineers_lost": 1,
+			"engineers_trained": 3,
+			"forces_lost": 68,
+			"forces_trained": 78,
+			"foundations_lost": 0,
+			"program_at": 191.783333333378,
+			"started_at": 0.0,
+			"structures_lost": 1
+		},
+		"case": 6,
+		"continuation": {
+			"archive": "res://docs/playtests/2026-10-07/material-handoff/control-unresolved.json",
+			"first_new_ground": 26.9999999999754,
+			"first_nine_ground": 170.999999999844,
+			"initial_funds": [
+				18.0,
+				224.0
+			],
+			"initial_readiness": {
+				"army": 7,
+				"assault_gates": {
+					"army_at_least_9": false,
+					"health_at_least_80_percent": true,
+					"no_visible_home_threats": true,
+					"quiet_20_seconds": true,
+					"saw_home_attack": true
+				},
+				"health": 0.949263392857143,
+				"phase": "recover",
+				"pressure_age": 637.999999999421,
+				"saw_attack": true,
+				"visible_home_threats": 0
+			},
+			"restored_at": 1800.74999999869
+		},
+		"conventional_control_checks": 298,
+		"conventional_recovery": [
+			{
+				"end": 2044.24999999847,
+				"end_health": 0.81090909090909,
+				"health": 0.318181818181818,
+				"result": "ready",
+				"role": "Infantry",
+				"start": 2007.7499999985
+			},
+			{
+				"end": 2013.7499999985,
+				"health": 0.180015151515152,
+				"result": "lost",
+				"role": "Infantry",
+				"start": 2012.7499999985
+			},
+			{
+				"end": 2052.24999999852,
+				"health": 0.318181818181818,
+				"result": "lost",
+				"role": "Infantry",
+				"start": 2050.24999999849
+			},
+			{
+				"health": 0.234181818181819,
+				"result": "recovering",
+				"role": "Infantry",
+				"start": 2054.74999999855
+			},
+			{
+				"health": 0.318181818181818,
+				"result": "recovering",
+				"role": "Infantry",
+				"start": 2065.74999999869
+			},
+			{
+				"health": 0.356363636363636,
+				"result": "recovering",
+				"role": "Infantry",
+				"start": 2069.24999999874
+			},
+			{
+				"health": 0.772727272727273,
+				"result": "recovering",
+				"role": "Infantry",
+				"start": 2069.74999999874
+			}
+		],
+		"damage_hp": [
+			244.125666666666,
+			659.63
+		],
+		"difficulty": "Normal",
+		"electronics_handoffs": [],
+		"enemy_attacks": 15,
+		"expansion_order": 1800.74999999869,
+		"expansion_return": 1844.74999999865,
+		"faction": "helix",
+		"final": {
+			"ai_tasks": [
+				{
+					"age": 0.5,
+					"kind": "scout",
+					"point": [
+						14.0,
+						50.0
+					],
+					"retiring": false,
+					"roles": {
+						"Drone": 1
+					}
+				}
+			],
+			"continuation_elapsed": 291.250000000335,
+			"electronics_handoff_enabled": true,
+			"ground_before_air": 8,
+			"home_response_enabled": true,
+			"policy": {
+				"army": 9,
+				"assault_gates": {
+					"army_at_least_9": true,
+					"health_at_least_80_percent": false,
+					"no_visible_home_threats": true,
+					"quiet_20_seconds": true,
+					"saw_home_attack": true
+				},
+				"health": 0.693274791181042,
+				"phase": "recover",
+				"pressure_age": 929.249999999756,
+				"saw_attack": true,
+				"visible_home_threats": 0
+			},
+			"reinforcement_first": true,
+			"research": [
+				{
+					"active": "",
+					"basic": true,
+					"completed": [
+						"weapons_1",
+						"armor_1",
+						"service",
+						"doctrine"
+					],
+					"coordination": true,
+					"coordination_left": 0.0,
+					"desired_building": null,
+					"faction": "helix",
+					"funds": [
+						0,
+						274
+					],
+					"lab": true,
+					"priority_reserve": null,
+					"production": [],
+					"queues": [
+						{
+							"blocked": "",
+							"jobs": [],
+							"producer": "CommandCenter"
+						},
+						{
+							"blocked": "",
+							"jobs": [
+								{
+									"left": 16.7666666666667,
+									"paid": {
+										"resource_a": 14,
+										"resource_b": 12
+									},
+									"role": "RepairRobot"
+								}
+							],
+							"producer": "VehicleFactory"
+						},
+						{
+							"blocked": "",
+							"jobs": [],
+							"producer": "AircraftFactory"
+						},
+						{
+							"blocked": "",
+							"jobs": [],
+							"producer": "Barracks"
+						}
+					],
+					"ready_army": 6
+				},
+				{
+					"active": "",
+					"basic": true,
+					"completed": [
+						"weapons_1",
+						"armor_1"
+					],
+					"coordination": true,
+					"coordination_left": 0.0,
+					"desired_building": "CommandCenter",
+					"faction": "frontier",
+					"funds": [
+						5,
+						7
+					],
+					"lab": false,
+					"priority_reserve": [
+						85,
+						20
+					],
+					"production": [
+						{
+							"cost": {
+								"resource_a": 5,
+								"resource_b": 0
+							},
+							"priority": 2,
+							"role": "Infantry"
+						},
+						{
+							"cost": {
+								"resource_a": 20,
+								"resource_b": 4
+							},
+							"priority": 6,
+							"role": "Tank"
+						}
+					],
+					"queues": [
+						{
+							"blocked": "",
+							"jobs": [],
+							"producer": "Barracks"
+						},
+						{
+							"blocked": "",
+							"jobs": [],
+							"producer": "VehicleFactory"
+						}
+					],
+					"ready_army": 0
+				}
+			],
+			"seconds": 2092.0,
+			"sides": [
+				{
+					"army_base_value": [
+						170.0,
+						94.0
+					],
+					"fitted_tanks": 2,
+					"funds": [
+						0,
+						274
+					],
+					"units": {
+						"AircraftFactory": 1,
+						"Barracks": 1,
+						"CombatRobot": 1,
+						"CommandCenter": 1,
+						"CommandLab": 1,
+						"Drone": 1,
+						"Helicopter": 2,
+						"Infantry": 6,
+						"PowerPlant": 1,
+						"RepairDepot": 1,
+						"Tank": 2,
+						"VehicleFactory": 1,
+						"Worker": 6
+					},
+					"worker_states": {
+						"Electronics · approaching work slot": 1,
+						"Electronics · collecting": 2,
+						"Materials · approaching work slot": 2,
+						"Returning cargo to HQ": 1
+					},
+					"workers": {
+						"construction": 0,
+						"electronics": 4,
+						"materials": 2,
+						"other": 0
+					}
+				},
+				{
+					"army_base_value": [
+						7.0,
+						4.0
+					],
+					"fitted_tanks": 0,
+					"funds": [
+						5,
+						7
+					],
+					"units": {
+						"AntiAirTurret": 1,
+						"AntiGroundTurret": 1,
+						"Barracks": 1,
+						"Drone": 1,
+						"PowerPlant": 1,
+						"RepairDepot": 1,
+						"VehicleFactory": 1
+					},
+					"worker_states": {
+
+					},
+					"workers": {
+						"construction": 0,
+						"electronics": 0,
+						"materials": 0,
+						"other": 0
+					}
+				}
+			]
+		},
+		"first_air_raid": 1800.74999999869,
+		"first_air_seen_by_ai": 1804.74999999869,
+		"first_assault": 1971.74999999854,
+		"first_contact": 1800.74999999869,
+		"first_program": null,
+		"frontier": {
+			"bursts": [],
+			"completed_research": [
+				[
+					"weapons_1",
+					"armor_1",
+					"service",
+					"doctrine"
+				],
+				[
+					"weapons_1",
+					"armor_1"
+				]
+			],
+			"coordination_at": [
+				1800.76666666536,
+				1800.76666666536
+			],
+			"fitted_orders": [
+				{
+					"cost": {
+						"resource_a": 22,
+						"resource_b": 14
+					},
+					"duration": 25.0,
+					"faction": "helix",
+					"seconds": 1802.24999999869,
+					"side": 0
+				}
+			],
+			"observed_home_wrecks": [
+				0,
+				3
+			],
+			"salvage_collected": [
+				0,
+				1
+			],
+			"salvage_delivered": [
+				0,
+				1
+			],
+			"salvage_lost": [
+				0,
+				0
+			],
+			"salvage_orders": [
+				0,
+				2
+			],
+			"wrecks": 3
+		},
+		"harvested": [
+			56.0,
+			96.0
+		],
+		"longest_stationary_travel": [
+			3.0,
+			0.5
+		],
+		"loss_timeline": [
+			{
+				"point": [
+					109.790679931641,
+					53.2458343505859
+				],
+				"role": "Infantry",
+				"seconds": 2013.46666666516
+			},
+			{
+				"point": [
+					112.325370788574,
+					53.2475776672363
+				],
+				"role": "Infantry",
+				"seconds": 2052.24999999852
+			}
+		],
+		"losses": [
+			{
+				"Infantry": 2
+			},
+			{
+				"CommandCenter": 1,
+				"Worker": 3
+			}
+		],
+		"map": "IndustrialCrossroads",
+		"opening_policy": "two_tanks_before_lab",
+		"opening_screen_at": 1827.74999999867,
+		"operation_changes": [
+			{
+				"force": [
+					{
+						"action": "AttackMoving",
+						"hp": 0.86701041666667,
+						"point": [
+							15.4447507858276,
+							54.5522994995117
+						],
+						"role": "Tank"
+					},
+					{
+						"action": "AttackMoving",
+						"hp": 0.861833333333334,
+						"point": [
+							16.5,
+							55.1874771118164
+						],
+						"role": "Infantry"
+					},
+					{
+						"action": "AttackMoving",
+						"hp": 0.916,
+						"point": [
+							16.8778457641602,
+							56.7669448852539
+						],
+						"role": "Infantry"
+					},
+					{
+						"action": "AttackMoving",
+						"hp": 1.0,
+						"point": [
+							17.4539184570312,
+							57.0539207458496
+						],
+						"role": "Infantry"
+					},
+					{
+						"action": "AttackMoving",
+						"hp": 1.0,
+						"point": [
+							15.6434679031372,
+							56.0376358032227
+						],
+						"role": "Infantry"
+					},
+					{
+						"action": "AttackMoving",
+						"hp": 1.0,
+						"point": [
+							16.5883960723877,
+							56.1884002685547
+						],
+						"role": "Infantry"
+					},
+					{
+						"action": "AttackMoving",
+						"hp": 1.0,
+						"point": [
+							17.4572143554688,
+							57.6956367492676
+						],
+						"role": "Infantry"
+					},
+					{
+						"action": "AttackMoving",
+						"hp": 1.0,
+						"point": [
+							16.1829471588135,
+							57.868350982666
+						],
+						"role": "Tank"
+					},
+					{
+						"action": "AttackMoving",
+						"hp": 1.0,
+						"point": [
+							10.8040990829468,
+							58.544750213623
+						],
+						"role": "CombatRobot"
+					}
+				],
+				"phase": "attack",
+				"previous": "recover",
+				"readiness": {
+					"army": 9,
+					"assault_gates": {
+						"army_at_least_9": true,
+						"health_at_least_80_percent": true,
+						"no_visible_home_threats": true,
+						"quiet_20_seconds": true,
+						"saw_home_attack": true
+					},
+					"health": 0.960538194444445,
+					"phase": "attack",
+					"pressure_age": 808.999999999266,
+					"saw_attack": true,
+					"visible_home_threats": 0
+				},
+				"seconds": 1971.74999999854
+			},
+			{
+				"force": [
+					{
+						"action": "Moving",
+						"hp": 0.227805871212124,
+						"point": [
+							86.5551681518555,
+							53.4744186401367
+						],
+						"role": "Tank"
+					},
+					{
+						"action": "Returning for repairs",
+						"hp": 0.00690909090909131,
+						"point": [
+							55.9891624450684,
+							49.8944358825684
+						],
+						"role": "Infantry"
+					},
+					{
+						"action": "Moving",
+						"hp": 0.772727272727273,
+						"point": [
+							111.565475463867,
+							54.069953918457
+						],
+						"role": "Infantry"
+					},
+					{
+						"action": "Moving",
+						"hp": 1.0,
+						"point": [
+							112.26734161377,
+							53.9665145874023
+						],
+						"role": "Infantry"
+					},
+					{
+						"action": "Returning for repairs",
+						"hp": 0.356363636363636,
+						"point": [
+							111.844940185547,
+							53.3938064575195
+						],
+						"role": "Infantry"
+					},
+					{
+						"action": "Moving",
+						"hp": 0.934128787878789,
+						"point": [
+							17.0598258972168,
+							57.9487724304199
+						],
+						"role": "Tank"
+					},
+					{
+						"action": "Moving",
+						"hp": 0.370629370629371,
+						"point": [
+							22.764461517334,
+							57.3705101013184
+						],
+						"role": "CombatRobot"
+					},
+					{
+						"action": "Returning for repairs",
+						"hp": 0.0909090909090909,
+						"point": [
+							99.1948623657227,
+							52.3441696166992
+						],
+						"role": "Infantry"
+					},
+					{
+						"action": "Moving",
+						"hp": 1.0,
+						"point": [
+							58.8329200744629,
+							50.6903800964355
+						],
+						"role": "Infantry"
+					}
+				],
+				"phase": "recover",
+				"previous": "attack",
+				"readiness": {
+					"army": 9,
+					"assault_gates": {
+						"army_at_least_9": true,
+						"health_at_least_80_percent": false,
+						"no_visible_home_threats": true,
+						"quiet_20_seconds": true,
+						"saw_home_attack": true
+					},
+					"health": 0.528830346736597,
+					"phase": "recover",
+					"pressure_age": 906.499999999467,
+					"saw_attack": true,
+					"visible_home_threats": 0
+				},
+				"seconds": 2069.24999999874
+			}
+		],
+		"operation_policy": "after_home_attack",
+		"opponent": "frontier",
+		"policy_assaults": 1,
+		"policy_regroups": 1,
+		"policy_withdrawals": 3,
+		"production_decisions": {
+			"CombatRobot:paid": {
+				"first": 1947.24999999856,
+				"first_funds": [
+					2,
+					238
+				],
+				"last": 1947.24999999856,
+				"price": {
+					"resource_a": 26,
+					"resource_b": 20
+				},
+				"reserve": {
+					"resource_a": 0,
+					"resource_b": 0
+				},
+				"ticks": 1
+			},
+			"CombatRobot:unaffordable": {
+				"first": 1827.74999999867,
+				"first_funds": [
+					4,
+					218
+				],
+				"last": 1946.74999999856,
+				"price": {
+					"resource_a": 26,
+					"resource_b": 20
+				},
+				"reserve": {
+					"resource_a": 0,
+					"resource_b": 0
+				},
+				"ticks": 239
+			},
+			"Infantry:paid": {
+				"first": 2013.7499999985,
+				"first_funds": [
+					4,
+					262
+				],
+				"last": 2052.24999999852,
+				"price": {
+					"resource_a": 6,
+					"resource_b": 0
+				},
+				"reserve": {
+					"resource_a": 0,
+					"resource_b": 0
+				},
+				"ticks": 2
+			},
+			"RepairRobot:paid": {
+				"first": 2090.74999999901,
+				"first_funds": [
+					0,
+					274
+				],
+				"last": 2090.74999999901,
+				"price": {
+					"resource_a": 14,
+					"resource_b": 12
+				},
+				"reserve": {
+					"resource_a": 0,
+					"resource_b": 0
+				},
+				"ticks": 1
+			},
+			"RepairRobot:unaffordable": {
+				"first": 1971.74999999854,
+				"first_funds": [
+					2,
+					242
+				],
+				"last": 2090.249999999,
+				"price": {
+					"resource_a": 14,
+					"resource_b": 12
+				},
+				"reserve": {
+					"resource_a": 0,
+					"resource_b": 0
+				},
+				"ticks": 238
+			},
+			"Tank:paid": {
+				"first": 1802.24999999869,
+				"first_funds": [
+					0,
+					210
+				],
+				"last": 1802.24999999869,
+				"price": {
+					"resource_a": 22,
+					"resource_b": 14
+				},
+				"reserve": {
+					"resource_a": 0,
+					"resource_b": 0
+				},
+				"ticks": 1
+			},
+			"Tank:unaffordable": {
+				"first": 1800.74999999869,
+				"first_funds": [
+					18,
+					224
+				],
+				"last": 1801.74999999869,
+				"price": {
+					"resource_a": 22,
+					"resource_b": 14
+				},
+				"reserve": {
+					"resource_a": 0,
+					"resource_b": 0
+				},
+				"ticks": 3
+			}
+		},
+		"reference_signatures": [
+			{
+				"seconds": 2005.24999999851,
+				"units": 1
+			},
+			{
+				"seconds": 2014.2499999985,
+				"units": 1
+			},
+			{
+				"seconds": 2023.74999999849,
+				"units": 1
+			},
+			{
+				"seconds": 2042.74999999847,
+				"units": 1
+			}
+		],
+		"relay_events": [
+			{
+				"relays": [
+					{
+						"candidate": "reference",
+						"contested": false,
+						"name": "NorthRelay",
+						"owner": "opponent"
+					},
+					{
+						"candidate": "neutral",
+						"contested": false,
+						"name": "SouthRelay",
+						"owner": "opponent"
+					}
+				],
+				"seconds": 1800.74999999869
+			}
+		],
+		"relay_expeditions": [],
+		"relay_withdrawals": [],
+		"repaired_hp": [
+			102.461333333333,
+			0.0
+		],
+		"repetition": 10,
+		"research_events": [
+			{
+				"seconds": 1800.76666666536,
+				"sides": [
+					{
+						"active": "",
+						"basic": true,
+						"completed": [
+							"weapons_1",
+							"armor_1",
+							"service",
+							"doctrine"
+						],
+						"coordination": true,
+						"coordination_left": 0.0,
+						"desired_building": null,
+						"faction": "helix",
+						"funds": [
+							18,
+							224
+						],
+						"lab": true,
+						"priority_reserve": null,
+						"production": [
+							{
+								"cost": {
+									"resource_a": 22,
+									"resource_b": 14
+								},
+								"priority": 6,
+								"role": "Tank"
+							}
+						],
+						"queues": [
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "CommandCenter"
+							},
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "VehicleFactory"
+							},
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "AircraftFactory"
+							},
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "Barracks"
+							}
+						],
+						"ready_army": 7
+					},
+					{
+						"active": "",
+						"basic": true,
+						"completed": [
+							"weapons_1",
+							"armor_1"
+						],
+						"coordination": true,
+						"coordination_left": 0.0,
+						"desired_building": "CommandLab",
+						"faction": "frontier",
+						"funds": [
+							3,
+							7
+						],
+						"lab": false,
+						"priority_reserve": [
+							61,
+							30
+						],
+						"production": [
+							{
+								"cost": {
+									"resource_a": 6,
+									"resource_b": 0
+								},
+								"priority": 0,
+								"role": "Worker"
+							},
+							{
+								"cost": {
+									"resource_a": 5,
+									"resource_b": 0
+								},
+								"priority": 2,
+								"role": "Infantry"
+							},
+							{
+								"cost": {
+									"resource_a": 20,
+									"resource_b": 4
+								},
+								"priority": 6,
+								"role": "Tank"
+							}
+						],
+						"queues": [
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "CommandCenter"
+							},
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "Barracks"
+							},
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "VehicleFactory"
+							}
+						],
+						"ready_army": 0
+					}
+				]
+			}
+		],
+		"research_policy": "combined",
+		"result": "Victory",
+		"retrofit_episodes": [],
+		"retrofit_net_e": 0,
+		"retrofit_skipped": {
+
+		},
+		"samples": [
+			{
+				"ai_tasks": [
+					{
+						"age": 0.5,
+						"kind": "scout",
+						"point": [
+							14.0,
+							50.0
+						],
+						"retiring": false,
+						"roles": {
+							"Drone": 1
+						}
+					}
+				],
+				"continuation_elapsed": 0.0,
+				"electronics_handoff_enabled": true,
+				"ground_before_air": 8,
+				"home_response_enabled": true,
+				"policy": {
+					"army": 7,
+					"assault_gates": {
+						"army_at_least_9": false,
+						"health_at_least_80_percent": true,
+						"no_visible_home_threats": true,
+						"quiet_20_seconds": true,
+						"saw_home_attack": true
+					},
+					"health": 0.949263392857143,
+					"phase": "recover",
+					"pressure_age": 637.999999999421,
+					"saw_attack": true,
+					"visible_home_threats": 0
+				},
+				"reinforcement_first": true,
+				"research": [
+					{
+						"active": "",
+						"basic": true,
+						"completed": [
+							"weapons_1",
+							"armor_1",
+							"service",
+							"doctrine"
+						],
+						"coordination": true,
+						"coordination_left": 0.0,
+						"desired_building": null,
+						"faction": "helix",
+						"funds": [
+							18,
+							224
+						],
+						"lab": true,
+						"priority_reserve": null,
+						"production": [
+							{
+								"cost": {
+									"resource_a": 22,
+									"resource_b": 14
+								},
+								"priority": 6,
+								"role": "Tank"
+							}
+						],
+						"queues": [
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "CommandCenter"
+							},
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "VehicleFactory"
+							},
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "AircraftFactory"
+							},
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "Barracks"
+							}
+						],
+						"ready_army": 7
+					},
+					{
+						"active": "",
+						"basic": true,
+						"completed": [
+							"weapons_1",
+							"armor_1"
+						],
+						"coordination": true,
+						"coordination_left": 0.0,
+						"desired_building": "CommandLab",
+						"faction": "frontier",
+						"funds": [
+							3,
+							7
+						],
+						"lab": false,
+						"priority_reserve": [
+							61,
+							30
+						],
+						"production": [
+							{
+								"cost": {
+									"resource_a": 6,
+									"resource_b": 0
+								},
+								"priority": 0,
+								"role": "Worker"
+							},
+							{
+								"cost": {
+									"resource_a": 5,
+									"resource_b": 0
+								},
+								"priority": 2,
+								"role": "Infantry"
+							},
+							{
+								"cost": {
+									"resource_a": 20,
+									"resource_b": 4
+								},
+								"priority": 6,
+								"role": "Tank"
+							}
+						],
+						"queues": [
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "CommandCenter"
+							},
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "Barracks"
+							},
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "VehicleFactory"
+							}
+						],
+						"ready_army": 0
+					}
+				],
+				"seconds": 1800.7,
+				"sides": [
+					{
+						"army_base_value": [
+							122.0,
+							64.0
+						],
+						"fitted_tanks": 1,
+						"funds": [
+							18,
+							224
+						],
+						"units": {
+							"AircraftFactory": 1,
+							"Barracks": 1,
+							"CommandCenter": 1,
+							"CommandLab": 1,
+							"Drone": 1,
+							"Helicopter": 2,
+							"Infantry": 6,
+							"PowerPlant": 1,
+							"RepairDepot": 1,
+							"Tank": 1,
+							"VehicleFactory": 1,
+							"Worker": 6
+						},
+						"worker_states": {
+							"Electronics · approaching work slot": 1,
+							"Electronics · collecting": 1,
+							"Materials · approaching work slot": 1,
+							"Returning cargo to HQ": 3
+						},
+						"workers": {
+							"construction": 0,
+							"electronics": 4,
+							"materials": 2,
+							"other": 0
+						}
+					},
+					{
+						"army_base_value": [
+							7.0,
+							4.0
+						],
+						"fitted_tanks": 0,
+						"funds": [
+							3,
+							7
+						],
+						"units": {
+							"AntiAirTurret": 1,
+							"AntiGroundTurret": 1,
+							"Barracks": 1,
+							"CommandCenter": 1,
+							"Drone": 1,
+							"PowerPlant": 1,
+							"RepairDepot": 1,
+							"VehicleFactory": 1,
+							"Worker": 3
+						},
+						"worker_states": {
+							"Cargo delivered · choose a resource field": 1,
+							"Materials field depleted · choose a new field": 2
+						},
+						"workers": {
+							"construction": 0,
+							"electronics": 1,
+							"materials": 2,
+							"other": 0
+						}
+					}
+				]
+			},
+			{
+				"ai_tasks": [
+					{
+						"age": 1.3,
+						"kind": "scout",
+						"point": [
+							14.0,
+							50.0
+						],
+						"retiring": false,
+						"roles": {
+							"Drone": 1
+						}
+					}
+				],
+				"continuation_elapsed": 59.9999999999454,
+				"electronics_handoff_enabled": true,
+				"ground_before_air": 8,
+				"home_response_enabled": true,
+				"policy": {
+					"army": 8,
+					"assault_gates": {
+						"army_at_least_9": false,
+						"health_at_least_80_percent": true,
+						"no_visible_home_threats": true,
+						"quiet_20_seconds": true,
+						"saw_home_attack": true
+					},
+					"health": 0.95560546875,
+					"phase": "recover",
+					"pressure_age": 697.999999999367,
+					"saw_attack": true,
+					"visible_home_threats": 0
+				},
+				"reinforcement_first": true,
+				"research": [
+					{
+						"active": "",
+						"basic": true,
+						"completed": [
+							"weapons_1",
+							"armor_1",
+							"service",
+							"doctrine"
+						],
+						"coordination": true,
+						"coordination_left": 0.0,
+						"desired_building": null,
+						"faction": "helix",
+						"funds": [
+							12,
+							230
+						],
+						"lab": true,
+						"priority_reserve": null,
+						"production": [
+							{
+								"cost": {
+									"resource_a": 26,
+									"resource_b": 20
+								},
+								"priority": 6,
+								"role": "CombatRobot"
+							}
+						],
+						"queues": [
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "CommandCenter"
+							},
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "VehicleFactory"
+							},
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "AircraftFactory"
+							},
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "Barracks"
+							}
+						],
+						"ready_army": 8
+					},
+					{
+						"active": "",
+						"basic": true,
+						"completed": [
+							"weapons_1",
+							"armor_1"
+						],
+						"coordination": true,
+						"coordination_left": 0.0,
+						"desired_building": "CommandLab",
+						"faction": "frontier",
+						"funds": [
+							4,
+							7
+						],
+						"lab": false,
+						"priority_reserve": [
+							61,
+							30
+						],
+						"production": [
+							{
+								"cost": {
+									"resource_a": 6,
+									"resource_b": 0
+								},
+								"priority": 0,
+								"role": "Worker"
+							},
+							{
+								"cost": {
+									"resource_a": 5,
+									"resource_b": 0
+								},
+								"priority": 2,
+								"role": "Infantry"
+							},
+							{
+								"cost": {
+									"resource_a": 20,
+									"resource_b": 4
+								},
+								"priority": 6,
+								"role": "Tank"
+							}
+						],
+						"queues": [
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "CommandCenter"
+							},
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "Barracks"
+							},
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "VehicleFactory"
+							}
+						],
+						"ready_army": 0
+					}
+				],
+				"seconds": 1860.7,
+				"sides": [
+					{
+						"army_base_value": [
+							144.0,
+							74.0
+						],
+						"fitted_tanks": 2,
+						"funds": [
+							12,
+							230
+						],
+						"units": {
+							"AircraftFactory": 1,
+							"Barracks": 1,
+							"CommandCenter": 1,
+							"CommandLab": 1,
+							"Drone": 1,
+							"Helicopter": 2,
+							"Infantry": 6,
+							"PowerPlant": 1,
+							"RepairDepot": 1,
+							"Tank": 2,
+							"VehicleFactory": 1,
+							"Worker": 6
+						},
+						"worker_states": {
+							"Electronics · approaching work slot": 3,
+							"Materials · approaching work slot": 1,
+							"Returning cargo to HQ": 2
+						},
+						"workers": {
+							"construction": 0,
+							"electronics": 4,
+							"materials": 2,
+							"other": 0
+						}
+					},
+					{
+						"army_base_value": [
+							7.0,
+							4.0
+						],
+						"fitted_tanks": 0,
+						"funds": [
+							4,
+							7
+						],
+						"units": {
+							"AntiAirTurret": 1,
+							"AntiGroundTurret": 1,
+							"Barracks": 1,
+							"CommandCenter": 1,
+							"Drone": 1,
+							"PowerPlant": 1,
+							"RepairDepot": 1,
+							"VehicleFactory": 1,
+							"Worker": 2
+						},
+						"worker_states": {
+							"Cargo delivered · choose a resource field": 1,
+							"Materials field depleted · choose a new field": 1
+						},
+						"workers": {
+							"construction": 0,
+							"electronics": 1,
+							"materials": 1,
+							"other": 0
+						}
+					}
+				]
+			},
+			{
+				"ai_tasks": [
+					{
+						"age": 0.6,
+						"kind": "scout",
+						"point": [
+							14.0,
+							50.0
+						],
+						"retiring": false,
+						"roles": {
+							"Drone": 1
+						}
+					}
+				],
+				"continuation_elapsed": 119.999999999891,
+				"electronics_handoff_enabled": true,
+				"ground_before_air": 8,
+				"home_response_enabled": true,
+				"policy": {
+					"army": 8,
+					"assault_gates": {
+						"army_at_least_9": false,
+						"health_at_least_80_percent": true,
+						"no_visible_home_threats": true,
+						"quiet_20_seconds": true,
+						"saw_home_attack": true
+					},
+					"health": 0.95560546875,
+					"phase": "recover",
+					"pressure_age": 757.999999999312,
+					"saw_attack": true,
+					"visible_home_threats": 0
+				},
+				"reinforcement_first": true,
+				"research": [
+					{
+						"active": "",
+						"basic": true,
+						"completed": [
+							"weapons_1",
+							"armor_1",
+							"service",
+							"doctrine"
+						],
+						"coordination": true,
+						"coordination_left": 0.0,
+						"desired_building": null,
+						"faction": "helix",
+						"funds": [
+							20,
+							246
+						],
+						"lab": true,
+						"priority_reserve": null,
+						"production": [
+							{
+								"cost": {
+									"resource_a": 26,
+									"resource_b": 20
+								},
+								"priority": 6,
+								"role": "CombatRobot"
+							}
+						],
+						"queues": [
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "CommandCenter"
+							},
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "VehicleFactory"
+							},
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "AircraftFactory"
+							},
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "Barracks"
+							}
+						],
+						"ready_army": 8
+					},
+					{
+						"active": "",
+						"basic": true,
+						"completed": [
+							"weapons_1",
+							"armor_1"
+						],
+						"coordination": true,
+						"coordination_left": 0.0,
+						"desired_building": "CommandLab",
+						"faction": "frontier",
+						"funds": [
+							5,
+							7
+						],
+						"lab": false,
+						"priority_reserve": [
+							61,
+							30
+						],
+						"production": [
+							{
+								"cost": {
+									"resource_a": 6,
+									"resource_b": 0
+								},
+								"priority": 0,
+								"role": "Worker"
+							},
+							{
+								"cost": {
+									"resource_a": 5,
+									"resource_b": 0
+								},
+								"priority": 2,
+								"role": "Infantry"
+							},
+							{
+								"cost": {
+									"resource_a": 20,
+									"resource_b": 4
+								},
+								"priority": 6,
+								"role": "Tank"
+							}
+						],
+						"queues": [
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "CommandCenter"
+							},
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "Barracks"
+							},
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "VehicleFactory"
+							}
+						],
+						"ready_army": 0
+					}
+				],
+				"seconds": 1920.7,
+				"sides": [
+					{
+						"army_base_value": [
+							144.0,
+							74.0
+						],
+						"fitted_tanks": 2,
+						"funds": [
+							20,
+							246
+						],
+						"units": {
+							"AircraftFactory": 1,
+							"Barracks": 1,
+							"CommandCenter": 1,
+							"CommandLab": 1,
+							"Drone": 1,
+							"Helicopter": 2,
+							"Infantry": 6,
+							"PowerPlant": 1,
+							"RepairDepot": 1,
+							"Tank": 2,
+							"VehicleFactory": 1,
+							"Worker": 6
+						},
+						"worker_states": {
+							"Electronics · approaching work slot": 1,
+							"Electronics · collecting": 1,
+							"Materials · approaching work slot": 1,
+							"Returning cargo to HQ": 3
+						},
+						"workers": {
+							"construction": 0,
+							"electronics": 4,
+							"materials": 2,
+							"other": 0
+						}
+					},
+					{
+						"army_base_value": [
+							7.0,
+							4.0
+						],
+						"fitted_tanks": 0,
+						"funds": [
+							5,
+							7
+						],
+						"units": {
+							"AntiAirTurret": 1,
+							"AntiGroundTurret": 1,
+							"Barracks": 1,
+							"CommandCenter": 1,
+							"Drone": 1,
+							"PowerPlant": 1,
+							"RepairDepot": 1,
+							"VehicleFactory": 1,
+							"Worker": 1
+						},
+						"worker_states": {
+							"Materials field depleted · choose a new field": 1
+						},
+						"workers": {
+							"construction": 0,
+							"electronics": 0,
+							"materials": 1,
+							"other": 0
+						}
+					}
+				]
+			},
+			{
+				"ai_tasks": [
+					{
+						"age": 1.5,
+						"kind": "scout",
+						"point": [
+							14.0,
+							50.0
+						],
+						"retiring": false,
+						"roles": {
+							"Drone": 1
+						}
+					}
+				],
+				"continuation_elapsed": 179.999999999836,
+				"electronics_handoff_enabled": true,
+				"ground_before_air": 8,
+				"home_response_enabled": true,
+				"policy": {
+					"army": 9,
+					"assault_gates": {
+						"army_at_least_9": true,
+						"health_at_least_80_percent": true,
+						"no_visible_home_threats": true,
+						"quiet_20_seconds": true,
+						"saw_home_attack": true
+					},
+					"health": 0.960538194444445,
+					"phase": "attack",
+					"pressure_age": 817.999999999257,
+					"saw_attack": true,
+					"visible_home_threats": 0
+				},
+				"reinforcement_first": true,
+				"research": [
+					{
+						"active": "",
+						"basic": true,
+						"completed": [
+							"weapons_1",
+							"armor_1",
+							"service",
+							"doctrine"
+						],
+						"coordination": true,
+						"coordination_left": 0.0,
+						"desired_building": null,
+						"faction": "helix",
+						"funds": [
+							6,
+							246
+						],
+						"lab": true,
+						"priority_reserve": null,
+						"production": [
+							{
+								"cost": {
+									"resource_a": 14,
+									"resource_b": 12
+								},
+								"priority": 3,
+								"role": "RepairRobot"
+							}
+						],
+						"queues": [
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "CommandCenter"
+							},
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "VehicleFactory"
+							},
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "AircraftFactory"
+							},
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "Barracks"
+							}
+						],
+						"ready_army": 9
+					},
+					{
+						"active": "",
+						"basic": true,
+						"completed": [
+							"weapons_1",
+							"armor_1"
+						],
+						"coordination": true,
+						"coordination_left": 0.0,
+						"desired_building": "CommandLab",
+						"faction": "frontier",
+						"funds": [
+							5,
+							7
+						],
+						"lab": false,
+						"priority_reserve": [
+							61,
+							30
+						],
+						"production": [
+							{
+								"cost": {
+									"resource_a": 6,
+									"resource_b": 0
+								},
+								"priority": 0,
+								"role": "Worker"
+							},
+							{
+								"cost": {
+									"resource_a": 5,
+									"resource_b": 0
+								},
+								"priority": 2,
+								"role": "Infantry"
+							},
+							{
+								"cost": {
+									"resource_a": 20,
+									"resource_b": 4
+								},
+								"priority": 6,
+								"role": "Tank"
+							}
+						],
+						"queues": [
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "CommandCenter"
+							},
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "Barracks"
+							},
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "VehicleFactory"
+							}
+						],
+						"ready_army": 0
+					}
+				],
+				"seconds": 1980.7,
+				"sides": [
+					{
+						"army_base_value": [
+							170.0,
+							94.0
+						],
+						"fitted_tanks": 2,
+						"funds": [
+							6,
+							246
+						],
+						"units": {
+							"AircraftFactory": 1,
+							"Barracks": 1,
+							"CombatRobot": 1,
+							"CommandCenter": 1,
+							"CommandLab": 1,
+							"Drone": 1,
+							"Helicopter": 2,
+							"Infantry": 6,
+							"PowerPlant": 1,
+							"RepairDepot": 1,
+							"Tank": 2,
+							"VehicleFactory": 1,
+							"Worker": 6
+						},
+						"worker_states": {
+							"Electronics · approaching work slot": 2,
+							"Materials · approaching work slot": 1,
+							"Returning cargo to HQ": 3
+						},
+						"workers": {
+							"construction": 0,
+							"electronics": 4,
+							"materials": 2,
+							"other": 0
+						}
+					},
+					{
+						"army_base_value": [
+							7.0,
+							4.0
+						],
+						"fitted_tanks": 0,
+						"funds": [
+							5,
+							7
+						],
+						"units": {
+							"AntiAirTurret": 1,
+							"AntiGroundTurret": 1,
+							"Barracks": 1,
+							"CommandCenter": 1,
+							"Drone": 1,
+							"PowerPlant": 1,
+							"RepairDepot": 1,
+							"VehicleFactory": 1
+						},
+						"worker_states": {
+
+						},
+						"workers": {
+							"construction": 0,
+							"electronics": 0,
+							"materials": 0,
+							"other": 0
+						}
+					}
+				]
+			},
+			{
+				"ai_tasks": [
+					{
+						"age": 0.8,
+						"kind": "scout",
+						"point": [
+							14.0,
+							50.0
+						],
+						"retiring": false,
+						"roles": {
+							"Drone": 1
+						}
+					}
+				],
+				"continuation_elapsed": 239.999999999782,
+				"electronics_handoff_enabled": true,
+				"ground_before_air": 8,
+				"home_response_enabled": true,
+				"policy": {
+					"army": 9,
+					"assault_gates": {
+						"army_at_least_9": true,
+						"health_at_least_80_percent": true,
+						"no_visible_home_threats": true,
+						"quiet_20_seconds": true,
+						"saw_home_attack": true
+					},
+					"health": 0.814092908249159,
+					"phase": "attack",
+					"pressure_age": 877.999999999203,
+					"saw_attack": true,
+					"visible_home_threats": 0
+				},
+				"reinforcement_first": true,
+				"research": [
+					{
+						"active": "",
+						"basic": true,
+						"completed": [
+							"weapons_1",
+							"armor_1",
+							"service",
+							"doctrine"
+						],
+						"coordination": true,
+						"coordination_left": 0.0,
+						"desired_building": null,
+						"faction": "helix",
+						"funds": [
+							8,
+							266
+						],
+						"lab": true,
+						"priority_reserve": null,
+						"production": [
+							{
+								"cost": {
+									"resource_a": 14,
+									"resource_b": 12
+								},
+								"priority": 3,
+								"role": "RepairRobot"
+							}
+						],
+						"queues": [
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "CommandCenter"
+							},
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "VehicleFactory"
+							},
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "AircraftFactory"
+							},
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "Barracks"
+							}
+						],
+						"ready_army": 8
+					},
+					{
+						"active": "",
+						"basic": true,
+						"completed": [
+							"weapons_1",
+							"armor_1"
+						],
+						"coordination": true,
+						"coordination_left": 0.0,
+						"desired_building": "CommandCenter",
+						"faction": "frontier",
+						"funds": [
+							5,
+							7
+						],
+						"lab": false,
+						"priority_reserve": [
+							85,
+							20
+						],
+						"production": [
+							{
+								"cost": {
+									"resource_a": 5,
+									"resource_b": 0
+								},
+								"priority": 2,
+								"role": "Infantry"
+							},
+							{
+								"cost": {
+									"resource_a": 20,
+									"resource_b": 4
+								},
+								"priority": 6,
+								"role": "Tank"
+							}
+						],
+						"queues": [
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "Barracks"
+							},
+							{
+								"blocked": "",
+								"jobs": [],
+								"producer": "VehicleFactory"
+							}
+						],
+						"ready_army": 0
+					}
+				],
+				"seconds": 2040.7,
+				"sides": [
+					{
+						"army_base_value": [
+							170.0,
+							94.0
+						],
+						"fitted_tanks": 2,
+						"funds": [
+							8,
+							266
+						],
+						"units": {
+							"AircraftFactory": 1,
+							"Barracks": 1,
+							"CombatRobot": 1,
+							"CommandCenter": 1,
+							"CommandLab": 1,
+							"Drone": 1,
+							"Helicopter": 2,
+							"Infantry": 6,
+							"PowerPlant": 1,
+							"RepairDepot": 1,
+							"Tank": 2,
+							"VehicleFactory": 1,
+							"Worker": 6
+						},
+						"worker_states": {
+							"Electronics · approaching work slot": 1,
+							"Electronics · collecting": 1,
+							"Materials · approaching work slot": 1,
+							"Returning cargo to HQ": 3
+						},
+						"workers": {
+							"construction": 0,
+							"electronics": 4,
+							"materials": 2,
+							"other": 0
+						}
+					},
+					{
+						"army_base_value": [
+							7.0,
+							4.0
+						],
+						"fitted_tanks": 0,
+						"funds": [
+							5,
+							7
+						],
+						"units": {
+							"AntiAirTurret": 1,
+							"AntiGroundTurret": 1,
+							"Barracks": 1,
+							"Drone": 1,
+							"PowerPlant": 1,
+							"RepairDepot": 1,
+							"VehicleFactory": 1
+						},
+						"worker_states": {
+
+						},
+						"workers": {
+							"construction": 0,
+							"electronics": 0,
+							"materials": 0,
+							"other": 0
+						}
+					}
+				]
+			}
+		],
+		"seconds": 2092.0,
+		"seed": 4110,
+		"spent": [
+			74.0,
+			46.0
+		],
+		"staging_steps": 94,
+		"stationary_travel_unit_seconds": [
+			0.0,
+			0.0
+		],
+		"sustain_samples": [
+			{
+				"buildings": [
+					{
+						"built": true,
+						"hp": 500,
+						"position": [
+							14.0,
+							50.0
+						],
+						"role": "CommandCenter"
+					},
+					{
+						"built": true,
+						"hp": 320,
+						"position": [
+							9.05025291442871,
+							54.9497489929199
+						],
+						"role": "VehicleFactory"
+					},
+					{
+						"built": true,
+						"hp": 260,
+						"position": [
+							7.0,
+							50.0
+						],
+						"role": "RepairDepot"
+					},
+					{
+						"built": true,
+						"hp": 220,
+						"position": [
+							9.05025291442871,
+							45.0502510070801
+						],
+						"role": "CommandLab"
+					},
+					{
+						"built": true,
+						"hp": 10.8299999999996,
+						"position": [
+							18.9497470855713,
+							54.9497489929199
+						],
+						"role": "PowerPlant"
+					},
+					{
+						"built": true,
+						"hp": 300,
+						"position": [
+							14.0,
+							43.0
+						],
+						"role": "AircraftFactory"
+					},
+					{
+						"built": true,
+						"hp": 64.6000000000002,
+						"position": [
+							21.0,
+							50.0
+						],
+						"role": "Barracks"
+					}
+				],
+				"funds": [
+					18,
+					224
+				],
+				"patients": [
+					{
+						"action": "res://source/match/units/actions/WaitingForTargets.gd",
+						"has_facility": true,
+						"hp": 20.6359999999999,
+						"id": 321938005559,
+						"max_hp": 44.0,
+						"position": [
+							87.9409408569336,
+							51.5120277404785
+						],
+						"program": "Ready",
+						"reason": "Program starts on the next simulation tick.",
+						"role": "Helicopter",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/units/actions/WaitingForTargets.gd",
+						"has_facility": true,
+						"hp": 30.1106666666667,
+						"id": 334856462200,
+						"max_hp": 44.0,
+						"position": [
+							87.1446151733398,
+							50.0082054138184
+						],
+						"program": "Ready",
+						"reason": "Program starts on the next simulation tick.",
+						"role": "Helicopter",
+						"support_near": false
+					}
+				],
+				"power": [
+					45,
+					25
+				],
+				"seconds": 1800.74999999869,
+				"workers": 6
+			},
+			{
+				"buildings": [
+					{
+						"built": true,
+						"hp": 500,
+						"position": [
+							14.0,
+							50.0
+						],
+						"role": "CommandCenter"
+					},
+					{
+						"built": true,
+						"hp": 320,
+						"position": [
+							9.05025291442871,
+							54.9497489929199
+						],
+						"role": "VehicleFactory"
+					},
+					{
+						"built": true,
+						"hp": 260,
+						"position": [
+							7.0,
+							50.0
+						],
+						"role": "RepairDepot"
+					},
+					{
+						"built": true,
+						"hp": 220,
+						"position": [
+							9.05025291442871,
+							45.0502510070801
+						],
+						"role": "CommandLab"
+					},
+					{
+						"built": true,
+						"hp": 10.8299999999996,
+						"position": [
+							18.9497470855713,
+							54.9497489929199
+						],
+						"role": "PowerPlant"
+					},
+					{
+						"built": true,
+						"hp": 300,
+						"position": [
+							14.0,
+							43.0
+						],
+						"role": "AircraftFactory"
+					},
+					{
+						"built": true,
+						"hp": 64.6000000000002,
+						"position": [
+							21.0,
+							50.0
+						],
+						"role": "Barracks"
+					}
+				],
+				"funds": [
+					4,
+					214
+				],
+				"patients": [
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 20.6359999999999,
+						"id": 321938005559,
+						"max_hp": 44.0,
+						"position": [
+							76.5705413818359,
+							50.7550735473633
+						],
+						"program": "Running",
+						"reason": "Strike complete; returning to regroup point.",
+						"role": "Helicopter",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 30.1106666666667,
+						"id": 334856462200,
+						"max_hp": 44.0,
+						"position": [
+							78.0557556152344,
+							49.7958221435547
+						],
+						"program": "Running",
+						"reason": "Strike complete; returning to regroup point.",
+						"role": "Helicopter",
+						"support_near": false
+					}
+				],
+				"power": [
+					45,
+					25
+				],
+				"seconds": 1811.24999999868,
+				"workers": 6
+			},
+			{
+				"buildings": [
+					{
+						"built": true,
+						"hp": 500,
+						"position": [
+							14.0,
+							50.0
+						],
+						"role": "CommandCenter"
+					},
+					{
+						"built": true,
+						"hp": 320,
+						"position": [
+							9.05025291442871,
+							54.9497489929199
+						],
+						"role": "VehicleFactory"
+					},
+					{
+						"built": true,
+						"hp": 260,
+						"position": [
+							7.0,
+							50.0
+						],
+						"role": "RepairDepot"
+					},
+					{
+						"built": true,
+						"hp": 220,
+						"position": [
+							9.05025291442871,
+							45.0502510070801
+						],
+						"role": "CommandLab"
+					},
+					{
+						"built": true,
+						"hp": 10.8299999999996,
+						"position": [
+							18.9497470855713,
+							54.9497489929199
+						],
+						"role": "PowerPlant"
+					},
+					{
+						"built": true,
+						"hp": 300,
+						"position": [
+							14.0,
+							43.0
+						],
+						"role": "AircraftFactory"
+					},
+					{
+						"built": true,
+						"hp": 64.6000000000002,
+						"position": [
+							21.0,
+							50.0
+						],
+						"role": "Barracks"
+					}
+				],
+				"funds": [
+					4,
+					214
+				],
+				"patients": [
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 20.6359999999999,
+						"id": 321938005559,
+						"max_hp": 44.0,
+						"position": [
+							26.6449451446533,
+							45.4153137207031
+						],
+						"program": "Running",
+						"reason": "Strike complete; returning to regroup point.",
+						"role": "Helicopter",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 30.1106666666667,
+						"id": 334856462200,
+						"max_hp": 44.0,
+						"position": [
+							27.9911689758301,
+							44.4673957824707
+						],
+						"program": "Running",
+						"reason": "Strike complete; returning to regroup point.",
+						"role": "Helicopter",
+						"support_near": false
+					}
+				],
+				"power": [
+					45,
+					25
+				],
+				"seconds": 1821.74999999867,
+				"workers": 6
+			},
+			{
+				"buildings": [
+					{
+						"built": true,
+						"hp": 500,
+						"position": [
+							14.0,
+							50.0
+						],
+						"role": "CommandCenter"
+					},
+					{
+						"built": true,
+						"hp": 320,
+						"position": [
+							9.05025291442871,
+							54.9497489929199
+						],
+						"role": "VehicleFactory"
+					},
+					{
+						"built": true,
+						"hp": 260,
+						"position": [
+							7.0,
+							50.0
+						],
+						"role": "RepairDepot"
+					},
+					{
+						"built": true,
+						"hp": 220,
+						"position": [
+							9.05025291442871,
+							45.0502510070801
+						],
+						"role": "CommandLab"
+					},
+					{
+						"built": true,
+						"hp": 10.8299999999996,
+						"position": [
+							18.9497470855713,
+							54.9497489929199
+						],
+						"role": "PowerPlant"
+					},
+					{
+						"built": true,
+						"hp": 300,
+						"position": [
+							14.0,
+							43.0
+						],
+						"role": "AircraftFactory"
+					},
+					{
+						"built": true,
+						"hp": 64.6000000000002,
+						"position": [
+							21.0,
+							50.0
+						],
+						"role": "Barracks"
+					}
+				],
+				"funds": [
+					4,
+					218
+				],
+				"patients": [
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 20.6359999999999,
+						"id": 321938005559,
+						"max_hp": 44.0,
+						"position": [
+							49.0574035644531,
+							46.889533996582
+						],
+						"program": "Running",
+						"reason": "Approaching assigned strike area.",
+						"role": "Helicopter",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 30.1106666666667,
+						"id": 334856462200,
+						"max_hp": 44.0,
+						"position": [
+							51.0379638671875,
+							47.0649642944336
+						],
+						"program": "Running",
+						"reason": "Approaching assigned strike area.",
+						"role": "Helicopter",
+						"support_near": false
+					}
+				],
+				"power": [
+					45,
+					25
+				],
+				"seconds": 1832.24999999866,
+				"workers": 6
+			},
+			{
+				"buildings": [
+					{
+						"built": true,
+						"hp": 500,
+						"position": [
+							14.0,
+							50.0
+						],
+						"role": "CommandCenter"
+					},
+					{
+						"built": true,
+						"hp": 320,
+						"position": [
+							9.05025291442871,
+							54.9497489929199
+						],
+						"role": "VehicleFactory"
+					},
+					{
+						"built": true,
+						"hp": 260,
+						"position": [
+							7.0,
+							50.0
+						],
+						"role": "RepairDepot"
+					},
+					{
+						"built": true,
+						"hp": 220,
+						"position": [
+							9.05025291442871,
+							45.0502510070801
+						],
+						"role": "CommandLab"
+					},
+					{
+						"built": true,
+						"hp": 10.8299999999996,
+						"position": [
+							18.9497470855713,
+							54.9497489929199
+						],
+						"role": "PowerPlant"
+					},
+					{
+						"built": true,
+						"hp": 300,
+						"position": [
+							14.0,
+							43.0
+						],
+						"role": "AircraftFactory"
+					},
+					{
+						"built": true,
+						"hp": 64.6000000000002,
+						"position": [
+							21.0,
+							50.0
+						],
+						"role": "Barracks"
+					}
+				],
+				"funds": [
+					8,
+					218
+				],
+				"patients": [
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 20.6359999999999,
+						"id": 321938005559,
+						"max_hp": 44.0,
+						"position": [
+							99.1564636230469,
+							52.3748016357422
+						],
+						"program": "Running",
+						"reason": "Approaching assigned strike area.",
+						"role": "Helicopter",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 30.1106666666667,
+						"id": 334856462200,
+						"max_hp": 44.0,
+						"position": [
+							101.135681152344,
+							52.5828475952148
+						],
+						"program": "Running",
+						"reason": "Returning to assigned area.",
+						"role": "Helicopter",
+						"support_near": false
+					}
+				],
+				"power": [
+					45,
+					25
+				],
+				"seconds": 1842.74999999865,
+				"workers": 6
+			},
+			{
+				"buildings": [
+					{
+						"built": true,
+						"hp": 500,
+						"position": [
+							14.0,
+							50.0
+						],
+						"role": "CommandCenter"
+					},
+					{
+						"built": true,
+						"hp": 320,
+						"position": [
+							9.05025291442871,
+							54.9497489929199
+						],
+						"role": "VehicleFactory"
+					},
+					{
+						"built": true,
+						"hp": 260,
+						"position": [
+							7.0,
+							50.0
+						],
+						"role": "RepairDepot"
+					},
+					{
+						"built": true,
+						"hp": 220,
+						"position": [
+							9.05025291442871,
+							45.0502510070801
+						],
+						"role": "CommandLab"
+					},
+					{
+						"built": true,
+						"hp": 10.8299999999996,
+						"position": [
+							18.9497470855713,
+							54.9497489929199
+						],
+						"role": "PowerPlant"
+					},
+					{
+						"built": true,
+						"hp": 300,
+						"position": [
+							14.0,
+							43.0
+						],
+						"role": "AircraftFactory"
+					},
+					{
+						"built": true,
+						"hp": 64.6000000000002,
+						"position": [
+							21.0,
+							50.0
+						],
+						"role": "Barracks"
+					}
+				],
+				"funds": [
+					12,
+					226
+				],
+				"patients": [
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 20.6359999999999,
+						"id": 321938005559,
+						"max_hp": 44.0,
+						"position": [
+							65.4907379150391,
+							48.8917045593262
+						],
+						"program": "Running",
+						"reason": "Strike complete; returning to regroup point.",
+						"role": "Helicopter",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 30.1106666666667,
+						"id": 334856462200,
+						"max_hp": 44.0,
+						"position": [
+							63.995246887207,
+							49.6166572570801
+						],
+						"program": "Running",
+						"reason": "Strike complete; returning to regroup point.",
+						"role": "Helicopter",
+						"support_near": false
+					}
+				],
+				"power": [
+					45,
+					25
+				],
+				"seconds": 1853.24999999864,
+				"workers": 6
+			},
+			{
+				"buildings": [
+					{
+						"built": true,
+						"hp": 500,
+						"position": [
+							14.0,
+							50.0
+						],
+						"role": "CommandCenter"
+					},
+					{
+						"built": true,
+						"hp": 320,
+						"position": [
+							9.05025291442871,
+							54.9497489929199
+						],
+						"role": "VehicleFactory"
+					},
+					{
+						"built": true,
+						"hp": 260,
+						"position": [
+							7.0,
+							50.0
+						],
+						"role": "RepairDepot"
+					},
+					{
+						"built": true,
+						"hp": 220,
+						"position": [
+							9.05025291442871,
+							45.0502510070801
+						],
+						"role": "CommandLab"
+					},
+					{
+						"built": true,
+						"hp": 10.8299999999996,
+						"position": [
+							18.9497470855713,
+							54.9497489929199
+						],
+						"role": "PowerPlant"
+					},
+					{
+						"built": true,
+						"hp": 300,
+						"position": [
+							14.0,
+							43.0
+						],
+						"role": "AircraftFactory"
+					},
+					{
+						"built": true,
+						"hp": 64.6000000000002,
+						"position": [
+							21.0,
+							50.0
+						],
+						"role": "Barracks"
+					}
+				],
+				"funds": [
+					12,
+					230
+				],
+				"patients": [
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 20.6359999999999,
+						"id": 321938005559,
+						"max_hp": 44.0,
+						"position": [
+							15.4618139266968,
+							43.1659469604492
+						],
+						"program": "Running",
+						"reason": "Strike complete; returning to regroup point.",
+						"role": "Helicopter",
+						"support_near": true
+					},
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 30.1106666666667,
+						"id": 334856462200,
+						"max_hp": 44.0,
+						"position": [
+							13.9957857131958,
+							43.9558639526367
+						],
+						"program": "Running",
+						"reason": "Strike complete; returning to regroup point.",
+						"role": "Helicopter",
+						"support_near": true
+					}
+				],
+				"power": [
+					45,
+					25
+				],
+				"seconds": 1863.74999999863,
+				"workers": 6
+			},
+			{
+				"buildings": [
+					{
+						"built": true,
+						"hp": 500,
+						"position": [
+							14.0,
+							50.0
+						],
+						"role": "CommandCenter"
+					},
+					{
+						"built": true,
+						"hp": 320,
+						"position": [
+							9.05025291442871,
+							54.9497489929199
+						],
+						"role": "VehicleFactory"
+					},
+					{
+						"built": true,
+						"hp": 260,
+						"position": [
+							7.0,
+							50.0
+						],
+						"role": "RepairDepot"
+					},
+					{
+						"built": true,
+						"hp": 220,
+						"position": [
+							9.05025291442871,
+							45.0502510070801
+						],
+						"role": "CommandLab"
+					},
+					{
+						"built": true,
+						"hp": 10.8299999999996,
+						"position": [
+							18.9497470855713,
+							54.9497489929199
+						],
+						"role": "PowerPlant"
+					},
+					{
+						"built": true,
+						"hp": 300,
+						"position": [
+							14.0,
+							43.0
+						],
+						"role": "AircraftFactory"
+					},
+					{
+						"built": true,
+						"hp": 64.6000000000002,
+						"position": [
+							21.0,
+							50.0
+						],
+						"role": "Barracks"
+					}
+				],
+				"funds": [
+					12,
+					230
+				],
+				"patients": [
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 20.6359999999999,
+						"id": 321938005559,
+						"max_hp": 44.0,
+						"position": [
+							62.6183891296387,
+							48.109691619873
+						],
+						"program": "Running",
+						"reason": "Approaching assigned strike area.",
+						"role": "Helicopter",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 30.1106666666667,
+						"id": 334856462200,
+						"max_hp": 44.0,
+						"position": [
+							60.9702987670898,
+							48.3754272460938
+						],
+						"program": "Running",
+						"reason": "Approaching assigned strike area.",
+						"role": "Helicopter",
+						"support_near": false
+					}
+				],
+				"power": [
+					45,
+					25
+				],
+				"seconds": 1874.24999999862,
+				"workers": 6
+			},
+			{
+				"buildings": [
+					{
+						"built": true,
+						"hp": 500,
+						"position": [
+							14.0,
+							50.0
+						],
+						"role": "CommandCenter"
+					},
+					{
+						"built": true,
+						"hp": 320,
+						"position": [
+							9.05025291442871,
+							54.9497489929199
+						],
+						"role": "VehicleFactory"
+					},
+					{
+						"built": true,
+						"hp": 260,
+						"position": [
+							7.0,
+							50.0
+						],
+						"role": "RepairDepot"
+					},
+					{
+						"built": true,
+						"hp": 220,
+						"position": [
+							9.05025291442871,
+							45.0502510070801
+						],
+						"role": "CommandLab"
+					},
+					{
+						"built": true,
+						"hp": 10.8299999999996,
+						"position": [
+							18.9497470855713,
+							54.9497489929199
+						],
+						"role": "PowerPlant"
+					},
+					{
+						"built": true,
+						"hp": 300,
+						"position": [
+							14.0,
+							43.0
+						],
+						"role": "AircraftFactory"
+					},
+					{
+						"built": true,
+						"hp": 64.6000000000002,
+						"position": [
+							21.0,
+							50.0
+						],
+						"role": "Barracks"
+					}
+				],
+				"funds": [
+					16,
+					234
+				],
+				"patients": [
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 20.6359999999999,
+						"id": 321938005559,
+						"max_hp": 44.0,
+						"position": [
+							103.481636047363,
+							51.710807800293
+						],
+						"program": "Running",
+						"reason": "Strike complete; returning to regroup point.",
+						"role": "Helicopter",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 30.1106666666667,
+						"id": 334856462200,
+						"max_hp": 44.0,
+						"position": [
+							102.975074768066,
+							53.2505683898926
+						],
+						"program": "Running",
+						"reason": "Strike complete; returning to regroup point.",
+						"role": "Helicopter",
+						"support_near": false
+					}
+				],
+				"power": [
+					45,
+					25
+				],
+				"seconds": 1884.74999999861,
+				"workers": 6
+			},
+			{
+				"buildings": [
+					{
+						"built": true,
+						"hp": 500,
+						"position": [
+							14.0,
+							50.0
+						],
+						"role": "CommandCenter"
+					},
+					{
+						"built": true,
+						"hp": 320,
+						"position": [
+							9.05025291442871,
+							54.9497489929199
+						],
+						"role": "VehicleFactory"
+					},
+					{
+						"built": true,
+						"hp": 260,
+						"position": [
+							7.0,
+							50.0
+						],
+						"role": "RepairDepot"
+					},
+					{
+						"built": true,
+						"hp": 220,
+						"position": [
+							9.05025291442871,
+							45.0502510070801
+						],
+						"role": "CommandLab"
+					},
+					{
+						"built": true,
+						"hp": 10.8299999999996,
+						"position": [
+							18.9497470855713,
+							54.9497489929199
+						],
+						"role": "PowerPlant"
+					},
+					{
+						"built": true,
+						"hp": 300,
+						"position": [
+							14.0,
+							43.0
+						],
+						"role": "AircraftFactory"
+					},
+					{
+						"built": true,
+						"hp": 64.6000000000002,
+						"position": [
+							21.0,
+							50.0
+						],
+						"role": "Barracks"
+					}
+				],
+				"funds": [
+					16,
+					238
+				],
+				"patients": [
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 20.6359999999999,
+						"id": 321938005559,
+						"max_hp": 44.0,
+						"position": [
+							53.6141242980957,
+							46.6045913696289
+						],
+						"program": "Running",
+						"reason": "Strike complete; returning to regroup point.",
+						"role": "Helicopter",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 30.1106666666667,
+						"id": 334856462200,
+						"max_hp": 44.0,
+						"position": [
+							52.9127655029297,
+							48.0716667175293
+						],
+						"program": "Running",
+						"reason": "Strike complete; returning to regroup point.",
+						"role": "Helicopter",
+						"support_near": false
+					}
+				],
+				"power": [
+					45,
+					25
+				],
+				"seconds": 1895.24999999861,
+				"workers": 6
+			},
+			{
+				"buildings": [
+					{
+						"built": true,
+						"hp": 500,
+						"position": [
+							14.0,
+							50.0
+						],
+						"role": "CommandCenter"
+					},
+					{
+						"built": true,
+						"hp": 320,
+						"position": [
+							9.05025291442871,
+							54.9497489929199
+						],
+						"role": "VehicleFactory"
+					},
+					{
+						"built": true,
+						"hp": 260,
+						"position": [
+							7.0,
+							50.0
+						],
+						"role": "RepairDepot"
+					},
+					{
+						"built": true,
+						"hp": 220,
+						"position": [
+							9.05025291442871,
+							45.0502510070801
+						],
+						"role": "CommandLab"
+					},
+					{
+						"built": true,
+						"hp": 10.8299999999996,
+						"position": [
+							18.9497470855713,
+							54.9497489929199
+						],
+						"role": "PowerPlant"
+					},
+					{
+						"built": true,
+						"hp": 300,
+						"position": [
+							14.0,
+							43.0
+						],
+						"role": "AircraftFactory"
+					},
+					{
+						"built": true,
+						"hp": 64.6000000000002,
+						"position": [
+							21.0,
+							50.0
+						],
+						"role": "Barracks"
+					}
+				],
+				"funds": [
+					20,
+					242
+				],
+				"patients": [
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 20.6359999999999,
+						"id": 321938005559,
+						"max_hp": 44.0,
+						"position": [
+							24.5097141265869,
+							43.7744483947754
+						],
+						"program": "Running",
+						"reason": "Approaching assigned strike area.",
+						"role": "Helicopter",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 30.6973333333333,
+						"id": 334856462200,
+						"max_hp": 44.0,
+						"position": [
+							22.0703010559082,
+							43.9566307067871
+						],
+						"program": "Running",
+						"reason": "Approaching assigned strike area.",
+						"role": "Helicopter",
+						"support_near": false
+					}
+				],
+				"power": [
+					45,
+					25
+				],
+				"seconds": 1905.7499999986,
+				"workers": 6
+			},
+			{
+				"buildings": [
+					{
+						"built": true,
+						"hp": 500,
+						"position": [
+							14.0,
+							50.0
+						],
+						"role": "CommandCenter"
+					},
+					{
+						"built": true,
+						"hp": 320,
+						"position": [
+							9.05025291442871,
+							54.9497489929199
+						],
+						"role": "VehicleFactory"
+					},
+					{
+						"built": true,
+						"hp": 260,
+						"position": [
+							7.0,
+							50.0
+						],
+						"role": "RepairDepot"
+					},
+					{
+						"built": true,
+						"hp": 220,
+						"position": [
+							9.05025291442871,
+							45.0502510070801
+						],
+						"role": "CommandLab"
+					},
+					{
+						"built": true,
+						"hp": 10.8299999999996,
+						"position": [
+							18.9497470855713,
+							54.9497489929199
+						],
+						"role": "PowerPlant"
+					},
+					{
+						"built": true,
+						"hp": 300,
+						"position": [
+							14.0,
+							43.0
+						],
+						"role": "AircraftFactory"
+					},
+					{
+						"built": true,
+						"hp": 64.6000000000002,
+						"position": [
+							21.0,
+							50.0
+						],
+						"role": "Barracks"
+					}
+				],
+				"funds": [
+					20,
+					246
+				],
+				"patients": [
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 20.6359999999999,
+						"id": 321938005559,
+						"max_hp": 44.0,
+						"position": [
+							74.5840225219727,
+							49.4966087341309
+						],
+						"program": "Running",
+						"reason": "Approaching assigned strike area.",
+						"role": "Helicopter",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 30.6973333333333,
+						"id": 334856462200,
+						"max_hp": 44.0,
+						"position": [
+							72.1716766357422,
+							49.4304275512695
+						],
+						"program": "Running",
+						"reason": "Approaching assigned strike area.",
+						"role": "Helicopter",
+						"support_near": false
+					}
+				],
+				"power": [
+					45,
+					25
+				],
+				"seconds": 1916.24999999859,
+				"workers": 6
+			},
+			{
+				"buildings": [
+					{
+						"built": true,
+						"hp": 500,
+						"position": [
+							14.0,
+							50.0
+						],
+						"role": "CommandCenter"
+					},
+					{
+						"built": true,
+						"hp": 320,
+						"position": [
+							9.05025291442871,
+							54.9497489929199
+						],
+						"role": "VehicleFactory"
+					},
+					{
+						"built": true,
+						"hp": 260,
+						"position": [
+							7.0,
+							50.0
+						],
+						"role": "RepairDepot"
+					},
+					{
+						"built": true,
+						"hp": 220,
+						"position": [
+							9.05025291442871,
+							45.0502510070801
+						],
+						"role": "CommandLab"
+					},
+					{
+						"built": true,
+						"hp": 10.8299999999996,
+						"position": [
+							18.9497470855713,
+							54.9497489929199
+						],
+						"role": "PowerPlant"
+					},
+					{
+						"built": true,
+						"hp": 300,
+						"position": [
+							14.0,
+							43.0
+						],
+						"role": "AircraftFactory"
+					},
+					{
+						"built": true,
+						"hp": 64.6000000000002,
+						"position": [
+							21.0,
+							50.0
+						],
+						"role": "Barracks"
+					}
+				],
+				"funds": [
+					20,
+					246
+				],
+				"patients": [
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 20.6359999999999,
+						"id": 321938005559,
+						"max_hp": 44.0,
+						"position": [
+							89.2753295898438,
+							49.9337005615234
+						],
+						"program": "Running",
+						"reason": "Strike complete; returning to regroup point.",
+						"role": "Helicopter",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 30.6973333333333,
+						"id": 334856462200,
+						"max_hp": 44.0,
+						"position": [
+							90.1133117675781,
+							51.3879470825195
+						],
+						"program": "Running",
+						"reason": "Strike complete; returning to regroup point.",
+						"role": "Helicopter",
+						"support_near": false
+					}
+				],
+				"power": [
+					45,
+					25
+				],
+				"seconds": 1926.74999999858,
+				"workers": 6
+			},
+			{
+				"buildings": [
+					{
+						"built": true,
+						"hp": 500,
+						"position": [
+							14.0,
+							50.0
+						],
+						"role": "CommandCenter"
+					},
+					{
+						"built": true,
+						"hp": 320,
+						"position": [
+							9.05025291442871,
+							54.9497489929199
+						],
+						"role": "VehicleFactory"
+					},
+					{
+						"built": true,
+						"hp": 260,
+						"position": [
+							7.0,
+							50.0
+						],
+						"role": "RepairDepot"
+					},
+					{
+						"built": true,
+						"hp": 220,
+						"position": [
+							9.05025291442871,
+							45.0502510070801
+						],
+						"role": "CommandLab"
+					},
+					{
+						"built": true,
+						"hp": 10.8299999999996,
+						"position": [
+							18.9497470855713,
+							54.9497489929199
+						],
+						"role": "PowerPlant"
+					},
+					{
+						"built": true,
+						"hp": 300,
+						"position": [
+							14.0,
+							43.0
+						],
+						"role": "AircraftFactory"
+					},
+					{
+						"built": true,
+						"hp": 64.6000000000002,
+						"position": [
+							21.0,
+							50.0
+						],
+						"role": "Barracks"
+					}
+				],
+				"funds": [
+					24,
+					250
+				],
+				"patients": [
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 20.6359999999999,
+						"id": 321938005559,
+						"max_hp": 44.0,
+						"position": [
+							39.3380546569824,
+							44.4589996337891
+						],
+						"program": "Running",
+						"reason": "Strike complete; returning to regroup point.",
+						"role": "Helicopter",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 30.6973333333333,
+						"id": 334856462200,
+						"max_hp": 44.0,
+						"position": [
+							40.0577926635742,
+							45.8935165405273
+						],
+						"program": "Running",
+						"reason": "Strike complete; returning to regroup point.",
+						"role": "Helicopter",
+						"support_near": false
+					}
+				],
+				"power": [
+					45,
+					25
+				],
+				"seconds": 1937.24999999857,
+				"workers": 6
+			},
+			{
+				"buildings": [
+					{
+						"built": true,
+						"hp": 500,
+						"position": [
+							14.0,
+							50.0
+						],
+						"role": "CommandCenter"
+					},
+					{
+						"built": true,
+						"hp": 320,
+						"position": [
+							9.05025291442871,
+							54.9497489929199
+						],
+						"role": "VehicleFactory"
+					},
+					{
+						"built": true,
+						"hp": 260,
+						"position": [
+							7.0,
+							50.0
+						],
+						"role": "RepairDepot"
+					},
+					{
+						"built": true,
+						"hp": 220,
+						"position": [
+							9.05025291442871,
+							45.0502510070801
+						],
+						"role": "CommandLab"
+					},
+					{
+						"built": true,
+						"hp": 10.8299999999996,
+						"position": [
+							18.9497470855713,
+							54.9497489929199
+						],
+						"role": "PowerPlant"
+					},
+					{
+						"built": true,
+						"hp": 300,
+						"position": [
+							14.0,
+							43.0
+						],
+						"role": "AircraftFactory"
+					},
+					{
+						"built": true,
+						"hp": 64.6000000000002,
+						"position": [
+							21.0,
+							50.0
+						],
+						"role": "Barracks"
+					}
+				],
+				"funds": [
+					2,
+					238
+				],
+				"patients": [
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 20.6359999999999,
+						"id": 321938005559,
+						"max_hp": 44.0,
+						"position": [
+							36.5340957641602,
+							45.0984191894531
+						],
+						"program": "Running",
+						"reason": "Approaching assigned strike area.",
+						"role": "Helicopter",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 30.6973333333333,
+						"id": 334856462200,
+						"max_hp": 44.0,
+						"position": [
+							37.8114547729492,
+							46.1688270568848
+						],
+						"program": "Running",
+						"reason": "Approaching assigned strike area.",
+						"role": "Helicopter",
+						"support_near": false
+					}
+				],
+				"power": [
+					45,
+					25
+				],
+				"seconds": 1947.74999999856,
+				"workers": 6
+			},
+			{
+				"buildings": [
+					{
+						"built": true,
+						"hp": 500,
+						"position": [
+							14.0,
+							50.0
+						],
+						"role": "CommandCenter"
+					},
+					{
+						"built": true,
+						"hp": 320,
+						"position": [
+							9.05025291442871,
+							54.9497489929199
+						],
+						"role": "VehicleFactory"
+					},
+					{
+						"built": true,
+						"hp": 260,
+						"position": [
+							7.0,
+							50.0
+						],
+						"role": "RepairDepot"
+					},
+					{
+						"built": true,
+						"hp": 220,
+						"position": [
+							9.05025291442871,
+							45.0502510070801
+						],
+						"role": "CommandLab"
+					},
+					{
+						"built": true,
+						"hp": 10.8299999999996,
+						"position": [
+							18.9497470855713,
+							54.9497489929199
+						],
+						"role": "PowerPlant"
+					},
+					{
+						"built": true,
+						"hp": 300,
+						"position": [
+							14.0,
+							43.0
+						],
+						"role": "AircraftFactory"
+					},
+					{
+						"built": true,
+						"hp": 64.6000000000002,
+						"position": [
+							21.0,
+							50.0
+						],
+						"role": "Barracks"
+					}
+				],
+				"funds": [
+					2,
+					238
+				],
+				"patients": [
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 20.6359999999999,
+						"id": 321938005559,
+						"max_hp": 44.0,
+						"position": [
+							86.5414886474609,
+							50.8094673156738
+						],
+						"program": "Running",
+						"reason": "Approaching assigned strike area.",
+						"role": "Helicopter",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 30.6973333333333,
+						"id": 334856462200,
+						"max_hp": 44.0,
+						"position": [
+							87.7072372436523,
+							52.0110740661621
+						],
+						"program": "Running",
+						"reason": "Approaching assigned strike area.",
+						"role": "Helicopter",
+						"support_near": false
+					}
+				],
+				"power": [
+					45,
+					25
+				],
+				"seconds": 1958.24999999855,
+				"workers": 6
+			},
+			{
+				"buildings": [
+					{
+						"built": true,
+						"hp": 500,
+						"position": [
+							14.0,
+							50.0
+						],
+						"role": "CommandCenter"
+					},
+					{
+						"built": true,
+						"hp": 320,
+						"position": [
+							9.05025291442871,
+							54.9497489929199
+						],
+						"role": "VehicleFactory"
+					},
+					{
+						"built": true,
+						"hp": 260,
+						"position": [
+							7.0,
+							50.0
+						],
+						"role": "RepairDepot"
+					},
+					{
+						"built": true,
+						"hp": 220,
+						"position": [
+							9.05025291442871,
+							45.0502510070801
+						],
+						"role": "CommandLab"
+					},
+					{
+						"built": true,
+						"hp": 10.8299999999996,
+						"position": [
+							18.9497470855713,
+							54.9497489929199
+						],
+						"role": "PowerPlant"
+					},
+					{
+						"built": true,
+						"hp": 300,
+						"position": [
+							14.0,
+							43.0
+						],
+						"role": "AircraftFactory"
+					},
+					{
+						"built": true,
+						"hp": 64.6000000000002,
+						"position": [
+							21.0,
+							50.0
+						],
+						"role": "Barracks"
+					}
+				],
+				"funds": [
+					2,
+					242
+				],
+				"patients": [
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 20.6359999999999,
+						"id": 321938005559,
+						"max_hp": 44.0,
+						"position": [
+							75.5127639770508,
+							49.564079284668
+						],
+						"program": "Running",
+						"reason": "Strike complete; returning to regroup point.",
+						"role": "Helicopter",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 30.6973333333333,
+						"id": 334856462200,
+						"max_hp": 44.0,
+						"position": [
+							76.5500564575195,
+							50.6976127624512
+						],
+						"program": "Running",
+						"reason": "Strike complete; returning to regroup point.",
+						"role": "Helicopter",
+						"support_near": false
+					}
+				],
+				"power": [
+					45,
+					25
+				],
+				"seconds": 1968.74999999854,
+				"workers": 6
+			},
+			{
+				"buildings": [
+					{
+						"built": true,
+						"hp": 500,
+						"position": [
+							14.0,
+							50.0
+						],
+						"role": "CommandCenter"
+					},
+					{
+						"built": true,
+						"hp": 320,
+						"position": [
+							9.05025291442871,
+							54.9497489929199
+						],
+						"role": "VehicleFactory"
+					},
+					{
+						"built": true,
+						"hp": 260,
+						"position": [
+							7.0,
+							50.0
+						],
+						"role": "RepairDepot"
+					},
+					{
+						"built": true,
+						"hp": 220,
+						"position": [
+							9.05025291442871,
+							45.0502510070801
+						],
+						"role": "CommandLab"
+					},
+					{
+						"built": true,
+						"hp": 10.8299999999996,
+						"position": [
+							18.9497470855713,
+							54.9497489929199
+						],
+						"role": "PowerPlant"
+					},
+					{
+						"built": true,
+						"hp": 300,
+						"position": [
+							14.0,
+							43.0
+						],
+						"role": "AircraftFactory"
+					},
+					{
+						"built": true,
+						"hp": 64.6000000000002,
+						"position": [
+							21.0,
+							50.0
+						],
+						"role": "Barracks"
+					}
+				],
+				"funds": [
+					6,
+					242
+				],
+				"patients": [
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 20.6359999999999,
+						"id": 321938005559,
+						"max_hp": 44.0,
+						"position": [
+							25.7124404907227,
+							43.1615715026855
+						],
+						"program": "Running",
+						"reason": "Strike complete; returning to regroup point.",
+						"role": "Helicopter",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 30.6973333333333,
+						"id": 334856462200,
+						"max_hp": 44.0,
+						"position": [
+							26.5454883575439,
+							44.5500068664551
+						],
+						"program": "Running",
+						"reason": "Strike complete; returning to regroup point.",
+						"role": "Helicopter",
+						"support_near": false
+					}
+				],
+				"power": [
+					45,
+					25
+				],
+				"seconds": 1979.24999999853,
+				"workers": 6
+			},
+			{
+				"buildings": [
+					{
+						"built": true,
+						"hp": 500,
+						"position": [
+							14.0,
+							50.0
+						],
+						"role": "CommandCenter"
+					},
+					{
+						"built": true,
+						"hp": 320,
+						"position": [
+							9.05025291442871,
+							54.9497489929199
+						],
+						"role": "VehicleFactory"
+					},
+					{
+						"built": true,
+						"hp": 260,
+						"position": [
+							7.0,
+							50.0
+						],
+						"role": "RepairDepot"
+					},
+					{
+						"built": true,
+						"hp": 220,
+						"position": [
+							9.05025291442871,
+							45.0502510070801
+						],
+						"role": "CommandLab"
+					},
+					{
+						"built": true,
+						"hp": 10.8299999999996,
+						"position": [
+							18.9497470855713,
+							54.9497489929199
+						],
+						"role": "PowerPlant"
+					},
+					{
+						"built": true,
+						"hp": 300,
+						"position": [
+							14.0,
+							43.0
+						],
+						"role": "AircraftFactory"
+					},
+					{
+						"built": true,
+						"hp": 64.6000000000002,
+						"position": [
+							21.0,
+							50.0
+						],
+						"role": "Barracks"
+					}
+				],
+				"funds": [
+					6,
+					250
+				],
+				"patients": [
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 20.6359999999999,
+						"id": 321938005559,
+						"max_hp": 44.0,
+						"position": [
+							49.8176460266113,
+							46.6921615600586
+						],
+						"program": "Running",
+						"reason": "Approaching assigned strike area.",
+						"role": "Helicopter",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 31.284,
+						"id": 334856462200,
+						"max_hp": 44.0,
+						"position": [
+							51.2586479187012,
+							47.5419044494629
+						],
+						"program": "Running",
+						"reason": "Approaching assigned strike area.",
+						"role": "Helicopter",
+						"support_near": false
+					}
+				],
+				"power": [
+					45,
+					25
+				],
+				"seconds": 1989.74999999852,
+				"workers": 6
+			},
+			{
+				"buildings": [
+					{
+						"built": true,
+						"hp": 500,
+						"position": [
+							14.0,
+							50.0
+						],
+						"role": "CommandCenter"
+					},
+					{
+						"built": true,
+						"hp": 320,
+						"position": [
+							9.05025291442871,
+							54.9497489929199
+						],
+						"role": "VehicleFactory"
+					},
+					{
+						"built": true,
+						"hp": 260,
+						"position": [
+							7.0,
+							50.0
+						],
+						"role": "RepairDepot"
+					},
+					{
+						"built": true,
+						"hp": 220,
+						"position": [
+							9.05025291442871,
+							45.0502510070801
+						],
+						"role": "CommandLab"
+					},
+					{
+						"built": true,
+						"hp": 10.8299999999996,
+						"position": [
+							18.9497470855713,
+							54.9497489929199
+						],
+						"role": "PowerPlant"
+					},
+					{
+						"built": true,
+						"hp": 300,
+						"position": [
+							14.0,
+							43.0
+						],
+						"role": "AircraftFactory"
+					},
+					{
+						"built": true,
+						"hp": 64.6000000000002,
+						"position": [
+							21.0,
+							50.0
+						],
+						"role": "Barracks"
+					}
+				],
+				"funds": [
+					10,
+					254
+				],
+				"patients": [
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 20.6359999999999,
+						"id": 321938005559,
+						"max_hp": 44.0,
+						"position": [
+							99.8909530639648,
+							52.3932991027832
+						],
+						"program": "Running",
+						"reason": "Approaching assigned strike area.",
+						"role": "Helicopter",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 31.284,
+						"id": 334856462200,
+						"max_hp": 44.0,
+						"position": [
+							101.207290649414,
+							53.4177627563477
+						],
+						"program": "Running",
+						"reason": "Returning to assigned area.",
+						"role": "Helicopter",
+						"support_near": false
+					}
+				],
+				"power": [
+					45,
+					25
+				],
+				"seconds": 2000.24999999851,
+				"workers": 6
+			},
+			{
+				"buildings": [
+					{
+						"built": true,
+						"hp": 500,
+						"position": [
+							14.0,
+							50.0
+						],
+						"role": "CommandCenter"
+					},
+					{
+						"built": true,
+						"hp": 320,
+						"position": [
+							9.05025291442871,
+							54.9497489929199
+						],
+						"role": "VehicleFactory"
+					},
+					{
+						"built": true,
+						"hp": 260,
+						"position": [
+							7.0,
+							50.0
+						],
+						"role": "RepairDepot"
+					},
+					{
+						"built": true,
+						"hp": 220,
+						"position": [
+							9.05025291442871,
+							45.0502510070801
+						],
+						"role": "CommandLab"
+					},
+					{
+						"built": true,
+						"hp": 10.8299999999996,
+						"position": [
+							18.9497470855713,
+							54.9497489929199
+						],
+						"role": "PowerPlant"
+					},
+					{
+						"built": true,
+						"hp": 300,
+						"position": [
+							14.0,
+							43.0
+						],
+						"role": "AircraftFactory"
+					},
+					{
+						"built": true,
+						"hp": 64.6000000000002,
+						"position": [
+							21.0,
+							50.0
+						],
+						"role": "Barracks"
+					}
+				],
+				"funds": [
+					10,
+					254
+				],
+				"patients": [
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 20.6359999999999,
+						"id": 321938005559,
+						"max_hp": 44.0,
+						"position": [
+							69.7813873291016,
+							49.1047134399414
+						],
+						"program": "Running",
+						"reason": "Strike complete; returning to regroup point.",
+						"role": "Helicopter",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/units/actions/AttackMoving.gd",
+						"has_facility": true,
+						"hp": 12.5643,
+						"id": 325209562729,
+						"max_hp": 19.8,
+						"position": [
+							110.479820251465,
+							53.8235740661621
+						],
+						"program": "",
+						"reason": "",
+						"role": "Infantry",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/units/actions/AttackMoving.gd",
+						"has_facility": true,
+						"hp": 15.3,
+						"id": 328749555404,
+						"max_hp": 19.8,
+						"position": [
+							110.830253601074,
+							54.4063568115234
+						],
+						"program": "",
+						"reason": "",
+						"role": "Infantry",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/units/actions/RecoveringAtService.gd",
+						"has_facility": true,
+						"hp": 1.8,
+						"id": 333782720333,
+						"max_hp": 19.8,
+						"position": [
+							103.084777832031,
+							53.0724868774414
+						],
+						"program": "",
+						"reason": "",
+						"role": "Infantry",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 31.284,
+						"id": 334856462200,
+						"max_hp": 44.0,
+						"position": [
+							68.7455749511719,
+							50.1328544616699
+						],
+						"program": "Running",
+						"reason": "Strike complete; returning to regroup point.",
+						"role": "Helicopter",
+						"support_near": false
+					}
+				],
+				"power": [
+					45,
+					25
+				],
+				"seconds": 2010.7499999985,
+				"workers": 6
+			},
+			{
+				"buildings": [
+					{
+						"built": true,
+						"hp": 500,
+						"position": [
+							14.0,
+							50.0
+						],
+						"role": "CommandCenter"
+					},
+					{
+						"built": true,
+						"hp": 320,
+						"position": [
+							9.05025291442871,
+							54.9497489929199
+						],
+						"role": "VehicleFactory"
+					},
+					{
+						"built": true,
+						"hp": 260,
+						"position": [
+							7.0,
+							50.0
+						],
+						"role": "RepairDepot"
+					},
+					{
+						"built": true,
+						"hp": 220,
+						"position": [
+							9.05025291442871,
+							45.0502510070801
+						],
+						"role": "CommandLab"
+					},
+					{
+						"built": true,
+						"hp": 10.8299999999996,
+						"position": [
+							18.9497470855713,
+							54.9497489929199
+						],
+						"role": "PowerPlant"
+					},
+					{
+						"built": true,
+						"hp": 300,
+						"position": [
+							14.0,
+							43.0
+						],
+						"role": "AircraftFactory"
+					},
+					{
+						"built": true,
+						"hp": 64.6000000000002,
+						"position": [
+							21.0,
+							50.0
+						],
+						"role": "Barracks"
+					}
+				],
+				"funds": [
+					4,
+					262
+				],
+				"patients": [
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 20.6359999999999,
+						"id": 321938005559,
+						"max_hp": 44.0,
+						"position": [
+							19.9887886047363,
+							43.6054763793945
+						],
+						"program": "Running",
+						"reason": "Strike complete; returning to regroup point.",
+						"role": "Helicopter",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/units/actions/AttackMoving.gd",
+						"has_facility": true,
+						"hp": 15.3,
+						"id": 328749555404,
+						"max_hp": 19.8,
+						"position": [
+							110.830253601074,
+							54.4063568115234
+						],
+						"program": "",
+						"reason": "",
+						"role": "Infantry",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/units/actions/RecoveringAtService.gd",
+						"has_facility": true,
+						"hp": 1.8,
+						"id": 333782720333,
+						"max_hp": 19.8,
+						"position": [
+							59.0621452331543,
+							50.4296646118164
+						],
+						"program": "",
+						"reason": "",
+						"role": "Infantry",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 31.284,
+						"id": 334856462200,
+						"max_hp": 44.0,
+						"position": [
+							18.7608013153076,
+							44.7120018005371
+						],
+						"program": "Running",
+						"reason": "Strike complete; returning to regroup point.",
+						"role": "Helicopter",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/units/actions/Moving.gd",
+						"has_facility": true,
+						"hp": 25.4,
+						"id": 452515078398,
+						"max_hp": 70.4,
+						"position": [
+							103.865432739258,
+							52.3749504089355
+						],
+						"program": "Manual",
+						"reason": "Direct orders have priority. Resume to return to the assignment.",
+						"role": "Tank",
+						"support_near": false
+					}
+				],
+				"power": [
+					45,
+					25
+				],
+				"seconds": 2021.24999999849,
+				"workers": 6
+			},
+			{
+				"buildings": [
+					{
+						"built": true,
+						"hp": 500,
+						"position": [
+							14.0,
+							50.0
+						],
+						"role": "CommandCenter"
+					},
+					{
+						"built": true,
+						"hp": 320,
+						"position": [
+							9.05025291442871,
+							54.9497489929199
+						],
+						"role": "VehicleFactory"
+					},
+					{
+						"built": true,
+						"hp": 260,
+						"position": [
+							7.0,
+							50.0
+						],
+						"role": "RepairDepot"
+					},
+					{
+						"built": true,
+						"hp": 220,
+						"position": [
+							9.05025291442871,
+							45.0502510070801
+						],
+						"role": "CommandLab"
+					},
+					{
+						"built": true,
+						"hp": 10.8299999999996,
+						"position": [
+							18.9497470855713,
+							54.9497489929199
+						],
+						"role": "PowerPlant"
+					},
+					{
+						"built": true,
+						"hp": 300,
+						"position": [
+							14.0,
+							43.0
+						],
+						"role": "AircraftFactory"
+					},
+					{
+						"built": true,
+						"hp": 64.6000000000002,
+						"position": [
+							21.0,
+							50.0
+						],
+						"role": "Barracks"
+					}
+				],
+				"funds": [
+					8,
+					262
+				],
+				"patients": [
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 20.6359999999999,
+						"id": 321938005559,
+						"max_hp": 44.0,
+						"position": [
+							58.2215843200684,
+							47.2522354125977
+						],
+						"program": "Running",
+						"reason": "Approaching assigned strike area.",
+						"role": "Helicopter",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/units/actions/AttackMoving.gd",
+						"has_facility": true,
+						"hp": 15.3,
+						"id": 328749555404,
+						"max_hp": 19.8,
+						"position": [
+							110.830253601074,
+							54.4063568115234
+						],
+						"program": "",
+						"reason": "",
+						"role": "Infantry",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/units/actions/RecoveringAtService.gd",
+						"has_facility": true,
+						"hp": 3.912,
+						"id": 333782720333,
+						"max_hp": 19.8,
+						"position": [
+							24.0357360839844,
+							48.2318534851074
+						],
+						"program": "",
+						"reason": "",
+						"role": "Infantry",
+						"support_near": true
+					},
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 31.284,
+						"id": 334856462200,
+						"max_hp": 44.0,
+						"position": [
+							56.781681060791,
+							48.0334129333496
+						],
+						"program": "Running",
+						"reason": "Approaching assigned strike area.",
+						"role": "Helicopter",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/units/actions/Moving.gd",
+						"has_facility": true,
+						"hp": 25.4,
+						"id": 452515078398,
+						"max_hp": 70.4,
+						"position": [
+							71.1666870117188,
+							54.401611328125
+						],
+						"program": "Manual",
+						"reason": "Direct orders have priority. Resume to return to the assignment.",
+						"role": "Tank",
+						"support_near": false
+					}
+				],
+				"power": [
+					45,
+					25
+				],
+				"seconds": 2031.74999999848,
+				"workers": 6
+			},
+			{
+				"buildings": [
+					{
+						"built": true,
+						"hp": 500,
+						"position": [
+							14.0,
+							50.0
+						],
+						"role": "CommandCenter"
+					},
+					{
+						"built": true,
+						"hp": 320,
+						"position": [
+							9.05025291442871,
+							54.9497489929199
+						],
+						"role": "VehicleFactory"
+					},
+					{
+						"built": true,
+						"hp": 260,
+						"position": [
+							7.0,
+							50.0
+						],
+						"role": "RepairDepot"
+					},
+					{
+						"built": true,
+						"hp": 220,
+						"position": [
+							9.05025291442871,
+							45.0502510070801
+						],
+						"role": "CommandLab"
+					},
+					{
+						"built": true,
+						"hp": 10.8299999999996,
+						"position": [
+							18.9497470855713,
+							54.9497489929199
+						],
+						"role": "PowerPlant"
+					},
+					{
+						"built": true,
+						"hp": 300,
+						"position": [
+							14.0,
+							43.0
+						],
+						"role": "AircraftFactory"
+					},
+					{
+						"built": true,
+						"hp": 64.6000000000002,
+						"position": [
+							21.0,
+							50.0
+						],
+						"role": "Barracks"
+					}
+				],
+				"funds": [
+					8,
+					266
+				],
+				"patients": [
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 20.6359999999999,
+						"id": 321938005559,
+						"max_hp": 44.0,
+						"position": [
+							108.19709777832,
+							52.2798385620117
+						],
+						"program": "Running",
+						"reason": "Returning to assigned area.",
+						"role": "Helicopter",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/units/actions/AttackMoving.gd",
+						"has_facility": true,
+						"hp": 13.6368,
+						"id": 327071833761,
+						"max_hp": 19.8,
+						"position": [
+							108.990745544434,
+							54.1562614440918
+						],
+						"program": "",
+						"reason": "",
+						"role": "Infantry",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/units/actions/AttackMoving.gd",
+						"has_facility": true,
+						"hp": 15.3,
+						"id": 328749555404,
+						"max_hp": 19.8,
+						"position": [
+							108.367568969727,
+							53.9667434692383
+						],
+						"program": "",
+						"reason": "",
+						"role": "Infantry",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/units/actions/RecoveringAtService.gd",
+						"has_facility": true,
+						"hp": 14.208,
+						"id": 333782720333,
+						"max_hp": 19.8,
+						"position": [
+							24.0357360839844,
+							48.2318534851074
+						],
+						"program": "",
+						"reason": "",
+						"role": "Infantry",
+						"support_near": true
+					},
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 31.284,
+						"id": 334856462200,
+						"max_hp": 44.0,
+						"position": [
+							106.908790588379,
+							53.260555267334
+						],
+						"program": "Running",
+						"reason": "Returning to assigned area.",
+						"role": "Helicopter",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/units/actions/Moving.gd",
+						"has_facility": true,
+						"hp": 25.4,
+						"id": 452515078398,
+						"max_hp": 70.4,
+						"position": [
+							38.4698181152344,
+							56.4287414550781
+						],
+						"program": "Manual",
+						"reason": "Direct orders have priority. Resume to return to the assignment.",
+						"role": "Tank",
+						"support_near": false
+					}
+				],
+				"power": [
+					45,
+					25
+				],
+				"seconds": 2042.24999999847,
+				"workers": 6
+			},
+			{
+				"buildings": [
+					{
+						"built": true,
+						"hp": 500,
+						"position": [
+							14.0,
+							50.0
+						],
+						"role": "CommandCenter"
+					},
+					{
+						"built": true,
+						"hp": 320,
+						"position": [
+							9.05025291442871,
+							54.9497489929199
+						],
+						"role": "VehicleFactory"
+					},
+					{
+						"built": true,
+						"hp": 260,
+						"position": [
+							7.0,
+							50.0
+						],
+						"role": "RepairDepot"
+					},
+					{
+						"built": true,
+						"hp": 220,
+						"position": [
+							9.05025291442871,
+							45.0502510070801
+						],
+						"role": "CommandLab"
+					},
+					{
+						"built": true,
+						"hp": 10.8299999999996,
+						"position": [
+							18.9497470855713,
+							54.9497489929199
+						],
+						"role": "PowerPlant"
+					},
+					{
+						"built": true,
+						"hp": 300,
+						"position": [
+							14.0,
+							43.0
+						],
+						"role": "AircraftFactory"
+					},
+					{
+						"built": true,
+						"hp": 64.6000000000002,
+						"position": [
+							21.0,
+							50.0
+						],
+						"role": "Barracks"
+					}
+				],
+				"funds": [
+					6,
+					274
+				],
+				"patients": [
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 20.6359999999999,
+						"id": 321938005559,
+						"max_hp": 44.0,
+						"position": [
+							67.8213043212891,
+							47.0522346496582
+						],
+						"program": "Running",
+						"reason": "Strike complete; returning to regroup point.",
+						"role": "Helicopter",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/units/actions/AttackMoving.gd",
+						"has_facility": true,
+						"hp": 13.6368,
+						"id": 327071833761,
+						"max_hp": 19.8,
+						"position": [
+							112.383399963379,
+							52.5933685302734
+						],
+						"program": "",
+						"reason": "",
+						"role": "Infantry",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/units/actions/AttackMoving.gd",
+						"has_facility": true,
+						"hp": 15.3,
+						"id": 328749555404,
+						"max_hp": 19.8,
+						"position": [
+							114.013404846191,
+							54.5451622009277
+						],
+						"program": "",
+						"reason": "",
+						"role": "Infantry",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 31.284,
+						"id": 334856462200,
+						"max_hp": 44.0,
+						"position": [
+							71.0537948608398,
+							47.9522438049316
+						],
+						"program": "Running",
+						"reason": "Strike complete; returning to regroup point.",
+						"role": "Helicopter",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/units/actions/Moving.gd",
+						"has_facility": true,
+						"hp": 25.4,
+						"id": 452515078398,
+						"max_hp": 70.4,
+						"position": [
+							7.4814920425415,
+							57.7681083679199
+						],
+						"program": "Manual",
+						"reason": "Direct orders have priority. Resume to return to the assignment.",
+						"role": "Tank",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/units/actions/Moving.gd",
+						"has_facility": true,
+						"hp": 21.2,
+						"id": 995878773331,
+						"max_hp": 57.2,
+						"position": [
+							87.8177719116211,
+							53.3945465087891
+						],
+						"program": "Manual",
+						"reason": "Direct orders have priority. Resume to return to the assignment.",
+						"role": "CombatRobot",
+						"support_near": false
+					}
+				],
+				"power": [
+					45,
+					25
+				],
+				"seconds": 2052.24999999852,
+				"workers": 6
+			},
+			{
+				"buildings": [
+					{
+						"built": true,
+						"hp": 500,
+						"position": [
+							14.0,
+							50.0
+						],
+						"role": "CommandCenter"
+					},
+					{
+						"built": true,
+						"hp": 320,
+						"position": [
+							9.05025291442871,
+							54.9497489929199
+						],
+						"role": "VehicleFactory"
+					},
+					{
+						"built": true,
+						"hp": 260,
+						"position": [
+							7.0,
+							50.0
+						],
+						"role": "RepairDepot"
+					},
+					{
+						"built": true,
+						"hp": 220,
+						"position": [
+							9.05025291442871,
+							45.0502510070801
+						],
+						"role": "CommandLab"
+					},
+					{
+						"built": true,
+						"hp": 10.8299999999996,
+						"position": [
+							18.9497470855713,
+							54.9497489929199
+						],
+						"role": "PowerPlant"
+					},
+					{
+						"built": true,
+						"hp": 300,
+						"position": [
+							14.0,
+							43.0
+						],
+						"role": "AircraftFactory"
+					},
+					{
+						"built": true,
+						"hp": 64.6000000000002,
+						"position": [
+							21.0,
+							50.0
+						],
+						"role": "Barracks"
+					}
+				],
+				"funds": [
+					6,
+					274
+				],
+				"patients": [
+					{
+						"action": "res://source/match/units/actions/Moving.gd",
+						"has_facility": true,
+						"hp": 16.0375333333335,
+						"id": 303667616931,
+						"max_hp": 70.4,
+						"position": [
+							108.345817565918,
+							52.2273254394531
+						],
+						"program": "Manual",
+						"reason": "Direct orders have priority. Resume to return to the assignment.",
+						"role": "Tank",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 20.6359999999999,
+						"id": 321938005559,
+						"max_hp": 44.0,
+						"position": [
+							19.9572467803955,
+							43.4485244750977
+						],
+						"program": "Running",
+						"reason": "Strike complete; returning to regroup point.",
+						"role": "Helicopter",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/units/actions/RecoveringAtService.gd",
+						"has_facility": true,
+						"hp": 0.136800000000008,
+						"id": 327071833761,
+						"max_hp": 19.8,
+						"position": [
+							85.3279190063477,
+							51.6171875
+						],
+						"program": "",
+						"reason": "",
+						"role": "Infantry",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/units/actions/AttackMoving.gd",
+						"has_facility": true,
+						"hp": 15.3,
+						"id": 328749555404,
+						"max_hp": 19.8,
+						"position": [
+							113.583526611328,
+							54.2207489013672
+						],
+						"program": "",
+						"reason": "",
+						"role": "Infantry",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 31.284,
+						"id": 334856462200,
+						"max_hp": 44.0,
+						"position": [
+							23.2338485717773,
+							43.8014907836914
+						],
+						"program": "Running",
+						"reason": "Strike complete; returning to regroup point.",
+						"role": "Helicopter",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/units/actions/Moving.gd",
+						"has_facility": true,
+						"hp": 21.2,
+						"id": 995878773331,
+						"max_hp": 57.2,
+						"position": [
+							49.4900894165039,
+							55.7588958740234
+						],
+						"program": "Manual",
+						"reason": "Direct orders have priority. Resume to return to the assignment.",
+						"role": "CombatRobot",
+						"support_near": false
+					}
+				],
+				"power": [
+					45,
+					25
+				],
+				"seconds": 2062.24999999865,
+				"workers": 6
+			},
+			{
+				"buildings": [
+					{
+						"built": true,
+						"hp": 500,
+						"position": [
+							14.0,
+							50.0
+						],
+						"role": "CommandCenter"
+					},
+					{
+						"built": true,
+						"hp": 320,
+						"position": [
+							9.05025291442871,
+							54.9497489929199
+						],
+						"role": "VehicleFactory"
+					},
+					{
+						"built": true,
+						"hp": 260,
+						"position": [
+							7.0,
+							50.0
+						],
+						"role": "RepairDepot"
+					},
+					{
+						"built": true,
+						"hp": 220,
+						"position": [
+							9.05025291442871,
+							45.0502510070801
+						],
+						"role": "CommandLab"
+					},
+					{
+						"built": true,
+						"hp": 10.8299999999996,
+						"position": [
+							18.9497470855713,
+							54.9497489929199
+						],
+						"role": "PowerPlant"
+					},
+					{
+						"built": true,
+						"hp": 300,
+						"position": [
+							14.0,
+							43.0
+						],
+						"role": "AircraftFactory"
+					},
+					{
+						"built": true,
+						"hp": 64.6000000000002,
+						"position": [
+							21.0,
+							50.0
+						],
+						"role": "Barracks"
+					}
+				],
+				"funds": [
+					6,
+					278
+				],
+				"patients": [
+					{
+						"action": "res://source/match/units/actions/Moving.gd",
+						"has_facility": true,
+						"hp": 16.0375333333335,
+						"id": 303667616931,
+						"max_hp": 70.4,
+						"position": [
+							77.2645721435547,
+							54.0473136901855
+						],
+						"program": "Manual",
+						"reason": "Direct orders have priority. Resume to return to the assignment.",
+						"role": "Tank",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 20.6359999999999,
+						"id": 321938005559,
+						"max_hp": 44.0,
+						"position": [
+							54.0741310119629,
+							48.8788871765137
+						],
+						"program": "Running",
+						"reason": "Approaching assigned strike area.",
+						"role": "Helicopter",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/units/actions/RecoveringAtService.gd",
+						"has_facility": true,
+						"hp": 0.136800000000008,
+						"id": 327071833761,
+						"max_hp": 19.8,
+						"position": [
+							43.4043235778809,
+							49.2716484069824
+						],
+						"program": "",
+						"reason": "",
+						"role": "Infantry",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/units/actions/RecoveringAtService.gd",
+						"has_facility": true,
+						"hp": 15.3,
+						"id": 328749555404,
+						"max_hp": 19.8,
+						"position": [
+							98.9976272583008,
+							53.2699661254883
+						],
+						"program": "",
+						"reason": "",
+						"role": "Infantry",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/units/actions/RecoveringAtService.gd",
+						"has_facility": true,
+						"hp": 7.05599999999999,
+						"id": 333782720333,
+						"max_hp": 19.8,
+						"position": [
+							99.3254241943359,
+							52.6450271606445
+						],
+						"program": "",
+						"reason": "",
+						"role": "Infantry",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 31.284,
+						"id": 334856462200,
+						"max_hp": 44.0,
+						"position": [
+							53.7021141052246,
+							47.3131484985352
+						],
+						"program": "Running",
+						"reason": "Approaching assigned strike area.",
+						"role": "Helicopter",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/units/actions/Moving.gd",
+						"has_facility": true,
+						"hp": 21.2,
+						"id": 995878773331,
+						"max_hp": 57.2,
+						"position": [
+							15.2830200195312,
+							60.2187843322754
+						],
+						"program": "Manual",
+						"reason": "Direct orders have priority. Resume to return to the assignment.",
+						"role": "CombatRobot",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/units/actions/RecoveringAtService.gd",
+						"has_facility": true,
+						"hp": 1.8,
+						"id": 1125382103679,
+						"max_hp": 19.8,
+						"position": [
+							86.6127700805664,
+							51.6705703735352
+						],
+						"program": "",
+						"reason": "",
+						"role": "Infantry",
+						"support_near": false
+					}
+				],
+				"power": [
+					45,
+					25
+				],
+				"seconds": 2072.24999999877,
+				"workers": 6
+			},
+			{
+				"buildings": [
+					{
+						"built": true,
+						"hp": 500,
+						"position": [
+							14.0,
+							50.0
+						],
+						"role": "CommandCenter"
+					},
+					{
+						"built": true,
+						"hp": 320,
+						"position": [
+							9.05025291442871,
+							54.9497489929199
+						],
+						"role": "VehicleFactory"
+					},
+					{
+						"built": true,
+						"hp": 260,
+						"position": [
+							7.0,
+							50.0
+						],
+						"role": "RepairDepot"
+					},
+					{
+						"built": true,
+						"hp": 220,
+						"position": [
+							9.05025291442871,
+							45.0502510070801
+						],
+						"role": "CommandLab"
+					},
+					{
+						"built": true,
+						"hp": 10.8299999999996,
+						"position": [
+							18.9497470855713,
+							54.9497489929199
+						],
+						"role": "PowerPlant"
+					},
+					{
+						"built": true,
+						"hp": 300,
+						"position": [
+							14.0,
+							43.0
+						],
+						"role": "AircraftFactory"
+					},
+					{
+						"built": true,
+						"hp": 64.6000000000002,
+						"position": [
+							21.0,
+							50.0
+						],
+						"role": "Barracks"
+					}
+				],
+				"funds": [
+					10,
+					282
+				],
+				"patients": [
+					{
+						"action": "res://source/match/units/actions/Moving.gd",
+						"has_facility": true,
+						"hp": 16.0375333333335,
+						"id": 303667616931,
+						"max_hp": 70.4,
+						"position": [
+							46.1229095458984,
+							55.9676322937012
+						],
+						"program": "Manual",
+						"reason": "Direct orders have priority. Resume to return to the assignment.",
+						"role": "Tank",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 20.6359999999999,
+						"id": 321938005559,
+						"max_hp": 44.0,
+						"position": [
+							101.351287841797,
+							54.0674705505371
+						],
+						"program": "Running",
+						"reason": "Returning to assigned area.",
+						"role": "Helicopter",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/units/actions/RecoveringAtService.gd",
+						"has_facility": true,
+						"hp": 5.68080000000001,
+						"id": 327071833761,
+						"max_hp": 19.8,
+						"position": [
+							24.8610076904297,
+							47.7252159118652
+						],
+						"program": "",
+						"reason": "",
+						"role": "Infantry",
+						"support_near": true
+					},
+					{
+						"action": "res://source/match/units/actions/RecoveringAtService.gd",
+						"has_facility": true,
+						"hp": 15.3,
+						"id": 328749555404,
+						"max_hp": 19.8,
+						"position": [
+							57.0839424133301,
+							50.6117324829102
+						],
+						"program": "",
+						"reason": "",
+						"role": "Infantry",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/units/actions/RecoveringAtService.gd",
+						"has_facility": true,
+						"hp": 7.05599999999999,
+						"id": 333782720333,
+						"max_hp": 19.8,
+						"position": [
+							57.4126205444336,
+							50.0314521789551
+						],
+						"program": "",
+						"reason": "",
+						"role": "Infantry",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/programs/SpecialistAction.gd",
+						"has_facility": true,
+						"hp": 31.284,
+						"id": 334856462200,
+						"max_hp": 44.0,
+						"position": [
+							101.17138671875,
+							52.4752960205078
+						],
+						"program": "Running",
+						"reason": "Returning to assigned area.",
+						"role": "Helicopter",
+						"support_near": false
+					},
+					{
+						"action": "res://source/match/programs/LuaAction.gd",
+						"has_facility": true,
+						"hp": 39.504,
+						"id": 995878773331,
+						"max_hp": 57.2,
+						"position": [
+							5.26709651947021,
+							54.4601249694824
+						],
+						"program": "Running",
+						"reason": "Rule 1: Move to safe point",
+						"role": "CombatRobot",
+						"support_near": true
+					},
+					{
+						"action": "res://source/match/units/actions/RecoveringAtService.gd",
+						"has_facility": true,
+						"hp": 1.8,
+						"id": 1125382103679,
+						"max_hp": 19.8,
+						"position": [
+							44.6724624633789,
+							49.424259185791
+						],
+						"program": "",
+						"reason": "",
+						"role": "Infantry",
+						"support_near": false
+					}
+				],
+				"power": [
+					45,
+					25
+				],
+				"seconds": 2082.2499999989,
+				"workers": 6
+			}
+		],
+		"worker_episodes": [],
+		"worker_no_safe_destination_decisions": 0,
+		"worker_policy": "spaced_retreat_safe_alternative",
+		"worker_threatened_decisions": 0
+	}
+]

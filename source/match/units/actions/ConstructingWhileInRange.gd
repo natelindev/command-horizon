@@ -10,6 +10,8 @@ func _init(target_unit):
 
 
 func _ready():
+	if restoring:
+		return
 	_target_unit.tree_exited.connect(queue_free)
 	_target_unit.constructed.connect(queue_free)
 	_unit.get_node("Sparkling").enable()
@@ -26,4 +28,27 @@ func _process(delta):
 	):
 		queue_free()
 		return
-	_target_unit.construct(delta * Constants.Match.Units.STRUCTURE_CONSTRUCTING_SPEED)
+	var speed = Constants.Match.Units.STRUCTURE_CONSTRUCTING_SPEED
+	if _unit.player.get_meta("skirmish", false):
+		if not _has_construction_slot():
+			return
+		speed = 1.0 / load("res://source/match/FactionCatalog.gd").BUILD_TIMES[_target_unit.type]
+	_target_unit.construct(delta * speed)
+
+
+func _has_construction_slot():
+	# Derive one working engineer from live orders. No saved claim can strand
+	# a site after its builder leaves, dies, or a paused battle is restored.
+	for worker in _unit.player.get_children():
+		if (
+			worker.is_in_group("units")
+			and not worker.is_queued_for_deletion()
+			and worker.hp > 0
+			and worker.can_process()
+			and is_instance_valid(worker.action)
+			and worker.action.has_method("is_working_on")
+			and worker.action.is_working_on(_target_unit)
+			and Utils.Match.Unit.Movement.units_adhere(worker, _target_unit)
+		):
+			return worker == _unit
+	return false

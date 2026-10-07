@@ -1,0 +1,20 @@
+[
+  "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+  "--headless",
+  "--path",
+  ".",
+  "--fixed-fps",
+  "60",
+  "--script",
+  "tests/playtest/SustainedDefenseMatches.gd",
+  "--",
+  "--case=6",
+  "--repeats=1",
+  "--research=combined",
+  "--strategy=screened-air",
+  "--home-response",
+  "--electronics-handoff",
+  "--output=res://docs/playtests/2026-10-07/recovery-reinforcements/final-default.json",
+  "--archive=res://docs/playtests/2026-10-07/recovery-reinforcements/final-default-stationary.json",
+  "--archive-prefix=res://docs/playtests/2026-10-07/recovery-reinforcements/final-default"
+]

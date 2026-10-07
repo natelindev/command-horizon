@@ -1,0 +1,454 @@
+extends "res://source/match/players/Player.gd"
+
+const Factions = preload("res://source/match/FactionCatalog.gd")
+const Catalog = preload("res://source/match/BastionCatalog.gd")
+const Harvest = preload("res://source/match/units/actions/CollectingResourcesSequentially.gd")
+const Construct = preload("res://source/match/units/actions/Constructing.gd")
+const AttackMove = preload("res://source/match/units/actions/AttackMoving.gd")
+const Moving = preload("res://source/match/units/actions/Moving.gd")
+const Repair = preload("res://source/match/units/actions/Repairing.gd")
+const RepairService = preload("res://source/match/combat/RepairService.gd")
+const Coordination = preload("res://source/match/players/skirmish-ai/SkirmishCoordination.gd")
+const Recovery = preload("res://source/match/players/skirmish-ai/SkirmishRecovery.gd")
+const Labor = preload("res://source/match/players/skirmish-ai/SkirmishLabor.gd")
+const ManualOrders = preload("res://source/match/orders/ManualOrders.gd")
+const Production = preload("res://source/match/players/skirmish-ai/SkirmishProduction.gd")
+const Economy = preload("res://source/match/players/skirmish-ai/SkirmishEconomy.gd")
+const Defense = preload("res://source/match/players/skirmish-ai/SkirmishDefense.gd")
+const Composition = preload("res://source/match/players/skirmish-ai/SkirmishComposition.gd")
+const CombatRules = preload("res://source/match/combat/CombatRules.gd")
+
+var structures_built = 0
+var attacks_launched = 0
+var _elapsed = 0.0
+var _last_wave = 0.0
+var _production_index = 0
+var _army_groups = []
+var _army_cursor = 0
+@onready var _match = find_parent("Match")
+
+
+func _process(delta):
+	_elapsed += delta
+	if _elapsed < [3.0, 1.5, 0.75][difficulty] or not _match.is_node_ready():
+		return
+	_elapsed = 0.0
+	var units = _units()
+	if units.is_empty():
+		return
+	var desired = _next_building(units)
+	_build(units, desired)
+	units = _units()
+	_harvest(units)
+	_research(units, desired)
+	_train(units, desired)
+	_command_army(units)
+
+
+func _units():
+	return get_children().filter(
+		func(unit): return "type" in unit and not unit.is_queued_for_deletion()
+	)
+
+
+func _of_type(units, role):
+	return units.filter(func(unit): return unit.type == role)
+
+
+func _next_building(units):
+	if _of_type(units, "CommandCenter").is_empty():
+		return "CommandCenter"
+	var power = power_totals()
+	if (
+		power.x < power.y + 6
+		and _of_type(units, "PowerPlant").all(func(unit): return unit.is_constructed())
+	):
+		return "PowerPlant"
+	for role in ["Barracks", "VehicleFactory"]:
+		if _of_type(units, role).is_empty():
+			return role
+	if _of_type(units, "AntiAirTurret").is_empty() and Composition.observed(_match, self).air > 0:
+		return "AntiAirTurret"
+	var expansion = {
+		"CommandLab": 100.0,
+		"AircraftFactory": 150.0,
+		"RepairDepot": 200.0,
+		"AntiAirTurret": 220.0,
+		"AntiGroundTurret": 260.0
+	}
+	for role in expansion:
+		if _match.simulation_time >= expansion[role] and _of_type(units, role).is_empty():
+			return role
+	return ""
+
+
+func _build(units, desired):
+	var workers = _of_type(units, "Worker")
+	if workers.is_empty() or workers.any(func(unit): return unit.action is Construct):
+		return
+	var pending = units.filter(
+		func(unit): return unit.has_method("is_constructed") and not unit.is_constructed()
+	)
+	if not pending.is_empty():
+		workers[0].issue_manual_order(Construct.new(pending[0]))
+		return
+	if (
+		desired == ""
+		or not Factions.available(self, desired, true)
+		or not has_resources(Factions.cost(self, desired, true))
+	):
+		return
+	var reference = _of_type(units, "CommandCenter")
+	var origin = (
+		reference[0].global_position if not reference.is_empty() else workers[0].global_position
+	)
+	var building = load(Catalog.scene_path(desired)).instantiate()
+	var navmap = _match.navigation.get_navigation_map_rid_by_domain(building.movement_domain)
+	var position_to_build = _find_site(origin, building.radius, navmap)
+	if not position_to_build.is_finite():
+		building.free()
+		return
+	subtract_resources(Factions.cost(self, desired, true))
+	_match._setup_and_spawn_unit(building, Transform3D(Basis(), position_to_build), self)
+	workers.sort_custom(
+		func(a, b):
+			return (
+				a.global_position.distance_squared_to(position_to_build)
+				< b.global_position.distance_squared_to(position_to_build)
+			)
+	)
+	workers[0].issue_manual_order(Construct.new(building))
+	structures_built += 1
+
+
+func _find_site(origin, radius, navmap):
+	var obstacles = (
+		get_tree().get_nodes_in_group("units") + get_tree().get_nodes_in_group("resource_units")
+	)
+	for distance in [7.0, 10.0, 14.0, 18.0, 22.0]:
+		for index in range(16):
+			var angle = index * TAU / 16.0
+			var point = origin + Vector3(cos(angle), 0, sin(angle)) * distance
+			if (
+				point.x < radius + 1
+				or point.z < radius + 1
+				or point.x > _match.map.size.x - radius - 1
+				or point.z > _match.map.size.y - radius - 1
+			):
+				continue
+			if not _leaves_base_access(point, radius, obstacles):
+				continue
+			var validity = Utils.Match.Unit.Placement.validate_agent_placement_position(
+				point, radius, obstacles, navmap
+			)
+			if validity == Utils.Match.Unit.Placement.VALID:
+				return point
+	return Vector3.INF
+
+
+func _leaves_base_access(point, radius, obstacles):
+	# Collision-free footprints can still close an entire navigation corridor.
+	# Leave room for erosion on both sides plus a cell on each boundary, so
+	# later base construction does not seal engineers into tiny mesh islands.
+	var navigation = Constants.Match.Terrain.Navmesh
+	var passage = 2.0 * (navigation.MAX_AGENT_RADIUS + navigation.CELL_SIZE)
+	for unit in obstacles:
+		var obstacle = unit.get_node_or_null("MovementObstacle")
+		if (
+			unit.is_queued_for_deletion()
+			or obstacle == null
+			or not obstacle.affect_navigation_mesh
+			or obstacle.domain != Constants.Match.Navigation.Domain.TERRAIN
+		):
+			continue
+		if point.distance_to(unit.global_position_yless) < radius + unit.radius + passage:
+			return false
+	return true
+
+
+func _harvest(units):
+	var observed = Economy.contacts(_match, self)
+	var assignments = Labor.plan(_match, self, units)
+	var changed = false
+	for worker in _of_type(units, "Worker"):
+		var hq = Economy.headquarters(units, worker.global_position_yless)
+		if hq == null:
+			continue
+		if (
+			worker.action is Harvest
+			and Economy.danger(worker.global_position_yless, worker, observed)
+			and not Economy.danger(hq.global_position_yless, worker, observed)
+			and worker.global_position_yless.distance_to(hq.global_position_yless) > 8.0
+		):
+			var approach = worker.global_position_yless - hq.global_position_yless
+			var safe = (
+				hq.global_position_yless + approach.normalized() * (hq.radius + worker.radius + 1.0)
+			)
+			worker.issue_manual_order(Moving.new(safe))
+			continue
+		var queued = Labor.queued_target(worker)
+		if queued != null and not Economy.safe_approach(queued, worker, hq, observed):
+			worker.manual_orders.clear_waiting()
+		if worker.manual_orders != null and not worker.manual_orders.pending.is_empty():
+			continue
+		if not assignments.has(worker):
+			continue
+		var available = Economy.available(worker)
+		var handoff = (
+			not changed
+			and Labor.handoff_ready(worker, hq)
+			and assignments[worker] != worker.action._kind
+		)
+		if not available and not handoff:
+			continue
+		if available and worker.resource_a + worker.resource_b > 0:
+			worker.issue_manual_order(Harvest.new(hq))
+			continue
+		var deposit = Economy.deposit(_match, worker, hq, assignments[worker], observed)
+		if deposit == null:
+			continue
+		if (
+			(
+				deposit.global_position_yless.distance_to(hq.global_position_yless)
+				> Economy.HOME_RADIUS
+			)
+			and (
+				not Coordination.allows_expansion(self, deposit.global_position_yless)
+				or not Economy.guarded(units, deposit.global_position_yless)
+			)
+		):
+			continue
+		if handoff:
+			changed = worker.manual_orders.submit(
+				ManualOrders.target_order("gather", deposit), true
+			)
+		else:
+			worker.issue_manual_order(Harvest.new(deposit))
+
+
+func _train(units, desired):
+	var reserve = Production.reserve(self, units, desired)
+	for job in Production.requests(_match, self, units):
+		var price = Vector2i(job.cost.resource_a, job.cost.resource_b)
+		var protected = Vector2i.ZERO if job.role == "Worker" else reserve
+		if resource_a < price.x + protected.x or resource_b < price.y + protected.y:
+			# Keep this higher-priority job's budget while considering other
+			# producers, instead of spending its next delivery on cheaper armor.
+			reserve += price
+			continue
+		if job.producer.production_queue.produce(load(Catalog.scene_path(job.role))) != null:
+			if job.producer.type == "VehicleFactory":
+				_production_index += 1
+
+
+func _command_army(units):
+	var enemies = []
+	for enemy in get_tree().get_nodes_in_group("units"):
+		if enemy.player == self or enemy.is_queued_for_deletion():
+			continue
+		if _match.battlefield.is_observed(self, enemy):
+			enemies.append(enemy)
+	var recovering = Recovery.command(_match, units, enemies)
+	var available = units.filter(func(unit): return unit not in recovering)
+	var response = Coordination.command(_match, self, units, available, enemies)
+	_choose_weapon_modes(available.filter(func(unit): return unit not in response.defenders))
+	_use_signatures(response.units)
+	_command_support(available, response.units)
+
+
+func _wave_ready():
+	return (
+		_match.simulation_time > [180.0, 120.0, 75.0][difficulty]
+		and _match.simulation_time - _last_wave >= [100.0, 65.0, 40.0][difficulty]
+	)
+
+
+func _offensive_goal(soldiers, contacts, enemy_start):
+	# Waves pressure the enemy economy. Mobile combatants are encountered through
+	# attack-move, while economy raids have their own bounded defense assignment.
+	# A scout over our HQ must not redirect the ground army back into its own base.
+	var priority = {
+		"CommandCenter": 0,
+		"VehicleFactory": 1,
+		"AircraftFactory": 1,
+		"Barracks": 1,
+		"CommandLab": 2,
+		"PowerPlant": 3,
+		"RepairDepot": 4,
+		"Worker": 6
+	}
+	var center = Vector3.ZERO
+	for unit in soldiers:
+		center += unit.global_position_yless
+	center /= max(1, soldiers.size())
+	var best = null
+	var best_priority = INF
+	var best_distance = INF
+	for target in contacts:
+		if (
+			target.is_queued_for_deletion()
+			or target.hp <= 0
+			or target.player == self
+			or target.movement_domain != Constants.Match.Navigation.Domain.TERRAIN
+			or (target.type != "Worker" and not target.has_method("is_constructed"))
+			or not _match.battlefield.is_observed(self, target)
+		):
+			continue
+		var can_engage = soldiers.any(
+			func(unit):
+				return (
+					CombatRules.can_target(unit, target)
+					or (
+						unit.type == "CombatRobot"
+						and faction == "helix"
+						and unit.hp > 0
+						and not unit.is_queued_for_deletion()
+					)
+				)
+		)
+		if not can_engage:
+			continue
+		var rank = priority.get(target.type, 5)
+		var distance = center.distance_squared_to(target.global_position_yless)
+		if rank < best_priority or (rank == best_priority and distance < best_distance):
+			best = target
+			best_priority = rank
+			best_distance = distance
+	return best.global_position_yless if best != null else enemy_start * Vector3(1, 0, 1)
+
+
+func _defend_economy(units, contacts):
+	var defenders = []
+	var plan = Defense.plan(_match, self, units, contacts)
+	for assignment in plan.assignments:
+		var unit = assignment.unit
+		defenders.append(unit)
+		if unit.type == "CombatRobot" and faction == "helix":
+			unit.request_weapon_mode(
+				(
+					"interception"
+					if assignment.target.movement_domain == Constants.Match.Navigation.Domain.AIR
+					else "precision"
+				)
+			)
+		if unit.action is AttackMove:
+			if unit.action.destination.distance_to(assignment.point) <= 2.0:
+				continue
+			if is_instance_valid(unit.action._shot):
+				unit.action.destination = assignment.point
+				continue
+		unit.issue_manual_order(AttackMove.new(assignment.point))
+	return {"units": defenders, "threats": plan.threats, "groups": plan.groups}
+
+
+func _command_support(units, active_units = null):
+	if active_units == null:
+		active_units = units
+	var claimed = []
+	for robot in _of_type(units, "RepairRobot"):
+		if not _idle_order(robot) and not robot.action is Repair:
+			continue
+		var current = robot.action.repair_target() if robot.action is Repair else null
+		var candidates = units.filter(
+			func(unit):
+				return (
+					unit not in claimed
+					and RepairService.mobile_eligible(robot, unit)
+					and (
+						unit.hp < unit.hp_max
+						or (
+							unit in active_units
+							and unit.movement_speed > 0
+							and unit.attack_range != null
+						)
+					)
+				)
+		)
+		if candidates.is_empty():
+			if robot.action is Repair:
+				robot.action = null
+			continue
+		# Finish an existing legal repair before switching. Healthy armor is an
+		# escort fallback; a wounded machine takes priority over that fallback.
+		var target = current
+		if current not in candidates or current.hp >= current.hp_max:
+			candidates.sort_custom(
+				func(a, b):
+					var a_hurt = a.hp < a.hp_max
+					var b_hurt = b.hp < b.hp_max
+					if a_hurt != b_hurt:
+						return a_hurt
+					return (
+						robot.global_position.distance_squared_to(a.global_position)
+						< robot.global_position.distance_squared_to(b.global_position)
+					)
+			)
+			target = candidates[0]
+		claimed.append(target)
+		if current != target:
+			robot.action = Repair.new(target)
+
+
+func _research(units, desired):
+	if coordination_unlocked or coordination_left >= 0 or not basic_programs_unlocked():
+		return
+	var reserve = Production.reserve(self, units, desired)
+	for job in Production.requests(_match, self, units):
+		if job.priority < 6:
+			reserve += Vector2i(job.cost.resource_a, job.cost.resource_b)
+	if (
+		resource_a < COORDINATION_COST.resource_a + reserve.x
+		or resource_b < COORDINATION_COST.resource_b + reserve.y
+	):
+		return
+	for lab in _of_type(units, "CommandLab"):
+		if start_coordination(lab):
+			return
+
+
+func _idle_order(unit):
+	return unit.action == null or (unit.action.has_method("is_idle") and unit.action.is_idle())
+
+
+func _use_signatures(units):
+	if not coordination_unlocked:
+		return
+	var ready = units.filter(
+		func(unit):
+			return (
+				signatures.eligible(unit)
+				and not unit.get_node("Movement")._has_destination
+				and not _match.battlefield.observed_enemies_near(unit, unit.sight_range).is_empty()
+			)
+	)
+	if ready.is_empty():
+		return
+	var point = ready[0].global_position_yless
+	if faction == "bastion":
+		ready = ready.filter(func(unit): return unit.global_position_yless.distance_to(point) <= 6)
+	signatures.activate(ready, point)
+
+
+func _choose_weapon_modes(units):
+	if faction != "helix":
+		return
+	for unit in _of_type(units, "CombatRobot"):
+		if unit.weapon_switch_left > 0:
+			continue
+		# Mode choice belongs to the opponent commander, not the player's Lua API.
+		# Keep the current stance when no contact is observed; never inspect hidden forces.
+		var contacts = _match.battlefield.nearby_units(unit.global_position_yless, unit.sight_range)
+		contacts = contacts.filter(
+			func(other):
+				return (
+					other.player != self
+					and other.hp > 0
+					and _match.battlefield.is_observed(self, other)
+				)
+		)
+		if contacts.is_empty():
+			continue
+		var air = contacts.any(
+			func(other): return other.movement_domain == Constants.Match.Navigation.Domain.AIR
+		)
+		unit.request_weapon_mode("interception" if air else "precision")

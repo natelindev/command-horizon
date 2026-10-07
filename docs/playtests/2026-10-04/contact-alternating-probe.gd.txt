@@ -1,0 +1,42 @@
+extends SceneTree
+
+func _initialize():
+	_run.call_deferred()
+
+func _run():
+	root.get_node("SaveManager").autosaves_enabled = false
+	var file = load("res://source/match/saves/SaveFile.gd").new()
+	var data = file.read_file("res://docs/playtests/2026-10-04/ai-coordination-stall.json")
+	var restore = load("res://source/match/saves/MatchRestore.gd").new()
+	var loaded = await restore.restore(self, data)
+	var game = loaded.game
+	for player in get_nodes_in_group("players"):player.set_process(false)
+	var unit = restore.entities["unit-0"]
+	var resource = restore.entities["resource-2"]
+	var movement = unit.get_node("Movement")
+	var start = game.simulation_time
+	var safe = [Vector3.ZERO]
+	movement.velocity_computed.connect(func(v):safe[0]=v)
+	var action = unit.action
+	var other_mode = "isolated" in OS.get_cmdline_user_args()
+	if other_mode:
+		for other in get_nodes_in_group("units"):
+			if other != unit and other.movement_speed > 0:other.queue_free()
+	print("INITIAL cargo=",unit.resource_a,",",unit.resource_b," radius=",unit.radius," target_radius=",resource.radius," target_obstacle=",resource.get_node("MovementObstacle").radius," constants=",root.get_node("Constants").Match.Units.ADHERENCE_MARGIN_M)
+	paused=false
+	var previous=""
+	var flip=true
+	var previous_recovery=0.0
+	for frame in 720:
+		await physics_frame
+		if "alternate" in OS.get_cmdline_user_args() and movement._recovery_left > previous_recovery:
+			if flip:movement._recovery_direction = -movement._recovery_direction
+			flip=not flip
+		previous_recovery=movement._recovery_left
+		var state=str(unit.action)
+		if frame%30==0 or state!=previous:
+			print("PROBE ", game.simulation_time-start," point=",unit.position," range=",unit.position.distance_to(resource.position)," adheres=",root.get_node("Utils").Match.Unit.Movement.units_adhere(unit,resource)," cargo=",unit.resource_a," stock=",resource.resource_a," action=",state," wanted=",movement.velocity," safe=",safe[0]," recovery=",movement._recovery_left)
+		previous=state
+	game.queue_free()
+	await process_frame
+	quit(0)

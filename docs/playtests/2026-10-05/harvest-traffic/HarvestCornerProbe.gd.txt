@@ -1,0 +1,32 @@
+extends "res://tests/headless/CornerRecoveryRegression.gd"
+var sample_frame = 0
+var captured_excursion = false
+
+func _observe():
+	super()
+	sample_frame += 1
+	if sample_frame % 60 != 0:
+		return
+	var movement = watched.get_node("Movement")
+	print("CORNER TRACE ", trace_label, " time=",game.simulation_time-observation_started," point=",watched.position," anchor=",anchor," distance=",watched.position.distance_to(anchor)," target=",movement.target_position," recovery=",movement._recovery_left," direction=",movement._recovery_direction," path=",movement.get_current_navigation_path()," index=",movement.get_current_navigation_path_index()," settled=",watched.action.is_settled_guard()," mode=",watched.program.mode)
+	if watched.position.distance_to(anchor) > 6 and not captured_excursion:
+		captured_excursion = true
+		var was_paused = paused
+		paused = true
+		FileStore.new().write_file("res://docs/playtests/2026-10-05/harvest-traffic/simplified-corner-excursion.json", Snapshot.new().capture(game))
+		paused = was_paused
+
+func _review_corner(label):
+	if label.ends_with("-arrival") or watched.position.distance_to(anchor) <= 6:
+		return true
+	print("CORNER OUTSIDE END ",label," point=",watched.position," target=",watched.get_node("Movement").target_position," settled=",watched.action.is_settled_guard())
+	var was_paused = paused
+	paused = true
+	FileStore.new().write_file("res://docs/playtests/2026-10-05/harvest-traffic/simplified-corner-end-"+label+".json",Snapshot.new().capture(game))
+	paused = false
+	for frame in 600:
+		await physics_frame
+		_observe()
+	print("CORNER FOLLOWUP ",label," point=",watched.position," distance=",watched.position.distance_to(anchor)," target=",watched.get_node("Movement").target_position," settled=",watched.action.is_settled_guard())
+	paused = was_paused
+	return true

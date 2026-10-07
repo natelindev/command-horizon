@@ -1,0 +1,914 @@
+[
+	{
+		"advanced": false,
+		"ai_coordination": {
+			"peak_groups": 2,
+			"samples": 1023,
+			"violations": {
+
+			}
+		},
+		"ai_recovery": [
+			{
+				"end": 153.300000000014,
+				"end_health": 0.0,
+				"entry_health": 0.166666666666667,
+				"last_sample": 153.233333333347,
+				"outcome": "lost",
+				"peak_health": 0.166666666666667,
+				"role": "Infantry",
+				"sampled_blocked_seconds": 0.0,
+				"sampled_service": false,
+				"start": 153.233333333347
+			},
+			{
+				"end": 199.733333333384,
+				"end_health": 0.817333333333334,
+				"entry_health": 0.166666666666667,
+				"last_sample": 199.233333333384,
+				"outcome": "recovered",
+				"peak_health": 0.817333333333334,
+				"role": "Infantry",
+				"sampled_blocked_seconds": 0.0,
+				"sampled_service": true,
+				"start": 156.23333333335
+			},
+			{
+				"end": 205.233333333389,
+				"end_health": 0.806666666666667,
+				"entry_health": 0.166666666666667,
+				"last_sample": 204.733333333388,
+				"outcome": "recovered",
+				"peak_health": 0.806666666666667,
+				"role": "Infantry",
+				"sampled_blocked_seconds": 0.0,
+				"sampled_service": true,
+				"start": 162.733333333355
+			},
+			{
+				"end": 376.733333333319,
+				"end_health": 0.804666666666667,
+				"entry_health": 0.25,
+				"last_sample": 376.23333333332,
+				"outcome": "recovered",
+				"peak_health": 0.804666666666667,
+				"role": "Infantry",
+				"sampled_blocked_seconds": 0.0,
+				"sampled_service": true,
+				"start": 336.733333333356
+			},
+			{
+				"end": 366.066666666662,
+				"end_health": 0.0,
+				"entry_health": 0.25,
+				"last_sample": 365.733333333329,
+				"outcome": "lost",
+				"peak_health": 0.25,
+				"role": "Infantry",
+				"sampled_blocked_seconds": 0.0,
+				"sampled_service": false,
+				"start": 365.733333333329
+			},
+			{
+				"end": 410.233333333289,
+				"end_health": 0.806666666666667,
+				"entry_health": 0.166666666666667,
+				"last_sample": 409.733333333289,
+				"outcome": "recovered",
+				"peak_health": 0.806666666666667,
+				"role": "Infantry",
+				"sampled_blocked_seconds": 0.0,
+				"sampled_service": true,
+				"start": 385.233333333312
+			},
+			{
+				"end": 420.316666666613,
+				"end_health": 0.0,
+				"entry_health": 0.25,
+				"last_sample": 420.23333333328,
+				"outcome": "lost",
+				"peak_health": 0.25,
+				"role": "Infantry",
+				"sampled_blocked_seconds": 0.0,
+				"sampled_service": false,
+				"start": 420.23333333328
+			}
+		],
+		"basic_unlock": 149.233333333344,
+		"case": 2,
+		"damage_hp": [
+			595.224666666668,
+			2652.18826666666
+		],
+		"difficulty": "Normal",
+		"enemy_attacks": 3,
+		"expansion_order": 360.233333333334,
+		"expansion_return": 393.733333333304,
+		"faction": "bastion",
+		"final": {
+			"ai_tasks": [
+				{
+					"age": 0.3,
+					"kind": "scout",
+					"point": [
+						17.0,
+						18.0
+					],
+					"retiring": false,
+					"roles": {
+						"Drone": 1
+					}
+				}
+			],
+			"seconds": 511.4,
+			"sides": [
+				{
+					"army_base_value": [
+						232.0,
+						56.0
+					],
+					"fitted_tanks": 8,
+					"funds": [
+						3,
+						38
+					],
+					"units": {
+						"Barracks": 1,
+						"CommandCenter": 1,
+						"CommandLab": 1,
+						"Infantry": 4,
+						"RepairRobot": 1,
+						"Tank": 8,
+						"VehicleFactory": 1,
+						"Worker": 6
+					},
+					"worker_states": {
+						"Electronics · approaching work slot": 2,
+						"Electronics · collecting": 1,
+						"Materials · approaching work slot": 2,
+						"Materials · collecting": 1
+					},
+					"workers": {
+						"construction": 0,
+						"electronics": 3,
+						"materials": 3,
+						"other": 0
+					}
+				},
+				{
+					"army_base_value": [
+						8.0,
+						6.0
+					],
+					"fitted_tanks": 0,
+					"funds": [
+						0,
+						22
+					],
+					"units": {
+						"AntiAirTurret": 1,
+						"AntiGroundTurret": 1,
+						"Drone": 1,
+						"RepairDepot": 1
+					},
+					"worker_states": {
+
+					},
+					"workers": {
+						"construction": 0,
+						"electronics": 0,
+						"materials": 0,
+						"other": 0
+					}
+				}
+			]
+		},
+		"first_assault": 355.733333333338,
+		"first_contact": 143.73333333334,
+		"first_program": 177.733333333367,
+		"harvested": [
+			404.0,
+			176.0
+		],
+		"longest_stationary_travel": [
+			2.5,
+			1.5
+		],
+		"losses": [
+			{
+				"Infantry": 11,
+				"Tank": 1
+			},
+			{
+				"AircraftFactory": 1,
+				"Barracks": 1,
+				"CommandCenter": 1,
+				"CommandLab": 1,
+				"Infantry": 19,
+				"PowerPlant": 2,
+				"Tank": 2,
+				"VehicleFactory": 1,
+				"Worker": 9
+			}
+		],
+		"map": "AlpineRelay",
+		"repaired_hp": [
+			22.5746666666668,
+			50.1882666666667
+		],
+		"repetition": 10,
+		"result": "Victory",
+		"samples": [
+			{
+				"ai_tasks": [],
+				"seconds": 0.7,
+				"sides": [
+					{
+						"army_base_value": [
+							12.0,
+							0.0
+						],
+						"fitted_tanks": 0,
+						"funds": [
+							34,
+							12
+						],
+						"units": {
+							"Barracks": 1,
+							"CommandCenter": 1,
+							"Infantry": 2,
+							"Worker": 4
+						},
+						"worker_states": {
+							"Electronics · approaching work slot": 1,
+							"Materials · approaching work slot": 3
+						},
+						"workers": {
+							"construction": 0,
+							"electronics": 1,
+							"materials": 3,
+							"other": 0
+						}
+					},
+					{
+						"army_base_value": [
+							12.0,
+							0.0
+						],
+						"fitted_tanks": 0,
+						"funds": [
+							60,
+							12
+						],
+						"units": {
+							"CommandCenter": 1,
+							"Infantry": 2,
+							"Worker": 4
+						},
+						"worker_states": {
+							"Idle": 4
+						},
+						"workers": {
+							"construction": 0,
+							"electronics": 0,
+							"materials": 0,
+							"other": 4
+						}
+					}
+				]
+			},
+			{
+				"ai_tasks": [],
+				"seconds": 60.7,
+				"sides": [
+					{
+						"army_base_value": [
+							24.0,
+							0.0
+						],
+						"fitted_tanks": 0,
+						"funds": [
+							15,
+							20
+						],
+						"units": {
+							"Barracks": 1,
+							"CommandCenter": 1,
+							"Infantry": 4,
+							"VehicleFactory": 1,
+							"Worker": 6
+						},
+						"worker_states": {
+							"Constructing(ConstructingWhileInRange)": 1,
+							"Electronics · approaching work slot": 2,
+							"Materials · approaching work slot": 3
+						},
+						"workers": {
+							"construction": 1,
+							"electronics": 2,
+							"materials": 3,
+							"other": 0
+						}
+					},
+					{
+						"army_base_value": [
+							24.0,
+							0.0
+						],
+						"fitted_tanks": 0,
+						"funds": [
+							29,
+							8
+						],
+						"units": {
+							"Barracks": 1,
+							"CommandCenter": 1,
+							"Infantry": 4,
+							"VehicleFactory": 1,
+							"Worker": 6
+						},
+						"worker_states": {
+							"Constructing(ConstructingWhileInRange)": 1,
+							"Materials · approaching work slot": 2,
+							"Materials · collecting": 1,
+							"Returning cargo to HQ": 2
+						},
+						"workers": {
+							"construction": 1,
+							"electronics": 0,
+							"materials": 5,
+							"other": 0
+						}
+					}
+				]
+			},
+			{
+				"ai_tasks": [],
+				"seconds": 120.7,
+				"sides": [
+					{
+						"army_base_value": [
+							24.0,
+							0.0
+						],
+						"fitted_tanks": 0,
+						"funds": [
+							13,
+							6
+						],
+						"units": {
+							"Barracks": 1,
+							"CommandCenter": 1,
+							"CommandLab": 1,
+							"Infantry": 4,
+							"VehicleFactory": 1,
+							"Worker": 6
+						},
+						"worker_states": {
+							"Constructing(ConstructingWhileInRange)": 1,
+							"Electronics · collecting": 2,
+							"Materials · approaching work slot": 2,
+							"Returning cargo to HQ": 1
+						},
+						"workers": {
+							"construction": 1,
+							"electronics": 2,
+							"materials": 3,
+							"other": 0
+						}
+					},
+					{
+						"army_base_value": [
+							58.0,
+							10.0
+						],
+						"fitted_tanks": 0,
+						"funds": [
+							49,
+							22
+						],
+						"units": {
+							"Barracks": 1,
+							"CommandCenter": 1,
+							"Infantry": 6,
+							"Tank": 1,
+							"VehicleFactory": 1,
+							"Worker": 6
+						},
+						"worker_states": {
+							"Electronics · collecting": 2,
+							"Electronics · waiting for a work slot": 2,
+							"Materials · approaching work slot": 1,
+							"Returning cargo to HQ": 1
+						},
+						"workers": {
+							"construction": 0,
+							"electronics": 4,
+							"materials": 2,
+							"other": 0
+						}
+					}
+				]
+			},
+			{
+				"ai_tasks": [
+					{
+						"age": 59.4,
+						"kind": "assault",
+						"point": [
+							17.0,
+							18.0
+						],
+						"retiring": false,
+						"roles": {
+							"Infantry": 1,
+							"Tank": 1
+						}
+					}
+				],
+				"seconds": 180.7,
+				"sides": [
+					{
+						"army_base_value": [
+							42.0,
+							6.0
+						],
+						"fitted_tanks": 1,
+						"funds": [
+							5,
+							12
+						],
+						"units": {
+							"Barracks": 1,
+							"CommandCenter": 1,
+							"CommandLab": 1,
+							"Infantry": 3,
+							"Tank": 1,
+							"VehicleFactory": 1,
+							"Worker": 6
+						},
+						"worker_states": {
+							"Electronics · collecting": 2,
+							"Materials · approaching work slot": 1,
+							"Materials · collecting": 1,
+							"Returning cargo to HQ": 2
+						},
+						"workers": {
+							"construction": 0,
+							"electronics": 2,
+							"materials": 4,
+							"other": 0
+						}
+					},
+					{
+						"army_base_value": [
+							40.0,
+							10.0
+						],
+						"fitted_tanks": 0,
+						"funds": [
+							45,
+							20
+						],
+						"units": {
+							"Barracks": 1,
+							"CommandCenter": 1,
+							"CommandLab": 1,
+							"Infantry": 3,
+							"Tank": 1,
+							"VehicleFactory": 1,
+							"Worker": 6
+						},
+						"worker_states": {
+							"Electronics · approaching work slot": 2,
+							"Materials · approaching work slot": 3,
+							"Returning cargo to HQ": 1
+						},
+						"workers": {
+							"construction": 0,
+							"electronics": 3,
+							"materials": 3,
+							"other": 0
+						}
+					}
+				]
+			},
+			{
+				"ai_tasks": [],
+				"seconds": 240.7,
+				"sides": [
+					{
+						"army_base_value": [
+							66.0,
+							12.0
+						],
+						"fitted_tanks": 2,
+						"funds": [
+							15,
+							22
+						],
+						"units": {
+							"Barracks": 1,
+							"CommandCenter": 1,
+							"CommandLab": 1,
+							"Infantry": 3,
+							"Tank": 2,
+							"VehicleFactory": 1,
+							"Worker": 6
+						},
+						"worker_states": {
+							"Electronics · approaching work slot": 1,
+							"Materials · approaching work slot": 1,
+							"Materials · collecting": 1,
+							"Returning cargo to HQ": 3
+						},
+						"workers": {
+							"construction": 0,
+							"electronics": 2,
+							"materials": 4,
+							"other": 0
+						}
+					},
+					{
+						"army_base_value": [
+							0.0,
+							0.0
+						],
+						"fitted_tanks": 0,
+						"funds": [
+							25,
+							24
+						],
+						"units": {
+							"AircraftFactory": 1,
+							"Barracks": 1,
+							"CommandCenter": 1,
+							"CommandLab": 1,
+							"PowerPlant": 1,
+							"VehicleFactory": 1,
+							"Worker": 6
+						},
+						"worker_states": {
+							"Constructing(ConstructingWhileInRange)": 1,
+							"Electronics · approaching work slot": 1,
+							"Electronics · collecting": 1,
+							"Materials · collecting": 2,
+							"Returning cargo to HQ": 1
+						},
+						"workers": {
+							"construction": 1,
+							"electronics": 2,
+							"materials": 3,
+							"other": 0
+						}
+					}
+				]
+			},
+			{
+				"ai_tasks": [],
+				"seconds": 300.7,
+				"sides": [
+					{
+						"army_base_value": [
+							112.0,
+							26.0
+						],
+						"fitted_tanks": 3,
+						"funds": [
+							3,
+							10
+						],
+						"units": {
+							"Barracks": 1,
+							"CommandCenter": 1,
+							"CommandLab": 1,
+							"Infantry": 4,
+							"RepairRobot": 1,
+							"Tank": 3,
+							"VehicleFactory": 1,
+							"Worker": 6
+						},
+						"worker_states": {
+							"Electronics · approaching work slot": 1,
+							"Materials · approaching work slot": 3,
+							"Materials · collecting": 1,
+							"Returning cargo to HQ": 1
+						},
+						"workers": {
+							"construction": 0,
+							"electronics": 2,
+							"materials": 4,
+							"other": 0
+						}
+					},
+					{
+						"army_base_value": [
+							12.0,
+							0.0
+						],
+						"fitted_tanks": 0,
+						"funds": [
+							4,
+							18
+						],
+						"units": {
+							"AircraftFactory": 1,
+							"AntiAirTurret": 1,
+							"AntiGroundTurret": 1,
+							"Barracks": 1,
+							"CommandCenter": 1,
+							"CommandLab": 1,
+							"Infantry": 2,
+							"PowerPlant": 1,
+							"RepairDepot": 1,
+							"VehicleFactory": 1,
+							"Worker": 6
+						},
+						"worker_states": {
+							"Constructing(ConstructingWhileInRange)": 1,
+							"Electronics · collecting": 2,
+							"Materials · approaching work slot": 2,
+							"Returning cargo to HQ": 1
+						},
+						"workers": {
+							"construction": 1,
+							"electronics": 2,
+							"materials": 3,
+							"other": 0
+						}
+					}
+				]
+			},
+			{
+				"ai_tasks": [
+					{
+						"age": 51.3,
+						"kind": "assault",
+						"point": [
+							17.0,
+							18.0
+						],
+						"retiring": false,
+						"roles": {
+							"Infantry": 3
+						}
+					}
+				],
+				"seconds": 360.7,
+				"sides": [
+					{
+						"army_base_value": [
+							160.0,
+							38.0
+						],
+						"fitted_tanks": 5,
+						"funds": [
+							3,
+							6
+						],
+						"units": {
+							"Barracks": 1,
+							"CommandCenter": 1,
+							"CommandLab": 1,
+							"Infantry": 4,
+							"RepairRobot": 1,
+							"Tank": 5,
+							"VehicleFactory": 1,
+							"Worker": 6
+						},
+						"worker_states": {
+							"Electronics · approaching work slot": 2,
+							"Electronics · collecting": 1,
+							"Materials · approaching work slot": 1,
+							"Materials · collecting": 1,
+							"Returning cargo to HQ": 1
+						},
+						"workers": {
+							"construction": 0,
+							"electronics": 3,
+							"materials": 3,
+							"other": 0
+						}
+					},
+					{
+						"army_base_value": [
+							32.0,
+							6.0
+						],
+						"fitted_tanks": 0,
+						"funds": [
+							6,
+							8
+						],
+						"units": {
+							"AircraftFactory": 1,
+							"AntiAirTurret": 1,
+							"AntiGroundTurret": 1,
+							"Barracks": 1,
+							"CommandCenter": 1,
+							"CommandLab": 1,
+							"Drone": 1,
+							"Infantry": 4,
+							"PowerPlant": 1,
+							"RepairDepot": 1,
+							"VehicleFactory": 1,
+							"Worker": 6
+						},
+						"worker_states": {
+							"Electronics · collecting": 2,
+							"Materials · collecting": 2,
+							"Returning cargo to HQ": 2
+						},
+						"workers": {
+							"construction": 0,
+							"electronics": 2,
+							"materials": 4,
+							"other": 0
+						}
+					}
+				]
+			},
+			{
+				"ai_tasks": [
+					{
+						"age": 0.6,
+						"kind": "defense",
+						"point": [
+							106.577919006348,
+							76.3891296386719
+						],
+						"retiring": false,
+						"roles": {
+							"Infantry": 1,
+							"Tank": 1
+						}
+					}
+				],
+				"seconds": 420.7,
+				"sides": [
+					{
+						"army_base_value": [
+							172.0,
+							44.0
+						],
+						"fitted_tanks": 6,
+						"funds": [
+							9,
+							24
+						],
+						"units": {
+							"Barracks": 1,
+							"CommandCenter": 1,
+							"CommandLab": 1,
+							"Infantry": 2,
+							"RepairRobot": 1,
+							"Tank": 6,
+							"VehicleFactory": 1,
+							"Worker": 6
+						},
+						"worker_states": {
+							"Electronics · approaching work slot": 2,
+							"Materials · approaching work slot": 1,
+							"Materials · collecting": 2,
+							"Returning cargo to HQ": 1
+						},
+						"workers": {
+							"construction": 0,
+							"electronics": 3,
+							"materials": 3,
+							"other": 0
+						}
+					},
+					{
+						"army_base_value": [
+							36.0,
+							16.0
+						],
+						"fitted_tanks": 0,
+						"funds": [
+							7,
+							22
+						],
+						"units": {
+							"AntiAirTurret": 1,
+							"AntiGroundTurret": 1,
+							"Barracks": 1,
+							"CommandCenter": 1,
+							"CommandLab": 1,
+							"Drone": 1,
+							"Infantry": 1,
+							"PowerPlant": 1,
+							"RepairDepot": 1,
+							"Tank": 1,
+							"VehicleFactory": 1,
+							"Worker": 4
+						},
+						"worker_states": {
+							"Idle": 1,
+							"Materials · approaching work slot": 1,
+							"Materials · collecting": 1,
+							"Returning cargo to HQ": 1
+						},
+						"workers": {
+							"construction": 0,
+							"electronics": 0,
+							"materials": 3,
+							"other": 1
+						}
+					}
+				]
+			},
+			{
+				"ai_tasks": [
+					{
+						"age": 1.5,
+						"kind": "scout",
+						"point": [
+							17.0,
+							18.0
+						],
+						"retiring": false,
+						"roles": {
+							"Drone": 1
+						}
+					}
+				],
+				"seconds": 480.7,
+				"sides": [
+					{
+						"army_base_value": [
+							208.0,
+							50.0
+						],
+						"fitted_tanks": 7,
+						"funds": [
+							23,
+							38
+						],
+						"units": {
+							"Barracks": 1,
+							"CommandCenter": 1,
+							"CommandLab": 1,
+							"Infantry": 4,
+							"RepairRobot": 1,
+							"Tank": 7,
+							"VehicleFactory": 1,
+							"Worker": 6
+						},
+						"worker_states": {
+							"Electronics · collecting": 1,
+							"Materials · approaching work slot": 2,
+							"Returning cargo to HQ": 3
+						},
+						"workers": {
+							"construction": 0,
+							"electronics": 3,
+							"materials": 3,
+							"other": 0
+						}
+					},
+					{
+						"army_base_value": [
+							8.0,
+							6.0
+						],
+						"fitted_tanks": 0,
+						"funds": [
+							0,
+							22
+						],
+						"units": {
+							"AntiAirTurret": 1,
+							"AntiGroundTurret": 1,
+							"CommandLab": 1,
+							"Drone": 1,
+							"PowerPlant": 1,
+							"RepairDepot": 1,
+							"VehicleFactory": 1,
+							"Worker": 1
+						},
+						"worker_states": {
+							"Constructing(ConstructingWhileInRange)": 1
+						},
+						"workers": {
+							"construction": 1,
+							"electronics": 0,
+							"materials": 0,
+							"other": 0
+						}
+					}
+				]
+			}
+		],
+		"seconds": 511.4,
+		"seed": 4110,
+		"spent": [
+			461.0,
+			150.0
+		],
+		"stationary_travel_unit_seconds": [
+			0.0,
+			0.0
+		]
+	}
+]

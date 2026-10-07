@@ -1,0 +1,257 @@
+{
+  "runs": [
+    {
+      "log": "ContactRecoveryRegression.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "intermediate helper; ready observation still reset by empty path",
+      "classification": "passing intermediate observation; superseded by final implementation checks"
+    },
+    {
+      "log": "CrowdedDestinationRegression.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "intermediate helper; ready observation still reset by empty path",
+      "classification": "passing intermediate observation; superseded by final implementation checks"
+    },
+    {
+      "log": "DirectOrdersRegression.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "intermediate helper; ready observation still reset by empty path",
+      "classification": "passing intermediate observation; superseded by final implementation checks"
+    },
+    {
+      "log": "IndustrialPinchRegression.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "intermediate helper; ready observation still reset by empty path",
+      "classification": "passing intermediate observation; superseded by final implementation checks"
+    },
+    {
+      "log": "arrival-progress.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "intermediate helper; ready observation still reset by empty path",
+      "classification": "passing intermediate observation; superseded by final implementation checks"
+    },
+    {
+      "log": "final-AttackArrivalProgressRegression.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "final helper; ready observation retained through empty navigation path",
+      "classification": "accepted final behavioral/rendered verification"
+    },
+    {
+      "log": "final-AttackCrowdedArrivalRegression.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "final helper; ready observation retained through empty navigation path",
+      "classification": "accepted final behavioral/rendered verification"
+    },
+    {
+      "log": "final-ContactRecoveryRegression.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "final helper; ready observation retained through empty navigation path",
+      "classification": "accepted final behavioral/rendered verification"
+    },
+    {
+      "log": "final-CrowdedDestinationRegression.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "final helper; ready observation retained through empty navigation path",
+      "classification": "accepted final behavioral/rendered verification"
+    },
+    {
+      "log": "final-DirectOrdersRegression.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "final helper; ready observation retained through empty navigation path",
+      "classification": "accepted final behavioral/rendered verification"
+    },
+    {
+      "log": "final-GuardArrivalRegression.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "final helper; ready observation retained through empty navigation path",
+      "classification": "accepted final behavioral/rendered verification"
+    },
+    {
+      "log": "final-HarvestTrafficRegression.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "final helper; ready observation retained through empty navigation path",
+      "classification": "accepted final behavioral/rendered verification"
+    },
+    {
+      "log": "final-IndustrialPinchRegression.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "final helper; ready observation retained through empty navigation path",
+      "classification": "accepted final behavioral/rendered verification"
+    },
+    {
+      "log": "final-repeat.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "final helper; ready observation retained through empty navigation path",
+      "classification": "accepted final behavioral/rendered verification"
+    },
+    {
+      "log": "format.log",
+      "exit_code": 0,
+      "assertion_failures": null,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "final helper; ready observation retained through empty navigation path",
+      "classification": "accepted static check"
+    },
+    {
+      "log": "harvest.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "intermediate helper; ready observation still reset by empty path",
+      "classification": "passing intermediate observation; superseded by final implementation checks"
+    },
+    {
+      "log": "held-trace.log",
+      "exit_code": 1,
+      "assertion_failures": 1,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "intermediate helper; ready observation still reset by empty path",
+      "classification": "intermediate implementation failure: loaded empty path reset ready observation"
+    },
+    {
+      "log": "lint.log",
+      "exit_code": 0,
+      "assertion_failures": null,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "final helper; ready observation retained through empty navigation path",
+      "classification": "accepted static check"
+    },
+    {
+      "log": "probe.log",
+      "exit_code": 1,
+      "assertion_failures": 5,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "preceding shipping Moving.gd",
+      "classification": "expected reproduced original failure: five missed deadlines in twenty trials, five live states retained"
+    },
+    {
+      "log": "render.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "final helper; ready observation retained through empty navigation path",
+      "classification": "accepted final behavioral/rendered verification"
+    },
+    {
+      "log": "repeat-current.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "intermediate helper; ready observation still reset by empty path",
+      "classification": "passing intermediate observation; superseded by final implementation checks"
+    },
+    {
+      "log": "verified-before-window.log",
+      "exit_code": 1,
+      "assertion_failures": 5,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "preceding shipping Moving.gd",
+      "classification": "expected negative control: five final-fixture assertions"
+    },
+    {
+      "log": "verified-window.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "final helper; ready observation retained through empty navigation path",
+      "classification": "accepted final behavioral/rendered verification"
+    },
+    {
+      "log": "window-before.log",
+      "exit_code": 1,
+      "assertion_failures": 7,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "preceding shipping Moving.gd",
+      "classification": "negative control on intermediate fixture; superseded by verified-before-window"
+    },
+    {
+      "log": "window-final.log",
+      "exit_code": 1,
+      "assertion_failures": 1,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "intermediate helper; ready observation still reset by empty path",
+      "classification": "intermediate implementation failure: loaded empty path reset ready observation"
+    },
+    {
+      "log": "window.log",
+      "exit_code": 1,
+      "assertion_failures": 3,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "intermediate helper; ready observation still reset by empty path",
+      "classification": "rejected acceptance: real ready-state reset failure plus two fixture queue-source errors"
+    }
+  ],
+  "accepted_headless_suites": [
+    "verified-window.log",
+    "final-AttackArrivalProgressRegression.log",
+    "final-AttackCrowdedArrivalRegression.log",
+    "final-CrowdedDestinationRegression.log",
+    "final-DirectOrdersRegression.log",
+    "final-IndustrialPinchRegression.log",
+    "final-ContactRecoveryRegression.log",
+    "final-HarvestTrafficRegression.log",
+    "final-GuardArrivalRegression.log"
+  ],
+  "source_archive_replays_final": 40,
+  "captured_failure_continuations_final": 15,
+  "final_rendered_branches": 2,
+  "reviewed_captures": 5,
+  "input_scope": "Programmatic selection/pause; no new native mouse or keyboard verification.",
+  "known_diagnostics": "Navigation runtime readback and shutdown ObjectDB/resource/RID/shader warnings persist.",
+  "fixture_versions": "initial-window.gd reused a late source for the inherited queued test; second-window.gd restores its original source but temporarily gives the held-window investigation one second. Final source restores the half-second bound after the empty-path bug is fixed. instrumented-window.gd and source-HeldArrivalProbe.gd explain held-trace.log.",
+  "limits": "Prior isolated harvesting replacement miss is not independently explained by the currently passing full suite; no new full-match or broad congestion acceptance."
+}

@@ -1,0 +1,5 @@
+extends "res://tests/rendered/ArenaPreview.gd"
+
+
+func _capture(title):
+	await super._capture("ownership-shared-" + title)

@@ -1,0 +1,359 @@
+extends "res://tests/headless/SaveRestoreEdges.gd"
+
+const CAPTURE = "res://docs/playtests/2026-10-04/guard-travel-3-0.json"
+
+
+func _run():
+	root.get_node("SaveManager").autosaves_enabled = false
+	for entry in [
+		["3-0", "unit-13"],
+		["4-0", "unit-15"],
+		["4-1", "unit-13"],
+		["4-2", "unit-18"],
+		["4-3", "unit-24"],
+		["4-4", "unit-23"],
+		["4-5", "unit-20"]
+	]:
+		await _captured_guard(entry[0], entry[1])
+	for faction in ["bastion", "helix"]:
+		await _arrival_bounds(faction)
+		for mode in ["preset", "lua", "visual"]:
+			await _group_case(faction, mode)
+	for message in errors:
+		push_error(message)
+	print("Guard arrival: %d failures" % errors.size())
+	quit(0 if errors.is_empty() else 1)
+
+
+func _open_capture(capture, entity_id):
+	var restore = Restore.new()
+	var result = await restore.restore(self, FileStore.new().read_file(capture))
+	_check(result.ok, "Pre-block guard capture failed to restore")
+	if not result.ok:
+		return null
+	game = result.game
+	var unit = restore.entities[entity_id]
+	for player in get_nodes_in_group("players"):
+		player.set_process(false)
+	var resumed = 0
+	for other in get_nodes_in_group("units"):
+		if (
+			other != unit
+			and other.program != null
+			and other.program.mode == "Blocked"
+			and other.program.anchor == unit.program.anchor
+		):
+			_check(other.program.run(), "Existing blocked teammate did not accept explicit Resume")
+			resumed += 1
+	print("CAPTURE ", capture, " explicit teammate resumes=", resumed)
+	return unit
+
+
+func _captured_guard(suffix, entity_id):
+	var unit = await _open_capture(
+		"res://docs/playtests/2026-10-04/guard-travel-%s.json" % suffix, entity_id
+	)
+	if unit == null:
+		return
+	_check(unit.program.mode == "Running", "Capture was not before Blocked")
+	_check(unit.action._stalled > 3.5, "Capture lost the active progress timeout")
+	var start = unit.position
+	var anchor = unit.program.anchor
+	paused = false
+	await _frames(900)
+	_check(unit.program.mode == "Running", "Guard blocked beside a settled friendly defender")
+	_check(
+		not unit.get_node("Movement")._has_destination, "Guard kept pushing toward occupied point"
+	)
+	_check(
+		unit.position.distance_to(anchor) <= unit.program.config.radius,
+		"Guard moved outside local arrival space"
+	)
+	_check(unit.program.anchor == anchor, "Guard changed the assigned defense circle")
+	print(
+		"CAPTURED GUARD before=",
+		start,
+		" after=",
+		unit.position,
+		" anchor=",
+		anchor,
+		" state=",
+		unit.program.mode,
+		" reason=",
+		unit.program.reason
+	)
+	paused = false
+	game.queue_free()
+	await _frames(5)
+
+
+func _group_case(faction, mode):
+	paused = false
+	await _skirmish(faction, "res://source/match/maps/IndustrialCrossroads.tscn")
+	for player in get_nodes_in_group("players"):
+		player.set_process(false)
+	for old in get_nodes_in_group("units"):
+		old.process_mode = Node.PROCESS_MODE_DISABLED
+	var human = game._get_human_player()
+	var center = Vector3(64, 0, 52)
+	var group = []
+	var infantry = _actor("Infantry", human, center)
+	for index in 8:
+		var angle = index * TAU / 8
+		group.append(_actor("Tank", human, center + Vector3(cos(angle), 0, sin(angle)) * 5.0))
+	await _frames(30)
+	for unit in group:
+		_assign(unit, center, mode)
+	await _frames(900)
+	_check_group(group, center, "initial " + faction + " " + mode)
+	await _arrival_at_timeout(group[0], faction + " " + mode)
+	await _review_group(group, mode + "-settled")
+	await _disk_group(group, infantry, center)
+	# Resume rebuilds derived formation membership from the saved actions.
+	await _frames(420)
+	_check_group(group, center, "restored " + faction + " " + mode)
+	await _review_group(group, mode + "-restored")
+	var enemy = get_nodes_in_group("players").filter(func(player): return player != group[0].player)[0]
+	var raider = _actor("Tank", enemy, center + Vector3(5, 0, 0))
+	raider.process_mode = Node.PROCESS_MODE_DISABLED
+	await _frames(30)
+	var hp = raider.hp
+	game.battlefield.invalidate()
+	await _frames(180)
+	_check(
+		not is_instance_valid(raider) or raider.hp < hp, "Settled guards ignored an in-area target"
+	)
+	await _review_group(group, mode + "-combat")
+	if is_instance_valid(raider):
+		raider.queue_free()
+	var lead = group[0]
+	_check(
+		lead.manual_orders.submit({"kind": "move", "point": center + Vector3(12, 0, 0)}, false),
+		"Manual move rejected"
+	)
+	for second in 15:
+		await _frames(60)
+		if lead.position.distance_to(center) > 6:
+			break
+	print(
+		"MANUAL DEPARTURE ",
+		faction,
+		" ",
+		mode,
+		" position=",
+		lead.position,
+		" distance=",
+		lead.position.distance_to(center),
+		" mode=",
+		lead.program.mode
+	)
+	_check(lead.program.mode == "Manual", "Guard arrival overrode manual movement")
+	_check(
+		lead.position.distance_to(center) > 6,
+		"Manual movement did not leave the guard circle: " + faction + " " + mode
+	)
+	print(
+		"GROUP GUARD ",
+		faction,
+		" ",
+		mode,
+		" eight-unit arrival, archive, combat and manual authority"
+	)
+	game.queue_free()
+	await _frames(5)
+
+
+func _actor(role, player, point):
+	var unit = load("res://source/match/units/%s.tscn" % role).instantiate()
+	game._setup_and_spawn_unit(unit, Transform3D(Basis(), point), player, false)
+	return unit
+
+
+func _assign(unit, center, mode):
+	unit.program.installed = true
+	unit.program.anchor = center
+	unit.program.safe_point = center - Vector3(8, 0, 0)
+	if mode == "preset":
+		unit.program.configure(
+			load("res://source/match/programs/ProgramLibrary.gd").defaults("guard")
+		)
+		_check(unit.program.run(), "Group preset refused to run")
+		return
+	var records = load("res://source/match/programs/ProgramRecord.gd")
+	var entry = records.visual(
+		"Formation guard",
+		1,
+		load("res://source/match/programs/VisualRules.gd").starter(1),
+		["Tank"]
+	)
+	if mode == "lua":
+		entry = records.lua(
+			"Formation guard",
+			1,
+			FileAccess.get_file_as_string("res://assets/programs/guard.lua"),
+			["Tank"],
+			["movement", "attack"]
+		)
+	_check(
+		(
+			load("res://source/match/programs/ProgramApplication.gd")
+			. apply(entry, [unit], unit.player)
+			. ok
+		),
+		"Group authored guard rejected"
+	)
+
+
+func _arrival_at_timeout(unit, label):
+	var action = unit.action
+	var movement = unit.get_node("Movement")
+	_check(
+		action._guard_point_reached(unit.program.anchor, unit.program.config.radius),
+		"Late-arrival fixture was not at a valid formation neighbor"
+	)
+	# The trip has just reached a valid formation neighbor on the decision
+	# that also reaches its timeout. Use the real next physics evaluation.
+	action._destination = unit.program.anchor
+	action._last_progress = unit.global_position_yless
+	action._stalled = 4.99
+	action._elapsed = action._decision_interval() - 1.0 / 120.0
+	movement.move(unit.program.anchor)
+	await _frames(2)
+	_check(unit.program.mode == "Running", "Arrival lost to the old trip's timeout: " + label)
+	_check(
+		not movement._has_destination and action.is_settled_guard(),
+		"Late arrival did not finish the trip: " + label
+	)
+	print("TIMED ARRIVAL ", label, " state=", unit.program.mode, " stalled=", action._stalled)
+
+
+func _check_group(group, center, label):
+	for unit in group:
+		_check(unit.program.mode == "Running", "Group guard blocked: " + label)
+		_check(not unit.get_node("Movement")._has_destination, "Group guard kept pushing: " + label)
+		_check(unit.action.is_settled_guard(), "Guard formation membership absent: " + label)
+		_check(unit.position.distance_to(center) <= 6.0, "Guard drifted outside circle: " + label)
+		_check(unit.program.anchor == center, "Guard moved its assignment: " + label)
+
+
+func _disk_group(group, infantry, center):
+	game.hud._toggle_pause()
+	var clock = game.simulation_time
+	var snapshotter = Snapshot.new()
+	var data = snapshotter.capture(game)
+	var ids = group.map(func(unit): return snapshotter._reference(unit))
+	var positions = group.map(func(unit): return unit.position)
+	var path = "user://guard-arrival-%d.json" % OS.get_process_id()
+	var store = FileStore.new()
+	_check(store.write_file(path, data), "Guard formation disk write failed")
+	var restore = Restore.new()
+	var result = await restore.restore(self, store.read_file(path))
+	DirAccess.remove_absolute(path)
+	_check(result.ok, "Guard formation disk restore failed")
+	if not result.ok:
+		return
+	game = result.game
+	group.clear()
+	for id in ids:
+		group.append(restore.entities[id])
+	for player in get_nodes_in_group("players"):
+		player.set_process(false)
+	await _frames(60)
+	_check(game.simulation_time == clock, "Paused formation restore advanced time")
+	for index in group.size():
+		_check(group[index].position == positions[index], "Paused formation restore moved a guard")
+		_check(group[index].program.anchor == center, "Restored guard lost assignment")
+	_check(is_instance_valid(infantry) == false, "Old match infantry survived replacement")
+	game.hud._toggle_pause()
+
+
+func _review_group(_group, _label):
+	return true
+
+
+func _arrival_bounds(faction):
+	paused = false
+	await _skirmish(faction, "res://source/match/maps/IndustrialCrossroads.tscn")
+	for player in get_nodes_in_group("players"):
+		player.set_process(false)
+	for old in get_nodes_in_group("units"):
+		old.process_mode = Node.PROCESS_MODE_DISABLED
+	var human = game._get_human_player()
+	var enemy = get_nodes_in_group("players").filter(func(player): return player != human)[0]
+	var center = Vector3(64, 0, 52)
+	var buddy = _actor("Tank", human, center)
+	var unit = _actor("Tank", human, center + Vector3(2, 0, 0))
+	await _frames(30)
+	_assign(buddy, center, "preset")
+	_assign(unit, center, "preset")
+	await _frames(120)
+	paused = true
+	var action = unit.action
+	_check(action._guard_point_reached(center, 6), "Settled friendly root was ignored")
+	buddy.reparent(enemy, true)
+	game.battlefield.invalidate()
+	_check(
+		not action._guard_point_reached(center, 6), "Enemy occupancy counted as a friendly arrival"
+	)
+	buddy.reparent(human, true)
+	buddy.get_node("Movement").move(center + Vector3(8, 0, 0))
+	game.battlefield.invalidate()
+	_check(not action._guard_point_reached(center, 6), "Moving ally counted as settled")
+	buddy.get_node("Movement").stop()
+	buddy.position = center + Vector3(3, 0, 0)
+	unit.position = center + Vector3(4.9, 0, 0)
+	game.battlefield.invalidate()
+	_check(
+		action._guard_point_reached(center, 6),
+		"Same-area settled guard did not extend the formation"
+	)
+	buddy.program.anchor = center + Vector3(1, 0, 0)
+	unit.program.anchor = buddy.program.anchor
+	_check(
+		not action._guard_point_reached(unit.program.anchor, 6),
+		"Reassignment reused stale formation membership"
+	)
+	unit.program.anchor = center
+	_check(
+		not action._guard_point_reached(center, 6),
+		"A different guard assignment extended the formation"
+	)
+	buddy.program.anchor = center
+	unit.position = center + Vector3(6.1, 0, 0)
+	buddy.position = center + Vector3(4.2, 0, 0)
+	game.battlefield.invalidate()
+	_check(not action._guard_point_reached(center, 6), "Arrival expanded the assigned circle")
+	unit.position = center + Vector3(4.9, 0, 0)
+	buddy.position = center + Vector3(3, 0, 0)
+	# Deposits deliberately permit direct fire; use an opaque structure here.
+	var barrier = _actor("PowerPlant", human, center + Vector3(4, 0, 0))
+	await _frames(5)
+	game.battlefield.invalidate()
+	_check(not action._guard_point_reached(center, 6), "Formation crossed a blocking object")
+	barrier.queue_free()
+	await _frames(5)
+	var blueprint = load("res://source/match/units/PowerPlant.tscn").instantiate()
+	game._setup_and_spawn_unit(blueprint, Transform3D(Basis(), center), human, true)
+	await _frames(5)
+	game.battlefield.invalidate()
+	_check(not blueprint.is_constructed(), "Obstruction fixture is not a foundation")
+	_check(
+		not action._guard_point_reached(center, 6),
+		"Formation accepted an anchor inside a foundation"
+	)
+	blueprint.queue_free()
+	buddy.queue_free()
+	await _frames(5)
+	unit.position = center + Vector3(1.4, 0, 0)
+	_actor("Drone", human, center + Vector3.UP * 5)
+	await _frames(5)
+	game.battlefield.invalidate()
+	_check(not action._guard_point_reached(center, 6), "Airborne ally stopped ground guard arrival")
+	print(
+		"GUARD BOUNDS ",
+		faction,
+		" enemy/moving/assignment/radius/obstruction/foundation/air checked"
+	)
+	paused = false
+	game.queue_free()
+	await _frames(5)

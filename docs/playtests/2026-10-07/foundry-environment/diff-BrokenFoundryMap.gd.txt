@@ -1,0 +1,87 @@
+--- before/BrokenFoundryMap.gd
++++ after/BrokenFoundryMap.gd
+@@ -7,6 +7,7 @@
+ const ENTRY = Vector3(151, 0, 58)
+ const BLOCKS = [Vector3(55, 0, 43), Vector3(55, 0, 73), Vector3(96, 0, 43), Vector3(96, 0, 73)]
+ var relay
++var exterior
+ var flight_obstacles = []
+ var road_segments = PackedVector4Array()
+ 
+@@ -22,11 +23,15 @@
+ 	world.environment.tonemap_exposure = .9
+ 	game.get_node("DirectionalLight3D").shadow_normal_bias = 2.0
+ 	game.get_node("DirectionalLight3D").shadow_blur = .5
+-	game.get_node("DirectionalLight3D").light_color = Color("e5dac5")
++	game.get_node("DirectionalLight3D").light_color = Color("ffe3b9")
++	game.get_node("DirectionalLight3D").light_energy = 1.15
++	var overlay = game.get_node("FogOfWar/ScreenOverlay")
++	overlay.material_override = overlay.material_override.duplicate()
++	overlay.material_override.set_shader_parameter("exterior_visibility", .22)
+ 	for z in [26, 58, 90]:
+-		_road(Vector3(32, 0, z), Vector3(145, 0, z))
++		_road(Vector3(-46 if z == 58 else 32, 0, z), Vector3(206 if z == 58 else 145, 0, z))
+ 	for x in [35, 76, 118, 145]:
+-		_road(Vector3(x, 0, 18), Vector3(x, 0, 98))
++		_road(Vector3(x, 0, -22 if x == 76 else 18), Vector3(x, 0, 138 if x == 145 else 98))
+ 	for index in BLOCKS.size():
+ 		flight_obstacles.append(Landmarks.place($Decorations, BLOCKS[index], ASSETS[index]))
+ 	var material = $Geometry/Terrain.mesh.material.duplicate()
+@@ -37,17 +42,18 @@
+ 	material.set_shader_parameter("pavement_center", Vector2(90, 58))
+ 	material.set_shader_parameter("pavement_extent", Vector2(64, 44))
+ 	$Geometry/Terrain.mesh.material = material
+-	for point in NODES:
+-		_box(Vector3(13, 0.08, 12), point, Color("69615b"))
+-		for offset in [-6, 6]:
+-			_box(Vector3(0.35, 0.09, 12), point + Vector3(offset, 0, 0), Color("d8b36a"))
+-	_box(Vector3(18, 0.08, 18), CONTROL, Color("535e65"))
++	exterior = load("res://source/match/maps/FoundryBackdrop.gd").new()
++	exterior.ground_material = material
++	add_child(exterior)
++	_ground_cover()
+ 	relay = load("res://source/match/objectives/FoundryControl.gd").new()
+ 	relay.position = CONTROL
+ 	add_child(relay)
+ 	# Foundry furnaces surround an accessible control yard; they are solid scenery.
+ 	for point in [Vector3(133, 0, 39), Vector3(133, 0, 77)]:
+ 		flight_obstacles.append(Landmarks.place($Decorations, point, "FurnaceBlock", 5.0))
++	for body in flight_obstacles:
++		load("res://source/match/maps/IndustrialMaterials.gd").weather(body)
+ 	for point in [Vector3(10, 0, 79), Vector3(43, 0, 105)]:
+ 		for offset in [-2.5, 0.0, 2.5]:
+ 			var deposit = load("res://source/match/units/non-player/ResourceA.tscn").instantiate()
+@@ -68,15 +74,21 @@
+ 	road_segments.append(Vector4(a.x, a.z, b.x, b.z))
+ 
+ 
+-func _box(dimensions, point, color, parent = null):
+-	var part = MeshInstance3D.new()
+-	var mesh = BoxMesh.new()
+-	mesh.size = dimensions
+-	part.mesh = mesh
+-	part.position = point
+-	var material = StandardMaterial3D.new()
+-	material.albedo_color = color
+-	material.roughness = 0.95
+-	part.material_override = material
+-	(parent if parent != null else $Decorations).add_child(part)
+-	return part
++func _ground_cover():
++	var cover = Node3D.new()
++	cover.name = "FoundryGroundCover"
++	add_child(cover)
++	for point in [
++		Vector2(7, 14),
++		Vector2(17, 23),
++		Vector2(22, 94),
++		Vector2(55, 109),
++		Vector2(92, 108),
++		Vector2(128, 108),
++		Vector2(152, 14),
++		Vector2(151, 104)
++	]:
++		var model = load("res://assets/models/environment/supply/RoadSage.glb").instantiate()
++		model.position = Vector3(point.x, .006, point.y)
++		model.rotation.y = point.x * .31
++		cover.add_child(model)

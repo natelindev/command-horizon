@@ -1,0 +1,42 @@
+[
+  {
+    "case": "help",
+    "exit": 0
+  },
+  {
+    "case": "bad-seconds",
+    "exit": 2
+  },
+  {
+    "case": "bad-int",
+    "exit": 2
+  },
+  {
+    "case": "missing-unit",
+    "exit": 2
+  },
+  {
+    "case": "duplicate",
+    "exit": 2
+  },
+  {
+    "case": "unknown",
+    "exit": 2
+  },
+  {
+    "case": "flag-value",
+    "exit": 2
+  },
+  {
+    "case": "empty-archive",
+    "exit": 2
+  },
+  {
+    "case": "missing-file",
+    "exit": 1
+  },
+  {
+    "case": "wrong-unit",
+    "exit": 1
+  }
+]

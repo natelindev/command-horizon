@@ -1,0 +1,61 @@
+extends "res://tests/headless/SaveRestoreEdges.gd"
+
+var human
+var enemy
+var panel
+var plan
+var worker
+var raider
+
+
+func _run():
+	root.get_node("SaveManager").autosaves_enabled = false
+	plan = load("res://source/match/SkirmishPlan.gd")
+	for faction in ["bastion", "helix", "frontier"]:
+		await _response_fixture(faction)
+		panel.refresh()
+		_check(not panel._idle.disabled, faction + ": busy endangered engineer shortcut disabled")
+		_check("risk" in panel._idle.text, faction + ": engineer shortcut omits current danger")
+		panel._idle.pressed.emit()
+		_check(
+			get_nodes_in_group("selected_units") == [worker],
+			faction + ": threatened gatherer not selected"
+		)
+		paused = false
+		game.queue_free()
+		await _frames(5)
+	for error in errors:
+		push_error(error)
+	print("Engineer response: %d failures" % errors.size())
+	quit(0 if errors.is_empty() else 1)
+
+
+func _response_fixture(faction):
+	await _skirmish(faction, "res://source/match/maps/DesertFrontier.tscn", true)
+	human = game._get_human_player()
+	enemy = get_nodes_in_group("players").filter(func(side): return side != human)[0]
+	for side in get_nodes_in_group("players"):
+		side.set_process(false)
+	for unit in get_nodes_in_group("units"):
+		unit.set_physics_process(false)
+	game.hud._toggle_pause()
+	panel = game.hud.battle_plan
+	worker = _units(human, "Worker")[0]
+	worker.position = Vector3(40, 0, 28)
+	var deposit = get_nodes_in_group("resource_units")[0]
+	var harvest = load("res://source/match/units/actions/CollectingResourcesSequentially.gd")
+	for engineer in _units(human, "Worker"):
+		engineer.issue_manual_order(harvest.new(deposit))
+	raider = _spawn_response("Tank", enemy, Vector3(44, 0, 28))
+	game.battlefield.invalidate()
+	root.get_node("MatchSignals").deselect_all_units.emit()
+	await _frames(5)
+	_check(game.battlefield.is_observed(human, raider), "Response fixture has no visible raider")
+	_check(plan.idle_workers(human).is_empty(), "Response fixture has idle engineers")
+
+
+func _spawn_response(role, owner, point):
+	var unit = load("res://source/match/units/" + role + ".tscn").instantiate()
+	game._setup_and_spawn_unit(unit, Transform3D(Basis(), point), owner, true)
+	unit.set_physics_process(false)
+	return unit

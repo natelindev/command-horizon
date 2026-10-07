@@ -1,0 +1,37 @@
+extends "res://tests/headless/GuardArrivalRegression.gd"
+
+
+func _initialize():
+	var script = load("res://source/match/programs/PresetAction.gd")
+	script.source_code = FileAccess.get_file_as_string(
+		"res://docs/playtests/2026-10-04/corner-recovery-PresetAction-before.gd.txt"
+	)
+	print("BEFORE PROGRAM RELOAD ", script.reload())
+	super()
+
+
+func _run():
+	root.get_node("SaveManager").autosaves_enabled = false
+	for faction in ["bastion", "helix"]:
+		await _skirmish(faction, "res://source/match/maps/IndustrialCrossroads.tscn")
+		for player in get_nodes_in_group("players"):
+			player.set_process(false)
+		var human = game._get_human_player()
+		for index in 3:
+			var mode = ["preset", "lua", "visual"][index]
+			var center = Vector3(64, 0, 52)
+			var buddy = _actor("Infantry", human, center)
+			var unit = _actor("Tank", human, center + Vector3(1.8, 0, 0))
+			await _frames(30)
+			_assign(unit, center, mode)
+			await _frames(240)
+			await _arrival_at_timeout(unit, faction + " " + mode)
+			unit.queue_free()
+			buddy.queue_free()
+			await _frames(5)
+		game.queue_free()
+		await _frames(5)
+	for error in errors:
+		push_error(error)
+	print("Guard timed arrival: ", errors.size(), " failures")
+	quit(0 if errors.is_empty() else 1)

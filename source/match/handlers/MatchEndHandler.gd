@@ -8,7 +8,7 @@ const Human = preload("res://source/match/players/human/Human.gd")
 
 
 func _ready():
-	if not FeatureFlags.handle_match_end:
+	if not FeatureFlags.handle_match_end or find_parent("Match").settings.skirmish:
 		queue_free()
 		return
 	hide()

@@ -1,0 +1,31 @@
+extends "res://tmp/RegionalSkirmishMatches.gd"
+
+var probe_unit
+var probe_second = -1
+var probe_saved = false
+
+
+func _measure():
+	super()
+	if not is_instance_valid(probe_unit):
+		var tanks = plan_rules.owned_units(human).filter(func(unit): return unit.type == "Tank")
+		tanks.sort_custom(func(a, b): return a.position.z < b.position.z)
+		probe_unit = tanks[0]
+	var second = int(game.simulation_time)
+	if second == probe_second:
+		return
+	probe_second = second
+	var movement = probe_unit.get_node("Movement")
+	print("OPENING PROBE ", JSON.stringify({"second": second, "position": str(probe_unit.position), "mode": probe_unit.program.mode, "reason": probe_unit.program.reason, "anchor": str(probe_unit.program.anchor), "destination": str(movement.target_position), "active": movement._has_destination, "synchronized": movement._synchronized, "path": str(movement.get_current_navigation_path()), "velocity": str(movement.velocity), "safe_velocity": str(avoidance_velocities.get(probe_unit.get_instance_id())), "action": str(probe_unit.action)}))
+	if second >= 39 and not probe_saved:
+		probe_saved = true
+		var was_paused = paused
+		paused = true
+		var capture = load("res://source/match/saves/MatchSnapshot.gd").new()
+		var record = capture.capture(game)
+		load("res://source/match/saves/SaveFile.gd").new().write_file("res://docs/playtests/2026-10-04/regional-opening-%s.json" % OS.get_process_id(), record)
+		print("OPENING UNIT ", capture._reference(probe_unit))
+		paused = was_paused
+	if second >= 65:
+		print("Opening probe complete")
+		quit(0)

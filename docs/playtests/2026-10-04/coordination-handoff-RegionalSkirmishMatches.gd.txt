@@ -1,0 +1,5 @@
+extends "res://tmp/MixedResponsiveMatches.gd"
+
+
+func _map_id(index):
+	return ["IndustrialCrossroads", "CoastalFoundry"][(index / 2) % 2]

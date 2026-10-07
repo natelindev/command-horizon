@@ -1,0 +1,34 @@
+{
+  "passing_logs": {
+    "verified.log": [
+      "Recovery coverage: 0 failures"
+    ],
+    "native.log": [
+      "Recovery coverage: 0 failures"
+    ],
+    "RecoveryOrdersRegression.log": [
+      "Recovery orders: 0 failures"
+    ]
+  },
+  "native_images": {
+    "native-helix-missing-ground.png": [
+      1280,
+      720
+    ],
+    "native-helix-partial.png": [
+      1280,
+      720
+    ],
+    "native-helix-supported.png": [
+      1280,
+      720
+    ],
+    "native-helix-unsupported.png": [
+      1280,
+      720
+    ]
+  },
+  "original_failures": 18,
+  "native_input": "Helix mouse partial recovery; three wounded units ordered, unsupported scout and healthy infantry retain pending orders",
+  "limits": "Controlled fixture; tooltip strings tested, hover layout not captured; no survival or performance conclusion."
+}

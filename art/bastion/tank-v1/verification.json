@@ -1,0 +1,20 @@
+{
+  "status": "passed",
+  "glb_bytes": 871680,
+  "triangles": 12640,
+  "rigid_meshes": 3,
+  "material_primitives": 21,
+  "checks": [
+    "GLB container and self-contained buffers",
+    "three rigid meshes",
+    "named hierarchy and muzzle attachment",
+    "triangle counts",
+    "finite geometry and nonzero triangle area",
+    "round-trip bounds",
+    "turret yaw moves muzzle around fixed pivot",
+    "barrel elevation preserves reach",
+    "hull remains stationary during articulation",
+    "reimported GLB preview rendered"
+  ],
+  "godot_import": "Not run: no Godot executable found in PATH or installed applications."
+}

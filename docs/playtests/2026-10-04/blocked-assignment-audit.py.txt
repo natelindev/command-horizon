@@ -1,0 +1,21 @@
+import hashlib,json,re
+from pathlib import Path
+base=Path('docs/playtests/2026-10-04')
+def digest(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+rows=json.loads((base/'blocked-assignment-shared-checks.json').read_text())+json.loads((base/'blocked-assignment-static-checks.json').read_text())
+for name,log,marker in [('BlockedAssignmentRegression','blocked-assignment-acceptance.log','Blocked assignment: 0 failures'),('BlockedAssignmentPreview','blocked-assignment-preview.log','Rendered blocked assignment: 0 failures')]:
+ text=(base/log).read_text();rows.append({'name':name,'exit':0,'script_error':'SCRIPT ERROR' in text,'load_error':'Failed to load' in text,'pass_marker':marker in text,'log':str(base/log)})
+for row in rows:
+ assert row['exit']==0 and not row['script_error'] and not row['load_error'] and row.get('pass_marker',True),row
+ row['sha256']=digest(row['log'])
+files=['source/match/programs/PresetAction.gd','source/match/saves/MatchSnapshot.gd','source/match/saves/SnapshotSchema.gd','source/match/saves/ActionRestore.gd','source/match/hud/ProgramAssignments.gd','tests/headless/BlockedAssignmentRegression.gd','tests/rendered/BlockedAssignmentPreview.gd']
+files += [str(p) for p in sorted(Path('art/skirmish').glob('blocked-assignment-*.png'))]
+files += [str(base/'mixed-operations-allocation-repeat-bastion-stall.json'),str(base/'blocked-guard-probe.log')]
+report=base/'BLOCKED_ASSIGNMENTS.md'
+# Check links after writing the manifest itself.
+manifest={'scope':'Blocked assignment feedback, Lua guard boundary persistence and recovery; no broad balance or performance claim','accepted_checks':rows,'artifacts':[{'path':p,'sha256':digest(p)} for p in files],'retained_diagnostics':['blocked-assignment-before.log','blocked-assignment-after.log','blocked-assignment-final.log','blocked-assignment-edges.log'],'visual_review':'All six 1280x720/150% captures reviewed','warnings':'Known navigation readback and shutdown RID/ObjectDB/resources/shader warnings retained in raw logs'}
+(base/'blocked-assignment-verification.json').write_text(json.dumps(manifest,indent=2)+'\n')
+for target in re.findall(r'\]\(([^)]+)\)',report.read_text()):
+ assert (report.parent/target).exists(),target
+assert len(rows)==15
+print('PASS 15 accepted checks,',len(files),'hashed artifacts, all report links exist')

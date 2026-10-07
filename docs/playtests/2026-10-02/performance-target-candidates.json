@@ -1,0 +1,511 @@
+{
+  "hardware": "Apple M1 Pro",
+  "engine": "Godot 4.6 Metal Forward+",
+  "viewport": [
+    1920,
+    1080
+  ],
+  "population": {
+    "mobile_units": 200,
+    "lua_vms": 200,
+    "structures": 80,
+    "resource_nodes": 32
+  },
+  "note": "Normal clock; two reference and two optimized runs in ABBA order. Benchmarked phases had no concurrent test workload. Elevated HP keeps units alive. Diagnostic ablations precede this change and do not ship. No claim of combat frame-time improvement.",
+  "runs": [
+    {
+      "run": "diagnostic_no_motion",
+      "arguments": "--lua --realtime --diagnostic-no-motion",
+      "phases": {
+        "movement": {
+          "renderer": "macOS",
+          "mean_frame_ms": "57.18",
+          "p95_frame_ms": "163.94",
+          "p99_frame_ms": "182.85",
+          "frames_over_33ms": "89",
+          "samples": "191",
+          "simulation_seconds": "10.12",
+          "wall_seconds": "10.92",
+          "realtime": "true",
+          "baseline_field": "false",
+          "mean_engine_process_ms": "37.13",
+          "mean_engine_physics_ms": "28.81",
+          "physics_ticks": "607",
+          "diagnostic_no_motion": "true",
+          "diagnostic_no_queues": "false"
+        },
+        "combat": {
+          "renderer": "macOS",
+          "mean_frame_ms": "119.9",
+          "p95_frame_ms": "159.65",
+          "p99_frame_ms": "166.76",
+          "frames_over_33ms": "84",
+          "samples": "91",
+          "simulation_seconds": "10.13",
+          "wall_seconds": "10.91",
+          "realtime": "true",
+          "baseline_field": "false",
+          "mean_engine_process_ms": "19.2",
+          "mean_engine_physics_ms": "32.02",
+          "physics_ticks": "608",
+          "diagnostic_no_motion": "true",
+          "diagnostic_no_queues": "false"
+        }
+      },
+      "observations": [
+        "SCALE Lua VMs=200 peak_VM_bytes=59868 combat_evaluations=9023",
+        "SCALE moved=200/200 travelled=200/200 fired=93 peak_live_projectiles=5 resources=32 sampled_peak_tracers=4 sampled_peak_claims=0 viewport_pixels=(1920.0, 1080.0)",
+        "PASS: 200 mobile units + 80 structures; programs=true squads=false specialists=false lua=true visual=false"
+      ]
+    },
+    {
+      "run": "diagnostic_no_queues",
+      "arguments": "--lua --realtime --diagnostic-no-queues",
+      "phases": {
+        "movement": {
+          "renderer": "macOS",
+          "mean_frame_ms": "112.58",
+          "p95_frame_ms": "174.63",
+          "p99_frame_ms": "187.97",
+          "frames_over_33ms": "89",
+          "samples": "103",
+          "simulation_seconds": "10.03",
+          "wall_seconds": "11.6",
+          "realtime": "true",
+          "baseline_field": "false",
+          "mean_engine_process_ms": "42.22",
+          "mean_engine_physics_ms": "33.08",
+          "physics_ticks": "602",
+          "diagnostic_no_motion": "false",
+          "diagnostic_no_queues": "true"
+        },
+        "combat": {
+          "renderer": "macOS",
+          "mean_frame_ms": "151.89",
+          "p95_frame_ms": "178.24",
+          "p99_frame_ms": "183.32",
+          "frames_over_33ms": "79",
+          "samples": "79",
+          "simulation_seconds": "10.1",
+          "wall_seconds": "12.0",
+          "realtime": "true",
+          "baseline_field": "false",
+          "mean_engine_process_ms": "13.39",
+          "mean_engine_physics_ms": "33.85",
+          "physics_ticks": "606",
+          "diagnostic_no_motion": "false",
+          "diagnostic_no_queues": "true"
+        }
+      },
+      "observations": [
+        "SCALE Lua VMs=200 peak_VM_bytes=59868 combat_evaluations=8987",
+        "SCALE moved=200/200 travelled=200/200 fired=92 peak_live_projectiles=4 resources=32 sampled_peak_tracers=4 sampled_peak_claims=0 viewport_pixels=(1920.0, 1080.0)",
+        "PASS: 200 mobile units + 80 structures; programs=true squads=false specialists=false lua=true visual=false"
+      ]
+    },
+    {
+      "run": "before_1",
+      "arguments": "--lua --realtime --baseline-targets",
+      "phases": {
+        "movement": {
+          "renderer": "macOS",
+          "mean_frame_ms": "130.01",
+          "p95_frame_ms": "183.02",
+          "p99_frame_ms": "194.64",
+          "frames_over_33ms": "90",
+          "samples": "90",
+          "simulation_seconds": "10.05",
+          "wall_seconds": "11.7",
+          "realtime": "true",
+          "baseline_field": "false",
+          "baseline_targets": "true",
+          "mean_engine_process_ms": "40.29",
+          "mean_engine_physics_ms": "31.29",
+          "physics_ticks": "603",
+          "diagnostic_no_motion": "false",
+          "diagnostic_no_queues": "false"
+        },
+        "combat": {
+          "renderer": "macOS",
+          "mean_frame_ms": "158.84",
+          "p95_frame_ms": "189.42",
+          "p99_frame_ms": "194.52",
+          "frames_over_33ms": "79",
+          "samples": "79",
+          "simulation_seconds": "10.07",
+          "wall_seconds": "12.55",
+          "realtime": "true",
+          "baseline_field": "false",
+          "baseline_targets": "true",
+          "mean_engine_process_ms": "13.6",
+          "mean_engine_physics_ms": "34.36",
+          "physics_ticks": "604",
+          "diagnostic_no_motion": "false",
+          "diagnostic_no_queues": "false"
+        }
+      },
+      "observations": [
+        "SCALE Lua VMs=200 peak_VM_bytes=59868 combat_evaluations=8998",
+        "SCALE moved=200/200 travelled=200/200 fired=96 peak_live_projectiles=5 resources=32 sampled_peak_tracers=3 sampled_peak_claims=0 viewport_pixels=(1920.0, 1080.0)",
+        "PASS: 200 mobile units + 80 structures; programs=true squads=false specialists=false lua=true visual=false"
+      ]
+    },
+    {
+      "run": "after_1",
+      "arguments": "--lua --realtime",
+      "phases": {
+        "movement": {
+          "renderer": "macOS",
+          "mean_frame_ms": "95.31",
+          "p95_frame_ms": "165.7",
+          "p99_frame_ms": "172.63",
+          "frames_over_33ms": "103",
+          "samples": "114",
+          "simulation_seconds": "10.02",
+          "wall_seconds": "10.87",
+          "realtime": "true",
+          "baseline_field": "false",
+          "baseline_targets": "false",
+          "mean_engine_process_ms": "12.93",
+          "mean_engine_physics_ms": "31.49",
+          "physics_ticks": "601",
+          "diagnostic_no_motion": "false",
+          "diagnostic_no_queues": "false"
+        },
+        "combat": {
+          "renderer": "macOS",
+          "mean_frame_ms": "165.93",
+          "p95_frame_ms": "196.1",
+          "p99_frame_ms": "208.76",
+          "frames_over_33ms": "77",
+          "samples": "77",
+          "simulation_seconds": "10.1",
+          "wall_seconds": "12.78",
+          "realtime": "true",
+          "baseline_field": "false",
+          "baseline_targets": "false",
+          "mean_engine_process_ms": "12.02",
+          "mean_engine_physics_ms": "36.48",
+          "physics_ticks": "606",
+          "diagnostic_no_motion": "false",
+          "diagnostic_no_queues": "false"
+        }
+      },
+      "observations": [
+        "SCALE Lua VMs=200 peak_VM_bytes=59826 combat_evaluations=8998",
+        "SCALE moved=200/200 travelled=200/200 fired=95 peak_live_projectiles=4 resources=32 sampled_peak_tracers=4 sampled_peak_claims=0 viewport_pixels=(1920.0, 1080.0)",
+        "PASS: 200 mobile units + 80 structures; programs=true squads=false specialists=false lua=true visual=false"
+      ]
+    },
+    {
+      "run": "after_2",
+      "arguments": "--lua --realtime",
+      "phases": {
+        "movement": {
+          "renderer": "macOS",
+          "mean_frame_ms": "87.26",
+          "p95_frame_ms": "156.86",
+          "p99_frame_ms": "162.03",
+          "frames_over_33ms": "110",
+          "samples": "122",
+          "simulation_seconds": "10.08",
+          "wall_seconds": "10.65",
+          "realtime": "true",
+          "baseline_field": "false",
+          "baseline_targets": "false",
+          "mean_engine_process_ms": "12.5",
+          "mean_engine_physics_ms": "29.37",
+          "physics_ticks": "605",
+          "diagnostic_no_motion": "false",
+          "diagnostic_no_queues": "false"
+        },
+        "combat": {
+          "renderer": "macOS",
+          "mean_frame_ms": "153.18",
+          "p95_frame_ms": "180.51",
+          "p99_frame_ms": "185.6",
+          "frames_over_33ms": "79",
+          "samples": "79",
+          "simulation_seconds": "10.07",
+          "wall_seconds": "12.1",
+          "realtime": "true",
+          "baseline_field": "false",
+          "baseline_targets": "false",
+          "mean_engine_process_ms": "11.96",
+          "mean_engine_physics_ms": "35.29",
+          "physics_ticks": "604",
+          "diagnostic_no_motion": "false",
+          "diagnostic_no_queues": "false"
+        }
+      },
+      "observations": [
+        "SCALE Lua VMs=200 peak_VM_bytes=59868 combat_evaluations=8976",
+        "SCALE moved=200/200 travelled=200/200 fired=95 peak_live_projectiles=6 resources=32 sampled_peak_tracers=6 sampled_peak_claims=0 viewport_pixels=(1920.0, 1080.0)",
+        "PASS: 200 mobile units + 80 structures; programs=true squads=false specialists=false lua=true visual=false"
+      ]
+    },
+    {
+      "run": "before_2",
+      "arguments": "--lua --realtime --baseline-targets",
+      "phases": {
+        "movement": {
+          "renderer": "macOS",
+          "mean_frame_ms": "162.4",
+          "p95_frame_ms": "193.66",
+          "p99_frame_ms": "200.97",
+          "frames_over_33ms": "77",
+          "samples": "77",
+          "simulation_seconds": "10.12",
+          "wall_seconds": "12.5",
+          "realtime": "true",
+          "baseline_field": "false",
+          "baseline_targets": "true",
+          "mean_engine_process_ms": "38.97",
+          "mean_engine_physics_ms": "32.67",
+          "physics_ticks": "607",
+          "diagnostic_no_motion": "false",
+          "diagnostic_no_queues": "false"
+        },
+        "combat": {
+          "renderer": "macOS",
+          "mean_frame_ms": "163.21",
+          "p95_frame_ms": "188.95",
+          "p99_frame_ms": "193.29",
+          "frames_over_33ms": "78",
+          "samples": "78",
+          "simulation_seconds": "10.12",
+          "wall_seconds": "12.73",
+          "realtime": "true",
+          "baseline_field": "false",
+          "baseline_targets": "true",
+          "mean_engine_process_ms": "14.03",
+          "mean_engine_physics_ms": "36.98",
+          "physics_ticks": "607",
+          "diagnostic_no_motion": "false",
+          "diagnostic_no_queues": "false"
+        }
+      },
+      "observations": [
+        "SCALE Lua VMs=200 peak_VM_bytes=59884 combat_evaluations=8965",
+        "SCALE moved=200/200 travelled=200/200 fired=95 peak_live_projectiles=12 resources=32 sampled_peak_tracers=12 sampled_peak_claims=0 viewport_pixels=(1920.0, 1080.0)",
+        "PASS: 200 mobile units + 80 structures; programs=true squads=false specialists=false lua=true visual=false"
+      ]
+    }
+  ],
+  "diagnostic_profiler": {
+    "note": "Diagnostic engine profiler; includes warmup and both measured phases. Nested times overlap; instrumented timings are not acceptance FPS. Native calls enabled. Top 30 by reported self time.",
+    "profile_messages": 341,
+    "functions": [
+      {
+        "function": "res://source/match/units/actions/WaitingForTargets.gd::31::_get_units_to_attack",
+        "calls": 18401,
+        "self_seconds": 15.903680999999999,
+        "inclusive_seconds": 15.932636999999998,
+        "internal_seconds": 0.027705999999999984
+      },
+      {
+        "function": "res://source/match/programs/LuaAction.gd::16::_physics_process",
+        "calls": 241400,
+        "self_seconds": 10.256534000000004,
+        "inclusive_seconds": 10.256534000000004,
+        "internal_seconds": 0.0
+      },
+      {
+        "function": "res://source/match/combat/CombatRules.gd::36::can_target",
+        "calls": 5604936,
+        "self_seconds": 10.048464000000003,
+        "inclusive_seconds": 11.541099999999984,
+        "internal_seconds": 0.39803600000000033
+      },
+      {
+        "function": "res://source/match/units/traits/Movement.gd::0::NavigationServer3D.map_get_closest_point",
+        "calls": 520400,
+        "self_seconds": 6.948168,
+        "inclusive_seconds": 6.948168,
+        "internal_seconds": 6.948168
+      },
+      {
+        "function": "res://source/match/units/Unit.gd::34::@player_getter",
+        "calls": 30308308,
+        "self_seconds": 2.446915000000001,
+        "inclusive_seconds": 2.8902500000000018,
+        "internal_seconds": 0.0
+      },
+      {
+        "function": "res://source/match/Skirmish.gd::87::<anonymous lambda>(lambda)",
+        "calls": 749397,
+        "self_seconds": 2.1851320000000016,
+        "inclusive_seconds": 2.257429999999999,
+        "internal_seconds": 0.0
+      },
+      {
+        "function": "res://source/match/units/Unit.gd::171::_get_type",
+        "calls": 5935507,
+        "self_seconds": 2.150751,
+        "inclusive_seconds": 2.150751,
+        "internal_seconds": 0.0
+      },
+      {
+        "function": "res://source/match/combat/RepairService.gd::90::_eligible",
+        "calls": 2640400,
+        "self_seconds": 2.0957550000000005,
+        "inclusive_seconds": 2.363832,
+        "internal_seconds": 0.8483059999999999
+      },
+      {
+        "function": "res://source/match/units/Helicopter.gd::0::Node.find_child",
+        "calls": 7373582,
+        "self_seconds": 1.7843030000000022,
+        "inclusive_seconds": 1.7843030000000022,
+        "internal_seconds": 1.7843030000000022
+      },
+      {
+        "function": "res://source/match/programs/LuaRuntime.gd::0::RtsLuaSandbox.step",
+        "calls": 18050,
+        "self_seconds": 1.736377,
+        "inclusive_seconds": 1.736377,
+        "internal_seconds": 1.736377
+      },
+      {
+        "function": "res://source/match/combat/Battlefield.gd::118::can_fire",
+        "calls": 5160637,
+        "self_seconds": 1.6733389999999997,
+        "inclusive_seconds": 14.456441,
+        "internal_seconds": 0.0
+      },
+      {
+        "function": "res://source/match/units/traits/BastionVisuals.gd::99::_physics_process",
+        "calls": 728840,
+        "self_seconds": 1.620418000000001,
+        "inclusive_seconds": 5.690764999999999,
+        "internal_seconds": 0.0
+      },
+      {
+        "function": "res://source/match/combat/Battlefield.gd::68::can_observe_point",
+        "calls": 2436867,
+        "self_seconds": 1.615113000000002,
+        "inclusive_seconds": 2.661021,
+        "internal_seconds": 0.42295199999999983
+      },
+      {
+        "function": "res://source/match/combat/Battlefield.gd::83::is_observed",
+        "calls": 520475,
+        "self_seconds": 1.530301999999999,
+        "inclusive_seconds": 7.255139999999997,
+        "internal_seconds": 0.7128359999999996
+      },
+      {
+        "function": "res://source/match/units/traits/Movement.gd::175::_on_velocity_computed",
+        "calls": 520400,
+        "self_seconds": 1.4177700000000006,
+        "inclusive_seconds": 9.295191000000003,
+        "internal_seconds": 6.956397000000004
+      },
+      {
+        "function": "res://source/match/units/traits/BastionVisuals.gd::155::_update_parts",
+        "calls": 728840,
+        "self_seconds": 1.3245639999999985,
+        "inclusive_seconds": 1.5498030000000007,
+        "internal_seconds": 0.0
+      },
+      {
+        "function": "res://source/match/combat/Battlefield.gd::19::_refresh",
+        "calls": 514584,
+        "self_seconds": 1.2826090000000003,
+        "inclusive_seconds": 1.7383479999999993,
+        "internal_seconds": 0.05359500000000001
+      },
+      {
+        "function": "res://source/match/programs/LuaAction.gd::61::_snapshot",
+        "calls": 18050,
+        "self_seconds": 1.1411190000000002,
+        "inclusive_seconds": 7.686053000000001,
+        "internal_seconds": 0.10105599999999998
+      },
+      {
+        "function": "res://source/match/combat/CombatRules.gd::72::range_for",
+        "calls": 2295962,
+        "self_seconds": 1.053304,
+        "inclusive_seconds": 1.053304,
+        "internal_seconds": 0.0
+      },
+      {
+        "function": "res://source/match/combat/RepairService.gd::0::Area3D.is_queued_for_deletion",
+        "calls": 9213545,
+        "self_seconds": 0.8952140000000004,
+        "inclusive_seconds": 0.8952140000000004,
+        "internal_seconds": 0.8952140000000004
+      },
+      {
+        "function": "res://source/match/combat/Battlefield.gd::62::can_observe",
+        "calls": 2436867,
+        "self_seconds": 0.8746780000000003,
+        "inclusive_seconds": 4.046915999999998,
+        "internal_seconds": 0.0
+      },
+      {
+        "function": "res://source/match/programs/LuaAction.gd::39::_record",
+        "calls": 443976,
+        "self_seconds": 0.8292420000000003,
+        "inclusive_seconds": 2.310876000000001,
+        "internal_seconds": 0.0
+      },
+      {
+        "function": "res://source/match/units/traits/BastionVisuals.gd::182::_update_body",
+        "calls": 520600,
+        "self_seconds": 0.7805320000000006,
+        "inclusive_seconds": 0.9216290000000004,
+        "internal_seconds": 0.0
+      },
+      {
+        "function": "res://source/match/units/actions/WaitingForTargets.gd::32::<anonymous lambda>(lambda)",
+        "calls": 5152280,
+        "self_seconds": 0.773705,
+        "inclusive_seconds": 15.500421000000003,
+        "internal_seconds": 0.0
+      },
+      {
+        "function": "res://source/match/units/Unit.gd::126::_get_movement_domain",
+        "calls": 3195096,
+        "self_seconds": 0.7117840000000001,
+        "inclusive_seconds": 2.3697029999999994,
+        "internal_seconds": 0.0
+      },
+      {
+        "function": "res://source/match/combat/Battlefield.gd::0::Area3D.is_queued_for_deletion",
+        "calls": 6939186,
+        "self_seconds": 0.6707849999999997,
+        "inclusive_seconds": 0.6707849999999997,
+        "internal_seconds": 0.6707849999999997
+      },
+      {
+        "function": "res://source/match/programs/LuaAction.gd::75::<anonymous lambda>(lambda)",
+        "calls": 3162086,
+        "self_seconds": 0.618922,
+        "inclusive_seconds": 0.618922,
+        "internal_seconds": 0.0
+      },
+      {
+        "function": "res://source/match/combat/Battlefield.gd::200::nearby_units",
+        "calls": 18050,
+        "self_seconds": 0.6129309999999996,
+        "inclusive_seconds": 1.681305,
+        "internal_seconds": 0.18368299999999993
+      },
+      {
+        "function": "res://source/match/hud/Minimap.gd::76::_sync_unit",
+        "calls": 551438,
+        "self_seconds": 0.5624829999999998,
+        "inclusive_seconds": 0.5624829999999998,
+        "internal_seconds": 0.0
+      },
+      {
+        "function": "res://source/match/units/Unit.gd::42::@global_position_yless_getter",
+        "calls": 7520934,
+        "self_seconds": 0.5487459999999997,
+        "inclusive_seconds": 0.5487459999999997,
+        "internal_seconds": 0.0
+      }
+    ]
+  }
+}

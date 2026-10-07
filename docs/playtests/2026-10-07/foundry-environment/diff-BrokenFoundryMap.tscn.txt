@@ -1,0 +1,11 @@
+--- before/BrokenFoundryMap.tscn
++++ after/BrokenFoundryMap.tscn
+@@ -1,7 +1,7 @@
+ [gd_scene load_steps=6 format=3]
+ [ext_resource type="PackedScene" path="res://source/match/Map.tscn" id="base"]
+ [ext_resource type="Script" path="res://source/match/maps/BrokenFoundryMap.gd" id="script"]
+-[ext_resource type="Shader" path="res://source/shaders/3d/district_ground.gdshader" id="shader"]
++[ext_resource type="Shader" path="res://source/shaders/3d/foundry_ground.gdshader" id="shader"]
+ [sub_resource type="ShaderMaterial" id="sand"]
+ shader = ExtResource("shader")
+ [sub_resource type="PlaneMesh" id="terrain"]

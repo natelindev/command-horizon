@@ -1,0 +1,518 @@
+{
+  "scope": "Authored guard delivery; overall game design remains active",
+  "shared_checks": [
+    {
+      "suite": "AuthoredGuardRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "wall_seconds": 31.4,
+      "log": "docs/playtests/2026-10-04/authored-guard-delivery-AuthoredGuardRegression.log"
+    },
+    {
+      "suite": "GuardAreaRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "wall_seconds": 17.4,
+      "log": "docs/playtests/2026-10-04/authored-guard-delivery-GuardAreaRegression.log"
+    },
+    {
+      "suite": "ProgramRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "wall_seconds": 1.8,
+      "log": "docs/playtests/2026-10-04/authored-guard-delivery-ProgramRegression.log"
+    },
+    {
+      "suite": "SpecialistRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "wall_seconds": 3.6,
+      "log": "docs/playtests/2026-10-04/authored-guard-delivery-SpecialistRegression.log"
+    },
+    {
+      "suite": "LuaSandboxRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "wall_seconds": 0.7,
+      "log": "docs/playtests/2026-10-04/authored-guard-delivery-LuaSandboxRegression.log"
+    },
+    {
+      "suite": "LuaProgramRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "wall_seconds": 2.9,
+      "log": "docs/playtests/2026-10-04/authored-guard-delivery-LuaProgramRegression.log"
+    },
+    {
+      "suite": "LuaAuthoringRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "wall_seconds": 1.3,
+      "log": "docs/playtests/2026-10-04/authored-guard-delivery-LuaAuthoringRegression.log"
+    },
+    {
+      "suite": "VisualRulesRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "wall_seconds": 1.6,
+      "log": "docs/playtests/2026-10-04/authored-guard-delivery-VisualRulesRegression.log"
+    },
+    {
+      "suite": "AuthoredRecoveryRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "wall_seconds": 42.4,
+      "log": "docs/playtests/2026-10-04/authored-guard-delivery-AuthoredRecoveryRegression.log"
+    },
+    {
+      "suite": "OrdersRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "wall_seconds": 5.5,
+      "log": "docs/playtests/2026-10-04/authored-guard-delivery-OrdersRegression.log"
+    },
+    {
+      "suite": "SquadRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "wall_seconds": 3.0,
+      "log": "docs/playtests/2026-10-04/authored-guard-delivery-SquadRegression.log"
+    },
+    {
+      "suite": "SignatureRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "wall_seconds": 4.3,
+      "log": "docs/playtests/2026-10-04/authored-guard-delivery-SignatureRegression.log"
+    },
+    {
+      "suite": "ArenaRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "wall_seconds": 3.4,
+      "log": "docs/playtests/2026-10-04/authored-guard-delivery-ArenaRegression.log"
+    },
+    {
+      "suite": "SaveRestoreCombat",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "wall_seconds": 1.4,
+      "log": "docs/playtests/2026-10-04/authored-guard-delivery-SaveRestoreCombat.log"
+    },
+    {
+      "suite": "SaveRestoreRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "wall_seconds": 1.8,
+      "log": "docs/playtests/2026-10-04/authored-guard-delivery-SaveRestoreRegression.log"
+    },
+    {
+      "suite": "SaveRestoreEdges",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "wall_seconds": 3.9,
+      "log": "docs/playtests/2026-10-04/authored-guard-delivery-SaveRestoreEdges.log"
+    },
+    {
+      "suite": "AuthoredGuardRolesRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "wall_seconds": 55.4,
+      "log": "docs/playtests/2026-10-04/authored-guard-delivery-AuthoredGuardRolesRegression.log"
+    },
+    {
+      "suite": "SubtitleLayoutRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "wall_seconds": 18.1,
+      "log": "docs/playtests/2026-10-04/authored-guard-delivery-SubtitleLayoutRegression.log"
+    },
+    {
+      "suite": "LLMProviderRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "clock": "normal, max 60 fps",
+      "log": "docs/playtests/2026-10-04/authored-guard-provider-normal-clock.log"
+    },
+    {
+      "suite": "CampaignControlsRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "log": "docs/playtests/2026-10-04/authored-guard-assignment-feedback.log"
+    }
+  ],
+  "rendered_workflows": [
+    {
+      "suite": "ArenaPreview",
+      "exit": 0,
+      "script_error": false,
+      "wall_seconds": 19.9,
+      "log": "docs/playtests/2026-10-04/authored-guard-final-ArenaPreview.log"
+    },
+    {
+      "suite": "LuaEditorPreview",
+      "exit": 0,
+      "script_error": false,
+      "log": "docs/playtests/2026-10-04/authored-guard-lua-editor-final.log"
+    },
+    {
+      "suite": "AuthoredGuardPreview",
+      "exit": 0,
+      "script_error": false,
+      "wall_seconds": 171.9,
+      "log": "docs/playtests/2026-10-04/authored-guard-delivery-AuthoredGuardPreview.log"
+    },
+    {
+      "suite": "VisualRulesPreview",
+      "exit": 0,
+      "script_error": false,
+      "log": "docs/playtests/2026-10-04/authored-guard-visual-editor-final.log"
+    }
+  ],
+  "static_checks": [
+    {
+      "check": "format",
+      "exit": 0,
+      "log": "docs/playtests/2026-10-04/authored-guard-delivery-format.log"
+    },
+    {
+      "check": "lint",
+      "exit": 0,
+      "log": "docs/playtests/2026-10-04/authored-guard-delivery-lint.log"
+    },
+    {
+      "check": "whitespace",
+      "exit": 0,
+      "log": "docs/playtests/2026-10-04/authored-guard-delivery-whitespace.log"
+    }
+  ],
+  "captures": [
+    {
+      "path": "art/skirmish/authored-guard-bastion-lua-engaging.png",
+      "size": [
+        1280,
+        720
+      ],
+      "visually_reviewed": true
+    },
+    {
+      "path": "art/skirmish/authored-guard-bastion-lua-approaching.png",
+      "size": [
+        1280,
+        720
+      ],
+      "visually_reviewed": true
+    },
+    {
+      "path": "art/skirmish/authored-guard-bastion-visual-engaging.png",
+      "size": [
+        1280,
+        720
+      ],
+      "visually_reviewed": true
+    },
+    {
+      "path": "art/skirmish/authored-guard-bastion-visual-approaching.png",
+      "size": [
+        1280,
+        720
+      ],
+      "visually_reviewed": true
+    },
+    {
+      "path": "art/skirmish/authored-guard-helix-lua-engaging.png",
+      "size": [
+        1280,
+        720
+      ],
+      "visually_reviewed": true
+    },
+    {
+      "path": "art/skirmish/authored-guard-helix-lua-approaching.png",
+      "size": [
+        1280,
+        720
+      ],
+      "visually_reviewed": true
+    },
+    {
+      "path": "art/skirmish/authored-guard-helix-visual-engaging.png",
+      "size": [
+        1280,
+        720
+      ],
+      "visually_reviewed": true
+    },
+    {
+      "path": "art/skirmish/authored-guard-helix-visual-approaching.png",
+      "size": [
+        1280,
+        720
+      ],
+      "visually_reviewed": true
+    },
+    {
+      "path": "art/skirmish/visual-rules-720p.png",
+      "size": [
+        1280,
+        720
+      ],
+      "visually_reviewed": true
+    },
+    {
+      "path": "art/skirmish/visual-generated-lua-720p.png",
+      "size": [
+        1280,
+        720
+      ],
+      "visually_reviewed": true
+    },
+    {
+      "path": "art/skirmish/visual-rules-validation-720p.png",
+      "size": [
+        1280,
+        720
+      ],
+      "visually_reviewed": true
+    },
+    {
+      "path": "art/skirmish/lua-editor-720p.png",
+      "size": [
+        1280,
+        720
+      ],
+      "visually_reviewed": true
+    },
+    {
+      "path": "art/skirmish/lua-editor-error-720p.png",
+      "size": [
+        1280,
+        720
+      ],
+      "visually_reviewed": true
+    },
+    {
+      "path": "art/skirmish/lua-guard-assignment-720p.png",
+      "size": [
+        1280,
+        720
+      ],
+      "visually_reviewed": true
+    },
+    {
+      "path": "art/skirmish/lua-editor-entry.png",
+      "size": [
+        1280,
+        720
+      ],
+      "visually_reviewed": true
+    },
+    {
+      "path": "art/skirmish/lua-editor-900p.png",
+      "size": [
+        1440,
+        900
+      ],
+      "visually_reviewed": true
+    },
+    {
+      "path": "art/skirmish/arena-paused-720p.png",
+      "size": [
+        1280,
+        720
+      ],
+      "visually_reviewed": true
+    },
+    {
+      "path": "art/skirmish/arena-result-720p.png",
+      "size": [
+        1280,
+        720
+      ],
+      "visually_reviewed": true
+    }
+  ],
+  "full_matches": "docs/playtests/2026-10-04/authored-guard-matches.json",
+  "match_exits": "docs/playtests/2026-10-04/authored-guard-match-exits.json",
+  "cohort_note": "Full-match gameplay precedes final cosmetic guard indicator, preset draft label and assignment feedback changes. Those later changes have shared/rendered coverage. Hashes identify final delivery files, not every earlier cohort.",
+  "files": [
+    {
+      "path": "source/match/programs/PresetAction.gd",
+      "sha256": "6caa636b07de23e6fe58447a220a24274068dc707c2e8022b1541625deba6608"
+    },
+    {
+      "path": "source/match/programs/LuaAction.gd",
+      "sha256": "8ecf834914787d0735123788400c113177f5a7d4487e06e1f67bcef6df074fbf"
+    },
+    {
+      "path": "source/match/programs/LuaRuntime.gd",
+      "sha256": "b1c4391fbabeefdaab6dbac0659e205de978c8ac0c59f2e5e6e678334088915e"
+    },
+    {
+      "path": "source/match/programs/VisualRules.gd",
+      "sha256": "efd727a1241c2caae750d0ddf9b3e26f35ba7f89b8f318d8931943b303431740"
+    },
+    {
+      "path": "source/match/programs/llm/RequestContext.gd",
+      "sha256": "9c7562218444e4f460d7a7f73152af828c5b816b4ab71bc9c45e99f9b3c66dc6"
+    },
+    {
+      "path": "source/match/programs/arena/ArenaSession.gd",
+      "sha256": "7e9e2eefb7b75534804fbba5d7e54a382670942daf1c1d4c88fdd8ceb7daf3a3"
+    },
+    {
+      "path": "source/match/hud/ProgramPanel.gd",
+      "sha256": "8f6137a8686886532faa37ac17bb1ef1a6112c447ab1ef956a5e0e800261c98d"
+    },
+    {
+      "path": "source/match/hud/ProgramAssignments.gd",
+      "sha256": "a14ac57ed77084403287bb4fad56d5c31582ef9cfcb223568095d0fc0e2ecd8e"
+    },
+    {
+      "path": "source/match/hud/LuaProgramEditor.gd",
+      "sha256": "48588b922d1c9c2e653c56b88c406b0d5d3d3aea698c2345b03e205df5d9c25d"
+    },
+    {
+      "path": "source/match/hud/VisualProgramEditor.gd",
+      "sha256": "c168b30a028bbd97eefb347c367fd0ae3242d8b12898a1bf5dcaff9f7b62aef1"
+    },
+    {
+      "path": "source/match/hud/SkirmishHUD.gd",
+      "sha256": "e29f866aba90887e357216cf5087c5a11d91d9f2cea664813cc0a8e6d48eb0dc"
+    },
+    {
+      "path": "tests/headless/AuthoredGuardRegression.gd",
+      "sha256": "3c1d9ad579f623c2255eea378ba16738c1d7ccf4ebafc82bd2b7e4ef03beef07"
+    },
+    {
+      "path": "tests/headless/AuthoredGuardRolesRegression.gd",
+      "sha256": "137d4a4db61296701d0516b0751827bbd99af0fb46ae9aedc8c2b10d3cb7312c"
+    },
+    {
+      "path": "tests/headless/VisualRulesRegression.gd",
+      "sha256": "e4a4a19df51b7914e7eecb4a3ba792c77924b662603bd76358602c4d87f52be3"
+    },
+    {
+      "path": "tests/headless/ScaleBenchmark.gd",
+      "sha256": "a01152c174d4f689ff6619b8e780d2551f03a9d99c3566103813d5a413bb53e2"
+    },
+    {
+      "path": "tests/rendered/AuthoredGuardPreview.gd",
+      "sha256": "4aecf4c7ed37295ea9be8d85588aa8490f60ba0892d371a086653628be7f7be6"
+    },
+    {
+      "path": "tests/rendered/LuaEditorPreview.gd",
+      "sha256": "8cd42be135e288e876c20c325712bd5548c4a113413c47e10cc72b9059c0fca9"
+    },
+    {
+      "path": "tests/rendered/VisualRulesPreview.gd",
+      "sha256": "d565161ae93acb124a99c3c83ad5f70c703085f6f44a9b2b8081fa6b7feb672f"
+    },
+    {
+      "path": "assets/programs/guard.lua",
+      "sha256": "577c51f2f66d8a9b513bcd5384cbac4c727814b7b9746196e1d9471d500b7d2b"
+    },
+    {
+      "path": "tests/fixtures/legacy-visual-guard.json",
+      "sha256": "2f12c5d3eca62aa969c02fbe9acab8f795ddce35f3c444e0ffef3c4f1af11c48"
+    },
+    {
+      "path": "art/skirmish/authored-guard-bastion-lua-engaging.png",
+      "sha256": "56b68f02e06dcb609d64de13056817fe48170696efb227ac769517a7221a8d69"
+    },
+    {
+      "path": "art/skirmish/authored-guard-bastion-lua-approaching.png",
+      "sha256": "7303cc7ef847ddfdd110ae1cb3a2a48018ed2d4177abec5df4c161b3f2c40e8c"
+    },
+    {
+      "path": "art/skirmish/authored-guard-bastion-visual-engaging.png",
+      "sha256": "778f7f92b80f20e1816546a902a49e8c23a845a48ceb2c9cc638022ff4c99d20"
+    },
+    {
+      "path": "art/skirmish/authored-guard-bastion-visual-approaching.png",
+      "sha256": "117a5ccef1be5090b0cf2ee6aa15ca6e1eaea6431f02e0a261b7dbceec4f0a35"
+    },
+    {
+      "path": "art/skirmish/authored-guard-helix-lua-engaging.png",
+      "sha256": "93e30beecd1f184c0d513f1cca9bbe9eeca09f0d0d790efaaa9338bfecc0c2c1"
+    },
+    {
+      "path": "art/skirmish/authored-guard-helix-lua-approaching.png",
+      "sha256": "5a2ce4e911acd41beb490cbefd31c5f59f3a3608c41f097cc85f6f7d9953bcb4"
+    },
+    {
+      "path": "art/skirmish/authored-guard-helix-visual-engaging.png",
+      "sha256": "93e30beecd1f184c0d513f1cca9bbe9eeca09f0d0d790efaaa9338bfecc0c2c1"
+    },
+    {
+      "path": "art/skirmish/authored-guard-helix-visual-approaching.png",
+      "sha256": "d6cfe747933621f0619cdac923389e1c0459e2cc34cf0ee4aed0da7030df4600"
+    },
+    {
+      "path": "art/skirmish/visual-rules-720p.png",
+      "sha256": "2261ea9638e1ff42c89b25570870d8389fb255c2f572cb65c00b556e7f37a2b7"
+    },
+    {
+      "path": "art/skirmish/visual-generated-lua-720p.png",
+      "sha256": "dd720a9a2ecffc202a771f3d7750c0a4ada2c45c7efa32aa88efe9e872760742"
+    },
+    {
+      "path": "art/skirmish/visual-rules-validation-720p.png",
+      "sha256": "70e6caed1748b269ef1d4cab65537c47b068c34daf1d1b025e619577bcc1c361"
+    },
+    {
+      "path": "art/skirmish/lua-editor-720p.png",
+      "sha256": "2cc26d8f058ae073b97c3399066508642a451d7de99852ea5f0d55c9a3c785c0"
+    },
+    {
+      "path": "art/skirmish/lua-editor-error-720p.png",
+      "sha256": "48b8adf6f8dc2b6f93665662ca5116e6386af7bb9474e7a6d2a2ea30f53534ee"
+    },
+    {
+      "path": "art/skirmish/lua-guard-assignment-720p.png",
+      "sha256": "e89739243c6eb817dcd6e4b6ae9507fce581f3a008a7f749e962cc27e5ca91e5"
+    },
+    {
+      "path": "art/skirmish/lua-editor-entry.png",
+      "sha256": "7e847095edf636c7284da743be3d7b6ef4742940f10e26e402cddf4a0f7941d2"
+    },
+    {
+      "path": "art/skirmish/lua-editor-900p.png",
+      "sha256": "79f7e90a53b0bc5b1eaaf69a723308cfeb29a66de7cc02511de4aa91ccf8998b"
+    },
+    {
+      "path": "art/skirmish/arena-paused-720p.png",
+      "sha256": "51790adf002fd3ba86ad65c6206454e56ad7993d48af4be4f21cf55ededae114"
+    },
+    {
+      "path": "art/skirmish/arena-result-720p.png",
+      "sha256": "7a3d99c3ae79308fa6c2794f0951d3eaa76ab4ab054e0699433357c67d821db9"
+    }
+  ],
+  "limitations": [
+    "Four Advanced mixed-force defeats; one Standard victory does not establish balance.",
+    "Synthetic Godot events; physical-device/platform and novice acceptance remain open.",
+    "Existing navigation bake and shutdown resource warnings remain.",
+    "Performance optimization deferred."
+  ]
+}

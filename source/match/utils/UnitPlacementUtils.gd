@@ -65,6 +65,8 @@ static func find_valid_position_radially_yet_skip_starting_radius(
 
 static func validate_agent_placement_position(position, radius, existing_units, navigation_map_rid):
 	for existing_unit in existing_units:
+		if existing_unit.is_in_group("salvage_wrecks"):
+			continue  # Drive-over rubble never blocks rebuilding or production exits.
 		if (
 			(existing_unit.global_position * Vector3(1, 0, 1)).distance_to(
 				position * Vector3(1, 0, 1)
@@ -98,3 +100,16 @@ static func _is_agent_placement_position_valid(
 		validate_agent_placement_position(position, radius, existing_units, navigation_map_rid)
 		== VALID
 	)
+
+
+static func owned_structure_at(player, point):
+	for structure in player.get_children():
+		if (
+			structure.is_in_group("units")
+			and structure.has_method("is_constructed")
+			and not structure.is_queued_for_deletion()
+			and structure.hp > 0
+			and structure.global_position_yless.distance_to(point) < structure.radius
+		):
+			return structure
+	return null

@@ -1,0 +1,65 @@
+[
+  {
+    "name": "followthrough",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/SplitRecoveryAudit.gd",
+      "--",
+      "--archive=res://docs/playtests/2026-10-07/relay-feedback/mode-2-archive.json",
+      "--evidence=res://docs/playtests/2026-10-07/split-recovery-audit/followthrough",
+      "--reinforce"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "split-rules",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/headless/SplitSignalRegression.gd",
+      "--"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "feedback",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/headless/RelayFeedbackRegression.gd",
+      "--"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "orders",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/headless/OrdersRegression.gd",
+      "--"
+    ],
+    "exit_code": 0
+  }
+]

@@ -22,7 +22,15 @@ func _ready():
 
 	_label.text = tr("LOADING_STEP_LOADING_MATCH")
 	await get_tree().physics_frame
-	var match_prototype = load("res://source/match/Match.tscn")
+	var campaigns = load("res://source/match/campaign/CampaignCatalog.gd").OPERATIONS
+	var scene_path = (
+		"res://source/match/Skirmish.tscn"
+		if match_settings.skirmish
+		else "res://source/match/Match.tscn"
+	)
+	if match_settings.mission_id in campaigns:
+		scene_path = campaigns[match_settings.mission_id].scene
+	var match_prototype = load(scene_path)
 	_progress_bar.value = 0.7
 
 	_label.text = tr("LOADING_STEP_INSTANTIATING_MATCH")

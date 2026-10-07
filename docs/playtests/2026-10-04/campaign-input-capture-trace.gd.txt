@@ -1,0 +1,16 @@
+extends "res://tests/rendered/SplitSignalPreview.gd"
+
+func _initialize():
+	Engine.max_fps = 60
+	_deadline = Time.get_ticks_msec() + 30000
+	_run.call_deferred()
+
+func _click(control):
+	print("CLICK begin ", control.text, " frame=", Engine.get_process_frames())
+	await super(control)
+	print("CLICK end frame=", Engine.get_process_frames())
+
+func _capture(title):
+	print("CAPTURE begin ", title, " can_draw=", root.can_draw(), " size=", root.size, " mode=", root.mode)
+	await super(title)
+	print("CAPTURE end ", title)

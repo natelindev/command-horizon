@@ -1,0 +1,41 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.
+		This poses a significant performance issues as visual meshes store geometry data on the GPU and transferring this data back to the CPU blocks the rendering.
+		For runtime (re)baking navigation meshes use and parse collision shapes as source geometry or create geometry data procedurally in scripts.
+     at: add_mesh (scene/resources/3d/navigation_mesh_source_geometry_data_3d.cpp:204)
+     GDScript backtrace (most recent call first):
+         [0] bake (res://source/match/TerrainNavigation.gd:56)
+         [1] setup (res://source/match/Navigation.gd:43)
+         [2] _setup_subsystems_dependent_on_map (res://source/match/Match.gd:132)
+         [3] _ready (res://source/match/Match.gd:64)
+         [4] _ready (res://source/match/Skirmish.gd:20)
+         [5] _skirmish (res://tests/headless/SaveRestoreEdges.gd:47)
+         [6] _run (res://tests/headless/FrontierFactionMaps.gd:15)
+Coastal paths: base 51.1s, expansion 22.5s; ground 133.0m / air 96.0m
+PASS frontier: two 16-tank routes/retreat, water boundaries, moving archive, aircraft clearance
+Industrial economy home frontier balance=80/24
+  worker pos=(15.31287, 0.0, 44.34174) cargo=3/0 action=Harvest(Materials · collecting) destination=(15.31264, 0.0, 44.34228) active=false synced=true
+  worker pos=(21.53768, 0.0, 42.51857) cargo=0/3 action=Harvest(Electronics · collecting) destination=(21.5379, 0.0, 42.51861) active=false synced=true
+  worker pos=(17.07105, 0.0, 38.34761) cargo=0/0 action=<null> destination=(17.0, 0.0, 38.0) active=false synced=true
+  worker pos=(19.58321, 0.0, 37.39837) cargo=0/0 action=<null> destination=(19.0, 0.0, 38.0) active=false synced=true
+Industrial economy home bastion balance=76/24
+  worker pos=(111.9815, 0.0, 37.54811) cargo=4/0 action=Harvest(Returning cargo to HQ) destination=(111.8509, 0.0, 36.19494) active=true synced=true
+  worker pos=(106.4496, 0.0, 42.48164) cargo=0/2 action=Harvest(Electronics · collecting) destination=(106.4478, 0.0, 42.48202) active=false synced=true
+  worker pos=(113.2023, 0.0, 38.01921) cargo=0/0 action=<null> destination=(113.0, 0.0, 38.0) active=false synced=true
+  worker pos=(115.0, 0.0, 38.0) cargo=0/0 action=<null> destination=(115.0, 0.0, 38.0) active=false synced=true
+Industrial economy expansion frontier balance=80/32
+  worker pos=(15.31287, 0.0, 44.34174) cargo=3/0 action=<null> destination=(15.31264, 0.0, 44.34228) active=false synced=true
+  worker pos=(21.53767, 0.0, 42.51857) cargo=0/3 action=<null> destination=(21.5379, 0.0, 42.51861) active=false synced=true
+  worker pos=(29.60392, 0.0, 79.32225) cargo=0/0 action=Harvest(Electronics · approaching work slot) destination=(30.33114, 0.0, 82.42426) active=true synced=true
+  worker pos=(19.58321, 0.0, 37.39837) cargo=0/0 action=<null> destination=(19.0, 0.0, 38.0) active=false synced=true
+Industrial economy expansion bastion balance=76/32
+  worker pos=(112.1087, 0.0, 37.67135) cargo=4/0 action=<null> destination=(111.9815, 0.0, 37.54811) active=false synced=true
+  worker pos=(106.4496, 0.0, 42.48164) cargo=0/2 action=<null> destination=(106.4478, 0.0, 42.48202) active=false synced=true
+  worker pos=(106.463, 0.0, 56.68328) cargo=0/0 action=Harvest(Electronics · approaching work slot) destination=(97.66647, 0.0, 82.42355) active=true synced=true
+  worker pos=(115.0, 0.0, 38.0) cargo=0/0 action=<null> destination=(115.0, 0.0, 38.0) active=false synced=true
+PASS: frontier both home fields, both expansions, paid construction and resource transit
+Frontier faction coastal routes/economy/archive: 0 failures
+ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)

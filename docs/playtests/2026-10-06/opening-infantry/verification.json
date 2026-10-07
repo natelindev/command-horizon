@@ -1,0 +1,25 @@
+{
+  "checks": {
+    "before.log": "Opening infantry: 12 failures",
+    "verified.log": "Opening infantry: 0 failures",
+    "GroundDefenseAdviceRegression.log": "Ground defense advice: 0 failures",
+    "AirDefenseAdviceRegression.log": "Air defense advice: 0 failures",
+    "OpeningArmorRegression.log": "Opening armor and retrofit: 0 failures",
+    "BattlePlanRegression.log": "Battle plan regression: 0 failures",
+    "native.log": "Opening infantry native: 0 failures",
+    "factory-repeat.log": "Ground defense native: 0 failures"
+  },
+  "image_count": 11,
+  "image_size": [
+    1280,
+    720
+  ],
+  "format_lint_scripts": 4,
+  "native_factory_repeat": "passed after native window refresh",
+  "paid_path_seconds": {
+    "bastion": 190.95,
+    "helix": 186.18,
+    "frontier": 167.57
+  },
+  "enemy_strategic_process": "disabled; progression test, not survival evidence"
+}

@@ -1,0 +1,229 @@
+extends RefCounted
+
+const Bastion = preload("res://source/match/BastionCatalog.gd")
+const IDS = ["bastion", "helix"]
+const NAMES = {"bastion": "Bastion Directorate", "helix": "Helix Systems"}
+const HELIX_MODELS = {
+	"Worker": "MuleEngineer",
+	"Infantry": "VectorOperator",
+	"Tank": "NeedleSkimmer",
+	"RepairRobot": "MenderRobot",
+	"CombatRobot": "LancerWalker",
+	"AdvancedTank": "PrismArtillery",
+	"Drone": "KiteScout",
+	"Helicopter": "WraithStriker",
+	"CommandCenter": "NexusHQ",
+	"Barracks": "OperatorHub",
+	"VehicleFactory": "RoboticsFoundry",
+	"AircraftFactory": "FlightDeck",
+	"PowerPlant": "FluxGenerator",
+	"CommandLab": "SignalLab",
+	"RepairDepot": "ServiceCradle",
+	"AntiGroundTurret": "LanceSentry",
+	"AntiAirTurret": "SkywardArray",
+}
+const HELIX_NAMES = {
+	"Worker": "Mule engineer",
+	"Infantry": "Vector operator",
+	"Tank": "Needle skimmer",
+	"RepairRobot": "Mender robot",
+	"CombatRobot": "Lancer walker",
+	"AdvancedTank": "Prism artillery",
+	"Drone": "Kite scout",
+	"Helicopter": "Wraith striker",
+	"CommandCenter": "Nexus HQ",
+	"Barracks": "Operator hub",
+	"VehicleFactory": "Robotics foundry",
+	"AircraftFactory": "Flight deck",
+	"PowerPlant": "Flux generator",
+	"CommandLab": "Signal lab",
+	"RepairDepot": "Service cradle",
+	"AntiGroundTurret": "Lance sentry",
+	"AntiAirTurret": "Skyward array",
+}
+const UNIT_COSTS = {
+	"Worker": [6, 0],
+	"Infantry": [6, 0],
+	"Tank": [24, 6],
+	"RepairRobot": [16, 8],
+	"CombatRobot": [24, 16],
+	"AdvancedTank": [40, 24],
+	"Drone": [8, 4],
+	"Helicopter": [32, 20],
+}
+const HELIX_COSTS = {
+	"Worker": [6, 0],
+	"Infantry": [6, 0],
+	"Tank": [22, 10],
+	"RepairRobot": [14, 12],
+	"CombatRobot": [26, 20],
+	"AdvancedTank": [36, 30],
+	"Drone": [8, 6],
+	"Helicopter": [28, 24],
+}
+const BUILD_COSTS = {
+	"CommandCenter": [80, 20],
+	"Barracks": [20, 0],
+	"VehicleFactory": [45, 12],
+	"AircraftFactory": [45, 20],
+	"PowerPlant": [15, 0],
+	"CommandLab": [50, 30],
+	"RepairDepot": [25, 10],
+	"AntiGroundTurret": [20, 8],
+	"AntiAirTurret": [20, 12],
+}
+const BUILD_TIMES = {
+	"CommandCenter": 45.0,
+	"Barracks": 20.0,
+	"VehicleFactory": 35.0,
+	"AircraftFactory": 35.0,
+	"PowerPlant": 20.0,
+	"CommandLab": 40.0,
+	"RepairDepot": 25.0,
+	"AntiGroundTurret": 20.0,
+	"AntiAirTurret": 20.0,
+}
+const UNIT_TIMES = {
+	"Worker": 8.0,
+	"Infantry": 8.0,
+	"Tank": 20.0,
+	"RepairRobot": 18.0,
+	"CombatRobot": 24.0,
+	"AdvancedTank": 32.0,
+	"Drone": 12.0,
+	"Helicopter": 28.0,
+}
+const BUILD_REQUIRES = {
+	"VehicleFactory": "Barracks",
+	"AircraftFactory": "VehicleFactory",
+	"CommandLab": "VehicleFactory",
+	"RepairDepot": "VehicleFactory",
+	"AntiGroundTurret": "Barracks",
+	"AntiAirTurret": "VehicleFactory",
+}
+
+
+static func title(faction, role):
+	if role in Bastion.MISSION_NAMES:
+		return Bastion.MISSION_NAMES[role]
+	return HELIX_NAMES[role] if faction == "helix" else Bastion.NAMES[role]
+
+
+static func icon(faction, role):
+	return (
+		"res://assets/ui/helix/%s.png" % HELIX_MODELS[role]
+		if faction == "helix"
+		else Bastion.icon_path(role)
+	)
+
+
+static func description(faction, role):
+	if role == "RepairRobot":
+		return (
+			"Repairs one mechanical ground ally or completed building at a time. "
+			+ "3 m reach, measured from a building's edge."
+		)
+	if faction == "helix" and role == "AdvancedTank":
+		return (
+			"10 m precision fire. Deploys while stationary for 1.5 s; "
+			+ "each shot charges for 0.75 s. Moving retracts supports."
+		)
+	if faction == "helix" and role == "CombatRobot":
+		return (
+			"Precision: 8 m armor-piercing fire, 0.75 s charge. Interception: aircraft. "
+			+ "Switching disables firing for 2 s."
+		)
+	if faction == "bastion":
+		return Bastion.DESCRIPTIONS[role]
+	return "Helix specialist. Lighter armor and faster movement."
+
+
+static func cost(player, role, building = false):
+	if not player.get_meta("skirmish", false):
+		var values = (
+			Constants.Match.Units.CONSTRUCTION_COSTS
+			if building
+			else Constants.Match.Units.PRODUCTION_COSTS
+		)
+		return values[Bastion.scene_path(role)]
+	var values = (
+		BUILD_COSTS if building else (HELIX_COSTS if player.faction == "helix" else UNIT_COSTS)
+	)
+	return {"resource_a": values[role][0], "resource_b": values[role][1]}
+
+
+static func duration(player, role):
+	return (
+		UNIT_TIMES[role]
+		if player.get_meta("skirmish", false)
+		else Constants.Match.Units.PRODUCTION_TIMES[Bastion.scene_path(role)]
+	)
+
+
+static func requirement(player, role, building = false):
+	if building:
+		return BUILD_REQUIRES.get(role, "") if player.get_meta("skirmish", false) else ""
+	if role == "Helicopter" and player.get_meta("skirmish", false):
+		return "CommandLab"
+	return Bastion.REQUIRES.get(role, "")
+
+
+static func available(player, role, building = false):
+	if (
+		building
+		and player.get_meta("skirmish", false)
+		and player.structure_count() >= Bastion.STRUCTURE_LIMIT
+	):
+		return false
+	if not building and role == "AdvancedTank" and player.get_meta("skirmish", false):
+		if not player.coordination_unlocked:
+			return false
+	var required = requirement(player, role, building)
+	return required == "" or player.has_completed_structure(required)
+
+
+static func prepare_model(unit, faction):
+	if faction != "helix":
+		return
+	var geometry = unit.get_node("Geometry")
+	for child in geometry.get_children():
+		child.free()
+	geometry.add_child(helix_geometry(unit.type, unit.radius))
+	unit.set_meta("model_faction", faction)
+
+
+static func helix_geometry(role, radius):
+	var model = load("res://assets/models/helix/v1/%s.glb" % HELIX_MODELS[role]).instantiate()
+	var bounds = _bounds(model, Transform3D.IDENTITY)
+	var factor = radius * 1.85 / max(bounds.size.x, bounds.size.z)
+	if role == "Infantry":
+		factor = 1.15 / bounds.size.y
+	elif role in ["Drone", "Helicopter"]:
+		factor *= 1.35
+	model.scale = Vector3.ONE * factor
+	model.position = (
+		-Vector3(bounds.get_center().x, bounds.position.y, bounds.get_center().z) * factor
+	)
+	return model
+
+
+static func _bounds(node, parent_transform):
+	var transform_here = parent_transform * node.transform if node is Node3D else parent_transform
+	var result = transform_here * node.get_aabb() if node is MeshInstance3D else AABB()
+	for child in node.get_children():
+		result = result.merge(_bounds(child, transform_here))
+	return result
+
+
+static func apply_stats(unit):
+	if unit.player.faction == "helix" and unit.movement_speed > 0:
+		unit.hp_max = roundi(unit.hp_max * 0.8)
+		unit.hp = unit.hp_max
+		unit.get_node("Movement").speed *= 1.2
+		if unit.type in ["Drone", "Tank"]:
+			unit.sight_range += 2.0
+		if unit.type == "AdvancedTank":
+			unit.attack_range = 10.0
+			unit.get_node("Movement").speed *= 0.75
+	if unit.type == "CombatRobot":
+		unit.configure_weapon()

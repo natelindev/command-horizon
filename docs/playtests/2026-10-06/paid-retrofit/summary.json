@@ -1,0 +1,286 @@
+[
+  {
+    "case": 2,
+    "seed": 4110,
+    "faction": "frontier",
+    "opponent": "helix",
+    "result": "Victory",
+    "seconds": 1118.2,
+    "basic_unlock": 168.73333333336,
+    "first_program": 181.23333333337,
+    "first_assault": 571.233333333142,
+    "harvested": [
+      766.0,
+      296.0
+    ],
+    "spent": [
+      792.0,
+      280.0
+    ],
+    "retrofit_authority_checks": 25,
+    "retrofit_net_e": 4,
+    "retrofit_episodes": [
+      {
+        "end": 181.23333333337,
+        "fee": 2,
+        "health": 1,
+        "refunded": false,
+        "result": "installed",
+        "service": "CommandCenter",
+        "start": 176.733333333366
+      },
+      {
+        "end": 181.73333333337,
+        "fee": 2,
+        "health": 0.602941176470588,
+        "refunded": true,
+        "result": "threat_cancelled",
+        "service": "CommandCenter",
+        "start": 181.23333333337
+      },
+      {
+        "end": 199.233333333384,
+        "fee": 2,
+        "health": 0.602941176470588,
+        "refunded": false,
+        "result": "installed",
+        "service": "CommandCenter",
+        "start": 191.733333333378
+      }
+    ],
+    "retrofit_skipped": {
+      "engaged": 26,
+      "wounded_or_recently_hit": 6
+    },
+    "authored_applied": 5,
+    "conventional_control_checks": 507,
+    "worker_authority_checks": 3739,
+    "ai_coordination": {
+      "peak_groups": 2,
+      "samples": 2236,
+      "violations": {}
+    },
+    "longest_stationary_travel": [
+      2.0,
+      3.0
+    ],
+    "losses": [
+      {
+        "Barracks": 1,
+        "CombatRobot": 1,
+        "Helicopter": 2,
+        "Infantry": 25,
+        "RepairRobot": 2,
+        "Tank": 1,
+        "Worker": 2
+      },
+      {
+        "AircraftFactory": 1,
+        "Barracks": 1,
+        "CombatRobot": 3,
+        "CommandCenter": 1,
+        "CommandLab": 1,
+        "Helicopter": 1,
+        "Infantry": 44,
+        "PowerPlant": 1,
+        "Tank": 4,
+        "VehicleFactory": 1,
+        "Worker": 13
+      }
+    ]
+  },
+  {
+    "case": 2,
+    "seed": 4111,
+    "faction": "frontier",
+    "opponent": "helix",
+    "result": "Defeat",
+    "seconds": 646.2,
+    "basic_unlock": 187.750000000042,
+    "first_program": 191.750000000045,
+    "first_assault": null,
+    "harvested": [
+      254.0,
+      84.0
+    ],
+    "spent": [
+      312.0,
+      68.0
+    ],
+    "retrofit_authority_checks": 8,
+    "retrofit_net_e": 2,
+    "retrofit_episodes": [
+      {
+        "end": 191.750000000045,
+        "fee": 2,
+        "health": 1,
+        "refunded": false,
+        "result": "installed",
+        "service": "CommandCenter",
+        "start": 187.750000000042
+      }
+    ],
+    "retrofit_skipped": {
+      "wounded_or_recently_hit": 443
+    },
+    "authored_applied": 2,
+    "conventional_control_checks": null,
+    "worker_authority_checks": 2276,
+    "ai_coordination": {
+      "peak_groups": 2,
+      "samples": 1292,
+      "violations": {}
+    },
+    "longest_stationary_travel": [
+      1.5,
+      2.0
+    ],
+    "losses": [
+      {
+        "Barracks": 2,
+        "CommandCenter": 1,
+        "CommandLab": 1,
+        "Infantry": 8,
+        "RepairDepot": 1,
+        "Tank": 3,
+        "VehicleFactory": 1,
+        "Worker": 11
+      },
+      {
+        "Infantry": 24,
+        "Tank": 2
+      }
+    ]
+  },
+  {
+    "case": 6,
+    "seed": 4110,
+    "faction": "helix",
+    "opponent": "frontier",
+    "result": "Defeat",
+    "seconds": 342.9,
+    "basic_unlock": 181.23333333337,
+    "first_program": null,
+    "first_assault": null,
+    "harvested": [
+      212.0,
+      72.0
+    ],
+    "spent": [
+      267.0,
+      62.0
+    ],
+    "retrofit_authority_checks": null,
+    "retrofit_net_e": 0,
+    "retrofit_episodes": [],
+    "retrofit_skipped": {},
+    "authored_applied": null,
+    "conventional_control_checks": null,
+    "worker_authority_checks": 770,
+    "ai_coordination": {
+      "peak_groups": 1,
+      "samples": 686,
+      "violations": {}
+    },
+    "longest_stationary_travel": [
+      1.5,
+      5.0
+    ],
+    "losses": [
+      {
+        "Barracks": 1,
+        "CommandCenter": 1,
+        "Infantry": 10,
+        "Tank": 2,
+        "VehicleFactory": 1,
+        "Worker": 14
+      },
+      {
+        "Infantry": 6
+      }
+    ]
+  },
+  {
+    "case": 6,
+    "seed": 4111,
+    "faction": "helix",
+    "opponent": "frontier",
+    "result": "Defeat",
+    "seconds": 658.8,
+    "basic_unlock": 171.250000000028,
+    "first_program": 182.250000000037,
+    "first_assault": null,
+    "harvested": [
+      471.0,
+      86.0
+    ],
+    "spent": [
+      527.0,
+      90.0
+    ],
+    "retrofit_authority_checks": 34,
+    "retrofit_net_e": 8,
+    "retrofit_episodes": [
+      {
+        "end": 182.250000000037,
+        "fee": 4,
+        "health": 0.94375,
+        "refunded": false,
+        "result": "installed",
+        "service": "CommandCenter",
+        "start": 173.75000000003
+      },
+      {
+        "end": 190.750000000044,
+        "fee": 4,
+        "health": 1,
+        "refunded": true,
+        "result": "threat_cancelled",
+        "service": "CommandCenter",
+        "start": 188.250000000042
+      },
+      {
+        "end": 414.249999999952,
+        "fee": 4,
+        "health": 0.753906249999998,
+        "refunded": false,
+        "result": "installed",
+        "service": "CommandCenter",
+        "start": 408.249999999957
+      }
+    ],
+    "retrofit_skipped": {
+      "engaged": 158,
+      "unaffordable": 187,
+      "wounded_or_recently_hit": 75
+    },
+    "authored_applied": 2,
+    "conventional_control_checks": null,
+    "worker_authority_checks": 2831,
+    "ai_coordination": {
+      "peak_groups": 2,
+      "samples": 1318,
+      "violations": {}
+    },
+    "longest_stationary_travel": [
+      1.5,
+      1.0
+    ],
+    "losses": [
+      {
+        "Barracks": 3,
+        "CommandCenter": 1,
+        "Infantry": 26,
+        "Tank": 1,
+        "Worker": 11
+      },
+      {
+        "AdvancedTank": 1,
+        "CombatRobot": 2,
+        "Infantry": 25,
+        "RepairRobot": 1,
+        "Tank": 3
+      }
+    ]
+  }
+]

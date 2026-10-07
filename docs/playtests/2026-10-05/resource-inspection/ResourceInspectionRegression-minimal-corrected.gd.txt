@@ -1,0 +1,64 @@
+extends "res://tests/headless/SaveRestoreEdges.gd"
+
+var human
+var overlay
+var material
+var electronics
+var aircraft
+var camera
+
+
+func _run():
+	root.get_node("SaveManager").autosaves_enabled = false
+	for faction in ["bastion", "helix", "frontier"]:
+		await _inspection_fixture(faction)
+		for target in [material, electronics, aircraft]:
+			await _point_at(target)
+			_check(
+				overlay._hovered_unit(camera) == target,
+				faction + ": world hover ray missed " + target.name
+			)
+		paused = false
+		game.queue_free()
+		await _frames(5)
+	for error in errors:
+		push_error(error)
+	print("Resource inspection: %d failures" % errors.size())
+	quit(0 if errors.is_empty() else 1)
+
+
+func _inspection_fixture(faction):
+	await _skirmish(faction, "res://source/match/maps/DesertFrontier.tscn", true)
+	human = game._get_human_player()
+	for side in get_nodes_in_group("players"):
+		side.set_process(false)
+	for unit in get_nodes_in_group("units"):
+		unit.set_physics_process(false)
+	game.hud._toggle_pause()
+	root.get_node("MatchSignals").deselect_all_units.emit()
+	overlay = game.get_node("OwnershipLayer/OwnershipOverlay")
+	camera = game.get_node("IsometricCamera3D")
+	camera.set_size_safely(24)
+	camera.set_position_safely(Vector3(32, 0, 28))
+	material = _stock("ResourceA", Vector3(32, 0, 28))
+	electronics = _stock("ResourceB", Vector3(32, 0, 33))
+	aircraft = load("res://source/match/units/Drone.tscn").instantiate()
+	game._setup_and_spawn_unit(aircraft, Transform3D(Basis(), Vector3(37, 3, 28)), human, true)
+	aircraft.set_physics_process(false)
+	await _frames(5)
+
+
+func _stock(kind, point):
+	var resource = load("res://source/match/units/non-player/" + kind + ".tscn").instantiate()
+	resource.position = point
+	game.map.get_node("Resources").add_child(resource)
+	return resource
+
+
+func _point_at(target):
+	camera.set_position_safely(target.global_position)
+	var event = InputEventMouseMotion.new()
+	event.position = camera.unproject_position(target.global_position + Vector3.UP * .3)
+	event.global_position = event.position
+	root.push_input(event, true)
+	await _frames(5)

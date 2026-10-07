@@ -1,0 +1,74 @@
+[
+  {
+    "log": "before-regression.log",
+    "exit_code": 1,
+    "classification": "partial historical reproduction; weak freed-reference/marker check",
+    "script_or_parse_errors": 0
+  },
+  {
+    "log": "before-final-regression.log",
+    "exit_code": 1,
+    "classification": "accepted historical reproduction: nine failures and three disconnect errors",
+    "script_or_parse_errors": 0
+  },
+  {
+    "log": "final-regression.log",
+    "exit_code": 0,
+    "classification": "rejected intermediate implementation: teardown errors and null-point reset; intermediate-regression.log is a duplicate",
+    "script_or_parse_errors": 0
+  },
+  {
+    "log": "RallyRetargetRegression.log",
+    "exit_code": 0,
+    "classification": "accepted final shipping regression before input rounding correction",
+    "script_or_parse_errors": 0
+  },
+  {
+    "log": "CoordinationRegression.log",
+    "exit_code": 0,
+    "classification": "accepted shared regression",
+    "script_or_parse_errors": 0
+  },
+  {
+    "log": "LuaAuthoringRegression.log",
+    "exit_code": 0,
+    "classification": "accepted shared regression",
+    "script_or_parse_errors": 0
+  },
+  {
+    "log": "SaveRestoreRegression.log",
+    "exit_code": 0,
+    "classification": "accepted shared regression",
+    "script_or_parse_errors": 0
+  },
+  {
+    "log": "SaveRestoreEdges.log",
+    "exit_code": 0,
+    "classification": "accepted shared regression",
+    "script_or_parse_errors": 0
+  },
+  {
+    "log": "historical-regression.log",
+    "exit_code": 1,
+    "classification": "accepted isolated historical control: nine failures and three disconnect errors",
+    "script_or_parse_errors": 0
+  },
+  {
+    "log": "preview.log",
+    "exit_code": 1,
+    "classification": "rejected rendered fixture: two exact-coordinate rounding failures",
+    "script_or_parse_errors": 0
+  },
+  {
+    "log": "final-preview.log",
+    "exit_code": 0,
+    "classification": "accepted rendered input and delivery; five inspected captures",
+    "script_or_parse_errors": 0
+  },
+  {
+    "log": "final-headless.log",
+    "exit_code": 0,
+    "classification": "accepted final all-faction regression",
+    "script_or_parse_errors": 0
+  }
+]

@@ -1,0 +1,64 @@
+extends "res://tests/headless/RosterInfoRegression.gd"
+
+
+func _run():
+	factions = load("res://source/match/FactionCatalog.gd")
+	catalog = load("res://source/match/BastionCatalog.gd")
+	root.get_node("SaveManager").autosaves_enabled = false
+	for faction in ["bastion", "helix", "frontier"]:
+		await _layout_fixture(faction)
+		var human = game._get_human_player()
+		for role in ["Worker", "CommandCenter", "Barracks", "VehicleFactory", "AircraftFactory"]:
+			var menus = _select(_units(human, role)[0])
+			await _frames(8)
+			_check_layout(menus, faction + ": " + role)
+			await _review_layout(menus, faction + "-" + role)
+		paused = false
+		game.queue_free()
+		await _frames(5)
+	for error in errors:
+		push_error(error)
+	print("Roster layout: %d failures" % errors.size())
+	quit(0 if errors.is_empty() else 1)
+
+
+func _layout_fixture(faction):
+	await _skirmish(faction, "res://source/match/maps/DesertFrontier.tscn", true)
+	for side in get_nodes_in_group("players"):
+		side.set_process(false)
+	game.hud._toggle_pause()
+	var airfield = load("res://source/match/units/AircraftFactory.tscn").instantiate()
+	game._setup_and_spawn_unit(
+		airfield, Transform3D(Basis(), Vector3(35, 0, 25)), game._get_human_player(), true
+	)
+	await _frames(5)
+
+
+func _check_layout(menus, label):
+	var clip = menus._scroll.get_global_rect()
+	var scrollbar = menus._scroll.get_v_scroll_bar()
+	if scrollbar.visible:
+		clip.size.x -= scrollbar.size.x
+	for entry in menus._buttons:
+		var button = entry.button
+		var rect = button.get_global_rect()
+		_check(
+			rect.position.x >= clip.position.x - 1 and rect.end.x <= clip.end.x + 1,
+			label + ": clipped tile " + entry.type + " " + str(rect) + " viewport " + str(clip)
+		)
+		var font = button.get_theme_font("font")
+		var size = button.get_theme_font_size("font_size")
+		var required = 0.0
+		for line in button.text.split("\n"):
+			required = maxf(
+				required, font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+			)
+		required += button.get_theme_stylebox("normal").get_minimum_size().x
+		required += (
+			button.get_theme_constant("icon_max_width") + button.get_theme_constant("h_separation")
+		)
+		_check(button.size.x + 1 >= required, label + ": text/icon do not fit " + entry.type)
+
+
+func _review_layout(_menus, _label):
+	pass

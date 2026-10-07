@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-03",
+  "engine": "Godot 4.6",
+  "sha256": {
+    "source/match/SkirmishPlan.gd": "ecf6730140d0728bf65d2d51aabf5b3e26c5bf795450ad2a0a7af66ea8343e47",
+    "source/match/SkirmishTactics.gd": "de1c9f7b389394f6474d498c2a8f0fe18b9fdbf58a31763cef502a553b3dc5fa",
+    "source/match/hud/UnitMenus.gd": "59fe35ba963227e57dcf0b16e120c310304b05866113952e6b7acd03eb64ce43",
+    "source/match/handlers/DoubleClickUnitSelectionHandler.gd": "a85664864d5a95d06063020d51a5426f6f1fd42fb2437d7808e38b80749c0f9d",
+    "tests/headless/BattlePlanRegression.gd": "b03419ba6c1f9ef5bdc03abf171498f60f33a1351b1bc2a2286ed383c6035767",
+    "tests/headless/SkirmishDefensePolicy.gd": "52fccd93aafbc8043d74f002cdc3deca0a8415cdad1afcf682ece9658cbe7c36",
+    "tests/rendered/BattlePlanPreview.gd": "5ec209c52f32f5abd3aeec7a3f13b7dac5bae7f200f47bf823373007eca66d5d",
+    "tests/rendered/SkirmishLoopPreview.gd": "24c8d7d7761c47176e9a57d117be3d0f269c30f4c9cb3169c156e8e4af15d6e2",
+    "source/match/players/skirmish-ai/SkirmishAI.gd": "84ebf1d3140d4a91df2c861bad5c014caa8233d887742a0ea3a44207e6b9d9be",
+    "source/match/FactionCatalog.gd": "88f47e844e7dc8ebb2e1f8165b1d0116ac35d78a47fe3e1765782b044b010d51",
+    "source/match/combat/CombatRules.gd": "65f73d92763d11d36caa951ee54d64a8e979d3bf4e3329034a4ef44f623a4f96"
+  },
+  "notes": [
+    "The first two policy pilots used a temporary script; the retained final policy uses the checked-in driver.",
+    "The final policy cohort ran while a read-only recovery-advice condition was broadened to include damaged support/scouts; its commander calls only the unchanged owned_units and army helpers."
+  ]
+}

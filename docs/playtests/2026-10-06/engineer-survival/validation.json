@@ -1,0 +1,28 @@
+{
+  "accepted_match_logs": [
+    "baseline-2.log",
+    "baseline-6.log",
+    "protected-2.log",
+    "protected-6.log"
+  ],
+  "accepted_regression_log": "policy-live-neighbors.log",
+  "accepted_native_log": "native-verified.log",
+  "rejected_native_logs": {
+    "native.log": "Incomplete delivery selection and incorrect later window size",
+    "native-final.log": "Wall deadline expired before final continuation"
+  },
+  "invalid_frozen_neighbor_fixtures": [
+    "policy.log",
+    "policy-probe.log",
+    "policy-position-probe.log",
+    "policy-capture.log"
+  ],
+  "native_capture_count": 8,
+  "native_capture_size": [
+    1280,
+    720
+  ],
+  "movement_matches_before_snapshot": true,
+  "gdformat_gdlint": "7 files pass",
+  "git_diff_check": "pass"
+}

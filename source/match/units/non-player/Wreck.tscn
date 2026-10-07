@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://source/match/units/non-player/ResourceA.tscn" id="1"]
+[ext_resource type="Script" path="res://source/match/units/non-player/Wreck.gd" id="2"]
+
+[node name="Wreck" instance=ExtResource("1")]
+script = ExtResource("2")
+
+[node name="MovementObstacle" parent="." index="4"]
+radius = 0.45
+affect_navigation_mesh = false
+avoidance_enabled = false
+path_height_offset = 0.0

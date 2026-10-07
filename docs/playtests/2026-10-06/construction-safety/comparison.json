@@ -1,0 +1,81 @@
+[
+  {
+    "policy": "control6",
+    "seed": 4110,
+    "map": "IndustrialCrossroads",
+    "faction": "helix",
+    "opponent": "frontier",
+    "result": "Defeat",
+    "seconds": 520.3,
+    "first_program": 203.233333333387,
+    "first_assault": null,
+    "losses": [
+      {
+        "Barracks": 3,
+        "CommandCenter": 1,
+        "Infantry": 21,
+        "PowerPlant": 1,
+        "Tank": 3,
+        "Worker": 5
+      },
+      {
+        "CombatRobot": 1,
+        "Infantry": 14,
+        "Tank": 3
+      }
+    ],
+    "longest_stationary_travel": [
+      33.0,
+      1.0
+    ],
+    "ai_coordination": {
+      "peak_groups": 2,
+      "samples": 1041,
+      "violations": {}
+    },
+    "spent": [
+      468.0,
+      108.0
+    ]
+  },
+  {
+    "policy": "safe6",
+    "seed": 4110,
+    "map": "IndustrialCrossroads",
+    "faction": "helix",
+    "opponent": "frontier",
+    "result": "Defeat",
+    "seconds": 494.4,
+    "first_program": 357.233333333337,
+    "first_assault": null,
+    "losses": [
+      {
+        "Barracks": 1,
+        "CommandCenter": 1,
+        "Infantry": 8,
+        "PowerPlant": 1,
+        "RepairDepot": 1,
+        "Tank": 2,
+        "Worker": 8
+      },
+      {
+        "CombatRobot": 2,
+        "Infantry": 16,
+        "Tank": 2
+      }
+    ],
+    "longest_stationary_travel": [
+      2.5,
+      1.0
+    ],
+    "ai_coordination": {
+      "peak_groups": 2,
+      "samples": 989,
+      "violations": {}
+    },
+    "spent": [
+      353.0,
+      96.0
+    ]
+  }
+]

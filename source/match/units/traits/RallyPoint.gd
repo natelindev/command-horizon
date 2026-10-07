@@ -2,15 +2,18 @@ extends Node3D
 
 var target_unit = null:
 	set(a_target_unit):
-		if target_unit == null and a_target_unit != null:
-			a_target_unit.tree_exited.connect(_on_target_unit_tree_exited)
-			hide()
-		elif target_unit != null and a_target_unit == null:
+		if target_unit == a_target_unit:
+			return
+		if is_instance_valid(target_unit):
 			target_unit.tree_exited.disconnect(_on_target_unit_tree_exited)
-			_reset_position_to_parent()
-			if _unit.is_in_group("selected_units"):
-				show()
 		target_unit = a_target_unit
+		if is_instance_valid(target_unit):
+			target_unit.tree_exited.connect(_on_target_unit_tree_exited)
+			hide()
+		else:
+			target_unit = null
+			_reset_position_to_parent()
+			visible = _unit.is_in_group("selected_units")
 
 @onready var _unit = get_parent()
 @onready var _animation_player = find_child("AnimationPlayer")
@@ -37,8 +40,18 @@ func _show():
 			targetability.animate()
 
 
+func is_assigned():
+	return is_instance_valid(target_unit) or position != Vector3.ZERO
+
+
+func clear_assignment():
+	target_unit = null
+	_reset_position_to_parent()
+	visible = _unit.is_in_group("selected_units")
+
+
 func _reset_position_to_parent():
-	global_position = _unit.global_position
+	position = Vector3.ZERO
 
 
 func _on_target_unit_tree_exited():

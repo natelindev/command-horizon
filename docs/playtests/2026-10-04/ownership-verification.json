@@ -1,0 +1,451 @@
+{
+  "scope": "Ownership indicators and rendered authority/layout, not full accessibility or release acceptance",
+  "accepted_checks": [
+    {
+      "name": "OwnershipRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "log": "docs/playtests/2026-10-04/ownership-final.log",
+      "sha256": "31a49697dad1b098571d52b8d08b1d4956249a6741454cbd0c3bf9cbb7e893cd"
+    },
+    {
+      "name": "SettingsRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 1.4,
+      "log": "docs/playtests/2026-10-04/ownership-SettingsRegression.log",
+      "sha256": "bd46094143279bba385fc86cb238f1b224f5db248d0873da3d0f629a58dcba05"
+    },
+    {
+      "name": "MapStartupRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 1.5,
+      "log": "docs/playtests/2026-10-04/ownership-MapStartupRegression.log",
+      "sha256": "4c567e502b3a21f439056ede630dc0d9f8683262e28ba0aef4f94a672adb4bd7"
+    },
+    {
+      "name": "DirectOrdersRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 12.2,
+      "log": "docs/playtests/2026-10-04/ownership-DirectOrdersRegression.log",
+      "sha256": "def04d1644229e458ce9620d07478a3b65c397926d5333478eb72c77af40a03a"
+    },
+    {
+      "name": "SelectionRosterRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 16.6,
+      "log": "docs/playtests/2026-10-04/ownership-SelectionRosterRegression.log",
+      "sha256": "6d5aeb7d76b00be767679156f686d6baa3d0a1c9cd1235702288371302dd0db7"
+    },
+    {
+      "name": "CombatRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 1.6,
+      "log": "docs/playtests/2026-10-04/ownership-CombatRegression.log",
+      "sha256": "2712a339ecbdd5c881442023d301215ca964948faa2856b9186f5d9c939f7be1"
+    },
+    {
+      "name": "SaveRestoreCombat",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 1.9,
+      "log": "docs/playtests/2026-10-04/ownership-SaveRestoreCombat.log",
+      "sha256": "ff7f8ab9061d0c4bfbe596161caf738e071dab955825e1985732fd9913835f74"
+    },
+    {
+      "name": "SaveRestoreEdges",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 5.6,
+      "log": "docs/playtests/2026-10-04/ownership-SaveRestoreEdges.log",
+      "sha256": "7cbb66b768e20d24f563e20cdd08e60dae995a6c5a36ebc628fbb609d49dbf8a"
+    },
+    {
+      "name": "CampaignControlsRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 1.3,
+      "log": "docs/playtests/2026-10-04/ownership-CampaignControlsRegression.log",
+      "sha256": "811e3f73ab8e6739e957c34859bb0d85f9408c805acb404a7587bc5007c91128"
+    },
+    {
+      "name": "ArenaRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 3.6,
+      "log": "docs/playtests/2026-10-04/ownership-ArenaRegression.log",
+      "sha256": "4ca28d643650aafca8edce67f9d6fbe34fb3c6ff6bf13b7b459e267a9b10843a"
+    },
+    {
+      "name": "format",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "log": "docs/playtests/2026-10-04/ownership-static-format.log",
+      "sha256": "249d4b42c1a7ebdd34aac5a30eded276e23131595c2fba019a8b052cb3692d79"
+    },
+    {
+      "name": "lint",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "log": "docs/playtests/2026-10-04/ownership-static-lint.log",
+      "sha256": "d2f45ecead8ebe024d64d724cef92d4c7b89f8d0150b30b296320bddb760e4be"
+    },
+    {
+      "name": "whitespace",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "log": "docs/playtests/2026-10-04/ownership-static-whitespace.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "editor-import",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "log": "docs/playtests/2026-10-04/ownership-static-editor-import.log",
+      "sha256": "5161a28253cb814d1fe6fbab4cd9c6000b690f090be9d7fe709bf2a14a7fc274"
+    },
+    {
+      "name": "OwnershipPreview",
+      "exit": 0,
+      "log": "docs/playtests/2026-10-04/ownership-preview-reviewed.log",
+      "pass_marker": true,
+      "script_error": false,
+      "load_error": false,
+      "sha256": "5dc0c76027988b0826b95bb711ed29ea78374b3e13da4ebbeebbdcbc60eac418"
+    },
+    {
+      "name": "InterfaceScalePreview",
+      "exit": 0,
+      "log": "docs/playtests/2026-10-04/ownership-interface-rendered.log",
+      "pass_marker": true,
+      "script_error": false,
+      "load_error": false,
+      "sha256": "402005dcf3f1ab15c52eb5f3d3059218cda9668f0781befad93c7ab674198d76"
+    },
+    {
+      "name": "CampaignScalePreview",
+      "exit": 0,
+      "log": "docs/playtests/2026-10-04/ownership-campaign-rendered.log",
+      "pass_marker": true,
+      "script_error": false,
+      "load_error": false,
+      "sha256": "fcf8ba7e475d7fc0e748e73612e4c4cccdbf91398d597880cc5df562dd3e423f"
+    },
+    {
+      "name": "ArenaPreview",
+      "exit": 0,
+      "log": "docs/playtests/2026-10-04/ownership-arena-rendered.log",
+      "pass_marker": true,
+      "script_error": false,
+      "load_error": false,
+      "sha256": "8a513ea007f7928daf4c2168ba661a23300fb66f4814c3462a4257149866a186"
+    }
+  ],
+  "original_failures": "ownership-before.log",
+  "retained_diagnostics": [
+    "ownership-regression-first.log",
+    "ownership-preview-first.log",
+    "ownership-preview-second.log",
+    "ownership-BattleArenaRegression.log",
+    "ownership-preload-diagnostic.log"
+  ],
+  "artifacts": [
+    {
+      "path": "source/match/hud/Ownership.gd",
+      "sha256": "a0d22841aaefbf75e9c103de595fbe986c79cbe17119b4db61cfeb66f04b1feb"
+    },
+    {
+      "path": "source/match/hud/OwnershipOverlay.gd",
+      "sha256": "a53a61254c8084f9b9efd92d23a707853c6141ea3f4c0479ba6cc6bb1d535481"
+    },
+    {
+      "path": "source/match/hud/MinimapUnitMarker.gd",
+      "sha256": "4db0da2ace2384e8a4c28c6ecd440d1cc3a5f39ba3dbeb6e1611046a4b5c1081"
+    },
+    {
+      "path": "source/match/hud/Minimap.gd",
+      "sha256": "65db2cd2a832156428fc2913d584a7098d92a5abb9c91b12e1725f651515203b"
+    },
+    {
+      "path": "source/match/Match.gd",
+      "sha256": "2f6f239d6d3e93684e7e31e1f8f3baadb54375d4f6f807d0172bc371f2d0a2ec"
+    },
+    {
+      "path": "source/data-model/Options.gd",
+      "sha256": "1c41811ba4db463ce02e95b1581ea2afff9c84a277ba8b821cbb18bf675b3433"
+    },
+    {
+      "path": "source/main-menu/SettingsDialog.gd",
+      "sha256": "88837fe75d06d473eb54b3d383a5c361403e120f26cb24ad3cbb02580bdb4fe4"
+    },
+    {
+      "path": "tests/headless/OwnershipRegression.gd",
+      "sha256": "616e3e4a7f3c1009f8675025ae39ab9e03a0aff8cea3b73ed8a89c326255708f"
+    },
+    {
+      "path": "tests/rendered/OwnershipPreview.gd",
+      "sha256": "b6cfa936a1f49dfee025c789f303623ab957a41d1cd89499397864a94201f29e"
+    },
+    {
+      "path": "art/skirmish/ownership-bastion-900p.png",
+      "sha256": "8c96f3fcf3f4af3198bb67ec2b8f8f83e99608b216655b24225f2f5c82b3951c"
+    },
+    {
+      "path": "art/skirmish/ownership-bastion-opponent-hover.png",
+      "sha256": "aecce3c96ca12486040593fb17dc628645ad61268247ad8c294fd52d129b41db"
+    },
+    {
+      "path": "art/skirmish/ownership-bastion-restored.png",
+      "sha256": "9208e127e0a9d046983fa7ddef4cc96288997b6ed11d354eca6c5a43fa81f04b"
+    },
+    {
+      "path": "art/skirmish/ownership-bastion-scale-100.png",
+      "sha256": "52a71cf29bf77be49b39ff12e82bdfc99a1b4a75d76c210dd7e714366e5f4f39"
+    },
+    {
+      "path": "art/skirmish/ownership-bastion-scale-125.png",
+      "sha256": "18b535ceea82b713ce34635c2e011e39e6e7e0a8b0d6d68532f474f3ea571ed6"
+    },
+    {
+      "path": "art/skirmish/ownership-bastion-scale-150.png",
+      "sha256": "253e7a6e73dcb01bfdc0f27b0ef3fcb6d4b7d541880e3644c11e6cb5d4e5c39d"
+    },
+    {
+      "path": "art/skirmish/ownership-bastion-settings.png",
+      "sha256": "90094be565ce9ae0eb0d6e8ca3627e5334d388471aab803b695a0c17e48a8e49"
+    },
+    {
+      "path": "art/skirmish/ownership-helix-900p.png",
+      "sha256": "7c0c58d18d1c086493996d21f3d712241dbe07cf17baeda0f083195469118bf0"
+    },
+    {
+      "path": "art/skirmish/ownership-helix-opponent-hover.png",
+      "sha256": "67ecd9b677c34d31f5fea6d6f026f3cff9f94f4ddd826de4189069212d6835ff"
+    },
+    {
+      "path": "art/skirmish/ownership-helix-restored.png",
+      "sha256": "b8c6e71066e6cf909cfdaf03ae4e28adbb32e767d746bd482265ff3fe76e5e02"
+    },
+    {
+      "path": "art/skirmish/ownership-helix-scale-100.png",
+      "sha256": "0e07acf230bd45c229b714402ff6d6b63a8d09fa0fb0701af5d55a5d4b0eba21"
+    },
+    {
+      "path": "art/skirmish/ownership-helix-scale-125.png",
+      "sha256": "cc22faedc17e2e7655eea9fcfbd0b30470c2c8af7971aac6049f68dbea3c3976"
+    },
+    {
+      "path": "art/skirmish/ownership-helix-scale-150.png",
+      "sha256": "727f4f7d0bc27fb17deed0cd49617564dbf52e2f81b7c2a79e108536a938c69f"
+    },
+    {
+      "path": "art/skirmish/ownership-helix-settings.png",
+      "sha256": "023ed1c0c3a9d4e6c368d602d0ef74f2e46a77d266a5f862b3c23aa7132911a7"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-arena-paused-720p.png",
+      "sha256": "67665259cba3dec8c24ed80621f4d6db4471f1568159cc40b39d81644e717e20"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-arena-result-720p.png",
+      "sha256": "e7e14d1b3ad181ab8ca39d4ed6a7ce54768dbce0e4f78111b0b44d58efe22835"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-campaign-scale-air_corridor-150-720p.png",
+      "sha256": "baf4c518f912f0f9eb7ce0e8103ea3458229668282347a584bea685ac5c57ce0"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-campaign-scale-broken_foundry-150-720p.png",
+      "sha256": "e282a8d7ee8b76454bfb9014185d13538151ea1ecc6e2bc6519076a6730ad8a8"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-campaign-scale-command_horizon-150-720p.png",
+      "sha256": "bb151b916a4c1a5da93dadfac0d6621377fd6422ca0b289cf2a0a8df8f1386e1"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-campaign-scale-first_orders-150-720p.png",
+      "sha256": "366512db96ab6e19a7a443339ed507182757120b847fa60fb098c702405b9744"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-campaign-scale-horizon-focused-150-720p.png",
+      "sha256": "bd46e7ad43296448efeaa45bb540f9435aa0bfa9ddd46d2d985028ab2b3ce036"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-campaign-scale-split_signal-150-720p.png",
+      "sha256": "23cca9e63de2165e7dd96a306d45bbf64ef694af85e00e298cf209561dd68125"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-campaign-scale-supply-150-1080p.png",
+      "sha256": "82c32380b47ad813233369aa7003a6bb7be39f433449198cf7cf9e924f8bec53"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-campaign-scale-supply-150-900p.png",
+      "sha256": "b7aecae19bacd23646164316b8f20eeb5647da01036b7a45e25c350bcf375c50"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-campaign-scale-supply_line-100-720p.png",
+      "sha256": "a2f4b6d5e169b190e55851c8c3a11e30e6c80eba9276ce5555ebeffe36febfb3"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-campaign-scale-supply_line-125-720p.png",
+      "sha256": "e0911b25d42b4f83caf57227dda7f612ad48bec1667c7b99cb81c852b540f1fe"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-campaign-scale-supply_line-150-720p.png",
+      "sha256": "b4a09a0bec87157e2933550439c5022f9c43a30362daf6e0b4a41b179d45f0da"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-interface-bastion-100-720p.png",
+      "sha256": "50588c4df06928db0f5267df4ffef1c47f4e70e66ab0454ffce38b0c117436c4"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-interface-bastion-125-720p.png",
+      "sha256": "667676b7e8eaa15840c231456c56bcbe21217479325de8866d1b4ae0c5fcb53e"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-interface-bastion-150-720p.png",
+      "sha256": "c0e4f8f7c68849c4d2806dd3da7635c13c00fda5858153557e411b9d355befd7"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-interface-battle-150-1080p.png",
+      "sha256": "0d4b5bbf1a1ce66451d11108c94fc8b9940bd69382b79a167a54d0383e7e614d"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-interface-battle-150-900p.png",
+      "sha256": "b3b71188f27da63be6bda7b1b38cb863522d9adfb507dfca425b05b90be62f2f"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-interface-battle-bastion-100-720p.png",
+      "sha256": "b53d2edca353e2922c71e542ebac25ad83c30bac88763e5f6d48a265623b3cd9"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-interface-battle-bastion-125-720p.png",
+      "sha256": "216dbd2e146f3fa913f4af415f22696e8801ee11214eb28d11724b1d57449834"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-interface-battle-bastion-150-720p.png",
+      "sha256": "3f38e11a4e5415290a53efd86804f46bc345e9476389ebd6eba017e174e8869e"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-interface-battle-helix-100-720p.png",
+      "sha256": "5c69a0f47888e99ad34b64dcb9e18644d7c4b6262d715c0abe6b20974b1da29c"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-interface-battle-helix-125-720p.png",
+      "sha256": "e6239b63e72722802833486ac1cf77bff76e1d57c651e1f6983400d82d7a0a2e"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-interface-battle-helix-150-720p.png",
+      "sha256": "ca5d9ec428fad3b6c5cc0d2f6cbfd9b1bd683dfa5e2ac100b526d51284a10f63"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-interface-campaign-150-720p.png",
+      "sha256": "0a71d2ab86275fd5f7a523756b56c3b42f209ccfc8db9524d6da00d094067031"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-interface-campaign-battle-150-720p.png",
+      "sha256": "8ea6322e46e4d3d79fcd66640408752c8259babdb5698f17bcfa0227c2d74f47"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-interface-editor-bastion-150-720p.png",
+      "sha256": "73a86559d40ebd9697a80d21f308512a3d86ab5c5660db5da25a56e8c5ef9656"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-interface-editor-helix-150-720p.png",
+      "sha256": "e1e4f28527d51f352520d22b64328ef012ab0963acd152cbbbcb6fba411f4cdd"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-interface-helix-100-720p.png",
+      "sha256": "9f304d80a0a469e8a782060fc266027255e00aed8df3cbccf6e2d294b3294433"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-interface-helix-125-720p.png",
+      "sha256": "1341ae15ba80f0050b7d9bf45e7065647e9b4186a8535ba73461873b880e3d7a"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-interface-helix-150-720p.png",
+      "sha256": "c954b527d3e6c76b5b37d998c931b57552bd3a604f61535e155e3f65c9c42a03"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-interface-main-150-720p.png",
+      "sha256": "650183c31fc39bc4b48c8a6ac2d8f5e33b8038cd3748178c62513690a1bdbf6e"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-interface-play-150-720p.png",
+      "sha256": "b810f240e192373cfff108d11ea9d20406a1ff2e5949bea7bde946ff9f5a1519"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-interface-production-bastion-100-720p.png",
+      "sha256": "93296db3b6995728cfc25fc7bc00039569f31fc008621ce4b269f287b5738bb9"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-interface-production-bastion-125-720p.png",
+      "sha256": "40d50d3029ba213d2d67b657aa56e8fe26d2c58fd7c2330985eae12d05038180"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-interface-production-bastion-150-720p.png",
+      "sha256": "4c1aaf17056915c5d088e09e77980af1fd0b44ecb589640511a81d84b5cc9a31"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-interface-production-helix-100-720p.png",
+      "sha256": "5641f61b628968101b94239f312f071aec4d7441b641052373cabe1c8f62cac9"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-interface-production-helix-125-720p.png",
+      "sha256": "ba4e08889da016fe96dacfd486f136c9432ac569b96c2be956ab19397457d463"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-interface-production-helix-150-720p.png",
+      "sha256": "bc446d679fe81154a3d0d73f15e4d9d755f21b8414fcc375bcc2ddf93f4c1128"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-interface-relay-150-720p.png",
+      "sha256": "def7a659381b477cbc3d4513dd362fa1315265788adfc284ea9d5dca695058a1"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-interface-result-150-720p.png",
+      "sha256": "a75eb65ba4240a40f5b5c20c4a7471a184c1a9f6ab7a7ba2e96a9be632fae4d6"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-interface-settings-150-1080p.png",
+      "sha256": "e4ee7d57264e16d95c7a4e64a4fb3f61924e5f010cb8b7a9663d885ea7153d9a"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-interface-settings-150-720p.png",
+      "sha256": "7698556f85dfa6dda399d04b633bc857b6ed48467f675bee1f9b8518223b05f2"
+    },
+    {
+      "path": "art/skirmish/ownership-shared-interface-settings-150-900p.png",
+      "sha256": "cd80523d927b810bbf23b26b3d157e8af05a67c4d82b0795e0af74be641e7327"
+    }
+  ],
+  "limits": "Known navigation/shutdown warnings; no new physical-device, novice, screen-reader or performance claim"
+}

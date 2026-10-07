@@ -1,0 +1,55 @@
+extends "res://tests/headless/CornerRecoveryRegression.gd"
+
+var frames_seen = 0
+
+
+func _observe():
+	super()
+	frames_seen += 1
+	if frames_seen % 60 != 0:
+		return
+	var motion = watched.get_node("Movement")
+	var neighbors = []
+	for unit in game.battlefield.nearby_units(watched.position, 5):
+		if unit == watched or unit.movement_speed <= 0:
+			continue
+		neighbors.append(
+			{
+				"role": unit.type,
+				"position": str(unit.position),
+				"active": unit.get_node("Movement")._has_destination,
+				"action": str(unit.action)
+			}
+		)
+	print(
+		"CORNER MOTION ",
+		JSON.stringify(
+			{
+				"label": trace_label,
+				"time": game.simulation_time,
+				"position": str(watched.position),
+				"mode": watched.program.mode,
+				"reason": watched.program.reason,
+				"stalled": watched.action._stalled,
+				"recovery": motion._recovery_left,
+				"direction": str(motion._recovery_direction),
+				"velocity": str(motion.velocity),
+				"occupied": motion.has_occupied_endpoint(),
+				"path": str(motion.get_current_navigation_path()),
+				"index": motion.get_current_navigation_path_index(),
+				"neighbors": neighbors
+			}
+		)
+	)
+
+
+func _review_corner(label):
+	if watched.action.is_settled_guard():
+		return
+	var was_paused = paused
+	paused = true
+	FileStore.new().write_file(
+		"res://docs/playtests/2026-10-04/corner-unsettled-" + label + ".json",
+		Snapshot.new().capture(game)
+	)
+	paused = was_paused

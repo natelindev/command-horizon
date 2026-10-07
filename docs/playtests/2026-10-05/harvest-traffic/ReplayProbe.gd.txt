@@ -1,0 +1,51 @@
+extends "res://tests/headless/SkirmishLaborRegression.gd"
+
+var _last_recovery = {}
+var _safe = {}
+var _started = 0.0
+
+func _run():
+	root.get_node("SaveManager").autosaves_enabled = false
+	var restore = Restore.new()
+	var loaded = await restore.restore(self, FileStore.new().read_file("res://tmp/harvest-traffic-helix.json"))
+	if not loaded.ok:
+		push_error(loaded.error)
+		quit(1)
+		return
+	game = loaded.game
+	var player = restore.entities["unit-29"].player
+	_freeze(player)
+	var workers = _units(player, "Worker")
+	for worker in workers:
+		worker.get_node("Movement").velocity_computed.connect(func(v): _safe[worker] = v)
+	_started = game.simulation_time
+	paused = false
+	for frame in 2400:
+		await physics_frame
+		for worker in workers:
+			var mover = worker.get_node("Movement")
+			var recovery_ended = _last_recovery.get(worker, 0.0) > 0 and mover._recovery_left <= 0
+			_last_recovery[worker] = mover._recovery_left
+			if frame % 12 == 0 or recovery_ended:
+				_trace(worker, restore.entities["unit-29"], recovery_ended)
+	paused = true
+	print("REVIEW COMPLETE")
+	game.queue_free()
+	await _frames(5)
+	quit(0)
+
+func _trace(worker, blocker, recovery_ended):
+	var movement = worker.get_node("Movement")
+	var path_here = movement.get_current_navigation_path()
+	var idx = movement.get_current_navigation_path_index()
+	var next = path_here[idx] * Vector3(1,0,1) if idx < path_here.size() else Vector3.INF
+	var sub = worker.action._sub_action if worker.action != null and "_sub_action" in worker.action else null
+	print("REVIEW ", JSON.stringify({
+		"t":game.simulation_time-_started, "i":worker.get_index(), "p":str(worker.position),
+		"robot":str(blocker.position),"sep":worker.position.distance_to(blocker.position),
+		"next":str(next),"next_sep":next.distance_to(blocker.position),"idx":idx,
+		"dest":str(movement.target_position),"requested":str(movement.velocity),"safe":str(_safe.get(worker, Vector3.ZERO)),
+		"recovery":movement._recovery_left,"ended":recovery_ended,"rev":movement._command_revision,
+		"progress":str(movement._progress_position),"progress_elapsed":movement._progress_elapsed,
+		"action":str(worker.action),"contact":sub._contact_elapsed if sub != null and "_contact_elapsed" in sub else null
+	}))

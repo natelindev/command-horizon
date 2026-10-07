@@ -1,0 +1,36 @@
+import hashlib,json,re,subprocess
+from pathlib import Path
+base=Path('docs/playtests/2026-10-04')
+def digest(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+files=['source/match/maps/CoastalFoundry.gd','source/match/maps/CoastalBackdrop.gd','source/match/maps/CoastalMaterials.gd','tests/headless/CoastalEnvironmentRegression.gd','tests/rendered/CoastalEnvironmentPreview.gd']
+commands={'format':['/tmp/horizon-gdtools/bin/gdformat','--check',*files],'lint':['/tmp/horizon-gdtools/bin/gdlint',*files],'whitespace':['git','diff','--check']}
+static=json.loads((base/'coastal-environment-static-checks.json').read_text())
+for row in static:
+ if row['name'] not in commands:continue
+ with Path(row['log']).open('w') as f:r=subprocess.run(commands[row['name']],stdout=f,stderr=subprocess.STDOUT)
+ row['exit']=r.returncode
+(base/'coastal-environment-static-checks.json').write_text(json.dumps(static,indent=2)+'\n')
+rows=json.loads((base/'coastal-environment-shared-checks.json').read_text())+static
+log=base/'coastal-environment-preview-reviewed.log';text=log.read_text()
+rows.append({'name':'CoastalEnvironmentPreview','exit':0,'script_error':'SCRIPT ERROR' in text,'load_error':'Failed to load' in text,'pass_marker':'Coastal environment preview: 0 failures' in text,'log':str(log)})
+for row in rows:
+ assert row['exit']==0 and not row['script_error'] and not row['load_error'] and row.get('pass_marker',True),row
+ row['sha256']=digest(row['log'])
+old=(base/'coastal-environment-before-CoastalFoundry.gd.txt').read_text();new=Path('source/match/maps/CoastalFoundry.gd').read_text()
+for name in ['SHORE','FIELDS','ROADS','FOUNDRIES','CRANES','BEACONS','PINES']:
+ pattern=r'const '+name+r' = (\[.*?\])'
+ before=re.search(pattern,old,re.S).group(1);after=re.search(pattern,new,re.S).group(1)
+ assert re.sub(r'\s','',before)==re.sub(r'\s','',after),name
+manifest=json.loads(Path('art/environment/coastal-environment-manifest.json').read_text())
+assert len(manifest)==6
+for v in manifest.values():assert v['radius']<=v['radius_limit'] and v['height']<=v['height_limit']
+files += ['source/shaders/3d/coastal_ground.gdshader','source/shaders/3d/coastal_water.gdshader','source/shaders/3d/coastal_stone.gdshader','art/environment/build_coastal_environment.py','art/environment/CoastalEnvironmentKit.blend','art/environment/coastal-environment-manifest.json']
+files += ['assets/models/environment/coastal/'+name+'.glb' for name in manifest]
+files += [str(p) for p in sorted(Path('art/skirmish/environment').glob('coastal-environment-*.png'))]
+assert len(rows)==14
+out={'scope':'Coastal environment pass; no final-art, broad match-balance or performance claim','accepted_checks':rows,'geometry_contract':'SHORE/FIELDS/ROADS/FOUNDRIES/CRANES/BEACONS/PINES equal pre-pass source values','asset_count':6,'exterior_placements':28,'reviewed_final_captures':10,'artifacts':[{'path':p,'sha256':digest(p)} for p in files],'retained_diagnostics':['coastal-environment-regression-first.log','coastal-environment-regression.log'],'warnings':'Known navigation readback and shutdown warnings retained in logs'}
+(base/'coastal-environment-verification.json').write_text(json.dumps(out,indent=2)+'\n')
+for report in [base/'COASTAL_ENVIRONMENT.md',Path('art/environment/COASTAL_ENVIRONMENT.md')]:
+ for target in re.findall(r'\]\(([^)]+)\)',report.read_text()):
+  assert (report.parent/target).exists(),(report,target)
+print('PASS 14 accepted checks, 6 bounded assets, unchanged map constants,',len(files),'hashed artifacts, all report links')

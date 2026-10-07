@@ -1,0 +1,82 @@
+--- before/CommandHorizon.gd
++++ after/CommandHorizon.gd
+@@ -158,15 +158,49 @@
+ 	return is_instance_valid(unit) and not unit.is_queued_for_deletion() and unit.hp > 0
+ 
+ 
++func has_deployment_infantry():
++	var human = _get_human_player()
++	if battlefield == null or human == null:
++		return false
++	return battlefield.nearby_units(map.DEPLOYMENT, map.relay.RADIUS).any(
++		func(unit): return unit.player == human and unit.type == "Infantry" and _alive(unit)
++	)
++
++
+ func zone_held():
++	return (
++		map.relay.captured_by == _get_human_player()
++		and not map.relay.contested
++		and has_deployment_infantry()
++	)
++
++
++func deployment_status():
++	if finished and result == "Victory":
++		return "Secured · 30 / 30 s"
++	var relay = map.relay
+ 	var human = _get_human_player()
+-	return (
+-		map.relay.captured_by == human
+-		and not map.relay.contested
+-		and battlefield.nearby_units(map.DEPLOYMENT, map.relay.RADIUS).any(
+-			func(unit): return unit.player == human and unit.type == "Infantry" and _alive(unit)
++	if relay.capture_side() != null:
++		return relay.capture_status(human)
++	if relay.contested:
++		return "Contested · %d / 30 s held" % int(hold_seconds)
++	if human != null and relay.captured_by == human:
++		if not has_deployment_infantry():
++			return "Infantry needed · %d / 30 s held" % int(hold_seconds)
++		return (
++			"Guard in place · 30 / 30 s" if deployed else "Securing · %d / 30 s" % int(hold_seconds)
+ 		)
+-	)
++	return relay.capture_status(human)
++
++
++func deployment_help():
++	var text = map.relay.capture_help(_get_human_player()).replace(". ", ".\n")
++	text += "\nAfter capture, keep infantry here for 30 uncontested seconds."
++	text += "\nSecured time is retained when you leave or lose control."
++	text += "\nTo win, destroy enemy command and keep an uncontested infantry guard here."
++	if map.relay.captured_by == _get_human_player() and not has_deployment_infantry():
++		text += "\nReturn infantry; no recapture is needed unless ownership changes."
++	return text
+ 
+ 
+ func _check_outcome(delta):
+@@ -269,14 +303,18 @@
+ 	if command_destroyed:
+ 		var deployment = "retake deployment with infantry"
+ 		if not deployed:
+-			deployment = "secure deployment · %d / 30 s" % int(hold_seconds)
++			deployment = (
++				"capture deployment with infantry"
++				if deployment_status() == "Unclaimed"
++				else "deployment · " + deployment_status().to_lower()
++			)
+ 		elif zone_held():
+ 			deployment = "deployment secured"
++		elif map.relay.captured_by == _get_human_player() and not map.relay.contested:
++			deployment = "return infantry to deployment"
+ 		return "Command destroyed · " + deployment
+-	if not deployed:
+-		return "Secure deployment · %d / 30 s" % int(hold_seconds)
+-	if not zone_held():
+-		return "Retake deployment · keep infantry at the control point"
++	if not deployed or not zone_held():
++		return "Deployment · " + deployment_status()
+ 	return "Hold deployment and destroy Helix command."
+ 
+ 

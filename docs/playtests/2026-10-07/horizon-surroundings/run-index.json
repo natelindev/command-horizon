@@ -1,0 +1,86 @@
+[
+  {
+    "log": "baseline-south.log",
+    "command": "Godot --path . --headless --fixed-fps 60 --script tests/headless/HorizonSurroundingsRegression.gd -- --baseline",
+    "phase": "pre-edit baseline",
+    "exit_code": 0
+  },
+  {
+    "log": "baseline-north.log",
+    "command": "Godot --path . --headless --fixed-fps 60 --script tests/headless/HorizonSurroundingsRegression.gd -- --baseline --alternate",
+    "phase": "pre-edit baseline",
+    "exit_code": 0
+  },
+  {
+    "log": "before-preview.log",
+    "command": "Godot --path . --script tests/rendered/HorizonSurroundingsPreview.gd -- --evidence=res://docs/playtests/2026-10-07/horizon-surroundings/before",
+    "phase": "pre-edit visual reference",
+    "exit_code": 0
+  },
+  {
+    "log": "geometry-south.log",
+    "command": "Godot --path . --headless --fixed-fps 60 --script tests/headless/HorizonSurroundingsRegression.gd",
+    "phase": "accepted",
+    "exit_code": 0
+  },
+  {
+    "log": "geometry-north.log",
+    "command": "Godot --path . --headless --fixed-fps 60 --script tests/headless/HorizonSurroundingsRegression.gd -- --alternate",
+    "phase": "accepted",
+    "exit_code": 0
+  },
+  {
+    "log": "initial-preview.log",
+    "command": "Godot --path . --script tests/rendered/HorizonSurroundingsPreview.gd -- --evidence=res://docs/playtests/2026-10-07/horizon-surroundings/initial",
+    "phase": "superseded visual iteration: square road repairs",
+    "exit_code": 0
+  },
+  {
+    "log": "environment-rules.log",
+    "command": "Godot --path . --headless --fixed-fps 60 --script tests/headless/HorizonEnvironmentRegression.gd",
+    "phase": "accepted",
+    "exit_code": 0
+  },
+  {
+    "log": "shared-rules.log",
+    "command": "Godot --path . --headless --fixed-fps 60 --script tests/headless/CommandHorizonRules.gd",
+    "phase": "accepted",
+    "exit_code": 0
+  },
+  {
+    "log": "final-preview.log",
+    "command": "Godot --path . --script tests/rendered/HorizonSurroundingsPreview.gd -- --evidence=res://docs/playtests/2026-10-07/horizon-surroundings/final",
+    "phase": "accepted",
+    "exit_code": 0
+  },
+  {
+    "log": "south-0.log",
+    "command": "Godot --path . --headless --fixed-fps 60 --script tests/playtest/HorizonDifficultyMatches.gd -- --difficulty=0 --retake-deployment --evidence=res://docs/playtests/2026-10-07/horizon-surroundings/south-0",
+    "phase": "accepted",
+    "exit_code": 0
+  },
+  {
+    "log": "south-1.log",
+    "command": "Godot --path . --headless --fixed-fps 60 --script tests/playtest/HorizonDifficultyMatches.gd -- --difficulty=1 --retake-deployment --evidence=res://docs/playtests/2026-10-07/horizon-surroundings/south-1",
+    "phase": "accepted",
+    "exit_code": 0
+  },
+  {
+    "log": "south-2.log",
+    "command": "Godot --path . --headless --fixed-fps 60 --script tests/playtest/HorizonDifficultyMatches.gd -- --difficulty=2 --retake-deployment --evidence=res://docs/playtests/2026-10-07/horizon-surroundings/south-2",
+    "phase": "accepted",
+    "exit_code": 0
+  },
+  {
+    "log": "earned-recovery.log",
+    "command": "Godot --path . --headless --fixed-fps 60 --script tests/playtest/HorizonDeploymentRecovery.gd -- --evidence=res://docs/playtests/2026-10-07/horizon-surroundings/earned-recovery",
+    "phase": "accepted",
+    "exit_code": 0
+  },
+  {
+    "log": "native-north.log",
+    "command": "Godot --path . --script tests/rendered/HorizonDifficultyPreview.gd -- --difficulty=2 --alternate --retake-deployment --evidence=res://docs/playtests/2026-10-07/horizon-surroundings/native-north",
+    "phase": "accepted",
+    "exit_code": 0
+  }
+]

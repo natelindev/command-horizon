@@ -1,0 +1,83 @@
+[
+  {
+    "log": "original.log",
+    "classification": "rejected fixture",
+    "exit_code": 1,
+    "reason": "Missing barracks prerequisite, nil foundation, aggregate timeout."
+  },
+  {
+    "log": "earned-first.log",
+    "classification": "rejected fixture",
+    "exit_code": 130,
+    "reason": "Same missing prerequisite; explicitly interrupted after script-error cascade."
+  },
+  {
+    "log": "earned-corrected.log",
+    "classification": "incomplete",
+    "exit_code": 1,
+    "reason": "All three earned budgets reached; inherited 600-second aggregate timer expired."
+  },
+  {
+    "log": "combined.log",
+    "classification": "rejected fixture",
+    "exit_code": 1,
+    "reason": "Missing factory research prerequisite and incorrect Frontier infantry price; 22 assertions."
+  },
+  {
+    "log": "corrected-negative.log",
+    "classification": "expected failure",
+    "exit_code": 1,
+    "reason": "Corrected advice-only reproduction: six assertions."
+  },
+  {
+    "log": "FoundationRecoveryRegression.log",
+    "classification": "accepted",
+    "exit_code": 0
+  },
+  {
+    "log": "FoundationRefundAdviceRegression.log",
+    "classification": "accepted",
+    "exit_code": 0
+  },
+  {
+    "log": "EconomyRecoveryRegression.log",
+    "classification": "accepted",
+    "exit_code": 0
+  },
+  {
+    "log": "HQCountdownRegression.log",
+    "classification": "accepted",
+    "exit_code": 0
+  },
+  {
+    "log": "ConstructionContractRegression.log",
+    "classification": "accepted",
+    "exit_code": 0
+  },
+  {
+    "log": "BattlePlanRegression.log",
+    "classification": "accepted",
+    "exit_code": 0
+  },
+  {
+    "log": "ReferenceEconomyRegression.log",
+    "classification": "accepted",
+    "exit_code": 0
+  },
+  {
+    "log": "negative-FoundationRecoveryRegression.log",
+    "classification": "expected failure",
+    "exit_code": 1
+  },
+  {
+    "log": "negative-FoundationRefundAdviceRegression.log",
+    "classification": "expected failure",
+    "exit_code": 1
+  },
+  {
+    "log": "rendered.log",
+    "classification": "accepted",
+    "exit_code": 0,
+    "note": "Uses corrected runner before aggregate-timeout override; only one faction. Shipping tooltip expression subsequently wrapped without text/behavior change."
+  }
+]

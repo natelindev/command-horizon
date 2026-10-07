@@ -1,0 +1,10 @@
+import concurrent.futures, subprocess, pathlib, json
+out=pathlib.Path('docs/playtests/2026-10-04')
+names=['GuardAreaRegression','AuthoredGuardRegression','BlockedAssignmentRegression','PresetRecoveryRegression','PresetRecoveryCrowdRegression','ProgramRegression','SpecialistRegression','OrdersRegression','DirectOrdersRegression','LuaProgramRegression','VisualRulesRegression','SquadRegression','CombatRegression','SaveRestoreCombat','SaveRestoreEdges','PolicyFallbackRegression','PolicyRecoveryRegression']
+def run(name):
+ path=out/('guard-arrival-check-'+name+'.log')
+ args=['tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot','--headless','--path','.','--fixed-fps','60','--script','tests/headless/'+name+'.gd']
+ with path.open('w') as log:r=subprocess.run(args,stdout=log,stderr=subprocess.STDOUT,timeout=600)
+ text=path.read_text();row={'test':name,'exit':r.returncode,'script_error':'SCRIPT ERROR' in text};print(json.dumps(row),flush=True);return row
+with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:rows=list(pool.map(run,names))
+(out/'guard-arrival-checks.json').write_text(json.dumps(rows,indent=2)+'\n')

@@ -1,0 +1,56 @@
+[
+  {
+    "log": "before-regression.log",
+    "exit_code": 1,
+    "classification": "expected historical UI failure: 24 assertions; before added producer/mixed coverage",
+    "script_or_parse_errors": 0
+  },
+  {
+    "log": "regression.log",
+    "exit_code": 0,
+    "classification": "accepted initial implementation, before producer/mixed extension",
+    "script_or_parse_errors": 0
+  },
+  {
+    "log": "RallyControlsRegression.log",
+    "exit_code": 0,
+    "classification": "accepted producer/mixed extension, before explicit pending-order preservation assertion",
+    "script_or_parse_errors": 0
+  },
+  {
+    "log": "RallyRetargetRegression.log",
+    "exit_code": 0,
+    "classification": "accepted shared target lifetime and paid delivery regression",
+    "script_or_parse_errors": 0
+  },
+  {
+    "log": "ConstructionContractRegression.log",
+    "exit_code": 0,
+    "classification": "accepted shared construction/refund regression",
+    "script_or_parse_errors": 0
+  },
+  {
+    "log": "DirectOrdersRegression.log",
+    "exit_code": 0,
+    "classification": "accepted shared command regression",
+    "script_or_parse_errors": 0
+  },
+  {
+    "log": "CoordinationRegression.log",
+    "exit_code": 0,
+    "classification": "accepted shared factory-program/manual-rally regression",
+    "script_or_parse_errors": 0
+  },
+  {
+    "log": "preview.log",
+    "exit_code": 0,
+    "classification": "accepted engine input/rendered review, before explicit pending-order preservation assertion",
+    "script_or_parse_errors": 0
+  },
+  {
+    "log": "final-regression.log",
+    "exit_code": 0,
+    "classification": "accepted final regression including pending-order preservation",
+    "script_or_parse_errors": 0
+  }
+]

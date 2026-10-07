@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-04",
+  "engine": "Godot 4.6 stable",
+  "sources": {
+    "source/match/players/skirmish-ai/SkirmishAI.gd": "59eb3af7a1ef58520add919421703f81074906b3f4e1d137218b2aabbf2509f9",
+    "source/match/players/skirmish-ai/SkirmishDefense.gd": "adf0859684368b984b795e2f7a2bb9381b8cf1f38096835de05d779371aa943c",
+    "source/match/players/skirmish-ai/SkirmishComposition.gd": "43c449bd9ac28488cce9e8486530abfa5562994d0b50ca92ae8952442d88b13d",
+    "source/match/units/traits/Movement.gd": "8855c68a164f4531c5ac3017604464330f53c860d47650a2e6ec2f42b9c63e81",
+    "tests/headless/SkirmishOffenseRegression.gd": "1a2f2d1ef66170f0082fc6677eb47629014806f7041f22d120464b4689135333",
+    "tests/headless/SkirmishDefenseRegression.gd": "99002d0bf89ae13bb58b8feceea9a19c12c0df21b28781aa6dc1aa4855861a4d",
+    "tests/rendered/SkirmishOffensePreview.gd": "c91a3c8660ff3080bb7540c69b93c89bec33f5884220ac2e12b0a02be1f4823a",
+    "tests/headless/SkirmishMixedPolicy.gd": "d526447aea597e15c649bf5b7cb8bb1a813dc27e9df4034fa5a1ed6c282dd34c",
+    "tests/headless/SkirmishDefensePolicy.gd": "87881efa19a1afded368b3682e9a7439b5ba163dcc171e9c04cb8625ad9bf9db",
+    "tests/headless/SkirmishMatrix.gd": "fc3b5dda631327ee86d9a913643eaf36f7a8bce6037ae6d8c324a5776f4d1b5e",
+    "tests/headless/SkirmishTravelProbe.gd": "ab07b882d1ae97bb51ff78f0866cac1f29e24431372d21beab044716a957b5ae",
+    "tests/headless/BaseAccessMatches.gd": "f8beb1539e4758b046fce48c174c2bbfa1828a67c08001e57e1173a2fe35bd8e",
+    "docs/playtests/2026-10-04/ai-offense-departure-repeat.gd": "529b2f3e868fd8cc4e25cdbbe10b77e9558f29abe1ac8a891a62ee256bd32433"
+  },
+  "notes": [
+    "Production change is strategic offensive goal selection; no new movement, cost, speed or save-schema change.",
+    "Wave replay freezes opposing units but permits own economy, support and production traffic.",
+    "Delayed-engineer replay leaves AI scheduling active; it is a liveness check, not proof of a separate navigation fix.",
+    "Rendered review stages a human scout to reveal the departing army and uses API selection.",
+    "Final matrix uses unchanged ground/mixed policies and seed 4110; asynchronous navigation prevents a controlled balance comparison.",
+    "Final departure deadline is thirty seconds, supported by continuous slow-exit traces; no production movement change was made."
+  ]
+}

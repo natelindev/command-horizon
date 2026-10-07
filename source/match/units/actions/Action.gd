@@ -1,5 +1,7 @@
 extends Node
 
+var restoring = false
+
 
 func _to_string():
 	var action_script_path = get_script().resource_path

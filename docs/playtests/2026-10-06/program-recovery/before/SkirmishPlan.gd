@@ -1,0 +1,125 @@
+extends RefCounted
+
+const Economy = preload("res://source/match/EconomyAdvice.gd")
+const Supply = preload("res://source/match/EconomySupply.gd")
+const Opening = preload("res://source/match/SkirmishOpening.gd")
+const Tactics = preload("res://source/match/SkirmishTactics.gd")
+const Harvest = preload("res://source/match/units/actions/CollectingResourcesSequentially.gd")
+
+
+static func owned_units(player):
+	return player.get_children().filter(
+		func(unit): return unit.is_in_group("units") and not unit.is_queued_for_deletion()
+	)
+
+
+static func idle_workers(player):
+	return owned_units(player).filter(
+		func(unit):
+			return (
+				unit.type == "Worker"
+				and (unit.manual_orders == null or unit.manual_orders.pending.is_empty())
+				and (
+					unit.action == null
+					or (
+						unit.action.has_method("needs_assignment")
+						and unit.action.needs_assignment()
+					)
+				)
+			)
+	)
+
+
+static func endangered_workers(player):
+	return Tactics.endangered_workers(player, owned_units(player))
+
+
+static func army(player):
+	return owned_units(player).filter(
+		func(unit): return unit.movement_speed > 0 and unit.attack_range != null
+	)
+
+
+static func next_step(player):
+	var units = owned_units(player)
+	var workers = _role(units, "Worker")
+	var recovery = Economy.recovery(player, units)
+	if not recovery.is_empty():
+		return recovery
+	var combatants = army(player)
+	var defense = Tactics.defense(player, units, combatants)
+	if not defense.is_empty():
+		return defense
+	var assignment = Economy.assignments(units)
+	if not assignment.is_empty():
+		return assignment
+	var power = player.power_totals()
+	if power.y > power.x:
+		return _building_step(player, units, "PowerPlant", "Restore power")
+	if not workers.any(
+		func(unit): return unit.action is Harvest and not unit.action.needs_assignment()
+	):
+		return _step(
+			"economy",
+			"Put your engineers to work",
+			(
+				"Right-click salvage with engineers: split two across nearby materials piles, "
+				+ "one on electronics, and keep one available to build. Train extra engineers at HQ."
+			),
+			"Select engineers",
+			workers
+		)
+	if not player.has_completed_structure("Barracks"):
+		return _building_step(player, units, "Barracks", "Establish your first production line")
+	if army(player).size() < 4 and not player.has_completed_structure("VehicleFactory"):
+		return Opening.infantry(player, units, combatants)
+	if not player.has_completed_structure("VehicleFactory"):
+		return _building_step(player, units, "VehicleFactory", "Bring armor online")
+	var supply = Supply.next_step(player, units)
+	if not supply.is_empty():
+		return supply
+	if not player.has_completed_structure("CommandLab"):
+		if not player.basic_programs_unlocked() and _role(units, "CommandLab").is_empty():
+			var armor = Opening.armor(player, units)
+			if not armor.is_empty():
+				return armor
+		return _building_step(player, units, "CommandLab", "Unlock programmable units")
+	var chipped = units.filter(
+		func(unit): return unit.program != null and unit.program.ready_to_run()
+	)
+	if chipped.is_empty():
+		return Opening.chips(player, units)
+	if not chipped.any(
+		func(unit):
+			return (
+				unit.program.mode in ["Ready", "Running", "Waiting"]
+				or unit.program.anchor != null
+				or not unit.program.lua_source.is_empty()
+				or unit.program.route.size() == 2
+				or is_instance_valid(unit.program.escort)
+			)
+	):
+		return _step(
+			"programs",
+			"Set up a programmed defense",
+			(
+				"Choose Guard area, assign a point near your engineers and a safe point "
+				+ "near matching repair support, then Apply & run. Presets work without code. "
+				+ "Direct orders always override programs."
+			),
+			"Select chip unit",
+			[chipped[0]]
+		)
+	return Tactics.next_step(player, units, combatants)
+
+
+static func _building_step(player, units, role, title):
+	return Economy.building(player, units, role, title)
+
+
+static func _role(units, role):
+	return units.filter(func(unit): return unit.type == role)
+
+
+static func _step(id, title, description, action, units):
+	return {"id": id, "title": title, "description": description, "action": action, "units": units}

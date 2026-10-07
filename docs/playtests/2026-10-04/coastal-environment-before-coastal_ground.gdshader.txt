@@ -1,0 +1,45 @@
+shader_type spatial;
+varying vec3 world_position;
+uniform vec4 roads[8];
+uniform int road_count = 7;
+float hash(vec2 p) { return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
+float noise(vec2 p) {
+	vec2 i=floor(p); vec2 f=fract(p); f=f*f*(3.0-2.0*f);
+	return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1)),f.x),f.y);
+}
+void vertex() { world_position=(MODEL_MATRIX*vec4(VERTEX,1.0)).xyz; }
+void fragment() {
+	vec2 p=world_position.xz;
+	float fine=hash(floor(p*24.0));
+	float wear=noise(p*.28);
+	float turf=noise(p*.065)*.65+noise(p*.22)*.35;
+	vec3 earth=mix(vec3(.18,.23,.18),vec3(.30,.31,.23),smoothstep(.25,.75,turf));
+	float center=1.0-smoothstep(35.0,42.0,abs(p.x-64.0));
+	float inland=smoothstep(46.0,54.0,p.y)*(1.0-smoothstep(97.0,102.0,p.y));
+	float quay=(1.0-smoothstep(11.0,17.0,abs(p.x-64.0)-16.0))*(1.0-smoothstep(60.0,64.0,p.y));
+	float paved=max(center*inland,quay);
+	vec2 tiles=abs(fract(p/4.0)-.5);
+	float seams=smoothstep(.484,.498,max(tiles.x,tiles.y));
+	vec3 concrete=vec3(.31,.34,.32)+(wear-.5)*.035-seams*.045;
+	vec3 ground=mix(earth,concrete,paved)+(fine-.5)*.022;
+	float nearest=1000.0; float markings=0.0; float crossing=0.0;
+	for(int i=0;i<8;i++) {
+		if(i>=road_count) { break; }
+		vec2 a=roads[i].xy; vec2 b=roads[i].zw; vec2 axis=b-a;
+		float len=length(axis); float along=dot(p-a,axis)/len;
+		float distance=length(p-(a+axis*clamp(along/len,0.0,1.0)));
+		nearest=min(nearest,distance);
+		crossing+=1.0-smoothstep(5.0,5.2,distance);
+		float ends=smoothstep(3.0,5.0,min(along,len-along));
+		markings=max(markings,(1.0-smoothstep(.05,.10,distance))*step(.4,fract(along/5.0))*ends);
+	}
+	float road=1.0-smoothstep(3.9,4.05,nearest);
+	float shoulder=(1.0-smoothstep(4.3,5.0,nearest))*(1.0-road);
+	float stripe=1.0-smoothstep(.045,.075,abs(nearest-3.55));
+	vec3 asphalt=vec3(.083,.11,.115)+fine*.012+wear*.014;
+	markings*=1.0-smoothstep(1.15,1.65,crossing);
+	asphalt=mix(asphalt,vec3(.67,.63,.45),max(markings,stripe*.45)*(.55+wear*.35));
+	ground=mix(ground,vec3(.36,.38,.34),shoulder*.7);
+	ALBEDO=mix(ground,asphalt,road);
+	ROUGHNESS=.94;
+}

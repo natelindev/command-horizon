@@ -1,0 +1,258 @@
+[
+  {
+    "log": "AirDefenseAdviceRegression.log",
+    "exit_code": 0,
+    "classification": "passing_final_headless",
+    "script_errors": 0,
+    "parse_errors": 0,
+    "load_errors": false,
+    "summary": [
+      "Air defense advice: 0 failures"
+    ],
+    "engine_errors": []
+  },
+  {
+    "log": "BattlePlanRegression.log",
+    "exit_code": 0,
+    "classification": "passing_final_headless",
+    "script_errors": 0,
+    "parse_errors": 0,
+    "load_errors": false,
+    "summary": [
+      "Battle plan regression: 0 failures"
+    ],
+    "engine_errors": [
+      "ERROR: 2 resources still in use at exit (run with --verbose for details)."
+    ]
+  },
+  {
+    "log": "EngineerResponseRegression.log",
+    "exit_code": 0,
+    "classification": "passing_final_headless",
+    "script_errors": 0,
+    "parse_errors": 0,
+    "load_errors": false,
+    "summary": [
+      "Engineer response: 0 failures"
+    ],
+    "engine_errors": [
+      "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+    ]
+  },
+  {
+    "log": "EngineerSafetyRegression.log",
+    "exit_code": 0,
+    "classification": "rejected_missing_script_despite_zero_exit",
+    "script_errors": 0,
+    "parse_errors": 0,
+    "load_errors": true,
+    "summary": [],
+    "engine_errors": [
+      "ERROR: Attempt to open script 'res://tests/headless/EngineerSafetyRegression.gd' resulted in error 'File not found'.",
+      "ERROR: Failed loading resource: res://tests/headless/EngineerSafetyRegression.gd.",
+      "ERROR: Can't load script: tests/headless/EngineerSafetyRegression.gd"
+    ]
+  },
+  {
+    "log": "GroundDefenseAdviceRegression.log",
+    "exit_code": 0,
+    "classification": "passing_final_headless",
+    "script_errors": 0,
+    "parse_errors": 0,
+    "load_errors": false,
+    "summary": [
+      "Ground defense advice: 0 failures"
+    ],
+    "engine_errors": [
+      "ERROR: 2 resources still in use at exit (run with --verbose for details)."
+    ]
+  },
+  {
+    "log": "HQCountdownRegression.log",
+    "exit_code": 0,
+    "classification": "passing_final_headless",
+    "script_errors": 0,
+    "parse_errors": 0,
+    "load_errors": false,
+    "summary": [
+      "HQ countdowns: 0 failures"
+    ],
+    "engine_errors": [
+      "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.",
+      "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+    ]
+  },
+  {
+    "log": "SupportDiscoveryRegression.log",
+    "exit_code": 0,
+    "classification": "passing_final_headless",
+    "script_errors": 0,
+    "parse_errors": 0,
+    "load_errors": false,
+    "summary": [
+      "Support discovery: 0 failures"
+    ],
+    "engine_errors": [
+      "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.",
+      "ERROR: 2 resources still in use at exit (run with --verbose for details)."
+    ]
+  },
+  {
+    "log": "accepted-render.log",
+    "exit_code": 0,
+    "classification": "passing_final_rendered",
+    "script_errors": 0,
+    "parse_errors": 0,
+    "load_errors": false,
+    "summary": [
+      "Defense focus: 0 failures; 14 focus checks"
+    ],
+    "engine_errors": [
+      "ERROR: 1 shaders of type ParticlesShaderRD were never freed",
+      "ERROR: 1 RID allocations of type 'N10RendererRD15MaterialStorage6ShaderE' were leaked at exit."
+    ]
+  },
+  {
+    "log": "before.log",
+    "exit_code": 1,
+    "classification": "initial_reproduction_with_wrong_earned_contact_fixture",
+    "script_errors": 0,
+    "parse_errors": 0,
+    "load_errors": false,
+    "summary": [
+      "Defense focus: 26 failures; 12 focus checks"
+    ],
+    "engine_errors": [
+      "ERROR: Defense selection left the raid offscreen: visible-bastion",
+      "ERROR: Defense advice omitted its known asset focus: visible-bastion",
+      "ERROR: Defense selection left the raid offscreen: unseen-hit-bastion",
+      "ERROR: Defense advice omitted its known asset focus: unseen-hit-bastion",
+      "ERROR: Defense selection left the raid offscreen: newest-hit-bastion",
+      "ERROR: Defense advice omitted its known asset focus: newest-hit-bastion",
+      "ERROR: Defense selection left the raid offscreen: air-bastion",
+      "ERROR: Defense advice omitted its known asset focus: air-bastion",
+      "ERROR: Defense selection left the raid offscreen: visible-helix",
+      "ERROR: Defense advice omitted its known asset focus: visible-helix",
+      "ERROR: Defense selection left the raid offscreen: unseen-hit-helix",
+      "ERROR: Defense advice omitted its known asset focus: unseen-hit-helix",
+      "ERROR: Defense selection left the raid offscreen: newest-hit-helix",
+      "ERROR: Defense advice omitted its known asset focus: newest-hit-helix",
+      "ERROR: Defense selection left the raid offscreen: air-helix",
+      "ERROR: Defense advice omitted its known asset focus: air-helix",
+      "ERROR: Defense selection left the raid offscreen: visible-frontier",
+      "ERROR: Defense advice omitted its known asset focus: visible-frontier",
+      "ERROR: Defense selection left the raid offscreen: unseen-hit-frontier",
+      "ERROR: Defense advice omitted its known asset focus: unseen-hit-frontier",
+      "ERROR: Defense selection left the raid offscreen: newest-hit-frontier",
+      "ERROR: Defense advice omitted its known asset focus: newest-hit-frontier",
+      "ERROR: Defense selection left the raid offscreen: air-frontier",
+      "ERROR: Defense advice omitted its known asset focus: air-frontier",
+      "ERROR: Earned opening contact lost economic threat",
+      "ERROR: Earned defense lacks focus",
+      "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+    ]
+  },
+  {
+    "log": "final-regression.log",
+    "exit_code": 0,
+    "classification": "passing_final_headless",
+    "script_errors": 0,
+    "parse_errors": 0,
+    "load_errors": false,
+    "summary": [
+      "Defense focus: 0 failures; 14 focus checks"
+    ],
+    "engine_errors": [
+      "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.",
+      "ERROR: 2 resources still in use at exit (run with --verbose for details)."
+    ]
+  },
+  {
+    "log": "final-render.log",
+    "exit_code": 0,
+    "classification": "rejected_preview_script_errors",
+    "script_errors": 14,
+    "parse_errors": 0,
+    "load_errors": false,
+    "summary": [
+      "Defense focus: 0 failures; 0 focus checks"
+    ],
+    "engine_errors": [
+      "ERROR: 1 shaders of type ParticlesShaderRD were never freed",
+      "ERROR: 1 RID allocations of type 'N10RendererRD15MaterialStorage6ShaderE' were leaked at exit."
+    ]
+  },
+  {
+    "log": "original-final.log",
+    "exit_code": 1,
+    "classification": "expected_original_failure",
+    "script_errors": 0,
+    "parse_errors": 0,
+    "load_errors": false,
+    "summary": [
+      "Defense focus: 37 failures; 12 focus checks"
+    ],
+    "engine_errors": [
+      "ERROR: Defense selection left the raid offscreen: visible-bastion",
+      "ERROR: Defense advice omitted its known asset focus: visible-bastion",
+      "ERROR: Defender focus missing action explanation",
+      "ERROR: Defense selection left the raid offscreen: unseen-hit-bastion",
+      "ERROR: Defense advice omitted its known asset focus: unseen-hit-bastion",
+      "ERROR: Defense selection left the raid offscreen: newest-hit-bastion",
+      "ERROR: Defense advice omitted its known asset focus: newest-hit-bastion",
+      "ERROR: Defense selection left the raid offscreen: air-bastion",
+      "ERROR: Defense advice omitted its known asset focus: air-bastion",
+      "ERROR: Defense selection left the raid offscreen: visible-helix",
+      "ERROR: Defense advice omitted its known asset focus: visible-helix",
+      "ERROR: Defense selection left the raid offscreen: unseen-hit-helix",
+      "ERROR: Defense advice omitted its known asset focus: unseen-hit-helix",
+      "ERROR: Defense selection left the raid offscreen: newest-hit-helix",
+      "ERROR: Defense advice omitted its known asset focus: newest-hit-helix",
+      "ERROR: Defense selection left the raid offscreen: air-helix",
+      "ERROR: Defense advice omitted its known asset focus: air-helix",
+      "ERROR: Defense selection left the raid offscreen: visible-frontier",
+      "ERROR: Defense advice omitted its known asset focus: visible-frontier",
+      "ERROR: Defense selection left the raid offscreen: unseen-hit-frontier",
+      "ERROR: Defense advice omitted its known asset focus: unseen-hit-frontier",
+      "ERROR: Defense selection left the raid offscreen: newest-hit-frontier",
+      "ERROR: Defense advice omitted its known asset focus: newest-hit-frontier",
+      "ERROR: Defense selection left the raid offscreen: air-frontier",
+      "ERROR: Defense advice omitted its known asset focus: air-frontier",
+      "ERROR: Earned defense lacks focus",
+      "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+    ]
+  },
+  {
+    "log": "render.log",
+    "exit_code": 0,
+    "classification": "rejected_staged_fog_captures",
+    "script_errors": 0,
+    "parse_errors": 0,
+    "load_errors": false,
+    "summary": [
+      "Defense focus: 0 failures; 14 focus checks"
+    ],
+    "engine_errors": [
+      "ERROR: 1 shaders of type ParticlesShaderRD were never freed",
+      "ERROR: 1 RID allocations of type 'N10RendererRD15MaterialStorage6ShaderE' were leaked at exit."
+    ]
+  },
+  {
+    "log": "verified-render.log",
+    "exit_code": 1,
+    "classification": "rejected_layout_timing_input_miss",
+    "script_errors": 0,
+    "parse_errors": 0,
+    "load_errors": false,
+    "summary": [
+      "Defense focus: 3 failures; 14 focus checks"
+    ],
+    "engine_errors": [
+      "ERROR: Defense selection left the raid offscreen: visible-frontier",
+      "ERROR: Defense focus changed recommended selection",
+      "ERROR: Defense focus selected extra units",
+      "ERROR: 1 shaders of type ParticlesShaderRD were never freed",
+      "ERROR: 1 RID allocations of type 'N10RendererRD15MaterialStorage6ShaderE' were leaked at exit."
+    ]
+  }
+]

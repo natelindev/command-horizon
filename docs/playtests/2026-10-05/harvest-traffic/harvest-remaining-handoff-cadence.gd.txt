@@ -1,0 +1,63 @@
+extends "res://tests/headless/SkirmishLaborRegression.gd"
+
+func _run():
+	factions = load("res://source/match/FactionCatalog.gd")
+	catalog = load("res://source/match/BastionCatalog.gd")
+	harvest = load("res://source/match/units/actions/CollectingResourcesSequentially.gd")
+	labor = load("res://source/match/players/skirmish-ai/SkirmishLabor.gd")
+	root.get_node("SaveManager").autosaves_enabled = false
+	await _skirmish("helix","res://source/match/maps/DesertFrontier.tscn",true)
+	var player=get_nodes_in_group("players").filter(func(p):return p!=game._get_human_player())[0]
+	for side in get_nodes_in_group("players"):
+		side.set_process(false)
+	paused=true
+	for unit in get_nodes_in_group("units"):
+		unit.process_mode=Node.PROCESS_MODE_DISABLED
+	var hq=_units(player,"CommandCenter")[0]
+	var electronics=_deposit(hq,"resource_b")
+	for worker in _units(player,"Worker"):
+		worker.issue_manual_order(harvest.new(electronics))
+	var watched=_spawn("Worker",player,hq.position+Vector3(-10,0,0))
+	watched.resource_b=4
+	watched.process_mode=Node.PROCESS_MODE_INHERIT
+	watched.issue_manual_order(harvest.new(electronics))
+	player.resource_a=0
+	player.resource_b=200
+	await _frames(10)
+	var original=watched.action
+	_check(labor.plan(game,player,player._units()).get(watched)==1,"Fixture did not request materials")
+	_check(watched.resource_b==4 and original._state==harvest.State.MOVING_TO_CC,"Fixture lost loaded return")
+	player._harvest(player._units())
+	print("CADENCE FAR distance=",watched.position.distance_to(hq.position)," eligible=",labor.handoff_ready(watched,hq)," pending=",labor.queued_target(watched)!=null)
+	_check(watched.action==original and watched.resource_b==4,"Scheduling interrupted active cargo return")
+	_check(labor.queued_target(watched)!=null,"Far loaded return did not schedule its needed next assignment")
+	paused=false
+	var poll=false
+	for frame in 600:
+		await physics_frame
+		var d=watched.position.distance_to(hq.position)
+		if d<=hq.radius+4.1 and d>hq.radius+4.0:
+			poll=true
+			print("CADENCE POLL BEFORE distance=",d," cargo=",watched.resource_b," kind=",watched.action._kind," ready=",labor.handoff_ready(watched,hq))
+			player._harvest(player._units())
+			break
+	_check(poll,"Fixture missed just-outside handoff boundary")
+	var delivered=false
+	for frame in 90:
+		await physics_frame
+		delivered=delivered or watched.resource_b==0
+	print("CADENCE POLL AFTER distance=",watched.position.distance_to(hq.position)," cargo=",watched.resource_b," kind=",watched.action._kind," ready=",labor.handoff_ready(watched,hq)," funds=",player.resource_b)
+	player._harvest(player._units())
+	_check(delivered and player.resource_b==204,"Loaded return did not deliver exactly once between 1.5s decisions")
+	_check(watched.action._kind==1,"Two decisions missed the whole delivery-boundary handoff window")
+	_check(original.is_queued_for_deletion() if is_instance_valid(original) else true,"Completed original harvest did not retire")
+	paused=true
+	var snapshot=Snapshot.new().capture(game)
+	_check(snapshot!=null,"Cadence snapshot failed")
+	if snapshot!=null:
+		FileStore.new().write_file("res://tmp/harvest-remaining-cadence-end.json",snapshot)
+	for error in errors:push_error(error)
+	print("CADENCE RESULT failures=",errors.size())
+	game.queue_free()
+	await _frames(5)
+	quit(0 if errors.is_empty() else 1)

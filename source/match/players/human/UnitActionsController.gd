@@ -1,5 +1,7 @@
 extends Node
 
+const Orders = preload("res://source/match/orders/ManualOrders.gd")
+
 const Structure = preload("res://source/match/units/Structure.gd")
 const ResourceUnit = preload("res://source/match/units/non-player/ResourceUnit.gd")
 
@@ -13,6 +15,7 @@ class Actions:
 	)
 	const AutoAttacking = preload("res://source/match/units/actions/AutoAttacking.gd")
 	const Constructing = preload("res://source/match/units/actions/Constructing.gd")
+	const Repairing = preload("res://source/match/units/actions/Repairing.gd")
 
 
 func _ready():
@@ -48,7 +51,7 @@ func _try_navigating_selected_units_towards_position(target_point):
 	for tuple in new_unit_targets:
 		var unit = tuple[0]
 		var new_target = tuple[1]
-		unit.action = Actions.Moving.new(new_target)
+		_submit(unit, Orders.point_order("move", new_target))
 
 
 func _try_setting_rally_points(target_point: Vector3):
@@ -75,7 +78,7 @@ func _try_ordering_selected_workers_to_construct_structure(potential_structure):
 			)
 	)
 	for unit in selected_constructors:
-		unit.action = Actions.Constructing.new(structure)
+		_submit(unit, Orders.target_order("construct", structure))
 
 
 func _navigate_selected_units_towards_unit(target_unit):
@@ -88,24 +91,30 @@ func _navigate_selected_units_towards_unit(target_unit):
 	return at_least_one_unit_navigated
 
 
-func _navigate_unit_towards_unit(unit, target_unit):
+func _navigate_unit_towards_unit(unit, target_unit, rally = false):
+	if "player" in target_unit and target_unit.player != unit.player:
+		if not unit._match.battlefield.is_observed(unit.player, target_unit):
+			return false
+	if Actions.Repairing.is_applicable(unit, target_unit):
+		_submit(unit, Orders.target_order("repair", target_unit), rally)
+		return true
 	if Actions.CollectingResourcesSequentially.is_applicable(unit, target_unit):
-		unit.action = Actions.CollectingResourcesSequentially.new(target_unit)
+		_submit(unit, Orders.target_order("gather", target_unit), rally)
 		return true
 	if Actions.AutoAttacking.is_applicable(unit, target_unit):
-		unit.action = Actions.AutoAttacking.new(target_unit)
+		_submit(unit, Orders.target_order("attack", target_unit), rally)
 		return true
 	if Actions.Constructing.is_applicable(unit, target_unit):
-		unit.action = Actions.Constructing.new(target_unit)
+		_submit(unit, Orders.target_order("construct", target_unit), rally)
 		return true
 	if (
 		(target_unit.is_in_group("adversary_units") or target_unit.is_in_group("controlled_units"))
 		and Actions.Following.is_applicable(unit)
 	):
-		unit.action = Actions.Following.new(target_unit)
+		_submit(unit, Orders.target_order("follow", target_unit), rally)
 		return true
 	if Actions.MovingToUnit.is_applicable(unit):
-		unit.action = Actions.MovingToUnit.new(target_unit)
+		_submit(unit, Orders.target_order("approach", target_unit), rally)
 		return true
 	if _try_setting_rally_point_to_unit(unit, target_unit):
 		return true
@@ -144,6 +153,19 @@ func _on_unit_spawned(unit):
 
 func _on_navigate_unit_to_rally_point(unit, rally_point):
 	if rally_point.target_unit != null:
-		_navigate_unit_towards_unit(unit, rally_point.target_unit)
+		_navigate_unit_towards_unit(unit, rally_point.target_unit, true)
 	elif rally_point.global_position != rally_point.get_parent().global_position:
-		unit.action = Actions.Moving.new(rally_point.global_position)
+		_submit(unit, Orders.point_order("move", rally_point.global_position), true)
+
+
+func _submit(unit, order, rally = false):
+	if unit.manual_orders == null:
+		return
+	var append = not rally and Globals.options.selection_modifier_pressed()
+	if (
+		not unit.manual_orders.submit(order, append)
+		and "hud" in unit._match
+		and unit._match.hud != null
+		and unit._match.hud.has_method("show_notice")
+	):
+		unit._match.hud.show_notice(unit.manual_orders.status)

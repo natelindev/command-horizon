@@ -1,0 +1,31 @@
+extends "res://tests/headless/SaveRestoreEdges.gd"
+
+
+func _run():
+	root.get_node("SaveManager").autosaves_enabled = false
+	var data = FileStore.new().read_file("res://docs/playtests/2026-10-04/regional-reviewed-case-3-stall.json")
+	var restore = Restore.new()
+	var result = await restore.restore(self, data)
+	_check(result.ok, "Regional blocked restore failed")
+	game = result.game
+	for player in get_nodes_in_group("players"):
+		player.set_process(false)
+	var unit = restore.entities["unit-14"]
+	_dump(unit, "loaded")
+	_check(unit.program.run(), "Regional guard cannot resume")
+	paused = false
+	for index in 20:
+		await _frames(60)
+		_dump(unit, str(index + 1))
+	game.queue_free()
+	await _frames(5)
+	quit(0)
+
+
+func _dump(unit, label):
+	var movement = unit.get_node("Movement")
+	var nearby = []
+	for other in get_nodes_in_group("units"):
+		if other != unit and other.position.distance_to(unit.position) < 8:
+			nearby.append({"type": other.type, "point": str(other.position), "radius": other.radius, "action": str(other.action)})
+	print("REGIONAL PROBE ", JSON.stringify({"label": label, "position": str(unit.position), "mode": unit.program.mode, "reason": unit.program.reason, "anchor": str(unit.program.anchor), "safe": str(unit.program.safe_point), "destination": str(movement.target_position), "has_destination": movement._has_destination, "path": str(movement.get_current_navigation_path()), "action": str(unit.action), "neighbors": nearby}))

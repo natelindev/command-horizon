@@ -1,0 +1,105 @@
+[
+  {
+    "log": "initial-regression.log",
+    "exit_code": 0,
+    "classification": "passed initial focused fixture; superseded by stronger approach and exact saved-funds checks",
+    "script_errors": 0,
+    "parse_errors": 0
+  },
+  {
+    "log": "original-regression.log",
+    "exit_code": 1,
+    "classification": "expected negative control; initial fixture includes a misleading constant-funds reload assertion, corrected in final fixture",
+    "script_errors": 0,
+    "parse_errors": 0
+  },
+  {
+    "log": "final-regression.log",
+    "exit_code": 0,
+    "classification": "accepted: all-faction paid safe construction, hidden contacts, threatened route, deferral, disk continuation",
+    "script_errors": 0,
+    "parse_errors": 0
+  },
+  {
+    "log": "final-original-regression.log",
+    "exit_code": 1,
+    "classification": "expected negative control: 21 assertion failures; no script errors",
+    "script_errors": 0,
+    "parse_errors": 0
+  },
+  {
+    "log": "archive.log",
+    "exit_code": 1,
+    "classification": "rejected acceptance: two writes attempted after match end; no placement benefit observed before that failure",
+    "script_errors": 0,
+    "parse_errors": 0
+  },
+  {
+    "log": "funded.log",
+    "exit_code": 0,
+    "classification": "accepted: paired earned funded-state replay, 120 simulation seconds, both after archives retained",
+    "script_errors": 0,
+    "parse_errors": 0
+  },
+  {
+    "log": "control6.log",
+    "exit_code": 0,
+    "classification": "accepted complete paid match; Defeat",
+    "script_errors": 0,
+    "parse_errors": 0
+  },
+  {
+    "log": "safe6.log",
+    "exit_code": 0,
+    "classification": "accepted complete paid match; Defeat",
+    "script_errors": 0,
+    "parse_errors": 0
+  },
+  {
+    "log": "EngineerSafetyPolicyRegression.log",
+    "exit_code": 0,
+    "classification": "passed",
+    "script_errors": 0,
+    "parse_errors": 0
+  },
+  {
+    "log": "AirDefenseAdviceRegression.log",
+    "exit_code": 0,
+    "classification": "passed",
+    "script_errors": 0,
+    "parse_errors": 0
+  },
+  {
+    "log": "ContactApproachRegression.log",
+    "exit_code": 1,
+    "classification": "unresolved pre-existing failure: three captured work completions and restored harvesting completion",
+    "script_errors": 0,
+    "parse_errors": 0
+  },
+  {
+    "log": "contact-defense-focus-baseline.log",
+    "exit_code": 1,
+    "classification": "same four failures in preceding shipping baseline",
+    "script_errors": 0,
+    "parse_errors": 0
+  },
+  {
+    "log": "contact-hq-traffic-baseline.log",
+    "exit_code": 0,
+    "classification": "older pre-HQ-traffic shipping baseline passes; does not isolate one source change",
+    "script_errors": 0,
+    "parse_errors": 0
+  },
+  {
+    "log": "format.log",
+    "exit_code": 0,
+    "classification": "passed",
+    "output": "4 files would be left unchanged"
+  },
+  {
+    "log": "lint.log",
+    "exit_code": 0,
+    "classification": "passed",
+    "output": "Success: no problems found"
+  }
+]

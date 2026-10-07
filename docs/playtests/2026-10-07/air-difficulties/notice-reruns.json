@@ -1,0 +1,14 @@
+[
+  {
+    "name": "notice-before-valid",
+    "script": "tests/headless/LoadedNoticeRegression.gd",
+    "exit_code": 1,
+    "classification": "old-code regression"
+  },
+  {
+    "name": "notice-verified",
+    "script": "tests/headless/LoadedNoticeRegression.gd",
+    "exit_code": 0,
+    "classification": "accepted final notice regression"
+  }
+]

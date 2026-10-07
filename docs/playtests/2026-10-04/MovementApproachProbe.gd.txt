@@ -1,0 +1,69 @@
+extends "res://tests/headless/SaveRestoreEdges.gd"
+
+var catalog
+var moving
+var safe_velocities = {}
+
+func _run():
+	catalog = load("res://source/match/BastionCatalog.gd")
+	moving = load("res://source/match/units/actions/Moving.gd")
+	root.get_node("SaveManager").autosaves_enabled = false
+	for faction in ["helix", "bastion"]:
+		for area in ["AlpineRelay", "DesertFrontier"]:
+			await _fixture(faction, area)
+			paused = false
+			game.queue_free()
+			await _frames(5)
+	quit(0)
+
+func _spawn_probe(role, point, owner):
+	var unit = load(catalog.scene_path(role)).instantiate()
+	game._setup_and_spawn_unit(unit, Transform3D(Basis(), point), owner, false)
+	unit.sight_range = 0
+	return unit
+
+func _fixture(faction, area):
+	await _skirmish(faction, "res://source/match/maps/%s.tscn" % area, false)
+	var human = game._get_human_player()
+	for player in get_nodes_in_group("players"):
+		player.set_process(false)
+	for unit in get_nodes_in_group("units"):
+		if unit.type != "CommandCenter":
+			unit.queue_free()
+	await _frames(90)
+	var point = Vector3(106.5998, 0, 82.30008) if area == "AlpineRelay" else Vector3(16.26225, 0, 41.4)
+	var goal = Vector3(18, 0, 18) if area == "AlpineRelay" else Vector3(14.13324, 0, 42.41498)
+	var role = "Tank" if area == "AlpineRelay" else "Worker"
+	if area == "AlpineRelay":
+		for entry in [["VehicleFactory", Vector3(105,0,86)], ["CommandLab",Vector3(105,0,80)], ["AntiGroundTurret",Vector3(111,0,79)]]:
+			_spawn_probe(entry[0], entry[1], human)
+	await _frames(120)
+	var tracked = _spawn_probe(role, point, human)
+	await _frames(60)
+	tracked.position = point
+	tracked.get_node("Movement").velocity_computed.connect(func(v): safe_velocities[tracked.get_instance_id()] = v)
+	tracked.issue_manual_order(moving.new(goal))
+	await _observe(tracked, faction + " " + area + " alone", 1200)
+	tracked.queue_free()
+	await _frames(5)
+	var crowd = []
+	for i in 6:
+		crowd.append(_spawn_probe(role, point + Vector3((i % 3) * 1.4 - 1.4, 0, (i / 3) * 1.4 - 2), human))
+	await _frames(60)
+	for unit in crowd:
+		if area == "DesertFrontier":
+			var deposits = get_nodes_in_group("resource_units").filter(func(r): return r.position.distance_to(Vector3(14,0,43)) < 0.2)
+			unit.issue_manual_order(load("res://source/match/units/actions/CollectingResourcesSequentially.gd").new(deposits[0]))
+		else:
+			unit.issue_manual_order(moving.new(goal))
+	tracked = crowd[0]
+	tracked.get_node("Movement").velocity_computed.connect(func(v): safe_velocities[tracked.get_instance_id()] = v)
+	await _observe(tracked, faction + " " + area + " crowd", 2400)
+
+func _observe(unit, label, frames):
+	var start = unit.position
+	for i in frames:
+		await physics_frame
+		if i % 300 == 299:
+			var m = unit.get_node("Movement")
+			print("APPROACH ", label, " t=", (i+1)/60.0, " pos=", unit.position, " travel=", start.distance_to(unit.position), " action=", unit.action, " vel=", m.velocity, " safe=", safe_velocities.get(unit.get_instance_id()), " path=", m.get_current_navigation_path())

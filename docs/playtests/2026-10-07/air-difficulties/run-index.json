@@ -1,0 +1,157 @@
+[
+  {
+    "name": "notice-before",
+    "script": "tests/headless/LoadedNoticeRegression.gd",
+    "exit_code": 1,
+    "classification": "rejected: notice assertions followed by fixture access to freed HUD during cleanup"
+  },
+  {
+    "name": "notice-final",
+    "script": "tests/headless/LoadedNoticeRegression.gd",
+    "exit_code": 0,
+    "classification": "rejected: notice assertions followed by fixture access to freed HUD during cleanup"
+  },
+  {
+    "name": "warnings",
+    "script": "tests/headless/LoadedWarningRegression.gd",
+    "exit_code": 1,
+    "classification": "invalid fixture expected reset instead of discarded"
+  },
+  {
+    "name": "warnings-final",
+    "script": "tests/headless/LoadedWarningRegression.gd",
+    "exit_code": 0,
+    "classification": "accepted Bastion/Helix archive warning and edge suite"
+  },
+  {
+    "name": "mode-0",
+    "script": "tests/playtest/AirDifficultyMatches.gd",
+    "exit_code": 0,
+    "classification": "Story baseline victory",
+    "args": [
+      "--difficulty=0"
+    ]
+  },
+  {
+    "name": "mode-1",
+    "script": "tests/playtest/AirDifficultyMatches.gd",
+    "exit_code": 0,
+    "classification": "Standard baseline victory",
+    "args": [
+      "--difficulty=1"
+    ]
+  },
+  {
+    "name": "mode-2",
+    "script": "tests/playtest/AirDifficultyMatches.gd",
+    "exit_code": 1,
+    "classification": "Veteran baseline defeat; one flight safe",
+    "args": [
+      "--difficulty=2"
+    ]
+  },
+  {
+    "name": "response",
+    "script": "tests/playtest/AirDifficultyMatches.gd",
+    "exit_code": 0,
+    "classification": "Veteran observed-response victory",
+    "args": [
+      "--difficulty=2",
+      "--respond-to-threats"
+    ]
+  },
+  {
+    "name": "preview",
+    "script": "tests/rendered/AirDifficultyPreview.gd",
+    "exit_code": 1,
+    "classification": "two-safe victory; layout failure",
+    "args": [
+      "--difficulty=2"
+    ]
+  },
+  {
+    "name": "final-preview",
+    "script": "tests/rendered/AirDifficultyPreview.gd",
+    "exit_code": 1,
+    "classification": "three-safe response victory; layout failure",
+    "args": [
+      "--difficulty=2",
+      "--respond-to-threats"
+    ]
+  },
+  {
+    "name": "accepted-preview",
+    "script": "tests/rendered/AirDifficultyPreview.gd",
+    "exit_code": 0,
+    "classification": "superseded passing response route, before final panel shrink/default text",
+    "args": [
+      "--difficulty=2",
+      "--respond-to-threats"
+    ]
+  },
+  {
+    "name": "holding-before",
+    "script": "tests/headless/AirHoldingRegression.gd",
+    "exit_code": 1,
+    "classification": "original HUD; three explanatory-status failures"
+  },
+  {
+    "name": "holding-final",
+    "script": "tests/headless/AirHoldingRegression.gd",
+    "exit_code": 0,
+    "classification": "accepted held archive continuity and extraction"
+  },
+  {
+    "name": "recovery-preview",
+    "script": "tests/rendered/AirHoldingPreview.gd",
+    "exit_code": 1,
+    "classification": "real extraction; three panel overlap failures"
+  },
+  {
+    "name": "recovery-final",
+    "script": "tests/rendered/AirHoldingPreview.gd",
+    "exit_code": 1,
+    "classification": "real extraction; two remaining wrapped-default overlap failures"
+  },
+  {
+    "name": "verified-recovery",
+    "script": "tests/rendered/AirHoldingPreview.gd",
+    "exit_code": 0,
+    "classification": "accepted held/live/safe final UI and Enter recovery"
+  },
+  {
+    "name": "rules-final",
+    "script": "tests/headless/AirCorridorRegression.gd",
+    "exit_code": 0,
+    "classification": "shared flight/route/archive/budget/reward suite"
+  },
+  {
+    "name": "rules-accepted",
+    "script": "tests/headless/AirCorridorRegression.gd",
+    "exit_code": 0,
+    "classification": "shared suite after shorter success text and panel shrink"
+  },
+  {
+    "name": "verified-preview",
+    "script": "tests/rendered/AirDifficultyPreview.gd",
+    "args": [
+      "--difficulty=2",
+      "--respond-to-threats",
+      "--evidence=res://docs/playtests/2026-10-07/air-difficulties/verified-preview"
+    ],
+    "exit_code": 0,
+    "classification": "accepted final UI: three safe flights, mouse/Enter launch and Continue, held/two-safe/result captures"
+  },
+  {
+    "name": "notice-before-valid",
+    "script": "tests/headless/LoadedNoticeRegression.gd",
+    "exit_code": 1,
+    "classification": "old-code regression"
+  },
+  {
+    "name": "notice-verified",
+    "script": "tests/headless/LoadedNoticeRegression.gd",
+    "exit_code": 0,
+    "classification": "accepted final notice regression"
+  }
+]

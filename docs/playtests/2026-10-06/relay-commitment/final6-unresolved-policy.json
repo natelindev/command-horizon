@@ -1,0 +1,74 @@
+{
+	"army": [
+		{
+			"action": "LuaAction",
+			"hp": 1.0,
+			"id": "unit-3",
+			"program_mode": "Blocked",
+			"program_reason": "No progress for 5 seconds. Reassign or Resume to retry.",
+			"role": "Tank"
+		},
+		{
+			"action": "AttackMoving",
+			"hp": 1.0,
+			"id": "unit-13",
+			"program_mode": "",
+			"program_reason": "",
+			"role": "Infantry"
+		},
+		{
+			"action": "WaitingForTargets()",
+			"hp": 1.0,
+			"id": "unit-14",
+			"program_mode": "",
+			"program_reason": "",
+			"role": "Infantry"
+		},
+		{
+			"action": "AttackMoving",
+			"hp": 1.0,
+			"id": "unit-15",
+			"program_mode": "",
+			"program_reason": "",
+			"role": "Infantry"
+		},
+		{
+			"action": "WaitingForTargets()",
+			"hp": 1.0,
+			"id": "unit-16",
+			"program_mode": "",
+			"program_reason": "",
+			"role": "Infantry"
+		},
+		{
+			"action": "AttackMoving",
+			"hp": 1.0,
+			"id": "unit-17",
+			"program_mode": "",
+			"program_reason": "",
+			"role": "Infantry"
+		},
+		{
+			"action": "AttackMoving",
+			"hp": 1.0,
+			"id": "unit-20",
+			"program_mode": "",
+			"program_reason": "",
+			"role": "Infantry"
+		},
+		{
+			"action": "LuaAction",
+			"hp": 1.0,
+			"id": "unit-23",
+			"program_mode": "Running",
+			"program_reason": "Watching assigned area.",
+			"role": "Tank"
+		}
+	],
+	"last_home_pressure": 1099.73333333266,
+	"phase": "recover",
+	"phase_started": 947.2333333328,
+	"retreating": [],
+	"saw_home_attack": true,
+	"vehicle_sequence": 10
+}

@@ -1,0 +1,118 @@
+extends "res://source/match/Map.gd"
+
+const OBSTACLE = preload("res://source/match/units/traits/MovementObstacle.tscn")
+const DEPLOYMENT = Vector3(76, 0, 66)
+const TARGET = Vector3(156, 0, 65)
+const NORTH = Vector3(116, 0, 22)
+const SOUTH = Vector3(116, 0, 114)
+const ENTRIES = [Vector3(169, 0, 113), Vector3(169, 0, 19)]
+var relay
+var alternate_route = false
+var flight_obstacles = []
+var road_segments = PackedVector4Array()
+
+
+func _ready():
+	var game = get_parent()
+	if not game.restoring:
+		var progress = load("res://source/match/campaign/CampaignProgress.gd").new()
+		progress.read_progress(game.progress_path)
+		game.alternate_route = progress.foundry_complete
+	alternate_route = game.alternate_route
+	game.get_node("Fog").hide()
+	var world = game.get_node("WorldEnvironment")
+	world.environment = world.environment.duplicate()
+	world.environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	world.environment.ambient_light_color = Color("9daea9")
+	world.environment.ambient_light_energy = 0.45
+	world.environment.tonemap_exposure = 0.85
+	game.get_node("DirectionalLight3D").light_color = Color("ffe6ba")
+	game.get_node("DirectionalLight3D").light_energy = 1.2
+	game.get_node("DirectionalLight3D").shadow_normal_bias = 2.0
+	game.get_node("DirectionalLight3D").shadow_blur = 0.4
+	for point in [DEPLOYMENT, TARGET]:
+		for offset in [-9, 9]:
+			_box(Vector3(0.18, 0.015, 17), point + Vector3(offset, 0.025, 0), Color("968259"))
+		for offset in [-7, 7]:
+			for step_x in range(-7, 8, 2):
+				_box(
+					Vector3(0.8, 0.015, 0.18),
+					point + Vector3(step_x, 0.025, offset),
+					Color("968259")
+				)
+	_road(Vector3(32, 0, 66), DEPLOYMENT)
+	_road(DEPLOYMENT, Vector3(92, 0, 114))
+	_road(Vector3(92, 0, 114), Vector3(145, 0, 114))
+	_road(Vector3(145, 0, 114), TARGET)
+	_road(DEPLOYMENT, Vector3(92, 0, 22))
+	_road(Vector3(92, 0, 22), Vector3(146, 0, 22))
+	_road(Vector3(146, 0, 22), TARGET)
+	$Geometry/Terrain.mesh.material = $Geometry/Terrain.mesh.material.duplicate()
+	$Geometry/Terrain.mesh.material.set_shader_parameter("roads", road_segments)
+	# A continuous high berm reaches the north boundary. The reward cuts a real passage.
+	for z in range(0, 100, 9):
+		if alternate_route and z in [18, 27]:
+			continue
+		_landmark(Vector3(116, 0, z), "CutBerm%d" % (1 + (z / 9) % 3))
+	_landmark(Vector3(52, 0, 44), "ServiceRuin")
+	_landmark(Vector3(52, 0, 91), "PumpStation")
+	_landmark(Vector3(88, 0, 92), "RelaySubstation")
+	relay = load("res://source/match/objectives/DeploymentControl.gd").new()
+	relay.position = DEPLOYMENT
+	add_child(relay)
+	for point in [Vector3(10, 0, 89), Vector3(82, 0, 78)]:
+		for offset in [-3, 0, 3]:
+			var resource = load("res://source/match/units/non-player/ResourceA.tscn").instantiate()
+			resource.resource_a = 300
+			resource.position = point + Vector3(offset, 0, 0)
+			$Resources.add_child(resource)
+		var electronics = load("res://source/match/units/non-player/ResourceB.tscn").instantiate()
+		electronics.resource_b = 300
+		electronics.position = point + Vector3(0, 0, 5)
+		$Resources.add_child(electronics)
+
+
+func _landmark(point, asset):
+	var shelf = Node3D.new()
+	shelf.name = asset
+	shelf.position = point
+	$Decorations.add_child(shelf)
+	var model = load("res://assets/models/environment/%s.glb" % asset).instantiate()
+	shelf.add_child(model)
+	var obstacle = OBSTACLE.instantiate()
+	obstacle.radius = 5.6
+	obstacle.sight_height = 7.0
+	obstacle.affect_navigation_mesh = true
+	shelf.add_child(obstacle)
+	flight_obstacles.append(shelf)
+
+
+func flight_height_at(point, baseline):
+	# Begin climbing before the obstruction, with clearance for the full airframe.
+	# Actual unit height is used by sight, projectile origins and selection.
+	var height = baseline
+	for obstacle in flight_obstacles:
+		var distance = (
+			Vector2(point.x - obstacle.position.x, point.z - obstacle.position.z).length()
+		)
+		var rise = 1.0 - smoothstep(7.5, 16.0, distance)
+		height = maxf(height, lerpf(baseline, 8.0, rise))
+	return height
+
+
+func _road(a, b):
+	road_segments.append(Vector4(a.x, a.z, b.x, b.z))
+
+
+func _box(dimensions, point, color):
+	var part = MeshInstance3D.new()
+	var mesh = BoxMesh.new()
+	mesh.size = dimensions
+	part.mesh = mesh
+	part.position = point
+	var material = StandardMaterial3D.new()
+	material.albedo_color = color
+	material.roughness = 0.95
+	part.material_override = material
+	$Decorations.add_child(part)
+	return part

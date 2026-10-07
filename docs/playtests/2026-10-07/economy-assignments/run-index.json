@@ -1,0 +1,47 @@
+[
+  {
+    "log": "initial-regression.log",
+    "exit_code": 0,
+    "classification": "passed all-faction initial suite; before added empty-shortcut assertion"
+  },
+  {
+    "log": "preview.log",
+    "exit_code": 0,
+    "classification": "rejected: three script errors from measuring a CanvasLayer as a Control"
+  },
+  {
+    "log": "final-preview.log",
+    "exit_code": 1,
+    "classification": "rejected: three 1920x1080 captures failed the 1280x720 gate"
+  },
+  {
+    "log": "verified-preview.log",
+    "exit_code": 0,
+    "classification": "passed two mouse activations, one Enter activation and three inspected 720p/150% captures"
+  },
+  {
+    "log": "EconomySupplyRegression.log",
+    "exit_code": 0,
+    "classification": "passed shared supply and threat/depletion priority"
+  },
+  {
+    "log": "OrdersRegression.log",
+    "exit_code": 0,
+    "classification": "passed shared orders and harvest handoffs"
+  },
+  {
+    "log": "original-shipping.log",
+    "exit_code": 1,
+    "classification": "expected twelve failed assertions with preceding Supply/ResourcesBar source"
+  },
+  {
+    "log": "final-regression.log",
+    "exit_code": 0,
+    "classification": "passed all-faction suite including empty selection; before added reciprocal queue assertions"
+  },
+  {
+    "log": "reciprocal-regression.log",
+    "exit_code": 0,
+    "classification": "passed final all-faction suite including both queued resource directions"
+  }
+]

@@ -1,0 +1,201 @@
+[
+  {
+    "case": 2,
+    "seed": 4110,
+    "result": "Victory",
+    "seconds": 1193.3,
+    "losses": [
+      {
+        "CombatRobot": 1,
+        "Helicopter": 1,
+        "Infantry": 23,
+        "RepairRobot": 3,
+        "Tank": 1,
+        "Worker": 7
+      },
+      {
+        "AircraftFactory": 1,
+        "Barracks": 1,
+        "CombatRobot": 2,
+        "CommandCenter": 1,
+        "CommandLab": 2,
+        "Drone": 2,
+        "Helicopter": 2,
+        "Infantry": 50,
+        "PowerPlant": 1,
+        "RepairRobot": 1,
+        "Tank": 4,
+        "VehicleFactory": 1,
+        "Worker": 10
+      }
+    ],
+    "harvested": [
+      826.0,
+      360.0
+    ],
+    "first_program": 154.733333333349,
+    "first_assault": 576.733333333137,
+    "ai_coordination": {
+      "peak_groups": 2,
+      "samples": 2387,
+      "violations": {}
+    },
+    "longest_stationary_travel": [
+      5.5,
+      2.0
+    ],
+    "artifact": "baseline-2.json",
+    "worker_policy": {
+      "episodes": 0,
+      "results": {},
+      "delivered": 0,
+      "episode_worker_seconds": 0,
+      "authority_checks": 0,
+      "no_safe_destination_decisions": 0
+    }
+  },
+  {
+    "case": 6,
+    "seed": 4110,
+    "result": "Defeat",
+    "seconds": 529.1,
+    "losses": [
+      {
+        "Barracks": 1,
+        "CombatRobot": 1,
+        "CommandCenter": 1,
+        "CommandLab": 1,
+        "Infantry": 18,
+        "Tank": 3,
+        "Worker": 19
+      },
+      {
+        "Infantry": 7,
+        "Tank": 3
+      }
+    ],
+    "harvested": [
+      354.0,
+      136.0
+    ],
+    "first_program": 157.233333333351,
+    "first_assault": null,
+    "ai_coordination": {
+      "peak_groups": 1,
+      "samples": 1058,
+      "violations": {}
+    },
+    "longest_stationary_travel": [
+      1.5,
+      2.5
+    ],
+    "artifact": "baseline-6.json",
+    "worker_policy": {
+      "episodes": 0,
+      "results": {},
+      "delivered": 0,
+      "episode_worker_seconds": 0,
+      "authority_checks": 0,
+      "no_safe_destination_decisions": 0
+    }
+  },
+  {
+    "case": 2,
+    "seed": 4110,
+    "result": "Defeat",
+    "seconds": 457.6,
+    "losses": [
+      {
+        "Barracks": 1,
+        "CommandCenter": 1,
+        "Infantry": 11,
+        "Tank": 1,
+        "VehicleFactory": 1,
+        "Worker": 6
+      },
+      {
+        "Infantry": 7,
+        "Tank": 1
+      }
+    ],
+    "harvested": [
+      132.0,
+      65.0
+    ],
+    "first_program": null,
+    "first_assault": null,
+    "ai_coordination": {
+      "peak_groups": 1,
+      "samples": 915,
+      "violations": {}
+    },
+    "longest_stationary_travel": [
+      1.0,
+      3.5
+    ],
+    "artifact": "protected-2.json",
+    "worker_policy": {
+      "episodes": 7,
+      "results": {
+        "lost": 6,
+        "resumed": 1
+      },
+      "delivered": 1,
+      "episode_worker_seconds": 1271.4999999999259,
+      "authority_checks": 2543,
+      "no_safe_destination_decisions": 23
+    }
+  },
+  {
+    "case": 6,
+    "seed": 4110,
+    "result": "Defeat",
+    "seconds": 802.1,
+    "losses": [
+      {
+        "Barracks": 2,
+        "CombatRobot": 1,
+        "CommandCenter": 1,
+        "CommandLab": 1,
+        "Infantry": 45,
+        "Tank": 3,
+        "Worker": 8
+      },
+      {
+        "AntiGroundTurret": 1,
+        "CombatRobot": 1,
+        "Helicopter": 1,
+        "Infantry": 24,
+        "Tank": 4
+      }
+    ],
+    "harvested": [
+      517.0,
+      99.0
+    ],
+    "first_program": 163.733333333356,
+    "first_assault": 240.233333333417,
+    "ai_coordination": {
+      "peak_groups": 2,
+      "samples": 1604,
+      "violations": {}
+    },
+    "longest_stationary_travel": [
+      4.5,
+      1.5
+    ],
+    "artifact": "protected-6.json",
+    "worker_policy": {
+      "episodes": 35,
+      "results": {
+        "resumed": 28,
+        "available": 1,
+        "lost": 6
+      },
+      "delivered": 12,
+      "episode_worker_seconds": 1975.999999998751,
+      "authority_checks": 3952,
+      "no_safe_destination_decisions": 157
+    }
+  }
+]

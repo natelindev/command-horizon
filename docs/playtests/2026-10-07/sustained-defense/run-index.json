@@ -1,0 +1,56 @@
+[
+  {
+    "log": "control.log",
+    "exit_code": 0,
+    "classification": "accepted complete paid batch: three resolved matches",
+    "script_or_parse_errors": 0
+  },
+  {
+    "log": "response.log",
+    "exit_code": 0,
+    "classification": "accepted complete paid batch: three resolved matches",
+    "script_or_parse_errors": 0
+  },
+  {
+    "log": "handoff.log",
+    "exit_code": 0,
+    "classification": "accepted complete paid batch: three resolved matches",
+    "script_or_parse_errors": 0
+  },
+  {
+    "log": "combined.log",
+    "exit_code": 0,
+    "classification": "accepted complete paid batch: three resolved matches",
+    "script_or_parse_errors": 0
+  },
+  {
+    "log": "HomeResponseRegression.log",
+    "exit_code": 0,
+    "classification": "rejected fixture: parse errors; initial-HomeResponseRegression.log duplicates this run",
+    "script_or_parse_errors": 2
+  },
+  {
+    "log": "final-HomeResponseRegression.log",
+    "exit_code": 1,
+    "classification": "rejected fixture: excessive target health, three archive failures; invalid-health-HomeResponseRegression.log duplicates this run",
+    "script_or_parse_errors": 0
+  },
+  {
+    "log": "verified-HomeResponseRegression.log",
+    "exit_code": 0,
+    "classification": "accepted final all-faction approach, firing, disk and authority regression",
+    "script_or_parse_errors": 0
+  },
+  {
+    "log": "ElectronicsHandoffRegression.log",
+    "exit_code": 0,
+    "classification": "accepted shared all-faction handoff regression",
+    "script_or_parse_errors": 0
+  },
+  {
+    "log": "GuardResponseRegression.log",
+    "exit_code": 0,
+    "classification": "accepted shared guard regression",
+    "script_or_parse_errors": 0
+  }
+]

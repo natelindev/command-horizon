@@ -3,18 +3,28 @@ const ADVERSARY_PLAYER_CIRCLE_COLOR = Color.RED
 const RESOURCE_CIRCLE_COLOR = Color.YELLOW
 const DEFAULT_CIRCLE_COLOR = Color.WHITE
 const MAPS = {
+	"res://source/match/maps/BastionDesert.tscn":
+	{"name": "Desert Frontier (original)", "players": 2, "size": Vector2i(64, 64)},
+	"res://source/match/maps/DesertFrontier.tscn":
+	{"name": "Desert Frontier", "players": 2, "size": Vector2i(128, 96)},
 	"res://source/match/maps/PlainAndSimple.tscn":
 	{
-		"name": "Plain & Simple",
+		"name": "Open Plains",
 		"players": 4,
 		"size": Vector2i(50, 50),
 	},
 	"res://source/match/maps/BigArena.tscn":
 	{
-		"name": "Big Arena",
+		"name": "Great Expanse",
 		"players": 8,
 		"size": Vector2i(100, 100),
 	},
+	"res://source/match/maps/AlpineRelay.tscn":
+	{"name": "Alpine Relay", "players": 2, "size": Vector2i(128, 104)},
+	"res://source/match/maps/IndustrialCrossroads.tscn":
+	{"name": "Industrial Crossroads", "players": 2, "size": Vector2i(128, 104)},
+	"res://source/match/maps/CoastalFoundry.tscn":
+	{"name": "Coastal Foundry", "players": 2, "size": Vector2i(128, 104)},
 }
 
 
@@ -48,40 +58,48 @@ class Terrain:
 
 class Resources:
 	class A:
-		const COLOR = Color.BLUE
+		const COLOR = Color("d6ab64")
 		const MATERIAL_PATH = "res://source/match/resources/materials/resource_a.material.tres"
 		const COLLECTING_TIME_S = 1.0
 
 	class B:
-		const COLOR = Color.RED
+		const COLOR = Color("65cdd8")
 		const MATERIAL_PATH = "res://source/match/resources/materials/resource_b.material.tres"
 		const COLLECTING_TIME_S = 2.0
 
 
 class Units:
 	const PRODUCTION_COSTS = {
+		"res://source/match/units/Infantry.tscn": {"resource_a": 4, "resource_b": 0},
+		"res://source/match/units/RepairRobot.tscn": {"resource_a": 8, "resource_b": 4},
+		"res://source/match/units/CombatRobot.tscn": {"resource_a": 12, "resource_b": 8},
+		"res://source/match/units/AdvancedTank.tscn": {"resource_a": 20, "resource_b": 12},
 		"res://source/match/units/Worker.tscn":
 		{
-			"resource_a": 2,
+			"resource_a": 4,
 			"resource_b": 0,
 		},
 		"res://source/match/units/Helicopter.tscn":
 		{
-			"resource_a": 1,
-			"resource_b": 3,
+			"resource_a": 16,
+			"resource_b": 10,
 		},
 		"res://source/match/units/Drone.tscn":
 		{
-			"resource_a": 2,
-			"resource_b": 0,
+			"resource_a": 4,
+			"resource_b": 2,
 		},
 		"res://source/match/units/Tank.tscn":
 		{
-			"resource_a": 3,
-			"resource_b": 1,
+			"resource_a": 12,
+			"resource_b": 4,
 		},
 	}
 	const PRODUCTION_TIMES = {
+		"res://source/match/units/Infantry.tscn": 3.0,
+		"res://source/match/units/RepairRobot.tscn": 6.0,
+		"res://source/match/units/CombatRobot.tscn": 8.0,
+		"res://source/match/units/AdvancedTank.tscn": 12.0,
 		"res://source/match/units/Worker.tscn": 3.0,
 		"res://source/match/units/Helicopter.tscn": 6.0,
 		"res://source/match/units/Drone.tscn": 3.0,
@@ -89,6 +107,14 @@ class Units:
 	}
 	const PRODUCTION_QUEUE_LIMIT = 5
 	const STRUCTURE_BLUEPRINTS = {
+		"res://source/match/units/Barracks.tscn":
+		"res://source/match/units/structure-geometries/Barracks.tscn",
+		"res://source/match/units/PowerPlant.tscn":
+		"res://source/match/units/structure-geometries/PowerPlant.tscn",
+		"res://source/match/units/CommandLab.tscn":
+		"res://source/match/units/structure-geometries/CommandLab.tscn",
+		"res://source/match/units/RepairDepot.tscn":
+		"res://source/match/units/structure-geometries/RepairDepot.tscn",
 		"res://source/match/units/CommandCenter.tscn":
 		"res://source/match/units/structure-geometries/CommandCenter.tscn",
 		"res://source/match/units/VehicleFactory.tscn":
@@ -101,106 +127,154 @@ class Units:
 		"res://source/match/units/structure-geometries/AntiAirTurret.tscn",
 	}
 	const CONSTRUCTION_COSTS = {
+		"res://source/match/units/Barracks.tscn": {"resource_a": 14, "resource_b": 0},
+		"res://source/match/units/PowerPlant.tscn": {"resource_a": 10, "resource_b": 0},
+		"res://source/match/units/CommandLab.tscn": {"resource_a": 18, "resource_b": 12},
+		"res://source/match/units/RepairDepot.tscn": {"resource_a": 14, "resource_b": 6},
 		"res://source/match/units/CommandCenter.tscn":
 		{
-			"resource_a": 8,
-			"resource_b": 8,
+			"resource_a": 50,
+			"resource_b": 20,
 		},
 		"res://source/match/units/VehicleFactory.tscn":
 		{
-			"resource_a": 6,
-			"resource_b": 0,
+			"resource_a": 28,
+			"resource_b": 8,
 		},
 		"res://source/match/units/AircraftFactory.tscn":
 		{
-			"resource_a": 4,
-			"resource_b": 4,
+			"resource_a": 30,
+			"resource_b": 16,
 		},
 		"res://source/match/units/AntiGroundTurret.tscn":
 		{
-			"resource_a": 2,
-			"resource_b": 2,
+			"resource_a": 12,
+			"resource_b": 4,
 		},
 		"res://source/match/units/AntiAirTurret.tscn":
 		{
-			"resource_a": 2,
-			"resource_b": 2,
+			"resource_a": 10,
+			"resource_b": 8,
 		},
 	}
 	const DEFAULT_PROPERTIES = {
+		"res://source/match/units/EvacTransport.tscn":
+		{"hp": 150, "hp_max": 150, "sight_range": 8.0},
+		"res://source/match/units/SupplyTruck.tscn": {"hp": 180, "hp_max": 180, "sight_range": 7.0},
+		"res://source/match/units/Infantry.tscn":
+		{
+			"hp": 22,
+			"hp_max": 22,
+			"sight_range": 7.0,
+			"attack_damage": 3,
+			"attack_interval": 0.7,
+			"attack_range": 4.5,
+			"attack_domains": [Navigation.Domain.TERRAIN]
+		},
+		"res://source/match/units/RepairRobot.tscn": {"hp": 45, "hp_max": 45, "sight_range": 7.0},
+		"res://source/match/units/CombatRobot.tscn":
+		{
+			"hp": 65,
+			"hp_max": 65,
+			"sight_range": 8.0,
+			"attack_damage": 5,
+			"attack_interval": 0.7,
+			"attack_range": 5.5,
+			"attack_domains": [Navigation.Domain.TERRAIN]
+		},
+		"res://source/match/units/AdvancedTank.tscn":
+		{
+			"hp": 105,
+			"hp_max": 105,
+			"sight_range": 10.0,
+			"attack_damage": 18,
+			"attack_interval": 2.0,
+			"attack_range": 8.0,
+			"attack_domains": [Navigation.Domain.TERRAIN]
+		},
+		"res://source/match/units/Barracks.tscn": {"hp": 220, "hp_max": 220, "sight_range": 8.0},
+		"res://source/match/units/PowerPlant.tscn": {"hp": 160, "hp_max": 160, "sight_range": 8.0},
+		"res://source/match/units/CommandLab.tscn": {"hp": 220, "hp_max": 220, "sight_range": 8.0},
+		"res://source/match/units/RepairDepot.tscn": {"hp": 260, "hp_max": 260, "sight_range": 8.0},
 		"res://source/match/units/Drone.tscn":
 		{
-			"sight_range": 10.0,
-			"hp": 6,
-			"hp_max": 6,
+			"sight_range": 13.0,
+			"hp": 25,
+			"hp_max": 25,
 		},
 		"res://source/match/units/Worker.tscn":
 		{
 			"sight_range": 5.0,
-			"hp": 6,
-			"hp_max": 6,
-			"resources_max": 2,
+			"hp": 35,
+			"hp_max": 35,
+			"resources_max": 4,
 		},
 		"res://source/match/units/Helicopter.tscn":
 		{
 			"sight_range": 8.0,
-			"hp": 10,
-			"hp_max": 10,
-			"attack_damage": 1,
-			"attack_interval": 1.0,
-			"attack_range": 5.0,
+			"hp": 50,
+			"hp_max": 50,
+			"attack_damage": 7,
+			"attack_interval": 1.4,
+			"attack_range": 6.0,
 			"attack_domains": [Navigation.Domain.TERRAIN, Navigation.Domain.AIR],
 		},
 		"res://source/match/units/Tank.tscn":
 		{
 			"sight_range": 8.0,
-			"hp": 10,
-			"hp_max": 10,
-			"attack_damage": 2,
-			"attack_interval": 0.75,
-			"attack_range": 5.0,
+			"hp": 80,
+			"hp_max": 80,
+			"attack_damage": 9,
+			"attack_interval": 1.2,
+			"attack_range": 6.0,
 			"attack_domains": [Navigation.Domain.TERRAIN],
 		},
 		"res://source/match/units/CommandCenter.tscn":
 		{
 			"sight_range": 10.0,
-			"hp": 20,
-			"hp_max": 20,
+			"hp": 500,
+			"hp_max": 500,
 		},
 		"res://source/match/units/VehicleFactory.tscn":
 		{
 			"sight_range": 8.0,
-			"hp": 16,
-			"hp_max": 16,
+			"hp": 320,
+			"hp_max": 320,
 		},
 		"res://source/match/units/AircraftFactory.tscn":
 		{
 			"sight_range": 8.0,
-			"hp": 16,
-			"hp_max": 16,
+			"hp": 300,
+			"hp_max": 300,
 		},
 		"res://source/match/units/AntiGroundTurret.tscn":
 		{
 			"sight_range": 8.0,
-			"hp": 8,
-			"hp_max": 8,
-			"attack_damage": 2,
-			"attack_interval": 1.0,
+			"hp": 120,
+			"hp_max": 120,
+			"attack_damage": 9,
+			"attack_interval": 1.2,
 			"attack_range": 8.0,
 			"attack_domains": [Navigation.Domain.TERRAIN],
 		},
 		"res://source/match/units/AntiAirTurret.tscn":
 		{
 			"sight_range": 8.0,
-			"hp": 8,
-			"hp_max": 8,
-			"attack_damage": 2,
-			"attack_interval": 0.75,
+			"hp": 100,
+			"hp_max": 100,
+			"attack_damage": 8,
+			"attack_interval": 1.0,
 			"attack_range": 8.0,
 			"attack_domains": [Navigation.Domain.AIR],
 		},
 	}
 	const PROJECTILES = {
+		"res://source/match/units/Infantry.tscn":
+		"res://source/match/units/projectiles/CannonShell.tscn",
+		"res://source/match/units/CombatRobot.tscn":
+		"res://source/match/units/projectiles/CannonShell.tscn",
+		"res://source/match/units/AdvancedTank.tscn":
+		"res://source/match/units/projectiles/CannonShell.tscn",
 		"res://source/match/units/Helicopter.tscn":
 		"res://source/match/units/projectiles/Rocket.tscn",
 		"res://source/match/units/Tank.tscn":

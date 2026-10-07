@@ -1,0 +1,9 @@
+import concurrent.futures, subprocess, pathlib, json
+out=pathlib.Path('docs/playtests/2026-10-04')
+def run(case):
+ stem=f'standard-coastal-accepted-{case}'
+ args=['tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot','--headless','--path','.','--fixed-fps','60','--script','tmp/GuardTravelMatches.gd','--',f'--case={case}','--repeats=1','--ground-first','--proactive',f'--probe-run=standard-accepted-{case}',f'--archive=res://docs/playtests/2026-10-04/{stem}-stall.json',f'--output=res://docs/playtests/2026-10-04/{stem}.json']
+ with (out/(stem+'.log')).open('w') as log:r=subprocess.run(args,stdout=log,stderr=subprocess.STDOUT,timeout=1800)
+ s=(out/(stem+'.log')).read_text();row={'case':case,'exit':r.returncode,'script_error':'SCRIPT ERROR' in s};print(json.dumps(row),flush=True);return row
+with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:rows=list(pool.map(run,[2,6]))
+(out/'standard-coastal-accepted-execution.json').write_text(json.dumps(rows,indent=2)+'\n')

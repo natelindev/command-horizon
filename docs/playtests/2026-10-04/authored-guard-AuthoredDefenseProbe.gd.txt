@@ -1,0 +1,46 @@
+extends "res://tests/headless/SaveRestoreEdges.gd"
+
+func _run():
+	for faction in ["bastion", "helix"]:
+		for mode in ["preset", "visual"]:
+			await _skirmish(faction, "res://source/match/maps/DesertFrontier.tscn")
+			var human = game._get_human_player()
+			var enemy = get_nodes_in_group("players").filter(func(p): return p != human)[0]
+			enemy.set_process(false)
+			for unit in get_nodes_in_group("units"):
+				unit.process_mode = Node.PROCESS_MODE_DISABLED
+			var anchor = Vector3(40, 0, 10)
+			var target = _actor("Tank", enemy, anchor + Vector3(5,0,0))
+			target.hp_max = 10000
+			target.hp = 10000
+			target.process_mode = Node.PROCESS_MODE_DISABLED
+			var guards = []
+			for index in 8:
+				var guard = _actor("Tank", human, anchor + Vector3(-2 - index % 3 * 1.4,0,(index / 3 - 1) * 1.6))
+				guard.program.installed = true
+				guard.program.anchor = anchor
+				guard.program.safe_point = anchor - Vector3(10,0,0)
+				if mode == "preset":
+					guard.program.configure(load("res://source/match/programs/ProgramLibrary.gd").defaults("guard"))
+					guard.program.run()
+				else:
+					var rules = load("res://source/match/programs/VisualRules.gd")
+					var record = load("res://source/match/programs/ProgramRecord.gd").visual("Defense probe",1,rules.starter(1),["Tank"])
+					var result = load("res://source/match/programs/ProgramApplication.gd").apply(record,[guard],human)
+					_check(result.ok,"Probe apply failed")
+				guards.append(guard)
+			await _frames(1800)
+			var states = []
+			for guard in guards:
+				states.append({"distance":guard.position.distance_to(anchor),"mode":guard.program.mode,"reason":guard.program.reason})
+			print("DEFENSE PROBE ",JSON.stringify({"faction":faction,"mode":mode,"damage":10000-target.hp,"states":states}))
+			game.queue_free()
+			await _frames(5)
+	for error in errors:
+		push_error(error)
+	quit(0 if errors.is_empty() else 1)
+
+func _actor(role, player, point):
+	var unit = load("res://source/match/units/%s.tscn" % role).instantiate()
+	game._setup_and_spawn_unit(unit, Transform3D(Basis(), point), player, false)
+	return unit

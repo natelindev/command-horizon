@@ -1,0 +1,88 @@
+extends "res://tests/headless/SkirmishSupportRegression.gd"
+
+
+func _run():
+	var saves = root.get_node("SaveManager")
+	var autosaves = saves.autosaves_enabled
+	saves.autosaves_enabled = false
+	for faction in ["bastion", "helix", "frontier"]:
+		await _skirmish(faction, "res://source/match/maps/DesertFrontier.tscn")
+		var human = game._get_human_player()
+		get_nodes_in_group("players").filter(func(p): return p != human)[0].set_process(false)
+		for unit in get_nodes_in_group("units"):
+			unit.process_mode = Node.PROCESS_MODE_DISABLED
+		var hq = _support_unit("CommandCenter", human, Vector3(64, 0, 48))
+		hq.construct(1.0)
+		var infantry = _support_unit("Infantry", human, Vector3(54, 0, 48))
+		await _frames(90)
+		infantry.manual_orders.submit({"kind": "attack_move", "point": hq.position})
+		infantry.manual_orders.submit({"kind": "move", "point": Vector3(75, 0, 48)}, true)
+		await _frames(900)
+		_check(
+			infantry.position.distance_to(Vector3(75, 0, 48)) < 1,
+			"Attack-move at a building blocked the queued move"
+		)
+		_check(not infantry.manual_orders._engaged, "Arrived attack-move queue stayed engaged")
+		var tank = _support_unit("Tank", human, Vector3(43, 0, 48))
+		tank.manual_orders.submit({"kind": "attack_move", "point": Vector3(80, 0, 48)})
+		tank.manual_orders.submit({"kind": "move", "point": Vector3(81, 0, 58)}, true)
+		await _frames(40)
+		var airfield = _support_unit("AircraftFactory", human, Vector3(80, 0, 48))
+		airfield.construct(1.0)
+		await _frames(60)
+		var point = tank.global_position
+		paused = true
+		var snapshot = Snapshot.new().capture(game)
+		_check(snapshot != null, "Attack arrival snapshot failed")
+		if snapshot == null:
+			quit(1)
+			return
+		var file = FileStore.new()
+		var path = "user://attack-arrival-%d.json" % OS.get_process_id()
+		_check(file.write_file(path, snapshot), "Attack arrival archive write failed")
+		var loaded = await Restore.new().restore(self, file.read_file(path))
+		DirAccess.remove_absolute(path)
+		_check(loaded.ok, "Attack arrival restore failed: " + loaded.get("error", ""))
+		if not loaded.ok:
+			quit(1)
+			return
+		game = loaded.game
+		human = game._get_human_player()
+		get_nodes_in_group("players").filter(func(p): return p != human)[0].set_process(false)
+		var tanks = _units(human, "Tank")
+		tanks.sort_custom(
+			func(a, b):
+				return a.position.distance_squared_to(point) < b.position.distance_squared_to(point)
+		)
+		tank = tanks[0]
+		_check(
+			(
+				tank.manual_orders.current.get("kind") == "attack_move"
+				and tank.manual_orders.pending.size() == 1
+			),
+			"Restore changed attack-move queue"
+		)
+		await _frames(30)
+		_check(tank.position.is_equal_approx(point), "Loaded attack-move advanced during pause")
+		game.hud._toggle_pause()
+		await _frames(1500)
+		_check(
+			tank.position.distance_to(Vector3(81, 0, 58)) < 1,
+			"Restored attack-move did not hand off after a dynamic blocker"
+		)
+		_check(
+			not tank.manual_orders._engaged, "Restored queue stayed engaged at the blocked endpoint"
+		)
+		print(
+			"PASS: ",
+			faction,
+			" occupied attack destination, queued handoff, dynamic blocker, disk restore and pause"
+		)
+		paused = false
+		game.queue_free()
+		await _frames(5)
+	saves.autosaves_enabled = autosaves
+	for error in errors:
+		push_error(error)
+	print("Attack-move arrival regression: %d failures" % errors.size())
+	quit(0 if errors.is_empty() else 1)

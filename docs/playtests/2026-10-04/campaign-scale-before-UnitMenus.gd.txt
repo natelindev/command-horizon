@@ -1,0 +1,351 @@
+extends PanelContainer
+
+const Factions = preload("res://source/match/FactionCatalog.gd")
+
+const Catalog = preload("res://source/match/BastionCatalog.gd")
+const Structure = preload("res://source/match/units/Structure.gd")
+const Worker = preload("res://source/match/units/Worker.gd")
+
+var _selection = []
+var _buttons = []
+var _title = null
+var _status = null
+var _content = null
+var _refresh_elapsed = 0.0
+var _squad_panel = null
+var _orders_panel = null
+var _program_panel = null
+var _chip_option = null
+var _research_panel = null
+var _factory_program_panel = null
+var _was_under_construction = false
+var _weapon_modes = null
+var _signature_panel = null
+
+
+func _ready():
+	var panel = StyleBoxFlat.new()
+	panel.bg_color = Color("19212beb")
+	panel.set_corner_radius_all(8)
+	panel.content_margin_left = 16
+	panel.content_margin_right = 16
+	panel.content_margin_top = 12
+	panel.content_margin_bottom = 12
+	add_theme_stylebox_override("panel", panel)
+	custom_minimum_size.x = 510
+	_content = VBoxContainer.new()
+	_content.add_theme_constant_override("separation", 9)
+	add_child(_content)
+	MatchSignals.unit_selected.connect(func(_unit): _reset_menus())
+	MatchSignals.unit_deselected.connect(func(_unit): _reset_menus())
+	MatchSignals.unit_died.connect(func(_unit): _reset_menus())
+	_reset_menus()
+
+
+func _process(delta):
+	_refresh_elapsed += delta
+	if _refresh_elapsed >= 0.25:
+		_refresh_elapsed = 0.0
+		_refresh_buttons()
+
+
+func _reset_menus():
+	if _content == null or not is_inside_tree():
+		return
+	for child in _content.get_children():
+		_content.remove_child(child)
+		child.queue_free()
+	_buttons.clear()
+	_squad_panel = null
+	_orders_panel = null
+	_program_panel = null
+	_chip_option = null
+	_research_panel = null
+	_factory_program_panel = null
+	_weapon_modes = null
+	_signature_panel = null
+	_selection = get_tree().get_nodes_in_group("selected_units").filter(
+		func(unit):
+			return unit.is_in_group("controlled_units") and not unit.is_queued_for_deletion()
+	)
+	visible = not _selection.is_empty()
+	if _selection.is_empty():
+		return
+	for selected_unit in _selection:
+		if not selected_unit.tree_exited.is_connected(_reset_menus):
+			selected_unit.tree_exited.connect(_reset_menus)
+	var unit = _selection[0]
+	var conventional = (
+		unit._match.settings.mission_id == "supply_line"
+		or _selection.all(func(member): return member.type in Catalog.MISSION_NAMES)
+	)
+	_was_under_construction = unit is Structure and unit.is_under_construction()
+	_title = Label.new()
+	_title.add_theme_font_size_override("font_size", 20)
+	_title.text = (
+		Factions.title(unit.player.faction, unit.type)
+		if _selection.size() == 1
+		else "%d units selected" % _selection.size()
+	)
+	_content.add_child(_title)
+	_status = Label.new()
+	_status.add_theme_font_size_override("font_size", 13)
+	_status.add_theme_color_override("font_color", Color("bcc7d3"))
+	_content.add_child(_status)
+	var grid = GridContainer.new()
+	grid.columns = 3
+	grid.add_theme_constant_override("h_separation", 7)
+	grid.add_theme_constant_override("v_separation", 7)
+	_content.add_child(grid)
+	if _selection.size() == 1 and unit is Structure and unit.is_constructed():
+		for unit_type in Catalog.PRODUCES.get(unit.type, []):
+			_add_roster_button(grid, unit_type, false)
+		if unit.type == "VehicleFactory" and unit.player.get_meta("skirmish", false):
+			var fit = CheckBox.new()
+			_chip_option = fit
+			fit.text = "Fit chips to new tanks · +4 E / +5 s"
+			fit.button_pressed = unit.production_queue.fit_chips
+			fit.disabled = not unit.player.basic_programs_unlocked()
+			fit.toggled.connect(
+				func(enabled):
+					unit.production_queue.fit_chips = enabled
+					_refresh_buttons()
+			)
+			_content.add_child(fit)
+		if unit.player.get_meta("skirmish", false):
+			if unit.type == "CommandLab":
+				_research_panel = load("res://source/match/hud/ResearchPanel.gd").new()
+				_research_panel.lab = unit
+				_content.add_child(_research_panel)
+			if unit.type in ["VehicleFactory", "AircraftFactory"]:
+				_factory_program_panel = load("res://source/match/hud/FactoryProgramPanel.gd").new()
+				_factory_program_panel.queue = unit.production_queue
+				_content.add_child(_factory_program_panel)
+	elif unit is Worker:
+		for unit_type in Catalog.STRUCTURES:
+			_add_roster_button(grid, unit_type, true)
+	var stop = Button.new()
+	stop.text = (
+		"Cancel construction"
+		if unit is Structure and unit.is_under_construction()
+		else "Stop current orders"
+	)
+	stop.pressed.connect(_stop_orders)
+	_content.add_child(stop)
+	if not conventional and _selection.any(func(member): return member.signature != null):
+		_signature_panel = load("res://source/match/hud/SignaturePanel.gd").new()
+		_signature_panel.selection = _selection.duplicate()
+		_content.add_child(_signature_panel)
+	if _selection.any(
+		func(member): return member.type == "CombatRobot" and member.can_switch_weapon()
+	):
+		_weapon_modes = load("res://source/match/hud/WeaponModes.gd").new()
+		_weapon_modes.selection = _selection.duplicate()
+		_content.add_child(_weapon_modes)
+	if _selection.any(func(member): return member.manual_orders != null):
+		_orders_panel = load("res://source/match/hud/OrdersPanel.gd").new()
+		_orders_panel.selection = _selection.duplicate()
+		_content.add_child(_orders_panel)
+		if conventional:
+			_orders_panel._resume.hide()
+	if (
+		not conventional
+		and unit.player.squad_roster != null
+		and _selection.all(func(member): return member.movement_speed > 0)
+	):
+		_squad_panel = load("res://source/match/hud/SquadPanel.gd").new()
+		_squad_panel.selection = _selection.duplicate()
+		_content.add_child(_squad_panel)
+	if not conventional and _selection.any(func(member): return member.program != null):
+		_program_panel = load("res://source/match/hud/ProgramPanel.gd").new()
+		_program_panel.selection = _selection.duplicate()
+		_content.add_child(_program_panel)
+	_refresh_buttons()
+
+
+func _add_roster_button(grid, unit_type, construction):
+	var path = Catalog.scene_path(unit_type)
+	var player = _selection[0].player
+	var cost = Factions.cost(player, unit_type, construction)
+	var button = Button.new()
+	button.name = "Build" + unit_type if construction else "Produce" + unit_type
+	button.custom_minimum_size = Vector2(154, 74)
+	button.icon = load(Factions.icon(player.faction, unit_type))
+	button.expand_icon = true
+	button.add_theme_constant_override("icon_max_width", 42)
+	button.add_theme_font_size_override("font_size", 12)
+	button.text = (
+		"%s\n%d M · %d E"
+		% [Factions.title(player.faction, unit_type), cost.resource_a, cost.resource_b]
+	)
+	button.tooltip_text = (
+		"%s\n%s\nMaterials: %d   Electronics: %d"
+		% [
+			Factions.title(player.faction, unit_type),
+			Factions.description(player.faction, unit_type),
+			cost.resource_a,
+			cost.resource_b
+		]
+	)
+	button.pressed.connect(_activate.bind(unit_type, construction))
+	grid.add_child(button)
+	_buttons.append(
+		{"button": button, "type": unit_type, "construction": construction, "cost": cost}
+	)
+
+
+func _refresh_buttons():
+	if is_instance_valid(_signature_panel):
+		_signature_panel.refresh()
+	if is_instance_valid(_weapon_modes):
+		_weapon_modes.refresh()
+	if is_instance_valid(_research_panel):
+		_research_panel.refresh()
+	if is_instance_valid(_squad_panel):
+		_squad_panel.refresh()
+	if is_instance_valid(_orders_panel):
+		_orders_panel.refresh()
+	if is_instance_valid(_program_panel):
+		_program_panel.refresh()
+	if _selection.is_empty() or not is_instance_valid(_selection[0]):
+		return
+	var unit = _selection[0]
+	if unit is Structure and unit.is_under_construction() != _was_under_construction:
+		_reset_menus()
+		return
+	if is_instance_valid(_chip_option):
+		_chip_option.disabled = not unit.player.basic_programs_unlocked()
+	if unit.hp == null:
+		return
+	# Mixed selections intentionally have no production grid to rebuild.
+	if (
+		_selection.size() == 1
+		and unit is Structure
+		and unit.is_constructed()
+		and _buttons.is_empty()
+		and Catalog.PRODUCES.has(unit.type)
+	):
+		_reset_menus()
+		return
+	var details = "%d / %d HP" % [ceili(unit.hp), unit.hp_max]
+	if unit is Structure:
+		if unit.is_under_construction():
+			details += "   ·   Under construction"
+		else:
+			if unit.player.production_factor() < 1.0:
+				details += "   ·   Low power — production at 35%"
+			if unit.type == "CommandLab":
+				details += "\nBasic programs and walkers unlocked"
+			elif unit.type == "RepairDepot":
+				details += "\nGround service: 2 slots · 5 m"
+			elif unit.type == "Barracks":
+				details += "\nInfantry recovery: 2 slots · stationary within 5 m"
+			elif unit.type == "AircraftFactory":
+				details += "\nAircraft service: 2 slots · stationary within 5 m"
+	elif unit.type == "RepairRobot":
+		details += "   ·   Right-click an ally to repair"
+	if _selection.size() > 1:
+		var damaged = (
+			_selection
+			. filter(func(member): return member.hp != null and member.hp < member.hp_max)
+			. size()
+		)
+		details = "%d selected · %d damaged" % [_selection.size(), damaged]
+	if _selection.size() == 1:
+		details += "\n" + load("res://source/match/combat/CombatRules.gd").describe(unit)
+		if unit.type == "RepairRobot":
+			details += "\nRepair: 1 target · 3 m (building edge)"
+		if unit is Worker:
+			details += "\nCargo: %d M / %d E" % [unit.resource_a, unit.resource_b]
+			if unit.action != null and unit.action.has_method("harvest_status"):
+				details += "\n" + unit.action.harvest_status()
+	elif _selection.all(func(member): return member is Worker):
+		var gathering = 0
+		var waiting = 0
+		for member in _selection:
+			if member.action != null and member.action.has_method("harvest_status"):
+				if member.action.is_waiting():
+					waiting += 1
+				else:
+					gathering += 1
+		details += (
+			"\nEconomy: %d gathering / %d waiting / %d other"
+			% [gathering, waiting, _selection.size() - gathering - waiting]
+		)
+	_status.text = details
+	for entry in _buttons:
+		entry.cost = Factions.cost(unit.player, entry.type, entry.construction).duplicate()
+		if not entry.construction and entry.type == "Tank" and unit.production_queue.fit_chips:
+			entry.cost.resource_b += 4
+		entry.button.text = (
+			"%s\n%d M · %d E"
+			% [
+				Factions.title(unit.player.faction, entry.type),
+				entry.cost.resource_a,
+				entry.cost.resource_b
+			]
+		)
+		var allowed = (
+			unit.player.has_resources(entry.cost)
+			and Factions.available(unit.player, entry.type, entry.construction)
+		)
+		if not entry.construction:
+			allowed = allowed and Factions.available(unit.player, entry.type)
+			allowed = allowed and unit.player.population(true) < Catalog.POPULATION_LIMIT
+			allowed = (
+				allowed
+				and unit.production_queue.size() < Constants.Match.Units.PRODUCTION_QUEUE_LIMIT
+			)
+		var required = Factions.requirement(unit.player, entry.type, entry.construction)
+		if not entry.construction and entry.type == "Tank" and unit.production_queue.fit_chips:
+			required = "CommandLab"
+			allowed = allowed and unit.player.has_completed_structure(required)
+		entry.button.disabled = not allowed
+		if (
+			entry.construction
+			and unit.player.get_meta("skirmish", false)
+			and unit.player.structure_count() >= Catalog.STRUCTURE_LIMIT
+		):
+			entry.button.tooltip_text = "Structure limit reached (40)"
+		elif required != "" and not unit.player.has_completed_structure(required):
+			entry.button.tooltip_text = "Requires " + Factions.title(unit.player.faction, required)
+		elif (
+			not entry.construction
+			and entry.type == "AdvancedTank"
+			and unit.player.get_meta("skirmish", false)
+			and not unit.player.coordination_unlocked
+		):
+			entry.button.tooltip_text = "Research Coordination at your lab · 20 M / 20 E · 30 s"
+		elif not unit.player.has_resources(entry.cost):
+			entry.button.tooltip_text = (
+				"Need %d materials and %d electronics"
+				% [entry.cost.resource_a, entry.cost.resource_b]
+			)
+		else:
+			entry.button.tooltip_text = (
+				Factions.title(unit.player.faction, entry.type)
+				+ "\n"
+				+ Factions.description(unit.player.faction, entry.type)
+				+ (" · queue full or population limit" if not allowed else "")
+			)
+
+
+func _activate(unit_type, construction):
+	if _selection.is_empty() or not is_instance_valid(_selection[0]):
+		return
+	var scene = load(Catalog.scene_path(unit_type))
+	if construction:
+		MatchSignals.place_structure.emit(scene)
+	else:
+		_selection[0].production_queue.produce(scene)
+	_refresh_buttons()
+
+
+func _stop_orders():
+	for unit in _selection.duplicate():
+		if not is_instance_valid(unit):
+			continue
+		if unit is Structure and unit.is_under_construction():
+			unit.cancel_construction()
+		else:
+			unit.issue_manual_order(null)

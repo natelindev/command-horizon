@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-04",
+  "engine": "Godot 4.6 stable",
+  "final_sources": {
+    "source/match/players/skirmish-ai/SkirmishAI.gd": "decb405ccc2c8489453f84374280f1bd897dabbf240bab22ffe8ff35ff705b0c",
+    "source/match/players/skirmish-ai/SkirmishComposition.gd": "43c449bd9ac28488cce9e8486530abfa5562994d0b50ca92ae8952442d88b13d",
+    "source/match/players/skirmish-ai/SkirmishDefense.gd": "adf0859684368b984b795e2f7a2bb9381b8cf1f38096835de05d779371aa943c",
+    "source/match/units/traits/Movement.gd": "8855c68a164f4531c5ac3017604464330f53c860d47650a2e6ec2f42b9c63e81",
+    "tests/headless/SkirmishCompositionRegression.gd": "55f899414e3318a7851c900bec88e8a4cbae8a09484be671d6e22da769c53187",
+    "tests/rendered/SkirmishCompositionPreview.gd": "db5a13a2088b1adfddccdbc67ee61321d5242fd233dd685b21b870e55b29dbf4",
+    "tests/headless/AirArrivalRegression.gd": "71a7aefd484d1535b56d5794b0915b7c8f3b4994545e9a60e5af3fccac529ae8",
+    "tests/headless/SkirmishMixedPolicy.gd": "d526447aea597e15c649bf5b7cb8bb1a813dc27e9df4034fa5a1ed6c282dd34c",
+    "tests/headless/SkirmishDefensePolicy.gd": "87881efa19a1afded368b3682e9a7439b5ba163dcc171e9c04cb8625ad9bf9db",
+    "tests/headless/SkirmishMatrix.gd": "fc3b5dda631327ee86d9a913643eaf36f7a8bce6037ae6d8c324a5776f4d1b5e",
+    "tests/headless/SkirmishTravelProbe.gd": "ab07b882d1ae97bb51ff78f0866cac1f29e24431372d21beab044716a957b5ae",
+    "tests/headless/BaseAccessMatches.gd": "f8beb1539e4758b046fce48c174c2bbfa1828a67c08001e57e1173a2fe35bd8e"
+  },
+  "notes": [
+    "Final production code uses the original Movement.gd; the apparent scout arrival stall was repeated test orders plus a three-dimensional metric.",
+    "Initial and diagnostic cohorts predate final test-driver corrections; their stationary-air metrics are invalid.",
+    "Final matrix records require an actual result record and no gameplay script errors.",
+    "Rendered review uses staged reconnaissance and API selection at normal simulation time; no physical-input claim."
+  ]
+}

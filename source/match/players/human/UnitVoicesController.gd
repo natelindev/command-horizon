@@ -5,7 +5,7 @@ const ResourceUnit = preload("res://source/match/units/non-player/ResourceUnit.g
 
 var _last_ack_event = 0
 
-@onready var _audio_player = find_child("AudioStreamPlayer")
+@onready var _voice = get_parent().get_node("BattleVoice")
 @onready var _player = get_parent()
 
 
@@ -16,10 +16,7 @@ func _ready() -> void:
 
 
 func _handle_event(event):
-	if _audio_player.playing:
-		return
-	_audio_player.stream = Constants.Match.VoiceNarrator.EVENT_TO_ASSET_MAPPING[event]
-	_audio_player.play()
+	_voice.say(event)
 
 
 func _on_unit_selected(unit):

@@ -1,0 +1,310 @@
+{
+  "scope": "Roster information delivery and mixed-force readiness investigation; broader goal remains active",
+  "shared": [
+    {
+      "suite": "RosterInfoRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "wall_seconds": 17.6,
+      "log": "docs/playtests/2026-10-04/roster-info-delivery-RosterInfoRegression.log"
+    },
+    {
+      "suite": "Skirmish",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "wall_seconds": 84.0,
+      "log": "docs/playtests/2026-10-04/roster-info-final-Skirmish.log"
+    },
+    {
+      "suite": "ProgramRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "wall_seconds": 2.8,
+      "log": "docs/playtests/2026-10-04/roster-info-final-ProgramRegression.log"
+    },
+    {
+      "suite": "EconomyRecoveryRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "wall_seconds": 10.3,
+      "log": "docs/playtests/2026-10-04/roster-info-final-EconomyRecoveryRegression.log"
+    },
+    {
+      "suite": "EconomySupplyRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "wall_seconds": 41.7,
+      "log": "docs/playtests/2026-10-04/roster-info-final-EconomySupplyRegression.log"
+    },
+    {
+      "suite": "BattlePlanRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "wall_seconds": 13.1,
+      "log": "docs/playtests/2026-10-04/roster-info-final-BattlePlanRegression.log"
+    },
+    {
+      "suite": "SubtitleLayoutRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "wall_seconds": 20.5,
+      "log": "docs/playtests/2026-10-04/roster-info-final-SubtitleLayoutRegression.log"
+    },
+    {
+      "suite": "CampaignControlsRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "wall_seconds": 1.6,
+      "log": "docs/playtests/2026-10-04/roster-info-final-CampaignControlsRegression.log"
+    }
+  ],
+  "delivery": [
+    {
+      "suite": "import",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "wall_seconds": 5.3,
+      "log": "docs/playtests/2026-10-04/roster-info-delivery-import.log"
+    },
+    {
+      "suite": "RosterInfoRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "wall_seconds": 17.6,
+      "log": "docs/playtests/2026-10-04/roster-info-delivery-RosterInfoRegression.log"
+    },
+    {
+      "suite": "RosterInfoPreview",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "wall_seconds": 24.8,
+      "log": "docs/playtests/2026-10-04/roster-info-delivery-RosterInfoPreview.log"
+    },
+    {
+      "suite": "format",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "wall_seconds": 0.7,
+      "log": "docs/playtests/2026-10-04/roster-info-delivery-format.log"
+    },
+    {
+      "suite": "lint",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "wall_seconds": 0.5,
+      "log": "docs/playtests/2026-10-04/roster-info-delivery-lint.log"
+    },
+    {
+      "suite": "whitespace",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "wall_seconds": 0.1,
+      "log": "docs/playtests/2026-10-04/roster-info-delivery-whitespace.log"
+    }
+  ],
+  "matches": [
+    {
+      "case": 1,
+      "policy": "original",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "wall_seconds": 67.9,
+      "log": "docs/playtests/2026-10-04/mixed-readiness-original-1.log"
+    },
+    {
+      "case": 1,
+      "policy": "ground",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "wall_seconds": 69.4,
+      "log": "docs/playtests/2026-10-04/mixed-readiness-ground-1.log"
+    },
+    {
+      "case": 5,
+      "policy": "original",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "log": "docs/playtests/2026-10-04/mixed-readiness-original-5.log",
+      "verification": "Terminal exit 0 observed from exec session; full-match pass marker audited."
+    },
+    {
+      "case": 5,
+      "policy": "ground",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "log": "docs/playtests/2026-10-04/mixed-readiness-ground-5.log",
+      "verification": "Terminal exit 0 observed from exec session; full-match pass marker audited."
+    }
+  ],
+  "match_data": "docs/playtests/2026-10-04/mixed-readiness-matches.json",
+  "reviewed_captures": [
+    {
+      "path": "art/skirmish/roster-info-bastion-shortage.png",
+      "size": [
+        1280,
+        720
+      ]
+    },
+    {
+      "path": "art/skirmish/roster-info-bastion-available.png",
+      "size": [
+        1280,
+        720
+      ]
+    },
+    {
+      "path": "art/skirmish/roster-info-bastion-low-power.png",
+      "size": [
+        1280,
+        720
+      ]
+    },
+    {
+      "path": "art/skirmish/roster-info-bastion-missing-lab.png",
+      "size": [
+        1280,
+        720
+      ]
+    },
+    {
+      "path": "art/skirmish/roster-info-bastion-construction.png",
+      "size": [
+        1280,
+        720
+      ]
+    },
+    {
+      "path": "art/skirmish/roster-info-helix-shortage.png",
+      "size": [
+        1280,
+        720
+      ]
+    },
+    {
+      "path": "art/skirmish/roster-info-helix-available.png",
+      "size": [
+        1280,
+        720
+      ]
+    },
+    {
+      "path": "art/skirmish/roster-info-helix-low-power.png",
+      "size": [
+        1280,
+        720
+      ]
+    },
+    {
+      "path": "art/skirmish/roster-info-helix-missing-lab.png",
+      "size": [
+        1280,
+        720
+      ]
+    },
+    {
+      "path": "art/skirmish/roster-info-helix-construction.png",
+      "size": [
+        1280,
+        720
+      ]
+    }
+  ],
+  "source_invariants": {
+    "faction_cost_time_prerequisite_tables_unchanged": true,
+    "faction_cost_availability_models_stats_unchanged": true,
+    "menu_purchase_and_order_actions_unchanged": true
+  },
+  "files": [
+    {
+      "path": "source/match/BastionCatalog.gd",
+      "sha256": "187b0c93b6f96cac7394d9a005987b87817a4e85279b5cec3bf19293aca5357b"
+    },
+    {
+      "path": "source/match/FactionCatalog.gd",
+      "sha256": "466c5852c68f417a5ab21053461c213ee3e8553acd80f97214183d601489b614"
+    },
+    {
+      "path": "source/match/hud/RosterInfo.gd",
+      "sha256": "df22439b5c014ae644974a42f50c46d2df8892b1bec539d291ebaa949532dc64"
+    },
+    {
+      "path": "source/match/hud/RosterButton.gd",
+      "sha256": "2a260ec917ded4341db98437268bd17e524f7f5ff3635b4cd3b72364cd3a19b1"
+    },
+    {
+      "path": "source/match/hud/UnitMenus.gd",
+      "sha256": "01103d62250682cf3e1f1bcd5dc2bb762e1ffcb302fd5fa84b1fb3c69f625e2a"
+    },
+    {
+      "path": "tests/headless/RosterInfoRegression.gd",
+      "sha256": "e5f3d3c21db5bfa4c9195926e54f21edf5410f32e09e85b005c1c23d416094c5"
+    },
+    {
+      "path": "tests/rendered/RosterInfoPreview.gd",
+      "sha256": "caa26a2cb6e97193949d0e94b05e9035e02807d52a57d24f3b7d5e4f904f36fe"
+    },
+    {
+      "path": "art/skirmish/roster-info-bastion-shortage.png",
+      "sha256": "8652287d379080b728b593b975446f4dfae80f14e2a25e8e2b4392f948259b04"
+    },
+    {
+      "path": "art/skirmish/roster-info-bastion-available.png",
+      "sha256": "370ab6358be85c9d7435c5e9a71d5fe9f5fc41bf8fbef92a132c3ccc64e8a331"
+    },
+    {
+      "path": "art/skirmish/roster-info-bastion-low-power.png",
+      "sha256": "caa3b6716eb115132d0e35dc2535346e45a8747272f6b27c14bb3e10e5265bee"
+    },
+    {
+      "path": "art/skirmish/roster-info-bastion-missing-lab.png",
+      "sha256": "c7dee82be5c5e90f0c0912d02543de652e410bf3c68ebe91bd8eb2fd4146dffa"
+    },
+    {
+      "path": "art/skirmish/roster-info-bastion-construction.png",
+      "sha256": "cf05002d6501b57d0b57a35f2f09b0f82469233f00f42d430959310dbc432911"
+    },
+    {
+      "path": "art/skirmish/roster-info-helix-shortage.png",
+      "sha256": "67404089e0773b4db8f276d20cf0fbb197ad707cfea1beb9872936f0fdce2e26"
+    },
+    {
+      "path": "art/skirmish/roster-info-helix-available.png",
+      "sha256": "016e39f7a6fdd72042cc948cba5323b3cc2d2b938324207bacc2f633d14124e6"
+    },
+    {
+      "path": "art/skirmish/roster-info-helix-low-power.png",
+      "sha256": "0bad894837d58551e935ff015f10c3d2b265d1291fc197f0be1236416bb2f13e"
+    },
+    {
+      "path": "art/skirmish/roster-info-helix-missing-lab.png",
+      "sha256": "529bfcbf1043a753d90595601d3c764dba792ccf101f13354c934bbd4c35ab9b"
+    },
+    {
+      "path": "art/skirmish/roster-info-helix-construction.png",
+      "sha256": "3661e92f11960591d789383b55eb5ff367a0fc7fcaa940344782f968805e5c74"
+    }
+  ],
+  "limits": [
+    "Four Advanced Desert defeats; no balance or ordinary-pacing acceptance.",
+    "Synthetic Godot window events; native physical-device, screen-reader and platform acceptance remain open.",
+    "Performance optimization deferred."
+  ]
+}

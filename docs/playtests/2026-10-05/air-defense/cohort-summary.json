@@ -1,0 +1,270 @@
+[
+  {
+    "case": 0,
+    "seed": 4110,
+    "repetition": 10,
+    "faction": "frontier",
+    "opponent": "bastion",
+    "result": "Defeat",
+    "seconds": 311.0,
+    "first_air_raid": null,
+    "aircraft_produced": null,
+    "reference_research_orders": null,
+    "file": "docs/playtests/2026-10-05/paid-progression/combined-air-0.json",
+    "strategy": "air-first",
+    "research": [
+      {
+        "coordination": null,
+        "completed": {}
+      },
+      {
+        "coordination": null,
+        "completed": {}
+      }
+    ],
+    "script_errors": 0,
+    "coordination_violations": {}
+  },
+  {
+    "case": 2,
+    "seed": 4110,
+    "repetition": 10,
+    "faction": "frontier",
+    "opponent": "helix",
+    "result": "Defeat",
+    "seconds": 358.5,
+    "first_air_raid": null,
+    "aircraft_produced": null,
+    "reference_research_orders": null,
+    "file": "docs/playtests/2026-10-05/paid-progression/combined-air-2.json",
+    "strategy": "air-first",
+    "research": [
+      {
+        "coordination": null,
+        "completed": {}
+      },
+      {
+        "coordination": null,
+        "completed": {}
+      }
+    ],
+    "script_errors": 0,
+    "coordination_violations": {}
+  },
+  {
+    "case": 4,
+    "seed": 4110,
+    "repetition": 10,
+    "faction": "bastion",
+    "opponent": "frontier",
+    "result": "Defeat",
+    "seconds": 338.7,
+    "first_air_raid": null,
+    "aircraft_produced": null,
+    "reference_research_orders": null,
+    "file": "docs/playtests/2026-10-05/paid-progression/combined-air-4.json",
+    "strategy": "air-first",
+    "research": [
+      {
+        "coordination": null,
+        "completed": {}
+      },
+      {
+        "coordination": null,
+        "completed": {}
+      }
+    ],
+    "script_errors": 0,
+    "coordination_violations": {}
+  },
+  {
+    "case": 6,
+    "seed": 4110,
+    "repetition": 10,
+    "faction": "helix",
+    "opponent": "frontier",
+    "result": "Defeat",
+    "seconds": 344.1,
+    "first_air_raid": null,
+    "aircraft_produced": null,
+    "reference_research_orders": null,
+    "file": "docs/playtests/2026-10-05/paid-progression/combined-air-6.json",
+    "strategy": "air-first",
+    "research": [
+      {
+        "coordination": null,
+        "completed": {}
+      },
+      {
+        "coordination": null,
+        "completed": {}
+      }
+    ],
+    "script_errors": 0,
+    "coordination_violations": {}
+  },
+  {
+    "case": 0,
+    "seed": 4110,
+    "repetition": 10,
+    "faction": "frontier",
+    "opponent": "bastion",
+    "result": "Victory",
+    "seconds": 1405.8,
+    "first_air_raid": 455.733333333248,
+    "aircraft_produced": 9,
+    "reference_research_orders": [
+      {
+        "cost": {
+          "resource_a": 20,
+          "resource_b": 20
+        },
+        "id": "coordination",
+        "seconds": 601.233333333115
+      },
+      {
+        "cost": {
+          "resource_a": 30,
+          "resource_b": 20
+        },
+        "id": "weapons_1",
+        "seconds": 686.233333333038
+      },
+      {
+        "cost": {
+          "resource_a": 30,
+          "resource_b": 15
+        },
+        "id": "armor_1",
+        "seconds": 833.233333332904
+      },
+      {
+        "cost": {
+          "resource_a": 35,
+          "resource_b": 25
+        },
+        "id": "service",
+        "seconds": 1196.73333333257
+      },
+      {
+        "cost": {
+          "resource_a": 45,
+          "resource_b": 35
+        },
+        "id": "doctrine",
+        "seconds": 1314.23333333247
+      }
+    ],
+    "file": "docs/playtests/2026-10-05/air-defense/screened-0.json",
+    "strategy": "screened-air",
+    "research": [
+      {
+        "coordination": 631.25,
+        "completed": {
+          "weapons_1": 721.25,
+          "armor_1": 868.25,
+          "service": 1236.75,
+          "doctrine": 1364.25
+        }
+      },
+      {
+        "coordination": 403.1,
+        "completed": {
+          "weapons_1": 1055.72
+        }
+      }
+    ],
+    "script_errors": 0,
+    "coordination_violations": {}
+  },
+  {
+    "case": 2,
+    "seed": 4110,
+    "repetition": 10,
+    "faction": "frontier",
+    "opponent": "helix",
+    "result": "Defeat",
+    "seconds": 367.5,
+    "first_air_raid": null,
+    "aircraft_produced": null,
+    "reference_research_orders": null,
+    "file": "docs/playtests/2026-10-05/air-defense/screened-2-corrected.json",
+    "strategy": "screened-air",
+    "research": [
+      {
+        "coordination": null,
+        "completed": {}
+      },
+      {
+        "coordination": 356.08,
+        "completed": {}
+      }
+    ],
+    "script_errors": 0,
+    "coordination_violations": {}
+  },
+  {
+    "case": 4,
+    "seed": 4110,
+    "repetition": 10,
+    "faction": "bastion",
+    "opponent": "frontier",
+    "result": "Victory",
+    "seconds": 715.7,
+    "first_air_raid": 365.733333333329,
+    "aircraft_produced": 4,
+    "reference_research_orders": [
+      {
+        "cost": {
+          "resource_a": 20,
+          "resource_b": 20
+        },
+        "id": "coordination",
+        "seconds": 636.733333333083
+      }
+    ],
+    "file": "docs/playtests/2026-10-05/air-defense/screened-4.json",
+    "strategy": "screened-air",
+    "research": [
+      {
+        "coordination": 666.75,
+        "completed": {}
+      },
+      {
+        "coordination": 447.08,
+        "completed": {}
+      }
+    ],
+    "script_errors": 0,
+    "coordination_violations": {}
+  },
+  {
+    "case": 6,
+    "seed": 4110,
+    "repetition": 10,
+    "faction": "helix",
+    "opponent": "frontier",
+    "result": "Defeat",
+    "seconds": 996.3,
+    "first_air_raid": 382.733333333314,
+    "aircraft_produced": 1,
+    "reference_research_orders": null,
+    "file": "docs/playtests/2026-10-05/air-defense/screened-6-corrected.json",
+    "strategy": "screened-air",
+    "research": [
+      {
+        "coordination": null,
+        "completed": {}
+      },
+      {
+        "coordination": 403.1,
+        "completed": {
+          "weapons_1": 512.75,
+          "armor_1": 860.07
+        }
+      }
+    ],
+    "script_errors": 0,
+    "coordination_violations": {}
+  }
+]

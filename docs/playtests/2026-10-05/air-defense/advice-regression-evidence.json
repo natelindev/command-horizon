@@ -1,0 +1,115 @@
+{
+  "files": [
+    {
+      "path": "docs/playtests/2026-10-05/air-defense/advice-minimal-before.log",
+      "sha256": "3f7cd22e4c955f07a82066a9ada147935cfa4945b58564811bcd52937368a75c",
+      "bytes": 16833
+    },
+    {
+      "path": "docs/playtests/2026-10-05/air-defense/advice-expanded-after-first.log",
+      "sha256": "f7654f4dc4fa159115919169d09b3341d15fdf0027518a616bd590c96e60dcea",
+      "bytes": 2413
+    },
+    {
+      "path": "docs/playtests/2026-10-05/air-defense/advice-second-before-fixture-correction.log",
+      "sha256": "df946472b0f8912ea7869e59a4abf302493d75d052e3e98602c40ceec5a50a1c",
+      "bytes": 2175
+    },
+    {
+      "path": "docs/playtests/2026-10-05/air-defense/advice-final-after.log",
+      "sha256": "621703063c35500a4d072558252f2d240e6525e5a649627b9732387357f34474",
+      "bytes": 1387
+    },
+    {
+      "path": "docs/playtests/2026-10-05/air-defense/advice-format.log",
+      "sha256": "f75a2ef610dab0a62968352dc9a17d81d68c0b7a3cfa85e9e27352c337177c9e",
+      "bytes": 31
+    },
+    {
+      "path": "docs/playtests/2026-10-05/air-defense/advice-lint.log",
+      "sha256": "d2f45ecead8ebe024d64d724cef92d4c7b89f8d0150b30b296320bddb760e4be",
+      "bytes": 27
+    },
+    {
+      "path": "docs/playtests/2026-10-05/air-defense/advice-whitespace.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "docs/playtests/2026-10-05/air-defense/advice-regression-review.md",
+      "sha256": "742e52384aa187d0fdb3959674602f240db136d1f8c585901fbe7623286df15f",
+      "bytes": 5440
+    },
+    {
+      "path": "docs/playtests/2026-10-05/air-defense/AirDefenseAdviceRegression-minimal-before.gd.txt",
+      "sha256": "994f108af561af79930ba645a19d5cc613213d6b1c002191c29b633582d1e399",
+      "bytes": 3700
+    },
+    {
+      "path": "docs/playtests/2026-10-05/air-defense/AirDefenseAdviceRegression-expanded-first.gd.txt",
+      "sha256": "032cbd5ae1a15b0ae451c7501194eff2454dc3b9a990fc1516d7c681fcaa2beb",
+      "bytes": 14833
+    },
+    {
+      "path": "docs/playtests/2026-10-05/air-defense/AirDefenseAdviceRegression-final.gd.txt",
+      "sha256": "3fd26a8d56c3d646b8527aef002afc00bc9b399ef91d1b30b2bdc852189e531a",
+      "bytes": 18791
+    },
+    {
+      "path": "docs/playtests/2026-10-05/air-defense/SkirmishTactics-before.gd.txt",
+      "sha256": "529539dc2e34668966bb71b85bf64b2efec4385f720141986e8f405ab63738e9",
+      "bytes": 4683
+    },
+    {
+      "path": "docs/playtests/2026-10-05/air-defense/SkirmishTactics-final.gd.txt",
+      "sha256": "167507ff711ddecb641ca652d9ac089f707525044b02f4047d9e9319ef623552",
+      "bytes": 8945
+    },
+    {
+      "path": "docs/playtests/2026-10-05/air-defense/SkirmishPlan-before.gd.txt",
+      "sha256": "7266b013510c44ce4254a0491d71e23f17febab4ec11cfa92c65bc1ded33d8c0",
+      "bytes": 4193
+    },
+    {
+      "path": "docs/playtests/2026-10-05/air-defense/SkirmishPlan-final.gd.txt",
+      "sha256": "7266b013510c44ce4254a0491d71e23f17febab4ec11cfa92c65bc1ded33d8c0",
+      "bytes": 4193
+    },
+    {
+      "path": "docs/playtests/2026-10-05/air-defense/CombatRules-before.gd.txt",
+      "sha256": "738881d55a3f8d24c9aba6508774afd1418e08dd5a86da60b714e8ec45a23de4",
+      "bytes": 3415
+    },
+    {
+      "path": "docs/playtests/2026-10-05/air-defense/CombatRules-final.gd.txt",
+      "sha256": "738881d55a3f8d24c9aba6508774afd1418e08dd5a86da60b714e8ec45a23de4",
+      "bytes": 3415
+    }
+  ],
+  "runs": [
+    {
+      "log": "advice-minimal-before.log",
+      "exit": 1,
+      "assertions": 36,
+      "script_errors": false
+    },
+    {
+      "log": "advice-expanded-after-first.log",
+      "exit": 1,
+      "assertions": 3,
+      "script_errors": false
+    },
+    {
+      "log": "advice-second-before-fixture-correction.log",
+      "exit": 1,
+      "assertions": 3,
+      "script_errors": false
+    },
+    {
+      "log": "advice-final-after.log",
+      "exit": 0,
+      "assertions": 0,
+      "script_errors": false
+    }
+  ]
+}

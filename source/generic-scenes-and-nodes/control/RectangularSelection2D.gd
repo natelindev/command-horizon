@@ -6,6 +6,7 @@ signal finished(rect)
 @export var screen_margin = 1
 
 var _rect = null
+var _mouse_position = Vector2.ZERO
 
 
 func _ready():
@@ -18,15 +19,20 @@ func _physics_process(_delta):
 		_interrupt()
 
 
+func _input(event):
+	if event is InputEventMouse:
+		_mouse_position = event.position
+
+
 func _unhandled_input(event):
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		_start()
+		_start(event.position)
 	if (
 		event is InputEventMouseButton
 		and event.button_index == MOUSE_BUTTON_LEFT
 		and not event.pressed
 	):
-		_finish()
+		_finish(event.position)
 
 
 func _selecting():
@@ -34,8 +40,8 @@ func _selecting():
 
 
 func _screen_margin_hit():
-	var viewport_size = get_viewport().size
-	var mouse_pos = get_global_mouse_position()
+	var viewport_size = get_viewport().get_visible_rect().size
+	var mouse_pos = _mouse_position
 	return (
 		mouse_pos.x <= screen_margin
 		or mouse_pos.x >= viewport_size.x - screen_margin
@@ -44,8 +50,8 @@ func _screen_margin_hit():
 	)
 
 
-func _start():
-	var mouse_pos = get_global_mouse_position()
+func _start(mouse_pos):
+	_mouse_position = mouse_pos
 	_rect = Rect2(0, 0, 0, 0)
 	_rect.position = mouse_pos
 
@@ -55,10 +61,10 @@ func _interrupt():
 	hide()
 
 
-func _finish():
+func _finish(mouse_pos):
 	if not _selecting():
 		return
-	_rect.end = get_global_mouse_position()
+	_rect.end = mouse_pos
 	finished.emit(_rect.abs())
 	_rect = null
 	hide()
@@ -67,7 +73,7 @@ func _finish():
 func _update():
 	if not _selecting():
 		return
-	_rect.end = get_global_mouse_position()
+	_rect.end = _mouse_position
 	var absolute_rect = _rect.abs()
 	if absolute_rect.has_area():
 		show()

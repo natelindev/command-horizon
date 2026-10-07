@@ -1,0 +1,432 @@
+{
+  "status": "bounded checks passed; full goal remains open",
+  "source_files_verified": 388,
+  "changed_runtime": [
+    "source/match/TerrainNavigation.gd",
+    "source/match/programs/PresetAction.gd",
+    "source/match/saves/MatchRestore.gd",
+    "source/match/units/actions/Moving.gd",
+    "source/match/units/traits/Movement.gd",
+    "source/match/units/traits/MovementObstacle.gd"
+  ],
+  "snapshots": [
+    {
+      "source": "source/match/TerrainNavigation.gd",
+      "copy": "docs/playtests/2026-10-04/corner-accepted-TerrainNavigation.gd.txt",
+      "sha256": "3ee8be3bc0ac5a47e19eddff3f5eba63d49f16be893423e6f8c7184136cd67d1"
+    },
+    {
+      "source": "source/match/programs/PresetAction.gd",
+      "copy": "docs/playtests/2026-10-04/corner-accepted-PresetAction.gd.txt",
+      "sha256": "fda789f83fe7b70800a67ef3d4546ca600ac68146e123ee043f6b14de13ad9ae"
+    },
+    {
+      "source": "source/match/saves/MatchRestore.gd",
+      "copy": "docs/playtests/2026-10-04/corner-accepted-MatchRestore.gd.txt",
+      "sha256": "5256dfa28f998f0b8e10f82b55f03aec9d8f6c53107d7c2d99c4480accb1646f"
+    },
+    {
+      "source": "source/match/units/actions/Moving.gd",
+      "copy": "docs/playtests/2026-10-04/corner-accepted-Moving.gd.txt",
+      "sha256": "25321d5e68270476a9cf8c6cebe818dae03f0ecf4a1cd2a280506faaba6dcf77"
+    },
+    {
+      "source": "source/match/units/traits/Movement.gd",
+      "copy": "docs/playtests/2026-10-04/corner-accepted-Movement.gd.txt",
+      "sha256": "1b30491ff508ad39fb6b692fa3a94b0ee3119f41c8de3ee4ccd6d8d588789038"
+    },
+    {
+      "source": "source/match/units/traits/MovementObstacle.gd",
+      "copy": "docs/playtests/2026-10-04/corner-accepted-MovementObstacle.gd.txt",
+      "sha256": "dc117f4bc63e87025f4c8da0645f9179f1780f91edd51f12cd89b7675c46dae0"
+    },
+    {
+      "source": "tests/headless/CornerRecoveryRegression.gd",
+      "copy": "docs/playtests/2026-10-04/corner-accepted-CornerRecoveryRegression.gd.txt",
+      "sha256": "1243b2fa32cd4e4a62d427e93326af913c1bf4829bd9c5859e820f9a18d28442"
+    },
+    {
+      "source": "tests/headless/GuardArrivalRegression.gd",
+      "copy": "docs/playtests/2026-10-04/corner-accepted-GuardArrivalRegression.gd.txt",
+      "sha256": "855703b4481283903ec7344d9140198b72f66e09f11f4d573abf2fffcf193d0e"
+    },
+    {
+      "source": "tests/rendered/CornerRecoveryPreview.gd",
+      "copy": "docs/playtests/2026-10-04/corner-accepted-CornerRecoveryPreview.gd.txt",
+      "sha256": "b6259bfa5b4f34adaedf767997019cdc3d2e636602382dd08d14d3c08c5c712f"
+    },
+    {
+      "source": "tests/headless/SkirmishTravelReplay.gd",
+      "copy": "docs/playtests/2026-10-04/corner-accepted-SkirmishTravelReplay.gd.txt",
+      "sha256": "7ffcdd35a209c4e15350a151e5e5ee436ecceb91c988f391fa85b9e88780e119"
+    },
+    {
+      "source": "tmp/GuardTravelMatches.gd",
+      "copy": "docs/playtests/2026-10-04/corner-accepted-GuardTravelMatches.gd.txt",
+      "sha256": "b9465d4a8f7e8e63eb0373fc652d5fec1db4fcd033ac47f51723b79be0b42a18"
+    },
+    {
+      "source": "tmp/RegionalSkirmishMatches.gd",
+      "copy": "docs/playtests/2026-10-04/corner-accepted-RegionalSkirmishMatches.gd.txt",
+      "sha256": "30e7813f9d8650b3e67396e410acbcd2cec408727882c56943574bacbe3b0bb0"
+    },
+    {
+      "source": "tmp/MixedResponsiveMatches.gd",
+      "copy": "docs/playtests/2026-10-04/corner-accepted-MixedResponsiveMatches.gd.txt",
+      "sha256": "7e9c1ea0ab1b315bc8c8286c3871b5dacabe4f28182606213d15b896f28cbada"
+    },
+    {
+      "source": "tmp/MixedAllocationMatches.gd",
+      "copy": "docs/playtests/2026-10-04/corner-accepted-MixedAllocationMatches.gd.txt",
+      "sha256": "eab407b353f8f0e2aae266664a9325253cca56b30d91358d85ecedb1efe101c0"
+    },
+    {
+      "source": "tmp/MixedStagedMatches.gd",
+      "copy": "docs/playtests/2026-10-04/corner-accepted-MixedStagedMatches.gd.txt",
+      "sha256": "230d3180a78f975fcf715edf2bf71c298d5f5c45d042774ab211f05ce59e6740"
+    },
+    {
+      "source": "tmp/MixedOperationsMatches.gd",
+      "copy": "docs/playtests/2026-10-04/corner-accepted-MixedOperationsMatches.gd.txt",
+      "sha256": "cff81f10bcd909e96823128b32343460582b55a8ee020567cbed8889bfe8f3d5"
+    },
+    {
+      "source": "tmp/MixedReadinessMatches.gd",
+      "copy": "docs/playtests/2026-10-04/corner-accepted-MixedReadinessMatches.gd.txt",
+      "sha256": "43d149a2312d92eb972e090df0f6234b0e965e7d891a8e0791c5334fc21067b1"
+    },
+    {
+      "source": "tmp/AuthoredGuardMatches.gd",
+      "copy": "docs/playtests/2026-10-04/corner-accepted-AuthoredGuardMatches.gd.txt",
+      "sha256": "bfe25da87baf55b24a862c488f24a172a31ab531c452de9dbbb20d1038bb91eb"
+    },
+    {
+      "source": "tmp/AuthoredRecoveryMatches.gd",
+      "copy": "docs/playtests/2026-10-04/corner-accepted-AuthoredRecoveryMatches.gd.txt",
+      "sha256": "682ccb17e1794af36a56ce838097e82d9f21af753f57fee97a1b348592ab5c8a"
+    },
+    {
+      "source": "tmp/PresetRecoveryMatches.gd",
+      "copy": "docs/playtests/2026-10-04/corner-accepted-PresetRecoveryMatches.gd.txt",
+      "sha256": "9b882f07d43fc5c6e8ee83c9a88770a6c023a1d1d3474b6ef91cabf0401b8270"
+    },
+    {
+      "source": "tests/headless/SkirmishMixedPolicy.gd",
+      "copy": "docs/playtests/2026-10-04/corner-accepted-SkirmishMixedPolicy.gd.txt",
+      "sha256": "d526447aea597e15c649bf5b7cb8bb1a813dc27e9df4034fa5a1ed6c282dd34c"
+    },
+    {
+      "source": "tests/headless/SkirmishDefensePolicy.gd",
+      "copy": "docs/playtests/2026-10-04/corner-accepted-SkirmishDefensePolicy.gd.txt",
+      "sha256": "f5dc05daddaf841b48900ab00ec3e9dbe2929d78d10caad9ce37875dbf182b1f"
+    },
+    {
+      "source": "tests/headless/SkirmishTravelProbe.gd",
+      "copy": "docs/playtests/2026-10-04/corner-accepted-SkirmishTravelProbe.gd.txt",
+      "sha256": "6966300f39c15346fa9b30a2d1f3e14a6f862c4b82f81b4bd3d13c3a85f49810"
+    },
+    {
+      "source": "tests/headless/SkirmishMatrix.gd",
+      "copy": "docs/playtests/2026-10-04/corner-accepted-SkirmishMatrix.gd.txt",
+      "sha256": "f6a5c3040d50c5fb4bfae318dc79349221ddbf1c5cd6af7734584853c264d24c"
+    },
+    {
+      "source": "tests/headless/SkirmishLoop.gd",
+      "copy": "docs/playtests/2026-10-04/corner-accepted-SkirmishLoop.gd.txt",
+      "sha256": "918ec8abd87d05aac8a9fd580e8e3442a5be1f8f162c0ad9059d787a86530c40"
+    },
+    {
+      "source": "tests/headless/Skirmish.gd",
+      "copy": "docs/playtests/2026-10-04/corner-accepted-Skirmish.gd.txt",
+      "sha256": "76d1512be9ea9ef679a710933937fbc179a648e288eb09a32dfee1cdce238220"
+    }
+  ],
+  "checks": [
+    {
+      "test": "NavigationRegression",
+      "completion": "PASS: obstacle routing, crowded movement, harvesting and factory egress"
+    },
+    {
+      "test": "ContactApproachRegression",
+      "completion": "Contact approach: 0 failures"
+    },
+    {
+      "test": "AttackMoveArrivalRegression",
+      "completion": "Attack-move arrival regression: 0 failures"
+    },
+    {
+      "test": "ResourceNavigationRegression",
+      "completion": "Resource navigation: 0 failures"
+    },
+    {
+      "test": "UnitMotionRegression",
+      "completion": "PASS: all 16 faction/mobile roles idle; motion bounds/no drift; orders/aim interrupt; attack/death variety; RNG isolation; foundations fixed; pause"
+    },
+    {
+      "test": "AirArrivalRegression",
+      "completion": "Air arrival: 0 failures"
+    },
+    {
+      "test": "CoastalRegression",
+      "completion": "Coastal Foundry: 0 failures"
+    },
+    {
+      "test": "IndustrialRegression",
+      "completion": "Industrial Crossroads: 0 failures"
+    },
+    {
+      "test": "GuardArrivalRegression",
+      "completion": "Guard arrival: 0 failures"
+    },
+    {
+      "test": "GuardAreaRegression",
+      "completion": "Guard area: 0 failures"
+    },
+    {
+      "test": "BlockedAssignmentRegression",
+      "completion": "Blocked assignment: 0 failures"
+    },
+    {
+      "test": "PresetRecoveryCrowdRegression",
+      "completion": "Crowd recovery: 0 failures"
+    },
+    {
+      "test": "OrdersRegression",
+      "completion": "PASS: both factions queued routes, pause, Shift input, replace/Stop/cap/resume; target loss/fog, repair, follow/skip, harvest, attack/attack-move/build handoffs"
+    },
+    {
+      "test": "CombatRegression",
+      "completion": "PASS: occluded/allied/elevated vision, legal firing, hidden-target loss, armor counters, fractional damage, repair cap/service slots/power/combat suppression/pause"
+    },
+    {
+      "test": "SaveRestoreRegression",
+      "completion": "PASS: actual reload preserves jobs, actions, programs, cargo, cooldowns and mission; resume works"
+    },
+    {
+      "test": "SaveRestoreEdges",
+      "completion": "PASS: actual reload preserves jobs, actions, programs, cargo, cooldowns and mission; resume works"
+    },
+    {
+      "test": "SaveRestoreCombat",
+      "completion": "PASS: actual reload preserves jobs, actions, programs, cargo, cooldowns and mission; resume works"
+    },
+    {
+      "test": "SkirmishRecoveryRegression",
+      "completion": "Skirmish recovery: 0 failures"
+    },
+    {
+      "test": "SkirmishCoordinationFireRegression",
+      "completion": "Coordination prepared fire: 0 failures"
+    },
+    {
+      "test": "CrowdBoundaryRegression",
+      "completion": "Crowd boundary regression: 0 failures"
+    },
+    {
+      "test": "CrowdedDestinationRegression",
+      "completion": "Crowded destination: 0 failures"
+    },
+    {
+      "test": "FrontierCrowdRegression",
+      "completion": "Desert crowd traversal: 0 failures"
+    },
+    {
+      "test": "CornerRecoveryRegression",
+      "completion": "Corner recovery: 0 failures"
+    },
+    {
+      "test": "ProgramRegression",
+      "completion": "PASS: chip unlock/retrofit/production/refunds; library validation/version persistence; manual authority/pause; guard/escort/patrol/retreat; fog/fire bounds; repair; blocked recovery"
+    },
+    {
+      "test": "AuthoredGuardRegression",
+      "completion": "Authored guard: 0 failures"
+    },
+    {
+      "test": "AuthoredGuardRolesRegression",
+      "completion": "Authored guard roles: 0 failures"
+    },
+    {
+      "test": "AuthoredRecoveryRegression",
+      "completion": "Authored facility recovery: 0 failures"
+    },
+    {
+      "test": "PresetRecoveryRegression",
+      "completion": "Preset facility recovery: 0 failures"
+    },
+    {
+      "test": "SpecialistRegression",
+      "completion": "PASS: both-faction specialist compatibility/save/factory fallback; standoff bounds/fire; stationary support; one-shot strike/regroup/cooldown/pause/manual; scout/repair roles"
+    },
+    {
+      "test": "LuaProgramRegression",
+      "completion": "PASS: both-faction Lua actions, perception, pause/manual, faults and clean Resume"
+    },
+    {
+      "test": "VisualRulesRegression",
+      "completion": "PASS: Lua record migration/integrity/version isolation; both-faction atomic apply/manual/pause; exact factory source/fallback/rally; isolated sample checks"
+    }
+  ],
+  "matches": [
+    {
+      "file": "corner-recovery-match-0",
+      "result": "Victory",
+      "seconds": 1142.2,
+      "coordination_samples": 2284,
+      "stationary": [
+        2.0,
+        2.5
+      ]
+    },
+    {
+      "file": "corner-recovery-match-1",
+      "result": "Defeat",
+      "seconds": 435.2,
+      "coordination_samples": 870,
+      "stationary": [
+        1.5,
+        2.5
+      ]
+    },
+    {
+      "file": "corner-recovery-match-2",
+      "result": "Defeat",
+      "seconds": 368.7,
+      "coordination_samples": 737,
+      "stationary": [
+        2.0,
+        2.0
+      ]
+    },
+    {
+      "file": "corner-recovery-match-3",
+      "result": "Defeat",
+      "seconds": 322.3,
+      "coordination_samples": 645,
+      "stationary": [
+        1.5,
+        2.0
+      ]
+    },
+    {
+      "file": "corner-recovery-final-match-0",
+      "result": "Victory",
+      "seconds": 257.0,
+      "coordination_samples": 514,
+      "stationary": [
+        2.5,
+        2.5
+      ]
+    },
+    {
+      "file": "corner-recovery-final-match-1",
+      "result": "Victory",
+      "seconds": 844.4,
+      "coordination_samples": 1689,
+      "stationary": [
+        2.5,
+        8.5
+      ]
+    },
+    {
+      "file": "corner-recovery-final-match-2",
+      "result": "Defeat",
+      "seconds": 353.7,
+      "coordination_samples": 707,
+      "stationary": [
+        2.5,
+        15.5
+      ]
+    },
+    {
+      "file": "corner-recovery-final-match-3",
+      "result": "Defeat",
+      "seconds": 328.0,
+      "coordination_samples": 656,
+      "stationary": [
+        2.0,
+        1.5
+      ]
+    }
+  ],
+  "images": [
+    {
+      "path": "art/skirmish/corner-recovery-before.png",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "sha256": "8291184791fd3eb0fda4c05285d1aa1843d96f8b006da379f9e0c4fc7ff2bc5b"
+    },
+    {
+      "path": "art/skirmish/corner-recovery-disk-restored-arrival.png",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "sha256": "c29818f0d3e257c5a025669300f4a053f7300252b356158b272fbc7def7b35e5"
+    },
+    {
+      "path": "art/skirmish/corner-recovery-disk-restored.png",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "sha256": "d523014c181542fea66e951fdfbbbe5179cb70b24ed6997938693ef2a309cbbb"
+    },
+    {
+      "path": "art/skirmish/corner-recovery-fresh-bastion-arrival.png",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "sha256": "08e82d54e8fbba7b904553ad492edd04a6c5e368056d5ee3db8125bc51f871f4"
+    },
+    {
+      "path": "art/skirmish/corner-recovery-fresh-bastion.png",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "sha256": "469be9a11175c3df77d398b734752f043a272ad4f10209feb62bc831ae90b958"
+    },
+    {
+      "path": "art/skirmish/corner-recovery-fresh-helix-arrival.png",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "sha256": "ac6726aa6700fec19375cd89fd074cd53ac53a16fc47dd8efed86c70e2282d64"
+    },
+    {
+      "path": "art/skirmish/corner-recovery-fresh-helix.png",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "sha256": "68b1c0eb1086be87c1706b370b7c063391ba7afc974b6403adc075c7675fc0c3"
+    },
+    {
+      "path": "art/skirmish/corner-recovery-original-arrival.png",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "sha256": "519981c4f91a2d58810796f445488dcc424bb57470c0b1db40b9d285d2cb4ac8"
+    },
+    {
+      "path": "art/skirmish/corner-recovery-original.png",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "sha256": "6ff754298238e2f896baae4da14bed2f90e18414305db5cf69136cbcaf0db148"
+    }
+  ],
+  "open_finding": "Industrial AI unit-42 plain Move remains stationary in thirty-second replay; broader gameplay and release acceptance open",
+  "stall_replays": {
+    "live_neighbors": "30 s; Moving; displacement 0.001 m",
+    "isolated": "all other mobile units removed; WaitingForTargets by 5 s; displacement 0.359 m",
+    "limitation": "diagnostic AI decisions disabled; no progress assertion in replay tool"
+  }
+}

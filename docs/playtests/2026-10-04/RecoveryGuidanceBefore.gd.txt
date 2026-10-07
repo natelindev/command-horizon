@@ -1,0 +1,7 @@
+extends "res://tests/headless/RecoveryGuidanceRegression.gd"
+func _initialize():
+	for name in ["SkirmishTactics","SkirmishPlan"]:
+		var script = load("res://source/match/"+name+".gd")
+		script.source_code = FileAccess.get_file_as_string("res://docs/playtests/2026-10-04/recovery-guidance-"+name+"-before.gd.txt")
+		print("GUIDANCE BEFORE RELOAD ",name," ",script.reload())
+	super()

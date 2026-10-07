@@ -1,0 +1,138 @@
+extends "res://tests/playtest/reference/AuthoredGuardMatches.gd"
+
+var ground_first = false
+
+
+func _initialize():
+	ground_first = "--ground-first" in OS.get_cmdline_user_args()
+	super()
+
+
+func _air_allowed():
+	if not ground_first:
+		return true
+	var counts = composition.inventory(plan_rules.owned_units(human))
+	return (
+		(
+			counts.get("Infantry", 0)
+			+ counts.get("Tank", 0)
+			+ counts.get("CombatRobot", 0)
+			+ counts.get("AdvancedTank", 0)
+		)
+		>= 9
+	)
+
+
+func _place(role, builder):
+	if role == "AircraftFactory" and not _air_allowed():
+		return
+	super(role, builder)
+
+
+func _decision(product, outcome, price, reserve):
+	if not metrics.has("production_decisions"):
+		metrics.production_decisions = {}
+	var key = product + ":" + outcome
+	var result = metrics.production_decisions.get(
+		key,
+		{
+			"ticks": 0,
+			"first": game.simulation_time,
+			"last": 0.0,
+			"first_funds": [human.resource_a, human.resource_b],
+			"price": price.duplicate(),
+			"reserve": reserve.duplicate()
+		}
+	)
+	result.ticks += 1
+	result.last = game.simulation_time
+	metrics.production_decisions[key] = result
+	metrics.allocation_policy = "ground_first" if ground_first else "original"
+
+
+func _loss(unit):
+	super(unit)
+	if not is_instance_valid(game) or human == null or unit.player != human:
+		return
+	if not metrics.has("loss_timeline"):
+		metrics.loss_timeline = []
+	if metrics.loss_timeline.size() < 100:
+		metrics.loss_timeline.append(
+			{
+				"seconds": game.simulation_time,
+				"role": unit.type,
+				"point": [unit.position.x, unit.position.z]
+			}
+		)
+
+
+func _produce():
+	var counts = composition.inventory(plan_rules.owned_units(human))
+	var airfield = _unit(human, "AircraftFactory")
+	var reserve = {"resource_a": 0, "resource_b": 0}
+	if human.has_completed_structure("CommandLab") and airfield == null and _air_allowed():
+		reserve = factions.cost(human, "AircraftFactory", true)
+	for role in ["CommandCenter", "Barracks", "AircraftFactory", "VehicleFactory"]:
+		var producer = _unit(human, role)
+		if (
+			producer == null
+			or not producer.is_constructed()
+			or producer.production_queue.size() > 0
+		):
+			continue
+		if role == "AircraftFactory" and not _air_allowed():
+			continue
+		var product = ""
+		match role:
+			"CommandCenter":
+				if counts.get("Worker", 0) < 6:
+					product = "Worker"
+			"Barracks":
+				if counts.get("Infantry", 0) < 4:
+					product = "Infantry"
+			"AircraftFactory":
+				if counts.get("Drone", 0) == 0:
+					product = "Drone"
+				elif counts.get("Helicopter", 0) < 2:
+					product = "Helicopter"
+			"VehicleFactory":
+				if not human.has_completed_structure("CommandLab"):
+					if counts.get("Tank", 0) > 0:
+						continue
+					product = "Tank"
+				else:
+					var machinery = counts.get("Tank", 0) + counts.get("CombatRobot", 0)
+					product = (
+						"RepairRobot"
+						if machinery >= 3 and counts.get("RepairRobot", 0) == 0
+						else ["Tank", "CombatRobot", "Tank"][vehicle_sequence % 3]
+					)
+		if product == "" or not factions.available(human, product):
+			continue
+		var price = factions.cost(human, product)
+		if role == "VehicleFactory":
+			producer.production_queue.fit_chips = human.has_completed_structure("CommandLab")
+			if product == "Tank" and producer.production_queue.fit_chips:
+				price.resource_b += factions.chip_cost(human.faction)
+		var protected = reserve if product != "Worker" else {"resource_a": 0, "resource_b": 0}
+		if (
+			human.resource_a < price.resource_a + protected.resource_a
+			or human.resource_b < price.resource_b + protected.resource_b
+		):
+			_decision(
+				product,
+				"reserved" if human.has_resources(price) else "unaffordable",
+				price,
+				protected
+			)
+			# Same pending-aircraft reservation as the original policy.
+			if role == "AircraftFactory":
+				reserve = price
+			continue
+		var job = producer.production_queue.produce(load(Catalog.scene_path(product)))
+		_decision(product, "paid" if job != null else "refused", price, protected)
+		if job != null:
+			_spent += Vector2(job.paid_cost.resource_a, job.paid_cost.resource_b)
+			counts[product] = counts.get(product, 0) + 1
+			if role == "VehicleFactory":
+				vehicle_sequence += 1

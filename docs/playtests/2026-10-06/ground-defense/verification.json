@@ -1,0 +1,28 @@
+{
+  "log_checks": {
+    "before.log": "Ground defense advice: 9 failures",
+    "reselection-before.log": "Ground defense advice: 6 failures",
+    "refit-GroundDefenseAdviceRegression.log": "Ground defense advice: 0 failures",
+    "AirDefenseAdviceRegression.log": "Air defense advice: 0 failures",
+    "OpeningArmorRegression.log": "Opening armor and retrofit: 0 failures",
+    "BattlePlanRegression.log": "Battle plan regression: 0 failures",
+    "EngineerResponseRegression.log": "Engineer response: 0 failures",
+    "refit-RosterInfoRegression.log": "Roster information: 0 failures",
+    "refit-RosterLayoutRegression.log": "Roster layout: 0 failures",
+    "native.log": "Ground defense native: 0 failures",
+    "refit.log": "Ground defense native: 0 failures"
+  },
+  "image_count": 22,
+  "image_dimensions": [
+    1280,
+    720
+  ],
+  "format_lint_scripts": 7,
+  "native_manual_purchase_factions": [
+    "bastion",
+    "helix",
+    "frontier"
+  ],
+  "native_manual_repeat_click": "Incomplete: CUA gray window after discovery/rebind; process terminated.",
+  "full_match_acceptance": "Not measured in this advice-only change."
+}

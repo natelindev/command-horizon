@@ -1,0 +1,77 @@
+[
+  {
+    "log": "baseline.log",
+    "classification": "rejected fixture",
+    "expected_message": "Function \"_length()\" not found"
+  },
+  {
+    "log": "baseline-corrected.log",
+    "classification": "accepted",
+    "expected_message": ""
+  },
+  {
+    "log": "before-preview.log",
+    "classification": "rejected fixture",
+    "expected_message": "Invalid access of index"
+  },
+  {
+    "log": "baseline-preview.log",
+    "classification": "accepted",
+    "expected_message": ""
+  },
+  {
+    "log": "geometry.log",
+    "classification": "rejected fixture",
+    "expected_message": "Split blocker geometry changed"
+  },
+  {
+    "log": "after-preview.log",
+    "classification": "accepted",
+    "expected_message": ""
+  },
+  {
+    "log": "geometry-verified.log",
+    "classification": "accepted",
+    "expected_message": ""
+  },
+  {
+    "log": "split-rules.log",
+    "classification": "accepted",
+    "expected_message": ""
+  },
+  {
+    "log": "shortcut.log",
+    "classification": "accepted",
+    "expected_message": ""
+  },
+  {
+    "log": "relay-feedback.log",
+    "classification": "accepted",
+    "expected_message": ""
+  },
+  {
+    "log": "difficulty-0.log",
+    "classification": "accepted",
+    "expected_message": ""
+  },
+  {
+    "log": "difficulty-1.log",
+    "classification": "accepted",
+    "expected_message": ""
+  },
+  {
+    "log": "difficulty-2.log",
+    "classification": "accepted",
+    "expected_message": ""
+  },
+  {
+    "log": "native-veteran.log",
+    "classification": "accepted",
+    "expected_message": ""
+  },
+  {
+    "log": "recovery-ui.log",
+    "classification": "accepted",
+    "expected_message": ""
+  }
+]

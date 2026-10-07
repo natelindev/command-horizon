@@ -1,0 +1,226 @@
+extends SceneTree
+
+const LEGACY_ARCHIVE = "res://docs/playtests/2026-10-03/skirmish-stationary-battle.json"
+const SCRIPT = "tests/headless/SkirmishTravelReplay.gd"
+var deadline = 0
+var game
+var safe_velocity = Vector3.ZERO
+var archive = LEGACY_ARCHIVE
+var unit_id = ""
+var seconds = 40
+var isolated = false
+var full = false
+var samples = []
+
+
+func _initialize():
+	deadline = Time.get_ticks_msec() + 120000
+	_run.call_deferred()
+
+
+func _process(_delta):
+	if Time.get_ticks_msec() > deadline:
+		_fail("Replay exceeded 120 wall-clock seconds.", "Use a shorter --seconds=<1..300>.")
+	return false
+
+
+func _run():
+	if not _arguments():
+		return
+	root.get_node("SaveManager").autosaves_enabled = false
+	var file = load("res://source/match/saves/SaveFile.gd").new()
+	var record = file.read_file(archive)
+	if record == null:
+		_fail(file.error, "Provide a readable --archive=<battle.json>.")
+		return
+	var restore = load("res://source/match/saves/MatchRestore.gd").new()
+	var loaded = await restore.restore(self, record)
+	if not loaded.ok:
+		_fail(loaded.get("error", "Archive restoration failed."), "Use a valid battle archive.")
+		return
+	game = loaded.game
+	var unit = restore.entities.get(unit_id) if not unit_id.is_empty() else _legacy_worker()
+	if not is_instance_valid(unit) or unit.get_node_or_null("Movement") == null:
+		_fail("No mobile unit matches the selection.", "Use --unit=<STATIONARY ARCHIVE UNIT id>.")
+		return
+	if unit_id.is_empty():
+		unit_id = str(restore.entities.find_key(unit))
+	if isolated:
+		for other in get_nodes_in_group("units"):
+			if other != unit and other.movement_speed > 0:
+				other.queue_free()
+	unit.get_node("Movement").velocity_computed.connect(func(value): safe_velocity = value)
+	var start = unit.position
+	var started = game.simulation_time
+	for player in get_nodes_in_group("players"):
+		player.set_process(false)
+	paused = false
+	_sample(unit, start, 0.0)
+	var next_sample = 5.0
+	while game.simulation_time - started < seconds:
+		await physics_frame
+		if not is_instance_valid(unit):
+			_report("destroyed")
+			quit(0)
+			return
+		if game.finished:
+			_sample(unit, start, game.simulation_time - started)
+			_report("match_finished")
+			quit(0)
+			return
+		var elapsed = game.simulation_time - started
+		if elapsed >= next_sample or elapsed >= seconds:
+			_sample(unit, start, elapsed)
+			next_sample += 5.0
+	_report("observed")
+	quit(0)
+
+
+# gdlint: disable=max-returns
+func _arguments():
+	var seen = []
+	for argument in OS.get_cmdline_user_args():
+		if argument == "--help":
+			_help()
+			quit(0)
+			return false
+		var key = argument.get_slice("=", 0)
+		var value = argument.substr(key.length() + 1) if "=" in argument else ""
+		if key in seen:
+			return _usage("Repeated option: " + key)
+		seen.append(key)
+		match key:
+			"--archive":
+				if value.is_empty():
+					return _usage("--archive requires a path after '='.")
+				archive = value
+			"--unit":
+				if value.is_empty():
+					return _usage("--unit requires an archive unit id after '='.")
+				unit_id = value
+			"--seconds":
+				if not value.is_valid_int() or int(value) < 1 or int(value) > 300:
+					return _usage("--seconds must be an integer from 1 through 300.")
+				seconds = int(value)
+			"--isolated", "--full":
+				if argument != key:
+					return _usage(key + " takes no value.")
+				isolated = isolated or key == "--isolated"
+				full = full or key == "--full"
+			_:
+				return _usage("Unknown option: " + key)
+	if archive != LEGACY_ARCHIVE and unit_id.is_empty():
+		return _usage("A different --archive requires --unit=<id>.")
+	return true
+
+
+# gdlint: enable=max-returns
+func _legacy_worker():
+	var candidates = get_nodes_in_group("units").filter(func(unit): return unit.type == "Worker")
+	candidates.sort_custom(
+		func(a, b):
+			return (
+				a.position.distance_to(Vector3(108.9, 0, 67.14993))
+				< b.position.distance_to(Vector3(108.9, 0, 67.14993))
+			)
+	)
+	return candidates[0] if not candidates.is_empty() else null
+
+
+func _sample(unit, start, elapsed):
+	var agent = unit.get_node("Movement")
+	var points = agent.get_current_navigation_path()
+	var tail = 0.0
+	var previous = unit.global_position_yless
+	for i in range(agent.get_current_navigation_path_index(), points.size()):
+		var point = points[i] * Vector3(1, 0, 1)
+		tail += previous.distance_to(point)
+		previous = point
+	print("ENDPOINT TRACE time=",elapsed," index=",agent.get_current_navigation_path_index()," count=",points.size()," tail=",tail," occupied=",agent.has_occupied_endpoint()," recovery_occupied=",agent.has_occupied_endpoint(false))
+	if not points.is_empty():
+		var end = points[-1] * Vector3(1, 0, 1)
+		for other in unit.player.get_children():
+			if other != unit and other.is_in_group("units") and other.movement_speed > 0 and other.position.distance_to(end) < 3:
+				print("ENDPOINT NEIGHBOR ",other.type," position=",other.position," distance=",other.position.distance_to(end)," spacing=",unit.radius+other.radius," active=",other.get_node("Movement")._has_destination," velocity=",other.get_node("Movement").velocity)
+
+	var movement = unit.get_node("Movement")
+	samples.append(
+		{
+			"seconds": snappedf(elapsed, 0.01),
+			"travel": snappedf(start.distance_to(unit.position), 0.001),
+			"position": str(unit.position),
+			"action": str(unit.action),
+			"destination": str(movement.target_position),
+			"wanted_velocity": str(movement.velocity),
+			"safe_velocity": str(safe_velocity),
+			"path_index": movement.get_current_navigation_path_index(),
+			"path": movement.get_current_navigation_path()
+		}
+	)
+
+
+func _report(status):
+	print("replay:")
+	print("  archive: ", JSON.stringify(archive))
+	print("  unit: ", JSON.stringify(unit_id))
+	print("  isolated: ", "true" if isolated else "false")
+	print("  status: ", status)
+	print("samples[%d]{seconds,travel,position,action}:" % samples.size())
+	for sample in samples:
+		print(
+			(
+				"  %s,%s,%s,%s"
+				% [
+					sample.seconds,
+					sample.travel,
+					JSON.stringify(sample.position),
+					JSON.stringify(sample.action)
+				]
+			)
+		)
+	if full:
+		for index in samples.size():
+			var sample = samples[index]
+			print("sample_%d:" % index)
+			for key in ["destination", "wanted_velocity", "safe_velocity", "path_index"]:
+				print("  ", key, ": ", JSON.stringify(sample[key]))
+			var points = Array(sample.path).map(func(point): return JSON.stringify(str(point)))
+			print("  path[%d]: %s" % [points.size(), ",".join(points)])
+
+
+func _usage(message):
+	_fail(message, "godot --headless --path . --script " + SCRIPT + " -- --help", 2)
+	return false
+
+
+func _fail(message, suggestion, code = 1):
+	print("error: ", JSON.stringify(message))
+	print("help: ", JSON.stringify(suggestion))
+	quit(code)
+
+
+func _help():
+	print("bin: ", JSON.stringify(ProjectSettings.globalize_path("res://" + SCRIPT)))
+	print("description: Replay saved movement with AI decisions disabled; no progress assertion.")
+	print(
+		"defaults: Legacy crowded-engineer archive, nearest original worker, 40 simulation seconds."
+	)
+	print("flags[6]{option,meaning}:")
+	print("  --archive=<path>,Battle archive; a different archive requires --unit")
+	print("  --unit=<id>,Exact STATIONARY ARCHIVE UNIT identifier")
+	print("  --seconds=<1..300>,Simulation duration; default 40")
+	print("  --isolated,Remove other mobile units before resuming; default false")
+	print("  --full,Include complete paths and requested/avoidance velocities; default false")
+	print("  --help,Show this reference")
+	print("examples[2]:")
+	print("  ", JSON.stringify("godot --headless --path . --script " + SCRIPT + " -- --seconds=10"))
+	print(
+		"  ",
+		JSON.stringify(
+			(
+				"godot --headless --path . --script "
+				+ SCRIPT
+				+ " -- --archive=res://tmp/stall.json --unit=unit-7 --isolated --full"
+			)
+		)
+	)

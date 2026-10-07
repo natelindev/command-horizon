@@ -1,0 +1,53 @@
+[
+  {
+    "name": "mode-0",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/AirDifficultyMatches.gd",
+      "--",
+      "--difficulty=0",
+      "--evidence=res://docs/playtests/2026-10-07/air-difficulties/mode-0"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "mode-1",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/AirDifficultyMatches.gd",
+      "--",
+      "--difficulty=1",
+      "--evidence=res://docs/playtests/2026-10-07/air-difficulties/mode-1"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "mode-2",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/AirDifficultyMatches.gd",
+      "--",
+      "--difficulty=2",
+      "--evidence=res://docs/playtests/2026-10-07/air-difficulties/mode-2"
+    ],
+    "exit_code": 1
+  }
+]

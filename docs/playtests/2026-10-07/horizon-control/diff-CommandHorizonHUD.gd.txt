@@ -1,0 +1,29 @@
+--- before/CommandHorizonHUD.gd
++++ after/CommandHorizonHUD.gd
+@@ -52,6 +52,7 @@
+ 
+ func _label(parent, text, size):
+ 	var label = Label.new()
++	label.mouse_filter = Control.MOUSE_FILTER_PASS
+ 	label.text = text
+ 	label.add_theme_font_size_override("font_size", size)
+ 	parent.add_child(label)
+@@ -62,16 +63,8 @@
+ 	super(delta)
+ 	var mission = get_parent()
+ 	objective_panel.position = Vector2(14, _command_panel.position.y + _command_panel.size.y + 10)
+-	var relay = mission.map.relay
+-	_zone.text = "Infantry capture · %d / 10s" % int(relay.progress)
+-	if relay.candidate != null and relay.candidate != mission._get_human_player():
+-		_zone.text = "Helix capturing · %d / 10s" % int(relay.progress)
+-	if relay.captured_by == mission._get_human_player():
+-		_zone.text = "Deployment · %d / 30s · infantry must stay" % int(mission.hold_seconds)
+-	elif relay.captured_by != null:
+-		_zone.text = "Helix deployment control · send infantry"
+-	if relay.contested:
+-		_zone.text += " · Contested"
++	_zone.text = mission.deployment_status()
++	_zone.tooltip_text = mission.deployment_help()
+ 	_score.value = mission.hold_seconds
+ 	_waves.text = "Responses · %d / 4" % mission.waves_sent
+ 	if mission.waves_warned > mission.waves_sent:

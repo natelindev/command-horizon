@@ -16,6 +16,7 @@ var color = Constants.Match.Resources.A.COLOR:
 
 func _ready():
 	_setup_mesh_colors()
+	_setup_salvage("materials")
 
 
 func _setup_mesh_colors():

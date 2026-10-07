@@ -1,0 +1,7 @@
+extends "res://tests/headless/ReferenceEconomyRegression.gd"
+
+func _initialize():
+	var script = load("res://tests/headless/SkirmishLoop.gd")
+	script.source_code = FileAccess.get_file_as_string("res://docs/playtests/2026-10-04/recovery-guidance-SkirmishLoop-before.gd.txt")
+	print("REFERENCE BEFORE RELOAD ", script.reload())
+	super()

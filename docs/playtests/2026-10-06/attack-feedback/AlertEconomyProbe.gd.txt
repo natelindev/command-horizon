@@ -1,0 +1,19 @@
+extends "res://tests/headless/BattleAlertsRegression.gd"
+
+func _run():
+	harvest = load("res://source/match/units/actions/CollectingResourcesSequentially.gd")
+	root.get_node("SaveManager").autosaves_enabled = false
+	await _setup("bastion")
+	alerts = game.alerts
+	panel = game.hud.alert_panel
+	await _idle_and_navigation()
+	await _combat_events()
+	await _economy_conditions()
+	for second in 31:
+		if second % 5 == 0:
+			for unit in _units(game._get_human_player(), "Worker"):
+				print("ECONOMY PROBE time=", game.simulation_time, " pos=", unit.position, " cargo=", unit.resource_b, " action=", str(unit.action), " waiting=", unit.action._waiting_reason if is_instance_of(unit.action, harvest) else -1)
+			print("DEPLETED ALERTS ", _kind("field_electronics", true).size())
+		await _frames(60)
+	await _clean_match()
+	quit()

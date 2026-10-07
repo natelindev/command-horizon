@@ -1,0 +1,3270 @@
+{
+	"samples": [
+		{
+			"active": true,
+			"anchor": "(18.5, 0.0, 40.0)",
+			"hp": 59.5433333333335,
+			"index": 1,
+			"last_progress": "(24.30443, 0.0, 44.24586)",
+			"map_iteration": 7,
+			"mode": "Running",
+			"neighbors": [
+				{
+					"action": "Harvest(Returning cargo to HQ)",
+					"destination": "(16.74738, 0.0, 36.06916)",
+					"has_destination": true,
+					"position": "(19.13712, 0.0, 42.86095)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-0.224536, 0.0, -1.315239)",
+					"velocity": "(-0.893044, 0.0, -3.734712)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(18.5, 0.0, 40.0)",
+					"has_destination": true,
+					"position": "(19.47572, 0.0, 41.33495)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(-0.627124, 0.0, -1.655525)",
+					"velocity": "(-2.108223, 0.0, -2.299955)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(18.5, 0.0, 40.0)",
+					"has_destination": true,
+					"position": "(22.89941, 0.0, 45.69804)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(-2.580915, 0.0, 1.139701)",
+					"velocity": "(-3.111069, 0.0, -0.235904)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(18.5, 0.0, 40.0)",
+					"has_destination": true,
+					"position": "(25.71545, 0.0, 43.02718)",
+					"radius": 0.800000011920929,
+					"role": "CombatRobot",
+					"safe_velocity": "(-2.343235, 0.0, 2.560588)",
+					"velocity": "(-2.627743, 0.0, 2.800101)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(18.81694, 0.0, 40.66967)",
+					"has_destination": false,
+					"position": "(18.95364, 0.0, 38.35723)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.34699, 0.0, 40.32891)",
+					"has_destination": false,
+					"position": "(19.33719, 0.0, 39.1472)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.099203, 0.0, -0.222422)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.00152, 0.0, 40.79729)",
+					"has_destination": false,
+					"position": "(18.74557, 0.0, 39.64238)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(-0.034903, 0.0, -0.842864)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "Repairing",
+					"destination": "(29.22559, 0.0, 41.36403)",
+					"has_destination": false,
+					"position": "(29.22559, 0.0, 41.36403)",
+					"radius": 0.649999976158142,
+					"role": "RepairRobot",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				}
+			],
+			"obstacles": [
+				{
+					"position": "(22.0, 0.0, 40.0)",
+					"radius": 1.79999995231628,
+					"role": "CommandLab"
+				},
+				{
+					"position": "(19.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "@Area3D@234"
+				},
+				{
+					"position": "(22.5, 0.0, 44.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceB"
+				}
+			],
+			"path": "[(27.7179, 0.6, 40.32616), (24.0, 0.6, 44.7), (23.1, 0.6, 45.6), (21.9, 0.6, 45.6), (21.3, 0.6, 45.0), (20.59466, 0.6, 43.74046), (20.42239, 0.6, 43.43283), (20.22308, 0.6, 43.07692), (19.44316, 0.6, 41.68421), (19.41205, 0.6, 41.62866), (18.91263, 0.6, 40.73684), (18.55452, 0.6, 40.09736), (18.5, 0.6, 40.0)]",
+			"path_query": "[(24.2694, 0.6, 44.2843), (24.0, 0.6, 44.7), (23.1, 0.6, 45.6), (21.9, 0.6, 45.6), (21.3, 0.6, 45.0), (20.59466, 0.6, 43.74046), (20.42239, 0.6, 43.43283), (20.22308, 0.6, 43.07692), (19.44316, 0.6, 41.68421), (19.41205, 0.6, 41.62866), (18.91263, 0.6, 40.73684), (18.55452, 0.6, 40.09736), (18.5, 0.6, 40.0)]",
+			"position": "(24.2694, 0.0, 44.2843)",
+			"program_destination": "(18.5, 0.0, 40.0)",
+			"reason": "Returning to guard point.",
+			"recovery": 0.0,
+			"requested": "(-1.73726, 0.0, 2.591588)",
+			"role": "Tank",
+			"safe": "(10.0, 0.0, 40.0)",
+			"safe_velocity": "(-2.101424, 0.0, 2.306169)",
+			"stalled": 0.0,
+			"target": "(18.5, 0.0, 40.0)",
+			"time": 325.233333333366
+		},
+		{
+			"active": true,
+			"anchor": "(18.5, 0.0, 40.0)",
+			"hp": 59.5433333333335,
+			"index": 3,
+			"last_progress": "(23.64029, 0.0, 45.32926)",
+			"map_iteration": 7,
+			"mode": "Running",
+			"neighbors": [
+				{
+					"action": "Harvest(Returning cargo to HQ)",
+					"destination": "(16.74738, 0.0, 36.06916)",
+					"has_destination": true,
+					"position": "(19.03083, 0.0, 41.7015)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-0.157435, 0.0, -1.314287)",
+					"velocity": "(-3.760041, 0.0, -0.779547)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(19.33999, 0.0, 40.43913)",
+					"has_destination": false,
+					"position": "(19.29994, 0.0, 40.10877)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(-0.054319, 0.0, -1.565521)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(18.5, 0.0, 40.0)",
+					"has_destination": true,
+					"position": "(21.65844, 0.0, 45.36832)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(-2.176137, 0.0, -2.235806)",
+					"velocity": "(-2.176001, 0.0, -2.235938)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(18.5, 0.0, 40.0)",
+					"has_destination": true,
+					"position": "(24.56584, 0.0, 44.20435)",
+					"radius": 0.800000011920929,
+					"role": "CombatRobot",
+					"safe_velocity": "(-2.24734, 0.0, 2.420496)",
+					"velocity": "(-2.442722, 0.0, 2.962889)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.34699, 0.0, 40.32891)",
+					"has_destination": false,
+					"position": "(19.77666, 0.0, 38.72334)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.831429, 0.0, -0.664793)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "Repairing",
+					"destination": "(25.36718, 0.0, 43.40395)",
+					"has_destination": true,
+					"position": "(28.21966, 0.0, 41.89568)",
+					"radius": 0.649999976158142,
+					"role": "RepairRobot",
+					"safe_velocity": "(-3.182497, 0.0, 1.682769)",
+					"velocity": "(-3.182497, 0.0, 1.68277)"
+				}
+			],
+			"obstacles": [
+				{
+					"position": "(22.0, 0.0, 40.0)",
+					"radius": 1.79999995231628,
+					"role": "CommandLab"
+				},
+				{
+					"position": "(19.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "@Area3D@234"
+				},
+				{
+					"position": "(22.5, 0.0, 44.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceB"
+				}
+			],
+			"path": "[(27.7179, 0.6, 40.32616), (24.0, 0.6, 44.7), (23.1, 0.6, 45.6), (21.9, 0.6, 45.6), (21.3, 0.6, 45.0), (20.59466, 0.6, 43.74046), (20.42239, 0.6, 43.43283), (20.22308, 0.6, 43.07692), (19.44316, 0.6, 41.68421), (19.41205, 0.6, 41.62866), (18.91263, 0.6, 40.73684), (18.55452, 0.6, 40.09736), (18.5, 0.6, 40.0)]",
+			"path_query": "[(23.51174, 0.6, 45.55527), (23.1, 0.6, 45.6), (21.9, 0.6, 45.6), (21.3, 0.6, 45.0), (20.59466, 0.6, 43.74046), (20.42239, 0.6, 43.43283), (20.22308, 0.6, 43.07692), (19.44316, 0.6, 41.68421), (19.41205, 0.6, 41.62866), (18.91263, 0.6, 40.73684), (18.55452, 0.6, 40.09736), (18.5, 0.6, 40.0)]",
+			"position": "(23.51175, 0.0, 45.55526)",
+			"program_destination": "(18.5, 0.0, 40.0)",
+			"reason": "Returning to guard point.",
+			"recovery": 0.0,
+			"requested": "(-3.115339, 0.0, 0.170469)",
+			"role": "Tank",
+			"safe": "(10.0, 0.0, 40.0)",
+			"safe_velocity": "(-1.575104, 0.0, 2.693223)",
+			"stalled": 0.0,
+			"target": "(18.5, 0.0, 40.0)",
+			"time": 325.733333333366
+		},
+		{
+			"active": true,
+			"anchor": "(18.5, 0.0, 40.0)",
+			"hp": 59.5433333333335,
+			"index": 3,
+			"last_progress": "(22.93148, 0.0, 46.47926)",
+			"map_iteration": 7,
+			"mode": "Running",
+			"neighbors": [
+				{
+					"action": "Harvest(Returning cargo to HQ)",
+					"destination": "(16.74738, 0.0, 36.06916)",
+					"has_destination": true,
+					"position": "(18.94965, 0.0, 41.65301)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-0.135951, 0.0, -0.434504)",
+					"velocity": "(-3.839998, 0.0, -0.00314)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(19.29914, 0.0, 40.05452)",
+					"has_destination": false,
+					"position": "(19.29943, 0.0, 40.03182)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(0.002832, 0.0, -0.236427)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(18.5, 0.0, 40.0)",
+					"has_destination": true,
+					"position": "(20.8561, 0.0, 44.16905)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(-1.192568, 0.0, -2.285182)",
+					"velocity": "(-1.610762, 0.0, -2.672049)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(18.5, 0.0, 40.0)",
+					"has_destination": true,
+					"position": "(23.32935, 0.0, 45.37065)",
+					"radius": 0.800000011920929,
+					"role": "CombatRobot",
+					"safe_velocity": "(-2.552555, 0.0, 2.290302)",
+					"velocity": "(-2.71528, 0.0, 2.7153)"
+				},
+				{
+					"action": "Repairing",
+					"destination": "(24.17983, 0.0, 44.59591)",
+					"has_destination": true,
+					"position": "(26.69608, 0.0, 42.84824)",
+					"radius": 0.649999976158142,
+					"role": "RepairRobot",
+					"safe_velocity": "(-2.956783, 0.0, 2.053639)",
+					"velocity": "(-2.956782, 0.0, 2.053641)"
+				}
+			],
+			"obstacles": [
+				{
+					"position": "(22.0, 0.0, 40.0)",
+					"radius": 1.79999995231628,
+					"role": "CommandLab"
+				},
+				{
+					"position": "(19.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "@Area3D@234"
+				},
+				{
+					"position": "(22.5, 0.0, 44.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceB"
+				}
+			],
+			"path": "[(27.7179, 0.6, 40.32616), (24.0, 0.6, 44.7), (23.1, 0.6, 45.6), (21.9, 0.6, 45.6), (21.3, 0.6, 45.0), (20.59466, 0.6, 43.74046), (20.42239, 0.6, 43.43283), (20.22308, 0.6, 43.07692), (19.44316, 0.6, 41.68421), (19.41205, 0.6, 41.62866), (18.91263, 0.6, 40.73684), (18.55452, 0.6, 40.09736), (18.5, 0.6, 40.0)]",
+			"path_query": "[(22.7409, 0.6, 46.90642), (22.30014, 0.6, 46.32326), (22.20464, 0.6, 46.19691), (22.15963, 0.6, 46.13736), (21.82703, 0.6, 45.6973), (21.70415, 0.6, 45.53472), (21.3, 0.6, 45.0), (20.59466, 0.6, 43.74046), (20.42239, 0.6, 43.43283), (20.22308, 0.6, 43.07692), (19.44316, 0.6, 41.68421), (19.41205, 0.6, 41.62866), (18.91263, 0.6, 40.73684), (18.55452, 0.6, 40.09736), (18.5, 0.6, 40.0)]",
+			"position": "(22.7409, 0.0, 46.90642)",
+			"program_destination": "(18.5, 0.0, 40.0)",
+			"reason": "Returning to guard point.",
+			"recovery": 0.0,
+			"requested": "(-1.760245, 0.0, -2.576031)",
+			"role": "Tank",
+			"safe": "(10.0, 0.0, 40.0)",
+			"safe_velocity": "(-1.116959, 0.0, 2.913212)",
+			"stalled": 0.0,
+			"target": "(18.5, 0.0, 40.0)",
+			"time": 326.233333333365
+		},
+		{
+			"active": true,
+			"anchor": "(18.5, 0.0, 40.0)",
+			"hp": 59.5433333333335,
+			"index": 3,
+			"last_progress": "(22.42654, 0.0, 47.30324)",
+			"map_iteration": 7,
+			"mode": "Running",
+			"neighbors": [
+				{
+					"action": "Harvest(Returning cargo to HQ)",
+					"destination": "(16.74738, 0.0, 36.06916)",
+					"has_destination": true,
+					"position": "(18.86029, 0.0, 41.34628)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-0.276648, 0.0, -0.738844)",
+					"velocity": "(-1.587875, 0.0, 3.49632)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(18.5, 0.0, 40.0)",
+					"has_destination": true,
+					"position": "(20.3782, 0.0, 43.18742)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(-0.639365, 0.0, -1.93062)",
+					"velocity": "(-1.636241, 0.0, -2.656523)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(18.5, 0.0, 40.0)",
+					"has_destination": true,
+					"position": "(22.07123, 0.0, 45.6)",
+					"radius": 0.800000011920929,
+					"role": "CombatRobot",
+					"safe_velocity": "(-2.544484, 0.0, -0.839428)",
+					"velocity": "(-3.84, 0.0, 0.0)"
+				},
+				{
+					"action": "Harvest(Electronics · approaching work slot)",
+					"destination": "(22.18792, 0.0, 43.48755)",
+					"has_destination": true,
+					"position": "(17.55736, 0.0, 41.40174)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-0.234394, 0.0, 1.329101)",
+					"velocity": "(1.80204, 0.0, -3.390907)"
+				},
+				{
+					"action": "Repairing",
+					"destination": "(22.89725, 0.0, 45.6)",
+					"has_destination": true,
+					"position": "(25.25207, 0.0, 43.92168)",
+					"radius": 0.649999976158142,
+					"role": "RepairRobot",
+					"safe_velocity": "(-2.835217, 0.0, 2.218455)",
+					"velocity": "(-2.835223, 0.0, 2.218447)"
+				}
+			],
+			"obstacles": [
+				{
+					"position": "(22.0, 0.0, 40.0)",
+					"radius": 1.79999995231628,
+					"role": "CommandLab"
+				},
+				{
+					"position": "(12.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceA"
+				},
+				{
+					"position": "(19.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "@Area3D@234"
+				},
+				{
+					"position": "(22.5, 0.0, 44.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceB"
+				}
+			],
+			"path": "[(27.7179, 0.6, 40.32616), (24.0, 0.6, 44.7), (23.1, 0.6, 45.6), (21.9, 0.6, 45.6), (21.3, 0.6, 45.0), (20.59466, 0.6, 43.74046), (20.42239, 0.6, 43.43283), (20.22308, 0.6, 43.07692), (19.44316, 0.6, 41.68421), (19.41205, 0.6, 41.62866), (18.91263, 0.6, 40.73684), (18.55452, 0.6, 40.09736), (18.5, 0.6, 40.0)]",
+			"path_query": "[(22.2763, 0.6, 47.28855), (21.89509, 0.6, 46.55278), (21.83751, 0.6, 46.44166), (21.78945, 0.6, 46.34889), (21.60514, 0.6, 45.99315), (21.29736, 0.6, 45.39912), (21.16205, 0.6, 45.13795), (21.01735, 0.6, 44.85867), (20.502, 0.6, 43.86401), (20.3661, 0.6, 43.60171), (20.13818, 0.6, 43.16182), (19.42351, 0.6, 41.78245), (19.38299, 0.6, 41.70424), (18.90404, 0.6, 40.77982), (18.55203, 0.6, 40.10043), (18.5, 0.6, 40.0)]",
+			"position": "(22.2763, 0.0, 47.28855)",
+			"program_destination": "(18.5, 0.0, 40.0)",
+			"reason": "Returning to assigned area.",
+			"recovery": 0.0,
+			"requested": "(-0.68657, 0.0, -3.043521)",
+			"role": "Tank",
+			"safe": "(10.0, 0.0, 40.0)",
+			"safe_velocity": "(-0.329888, 0.0, -0.236112)",
+			"stalled": 0.0,
+			"target": "(18.5, 0.0, 40.0)",
+			"time": 326.733333333365
+		},
+		{
+			"active": true,
+			"anchor": "(18.5, 0.0, 40.0)",
+			"hp": 59.5433333333335,
+			"index": 3,
+			"last_progress": "(21.8363, 0.0, 46.35443)",
+			"map_iteration": 7,
+			"mode": "Running",
+			"neighbors": [
+				{
+					"action": "Harvest(Returning cargo to HQ)",
+					"destination": "(16.74738, 0.0, 36.06916)",
+					"has_destination": true,
+					"position": "(18.75291, 0.0, 40.86446)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-0.106179, 0.0, -1.29296)",
+					"velocity": "(-0.132324, 0.0, 3.837719)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(19.23171, 0.0, 39.522)",
+					"has_destination": false,
+					"position": "(19.209, 0.0, 39.363)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(-0.016065, 0.0, -1.335734)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(18.5, 0.0, 40.0)",
+					"has_destination": true,
+					"position": "(20.06128, 0.0, 42.33066)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(-0.639911, 0.0, -1.598676)",
+					"velocity": "(-2.129839, 0.0, -2.279953)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(18.5, 0.0, 40.0)",
+					"has_destination": true,
+					"position": "(20.94175, 0.0, 44.51576)",
+					"radius": 0.800000011920929,
+					"role": "CombatRobot",
+					"safe_velocity": "(-1.508525, 0.0, -2.273563)",
+					"velocity": "(-1.598259, 0.0, -3.491585)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.34699, 0.0, 40.32891)",
+					"has_destination": false,
+					"position": "(20.05429, 0.0, 38.44365)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.661747, 0.0, -0.543653)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "Harvest(Materials · approaching work slot)",
+					"destination": "(19.31497, 0.0, 45.42924)",
+					"has_destination": true,
+					"position": "(17.47972, 0.0, 41.13089)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(0.580066, 0.0, 2.649872)",
+					"velocity": "(3.538933, 0.0, 1.490487)"
+				},
+				{
+					"action": "Harvest(Electronics · approaching work slot)",
+					"destination": "(22.18792, 0.0, 43.48755)",
+					"has_destination": true,
+					"position": "(17.83434, 0.0, 42.39885)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(1.415106, 0.0, 2.558446)",
+					"velocity": "(1.093634, 0.0, -3.680974)"
+				},
+				{
+					"action": "Repairing",
+					"destination": "(21.52384, 0.0, 45.235)",
+					"has_destination": true,
+					"position": "(23.83343, 0.0, 45.02842)",
+					"radius": 0.649999976158142,
+					"role": "RepairRobot",
+					"safe_velocity": "(-2.839518, 0.0, 2.212947)",
+					"velocity": "(-2.839515, 0.0, 2.212951)"
+				}
+			],
+			"obstacles": [
+				{
+					"position": "(22.0, 0.0, 40.0)",
+					"radius": 1.79999995231628,
+					"role": "CommandLab"
+				},
+				{
+					"position": "(12.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceA"
+				},
+				{
+					"position": "(19.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "@Area3D@234"
+				},
+				{
+					"position": "(22.5, 0.0, 44.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceB"
+				}
+			],
+			"path": "[(27.7179, 0.6, 40.32616), (24.0, 0.6, 44.7), (23.1, 0.6, 45.6), (21.9, 0.6, 45.6), (21.3, 0.6, 45.0), (20.59466, 0.6, 43.74046), (20.42239, 0.6, 43.43283), (20.22308, 0.6, 43.07692), (19.44316, 0.6, 41.68421), (19.41205, 0.6, 41.62866), (18.91263, 0.6, 40.73684), (18.55452, 0.6, 40.09736), (18.5, 0.6, 40.0)]",
+			"path_query": "[(21.7648, 0.6, 46.17817), (21.64145, 0.6, 45.94474), (21.36504, 0.6, 45.42168), (21.19676, 0.6, 45.10324), (21.08554, 0.6, 44.89277), (20.52541, 0.6, 43.83279), (20.38049, 0.6, 43.55855), (20.15955, 0.6, 43.14046), (19.42857, 0.6, 41.75718), (19.3904, 0.6, 41.68496), (18.90625, 0.6, 40.76876), (18.55266, 0.6, 40.09966), (18.5, 0.6, 40.0)]",
+			"position": "(21.7648, 0.0, 46.17817)",
+			"program_destination": "(18.5, 0.0, 40.0)",
+			"reason": "Returning to guard point.",
+			"recovery": 0.0,
+			"requested": "(0.578243, 0.0, -3.065948)",
+			"role": "Tank",
+			"safe": "(10.0, 0.0, 40.0)",
+			"safe_velocity": "(-1.071447, 0.0, -2.641544)",
+			"stalled": 0.0,
+			"target": "(18.5, 0.0, 40.0)",
+			"time": 327.233333333364
+		},
+		{
+			"active": true,
+			"anchor": "(18.5, 0.0, 40.0)",
+			"hp": 59.5433333333335,
+			"index": 5,
+			"last_progress": "(21.35278, 0.0, 45.17232)",
+			"map_iteration": 7,
+			"mode": "Running",
+			"neighbors": [
+				{
+					"action": "Harvest(Returning cargo to HQ)",
+					"destination": "(16.74738, 0.0, 36.06916)",
+					"has_destination": true,
+					"position": "(18.1484, 0.0, 40.66102)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-2.642286, 0.0, 1.689569)",
+					"velocity": "(1.775261, 0.0, 3.405003)"
+				},
+				{
+					"action": "Harvest(Materials · collecting)",
+					"destination": "(13.84898, 0.0, 44.81837)",
+					"has_destination": false,
+					"position": "(13.85028, 0.0, 44.81944)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(18.5, 0.0, 40.0)",
+					"has_destination": true,
+					"position": "(19.28735, 0.0, 39.02999)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(0.137267, 0.0, -0.505281)",
+					"velocity": "(-1.97316, 0.0, 2.416824)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(18.5, 0.0, 40.0)",
+					"has_destination": true,
+					"position": "(19.53939, 0.0, 41.43961)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(-1.865077, 0.0, -1.852196)",
+					"velocity": "(-2.082911, 0.0, -2.322903)"
+				},
+				{
+					"action": "Harvest(Materials · approaching work slot)",
+					"destination": "(19.25977, 0.0, 45.45019)",
+					"has_destination": true,
+					"position": "(17.12229, 0.0, 41.52654)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-1.909829, 0.0, 3.331388)",
+					"velocity": "(3.26602, 0.0, 2.019582)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(18.5, 0.0, 40.0)",
+					"has_destination": true,
+					"position": "(20.28715, 0.0, 43.27288)",
+					"radius": 0.800000011920929,
+					"role": "CombatRobot",
+					"safe_velocity": "(-0.941219, 0.0, -3.07631)",
+					"velocity": "(-1.17897, 0.0, -3.654536)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(18.81694, 0.0, 40.66967)",
+					"has_destination": false,
+					"position": "(18.58395, 0.0, 37.87219)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(-0.121365, 0.0, -0.111429)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.34699, 0.0, 40.32891)",
+					"has_destination": false,
+					"position": "(20.24608, 0.0, 38.25392)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.392543, 0.0, -0.258412)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.00152, 0.0, 40.79729)",
+					"has_destination": false,
+					"position": "(18.0877, 0.0, 38.75183)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.000281, 0.0, -0.008395)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.14995, 0.0, 40.20936)",
+					"has_destination": false,
+					"position": "(16.27172, 0.0, 38.82621)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "Harvest(Materials · approaching work slot)",
+					"destination": "(19.31497, 0.0, 45.42924)",
+					"has_destination": true,
+					"position": "(17.92665, 0.0, 42.73475)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(0.927961, 0.0, 3.047714)",
+					"velocity": "(1.485746, 0.0, 3.540926)"
+				},
+				{
+					"action": "Harvest(Electronics · approaching work slot)",
+					"destination": "(22.18792, 0.0, 43.48755)",
+					"has_destination": true,
+					"position": "(18.8126, 0.0, 43.68596)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(1.896139, 0.0, 2.056573)",
+					"velocity": "(0.003477, 0.0, -3.839998)"
+				},
+				{
+					"action": "Repairing",
+					"destination": "(23.2182, 0.0, 45.50788)",
+					"has_destination": false,
+					"position": "(23.16365, 0.0, 45.5759)",
+					"radius": 0.649999976158142,
+					"role": "RepairRobot",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				}
+			],
+			"obstacles": [
+				{
+					"position": "(22.0, 0.0, 40.0)",
+					"radius": 1.79999995231628,
+					"role": "CommandLab"
+				},
+				{
+					"position": "(12.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceA"
+				},
+				{
+					"position": "(19.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "@Area3D@234"
+				},
+				{
+					"position": "(22.5, 0.0, 44.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceB"
+				}
+			],
+			"path": "[(27.7179, 0.6, 40.32616), (24.0, 0.6, 44.7), (23.1, 0.6, 45.6), (21.9, 0.6, 45.6), (21.3, 0.6, 45.0), (20.59466, 0.6, 43.74046), (20.42239, 0.6, 43.43283), (20.22308, 0.6, 43.07692), (19.44316, 0.6, 41.68421), (19.41205, 0.6, 41.62866), (18.91263, 0.6, 40.73684), (18.55452, 0.6, 40.09736), (18.5, 0.6, 40.0)]",
+			"path_query": "[(21.19864, 0.6, 44.78593), (20.60292, 0.6, 43.72945), (20.42732, 0.6, 43.41804), (20.23069, 0.6, 43.06931), (19.44486, 0.6, 41.67568), (19.41461, 0.6, 41.62202), (18.91338, 0.6, 40.73311), (18.55474, 0.6, 40.09708), (18.5, 0.6, 40.0)]",
+			"position": "(21.19864, 0.0, 44.78593)",
+			"program_destination": "(18.5, 0.0, 40.0)",
+			"reason": "Returning to guard point.",
+			"recovery": 0.0,
+			"requested": "(-1.544649, 0.0, -2.710804)",
+			"role": "Tank",
+			"safe": "(10.0, 0.0, 40.0)",
+			"safe_velocity": "(-1.156072, 0.0, -2.897913)",
+			"stalled": 0.0,
+			"target": "(18.5, 0.0, 40.0)",
+			"time": 327.733333333364
+		},
+		{
+			"active": true,
+			"anchor": "(18.5, 0.0, 40.0)",
+			"hp": 59.5433333333335,
+			"index": 6,
+			"last_progress": "(20.98087, 0.0, 44.00334)",
+			"map_iteration": 7,
+			"mode": "Running",
+			"neighbors": [
+				{
+					"action": "Harvest(Returning cargo to HQ)",
+					"destination": "(16.74738, 0.0, 36.06916)",
+					"has_destination": true,
+					"position": "(17.45392, 0.0, 41.71981)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(2.027789, 0.0, 1.650222)",
+					"velocity": "(3.838834, 0.0, -0.094625)"
+				},
+				{
+					"action": "Harvest(Materials · collecting)",
+					"destination": "(13.84898, 0.0, 44.81837)",
+					"has_destination": false,
+					"position": "(13.85028, 0.0, 44.81944)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(19.33722, 0.0, 38.87666)",
+					"has_destination": false,
+					"position": "(19.34704, 0.0, 38.87071)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(0.267682, 0.0, -0.21121)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(18.61241, 0.0, 40.65563)",
+					"has_destination": false,
+					"position": "(18.37262, 0.0, 40.45604)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(-2.375343, 0.0, -2.022904)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "Harvest(Materials · approaching work slot)",
+					"destination": "(19.25977, 0.0, 45.45019)",
+					"has_destination": true,
+					"position": "(16.73907, 0.0, 42.8418)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-1.126078, 0.0, -0.698482)",
+					"velocity": "(1.62116, 0.0, -3.481011)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(18.5, 0.0, 40.0)",
+					"has_destination": true,
+					"position": "(19.47714, 0.0, 41.77997)",
+					"radius": 0.800000011920929,
+					"role": "CombatRobot",
+					"safe_velocity": "(-1.770045, 0.0, -2.798421)",
+					"velocity": "(-1.655624, 0.0, -3.464752)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(18.81694, 0.0, 40.66967)",
+					"has_destination": false,
+					"position": "(18.55642, 0.0, 37.84513)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.34699, 0.0, 40.32891)",
+					"has_destination": false,
+					"position": "(20.34418, 0.0, 38.15582)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.28517, 0.0, -0.203714)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.00152, 0.0, 40.79729)",
+					"has_destination": false,
+					"position": "(18.10331, 0.0, 38.69425)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.007557, 0.0, -0.27206)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.14995, 0.0, 40.20936)",
+					"has_destination": false,
+					"position": "(16.12519, 0.0, 38.74098)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(-0.909281, 0.0, -0.417496)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "Harvest(Materials · approaching work slot)",
+					"destination": "(19.31497, 0.0, 45.42924)",
+					"has_destination": true,
+					"position": "(18.30838, 0.0, 43.95656)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-0.122785, 0.0, 3.459751)",
+					"velocity": "(1.889103, 0.0, 3.343185)"
+				},
+				{
+					"action": "Harvest(Electronics · approaching work slot)",
+					"destination": "(22.18792, 0.0, 43.48755)",
+					"has_destination": true,
+					"position": "(19.57537, 0.0, 44.24316)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(0.969653, 0.0, -0.582346)",
+					"velocity": "(2.681117, 0.0, -2.749038)"
+				},
+				{
+					"action": "Harvest(Returning cargo to HQ)",
+					"destination": "(15.30719, 0.0, 36.08807)",
+					"has_destination": true,
+					"position": "(13.53105, 0.0, 41.07257)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(1.082869, 0.0, -3.684154)",
+					"velocity": "(1.082871, 0.0, -3.684154)"
+				},
+				{
+					"action": "Repairing",
+					"destination": "(19.94972, 0.0, 42.55504)",
+					"has_destination": true,
+					"position": "(22.58125, 0.0, 45.68657)",
+					"radius": 0.649999976158142,
+					"role": "RepairRobot",
+					"safe_velocity": "(-2.865512, 0.0, -0.76911)",
+					"velocity": "(-3.567003, 0.0, -0.486306)"
+				}
+			],
+			"obstacles": [
+				{
+					"position": "(22.0, 0.0, 34.0)",
+					"radius": 2.29999995231628,
+					"role": "VehicleFactory"
+				},
+				{
+					"position": "(22.0, 0.0, 40.0)",
+					"radius": 1.79999995231628,
+					"role": "CommandLab"
+				},
+				{
+					"position": "(12.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceA"
+				},
+				{
+					"position": "(19.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "@Area3D@234"
+				},
+				{
+					"position": "(22.5, 0.0, 44.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceB"
+				}
+			],
+			"path": "[(27.7179, 0.6, 40.32616), (24.0, 0.6, 44.7), (23.1, 0.6, 45.6), (21.9, 0.6, 45.6), (21.3, 0.6, 45.0), (20.59466, 0.6, 43.74046), (20.42239, 0.6, 43.43283), (20.22308, 0.6, 43.07692), (19.44316, 0.6, 41.68421), (19.41205, 0.6, 41.62866), (18.91263, 0.6, 40.73684), (18.55452, 0.6, 40.09736), (18.5, 0.6, 40.0)]",
+			"path_query": "[(21.03667, 0.6, 43.67488), (20.8484, 0.6, 43.40213), (20.56802, 0.6, 42.99594), (20.46022, 0.6, 42.83978), (19.49245, 0.6, 41.43776), (19.48797, 0.6, 41.43127), (18.9342, 0.6, 40.62902), (18.56137, 0.6, 40.0889), (18.5, 0.6, 40.0)]",
+			"position": "(21.03667, 0.0, 43.67488)",
+			"program_destination": "(18.5, 0.0, 40.0)",
+			"reason": "Returning to guard point.",
+			"recovery": 0.0,
+			"requested": "(-2.856378, 0.0, -1.255192)",
+			"role": "Tank",
+			"safe": "(10.0, 0.0, 40.0)",
+			"safe_velocity": "(0.427162, 0.0, -1.485625)",
+			"stalled": 0.0,
+			"target": "(18.5, 0.0, 40.0)",
+			"time": 328.233333333363
+		},
+		{
+			"active": true,
+			"anchor": "(18.5, 0.0, 40.0)",
+			"hp": 59.5433333333335,
+			"index": 2,
+			"last_progress": "(21.03061, 0.0, 43.38364)",
+			"map_iteration": 8,
+			"mode": "Running",
+			"neighbors": [
+				{
+					"action": "Harvest(Returning cargo to HQ)",
+					"destination": "(16.74738, 0.0, 36.06916)",
+					"has_destination": true,
+					"position": "(17.59983, 0.0, 40.67815)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-0.941112, 0.0, -3.392912)",
+					"velocity": "(-0.841427, 0.0, -3.746678)"
+				},
+				{
+					"action": "Harvest(Materials · collecting)",
+					"destination": "(13.84898, 0.0, 44.81837)",
+					"has_destination": false,
+					"position": "(13.85028, 0.0, 44.81944)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(19.48408, 0.0, 38.74084)",
+					"has_destination": false,
+					"position": "(19.63566, 0.0, 38.57809)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(1.536775, 0.0, -1.64795)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(17.82692, 0.0, 39.66942)",
+					"has_destination": false,
+					"position": "(17.90207, 0.0, 39.15525)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(0.659172, 0.0, -3.049572)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "Harvest(Materials · approaching work slot)",
+					"destination": "(19.25977, 0.0, 45.45019)",
+					"has_destination": true,
+					"position": "(17.10012, 0.0, 42.29259)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(1.444837, 0.0, 1.362764)",
+					"velocity": "(1.9363, 0.0, 3.316073)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(18.5, 0.0, 40.0)",
+					"has_destination": true,
+					"position": "(19.17112, 0.0, 41.21335)",
+					"radius": 0.800000011920929,
+					"role": "CombatRobot",
+					"safe_velocity": "(-0.867788, 0.0, -2.44766)",
+					"velocity": "(-1.866714, 0.0, -3.355738)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(18.81694, 0.0, 40.66967)",
+					"has_destination": false,
+					"position": "(18.77198, 0.0, 37.68145)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(1.132299, 0.0, -1.047732)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.34699, 0.0, 40.32891)",
+					"has_destination": false,
+					"position": "(20.65266, 0.0, 37.84734)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(1.848326, 0.0, -1.310267)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.00152, 0.0, 40.79729)",
+					"has_destination": false,
+					"position": "(17.97664, 0.0, 37.87292)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(-0.088326, 0.0, -2.908097)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.14995, 0.0, 40.20936)",
+					"has_destination": false,
+					"position": "(15.86581, 0.0, 38.77915)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "Harvest(Materials · collecting)",
+					"destination": "(18.31579, 0.0, 44.65586)",
+					"has_destination": false,
+					"position": "(18.31581, 0.0, 44.65618)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(0.0008, 0.0, 0.016997)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "Harvest(Electronics · approaching work slot)",
+					"destination": "(22.18792, 0.0, 43.48755)",
+					"has_destination": true,
+					"position": "(19.54122, 0.0, 43.69572)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-0.18587, 0.0, -1.279872)",
+					"velocity": "(3.549313, 0.0, -1.465598)"
+				},
+				{
+					"action": "Harvest(Returning cargo to HQ)",
+					"destination": "(15.30719, 0.0, 36.08807)",
+					"has_destination": true,
+					"position": "(14.0684, 0.0, 39.23999)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(0.98284, 0.0, -3.447929)",
+					"velocity": "(1.084888, 0.0, -3.683561)"
+				},
+				{
+					"action": "Repairing",
+					"destination": "(19.19299, 0.0, 41.28254)",
+					"has_destination": true,
+					"position": "(21.40625, 0.0, 45.1422)",
+					"radius": 0.649999976158142,
+					"role": "RepairRobot",
+					"safe_velocity": "(-1.666911, 0.0, -1.761267)",
+					"velocity": "(-2.216432, 0.0, -2.836799)"
+				}
+			],
+			"obstacles": [
+				{
+					"position": "(22.0, 0.0, 34.0)",
+					"radius": 2.29999995231628,
+					"role": "VehicleFactory"
+				},
+				{
+					"position": "(22.0, 0.0, 40.0)",
+					"radius": 1.79999995231628,
+					"role": "CommandLab"
+				},
+				{
+					"position": "(12.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceA"
+				},
+				{
+					"position": "(19.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "@Area3D@234"
+				},
+				{
+					"position": "(22.5, 0.0, 44.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceB"
+				}
+			],
+			"path": "[(21.01495, 0.6, 43.28971), (20.97247, 0.6, 43.23671), (20.63011, 0.6, 42.80967), (20.56791, 0.6, 42.73209), (19.5, 0.6, 41.4), (18.9375, 0.6, 40.6125), (18.5625, 0.6, 40.0875), (18.5, 0.6, 40.0)]",
+			"path_query": "[(21.0028, 0.6, 43.1672), (20.95619, 0.6, 43.11239), (20.64944, 0.6, 42.75167), (20.60298, 0.6, 42.69703), (19.5, 0.6, 41.4), (18.9375, 0.6, 40.6125), (18.5625, 0.6, 40.0875), (18.5, 0.6, 40.0)]",
+			"position": "(21.0028, 0.0, 43.1672)",
+			"program_destination": "(18.5, 0.0, 40.0)",
+			"reason": "Returning to guard point.",
+			"recovery": 0.0,
+			"requested": "(-2.20716, 0.0, -2.205187)",
+			"role": "Tank",
+			"safe": "(10.0, 0.0, 40.0)",
+			"safe_velocity": "(0.083253, 0.0, -0.806876)",
+			"stalled": 0.216666666666667,
+			"target": "(18.5, 0.0, 40.0)",
+			"time": 328.733333333363
+		},
+		{
+			"active": true,
+			"anchor": "(29.44726, 0.0, 38.25595)",
+			"hp": 59.5433333333335,
+			"index": 2,
+			"last_progress": "(21.30161, 0.0, 42.89839)",
+			"map_iteration": 8,
+			"mode": "Running",
+			"neighbors": [
+				{
+					"action": "Harvest(Returning cargo to HQ)",
+					"destination": "(16.74738, 0.0, 36.06916)",
+					"has_destination": true,
+					"position": "(17.27734, 0.0, 38.92454)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-0.36893, 0.0, -2.942453)",
+					"velocity": "(-0.686687, 0.0, -3.778103)"
+				},
+				{
+					"action": "Harvest(Returning cargo to HQ)",
+					"destination": "(15.57126, 0.0, 36.15782)",
+					"has_destination": true,
+					"position": "(14.034, 0.0, 44.08153)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(0.930675, 0.0, -3.725513)",
+					"velocity": "(0.930675, 0.0, -3.725513)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(20.13193, 0.0, 38.05202)",
+					"has_destination": false,
+					"position": "(20.33677, 0.0, 37.88578)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(0.160765, 0.0, -0.066276)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(18.55205, 0.0, 38.03788)",
+					"has_destination": false,
+					"position": "(18.56272, 0.0, 38.02378)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(0.640345, 0.0, -0.846079)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "Harvest(Materials · approaching work slot)",
+					"destination": "(19.25977, 0.0, 45.45019)",
+					"has_destination": true,
+					"position": "(17.87442, 0.0, 42.91079)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(1.408198, 0.0, 1.164939)",
+					"velocity": "(1.015389, 0.0, 3.703321)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(18.88616, 0.0, 40.70867)",
+					"has_destination": false,
+					"position": "(18.88616, 0.0, 40.70867)",
+					"radius": 0.800000011920929,
+					"role": "CombatRobot",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(18.81694, 0.0, 40.66967)",
+					"has_destination": false,
+					"position": "(19.43696, 0.0, 36.95282)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.208634, 0.0, -1.041752)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.34699, 0.0, 40.32891)",
+					"has_destination": false,
+					"position": "(21.3, 0.0, 37.2)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(1.409133, 0.0, -0.111236)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.00152, 0.0, 40.79729)",
+					"has_destination": false,
+					"position": "(17.99607, 0.0, 36.93188)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.013546, 0.0, -0.008152)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.14995, 0.0, 40.20936)",
+					"has_destination": false,
+					"position": "(15.86581, 0.0, 38.77915)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "Harvest(Materials · collecting)",
+					"destination": "(18.31579, 0.0, 44.65586)",
+					"has_destination": false,
+					"position": "(18.28426, 0.0, 44.72383)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-0.117326, 0.0, 0.182554)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "Harvest(Electronics · approaching work slot)",
+					"destination": "(22.18792, 0.0, 43.48755)",
+					"has_destination": true,
+					"position": "(19.82495, 0.0, 42.87302)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(0.556303, 0.0, -1.41901)",
+					"velocity": "(3.147257, 0.0, 2.200085)"
+				},
+				{
+					"action": "Repairing",
+					"destination": "(18.88616, 0.0, 40.70867)",
+					"has_destination": true,
+					"position": "(20.73679, 0.0, 44.24731)",
+					"radius": 0.649999976158142,
+					"role": "RepairRobot",
+					"safe_velocity": "(-0.806931, 0.0, -1.38655)",
+					"velocity": "(-1.476496, 0.0, -3.283285)"
+				}
+			],
+			"obstacles": [
+				{
+					"position": "(22.0, 0.0, 34.0)",
+					"radius": 2.29999995231628,
+					"role": "VehicleFactory"
+				},
+				{
+					"position": "(22.0, 0.0, 40.0)",
+					"radius": 1.79999995231628,
+					"role": "CommandLab"
+				},
+				{
+					"position": "(12.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceA"
+				},
+				{
+					"position": "(19.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "@Area3D@234"
+				},
+				{
+					"position": "(22.5, 0.0, 44.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceB"
+				}
+			],
+			"path": "[(21.01495, 0.6, 43.28971), (20.97247, 0.6, 43.23671), (20.63011, 0.6, 42.80967), (20.56791, 0.6, 42.73209), (19.5, 0.6, 41.4), (18.9375, 0.6, 40.6125), (18.5625, 0.6, 40.0875), (18.5, 0.6, 40.0)]",
+			"path_query": "[(21.37353, 0.6, 42.82647), (20.7, 0.6, 42.6), (19.5, 0.6, 41.4), (18.9375, 0.6, 40.6125), (18.5625, 0.6, 40.0875), (18.5, 0.6, 40.0)]",
+			"position": "(21.37353, 0.0, 42.82647)",
+			"program_destination": "(18.5, 0.0, 40.0)",
+			"reason": "Returning to guard point.",
+			"recovery": 0.0,
+			"requested": "(-3.118044, 0.0, -0.110454)",
+			"role": "Tank",
+			"safe": "(10.0, 0.0, 40.0)",
+			"safe_velocity": "(0.768815, 0.0, -0.336063)",
+			"stalled": 0.0,
+			"target": "(18.5, 0.0, 40.0)",
+			"time": 329.233333333363
+		},
+		{
+			"active": true,
+			"anchor": "(29.44726, 0.0, 38.25595)",
+			"hp": 59.5433333333335,
+			"index": 1,
+			"last_progress": "(21.50769, 0.0, 42.69231)",
+			"map_iteration": 8,
+			"mode": "Running",
+			"neighbors": [
+				{
+					"action": "Harvest(Returning cargo to HQ)",
+					"destination": "(16.74738, 0.0, 36.06916)",
+					"has_destination": true,
+					"position": "(16.97291, 0.0, 37.90127)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-0.004731, 0.0, -1.59349)",
+					"velocity": "(-0.191309, 0.0, -3.835231)"
+				},
+				{
+					"action": "Harvest(Returning cargo to HQ)",
+					"destination": "(15.57126, 0.0, 36.15782)",
+					"has_destination": true,
+					"position": "(14.49829, 0.0, 42.2197)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(0.89972, 0.0, -3.699904)",
+					"velocity": "(0.931493, 0.0, -3.725308)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(29.44726, 0.0, 38.25595)",
+					"has_destination": true,
+					"position": "(19.70589, 0.0, 38.5686)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(-1.774828, 0.0, 2.566006)",
+					"velocity": "(-1.774822, 0.0, 2.56601)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(29.44726, 0.0, 38.25595)",
+					"has_destination": true,
+					"position": "(18.37791, 0.0, 37.22298)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(0.420849, 0.0, -0.8025)",
+					"velocity": "(0.784998, 0.0, 3.019632)"
+				},
+				{
+					"action": "Harvest(Materials · approaching work slot)",
+					"destination": "(19.25977, 0.0, 45.45019)",
+					"has_destination": true,
+					"position": "(18.50577, 0.0, 43.46883)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(0.621639, 0.0, 0.756478)",
+					"velocity": "(-1.318138, 0.0, 3.606676)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(29.44726, 0.0, 38.25595)",
+					"has_destination": true,
+					"position": "(18.7767, 0.0, 41.38582)",
+					"radius": 0.800000011920929,
+					"role": "CombatRobot",
+					"safe_velocity": "(-0.218094, 0.0, 1.137532)",
+					"velocity": "(3.526652, 0.0, 1.519317)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(18.81694, 0.0, 40.66967)",
+					"has_destination": false,
+					"position": "(19.56248, 0.0, 36.89479)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.658076, 0.0, -0.175984)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.34699, 0.0, 40.32891)",
+					"has_destination": false,
+					"position": "(21.3, 0.0, 37.2)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.00152, 0.0, 40.79729)",
+					"has_destination": false,
+					"position": "(18.3058, 0.0, 35.9884)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.07002, 0.0, -0.755595)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.14995, 0.0, 40.20936)",
+					"has_destination": false,
+					"position": "(15.86993, 0.0, 38.77566)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.097976, 0.0, -0.080401)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "Harvest(Materials · collecting)",
+					"destination": "(18.31579, 0.0, 44.65586)",
+					"has_destination": false,
+					"position": "(18.21537, 0.0, 44.83138)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-0.161669, 0.0, 0.253565)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "Harvest(Electronics · approaching work slot)",
+					"destination": "(22.18792, 0.0, 43.48755)",
+					"has_destination": true,
+					"position": "(20.00567, 0.0, 42.48579)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(0.119498, 0.0, -0.382423)",
+					"velocity": "(1.793871, 0.0, 3.395236)"
+				},
+				{
+					"action": "Repairing",
+					"destination": "(18.81831, 0.0, 41.06897)",
+					"has_destination": true,
+					"position": "(20.53701, 0.0, 43.83545)",
+					"radius": 0.649999976158142,
+					"role": "RepairRobot",
+					"safe_velocity": "(-0.457715, 0.0, -0.476628)",
+					"velocity": "(-1.991872, 0.0, -2.998741)"
+				}
+			],
+			"obstacles": [
+				{
+					"position": "(22.0, 0.0, 34.0)",
+					"radius": 2.29999995231628,
+					"role": "VehicleFactory"
+				},
+				{
+					"position": "(22.0, 0.0, 40.0)",
+					"radius": 1.79999995231628,
+					"role": "CommandLab"
+				},
+				{
+					"position": "(12.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceA"
+				},
+				{
+					"position": "(19.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "@Area3D@234"
+				},
+				{
+					"position": "(22.5, 0.0, 44.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceB"
+				}
+			],
+			"path": "[(21.43138, 0.6, 42.76862), (21.0, 0.6, 43.2), (21.3, 0.6, 45.0), (21.9, 0.6, 45.6), (21.9, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (24.0, 0.6, 44.7), (29.44726, 0.6, 38.25595)]",
+			"path_query": "[(21.54405, 0.6, 42.65595), (21.0, 0.6, 43.2), (21.3, 0.6, 45.0), (21.9, 0.6, 45.6), (21.9, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (24.0, 0.6, 44.7), (29.44726, 0.6, 38.25595)]",
+			"position": "(21.54405, 0.0, 42.65595)",
+			"program_destination": "(29.44726, 0.0, 38.25595)",
+			"reason": "Returning to assigned area.",
+			"recovery": 0.0,
+			"requested": "(-2.206177, 0.0, 2.206169)",
+			"role": "Tank",
+			"safe": "(10.0, 0.0, 40.0)",
+			"safe_velocity": "(0.158174, 0.0, 0.040229)",
+			"stalled": 0.0,
+			"target": "(29.44726, 0.0, 38.25595)",
+			"time": 329.733333333362
+		},
+		{
+			"active": true,
+			"anchor": "(26.86509, 0.0, 35.89328)",
+			"hp": 59.5433333333335,
+			"index": 1,
+			"last_progress": "(21.50769, 0.0, 42.69231)",
+			"map_iteration": 8,
+			"mode": "Running",
+			"neighbors": [
+				{
+					"action": "Harvest(Returning cargo to HQ)",
+					"destination": "(16.74738, 0.0, 36.06916)",
+					"has_destination": true,
+					"position": "(17.0191, 0.0, 37.26997)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-0.293525, 0.0, -0.68077)",
+					"velocity": "(-0.891329, 0.0, -3.735121)"
+				},
+				{
+					"action": "Harvest(Returning cargo to HQ)",
+					"destination": "(15.57126, 0.0, 36.15782)",
+					"has_destination": true,
+					"position": "(14.89226, 0.0, 40.38254)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(0.805703, 0.0, -3.640159)",
+					"velocity": "(1.003778, 0.0, -3.706485)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(29.44726, 0.0, 38.25595)",
+					"has_destination": true,
+					"position": "(19.16366, 0.0, 39.34008)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(-0.656056, 0.0, 0.66053)",
+					"velocity": "(0.484309, 0.0, 3.082182)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(29.44726, 0.0, 38.25595)",
+					"has_destination": true,
+					"position": "(18.83691, 0.0, 37.45125)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(0.523384, 0.0, 0.890246)",
+					"velocity": "(0.058576, 0.0, 3.11945)"
+				},
+				{
+					"action": "Harvest(Materials · approaching work slot)",
+					"destination": "(19.25977, 0.0, 45.45019)",
+					"has_destination": true,
+					"position": "(18.31554, 0.0, 43.6859)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-0.784789, 0.0, 0.3784)",
+					"velocity": "(-0.783355, 0.0, 3.759249)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(29.44726, 0.0, 38.25595)",
+					"has_destination": true,
+					"position": "(18.68317, 0.0, 41.70993)",
+					"radius": 0.800000011920929,
+					"role": "CombatRobot",
+					"safe_velocity": "(0.387794, 0.0, -0.234735)",
+					"velocity": "(3.819301, 0.0, -0.398167)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(18.81694, 0.0, 40.66967)",
+					"has_destination": false,
+					"position": "(19.89588, 0.0, 36.80154)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.34699, 0.0, 40.32891)",
+					"has_destination": false,
+					"position": "(21.3, 0.0, 37.2)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.00152, 0.0, 40.79729)",
+					"has_destination": false,
+					"position": "(18.39337, 0.0, 35.88474)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.14995, 0.0, 40.20936)",
+					"has_destination": false,
+					"position": "(16.04282, 0.0, 38.7781)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.404271, 0.0, 0.044049)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "Harvest(Materials · collecting)",
+					"destination": "(18.31579, 0.0, 44.65586)",
+					"has_destination": false,
+					"position": "(18.16062, 0.0, 44.98369)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-0.051719, 0.0, 0.4707)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "Harvest(Electronics · approaching work slot)",
+					"destination": "(22.18792, 0.0, 43.48755)",
+					"has_destination": true,
+					"position": "(19.85518, 0.0, 42.59352)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-0.606202, 0.0, 0.708535)",
+					"velocity": "(2.34778, 0.0, 3.038672)"
+				},
+				{
+					"action": "Repairing",
+					"destination": "(20.3873, 0.0, 43.81509)",
+					"has_destination": false,
+					"position": "(20.28178, 0.0, 43.91545)",
+					"radius": 0.649999976158142,
+					"role": "RepairRobot",
+					"safe_velocity": "(-0.582837, 0.0, 0.581304)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				}
+			],
+			"obstacles": [
+				{
+					"position": "(22.0, 0.0, 34.0)",
+					"radius": 2.29999995231628,
+					"role": "VehicleFactory"
+				},
+				{
+					"position": "(22.0, 0.0, 40.0)",
+					"radius": 1.79999995231628,
+					"role": "CommandLab"
+				},
+				{
+					"position": "(12.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceA"
+				},
+				{
+					"position": "(19.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "@Area3D@234"
+				},
+				{
+					"position": "(22.5, 0.0, 44.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceB"
+				}
+			],
+			"path": "[(21.43138, 0.6, 42.76862), (21.0, 0.6, 43.2), (21.3, 0.6, 45.0), (21.9, 0.6, 45.6), (21.9, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (24.0, 0.6, 44.7), (29.44726, 0.6, 38.25595)]",
+			"path_query": "[(21.38847, 0.6, 42.81153), (21.0, 0.6, 43.2), (21.3, 0.6, 45.0), (21.9, 0.6, 45.6), (21.9, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (24.0, 0.6, 44.7), (29.44726, 0.6, 38.25595)]",
+			"position": "(21.38847, 0.0, 42.81153)",
+			"program_destination": "(29.44726, 0.0, 38.25595)",
+			"reason": "Returning to assigned area.",
+			"recovery": 0.0,
+			"requested": "(-2.206173, 0.0, 2.206173)",
+			"role": "Tank",
+			"safe": "(10.0, 0.0, 40.0)",
+			"safe_velocity": "(-0.565336, 0.0, 0.574124)",
+			"stalled": 0.65,
+			"target": "(29.44726, 0.0, 38.25595)",
+			"time": 330.233333333362
+		},
+		{
+			"active": true,
+			"anchor": "(26.86509, 0.0, 35.89328)",
+			"hp": 59.5433333333335,
+			"index": 2,
+			"last_progress": "(21.3208, 0.0, 42.8792)",
+			"map_iteration": 8,
+			"mode": "Running",
+			"neighbors": [
+				{
+					"action": "Harvest(Materials · approaching work slot)",
+					"destination": "(12.77527, 0.0, 45.46687)",
+					"has_destination": true,
+					"position": "(16.9154, 0.0, 37.53306)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-0.296437, 0.0, 0.669955)",
+					"velocity": "(-1.860205, 0.0, 3.359351)"
+				},
+				{
+					"action": "Harvest(Returning cargo to HQ)",
+					"destination": "(15.57126, 0.0, 36.15782)",
+					"has_destination": true,
+					"position": "(15.25949, 0.0, 38.73853)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(0.537285, 0.0, -2.503098)",
+					"velocity": "(1.19817, 0.0, -3.648286)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(26.86509, 0.0, 35.89328)",
+					"has_destination": true,
+					"position": "(19.1151, 0.0, 39.95439)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(0.719414, 0.0, 1.992137)",
+					"velocity": "(0.80873, 0.0, 3.013363)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(26.86509, 0.0, 35.89328)",
+					"has_destination": true,
+					"position": "(19.03385, 0.0, 38.13759)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(-0.000809, 0.0, 2.05072)",
+					"velocity": "(0.310028, 0.0, 3.104558)"
+				},
+				{
+					"action": "Harvest(Materials · approaching work slot)",
+					"destination": "(19.25977, 0.0, 45.45019)",
+					"has_destination": true,
+					"position": "(18.25971, 0.0, 44.17094)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-0.001185, 0.0, 2.013506)",
+					"velocity": "(1.075711, 0.0, 3.686251)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(26.86509, 0.0, 35.89328)",
+					"has_destination": true,
+					"position": "(18.79202, 0.0, 41.96722)",
+					"radius": 0.800000011920929,
+					"role": "CombatRobot",
+					"safe_velocity": "(0.276267, 0.0, 1.409109)",
+					"velocity": "(3.144737, 0.0, 2.203686)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(18.81694, 0.0, 40.66967)",
+					"has_destination": false,
+					"position": "(19.89588, 0.0, 36.80154)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.34699, 0.0, 40.32891)",
+					"has_destination": false,
+					"position": "(21.3, 0.0, 37.2)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.00152, 0.0, 40.79729)",
+					"has_destination": false,
+					"position": "(18.39337, 0.0, 35.88474)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.14995, 0.0, 40.20936)",
+					"has_destination": false,
+					"position": "(16.22923, 0.0, 38.83289)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.212811, 0.0, 0.199729)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "Harvest(Materials · collecting)",
+					"destination": "(18.31579, 0.0, 44.65586)",
+					"has_destination": false,
+					"position": "(17.96592, 0.0, 45.46926)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-0.475496, 0.0, 2.048586)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "Harvest(Electronics · approaching work slot)",
+					"destination": "(22.18792, 0.0, 43.48755)",
+					"has_destination": true,
+					"position": "(19.89538, 0.0, 42.89992)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(0.547679, 0.0, 1.07183)",
+					"velocity": "(2.981076, 0.0, 2.420492)"
+				},
+				{
+					"action": "Repairing",
+					"destination": "(20.21495, 0.0, 44.05642)",
+					"has_destination": false,
+					"position": "(20.22647, 0.0, 44.18628)",
+					"radius": 0.649999976158142,
+					"role": "RepairRobot",
+					"safe_velocity": "(0.129731, 0.0, 1.03961)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				}
+			],
+			"obstacles": [
+				{
+					"position": "(22.0, 0.0, 34.0)",
+					"radius": 2.29999995231628,
+					"role": "VehicleFactory"
+				},
+				{
+					"position": "(22.0, 0.0, 40.0)",
+					"radius": 1.79999995231628,
+					"role": "CommandLab"
+				},
+				{
+					"position": "(12.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceA"
+				},
+				{
+					"position": "(19.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "@Area3D@234"
+				},
+				{
+					"position": "(22.5, 0.0, 44.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceB"
+				}
+			],
+			"path": "[(21.32632, 0.6, 42.87368), (21.0, 0.6, 43.2), (21.3, 0.6, 45.0), (21.9, 0.6, 45.6), (21.9, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (24.0, 0.6, 44.7), (25.35078, 0.6, 40.54795), (26.86509, 0.6, 35.89328)]",
+			"path_query": "[(21.43541, 0.6, 42.76459), (21.0, 0.6, 43.2), (21.3, 0.6, 45.0), (21.9, 0.6, 45.6), (21.9, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (24.0, 0.6, 44.7), (25.35078, 0.6, 40.54795), (26.86509, 0.6, 35.89328)]",
+			"position": "(21.43541, 0.0, 42.76459)",
+			"program_destination": "(26.86509, 0.0, 35.89328)",
+			"reason": "Returning to assigned area.",
+			"recovery": 0.0,
+			"requested": "(-0.179305, 0.0, 3.114843)",
+			"role": "Tank",
+			"safe": "(10.0, 0.0, 40.0)",
+			"safe_velocity": "(0.651304, 0.0, -0.206098)",
+			"stalled": 0.216666666666667,
+			"target": "(26.86509, 0.0, 35.89328)",
+			"time": 330.733333333361
+		},
+		{
+			"active": true,
+			"anchor": "(26.86509, 0.0, 35.89328)",
+			"hp": 59.5433333333335,
+			"index": 2,
+			"last_progress": "(21.47677, 0.0, 42.72323)",
+			"map_iteration": 8,
+			"mode": "Running",
+			"neighbors": [
+				{
+					"action": "Harvest(Materials · approaching work slot)",
+					"destination": "(12.77527, 0.0, 45.46687)",
+					"has_destination": true,
+					"position": "(16.97773, 0.0, 38.0173)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-0.579338, 0.0, -0.113293)",
+					"velocity": "(-3.731978, 0.0, -0.9044)"
+				},
+				{
+					"action": "Harvest(Returning cargo to HQ)",
+					"destination": "(15.57126, 0.0, 36.15782)",
+					"has_destination": true,
+					"position": "(15.66388, 0.0, 37.8027)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-0.169276, 0.0, -1.29322)",
+					"velocity": "(0.30175, 0.0, -3.828126)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(26.86509, 0.0, 35.89328)",
+					"has_destination": true,
+					"position": "(19.4719, 0.0, 41.2496)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(0.449445, 0.0, 3.007493)",
+					"velocity": "(1.313387, 0.0, 2.830091)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(26.86509, 0.0, 35.89328)",
+					"has_destination": true,
+					"position": "(19.18653, 0.0, 39.46684)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(0.461101, 0.0, 3.004131)",
+					"velocity": "(0.498737, 0.0, 3.07988)"
+				},
+				{
+					"action": "Harvest(Materials · collecting)",
+					"destination": "(18.26077, 0.0, 44.70911)",
+					"has_destination": false,
+					"position": "(18.25567, 0.0, 44.7124)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(26.86509, 0.0, 35.89328)",
+					"has_destination": true,
+					"position": "(19.2983, 0.0, 43.0843)",
+					"radius": 0.800000011920929,
+					"role": "CombatRobot",
+					"safe_velocity": "(1.745935, 0.0, 2.707729)",
+					"velocity": "(-0.398091, 0.0, -3.819309)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(18.81694, 0.0, 40.66967)",
+					"has_destination": false,
+					"position": "(19.89588, 0.0, 36.80154)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.34699, 0.0, 40.32891)",
+					"has_destination": false,
+					"position": "(21.3, 0.0, 37.2)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.00152, 0.0, 40.79729)",
+					"has_destination": false,
+					"position": "(18.39337, 0.0, 35.88474)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.14995, 0.0, 40.20936)",
+					"has_destination": false,
+					"position": "(16.24247, 0.0, 38.86097)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "Harvest(Materials · collecting)",
+					"destination": "(18.31579, 0.0, 44.65586)",
+					"has_destination": false,
+					"position": "(17.76133, 0.0, 45.99218)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "Harvest(Electronics · approaching work slot)",
+					"destination": "(22.18792, 0.0, 43.48755)",
+					"has_destination": true,
+					"position": "(20.5393, 0.0, 43.8374)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(2.077331, 0.0, 2.117132)",
+					"velocity": "(-0.431219, 0.0, -3.815711)"
+				},
+				{
+					"action": "Harvest(Materials · approaching work slot)",
+					"destination": "(12.64174, 0.0, 45.41698)",
+					"has_destination": true,
+					"position": "(14.09935, 0.0, 40.04881)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-0.518796, 0.0, 3.804793)",
+					"velocity": "(-0.518793, 0.0, 3.804794)"
+				},
+				{
+					"action": "Repairing",
+					"destination": "(20.47393, 0.0, 44.77393)",
+					"has_destination": false,
+					"position": "(20.82218, 0.0, 45.12218)",
+					"radius": 0.649999976158142,
+					"role": "RepairRobot",
+					"safe_velocity": "(0.947038, 0.0, 3.040936)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				}
+			],
+			"obstacles": [
+				{
+					"position": "(22.0, 0.0, 34.0)",
+					"radius": 2.29999995231628,
+					"role": "VehicleFactory"
+				},
+				{
+					"position": "(22.0, 0.0, 40.0)",
+					"radius": 1.79999995231628,
+					"role": "CommandLab"
+				},
+				{
+					"position": "(12.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceA"
+				},
+				{
+					"position": "(19.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "@Area3D@234"
+				},
+				{
+					"position": "(22.5, 0.0, 44.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceB"
+				}
+			],
+			"path": "[(21.32632, 0.6, 42.87368), (21.0, 0.6, 43.2), (21.3, 0.6, 45.0), (21.9, 0.6, 45.6), (21.9, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (24.0, 0.6, 44.7), (25.35078, 0.6, 40.54795), (26.86509, 0.6, 35.89328)]",
+			"path_query": "[(21.54217, 0.6, 42.65784), (21.0, 0.6, 43.2), (21.3, 0.6, 45.0), (21.9, 0.6, 45.6), (21.9, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (24.0, 0.6, 44.7), (25.35078, 0.6, 40.54795), (26.86509, 0.6, 35.89328)]",
+			"position": "(21.54217, 0.0, 42.65784)",
+			"program_destination": "(26.86509, 0.0, 35.89328)",
+			"reason": "Returning to assigned area.",
+			"recovery": 0.0,
+			"requested": "(-0.323542, 0.0, 3.103179)",
+			"role": "Tank",
+			"safe": "(10.0, 0.0, 40.0)",
+			"safe_velocity": "(-0.071074, 0.0, 0.201085)",
+			"stalled": 0.216666666666667,
+			"target": "(26.86509, 0.0, 35.89328)",
+			"time": 331.233333333361
+		},
+		{
+			"active": true,
+			"anchor": "(26.86509, 0.0, 35.89328)",
+			"hp": 59.5433333333335,
+			"index": 2,
+			"last_progress": "(21.47677, 0.0, 42.72323)",
+			"map_iteration": 8,
+			"mode": "Running",
+			"neighbors": [
+				{
+					"action": "Harvest(Materials · approaching work slot)",
+					"destination": "(12.77527, 0.0, 45.46687)",
+					"has_destination": true,
+					"position": "(16.54066, 0.0, 37.9311)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-0.782931, 0.0, -0.154389)",
+					"velocity": "(-1.491647, 0.0, 3.538444)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(26.86509, 0.0, 35.89328)",
+					"has_destination": true,
+					"position": "(19.65944, 0.0, 42.74419)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(0.413896, 0.0, 2.59811)",
+					"velocity": "(2.83235, 0.0, 1.308507)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(26.86509, 0.0, 35.89328)",
+					"has_destination": true,
+					"position": "(19.38675, 0.0, 40.96625)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(0.330942, 0.0, 2.611613)",
+					"velocity": "(1.262022, 0.0, 2.853366)"
+				},
+				{
+					"action": "Harvest(Materials · collecting)",
+					"destination": "(18.26077, 0.0, 44.70911)",
+					"has_destination": false,
+					"position": "(18.25222, 0.0, 44.71265)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(26.86509, 0.0, 35.89328)",
+					"has_destination": true,
+					"position": "(20.13474, 0.0, 44.39025)",
+					"radius": 0.800000011920929,
+					"role": "CombatRobot",
+					"safe_velocity": "(1.128426, 0.0, 1.804272)",
+					"velocity": "(-1.534074, 0.0, -3.520258)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(18.81694, 0.0, 40.66967)",
+					"has_destination": false,
+					"position": "(19.89588, 0.0, 36.80154)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.34699, 0.0, 40.32891)",
+					"has_destination": false,
+					"position": "(21.3, 0.0, 37.2)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.00152, 0.0, 40.79729)",
+					"has_destination": false,
+					"position": "(18.39337, 0.0, 35.88474)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.14995, 0.0, 40.20936)",
+					"has_destination": false,
+					"position": "(16.24247, 0.0, 38.86097)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "Harvest(Materials · collecting)",
+					"destination": "(18.31579, 0.0, 44.65586)",
+					"has_destination": false,
+					"position": "(17.76133, 0.0, 45.99218)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "Harvest(Electronics · collecting)",
+					"destination": "(20.71391, 0.0, 44.00809)",
+					"has_destination": false,
+					"position": "(21.29543, 0.0, 44.97257)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(3.438486, 0.0, 1.709506)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "Harvest(Materials · approaching work slot)",
+					"destination": "(12.64174, 0.0, 45.41698)",
+					"has_destination": true,
+					"position": "(13.78796, 0.0, 41.943)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-0.674943, 0.0, 3.780218)",
+					"velocity": "(-0.674942, 0.0, 3.780219)"
+				},
+				{
+					"action": "Repairing",
+					"destination": "(21.04896, 0.0, 45.92858)",
+					"has_destination": false,
+					"position": "(21.0, 0.0, 46.22344)",
+					"radius": 0.649999976158142,
+					"role": "RepairRobot",
+					"safe_velocity": "(-0.566448, 0.0, 1.72836)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				}
+			],
+			"obstacles": [
+				{
+					"position": "(22.0, 0.0, 34.0)",
+					"radius": 2.29999995231628,
+					"role": "VehicleFactory"
+				},
+				{
+					"position": "(22.0, 0.0, 40.0)",
+					"radius": 1.79999995231628,
+					"role": "CommandLab"
+				},
+				{
+					"position": "(12.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceA"
+				},
+				{
+					"position": "(19.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "@Area3D@234"
+				},
+				{
+					"position": "(22.5, 0.0, 44.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceB"
+				}
+			],
+			"path": "[(21.32632, 0.6, 42.87368), (21.0, 0.6, 43.2), (21.3, 0.6, 45.0), (21.9, 0.6, 45.6), (21.9, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (24.0, 0.6, 44.7), (25.35078, 0.6, 40.54795), (26.86509, 0.6, 35.89328)]",
+			"path_query": "[(21.46955, 0.6, 42.73046), (21.0, 0.6, 43.2), (21.3, 0.6, 45.0), (21.9, 0.6, 45.6), (21.9, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (24.0, 0.6, 44.7), (25.35078, 0.6, 40.54795), (26.86509, 0.6, 35.89328)]",
+			"position": "(21.46955, 0.0, 42.73046)",
+			"program_destination": "(26.86509, 0.0, 35.89328)",
+			"reason": "Returning to assigned area.",
+			"recovery": 0.0,
+			"requested": "(-0.232917, 0.0, 3.111294)",
+			"role": "Tank",
+			"safe": "(10.0, 0.0, 40.0)",
+			"safe_velocity": "(0.036297, 0.0, 0.082837)",
+			"stalled": 0.866666666666667,
+			"target": "(26.86509, 0.0, 35.89328)",
+			"time": 331.73333333336
+		},
+		{
+			"active": true,
+			"anchor": "(26.86509, 0.0, 35.89328)",
+			"hp": 59.5433333333335,
+			"index": 2,
+			"last_progress": "(21.47677, 0.0, 42.72323)",
+			"map_iteration": 8,
+			"mode": "Running",
+			"neighbors": [
+				{
+					"action": "Harvest(Materials · approaching work slot)",
+					"destination": "(12.77527, 0.0, 45.46687)",
+					"has_destination": true,
+					"position": "(16.13584, 0.0, 37.89632)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-1.395661, 0.0, 0.132971)",
+					"velocity": "(-0.94485, 0.0, 3.721943)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(26.86509, 0.0, 35.89328)",
+					"has_destination": true,
+					"position": "(20.20128, 0.0, 44.06129)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(1.855, 0.0, 1.748303)",
+					"velocity": "(0.388808, 0.0, -3.095679)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(26.86509, 0.0, 35.89328)",
+					"has_destination": true,
+					"position": "(19.57642, 0.0, 42.32717)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(0.227221, 0.0, 2.483414)",
+					"velocity": "(2.226204, 0.0, 2.185959)"
+				},
+				{
+					"action": "Harvest(Materials · collecting)",
+					"destination": "(18.24108, 0.0, 44.72157)",
+					"has_destination": false,
+					"position": "(18.24137, 0.0, 44.72119)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(26.86509, 0.0, 35.89328)",
+					"has_destination": true,
+					"position": "(21.33188, 0.0, 45.40446)",
+					"radius": 0.800000011920929,
+					"role": "CombatRobot",
+					"safe_velocity": "(2.561812, 0.0, 1.252589)",
+					"velocity": "(-2.128108, 0.0, -3.196366)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(18.81694, 0.0, 40.66967)",
+					"has_destination": false,
+					"position": "(19.89588, 0.0, 36.80154)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.34699, 0.0, 40.32891)",
+					"has_destination": false,
+					"position": "(21.3, 0.0, 37.2)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.00152, 0.0, 40.79729)",
+					"has_destination": false,
+					"position": "(18.39337, 0.0, 35.88474)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.14995, 0.0, 40.20936)",
+					"has_destination": false,
+					"position": "(16.24247, 0.0, 38.86097)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "Harvest(Materials · collecting)",
+					"destination": "(18.31579, 0.0, 44.65586)",
+					"has_destination": false,
+					"position": "(17.75974, 0.0, 45.99339)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "Harvest(Electronics · collecting)",
+					"destination": "(20.71391, 0.0, 44.00809)",
+					"has_destination": false,
+					"position": "(22.70234, 0.0, 45.89766)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(2.813575, 0.0, 0.766845)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "Repairing",
+					"destination": "(21.0, 0.0, 46.71846)",
+					"has_destination": false,
+					"position": "(20.98887, 0.0, 46.82828)",
+					"radius": 0.649999976158142,
+					"role": "RepairRobot",
+					"safe_velocity": "(-0.188156, 0.0, 0.579589)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				}
+			],
+			"obstacles": [
+				{
+					"position": "(22.0, 0.0, 34.0)",
+					"radius": 2.29999995231628,
+					"role": "VehicleFactory"
+				},
+				{
+					"position": "(22.0, 0.0, 40.0)",
+					"radius": 1.79999995231628,
+					"role": "CommandLab"
+				},
+				{
+					"position": "(12.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceA"
+				},
+				{
+					"position": "(19.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "@Area3D@234"
+				},
+				{
+					"position": "(22.5, 0.0, 44.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceB"
+				}
+			],
+			"path": "[(21.32632, 0.6, 42.87368), (21.0, 0.6, 43.2), (21.3, 0.6, 45.0), (21.9, 0.6, 45.6), (21.9, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (24.0, 0.6, 44.7), (25.35078, 0.6, 40.54795), (26.86509, 0.6, 35.89328)]",
+			"path_query": "[(21.44839, 0.6, 42.75161), (21.0, 0.6, 43.2), (21.3, 0.6, 45.0), (21.9, 0.6, 45.6), (21.9, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (24.0, 0.6, 44.7), (25.35078, 0.6, 40.54795), (26.86509, 0.6, 35.89328)]",
+			"position": "(21.44839, 0.0, 42.75161)",
+			"program_destination": "(26.86509, 0.0, 35.89328)",
+			"reason": "Returning to assigned area.",
+			"recovery": 0.0,
+			"requested": "(-0.208855, 0.0, 3.113002)",
+			"role": "Tank",
+			"safe": "(10.0, 0.0, 40.0)",
+			"safe_velocity": "(-0.101859, 0.0, 0.213785)",
+			"stalled": 1.3,
+			"target": "(26.86509, 0.0, 35.89328)",
+			"time": 332.23333333336
+		},
+		{
+			"active": true,
+			"anchor": "(26.86509, 0.0, 35.89328)",
+			"hp": 59.5433333333335,
+			"index": 1,
+			"last_progress": "(21.47677, 0.0, 42.72323)",
+			"map_iteration": 8,
+			"mode": "Running",
+			"neighbors": [
+				{
+					"action": "Harvest(Materials · approaching work slot)",
+					"destination": "(12.77527, 0.0, 45.46687)",
+					"has_destination": true,
+					"position": "(15.27516, 0.0, 38.745)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-0.573836, 0.0, 3.702483)",
+					"velocity": "(0.574636, 0.0, 3.796761)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(26.86509, 0.0, 35.89328)",
+					"has_destination": true,
+					"position": "(20.54719, 0.0, 44.58602)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(0.605019, 0.0, 0.651605)",
+					"velocity": "(-0.464407, 0.0, -3.085243)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(26.86509, 0.0, 35.89328)",
+					"has_destination": true,
+					"position": "(19.67444, 0.0, 42.97921)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(0.422178, 0.0, 0.680505)",
+					"velocity": "(3.115983, 0.0, 0.158268)"
+				},
+				{
+					"action": "Harvest(Materials · collecting)",
+					"destination": "(18.24108, 0.0, 44.72157)",
+					"has_destination": false,
+					"position": "(18.23217, 0.0, 44.72588)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(26.86509, 0.0, 35.89328)",
+					"has_destination": true,
+					"position": "(21.92068, 0.0, 45.61988)",
+					"radius": 0.800000011920929,
+					"role": "CombatRobot",
+					"safe_velocity": "(0.630699, 0.0, 0.600771)",
+					"velocity": "(-2.407219, 0.0, -2.991805)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(18.81694, 0.0, 40.66967)",
+					"has_destination": false,
+					"position": "(19.89588, 0.0, 36.80154)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.34699, 0.0, 40.32891)",
+					"has_destination": false,
+					"position": "(21.3, 0.0, 37.2)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.00152, 0.0, 40.79729)",
+					"has_destination": false,
+					"position": "(18.39337, 0.0, 35.88474)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.14995, 0.0, 40.20936)",
+					"has_destination": false,
+					"position": "(16.24247, 0.0, 38.86097)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "Harvest(Returning cargo to HQ)",
+					"destination": "(16.31938, 0.0, 36.17669)",
+					"has_destination": true,
+					"position": "(17.45584, 0.0, 45.7712)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-0.990489, 0.0, -0.822243)",
+					"velocity": "(1.492101, 0.0, -3.538253)"
+				},
+				{
+					"action": "Harvest(Electronics · collecting)",
+					"destination": "(20.71391, 0.0, 44.00809)",
+					"has_destination": false,
+					"position": "(23.30131, 0.0, 46.12901)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(0.703953, 0.0, 0.128985)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "Repairing",
+					"destination": "(20.98532, 0.0, 46.83748)",
+					"has_destination": false,
+					"position": "(20.98532, 0.0, 46.83748)",
+					"radius": 0.649999976158142,
+					"role": "RepairRobot",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				}
+			],
+			"obstacles": [
+				{
+					"position": "(22.0, 0.0, 34.0)",
+					"radius": 2.29999995231628,
+					"role": "VehicleFactory"
+				},
+				{
+					"position": "(22.0, 0.0, 40.0)",
+					"radius": 1.79999995231628,
+					"role": "CommandLab"
+				},
+				{
+					"position": "(12.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceA"
+				},
+				{
+					"position": "(19.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "@Area3D@234"
+				},
+				{
+					"position": "(22.5, 0.0, 44.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceB"
+				}
+			],
+			"path": "[(21.39183, 0.6, 42.80817), (21.0, 0.6, 43.2), (21.3, 0.6, 45.0), (21.9, 0.6, 45.6), (21.9, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (24.0, 0.6, 44.7), (25.35078, 0.6, 40.54795), (26.86509, 0.6, 35.89328)]",
+			"path_query": "[(21.46015, 0.6, 42.73985), (21.0, 0.6, 43.2), (21.3, 0.6, 45.0), (21.9, 0.6, 45.6), (21.9, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (24.0, 0.6, 44.7), (25.35078, 0.6, 40.54795), (26.86509, 0.6, 35.89328)]",
+			"position": "(21.46015, 0.0, 42.73985)",
+			"program_destination": "(26.86509, 0.0, 35.89328)",
+			"reason": "Returning to assigned area.",
+			"recovery": 0.283333333333333,
+			"requested": "(2.908012, 0.0, 1.130426)",
+			"role": "Tank",
+			"safe": "(10.0, 0.0, 40.0)",
+			"safe_velocity": "(0.382953, 0.0, -0.177348)",
+			"stalled": 1.73333333333333,
+			"target": "(26.86509, 0.0, 35.89328)",
+			"time": 332.733333333359
+		},
+		{
+			"active": true,
+			"anchor": "(26.86509, 0.0, 35.89328)",
+			"hp": 59.5433333333335,
+			"index": 1,
+			"last_progress": "(21.47677, 0.0, 42.72323)",
+			"map_iteration": 8,
+			"mode": "Running",
+			"neighbors": [
+				{
+					"action": "Harvest(Materials · approaching work slot)",
+					"destination": "(12.77527, 0.0, 45.46687)",
+					"has_destination": true,
+					"position": "(15.37851, 0.0, 40.60063)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-1.628704, 0.0, 3.477488)",
+					"velocity": "(-1.628703, 0.0, 3.477489)"
+				},
+				{
+					"action": "Harvest(Materials · approaching work slot)",
+					"destination": "(19.23058, 0.0, 45.46389)",
+					"has_destination": true,
+					"position": "(15.23519, 0.0, 38.7325)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(0.581501, 0.0, 3.319293)",
+					"velocity": "(2.438925, 0.0, 2.966015)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(26.86509, 0.0, 35.89328)",
+					"has_destination": true,
+					"position": "(20.83167, 0.0, 44.62169)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(0.327462, 0.0, -0.169109)",
+					"velocity": "(-0.96146, 0.0, -2.968163)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(26.86509, 0.0, 35.89328)",
+					"has_destination": true,
+					"position": "(19.80249, 0.0, 43.11766)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(-0.097963, 0.0, 0.134759)",
+					"velocity": "(3.038788, 0.0, -0.707224)"
+				},
+				{
+					"action": "Harvest(Materials · collecting)",
+					"destination": "(18.24108, 0.0, 44.72157)",
+					"has_destination": false,
+					"position": "(18.23217, 0.0, 44.72588)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(0.000016, 0.0, -0.000017)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(26.86509, 0.0, 35.89328)",
+					"has_destination": true,
+					"position": "(22.26173, 0.0, 45.6)",
+					"radius": 0.800000011920929,
+					"role": "CombatRobot",
+					"safe_velocity": "(0.388064, 0.0, -0.124546)",
+					"velocity": "(-2.58308, 0.0, -2.841355)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(18.81694, 0.0, 40.66967)",
+					"has_destination": false,
+					"position": "(19.89588, 0.0, 36.80154)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.34699, 0.0, 40.32891)",
+					"has_destination": false,
+					"position": "(21.3, 0.0, 37.2)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.00152, 0.0, 40.79729)",
+					"has_destination": false,
+					"position": "(18.39337, 0.0, 35.88474)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.14995, 0.0, 40.20936)",
+					"has_destination": false,
+					"position": "(16.24247, 0.0, 38.86097)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "Harvest(Returning cargo to HQ)",
+					"destination": "(16.31938, 0.0, 36.17669)",
+					"has_destination": true,
+					"position": "(17.34253, 0.0, 45.67379)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-0.019891, 0.0, -0.018641)",
+					"velocity": "(2.611248, 0.0, -2.81549)"
+				},
+				{
+					"action": "Harvest(Electronics · collecting)",
+					"destination": "(20.71391, 0.0, 44.00809)",
+					"has_destination": false,
+					"position": "(23.56844, 0.0, 46.24154)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(0.339545, 0.0, 0.20192)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "Repairing",
+					"destination": "(20.98532, 0.0, 46.83748)",
+					"has_destination": false,
+					"position": "(20.98532, 0.0, 46.83748)",
+					"radius": 0.649999976158142,
+					"role": "RepairRobot",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				}
+			],
+			"obstacles": [
+				{
+					"position": "(22.0, 0.0, 34.0)",
+					"radius": 2.29999995231628,
+					"role": "VehicleFactory"
+				},
+				{
+					"position": "(22.0, 0.0, 40.0)",
+					"radius": 1.79999995231628,
+					"role": "CommandLab"
+				},
+				{
+					"position": "(12.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceA"
+				},
+				{
+					"position": "(19.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "@Area3D@234"
+				},
+				{
+					"position": "(22.5, 0.0, 44.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceB"
+				}
+			],
+			"path": "[(21.39183, 0.6, 42.80817), (21.0, 0.6, 43.2), (21.3, 0.6, 45.0), (21.9, 0.6, 45.6), (21.9, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (24.0, 0.6, 44.7), (25.35078, 0.6, 40.54795), (26.86509, 0.6, 35.89328)]",
+			"path_query": "[(21.54224, 0.6, 42.65776), (21.0, 0.6, 43.2), (21.3, 0.6, 45.0), (21.9, 0.6, 45.6), (21.9, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (24.0, 0.6, 44.7), (25.35078, 0.6, 40.54795), (26.86509, 0.6, 35.89328)]",
+			"position": "(21.54224, 0.0, 42.65776)",
+			"program_destination": "(26.86509, 0.0, 35.89328)",
+			"reason": "Returning to assigned area.",
+			"recovery": -0.000000000000000173472347597681,
+			"requested": "(-2.206173, 0.0, 2.206173)",
+			"role": "Tank",
+			"safe": "(10.0, 0.0, 40.0)",
+			"safe_velocity": "(0.047371, 0.0, 0.121959)",
+			"stalled": 2.16666666666667,
+			"target": "(26.86509, 0.0, 35.89328)",
+			"time": 333.233333333359
+		},
+		{
+			"active": true,
+			"anchor": "(26.86509, 0.0, 35.89328)",
+			"hp": 59.5433333333335,
+			"index": 1,
+			"last_progress": "(21.47677, 0.0, 42.72323)",
+			"map_iteration": 8,
+			"mode": "Running",
+			"neighbors": [
+				{
+					"action": "Harvest(Materials · approaching work slot)",
+					"destination": "(12.77527, 0.0, 45.46687)",
+					"has_destination": true,
+					"position": "(14.56121, 0.0, 42.22527)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-1.818383, 0.0, 3.238142)",
+					"velocity": "(-1.553723, 0.0, 3.51163)"
+				},
+				{
+					"action": "Harvest(Materials · approaching work slot)",
+					"destination": "(19.23058, 0.0, 45.46389)",
+					"has_destination": true,
+					"position": "(16.32631, 0.0, 40.0579)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(3.268982, 0.0, 2.014784)",
+					"velocity": "(1.740051, 0.0, 3.42313)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(26.86509, 0.0, 35.89328)",
+					"has_destination": true,
+					"position": "(20.94308, 0.0, 44.53504)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(0.160861, 0.0, -0.122778)",
+					"velocity": "(-1.199915, 0.0, -2.880035)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(26.86509, 0.0, 35.89328)",
+					"has_destination": true,
+					"position": "(19.8062, 0.0, 43.13161)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(0.005823, 0.0, 0.026057)",
+					"velocity": "(3.015464, 0.0, -0.80086)"
+				},
+				{
+					"action": "Harvest(Materials · collecting)",
+					"destination": "(18.24108, 0.0, 44.72157)",
+					"has_destination": false,
+					"position": "(18.23217, 0.0, 44.72588)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(0.000044, 0.0, -0.000047)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(26.86509, 0.0, 35.89328)",
+					"has_destination": true,
+					"position": "(22.36639, 0.0, 45.6)",
+					"radius": 0.800000011920929,
+					"role": "CombatRobot",
+					"safe_velocity": "(0.148802, 0.0, -0.125075)",
+					"velocity": "(-2.631928, 0.0, -2.796168)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(18.81694, 0.0, 40.66967)",
+					"has_destination": false,
+					"position": "(19.89588, 0.0, 36.80154)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.34699, 0.0, 40.32891)",
+					"has_destination": false,
+					"position": "(21.3, 0.0, 37.2)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.00152, 0.0, 40.79729)",
+					"has_destination": false,
+					"position": "(18.39337, 0.0, 35.88474)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.14995, 0.0, 40.20936)",
+					"has_destination": false,
+					"position": "(16.24247, 0.0, 38.86097)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "Harvest(Returning cargo to HQ)",
+					"destination": "(16.31938, 0.0, 36.17669)",
+					"has_destination": true,
+					"position": "(17.33966, 0.0, 45.67109)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(0.001192, 0.0, 0.00116)",
+					"velocity": "(2.637381, 0.0, -2.791025)"
+				},
+				{
+					"action": "Harvest(Electronics · approaching work slot)",
+					"destination": "(22.76161, 0.0, 44.53996)",
+					"has_destination": true,
+					"position": "(23.81745, 0.0, 45.63332)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(0.15295, 0.0, -0.083996)",
+					"velocity": "(-3.839952, 0.0, 0.019089)"
+				},
+				{
+					"action": "Repairing",
+					"destination": "(20.98532, 0.0, 46.83748)",
+					"has_destination": false,
+					"position": "(20.98532, 0.0, 46.83748)",
+					"radius": 0.649999976158142,
+					"role": "RepairRobot",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				}
+			],
+			"obstacles": [
+				{
+					"position": "(22.0, 0.0, 34.0)",
+					"radius": 2.29999995231628,
+					"role": "VehicleFactory"
+				},
+				{
+					"position": "(22.0, 0.0, 40.0)",
+					"radius": 1.79999995231628,
+					"role": "CommandLab"
+				},
+				{
+					"position": "(12.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceA"
+				},
+				{
+					"position": "(19.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "@Area3D@234"
+				},
+				{
+					"position": "(22.5, 0.0, 44.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceB"
+				}
+			],
+			"path": "[(21.39183, 0.6, 42.80817), (21.0, 0.6, 43.2), (21.3, 0.6, 45.0), (21.9, 0.6, 45.6), (21.9, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (24.0, 0.6, 44.7), (25.35078, 0.6, 40.54795), (26.86509, 0.6, 35.89328)]",
+			"path_query": "[(21.54324, 0.6, 42.65676), (21.0, 0.6, 43.2), (21.3, 0.6, 45.0), (21.9, 0.6, 45.6), (21.9, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (24.0, 0.6, 44.7), (25.35078, 0.6, 40.54795), (26.86509, 0.6, 35.89328)]",
+			"position": "(21.54324, 0.0, 42.65676)",
+			"program_destination": "(26.86509, 0.0, 35.89328)",
+			"reason": "Returning to assigned area.",
+			"recovery": -0.000000000000000173472347597681,
+			"requested": "(-2.206173, 0.0, 2.206173)",
+			"role": "Tank",
+			"safe": "(10.0, 0.0, 40.0)",
+			"safe_velocity": "(0.097898, 0.0, 0.101651)",
+			"stalled": 2.81666666666667,
+			"target": "(26.86509, 0.0, 35.89328)",
+			"time": 333.733333333358
+		},
+		{
+			"active": true,
+			"anchor": "(26.86509, 0.0, 35.89328)",
+			"hp": 59.5433333333335,
+			"index": 1,
+			"last_progress": "(21.47677, 0.0, 42.72323)",
+			"map_iteration": 8,
+			"mode": "Running",
+			"neighbors": [
+				{
+					"action": "Harvest(Materials · approaching work slot)",
+					"destination": "(12.77527, 0.0, 45.46687)",
+					"has_destination": true,
+					"position": "(14.00648, 0.0, 43.6189)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-0.48429, 0.0, 2.429901)",
+					"velocity": "(-1.776184, 0.0, 3.404522)"
+				},
+				{
+					"action": "Harvest(Materials · approaching work slot)",
+					"destination": "(19.23058, 0.0, 45.46389)",
+					"has_destination": true,
+					"position": "(17.14017, 0.0, 41.71449)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(1.506768, 0.0, 2.997256)",
+					"velocity": "(1.596045, 0.0, 3.492598)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(26.86509, 0.0, 35.89328)",
+					"has_destination": true,
+					"position": "(20.98565, 0.0, 44.4631)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(0.041496, 0.0, -0.116633)",
+					"velocity": "(-1.32141, 0.0, -2.826353)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(26.86509, 0.0, 35.89328)",
+					"has_destination": true,
+					"position": "(19.80119, 0.0, 43.10314)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(-0.012116, 0.0, -0.063524)",
+					"velocity": "(3.054024, 0.0, -0.638229)"
+				},
+				{
+					"action": "Harvest(Materials · collecting)",
+					"destination": "(18.24108, 0.0, 44.72157)",
+					"has_destination": false,
+					"position": "(18.32515, 0.0, 44.8396)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(0.210609, 0.0, 0.650994)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(26.86509, 0.0, 35.89328)",
+					"has_destination": true,
+					"position": "(22.38607, 0.0, 45.6)",
+					"radius": 0.800000011920929,
+					"role": "CombatRobot",
+					"safe_velocity": "(-0.00217, 0.0, -0.127992)",
+					"velocity": "(-2.641618, 0.0, -2.787016)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(18.81694, 0.0, 40.66967)",
+					"has_destination": false,
+					"position": "(19.89588, 0.0, 36.80154)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.34699, 0.0, 40.32891)",
+					"has_destination": false,
+					"position": "(21.3, 0.0, 37.2)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.00152, 0.0, 40.79729)",
+					"has_destination": false,
+					"position": "(18.39337, 0.0, 35.88474)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "WaitingForTargets()",
+					"destination": "(19.14995, 0.0, 40.20936)",
+					"has_destination": false,
+					"position": "(16.24247, 0.0, 38.86097)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "Harvest(Returning cargo to HQ)",
+					"destination": "(16.31938, 0.0, 36.17669)",
+					"has_destination": true,
+					"position": "(17.2981, 0.0, 45.64096)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-0.414762, 0.0, -0.042881)",
+					"velocity": "(2.889414, 0.0, -2.529207)"
+				},
+				{
+					"action": "Harvest(Electronics · approaching work slot)",
+					"destination": "(22.76161, 0.0, 44.53996)",
+					"has_destination": true,
+					"position": "(23.83633, 0.0, 45.66186)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-0.004546, 0.0, 0.064321)",
+					"velocity": "(-3.828999, 0.0, -0.29046)"
+				},
+				{
+					"action": "Harvest(Materials · collecting)",
+					"destination": "(13.58068, 0.0, 44.56588)",
+					"has_destination": false,
+					"position": "(14.06699, 0.0, 45.36361)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(0.979265, 0.0, 1.062788)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "Repairing",
+					"destination": "(20.98532, 0.0, 46.83748)",
+					"has_destination": false,
+					"position": "(20.98532, 0.0, 46.83748)",
+					"radius": 0.649999976158142,
+					"role": "RepairRobot",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				}
+			],
+			"obstacles": [
+				{
+					"position": "(22.0, 0.0, 34.0)",
+					"radius": 2.29999995231628,
+					"role": "VehicleFactory"
+				},
+				{
+					"position": "(22.0, 0.0, 40.0)",
+					"radius": 1.79999995231628,
+					"role": "CommandLab"
+				},
+				{
+					"position": "(12.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceA"
+				},
+				{
+					"position": "(19.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "@Area3D@234"
+				},
+				{
+					"position": "(22.5, 0.0, 44.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceB"
+				}
+			],
+			"path": "[(21.39183, 0.6, 42.80817), (21.0, 0.6, 43.2), (21.3, 0.6, 45.0), (21.9, 0.6, 45.6), (21.9, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (24.0, 0.6, 44.7), (25.35078, 0.6, 40.54795), (26.86509, 0.6, 35.89328)]",
+			"path_query": "[(21.54515, 0.6, 42.65485), (21.0, 0.6, 43.2), (21.3, 0.6, 45.0), (21.9, 0.6, 45.6), (21.9, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (24.0, 0.6, 44.7), (25.35078, 0.6, 40.54795), (26.86509, 0.6, 35.89328)]",
+			"position": "(21.54515, 0.0, 42.65485)",
+			"program_destination": "(26.86509, 0.0, 35.89328)",
+			"reason": "Returning to assigned area.",
+			"recovery": -0.000000000000000173472347597681,
+			"requested": "(-2.206173, 0.0, 2.206173)",
+			"role": "Tank",
+			"safe": "(10.0, 0.0, 40.0)",
+			"safe_velocity": "(0.133767, 0.0, 0.126801)",
+			"stalled": 3.25,
+			"target": "(26.86509, 0.0, 35.89328)",
+			"time": 334.233333333358
+		},
+		{
+			"active": true,
+			"anchor": "(26.86509, 0.0, 35.89328)",
+			"hp": 59.5433333333335,
+			"index": 1,
+			"last_progress": "(21.47677, 0.0, 42.72323)",
+			"map_iteration": 8,
+			"mode": "Running",
+			"neighbors": [
+				{
+					"action": "Harvest(Materials · approaching work slot)",
+					"destination": "(19.23058, 0.0, 45.46389)",
+					"has_destination": true,
+					"position": "(17.94659, 0.0, 43.14669)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(1.061986, 0.0, 2.410141)",
+					"velocity": "(1.116536, 0.0, 3.674091)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(26.86509, 0.0, 35.89328)",
+					"has_destination": true,
+					"position": "(20.76958, 0.0, 44.43655)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(-0.704112, 0.0, -0.015833)",
+					"velocity": "(-2.187865, 0.0, 2.22433)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(26.86509, 0.0, 35.89328)",
+					"has_destination": true,
+					"position": "(19.57115, 0.0, 41.86887)",
+					"radius": 0.899999976158142,
+					"role": "Tank",
+					"safe_velocity": "(-0.505229, 0.0, -3.071141)",
+					"velocity": "(-0.300028, 0.0, -3.105541)"
+				},
+				{
+					"action": "Harvest(Materials · collecting)",
+					"destination": "(18.24108, 0.0, 44.72157)",
+					"has_destination": false,
+					"position": "(18.08262, 0.0, 45.15469)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-0.662556, 0.0, 0.65549)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "LuaAction",
+					"destination": "(26.86509, 0.0, 35.89328)",
+					"has_destination": true,
+					"position": "(22.10562, 0.0, 45.60844)",
+					"radius": 0.800000011920929,
+					"role": "CombatRobot",
+					"safe_velocity": "(-1.011406, 0.0, 0.052544)",
+					"velocity": "(-1.868607, 0.0, 3.354684)"
+				},
+				{
+					"action": "AttackMoving",
+					"destination": "(19.5, 0.0, 40.0)",
+					"has_destination": true,
+					"position": "(19.89588, 0.0, 36.80154)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "AttackMoving",
+					"destination": "(20.5, 0.0, 40.0)",
+					"has_destination": true,
+					"position": "(21.3, 0.0, 37.2)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "AttackMoving",
+					"destination": "(19.5, 0.0, 40.0)",
+					"has_destination": true,
+					"position": "(18.39337, 0.0, 35.88474)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "AttackMoving",
+					"destination": "(20.5, 0.0, 40.0)",
+					"has_destination": true,
+					"position": "(16.24247, 0.0, 38.86097)",
+					"radius": 0.319999992847443,
+					"role": "Infantry",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "Harvest(Returning cargo to HQ)",
+					"destination": "(16.31938, 0.0, 36.17669)",
+					"has_destination": true,
+					"position": "(16.90354, 0.0, 45.73617)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-0.882897, 0.0, 0.227649)",
+					"velocity": "(3.37336, 0.0, -1.834678)"
+				},
+				{
+					"action": "Harvest(Electronics · approaching work slot)",
+					"destination": "(22.76161, 0.0, 44.53996)",
+					"has_destination": true,
+					"position": "(23.56889, 0.0, 45.58566)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(-0.97127, 0.0, -0.491591)",
+					"velocity": "(-1.758347, 0.0, -3.413768)"
+				},
+				{
+					"action": "Harvest(Materials · collecting)",
+					"destination": "(14.23629, 0.0, 45.53086)",
+					"has_destination": false,
+					"position": "(14.23428, 0.0, 45.52978)",
+					"radius": 0.649999976158142,
+					"role": "Worker",
+					"safe_velocity": "(0.0, 0.0, 0.0)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				},
+				{
+					"action": "Repairing",
+					"destination": "(20.97699, 0.0, 46.85651)",
+					"has_destination": false,
+					"position": "(20.97699, 0.0, 46.85651)",
+					"radius": 0.649999976158142,
+					"role": "RepairRobot",
+					"safe_velocity": "(-0.057855, 0.0, 0.210367)",
+					"velocity": "(0.0, 0.0, 0.0)"
+				}
+			],
+			"obstacles": [
+				{
+					"position": "(22.0, 0.0, 34.0)",
+					"radius": 2.29999995231628,
+					"role": "VehicleFactory"
+				},
+				{
+					"position": "(22.0, 0.0, 40.0)",
+					"radius": 1.79999995231628,
+					"role": "CommandLab"
+				},
+				{
+					"position": "(12.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceA"
+				},
+				{
+					"position": "(19.5, 0.0, 46.0)",
+					"radius": 0.600000023841858,
+					"role": "@Area3D@234"
+				},
+				{
+					"position": "(22.5, 0.0, 44.0)",
+					"radius": 0.600000023841858,
+					"role": "ResourceB"
+				}
+			],
+			"path": "[(21.5347, 0.6, 42.66011), (21.0, 0.6, 43.2), (21.3, 0.6, 45.0), (21.9, 0.6, 45.6), (21.9, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (24.0, 0.6, 44.7), (25.35078, 0.6, 40.54795), (26.86509, 0.6, 35.89328)]",
+			"path_query": "[(21.47161, 0.6, 42.72839), (21.0, 0.6, 43.2), (21.3, 0.6, 45.0), (21.9, 0.6, 45.6), (21.9, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (23.1, 0.6, 45.6), (24.0, 0.6, 44.7), (25.35078, 0.6, 40.54795), (26.86509, 0.6, 35.89328)]",
+			"position": "(21.47161, 0.0, 42.72839)",
+			"program_destination": "(26.86509, 0.0, 35.89328)",
+			"reason": "Returning to assigned area.",
+			"recovery": 0.283333333333333,
+			"requested": "(1.353504, 0.0, 2.811125)",
+			"role": "Tank",
+			"safe": "(10.0, 0.0, 40.0)",
+			"safe_velocity": "(-0.209798, 0.0, 0.326066)",
+			"stalled": 3.68333333333333,
+			"target": "(26.86509, 0.0, 35.89328)",
+			"time": 334.733333333358
+		}
+	],
+	"unit": "unit-14"
+}

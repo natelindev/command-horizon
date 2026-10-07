@@ -1,0 +1,230 @@
+extends NavigationAgent3D
+
+signal movement_finished
+signal passive_movement_started
+signal passive_movement_finished
+
+const PROGRESS_WINDOW = 1.0
+const MINIMUM_PROGRESS = 0.2
+const RECOVERY_DURATION = 0.6
+
+const ROTATION_LOW_PASS_FILTER_ENABLED = true
+const ROTATION_LOW_PASS_FILTER_WINDOW_SIZE = 10  # number of frames for accumulating directions
+const ROTATION_LOW_PASS_FILTER_VELOCITY_THRESHOLD = 0.01  # velocities below will be dropped
+
+const PASSIVE_MOVEMENT_TRACKING_ENABLED = true
+
+@export var domain = Constants.Match.Navigation.Domain.TERRAIN
+@export var speed: float = 4.0
+
+var _physics_delta = 0.0
+var _has_destination = false
+var _synchronized = false
+var _command_revision = 0
+var _progress_elapsed = 0.0
+var _progress_position = Vector3.ZERO
+var _recovery_left = 0.0
+var _recovery_direction = Vector3.ZERO
+
+var _rotation_low_pass_filter_window = []
+var _total_direction_in_the_low_pass_filter_window = Vector3.ZERO
+var _previously_set_global_transform_of_unit = null
+
+var _passive_movement_detected = false
+
+@onready var _match = find_parent("Match")
+@onready var _unit = get_parent()
+
+
+func _physics_process(delta):
+	_physics_delta = delta
+	max_speed = speed
+	if not _has_destination:
+		velocity = Vector3.ZERO
+		return
+	# Advance the path exactly once per physics tick, never from an avoidance callback.
+	var next_point: Vector3
+	var finished: bool
+	if _uses_flight_clearance():
+		# The air navigation region is an unobstructed rectangle. Steer toward
+		# its nearest valid destination in XZ; height must not stall a planar path.
+		next_point = NavigationServer3D.map_get_closest_point(get_navigation_map(), target_position)
+		finished = (
+			((_unit.global_position - next_point) * Vector3(1, 0, 1)).length()
+			<= target_desired_distance
+		)
+	else:
+		next_point = get_next_path_position()
+		finished = is_navigation_finished()
+	if finished:
+		_has_destination = false
+		velocity = Vector3.ZERO
+		_finish_command.call_deferred(_command_revision)
+		return
+	var offset = (next_point - _unit.global_position) * Vector3(1, 0, 1)
+	var direction = offset.normalized()
+	_progress_elapsed += delta
+	if _progress_elapsed >= PROGRESS_WINDOW:
+		var travelled = _unit.global_position.distance_to(_progress_position)
+		_progress_position = _unit.global_position
+		_progress_elapsed = 0.0
+		if travelled < MINIMUM_PROGRESS and _recovery_left <= 0:
+			# A short, consistent sidestep breaks symmetric crowd deadlocks.
+			_recovery_direction = direction.rotated(Vector3.UP, PI / 2.0)
+			_recovery_left = RECOVERY_DURATION
+			var destination = target_position
+			target_position = destination
+	if _recovery_left > 0:
+		_recovery_left -= delta
+		direction = (direction * 0.35 + _recovery_direction).normalized()
+	# Avoidance consumes metres per second. Apply delta only when moving the unit.
+	velocity = direction * min(speed, offset.length() / delta)
+
+
+func _ready():
+	set_physics_process(false)
+	if _match.navigation == null:
+		await _match.ready
+	await _match.navigation.wait_until_synchronized(domain)
+	set_navigation_map(_match.navigation.get_navigation_map_rid_by_domain(domain))
+	_align_unit_position_to_navigation()
+	velocity_computed.connect(_on_velocity_computed)
+	_progress_position = _unit.global_position
+	_synchronized = true
+	# Preserve orders received while the navigation server was synchronizing.
+	if not _has_destination:
+		target_position = _unit.global_position
+	set_physics_process(true)
+
+
+func move(movement_target: Vector3):
+	if not movement_target.is_finite():
+		stop()
+		return
+	if _has_destination and target_position.distance_to(movement_target) < 0.1:
+		return
+	_command_revision += 1
+	_has_destination = true
+	target_position = movement_target
+	_progress_position = get_parent().global_position
+	_progress_elapsed = 0.0
+	_recovery_left = 0.0
+
+
+func stop():
+	_command_revision += 1
+	_has_destination = false
+	target_position = get_parent().global_position
+	velocity = Vector3.ZERO
+	_recovery_left = 0.0
+
+
+func _align_unit_position_to_navigation():
+	var aligned = (
+		NavigationServer3D.map_get_closest_point(get_navigation_map(), _unit.global_position)
+		- Vector3(0, path_height_offset, 0)
+	)
+	aligned.y = _flight_height(aligned)
+	_unit.global_position = aligned
+
+
+func _uses_flight_clearance():
+	return (
+		domain == Constants.Match.Navigation.Domain.AIR
+		and _match.map.has_method("flight_height_at")
+	)
+
+
+func _flight_height(point):
+	if _uses_flight_clearance():
+		return _match.map.flight_height_at(point, point.y)
+	return point.y
+
+
+func _is_moving_actively():
+	return _has_destination
+
+
+func _finish_command(revision):
+	if revision == _command_revision and not _has_destination:
+		movement_finished.emit()
+
+
+func _get_filtered_rotation_direction(safe_velocity: Vector3):
+	var direction = safe_velocity.normalized()
+	if (
+		_previously_set_global_transform_of_unit != null
+		and not _previously_set_global_transform_of_unit.is_equal_approx(_unit.global_transform)
+	):
+		# reset filter if a global_transform of unit was altered from the outside
+		_rotation_low_pass_filter_window = []
+		_total_direction_in_the_low_pass_filter_window = Vector3.ZERO
+	if safe_velocity.length() >= ROTATION_LOW_PASS_FILTER_VELOCITY_THRESHOLD:
+		_rotation_low_pass_filter_window.append(direction)
+		_total_direction_in_the_low_pass_filter_window += direction
+	if _rotation_low_pass_filter_window.size() > ROTATION_LOW_PASS_FILTER_WINDOW_SIZE:
+		_total_direction_in_the_low_pass_filter_window -= (
+			_rotation_low_pass_filter_window.pop_front()
+		)
+	if _rotation_low_pass_filter_window.size() == ROTATION_LOW_PASS_FILTER_WINDOW_SIZE:
+		return (
+			_total_direction_in_the_low_pass_filter_window
+			/ float(ROTATION_LOW_PASS_FILTER_WINDOW_SIZE)
+		)
+	return direction
+
+
+func _rotate_in_direction(direction: Vector3):
+	if ROTATION_LOW_PASS_FILTER_ENABLED:
+		direction = _get_filtered_rotation_direction(direction)
+	var rotation_target = _unit.global_transform.origin + direction
+	if (
+		not is_zero_approx(direction.length())
+		and not rotation_target.is_equal_approx(_unit.global_transform.origin)
+	):
+		_unit.global_transform = _unit.global_transform.looking_at(rotation_target)
+
+
+func _update_passive_movement_tracking(safe_velocity):
+	if not PASSIVE_MOVEMENT_TRACKING_ENABLED:
+		return
+	if _is_moving_actively() or safe_velocity.is_zero_approx():
+		if _passive_movement_detected:
+			_passive_movement_detected = false
+			passive_movement_finished.emit()
+		return
+	if not _passive_movement_detected:
+		_passive_movement_detected = true
+		passive_movement_started.emit()
+
+
+func _on_velocity_computed(safe_velocity: Vector3):
+	if not _synchronized or get_tree().paused:
+		return
+	var displacement = safe_velocity.limit_length(speed) * _physics_delta
+	var candidate = _unit.global_position + displacement
+	# Local avoidance can push agents off the mesh; constrain the resulting step.
+	var navigable = NavigationServer3D.map_get_closest_point(get_navigation_map(), candidate)
+	navigable.y -= path_height_offset
+	var next = _unit.global_position.move_toward(
+		Vector3(navigable.x, _unit.global_position.y, navigable.z), speed * _physics_delta
+	)
+	# Flight clearance follows the map without consuming horizontal movement speed.
+	# Ground agents retain the existing navmesh-constrained elevation step.
+	if _uses_flight_clearance():
+		next.y = _flight_height(Vector3(next.x, navigable.y, next.z))
+	else:
+		next = _unit.global_position.move_toward(navigable, speed * _physics_delta)
+	var actual_velocity = (next - _unit.global_position) / maxf(_physics_delta, 0.001)
+	if (
+		domain == Constants.Match.Navigation.Domain.TERRAIN
+		and actual_velocity.distance_to(safe_velocity) > 0.1
+	):
+		# Projection can prevent an avoidance step at a navigation boundary.
+		# Neighbors must predict the movement that actually happened, otherwise
+		# they keep yielding toward a gap that the constrained unit cannot enter.
+		set_velocity_forced(actual_velocity)
+	_unit.global_position = next
+	_rotate_in_direction(actual_velocity * Vector3(1, 0, 1))
+	_previously_set_global_transform_of_unit = _unit.global_transform
+	_update_passive_movement_tracking(actual_velocity)

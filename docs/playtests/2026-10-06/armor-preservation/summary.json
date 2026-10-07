@@ -1,0 +1,177 @@
+[
+  {
+    "faction": "frontier",
+    "opponent": "helix",
+    "seed": 4110,
+    "result": "Victory",
+    "seconds": 937.4,
+    "basic_unlock": 182.23333333337,
+    "first_program": 185.733333333373,
+    "first_assault": 673.23333333305,
+    "armor_control_checks": 54,
+    "armor_recovery": [
+      {
+        "end": 169.733333333361,
+        "end_health": 0.803431372549019,
+        "health": 0.536764705882352,
+        "result": "ready",
+        "role": "Tank",
+        "start": 157.733333333351
+      },
+      {
+        "end": 181.23333333337,
+        "end_health": 0.801254901960784,
+        "health": 0.470588235294118,
+        "result": "ready",
+        "role": "Tank",
+        "start": 166.233333333358
+      }
+    ],
+    "retrofit_episodes": [
+      {
+        "end": 185.733333333373,
+        "fee": 2,
+        "health": 1.0,
+        "refunded": false,
+        "result": "installed",
+        "service": "RepairDepot",
+        "start": 182.23333333337
+      },
+      {
+        "end": 190.733333333377,
+        "fee": 2,
+        "health": 0.950588235294117,
+        "refunded": false,
+        "result": "installed",
+        "service": "RepairDepot",
+        "start": 185.733333333373
+      }
+    ],
+    "spent": [
+      678.0,
+      254.0
+    ],
+    "harvested": [
+      762.0,
+      243.0
+    ],
+    "ai_coordination": {
+      "peak_groups": 2,
+      "samples": 1875,
+      "violations": {}
+    },
+    "worker_authority_checks": 2069,
+    "conventional_control_checks": 618,
+    "retrofit_authority_checks": 17,
+    "source": "frontier.json",
+    "depot_first_sampled_complete": 136.233333333334
+  },
+  {
+    "faction": "helix",
+    "opponent": "frontier",
+    "seed": 4110,
+    "result": "Defeat",
+    "seconds": 763.4,
+    "basic_unlock": 187.233333333374,
+    "first_program": 229.233333333408,
+    "first_assault": null,
+    "armor_control_checks": null,
+    "armor_recovery": [],
+    "retrofit_episodes": [
+      {
+        "end": 229.233333333408,
+        "fee": 4,
+        "health": 0.901562499999999,
+        "refunded": false,
+        "result": "installed",
+        "service": "RepairDepot",
+        "start": 219.2333333334
+      }
+    ],
+    "spent": [
+      670.0,
+      190.0
+    ],
+    "harvested": [
+      611.0,
+      186.0
+    ],
+    "ai_coordination": {
+      "peak_groups": 2,
+      "samples": 1527,
+      "violations": {}
+    },
+    "worker_authority_checks": 1613,
+    "conventional_control_checks": 297,
+    "retrofit_authority_checks": 20,
+    "source": "helix.json",
+    "depot_first_sampled_complete": 146.233333333342
+  },
+  {
+    "faction": "helix",
+    "opponent": "frontier",
+    "seed": 4111,
+    "result": "Victory",
+    "seconds": 429.2,
+    "basic_unlock": 174.750000000031,
+    "first_program": 183.250000000038,
+    "first_assault": 252.250000000093,
+    "armor_control_checks": 47,
+    "armor_recovery": [
+      {
+        "end": 177.750000000034,
+        "end_health": 0.802125000000001,
+        "health": 0.578125,
+        "result": "ready",
+        "role": "Tank",
+        "start": 167.250000000025
+      },
+      {
+        "end": 183.750000000038,
+        "end_health": 0.820302083333334,
+        "health": 0.54296875,
+        "result": "ready",
+        "role": "Tank",
+        "start": 170.750000000028
+      }
+    ],
+    "retrofit_episodes": [
+      {
+        "end": 183.250000000038,
+        "fee": 4,
+        "health": 0.802125000000001,
+        "refunded": false,
+        "result": "installed",
+        "service": "RepairDepot",
+        "start": 177.750000000034
+      },
+      {
+        "end": 189.250000000043,
+        "fee": 4,
+        "health": 0.820302083333334,
+        "refunded": false,
+        "result": "installed",
+        "service": "RepairDepot",
+        "start": 183.750000000038
+      }
+    ],
+    "spent": [
+      287.0,
+      94.0
+    ],
+    "harvested": [
+      600.0,
+      99.0
+    ],
+    "ai_coordination": {
+      "peak_groups": 1,
+      "samples": 858,
+      "violations": {}
+    },
+    "worker_authority_checks": 341,
+    "conventional_control_checks": 171,
+    "retrofit_authority_checks": 22,
+    "source": "helix.json",
+    "depot_first_sampled_complete": 136.250000000001
+  }
+]

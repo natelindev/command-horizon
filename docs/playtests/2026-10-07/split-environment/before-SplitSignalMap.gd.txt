@@ -1,0 +1,50 @@
+extends "res://source/match/maps/AlpineRelay.gd"
+
+const POINTS = [Vector2(46, 23), Vector2(70, 44), Vector2(46, 65)]
+const NAMES = ["North", "East", "South"]
+const SHELVES = [Vector2(46, 44), Vector2(69, 19), Vector2(69, 69)]
+const DEPOSITS = [Vector2(10, 59), Vector2(29, 13), Vector2(29, 75)]
+
+
+func overview():
+	return {"ridges": SHELVES, "radius": RIDGE_RADIUS, "fields": DEPOSITS, "relays": POINTS}
+
+
+func _ready():
+	_configure_atmosphere()
+	for index in SHELVES.size():
+		_ridge(SHELVES[index], index)
+	for index in POINTS.size():
+		var relay = load("res://source/match/objectives/CaptureRelay.gd").new()
+		relay.name = NAMES[index] + "Relay"
+		relay.position = Vector3(POINTS[index].x, 0, POINTS[index].y)
+		add_child(relay)
+		relays.append(relay)
+		_relay_pad(relay.position)
+	for point in DEPOSITS:
+		for offset in [-2.5, 0.0, 2.5]:
+			var resource = load("res://source/match/units/non-player/ResourceA.tscn").instantiate()
+			resource.resource_a = 200
+			resource.position = Vector3(point.x + offset, 0, point.y)
+			$Resources.add_child(resource)
+		var electronics = load("res://source/match/units/non-player/ResourceB.tscn").instantiate()
+		electronics.resource_b = 180
+		electronics.position = Vector3(point.x + 5, 0, point.y + 2)
+		$Resources.add_child(electronics)
+
+
+func _relay_pad(point):
+	# Mission aprons belong to this layout, independent of Alpine skirmish roads.
+	var apron = MeshInstance3D.new()
+	var mesh = CylinderMesh.new()
+	mesh.top_radius = 3.6
+	mesh.bottom_radius = 3.6
+	mesh.height = .025
+	mesh.radial_segments = 32
+	var material = StandardMaterial3D.new()
+	material.albedo_color = Color("52616b")
+	material.roughness = .95
+	mesh.material = material
+	apron.mesh = mesh
+	apron.position = point + Vector3(0, .015, 0)
+	$Decorations.add_child(apron)

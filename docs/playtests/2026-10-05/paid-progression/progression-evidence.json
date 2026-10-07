@@ -1,0 +1,484 @@
+{
+  "sources_and_evidence": [
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/PaidResearchEconomyProbe.gd.txt",
+      "sha256": "1ae9b2f9120155aedced72aa80478db6dbe1c0ee97d0bf2cc658924f01097ddd",
+      "bytes": 5278
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/ResearchEconomyRegression.gd.txt",
+      "sha256": "8e8e212373b1ae966d1dc083f1bc9e19c2af22110135665390e3290146738c5f",
+      "bytes": 11341
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/SignatureRegression-after.log",
+      "sha256": "4491d2c862903e90d8146b1e5917512a1f7c9325a80a7a5f9ad4e8fa21e738ea",
+      "bytes": 1624
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/SkirmishAI-before.gd.txt",
+      "sha256": "3c8c8cdbdfdfd4960555637a68a775e582be85108ae4b6d69d0b94d8590fa707",
+      "bytes": 16647
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/SkirmishBudgetRegression-after.log",
+      "sha256": "30b268d2a660347f5c7df58df20a286851f2a7408d0fc802ef2a2b3b1745bc83",
+      "bytes": 1438
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/SkirmishCompositionRegression-after.log",
+      "sha256": "0068bf0903558683b2cb93665301473c88a1f82f0965057c7168ea8600774297",
+      "bytes": 2163
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/SkirmishCoordinationRegression-after.log",
+      "sha256": "9aa27ac359d74f0b96ed2c605fbcfec9fa6ae28b87cd6d1dfb8f9de82d64f27e",
+      "bytes": 2411
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/SkirmishHandoffRegression-after.log",
+      "sha256": "e9101a84453e539814e5f882804c4fde407d7ea8be6bba9206a7902730900f34",
+      "bytes": 2011
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/SkirmishLaborRegression-before.gd.txt",
+      "sha256": "442f4f4805063df6b459ad367e1fb14603c5ac037766069d1334796af876348a",
+      "bytes": 8771
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/SkirmishLaborRegression-research-first.gd.txt",
+      "sha256": "743881f1aff62b64498f74893b1ff25764045b6c7105919d89dfa7ba379057f5",
+      "bytes": 9210
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/SkirmishLaborRegression-stages.gd.txt",
+      "sha256": "70991b7ba0113a7b0f59143b54c6ba8c284f4aade0bb4b5d968f1a092c0d0a0a",
+      "bytes": 11494
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/SkirmishProduction-before.gd.txt",
+      "sha256": "e5fc47ee405c534725624f82f7ba3eba2b64926fcc1077bc73ab57d5d4accdec",
+      "bytes": 3527
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/TechnologyAIRegression-after.log",
+      "sha256": "a22182805b5d5bfd174ccbcbe0d6b19573bc07369f4da2ede6d20e4ab09ba5e6",
+      "bytes": 1349
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/TechnologyRegression-after.log",
+      "sha256": "400a7e17c7bfee1749fcd8744de02a8dfa5b6d9bba5fdfadd800cfe414dba73b",
+      "bytes": 1574
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/archive-audit.json",
+      "sha256": "c662bd2a10b592dacc1e19edb80fed53c4a90d8cf8edf88e6f7b15094708de32",
+      "bytes": 3228
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/baseline-4.json",
+      "sha256": "9ceb49e1d72899e3a81c696572d86f5c2d4808bcb803deea302f2421a641184a",
+      "bytes": 74922
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/baseline-4.log",
+      "sha256": "78751bd1e0641fa7da04cfc69ec431f8dc3fc58f2e4b2bb92bab67bd7a39d7d4",
+      "bytes": 78808
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/baseline-6.json",
+      "sha256": "8c013bd2e3b79b584881ffc8eedfe09ce9c489f0b4d69ad3a4feb7ee5ba16fbe",
+      "bytes": 96164
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/baseline-6.log",
+      "sha256": "68eccb8f416d1fee75952d5aaf18a08115b268de6f533057e566221db7e7e955",
+      "bytes": 102709
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/cohort-summary.json",
+      "sha256": "2c03112ff62b0c727622aa095fb776865146a4b8f216d7329c28ecf3231fcc4a",
+      "bytes": 8177
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/combined-air-0.json",
+      "sha256": "dbfdfab7e242f32fddd1032a5a14891323f1da3559b79b80b687a6ae8cd71100",
+      "bytes": 29906
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/combined-air-0.log",
+      "sha256": "3efe2e40d227ad13ca7b6aa820d3256f312023b38bce24130549aa64670f51fa",
+      "bytes": 30893
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/combined-air-2.json",
+      "sha256": "ac447ab2062a1d9e9b5a1376e775dda637ef01badba65c2a041fe2212ee2c8b4",
+      "bytes": 29942
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/combined-air-2.log",
+      "sha256": "b792b754a9866a779eb7f7b93f136429d7257f134c9c21808f01745361134419",
+      "bytes": 30848
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/combined-air-4.json",
+      "sha256": "66302b7620eca2d2160654fc1d54a4d6f885870e40eda7cb3d4390fb67dddf46",
+      "bytes": 30969
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/combined-air-4.log",
+      "sha256": "e5e8ba026fb495df15e04373bc239c1545062b0901578650c4f30e40ca330360",
+      "bytes": 31726
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/combined-air-6.json",
+      "sha256": "85300f6c8d1fde1efae3b8573a5db11d0278f1cd2ef5faa9cb11f5f0829c4508",
+      "bytes": 30221
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/combined-air-6.log",
+      "sha256": "3bd3b53918e9f4c7aa3f46637ebf2a26c4afc8d66d769599dd7057dfa83bd7c2",
+      "bytes": 31437
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/combined-ground-0-repeat.log",
+      "sha256": "adc5e99f8af6bfc2dd0c3fd41c5dafd0a1d129cf28987eddade077cbca3a3f89",
+      "bytes": 15715
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/combined-ground-0-repeated.json",
+      "sha256": "c74a0f616a8edc56c373be6856f8808717acf305ab319606e2a5a992929fdc55",
+      "bytes": 209657
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/combined-ground-0-repeated.log",
+      "sha256": "527c2e36b9c62ddfbecf9d06d685bf7cab8243696f8cf2bb8ed5ed0b3559b7fc",
+      "bytes": 201811
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/combined-ground-0.json",
+      "sha256": "584cbff1f97dafb032714d4537a0b04b477af9868ea49ab213ae7fbe0f08f80c",
+      "bytes": 97440
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/combined-ground-0.log",
+      "sha256": "3e2e746269e4f1d29a61719a551d9a0ec8ae962ba4cbc0db36b975532f5a968e",
+      "bytes": 92676
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/combined-ground-2.json",
+      "sha256": "a5c2aea214d6e892d24a511e0a8a03bd58afdc7670e17be83de1d21c3c315938",
+      "bytes": 99280
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/combined-ground-2.log",
+      "sha256": "8edb83d27d5a562963dcc4eee161550cec7f2da6dc57ba58f850ec0bd0d9cd39",
+      "bytes": 96167
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/combined-ground-4.json",
+      "sha256": "4d7a1b7163f7b324797d4764c72d0d279339b6947988cea92eb5adf993d8bb19",
+      "bytes": 72497
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/combined-ground-4.log",
+      "sha256": "ab3b444eb35aa1f2853c9270096d8025e3272e323b115f40b93cc89602109400",
+      "bytes": 70172
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/combined-ground-6.json",
+      "sha256": "08090604a4099762f1b5fb5189ccd429abbe2b1a8bec8c7dabf69855994a2cab",
+      "bytes": 59391
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/combined-ground-6.log",
+      "sha256": "02cec2e96fd43316ef6449c153691914620cc2f3e753486df0eef1e1c5a881c6",
+      "bytes": 57995
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/earned-final-frontier-helix-case2-10-coordination.json",
+      "sha256": "117a253cbfd9c7b5b38a74d750edd862386fe28e36cdf7fefea6afbcba6a6b26",
+      "bytes": 103727
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/earned-final-frontier-helix-case2-10-signature.json",
+      "sha256": "3b6dc50ba232a74b55d21c55e060deca42261678143cbd894fb977fc1158c943",
+      "bytes": 113155
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/earned-final-frontier-helix-case2-10-technology.json",
+      "sha256": "5eab15a7bfb2a0d3135a1d37a58ac574d7453556dbadeb5f860001b53176ebe8",
+      "bytes": 122726
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/earned-frontier-verified-10-coordination.json",
+      "sha256": "28aa74419751081d91eb7bf97755f05c54979ad9d4c70abbd51b5070aec255f3",
+      "bytes": 108616
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/earned-frontier-verified-10-signature.json",
+      "sha256": "727906a7d88dcc6a5ae4eeff803e83d84e7231f42593bbd4bceaadc11d873ad2",
+      "bytes": 72605
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/earned-frontier-verified-10-technology.json",
+      "sha256": "a0911435a5b62d160954114144916b5c16413e3758186f4982ef6745050c6a88",
+      "bytes": 122473
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/earned-frontier-verified-11-coordination.json",
+      "sha256": "1dd7e9a7f4223bd413f16cef13c07becabeda6b344922239b9f590f0665d1902",
+      "bytes": 93298
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/earned-frontier-verified-11-signature.json",
+      "sha256": "600f7af17090df3761040fb272ca3ee209a42f1e120c60202edd8f762d498ebe",
+      "bytes": 76144
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/earned-frontier-verified-11-technology.json",
+      "sha256": "9b8098d871665019c29016bbd886d35921576c256bb4e2b803f500879aa22c09",
+      "bytes": 104944
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/initial-preload-error-4.log",
+      "sha256": "bd9a05d88991bef86b79ca52752799ec51749d710794cff5f9009c4a69c38f4c",
+      "bytes": 10924
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/initial-preload-error-6.log",
+      "sha256": "bd9a05d88991bef86b79ca52752799ec51749d710794cff5f9009c4a69c38f4c",
+      "bytes": 10924
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/native-earned-lab.png",
+      "sha256": "92294234f5e37865a03d02db2355f91394e47f201bcef43d2b4bbd620dfcb8ba",
+      "bytes": 520384
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/native-earned-maneuver-live.png",
+      "sha256": "f15e1b123bdf7423a59c920de66411b1e8b035f77daee1f35f25555145eca82b",
+      "bytes": 498176
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/native-earned-maneuver.png",
+      "sha256": "5a441ec380f63be6d87f3366a9b6a76114f186e310aadb3ce623ee0ea2ec9fac",
+      "bytes": 470643
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/native-earned-research.png",
+      "sha256": "2b8f7351fa8d82b511b80e3ade3a827297c513428910633d9abdcf67b7e80b39",
+      "bytes": 228730
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/native-earned.log",
+      "sha256": "387628eef2b2bfbabfcb79f7a473023d382a4003a86e46482152d391b3a385af",
+      "bytes": 2135
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/native-final-lab.png",
+      "sha256": "06e978db005f45cd36fd7c246b856d502711b07d518fa00e5023d96fdbcae8db",
+      "bytes": 520374
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/native-final-maneuver-live.png",
+      "sha256": "811dcef297c9eebf327c30f067314682efbe047252c006bfbe374a92f8c01378",
+      "bytes": 498027
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/native-final-maneuver.png",
+      "sha256": "ae1a3a7afa3abaccc6d67c45015321219a1d5b2f99d73b7dd3f413704a4dc95e",
+      "bytes": 470761
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/native-final-research.png",
+      "sha256": "70c2ffdfd3243a0d71e16f602cc4dba63e83a1b6f7599225482c6fc80113a2d3",
+      "bytes": 228729
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/native-final.log",
+      "sha256": "4351126385a0156cf05f42cdc990543da1ba6c1321d96288e293614b1427620f",
+      "bytes": 2131
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/paid-research-economy-cap-bastion-2.log",
+      "sha256": "9bb37dfc83548a7250230cd938d01be516d7d442231efff5fd4c12df4d4c5066",
+      "bytes": 1995
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/paid-research-economy-cap-bastion.log",
+      "sha256": "22efa08cc86ddfe38c9c05e77316ab4796492c3f022c47d9d2e7c48fc3b53a74",
+      "bytes": 1494
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/paid-research-economy-cap-frontier.log",
+      "sha256": "688e758cfe44556d37d72d5c366ef84eaa6d9cb2812c911b8bbe38cfa483d7e8",
+      "bytes": 2002
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/paid-research-economy-cap-helix.log",
+      "sha256": "f25c26d14f51fe9eea7039fd412af3536d68a01c0c491e09f9184e9871cc9b66",
+      "bytes": 1980
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/paid-research-economy-routine-bastion-2.log",
+      "sha256": "271e4abdb6b3f3a6d3a7c64dce8adb0b0a342fb430f4af46440f31ca5c2b3e93",
+      "bytes": 1486
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/paid-research-economy-routine-bastion-3.log",
+      "sha256": "22efa08cc86ddfe38c9c05e77316ab4796492c3f022c47d9d2e7c48fc3b53a74",
+      "bytes": 1494
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/paid-research-economy-routine-bastion-4.log",
+      "sha256": "bcd357c6f74dcb8019ac3689234dcc19c700cc80a0e7d6e3e2d0a69e0358d4cb",
+      "bytes": 2410
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/paid-research-economy-routine-bastion.log.gz",
+      "sha256": "bbddea8322950c5cf33aa7b70eb646384a5a7c967fe3bfc4b8a8a4fac7b59679",
+      "bytes": 642647
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/research-economy-after.log",
+      "sha256": "f14775e77c5b84a85476c4192a07dda6e8edd42b7fa251575d794c14861513b5",
+      "bytes": 1635
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/research-economy-before.log",
+      "sha256": "2c1d3eb6314fec9cdfad72f074404bc1e96bcea4ef30199c24fd73c4f9997b23",
+      "bytes": 7222
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/research-economy-evidence.json",
+      "sha256": "7069ce1cd256fef6b32eb7a6f4f7ed6b95a21dc233e1d7e2fa49f812eb916478",
+      "bytes": 3878
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/research-economy-review.md",
+      "sha256": "2ea6fd2bb1d136c7a184edce454dcf04ebbe31defc3544ada90b70a82b97fb79",
+      "bytes": 7673
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/runner-tests-final.log",
+      "sha256": "7c1f4743c3e59c9718b6bd11ffcb13dadafebdfe58c0b14fdaf1269bb07aa5df",
+      "bytes": 421
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/runner-tests.log",
+      "sha256": "7c1f4743c3e59c9718b6bd11ffcb13dadafebdfe58c0b14fdaf1269bb07aa5df",
+      "bytes": 421
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/skirmish-labor-research-first.log",
+      "sha256": "b940e47e7e1d36cae200952f5c23ba10599a077ce548eb1405c67646d7107be3",
+      "bytes": 3759
+    },
+    {
+      "path": "docs/playtests/2026-10-05/paid-progression/skirmish-labor-research-stages.log",
+      "sha256": "a94d91f52a3b18545f3ac1fc652d6e614e1da56b1870a49a242d84bc876a2ded",
+      "bytes": 2021
+    },
+    {
+      "path": "source/match/hud/SignaturePanel.gd",
+      "sha256": "ed25baedb05b509f1a44d658a1d7fafa59fd42ffe9ec88f59c4c3fd395726881",
+      "bytes": 3023
+    },
+    {
+      "path": "source/match/players/skirmish-ai/SkirmishAI.gd",
+      "sha256": "2d5f390fb9dbc816b41fae88cc956bd60964df6bf6cf67b40ffd465b7ffd0b54",
+      "bytes": 17178
+    },
+    {
+      "path": "source/match/players/skirmish-ai/SkirmishProduction.gd",
+      "sha256": "0057430ed7849794aee88fcdaa37af21aaa88b79494fc4c896c484ca1758cd08",
+      "bytes": 3632
+    },
+    {
+      "path": "tests/headless/ResearchEconomyRegression.gd",
+      "sha256": "8e8e212373b1ae966d1dc083f1bc9e19c2af22110135665390e3290146738c5f",
+      "bytes": 11341
+    },
+    {
+      "path": "tests/headless/SkirmishLaborRegression.gd",
+      "sha256": "70991b7ba0113a7b0f59143b54c6ba8c284f4aade0bb4b5d968f1a092c0d0a0a",
+      "bytes": 11494
+    },
+    {
+      "path": "tests/playtest/PaidProgressionMatches.gd",
+      "sha256": "9da47a148a28332fddc3769ad9b5fff8189bc572bee2855e32a919efcfe9d83d",
+      "bytes": 10068
+    },
+    {
+      "path": "tests/playtest/reference/AuthoredGuardMatches.gd",
+      "sha256": "1ae4756403966d0ab9a8645c7a351cfc44c8b68b9a4f8726f7ca71b356926731",
+      "bytes": 202
+    },
+    {
+      "path": "tests/playtest/reference/AuthoredRecoveryMatches.gd",
+      "sha256": "33da069f0b5b0141f527315fe306203ecb3db0f92c06d3e065ab49cefe9a4e32",
+      "bytes": 3001
+    },
+    {
+      "path": "tests/playtest/reference/FrontierCompleteMatches.gd",
+      "sha256": "9b5832e6261dca7de5cb3628df95fb3ddcc1f8a294de7b8a8fb06320ea22a08b",
+      "bytes": 4413
+    },
+    {
+      "path": "tests/playtest/reference/MixedAllocationMatches.gd",
+      "sha256": "6497c65f83988d52376e100b5a49a2903abc608031d277013916cf1f4db828ba",
+      "bytes": 384
+    },
+    {
+      "path": "tests/playtest/reference/MixedOperationsMatches.gd",
+      "sha256": "0ee1fec98ddd89d379c33cdeeea27c32c861a52f83a7d5258e141471856d9970",
+      "bytes": 968
+    },
+    {
+      "path": "tests/playtest/reference/MixedReadinessMatches.gd",
+      "sha256": "8d183effd324649907aca816d8fe9d9a56002b110b2ca9c9c62d4ede9431ebd5",
+      "bytes": 4127
+    },
+    {
+      "path": "tests/playtest/reference/MixedResponsiveMatches.gd",
+      "sha256": "deb5d9c85fae8cdbf77f0303009670e14d5682415d0e271c88f0fe023454e4d7",
+      "bytes": 984
+    },
+    {
+      "path": "tests/playtest/reference/MixedStagedMatches.gd",
+      "sha256": "e889add81c2261c775cfe72d9cc0ff762816fb2a0bb14a3c5092c85b13aaa807",
+      "bytes": 1337
+    },
+    {
+      "path": "tests/playtest/reference/PolicyReadiness.gd",
+      "sha256": "27f85abaf0aaa89072d12dd9ae348a5ce0b469fe3035a86d3f9201c239175aa8",
+      "bytes": 1062
+    },
+    {
+      "path": "tests/playtest/reference/PresetRecoveryMatches.gd",
+      "sha256": "9b882f07d43fc5c6e8ee83c9a88770a6c023a1d1d3474b6ef91cabf0401b8270",
+      "bytes": 1618
+    },
+    {
+      "path": "tests/playtest/reference/RegionalSkirmishMatches.gd",
+      "sha256": "1f3617e04a0c3beaad310b06a9f77d83123328ff111056aa8026834b8d949e97",
+      "bytes": 158
+    },
+    {
+      "path": "tests/playtest/run_progression.py",
+      "sha256": "da37bb2922384a97e2233876baf689fcbfe13c50351dd1ee80dd87651c38c0aa",
+      "bytes": 10201
+    },
+    {
+      "path": "tests/playtest/test_run_progression.py",
+      "sha256": "3e79597777a09c9167bd145977ab8dcdd03cc7e43eb77337296208659a8b2573",
+      "bytes": 3652
+    },
+    {
+      "path": "tests/rendered/PaidProgressionPreview.gd",
+      "sha256": "8dc028e46c3049347b40b6ee46be7fdc4c811dd659e72fb2f29b0e4f95c757cb",
+      "bytes": 6149
+    }
+  ]
+}

@@ -1,0 +1,116 @@
+[
+  {
+    "log": "baseline.log",
+    "exit_code": 1,
+    "classification": "rejected fixture: searched original names after import conversion",
+    "tool": "Godot"
+  },
+  {
+    "log": "discovery.log",
+    "exit_code": 1,
+    "classification": "diagnostic: wheel name search",
+    "tool": "Godot"
+  },
+  {
+    "log": "model-discovery.log",
+    "exit_code": 1,
+    "classification": "diagnostic: imported VehicleWheel3D discovery",
+    "tool": "Godot"
+  },
+  {
+    "log": "corrected-baseline.log",
+    "exit_code": 1,
+    "classification": "accepted original reproduction: five static-wheel failures",
+    "tool": "Godot"
+  },
+  {
+    "log": "blend-rename.log",
+    "exit_code": 0,
+    "classification": "Blender editable-source rename",
+    "tool": "Blender"
+  },
+  {
+    "log": "import.log",
+    "exit_code": 0,
+    "classification": "Godot editor import",
+    "tool": "Godot"
+  },
+  {
+    "log": "first-regression.log",
+    "exit_code": 1,
+    "classification": "rejected: early preload/autoload compile error and overly strict basis comparison",
+    "tool": "Godot"
+  },
+  {
+    "log": "verified.log",
+    "exit_code": 1,
+    "classification": "rejected: overly strict round-trip basis comparison; actual travel passes",
+    "tool": "Godot"
+  },
+  {
+    "log": "assets.log",
+    "exit_code": 0,
+    "classification": "accepted final assets",
+    "tool": "Godot"
+  },
+  {
+    "log": "shared-motion.log",
+    "exit_code": 0,
+    "classification": "accepted unchanged Bastion/Helix motion",
+    "tool": "Godot"
+  },
+  {
+    "log": "frontier-gameplay.log",
+    "exit_code": 0,
+    "classification": "superseded implementation: chord-based turn calculation",
+    "tool": "Godot"
+  },
+  {
+    "log": "frontier-combat.log",
+    "exit_code": 0,
+    "classification": "superseded implementation: chord-based turn calculation",
+    "tool": "Godot"
+  },
+  {
+    "log": "native.log",
+    "exit_code": 0,
+    "classification": "superseded implementation and framing",
+    "tool": "Godot"
+  },
+  {
+    "log": "final-regression.log",
+    "exit_code": 0,
+    "classification": "accepted final wheel behavior",
+    "tool": "Godot"
+  },
+  {
+    "log": "final-gameplay.log",
+    "exit_code": 0,
+    "classification": "accepted final gameplay",
+    "tool": "Godot"
+  },
+  {
+    "log": "final-combat.log",
+    "exit_code": 0,
+    "classification": "accepted final combat",
+    "tool": "Godot"
+  },
+  {
+    "log": "final-native.log",
+    "exit_code": 0,
+    "classification": "accepted motion, superseded PlainAndSimple framing",
+    "tool": "Godot"
+  },
+  {
+    "log": "review.log",
+    "exit_code": 0,
+    "classification": "accepted final DesertFrontier framing and footage",
+    "tool": "Godot"
+  },
+  {
+    "log": "blender-verification.log",
+    "exit_code": 0,
+    "classification": "accepted full 17-model Blender reimport",
+    "tool": "Blender"
+  }
+]

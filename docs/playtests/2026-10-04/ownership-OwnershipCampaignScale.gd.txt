@@ -1,0 +1,5 @@
+extends "res://tests/rendered/CampaignScalePreview.gd"
+
+
+func _scale_capture(title, pixels = Vector2i(1280, 720)):
+	await super._scale_capture("ownership-shared-" + title, pixels)

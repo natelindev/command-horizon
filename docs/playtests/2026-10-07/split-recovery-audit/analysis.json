@@ -1,0 +1,35 @@
+{
+  "status": "passed",
+  "classified_runs": 15,
+  "reviewed_images": 7,
+  "idle_samples": 15,
+  "idle_time_range": [
+    310.900000000046,
+    448.89999999992
+  ],
+  "branch_outcomes": {
+    "headless": {
+      "result": "",
+      "elapsed": 180.499999999836
+    },
+    "rendered": {
+      "result": "Victory",
+      "elapsed": 54.5499999999504
+    },
+    "followthrough": {
+      "result": "Victory",
+      "elapsed": 22.5333333333128
+    },
+    "followthrough-rendered": {
+      "result": "Victory",
+      "elapsed": 26.2166666666428
+    }
+  },
+  "shipping_delta": {
+    "changed": [
+      "source/match/campaign/SplitSignalHUD.gd"
+    ],
+    "added": [],
+    "removed": []
+  }
+}

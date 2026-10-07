@@ -1,0 +1,170 @@
+[
+  {
+    "name": "final-focused",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/headless/HorizonControlRegression.gd",
+      "--",
+      "--evidence=res://docs/playtests/2026-10-07/horizon-control/final-focused"
+    ],
+    "exit_code": 0,
+    "script_error": false
+  },
+  {
+    "name": "final-recovery-feedback",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/headless/HorizonRecoveryFeedback.gd",
+      "--"
+    ],
+    "exit_code": 0,
+    "script_error": false
+  },
+  {
+    "name": "final-shared-rules",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/headless/CommandHorizonRules.gd",
+      "--"
+    ],
+    "exit_code": 0,
+    "script_error": false
+  },
+  {
+    "name": "final-earned-recovery",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/HorizonDeploymentRecovery.gd",
+      "--",
+      "--evidence=res://docs/playtests/2026-10-07/horizon-control/final-earned-recovery"
+    ],
+    "exit_code": 0,
+    "script_error": false
+  },
+  {
+    "name": "final-north-0",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/HorizonDifficultyMatches.gd",
+      "--",
+      "--difficulty=0",
+      "--alternate",
+      "--retake-deployment",
+      "--evidence=res://docs/playtests/2026-10-07/horizon-control/final-north-0"
+    ],
+    "exit_code": 0,
+    "script_error": false
+  },
+  {
+    "name": "final-north-1",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/HorizonDifficultyMatches.gd",
+      "--",
+      "--difficulty=1",
+      "--alternate",
+      "--retake-deployment",
+      "--evidence=res://docs/playtests/2026-10-07/horizon-control/final-north-1"
+    ],
+    "exit_code": 0,
+    "script_error": false
+  },
+  {
+    "name": "final-north-2",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/HorizonDifficultyMatches.gd",
+      "--",
+      "--difficulty=2",
+      "--alternate",
+      "--retake-deployment",
+      "--evidence=res://docs/playtests/2026-10-07/horizon-control/final-north-2"
+    ],
+    "exit_code": 0,
+    "script_error": false
+  },
+  {
+    "name": "final-north-2-lean",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/HorizonDifficultyMatches.gd",
+      "--",
+      "--difficulty=2",
+      "--alternate",
+      "--retake-deployment",
+      "--evidence=res://docs/playtests/2026-10-07/horizon-control/final-north-2-lean",
+      "--lean"
+    ],
+    "exit_code": 1,
+    "script_error": false
+  },
+  {
+    "name": "final-north-2-reinforced",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/HorizonDifficultyMatches.gd",
+      "--",
+      "--difficulty=2",
+      "--alternate",
+      "--retake-deployment",
+      "--evidence=res://docs/playtests/2026-10-07/horizon-control/final-north-2-reinforced",
+      "--reinforced"
+    ],
+    "exit_code": 0,
+    "script_error": false
+  }
+]

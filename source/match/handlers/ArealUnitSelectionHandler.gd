@@ -40,8 +40,13 @@ func _get_controlled_units_from_navigation_domain_within_topdown_polygon_2d(
 	for unit in get_tree().get_nodes_in_group("controlled_units"):
 		if not unit.visible or unit.movement_domain != navigation_domain:
 			continue
-		var unit_position_2d = Vector2(unit.transform.origin.x, unit.transform.origin.z)
-		if Geometry2D.is_point_in_polygon(unit_position_2d, topdown_polygon_2d):
+		var polygon = topdown_polygon_2d
+		if navigation_domain == Constants.Match.Navigation.Domain.AIR:
+			polygon = _rebase_topdown_polygon_2d_to_different_plane(
+				topdown_polygon_2d, Plane(Vector3.UP, unit.global_position.y)
+			)
+		var unit_position_2d = Vector2(unit.global_position.x, unit.global_position.z)
+		if Geometry2D.is_point_in_polygon(unit_position_2d, polygon):
 			units_within_polygon.add(unit)
 	return units_within_polygon
 
@@ -68,10 +73,7 @@ func _on_selection_changed(topdown_polygon_2d):
 	)
 	units_to_highlight.merge(
 		_get_controlled_units_from_navigation_domain_within_topdown_polygon_2d(
-			Constants.Match.Navigation.Domain.AIR,
-			_rebase_topdown_polygon_2d_to_different_plane(
-				topdown_polygon_2d, Constants.Match.Air.PLANE
-			)
+			Constants.Match.Navigation.Domain.AIR, topdown_polygon_2d
 		)
 	)
 	var units_not_to_highlight_anymore = Utils.Set.subtracted(
@@ -97,10 +99,7 @@ func _on_selection_finished(topdown_polygon_2d):
 	)
 	units_to_select.merge(
 		_get_controlled_units_from_navigation_domain_within_topdown_polygon_2d(
-			Constants.Match.Navigation.Domain.AIR,
-			_rebase_topdown_polygon_2d_to_different_plane(
-				topdown_polygon_2d, Constants.Match.Air.PLANE
-			)
+			Constants.Match.Navigation.Domain.AIR, topdown_polygon_2d
 		)
 	)
 	Utils.Match.select_units(units_to_select)

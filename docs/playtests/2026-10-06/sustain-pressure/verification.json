@@ -1,0 +1,23 @@
+{
+  "completed_matches": 7,
+  "victories": 1,
+  "defeats": 6,
+  "unresolved_checks": 0,
+  "ai_coordination_violations": 0,
+  "regressions": {
+    "screen": {
+      "before_failures": 6,
+      "after_failures": 0
+    },
+    "assault": {
+      "before_failures": 6,
+      "after_failures": 0
+    }
+  },
+  "source_checks": "Five scripts: gdformat --check and gdlint pass",
+  "limitations": [
+    "One map, Normal difficulty, small samples; asynchronous navigation prevents deterministic causal pairing",
+    "Experimental reference policies only; no shipping changes or improved survival claim",
+    "Existing navigation warnings and shutdown resource leaks remain"
+  ]
+}

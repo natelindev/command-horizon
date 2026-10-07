@@ -1,0 +1,363 @@
+extends "res://tests/headless/CampaignRegression.gd"
+
+const Snapshot = preload("res://source/match/saves/MatchSnapshot.gd")
+const Schema = preload("res://source/match/saves/SnapshotSchema.gd")
+const Restore = preload("res://source/match/saves/MatchRestore.gd")
+const Store = preload("res://source/match/saves/SaveFile.gd")
+var archive = ""
+
+
+func _make_match():
+	var settings = load("res://source/data-model/MatchSettings.gd").new()
+	settings.skirmish = true
+	settings.mission_id = "split_signal"
+	settings.map_path = "res://source/match/maps/SplitSignalMap.tscn"
+	for index in 2:
+		var side = load("res://source/data-model/PlayerSettings.gd").new()
+		side.controller = index + 1
+		side.faction = "bastion" if index == 0 else "helix"
+		side.difficulty = 1
+		settings.players.append(side)
+	game = load("res://source/match/campaign/SplitSignal.tscn").instantiate()
+	game.settings = settings
+	game.map = load(settings.map_path).instantiate()
+	game.progress_path = path
+	root.add_child(game)
+	current_scene = game
+	game.get_node("IsometricCamera3D").set_physics_process(false)
+	await _frames(45)
+
+
+func _run():
+	path = "user://split-progress-%d.json" % OS.get_process_id()
+	archive = "user://split-archive-%d.json" % OS.get_process_id()
+	await _make_match()
+	await _rules_and_archive()
+	await _cleanup()
+	await _make_match()
+	await _routes_and_optional()
+	await _cleanup()
+	await _make_match()
+	await _preset_victory()
+	await _cleanup()
+	await _make_match()
+	await _defeat()
+	await _cleanup()
+	_progress_migration()
+	DirAccess.remove_absolute(path)
+	DirAccess.remove_absolute(archive)
+	for message in errors:
+		push_error(message)
+	print("Split Signal: %d failures" % errors.size())
+	quit(0 if errors.is_empty() else 1)
+
+
+func _cleanup():
+	paused = false
+	game.queue_free()
+	await _frames(5)
+
+
+func _rules_and_archive():
+	var human = game._get_human_player()
+	var enemy = game._enemy
+	_check(human.basic_programs_unlocked(), "Advanced mission did not start with programs")
+	_check(
+		_units(human, "Tank").all(func(unit): return unit.program.installed),
+		"Starting armor lacks chips"
+	)
+	# Leave authored defenses alive but stop fixture actions for deterministic objective rules.
+	for unit in get_nodes_in_group("units"):
+		unit.process_mode = Node.PROCESS_MODE_DISABLED
+		if unit.movement_speed > 0:
+			unit.position = Vector3(7, 0, 7) if unit.player == human else Vector3(100, 0, 80)
+	game.battlefield.invalidate()
+	await _frames(120)
+	_check(
+		not game.defence_started and game.waves_sent == 0, "Responses started before human capture"
+	)
+	var infantry = _units(human, "Infantry")
+	for index in [0, 2]:
+		infantry[index].position = game.map.relays[index].position + Vector3(1.7, 0, 0)
+	game.battlefield.invalidate()
+	await _frames(660)
+	_check(
+		game.controlled_relays() == 2 and game.control_seconds > 0,
+		"Real infantry captures did not start two-relay scoring"
+	)
+	var before = game.control_seconds
+	paused = true
+	await _frames(60)
+	_check(
+		game.control_seconds == before and game.waves_sent == 0, "Pause advanced score or responses"
+	)
+	paused = false
+	var attacker = _units(enemy, "Infantry")[0]
+	attacker.position = game.map.relays[0].position + Vector3(-1.7, 0, 0)
+	game.battlefield.invalidate()
+	await _frames(3)
+	before = game.control_seconds
+	await _frames(60)
+	_check(
+		game.controlled_relays() == 1 and game.control_seconds == before,
+		"Contested second relay scored"
+	)
+	infantry[0].position = Vector3(7, 0, 7)
+	game.battlefield.invalidate()
+	await _frames(630)
+	_check(
+		game.map.relays[0].captured_by == enemy and game.control_seconds == before,
+		"Recapture erased cumulative score or failed"
+	)
+	# Optional control uses the same uncontested rule and retains cumulative time.
+	for unit in get_nodes_in_group("units"):
+		unit.process_mode = Node.PROCESS_MODE_DISABLED
+	for relay in game.map.relays:
+		relay.set_physics_process(false)
+		relay.captured_by = human
+		relay.contested = false
+	game.defence_started = false
+	game.network_seconds = 19.5
+	game._check_outcome(0.5)
+	_check(game.network_badge and game.network_seconds == 20, "All-relay optional objective failed")
+	# Denying both entry zones consumes this finite response without hidden deferred spawns.
+	for index in 2:
+		infantry[index].position = game.ENTRIES[index]
+	game.battlefield.invalidate()
+	var count = enemy.get_child_count()
+	var waves = game.waves_sent
+	game._send_wave()
+	_check(
+		game.waves_sent == waves + 1 and enemy.get_child_count() == count,
+		"Denied entries spawned units or retained response"
+	)
+	for index in 2:
+		infantry[index].position = Vector3(7, 0, 7)
+	game.battlefield.invalidate()
+	for difficulty in 3:
+		enemy.difficulty = difficulty
+		count = enemy.get_child_count()
+		game._send_wave()
+		_check(
+			enemy.get_child_count() - count == [4, 6, 8][difficulty],
+			"Difficulty response count incorrect"
+		)
+		for unit in enemy.get_children():
+			if "hp" in unit:
+				unit.process_mode = Node.PROCESS_MODE_DISABLED
+	enemy.difficulty = 1
+	game.control_seconds = 43.5
+	game.defence_started = true
+	game.defence_time = 70.0
+	game.waves_sent = 2
+	game.waves_warned = 3
+	game.map.relays[1].captured_by = enemy
+	game.map.relays[1].candidate = human
+	game.map.relays[1].progress = 4.25
+	game.map.relays[1].contested = true
+	paused = true
+	game.fog_of_war._physics_process(0)
+	await _frames(3)
+	if DisplayServer.get_name() != "headless":
+		await RenderingServer.frame_post_draw
+	var capture = Snapshot.new()
+	var data = capture.capture(game)
+	_check(data != null, "Split snapshot failed: " + capture.error)
+	if data == null:
+		return
+	var schema = Schema.new()
+	_check(schema.validate(data), "Split schema rejected live snapshot: " + schema.error)
+	for mutate in ["relays", "waves_sent", "network_badge"]:
+		var broken = data.duplicate(true)
+		if mutate == "relays":
+			broken.mission.relays.pop_back()
+		elif mutate == "waves_sent":
+			broken.mission.waves_sent = 7
+		else:
+			broken.mission.network_badge = false
+		_check(not schema.validate(broken), "Split schema accepted invalid " + mutate)
+	var store = Store.new()
+	_check(store.write_file(archive, data), "Split archive disk write failed")
+	var restored = await Restore.new().restore(self, store.read_file(archive))
+	_check(restored.ok, "Split archive restoration failed: " + str(restored.get("error", "")))
+	if not restored.ok:
+		return
+	game = restored.game
+	game.progress_path = path
+	_check(
+		paused and game.settings.mission_id == "split_signal", "Restored wrong mission or unpaused"
+	)
+	_check(
+		(
+			game.control_seconds == 43.5
+			and game.network_badge
+			and game.waves_sent == 2
+			and game.waves_warned == 3
+			and game.defence_time == 70
+		),
+		"Mission timers/response state changed during restore"
+	)
+	var relay = game.map.relays[1]
+	_check(
+		(
+			relay.captured_by == game._enemy
+			and relay.candidate == game._get_human_player()
+			and relay.progress == 4.25
+			and relay.contested
+		),
+		"Relay state did not survive file restoration"
+	)
+	var after = Snapshot.new().capture(game)
+	_check(
+		after != null and after.mission == data.mission,
+		"Restored mission cannot be saved identically"
+	)
+	# A warned response resumes from the stored timer, with neither replay nor early spawn.
+	game._check_outcome(4.9)
+	_check(game.waves_sent == 2, "Loaded response arrived early")
+	game._check_outcome(0.2)
+	_check(game.waves_sent == 3, "Loaded response did not arrive at its scheduled time")
+	game.control_seconds = 0.0
+	for index in 3:
+		game._check_outcome(25.0)
+	_check(
+		game.waves_sent == 6 and game.waves_warned == 6, "Final responses were lost or unannounced"
+	)
+	var final_count = game._enemy.get_child_count()
+	game._check_outcome(1.0)
+	_check(
+		game.waves_sent == 6 and game._enemy.get_child_count() == final_count,
+		"Finite response budget spawned an extra wave"
+	)
+
+
+func _routes_and_optional():
+	# Isolate geometry/capture from enemy pressure; ordinary travel and relay timers still run.
+	for unit in game._enemy.get_children():
+		if "hp" in unit:
+			unit.process_mode = Node.PROCESS_MODE_DISABLED
+			unit.position = Vector3(100, 0, 80)
+	game.waves_sent = 6
+	game.waves_warned = 6
+	game.battlefield.invalidate()
+	var human = game._get_human_player()
+	var infantry = _units(human, "Infantry")
+	var moving = load("res://source/match/units/actions/Moving.gd")
+	for index in 3:
+		infantry[index * 4].issue_manual_order(
+			moving.new(game.map.relays[index].position + Vector3(-1.5, 0, 0))
+		)
+	for frame in 5400:
+		await process_frame
+		if game.network_badge:
+			break
+	_check(
+		game.controlled_relays() == 3 and game.network_badge,
+		"Real three-route travel/capture did not earn optional network control"
+	)
+	_check(
+		game.network_seconds == 20 and game.control_seconds < 120,
+		"Optional objective cannot complete before main victory"
+	)
+
+
+func _preset_victory():
+	var clearance = _clearance_helper()
+	var attack_move = load("res://source/match/units/actions/AttackMoving.gd")
+	var human = game._get_human_player()
+	var tanks = _units(human, "Tank")
+	var infantry = _units(human, "Infantry")
+	var repairs = _units(human, "RepairRobot")
+	var library = load("res://source/match/programs/ProgramLibrary.gd")
+	for lane in 2:
+		var point = game.map.relays[0 if lane == 0 else 2].position
+		for index in 3:
+			var tank = tanks[lane * 3 + index]
+			tank.program.configure(library.defaults("guard"))
+			tank.program.anchor = point + Vector3(3, 0, (index - 1) * 2.5)
+			tank.program.safe_point = point - Vector3(4, 0, 0)
+			tank.program.run()
+		for index in 6:
+			infantry[lane * 6 + index].issue_manual_order(
+				attack_move.new(point + Vector3(-1, 0, index * 0.3))
+			)
+		repairs[lane].program.configure(library.defaults("hold_service"))
+		repairs[lane].program.anchor = point - Vector3(2, 0, 0)
+		repairs[lane].program.run()
+	for frame in 16000:
+		if clearance != null and frame % 60 == 0:
+			clearance.step(game)
+		# Infantry still needs player direction after combat pulls a screen off its relay.
+		# Keep the default programs on armor/support; issue ordinary recapture orders.
+		if frame > 0 and frame % 600 == 0:
+			for unit in _units(human, "Infantry"):
+				var index = 0 if unit.position.z < 44 else 2
+				var relay = game.map.relays[index]
+				if relay.captured_by != human or unit.position.distance_to(relay.position) > 5:
+					unit.issue_manual_order(attack_move.new(relay.position + Vector3(-1.5, 0, 0)))
+		await process_frame
+		if game.finished:
+			break
+	if not game.finished:
+		for unit in human.get_children():
+			if "movement_speed" in unit and unit.movement_speed > 0:
+				print(
+					"Survivor ",
+					unit.type,
+					" hp=",
+					unit.hp,
+					" pos=",
+					unit.position,
+					" program=",
+					unit.program.mode if unit.program != null else "none"
+				)
+	_check(
+		game.finished and game.result == "Victory",
+		"Split preset-only mission did not win: " + game.objective_text()
+	)
+	_check(game.waves_sent >= 4, "Actual victory bypassed timed counterattacks")
+	var time = game.simulation_time
+	await _frames(60)
+	_check(game.simulation_time == time, "Victory failed to stop simulation")
+	var saved = Progress.new()
+	_check(
+		saved.read_progress(path) and saved.split_complete and not saved.network_badge,
+		"Split completion was not recorded independently of optional reward"
+	)
+	print(
+		(
+			"Split preset encounter: %d responses, %d survivors, %.2f seconds"
+			% [game.waves_sent, human.population(), time]
+		)
+	)
+
+
+func _clearance_helper():
+	return load("res://tests/playtest/reference/SplitClearance.gd").new()
+
+
+func _progress_migration():
+	var file = FileAccess.open(path, FileAccess.WRITE)
+	file.store_string(JSON.stringify({"schema": 1, "first_orders": true, "doctrine_badge": true}))
+	file.close()
+	var progress = Progress.new()
+	_check(progress.record_split_victory(true, path), "Legacy progress migration failed")
+	_check(
+		(
+			progress.complete
+			and progress.doctrine_badge
+			and progress.split_complete
+			and progress.network_badge
+		),
+		"Migration discarded earned completion or badge"
+	)
+	_check(
+		(
+			progress.record_victory(false, path)
+			and progress.record_split_victory(false, path)
+			and progress.network_badge
+			and progress.doctrine_badge
+		),
+		"Replay erased rewards"
+	)
+	_progress_integrity()

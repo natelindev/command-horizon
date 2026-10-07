@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://source/match/hud/ProductionQueue.gd" id="1_iis45"]
 
 [node name="ProductionQueue" type="MarginContainer"]
+process_mode = 3
 theme_override_constants/margin_right = 5
 script = ExtResource("1_iis45")
 

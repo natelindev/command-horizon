@@ -1,0 +1,5 @@
+extends "res://tests/rendered/InterfaceScalePreview.gd"
+
+
+func _shot(title):
+	await super._shot("ownership-shared-" + title)

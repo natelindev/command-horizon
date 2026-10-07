@@ -11,6 +11,7 @@ func _ready():
 	_reset()
 	MatchSignals.unit_selected.connect(func(_unit): _reset())
 	MatchSignals.unit_deselected.connect(func(_unit): _reset())
+	MatchSignals.unit_died.connect(func(_unit): _reset())
 
 
 func _reset():
@@ -29,14 +30,14 @@ func _remove_queue_element_nodes():
 
 
 func _is_observing_production_queue():
-	return _production_queue != null
+	return is_instance_valid(_production_queue)
 
 
 func _detach_observed_production_queue():
-	if _production_queue != null:
+	if is_instance_valid(_production_queue):
 		_production_queue.element_enqueued.disconnect(_on_production_queue_element_enqueued)
 		_production_queue.element_removed.disconnect(_on_production_queue_element_removed)
-		_production_queue = null
+	_production_queue = null
 
 
 func _try_observing_production_queue():

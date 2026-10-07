@@ -1,0 +1,15 @@
+extends "res://tests/headless/SkirmishCoordinationRegression.gd"
+
+func _run():
+	catalog = load("res://source/match/BastionCatalog.gd")
+	coordination = load("res://source/match/players/skirmish-ai/SkirmishCoordination.gd")
+	root.get_node("SaveManager").autosaves_enabled = false
+	for faction in ["bastion", "helix"]:
+		await _fixture(faction, 1)
+		await _engaged_response()
+		game.queue_free()
+		await _frames(5)
+	for error in errors:
+		push_error(error)
+	print("Engaged strategic order: %d failures" % errors.size())
+	quit(0 if errors.is_empty() else 1)

@@ -1,0 +1,14 @@
+[
+  {
+    "log": "frozen-before.log",
+    "exit_code": 0,
+    "classification": "diagnostic",
+    "result": "All three disabled-neighbor branches fail collection/delivery by 60 seconds; no movement fix claimed."
+  },
+  {
+    "log": "active-before.log",
+    "exit_code": 0,
+    "classification": "diagnostic-pass",
+    "result": "All three normally active idle-neighbor branches deliver; 30.60 / 26.4167 / 28.30 seconds."
+  }
+]

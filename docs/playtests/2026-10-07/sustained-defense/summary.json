@@ -1,0 +1,993 @@
+{
+  "scope": "12 paid Standard/Normal Industrial Helix-versus-Frontier matches; one reference strategy family",
+  "caveats": [
+    "Three seeds per variant are descriptive evidence, not a statistical balance conclusion.",
+    "Navigation and battle trajectories can differ before an experimental order, even at the same seed.",
+    "Electronics assignment counts are sparse 60-second samples, not measured income downtime.",
+    "Defeat is a valid recorded outcome, not gameplay acceptance."
+  ],
+  "rows": [
+    {
+      "branch": "control",
+      "seed": 4110,
+      "outcome": "Defeat",
+      "seconds": 878.3,
+      "basic_unlock": 175.233333333365,
+      "first_program": 200.733333333385,
+      "first_assault": 505.233333333202,
+      "assaults": 1,
+      "harvested": [
+        676.0,
+        170.0
+      ],
+      "net_spent": [
+        669.0,
+        176.0
+      ],
+      "worker_losses": 3,
+      "first_home_response": null,
+      "home_response_orders": 0,
+      "first_handoff": null,
+      "handoffs": 0,
+      "samples_without_electronics_assignment": 2,
+      "economy_samples": 12,
+      "latest_hq_sample": {
+        "seconds": 780.7,
+        "human_units": {
+          "Barracks": 1,
+          "CombatRobot": 1,
+          "CommandCenter": 1,
+          "CommandLab": 1,
+          "Drone": 1,
+          "Infantry": 6,
+          "PowerPlant": 1,
+          "RepairDepot": 1,
+          "VehicleFactory": 1,
+          "Worker": 6
+        },
+        "enemy_units": {
+          "AircraftFactory": 1,
+          "AntiAirTurret": 1,
+          "AntiGroundTurret": 1,
+          "Barracks": 1,
+          "CombatRobot": 2,
+          "CommandCenter": 1,
+          "CommandLab": 1,
+          "Drone": 1,
+          "Helicopter": 2,
+          "Infantry": 6,
+          "PowerPlant": 1,
+          "RepairDepot": 1,
+          "RepairRobot": 1,
+          "Tank": 1,
+          "VehicleFactory": 1,
+          "Worker": 6
+        },
+        "policy": {
+          "army": 7,
+          "assault_gates": {
+            "army_at_least_9": false,
+            "health_at_least_80_percent": true,
+            "no_visible_home_threats": true,
+            "quiet_20_seconds": true,
+            "saw_home_attack": true
+          },
+          "health": 1.0,
+          "phase": "recover",
+          "pressure_age": 57.4999999999477,
+          "saw_attack": true,
+          "visible_home_threats": 0
+        }
+      },
+      "coordination_samples": 1757,
+      "max_stationary_travel": [
+        3.0,
+        1.5
+      ]
+    },
+    {
+      "branch": "control",
+      "seed": 4111,
+      "outcome": "Defeat",
+      "seconds": 787.2,
+      "basic_unlock": 174.750000000031,
+      "first_program": 195.750000000048,
+      "first_assault": 665.249999999724,
+      "assaults": 1,
+      "harvested": [
+        625.0,
+        159.0
+      ],
+      "net_spent": [
+        659.0,
+        168.0
+      ],
+      "worker_losses": 7,
+      "first_home_response": null,
+      "home_response_orders": 0,
+      "first_handoff": null,
+      "handoffs": 0,
+      "samples_without_electronics_assignment": 2,
+      "economy_samples": 11,
+      "latest_hq_sample": {
+        "seconds": 720.7,
+        "human_units": {
+          "AircraftFactory": 1,
+          "Barracks": 1,
+          "CommandCenter": 1,
+          "CommandLab": 1,
+          "Drone": 1,
+          "Infantry": 5,
+          "PowerPlant": 1,
+          "RepairDepot": 1,
+          "Tank": 3,
+          "VehicleFactory": 1,
+          "Worker": 6
+        },
+        "enemy_units": {
+          "AdvancedTank": 1,
+          "AircraftFactory": 1,
+          "AntiAirTurret": 1,
+          "AntiGroundTurret": 1,
+          "Barracks": 1,
+          "CombatRobot": 2,
+          "CommandCenter": 1,
+          "CommandLab": 1,
+          "Drone": 1,
+          "Helicopter": 1,
+          "Infantry": 6,
+          "PowerPlant": 1,
+          "RepairDepot": 1,
+          "RepairRobot": 1,
+          "VehicleFactory": 1,
+          "Worker": 6
+        },
+        "policy": {
+          "army": 8,
+          "assault_gates": {
+            "army_at_least_9": false,
+            "health_at_least_80_percent": false,
+            "no_visible_home_threats": false,
+            "quiet_20_seconds": false,
+            "saw_home_attack": true
+          },
+          "health": 0.790678385416668,
+          "phase": "recover",
+          "pressure_age": 0.0,
+          "saw_attack": true,
+          "visible_home_threats": 5
+        }
+      },
+      "coordination_samples": 1574,
+      "max_stationary_travel": [
+        1.5,
+        1.5
+      ]
+    },
+    {
+      "branch": "control",
+      "seed": 4112,
+      "outcome": "Defeat",
+      "seconds": 523.8,
+      "basic_unlock": 177.750000000034,
+      "first_program": 198.25000000005,
+      "first_assault": null,
+      "assaults": 0,
+      "harvested": [
+        288.0,
+        91.0
+      ],
+      "net_spent": [
+        343.0,
+        94.0
+      ],
+      "worker_losses": 9,
+      "first_home_response": null,
+      "home_response_orders": 0,
+      "first_handoff": null,
+      "handoffs": 0,
+      "samples_without_electronics_assignment": 4,
+      "economy_samples": 6,
+      "latest_hq_sample": {
+        "seconds": 420.7,
+        "human_units": {
+          "Barracks": 1,
+          "CommandCenter": 1,
+          "CommandLab": 1,
+          "Infantry": 2,
+          "PowerPlant": 1,
+          "RepairDepot": 1,
+          "Tank": 2,
+          "VehicleFactory": 1,
+          "Worker": 1
+        },
+        "enemy_units": {
+          "AircraftFactory": 1,
+          "AntiAirTurret": 1,
+          "AntiGroundTurret": 1,
+          "Barracks": 1,
+          "CombatRobot": 2,
+          "CommandCenter": 1,
+          "CommandLab": 1,
+          "Drone": 1,
+          "Helicopter": 1,
+          "Infantry": 4,
+          "PowerPlant": 1,
+          "RepairDepot": 1,
+          "Tank": 1,
+          "VehicleFactory": 1,
+          "Worker": 6
+        },
+        "policy": {
+          "army": 4,
+          "assault_gates": {
+            "army_at_least_9": false,
+            "health_at_least_80_percent": true,
+            "no_visible_home_threats": false,
+            "quiet_20_seconds": false,
+            "saw_home_attack": true
+          },
+          "health": 0.8392890625,
+          "phase": "defend",
+          "pressure_age": 0.0,
+          "saw_attack": true,
+          "visible_home_threats": 2
+        }
+      },
+      "coordination_samples": 1048,
+      "max_stationary_travel": [
+        2.0,
+        1.0
+      ]
+    },
+    {
+      "branch": "response",
+      "seed": 4110,
+      "outcome": "Defeat",
+      "seconds": 611.8,
+      "basic_unlock": 175.233333333365,
+      "first_program": 185.233333333373,
+      "first_assault": null,
+      "assaults": 0,
+      "harvested": [
+        382.0,
+        136.0
+      ],
+      "net_spent": [
+        437.0,
+        106.0
+      ],
+      "worker_losses": 11,
+      "first_home_response": 139.733333333337,
+      "home_response_orders": 103,
+      "first_handoff": null,
+      "handoffs": 0,
+      "samples_without_electronics_assignment": 1,
+      "economy_samples": 8,
+      "latest_hq_sample": {
+        "seconds": 540.7,
+        "human_units": {
+          "AircraftFactory": 1,
+          "Barracks": 1,
+          "CommandCenter": 1,
+          "CommandLab": 1,
+          "Drone": 1,
+          "PowerPlant": 1,
+          "RepairDepot": 1,
+          "Tank": 2,
+          "VehicleFactory": 1,
+          "Worker": 5
+        },
+        "enemy_units": {
+          "AdvancedTank": 1,
+          "AircraftFactory": 1,
+          "AntiAirTurret": 1,
+          "AntiGroundTurret": 1,
+          "Barracks": 1,
+          "CommandCenter": 1,
+          "CommandLab": 1,
+          "Drone": 1,
+          "Helicopter": 2,
+          "Infantry": 6,
+          "PowerPlant": 1,
+          "RepairDepot": 1,
+          "RepairRobot": 1,
+          "Tank": 2,
+          "VehicleFactory": 1,
+          "Worker": 6
+        },
+        "policy": {
+          "army": 2,
+          "assault_gates": {
+            "army_at_least_9": false,
+            "health_at_least_80_percent": false,
+            "no_visible_home_threats": false,
+            "quiet_20_seconds": false,
+            "saw_home_attack": true
+          },
+          "health": 0.764676041666668,
+          "phase": "defend",
+          "pressure_age": 0.0,
+          "saw_attack": true,
+          "visible_home_threats": 5
+        }
+      },
+      "coordination_samples": 1224,
+      "max_stationary_travel": [
+        2.5,
+        1.5
+      ]
+    },
+    {
+      "branch": "response",
+      "seed": 4111,
+      "outcome": "Defeat",
+      "seconds": 791.2,
+      "basic_unlock": 180.750000000036,
+      "first_program": 199.750000000051,
+      "first_assault": null,
+      "assaults": 0,
+      "harvested": [
+        483.0,
+        182.0
+      ],
+      "net_spent": [
+        542.0,
+        106.0
+      ],
+      "worker_losses": 15,
+      "first_home_response": 139.750000000003,
+      "home_response_orders": 134,
+      "first_handoff": null,
+      "handoffs": 0,
+      "samples_without_electronics_assignment": 2,
+      "economy_samples": 11,
+      "latest_hq_sample": {
+        "seconds": 720.7,
+        "human_units": {
+          "AircraftFactory": 1,
+          "Barracks": 1,
+          "CommandCenter": 1,
+          "CommandLab": 1,
+          "Drone": 1,
+          "PowerPlant": 1,
+          "RepairDepot": 1,
+          "Tank": 2,
+          "VehicleFactory": 1,
+          "Worker": 6
+        },
+        "enemy_units": {
+          "AdvancedTank": 1,
+          "AircraftFactory": 1,
+          "AntiAirTurret": 1,
+          "AntiGroundTurret": 1,
+          "Barracks": 1,
+          "CombatRobot": 2,
+          "CommandCenter": 1,
+          "CommandLab": 1,
+          "Drone": 1,
+          "Helicopter": 2,
+          "Infantry": 4,
+          "PowerPlant": 1,
+          "RepairDepot": 1,
+          "RepairRobot": 1,
+          "Tank": 2,
+          "VehicleFactory": 1,
+          "Worker": 6
+        },
+        "policy": {
+          "army": 2,
+          "assault_gates": {
+            "army_at_least_9": false,
+            "health_at_least_80_percent": false,
+            "no_visible_home_threats": false,
+            "quiet_20_seconds": false,
+            "saw_home_attack": true
+          },
+          "health": 0.49828697916667,
+          "phase": "defend",
+          "pressure_age": 0.0,
+          "saw_attack": true,
+          "visible_home_threats": 5
+        }
+      },
+      "coordination_samples": 1582,
+      "max_stationary_travel": [
+        2.0,
+        1.0
+      ]
+    },
+    {
+      "branch": "response",
+      "seed": 4112,
+      "outcome": "Defeat",
+      "seconds": 787.2,
+      "basic_unlock": 178.750000000034,
+      "first_program": 191.750000000045,
+      "first_assault": 244.250000000087,
+      "assaults": 3,
+      "harvested": [
+        540.0,
+        179.0
+      ],
+      "net_spent": [
+        597.0,
+        156.0
+      ],
+      "worker_losses": 5,
+      "first_home_response": 139.750000000003,
+      "home_response_orders": 107,
+      "first_handoff": null,
+      "handoffs": 0,
+      "samples_without_electronics_assignment": 2,
+      "economy_samples": 11,
+      "latest_hq_sample": {
+        "seconds": 720.7,
+        "human_units": {
+          "AircraftFactory": 1,
+          "Barracks": 1,
+          "CommandCenter": 1,
+          "CommandLab": 1,
+          "Drone": 1,
+          "Infantry": 2,
+          "RepairDepot": 1,
+          "Tank": 3,
+          "VehicleFactory": 1,
+          "Worker": 6
+        },
+        "enemy_units": {
+          "AdvancedTank": 1,
+          "AircraftFactory": 1,
+          "AntiAirTurret": 1,
+          "AntiGroundTurret": 1,
+          "Barracks": 1,
+          "CombatRobot": 1,
+          "CommandCenter": 1,
+          "CommandLab": 1,
+          "Drone": 1,
+          "Helicopter": 1,
+          "Infantry": 6,
+          "PowerPlant": 1,
+          "RepairDepot": 1,
+          "RepairRobot": 1,
+          "VehicleFactory": 1,
+          "Worker": 6
+        },
+        "policy": {
+          "army": 5,
+          "assault_gates": {
+            "army_at_least_9": false,
+            "health_at_least_80_percent": false,
+            "no_visible_home_threats": false,
+            "quiet_20_seconds": false,
+            "saw_home_attack": true
+          },
+          "health": 0.723895833333333,
+          "phase": "recover",
+          "pressure_age": 0.0,
+          "saw_attack": true,
+          "visible_home_threats": 4
+        }
+      },
+      "coordination_samples": 1574,
+      "max_stationary_travel": [
+        2.5,
+        0.5
+      ]
+    },
+    {
+      "branch": "handoff",
+      "seed": 4110,
+      "outcome": "Defeat",
+      "seconds": 671.9,
+      "basic_unlock": 180.233333333369,
+      "first_program": 209.233333333392,
+      "first_assault": null,
+      "assaults": 0,
+      "harvested": [
+        362.0,
+        178.0
+      ],
+      "net_spent": [
+        419.0,
+        90.0
+      ],
+      "worker_losses": 4,
+      "first_home_response": null,
+      "home_response_orders": 0,
+      "first_handoff": 196.733333333382,
+      "handoffs": 7,
+      "samples_without_electronics_assignment": 2,
+      "economy_samples": 9,
+      "latest_hq_sample": {
+        "seconds": 600.7,
+        "human_units": {
+          "Barracks": 1,
+          "CommandCenter": 1,
+          "CommandLab": 1,
+          "Infantry": 2,
+          "PowerPlant": 1,
+          "RepairDepot": 1,
+          "VehicleFactory": 1,
+          "Worker": 6
+        },
+        "enemy_units": {
+          "AircraftFactory": 1,
+          "AntiAirTurret": 1,
+          "AntiGroundTurret": 1,
+          "Barracks": 1,
+          "CombatRobot": 2,
+          "CommandCenter": 1,
+          "CommandLab": 1,
+          "Drone": 1,
+          "Helicopter": 2,
+          "Infantry": 6,
+          "PowerPlant": 1,
+          "RepairDepot": 1,
+          "RepairRobot": 1,
+          "Tank": 3,
+          "VehicleFactory": 1,
+          "Worker": 6
+        },
+        "policy": {
+          "army": 2,
+          "assault_gates": {
+            "army_at_least_9": false,
+            "health_at_least_80_percent": false,
+            "no_visible_home_threats": false,
+            "quiet_20_seconds": false,
+            "saw_home_attack": true
+          },
+          "health": 0.541666666666667,
+          "phase": "defend",
+          "pressure_age": 0.0,
+          "saw_attack": true,
+          "visible_home_threats": 4
+        }
+      },
+      "coordination_samples": 1344,
+      "max_stationary_travel": [
+        2.5,
+        1.5
+      ]
+    },
+    {
+      "branch": "handoff",
+      "seed": 4111,
+      "outcome": "Victory",
+      "seconds": 560.5,
+      "basic_unlock": 175.750000000032,
+      "first_program": 200.750000000052,
+      "first_assault": 264.750000000088,
+      "assaults": 1,
+      "harvested": [
+        504.0,
+        234.0
+      ],
+      "net_spent": [
+        530.0,
+        228.0
+      ],
+      "worker_losses": 1,
+      "first_home_response": null,
+      "home_response_orders": 0,
+      "first_handoff": 140.750000000004,
+      "handoffs": 1,
+      "samples_without_electronics_assignment": 0,
+      "economy_samples": 8,
+      "latest_hq_sample": {
+        "seconds": 540.7,
+        "human_units": {
+          "AircraftFactory": 1,
+          "Barracks": 1,
+          "CombatRobot": 1,
+          "CommandCenter": 1,
+          "CommandLab": 1,
+          "Drone": 1,
+          "Helicopter": 2,
+          "Infantry": 6,
+          "PowerPlant": 1,
+          "RepairDepot": 1,
+          "RepairRobot": 1,
+          "Tank": 5,
+          "VehicleFactory": 1,
+          "Worker": 6
+        },
+        "enemy_units": {
+          "AntiAirTurret": 1,
+          "AntiGroundTurret": 1,
+          "Barracks": 1,
+          "RepairDepot": 1
+        },
+        "policy": {
+          "army": 12,
+          "assault_gates": {
+            "army_at_least_9": true,
+            "health_at_least_80_percent": true,
+            "no_visible_home_threats": true,
+            "quiet_20_seconds": true,
+            "saw_home_attack": true
+          },
+          "health": 0.867222222222222,
+          "phase": "attack",
+          "pressure_age": 83.9999999999236,
+          "saw_attack": true,
+          "visible_home_threats": 0
+        }
+      },
+      "coordination_samples": 1121,
+      "max_stationary_travel": [
+        2.0,
+        1.5
+      ]
+    },
+    {
+      "branch": "handoff",
+      "seed": 4112,
+      "outcome": "Defeat",
+      "seconds": 601.4,
+      "basic_unlock": 181.250000000036,
+      "first_program": 245.250000000087,
+      "first_assault": null,
+      "assaults": 0,
+      "harvested": [
+        468.0,
+        167.0
+      ],
+      "net_spent": [
+        523.0,
+        168.0
+      ],
+      "worker_losses": 1,
+      "first_home_response": null,
+      "home_response_orders": 0,
+      "first_handoff": 239.250000000083,
+      "handoffs": 9,
+      "samples_without_electronics_assignment": 0,
+      "economy_samples": 8,
+      "latest_hq_sample": {
+        "seconds": 540.7,
+        "human_units": {
+          "Barracks": 1,
+          "CommandCenter": 1,
+          "CommandLab": 1,
+          "Drone": 1,
+          "Helicopter": 1,
+          "Infantry": 3,
+          "PowerPlant": 1,
+          "RepairDepot": 1,
+          "Tank": 1,
+          "VehicleFactory": 1,
+          "Worker": 6
+        },
+        "enemy_units": {
+          "AdvancedTank": 1,
+          "AircraftFactory": 1,
+          "AntiAirTurret": 1,
+          "AntiGroundTurret": 1,
+          "Barracks": 1,
+          "CombatRobot": 2,
+          "CommandCenter": 1,
+          "CommandLab": 1,
+          "Drone": 1,
+          "Helicopter": 1,
+          "Infantry": 4,
+          "PowerPlant": 1,
+          "RepairDepot": 1,
+          "RepairRobot": 1,
+          "Tank": 2,
+          "VehicleFactory": 1,
+          "Worker": 6
+        },
+        "policy": {
+          "army": 4,
+          "assault_gates": {
+            "army_at_least_9": false,
+            "health_at_least_80_percent": true,
+            "no_visible_home_threats": false,
+            "quiet_20_seconds": false,
+            "saw_home_attack": true
+          },
+          "health": 0.966528125000001,
+          "phase": "defend",
+          "pressure_age": 0.0,
+          "saw_attack": true,
+          "visible_home_threats": 3
+        }
+      },
+      "coordination_samples": 1203,
+      "max_stationary_travel": [
+        5.5,
+        2.0
+      ]
+    },
+    {
+      "branch": "combined",
+      "seed": 4110,
+      "outcome": "Defeat",
+      "seconds": 906.5,
+      "basic_unlock": 176.233333333366,
+      "first_program": 185.233333333373,
+      "first_assault": 309.233333333381,
+      "assaults": 2,
+      "harvested": [
+        476.0,
+        348.0
+      ],
+      "net_spent": [
+        535.0,
+        132.0
+      ],
+      "worker_losses": 7,
+      "first_home_response": 139.733333333337,
+      "home_response_orders": 87,
+      "first_handoff": 141.733333333338,
+      "handoffs": 4,
+      "samples_without_electronics_assignment": 0,
+      "economy_samples": 13,
+      "latest_hq_sample": {
+        "seconds": 840.7,
+        "human_units": {
+          "Barracks": 1,
+          "CommandCenter": 1,
+          "CommandLab": 1,
+          "PowerPlant": 1,
+          "RepairDepot": 1,
+          "Tank": 1,
+          "VehicleFactory": 1,
+          "Worker": 5
+        },
+        "enemy_units": {
+          "AircraftFactory": 1,
+          "AntiAirTurret": 1,
+          "AntiGroundTurret": 1,
+          "Barracks": 1,
+          "CombatRobot": 2,
+          "CommandCenter": 1,
+          "CommandLab": 1,
+          "Drone": 1,
+          "Helicopter": 2,
+          "Infantry": 6,
+          "PowerPlant": 1,
+          "RepairDepot": 1,
+          "RepairRobot": 1,
+          "Tank": 2,
+          "VehicleFactory": 1,
+          "Worker": 6
+        },
+        "policy": {
+          "army": 1,
+          "assault_gates": {
+            "army_at_least_9": false,
+            "health_at_least_80_percent": true,
+            "no_visible_home_threats": false,
+            "quiet_20_seconds": false,
+            "saw_home_attack": true
+          },
+          "health": 1.0,
+          "phase": "recover",
+          "pressure_age": 0.0,
+          "saw_attack": true,
+          "visible_home_threats": 7
+        }
+      },
+      "coordination_samples": 1813,
+      "max_stationary_travel": [
+        2.0,
+        2.0
+      ]
+    },
+    {
+      "branch": "combined",
+      "seed": 4111,
+      "outcome": "Defeat",
+      "seconds": 641.9,
+      "basic_unlock": 187.750000000042,
+      "first_program": 202.250000000053,
+      "first_assault": null,
+      "assaults": 0,
+      "harvested": [
+        390.0,
+        184.0
+      ],
+      "net_spent": [
+        445.0,
+        106.0
+      ],
+      "worker_losses": 7,
+      "first_home_response": 139.250000000003,
+      "home_response_orders": 122,
+      "first_handoff": 141.250000000005,
+      "handoffs": 10,
+      "samples_without_electronics_assignment": 0,
+      "economy_samples": 8,
+      "latest_hq_sample": {
+        "seconds": 540.7,
+        "human_units": {
+          "CommandCenter": 1,
+          "CommandLab": 1,
+          "PowerPlant": 1,
+          "RepairDepot": 1,
+          "VehicleFactory": 1,
+          "Worker": 6
+        },
+        "enemy_units": {
+          "AdvancedTank": 1,
+          "AircraftFactory": 1,
+          "AntiAirTurret": 1,
+          "AntiGroundTurret": 1,
+          "Barracks": 1,
+          "CombatRobot": 1,
+          "CommandCenter": 1,
+          "CommandLab": 1,
+          "Drone": 1,
+          "Helicopter": 1,
+          "Infantry": 4,
+          "PowerPlant": 1,
+          "RepairDepot": 1,
+          "RepairRobot": 1,
+          "Tank": 1,
+          "VehicleFactory": 1,
+          "Worker": 6
+        },
+        "policy": {
+          "army": 0,
+          "assault_gates": {
+            "army_at_least_9": false,
+            "health_at_least_80_percent": false,
+            "no_visible_home_threats": false,
+            "quiet_20_seconds": false,
+            "saw_home_attack": true
+          },
+          "health": 0.0,
+          "phase": "defend",
+          "pressure_age": 1.49999999999864,
+          "saw_attack": true,
+          "visible_home_threats": 3
+        }
+      },
+      "coordination_samples": 1284,
+      "max_stationary_travel": [
+        2.0,
+        3.0
+      ]
+    },
+    {
+      "branch": "combined",
+      "seed": 4112,
+      "outcome": "Victory",
+      "seconds": 1731.9,
+      "basic_unlock": 176.250000000032,
+      "first_program": 185.75000000004,
+      "first_assault": 323.750000000034,
+      "assaults": 8,
+      "harvested": [
+        1260.0,
+        482.0
+      ],
+      "net_spent": [
+        1284.0,
+        441.0
+      ],
+      "worker_losses": 3,
+      "first_home_response": 139.250000000003,
+      "home_response_orders": 174,
+      "first_handoff": 144.750000000007,
+      "handoffs": 7,
+      "samples_without_electronics_assignment": 1,
+      "economy_samples": 27,
+      "latest_hq_sample": {
+        "seconds": 1680.7,
+        "human_units": {
+          "AircraftFactory": 1,
+          "Barracks": 1,
+          "CommandCenter": 1,
+          "CommandLab": 1,
+          "Drone": 1,
+          "Helicopter": 2,
+          "Infantry": 6,
+          "PowerPlant": 1,
+          "RepairDepot": 1,
+          "RepairRobot": 1,
+          "Tank": 6,
+          "VehicleFactory": 1,
+          "Worker": 6
+        },
+        "enemy_units": {
+          "AntiAirTurret": 1,
+          "AntiGroundTurret": 1,
+          "Barracks": 1,
+          "Drone": 1,
+          "Helicopter": 1,
+          "PowerPlant": 1,
+          "RepairDepot": 1,
+          "VehicleFactory": 1
+        },
+        "policy": {
+          "army": 12,
+          "assault_gates": {
+            "army_at_least_9": true,
+            "health_at_least_80_percent": false,
+            "no_visible_home_threats": true,
+            "quiet_20_seconds": true,
+            "saw_home_attack": true
+          },
+          "health": 0.775723379629629,
+          "phase": "attack",
+          "pressure_age": 92.4999999999159,
+          "saw_attack": true,
+          "visible_home_threats": 0
+        }
+      },
+      "coordination_samples": 3464,
+      "max_stationary_travel": [
+        2.0,
+        1.5
+      ]
+    }
+  ],
+  "aggregate": {
+    "control": {
+      "outcomes": {
+        "Victory": 0,
+        "Defeat": 3,
+        "Draw": 0
+      },
+      "assault_matches": 2,
+      "median_seconds": 787.2,
+      "median_first_program": 198.25000000005,
+      "median_harvested": [
+        625.0,
+        159.0
+      ],
+      "median_worker_losses": 7
+    },
+    "response": {
+      "outcomes": {
+        "Victory": 0,
+        "Defeat": 3,
+        "Draw": 0
+      },
+      "assault_matches": 1,
+      "median_seconds": 787.2,
+      "median_first_program": 191.750000000045,
+      "median_harvested": [
+        483.0,
+        179.0
+      ],
+      "median_worker_losses": 11
+    },
+    "handoff": {
+      "outcomes": {
+        "Victory": 1,
+        "Defeat": 2,
+        "Draw": 0
+      },
+      "assault_matches": 1,
+      "median_seconds": 601.4,
+      "median_first_program": 209.233333333392,
+      "median_harvested": [
+        468.0,
+        178.0
+      ],
+      "median_worker_losses": 1
+    },
+    "combined": {
+      "outcomes": {
+        "Victory": 1,
+        "Defeat": 2,
+        "Draw": 0
+      },
+      "assault_matches": 2,
+      "median_seconds": 906.5,
+      "median_first_program": 185.75000000004,
+      "median_harvested": [
+        476.0,
+        348.0
+      ],
+      "median_worker_losses": 7
+    }
+  },
+  "shipping_script_count": 288,
+  "shipping_differences": []
+}

@@ -1,0 +1,27 @@
+{
+  "shipping_scripts": 289,
+  "changed": [
+    "source/match/EconomySupply.gd",
+    "source/match/hud/ResourcesBar.gd"
+  ],
+  "added": [
+    "source/match/EconomyAssignments.gd"
+  ],
+  "godot_processes": 9,
+  "preceding_code_expected_failures": 12,
+  "accepted_images": [
+    "verified-preview-helix-queued-1.png",
+    "verified-preview-helix-queued-2.png",
+    "verified-preview-helix-restored-2.png"
+  ],
+  "input_checks": {
+    "mouse": 2,
+    "enter": 1
+  },
+  "final_delivery_records": [
+    "ASSIGNMENT DELIVERY bastion original_cargo=4 electronics=12 elapsed=88.3499999999958",
+    "ASSIGNMENT DELIVERY helix original_cargo=4 electronics=16 elapsed=99.7166666666618",
+    "ASSIGNMENT DELIVERY frontier original_cargo=4 electronics=8 elapsed=69.7833333333302"
+  ],
+  "limits": "Controlled all-faction Advanced fixtures with disabled opponent strategy; no contested/novice/balance claim."
+}

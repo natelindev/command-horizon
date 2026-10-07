@@ -1,0 +1,90 @@
+{
+  "runs": [
+    {
+      "log": "visible-regression.log",
+      "exit_code": 0,
+      "classification": "accepted",
+      "summary": "Program issues: 0 failures"
+    },
+    {
+      "log": "edges.log",
+      "exit_code": 0,
+      "classification": "accepted",
+      "summary": "Program issue edges: 0 failures"
+    },
+    {
+      "log": "BattlePlanRegression.log",
+      "exit_code": 0,
+      "classification": "accepted",
+      "summary": "Battle plan regression: 0 failures"
+    },
+    {
+      "log": "DefenseFocusRegression.log",
+      "exit_code": 0,
+      "classification": "accepted",
+      "summary": "Defense focus: 0 failures; 14 focus checks"
+    },
+    {
+      "log": "SupportDiscoveryRegression.log",
+      "exit_code": 0,
+      "classification": "accepted",
+      "summary": "Support discovery: 0 failures"
+    },
+    {
+      "log": "BlockedAssignmentRegression.log",
+      "exit_code": 0,
+      "classification": "accepted",
+      "summary": "Blocked assignment: 0 failures"
+    },
+    {
+      "log": "verified-render.log",
+      "exit_code": 0,
+      "classification": "accepted",
+      "summary": "Program issues: 0 failures"
+    },
+    {
+      "log": "before-regression.log",
+      "exit_code": 1,
+      "classification": "expected negative control",
+      "assertion_failures": 3,
+      "reason": "Preceding shipping files lack discovery; no script errors."
+    },
+    {
+      "log": "initial-regression.log",
+      "exit_code": 0,
+      "classification": "rejected fixture",
+      "reason": "Godot parse error in multiline lambda; no behavioral result."
+    },
+    {
+      "log": "regression.log",
+      "exit_code": 1,
+      "classification": "rejected fixture",
+      "assertion_failures": 3,
+      "reason": "Positive scroll offset assumed even when controls fit; replaced with viewport bounds."
+    },
+    {
+      "log": "render.log",
+      "exit_code": 1,
+      "classification": "rejected fixture",
+      "assertion_failures": 6,
+      "reason": "Recovery map target behind selection panel; final fixture exposes target before click."
+    },
+    {
+      "log": "format.log",
+      "exit_code": 0,
+      "classification": "accepted static check"
+    },
+    {
+      "log": "lint.log",
+      "exit_code": 0,
+      "classification": "accepted static check"
+    }
+  ],
+  "accepted_headless_suites": 6,
+  "accepted_rendered_runs": 1,
+  "accepted_captures": 11,
+  "rendered_input": "Godot GUI event injection: four mouse and four Enter shortcut activations, three Assign/map/Resume flows.",
+  "known_diagnostics": "Navigation runtime readback and shutdown ObjectDB/resource/RID/shader warnings remain.",
+  "rejected_capture_prefix": "render-",
+  "accepted_capture_prefix": "verified-render-"
+}

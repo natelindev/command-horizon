@@ -8,7 +8,7 @@ func _ready():
 
 
 func _unhandled_input(event):
-	if event.is_action_pressed("toggle_diagnostic_mode"):
+	if event.is_action_pressed("toggle_diagnostic_mode", false, true):
 		visible = not visible
 
 

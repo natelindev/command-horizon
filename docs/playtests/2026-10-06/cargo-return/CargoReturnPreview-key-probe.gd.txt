@@ -1,0 +1,166 @@
+extends "res://tests/headless/CargoReturnRegression.gd"
+
+var deadline = 0
+var capture_prefix = ""
+
+
+class KeyProbe:
+	extends Node
+
+	func _input(event):
+		if event is InputEventKey:
+			print(
+				"KEY PROBE ",
+				event.as_text(),
+				" pressed=",
+				event.pressed,
+				" physical=",
+				event.physical_keycode,
+				" held=",
+				Input.is_physical_key_pressed(KEY_SHIFT),
+				" accept=",
+				event.is_action_pressed("ui_accept", false, false)
+			)
+
+
+func _initialize():
+	Engine.max_fps = 60
+	deadline = Time.get_ticks_msec() + 300000
+	_run.call_deferred()
+
+
+func _process(_delta):
+	if Time.get_ticks_msec() > deadline:
+		push_error("Native cargo return review timed out")
+		quit(1)
+	return false
+
+
+func _run():
+	for argument in OS.get_cmdline_user_args():
+		if argument.begins_with("--captures="):
+			capture_prefix = argument.trim_prefix("--captures=")
+	if capture_prefix == "":
+		push_error("Supply a fresh --captures=<prefix>; native input required")
+		quit(2)
+		return
+	var options = root.get_node("Globals").options
+	var original = options.capture()
+	options.restore({"screen": 1, "interface_scale": 1.5, "edge_scrolling": false})
+	await create_timer(2).timeout
+	root.mode = Window.MODE_WINDOWED
+	root.size = Vector2i(1280, 720)
+	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	root.content_scale_size = Vector2i(1920, 1080)
+	root.get_node("SaveManager").autosaves_enabled = false
+	for faction in ["frontier"]:
+		await _cargo_fixture(faction)
+		await _native_delivery(faction)
+		paused = false
+		game.queue_free()
+		await _frames(5)
+	options.restore(original)
+	for error in errors:
+		push_error(error)
+	print("Cargo return native: %d failures" % errors.size())
+	quit(0 if errors.is_empty() else 1)
+
+
+func _native_delivery(faction):
+	owner.coordination_unlocked = true
+	var camera = game.get_node("IsometricCamera3D")
+	camera.set_size_safely(24)
+	camera.set_position_safely(_units(owner, "CommandCenter")[0].position)
+	game.fog_of_war._physics_process(0.0)
+	await _select_units([carrier])
+	var menus = game.find_child("UnitMenus")
+	var probe = KeyProbe.new()
+	probe.process_mode = Node.PROCESS_MODE_ALWAYS
+	root.add_child(probe)
+	menus._return_cargo.gui_input.connect(func(event): print("GUI PROBE ", event.as_text()))
+	menus._refresh_buttons()
+	await _frames(10)
+	if faction == "frontier":
+		await _select_units([_units(owner, "Tank")[0], carrier])
+		await _frames(10)
+		await _capture(faction + "-mixed")
+		_check_layout(menus)
+		await _select_units([carrier])
+		carrier.manual_orders.submit({"kind": "move", "point": carrier.position + Vector3(0, 0, 2)})
+	if faction in ["helix", "frontier"]:
+		menus._command_buttons.move.grab_focus()
+	await _frames(8)
+	await _capture(faction + "-loaded")
+	_check_layout(menus)
+	var clock = game.simulation_time
+	var funds = Vector2i(owner.resource_a, owner.resource_b)
+	print(
+		"NATIVE RETURN BUTTON ",
+		root.get_final_transform() * menus._return_cargo.get_global_rect().get_center()
+	)
+	await _wait_input(
+		func():
+			return carrier.manual_orders.pending.any(func(order): return order.kind == "gather"),
+		(
+			faction
+			+ (
+				": Tab then Enter"
+				if faction == "helix"
+				else (": Tab then Shift+Enter" if faction == "frontier" else ": click Return cargo")
+			)
+		)
+	)
+	_check(paused and game.simulation_time == clock, "Native delivery advanced paused simulation")
+	_check(
+		(
+			carrier.resource_a == 3
+			and carrier.resource_b == 1
+			and Vector2i(owner.resource_a, owner.resource_b) == funds
+		),
+		"Native click transferred cargo early"
+	)
+	_check(
+		carrier.manual_orders.pending.size() == (2 if faction == "frontier" else 1),
+		"Native Shift/replacement semantics failed"
+	)
+	await _capture(faction + "-queued")
+	await _wait_input(func(): return not paused, "press Space to resume delivery")
+	var end = Time.get_ticks_msec() + 30000
+	while carrier.resource_a + carrier.resource_b > 0 and Time.get_ticks_msec() < end:
+		await _frames(1)
+	game.hud._toggle_pause()
+	_check(
+		Vector2i(owner.resource_a, owner.resource_b) == funds + Vector2i(3, 1),
+		"Native actual delivery failed exact accounting"
+	)
+	menus._refresh_buttons()
+	_check(menus._return_cargo.disabled, "Delivered engineer still has cargo button enabled")
+	await _frames(8)
+	await _capture(faction + "-delivered")
+
+
+func _check_layout(menus):
+	_check(
+		root.get_visible_rect().encloses(menus.get_global_rect()), "Cargo panel escapes viewport"
+	)
+	for button in menus._command_buttons.values() + [menus._return_cargo]:
+		if button.visible:
+			_check(
+				menus.get_global_rect().encloses(button.get_global_rect()),
+				"Command button outside panel"
+			)
+
+
+func _wait_input(predicate, label):
+	print("NATIVE CARGO INPUT: ", label)
+	while not predicate.call() and Time.get_ticks_msec() <= deadline:
+		await _frames(1)
+	_check(predicate.call(), "Missing native input: " + label)
+
+
+func _capture(label):
+	await RenderingServer.frame_post_draw
+	var destination = capture_prefix + "-" + label + ".png"
+	_check(not FileAccess.file_exists(destination), "Capture already exists: " + destination)
+	if not FileAccess.file_exists(destination):
+		_check(root.get_texture().get_image().save_png(destination) == OK, "Capture write failed")

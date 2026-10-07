@@ -1,0 +1,72 @@
+[
+  {
+    "log": "regression.log",
+    "exit_code": 1,
+    "classification": "rejected",
+    "meaning": "Invalid raw-node manual-order descriptor; script errors.",
+    "script_or_parse_errors": true
+  },
+  {
+    "log": "corrected-regression.log",
+    "exit_code": 1,
+    "classification": "rejected",
+    "meaning": "Correct descriptor; three frozen-army trip failures.",
+    "script_or_parse_errors": false
+  },
+  {
+    "log": "original-regression.log",
+    "exit_code": 1,
+    "classification": "rejected",
+    "meaning": "Fifteen expected eligibility failures plus three frozen-army trip failures.",
+    "script_or_parse_errors": false
+  },
+  {
+    "log": "diagnostic-regression.log",
+    "exit_code": 1,
+    "classification": "diagnostic",
+    "meaning": "Three original-position stalls, with position/action/cargo evidence.",
+    "script_or_parse_errors": false
+  },
+  {
+    "log": "clear-departure-regression.log",
+    "exit_code": 0,
+    "classification": "intermediate-pass",
+    "meaning": "Clear departure; three guard/disk/actual delivery branches pass, before inherited coverage added.",
+    "script_or_parse_errors": false
+  },
+  {
+    "log": "shared-reassignment.log",
+    "exit_code": 0,
+    "classification": "pass",
+    "meaning": "Default reference safety/spacing/alternative regression.",
+    "script_or_parse_errors": false
+  },
+  {
+    "log": "final-regression.log",
+    "exit_code": 0,
+    "classification": "pass",
+    "meaning": "Final guarded all-faction regression with inherited recovery cases.",
+    "script_or_parse_errors": false
+  },
+  {
+    "log": "final-original-regression.log",
+    "exit_code": 1,
+    "classification": "expected-negative",
+    "meaning": "Exactly fifteen guard assertions; inherited recovery and all three deliveries pass.",
+    "script_or_parse_errors": false
+  },
+  {
+    "log": "control6.log",
+    "exit_code": 0,
+    "classification": "completed-paid-match",
+    "meaning": "Ordinary recovery; defeat at 626.6 seconds; programming at 280.233 seconds.",
+    "script_or_parse_errors": false
+  },
+  {
+    "log": "guarded6.log",
+    "exit_code": 0,
+    "classification": "completed-paid-match",
+    "meaning": "Opt-in guarded recovery; defeat at 472.9 seconds; programming at 294.233 seconds.",
+    "script_or_parse_errors": false
+  }
+]

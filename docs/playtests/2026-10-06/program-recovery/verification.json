@@ -1,0 +1,52 @@
+{
+  "passing_logs": {
+    "verified.log": [
+      "Program recovery feedback: 0 failures"
+    ],
+    "pressure.log": [
+      "Program pressure probe: 0 failures"
+    ],
+    "earned-service-verified.log": [
+      "Earned service recovery: 0 failures"
+    ],
+    "native-verified.log": [
+      "Program recovery native: 0 failures"
+    ],
+    "PresetRecoveryRegression.log": [
+      "Preset facility recovery: 0 failures"
+    ],
+    "AuthoredRecoveryRegression.log": [
+      "Authored facility recovery: 0 failures"
+    ],
+    "RecoveryOrdersRegression.log": [
+      "Recovery orders: 0 failures"
+    ],
+    "BattlePlanRegression.log": [
+      "Battle plan regression: 0 failures"
+    ]
+  },
+  "native_images": {
+    "native-verified-healing.png": [
+      1280,
+      720
+    ],
+    "native-verified-paid-foundation.png": [
+      1280,
+      720
+    ],
+    "native-verified-returned.png": [
+      1280,
+      720
+    ],
+    "native-verified-unsupported.png": [
+      1280,
+      720
+    ]
+  },
+  "source_checks": "9 scripts; gdformat and gdlint pass",
+  "retained_failures": {
+    "before.log": "18 original missing-support feedback assertions",
+    "native.log": "initial harness pause ownership mismatch caused timeout; fixed rerun passes"
+  },
+  "limits": "Controlled earned continuation; no full-match survival or balance conclusion."
+}

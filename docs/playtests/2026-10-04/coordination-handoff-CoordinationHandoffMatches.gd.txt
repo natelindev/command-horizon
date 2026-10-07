@@ -1,0 +1,85 @@
+extends "res://tmp/RegionalSkirmishMatches.gd"
+
+var handoff_history = []
+var handoff_captures = 0
+var probe_run = "0"
+
+
+func _initialize():
+	for argument in OS.get_cmdline_user_args():
+		if argument.begins_with("--probe-run="):
+			probe_run = argument.trim_prefix("--probe-run=")
+	super()
+
+
+func _measure():
+	super()
+	var probe = load("res://tests/headless/SkirmishCoordinationMetrics.gd")
+	var units = get_nodes_in_group("units")
+	var issues = probe.inspect(opponent, units)
+	var builder = load("res://source/match/saves/MatchSnapshot.gd").new()
+	var groups = []
+	for group in opponent._army_groups:
+		groups.append(
+			{
+				"kind": group.kind,
+				"point": str(group.point),
+				"started": group.started,
+				"retiring": group.retiring,
+				"members":
+				(
+					group
+					. members
+					. filter(func(unit): return is_instance_valid(unit))
+					. map(func(unit): return unit.get_instance_id())
+				)
+			}
+		)
+	var actors = []
+	for unit in units:
+		if unit.player != opponent or unit.movement_speed <= 0:
+			continue
+		var action = unit.action
+		var movement = unit.get_node_or_null("Movement")
+		actors.append(
+			{
+				"id": unit.get_instance_id(),
+				"role": unit.type,
+				"position": str(unit.position),
+				"hp": unit.hp,
+				"hp_max": unit.hp_max,
+				"action": action.get_script().resource_path if action != null else "",
+				"action_queued": action.is_queued_for_deletion() if action != null else false,
+				"destination":
+				str(action.destination) if action != null and "destination" in action else "",
+				"shot":
+				is_instance_valid(action._shot) if action != null and "_shot" in action else false,
+				"active": movement._has_destination if movement != null else false,
+				"movement_target": str(movement.target_position) if movement != null else ""
+			}
+		)
+	var row = {"time": game.simulation_time, "groups": groups, "actors": actors, "issues": issues}
+	handoff_history.append(row)
+	if handoff_history.size() > 16:
+		handoff_history.pop_front()
+	if issues.is_empty() or handoff_captures >= 4:
+		return
+	var stem = (
+		"res://docs/playtests/2026-10-04/coordination-handoff-%s-%d" % [probe_run, handoff_captures]
+	)
+	var was_paused = paused
+	paused = true
+	var data = builder.capture(game)
+	var references = {}
+	for unit in units:
+		references[str(unit.get_instance_id())] = builder._reference(unit)
+	_check(
+		load("res://source/match/saves/SaveFile.gd").new().write_file(stem + ".json", data),
+		"Coordination archive failed"
+	)
+	paused = was_paused
+	var file = FileAccess.open(stem + "-trace.json", FileAccess.WRITE)
+	file.store_string(JSON.stringify({"references": references, "history": handoff_history}, "\t"))
+	file.close()
+	print("COORDINATION HANDOFF ", stem, " issues=", issues, " seconds=", game.simulation_time)
+	handoff_captures += 1

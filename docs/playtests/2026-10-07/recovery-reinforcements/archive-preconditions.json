@@ -1,0 +1,39 @@
+{
+  "archive": "docs/playtests/2026-10-07/material-handoff/control-unresolved.json",
+  "sha256": "5a07a2b7051590c5cfe08a5bc00d3fc3a2b6dac46e0a30aa6c9dac95300e918b",
+  "private_state_audit": {
+    "worker_episodes": {
+      "count": 56,
+      "last_end": 1163.24999999927,
+      "active_records": 0
+    },
+    "armor_recovery": {
+      "count": 0,
+      "last_end": null,
+      "active_records": 0
+    },
+    "conventional_recovery": {
+      "count": 65,
+      "last_end": 1154.24999999928,
+      "active_records": 0
+    },
+    "retrofit_episodes": {
+      "count": 3,
+      "last_end": 215.250000000063,
+      "active_records": 0
+    },
+    "relay_expeditions": {
+      "count": 5,
+      "last_end": 243.250000000086,
+      "active_records": 0
+    }
+  },
+  "reconstruction_limits": [
+    "Stored recovery phase, timestamps, vehicle sequence and ground membership restored.",
+    "No active recorded retreat, engineer withdrawal, treatment, retrofit or expedition remains in this checkpoint.",
+    "Running authored guard retains its saved program; test-only ownership metadata restored.",
+    "Historical metrics and unrecorded commander cooldowns restart identically; not a bit-identical process resume."
+  ],
+  "source_run_seed": 4111,
+  "continuation_harness_seed": 4110
+}

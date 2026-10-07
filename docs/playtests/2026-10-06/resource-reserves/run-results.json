@@ -1,0 +1,248 @@
+[
+  {
+    "log": "FrontierProductionAIRegression.log",
+    "script_errors": 7348,
+    "parse_errors": 0,
+    "summary": [
+      "Frontier AI production: 4 failures"
+    ],
+    "exit_code": 1,
+    "classification": "superseded_research_fixture_and_missing_cleanup",
+    "engine_errors": [
+      "ERROR: Funded AI job was not purchased",
+      "ERROR: bastion: procurement did not finish",
+      "ERROR: helix: procurement did not finish",
+      "ERROR: frontier: procurement did not finish",
+      "ERROR: 2 RID allocations of type '13NavObstacle3D' were leaked at exit.",
+      "ERROR: 2 RID allocations of type '10NavAgent3D' were leaked at exit."
+    ]
+  },
+  {
+    "log": "ReferenceEconomyRegression.log",
+    "script_errors": 0,
+    "parse_errors": 0,
+    "summary": [
+      "Reference economy: 0 failures"
+    ],
+    "classification": "final_pass",
+    "engine_errors": [
+      "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+    ],
+    "exit_code": 0
+  },
+  {
+    "log": "ResearchEconomyRegression.log",
+    "script_errors": 0,
+    "parse_errors": 0,
+    "summary": [
+      "Research economy: 0 failures"
+    ],
+    "classification": "final_pass",
+    "engine_errors": [
+      "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+    ],
+    "exit_code": 0
+  },
+  {
+    "log": "SkirmishBudgetRegression.log",
+    "script_errors": 0,
+    "parse_errors": 0,
+    "summary": [
+      "Skirmish budget: 0 failures"
+    ],
+    "classification": "final_pass",
+    "engine_errors": [
+      "ERROR: 2 resources still in use at exit (run with --verbose for details)."
+    ],
+    "exit_code": 0
+  },
+  {
+    "log": "SkirmishCompositionRegression.log",
+    "script_errors": 0,
+    "parse_errors": 0,
+    "summary": [
+      "Skirmish composition: 0 failures"
+    ],
+    "classification": "final_pass",
+    "engine_errors": [
+      "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+    ],
+    "exit_code": 0
+  },
+  {
+    "log": "SkirmishCoordinationRegression.log",
+    "script_errors": 0,
+    "parse_errors": 0,
+    "summary": [
+      "Global coordination: 0 failures"
+    ],
+    "classification": "final_pass",
+    "engine_errors": [
+      "ERROR: 2 resources still in use at exit (run with --verbose for details)."
+    ],
+    "exit_code": 0
+  },
+  {
+    "log": "SkirmishLaborRegression.log",
+    "script_errors": 0,
+    "parse_errors": 0,
+    "summary": [
+      "Skirmish labor: 0 failures"
+    ],
+    "classification": "final_pass",
+    "engine_errors": [
+      "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+    ],
+    "exit_code": 0
+  },
+  {
+    "log": "TechnologyAIRegression.log",
+    "script_errors": 0,
+    "parse_errors": 0,
+    "summary": [
+      "Technology AI: 0 failures"
+    ],
+    "classification": "final_pass",
+    "engine_errors": [],
+    "exit_code": 0
+  },
+  {
+    "log": "after-regression.log",
+    "script_errors": 0,
+    "parse_errors": 0,
+    "summary": [
+      "Independent resource reserves: 0 failures"
+    ],
+    "exit_code": 0,
+    "classification": "initial_pass",
+    "engine_errors": [
+      "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.",
+      "ERROR: 2 resources still in use at exit (run with --verbose for details)."
+    ]
+  },
+  {
+    "log": "baseline-final.log",
+    "script_errors": 0,
+    "parse_errors": 0,
+    "summary": [
+      "Independent resource reserves: 20 failures"
+    ],
+    "exit_code": 1,
+    "classification": "expected_original_failure",
+    "engine_errors": [
+      "ERROR: Unspent electronics shortage blocked earned infantry",
+      "ERROR: Earned infantry charged wrong funds",
+      "ERROR: bastion: surplus materials did not fund infantry",
+      "ERROR: bastion: reserve was consumed",
+      "ERROR: Unfunded counter blocked noncompeting infantry",
+      "ERROR: Infantry spent priority counter savings",
+      "ERROR: helix: surplus materials did not fund infantry",
+      "ERROR: helix: reserve was consumed",
+      "ERROR: frontier: surplus materials did not fund infantry",
+      "ERROR: frontier: reserve was consumed",
+      "ERROR: 2 resources still in use at exit (run with --verbose for details)."
+    ]
+  },
+  {
+    "log": "before-regression.log",
+    "script_errors": 0,
+    "parse_errors": 0,
+    "summary": [
+      "Independent resource reserves: 14 failures"
+    ],
+    "exit_code": 1,
+    "classification": "initial_expected_failure",
+    "engine_errors": [
+      "ERROR: Unspent electronics shortage blocked earned infantry",
+      "ERROR: Earned infantry charged wrong funds",
+      "ERROR: bastion: surplus materials did not fund infantry",
+      "ERROR: bastion: reserve was consumed",
+      "ERROR: helix: surplus materials did not fund infantry",
+      "ERROR: helix: reserve was consumed",
+      "ERROR: frontier: surplus materials did not fund infantry",
+      "ERROR: frontier: reserve was consumed"
+    ]
+  },
+  {
+    "log": "final-procurement.log",
+    "script_errors": 0,
+    "parse_errors": 0,
+    "summary": [
+      "Frontier AI production: 0 failures"
+    ],
+    "exit_code": 0,
+    "classification": "final_pass",
+    "engine_errors": []
+  },
+  {
+    "log": "final-regression.log",
+    "script_errors": 0,
+    "parse_errors": 0,
+    "summary": [
+      "Independent resource reserves: 0 failures"
+    ],
+    "exit_code": 0,
+    "classification": "final_pass",
+    "engine_errors": [
+      "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.",
+      "ERROR: 2 resources still in use at exit (run with --verbose for details)."
+    ]
+  },
+  {
+    "log": "match0.log",
+    "script_errors": 0,
+    "parse_errors": 0,
+    "summary": [
+      "Skirmish matrix: 1 records, 0 unresolved checks"
+    ],
+    "exit_code": 0,
+    "classification": "paid_match_victory",
+    "engine_errors": [
+      "ERROR: 2 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.",
+      "ERROR: 2 resources still in use at exit (run with --verbose for details)."
+    ]
+  },
+  {
+    "log": "match6.log",
+    "script_errors": 0,
+    "parse_errors": 0,
+    "summary": [
+      "Skirmish matrix: 1 records, 0 unresolved checks"
+    ],
+    "exit_code": 0,
+    "classification": "paid_match_defeat",
+    "engine_errors": [
+      "ERROR: 2 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.",
+      "ERROR: 6 resources still in use at exit (run with --verbose for details)."
+    ]
+  },
+  {
+    "log": "original-fixed-procurement.log",
+    "script_errors": 0,
+    "parse_errors": 0,
+    "summary": [
+      "Frontier AI production: 0 failures"
+    ],
+    "exit_code": 0,
+    "classification": "corrected_fixture_original_code_pass",
+    "engine_errors": []
+  },
+  {
+    "log": "original-procurement.log",
+    "script_errors": 7348,
+    "parse_errors": 0,
+    "summary": [
+      "Frontier AI production: 4 failures"
+    ],
+    "exit_code": 1,
+    "classification": "original_code_same_fixture_failure",
+    "engine_errors": [
+      "ERROR: Funded AI job was not purchased",
+      "ERROR: bastion: procurement did not finish",
+      "ERROR: helix: procurement did not finish",
+      "ERROR: frontier: procurement did not finish",
+      "ERROR: 2 RID allocations of type '13NavObstacle3D' were leaked at exit.",
+      "ERROR: 2 RID allocations of type '10NavAgent3D' were leaked at exit."
+    ]
+  }
+]

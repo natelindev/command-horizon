@@ -1,0 +1,102 @@
+[
+  {
+    "name": "split-rules",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/headless/SplitSignalRegression.gd",
+      "--"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "shortcut",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/headless/SplitCaptureShortcut.gd",
+      "--",
+      "--evidence=res://docs/playtests/2026-10-07/split-environment/shortcut"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "relay-feedback",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/headless/RelayFeedbackRegression.gd",
+      "--"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "difficulty-0",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/SplitDifficultyMatches.gd",
+      "--",
+      "--difficulty=0",
+      "--clear-contests",
+      "--evidence=res://docs/playtests/2026-10-07/split-environment/difficulty-0"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "difficulty-1",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/SplitDifficultyMatches.gd",
+      "--",
+      "--difficulty=1",
+      "--clear-contests",
+      "--evidence=res://docs/playtests/2026-10-07/split-environment/difficulty-1"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "difficulty-2",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/SplitDifficultyMatches.gd",
+      "--",
+      "--difficulty=2",
+      "--clear-contests",
+      "--evidence=res://docs/playtests/2026-10-07/split-environment/difficulty-2"
+    ],
+    "exit_code": 0
+  }
+]

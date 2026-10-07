@@ -1,5 +1,7 @@
 extends Camera3D
 
+const Bindings = preload("res://source/input/KeyBindings.gd")
+
 const EXPECTED_X_ROTATION_DEGREES = -30.0
 const EXPECTED_PROJECTION = PROJECTION_ORTHOGONAL
 
@@ -32,6 +34,9 @@ func _ready():
 
 
 func _physics_process(delta: float):
+	var focus = get_viewport().gui_get_focus_owner()
+	if focus is LineEdit or focus is TextEdit:
+		return
 	var realtime_delta = delta / Engine.time_scale
 	if _try_handling_movement(realtime_delta):
 		return
@@ -74,6 +79,7 @@ func _try_handling_movement(delta: float) -> bool:
 		screen_move_vector.normalized()
 		* delta
 		* Vector2(movement_speed, movement_speed * 2.0)
+		* Globals.options.camera_speed
 		* size
 	)
 	var camera_move_vector = (
@@ -86,12 +92,15 @@ func _try_handling_movement(delta: float) -> bool:
 
 
 func _calculate_screen_move_vector() -> Vector2:
-	var viewport_size = get_viewport().size
+	var viewport_size = get_viewport().get_visible_rect().size
 	var mouse_pos = get_viewport().get_mouse_position()
 
-	var x_axis = Input.get_axis("move_map_left", "move_map_right")
-	var y_axis = Input.get_axis("move_map_up", "move_map_down")
+	var x_axis = Bindings.axis("move_map_left", "move_map_right")
+	var y_axis = Bindings.axis("move_map_up", "move_map_down")
 	var move_vector = Vector2(x_axis, y_axis)
+
+	if not Globals.options.edge_scrolling:
+		return move_vector
 
 	if mouse_pos.x <= screen_margin_for_movement:
 		move_vector.x = -1
@@ -118,11 +127,11 @@ func _try_handling_zoom(event: InputEvent):
 
 
 func _zoom_in():
-	set_size_safely(size - 1)
+	set_size_safely(size - Globals.options.zoom_speed)
 
 
 func _zoom_out():
-	set_size_safely(size + 1)
+	set_size_safely(size + Globals.options.zoom_speed)
 
 
 func _try_handling_arrowkey_rotation(delta: float):
@@ -130,7 +139,7 @@ func _try_handling_arrowkey_rotation(delta: float):
 		return
 	var angle_radians = (
 		delta
-		* Input.get_axis("rotate_map_counterclockwise", "rotate_map_clockwise")
+		* Bindings.axis("rotate_map_counterclockwise", "rotate_map_clockwise")
 		* arrowkey_rotation_speed
 	)
 	if not is_zero_approx(angle_radians):
@@ -201,7 +210,7 @@ func _is_rotating() -> bool:
 
 
 func _calculate_pivot_point() -> Vector3:
-	var screen_center_pos_2d = get_viewport().size / 2.0
+	var screen_center_pos_2d = get_viewport().get_visible_rect().size / 2.0
 	return get_ray_intersection_with_plane(screen_center_pos_2d, reference_plane_for_rotation)
 
 
@@ -259,7 +268,7 @@ func _clamp_position_to_bounding_planes(a_position: Vector3) -> Vector3:
 
 func _target_position_to_camera_position(target_position: Vector3) -> Vector3:
 	target_position = _clamp_position_to_bounding_planes(target_position)
-	var screen_center_pos_2d = get_viewport().size / 2.0
+	var screen_center_pos_2d = get_viewport().get_visible_rect().size / 2.0
 	var camera_ray = project_ray_normal(screen_center_pos_2d)
 	var target_plane = Plane(Vector3.UP, target_position.y)
 	var intersection = target_plane.intersects_ray(global_transform.origin, camera_ray)

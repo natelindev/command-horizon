@@ -1,0 +1,205 @@
+extends "res://tests/headless/SkirmishDefensePolicy.gd"
+
+var vehicle_sequence = 0
+var composition
+
+
+func _run():
+	composition = load("res://source/match/players/skirmish-ai/SkirmishComposition.gd")
+	root.get_node("MatchSignals").unit_production_started.connect(_observe_production)
+	await super()
+
+
+func _play_case(index):
+	vehicle_sequence = 0
+	await super(index)
+
+
+func _policy_army():
+	return plan_rules.army(human).filter(
+		func(unit): return unit.movement_domain == constants.Match.Navigation.Domain.TERRAIN
+	)
+
+
+func _economy():
+	super()
+	if not human.has_completed_structure("CommandLab") or _unit(human, "AircraftFactory") != null:
+		return
+	var units = plan_rules.owned_units(human)
+	if units.any(
+		func(unit): return unit.has_method("is_constructed") and not unit.is_constructed()
+	):
+		return
+	var workers = units.filter(func(unit): return unit.type == "Worker")
+	if (
+		not workers.is_empty()
+		and human.has_resources(factions.cost(human, "AircraftFactory", true))
+	):
+		_place("AircraftFactory", workers[0])
+
+
+func _produce():
+	var counts = composition.inventory(plan_rules.owned_units(human))
+	var airfield = _unit(human, "AircraftFactory")
+	var reserve = {"resource_a": 0, "resource_b": 0}
+	if human.has_completed_structure("CommandLab") and airfield == null:
+		reserve = factions.cost(human, "AircraftFactory", true)
+	for role in ["CommandCenter", "Barracks", "AircraftFactory", "VehicleFactory"]:
+		var producer = _unit(human, role)
+		if (
+			producer == null
+			or not producer.is_constructed()
+			or producer.production_queue.size() > 0
+		):
+			continue
+		var product = ""
+		match role:
+			"CommandCenter":
+				if counts.get("Worker", 0) < 6:
+					product = "Worker"
+			"Barracks":
+				if counts.get("Infantry", 0) < 4:
+					product = "Infantry"
+			"AircraftFactory":
+				if counts.get("Drone", 0) == 0:
+					product = "Drone"
+				elif counts.get("Helicopter", 0) < 2:
+					product = "Helicopter"
+			"VehicleFactory":
+				if not human.has_completed_structure("CommandLab"):
+					if counts.get("Tank", 0) > 0:
+						continue
+					product = "Tank"
+				else:
+					var machinery = counts.get("Tank", 0) + counts.get("CombatRobot", 0)
+					product = (
+						"RepairRobot"
+						if machinery >= 3 and counts.get("RepairRobot", 0) == 0
+						else ["Tank", "CombatRobot", "Tank"][vehicle_sequence % 3]
+					)
+		if product == "" or not factions.available(human, product):
+			continue
+		var price = factions.cost(human, product)
+		if role == "VehicleFactory":
+			producer.production_queue.fit_chips = human.has_completed_structure("CommandLab")
+			if product == "Tank" and producer.production_queue.fit_chips:
+				price.resource_b += factions.chip_cost(human.faction)
+		var protected = reserve if product != "Worker" else {"resource_a": 0, "resource_b": 0}
+		if (
+			human.resource_a < price.resource_a + protected.resource_a
+			or human.resource_b < price.resource_b + protected.resource_b
+		):
+			# Save for the next wing instead of spending every electronic on armor.
+			if role == "AircraftFactory":
+				reserve = price
+			continue
+		var job = producer.production_queue.produce(load(Catalog.scene_path(product)))
+		if job != null:
+			_spent += Vector2(job.paid_cost.resource_a, job.paid_cost.resource_b)
+			counts[product] = counts.get(product, 0) + 1
+			if role == "VehicleFactory":
+				vehicle_sequence += 1
+
+
+func _command():
+	super()
+	var hq = _unit(human, "CommandCenter")
+	if hq == null:
+		return
+	var enemy_start = game.map.find_child("SpawnPoints").get_child(1).position
+	var units = plan_rules.owned_units(human)
+	for scout in units.filter(func(unit): return unit.type == "Drone"):
+		if scout.global_position_yless.distance_to(enemy_start * Vector3(1, 0, 1)) < 1.0:
+			continue
+		if scout.action == null or (scout.action.has_method("is_idle") and scout.action.is_idle()):
+			scout.issue_manual_order(moving_order.new(enemy_start))
+	var contacts = get_nodes_in_group("units").filter(
+		func(unit):
+			return (
+				unit.player != human
+				and not unit.is_queued_for_deletion()
+				and game.battlefield.is_observed(human, unit)
+			)
+	)
+	for walker in units.filter(
+		func(unit): return unit.type == "CombatRobot" and human.faction == "helix"
+	):
+		var air_near = contacts.any(
+			func(unit):
+				return (
+					unit.movement_domain == constants.Match.Navigation.Domain.AIR
+					and unit.position.distance_to(walker.position) <= walker.sight_range
+				)
+		)
+		walker.request_weapon_mode("interception" if air_near else "precision")
+	var targets = contacts.filter(
+		func(unit): return unit.type == "Worker" or unit.has_method("is_constructed")
+	)
+	targets.sort_custom(
+		func(a, b): return _raid_score(a, enemy_start) < _raid_score(b, enemy_start)
+	)
+	var hangar = _unit(human, "AircraftFactory")
+	if targets.is_empty() or hangar == null or not hangar.is_constructed():
+		return
+	for aircraft in units.filter(func(unit): return unit.type == "Helicopter"):
+		if not aircraft.get_meta("mixed_raid", false):
+			var config = library.defaults("strike_return")
+			config.radius = 12.0
+			config.retreat = 40
+			config["return"] = 85
+			aircraft.program.configure(config, "Scouted economy raid")
+			aircraft.program.anchor = targets[0].global_position_yless
+			aircraft.program.safe_point = hangar.global_position_yless
+			_check(aircraft.program.run(), "Mixed-force strike preset refused assignment")
+			aircraft.set_meta("mixed_raid", true)
+			if not metrics.has("first_air_raid"):
+				metrics.first_air_raid = game.simulation_time
+		elif aircraft.hp >= aircraft.hp_max * .85:
+			if aircraft.program.anchor.distance_to(targets[0].global_position_yless) > 12:
+				aircraft.program.anchor = targets[0].global_position_yless
+
+
+func _raid_score(unit, enemy_start):
+	var preference = {"Worker": 0, "PowerPlant": 1, "VehicleFactory": 2, "Barracks": 3}
+	return preference.get(unit.type, 4) * 1000 + unit.position.distance_to(enemy_start)
+
+
+func _observe_production(prototype, producer):
+	if not is_instance_valid(game) or opponent == null or producer.player != opponent:
+		return
+	var role = Catalog.type_from_path(prototype.resource_path)
+	if role not in ["CombatRobot", "AdvancedTank", "RepairRobot"]:
+		return
+	if not metrics.has("ai_specialist_orders"):
+		metrics.ai_specialist_orders = []
+	metrics.ai_specialist_orders.append(
+		{
+			"seconds": game.simulation_time,
+			"role": role,
+			"observed": composition.observed(game, opponent)
+		}
+	)
+
+
+func _track_unit(unit):
+	super(unit)
+	if not is_instance_valid(game) or human == null or opponent == null:
+		return
+	if unit.player == human and unit.type == "Helicopter":
+		metrics.aircraft_produced = metrics.get("aircraft_produced", 0) + 1
+	if unit.player == opponent and unit.type == "AntiAirTurret":
+		if not metrics.has("ai_aa_foundations"):
+			metrics.ai_aa_foundations = []
+		metrics.ai_aa_foundations.append(
+			{"seconds": game.simulation_time, "observed": composition.observed(game, opponent)}
+		)
+
+
+func _measure():
+	super()
+	if metrics.has("first_air_seen_by_ai"):
+		return
+	for unit in plan_rules.owned_units(human):
+		if unit.type == "Helicopter" and game.battlefield.is_observed(opponent, unit):
+			metrics.first_air_seen_by_ai = game.simulation_time
+			return

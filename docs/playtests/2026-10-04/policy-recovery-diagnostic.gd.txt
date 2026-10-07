@@ -1,0 +1,103 @@
+extends "res://tests/headless/SkirmishMixedPolicy.gd"
+
+var service_rules
+var recovery_entries = {}
+var recovery_capture = false
+var last_recovery_sample = -100.0
+
+
+func _run():
+	service_rules = load("res://source/match/combat/RepairService.gd")
+	await super()
+
+
+func _play_case(index):
+	recovery_entries.clear()
+	recovery_capture = false
+	last_recovery_sample = -100.0
+	await super(index)
+
+
+func _measure():
+	super()
+	var now = game.simulation_time
+	var rows = []
+	for unit in _policy_army():
+		var id = unit.get_instance_id()
+		if not retreating.has(id):
+			if recovery_entries.has(id):
+				print(
+					"POLICY RECOVERED ",
+					unit.type,
+					" elapsed=",
+					now - recovery_entries[id],
+					" hp=",
+					unit.hp / unit.hp_max
+				)
+				recovery_entries.erase(id)
+			continue
+		if not recovery_entries.has(id):
+			recovery_entries[id] = now
+		var service = _unit(human, service_rules.facility_for_role(unit.type))
+		var distance = (
+			unit.global_position_yless.distance_to(service.global_position_yless)
+			if service != null
+			else INF
+		)
+		var movement = unit.get_node("Movement")
+		rows.append(
+			{
+				"id": id,
+				"role": unit.type,
+				"hp": unit.hp / unit.hp_max,
+				"seconds": now - recovery_entries[id],
+				"point": [unit.position.x, unit.position.z],
+				"action": str(unit.action),
+				"matching_service": service_rules.facility_eligible(service, unit),
+				"distance": distance,
+				"stationary": service_rules.stationary(unit),
+				"moving": movement._has_destination,
+				"destination": [movement.target_position.x, movement.target_position.z],
+				"last_hit": now - unit.last_enemy_damage_time
+			}
+		)
+		if now - recovery_entries[id] > 90 and not recovery_capture:
+			recovery_capture = true
+			_capture_recovery("long", unit)
+	if now - last_recovery_sample >= 30:
+		last_recovery_sample = now
+		print(
+			"POLICY RECOVERY SAMPLE ",
+			JSON.stringify({"seconds": now, "phase": phase, "units": rows})
+		)
+
+
+func _capture_recovery(label, unit = null):
+	var was_paused = paused
+	paused = true
+	var builder = load("res://source/match/saves/MatchSnapshot.gd").new()
+	var record = builder.capture(game)
+	var disk = "res://tmp/policy-recovery-%s-%d.json" % [label, repetition]
+	var ok = load("res://source/match/saves/SaveFile.gd").new().write_file(disk, record)
+	print(
+		"POLICY ARCHIVE ",
+		disk,
+		" saved=",
+		ok,
+		" unit=",
+		builder._reference(unit) if unit != null else "",
+		" retreating=",
+		JSON.stringify(
+			(
+				_policy_army()
+				. filter(func(u): return retreating.has(u.get_instance_id()))
+				. map(func(u): return builder._reference(u))
+			)
+		)
+	)
+	paused = was_paused
+
+
+func _review_match_end():
+	_capture_recovery("end")
+	return true

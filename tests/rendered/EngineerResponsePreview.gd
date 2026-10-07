@@ -1,0 +1,142 @@
+extends "res://tests/headless/EngineerResponseRegression.gd"
+
+var deadline = 0
+var capture_prefix = ""
+
+
+func _initialize():
+	Engine.max_fps = 60
+	deadline = Time.get_ticks_msec() + 300000
+	_run.call_deferred()
+
+
+func _process(_delta):
+	if Time.get_ticks_msec() > deadline:
+		push_error("Engineer response native review timed out")
+		quit(1)
+	return false
+
+
+func _run():
+	for argument in OS.get_cmdline_user_args():
+		if argument.begins_with("--captures="):
+			capture_prefix = argument.trim_prefix("--captures=")
+	if capture_prefix == "":
+		push_error("Supply a new --captures=<image prefix>; native input required")
+		quit(2)
+		return
+	var options = root.get_node("Globals").options
+	var original = options.capture()
+	options.restore({"screen": 1, "interface_scale": 1.5, "edge_scrolling": false})
+	await create_timer(2).timeout
+	root.mode = Window.MODE_WINDOWED
+	root.size = Vector2i(1280, 720)
+	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	root.content_scale_size = Vector2i(1920, 1080)
+	root.get_node("SaveManager").autosaves_enabled = false
+	plan = load("res://source/match/SkirmishPlan.gd")
+	for faction in ["bastion", "helix", "frontier"]:
+		await _response_fixture(faction)
+		root.mode = Window.MODE_WINDOWED
+		root.size = Vector2i(1280, 720)
+		await _native_response(faction)
+		paused = false
+		game.queue_free()
+		await _frames(5)
+	options.restore(original)
+	for error in errors:
+		push_error(error)
+	print("Engineer response native: %d failures" % errors.size())
+	quit(0 if errors.is_empty() else 1)
+
+
+func _native_response(faction):
+	worker.resource_a = 3
+	worker.resource_b = 1
+	var camera = game.get_node("IsometricCamera3D")
+	camera.set_size_safely(24)
+	camera.set_position_safely(worker.position)
+	game.fog_of_war._physics_process(0.0)
+	game.get_node("Handlers/UnitVisibilityHandler")._recalculate_unit_visibility(raider)
+	panel.refresh()
+	await _frames(10)
+	await _capture(faction + "-raid")
+	var before = _authority()
+	await _wait_input(
+		func(): return get_nodes_in_group("selected_units") == [worker],
+		faction + ": click Engineers at risk"
+	)
+	_check(_authority() == before, faction + ": native selection changed gameplay")
+	await _capture(faction + "-selected")
+	_check(
+		not panel.get_global_rect().intersects(game.find_child("Minimap").get_global_rect()),
+		"Engineer shortcut overlaps minimap"
+	)
+	_check(
+		not panel.get_global_rect().intersects(game.find_child("UnitMenus").get_global_rect()),
+		"Engineer shortcut overlaps selected-unit controls"
+	)
+	_check(
+		panel.get_global_rect().encloses(panel._idle.get_global_rect()),
+		"Engineer shortcut escapes battle plan"
+	)
+	await _wait_input(func(): return game.hud.direct_orders.kind == "move", "press M")
+	await _frames(3)
+	await _capture(faction + "-move")
+	await _wait_input(func(): return game.hud.direct_orders.kind == "", "cancel Move with Escape")
+	_check(_authority() == before, "Native Move cancellation changed worker orders or cargo")
+	if faction != "frontier":
+		return
+	await _wait_input(func(): return game.hud.direct_orders.kind == "move", "press M again")
+	var destination = worker.position + Vector3(-6, 0, 0)
+	print(
+		"NATIVE ENGINEER DESTINATION ",
+		root.get_final_transform() * camera.unproject_position(destination)
+	)
+	await _wait_input(
+		func(): return worker.manual_orders.pending.size() == 1, "click retreat destination"
+	)
+	_check(
+		worker.manual_orders.pending[0].kind == "move", "Native retreat became contextual harvest"
+	)
+	_check(
+		worker.manual_orders.pending[0].point.distance_to(destination) < 1,
+		"Native Move chose wrong destination"
+	)
+	_check(
+		worker.resource_a == 3 and worker.resource_b == 1 and paused,
+		"Native paused order changed cargo or pause"
+	)
+	await _capture("frontier-retreat-queued")
+	var origin = worker.position
+	# Keep other actors stationary for an isolated normal-clock movement observation.
+	for unit in get_nodes_in_group("units"):
+		if unit != worker:
+			unit.disable_mode = CollisionObject3D.DISABLE_MODE_KEEP_ACTIVE
+			unit.process_mode = Node.PROCESS_MODE_DISABLED
+	await _wait_input(func(): return not paused, "resume with Space")
+	await create_timer(2.5).timeout
+	game.hud._toggle_pause()
+	_check(worker.position.distance_to(origin) > 2, "Native retreat did not move")
+	_check(worker.resource_a == 3 and worker.resource_b == 1, "Native retreat discarded cargo")
+	await _capture("frontier-retreated")
+
+
+func _wait_input(condition, label):
+	print("NATIVE ENGINEER INPUT ", label)
+	var limit = Time.get_ticks_msec() + 60000
+	while not condition.call() and Time.get_ticks_msec() < limit:
+		await _frames(1)
+	_check(condition.call(), "Native input did not finish: " + label)
+
+
+func _capture(label):
+	await _frames(8)
+	await RenderingServer.frame_post_draw
+	var frame = root.get_texture().get_image()
+	_check(frame.get_size() == Vector2i(1280, 720), "Engineer response capture size changed")
+	var destination = capture_prefix + "-" + label + ".png"
+	_check(not FileAccess.file_exists(destination), "Native evidence already exists")
+	if not FileAccess.file_exists(destination):
+		_check(frame.save_png(destination) == OK, "Cannot save native engineer response capture")
+	print("NATIVE ENGINEER CAPTURE ", label)

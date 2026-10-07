@@ -1,0 +1,406 @@
+extends "res://tests/headless/BattlePlanRegression.gd"
+
+var tactics
+var combat_rules
+var factions
+var human
+var enemy
+var raider
+var hq_point
+
+
+func _run():
+	root.get_node("SaveManager").autosaves_enabled = false
+	plan_rules = load("res://source/match/SkirmishPlan.gd")
+	tactics = load("res://source/match/SkirmishTactics.gd")
+	combat_rules = load("res://source/match/combat/CombatRules.gd")
+	factions = load("res://source/match/FactionCatalog.gd")
+	for faction in factions.IDS:
+		await _fixture(faction)
+		await _negative_contacts()
+		await _mobile_counters()
+		await _static_cover()
+		await _construction()
+		await _recovery_priority()
+		print("AIR ADVICE VERIFIED ", faction)
+		paused = false
+		game.queue_free()
+		await _frames(5)
+		game = null
+	for message in errors:
+		push_error(message)
+	print("Air defense advice: %d failures" % errors.size())
+	quit(0 if errors.is_empty() else 1)
+
+
+func _fixture(faction):
+	await _skirmish(faction, "res://source/match/maps/DesertFrontier.tscn", true)
+	human = game._get_human_player()
+	enemy = get_nodes_in_group("players").filter(func(side): return side != human)[0]
+	for side in get_nodes_in_group("players"):
+		side.set_process(false)
+	for unit in get_nodes_in_group("units"):
+		unit.process_mode = Node.PROCESS_MODE_DISABLED
+	game.hud._toggle_pause()
+	_check(paused, faction + ": air advice fixture did not pause")
+	hq_point = _units(human, "CommandCenter")[0].position
+	raider = _actor("Helicopter", enemy, hq_point + Vector3(4, 3, 0))
+	game.battlefield.invalidate()
+	_check(game.battlefield.is_observed(human, raider), "Aircraft raid is not observed")
+	var ground = plan_rules.army(human)
+	_check(not ground.is_empty(), "Air fixture lacks original ground defenders")
+	_check(
+		ground.all(func(unit): return not combat_rules.can_target(unit, raider)),
+		"Original ground-only fixture unexpectedly has an anti-air weapon"
+	)
+	_build_hint("AntiAirTurret")
+	await _unchanged_advice("initial air fallback")
+
+
+func _negative_contacts():
+	var worker = _units(human, "Worker")[0]
+	var worker_point = worker.position
+	worker.position = Vector3(64, 0, 50)
+	raider.position = Vector3(74, 3, 50)
+	game.battlefield.invalidate()
+	_check(combat_rules.can_target(raider, worker), "Hidden raider cannot threaten the worker")
+	_check(
+		worker.position.distance_to(raider.position) <= combat_rules.range_for(raider, worker) + 8,
+		"Hidden-air fixture is outside the economic threat margin"
+	)
+	_check(not game.battlefield.is_observed(human, raider), "Hidden economic raider is visible")
+	_no_defense("Unseen aircraft near an economic asset leaked into advice")
+	# Record a real hit while the source is currently unseen. Advice may use the
+	# owned damage event, but must not invent a visible aircraft classification.
+	worker.receive_weapon_hit(raider)
+	for advice in [_defense(), plan_rules.next_step(human)]:
+		_check(advice.id == "defend_economy", "Unseen incoming fire lost generic defense guidance")
+		_check(
+			"Enemy fire" in advice.description and not "aircraft" in advice.description.to_lower(),
+			"Unseen attacker was classified as an aircraft raid"
+		)
+	await _unchanged_advice("unseen incoming fire")
+	worker.hp = worker.hp_max
+	worker.last_enemy_damage_time = -1000
+	worker.position = worker_point
+	var infantry = _units(human, "Infantry")[0]
+	var infantry_point = infantry.position
+	infantry.position = Vector3(64, 0, 50)
+	raider.position = Vector3(68, 3, 50)
+	game.battlefield.invalidate()
+	_check(game.battlefield.is_observed(human, raider), "Remote field contact is not observed")
+	_no_defense("Observed aircraft near only a combat unit triggered economic defense")
+	infantry.position = infantry_point
+	raider.position = Vector3(105, 3, 85)
+	var scout = _actor("Drone", enemy, hq_point + Vector3(4, 3, 0))
+	game.battlefield.invalidate()
+	_check(game.battlefield.is_observed(human, scout), "Unarmed scout fixture is hidden")
+	_no_defense("Unarmed observed scout triggered air-raid advice")
+	scout.queue_free()
+	await _frames(2)
+	var enemy_aa = _actor("AntiAirTurret", enemy, hq_point + Vector3(4, 0, 0))
+	game.battlefield.invalidate()
+	_check(game.battlefield.is_observed(human, enemy_aa), "Enemy AA-only fixture is hidden")
+	_check(not combat_rules.can_target(enemy_aa, worker), "AA-only weapon can hit a ground worker")
+	_no_defense("Observed AA-only weapon was treated as a threat to ground economic assets")
+	enemy_aa.queue_free()
+	await _frames(2)
+	raider.position = hq_point + Vector3(4, 3, 0)
+	game.battlefield.invalidate()
+
+
+func _mobile_counters():
+	var interceptor = _actor("Helicopter", human, hq_point + Vector3(-3, 3, 0))
+	var walker = _actor("CombatRobot", human, hq_point + Vector3(-5, 0, 1))
+	var expected = [interceptor]
+	if human.faction != "helix":
+		expected.append(walker)
+	_check(
+		expected.all(func(unit): return combat_rules.can_target(unit, raider)),
+		"Mobile AA fixture lacks actual anti-air domains"
+	)
+	_selected(expected, "Air-only raid selected an irrelevant or unavailable combatant")
+	await _unchanged_advice("ready mobile anti-air")
+	await _review_air_advice(human, human.faction + "-mobile")
+	var ground_raider = _actor("Tank", enemy, hq_point + Vector3(4, 0, 4))
+	game.battlefield.invalidate()
+	_check(game.battlefield.is_observed(human, ground_raider), "Mixed ground raider is hidden")
+	var mixed = plan_rules.army(human).filter(
+		func(unit):
+			return (
+				combat_rules.can_target(unit, raider)
+				or combat_rules.can_target(unit, ground_raider)
+			)
+	)
+	_check(mixed.size() > expected.size(), "Mixed fixture lacks ground-only defenders")
+	_selected(mixed, "Mixed raid omitted relevant ground defenders or selected illegal defenders")
+	await _unchanged_advice("mixed air and ground raid")
+	ground_raider.queue_free()
+	interceptor.queue_free()
+	await _frames(2)
+	game.battlefield.invalidate()
+	if human.faction == "helix":
+		await _helix_modes(walker)
+	else:
+		_selected([walker], "Faction walker was not recognized as a legal mobile anti-air counter")
+	walker.queue_free()
+	await _frames(2)
+
+
+func _helix_modes(walker):
+	_check(
+		walker.weapon_mode == "precision" and not combat_rules.can_target(walker, raider),
+		"Lancer fixture did not begin in ground-only Precision"
+	)
+	_selected([walker], "Precision Lancer was omitted from user-controlled Interception guidance")
+	_check(
+		"Interception" in _defense().description, "Lancer advice did not name the required stance"
+	)
+	await _unchanged_advice("precision guidance must not switch stance")
+	_check(
+		walker.request_weapon_mode("interception"), "Explicit Interception fixture request failed"
+	)
+	_selected([walker], "Pending Lancer was omitted from switching guidance")
+	_check(
+		_defense().action != "Select air defense" and "switch" in _defense().description.to_lower(),
+		"Pending Interception was advertised as ready anti-air fire"
+	)
+	await _unchanged_advice("pending Interception must stay paused")
+	await _finish_switch(walker)
+	_check(
+		walker.weapon_mode == "interception" and walker.weapon_delay() == 0,
+		"Real timed Interception switch never completed"
+	)
+	_check(
+		combat_rules.can_target(walker, raider), "Completed Interception cannot target the raider"
+	)
+	_selected([walker], "Ready Interception was omitted from mobile anti-air guidance")
+	_check(
+		_defense().action == "Select air defense",
+		"Ready Interception still requested a stance switch"
+	)
+	_check(walker.request_weapon_mode("precision"), "Explicit Precision fixture request failed")
+	_check(
+		combat_rules.can_target(walker, raider) and walker.weapon_delay() > 0,
+		"Returning-to-Precision fixture does not retain disabled AA domains during the switch"
+	)
+	_selected([walker], "Switching Lancer vanished from stance guidance")
+	_check(
+		_defense().action != "Select air defense",
+		"Disabled weapon was advertised as ready anti-air"
+	)
+	await _unchanged_advice("pending Precision must not fire or change orders")
+	await _finish_switch(walker)
+	_check(walker.weapon_mode == "precision", "Real timed Precision switch never completed")
+	# A native extension may explicitly click Interception here. The walker is
+	# removed immediately after this hook, so that user action cannot skew later cases.
+	await _review_air_advice(human, "helix-interception")
+
+
+func _finish_switch(walker):
+	var point = raider.position
+	raider.position = Vector3(105, 3, 85)
+	game.battlefield.invalidate()
+	walker.process_mode = Node.PROCESS_MODE_INHERIT
+	game.hud._toggle_pause()
+	await _frames(130)
+	game.hud._toggle_pause()
+	walker.process_mode = Node.PROCESS_MODE_DISABLED
+	raider.position = point
+	game.battlefield.invalidate()
+
+
+func _static_cover():
+	var distant = _actor("AntiAirTurret", human, hq_point + Vector3(32, 0, 0))
+	_check(
+		distant.position.distance_to(raider.position) > combat_rules.range_for(distant, raider) + 8,
+		"Distant battery fixture is within economic defense reach"
+	)
+	_build_hint("AntiAirTurret")
+	var nearby = _actor("AntiAirTurret", human, hq_point + Vector3(0, 0, 6))
+	var unfinished = _actor("AntiAirTurret", human, hq_point + Vector3(-7, 0, 0))
+	unfinished.mark_as_under_construction()
+	_selected([nearby], "Static cover included distant or unfinished batteries")
+	await _unchanged_advice("nearby completed static anti-air")
+	nearby.queue_free()
+	await _frames(2)
+	var advice = _defense()
+	_check(
+		not advice.units.any(func(unit): return unit.type == "AntiAirTurret"),
+		"Unfinished or distant battery was offered as current anti-air cover"
+	)
+	distant.queue_free()
+	unfinished.queue_free()
+	await _frames(2)
+
+
+func _construction():
+	_build_hint("AntiAirTurret")
+	await _review_air_advice(human, human.faction + "-construction")
+	var funds = Vector2i(human.resource_a, human.resource_b)
+	var price = factions.cost(human, "AntiAirTurret", true)
+	human.resource_a = price.resource_a - 1
+	human.resource_b = price.resource_b - 2
+	_build_hint("AntiAirTurret")
+	_check(
+		"Need 1 M / 2 E more" in _defense().description,
+		"Air construction advice hid the real shortage"
+	)
+	await _unchanged_advice("unfunded anti-air construction")
+	human.resource_a = funds.x
+	human.resource_b = funds.y
+	var foundation = _place_paid_aa()
+	_check(foundation != null, "Could not place a legal paid anti-air foundation")
+	if foundation != null:
+		_check(
+			(
+				Vector2i(human.resource_a, human.resource_b)
+				== funds - Vector2i(price.resource_a, price.resource_b)
+			),
+			"Actual anti-air foundation charged the wrong price"
+		)
+		_build_hint("AntiAirTurret")
+		_check(
+			"already paid" in _defense().description,
+			"Existing anti-air foundation prompted duplicate purchase"
+		)
+		await _unchanged_advice("paid anti-air foundation")
+		foundation.queue_free()
+		await _frames(2)
+	for factory in _units(human, "VehicleFactory"):
+		factory.queue_free()
+	await _frames(2)
+	_build_hint("VehicleFactory")
+	for barracks in _units(human, "Barracks"):
+		barracks.queue_free()
+	await _frames(2)
+	_build_hint("Barracks")
+	await _unchanged_advice("missing anti-air prerequisites")
+
+
+func _place_paid_aa():
+	var worker = _units(human, "Worker")[1]
+	var handler = human.get_node("StructurePlacementHandler")
+	handler._start_structure_placement(load("res://source/match/units/AntiAirTurret.tscn"))
+	for distance in [7.0, 10.0, 13.0, 16.0]:
+		for angle in 16:
+			handler._active_blueprint_node.position = (
+				hq_point + Vector3(cos(angle * TAU / 16), 0, sin(angle * TAU / 16)) * distance
+			)
+			if (
+				handler._calculate_blueprint_position_validity()
+				!= handler.BlueprintPositionValidity.VALID
+			):
+				continue
+			root.get_node("MatchSignals").deselect_all_units.emit()
+			worker.get_node("Selection").select()
+			handler._finish_structure_placement()
+			var foundation = _units(human, "AntiAirTurret")[0]
+			_check(not foundation.is_constructed(), "Placed AA fixture is already completed")
+			_check(
+				_defense().units == [worker], "Paid foundation advice selected the wrong engineer"
+			)
+			return foundation
+	handler._cancel_structure_placement()
+	return null
+
+
+func _recovery_priority():
+	for worker in _units(human, "Worker"):
+		worker.queue_free()
+	await _frames(2)
+	human.resource_a = 6
+	human.resource_b = 0
+	_check(
+		plan_rules.next_step(human).id == "workers",
+		"Air raid advice displaced urgent engineer recovery"
+	)
+	await _unchanged_advice("engineer recovery during raid")
+	_actor("Worker", human, hq_point + Vector3(-3, 0, 3))
+	_units(human, "CommandCenter")[0].queue_free()
+	await _frames(2)
+	human.resource_a = 80
+	human.resource_b = 20
+	_check(
+		plan_rules.next_step(human).id == "CommandCenter",
+		"Air raid advice displaced urgent HQ recovery"
+	)
+	await _unchanged_advice("HQ recovery during raid")
+
+
+func _actor(role, player, point):
+	var unit = _spawn_for_plan(role, player, point)
+	unit.process_mode = Node.PROCESS_MODE_DISABLED
+	return unit
+
+
+func _defense():
+	return tactics.defense(human, plan_rules.owned_units(human), plan_rules.army(human))
+
+
+func _selected(expected, message):
+	for advice in [_defense(), plan_rules.next_step(human)]:
+		_check(
+			advice.get("id") == "defend_economy", human.faction + ": raid lost its defense category"
+		)
+		var actual = advice.get("units", [])
+		_check(
+			actual.size() == expected.size() and expected.all(func(unit): return unit in actual),
+			human.faction + ": " + message
+		)
+
+
+func _build_hint(role):
+	for advice in [_defense(), plan_rules.next_step(human)]:
+		_check(
+			advice.get("id") == "defend_economy", "Air construction lost economic defense priority"
+		)
+		_check(
+			factions.title(human.faction, role) in advice.description,
+			human.faction + ": air defense did not identify the legal " + role + " prerequisite"
+		)
+		_check(
+			(
+				not advice.units.is_empty()
+				and advice.units.all(func(unit): return unit.type == "Worker")
+			),
+			"Air construction guidance selected units that cannot build"
+		)
+
+
+func _no_defense(message):
+	_check(_defense().is_empty(), human.faction + ": " + message)
+	_check(plan_rules.next_step(human).id != "defend_economy", human.faction + ": " + message)
+
+
+func _unchanged_advice(label):
+	var before = _authority()
+	for sample in 5:
+		_defense()
+		plan_rules.next_step(human)
+	await _frames(30)
+	_check(_authority() == before, human.faction + ": advice changed paused gameplay: " + label)
+
+
+func _authority():
+	var result = [
+		paused,
+		game.simulation_time,
+		human.resource_a,
+		human.resource_b,
+		get_nodes_in_group("selected_units").duplicate()
+	]
+	for unit in plan_rules.owned_units(human):
+		var row = [unit, unit.position, unit.action, unit.hp]
+		if unit.manual_orders != null:
+			row.append(unit.manual_orders.pending.duplicate(true))
+		if "weapon_mode" in unit:
+			row.append([unit.weapon_mode, unit.pending_weapon_mode, unit.weapon_switch_left])
+		if "production_queue" in unit and unit.production_queue != null:
+			row.append(unit.production_queue.get_elements().duplicate())
+		result.append(row)
+	return result
+
+
+func _review_air_advice(_player, _label):
+	return true

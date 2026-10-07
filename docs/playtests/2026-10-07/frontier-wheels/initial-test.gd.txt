@@ -1,0 +1,90 @@
+extends "res://tests/headless/FrontierGameplayRegression.gd"
+
+const ROLES = {"Worker": 6, "Tank": 6, "RepairRobot": 4, "CombatRobot": 4, "AdvancedTank": 8}
+const EVIDENCE = "res://docs/playtests/2026-10-07/frontier-wheels/"
+var subjects = []
+var measured = []
+
+
+func _run():
+	factions = load("res://source/match/FactionCatalog.gd")
+	root.get_node("SaveManager").autosaves_enabled = false
+	await _fixture()
+	for unit in get_nodes_in_group("units"):
+		unit.process_mode = Node.PROCESS_MODE_DISABLED
+	game.repair_service.set_physics_process(false)
+	var index = 0
+	for role in ROLES:
+		var unit = _spawn_frontier(role, human, Vector3(16 + index * 3, 0, 32))
+		unit.issue_manual_order(null)
+		subjects.append(unit)
+		index += 1
+	await _frames(10)
+	await _actual_travel()
+	if not "--baseline" in OS.get_cmdline_user_args():
+		for unit in subjects:
+			_controlled(unit)
+		await _pause_and_archive()
+	(
+		FileAccess
+		. open(
+			(
+				EVIDENCE
+				+ (
+					"baseline.json"
+					if "--baseline" in OS.get_cmdline_user_args()
+					else "verified.json"
+				)
+			),
+			FileAccess.WRITE
+		)
+		. store_string(JSON.stringify(measured, "\t"))
+	)
+	await _cleanup()
+	for message in errors:
+		push_error(message)
+	print("Frontier wheels: %d failures" % errors.size())
+	quit(0 if errors.is_empty() else 1)
+
+
+func _wheels(unit):
+	return unit.find_children("*Wheel*", "Node3D", true, false).filter(
+		func(node): return not node is MeshInstance3D
+	)
+
+
+func _actual_travel():
+	var before = {}
+	for unit in subjects:
+		var wheels = _wheels(unit)
+		_check(wheels.size() == ROLES[unit.type], unit.type + ": missing authored wheels")
+		before[unit] = [unit.position, wheels.map(func(wheel): return wheel.basis)]
+		unit.issue_manual_order(
+			load("res://source/match/units/actions/Moving.gd").new(
+				unit.position + Vector3(0, 0, -8)
+			)
+		)
+	await _frames(90)
+	for unit in subjects:
+		var distance = unit.position.distance_to(before[unit][0])
+		var changed = 0
+		var wheels = _wheels(unit)
+		for index in wheels.size():
+			if not wheels[index].basis.is_equal_approx(before[unit][1][index]):
+				changed += 1
+		_check(distance > 1.0, unit.type + ": real movement fixture did not travel")
+		_check(
+			changed == ROLES[unit.type], unit.type + ": wheels remain static during actual travel"
+		)
+		measured.append({"role": unit.type, "distance": distance, "animated_wheels": changed})
+		print("WHEEL TRAVEL ", unit.type, " distance=", distance, " changed=", changed)
+		unit.issue_manual_order(null)
+	await _frames(30)
+
+
+func _controlled(_unit):
+	pass
+
+
+func _pause_and_archive():
+	pass

@@ -1,0 +1,36 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.
+		This poses a significant performance issues as visual meshes store geometry data on the GPU and transferring this data back to the CPU blocks the rendering.
+		For runtime (re)baking navigation meshes use and parse collision shapes as source geometry or create geometry data procedurally in scripts.
+     at: add_mesh (scene/resources/3d/navigation_mesh_source_geometry_data_3d.cpp:204)
+     GDScript backtrace (most recent call first):
+         [0] bake (res://source/match/TerrainNavigation.gd:56)
+         [1] setup (res://source/match/Navigation.gd:43)
+         [2] _setup_subsystems_dependent_on_map (res://source/match/Match.gd:132)
+         [3] _ready (res://source/match/Match.gd:64)
+         [4] _create_match (res://source/match/programs/arena/ArenaSession.gd:122)
+         [5] start (res://source/match/programs/arena/ArenaSession.gd:67)
+         [6] _run (res://tests/headless/ArenaRegression.gd:30)
+ARENA bastion 0 [{"passed":true,"text":"Program evaluated on the real test unit"},{"passed":true,"text":"No runtime fault"},{"passed":true,"text":"Reached safe point at low health"},{"passed":true,"text":"Stayed safe at 50% HP"},{"passed":true,"text":"Returned to assigned area after recovery"}] 
+ARENA bastion 1 [{"passed":true,"text":"Program evaluated on the real test unit"},{"passed":true,"text":"No runtime fault"},{"passed":true,"text":"Approached assigned ally"},{"passed":true,"text":"Followed moving ally within 3.8 m"}] 
+ARENA bastion 2 [{"passed":true,"text":"Program evaluated on the real test unit"},{"passed":true,"text":"No runtime fault"},{"passed":true,"text":"Requested an attack and damaged visible target"},{"passed":true,"text":"Stopped requesting attacks after loss of contact"}] 
+ARENA bastion 3 [{"passed":true,"text":"Program evaluated on the real test unit"},{"passed":true,"text":"No runtime fault"},{"passed":true,"text":"Waited without guessing a destination"},{"passed":true,"text":"Reached area after assignment"}] 
+ARENA bastion 4 [{"passed":true,"text":"Program evaluated on the real test unit"},{"passed":true,"text":"No runtime fault"},{"passed":true,"text":"Direct order stopped script evaluation"},{"passed":true,"text":"Reached the manual destination"}] 
+ARENA bastion 5 [{"passed":true,"text":"Program evaluated on the real test unit"},{"passed":true,"text":"No runtime fault"},{"passed":true,"text":"Reported Blocked at the sealed pen"},{"passed":true,"text":"Direct order stopped script evaluation"},{"passed":true,"text":"Reached the manual destination"}] 
+ARENA bastion 6 [{"passed":true,"text":"Program evaluated on the real test unit"},{"passed":true,"text":"No runtime fault"},{"passed":true,"text":"Healed the real damaged ally"},{"passed":true,"text":"Stopped requesting repair of destroyed target"}] 
+ARENA helix 0 [{"passed":true,"text":"Program evaluated on the real test unit"},{"passed":true,"text":"No runtime fault"},{"passed":true,"text":"Reached safe point at low health"},{"passed":true,"text":"Stayed safe at 50% HP"},{"passed":true,"text":"Returned to assigned area after recovery"}] 
+ARENA helix 1 [{"passed":true,"text":"Program evaluated on the real test unit"},{"passed":true,"text":"No runtime fault"},{"passed":true,"text":"Approached assigned ally"},{"passed":true,"text":"Followed moving ally within 3.8 m"}] 
+ARENA helix 2 [{"passed":true,"text":"Program evaluated on the real test unit"},{"passed":true,"text":"No runtime fault"},{"passed":true,"text":"Requested an attack and damaged visible target"},{"passed":true,"text":"Stopped requesting attacks after loss of contact"}] 
+ARENA helix 3 [{"passed":true,"text":"Program evaluated on the real test unit"},{"passed":true,"text":"No runtime fault"},{"passed":true,"text":"Waited without guessing a destination"},{"passed":true,"text":"Reached area after assignment"}] 
+ARENA helix 4 [{"passed":true,"text":"Program evaluated on the real test unit"},{"passed":true,"text":"No runtime fault"},{"passed":true,"text":"Direct order stopped script evaluation"},{"passed":true,"text":"Reached the manual destination"}] 
+ARENA helix 5 [{"passed":true,"text":"Program evaluated on the real test unit"},{"passed":true,"text":"No runtime fault"},{"passed":true,"text":"Reported Blocked at the sealed pen"},{"passed":true,"text":"Direct order stopped script evaluation"},{"passed":true,"text":"Reached the manual destination"}] 
+ARENA helix 6 [{"passed":true,"text":"Program evaluated on the real test unit"},{"passed":true,"text":"No runtime fault"},{"passed":true,"text":"Healed the real damaged ally"},{"passed":true,"text":"Stopped requesting repair of destroyed target"}] 
+ARENA frontier 0 [{"passed":true,"text":"Program evaluated on the real test unit"},{"passed":true,"text":"No runtime fault"},{"passed":true,"text":"Reached safe point at low health"},{"passed":true,"text":"Stayed safe at 50% HP"},{"passed":true,"text":"Returned to assigned area after recovery"}] 
+ARENA frontier 1 [{"passed":true,"text":"Program evaluated on the real test unit"},{"passed":true,"text":"No runtime fault"},{"passed":true,"text":"Approached assigned ally"},{"passed":true,"text":"Followed moving ally within 3.8 m"}] 
+ARENA frontier 2 [{"passed":true,"text":"Program evaluated on the real test unit"},{"passed":true,"text":"No runtime fault"},{"passed":true,"text":"Requested an attack and damaged visible target"},{"passed":true,"text":"Stopped requesting attacks after loss of contact"}] 
+ARENA frontier 3 [{"passed":true,"text":"Program evaluated on the real test unit"},{"passed":true,"text":"No runtime fault"},{"passed":true,"text":"Waited without guessing a destination"},{"passed":true,"text":"Reached area after assignment"}] 
+ARENA frontier 4 [{"passed":true,"text":"Program evaluated on the real test unit"},{"passed":true,"text":"No runtime fault"},{"passed":true,"text":"Direct order stopped script evaluation"},{"passed":true,"text":"Reached the manual destination"}] 
+ARENA frontier 5 [{"passed":true,"text":"Program evaluated on the real test unit"},{"passed":true,"text":"No runtime fault"},{"passed":true,"text":"Reported Blocked at the sealed pen"},{"passed":true,"text":"Direct order stopped script evaluation"},{"passed":true,"text":"Reached the manual destination"}] 
+ARENA frontier 6 [{"passed":true,"text":"Program evaluated on the real test unit"},{"passed":true,"text":"No runtime fault"},{"passed":true,"text":"Healed the real damaged ally"},{"passed":true,"text":"Stopped requesting repair of destroyed target"}] 
+PASS: seven arena cases, three factions; all-role authority; wrong/stale/faulting programs fail

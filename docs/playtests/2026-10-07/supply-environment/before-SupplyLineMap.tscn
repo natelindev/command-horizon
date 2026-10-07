@@ -1,0 +1,20 @@
+[gd_scene load_steps=6 format=3]
+[ext_resource type="PackedScene" path="res://source/match/Map.tscn" id="base"]
+[ext_resource type="Script" path="res://source/match/maps/SupplyLineMap.gd" id="script"]
+[ext_resource type="Shader" path="res://source/shaders/3d/desert.gdshader" id="shader"]
+[sub_resource type="ShaderMaterial" id="sand"]
+shader = ExtResource("shader")
+[sub_resource type="PlaneMesh" id="terrain"]
+resource_local_to_scene = true
+material = SubResource("sand")
+size = Vector2(196, 132)
+center_offset = Vector3(96, 0, 64)
+[node name="Map" instance=ExtResource("base")]
+script = ExtResource("script")
+size = Vector2(192, 128)
+[node name="Terrain" parent="Geometry" index="1"]
+mesh = SubResource("terrain")
+[node name="Bastion" type="Marker3D" parent="SpawnPoints" index="0"]
+position = Vector3(18, 0, 100)
+[node name="Helix" type="Marker3D" parent="SpawnPoints" index="1"]
+position = Vector3(170, 0, 40)

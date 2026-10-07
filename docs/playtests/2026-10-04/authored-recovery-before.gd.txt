@@ -1,0 +1,108 @@
+extends "res://tests/headless/PresetRecoveryRegression.gd"
+
+const RECOVERY_LUA = """return function(s,m)
+ m.ticks=(m.ticks or 0)+1
+ local health=s.self.hp/s.self.hp_max
+ if health<0.4 then m.retreating=true end
+ if health>=0.85 then m.retreating=false end
+ return {intent={kind='move',assignment=m.retreating and 'safe' or 'anchor',status='Scripted recovery'},state=m}
+end"""
+var application
+var records_type
+var rules_type
+
+
+func _run():
+	_load_authoring()
+	root.get_node("SaveManager").autosaves_enabled = false
+	for faction in ["bastion", "helix"]:
+		await _skirmish(faction)
+		for player in get_nodes_in_group("players"):
+			player.set_process(false)
+		for unit in get_nodes_in_group("units"):
+			if unit.movement_speed > 0:
+				unit.queue_free()
+		await _frames(5)
+		for mode in ["lua", "visual"]:
+			for role in [
+				"Tank", "AdvancedTank", "CombatRobot", "RepairRobot", "Drone", "Helicopter"
+			]:
+				await _authored_service(mode, role)
+		game.queue_free()
+		await _frames(5)
+	for error in errors:
+		push_error(error)
+	print("Authored facility recovery: %d failures" % errors.size())
+	quit(0 if errors.is_empty() else 1)
+
+
+func _load_authoring():
+	application = load("res://source/match/programs/ProgramApplication.gd")
+	records_type = load("res://source/match/programs/ProgramRecord.gd")
+	rules_type = load("res://source/match/programs/VisualRules.gd")
+
+
+func _authored_service(mode, role):
+	var repairs = load("res://source/match/combat/RepairService.gd")
+	var service = _preset_actor(repairs.facility_for_role(role), Vector3(32, 0, 25))
+	var unit = _preset_actor(role, Vector3(43, 0, 25))
+	await _frames(120)
+	unit.hp = unit.hp_max * .35
+	unit.program.installed = true
+	var entry
+	if mode == "visual":
+		var document = rules_type.starter(1)
+		document.parameters = {"retreat": 40, "recover": 85}
+		if role in ["RepairRobot", "Drone"]:
+			document.rules = [
+				rules_type.rule("retreating", "move_safe"),
+				rules_type.rule("away_anchor", "move_anchor", 2),
+				rules_type.rule("always", "hold")
+			]
+		entry = records_type.visual("Facility recovery rules", 1, document, [role])
+	else:
+		entry = records_type.lua(
+			"Scripted facility recovery", 1, RECOVERY_LUA, [role], ["movement"]
+		)
+	_check(application.apply(entry, [unit], unit.player).ok, "Authored recovery could not apply")
+	unit.program.anchor = Vector3(43, 0, 25)
+	unit.program.safe_point = service.global_position_yless
+	var healed = false
+	var resumed = false
+	var blocked = false
+	for frame in 2400:
+		await physics_frame
+		blocked = blocked or unit.program.mode == "Blocked"
+		healed = healed or unit.hp >= unit.hp_max * .85
+		resumed = (
+			resumed or (healed and unit.global_position_yless.distance_to(unit.program.anchor) < 3)
+		)
+	_check(healed, "%s %s %s never healed" % [unit.player.faction, mode, role])
+	_check(not blocked, "%s %s %s blocked at service" % [unit.player.faction, mode, role])
+	_check(resumed, "%s %s %s never resumed" % [unit.player.faction, mode, role])
+	_check(
+		(
+			unit.program.lua_source == entry.source
+			and unit.program.saved_record.content_hash == entry.content_hash
+		),
+		"Service changed the authored program"
+	)
+	print(
+		"AUTHORED RECOVERY ",
+		unit.player.faction,
+		" ",
+		mode,
+		" ",
+		role,
+		" healed=",
+		healed,
+		" resumed=",
+		resumed,
+		" blocked=",
+		blocked,
+		" reason=",
+		unit.program.reason
+	)
+	unit.queue_free()
+	service.queue_free()
+	await _frames(90)

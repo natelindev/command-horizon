@@ -1,0 +1,57 @@
+[
+  {
+    "log": "regression-first.log",
+    "classification": "rejected fixture",
+    "exit_code": 1
+  },
+  {
+    "log": "regression-corrected.log",
+    "classification": "intermediate pass",
+    "exit_code": 0
+  },
+  {
+    "log": "regression.log",
+    "classification": "accepted",
+    "exit_code": 0
+  },
+  {
+    "log": "negative.log",
+    "classification": "expected disabled-hook failure",
+    "exit_code": 1
+  },
+  {
+    "log": "earned-continuation.log",
+    "classification": "accepted",
+    "exit_code": 0
+  },
+  {
+    "log": "control.log",
+    "classification": "accepted full match",
+    "exit_code": 0
+  },
+  {
+    "log": "balanced.log",
+    "classification": "intermediate changed opening",
+    "exit_code": 0
+  },
+  {
+    "log": "final-balanced.log",
+    "classification": "accepted full match",
+    "exit_code": 0
+  },
+  {
+    "log": "SkirmishLaborRegression.log",
+    "classification": "accepted",
+    "exit_code": 0
+  },
+  {
+    "log": "SkirmishHandoffRegression.log",
+    "classification": "accepted",
+    "exit_code": 0
+  },
+  {
+    "log": "EngineerReassignmentRegression.log",
+    "classification": "accepted",
+    "exit_code": 0
+  }
+]

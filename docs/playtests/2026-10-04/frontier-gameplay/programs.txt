@@ -1,0 +1,14 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.
+		This poses a significant performance issues as visual meshes store geometry data on the GPU and transferring this data back to the CPU blocks the rendering.
+		For runtime (re)baking navigation meshes use and parse collision shapes as source geometry or create geometry data procedurally in scripts.
+     at: add_mesh (scene/resources/3d/navigation_mesh_source_geometry_data_3d.cpp:204)
+     GDScript backtrace (most recent call first):
+         [0] bake (res://source/match/TerrainNavigation.gd:56)
+         [1] setup (res://source/match/Navigation.gd:43)
+         [2] _setup_subsystems_dependent_on_map (res://source/match/Match.gd:132)
+         [3] _ready (res://source/match/Match.gd:64)
+         [4] _ready (res://source/match/Skirmish.gd:20)
+         [5] _run (res://tests/headless/ProgramRegression.gd:33)
+PASS: chip unlock/retrofit/production/refunds; library validation/version persistence; manual authority/pause; guard/escort/patrol/retreat; fog/fire bounds; repair; blocked recovery

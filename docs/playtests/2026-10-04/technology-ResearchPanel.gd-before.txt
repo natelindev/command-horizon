@@ -1,0 +1,66 @@
+extends VBoxContainer
+
+var lab
+var _status
+var _progress
+var _start
+var _cancel
+
+
+func _ready():
+	add_theme_constant_override("separation", 8)
+	_status = Label.new()
+	_status.add_theme_font_size_override("font_size", 14)
+	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_status.custom_minimum_size.x = 470
+	add_child(_status)
+	var description = Label.new()
+	description.text = "Unlocks long-range armor. Existing basic chips remain usable."
+	description.add_theme_font_size_override("font_size", 12)
+	add_child(description)
+	_progress = ProgressBar.new()
+	_progress.custom_minimum_size.y = 16
+	_progress.show_percentage = false
+	add_child(_progress)
+	var row = HBoxContainer.new()
+	add_child(row)
+	_start = Button.new()
+	_start.name = "ResearchCoordination"
+	_start.text = "Research Coordination · 20 M / 20 E"
+	_start.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_start.pressed.connect(
+		func():
+			lab.player.start_coordination(lab)
+			refresh()
+	)
+	row.add_child(_start)
+	_cancel = Button.new()
+	_cancel.name = "CancelResearch"
+	_cancel.text = "Cancel & refund"
+	_cancel.pressed.connect(
+		func():
+			lab.player.cancel_coordination()
+			refresh()
+	)
+	row.add_child(_cancel)
+	refresh()
+
+
+func refresh():
+	if not is_instance_valid(lab) or _status == null:
+		return
+	var player = lab.player
+	_status.text = player.coordination_status()
+	var running = player.coordination_left > 0.0
+	_progress.visible = running
+	_progress.value = (
+		100.0 * (1.0 - maxf(0.0, player.coordination_left) / player.COORDINATION_DURATION)
+	)
+	_start.visible = not running and not player.coordination_unlocked
+	_start.disabled = (
+		not player.basic_programs_unlocked() or not player.has_resources(player.COORDINATION_COST)
+	)
+	_start.tooltip_text = (
+		"Requires basic programs and a completed lab. " + "Low power reduces research speed to 35%."
+	)
+	_cancel.visible = running

@@ -1,0 +1,31 @@
+extends "res://tests/headless/EndpointTailRegression.gd"
+
+func _run():
+	root.get_node("SaveManager").autosaves_enabled = false
+	await _fresh("bastion")
+	var nav = watched.get_node("Movement").get_navigation_map()
+	var center = Vector3(108,0,48)
+	var candidates = []
+	for x in range(-16,17):
+		for z in range(-16,17):
+			var p = center + Vector3(x*.25,0,z*.25)
+			var closest = NavigationServer3D.map_get_closest_point(nav,p)*Vector3(1,0,1)
+			if closest.distance_to(p)<.01:
+				candidates.append(p)
+	var found = false
+	for a in candidates:
+		for b in candidates:
+			var direct = a.distance_to(b)
+			if direct > 1.98 or direct < 1.7:
+				continue
+			var points = NavigationServer3D.map_get_path(nav,a,b,true)
+			var length = 0.0
+			for i in range(1,points.size()):
+				length += points[i-1].distance_to(points[i])
+			if length > 2.12:
+				print("TAIL DETOUR origin=",a," end=",b," direct=",direct," length=",length," path=",points)
+				found = true
+				break
+		if found:break
+	print("DETOUR FOUND ",found)
+	quit(0)

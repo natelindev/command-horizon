@@ -1,0 +1,92 @@
+[
+  {
+    "log": "headless.log",
+    "exit_code": 1,
+    "expected_failure_count": 1,
+    "classification": "observed unfinished original-helper branch"
+  },
+  {
+    "log": "rendered.log",
+    "exit_code": 0,
+    "expected_failure_count": 0,
+    "classification": "original-helper normal-clock victory"
+  },
+  {
+    "log": "shortcut.log",
+    "exit_code": 1,
+    "expected_failure_count": 1,
+    "classification": "rejected fixture: expected active movement while paused"
+  },
+  {
+    "log": "shortcut-before.log",
+    "exit_code": 1,
+    "expected_failure_count": null,
+    "classification": "expected old-HUD missing-shortcut failure"
+  },
+  {
+    "log": "shortcut-final.log",
+    "exit_code": 0,
+    "expected_failure_count": 0,
+    "classification": "accepted earned recovery and shortcut edges"
+  },
+  {
+    "log": "ui.log",
+    "exit_code": 0,
+    "expected_failure_count": 0,
+    "classification": "accepted rendered controls and earned recovery"
+  },
+  {
+    "log": "followthrough.log",
+    "exit_code": 0,
+    "expected_failure_count": 0,
+    "classification": "accepted revised-helper headless continuation"
+  },
+  {
+    "log": "split-rules.log",
+    "exit_code": 0,
+    "expected_failure_count": 0,
+    "classification": "accepted shared Split Signal suite"
+  },
+  {
+    "log": "feedback.log",
+    "exit_code": 0,
+    "expected_failure_count": 0,
+    "classification": "accepted shared relay feedback"
+  },
+  {
+    "log": "orders.log",
+    "exit_code": 0,
+    "expected_failure_count": null,
+    "classification": "accepted shared orders"
+  },
+  {
+    "log": "followthrough-before.log",
+    "exit_code": 1,
+    "expected_failure_count": 2,
+    "classification": "rejected fixture: observer line of sight blocked"
+  },
+  {
+    "log": "followthrough-final.log",
+    "exit_code": 1,
+    "expected_failure_count": 2,
+    "classification": "rejected fixture: observer line of sight blocked"
+  },
+  {
+    "log": "followthrough-before-valid.log",
+    "exit_code": 1,
+    "expected_failure_count": 1,
+    "classification": "expected old-helper target-loss failure"
+  },
+  {
+    "log": "followthrough-verified.log",
+    "exit_code": 0,
+    "expected_failure_count": 0,
+    "classification": "accepted revised-helper target-loss capture"
+  },
+  {
+    "log": "followthrough-rendered.log",
+    "exit_code": 0,
+    "expected_failure_count": 0,
+    "classification": "accepted revised-helper normal-clock continuation"
+  }
+]

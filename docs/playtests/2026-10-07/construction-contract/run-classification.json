@@ -1,0 +1,78 @@
+[
+  {
+    "log": "original.log",
+    "classification": "expected failure",
+    "exit_code": 1,
+    "note": "Initial narrow reproduction: eighteen failures."
+  },
+  {
+    "log": "changed.log",
+    "classification": "intermediate pass",
+    "exit_code": 0,
+    "note": "Initial new shipping behavior, before paid refund/UI/legacy extensions."
+  },
+  {
+    "log": "paid-check.log",
+    "classification": "intermediate pass",
+    "exit_code": 0,
+    "note": "Paid refund and menu checks, before final legacy coverage; intermediate fixture source not independently retained."
+  },
+  {
+    "log": "final-negative.log",
+    "classification": "expected failure",
+    "exit_code": 1,
+    "note": "Final runner against exact previous 288-script baseline: eighteen failures."
+  },
+  {
+    "log": "final-contract.log",
+    "classification": "accepted",
+    "exit_code": 0,
+    "note": "All three factions; paid placement, crew rate, disk, handoff, refund, legacy."
+  },
+  {
+    "log": "rendered.log",
+    "classification": "accepted",
+    "exit_code": 0,
+    "note": "Helix, four injected button clicks, seven reviewed captures."
+  },
+  {
+    "log": "EconomyRecoveryRegression.log",
+    "classification": "accepted",
+    "exit_code": 0,
+    "note": "Corrected suite name; separate completed invocation."
+  },
+  {
+    "log": "HQCountdownRegression.log",
+    "classification": "accepted",
+    "exit_code": 0
+  },
+  {
+    "suite": "EconomyRecovery",
+    "classification": "not run; corrected suite name separately executed"
+  },
+  {
+    "log": "OrdersRegression.log",
+    "classification": "accepted",
+    "exit_code": 0
+  },
+  {
+    "log": "BattleDebriefRegression.log",
+    "classification": "accepted",
+    "exit_code": 0
+  },
+  {
+    "log": "ContactRecoveryRegression.log",
+    "classification": "accepted",
+    "exit_code": 0
+  },
+  {
+    "log": "Skirmish.log",
+    "classification": "accepted",
+    "exit_code": 0
+  },
+  {
+    "log": "BastionDemo.log",
+    "classification": "accepted",
+    "exit_code": 0
+  }
+]

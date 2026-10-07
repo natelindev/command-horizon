@@ -1,0 +1,107 @@
+extends HBoxContainer
+
+const Factions = preload("res://source/match/FactionCatalog.gd")
+var selection = []
+var _activate
+var _summary
+
+
+func _ready():
+	add_theme_constant_override("separation", 8)
+	_activate = Button.new()
+	_activate.text = (Factions.signature_title(selection[0].player.faction))
+	_activate.add_theme_font_size_override("font_size", 13)
+	_activate.pressed.connect(_activate_selection)
+	add_child(_activate)
+	_summary = Label.new()
+	_summary.add_theme_font_size_override("font_size", 12)
+	add_child(_summary)
+	refresh()
+
+
+func _members():
+	return selection.filter(
+		func(unit): return is_instance_valid(unit) and not unit.is_queued_for_deletion()
+	)
+
+
+func _activate_selection():
+	var units = _members()
+	if units.is_empty():
+		return
+	var player = units[0].player
+	if player.faction == "bastion":
+		units[0]._match.hud.arm_program_assignment("signature", units)
+	else:
+		var count = player.signatures.activate(units)
+		units[0]._match.hud.show_notice(
+			(
+				(
+					(
+						"Maneuver burst · %d unit%s · 6 seconds of faster movement."
+						if player.faction == "frontier"
+						else "Precision window · %d unit%s · one faster preparation each."
+					)
+					% [count, "" if count == 1 else "s"]
+				)
+				if count > 0
+				else player.signatures.error
+			)
+		)
+	refresh()
+
+
+func refresh():
+	var units = _members()
+	if units.is_empty():
+		return
+	var player = units[0].player
+	var count = units.filter(func(unit): return player.signatures.eligible(unit)).size()
+	_activate.disabled = count == 0
+	_summary.text = (
+		"%d ready · up to 6" % count if player.coordination_unlocked else "Research Coordination"
+	)
+	var recharge = 0.0
+	for unit in units:
+		if unit.signature != null:
+			recharge = maxf(recharge, unit.signature.cooldown)
+	if count == 0 and recharge > 0:
+		_summary.text = "Recharging · %.1f s" % recharge
+	elif count == 0 and player.coordination_unlocked:
+		var anchored = (
+			units
+			. filter(func(unit): return unit.signature != null and unit.signature.kind == "anchor")
+			. size()
+		)
+		if anchored > 0:
+			_summary.text = "Anchor assigned · %d" % anchored
+		elif player.faction == "helix":
+			_summary.text = "Needs a ready precision shot"
+	var upgraded = player.technology != null and player.technology.has_doctrine()
+	_activate.tooltip_text = (
+		(
+			"Closest six ready chipped ground combatants. Hold still for 2 s inside a 6 m sector "
+			+ (
+				"for %d%% damage reduction. Moving breaks Anchor. 10 s cooldown. Orders continue."
+				% (25 if upgraded else 15)
+			)
+		)
+		if player.faction == "bastion"
+		else (
+			"Up to six ready precision weapons with a visible legal target. "
+			+ (
+				"Their first preparation is %d%% faster within 2 s. 8 s cooldown. "
+				% (50 if upgraded else 20)
+			)
+			+ "Damage and reload do not change."
+		)
+	)
+
+	if player.faction == "frontier":
+		_activate.tooltip_text = (
+			(
+				"Up to six ready chipped ground combatants gain +%d%% movement "
+				+ "speed for 6 s. 25 s cooldown. Orders continue."
+			)
+			% (50 if upgraded else 35)
+		)

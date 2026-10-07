@@ -1,0 +1,12 @@
+import subprocess,concurrent.futures,json,time,hashlib
+from pathlib import Path
+base=Path('docs/playtests/2026-10-04')
+configs=[(1,'proactive'),(5,'proactive'),(1,'staged'),(5,'staged')]
+def run(config):
+ case,policy=config;name='mixed-operations-fixed-'+('helix' if case==5 else 'bastion')+'-'+policy;start=time.monotonic()
+ script='tmp/MixedStagedMatches.gd' if policy=='staged' else 'tmp/MixedOperationsMatches.gd'
+ args=['./tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot','--headless','--path','.','--fixed-fps','60','--script',script,'--','--case='+str(case),'--repeats=1','--ground-first','--proactive','--output=res://'+str(base/(name+'.json')),'--archive=res://'+str(base/(name+'-stall.json'))]
+ with (base/(name+'.log')).open('w') as out:r=subprocess.run(args,stdout=out,stderr=subprocess.STDOUT,timeout=1200)
+ row={'case':case,'policy':policy,'exit':r.returncode,'wall_seconds':round(time.monotonic()-start,1),'log':str(base/(name+'.log')),'result':str(base/(name+'.json'))};print(json.dumps(row),flush=True);return row
+with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:rows=list(pool.map(run,configs))
+(base/'mixed-operations-fixed-exits.json').write_text(json.dumps(rows,indent=2)+'\n')

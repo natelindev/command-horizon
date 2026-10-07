@@ -1,0 +1,69 @@
+extends "res://tests/headless/SkirmishLaborRegression.gd"
+
+var watched_player
+var watched_start = 0.0
+var watched_tick = 0
+var captured = {}
+
+func _run():
+	factions = load("res://source/match/FactionCatalog.gd")
+	catalog = load("res://source/match/BastionCatalog.gd")
+	harvest = load("res://source/match/units/actions/CollectingResourcesSequentially.gd")
+	labor = load("res://source/match/players/skirmish-ai/SkirmishLabor.gd")
+	moving = load("res://source/match/units/actions/Moving.gd")
+	orders = load("res://source/match/orders/ManualOrders.gd")
+	root.get_node("SaveManager").autosaves_enabled = false
+	physics_frame.connect(_observe_rebalance)
+	await _income("bastion")
+	for message in errors:
+		push_error(message)
+	print("REBALANCE PROBE failures=",errors.size())
+	quit(0 if errors.is_empty() else 1)
+
+func _review_labor(player, label):
+	if label.ends_with("-mixed"):
+		watched_player = player
+		watched_start = game.simulation_time
+		watched_tick = 0
+		_trace_rebalance("start")
+	elif label.ends_with("-materials"):
+		_trace_rebalance("end")
+		_save_rebalance("end")
+		watched_player = null
+
+func _observe_rebalance():
+	if not is_instance_valid(watched_player) or paused:
+		return
+	watched_tick += 1
+	if watched_tick == 1:
+		paused = true
+		_save_rebalance("start")
+		paused = false
+	if watched_tick % 300 != 0:
+		return
+	_trace_rebalance("tick")
+	var elapsed = game.simulation_time-watched_start
+	for boundary in [60,90]:
+		if elapsed >= boundary and not captured.has(boundary):
+			captured[boundary] = true
+			paused = true
+			_save_rebalance(str(boundary))
+			paused = false
+
+func _save_rebalance(label):
+	var data = Snapshot.new().capture(game)
+	_check(data != null,"Rebalance diagnostic capture failed")
+	if data != null:
+		FileStore.new().write_file("res://tmp/harvest-remaining-rebalance-"+label+".json",data)
+		print("REBALANCE CAPTURE ",label)
+
+func _trace_rebalance(label):
+	var workers = _units(watched_player,"Worker")
+	var requests = labor.plan(game,watched_player,watched_player._units())
+	var rows=[]
+	for worker in workers:
+		var m=worker.get_node("Movement")
+		var next=labor.queued_target(worker)
+		var sub=worker.action._sub_action if worker.action!=null and "_sub_action" in worker.action else null
+		rows.append({"i":worker.get_index(),"p":str(worker.position),"action":str(worker.action),"kind":worker.action._kind if worker.action!=null and "_kind" in worker.action else null,"cargo":[worker.resource_a,worker.resource_b],"requested":requests.get(worker,0),"pending":str(worker.manual_orders.pending),"queued_target":str(next.position) if next!=null else "none","target":str(m.target_position),"path":str(m.get_current_navigation_path()),"idx":m.get_current_navigation_path_index(),"recovery":m._recovery_left,"velocity":str(m.velocity),"rev":m._command_revision,"contact":sub._contact_elapsed if sub!=null and "_contact_elapsed" in sub else null,"orbit":sub._orbit_windows if sub!=null and "_orbit_windows" in sub else null})
+	print("REBALANCE TRACE ",JSON.stringify({"label":label,"t":game.simulation_time-watched_start,"funds":[watched_player.resource_a,watched_player.resource_b],"workers":rows}))

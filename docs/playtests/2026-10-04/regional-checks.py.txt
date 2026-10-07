@@ -1,0 +1,13 @@
+from pathlib import Path
+import subprocess,json
+out=Path('docs/playtests/2026-10-04'); godot='tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot'
+paths=['tests/headless/SkirmishMatrix.gd','tests/headless/SkirmishDefensePolicy.gd','tests/headless/PolicyFallbackRegression.gd','tmp/RegionalSkirmishMatches.gd']
+cases=[(name,[godot,'--headless','--path','.','--fixed-fps','60','--script','tests/headless/'+name+'.gd'],'0 failures') for name in ['PolicyFallbackRegression','PolicyRecoveryRegression','PolicyAdvanceRegression']]
+cases += [('format',['/tmp/horizon-gdtools/bin/gdformat','--check',*paths],None),('lint',['/tmp/horizon-gdtools/bin/gdlint',*paths],None),('whitespace',['git','diff','--check'],None),('import',[godot,'--headless','--path','.','--editor','--quit'],None)]
+checks=[]
+for name,args,marker in cases:
+ log=out/('regional-reviewed-'+name+'.log')
+ with log.open('w') as f:
+  r=subprocess.run(args,stdout=f,stderr=subprocess.STDOUT,timeout=300)
+ s=log.read_text(); row={'name':name,'exit_code':r.returncode,'script_error':any(x in s for x in ['SCRIPT ERROR','Failed to load script','Parse Error','Failed loading resource']), 'marker':marker,'marker_found':marker is None or marker in s,'log':log.name}; checks.append(row);print(json.dumps(row),flush=True)
+(out/'regional-reviewed-checks.json').write_text(json.dumps(checks,indent=2)+'\n')

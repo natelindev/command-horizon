@@ -1,0 +1,175 @@
+extends "res://tests/headless/SaveRestoreEdges.gd"
+
+var factions
+var catalog
+
+
+func _run():
+	factions = load("res://source/match/FactionCatalog.gd")
+	catalog = load("res://source/match/BastionCatalog.gd")
+	root.get_node("SaveManager").autosaves_enabled = false
+	for faction in ["bastion", "helix"]:
+		await _roster(faction)
+	for message in errors:
+		push_error(message)
+	print("Roster information: %d failures" % errors.size())
+	quit(0 if errors.is_empty() else 1)
+
+
+func _roster(faction):
+	await _skirmish(faction, "res://source/match/maps/DesertFrontier.tscn", true)
+	var player = game._get_human_player()
+	for side in get_nodes_in_group("players"):
+		side.set_process(false)
+	game.hud._toggle_pause()
+	var factory = _units(player, "VehicleFactory")[0]
+	var menus = _select(factory)
+	var tank = _entry(menus, "Tank")
+	var heavy = _entry(menus, "AdvancedTank")
+	_check(heavy.button.disabled, "Unresearched heavy unit can be ordered")
+	_check(
+		heavy.button.tooltip_text.contains(factions.title(faction, "AdvancedTank")),
+		faction + ": locked unit lost its identity"
+	)
+	_check(
+		heavy.button.tooltip_text.contains(factions.description(faction, "AdvancedTank")),
+		faction + ": locked unit lost its role description"
+	)
+	_check(heavy.button.tooltip_text.contains("Coordination"), "Missing research requirement")
+	for role in catalog.NAMES:
+		_check(
+			not factions.description(faction, role).contains("Helix specialist"),
+			"Generic role description: " + role
+		)
+	player.resource_a = 5
+	player.resource_b = 1
+	factory.production_queue.fit_chips = true
+	menus._refresh_buttons()
+	var price = factions.cost(player, "Tank")
+	price.resource_b += 4
+	_check(tank.button.disabled, "Unaffordable fitted armor is enabled")
+	_check(
+		tank.button.tooltip_text.contains(factions.description(faction, "Tank")),
+		faction + ": unaffordable unit lost its role description"
+	)
+	_check(
+		tank.button.tooltip_text.contains(
+			"Short: %d M / %d E" % [price.resource_a - 5, price.resource_b - 1]
+		),
+		faction + ": missing resources are not distinguished from total price"
+	)
+	await _review_roster(player, "shortage")
+	var time = game.simulation_time
+	var actions = _units(player, "Worker").map(func(unit): return unit.action)
+	var funds = Vector2i(player.resource_a, player.resource_b)
+	for index in 10:
+		menus._refresh_buttons()
+	_check(Vector2i(player.resource_a, player.resource_b) == funds, "Inspection spent funds")
+	_check(factory.production_queue.size() == 0, "Inspection queued a purchase")
+	_check(game.simulation_time == time, "Inspection advanced tactical pause")
+	_check(
+		_units(player, "Worker").map(func(unit): return unit.action) == actions,
+		"Inspection issued orders"
+	)
+	player.resource_a = 1000
+	player.resource_b = 1000
+	menus._refresh_buttons()
+	_check(not tank.button.disabled, "Affordable fitted armor remains disabled")
+	var before = Vector2i(player.resource_a, player.resource_b)
+	menus._activate("Tank", false)
+	var jobs = factory.production_queue.get_elements()
+	_check(jobs.size() == 1, "Available roster choice did not buy one job")
+	if not jobs.is_empty():
+		var job = jobs[0]
+		_check(job.paid_cost == price, "Displayed fitted price differs from paid price")
+		_check(
+			(
+				Vector2i(player.resource_a, player.resource_b)
+				== before - Vector2i(price.resource_a, price.resource_b)
+			),
+			"Purchase charged the wrong resources"
+		)
+		_check(
+			tank.button.tooltip_text.contains(
+				"%d s" % ceili(job.time_total / player.production_factor())
+			),
+			"Displayed production time differs from actual job"
+		)
+		factory.production_queue.cancel(job)
+		_check(
+			Vector2i(player.resource_a, player.resource_b) == before,
+			"Refund changed the paid price"
+		)
+	await _review_roster(player, "available")
+	await _blocked_roster(player, menus, factory)
+	paused = false
+	game.queue_free()
+	await _frames(5)
+	game = null
+
+
+func _blocked_roster(player, menus, factory):
+	var airfield = load(catalog.scene_path("AircraftFactory")).instantiate()
+	game._setup_and_spawn_unit(airfield, Transform3D(Basis(), Vector3(38, 0, 20)), player, false)
+	var power = _units(player, "PowerPlant")[0]
+	power.queue_free()
+	await _frames(3)
+	_check(player.production_factor() < 1.0, "Low-power fixture still has enough supply")
+	menus._refresh_buttons()
+	var tank = _entry(menus, "Tank")
+	var job = factory.production_queue.produce(load(catalog.scene_path("Tank")))
+	_check(job != null, "Low power prevented paid production")
+	if job != null:
+		_check(
+			tank.button.tooltip_text.contains(
+				"%d s" % ceili(job.time_total / player.production_factor())
+			),
+			"Low-power time is not reflected in roster information"
+		)
+		factory.production_queue.cancel(job)
+	await _review_roster(player, "low-power")
+	for index in 5:
+		factory.production_queue.produce(load(catalog.scene_path("Tank")))
+	menus._refresh_buttons()
+	_check(tank.button.disabled, "Full production queue remains enabled")
+	_check(tank.button.tooltip_text.contains("Queue full"), "Queue-cap reason missing")
+	_check(
+		tank.button.tooltip_text.contains(factions.description(player.faction, "Tank")),
+		"Full queue hides role information"
+	)
+	factory.production_queue.cancel_all()
+	var lab = _units(player, "CommandLab")[0]
+	lab.queue_free()
+	await _frames(3)
+	menus._refresh_buttons()
+	_check(tank.button.disabled, "Fitted production ignores missing lab")
+	_check(
+		tank.button.tooltip_text.contains(factions.title(player.faction, "CommandLab")),
+		"Missing lab is not named"
+	)
+	factory.production_queue.fit_chips = false
+	menus._refresh_buttons()
+	_check(not tank.button.disabled, "Conventional tank incorrectly requires a lab")
+	await _review_roster(player, "missing-lab")
+	var worker = _units(player, "Worker")[0]
+	menus = _select(worker)
+	var generator = _entry(menus, "PowerPlant")
+	_check(generator.button.tooltip_text.contains("25 power"), "Generator purpose is missing")
+	_check(generator.button.tooltip_text.contains("20 s"), "Construction time missing")
+	await _review_roster(player, "construction")
+
+
+func _select(unit):
+	root.get_node("MatchSignals").deselect_all_units.emit()
+	unit.get_node("Selection").select()
+	var menus = game.find_child("UnitMenus")
+	menus._refresh_buttons()
+	return menus
+
+
+func _entry(menus, role):
+	return menus._buttons.filter(func(entry): return entry.type == role)[0]
+
+
+func _review_roster(_player, _label):
+	return true

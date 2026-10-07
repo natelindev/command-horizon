@@ -1,0 +1,39 @@
+from pathlib import Path
+import hashlib,json,re
+base=Path('docs/playtests/2026-10-04')
+stems=[('diagnostic','mixed-operations-helix-baseline'),('diagnostic','mixed-operations-helix-proactive'),('diagnostic','mixed-operations-bastion-staged'),('diagnostic','mixed-operations-helix-staged')]
+stems += [('corrected_commander',f'mixed-operations-fixed-{f}-{p}') for f in ['bastion','helix'] for p in ['proactive','staged']]
+stems += [('corrected_commander',f'mixed-operations-allocation-{f}') for f in ['bastion','helix']]
+stems += [('corrected_commander',f'mixed-operations-allocation-repeat-{f}') for f in ['bastion','helix']]
+stems += [('corrected_commander',f'mixed-operations-responsive-{f}') for f in ['bastion','helix']]
+stems += [('crowded_arrival_fix',f'crowded-destination-final-Responsive{f}') for f in ['Bastion','Helix']]
+cohort=[]
+for revision,stem in stems:
+ p=base/(stem+'.json');log=base/(stem+'.log');records=json.loads(p.read_text());text=log.read_text()
+ assert f'Skirmish matrix: {len(records)} records, 0 unresolved checks' in text,log
+ assert 'SCRIPT ERROR' not in text and 'Failed to load' not in text,log
+ for r in records:
+  assert r['result'] in ['Victory','Defeat','Draw'],p
+  assert not r['ai_coordination']['violations'],p
+  cohort.append({'revision':revision,'source':str(p),'log':str(log),'case':r['case'],'seed':r['seed'],'result':r['result'],'seconds':r['seconds'],'assaults':r.get('policy_assaults',0),'regroups':r.get('policy_regroups',0),'guard_reassignments':r.get('guard_reassignments',0),'aircraft_produced':r.get('aircraft_produced',0),'first_air_raid':r.get('first_air_raid'),'longest_stationary_travel':r['longest_stationary_travel'],'coordination_samples':r['ai_coordination']['samples'],'authored_blocked':r.get('authored_blocked',[]),'source_sha256':hashlib.sha256(p.read_bytes()).hexdigest(),'log_sha256':hashlib.sha256(log.read_bytes()).hexdigest()})
+assert len(cohort)==18,len(cohort)
+(base/'mixed-operations-cohort.json').write_text(json.dumps(cohort,indent=2)+'\n')
+checks={r['name']:r for r in json.loads((base/'crowded-destination-final-checks.json').read_text())}
+for row in json.loads((base/'crowded-destination-static-checks.json').read_text()):
+ checks[row['name']]={**row,'script_error':False,'load_error':False,'pass_marker':None}
+checks['CrowdedDestinationPreview']={'name':'CrowdedDestinationPreview','exit':0,'script_error':False,'load_error':False,'pass_marker':True,'log':str(base/'crowded-destination-preview.log')}
+known=['RID allocations','ObjectDB instances','resources still in use','Source geometry parsing','ParticlesShaderRD were never freed']
+for row in checks.values():
+ log=Path(row['log']);text=log.read_text()
+ assert row['exit']==0 and not row['script_error'] and not row['load_error'] and row['pass_marker'] is not False,row
+ assert 'SCRIPT ERROR' not in text and 'Failed to load' not in text,log
+ if row['pass_marker']:assert any(k in text for k in ['0 failures','PASS:','0 unresolved checks']),log
+ row['sha256']=hashlib.sha256(log.read_bytes()).hexdigest()
+ row['engine_warnings']=[line for line in text.splitlines() if line.startswith(('ERROR:','WARNING:'))]
+ for line in row['engine_warnings']:assert any(k in line for k in known),line
+assert len(checks)==19,len(checks)
+files=['source/match/units/actions/Moving.gd','tests/headless/CrowdedDestinationRegression.gd','tests/rendered/CrowdedDestinationPreview.gd','tests/headless/SkirmishDefensePolicy.gd','tests/headless/PolicyAdvanceRegression.gd','art/skirmish/crowded-destination-before.png','art/skirmish/crowded-destination-healing.png',str(base/'mixed-operations-responsive-bastion-stall.json')]
+files += ['tmp/'+n+'.gd' for n in ['MixedOperationsMatches','MixedStagedMatches','MixedAllocationMatches','MixedResponsiveMatches','MixedReadinessMatches','AuthoredGuardMatches','AuthoredRecoveryMatches','PresetRecoveryMatches','PolicyReadiness']]
+manifest={'engine':'Godot 4.6, development M1 Pro; fixed 60 Hz headless; normal-clock Metal preview','accepted_checks':list(checks.values()),'cohort':str(base/'mixed-operations-cohort.json'),'audit':{'matches':len(cohort),'accepted_checks':len(checks),'all_terminal_results':True,'no_coordination_violations':True,'authored_blocked_events':sum(len(r['authored_blocked']) for r in cohort)},'files':{f:hashlib.sha256(Path(f).read_bytes()).hexdigest() for f in files}}
+(base/'crowded-destination-verification.json').write_text(json.dumps(manifest,indent=2)+'\n')
+print('PASS: 18 complete matches, 19 accepted checks, expected markers, retained engine warnings and source/capture hashes')

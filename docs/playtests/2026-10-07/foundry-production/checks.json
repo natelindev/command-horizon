@@ -1,0 +1,66 @@
+[
+  {
+    "name": "verified-budget",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/headless/FoundryProductionBudget.gd",
+      "--",
+      "--mode=2",
+      "--evidence=res://docs/playtests/2026-10-07/foundry-production/verified-budget"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "restores",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/headless/FoundryProductionRestore.gd",
+      "--"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "shared-foundry",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/headless/BrokenFoundryRegression.gd",
+      "--"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "delayed-veteran",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/FoundryDelayedAdvance.gd",
+      "--",
+      "--difficulty=2",
+      "--evidence=res://docs/playtests/2026-10-07/foundry-production/delayed-veteran"
+    ],
+    "exit_code": 0
+  }
+]

@@ -1,0 +1,28 @@
+extends "res://tmp/PresetRecoveryMatches.gd"
+
+
+func _run():
+	root.get_node("SaveManager").autosaves_enabled = false
+	constants = root.get_node("Constants")
+	plan_rules = load("res://source/match/SkirmishPlan.gd")
+	game = await _start(_settings("bastion", "helix", true))
+	human = game._get_human_player()
+	for player in get_nodes_in_group("players"):
+		player.set_process(false)
+	output_path = "res://tmp/recovery-archive-smoke.json"
+	await _review_match_end()
+	var store = load("res://source/match/saves/SaveFile.gd").new()
+	var snapshot = store.read_file("res://tmp/recovery-archive-smoke-unresolved.json")
+	var result = await load("res://source/match/saves/MatchRestore.gd").new().restore(
+		self, snapshot
+	)
+	_check(result.ok, "Diagnostic battle archive could not restore")
+	if result.ok:
+		game = result.game
+		_check(paused and not game.finished, "Diagnostic archive lost active paused match")
+		game.queue_free()
+		await _frames(5)
+	for error in _errors:
+		push_error(error)
+	print("Recovery archive smoke: %d failures" % _errors.size())
+	quit(0 if _errors.is_empty() else 1)

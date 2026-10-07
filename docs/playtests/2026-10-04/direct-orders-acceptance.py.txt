@@ -1,0 +1,20 @@
+import concurrent.futures,json,subprocess,time
+from pathlib import Path
+base=Path('docs/playtests/2026-10-04'); godot='./tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot'
+checks=[]
+def run(name,args,marker=False):
+ log=base/('direct-orders-accepted-'+name+'.log');start=time.monotonic()
+ with log.open('w') as out:r=subprocess.run(args,stdout=out,stderr=subprocess.STDOUT,timeout=300)
+ content=log.read_text();row={'suite':name,'exit':r.returncode,'script_error':'SCRIPT ERROR' in content,'load_error':'Failed to load' in content,'pass_marker':('0 failures' in content or 'PASS:' in content) if marker else None,'wall_seconds':round(time.monotonic()-start,1),'log':str(log)}
+ print(json.dumps(row),flush=True);return row
+names=['DirectOrdersRegression','HarvestContinuity','EconomySupplyRegression','EconomyRecoveryRegression','SaveRestoreRegression','SaveRestoreCombat','BattleAlertsRegression','CampaignRegression']
+with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:
+ checks=list(pool.map(lambda n:run(n,[godot,'--headless','--path','.','--fixed-fps','60','--script','tests/headless/'+n+'.gd'],True),names))
+for name in ['DirectOrdersPreview','ContactApproachPreview']:
+ checks.append(run(name,[godot,'--path','.','--script','tests/rendered/'+name+'.gd'],True))
+files=['source/match/hud/DirectOrders.gd','source/match/hud/SkirmishHUD.gd','source/match/hud/UnitMenus.gd','source/match/hud/BattleAlertsPanel.gd','source/match/hud/SkirmishPlanPanel.gd','source/input/KeyBindings.gd','source/match/units/actions/MovingToUnit.gd','tests/headless/BattleAlertsRegression.gd','tests/headless/DirectOrdersRegression.gd','tests/headless/KeyBindingsRegression.gd','tests/rendered/DirectOrdersPreview.gd','tests/rendered/KeyBindingsPreview.gd']
+checks.append(run('format',['/tmp/horizon-gdtools/bin/gdformat','--check',*files]))
+checks.append(run('lint',['/tmp/horizon-gdtools/bin/gdlint',*files]))
+checks.append(run('whitespace',['git','diff','--check']))
+(base/'direct-orders-acceptance-checks.json').write_text(json.dumps(checks,indent=2)+'\n')
+raise SystemExit(1 if any(r['exit'] or r['script_error'] or r['load_error'] or r['pass_marker'] is False for r in checks) else 0)

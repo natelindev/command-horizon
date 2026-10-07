@@ -1,0 +1,79 @@
+{
+  "format": {
+    "exit_code": 0,
+    "output": "5 files would be left unchanged\n"
+  },
+  "lint": {
+    "exit_code": 0,
+    "output": "Success: no problems found\n"
+  },
+  "regression": {
+    "terminal_exit_code": 0,
+    "expected_result": "0 failures",
+    "script_errors": 0,
+    "shutdown_diagnostics": true
+  },
+  "verified": {
+    "terminal_exit_code": 0,
+    "expected_result": "0 failures",
+    "script_errors": 0,
+    "shutdown_diagnostics": true
+  },
+  "transitions": {
+    "terminal_exit_code": 0,
+    "expected_result": "0 failures",
+    "script_errors": 0,
+    "shutdown_diagnostics": true
+  },
+  "recovery": {
+    "terminal_exit_code": 0,
+    "expected_result": "0 failures",
+    "script_errors": 0,
+    "shutdown_diagnostics": true
+  },
+  "native": {
+    "terminal_exit_code": 0,
+    "expected_result": "0 failures",
+    "script_errors": 0,
+    "shutdown_diagnostics": true
+  },
+  "matches-2": {
+    "terminal_exit_code": 0,
+    "expected_result": "0 unresolved checks",
+    "script_errors": 0,
+    "shutdown_diagnostics": true
+  },
+  "matches-6": {
+    "terminal_exit_code": 0,
+    "expected_result": "0 unresolved checks",
+    "script_errors": 0,
+    "shutdown_diagnostics": true
+  },
+  "before": {
+    "terminal_exit_code": 1,
+    "expected_authority_failures": 3
+  },
+  "captures": {
+    "native-installed.png": [
+      1280,
+      720
+    ],
+    "native-installing.png": [
+      1280,
+      720
+    ],
+    "native-ready.png": [
+      1280,
+      720
+    ],
+    "native-running.png": [
+      1280,
+      720
+    ]
+  },
+  "ledger": {
+    "reserved_e": 20,
+    "refunded_e": 6,
+    "net_e": 14
+  }
+}

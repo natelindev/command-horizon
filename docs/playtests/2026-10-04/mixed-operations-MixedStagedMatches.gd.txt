@@ -1,0 +1,50 @@
+extends "res://tmp/MixedOperationsMatches.gd"
+
+var stage = null
+var stage_started = 0.0
+
+
+func _play_case(index):
+	stage = null
+	stage_started = 0.0
+	await super(index)
+
+
+func _assault_destination(enemy_start):
+	var army = _policy_army().filter(func(unit): return not retreating.has(unit.get_instance_id()))
+	if army.is_empty():
+		return enemy_start
+	if phase != "attack":
+		stage = null
+	if stage != null and phase == "attack":
+		var arrived = army.filter(
+			func(unit): return unit.global_position_yless.distance_to(stage) <= 6.0
+		)
+		if (
+			arrived.size() < ceili(army.size() * 0.75)
+			and game.simulation_time - stage_started < 12.0
+		):
+			return stage
+	var center = Vector3.ZERO
+	for unit in army:
+		center += unit.global_position_yless
+	center /= army.size()
+	var movement = army[0].get_node("Movement")
+	var path = NavigationServer3D.map_get_path(
+		movement.get_navigation_map(), center, enemy_start, true
+	)
+	var point = center
+	var distance = 12.0
+	for corner in path:
+		corner *= Vector3(1, 0, 1)
+		var leg = point.distance_to(corner)
+		if leg >= distance:
+			point = point.move_toward(corner, distance)
+			break
+		distance -= leg
+		point = corner
+	stage = point
+	stage_started = game.simulation_time
+	if phase == "attack":
+		metrics.staging_steps = metrics.get("staging_steps", 0) + 1
+	return stage

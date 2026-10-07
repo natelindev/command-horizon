@@ -1,0 +1,26 @@
+{
+  "date": "2026-10-01",
+  "godot": "4.6.stable.official.89cea1439",
+  "blender": "5.2.1",
+  "checks": {
+    "faction_glb_reimport": "20/20 passed",
+    "original_map_startup_navigation": "passed",
+    "faction_headless_gameplay": "passed",
+    "rendered_menu_and_paused_orders": "passed",
+    "all_offensive_unit_weapons": "passed",
+    "native_ui_paused_factory_selection": "passed",
+    "gdformat": "passed",
+    "gdlint": "passed",
+    "git_diff_check": "passed"
+  },
+  "known_diagnostics": [
+    "Initial terrain navigation bake reads a RenderingServer mesh.",
+    "Godot reports shader/resource cleanup diagnostics at process exit; test assertions pass."
+  ],
+  "not_verified": [
+    "Windows runtime",
+    "200-active-unit target-hardware performance",
+    "final balance"
+  ],
+  "live_demo": "Launched and paused for user review."
+}

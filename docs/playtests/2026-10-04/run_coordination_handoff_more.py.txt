@@ -1,0 +1,9 @@
+import concurrent.futures, subprocess, pathlib,json
+out=pathlib.Path('docs/playtests/2026-10-04')
+def run(i):
+ stem=f'coordination-handoff-match-{i}'
+ args=['tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot','--headless','--path','.','--fixed-fps','60','--script','tmp/CoordinationHandoffMatches.gd','--','--case=3','--repeats=1','--ground-first','--proactive',f'--probe-run={i}',f'--output=res://docs/playtests/2026-10-04/{stem}.json']
+ with (out/(stem+'.log')).open('w') as log:r=subprocess.run(args,stdout=log,stderr=subprocess.STDOUT,timeout=1800)
+ s=(out/(stem+'.log')).read_text();row={'run':i,'exit':r.returncode,'script_error':'SCRIPT ERROR' in s,'captures':s.count('COORDINATION HANDOFF')};print(json.dumps(row),flush=True);return row
+with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:rows=list(pool.map(run,[2,3,4,5]))
+(out/'coordination-handoff-more-execution.json').write_text(json.dumps(rows,indent=2)+'\n')

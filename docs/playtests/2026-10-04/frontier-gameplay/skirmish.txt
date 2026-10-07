@@ -1,0 +1,26 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.
+		This poses a significant performance issues as visual meshes store geometry data on the GPU and transferring this data back to the CPU blocks the rendering.
+		For runtime (re)baking navigation meshes use and parse collision shapes as source geometry or create geometry data procedurally in scripts.
+     at: add_mesh (scene/resources/3d/navigation_mesh_source_geometry_data_3d.cpp:204)
+     GDScript backtrace (most recent call first):
+         [0] bake (res://source/match/TerrainNavigation.gd:56)
+         [1] setup (res://source/match/Navigation.gd:43)
+         [2] _setup_subsystems_dependent_on_map (res://source/match/Match.gd:132)
+         [3] _ready (res://source/match/Match.gd:64)
+         [4] _ready (res://source/match/Skirmish.gd:20)
+         [5] _start (res://tests/headless/Skirmish.gd:90)
+         [6] _test_roster (res://tests/headless/Skirmish.gd:98)
+         [7] _run (res://tests/headless/Skirmish.gd:20)
+         [8] _test_setup (res://tests/headless/Skirmish.gd:67)
+         [9] _frames (res://tests/headless/Skirmish.gd:296)
+AI OBSERVATION bastion: structures=8 attacks=4 produced=10
+AI OBSERVATION helix: structures=8 attacks=4 produced=13
+AI OBSERVATION frontier: structures=8 attacks=4 produced=14
+PASS: skirmish setup/random, all faction pairings, production, construction, AA, pause, results, restart and AI economy/attacks
+ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 5 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

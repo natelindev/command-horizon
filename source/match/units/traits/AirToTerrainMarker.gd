@@ -29,3 +29,11 @@ func _update_material():
 func _on_unit_selected():
 	_update_material()
 	_mesh_instance.show()
+
+
+func _process(_delta):
+	if not _mesh_instance.visible:
+		return
+	var height = maxf(0.0, _unit.global_position.y)
+	_mesh_instance.position.y = -height * 0.5
+	_mesh_instance.scale.y = height / 1.6

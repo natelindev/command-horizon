@@ -1,0 +1,55 @@
+extends "res://tests/headless/HarvestTrafficRegression.gd"
+
+var tick = 0
+var start = -1.0
+var velocities = {}
+var prior = {}
+var since = {}
+var captured = false
+
+func _run():
+	physics_frame.connect(_trace_tick)
+	await super()
+
+func _trace_tick():
+	if game == null or paused:
+		return
+	if start < 0:
+		start = game.simulation_time
+	tick += 1
+	var actors = get_nodes_in_group("units") + get_nodes_in_group("resource_units")
+	for worker in get_nodes_in_group("units"):
+		if worker.type != "Worker" or worker.process_mode == Node.PROCESS_MODE_DISABLED:
+			continue
+		var m = worker.get_node("Movement")
+		if not prior.has(worker):
+			prior[worker] = worker.position
+			m.velocity_computed.connect(func(v):
+				velocities[worker] = {"safe":str(v),"actual":str((worker.position-prior[worker])*60.0)}
+				prior[worker] = worker.position
+			)
+		var returning = worker.resource_b > 0 and worker.action._state == harvest_script.State.MOVING_TO_CC
+		if returning and not since.has(worker):
+			since[worker] = game.simulation_time
+		elif not returning:
+			since.erase(worker)
+		if tick % 30 != 0:
+			continue
+		var path = m.get_current_navigation_path()
+		var idx = m.get_current_navigation_path_index()
+		var next = path[idx] if idx<path.size() else worker.position
+		var nearby = []
+		for other in actors:
+			if other.position.distance_to(worker.position) > 6:
+				continue
+			var mover = other.get_node_or_null("Movement")
+			var obstacle = other.get_node_or_null("MovementObstacle")
+			nearby.append({"type":other.type if "type" in other else "resource","i":other.get_index(),"p":str(other.position),"r":other.radius,"process":other.process_mode,"action":str(other.action) if "action" in other else "resource","moving":mover._has_destination if mover!=null else false,"requested":str(mover.velocity) if mover!=null else "none","obstacle_radius":obstacle.radius if obstacle!=null else null,"navmesh":obstacle.affect_navigation_mesh if obstacle!=null else false,"vertices":str(obstacle.vertices) if obstacle!=null else "none"})
+		print("DEEP TRACE ",JSON.stringify({"t":game.simulation_time-start,"i":worker.get_index(),"p":str(worker.position),"action":str(worker.action),"cargo":worker.resource_b,"return_elapsed":game.simulation_time-since[worker] if since.has(worker) else 0,"next":str(next),"projected_next":str(NavigationServer3D.map_get_closest_point(m.get_navigation_map(),next)),"requested":str(m.velocity),"velocities":velocities.get(worker,{}),"recovery":m._recovery_left,"rev":m._command_revision,"path":str(path),"idx":idx,"nearby":nearby}))
+		if not captured and since.has(worker) and game.simulation_time-since[worker]>12:
+			captured = true
+			paused = true
+			var data = load("res://source/match/saves/MatchSnapshot.gd").new().capture(game)
+			FileStore.new().write_file("res://tmp/harvest-remaining-long-return-capture.json",data)
+			paused = false
+			print("DEEP CAPTURE t=",game.simulation_time-start," worker=",worker.get_index())

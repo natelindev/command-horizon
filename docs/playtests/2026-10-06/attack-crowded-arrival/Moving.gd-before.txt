@@ -1,0 +1,53 @@
+extends "res://source/match/units/actions/Action.gd"
+
+var _target_position = null
+var _arrival_elapsed = 0.0
+var _arrival_progress = null
+
+@onready var _unit = Utils.NodeEx.find_parent_with_group(self, "units")
+@onready var _movement_trait = _unit.find_child("Movement")
+
+
+static func is_applicable(unit):
+	return unit.find_child("Movement") != null
+
+
+func _init(target_position):
+	_target_position = target_position
+
+
+func _ready():
+	if restoring:
+		return
+	_movement_trait.move(_target_position)
+	_movement_trait.movement_finished.connect(_on_movement_finished)
+
+
+func _process(delta):
+	if (
+		not _movement_trait._synchronized
+		or not _movement_trait._has_destination
+		or _unit.movement_domain != Constants.Match.Navigation.Domain.TERRAIN
+	):
+		return
+	var point = _unit.global_position_yless
+	if _arrival_progress == null:
+		_arrival_progress = point
+	_arrival_elapsed += delta
+	if _arrival_elapsed < 2.0:
+		return
+	_arrival_elapsed = 0.0
+	var stalled = point.distance_to(_arrival_progress) < 0.2
+	_arrival_progress = point
+	if stalled and _movement_trait.has_occupied_endpoint():
+		_movement_trait.stop()
+		queue_free()
+
+
+func _exit_tree():
+	if is_inside_tree():
+		_movement_trait.stop()
+
+
+func _on_movement_finished():
+	queue_free()

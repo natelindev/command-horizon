@@ -1,0 +1,62 @@
+{
+  "passing_logs": {
+    "continuity.log": "Battle debrief: 0 failures",
+    "rendered.log": "Battle debrief: 0 failures",
+    "SaveSnapshotRegression.log": "PASS: inert typed saves",
+    "SaveRestoreEdges.log": "PASS: actual reload preserves jobs",
+    "WeaponModeRegression.log": "Weapon modes: 0 failures",
+    "ResourceFieldRegression.log": "Resource fields: 0 failures",
+    "TechnologyRegression.log": "Classic RTS technology: 0 failures",
+    "AmbientLifeRegression.log": "Ambient life: 0 failures",
+    "FrontierGameplayRegression.log": "Frontier gameplay: 0 failures"
+  },
+  "original_failures": 3,
+  "snapshot_version": 9,
+  "legacy_versions_supported": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "partial_history": "Explicit completeness flag, origin time and unknown milestones; survives disk resave/reload",
+  "rendered_images": {
+    "rendered-helix-legacy.png": [
+      1280,
+      720
+    ],
+    "rendered-bastion-legacy.png": [
+      1280,
+      720
+    ],
+    "rendered-bastion-complete.png": [
+      1280,
+      720
+    ],
+    "rendered-frontier-complete.png": [
+      1280,
+      720
+    ],
+    "rendered-frontier-legacy.png": [
+      1280,
+      720
+    ],
+    "rendered-helix-complete.png": [
+      1280,
+      720
+    ]
+  },
+  "source_checks": "12 scripts: formatter and lint pass",
+  "native_input": "Tab twice and Enter exercised; first destination assertion was premature. Corrected transition passes rendered button-signal test. Final physical repetition limited by Project Manager binding.",
+  "retained_failures": [
+    "initial-fixture-compile.log",
+    "after-signal-fixture.log",
+    "native.log",
+    "final-native.log",
+    "verified-native.log"
+  ],
+  "limits": "Own-force facts only; no historical totals reconstructed for old archives, no balance/novice/performance acceptance; known headless navigation and shutdown diagnostics remain."
+}

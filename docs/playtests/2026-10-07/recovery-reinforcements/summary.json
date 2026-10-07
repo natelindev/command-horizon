@@ -1,0 +1,190 @@
+{
+  "rows": [
+    {
+      "branch": "earned-control",
+      "outcome": "Victory",
+      "absolute_seconds": 2796.6,
+      "first_program": null,
+      "first_assault": 2691.75000000666,
+      "harvested": [
+        204.0,
+        309.0
+      ],
+      "net_spent": [
+        210.0,
+        130.0
+      ],
+      "research_orders": [
+        {
+          "cost": {
+            "resource_a": 60,
+            "resource_b": 40
+          },
+          "id": "weapons_2",
+          "seconds": 2025.74999999849
+        },
+        {
+          "cost": {
+            "resource_a": 60,
+            "resource_b": 30
+          },
+          "id": "armor_2",
+          "seconds": 2382.25000000272
+        }
+      ],
+      "worker_losses": 0,
+      "coordination_samples": 1993,
+      "max_stationary_travel": [
+        2.5,
+        0.5
+      ],
+      "continuation": {
+        "archive": "res://docs/playtests/2026-10-07/material-handoff/control-unresolved.json",
+        "first_new_ground": 732.000000005947,
+        "first_nine_ground": 891.000000007972,
+        "initial_funds": [
+          18.0,
+          224.0
+        ],
+        "initial_readiness": {
+          "army": 7,
+          "assault_gates": {
+            "army_at_least_9": false,
+            "health_at_least_80_percent": true,
+            "no_visible_home_threats": true,
+            "quiet_20_seconds": true,
+            "saw_home_attack": true
+          },
+          "health": 0.949263392857143,
+          "phase": "recover",
+          "pressure_age": 637.999999999421,
+          "saw_attack": true,
+          "visible_home_threats": 0
+        },
+        "restored_at": 1800.74999999869
+      },
+      "elapsed_since_restore": 995.850000009307
+    },
+    {
+      "branch": "earned-priority",
+      "outcome": "Victory",
+      "absolute_seconds": 2092.0,
+      "first_program": null,
+      "first_assault": 1971.74999999854,
+      "harvested": [
+        56.0,
+        96.0
+      ],
+      "net_spent": [
+        74.0,
+        46.0
+      ],
+      "research_orders": [],
+      "worker_losses": 0,
+      "coordination_samples": 584,
+      "max_stationary_travel": [
+        3.0,
+        0.5
+      ],
+      "continuation": {
+        "archive": "res://docs/playtests/2026-10-07/material-handoff/control-unresolved.json",
+        "first_new_ground": 26.9999999999754,
+        "first_nine_ground": 170.999999999844,
+        "initial_funds": [
+          18.0,
+          224.0
+        ],
+        "initial_readiness": {
+          "army": 7,
+          "assault_gates": {
+            "army_at_least_9": false,
+            "health_at_least_80_percent": true,
+            "no_visible_home_threats": true,
+            "quiet_20_seconds": true,
+            "saw_home_attack": true
+          },
+          "health": 0.949263392857143,
+          "phase": "recover",
+          "pressure_age": 637.999999999421,
+          "saw_attack": true,
+          "visible_home_threats": 0
+        },
+        "restored_at": 1800.74999999869
+      },
+      "elapsed_since_restore": 291.250000000335
+    },
+    {
+      "branch": "fresh-control",
+      "outcome": "Defeat",
+      "absolute_seconds": 1609.7,
+      "first_program": 185.733333333373,
+      "first_assault": 1034.23333333272,
+      "harvested": [
+        864.0,
+        458.0
+      ],
+      "net_spent": [
+        923.0,
+        172.0
+      ],
+      "research_orders": [],
+      "worker_losses": 7,
+      "coordination_samples": 3220,
+      "max_stationary_travel": [
+        3.0,
+        1.5
+      ]
+    },
+    {
+      "branch": "fresh-priority",
+      "outcome": "Defeat",
+      "absolute_seconds": 769.3,
+      "first_program": 194.73333333338,
+      "first_assault": null,
+      "harvested": [
+        312.0,
+        244.0
+      ],
+      "net_spent": [
+        367.0,
+        94.0
+      ],
+      "research_orders": [],
+      "worker_losses": 5,
+      "coordination_samples": 1539,
+      "max_stationary_travel": [
+        1.5,
+        2.0
+      ]
+    },
+    {
+      "branch": "final-default",
+      "outcome": "Defeat",
+      "absolute_seconds": 794.2,
+      "first_program": 225.233333333405,
+      "first_assault": 308.233333333382,
+      "harvested": [
+        424.0,
+        272.0
+      ],
+      "net_spent": [
+        481.0,
+        138.0
+      ],
+      "research_orders": [],
+      "worker_losses": 8,
+      "coordination_samples": 1589,
+      "max_stationary_travel": [
+        3.0,
+        3.5
+      ]
+    }
+  ],
+  "shipping_scripts_unchanged": 288,
+  "fresh_complete_match_gate": true,
+  "bounds": [
+    "One exact saved world and one fresh seed; no general balance conclusion.",
+    "The saved world and recorded commander state are restored; unrecorded test history restarts.",
+    "Both earned outcomes occur beyond thirty minutes of total match time."
+  ]
+}

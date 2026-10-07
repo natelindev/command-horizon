@@ -1,0 +1,196 @@
+extends "res://tests/headless/SkirmishLaborRegression.gd"
+
+var ai
+var engineer
+var headquarters
+
+
+func _run():
+	factions = load("res://source/match/FactionCatalog.gd")
+	catalog = load("res://source/match/BastionCatalog.gd")
+	harvest = load("res://source/match/units/actions/CollectingResourcesSequentially.gd")
+	labor = load("res://source/match/players/skirmish-ai/SkirmishLabor.gd")
+	moving = load("res://source/match/units/actions/Moving.gd")
+	root.get_node("SaveManager").autosaves_enabled = false
+	await _delivery_between_decisions()
+	await _manual_replacement()
+	for message in errors:
+		push_error(message)
+	print("Labor handoff: %d failures" % errors.size())
+	quit(0 if errors.is_empty() else 1)
+
+
+func _fixture():
+	await _skirmish("helix", "res://source/match/maps/DesertFrontier.tscn", true)
+	ai = get_nodes_in_group("players").filter(func(p): return p != game._get_human_player())[0]
+	paused = true
+	for side in get_nodes_in_group("players"):
+		side.set_process(false)
+	for unit in get_nodes_in_group("units"):
+		unit.process_mode = Node.PROCESS_MODE_DISABLED
+	headquarters = _units(ai, "CommandCenter")[0]
+	var electronics = _deposit(headquarters, "resource_b")
+	# Retain every existing actor and footprint. The other frozen engineers keep
+	# electronics assignments, so the returning engineer needs a materials handoff.
+	for worker in _units(ai, "Worker"):
+		worker.issue_manual_order(harvest.new(electronics))
+	engineer = _spawn("Worker", ai, headquarters.position + Vector3(-10, 0, 0))
+	engineer.resource_b = 4
+	engineer.process_mode = Node.PROCESS_MODE_INHERIT
+	engineer.issue_manual_order(harvest.new(electronics))
+	ai.resource_a = 0
+	ai.resource_b = 200
+	await _frames(10)
+	_check(labor.plan(game, ai, ai._units()).get(engineer) == 1, "Fixture did not need materials")
+	_check(
+		engineer.resource_b == 4 and engineer.action._state == harvest.State.MOVING_TO_CC,
+		"Fixture did not retain a loaded electronics return"
+	)
+
+
+func _queue_handoff():
+	var action = engineer.action
+	var funds = Vector2i(ai.resource_a, ai.resource_b)
+	_check(engineer.position.distance_to(headquarters.position) > 9, "Fixture is already near HQ")
+	ai._harvest(ai._units())
+	var target = labor.queued_target(engineer)
+	_check(target != null and "resource_a" in target, "Far loaded return did not queue materials")
+	_check(
+		engineer.action == action and engineer.resource_b == 4, "Handoff interrupted cargo return"
+	)
+	_check(
+		Vector2i(ai.resource_a, ai.resource_b) == funds, "Queuing a handoff credited cargo early"
+	)
+	for repeat in 3:
+		ai._harvest(ai._units())
+	_check(
+		engineer.manual_orders.pending.size() == 1 and labor.queued_target(engineer) == target,
+		"Repeated decisions replaced or duplicated the queued handoff"
+	)
+
+
+func _delivery_between_decisions():
+	await _fixture()
+	var stock = _resource_total()
+	_queue_handoff()
+	var point = engineer.position
+	var clock = game.simulation_time
+	var capture = Snapshot.new()
+	var data = capture.capture(game)
+	_check(data != null, "Far handoff snapshot failed")
+	if data == null:
+		await _close_fixture()
+		return
+	var engineer_id = capture._reference(engineer)
+	var headquarters_id = capture._reference(headquarters)
+	var actor_count = get_nodes_in_group("units").size()
+	var path = "user://labor-handoff-%d.json" % OS.get_process_id()
+	var file = FileStore.new()
+	_check(file.write_file(path, data), "Far handoff disk write failed")
+	var restore = Restore.new()
+	var loaded = await restore.restore(self, file.read_file(path))
+	DirAccess.remove_absolute(path)
+	_check(loaded.ok, "Far handoff disk restore failed")
+	if not loaded.ok:
+		return
+	game = loaded.game
+	engineer = restore.entities[engineer_id]
+	headquarters = restore.entities[headquarters_id]
+	ai = engineer.player
+	for side in get_nodes_in_group("players"):
+		side.set_process(false)
+	for unit in get_nodes_in_group("units"):
+		unit.process_mode = Node.PROCESS_MODE_DISABLED
+	engineer.process_mode = Node.PROCESS_MODE_INHERIT
+	await _frames(30)
+	_check(paused and game.simulation_time == clock, "Paused handoff archive advanced")
+	_check(
+		engineer.position == point and engineer.resource_b == 4, "Archive moved or unloaded cargo"
+	)
+	_check(get_nodes_in_group("units").size() == actor_count, "Archive changed the traffic actors")
+	_check(labor.queued_target(engineer) != null, "Archive lost the pending materials handoff")
+	_check(_resource_total() == stock, "Archive changed finite resources")
+	var returning_action = engineer.action
+	var funds = ai.resource_b
+	var polled = false
+	paused = false
+	for frame in 600:
+		await physics_frame
+		var distance = engineer.position.distance_to(headquarters.position)
+		# The old eligibility window started at HQ radius + 4 m. This decision
+		# falls just before it; the next ordinary 1.5 s decision follows delivery.
+		if distance <= headquarters.radius + 4.1 and distance > headquarters.radius + 4.0:
+			polled = true
+			ai._harvest(ai._units())
+			break
+	_check(polled, "Fixture missed the decision before the old handoff window")
+	_check(
+		engineer.action == returning_action and engineer.resource_b == 4, "Travel interrupted cargo"
+	)
+	var delivered = false
+	for frame in 90:
+		await physics_frame
+		if engineer.action != returning_action and not delivered:
+			delivered = true
+			_check(
+				ai.resource_b == funds + 4 and engineer.resource_b == 0, "Switch preceded delivery"
+			)
+			_check(
+				root.get_node("Utils").Match.Unit.Movement.units_adhere(engineer, headquarters),
+				"Handoff delivered cargo outside HQ contact"
+			)
+		_check(_resource_total() == stock, "Handoff changed finite resources")
+	ai._harvest(ai._units())
+	print("HANDOFF END0 ",str(engineer.action)," queued_delete=",engineer.action.is_queued_for_deletion() if engineer.action!=null else false," cargo=",engineer.resource_b," funds=",ai.resource_b," pending=",str(engineer.manual_orders.pending)," old_same=",engineer.action==returning_action," engaged=",engineer.manual_orders._engaged," process=",engineer.manual_orders.is_physics_processing())
+	await _frames(3)
+	print("HANDOFF END3 ",str(engineer.action)," cargo=",engineer.resource_b," funds=",ai.resource_b," pending=",str(engineer.manual_orders.pending)," old_same=",engineer.action==returning_action)
+	_check(delivered and ai.resource_b == funds + 4, "The two decisions missed the cargo handoff")
+	_check(
+		is_instance_of(engineer.action, harvest) and engineer.action._kind == 1,
+		"Delivery did not start materials"
+	)
+	_check(engineer.manual_orders.pending.is_empty(), "Delivered handoff remained queued")
+	print("LABOR HANDOFF cargo_delivered=", ai.resource_b - funds, " decision_interval=1.5")
+	await _close_fixture()
+
+
+func _manual_replacement():
+	await _fixture()
+	var stock = _resource_total()
+	_queue_handoff()
+	var goal = engineer.position + Vector3(0, 0, -3)
+	engineer.issue_manual_order(moving.new(goal))
+	_check(engineer.manual_orders.pending.is_empty(), "Manual Move retained the queued handoff")
+	_check(engineer.resource_b == 4, "Manual replacement lost existing cargo")
+	paused = false
+	await _frames(180)
+	_check(engineer.position.distance_to(goal) < .4, "Manual replacement did not reach its goal")
+	_check(
+		(
+			engineer.resource_b == 4
+			and ai.resource_b == 200
+			and not is_instance_of(engineer.action, harvest)
+		),
+		"Obsolete handoff resumed over the manual order"
+	)
+	_check(_resource_total() == stock, "Manual replacement changed finite resources")
+	await _close_fixture()
+
+
+func _resource_total():
+	var total = Vector2i(ai.resource_a, ai.resource_b)
+	for worker in _units(ai, "Worker"):
+		total += Vector2i(worker.resource_a, worker.resource_b)
+	for deposit in get_nodes_in_group("resource_units"):
+		if "resource_a" in deposit:
+			total.x += deposit.resource_a
+		else:
+			total.y += deposit.resource_b
+	return total
+
+
+func _close_fixture():
+	paused = false
+	game.queue_free()
+	await _frames(5)
+	game = null

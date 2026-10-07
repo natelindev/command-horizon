@@ -1,0 +1,17 @@
+extends "res://tmp/RegionalSkirmishMatches.gd"
+
+
+func _clear_fallback(unit, point, include_mobile = true):
+	return super(unit, point, include_mobile or (unit.program != null and unit.program.mode == "Blocked"))
+
+
+func _command():
+	var waiting = []
+	for unit in _policy_army():
+		if unit.program != null and unit.program.mode == "Blocked":
+			waiting.append({"unit": unit, "point": unit.program.safe_point})
+	super()
+	for row in waiting:
+		var unit = row.unit
+		if unit.program.mode == "Blocked" and unit.program.safe_point != row.point:
+			_check(unit.program.run(), "Reassigned fallback refused to resume")

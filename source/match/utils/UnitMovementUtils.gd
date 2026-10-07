@@ -37,7 +37,25 @@ static func calculate_aabb_crowd_pivot_yless(units):
 
 static func units_adhere(unit_a, unit_b):
 	"""checks if distance between unit borders is within margin"""
-	return _unit_in_range_of_other(unit_a, unit_b, Constants.Match.Units.ADHERENCE_MARGIN_M)
+	return _unit_in_range_of_other(unit_a, unit_b, adherence_margin(unit_a, unit_b))
+
+
+static func adherence_margin(unit_a, unit_b):
+	var margin = Constants.Match.Units.ADHERENCE_MARGIN_M
+	var obstacle = unit_b.get_node_or_null("MovementObstacle")
+	if obstacle != null and obstacle.affect_navigation_mesh:
+		# The shared terrain mesh is eroded for the largest unit and rounded to
+		# cells. Engineers must be able to gather, deliver and build from that
+		# reachable boundary. Mobile-unit contact retains the ordinary margin.
+		margin = maxf(
+			margin,
+			(
+				Constants.Match.Terrain.Navmesh.MAX_AGENT_RADIUS
+				- unit_a.radius
+				+ Constants.Match.Terrain.Navmesh.CELL_SIZE
+			)
+		)
+	return margin
 
 
 static func _unit_in_range_of_other(unit_a, unit_b, b_range):

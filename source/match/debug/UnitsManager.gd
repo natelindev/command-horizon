@@ -16,7 +16,7 @@ func _ready():
 func _unhandled_input(event):
 	if not Globals.god_mode:
 		return
-	if event.is_action_pressed("god_mode_delete_units"):
+	if event.is_action_pressed("god_mode_delete_units", false, true):
 		for unit in get_tree().get_nodes_in_group("selected_units"):
 			if "hp" in unit:
 				unit.hp = 0

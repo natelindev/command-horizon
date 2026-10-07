@@ -1,0 +1,88 @@
+extends "res://tests/headless/SaveRestoreEdges.gd"
+
+var recovery_deadline = 0
+
+
+func _initialize():
+	recovery_deadline = Time.get_ticks_msec() + 240000
+	_run.call_deferred()
+
+
+func _process(_delta):
+	if Time.get_ticks_msec() > recovery_deadline:
+		push_error("Preset recovery wall-clock timeout")
+		quit(1)
+	return false
+
+
+func _run():
+	root.get_node("SaveManager").autosaves_enabled = false
+	for faction in ["bastion", "helix"]:
+		await _skirmish(faction)
+		for player in get_nodes_in_group("players"):
+			player.set_process(false)
+		for unit in get_nodes_in_group("units"):
+			if unit.movement_speed > 0:
+				unit.queue_free()
+		await _frames(5)
+		for role in ["Tank", "AdvancedTank", "CombatRobot", "RepairRobot", "Drone", "Helicopter"]:
+			await _preset_service(role)
+		game.queue_free()
+		await _frames(5)
+	for error in errors:
+		push_error(error)
+	print("Preset facility recovery: %d failures" % errors.size())
+	quit(0 if errors.is_empty() else 1)
+
+
+func _preset_service(role):
+	var human = game._get_human_player()
+	var repairs = load("res://source/match/combat/RepairService.gd")
+	var service = _preset_actor(repairs.facility_for_role(role), Vector3(32, 0, 25))
+	var unit = _preset_actor(role, Vector3(43, 0, 25))
+	await _frames(120)
+	unit.hp = unit.hp_max * .35
+	unit.program.installed = true
+	var config = load("res://source/match/programs/ProgramLibrary.gd").defaults("guard")
+	config.retreat = 40
+	config["return"] = 85
+	unit.program.configure(config, "Facility recovery check")
+	unit.program.anchor = Vector3(43, 0, 25)
+	unit.program.safe_point = service.global_position_yless
+	_check(unit.program.run(), "Preset recovery fixture refused to run")
+	var healed = false
+	var resumed = false
+	var blocked = false
+	for frame in 2400:
+		await physics_frame
+		blocked = blocked or unit.program.mode == "Blocked"
+		healed = healed or unit.hp >= unit.hp_max * .85
+		resumed = resumed or (healed and unit.position.distance_to(Vector3(43, 0, 25)) < 3)
+	_check(healed, "%s %s failed actual facility healing" % [human.faction, role])
+	_check(not blocked, "%s %s falsely blocked at reachable service" % [human.faction, role])
+	_check(resumed, "%s %s did not resume its assignment after healing" % [human.faction, role])
+	print(
+		"PRESET RECOVERY ",
+		human.faction,
+		" ",
+		role,
+		" healed=",
+		healed,
+		" resumed=",
+		resumed,
+		" blocked=",
+		blocked,
+		" health=",
+		unit.hp / unit.hp_max,
+		" reason=",
+		unit.program.reason
+	)
+	unit.queue_free()
+	service.queue_free()
+	await _frames(90)
+
+
+func _preset_actor(role, point):
+	var unit = load("res://source/match/units/%s.tscn" % role).instantiate()
+	game._setup_and_spawn_unit(unit, Transform3D(Basis(), point), game._get_human_player(), false)
+	return unit

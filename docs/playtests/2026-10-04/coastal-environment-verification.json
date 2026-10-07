@@ -1,0 +1,275 @@
+{
+  "scope": "Coastal environment pass; no final-art, broad match-balance or performance claim",
+  "accepted_checks": [
+    {
+      "name": "CoastalEnvironmentRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 102.6,
+      "log": "docs/playtests/2026-10-04/coastal-environment-final-CoastalEnvironmentRegression.log",
+      "sha256": "8b969539a501aef007a94ce57a7624e77e29513a09d0ead2f5a6f1b2a36138e0"
+    },
+    {
+      "name": "CoastalAIRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 77.8,
+      "log": "docs/playtests/2026-10-04/coastal-environment-final-CoastalAIRegression.log",
+      "sha256": "500b2a02bcd113d64611f2008d905182da6b69d2c53745566756e99138a83873"
+    },
+    {
+      "name": "CombatRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 1.2,
+      "log": "docs/playtests/2026-10-04/coastal-environment-final-CombatRegression.log",
+      "sha256": "ae746a3aeec41cede4c0cb6ac9dcce09405f947500422314ace20c7bec5ce97b"
+    },
+    {
+      "name": "ResourceNavigationRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 15.4,
+      "log": "docs/playtests/2026-10-04/coastal-environment-final-ResourceNavigationRegression.log",
+      "sha256": "8fbd7b4278d09abf5673ee6916f50032934a1e7ec01509549ab79361276c45f8"
+    },
+    {
+      "name": "MapStartupRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 1.7,
+      "log": "docs/playtests/2026-10-04/coastal-environment-final-MapStartupRegression.log",
+      "sha256": "076d61ca444fcef3fbb6f242432f6d6efab22d20fbafa732e81628f1396c2d5e"
+    },
+    {
+      "name": "AmbientLifeRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 33.3,
+      "log": "docs/playtests/2026-10-04/coastal-environment-final-AmbientLifeRegression.log",
+      "sha256": "954687b6a15f9016b1ba195f576dd9525c39ef787382e505dd22fc94b7175527"
+    },
+    {
+      "name": "EnvironmentAudioRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 27.4,
+      "log": "docs/playtests/2026-10-04/coastal-environment-final-EnvironmentAudioRegression.log",
+      "sha256": "c9b5b197d9a11a2f5bd8fe2d96596757bb513865c65a142d9ef0a4b9740792d4"
+    },
+    {
+      "name": "SaveRestoreCombat",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 1.3,
+      "log": "docs/playtests/2026-10-04/coastal-environment-final-SaveRestoreCombat.log",
+      "sha256": "cba57545c1bf354c8af1988de0145270f3d3d5e801c45b05a4374d3bc6eea622"
+    },
+    {
+      "name": "DirectOrdersRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 11.5,
+      "log": "docs/playtests/2026-10-04/coastal-environment-final-DirectOrdersRegression.log",
+      "sha256": "0fd4bcba645f9027228067e9e844b1593a081ecfeeb6b3b6e78195b081b69754"
+    },
+    {
+      "name": "import",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "log": "docs/playtests/2026-10-04/coastal-environment-import.log",
+      "sha256": "19ead0f9ea0457dbbea4598f3a38205c41355ffc302085951df4e677b5a8b2c9"
+    },
+    {
+      "name": "format",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "log": "docs/playtests/2026-10-04/coastal-environment-format.log",
+      "sha256": "aa2a1c7ee94fa3266604f31205b82d3b3659998fb731b4574448da9ce55357ec"
+    },
+    {
+      "name": "lint",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "log": "docs/playtests/2026-10-04/coastal-environment-lint.log",
+      "sha256": "d2f45ecead8ebe024d64d724cef92d4c7b89f8d0150b30b296320bddb760e4be"
+    },
+    {
+      "name": "whitespace",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "log": "docs/playtests/2026-10-04/coastal-environment-whitespace.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "CoastalEnvironmentPreview",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "log": "docs/playtests/2026-10-04/coastal-environment-preview-reviewed.log",
+      "sha256": "8eb847e9c19fd885573aa9603652ed7364f0d408b9c96639b2279cde5609d6aa"
+    }
+  ],
+  "geometry_contract": "SHORE/FIELDS/ROADS/FOUNDRIES/CRANES/BEACONS/PINES equal pre-pass source values",
+  "asset_count": 6,
+  "exterior_placements": 28,
+  "reviewed_final_captures": 10,
+  "artifacts": [
+    {
+      "path": "source/match/maps/CoastalFoundry.gd",
+      "sha256": "b376b01f1567e9e79a5342eeee93386a4aad2886e30a2692396179877bc0368b"
+    },
+    {
+      "path": "source/match/maps/CoastalBackdrop.gd",
+      "sha256": "531a62bf246f19b1c8d82fb388b2e7b3971c4046657f9c81710d615d07ee9318"
+    },
+    {
+      "path": "source/match/maps/CoastalMaterials.gd",
+      "sha256": "3ba51f15f9ffbaaae85e58096c2d34b7abe60f646404fd0de729ddd185f8ef34"
+    },
+    {
+      "path": "tests/headless/CoastalEnvironmentRegression.gd",
+      "sha256": "dc2cd1d24c1f670dd43227e4fff739671e1da067bdb33423d1e5ca9d272a9a85"
+    },
+    {
+      "path": "tests/rendered/CoastalEnvironmentPreview.gd",
+      "sha256": "0b702910428d1a90aa6470089b0cc4fc2db4e8b82e2436ba6ed3526fbf5bd3bb"
+    },
+    {
+      "path": "source/shaders/3d/coastal_ground.gdshader",
+      "sha256": "6f2d74ee33b1583be2733eb3dcbdf25668f184aa4ef4026d0d69983ecca9f077"
+    },
+    {
+      "path": "source/shaders/3d/coastal_water.gdshader",
+      "sha256": "ec27e20160dc0ee52c49fc120f62f00210719092de25d7feb71ffcd7050c74ca"
+    },
+    {
+      "path": "source/shaders/3d/coastal_stone.gdshader",
+      "sha256": "ba5cf445c4b8439f4779108561b5a8ff71b25fd64bcb0079c06f4c22177547df"
+    },
+    {
+      "path": "art/environment/build_coastal_environment.py",
+      "sha256": "26002325fe2f4f32943a9a5174cc5401a4c22c3748ced0b58ca028aa4871e442"
+    },
+    {
+      "path": "art/environment/CoastalEnvironmentKit.blend",
+      "sha256": "a5a7738dd07e07d3bb977820b23fb6a3d894dc251bc8910eb7d0407371e189bd"
+    },
+    {
+      "path": "art/environment/coastal-environment-manifest.json",
+      "sha256": "9b64ab0026eb6359e7a0f6a52ddad2471fcf8072c524bec1809780981093def6"
+    },
+    {
+      "path": "assets/models/environment/coastal/CoastalPineStand.glb",
+      "sha256": "db4a0ce4d78243a179ac1e42a89a3f9e751a75437a02d405495135f5286d9ab1"
+    },
+    {
+      "path": "assets/models/environment/coastal/CoastalHeadland.glb",
+      "sha256": "09d567091d48e42c90a7670c585791f9ad5655ef4853d89d030b5515212d9e8c"
+    },
+    {
+      "path": "assets/models/environment/coastal/HarborBreakwater.glb",
+      "sha256": "b40c4d601bf23885be460c2021e3d27622a52b52e96f0aad5957df2c649693b1"
+    },
+    {
+      "path": "assets/models/environment/coastal/PortPumpHouse.glb",
+      "sha256": "94f2562c5cadc4bdb9dae979c19d1bd1521c40e80b19972a2f82bfe5a46adb01"
+    },
+    {
+      "path": "assets/models/environment/coastal/PortFreightYard.glb",
+      "sha256": "3e64bb81397c0c3acc91459baaf77dfab275378384413c4ff8b3143f106a25cb"
+    },
+    {
+      "path": "assets/models/environment/coastal/PortUtilities.glb",
+      "sha256": "f4757aebebbb7645a37cb525b1b750467558e2c702c200cea93e6952251f7923"
+    },
+    {
+      "path": "art/skirmish/environment/coastal-environment-before-harbor.png",
+      "sha256": "856f7b6214305aa0eae77a6392f3c3b6f4fe92e138b1415cdaefdd29f14a4604"
+    },
+    {
+      "path": "art/skirmish/environment/coastal-environment-before-home-fog.png",
+      "sha256": "3b377597e3f23d2da1d6c08cc14dcd075da46f15f83b816d28157b5532f805a9"
+    },
+    {
+      "path": "art/skirmish/environment/coastal-environment-before-inland.png",
+      "sha256": "3032beb8a731a2d04b394dbb34af75c5192f9c6e072570524a4192d0f9f04eca"
+    },
+    {
+      "path": "art/skirmish/environment/coastal-environment-before-overview.png",
+      "sha256": "1dbbf90dafebed2e460793c7e38f62e85e294b5f0b8be3c4d84bbf709cb9d51a"
+    },
+    {
+      "path": "art/skirmish/environment/coastal-environment-before-shore-fog.png",
+      "sha256": "6e837cb8a9a38b2b0402dd0eff93c46c46f6e53dee5543384235bd369528a0e1"
+    },
+    {
+      "path": "art/skirmish/environment/coastal-environment-combat-bastion.png",
+      "sha256": "7926a0f7be194b1bce6ecc4a92bd3c48353a6b47f6a9336041eb2c762b80dd0f"
+    },
+    {
+      "path": "art/skirmish/environment/coastal-environment-combat-helix.png",
+      "sha256": "312b2bcfa19bfce14b387df330045958584521c99b3cf9af2b0d76f61f9b5048"
+    },
+    {
+      "path": "art/skirmish/environment/coastal-environment-enemy-fog.png",
+      "sha256": "8776bb503f84ef92a70f0d05ccf5cd752f45d8773a36487fd699ce11dda990e9"
+    },
+    {
+      "path": "art/skirmish/environment/coastal-environment-harbor.png",
+      "sha256": "465e9c7047541a642d867b8f017d19cd1d98e65485aad025ed2615d70d6e1e55"
+    },
+    {
+      "path": "art/skirmish/environment/coastal-environment-headland.png",
+      "sha256": "5ad7fb2a7c915c2eeadf8803b746b0b0c533cbdf23c1b961940cf9c953103e9e"
+    },
+    {
+      "path": "art/skirmish/environment/coastal-environment-home-fog.png",
+      "sha256": "5db72ca62bca6ed4bdb4a599dc3ec50e3838b036e17801ae43e681bd4cf8642d"
+    },
+    {
+      "path": "art/skirmish/environment/coastal-environment-inland.png",
+      "sha256": "6f2d8d7527f458fb063198067e4c52c28f57902134f778450e457d9ae8494491"
+    },
+    {
+      "path": "art/skirmish/environment/coastal-environment-overview.png",
+      "sha256": "8300dc8d8f894ee8d7e7310c754e27bde65e35202c61019122dd0d9ea9382298"
+    },
+    {
+      "path": "art/skirmish/environment/coastal-environment-port-edge.png",
+      "sha256": "4690e0dd14b7aba1560e4c5146c63652ce2be76cad01cb5de32ae40fd5038735"
+    },
+    {
+      "path": "art/skirmish/environment/coastal-environment-shore-fog.png",
+      "sha256": "bed5942e6e6ab3ef0dd6d76537adb8f5570d27b9d03ce2a24cce9d18f2df79b6"
+    }
+  ],
+  "retained_diagnostics": [
+    "coastal-environment-regression-first.log",
+    "coastal-environment-regression.log"
+  ],
+  "warnings": "Known navigation readback and shutdown warnings retained in logs"
+}

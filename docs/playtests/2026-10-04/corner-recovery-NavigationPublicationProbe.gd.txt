@@ -1,0 +1,51 @@
+extends "res://tests/headless/SaveRestoreEdges.gd"
+
+
+func _run():
+	root.get_node("SaveManager").autosaves_enabled = false
+	var restore = Restore.new()
+	var result = await restore.restore(
+		self,
+		FileStore.new().read_file("res://docs/playtests/2026-10-04/guard-travel-after-3-0.json")
+	)
+	_check(result.ok, "Navigation archive failed")
+	game = result.game
+	var movement = restore.entities["unit-13"].get_node("Movement")
+	var point = Vector3(22, 0, 40)
+	var closest = (
+		NavigationServer3D.map_get_closest_point(movement.get_navigation_map(), point)
+		* Vector3(1, 0, 1)
+	)
+	print(
+		"RESTORE NAV immediate iteration=",
+		NavigationServer3D.map_get_iteration_id(movement.get_navigation_map()),
+		" closest=",
+		closest,
+		" clearance=",
+		point.distance_to(closest),
+		" synchronized=",
+		movement._synchronized
+	)
+	_check(
+		point.distance_to(closest) >= 1.8,
+		"Restore returned before the lab footprint reached the navigation server"
+	)
+	await _frames(30)
+	closest = (
+		NavigationServer3D.map_get_closest_point(movement.get_navigation_map(), point)
+		* Vector3(1, 0, 1)
+	)
+	print(
+		"RESTORE NAV settled iteration=",
+		NavigationServer3D.map_get_iteration_id(movement.get_navigation_map()),
+		" closest=",
+		closest,
+		" clearance=",
+		point.distance_to(closest)
+	)
+	for error in errors:
+		push_error(error)
+	print("Navigation publication: %d failures" % errors.size())
+	game.queue_free()
+	await _frames(5)
+	quit(0 if errors.is_empty() else 1)

@@ -1,0 +1,59 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://source/match/units/Barracks.gd" id="unit"]
+[ext_resource type="Script" path="res://source/match/units/traits/BastionVisuals.gd" id="visuals"]
+[ext_resource type="PackedScene" path="res://source/match/units/structure-geometries/Barracks.tscn" id="model"]
+[ext_resource type="PackedScene" path="res://source/match/units/traits/Highlight.tscn" id="Highlight"]
+[ext_resource type="PackedScene" path="res://source/match/units/traits/Selection.tscn" id="Selection"]
+[ext_resource type="PackedScene" path="res://source/match/units/traits/HealthBar.tscn" id="HealthBar"]
+[ext_resource type="PackedScene" path="res://source/match/units/traits/Targetability.tscn" id="Targetability"]
+[ext_resource type="PackedScene" path="res://source/match/units/traits/MovementObstacle.tscn" id="MovementObstacle"]
+[ext_resource type="PackedScene" path="res://source/match/units/traits/RallyPoint.tscn" id="RallyPoint"]
+[ext_resource type="PackedScene" path="res://source/match/units/traits/ProductionQueue.tscn" id="ProductionQueue"]
+
+[sub_resource type="CylinderShape3D" id="collision"]
+radius = 1.8
+height = 1.7
+
+[node name="Barracks" type="Area3D"]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("unit")
+
+[node name="Geometry" parent="." instance=ExtResource("model")]
+
+[node name="ProjectileOrigin" type="Marker3D" parent="."]
+position = Vector3(0, 1.02, -1.8)
+
+[node name="BastionVisuals" type="Node" parent="."]
+script = ExtResource("visuals")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.85, 0)
+shape = SubResource("collision")
+
+[node name="Highlight" parent="." instance=ExtResource("Highlight")]
+radius = 1.8
+position = Vector3(0, 0.04, 0)
+
+[node name="Selection" parent="." instance=ExtResource("Selection")]
+radius = 1.8
+position = Vector3(0, 0.04, 0)
+
+[node name="Targetability" parent="." instance=ExtResource("Targetability")]
+radius = 1.8
+position = Vector3(0, 0.04, 0)
+
+[node name="MovementObstacle" parent="." instance=ExtResource("MovementObstacle")]
+radius = 1.8
+vertices = PackedVector3Array(-1.26, 0, -1.26, 1.26, 0, -1.26, 1.26, 0, 1.26, -1.26, 0, 1.26)
+affect_navigation_mesh = true
+path_height_offset = 0.6
+
+[node name="HealthBar" parent="." instance=ExtResource("HealthBar")]
+position = Vector3(0, 1.9, 0)
+size = Vector2(198, 8)
+
+[node name="RallyPoint" parent="." instance=ExtResource("RallyPoint")]
+
+[node name="ProductionQueue" parent="." instance=ExtResource("ProductionQueue")]

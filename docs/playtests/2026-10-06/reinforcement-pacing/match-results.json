@@ -1,0 +1,86 @@
+[
+  {
+    "name": "control0",
+    "exit_code": 0,
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/CautiousRelayMatches.gd",
+      "--",
+      "--case=0",
+      "--repeats=1",
+      "--research=combined",
+      "--strategy=screened-air",
+      "--output=res://docs/playtests/2026-10-06/reinforcement-pacing/control0.json",
+      "--archive-prefix=res://docs/playtests/2026-10-06/reinforcement-pacing/control0-earned"
+    ]
+  },
+  {
+    "name": "reinforcement0",
+    "exit_code": 0,
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/ReinforcementFirstMatches.gd",
+      "--",
+      "--case=0",
+      "--repeats=1",
+      "--research=combined",
+      "--strategy=screened-air",
+      "--output=res://docs/playtests/2026-10-06/reinforcement-pacing/reinforcement0.json",
+      "--archive-prefix=res://docs/playtests/2026-10-06/reinforcement-pacing/reinforcement0-earned"
+    ]
+  },
+  {
+    "name": "control6",
+    "exit_code": 0,
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/CautiousRelayMatches.gd",
+      "--",
+      "--case=6",
+      "--repeats=1",
+      "--research=combined",
+      "--strategy=screened-air",
+      "--output=res://docs/playtests/2026-10-06/reinforcement-pacing/control6.json",
+      "--archive-prefix=res://docs/playtests/2026-10-06/reinforcement-pacing/control6-earned"
+    ]
+  },
+  {
+    "name": "reinforcement6",
+    "exit_code": 0,
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/ReinforcementFirstMatches.gd",
+      "--",
+      "--case=6",
+      "--repeats=1",
+      "--research=combined",
+      "--strategy=screened-air",
+      "--output=res://docs/playtests/2026-10-06/reinforcement-pacing/reinforcement6.json",
+      "--archive-prefix=res://docs/playtests/2026-10-06/reinforcement-pacing/reinforcement6-earned"
+    ]
+  }
+]

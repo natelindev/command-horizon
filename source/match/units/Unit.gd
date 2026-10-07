@@ -11,12 +11,18 @@ const MATERIAL_ALBEDO_TO_REPLACE_EPSILON = 0.05
 
 var hp = null:
 	set = _set_hp
+var base_hp_max = null
 var hp_max = null:
 	set = _set_hp_max
+var last_enemy_damage_time = -INF
 var attack_damage = null
 var attack_interval = null
 var attack_range = null
 var attack_domains = []
+var aim_target = null
+var weapon_charge_progress = -1.0
+var weapon_charge_owner = null
+var signature = null
 var radius:
 	get = _get_radius
 var movement_domain:
@@ -38,7 +44,11 @@ var global_position_yless:
 var type:
 	get = _get_type
 
+var program_squad = null
+var manual_orders = null
+var program = null
 var _action_locked = false
+var _cached_type = ""
 
 @onready var _match = find_parent("Match")
 
@@ -48,7 +58,46 @@ func _ready():
 		await _match.ready
 	_setup_color()
 	_setup_default_properties_from_constants()
+	load("res://source/match/FactionCatalog.gd").apply_stats(self)
+	base_hp_max = hp_max
+	if player.technology != null:
+		player.technology.apply_unit(self)
+	if type == "AdvancedTank" or (type == "CombatRobot" and player.faction == "helix"):
+		var preparation_visual = load("res://source/match/effects/WeaponPreparationVisual.gd").new()
+		preparation_visual.name = "WeaponPreparationVisual"
+		add_child(preparation_visual)
 	assert(_safety_checks())
+	if movement_speed > 0:
+		manual_orders = load("res://source/match/orders/ManualOrders.gd").new()
+		manual_orders.name = "ManualOrders"
+		add_child(manual_orders)
+	if (
+		player.get_meta("skirmish", false)
+		and type in ["Tank", "AdvancedTank", "CombatRobot", "RepairRobot", "Drone", "Helicopter"]
+	):
+		program = load("res://source/match/programs/UnitProgram.gd").new()
+		program.name = "UnitProgram"
+		add_child(program)
+		if type in ["Tank", "AdvancedTank", "CombatRobot"]:
+			signature = load("res://source/match/combat/SignatureState.gd").new()
+			signature.name = "SignatureState"
+			add_child(signature)
+
+
+func receive_weapon_hit(source):
+	var amount = load("res://source/match/combat/CombatRules.gd").damage(source, self)
+	if amount > 0:
+		last_enemy_damage_time = _match.simulation_time
+		_match.combat_effects.impact(self, source, global_position + Vector3.UP * 0.5)
+		var visuals = get_node_or_null("BastionVisuals")
+		if visuals != null:
+			visuals.hit_reaction(source.global_position)
+		hp -= amount
+		MatchSignals.unit_weapon_hit.emit(self, source)
+
+
+func weapon_delay():
+	return 0.0
 
 
 func is_revealing():
@@ -102,7 +151,8 @@ func _setup_color():
 		find_child("Geometry"),
 		MATERIAL_ALBEDO_TO_REPLACE,
 		MATERIAL_ALBEDO_TO_REPLACE_EPSILON,
-		material
+		material,
+		true
 	)
 
 
@@ -123,10 +173,12 @@ func _set_action(action_node):
 
 
 func _get_type():
+	if _cached_type != "":
+		return _cached_type
 	var unit_script_path = get_script().resource_path
 	var unit_file_name = unit_script_path.substr(unit_script_path.rfind("/") + 1)
-	var unit_name = unit_file_name.split(".")[0]
-	return unit_name
+	_cached_type = unit_file_name.split(".")[0]
+	return _cached_type
 
 
 func _teardown_current_action():
@@ -159,6 +211,11 @@ func _safety_checks():
 
 
 func _handle_unit_death():
+	if is_queued_for_deletion():
+		return
+	MatchSignals.unit_destroying.emit(self)
+	if _match != null and _match.combat_effects != null:
+		_match.combat_effects.destruction(self)
 	tree_exited.connect(func(): MatchSignals.unit_died.emit(self))
 	queue_free()
 
@@ -174,3 +231,11 @@ func _setup_default_properties_from_constants():
 func _on_action_node_tree_exited(action_node):
 	assert(action_node == action, "unexpected action released")
 	action = null
+
+
+func issue_manual_order(order):
+	if manual_orders != null:
+		manual_orders.cancel()
+	if program != null:
+		program.manual_override()
+	action = order

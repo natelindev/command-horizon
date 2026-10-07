@@ -1,0 +1,19 @@
+{
+  "exit_codes_observed": {
+    "original-policy.log": 1,
+    "reassignment.log": 0,
+    "reassigned-2.log": 1,
+    "reassigned-6.log": 0,
+    "native-helix.log": 0,
+    "native-frontier.log": 0,
+    "stationary-replay.log": 0,
+    "stationary-isolated.log": 0
+  },
+  "original_policy_failures": "15 expected overlap/unsafe-field/new-income assertions",
+  "new_policy_failures": 0,
+  "paid_outcomes": "one victory, two defeats, one unresolved at 30 minutes; Frontier command fails result requirement",
+  "native": "both twenty-second earned continuations pass, four full-resolution captures reviewed",
+  "replays": "intact crowded arrival remains unresolved; isolated reaches WaitingForTargets by five seconds",
+  "static": "seven scripts format/lint pass; git diff --check clean",
+  "shipping_movement_unchanged": true
+}

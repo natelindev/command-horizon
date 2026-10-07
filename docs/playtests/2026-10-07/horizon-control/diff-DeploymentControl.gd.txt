@@ -1,0 +1,11 @@
+--- before/DeploymentControl.gd
++++ after/DeploymentControl.gd
+@@ -3,3 +3,8 @@
+ 
+ func _init():
+ 	label_title = "DEPLOYMENT"
++
++
++func _update_presentation():
++	super()
++	_label.text = "DEPLOYMENT · " + _match.deployment_status().to_upper()

@@ -1,0 +1,497 @@
+{
+  "runs": [
+    {
+      "log": "AttackArrivalProgressRegression.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "unrestricted rejected experiment",
+      "classification": "superseded/intermediate observation; not final acceptance"
+    },
+    {
+      "log": "ContactRecoveryRegression.log",
+      "exit_code": 1,
+      "assertion_failures": 13,
+      "script_errors": 3,
+      "parse_errors": 0,
+      "shipping_version": "unrestricted rejected experiment",
+      "classification": "superseded/intermediate observation; not final acceptance"
+    },
+    {
+      "log": "HQTrafficFactionsRegression.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "unrestricted rejected experiment",
+      "classification": "superseded/intermediate observation; not final acceptance"
+    },
+    {
+      "log": "HQTrafficRegression.log",
+      "exit_code": 1,
+      "assertion_failures": 2,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "unrestricted rejected experiment",
+      "classification": "superseded/intermediate observation; not final acceptance"
+    },
+    {
+      "log": "accepted-CargoReturnRegression.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "final endpoint-excluding implementation",
+      "classification": "accepted focused regression / rendered verification"
+    },
+    {
+      "log": "accepted-ContactRecoveryRegression.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "final endpoint-excluding implementation",
+      "classification": "accepted focused regression / rendered verification"
+    },
+    {
+      "log": "accepted-CrowdBoundaryRegression.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "final endpoint-excluding implementation",
+      "classification": "accepted focused regression / rendered verification"
+    },
+    {
+      "log": "accepted-FrontierCrowdRegression.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "final endpoint-excluding implementation",
+      "classification": "accepted focused regression / rendered verification"
+    },
+    {
+      "log": "accepted-GuardArrivalRegression.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "final endpoint-excluding implementation",
+      "classification": "accepted focused regression / rendered verification"
+    },
+    {
+      "log": "accepted-HQTrafficFactionsRegression.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "final endpoint-excluding implementation",
+      "classification": "accepted focused regression / rendered verification"
+    },
+    {
+      "log": "accepted-HQTrafficRegression.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "final endpoint-excluding implementation",
+      "classification": "accepted focused regression / rendered verification"
+    },
+    {
+      "log": "accepted-HarvestTrafficRegression.log",
+      "exit_code": 1,
+      "assertion_failures": 1,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "final endpoint-excluding implementation",
+      "classification": "unresolved shared behavioral failure; not passing acceptance"
+    },
+    {
+      "log": "accepted-render.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "final endpoint-excluding implementation",
+      "classification": "accepted focused regression / rendered verification"
+    },
+    {
+      "log": "accepted6.log",
+      "exit_code": 0,
+      "assertion_failures": null,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "final endpoint-excluding implementation",
+      "classification": "accepted complete paid observation; Defeat, no program or assault"
+    },
+    {
+      "log": "arrival-repeat-1.log",
+      "exit_code": 1,
+      "assertion_failures": 2,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "final endpoint-excluding implementation",
+      "classification": "unresolved shared behavioral failure; not passing acceptance"
+    },
+    {
+      "log": "arrival-repeat-2.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "final endpoint-excluding implementation",
+      "classification": "passing observation; does not supersede retained failures"
+    },
+    {
+      "log": "arrival-trace.log",
+      "exit_code": 1,
+      "assertion_failures": 3,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "final behavior with temporary escape logging; instrumentation removed",
+      "classification": "unresolved shared behavioral failure; not passing acceptance"
+    },
+    {
+      "log": "before-AttackArrivalProgressRegression.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "preceding shipping code",
+      "classification": "passing observation; does not supersede retained failures"
+    },
+    {
+      "log": "before-arrival-repeat-1.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "preceding shipping code",
+      "classification": "passing observation; does not supersede retained failures"
+    },
+    {
+      "log": "before-arrival-repeat-2.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "preceding shipping code",
+      "classification": "passing observation; does not supersede retained failures"
+    },
+    {
+      "log": "before-harvest.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "preceding shipping code",
+      "classification": "passing observation; does not supersede retained failures"
+    },
+    {
+      "log": "before-regression.log",
+      "exit_code": 1,
+      "assertion_failures": 25,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "preceding shipping code",
+      "classification": "expected negative control: 25 assertions in initial pinch fixture"
+    },
+    {
+      "log": "boundary-ContactRecoveryRegression.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "boundary-only intermediate",
+      "classification": "superseded/intermediate observation; not final acceptance"
+    },
+    {
+      "log": "boundary-HQTrafficRegression.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "boundary-only intermediate",
+      "classification": "superseded/intermediate observation; not final acceptance"
+    },
+    {
+      "log": "boundary-IndustrialPinchRegression.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "boundary-only intermediate",
+      "classification": "superseded/intermediate observation; not final acceptance"
+    },
+    {
+      "log": "control6.log",
+      "exit_code": 0,
+      "assertion_failures": null,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "preceding shipping code",
+      "classification": "accepted complete paid observation; Defeat, no program or assault"
+    },
+    {
+      "log": "current-probe.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "preceding shipping code",
+      "classification": "passing observation; does not supersede retained failures"
+    },
+    {
+      "log": "endpoint-AttackArrivalProgressRegression.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "final endpoint-excluding implementation",
+      "classification": "passing observation; does not supersede retained failures"
+    },
+    {
+      "log": "endpoint-IndustrialPinchRegression.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "final endpoint-excluding implementation",
+      "classification": "accepted focused regression / rendered verification"
+    },
+    {
+      "log": "final-AttackArrivalProgressRegression.log",
+      "exit_code": 1,
+      "assertion_failures": 4,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "boundary-only intermediate",
+      "classification": "superseded/intermediate observation; not final acceptance"
+    },
+    {
+      "log": "final-CargoReturnRegression.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "boundary-only intermediate",
+      "classification": "superseded/intermediate observation; not final acceptance"
+    },
+    {
+      "log": "final-CrowdBoundaryRegression.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "boundary-only intermediate",
+      "classification": "superseded/intermediate observation; not final acceptance"
+    },
+    {
+      "log": "final-FrontierCrowdRegression.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "boundary-only intermediate",
+      "classification": "superseded/intermediate observation; not final acceptance"
+    },
+    {
+      "log": "final-GuardArrivalRegression.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "boundary-only intermediate",
+      "classification": "superseded/intermediate observation; not final acceptance"
+    },
+    {
+      "log": "final-HQTrafficFactionsRegression.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "boundary-only intermediate",
+      "classification": "superseded/intermediate observation; not final acceptance"
+    },
+    {
+      "log": "final-HarvestTrafficRegression.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "boundary-only intermediate",
+      "classification": "superseded/intermediate observation; not final acceptance"
+    },
+    {
+      "log": "final-IndustrialPinchRegression.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "boundary-only intermediate",
+      "classification": "superseded/intermediate observation; not final acceptance"
+    },
+    {
+      "log": "final-before-regression.log",
+      "exit_code": 1,
+      "assertion_failures": 25,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "preceding shipping code",
+      "classification": "expected negative control: 25 assertions in final pinch fixture"
+    },
+    {
+      "log": "final-format.log",
+      "exit_code": 0,
+      "assertion_failures": null,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "boundary-only intermediate",
+      "classification": "superseded/intermediate observation; not final acceptance"
+    },
+    {
+      "log": "final-lint.log",
+      "exit_code": 0,
+      "assertion_failures": null,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "boundary-only intermediate",
+      "classification": "superseded/intermediate observation; not final acceptance"
+    },
+    {
+      "log": "format.log",
+      "exit_code": 0,
+      "assertion_failures": null,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "boundary-only intermediate",
+      "classification": "superseded/intermediate observation; not final acceptance"
+    },
+    {
+      "log": "lint.log",
+      "exit_code": 0,
+      "assertion_failures": null,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "boundary-only intermediate",
+      "classification": "superseded/intermediate observation; not final acceptance"
+    },
+    {
+      "log": "match6.log",
+      "exit_code": 0,
+      "assertion_failures": null,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "boundary-only intermediate",
+      "classification": "superseded/intermediate observation; not final acceptance"
+    },
+    {
+      "log": "recovery-probe.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "unrestricted rejected experiment",
+      "classification": "superseded/intermediate observation; not final acceptance"
+    },
+    {
+      "log": "regression.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "unrestricted rejected experiment",
+      "classification": "superseded/intermediate observation; not final acceptance"
+    },
+    {
+      "log": "render.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "boundary-only intermediate",
+      "classification": "superseded/intermediate observation; not final acceptance"
+    },
+    {
+      "log": "repeat-before.log",
+      "exit_code": 1,
+      "assertion_failures": 4,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "preceding shipping code",
+      "classification": "confirmed unresolved occupied-arrival timing failures; keep as failed behavioral evidence"
+    },
+    {
+      "log": "repeat-current.log",
+      "exit_code": 1,
+      "assertion_failures": 10,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "final endpoint-excluding implementation",
+      "classification": "confirmed unresolved occupied-arrival timing failures; keep as failed behavioral evidence"
+    },
+    {
+      "log": "replacement-before.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "preceding shipping code",
+      "classification": "passing isolated replacement audit; does not explain full-suite miss"
+    },
+    {
+      "log": "replacement-current.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "final endpoint-excluding implementation",
+      "classification": "passing isolated replacement audit; does not explain full-suite miss"
+    },
+    {
+      "log": "velocity-probe.log",
+      "exit_code": 0,
+      "assertion_failures": 0,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "preceding shipping code",
+      "classification": "passing observation; does not supersede retained failures"
+    },
+    {
+      "log": "verified-format.log",
+      "exit_code": 0,
+      "assertion_failures": null,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "final endpoint-excluding implementation",
+      "classification": "accepted final static check"
+    },
+    {
+      "log": "verified-lint.log",
+      "exit_code": 0,
+      "assertion_failures": null,
+      "script_errors": 0,
+      "parse_errors": 0,
+      "shipping_version": "final endpoint-excluding implementation",
+      "classification": "accepted final static check"
+    }
+  ],
+  "passing_final_headless_suites": [
+    "endpoint-IndustrialPinchRegression.log",
+    "accepted-ContactRecoveryRegression.log",
+    "accepted-HQTrafficRegression.log",
+    "accepted-HQTrafficFactionsRegression.log",
+    "accepted-CrowdBoundaryRegression.log",
+    "accepted-FrontierCrowdRegression.log",
+    "accepted-GuardArrivalRegression.log",
+    "accepted-CargoReturnRegression.log"
+  ],
+  "shared_verification": "NOT fully green: arrival repeat failures on preceding and current code; one unresolved full harvesting-suite manual deadline miss.",
+  "rendered_captures": 7,
+  "rendered_prefix": "accepted-render-",
+  "intermediate_rendered_captures": 7,
+  "known_diagnostics": "Runtime navigation readback and shutdown ObjectDB/resource/RID/shader diagnostics persist.",
+  "fixture_versions": "initial-regression.gd precedes additional finite-stock/contact/funds assertions; final-before-regression and endpoint regression use source-IndustrialPinchRegression.gd. Initial rendered run used initial fixture; accepted-render used final fixture. Initial-probe predates velocity logging."
+}

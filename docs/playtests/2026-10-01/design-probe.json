@@ -1,0 +1,64 @@
+{
+	"godot": "4.6-stable (official)",
+	"power_supply_demand": "(45, 29)",
+	"repair_method": "Explicit 0.51s update per healer; no combat, no resource spending",
+	"robot_and_depot_hp_per_tick": 7,
+	"samples": [
+		{
+			"electronics": 70,
+			"materials": 120,
+			"simulation_seconds": 0,
+			"workers": [
+				{
+					"action": "CollectingResourcesSequentially(MovingToUnit)",
+					"cargo_electronics": 0,
+					"cargo_materials": 0
+				},
+				{
+					"action": "CollectingResourcesSequentially(MovingToUnit)",
+					"cargo_electronics": 0,
+					"cargo_materials": 0
+				}
+			]
+		},
+		{
+			"electronics": 78,
+			"materials": 128,
+			"simulation_seconds": 30,
+			"workers": [
+				{
+					"action": "CollectingResourcesSequentially(MovingToUnit)",
+					"cargo_electronics": 0,
+					"cargo_materials": 4
+				},
+				{
+					"action": "CollectingResourcesSequentially(MovingToUnit)",
+					"cargo_electronics": 0,
+					"cargo_materials": 0
+				}
+			]
+		},
+		{
+			"electronics": 82,
+			"materials": 140,
+			"simulation_seconds": 60,
+			"workers": [
+				{
+					"action": "CollectingResourcesSequentially(MovingToUnit)",
+					"cargo_electronics": 0,
+					"cargo_materials": 4
+				},
+				{
+					"action": "CollectingResourcesSequentially(MovingToUnit)",
+					"cargo_electronics": 4,
+					"cargo_materials": 0
+				}
+			]
+		}
+	],
+	"scenario": "Bastion default harvest; enemy processing disabled",
+	"single_robot_hp_per_tick": 3,
+	"tank_nominal_dps": 7.5,
+	"two_robots_hp_per_tick": 6,
+	"unit_cap": 100
+}

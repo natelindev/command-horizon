@@ -6,8 +6,11 @@ enum BlueprintPositionValidity {
 	NOT_NAVIGABLE,
 	NOT_ENOUGH_RESOURCES,
 	OUT_OF_MAP,
+	STRUCTURE_LIMIT,
 }
 
+const Bindings = preload("res://source/input/KeyBindings.gd")
+const Factions = preload("res://source/match/FactionCatalog.gd")
 const ROTATION_BY_KEY_STEP = 45.0
 const ROTATION_DEAD_ZONE_DISTANCE = 0.1
 
@@ -31,13 +34,34 @@ func _ready():
 	MatchSignals.place_structure.connect(_on_structure_placement_request)
 
 
+func _input(event):
+	if not event is InputEventKey or not _structure_placement_started():
+		return
+	var focus = get_viewport().gui_get_focus_owner()
+	var manager = get_node_or_null("/root/SaveManager")
+	if (
+		focus is LineEdit
+		or focus is TextEdit
+		or is_instance_valid(Globals.settings_dialog)
+		or (manager != null and is_instance_valid(manager.dialog))
+		or (
+			"hud" in _match
+			and is_instance_valid(_match.hud)
+			and "program_editor" in _match.hud
+			and (is_instance_valid(_match.hud.program_editor) or _match.hud._overlay != null)
+		)
+	):
+		return
+	if Bindings.pressed(event, "rotate_structure"):
+		_try_rotating_blueprint_by(ROTATION_BY_KEY_STEP)
+		get_viewport().set_input_as_handled()
+
+
 func _unhandled_input(event):
 	if not _structure_placement_started():
 		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		_handle_lmb_down_event(event)
-	if event.is_action_pressed("rotate_structure"):
-		_try_rotating_blueprint_by(ROTATION_BY_KEY_STEP)
 	if (
 		event is InputEventMouseButton
 		and event.button_index == MOUSE_BUTTON_LEFT
@@ -50,8 +74,9 @@ func _unhandled_input(event):
 		_handle_mouse_motion_event(event)
 
 
-func _handle_lmb_down_event(_event):
+func _handle_lmb_down_event(event):
 	get_viewport().set_input_as_handled()
+	_set_blueprint_position(event.position)
 	_start_blueprint_rotation()
 
 
@@ -72,12 +97,12 @@ func _handle_rmb_event(event):
 		_cancel_structure_placement()
 
 
-func _handle_mouse_motion_event(_event):
+func _handle_mouse_motion_event(event):
 	get_viewport().set_input_as_handled()
 	if _blueprint_rotation_started():
 		_rotate_blueprint_towards_mouse_pos()
 	else:
-		_set_blueprint_position_based_on_mouse_pos()
+		_set_blueprint_position(event.position)
 	var blueprint_position_validity = _calculate_blueprint_position_validity()
 	_update_feedback_label(blueprint_position_validity)
 	_update_blueprint_color(blueprint_position_validity == BlueprintPositionValidity.VALID)
@@ -92,6 +117,11 @@ func _blueprint_rotation_started():
 
 
 func _calculate_blueprint_position_validity():
+	if (
+		_player.get_meta("skirmish", false)
+		and _player.structure_count() >= Factions.Bastion.STRUCTURE_LIMIT
+	):
+		return BlueprintPositionValidity.STRUCTURE_LIMIT
 	if _active_bluprint_out_of_map():
 		return BlueprintPositionValidity.OUT_OF_MAP
 	if not _player_has_enough_resources():
@@ -110,10 +140,15 @@ func _calculate_blueprint_position_validity():
 
 
 func _player_has_enough_resources():
-	var construction_cost = Constants.Match.Units.CONSTRUCTION_COSTS[
-		_pending_structure_prototype.resource_path
-	]
-	return _player.has_resources(construction_cost)
+	var construction_cost = Factions.cost(
+		_player, _pending_structure_prototype.resource_path.get_file().get_basename(), true
+	)
+	return (
+		_player.has_resources(construction_cost)
+		and Factions.available(
+			_player, _pending_structure_prototype.resource_path.get_file().get_basename(), true
+		)
+	)
 
 
 func _active_bluprint_out_of_map():
@@ -129,6 +164,8 @@ func _active_bluprint_out_of_map():
 func _update_feedback_label(blueprint_position_validity):
 	_feedback_label.visible = (blueprint_position_validity != BlueprintPositionValidity.VALID)
 	match blueprint_position_validity:
+		BlueprintPositionValidity.STRUCTURE_LIMIT:
+			_feedback_label.text = "Structure limit reached (40)"
 		BlueprintPositionValidity.COLLIDES_WITH_OBJECT:
 			_feedback_label.text = tr("BLUEPRINT_COLLIDES_WITH_OBJECT")
 		BlueprintPositionValidity.NOT_NAVIGABLE:
@@ -147,6 +184,14 @@ func _start_structure_placement(structure_prototype):
 		load(Constants.Match.Units.STRUCTURE_BLUEPRINTS[structure_prototype.resource_path])
 		. instantiate()
 	)
+	if _player.faction in ["helix", "frontier"]:
+		_active_blueprint_node.free()
+		var reference = structure_prototype.instantiate()
+		_active_blueprint_node = Node3D.new()
+		_active_blueprint_node.add_child(
+			Factions.model_geometry(_player.faction, reference.type, reference.radius)
+		)
+		reference.free()
 	var blueprint_origin = Vector3(-999, 0, -999)
 	var camera_direction_yless = (
 		(get_viewport().get_camera_3d().project_ray_normal(Vector2(0, 0)) * Vector3(1, 0, 1))
@@ -167,8 +212,7 @@ func _start_structure_placement(structure_prototype):
 	temporary_structure_instance.free()
 
 
-func _set_blueprint_position_based_on_mouse_pos():
-	var mouse_pos_2d = get_viewport().get_mouse_position()
+func _set_blueprint_position(mouse_pos_2d):
 	var mouse_pos_3d = get_viewport().get_camera_3d().get_ray_intersection(mouse_pos_2d)
 	if mouse_pos_3d == null:
 		return
@@ -182,7 +226,7 @@ func _update_blueprint_color(blueprint_position_is_valid):
 		if blueprint_position_is_valid
 		else preload(BLUEPRINT_INVALID_PATH)
 	)
-	for child in _active_blueprint_node.find_children("*"):
+	for child in _active_blueprint_node.find_children("*", "", true, false):
 		if "material_override" in child:
 			child.material_override = material_to_set
 
@@ -196,9 +240,9 @@ func _cancel_structure_placement():
 
 func _finish_structure_placement():
 	if _player_has_enough_resources():
-		var construction_cost = Constants.Match.Units.CONSTRUCTION_COSTS[
-			_pending_structure_prototype.resource_path
-		]
+		var construction_cost = Factions.cost(
+			_player, _pending_structure_prototype.resource_path.get_file().get_basename(), true
+		)
 		_player.subtract_resources(construction_cost)
 		MatchSignals.setup_and_spawn_unit.emit(
 			_pending_structure_prototype.instantiate(),
@@ -227,7 +271,7 @@ func _rotate_blueprint_towards_mouse_pos():
 		return
 	var mouse_pos_yless = mouse_pos_3d * Vector3(1, 0, 1)
 	var blueprint_pos_3d = _active_blueprint_node.global_transform.origin
-	var blueprint_pos_yless = blueprint_pos_3d * Vector3(-999, 0, -999)
+	var blueprint_pos_yless = blueprint_pos_3d * Vector3(1, 0, 1)
 	if mouse_pos_yless.distance_to(blueprint_pos_yless) < ROTATION_DEAD_ZONE_DISTANCE:
 		return
 	var rotation_target = Vector3(mouse_pos_yless.x, blueprint_pos_3d.y, mouse_pos_yless.z)

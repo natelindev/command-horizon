@@ -1,0 +1,164 @@
+extends RefCounted
+
+const Economy = preload("res://source/match/EconomyAdvice.gd")
+const Service = preload("res://source/match/combat/RepairService.gd")
+const Factions = preload("res://source/match/FactionCatalog.gd")
+
+
+static func defense(player, units, combatants):
+	var game = player.get_parent().get_parent()
+	var assets = units.filter(
+		func(unit): return unit.type == "Worker" or unit.has_method("is_constructed")
+	)
+	var under_fire = assets.any(
+		func(unit): return game.simulation_time - unit.last_enemy_damage_time <= 6.0
+	)
+	var threatened = under_fire
+	if not threatened:
+		for enemy in _contacts(player):
+			if enemy.attack_range == null:
+				continue
+			if assets.any(
+				func(unit):
+					return unit.position.distance_to(enemy.position) <= enemy.attack_range + 8.0
+			):
+				threatened = true
+				break
+	if not threatened:
+		return {}
+	var selected = combatants
+	if selected.is_empty():
+		selected = _producer(units, ["Barracks", "VehicleFactory"])
+	return Economy.step(
+		"defend_economy",
+		"Protect your economy",
+		(
+			(
+				"Enemy fire is hitting your engineers or buildings. "
+				+ "Defend the approach and keep a reserve near your economy."
+			)
+			if under_fire
+			else (
+				"Enemy forces are near your engineers or buildings. "
+				+ "Defend the approach and keep a reserve near your economy."
+			)
+		),
+		"Select defenders" if not combatants.is_empty() else "Select production",
+		selected
+	)
+
+
+static func next_step(player, units, combatants):
+	var damaged = units.filter(
+		func(unit):
+			return (
+				unit.movement_speed > 0
+				and unit.type != "Worker"
+				and float(unit.hp) / unit.hp_max < .5
+			)
+	)
+	if not damaged.is_empty():
+		var missing = _missing_service(damaged, units)
+		if missing != "":
+			var titles = {
+				"RepairDepot": "Set up ground repair",
+				"Barracks": "Restore infantry recovery",
+				"AircraftFactory": "Restore aircraft service"
+			}
+			var role = missing
+			var required = Factions.requirement(player, role, true)
+			while required != "" and not player.has_completed_structure(required):
+				role = required
+				required = Factions.requirement(player, role, true)
+			return Economy.building(player, units, role, titles[missing])
+		return Economy.step(
+			"repair_army",
+			"Recover damaged forces",
+			(
+				"Move damaged machinery to a depot or repair robot. Infantry use barracks; "
+				+ "aircraft use their flight facility. Hold still within service range to recover."
+			),
+			"Select damaged units",
+			damaged
+		)
+	if combatants.size() < 4:
+		return (
+			Economy
+			. step(
+				"reinforce",
+				"Rebuild your combat force",
+				(
+					"Keep defenders near your engineers and add units that cover your army's weaknesses. "
+					+ "Repair support helps sustain operations."
+				),
+				"Select production",
+				_producer(units, ["VehicleFactory", "Barracks"])
+			)
+		)
+	var contacts = _contacts(player)
+	if contacts.is_empty():
+		var scouts = units.filter(func(unit): return unit.type == "Drone")
+		if scouts.is_empty():
+			scouts = combatants.duplicate()
+			scouts.sort_custom(func(a, b): return a.movement_speed > b.movement_speed)
+			scouts = scouts.slice(0, 1)
+		return Economy.step(
+			"scout",
+			"Scout before committing",
+			(
+				"Reveal the route and defenses with a scout or a small detachment "
+				+ "before committing your main force. Keep your economy protected."
+			),
+			"Select scout" if scouts.size() == 1 else "Select scouts",
+			scouts
+		)
+	return Economy.step(
+		"assault",
+		"Assess the visible opposition",
+		(
+			"Inspect visible weapon and armor roles, then choose a raid or HQ assault. "
+			+ "Keep a reserve and retreat damaged forces. Direct orders override programs."
+		),
+		"Select army",
+		combatants
+	)
+
+
+static func _producer(units, roles):
+	for role in roles:
+		var choices = units.filter(func(unit): return unit.type == role and unit.is_constructed())
+		if not choices.is_empty():
+			return [choices[0]]
+	return []
+
+
+static func _contacts(player):
+	var game = player.get_parent().get_parent()
+	return player.get_tree().get_nodes_in_group("units").filter(
+		func(unit):
+			return (
+				unit.player != player
+				and not unit.is_queued_for_deletion()
+				and unit.hp > 0
+				and game.battlefield.is_observed(player, unit)
+			)
+	)
+
+
+static func _missing_service(damaged, units):
+	for target in damaged:
+		var available = units.any(
+			func(provider):
+				return (
+					Service.facility_eligible(provider, target)
+					or (
+						provider.type == "RepairRobot"
+						and not provider.is_queued_for_deletion()
+						and provider.hp > 0
+						and Service.mobile_eligible(provider, target)
+					)
+				)
+		)
+		if not available:
+			return Service.facility_for_role(target.type)
+	return ""

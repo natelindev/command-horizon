@@ -1,0 +1,135 @@
+[
+  {
+    "log": "original.log",
+    "exit_code": 1,
+    "classification": "rejected-negative",
+    "description": "73 failures include missing signature prerequisite in the first fixture.",
+    "script_or_parse_errors": false
+  },
+  {
+    "log": "missing-signature-research.log",
+    "exit_code": 1,
+    "classification": "rejected-fixture",
+    "description": "One failure: Anchor fixture lacked Coordination.",
+    "script_or_parse_errors": false
+  },
+  {
+    "log": "headless-before-cleanup.log",
+    "exit_code": 0,
+    "classification": "intermediate-pass",
+    "description": "Before rendered fixture lifetime/projection corrections.",
+    "script_or_parse_errors": false
+  },
+  {
+    "log": "preview.log",
+    "exit_code": 1,
+    "classification": "rejected-fixture",
+    "description": "Rendered fixture accessed a freed structure; exact mouse-coordinate comparisons also fail.",
+    "script_or_parse_errors": true
+  },
+  {
+    "log": "headless-exact-coordinate.log",
+    "exit_code": 0,
+    "classification": "intermediate-pass",
+    "description": "Headless passes before projected-input assertion correction.",
+    "script_or_parse_errors": false
+  },
+  {
+    "log": "original-exact-coordinate.log",
+    "exit_code": 1,
+    "classification": "intermediate-negative",
+    "description": "72 failures on preceding shipping, before later authority/combat coverage.",
+    "script_or_parse_errors": false
+  },
+  {
+    "log": "verified-preview.log",
+    "exit_code": 1,
+    "classification": "rejected-fixture",
+    "description": "Two exact-vector failures from mouse ray projection; staged preservation now checked against actual staged point.",
+    "script_or_parse_errors": false
+  },
+  {
+    "log": "pre-combat-isolation.log",
+    "exit_code": 0,
+    "classification": "intermediate-pass",
+    "description": "Queue checks added; final combat fixture not yet isolated from aircraft.",
+    "script_or_parse_errors": false
+  },
+  {
+    "log": "original-pre-combat-isolation.log",
+    "exit_code": 1,
+    "classification": "intermediate-negative",
+    "description": "75 failures before final running-guard/combat isolation checks.",
+    "script_or_parse_errors": false
+  },
+  {
+    "log": "final-preview.log",
+    "exit_code": 0,
+    "classification": "intermediate-pass",
+    "description": "18 map clicks; six intermediate captures; before isolated combat/running-guard check.",
+    "script_or_parse_errors": false
+  },
+  {
+    "log": "final.log",
+    "exit_code": 0,
+    "classification": "pass",
+    "description": "Final all-faction assignment, authority, disk and isolated combat regression.",
+    "script_or_parse_errors": false
+  },
+  {
+    "log": "original-final.log",
+    "exit_code": 1,
+    "classification": "expected-negative",
+    "description": "Identical final regression; preceding shipping yields 84 assertions, including downstream consequences.",
+    "script_or_parse_errors": false
+  },
+  {
+    "log": "accepted-preview.log",
+    "exit_code": 0,
+    "classification": "pass",
+    "description": "Final 19 map clicks, six inspected images, disk and isolated guard combat.",
+    "script_or_parse_errors": false
+  },
+  {
+    "log": "GuardArrivalRegression.log",
+    "exit_code": 0,
+    "classification": "pass",
+    "description": "Relevant unchanged shared regression.",
+    "script_or_parse_errors": false
+  },
+  {
+    "log": "ProgramIssuesRegression.log",
+    "exit_code": 0,
+    "classification": "pass",
+    "description": "Relevant unchanged shared regression.",
+    "script_or_parse_errors": false
+  },
+  {
+    "log": "DirectOrdersRegression.log",
+    "exit_code": 0,
+    "classification": "pass",
+    "description": "Relevant unchanged shared regression.",
+    "script_or_parse_errors": false
+  },
+  {
+    "log": "SignatureRegression.log",
+    "exit_code": 0,
+    "classification": "pass",
+    "description": "Relevant unchanged shared regression.",
+    "script_or_parse_errors": false
+  },
+  {
+    "log": "LuaProgramRegression.log",
+    "exit_code": 0,
+    "classification": "pass",
+    "description": "Relevant unchanged shared regression.",
+    "script_or_parse_errors": false
+  },
+  {
+    "log": "VisualRulesRegression.log",
+    "exit_code": 0,
+    "classification": "pass",
+    "description": "Relevant unchanged shared regression.",
+    "script_or_parse_errors": false
+  }
+]

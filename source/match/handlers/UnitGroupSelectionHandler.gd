@@ -1,5 +1,7 @@
 extends Node3D
 
+const Bindings = preload("res://source/input/KeyBindings.gd")
+
 var _set_action_names = [null]
 var _get_action_names = [null]
 var _unit_group_names = [null]
@@ -13,12 +15,31 @@ func _ready():
 
 
 func _input(event):
+	if is_instance_valid(Globals.settings_dialog):
+		return
+	var manager = get_node_or_null("/root/SaveManager")
+	if manager != null and is_instance_valid(manager.dialog):
+		return
+	var focus = get_viewport().gui_get_focus_owner()
+	if focus is LineEdit or focus is TextEdit:
+		return
+	var game = find_parent("Match")
+	if (
+		is_instance_valid(game)
+		and "hud" in game
+		and is_instance_valid(game.hud)
+		and "_overlay" in game.hud
+		and (game.hud._overlay != null or is_instance_valid(game.hud.program_editor))
+	):
+		return
 	for group_id in range(1, 10):
-		if event.is_action_pressed(_set_action_names[group_id]):
+		if Bindings.pressed(event, _set_action_names[group_id]):
 			set_group(group_id)
+			get_viewport().set_input_as_handled()
 			return
-		if event.is_action_pressed(_get_action_names[group_id]):
+		if Bindings.pressed(event, _get_action_names[group_id]):
 			access_group(group_id)
+			get_viewport().set_input_as_handled()
 			return
 
 

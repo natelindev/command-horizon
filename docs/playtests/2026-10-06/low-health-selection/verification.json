@@ -1,0 +1,143 @@
+{
+  "passing_logs": {
+    "verified.log": [
+      "Low-health selection: 0 failures"
+    ],
+    "native-verified.log": [
+      "Low-health selection: 0 failures"
+    ],
+    "cohort.log": [
+      "Low-health selection: 0 failures"
+    ],
+    "pressure.log": [
+      "Low-health selection: 0 failures"
+    ],
+    "BattlePlanRegression.log": [
+      "Battle plan regression: 0 failures"
+    ],
+    "GroundDefenseAdviceRegression.log": [
+      "Ground defense advice: 0 failures"
+    ]
+  },
+  "final_images": {
+    "native-verified-bastion-activated.png": [
+      1280,
+      720
+    ],
+    "native-verified-bastion-before.png": [
+      1280,
+      720
+    ],
+    "native-verified-bastion-healthy.png": [
+      1280,
+      720
+    ],
+    "native-verified-earned-activated.png": [
+      1280,
+      720
+    ],
+    "native-verified-earned-before.png": [
+      1280,
+      720
+    ],
+    "native-verified-earned-selected.png": [
+      1280,
+      720
+    ],
+    "native-verified-frontier-activated.png": [
+      1280,
+      720
+    ],
+    "native-verified-frontier-before.png": [
+      1280,
+      720
+    ],
+    "native-verified-frontier-healthy.png": [
+      1280,
+      720
+    ],
+    "native-verified-frontier-large-cohort.png": [
+      1280,
+      720
+    ],
+    "native-verified-helix-activated.png": [
+      1280,
+      720
+    ],
+    "native-verified-helix-before.png": [
+      1280,
+      720
+    ],
+    "native-verified-helix-healthy.png": [
+      1280,
+      720
+    ],
+    "pressure-bastion-activated.png": [
+      1280,
+      720
+    ],
+    "pressure-bastion-before.png": [
+      1280,
+      720
+    ],
+    "pressure-bastion-healthy.png": [
+      1280,
+      720
+    ],
+    "pressure-earned-activated.png": [
+      1280,
+      720
+    ],
+    "pressure-earned-before.png": [
+      1280,
+      720
+    ],
+    "pressure-earned-selected.png": [
+      1280,
+      720
+    ],
+    "pressure-frontier-activated.png": [
+      1280,
+      720
+    ],
+    "pressure-frontier-before.png": [
+      1280,
+      720
+    ],
+    "pressure-frontier-healthy.png": [
+      1280,
+      720
+    ],
+    "pressure-frontier-large-cohort.png": [
+      1280,
+      720
+    ],
+    "pressure-frontier-large-pressure.png": [
+      1280,
+      720
+    ],
+    "pressure-helix-activated.png": [
+      1280,
+      720
+    ],
+    "pressure-helix-before.png": [
+      1280,
+      720
+    ],
+    "pressure-helix-healthy.png": [
+      1280,
+      720
+    ]
+  },
+  "original_baseline": "4 missing-shortcut failures",
+  "retained_harness_failure": "native.log: duplicate earned-selected capture filename; corrected native run passes",
+  "native_input": "Earned guard/Bastion/Helix mouse; Frontier focused Enter",
+  "invariants": [
+    "defense priority",
+    "paused clock and resources",
+    "program action and safe point",
+    "fresh live cohort",
+    "empty activation preserves selection"
+  ],
+  "limits": "Selection affordance; no survival/balance or performance claim."
+}

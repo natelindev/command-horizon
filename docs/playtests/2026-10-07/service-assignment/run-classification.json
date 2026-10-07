@@ -1,0 +1,65 @@
+[
+  {
+    "log": "early-autoload.log",
+    "exit_code": 0,
+    "classification": "rejected-fixture",
+    "description": "Early singleton reference caused dependent-script compile errors; exit zero is not a pass.",
+    "script_or_parse_errors": true
+  },
+  {
+    "log": "original.log",
+    "exit_code": 1,
+    "classification": "expected-negative",
+    "description": "Pre-fix eligibility-only run fails 36 valid ground service assignments.",
+    "script_or_parse_errors": false
+  },
+  {
+    "log": "full.log",
+    "exit_code": 0,
+    "classification": "pass",
+    "description": "54 real recovery/return cases and nine paused partial-healing disk continuations.",
+    "script_or_parse_errors": false
+  },
+  {
+    "log": "preview.log",
+    "exit_code": 0,
+    "classification": "intermediate-pass",
+    "description": "Behavior passes; initial camera partly obscures healing unit beneath selection panel.",
+    "script_or_parse_errors": false
+  },
+  {
+    "log": "verified-preview.log",
+    "exit_code": 0,
+    "classification": "pass",
+    "description": "Eight map clicks; three recovery/return/disk cases; ten inspected final images.",
+    "script_or_parse_errors": false
+  },
+  {
+    "log": "AssignmentFootprintRegression.log",
+    "exit_code": 0,
+    "classification": "pass",
+    "description": "Relevant unchanged shared regression (assignment safe-point hint assertion updated).",
+    "script_or_parse_errors": false
+  },
+  {
+    "log": "DirectOrdersRegression.log",
+    "exit_code": 0,
+    "classification": "pass",
+    "description": "Relevant unchanged shared regression (assignment safe-point hint assertion updated).",
+    "script_or_parse_errors": false
+  },
+  {
+    "log": "ProgramRecoveryFeedbackRegression.log",
+    "exit_code": 0,
+    "classification": "pass",
+    "description": "Relevant unchanged shared regression (assignment safe-point hint assertion updated).",
+    "script_or_parse_errors": false
+  },
+  {
+    "log": "PresetRecoveryCrowdRegression.log",
+    "exit_code": 0,
+    "classification": "pass",
+    "description": "Relevant unchanged shared regression (assignment safe-point hint assertion updated).",
+    "script_or_parse_errors": false
+  }
+]

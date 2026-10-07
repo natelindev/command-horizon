@@ -1,0 +1,207 @@
+{
+	"errors": [
+		"Difficulty 2 lost paid batch jobs: [8, 8]",
+		"Difficulty 2 lost completed jobs: [8, 8]",
+		"Production spending differs from all promised jobs"
+	],
+	"reports": [
+		{
+			"completed": [
+				8,
+				8
+			],
+			"difficulty": 2,
+			"events": [
+				{
+					"kind": "paid",
+					"node": 0,
+					"queue": 1,
+					"time": 12.9666666666669
+				},
+				{
+					"kind": "paid",
+					"node": 0,
+					"queue": 2,
+					"time": 12.9666666666669
+				},
+				{
+					"kind": "paid",
+					"node": 0,
+					"queue": 3,
+					"time": 12.9666666666669
+				},
+				{
+					"kind": "paid",
+					"node": 1,
+					"queue": 1,
+					"time": 12.9666666666669
+				},
+				{
+					"kind": "paid",
+					"node": 1,
+					"queue": 2,
+					"time": 12.9666666666669
+				},
+				{
+					"kind": "paid",
+					"node": 1,
+					"queue": 3,
+					"time": 12.9666666666669
+				},
+				{
+					"kind": "completed",
+					"node": 0,
+					"time": 37.9666666666658
+				},
+				{
+					"kind": "completed",
+					"node": 1,
+					"time": 37.9666666666658
+				},
+				{
+					"kind": "paid",
+					"node": 0,
+					"queue": 3,
+					"time": 57.9833333333313
+				},
+				{
+					"kind": "paid",
+					"node": 0,
+					"queue": 4,
+					"time": 57.9833333333313
+				},
+				{
+					"kind": "paid",
+					"node": 0,
+					"queue": 5,
+					"time": 57.9833333333313
+				},
+				{
+					"kind": "paid",
+					"node": 1,
+					"queue": 3,
+					"time": 57.9833333333313
+				},
+				{
+					"kind": "paid",
+					"node": 1,
+					"queue": 4,
+					"time": 57.9833333333313
+				},
+				{
+					"kind": "paid",
+					"node": 1,
+					"queue": 5,
+					"time": 57.9833333333313
+				},
+				{
+					"kind": "completed",
+					"node": 0,
+					"time": 62.9666666666644
+				},
+				{
+					"kind": "completed",
+					"node": 1,
+					"time": 62.9666666666644
+				},
+				{
+					"kind": "completed",
+					"node": 0,
+					"time": 87.966666666663
+				},
+				{
+					"kind": "completed",
+					"node": 1,
+					"time": 87.966666666663
+				},
+				{
+					"kind": "paid",
+					"node": 0,
+					"queue": 4,
+					"time": 102.999999999995
+				},
+				{
+					"kind": "paid",
+					"node": 0,
+					"queue": 5,
+					"time": 102.999999999995
+				},
+				{
+					"kind": "paid",
+					"node": 1,
+					"queue": 4,
+					"time": 102.999999999995
+				},
+				{
+					"kind": "paid",
+					"node": 1,
+					"queue": 5,
+					"time": 102.999999999995
+				},
+				{
+					"kind": "completed",
+					"node": 0,
+					"time": 112.966666666662
+				},
+				{
+					"kind": "completed",
+					"node": 1,
+					"time": 112.966666666662
+				},
+				{
+					"kind": "completed",
+					"node": 0,
+					"time": 137.966666666669
+				},
+				{
+					"kind": "completed",
+					"node": 1,
+					"time": 137.966666666669
+				},
+				{
+					"kind": "completed",
+					"node": 0,
+					"time": 162.966666666688
+				},
+				{
+					"kind": "completed",
+					"node": 1,
+					"time": 162.966666666688
+				},
+				{
+					"kind": "completed",
+					"node": 0,
+					"time": 187.966666666708
+				},
+				{
+					"kind": "completed",
+					"node": 1,
+					"time": 187.966666666708
+				},
+				{
+					"kind": "completed",
+					"node": 0,
+					"time": 212.966666666728
+				},
+				{
+					"kind": "completed",
+					"node": 1,
+					"time": 212.966666666728
+				}
+			],
+			"funds": [
+				248,
+				76
+			],
+			"mission_source_sha256": "7988d26df20211e21a8f31c9b94e05b8d8a7eed851a4338886f34a2e65a5dd36",
+			"paid": [
+				8,
+				8
+			],
+			"peak": [
+				5,
+				5
+			]
+		}
+	]
+}

@@ -1,0 +1,397 @@
+{
+  "engine": "Godot 4.6, macOS M1 Pro, Metal rendered; fixed 60 Hz headless",
+  "accepted_checks": [
+    {
+      "suite": "import",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": null,
+      "wall_seconds": 5.9,
+      "log": "docs/playtests/2026-10-04/direct-orders-final-import.log",
+      "sha256": "305ca6486cadfd73b80aded3a61103d5478d0548c2be9194ae66f3cbddb1f717",
+      "shutdown_warnings": []
+    },
+    {
+      "suite": "KeyBindingsRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 2.6,
+      "log": "docs/playtests/2026-10-04/direct-orders-final-KeyBindingsRegression.log",
+      "sha256": "64910f2362b83987fc736b0deab249f818a0404789bd965ded45b9b6b014689f",
+      "shutdown_warnings": [
+        "WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).",
+        "ERROR: 2 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "suite": "ProgramRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 3.3,
+      "log": "docs/playtests/2026-10-04/direct-orders-final-ProgramRegression.log",
+      "sha256": "56ff4a67cd68cbc3ac24f7421df351169fad721205a9611361c509b6fd023446",
+      "shutdown_warnings": [
+        "WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime."
+      ]
+    },
+    {
+      "suite": "OrdersRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 10.4,
+      "log": "docs/playtests/2026-10-04/direct-orders-final-OrdersRegression.log",
+      "sha256": "6f48fc42d51fd26f1f364ac563462a4dc6508b87052a3ff2e9e2d26179fdc0bd",
+      "shutdown_warnings": [
+        "WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.",
+        "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+      ]
+    },
+    {
+      "suite": "SaveRestoreRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 1.9,
+      "log": "docs/playtests/2026-10-04/direct-orders-accepted-SaveRestoreRegression.log",
+      "sha256": "2e45e6a05de2674660236220eb9d0f4922229e30fc92651a26de0f16d3b11de2",
+      "shutdown_warnings": [
+        "WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.",
+        "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).",
+        "ERROR: 2 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "suite": "DirectOrdersRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 12.5,
+      "log": "docs/playtests/2026-10-04/direct-orders-accepted-DirectOrdersRegression.log",
+      "sha256": "0fd4bcba645f9027228067e9e844b1593a081ecfeeb6b3b6e78195b081b69754",
+      "shutdown_warnings": [
+        "WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "suite": "SaveRestoreCombat",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 1.4,
+      "log": "docs/playtests/2026-10-04/direct-orders-accepted-SaveRestoreCombat.log",
+      "sha256": "cba57545c1bf354c8af1988de0145270f3d3d5e801c45b05a4374d3bc6eea622",
+      "shutdown_warnings": [
+        "WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).",
+        "ERROR: 2 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "suite": "CampaignControlsRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 1.6,
+      "log": "docs/playtests/2026-10-04/direct-orders-final-CampaignControlsRegression.log",
+      "sha256": "6d32fdc8b6bb989ae232e3b265a4932e69663b696bdb60c22e77e6f0398354c3",
+      "shutdown_warnings": [
+        "WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).",
+        "ERROR: 2 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "suite": "SelectionRosterRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 26.6,
+      "log": "docs/playtests/2026-10-04/direct-orders-final-SelectionRosterRegression.log",
+      "sha256": "157d4e229f84db6b1245a116e42f75ba8440598a25d91577e76ae1edfcd63706",
+      "shutdown_warnings": [
+        "WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).",
+        "ERROR: 2 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "suite": "BattleAlertsRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 9.2,
+      "log": "docs/playtests/2026-10-04/direct-orders-accepted-BattleAlertsRegression.log",
+      "sha256": "a5e8a74bb92895108f611d6e273b294df03e669e04c7d5bc97de0cc818c698ba",
+      "shutdown_warnings": [
+        "WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.",
+        "ERROR: 2 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).",
+        "ERROR: 2 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "suite": "SubtitleLayoutRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 29.1,
+      "log": "docs/playtests/2026-10-04/direct-orders-final-SubtitleLayoutRegression.log",
+      "sha256": "66c36f2397c735ee65b18db4aed2ff083b3b7f1caa6a107714978506f8b58490",
+      "shutdown_warnings": [
+        "WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).",
+        "ERROR: 2 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "suite": "BattlePlanRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 12.5,
+      "log": "docs/playtests/2026-10-04/direct-orders-final-BattlePlanRegression.log",
+      "sha256": "5f7606821e3e1e35e2399d05e2e89de5dacd1004dfa4eee0b94da388218673ee",
+      "shutdown_warnings": [
+        "WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).",
+        "ERROR: 2 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "suite": "CampaignRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 12.7,
+      "log": "docs/playtests/2026-10-04/direct-orders-accepted-CampaignRegression.log",
+      "sha256": "72ade930cc9f9d2cc27f5dbb17fd29c5851557a9781d3ae52e2fd5356a864101",
+      "shutdown_warnings": [
+        "WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.",
+        "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).",
+        "ERROR: 2 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "suite": "DirectOrdersPreview",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 29.1,
+      "log": "docs/playtests/2026-10-04/direct-orders-accepted-DirectOrdersPreview.log",
+      "sha256": "13cbc5d64abb9b6b2cc1924ed63153bdf32361b20b593d0a78304f7ca9221ba9",
+      "shutdown_warnings": [
+        "WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "suite": "KeyBindingsPreview",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "log": "docs/playtests/2026-10-04/direct-orders-controls-window-retry.log",
+      "sha256": "91ada750dbb55c6668ea58ad3f50e9e76a895bf675065d188b6eca73d72bc14a",
+      "shutdown_warnings": [
+        "WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime."
+      ]
+    },
+    {
+      "suite": "CampaignScalePreview",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 22.8,
+      "log": "docs/playtests/2026-10-04/direct-orders-final-CampaignScalePreview.log",
+      "sha256": "cdfc10f6a3163f2d2ba5dacc47f12f38bed876248b01e93e0de7b08d0eb158f1",
+      "shutdown_warnings": [
+        "WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime."
+      ]
+    },
+    {
+      "suite": "SelectionRosterPreview",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 30.6,
+      "log": "docs/playtests/2026-10-04/direct-orders-final-SelectionRosterPreview.log",
+      "sha256": "8dff1189e8c25163bc2ad8e14be03c908e951de875ff6edac517a07e8e578a92",
+      "shutdown_warnings": [
+        "WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "suite": "format",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": null,
+      "wall_seconds": 1.0,
+      "log": "docs/playtests/2026-10-04/direct-orders-accepted-format.log",
+      "sha256": "1aa9803d621d9c40a840c4d920de6088e92fce9adf6cd38ac57f98b798d01d6a",
+      "shutdown_warnings": []
+    },
+    {
+      "suite": "lint",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": null,
+      "wall_seconds": 0.9,
+      "log": "docs/playtests/2026-10-04/direct-orders-accepted-lint.log",
+      "sha256": "d2f45ecead8ebe024d64d724cef92d4c7b89f8d0150b30b296320bddb760e4be",
+      "shutdown_warnings": []
+    },
+    {
+      "suite": "whitespace",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": null,
+      "wall_seconds": 0.1,
+      "log": "docs/playtests/2026-10-04/direct-orders-accepted-whitespace.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "shutdown_warnings": []
+    },
+    {
+      "suite": "HarvestContinuity",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 1.5,
+      "log": "docs/playtests/2026-10-04/direct-orders-accepted-HarvestContinuity.log",
+      "sha256": "22f5d65ad120e1be06c5e94a917d2b953026084b6491cb93817300d83abb9b2f",
+      "shutdown_warnings": [
+        "WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.",
+        "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "suite": "EconomySupplyRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 30.5,
+      "log": "docs/playtests/2026-10-04/direct-orders-accepted-EconomySupplyRegression.log",
+      "sha256": "6ac0e573edbb917a625ccfb347b8f1a65a0f7af88a17b017f322bdef84a62902",
+      "shutdown_warnings": [
+        "WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.",
+        "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).",
+        "ERROR: 2 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "suite": "EconomyRecoveryRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 9.1,
+      "log": "docs/playtests/2026-10-04/direct-orders-accepted-EconomyRecoveryRegression.log",
+      "sha256": "9673ab7abede0e6ffd7aecd0ae0b3b075fab1f5a929f3583ec852f4f34ac9de8",
+      "shutdown_warnings": [
+        "WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.",
+        "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details).",
+        "ERROR: 2 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "suite": "ContactApproachPreview",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 19.3,
+      "log": "docs/playtests/2026-10-04/direct-orders-accepted-ContactApproachPreview.log",
+      "sha256": "014561128e205ce127eb177406abfee861aeb273761d5089ffc74f7fb6ab9003",
+      "shutdown_warnings": [
+        "WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.",
+        "ERROR: 1 shaders of type ParticlesShaderRD were never freed",
+        "ERROR: 1 RID allocations of type 'N10RendererRD15MaterialStorage6ShaderE' were leaked at exit.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "suite": "ContactApproachRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "log": "docs/playtests/2026-10-04/direct-orders-progress-final-ContactApproachRegression.log",
+      "sha256": "6ebc3c1e901097ee41ce5a45f4f163050c98ccda9a1a1da15341fe8e0eb08a3c",
+      "shutdown_warnings": [
+        "WARNING: Source geometry parsing for navigation mesh baking had to parse RenderingServer meshes at runtime.",
+        "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.",
+        "WARNING: ObjectDB instances leaked at exit (run with --verbose for details)."
+      ]
+    }
+  ],
+  "initial_attempt_ledger": "docs/playtests/2026-10-04/direct-orders-final-checks.json",
+  "focused_acceptance_ledger": "docs/playtests/2026-10-04/direct-orders-acceptance-checks.json",
+  "files": {
+    "source/match/hud/DirectOrders.gd": "dd51610c063fac5726611da03a5bddca79c8492cad2758bfec1bb148a6f2be5c",
+    "source/match/hud/SkirmishHUD.gd": "51c0d45048f14e7bea6520b2cfa04e9d6b90fe8255a9e4e9a9ed03c1271d9618",
+    "source/match/hud/UnitMenus.gd": "b64b700b7198a1bae86bd83a494c30ca727443d192dc73919f35555ebc5d6b0e",
+    "source/match/hud/BattleAlertsPanel.gd": "d64fb9963915dbb24d0092ea9c1c33f5d7be82ef05adf6f66a72b5eec2178251",
+    "source/match/hud/SkirmishPlanPanel.gd": "621295f0c9bd3222c6250aff2210b0431689b1bedb94420a35d4ca919f9b85f0",
+    "source/input/KeyBindings.gd": "c1dabd865fd614aecd27448ad2c19ffc56252d41408b988d8a854c16230e8541",
+    "source/match/units/actions/MovingToUnit.gd": "b2fb4236f66081f657b0249b5e748affecaa23a630f1cdccc9492f8e05a25d9b",
+    "tests/headless/BattleAlertsRegression.gd": "658c6a2ead04eb47cc8eac3a5d402dfee9e71bfc9055c59b7ac581e1ae284e09",
+    "tests/headless/DirectOrdersRegression.gd": "816d5cf3888fd6e6043c04237ce51b3e7fe07de3f88751fa6b3730a366a226ee",
+    "tests/headless/KeyBindingsRegression.gd": "50e91cdfd0071d4af3174f8d3f141e61a07f9b1728a91c42d898ad3bd79d3de2",
+    "tests/rendered/DirectOrdersPreview.gd": "34b7426665d9caaae095425f2042bbb6eed0775ffae418daab785dc556cc1a26",
+    "tests/rendered/KeyBindingsPreview.gd": "ff0a16d65687f11b28acf0137d906cd43ab21e117cf5996dcb0faebefb7f9f77",
+    "tests/headless/ContactApproachRegression.gd": "1c1a1bd0489c8578b412b4f1ce302476da27fd80ffb62c0db3dfdaa240d9fe6b",
+    "tests/rendered/ContactApproachPreview.gd": "314bd41ceb7eb35a1ef90ea08e6bd99359dd2ff58ab5634191fb8a7f0006432b",
+    "art/skirmish/direct-orders-bastion-campaign.png": "4cddd359bf7761ccd810f5fccf60890f91cab56185134a10dcd3c7e47d87172a",
+    "art/skirmish/direct-orders-bastion-move.png": "e3ed30802196d2e34db4acbe276b3d2bb52d779d3d4746b6f1b68a98c3838735",
+    "art/skirmish/direct-orders-bastion-attack.png": "32fe015fd65888c688de12dec2ea9f09f8098ecee6d50a829b750bb297482bd5",
+    "art/skirmish/direct-orders-helix-move.png": "6c9a392cd639b83b6770da7fbf01f59b7ef3f9d2c66fa045b49e071d761fe70b",
+    "art/skirmish/direct-orders-helix-mixed.png": "80057fe32bac468b839f4ac7a437981b982354c1fdc62f4c95386db434da1bb3",
+    "art/skirmish/direct-orders-bastion-mixed.png": "70881842a4c60a746bce793958fc019884554fc407223ea65df867055c5b8739",
+    "art/skirmish/direct-orders-helix-attack.png": "114d40d769699ceab7b5d41aeb698a6ad7d711a7e4b0131cffb1743544748eaa",
+    "art/skirmish/contact-approach-collected.png": "f9aa9c4eeae94dc4abd40c5632cdb924688f1b2d50405b5f2f2efe9b0eeb8ada",
+    "art/skirmish/contact-approach-detour.png": "a50f1839942d0e86f22f9a5fab02483d85fbb00bcaa1cd6473ed9e1d63dd5d75",
+    "art/skirmish/contact-approach-before.png": "5dbbb44997d3835ce22a47013c8927092fca4459c65877b68633beb186c9c93e",
+    "art/skirmish/controls-groups-720p.png": "af60cc99228a9bae351c35c45bb0b0aa1f2934246fb1e2d705af73dd7df13b2f",
+    "art/skirmish/controls-battle-720p.png": "8421922a76f6d6e116d4ec8525ece06b613be3b6ecd55f57909bb6697f16d55a",
+    "art/skirmish/controls-conflict-720p.png": "f07d1db0b7c1131e3dffb0ee4fe7adc9645325f596d0c42a8738fb4ed937b6aa",
+    "art/skirmish/controls-main-720p.png": "e23a6b4f71e72ae5615c39adb988008abb0ac70cfbd6727606613abd4c9fd2d2",
+    "art/skirmish/controls-battle-paused.png": "3a5f223277d0271578f0ef2f861d52e29e0ef6902ba025d62b4109be1d919d6b"
+  },
+  "audit": {
+    "accepted_count": 25,
+    "all_expected_pass_markers": true,
+    "source_and_capture_hashes_match": true,
+    "remaining_engine_warnings": "Navigation geometry readback and exit-time resource/shader lifetime warnings; retained verbatim per log."
+  }
+}

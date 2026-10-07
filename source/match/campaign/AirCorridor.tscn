@@ -1,0 +1,5 @@
+[gd_scene load_steps=3 format=3]
+[ext_resource type="PackedScene" path="res://source/match/Match.tscn" id="base"]
+[ext_resource type="Script" path="res://source/match/campaign/AirCorridor.gd" id="script"]
+[node name="Match" instance=ExtResource("base")]
+script = ExtResource("script")

@@ -1,0 +1,276 @@
+{
+  "scope": "Industrial Crossroads surroundings; no final art, broad balance or performance acceptance claim",
+  "accepted_checks": [
+    {
+      "name": "IndustrialSurroundingsRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "log": "docs/playtests/2026-10-04/industrial-surroundings-track-final.log",
+      "sha256": "040d1889964adae7abe471f01be26c8e064e87a375c1610728af12e103069351"
+    },
+    {
+      "name": "IndustrialEnvironmentRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 21.7,
+      "log": "docs/playtests/2026-10-04/industrial-surroundings-final-IndustrialEnvironmentRegression.log",
+      "sha256": "c24ba68c1336ee354bfb83bd25334263c6c3187d21b76069994f09d9acb0e043"
+    },
+    {
+      "name": "IndustrialAIRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 88.8,
+      "log": "docs/playtests/2026-10-04/industrial-surroundings-final-IndustrialAIRegression.log",
+      "sha256": "4bf15b3393cd773f3a68c0e79f5cdc0f1b9bd782ae221f90e1e82794263356d1"
+    },
+    {
+      "name": "BrokenFoundryRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 83.5,
+      "log": "docs/playtests/2026-10-04/industrial-surroundings-final-BrokenFoundryRegression.log",
+      "sha256": "4abc78916566702306a1834b54bc1351861eb43cf6b1d3be14dfcd31d17da094"
+    },
+    {
+      "name": "MapStartupRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 1.4,
+      "log": "docs/playtests/2026-10-04/industrial-surroundings-final-MapStartupRegression.log",
+      "sha256": "076d61ca444fcef3fbb6f242432f6d6efab22d20fbafa732e81628f1396c2d5e"
+    },
+    {
+      "name": "AmbientLifeRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 36.8,
+      "log": "docs/playtests/2026-10-04/industrial-surroundings-final-AmbientLifeRegression.log",
+      "sha256": "954687b6a15f9016b1ba195f576dd9525c39ef787382e505dd22fc94b7175527"
+    },
+    {
+      "name": "EnvironmentAudioRegression",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 30.0,
+      "log": "docs/playtests/2026-10-04/industrial-surroundings-final-EnvironmentAudioRegression.log",
+      "sha256": "c9b5b197d9a11a2f5bd8fe2d96596757bb513865c65a142d9ef0a4b9740792d4"
+    },
+    {
+      "name": "SaveRestoreCombat",
+      "exit": 0,
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "wall_seconds": 1.4,
+      "log": "docs/playtests/2026-10-04/industrial-surroundings-final-SaveRestoreCombat.log",
+      "sha256": "cba57545c1bf354c8af1988de0145270f3d3d5e801c45b05a4374d3bc6eea622"
+    },
+    {
+      "name": "format",
+      "exit": 0,
+      "log": "docs/playtests/2026-10-04/industrial-surroundings-format.log",
+      "script_error": false,
+      "load_error": false,
+      "sha256": "aa2a1c7ee94fa3266604f31205b82d3b3659998fb731b4574448da9ce55357ec"
+    },
+    {
+      "name": "lint",
+      "exit": 0,
+      "log": "docs/playtests/2026-10-04/industrial-surroundings-lint.log",
+      "script_error": false,
+      "load_error": false,
+      "sha256": "d2f45ecead8ebe024d64d724cef92d4c7b89f8d0150b30b296320bddb760e4be"
+    },
+    {
+      "name": "whitespace",
+      "exit": 0,
+      "log": "docs/playtests/2026-10-04/industrial-surroundings-whitespace.log",
+      "script_error": false,
+      "load_error": false,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "rendered-preview",
+      "exit": 0,
+      "log": "docs/playtests/2026-10-04/industrial-surroundings-preview-track-final.log",
+      "script_error": false,
+      "load_error": false,
+      "pass_marker": true,
+      "sha256": "9ca0a1ed0edcff0bca3c3d4ddb3d8346cd30d996f573ee447fec437d57ba2960"
+    },
+    {
+      "name": "editor-import",
+      "exit": 0,
+      "log": "docs/playtests/2026-10-04/industrial-surroundings-import-final.log",
+      "script_error": false,
+      "load_error": false,
+      "sha256": "4014a59f5a4e01033a0e101adb84bb2dd716e2a88296a40bcaede3ffea921b51"
+    },
+    {
+      "name": "Blender-build",
+      "exit": 0,
+      "log": "docs/playtests/2026-10-04/industrial-surroundings-build.log",
+      "script_error": false,
+      "load_error": false,
+      "sha256": "e5bd407b2548273ce70db1f0bbee15dc049ad6cd5552d5fce0de392dc10fe366"
+    }
+  ],
+  "geometry_contract": "BLOCKS/OUTBUILDINGS/ASSETS/FIELDS/RELAYS/ROADS equal pre-pass source values",
+  "assets": 5,
+  "exterior_placements": 23,
+  "reviewed_final_captures": 10,
+  "artifacts": [
+    {
+      "path": "source/match/maps/IndustrialCrossroads.gd",
+      "sha256": "d23a0ffefc0395c5d8d9959d9277147d4655a6efc6a2c9bd33bb31ae62cdc716"
+    },
+    {
+      "path": "source/match/maps/IndustrialCrossroads.tscn",
+      "sha256": "882a3218d6a87a11c96271c0bf52b5efb290de8a21e4f0e6995be6a3faf00c9c"
+    },
+    {
+      "path": "source/match/maps/IndustrialBackdrop.gd",
+      "sha256": "5433fc707da02a99c0227cd7ea1d36375f283a5d8fb7e10cb970fd433f68c2f8"
+    },
+    {
+      "path": "source/match/maps/IndustrialMaterials.gd",
+      "sha256": "58a7af8aa6ce34c7305b7477cb34b5c16acd86322f4f92cea6dc496468dc060f"
+    },
+    {
+      "path": "source/shaders/3d/district_ground.gdshader",
+      "sha256": "ab886c13abf13890bd5ba09f4e50a0e2770aeac28deb808954bdf64074b9b301"
+    },
+    {
+      "path": "source/shaders/3d/district_surface.gdshader",
+      "sha256": "a5d53e1eea76742d24f795dae5f0cd0cf360bfd8fd179099817e9223f4296114"
+    },
+    {
+      "path": "tests/headless/IndustrialSurroundingsRegression.gd",
+      "sha256": "78400c7a30f39e5770e32d36122e7eadcc322ea509eebe4e07a5d1dd3666d3e7"
+    },
+    {
+      "path": "tests/rendered/IndustrialSurroundingsPreview.gd",
+      "sha256": "fe9ff99ca81be4154fa3ef9f1eebbefa1d5e6ec08ee1ab878b794fa52dd6b978"
+    },
+    {
+      "path": "art/environment/build_industrial_surroundings.py",
+      "sha256": "bc0facc6ced2a17ce2638c960ba3413276d0b36ffc17960ea84558e40f0e6f1a"
+    },
+    {
+      "path": "art/environment/IndustrialSurroundingsKit.blend",
+      "sha256": "2aba233a3e494de63fcbdde6586caf30a1f8ed3345eddcda7fcfb78384adc4f3"
+    },
+    {
+      "path": "art/environment/industrial-surroundings-manifest.json",
+      "sha256": "75a119293d19ae629aae5649791d4e57a673a3b5cc459a35cc97e7536ba19c71"
+    },
+    {
+      "path": "assets/models/environment/industrial-surroundings/RailServiceBay.glb",
+      "sha256": "cd65a5e7992ee448812a241d5b1c6a17038a1c49720fb7adb35f633f4b6253c9"
+    },
+    {
+      "path": "assets/models/environment/industrial-surroundings/RailWagon.glb",
+      "sha256": "c755e91bd1b979a11bdca38d64178c9f49dbbe54cd89dd6a98024737fd134a27"
+    },
+    {
+      "path": "assets/models/environment/industrial-surroundings/DistrictUtilities.glb",
+      "sha256": "43a2cf4b76417fee4435aac4ab4af649bf16b4b4d7de9f6630201b50241b86c8"
+    },
+    {
+      "path": "assets/models/environment/industrial-surroundings/Substation.glb",
+      "sha256": "bb2a8503d3d4d5fa05f0efc30666cb3feaf85fc4f0a74e4bfd57a239e0f825ba"
+    },
+    {
+      "path": "assets/models/environment/industrial-surroundings/BirchScrub.glb",
+      "sha256": "ac5ecdd573f4a7be4c34eb4b4f053fe21d5926043cd327ab252de7f0b134c31a"
+    },
+    {
+      "path": "art/skirmish/environment/industrial-surroundings-before-east-edge.png",
+      "sha256": "028bf7816f1453203c257962adfe028b5d0d461379163f2b150846dc9f819002"
+    },
+    {
+      "path": "art/skirmish/environment/industrial-surroundings-before-enemy-fog.png",
+      "sha256": "7bd24488a65503920e4ff7e9cd9b1b0b300e2d64dd3f4aad22a1b990510d8742"
+    },
+    {
+      "path": "art/skirmish/environment/industrial-surroundings-before-home-fog.png",
+      "sha256": "9b7d557fcbe8b5df94c6857bab43fb2893e88e9cc0cfbfb13a849b4658d80529"
+    },
+    {
+      "path": "art/skirmish/environment/industrial-surroundings-before-junction.png",
+      "sha256": "01985e0deb399f0e3ee7d17c1e60c69962c83665e59168d40cd819807306a86f"
+    },
+    {
+      "path": "art/skirmish/environment/industrial-surroundings-before-overview.png",
+      "sha256": "ee6326677ff36982275a7268a94ee2c80cdbbd54304eb65fa00b529b8689b000"
+    },
+    {
+      "path": "art/skirmish/environment/industrial-surroundings-before-rail-yard.png",
+      "sha256": "0f1af0e83f447eceed568607f5c7346f9aaffd0b82db5d87507745c29fcb16b0"
+    },
+    {
+      "path": "art/skirmish/environment/industrial-surroundings-before-shore-fog.png",
+      "sha256": "a329e80172812ef2d5dd07a18ae17e02d84a78ce82cbbcece60be3bc19292927"
+    },
+    {
+      "path": "art/skirmish/environment/industrial-surroundings-before-utilities.png",
+      "sha256": "c92bc7e496c0b239b79d442e39269b37b90f1dae59c18a7a92ebf278dc8dfc0e"
+    },
+    {
+      "path": "art/skirmish/environment/industrial-surroundings-combat-bastion.png",
+      "sha256": "45a69ad3dd28138953ef9f180e4d9542ae04c138a8665189f092bbbf1ed354a8"
+    },
+    {
+      "path": "art/skirmish/environment/industrial-surroundings-combat-helix.png",
+      "sha256": "374d0653b993f6047fbc452fd81abdf615f80fa4efd02abe564a153ef490e593"
+    },
+    {
+      "path": "art/skirmish/environment/industrial-surroundings-east-edge.png",
+      "sha256": "f362534c33162e6d5eb74049ea3717d512c19d822ad9eb5b9c5a9678ab931748"
+    },
+    {
+      "path": "art/skirmish/environment/industrial-surroundings-enemy-fog.png",
+      "sha256": "0a9249d7013169405b59c55585333743403b2d7dc22216701b29d45369c36398"
+    },
+    {
+      "path": "art/skirmish/environment/industrial-surroundings-home-fog.png",
+      "sha256": "3adc87eb43607030a62d06db5dcf6d2b50d3166d81bcb9fe7bfd8aec7e12fea6"
+    },
+    {
+      "path": "art/skirmish/environment/industrial-surroundings-junction.png",
+      "sha256": "24297583bef4765add8ffc357a0197fb0b1099e6b2942d1abb797bbb1e2fc3cb"
+    },
+    {
+      "path": "art/skirmish/environment/industrial-surroundings-overview.png",
+      "sha256": "0fc880ac4311310f23ae956c599a1b7e344bc000df696b6ba6a2c9e28291577b"
+    },
+    {
+      "path": "art/skirmish/environment/industrial-surroundings-rail-yard.png",
+      "sha256": "b903a32ca0c834d0baa492b55ad31b63689ff18842a81c0ceb1613b3047f3f50"
+    },
+    {
+      "path": "art/skirmish/environment/industrial-surroundings-shore-fog.png",
+      "sha256": "643d6b6ec29a566cd0f52d6abb20fc8d97cb26eaba30aeb5543c4e237100ba65"
+    },
+    {
+      "path": "art/skirmish/environment/industrial-surroundings-utilities.png",
+      "sha256": "1c6da4922e08f36bd312b0be0d26a2d085ba6e546b790eeb1477eb568437cce4"
+    }
+  ],
+  "warnings": "Known navigation readback and shutdown warnings retained in raw logs"
+}

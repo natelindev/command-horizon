@@ -1,0 +1,13 @@
+{
+  "engine": "Godot 4.6 stable",
+  "mode": "fixed-fps 60 rules and match probes; normal-clock Metal preview",
+  "sha256": {
+    "source/match/units/traits/Movement.gd": "8855c68a164f4531c5ac3017604464330f53c860d47650a2e6ec2f42b9c63e81",
+    "tests/headless/CrowdBoundaryRegression.gd": "2cfd371b5d774b6aeba04808eda6214f9b1f2e60b659ea36d451333fff31381c",
+    "tests/headless/SkirmishTravelProbe.gd": "c97de9e3778e93542e8b2882f68bf44901a01b974c39033990fd3e9ae1558855",
+    "tests/headless/SkirmishTravelReplay.gd": "d85ccbc1f495e96391ba20f632e781d895d124f83a48d2c406546b8d1f6d9c82",
+    "tests/headless/SkirmishMatrix.gd": "8e4a7ed86291e42d5be0795d3b4f8386efa9bdaafa8db5cbeb1798b6141205d0",
+    "tests/rendered/CrowdBoundaryPreview.gd": "57f3b415f5aae6ec9e5107bb148f941c0251dd033479aa18d25cebfee2622c13"
+  },
+  "note": "Movement and scenario logic remained unchanged throughout the retained follow-up runs. SkirmishTravelProbe gained additional read-only path/footprint logging afterward; the hash below records the delivered logger."
+}

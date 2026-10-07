@@ -1,31 +1,44 @@
 extends Node3D
 
+var restoring = false
 var target_unit = null
-
+var _flight_left = 0.0
+var _resolved = false
 @onready var _unit = get_parent()
-@onready var _unit_particles = find_child("OriginParticles")
-@onready var _timer = find_child("Timer")
 
 
 func _ready():
-	assert(target_unit != null, "target unit was not provided")
-	_unit_particles.visible = _unit.visible
-	_setup_unit_particles()
-	_setup_timer()
-	target_unit.hp -= _unit.attack_damage
-
-
-func _setup_timer():
-	_timer.timeout.connect(queue_free)
-	_timer.start(_unit_particles.lifetime)
-
-
-func _setup_unit_particles():
-	await get_tree().physics_frame  # wait for rotation to kick in if remote transform is used
-	var a_global_transform = (
-		_unit.global_transform
-		if _unit.find_child("ProjectileOrigin") == null
-		else _unit.find_child("ProjectileOrigin").global_transform
+	if restoring:
+		return
+	if not is_instance_valid(target_unit):
+		queue_free()
+		return
+	var visuals = _unit.get_node_or_null("BastionVisuals")
+	if visuals != null:
+		visuals.fire_recoil()
+	var marker = _unit.get_node_or_null("ProjectileOrigin")
+	var origin = marker.global_position if marker != null else _unit.global_position + Vector3.UP
+	var point = target_unit.global_position + Vector3.UP * 0.5
+	var rail = _unit.type == "AdvancedTank"
+	_flight_left = 0.0 if rail else clampf(origin.distance_to(point) / 38.0, 0.06, 0.28)
+	_unit._match.combat_effects.shot(
+		_unit, origin, point, 0.16 if rail else _flight_left, false, target_unit
 	)
-	_unit_particles.global_transform = a_global_transform
-	_unit_particles.emitting = true
+	if rail:
+		_hit()
+
+
+func _physics_process(delta):
+	_flight_left -= delta
+	if _flight_left <= 0:
+		_hit()
+
+
+func _hit():
+	if _resolved:
+		return
+	_resolved = true
+	if is_instance_valid(target_unit) and not target_unit.is_queued_for_deletion():
+		if _unit._match.battlefield.has_line_of_fire(_unit, target_unit):
+			target_unit.receive_weapon_hit(_unit)
+	queue_free()

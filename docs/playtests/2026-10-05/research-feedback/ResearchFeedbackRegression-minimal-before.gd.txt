@@ -1,0 +1,49 @@
+extends "res://tests/headless/SaveRestoreEdges.gd"
+
+var human
+var factions
+
+
+func _run():
+	root.get_node("SaveManager").autosaves_enabled = false
+	factions = load("res://source/match/FactionCatalog.gd")
+	for faction in factions.IDS:
+		await _feedback_fixture(faction)
+		var lab = _units(human, "CommandLab")[0]
+		game.hud.open_technology()
+		_check(human.start_coordination(lab), "Ordinary Coordination purchase failed")
+		game.hud._close_menu()
+		await _frames(20)
+		_check(
+			"Coordination" in _visible_text(game.hud),
+			faction + ": paid Coordination has no visible feedback after closing Tech"
+		)
+		_check(paused and human.coordination_left == 30.0, "HUD advanced paused research")
+		paused = false
+		game.queue_free()
+		await _frames(5)
+	for message in errors:
+		push_error(message)
+	print("Research feedback: %d failures" % errors.size())
+	quit(0 if errors.is_empty() else 1)
+
+
+func _feedback_fixture(faction):
+	await _skirmish(faction, "res://source/match/maps/DesertFrontier.tscn", true)
+	human = game._get_human_player()
+	for side in get_nodes_in_group("players"):
+		side.set_process(false)
+	for unit in get_nodes_in_group("units"):
+		unit.process_mode = Node.PROCESS_MODE_DISABLED
+	game.hud._toggle_pause()
+	root.get_node("MatchSignals").deselect_all_units.emit()
+	_check(paused, "Research feedback fixture did not pause")
+
+
+func _visible_text(node):
+	var result = ""
+	if (node is Label or node is Button) and node.is_visible_in_tree():
+		result += node.text + "\n"
+	for child in node.get_children():
+		result += _visible_text(child)
+	return result

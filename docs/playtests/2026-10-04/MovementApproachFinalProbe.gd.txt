@@ -1,0 +1,96 @@
+extends "res://tests/headless/SaveRestoreEdges.gd"
+
+var catalog
+var moving
+var safe_velocities = {}
+
+func _initialize():
+	_run.call_deferred()
+
+func _run():
+	catalog = load("res://source/match/BastionCatalog.gd")
+	moving = load("res://source/match/units/actions/Moving.gd")
+	root.get_node("SaveManager").autosaves_enabled = false
+	for faction in ["helix", "bastion"]:
+		for area in ["DesertFrontier", "AlpineRelay"]:
+			await _fixture(faction, area)
+			paused = false
+			game.queue_free()
+			await _frames(5)
+	quit(0)
+
+func _spawn_probe(role, point, owner):
+	var unit = load(catalog.scene_path(role)).instantiate()
+	game._setup_and_spawn_unit(unit, Transform3D(Basis(), point), owner, false)
+	unit.sight_range = 0
+	return unit
+
+func _fixture(faction, area):
+	await _skirmish(("helix" if faction == "bastion" else "bastion") if area == "AlpineRelay" else faction, "res://source/match/maps/%s.tscn" % area, false)
+	var human = game._get_human_player()
+	if area == "AlpineRelay":
+		human = get_nodes_in_group("players").filter(func(p): return p != human)[0]
+	_check(human.faction == faction, "Wrong tested faction")
+	for player in get_nodes_in_group("players"):
+		player.set_process(false)
+	for unit in get_nodes_in_group("units"):
+		if unit.type != "CommandCenter":
+			unit.queue_free()
+	await _frames(90)
+	var point = Vector3(106.5998, 0, 82.30008) if area == "AlpineRelay" else Vector3(16.26225, 0, 41.4)
+	var goal = Vector3(18, 0, 18) if area == "AlpineRelay" else Vector3(14.13324, 0, 42.41498)
+	var role = "Tank" if area == "AlpineRelay" else "Worker"
+	if area == "AlpineRelay":
+		for entry in [["VehicleFactory", Vector3(105,0,86)], ["CommandLab",Vector3(105,0,80)], ["AntiGroundTurret",Vector3(111,0,79)]]:
+			_spawn_probe(entry[0], entry[1], human)
+	await _frames(120)
+	for trial in 8:
+		seed(9300 + trial)
+		var crowd = []
+		var track = {}
+		for i in 6:
+			var unit = _spawn_probe(role, point + Vector3(randf_range(-3,3), 0, randf_range(-3,3)), human)
+			crowd.append(unit)
+			unit.get_node("Movement").velocity_computed.connect(func(v): safe_velocities[unit.get_instance_id()] = v)
+		await _frames(60)
+		for unit in crowd:
+			if area == "DesertFrontier":
+				var deposits = get_nodes_in_group("resource_units").filter(func(r): return r.position.distance_to(Vector3(14,0,43)) < 0.2)
+				unit.issue_manual_order(load("res://source/match/units/actions/CollectingResourcesSequentially.gd").new(deposits[0]))
+			else:
+				unit.issue_manual_order(moving.new(goal if crowd.find(unit) % 2 == 0 else Vector3(110 + crowd.find(unit) * 1.5,0,92)))
+			track[unit.get_instance_id()] = {"position":unit.position, "still":0.0, "max":0.0}
+		for frame in 1800:
+			await physics_frame
+			if frame % 30 != 29:
+				continue
+			for unit in crowd:
+				var m = unit.get_node("Movement")
+				var t = track[unit.get_instance_id()]
+				if m._has_destination and unit.position.distance_to(t.position) < 0.15:
+					t.still += .5
+				else:
+					t.still = 0.0
+					t.position = unit.position
+				t.max = max(t.max,t.still)
+				if t.still >= 10:
+					print("CROWD FAILURE ",faction," ",area," trial ",trial," position ",unit.position," action ",unit.action," velocity ",m.velocity," safe ",safe_velocities.get(unit.get_instance_id())," index ",m.get_current_navigation_path_index()," path ",m.get_current_navigation_path())
+					paused = true
+					var snapshot = Snapshot.new()
+					var record = snapshot.capture(game)
+					FileStore.new().write_file("res://tmp/movement-distinct-stall.json",record)
+					print("TRACKED ID ",snapshot._reference(unit))
+					quit(1)
+					return
+		print("CROWD TRIAL ",faction," ",area," ",trial," maxstall=",track.values().map(func(t): return t.max).max())
+		for unit in crowd:
+			unit.queue_free()
+		await _frames(10)
+
+func _observe(unit, label, frames):
+	var start = unit.position
+	for i in frames:
+		await physics_frame
+		if i % 300 == 299:
+			var m = unit.get_node("Movement")
+			print("APPROACH ", label, " t=", (i+1)/60.0, " pos=", unit.position, " travel=", start.distance_to(unit.position), " action=", unit.action, " vel=", m.velocity, " safe=", safe_velocities.get(unit.get_instance_id()), " path=", m.get_current_navigation_path())

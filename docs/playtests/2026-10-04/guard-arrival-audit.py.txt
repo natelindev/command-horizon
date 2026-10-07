@@ -1,0 +1,45 @@
+import hashlib,json,pathlib,re
+root=pathlib.Path.cwd();out=root/'docs/playtests/2026-10-04'
+def digest(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+def clean(name,marker=None):
+ s=(out/name).read_text()
+ assert not any(x in s for x in ['SCRIPT ERROR','Parse Error','Failed to load script']),name
+ if marker:assert marker in s,(name,marker)
+ return s
+for row in json.loads((out/'guard-arrival-final-source.json').read_text()):
+ assert digest(root/row['path'])==row['sha256'],row['path']
+old=json.loads((out/'guard-arrival-before-source.json').read_text())
+changes=[r['path'] for r in old if digest(root/r['path'])!=r['sha256']]
+assert changes==['source/match/programs/PresetAction.gd','source/match/programs/ProgramLibrary.gd'],changes
+for name in ['PresetAction','ProgramLibrary']:
+ r=next(r for r in old if r['path']==f'source/match/programs/{name}.gd')
+ assert digest(out/f'guard-arrival-{name}-before.gd.txt')==r['sha256']
+clean('guard-arrival-live-before.log','Guard arrival: 1 failures')
+s=clean('guard-arrival-verified.log','Guard arrival: 0 failures')
+assert s.count('CAPTURED GUARD')==7 and s.count('GROUP GUARD')==6 and s.count('MANUAL DEPARTURE')==6
+s=clean('guard-arrival-rendered.log','Rendered guard arrival: 0 failures')
+assert s.count('GUARD ARRIVAL CAPTURE')==12
+for row in json.loads((out/'guard-arrival-checks.json').read_text()):
+ assert row['exit']==0 and not row['script_error'],row
+ s=clean('guard-arrival-check-'+row['test']+'.log')
+ assert 'PASS' in s or '0 failures' in s,row['test']
+clean('guard-arrival-import.log');clean('guard-arrival-lint.log','Success: no problems found')
+clean('guard-arrival-format.log','4 files would be left unchanged')
+assert not (out/'guard-arrival-diff-check.log').read_text()
+rows=json.loads((out/'guard-arrival-match-execution.json').read_text());assert len(rows)==4
+for i,row in enumerate(rows):
+ assert row['run']==i and not row['script_error']
+ assert row['exit']==(1 if i==1 else 0),row
+ s=clean(f'guard-arrival-match-{i}.log',f'Skirmish matrix: 1 records, {1 if i==1 else 0} unresolved checks')
+ r=json.loads((out/f'guard-arrival-match-{i}.json').read_text())[0]
+ assert r['result'] in ['Defeat','Victory']
+ assert r['ai_coordination']['violations']==({'unassigned_attack_order':3} if i==1 else {})
+assert len(list((root/'art/skirmish').glob('guard-arrival-*.png')))==12
+report=(out/'GUARD_ARRIVAL.md').read_text();assert 'PENDING' not in report
+for link in re.findall(r'\]\(([^)]+)\)',report):
+ assert (out/link).exists(),link
+artifacts=sorted(set(out.glob('guard-arrival-*'))|set(out.glob('guard-travel-*'))|set((root/'art/skirmish').glob('guard-arrival-*.png')))
+artifacts=[p for p in artifacts if p.is_file() and p.name not in ['guard-arrival-artifacts.json','guard-arrival-audit.log']]
+manifest=[{'path':str(p.relative_to(root)),'sha256':digest(p)} for p in artifacts]
+(out/'guard-arrival-artifacts.json').write_text(json.dumps(manifest,indent=2)+'\n')
+print('PASS: sources, seven captures, six groups, 17 shared suites, 12 images, four terminal matches, retained failing AI check, links and artifact hashes')

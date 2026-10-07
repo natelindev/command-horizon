@@ -1,0 +1,64 @@
+extends "res://tests/headless/CrowdBoundaryRegression.gd"
+var watched
+var initial_point
+var initial_time = 0.0
+var sample_at = 0.0
+var rows = []
+var saved = false
+var trial = 0
+var stem = ""
+var perturbation = Vector3.ZERO
+
+func _initialize():
+	physics_frame.connect(_observe_frame)
+	super()
+
+func _run():
+	root.get_node("SaveManager").autosaves_enabled = false
+	harvest_action = load("res://source/match/units/actions/CollectingResourcesSequentially.gd")
+	for i in 16:
+		trial = i
+		perturbation = Vector3((i % 4 - 1.5)*.04,0,(i / 4 - 1.5)*.04)
+		await _archived_traffic(i)
+		if saved:break
+	for error in errors:push_error(error)
+	print("HARVEST DEADLINE capture=",saved," failures=",errors.size())
+	quit(0 if errors.is_empty() else 1)
+
+func _review_traffic(worker,label):
+	if label == "archive-before":
+		watched = worker
+		var others = get_nodes_in_group("units").filter(func(unit): return unit != watched and unit.type == "Worker")
+		others.sort_custom(func(a,b):return a.position.distance_to(watched.position)<b.position.distance_to(watched.position))
+		others[0].position += perturbation
+		print("TRAFFIC PERTURBATION ",perturbation," neighbor=",others[0].position)
+		initial_point = worker.position
+		initial_time = game.simulation_time
+		sample_at = initial_time
+		rows = []
+		stem = "res://docs/playtests/2026-10-04/harvest-deadline-%d-%d" % [OS.get_process_id(),trial]
+	else:
+		watched = null
+		if saved:
+			var file = FileAccess.open(stem+"-trace.json",FileAccess.WRITE)
+			file.store_string(JSON.stringify(rows,"\t"))
+
+func _observe_frame():
+	if paused or not is_instance_valid(watched) or not is_instance_valid(game):return
+	if game.simulation_time < sample_at:return
+	sample_at = game.simulation_time + .5
+	var elapsed = game.simulation_time-initial_time
+	var movement = watched.get_node("Movement")
+	var row = {"elapsed":elapsed,"position":str(watched.position),"travel":watched.position.distance_to(initial_point),"action":str(watched.action),"cargo":[watched.resource_a,watched.resource_b],"target":str(movement.target_position),"velocity":str(movement.velocity),"recovery":movement._recovery_left,"direction":str(movement._recovery_direction),"path":str(movement.get_current_navigation_path()),"path_index":movement.get_current_navigation_path_index(),"nearby":[]}
+	for other in game.battlefield.nearby_units(watched.position,4):
+		if other != watched:
+			row.nearby.append({"role":other.type,"position":str(other.position),"action":str(other.action)})
+	rows.append(row)
+	if not saved and elapsed >= 9.5 and row.travel < 12:
+		paused = true
+		var builder = Snapshot.new()
+		var data = builder.capture(game)
+		var id = builder._reference(watched)
+		saved = FileStore.new().write_file(stem+".json",data)
+		print("HARVEST SLOW CAPTURE saved=",saved," archive=",stem+".json"," unit=",id," elapsed=",elapsed," travel=",row.travel)
+		paused = false

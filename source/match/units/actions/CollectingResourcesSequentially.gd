@@ -1,7 +1,9 @@
 extends "res://source/match/units/actions/Action.gd"
 
-enum State { NULL, MOVING_TO_RESOURCE, COLLECTING, MOVING_TO_CC }
-
+enum State { NULL, MOVING_TO_RESOURCE, COLLECTING, MOVING_TO_CC, WAITING }
+enum Wait { NONE, SLOT, DEPLETED, HQ, DELIVERED }
+const FIELD_RADIUS = 10.0
+const WORK_SLOTS = 2
 const CommandCenter = preload("res://source/match/units/CommandCenter.gd")
 const CollectingResourcesWhileInRange = preload(
 	"res://source/match/units/actions/CollectingResourcesWhileInRange.gd"
@@ -9,192 +11,311 @@ const CollectingResourcesWhileInRange = preload(
 const MovingToUnit = preload("res://source/match/units/actions/MovingToUnit.gd")
 const Worker = preload("res://source/match/units/Worker.gd")
 const ResourceUnit = preload("res://source/match/units/non-player/ResourceUnit.gd")
-
-var _state := State.NULL
-var _state_locked = false
+var _state = State.NULL
+var _kind = 0
+var _field_origin = Vector3.ZERO
+var _waiting_reason = Wait.NONE
+var _retry_left = 0.0
 var _resource_unit = null
 var _cc_unit = null
 var _sub_action = null
-
 @onready var _unit = Utils.NodeEx.find_parent_with_group(self, "units")
 
 
 static func is_applicable(source_unit, target_unit):
 	return (
-		(source_unit is Worker and target_unit is ResourceUnit)
-		or (source_unit is Worker and target_unit is CommandCenter and target_unit.is_constructed())
+		source_unit is Worker
+		and (
+			(target_unit is ResourceUnit and target_unit.can_harvest(source_unit))
+			or (
+				target_unit is CommandCenter
+				and target_unit.is_constructed()
+				and target_unit.player == source_unit.player
+			)
+		)
 	)
 
 
 func _init(unit):
 	if unit is ResourceUnit:
+		_kind = 1 if "resource_a" in unit else 2
+		_field_origin = unit.global_position_yless
 		_set_resource_unit(unit)
 	elif unit is CommandCenter:
 		_set_cc_unit(unit)
 
 
 func _ready():
-	if _resource_unit != null:
-		_change_state_to(State.MOVING_TO_RESOURCE)
-	elif _cc_unit != null:
-		_change_state_to(State.MOVING_TO_CC)
+	if restoring:
+		return
+	if _kind != 0:
+		if _unit.resource_a + _unit.resource_b > 0:
+			_start_return()
+		else:
+			_start_resource_leg()
+	else:
+		_start_return()
+
+
+func _process(delta):
+	if needs_assignment() and _has_pending_orders():
+		queue_free()
+		return
+	if _state != State.WAITING or _waiting_reason != Wait.SLOT:
+		return
+	_retry_left = maxf(0, _retry_left - delta)
+	if _retry_left == 0:
+		_start_resource_leg()
 
 
 func _to_string():
-	return "{0}({1})".format([super(), str(_sub_action) if _sub_action != null else ""])
+	return "Harvest(%s)" % harvest_status()
 
 
 func get_resource_unit():
 	return _resource_unit
 
 
-func _change_state_to(new_state):
-	assert(not _state_locked, "changing state during transition is not implemented")
-	_state_locked = true
-	_exit_state(_state)
-	_enter_state(new_state)
-	_state = new_state
-	_state_locked = false
+func is_waiting():
+	return _state == State.WAITING
 
 
-func _exit_state(_a_state):
-	pass
+func needs_assignment():
+	return _state == State.WAITING and _waiting_reason != Wait.SLOT
 
 
-func _enter_state(state):
-	match state:
+func harvest_status():
+	var name = "Materials" if _kind == 1 else "Electronics"
+	match _state:
 		State.MOVING_TO_RESOURCE:
-			if (
-				_resource_unit == null
-				and not _set_resource_unit(_find_closest_resource_unit_in_nearby_area())
-			):
-				return
-			_sub_action = MovingToUnit.new(_resource_unit)
-			_sub_action.tree_exited.connect(_on_sub_action_finished, CONNECT_DEFERRED)
-			add_child(_sub_action)
-			_unit.action_updated.emit()
+			return name + " · approaching work slot"
 		State.COLLECTING:
-			assert(
-				CollectingResourcesWhileInRange.is_applicable(_unit, _resource_unit),
-				"the action should apply at this point"
-			)
-			_sub_action = CollectingResourcesWhileInRange.new(_resource_unit)
-			_sub_action.tree_exited.connect(_on_sub_action_finished, CONNECT_DEFERRED)
-			add_child(_sub_action)
-			_unit.action_updated.emit()
+			return name + " · collecting"
 		State.MOVING_TO_CC:
-			if not _set_cc_unit(_find_cc_closest_to_unit(_unit)):
-				return
-			_sub_action = MovingToUnit.new(_cc_unit)
-			_sub_action.tree_exited.connect(_on_sub_action_finished, CONNECT_DEFERRED)
-			add_child(_sub_action)
-			_unit.action_updated.emit()
+			return "Returning cargo to HQ"
+		State.WAITING:
+			return (
+				{
+					Wait.SLOT: name + " · waiting for a work slot",
+					Wait.DEPLETED: name + " field depleted · choose a new field",
+					Wait.HQ: "No drop-off · right-click a friendly HQ",
+					Wait.DELIVERED: "Cargo delivered · choose a resource field"
+				}
+				. get(_waiting_reason, "Waiting for assignment")
+			)
+	return "Preparing resource assignment"
 
 
-func _set_resource_unit(resource_unit):
-	if resource_unit == null:
-		queue_free()
-		return false
-	assert(resource_unit != _resource_unit, "it's not possible to set the same unit")
-	_resource_unit = resource_unit
-	_resource_unit.tree_exited.connect(_on_resource_unit_removed)
-	return true
-
-
-func _set_cc_unit(cc_unit):
-	if cc_unit == null:
-		queue_free()
-		return false
-	if cc_unit != _cc_unit:
-		cc_unit.tree_exited.connect(_on_cc_unit_removed)
-	_cc_unit = cc_unit
-	return true
-
-
-func _transfer_collected_resources_to_player():
-	_unit.player.resource_a += _unit.resource_a
-	_unit.player.resource_b += _unit.resource_b
-	_unit.resource_a = 0
-	_unit.resource_b = 0
-
-
-func _find_closest_resource_unit_in_nearby_area():
-	return Utils.Match.Resources.find_resource_unit_closest_to_unit_yet_no_further_than(
-		_unit, Constants.Match.Units.NEW_RESOURCE_SEARCH_RADIUS_M
+func holds_harvest_slot(deposit):
+	return (
+		not is_queued_for_deletion()
+		and is_inside_tree()
+		and _resource_unit == deposit
+		and _state in [State.MOVING_TO_RESOURCE, State.COLLECTING]
 	)
+
+
+func can_work(deposit):
+	if not deposit.can_harvest(_unit):
+		return false
+	# Scene order also reconciles overbooked legacy saves without granting extra work.
+	var index = 0
+	for worker in get_tree().get_nodes_in_group("units"):
+		var action = worker.action
+		if (
+			worker.is_queued_for_deletion()
+			or action == null
+			or not action.has_method("holds_harvest_slot")
+		):
+			continue
+		if action.holds_harvest_slot(deposit):
+			if action == self:
+				return index < WORK_SLOTS
+			index += 1
+	return false
+
+
+func _slot_available(deposit):
+	var count = 0
+	for worker in get_tree().get_nodes_in_group("units"):
+		var action = worker.action
+		if worker.is_queued_for_deletion() or action == null or action == self:
+			continue
+		if action.has_method("holds_harvest_slot") and action.holds_harvest_slot(deposit):
+			count += 1
+	return count < WORK_SLOTS
+
+
+func _field_deposits():
+	var property = "resource_a" if _kind == 1 else "resource_b"
+	return get_tree().get_nodes_in_group("resource_units").filter(
+		func(deposit):
+			return (
+				_kind != 0
+				and deposit.can_harvest(_unit)
+				and property in deposit
+				and deposit.get(property) > 0
+				and (
+					deposit.global_position_yless.distance_squared_to(_field_origin)
+					<= FIELD_RADIUS * FIELD_RADIUS
+				)
+			)
+	)
+
+
+func _start_resource_leg():
+	if _kind == 0:
+		_wait(Wait.DELIVERED)
+		return
+	var deposits = _field_deposits()
+	if deposits.is_empty():
+		if _unit.resource_a + _unit.resource_b > 0:
+			_start_return()
+		else:
+			_wait(Wait.DEPLETED)
+		return
+	deposits.sort_custom(
+		func(a, b):
+			return (
+				_unit.global_position_yless.distance_squared_to(a.global_position_yless)
+				< _unit.global_position_yless.distance_squared_to(b.global_position_yless)
+			)
+	)
+	for deposit in deposits:
+		if _slot_available(deposit):
+			_set_resource_unit(deposit)
+			_state = State.MOVING_TO_RESOURCE
+			_waiting_reason = Wait.NONE
+			_child(MovingToUnit.new(deposit))
+			return
+	_wait(Wait.SLOT)
+
+
+func _start_return():
+	_waiting_reason = Wait.NONE
+	_state = State.MOVING_TO_CC  # Release the work slot during the return trip.
+	if (
+		not is_instance_valid(_cc_unit)
+		or _cc_unit.is_queued_for_deletion()
+		or not _cc_unit.is_constructed()
+	):
+		_set_cc_unit(_find_cc_closest_to_unit(_unit))
+	if _cc_unit == null:
+		_wait(Wait.HQ)
+		return
+	_child(MovingToUnit.new(_cc_unit))
+
+
+func _child(action):
+	_sub_action = action
+	_sub_action.tree_exited.connect(_on_sub_action_finished, CONNECT_DEFERRED)
+	add_child(_sub_action)
+	_unit.action_updated.emit()
+
+
+func _wait(reason):
+	_state = State.WAITING
+	_waiting_reason = reason
+	_retry_left = 0.5
+	_unit.get_node("Movement").stop()
+	_unit.action_updated.emit()
+	if needs_assignment() and _has_pending_orders():
+		queue_free()
+	elif reason in [Wait.DEPLETED, Wait.HQ]:
+		var game = _unit._match
+		if (
+			_unit.player == game._get_human_player()
+			and "hud" in game
+			and is_instance_valid(game.hud)
+		):
+			game.hud.show_notice("Engineer · " + harvest_status())
+
+
+func _has_pending_orders():
+	return _unit.manual_orders != null and not _unit.manual_orders.pending.is_empty()
+
+
+func _set_resource_unit(deposit):
+	if (
+		is_instance_valid(_resource_unit)
+		and _resource_unit.tree_exited.is_connected(_on_resource_unit_removed)
+	):
+		_resource_unit.tree_exited.disconnect(_on_resource_unit_removed)
+	_resource_unit = deposit
+	if deposit != null:
+		deposit.tree_exited.connect(_on_resource_unit_removed)
+
+
+func _set_cc_unit(cc):
+	if is_instance_valid(_cc_unit) and _cc_unit.tree_exited.is_connected(_on_cc_unit_removed):
+		_cc_unit.tree_exited.disconnect(_on_cc_unit_removed)
+	_cc_unit = cc
+	if cc != null:
+		cc.tree_exited.connect(_on_cc_unit_removed)
 
 
 static func _find_cc_closest_to_unit(unit):
-	var ccs_of_the_same_player = unit.get_tree().get_nodes_in_group("units").filter(
-		func(a_unit):
+	var choices = unit.get_tree().get_nodes_in_group("units").filter(
+		func(cc):
 			return (
-				a_unit is CommandCenter and a_unit.player == unit.player and a_unit.is_constructed()
+				cc is CommandCenter
+				and cc.player == unit.player
+				and cc.is_constructed()
+				and not cc.is_queued_for_deletion()
 			)
 	)
-	if ccs_of_the_same_player.is_empty():
-		return null
-	var ccs_sorted_by_distance = ccs_of_the_same_player.map(
-		func(a_unit):
-			return {
-				"distance":
-				(unit.global_position * Vector3(1, 0, 1)).distance_to(
-					a_unit.global_position * Vector3(1, 0, 1)
-				),
-				"cc": a_unit
-			}
+	choices.sort_custom(
+		func(a, b):
+			return (
+				unit.global_position_yless.distance_squared_to(a.global_position_yless)
+				< unit.global_position_yless.distance_squared_to(b.global_position_yless)
+			)
 	)
-	ccs_sorted_by_distance.sort_custom(func(a, b): return a["distance"] < b["distance"])
-	return ccs_sorted_by_distance[0]["cc"]
-
-
-func _handle_sub_action_finished_while_moving_to_resource():
-	# react to resource removal
-	if _resource_unit == null:
-		if _set_resource_unit(_find_closest_resource_unit_in_nearby_area()):
-			_change_state_to(State.MOVING_TO_RESOURCE)
-		return
-	# resource reached
-	if not _unit.is_full():
-		_change_state_to(State.COLLECTING)
-	else:
-		_change_state_to(State.MOVING_TO_CC)
-
-
-func _handle_sub_action_finished_while_collecting():
-	# react to resource not being in range anymore
-	if (
-		_resource_unit != null
-		and not _unit.is_full()
-		and not Utils.Match.Unit.Movement.units_adhere(_unit, _resource_unit)
-	):
-		_change_state_to(State.MOVING_TO_RESOURCE)
-		return
-	# finished collecting
-	_change_state_to(State.MOVING_TO_CC)
-
-
-func _handle_sub_action_finished_while_moving_to_cc():
-	# react to cc removal
-	if _cc_unit == null or not _cc_unit.is_constructed():
-		if _set_cc_unit(_find_cc_closest_to_unit(_unit)):
-			_change_state_to(State.MOVING_TO_CC)
-		return
-	_transfer_collected_resources_to_player()
-	_change_state_to(State.MOVING_TO_RESOURCE)
+	return choices[0] if not choices.is_empty() else null
 
 
 func _on_sub_action_finished():
-	if not is_inside_tree():
+	if not is_inside_tree() or is_queued_for_deletion():
 		return
 	_sub_action = null
-	_unit.action_updated.emit()
 	match _state:
 		State.MOVING_TO_RESOURCE:
-			_handle_sub_action_finished_while_moving_to_resource()
+			if (
+				not is_instance_valid(_resource_unit)
+				or _resource_unit.is_queued_for_deletion()
+				or not can_work(_resource_unit)
+			):
+				_start_resource_leg()
+			elif _unit.is_full():
+				_start_return()
+			else:
+				_state = State.COLLECTING
+				_child(CollectingResourcesWhileInRange.new(_resource_unit))
 		State.COLLECTING:
-			_handle_sub_action_finished_while_collecting()
+			if (
+				_unit.is_full()
+				or not is_instance_valid(_resource_unit)
+				or _resource_unit.is_queued_for_deletion()
+			):
+				_start_return()
+			else:
+				_start_resource_leg()
 		State.MOVING_TO_CC:
-			_handle_sub_action_finished_while_moving_to_cc()
+			if (
+				not is_instance_valid(_cc_unit)
+				or _cc_unit.is_queued_for_deletion()
+				or not _cc_unit.is_constructed()
+			):
+				_wait(Wait.HQ)
+				return
+			_unit.player.resource_a += _unit.resource_a
+			_unit.player.resource_b += _unit.resource_b
+			_unit.resource_a = 0
+			_unit.resource_b = 0
+			if _unit.manual_orders != null and not _unit.manual_orders.pending.is_empty():
+				queue_free()
+			else:
+				_start_resource_leg()
 
 
 func _on_resource_unit_removed():

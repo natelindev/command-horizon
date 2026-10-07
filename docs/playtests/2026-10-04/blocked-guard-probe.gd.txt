@@ -1,0 +1,20 @@
+extends "res://tests/headless/SaveRestoreEdges.gd"
+
+func _run():
+ root.get_node("SaveManager").autosaves_enabled = false
+ var restore = Restore.new()
+ var result = await restore.restore(self, FileStore.new().read_file("res://docs/playtests/2026-10-04/mixed-operations-allocation-repeat-bastion-stall.json"))
+ game = result.game
+ for player in get_nodes_in_group("players"):
+  player.set_process(false)
+ var unit = restore.entities["unit-23"]
+ var movement = unit.get_node("Movement")
+ print("BEFORE ", unit.position, " anchor=",unit.program.anchor)
+ unit.program.run()
+ paused = false
+ for sample in 12:
+  await _frames(60)
+  print("PROBE ",sample+1," pos=",unit.position," mode=",unit.program.mode," reason=",unit.program.reason," dest=",movement._has_destination," target=",movement.target_position," finished=",movement.is_navigation_finished()," path=",movement.get_current_navigation_path()," closest=",NavigationServer3D.map_get_closest_point(movement.get_navigation_map(), unit.program.anchor))
+ game.queue_free()
+ await _frames(5)
+ quit()

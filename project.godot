@@ -26,6 +26,7 @@ Globals="*res://source/Globals.gd"
 MatchSignals="*res://source/match/MatchSignals.gd"
 Signals="*res://source/Signals.gd"
 Utils="*res://source/Utils.gd"
+SaveManager="*res://source/match/saves/SaveManager.gd"
 
 [debug]
 
@@ -40,6 +41,8 @@ gdscript/warnings/integer_division=0
 
 window/size/viewport_width=1920
 window/size/viewport_height=1080
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
 
 [dotnet]
 
@@ -47,7 +50,7 @@ project/assembly_name="Open RTS"
 
 [gui]
 
-timers/tooltip_delay_sec=0.0
+timers/tooltip_delay_sec=0.35
 
 [input]
 

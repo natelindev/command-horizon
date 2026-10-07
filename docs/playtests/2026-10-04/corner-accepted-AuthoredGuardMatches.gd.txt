@@ -1,0 +1,7 @@
+extends "res://tmp/AuthoredRecoveryMatches.gd"
+
+
+func _sample():
+	var row = super()
+	row.policy = load("res://tmp/PolicyReadiness.gd").sample(self)
+	return row

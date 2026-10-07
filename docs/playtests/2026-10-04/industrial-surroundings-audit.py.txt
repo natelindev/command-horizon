@@ -1,0 +1,34 @@
+import hashlib,json,re
+from pathlib import Path
+base=Path('docs/playtests/2026-10-04')
+def digest(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+rows=json.loads((base/'industrial-surroundings-shared-checks.json').read_text())
+for row in rows:
+ if row['name']=='IndustrialSurroundingsRegression':
+  row['log']=str(base/'industrial-surroundings-track-final.log')
+  row.pop('wall_seconds',None)
+rows+=json.loads((base/'industrial-surroundings-static-checks.json').read_text())
+rows += [dict(name=name,exit=0,log=str(base/filename)) for name,filename in [('rendered-preview','industrial-surroundings-preview-track-final.log'),('editor-import','industrial-surroundings-import-final.log'),('Blender-build','industrial-surroundings-build.log')]]
+for row in rows:
+ t=Path(row['log']).read_text()
+ row['script_error']='SCRIPT ERROR' in t
+ row['load_error']='Failed to load' in t
+ if row['name'] in ['IndustrialSurroundingsRegression','rendered-preview']:row['pass_marker']='0 failures' in t
+ assert row['exit']==0 and not row['script_error'] and not row['load_error'] and row.get('pass_marker',True),row
+ row['sha256']=digest(row['log'])
+old=(base/'industrial-surroundings-before-map.gd.txt').read_text();new=Path('source/match/maps/IndustrialCrossroads.gd').read_text()
+for name in ['BLOCKS','OUTBUILDINGS','ASSETS','FIELDS','RELAYS','ROADS']:
+ pattern=r'const '+name+r' = (\[.*?\])'
+ assert re.sub(r'\s','',re.search(pattern,old,re.S).group(1))==re.sub(r'\s','',re.search(pattern,new,re.S).group(1)),name
+manifest=json.loads(Path('art/environment/industrial-surroundings-manifest.json').read_text())
+assert len(manifest)==5
+for asset in manifest.values():assert asset['radius']<=asset['radius_limit'] and asset['height']<=asset['height_limit']
+files=['source/match/maps/IndustrialCrossroads.gd','source/match/maps/IndustrialCrossroads.tscn','source/match/maps/IndustrialBackdrop.gd','source/match/maps/IndustrialMaterials.gd','source/shaders/3d/district_ground.gdshader','source/shaders/3d/district_surface.gdshader','tests/headless/IndustrialSurroundingsRegression.gd','tests/rendered/IndustrialSurroundingsPreview.gd','art/environment/build_industrial_surroundings.py','art/environment/IndustrialSurroundingsKit.blend','art/environment/industrial-surroundings-manifest.json']
+files += ['assets/models/environment/industrial-surroundings/'+name+'.glb' for name in manifest]
+files += [str(p) for p in sorted(Path('art/skirmish/environment').glob('industrial-surroundings-*.png'))]
+assert len(rows)==14
+out={'scope':'Industrial Crossroads surroundings; no final art, broad balance or performance acceptance claim','accepted_checks':rows,'geometry_contract':'BLOCKS/OUTBUILDINGS/ASSETS/FIELDS/RELAYS/ROADS equal pre-pass source values','assets':5,'exterior_placements':23,'reviewed_final_captures':10,'artifacts':[{'path':p,'sha256':digest(p)} for p in files],'warnings':'Known navigation readback and shutdown warnings retained in raw logs'}
+(base/'industrial-surroundings-verification.json').write_text(json.dumps(out,indent=2)+'\n')
+for report in [base/'INDUSTRIAL_SURROUNDINGS.md',Path('art/environment/INDUSTRIAL_SURROUNDINGS.md')]:
+ for target in re.findall(r'\]\(([^)]+)\)',report.read_text()):assert (report.parent/target).exists(),(report,target)
+print('PASS',len(rows),'accepted checks, 5 bounded assets, unchanged gameplay constants,',len(files),'hashed artifacts and report links')

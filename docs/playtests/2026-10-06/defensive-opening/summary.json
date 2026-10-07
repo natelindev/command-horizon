@@ -1,0 +1,329 @@
+{
+  "shipping_rule_changes": false,
+  "adopted_as_default": false,
+  "probes": {
+    "original": {
+      "fireable_unit_samples_first_30_seconds": 39,
+      "timeline": [
+        {
+          "seconds": 0,
+          "human_combatants": 7,
+          "enemy_combatants": 8,
+          "human_hp": 172,
+          "enemy_hp": 250
+        },
+        {
+          "seconds": 15,
+          "human_combatants": 4,
+          "enemy_combatants": 4,
+          "human_hp": 112.0,
+          "enemy_hp": 153.0
+        },
+        {
+          "seconds": 30,
+          "human_combatants": 2,
+          "enemy_combatants": 1,
+          "human_hp": 10.0,
+          "enemy_hp": 68
+        },
+        {
+          "seconds": 60,
+          "human_combatants": 1,
+          "enemy_combatants": 1,
+          "human_hp": 18.0,
+          "enemy_hp": 59.0
+        },
+        {
+          "seconds": 119,
+          "human_combatants": 0,
+          "enemy_combatants": 1,
+          "human_hp": 0,
+          "enemy_hp": 59.0
+        }
+      ]
+    },
+    "responsive": {
+      "fireable_unit_samples_first_30_seconds": 65,
+      "timeline": [
+        {
+          "seconds": 0,
+          "human_combatants": 7,
+          "enemy_combatants": 8,
+          "human_hp": 172,
+          "enemy_hp": 250
+        },
+        {
+          "seconds": 15,
+          "human_combatants": 6,
+          "enemy_combatants": 4,
+          "human_hp": 110.488,
+          "enemy_hp": 152.85
+        },
+        {
+          "seconds": 30,
+          "human_combatants": 2,
+          "enemy_combatants": 2,
+          "human_hp": 24.448,
+          "enemy_hp": 79.3
+        },
+        {
+          "seconds": 60,
+          "human_combatants": 0,
+          "enemy_combatants": 2,
+          "human_hp": 0,
+          "enemy_hp": 67.15
+        },
+        {
+          "seconds": 119,
+          "human_combatants": 0,
+          "enemy_combatants": 2,
+          "human_hp": 0,
+          "enemy_hp": 67.15
+        }
+      ]
+    },
+    "service-line": {
+      "fireable_unit_samples_first_30_seconds": 28,
+      "timeline": [
+        {
+          "seconds": 0,
+          "human_combatants": 7,
+          "enemy_combatants": 8,
+          "human_hp": 172,
+          "enemy_hp": 250
+        },
+        {
+          "seconds": 15,
+          "human_combatants": 6,
+          "enemy_combatants": 4,
+          "human_hp": 144.184,
+          "enemy_hp": 174
+        },
+        {
+          "seconds": 30,
+          "human_combatants": 3,
+          "enemy_combatants": 4,
+          "human_hp": 27.672,
+          "enemy_hp": 111.0
+        },
+        {
+          "seconds": 60,
+          "human_combatants": 0,
+          "enemy_combatants": 4,
+          "human_hp": 0,
+          "enemy_hp": 111.0
+        },
+        {
+          "seconds": 119,
+          "human_combatants": 0,
+          "enemy_combatants": 4,
+          "human_hp": 0,
+          "enemy_hp": 111.0
+        }
+      ]
+    }
+  },
+  "matches": [
+    {
+      "case": 2,
+      "seed": 4110,
+      "faction": "frontier",
+      "opponent": "helix",
+      "result": "Victory",
+      "seconds": 450.0,
+      "first_contact": 145.233333333341,
+      "opening_screen_at": 104.733333333329,
+      "basic_unlock": 158.233333333351,
+      "first_program": null,
+      "first_air_raid": 356.233333333338,
+      "first_assault": 256.233333333429,
+      "harvested": [
+        497.0,
+        137.0
+      ],
+      "spent": [
+        434.0,
+        148.0
+      ],
+      "losses": [
+        {
+          "Infantry": 9
+        },
+        {
+          "AircraftFactory": 1,
+          "Barracks": 1,
+          "CommandCenter": 1,
+          "CommandLab": 2,
+          "Infantry": 12,
+          "Tank": 2,
+          "VehicleFactory": 1,
+          "Worker": 9
+        }
+      ],
+      "conventional_control_checks": 362,
+      "worker_authority_checks": 440,
+      "ai_coordination": {
+        "peak_groups": 2,
+        "samples": 900,
+        "violations": {}
+      },
+      "longest_stationary_travel": [
+        1.5,
+        4.0
+      ],
+      "conventional_ready": 5,
+      "conventional_lost": 4
+    },
+    {
+      "case": 2,
+      "seed": 4111,
+      "faction": "frontier",
+      "opponent": "helix",
+      "result": "Defeat",
+      "seconds": 922.4,
+      "first_contact": 145.250000000008,
+      "opening_screen_at": 104.749999999995,
+      "basic_unlock": 155.250000000016,
+      "first_program": 180.250000000036,
+      "first_air_raid": null,
+      "first_assault": null,
+      "harvested": [
+        465.0,
+        183.0
+      ],
+      "spent": [
+        525.0,
+        102.0
+      ],
+      "losses": [
+        {
+          "Barracks": 3,
+          "CombatRobot": 1,
+          "CommandCenter": 1,
+          "Infantry": 19,
+          "RepairRobot": 1,
+          "Tank": 6,
+          "VehicleFactory": 1,
+          "Worker": 18
+        },
+        {
+          "Infantry": 34,
+          "Tank": 2
+        }
+      ],
+      "conventional_control_checks": 57,
+      "worker_authority_checks": 4172,
+      "ai_coordination": {
+        "peak_groups": 2,
+        "samples": 1845,
+        "violations": {}
+      },
+      "longest_stationary_travel": [
+        1.5,
+        2.5
+      ],
+      "conventional_ready": 0,
+      "conventional_lost": 3
+    },
+    {
+      "case": 6,
+      "seed": 4110,
+      "faction": "helix",
+      "opponent": "frontier",
+      "result": "Defeat",
+      "seconds": 353.8,
+      "first_contact": 142.733333333339,
+      "opening_screen_at": 105.733333333329,
+      "basic_unlock": 151.733333333346,
+      "first_program": null,
+      "first_air_raid": null,
+      "first_assault": null,
+      "harvested": [
+        304.0,
+        80.0
+      ],
+      "spent": [
+        361.0,
+        88.0
+      ],
+      "losses": [
+        {
+          "Barracks": 1,
+          "CommandCenter": 1,
+          "Infantry": 12,
+          "PowerPlant": 3,
+          "Tank": 2,
+          "VehicleFactory": 1,
+          "Worker": 5
+        },
+        {
+          "Infantry": 4,
+          "Tank": 1
+        }
+      ],
+      "conventional_control_checks": null,
+      "worker_authority_checks": 1182,
+      "ai_coordination": {
+        "peak_groups": 1,
+        "samples": 708,
+        "violations": {}
+      },
+      "longest_stationary_travel": [
+        3.0,
+        0.5
+      ],
+      "conventional_ready": 0,
+      "conventional_lost": 0
+    },
+    {
+      "case": 6,
+      "seed": 4111,
+      "faction": "helix",
+      "opponent": "frontier",
+      "result": "Defeat",
+      "seconds": 648.4,
+      "first_contact": 142.750000000006,
+      "opening_screen_at": 106.249999999995,
+      "basic_unlock": 157.250000000017,
+      "first_program": 182.750000000038,
+      "first_air_raid": null,
+      "first_assault": null,
+      "harvested": [
+        544.0,
+        80.0
+      ],
+      "spent": [
+        599.0,
+        86.0
+      ],
+      "losses": [
+        {
+          "Barracks": 10,
+          "CommandCenter": 1,
+          "CommandLab": 1,
+          "Infantry": 21,
+          "Tank": 3,
+          "VehicleFactory": 1,
+          "Worker": 17
+        },
+        {
+          "Infantry": 21,
+          "Tank": 3
+        }
+      ],
+      "conventional_control_checks": 43,
+      "worker_authority_checks": 2353,
+      "ai_coordination": {
+        "peak_groups": 2,
+        "samples": 1297,
+        "violations": {}
+      },
+      "longest_stationary_travel": [
+        1.5,
+        1.0
+      ],
+      "conventional_ready": 0,
+      "conventional_lost": 3
+    }
+  ]
+}

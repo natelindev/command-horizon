@@ -1,5 +1,7 @@
 extends Node3D
 
+const Factions = preload("res://source/match/FactionCatalog.gd")
+
 const Unit = preload("res://source/match/units/Unit.gd")
 const Structure = preload("res://source/match/units/Structure.gd")
 const Player = preload("res://source/match/players/Player.gd")
@@ -11,6 +13,16 @@ const Worker = preload("res://source/match/units/Worker.tscn")
 
 @export var settings: Resource = null
 
+var restoring = false
+var simulation_time = 0.0
+var battlefield = null
+var repair_service = null
+var wreck_salvage = null
+var combat_effects = null
+var combat_audio = null
+var environment_audio = null
+var subtitles = null
+
 var map:
 	set = _set_map,
 	get = _get_map
@@ -19,6 +31,8 @@ var visible_player = null:
 var visible_players = null:
 	set = _ignore,
 	get = _get_visible_players
+
+var _visual_serial = 0
 
 @onready var navigation = $Navigation
 @onready var fog_of_war = $FogOfWar
@@ -34,6 +48,18 @@ func _enter_tree():
 
 
 func _ready():
+	battlefield = load("res://source/match/combat/Battlefield.gd").new()
+	add_child(battlefield)
+	combat_audio = load("res://source/match/audio/CombatAudio.gd").new()
+	add_child(combat_audio)
+	environment_audio = load("res://source/match/audio/EnvironmentAudio.gd").new()
+	add_child(environment_audio)
+	combat_effects = load("res://source/match/effects/CombatEffects.gd").new()
+	add_child(combat_effects)
+	wreck_salvage = load("res://source/match/economy/WreckSalvage.gd").new()
+	add_child(wreck_salvage)
+	repair_service = load("res://source/match/combat/RepairService.gd").new()
+	add_child(repair_service)
 	MatchSignals.setup_and_spawn_unit.connect(_setup_and_spawn_unit)
 	_setup_subsystems_dependent_on_map()
 	_setup_players()
@@ -42,12 +68,32 @@ func _ready():
 	_move_camera_to_initial_position()
 	if settings.visibility == settings.Visibility.FULL:
 		fog_of_war.reveal()
+	var human = _get_human_player()
+	var voice = human.get_node_or_null("BattleVoice") if human != null else null
+	if voice != null:
+		subtitles = load("res://source/match/hud/BattleSubtitles.gd").new()
+		subtitles.voice = voice
+		add_child(subtitles)
+	var ownership_layer = CanvasLayer.new()
+	ownership_layer.name = "OwnershipLayer"
+	ownership_layer.layer = -1
+	add_child(ownership_layer)
+	ownership_layer.add_child(load("res://source/match/hud/OwnershipOverlay.gd").new())
 	MatchSignals.match_started.emit()
+
+
+func allocate_visual_seed():
+	_visual_serial += 1
+	return _visual_serial
+
+
+func _physics_process(delta):
+	simulation_time += delta
 
 
 func _unhandled_input(event):
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		if Input.is_action_pressed("shift_selecting"):
+		if Globals.options.selection_modifier_pressed():
 			return
 		MatchSignals.deselect_all_units.emit()
 
@@ -106,8 +152,13 @@ func _setup_players():
 func _create_players_from_settings():
 	for player_settings in settings.players:
 		var player_scene = Constants.Match.Player.CONTROLLER_SCENES[player_settings.controller]
+		if settings.skirmish and player_settings.controller != Constants.PlayerType.HUMAN:
+			player_scene = load("res://source/match/players/skirmish-ai/SkirmishAI.tscn")
 		var player = player_scene.instantiate()
 		player.color = player_settings.color
+		player.faction = player_settings.faction
+		player.difficulty = player_settings.difficulty
+		player.set_meta("skirmish", settings.skirmish)
 		if player_settings.spawn_index_offset > 0:
 			for _i in range(player_settings.spawn_index_offset):
 				_players.add_child(Node.new())
@@ -115,6 +166,8 @@ func _create_players_from_settings():
 
 
 func _setup_player_units():
+	if restoring:
+		return
 	for player in _players.get_children():
 		if not player is Player:
 			continue
@@ -142,11 +195,13 @@ func _spawn_player_units(player, spawn_transform):
 
 
 func _setup_and_spawn_unit(unit, a_transform, player, mark_structure_under_construction = true):
+	Factions.prepare_model(unit, player.faction)
 	unit.global_transform = a_transform
 	if unit is Structure and mark_structure_under_construction:
 		unit.mark_as_under_construction()
 	_setup_unit_groups(unit, player)
 	player.add_child(unit)
+	battlefield.invalidate()
 	MatchSignals.unit_spawned.emit(unit)
 
 
@@ -171,6 +226,8 @@ func _get_human_player():
 
 
 func _move_camera_to_initial_position():
+	if restoring:
+		return
 	var human_player = _get_human_player()
 	if human_player != null:
 		_move_camera_to_player_units_crowd_pivot(human_player)

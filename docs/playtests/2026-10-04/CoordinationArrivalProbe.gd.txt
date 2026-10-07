@@ -1,0 +1,40 @@
+extends "res://tests/headless/SkirmishCoordinationRegression.gd"
+
+
+func _run():
+	catalog = load("res://source/match/BastionCatalog.gd")
+	coordination = load("res://source/match/players/skirmish-ai/SkirmishCoordination.gd")
+	root.get_node("SaveManager").autosaves_enabled = false
+	for faction in ["bastion", "helix"]:
+		await _fixture(faction, 0)
+		game.simulation_time = 30
+		var hq = actors[0]
+		var unit = actors[2]
+		var regroup = hq.global_position_yless + Vector3(-5 - unit.get_index() % 3 * 2, 0, -5)
+		unit.position = regroup + Vector3(.5, 0, 0)
+		unit.issue_manual_order(
+			load("res://source/match/units/actions/AttackMoving.gd").new(Vector3(20, 0, 20))
+		)
+		unit.get_node("Movement").stop()
+		opponent._army_groups = [coordination._group("defense", Vector3(20, 0, 20), [unit], 0)]
+		coordination.command(game, opponent, [hq, unit], [hq, unit], [])
+		var issues = load("res://tests/headless/SkirmishCoordinationMetrics.gd").inspect(
+			opponent, [hq, unit]
+		)
+		print(
+			"REGROUP HANDOFF ",
+			faction,
+			" groups=",
+			opponent._army_groups.size(),
+			" action=",
+			unit.action,
+			" issues=",
+			issues
+		)
+		_check(issues.is_empty(), "Regroup retained an attack order without group membership")
+		game.queue_free()
+		await _frames(5)
+	for error in errors:
+		push_error(error)
+	print("Coordination arrival probe: %d failures" % errors.size())
+	quit(0 if errors.is_empty() else 1)

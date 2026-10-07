@@ -1,0 +1,1401 @@
+[
+  {
+    "faction": "frontier",
+    "opponent": "bastion",
+    "map": "AlpineRelay",
+    "result": "Victory",
+    "seconds": 485.5,
+    "first_program": 277.23333333341,
+    "first_assault": 291.733333333397,
+    "policy_assaults": 1,
+    "policy_regroups": null,
+    "research_events": [
+      {
+        "seconds": 0.750000000000001,
+        "sides": [
+          {
+            "active": "",
+            "basic": false,
+            "completed": [],
+            "coordination": false,
+            "coordination_left": -1.0,
+            "desired_building": "",
+            "faction": "frontier",
+            "funds": [
+              34,
+              12
+            ],
+            "lab": false,
+            "priority_reserve": [
+              0,
+              0
+            ],
+            "production": [],
+            "queues": [
+              {
+                "blocked": "",
+                "jobs": [
+                  {
+                    "left": 8.0,
+                    "paid": {
+                      "resource_a": 6,
+                      "resource_b": 0
+                    },
+                    "role": "Worker"
+                  }
+                ],
+                "producer": "CommandCenter"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "Barracks"
+              }
+            ],
+            "ready_army": 2
+          },
+          {
+            "active": "",
+            "basic": false,
+            "completed": [],
+            "coordination": false,
+            "coordination_left": -1.0,
+            "desired_building": "Barracks",
+            "faction": "bastion",
+            "funds": [
+              60,
+              12
+            ],
+            "lab": false,
+            "priority_reserve": [
+              26,
+              0
+            ],
+            "production": [
+              {
+                "cost": {
+                  "resource_a": 6,
+                  "resource_b": 0
+                },
+                "priority": 0,
+                "role": "Worker"
+              }
+            ],
+            "queues": [
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "CommandCenter"
+              }
+            ],
+            "ready_army": 2
+          }
+        ]
+      }
+    ],
+    "reference_research_orders": null,
+    "longest_stationary_travel": [
+      5.0,
+      1.5
+    ],
+    "ai_coordination": {
+      "peak_groups": 2,
+      "samples": 971,
+      "violations": {}
+    },
+    "name": "control0",
+    "losses": 11
+  },
+  {
+    "faction": "frontier",
+    "opponent": "bastion",
+    "map": "AlpineRelay",
+    "result": "Victory",
+    "seconds": 1531.2,
+    "first_program": 265.73333333342,
+    "first_assault": 670.733333333052,
+    "policy_assaults": 6,
+    "policy_regroups": 5,
+    "research_events": [
+      {
+        "seconds": 0.750000000000001,
+        "sides": [
+          {
+            "active": "",
+            "basic": false,
+            "completed": [],
+            "coordination": false,
+            "coordination_left": -1.0,
+            "desired_building": "",
+            "faction": "frontier",
+            "funds": [
+              34,
+              12
+            ],
+            "lab": false,
+            "priority_reserve": [
+              0,
+              0
+            ],
+            "production": [],
+            "queues": [
+              {
+                "blocked": "",
+                "jobs": [
+                  {
+                    "left": 8.0,
+                    "paid": {
+                      "resource_a": 6,
+                      "resource_b": 0
+                    },
+                    "role": "Worker"
+                  }
+                ],
+                "producer": "CommandCenter"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "Barracks"
+              }
+            ],
+            "ready_army": 2
+          },
+          {
+            "active": "",
+            "basic": false,
+            "completed": [],
+            "coordination": false,
+            "coordination_left": -1.0,
+            "desired_building": "Barracks",
+            "faction": "bastion",
+            "funds": [
+              60,
+              12
+            ],
+            "lab": false,
+            "priority_reserve": [
+              26,
+              0
+            ],
+            "production": [
+              {
+                "cost": {
+                  "resource_a": 6,
+                  "resource_b": 0
+                },
+                "priority": 0,
+                "role": "Worker"
+              }
+            ],
+            "queues": [
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "CommandCenter"
+              }
+            ],
+            "ready_army": 2
+          }
+        ]
+      },
+      {
+        "seconds": 371.583333333324,
+        "sides": [
+          {
+            "active": "",
+            "basic": true,
+            "completed": [],
+            "coordination": false,
+            "coordination_left": -1.0,
+            "desired_building": "",
+            "faction": "frontier",
+            "funds": [
+              204,
+              6
+            ],
+            "lab": true,
+            "priority_reserve": [
+              0,
+              0
+            ],
+            "production": [
+              {
+                "cost": {
+                  "resource_a": 20,
+                  "resource_b": 6
+                },
+                "priority": 6,
+                "role": "Tank"
+              }
+            ],
+            "queues": [
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "CommandCenter"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "Barracks"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "VehicleFactory"
+              }
+            ],
+            "ready_army": 8
+          },
+          {
+            "active": "",
+            "basic": true,
+            "completed": [],
+            "coordination": false,
+            "coordination_left": 29.9833333333333,
+            "desired_building": "",
+            "faction": "bastion",
+            "funds": [
+              0,
+              20
+            ],
+            "lab": true,
+            "priority_reserve": [
+              0,
+              0
+            ],
+            "production": [
+              {
+                "cost": {
+                  "resource_a": 24,
+                  "resource_b": 6
+                },
+                "priority": 6,
+                "role": "Tank"
+              }
+            ],
+            "queues": [
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "CommandCenter"
+              },
+              {
+                "blocked": "",
+                "jobs": [
+                  {
+                    "left": 3.43333333333335,
+                    "paid": {
+                      "resource_a": 6,
+                      "resource_b": 0
+                    },
+                    "role": "Infantry"
+                  }
+                ],
+                "producer": "Barracks"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "VehicleFactory"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "AircraftFactory"
+              }
+            ],
+            "ready_army": 2
+          }
+        ]
+      },
+      {
+        "seconds": 401.583333333297,
+        "sides": [
+          {
+            "active": "",
+            "basic": true,
+            "completed": [],
+            "coordination": false,
+            "coordination_left": -1.0,
+            "desired_building": "",
+            "faction": "frontier",
+            "funds": [
+              223,
+              6
+            ],
+            "lab": true,
+            "priority_reserve": [
+              0,
+              0
+            ],
+            "production": [
+              {
+                "cost": {
+                  "resource_a": 20,
+                  "resource_b": 6
+                },
+                "priority": 6,
+                "role": "Tank"
+              }
+            ],
+            "queues": [
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "CommandCenter"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "Barracks"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "VehicleFactory"
+              }
+            ],
+            "ready_army": 8
+          },
+          {
+            "active": "",
+            "basic": true,
+            "completed": [],
+            "coordination": true,
+            "coordination_left": 0.0,
+            "desired_building": "",
+            "faction": "bastion",
+            "funds": [
+              12,
+              28
+            ],
+            "lab": true,
+            "priority_reserve": [
+              40,
+              24
+            ],
+            "production": [
+              {
+                "cost": {
+                  "resource_a": 40,
+                  "resource_b": 24
+                },
+                "priority": 1,
+                "role": "AdvancedTank"
+              }
+            ],
+            "queues": [
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "CommandCenter"
+              },
+              {
+                "blocked": "",
+                "jobs": [
+                  {
+                    "left": 0.733333333333357,
+                    "paid": {
+                      "resource_a": 6,
+                      "resource_b": 0
+                    },
+                    "role": "Infantry"
+                  }
+                ],
+                "producer": "Barracks"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "VehicleFactory"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "AircraftFactory"
+              }
+            ],
+            "ready_army": 3
+          }
+        ]
+      },
+      {
+        "seconds": 1074.24999999935,
+        "sides": [
+          {
+            "active": "",
+            "basic": true,
+            "completed": [],
+            "coordination": false,
+            "coordination_left": 29.9833333333333,
+            "desired_building": "",
+            "faction": "frontier",
+            "funds": [
+              42,
+              1
+            ],
+            "lab": true,
+            "priority_reserve": [
+              0,
+              0
+            ],
+            "production": [
+              {
+                "cost": {
+                  "resource_a": 20,
+                  "resource_b": 6
+                },
+                "priority": 6,
+                "role": "Tank"
+              }
+            ],
+            "queues": [
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "CommandCenter"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "VehicleFactory"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "AircraftFactory"
+              },
+              {
+                "blocked": "",
+                "jobs": [
+                  {
+                    "left": 5.50000000000001,
+                    "paid": {
+                      "resource_a": 5,
+                      "resource_b": 0
+                    },
+                    "role": "Infantry"
+                  }
+                ],
+                "producer": "Barracks"
+              }
+            ],
+            "ready_army": 10
+          },
+          {
+            "active": "",
+            "basic": true,
+            "completed": [],
+            "coordination": true,
+            "coordination_left": 0.0,
+            "desired_building": "AircraftFactory",
+            "faction": "bastion",
+            "funds": [
+              39,
+              37
+            ],
+            "lab": true,
+            "priority_reserve": [
+              51,
+              20
+            ],
+            "production": [
+              {
+                "cost": {
+                  "resource_a": 6,
+                  "resource_b": 0
+                },
+                "priority": 2,
+                "role": "Infantry"
+              },
+              {
+                "cost": {
+                  "resource_a": 24,
+                  "resource_b": 6
+                },
+                "priority": 6,
+                "role": "Tank"
+              }
+            ],
+            "queues": [
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "CommandCenter"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "Barracks"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "VehicleFactory"
+              }
+            ],
+            "ready_army": 8
+          }
+        ]
+      },
+      {
+        "seconds": 1104.24999999932,
+        "sides": [
+          {
+            "active": "",
+            "basic": true,
+            "completed": [],
+            "coordination": true,
+            "coordination_left": 0.0,
+            "desired_building": "",
+            "faction": "frontier",
+            "funds": [
+              34,
+              7
+            ],
+            "lab": true,
+            "priority_reserve": [
+              0,
+              0
+            ],
+            "production": [
+              {
+                "cost": {
+                  "resource_a": 28,
+                  "resource_b": 16
+                },
+                "priority": 5,
+                "role": "Helicopter"
+              }
+            ],
+            "queues": [
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "CommandCenter"
+              },
+              {
+                "blocked": "",
+                "jobs": [
+                  {
+                    "left": 9.50000000000007,
+                    "paid": {
+                      "resource_a": 20,
+                      "resource_b": 6
+                    },
+                    "role": "Tank"
+                  }
+                ],
+                "producer": "VehicleFactory"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "AircraftFactory"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "Barracks"
+              }
+            ],
+            "ready_army": 11
+          },
+          {
+            "active": "",
+            "basic": true,
+            "completed": [],
+            "coordination": true,
+            "coordination_left": 0.0,
+            "desired_building": "",
+            "faction": "bastion",
+            "funds": [
+              4,
+              17
+            ],
+            "lab": true,
+            "priority_reserve": [
+              40,
+              24
+            ],
+            "production": [
+              {
+                "cost": {
+                  "resource_a": 40,
+                  "resource_b": 24
+                },
+                "priority": 1,
+                "role": "AdvancedTank"
+              }
+            ],
+            "queues": [
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "CommandCenter"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "Barracks"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "VehicleFactory"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "AircraftFactory"
+              }
+            ],
+            "ready_army": 9
+          }
+        ]
+      },
+      {
+        "seconds": 1496.74999999897,
+        "sides": [
+          {
+            "active": "weapons_1",
+            "basic": true,
+            "completed": [],
+            "coordination": true,
+            "coordination_left": 0.0,
+            "desired_building": "",
+            "faction": "frontier",
+            "funds": [
+              2,
+              22
+            ],
+            "lab": true,
+            "priority_reserve": [
+              0,
+              0
+            ],
+            "production": [
+              {
+                "cost": {
+                  "resource_a": 20,
+                  "resource_b": 6
+                },
+                "priority": 6,
+                "role": "Tank"
+              }
+            ],
+            "queues": [
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "CommandCenter"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "VehicleFactory"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "AircraftFactory"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "Barracks"
+              }
+            ],
+            "ready_army": 8
+          },
+          {
+            "active": "",
+            "basic": true,
+            "completed": [],
+            "coordination": true,
+            "coordination_left": 0.0,
+            "desired_building": "CommandCenter",
+            "faction": "bastion",
+            "funds": [
+              3,
+              30
+            ],
+            "lab": true,
+            "priority_reserve": [
+              110,
+              36
+            ],
+            "production": [
+              {
+                "cost": {
+                  "resource_a": 24,
+                  "resource_b": 16
+                },
+                "priority": 1,
+                "role": "CombatRobot"
+              },
+              {
+                "cost": {
+                  "resource_a": 6,
+                  "resource_b": 0
+                },
+                "priority": 2,
+                "role": "Infantry"
+              }
+            ],
+            "queues": [
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "Barracks"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "VehicleFactory"
+              }
+            ],
+            "ready_army": 0
+          }
+        ]
+      }
+    ],
+    "reference_research_orders": [
+      {
+        "cost": {
+          "resource_a": 20,
+          "resource_b": 20
+        },
+        "id": "coordination",
+        "seconds": 1074.23333333269
+      },
+      {
+        "cost": {
+          "resource_a": 30,
+          "resource_b": 20
+        },
+        "id": "weapons_1",
+        "seconds": 1496.7333333323
+      }
+    ],
+    "longest_stationary_travel": [
+      7.5,
+      1.0
+    ],
+    "ai_coordination": {
+      "peak_groups": 2,
+      "samples": 3062,
+      "violations": {}
+    },
+    "name": "reinforcement0",
+    "losses": 59
+  },
+  {
+    "faction": "helix",
+    "opponent": "frontier",
+    "map": "IndustrialCrossroads",
+    "result": "Defeat",
+    "seconds": 664.6,
+    "first_program": null,
+    "first_assault": null,
+    "policy_assaults": null,
+    "policy_regroups": null,
+    "research_events": [
+      {
+        "seconds": 0.750000000000001,
+        "sides": [
+          {
+            "active": "",
+            "basic": false,
+            "completed": [],
+            "coordination": false,
+            "coordination_left": -1.0,
+            "desired_building": "",
+            "faction": "helix",
+            "funds": [
+              34,
+              12
+            ],
+            "lab": false,
+            "priority_reserve": [
+              0,
+              0
+            ],
+            "production": [],
+            "queues": [
+              {
+                "blocked": "",
+                "jobs": [
+                  {
+                    "left": 8.0,
+                    "paid": {
+                      "resource_a": 6,
+                      "resource_b": 0
+                    },
+                    "role": "Worker"
+                  }
+                ],
+                "producer": "CommandCenter"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "Barracks"
+              }
+            ],
+            "ready_army": 2
+          },
+          {
+            "active": "",
+            "basic": false,
+            "completed": [],
+            "coordination": false,
+            "coordination_left": -1.0,
+            "desired_building": "Barracks",
+            "faction": "frontier",
+            "funds": [
+              60,
+              12
+            ],
+            "lab": false,
+            "priority_reserve": [
+              26,
+              0
+            ],
+            "production": [
+              {
+                "cost": {
+                  "resource_a": 6,
+                  "resource_b": 0
+                },
+                "priority": 0,
+                "role": "Worker"
+              }
+            ],
+            "queues": [
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "CommandCenter"
+              }
+            ],
+            "ready_army": 2
+          }
+        ]
+      },
+      {
+        "seconds": 356.416666666671,
+        "sides": [
+          {
+            "active": "",
+            "basic": false,
+            "completed": [],
+            "coordination": false,
+            "coordination_left": -1.0,
+            "desired_building": "",
+            "faction": "helix",
+            "funds": [
+              4,
+              45
+            ],
+            "lab": false,
+            "priority_reserve": [
+              0,
+              0
+            ],
+            "production": [],
+            "queues": [
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "CommandCenter"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "VehicleFactory"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "Barracks"
+              }
+            ],
+            "ready_army": 5
+          },
+          {
+            "active": "",
+            "basic": true,
+            "completed": [],
+            "coordination": false,
+            "coordination_left": 29.9833333333333,
+            "desired_building": "",
+            "faction": "frontier",
+            "funds": [
+              0,
+              4
+            ],
+            "lab": true,
+            "priority_reserve": [
+              0,
+              0
+            ],
+            "production": [
+              {
+                "cost": {
+                  "resource_a": 20,
+                  "resource_b": 6
+                },
+                "priority": 6,
+                "role": "Tank"
+              }
+            ],
+            "queues": [
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "CommandCenter"
+              },
+              {
+                "blocked": "",
+                "jobs": [
+                  {
+                    "left": 6.46666666666667,
+                    "paid": {
+                      "resource_a": 5,
+                      "resource_b": 0
+                    },
+                    "role": "Infantry"
+                  }
+                ],
+                "producer": "Barracks"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "VehicleFactory"
+              },
+              {
+                "blocked": "",
+                "jobs": [
+                  {
+                    "left": 15.8500000000007,
+                    "paid": {
+                      "resource_a": 28,
+                      "resource_b": 16
+                    },
+                    "role": "Helicopter"
+                  }
+                ],
+                "producer": "AircraftFactory"
+              }
+            ],
+            "ready_army": 3
+          }
+        ]
+      },
+      {
+        "seconds": 386.416666666644,
+        "sides": [
+          {
+            "active": "",
+            "basic": false,
+            "completed": [],
+            "coordination": false,
+            "coordination_left": -1.0,
+            "desired_building": "",
+            "faction": "helix",
+            "funds": [
+              16,
+              49
+            ],
+            "lab": false,
+            "priority_reserve": [
+              0,
+              0
+            ],
+            "production": [],
+            "queues": [
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "CommandCenter"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "VehicleFactory"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "Barracks"
+              }
+            ],
+            "ready_army": 6
+          },
+          {
+            "active": "",
+            "basic": true,
+            "completed": [],
+            "coordination": true,
+            "coordination_left": 0.0,
+            "desired_building": "",
+            "faction": "frontier",
+            "funds": [
+              14,
+              6
+            ],
+            "lab": true,
+            "priority_reserve": [
+              0,
+              0
+            ],
+            "production": [],
+            "queues": [
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "CommandCenter"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "Barracks"
+              },
+              {
+                "blocked": "",
+                "jobs": [
+                  {
+                    "left": 12.7000000000002,
+                    "paid": {
+                      "resource_a": 20,
+                      "resource_b": 6
+                    },
+                    "role": "Tank"
+                  }
+                ],
+                "producer": "VehicleFactory"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "AircraftFactory"
+              }
+            ],
+            "ready_army": 7
+          }
+        ]
+      },
+      {
+        "seconds": 539.933333333171,
+        "sides": [
+          {
+            "active": "",
+            "basic": false,
+            "completed": [],
+            "coordination": false,
+            "coordination_left": -1.0,
+            "desired_building": "",
+            "faction": "helix",
+            "funds": [
+              22,
+              37
+            ],
+            "lab": false,
+            "priority_reserve": [
+              0,
+              0
+            ],
+            "production": [],
+            "queues": [
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "CommandCenter"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "VehicleFactory"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "Barracks"
+              }
+            ],
+            "ready_army": 8
+          },
+          {
+            "active": "weapons_1",
+            "basic": true,
+            "completed": [],
+            "coordination": true,
+            "coordination_left": 0.0,
+            "desired_building": "",
+            "faction": "frontier",
+            "funds": [
+              3,
+              2
+            ],
+            "lab": true,
+            "priority_reserve": [
+              0,
+              0
+            ],
+            "production": [
+              {
+                "cost": {
+                  "resource_a": 20,
+                  "resource_b": 6
+                },
+                "priority": 6,
+                "role": "Tank"
+              }
+            ],
+            "queues": [
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "CommandCenter"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "Barracks"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "VehicleFactory"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "AircraftFactory"
+              }
+            ],
+            "ready_army": 9
+          }
+        ]
+      },
+      {
+        "seconds": 574.933333333139,
+        "sides": [
+          {
+            "active": "",
+            "basic": false,
+            "completed": [],
+            "coordination": false,
+            "coordination_left": -1.0,
+            "desired_building": "",
+            "faction": "helix",
+            "funds": [
+              42,
+              53
+            ],
+            "lab": false,
+            "priority_reserve": [
+              0,
+              0
+            ],
+            "production": [],
+            "queues": [
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "CommandCenter"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "VehicleFactory"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "Barracks"
+              }
+            ],
+            "ready_army": 8
+          },
+          {
+            "active": "",
+            "basic": true,
+            "completed": [
+              "weapons_1"
+            ],
+            "coordination": true,
+            "coordination_left": 0.0,
+            "desired_building": "",
+            "faction": "frontier",
+            "funds": [
+              7,
+              0
+            ],
+            "lab": true,
+            "priority_reserve": [
+              0,
+              0
+            ],
+            "production": [],
+            "queues": [
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "CommandCenter"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "Barracks"
+              },
+              {
+                "blocked": "",
+                "jobs": [
+                  {
+                    "left": 18.3166666666669,
+                    "paid": {
+                      "resource_a": 20,
+                      "resource_b": 6
+                    },
+                    "role": "Tank"
+                  }
+                ],
+                "producer": "VehicleFactory"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "AircraftFactory"
+              }
+            ],
+            "ready_army": 10
+          }
+        ]
+      }
+    ],
+    "reference_research_orders": null,
+    "longest_stationary_travel": [
+      22.5,
+      2.0
+    ],
+    "ai_coordination": {
+      "peak_groups": 2,
+      "samples": 1329,
+      "violations": {}
+    },
+    "name": "control6",
+    "losses": 30
+  },
+  {
+    "faction": "helix",
+    "opponent": "frontier",
+    "map": "IndustrialCrossroads",
+    "result": "Defeat",
+    "seconds": 293.1,
+    "first_program": null,
+    "first_assault": null,
+    "policy_assaults": null,
+    "policy_regroups": null,
+    "research_events": [
+      {
+        "seconds": 0.750000000000001,
+        "sides": [
+          {
+            "active": "",
+            "basic": false,
+            "completed": [],
+            "coordination": false,
+            "coordination_left": -1.0,
+            "desired_building": "",
+            "faction": "helix",
+            "funds": [
+              34,
+              12
+            ],
+            "lab": false,
+            "priority_reserve": [
+              0,
+              0
+            ],
+            "production": [],
+            "queues": [
+              {
+                "blocked": "",
+                "jobs": [
+                  {
+                    "left": 8.0,
+                    "paid": {
+                      "resource_a": 6,
+                      "resource_b": 0
+                    },
+                    "role": "Worker"
+                  }
+                ],
+                "producer": "CommandCenter"
+              },
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "Barracks"
+              }
+            ],
+            "ready_army": 2
+          },
+          {
+            "active": "",
+            "basic": false,
+            "completed": [],
+            "coordination": false,
+            "coordination_left": -1.0,
+            "desired_building": "Barracks",
+            "faction": "frontier",
+            "funds": [
+              60,
+              12
+            ],
+            "lab": false,
+            "priority_reserve": [
+              26,
+              0
+            ],
+            "production": [
+              {
+                "cost": {
+                  "resource_a": 6,
+                  "resource_b": 0
+                },
+                "priority": 0,
+                "role": "Worker"
+              }
+            ],
+            "queues": [
+              {
+                "blocked": "",
+                "jobs": [],
+                "producer": "CommandCenter"
+              }
+            ],
+            "ready_army": 2
+          }
+        ]
+      }
+    ],
+    "reference_research_orders": null,
+    "longest_stationary_travel": [
+      3.5,
+      1.0
+    ],
+    "ai_coordination": {
+      "peak_groups": 2,
+      "samples": 586,
+      "violations": {}
+    },
+    "name": "reinforcement6",
+    "losses": 19
+  }
+]

@@ -1,14 +1,16 @@
 extends Node3D
 
-const DOUBLE_CLICK_LB_MS = 50
-const DOUBLE_CLICK_UB_MS = 600
-
-var _last_unit_selected = null
-var _last_unit_selected_timestamp = 0
-
 
 func _ready():
-	MatchSignals.unit_selected.connect(_on_unit_selected)
+	MatchSignals.unit_spawned.connect(_connect_unit)
+	for unit in get_tree().get_nodes_in_group("units"):
+		_connect_unit(unit)
+
+
+func _connect_unit(unit):
+	var callback = _on_unit_input.bind(unit)
+	if not unit.input_event.is_connected(callback):
+		unit.input_event.connect(callback)
 
 
 func _handle_double_click(unit_type):
@@ -22,18 +24,14 @@ func _handle_double_click(unit_type):
 	Utils.Match.select_units(units_to_select)
 
 
-func _on_unit_selected(unit):
-	if not unit.is_in_group("controlled_units"):
-		return
-	if Time.get_ticks_msec() < _last_unit_selected_timestamp + DOUBLE_CLICK_LB_MS:
-		return
+func _on_unit_input(_camera, event, _click_position, _click_normal, _shape_index, unit):
+	# Selection signals also come from panels, control groups and box selection.
+	# Only a double-click on a world unit requests all visible units of its type.
 	if (
-		unit == _last_unit_selected
-		and Time.get_ticks_msec() <= _last_unit_selected_timestamp + DOUBLE_CLICK_UB_MS
+		event is InputEventMouseButton
+		and event.button_index == MOUSE_BUTTON_LEFT
+		and event.pressed
+		and event.double_click
+		and unit.is_in_group("controlled_units")
 	):
-		_last_unit_selected = null
-		_last_unit_selected_timestamp = 0
 		_handle_double_click(unit.type)
-	else:
-		_last_unit_selected = unit
-		_last_unit_selected_timestamp = Time.get_ticks_msec()

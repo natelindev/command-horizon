@@ -1,0 +1,19 @@
+[
+  "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+  "--headless",
+  "--path",
+  ".",
+  "--fixed-fps",
+  "60",
+  "--script",
+  "tests/playtest/SustainedDefenseMatches.gd",
+  "--",
+  "--case=6",
+  "--repeats=3",
+  "--research=combined",
+  "--strategy=screened-air",
+  "--output=res://docs/playtests/2026-10-07/sustained-defense/response.json",
+  "--archive=res://docs/playtests/2026-10-07/sustained-defense/response-stationary.json",
+  "--archive-prefix=res://docs/playtests/2026-10-07/sustained-defense/response",
+  "--home-response"
+]

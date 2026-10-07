@@ -1,0 +1,2046 @@
+[
+	{
+		"advanced": true,
+		"ai_aa_foundations": [
+			{
+				"observed": {
+					"air": 0,
+					"armor": 0,
+					"infantry": 2
+				},
+				"seconds": 232.03333333341
+			}
+		],
+		"ai_coordination": {
+			"peak_groups": 1,
+			"samples": 819,
+			"violations": {
+
+			}
+		},
+		"ai_recovery": [
+			{
+				"end": 226.733333333406,
+				"end_health": 0.811538461538463,
+				"entry_health": 0.254615384615385,
+				"last_sample": 226.233333333406,
+				"outcome": "recovered",
+				"peak_health": 0.811538461538463,
+				"role": "CombatRobot",
+				"sampled_blocked_seconds": 0.0,
+				"sampled_service": true,
+				"start": 176.233333333366
+			},
+			{
+				"end": 186.833333333374,
+				"end_health": 0.0,
+				"entry_health": 0.294989583333335,
+				"last_sample": 186.733333333374,
+				"outcome": "lost",
+				"peak_health": 0.294989583333335,
+				"role": "Tank",
+				"sampled_blocked_seconds": 0.0,
+				"sampled_service": false,
+				"start": 183.733333333372
+			},
+			{
+				"end": 231.233333333409,
+				"end_health": 0.811151515151516,
+				"entry_health": 0.181818181818182,
+				"last_sample": 230.733333333409,
+				"outcome": "recovered",
+				"peak_health": 0.811151515151516,
+				"role": "Infantry",
+				"sampled_blocked_seconds": 0.0,
+				"sampled_service": true,
+				"start": 185.233333333373
+			},
+			{
+				"end": 192.316666666712,
+				"end_health": 0.0,
+				"entry_health": 0.0666666666666667,
+				"last_sample": 192.233333333378,
+				"outcome": "lost",
+				"peak_health": 0.0666666666666667,
+				"role": "RepairRobot",
+				"sampled_blocked_seconds": 0.0,
+				"sampled_service": false,
+				"start": 191.233333333378
+			},
+			{
+				"end": 267.233333333419,
+				"end_health": 0.807208333333331,
+				"entry_health": 0.0818749999999983,
+				"last_sample": 266.733333333419,
+				"outcome": "recovered",
+				"peak_health": 0.807208333333331,
+				"role": "Tank",
+				"sampled_blocked_seconds": 0.0,
+				"sampled_service": true,
+				"start": 200.233333333385
+			},
+			{
+				"end": 267.233333333419,
+				"end_health": 0.808380952380952,
+				"entry_health": 0.125714285714286,
+				"last_sample": 266.733333333419,
+				"outcome": "recovered",
+				"peak_health": 0.808380952380952,
+				"role": "AdvancedTank",
+				"sampled_blocked_seconds": 0.0,
+				"sampled_service": true,
+				"start": 209.733333333392
+			},
+			{
+				"end": 267.733333333418,
+				"end_health": 0.820833333333333,
+				"entry_health": 0.2875,
+				"last_sample": 267.233333333419,
+				"outcome": "recovered",
+				"peak_health": 0.820833333333333,
+				"role": "Tank",
+				"sampled_blocked_seconds": 0.0,
+				"sampled_service": true,
+				"start": 215.733333333397
+			},
+			{
+				"end": 241.000000000084,
+				"end_health": 0.0,
+				"entry_health": 0.236875,
+				"last_sample": 240.733333333417,
+				"outcome": "lost",
+				"peak_health": 0.236875,
+				"role": "Tank",
+				"sampled_blocked_seconds": 0.0,
+				"sampled_service": false,
+				"start": 239.733333333416
+			},
+			{
+				"end": 244.766666666754,
+				"end_health": 0.0,
+				"entry_health": 0.181818181818182,
+				"last_sample": 244.73333333342,
+				"outcome": "lost",
+				"peak_health": 0.181818181818182,
+				"role": "Infantry",
+				"sampled_blocked_seconds": 0.0,
+				"sampled_service": false,
+				"start": 244.23333333342
+			},
+			{
+				"end": 256.750000000095,
+				"end_health": 0.0,
+				"entry_health": 0.113636363636364,
+				"last_sample": 256.733333333429,
+				"outcome": "lost",
+				"peak_health": 0.113636363636364,
+				"role": "Infantry",
+				"sampled_blocked_seconds": 0.0,
+				"sampled_service": false,
+				"start": 256.733333333429
+			},
+			{
+				"end": 324.733333333367,
+				"end_health": 0.802787878787879,
+				"entry_health": 0.0454545454545455,
+				"last_sample": 324.233333333367,
+				"outcome": "recovered",
+				"peak_health": 0.802787878787879,
+				"role": "Infantry",
+				"sampled_blocked_seconds": 0.0,
+				"sampled_service": true,
+				"start": 264.233333333422
+			},
+			{
+				"end": 324.733333333367,
+				"end_health": 0.801333333333335,
+				"entry_health": 0.161333333333334,
+				"last_sample": 324.233333333367,
+				"outcome": "recovered",
+				"peak_health": 0.801333333333335,
+				"role": "Infantry",
+				"sampled_blocked_seconds": 0.0,
+				"sampled_service": true,
+				"start": 268.733333333418
+			},
+			{
+				"end": 325.233333333366,
+				"end_health": 0.817636363636364,
+				"entry_health": 0.25,
+				"last_sample": 324.733333333367,
+				"outcome": "recovered",
+				"peak_health": 0.817636363636364,
+				"role": "Infantry",
+				"sampled_blocked_seconds": 0.0,
+				"sampled_service": true,
+				"start": 270.233333333416
+			},
+			{
+				"end": 332.733333333359,
+				"end_health": 0.81794871794872,
+				"entry_health": 0.167282051282052,
+				"last_sample": 332.23333333336,
+				"outcome": "recovered",
+				"peak_health": 0.81794871794872,
+				"role": "CombatRobot",
+				"sampled_blocked_seconds": 0.0,
+				"sampled_service": true,
+				"start": 286.733333333401
+			},
+			{
+				"end": 343.23333333335,
+				"end_health": 0.802666666666667,
+				"entry_health": 0.0666666666666667,
+				"last_sample": 342.73333333335,
+				"outcome": "recovered",
+				"peak_health": 0.802666666666667,
+				"role": "RepairRobot",
+				"sampled_blocked_seconds": 0.0,
+				"sampled_service": true,
+				"start": 295.733333333393
+			},
+			{
+				"end": 366.233333333329,
+				"end_health": 0.815428571428572,
+				"entry_health": 0.271428571428571,
+				"last_sample": 365.733333333329,
+				"outcome": "recovered",
+				"peak_health": 0.815428571428572,
+				"role": "AdvancedTank",
+				"sampled_blocked_seconds": 0.0,
+				"sampled_service": true,
+				"start": 303.733333333386
+			},
+			{
+				"end": 340.266666666686,
+				"end_health": 0.0,
+				"entry_health": 0.181818181818182,
+				"last_sample": 340.233333333353,
+				"outcome": "lost",
+				"peak_health": 0.181818181818182,
+				"role": "Infantry",
+				"sampled_blocked_seconds": 0.0,
+				"sampled_service": false,
+				"start": 338.233333333354
+			},
+			{
+				"end": null,
+				"end_health": null,
+				"entry_health": 0.279666666666666,
+				"last_sample": 409.33333333329,
+				"outcome": "active",
+				"peak_health": 0.428999999999999,
+				"role": "Tank",
+				"sampled_blocked_seconds": 0.0,
+				"sampled_service": true,
+				"start": 347.733333333346
+			},
+			{
+				"end": 408.233333333291,
+				"end_health": 0.808166666666663,
+				"entry_health": 0.265916666666664,
+				"last_sample": 407.733333333291,
+				"outcome": "recovered",
+				"peak_health": 0.808166666666663,
+				"role": "Tank",
+				"sampled_blocked_seconds": 0.0,
+				"sampled_service": true,
+				"start": 350.733333333343
+			},
+			{
+				"end": null,
+				"end_health": null,
+				"entry_health": 0.119515151515153,
+				"last_sample": 409.33333333329,
+				"outcome": "active",
+				"peak_health": 0.492848484848487,
+				"role": "Infantry",
+				"sampled_blocked_seconds": 0.0,
+				"sampled_service": true,
+				"start": 361.233333333333
+			},
+			{
+				"end": null,
+				"end_health": null,
+				"entry_health": 0.25,
+				"last_sample": 409.33333333329,
+				"outcome": "active",
+				"peak_health": 0.25,
+				"role": "Infantry",
+				"sampled_blocked_seconds": 0.0,
+				"sampled_service": false,
+				"start": 385.233333333312
+			}
+		],
+		"ai_specialist_orders": [
+			{
+				"observed": {
+					"air": 0,
+					"armor": 0,
+					"infantry": 0
+				},
+				"role": "CombatRobot",
+				"seconds": 43.9666666666655
+			},
+			{
+				"observed": {
+					"air": 0,
+					"armor": 0,
+					"infantry": 0
+				},
+				"role": "AdvancedTank",
+				"seconds": 68.2333333333307
+			},
+			{
+				"observed": {
+					"air": 0,
+					"armor": 0,
+					"infantry": 0
+				},
+				"role": "RepairRobot",
+				"seconds": 101.599999999996
+			},
+			{
+				"observed": {
+					"air": 0,
+					"armor": 3,
+					"infantry": 0
+				},
+				"role": "AdvancedTank",
+				"seconds": 141.033333333338
+			},
+			{
+				"observed": {
+					"air": 0,
+					"armor": 2,
+					"infantry": 3
+				},
+				"role": "RepairRobot",
+				"seconds": 198.666666666717
+			},
+			{
+				"observed": {
+					"air": 0,
+					"armor": 1,
+					"infantry": 4
+				},
+				"role": "CombatRobot",
+				"seconds": 339.716666666686
+			},
+			{
+				"observed": {
+					"air": 0,
+					"armor": 1,
+					"infantry": 1
+				},
+				"role": "RepairRobot",
+				"seconds": 363.983333333331
+			}
+		],
+		"allocation_policy": "ground_first",
+		"authored_applied": 7,
+		"authored_recovery_entries": 16,
+		"authored_recovery_losses": 6,
+		"authored_recovery_returns": 10,
+		"authoring_mode": "visual",
+		"basic_unlock": 0.733333333333334,
+		"case": 7,
+		"damage_hp": [
+			3540.616,
+			1424.06499999999
+		],
+		"difficulty": "Normal",
+		"enemy_attacks": 5,
+		"expansion_order": null,
+		"expansion_return": null,
+		"faction": "helix",
+		"final": {
+			"ai_tasks": [
+				{
+					"age": 288.0,
+					"kind": "assault",
+					"point": [
+						16.0,
+						28.0
+					],
+					"retiring": false,
+					"roles": {
+						"AdvancedTank": 2,
+						"CombatRobot": 2,
+						"Helicopter": 1,
+						"Infantry": 4,
+						"Tank": 1
+					}
+				}
+			],
+			"ground_before_air": 12,
+			"policy": {
+				"army": 0,
+				"assault_gates": {
+					"army_at_least_9": false,
+					"health_at_least_80_percent": false,
+					"no_visible_home_threats": true,
+					"quiet_20_seconds": true,
+					"saw_home_attack": true
+				},
+				"health": 0.0,
+				"phase": "recover",
+				"pressure_age": 60.0999999999453,
+				"saw_attack": true,
+				"visible_home_threats": 0
+			},
+			"seconds": 409.3,
+			"sides": [
+				{
+					"army_base_value": [
+						0.0,
+						0.0
+					],
+					"fitted_tanks": 0,
+					"funds": [
+						18,
+						10
+					],
+					"units": {
+						"Barracks": 1,
+						"PowerPlant": 1,
+						"RepairDepot": 1,
+						"Worker": 1
+					},
+					"worker_states": {
+						"Constructing(ConstructingWhileInRange)": 1
+					},
+					"workers": {
+						"construction": 1,
+						"electronics": 0,
+						"materials": 0,
+						"other": 0
+					}
+				},
+				{
+					"army_base_value": [
+						308.0,
+						138.0
+					],
+					"fitted_tanks": 1,
+					"funds": [
+						11,
+						6
+					],
+					"units": {
+						"AdvancedTank": 2,
+						"AircraftFactory": 1,
+						"AntiAirTurret": 1,
+						"AntiGroundTurret": 1,
+						"Barracks": 1,
+						"CombatRobot": 2,
+						"CommandCenter": 1,
+						"CommandLab": 1,
+						"Drone": 1,
+						"Helicopter": 1,
+						"Infantry": 6,
+						"PowerPlant": 1,
+						"RepairDepot": 1,
+						"RepairRobot": 2,
+						"Tank": 3,
+						"VehicleFactory": 1,
+						"Worker": 6
+					},
+					"worker_states": {
+						"Electronics · collecting": 1,
+						"Materials · approaching work slot": 3,
+						"Materials · collecting": 1,
+						"Returning cargo to HQ": 1
+					},
+					"workers": {
+						"construction": 0,
+						"electronics": 1,
+						"materials": 5,
+						"other": 0
+					}
+				}
+			]
+		},
+		"first_assault": 76.2333333333303,
+		"first_contact": 128.233333333328,
+		"first_program": 0.733333333333334,
+		"guard_reassignments": 145,
+		"harvested": [
+			380.0,
+			60.0
+		],
+		"longest_stationary_travel": [
+			4.0,
+			1.5
+		],
+		"loss_timeline": [
+			{
+				"point": [
+					85.3652801513672,
+					49.661018371582
+				],
+				"role": "Tank",
+				"seconds": 131.549999999997
+			},
+			{
+				"point": [
+					85.9639205932617,
+					48.8919067382812
+				],
+				"role": "Infantry",
+				"seconds": 136.866666666668
+			},
+			{
+				"point": [
+					85.0008773803711,
+					49.5016479492188
+				],
+				"role": "Infantry",
+				"seconds": 137.550000000002
+			},
+			{
+				"point": [
+					86.6917190551758,
+					49.8179550170898
+				],
+				"role": "Infantry",
+				"seconds": 139.016666666669
+			},
+			{
+				"point": [
+					85.7742691040039,
+					49.6890754699707
+				],
+				"role": "Infantry",
+				"seconds": 140.483333333337
+			},
+			{
+				"point": [
+					84.274528503418,
+					54.7963752746582
+				],
+				"role": "Tank",
+				"seconds": 141.283333333338
+			},
+			{
+				"point": [
+					78.5474853515625,
+					57.5722961425781
+				],
+				"role": "Tank",
+				"seconds": 145.216666666674
+			},
+			{
+				"point": [
+					15.2046356201172,
+					44.5196647644043
+				],
+				"role": "Worker",
+				"seconds": 169.866666666694
+			},
+			{
+				"point": [
+					21.3583889007568,
+					42.6976852416992
+				],
+				"role": "Worker",
+				"seconds": 176.666666666699
+			},
+			{
+				"point": [
+					21.5019359588623,
+					42.6980667114258
+				],
+				"role": "Worker",
+				"seconds": 179.150000000035
+			},
+			{
+				"point": [
+					24.7931861877441,
+					37.4535026550293
+				],
+				"role": "Tank",
+				"seconds": 183.516666666705
+			},
+			{
+				"point": [
+					20.7986698150635,
+					43.4437103271484
+				],
+				"role": "Worker",
+				"seconds": 184.966666666706
+			},
+			{
+				"point": [
+					19.1699714660645,
+					43.487117767334
+				],
+				"role": "Infantry",
+				"seconds": 185.000000000039
+			},
+			{
+				"point": [
+					24.5566635131836,
+					45.665412902832
+				],
+				"role": "Tank",
+				"seconds": 189.016666666709
+			},
+			{
+				"point": [
+					21.2896022796631,
+					44.9397239685059
+				],
+				"role": "RepairRobot",
+				"seconds": 189.166666666709
+			},
+			{
+				"point": [
+					16.4559669494629,
+					44.2650413513184
+				],
+				"role": "Worker",
+				"seconds": 190.400000000044
+			},
+			{
+				"point": [
+					22.0,
+					34.0
+				],
+				"role": "VehicleFactory",
+				"seconds": 199.616666666718
+			},
+			{
+				"point": [
+					22.0,
+					40.0
+				],
+				"role": "CommandLab",
+				"seconds": 207.616666666724
+			},
+			{
+				"point": [
+					21.3510398864746,
+					42.6574974060059
+				],
+				"role": "Worker",
+				"seconds": 209.983333333393
+			},
+			{
+				"point": [
+					18.8977813720703,
+					42.0133018493652
+				],
+				"role": "Infantry",
+				"seconds": 213.600000000062
+			},
+			{
+				"point": [
+					21.4548950195312,
+					42.5507316589355
+				],
+				"role": "Worker",
+				"seconds": 218.383333333399
+			},
+			{
+				"point": [
+					19.9197845458984,
+					39.6941070556641
+				],
+				"role": "Infantry",
+				"seconds": 221.566666666735
+			},
+			{
+				"point": [
+					19.3150882720947,
+					39.8468284606934
+				],
+				"role": "Infantry",
+				"seconds": 226.383333333406
+			},
+			{
+				"point": [
+					20.8628749847412,
+					41.1199378967285
+				],
+				"role": "Tank",
+				"seconds": 226.783333333406
+			},
+			{
+				"point": [
+					21.3994693756104,
+					42.7029190063477
+				],
+				"role": "Worker",
+				"seconds": 229.183333333408
+			},
+			{
+				"point": [
+					20.2166233062744,
+					40.176685333252
+				],
+				"role": "Infantry",
+				"seconds": 231.616666666743
+			},
+			{
+				"point": [
+					21.3553066253662,
+					42.637149810791
+				],
+				"role": "Worker",
+				"seconds": 233.350000000078
+			},
+			{
+				"point": [
+					19.0993900299072,
+					33.121955871582
+				],
+				"role": "Infantry",
+				"seconds": 234.883333333412
+			},
+			{
+				"point": [
+					19.4590396881104,
+					32.1121063232422
+				],
+				"role": "Infantry",
+				"seconds": 237.000000000081
+			},
+			{
+				"point": [
+					18.4291839599609,
+					37.397647857666
+				],
+				"role": "Worker",
+				"seconds": 237.166666666748
+			},
+			{
+				"point": [
+					22.4712505340576,
+					42.2313537597656
+				],
+				"role": "Worker",
+				"seconds": 254.283333333428
+			},
+			{
+				"point": [
+					22.1625308990479,
+					42.2465438842773
+				],
+				"role": "Worker",
+				"seconds": 262.833333333423
+			},
+			{
+				"point": [
+					18.1044597625732,
+					45.1229858398438
+				],
+				"role": "Worker",
+				"seconds": 264.483333333421
+			},
+			{
+				"point": [
+					19.5053195953369,
+					35.4819259643555
+				],
+				"role": "Infantry",
+				"seconds": 266.866666666753
+			},
+			{
+				"point": [
+					18.829719543457,
+					44.4702835083008
+				],
+				"role": "Worker",
+				"seconds": 268.683333333418
+			},
+			{
+				"point": [
+					19.3299922943115,
+					34.5699272155762
+				],
+				"role": "Infantry",
+				"seconds": 269.016666666751
+			},
+			{
+				"point": [
+					15.1826543807983,
+					44.4407691955566
+				],
+				"role": "Worker",
+				"seconds": 270.26666666675
+			},
+			{
+				"point": [
+					21.3756847381592,
+					42.7242126464844
+				],
+				"role": "Worker",
+				"seconds": 271.766666666748
+			},
+			{
+				"point": [
+					13.9231557846069,
+					42.7343940734863
+				],
+				"role": "CombatRobot",
+				"seconds": 280.083333333407
+			},
+			{
+				"point": [
+					19.8800182342529,
+					40.5872840881348
+				],
+				"role": "Infantry",
+				"seconds": 282.766666666738
+			},
+			{
+				"point": [
+					15.2760534286499,
+					43.038688659668
+				],
+				"role": "Worker",
+				"seconds": 283.650000000071
+			},
+			{
+				"point": [
+					19.7638282775879,
+					39.5035591125488
+				],
+				"role": "Infantry",
+				"seconds": 290.616666666731
+			},
+			{
+				"point": [
+					20.4310245513916,
+					39.8974494934082
+				],
+				"role": "Infantry",
+				"seconds": 297.566666666725
+			},
+			{
+				"point": [
+					23.1252841949463,
+					41.1327629089355
+				],
+				"role": "CombatRobot",
+				"seconds": 303.06666666672
+			},
+			{
+				"point": [
+					22.1914863586426,
+					42.2420654296875
+				],
+				"role": "Worker",
+				"seconds": 304.800000000051
+			},
+			{
+				"point": [
+					22.1693859100342,
+					42.242317199707
+				],
+				"role": "Worker",
+				"seconds": 308.666666666715
+			},
+			{
+				"point": [
+					19.162576675415,
+					39.4050941467285
+				],
+				"role": "Infantry",
+				"seconds": 311.416666666712
+			},
+			{
+				"point": [
+					20.1233596801758,
+					37.4821548461914
+				],
+				"role": "Infantry",
+				"seconds": 312.233333333378
+			},
+			{
+				"point": [
+					18.7056140899658,
+					39.9120559692383
+				],
+				"role": "Infantry",
+				"seconds": 314.400000000043
+			},
+			{
+				"point": [
+					19.5639801025391,
+					43.8898506164551
+				],
+				"role": "Worker",
+				"seconds": 316.800000000041
+			},
+			{
+				"point": [
+					17.9798946380615,
+					45.610595703125
+				],
+				"role": "Worker",
+				"seconds": 341.850000000018
+			},
+			{
+				"point": [
+					16.0,
+					34.0
+				],
+				"role": "CommandCenter",
+				"seconds": 349.316666666678
+			},
+			{
+				"point": [
+					18.3572883605957,
+					44.630672454834
+				],
+				"role": "Worker",
+				"seconds": 350.35000000001
+			},
+			{
+				"point": [
+					19.8530673980713,
+					33.5369987487793
+				],
+				"role": "Infantry",
+				"seconds": 351.100000000009
+			},
+			{
+				"point": [
+					19.1164779663086,
+					35.3327255249023
+				],
+				"role": "Infantry",
+				"seconds": 355.266666666672
+			},
+			{
+				"point": [
+					20.6613616943359,
+					41.2390747070312
+				],
+				"role": "Worker",
+				"seconds": 355.400000000005
+			},
+			{
+				"point": [
+					19.8825950622559,
+					35.3416633605957
+				],
+				"role": "Infantry",
+				"seconds": 356.816666666671
+			},
+			{
+				"point": [
+					18.0646800994873,
+					39.5535469055176
+				],
+				"role": "Infantry",
+				"seconds": 360.550000000001
+			},
+			{
+				"point": [
+					13.3996114730835,
+					44.487190246582
+				],
+				"role": "Worker",
+				"seconds": 361.566666666666
+			},
+			{
+				"point": [
+					16.0,
+					31.0200004577637
+				],
+				"role": "Infantry",
+				"seconds": 364.049999999998
+			},
+			{
+				"point": [
+					16.0,
+					31.0200004577637
+				],
+				"role": "Infantry",
+				"seconds": 372.383333333323
+			},
+			{
+				"point": [
+					14.4207572937012,
+					41.6444129943848
+				],
+				"role": "Tank",
+				"seconds": 377.749999999985
+			},
+			{
+				"point": [
+					16.0,
+					31.0200004577637
+				],
+				"role": "Infantry",
+				"seconds": 380.466666666649
+			},
+			{
+				"point": [
+					16.0,
+					31.0200004577637
+				],
+				"role": "Infantry",
+				"seconds": 387.966666666642
+			},
+			{
+				"point": [
+					11.9010496139526,
+					44.3059577941895
+				],
+				"role": "Worker",
+				"seconds": 390.36666666664
+			},
+			{
+				"point": [
+					16.0,
+					28.0
+				],
+				"role": "Barracks",
+				"seconds": 394.216666666637
+			},
+			{
+				"point": [
+					16.0,
+					31.0200004577637
+				],
+				"role": "Infantry",
+				"seconds": 394.89999999997
+			}
+		],
+		"losses": [
+			{
+				"Barracks": 1,
+				"CombatRobot": 2,
+				"CommandCenter": 1,
+				"CommandLab": 1,
+				"Infantry": 28,
+				"RepairRobot": 1,
+				"Tank": 7,
+				"VehicleFactory": 1,
+				"Worker": 25
+			},
+			{
+				"Infantry": 13,
+				"RepairRobot": 2,
+				"Tank": 3
+			}
+		],
+		"map": "CoastalFoundry",
+		"operation_changes": [
+			{
+				"force": [
+					{
+						"action": "AttackMoving",
+						"hp": 1,
+						"point": [
+							17.3053493499756,
+							36.8821983337402
+						],
+						"role": "Infantry"
+					},
+					{
+						"action": "AttackMoving",
+						"hp": 1,
+						"point": [
+							17.7849388122559,
+							39.3960647583008
+						],
+						"role": "Infantry"
+					},
+					{
+						"action": "AttackMoving",
+						"hp": 1,
+						"point": [
+							20.1445598602295,
+							38.0035095214844
+						],
+						"role": "Tank"
+					},
+					{
+						"action": "AttackMoving",
+						"hp": 1,
+						"point": [
+							16.1877212524414,
+							42.0790405273438
+						],
+						"role": "Tank"
+					},
+					{
+						"action": "AttackMoving",
+						"hp": 1,
+						"point": [
+							17.9423408508301,
+							40.3289527893066
+						],
+						"role": "Infantry"
+					},
+					{
+						"action": "AttackMoving",
+						"hp": 1,
+						"point": [
+							18.9122982025146,
+							38.2540245056152
+						],
+						"role": "Infantry"
+					},
+					{
+						"action": "AttackMoving",
+						"hp": 1,
+						"point": [
+							19.0322647094727,
+							39.6398429870605
+						],
+						"role": "Tank"
+					},
+					{
+						"action": "AttackMoving",
+						"hp": 1,
+						"point": [
+							17.6838989257812,
+							38.0334167480469
+						],
+						"role": "CombatRobot"
+					},
+					{
+						"action": "AttackMoving",
+						"hp": 1,
+						"point": [
+							24.7732429504395,
+							37.154224395752
+						],
+						"role": "Tank"
+					}
+				],
+				"phase": "attack",
+				"previous": "defend",
+				"readiness": {
+					"army": 9,
+					"assault_gates": {
+						"army_at_least_9": true,
+						"health_at_least_80_percent": true,
+						"no_visible_home_threats": true,
+						"quiet_20_seconds": true,
+						"saw_home_attack": false
+					},
+					"health": 1.0,
+					"phase": "attack",
+					"pressure_age": 176.23333333333,
+					"saw_attack": false,
+					"visible_home_threats": 0
+				},
+				"seconds": 76.2333333333303
+			},
+			{
+				"force": [
+					{
+						"action": "Moving",
+						"hp": 0.859375,
+						"point": [
+							83.5868072509766,
+							50.1121597290039
+						],
+						"role": "Tank"
+					},
+					{
+						"action": "Moving",
+						"hp": 0.197708333333333,
+						"point": [
+							64.4280548095703,
+							59.9525604248047
+						],
+						"role": "Tank"
+					},
+					{
+						"action": "Moving",
+						"hp": 0.903846153846154,
+						"point": [
+							82.7371063232422,
+							54.068531036377
+						],
+						"role": "CombatRobot"
+					},
+					{
+						"action": "Moving",
+						"hp": 0.99296875,
+						"point": [
+							85.4423217773438,
+							51.0210876464844
+						],
+						"role": "Tank"
+					},
+					{
+						"action": "Moving",
+						"hp": 1,
+						"point": [
+							75.6815032958984,
+							58.8000030517578
+						],
+						"role": "CombatRobot"
+					}
+				],
+				"phase": "recover",
+				"previous": "attack",
+				"readiness": {
+					"army": 5,
+					"assault_gates": {
+						"army_at_least_9": false,
+						"health_at_least_80_percent": false,
+						"no_visible_home_threats": true,
+						"quiet_20_seconds": true,
+						"saw_home_attack": false
+					},
+					"health": 0.790779647435897,
+					"phase": "recover",
+					"pressure_age": 241.733333333338,
+					"saw_attack": false,
+					"visible_home_threats": 0
+				},
+				"seconds": 141.733333333338
+			}
+		],
+		"operation_policy": "proactive",
+		"policy_assaults": 1,
+		"policy_regroups": 1,
+		"policy_withdrawals": 6,
+		"production_decisions": {
+			"CombatRobot:paid": {
+				"first": 26.2333333333331,
+				"first_funds": [
+					64,
+					30
+				],
+				"last": 101.733333333329,
+				"price": {
+					"resource_a": 26,
+					"resource_b": 20
+				},
+				"reserve": {
+					"resource_a": 0,
+					"resource_b": 0
+				},
+				"ticks": 2
+			},
+			"Infantry:paid": {
+				"first": 0.733333333333334,
+				"first_funds": [
+					108,
+					60
+				],
+				"last": 393.733333333304,
+				"price": {
+					"resource_a": 6,
+					"resource_b": 0
+				},
+				"reserve": {
+					"resource_a": 0,
+					"resource_b": 0
+				},
+				"ticks": 27
+			},
+			"RepairRobot:unaffordable": {
+				"first": 196.733333333382,
+				"first_funds": [
+					100,
+					2
+				],
+				"last": 199.233333333384,
+				"price": {
+					"resource_a": 14,
+					"resource_b": 12
+				},
+				"reserve": {
+					"resource_a": 0,
+					"resource_b": 0
+				},
+				"ticks": 6
+			},
+			"Tank:paid": {
+				"first": 0.733333333333334,
+				"first_funds": [
+					86,
+					46
+				],
+				"last": 171.233333333362,
+				"price": {
+					"resource_a": 22,
+					"resource_b": 14
+				},
+				"reserve": {
+					"resource_a": 0,
+					"resource_b": 0
+				},
+				"ticks": 5
+			},
+			"Tank:unaffordable": {
+				"first": 151.733333333346,
+				"first_funds": [
+					120,
+					8
+				],
+				"last": 170.733333333361,
+				"price": {
+					"resource_a": 22,
+					"resource_b": 14
+				},
+				"reserve": {
+					"resource_a": 0,
+					"resource_b": 0
+				},
+				"ticks": 39
+			},
+			"Worker:paid": {
+				"first": 0.733333333333334,
+				"first_funds": [
+					114,
+					60
+				],
+				"last": 342.233333333351,
+				"price": {
+					"resource_a": 6,
+					"resource_b": 0
+				},
+				"reserve": {
+					"resource_a": 0,
+					"resource_b": 0
+				},
+				"ticks": 23
+			}
+		},
+		"repaired_hp": [
+			453.615999999996,
+			681.491000000005
+		],
+		"repetition": 10,
+		"result": "Defeat",
+		"samples": [
+			{
+				"ai_tasks": [],
+				"ground_before_air": 12,
+				"policy": {
+					"army": 4,
+					"assault_gates": {
+						"army_at_least_9": false,
+						"health_at_least_80_percent": true,
+						"no_visible_home_threats": true,
+						"quiet_20_seconds": true,
+						"saw_home_attack": false
+					},
+					"health": 1.0,
+					"phase": "defend",
+					"pressure_age": 100.733333333333,
+					"saw_attack": false,
+					"visible_home_threats": 0
+				},
+				"seconds": 0.7,
+				"sides": [
+					{
+						"army_base_value": [
+							70.0,
+							32.0
+						],
+						"fitted_tanks": 2,
+						"funds": [
+							86,
+							46
+						],
+						"units": {
+							"Barracks": 1,
+							"CommandCenter": 1,
+							"CommandLab": 1,
+							"Infantry": 2,
+							"PowerPlant": 1,
+							"RepairDepot": 1,
+							"RepairRobot": 1,
+							"Tank": 2,
+							"VehicleFactory": 1,
+							"Worker": 4
+						},
+						"worker_states": {
+							"Electronics · approaching work slot": 1,
+							"Materials · approaching work slot": 3
+						},
+						"workers": {
+							"construction": 0,
+							"electronics": 1,
+							"materials": 3,
+							"other": 0
+						}
+					},
+					{
+						"army_base_value": [
+							76.0,
+							20.0
+						],
+						"fitted_tanks": 2,
+						"funds": [
+							120,
+							60
+						],
+						"units": {
+							"Barracks": 1,
+							"CommandCenter": 1,
+							"CommandLab": 1,
+							"Infantry": 2,
+							"PowerPlant": 1,
+							"RepairDepot": 1,
+							"RepairRobot": 1,
+							"Tank": 2,
+							"VehicleFactory": 1,
+							"Worker": 4
+						},
+						"worker_states": {
+							"Idle": 4
+						},
+						"workers": {
+							"construction": 0,
+							"electronics": 0,
+							"materials": 0,
+							"other": 4
+						}
+					}
+				]
+			},
+			{
+				"ai_tasks": [],
+				"ground_before_air": 12,
+				"policy": {
+					"army": 8,
+					"assault_gates": {
+						"army_at_least_9": false,
+						"health_at_least_80_percent": true,
+						"no_visible_home_threats": true,
+						"quiet_20_seconds": true,
+						"saw_home_attack": false
+					},
+					"health": 1.0,
+					"phase": "defend",
+					"pressure_age": 160.733333333331,
+					"saw_attack": false,
+					"visible_home_threats": 0
+				},
+				"seconds": 60.7,
+				"sides": [
+					{
+						"army_base_value": [
+							130.0,
+							62.0
+						],
+						"fitted_tanks": 3,
+						"funds": [
+							82,
+							24
+						],
+						"units": {
+							"Barracks": 1,
+							"CombatRobot": 1,
+							"CommandCenter": 1,
+							"CommandLab": 1,
+							"Infantry": 4,
+							"PowerPlant": 1,
+							"RepairDepot": 1,
+							"RepairRobot": 1,
+							"Tank": 3,
+							"VehicleFactory": 1,
+							"Worker": 6
+						},
+						"worker_states": {
+							"Electronics · approaching work slot": 1,
+							"Electronics · collecting": 1,
+							"Materials · approaching work slot": 2,
+							"Materials · collecting": 1,
+							"Returning cargo to HQ": 1
+						},
+						"workers": {
+							"construction": 0,
+							"electronics": 2,
+							"materials": 4,
+							"other": 0
+						}
+					},
+					{
+						"army_base_value": [
+							148.0,
+							32.0
+						],
+						"fitted_tanks": 2,
+						"funds": [
+							60,
+							32
+						],
+						"units": {
+							"Barracks": 1,
+							"CommandCenter": 1,
+							"CommandLab": 1,
+							"Infantry": 6,
+							"PowerPlant": 1,
+							"RepairDepot": 1,
+							"RepairRobot": 1,
+							"Tank": 4,
+							"VehicleFactory": 1,
+							"Worker": 6
+						},
+						"worker_states": {
+							"Electronics · approaching work slot": 1,
+							"Electronics · collecting": 1,
+							"Materials · approaching work slot": 3,
+							"Materials · collecting": 1
+						},
+						"workers": {
+							"construction": 0,
+							"electronics": 2,
+							"materials": 4,
+							"other": 0
+						}
+					}
+				]
+			},
+			{
+				"ai_tasks": [],
+				"ground_before_air": 12,
+				"policy": {
+					"army": 10,
+					"assault_gates": {
+						"army_at_least_9": true,
+						"health_at_least_80_percent": true,
+						"no_visible_home_threats": true,
+						"quiet_20_seconds": true,
+						"saw_home_attack": false
+					},
+					"health": 1.0,
+					"phase": "attack",
+					"pressure_age": 220.733333333328,
+					"saw_attack": false,
+					"visible_home_threats": 0
+				},
+				"seconds": 120.7,
+				"sides": [
+					{
+						"army_base_value": [
+							174.0,
+							82.0
+						],
+						"fitted_tanks": 5,
+						"funds": [
+							106,
+							10
+						],
+						"units": {
+							"Barracks": 1,
+							"CombatRobot": 1,
+							"CommandCenter": 1,
+							"CommandLab": 1,
+							"Infantry": 4,
+							"PowerPlant": 1,
+							"RepairDepot": 1,
+							"RepairRobot": 1,
+							"Tank": 5,
+							"VehicleFactory": 1,
+							"Worker": 6
+						},
+						"worker_states": {
+							"Electronics · collecting": 1,
+							"Materials · approaching work slot": 1,
+							"Materials · collecting": 2,
+							"Returning cargo to HQ": 2
+						},
+						"workers": {
+							"construction": 0,
+							"electronics": 2,
+							"materials": 4,
+							"other": 0
+						}
+					},
+					{
+						"army_base_value": [
+							228.0,
+							80.0
+						],
+						"fitted_tanks": 2,
+						"funds": [
+							64,
+							18
+						],
+						"units": {
+							"AdvancedTank": 1,
+							"Barracks": 1,
+							"CombatRobot": 1,
+							"CommandCenter": 1,
+							"CommandLab": 1,
+							"Infantry": 6,
+							"PowerPlant": 1,
+							"RepairDepot": 1,
+							"RepairRobot": 2,
+							"Tank": 4,
+							"VehicleFactory": 1,
+							"Worker": 6
+						},
+						"worker_states": {
+							"Electronics · collecting": 1,
+							"Materials · approaching work slot": 1,
+							"Materials · collecting": 3,
+							"Returning cargo to HQ": 1
+						},
+						"workers": {
+							"construction": 0,
+							"electronics": 2,
+							"materials": 4,
+							"other": 0
+						}
+					}
+				]
+			},
+			{
+				"ai_tasks": [
+					{
+						"age": 59.4,
+						"kind": "assault",
+						"point": [
+							16.0,
+							34.0
+						],
+						"retiring": false,
+						"roles": {
+							"AdvancedTank": 2,
+							"Infantry": 2,
+							"Tank": 5
+						}
+					}
+				],
+				"ground_before_air": 12,
+				"policy": {
+					"army": 9,
+					"assault_gates": {
+						"army_at_least_9": true,
+						"health_at_least_80_percent": true,
+						"no_visible_home_threats": false,
+						"quiet_20_seconds": false,
+						"saw_home_attack": true
+					},
+					"health": 0.870021634615385,
+					"phase": "recover",
+					"pressure_age": 0.0,
+					"saw_attack": true,
+					"visible_home_threats": 8
+				},
+				"seconds": 180.7,
+				"sides": [
+					{
+						"army_base_value": [
+							156.0,
+							82.0
+						],
+						"fitted_tanks": 3,
+						"funds": [
+							98,
+							2
+						],
+						"units": {
+							"Barracks": 1,
+							"CombatRobot": 2,
+							"CommandCenter": 1,
+							"CommandLab": 1,
+							"Infantry": 4,
+							"PowerPlant": 1,
+							"RepairDepot": 1,
+							"RepairRobot": 1,
+							"Tank": 3,
+							"VehicleFactory": 1,
+							"Worker": 4
+						},
+						"worker_states": {
+							"Electronics · approaching work slot": 1,
+							"Returning cargo to HQ": 3
+						},
+						"workers": {
+							"construction": 0,
+							"electronics": 1,
+							"materials": 3,
+							"other": 0
+						}
+					},
+					{
+						"army_base_value": [
+							268.0,
+							110.0
+						],
+						"fitted_tanks": 2,
+						"funds": [
+							21,
+							2
+						],
+						"units": {
+							"AdvancedTank": 2,
+							"AircraftFactory": 1,
+							"Barracks": 1,
+							"CombatRobot": 1,
+							"CommandCenter": 1,
+							"CommandLab": 1,
+							"Infantry": 2,
+							"PowerPlant": 1,
+							"RepairDepot": 1,
+							"RepairRobot": 2,
+							"Tank": 5,
+							"VehicleFactory": 1,
+							"Worker": 6
+						},
+						"worker_states": {
+							"Constructing(ConstructingWhileInRange)": 1,
+							"Electronics · approaching work slot": 2,
+							"Electronics · waiting for a work slot": 1,
+							"Materials · collecting": 1,
+							"Returning cargo to HQ": 1
+						},
+						"workers": {
+							"construction": 1,
+							"electronics": 4,
+							"materials": 1,
+							"other": 0
+						}
+					}
+				]
+			},
+			{
+				"ai_tasks": [
+					{
+						"age": 119.4,
+						"kind": "assault",
+						"point": [
+							22.0,
+							34.0
+						],
+						"retiring": false,
+						"roles": {
+							"AdvancedTank": 1,
+							"CombatRobot": 1,
+							"Infantry": 6
+						}
+					}
+				],
+				"ground_before_air": 12,
+				"policy": {
+					"army": 4,
+					"assault_gates": {
+						"army_at_least_9": false,
+						"health_at_least_80_percent": false,
+						"no_visible_home_threats": false,
+						"quiet_20_seconds": false,
+						"saw_home_attack": true
+					},
+					"health": 0.786745993589745,
+					"phase": "recover",
+					"pressure_age": 0.0,
+					"saw_attack": true,
+					"visible_home_threats": 4
+				},
+				"seconds": 240.7,
+				"sides": [
+					{
+						"army_base_value": [
+							80.0,
+							50.0
+						],
+						"fitted_tanks": 1,
+						"funds": [
+							110,
+							2
+						],
+						"units": {
+							"Barracks": 1,
+							"CombatRobot": 2,
+							"CommandCenter": 1,
+							"Infantry": 1,
+							"PowerPlant": 1,
+							"RepairDepot": 1,
+							"Tank": 1,
+							"Worker": 4
+						},
+						"worker_states": {
+							"Materials · approaching work slot": 2,
+							"Materials · collecting": 1,
+							"Returning cargo to HQ": 1
+						},
+						"workers": {
+							"construction": 0,
+							"electronics": 0,
+							"materials": 4,
+							"other": 0
+						}
+					},
+					{
+						"army_base_value": [
+							228.0,
+							90.0
+						],
+						"fitted_tanks": 1,
+						"funds": [
+							9,
+							14
+						],
+						"units": {
+							"AdvancedTank": 2,
+							"AircraftFactory": 1,
+							"AntiAirTurret": 1,
+							"Barracks": 1,
+							"CombatRobot": 1,
+							"CommandCenter": 1,
+							"CommandLab": 1,
+							"Infantry": 6,
+							"PowerPlant": 1,
+							"RepairDepot": 1,
+							"RepairRobot": 1,
+							"Tank": 3,
+							"VehicleFactory": 1,
+							"Worker": 6
+						},
+						"worker_states": {
+							"Constructing(ConstructingWhileInRange)": 1,
+							"Electronics · approaching work slot": 2,
+							"Materials · collecting": 2,
+							"Returning cargo to HQ": 1
+						},
+						"workers": {
+							"construction": 1,
+							"electronics": 2,
+							"materials": 3,
+							"other": 0
+						}
+					}
+				]
+			},
+			{
+				"ai_tasks": [
+					{
+						"age": 179.4,
+						"kind": "assault",
+						"point": [
+							16.0,
+							34.0
+						],
+						"retiring": false,
+						"roles": {
+							"AdvancedTank": 2,
+							"Infantry": 2,
+							"Tank": 2
+						}
+					}
+				],
+				"ground_before_air": 12,
+				"policy": {
+					"army": 4,
+					"assault_gates": {
+						"army_at_least_9": false,
+						"health_at_least_80_percent": true,
+						"no_visible_home_threats": false,
+						"quiet_20_seconds": false,
+						"saw_home_attack": true
+					},
+					"health": 0.842348758012822,
+					"phase": "recover",
+					"pressure_age": 0.0,
+					"saw_attack": true,
+					"visible_home_threats": 2
+				},
+				"seconds": 300.7,
+				"sides": [
+					{
+						"army_base_value": [
+							60.0,
+							30.0
+						],
+						"fitted_tanks": 1,
+						"funds": [
+							76,
+							6
+						],
+						"units": {
+							"Barracks": 1,
+							"CombatRobot": 1,
+							"CommandCenter": 1,
+							"Infantry": 2,
+							"PowerPlant": 1,
+							"RepairDepot": 1,
+							"Tank": 1,
+							"Worker": 4
+						},
+						"worker_states": {
+							"Electronics · approaching work slot": 1,
+							"Electronics · collecting": 1,
+							"Materials · approaching work slot": 1,
+							"Materials · collecting": 1
+						},
+						"workers": {
+							"construction": 0,
+							"electronics": 2,
+							"materials": 2,
+							"other": 0
+						}
+					},
+					{
+						"army_base_value": [
+							206.0,
+							88.0
+						],
+						"fitted_tanks": 1,
+						"funds": [
+							5,
+							10
+						],
+						"units": {
+							"AdvancedTank": 2,
+							"AircraftFactory": 1,
+							"AntiAirTurret": 1,
+							"AntiGroundTurret": 1,
+							"Barracks": 1,
+							"CombatRobot": 1,
+							"CommandCenter": 1,
+							"CommandLab": 1,
+							"Drone": 1,
+							"Infantry": 5,
+							"PowerPlant": 1,
+							"RepairDepot": 1,
+							"RepairRobot": 1,
+							"Tank": 2,
+							"VehicleFactory": 1,
+							"Worker": 6
+						},
+						"worker_states": {
+							"Electronics · collecting": 1,
+							"Materials · approaching work slot": 2,
+							"Materials · collecting": 1,
+							"Returning cargo to HQ": 2
+						},
+						"workers": {
+							"construction": 0,
+							"electronics": 1,
+							"materials": 5,
+							"other": 0
+						}
+					}
+				]
+			},
+			{
+				"ai_tasks": [
+					{
+						"age": 239.4,
+						"kind": "assault",
+						"point": [
+							16.0,
+							34.0
+						],
+						"retiring": false,
+						"roles": {
+							"AdvancedTank": 1,
+							"CombatRobot": 1,
+							"Helicopter": 1,
+							"Infantry": 6,
+							"Tank": 1
+						}
+					}
+				],
+				"ground_before_air": 12,
+				"policy": {
+					"army": 2,
+					"assault_gates": {
+						"army_at_least_9": false,
+						"health_at_least_80_percent": false,
+						"no_visible_home_threats": true,
+						"quiet_20_seconds": false,
+						"saw_home_attack": true
+					},
+					"health": 0.657109375000003,
+					"phase": "recover",
+					"pressure_age": 11.4999999999895,
+					"saw_attack": true,
+					"visible_home_threats": 0
+				},
+				"seconds": 360.7,
+				"sides": [
+					{
+						"army_base_value": [
+							28.0,
+							10.0
+						],
+						"fitted_tanks": 1,
+						"funds": [
+							62,
+							10
+						],
+						"units": {
+							"Barracks": 1,
+							"Infantry": 1,
+							"PowerPlant": 1,
+							"RepairDepot": 1,
+							"Tank": 1,
+							"Worker": 3
+						},
+						"worker_states": {
+							"No drop-off · right-click a friendly HQ": 3
+						},
+						"workers": {
+							"construction": 0,
+							"electronics": 1,
+							"materials": 2,
+							"other": 0
+						}
+					},
+					{
+						"army_base_value": [
+							268.0,
+							114.0
+						],
+						"fitted_tanks": 1,
+						"funds": [
+							15,
+							16
+						],
+						"units": {
+							"AdvancedTank": 2,
+							"AircraftFactory": 1,
+							"AntiAirTurret": 1,
+							"AntiGroundTurret": 1,
+							"Barracks": 1,
+							"CombatRobot": 1,
+							"CommandCenter": 1,
+							"CommandLab": 1,
+							"Drone": 1,
+							"Helicopter": 1,
+							"Infantry": 6,
+							"PowerPlant": 1,
+							"RepairDepot": 1,
+							"RepairRobot": 1,
+							"Tank": 3,
+							"VehicleFactory": 1,
+							"Worker": 6
+						},
+						"worker_states": {
+							"Electronics · approaching work slot": 2,
+							"Materials · collecting": 1,
+							"Returning cargo to HQ": 3
+						},
+						"workers": {
+							"construction": 0,
+							"electronics": 3,
+							"materials": 3,
+							"other": 0
+						}
+					}
+				]
+			}
+		],
+		"seconds": 409.3,
+		"seed": 4110,
+		"spent": [
+			482.0,
+			110.0
+		],
+		"staging_steps": 8,
+		"stationary_travel_unit_seconds": [
+			0.0,
+			0.0
+		]
+	}
+]

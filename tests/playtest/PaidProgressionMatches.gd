@@ -1,0 +1,349 @@
+extends "res://tests/playtest/reference/FrontierCompleteMatches.gd"
+
+var production_policy
+var economy_policy
+var tech_catalog
+var research_policy = "none"
+var army_policy = "ground-first"
+var last_research_state = []
+var archive_prefix = ""
+var archived_progress = {}
+
+
+func _run():
+	production_policy = load("res://source/match/players/skirmish-ai/SkirmishProduction.gd")
+	economy_policy = load("res://source/match/players/skirmish-ai/SkirmishEconomy.gd")
+	tech_catalog = load("res://source/match/research/TechnologyCatalog.gd")
+	for argument in OS.get_cmdline_user_args():
+		if argument.begins_with("--research="):
+			research_policy = argument.trim_prefix("--research=")
+		if argument.begins_with("--strategy="):
+			army_policy = argument.trim_prefix("--strategy=")
+		if argument.begins_with("--archive-prefix="):
+			archive_prefix = argument.trim_prefix("--archive-prefix=")
+	if (
+		research_policy not in ["none", "combined"]
+		or army_policy not in ["ground-first", "air-first", "screened-air"]
+	):
+		push_error("Invalid paid progression policy")
+		quit(2)
+		return
+	await super()
+
+
+func _play_case(index):
+	last_research_state = []
+	archived_progress.clear()
+	await super(index)
+
+
+func _air_allowed():
+	if army_policy == "screened-air":
+		return (
+			_unit(human, "AircraftFactory") != null
+			or economy_policy.guards(plan_rules.owned_units(human)).size() >= 8
+		)
+	return army_policy == "air-first" or super()
+
+
+func _reference_research():
+	if (
+		research_policy != "combined"
+		or human.coordination_left > 0
+		or human.technology.active != ""
+		or not human.has_completed_structure("CommandLab")
+		or not human.basic_programs_unlocked()
+		or economy_policy.guards(plan_rules.owned_units(human)).size() < 6
+	):
+		return {}
+	if army_policy == "screened-air" and _unit(human, "Helicopter") == null:
+		return {}
+	if not human.coordination_unlocked:
+		return {"id": "coordination", "cost": human.COORDINATION_COST.duplicate()}
+	for id in ["weapons_1", "armor_1", "service", "doctrine", "weapons_2", "armor_2"]:
+		if id not in human.technology.completed:
+			var price = tech_catalog.ITEMS[id].cost
+			return {"id": id, "cost": {"resource_a": price.x, "resource_b": price.y}}
+	return {}
+
+
+func _opening_tank_target():
+	return 1
+
+
+func _reference_requests():
+	# Retain the original reference commander's producer order. Priorities here
+	# only distinguish essential production from optional research/armor spending.
+	var counts = composition.inventory(plan_rules.owned_units(human))
+	var result = []
+	if human.population(true) >= Catalog.POPULATION_LIMIT:
+		return result
+	for role in ["CommandCenter", "Barracks", "AircraftFactory", "VehicleFactory"]:
+		var producer = _unit(human, role)
+		if (
+			producer == null
+			or not producer.is_constructed()
+			or producer.production_queue.size() > 0
+		):
+			continue
+		var product = ""
+		var priority = 6
+		match role:
+			"CommandCenter":
+				if counts.get("Worker", 0) < 6:
+					product = "Worker"
+					priority = 0
+			"Barracks":
+				if counts.get("Infantry", 0) < (6 if army_policy == "screened-air" else 4):
+					product = "Infantry"
+					priority = 2
+			"AircraftFactory":
+				if not _air_allowed():
+					continue
+				if counts.get("Drone", 0) == 0:
+					product = "Drone"
+					priority = 4
+				elif counts.get("Helicopter", 0) < 2:
+					product = "Helicopter"
+					priority = 5
+			"VehicleFactory":
+				if not human.has_completed_structure("CommandLab"):
+					if counts.get("Tank", 0) < _opening_tank_target():
+						product = "Tank"
+				elif (
+					counts.get("Tank", 0) + counts.get("CombatRobot", 0) >= 3
+					and counts.get("RepairRobot", 0) == 0
+				):
+					product = "RepairRobot"
+					priority = 3
+				else:
+					product = ["Tank", "CombatRobot", "Tank"][vehicle_sequence % 3]
+		if product == "" or not factions.available(human, product):
+			continue
+		var price = factions.cost(human, product)
+		var fit = role == "VehicleFactory" and human.has_completed_structure("CommandLab")
+		if product == "Tank" and fit:
+			price.resource_b += factions.chip_cost(human.faction)
+		result.append(
+			{"producer": producer, "role": product, "priority": priority, "cost": price, "fit": fit}
+		)
+	return result
+
+
+func _decision(product, outcome, price, reserve):
+	super(product, outcome, price, reserve)
+	metrics.allocation_policy = army_policy.replace("-", "_")
+
+
+func _produce():
+	if research_policy == "none" and army_policy != "screened-air":
+		super()
+		return
+	var reserve = Vector2i.ZERO
+	if (
+		human.has_completed_structure("CommandLab")
+		and _unit(human, "AircraftFactory") == null
+		and _air_allowed()
+	):
+		var price = factions.cost(human, "AircraftFactory", true)
+		reserve = Vector2i(price.resource_a, price.resource_b)
+	var requests = _reference_requests()
+	var research = _reference_research()
+	if not research.is_empty():
+		var protected = reserve
+		for job in requests:
+			if job.priority < 6:
+				protected += Vector2i(job.cost.resource_a, job.cost.resource_b)
+		var cost = Vector2i(research.cost.resource_a, research.cost.resource_b)
+		if human.resource_a >= cost.x + protected.x and human.resource_b >= cost.y + protected.y:
+			var lab = _unit(human, "CommandLab")
+			var started = (
+				human.start_coordination(lab)
+				if research.id == "coordination"
+				else human.technology.start(research.id, lab)
+			)
+			if started:
+				_spent += Vector2(cost)
+				if not metrics.has("reference_research_orders"):
+					metrics.reference_research_orders = []
+				metrics.reference_research_orders.append(
+					{
+						"seconds": game.simulation_time,
+						"id": research.id,
+						"cost": research.cost.duplicate()
+					}
+				)
+				research = {}
+	for request in requests:
+		var price = request.cost
+		var protected = Vector2i.ZERO if request.role == "Worker" else reserve
+		if request.priority >= 6 and not research.is_empty():
+			protected += Vector2i(research.cost.resource_a, research.cost.resource_b)
+		var budget = {"resource_a": protected.x, "resource_b": protected.y}
+		if (
+			human.resource_a < price.resource_a + protected.x
+			or human.resource_b < price.resource_b + protected.y
+		):
+			_decision(
+				request.role,
+				"reserved" if human.has_resources(price) else "unaffordable",
+				price,
+				budget
+			)
+			if request.priority < 6:
+				reserve += Vector2i(price.resource_a, price.resource_b)
+			continue
+		request.producer.production_queue.fit_chips = request.fit
+		var job = request.producer.production_queue.produce(load(Catalog.scene_path(request.role)))
+		_decision(request.role, "paid" if job != null else "refused", price, budget)
+		if job != null:
+			_spent += Vector2(job.paid_cost.resource_a, job.paid_cost.resource_b)
+			if request.producer.type == "VehicleFactory":
+				vehicle_sequence += 1
+
+
+func _command():
+	super()
+	if research_policy != "combined" or not human.coordination_unlocked:
+		return
+	var ready = plan_rules.owned_units(human).filter(
+		func(unit):
+			return (
+				human.signatures.eligible(unit)
+				and (
+					unit.get_node("Movement")._has_destination
+					if human.faction == "frontier"
+					else not unit.get_node("Movement")._has_destination
+				)
+				and not game.battlefield.observed_enemies_near(unit, unit.sight_range).is_empty()
+			)
+	)
+	if ready.is_empty():
+		return
+	var point = ready[0].global_position_yless
+	if human.faction == "bastion":
+		ready = ready.filter(func(unit): return unit.global_position_yless.distance_to(point) <= 6)
+	var activated = human.signatures.activate(ready, point)
+	if activated > 0:
+		if not metrics.has("reference_signatures"):
+			metrics.reference_signatures = []
+		metrics.reference_signatures.append({"seconds": game.simulation_time, "units": activated})
+
+
+func _process(delta):
+	var result = super(delta)
+	if not is_instance_valid(game) or human == null or opponent == null or game.finished:
+		return result
+	if archive_prefix != "":
+		if human.coordination_left > 0:
+			_archive_progress("coordination")
+		if human.technology.active != "":
+			_archive_progress("technology")
+		if plan_rules.owned_units(human).any(
+			func(unit): return unit.signature != null and unit.signature.kind != ""
+		):
+			_archive_progress("signature")
+	var states = []
+	for side in [human, opponent]:
+		states.append(
+			[
+				side.coordination_left > 0,
+				side.coordination_unlocked,
+				side.technology.active,
+				side.technology.completed.duplicate()
+			]
+		)
+	if states != last_research_state:
+		if not metrics.has("research_events"):
+			metrics.research_events = []
+		metrics.research_events.append(
+			{"seconds": game.simulation_time, "sides": _research_snapshot()}
+		)
+		last_research_state = states
+	return result
+
+
+func _archive_progress(kind):
+	if archived_progress.has(kind):
+		return
+	archived_progress[kind] = true
+	var path = "%s-case%d-%d-%s.json" % [archive_prefix, active_case, repetition, kind]
+	_check(not FileAccess.file_exists(path), "Progression archive already exists")
+	if FileAccess.file_exists(path):
+		return
+	var was_paused = paused
+	paused = true
+	var data = load("res://source/match/saves/MatchSnapshot.gd").new().capture(game)
+	paused = was_paused
+	_check(data != null, "Paid progression snapshot failed")
+	if data != null:
+		var saved = load("res://source/match/saves/SaveFile.gd").new().write_file(path, data)
+		_check(saved, "Cannot retain paid progression archive")
+
+
+func _sample():
+	var row = super()
+	row.research = _research_snapshot()
+	metrics.research_policy = research_policy
+	metrics.army_policy = army_policy
+	metrics.allocation_policy = army_policy.replace("-", "_")
+	row.ground_before_air = {"air-first": 0, "ground-first": 12, "screened-air": 8}[army_policy]
+	return row
+
+
+func _research_snapshot():
+	var rows = []
+	for side in [human, opponent]:
+		if side == null:
+			continue
+		var units = plan_rules.owned_units(side)
+		var requests = []
+		var reserve = Vector2i.ZERO
+		var desired = ""
+		if side == human:
+			for job in _reference_requests():
+				requests.append({"role": job.role, "priority": job.priority, "cost": job.cost})
+		if side == opponent:
+			desired = opponent._next_building(units)
+			reserve = production_policy.reserve(side, units, desired)
+			for job in production_policy.requests(game, side, units):
+				requests.append({"role": job.role, "priority": job.priority, "cost": job.cost})
+				if job.priority < 6:
+					reserve += Vector2i(job.cost.resource_a, job.cost.resource_b)
+		var queues = []
+		for unit in units:
+			if unit.get_node_or_null("ProductionQueue") == null:
+				continue
+			var jobs = unit.production_queue.get_elements().map(
+				func(job):
+					return {
+						"role": Catalog.type_from_path(job.unit_prototype.resource_path),
+						"left": job.time_left,
+						"paid": job.paid_cost
+					}
+			)
+			queues.append(
+				{
+					"producer": unit.type,
+					"jobs": jobs,
+					"blocked": unit.production_queue.blocked_reason()
+				}
+			)
+		rows.append(
+			{
+				"faction": side.faction,
+				"funds": [side.resource_a, side.resource_b],
+				"ready_army": economy_policy.guards(units).size(),
+				"lab": side.has_completed_structure("CommandLab"),
+				"basic": side.basic_programs_unlocked(),
+				"coordination_left": side.coordination_left,
+				"coordination": side.coordination_unlocked,
+				"active": side.technology.active,
+				"completed": side.technology.completed.duplicate(),
+				"desired_building": desired if side == opponent else null,
+				"priority_reserve": [reserve.x, reserve.y] if side == opponent else null,
+				"production": requests,
+				"queues": queues
+			}
+		)
+	return rows

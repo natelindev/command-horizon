@@ -4,12 +4,12 @@ signal movement_finished
 signal passive_movement_started
 signal passive_movement_finished
 
-const INITIAL_DISPERSION_FACTOR = 0.1
-
-const STUCK_PREVENTION_ENABLED = true
-const STUCK_PREVENTION_WINDOW_SIZE = 10  # number of frames for accumulating distance traveled
-const STUCK_PREVENTION_THRESHOLD = 0.3  # fraction of expected distance traveled at full speed
-const STUCK_PREVENTION_SIDE_MOVES = 15  # number of forced moves to the side if stuck
+const PROGRESS_WINDOW = 1.0
+const MINIMUM_PROGRESS = 0.2
+const RECOVERY_DURATION = 0.6
+const GROUND_RECOVERY_DURATION = 2.0
+const GROUND_RECOVERY_DISTANCE = 2.0
+const GROUND_CONTACT_MARGIN = .02
 
 const ROTATION_LOW_PASS_FILTER_ENABLED = true
 const ROTATION_LOW_PASS_FILTER_WINDOW_SIZE = 10  # number of frames for accumulating directions
@@ -18,13 +18,24 @@ const ROTATION_LOW_PASS_FILTER_VELOCITY_THRESHOLD = 0.01  # velocities below wil
 const PASSIVE_MOVEMENT_TRACKING_ENABLED = true
 
 @export var domain = Constants.Match.Navigation.Domain.TERRAIN
-@export var speed: float = 4.0
+@export var speed: float = 4.0:
+	get:
+		var factor = (
+			_unit.signature.speed_factor()
+			if is_instance_valid(_unit) and _unit.signature != null
+			else 1.0
+		)
+		return speed * factor
 
-var _interim_speed: float = 0.0
-
-var _stuck_prevention_window = []
-var _total_velocity_in_stuck_prevention_window = 0.0
-var _number_of_forced_side_moves_left = 0
+var _physics_delta = 0.0
+var _has_destination = false
+var _synchronized = false
+var _command_revision = 0
+var _progress_elapsed = 0.0
+var _progress_position = Vector3.ZERO
+var _recovery_left = 0.0
+var _recovery_direction = Vector3.ZERO
+var _recovery_checked = false
 
 var _rotation_low_pass_filter_window = []
 var _total_direction_in_the_low_pass_filter_window = Vector3.ZERO
@@ -37,99 +48,256 @@ var _passive_movement_detected = false
 
 
 func _physics_process(delta):
-	_interim_speed = speed * delta
-	var fake_direction = _get_fake_direction_due_to_stuck_prevention()
-	if fake_direction != null:
-		set_velocity(fake_direction * _interim_speed)
+	_physics_delta = delta
+	max_speed = speed
+	if not _has_destination:
+		velocity = Vector3.ZERO
 		return
-	var next_path_position: Vector3 = get_next_path_position()
-	var current_agent_position: Vector3 = _unit.global_transform.origin
-	var new_velocity: Vector3 = (
-		(next_path_position - current_agent_position).normalized() * _interim_speed
-	)
-	set_velocity(new_velocity)
+	# Advance the path exactly once per physics tick, never from an avoidance callback.
+	var next_point: Vector3
+	var finished: bool
+	if _uses_flight_clearance():
+		# The air navigation region is an unobstructed rectangle. Steer toward
+		# its nearest valid destination in XZ; height must not stall a planar path.
+		next_point = NavigationServer3D.map_get_closest_point(get_navigation_map(), target_position)
+		finished = (
+			((_unit.global_position - next_point) * Vector3(1, 0, 1)).length()
+			<= target_desired_distance
+		)
+	else:
+		next_point = get_next_path_position()
+		finished = is_navigation_finished()
+	if finished:
+		_has_destination = false
+		velocity = Vector3.ZERO
+		_finish_command.call_deferred(_command_revision)
+		return
+	var offset = (next_point - _unit.global_position) * Vector3(1, 0, 1)
+	var direction = offset.normalized()
+	_progress_elapsed += delta
+	if _progress_elapsed >= PROGRESS_WINDOW and _recovery_left <= 0:
+		var travelled = _unit.global_position.distance_to(_progress_position)
+		_progress_position = _unit.global_position
+		_progress_elapsed = 0.0
+		if travelled < MINIMUM_PROGRESS and _recovery_left <= 0:
+			# A short, consistent sidestep breaks symmetric crowd deadlocks.
+			_recovery_direction = direction.rotated(Vector3.UP, PI / 2.0)
+			_recovery_left = RECOVERY_DURATION
+			if (
+				domain == Constants.Match.Navigation.Domain.TERRAIN
+				and not has_occupied_endpoint(false)
+			):
+				_recovery_direction = _ground_recovery_direction(direction)
+				_recovery_left = GROUND_RECOVERY_DURATION
+			_recovery_checked = true
+			var destination = target_position
+			target_position = destination
+	if _recovery_left > 0:
+		_recovery_left -= delta
+		if domain == Constants.Match.Navigation.Domain.TERRAIN and not has_occupied_endpoint(false):
+			# A restored sidestep may point into a rebuilt boundary. Give its new
+			# direction one local recovery window; program no-progress timers
+			# still depend only on actual movement.
+			if not _recovery_checked:
+				if _recovery_clearance(_recovery_direction) < GROUND_RECOVERY_DISTANCE:
+					_recovery_direction = _ground_recovery_direction(direction)
+					_recovery_left = GROUND_RECOVERY_DURATION
+				_recovery_checked = true
+			if _unit.global_position.distance_to(_progress_position) >= GROUND_RECOVERY_DISTANCE:
+				_recovery_left = 0.0
+			else:
+				# Commit briefly to clear the obstruction before following the same
+				# path again. Navigation and body clipping still constrain every step.
+				direction = _recovery_direction
+		else:
+			# Near an occupied final point, retain short yielding so arrival or
+			# work-face selection can resolve contact without an outward detour.
+			_recovery_left = minf(_recovery_left, RECOVERY_DURATION)
+			direction = (direction * 0.35 + _recovery_direction).normalized()
+	# Avoidance consumes metres per second. Apply delta only when moving the unit.
+	velocity = direction * min(speed, offset.length() / delta)
+
+
+func has_occupied_endpoint(require_short_route = true):
+	var path = get_current_navigation_path()
+	if path.is_empty():
+		return false
+	var end = path[-1] * Vector3(1, 0, 1)
+	var remaining = 0.0
+	if require_short_route:
+		# A nearby endpoint can sit just beyond a tiny polygon bend. Bound
+		# actual remaining travel instead of requiring a particular path index;
+		# an endpoint across a wall still requires its full remaining route.
+		var previous = _unit.global_position_yless
+		for index in range(get_current_navigation_path_index(), path.size()):
+			var point = path[index] * Vector3(1, 0, 1)
+			remaining += previous.distance_to(point)
+			previous = point
+	# A plain point order can finish beside a settled ally occupying its final
+	# reachable position. MovingToUnit owns its own process/contact checks.
+	for other in _unit.player.get_children():
+		if (
+			other == _unit
+			or not other.is_in_group("units")
+			or other.is_queued_for_deletion()
+			or other.hp <= 0
+			or other.movement_speed <= 0
+			or other.movement_domain != _unit.movement_domain
+		):
+			continue
+		var movement = other.get_node_or_null("Movement")
+		if (
+			movement == null
+			or movement._has_destination
+			or movement.velocity.length_squared() >= 0.01
+		):
+			continue
+		var spacing = _unit.radius + other.radius
+		if (
+			other.global_position_yless.distance_to(end) < spacing
+			and _unit.global_position_yless.distance_to(end) <= spacing + 0.2
+			and (not require_short_route or remaining <= spacing + 0.2)
+		):
+			return true
+	return false
+
+
+func _ground_recovery_direction(path_direction):
+	var best = path_direction.rotated(Vector3.UP, PI / 2.0)
+	var clearance = -1.0
+	var free_distance = -1.0
+	var origin = _unit.global_position
+	var neighbors = []
+	if _match.battlefield != null:
+		neighbors = _match.battlefield.nearby_units(
+			origin,
+			(
+				_unit.radius
+				+ Constants.Match.Terrain.Navmesh.MAX_AGENT_RADIUS
+				+ GROUND_RECOVERY_DISTANCE
+				+ .25
+			)
+		)
+	for angle in [PI / 2.0, -PI / 2.0, PI / 4.0, -PI / 4.0, 3 * PI / 4.0, -3 * PI / 4.0, PI]:
+		# Prefer a side route when terrain permits one. A clear backward ray
+		# can simply return the unit to the same blocked approach afterward.
+		if (
+			absf(angle) > PI / 2.0
+			and clearance >= GROUND_RECOVERY_DISTANCE
+			and free_distance >= GROUND_CONTACT_MARGIN
+		):
+			break
+		var candidate = path_direction.rotated(Vector3.UP, angle)
+		var distance = _recovery_clearance(candidate)
+		var contact = _ground_step_contact(origin, origin + candidate * distance, neighbors)
+		var free = distance * contact.fraction
+		# Preserve a navigable sideways slide when the first step is clear.
+		# A fully body-blocked side must not exclude a backward escape.
+		var usable = free >= GROUND_CONTACT_MARGIN
+		var previous_usable = free_distance >= GROUND_CONTACT_MARGIN
+		if (
+			(usable and not previous_usable)
+			or (
+				usable == previous_usable
+				and (
+					distance > clearance
+					or (is_equal_approx(distance, clearance) and free > free_distance)
+				)
+			)
+		):
+			best = candidate
+			clearance = distance
+			free_distance = free
+	return best
+
+
+func _recovery_clearance(direction):
+	var origin = _unit.global_position
+	var clearance = 0.0
+	for step in 4:
+		var distance = (step + 1) * 0.5
+		var candidate = origin + direction * distance
+		var navigable = NavigationServer3D.map_get_closest_point(get_navigation_map(), candidate)
+		if ((navigable - candidate) * Vector3(1, 0, 1)).length() > 0.15:
+			break
+		clearance = distance
+	return clearance
 
 
 func _ready():
+	if domain == Constants.Match.Navigation.Domain.TERRAIN:
+		# Near-collinear mesh portals can pin avoidance to an unnecessary point
+		# inside a neighbor. Remove them without broadening arrival tolerances.
+		simplify_path = true
+		simplify_epsilon = .01
 	set_physics_process(false)
 	if _match.navigation == null:
 		await _match.ready
 	await _match.navigation.wait_until_synchronized(domain)
-	velocity_computed.connect(_on_velocity_computed)
-	navigation_finished.connect(_on_navigation_finished)
 	set_navigation_map(_match.navigation.get_navigation_map_rid_by_domain(domain))
 	_align_unit_position_to_navigation()
-	move(
-		(
-			_unit.global_position
-			+ Vector3(randf(), 0, randf()).normalized() * INITIAL_DISPERSION_FACTOR
-		)
-	)
+	velocity_computed.connect(_on_velocity_computed)
+	_progress_position = _unit.global_position
+	_synchronized = true
+	# Preserve orders received while the navigation server was synchronizing.
+	if not _has_destination:
+		target_position = _unit.global_position
 	set_physics_process(true)
 
 
 func move(movement_target: Vector3):
+	if not movement_target.is_finite():
+		stop()
+		return
+	if _has_destination and target_position.distance_to(movement_target) < 0.1:
+		return
+	_command_revision += 1
+	_has_destination = true
 	target_position = movement_target
+	_progress_position = get_parent().global_position
+	_progress_elapsed = 0.0
+	_recovery_left = 0.0
+	_recovery_checked = false
 
 
 func stop():
-	target_position = Vector3.INF
+	_command_revision += 1
+	_has_destination = false
+	target_position = get_parent().global_position
+	velocity = Vector3.ZERO
+	_recovery_left = 0.0
+	_recovery_checked = false
 
 
 func _align_unit_position_to_navigation():
-	_unit.global_transform.origin = (
-		NavigationServer3D.map_get_closest_point(
-			get_navigation_map(), get_parent().global_transform.origin
-		)
+	var aligned = (
+		NavigationServer3D.map_get_closest_point(get_navigation_map(), _unit.global_position)
 		- Vector3(0, path_height_offset, 0)
 	)
+	aligned.y = _flight_height(aligned)
+	_unit.global_position = aligned
+
+
+func _uses_flight_clearance():
+	return (
+		domain == Constants.Match.Navigation.Domain.AIR
+		and _match.map.has_method("flight_height_at")
+	)
+
+
+func _flight_height(point):
+	if _uses_flight_clearance():
+		return _match.map.flight_height_at(point, point.y)
+	return point.y
 
 
 func _is_moving_actively():
-	return get_next_path_position() != _unit.global_position
+	return _has_destination
 
 
-func _get_fake_direction_due_to_stuck_prevention():
-	if (
-		not STUCK_PREVENTION_ENABLED
-		or not _is_moving_actively()
-		or _number_of_forced_side_moves_left == 0
-	):
-		return null
-	_number_of_forced_side_moves_left -= 1
-	var next_path_position: Vector3 = get_next_path_position()
-	var direction_to_target = (next_path_position - _unit.global_position).normalized()
-	var current_navigation_path = get_current_navigation_path()
-	var current_navigation_path_index = get_current_navigation_path_index()
-	if current_navigation_path.size() <= 1 or current_navigation_path_index == 0:
-		return direction_to_target.rotated(Vector3.UP, PI / 2.0)
-	# rotate +90*/-90* and choose the one that goes further from path
-	var option_a = direction_to_target.rotated(Vector3.UP, PI / 2.0)
-	var option_b = direction_to_target.rotated(Vector3.UP, -PI / 2.0)
-	var previous_path_position = current_navigation_path[current_navigation_path_index - 1]
-	if (
-		(_unit.global_position + option_a).distance_to(previous_path_position)
-		> (_unit.global_position + option_b).distance_to(previous_path_position)
-	):
-		return option_a
-	return option_b
-
-
-func _update_stuck_prevention(safe_velocity: Vector3):
-	if not _is_moving_actively():
-		return
-	_stuck_prevention_window.append(safe_velocity.length())
-	_total_velocity_in_stuck_prevention_window += safe_velocity.length()
-	if _stuck_prevention_window.size() > STUCK_PREVENTION_WINDOW_SIZE:
-		_total_velocity_in_stuck_prevention_window -= _stuck_prevention_window.pop_front()
-	var stuck_prevention_threshold = (
-		_interim_speed * STUCK_PREVENTION_WINDOW_SIZE * STUCK_PREVENTION_THRESHOLD
-	)
-	if (
-		_stuck_prevention_window.size() == STUCK_PREVENTION_WINDOW_SIZE
-		and _total_velocity_in_stuck_prevention_window < stuck_prevention_threshold
-	):
-		_number_of_forced_side_moves_left = STUCK_PREVENTION_SIDE_MOVES
+func _finish_command(revision):
+	if revision == _command_revision and not _has_destination:
+		movement_finished.emit()
 
 
 func _get_filtered_rotation_direction(safe_velocity: Vector3):
@@ -181,15 +349,117 @@ func _update_passive_movement_tracking(safe_velocity):
 
 
 func _on_velocity_computed(safe_velocity: Vector3):
-	_update_stuck_prevention(safe_velocity)
-	_rotate_in_direction(safe_velocity * Vector3(1, 0, 1))
-	_unit.global_transform.origin = _unit.global_transform.origin.move_toward(
-		_unit.global_transform.origin + safe_velocity, _interim_speed
+	if not _synchronized or get_tree().paused:
+		return
+	var displacement = safe_velocity.limit_length(speed) * _physics_delta
+	var candidate = _unit.global_position + displacement
+	# Local avoidance can push agents off the mesh; constrain the resulting step.
+	var navigable = NavigationServer3D.map_get_closest_point(get_navigation_map(), candidate)
+	navigable.y -= path_height_offset
+	var next = _unit.global_position.move_toward(
+		Vector3(navigable.x, _unit.global_position.y, navigable.z), speed * _physics_delta
 	)
+	# Flight clearance follows the map without consuming horizontal movement speed.
+	# Ground agents retain the existing navmesh-constrained elevation step.
+	if _uses_flight_clearance():
+		next.y = _flight_height(Vector3(next.x, navigable.y, next.z))
+	else:
+		next = _unit.global_position.move_toward(navigable, speed * _physics_delta)
+	if domain == Constants.Match.Navigation.Domain.TERRAIN:
+		next = _clip_ground_step(next)
+		# Only retry when mesh projection displaced avoidance and the final
+		# step was under one millimetre; ordinary body yielding stays intact.
+		if (
+			_has_destination
+			and _recovery_left > 0
+			and not has_occupied_endpoint(false)
+			and ((navigable - candidate) * Vector3(1, 0, 1)).length_squared() > 0.000001
+			and next.distance_squared_to(_unit.global_position) < 0.000001
+		):
+			# Avoidance can steer an escape back into a boundary contact. Try
+			# the committed recovery step with the same mesh/body constraints.
+			var recovery_point = (
+				_unit.global_position + velocity.limit_length(speed) * _physics_delta
+			)
+			var recovery_nav = NavigationServer3D.map_get_closest_point(
+				get_navigation_map(), recovery_point
+			)
+			recovery_nav.y -= path_height_offset
+			var recovery_step = _clip_ground_step(
+				_unit.global_position.move_toward(recovery_nav, speed * _physics_delta)
+			)
+			if (
+				recovery_step.distance_squared_to(_unit.global_position)
+				> next.distance_squared_to(_unit.global_position)
+			):
+				next = recovery_step
+	var actual_velocity = (next - _unit.global_position) / maxf(_physics_delta, 0.001)
+	if (
+		domain == Constants.Match.Navigation.Domain.TERRAIN
+		and actual_velocity.distance_to(safe_velocity) > 0.1
+	):
+		# Projection can prevent an avoidance step at a navigation boundary.
+		# Neighbors must predict the movement that actually happened, otherwise
+		# they keep yielding toward a gap that the constrained unit cannot enter.
+		set_velocity_forced(actual_velocity)
+	_unit.global_position = next
+	_rotate_in_direction(actual_velocity * Vector3(1, 0, 1))
 	_previously_set_global_transform_of_unit = _unit.global_transform
-	_update_passive_movement_tracking(safe_velocity)
+	_update_passive_movement_tracking(actual_velocity)
 
 
-func _on_navigation_finished():
-	target_position = Vector3.INF
-	movement_finished.emit()
+func _clip_ground_step(next):
+	var origin = _unit.global_position
+	if _match.battlefield == null:
+		return next
+	var reach = (
+		_unit.radius
+		+ Constants.Match.Terrain.Navmesh.MAX_AGENT_RADIUS
+		+ speed * _physics_delta
+		+ .25
+	)
+	var neighbors = _match.battlefield.nearby_units(origin, reach)
+	var contact = _ground_step_contact(origin, next, neighbors)
+	if contact.fraction >= 1.0:
+		return next
+	var clipped = origin.lerp(next, contact.fraction)
+	# Preserve the tangential part of a blocked step. Clamping alone can pin
+	# two agents together at a mesh boundary even when there is room to pass.
+	var step = (next - origin) * Vector3(1, 0, 1)
+	var normal = contact.normal
+	var slide = step - normal * minf(0.0, step.dot(normal))
+	var navigable = NavigationServer3D.map_get_closest_point(get_navigation_map(), origin + slide)
+	navigable.y -= path_height_offset
+	var alternative = origin.move_toward(navigable, speed * _physics_delta)
+	var slide_contact = _ground_step_contact(origin, alternative, neighbors)
+	alternative = origin.lerp(alternative, slide_contact.fraction)
+	if alternative.distance_squared_to(origin) > clipped.distance_squared_to(origin):
+		return alternative
+	return clipped
+
+
+func _ground_step_contact(origin, next, neighbors):
+	var step = (next - origin) * Vector3(1, 0, 1)
+	var length_squared = step.length_squared()
+	var result = {"fraction": 1.0, "normal": Vector3.ZERO}
+	if length_squared < 0.00000001:
+		return result
+	for other in neighbors:
+		if other == _unit or other.movement_speed <= 0 or other.movement_domain != domain:
+			continue
+		var offset = (origin - other.global_position) * Vector3(1, 0, 1)
+		var separation = _unit.radius + other.radius - GROUND_CONTACT_MARGIN
+		var outside = offset.length_squared() - separation * separation
+		var toward = offset.dot(step)
+		if toward >= 0:
+			continue
+		var fraction = 0.0
+		if outside > 0:
+			var discriminant = toward * toward - length_squared * outside
+			if discriminant < 0:
+				continue
+			fraction = (-toward - sqrt(discriminant)) / length_squared
+		if fraction >= 0 and fraction < result.fraction:
+			result.fraction = fraction
+			result.normal = offset.normalized()
+	return result

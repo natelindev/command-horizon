@@ -1,0 +1,231 @@
+extends "res://tests/headless/SkirmishTravelProbe.gd"
+
+var moving_order
+var phase = "defend"
+var saw_home_attack = false
+var phase_started = 0.0
+var retreating = {}
+var last_infantry_order = -100.0
+var last_home_pressure = -100.0
+
+
+func _play_case(index):
+	moving_order = load("res://source/match/units/actions/Moving.gd")
+	phase = "defend"
+	saw_home_attack = false
+	phase_started = 0.0
+	retreating.clear()
+	last_infantry_order = -100.0
+	last_home_pressure = -100.0
+	var original = repetition
+	repetition += 10
+	await super(index)
+	repetition = original
+
+
+func _command():
+	var hq = _unit(human, "CommandCenter")
+	if hq == null:
+		return
+	var army = _policy_army()
+	if army.is_empty():
+		return
+	var enemy_start = _assault_destination(game.map.find_child("SpawnPoints").get_child(1).position)
+	var anchor = defense_point
+	var threats = get_nodes_in_group("units").filter(
+		func(u):
+			return (
+				u.player != human
+				and u.attack_range != null
+				and game.battlefield.is_observed(human, u)
+				and u.position.distance_to(hq.position) < 30
+			)
+	)
+	saw_home_attack = saw_home_attack or not threats.is_empty()
+	if not threats.is_empty():
+		last_home_pressure = game.simulation_time
+	for owned in plan_rules.owned_units(human):
+		if owned.type == "Worker" or owned.has_method("is_constructed"):
+			last_home_pressure = maxf(last_home_pressure, owned.last_enemy_damage_time)
+	var health = 0.0
+	for unit in army:
+		health += float(unit.hp) / unit.hp_max
+	health /= army.size()
+	if (
+		phase != "attack"
+		and (saw_home_attack or not _requires_home_attack())
+		and threats.is_empty()
+		and game.simulation_time - last_home_pressure >= 20
+		and army.size() >= 9
+		and health >= .8
+	):
+		phase = "attack"
+		phase_started = game.simulation_time
+		_launched = true
+		if metrics.first_assault == null:
+			metrics.first_assault = game.simulation_time
+		metrics.policy_assaults = metrics.get("policy_assaults", 0) + 1
+		print("POLICY attack ", game.simulation_time, " army ", army.size(), " hp ", health)
+		for unit in army:
+			unit.issue_manual_order(
+				attack_move_action.new(enemy_start + Vector3(unit.get_index() % 3, 0, 0))
+			)
+	if (
+		phase == "attack"
+		and game.simulation_time - phase_started > 15
+		and (army.size() < 6 or health < .55)
+	):
+		phase = "recover"
+		phase_started = game.simulation_time
+		metrics.policy_regroups = metrics.get("policy_regroups", 0) + 1
+		print("POLICY regroup ", game.simulation_time, " army ", army.size(), " hp ", health)
+		for unit in army:
+			unit.issue_manual_order(moving_order.new(_recovery_point(unit, hq)))
+			retreating[unit.get_instance_id()] = true
+	for unit in army:
+		var id = unit.get_instance_id()
+		var safe = _recovery_point(unit, hq)
+		if phase == "attack":
+			if float(unit.hp) / unit.hp_max <= .4 and not retreating.has(id):
+				unit.issue_manual_order(moving_order.new(safe))
+				retreating[id] = true
+				metrics.policy_withdrawals = metrics.get("policy_withdrawals", 0) + 1
+			elif retreating.has(id) and float(unit.hp) / unit.hp_max >= .85:
+				retreating.erase(id)
+				unit.issue_manual_order(attack_move_action.new(enemy_start))
+			elif (
+				not retreating.has(id)
+				and (
+					unit.action == null
+					or (unit.action.has_method("is_idle") and unit.action.is_idle())
+				)
+			):
+				unit.issue_manual_order(attack_move_action.new(enemy_start))
+			continue
+		if retreating.has(id):
+			if unit.position.distance_to(safe) > 6:
+				continue
+			retreating.erase(id)
+		if unit.program != null and unit.program.ready_to_run():
+			var reassigned = unit.program.mode == "Blocked" and unit.program.safe_point != safe
+			unit.program.safe_point = safe
+			if not unit.get_meta("policy_programmed", false):
+				var config = library.defaults("guard")
+				config.radius = 12.0
+				config.retreat = 40
+				config["return"] = 85
+				unit.program.configure(config, "Base defense and recovery")
+				unit.program.anchor = anchor
+				unit.set_meta("policy_programmed", true)
+			if unit.program.mode == "Manual" or reassigned:
+				_check(unit.program.run(), "Defense preset refused to run")
+				if reassigned:
+					metrics.policy_reassignments = metrics.get("policy_reassignments", 0) + 1
+				if not _programmed:
+					_programmed = true
+					_program_at = game.simulation_time
+					metrics.first_program = game.simulation_time
+		elif game.simulation_time - last_infantry_order >= 15:
+			unit.issue_manual_order(
+				attack_move_action.new(anchor + Vector3(unit.get_index() % 3, 0, 0))
+			)
+	if phase != "attack" and game.simulation_time - last_infantry_order >= 15:
+		last_infantry_order = game.simulation_time
+	var support = _unit(human, "RepairRobot")
+	if support != null:
+		var armor = army.filter(func(u): return u.type in ["Tank", "CombatRobot", "AdvancedTank"])
+		if not armor.is_empty():
+			armor.sort_custom(func(a, b): return float(a.hp) / a.hp_max < float(b.hp) / b.hp_max)
+			var target = armor[0]
+			if (
+				support.action == null
+				or not is_instance_of(support.action, repair_order)
+				or support.action.repair_target() != target
+			):
+				support.issue_manual_order(repair_order.new(target))
+
+
+func _recovery_point(unit, fallback):
+	var repairs = load("res://source/match/combat/RepairService.gd")
+	var services = plan_rules.owned_units(human).filter(
+		func(service): return repairs.facility_eligible(service, unit)
+	)
+	services.sort_custom(
+		func(a, b):
+			return (
+				unit.global_position_yless.distance_squared_to(a.global_position_yless)
+				< unit.global_position_yless.distance_squared_to(b.global_position_yless)
+			)
+	)
+	return (
+		services[0].global_position_yless
+		if not services.is_empty()
+		else _fallback_point(unit, fallback)
+	)
+
+
+func _fallback_point(unit, headquarters):
+	# The reference commander can choose a nearby waiting point, but an HQ is
+	# not a repair facility and its center is not a reachable ground assignment.
+	var center = headquarters.global_position_yless
+	var navigation = unit.get_node("Movement").get_navigation_map()
+	var previous = unit.get_meta("policy_recovery_fallback", {})
+	var recheck_mobile = unit.program != null and unit.program.mode == "Blocked"
+	if (
+		previous.get("headquarters") == headquarters.get_instance_id()
+		and _clear_fallback(unit, previous.point, recheck_mobile)
+	):
+		return previous.point
+	var candidates = []
+	for extra in [0.6, 2.6]:
+		var radius = headquarters.radius + unit.radius + extra
+		for index in 16:
+			var angle = index * TAU / 16
+			var point = center + Vector3(cos(angle), 0, sin(angle)) * radius
+			var ground = NavigationServer3D.map_get_closest_point(navigation, point)
+			ground *= Vector3(1, 0, 1)
+			if ground.distance_to(point) > 0.2 or not _clear_fallback(unit, ground):
+				continue
+			var path = NavigationServer3D.map_get_path(
+				navigation, unit.global_position, ground, true
+			)
+			if path.is_empty() or (path[-1] * Vector3(1, 0, 1)).distance_to(ground) > 0.2:
+				continue
+			candidates.append(ground)
+	candidates.sort_custom(
+		func(a, b):
+			return (
+				unit.global_position_yless.distance_squared_to(a)
+				< unit.global_position_yless.distance_squared_to(b)
+			)
+	)
+	if candidates.is_empty():
+		return unit.global_position_yless
+	unit.set_meta(
+		"policy_recovery_fallback",
+		{"headquarters": headquarters.get_instance_id(), "point": candidates[0]}
+	)
+	return candidates[0]
+
+
+func _clear_fallback(unit, point, include_mobile = true):
+	for other in plan_rules.owned_units(human):
+		if other == unit:
+			continue
+		if not include_mobile and not other.has_method("is_constructed"):
+			continue
+		if point.distance_to(other.global_position_yless) < other.radius + unit.radius + 0.2:
+			return false
+	return true
+
+
+func _policy_army():
+	return plan_rules.army(human)
+
+
+func _requires_home_attack():
+	return true
+
+
+func _assault_destination(enemy_start):
+	return enemy_start

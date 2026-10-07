@@ -1,0 +1,142 @@
+{
+  "passing_logs": {
+    "queued.log": "Support discovery: 0 failures",
+    "verified-native.log": "Support discovery: 0 failures",
+    "crowded.log": "Low-health selection: 0 failures",
+    "BattlePlanRegression.log": "Battle plan regression: 0 failures",
+    "LowHealthSelectionRegression.log": "Low-health selection: 0 failures",
+    "RecoveryCoverageRegression.log": "Recovery coverage: 0 failures"
+  },
+  "original_failures": 4,
+  "native_input": "Earned Helix, Bastion and Helix mouse; Frontier focused Enter. Selection verified before exit.",
+  "layout": "Shared action row; long funding/foundation/prerequisite states and 95 low-health cohort with defense pressure",
+  "images": {
+    "verified-native-frontier-prerequisite.png": [
+      1280,
+      720
+    ],
+    "verified-native-frontier-funds.png": [
+      1280,
+      720
+    ],
+    "verified-native-earned-selected.png": [
+      1280,
+      720
+    ],
+    "verified-native-bastion-funds.png": [
+      1280,
+      720
+    ],
+    "verified-native-helix-funds.png": [
+      1280,
+      720
+    ],
+    "verified-native-helix-before.png": [
+      1280,
+      720
+    ],
+    "verified-native-earned-before.png": [
+      1280,
+      720
+    ],
+    "verified-native-bastion-selected.png": [
+      1280,
+      720
+    ],
+    "verified-native-helix-selected.png": [
+      1280,
+      720
+    ],
+    "verified-native-bastion-prerequisite.png": [
+      1280,
+      720
+    ],
+    "verified-native-bastion-before.png": [
+      1280,
+      720
+    ],
+    "verified-native-helix-prerequisite.png": [
+      1280,
+      720
+    ],
+    "verified-native-frontier-selected.png": [
+      1280,
+      720
+    ],
+    "verified-native-frontier-before.png": [
+      1280,
+      720
+    ],
+    "verified-native-frontier-foundation.png": [
+      1280,
+      720
+    ],
+    "verified-native-bastion-foundation.png": [
+      1280,
+      720
+    ],
+    "verified-native-helix-foundation.png": [
+      1280,
+      720
+    ],
+    "crowded-frontier-large-cohort.png": [
+      1280,
+      720
+    ],
+    "crowded-helix-before.png": [
+      1280,
+      720
+    ],
+    "crowded-helix-activated.png": [
+      1280,
+      720
+    ],
+    "crowded-frontier-healthy.png": [
+      1280,
+      720
+    ],
+    "crowded-earned-selected.png": [
+      1280,
+      720
+    ],
+    "crowded-earned-before.png": [
+      1280,
+      720
+    ],
+    "crowded-frontier-large-pressure.png": [
+      1280,
+      720
+    ],
+    "crowded-helix-healthy.png": [
+      1280,
+      720
+    ],
+    "crowded-frontier-before.png": [
+      1280,
+      720
+    ],
+    "crowded-bastion-activated.png": [
+      1280,
+      720
+    ],
+    "crowded-frontier-activated.png": [
+      1280,
+      720
+    ],
+    "crowded-earned-activated.png": [
+      1280,
+      720
+    ],
+    "crowded-bastion-healthy.png": [
+      1280,
+      720
+    ],
+    "crowded-bastion-before.png": [
+      1280,
+      720
+    ]
+  },
+  "source_checks": "Five scripts: gdformat --check and gdlint pass",
+  "retained_failures": "Initial null-queue/parse fixtures; duplicate-prerequisite expectation; seven vertical-layout minimap overlaps; partial compact-label preview",
+  "limits": "Tooltip popup not visually captured; no survival/balance or performance acceptance claim; known navigation and shutdown diagnostics remain."
+}

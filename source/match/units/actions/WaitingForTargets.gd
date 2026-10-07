@@ -1,7 +1,6 @@
 extends "res://source/match/units/actions/Action.gd"
 
 const AttackingWhileInRange = preload("res://source/match/units/actions/AttackingWhileInRange.gd")
-const AutoAttacking = preload("res://source/match/units/actions/AutoAttacking.gd")
 
 const REFRESH_INTERVAL = 1.0 / 60.0 * 10.0
 
@@ -12,6 +11,8 @@ var _sub_action = null
 
 
 func _ready():
+	if restoring:
+		return
 	_timer = Timer.new()
 	_timer.timeout.connect(_on_timer_timeout)
 	add_child(_timer)
@@ -27,24 +28,12 @@ func is_idle():
 
 
 func _get_units_to_attack():
-	return get_tree().get_nodes_in_group("units").filter(
-		func(unit):
-			return (
-				unit.player != _unit.player
-				and unit.movement_domain in _unit.attack_domains
-				and (
-					_unit.global_position_yless.distance_to(unit.global_position_yless)
-					<= _unit.sight_range
-				)
-			)
-	)
+	return _unit._match.battlefield.fireable_targets(_unit)
 
 
 func _attack_unit(unit):
 	_timer.timeout.disconnect(_on_timer_timeout)
-	_sub_action = (
-		AutoAttacking.new(unit) if _unit.movement_speed > 0.0 else AttackingWhileInRange.new(unit)
-	)
+	_sub_action = AttackingWhileInRange.new(unit)
 	_sub_action.tree_exited.connect(_on_attack_finished)
 	add_child(_sub_action)
 	_unit.action_updated.emit()

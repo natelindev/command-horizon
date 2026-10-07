@@ -1,0 +1,25 @@
+import hashlib,json,re
+from pathlib import Path
+base=Path('docs/playtests/2026-10-04')
+def digest(path):return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+rows=json.loads((base/'ownership-shared-checks.json').read_text())+json.loads((base/'ownership-static-checks.json').read_text())
+for row in rows:
+ if row['name']=='OwnershipRegression':
+  row['log']=str(base/'ownership-final.log');row.pop('wall_seconds',None)
+for name,filename,marker in [('OwnershipPreview','ownership-preview-reviewed.log','Rendered ownership: 0 failures'),('InterfaceScalePreview','ownership-interface-rendered.log','Interface scaling: 0 failures'),('CampaignScalePreview','ownership-campaign-rendered.log','Campaign scale preview: 0 failures'),('ArenaPreview','ownership-arena-rendered.log','PASS: arena real-input run/pause/resume/restart, outcome/trace and 720p layout')]:
+ rows.append({'name':name,'exit':0,'log':str(base/filename),'pass_marker':marker in (base/filename).read_text()})
+for row in rows:
+ t=Path(row['log']).read_text()
+ row['script_error']='SCRIPT ERROR' in t
+ row['load_error']=any(x in t for x in ['Failed to load','Failed loading resource',"Can't load script"])
+ if row['name']=='OwnershipRegression':row['pass_marker']='Ownership readability: 0 failures' in t
+ assert row['exit']==0 and not row['script_error'] and not row['load_error'] and row.get('pass_marker',True),row
+ row['sha256']=digest(row['log'])
+assert len(rows)==18
+files=['source/match/hud/Ownership.gd','source/match/hud/OwnershipOverlay.gd','source/match/hud/MinimapUnitMarker.gd','source/match/hud/Minimap.gd','source/match/Match.gd','source/data-model/Options.gd','source/main-menu/SettingsDialog.gd','tests/headless/OwnershipRegression.gd','tests/rendered/OwnershipPreview.gd']
+files += [str(p) for p in sorted(Path('art/skirmish').glob('ownership-*.png'))]
+out={'scope':'Ownership indicators and rendered authority/layout, not full accessibility or release acceptance','accepted_checks':rows,'original_failures':'ownership-before.log','retained_diagnostics':['ownership-regression-first.log','ownership-preview-first.log','ownership-preview-second.log','ownership-BattleArenaRegression.log','ownership-preload-diagnostic.log'],'artifacts':[{'path':p,'sha256':digest(p)} for p in files],'limits':'Known navigation/shutdown warnings; no new physical-device, novice, screen-reader or performance claim'}
+(base/'ownership-verification.json').write_text(json.dumps(out,indent=2)+'\n')
+report=base/'OWNERSHIP.md'
+for target in re.findall(r'\]\(([^)]+)\)',report.read_text()):assert (report.parent/target).exists(),target
+print('PASS',len(rows),'accepted checks,',len(files),'hashed artifacts and all report links')

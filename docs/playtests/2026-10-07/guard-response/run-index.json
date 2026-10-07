@@ -1,0 +1,68 @@
+[
+  {
+    "log": "regression.log",
+    "exit_code": 1,
+    "classification": "rejected fixture: program not Running, ground already within original sector",
+    "script_or_parse_errors": 0
+  },
+  {
+    "log": "negative.log",
+    "exit_code": 1,
+    "classification": "rejected fixture: same setup error, not negative evidence",
+    "script_or_parse_errors": 0
+  },
+  {
+    "log": "final-regression.log",
+    "exit_code": 0,
+    "classification": "accepted final regression",
+    "script_or_parse_errors": 0
+  },
+  {
+    "log": "final-negative.log",
+    "exit_code": 1,
+    "classification": "expected 24 original-selection failures",
+    "script_or_parse_errors": 0
+  },
+  {
+    "log": "initial-GuardResponseRolesRegression.log",
+    "exit_code": 1,
+    "classification": "rejected fixture: basic programming locked",
+    "script_or_parse_errors": 0
+  },
+  {
+    "log": "GuardResponseRolesRegression.log",
+    "exit_code": 0,
+    "classification": "accepted final role regression",
+    "script_or_parse_errors": 0
+  },
+  {
+    "log": "AuthoredGuardRegression.log",
+    "exit_code": 0,
+    "classification": "accepted shared regression",
+    "script_or_parse_errors": 0
+  },
+  {
+    "log": "SkirmishDefenseRegression.log",
+    "exit_code": 0,
+    "classification": "accepted shared regression",
+    "script_or_parse_errors": 0
+  },
+  {
+    "log": "AirDefenseAdviceRegression.log",
+    "exit_code": 0,
+    "classification": "accepted shared regression",
+    "script_or_parse_errors": 0
+  },
+  {
+    "log": "control.log",
+    "exit_code": 0,
+    "classification": "accepted complete paid historical-reference match",
+    "script_or_parse_errors": 0
+  },
+  {
+    "log": "compatible.log",
+    "exit_code": 0,
+    "classification": "accepted complete paid corrected-reference match",
+    "script_or_parse_errors": 0
+  }
+]

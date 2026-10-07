@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-04",
+  "engine": "Godot 4.6",
+  "sha256": {
+    "source/match/players/skirmish-ai/SkirmishAI.gd": "4a0b23df15aeb5c813522c33d31c49d366d5c2c22c0b59d9aade22663cb0ffb5",
+    "source/match/players/skirmish-ai/SkirmishDefense.gd": "adf0859684368b984b795e2f7a2bb9381b8cf1f38096835de05d779371aa943c",
+    "source/match/saves/MatchSnapshot.gd": "b7d1e8768daad53b2416f168ca889997911caeaad1a8733fa35f3952015fae87",
+    "source/match/saves/MatchRestore.gd": "0f3a31eea0e66ee9c60e47e7bc3cdd8df5b5437a932267da91a3a18ce34f3577",
+    "tests/headless/SkirmishDefenseRegression.gd": "487b307e0ac98df44b6417a784f2a8881e85cd98ef31249c1dfbe1a31c587abb",
+    "tests/rendered/SkirmishDefensePreview.gd": "16071c127c5171fe31d3499e20b66218206f3f4a5dbf67006c874fd270b03e14",
+    "tests/headless/SkirmishDefensePolicy.gd": "52fccd93aafbc8043d74f002cdc3deca0a8415cdad1afcf682ece9658cbe7c36",
+    "tests/headless/BaseAccessMatches.gd": "f8beb1539e4758b046fce48c174c2bbfa1828a67c08001e57e1173a2fe35bd8e",
+    "tests/headless/SkirmishMatrix.gd": "8e4a7ed86291e42d5be0795d3b4f8386efa9bdaafa8db5cbeb1798b6141205d0",
+    "tests/headless/SkirmishLoop.gd": "918ec8abd87d05aac8a9fd580e8e3442a5be1f8f162c0ad9059d787a86530c40"
+  },
+  "notes": [
+    "The initial eight-match cohort predates the supported-group slot correction; the final cohort and retained headless/rendered defense regressions use the fingerprinted implementation.",
+    "Both matrix policies field ground combat forces. Air countering and simultaneous unanswerable/answerable raids are exercised in the retained scenario regression.",
+    "Advanced matches use SkirmishDefensePolicy; Standard matches use BaseAccessMatches. Both start at seed 4110. Shared seeds do not make asynchronous navigation and crowd avoidance deterministic.",
+    "Existing save formats and action records are reused; no persistent strategy-group schema was added."
+  ]
+}

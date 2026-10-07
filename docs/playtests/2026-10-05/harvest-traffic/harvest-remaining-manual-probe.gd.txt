@@ -1,0 +1,23 @@
+extends "res://tests/headless/HarvestTrafficRegression.gd"
+
+func _run():
+	root.get_node("SaveManager").autosaves_enabled = false
+	harvest_script = load("res://source/match/units/actions/CollectingResourcesSequentially.gd")
+	for faction in ["bastion", "helix"]:
+		await _archived_traffic(faction)
+	await _residual_traffic()
+	await _manual_replacement()
+	for message in errors:
+		push_error(message)
+	print("MANUAL PROBE failures=", errors.size())
+	quit(0 if errors.is_empty() else 1)
+
+func _review_traffic(label, watched, _blocker):
+	if not label.begins_with("manual-"):
+		return
+	var movement = watched.get_node("Movement")
+	var actors = []
+	for other in get_nodes_in_group("units") + get_nodes_in_group("resource_units"):
+		if other.position.distance_to(Vector3(108, 0, 58)) < 10:
+			actors.append({"type":other.type if "type" in other else "resource","i":other.get_index(),"p":str(other.position),"r":other.radius,"action":str(other.action) if "action" in other else "resource"})
+	print("MANUAL TRACE ",JSON.stringify({"label":label,"p":str(watched.position),"action":str(watched.action),"target":str(movement.target_position),"has_destination":movement._has_destination,"path":str(movement.get_current_navigation_path()),"idx":movement.get_current_navigation_path_index(),"occupied":movement.has_occupied_endpoint(),"recovery":movement._recovery_left,"neighbors":actors}))

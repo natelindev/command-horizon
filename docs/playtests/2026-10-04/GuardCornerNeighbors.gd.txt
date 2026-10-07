@@ -1,0 +1,62 @@
+extends "res://tests/headless/SaveRestoreEdges.gd"
+
+
+func _run():
+	root.get_node("SaveManager").autosaves_enabled = false
+	for trial in 4:
+		var restore = Restore.new()
+		var result = await restore.restore(
+			self,
+			FileStore.new().read_file("res://docs/playtests/2026-10-04/guard-travel-after-3-0.json")
+		)
+		_check(result.ok, "Corner restore failed")
+		if not result.ok:
+			continue
+		game = result.game
+		for player in get_nodes_in_group("players"):
+			player.set_process(false)
+		var unit = restore.entities["unit-13"]
+		for other in get_nodes_in_group("units"):
+			if (
+				other == unit
+				or other.movement_speed <= 0
+				or other.position.distance_to(unit.position) > 5
+			):
+				continue
+			if (
+				trial == 3
+				or (trial in [0, 2] and other.type == "RepairRobot")
+				or (trial in [1, 2] and other.type == "Infantry")
+			):
+				print("CORNER REMOVE ", trial, " ", other.type, " ", other.position)
+				other.queue_free()
+		await _frames(5)
+		var movement = unit.get_node("Movement")
+		var start = unit.position
+		paused = false
+		for step in 40:
+			await _frames(30)
+			print(
+				"CORNER ",
+				JSON.stringify(
+					{
+						"trial": trial,
+						"time": game.simulation_time,
+						"position": str(unit.position),
+						"state": unit.program.mode,
+						"reason": unit.program.reason,
+						"stalled": unit.action._stalled,
+						"path": str(movement.get_current_navigation_path()),
+						"index": movement.get_current_navigation_path_index(),
+						"requested": str(movement.velocity),
+						"progress": unit.position.distance_to(start)
+					}
+				)
+			)
+		_check(unit.program.mode == "Running", "Corner guard blocked with live traffic")
+		game.queue_free()
+		await _frames(5)
+	for error in errors:
+		push_error(error)
+	print("Guard corner: %d failures" % errors.size())
+	quit(0 if errors.is_empty() else 1)

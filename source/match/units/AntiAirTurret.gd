@@ -13,7 +13,7 @@ func _ready():
 
 
 func _set_action(action_node):
-	if not _action_locked and action == null:
+	if not _action_locked and (action == null or (action_node != null and action_node.restoring)):
 		super(action_node)
 	elif action_node != null:
 		action_node.queue_free()

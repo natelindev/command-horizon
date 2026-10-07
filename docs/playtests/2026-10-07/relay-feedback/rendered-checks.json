@@ -1,0 +1,29 @@
+[
+  {
+    "name": "preview-final",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--path",
+      ".",
+      "--script",
+      "tests/rendered/RelayFeedbackPreview.gd",
+      "--",
+      "--evidence=res://docs/playtests/2026-10-07/relay-feedback/preview-final"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "rendered-recovery",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--path",
+      ".",
+      "--script",
+      "tests/rendered/SplitClearancePreview.gd",
+      "--",
+      "--archive=res://docs/playtests/2026-10-07/relay-feedback/mode-2-archive.json",
+      "--evidence=res://docs/playtests/2026-10-07/relay-feedback/rendered-recovery"
+    ],
+    "exit_code": 1
+  }
+]

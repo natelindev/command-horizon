@@ -1,0 +1,111 @@
+{
+  "rows": [
+    {
+      "branch": "control",
+      "seed": 4110,
+      "outcome": "Defeat",
+      "seconds": 697.5,
+      "first_program": 272.733333333414,
+      "first_assault": 552.23333333316,
+      "harvested": [
+        381.0,
+        246.0
+      ],
+      "worker_losses": 2,
+      "material_handoffs": 0,
+      "electronics_handoffs": 5,
+      "coordination_samples": 1395,
+      "max_stationary_travel": [
+        3.0,
+        1.5
+      ]
+    },
+    {
+      "branch": "control",
+      "seed": 4111,
+      "outcome": "Unresolved at 30:00",
+      "seconds": 1800.7,
+      "first_program": 191.750000000045,
+      "first_assault": 269.750000000083,
+      "harvested": [
+        952.0,
+        563.0
+      ],
+      "worker_losses": 1,
+      "material_handoffs": 0,
+      "electronics_handoffs": 8,
+      "coordination_samples": 3601,
+      "max_stationary_travel": [
+        2.5,
+        1.5
+      ]
+    },
+    {
+      "branch": "reverse",
+      "seed": 4110,
+      "outcome": "Defeat",
+      "seconds": 685.7,
+      "first_program": 233.733333333411,
+      "first_assault": 335.733333333357,
+      "harvested": [
+        394.0,
+        169.0
+      ],
+      "worker_losses": 9,
+      "material_handoffs": 6,
+      "electronics_handoffs": 12,
+      "coordination_samples": 1371,
+      "max_stationary_travel": [
+        3.0,
+        2.0
+      ]
+    },
+    {
+      "branch": "reverse",
+      "seed": 4111,
+      "outcome": "Defeat",
+      "seconds": 930.4,
+      "first_program": 196.250000000048,
+      "first_assault": null,
+      "harvested": [
+        609.0,
+        264.0
+      ],
+      "worker_losses": 4,
+      "material_handoffs": 4,
+      "electronics_handoffs": 17,
+      "coordination_samples": 1861,
+      "max_stationary_travel": [
+        2.0,
+        2.5
+      ]
+    }
+  ],
+  "shipping_scripts_unchanged": 288,
+  "complete_match_gate_passed": false,
+  "resolved_matches": 3,
+  "unresolved_matches": 1,
+  "scope": "Two seeds per branch; all retain response/electronics helpers; descriptive only",
+  "earned_continuation": [
+    {
+      "delivered": [
+        0,
+        12
+      ],
+      "elapsed": 60.0000000000072,
+      "enemy_ai_active": true,
+      "retain_handoff": false,
+      "worker_alive": true
+    },
+    {
+      "delivered": [
+        4,
+        4
+      ],
+      "elapsed": 49.3833333333502,
+      "enemy_ai_active": true,
+      "retain_handoff": true,
+      "worker_alive": true
+    }
+  ]
+}

@@ -1,0 +1,123 @@
+[
+  {
+    "name": "initial-0",
+    "kind": "fresh match",
+    "difficulty": 0,
+    "challenge": "",
+    "retake": false,
+    "shipping": "before",
+    "exit": 0
+  },
+  {
+    "name": "initial-1",
+    "kind": "fresh match",
+    "difficulty": 1,
+    "challenge": "",
+    "retake": false,
+    "shipping": "before",
+    "exit": 0
+  },
+  {
+    "name": "initial-2",
+    "kind": "fresh match",
+    "difficulty": 2,
+    "challenge": "",
+    "retake": false,
+    "shipping": "before",
+    "exit": 1
+  },
+  {
+    "name": "veteran-lean",
+    "kind": "fresh match",
+    "difficulty": 2,
+    "challenge": "lean",
+    "retake": false,
+    "shipping": "before",
+    "exit": 0
+  },
+  {
+    "name": "veteran-reinforced",
+    "kind": "fresh match",
+    "difficulty": 2,
+    "challenge": "reinforced",
+    "retake": false,
+    "shipping": "before",
+    "exit": 1
+  },
+  {
+    "name": "earned-retake",
+    "kind": "earned replay",
+    "shipping": "before",
+    "exit": 0,
+    "source": "initial-2-archive.json"
+  },
+  {
+    "name": "before-feedback",
+    "kind": "rejected invalid historical-state fixture",
+    "shipping": "before",
+    "exit": 1,
+    "expected_failures": 6
+  },
+  {
+    "name": "original-feedback",
+    "kind": "negative feedback control",
+    "shipping": "before",
+    "exit": 1,
+    "expected_failures": 4
+  },
+  {
+    "name": "final-feedback",
+    "kind": "intermediate feedback regression",
+    "shipping": "trial",
+    "exit": 0
+  },
+  {
+    "name": "final-veteran",
+    "kind": "fresh match",
+    "difficulty": 2,
+    "challenge": "",
+    "retake": true,
+    "shipping": "trial",
+    "exit": 0
+  },
+  {
+    "name": "final-reinforced",
+    "kind": "fresh match",
+    "difficulty": 2,
+    "challenge": "reinforced",
+    "retake": true,
+    "shipping": "trial",
+    "exit": 0
+  },
+  {
+    "name": "preview",
+    "kind": "rejected camera-position assertion",
+    "shipping": "trial",
+    "exit": 1,
+    "expected_failures": 1
+  },
+  {
+    "name": "verified-preview",
+    "kind": "normal-clock rendered earned replay",
+    "shipping": "reviewed",
+    "exit": 0
+  },
+  {
+    "name": "HorizonRecoveryFeedback",
+    "kind": "final feedback regression",
+    "shipping": "reviewed",
+    "exit": 0
+  },
+  {
+    "name": "CommandHorizonRules",
+    "kind": "shared campaign rules",
+    "shipping": "reviewed",
+    "exit": 0
+  },
+  {
+    "name": "formatted-feedback",
+    "kind": "final equivalent-text refactor regression",
+    "shipping": "final",
+    "exit": 0
+  }
+]

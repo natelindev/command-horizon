@@ -1,0 +1,67 @@
+{
+  "passing_logs": {
+    "verified.log": {
+      "results": [
+        "Menu width: 0 failures"
+      ],
+      "layout_states": 46
+    },
+    "verified-native.log": {
+      "results": [
+        "Menu width: 0 failures"
+      ],
+      "layout_states": 46
+    },
+    "live.log": {
+      "results": [
+        "Program recovery native: 0 failures"
+      ],
+      "layout_states": 0
+    }
+  },
+  "final_images": {
+    "live-healing.png": [
+      1280,
+      720
+    ],
+    "live-paid-foundation.png": [
+      1280,
+      720
+    ],
+    "live-returned.png": [
+      1280,
+      720
+    ],
+    "live-unsupported.png": [
+      1280,
+      720
+    ],
+    "verified-bastion-Worker.png": [
+      1280,
+      720
+    ],
+    "verified-earned.png": [
+      1280,
+      720
+    ],
+    "verified-frontier-RepairRobot.png": [
+      1280,
+      720
+    ],
+    "verified-helix-Tank.png": [
+      1280,
+      720
+    ],
+    "verified-remapped.png": [
+      1280,
+      720
+    ]
+  },
+  "unchanged_shipping_sources": [
+    "source/match/hud/UnitMenus.gd",
+    "source/match/hud/OrdersPanel.gd",
+    "source/match/hud/ProgramPanel.gd"
+  ],
+  "conclusion": "Prior capture discrepancy not reproduced; no shipping layout fix claimed.",
+  "native_input": "Mouse Attack move, Escape, focused Enter Set safe point, Escape; paused state/order/fund invariants pass."
+}

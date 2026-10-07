@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="PackedScene" path="res://assets/models/bastion/demo/Barracks.glb" id="model"]
+
+[node name="Geometry" type="Node3D"]
+
+[node name="Model" parent="." instance=ExtResource("model")]
+scale = Vector3(0.52, 0.52, 0.52)

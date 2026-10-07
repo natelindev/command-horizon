@@ -11,6 +11,7 @@ signal finished(topdown_polygon_2d)
 @export var changed_signal_interval_lower_bound = 1.0 / 60.0 * 5.0  # s
 
 var _rect_on_screen = null
+var _mouse_position = Vector2.ZERO
 var _time_since_last_update = 0.0  # s
 
 
@@ -20,15 +21,20 @@ func _physics_process(delta):
 		_interrupt()
 
 
+func _input(event):
+	if event is InputEventMouse:
+		_mouse_position = event.position
+
+
 func _unhandled_input(event):
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		_start()
+		_start(event.position)
 	if (
 		event is InputEventMouseButton
 		and event.button_index == MOUSE_BUTTON_LEFT
 		and not event.pressed
 	):
-		_finish()
+		_finish(event.position)
 
 
 func _selecting():
@@ -36,8 +42,8 @@ func _selecting():
 
 
 func _screen_margin_hit():
-	var viewport_size = get_viewport().size
-	var mouse_pos = get_viewport().get_mouse_position()
+	var viewport_size = get_viewport().get_visible_rect().size
+	var mouse_pos = _mouse_position
 	return (
 		mouse_pos.x <= screen_margin
 		or mouse_pos.x >= viewport_size.x - screen_margin
@@ -46,8 +52,8 @@ func _screen_margin_hit():
 	)
 
 
-func _start():
-	var mouse_pos = get_viewport().get_mouse_position()
+func _start(mouse_pos):
+	_mouse_position = mouse_pos
 	_rect_on_screen = Rect2(0, 0, 0, 0)
 	_rect_on_screen.position = mouse_pos
 	started.emit()
@@ -60,10 +66,10 @@ func _interrupt():
 	interrupted.emit()
 
 
-func _finish():
+func _finish(mouse_pos):
 	if not _selecting():
 		return
-	_rect_on_screen.end = get_viewport().get_mouse_position()
+	_rect_on_screen.end = mouse_pos
 	finished.emit(_screen_rect_2d_to_topdown_polygon_2d(_rect_on_screen.abs()))
 	_rect_on_screen = null
 
@@ -81,7 +87,7 @@ func _throttle_update(delta):
 func _update():
 	if not _selecting():
 		return
-	_rect_on_screen.end = get_viewport().get_mouse_position()
+	_rect_on_screen.end = _mouse_position
 	changed.emit(_screen_rect_2d_to_topdown_polygon_2d(_rect_on_screen.abs()))
 
 

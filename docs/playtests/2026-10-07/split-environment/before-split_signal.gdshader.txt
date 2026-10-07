@@ -1,0 +1,18 @@
+shader_type spatial;
+varying vec3 world_position;
+float lane(vec2 p, vec2 a, vec2 b) {
+    vec2 ab = b - a;
+    return 1.0 - smoothstep(2.3, 4.8, length(p - a - ab * clamp(dot(p - a, ab) / dot(ab, ab), 0.0, 1.0)));
+}
+void vertex() { world_position = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz; }
+void fragment() {
+    vec2 p = world_position.xz;
+    float weather = sin(p.x * 0.19 + sin(p.y * 0.13)) + cos(p.y * 0.23) * 0.4;
+    float snow = smoothstep(-0.4, 0.7, weather);
+    float road = max(lane(p, vec2(18,44), vec2(46,23)), lane(p, vec2(18,44), vec2(46,65)));
+    road = max(road, max(lane(p, vec2(46,23), vec2(70,44)), lane(p, vec2(46,65), vec2(70,44))));
+    road = max(road, max(lane(p, vec2(70,44), vec2(94,15)), lane(p, vec2(70,44), vec2(94,73))));
+    vec3 ground = mix(vec3(0.19,0.27,0.31), vec3(0.43,0.52,0.56), snow);
+    ALBEDO = mix(ground, vec3(0.24,0.32,0.36), road * 0.8);
+    ROUGHNESS = 0.96;
+}

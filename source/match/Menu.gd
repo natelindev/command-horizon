@@ -7,7 +7,7 @@ func _ready():
 
 func _unhandled_input(event):
 	if (
-		event.is_action_pressed("toggle_match_menu")
+		event.is_action_pressed("toggle_match_menu", false, true)
 		and ((not visible and not get_tree().paused) or (visible and get_tree().paused))
 	):
 		_toggle()

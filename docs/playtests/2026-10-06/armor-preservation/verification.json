@@ -1,0 +1,28 @@
+{
+  "passing_logs": {
+    "final.log": "Armor preservation: 0 failures",
+    "infantry.log": "Conventional recovery policy: 0 failures",
+    "earned-infantry.log": "Conventional recovery: 0 failures",
+    "retrofit.log": "Paid retrofit: 0 failures",
+    "helix.log": "Skirmish matrix: 2 records, 0 unresolved checks",
+    "frontier.log": "Skirmish matrix: 1 records, 0 unresolved checks"
+  },
+  "original_controlled_failures": 3,
+  "final_controlled_failures": 0,
+  "complete_matches": 3,
+  "victories": 2,
+  "defeats": 1,
+  "armor_returns": 4,
+  "armor_authority_checks": 101,
+  "paid_installed_retrofits": 5,
+  "ai_coordination_violations": 0,
+  "source_checks": "Five touched scripts: gdformat --check and gdlint pass",
+  "scope": "Opt-in reference policy and test support only; no shipping behavior or balance acceptance",
+  "retained_fixture_errors": [
+    "initial-parse.log",
+    "before-fixture-errors.log",
+    "after-fixture-errors.log",
+    "after-queue-fixture-error.log"
+  ],
+  "limits": "Controlled all-faction fixtures; three full trials on Coastal Foundry; nondeterministic navigation; existing headless navigation/shutdown diagnostics."
+}

@@ -1,0 +1,140 @@
+[
+  {
+    "log": "baseline.log",
+    "exit_code": 0,
+    "classification": "accepted baseline",
+    "note": "Six original landmark envelopes and five navigation routes before edits."
+  },
+  {
+    "log": "before-preview.log",
+    "exit_code": 0,
+    "classification": "accepted baseline",
+    "note": "Original scene captures; not final art."
+  },
+  {
+    "log": "geometry.log",
+    "exit_code": 0,
+    "classification": "intermediate verification",
+    "note": "First revised geometry check, before expanded archive/cover checks."
+  },
+  {
+    "log": "after-preview.log",
+    "exit_code": 0,
+    "classification": "intermediate verification",
+    "note": "Initial revised scene; final shader only flattens unconditional blocks and final preview adds normal-fog views."
+  },
+  {
+    "log": "final-preview.log",
+    "exit_code": 0,
+    "classification": "accepted",
+    "note": "Ten final scene views, including ordinary fog and explicit art reveal."
+  },
+  {
+    "log": "native-veteran.log",
+    "exit_code": 0,
+    "classification": "accepted",
+    "note": "Ordinary normal-clock Veteran route and three inspected combat/result views."
+  },
+  {
+    "log": "verified-geometry.log",
+    "exit_code": 0,
+    "classification": "accepted",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/headless/FoundryEnvironmentRegression.gd",
+      "--"
+    ]
+  },
+  {
+    "log": "shared-foundry.log",
+    "exit_code": 0,
+    "classification": "accepted",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/headless/BrokenFoundryRegression.gd",
+      "--"
+    ]
+  },
+  {
+    "log": "aircraft.log",
+    "exit_code": 0,
+    "classification": "accepted",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/headless/IndustrialEnvironmentRegression.gd",
+      "--"
+    ]
+  },
+  {
+    "log": "mode-0.log",
+    "exit_code": 0,
+    "classification": "accepted",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/FoundryDifficultyMatches.gd",
+      "--",
+      "--difficulty=0",
+      "--evidence=res://docs/playtests/2026-10-07/foundry-environment/mode-0"
+    ]
+  },
+  {
+    "log": "mode-1.log",
+    "exit_code": 0,
+    "classification": "accepted",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/FoundryDifficultyMatches.gd",
+      "--",
+      "--difficulty=1",
+      "--evidence=res://docs/playtests/2026-10-07/foundry-environment/mode-1"
+    ]
+  },
+  {
+    "log": "mode-2.log",
+    "exit_code": 0,
+    "classification": "accepted",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/FoundryDifficultyMatches.gd",
+      "--",
+      "--difficulty=2",
+      "--evidence=res://docs/playtests/2026-10-07/foundry-environment/mode-2"
+    ]
+  }
+]

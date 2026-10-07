@@ -1,0 +1,11 @@
+import concurrent.futures,json,subprocess,time
+from pathlib import Path
+base=Path('docs/playtests/2026-10-04'); godot='./tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot'
+names=['OwnershipRegression','SettingsRegression','MapStartupRegression','DirectOrdersRegression','SelectionRosterRegression','CombatRegression','SaveRestoreCombat','SaveRestoreEdges','CampaignControlsRegression','ArenaRegression']
+def run(n):
+ p=base/('ownership-'+n+'.log'); start=time.monotonic()
+ with p.open('w') as f:r=subprocess.run([godot,'--headless','--path','.','--fixed-fps','60','--script','tests/headless/'+n+'.gd'],stdout=f,stderr=subprocess.STDOUT,timeout=600)
+ t=p.read_text();d={'name':n,'exit':r.returncode,'script_error':'SCRIPT ERROR' in t,'load_error':any(x in t for x in ['Failed to load','Failed loading resource',"Can't load script"]),'pass_marker':('0 failures' in t or 'PASS:' in t),'wall_seconds':round(time.monotonic()-start,1),'log':str(p)};print(json.dumps(d),flush=True);return d
+with concurrent.futures.ThreadPoolExecutor(max_workers=2) as pool:rows=list(pool.map(run,names))
+(base/'ownership-shared-checks.json').write_text(json.dumps(rows,indent=2)+'\n')
+raise SystemExit(int(any(r['exit'] or r['script_error'] or r['load_error'] or not r['pass_marker'] for r in rows)))

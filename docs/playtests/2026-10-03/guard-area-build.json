@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-03",
+  "engine": "Godot 4.6",
+  "sha256": {
+    "source/match/programs/PresetAction.gd": "1309f264a2d8783982b96f9fd30102241431085da30e8353ea7b5b3e71536f8f",
+    "source/match/programs/ProgramLibrary.gd": "656dda8cd3e507adc83a4b335d146e2d935d16f90b13c7a49c7cae04810cd154",
+    "tests/headless/GuardAreaRegression.gd": "bf47eeeb05dbd22dd64ac2b4af3544fde393170b56387fa3923f2ebf2c3f193b",
+    "tests/rendered/GuardAreaPreview.gd": "9c9f2c5f677c607fb599efe22a4092955066b568036c58842e3f23756456adb0",
+    "tests/headless/SkirmishDefensePolicy.gd": "52fccd93aafbc8043d74f002cdc3deca0a8415cdad1afcf682ece9658cbe7c36",
+    "source/match/players/skirmish-ai/SkirmishAI.gd": "84ebf1d3140d4a91df2c861bad5c014caa8233d887742a0ea3a44207e6b9d9be",
+    "source/match/FactionCatalog.gd": "88f47e844e7dc8ebb2e1f8165b1d0116ac35d78a47fe3e1765782b044b010d51",
+    "source/match/combat/CombatRules.gd": "65f73d92763d11d36caa951ee54d64a8e979d3bf4e3329034a4ef44f623a4f96"
+  },
+  "notes": [
+    "The original isolated regression failed for both factions before changing Guard acquisition.",
+    "The four Advanced matches use the unchanged retained defense policy at seed 4110. Shared seeds do not make asynchronous navigation and crowd avoidance deterministic.",
+    "Only the built-in Guard preset acquisition and its UI description changed; other preset ranges, Lua source versions, costs, weapons and AI policy were not retuned."
+  ]
+}

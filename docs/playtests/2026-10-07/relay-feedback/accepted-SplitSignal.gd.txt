@@ -1,0 +1,215 @@
+extends "res://source/match/Skirmish.gd"
+
+const Progress = preload("res://source/match/campaign/CampaignProgress.gd")
+const AttackMove = preload("res://source/match/units/actions/AttackMoving.gd")
+const WAVE_TIMES = [25.0, 50.0, 75.0, 100.0, 125.0, 150.0]
+const ENTRIES = [Vector3(94, 0, 15), Vector3(94, 0, 73)]
+var control_seconds = 0.0
+var network_seconds = 0.0
+var command_left = 60.0
+var defence_started = false
+var defence_time = 0.0
+var waves_sent = 0
+var waves_warned = 0
+var network_badge = false
+var progress_path = Progress.PATH
+var progress_error = ""
+var _enemy
+
+
+func _ready():
+	super()
+	var opponents = get_tree().get_nodes_in_group("players").filter(
+		func(side): return side != _get_human_player()
+	)
+	_enemy = opponents[0]
+	_enemy.set_process(false)
+	for index in map.relays.size():
+		map.relays[index].captured.connect(_relay_captured.bind(index))
+	_checkpoint("Operation start")
+	hud.show_notice("Split Signal: split your force. Two uncontested relays advance the uplink.")
+
+
+func _create_hud():
+	return load("res://source/match/campaign/SplitSignalHUD.gd").new()
+
+
+func _spawn_player_units(side, _spawn_transform):
+	if side.faction != "bastion":
+		for index in map.relays.size():
+			for offset in [-1.6, 1.6]:
+				_spawn("Infantry", side, map.relays[index].position + Vector3(offset, 0, 1.5))
+		return
+	side.resource_a = 100
+	side.resource_b = 40
+	for entry in [
+		["CommandCenter", Vector3(18, 0, 44)],
+		["PowerPlant", Vector3(10, 0, 38)],
+		["PowerPlant", Vector3(10, 0, 46)],
+		["Barracks", Vector3(18, 0, 36)],
+		["VehicleFactory", Vector3(26, 0, 44)],
+		["CommandLab", Vector3(18, 0, 52)],
+		["RepairDepot", Vector3(26, 0, 52)],
+		["Worker", Vector3(10, 0, 53)],
+		["Worker", Vector3(13, 0, 53)],
+		["Worker", Vector3(16, 0, 57)],
+		["Drone", Vector3(28, 0, 39)]
+	]:
+		_spawn(entry[0], side, entry[1])
+	for lane in [0, 1]:
+		var z = 29.0 if lane == 0 else 61.0
+		for index in 3:
+			_spawn("Tank", side, Vector3(27 + index * 2.5, 0, z))
+		_spawn("RepairRobot", side, Vector3(24, 0, z))
+		for index in 6:
+			_spawn("Infantry", side, Vector3(26 + (index % 3) * 1.8, 0, z + 3 + (index / 3) * 1.8))
+
+
+func _spawn(role, side, point):
+	var unit = load(Catalog.scene_path(role)).instantiate()
+	if side.faction == "bastion" and role == "Tank":
+		unit.set_meta("chip_installed", true)
+	_setup_and_spawn_unit(unit, Transform3D(Basis(), point), side, false)
+	return unit
+
+
+func controlled_relays():
+	return (
+		map
+		. relays
+		. filter(
+			func(relay): return relay.captured_by == _get_human_player() and not relay.contested
+		)
+		. size()
+	)
+
+
+func _check_outcome(delta):
+	if _enemy == null:
+		return
+	var human = _get_human_player()
+	command_left = 60.0 if human.has_completed_structure("CommandCenter") else command_left - delta
+	if (
+		command_left <= 0
+		or (human.population() == 0 and not human.has_completed_structure("CommandCenter"))
+	):
+		_finish("Defeat")
+		return
+	var count = controlled_relays()
+	if count >= 2:
+		control_seconds += delta
+	if count == 3 and not network_badge:
+		network_seconds = minf(20.0, network_seconds + delta)
+		if network_seconds >= 20:
+			network_badge = true
+			hud.show_notice("Full network secured · Air Corridor support earned.")
+	if control_seconds >= 120:
+		_finish("Victory")
+		return
+	if not defence_started:
+		return
+	defence_time += delta
+	if waves_warned < WAVE_TIMES.size() and defence_time >= WAVE_TIMES[waves_warned] - 10:
+		waves_warned += 1
+		hud.show_notice(
+			"Helix response %d / 6 · northeast and southeast in 10 seconds." % waves_warned
+		)
+	if waves_sent < WAVE_TIMES.size() and defence_time >= WAVE_TIMES[waves_sent]:
+		_send_wave()
+
+
+func _relay_captured(side, index):
+	if side == _get_human_player():
+		defence_started = true
+		_checkpoint(map.NAMES[index] + " relay secured")
+	hud.show_notice(
+		(
+			map.NAMES[index]
+			+ (
+				" relay secured."
+				if side == _get_human_player()
+				else " relay lost. Uplink progress is retained."
+			)
+		)
+	)
+
+
+func _send_wave():
+	# Public relay positions are mission objectives. No hidden-unit targeting is used.
+	# Resolve each scheduled response once; occupied arrivals deny that wing permanently.
+	var count = [2, 3, 4][_enemy.difficulty]
+	var spawned = 0
+	for lane in ENTRIES.size():
+		var entry = ENTRIES[lane]
+		if battlefield.nearby_units(entry, 12.0).any(
+			func(unit): return unit.player == _get_human_player()
+		):
+			continue
+		var objective = (0 if lane == 0 else 2) if waves_sent % 2 == 0 else 1
+		for index in count:
+			var role = "Tank" if index == count - 1 else "Infantry"
+			var unit = _spawn(role, _enemy, entry + Vector3((index % 2) * 2, 0, (index / 2) * 2))
+			unit.issue_manual_order(
+				AttackMove.new(map.relays[objective].position + Vector3(index * 0.6, 0, 0))
+			)
+			spawned += 1
+	waves_sent += 1
+	hud.show_notice("Helix response %d / 6 · %d reinforcements entered." % [waves_sent, spawned])
+
+
+func _finish(value):
+	if finished:
+		return
+	finished = true
+	result = value
+	if value == "Victory":
+		var progress = Progress.new()
+		if not progress.record_split_victory(network_badge, progress_path):
+			progress_error = progress.error
+	hud.show_result("Split Signal · " + value)
+
+
+func objective_text():
+	if command_left < 60:
+		return "Rebuild HQ · %ds remaining" % ceili(command_left)
+	var contested = map.relays.filter(func(relay): return relay.contested)
+	if controlled_relays() < 2 and not contested.is_empty():
+		var guidance = "Recapture in progress"
+		if contested.any(
+			func(relay):
+				return (
+					relay.capture_side() != _get_human_player()
+					and not relay.needs_infantry(_get_human_player())
+				)
+		):
+			guidance = "Clear contested relays"
+		elif contested.any(func(relay): return relay.needs_infantry(_get_human_player())):
+			guidance = "Move infantry to relay"
+		return "Uplink %d / 120 s · %s" % [int(control_seconds), guidance]
+	return (
+		"Uplink %d / 120 s · %d / 3 relays uncontested"
+		% [int(control_seconds), controlled_relays()]
+	)
+
+
+func result_summary():
+	var text = (
+		"Uplink restored. Your independent assignments secured the network."
+		if result == "Victory"
+		else "Command lost. Rebuild HQ within 60 seconds to remain in the operation."
+	)
+	text += (
+		"\n"
+		+ (
+			"Air Corridor support earned."
+			if network_badge
+			else "Optional: control all three relays for 20 cumulative seconds."
+		)
+	)
+	if not progress_error.is_empty():
+		text += "\n" + progress_error
+	return text
+
+
+func _checkpoint(reason):
+	get_node("/root/SaveManager").request_checkpoint(self, reason)

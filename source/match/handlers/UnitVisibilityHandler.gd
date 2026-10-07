@@ -1,12 +1,13 @@
 extends Node3D
 
-const SIGHT_COMPENSATION = 2.0  # compensates for blurry edges of FoW
-
 const Structure = preload("res://source/match/units/Structure.gd")
 
 var _units_processed_at_least_once = {}
 var _structure_to_dummy_mapping = {}
 var _orphaned_dummies = []
+var _refresh_cursor = 0
+var _orphan_elapsed = 0.0
+@onready var _match = find_parent("Match")
 
 
 func _ready():
@@ -14,40 +15,35 @@ func _ready():
 	MatchSignals.unit_died.connect(_on_unit_died)
 
 
-func _physics_process(_delta):
+func _physics_process(delta):
+	_orphan_elapsed += delta
 	var all_units = get_tree().get_nodes_in_group("units")
-	var revealed_units = all_units.filter(func(unit): return unit.is_in_group("revealed_units"))
-	for unit in all_units:
-		_recalculate_unit_visibility(unit, revealed_units)
-	for orphaned_dummy in _orphaned_dummies:
-		_recalcuate_orphaned_dummy_existence(orphaned_dummy, revealed_units)
+	if all_units.is_empty():
+		return
+	# Spread presentation updates over six frames. Weapon legality always queries
+	# current positions independently, so this never grants stale firing authority.
+	for _index in range(ceili(all_units.size() / 6.0)):
+		_refresh_cursor %= all_units.size()
+		_recalculate_unit_visibility(all_units[_refresh_cursor])
+		_refresh_cursor += 1
+	if _orphan_elapsed >= 0.1:
+		_orphan_elapsed = 0.0
+		for orphaned_dummy in _orphaned_dummies.duplicate():
+			_recalcuate_orphaned_dummy_existence(orphaned_dummy)
 
 
 func _is_disabled():
 	return not visible
 
 
-func _recalculate_unit_visibility(unit, revealed_units = null):
+func _recalculate_unit_visibility(unit, _revealed_units = null):
 	if unit.is_in_group("revealed_units") or _is_disabled():
 		_update_unit_visibility(unit, true)
 		return
 
 	var should_be_visible = false
-	if revealed_units == null:
-		revealed_units = get_tree().get_nodes_in_group("units").filter(
-			func(a_unit): return a_unit.is_in_group("revealed_units")
-		)
-	for revealed_unit in revealed_units:
-		if (
-			revealed_unit.is_revealing()
-			and revealed_unit.sight_range != null
-			and (
-				(revealed_unit.global_position * Vector3(1, 0, 1)).distance_to(
-					unit.global_position * Vector3(1, 0, 1)
-				)
-				<= revealed_unit.sight_range + SIGHT_COMPENSATION
-			)
-		):
+	for player in _match.visible_players:
+		if _match.battlefield.is_observed(player, unit):
 			should_be_visible = true
 			break
 	_update_unit_visibility(unit, should_be_visible)
@@ -71,6 +67,10 @@ func _create_dummy_structure(unit):
 	if unit in _structure_to_dummy_mapping:
 		return
 	var dummy = unit.find_child("Geometry").duplicate()
+	# Keep inert visual identity after the real structure dies outside observation.
+	dummy.set_meta("memory_role", unit.type)
+	dummy.set_meta("memory_faction", unit.player.faction)
+	dummy.set_meta("memory_color", unit.player.color)
 	dummy.global_transform = unit.find_child("Geometry").global_transform
 	add_child(dummy)
 	_structure_to_dummy_mapping[unit] = dummy
@@ -85,18 +85,14 @@ func _try_removing_dummy_structure(unit):
 func _recalcuate_orphaned_dummy_existence(orphaned_dummy, revealed_units = null):
 	var should_exist = true
 	if revealed_units == null:
-		revealed_units = get_tree().get_nodes_in_group("units").filter(
-			func(unit): return unit.is_in_group("revealed_units")
-		)
+		var candidates = get_tree().get_nodes_in_group("units")
+		candidates += get_tree().get_nodes_in_group("vision_sources")
+		revealed_units = candidates.filter(func(unit): return unit.is_in_group("revealed_units"))
 	for revealed_unit in revealed_units:
 		if (
 			revealed_unit.is_revealing()
-			and revealed_unit.sight_range != null
-			and (
-				(revealed_unit.global_position * Vector3(1, 0, 1)).distance_to(
-					orphaned_dummy.global_position * Vector3(1, 0, 1)
-				)
-				<= revealed_unit.sight_range + SIGHT_COMPENSATION
+			and _match.battlefield.can_observe_point(
+				revealed_unit, orphaned_dummy.global_position + Vector3.UP * 0.8
 			)
 		):
 			should_exist = false

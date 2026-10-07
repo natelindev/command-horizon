@@ -1,42 +1,37 @@
 extends Node3D
 
+var restoring = false
 var target_unit = null
-
+var _flight_left = 0.0
+var _resolved = false
 @onready var _unit = get_parent()
-@onready var _visuals = find_child("Visuals")
-@onready var _path = find_child("Path3D")
-@onready var _animation_player = find_child("AnimationPlayer")
-@onready var _rocket = find_child("MeshInstance3D")
-@onready var _particles = find_child("GPUParticles3D")
 
 
 func _ready():
-	assert(target_unit != null, "target unit was not provided")
-	_visuals.visible = _unit.visible
-	_rocket.hide()
-	_particles.hide()
-	target_unit.tree_exited.connect(queue_free)
-	_animation_player.animation_finished.connect(func(_animation): queue_free())
-	_setup_path()
-	# wait 2 frames for path curve setup so that path follow has correct transform
-	await get_tree().physics_frame
-	await get_tree().physics_frame
-	_animation_player.play("animate")
+	if restoring:
+		return
+	if not is_instance_valid(target_unit):
+		queue_free()
+		return
+	var visuals = _unit.get_node_or_null("BastionVisuals")
+	if visuals != null:
+		visuals.fire_recoil()
+	var marker = _unit.get_node_or_null("ProjectileOrigin")
+	var origin = marker.global_position if marker != null else _unit.global_position + Vector3.UP
+	var point = target_unit.global_position + Vector3.UP * 0.5
+	_flight_left = clampf(origin.distance_to(point) / 14.0, 0.2, 0.65)
+	_unit._match.combat_effects.shot(_unit, origin, point, _flight_left, true, target_unit)
 
 
-func _physics_process(_delta):
-	_path.curve.set_point_position(1, target_unit.global_position)
-
-
-func _setup_path():
-	var projectile_origin = (
-		_unit.global_position
-		if _unit.find_child("ProjectileOrigin") == null
-		else _unit.find_child("ProjectileOrigin").global_position
-	)
-	_path.curve.add_point(projectile_origin)
-	_path.curve.add_point(target_unit.global_position)
-
-
-func _perform_hit():
-	target_unit.hp -= _unit.attack_damage
+func _physics_process(delta):
+	if _resolved:
+		return
+	if not is_instance_valid(target_unit) or target_unit.is_queued_for_deletion():
+		queue_free()
+		return
+	_flight_left -= delta
+	if _flight_left <= 0:
+		_resolved = true
+		if _unit._match.battlefield.has_line_of_fire(_unit, target_unit):
+			target_unit.receive_weapon_hit(_unit)
+		queue_free()

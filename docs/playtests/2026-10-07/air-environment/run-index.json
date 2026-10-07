@@ -1,0 +1,299 @@
+[
+  {
+    "name": "rules",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/headless/AirCorridorRegression.gd",
+      "--"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "held-archive",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/headless/AirHoldingRegression.gd",
+      "--"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "mode-0",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/AirDifficultyMatches.gd",
+      "--",
+      "--difficulty=0",
+      "--evidence=res://docs/playtests/2026-10-07/air-environment/mode-0"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "mode-1",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/AirDifficultyMatches.gd",
+      "--",
+      "--difficulty=1",
+      "--evidence=res://docs/playtests/2026-10-07/air-environment/mode-1"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "mode-2",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/AirDifficultyMatches.gd",
+      "--",
+      "--difficulty=2",
+      "--evidence=res://docs/playtests/2026-10-07/air-environment/mode-2"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "veteran-response",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/playtest/AirDifficultyMatches.gd",
+      "--",
+      "--difficulty=2",
+      "--respond-to-threats",
+      "--evidence=res://docs/playtests/2026-10-07/air-environment/veteran-response"
+    ],
+    "exit_code": 0
+  },
+  {
+    "name": "baseline",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/headless/AirEnvironmentRegression.gd",
+      "--",
+      "--baseline"
+    ],
+    "exit_code": 0,
+    "revision": "original map"
+  },
+  {
+    "name": "before-preview",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--path",
+      ".",
+      "--script",
+      "tests/rendered/AirEnvironmentPreview.gd",
+      "--",
+      "--evidence=res://docs/playtests/2026-10-07/air-environment/before"
+    ],
+    "exit_code": 0,
+    "revision": "original map, initial preview fixture"
+  },
+  {
+    "name": "geometry",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/headless/AirEnvironmentRegression.gd",
+      "--"
+    ],
+    "exit_code": 0,
+    "revision": "initial kit, pre-sight assertions"
+  },
+  {
+    "name": "flights",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/headless/QuarryFlightRegression.gd",
+      "--"
+    ],
+    "exit_code": 0,
+    "revision": "initial kit"
+  },
+  {
+    "name": "initial-preview",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--path",
+      ".",
+      "--script",
+      "tests/rendered/AirEnvironmentPreview.gd",
+      "--",
+      "--evidence=res://docs/playtests/2026-10-07/air-environment/initial"
+    ],
+    "exit_code": 0,
+    "revision": "initial kit"
+  },
+  {
+    "name": "geometry-final",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/headless/AirEnvironmentRegression.gd",
+      "--"
+    ],
+    "exit_code": 0,
+    "revision": "final kit, before exterior foundation hiding"
+  },
+  {
+    "name": "flights-final",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/headless/QuarryFlightRegression.gd",
+      "--"
+    ],
+    "exit_code": 0,
+    "revision": "final kit, before exterior foundation hiding"
+  },
+  {
+    "name": "final-preview",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--path",
+      ".",
+      "--script",
+      "tests/rendered/AirEnvironmentPreview.gd",
+      "--",
+      "--evidence=res://docs/playtests/2026-10-07/air-environment/final"
+    ],
+    "exit_code": 0,
+    "revision": "final kit, before exterior foundation hiding"
+  },
+  {
+    "name": "review-preview",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--path",
+      ".",
+      "--script",
+      "tests/rendered/AirEnvironmentPreview.gd",
+      "--",
+      "--evidence=res://docs/playtests/2026-10-07/air-environment/review"
+    ],
+    "exit_code": 0,
+    "revision": "final shipping"
+  },
+  {
+    "name": "veteran-preview",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--path",
+      ".",
+      "--script",
+      "tests/rendered/AirDifficultyPreview.gd",
+      "--",
+      "--difficulty=2",
+      "--respond-to-threats",
+      "--evidence=res://docs/playtests/2026-10-07/air-environment/veteran-preview"
+    ],
+    "exit_code": 0,
+    "revision": "final interior/altitude, before exterior foundation hiding"
+  },
+  {
+    "name": "raised-preview",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--path",
+      ".",
+      "--script",
+      "tests/rendered/QuarryFlightPreview.gd",
+      "--"
+    ],
+    "exit_code": 0,
+    "revision": "final shipping"
+  },
+  {
+    "name": "legacy-capture",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/headless/QuarryLegacyArchive.gd",
+      "--"
+    ],
+    "exit_code": 0,
+    "revision": "temporarily restored original map gd/tscn; finally restored current files"
+  },
+  {
+    "name": "legacy-recovery",
+    "command": [
+      "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      ".",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/headless/QuarryLegacyRecovery.gd",
+      "--"
+    ],
+    "exit_code": 0,
+    "revision": "final shipping"
+  }
+]
