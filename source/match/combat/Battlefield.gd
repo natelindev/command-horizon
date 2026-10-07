@@ -130,16 +130,9 @@ func fireable_targets(source):
 	var result = []
 	if not is_instance_valid(source) or source.attack_range == null:
 		return result
-	var origin = source.global_position
-	var range_squared = source.attack_range * source.attack_range
-	# Read live positions in scene order. This cheap broad phase avoids expensive
-	# weapon/domain/visibility checks for distant units without a stale position cache.
-	# Per-target ranges may shorten, but never exceed, the unit's attack_range.
-	for candidate in get_tree().get_nodes_in_group("units"):
-		var point = candidate.global_position
-		var dx = point.x - origin.x
-		var dz = point.z - origin.z
-		if dx * dx + dz * dz <= range_squared and can_fire(source, candidate):
+	var origin = source.global_position_yless
+	for candidate in nearby_units(origin, source.attack_range):
+		if can_fire(source, candidate):
 			result.append(candidate)
 	return result
 

@@ -13,6 +13,7 @@ var _map_geometry = NavigationMeshSourceGeometryData3D.new()
 @onready var navigation_map_rid = NavigationServer3D.map_create()
 
 @onready var _navigation_region = find_child("NavigationRegion3D")
+@onready var _reference_static_collider_shape = find_child("CollisionShape3D")
 
 
 func _ready():
@@ -48,6 +49,12 @@ func bake(map):
 		_navigation_region.navigation_mesh.get_polygon_count() == 0,
 		"bake() should be called exactly once - during runtime"
 	)
+	if _reference_static_collider_shape != null:
+		var shape = BoxShape3D.new()
+		shape.size = Vector3(map.size.x, 0, map.size.y)
+		_reference_static_collider_shape.shape = shape
+		_reference_static_collider_shape.global_transform.origin.x = map.size.x / 2.0
+		_reference_static_collider_shape.global_transform.origin.z = map.size.y / 2.0
 	# setting custom AABB for baking so that height of dynamic AABB is always the same
 	# - without such setting, re-baking may yield different results depending on geometry height
 	_navigation_region.navigation_mesh.filter_baking_aabb = AABB(

@@ -174,8 +174,24 @@ func _options_changed():
 
 
 func _stop():
-	_bed.stop()
+	if is_instance_valid(_bed):
+		_bed.stop()
 	_gain = 0.0
 	for entry in _locals:
-		entry.node.stop()
+		if is_instance_valid(entry.node):
+			entry.node.stop()
 		entry.gain = 0.0
+
+
+func _exit_tree():
+	if is_instance_valid(Globals) and is_instance_valid(Globals.options):
+		if Globals.options.changed.is_connected(_options_changed):
+			Globals.options.changed.disconnect(_options_changed)
+	_stop()
+	if is_instance_valid(_bed):
+		_bed.stream = null
+	for entry in _locals:
+		if is_instance_valid(entry.node):
+			entry.node.stream = null
+	_locals.clear()
+	_streams.clear()

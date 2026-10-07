@@ -227,3 +227,16 @@ func _options_changed():
 		for entry in _players:
 			entry.node.stop()
 			entry.active = false
+
+
+func _exit_tree():
+	if is_instance_valid(Globals) and is_instance_valid(Globals.options):
+		if Globals.options.changed.is_connected(_options_changed):
+			Globals.options.changed.disconnect(_options_changed)
+	for entry in _players:
+		if is_instance_valid(entry.node):
+			entry.node.stop()
+			entry.node.stream = null
+	_players.clear()
+	_streams.clear()
+	_recent.clear()

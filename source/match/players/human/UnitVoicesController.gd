@@ -15,6 +15,17 @@ func _ready() -> void:
 	MatchSignals.terrain_targeted.connect(_on_unit_action_requsted)
 
 
+func _exit_tree() -> void:
+	if not is_instance_valid(MatchSignals):
+		return
+	if MatchSignals.unit_selected.is_connected(_on_unit_selected):
+		MatchSignals.unit_selected.disconnect(_on_unit_selected)
+	if MatchSignals.unit_targeted.is_connected(_on_unit_action_requsted):
+		MatchSignals.unit_targeted.disconnect(_on_unit_action_requsted)
+	if MatchSignals.terrain_targeted.is_connected(_on_unit_action_requsted):
+		MatchSignals.terrain_targeted.disconnect(_on_unit_action_requsted)
+
+
 func _handle_event(event):
 	_voice.say(event)
 

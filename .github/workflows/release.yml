@@ -1,0 +1,70 @@
+name: Publish Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  export-and-release:
+    name: Export Game & Create Release
+    runs-on: ubuntu-latest
+
+    env:
+      GODOT_VERSION: "4.6-stable"
+      GODOT_VERSION_CLEAN: "4.6.stable"
+      GAME_NAME: "Open_RTS"
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Setup Godot & Export Templates
+        run: |
+          mkdir -p ~/.local/share/godot/export_templates/${{ env.GODOT_VERSION_CLEAN }}
+          mkdir -p /opt/godot
+          mkdir -p build
+
+          # Download Godot Engine headless runner
+          wget -q https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_linux.x86_64.zip
+          unzip -q Godot_v${{ env.GODOT_VERSION }}_linux.x86_64.zip -d /opt/godot
+          sudo ln -s /opt/godot/Godot_v${{ env.GODOT_VERSION }}_linux.x86_64 /usr/local/bin/godot
+          rm Godot_v${{ env.GODOT_VERSION }}_linux.x86_64.zip
+
+          # Download and unpack Export Templates
+          wget -q https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}/Godot_v${{ env.GODOT_VERSION }}_export_templates.tpz
+          unzip -q Godot_v${{ env.GODOT_VERSION }}_export_templates.tpz
+          cp -r templates/* ~/.local/share/godot/export_templates/${{ env.GODOT_VERSION_CLEAN }}/
+          rm -rf templates Godot_v${{ env.GODOT_VERSION }}_export_templates.tpz
+
+      - name: Export Linux Build
+        run: |
+          godot --headless --path . --export-release "Linux/X11" "build/${{ env.GAME_NAME }}_Linux.x86_64"
+          tar -czf "build/${{ env.GAME_NAME }}_Linux.tar.gz" -C build "${{ env.GAME_NAME }}_Linux.x86_64"
+
+      - name: Export Windows Build
+        run: |
+          godot --headless --path . --export-release "Windows Desktop" "build/${{ env.GAME_NAME }}_Windows.exe"
+          zip -j "build/${{ env.GAME_NAME }}_Windows.zip" "build/${{ env.GAME_NAME }}_Windows.exe"
+
+      - name: Export macOS Build
+        run: |
+          godot --headless --path . --export-release "macOS" "build/${{ env.GAME_NAME }}_macOS.zip"
+
+      - name: Create GitHub Release & Upload Binaries
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            build/${{ env.GAME_NAME }}_Linux.tar.gz
+            build/${{ env.GAME_NAME }}_Windows.zip
+            build/${{ env.GAME_NAME }}_macOS.zip

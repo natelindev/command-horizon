@@ -108,3 +108,11 @@ func _clear():
 	current.clear()
 	_remaining = 0
 	caption_changed.emit({})
+
+
+func _exit_tree():
+	if is_instance_valid(_audio):
+		_audio.stop()
+		_audio.stream = null
+	_pending.clear()
+	current.clear()
