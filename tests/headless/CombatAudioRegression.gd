@@ -16,6 +16,7 @@ func _run():
 		combat_audio = game.combat_audio
 		combat_audio.cue_started.connect(func(kind, _point): cues.append(kind))
 		await _actual_combat(faction)
+		await _variants_and_rockets()
 		await _audibility()
 		await _audio_lifecycle()
 		await _audio_restore()
@@ -119,12 +120,20 @@ func _audibility():
 	game.restoring = false
 	_check(combat_audio.played_count == played, "Restoration emitted combat audio")
 	paused = true
-	await _frames(2)
+	# Audio synchronizes on render frames; catch-up physics ticks may share one frame.
+	await process_frame
+	await process_frame
 	combat_audio.shot(own, own.global_position)
 	_check(combat_audio.played_count == played, "Paused battle generated sound")
 	for entry in combat_audio._players:
 		if entry.active:
-			_check(entry.node.stream_paused, "Tactical pause did not pause combat audio")
+			_check(
+				(
+					entry.node.stream_paused
+					or (not entry.node.can_process() and entry.node.get_playback_position() == 0.0)
+				),
+				"Tactical pause did not pause active/pending combat audio"
+			)
 	paused = false
 	await _frames(2)
 	preferences.effects_volume = 0
@@ -176,7 +185,9 @@ func _audio_lifecycle():
 	game.finished = true
 	_check(not combat_audio.shot(own, own.global_position), "Ended battle creates shots")
 	paused = true
-	await _frames(2)
+	# Audio synchronizes on render frames; catch-up physics ticks may share one frame.
+	await process_frame
+	await process_frame
 	var destruction_tail_continues = false
 	for entry in combat_audio._players:
 		if entry.active and entry.priority == 3 and not entry.node.stream_paused:
@@ -223,3 +234,28 @@ func _audio_restore():
 	print(
 		"PASS damaged battle disk save/load omits active sounds and resumes without reconstruction audio"
 	)
+
+
+func _variants_and_rockets():
+	var sides = _sides()
+	var own = _units(sides[0], "Tank")[0]
+	var camera = game.get_node("IsometricCamera3D")
+	camera.set_position_safely(own.global_position)
+	var previous = null
+	for _index in range(8):
+		combat_audio._recent.clear()
+		_check(combat_audio.shot(own, own.global_position), "Variant shot was dropped")
+		var kind = combat_audio.weapon_cue(own)
+		var selected = combat_audio._streams[kind][combat_audio._last_variant[kind]]
+		_check(selected != previous, "Weapon repeated the same sample take")
+		previous = selected
+		for entry in combat_audio._players:
+			entry.node.stop()
+			entry.active = false
+	var rocket = _spawn_weapon("RocketInfantry", sides[0], own.global_position + Vector3.RIGHT)
+	combat_audio._recent.clear()
+	combat_audio.impact(own, rocket, own.global_position)
+	_check(cues.back() == "impact_heavy", "Rocket infantry still has light impact audio")
+	rocket.queue_free()
+	await _frames(2)
+	print("PASS nonrepeating sample variants and rocket explosive impact")

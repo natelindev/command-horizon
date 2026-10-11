@@ -98,21 +98,20 @@ func begin_death():
 	_apply_scorch()
 	_match.combat_audio.destruction(self)
 	_match.combat_effects.deaths_emitted += 1
-	if visible:
-		var effects = _match.combat_effects
-		for index in 8:
-			var angle = index * TAU / 8
-			var drift = Vector3(cos(angle), .7, sin(angle))
-			effects._puff(
-				"dust",
-				global_position + Vector3.UP * .15,
-				drift,
-				Color(.5, .44, .35, .6),
-				radius * 1.4
-			)
-			if _death_kind in ["car", "tug", "building"]:
+	var effects = _match.combat_effects
+	if effects._can_show(self):
+		if _death_kind in ["car", "tug", "building"]:
+			effects._explosion(global_position + Vector3.UP * 0.35, clampf(radius, 0.8, 2.2), true)
+		else:
+			for index in 5:
+				var angle = index * TAU / 5
+				var drift = Vector3(cos(angle), .7, sin(angle))
 				effects._puff(
-					"fire", global_position + drift * .4, drift, Color(1, .32, .06, .8), radius
+					"dust",
+					global_position + Vector3.UP * .15,
+					drift,
+					Color(.5, .44, .35, .5),
+					radius
 				)
 
 
@@ -125,14 +124,14 @@ func advance_damage(delta):
 		return true
 	death_age = minf(30, death_age + delta)
 	apply_death_pose()
-	if visible and _death_kind in ["car", "tug", "building"] and death_age < 6:
-		if int(death_age * 10) != int((death_age - delta) * 10):
+	if visible and _death_kind in ["car", "tug", "building"] and death_age < 4:
+		if int(death_age * 2) != int((death_age - delta) * 2):
 			_match.combat_effects._puff(
 				"smoke",
 				global_position + Vector3.UP * minf(radius * .4, 2.5),
 				Vector3.UP * .6,
-				Color(.18, .19, .2, .5),
-				minf(radius * .65, 3.5)
+				Color(.18, .19, .2, .3),
+				minf(radius * .45, 1.7)
 			)
 	return true
 

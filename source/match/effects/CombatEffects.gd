@@ -8,6 +8,7 @@ const MAX_WRECKS = 24
 var shots_emitted = 0
 var impacts_emitted = 0
 var deaths_emitted = 0
+var aftermath
 var _emitters = {}
 var _tracers = []
 var _free_tracers = []
@@ -26,11 +27,14 @@ func _ready():
 	_tracer_mesh.size = Vector3.ONE
 	if _headless:
 		return
-	_emitter("flash", 128, 0.12, Vector3.ZERO, 3.0, 0.1)
-	_emitter("spark", 768, 0.45, Vector3(0, -7, 0), 2.0, 0.1)
-	_emitter("smoke", 384, 1.7, Vector3(0, 0.35, 0), 0.0, 0.8)
-	_emitter("dust", 256, 0.8, Vector3(0, -0.3, 0), 0.0, 0.7)
-	_emitter("fire", 192, 0.55, Vector3(0, 1.4, 0), 1.7, 0.65)
+	aftermath = preload("res://source/match/effects/BattleAftermath.gd").new()
+	aftermath.name = "BattleAftermath"
+	add_child(aftermath)
+	_emitter("flash", 128, 0.075, Vector3.ZERO, 2.4, 0.25)
+	_emitter("spark", 768, 0.65, Vector3(0, -9.8, 0), 1.6, 0.1)
+	_emitter("smoke", 384, 1.8, Vector3(0.08, 0.16, 0.035), 0.0, 0.95)
+	_emitter("dust", 512, 2.1, Vector3(0, -0.15, 0), 0.0, 0.95)
+	_emitter("fire", 256, 0.65, Vector3(0, 0.8, 0), 2.0, 0.85)
 
 
 func _emitter(kind, amount, lifetime, gravity, glow, roughness):
@@ -40,19 +44,26 @@ func _emitter(kind, amount, lifetime, gravity, glow, roughness):
 	particles.amount = amount
 	particles.lifetime = lifetime
 	particles.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	particles.visibility_aabb = AABB(Vector3(-10, -10, -10), Vector3(150, 40, 150))
-	particles.fixed_fps = 30
+	particles.visibility_aabb = AABB(Vector3(-64, -16, -64), Vector3(384, 80, 384))
+	particles.fixed_fps = 60
+	particles.local_coords = false
+	particles.draw_order = GPUParticles3D.DRAW_ORDER_VIEW_DEPTH
 	var material = ShaderMaterial.new()
 	material.shader = load("res://source/shaders/3d/combat_particle_process.gdshader")
 	material.set_shader_parameter("gravity", gravity)
-	material.set_shader_parameter("growth_start", 0.55 if kind in ["smoke", "dust"] else 1.0)
-	material.set_shader_parameter("growth_end", 1.0 if kind in ["smoke", "dust"] else 0.2)
+	material.set_shader_parameter("growth_start", 0.35 if kind in ["smoke", "dust"] else 1.0)
+	material.set_shader_parameter(
+		"growth_end", 1.15 if kind == "smoke" else (1.65 if kind == "dust" else 0.35)
+	)
+	material.set_shader_parameter("damping", 1.1 if kind == "dust" else 0.45)
+	material.set_shader_parameter("grounded", kind in ["dust", "spark"])
 	particles.process_material = material
 	var mesh = QuadMesh.new()
 	mesh.size = Vector2.ONE
 	var shader = ShaderMaterial.new()
 	shader.shader = load("res://source/shaders/3d/combat_particle.gdshader")
 
+	shader.set_shader_parameter("flame", kind == "fire")
 	shader.set_shader_parameter("glow", glow)
 	shader.set_shader_parameter("rough_edge", roughness)
 	mesh.material = shader
@@ -75,15 +86,15 @@ func _puff(kind, point, velocity, color, size):
 func shot(unit, origin, target_point, duration, missile = false, target_unit = null):
 	get_parent().combat_audio.shot(unit, origin)
 	shots_emitted += 1
-	if _headless or not unit.visible:
+	if not _can_show(unit):
 		return
 	var color = (
-		Color("75edff")
+		Color("b6d9e1")
 		if (
 			unit.player.faction == "helix"
 			or (unit.type == "AdvancedTank" and unit.player.faction != "frontier")
 		)
-		else Color("ffd388")
+		else Color("ffe4b0")
 	)
 	var heavy = unit.type in ["Tank", "AdvancedTank", "AntiGroundTurret"]
 	var direction = origin.direction_to(target_point)
@@ -94,7 +105,7 @@ func shot(unit, origin, target_point, duration, missile = false, target_unit = n
 		)
 	if heavy:
 		_puff(
-			"smoke", origin, direction * 0.8 + Vector3.UP * 0.2, Color(0.48, 0.46, 0.41, 0.35), 0.9
+			"smoke", origin, direction * 0.8 + Vector3.UP * 0.2, Color(0.48, 0.46, 0.41, 0.2), 0.55
 		)
 	if is_instance_valid(unit.aim_target) and not unit.aim_target.visible:
 		return
@@ -109,7 +120,7 @@ func shot(unit, origin, target_point, duration, missile = false, target_unit = n
 	entry.age = 0.0
 	entry.missile = missile
 	entry.rail = unit.type == "AdvancedTank" and unit.player.faction != "frontier"
-	entry.width = 0.07 if heavy or missile else 0.035
+	entry.width = 0.045 if heavy or missile else 0.018
 	entry.trail_clock = 0.0
 	entry.node.show()
 	_tracers.append(entry)
@@ -118,75 +129,118 @@ func shot(unit, origin, target_point, duration, missile = false, target_unit = n
 func impact(unit, source, point):
 	get_parent().combat_audio.impact(unit, source, point)
 	impacts_emitted += 1
-	if _headless or not unit.visible:
+	if not _can_show(unit):
 		return
 	var heavy = (
-		source.type in ["Tank", "AdvancedTank", "Helicopter", "AntiGroundTurret", "AntiAirTurret"]
+		source.type
+		in [
+			"Tank",
+			"AdvancedTank",
+			"Helicopter",
+			"AntiGroundTurret",
+			"AntiAirTurret",
+			"RocketInfantry"
+		]
 	)
-	var color = Color("b9faff") if source.type == "AdvancedTank" else Color("ffcc75")
-	_puff("flash", point, Vector3.ZERO, color, 0.9 if heavy else 0.35)
-	for _index in range(12 if heavy else 4):
-		_puff(
-			"spark", point, _jitter(3.0) + Vector3.UP * 1.8, color, _random.randf_range(0.05, 0.13)
-		)
+	var ground_hit = point.y < 1.6
+	var direction = source.global_position.direction_to(point)
 	if heavy:
-		for _index in range(3):
-			_puff("fire", point + _jitter(0.18), _jitter(0.6), Color(1.0, 0.35, 0.06, 0.85), 0.65)
+		_explosion(point, 0.95 if source.type == "RocketInfantry" else 1.25, ground_hit)
+	else:
+		_puff("flash", point, Vector3.ZERO, Color("ffe2a8"), 0.24)
+		for _index in range(5):
+			_puff(
+				"spark",
+				point,
+				-direction * 1.6 + _jitter(1.8) + Vector3.UP,
+				Color("ffd19a"),
+				_random.randf_range(0.035, 0.07)
+			)
+		_puff("smoke", point, Vector3.UP * 0.2, Color(0.32, 0.3, 0.27, 0.18), 0.3)
+		if ground_hit:
+			_puff(
+				"dust",
+				Vector3(point.x, 0.1, point.z),
+				Vector3.UP * 0.4,
+				Color(0.49, 0.43, 0.34, 0.5),
+				0.6
+			)
+
+
+func _can_show(unit):
+	return (
+		not _headless
+		and is_instance_valid(unit)
+		and unit.visible
+		and not get_tree().paused
+		and not get_parent().restoring
+		and get_parent().combat_audio._observed(unit)
+	)
+
+
+func _explosion(point, strength, ground_hit):
+	_puff("flash", point, Vector3.ZERO, Color("ffe9c0"), strength * 1.7)
+	for _index in range(10):
+		var velocity = _jitter(3.8) + Vector3.UP * 2.8
+		_puff("spark", point, velocity * strength, Color("ffce8b"), _random.randf_range(0.04, 0.09))
+	for _index in range(6):
+		var offset = _jitter(strength * 0.3)
+		_puff(
+			"fire",
+			point + offset,
+			offset * 2.0 + Vector3.UP * 0.6,
+			Color(1, 0.5, 0.15, 0.9),
+			strength * _random.randf_range(0.7, 1.3)
+		)
+		# Two compact wisps keep repeated impacts from blanketing the firing line.
+		if _index < 2:
 			_puff(
 				"smoke",
-				point + _jitter(0.25),
-				Vector3.UP * 0.5 + _jitter(0.3),
-				Color(0.22, 0.22, 0.23, 0.55),
-				1.1
+				point + offset,
+				offset + Vector3.UP * _random.randf_range(0.6, 1.0),
+				Color(0.22, 0.21, 0.20, 0.42),
+				strength * _random.randf_range(0.7, 1.15)
 			)
-		_puff(
-			"dust",
-			Vector3(point.x, 0.12, point.z),
-			Vector3.UP * 0.3,
-			Color(0.54, 0.43, 0.29, 0.45),
-			1.8
-		)
+	if ground_hit:
+		# Uneven radial dirt jets, not a uniform expanding ring.
+		for index in range(12):
+			var angle = index * TAU / 12.0 + _random.randf_range(-0.2, 0.2)
+			var outward = Vector3(cos(angle), 0, sin(angle))
+			var velocity = outward * _random.randf_range(1.4, 3.4) * strength
+			velocity.y = _random.randf_range(0.15, 1.2)
+			_puff(
+				"dust",
+				Vector3(point.x, 0.15, point.z) + outward * 0.2,
+				velocity,
+				Color(0.48, 0.40, 0.30, 0.65),
+				strength * _random.randf_range(0.8, 1.5)
+			)
+	aftermath.burst(point, strength, ground_hit)
 
 
 func destruction(unit):
 	get_parent().combat_audio.destruction(unit)
 	deaths_emitted += 1
-	if _headless or not unit.visible:
+	if not _can_show(unit):
 		return
 	var point = unit.global_position + Vector3.UP * 0.35
 	var infantry = InfantryRoster.is_infantry(unit.type)
 	var size = clampf(unit.radius, 0.5, 2.0)
 	if not infantry:
-		_puff("flash", point, Vector3.ZERO, Color("ffe0a0"), size * 3.0)
-		for _index in range(16):
-			_puff("spark", point, _jitter(4.0) + Vector3.UP * 3.0, Color("ffb746"), 0.15)
-		for _index in range(7):
-			_puff(
-				"fire",
-				point + _jitter(size * 0.5),
-				_jitter(1.0),
-				Color(1, 0.28, 0.03, 0.8),
-				size * 1.7
-			)
-			_puff(
-				"smoke",
-				point + _jitter(size * 0.4),
-				Vector3.UP * 0.8 + _jitter(0.4),
-				Color(0.13, 0.14, 0.16, 0.7),
-				size * 2.5
-			)
-	_puff(
-		"dust",
-		Vector3(point.x, 0.12, point.z),
-		Vector3.UP * 0.2,
-		Color(0.5, 0.4, 0.28, 0.7),
-		size * 3.0
-	)
+		_explosion(point, size * 2.0, point.y < 1.6)
+	else:
+		_puff(
+			"dust",
+			Vector3(point.x, 0.12, point.z),
+			Vector3.UP * 0.3,
+			Color(0.5, 0.43, 0.33, 0.45),
+			size * 1.4
+		)
 	_wreck(unit, infantry)
 
 
 func movement_dust(unit):
-	if not _headless and unit.visible:
+	if _can_show(unit):
 		_puff(
 			"dust",
 			unit.global_position + Vector3.UP * 0.12,
@@ -211,6 +265,9 @@ func _wreck(unit, infantry):
 		{
 			"node": wreck,
 			"age": 0.0,
+			"smoke_clock": 0.0,
+			"secondary": false,
+			"size": clampf(unit.radius, 0.5, 2.0),
 			"infantry": infantry,
 			"origin": wreck.position,
 			"rotation": wreck.rotation,
@@ -264,7 +321,7 @@ func _physics_process(delta):
 	for index in range(_tracers.size() - 1, -1, -1):
 		var entry = _tracers[index]
 		entry.age += delta
-		if entry.age >= entry.duration:
+		if entry.age >= (minf(entry.duration, 0.075) if entry.rail else entry.duration):
 			entry.node.hide()
 			_free_tracers.append(entry)
 			_tracers.remove_at(index)
@@ -280,9 +337,19 @@ func _physics_process(delta):
 		var progress = entry.age / entry.duration
 		var head = entry.origin.lerp(entry.target, progress)
 		if entry.missile:
-			head.y += sin(progress * PI) * minf(0.8, entry.origin.distance_to(entry.target) * 0.08)
+			var arc = minf(0.8, entry.origin.distance_to(entry.target) * 0.08)
+			head.y += sin(progress * PI) * arc
+			direction = (
+				(entry.target - entry.origin + Vector3.UP * cos(progress * PI) * PI * arc)
+				. normalized()
+			)
 		var tail = (
-			entry.origin if entry.rail else head - direction * (0.45 if entry.missile else 0.8)
+			entry.origin
+			if entry.rail
+			else (
+				head
+				- direction * minf(head.distance_to(entry.origin), 0.28 if entry.missile else 0.55)
+			)
 		)
 		if entry.rail:
 			head = entry.target
@@ -295,15 +362,49 @@ func _physics_process(delta):
 		entry.trail_clock += delta
 		if entry.missile and entry.trail_clock >= 0.04:
 			entry.trail_clock = 0.0
-			_puff("smoke", tail, Vector3.UP * 0.1, Color(0.65, 0.64, 0.61, 0.4), 0.3)
+			_puff(
+				"smoke",
+				tail,
+				Vector3.UP * 0.1,
+				Color(0.58, 0.56, 0.52, 0.3),
+				_random.randf_range(0.18, 0.32)
+			)
 	for index in range(_wrecks.size() - 1, -1, -1):
 		var entry = _wrecks[index]
 		entry.age += delta
-		if entry.age > 8.0:
+		if entry.age > 20.0:
 			entry.node.queue_free()
 			_wrecks.remove_at(index)
 			continue
 		_update_wreck(entry)
+		entry.smoke_clock += delta
+		if not entry.infantry and entry.age < 4.0 and entry.smoke_clock > 0.65:
+			entry.smoke_clock = 0.0
+			var point = entry.node.position + Vector3.UP * 0.45
+			_puff(
+				"smoke",
+				point + _jitter(0.2),
+				Vector3(0.15, 0.8, 0.07),
+				Color(0.16, 0.16, 0.15, 0.32),
+				entry.size * 0.9
+			)
+			if entry.age < 4.0:
+				_puff(
+					"fire",
+					point + _jitter(0.25),
+					Vector3.UP * 0.5,
+					Color(1, 0.4, 0.1, 0.7),
+					entry.size * 0.7
+				)
+		if not entry.infantry and not entry.secondary and entry.age > 0.7:
+			entry.secondary = true
+			_explosion(
+				entry.node.position + Vector3.UP * 0.35,
+				entry.size * 0.65,
+				entry.node.position.y < 1.2
+			)
+	if aftermath != null:
+		aftermath.advance(delta)
 
 
 func _update_wreck(entry):
@@ -315,4 +416,24 @@ func _update_wreck(entry):
 	entry.node.position = entry.origin + motion.slide * settle
 	var ground = 0.02 if motion.mobile else entry.origin.y - 0.18
 	entry.node.position.y = lerpf(entry.origin.y, ground, settle)
-	entry.node.position.y -= maxf(0.0, entry.age - motion.sink_start) * 0.25
+	entry.node.position.y -= maxf(0.0, entry.age - maxf(16.0, motion.sink_start)) * 0.25
+
+
+func damage_smoke(unit):
+	if InfantryRoster.is_infantry(unit.type):
+		return
+	if unit.hp == null or unit.hp_max == null or unit.hp <= 0 or unit.hp > unit.hp_max * 0.3:
+		return
+	if not _can_show(unit):
+		return
+	var severity = 1.0 - unit.hp / unit.hp_max
+	var point = unit.global_position + Vector3.UP * (0.6 if unit.movement_speed > 0 else 1.4)
+	_puff(
+		"smoke",
+		point + _jitter(0.16),
+		Vector3(0.12, 0.65, 0.04),
+		Color(0.18, 0.18, 0.17, severity * 0.3),
+		clampf(unit.radius * 0.7, 0.35, 0.85)
+	)
+	if severity > 0.8:
+		_puff("fire", point, Vector3.UP * 0.3, Color(1, 0.4, 0.1, 0.65), 0.38)

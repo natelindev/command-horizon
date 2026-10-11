@@ -24,7 +24,13 @@ func _run():
 	preferences = root.get_node("Globals").options
 	original = preferences.capture()
 	preferences.restore(
-		{"screen": 1, "edge_scrolling": false, "voice_volume": 0.0, "ambience_volume": 0.0}
+		{
+			"screen": 1,
+			"edge_scrolling": false,
+			"voice_volume": 0.0,
+			"ambience_volume": 0.0,
+			"music_volume": 0.0
+		}
 	)
 	root.mode = Window.MODE_WINDOWED
 	root.size = Vector2i(1280, 720)

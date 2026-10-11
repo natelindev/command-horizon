@@ -3,6 +3,8 @@ extends SceneTree
 const Catalog = preload("res://source/match/BastionCatalog.gd")
 var _game
 var _errors = []
+var _preferences
+var _original_options
 
 
 func _initialize():
@@ -10,6 +12,10 @@ func _initialize():
 
 
 func _run():
+	Engine.max_fps = 60
+	_preferences = root.get_node("Globals").options
+	_original_options = _preferences.capture()
+	_preferences.reduced_flashes = false
 	root.mode = Window.MODE_WINDOWED
 	root.content_scale_mode = Window.CONTENT_SCALE_MODE_VIEWPORT
 	root.size = Vector2i(1440, 900)
@@ -85,6 +91,9 @@ func _run():
 	assert(effects.deaths_emitted > 0, "No destruction animation exercised")
 	assert(effects._tracers.size() <= effects.MAX_TRACERS)
 	assert(effects._wrecks.size() <= effects.MAX_WRECKS)
+	assert(effects.aftermath.scars.size() > 0, "Actual battle left no ground scars")
+	assert(effects.aftermath.debris.size() <= 32, "Debris exceeded visual clutter budget")
+	var scar_ages = effects.aftermath.scars.map(func(entry): return entry.age)
 	# Effects must remain frozen during tactical pause, including server particles.
 	paused = true
 	await process_frame
@@ -97,8 +106,19 @@ func _run():
 	assert(effects._tracers.map(func(entry): return entry.age) == ages)
 	for emitter in effects._emitters.values():
 		assert(emitter.speed_scale == 0.0)
+	assert(effects.aftermath.scars.map(func(entry): return entry.age) == scar_ages)
 	paused = false
 	await process_frame
+	# Controlled impact in an open patch verifies all layers at known ages.
+	for unit in get_nodes_in_group("units"):
+		unit.process_mode = Node.PROCESS_MODE_DISABLED
+	var point = Vector3(28, 0.4, 21)
+	effects._explosion(point, 1.5, true)
+	for frame in range(180):
+		await process_frame
+		if frame in [6, 35, 170]:
+			await RenderingServer.frame_post_draw
+			root.get_texture().get_image().save_png("res://art/skirmish/impact-%d.png" % frame)
 	print(
 		"PASS: combat animation shots=",
 		effects.shots_emitted,
@@ -111,4 +131,5 @@ func _run():
 	_game.queue_free()
 	for _index in range(8):
 		await process_frame
+	_preferences.restore(_original_options)
 	quit()

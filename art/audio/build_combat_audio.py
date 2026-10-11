@@ -66,7 +66,7 @@ def blast(t: np.ndarray, rng: np.random.Generator, weight: float = 1.0) -> np.nd
     pressure = sweep(t, 165 / weight, 38 / weight, 0.045 * weight) * envelope(t, 0.10 * weight)
     body = noise(t, rng, 55, 850) * envelope(t, 0.075 * weight, 0.002)
     tail = noise(t, rng, 140, 2300) * envelope(t, 0.13 * weight, 0.009)
-    return 0.7 * crack + 0.72 * pressure + 0.55 * body + 0.19 * tail
+    return 0.85 * crack + 0.28 * pressure + 0.85 * body + 0.36 * tail
 
 
 def synthesize(name: str, duration: float, seed: int) -> np.ndarray:
@@ -118,10 +118,11 @@ def synthesize(name: str, duration: float, seed: int) -> np.ndarray:
         out += 0.12 * resonances(t, [728, 1903, 4177], 0.029)
         out += 0.10 * sweep(t, 280, 110, 0.01) * envelope(t, 0.025)
     elif name == "impact_heavy":
-        out = 0.40 * blast(t, rng, 0.72)
-        out += 0.44 * noise(t, rng, 90, 2600) * envelope(t, 0.051, 0.001)
-        out += 0.25 * resonances(t, [311, 883, 2149], 0.052)
-        add_at(out, noise(t, rng, 900, 7400) * envelope(t, 0.015), 0.037, 0.13)
+        out = 0.85 * blast(t, rng, 2.25)
+        out += 0.42 * noise(t, rng, 35, 440) * envelope(t, 0.38, 0.008)
+        out += 0.26 * noise(t, rng, 180, 2900) * envelope(t, 0.22, 0.02)
+        for delay, gain in [(0.09, 0.22), (0.19, 0.16), (0.32, 0.12), (0.53, 0.06)]:
+            add_at(out, noise(t, rng, 700, 6800) * envelope(t, 0.025), delay, gain)
     elif name == "infantry_fall":
         # Non-vocal cloth/ground thud plus equipment settling; intentionally non-gory.
         out = 0.55 * noise(t, rng, 65, 650) * envelope(t, 0.048, 0.003)
@@ -151,6 +152,14 @@ def synthesize(name: str, duration: float, seed: int) -> np.ndarray:
         out += 0.14 * grit * envelope(t, 0.31, 0.082) * (0.5 + 0.5 * np.sin(t * 59.7) ** 2)
     else:
         raise ValueError(name)
+    # Diffuse, uneven reflections and falling grit give reports an outdoor tail.
+    # Never add a second full-volume crack; these are decaying early reflections.
+    if name not in ["impact_light", "infantry_fall"]:
+        dry = out.copy()
+        for delay, gain in [(0.071, 0.15), (0.137, 0.105), (0.233, 0.065), (0.389, 0.038)]:
+            add_at(out, dry, delay * rng.uniform(0.88, 1.12), gain)
+    if name in ["cannon_fire", "impact_heavy", "vehicle_destroy", "structure_destroy"]:
+        out += 0.17 * noise(t, rng, 45, 520) * envelope(t, 0.52, 0.045)
     return finish(out)
 
 
@@ -167,17 +176,17 @@ def finish(samples: np.ndarray) -> np.ndarray:
 
 
 SPECS = [
-    ("rifle_fire", 0.19, 14021, "Dry rifle crack with a compact mechanical tail"),
-    ("autocannon_fire", 0.28, 14022, "Heavier automatic weapon report with a bolt clack"),
-    ("cannon_fire", 0.68, 14023, "Bass-heavy cannon concussion with turbulent decay"),
+    ("rifle_fire", 0.46, 14021, "Dry rifle crack with a compact mechanical tail"),
+    ("autocannon_fire", 0.57, 14022, "Heavier automatic weapon report with a bolt clack"),
+    ("cannon_fire", 1.45, 14023, "Bass-heavy cannon concussion with turbulent decay"),
     ("energy_fire", 0.25, 14024, "Electrical snap with fizz and a brief inharmonic discharge"),
     ("rail_fire", 0.39, 14025, "Induction crack, pressure pulse, and metallic trace"),
     ("missile_launch", 0.59, 14026, "Ignition thump followed by fluttering rocket exhaust"),
     ("impact_light", 0.16, 14027, "Short dry material impact"),
-    ("impact_heavy", 0.35, 14028, "Weighty armor/material strike with ringing fragments"),
+    ("impact_heavy", 1.55, 14028, "Explosive pressure wave, low rumble, scattered fragments and outdoor reflections"),
     ("infantry_fall", 0.37, 14029, "Non-vocal ground thud, cloth rustle, and equipment settling"),
-    ("vehicle_destroy", 1.24, 14030, "Explosive chassis breakup with irregular metal debris"),
-    ("structure_destroy", 1.65, 14031, "Rolling structural collapse with masonry cracks and grit"),
+    ("vehicle_destroy", 2.1, 14030, "Explosive chassis breakup with irregular metal debris"),
+    ("structure_destroy", 2.65, 14031, "Rolling structural collapse with masonry cracks and grit"),
 ]
 
 
@@ -198,8 +207,11 @@ def main() -> None:
     segments = [np.zeros(RATE, dtype="<i2")]
     entries = []
     reel_position = RATE
-    for name, duration, seed, description in SPECS:
-        pcm = synthesize(name, duration, seed)
+    variants = [(name, name, duration, seed, description) for name, duration, seed, description in SPECS]
+    variants += [(f"{name}_{variant}", name, duration, seed + variant * 7919, description)
+                 for name, duration, seed, description in SPECS for variant in (2, 3)]
+    for name, kind, duration, seed, description in variants:
+        pcm = synthesize(kind, duration, seed)
         path = DEST / (name + ".wav")
         write_wav(path, pcm)
         floating = pcm.astype(np.float64) / 32768

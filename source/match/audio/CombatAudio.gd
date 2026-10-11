@@ -1,9 +1,9 @@
 # gdlint: disable=max-returns
 extends Node
 
-const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
-
 signal cue_started(kind, point)
+
+const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
 
 const MAX_PLAYERS = 24
 const CUES = [
@@ -27,7 +27,7 @@ const LEVELS = {
 	"rail_fire": -12.0,
 	"missile_launch": -11.0,
 	"impact_light": -23.0,
-	"impact_heavy": -16.0,
+	"impact_heavy": -11.0,
 	"infantry_fall": -14.0,
 	"vehicle_destroy": -9.0,
 	"structure_destroy": -7.0,
@@ -38,7 +38,8 @@ var _players = []
 var _streams = {}
 var _recent = {}
 var _clock = 0.0
-var _serial = 0
+var _random = RandomNumberGenerator.new()
+var _last_variant = {}
 var _game
 var _camera
 var _human
@@ -48,8 +49,11 @@ func _ready():
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_game = get_parent()
 	_camera = _game.get_node("IsometricCamera3D")
+	_random.seed = 91373
 	for cue in CUES:
-		_streams[cue] = load("res://assets/audio/combat/%s.wav" % cue)
+		_streams[cue] = [load("res://assets/audio/combat/%s.wav" % cue)]
+		for variant in [2, 3]:
+			_streams[cue].append(load("res://assets/audio/combat/%s_%d.wav" % [cue, variant]))
 	Globals.options.changed.connect(_options_changed)
 
 
@@ -88,9 +92,17 @@ func shot(unit, point):
 
 func impact(unit, source, point):
 	var heavy = (
-		source.type in ["Tank", "AdvancedTank", "Helicopter", "AntiGroundTurret", "AntiAirTurret"]
+		source.type
+		in [
+			"Tank",
+			"AdvancedTank",
+			"Helicopter",
+			"AntiGroundTurret",
+			"AntiAirTurret",
+			"RocketInfantry"
+		]
 	)
-	return _play("impact_heavy" if heavy else "impact_light", unit, point, 1)
+	return _play("impact_heavy" if heavy else "impact_light", unit, point, 2 if heavy else 1)
 
 
 func destruction(unit):
@@ -138,7 +150,6 @@ func _play(kind, unit, point, priority, pitch = 1.0):
 		dropped_count += 1
 		return false
 	_recent[key] = _clock + (0.04 if priority == 3 else 0.08)
-	_serial += 1
 	entry.active = true
 	entry.point = point
 	entry.unit = weakref(unit)
@@ -146,9 +157,14 @@ func _play(kind, unit, point, priority, pitch = 1.0):
 	entry.priority = priority
 	entry.started = _clock
 	entry.node.stop()
-	entry.node.stream = _streams[kind]
-	# Local deterministic variation never consumes the simulation RNG.
-	entry.node.pitch_scale = pitch * (0.97 + float(_serial % 7) * 0.01)
+	var variants = _streams[kind]
+	var choice = (
+		(_last_variant.get(kind, 0) + _random.randi_range(1, variants.size() - 1)) % variants.size()
+	)
+	_last_variant[kind] = choice
+	entry.node.stream = variants[choice]
+	# Local variation never consumes the simulation RNG, and never repeats a take.
+	entry.node.pitch_scale = pitch * _random.randf_range(0.94, 1.045)
 	entry.left = entry.node.stream.get_length() / entry.node.pitch_scale + 0.1
 	_position(entry)
 	entry.node.stream_paused = false
@@ -164,6 +180,7 @@ func _take_player(priority):
 			return entry
 	if _players.size() < MAX_PLAYERS:
 		var player = AudioStreamPlayer2D.new()
+		player.process_mode = Node.PROCESS_MODE_PAUSABLE
 		player.bus = "Effects"
 		player.panning_strength = 1.0
 		player.attenuation = 1.0
@@ -174,7 +191,10 @@ func _take_player(priority):
 	var candidate = null
 	for entry in _players:
 		if (
-			entry.priority < priority
+			(
+				entry.priority < priority
+				or (entry.priority == priority and _clock - entry.started > 0.22)
+			)
 			and (
 				candidate == null
 				or entry.priority < candidate.priority
@@ -186,8 +206,14 @@ func _take_player(priority):
 
 
 func _process(delta):
-	var paused = get_tree().paused and not ("finished" in _game and _game.finished)
+	var ended = "finished" in _game and _game.finished
+	var paused = get_tree().paused and not ended
 	for entry in _players:
+		# A queued 2D play starts on the physics tick. Pause that tick too, so it
+		# cannot restart a voice after the mixer was paused on the render frame.
+		entry.node.process_mode = (
+			Node.PROCESS_MODE_ALWAYS if ended else Node.PROCESS_MODE_PAUSABLE
+		)
 		entry.node.stream_paused = paused
 	if paused:
 		return

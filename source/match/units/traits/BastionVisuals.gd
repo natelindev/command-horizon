@@ -25,6 +25,7 @@ var _hit_axis = Vector3.ZERO
 var _barrel_rest = Vector3.ZERO
 var _geometry_rest = Transform3D.IDENTITY
 var _dust_elapsed = 0.0
+var _damage_elapsed = 0.0
 var _airborne = false
 var _mobile = false
 var _heavy = false
@@ -102,6 +103,10 @@ func death_motion():
 
 
 func _physics_process(delta):
+	_damage_elapsed += delta
+	if _damage_elapsed > 0.8:
+		_damage_elapsed = 0.0
+		_unit._match.combat_effects.damage_smoke(_unit)
 	if _wheel_motion != null:
 		_wheel_motion.advance(delta)
 	var distance = _unit.global_position.distance_to(_previous_position)
