@@ -237,6 +237,16 @@ func _review_contract(_stage):
 	var menus = game.find_child("UnitMenus")
 	menus._refresh_buttons()
 	if contracts and foundation.is_under_construction():
+		var visual = foundation.get_node_or_null("ConstructionVisual")
+		_check(visual != null, label + ": foundation lost construction animation after " + _stage)
+		if visual != null:
+			for material in visual._materials:
+				_check(
+					is_equal_approx(
+						material.get_shader_parameter("progress"), foundation._construction_progress
+					),
+					label + ": visual assembly disagrees with saved construction progress"
+				)
 		var refund = foundation.construction_refund()
 		var quote = "%d M / %d E back" % [refund.resource_a, refund.resource_b]
 		_check(quote in menus._stop_button.text, "Cancellation button hides the live refund")

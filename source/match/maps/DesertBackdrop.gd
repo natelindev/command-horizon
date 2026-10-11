@@ -47,8 +47,9 @@ func _ready():
 		Vector2(83, 106),
 		Vector2(24, 103)
 	]:
-		var model = _model("DryScrub", point, 1.0, point.x * 0.37)
-		model.set_meta("exterior_radius", 1.8)
+		var model = _model("DryScrub", point, 1.7, point.x * 0.37)
+		model.scale.y *= 3.0
+		model.set_meta("exterior_radius", 3.1)
 		models.append(model)
 
 

@@ -119,6 +119,6 @@ func _ground_cover():
 	]:
 		var plant = load("res://assets/models/environment/desert/DryScrub.glb").instantiate()
 		plant.position = Vector3(point.x, 0.01, point.y)
-		plant.scale = Vector3.ONE * 0.42
+		plant.scale = Vector3(2.0, 4.8, 2.0)
 		plant.rotation.y = point.x * 0.27
 		cover.add_child(plant)

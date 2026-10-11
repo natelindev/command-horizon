@@ -1,0 +1,20 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+PASS: shelf geometry/sight/fire, exterior bounds/seams/normals and hidden enemy
+PASS: real drone and strike-aircraft transit over all four shelves
+Frontier base path 36.7s; shelf ground 38.1m / air 34.0m
+PASS: bastion three 16-tank approaches/retreats, moving archive, staging/shelf placement
+PASS: shelf geometry/sight/fire, exterior bounds/seams/normals and hidden enemy
+PASS: bastion both home economies, outer electronics return and paired stockpiles
+PASS: shelf geometry/sight/fire, exterior bounds/seams/normals and hidden enemy
+PASS: real drone and strike-aircraft transit over all four shelves
+Frontier base path 36.7s; shelf ground 38.1m / air 34.0m
+PASS: helix three 16-tank approaches/retreats, moving archive, staging/shelf placement
+PASS: shelf geometry/sight/fire, exterior bounds/seams/normals and hidden enemy
+PASS: helix both home economies, outer electronics return and paired stockpiles
+Desert environment: 0 failures
+ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 6 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

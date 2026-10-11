@@ -28,7 +28,7 @@ func _run():
 				"Menu action clipped at %s: %s" % [scale, button.text]
 			)
 	var buttons = menu.find_children("*", "Button", true, false)
-	var settings = buttons.filter(func(button): return button.text == "04    SETTINGS")[0]
+	var settings = menu.find_child("Settings", true, false)
 	await _click(settings)
 	var dialog = root.get_node("Globals").settings_dialog
 	_check(is_instance_valid(dialog), "Settings mouse activation failed")

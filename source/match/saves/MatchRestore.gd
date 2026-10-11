@@ -169,6 +169,9 @@ func restore(tree, snapshot):
 			unit.configure_weapon()
 		if saved.construction != null:
 			unit._construction_progress = saved.construction
+			var construction_visual = unit.get_node_or_null("ConstructionVisual")
+			if construction_visual != null:
+				construction_visual.refresh()
 			if _data.snapshot_version < 10 and unit.is_under_construction():
 				# Upgrade the old 1-HP foundation curve once, retaining actual damage.
 				var old_earned = 1.0 + floorf(saved.construction * (unit.hp_max - 1.0))

@@ -149,8 +149,8 @@ static func title(faction, role):
 
 
 static func icon(faction, role):
-	if role in Bastion.INFANTRY_ROLES and role != "Infantry":
-		return Bastion.icon_path(role)
+	if role in Bastion.INFANTRY_ROLES:
+		return "res://assets/ui/infantry/%s/%s.png" % [faction, role]
 	if faction == "frontier":
 		return "res://assets/ui/frontier/%s.png" % Frontier.MODELS[role]
 	return (

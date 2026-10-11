@@ -80,10 +80,12 @@ func _geometry():
 	for plant in cover.get_children():
 		_check(
 			plant.find_children("*", "CollisionObject3D", true, false).is_empty(),
-			"Low ground cover gained physics"
+			"Decorative trees gained physics"
 		)
+		var height = 0.0
 		for vertex in _vertices(plant):
-			_check(vertex.y < 0.3, "Ground cover obstructs unit visibility")
+			height = maxf(height, vertex.y)
+		_check(height > 2.4 and height < 3.3, "Desert trees lost their intended world scale")
 	var exterior = map.exterior
 	_check(exterior.models.size() == 28, "Exterior landmarks or vegetation missing")
 	for model in exterior.models:

@@ -6,10 +6,12 @@ for godot_bin in \
   "$HOME/.cache/godot/4.6/Godot.app/Contents/MacOS/Godot" \
   "/Applications/Godot.app/Contents/MacOS/Godot"; do
   if [[ -x "$godot_bin" ]]; then
+    "$godot_bin" --headless --editor --path "$project_dir" --import
     exec "$godot_bin" --path "$project_dir" res://source/main-menu/Play.tscn
   fi
 done
 if command -v godot >/dev/null 2>&1; then
+  godot --headless --editor --path "$project_dir" --import
   exec godot --path "$project_dir" res://source/main-menu/Play.tscn
 fi
 print "Godot 4.6 is required. Open project.godot in Godot and choose SKIRMISH."

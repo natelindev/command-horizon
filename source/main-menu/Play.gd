@@ -1,5 +1,6 @@
 extends Control
 
+const ArtTheme = preload("res://source/main-menu/ArtTheme.gd")
 const MatchSettings = preload("res://source/data-model/MatchSettings.gd")
 const PlayerSettings = preload("res://source/data-model/PlayerSettings.gd")
 const Factions = preload("res://source/match/FactionCatalog.gd")
@@ -65,7 +66,7 @@ var _starting = false
 
 
 func _ready():
-	theme = load("res://source/main-menu/ArtTheme.gd").create()
+	theme = ArtTheme.create()
 	_build_ui()
 	_load_preferences()
 	_on_map_list_item_selected(_map_list.selected)
@@ -77,7 +78,7 @@ func _ready():
 
 func _build_ui():
 	var backdrop = load("res://source/main-menu/ArtBackdrop.gd").new()
-	backdrop.dim = .45
+	backdrop.dim = .68
 	backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(backdrop)
 	var margin = MarginContainer.new()
@@ -99,7 +100,7 @@ func _build_ui():
 	top_bar.add_child(title_box)
 
 	var tag = Label.new()
-	tag.text = "// THEATER OF OPERATIONS // TACTICAL SIMULATION"
+	tag.text = tr("THEATER OF OPERATIONS")
 	tag.add_theme_font_size_override("font_size", 11)
 	tag.add_theme_color_override("font_color", Color("8ea0a8"))
 	title_box.add_child(tag)
@@ -116,33 +117,23 @@ func _build_ui():
 	top_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top_bar.add_child(top_spacer)
 
-	var telemetry = VBoxContainer.new()
-	telemetry.alignment = BoxContainer.ALIGNMENT_CENTER
-	telemetry.add_theme_constant_override("separation", 2)
-	top_bar.add_child(telemetry)
-
-	var status_lbl = Label.new()
-	status_lbl.text = "● SIMULATION LINK READY"
-	status_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	status_lbl.add_theme_font_size_override("font_size", 11)
-	status_lbl.add_theme_color_override("font_color", Color("68d391"))
-	telemetry.add_child(status_lbl)
-
-	var proto_lbl = Label.new()
-	proto_lbl.text = "PROTOCOL // 1v1 DIRECT COMMAND"
-	proto_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	proto_lbl.add_theme_font_size_override("font_size", 10)
-	proto_lbl.add_theme_color_override("font_color", Color("6c7d86"))
-	telemetry.add_child(proto_lbl)
-
 	# --- BODY ---
 	var body = HBoxContainer.new()
+	var body_scroll = ScrollContainer.new()
+	body_scroll.name = "SetupScroll"
+	body_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	body_scroll.follow_focus = true
+	page.add_child(body_scroll)
+	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	body.add_theme_constant_override("separation", 20)
-	page.add_child(body)
+	body_scroll.add_child(body)
 
 	var map_column = _panel(body)
-	map_column.custom_minimum_size.x = 380
+	map_column.custom_minimum_size.x = 420
+	map_column.get_parent().size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	map_column.get_parent().size_flags_stretch_ratio = .9
 	_label(map_column, tr("01  BATTLEFIELD"), 13, Color("d8af67"))
 	_map_list = OptionButton.new()
 	_map_list.name = "MapList"
@@ -165,11 +156,14 @@ func _build_ui():
 	map_column.add_child(preview_frame)
 
 	_preview = load("res://source/main-menu/SkirmishMapPreview.gd").new()
-	_preview.custom_minimum_size.y = 220
+	_preview.custom_minimum_size.y = clampf(get_viewport_rect().size.y * .42, 240, 460)
+	resized.connect(
+		func(): _preview.custom_minimum_size.y = clampf(get_viewport_rect().size.y * .42, 240, 460)
+	)
 	_preview.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	preview_frame.add_child(_preview)
 
-	_map_details = _label(map_column, "", 13, Color("cbd5e1"))
+	_map_details = _label(map_column, "", 13, Color("bac6ca"))
 
 	var legend_panel = PanelContainer.new()
 	var leg_style = StyleBoxFlat.new()
@@ -182,8 +176,13 @@ func _build_ui():
 	_label(
 		legend_panel,
 		(
-			"1  " + tr("Your base") + "    2  " + tr("Enemy base") + "\n"
-			+ tr("Dots: resources · Small squares: relays") + "\n"
+			"1  "
+			+ tr("Your base")
+			+ "    2  "
+			+ tr("Enemy base")
+			+ "\n"
+			+ tr("Dots: resources · Small squares: relays")
+			+ "\n"
 			+ tr("Blocks: buildings · Lines: roads · Blue: water")
 		),
 		12,
@@ -192,7 +191,8 @@ func _build_ui():
 
 	var right = VBoxContainer.new()
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	right.size_flags_stretch_ratio = 1.35
+	right.size_flags_stretch_ratio = 1.0
+	right.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	right.add_theme_constant_override("separation", 14)
 	body.add_child(right)
 
@@ -209,9 +209,9 @@ func _build_ui():
 	grid.add_theme_constant_override("h_separation", 24)
 	grid.add_theme_constant_override("v_separation", 10)
 	rules.add_child(grid)
-	_label(grid, tr("AI difficulty"), 14, Color("cbd5e1"))
+	_label(grid, tr("AI difficulty"), 14, Color("bac6ca"))
 	_difficulty = _option(grid, "Difficulty", ["Easy", "Normal", "Hard"])
-	_label(grid, tr("Starting forces"), 14, Color("cbd5e1"))
+	_label(grid, tr("Starting forces"), 14, Color("bac6ca"))
 	_start_mode = _option(
 		grid, "StartMode", ["Standard — build your base", "Advanced — armor and technology"]
 	)
@@ -226,7 +226,7 @@ func _build_ui():
 	summary_box.add_theme_stylebox_override("panel", sum_style)
 	rules.add_child(summary_box)
 
-	_summary = _label(summary_box, "", 13, Color("cbd5e1"))
+	_summary = _label(summary_box, "", 13, Color("bac6ca"))
 	_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_difficulty.item_selected.connect(func(_index): _update_summary())
 	_start_mode.item_selected.connect(func(_index): _update_summary())
@@ -240,7 +240,6 @@ func _build_ui():
 	back.text = tr("Back")
 	back.add_theme_font_size_override("font_size", 16)
 	back.custom_minimum_size = Vector2(130, 46)
-	var ArtTheme = load("res://source/main-menu/ArtTheme.gd")
 	back.add_theme_stylebox_override("normal", ArtTheme.secondary_button_style())
 	back.add_theme_stylebox_override("hover", ArtTheme.secondary_button_hover_style())
 	back.pressed.connect(_on_back_button_pressed)
@@ -254,6 +253,7 @@ func _build_ui():
 
 	_start_button = Button.new()
 	_start_button.name = "StartButton"
+	_start_button.theme_type_variation = "BattlePrimaryButton"
 	_start_button.add_theme_font_size_override("font_size", 16)
 	_start_button.text = tr("START BATTLE  →")
 	_start_button.custom_minimum_size = Vector2(250, 46)
@@ -270,15 +270,7 @@ func _build_ui():
 func _panel(parent):
 	var panel = PanelContainer.new()
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var style = StyleBoxFlat.new()
-	style.bg_color = Color("0d151dea")
-	style.set_corner_radius_all(8)
-	style.set_border_width_all(1)
-	style.border_color = Color("27384666")
-	style.content_margin_left = 18
-	style.content_margin_right = 18
-	style.content_margin_top = 14
-	style.content_margin_bottom = 14
+	var style = preload("res://source/match/hud/BattleTheme.gd").panel(20, 18)
 	panel.add_theme_stylebox_override("panel", style)
 	parent.add_child(panel)
 	var box = VBoxContainer.new()
@@ -287,7 +279,7 @@ func _panel(parent):
 	return box
 
 
-func _label(parent, value, font_size, color_value = Color("edf2f7")):
+func _label(parent, value, font_size, color_value = Color("f1eee4")):
 	var label = Label.new()
 	label.text = value
 	label.add_theme_font_size_override("font_size", font_size)
@@ -325,7 +317,7 @@ func _faction_card(parent, heading, index):
 	var portrait = TextureRect.new()
 	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	portrait.custom_minimum_size = Vector2(140, 76)
+	portrait.custom_minimum_size = Vector2(140, 112)
 	portrait_box.add_child(portrait)
 
 	var choice = _option(

@@ -124,8 +124,8 @@ static func is_infantry(role):
 
 
 static func icon_path(unit_type):
-	if unit_type in INFANTRY_ROLES and unit_type != "Infantry":
-		return "res://assets/ui/infantry/%s.svg" % unit_type
+	if unit_type in INFANTRY_ROLES:
+		return "res://assets/ui/infantry/bastion/%s.png" % unit_type
 	if unit_type in STRUCTURES:
 		return "res://assets/ui/bastion/structures-v2/%s.png" % unit_type
 	return "res://assets/ui/bastion/%s.png" % unit_type

@@ -2,9 +2,7 @@ extends "res://source/match/units/Unit.gd"
 
 signal constructed
 
-const UNDER_CONSTRUCTION_MATERIAL = preload(
-	"res://source/match/resources/materials/structure_under_construction.material.tres"
-)
+const ConstructionVisual = preload("res://source/match/effects/ConstructionVisual.gd")
 const FOUNDATION_HEALTH_FRACTION = 0.25
 
 var _construction_progress = 1.0
@@ -21,10 +19,12 @@ func is_revealing():
 func mark_as_under_construction():
 	assert(not is_under_construction(), "structure already under construction")
 	_construction_progress = 0.0
-	_change_geometry_material(UNDER_CONSTRUCTION_MATERIAL)
 	if hp == null:
 		await ready
 	hp = _foundation_hp()
+	var visual = ConstructionVisual.new()
+	visual.name = "ConstructionVisual"
+	add_child(visual)
 
 
 func _foundation_hp():
@@ -41,6 +41,9 @@ func construct(progress):
 	var expected_hp_after_progressing = floorf(_construction_progress * remaining_hp)
 	if expected_hp_after_progressing > expected_hp_before_progressing:
 		hp = minf(hp_max, hp + expected_hp_after_progressing - expected_hp_before_progressing)
+	var visual = get_node_or_null("ConstructionVisual")
+	if visual != null:
+		visual.refresh()
 	if _construction_progress >= 1.0:
 		_finish_construction()
 
@@ -76,13 +79,9 @@ func is_under_construction():
 
 
 func _finish_construction():
-	_change_geometry_material(null)
+	var visual = get_node_or_null("ConstructionVisual")
+	if visual != null:
+		visual.finish()
 	if is_inside_tree():
 		constructed.emit()
 		MatchSignals.unit_construction_finished.emit(self)
-
-
-func _change_geometry_material(material):
-	for child in find_child("Geometry").find_children("*", "", true, false):
-		if "material_override" in child:
-			child.material_override = material

@@ -346,7 +346,7 @@ func _tree(point, size_factor):
 		asset = "desert/DryScrub"
 	var model = load("res://assets/models/environment/%s.glb" % asset).instantiate()
 	model.position = point
-	model.scale = Vector3.ONE * size_factor
+	model.scale = (Vector3(2.0, 6.0, 2.0) if _desert else Vector3.ONE * 1.35) * size_factor
 	model.rotation.y = point.x * .73
 	add_child(model)
 
@@ -412,7 +412,7 @@ func _population():
 		actors.append(actor)
 
 
-func _physics_process(delta):
+func _physics_process(_delta):
 	if not _game.is_node_ready():
 		return
 	for cloth in _cloths:

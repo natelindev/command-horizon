@@ -22,7 +22,7 @@ static func panel(horizontal = 18, vertical = 16) -> StyleBoxFlat:
 	var style = surface(Color("10191ff5"), horizontal, vertical)
 	style.set_corner_radius_all(9)
 	style.set_border_width_all(1)
-	style.border_color = Color("c4a56a80")
+	style.border_color = Color("ffffff14")
 	style.shadow_color = Color("00000045")
 	style.shadow_size = 8
 	style.shadow_offset = Vector2(0, 4)
@@ -69,12 +69,7 @@ static func create() -> Theme:
 		theme.set_stylebox("disabled", type, surface(Color("162228")))
 		theme.set_stylebox("focus", type, focus())
 		theme.set_constant("h_separation", type, 6)
-	# Match the supplied menu: hairline gold on hover, a stronger selected edge.
 	for type in ["Button", "OptionButton"]:
-		for state in ["hover", "pressed", "hover_pressed"]:
-			var style = theme.get_stylebox(state, type)
-			style.set_border_width_all(1)
-			style.border_color = COPPER
 		for state in ["normal", "hover", "pressed", "disabled"]:
 			theme.set_color("icon_" + state + "_color", type, IVORY)
 		theme.set_color("icon_disabled_color", type, Color("7b8587"))
@@ -93,11 +88,9 @@ static func create() -> Theme:
 	theme.set_stylebox("disabled", "BattleQuietButton", surface(Color.TRANSPARENT))
 	theme.set_color("font_color", "BattleQuietButton", COPPER)
 	theme.set_type_variation("BattleCardButton", "Button")
-	var card = surface(Color.TRANSPARENT, 8, 8)
-	card.border_width_bottom = 1
-	card.border_color = Color("c4a56a30")
+	var card = surface(Color("1b2930"), 8, 8)
 	theme.set_stylebox("normal", "BattleCardButton", card)
-	theme.set_stylebox("disabled", "BattleCardButton", surface(Color.TRANSPARENT, 8, 8))
+	theme.set_stylebox("disabled", "BattleCardButton", surface(Color("152127"), 8, 8))
 	theme.set_stylebox("panel", "PanelContainer", panel())
 	theme.set_stylebox("panel", "Panel", panel())
 	theme.set_stylebox("panel", "PopupMenu", panel(12, 10))
@@ -105,7 +98,7 @@ static func create() -> Theme:
 	theme.set_color("font_separator_color", "PopupMenu", MUTED)
 	var tooltip = surface(Color("10191f"), 12, 10)
 	tooltip.set_border_width_all(1)
-	tooltip.border_color = Color("c4a56a80")
+	tooltip.border_color = Color("ffffff14")
 	theme.set_stylebox("panel", "TooltipPanel", tooltip)
 	theme.set_color("font_color", "TooltipLabel", IVORY)
 	theme.set_font_size("font_size", "TooltipLabel", 14)
@@ -121,9 +114,7 @@ static func create() -> Theme:
 	theme.set_stylebox("selected_focus", "ItemList", surface(Color("494431")))
 	theme.set_stylebox("panel", "TabContainer", surface(Color("111a20"), 12, 10))
 	for type in ["TabContainer", "TabBar"]:
-		var selected_tab = surface(Color.TRANSPARENT, 12, 8)
-		selected_tab.border_width_bottom = 2
-		selected_tab.border_color = COPPER
+		var selected_tab = surface(Color("354349"), 12, 8)
 		theme.set_stylebox("tab_selected", type, selected_tab)
 		theme.set_stylebox("tab_unselected", type, surface(Color.TRANSPARENT, 12, 8))
 		theme.set_stylebox("tab_hovered", type, surface(Color("2e3b3f"), 12, 6))

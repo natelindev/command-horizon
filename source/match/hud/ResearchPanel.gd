@@ -1,6 +1,14 @@
 extends VBoxContainer
 
 const Technologies = preload("res://source/match/research/TechnologyCatalog.gd")
+const BattleTheme = preload("res://source/match/hud/BattleTheme.gd")
+const ICONS = {
+	"weapons": preload("res://assets/ui/research/weapons.svg"),
+	"armor": preload("res://assets/ui/research/armor.svg"),
+	"service": preload("res://assets/ui/research/service.svg"),
+	"doctrine": preload("res://assets/ui/research/doctrine.svg"),
+	"coordination": preload("res://assets/ui/research/coordination.svg"),
+}
 var lab
 var player
 var _status
@@ -8,6 +16,7 @@ var _progress
 var _start
 var _cancel
 var _description
+var _overview_icon
 var _branches = {}
 
 
@@ -15,10 +24,19 @@ func _ready():
 	if player == null and is_instance_valid(lab):
 		player = lab.player
 	add_theme_constant_override("separation", 8)
-	_status = _label(14)
-	_description = _label(12)
+	custom_minimum_size.x = 440
+	var overview = HBoxContainer.new()
+	overview.add_theme_constant_override("separation", 12)
+	add_child(overview)
+	_overview_icon = _icon(overview, "coordination")
+	var summary = VBoxContainer.new()
+	summary.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	overview.add_child(summary)
+	_status = _label(15, summary)
+	_description = _label(12, summary)
+	_description.add_theme_color_override("font_color", BattleTheme.MUTED)
 	_progress = ProgressBar.new()
-	_progress.custom_minimum_size.y = 16
+	_progress.custom_minimum_size.y = 5
 	_progress.show_percentage = false
 	add_child(_progress)
 	var row = HBoxContainer.new()
@@ -42,12 +60,21 @@ func _ready():
 	var heading = _label(14)
 	heading.text = "UNIT UPGRADES"
 	for branch in Technologies.BRANCHES:
+		var plate = PanelContainer.new()
+		plate.add_theme_stylebox_override("panel", BattleTheme.surface(Color("19272e"), 12, 12))
+		add_child(plate)
+		var content = HBoxContainer.new()
+		content.add_theme_constant_override("separation", 12)
+		plate.add_child(content)
+		_icon(content, branch)
 		var card = VBoxContainer.new()
 		card.add_theme_constant_override("separation", 5)
-		add_child(card)
+		card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		content.add_child(card)
 		var title = _label(14, card)
 		title.add_theme_color_override("font_color", Color("d4bb8e"))
 		var description = _label(12, card)
+		description.add_theme_color_override("font_color", BattleTheme.MUTED)
 		var button = Button.new()
 		button.name = "Research" + branch.capitalize()
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -61,13 +88,25 @@ func _ready():
 	refresh()
 
 
+func _icon(parent, branch):
+	var icon = TextureRect.new()
+	icon.name = branch.capitalize() + "Artwork"
+	icon.texture = ICONS[branch]
+	icon.custom_minimum_size = Vector2(60, 60)
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(icon)
+	return icon
+
+
 func _label(font_size, parent = null):
 	if parent == null:
 		parent = self
 	var label = Label.new()
 	label.add_theme_font_size_override("font_size", font_size)
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.custom_minimum_size.x = 470
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	parent.add_child(label)
 	return label
@@ -115,6 +154,10 @@ func refresh():
 		"Coordination unlocks long-range armor, squad programs and %s. One research project at a time."
 		% load("res://source/match/FactionCatalog.gd").signature_title(player.faction)
 	)
+	var active_branch = research.active.trim_suffix("_1").trim_suffix("_2")
+	_overview_icon.texture = ICONS.get(active_branch, ICONS.coordination)
+	if technology_running:
+		_description.text = Technologies.description(research.active, player.faction)
 	_progress.visible = running
 	var duration = (
 		Technologies.ITEMS[research.active].seconds
@@ -153,6 +196,10 @@ func _refresh_branch(branch, busy):
 		"Research · %d M / %d E · %d s"
 		% [item.cost.x, item.cost.y, ceili(item.seconds / player.production_factor())]
 	)
+	if research.active == id:
+		row.button.text = (
+			"Researching · %d s remaining" % ceili(research.left / player.production_factor())
+		)
 	var reason = research.reason(id, lab)
 	row.button.disabled = reason != ""
 	row.button.tooltip_text = (
