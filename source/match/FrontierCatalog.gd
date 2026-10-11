@@ -93,7 +93,10 @@ const DESCRIPTIONS = {
 	"CommandCenter":
 	"Produces scrapper rigs, accepts harvested and salvaged materials, and supplies 20 power.",
 	"Barracks":
-	"Trains four infantry classes and a unique hero. Two infantry recovery slots within 5 m. Uses 3 power.",
+	(
+		"Trains four infantry classes and a unique hero. Two infantry recovery "
+		+ "slots within 5 m. Uses 3 power."
+	),
 	"VehicleFactory":
 	(
 		"Produces refurbished armor and service rigs. Fit chips to new "

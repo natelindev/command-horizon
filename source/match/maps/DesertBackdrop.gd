@@ -18,6 +18,7 @@ const LANDMARKS = [
 	["AbandonedFreightBay", Vector2(140, 57), 1.0, 0.8, 6.0],
 	["AbandonedFreightBay", Vector2(37, -11), 1.0, 0.0, 6.0]
 ]
+const DesertMaterials = preload("res://source/match/maps/DesertMaterials.gd")
 var ground
 var models = []
 
@@ -30,7 +31,7 @@ func _ready():
 		model.set_meta("exterior_radius", entry[2] * entry[4])
 		models.append(model)
 	# Varied trees follow boundary pockets, outside construction space and unit routes.
-	var trees = load("res://source/match/maps/DesertMaterials.gd").TREES
+	var trees = DesertMaterials.TREES
 	var tree_index = 0
 	for point in [
 		Vector2(-7, 18),
@@ -120,7 +121,7 @@ func _normal_at(point):
 func _model(asset, point, model_scale, turn):
 	var model = load("res://assets/models/environment/desert/%s.glb" % asset).instantiate()
 	model.name = asset
-	load("res://source/match/maps/DesertMaterials.gd").weather_stone(model)
+	DesertMaterials.weather_stone(model)
 	model.position = Vector3(point.x, height_at(point), point.y)
 	model.scale = Vector3.ONE * model_scale
 	model.rotation.y = turn

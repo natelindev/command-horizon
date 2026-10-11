@@ -2,6 +2,7 @@ extends Control
 
 const Progress = preload("res://source/match/campaign/CampaignProgress.gd")
 const Catalog = preload("res://source/match/campaign/CampaignCatalog.gd")
+const ArtTheme = preload("res://source/main-menu/ArtTheme.gd")
 var progress_path = Progress.PATH
 var _difficulty: OptionButton
 var _challenge: OptionButton
@@ -27,7 +28,7 @@ var _ids = [
 
 
 func _ready():
-	theme = load("res://source/main-menu/ArtTheme.gd").create()
+	theme = ArtTheme.create()
 	var background = load("res://source/main-menu/ArtBackdrop.gd").new()
 	background.dim = .48
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -300,7 +301,6 @@ func _ready():
 		tr("Main menu"),
 		func(): get_tree().change_scene_to_file("res://source/main-menu/Main.tscn")
 	)
-	var ArtTheme = load("res://source/main-menu/ArtTheme.gd")
 	back_btn.custom_minimum_size = Vector2(140, 44)
 	back_btn.add_theme_stylebox_override("normal", ArtTheme.secondary_button_style())
 	back_btn.add_theme_stylebox_override("hover", ArtTheme.secondary_button_hover_style())
@@ -339,9 +339,18 @@ func _select_operation(index):
 	if is_instance_valid(_theater_intel):
 		var op_entry = Catalog.OPERATIONS[_mission_id]
 		_theater_intel.text = (
-			"OP " + op_entry.number + " · " + tr(op_entry.title).to_upper() + "\n"
-			+ tr("GRID:") + " %d × %d · " % [op_entry.size.x, op_entry.size.y] + tr("Bastion Directorate") + "\n"
-			+ tr("Tactical pause") + " · " + tr("Fog of war")
+			"OP "
+			+ op_entry.number
+			+ " · "
+			+ tr(op_entry.title).to_upper()
+			+ "\n"
+			+ tr("GRID:")
+			+ " %d × %d · " % [op_entry.size.x, op_entry.size.y]
+			+ tr("Bastion Directorate")
+			+ "\n"
+			+ tr("Tactical pause")
+			+ " · "
+			+ tr("Fog of war")
 		)
 
 	var split = _ids[index] == "split_signal"
@@ -480,7 +489,9 @@ func _air_briefing():
 
 func _foundry_briefing():
 	_completion.text = (
-		tr("Completed · finale approach unlocked") if _progress.foundry_complete else tr("Available")
+		tr("Completed · finale approach unlocked")
+		if _progress.foundry_complete
+		else tr("Available")
 	)
 	_briefing.text = (
 		"Take the industrial works without losing your support force.\n\n"
@@ -552,9 +563,13 @@ func _refresh_horizon_response():
 	var air = [1, 1, 2][_difficulty.selected]
 	_response.text = tr("Four warned responses · %d ground + %d air units each.") % [ground, air]
 	if _challenge.selected == 1:
-		_response.text += tr(" Lean: 4 tanks, 8 infantry, 2 engineers; 80 materials / 40 electronics.")
+		_response.text += tr(
+			" Lean: 4 tanks, 8 infantry, 2 engineers; 80 materials / 40 electronics."
+		)
 	elif _challenge.selected == 2:
-		_response.text += tr(" Reinforced: 4 extra HQ infantry and the extra ground unit per response.")
+		_response.text += tr(
+			" Reinforced: 4 extra HQ infantry and the extra ground unit per response."
+		)
 
 
 func _label(parent, text, size, color_value = Color("edf2f7")):

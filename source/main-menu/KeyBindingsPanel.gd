@@ -12,7 +12,9 @@ var _message
 func _ready():
 	add_theme_constant_override("separation", 8)
 	var description = Label.new()
-	description.text = tr("Choose a command, then press a key or shortcut. Esc cancels key capture.")
+	description.text = tr(
+		"Choose a command, then press a key or shortcut. Esc cancels key capture."
+	)
 	description.add_theme_font_size_override("font_size", 14)
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	add_child(description)

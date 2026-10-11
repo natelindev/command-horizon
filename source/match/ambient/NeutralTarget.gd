@@ -22,6 +22,9 @@ var panic_left = 0.0
 var hit_left = 0.0
 var interactive = true
 var neutral_id = ""
+var global_position_yless:
+	get:
+		return global_position * Vector3(1, 0, 1)
 var _match
 var _model
 var _model_origin = Vector3.ZERO
@@ -30,9 +33,6 @@ var _death_kind = "resident"
 var _health
 var _charred = false
 var _meshes = []
-var global_position_yless:
-	get:
-		return global_position * Vector3(1, 0, 1)
 
 
 func configure_target(kind, size, health, height = 1.7):

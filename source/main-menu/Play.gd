@@ -367,14 +367,18 @@ func _update_summary():
 		else "Established base, 2 tanks, repair support · 120 M / 60 E"
 	)
 	_summary.text = (
-		tr(opening) + "\n" + tr("Win by destroying the enemy HQ and preventing a rebuild for 60 seconds.")
+		tr(opening)
+		+ "\n"
+		+ tr("Win by destroying the enemy HQ and preventing a rebuild for 60 seconds.")
 	)
 	_summary.tooltip_text = "Difficulty changes AI timing. No health, damage or resource bonuses."
 
 
 func _on_map_list_item_selected(index):
 	_preview.set_map(MAPS[index][0])
-	_map_details.text = tr(MAPS[index][2]) + "\n" + MAPS[index][3] + " · " + tr("Opposite starting positions")
+	_map_details.text = (
+		tr(MAPS[index][2]) + "\n" + MAPS[index][3] + " · " + tr("Opposite starting positions")
+	)
 
 
 func _create_match_settings():

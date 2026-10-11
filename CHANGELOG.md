@@ -2,11 +2,32 @@
 
 ## [main]
 
+## [0.10.0]
+
 ### New features
- - Added structure rally points
+ - Living World system: animated ambient wildlife, biome atmosphere, dynamic weather, and environmental lighting
+ - Interactive neutral world: capturable relays, neutral settlements, and garrisonable structures
+ - Expanded infantry roster and unique faction heroes for Bastion, Helix, and Frontier factions
+ - Complete Neo-Military Precision HUD overhaul across main menu, skirmish setup, campaign, and match UI
+ - Full bilingual localization support (English and Simplified Chinese) including typography, layout, and loading screens
+ - Comprehensive audio overhaul: unit voice responses, male faction voices, autonomous machine audio, and licensed music
+ - Programmable RTS gameplay, Lua script runtime, and visual program editor
+ - Campaign missions with interactive briefings and unit telemetry previews
 
 ### Changed
- - Godot 4.1 support added instead of Godot 4.0 (4.0 support is still present on branch)
+ - Upgraded engine foundation to Godot 4.6
+ - Optimized coastal navigation, obstacle avoidance, and combat targeting
+ - Improved weapon impact VFX, wreck materials, and debris physics
+ - Cleaned up obsolete assets, dead code, and temporary build clutter
+
+## [0.9.1]
+
+### New features
+ - Automated multi-platform CI release builds (Linux, macOS, Windows)
+
+### Changed
+ - Optimized battlefield targeting and terrain navigation
+ - Voice narrator and combat audio lifecycle cleanup
 
 ## [0.9.0]
 

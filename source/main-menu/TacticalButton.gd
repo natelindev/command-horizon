@@ -23,30 +23,38 @@ func _ready():
 	custom_minimum_size = Vector2(380, button_height)
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	clip_contents = false
-	
+
 	# Clear native button styleboxes and default text rendering
 	flat = true
 	var empty = StyleBoxEmpty.new()
 	for state in ["normal", "hover", "pressed", "disabled", "focus"]:
 		add_theme_stylebox_override(state, empty)
-	for state in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color", "font_disabled_color"]:
+	for state in [
+		"font_color",
+		"font_hover_color",
+		"font_pressed_color",
+		"font_focus_color",
+		"font_disabled_color"
+	]:
 		add_theme_color_override(state, Color(0, 0, 0, 0))
-	
+
 	custom_minimum_size = Vector2(0, button_height)
-	
+
 	# Tactical chamfered background
 	_material = ShaderMaterial.new()
 	_material.shader = SHADER
 	_material.set_shader_parameter("cut_size", cut_size)
-	_material.set_shader_parameter("rect_size", size if size != Vector2.ZERO else custom_minimum_size)
+	_material.set_shader_parameter(
+		"rect_size", size if size != Vector2.ZERO else custom_minimum_size
+	)
 	_material.set_shader_parameter("hover_glow", 0.0)
-	
+
 	_bg = ColorRect.new()
 	_bg.material = _material
 	_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(_bg)
-	
+
 	# Content layout
 	_content = MarginContainer.new()
 	_content.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -56,12 +64,12 @@ func _ready():
 	_content.add_theme_constant_override("margin_top", 4)
 	_content.add_theme_constant_override("margin_bottom", 4)
 	add_child(_content)
-	
+
 	var hbox = HBoxContainer.new()
 	hbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	hbox.add_theme_constant_override("separation", 10)
 	_content.add_child(hbox)
-	
+
 	# Index code
 	_index_label = Label.new()
 	_index_label.text = index_code
@@ -71,7 +79,7 @@ func _ready():
 	_index_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_index_label.visible = not index_code.is_empty()
 	hbox.add_child(_index_label)
-	
+
 	# Optional Icon
 	if icon != null:
 		_icon_rect = TextureRect.new()
@@ -83,7 +91,7 @@ func _ready():
 		_icon_rect.modulate = Color("acbcc4")
 		_icon_rect.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		hbox.add_child(_icon_rect)
-	
+
 	# Title & Subtitle column
 	var vbox = VBoxContainer.new()
 	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -91,7 +99,7 @@ func _ready():
 	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
 	vbox.add_theme_constant_override("separation", 0)
 	hbox.add_child(vbox)
-	
+
 	_title_label = Label.new()
 	_title_label.text = tr(text)
 	_title_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -99,7 +107,7 @@ func _ready():
 	_title_label.add_theme_font_size_override("font_size", 15)
 	_title_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	vbox.add_child(_title_label)
-	
+
 	_subtitle_label = Label.new()
 	_subtitle_label.text = tr(subtitle_text)
 	_subtitle_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -107,7 +115,7 @@ func _ready():
 	_subtitle_label.add_theme_font_size_override("font_size", 10)
 	_subtitle_label.visible = not subtitle_text.is_empty()
 	vbox.add_child(_subtitle_label)
-	
+
 	# Right chevron
 	_chevron = Label.new()
 	_chevron.text = "›"
@@ -116,7 +124,7 @@ func _ready():
 	_chevron.add_theme_font_size_override("font_size", 20)
 	_chevron.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	hbox.add_child(_chevron)
-	
+
 	resized.connect(_on_resized)
 	mouse_entered.connect(_on_highlight.bind(true))
 	mouse_exited.connect(_on_highlight.bind(false))
@@ -151,17 +159,25 @@ func _on_highlight(active: bool):
 	if _tween and _tween.is_valid():
 		_tween.kill()
 	_tween = create_tween().set_parallel(true).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	
+
 	var target_glow = 1.0 if active else 0.0
 	var target_margin = 8.0 if active else 0.0
 	var chevron_col = Color("ffe59e") if active else Color("d8a84688")
 	var title_col = Color("ffffff") if active else Color("f1eee4")
 	var icon_col = Color("f1eee4") if active else Color("acbcc4")
-	
-	_tween.tween_method(func(val): _material.set_shader_parameter("hover_glow", val), 
-		_material.get_shader_parameter("hover_glow"), target_glow, 0.18)
-	_tween.tween_property(_content, "theme_override_constants/margin_left", int(14 + target_margin), 0.18)
-	_tween.tween_property(_chevron, "modulate", Color.WHITE if active else Color(1, 1, 1, 0.6), 0.18)
+
+	_tween.tween_method(
+		func(val): _material.set_shader_parameter("hover_glow", val),
+		_material.get_shader_parameter("hover_glow"),
+		target_glow,
+		0.18
+	)
+	_tween.tween_property(
+		_content, "theme_override_constants/margin_left", int(14 + target_margin), 0.18
+	)
+	_tween.tween_property(
+		_chevron, "modulate", Color.WHITE if active else Color(1, 1, 1, 0.6), 0.18
+	)
 	_tween.tween_property(_title_label, "theme_override_colors/font_color", title_col, 0.18)
 	if _icon_rect:
 		_tween.tween_property(_icon_rect, "modulate", icon_col, 0.18)

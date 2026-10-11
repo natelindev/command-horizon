@@ -1,15 +1,14 @@
 # gdlint: disable=max-returns,max-file-lines
 extends RefCounted
 
-const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
-
+const Catalog = preload("res://source/match/BastionCatalog.gd")
+const AmbientCatalog = preload("res://source/match/ambient/AmbientCatalog.gd")
 const Factions = preload("res://source/match/FactionRules.gd")
 const Salvage = preload("res://source/match/economy/SalvageRules.gd")
 const Technology = preload("res://source/match/research/TechnologyCatalog.gd")
 
 const Campaigns = preload("res://source/match/campaign/CampaignCatalog.gd")
 const Snapshot = preload("res://source/match/saves/MatchSnapshot.gd")
-const Catalog = preload("res://source/match/BastionCatalog.gd")
 const Rules = preload("res://source/match/MatchConstants.gd")
 const Record = preload("res://source/match/programs/ProgramRecord.gd")
 const Library = preload("res://source/match/programs/ProgramLibrary.gd")
@@ -797,7 +796,7 @@ func _action(action, unit, depth):
 		if (
 			kind == "Garrisoning"
 			and (
-				not InfantryRoster.is_infantry(unit.role)
+				not Catalog.is_infantry(unit.role)
 				or not _neutral_ids.get(id, false)
 				or action.state._elapsed < 0
 				or action.state._elapsed > .25
@@ -870,7 +869,7 @@ func _action(action, unit, depth):
 					target.get("role")
 					!= (
 						"Barracks"
-						if InfantryRoster.is_infantry(unit.role)
+						if Catalog.is_infantry(unit.role)
 						else (
 							"AircraftFactory"
 							if unit.role in ["Drone", "Helicopter"]
@@ -1051,7 +1050,7 @@ func _order(order, unit):
 		return false
 	if (
 		order.kind == "garrison"
-		and (not InfantryRoster.is_infantry(unit.role) or not _neutral_ids.get(order.target, false))
+		and (not Catalog.is_infantry(unit.role) or not _neutral_ids.get(order.target, false))
 	):
 		return _fail("Invalid garrison order.")
 	if _neutral_ids.has(order.target) and order.kind not in ["attack", "approach", "garrison"]:
@@ -1062,7 +1061,7 @@ func _order(order, unit):
 	if order.kind == "recover":
 		var expected = (
 			"Barracks"
-			if InfantryRoster.is_infantry(unit.role)
+			if Catalog.is_infantry(unit.role)
 			else ("AircraftFactory" if unit.role in ["Drone", "Helicopter"] else "RepairDepot")
 		)
 		if (
@@ -1549,7 +1548,7 @@ func _horizon_mission(value):
 		if entities.values().any(
 			func(unit):
 				return (
-					InfantryRoster.is_infantry(unit.get("role"))
+					Catalog.is_infantry(unit.get("role"))
 					and unit.get("player") == "player-0"
 					and (unit.position * Vector3(1, 0, 1)).distance_to(point) <= 3
 				)
@@ -1559,7 +1558,7 @@ func _horizon_mission(value):
 
 
 func _ambient(saved, map_path):
-	var entries = load("res://source/match/ambient/AmbientCatalog.gd").entries(map_path)
+	var entries = AmbientCatalog.entries(map_path)
 	if saved.size() != entries.size():
 		return _fail("Invalid neutral population.")
 	var seen = {}
@@ -1577,9 +1576,7 @@ func _ambient(saved, map_path):
 			return _fail("Invalid neutral identity.")
 		seen[record.id] = true
 		if _version >= 11:
-			var maximum = (
-				load("res://source/match/ambient/AmbientCatalog.gd").STATS[matches[0].kind].health
-			)
+			var maximum = AmbientCatalog.STATS[matches[0].kind].health
 			if not _neutral_combat(record.combat, maximum):
 				return false
 			_neutral_ids["neutral-" + record.id] = false
@@ -1600,7 +1597,7 @@ func _neutral_combat(value, maximum):
 
 
 func _neutral_buildings(saved, map_path):
-	var catalog = load("res://source/match/ambient/AmbientCatalog.gd")
+	var catalog = AmbientCatalog
 	var assets = catalog.structures(map_path)
 	if saved.size() != assets.size():
 		return _fail("Invalid neutral building population.")
@@ -1640,7 +1637,7 @@ func _neutral_buildings(saved, map_path):
 				return _fail("Invalid garrison occupant.")
 			var unit = entities[id]
 			if (
-				not InfantryRoster.is_infantry(unit.get("role"))
+				not Catalog.is_infantry(unit.get("role"))
 				or (owner != "" and owner != unit.player)
 				or unit.action.get("kind") != "Garrisoning"
 				or not unit.action.get("references", {}) is Dictionary

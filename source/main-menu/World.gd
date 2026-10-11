@@ -111,9 +111,11 @@ func _ready():
 	content.add_child(cards)
 
 	var faction_configs = {
-		"bastion": {"accent": Color("d8af67"), "bg_accent": Color("1f1a14cc"), "tag": "// BASTION // "},
+		"bastion":
+		{"accent": Color("d8af67"), "bg_accent": Color("1f1a14cc"), "tag": "// BASTION // "},
 		"helix": {"accent": Color("38c8ce"), "bg_accent": Color("101d24cc"), "tag": "// HELIX // "},
-		"frontier": {"accent": Color("e29b68"), "bg_accent": Color("221814cc"), "tag": "// FRONTIER // "}
+		"frontier":
+		{"accent": Color("e29b68"), "bg_accent": Color("221814cc"), "tag": "// FRONTIER // "}
 	}
 
 	for faction in ["bastion", "helix", "frontier"]:

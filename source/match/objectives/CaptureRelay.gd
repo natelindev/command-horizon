@@ -1,9 +1,8 @@
 extends Node3D
 
-const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
-
 signal captured(player)
 
+const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
 const CAPTURE_SECONDS = 10.0
 const RADIUS = 3.0
 var label_title = "RELAY"

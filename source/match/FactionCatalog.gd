@@ -79,7 +79,10 @@ const HELIX_DESCRIPTIONS = {
 	),
 	"CommandCenter": "Produces Mule engineers, receives harvested resources and supplies 20 power.",
 	"Barracks":
-	"Trains four infantry classes and a unique hero. Two infantry recovery slots within 5 m. Uses 3 power.",
+	(
+		"Trains four infantry classes and a unique hero. Two infantry recovery "
+		+ "slots within 5 m. Uses 3 power."
+	),
 	"CommandLab":
 	(
 		"With a robotics foundry, unlocks chip programs, Lancers and Wraiths. Research "
@@ -165,11 +168,20 @@ static func description(faction, role):
 	if role == "Hero":
 		return {
 			"bastion":
-			"Marshal Aegis: armored frontline hero with a rapid heavy rifle. One alive or training; retrain after death. Requires a command lab.",
+			(
+				"Marshal Aegis: armored frontline hero with a rapid heavy rifle. "
+				+ "One alive or training; retrain after death. Requires a command lab."
+			),
 			"helix":
-			"Spectre Nyx: mobile precision hero with a long-range anti-armor lance. One alive or training; retrain after death. Requires a command lab.",
+			(
+				"Spectre Nyx: mobile precision hero with a long-range anti-armor "
+				+ "lance. One alive or training; retrain after death. Requires a command lab."
+			),
 			"frontier":
-			"Pathfinder Rook: fast assault hero with a heavy automatic rifle. One alive or training; retrain after death. Requires a command lab."
+			(
+				"Pathfinder Rook: fast assault hero with a heavy automatic rifle. "
+				+ "One alive or training; retrain after death. Requires a command lab."
+			)
 		}[faction]
 	if faction == "frontier" and Frontier.DESCRIPTIONS.has(role):
 		return Frontier.DESCRIPTIONS[role]

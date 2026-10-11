@@ -35,9 +35,15 @@ const DESCRIPTIONS = {
 	"SniperInfantry":
 	"Long-range precision rifle against infantry. Fragile and ineffective against heavy armor.",
 	"AssaultInfantry":
-	"Armored close-range assault troops. Rapid fire against infantry; vulnerable to long-range weapons.",
+	(
+		"Armored close-range assault troops. Rapid fire against infantry; "
+		+ "vulnerable to long-range weapons."
+	),
 	"Hero":
-	"Unique faction hero. One alive or in training per player; can retrain after death. Requires a command lab.",
+	(
+		"Unique faction hero. One alive or in training per player; can retrain "
+		+ "after death. Requires a command lab."
+	),
 	"Worker": "Harvest materials and electronics. Construct your base.",
 	"Infantry":
 	(
@@ -68,7 +74,10 @@ const DESCRIPTIONS = {
 	),
 	"CommandCenter": "Produces engineer rovers. Receives harvested resources. Supplies 20 power.",
 	"Barracks":
-	"Trains four infantry classes and a unique hero. Two infantry recovery slots within 5 m. Uses 3 power.",
+	(
+		"Trains four infantry classes and a unique hero. Two infantry recovery "
+		+ "slots within 5 m. Uses 3 power."
+	),
 	"VehicleFactory": "Produces armor and support robots. Uses 6 power.",
 	"AircraftFactory":
 	"Produces scouts and strike aircraft. Two aircraft service slots within 5 m. Uses 8 power.",

@@ -21,7 +21,8 @@ const ROADS = [
 ]
 
 const FIELDS = [Vector2(14, 43), Vector2(114, 53), Vector2(52, 6), Vector2(76, 90)]
-const TREES = preload("res://source/match/maps/DesertMaterials.gd").TREES
+const DesertMaterials = preload("res://source/match/maps/DesertMaterials.gd")
+const TREES = DesertMaterials.TREES
 var exterior
 
 
@@ -70,7 +71,7 @@ func _escarpment(point, index):
 	rock.position = Vector3(point.x, 0, point.y)
 	var model = load("res://assets/models/environment/desert/%s.glb" % SHELVES[index]).instantiate()
 	model.name = "Model"
-	load("res://source/match/maps/DesertMaterials.gd").weather_stone(model)
+	DesertMaterials.weather_stone(model)
 	rock.add_child(model)
 	var obstacle = Obstacle.instantiate()
 	obstacle.radius = RADIUS

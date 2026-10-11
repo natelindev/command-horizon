@@ -10,7 +10,7 @@ var _telemetry: Control
 func _ready():
 	get_node("/root/SaveManager").autosaves_enabled = true
 	theme = ArtTheme.create()
-	
+
 	# Atmospheric background
 	var backdrop = load("res://source/main-menu/ArtBackdrop.gd").new()
 	backdrop.dim = .42
@@ -31,11 +31,11 @@ func _ready():
 	# --- TOP MASTHEAD ---
 	var masthead = HBoxContainer.new()
 	page.add_child(masthead)
-	
+
 	var title_box = HBoxContainer.new()
 	title_box.add_theme_constant_override("separation", 14)
 	masthead.add_child(title_box)
-	
+
 	_label(title_box, "OPEN RTS", 22, Color("f1eee4"))
 	_label(title_box, tr("// TAC-OPS // THEATER OF OPERATIONS"), 11, Color("d8a846"))
 
@@ -90,16 +90,40 @@ func _ready():
 	left_column.add_child(actions)
 
 	var skirmish = _tactical_action(
-		actions, "Skirmish", "01 //", tr("SKIRMISH"), tr("TACTICAL FORCE DEPLOYMENT"), "ico_skirmish", _on_play_button_pressed
+		actions,
+		"Skirmish",
+		"01 //",
+		tr("SKIRMISH"),
+		tr("TACTICAL FORCE DEPLOYMENT"),
+		"ico_skirmish",
+		_on_play_button_pressed
 	)
 	var campaign = _tactical_action(
-		actions, "Campaign", "02 //", tr("CAMPAIGN"), tr("THEATERS OF WAR & SCRIPTED OPS"), "ico_campaign", func(): _open("res://source/main-menu/Campaign.tscn")
+		actions,
+		"Campaign",
+		"02 //",
+		tr("CAMPAIGN"),
+		tr("THEATERS OF WAR & SCRIPTED OPS"),
+		"ico_campaign",
+		func(): _open("res://source/main-menu/Campaign.tscn")
 	)
 	var cont = _tactical_action(
-		actions, "Continue", "03 //", tr("CONTINUE / LOAD"), tr("RESTORE ACTIVE BATTLEFIELD"), "ico_multiplayer", func(): get_node("/root/SaveManager").open_dialog()
+		actions,
+		"Continue",
+		"03 //",
+		tr("CONTINUE / LOAD"),
+		tr("RESTORE ACTIVE BATTLEFIELD"),
+		"ico_multiplayer",
+		func(): get_node("/root/SaveManager").open_dialog()
 	)
 	var world = _tactical_action(
-		actions, "World", "04 //", tr("WORLD & FACTIONS"), tr("FACTION DOSSIERS & SPECS"), "ico_mods", func(): _open("res://source/main-menu/World.tscn")
+		actions,
+		"World",
+		"04 //",
+		tr("WORLD & FACTIONS"),
+		tr("FACTION DOSSIERS & SPECS"),
+		"ico_mods",
+		func(): _open("res://source/main-menu/World.tscn")
 	)
 
 	# Utility Row
@@ -108,7 +132,14 @@ func _ready():
 	left_column.add_child(utilities)
 
 	_tactical_action(
-		utilities, "Settings", "05 //", tr("SETTINGS"), "", "ico_settings", _on_options_button_pressed, 44
+		utilities,
+		"Settings",
+		"05 //",
+		tr("SETTINGS"),
+		"",
+		"ico_settings",
+		_on_options_button_pressed,
+		44
 	)
 	_tactical_action(
 		utilities, "Exit", "06 //", tr("EXIT"), "", "ico_exit", _on_quit_button_pressed, 44
@@ -183,7 +214,9 @@ func _label(parent, text_value, font_size, color):
 	return label
 
 
-func _tactical_action(parent, node_name, index_code, title, subtitle, icon_name, callback, height = 52):
+func _tactical_action(
+	parent, node_name, index_code, title, subtitle, icon_name, callback, height = 52
+):
 	var button = TacticalButton.new()
 	button.name = node_name
 	button.text = title

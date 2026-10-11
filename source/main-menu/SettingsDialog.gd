@@ -2,6 +2,8 @@ extends CanvasLayer
 
 signal closed
 
+const ArtTheme = preload("res://source/main-menu/ArtTheme.gd")
+
 var options
 var save_path = ""
 var controls = {}
@@ -46,7 +48,7 @@ func _ready():
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(center)
 	_panel = PanelContainer.new()
-	_panel.theme = load("res://source/main-menu/ArtTheme.gd").create()
+	_panel.theme = ArtTheme.create()
 	_panel.custom_minimum_size.x = 680
 	var style = StyleBoxFlat.new()
 	style.bg_color = Color("0a1216f8")
@@ -180,7 +182,6 @@ func _ready():
 	var actions = HBoxContainer.new()
 	actions.add_theme_constant_override("separation", 12)
 	column.add_child(actions)
-	var ArtTheme = load("res://source/main-menu/ArtTheme.gd")
 	_save = _button(actions, tr("Save & back"), func(): _finish(true))
 	_save.add_theme_stylebox_override("normal", ArtTheme.primary_button_style())
 	_save.add_theme_stylebox_override("hover", ArtTheme.primary_button_hover_style())
@@ -253,7 +254,6 @@ func _button(parent, title, callback):
 	button.text = tr(title)
 	button.custom_minimum_size.y = 34
 	button.add_theme_font_size_override("font_size", 14)
-	var ArtTheme = load("res://source/main-menu/ArtTheme.gd")
 	button.add_theme_stylebox_override("normal", ArtTheme.secondary_button_style())
 	button.add_theme_stylebox_override("hover", ArtTheme.secondary_button_hover_style())
 	button.pressed.connect(callback)
@@ -419,7 +419,9 @@ func _build_graphics():
 	_check(column, "Ambient occlusion (contact shading)", "graphics_ao")
 	_check(column, "Bloom / light glow", "graphics_glow")
 	_check(column, "Cinematic depth of field", "graphics_dof")
-	controls.graphics_dof.tooltip_text = tr("Keep the camera focus sharp; softly blur distant scenery.")
+	controls.graphics_dof.tooltip_text = tr(
+		"Keep the camera focus sharp; softly blur distant scenery."
+	)
 	_choice(column, "Anti-aliasing", "graphics_msaa", ["Off", "2× MSAA", "4× MSAA"])
 	var forward = RenderingServer.get_current_rendering_method() == "forward_plus"
 	for key in ["graphics_ao", "graphics_dof"]:

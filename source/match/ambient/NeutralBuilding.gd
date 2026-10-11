@@ -4,7 +4,9 @@ const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
 
 const CAPACITY = InfantryRoster.GARRISON_CAPACITY
 const Catalog = preload("res://source/match/ambient/AmbientCatalog.gd")
+const NeutralDetails = preload("res://source/match/ambient/NeutralDetails.gd")
 var occupants = []
+var habitable = true
 var _body
 var _obstacle
 var _label
@@ -12,7 +14,6 @@ var _height = 6.9
 var _fans = []
 var _debris = []
 var _asset = ""
-var habitable = true
 
 
 func setup(body, identity):
@@ -41,9 +42,7 @@ func setup(body, identity):
 	_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	_label.no_depth_test = false
 	add_child(_label)
-	load("res://source/match/ambient/NeutralDetails.gd").dress_building(
-		_model, radius / _model_scale.x, _asset
-	)
+	NeutralDetails.dress_building(_model, radius / _model_scale.x, _asset)
 	for mesh in _model.find_children("*", "MeshInstance3D", true, false):
 		if "Fanblade" in str(mesh.name).replace("_", "").replace(" ", ""):
 			_fans.append([mesh, mesh.rotation])
@@ -188,7 +187,7 @@ func firing_origin(target_point):
 
 
 func _create_debris():
-	var details = load("res://source/match/ambient/NeutralDetails.gd")
+	var details = NeutralDetails
 	var concrete = details.material(Color("777267"))
 	for index in 14:
 		var angle = index * 2.39996
