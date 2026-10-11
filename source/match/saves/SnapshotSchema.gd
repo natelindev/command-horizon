@@ -697,6 +697,9 @@ func _action(action, unit, depth):
 	):
 		return _fail("Immobile structure has a mobile action.")
 	var fields = Snapshot.ACTION_FIELDS[kind].duplicate()
+	if kind == "AutoAttacking" and not action.state.has("_defense_origin"):
+		fields.erase("_defense_origin")
+		fields.erase("_defense_radius")
 	if kind == "RecoveringAtService" and not action.state.has("_full_recovery"):
 		fields.erase("_full_recovery")
 	# Earlier point orders did not persist their crowded-arrival observation.
@@ -742,6 +745,7 @@ func _action(action, unit, depth):
 		var point = (
 			key
 			in [
+				"_defense_origin",
 				"_target_position",
 				"destination",
 				"_last_known_position",
@@ -757,6 +761,13 @@ func _action(action, unit, depth):
 		)
 		if not _type(value, "bool" if flag else ("maybevec" if point else "signed")):
 			return _fail("Invalid action state value.")
+	if kind == "AutoAttacking" and action.state.has("_defense_origin"):
+		if (
+			not action.state._defense_origin is Vector3
+			or action.state._defense_radius < 0
+			or action.state._defense_radius > 64
+		):
+			return _fail("Invalid defensive response bounds.")
 	if not _action_state(kind, action.state):
 		return false
 	if kind == "AttackingWhileInRange" and _version >= 3 and action.state._charge_left >= 0:

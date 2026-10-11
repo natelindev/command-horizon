@@ -1,8 +1,8 @@
 extends Node
 
 const MAX_LOCAL_PLAYERS = 4
-const BED_LEVEL = -6.0
-const LOCAL_LEVELS = {"car": -12.0, "tug": -10.0, "gull": -13.0}
+const BED_LEVEL = -16.0
+const LOCAL_LEVELS = {"car": -17.0, "tug": -16.0, "gull": -16.0}
 const LOCAL_CUES = {"car": "traffic", "tug": "tug", "gull": "gull"}
 
 var region = ""

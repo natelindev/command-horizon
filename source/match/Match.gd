@@ -50,6 +50,7 @@ func _enter_tree():
 func _ready():
 	battlefield = load("res://source/match/combat/Battlefield.gd").new()
 	add_child(battlefield)
+	add_child(load("res://source/match/combat/AlliedDefense.gd").new())
 	combat_audio = load("res://source/match/audio/CombatAudio.gd").new()
 	add_child(combat_audio)
 	environment_audio = load("res://source/match/audio/EnvironmentAudio.gd").new()
@@ -79,6 +80,9 @@ func _ready():
 	ownership_layer.layer = -1
 	add_child(ownership_layer)
 	ownership_layer.add_child(load("res://source/match/hud/OwnershipOverlay.gd").new())
+	var routes = load("res://source/match/hud/OrderRoutes.gd").new()
+	routes.process_mode = Node.PROCESS_MODE_ALWAYS
+	ownership_layer.add_child(routes)
 	var living_world = load("res://source/match/environment/LivingWorld.gd").new()
 	map.add_child(living_world)
 	var neutral_world = load("res://source/match/ambient/NeutralWorld.gd").new()

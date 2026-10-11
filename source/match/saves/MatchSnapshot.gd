@@ -10,7 +10,15 @@ const ACTION_FIELDS = {
 	"MovingToUnit": ["_target_position"],
 	"AttackMoving": ["destination", "_elapsed", "_arrival_elapsed", "_arrival_progress"],
 	"AutoAttacking":
-	["_elapsed", "_last_known_position", "_lost_contact", "_blocked_elapsed", "_progress_position"],
+	[
+		"_elapsed",
+		"_last_known_position",
+		"_lost_contact",
+		"_blocked_elapsed",
+		"_progress_position",
+		"_defense_origin",
+		"_defense_radius"
+	],
 	"AttackingWhileInRange":
 	["_shot_limit", "_shots", "_charge_left", "_charge_total", "_charge_origin"],
 	"WaitingForTargets": [],

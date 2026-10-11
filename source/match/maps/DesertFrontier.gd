@@ -21,6 +21,7 @@ const ROADS = [
 ]
 
 const FIELDS = [Vector2(14, 43), Vector2(114, 53), Vector2(52, 6), Vector2(76, 90)]
+const TREES = preload("res://source/match/maps/DesertMaterials.gd").TREES
 var exterior
 
 
@@ -103,6 +104,7 @@ func _ground_cover():
 	var cover = Node3D.new()
 	cover.name = "DesertGroundCover"
 	add_child(cover)
+	var tree_index = 0
 	for point in [
 		Vector2(43, 25),
 		Vector2(46, 35),
@@ -117,8 +119,12 @@ func _ground_cover():
 		Vector2(116, 83),
 		Vector2(120, 86)
 	]:
-		var plant = load("res://assets/models/environment/desert/DryScrub.glb").instantiate()
+		var plant = (
+			load("res://assets/models/environment/desert/%s.glb" % TREES[tree_index % TREES.size()])
+			. instantiate()
+		)
 		plant.position = Vector3(point.x, 0.01, point.y)
-		plant.scale = Vector3(2.0, 4.8, 2.0)
+		plant.scale = Vector3.ONE * (0.85 + (tree_index % 3) * 0.12)
 		plant.rotation.y = point.x * 0.27
 		cover.add_child(plant)
+		tree_index += 1

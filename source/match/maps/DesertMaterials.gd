@@ -1,5 +1,7 @@
 extends RefCounted
 
+const TREES = ["DesertAcacia", "DesertMesquite", "DesertJuniper", "DesertWindswept"]
+
 
 static func weather_stone(model):
 	var materials = {}

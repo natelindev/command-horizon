@@ -11,3 +11,4 @@ func _on_cancel_action_button_pressed():
 		return
 	for unit in units:
 		unit.issue_manual_order(null)
+		MatchSignals.unit_order_issued.emit(unit, "stop")

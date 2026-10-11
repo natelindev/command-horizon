@@ -1,5 +1,8 @@
 extends Node
 
+const STAT_COUNTERS = [
+	"materials", "electronics", "structures_built", "units_destroyed", "structures_destroyed"
+]
 const COUNTERS = [
 	"forces_trained",
 	"engineers_trained",
@@ -18,7 +21,16 @@ var data = {
 	"forces_lost": 0,
 	"engineers_lost": 0,
 	"structures_lost": 0,
-	"foundations_lost": 0
+	"foundations_lost": 0,
+	"statistics":
+	{
+		"materials": 0,
+		"electronics": 0,
+		"structures_built": 0,
+		"units_destroyed": 0,
+		"structures_destroyed": 0,
+		"recorded_from": 0.0
+	}
 }
 @onready var game = get_parent()
 
@@ -26,6 +38,9 @@ var data = {
 func _ready():
 	MatchSignals.unit_production_finished.connect(_produced)
 	MatchSignals.unit_destroying.connect(_lost)
+	MatchSignals.resources_mined.connect(_mined)
+	MatchSignals.unit_construction_finished.connect(_built)
+	MatchSignals.unit_weapon_hit.connect(_weapon_hit)
 	observe()
 
 
@@ -45,6 +60,24 @@ func _lost(unit):
 		data["structures_lost" if unit.is_constructed() else "foundations_lost"] += 1
 	elif unit.movement_speed > 0:
 		data["engineers_lost" if unit.type == "Worker" else "forces_lost"] += 1
+
+
+func _mined(worker, kind, amount):
+	if _owned(worker) and kind in ["materials", "electronics"]:
+		data.statistics[kind] += amount
+
+
+func _built(unit):
+	if _owned(unit):
+		data.statistics.structures_built += 1
+
+
+func _weapon_hit(victim, attacker):
+	if not _owned(attacker) or victim.player == attacker.player or victim.hp > 0:
+		return
+	# Weapon-hit is emitted once per accepted hit, after lethal damage is applied.
+	var key = "structures_destroyed" if victim.has_method("is_constructed") else "units_destroyed"
+	data.statistics[key] += 1
 
 
 func observe():
@@ -74,19 +107,42 @@ func capture():
 func restore(saved):
 	if not saved.is_empty():
 		data = saved.duplicate(true)
+		if not data.has("statistics"):
+			_start_statistics()
 		return
 	# Older archives cannot reconstruct production/losses or an earlier program run.
 	for key in COUNTERS:
 		data[key] = 0
+	_start_statistics()
 	data.complete_history = false
 	data.started_at = game.simulation_time
 	data.basic_at = -2.0 if game._get_human_player().basic_programs_unlocked() else -1.0
 	data.program_at = -2.0
 
 
+func _start_statistics():
+	data.statistics = {"recorded_from": game.simulation_time}
+	for key in STAT_COUNTERS:
+		data.statistics[key] = 0
+
+
 static func valid(saved, now):
-	if not saved is Dictionary or saved.size() != 10 or not saved.get("complete_history") is bool:
+	if (
+		not saved is Dictionary
+		or saved.size() != (11 if saved.has("statistics") else 10)
+		or not saved.get("complete_history") is bool
+	):
 		return false
+	if saved.has("statistics"):
+		var stats = saved.statistics
+		if not stats is Dictionary or stats.size() != STAT_COUNTERS.size() + 1:
+			return false
+		for key in STAT_COUNTERS:
+			if not stats.get(key) is int or stats[key] < 0 or stats[key] > 1000000000:
+				return false
+		var start = stats.get("recorded_from")
+		if not (start is int or start is float) or not is_finite(start) or start < 0 or start > now:
+			return false
 	for key in COUNTERS:
 		if not saved.get(key) is int or saved[key] < 0 or saved[key] > 1000000:
 			return false
@@ -125,3 +181,16 @@ static func _milestone(value):
 static func _clock(value):
 	var seconds = int(value)
 	return "%02d:%02d" % [seconds / 60, seconds % 60]
+
+
+func statistics_rows():
+	return [
+		["Units produced", data.forces_trained + data.engineers_trained],
+		["Materials mined", data.statistics.materials],
+		["Electronics mined", data.statistics.electronics],
+		["Buildings completed", data.statistics.structures_built],
+		["Enemy units destroyed", data.statistics.units_destroyed],
+		["Enemy buildings destroyed", data.statistics.structures_destroyed],
+		["Units lost", data.forces_lost + data.engineers_lost],
+		["Buildings lost", data.structures_lost + data.foundations_lost]
+	]

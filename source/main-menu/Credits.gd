@@ -67,7 +67,7 @@ func _ready():
 			. replace("ASSETS", tr("ASSETS"))
 		)
 
-		_rich_text_label.text += "\n\n" + _music_credits() + "[/center]"
+		_rich_text_label.text += "\n\n" + _music_credits() + "\n\n" + _voice_credits() + "[/center]"
 		_rich_text_label.meta_clicked.connect(_on_credit_link)
 
 
@@ -86,6 +86,16 @@ func _music_credits():
 		+ "[url=https://creativecommons.org/licenses/by/3.0/]CC BY 3.0[/url] · "
 		+ "[url=https://creativecommons.org/licenses/by-sa/3.0/]CC BY-SA 3.0[/url]\n"
 		+ tr("Music edits: volume, fades and Ogg encoding.")
+	)
+
+
+func _voice_credits():
+	return (
+		"[u]Synthetic battle voices[/u]\n"
+		+ "[url=https://huggingface.co/hexgrad/Kokoro-82M]Kokoro-82M[/url] · hexgrad\n"
+		+ "Male voice styles · Apache 2.0 model\n"
+		+ "[url=https://github.com/thewh1teagle/kokoro-onnx]kokoro-onnx[/url] · MIT\n"
+		+ "Original dialogue, male style blends, equalization and Ogg encoding."
 	)
 
 

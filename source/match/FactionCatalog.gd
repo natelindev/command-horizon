@@ -2,6 +2,7 @@ extends RefCounted
 
 const Bastion = preload("res://source/match/BastionCatalog.gd")
 const Frontier = preload("res://source/match/FrontierCatalog.gd")
+const FrontierSurfaces = preload("res://source/match/FrontierMaterials.gd")
 const Rules = preload("res://source/match/FactionRules.gd")
 const IDS = Rules.IDS
 const NAMES = Rules.NAMES
@@ -262,6 +263,8 @@ static func helix_geometry(role, radius):
 static func model_geometry(faction, role, radius):
 	var models = Frontier.MODELS if faction == "frontier" else HELIX_MODELS
 	var model = load("res://assets/models/%s/v1/%s.glb" % [faction, models[role]]).instantiate()
+	if faction == "frontier":
+		FrontierSurfaces.apply(model)
 	var bounds = _bounds(model, Transform3D.IDENTITY)
 	var factor = radius * 1.85 / max(bounds.size.x, bounds.size.z)
 	if role == "Infantry":

@@ -18,6 +18,7 @@ var _lamps = []
 var _overlay: ShaderMaterial
 var _materials = {}
 var _cloths = []
+var _tree_serial = 0
 
 
 func _ready():
@@ -343,10 +344,12 @@ func _pitched_roof(point, dimensions):
 func _tree(point, size_factor):
 	var asset = "alpine/SnowPineGrove" if _alpine else "industrial-surroundings/BirchScrub"
 	if _desert:
-		asset = "desert/DryScrub"
+		var variants = load("res://source/match/maps/DesertMaterials.gd").TREES
+		asset = "desert/" + variants[_tree_serial % variants.size()]
+		_tree_serial += 1
 	var model = load("res://assets/models/environment/%s.glb" % asset).instantiate()
 	model.position = point
-	model.scale = (Vector3(2.0, 6.0, 2.0) if _desert else Vector3.ONE * 1.35) * size_factor
+	model.scale = (Vector3.ONE if _desert else Vector3.ONE * 1.35) * size_factor
 	model.rotation.y = point.x * .73
 	add_child(model)
 

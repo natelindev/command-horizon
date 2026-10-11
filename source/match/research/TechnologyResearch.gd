@@ -80,6 +80,7 @@ func _physics_process(delta):
 		if unit.is_in_group("units"):
 			apply_unit(unit)
 	player.emit_changed()
+	MatchSignals.research_completed.emit(player, finished)
 	var game = player.find_parent("Match")
 	if game != null and game._get_human_player() == player:
 		game.hud.show_notice("Research complete · " + Catalog.title(finished, player.faction))

@@ -561,6 +561,7 @@ func _stop_orders():
 			unit.cancel_construction()
 		else:
 			unit.issue_manual_order(null)
+			MatchSignals.unit_order_issued.emit(unit, "stop")
 
 
 func _selected_rally():

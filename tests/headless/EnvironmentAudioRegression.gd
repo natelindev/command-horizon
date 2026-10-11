@@ -69,6 +69,7 @@ func _remove_environment_match():
 
 
 func _preferences():
+	_check(soundscape_rules.BED_LEVEL <= -16.0, "Environmental bed overwhelms the mix")
 	_check(preferences.ambience_volume == .55, "Legacy ambience default missing")
 	preferences.ambience_volume = .25
 	preferences.apply()

@@ -97,7 +97,6 @@ func _ready():
 	assignment_layer.layer = -1
 	add_child(assignment_layer)
 	assignment_layer.add_child(load("res://source/match/hud/ProgramAssignments.gd").new())
-	assignment_layer.add_child(load("res://source/match/hud/OrderRoutes.gd").new())
 	if get_parent().settings.mission_id.is_empty():
 		if "relays" in get_parent().map:
 			var markers = load("res://source/match/hud/RelayMarkers.gd").new()
@@ -317,13 +316,65 @@ func show_result(result):
 		_overlay.queue_free()
 	get_tree().paused = true
 	var box = _make_overlay(result)
+	var game = get_parent()
 	var summary = Label.new()
-	summary.text = get_parent().result_summary()
+	summary.text = (
+		"BATTLE REPORT  ·  %s  ·  %d survivors"
+		% [game.battle_record._clock(game.simulation_time), game._get_human_player().population()]
+	)
+	summary.add_theme_color_override("font_color", Color("a9b4b3"))
+	summary.add_theme_font_size_override("font_size", 14)
 	box.add_child(summary)
-	_button(box, "Play again", func(): get_parent().restart()).grab_focus()
-	_button(box, "Load saved battle", func(): get_node("/root/SaveManager").open_dialog())
-	_button(box, _setup_title(), _back_to_setup)
-	_button(box, "Main menu", _back_to_menu)
+	var scroll = ScrollContainer.new()
+	scroll.name = "Statistics"
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.custom_minimum_size.y = clampf(get_viewport().get_visible_rect().size.y - 290, 100, 300)
+	box.add_child(scroll)
+	var rows = VBoxContainer.new()
+	rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	rows.add_theme_constant_override("separation", 2)
+	scroll.add_child(rows)
+	for entry in game.battle_record.statistics_rows():
+		var row = HBoxContainer.new()
+		row.custom_minimum_size.y = 30
+		rows.add_child(row)
+		var label = Label.new()
+		label.text = entry[0]
+		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		label.add_theme_font_size_override("font_size", 16)
+		row.add_child(label)
+		var value = Label.new()
+		value.text = str(entry[1])
+		value.add_theme_font_size_override("font_size", 20)
+		row.add_child(value)
+	if game.battle_record.data.statistics.recorded_from > 0:
+		var note = Label.new()
+		note.text = (
+			"Economy and destruction recorded since %s"
+			% game.battle_record._clock(game.battle_record.data.statistics.recorded_from)
+		)
+		note.add_theme_font_size_override("font_size", 12)
+		rows.add_child(note)
+	if _is_campaign() or not game.battle_record.data.complete_history:
+		var details = Label.new()
+		details.text = game.result_summary()
+		details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		details.add_theme_font_size_override("font_size", 13)
+		rows.add_child(details)
+	var actions = GridContainer.new()
+	actions.columns = 2
+	actions.add_theme_constant_override("h_separation", 10)
+	actions.add_theme_constant_override("v_separation", 8)
+	box.add_child(actions)
+	var replay = _button(actions, "Play again", func(): game.restart())
+	replay.theme_type_variation = "BattlePrimaryButton"
+	replay.grab_focus()
+	_button(actions, "Load saved battle", func(): get_node("/root/SaveManager").open_dialog())
+	_button(actions, _setup_title(), _back_to_setup)
+	_button(actions, "Main menu", _back_to_menu)
+	for button in actions.get_children():
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
 
 func _back_to_setup():

@@ -1,50 +1,24 @@
 extends Node
 
-const Structure = preload("res://source/match/units/Structure.gd")
-const ResourceUnit = preload("res://source/match/units/non-player/ResourceUnit.gd")
-
-var _last_ack_event = 0
-
 @onready var _voice = get_parent().get_node("BattleVoice")
 @onready var _player = get_parent()
 
 
-func _ready() -> void:
+func _ready():
 	MatchSignals.unit_selected.connect(_on_unit_selected)
-	MatchSignals.unit_targeted.connect(_on_unit_action_requsted)
-	MatchSignals.terrain_targeted.connect(_on_unit_action_requsted)
-
-
-func _exit_tree() -> void:
-	if not is_instance_valid(MatchSignals):
-		return
-	if MatchSignals.unit_selected.is_connected(_on_unit_selected):
-		MatchSignals.unit_selected.disconnect(_on_unit_selected)
-	if MatchSignals.unit_targeted.is_connected(_on_unit_action_requsted):
-		MatchSignals.unit_targeted.disconnect(_on_unit_action_requsted)
-	if MatchSignals.terrain_targeted.is_connected(_on_unit_action_requsted):
-		MatchSignals.terrain_targeted.disconnect(_on_unit_action_requsted)
-
-
-func _handle_event(event):
-	_voice.say(event)
+	MatchSignals.unit_order_issued.connect(_on_order_issued)
 
 
 func _on_unit_selected(unit):
-	if not unit is Structure and not unit is ResourceUnit and unit.player == _player:
-		_handle_event(Constants.Match.VoiceNarrator.Events.UNIT_HELLO)
-	# TODO: handle building - perhaps with some sound instead of voice
+	if is_instance_valid(unit) and unit.player == _player:
+		_voice.say_unit(unit, "select")
 
 
-func _on_unit_action_requsted(_ignore):
-	if get_tree().get_nodes_in_group("selected_units").any(
-		func(unit): return not unit is Structure and unit.player == _player
-	):
-		_handle_event(
-			(
-				Constants.Match.VoiceNarrator.Events.UNIT_ACK_1
-				if _last_ack_event == 0
-				else Constants.Match.VoiceNarrator.Events.UNIT_ACK_2
-			)
-		)
-		_last_ack_event = (_last_ack_event + 1) % 2
+func _on_order_issued(unit, kind):
+	if is_instance_valid(unit) and unit.player == _player:
+		var response = "move"
+		if kind in ["attack", "attack_move"]:
+			response = "attack"
+		elif kind in ["gather", "construct", "repair", "stop"]:
+			response = kind
+		_voice.say_unit(unit, response)

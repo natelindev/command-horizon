@@ -3,11 +3,16 @@ extends Node
 const Structure = preload("res://source/match/units/Structure.gd")
 const EVENTS = preload("res://source/match/MatchConstants.gd").VoiceNarrator.Events
 
+var _power_low = false
+var _power_initialized = false
+var _power_check_left = 5.0
+
 @onready var _player = get_parent()
 @onready var _voice = get_parent().get_node("BattleVoice")
 
 
 func _ready():
+	MatchSignals.research_completed.connect(_on_research_completed)
 	MatchSignals.match_started.connect(_on_match_started)
 	MatchSignals.match_aborted.connect(_on_match_aborted)
 	MatchSignals.match_finished_with_victory.connect(_on_match_victory)
@@ -24,6 +29,8 @@ func _ready():
 func _exit_tree():
 	if not is_instance_valid(MatchSignals):
 		return
+	if MatchSignals.research_completed.is_connected(_on_research_completed):
+		MatchSignals.research_completed.disconnect(_on_research_completed)
 	if MatchSignals.match_started.is_connected(_on_match_started):
 		MatchSignals.match_started.disconnect(_on_match_started)
 	if MatchSignals.match_aborted.is_connected(_on_match_aborted):
@@ -84,9 +91,9 @@ func _on_production_started(_unit_prototype, producer_unit):
 		_handle_event(EVENTS.UNIT_PRODUCTION_STARTED)
 
 
-func _on_production_finished(_unit, producer_unit):
+func _on_production_finished(unit, producer_unit):
 	if producer_unit.player == _player:
-		_handle_event(EVENTS.UNIT_PRODUCTION_FINISHED)
+		_voice.say_unit(unit, "ready")
 
 
 func _on_construction_finished(unit):
@@ -97,3 +104,24 @@ func _on_construction_finished(unit):
 func _on_not_enough_resources(player):
 	if player == _player:
 		_handle_event(EVENTS.NOT_ENOUGH_RESOURCES)
+
+
+func _on_research_completed(player, _technology):
+	if player == _player:
+		_handle_event(EVENTS.RESEARCH_COMPLETED)
+
+
+func _process(delta):
+	var game = _player.find_parent("Match")
+	if game == null or game.restoring or get_tree().paused:
+		return
+	_power_check_left -= delta
+	if _power_check_left > 0:
+		return
+	_power_check_left = 2.0
+	var totals = _player.power_totals()
+	var low = totals.y > totals.x
+	if low != _power_low or (low and not _power_initialized):
+		_handle_event(EVENTS.LOW_POWER if low else EVENTS.POWER_RESTORED)
+	_power_low = low
+	_power_initialized = true

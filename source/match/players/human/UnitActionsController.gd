@@ -66,6 +66,7 @@ func _try_setting_rally_points(target_point: Vector3):
 		if rally_point != null:
 			rally_point.target_unit = null
 			rally_point.global_position = target_point
+			MatchSignals.unit_order_issued.emit(structure, "move")
 
 
 func _try_ordering_selected_workers_to_construct_structure(potential_structure):
@@ -143,6 +144,7 @@ func _try_setting_rally_point_to_unit(unit, target_unit):
 	if rally_point == null:
 		return false
 	rally_point.target_unit = target_unit
+	MatchSignals.unit_order_issued.emit(unit, "move")
 	return true
 
 
@@ -174,7 +176,7 @@ func _submit(unit, order, rally = false):
 		return
 	var append = not rally and Globals.options.selection_modifier_pressed()
 	if (
-		not unit.manual_orders.submit(order, append)
+		not unit.manual_orders.submit(order, append, not rally)
 		and "hud" in unit._match
 		and unit._match.hud != null
 		and unit._match.hud.has_method("show_notice")

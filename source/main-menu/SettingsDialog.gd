@@ -113,15 +113,13 @@ func _ready():
 	_ambience_sample = AudioStreamPlayer.new()
 	_ambience_sample.bus = "Ambience"
 	_ambience_sample.stream = load("res://assets/audio/environment/sample.wav")
-	_ambience_sample.volume_db = -6.0
+	_ambience_sample.volume_db = load("res://source/match/audio/EnvironmentAudio.gd").BED_LEVEL
 	add_child(_ambience_sample)
 	_ambience_test = _button(general, "Test ambience", _test_ambience)
 	_ambience_sample.finished.connect(func(): _ambience_test.text = "Test ambience")
 	_sample = AudioStreamPlayer.new()
 	_sample.bus = "Voice"
-	_sample.stream = load(
-		"res://assets/voice/english/ttsmaker-com-148-alayna-us/battle_control_online.ogg"
-	)
+	_sample.stream = load("res://assets/audio/voices/bastion/Command/MATCH_STARTED_0.ogg")
 	add_child(_sample)
 	_check(general, "Show speech subtitles", "subtitles")
 	var subtitle_row = _row(general, "Subtitle size")

@@ -44,33 +44,33 @@ def synthesize(name, seconds, seed, channels):
     for side in range(channels):
         rng = np.random.default_rng(seed + side * 101)
         swell = gust(t, seconds, side * .7)
-        air = band(count, rng, 90, 1900)
+        air = band(count, rng, 90, 1200)
         if name == "desert":
             # Open dry wind, rising sand hiss, occasional granular skitter.
             out = .7 * air * swell
-            out += .2 * band(count, rng, 1300, 6200) * swell ** 2
+            out += .045 * band(count, rng, 1300, 6200) * swell ** 2
             grit = np.maximum(sine(t, 11, seconds, side + .4) - .86, 0) ** 2
-            out += 4 * band(count, rng, 2500, 8500) * grit
+            out += .8 * band(count, rng, 2500, 8500) * grit
         elif name == "alpine":
             # Lower valley gusts, breathy conifer needles and a thin ridge whistle.
             out = .65 * band(count, rng, 45, 700) * swell
-            out += .32 * band(count, rng, 650, 3800) * (.2 + swell ** 2)
+            out += .07 * band(count, rng, 650, 3800) * (.2 + swell ** 2)
             whistle = sine(t, round(430 * seconds), seconds, .18 * sine(t, 3, seconds))
             out += .025 * whistle * np.maximum(sine(t, 3, seconds, side) - .15, 0) ** 3
         elif name == "industrial":
             # Ventilation, distant fan bearings and a soft mechanical beat.
-            out = .26 * air * (.65 + swell * .35)
+            out = .08 * air * (.65 + swell * .35)
             for hz, level in [(57, .11), (114, .045), (173, .022), (287, .012)]:
                 out += level * sine(t, round(hz * seconds), seconds, side * .2)
             out += .12 * band(count, rng, 170, 520) * (.5 + .5 * sine(t, 73, seconds))
-            out += .04 * band(count, rng, 2000, 4200) * np.maximum(sine(t, 4, seconds) - .6, 0)
+            out += .01 * band(count, rng, 2000, 4200) * np.maximum(sine(t, 4, seconds) - .6, 0)
         elif name == "coastal":
             # Staggered wave sets: low wash followed by bright receding foam.
             waves = (.5 + .5 * sine(t, 5, seconds, side * .75)) ** 2
             foam = (.5 + .5 * sine(t, 5, seconds, side * .75 - 1.0)) ** 3
             out = .19 * air * swell
             out += .62 * band(count, rng, 65, 1200) * (.2 + waves)
-            out += .23 * band(count, rng, 1100, 6800) * foam
+            out += .05 * band(count, rng, 1100, 6800) * foam
         elif name == "traffic":
             # Quiet electric service cart: tire hiss, drive harmonics and motor flutter.
             out = .35 * band(count, rng, 180, 2500)
@@ -102,7 +102,8 @@ def synthesize(name, seconds, seed, channels):
     samples -= samples.mean(axis=0)
     # Leave headroom for spatial layers and speech; normalize beds by RMS, calls by peak.
     rms = np.sqrt(np.mean(samples * samples))
-    samples *= min(10 ** (-20 / 20) / rms, 10 ** (-7 / 20) / np.max(np.abs(samples)))
+    target_db = -24 if name in {'desert', 'alpine', 'industrial', 'coastal'} else -20
+    samples *= min(10 ** (target_db / 20) / rms, 10 ** (-7 / 20) / np.max(np.abs(samples)))
     return np.rint(samples * 32767).astype("<i2")
 
 

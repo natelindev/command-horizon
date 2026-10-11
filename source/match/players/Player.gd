@@ -137,6 +137,7 @@ func _physics_process(delta):
 		coordination_left = maxf(0.0, coordination_left - delta * production_factor())
 		if coordination_left == 0.0:
 			coordination_unlocked = true
+			MatchSignals.research_completed.emit(self, "coordination")
 			emit_changed()
 			var game = find_parent("Match")
 			if game != null and game._get_human_player() == self:

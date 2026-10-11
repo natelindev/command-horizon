@@ -77,7 +77,9 @@ func _geometry():
 		)
 	var cover = map.get_node("DesertGroundCover")
 	_check(cover.get_child_count() == 12, "Desert ground cover missing")
+	var variants = {}
 	for plant in cover.get_children():
+		variants[plant.scene_file_path] = true
 		_check(
 			plant.find_children("*", "CollisionObject3D", true, false).is_empty(),
 			"Decorative trees gained physics"
@@ -85,7 +87,8 @@ func _geometry():
 		var height = 0.0
 		for vertex in _vertices(plant):
 			height = maxf(height, vertex.y)
-		_check(height > 2.4 and height < 3.3, "Desert trees lost their intended world scale")
+		_check(height > 2.4 and height < 4.8, "Desert trees lost their intended world scale")
+	_check(variants.size() == 4, "Desert trees lack four distinct authored variants")
 	var exterior = map.exterior
 	_check(exterior.models.size() == 28, "Exterior landmarks or vegetation missing")
 	for model in exterior.models:

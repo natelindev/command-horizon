@@ -18,6 +18,13 @@ Command Horizon now has a [first environment kit pass](docs/playtests/2026-10-03
 
 [Air-defense guidance](docs/playtests/2026-10-05/AIR_DEFENSE.md) now selects compatible counters or offers existing anti-air cover, explicit Helix stance controls and real construction guidance when aircraft threaten your economy. [Live research feedback](docs/playtests/2026-10-05/RESEARCH_FEEDBACK.md) shows progress, available choices and lab-loss stalls in the existing command message area. [Resource inspection](docs/playtests/2026-10-05/RESOURCE_INSPECTION.md) shows observed deposit stock and wreck recovery details in one hover card, and aircraft ownership captions now respond to the pointer. The [engineer shortcut](docs/playtests/2026-10-05/ENGINEER_RESPONSE.md) selects endangered workers during raids and preserves their orders until you explicitly move them. Selected engineers can [Return cargo](docs/playtests/2026-10-06/CARGO_RETURN.md) to their nearest completed friendly HQ; hold Shift to queue delivery after a retreat.
 
+[Faction and unit audio](docs/playtests/2026-10-11/audio-enhancement/README.md) now gives
+all three factions distinct announcers, character-specific synthetic unit voices,
+autonomous machine responses, research/construction/production cues and subtle UI
+sounds. A shared priority queue, cooldowns and duplicate suppression keep battle
+notifications from overlapping. Speech follows **Voice volume**; machine and UI
+sounds follow **Effects volume**.
+
 ## Play skirmish
 
 Run `project.godot` in **Godot 4.6** and choose **SKIRMISH**, or double-click [`play-skirmish.command`](play-skirmish.command) on this Mac.

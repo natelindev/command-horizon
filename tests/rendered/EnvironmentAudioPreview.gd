@@ -25,8 +25,15 @@ func _run():
 	preferences = root.get_node("Globals").options
 	original_options = preferences.capture()
 	options_path = "user://environment-render-options-%d.tres" % OS.get_process_id()
+	# Isolate ambience for silence assertions; the battle preview covers the default full mix.
 	preferences.restore(
-		{"screen": 1, "edge_scrolling": false, "voice_volume": 0.0, "interface_scale": 1.5}
+		{
+			"screen": 1,
+			"edge_scrolling": false,
+			"voice_volume": 0.0,
+			"music_volume": 0.0,
+			"interface_scale": 1.5
+		}
 	)
 	await create_timer(2).timeout
 	root.mode = Window.MODE_WINDOWED

@@ -26,7 +26,7 @@ func _ready():
 	set_physics_process(false)
 
 
-func submit(order, append = false):
+func submit(order, append = false, audible = true):
 	if append and pending.size() >= LIMIT:
 		status = "Queue full · maximum 16 waiting orders."
 		return false
@@ -46,6 +46,8 @@ func submit(order, append = false):
 	_engaged = true
 	set_physics_process(true)
 	status = "%d waiting · manual control" % pending.size()
+	if audible:
+		MatchSignals.unit_order_issued.emit(unit, order.kind)
 	return true
 
 

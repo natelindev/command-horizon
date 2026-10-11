@@ -127,6 +127,20 @@ func _battle_dialog():
 	paused = false
 	var dialog = globals.open_settings()
 	dialog.save_path = "user://settings-missing-%d/options.tres" % OS.get_process_id()
+	_check(
+		(
+			dialog._sample.stream.resource_path
+			== "res://assets/audio/voices/bastion/Command/MATCH_STARTED_0.ogg"
+		),
+		"Voice preview uses retired voice bank"
+	)
+	_check(
+		(
+			dialog._ambience_sample.volume_db
+			== load("res://source/match/audio/EnvironmentAudio.gd").BED_LEVEL
+		),
+		"Ambience preview disagrees with gameplay gain"
+	)
 	dialog._preview("voice_volume", 0.45)
 	dialog._finish(true)
 	_check(

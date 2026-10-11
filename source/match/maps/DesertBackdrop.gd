@@ -29,8 +29,9 @@ func _ready():
 		var model = _model(entry[0], entry[1], entry[2], entry[3])
 		model.set_meta("exterior_radius", entry[2] * entry[4])
 		models.append(model)
-	# Low scrub follows distinct boundary pockets, rather than a regular scatter
-	# through construction space or unit routes.
+	# Varied trees follow boundary pockets, outside construction space and unit routes.
+	var trees = load("res://source/match/maps/DesertMaterials.gd").TREES
+	var tree_index = 0
 	for point in [
 		Vector2(-7, 18),
 		Vector2(-9, 23),
@@ -47,8 +48,8 @@ func _ready():
 		Vector2(83, 106),
 		Vector2(24, 103)
 	]:
-		var model = _model("DryScrub", point, 1.7, point.x * 0.37)
-		model.scale.y *= 3.0
+		var model = _model(trees[tree_index % trees.size()], point, 0.85, point.x * 0.37)
+		tree_index += 1
 		model.set_meta("exterior_radius", 3.1)
 		models.append(model)
 

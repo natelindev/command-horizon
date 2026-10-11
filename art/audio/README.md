@@ -1,4 +1,52 @@
-# Open RTS background score
+# Open RTS audio
+
+## Battle voices and interface sounds
+
+The offline battle bank adds 720 short clips: 302 spoken lines and 418 mechanical cues.
+Speech uses 34 distinct male-only style profiles from seven Kokoro base voices
+across Bastion, Helix and Free Frontier. Each faction has its own announcer. Infantry,
+heroes, vehicle crews and mission transports have role-specific selection, movement,
+attack, ready and stop lines; the Frontier scrapper also acknowledges gathering,
+building and repairs. Autonomous machines and structures use nonverbal motors,
+servos and telemetry motifs. Speech is English with matching captions.
+
+`voice_cast.py` contains casting and original dialogue. `build_battle_audio.py`
+uses Kokoro ONNX, soundfile, NumPy and ffmpeg to generate the bank and four UI cues.
+The model stays in `tmp/kokoro`; the game needs no TTS installation or network.
+Build inputs and output hashes are recorded in `battle-audio-manifest.json` and
+`assets/audio/voices/catalog.json`. The per-clip cache checks both source inputs
+and output hashes, so edits to dialogue or casting regenerate affected clips.
+Speech is synthesized at 24 kHz with light equalization and no narrow radio filter.
+The three announcers use Michael (Bastion), George (Helix), and Fenrir (Frontier);
+unit roles use documented male-only style blends and delivery rates.
+
+The four regional beds are 10.3–13.2 dB quieter in the mix than the previous
+version, with their noise above 2 kHz reduced by 22.9–31.5 dB. Local ambient
+actors are quieter too. Settings previews use the same bed gain as gameplay;
+persisted volume preferences are preserved. Run `verify_clean_mix.py` to guard
+the male cast, speech sample rate and low-hiss ambience asset limits.
+
+See [voice attribution](../../assets/audio/voices/LICENSES.md) and the
+[verification and audition files](../../docs/playtests/2026-10-11/audio-enhancement/README.md).
+Run `verify_battle_audio.py` to decode every clip, check its peak and hash, and
+rebuild the listening reel. These measurements verify asset integrity; listening
+quality and performance direction remain subjective.
+
+The shared battle channel coalesces simultaneous production, groups selection/order
+chatter behind a 1.5-second cooldown, never queues acknowledgements, and limits
+notifications to four pending entries with six-second expiry. Attack warnings,
+casualties and match results have priority. Lesser danger reports share a four-second
+budget, while base warnings can interrupt immediately. Opposite queued power states
+replace one another. Research (including Coordination),
+construction and power transitions use the faction announcer. Automatic rally
+movement, rejected full queues, enemy activity and save reconstruction stay silent.
+UI buttons, toggles, tabs, menus, lists and sliders use one Effects player with a
+75 ms global debounce; programmatic refresh and hover do not trigger audio.
+
+Speech follows Voice volume; mechanical responses and UI follow Effects volume.
+The existing combat and ambience systems retain their voice ducking and limits.
+
+## Background recordings
 
 The game now ships four complete, freely licensed, non-orchestral recordings:
 

@@ -26,3 +26,9 @@ signal unit_production_finished(unit, producer_unit)
 signal unit_construction_finished(unit)
 signal not_enough_resources_for_production(player)
 signal not_enough_resources_for_construction(player)
+
+signal resources_mined(worker, kind, amount)
+
+# Accepted player orders only; automatic rally movement is silent.
+signal unit_order_issued(unit, kind)
+signal research_completed(player, technology)

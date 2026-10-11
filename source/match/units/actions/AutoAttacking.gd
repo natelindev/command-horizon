@@ -2,6 +2,8 @@ extends "res://source/match/units/actions/Action.gd"
 
 const Shooting = preload("res://source/match/units/actions/AttackingWhileInRange.gd")
 const Rules = preload("res://source/match/combat/CombatRules.gd")
+var _defense_origin = Vector3.ZERO
+var _defense_radius = 0.0
 var _target_unit = null
 var _shot = null
 var _elapsed = 0.0
@@ -36,6 +38,21 @@ func _physics_process(delta):
 
 func _refresh():
 	var field = _unit._match.battlefield
+	if _defense_radius > 0:
+		var outside = _unit.global_position_yless.distance_to(_defense_origin) > _defense_radius
+		if is_instance_valid(_target_unit) and field.is_observed(_unit.player, _target_unit):
+			outside = (
+				outside
+				or _target_unit.global_position_yless.distance_to(_defense_origin) > _defense_radius
+			)
+		# Defensive assistance never pursues an attacker into unexplored terrain.
+		if (
+			outside
+			or not is_instance_valid(_target_unit)
+			or not field.is_observed(_unit.player, _target_unit)
+		):
+			queue_free()
+			return
 	if _lost_contact:
 		_follow_last_known_position()
 		return
