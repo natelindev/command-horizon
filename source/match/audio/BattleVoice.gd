@@ -51,7 +51,13 @@ func say(event):
 
 
 func say_unit(unit, kind):
-	if not is_instance_valid(unit) or unit.is_queued_for_deletion() or unit.player != get_parent():
+	# Selection also includes neutral resources, which have no player or unit voice.
+	if (
+		not is_instance_valid(unit)
+		or unit.is_queued_for_deletion()
+		or not "player" in unit
+		or unit.player != get_parent()
+	):
 		return false
 	var line = _bank.unit_line(unit, kind)
 	if line.is_empty():

@@ -260,6 +260,10 @@ func _wreck(unit, infantry):
 	material.albedo_color = Color("36383a")
 	material.roughness = 0.95
 	for mesh in wreck.find_children("*", "MeshInstance3D", true, false):
+		# The wreck replaces every surface, including an unfinished building's shaders.
+		# Hidden surface overrides can leave stale renderer RIDs when the wreck expires.
+		for surface in mesh.get_surface_override_material_count():
+			mesh.set_surface_override_material(surface, null)
 		mesh.material_override = material
 	_wrecks.append(
 		{

@@ -95,8 +95,14 @@ func restore_state(_state, _entities):
 	_update_water()
 
 
+func get_topdown_polygon_2d():
+	return SHORE
+
+
 func is_land(point):
-	return Geometry2D.is_point_in_polygon(Vector2(point.x, point.z), PackedVector2Array(SHORE))
+	return Geometry2D.is_point_in_polygon(
+		Vector2(point.x, point.z), PackedVector2Array(get_topdown_polygon_2d())
+	)
 
 
 func _ground_and_water():

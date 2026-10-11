@@ -50,11 +50,15 @@ func bake(map):
 		"bake() should be called exactly once - during runtime"
 	)
 	if _reference_static_collider_shape != null:
-		var shape = BoxShape3D.new()
-		shape.size = Vector3(map.size.x, 0, map.size.y)
+		# Bake the land outline, not the rectangular map bounds: coastal inlets
+		# remain impassable on both the initial bake and later obstacle rebakes.
+		var polygon = PackedVector2Array(map.get_topdown_polygon_2d())
+		var faces = PackedVector3Array()
+		for index in Geometry2D.triangulate_polygon(polygon):
+			faces.append(Vector3(polygon[index].x, 0, polygon[index].y))
+		var shape = ConcavePolygonShape3D.new()
+		shape.set_faces(faces)
 		_reference_static_collider_shape.shape = shape
-		_reference_static_collider_shape.global_transform.origin.x = map.size.x / 2.0
-		_reference_static_collider_shape.global_transform.origin.z = map.size.y / 2.0
 	# setting custom AABB for baking so that height of dynamic AABB is always the same
 	# - without such setting, re-baking may yield different results depending on geometry height
 	_navigation_region.navigation_mesh.filter_baking_aabb = AABB(
