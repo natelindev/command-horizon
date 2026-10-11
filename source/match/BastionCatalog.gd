@@ -105,6 +105,8 @@ static func scene_path(unit_type):
 
 
 static func icon_path(unit_type):
+	if unit_type in STRUCTURES:
+		return "res://assets/ui/bastion/structures-v2/%s.png" % unit_type
 	return "res://assets/ui/bastion/%s.png" % unit_type
 
 

@@ -52,7 +52,7 @@ func _main_menu():
 	root.add_child(menu)
 	current_scene = menu
 	await _frames(10)
-	var option_button = _named_button(menu, "OPTIONS")
+	var option_button = _named_button(menu, "04    SETTINGS")
 	await _click(option_button)
 	var dialog = root.get_node("Globals").settings_dialog
 	_check(is_instance_valid(dialog), "Main menu did not open Settings")

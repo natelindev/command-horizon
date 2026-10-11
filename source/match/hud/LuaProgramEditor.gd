@@ -40,6 +40,7 @@ var _saved: OptionButton
 var _starter: OptionButton
 var _summary: Label
 var _notice: Label
+var _trace_message = ""
 var _trace: TextEdit
 var _apply_button: Button
 var _panel: PanelContainer
@@ -213,7 +214,7 @@ func _build_ui():
 	_trace.custom_minimum_size.y = 70
 	_trace.add_theme_font_size_override("font_size", 12)
 	_trace.add_theme_color_override("font_readonly_color", Color("bdccd9"))
-	_trace.text = "Checks eight sample snapshots in isolation. This is not a battle simulation."
+	_set_trace("Checks eight sample snapshots in isolation. This is not a battle simulation.")
 	side.add_child(_trace)
 	_version = _label(column, "", 12)
 	_summary = _label(column, "", 13)
@@ -296,7 +297,7 @@ func _draft_changed():
 	if not Parameters.valid(_parameter_schema, _source.text):
 		_parameter_schema = {}
 	if _trace != null:
-		_trace.text = "Draft changed. Run sample checks again."
+		_set_trace("Draft changed. Run sample checks again.")
 	if _notice != null:
 		_set_notice("Draft changed. Save a version before applying.")
 	_refresh()
@@ -326,7 +327,7 @@ func _refresh():
 
 
 func _show_draft(value):
-	_trace.text = "Loaded draft. Check samples or run a battle scenario."
+	_set_trace("Loaded draft. Check samples or run a battle scenario.")
 	_loaded = value.duplicate(true) if Record.validate(value) else {}
 	_name.text = value.get("name", "Custom Lua")
 	_source.text = value.get("source", "")
@@ -354,7 +355,7 @@ func _show_draft(value):
 
 
 func _use_starter():
-	_trace.text = "New starter. Check samples or run a battle scenario."
+	_set_trace("New starter. Check samples or run a battle scenario.")
 	_parameter_schema = {}
 	var kind = STARTERS[_starter.selected]
 	_loaded = {}
@@ -396,11 +397,11 @@ func _check_samples():
 	for role in draft.roles:
 		var result = DraftCheck.check(draft.source, role)
 		if not result.ok:
-			_trace.text = "%s: %s" % [role, result.error]
+			_set_trace("%s: %s" % [role, result.error])
 			_set_notice("Sample check failed. Current unit orders are unchanged.")
 			return
 		traces.append(role + "\n" + result.trace)
-	_trace.text = "\n\n".join(traces)
+	_set_trace("\n\n".join(traces))
 	_set_notice(
 		(
 			"Eight samples passed for each of %d roles. Battle behavior is not simulated."
@@ -466,7 +467,7 @@ func _arena_finished(report):
 			lines.append(("PASS · " if check.passed else "FAIL · ") + check.text)
 		if not result.get("error", "").is_empty():
 			lines.append(result.error)
-	_trace.text = "\n".join(lines) if not lines.is_empty() else "No scenario completed."
+	_set_trace("\n".join(lines) if not lines.is_empty() else "No scenario completed.")
 	_set_notice("Arena results returned. Save and Apply remain separate choices.")
 
 
@@ -634,7 +635,7 @@ func _import_generated(value, roles):
 	_show_draft(draft)
 	_loaded = {}
 	_arena_report = {}
-	_trace.text = "Imported AI draft. Check samples and battlefield behavior before applying."
+	_set_trace("Imported AI draft. Check samples and battlefield behavior before applying.")
 	_set_notice(
 		"Imported as an unsaved draft. Check the roles and assignments, then test and save."
 	)
@@ -663,3 +664,13 @@ func _update_parameters(values):
 	_source.text = updated.source
 	_parameter_schema = updated.parameter_schema
 	_draft_changed()
+
+
+func _set_trace(message):
+	_trace_message = message
+	_trace.text = tr(message)
+
+
+func _notification(what):
+	if what == NOTIFICATION_TRANSLATION_CHANGED and is_instance_valid(_trace):
+		_trace.text = tr(_trace_message)

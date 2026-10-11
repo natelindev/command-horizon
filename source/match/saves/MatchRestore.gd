@@ -169,6 +169,14 @@ func restore(tree, snapshot):
 			unit.configure_weapon()
 		if saved.construction != null:
 			unit._construction_progress = saved.construction
+			if _data.snapshot_version < 10 and unit.is_under_construction():
+				# Upgrade the old 1-HP foundation curve once, retaining actual damage.
+				var old_earned = 1.0 + floorf(saved.construction * (unit.hp_max - 1.0))
+				var foundation_hp = unit._foundation_hp()
+				var new_earned = (
+					foundation_hp + floorf(saved.construction * (unit.hp_max - foundation_hp))
+				)
+				unit.hp = minf(unit.hp_max, saved.hp + new_earned - old_earned)
 		_copy(unit, saved.cargo, saved.cargo.keys())
 		unit.last_enemy_damage_time = (
 			game.simulation_time - saved.damage_age if saved.damage_age != null else -INF

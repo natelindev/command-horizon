@@ -5,6 +5,7 @@ signal constructed
 const UNDER_CONSTRUCTION_MATERIAL = preload(
 	"res://source/match/resources/materials/structure_under_construction.material.tres"
 )
+const FOUNDATION_HEALTH_FRACTION = 0.25
 
 var _construction_progress = 1.0
 
@@ -23,17 +24,23 @@ func mark_as_under_construction():
 	_change_geometry_material(UNDER_CONSTRUCTION_MATERIAL)
 	if hp == null:
 		await ready
-	hp = 1
+	hp = _foundation_hp()
+
+
+func _foundation_hp():
+	return maxf(1.0, floorf(hp_max * FOUNDATION_HEALTH_FRACTION))
 
 
 func construct(progress):
 	assert(is_under_construction(), "structure must be under construction")
 
-	var expected_hp_before_progressing = int(_construction_progress * float(hp_max - 1))
+	# Add only the health earned by this step, retaining damage already suffered.
+	var remaining_hp = hp_max - _foundation_hp()
+	var expected_hp_before_progressing = floorf(_construction_progress * remaining_hp)
 	_construction_progress = min(1.0, _construction_progress + progress)
-	var expected_hp_after_progressing = int(_construction_progress * float(hp_max - 1))
+	var expected_hp_after_progressing = floorf(_construction_progress * remaining_hp)
 	if expected_hp_after_progressing > expected_hp_before_progressing:
-		hp += expected_hp_after_progressing - expected_hp_before_progressing
+		hp = minf(hp_max, hp + expected_hp_after_progressing - expected_hp_before_progressing)
 	if _construction_progress >= 1.0:
 		_finish_construction()
 

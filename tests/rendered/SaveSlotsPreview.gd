@@ -14,7 +14,7 @@ func _run():
 	root.add_child(menu)
 	current_scene = menu
 	await _frames(5)
-	await _click(_button_named(menu, "LOAD BATTLE"))
+	await _click(_button_named(menu, "03    CONTINUE / LOAD"))
 	_check(
 		manager.dialog != null and manager.dialog._primary.disabled,
 		"Empty archive could not open from menu"
@@ -92,7 +92,7 @@ func _run():
 	await _click(_button_named(game.hud, "Menu [Esc]"))
 	await _click(_button_named(game.hud, "Main menu"))
 	await _frames(6)
-	await _click(_button_named(current_scene, "LOAD BATTLE"))
+	await _click(_button_named(current_scene, "03    CONTINUE / LOAD"))
 	await _key(KEY_DOWN)
 	_check(manager.dialog.selected == "manual-2", "Keyboard slot selection failed")
 	_check(manager.dialog._primary.disabled, "Corrupt archive entry is actionable")

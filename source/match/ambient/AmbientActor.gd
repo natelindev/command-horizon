@@ -95,6 +95,9 @@ func apply_pose(walking):
 
 
 func refresh_visibility(game):
+	if not Globals.options.living_world:
+		visible = false
+		return
 	visible = game.settings.visibility == game.settings.Visibility.FULL
 	if not visible:
 		for side in game.visible_players:

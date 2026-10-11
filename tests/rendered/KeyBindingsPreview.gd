@@ -33,7 +33,7 @@ func _run():
 			"Native capture/save did not bind P"
 		)
 	else:
-		dialog._tabs.current_tab = 1
+		dialog._tabs.current_tab = dialog._tabs.get_tab_idx_from_control(dialog.key_panel)
 		await _frames(5)
 		await _click(dialog.key_panel.buttons.pause_battle)
 		await _press(KEY_R)
@@ -79,7 +79,7 @@ func _run():
 	dialog = root.get_node("Globals").settings_dialog
 	_check(is_instance_valid(dialog), "Battle Settings entry failed")
 	dialog.save_path = archive
-	dialog._tabs.current_tab = 1
+	dialog._tabs.current_tab = dialog._tabs.get_tab_idx_from_control(dialog.key_panel)
 	await _frames(5)
 	await _click(dialog.key_panel.buttons.attack_move)
 	await _press(KEY_K | KEY_MASK_CTRL)

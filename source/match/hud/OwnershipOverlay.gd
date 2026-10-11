@@ -80,7 +80,7 @@ func _draw():
 	var card = hover_card()
 	if card.is_empty():
 		return
-	var font = ThemeDB.fallback_font
+	var font = get_theme_default_font()
 	var background = StyleBoxFlat.new()
 	background.bg_color = Color("17202bf2")
 	background.set_corner_radius_all(4)
@@ -120,7 +120,8 @@ func hover_card():
 		)
 	if lines.is_empty() or camera.is_position_behind(position_3d):
 		return {}
-	var font = ThemeDB.fallback_font
+	var font = get_theme_default_font()
+	lines = lines.map(func(line): return tr(line))
 	var width = 0.0
 	for line in lines:
 		width = maxf(width, font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, 15).x)

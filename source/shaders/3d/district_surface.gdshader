@@ -1,4 +1,5 @@
 shader_type spatial;
+uniform float wetness = 0.0;
 uniform vec4 base_tint : source_color = vec4(0.3,0.34,0.32,1.0);
 uniform float metallic = 0.0;
 varying vec3 world_point;
@@ -14,6 +15,7 @@ void fragment() {
 	float streak=smoothstep(.48,.78,noise(world_point*vec3(2.4,.16,2.4)));
 	float fine=noise(world_point*9.0);
 	ALBEDO=base_tint.rgb*(.79+stain*.28+fine*.08-streak*.14);
-	ROUGHNESS=.88;
+	ALBEDO*=1.0-wetness*.12;
+	ROUGHNESS=mix(.88,.46,wetness);
 	METALLIC=metallic;
 }

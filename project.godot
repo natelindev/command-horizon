@@ -14,19 +14,21 @@ config/name="Open RTS"
 run/main_scene="res://source/Main.tscn"
 config/features=PackedStringArray("4.6", "Forward Plus")
 boot_splash/bg_color=Color(0, 0, 0, 1)
+boot_splash/stretch_mode=0
 boot_splash/image="res://assets/logos/godot_logo_vertical_monochrome_dark_312x357.png"
-boot_splash/fullsize=false
 config/icon="res://icon.svg"
 
 [autoload]
 
 FeatureFlags="*res://source/FeatureFlags.tscn"
 Constants="*res://source/Constants.gd"
+Localization="*res://source/localization/Localization.gd"
 Globals="*res://source/Globals.gd"
 MatchSignals="*res://source/match/MatchSignals.gd"
 Signals="*res://source/Signals.gd"
 Utils="*res://source/Utils.gd"
 SaveManager="*res://source/match/saves/SaveManager.gd"
+MusicDirector="*res://source/audio/MusicDirector.gd"
 
 [debug]
 
@@ -51,6 +53,7 @@ project/assembly_name="Open RTS"
 [gui]
 
 timers/tooltip_delay_sec=0.35
+theme/custom_font="res://assets/fonts/NotoSansSC.ttf"
 
 [input]
 
@@ -217,7 +220,7 @@ rotate_map_counterclockwise={
 
 [internationalization]
 
-locale/translations=PackedStringArray("res://assets/translations/match.en.translation", "res://assets/translations/match.pl.translation", "res://assets/translations/main_menu.en.translation", "res://assets/translations/main_menu.pl.translation")
+locale/translations=PackedStringArray("res://assets/translations/match.en.translation", "res://assets/translations/match.pl.translation", "res://assets/translations/main_menu.en.translation", "res://assets/translations/main_menu.pl.translation", "res://assets/translations/ui.en.translation", "res://assets/translations/ui.zh_CN.translation")
 
 [layer_names]
 
@@ -234,4 +237,3 @@ locale/translations=PackedStringArray("res://assets/translations/match.en.transl
 [rendering]
 
 textures/vram_compression/import_etc2_astc=true
-

@@ -59,13 +59,21 @@ func _refresh():
 
 
 func can_observe(observer, target):
-	if not is_instance_valid(target) or target.is_queued_for_deletion():
+	if (
+		not is_instance_valid(target)
+		or not target.is_inside_tree()
+		or target.is_queued_for_deletion()
+	):
 		return false
 	return can_observe_point(observer, target.global_position + Vector3.UP * 0.8, target)
 
 
 func can_observe_point(observer, point, ignored_target = null):
-	if not is_instance_valid(observer) or observer.is_queued_for_deletion():
+	if (
+		not is_instance_valid(observer)
+		or not observer.is_inside_tree()
+		or observer.is_queued_for_deletion()
+	):
 		return false
 	if observer.sight_range == null or observer.hp == null or observer.hp <= 0:
 		return false

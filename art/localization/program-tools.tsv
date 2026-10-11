@@ -1,0 +1,154 @@
+Invalid generation context.	生成上下文无效。
+Request exceeds the size budget. Shorten the draft or diagnostics.	请求超出大小限制。请缩短草稿或诊断内容。
+Provider response exceeds the size limit. Shorten the requested program.	服务商响应超出大小限制。请缩短请求的程序。
+Provider returned invalid JSON. Draft retained.	服务商返回了无效 JSON。草稿已保留。
+Generated content is not a JSON draft. Draft retained.	生成内容不是 JSON 草稿。草稿已保留。
+Provider rejected the request. Check model, output limit and structured-output support.	服务商拒绝了请求。请检查模型、输出限制和结构化输出支持。
+Provider denied access. Check the API key and model permissions.	服务商拒绝访问。请检查 API 密钥和模型权限。
+Provider endpoint or model was not found. Check provider settings.	找不到服务商端点或模型。请检查服务商设置。
+Provider timed out. Retry explicitly when ready.	服务商响应超时。准备好后请手动重试。
+Provider rejected the request size. Shorten the draft or diagnostics.	服务商拒绝了请求大小。请缩短草稿或诊断内容。
+Provider rate or usage limit reached. Check your provider account before retrying.	已达到服务商速率或用量限制。重试前请检查账户。
+Request redirected. Set the final endpoint explicitly; redirects are disabled.	请求被重定向。重定向已禁用；请直接设置最终端点。
+Provider request failed (HTTP %d). Draft retained; no automatic retry.	服务商请求失败（HTTP %d）。草稿已保留；不会自动重试。
+Generation was incomplete. Shorten the request or raise the output limit.	生成未完成。请缩短请求或提高输出限制。
+Provider did not complete generation. Draft retained.	服务商未完成生成。草稿已保留。
+Invalid provider output.	服务商输出无效。
+Invalid provider message.	服务商消息无效。
+Invalid provider content.	服务商内容无效。
+The provider declined this request. Rephrase the behavior you want.	服务商拒绝了此请求。请重新描述所需行为。
+Provider returned an unsupported response.	服务商返回了不支持的响应。
+Generation did not finish. Shorten the request or check the output limit.	生成未完成。请缩短请求或检查输出限制。
+Provider returned no draft text.	服务商未返回草稿文本。
+Response does not match the requested operation/API.	响应与请求的操作或 API 不匹配。
+Response has missing or oversized name, summary or source.	响应中的名称、摘要或源码缺失或过长。
+Response has unsupported assignments.	响应包含不支持的任务分配。
+Explain returned a replacement program. Current draft retained.	解释操作返回了替代程序。当前草稿已保留。
+Generated program exceeds the source budget.	生成程序超过源码大小限制。
+At most eight numeric parameters are supported.	最多支持八个数值参数。
+Invalid parameter description.	参数描述无效。
+Parameter names must be unique identifiers.	参数名称必须是唯一标识符。
+Parameter values must be finite bounded numbers.	参数值必须是有限且有界的数值。
+Parameter value/range/step is invalid.	参数值、范围或步长无效。
+Configure a valid provider first.	请先配置有效服务商。
+Enter a valid API key without line breaks.	请输入不含换行的有效 API 密钥。
+Platform credential storage is unavailable. Use a session key.	平台凭据存储不可用。请使用会话密钥。
+Enter a request of at most 4,000 UTF-8 bytes.	请求最多可包含 4,000 个 UTF-8 字节。
+Choose at least one supported unit role.	请至少选择一种支持的单位类型。
+Unsupported or repeated unit role.	单位类型不受支持或重复。
+Choose a draft to revise or explain.	请选择要修改或解释的草稿。
+The draft needs a valid name.	草稿需要有效名称。
+Diagnostic context exceeds 16 entries.	诊断上下文超过 16 条。
+Invalid diagnostic entry.	诊断条目无效。
+Context exceeds the request budget. Shorten the draft or diagnostics.	上下文超出请求限制。请缩短草稿或诊断内容。
+A request is already running. Cancel it before generating again.	已有请求正在运行。再次生成前请先取消。
+Generation is unavailable outside the editor.	编辑器之外无法生成。
+Invalid API key.	API 密钥无效。
+Configure an API key for this provider.	请为此服务商配置 API 密钥。
+Could not start provider request. Check the endpoint and connection.	无法发起服务商请求。请检查端点和连接。
+Generation cancelled. Draft retained.	生成已取消。草稿已保留。
+Connection timed out. Draft retained; no automatic retry.	连接超时。草稿已保留；不会自动重试。
+Provider response exceeds the size limit. Draft retained.	服务商响应超出大小限制。草稿已保留。
+Provider connection failed. Check connection and TLS settings.	服务商连接失败。请检查连接和 TLS 设置。
+Provider settings have unsupported fields.	服务商设置包含不支持的字段。
+Provider settings are incomplete.	服务商设置不完整。
+Unsupported provider configuration.	不支持的服务商配置。
+Invalid endpoint/model settings.	端点或模型设置无效。
+Endpoint/model setting is too long.	端点或模型设置过长。
+Enter a valid model ID.	请输入有效模型 ID。
+Use HTTPS, or HTTP on localhost. Do not include credentials, query strings or fragments.	请使用 HTTPS，或本机的 HTTP。不要包含凭据、查询字符串或片段。
+Endpoint must end in 	端点必须以下列路径结尾：
+Output limit must be 256–4,096 tokens; timeout must be 5–120 seconds.	输出限制必须为 256–4,096 个 token；超时必须为 5–120 秒。
+Provider settings could not be read. Current settings retained.	无法读取服务商设置。当前设置已保留。
+Provider settings are damaged. Current settings retained.	服务商设置已损坏。当前设置已保留。
+Could not save provider settings.	无法保存服务商设置。
+Could not replace provider settings. Previous settings retained.	无法替换服务商设置。之前的设置已保留。
+Program test arena	程序测试场
+PROGRAM TEST ARENA	程序测试场
+Return to editor [Esc]	返回编辑器 [Esc]
+Completed battle research	已完成的战斗研究
+Unupgraded baseline	无升级基准
+EXPECTED OUTCOME	预期结果
+Run scenario	运行场景
+Choose a scenario and run this draft.	选择场景并运行此草稿。
+Actual intents, positions and scenario events appear here.	实际意图、位置和场景事件将在此显示。
+Your battle is paused. These test units and results stay separate from live orders.	战斗已暂停。测试单位和结果不会影响实际战斗指令。
+Completed upgrades only. The enemy uses baseline stats. Basic chip access is supplied by the arena.	仅使用已完成升级。敌方使用基础属性。测试场提供基础芯片权限。
+Ready · %d seconds · %s	就绪 · %d 秒 · %s
+Preparing real units and navigation…	正在准备实际单位与导航…
+Restart scenario	重启场景
+Test paused	测试已暂停
+Test resumed	测试已恢复
+%0.1f / %d s · %d evaluations	%0.1f / %d 秒 · %d 次评估
+ACTUAL TRACE	实际轨迹
+%04.1fs · (%0.1f, %0.1f) · %s	%04.1f秒 · (%0.1f, %0.1f) · %s
+Expected behavior observed for this scenario	已观察到该场景的预期行为
+Expected behavior not met — inspect the trace	未达到预期行为 — 请检查轨迹
+Research setup unavailable	研究设置不可用
+Weapons +%d%%	武器 +%d%%
+HP +%d%%	生命值 +%d%%
+Service +25%	维修 +25%
+No completed research	没有已完成研究
+Invalid program or role.	程序或单位类型无效。
+Choose a compatible role for this scenario.	请选择与此场景兼容的单位类型。
+Invalid research setup.	研究设置无效。
+Navigation did not become ready. Restart the test.	导航未就绪。请重启测试。
+Test started with a fresh unit and program memory.	测试已使用新单位和初始程序内存开始。
+AREA	区域
+SAFE	安全点
+MANUAL	手动
+Test unit was destroyed.	测试单位已被摧毁。
+HP %d%% · %s · %s	生命值 %d%% · %s · %s
+Health restored to 50%; recovery should remain active.	生命值已恢复至 50%；应继续恢复。
+Full health restored; return to the area.	生命值已完全恢复；返回区域。
+Assigned ally ordered to move 5 m.	已命令指定友军移动 5 米。
+Enemy moved out of all allied sight.	敌人已离开全部友方视野。
+Area assigned 4 m east of the starting point.	区域已指定在起点以东 4 米。
+Repair target destroyed.	维修目标已被摧毁。
+Direct move order issued. The program must stay suspended.	已下达直接移动指令。程序必须保持挂起。
+Program evaluated on the real test unit	已在实际测试单位上评估程序
+No runtime fault	无运行错误
+Reached safe point at low health	低生命值时已到达安全点
+Stayed safe at 50% HP	在 50% 生命值时保持安全
+Returned to assigned area after recovery	恢复后已返回指定区域
+Approached assigned ally	已接近指定友军
+Followed moving ally within 3.8 m	已在 3.8 米内跟随移动友军
+Requested an attack and damaged visible target	已请求攻击并伤害可见目标
+Stopped requesting attacks after loss of contact	失去接触后已停止请求攻击
+Waited without guessing a destination	等待期间未擅自选择目的地
+Reached area after assignment	分配后已到达区域
+Reported Blocked at the sealed pen	在封闭区域已报告受阻
+Direct order stopped script evaluation	直接指令已停止脚本评估
+Reached the manual destination	已到达手动指定目的地
+Healed the real damaged ally	已治疗实际受损友军
+Stopped requesting repair of destroyed target	已停止请求维修被摧毁目标
+Save or correct the draft before opening the arena.	打开测试场前，请保存或修正草稿。
+The battle research setup is invalid.	战斗研究设置无效。
+Could not create the arena workspace.	无法创建测试场工作区。
+Could not write the arena draft.	无法写入测试场草稿。
+Could not open the test window. Your draft is retained.	无法打开测试窗口。草稿已保留。
+Arena startup timed out. Your draft is retained.	测试场启动超时。草稿已保留。
+Arena closed without a result. Your draft and orders are unchanged.	测试场关闭但未返回结果。草稿与指令保持不变。
+Arena result did not match this draft.	测试场结果与草稿不匹配。
+Arena returned an invalid result.	测试场返回无效结果。
+Retreat & recovery	撤退与恢复
+At 20% HP reach the safe point; stay there at 50%; return to the area after full recovery.	生命值为 20% 时前往安全点；50% 时继续停留；完全恢复后返回区域。
+Try Guard & regroup with retreat 30% / recovery 80%.	尝试警戒集结，撤退阈值 30% / 恢复阈值 80%。
+Escort a moving ally	护送移动友军
+Approach the assigned ally, then follow its move and finish within 3.8 m.	接近指定友军，跟随其移动，最终停留在 3.8 米内。
+Try Escort. The ally receives a real move order at 3 seconds.	尝试护送。友军将在第 3 秒收到实际移动指令。
+Lost enemy contact	失去敌方接触
+Engage the visible target, then stop requesting attacks after it leaves sight at 3 seconds.	攻击可见目标；第 3 秒目标离开视野后停止请求攻击。
+Try Guard & regroup. A stale target request fails even if the engine safely rejects it.	尝试警戒集结。即使引擎安全拒绝，过期目标请求仍算失败。
+Missing assignment	缺少任务分配
+Wait for an area without moving; after it is assigned at 3 seconds, reach it.	原地等待区域分配；第 3 秒分配后前往该区域。
+Try a move-to-area rule. Waiting is a valid result while the point is absent.	尝试前往区域规则。未指定位置时，等待是有效结果。
+Manual override	手动接管
+Run the program; at 2 seconds accept a direct move, reach it and stop all script evaluations.	运行程序；第 2 秒接受直接移动指令，到达目的地并停止所有脚本评估。
+Any working program can run this authority check.	任何可运行程序均可进行此控制权检查。
+Unreachable destination	无法到达的目的地
+Try to enter the sealed pen, report Blocked after no progress, then accept a manual move away.	尝试进入封闭区域，停滞后报告受阻，再接受手动离开指令。
+Try a move-to-area rule. The pen is real navigation geometry. Aircraft skip this ground test.	尝试前往区域规则。封闭区域使用实际导航几何体。飞机跳过该地面测试。
+Destroyed repair target	维修目标被摧毁
+Heal the damaged ally, then stop requesting its repair after destruction at 3 seconds.	治疗受损友军；第 3 秒目标被摧毁后停止请求维修。
+Try Repair area on a repair robot.	在维修机器人上尝试区域维修。

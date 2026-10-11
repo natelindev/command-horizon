@@ -1,4 +1,5 @@
 shader_type spatial;
+uniform float wetness = 0.0;
 varying vec3 world_position;
 uniform vec4 roads[8];
 uniform bool district_wear = false;
@@ -65,5 +66,8 @@ void fragment() {
 	asphalt=mix(asphalt,vec3(.58,.49,.30),max(markings,side_line*.5)*(.55+wear*.35));
 	ground=mix(ground,vec3(.31,.32,.30),shoulder*.7);
 	ALBEDO=mix(ground,asphalt,road)+curb*.065;
-	ROUGHNESS=.95;
+	float puddle=smoothstep(.38,.68,noise(p*.38+3.0))*wetness*max(road,paved*.6);
+	ALBEDO*=1.0-wetness*.22;
+	ROUGHNESS=mix(.95,.55,puddle);
+	SPECULAR=.22+wetness*.08;
 }

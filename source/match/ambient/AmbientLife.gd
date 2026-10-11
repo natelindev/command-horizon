@@ -15,6 +15,7 @@ func _ready():
 		actors.append(actor)
 	if not _game.is_node_ready():
 		await _game.ready
+	Globals.options.changed.connect(refresh_visibility)
 	refresh_visibility()
 
 

@@ -96,7 +96,7 @@ func capture(game):
 		)
 	var camera = game.get_node("IsometricCamera3D")
 	var result = {
-		"snapshot_version": 9,
+		"snapshot_version": 10,
 		"map_revision": 1,
 		"settings": settings,
 		"simulation_time": game.simulation_time,

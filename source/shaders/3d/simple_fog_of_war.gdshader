@@ -1,5 +1,5 @@
 shader_type spatial;
-render_mode unshaded;
+render_mode unshaded, fog_disabled;
 
 uniform vec4 color : source_color = vec4(vec3(0.0), 1.0);
 uniform sampler2D world_visibility_texture : hint_default_white, filter_linear, repeat_disable;
@@ -7,6 +7,7 @@ uniform int texture_units_per_world_unit = 2;
 uniform float outer_margin_for_fade_out = 2.0;
 // Optional public scenery outside the playable rectangle; interior fog is unchanged.
 uniform float exterior_visibility : hint_range(0.0, 1.0) = 0.0;
+uniform float living_world_visibility = 0.0;
 uniform bool debug_texture_view = false;
 uniform sampler2D depth_texture : hint_depth_texture;
 
@@ -57,13 +58,13 @@ void fragment()
           textureLod(world_visibility_texture, world_visibility_texture_uv, 0.0).r;
       ALPHA = max(ALPHA, 1.0 - transparency_from_world_visibility_texture);
     }
-    else if (exterior_visibility > 0.0)
+    else if (max(exterior_visibility, living_world_visibility) > 0.0)
     {
       float outside = max(max(-world_position.x, world_position.x - world_visibility_texture_size_scaled.x),
                           max(-world_position.z, world_position.z - world_visibility_texture_size_scaled.y));
       float edge = textureLod(world_visibility_texture, clamp(world_visibility_texture_uv, vec2(0.0), vec2(1.0)), 0.0).r;
-      float public_scenery = exterior_visibility * smoothstep(0.0, 6.0, outside);
-      float visibility = max(public_scenery, edge) * (1.0 - smoothstep(32.0, 46.0, outside));
+      float public_scenery = max(exterior_visibility, living_world_visibility) * smoothstep(0.0, 6.0, outside);
+      float visibility = max(public_scenery, edge) * (1.0 - smoothstep(living_world_visibility > 0.0 ? 95.0 : 32.0, living_world_visibility > 0.0 ? 115.0 : 46.0, outside));
       ALPHA = 1.0 - visibility;
     }
     else if (

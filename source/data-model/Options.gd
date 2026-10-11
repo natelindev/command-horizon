@@ -10,6 +10,8 @@ const DEFAULTS = {
 	"voice_volume": 0.8,
 	"effects_volume": 0.75,
 	"ambience_volume": 0.55,
+	"music_volume": 0.5,
+	"language": "en",
 	"subtitles": true,
 	"ownership_symbols": true,
 	"subtitle_size": 22,
@@ -18,7 +20,19 @@ const DEFAULTS = {
 	"zoom_speed": 1.0,
 	"edge_scrolling": true,
 	"reduced_flashes": false,
-	"key_bindings": {}
+	"key_bindings": {},
+	"graphics_shadows": true,
+	"graphics_ao": true,
+	"graphics_glow": true,
+	"graphics_fog": true,
+	"graphics_dof": false,
+	"graphics_msaa": 1,
+	"time_of_day": 0,
+	"day_cycle": true,
+	"weather": 0,
+	"weather_particles": true,
+	"living_world": true,
+	"menu_motion": true
 }
 @export var screen: Screen = Screen.FULL
 @export var mouse_restricted = false
@@ -26,6 +40,8 @@ const DEFAULTS = {
 @export var voice_volume = 0.8
 @export var effects_volume = 0.75
 @export var ambience_volume = 0.55
+@export var music_volume = 0.5
+@export var language = "zh_CN" if OS.get_locale_language() == "zh" else "en"
 @export var subtitles = true
 @export var ownership_symbols = true
 @export var subtitle_size = 22
@@ -35,6 +51,18 @@ const DEFAULTS = {
 @export var edge_scrolling = true
 @export var reduced_flashes = false
 @export var key_bindings = {}
+@export var graphics_shadows = true
+@export var graphics_ao = true
+@export var graphics_glow = true
+@export var graphics_fog = true
+@export var graphics_dof = false
+@export var graphics_msaa = 1
+@export var time_of_day = 0
+@export var day_cycle = true
+@export var weather = 0
+@export var weather_particles = true
+@export var living_world = true
+@export var menu_motion = true
 var _display_target = DisplayServer.WINDOW_MODE_WINDOWED
 var _display_until = 0
 var _display_next = 0
@@ -58,6 +86,13 @@ func restore(values):
 
 
 func apply():
+	if language not in ["en", "zh_CN"]:
+		language = "en"
+	if TranslationServer.get_locale() != language:
+		TranslationServer.set_locale(language)
+	graphics_msaa = clampi(graphics_msaa, 0, 2)
+	time_of_day = clampi(time_of_day, 0, 3)
+	weather = clampi(weather, 0, 4)
 	key_bindings = Bindings.normalize(key_bindings)
 	Bindings.apply(key_bindings)
 	if screen not in [Screen.FULL, Screen.WINDOW]:
@@ -66,6 +101,7 @@ func apply():
 	voice_volume = _bounded(voice_volume, 0, 1, 0.8)
 	effects_volume = _bounded(effects_volume, 0, 1, 0.75)
 	ambience_volume = _bounded(ambience_volume, 0, 1, 0.55)
+	music_volume = _bounded(music_volume, 0, 1, 0.5)
 	if subtitle_size not in [18, 22, 26]:
 		subtitle_size = 22
 	if interface_scale not in [1.0, 1.25, 1.5]:
@@ -84,10 +120,12 @@ func apply():
 	var voice = _audio_bus("Voice")
 	var effects = _audio_bus("Effects")
 	var ambience = _audio_bus("Ambience")
+	var music = _audio_bus("Music")
 	_volume(AudioServer.get_bus_index("Master"), master_volume)
 	_volume(voice, voice_volume)
 	_volume(effects, effects_volume)
 	_volume(ambience, ambience_volume)
+	_volume(music, music_volume)
 	_limiter(ambience, -9.0)
 	_limiter(effects, -4.0)
 	_limiter(AudioServer.get_bus_index("Master"), -1.0)

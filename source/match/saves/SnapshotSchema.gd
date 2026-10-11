@@ -56,12 +56,12 @@ func validate(data):
 			+ "structure_memory:list"
 			+ (
 				" battle_record:dict"
-				if data is Dictionary and data.get("snapshot_version") == 9
+				if data is Dictionary and data.get("snapshot_version") in [9, 10]
 				else ""
 			)
 			+ (
 				" ambient:list"
-				if data is Dictionary and data.get("snapshot_version") in [6, 7, 8, 9]
+				if data is Dictionary and data.get("snapshot_version") in [6, 7, 8, 9, 10]
 				else ""
 			)
 		)
@@ -76,7 +76,7 @@ func validate(data):
 	):
 		return _fail("Invalid battle record.")
 	if (
-		data.snapshot_version not in [1, 2, 3, 4, 5, 6, 7, 8, 9]
+		data.snapshot_version not in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 		or data.map_revision != 1
 		or not _settings(data.settings)
 	):

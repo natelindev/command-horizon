@@ -87,7 +87,7 @@ func _capture_and_rollback():
 	var before = preferences.capture()
 	var dialog = globals.open_settings()
 	dialog.save_path = archive
-	dialog._tabs.current_tab = 1
+	dialog._tabs.current_tab = dialog._tabs.get_tab_idx_from_control(dialog.key_panel)
 	await _frames(3)
 	var panel = dialog.key_panel
 	panel.begin_capture("pause_battle")

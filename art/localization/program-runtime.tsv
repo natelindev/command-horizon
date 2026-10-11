@@ -1,0 +1,167 @@
+Hold · built-in	原地待命 · 内置
+Manual	手动
+Hold position; ordinary orders are available.	保持位置；可下达常规指令。
+This unit cannot run programs.	该单位无法运行程序。
+Program starts on the next simulation tick.	程序将在下个模拟周期启动。
+Direct orders have priority. Resume to return to the assignment.	直接指令优先。恢复程序即可返回分配任务。
+%s · %s: %s. Program suspended; Resume starts clean.	%s · %s：%s。程序已挂起；恢复时重新开始。
+Installing	安装中
+Moving to service for chip installation.	正在前往服务点安装芯片。
+Recovery support nearby; waiting for healing.	附近有恢复支援；等待治疗。
+No recovery support here. Set the safe point at a %s	此处没有恢复支援。请将安全点设在%s
+or bring another repair robot	或派来另一台维修机器人
+or bring a repair robot	或派来维修机器人
+Set the safe point on your %s for retreat healing.	将安全点设在己方%s，以便撤退治疗。
+Station a repair robot at the safe point for retreat healing.	在安全点驻扎维修机器人，以便撤退治疗。
+A safe point alone does not heal. Add %s support for recovery.	安全点本身不能治疗。增加%s支援以恢复生命值。
+Sample %d: %s	采样 %d：%s
+%d. HP %d%% · %s	%d. 生命值 %d%% · %s
+Returning to assigned standoff area.	返回指定的远距作战区域。
+Watching standoff area.	监视远距作战区域。
+Keeping standoff distance inside assigned area.	在指定区域内保持交战距离。
+No legal firing position inside standoff area.	远距作战区域内没有有效射击位置。
+Choose a regroup point before starting strike-and-return.	开始打击折返前，先选择集结点。
+Strike complete; returning to regroup point.	打击完成；返回集结点。
+Regrouped; waiting for weapon cooldown.	已集结；等待武器冷却。
+Approaching assigned strike area.	接近指定打击区域。
+Watching assigned strike area; no visible target.	监视指定打击区域；无可见目标。
+Closing on visible target inside strike area.	接近打击区域内的可见目标。
+Firing one strike, then returning to regroup.	完成一次打击后返回集结。
+Taking assigned fire-support position.	前往指定火力支援位置。
+Holding fire-support position; no pursuit.	保持火力支援位置；不追击。
+Returning to assigned area.	返回指定区域。
+Invalid factory program. New unit received Hold.	工厂程序无效。新单位已设为原地待命。
+Program library unavailable. New unit received Hold.	程序库不可用。新单位已设为原地待命。
+Saved program %s · v%d unavailable. New unit received Hold.	已存程序 %s · v%d 不可用。新单位已设为原地待命。
+Saved version has changed. New unit received Hold.	保存的版本已改变。新单位已设为原地待命。
+Saved program is incompatible with this unit role. New unit received Hold.	保存的程序与此单位类型不兼容。新单位已设为原地待命。
+Lua is unavailable on this installation. New unit received Hold.	当前安装不支持 Lua。新单位已设为原地待命。
+Invalid or incompatible queued program. New unit received Hold.	队列程序无效或不兼容。新单位已设为原地待命。
+Queued program could not start. New unit received Hold.	队列程序无法启动。新单位已设为原地待命。
+Squad %d	小队 %d
+Research Coordination at your lab to create program squads.	在实验室研究协同，以创建程序小队。
+Select at least one mobile unit.	至少选择一个移动单位。
+Squads can contain only your mobile units.	小队只能包含己方移动单位。
+Squad limit: 24 members. Choose fewer units.	小队上限为 24 个成员。请减少所选单位。
+Installation cancelled: service unavailable. Fee refunded.	安装已取消：服务不可用。费用已退还。
+Installation blocked. Fee refunded; choose another service.	安装受阻。费用已退还；请选择其他服务点。
+Fitting chip: %.1f s remaining	正在安装芯片：剩余 %.1f 秒
+Chip installed. Choose a preset and Run.	芯片已安装。选择预设并运行。
+Built-in preset.	内置预设。
+Always	始终
+Needs recovery	需要恢复
+Health below (%)	生命值低于（%）
+Enemy in weapon range	敌人在武器射程内
+Repairable ally nearby	附近有可维修友军
+Area is not assigned	尚未指定区域
+Farther from area (m)	距离区域超过（米）
+Farther from safe point (m)	距离安全点超过（米）
+Near route start (m)	接近路线起点（米）
+Near route end (m)	接近路线终点（米）
+Hold & defend	原地防守
+Move to area	前往区域
+Move to safe point	前往安全点
+Attack nearest enemy	攻击最近敌人
+Attack weakest enemy	攻击最弱敌人
+Repair weakest ally	维修最弱友军
+Follow assigned ally	跟随指定友军
+Patrol assigned route	巡逻指定路线
+Move to route start	前往路线起点
+Move to route end	前往路线终点
+Defend assigned area	防守指定区域
+Scout patrol	侦察巡逻
+Escort ally	护送友军
+Invalid rule document.	规则文档无效。
+Unsupported rule version or starting state.	不支持的规则版本或初始状态。
+Choose retreat and recovery thresholds.	请选择撤退与恢复阈值。
+Use valid health thresholds in 5% steps.	请使用以 5% 为间隔的有效生命值阈值。
+Recovery must be at least 10 points above retreat.	恢复阈值须比撤退阈值至少高 10 个百分点。
+Use between 1 and 12 rules.	请使用 1 至 12 条规则。
+Invalid rule fields.	规则字段无效。
+Choose a supported condition and action.	请选择支持的条件与动作。
+Choose a supported state.	请选择支持的状态。
+Use a valid condition threshold.	请使用有效的条件阈值。
+Area	区域
+Safe point	安全点
+Route	路线
+This unit cannot defend an area; choose an armed unit.	该单位无法防守区域；请选择武装单位。
+Lua: holding position.	Lua：保持位置。
+Lua: assign %s before moving.	Lua：移动前请指定%s。
+Lua: at assigned service.	Lua：已到达指定服务点。
+Lua: moving to 	Lua：正在前往
+Lua: target is unavailable or outside legal weapon range.	Lua：目标不可用或超出有效武器射程。
+Lua: engaging visible target.	Lua：正在攻击可见目标。
+Lua: assign a friendly unit to escort.	Lua：请指定要护送的友军。
+Lua: covering assigned escort.	Lua：正在掩护护送目标。
+Lua: following assigned escort.	Lua：正在跟随护送目标。
+Lua: this unit cannot repair allies.	Lua：该单位无法维修友军。
+Lua: assign a repair area.	Lua：请指定维修区域。
+Lua: target is unavailable or incompatible with repair.	Lua：目标不可用或无法维修。
+Lua: damaged ally is outside the assigned repair area.	Lua：受损友军在指定维修区域外。
+Lua: approaching ally within repair assignment.	Lua：接近维修任务范围内的友军。
+Lua: repairing assigned ally.	Lua：正在维修指定友军。
+Invalid program record. Current orders were preserved.	程序记录无效。当前指令已保留。
+No compatible selected unit has an active chip.	所选兼容单位均未启用芯片。
+Lua runtime is unavailable on this installation.	当前安装不支持 Lua 运行环境。
+Program is suspended.	程序已挂起。
+Program state must be a record.	程序状态必须是记录。
+Program state exceeds 16 KiB.	程序状态超过 16 KiB。
+Program checkpoint does not match its source/API.	程序检查点与源码或 API 不匹配。
+Invalid program memory discarded.	已丢弃无效程序内存。
+Intent must name hold, move, attack, repair, escort or guard.	意图必须指定 hold、move、attack、repair、escort 或 guard。
+Unsupported intent field: %s.	不支持的意图字段：%s。
+Status must be text of at most 120 characters.	状态必须是最多 120 字符的文本。
+Only move accepts a point assignment.	仅 move 接受位置分配。
+Attack/repair must name a contact ID from the current snapshot.	攻击或维修必须指定当前快照中的接触目标 ID。
+This intent does not accept a target ID.	该意图不接受目标 ID。
+Evaluating assignment.	正在评估任务。
+Assigned point is inside a friendly structure. Choose a clear point.	指定位置位于友方建筑内。请选择空旷位置。
+No progress for 5 seconds. Reassign or Resume to retry.	已停滞 5 秒。重新分配或恢复以重试。
+Low health: assign a safe point for retreat.	生命值过低：请指定撤退安全点。
+Recovering: %d%% HP; return at %d%%.	恢复中：%d%% 生命值；达到 %d%% 时返回。
+Retreating: %d%% HP; return at %d%%.	撤退中：%d%% 生命值；达到 %d%% 时返回。
+Choose a friendly unit to escort.	请选择要护送的友军。
+Escort assignment must be another friendly unit.	护送目标必须是另一友方单位。
+Choose two patrol waypoints.	请选择两个巡逻路径点。
+Choose an area to guard.	请选择警戒区域。
+Returning to assignment after recovery.	恢复后返回任务位置。
+Holding position; firing only at legal targets in range.	保持位置；仅向射程内有效目标开火。
+Patrolling waypoint %d / 2.	正在巡逻路径点 %d / 2。
+Following escort.	跟随护送目标。
+Returning to guard point.	返回警戒点。
+Watching assigned area.	监视指定区域。
+Engaging inside assigned area.	在指定区域内交战。
+Returning to service area.	返回维修区域。
+Holding service area; no damaged allies.	保持维修区域；没有受损友军。
+Approaching damaged ally inside assignment.	接近任务区域内的受损友军。
+Repairing assigned ally.	维修指定友军。
+Engaging: %s target priority.	交战中：优先目标为%s。
+Guard area	区域警戒
+Patrol route	路线巡逻
+Standoff armor	远距装甲
+Strike & return	打击折返
+Fire support	火力支援
+Scout route	路线侦察
+Escort & repair	护送维修
+Service area	区域维修
+Engage observed enemies in the area; regroup near its center with nearby guards.	攻击区域内已发现的敌军，并与附近守卫在区域中心集结。
+Preserve 55–80% weapon-range spacing inside your assigned area.	在指定区域内保持武器射程 55–80% 的间距。
+One shot per pass, then regroup and wait for cooldown. Requires area and safe point.	每次出击射击一次，然后集结等待冷却。需要指定区域与安全点。
+Occupy the assigned point; fire inside the sector without pursuit.	占据指定位置；在区域内开火，不追击。
+Scout between two assigned waypoints; retreat uses your chosen safe point.	在两个路径点间侦察；撤退时前往指定安全点。
+Follow a chosen ally and repair eligible units inside the escort area.	跟随指定友军，维修护送区域内的适用单位。
+Repair damaged allies inside the assigned service area.	维修指定服务区域内的受损友军。
+Could not read the program library (maximum 8 MiB).	无法读取程序库（最大 8 MiB）。
+Program library contains invalid JSON. Existing file was preserved.	程序库 JSON 无效。原文件已保留。
+Unsupported program library format.	不支持的程序库格式。
+Program library exceeds 128 saved versions.	程序库超过 128 个保存版本。
+A saved program name or version is invalid.	已存程序的名称或版本无效。
+A saved program is invalid or changed; the library was left unchanged.	已存程序无效或发生变更；程序库保持不变。
+Duplicate program version. Existing file was preserved.	程序版本重复。原文件已保留。
+Use valid preset thresholds.	请使用有效的预设阈值。
+Use a name of 1–40 characters, supported roles and a valid program record.	请使用 1–40 字符的名称、支持的单位类型和有效程序记录。
+Library full (128 versions).	程序库已满（128 个版本）。
+Program version limit reached. Choose another name.	已达到程序版本上限。请使用其他名称。
+Program library exceeds 8 MiB. Existing versions were preserved.	程序库超过 8 MiB。已有版本已保留。
+Could not save the program library.	无法保存程序库。
+Could not replace the program library; existing versions were preserved.	无法替换程序库；已有版本已保留。

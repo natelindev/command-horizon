@@ -1,0 +1,270 @@
+North	北侧
+South	南侧
+Relay	中继站
+RELAY	中继站
+Enemy capture	敌方占领
+Capturing	占领中
+Recapturing	夺回中
+%s %d / 10 s	%s %d / 10 秒
+Infantry needed	需要步兵
+Contested	争夺中
+Capture held %d / 10 s	占领进度 %d / 10 秒
+Infantry within 3 m capture in 10 seconds. Opposing ground combatants pause capture.	步兵在 3 米内驻留 10 秒可完成占领。敌方地面战斗单位会暂停占领进度。
+Move infantry within 3 m to capture; armor cannot change ownership.	将步兵移至 3 米内以占领；装甲单位无法改变归属。
+Clear opposing ground units to restore uncontested control.	清除敌方地面单位以恢复控制。
+%s capture progress: %d / 10 s; retained while vacant or contested.	%s占领进度：%d / 10 秒；无人驻守或争夺时保留进度。
+Your	我方
+Enemy	敌方
+Current owner: %s. Ownership changes when capture completes.	当前归属：%s。完成占领后归属变更。
+FOUNDRY · 	铸造厂 · 
+DEPLOYMENT	部署区
+DEPLOYMENT · 	部署区 · 
+Battle control offline.	战场指挥已离线。
+You are victorious.	你取得了胜利。
+You have lost.	你已战败。
+Your base is under attack.	基地正在遭受攻击。
+Unit under attack.	单位遭受攻击。
+Unit lost.	单位损失。
+Training.	训练中。
+Unit ready.	单位就绪。
+Construction complete.	建造完成。
+Sir?	长官？
+Yes, sir.	是，长官。
+Acknowledged.	收到。
+Not enough resources.	资源不足。
+Unit	单位
+Training	训练中
+LINK TWO RELAYS	连接两座中继站
+Infantry capture in 10 seconds; enemy ground forces contest. Uplink progress is retained when a relay is lost. Try two Guard areas with Service area support. Manual orders always take priority.	步兵需 10 秒完成占领，敌方地面部队会阻碍占领。失去中继站时保留上行进度。可尝试两组区域警戒配合区域维修。手动指令始终优先。
+Hold any two. Keep your accumulated progress.	守住任意两座，累计进度会保留。
+Find infantry	查找步兵
+%d / 120 s · Responses %d / 6	%d / 120 秒 · 敌方增援 %d / 6
+Optional · full network %d / 20 s%s	可选 · 完整网络 %d / 20 秒%s
+· earned	· 已获得
+Find barracks	查找兵营
+Select infantry for this relay; idle units come first. Existing orders are preserved.	为该中继站选择步兵，优先选择空闲单位。保留现有指令。
+Select your barracks to train replacement infantry.	选择兵营以训练补充步兵。
+No infantry or completed barracks remain. Build a barracks to replace infantry.	已无步兵或完工兵营。建造兵营以补充步兵。
+relay.	中继站。
+Campaign progress could not be read. Existing file retained.	无法读取战役进度，原文件已保留。
+Campaign progress is invalid. Existing file retained.	战役进度无效，原文件已保留。
+Campaign progress could not be saved.	无法保存战役进度。
+Campaign progress could not be replaced.	无法替换战役进度。
+Unsupported replay challenge.	不支持的重玩挑战。
+Command Horizon	指挥地平线
+Broken Foundry	破碎铸造厂
+Air Corridor	空中走廊
+Supply Line	补给线
+First Orders	第一道命令
+Split Signal	分路信号
+COMMAND HORIZON	指挥地平线
+Deployment	部署区
+South pass	南侧通道
+Northern ground passage opened by Broken Foundry completion.	完成破碎铸造厂后，北侧地面通道已开放。
+Armor	装甲
+Air wing	航空联队
+Repairs	维修
+Responses · %d / 4	敌方增援 · %d / 4
+· next in %ds	· 下次于 %d 秒后
+North passage open · Foundry support	北侧通道开放 · 铸造厂支援
+Ground route · south pass	地面路线 · 南侧通道
+Lean	精简
+Operation start	行动开始
+Disable both production nodes, then secure the foundry with infantry.	摧毁两座生产节点，然后派步兵控制铸造厂。
+Production starts in 10s · three paid batches per node.	10 秒后开始生产 · 每个节点有三批已付款单位。
+Production node disabled	生产节点已摧毁
+%s node · next production batch in 10 seconds.	%s节点 · 10 秒后生产下一批。
+Nodes disabled. Capture the foundry. East response in 10s.	节点已摧毁。占领铸造厂。东侧增援将在 10 秒后到达。
+Factory unavailable	工厂不可用
+Queue space needed	需要队列空位
+Unit limit	单位上限
+Lab required	需要实验室
+Funds needed	需要资金
+Production batch %d / 3 queued. Destroy its node to cancel unfinished units.	第 %d / 3 批生产已排队。摧毁节点可取消未完成单位。
+East entry secured · final response denied.	东侧入口已控制 · 最后一波增援被阻断。
+Final Helix response entered from the east.	螺旋最后一波增援已从东侧进入。
+Broken Foundry · 	破碎铸造厂 · 
+Foundry control captured	已取得铸造厂控制权
+Control captured. Keep infantry here for 30 uncontested seconds.	已取得控制权。让步兵在此无争夺驻守 30 秒。
+Helix controls the foundry. Recapture it; secured time is retained.	螺旋控制了铸造厂。夺回它；已累计的驻守时间会保留。
+Rebuild HQ · %ds remaining	重建总部 · 剩余 %d 秒
+Disable production · %d / 2 nodes	摧毁生产设施 · %d / 2 节点
+Foundry · 	铸造厂 · 
+Control locked · disable both nodes	控制权锁定 · 摧毁两座节点
+Secured · 30 / 30 s	已稳固 · 30 / 30 秒
+Contested · %d / 30 s held	争夺中 · 已驻守 %d / 30 秒
+Securing · %d / 30 s	稳固控制 · %d / 30 秒
+Infantry needed · %d / 30 s held	需要步兵 · 已驻守 %d / 30 秒
+Destroy both production nodes before infantry can capture foundry control.	先摧毁两座生产节点，步兵才能占领铸造厂。
+Keep infantry within 3 m for 30 uncontested seconds after capture.	占领后，让步兵在 3 米内无争夺驻守 30 秒。
+Secured time is retained when you leave or lose control.	离开或失去控制时，已累计的驻守时间会保留。
+Return infantry to resume securing.	让步兵返回以继续稳固控制。
+Foundry secured · alternate finale approach unlocked.	铸造厂已控制 · 已解锁最终行动的备用路线。
+Command lost. Protect repair support and rebuild HQ within 60 seconds.	指挥中心已失守。保护维修支援，在 60 秒内重建总部。
+01 / BRING COMMAND ONLINE	01 / 启用指挥系统
+Select an engineer, choose Command lab, then place it near your base.\n\nRight-click salvage to harvest. Materials build your army; electronics fund chips.	选择工程师，再选择指挥实验室并放置在基地附近。\n\n右键点击资源堆以采集。材料用于组建部队，电子元件用于芯片。
+02 / GIVE THE UNIT A PROGRAM	02 / 为单位配置程序
+Select your repair robot. Choose Service area, click Assign area / route, choose a point, then Apply & run.\n\nOr fit a tank chip at HQ (4 E), choose Guard area, and set area + safe point. Direct orders always override programs.	选择维修机器人，选择区域维修，点击指定区域 / 路线，指定位置后应用并运行。\n\n也可在总部为坦克安装芯片（4 电子元件），选择区域警戒并设置区域与安全点。直接指令始终优先于程序。
+03 / SECURE THE RELAY	03 / 控制中继站
+Infantry within 3 m capture in 10 seconds. Clear enemy ground combatants, then hold for 60 uncontested seconds.\n\nTanks screen; repair robots support. Enemy recapture resets the hold. Three responses arrive from the east.	步兵在 3 米内驻留 10 秒可完成占领。清除敌方地面战斗单位，再无争夺驻守 60 秒。\n\n坦克掩护，维修机器人支援。敌军夺回将重置驻守时间。三波增援将从东侧抵达。
+Find engineer	查找工程师
+View relay	查看中继站
+◆  LOGISTICS RELAY\nInfantry capture point	◆  后勤中继站\n步兵占领点
+Find repair robot	查找维修机器人
+Relay · %d / 60 s · responses %d / 3	中继站 · %d / 60 秒 · 敌方增援 %d / 3
+Optional complete · Adaptive doctrine	可选目标完成 · 灵活战术
+Optional badge: change retreat %, save a version, then load and apply it.	可选徽章：修改撤退阈值，保存版本，再加载并应用。
+Train a replacement at your 	训练补充单位：
+HQ.	总部。
+vehicle factory.	车辆工厂。
+Split Signal: split your force. Two uncontested relays advance the uplink.	分路信号：分兵行动。无争夺控制两座中继站可推进上行进度。
+Full network secured · Air Corridor support earned.	完整网络已控制 · 获得空中走廊支援。
+Helix response %d / 6 · northeast and southeast in 10 seconds.	螺旋增援 %d / 6 · 10 秒后从东北和东南抵达。
+relay secured	中继站已控制
+relay secured.	中继站已控制。
+relay lost. Uplink progress is retained.	中继站失守。上行进度已保留。
+Helix response %d / 6 · %d reinforcements entered.	螺旋增援 %d / 6 · %d 个增援单位已进入。
+Split Signal · 	分路信号 · 
+Recapture in progress	正在夺回
+Clear contested relays	清除争夺中继站的敌军
+Move infantry to relay	派步兵前往中继站
+Uplink %d / 120 s · %s	上行 %d / 120 秒 · %s
+Uplink %d / 120 s · %d / 3 relays uncontested	上行 %d / 120 秒 · %d / 3 中继站无争夺
+Uplink restored. Your independent assignments secured the network.	上行已恢复。各支部队的独立任务保障了网络安全。
+Command lost. Rebuild HQ within 60 seconds to remain in the operation.	指挥中心已失守。在 60 秒内重建总部以继续行动。
+Air Corridor support earned.	已获得空中走廊支援。
+Optional: control all three relays for 20 cumulative seconds.	可选：累计控制全部三座中继站 20 秒。
+AIR CORRIDOR · EVACUATION	空中走廊 · 撤离
+Escort position	护航位置
+Exit	出口
+Launch flight	起飞
+Continue flight	继续飞行
+Finish operation	结束行动
+Ground screen	地面掩护
+Active flight	当前航班
+Hangar	机库
+North AA	北侧防空
+South AA	南侧防空
+Ready to board	准备登机
+In flight	飞行中
+Safe	安全抵达
+Lost	损失
+Holding	待命
+Holding position. Continue flight sends this transport to extraction.	正在待命。继续飞行将让运输机前往撤离点。
+· %d%% HP	· %d%% 生命值
+· Response %ds	· 增援 %d 秒
+Flight %d · %s	航班 %d · %s
+Send the active transport to extraction, replacing its current orders.	替换当前指令，让活动运输机前往撤离点。
+Ground screen counters AA; walkers cover air.	地面掩护对付防空单位；步行机提供防空。
+Ground troops counter mobile anti-air; walkers protect against aircraft. Strike aircraft can return to the flight hangar for stationary repairs. Programs and direct orders both work. All three flights saved earns operation 05 support.	地面部队对付机动防空，步行机抵御敌机。攻击机可返回机库停驻维修。程序与直接指令均可使用。救出全部三个航班可获得行动 05 支援。
+Flight holding. Use Continue flight when ready.	航班待命中。准备好后选择继续飞行。
+All three flights safe.	三个航班全部安全抵达。
+Two flights safe.	两个航班安全抵达。
+Two safe · Finish, or save all three.	已救出两个航班 · 可结束行动，或救出全部三个。
+Infantry secure deployment. Leave a guard while your strike force advances.	步兵控制部署区。突击部队推进时留守一支警卫。
+Guard in place · 30 / 30 s	警卫就位 · 30 / 30 秒
+After capture, keep infantry here for 30 uncontested seconds.	占领后，让步兵在此无争夺驻守 30 秒。
+To win, destroy enemy command and keep an uncontested infantry guard here.	摧毁敌方指挥中心，并在此保留无争夺的步兵守卫以取胜。
+Return infantry; no recapture is needed unless ownership changes.	派步兵返回；除非归属改变，否则无需重新占领。
+Enemy command destroyed	敌方指挥中心已摧毁
+Helix command destroyed. Secure deployment with infantry to finish.	螺旋指挥中心已摧毁。派步兵稳固部署区以完成行动。
+Deployment secured	部署区已稳固
+Deployment ready. Keep infantry here while your strike force destroys command.	部署区已就绪。突击部队摧毁指挥中心时，让步兵留守。
+Response %d / 4 in 10s · ground south, aircraft northeast.	增援 %d / 4 将于 10 秒后抵达 · 地面从南侧，空中从东北。
+Deployment control captured	已取得部署区控制权
+Deployment control captured. Hold with infantry; guard both approaches.	已取得部署区控制权。用步兵驻守，防卫两侧通路。
+Deployment lost. Recapture with infantry; secured time is retained.	部署区失守。派步兵夺回；驻守时间已保留。
+Response %d / 4 entered · %d units. Keep the deployment guard in place.	增援 %d / 4 已进入 · %d 个单位。保持部署区警卫就位。
+Command Horizon · 	指挥地平线 · 
+retake deployment with infantry	派步兵夺回部署区
+capture deployment with infantry	派步兵占领部署区
+deployment · 	部署区 · 
+deployment secured	部署区已稳固
+return infantry to deployment	让步兵返回部署区
+Command destroyed · 	指挥中心已摧毁 · 
+Deployment · 	部署区 · 
+Hold deployment and destroy Helix command.	守住部署区并摧毁螺旋指挥中心。
+Command lost. Keep a deployment guard and protect your strike force's repair support.	指挥中心已失守。保持部署区警卫，保护突击部队的维修支援。
+Bastion campaign complete · all six operations secured.	堡垒战役完成 · 六次行动全部成功。
+Finale complete · %d / 6 operations secured.	最终行动完成 · 已完成 %d / 6 次行动。
+Replay challenges unlocked: Lean deployment and Reinforced garrison.	已解锁重玩挑战：精简部署与强化驻军。
+Challenge completed: 	挑战完成：
+Lean deployment	精简部署
+Reinforced garrison	强化驻军
+SUPPLY LINE · DELIVER 2 / 3	补给线 · 运抵 2 / 3
+At checkpoints: hold, defend, repair, then advance.	在检查点停留、防守、维修，再继续前进。
+Repair robots: right-click a damaged truck. Scout and screen with your escorts. Truck and escort orders remain separate. Use tactical pause to plan orders.	维修机器人：右键点击受损卡车。用护卫侦察和掩护。卡车与护卫的指令各自独立。可用战术暂停规划指令。
+Advance convoy	车队前进
+Hold convoy	车队待命
+Select trucks	选择卡车
+Select escorts	选择护卫
+PAUSED · orders ready on resume	已暂停 · 恢复后执行指令
+Supply Line · Convoy escort	补给线 · 车队护送
+Extracted	已撤离
+%d/12 s	%d/12 秒
+Order advance	下令前进
+Hold to clear	停留以清理
+Contested · 	争夺中 · 
+Enemy ground units within 10 metres suspend clearance. Use your escorts to clear the checkpoint; progress is retained.	10 米内的敌方地面单位会暂停通行进度。用护卫清理检查点；进度会保留。
+%d%% HP · %s · %s	%d%% 生命值 · %s · %s
+Truck %d · %s	卡车 %d · %s
+BROKEN FOUNDRY	破碎铸造厂
+Warehouses block sight and ground movement. Protect repair support; repair channels do not stack. Guard areas limit pursuit. Infantry capture in 10 seconds, then stay for 30 uncontested seconds. Secured time is retained when you leave or lose control.	仓库会阻挡视野和地面移动。保护维修支援；维修效果不叠加。警戒区域限制追击范围。步兵用 10 秒占领，再无争夺驻守 30 秒。离开或失去控制时保留累计时间。
+Disabled	已停用
+%d / 3 batches · %d queued	%d / 3 批 · 队列 %d
+· %ds	· %d 秒
+· Waiting	· 等待中
+. The next %d-unit batch is retained; already paid jobs keep their place.	。下一批 %d 个单位已保留；已付款任务保留队列位置。
+Production waits until you enter the district.	进入该区域后才开始生产。
+Three paid batches per node. Destroy nodes to stop them.	每个节点有三批已付款单位。摧毁节点以阻止生产。
+Final response resolved.	最后一波增援已解决。
+East response in %ds	东侧增援将在 %d 秒后抵达
+First Orders: build your command lab. There is no attack timer while you learn.	第一道命令：建造指挥实验室。学习期间没有进攻倒计时。
+Program assigned	程序已分配
+Program online. Move infantry to the relay; tanks screen and repair supports them.	程序已启动。派步兵前往中继站；坦克掩护，维修单位支援。
+Command lab complete	指挥实验室已完工
+Lab complete. Your repair robot already has a chip; tanks can fit one at HQ for 4 E.	实验室已完工。维修机器人自带芯片；坦克可在总部花费 4 电子元件安装芯片。
+Helix response %d / 3 · eastern approach in 10 seconds.	螺旋增援 %d / 3 · 10 秒后从东侧抵达。
+Relay secured	中继站已控制
+Relay secured. Hold for 60 uncontested seconds.	中继站已控制。无争夺驻守 60 秒。
+Helix controls the relay. Infantry can recapture it after the defenders are cleared.	螺旋控制了中继站。清除守军后，步兵可夺回它。
+Helix response %d / 3 approaching the relay from the east.	螺旋增援 %d / 3 正从东侧接近中继站。
+First Orders · 	第一道命令 · 
+Build a command lab	建造指挥实验室
+Assign a retreat or repair program	分配撤退或维修程序
+Secure relay · %d / 60 s	稳固中继站 · %d / 60 秒
+Relay logistics are back online.	中继站后勤已恢复。
+Command lost. Rebuild the HQ within 60 seconds to stay in the operation.	指挥中心已失守。在 60 秒内重建总部以继续行动。
+Adaptive doctrine badge earned.	已获得灵活战术徽章。
+Optional: change a retreat threshold, save it, then load and apply that version.	可选：修改撤退阈值，保存版本，再加载并应用该版本。
+Clear both batteries with ground troops. Position your screen before launching.	派地面部队清除两座炮台。起飞前部署掩护。
+Operation ended.	行动结束。
+Destroy both anti-air batteries first.	先摧毁两座防空炮台。
+Escort the active flight before launching another.	先护送当前航班，再发起下一航班。
+No flights remaining.	没有剩余航班。
+Reserve one unit slot for the rescue VTOL.	为救援垂直起降机预留一个单位名额。
+Flight launched. Helix ground/air response in 10 seconds at the east approaches.	航班已起飞。螺旋地面与空中增援将在 10 秒后从东侧抵达。
+Evacuation launched	撤离已开始
+Anti-air battery destroyed	防空炮台已摧毁
+Evacuation flight lost. Two losses end the operation.	撤离航班损失。损失两个航班将导致行动失败。
+Flight safe. Launch another when your escort is ready.	航班安全抵达。护卫准备好后可发起下一航班。
+Evacuation secured	撤离成功
+Helix response entered · %d units. Ground troops counter the Lancers.	螺旋增援已进入 · %d 个单位。用地面部队对付长枪步行机。
+Air Corridor · 	空中走廊 · 
+Destroy both batteries · %d / 2	摧毁两座炮台 · %d / 2
+Evacuate two flights · %d / 2 safe	撤离两个航班 · %d / 2 安全抵达
+%d / 3 flights evacuated.	%d / 3 航班已撤离。
+All flights saved · operation 05 electronics support recorded.	所有航班获救 · 已获得行动 05 电子元件支援。
+Optional: evacuate all three flights for operation 05 support.	可选：撤离全部三个航班以获得行动 05 支援。
+Protect your HQ and at least two flights.	保护总部及至少两个航班。
+Supply Line: scout the route, then advance your convoy. Use tactical pause to plan orders.	补给线：先侦察路线，再让车队前进。使用战术暂停规划指令。
+%s: Helix response in 10 seconds. Hold and repair if needed.	%s：螺旋增援将在 10 秒后抵达。必要时停留并维修。
+Truck %d cleared %s. Repair, then order the next leg.	卡车 %d 已通过 %s。维修后下令进入下一段。
+Convoy checkpoint	车队检查点
+%s: reinforcement approach secured; response denied.	%s：已控制增援入口，增援被阻断。
+%s: Helix response has entered.	%s：螺旋增援已进入。
+Supply Line · 	补给线 · 
+Escort at least two supply trucks through all three checkpoints.	护送至少两辆补给卡车通过全部三个检查点。
+%d / 3 trucks extracted. 	%d / 3 辆卡车已撤离。
+First Orders starts with +20 materials.	第一道命令将获得额外 20 材料。
+Two truck losses make the delivery impossible.	损失两辆卡车将无法完成交付。

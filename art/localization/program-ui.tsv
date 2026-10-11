@@ -1,0 +1,138 @@
+Describe a behavior, then review the result before importing.	描述期望行为，检查结果后再导入。
+PROGRAM ASSISTANT	程序助手
+Close [Esc]	关闭 [Esc]
+Optional AI help · Your draft and unit orders stay under your control.	可选 AI 辅助 · 草稿与单位指令始终由你掌控。
+Sent context	发送的上下文
+Generate	生成
+Cancel request	取消请求
+Import as unsaved draft	导入为未保存草稿
+Draft	草稿
+Create a program	创建程序
+Revise current draft	修改当前草稿
+Explain current draft	解释当前草稿
+E.g. retreat to my safe point below 30% health, then return to guard.	例如：生命值低于 30% 时撤至安全点，恢复后返回警戒。
+Include current check diagnostics	附带当前检查结果
+REVIEW	审阅
+Generated summaries, code and parameters appear here. Nothing runs automatically.	生成的摘要、代码与参数显示在此，不会自动执行。
+Lua code	Lua 代码
+Parameters	参数
+Connection	连接
+Bring your own API key. API usage is billed by your provider.	使用你自己的 API 密钥，费用由服务商收取。
+OpenAI Responses	OpenAI Responses
+Chat Completions compatible	兼容 Chat Completions
+Endpoint	接口地址
+Model ID	模型 ID
+Strict structured output (recommended)	严格结构化输出（推荐）
+Max output tokens	最大输出 token 数
+Timeout (seconds)	超时（秒）
+Save connection	保存连接
+Keys belong to the exact saved endpoint. Changing endpoint requires its own key.	密钥仅绑定已保存的具体接口地址，更换地址需设置对应密钥。
+API key	API 密钥
+Paste a key; existing keys are never displayed	粘贴密钥；已保存的密钥不会显示
+Remember in platform credential store	记住密钥并存入系统凭据库
+Unchecked: use only until the game exits.	不勾选时，仅在本次游戏进程中使用。
+Use key	使用密钥
+Forget key	删除密钥
+Save connection before setting its key. Keys stay out of programs and battle saves.\nCancel stops waiting; your provider may still bill work already started.	请先保存连接再设置密钥。密钥不会写入程序或战斗存档。\n取消会停止等待，服务商仍可能对已开始的任务收费。
+Sends your request, unit roles and API guide%s%s to:\n%s\n\n%d / 4,000 request bytes · up to %d output tokens. No automatic retry.	将请求、单位类型和 API 指南%s%s发送至：\n%s\n\n请求 %d / 4,000 字节 · 最多输出 %d token，不会自动重试。
+, current Lua	、当前 Lua 代码
+, first 500 bytes of diagnostics	、检查结果的前 500 字节
+Save the changed connection before generating.	请先保存修改后的连接，再生成内容。
+Generating with %s… You can cancel. Existing draft retained.	正在使用 %s 生成…可随时取消，原草稿已保留。
+Review the result. Import changes the draft only; check, save and apply separately.	请审阅结果。导入仅修改草稿，检查、保存与应用需分别进行。
+Connection saved. No request sent. Set a key for this endpoint if needed.	连接已保存，尚未发送请求。如有需要，请为此接口设置密钥。
+Save the connection before setting its key.	请先保存连接，再设置密钥。
+Key stored in platform credentials.	密钥已存入系统凭据库。
+Key set for this game session.	密钥已设置，仅用于本次游戏进程。
+Save the connection before forgetting its key.	请先保存连接，再删除密钥。
+Key forgotten for this endpoint.	已删除此接口的密钥。
+UNIT PROGRAM / VISUAL RULES	单位程序 / 可视化规则
+RULE GUIDE	规则指南
+Read cards from top to bottom. The first matching rule acts; others wait for the next tick.\n\nNeeds recovery stays active from the retreat threshold until the recovery threshold.\n\nChoose area, safe point, escort and route on the battlefield. Missing assignments wait.\n\nDefend assigned area engages observed enemies inside 6 m, then returns.\n\nStates remember a mode between ticks. A transition applies to the next tick. Resume starts clean.\n\nCopy as Lua makes a separate draft. Freeform code cannot return to rule cards.	从上到下检查规则卡，第一条匹配的规则执行，其余等待下一次更新。\n\n“需要恢复”从触发撤退阈值起持续有效，直到达到恢复阈值。\n\n请在战场上选择区域、安全点、护送目标与路线；缺少指派时单位会等待。\n\n“防守指定区域”会攻击 6 米内已发现的敌人，之后返回。\n\n状态可跨次更新保留，状态转换在下次更新生效；恢复运行时重新开始。\n\n“复制为 Lua”会创建独立草稿，自由编写的代码无法转换回规则卡。
+Equipment requirements are derived from the chosen actions.	装备需求由所选动作决定。
+Rules	规则
+Generated Lua	生成的 Lua
+Copy as Lua	复制为 Lua
+%s · v%d · Visual rules	%s · 版本 %d · 可视化规则
+Unsaved rules · Save a version before applying	规则未保存 · 应用前请先保存版本
+No unit has both weapons and repair tools. Use separate programs for these roles.	没有同时配备武器与维修工具的单位，请分别编写程序。
+Freeform Lua cannot be loaded as visual rules. Choose a visual starter.	自由编写的 Lua 无法载入为可视化规则，请选择可视化模板。
+Starter copied. Adjust the rules, check samples, then save and apply.	模板已复制。调整规则并检查样本，随后保存并应用。
+Check the draft against sample inputs before applying.	应用前请用样本输入检查草稿。
+Sample check failed. Current orders are unchanged.	样本检查失败，当前指令未变。
+%d · HP %d%% · %s	%d · 生命值 %d%% · %s
+Samples passed for %d roles. Battle outcomes are not simulated.	%d 种单位类型通过样本检查，此检查不模拟实战结果。
+Choose a name and unit roles that support the rules' equipment requirements.	请输入名称，并选择满足规则装备需求的单位类型。
+ (Lua)	（Lua）
+All compatible roles	全部兼容类型
+Advanced tank	高级坦克
+Combat robot	战斗机器人
+UNIT PROGRAM / LUA	单位程序 / LUA
+AI assistant	AI 助手
+Battle paused · Drafts stay separate from unit orders.	战斗已暂停 · 草稿不会改变单位指令。
+New from starter	从模板新建
+Program name	程序名称
+Needs: movement	需要：移动能力
+Needs: weapons	需要：武器
+Needs: repair tools	需要：维修工具
+SCRIPT GUIDE	脚本指南
+CHECK RESULTS	检查结果
+Checks eight sample snapshots in isolation. This is not a battle simulation.	独立检查八个样本快照，不模拟实战。
+Check samples	检查样本
+Battle arena	实战测试场
+Save version	保存版本
+Apply & run	应用并运行
+Draft changed. Run sample checks again.	草稿已修改，请重新检查样本。
+Draft changed. Save a version before applying.	草稿已修改，应用前请先保存版本。
+%d ready · %d incompatible · %d need chip / technology · %d unavailable	%d 个就绪 · %d 个不兼容 · %d 个缺少芯片 / 科技 · %d 个不可用
+%s · v%d · Lua API %d	%s · 版本 %d · Lua API %d
+Unsaved draft · Save a version before applying · %d / 32,768 bytes	草稿未保存 · 应用前请先保存版本 · %d / 32,768 字节
+Loaded draft. Check samples or run a battle scenario.	草稿已载入，可检查样本或运行实战场景。
+Saved role group	已保存的类型分组
+New starter. Check samples or run a battle scenario.	已新建模板，可检查样本或运行实战场景。
+Starter copied into a new draft. Check it, save a version, then apply.	模板已复制到新草稿，检查并保存版本后再应用。
+Load a saved %s version…	载入已保存的 %s 版本…
+Loaded a saved version. Unit orders are unchanged until Apply & run.	已载入保存的版本，点击“应用并运行”前单位指令保持不变。
+Use a name, compatible role requirements and 1–32,768 bytes of Lua source.	请填写名称、兼容类型需求，并提供 1–32,768 字节的 Lua 源码。
+Sample check failed. Current unit orders are unchanged.	样本检查失败，当前单位指令未变。
+Eight samples passed for each of %d roles. Battle behavior is not simulated.	%d 种单位类型各通过八个样本检查，此检查不模拟实战行为。
+The arena is open in its own window. Return there to run or finish a test.	测试场已在独立窗口打开，请返回该窗口运行或结束测试。
+Correct the draft before opening the battle arena.	请先修正草稿，再打开实战测试场。
+Arena opened in a separate window. Your battle stays paused; this draft can be unsaved.	测试场已在独立窗口打开，对局保持暂停；可使用未保存的草稿。
+Arena finished for an earlier draft. Run the changed program again.	测试结果来自较早的草稿，请重新测试修改后的程序。
+Test	测试
+Passed	通过
+Expected behavior not met	未达到预期行为
+Research: 	科技：
+PASS · 	通过 · 
+FAIL · 	失败 · 
+No scenario completed.	没有完成的测试场景。
+Arena results returned. Save and Apply remain separate choices.	已返回测试场结果，保存与应用仍需分别操作。
+Initialization checked. Battlefield behavior not verified.	已检查初始化，尚未验证实战行为。
+expected behavior observed	已观察到预期行为
+expected behavior not met	未达到预期行为
+Saved %s · v%d. Existing units and factory jobs keep their programs.	已保存 %s · 版本 %d，现有单位与工厂任务保留原程序。
+Save this draft as a new version before applying.	应用前请将此草稿保存为新版本。
+Applied to %d units; %d keep their orders. Runs when battle resumes.	已应用到 %d 个单位，%d 个保留原指令，恢复战斗后运行。
+Imported AI draft. Check samples and battlefield behavior before applying.	已导入 AI 草稿，应用前请检查样本与实战行为。
+Imported as an unsaved draft. Check the roles and assignments, then test and save.	已导入为未保存草稿，请检查单位类型与任务，测试后保存。
+Parameter/source mismatch. Current draft retained.	参数与源码不匹配，已保留当前草稿。
+Retreat below	低于此值撤退
+Recover at	达到此值恢复
+Show states	显示状态
+Show state conditions and transitions. Hiding these controls keeps their rules active.	显示状态条件与转换，隐藏控件不会停用相关规则。
+Starting state on Apply or Resume.	应用或恢复运行时的初始状态。
+First matching rule with an available target wins. Otherwise: hold & defend.	执行第一条匹配且有可用目标的规则，否则坚守并防御。
+Add rule	添加规则
+Move rule earlier	规则上移
+Move rule later	规则下移
+Remove rule	删除规则
+While	当前状态
+Any state	任意状态
+then switch to	随后切换至
+Keep state	保持状态
+PROGRAM PARAMETERS	程序参数
+Changes create a draft. Save and Apply remain separate.	修改会创建草稿，保存与应用仍需分别操作。
+Update draft	更新草稿
+rule	规则
+%s vs %s	%s 对阵 %s

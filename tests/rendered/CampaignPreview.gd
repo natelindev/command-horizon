@@ -18,7 +18,7 @@ func _run():
 	root.add_child(menu)
 	current_scene = menu
 	await _frames(4)
-	await _click(_button_named(menu, "CAMPAIGN"))
+	await _click(_button_named(menu, "02    CAMPAIGN"))
 	await _frames(5)
 	var campaign = current_scene
 	_check(campaign.has_method("_start"), "Campaign entry did not open briefing")

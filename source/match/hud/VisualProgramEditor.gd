@@ -114,7 +114,7 @@ func _use_starter():
 	_name.text = Rules.STARTERS[_starter.selected]
 	_roles.select(0)
 	_set_notice("Starter copied. Adjust the rules, check samples, then save and apply.")
-	_trace.text = "Check the draft against sample inputs before applying."
+	_set_trace("Check the draft against sample inputs before applying.")
 	_refresh()
 
 
@@ -131,7 +131,7 @@ func _check_samples():
 	for role in draft.roles:
 		var result = DraftCheck.check(draft.source, role)
 		if not result.ok:
-			_trace.text = "%s: %s" % [role, result.error]
+			_set_trace("%s: %s" % [role, result.error])
 			_set_notice("Sample check failed. Current orders are unchanged.")
 			return
 		var rows = [role]
@@ -139,7 +139,7 @@ func _check_samples():
 			var action = step.intent.get("status", step.intent.kind.capitalize())
 			rows.append("%d · HP %d%% · %s" % [step.index, step.hp, action])
 		traces.append("\n".join(rows))
-	_trace.text = "\n\n".join(traces)
+	_set_trace("\n\n".join(traces))
 	_set_notice(
 		"Samples passed for %d roles. Battle outcomes are not simulated." % draft.roles.size()
 	)
