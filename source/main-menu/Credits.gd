@@ -15,7 +15,7 @@ func _ready():
 	var panel = find_child("PanelContainer")
 	if is_instance_valid(panel):
 		panel.add_theme_stylebox_override(
-			"panel", ArtTheme.panel(Color("0d151df5"), 24, 10, Color("27384699"), 1)
+			"panel", ArtTheme.panel(Color("0a1216f8"), 24, 0, Color("1e2f3bc8"), 1)
 		)
 
 	var vbox = find_child("VBoxContainer")
@@ -23,7 +23,7 @@ func _ready():
 		var header_box = VBoxContainer.new()
 		header_box.add_theme_constant_override("separation", 2)
 		var tag = Label.new()
-		tag.text = "// PROJECT ARCHIVE //"
+		tag.text = tr("// PROJECT ARCHIVE //")
 		tag.add_theme_font_size_override("font_size", 11)
 		tag.add_theme_color_override("font_color", Color("d8af67"))
 		tag.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -36,7 +36,7 @@ func _ready():
 		header_box.add_child(title_lbl)
 
 		var sub_lbl = Label.new()
-		sub_lbl.text = "OPEN RTS ARCHITECTURE & ASSETS"
+		sub_lbl.text = tr("OPEN RTS ARCHITECTURE & ASSETS")
 		sub_lbl.add_theme_font_size_override("font_size", 11)
 		sub_lbl.add_theme_color_override("font_color", Color("8ea0a8"))
 		sub_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -49,7 +49,7 @@ func _ready():
 		for sub_panel in panel.find_children("*", "PanelContainer", true, false):
 			if sub_panel != panel:
 				sub_panel.add_theme_stylebox_override(
-					"panel", ArtTheme.panel(Color("070d13b3"), 14, 6, Color("1a273466"), 1)
+					"panel", ArtTheme.panel(Color("070d13b3"), 14, 0, Color("1e2f3bc0"), 1)
 				)
 
 	if is_instance_valid(_button):
@@ -91,11 +91,11 @@ func _music_credits():
 
 func _voice_credits():
 	return (
-		"[u]Synthetic battle voices[/u]\n"
+		"[u]" + tr("Synthetic battle voices") + "[/u]\n"
 		+ "[url=https://huggingface.co/hexgrad/Kokoro-82M]Kokoro-82M[/url] · hexgrad\n"
-		+ "Male voice styles · Apache 2.0 model\n"
+		+ tr("Male voice styles · Apache 2.0 model") + "\n"
 		+ "[url=https://github.com/thewh1teagle/kokoro-onnx]kokoro-onnx[/url] · MIT\n"
-		+ "Original dialogue, male style blends, equalization and Ogg encoding."
+		+ tr("Original dialogue, male style blends, equalization and Ogg encoding.")
 	)
 
 

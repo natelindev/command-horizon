@@ -12,7 +12,7 @@ var _message
 func _ready():
 	add_theme_constant_override("separation", 8)
 	var description = Label.new()
-	description.text = "Choose a command, then press a key or shortcut. Esc cancels key capture."
+	description.text = tr("Choose a command, then press a key or shortcut. Esc cancels key capture.")
 	description.add_theme_font_size_override("font_size", 14)
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	add_child(description)
@@ -35,20 +35,20 @@ func _ready():
 		var row = HBoxContainer.new()
 		row.add_theme_constant_override("separation", 8)
 		list.add_child(row)
-		var title = dialog._label(row, definition[1], 14)
+		var title = dialog._label(row, tr(definition[1]), 14)
 		title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		var button = dialog._button(row, "", func(): begin_capture(action))
 		button.custom_minimum_size.x = 150
-		button.tooltip_text = "Change " + definition[1]
+		button.tooltip_text = tr("Change %s") % tr(definition[1])
 		buttons[action] = button
-		var reset = dialog._button(row, "Reset", func(): _reset(action))
-		reset.tooltip_text = "Restore default for " + definition[1]
+		var reset = dialog._button(row, tr("Reset"), func(): _reset(action))
+		reset.tooltip_text = tr("Restore default for %s") % tr(definition[1])
 	_message = dialog._label(
-		self, "Esc always closes dialogs. Tab and Enter navigate their controls.", 13
+		self, tr("Esc always closes dialogs. Tab and Enter navigate their controls."), 13
 	)
 	_message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_message.custom_minimum_size.y = 40
-	_cancel_capture = dialog._button(self, "Cancel key capture [Esc]", cancel_capture)
+	_cancel_capture = dialog._button(self, tr("Cancel key capture [Esc]"), cancel_capture)
 	_cancel_capture.hide()
 	refresh()
 
@@ -56,9 +56,9 @@ func _ready():
 func begin_capture(action):
 	cancel_capture()
 	_capture_action = action
-	buttons[action].text = "Press a key…"
+	buttons[action].text = tr("Press a key…")
 	_message.text = (
-		"Binding %s. Press Esc to keep its current key." % Bindings.definitions()[action][1]
+		tr("Binding %s. Press Esc to keep its current key.") % tr(Bindings.definitions()[action][1])
 	)
 	_cancel_capture.show()
 
@@ -69,7 +69,7 @@ func cancel_capture():
 	if is_instance_valid(_cancel_capture):
 		_cancel_capture.hide()
 	if is_instance_valid(_message):
-		_message.text = "Key capture cancelled. Previous binding kept."
+		_message.text = tr("Key capture cancelled. Previous binding kept.")
 	refresh()
 
 
@@ -93,8 +93,8 @@ func _assign(action, code):
 	dialog._preview("key_bindings", profile)
 	cancel_capture()
 	_message.text = (
-		"%s: %s. Save to keep this binding."
-		% [Bindings.definitions()[action][1], Bindings.label(action)]
+		"%s: %s. " % [tr(Bindings.definitions()[action][1]), Bindings.label(action)]
+		+ tr("Save to keep this binding.")
 	)
 	buttons[action].grab_focus()
 	return true

@@ -211,6 +211,8 @@ func _draw():
 
 func _background():
 	var box = StyleBoxFlat.new()
-	box.bg_color = Color("101b22")
-	box.set_corner_radius_all(8)
+	box.bg_color = Color("081016")
+	box.set_corner_radius_all(0)
+	box.set_border_width_all(1)
+	box.border_color = Color("1e2f3bc0")
 	return box

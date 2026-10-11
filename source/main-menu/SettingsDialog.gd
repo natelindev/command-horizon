@@ -49,10 +49,10 @@ func _ready():
 	_panel.theme = load("res://source/main-menu/ArtTheme.gd").create()
 	_panel.custom_minimum_size.x = 680
 	var style = StyleBoxFlat.new()
-	style.bg_color = Color("0d151df5")
-	style.set_corner_radius_all(10)
+	style.bg_color = Color("0a1216f8")
+	style.set_corner_radius_all(0)
 	style.set_border_width_all(1)
-	style.border_color = Color("27384699")
+	style.border_color = Color("1e2f3bc8")
 	for side in ["left", "right"]:
 		style.set("content_margin_" + side, 22)
 	for side in ["top", "bottom"]:
@@ -67,9 +67,9 @@ func _ready():
 	header_box.add_theme_constant_override("separation", 2)
 	column.add_child(header_box)
 	var tag = Label.new()
-	tag.text = "// SYSTEM CONFIGURATION //"
+	tag.text = tr("// SYSTEM CONFIGURATION // TACTICAL SETTINGS")
 	tag.add_theme_font_size_override("font_size", 11)
-	tag.add_theme_color_override("font_color", Color("8ea0a8"))
+	tag.add_theme_color_override("font_color", Color("d8a846"))
 	header_box.add_child(tag)
 	_label(header_box, tr("SETTINGS"), 22)
 	_label(
@@ -85,6 +85,7 @@ func _ready():
 	general_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	general_scroll.follow_focus = true
 	_tabs.add_child(general_scroll)
+	_tabs.set_tab_title(0, tr("General"))
 	var general = VBoxContainer.new()
 	general.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	general.add_theme_constant_override("separation", 6)
@@ -116,7 +117,7 @@ func _ready():
 	_ambience_sample.volume_db = load("res://source/match/audio/EnvironmentAudio.gd").BED_LEVEL
 	add_child(_ambience_sample)
 	_ambience_test = _button(general, "Test ambience", _test_ambience)
-	_ambience_sample.finished.connect(func(): _ambience_test.text = "Test ambience")
+	_ambience_sample.finished.connect(func(): _ambience_test.text = tr("Test ambience"))
 	_sample = AudioStreamPlayer.new()
 	_sample.bus = "Voice"
 	_sample.stream = load("res://assets/audio/voices/bastion/Command/MATCH_STARTED_0.ogg")
@@ -125,7 +126,7 @@ func _ready():
 	var subtitle_row = _row(general, "Subtitle size")
 	var subtitle_size = OptionButton.new()
 	for title in ["Small", "Standard", "Large"]:
-		subtitle_size.add_item(title)
+		subtitle_size.add_item(tr(title))
 	subtitle_size.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	subtitle_size.item_selected.connect(func(index): _preview("subtitle_size", [18, 22, 26][index]))
 	subtitle_row.add_child(subtitle_size)
@@ -158,8 +159,8 @@ func _ready():
 	controls.interface_scale = interface_scale
 	var row = _row(general, "Window mode")
 	var screen = OptionButton.new()
-	screen.add_item("Fullscreen")
-	screen.add_item("Windowed")
+	screen.add_item(tr("Fullscreen"))
+	screen.add_item(tr("Windowed"))
 	screen.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	screen.item_selected.connect(func(index): _preview("screen", index))
 	row.add_child(screen)
@@ -171,6 +172,7 @@ func _ready():
 	key_panel.name = "Controls"
 	key_panel.dialog = self
 	_tabs.add_child(key_panel)
+	_tabs.set_tab_title(2, tr("Controls"))
 	_tabs.tab_changed.connect(func(_index): key_panel.cancel_capture())
 	_status = _label(column, "", 13)
 	_status.custom_minimum_size.y = 36
@@ -203,17 +205,17 @@ func _heading(parent, title):
 func _test_ambience():
 	if _ambience_sample.playing:
 		_ambience_sample.stop()
-		_ambience_test.text = "Test ambience"
+		_ambience_test.text = tr("Test ambience")
 	else:
 		_ambience_sample.play()
-		_ambience_test.text = "Stop ambience sample"
+		_ambience_test.text = tr("Stop ambience sample")
 
 
 func _row(parent, title):
 	var row = HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
 	parent.add_child(row)
-	var label = _label(row, title, 14, Color("cbd5e1"))
+	var label = _label(row, tr(title), 14, Color("cbd5e1"))
 	label.custom_minimum_size.x = 165
 	return row
 
@@ -226,7 +228,7 @@ func _slider(parent, title, key, low, high, step):
 	slider.step = step
 	slider.custom_minimum_size = Vector2(280, 28)
 	slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	slider.tooltip_text = title
+	slider.tooltip_text = tr(title)
 	row.add_child(slider)
 	var value = _label(row, "", 13, Color("d8af67"))
 	value.custom_minimum_size.x = 55
@@ -238,7 +240,7 @@ func _slider(parent, title, key, low, high, step):
 
 func _check(parent, title, key):
 	var checkbox = CheckBox.new()
-	checkbox.text = title
+	checkbox.text = tr(title)
 	checkbox.add_theme_font_size_override("font_size", 14)
 	checkbox.toggled.connect(func(value): _preview(key, value))
 	parent.add_child(checkbox)
@@ -248,7 +250,7 @@ func _check(parent, title, key):
 
 func _button(parent, title, callback):
 	var button = Button.new()
-	button.text = title
+	button.text = tr(title)
 	button.custom_minimum_size.y = 34
 	button.add_theme_font_size_override("font_size", 14)
 	var ArtTheme = load("res://source/main-menu/ArtTheme.gd")
@@ -261,7 +263,7 @@ func _button(parent, title, callback):
 
 func _label(parent, title, font_size, color_val = Color("edf2f7")):
 	var label = Label.new()
-	label.text = title
+	label.text = tr(title)
 	label.add_theme_font_size_override("font_size", font_size)
 	label.add_theme_color_override("font_color", color_val)
 	parent.add_child(label)
@@ -271,14 +273,14 @@ func _label(parent, title, font_size, color_val = Color("edf2f7")):
 func _preview(key, value):
 	options.set(key, value)
 	options.apply()
-	_status.text = "Changes previewed — not saved yet."
+	_status.text = tr("Changes previewed — not saved yet.")
 	_refresh()
 
 
 func _defaults():
 	key_panel.cancel_capture()
 	options.restore(options.DEFAULTS)
-	_status.text = "Defaults previewed — Save to keep them."
+	_status.text = tr("Defaults previewed — Save to keep them.")
 	_refresh()
 
 
@@ -401,6 +403,7 @@ func _build_graphics():
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.follow_focus = true
 	_tabs.add_child(scroll)
+	_tabs.set_tab_title(1, tr("Graphics"))
 	var column = VBoxContainer.new()
 	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	column.add_theme_constant_override("separation", 8)
@@ -416,13 +419,13 @@ func _build_graphics():
 	_check(column, "Ambient occlusion (contact shading)", "graphics_ao")
 	_check(column, "Bloom / light glow", "graphics_glow")
 	_check(column, "Cinematic depth of field", "graphics_dof")
-	controls.graphics_dof.tooltip_text = "Keep the camera focus sharp; softly blur distant scenery."
+	controls.graphics_dof.tooltip_text = tr("Keep the camera focus sharp; softly blur distant scenery.")
 	_choice(column, "Anti-aliasing", "graphics_msaa", ["Off", "2× MSAA", "4× MSAA"])
 	var forward = RenderingServer.get_current_rendering_method() == "forward_plus"
 	for key in ["graphics_ao", "graphics_dof"]:
 		controls[key].disabled = not forward
 		if not forward:
-			controls[key].tooltip_text = "Available with the Forward+ renderer."
+			controls[key].tooltip_text = tr("Available with the Forward+ renderer.")
 	_heading(column, "World & interface")
 	_check(column, "Scenic districts and background population", "living_world")
 	_check(column, "Animated menu backgrounds and entrances", "menu_motion")
@@ -432,7 +435,7 @@ func _choice(parent, title, key, titles):
 	var row = _row(parent, title)
 	var choice = OptionButton.new()
 	for item in titles:
-		choice.add_item(item)
+		choice.add_item(tr(item))
 	choice.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	choice.item_selected.connect(func(index): _preview(key, index))
 	row.add_child(choice)

@@ -51,12 +51,12 @@ func _ready():
 	top_bar.add_child(title_box)
 
 	var tag = Label.new()
-	tag.text = "// STRATEGIC THEATER // CORRIDOR CAMPAIGN"
+	tag.text = tr("// STRATEGIC THEATER // CORRIDOR CAMPAIGN")
 	tag.add_theme_font_size_override("font_size", 11)
 	tag.add_theme_color_override("font_color", Color("8ea0a8"))
 	title_box.add_child(tag)
 
-	var heading = _label(title_box, "BASTION CAMPAIGN", 24)
+	var heading = _label(title_box, tr("BASTION CAMPAIGN"), 24)
 	var prologue = _label(
 		title_box, load("res://source/lore/WorldLore.gd").CAMPAIGN, 12, Color("9eb0b8")
 	)
@@ -72,14 +72,14 @@ func _ready():
 	top_bar.add_child(telemetry)
 
 	var status_lbl = Label.new()
-	status_lbl.text = "● THE SEVERANCE ARCHIVE"
+	status_lbl.text = tr("● THE SEVERANCE ARCHIVE")
 	status_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	status_lbl.add_theme_font_size_override("font_size", 11)
 	status_lbl.add_theme_color_override("font_color", Color("68d391"))
 	telemetry.add_child(status_lbl)
 
 	var proto_lbl = Label.new()
-	proto_lbl.text = "THEATER // BASTION LOGISTICS LINE"
+	proto_lbl.text = tr("THEATER // BASTION LOGISTICS LINE")
 	proto_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	proto_lbl.add_theme_font_size_override("font_size", 10)
 	proto_lbl.add_theme_color_override("font_color", Color("6c7d86"))
@@ -97,13 +97,13 @@ func _ready():
 			(
 				entry.number
 				+ " · "
-				+ ["Supply", "Orders", "Signal", "Air", "Foundry", "Horizon"][index]
+				+ tr(["Supply", "Orders", "Signal", "Air", "Foundry", "Horizon"][index])
 			),
 			_select_operation.bind(index)
 		)
 		button.custom_minimum_size.x = 0
 		button.custom_minimum_size.y = 36
-		button.tooltip_text = entry.title
+		button.tooltip_text = tr(entry.title)
 		button.toggle_mode = true
 		button.button_group = group
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -111,7 +111,7 @@ func _ready():
 
 	_progress = Progress.new()
 	_progress.read_progress(progress_path)
-	heading.text = "BASTION CAMPAIGN · %d / 6" % _progress.completed_count()
+	heading.text = tr("BASTION CAMPAIGN · %d / 6") % _progress.completed_count()
 
 	# --- BODY: TWO-COLUMN TACTICAL DOSSIER ---
 	var body = HBoxContainer.new()
@@ -125,9 +125,9 @@ func _ready():
 	dossier_panel.size_flags_stretch_ratio = 1.6
 	var dos_style = StyleBoxFlat.new()
 	dos_style.bg_color = Color("0d151dea")
-	dos_style.set_corner_radius_all(8)
+	dos_style.set_corner_radius_all(0)
 	dos_style.set_border_width_all(1)
-	dos_style.border_color = Color("27384666")
+	dos_style.border_color = Color("1e2f3bc8")
 	dos_style.content_margin_left = 18
 	dos_style.content_margin_right = 18
 	dos_style.content_margin_top = 12
@@ -139,15 +139,15 @@ func _ready():
 	dossier_vbox.add_theme_constant_override("separation", 8)
 	dossier_panel.add_child(dossier_vbox)
 
-	_label(dossier_vbox, "// MISSION BRIEFING & OBJECTIVES", 12, Color("d8af67"))
+	_label(dossier_vbox, tr("// MISSION BRIEFING & OBJECTIVES"), 12, Color("d8a846"))
 
 	var briefing_box = PanelContainer.new()
 	briefing_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var brf_style = StyleBoxFlat.new()
 	brf_style.bg_color = Color("070d13b3")
-	brf_style.set_corner_radius_all(6)
+	brf_style.set_corner_radius_all(0)
 	brf_style.set_border_width_all(1)
-	brf_style.border_color = Color("1a273466")
+	brf_style.border_color = Color("1e2f3bc0")
 	brf_style.set_content_margin_all(10)
 	briefing_box.add_theme_stylebox_override("panel", brf_style)
 	dossier_vbox.add_child(briefing_box)
@@ -166,7 +166,9 @@ func _ready():
 	note_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var n_style = StyleBoxFlat.new()
 	n_style.bg_color = Color("070d13b3")
-	n_style.set_corner_radius_all(6)
+	n_style.set_corner_radius_all(0)
+	n_style.set_border_width_all(1)
+	n_style.border_color = Color("1e2f3bc0")
 	n_style.set_content_margin_all(8)
 	note_box.add_theme_stylebox_override("panel", n_style)
 	intel_row.add_child(note_box)
@@ -174,7 +176,7 @@ func _ready():
 	var note_vbox = VBoxContainer.new()
 	note_vbox.add_theme_constant_override("separation", 2)
 	note_box.add_child(note_vbox)
-	_label(note_vbox, "// OPERATIONAL INTEL & REWARDS", 11, Color("8ea0a8"))
+	_label(note_vbox, tr("// OPERATIONAL INTEL & REWARDS"), 11, Color("8ea0a8"))
 	_note = _label(note_vbox, "", 12, Color("cbd5e1"))
 	_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
@@ -182,7 +184,9 @@ func _ready():
 	resp_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var r_style = StyleBoxFlat.new()
 	r_style.bg_color = Color("070d13b3")
-	r_style.set_corner_radius_all(6)
+	r_style.set_corner_radius_all(0)
+	r_style.set_border_width_all(1)
+	r_style.border_color = Color("1e2f3bc0")
 	r_style.set_content_margin_all(8)
 	resp_box.add_theme_stylebox_override("panel", r_style)
 	intel_row.add_child(resp_box)
@@ -190,7 +194,7 @@ func _ready():
 	var resp_vbox = VBoxContainer.new()
 	resp_vbox.add_theme_constant_override("separation", 2)
 	resp_box.add_child(resp_vbox)
-	_label(resp_vbox, "// THREAT INTEL", 11, Color("e08884"))
+	_label(resp_vbox, tr("// THREAT INTEL"), 11, Color("e08884"))
 	_response = _label(resp_vbox, "", 12, Color("cbd5e1"))
 	_response.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
@@ -203,9 +207,9 @@ func _ready():
 	right_panel.size_flags_stretch_ratio = 1.0
 	var rgt_style = StyleBoxFlat.new()
 	rgt_style.bg_color = Color("0d151dea")
-	rgt_style.set_corner_radius_all(8)
+	rgt_style.set_corner_radius_all(0)
 	rgt_style.set_border_width_all(1)
-	rgt_style.border_color = Color("27384666")
+	rgt_style.border_color = Color("1e2f3bc8")
 	rgt_style.content_margin_left = 18
 	rgt_style.content_margin_right = 18
 	rgt_style.content_margin_top = 12
@@ -217,12 +221,14 @@ func _ready():
 	right_vbox.add_theme_constant_override("separation", 8)
 	right_panel.add_child(right_vbox)
 
-	_label(right_vbox, "// DEPLOYMENT PARAMETERS", 12, Color("d8af67"))
+	_label(right_vbox, tr("// DEPLOYMENT PARAMETERS"), 12, Color("d8a846"))
 
 	var status_box = PanelContainer.new()
 	var st_style = StyleBoxFlat.new()
 	st_style.bg_color = Color("070d13b3")
-	st_style.set_corner_radius_all(6)
+	st_style.set_corner_radius_all(0)
+	st_style.set_border_width_all(1)
+	st_style.border_color = Color("1e2f3bc0")
 	st_style.set_content_margin_all(8)
 	status_box.add_theme_stylebox_override("panel", st_style)
 	right_vbox.add_child(status_box)
@@ -230,10 +236,10 @@ func _ready():
 	var status_hbox = HBoxContainer.new()
 	status_hbox.add_theme_constant_override("separation", 8)
 	status_box.add_child(status_hbox)
-	_label(status_hbox, "STATUS:", 12, Color("8ea0a8"))
+	_label(status_hbox, tr("STATUS:"), 12, Color("8ea0a8"))
 	_completion = _label(status_hbox, "", 13, Color("68d391"))
 
-	_label(right_vbox, "COMBAT DIFFICULTY", 12, Color("8ea0a8"))
+	_label(right_vbox, tr("COMBAT DIFFICULTY"), 12, Color("8ea0a8"))
 	_difficulty = OptionButton.new()
 	_difficulty.custom_minimum_size.y = 36
 	_difficulty.item_selected.connect(func(_index): _refresh_horizon_response())
@@ -242,7 +248,7 @@ func _ready():
 	_challenge_box = VBoxContainer.new()
 	_challenge_box.add_theme_constant_override("separation", 4)
 	right_vbox.add_child(_challenge_box)
-	_label(_challenge_box, "OPERATION CHALLENGE", 12, Color("8ea0a8"))
+	_label(_challenge_box, tr("OPERATION CHALLENGE"), 12, Color("8ea0a8"))
 	_challenge = OptionButton.new()
 	_challenge.custom_minimum_size.y = 36
 	for title in [
@@ -250,13 +256,13 @@ func _ready():
 		"Lean deployment · fewer reserves and funds",
 		"Reinforced garrison · extra defenders and response units"
 	]:
-		_challenge.add_item(title)
+		_challenge.add_item(tr(title))
 	_challenge.item_selected.connect(func(_index): _refresh_horizon_response())
 	_challenge_box.add_child(_challenge)
 
 	var info_lbl = _label(
 		right_vbox,
-		"Six operations available. Optional rewards never remove required counters.",
+		tr("Six operations available. Optional rewards never remove required counters."),
 		11,
 		Color("64748b")
 	)
@@ -276,7 +282,7 @@ func _ready():
 	ic_vbox.add_theme_constant_override("separation", 4)
 	intel_card.add_child(ic_vbox)
 
-	_label(ic_vbox, "// THEATER SPECIFICATIONS", 11, Color("d8af67"))
+	_label(ic_vbox, tr("// THEATER SPECIFICATIONS"), 11, Color("d8af67"))
 	_theater_intel = _label(ic_vbox, "", 12, Color("cbd5e1"))
 	_theater_intel.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
@@ -291,7 +297,7 @@ func _ready():
 
 	var back_btn = _button(
 		actions,
-		"Main menu",
+		tr("Main menu"),
 		func(): get_tree().change_scene_to_file("res://source/main-menu/Main.tscn")
 	)
 	var ArtTheme = load("res://source/main-menu/ArtTheme.gd")
@@ -334,7 +340,7 @@ func _select_operation(index):
 		var op_entry = Catalog.OPERATIONS[_mission_id]
 		_theater_intel.text = (
 			"OP " + op_entry.number + " · " + tr(op_entry.title).to_upper() + "\n"
-			+ tr("GRID") + ": %d × %d · " % [op_entry.size.x, op_entry.size.y] + tr("Bastion Directorate") + "\n"
+			+ tr("GRID:") + " %d × %d · " % [op_entry.size.x, op_entry.size.y] + tr("Bastion Directorate") + "\n"
 			+ tr("Tactical pause") + " · " + tr("Fog of war")
 		)
 
@@ -351,13 +357,13 @@ func _select_operation(index):
 		_air_briefing()
 		return
 	_completion.text = (
-		"Completed"
+		tr("Completed")
 		if (
 			_progress.supply_complete
 			if supply
 			else (_progress.split_complete if split else _progress.complete)
 		)
-		else "Available"
+		else tr("Available")
 	)
 	_difficulty.clear()
 	for title in (
@@ -373,9 +379,9 @@ func _select_operation(index):
 			"Veteran · 5 units per response"
 		]
 	):
-		_difficulty.add_item(title)
+		_difficulty.add_item(tr(title))
 	_difficulty.select(1)
-	_start_button.text = "Start " + Catalog.OPERATIONS[_ids[index]].title
+	_start_button.text = tr("Start %s") % tr(Catalog.OPERATIONS[_ids[index]].title)
 	if supply:
 		_briefing.text = (
 			"A Bastion convoy must cross a contested freight corridor.\n\n"
@@ -399,7 +405,7 @@ func _select_operation(index):
 		)
 		_difficulty.clear()
 		for label in ["Story", "Standard", "Veteran"]:
-			_difficulty.add_item(label)
+			_difficulty.add_item(tr(label))
 		_difficulty.select(1)
 	elif split:
 		_briefing.text = (
@@ -442,7 +448,7 @@ func _select_operation(index):
 
 
 func _air_briefing():
-	_completion.text = "Completed" if _progress.air_complete else "Available"
+	_completion.text = tr("Completed") if _progress.air_complete else tr("Available")
 	_briefing.text = (
 		"Open an evacuation corridor across the industrial quarry.\n\n"
 		+ "1. Ground troops destroy both anti-air batteries. Use the north or south bypass.\n"
@@ -467,14 +473,14 @@ func _air_briefing():
 		"Standard · 3 units per response",
 		"Veteran · 5 units per response"
 	]:
-		_difficulty.add_item(title)
+		_difficulty.add_item(tr(title))
 	_difficulty.select(1)
-	_start_button.text = "Start Air Corridor"
+	_start_button.text = tr("Start %s") % tr("Air Corridor")
 
 
 func _foundry_briefing():
 	_completion.text = (
-		"Completed · finale approach unlocked" if _progress.foundry_complete else "Available"
+		tr("Completed · finale approach unlocked") if _progress.foundry_complete else tr("Available")
 	)
 	_briefing.text = (
 		"Take the industrial works without losing your support force.\n\n"
@@ -500,16 +506,16 @@ func _foundry_briefing():
 	for title in [
 		"Story · 1 unit per batch", "Standard · 2 units per batch", "Veteran · 3 units per batch"
 	]:
-		_difficulty.add_item(title)
+		_difficulty.add_item(tr(title))
 	_difficulty.select(1)
-	_start_button.text = "Start Broken Foundry"
+	_start_button.text = tr("Start %s") % tr("Broken Foundry")
 
 
 func _horizon_briefing():
 	_completion.text = (
-		"Finale completed · replay challenges unlocked"
+		tr("Finale completed · replay challenges unlocked")
 		if _progress.horizon_complete
-		else "Available"
+		else tr("Available")
 	)
 	_briefing.text = (
 		"Secure the forward deployment zone, then break Helix command.\n\n"
@@ -533,10 +539,10 @@ func _horizon_briefing():
 		)
 	_difficulty.clear()
 	for title in ["Story", "Standard", "Veteran"]:
-		_difficulty.add_item(title)
+		_difficulty.add_item(tr(title))
 	_difficulty.select(1)
 	_refresh_horizon_response()
-	_start_button.text = "Start Command Horizon"
+	_start_button.text = tr("Start %s") % tr("Command Horizon")
 
 
 func _refresh_horizon_response():
@@ -544,16 +550,16 @@ func _refresh_horizon_response():
 		return
 	var ground = [2, 3, 4][_difficulty.selected] + (1 if _challenge.selected == 2 else 0)
 	var air = [1, 1, 2][_difficulty.selected]
-	_response.text = "Four warned responses · %d ground + %d air units each." % [ground, air]
+	_response.text = tr("Four warned responses · %d ground + %d air units each.") % [ground, air]
 	if _challenge.selected == 1:
-		_response.text += " Lean: 4 tanks, 8 infantry, 2 engineers; 80 materials / 40 electronics."
+		_response.text += tr(" Lean: 4 tanks, 8 infantry, 2 engineers; 80 materials / 40 electronics.")
 	elif _challenge.selected == 2:
-		_response.text += " Reinforced: 4 extra HQ infantry and the extra ground unit per response."
+		_response.text += tr(" Reinforced: 4 extra HQ infantry and the extra ground unit per response.")
 
 
 func _label(parent, text, size, color_value = Color("edf2f7")):
 	var label = Label.new()
-	label.text = text
+	label.text = tr(text)
 	label.add_theme_font_size_override("font_size", size)
 	label.add_theme_color_override("font_color", color_value)
 	parent.add_child(label)
@@ -562,7 +568,7 @@ func _label(parent, text, size, color_value = Color("edf2f7")):
 
 func _button(parent, text, callback):
 	var button = Button.new()
-	button.text = text
+	button.text = tr(text)
 	button.custom_minimum_size = Vector2(190, 44)
 	button.pressed.connect(callback)
 	parent.add_child(button)

@@ -100,9 +100,9 @@ func _build_ui():
 	top_bar.add_child(title_box)
 
 	var tag = Label.new()
-	tag.text = tr("THEATER OF OPERATIONS")
+	tag.text = tr("// THEATER OF OPERATIONS // TACTICAL SIMULATION")
 	tag.add_theme_font_size_override("font_size", 11)
-	tag.add_theme_color_override("font_color", Color("8ea0a8"))
+	tag.add_theme_color_override("font_color", Color("d8a846"))
 	title_box.add_child(tag)
 
 	_label(title_box, tr("SKIRMISH"), 28)
@@ -116,6 +116,21 @@ func _build_ui():
 	var top_spacer = Control.new()
 	top_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top_bar.add_child(top_spacer)
+
+	var top_telemetry = HBoxContainer.new()
+	top_telemetry.add_theme_constant_override("separation", 14)
+	top_bar.add_child(top_telemetry)
+	_label(top_telemetry, tr("GRID: TACTICAL-01"), 11, Color("4da8cc"))
+	_label(top_telemetry, "·", 11, Color("41545e"))
+	_label(top_telemetry, tr("STATUS: BRIEFING READY"), 11, Color("7b929e"))
+	_label(top_telemetry, "·", 11, Color("41545e"))
+	_label(top_telemetry, tr("ORBITAL RECON: ACTIVE"), 11, Color("d8a846"))
+
+	var top_line = ColorRect.new()
+	top_line.custom_minimum_size.y = 1
+	top_line.color = Color("ffffff15")
+	top_line.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	page.add_child(top_line)
 
 	# --- BODY ---
 	var body = HBoxContainer.new()
@@ -134,7 +149,7 @@ func _build_ui():
 	map_column.custom_minimum_size.x = 420
 	map_column.get_parent().size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	map_column.get_parent().size_flags_stretch_ratio = .9
-	_label(map_column, tr("01  BATTLEFIELD"), 13, Color("d8af67"))
+	_label(map_column, tr("01 // BATTLEFIELD"), 13, Color("d8a846"))
 	_map_list = OptionButton.new()
 	_map_list.name = "MapList"
 	_map_list.custom_minimum_size.y = 38
@@ -148,9 +163,9 @@ func _build_ui():
 	preview_frame.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var preview_style = StyleBoxFlat.new()
 	preview_style.bg_color = Color("060b10ea")
-	preview_style.set_corner_radius_all(6)
+	preview_style.set_corner_radius_all(0)
 	preview_style.set_border_width_all(1)
-	preview_style.border_color = Color("1e2c3880")
+	preview_style.border_color = Color("233b4ac0")
 	preview_style.set_content_margin_all(6)
 	preview_frame.add_theme_stylebox_override("panel", preview_style)
 	map_column.add_child(preview_frame)
@@ -168,7 +183,9 @@ func _build_ui():
 	var legend_panel = PanelContainer.new()
 	var leg_style = StyleBoxFlat.new()
 	leg_style.bg_color = Color("070d13b3")
-	leg_style.set_corner_radius_all(4)
+	leg_style.set_corner_radius_all(0)
+	leg_style.set_border_width_all(1)
+	leg_style.border_color = Color("1e2f3bc0")
 	leg_style.set_content_margin_all(8)
 	legend_panel.add_theme_stylebox_override("panel", leg_style)
 	map_column.add_child(legend_panel)
@@ -199,11 +216,11 @@ func _build_ui():
 	var faction_row = HBoxContainer.new()
 	faction_row.add_theme_constant_override("separation", 16)
 	right.add_child(faction_row)
-	_player_faction = _faction_card(faction_row, tr("02  YOUR FACTION"), 0)
-	_enemy_faction = _faction_card(faction_row, tr("03  ENEMY FACTION"), 1)
+	_player_faction = _faction_card(faction_row, tr("02 // YOUR FACTION"), 0)
+	_enemy_faction = _faction_card(faction_row, tr("03 // ENEMY FACTION"), 1)
 
 	var rules = _panel(right)
-	_label(rules, tr("MATCH RULES"), 13, Color("d8af67"))
+	_label(rules, tr("// ENGAGEMENT PARAMETERS"), 13, Color("d8a846"))
 	var grid = GridContainer.new()
 	grid.columns = 2
 	grid.add_theme_constant_override("h_separation", 24)
@@ -219,10 +236,10 @@ func _build_ui():
 	var summary_box = PanelContainer.new()
 	var sum_style = StyleBoxFlat.new()
 	sum_style.bg_color = Color("070d13b3")
-	sum_style.set_corner_radius_all(6)
+	sum_style.set_corner_radius_all(0)
 	sum_style.set_content_margin_all(10)
 	sum_style.set_border_width_all(1)
-	sum_style.border_color = Color("1a273466")
+	sum_style.border_color = Color("1e2f3bc0")
 	summary_box.add_theme_stylebox_override("panel", sum_style)
 	rules.add_child(summary_box)
 
@@ -281,7 +298,7 @@ func _panel(parent):
 
 func _label(parent, value, font_size, color_value = Color("f1eee4")):
 	var label = Label.new()
-	label.text = value
+	label.text = tr(value)
 	label.add_theme_font_size_override("font_size", font_size)
 	label.add_theme_color_override("font_color", color_value)
 	parent.add_child(label)
@@ -302,14 +319,14 @@ func _option(parent, node_name, items):
 
 func _faction_card(parent, heading, index):
 	var box = _panel(parent)
-	_label(box, heading, 13, Color("d8af67"))
+	_label(box, tr(heading), 13, Color("d8a846"))
 
 	var portrait_box = PanelContainer.new()
 	var port_style = StyleBoxFlat.new()
 	port_style.bg_color = Color("060b10e0")
-	port_style.set_corner_radius_all(6)
+	port_style.set_corner_radius_all(0)
 	port_style.set_border_width_all(1)
-	port_style.border_color = Color("1a273466")
+	port_style.border_color = Color("1e2f3bc0")
 	port_style.set_content_margin_all(6)
 	portrait_box.add_theme_stylebox_override("panel", port_style)
 	box.add_child(portrait_box)
@@ -334,7 +351,7 @@ func _faction_card(parent, heading, index):
 
 
 func _update_faction(index, selected):
-	_cards[index].description.text = FACTION_DESCRIPTIONS[selected]
+	_cards[index].description.text = tr(FACTION_DESCRIPTIONS[selected])
 	_cards[index].portrait.texture = load(
 		Factions.icon(
 			Factions.IDS[selected] if selected < Factions.IDS.size() else "bastion",
@@ -350,14 +367,14 @@ func _update_summary():
 		else "Established base, 2 tanks, repair support · 120 M / 60 E"
 	)
 	_summary.text = (
-		opening + "\nWin by destroying the enemy HQ and preventing a rebuild for 60 seconds."
+		tr(opening) + "\n" + tr("Win by destroying the enemy HQ and preventing a rebuild for 60 seconds.")
 	)
 	_summary.tooltip_text = "Difficulty changes AI timing. No health, damage or resource bonuses."
 
 
 func _on_map_list_item_selected(index):
 	_preview.set_map(MAPS[index][0])
-	_map_details.text = MAPS[index][2] + "\n" + MAPS[index][3] + " · Opposite starting positions"
+	_map_details.text = tr(MAPS[index][2]) + "\n" + MAPS[index][3] + " · " + tr("Opposite starting positions")
 
 
 func _create_match_settings():

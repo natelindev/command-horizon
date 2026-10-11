@@ -3,18 +3,18 @@ extends RefCounted
 
 # Shared native controls: warm ivory typography, slate surfaces and copper fills.
 static func panel(
-	color = Color("17252bea"),
+	color = Color("0c1419fa"),
 	padding = 18,
-	radius = 6,
-	border_color = Color(0, 0, 0, 0),
-	border_width = 0
+	radius = 0,
+	border_color = Color("1e2f3bc8"),
+	border_width = 1
 ):
 	var style = StyleBoxFlat.new()
 	style.bg_color = color
 	style.set_corner_radius_all(radius)
 	style.set_content_margin_all(padding)
-	style.shadow_color = Color(0, 0, 0, .28)
-	style.shadow_size = 12
+	style.shadow_color = Color(0, 0, 0, .35)
+	style.shadow_size = 8
 	if border_width > 0:
 		style.set_border_width_all(border_width)
 		style.border_color = border_color
@@ -27,23 +27,23 @@ static func create():
 
 
 static func primary_button_style() -> StyleBoxFlat:
-	return panel(Color("d8af67"), 10, 6)
+	return panel(Color("d8a846"), 10, 0, Color("f3c562"), 1)
 
 
 static func primary_button_hover_style() -> StyleBoxFlat:
-	return panel(Color("f0c37b"), 10, 6)
+	return panel(Color("ebba57"), 10, 0, Color("ffe08b"), 1)
 
 
 static func primary_button_pressed_style() -> StyleBoxFlat:
-	return panel(Color("c59c55"), 10, 6)
+	return panel(Color("ba8b32"), 10, 0, Color("d8a846"), 1)
 
 
 static func secondary_button_style() -> StyleBoxFlat:
-	return panel(Color("1c2b36"), 10, 6)
+	return panel(Color("101a20"), 10, 0, Color("233642"), 1)
 
 
 static func secondary_button_hover_style() -> StyleBoxFlat:
-	return panel(Color("354349"), 10, 6)
+	return panel(Color("1c2b36"), 10, 0, Color("38505e"), 1)
 
 
 static func animate_buttons(node):
