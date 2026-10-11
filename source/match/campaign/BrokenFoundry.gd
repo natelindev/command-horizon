@@ -1,5 +1,7 @@
 extends "res://source/match/Skirmish.gd"
 
+const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
+
 const Progress = preload("res://source/match/campaign/CampaignProgress.gd")
 const Library = preload("res://source/match/programs/ProgramLibrary.gd")
 const ProductionFactions = preload("res://source/match/FactionCatalog.gd")
@@ -283,7 +285,8 @@ func objective_text():
 func has_capture_infantry():
 	var human = _get_human_player()
 	return battlefield.nearby_units(map.CONTROL, map.relay.RADIUS).any(
-		func(unit): return unit.player == human and unit.type == "Infantry" and _alive(unit)
+		func(unit):
+			return unit.player == human and InfantryRoster.is_infantry(unit.type) and _alive(unit)
 	)
 
 

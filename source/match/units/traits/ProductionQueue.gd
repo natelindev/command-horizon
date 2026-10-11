@@ -71,7 +71,9 @@ func blocked_reason():
 		required = "CommandLab"
 	if required != "" and not _unit.player.has_completed_structure(required):
 		return "Rebuild %s to resume this queue." % Factions.title(_unit.player.faction, required)
-	if not Factions.available(_unit.player, role):
+	if not Factions.available(_unit.player, role, false, first):
+		if role == "Hero":
+			return "A hero is already alive or in training."
 		return "Research Coordination to resume this queue."
 	return ""
 

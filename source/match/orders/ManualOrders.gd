@@ -107,6 +107,12 @@ func _make_action(order):
 			# Never sample a hidden enemy's live location when a queued order activates.
 			return load(ACTIONS + "Moving.gd").new(order.point)
 	match order.kind:
+		"garrison":
+			return (
+				load(ACTIONS + "Garrisoning.gd").new(target)
+				if target.has_method("can_garrison") and target.can_garrison(unit)
+				else null
+			)
 		"attack":
 			var script = load(ACTIONS + "AutoAttacking.gd")
 			return script.new(target) if script.is_applicable(unit, target) else null

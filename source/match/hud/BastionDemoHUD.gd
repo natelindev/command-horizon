@@ -107,7 +107,10 @@ func _select_while_paused(screen_position):
 	if _selection_start.distance_to(screen_position) < 8.0:
 		var unit = _pick_unit(screen_position)
 		if unit != null:
-			unit.get_node("Selection").select()
+			if unit.has_method("select_occupants"):
+				unit.select_occupants()
+			elif unit.has_node("Selection"):
+				unit.get_node("Selection").select()
 		return
 	var rectangle = Rect2(_selection_start, screen_position - _selection_start).abs()
 	var camera = get_viewport().get_camera_3d()

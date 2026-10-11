@@ -15,7 +15,8 @@ static func infantry(_player, units, combatants):
 	var paid = []
 	for producer in barracks:
 		var jobs = producer.production_queue.get_elements().filter(
-			func(job): return Catalog.type_from_path(job.unit_prototype.resource_path) == "Infantry"
+			func(job):
+				return Catalog.is_infantry(Catalog.type_from_path(job.unit_prototype.resource_path))
 		)
 		queued += jobs.size()
 		if not jobs.is_empty():

@@ -363,6 +363,9 @@ func _legacy():
 	paused = true
 	var data = Snapshot.new().capture(game)
 	data.snapshot_version = 7
+	data.erase("neutral_buildings")
+	for ambient in data.get("ambient", []):
+		ambient.erase("combat")
 	data.erase("battle_record")
 	for resource in data.resources:
 		resource.erase("wreck")

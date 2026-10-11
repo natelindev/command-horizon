@@ -91,7 +91,7 @@ func _select(kind):
 	if _overlay != null or get_parent().finished:
 		return
 	var roles = {
-		"infantry": ["Infantry"],
+		"infantry": load("res://source/match/BastionCatalog.gd").INFANTRY_ROLES,
 		"armor": ["Tank", "AdvancedTank", "CombatRobot"],
 		"air": ["Drone", "Helicopter"],
 		"repair": ["RepairRobot"]

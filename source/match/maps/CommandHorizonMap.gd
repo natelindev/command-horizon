@@ -74,6 +74,7 @@ func _ready():
 func _landmark(point, asset):
 	var shelf = Node3D.new()
 	shelf.name = asset
+	shelf.set_meta("neutral_asset", asset)
 	shelf.position = point
 	$Decorations.add_child(shelf)
 	var model = load("res://assets/models/environment/%s.glb" % asset).instantiate()

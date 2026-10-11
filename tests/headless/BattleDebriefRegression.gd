@@ -129,6 +129,9 @@ func _exercise(faction):
 	await _review_result(faction + "-complete")
 	var legacy = snapshot.duplicate(true)
 	legacy.snapshot_version = 8
+	legacy.erase("neutral_buildings")
+	for ambient in legacy.get("ambient", []):
+		ambient.erase("combat")
 	legacy.erase("battle_record")
 	_check(schema.validate(legacy), "Legacy snapshot rejected")
 	loaded = await Restore.new().restore(self, legacy)

@@ -1,6 +1,8 @@
 # gdlint: disable=max-returns
 extends Node
 
+const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
+
 signal cue_started(kind, point)
 
 const MAX_PLAYERS = 24
@@ -54,6 +56,12 @@ func _ready():
 static func weapon_cue(unit):
 	var helix = unit.player.faction == "helix"
 	match unit.type:
+		"RocketInfantry":
+			return "missile_launch"
+		"SniperInfantry":
+			return "rail_fire"
+		"Hero":
+			return "energy_fire" if helix else "autocannon_fire"
 		"Infantry":
 			return "energy_fire" if helix else "rifle_fire"
 		"Tank", "AntiGroundTurret":
@@ -87,7 +95,7 @@ func impact(unit, source, point):
 
 func destruction(unit):
 	var cue = "vehicle_destroy"
-	if unit.type == "Infantry":
+	if InfantryRoster.is_infantry(unit.type):
 		cue = "infantry_fall"
 	elif unit.has_method("is_constructed"):
 		cue = "structure_destroy"

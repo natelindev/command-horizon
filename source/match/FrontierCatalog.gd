@@ -39,6 +39,10 @@ const NAMES = {
 	"AntiAirTurret": "Watchtower AA",
 }
 const COSTS = {
+	"Hero": [48, 24],
+	"AssaultInfantry": [10, 2],
+	"SniperInfantry": [12, 6],
+	"RocketInfantry": [12, 4],
 	"Worker": [6, 0],
 	"Infantry": [5, 0],
 	"Tank": [20, 4],
@@ -88,7 +92,8 @@ const DESCRIPTIONS = {
 	),
 	"CommandCenter":
 	"Produces scrapper rigs, accepts harvested and salvaged materials, and supplies 20 power.",
-	"Barracks": "Trains ridge rangers. Two infantry recovery slots within 5 m. Uses 3 power.",
+	"Barracks":
+	"Trains four infantry classes and a unique hero. Two infantry recovery slots within 5 m. Uses 3 power.",
 	"VehicleFactory":
 	(
 		"Produces refurbished armor and service rigs. Fit chips to new "

@@ -349,7 +349,7 @@ func _update_passive_movement_tracking(safe_velocity):
 
 
 func _on_velocity_computed(safe_velocity: Vector3):
-	if not _synchronized or get_tree().paused:
+	if not _synchronized or get_tree().paused or _unit.has_meta("garrison_host"):
 		return
 	var displacement = safe_velocity.limit_length(speed) * _physics_delta
 	var candidate = _unit.global_position + displacement

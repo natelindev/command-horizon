@@ -1,5 +1,7 @@
 extends Node
 
+const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
+
 const Rules = preload("res://source/match/combat/CombatRules.gd")
 const INTERVAL = 0.25
 const FACILITY_RANGE = 5.0
@@ -24,7 +26,7 @@ static func mobile_eligible(source, target):
 
 
 static func facility_for_role(role):
-	if role == "Infantry":
+	if InfantryRoster.is_infantry(role):
 		return "Barracks"
 	if role in ["Drone", "Helicopter"]:
 		return "AircraftFactory"
@@ -153,5 +155,5 @@ func _eligible(provider, target):
 				and stationary(target)
 			)
 		"Barracks":
-			return target.type == "Infantry" and stationary(target)
+			return InfantryRoster.is_infantry(target.type) and stationary(target)
 	return false  # gdlint: ignore = max-returns

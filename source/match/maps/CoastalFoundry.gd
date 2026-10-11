@@ -187,6 +187,7 @@ func _box(point, dimensions, color):
 func _landmark(asset, point, radius, height, ground = true):
 	var body = Node3D.new()
 	body.name = asset.get_file()
+	body.set_meta("neutral_asset", asset.get_file())
 	body.position = Vector3(point.x, 0, point.y)
 	body.set_meta("clearance_radius", radius)
 	body.set_meta("clearance_height", height)

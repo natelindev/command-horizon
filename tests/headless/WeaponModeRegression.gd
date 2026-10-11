@@ -266,6 +266,9 @@ func _check(value, message):
 func _legacy_snapshot(snapshot, version):
 	var result = snapshot.duplicate(true)
 	result.snapshot_version = version
+	result.erase("neutral_buildings")
+	for ambient in result.get("ambient", []):
+		ambient.erase("combat")
 	result.erase("battle_record")
 	for resource in result.resources:
 		resource.erase("wreck")

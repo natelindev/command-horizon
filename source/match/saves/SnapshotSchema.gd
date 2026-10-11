@@ -1,6 +1,8 @@
 # gdlint: disable=max-returns,max-file-lines
 extends RefCounted
 
+const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
+
 const Factions = preload("res://source/match/FactionRules.gd")
 const Salvage = preload("res://source/match/economy/SalvageRules.gd")
 const Technology = preload("res://source/match/research/TechnologyCatalog.gd")
@@ -13,6 +15,7 @@ const Record = preload("res://source/match/programs/ProgramRecord.gd")
 const Library = preload("res://source/match/programs/ProgramLibrary.gd")
 const PROGRAM_ROLES = ["Tank", "AdvancedTank", "CombatRobot", "RepairRobot", "Drone", "Helicopter"]
 const LINKS = {
+	"Garrisoning": [["_target_unit"], ["_shot"], []],
 	"Moving": [[], [], []],
 	"MovingToUnit": [["_target_unit"], [], []],
 	"AttackMoving": [[], ["_shot"], []],
@@ -39,11 +42,13 @@ var map_size = Vector2.ZERO
 var fog_image = null
 var _nodes_left = 20000
 var _version = 1
+var _neutral_ids = {}
 
 
 func validate(data):
 	error = ""
 	entities.clear()
+	_neutral_ids.clear()
 	sides.clear()
 	fog_image = null
 	_nodes_left = 20000
@@ -55,13 +60,18 @@ func validate(data):
 			+ "players:list units:list resources:list mission:dict fog:dict "
 			+ "structure_memory:list"
 			+ (
+				" neutral_buildings:list"
+				if data is Dictionary and data.get("snapshot_version") == 11
+				else ""
+			)
+			+ (
 				" battle_record:dict"
-				if data is Dictionary and data.get("snapshot_version") in [9, 10]
+				if data is Dictionary and data.get("snapshot_version") in [9, 10, 11]
 				else ""
 			)
 			+ (
 				" ambient:list"
-				if data is Dictionary and data.get("snapshot_version") in [6, 7, 8, 9, 10]
+				if data is Dictionary and data.get("snapshot_version") in [6, 7, 8, 9, 10, 11]
 				else ""
 			)
 		)
@@ -76,7 +86,7 @@ func validate(data):
 	):
 		return _fail("Invalid battle record.")
 	if (
-		data.snapshot_version not in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+		data.snapshot_version not in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 		or data.map_revision != 1
 		or not _settings(data.settings)
 	):
@@ -120,6 +130,7 @@ func validate(data):
 		sides[side.id] = {
 			"faction": data.settings.players[index].faction,
 			"mobile": 0,
+			"heroes": 0,
 			"structures": 0,
 			"technology": side.technology.completed if _version >= 7 else [],
 			"coordination": side.coordination_unlocked
@@ -206,6 +217,10 @@ func validate(data):
 			or not _position(unit.position)
 		):
 			return _fail("Invalid unit owner, role or position.")
+		if unit.role == "Hero":
+			sides[unit.player].heroes += 1
+			if sides[unit.player].heroes > 1:
+				return _fail("Duplicate hero reservation.")
 		var building = unit.role in Catalog.STRUCTURES
 		if data.snapshot_version >= 2 and not _weapon_mode(unit):
 			return false
@@ -222,6 +237,8 @@ func validate(data):
 			return _fail("Invalid unit health or cooldown.")
 		if building != (unit.construction != null) or (building and unit.construction > 1):
 			return _fail("Invalid construction state.")
+	if _version >= 11 and not _neutral_buildings(data.neutral_buildings, data.settings.map_path):
+		return false
 	for unit in data.units:
 		if not _unit(unit):
 			return false
@@ -291,11 +308,13 @@ func _army_groups(data):
 			var unit = entities[id]
 			if not unit.has("player") or unit.player != "player-1":
 				return _fail("AI task member belongs to another side.")
-			var roles = ["Tank", "AdvancedTank", "CombatRobot", "Infantry", "Helicopter"]
+			var roles = (
+				["Tank", "AdvancedTank", "CombatRobot", "Helicopter"] + Catalog.INFANTRY_ROLES
+			)
 			if group.kind == "guard":
 				roles.erase("Helicopter")
 			elif group.kind == "capture":
-				roles = ["Infantry"]
+				roles = Catalog.INFANTRY_ROLES
 			elif group.kind == "scout":
 				roles = ["Drone"]
 			if unit.role not in roles:
@@ -552,6 +571,10 @@ func _unit(unit):
 			if not _factory_program(job.program_snapshot, job.role):
 				return false
 			sides[unit.player].mobile += 1
+			if job.role == "Hero":
+				sides[unit.player].heroes += 1
+				if sides[unit.player].heroes > 1:
+					return _fail("Duplicate hero reservation.")
 	if not unit.rally.is_empty():
 		if (
 			not _shape(unit.rally, "position:vec target:text")
@@ -760,6 +783,32 @@ func _action(action, unit, depth):
 				return _fail("Expected a resource reference.")
 		elif kind != "MovingToUnit" and not _unit_reference(id):
 			return false
+		if (
+			kind == "Garrisoning"
+			and (
+				not InfantryRoster.is_infantry(unit.role)
+				or not _neutral_ids.get(id, false)
+				or action.state._elapsed < 0
+				or action.state._elapsed > .25
+			)
+		):
+			return _fail("Invalid garrison action.")
+		if (
+			_neutral_ids.has(id)
+			and (
+				kind
+				not in [
+					"AutoAttacking",
+					"AttackingWhileInRange",
+					"MovingToUnit",
+					"Garrisoning",
+					"PresetAction",
+					"SpecialistAction",
+					"LuaAction"
+				]
+			)
+		):
+			return _fail("Unsupported action on a neutral target.")
 		var target = entities.get(id, {})
 		if target.is_empty():
 			continue
@@ -810,7 +859,7 @@ func _action(action, unit, depth):
 					target.get("role")
 					!= (
 						"Barracks"
-						if unit.role == "Infantry"
+						if InfantryRoster.is_infantry(unit.role)
 						else (
 							"AircraftFactory"
 							if unit.role in ["Drone", "Helicopter"]
@@ -980,20 +1029,29 @@ func _order(order, unit):
 		return _shape(order, "kind:text point:vec")
 	if (
 		order.get("kind")
-		not in ["attack", "repair", "gather", "construct", "follow", "approach", "recover"]
+		not in [
+			"attack", "repair", "gather", "construct", "follow", "approach", "recover", "garrison"
+		]
 	):
 		return _fail("Unsupported queued order.")
 	if not _shape(order, "kind:text point:vec target:text") or not _entity_reference(order.target):
 		return false
 	if order.kind not in ["gather", "approach"] and not _unit_reference(order.target):
 		return false
+	if (
+		order.kind == "garrison"
+		and (not InfantryRoster.is_infantry(unit.role) or not _neutral_ids.get(order.target, false))
+	):
+		return _fail("Invalid garrison order.")
+	if _neutral_ids.has(order.target) and order.kind not in ["attack", "approach", "garrison"]:
+		return _fail("Unsupported order on a neutral target.")
 	var target = entities.get(order.target, {})
 	if target.is_empty():
 		return true
 	if order.kind == "recover":
 		var expected = (
 			"Barracks"
-			if unit.role == "Infantry"
+			if InfantryRoster.is_infantry(unit.role)
 			else ("AircraftFactory" if unit.role in ["Drone", "Helicopter"] else "RepairDepot")
 		)
 		if (
@@ -1186,6 +1244,7 @@ func _entity_reference(id):
 			id is String
 			and (
 				id == ""
+				or _neutral_ids.has(id)
 				or ((id.begins_with("unit-") or id.begins_with("resource-")) and id.length() <= 32)
 			)
 		)
@@ -1197,7 +1256,7 @@ func _unit_reference(id):
 	return (
 		(
 			_entity_reference(id)
-			and (id == "" or id.begins_with("unit-"))
+			and (id == "" or id.begins_with("unit-") or _neutral_ids.has(id))
 			and (not entities.has(id) or entities[id].has("role"))
 		)
 		or _fail("Expected a unit reference.")
@@ -1479,7 +1538,7 @@ func _horizon_mission(value):
 		if entities.values().any(
 			func(unit):
 				return (
-					unit.get("role") == "Infantry"
+					InfantryRoster.is_infantry(unit.get("role"))
 					and unit.get("player") == "player-0"
 					and (unit.position * Vector3(1, 0, 1)).distance_to(point) <= 3
 				)
@@ -1494,12 +1553,89 @@ func _ambient(saved, map_path):
 		return _fail("Invalid neutral population.")
 	var seen = {}
 	for record in saved:
-		if not _shape(record, "id:text travel:num stop_left:num phase:num walking:bool"):
+		if not _shape(
+			record,
+			(
+				"id:text travel:num stop_left:num phase:num walking:bool"
+				+ (" combat:dict" if _version >= 11 else "")
+			)
+		):
 			return false
 		var matches = entries.filter(func(entry): return entry.id == record.id)
 		if matches.size() != 1 or seen.has(record.id):
 			return _fail("Invalid neutral identity.")
 		seen[record.id] = true
+		if _version >= 11:
+			var maximum = (
+				load("res://source/match/ambient/AmbientCatalog.gd").STATS[matches[0].kind].health
+			)
+			if not _neutral_combat(record.combat, maximum):
+				return false
+			_neutral_ids["neutral-" + record.id] = false
 		if record.travel >= matches[0].length or record.stop_left > 2.5 or record.phase >= TAU:
 			return _fail("Invalid neutral motion.")
+	return true
+
+
+func _neutral_combat(value, maximum):
+	return (
+		_shape(value, "hp:num death_age:num panic_left:num hit_left:num")
+		and value.hp <= maximum
+		and value.death_age <= 30
+		and value.panic_left <= 7
+		and value.hit_left <= .3
+		and (value.hp == 0 or value.death_age == 0)
+	)
+
+
+func _neutral_buildings(saved, map_path):
+	var catalog = load("res://source/match/ambient/AmbientCatalog.gd")
+	var assets = catalog.structures(map_path)
+	if saved.size() != assets.size():
+		return _fail("Invalid neutral building population.")
+	var assigned = []
+	for index in saved.size():
+		var record = saved[index]
+		if not _shape(record, "id:text combat:dict occupants:list slots:list"):
+			return false
+		if (
+			record.id != "neutral-building-%d" % index
+			or not _neutral_combat(record.combat, catalog.BUILDING_HEALTH)
+		):
+			return _fail("Invalid neutral building state.")
+		_neutral_ids[record.id] = assets[index] in catalog.HABITABLE
+		if assets[index] not in catalog.HABITABLE and not record.occupants.is_empty():
+			return _fail("This neutral structure cannot house infantry.")
+		if (
+			record.occupants.size() > Catalog.GARRISON_CAPACITY
+			or (record.combat.hp == 0 and not record.occupants.is_empty())
+		):
+			return _fail("Invalid garrison capacity.")
+		if record.slots.size() != record.occupants.size():
+			return _fail("Missing garrison slot.")
+		var slots = []
+		for slot in record.slots:
+			if (
+				not _type(slot, "int")
+				or slot < 0
+				or slot >= Catalog.GARRISON_CAPACITY
+				or slot in slots
+			):
+				return _fail("Invalid garrison slot.")
+			slots.append(slot)
+		var owner = ""
+		for id in record.occupants:
+			if not id is String or not entities.has(id) or id in assigned:
+				return _fail("Invalid garrison occupant.")
+			var unit = entities[id]
+			if (
+				not InfantryRoster.is_infantry(unit.get("role"))
+				or (owner != "" and owner != unit.player)
+				or unit.action.get("kind") != "Garrisoning"
+				or not unit.action.get("references", {}) is Dictionary
+				or unit.action.get("references", {}).get("_target_unit") != record.id
+			):
+				return _fail("Invalid garrison ownership or action.")
+			owner = unit.player
+			assigned.append(id)
 	return true

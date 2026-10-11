@@ -6,6 +6,7 @@ const OBSTACLE = preload("res://source/match/units/traits/MovementObstacle.tscn"
 static func place(parent, point, asset, radius = 8.0, model_scale = 1.0):
 	var body = Node3D.new()
 	body.name = asset
+	body.set_meta("neutral_asset", asset)
 	body.position = point
 	parent.add_child(body)
 	var model = load("res://assets/models/environment/industrial/%s.glb" % asset).instantiate()

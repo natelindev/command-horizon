@@ -1,5 +1,7 @@
 extends Node
 
+const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
+
 const Orders = preload("res://source/match/orders/ManualOrders.gd")
 
 const Structure = preload("res://source/match/units/Structure.gd")
@@ -95,6 +97,15 @@ func _navigate_unit_towards_unit(unit, target_unit, rally = false):
 	if "player" in target_unit and target_unit.player != unit.player:
 		if not unit._match.battlefield.is_observed(unit.player, target_unit):
 			return false
+	if (
+		target_unit.has_method("can_garrison")
+		and target_unit.habitable
+		and target_unit.hp > 0
+		and InfantryRoster.is_infantry(unit.type)
+		and (target_unit.player == null or target_unit.player == unit.player)
+	):
+		_submit(unit, Orders.target_order("garrison", target_unit), rally)
+		return true
 	if Actions.Repairing.is_applicable(unit, target_unit):
 		_submit(unit, Orders.target_order("repair", target_unit), rally)
 		return true

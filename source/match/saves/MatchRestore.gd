@@ -194,6 +194,11 @@ func restore(tree, snapshot):
 			"error": "Navigation could not synchronize. Loaded battle remains paused.",
 			"game": game
 		}
+	for target in tree.get_nodes_in_group("neutral_targets"):
+		entities[target.neutral_id] = target
+	if _data.snapshot_version >= 11:
+		for saved in _data.neutral_buildings:
+			entities[saved.id].restore(saved, entities)
 	var actions = Actions.new()
 	for side in _data.players:
 		if side.has("signatures"):

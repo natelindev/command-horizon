@@ -1,5 +1,7 @@
 extends "res://source/match/hud/SkirmishHUD.gd"
 
+const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
+
 var objective_panel: PanelContainer
 var _score: ProgressBar
 var _status: Label
@@ -105,7 +107,7 @@ func _process(delta):
 			)
 			recovery.tooltip_text = (
 				"Select infantry for this relay; idle units come first. Existing orders are preserved."
-				if target != null and target.type == "Infantry"
+				if target != null and InfantryRoster.is_infantry(target.type)
 				else "Select your barracks to train replacement infantry."
 			)
 			if target == null:
@@ -135,7 +137,7 @@ func _capture_unit(index):
 		func(unit):
 			return unit.is_in_group("units") and unit.hp > 0 and not unit.is_queued_for_deletion()
 	)
-	var candidates = units.filter(func(unit): return unit.type == "Infantry")
+	var candidates = units.filter(func(unit): return InfantryRoster.is_infantry(unit.type))
 	if candidates.is_empty():
 		candidates = units.filter(
 			func(unit): return unit.type == "Barracks" and not unit.is_under_construction()
@@ -151,7 +153,7 @@ func _capture_unit(index):
 
 
 func _capture_idle(unit):
-	if unit.type != "Infantry":
+	if not InfantryRoster.is_infantry(unit.type):
 		return false
 	if not unit.manual_orders.pending.is_empty() or not unit.manual_orders.current.is_empty():
 		return false

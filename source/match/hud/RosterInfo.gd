@@ -50,6 +50,8 @@ static func inspect(producer, role, construction):
 		if upgrades != "":
 			lines.append(upgrades)
 	var reasons = PackedStringArray()
+	if role == "Hero" and Factions.hero_reserved(player):
+		reasons.append("A hero is already alive or in training.")
 	var required = "CommandLab" if fitted else Factions.requirement(player, role, construction)
 	if required != "" and not player.has_completed_structure(required):
 		reasons.append("Requires " + Factions.title(player.faction, required) + ".")

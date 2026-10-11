@@ -5,11 +5,9 @@ extends Node3D
 const Actor = preload("res://source/match/ambient/AmbientActor.gd")
 const Catalog = preload("res://source/match/ambient/AmbientCatalog.gd")
 var actors = []
-var residents = []
 var facades = []
 var windows: StandardMaterial3D
 var river_material: ShaderMaterial
-var _replaced_models = []
 var _game
 var _size: Vector2
 var _urban = false
@@ -19,6 +17,7 @@ var _desert = false
 var _lamps = []
 var _overlay: ShaderMaterial
 var _materials = {}
+var _cloths = []
 
 
 func _ready():
@@ -47,7 +46,7 @@ func _ready():
 	_ground_and_river()
 	_district()
 	_civilian_industry()
-	_inhabited_blocks()
+	# Tactical buildings retain their interactive geometry and damage state.
 	_mountains()
 	_population()
 	Globals.options.changed.connect(_apply_options)
@@ -58,8 +57,6 @@ func _apply_options():
 	visible = Globals.options.living_world
 	_overlay.set_shader_parameter("living_world_visibility", .72 if visible else 0.0)
 	set_physics_process(visible)
-	for model in _replaced_models:
-		model.visible = not visible
 
 
 func _material(color):
@@ -145,6 +142,14 @@ func _district():
 			for x in [43, 67, 91]:
 				_lamp(Vector3(x, 0, z))
 				_box("Bench", Vector3(x + 1, .45, z), Vector3(1.4, .16, .45), pavement)
+				for dx in [.5, 1.5]:
+					_box(
+						"BenchLeg",
+						Vector3(x + dx, .23, z),
+						Vector3(.08, .4, .35),
+						_material(Color("344046"))
+					)
+				_box("BenchBack", Vector3(x + 1, .77, z + .17), Vector3(1.4, .4, .07), pavement)
 		for point in [
 			Vector3(47, 0, 32), Vector3(71, 0, 62), Vector3(47, 0, 62), Vector3(71, 0, 32)
 		]:
@@ -201,7 +206,8 @@ func _house(point, dimensions, index):
 	material.set_shader_parameter(
 		"masonry", [Color("89816a"), Color("727d79"), Color("8f6f59"), Color("6e757a")][index % 4]
 	)
-	material.set_shader_parameter("floors", Vector2(4, maxf(2, dimensions.y / 2)))
+	var floors = maxi(2, int(dimensions.y / 2))
+	material.set_shader_parameter("floors", Vector2(4, floors))
 	material.set_shader_parameter("building_size", dimensions)
 	facades.append(material)
 	_box("Residence", point + Vector3(0, dimensions.y / 2, 0), dimensions, material)
@@ -220,6 +226,75 @@ func _house(point, dimensions, index):
 		_material(Color("69796c") if index % 2 else Color("af8a52"))
 	)
 	_box("Door", point + Vector3(0, 1, dimensions.z / 2 + .03), Vector3(.9, 2, .08), roof)
+	var stone = _material(Color("b1aa92"))
+	var glass_trim = _material(Color("344c50"))
+	var front = dimensions.z / 2 + .055
+	for floor_index in floors:
+		for column in 4:
+			var x = -dimensions.x / 2 + (column + .47) * dimensions.x / 4
+			var y = (floor_index + .52) * dimensions.y / floors
+			var window_width = dimensions.x / 8
+			var window_height = dimensions.y / floors * .48
+			_box(
+				"WindowSill",
+				point + Vector3(x, y - window_height / 2, front),
+				Vector3(window_width + .16, .095, .22),
+				stone
+			)
+			_box(
+				"WindowMullion",
+				point + Vector3(x, y, front),
+				Vector3(.04, window_height, .075),
+				glass_trim
+			)
+			_box(
+				"WindowLintel",
+				point + Vector3(x, y + window_height / 2, front),
+				Vector3(window_width + .12, .08, .15),
+				stone
+			)
+	_box("EntranceStep", point + Vector3(0, .12, front + .3), Vector3(1.25, .24, .65), stone)
+	for side in [-1, 1]:
+		_box(
+			"CanopyBracket",
+			point + Vector3(side * dimensions.x * .32, 1.99, front + .35),
+			Vector3(.06, .34, .55),
+			roof
+		)
+		_box(
+			"RainwaterPipe",
+			point + Vector3(side * (dimensions.x / 2 - .28), dimensions.y / 2, front),
+			Vector3(.085, dimensions.y, .09),
+			roof
+		)
+	if not _alpine:
+		for z in [-dimensions.z / 2, dimensions.z / 2]:
+			_box(
+				"RoofParapet",
+				point + Vector3(0, dimensions.y + .34, z),
+				Vector3(dimensions.x + .1, .3, .15),
+				stone
+			)
+		for slot in 5:
+			_box(
+				"RoofPlantLouver",
+				point + Vector3(1, dimensions.y + .3 + slot * .11, 1.86),
+				Vector3(1.45, .035, .04),
+				glass_trim
+			)
+	if dimensions.y > 4 and index % 2 == 0:
+		var balcony = point + Vector3(-dimensions.x * .22, 2.7, front + .35)
+		_box("BalconySlab", balcony, Vector3(1.8, .13, .8), stone)
+		for x in [-.8, 0, .8]:
+			_box("BalconyRailing", balcony + Vector3(x, .4, .35), Vector3(.045, .75, .04), roof)
+		_box("BalconyRail", balcony + Vector3(0, .76, .35), Vector3(1.72, .045, .05), roof)
+		var cloth = _box(
+			"BalconyCloth",
+			balcony + Vector3(.38, .6, .37),
+			Vector3(.5, .45, .02),
+			_material(Color("a19a7a"))
+		)
+		_cloths.append(cloth)
 	if _alpine:
 		_pitched_roof(point, dimensions)
 	var trim = _material(Color("c0b69b"))
@@ -263,34 +338,6 @@ func _pitched_roof(point, dimensions):
 	roof.mesh = surface.commit()
 	roof.position = point
 	add_child(roof)
-
-
-func _inhabited_blocks():
-	if not _game.settings.map_path.ends_with("IndustrialCrossroads.tscn"):
-		return
-	# Reuse two existing solid footprints. Housing stays below the authored
-	# 6.9 m sight / aircraft envelope and inside its 8 m obstacle radius.
-	for block_index in [2, 3]:
-		var body = get_parent().flight_obstacles[block_index]
-		_replaced_models.append(body.get_child(0))
-		for x in [-2.5, 2.5]:
-			for z in [-2.5, 2.5]:
-				_house(
-					body.position + Vector3(x, 0, z),
-					Vector3(4.1, 5.3, 3.8),
-					block_index + int(x + z + 5)
-				)
-	for entry in Catalog.entries(_game.settings.map_path):
-		if entry.kind != "resident":
-			continue
-		var definition = entry.duplicate(true)
-		definition.id = "neighbor-" + entry.id
-		definition.start = fposmod(entry.start + entry.length * .22, entry.length)
-		var actor = Actor.new()
-		actor.setup(definition)
-		add_child(actor)
-		actors.append(actor)
-		residents.append(actor)
 
 
 func _tree(point, size_factor):
@@ -360,7 +407,7 @@ func _population():
 	Catalog._add(entries, "fox", [[3, -34], [22, -34], [22, -39], [3, -39]], 3)
 	for entry in entries:
 		var actor = Actor.new()
-		actor.setup(entry)
+		actor.setup(entry, false)
 		add_child(actor)
 		actors.append(actor)
 
@@ -368,11 +415,10 @@ func _population():
 func _physics_process(delta):
 	if not _game.is_node_ready():
 		return
+	for cloth in _cloths:
+		cloth.rotation.x = sin(_game.simulation_time * 1.6 + cloth.position.x) * .09
 	# Scenic routes are outside tactical space and derive from the saved clock.
 	for actor in actors:
-		if actor in residents:
-			actor.advance(delta, _game)
-			continue
 		var speed = {"resident": .8, "car": 2.6, "gull": 3.4, "fox": 1.1}[actor.entry.kind]
 		actor.travel = fposmod(
 			actor.entry.start + _game.simulation_time * speed, actor.entry.length

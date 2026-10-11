@@ -1,5 +1,7 @@
 extends RefCounted
 
+const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
+
 const Factions = preload("res://source/match/FactionCatalog.gd")
 const Catalog = preload("res://source/match/BastionCatalog.gd")
 const Rules = preload("res://source/match/combat/CombatRules.gd")
@@ -21,7 +23,7 @@ static func observed(game, player):
 			threats.air += 1
 		elif Rules.armor_for(unit.type) == 2:
 			threats.armor += 1
-		elif unit.type == "Infantry":
+		elif InfantryRoster.is_infantry(unit.type):
 			threats.infantry += 1
 	return threats
 

@@ -92,6 +92,17 @@ static func _choice(player, producer, counts, threats, sequence):
 			if counts.get("Worker", 0) < 6:
 				return {"role": "Worker", "priority": 0}
 		"Barracks":
+			if counts.get("Infantry", 0) < 4:
+				return {"role": "Infantry", "priority": 2}
+			if counts.get("Hero", 0) == 0 and Factions.available(player, "Hero"):
+				return {"role": "Hero", "priority": 4}
+			var preferred = (
+				"RocketInfantry" if threats.armor > threats.infantry else "SniperInfantry"
+			)
+			var roles = [preferred, "AssaultInfantry", "RocketInfantry", "SniperInfantry"]
+			for role in roles:
+				if counts.get(role, 0) < (2 if role == preferred else 1):
+					return {"role": role, "priority": 2}
 			if counts.get("Infantry", 0) < Composition.infantry_target(player, threats):
 				return {"role": "Infantry", "priority": 2}
 		"VehicleFactory":

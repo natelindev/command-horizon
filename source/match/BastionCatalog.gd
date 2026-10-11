@@ -1,10 +1,16 @@
 extends RefCounted
 
 const STRUCTURE_LIMIT = 40
+const INFANTRY_ROLES = ["Infantry", "RocketInfantry", "SniperInfantry", "AssaultInfantry", "Hero"]
+const GARRISON_CAPACITY = 8
 
 const MISSION_NAMES = {"SupplyTruck": "Supply truck", "EvacTransport": "Rescue VTOL"}
 
 const NAMES = {
+	"RocketInfantry": "Anti-armor infantry",
+	"SniperInfantry": "Sniper",
+	"AssaultInfantry": "Assault infantry",
+	"Hero": "Marshal Aegis",
 	"Worker": "Engineer rover",
 	"Infantry": "Rifle infantry",
 	"Tank": "Bastion tank",
@@ -24,6 +30,14 @@ const NAMES = {
 	"AntiAirTurret": "Missile battery",
 }
 const DESCRIPTIONS = {
+	"RocketInfantry":
+	"Shoulder-launched rockets break heavy armor and structures; slow reload, weak against infantry.",
+	"SniperInfantry":
+	"Long-range precision rifle against infantry. Fragile and ineffective against heavy armor.",
+	"AssaultInfantry":
+	"Armored close-range assault troops. Rapid fire against infantry; vulnerable to long-range weapons.",
+	"Hero":
+	"Unique faction hero. One alive or in training per player; can retrain after death. Requires a command lab.",
 	"Worker": "Harvest materials and electronics. Construct your base.",
 	"Infantry":
 	(
@@ -53,7 +67,8 @@ const DESCRIPTIONS = {
 		+ "return to an airfield for service."
 	),
 	"CommandCenter": "Produces engineer rovers. Receives harvested resources. Supplies 20 power.",
-	"Barracks": "Trains rifle infantry. Two infantry recovery slots within 5 m. Uses 3 power.",
+	"Barracks":
+	"Trains four infantry classes and a unique hero. Two infantry recovery slots within 5 m. Uses 3 power.",
 	"VehicleFactory": "Produces armor and support robots. Uses 6 power.",
 	"AircraftFactory":
 	"Produces scouts and strike aircraft. Two aircraft service slots within 5 m. Uses 8 power.",
@@ -71,7 +86,7 @@ const DESCRIPTIONS = {
 }
 const PRODUCES = {
 	"CommandCenter": ["Worker"],
-	"Barracks": ["Infantry"],
+	"Barracks": INFANTRY_ROLES,
 	"VehicleFactory": ["Tank", "RepairRobot", "CombatRobot", "AdvancedTank"],
 	"AircraftFactory": ["Drone", "Helicopter"],
 }
@@ -86,7 +101,7 @@ const STRUCTURES = [
 	"AntiGroundTurret",
 	"AntiAirTurret"
 ]
-const REQUIRES = {"AdvancedTank": "CommandLab", "CombatRobot": "CommandLab"}
+const REQUIRES = {"Hero": "CommandLab", "AdvancedTank": "CommandLab", "CombatRobot": "CommandLab"}
 const POWER_SUPPLY = {"CommandCenter": 20, "PowerPlant": 25}
 const POWER_USAGE = {
 	"Barracks": 3,
@@ -104,7 +119,13 @@ static func scene_path(unit_type):
 	return "res://source/match/units/%s.tscn" % unit_type
 
 
+static func is_infantry(role):
+	return role in INFANTRY_ROLES
+
+
 static func icon_path(unit_type):
+	if unit_type in INFANTRY_ROLES and unit_type != "Infantry":
+		return "res://assets/ui/infantry/%s.svg" % unit_type
 	if unit_type in STRUCTURES:
 		return "res://assets/ui/bastion/structures-v2/%s.png" % unit_type
 	return "res://assets/ui/bastion/%s.png" % unit_type

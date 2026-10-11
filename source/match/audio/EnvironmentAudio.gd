@@ -121,7 +121,7 @@ func _process(delta):
 
 
 func _audible(actor):
-	if not is_instance_valid(actor) or actor.is_queued_for_deletion():
+	if not is_instance_valid(actor) or actor.is_queued_for_deletion() or actor.hp <= 0:
 		return false
 	if _camera.is_position_behind(actor.global_position):
 		return false

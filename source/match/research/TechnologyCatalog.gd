@@ -1,6 +1,17 @@
 extends RefCounted
 
-const COMBAT_ROLES = ["Infantry", "Tank", "CombatRobot", "AdvancedTank", "Helicopter"]
+const COMBAT_ROLES = [
+	"Infantry",
+	"RocketInfantry",
+	"SniperInfantry",
+	"AssaultInfantry",
+	"Hero",
+	"Tank",
+	"CombatRobot",
+	"AdvancedTank",
+	"Helicopter"
+]
+
 const BRANCHES = ["weapons", "armor", "service", "doctrine"]
 const ITEMS = {
 	"weapons_1":

@@ -80,9 +80,14 @@ func can_observe_point(observer, point, ignored_target = null):
 	if observer.has_method("is_constructed") and not observer.is_constructed():
 		return false
 	var origin = observer.global_position + Vector3.UP * 0.8
+	var reach = observer.sight_range
+	if observer.has_meta("garrison_host"):
+		reach += observer.get_meta("garrison_host").radius + 2.0
+	if is_instance_valid(ignored_target) and ignored_target.is_in_group("neutral_buildings"):
+		reach += ignored_target.radius
 	var offset = (point - origin) * Vector3(1, 0, 1)
 	return (
-		offset.length_squared() <= observer.sight_range * observer.sight_range
+		offset.length_squared() <= reach * reach
 		and line_clear(origin, point, observer, ignored_target)
 	)
 
@@ -139,7 +144,17 @@ func fireable_targets(source):
 	if not is_instance_valid(source) or source.attack_range == null:
 		return result
 	var origin = source.global_position_yless
-	for candidate in nearby_units(origin, source.attack_range):
+	for candidate in nearby_combat_targets(
+		origin,
+		(
+			source.attack_range
+			+ (
+				source.get_meta("garrison_host").radius + 2.0
+				if source.has_meta("garrison_host")
+				else 0.0
+			)
+		)
+	):
 		if can_fire(source, candidate):
 			result.append(candidate)
 	return result
@@ -156,6 +171,8 @@ func has_line_of_fire(source, target):
 
 func line_clear(origin, end, ignored_source = null, ignored_target = null):
 	_refresh()
+	if is_instance_valid(ignored_source) and ignored_source.has_meta("garrison_host"):
+		ignored_source = ignored_source.get_meta("garrison_host")
 	var low = _cell(origin.min(end))
 	var high = _cell(origin.max(end))
 	var checked = {}
@@ -165,7 +182,13 @@ func line_clear(origin, end, ignored_source = null, ignored_target = null):
 				var body = entry.body
 				if not is_instance_valid(body) or body.is_queued_for_deletion():
 					continue
-				if body == ignored_source or body == ignored_target or checked.has(body):
+				if (
+					body == ignored_source
+					or body == ignored_target
+					or (is_instance_valid(ignored_source) and body.is_ancestor_of(ignored_source))
+					or (is_instance_valid(ignored_target) and body.is_ancestor_of(ignored_target))
+					or checked.has(body)
+				):
 					continue
 				checked[body] = true
 				if body.has_method("is_constructed") and not body.is_constructed():
@@ -209,7 +232,7 @@ func observed_enemies_near(source, radius):
 	# Broad-phase culling belongs to perception, not to a program's world view.
 	# Only currently observed enemies leave this query.
 	var result = []
-	for candidate in nearby_units(source.global_position_yless, radius):
+	for candidate in nearby_combat_targets(source.global_position_yless, radius):
 		if Rules.can_target(source, candidate) and is_observed(source.player, candidate):
 			result.append(candidate)
 	return result
@@ -234,4 +257,16 @@ func nearby_units(point, radius, player_filter = null):
 						and unit.global_position_yless.distance_squared_to(point) <= radius * radius
 					):
 						result.append(unit)
+	return result
+
+
+func nearby_combat_targets(point, radius):
+	var result = nearby_units(point, radius)
+	for building in get_tree().get_nodes_in_group("neutral_buildings"):
+		if building.player != null and building.hp > 0:
+			if (
+				building.global_position_yless.distance_squared_to(point)
+				<= (radius + building.radius) * (radius + building.radius)
+			):
+				result.append(building)
 	return result

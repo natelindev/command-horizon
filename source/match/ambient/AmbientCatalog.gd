@@ -1,5 +1,60 @@
 extends RefCounted
 
+const STATS = {
+	"car": {"health": 95.0, "radius": 1.45, "height": 1.25, "speed": 2.8},
+	"resident": {"health": 22.0, "radius": .4, "height": 1.6, "speed": .85},
+	"fox": {"health": 18.0, "radius": .55, "height": 1.05, "speed": 1.2},
+	"gull": {"health": 12.0, "radius": .5, "height": .7, "speed": 3.5},
+	"tug": {"health": 220.0, "radius": 1.8, "height": 2.4, "speed": 1.3}
+}
+
+const BUILDING_HEALTH = 420.0
+const HABITABLE = [
+	"SawtoothWorkshop",
+	"CoolingHall",
+	"ServiceOffice",
+	"DamagedWarehouse",
+	"ServiceRuin",
+	"PumpStation",
+	"RelaySubstation"
+]
+# Stable authored order is also the save identity of repeated landmark models.
+const STRUCTURES = {
+	"IndustrialCrossroads":
+	[
+		"SawtoothWorkshop",
+		"CoolingHall",
+		"ServiceOffice",
+		"DamagedWarehouse",
+		"SawtoothWorkshop",
+		"ServiceOffice"
+	],
+	"BrokenFoundryMap":
+	[
+		"SawtoothWorkshop",
+		"CoolingHall",
+		"ServiceOffice",
+		"DamagedWarehouse",
+		"FurnaceBlock",
+		"FurnaceBlock"
+	],
+	"CommandHorizonMap": ["ServiceRuin", "PumpStation", "RelaySubstation"],
+	"CoastalFoundry":
+	[
+		"SawtoothWorkshop",
+		"HarborCrane",
+		"HarborBeacon",
+		"CoolingHall",
+		"HarborCrane",
+		"HarborBeacon",
+		"CargoBarge"
+	]
+}
+
+
+static func structures(map_path):
+	return STRUCTURES.get(map_path.get_file().get_basename(), [])
+
 
 # Authored loops are map content, never executable or editable archive data.
 static func entries(map_path):

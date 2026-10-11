@@ -1,5 +1,7 @@
 extends RefCounted
 
+const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
+
 const Economy = preload("res://source/match/players/skirmish-ai/SkirmishEconomy.gd")
 const Harvest = preload("res://source/match/units/actions/CollectingResourcesSequentially.gd")
 const AttackMove = preload("res://source/match/units/actions/AttackMoving.gd")
@@ -186,7 +188,7 @@ static func _candidate(game, player, kind, groups, free, fields):
 					relay.captured_by != player and _unassigned(groups, kind, relay.position, 3.0)
 				)
 		)
-		var infantry = free.filter(func(unit): return unit.type == "Infantry")
+		var infantry = free.filter(func(unit): return InfantryRoster.is_infantry(unit.type))
 		if not relays.is_empty() and not infantry.is_empty():
 			_nearest(relays, infantry[0].position)
 			var point = relays[0].position * Vector3(1, 0, 1)

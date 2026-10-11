@@ -1,5 +1,7 @@
 extends "res://source/match/Skirmish.gd"
 
+const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
+
 const Progress = preload("res://source/match/campaign/CampaignProgress.gd")
 const Library = preload("res://source/match/programs/ProgramLibrary.gd")
 const AttackMove = preload("res://source/match/units/actions/AttackMoving.gd")
@@ -163,7 +165,8 @@ func has_deployment_infantry():
 	if battlefield == null or human == null:
 		return false
 	return battlefield.nearby_units(map.DEPLOYMENT, map.relay.RADIUS).any(
-		func(unit): return unit.player == human and unit.type == "Infantry" and _alive(unit)
+		func(unit):
+			return unit.player == human and InfantryRoster.is_infantry(unit.type) and _alive(unit)
 	)
 
 

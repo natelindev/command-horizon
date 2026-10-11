@@ -81,6 +81,9 @@ func _ready():
 	ownership_layer.add_child(load("res://source/match/hud/OwnershipOverlay.gd").new())
 	var living_world = load("res://source/match/environment/LivingWorld.gd").new()
 	map.add_child(living_world)
+	var neutral_world = load("res://source/match/ambient/NeutralWorld.gd").new()
+	neutral_world.name = "NeutralWorld"
+	add_child(neutral_world)
 	var atmosphere = load("res://source/match/environment/WorldAtmosphere.gd").new()
 	add_child(atmosphere)
 	MatchSignals.match_started.emit()

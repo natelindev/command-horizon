@@ -1,5 +1,7 @@
 extends Node3D
 
+const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
+
 signal captured(player)
 
 const CAPTURE_SECONDS = 10.0
@@ -73,7 +75,7 @@ func _capture_presence():
 			continue
 		if unit.player not in combatants:
 			combatants.append(unit.player)
-		if unit.type == "Infantry" and unit.player not in infantry:
+		if InfantryRoster.is_infantry(unit.type) and unit.player not in infantry:
 			infantry.append(unit.player)
 	return {"infantry": infantry, "combatants": combatants}
 

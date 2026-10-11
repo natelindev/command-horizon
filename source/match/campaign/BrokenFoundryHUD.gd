@@ -111,7 +111,17 @@ func _select(role):
 	MatchSignals.deselect_all_units.emit()
 	var units = get_parent()._get_human_player().get_children().filter(
 		func(unit):
-			return unit.is_in_group("units") and unit.type == role and get_parent()._alive(unit)
+			return (
+				unit.is_in_group("units")
+				and (
+					unit.type == role
+					or (
+						role == "Infantry"
+						and load("res://source/match/BastionCatalog.gd").is_infantry(unit.type)
+					)
+				)
+				and get_parent()._alive(unit)
+			)
 	)
 	for unit in units:
 		unit.get_node("Selection").select()

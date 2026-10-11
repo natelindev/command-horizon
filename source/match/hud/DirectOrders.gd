@@ -18,7 +18,7 @@ const COMMANDS = {
 		"title": "Attack target",
 		"action": "attack_target",
 		"description":
-		"Attack a visible enemy. On lost sight, visit its last known position and hold."
+		"Attack a visible enemy or neutral target. On lost sight, visit its last known position and hold."
 	},
 	"attack_move":
 	{
@@ -233,7 +233,7 @@ func prompt(message = ""):
 	hud._assignment_hint.text = (
 		(
 			(
-				"Attack target: choose a visible enemy."
+				"Attack target: choose a visible enemy or neutral target."
 				if kind == "attack"
 				else COMMANDS[kind].title + ": choose a destination."
 			)
@@ -288,10 +288,10 @@ func commit(point, target, append):
 		if (
 			not is_instance_valid(target)
 			or target.is_queued_for_deletion()
-			or not target.is_in_group("adversary_units")
+			or not (target.is_in_group("adversary_units") or target.is_in_group("neutral_targets"))
 			or not hud.get_parent().battlefield.is_observed(units[0].player, target)
 		):
-			prompt("Choose a visible enemy.")
+			prompt("Choose a visible enemy or neutral target.")
 			return false
 		for unit in units:
 			if Rules.can_target(unit, target):

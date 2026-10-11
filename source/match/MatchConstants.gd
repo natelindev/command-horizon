@@ -70,6 +70,10 @@ class Resources:
 
 class Units:
 	const PRODUCTION_COSTS = {
+		"res://source/match/units/Hero.tscn": {"resource_a": 48, "resource_b": 24},
+		"res://source/match/units/AssaultInfantry.tscn": {"resource_a": 10, "resource_b": 2},
+		"res://source/match/units/SniperInfantry.tscn": {"resource_a": 12, "resource_b": 6},
+		"res://source/match/units/RocketInfantry.tscn": {"resource_a": 12, "resource_b": 4},
 		"res://source/match/units/Infantry.tscn": {"resource_a": 4, "resource_b": 0},
 		"res://source/match/units/RepairRobot.tscn": {"resource_a": 8, "resource_b": 4},
 		"res://source/match/units/CombatRobot.tscn": {"resource_a": 12, "resource_b": 8},
@@ -96,6 +100,10 @@ class Units:
 		},
 	}
 	const PRODUCTION_TIMES = {
+		"res://source/match/units/Hero.tscn": 40.0,
+		"res://source/match/units/AssaultInfantry.tscn": 12.0,
+		"res://source/match/units/SniperInfantry.tscn": 16.0,
+		"res://source/match/units/RocketInfantry.tscn": 14.0,
 		"res://source/match/units/Infantry.tscn": 3.0,
 		"res://source/match/units/RepairRobot.tscn": 6.0,
 		"res://source/match/units/CombatRobot.tscn": 8.0,
@@ -158,6 +166,46 @@ class Units:
 		},
 	}
 	const DEFAULT_PROPERTIES = {
+		"res://source/match/units/Hero.tscn":
+		{
+			"hp": 110,
+			"hp_max": 110,
+			"attack_damage": 9,
+			"attack_interval": 0.65,
+			"attack_range": 6.0,
+			"sight_range": 10.0,
+			"attack_domains": [Navigation.Domain.TERRAIN]
+		},
+		"res://source/match/units/AssaultInfantry.tscn":
+		{
+			"hp": 42,
+			"hp_max": 42,
+			"attack_damage": 4,
+			"attack_interval": 0.4,
+			"attack_range": 3.5,
+			"sight_range": 7.0,
+			"attack_domains": [Navigation.Domain.TERRAIN]
+		},
+		"res://source/match/units/SniperInfantry.tscn":
+		{
+			"hp": 20,
+			"hp_max": 20,
+			"attack_damage": 12,
+			"attack_interval": 2.1,
+			"attack_range": 9.0,
+			"sight_range": 10.0,
+			"attack_domains": [Navigation.Domain.TERRAIN]
+		},
+		"res://source/match/units/RocketInfantry.tscn":
+		{
+			"hp": 32,
+			"hp_max": 32,
+			"attack_damage": 11,
+			"attack_interval": 2.3,
+			"attack_range": 6.5,
+			"sight_range": 8.0,
+			"attack_domains": [Navigation.Domain.TERRAIN]
+		},
 		"res://source/match/units/EvacTransport.tscn":
 		{"hp": 150, "hp_max": 150, "sight_range": 8.0},
 		"res://source/match/units/SupplyTruck.tscn": {"hp": 180, "hp_max": 180, "sight_range": 7.0},
@@ -269,6 +317,14 @@ class Units:
 		},
 	}
 	const PROJECTILES = {
+		"res://source/match/units/Hero.tscn":
+		"res://source/match/units/projectiles/CannonShell.tscn",
+		"res://source/match/units/AssaultInfantry.tscn":
+		"res://source/match/units/projectiles/CannonShell.tscn",
+		"res://source/match/units/SniperInfantry.tscn":
+		"res://source/match/units/projectiles/CannonShell.tscn",
+		"res://source/match/units/RocketInfantry.tscn":
+		"res://source/match/units/projectiles/Rocket.tscn",
 		"res://source/match/units/Infantry.tscn":
 		"res://source/match/units/projectiles/CannonShell.tscn",
 		"res://source/match/units/CombatRobot.tscn":

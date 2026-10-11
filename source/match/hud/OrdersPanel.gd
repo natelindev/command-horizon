@@ -6,6 +6,7 @@ var selection = []
 var _status
 var _resume
 var _skip
+var _eject
 var _clear
 
 
@@ -26,6 +27,10 @@ func _ready():
 	_clear.text = "Clear waiting"
 	_clear.pressed.connect(func(): _each(func(orders): orders.clear_waiting()))
 	row.add_child(_clear)
+	_eject = Button.new()
+	_eject.text = "Leave building"
+	_eject.pressed.connect(_leave_building)
+	row.add_child(_eject)
 	_resume = CheckBox.new()
 	_resume.text = "Auto-resume program"
 	_resume.add_theme_font_size_override("font_size", 12)
@@ -53,6 +58,7 @@ func refresh():
 	)
 	if units.is_empty():
 		return
+	_eject.visible = units.any(func(unit): return unit.has_meta("garrison_host"))
 	var first = units[0].manual_orders
 	var same = units.all(func(unit): return unit.manual_orders.status == first.status)
 	_status.text = (
@@ -70,6 +76,8 @@ func refresh():
 		_status.text = (
 			"Hold %s + right-click to queue orders." % Bindings.label("shift_selecting")
 		)
+	if units.all(func(unit): return unit.has_meta("garrison_host")):
+		_status.text = tr("Garrisoned · Move to leave")
 	_status.tooltip_text = (
 		"Solid route: active order. Dashed route: waiting orders. "
 		+ "Gathering yields after the next delivery. Follow continues until target loss or Skip."
@@ -80,3 +88,11 @@ func refresh():
 	var any_resume = units.any(func(unit): return unit.manual_orders.auto_resume)
 	_resume.set_pressed_no_signal(all_resume)
 	_resume.text = "Auto-resume: mixed" if any_resume and not all_resume else "Auto-resume program"
+
+
+func _leave_building():
+	for unit in selection:
+		if is_instance_valid(unit) and unit.has_meta("garrison_host"):
+			unit.manual_orders.cancel()
+			unit.action = null
+	refresh()

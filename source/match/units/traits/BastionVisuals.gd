@@ -1,5 +1,7 @@
 extends Node
 
+const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
+
 const MotionProfile = preload("res://source/match/units/traits/UnitMotionProfile.gd")
 var motion
 var _wheel_motion = null
@@ -96,7 +98,7 @@ func hit_reaction(source_position = Vector3.INF):
 
 
 func death_motion():
-	return motion.death_motion(_unit.type == "Infantry", _airborne, _mobile)
+	return motion.death_motion(InfantryRoster.is_infantry(_unit.type), _airborne, _mobile)
 
 
 func _physics_process(delta):
@@ -190,7 +192,7 @@ func _update_body(moving):
 	var articulated = not _legs.is_empty()
 	_geometry.position.y += breath * (0.013 if articulated else 0.004)
 	_geometry.rotation.z += gesture * (0.032 if articulated else 0.008)
-	_geometry.rotation.y += gesture * (0.045 if _unit.type == "Infantry" else 0.008)
+	_geometry.rotation.y += gesture * (0.045 if InfantryRoster.is_infantry(_unit.type) else 0.008)
 	if moving:
 		_geometry.position.y += absf(sin(_phase)) * (0.035 if articulated else 0.006)
 		_geometry.rotation.z += sin(_phase) * (0.012 if articulated else 0.004)

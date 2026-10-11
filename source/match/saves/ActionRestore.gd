@@ -93,7 +93,7 @@ func _instantiate(kind, state, refs, unit):
 			return script.new(state._target_position)
 		"AttackMoving":
 			return script.new(state.destination)
-		"AutoAttacking":
+		"AutoAttacking", "Garrisoning":
 			return script.new(target)
 		"WaitingForTargets":
 			return script.new()
@@ -181,6 +181,7 @@ func _targets_available(saved):
 		return true
 	var required = {
 		"MovingToUnit": "_target_unit",
+		"Garrisoning": "_target_unit",
 		"Following": "_target_unit",
 		"FollowingToReachDistance": "_target_unit",
 		"Constructing": "_target_unit",

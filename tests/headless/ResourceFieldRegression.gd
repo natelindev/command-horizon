@@ -231,6 +231,9 @@ func _roundtrip(legacy = false):
 		return
 	if legacy:
 		data.snapshot_version = 4
+		data.erase("neutral_buildings")
+		for ambient in data.get("ambient", []):
+			ambient.erase("combat")
 		data.erase("battle_record")
 		for resource in data.resources:
 			resource.erase("wreck")

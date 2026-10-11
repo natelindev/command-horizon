@@ -1,5 +1,7 @@
 extends Node3D
 
+const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
+
 # Shared GPU particle buffers and bounded tracer/wreck pools, independent of combat authority.
 const MAX_TRACERS = 96
 const MAX_WRECKS = 24
@@ -152,7 +154,7 @@ func destruction(unit):
 	if _headless or not unit.visible:
 		return
 	var point = unit.global_position + Vector3.UP * 0.35
-	var infantry = unit.type == "Infantry"
+	var infantry = InfantryRoster.is_infantry(unit.type)
 	var size = clampf(unit.radius, 0.5, 2.0)
 	if not infantry:
 		_puff("flash", point, Vector3.ZERO, Color("ffe0a0"), size * 3.0)

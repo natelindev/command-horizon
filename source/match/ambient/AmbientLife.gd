@@ -15,6 +15,7 @@ func _ready():
 		actors.append(actor)
 	if not _game.is_node_ready():
 		await _game.ready
+	MatchSignals.unit_weapon_hit.connect(_nearby_combat)
 	Globals.options.changed.connect(refresh_visibility)
 	refresh_visibility()
 
@@ -42,3 +43,9 @@ func restore(saved):
 	for actor in actors:
 		actor.restore(by_id[actor.entry.id])
 	refresh_visibility()
+
+
+func _nearby_combat(target, _source):
+	for actor in actors:
+		if actor.hp > 0 and actor.global_position.distance_to(target.global_position) < 12:
+			actor.panic_left = 7.0

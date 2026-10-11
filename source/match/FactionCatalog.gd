@@ -77,7 +77,8 @@ const HELIX_DESCRIPTIONS = {
 		+ "return to a flight deck for service."
 	),
 	"CommandCenter": "Produces Mule engineers, receives harvested resources and supplies 20 power.",
-	"Barracks": "Trains Vector operators. Two infantry recovery slots within 5 m. Uses 3 power.",
+	"Barracks":
+	"Trains four infantry classes and a unique hero. Two infantry recovery slots within 5 m. Uses 3 power.",
 	"CommandLab":
 	(
 		"With a robotics foundry, unlocks chip programs, Lancers and Wraiths. Research "
@@ -109,6 +110,10 @@ const BUILD_TIMES = {
 	"AntiAirTurret": 20.0,
 }
 const UNIT_TIMES = {
+	"Hero": 40.0,
+	"AssaultInfantry": 12.0,
+	"SniperInfantry": 16.0,
+	"RocketInfantry": 14.0,
 	"Worker": 8.0,
 	"Infantry": 8.0,
 	"Tank": 20.0,
@@ -129,6 +134,13 @@ const BUILD_REQUIRES = {
 
 
 static func title(faction, role):
+	if role == "Hero":
+		return (
+			{"bastion": "Marshal Aegis", "helix": "Spectre Nyx", "frontier": "Pathfinder Rook"}
+			. get(faction, "Marshal Aegis")
+		)
+	if role in Bastion.INFANTRY_ROLES and role != "Infantry":
+		return Bastion.NAMES[role]
 	if role in Bastion.MISSION_NAMES:
 		return Bastion.MISSION_NAMES[role]
 	if faction == "frontier":
@@ -137,6 +149,8 @@ static func title(faction, role):
 
 
 static func icon(faction, role):
+	if role in Bastion.INFANTRY_ROLES and role != "Infantry":
+		return Bastion.icon_path(role)
 	if faction == "frontier":
 		return "res://assets/ui/frontier/%s.png" % Frontier.MODELS[role]
 	return (
@@ -147,6 +161,15 @@ static func icon(faction, role):
 
 
 static func description(faction, role):
+	if role == "Hero":
+		return {
+			"bastion":
+			"Marshal Aegis: armored frontline hero with a rapid heavy rifle. One alive or training; retrain after death. Requires a command lab.",
+			"helix":
+			"Spectre Nyx: mobile precision hero with a long-range anti-armor lance. One alive or training; retrain after death. Requires a command lab.",
+			"frontier":
+			"Pathfinder Rook: fast assault hero with a heavy automatic rifle. One alive or training; retrain after death. Requires a command lab."
+		}[faction]
 	if faction == "frontier" and Frontier.DESCRIPTIONS.has(role):
 		return Frontier.DESCRIPTIONS[role]
 	if role == "RepairRobot":
@@ -187,7 +210,26 @@ static func requirement(player, role, building = false):
 	return Bastion.REQUIRES.get(role, "")
 
 
-static func available(player, role, building = false):
+static func hero_reserved(player, ignore_job = null):
+	for unit in player.get_children():
+		if not "type" in unit or unit.is_queued_for_deletion() or unit.hp == null or unit.hp <= 0:
+			continue
+		if unit.type == "Hero":
+			return true
+		var queue = unit.get_node_or_null("ProductionQueue")
+		if queue != null:
+			for job in queue.get_elements():
+				if (
+					job != ignore_job
+					and Bastion.type_from_path(job.unit_prototype.resource_path) == "Hero"
+				):
+					return true
+	return false
+
+
+static func available(player, role, building = false, ignore_job = null):
+	if role == "Hero" and hero_reserved(player, ignore_job):
+		return false
 	if (
 		building
 		and player.get_meta("skirmish", false)
@@ -202,13 +244,15 @@ static func available(player, role, building = false):
 
 
 static func prepare_model(unit, faction):
-	if faction not in ["helix", "frontier"]:
-		return
 	var geometry = unit.get_node("Geometry")
-	for child in geometry.get_children():
-		child.free()
-	geometry.add_child(model_geometry(faction, unit.type, unit.radius))
-	unit.set_meta("model_faction", faction)
+	if faction in ["helix", "frontier"]:
+		for child in geometry.get_children():
+			child.free()
+		var model_role = "Infantry" if Bastion.is_infantry(unit.type) else unit.type
+		geometry.add_child(model_geometry(faction, model_role, unit.radius))
+		unit.set_meta("model_faction", faction)
+	if Bastion.is_infantry(unit.type):
+		load("res://source/match/units/traits/InfantryEquipment.gd").equip(unit, faction)
 
 
 static func helix_geometry(role, radius):
@@ -262,10 +306,26 @@ static func signature_cooldown(faction):
 
 
 static func apply_stats(unit):
+	if unit.type == "RocketInfantry":
+		unit.get_node("Movement").speed *= .82
+	elif unit.type == "SniperInfantry":
+		unit.get_node("Movement").speed *= .9
+	elif unit.type == "Hero":
+		match unit.player.faction:
+			"helix":
+				unit.attack_damage = 15
+				unit.attack_interval = 1.5
+				unit.attack_range = 9.0
+			"frontier":
+				unit.attack_damage = 7
+				unit.attack_interval = .45
+				unit.attack_range = 5.0
 	if unit.player.faction == "frontier" and unit.movement_speed > 0:
 		unit.hp_max = roundi(unit.hp_max * health_factor("frontier"))
 		unit.hp = unit.hp_max
-		unit.get_node("Movement").speed *= 1.2 if unit.type in ["Infantry", "Drone"] else 1.1
+		unit.get_node("Movement").speed *= (
+			1.2 if (Bastion.is_infantry(unit.type) or unit.type == "Drone") else 1.1
+		)
 		if unit.type == "Drone":
 			unit.sight_range += 2.0
 		if unit.type == "AdvancedTank":

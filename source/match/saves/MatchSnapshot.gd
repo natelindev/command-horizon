@@ -5,6 +5,7 @@ const Campaigns = preload("res://source/match/campaign/CampaignCatalog.gd")
 const Values = preload("res://source/match/saves/SaveValue.gd")
 const Record = preload("res://source/match/programs/ProgramRecord.gd")
 const ACTION_FIELDS = {
+	"Garrisoning": ["_elapsed"],
 	"Moving": ["_target_position", "_arrival_elapsed", "_arrival_progress"],
 	"MovingToUnit": ["_target_position"],
 	"AttackMoving": ["destination", "_elapsed", "_arrival_elapsed", "_arrival_progress"],
@@ -75,6 +76,8 @@ func capture(game):
 		_ids[units[index]] = "unit-%d" % index
 	for index in range(deposits.size()):
 		_ids[deposits[index]] = "resource-%d" % index
+	for target in game.get_tree().get_nodes_in_group("neutral_targets"):
+		_ids[target] = target.neutral_id
 	var settings = _properties(
 		game.settings,
 		[
@@ -96,7 +99,7 @@ func capture(game):
 		)
 	var camera = game.get_node("IsometricCamera3D")
 	var result = {
-		"snapshot_version": 10,
+		"snapshot_version": 11,
 		"map_revision": 1,
 		"settings": settings,
 		"simulation_time": game.simulation_time,
@@ -111,6 +114,7 @@ func capture(game):
 		"mission": {},
 		"ambient":
 		game.map.get_node("AmbientLife").capture() if game.map.has_node("AmbientLife") else [],
+		"neutral_buildings": game.get_node("NeutralWorld").capture(_reference),
 		"fog": _fog(),
 		"structure_memory": _structure_memory(),
 	}

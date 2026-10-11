@@ -1,0 +1,14 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+PAID PATH bastion infantry=4 tank=1 chip=true program=Running
+PAID OPENING VERIFIED bastion time=193.350000000046 spent=(151, 52)
+PAID PATH helix infantry=4 tank=1 chip=true program=Running
+PAID OPENING VERIFIED helix time=181.250000000036 spent=(149, 56)
+PAID PATH frontier infantry=4 tank=1 chip=true program=Running
+PAID OPENING VERIFIED frontier time=180.233333333369 spent=(145, 48)
+Opening infantry: 0 failures
+ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 4 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

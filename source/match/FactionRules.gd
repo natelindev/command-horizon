@@ -3,6 +3,10 @@ extends RefCounted
 # Pure values shared with inert archive validation. No autoload or scene dependencies.
 const Frontier = preload("res://source/match/FrontierCatalog.gd")
 const UNIT_COSTS = {
+	"Hero": [48, 24],
+	"AssaultInfantry": [10, 2],
+	"SniperInfantry": [12, 6],
+	"RocketInfantry": [12, 4],
 	"Worker": [6, 0],
 	"Infantry": [6, 0],
 	"Tank": [24, 6],
@@ -13,6 +17,10 @@ const UNIT_COSTS = {
 	"Helicopter": [32, 20],
 }
 const HELIX_COSTS = {
+	"Hero": [48, 24],
+	"AssaultInfantry": [10, 2],
+	"SniperInfantry": [12, 6],
+	"RocketInfantry": [12, 4],
 	"Worker": [6, 0],
 	"Infantry": [6, 0],
 	"Tank": [22, 10],

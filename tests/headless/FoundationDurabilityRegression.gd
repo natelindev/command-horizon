@@ -146,6 +146,9 @@ func _legacy_foundations():
 		fixtures.append(site)
 	var data = builder.capture(game)
 	data.snapshot_version = 9
+	data.erase("neutral_buildings")
+	for ambient in data.get("ambient", []):
+		ambient.erase("combat")
 	var ids = fixtures.map(func(site): return builder._reference(site))
 	for index in fixtures.size():
 		var saved = data.units.filter(func(unit): return unit.id == ids[index])[0]

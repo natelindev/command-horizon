@@ -15,7 +15,9 @@ func _run():
 	for actor in life.actors:
 		_check(not actor.is_in_group("units"), "Scenery became a combat unit")
 	_check(
-		life.find_children("*", "CollisionObject3D", true, false).is_empty(),
+		life.find_children("*", "CollisionObject3D", true, false).all(
+			func(body): return body.collision_layer == 0 and not body.input_ray_pickable
+		),
 		"Scenery intercepts gameplay"
 	)
 	var detached = Node3D.new()
@@ -53,7 +55,7 @@ func _run():
 	)
 	_check(not atmosphere.rain.emitting and not life.visible, "World settings ignored Off")
 	for actor in game.map.get_node("AmbientLife").actors:
-		_check(not actor.visible, "Original ambient population ignored Off")
+		_check(actor.interactive, "Graphics setting removed an interactive neutral target")
 	var before = preferences.capture()
 	var dialog = root.get_node("Globals").open_settings()
 	dialog._preview("time_of_day", 1)

@@ -68,6 +68,13 @@ func _map_unit_to_new_circles(unit):
 
 
 func _sync_circles_to_unit(unit):
+	var reach = unit.sight_range
+	if unit.has_meta("garrison_host"):
+		reach += unit.get_meta("garrison_host").radius + 2.0
+	for circle in _unit_to_circles_mapping[unit]:
+		var radius = reach * texture_units_per_world_unit
+		if not is_equal_approx(circle.radius, radius):
+			circle.radius = radius
 	var unit_pos_3d = unit.global_transform.origin
 	var unit_pos_2d = Vector2(unit_pos_3d.x, unit_pos_3d.z) * texture_units_per_world_unit
 	_unit_to_circles_mapping[unit][0].position = unit_pos_2d

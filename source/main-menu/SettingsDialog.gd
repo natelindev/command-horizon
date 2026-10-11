@@ -72,7 +72,9 @@ func _ready():
 	tag.add_theme_color_override("font_color", Color("8ea0a8"))
 	header_box.add_child(tag)
 	_label(header_box, tr("SETTINGS"), 22)
-	_label(header_box, tr("Preview changes · Save to keep them · Esc to cancel"), 13, Color("8ea0a8"))
+	_label(
+		header_box, tr("Preview changes · Save to keep them · Esc to cancel"), 13, Color("8ea0a8")
+	)
 
 	_tabs = TabContainer.new()
 	_tabs.custom_minimum_size = Vector2(680, 480)
@@ -424,7 +426,7 @@ func _build_graphics():
 		if not forward:
 			controls[key].tooltip_text = "Available with the Forward+ renderer."
 	_heading(column, "World & interface")
-	_check(column, "Living districts, traffic and wildlife", "living_world")
+	_check(column, "Scenic districts and background population", "living_world")
 	_check(column, "Animated menu backgrounds and entrances", "menu_motion")
 
 

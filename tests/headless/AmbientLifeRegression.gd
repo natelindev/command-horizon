@@ -70,7 +70,7 @@ func _behavior():
 	_check(life.actors.size() == expected.size(), "Missing authored population")
 	var unit_count = get_nodes_in_group("units").size()
 	for actor in life.actors:
-		_check(actor.player == null and not ("hp" in actor), "Neutral has combat owner/HP")
+		_check(actor.player == null and actor.hp > 0, "Neutral lacks health or has an owner")
 		for group in [
 			"units",
 			"vision_sources",
@@ -110,8 +110,14 @@ func _behavior():
 		var source = _units(game._get_human_player(), "Tank")
 		if not source.is_empty():
 			_check(
-				not load("res://source/match/combat/CombatRules.gd").can_target(source[0], actor),
-				"Neutral can be targeted"
+				(
+					load("res://source/match/combat/CombatRules.gd").can_target(source[0], actor)
+					if actor.entry.kind != "gull"
+					else not load("res://source/match/combat/CombatRules.gd").can_target(
+						source[0], actor
+					)
+				),
+				"Neutral weapon-domain targeting failed"
 			)
 		if actor.entry.kind in ["resident", "fox"]:
 			_check(actor._limbs.size() == 4, "Missing animation pivots: " + actor.entry.kind)
@@ -238,6 +244,7 @@ func _archives():
 	for resource in legacy.resources:
 		resource.erase("wreck")
 	legacy.erase("ambient")
+	legacy.erase("neutral_buildings")
 	for side in legacy.players:
 		side.erase("technology")
 	_check(schema.validate(legacy), "Version 5 migration rejected: " + schema.error)
