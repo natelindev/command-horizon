@@ -5,23 +5,14 @@ from pathlib import Path
 import numpy as np
 import soundfile as sf
 
-from voice_cast import CAST, ANNOUNCERS, PROFILES, MALE_VOICES
+from voice_cast import PROFILES
 
 ROOT = Path(__file__).resolve().parents[2]
 
 
 def main():
-    profiles = list(ANNOUNCERS.values()) + [speaker for roles in CAST.values()
-                                           for speaker, _ in roles.values()]
-    assert len(profiles) == len(set(profiles)) == 34
-    assert set(profiles) == set(PROFILES)
-    signatures = set()
-    for key, profile in PROFILES.items():
-        assert set(profile['voices']) <= MALE_VOICES, key
-        assert all(name.startswith(('am_', 'bm_')) for name in profile['voices']), key
-        assert abs(sum(profile['voices'].values()) - 1) < 1e-6, key
-        signatures.add(json.dumps(profile, sort_keys=True))
-    assert len(signatures) == 34
+    from verify_voice_cast import verify_catalog
+    verify_catalog()
     catalog = json.loads((ROOT / 'assets/audio/voices/catalog.json').read_text())
     assert catalog['provenance']['profiles'] == PROFILES
     speech_count = 0
@@ -34,7 +25,7 @@ def main():
                 info = sf.info(ROOT / line['stream'].removeprefix('res://'))
                 assert info.samplerate == 24000, line
                 speech_count += 1
-    assert speech_count == 302
+    assert speech_count == 293
     for region in ['desert', 'alpine', 'industrial', 'coastal']:
         data, rate = sf.read(ROOT / f'assets/audio/environment/{region}.wav')
         rms_db = 10 * np.log10(np.mean(data * data))
@@ -44,7 +35,7 @@ def main():
         hiss_db = 10 * np.log10(np.mean(hiss * hiss))
         assert rms_db <= -23.9, (region, rms_db)
         assert hiss_db <= -46.5, (region, hiss_db)
-    print('PASS 34 distinct male-only profiles, 302 full-band speech clips, four quiet low-hiss beds')
+    print('PASS 34 separate male speakers, 293 speech clips, four quiet low-hiss beds')
 
 
 if __name__ == '__main__':

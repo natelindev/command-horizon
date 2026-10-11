@@ -37,12 +37,11 @@ def main():
     with concurrent.futures.ThreadPoolExecutor(max_workers=6) as pool:
         report = list(pool.map(inspect, manifest))
     speakers = {entry['speaker_id'] for entry in manifest if entry['speaker_id'] is not None}
-    from voice_cast import PROFILES, MALE_VOICES
+    from voice_cast import PROFILES, CAST, MACHINES
+    from verify_voice_cast import verify_catalog
+    verify_catalog()
     assert speakers == set(PROFILES)
-    for profile in PROFILES.values():
-        assert set(profile['voices']) <= MALE_VOICES
-        assert abs(sum(profile['voices'].values()) - 1) < 1e-6
-    summary = {'clips': len(report), 'distinct_male_style_profiles': len(speakers),
+    summary = {'clips': len(report), 'distinct_male_speakers': len(speakers),
                'total_seconds': round(sum(item['seconds'] for item in report), 2),
                'highest_peak_dbfs': max(item['peak_dbfs'] for item in report), 'assets': report}
     (ROOT / 'art/audio/battle-audio-verification.json').write_text(json.dumps(summary, indent=2) + '\n')
@@ -50,10 +49,13 @@ def main():
     cue_sheet = []
     offset = 0.
     for faction in ['bastion', 'helix', 'frontier']:
-        for part in ['Command/MATCH_STARTED_0', 'Command/BASE_UNDER_ATTACK_0',
-                     'Infantry/select_0', 'Hero/select_0', 'Tank/attack_0',
-                     'Worker/select_0', 'CombatRobot/ready_0', 'Drone/select_0',
-                     'Command/RESEARCH_COMPLETED_0']:
+        parts = ['Command/MATCH_STARTED_0', 'Command/BASE_UNDER_ATTACK_0']
+        parts += [role + '/select_0' for role in CAST[faction]]
+        for role in MACHINES:
+            if role not in CAST[faction]:
+                parts += [role + '/select_0', role + '/select_1', role + '/attack_0']
+        parts += ['Command/RESEARCH_COMPLETED_0']
+        for part in parts:
             relative = f'{faction}/{part}.ogg'
             clip = decode(ROOT / 'assets/audio/voices' / relative)
             entry = next(item for item in manifest if item['file'] == relative)

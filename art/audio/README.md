@@ -2,23 +2,41 @@
 
 ## Battle voices and interface sounds
 
-The offline battle bank adds 720 short clips: 302 spoken lines and 418 mechanical cues.
-Speech uses 34 distinct male-only style profiles from seven Kokoro base voices
-across Bastion, Helix and Free Frontier. Each faction has its own announcer. Infantry,
-heroes, vehicle crews and mission transports have role-specific selection, movement,
-attack, ready and stop lines; the Frontier scrapper also acknowledges gathering,
-building and repairs. Autonomous machines and structures use nonverbal motors,
-servos and telemetry motifs. Speech is English with matching captions.
+The offline battle bank contains 711 clips: 293 spoken lines and 418 mechanical
+cues. Three male Kokoro voices are reserved for faction announcements. The 31
+speaking faction/unit roles each use a separate male Piper/VCTK speaker, with no
+speaker reuse or announcer blends. Selection, movement, attack, ready and stop
+responses stay with the same speaker. Frontier's scrapper also speaks for gathering,
+building and repair orders. All speech has matching captions.
 
-`voice_cast.py` contains casting and original dialogue. `build_battle_audio.py`
-uses Kokoro ONNX, soundfile, NumPy and ffmpeg to generate the bank and four UI cues.
-The model stays in `tmp/kokoro`; the game needs no TTS installation or network.
-Build inputs and output hashes are recorded in `battle-audio-manifest.json` and
-`assets/audio/voices/catalog.json`. The per-clip cache checks both source inputs
-and output hashes, so edits to dialogue or casting regenerate affected clips.
-Speech is synthesized at 24 kHz with light equalization and no narrow radio filter.
-The three announcers use Michael (Bastion), George (Helix), and Fenrir (Frontier);
-unit roles use documented male-only style blends and delivery rates.
+Autonomous units have 11 faction/role identities and 121 distinct clips: workers
+use piston motors and ratchets, repair robots use servos and tool taps, combat
+robots use heavy gears and latches, and drones use rotors and telemetry arpeggios.
+Each has multiple selection/move/attack variations and separate task/ready/stop
+responses. Faction tuning and texture preserve the unit's mechanical character.
+Structures use short console cues. Generic sourceless unit events are rejected;
+only a real unit can supply a unit reply.
+
+`voice_cast.py` contains explicit casting and original dialogue; `vctk-speakers.json`
+records the male speaker metadata source. `build_battle_audio.py` uses Kokoro ONNX,
+Piper, soundfile, NumPy and ffmpeg. Build inputs stay under `tmp`; the game requires
+no TTS installation or network. The catalog and manifest pin inputs and output
+hashes. The per-clip cache includes only its own speaker/model, so a unit recast
+leaves other speech and mechanical clips untouched. Speech uses light EQ without
+narrow radio filtering. Kokoro synthesizes at 24 kHz and Piper at 22.05 kHz; spoken
+Oggs are encoded at 24 kHz.
+
+```sh
+python art/audio/build_battle_audio.py --model tmp/kokoro/kokoro-v1.0.onnx --voices tmp/kokoro/voices-v1.0.bin --unit-model tmp/piper/en_GB-vctk-medium.onnx
+python -m unittest discover -s art/audio -p 'test_voice_cast.py'
+python art/audio/verify_voice_cast.py
+python art/audio/verify_battle_audio.py
+python art/audio/verify_clean_mix.py
+```
+
+Download the Piper model and matching `.onnx.json` from the model link in
+[voice attribution](../../assets/audio/voices/LICENSES.md). Reproducible build
+packages are listed in `voice-requirements.txt`; ffmpeg is also required.
 
 The four regional beds are 10.3–13.2 dB quieter in the mix than the previous
 version, with their noise above 2 kHz reduced by 22.9–31.5 dB. Local ambient

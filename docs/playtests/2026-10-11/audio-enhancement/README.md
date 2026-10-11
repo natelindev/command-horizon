@@ -1,19 +1,24 @@
 # Faction and unit audio
 
-All three factions now have distinct announcers and unit audio identities. The
-bank contains 720 clips, including 302 spoken clips using 34 distinct male-only style
-profiles derived from seven Kokoro base voices. Human crews,
-infantry and heroes use original role-specific dialogue; autonomous machines use
-nonverbal motors, servos and telemetry. Building selection also has mechanical
-feedback. Speech is English, with matching speaker-labelled captions.
+The current bank has 711 clips: 293 spoken recordings and 418 mechanical cues.
+Three male Kokoro announcers speak only command announcements. Each of the 31
+speaking faction/unit roles has a unique male Piper/VCTK speaker ID, without
+announcer blending or speaker reuse between roles/factions. Original dialogue
+and captions retain each unit's identity across selection, orders and readiness.
+
+Autonomous units have 11 faction/role identities and 121 distinct cues. Workers
+use piston motors/ratchets, repair robots use servos/tools, combat robots use
+heavy gears/latches, and drones use rotors/telemetry. Each has two selection,
+movement and attack variants plus separate task/ready/stop cues. Faction tuning
+adds engineering character. Buildings retain their existing console cues.
 
 ## Listen
 
-- [Faction audition reel](faction-voice-audition.ogg): Bastion, Helix, then Frontier;
+- [Faction audition reel](faction-voice-audition.ogg): Bastion, Helix, then Frontier; every speaking unit and autonomous role is included;
   [cue sheet](audition-cues.json) identifies each line and its timestamp.
 - Live game mixes: [Bastion](bastion-live-mix.wav), [Helix](helix-live-mix.wav),
   [Frontier](frontier-live-mix.wav). Each uses default audio volumes and includes a real HUD click, selection,
-  accepted attack-move, actual incoming damage and completed paid research.
+  accepted attack-move, each autonomous unit selection, actual incoming damage and completed paid research.
 - Caption examples: [Bastion unit](bastion-unit-caption.png),
   [Helix announcer](helix-announcer-caption.png),
   [Frontier unit](frontier-unit-caption.png).
@@ -23,18 +28,25 @@ levels, routing and event behavior were verified; subjective acting quality stil
 benefits from a listening review. Voice attribution and modifications are recorded
 in [LICENSES.md](../../../../assets/audio/voices/LICENSES.md).
 
-## Male voice and clean mix revision
+## Casting and mixing
 
-Replaced the previous voice bank with explicit male Kokoro styles and full-band
-24 kHz speech. Removed the narrow radio filters, added light low-mid equalization,
-and mastered speech at -18 LUFS / -3 dBTP. The settings sample and generic fallback
-responses use the new bank. Individual role blends are recorded in the cast file.
+All speakers have documented male source voices. The three announcers remain
+Michael, George and Fenrir; unit speakers are listed explicitly in
+`art/audio/voice_cast.py` with gender/accent provenance in `vctk-speakers.json`.
+Distinct profile names, blend weights or delivery rates no longer count as
+speaker diversity. The builder rejects borrowed announcers and reused unit IDs.
+Generic unit reply assets were removed from Command, and `say` rejects unit
+reply events without a source; normal unit replies use `say_unit`.
 
-The four ambience beds now measure 10.3–13.2 dB quieter at their game-player output,
+Speech has light EQ and is mastered at -18 LUFS / -3 dBTP without narrow radio
+filters. Native synthesis is 24 kHz for command and 22.05 kHz for units; all spoken
+Oggs use 24 kHz encoding. Autonomous cues preserve low gears and high telemetry
+through a broad 50–7000 Hz passband. Their Effects volume routing is unchanged.
+
+The previous ambience reduction remains intact: beds are 10.3–13.2 dB quieter,
 with noise above 2 kHz reduced 22.9–31.5 dB. See
-[before/after measurements](ambience-comparison.json). Local ambient actors are
-also quieter. Speech/combat ducking and user volume preferences are preserved.
-The settings ambience preview shares gameplay's -16 dB bed gain.
+[before/after measurements](ambience-comparison.json). Settings previews share
+gameplay's -16 dB bed gain. No persisted volume preference was changed.
 
 ## Behavior
 
@@ -61,50 +73,40 @@ The settings ambience preview shares gameplay's -16 dB bed gain.
   reconstruction produces no historical notifications. Existing combat effects,
   ambient sound and their limits remain active.
 
-## Verification
+## Verification — dedicated unit cast and machine revision
 
-The male/mix revision reran all checks below except DirectOrdersRegression, which
-passed during the original integration; order routing is unchanged by this revision.
-[Live mix measurements](live-mix-verification.json) record the new default-volume
-peaks and duration for each faction.
-
-Godot 4.6 on macOS, headless tests with `--fixed-fps 60`:
+Godot 4.6 on macOS; headless suites use `--fixed-fps 60`.
 
 | Check | Result |
 | --- | --- |
-| AudioEnhancementRegression | Passed for all three factions; every clip, role, event, burst, queue, power state, ownership and UI case |
-| SettingsRegression | Passed; male preview path, matching ambience gain, persisted controls and lifecycle |
-| verify_clean_mix.py | Passed; 34 distinct male-only profiles, all 302 speech clips at 24 kHz, four low-hiss beds |
-| SpeechRegression | Passed; paid production, damage, subtitles, pause, mute, restore and terminal behavior |
-| CombatAudioRegression | Passed; actual shots, impacts, destruction, visibility and bounded effects |
-| EnvironmentAudioRegression | Passed; regional audio, volume, lifecycle and restoration |
-| DirectOrdersRegression | Passed; actual move/attack-move behavior |
-| SubtitleLayoutRegression | Passed; 720p and regional layouts |
-| ResearchFeedbackRegression | Passed for all three factions, including real research completion |
-| EnvironmentAudioPreview | Passed; four regions, loop seams, mute/pause, spatial output, ducking and real settings sample/Save/Cancel, with music muted to isolate ambience |
-| AudioEnhancementPreview | Passed with rendered 720p UI, actual pointer clicks and default-volume live audio capture |
-| gdformat / gdlint / git diff --check | Formatter and patch pass; targeted lint passes except two pre-existing SettingsDialog ArtTheme duplicated-load findings, reproduced on HEAD |
-| Asset audit | All 720 Ogg clips decode and match their recorded hashes; highest decoded peak -2.65 dBFS |
-| Live mix audit | All three mixes contain audio without clipping; default-volume peaks between -6.41 and -6.22 dBFS |
+| Cast/cache/machine Python regressions | 4 passed: announcer borrowing rejected, rate-only duplicate rejected, cache isolation, distinct machine bodies |
+| verify_voice_cast.py | 31 separate male unit speakers, three exclusive male announcers; 11 mechanical identities and 121 distinct clips |
+| verify_battle_audio.py | All 711 clips decode and match hashes; highest decoded peak -2.63 dBFS |
+| verify_clean_mix.py | All 293 spoken clips encoded at 24 kHz; all four quiet, low-hiss beds pass |
+| Repeat build | All 711 existing clip hashes preserved on the second build |
+| AudioEnhancementRegression | 0 failures across all three factions, every unit/event identity, captions, source requirements, scheduling and lifecycle |
+| SpeechRegression | 0 failures for real orders/production, damage, subtitles, mute/pause, save restoration and terminal events |
+| Godot import | Passed |
+| AudioEnhancementPreview | 0 failures at 720p; real UI/selection/order/damage/research plus every autonomous role; clean shutdown |
+| Live mix audit | All three default-volume mixes contain audio without clipping; see live-mix-verification.json |
+| gdformat / gdlint / git diff --check | Passed for changed scripts and patch |
 
-`ResearchEconomyRegression` reports 15 failures in its AI budget/production
-contracts. An isolated pre-audio copy preserving existing workspace changes
-reproduces the **same 15 failures**; see
-[baseline comparison](research-baseline-comparison.json). The audio work does not
-change those policies. Some inherited headless fixtures also emit shutdown
-ObjectDB/resource leak diagnostics; the battle audio preview exits cleanly, while
-the inherited environment preview fixture reports two retained resources at exit.
-Intentional failed-save checks in existing regressions log the expected save error.
+The complete audition reel includes every speaking unit and two selection
+variants plus an attack cue for each autonomous role. Decode and routing checks
+do not assess subjective performance quality; the reel supports listening review.
 
-Build and asset audit:
+The inherited headless fixtures report retained resources at shutdown (38 in the
+expanded audio suite, 10 in the speech suite). SpeechRegression also intentionally
+logs a failed-save error while checking recovery. No runtime script errors remain
+in the audio suite. Mission transports use their authored scene geometry in the
+voice fixture: Helix/Frontier skirmish model catalogs have no transport model slots.
 
-```sh
-python art/audio/build_battle_audio.py --model tmp/kokoro/kokoro-v1.0.onnx --voices tmp/kokoro/voices-v1.0.bin
-python art/audio/verify_battle_audio.py
-python art/audio/verify_clean_mix.py
-godot --headless --path . --fixed-fps 60 --script tests/headless/AudioEnhancementRegression.gd
-godot --path . --script tests/rendered/AudioEnhancementPreview.gd
-```
+Earlier audio/mix work also passed combat/environment, settings, direct-order,
+subtitle and research-feedback checks listed in the plan. Those unrelated suites
+are not claimed as rerun for this casting change. The prior research-economy
+baseline comparison remains in [research-baseline-comparison.json](research-baseline-comparison.json).
 
-Build dependencies are kokoro-onnx, soundfile, NumPy and ffmpeg. They are not runtime dependencies.
-The voice catalog and attribution files are included in each export preset.
+Build dependencies are pinned in `art/audio/voice-requirements.txt`; ffmpeg is
+also required. See [build commands](../../../../art/audio/README.md). Neither TTS
+engine nor model ships with the game. Attribution and the voice catalog are
+included by each export preset.

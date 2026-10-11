@@ -86,7 +86,7 @@ func _storage_speech():
 			),
 			"Spoken line lacks playable audio"
 		)
-	print("PASS all 14 voice transcripts, defaults, invalid preferences and actual persistence")
+	print("PASS legacy announcement transcripts, defaults, invalid preferences and persistence")
 
 
 func _combat_speech():
@@ -191,6 +191,10 @@ func _routine_speech():
 	_reset_speech()
 	for event in Lines.TEXT:
 		_reset_speech()
+		if event in Lines.UNIT_EVENTS:
+			_check(not voice.say(event), "Sourceless unit reply used an announcer")
+			_check(heard.is_empty(), "Rejected unit event still played audio")
+			continue
 		_check(voice.say(event), "Mapped spoken line was rejected")
 		_check(
 			(

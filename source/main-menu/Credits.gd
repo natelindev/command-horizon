@@ -91,11 +91,18 @@ func _music_credits():
 
 func _voice_credits():
 	return (
-		"[u]" + tr("Synthetic battle voices") + "[/u]\n"
+		"[u]"
+		+ tr("Synthetic battle voices")
+		+ "[/u]\n"
 		+ "[url=https://huggingface.co/hexgrad/Kokoro-82M]Kokoro-82M[/url] · hexgrad\n"
-		+ tr("Male voice styles · Apache 2.0 model") + "\n"
+		+ tr("Male voice styles · Apache 2.0 model")
+		+ "\n"
 		+ "[url=https://github.com/thewh1teagle/kokoro-onnx]kokoro-onnx[/url] · MIT\n"
-		+ tr("Original dialogue, male style blends, equalization and Ogg encoding.")
+		+ "[url=https://huggingface.co/rhasspy/piper-voices]Piper / VCTK unit voices[/url]\n"
+		+ "Christophe Veaux, Junichi Yamagishi, Kirsten MacDonald · CSTR, Edinburgh\n"
+		+ "[url=https://doi.org/10.7488/ds/2645]VCTK 0.92[/url] · "
+		+ "[url=https://creativecommons.org/licenses/by/4.0/]CC BY 4.0[/url]\n"
+		+ tr("Original dialogue, synthetic male speakers, equalization and Ogg encoding.")
 	)
 
 

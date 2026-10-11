@@ -388,9 +388,6 @@ class VoiceNarrator:
 		preload("res://assets/audio/voices/bastion/Command/UNIT_PRODUCTION_FINISHED_0.ogg"),
 		Events.UNIT_CONSTRUCTION_FINISHED:
 		preload("res://assets/audio/voices/bastion/Command/UNIT_CONSTRUCTION_FINISHED_0.ogg"),
-		Events.UNIT_HELLO: preload("res://assets/audio/voices/bastion/Command/UNIT_HELLO_0.ogg"),
-		Events.UNIT_ACK_1: preload("res://assets/audio/voices/bastion/Command/UNIT_ACK_1_0.ogg"),
-		Events.UNIT_ACK_2: preload("res://assets/audio/voices/bastion/Command/UNIT_ACK_2_0.ogg"),
 		Events.NOT_ENOUGH_RESOURCES:
 		preload("res://assets/audio/voices/bastion/Command/NOT_ENOUGH_RESOURCES_0.ogg"),
 	}

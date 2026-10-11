@@ -1,6 +1,6 @@
 """Original dialogue and casting for the offline battle voice bank.
 
-Each speaking faction/role uses a distinct male-only Kokoro style profile. Tuple order:
+Each speaking faction/role has a dedicated male speaker; command never voices units. Tuple order:
 selection (2), movement (2), attack (2), produced (1).
 """
 CAST = {
@@ -42,36 +42,52 @@ CAST = {
         'EvacTransport': ('EvacTransport', ['Rescue pilot here. Who needs a lift?', 'Nobody gets left out here.', 'Coming to pick you up.', 'Keep the landing zone clear.', 'Hold tight back there.', 'Taking us out of the crossfire.', 'Rescue bird ready.']),
     },
 }
-# Blend voice styles before inference; never layer rendered voices or shift pitch.
-# All components are explicitly male in hexgrad/Kokoro-82M/VOICES.md.
-MALE_VOICES = {'am_michael', 'am_fenrir', 'am_onyx', 'am_eric',
-               'bm_george', 'bm_fable', 'bm_lewis'}
-PROFILES = {}
-BASES = {
-    'bastion': ('am_michael', ['am_fenrir', 'am_onyx', 'am_eric']),
-    'helix': ('bm_george', ['bm_fable', 'bm_lewis']),
-    'frontier': ('am_fenrir', ['am_michael', 'am_eric', 'am_onyx']),
+# Announcers are exclusive Kokoro voices. Units use separate VCTK speaker IDs,
+# never blends or rate/pitch variants of an announcer (or of another unit).
+MALE_VOICES = {'am_michael', 'bm_george', 'am_fenrir'}
+COMMAND_VOICES = {'bastion': 'am_michael', 'helix': 'bm_george', 'frontier': 'am_fenrir'}
+# Gender/accent metadata: University of Edinburgh, speaker-info.txt:
+# https://datashare.ed.ac.uk/bitstreams/ab3c7d2f-98b2-4271-b7e4-40a6ffb40d1d/download
+# Stable explicit assignments: adding a role must never recast existing units.
+UNIT_SPEAKERS = {
+    'bastion': {
+        'Infantry': 'p311', 'RocketInfantry': 'p334', 'SniperInfantry': 'p326',
+        'AssaultInfantry': 'p345', 'Hero': 'p360', 'Tank': 'p302',
+        'AdvancedTank': 'p316', 'Helicopter': 'p363', 'SupplyTruck': 'p226',
+        'EvacTransport': 'p232',
+    },
+    'helix': {
+        'Infantry': 'p243', 'RocketInfantry': 'p254', 'SniperInfantry': 'p256',
+        'AssaultInfantry': 'p258', 'Hero': 'p259', 'Tank': 'p270',
+        'AdvancedTank': 'p273', 'Helicopter': 'p274', 'SupplyTruck': 'p278',
+        'EvacTransport': 'p279',
+    },
+    'frontier': {
+        'Worker': 'p227', 'Infantry': 'p237', 'RocketInfantry': 'p241',
+        'SniperInfantry': 'p245', 'AssaultInfantry': 'p246', 'Hero': 'p247',
+        'Tank': 'p252', 'AdvancedTank': 'p255', 'Helicopter': 'p260',
+        'SupplyTruck': 'p263', 'EvacTransport': 'p271',
+    },
 }
+PROFILES = {}
 ANNOUNCERS = {}
 for faction, roles in CAST.items():
-    primary, supporting = BASES[faction]
-    lang = 'en-gb' if faction == 'helix' else 'en-us'
     announcer = faction + '/Command'
     ANNOUNCERS[faction] = announcer
-    PROFILES[announcer] = {'voices': {primary: 1.0}, 'speed': 1.0, 'lang': lang}
-    for index, (role, (_, lines)) in enumerate(roles.items()):
+    PROFILES[announcer] = {
+        'engine': 'kokoro', 'voices': {COMMAND_VOICES[faction]: 1.0},
+        'speed': 1.0, 'lang': 'en-gb' if faction == 'helix' else 'en-us',
+    }
+    for role, (_, lines) in roles.items():
         profile = faction + '/' + role
-        weight = round(.25 + .055 * index, 3)
-        secondary = supporting[index % len(supporting)]
-        PROFILES[profile] = {'voices': {primary: 1.0 - weight, secondary: weight},
-                             'speed': [.97, 1.02, .94, 1.05, .96][index % 5], 'lang': lang}
+        PROFILES[profile] = {
+            'engine': 'piper', 'voice': 'en_GB-vctk-medium',
+            'speaker': UNIT_SPEAKERS[faction][role], 'length_scale': 1.0,
+        }
         roles[role] = (profile, lines)
 
 # Stable event names mirror VoiceLines.gd, not integer enum ordinals.
 ANNOUNCER_TEXT = {
-    'UNIT_HELLO': 'Sir?',
-    'UNIT_ACK_1': 'Yes, sir.',
-    'UNIT_ACK_2': 'Acknowledged.',
     'MATCH_STARTED': 'Battle control online.',
     'MATCH_ABORTED': 'Battle control offline.',
     'MATCH_FINISHED_WITH_VICTORY': 'You are victorious.',

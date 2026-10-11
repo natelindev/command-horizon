@@ -30,23 +30,18 @@ func _ready():
 
 
 func say(event):
-	if not Lines.TEXT.has(event):
+	# Unit replies need a source so their identity can never fall back to Command.
+	if not Lines.TEXT.has(event) or event in Lines.UNIT_EVENTS:
 		return false
 	var line = Lines.record(event)
 	var recording = _bank.announcer(get_parent().faction, Lines.EVENTS.find_key(event))
-	if not recording.is_empty():
-		line.merge(recording, true)
-		line.speaker = (
-			{
-				"bastion": "Bastion Command",
-				"helix": "Helix Control",
-				"frontier": "Frontier Dispatch"
-			}
-			. get(get_parent().faction, "Command")
-		)
-	else:
-		# Legacy callers of generic unit events remain supported; gameplay uses say_unit.
-		line.stream = Constants.Match.VoiceNarrator.EVENT_TO_ASSET_MAPPING[event].resource_path
+	if recording.is_empty():
+		return false
+	line.merge(recording, true)
+	line.speaker = (
+		{"bastion": "Bastion Command", "helix": "Helix Control", "frontier": "Frontier Dispatch"}
+		. get(get_parent().faction, "Command")
+	)
 	return _accept(line)
 
 

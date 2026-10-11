@@ -30,6 +30,16 @@ settings previews/legacy fallbacks and credits, and preserve mechanical identiti
 and the event scheduler. Reduce ambient hiss at its source and in the runtime mix.
 Recheck speech, ambience, decoded levels and actual default-volume game playback.
 
+## Stage 5 — Separate speakers for command and units
+
+Replace announcer-derived unit blends with 31 dedicated male VCTK speakers,
+one per speaking faction/role. Keep the three Kokoro announcers exclusive to
+announcements. Give autonomous units separate piston/ratchet, servo/tool, heavy
+gear/latch and rotor/telemetry designs, with faction tuning and event variations. Remove generic unit
+replies from the announcer bank and reject unit events without a unit source.
+Record speaker provenance, rebuild offline assets, and verify speaker separation,
+every role/event, subtitles, scheduling and rendered gameplay audio.
+
 ## Agent progress
 
 - Inspected existing combat audio, narrator queue, unit replies and research paths.
@@ -64,3 +74,21 @@ Recheck speech, ambience, decoded levels and actual default-volume game playback
   checks; the separate battle preview captures the full default mix. Existing
   headless cleanup diagnostics and two pre-existing SettingsDialog lint findings
   are documented in the verification report.
+- Stage 5 complete: 31 unique male VCTK unit speakers; three exclusive male Kokoro
+  announcers. Removed nine Command unit-reply assets and reject sourceless unit
+  events. All roles keep their speaker across events; real source gender metadata
+  and model/config hashes are recorded with credits and distribution licenses.
+- Rebuilt 251 unit speech clips and 121 autonomous cues across 11 faction/role
+  identities. Each mechanical role has a different body/rhythm, two selection,
+  move and attack variants, plus task/startup/stop sounds. Preserved 339 existing
+  command/structure recordings. Total bank: 711 clips, including 293 spoken lines.
+- Four new Python regressions pass, including identity checks that ignore speed
+  and profile names, isolated cache invalidation and different machine bodies.
+  Full catalog/hash/decode/mix checks pass; repeat build preserves all clip hashes.
+- AudioEnhancementRegression and SpeechRegression pass with zero failures. New
+  coverage checks every unit/event identity and subtitle across all factions.
+  Expanded rendered preview passes, includes every autonomous role, and exits
+  cleanly. All three captured default mixes contain audio without clipping.
+- Updated full-roster audition reel, cue sheet, live mixes, documentation and
+  credits. Headless fixture shutdown diagnostics are documented in the report;
+  rendered playback has no script errors. Targeted format/lint and patch checks pass.

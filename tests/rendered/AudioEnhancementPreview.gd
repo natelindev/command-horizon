@@ -57,6 +57,19 @@ func _run():
 		)
 		infantry.manual_orders.submit(order)
 		await _frames(120)
+		for role in ["Worker", "RepairRobot", "CombatRobot", "Drone"]:
+			if role == "Worker" and faction == "frontier":
+				continue
+			var robot = _spawn_weapon(role, human, infantry.global_position + Vector3(4, 0, 4))
+			_reset_speech()
+			robot.get_node("Selection").select()
+			_check(
+				voice.current.get("speaker_id") == "machine:%s/%s" % [faction, role],
+				"Autonomous selection lost its mechanical identity"
+			)
+			_check(voice._audio.bus == "Effects", "Machine cue routed through speech bus")
+			await _frames(150)
+			robot.queue_free()
 		var attacker = _units(_sides()[1], "Tank")[0]
 		_units(human, "CommandCenter")[0].receive_weapon_hit(attacker)
 		await _frames(12)

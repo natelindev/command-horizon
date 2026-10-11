@@ -18,6 +18,7 @@ func _run():
 		announcer_paths.append(voice._audio.stream.resource_path)
 		_check(voice.current.speaker != "Command", "Faction announcer lacks identity")
 		await _identity_and_bursts(faction)
+		_all_unit_speakers(faction)
 		await _research_events()
 		await _power_transitions()
 		await _mechanical_and_lifecycle()
@@ -43,6 +44,12 @@ func _catalog_coverage():
 	for faction in ["bastion", "helix", "frontier"]:
 		var catalog = bank._catalog[faction]
 		for event in Lines.TEXT:
+			if event in Lines.UNIT_EVENTS:
+				_check(
+					bank.announcer(faction, Lines.EVENTS.find_key(event)).is_empty(),
+					"Unit reply leaked into announcer bank"
+				)
+				continue
 			_check(
 				not bank.announcer(faction, Lines.EVENTS.find_key(event)).is_empty(),
 				faction + " missing announcer event"
@@ -75,6 +82,42 @@ func _check_clip(line):
 		"Invalid clip " + line.stream
 	)
 	_check(not line.text.is_empty(), "Clip lacks matching caption " + line.stream)
+	_check(not line.get("speaker_id", "").is_empty(), "Clip lacks cast identity")
+
+
+func _all_unit_speakers(faction):
+	var human = game._get_human_player()
+	var bank = voice._bank._catalog[faction]
+	var identities = []
+	for role in bank.units:
+		var unit
+		if role in Roster.MISSION_NAMES:
+			# Mission transports retain their authored geometry, outside skirmish models.
+			unit = load("res://source/match/units/%s.tscn" % role).instantiate()
+			unit.process_mode = Node.PROCESS_MODE_DISABLED
+			human.add_child(unit)
+		else:
+			unit = _spawn_weapon(role, human, Vector3(50, 0, 50))
+		var identity = ""
+		for kind in bank.units[role]:
+			_reset_speech()
+			_check(voice.say_unit(unit, kind), role + ":" + kind + " rejected")
+			var line = voice.current
+			_check(not line.stream.contains("/Command/"), "Unit borrowed announcer audio")
+			if identity.is_empty():
+				identity = line.speaker_id
+			_check(line.speaker_id == identity, "Unit changed speaker between events")
+			_check(game.subtitles._card._text.text == line.text, "Unit caption mismatch")
+		_check(not identity in identities, "Two unit types share a cast identity")
+		_check(identity != bank.announcer.MATCH_STARTED.speaker_id, "Unit uses announcer")
+		identities.append(identity)
+		_reset_speech()
+		unit.free()
+	for event in Lines.UNIT_EVENTS:
+		_reset_speech()
+		_check(not voice.say(event), "Sourceless reply reached announcer")
+		_check(heard.is_empty() and voice._pending.is_empty(), "Sourceless reply was scheduled")
+	print("PASS %s all unit/event identities, captions and exclusive announcer routing" % faction)
 
 
 func _identity_and_bursts(faction):
