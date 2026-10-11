@@ -3,6 +3,8 @@ extends CanvasLayer
 signal accepted(values)
 signal closed
 
+const BattleTheme = preload("res://source/match/hud/BattleTheme.gd")
+
 var values = []
 var _fields
 
@@ -19,14 +21,7 @@ func _ready():
 	add_child(center)
 	var panel = PanelContainer.new()
 	panel.custom_minimum_size.x = 520
-	var style = StyleBoxFlat.new()
-	style.bg_color = Color("19232f")
-	style.set_corner_radius_all(10)
-	style.content_margin_left = 20
-	style.content_margin_right = 20
-	style.content_margin_top = 20
-	style.content_margin_bottom = 20
-	panel.add_theme_stylebox_override("panel", style)
+	BattleTheme.apply(panel, 20, 20)
 	center.add_child(panel)
 	var column = VBoxContainer.new()
 	column.add_theme_constant_override("separation", 14)

@@ -1,5 +1,7 @@
 extends CanvasLayer
 
+const BattleTheme = preload("res://source/match/hud/BattleTheme.gd")
+
 const Bindings = preload("res://source/input/KeyBindings.gd")
 
 var _pause_button = null
@@ -12,15 +14,8 @@ func _ready():
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	layer = 5
 	var panel = PanelContainer.new()
-	panel.position = Vector2(14, 64)
-	var style = StyleBoxFlat.new()
-	style.bg_color = Color("19212bd9")
-	style.set_corner_radius_all(7)
-	style.content_margin_left = 14
-	style.content_margin_right = 14
-	style.content_margin_top = 10
-	style.content_margin_bottom = 10
-	panel.add_theme_stylebox_override("panel", style)
+	panel.position = Vector2(16, 86)
+	BattleTheme.apply(panel, 14, 10)
 	add_child(panel)
 	var content = VBoxContainer.new()
 	panel.add_child(content)

@@ -4,6 +4,8 @@ extends CanvasLayer
 signal imported(draft, roles)
 signal closed(state)
 
+const BattleTheme = preload("res://source/match/hud/BattleTheme.gd")
+
 const Config = preload("res://source/match/programs/llm/ProviderConfig.gd")
 const Credentials = preload("res://source/match/programs/llm/Credentials.gd")
 const Context = preload("res://source/match/programs/llm/RequestContext.gd")
@@ -81,12 +83,7 @@ func _build():
 		margin.add_theme_constant_override("margin_" + side, 32)
 	add_child(margin)
 	var panel = PanelContainer.new()
-	var style = StyleBoxFlat.new()
-	style.bg_color = Color("19232f")
-	style.set_corner_radius_all(10)
-	for side in ["left", "right", "top", "bottom"]:
-		style.set("content_margin_" + side, 16)
-	panel.add_theme_stylebox_override("panel", style)
+	BattleTheme.apply(panel, 16, 16)
 	margin.add_child(panel)
 	var column = VBoxContainer.new()
 	column.add_theme_constant_override("separation", 10)

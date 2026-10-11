@@ -8,6 +8,7 @@ var _production_queue = null
 
 
 func _ready():
+	theme = preload("res://source/match/hud/BattleTheme.gd").create()
 	_reset()
 	MatchSignals.unit_selected.connect(func(_unit): _reset())
 	MatchSignals.unit_deselected.connect(func(_unit): _reset())

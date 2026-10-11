@@ -1,5 +1,7 @@
 extends CanvasLayer
 
+const BattleTheme = preload("res://source/match/hud/BattleTheme.gd")
+
 const Bindings = preload("res://source/input/KeyBindings.gd")
 
 var manager
@@ -29,12 +31,7 @@ func _ready():
 	add_child(center)
 	var panel = PanelContainer.new()
 	panel.custom_minimum_size = Vector2(850, 620)
-	var style = StyleBoxFlat.new()
-	style.bg_color = Color("19232f")
-	style.set_corner_radius_all(10)
-	for side in ["left", "right", "top", "bottom"]:
-		style.set("content_margin_" + side, 22)
-	panel.add_theme_stylebox_override("panel", style)
+	BattleTheme.apply(panel, 22, 22)
 	center.add_child(panel)
 	var column = VBoxContainer.new()
 	column.add_theme_constant_override("separation", 12)
@@ -61,7 +58,7 @@ func _ready():
 	_list.add_theme_constant_override("v_separation", 10)
 	_list.item_selected.connect(_selected)
 	var selection = StyleBoxFlat.new()
-	selection.bg_color = Color("344557")
+	selection.bg_color = Color("65543d")
 	selection.set_corner_radius_all(4)
 	_list.add_theme_stylebox_override("selected", selection)
 	_list.add_theme_stylebox_override("selected_focus", selection)
@@ -77,6 +74,7 @@ func _ready():
 	actions.add_theme_constant_override("separation", 10)
 	column.add_child(actions)
 	_primary = _button(actions, "", _activate)
+	_primary.theme_type_variation = "BattlePrimaryButton"
 	_close = _button(actions, "Back [Esc]", _back)
 	_primary.disabled = true
 	_list.grab_focus()

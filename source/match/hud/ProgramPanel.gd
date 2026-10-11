@@ -80,6 +80,7 @@ func _ready():
 	var actions = HBoxContainer.new()
 	add_child(actions)
 	_run = _button(actions, "Apply & run", _apply)
+	_run.theme_type_variation = "BattlePrimaryButton"
 	_run.name = "RunProgram"
 	_run.tooltip_text = "Replace the selected units' programs with this preset draft."
 	_button(actions, "Resume", _resume)

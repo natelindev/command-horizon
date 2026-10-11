@@ -1,0 +1,15 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+Metal 4.0 - Forward+ - Using Device #0: Apple - Apple M1 Pro (Apple7)
+
+NATIVE INPUT: frontier button=[P: (781.0, 307.0), S: (60.0, 28.0)] sector=(640.0, 360.0)
+NATIVE INPUT: bastion button=[P: (781.0, 307.0), S: (60.0, 28.0)] sector=(640.0, 360.0)
+NATIVE INPUT: helix button=[P: (781.0, 307.0), S: (60.0, 28.0)] sector=(640.0, 360.0)
+ERROR: helix-later: hover help missing
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/SignatureFeedbackRegression.gd:134)
+       [1] _cleanup (res://tests/headless/FrontierGameplayRegression.gd:48)
+       [2] _frames (res://tests/headless/CampaignRegression.gd:258)
+Signature feedback: 1 failures
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)

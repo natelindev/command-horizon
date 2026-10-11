@@ -37,13 +37,13 @@ func _ready():
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	layer = 5
 	var panel = PanelContainer.new()
-	panel.position = Vector2(14, 62)
+	panel.position = Vector2(16, 86)
 	_style(panel)
 	panel.get_theme_stylebox("panel").content_margin_top = 6
 	panel.get_theme_stylebox("panel").content_margin_bottom = 6
 	add_child(panel)
 	var content = VBoxContainer.new()
-	content.add_theme_constant_override("separation", 4)
+	content.add_theme_constant_override("separation", 8)
 	panel.add_child(content)
 	var title = Label.new()
 	var players = get_tree().get_nodes_in_group("players")
@@ -51,12 +51,12 @@ func _ready():
 		"%s  vs  %s" % [Factions.NAMES[players[0].faction], Factions.NAMES[players[1].faction]]
 	)
 	title.add_theme_font_size_override("font_size", 17)
-	content.add_child(title)
+	BattleTheme.heading(content, title, 30)
 	_objective = Label.new()
 	_objective.add_theme_font_size_override("font_size", 12)
 	content.add_child(_objective)
 	_clock = Label.new()
-	_clock.add_theme_color_override("font_color", Color("aab8c5"))
+	_clock.add_theme_color_override("font_color", Color("a9b4b3"))
 	_clock.add_theme_font_size_override("font_size", 12)
 	content.add_child(_clock)
 	var buttons = HBoxContainer.new()
@@ -116,18 +116,12 @@ func _ready():
 
 
 func _style(panel):
-	var style = StyleBoxFlat.new()
-	style.bg_color = Color("172330ed")
-	style.set_corner_radius_all(8)
-	style.content_margin_left = 16
-	style.content_margin_right = 16
-	style.content_margin_top = 12
-	style.content_margin_bottom = 12
-	panel.add_theme_stylebox_override("panel", style)
+	BattleTheme.apply(panel)
 
 
 func _button(parent, text_value, callback):
 	var button = Button.new()
+	button.theme = BattleTheme.create()
 	button.text = text_value
 	button.add_theme_font_size_override("font_size", 13)
 	button.custom_minimum_size.y = 32
@@ -140,7 +134,7 @@ func _process(_delta):
 	if is_instance_valid(technology_panel):
 		technology_panel.refresh()
 		_technology_scroll.custom_minimum_size.y = maxf(
-			100, get_viewport().get_visible_rect().size.y - 190
+			100, get_viewport().get_visible_rect().size.y - 256
 		)
 	if _hint_left > 0:
 		_hint_left -= _delta
@@ -237,7 +231,7 @@ func _toggle_pause():
 	)
 
 
-func _make_overlay(title_text):
+func _make_overlay(title_text, cinematic = false):
 	_overlay = Control.new()
 	_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(_overlay)
@@ -255,13 +249,21 @@ func _make_overlay(title_text):
 	panel.custom_minimum_size.x = 480
 	_style(panel)
 	center.add_child(panel)
+	var layout = HBoxContainer.new()
+	layout.add_theme_constant_override("separation", 28)
+	panel.add_child(layout)
+	if cinematic:
+		BattleTheme.artwork(layout, 270)
 	var box = VBoxContainer.new()
+	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	if cinematic:
+		box.custom_minimum_size.x = 430
 	box.add_theme_constant_override("separation", 12)
-	panel.add_child(box)
+	layout.add_child(box)
 	var title = Label.new()
 	title.text = title_text
 	title.add_theme_font_size_override("font_size", 32)
-	box.add_child(title)
+	BattleTheme.heading(box, title, 72)
 	return box
 
 
@@ -272,20 +274,33 @@ func _open_menu():
 		return
 	_menu_was_paused = get_tree().paused
 	get_tree().paused = true
-	var box = _make_overlay("Battle paused")
+	var box = _make_overlay("Battle paused", true)
 	var help_text = Label.new()
 	_menu_help = help_text
 	help_text.text = _controls_help()
-	help_text.custom_minimum_size.x = 530
+	help_text.custom_minimum_size.x = 430
 	help_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	help_text.add_theme_font_size_override("font_size", 14)
 	box.add_child(help_text)
-	_button(box, "Resume battle", _close_menu).grab_focus()
+	help_text.hide()
+	var resume = _button(box, "Resume battle", _close_menu)
+	resume.theme_type_variation = "BattlePrimaryButton"
+	resume.grab_focus()
 	_button(box, "Save / Load battle", func(): get_node("/root/SaveManager").open_dialog("save"))
 	_button(box, "Settings", func(): Globals.open_settings())
 	_button(box, "Restart match", func(): get_parent().restart())
 	_button(box, _setup_title(), _back_to_setup)
 	_button(box, "Main menu", _back_to_menu)
+	var controls = _button(box, "Controls", func(): help_text.visible = not help_text.visible)
+	controls.toggle_mode = true
+	box.move_child(help_text, box.get_child_count() - 1)
+	for child in box.get_children():
+		if child is Button:
+			child.custom_minimum_size.y = 40
+			child.add_theme_font_size_override("font_size", 16)
+			child.alignment = HORIZONTAL_ALIGNMENT_LEFT
+			if child != resume:
+				child.theme_type_variation = "BattleQuietButton"
 
 
 func _close_menu():
@@ -647,7 +662,7 @@ func open_technology():
 	_technology_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_technology_scroll.follow_focus = true
 	_technology_scroll.custom_minimum_size = Vector2(
-		510, maxf(100, get_viewport().get_visible_rect().size.y - 190)
+		510, maxf(100, get_viewport().get_visible_rect().size.y - 256)
 	)
 	_technology_scroll.get_v_scroll_bar().focus_mode = Control.FOCUS_ALL
 	_technology_scroll.get_v_scroll_bar().custom_step = 28

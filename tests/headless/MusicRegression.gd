@@ -12,7 +12,7 @@ func _run():
 		_check(director.current_track == track, "Track selection failed: " + track)
 		var player = director.players[director._target]
 		_check(player.stream is AudioStreamOggVorbis, "Music is not decoded Ogg")
-		_check(player.stream.get_length() >= 30, "Music is unexpectedly short")
+		_check(player.stream.get_length() >= 150, "Music is unexpectedly short")
 		_check(player.stream.loop and player.playing, "Music does not play and loop")
 		for index in 30:
 			director._check_left = 1

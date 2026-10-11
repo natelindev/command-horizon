@@ -1,26 +1,18 @@
-# Remaining work — paused 2026-10-07
+# Remaining work — resumed 2026-10-11
 
-Work stopped at the user's request. The gameplay-polish goal is paused, not complete. Existing implementation and evidence are retained; resume only when requested. Earlier roadmap entries saying the goal is active describe their historical completion state.
+Work resumed at the user's request on 2026-10-11. The last unfinished implementation item, faction ability feedback, has been repaired; the overall gameplay-polish work remains incomplete. Historical paused/active entries below describe their state at the time.
 
 ## Last completed work
 
+- Faction ability feedback now keeps setup/active effects visible, preserves partially ready selections, reports the earliest applicable recharge, and gives chip/weapon/target guidance. Button and summary hover help and accessibility descriptions include Simplified Chinese. All-faction rules, pause/disk continuity, 720p/150% layout and rendered hover checks pass. See [the ability feedback report](playtests/2026-10-11/SIGNATURE_FEEDBACK.md) for native-input results, fixture corrections and remaining limits.
 - Frontier's 28 wheels across five vehicle roles now articulate from actual chassis travel and turns. Motion, pause, archive, import and shared gameplay checks passed. Cosmetic wheel phase restarts on load. See [Frontier wheel report](playtests/2026-10-07/FRONTIER_WHEELS.md) for classified runs, limitations and the native review clip.
 - Command Horizon's desert surroundings and deployment feedback were completed and checked against navigation, observation, archive and mission contracts. See [environment report](playtests/2026-10-07/HORIZON_SURROUNDINGS.md) and [deployment report](playtests/2026-10-07/HORIZON_CONTROL.md).
 
-## Unfinished: faction ability feedback
+## Next work
 
-The latest pass reproduced presentation problems in `source/match/hud/SignaturePanel.gd`; no shipping fix was made before stopping.
+Resume the retained unsuccessful campaign/skirmish cohorts and choose a bounded strategy or gameplay issue from their evidence. The ability-feedback pass did not change balance values or AI/reference strategies. Repeated full-match observations must retain failures as well as victories and distinguish ordinary live continuation from reconstruction of a test commander.
 
-- Recharge text hides Frontier Maneuver, Helix Precision, and Bastion Anchor setup/active feedback, including settled Anchor.
-- A mixed selection reports the latest selected cooldown rather than the earliest return to readiness.
-- Units lacking the required chip receive no useful hardware instruction.
-- Code inspection also found long single-string help and missing accessibility descriptions/summary hover handling. Native usability of these controls was not verified in this pass.
-
-The new [diagnostic fixture](../tests/headless/SignatureFeedbackRegression.gd) is deliberately left with unresolved assertions: its baseline run exited 1 with **10 failures**. Actual activation, readiness and partial-ready checks did not fail. Mixed-recharge checks use controlled ended-effect state to isolate the display calculation. This is diagnostic evidence, not completed acceptance coverage.
-
-Retained evidence: [baseline log](playtests/2026-10-07/signature-feedback/baseline.log), [state records](playtests/2026-10-07/signature-feedback/baseline.json), and [unchanged panel snapshot](playtests/2026-10-07/signature-feedback/before-SignaturePanel.gd.txt). The run had no script error, but retained shutdown ObjectDB/resource diagnostics. The fixture was formatted; lint, its non-baseline archive branch, and native verification remain unfinished. No test process remains running from this pass.
-
-When resumed, implement state-aware effect/setup feedback, earliest recharge and hardware guidance while preserving eligibility, activation costs/timers, cohort rules and order authority. Then verify actual activation, mixed selections, pause/disk restoration, all-faction rules and native 720p mouse, keyboard and hover behavior. Review the unfinished fixture before treating it as a regression gate.
+Novice and subjective acceptance require actual participants/user review; do not replace them with scripted assertions. Keep performance optimization deferred as previously requested, and record unavailable provider/platform/device acceptance explicitly.
 
 ## Broader acceptance still open
 
@@ -34,4 +26,5 @@ Naval content, faction variants, elaborate logistics and PvP remain later scope 
 
 ## Agent progress
 
+- 2026-10-11: Resumed at the user's request. Stages 1–2 complete: reproduced the original ten failures, repaired feedback/localization and extended the reviewed regression. Stage 3 complete: all-faction headless, shared rules/Frontier/localization, disk/pause and 720p/150% bilingual rendered hover/layout checks pass. Final real mouse/keyboard repeat passed with zero failures; evidence and the remaining queue are updated. Broader acceptance remains open.
 - 2026-10-07: Wrapped up at the user's request. Recorded the unfinished ability-feedback diagnostic and remaining acceptance gates; stopped implementation and further verification. Goal paused for a future explicit resume.

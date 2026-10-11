@@ -13,6 +13,7 @@ var _support
 var _elapsed = 0.0
 var _toggle
 var _programs
+var _scroll: ScrollContainer
 
 
 func _ready():
@@ -27,6 +28,7 @@ func _ready():
 	box.add_child(heading)
 	_toggle = hud._button(heading, "Battle plan  ▾", _toggle_body)
 	_toggle.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	_toggle.theme_type_variation = "BattleQuietButton"
 	_toggle.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_programs = hud._button(heading, "", _select_program_issues)
 	_programs.name = "SelectProgramIssues"
@@ -34,16 +36,23 @@ func _ready():
 		"Select units with blocked programs or program errors. Review their program status, "
 		+ "then reassign or Resume. Selection keeps their orders and does not restart programs."
 	)
+	_scroll = ScrollContainer.new()
+	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_scroll.follow_focus = true
+	box.add_child(_scroll)
 	_body = VBoxContainer.new()
+	_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_body.add_theme_constant_override("separation", 8)
-	box.add_child(_body)
-	_title = _label(_body, 14)
+	_scroll.add_child(_body)
+	_title = _label(_body, 16)
+	_title.mouse_filter = Control.MOUSE_FILTER_PASS
 	_description = _label(_body, 12)
-	_description.add_theme_color_override("font_color", Color("bcc7d3"))
+	_description.add_theme_color_override("font_color", Color("a9b4b3"))
 	var actions = HBoxContainer.new()
 	actions.add_theme_constant_override("separation", 6)
 	_body.add_child(actions)
 	_action = hud._button(actions, "", _select_step)
+	_action.theme_type_variation = "BattlePrimaryButton"
 	_action.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_support = hud._button(actions, "", _select_support)
 	_support.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -74,7 +83,25 @@ func _label(parent, font_size):
 
 func _process(delta):
 	var command = hud.get_child(0)
-	position = Vector2(14, command.position.y + command.size.y + 10)
+	position = Vector2(16, command.position.y + command.size.y + 12)
+	_description.visible = get_viewport_rect().size.y >= 820
+	var minimap = hud.get_parent().get_node_or_null("HUD/MarginContainer/Minimap")
+	var bottom = get_viewport_rect().size.y - 16
+	if is_instance_valid(minimap):
+		bottom = minimap.global_position.y
+	var heading = _toggle.get_parent()
+	var available = (
+		bottom
+		- position.y
+		- 12
+		- get_theme_stylebox("panel").get_minimum_size().y
+		- heading.size.y
+		- 8
+	)
+	var height = minf(_body.get_combined_minimum_size().y, maxf(40, available))
+	if _scroll.custom_minimum_size.y != height:
+		_scroll.custom_minimum_size.y = height
+		size.y = 0
 	visible = not hud.get_parent().finished and not hud.map_assignment_active()
 	_elapsed += delta
 	if _elapsed >= 0.25:
@@ -95,6 +122,8 @@ func refresh():
 	_programs.disabled = issues == 0
 	var step = Plan.next_step(player)
 	_title.text = step.title
+	_title.tooltip_text = step.description
+	_title.accessibility_description = step.description
 	_description.text = step.description
 	_action.text = step.action
 	_action.tooltip_text = step.get("action_tooltip", "")
@@ -142,6 +171,7 @@ func _select_engineers():
 
 func _toggle_body():
 	_body.visible = not _body.visible
+	_scroll.visible = _body.visible
 	_toggle.text = "Battle plan  ▾" if _body.visible else "Battle plan  ▸"
 	size.y = 0
 
@@ -181,6 +211,8 @@ func _select_program_issues():
 		return
 	var menus = hud.get_parent().find_child("UnitMenus")
 	var panel = menus._program_panel
+	if is_instance_valid(panel):
+		menus._pages.current_tab = panel.get_parent().get_index()
 	# Selection creates the controls immediately; scrolling needs their layout.
 	await get_tree().process_frame
 	await get_tree().process_frame
@@ -191,7 +223,9 @@ func _select_program_issues():
 		and hud._overlay == null
 		and not is_instance_valid(hud.program_editor)
 	):
-		menus._scroll.scroll_vertical = int(panel.position.y)
+		menus._scroll.scroll_vertical = int(
+			panel.global_position.y - menus._content.global_position.y
+		)
 
 
 func _select_support():

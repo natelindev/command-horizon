@@ -24,6 +24,7 @@ func _ready():
 	var row = HBoxContainer.new()
 	add_child(row)
 	_start = Button.new()
+	_start.theme_type_variation = "BattlePrimaryButton"
 	_start.name = "ResearchCoordination"
 	_start.text = "Research Coordination · 20 M / 20 E"
 	_start.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -45,6 +46,7 @@ func _ready():
 		card.add_theme_constant_override("separation", 5)
 		add_child(card)
 		var title = _label(14, card)
+		title.add_theme_color_override("font_color", Color("d4bb8e"))
 		var description = _label(12, card)
 		var button = Button.new()
 		button.name = "Research" + branch.capitalize()

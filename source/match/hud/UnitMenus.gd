@@ -1,5 +1,7 @@
 extends PanelContainer
 
+const BattleTheme = preload("res://source/match/hud/BattleTheme.gd")
+
 const Bindings = preload("res://source/input/KeyBindings.gd")
 const Factions = preload("res://source/match/FactionCatalog.gd")
 
@@ -16,6 +18,8 @@ var _title = null
 var _status = null
 var _content = null
 var _scroll: ScrollContainer
+var _pages: TabContainer
+var _commands: VBoxContainer
 var _queue: Control
 var _refresh_elapsed = 0.0
 var _squad_panel = null
@@ -37,14 +41,7 @@ var _discard_control_release = false
 
 
 func _ready():
-	var panel = StyleBoxFlat.new()
-	panel.bg_color = Color("19212beb")
-	panel.set_corner_radius_all(8)
-	panel.content_margin_left = 16
-	panel.content_margin_right = 16
-	panel.content_margin_top = 12
-	panel.content_margin_bottom = 12
-	add_theme_stylebox_override("panel", panel)
+	BattleTheme.apply(self, 20, 16)
 	custom_minimum_size.x = 510
 	_scroll = ScrollContainer.new()
 	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -70,7 +67,7 @@ func _ready():
 
 func _fit_menu():
 	# Keep the top resource/alert strip and any paid production queue unobscured.
-	var reserved = 72 + 5 + get_theme_stylebox("panel").get_minimum_size().y
+	var reserved = 88 + 16 + get_theme_stylebox("panel").get_minimum_size().y
 	if is_instance_valid(_queue) and _queue.is_visible_in_tree():
 		reserved += (
 			_queue.get_combined_minimum_size().y + get_parent().get_theme_constant("separation")
@@ -109,6 +106,10 @@ func _reset_menus():
 		or (is_instance_valid(_selection_roster) and _selection_roster.has_active_mouse_press())
 	):
 		_discard_control_release = true
+	var previous_selection = _selection.duplicate()
+	var page_name = "Orders"
+	if is_instance_valid(_pages) and _pages.current_tab >= 0:
+		page_name = _pages.get_current_tab_control().name
 	_scroll.scroll_vertical = 0
 	for child in _content.get_children():
 		_content.remove_child(child)
@@ -151,23 +152,30 @@ func _reset_menus():
 		if _selection.size() == 1
 		else "%d units selected" % _selection.size()
 	)
-	_content.add_child(_title)
+	BattleTheme.heading(_content, _title, 96, load(Factions.icon(unit.player.faction, unit.type)))
 	_status = Label.new()
 	_status.add_theme_font_size_override("font_size", 13)
-	_status.add_theme_color_override("font_color", Color("bcc7d3"))
+	_status.add_theme_color_override("font_color", Color("a9b4b3"))
 	_content.add_child(_status)
+	_pages = TabContainer.new()
+	_pages.name = "CommandPages"
+	_pages.use_hidden_tabs_for_min_size = false
+	_pages.add_theme_stylebox_override("panel", BattleTheme.surface(Color.TRANSPARENT, 0, 12))
+	_pages.tab_changed.connect(func(_index): _fit_menu.call_deferred())
+	_content.add_child(_pages)
+	_commands = _page("Orders")
 	if _selection.size() > 1:
 		_selection_roster = load("res://source/match/hud/SelectionRoster.gd").new()
 		_selection_roster.name = "SelectionRoster"
 		_selection_roster.selection = _selection.duplicate()
 		_selection_roster.subset_requested.connect(_select_subset)
-		_content.add_child(_selection_roster)
+		_commands.add_child(_selection_roster)
 	_add_direct_buttons(unit)
 	var grid = GridContainer.new()
 	grid.columns = 3
 	grid.add_theme_constant_override("h_separation", 7)
 	grid.add_theme_constant_override("v_separation", 7)
-	_content.add_child(grid)
+	_commands.add_child(grid)
 	if _selection.size() == 1 and unit is Structure and unit.is_constructed():
 		for unit_type in Catalog.PRODUCES.get(unit.type, []):
 			_add_roster_button(grid, unit_type, false)
@@ -188,42 +196,43 @@ func _reset_menus():
 					unit.production_queue.fit_chips = enabled
 					_refresh_buttons()
 			)
-			_content.add_child(fit)
+			_page("Programs").add_child(fit)
 		if unit.player.get_meta("skirmish", false):
 			if unit.type == "CommandLab":
 				_research_panel = load("res://source/match/hud/ResearchPanel.gd").new()
 				_research_panel.lab = unit
-				_content.add_child(_research_panel)
+				_commands.add_child(_research_panel)
 			if unit.type in ["VehicleFactory", "AircraftFactory"]:
 				_factory_program_panel = load("res://source/match/hud/FactoryProgramPanel.gd").new()
 				_factory_program_panel.queue = unit.production_queue
-				_content.add_child(_factory_program_panel)
+				_page("Programs").add_child(_factory_program_panel)
 	elif unit is Worker:
 		for unit_type in Catalog.STRUCTURES:
 			_add_roster_button(grid, unit_type, true)
 	var stop = Button.new()
 	_stop_button = stop
+	stop.theme_type_variation = "BattleQuietButton"
 	stop.text = (
 		"Cancel construction"
 		if unit is Structure and unit.is_under_construction()
 		else "Stop current orders"
 	)
 	stop.pressed.connect(_stop_orders)
-	_content.add_child(stop)
+	_commands.add_child(stop)
 	if not conventional and _selection.any(func(member): return member.signature != null):
 		_signature_panel = load("res://source/match/hud/SignaturePanel.gd").new()
 		_signature_panel.selection = _selection.duplicate()
-		_content.add_child(_signature_panel)
+		_commands.add_child(_signature_panel)
 	if _selection.any(
 		func(member): return member.type == "CombatRobot" and member.can_switch_weapon()
 	):
 		_weapon_modes = load("res://source/match/hud/WeaponModes.gd").new()
 		_weapon_modes.selection = _selection.duplicate()
-		_content.add_child(_weapon_modes)
+		_commands.add_child(_weapon_modes)
 	if _selection.any(func(member): return member.manual_orders != null):
 		_orders_panel = load("res://source/match/hud/OrdersPanel.gd").new()
 		_orders_panel.selection = _selection.duplicate()
-		_content.add_child(_orders_panel)
+		_commands.add_child(_orders_panel)
 		if conventional:
 			_orders_panel._resume.hide()
 	if (
@@ -233,11 +242,16 @@ func _reset_menus():
 	):
 		_squad_panel = load("res://source/match/hud/SquadPanel.gd").new()
 		_squad_panel.selection = _selection.duplicate()
-		_content.add_child(_squad_panel)
+		_page("Squads").add_child(_squad_panel)
 	if not conventional and _selection.any(func(member): return member.program != null):
 		_program_panel = load("res://source/match/hud/ProgramPanel.gd").new()
 		_program_panel.selection = _selection.duplicate()
-		_content.add_child(_program_panel)
+		_page("Programs").add_child(_program_panel)
+	if previous_selection == _selection:
+		for index in _pages.get_tab_count():
+			if _pages.get_child(index).name == page_name:
+				_pages.current_tab = index
+	_pages.tabs_visible = _pages.get_tab_count() > 1
 	_refresh_buttons()
 	# Rebuilding an identical selection can return to the same content minimum.
 	# Refit after layout settles even when no final minimum-size signal is emitted.
@@ -256,7 +270,7 @@ func _add_direct_buttons(unit):
 		return
 	var row = HBoxContainer.new()
 	row.add_theme_constant_override("separation", 5)
-	_content.add_child(row)
+	_commands.add_child(row)
 	for kind in _direct_orders.COMMANDS:
 		var button = Button.new()
 		button.name = "Order" + kind.capitalize().replace(" ", "")
@@ -292,7 +306,7 @@ func _add_direct_buttons(unit):
 	_recover_health.pressed.connect(
 		func(): _direct_orders.recover_health(Globals.options.selection_modifier_pressed())
 	)
-	_content.add_child(_recover_health)
+	_commands.add_child(_recover_health)
 
 
 func _remember_command_mouse(event):
@@ -337,10 +351,13 @@ func _add_roster_button(grid, unit_type, construction):
 	var cost = info.cost
 	var button = RosterButton.new()
 	button.name = "Build" + unit_type if construction else "Produce" + unit_type
-	button.custom_minimum_size = Vector2(154, 74)
+	button.custom_minimum_size = Vector2(148, 108)
+	button.theme_type_variation = "BattleCardButton"
 	button.icon = load(Factions.icon(player.faction, unit_type))
 	button.expand_icon = true
-	button.add_theme_constant_override("icon_max_width", 42)
+	button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	button.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
+	button.add_theme_constant_override("icon_max_width", 62)
 	button.add_theme_font_size_override("font_size", 12)
 	button.text = (
 		"%s\n%d M · %d E"
@@ -571,3 +588,14 @@ func _rally_destination(rally):
 	if "resource_b" in target and target.is_in_group("resource_units"):
 		return "Electronics"
 	return Factions.title(target.player.faction, target.type)
+
+
+func _page(title: String) -> VBoxContainer:
+	for child in _pages.get_children():
+		if child.name == title:
+			return child
+	var page = VBoxContainer.new()
+	page.name = title
+	page.add_theme_constant_override("separation", 12)
+	_pages.add_child(page)
+	return page

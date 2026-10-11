@@ -1,6 +1,6 @@
 extends "res://tests/headless/FrontierGameplayRegression.gd"
 
-const EVIDENCE = "res://docs/playtests/2026-10-07/signature-feedback/"
+const EVIDENCE = "res://docs/playtests/2026-10-11/signature-feedback/"
 var actor
 var other
 var panel
@@ -18,6 +18,7 @@ func _run():
 		enemy.process_mode = Node.PROCESS_MODE_DISABLED
 		for unit in get_nodes_in_group("units"):
 			unit.process_mode = Node.PROCESS_MODE_DISABLED
+			unit.issue_manual_order(null)
 		actor = _spawn_frontier("CombatRobot", human, Vector3(23, 0, 32))
 		other = _spawn_frontier("CombatRobot", human, Vector3(23, 0, 35))
 		var target = _spawn_frontier("Tank", enemy, Vector3(27, 0, 32))
@@ -68,6 +69,10 @@ func _run():
 		actor.signature.anchored = false
 		other.signature.kind = ""
 		other.signature.anchored = false
+		for unit in [actor, other]:
+			unit.signature.window_left = 0
+			unit.signature.precision_ready = false
+			unit.signature.refresh()
 		# Controlled end-of-effect fixture retains actual independently aged cooldowns.
 		await _select([actor, other])
 		panel.refresh()
@@ -95,6 +100,24 @@ func _run():
 		_check(
 			"chip" in panel._summary.text.to_lower(), faction + ": missing chip has no instruction"
 		)
+		_check(
+			"headquarters" in panel._summary.tooltip_text,
+			faction + ": chip installation location missing"
+		)
+		_check(
+			panel._summary.tooltip_text == panel._activate.tooltip_text,
+			faction + ": summary hover differs"
+		)
+		_check(
+			not panel._activate.accessibility_description.is_empty(),
+			faction + ": ability accessibility missing"
+		)
+		_check(
+			panel._summary.mouse_filter == Control.MOUSE_FILTER_STOP,
+			faction + ": summary cannot receive hover"
+		)
+		await _review(faction + "-missing-chip")
+		await _edge_feedback(faction)
 		await _cleanup()
 	await _display_restore()
 	(
@@ -116,6 +139,75 @@ func _run():
 		push_error(message)
 	print("Signature feedback: %d failures" % errors.size())
 	quit(0 if errors.is_empty() else 1)
+
+
+func _edge_feedback(faction):
+	actor.program.installed = true
+	actor.program.install_left = 1.5
+	panel.refresh()
+	_check("Installing chip" in panel._summary.text, faction + ": installation progress hidden")
+	actor.program.install_left = 0
+	actor.signature.cooldown = 2
+	human.signatures.groups = [{"id": 1, "left": 4.0, "members": [actor]}]
+	panel.refresh()
+	_check("4.0 s" in panel._summary.text, faction + ": cohort cooldown ignored")
+	if faction == "bastion":
+		actor.signature.kind = "anchor"
+		actor.signature.sector = actor.position + Vector3(20, 0, 0)
+		panel.refresh()
+		_check(
+			"Hold still in Anchor sector" in panel._summary.text,
+			"Distant Anchor needs sector guidance"
+		)
+		await _review("bastion-outside-sector")
+		actor.signature.sector = actor.position
+		actor.signature.anchored = true
+		actor.signature.cooldown = 0
+		human.signatures.groups.clear()
+		panel.refresh()
+		_check(
+			"Anchored" in panel._summary.text and panel._activate.disabled,
+			"Settled Anchor falsely ready"
+		)
+	elif faction == "helix":
+		actor.signature.kind = "precision"
+		actor.signature.window_left = 1
+		actor.signature.precision_ready = false
+		panel.refresh()
+		_check("Precision used" in panel._summary.text, "Consumed Precision looks reusable")
+		await _review("helix-used")
+	else:
+		actor.signature.kind = "maneuver"
+		actor.signature.window_left = 3
+		other.signature.cooldown = 0
+		await _select([actor, other])
+		_check(
+			"1 ready" in panel._summary.text and "Maneuver" in panel._summary.text,
+			"Partial-ready hides active effect"
+		)
+		await _review("frontier-partial-active")
+	actor.signature.kind = ""
+	actor.signature.anchored = false
+	actor.signature.cooldown = 0
+	actor.signature.window_left = 0
+	actor.signature.precision_ready = false
+	actor.signature.refresh()
+	human.signatures.groups.clear()
+	await _select([actor])
+	if faction == "helix":
+		actor.weapon_mode = "interception"
+		panel.refresh()
+		_check(
+			panel._activate.disabled and "Precision mode" in panel._summary.tooltip_text,
+			"Missing weapon-mode guidance"
+		)
+		await _review("helix-wrong-mode")
+	var before = actor.signature.capture()
+	for iteration in 5:
+		panel.refresh()
+	_check(
+		actor.signature.capture() == before, faction + ": repeated feedback mutates ability state"
+	)
 
 
 func _select(units):
@@ -169,7 +261,13 @@ func _archive(faction):
 		var saved = again.units.filter(func(unit): return unit.id == record.id)[0]
 		for key in ["position", "hp", "action", "orders", "signature"]:
 			if record.has(key):
-				_check(saved[key] == record[key], "Ability UI changed saved " + key)
+				_check(
+					saved[key] == record[key],
+					(
+						"Ability UI changed saved %s for %s: %s => %s"
+						% [key, record.id, record[key], saved[key]]
+					)
+				)
 	await _select([actor])
 	_expect_active(faction)
 

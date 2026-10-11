@@ -14,7 +14,7 @@ import numpy as np
 from scipy.signal import butter, sosfilt
 
 ROOT = Path(__file__).resolve().parents[2]
-OUT = ROOT / "assets/audio/music"
+OUT = ROOT / "tmp/music/procedural-legacy"
 OUT.mkdir(parents=True, exist_ok=True)
 RATE = 32000
 RNG = np.random.default_rng(3407)

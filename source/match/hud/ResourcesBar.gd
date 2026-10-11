@@ -1,5 +1,7 @@
 extends PanelContainer
 
+const BattleTheme = preload("res://source/match/hud/BattleTheme.gd")
+
 const MATERIALS_ICON = preload("res://assets/ui/economy/materials.svg")
 const ELECTRONICS_ICON = preload("res://assets/ui/economy/electronics.svg")
 const UNITS_ICON = preload("res://assets/ui/economy/units.svg")
@@ -21,14 +23,7 @@ var _assignment_buttons = {}
 
 func _ready():
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	var panel = StyleBoxFlat.new()
-	panel.bg_color = Color("19212bf2")
-	panel.set_corner_radius_all(6)
-	panel.content_margin_left = 14
-	panel.content_margin_right = 14
-	panel.content_margin_top = 6
-	panel.content_margin_bottom = 6
-	add_theme_stylebox_override("panel", panel)
+	BattleTheme.apply(self, 18, 8)
 	var row = HBoxContainer.new()
 	row.add_theme_constant_override("separation", 20)
 	add_child(row)
@@ -105,10 +100,10 @@ func _stat(row, title, width, texture, description):
 	var heading = Label.new()
 	heading.text = title
 	heading.add_theme_font_size_override("font_size", 11)
-	heading.add_theme_color_override("font_color", Color("a5b4c4"))
+	heading.add_theme_color_override("font_color", Color("a9b4b3"))
 	column.add_child(heading)
 	var amount = Label.new()
-	amount.add_theme_font_size_override("font_size", 18)
+	amount.add_theme_font_size_override("font_size", 20)
 	column.add_child(amount)
 	return amount
 

@@ -2,6 +2,8 @@ extends CanvasLayer
 
 signal library_changed
 
+const BattleTheme = preload("res://source/match/hud/BattleTheme.gd")
+
 const Parameters = preload("res://source/match/programs/LuaParameters.gd")
 const Assistant = preload("res://source/match/hud/LLMAssistant.gd")
 const GeneratedDraft = preload("res://source/match/programs/llm/DraftResponse.gd")
@@ -84,14 +86,7 @@ func _build_ui():
 		margin.add_theme_constant_override("margin_" + side, 24)
 	add_child(margin)
 	_panel = PanelContainer.new()
-	var style = StyleBoxFlat.new()
-	style.bg_color = Color("19232f")
-	style.set_corner_radius_all(10)
-	style.content_margin_left = 20
-	style.content_margin_right = 20
-	style.content_margin_top = 16
-	style.content_margin_bottom = 16
-	_panel.add_theme_stylebox_override("panel", style)
+	BattleTheme.apply(_panel, 20, 16)
 	margin.add_child(_panel)
 	var column = VBoxContainer.new()
 	column.add_theme_constant_override("separation", 10)

@@ -49,8 +49,34 @@ func _review_plan(player, label):
 	await _frames(5)
 	var clock = game.simulation_time
 	var actions = step.units.map(func(unit): return unit.action)
+	var activated = [false]
+	var observe = func(): activated[0] = true
+	var trace = []
+	var trace_input = func(event):
+		if event is InputEventMouseButton:
+			trace.append(
+				[event.pressed, panel._action.get_global_rect(), panel._scroll.scroll_vertical]
+			)
+	panel._action.gui_input.connect(trace_input)
+	panel._action.pressed.connect(observe)
 	await _click(panel._action)
+	panel._action.pressed.disconnect(observe)
+	panel._action.gui_input.disconnect(trace_input)
+	_check(activated[0], "Advice button did not receive the click: " + label)
+	if not activated[0]:
+		print(
+			"ADVICE INPUT ",
+			label,
+			" ",
+			trace,
+			" final=",
+			panel._action.get_global_rect(),
+			" scroll=",
+			panel._scroll.get_global_rect()
+		)
 	var selected = get_nodes_in_group("selected_units")
+	if selected != step.units:
+		print("ADVICE TARGET ", label, " expected=", step.units, " selected=", selected)
 	_check(
 		selected.size() == step.units.size(), "Advice selected the wrong number of units: " + label
 	)

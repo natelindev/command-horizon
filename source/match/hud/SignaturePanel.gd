@@ -15,6 +15,9 @@ func _ready():
 	add_child(_activate)
 	_summary = Label.new()
 	_summary.add_theme_font_size_override("font_size", 12)
+	_summary.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_summary.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(_summary)
 	refresh()
 
@@ -54,54 +57,135 @@ func _activate_selection():
 func refresh():
 	var units = _members()
 	if units.is_empty():
+		_activate.disabled = true
+		_summary.text = ""
 		return
 	var player = units[0].player
 	var count = units.filter(func(unit): return player.signatures.eligible(unit)).size()
 	_activate.disabled = count == 0
-	_summary.text = (
-		"%d ready · up to 6" % count if player.coordination_unlocked else "Research Coordination"
-	)
-	var recharge = 0.0
+	var state = _feedback(units, player, count)
+	_summary.text = state.summary
+	var help = _help(player)
+	_activate.tooltip_text = state.details + "\n\n" + help
+	_summary.tooltip_text = _activate.tooltip_text
+	_activate.accessibility_name = tr(Factions.signature_title(player.faction))
+	_activate.accessibility_description = _activate.tooltip_text
+	_summary.accessibility_name = state.summary
+	_summary.accessibility_description = _summary.tooltip_text
+
+
+func _feedback(units, player, ready):
+	if not player.coordination_unlocked:
+		return {
+			"summary": tr("Research Coordination"),
+			"details": tr("Research Coordination at your lab to unlock this ability.")
+		}
+	var effects = {}
+	var recharge = INF
+	var missing = 0
+	var installing = 0
 	for unit in units:
-		if unit.signature != null:
-			recharge = maxf(recharge, unit.signature.cooldown)
-	if count == 0 and recharge > 0:
-		_summary.text = "Recharging · %.1f s" % recharge
-	elif count == 0 and player.coordination_unlocked:
-		var anchored = (
-			units
-			. filter(func(unit): return unit.signature != null and unit.signature.kind == "anchor")
-			. size()
+		if unit.signature == null or unit.program == null or unit.hp <= 0:
+			continue
+		if unit.program.install_left > 0:
+			installing += 1
+		elif not unit.program.installed:
+			missing += 1
+		else:
+			var effect = _effect(unit)
+			if not effect.is_empty():
+				if not effects.has(effect.title):
+					effects[effect.title] = {"count": 0, "left": effect.left}
+				effects[effect.title].count += 1
+				effects[effect.title].left = minf(effects[effect.title].left, effect.left)
+			var left = unit.signature.cooldown
+			for group in player.signatures.groups:
+				if unit in group.members:
+					left = maxf(left, group.left)
+			# Settled Anchor stays active until movement breaks it.
+			if left > 0 and unit.signature.kind != "anchor":
+				recharge = minf(recharge, left)
+	var summary = []
+	if ready > 0:
+		summary.append(tr("%d ready · up to 6") % ready)
+	for title in effects:
+		var effect = effects[title]
+		summary.append(
+			(
+				(tr("%s · %d · %.1f s") % [tr(title), effect.count, effect.left])
+				if effect.left > 0
+				else tr("%s · %d") % [tr(title), effect.count]
+			)
 		)
-		if anchored > 0:
-			_summary.text = "Anchor assigned · %d" % anchored
-		elif player.faction == "helix":
-			_summary.text = "Needs a ready precision shot"
+	var lines = summary.duplicate()
+	if recharge < INF:
+		lines.append(tr("Recharging · %.1f s") % recharge)
+	if installing > 0:
+		lines.append(tr("Installing chip · %d") % installing)
+	if missing > 0:
+		lines.append(tr("Install a chip · %d") % missing)
+		lines.append(tr("Select the unit, then install a chip at your headquarters."))
+	if lines.is_empty():
+		lines.append(
+			(
+				tr("Needs a ready precision shot")
+				if player.faction == "helix"
+				else tr("Needs ready chipped ground combatants")
+			)
+		)
+	if summary.is_empty():
+		summary.append(lines[0])
+	return {"summary": "\n".join(summary), "details": "\n".join(lines)}
+
+
+func _effect(unit):
+	var state = unit.signature
+	if state.kind == "anchor":
+		if state.anchored:
+			return {"title": "Anchored", "left": 0.0}
+		if (
+			unit.global_position_yless.distance_to(state.sector) > state.RADIUS
+			or unit.get_node("Movement")._has_destination
+		):
+			return {"title": "Hold still in Anchor sector", "left": 0.0}
+		return {"title": "Setting up", "left": state.setup_left}
+	if state.kind == "maneuver" and state.window_left > 0:
+		return {"title": "Maneuver active", "left": state.window_left}
+	if state.kind == "precision" and state.window_left > 0:
+		return {
+			"title": "Precision ready" if state.precision_ready else "Precision used",
+			"left": state.window_left
+		}
+	return {}
+
+
+func _help(player):
 	var upgraded = player.technology != null and player.technology.has_doctrine()
-	_activate.tooltip_text = (
-		(
-			"Closest six ready chipped ground combatants. Hold still for 2 s inside a 6 m sector "
+	if player.faction == "bastion":
+		return (
+			tr("Choose a sector for the closest six ready chipped ground combatants.")
+			+ "\n"
 			+ (
-				"for %d%% damage reduction. Moving breaks Anchor. 10 s cooldown. Orders continue."
+				tr("Hold still for 2 s inside the 6 m sector: %d%% damage reduction.")
 				% (25 if upgraded else 15)
 			)
+			+ "\n"
+			+ tr("Moving breaks Anchor. 10 s cooldown. Orders continue.")
 		)
-		if player.faction == "bastion"
-		else (
-			"Up to six ready precision weapons with a visible legal target. "
-			+ (
-				"Their first preparation is %d%% faster within 2 s. 8 s cooldown. "
-				% (50 if upgraded else 20)
-			)
-			+ "Damage and reload do not change."
-		)
-	)
-
 	if player.faction == "frontier":
-		_activate.tooltip_text = (
-			(
-				"Up to six ready chipped ground combatants gain +%d%% movement "
-				+ "speed for 6 s. 25 s cooldown. Orders continue."
-			)
-			% (50 if upgraded else 35)
+		return (
+			tr("Up to six ready chipped ground combatants.")
+			+ "\n"
+			+ tr("+%d%% movement speed for 6 s.") % (50 if upgraded else 35)
+			+ "\n"
+			+ tr("25 s cooldown. Orders continue.")
 		)
+	return (
+		tr("Use chipped Lancers in Precision mode or deployed Prism artillery.")
+		+ "\n"
+		+ tr("Stop moving; wait for reload and a visible legal target.")
+		+ "\n"
+		+ tr("Up to six units: one preparation %d%% faster within 2 s.") % (50 if upgraded else 20)
+		+ "\n"
+		+ tr("8 s cooldown. Damage and reload do not change.")
+	)

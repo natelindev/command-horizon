@@ -17,6 +17,7 @@ var _camera_movement_active = false
 
 
 func _ready():
+	preload("res://source/match/hud/BattleTheme.gd").apply(self, 8, 8)
 	if not FeatureFlags.show_minimap:
 		queue_free()
 	_remove_dummy_nodes()

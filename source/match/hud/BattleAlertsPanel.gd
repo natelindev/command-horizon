@@ -22,13 +22,16 @@ func _ready():
 	model.changed.connect(func(): _dirty = true)
 	Globals.options.changed.connect(func(): _dirty = true)
 	toggle = Button.new()
+	toggle.theme = preload("res://source/match/hud/BattleTheme.gd").create()
 	toggle.custom_minimum_size = Vector2(170, 40)
+	toggle.theme_type_variation = "BattleQuietButton"
 	toggle.tooltip_text = "Battle alerts · inspect events and affected units without changing orders."
 	toggle.pressed.connect(_toggle)
 	add_child(toggle)
 	panel = PanelContainer.new()
 	hud._style(panel)
-	panel.get_theme_stylebox("panel").bg_color = Color("172330")
+	# History floats over the unit panel; keep underlying text from bleeding through.
+	panel.get_theme_stylebox("panel").bg_color = Color("10191f")
 	add_child(panel)
 	var box = VBoxContainer.new()
 	box.add_theme_constant_override("separation", 10)
@@ -37,11 +40,17 @@ func _ready():
 	box.add_child(heading)
 	var title = Label.new()
 	title.text = "BATTLE ALERTS"
-	title.add_theme_font_size_override("font_size", 17)
+	title.add_theme_font_size_override("font_size", 20)
+	title.add_theme_color_override("font_color", Color("d8bc80"))
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	heading.add_child(title)
 	_close = hud._button(heading, "Close", close)
+	_close.theme_type_variation = "BattleQuietButton"
+	_close.add_theme_font_size_override("font_size", 12)
 	_clear = hud._button(box, "Clear history", model.clear_history)
+	_clear.theme_type_variation = "BattleQuietButton"
+	_clear.size_flags_horizontal = Control.SIZE_SHRINK_END
+	_clear.add_theme_font_size_override("font_size", 12)
 	_clear.tooltip_text = "Remove losses and resolved alerts. Active problems remain visible."
 	var scroll = ScrollContainer.new()
 	scroll.name = "History"
@@ -50,7 +59,7 @@ func _ready():
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	box.add_child(scroll)
 	_list = VBoxContainer.new()
-	_list.add_theme_constant_override("separation", 8)
+	_list.add_theme_constant_override("separation", 12)
 	_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(_list)
 	_empty = Label.new()
@@ -160,7 +169,10 @@ func _refresh():
 		row.meta.text = "%02d:%02d · %s%s" % [stamp / 60, stamp % 60, state, count]
 		row.action.text = "Go to field" if entry.kind.begins_with("field_") else "Show"
 		row.action.tooltip_text = "Inspect the location and surviving units without changing orders."
-		row.style.bg_color = Color("263b4c") if entry.active else Color("182633")
+		row.style.bg_color = Color.TRANSPARENT
+		row.title.add_theme_color_override(
+			"font_color", Color("e0c38d") if entry.active else Color("9aa8ad")
+		)
 	for id in rows.keys():
 		if id not in retained:
 			var focused = get_viewport().gui_get_focus_owner()
@@ -198,7 +210,7 @@ func _label(parent, size):
 	var label = Label.new()
 	label.add_theme_font_size_override("font_size", size)
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.custom_minimum_size.x = 310
+	label.custom_minimum_size.x = 274
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(label)
 	return label
@@ -207,23 +219,49 @@ func _label(parent, size):
 func _row(id):
 	var card = PanelContainer.new()
 	var style = StyleBoxFlat.new()
-	style.set_corner_radius_all(6)
-	style.set_content_margin_all(10)
+	style.bg_color = Color.TRANSPARENT
+	style.border_width_bottom = 1
+	style.border_color = Color("c4a56a40")
+	style.content_margin_left = 2
+	style.content_margin_right = 2
+	style.content_margin_top = 8
+	style.content_margin_bottom = 18
 	card.add_theme_stylebox_override("panel", style)
 	_list.add_child(card)
+	var row = HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	card.add_child(row)
+	var marker = Control.new()
+	marker.custom_minimum_size.x = 16
+	marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(marker)
+	marker.draw.connect(
+		func():
+			marker.draw_line(Vector2(8, 25), Vector2(8, marker.size.y), Color("c4a56a30"), 1)
+			marker.draw_colored_polygon(
+				PackedVector2Array(
+					[Vector2(8, 7), Vector2(13, 13), Vector2(8, 19), Vector2(3, 13)]
+				),
+				Color("d8bc80")
+			)
+	)
+	marker.resized.connect(marker.queue_redraw)
 	var box = VBoxContainer.new()
+	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	box.add_theme_constant_override("separation", 5)
-	card.add_child(box)
-	var title = _label(box, 14)
+	row.add_child(box)
+	var title = _label(box, 17)
 	var detail = _label(box, 12)
 	detail.add_theme_color_override("font_color", Color("bcc7d3"))
 	var footer = HBoxContainer.new()
 	box.add_child(footer)
 	var meta = Label.new()
 	meta.add_theme_font_size_override("font_size", 11)
+	meta.add_theme_color_override("font_color", Color("95a4aa"))
 	meta.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	footer.add_child(meta)
 	var action = hud._button(footer, "Show", func(): navigate(id))
+	action.theme_type_variation = "BattleQuietButton"
 	return {
 		"panel": card,
 		"title": title,

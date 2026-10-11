@@ -97,7 +97,7 @@ func _render():
 		var data = document.rules[index]
 		var panel = PanelContainer.new()
 		var style = StyleBoxFlat.new()
-		style.bg_color = Color("24323f")
+		style.bg_color = Color("253538")
 		style.set_corner_radius_all(5)
 		style.content_margin_left = 8
 		style.content_margin_right = 8

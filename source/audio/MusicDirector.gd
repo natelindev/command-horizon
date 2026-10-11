@@ -7,10 +7,10 @@ const TRACKS = {
 	"frontier": "no-shutdown-code"
 }
 const TITLES = {
-	"menu": "After the Silence",
-	"bastion": "Hold the Line",
-	"helix": "Perfect Compliance",
-	"frontier": "No Shutdown Code"
+	"menu": "Nebulous",
+	"bastion": "Rock of War",
+	"helix": "Perpetual Tension",
+	"frontier": "The Recon Mission"
 }
 const FADE_SECONDS = 2.5
 var current_track = ""

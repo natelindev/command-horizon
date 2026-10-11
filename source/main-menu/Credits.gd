@@ -67,6 +67,31 @@ func _ready():
 			. replace("ASSETS", tr("ASSETS"))
 		)
 
+		_rich_text_label.text += "\n\n" + _music_credits() + "[/center]"
+		_rich_text_label.meta_clicked.connect(_on_credit_link)
+
+
+func _music_credits():
+	return (
+		"[u]"
+		+ tr("Music")
+		+ "[/u]\n"
+		+ "[url=https://opengameart.org/content/nebulous]Nebulous[/url]\n"
+		+ "music by Joe Baxter-Webb (BossLevel VGM) · CC BY 3.0\n\n"
+		+ "[url=https://opengameart.org/content/rock-war-music-marching-industrial]"
+		+ "Rock of War[/url] — p0ss · CC BY-SA 3.0\n\n"
+		+ "[url=https://opengameart.org/content/perpetual-tension]Perpetual Tension[/url]\n"
+		+ "[url=https://opengameart.org/content/the-recon-mission]The Recon Mission[/url]\n"
+		+ "Zander Noriega · CC BY 3.0\n\n"
+		+ "[url=https://creativecommons.org/licenses/by/3.0/]CC BY 3.0[/url] · "
+		+ "[url=https://creativecommons.org/licenses/by-sa/3.0/]CC BY-SA 3.0[/url]\n"
+		+ tr("Music edits: volume, fades and Ogg encoding.")
+	)
+
+
+func _on_credit_link(meta):
+	OS.shell_open(str(meta))
+
 
 func _unhandled_input(event):
 	if event.is_action_pressed("ui_cancel"):
