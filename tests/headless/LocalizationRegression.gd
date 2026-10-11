@@ -6,6 +6,7 @@ func _run():
 	var original = preferences.capture()
 	preferences.restore({"screen": 1, "language": "zh_CN"})
 	_check(TranslationServer.get_locale() == "zh_CN", "Chinese locale not applied")
+	await _loading_translations()
 	for pair in [
 		["Settings", "设置"],
 		["Bastion vs Helix", "堡垒 对阵 螺旋"],
@@ -74,3 +75,43 @@ func _run():
 		push_error(message)
 	print("Localization regression: %d failures" % errors.size())
 	quit(0 if errors.is_empty() else 1)
+
+
+func _loading_translations():
+	var messages = {
+		"en": [
+			"Taking ammunition out of depot...",
+			"Creating map...",
+			"Preparing a ground for combat...",
+			"Setting up a camera...",
+			"Placing units in the field..."
+		],
+		"zh_CN": [
+			"正在从仓库搬运弹药…", "正在创建地图…", "正在准备战场…", "正在设置镜头…", "正在部署单位…"
+		]
+	}
+	var previous_locale = TranslationServer.get_locale()
+	for locale in messages:
+		TranslationServer.set_locale(locale)
+		var loading = load("res://source/main-menu/Loading.tscn").instantiate()
+		var settings = load("res://source/data-model/MatchSettings.gd").new()
+		settings.skirmish = true
+		settings.map_path = "res://source/match/maps/BastionDesert.tscn"
+		for index in range(2):
+			var side = load("res://source/data-model/PlayerSettings.gd").new()
+			side.controller = index + 1
+			side.faction = "helix" if index == 0 else "bastion"
+			settings.players.append(side)
+		loading.match_settings = settings
+		loading.map_path = settings.map_path
+		root.add_child(loading)
+		for expected in messages[locale]:
+			_check(
+				loading._label.text == expected,
+				"Loading translation mismatch (%s): %s" % [locale, loading._label.text]
+			)
+			await physics_frame
+		await _frames(3)
+		current_scene.queue_free()
+		await _frames(3)
+	TranslationServer.set_locale(previous_locale)
