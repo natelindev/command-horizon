@@ -40,8 +40,13 @@ func _income(faction):
 		_spawn("Worker", player, Vector3(104 + index, 0, 77))
 	while _units(player, "Infantry").size() < 6:
 		_spawn("Infantry", player, Vector3(98, 0, 72 + _units(player, "Infantry").size()))
+	# Fill infantry demand so this fixture isolates vehicle/air budgets.
+	for role in ["Hero", "AssaultInfantry", "SniperInfantry", "RocketInfantry"]:
+		for index in 1 if role == "Hero" else 2:
+			_spawn(role, player, Vector3(100 + index * 2, 0, 86))
 	_spawn("Drone", player, Vector3(98, 2, 82))
 	var air = _spawn("AircraftFactory", player, Vector3(94, 0, 80))
+	_spawn("PowerPlant", player, Vector3(88, 0, 80))
 	var factory = _units(player, "VehicleFactory")[0]
 	var hq = _units(player, "CommandCenter")[0]
 	var parked = 0

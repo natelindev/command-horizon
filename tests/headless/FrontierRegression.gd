@@ -163,7 +163,7 @@ func _frontier_economy(faction):
 			if kind in deposit:
 				total += deposit.get(kind)
 		totals.append(total)
-	_check(totals == [3000, 1280], "Paired field amounts changed")
+	_check(totals == [3000, 1920], "Paired field amounts changed")
 	var balances = []
 	for side in [human, _enemy()]:
 		var workers = _units(side, "Worker")
@@ -202,7 +202,7 @@ func _frontier_economy(faction):
 	var before = human.resource_b
 	await _frames(5000)
 	_check(
-		outer.resource_b < 400 and human.resource_b > before,
+		outer.resource_b < 600 and human.resource_b > before,
 		"Outer electronics cannot be collected and returned"
 	)
 	print("PASS: %s both home economies, outer electronics return and paired stockpiles" % faction)

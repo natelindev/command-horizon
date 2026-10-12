@@ -160,12 +160,15 @@ func _test_harvesting():
 	for _index in range(6):
 		factory.production_queue.produce(load(Catalog.scene_path("Tank")))
 		factory.production_queue._process(1000)
-	await _frames(90)
-	for unit in _human.get_children():
-		if "type" in unit and unit.type == "Tank":
-			produced.append(unit)
-			unit.action = _moving.new(Vector3(38, 0, 22 + produced.size() * 2))
-	await _frames(1200)
+	# A doorway now holds paid jobs until departing tanks clear it. Accelerate
+	# training while letting the real navigation move each completed tank away.
+	for _frame in range(1200):
+		factory.production_queue._process(1000)
+		for unit in _human.get_children():
+			if "type" in unit and unit.type == "Tank" and unit not in produced:
+				produced.append(unit)
+				unit.action = _moving.new(Vector3(38, 0, 22 + produced.size() * 2))
+		await physics_frame
 	_check(produced.size() == 6, "Factory failed to produce test batch")
 	_check(
 		produced.all(func(unit): return unit.global_position.x > 33),

@@ -5,6 +5,7 @@ const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
 const MotionProfile = preload("res://source/match/units/traits/UnitMotionProfile.gd")
 var motion
 var _wheel_motion = null
+var _infantry_motion = null
 var _turret = null
 var _barrel = null
 var _muzzle = null
@@ -69,6 +70,9 @@ func _ready():
 	if _unit.player.faction == "frontier" and _mobile and not _airborne:
 		_wheel_motion = load("res://source/match/units/traits/WheelMotion.gd").new()
 		_wheel_motion.setup(_unit)
+	if InfantryRoster.is_infantry(_unit.type):
+		_infantry_motion = load("res://source/match/units/traits/InfantryMotion.gd").new()
+		_infantry_motion.setup(_unit, motion.phase)
 	_unit.action_changed.connect(_on_order)
 
 
@@ -128,9 +132,21 @@ func _physics_process(delta):
 	# Buildings keep their foundation fixed; their articulated parts still animate.
 	if _mobile:
 		_geometry.rotation += _hit_axis * sin(_hit_kick * PI)
-		_geometry.rotation.x += kick * (0.04 if _heavy else 0.06)
+		_geometry.rotation.x += (
+			kick * (0.0 if _infantry_motion != null else (0.04 if _heavy else 0.06))
+		)
 		_geometry.rotation.z += kick * motion.recoil_roll
-		_update_body(moving)
+		if _infantry_motion != null:
+			_infantry_motion.advance(
+				delta,
+				distance,
+				_clock,
+				_idle_gesture(),
+				kick,
+				1.0 if is_instance_valid(_unit.aim_target) else 0.0
+			)
+		else:
+			_update_body(moving)
 	if moving and not _airborne and _mobile:
 		_dust_elapsed += delta
 		if _dust_elapsed > 0.22 * motion.cadence:

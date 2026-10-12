@@ -258,6 +258,15 @@ func restore(tree, snapshot):
 			projectile.target_unit = target
 			projectile._flight_left = shot.left
 			unit.add_child(projectile)
+	# Recreate the visible final production stage while the restored battle is
+	# still paused, after every unit has recovered its authoritative position.
+	for saved in _data.units:
+		var unit = entities[saved.id]
+		if not saved.production.is_empty():
+			unit.production_queue.restore_departure()
+		var activity = unit.get_node_or_null("StructureActivity")
+		if activity != null:
+			activity.refresh(0.0)
 	warnings.append_array(actions.warnings)
 	_army_groups(game)
 	_squads()
@@ -397,6 +406,7 @@ func _production(unit, saved):
 		_copy(
 			job, item, ["time_total", "time_left", "paid_cost", "fitted_chip", "program_snapshot"]
 		)
+		job.departure_endpoint = item.get("departure_endpoint")
 		job.unit_prototype = load(Catalog.scene_path(item.role))
 		queue._enqueue_element(job)
 

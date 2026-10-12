@@ -25,7 +25,8 @@ func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
 	for faction in factions.IDS:
 		var player = await _fixture(faction)
-		await _capped_income(player)
+		if "--budget-only" not in OS.get_cmdline_user_args():
+			await _capped_income(player)
 		await _budget_contracts(player)
 		paused = false
 		game.queue_free()
@@ -64,7 +65,8 @@ func _fixture(faction):
 		["AircraftFactory", Vector3(94, 0, 80)],
 		["AntiAirTurret", Vector3(80, 0, 80)],
 		["AntiGroundTurret", Vector3(76, 0, 80)],
-		["PowerPlant", Vector3(84, 0, 80)]
+		["PowerPlant", Vector3(84, 0, 80)],
+		["PowerPlant", Vector3(84, 0, 70)]
 	]:
 		_spawn(entry[0], player, entry[1])
 	# A staged full army isolates a legal state with no remaining unit/building
@@ -148,6 +150,10 @@ func _budget_contracts(player):
 	await _frames(2)
 	for worker in _units(player, "Worker"):
 		worker.process_mode = Node.PROCESS_MODE_DISABLED
+	# Isolate research/vehicle budgets from the expanded infantry roster.
+	for role in ["Hero", "AssaultInfantry", "SniperInfantry", "RocketInfantry"]:
+		for index in 1 if role == "Hero" else 2:
+			_spawn(role, player, Vector3(60 + index * 2, 0, 86))
 	player.coordination_unlocked = true
 	player.coordination_left = -1.0
 	player.technology.cancel()

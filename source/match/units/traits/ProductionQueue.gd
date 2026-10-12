@@ -7,7 +7,7 @@ const FactoryProgram = preload("res://source/match/programs/FactoryProgram.gd")
 
 const Factions = preload("res://source/match/FactionCatalog.gd")
 
-const Moving = preload("res://source/match/units/actions/Moving.gd")
+const Departure = preload("res://source/match/effects/ProductionDeparture.gd")
 const BastionCatalog = preload("res://source/match/BastionCatalog.gd")
 
 
@@ -18,6 +18,7 @@ class ProductionQueueElement:
 	var fitted_chip = false
 	var paid_cost = {}
 	var program_snapshot = {}
+	var departure_endpoint = null
 	var time_left = null:
 		set(value):
 			time_left = value
@@ -30,6 +31,8 @@ class ProductionQueueElement:
 var fit_chips = false
 var program_pin = {}
 var program_library_path = "user://program-library.json"
+var departure = null
+var exit_blocked = false
 var _queue = []
 
 @onready var _unit = get_parent()
@@ -40,15 +43,51 @@ func _process(delta):
 		return
 	delta *= _unit.player.production_factor()
 	while _queue.size() > 0 and delta > 0.0:
-		var current_queue_element = _queue.front()
-		if not blocked_reason().is_empty():
+		var element = _queue.front()
+		if not blocked_reason(false).is_empty():
 			return
-		var elapsed = min(delta, current_queue_element.time_left)
-		current_queue_element.time_left -= elapsed
+		# The exit animation consumes the final part of the paid production time.
+		var departure_seconds = Departure.seconds(element)
+		if element.time_left > departure_seconds:
+			var assembly = minf(delta, element.time_left - departure_seconds)
+			element.time_left -= assembly
+			delta -= assembly
+			if delta <= 0:
+				return
+		if not is_instance_valid(departure):
+			departure = Departure.new()
+			departure.name = "ProductionDeparture"
+			_unit.add_child(departure)
+			departure.prepare(_unit, element)
+		exit_blocked = not departure.find_route()
+		if exit_blocked:
+			departure.update_pose(0.0)
+			return
+		var elapsed = minf(delta, element.time_left)
+		element.time_left -= elapsed
 		delta -= elapsed
-		if current_queue_element.time_left == 0.0:
-			_remove_element(current_queue_element)
-			_finalize_production(current_queue_element)
+		departure.update_pose(elapsed)
+		if element.time_left == 0.0:
+			var launch = departure
+			departure = null
+			_remove_element(element)
+			_finalize_production(element, launch)
+			launch.queue_free()
+
+
+func restore_departure():
+	if _queue.is_empty() or not _unit.is_constructed():
+		return
+	var element = _queue.front()
+	if element.time_left > Departure.seconds(element):
+		return
+	if not is_instance_valid(departure):
+		departure = Departure.new()
+		departure.name = "ProductionDeparture"
+		_unit.add_child(departure)
+		departure.prepare(_unit, element)
+	exit_blocked = not departure.find_route()
+	departure.update_pose(0.0)
 
 
 func size():
@@ -59,7 +98,7 @@ func get_elements():
 	return _queue
 
 
-func blocked_reason():
+func blocked_reason(include_exit = true):
 	if _queue.is_empty():
 		return ""
 	if not _unit.is_constructed():
@@ -75,7 +114,9 @@ func blocked_reason():
 		if role == "Hero":
 			return "A hero is already alive or in training."
 		return "Research Coordination to resume this queue."
-	return ""
+	return (
+		"Clear the production exit to release this unit." if include_exit and exit_blocked else ""
+	)
 
 
 func produce(unit_prototype, ignore_limit = false):
@@ -140,35 +181,21 @@ func _enqueue_element(element):
 
 
 func _remove_element(element):
+	if is_instance_valid(departure) and departure.job == element:
+		departure.queue_free()
+		departure = null
+		exit_blocked = false
 	_queue.erase(element)
 	element_removed.emit(element)
 
 
-func _finalize_production(former_queue_element):
+func _finalize_production(former_queue_element, launch):
 	var produced_unit = former_queue_element.unit_prototype.instantiate()
 	if former_queue_element.fitted_chip:
 		produced_unit.set_meta("chip_installed", true)
-	var placement_position = (
-		Utils
-		. Match
-		. Unit
-		. Placement
-		. find_valid_position_radially_yet_skip_starting_radius(
-			_unit.global_position,
-			_unit.radius,
-			produced_unit.radius,
-			0.1,
-			Vector3(0, 0, 1),
-			false,
-			find_parent("Match").navigation.get_navigation_map_rid_by_domain(
-				produced_unit.movement_domain
-			),
-			get_tree()
-		)
-	)
-	MatchSignals.setup_and_spawn_unit.emit(
-		produced_unit, Transform3D(Basis(), placement_position), _unit.player
-	)
+	var placement = launch.global_transform
+	MatchSignals.setup_and_spawn_unit.emit(produced_unit, placement, _unit.player)
+	launch.handoff(produced_unit)
 	FactoryProgram.apply_to(produced_unit, former_queue_element.program_snapshot)
 	MatchSignals.unit_production_finished.emit(produced_unit, _unit)
 

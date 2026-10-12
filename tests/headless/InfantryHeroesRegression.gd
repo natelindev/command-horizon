@@ -130,6 +130,9 @@ func _production_and_identity():
 		barracks.production_queue._process(100)
 		await _frames(2)
 		_check(not _units(human, role).is_empty(), "Production did not spawn " + role)
+		# Keep the doorway free while testing the entire roster with frozen units.
+		for trained_unit in _units(human, role):
+			trained_unit.position = Vector3(42 + Roster.INFANTRY_ROLES.find(role) * 2, 0, 12)
 	_freeze_units()
 	# All five actual UI buttons must exist, including the locked unique hero.
 	barracks.get_node("Selection").select()

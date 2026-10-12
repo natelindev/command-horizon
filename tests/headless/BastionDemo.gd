@@ -45,7 +45,7 @@ func _run():
 					team_surfaces += 1
 		_check(team_surfaces > 0, "Team colors missing: " + unit_type)
 	_check(_human.population() == 10, "Starter population")
-	_check(_human.power_totals() == Vector2i(45, 29), "Starter power")
+	_check(_human.power_totals() == Vector2i(32, 29), "Starter power")
 	await _test_production()
 	await _test_building_and_repairs()
 	await _test_movement_and_combat()

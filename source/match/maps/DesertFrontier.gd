@@ -48,7 +48,7 @@ func _ready():
 			deposit.position = Vector3(anchor.x + offset, 0, anchor.y)
 			$Resources.add_child(deposit)
 		var electronics = load("res://source/match/units/non-player/ResourceB.tscn").instantiate()
-		electronics.resource_b = 240 if index < 2 else 400
+		electronics.resource_b = 360 if index < 2 else 600
 		electronics.position = Vector3(anchor.x + 5.5 * mirror, 0, anchor.y + 2 * mirror)
 		$Resources.add_child(electronics)
 	for index in RIDGES.size():

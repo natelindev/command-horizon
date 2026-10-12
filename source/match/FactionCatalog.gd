@@ -59,12 +59,12 @@ const HELIX_DESCRIPTIONS = {
 	),
 	"CombatRobot":
 	(
-		"Precision: 8 m anti-armor lance, 0.75 s charge; weak against infantry. "
+		"Precision: 12 m anti-armor lance, 0.75 s charge; weak against infantry. "
 		+ "Interception: aircraft only. Switching disables fire for 2 s."
 	),
 	"AdvancedTank":
 	(
-		"10 m ground-only precision fire. Deploys while stationary for 1.5 s; each shot "
+		"14 m ground-only precision fire. Deploys while stationary for 1.5 s; each shot "
 		+ "charges for 0.75 s. Moving retracts supports."
 	),
 	"Drone":
@@ -77,7 +77,7 @@ const HELIX_DESCRIPTIONS = {
 		"Fast strike aircraft for ground raids and air combat. Avoid dedicated anti-air and "
 		+ "return to a flight deck for service."
 	),
-	"CommandCenter": "Produces Mule engineers, receives harvested resources and supplies 20 power.",
+	"CommandCenter": "Produces Mule engineers, receives harvested resources and supplies 8 power.",
 	"Barracks":
 	(
 		"Trains four infantry classes and a unique hero. Two infantry recovery "
@@ -258,11 +258,17 @@ static func available(player, role, building = false, ignore_job = null):
 
 static func prepare_model(unit, faction):
 	var geometry = unit.get_node("Geometry")
-	if faction in ["helix", "frontier"]:
+	if Bastion.is_infantry(unit.type):
 		for child in geometry.get_children():
 			child.free()
-		var model_role = "Infantry" if Bastion.is_infantry(unit.type) else unit.type
-		geometry.add_child(model_geometry(faction, model_role, unit.radius))
+		geometry.add_child(
+			load("res://source/match/units/traits/InfantryModel.gd").build(faction, unit.type)
+		)
+		unit.set_meta("model_faction", faction)
+	elif faction in ["helix", "frontier"]:
+		for child in geometry.get_children():
+			child.free()
+		geometry.add_child(model_geometry(faction, unit.type, unit.radius))
 		unit.set_meta("model_faction", faction)
 	if Bastion.is_infantry(unit.type):
 		load("res://source/match/units/traits/InfantryEquipment.gd").equip(unit, faction)
@@ -330,11 +336,12 @@ static func apply_stats(unit):
 			"helix":
 				unit.attack_damage = 15
 				unit.attack_interval = 1.5
-				unit.attack_range = 9.0
+				unit.attack_range = 13.0
+				unit.sight_range = 14.0
 			"frontier":
 				unit.attack_damage = 7
 				unit.attack_interval = .45
-				unit.attack_range = 5.0
+				unit.attack_range = 8.0
 	if unit.player.faction == "frontier" and unit.movement_speed > 0:
 		unit.hp_max = roundi(unit.hp_max * health_factor("frontier"))
 		unit.hp = unit.hp_max
@@ -352,7 +359,8 @@ static func apply_stats(unit):
 		if unit.type in ["Drone", "Tank"]:
 			unit.sight_range += 2.0
 		if unit.type == "AdvancedTank":
-			unit.attack_range = 10.0
+			unit.attack_range = 14.0
+			unit.sight_range = 15.0
 			unit.get_node("Movement").speed *= 0.75
 	if unit.type == "CombatRobot":
 		unit.configure_weapon()

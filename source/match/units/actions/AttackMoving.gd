@@ -36,7 +36,9 @@ func _process(delta):
 
 func _physics_process(delta):
 	_elapsed += delta
-	if _elapsed < 0.25:
+	# Check promptly at the range boundary: fast units otherwise travel another
+	# metre toward the target before braking, compressing the firing line.
+	if _elapsed < 0.1:
 		return
 	_elapsed = 0.0
 	if is_instance_valid(_shot) and not _shot.is_queued_for_deletion():

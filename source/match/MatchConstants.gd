@@ -65,7 +65,7 @@ class Resources:
 	class B:
 		const COLOR = Color("65cdd8")
 		const MATERIAL_PATH = "res://source/match/resources/materials/resource_b.material.tres"
-		const COLLECTING_TIME_S = 2.0
+		const COLLECTING_TIME_S = 1.5
 
 
 class Units:
@@ -172,8 +172,8 @@ class Units:
 			"hp_max": 110,
 			"attack_damage": 9,
 			"attack_interval": 0.65,
-			"attack_range": 6.0,
-			"sight_range": 10.0,
+			"attack_range": 9.0,
+			"sight_range": 11.0,
 			"attack_domains": [Navigation.Domain.TERRAIN]
 		},
 		"res://source/match/units/AssaultInfantry.tscn":
@@ -182,8 +182,8 @@ class Units:
 			"hp_max": 42,
 			"attack_damage": 4,
 			"attack_interval": 0.4,
-			"attack_range": 3.5,
-			"sight_range": 7.0,
+			"attack_range": 5.5,
+			"sight_range": 8.0,
 			"attack_domains": [Navigation.Domain.TERRAIN]
 		},
 		"res://source/match/units/SniperInfantry.tscn":
@@ -192,8 +192,8 @@ class Units:
 			"hp_max": 20,
 			"attack_damage": 12,
 			"attack_interval": 2.1,
-			"attack_range": 9.0,
-			"sight_range": 10.0,
+			"attack_range": 13.0,
+			"sight_range": 14.0,
 			"attack_domains": [Navigation.Domain.TERRAIN]
 		},
 		"res://source/match/units/RocketInfantry.tscn":
@@ -202,8 +202,8 @@ class Units:
 			"hp_max": 32,
 			"attack_damage": 11,
 			"attack_interval": 2.3,
-			"attack_range": 6.5,
-			"sight_range": 8.0,
+			"attack_range": 10.0,
+			"sight_range": 11.0,
 			"attack_domains": [Navigation.Domain.TERRAIN]
 		},
 		"res://source/match/units/EvacTransport.tscn":
@@ -213,10 +213,10 @@ class Units:
 		{
 			"hp": 22,
 			"hp_max": 22,
-			"sight_range": 7.0,
+			"sight_range": 9.0,
 			"attack_damage": 3,
 			"attack_interval": 0.7,
-			"attack_range": 4.5,
+			"attack_range": 7.0,
 			"attack_domains": [Navigation.Domain.TERRAIN]
 		},
 		"res://source/match/units/RepairRobot.tscn": {"hp": 45, "hp_max": 45, "sight_range": 7.0},
@@ -224,20 +224,20 @@ class Units:
 		{
 			"hp": 65,
 			"hp_max": 65,
-			"sight_range": 8.0,
+			"sight_range": 10.0,
 			"attack_damage": 5,
 			"attack_interval": 0.7,
-			"attack_range": 5.5,
+			"attack_range": 8.0,
 			"attack_domains": [Navigation.Domain.TERRAIN]
 		},
 		"res://source/match/units/AdvancedTank.tscn":
 		{
 			"hp": 105,
 			"hp_max": 105,
-			"sight_range": 10.0,
+			"sight_range": 14.0,
 			"attack_damage": 18,
 			"attack_interval": 2.0,
-			"attack_range": 8.0,
+			"attack_range": 12.0,
 			"attack_domains": [Navigation.Domain.TERRAIN]
 		},
 		"res://source/match/units/Barracks.tscn": {"hp": 220, "hp_max": 220, "sight_range": 8.0},
@@ -259,22 +259,22 @@ class Units:
 		},
 		"res://source/match/units/Helicopter.tscn":
 		{
-			"sight_range": 8.0,
+			"sight_range": 11.0,
 			"hp": 50,
 			"hp_max": 50,
 			"attack_damage": 7,
 			"attack_interval": 1.4,
-			"attack_range": 6.0,
+			"attack_range": 9.0,
 			"attack_domains": [Navigation.Domain.TERRAIN, Navigation.Domain.AIR],
 		},
 		"res://source/match/units/Tank.tscn":
 		{
-			"sight_range": 8.0,
+			"sight_range": 11.0,
 			"hp": 80,
 			"hp_max": 80,
 			"attack_damage": 9,
 			"attack_interval": 1.2,
-			"attack_range": 6.0,
+			"attack_range": 9.0,
 			"attack_domains": [Navigation.Domain.TERRAIN],
 		},
 		"res://source/match/units/CommandCenter.tscn":
@@ -297,22 +297,22 @@ class Units:
 		},
 		"res://source/match/units/AntiGroundTurret.tscn":
 		{
-			"sight_range": 8.0,
+			"sight_range": 13.0,
 			"hp": 120,
 			"hp_max": 120,
 			"attack_damage": 9,
 			"attack_interval": 1.2,
-			"attack_range": 8.0,
+			"attack_range": 12.0,
 			"attack_domains": [Navigation.Domain.TERRAIN],
 		},
 		"res://source/match/units/AntiAirTurret.tscn":
 		{
-			"sight_range": 8.0,
+			"sight_range": 13.0,
 			"hp": 100,
 			"hp_max": 100,
 			"attack_damage": 8,
 			"attack_interval": 1.0,
-			"attack_range": 8.0,
+			"attack_range": 12.0,
 			"attack_domains": [Navigation.Domain.AIR],
 		},
 	}

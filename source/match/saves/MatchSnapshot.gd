@@ -107,7 +107,7 @@ func capture(game):
 		)
 	var camera = game.get_node("IsometricCamera3D")
 	var result = {
-		"snapshot_version": 11,
+		"snapshot_version": 12,
 		"map_revision": 1,
 		"settings": settings,
 		"simulation_time": game.simulation_time,
@@ -378,7 +378,15 @@ func _unit(unit):
 		result.production = {"fit_chips": queue.fit_chips, "pin": queue.program_pin, "jobs": []}
 		for job in queue.get_elements():
 			var item = _properties(
-				job, ["time_total", "time_left", "paid_cost", "fitted_chip", "program_snapshot"]
+				job,
+				[
+					"time_total",
+					"time_left",
+					"paid_cost",
+					"fitted_chip",
+					"program_snapshot",
+					"departure_endpoint"
+				]
 			)
 			item.role = job.unit_prototype.resource_path.get_file().get_basename()
 			result.production.jobs.append(item)

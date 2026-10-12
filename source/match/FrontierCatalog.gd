@@ -46,11 +46,11 @@ const COSTS = {
 	"Worker": [6, 0],
 	"Infantry": [5, 0],
 	"Tank": [20, 4],
-	"RepairRobot": [14, 6],
-	"CombatRobot": [22, 12],
-	"AdvancedTank": [34, 18],
+	"RepairRobot": [14, 4],
+	"CombatRobot": [22, 8],
+	"AdvancedTank": [34, 14],
 	"Drone": [7, 4],
-	"Helicopter": [28, 16],
+	"Helicopter": [28, 12],
 }
 const DESCRIPTIONS = {
 	"RepairRobot": "Field repair support. Built-in program chip; service damaged ground machines.",
@@ -77,7 +77,7 @@ const DESCRIPTIONS = {
 	),
 	"AdvancedTank":
 	(
-		"8 m heavy cannon against armor. Fires without a preparation "
+		"12 m heavy cannon against armor. Fires without a preparation "
 		+ "charge; lighter protection demands scouting and repair support."
 	),
 	"Drone":
@@ -91,7 +91,7 @@ const DESCRIPTIONS = {
 		+ "anti-air; return to a rotor pad for service."
 	),
 	"CommandCenter":
-	"Produces scrapper rigs, accepts harvested and salvaged materials, and supplies 20 power.",
+	"Produces scrapper rigs, accepts harvested and salvaged materials, and supplies 8 power.",
 	"Barracks":
 	(
 		"Trains four infantry classes and a unique hero. Two infantry recovery "
@@ -110,7 +110,7 @@ const DESCRIPTIONS = {
 		+ "Research Coordination for Ironbacks and Maneuver Burst. Uses 5 "
 		+ "power."
 	),
-	"PowerPlant": "Supplies 25 power to keep production and research running.",
+	"PowerPlant": "Supplies 12 power to keep production and research running.",
 	"RepairDepot":
 	"Repairs mechanical ground units and fits vehicle chips for 2 E / 3 s. Uses 3 power.",
 	"AntiGroundTurret": "Fixed ground cannon; protect against infantry and aircraft. Uses 2 power.",

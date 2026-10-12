@@ -59,9 +59,13 @@ static func plan(game, player, units):
 	var gap = Vector2i(maxi(0, demand.x - player.resource_a), maxi(0, demand.y - player.resource_b))
 	var target = electronics
 	if gap != Vector2i.ZERO:
-		# Electronics take twice as long at the work slot. Round trips and
-		# congestion still limit actual income; this is a bounded demand split.
-		target = roundi(workers.size() * float(gap.y * 2) / maxi(1, gap.x + gap.y * 2))
+		# Weight deficits by collection time so labor follows economy tuning.
+		# Round trips and congestion still limit actual income.
+		var material_work = gap.x * Constants.Match.Resources.A.COLLECTING_TIME_S
+		var electronics_work = gap.y * Constants.Match.Resources.B.COLLECTING_TIME_S
+		target = roundi(
+			workers.size() * electronics_work / maxf(1.0, material_work + electronics_work)
+		)
 		if workers.size() > 1 and demand.x > 0 and demand.y > 0:
 			target = clampi(target, 1, workers.size() - 1)
 	elif workers.any(func(worker): return result[worker] == 0):

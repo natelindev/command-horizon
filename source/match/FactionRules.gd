@@ -10,11 +10,11 @@ const UNIT_COSTS = {
 	"Worker": [6, 0],
 	"Infantry": [6, 0],
 	"Tank": [24, 6],
-	"RepairRobot": [16, 8],
-	"CombatRobot": [24, 16],
-	"AdvancedTank": [40, 24],
+	"RepairRobot": [16, 6],
+	"CombatRobot": [24, 12],
+	"AdvancedTank": [40, 18],
 	"Drone": [8, 4],
-	"Helicopter": [32, 20],
+	"Helicopter": [32, 14],
 }
 const HELIX_COSTS = {
 	"Hero": [48, 24],
@@ -24,11 +24,11 @@ const HELIX_COSTS = {
 	"Worker": [6, 0],
 	"Infantry": [6, 0],
 	"Tank": [22, 10],
-	"RepairRobot": [14, 12],
-	"CombatRobot": [26, 20],
-	"AdvancedTank": [36, 30],
+	"RepairRobot": [14, 8],
+	"CombatRobot": [26, 14],
+	"AdvancedTank": [36, 22],
 	"Drone": [8, 6],
-	"Helicopter": [28, 24],
+	"Helicopter": [28, 18],
 }
 const IDS = ["bastion", "helix", "frontier"]
 const NAMES = {

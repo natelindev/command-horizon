@@ -70,6 +70,7 @@ func _spawn_player_units(player, spawn_transform):
 	]
 	if human:
 		roster += [
+			["PowerPlant", Vector3(-11, 0, 0)],
 			["AircraftFactory", Vector3(6, 0, -6)],
 			["CommandLab", Vector3(0, 0, -6)],
 			["RepairDepot", Vector3(-6, 0, 6)],

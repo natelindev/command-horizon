@@ -1,8 +1,22 @@
 extends CanvasLayer
 
+const BattleTheme = preload("res://source/match/hud/BattleTheme.gd")
+
 
 func _ready():
 	hide()
+	var panel = find_child("PanelContainer")
+	if panel != null:
+		BattleTheme.apply(panel, 20, 16)
+	var resume = find_child("ResumeButton")
+	if resume != null:
+		resume.theme = BattleTheme.create()
+		resume.theme_type_variation = "BattlePrimaryButton"
+		resume.custom_minimum_size.y = 40
+	var exit_btn = find_child("ExitButton")
+	if exit_btn != null:
+		exit_btn.theme = BattleTheme.create()
+		exit_btn.custom_minimum_size.y = 40
 
 
 func _unhandled_input(event):

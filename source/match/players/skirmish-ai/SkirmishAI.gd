@@ -67,9 +67,9 @@ func _next_building(units):
 		return "PowerPlant"
 	for role in ["Barracks", "VehicleFactory"]:
 		if _of_type(units, role).is_empty():
-			return role
+			return _power_ready_building(units, role)
 	if _of_type(units, "AntiAirTurret").is_empty() and Composition.observed(_match, self).air > 0:
-		return "AntiAirTurret"
+		return _power_ready_building(units, "AntiAirTurret")
 	var expansion = {
 		"CommandLab": 100.0,
 		"AircraftFactory": 150.0,
@@ -79,8 +79,18 @@ func _next_building(units):
 	}
 	for role in expansion:
 		if _match.simulation_time >= expansion[role] and _of_type(units, role).is_empty():
-			return role
+			return _power_ready_building(units, role)
 	return ""
+
+
+func _power_ready_building(units, role):
+	var power = power_totals()
+	if (
+		power.x < power.y + Catalog.POWER_USAGE.get(role, 0)
+		and _of_type(units, "PowerPlant").all(func(unit): return unit.is_constructed())
+	):
+		return "PowerPlant"
+	return role
 
 
 func _build(units, desired):

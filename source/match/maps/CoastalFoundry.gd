@@ -229,7 +229,7 @@ func _resources():
 			deposit.position = Vector3(point.x + offset, 0, point.y)
 			$Resources.add_child(deposit)
 		var electronics = load("res://source/match/units/non-player/ResourceB.tscn").instantiate()
-		electronics.resource_b = 240 if index < 2 else 400
+		electronics.resource_b = 360 if index < 2 else 600
 		electronics.position = Vector3(
 			point.x + mirror * 6.5, 0, point.y + (-2 if index < 2 else 2)
 		)

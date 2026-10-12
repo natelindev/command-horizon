@@ -116,11 +116,14 @@ func _test_idle(unit):
 	_check(visual._idle_blend == 0.0, "Long-idle gesture started before threshold")
 	for frame in range(480):
 		visual._physics_process(1.0 / 60)
-	var pose = geometry.transform
+	var animated_body = (
+		geometry.get_node("InfantryRig/Chest") if geometry.has_node("InfantryRig") else geometry
+	)
+	var pose = animated_body.transform
 	for frame in range(30):
 		visual._physics_process(1.0 / 60)
 	_check(
-		not pose.is_equal_approx(geometry.transform),
+		not pose.is_equal_approx(animated_body.transform),
 		"Frozen long idle: " + unit.player.faction + unit.type
 	)
 	_check(visual._idle_blend > 0.99, "Long idle never activated")

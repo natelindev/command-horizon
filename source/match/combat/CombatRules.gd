@@ -105,7 +105,7 @@ static func range_for(source, target):
 		and source.player.faction != "helix"
 		and target.movement_domain == Constants.Match.Navigation.Domain.AIR
 	):
-		return minf(4.5, source.attack_range)
+		return minf(6.5, source.attack_range)
 	return (
 		source.attack_range
 		+ (target.radius if target.is_in_group("neutral_buildings") else 0.0)
@@ -138,7 +138,7 @@ static func describe(unit):
 		if unit.type == "CombatRobot":
 			if unit.player.faction == "helix":
 				return ARMOR_NAMES[armor_for(unit.type)] + " · " + unit.weapon_status()
-			text += " 5.5 m / AA 4.5 m · shared reload"
+			text += " 8 m / AA 6.5 m · shared reload"
 	return text
 
 

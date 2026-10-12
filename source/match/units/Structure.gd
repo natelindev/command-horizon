@@ -12,6 +12,13 @@ var _construction_progress = 1.0
 		pass
 
 
+func _ready():
+	await super()
+	var activity = load("res://source/match/effects/StructureActivity.gd").new()
+	activity.name = "StructureActivity"
+	add_child(activity)
+
+
 func is_revealing():
 	return super() and is_constructed()
 

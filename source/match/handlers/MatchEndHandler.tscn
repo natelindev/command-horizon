@@ -30,6 +30,7 @@ grow_vertical = 2
 mouse_filter = 0
 
 [node name="PanelContainer" type="PanelContainer" parent="CenterContainer"]
+custom_minimum_size = Vector2(460, 0)
 layout_mode = 2
 
 [node name="MarginContainer" type="MarginContainer" parent="CenterContainer/PanelContainer"]
@@ -40,69 +41,114 @@ theme_override_constants/margin_right = 20
 theme_override_constants/margin_bottom = 20
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer"]
-custom_minimum_size = Vector2(400, 0)
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 14
 
-[node name="Victory" type="ColorRect" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
-self_modulate = Color(1, 1, 1, 0.5)
-custom_minimum_size = Vector2(0, 200)
+[node name="Victory" type="Panel" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 110)
 layout_mode = 2
-color = Color(0, 1, 0, 1)
 
-[node name="Label" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Victory"]
+[node name="Margin" type="MarginContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Victory"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_font_sizes/font_size = 30
-text = "Victory"
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 18
+
+[node name="Box" type="VBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Victory/Margin"]
+layout_mode = 2
+alignment = 1
+
+[node name="Label" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Victory/Margin/Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.945, 0.933, 0.894, 1)
+theme_override_font_sizes/font_size = 18
+text = "VICTORY // MISSION ACCOMPLISHED"
 horizontal_alignment = 1
-vertical_alignment = 1
 
-[node name="Defeat" type="ColorRect" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
-self_modulate = Color(1, 1, 1, 0.5)
-custom_minimum_size = Vector2(0, 200)
+[node name="Subtitle" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Victory/Margin/Box"]
 layout_mode = 2
-color = Color(1, 0, 0, 1)
-
-[node name="Label" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Defeat"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_font_sizes/font_size = 30
-text = "Defeat"
+theme_override_colors/font_color = Color(0.18, 0.8, 0.44, 1)
+theme_override_font_sizes/font_size = 11
+text = "STATUS: OPERATION COMPLETE · TAC-NET SECURED"
 horizontal_alignment = 1
-vertical_alignment = 1
 
-[node name="Finish" type="ColorRect" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
-self_modulate = Color(1, 1, 1, 0.5)
-custom_minimum_size = Vector2(0, 200)
+[node name="Defeat" type="Panel" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 110)
 layout_mode = 2
 
-[node name="Label" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Finish"]
+[node name="Margin" type="MarginContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Defeat"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_font_sizes/font_size = 30
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 18
+
+[node name="Box" type="VBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Defeat/Margin"]
+layout_mode = 2
+alignment = 1
+
+[node name="Label" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Defeat/Margin/Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.945, 0.933, 0.894, 1)
+theme_override_font_sizes/font_size = 18
+text = "DEFEAT // COMMAND SIGNAL LOST"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Defeat/Margin/Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.906, 0.298, 0.235, 1)
+theme_override_font_sizes/font_size = 11
+text = "STATUS: FORCES COMPROMISED · RETRY RECOMMENDED"
+horizontal_alignment = 1
+
+[node name="Finish" type="Panel" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
+custom_minimum_size = Vector2(0, 110)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Finish"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 18
+
+[node name="Box" type="VBoxContainer" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Finish/Margin"]
+layout_mode = 2
+alignment = 1
+
+[node name="Label" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Finish/Margin/Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.945, 0.933, 0.894, 1)
+theme_override_font_sizes/font_size = 18
 text = "Match finished"
 horizontal_alignment = 1
-vertical_alignment = 1
+
+[node name="Subtitle" type="Label" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/Finish/Margin/Box"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.847, 0.737, 0.502, 1)
+theme_override_font_sizes/font_size = 11
+text = "STATUS: OPERATION CONCLUDED"
+horizontal_alignment = 1
 
 [node name="ExitButton" type="Button" parent="CenterContainer/PanelContainer/MarginContainer/VBoxContainer"]
 layout_mode = 2
 focus_mode = 0
-text = "Exit"
+text = "Main menu"
 
 [connection signal="pressed" from="CenterContainer/PanelContainer/MarginContainer/VBoxContainer/ExitButton" to="." method="_on_exit_button_pressed"]

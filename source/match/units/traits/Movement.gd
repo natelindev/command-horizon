@@ -50,6 +50,11 @@ var _passive_movement_detected = false
 func _physics_process(delta):
 	_physics_delta = delta
 	max_speed = speed
+	# A settled firing line holds its ground while arriving allies flow around it.
+	# Equal avoidance priority lets the rear ranks push shooters toward the enemy.
+	avoidance_priority = (
+		0.8 if not _has_destination and is_instance_valid(_unit.aim_target) else 0.5
+	)
 	if not _has_destination:
 		velocity = Vector3.ZERO
 		return

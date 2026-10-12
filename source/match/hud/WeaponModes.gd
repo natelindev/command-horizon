@@ -22,9 +22,9 @@ func _button(title, mode):
 	button.custom_minimum_size.y = 32
 	button.tooltip_text = (
 		(
-			"Ground targets · anti-armor lance · 8 m\n30 vs heavy armor · 0.75 s charge · weak vs infantry"
+			"Ground targets · anti-armor lance · 12 m\n30 vs heavy armor · 0.75 s charge · weak vs infantry"
 			if mode == "precision"
-			else "Air targets only · 5.5 m"
+			else "Air targets only · 8 m"
 		)
 		+ "\nTwo seconds without firing to switch. Movement and programs continue."
 	)

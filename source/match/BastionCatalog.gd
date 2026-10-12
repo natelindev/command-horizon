@@ -57,14 +57,14 @@ const DESCRIPTIONS = {
 	),
 	"AdvancedTank":
 	(
-		"8 m anti-armor railgun with a 0.75 s charge per shot. Ground targets only; protect "
+		"12 m anti-armor railgun with a 0.75 s charge per shot. Ground targets only; protect "
 		+ "it with a frontline screen."
 	),
 	"RepairRobot": "Repairs nearby allies while idle. Right-click an ally to follow and repair.",
 	"CombatRobot":
 	(
-		"Autocannon against infantry and light machines; weaker against heavy armor. 5.5 m "
-		+ "ground / 4.5 m anti-air, shared reload."
+		"Autocannon against infantry and light machines; weaker against heavy armor. 8 m "
+		+ "ground / 6.5 m anti-air, shared reload."
 	),
 	"Drone": "Unarmed reconnaissance with extended vision.",
 	"Helicopter":
@@ -72,7 +72,7 @@ const DESCRIPTIONS = {
 		"Strike aircraft for ground raids and air combat. Avoid dedicated anti-air and "
 		+ "return to an airfield for service."
 	),
-	"CommandCenter": "Produces engineer rovers. Receives harvested resources. Supplies 20 power.",
+	"CommandCenter": "Produces engineer rovers. Receives harvested resources. Supplies 8 power.",
 	"Barracks":
 	(
 		"Trains four infantry classes and a unique hero. Two infantry recovery "
@@ -81,7 +81,7 @@ const DESCRIPTIONS = {
 	"VehicleFactory": "Produces armor and support robots. Uses 6 power.",
 	"AircraftFactory":
 	"Produces scouts and strike aircraft. Two aircraft service slots within 5 m. Uses 8 power.",
-	"PowerPlant": "Supplies 25 power. Low power slows production and service buildings.",
+	"PowerPlant": "Supplies 12 power. Low power slows production and service buildings.",
 	"CommandLab":
 	(
 		"With a vehicle factory, unlocks chip programs, combat walkers and strike aircraft. "
@@ -111,7 +111,7 @@ const STRUCTURES = [
 	"AntiAirTurret"
 ]
 const REQUIRES = {"Hero": "CommandLab", "AdvancedTank": "CommandLab", "CombatRobot": "CommandLab"}
-const POWER_SUPPLY = {"CommandCenter": 20, "PowerPlant": 25}
+const POWER_SUPPLY = {"CommandCenter": 8, "PowerPlant": 12}
 const POWER_USAGE = {
 	"Barracks": 3,
 	"VehicleFactory": 6,

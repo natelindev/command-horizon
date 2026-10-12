@@ -1,10 +1,13 @@
 extends CanvasLayer
 
 const Human = preload("res://source/match/players/human/Human.gd")
+const BattleTheme = preload("res://source/match/hud/BattleTheme.gd")
 
+@onready var _panel_container = find_child("PanelContainer")
 @onready var _victory_tile = find_child("Victory")
 @onready var _defeat_tile = find_child("Defeat")
 @onready var _finish_tile = find_child("Finish")
+@onready var _exit_button = find_child("ExitButton")
 
 
 func _ready():
@@ -12,6 +15,16 @@ func _ready():
 		queue_free()
 		return
 	hide()
+	if _panel_container != null:
+		BattleTheme.apply(_panel_container, 20, 16)
+	_style_card(_victory_tile, Color("0d2118"), Color("2ecc71"))
+	_style_card(_defeat_tile, Color("210d0d"), Color("e74c3c"))
+	_style_card(_finish_tile, Color("141a20"), Color("d8bc80"))
+	if _exit_button != null:
+		_exit_button.theme = BattleTheme.create()
+		_exit_button.theme_type_variation = "BattlePrimaryButton"
+		_exit_button.custom_minimum_size.y = 42
+		_exit_button.text = tr("Main menu")
 	_victory_tile.hide()
 	_defeat_tile.hide()
 	_finish_tile.hide()
@@ -19,6 +32,18 @@ func _ready():
 	MatchSignals.setup_and_spawn_unit.connect(_on_new_unit)
 	for unit in get_tree().get_nodes_in_group("units"):
 		unit.tree_exited.connect(_on_unit_tree_exited)
+
+
+func _style_card(card: Control, bg: Color, border: Color):
+	if card == null:
+		return
+	var style = StyleBoxFlat.new()
+	style.bg_color = bg
+	style.border_color = border
+	style.set_border_width_all(1)
+	style.border_width_left = 4
+	style.set_corner_radius_all(0)
+	card.add_theme_stylebox_override("panel", style)
 
 
 func _handle_defeat():

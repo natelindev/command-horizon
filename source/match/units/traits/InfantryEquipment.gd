@@ -7,7 +7,9 @@ static func equip(unit, faction):
 	var geometry = unit.get_node("Geometry")
 	var gear = Node3D.new()
 	gear.name = "ClassEquipment"
-	geometry.add_child(gear)
+	var chest = geometry.get_node("InfantryRig/Chest")
+	chest.add_child(gear)
+	gear.position = -chest.position
 	var dark = _material(Color("243139"), .5)
 	var metal = _material(Color("9da9ad"), .65)
 	var accent = _material(
@@ -58,13 +60,13 @@ static func equip(unit, faction):
 			_box(gear, "ShieldMark", Vector3(-.28, .58, -.19), Vector3(.09, .2, .018), accent)
 			_tube(gear, "DrumMagazine", Vector3(.12, .52, -.26), .09, .15, dark)
 		"Hero":
-			geometry.get_child(0).scale *= 1.22
-			gear.scale = Vector3.ONE * 1.22
+			geometry.get_child(0).scale *= 1.12
 			_armor(gear, metal, accent)
 			_box(gear, "CommandPack", Vector3(0, .64, .23), Vector3(.3, .44, .14), dark)
 			_box(gear, "CommandAntenna", Vector3(.17, .99, .25), Vector3(.018, .48, .018), accent)
 			if faction == "helix":
-				_tube(gear, "Lance", Vector3(.12, .68, -.7), .04, .7, accent)
+				_tube(gear, "Lance", Vector3(.10, .73, -.7), .04, .7, accent)
+				chest.get_node("RifleMuzzle").position = Vector3(.10, .11, -1.06)
 			elif faction == "frontier":
 				_box(gear, "ScoutMantle", Vector3(0, .8, .12), Vector3(.57, .15, .35), cloth)
 			else:
@@ -75,10 +77,10 @@ static func equip(unit, faction):
 
 
 static func _armor(parent, metal, accent):
-	for x in [-.24, .24]:
-		_box(parent, "Pauldrons", Vector3(x, .78, 0), Vector3(.22, .2, .26), metal)
-		_box(parent, "RankMark", Vector3(x, .88, -.01), Vector3(.12, .018, .18), accent)
-	_box(parent, "ChestPlate", Vector3(0, .64, -.12), Vector3(.31, .26, .10), metal)
+	for x in [-.18, .18]:
+		_box(parent, "Pauldrons", Vector3(x, .82, 0), Vector3(.13, .12, .18), metal)
+		_box(parent, "RankMark", Vector3(x, .88, -.01), Vector3(.07, .018, .12), accent)
+	_box(parent, "ChestPlate", Vector3(0, .64, -.12), Vector3(.25, .23, .045), metal)
 
 
 static func _material(color, metallic):

@@ -39,8 +39,8 @@ func _run():
 	jackal.issue_manual_order(shoot.new(drone, 1))
 	await _frames(45)
 	_check(is_equal_approx(hp - drone.hp, jackal.attack_damage), "Real Jackal AA hit differs")
-	drone.position = Vector3(27.2, 3, 22)
-	_check(not game.battlefield.can_fire(jackal, drone), "Jackal exceeds 4.5 m AA range")
+	drone.position = Vector3(29.2, 3, 22)
+	_check(not game.battlefield.can_fire(jackal, drone), "Jackal exceeds 6.5 m AA range")
 	await _cleanup()
 	for message in errors:
 		push_error(message)

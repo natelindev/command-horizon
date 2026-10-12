@@ -60,17 +60,17 @@ func validate(data):
 			+ "structure_memory:list"
 			+ (
 				" neutral_buildings:list"
-				if data is Dictionary and data.get("snapshot_version") == 11
+				if data is Dictionary and data.get("snapshot_version") in [11, 12]
 				else ""
 			)
 			+ (
 				" battle_record:dict"
-				if data is Dictionary and data.get("snapshot_version") in [9, 10, 11]
+				if data is Dictionary and data.get("snapshot_version") in [9, 10, 11, 12]
 				else ""
 			)
 			+ (
 				" ambient:list"
-				if data is Dictionary and data.get("snapshot_version") in [6, 7, 8, 9, 10, 11]
+				if data is Dictionary and data.get("snapshot_version") in [6, 7, 8, 9, 10, 11, 12]
 				else ""
 			)
 		)
@@ -85,7 +85,7 @@ func validate(data):
 	):
 		return _fail("Invalid battle record.")
 	if (
-		data.snapshot_version not in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+		data.snapshot_version not in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 		or data.map_revision != 1
 		or not _settings(data.settings)
 	):
@@ -554,7 +554,10 @@ func _unit(unit):
 		for job in unit.production.jobs:
 			if not _shape(
 				job,
-				"time_total:num time_left:num paid_cost:dict fitted_chip:bool program_snapshot:dict role:text"
+				(
+					"time_total:num time_left:num paid_cost:dict fitted_chip:bool program_snapshot:dict role:text"
+					+ (" departure_endpoint:maybevec" if _version >= 12 else "")
+				)
 			):
 				return false
 			if (
@@ -565,6 +568,12 @@ func _unit(unit):
 				or not _shape(job.paid_cost, "resource_a:int resource_b:int")
 			):
 				return _fail("Invalid paid production job.")
+			if _version >= 12 and job.departure_endpoint != null:
+				if (
+					not _position(job.departure_endpoint)
+					or job.departure_endpoint.distance_to(unit.position) > 12
+				):
+					return _fail("Invalid production exit.")
 			if job.fitted_chip and job.role != "Tank":
 				return _fail("Invalid fitted chip job.")
 			if not _factory_program(job.program_snapshot, job.role):

@@ -1,6 +1,8 @@
 extends "res://source/match/units/Tank.gd"
 
 const SWITCH_SECONDS = 2.0
+const PRECISION_RANGE = 12.0
+const INTERCEPTION_RANGE = 8.0
 const MODES = ["precision", "interception"]
 var weapon_mode = "precision"
 var pending_weapon_mode = ""
@@ -68,7 +70,8 @@ func configure_weapon():
 			else Constants.Match.Navigation.Domain.AIR
 		)
 	]
-	attack_range = 8.0 if precision else 5.5
+	attack_range = PRECISION_RANGE if precision else INTERCEPTION_RANGE
+	sight_range = 13.0
 	attack_damage = 15.0 if precision else 5.0
 	attack_interval = 1.25 if precision else 0.7
 	_update_badge()

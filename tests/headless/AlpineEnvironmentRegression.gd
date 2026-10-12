@@ -276,7 +276,7 @@ func _economy(faction):
 			materials += deposit.resource_a
 		else:
 			electronics += deposit.resource_b
-	_check(materials == 3000 and electronics == 1280, "Alpine stockpiles changed")
+	_check(materials == 3000 and electronics == 1920, "Alpine stockpiles changed")
 	var balances = []
 	for side in sides:
 		var workers = _units(side, "Worker")
@@ -309,7 +309,7 @@ func _economy(faction):
 		for worker in _units(sides[index], "Worker"):
 			worker.issue_manual_order(null)
 	var outer_fields = get_nodes_in_group("resource_units").filter(
-		func(unit): return "resource_b" in unit and unit.resource_b == 400
+		func(unit): return "resource_b" in unit and unit.resource_b == 600
 	)
 	var chosen = []
 	balances = []
@@ -328,7 +328,7 @@ func _economy(faction):
 	await _frames(5400)
 	for index in 2:
 		_check(
-			chosen[index].resource_b < 400 and sides[index].resource_b > balances[index],
+			chosen[index].resource_b < 600 and sides[index].resource_b > balances[index],
 			"Alpine outer electronics cannot be collected and returned"
 		)
 	for worker in _units(human, "Worker"):

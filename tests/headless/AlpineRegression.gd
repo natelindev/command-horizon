@@ -67,7 +67,7 @@ func _routes_and_army(human):
 			materials += deposit.resource_a
 		else:
 			electronics += deposit.resource_b
-	_check(materials == 3000 and electronics == 1280, "Authored paired stockpiles changed")
+	_check(materials == 3000 and electronics == 1920, "Authored paired stockpiles changed")
 	var army = []
 	for index in 16:
 		var unit = _spawn_alpine(

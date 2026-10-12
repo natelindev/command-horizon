@@ -56,11 +56,11 @@ func _bastion():
 	var sides = _sides()
 	var walker = _spawn_weapon("CombatRobot", sides[0], Vector3(40, 0, 10))
 	var target = _spawn_weapon("Tank", sides[1], Vector3(45, 0, 10))
-	var air = _spawn_weapon("Drone", sides[1], Vector3(45, 0, 10))
+	var air = _spawn_weapon("Drone", sides[1], Vector3(47, 0, 10))
 	await _frames(40)
 	_check(not walker.request_weapon_mode("interception"), "Bastion accepted Helix stance")
 	_check(game.battlefield.can_fire(walker, target), "Walker ground range was shortened")
-	_check(not game.battlefield.can_fire(walker, air), "Walker AA exceeds 4.5 m")
+	_check(not game.battlefield.can_fire(walker, air), "Walker AA exceeds 6.5 m")
 	air.global_position.x = 44
 	game.battlefield.invalidate()
 	_check(game.battlefield.can_fire(walker, air), "Walker cannot intercept nearby aircraft")
@@ -75,7 +75,7 @@ func _bastion():
 	await _frames(30)
 	_check(is_equal_approx(hp - air.hp, 5.0), "Walker AA profile did not fire after shared reload")
 	# Lua contact legality must agree with actual short-range AA.
-	air.global_position.x = 45
+	air.global_position.x = 47
 	var lua_action = lua_action_type.new(walker.program)
 	lua_action._unit = walker
 	_check(not lua_action._record(air, 1).can_attack, "Lua advertises out-of-range walker AA")
@@ -99,18 +99,18 @@ func _helix():
 	_check(
 		is_equal_approx(rules.damage(walker, support), 12.0), "Lance light-machine damage changed"
 	)
-	target.global_position.x = 47.8
+	target.global_position.x = 51.8
 	game.battlefield.invalidate()
 	_check(game.battlefield.can_fire(walker, target), "Lancer cannot use its new standoff reach")
 	_check(
 		game.battlefield.fireable_targets(walker).has(target),
 		"Candidate search truncated Helix Precision range"
 	)
-	target.global_position.x = 48.2
+	target.global_position.x = 52.2
 	_spawn_weapon("Drone", sides[0], Vector3(46, 0, 10))
 	game.battlefield.invalidate()
 	_check(game.battlefield.is_observed(sides[0], target), "Range probe target is hidden")
-	_check(not game.battlefield.can_fire(walker, target), "Lance exceeds eight-metre range")
+	_check(not game.battlefield.can_fire(walker, target), "Lance exceeds twelve-metre range")
 	_check(
 		not game.battlefield.fireable_targets(walker).has(target),
 		"Candidate search exceeded current weapon range"

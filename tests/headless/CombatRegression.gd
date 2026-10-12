@@ -213,13 +213,13 @@ func _test_target_candidates():
 	blocker._construction_progress = 0.0
 	source.position = Vector3(40, 0, 48)
 	ground.position = Vector3(44, 0, 48)
-	air.position = Vector3(45, 2, 48)
+	air.position = Vector3(47, 2, 48)
 	field.invalidate()
 	_check(field.fireable_targets(source).has(ground), "Candidate query lost nearby ground target")
 	_check(not field.fireable_targets(source).has(ally), "Candidate query included ally")
 	_check(not field.fireable_targets(source).has(air), "Candidate query bypassed short Bastion AA")
 	_check_target_candidates(source, "ground and shorter AA range")
-	air.position.x = 44.5
+	air.position.x = 46.5
 	_check(field.fireable_targets(source).has(air), "Exact AA boundary excluded")
 	_check_target_candidates(source, "same-frame air movement and altitude")
 	ground.position.x = 63

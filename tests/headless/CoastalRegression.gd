@@ -274,7 +274,7 @@ func _coastal_economy(faction):
 			func(unit):
 				return (
 					"resource_b" in unit
-					and unit.resource_b == 400
+					and unit.resource_b == 600
 					and ((unit.position.x < 64) == (index == 0))
 				)
 		)

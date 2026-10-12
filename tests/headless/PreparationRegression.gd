@@ -75,7 +75,7 @@ func _prism():
 	var prism = _spawn_weapon("AdvancedTank", sides[0], Vector3(40, 0, 10))
 	var target = _spawn_weapon("Tank", sides[1], Vector3(48, 0, 10))
 	await _frames(40)
-	_check(prism.attack_range == 10, "Prism lost its range advantage")
+	_check(prism.attack_range == 14, "Prism lost its range advantage")
 	prism.process_mode = Node.PROCESS_MODE_PAUSABLE
 	prism.issue_manual_order(shooting.new(target))
 	await _frames(35)

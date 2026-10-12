@@ -48,7 +48,6 @@ Win by destroying the enemy HQ and preventing a rebuild for 60 seconds.","
    ·   Under construction,   ·   Under construction,   ·   建造中
  %s / right-click cancels., %s / right-click cancels., 按 %s 或右键取消。
  (Lua), (Lua),（Lua）
- 5.5 m / AA 4.5 m · shared reload, 5.5 m / AA 4.5 m · shared reload, 对地 5.5 米 / 防空 4.5 米 · 共用装填
  Hold %s to queue., Hold %s to queue., 按住 %s 可加入队列。
 " Lean: 4 tanks, 8 infantry, 2 engineers; 80 materials / 40 electronics."," Lean: 4 tanks, 8 infantry, 2 engineers; 80 materials / 40 electronics.", 精简：4 辆坦克、8 名步兵、2 名工程师；80 材料 / 40 电子元件。
  Low power runs research at 35% speed., Low power runs research at 35% speed., 电力不足时研究速度为 35%。
@@ -171,12 +170,9 @@ Blocks: buildings · Lines: roads · Blue: water","1  我方基地    2  敌方�
 方块：建筑 · 线条：道路 · 蓝色：水域"
 1 vs 1 · Fog of war · Tactical pause · 100 units per side,1 vs 1 · Fog of war · Tactical pause · 100 units per side,1 对 1 · 战争迷雾 · 战术暂停 · 每方 100 单位上限
 1.0 OFFICIAL LAUNCH,1.0 OFFICIAL LAUNCH,1.0 正式上线
-10 m ground-only precision fire. Deploys while stationary for 1.5 s; each shot charges for 0.75 s. Moving retracts supports.,10 m ground-only precision fire. Deploys while stationary for 1.5 s; each shot charges for 0.75 s. Moving retracts supports.,射程 10 米的精确对地火力。静止 1.5 秒展开，每发蓄力 0.75 秒。移动会收起支架。
 24 members max,24 members max,最多 24 名成员
 2× MSAA,2× MSAA,2× MSAA
 4× MSAA,4× MSAA,4× MSAA
-8 m anti-armor railgun with a 0.75 s charge per shot. Ground targets only; protect it with a frontline screen.,8 m anti-armor railgun with a 0.75 s charge per shot. Ground targets only; protect it with a frontline screen.,射程 8 米的反装甲轨道炮，每发蓄力 0.75 秒。仅攻击地面目标，需要前排保护。
-8 m heavy cannon against armor. Fires without a preparation charge; lighter protection demands scouting and repair support.,8 m heavy cannon against armor. Fires without a preparation charge; lighter protection demands scouting and repair support.,射程 8 米的反装甲重炮，无需蓄力即可射击。防护较轻，需要侦察与维修支援。
 : choose a destination.,: choose a destination.,：请选择目的地。
 "A Bastion convoy must cross a contested freight corridor.
 
@@ -247,7 +243,6 @@ Air Corridor,Air Corridor,空中走廊
 Air Corridor support earned.,Air Corridor support earned.,已获得空中走廊支援。
 Air Corridor support: +20 starting electronics.,Air Corridor support: +20 starting electronics.,空中走廊支援：初始电子元件增加 20。
 Air Corridor · ,Air Corridor · ,空中走廊 · 
-Air targets only · 5.5 m,Air targets only · 5.5 m,仅限空中目标 · 射程 5.5 米
 Air wing,Air wing,航空联队
 Aircraft threaten your economy. ,Aircraft threaten your economy. ,敌机正在威胁经济区。
 Airfield,Airfield,机场
@@ -325,7 +320,6 @@ Audio,Audio,音频
 Auto-resume program,Auto-resume program,自动恢复程序
 Auto-resume: mixed,Auto-resume: mixed,自动恢复：不同设置
 Autocannon,Autocannon,机炮
-"Autocannon against infantry and light machines; weaker against heavy armor. 5.5 m ground / 4.5 m anti-air, shared reload.","Autocannon against infantry and light machines; weaker against heavy armor. 5.5 m ground / 4.5 m anti-air, shared reload.",机炮擅长对抗步兵与轻型机械，对重甲较弱。对地射程 5.5 米 / 防空 4.5 米，共用装填周期。
 Available,Available,可用
 Available with the Forward+ renderer.,Available with the Forward+ renderer.,需使用 Forward+ 渲染器。
 BACK,Back,返回
@@ -811,10 +805,6 @@ Ground battery,Ground battery,地面炮台
 Ground route · south pass,Ground route · south pass,地面路线 · 南侧通道
 Ground screen,Ground screen,地面掩护
 Ground screen counters AA; walkers cover air.,Ground screen counters AA; walkers cover air.,地面掩护对付防空单位；步行机提供防空。
-"Ground targets · anti-armor lance · 8 m
-30 vs heavy armor · 0.75 s charge · weak vs infantry","Ground targets · anti-armor lance · 8 m
-30 vs heavy armor · 0.75 s charge · weak vs infantry","地面目标 · 反装甲光矛 · 射程 8 米
-对重甲伤害 30 · 蓄力 0.75 秒 · 对步兵较弱"
 Ground troops counter mobile anti-air; walkers protect against aircraft. Strike aircraft can return to the flight hangar for stationary repairs. Programs and direct orders both work. All three flights saved earns operation 05 support.,Ground troops counter mobile anti-air; walkers protect against aircraft. Strike aircraft can return to the flight hangar for stationary repairs. Programs and direct orders both work. All three flights saved earns operation 05 support.,地面部队对付机动防空，步行机抵御敌机。攻击机可返回机库停驻维修。程序与直接指令均可使用。救出全部三个航班可获得行动 05 支援。
 Groups,Groups,编队
 Guard & regroup,Guard & regroup,警戒与集结
@@ -1302,7 +1292,6 @@ Precision gun · three support legs,Precision gun · three support legs,精准�
 Precision rail,Precision rail,精确轨道炮
 Precision window,Precision window,精准窗口
 Precision window · %d unit%s · one faster preparation each.,Precision window · %d unit%s · one faster preparation each.,精确窗口 · %d 个单位%s · 各自获得一次加速蓄力。
-"Precision: 8 m anti-armor lance, 0.75 s charge; weak against infantry. Interception: aircraft only. Switching disables fire for 2 s.","Precision: 8 m anti-armor lance, 0.75 s charge; weak against infantry. Interception: aircraft only. Switching disables fire for 2 s.",精确模式：8 米反装甲光矛，蓄力 0.75 秒，对步兵较弱。拦截模式：仅攻击航空器。切换时停火 2 秒。
 Prepare ,Prepare ,准备
 Prepare anti-air protection,Prepare anti-air protection,准备防空保护
 Prepare armored defense,Prepare armored defense,准备装甲防御
@@ -1323,13 +1312,10 @@ Produce,Produce,生产
 Produce %s (%d M / %d E). ,Produce %s (%d M / %d E). ,生产 %s（%d 材料 / %d 电子元件）。
 Produce a %s (%d M / %d E) before investing in the lab. Use direct orders to support your infantry; this vehicle can fit a chip after unlock.,Produce a %s (%d M / %d E) before investing in the lab. Use direct orders to support your infantry; this vehicle can fit a chip after unlock.,建造实验室前，先生产 %s（%d 材料 / %d 电子元件）。直接指挥它支援步兵；解锁后可为其安装芯片。
 Produce your first programmable unit,Produce your first programmable unit,生产首个可编程单位
-"Produces Mule engineers, receives harvested resources and supplies 20 power.","Produces Mule engineers, receives harvested resources and supplies 20 power.",生产骡式工程机，接收采集资源并提供 20 电力。
 Produces armor and support robots. Uses 6 power.,Produces armor and support robots. Uses 6 power.,生产装甲单位与支援机器人。消耗 6 电力。
-Produces engineer rovers. Receives harvested resources. Supplies 20 power.,Produces engineer rovers. Receives harvested resources. Supplies 20 power.,生产工程漫游车，接收采集资源，提供 20 电力。
 Produces refurbished armor and service rigs. Fit chips to new Outriders for +2 E / +3 s. Uses 6 power.,Produces refurbished armor and service rigs. Fit chips to new Outriders for +2 E / +3 s. Uses 6 power.,生产改装装甲与支援车辆。新先驱战车安装芯片额外需 2 电子元件 / 3 秒。消耗 6 电力。
 Produces scouts and strike aircraft. Two aircraft service slots within 5 m. Uses 8 power.,Produces scouts and strike aircraft. Two aircraft service slots within 5 m. Uses 8 power.,生产侦察机与攻击机，在 5 米内提供 2 个航空维修位置。消耗 8 电力。
 Produces scouts and strike rotorcraft. Two aircraft service slots within 5 m. Uses 8 power.,Produces scouts and strike rotorcraft. Two aircraft service slots within 5 m. Uses 8 power.,生产侦察机与攻击旋翼机，在 5 米内提供 2 个航空维修位置。消耗 8 电力。
-"Produces scrapper rigs, accepts harvested and salvaged materials, and supplies 20 power.","Produces scrapper rigs, accepts harvested and salvaged materials, and supplies 20 power.",生产拾荒工程车，接收采集与回收的材料，并提供 20 电力。
 Production batch %d / 3 queued. Destroy its node to cancel unfinished units.,Production batch %d / 3 queued. Destroy its node to cancel unfinished units.,第 %d / 3 批生产已排队。摧毁节点可取消未完成单位。
 Production node disabled,Production node disabled,生产节点已摧毁
 Production starts in 10s · three paid batches per node.,Production starts in 10s · three paid batches per node.,10 秒后开始生产 · 每个节点有三批已付款单位。
@@ -1855,8 +1841,6 @@ Structure limit reached (%d).,Structure limit reached (%d).,已达建筑上限�
 Structures,Structures,建筑
 Structures lost · %d built / %d unfinished,Structures lost · %d built / %d unfinished,建筑损失 · 已完工 %d / 未完工 %d
 Subtitle size,Subtitle size,字幕大小
-Supplies 25 power to keep production and research running.,Supplies 25 power to keep production and research running.,提供 25 电力，维持生产与研究。
-Supplies 25 power. Low power slows production and service buildings.,Supplies 25 power. Low power slows production and service buildings.,提供 25 电力。电力不足会降低生产与支援设施效率。
 Supply,Supply,补给
 Supply Line,Supply Line,补给线
 Supply Line · ,Supply Line · ,补给线 · 
@@ -2262,3 +2246,62 @@ PRIMARY:,PRIMARY:,主武器：
 Fog of war,Fog of war,战争迷雾
 GRID,GRID,网格
 GRID:,GRID:,网格：
+ 8 m / AA 6.5 m · shared reload, 8 m / AA 6.5 m · shared reload, 对地 8 米 / 防空 6.5 米 · 共用装填
+%d survivors,%d survivors,%d 幸存单位
+12 m anti-armor railgun with a 0.75 s charge per shot. Ground targets only; protect it with a frontline screen.,12 m anti-armor railgun with a 0.75 s charge per shot. Ground targets only; protect it with a frontline screen.,射程 12 米的反装甲轨道炮，每发蓄力 0.75 秒。仅攻击地面目标，需要前排保护。
+12 m heavy cannon against armor. Fires without a preparation charge; lighter protection demands scouting and repair support.,12 m heavy cannon against armor. Fires without a preparation charge; lighter protection demands scouting and repair support.,射程 12 米的反装甲重炮，无需蓄力即可射击。防护较轻，需要侦察与维修支援。
+14 m ground-only precision fire. Deploys while stationary for 1.5 s; each shot charges for 0.75 s. Moving retracts supports.,14 m ground-only precision fire. Deploys while stationary for 1.5 s; each shot charges for 0.75 s. Moving retracts supports.,射程 14 米的精确对地火力。静止 1.5 秒展开，每发蓄力 0.75 秒。移动会收起支架。
+Air targets only · 8 m,Air targets only · 8 m,仅限空中目标 · 射程 8 米
+"Autocannon against infantry and light machines; weaker against heavy armor. 8 m ground / 6.5 m anti-air, shared reload.","Autocannon against infantry and light machines; weaker against heavy armor. 8 m ground / 6.5 m anti-air, shared reload.",机炮擅长对抗步兵与轻型机械，对重甲较弱。对地射程 8 米 / 防空 6.5 米，共用装填周期。
+BATTLE REPORT,BATTLE REPORT,战报
+Basic programs unlocked,Basic programs unlocked,基础程序解锁
+Basic programs unlocked · %s,Basic programs unlocked · %s,基础程序解锁 · %s
+Battle duration,Battle duration,战斗时长
+Battle time,Battle time,战斗时间
+Battle time %s,Battle time %s,战斗时间 %s
+Buildings completed,Buildings completed,已完工建筑
+Buildings lost,Buildings lost,损失建筑
+COMBAT DEBRIEF,COMBAT DEBRIEF,战斗简报
+Clear the production exit to release this unit.,Clear the production exit to release this unit.,请清理生产建筑的出口，让单位离开。
+DEFEAT // COMMAND SIGNAL LOST,DEFEAT // COMMAND SIGNAL LOST,战败 // 指挥信号中断
+DRAW // STALEMATE,DRAW // STALEMATE,平局 // 战局僵持
+Draw,Draw,平局
+Economy and destruction recorded since %s,Economy and destruction recorded since %s,经济与战损记录开始于 %s
+Electronics mined,Electronics mined,已开采电子元件
+Enemy buildings destroyed,Enemy buildings destroyed,已摧毁敌方建筑
+Enemy units destroyed,Enemy units destroyed,已摧毁敌方单位
+Exit to main menu,Exit to main menu,返回主菜单
+Exit to title,Exit to title,退出至主界面
+First program active,First program active,首个程序启动
+First program active · %s,First program active · %s,首个程序启动 · %s
+"Ground targets · anti-armor lance · 12 m
+30 vs heavy armor · 0.75 s charge · weak vs infantry","Ground targets · anti-armor lance · 12 m
+30 vs heavy armor · 0.75 s charge · weak vs infantry","地面目标 · 反装甲光矛 · 射程 12 米
+对重甲伤害 30 · 蓄力 0.75 秒 · 对步兵较弱"
+MILITARY PERFORMANCE,MILITARY PERFORMANCE,作战效能
+MISSION DEBRIEF,MISSION DEBRIEF,任务简报
+Map & rules,Map & rules,地图与规则
+Match finished,Match finished,战斗结束
+Materials mined,Materials mined,已开采材料
+Mission select,Mission select,选择任务
+"Precision: 12 m anti-armor lance, 0.75 s charge; weak against infantry. Interception: aircraft only. Switching disables fire for 2 s.","Precision: 12 m anti-armor lance, 0.75 s charge; weak against infantry. Interception: aircraft only. Switching disables fire for 2 s.",精确模式：12 米反装甲光矛，蓄力 0.75 秒，对步兵较弱。拦截模式：仅攻击航空器。切换时停火 2 秒。
+"Produces Mule engineers, receives harvested resources and supplies 8 power.","Produces Mule engineers, receives harvested resources and supplies 8 power.",生产骡式工程机，接收采集资源并提供 8 电力。
+Produces engineer rovers. Receives harvested resources. Supplies 8 power.,Produces engineer rovers. Receives harvested resources. Supplies 8 power.,生产工程漫游车，接收采集资源，提供 8 电力。
+"Produces scrapper rigs, accepts harvested and salvaged materials, and supplies 8 power.","Produces scrapper rigs, accepts harvested and salvaged materials, and supplies 8 power.",生产拾荒工程车，接收采集与回收的材料，并提供 8 电力。
+RESOURCE & LOGISTICS,RESOURCE & LOGISTICS,资源与后勤
+Restore checkpoint,Restore checkpoint,恢复存档点
+Return to main menu,Return to main menu,返回主菜单
+STATUS: FORCES COMPROMISED · RETRY RECOMMENDED,STATUS: FORCES COMPROMISED · RETRY RECOMMENDED,状态：部队受创 · 建议重新部署
+STATUS: OPERATION COMPLETE · TAC-NET SECURED,STATUS: OPERATION COMPLETE · TAC-NET SECURED,状态：行动达成 · 战术网络安全
+STATUS: SIMULTANEOUS NEUTRALIZATION,STATUS: SIMULTANEOUS NEUTRALIZATION,状态：同时全灭 · 战局僵持
+Supplies 12 power to keep production and research running.,Supplies 12 power to keep production and research running.,提供 12 电力，维持生产与研究。
+Supplies 12 power. Low power slows production and service buildings.,Supplies 12 power. Low power slows production and service buildings.,提供 12 电力。电力不足会降低生产与支援设施效率。
+Surviving forces,Surviving forces,存活部队
+Surviving forces: %d / %d,Surviving forces: %d / %d,存活部队：%d / %d
+TACTICAL TELEMETRY,TACTICAL TELEMETRY,战术遥测
+Units lost,Units lost,损失单位
+Units produced,Units produced,已生产单位
+VICTORY // MISSION ACCOMPLISHED,VICTORY // MISSION ACCOMPLISHED,胜利 // 任务达成
+Your surviving units,Your surviving units,幸存单位
+Your surviving units: %d / 100,Your surviving units: %d / 100,幸存单位：%d / 100
+Your surviving units: %s,Your surviving units: %s,幸存单位：%s
