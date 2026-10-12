@@ -103,19 +103,19 @@ func capture_status(viewer):
 	var active = capture_side()
 	if active != null:
 		var elapsed = progress if candidate == active else 0.0
-		var action = "Enemy capture"
+		var action = tr("Enemy capture")
 		if active == viewer:
-			action = "Capturing" if captured_by == null else "Recapturing"
-		return "%s %d / 10 s" % [action, int(elapsed)]
+			action = tr("Capturing") if captured_by == null else tr("Recapturing")
+		return tr("%s %d / 10 s") % [action, int(elapsed)]
 	if needs_infantry(viewer):
-		return "Infantry needed"
+		return tr("Infantry needed")
 	if contested:
-		return "Contested"
+		return tr("Contested")
 	if candidate != null and progress > 0:
-		return "Capture held %d / 10 s" % int(progress)
+		return tr("Capture held %d / 10 s") % int(progress)
 	if captured_by != null:
-		return "Secured" if captured_by == viewer else "Enemy owned"
-	return "Unclaimed"
+		return tr("Secured") if captured_by == viewer else tr("Enemy owned")
+	return tr("Unclaimed")
 
 
 func capture_help(viewer):
@@ -148,7 +148,7 @@ func _update_presentation():
 		remove_from_group("revealed_units")
 	_lamp.albedo_color = captured_by.color if captured_by != null else Color("d0baa0")
 	_lamp.emission = _lamp.albedo_color * 0.7
-	_label.text = label_title + " · " + capture_status(_match._get_human_player()).to_upper()
+	_label.text = tr(label_title) + " · " + capture_status(_match._get_human_player()).to_upper()
 
 
 func _build_model():

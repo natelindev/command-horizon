@@ -6,6 +6,7 @@ var deposits = []
 var rocks = []
 var ridge_radius = 0.0
 var relays = []
+var points_of_interest = []
 var roads = []
 var road_width = 4.0
 var buildings = []
@@ -25,6 +26,7 @@ func set_map(path):
 	deposits.clear()
 	rocks.clear()
 	relays.clear()
+	points_of_interest.clear()
 	roads.clear()
 	buildings.clear()
 	land.clear()
@@ -49,6 +51,7 @@ func set_map(path):
 		road_width = overview.get("road_width", 4.0)
 		buildings = overview.get("buildings", []).duplicate()
 		land = overview.get("land", []).duplicate()
+		points_of_interest = overview.get("points_of_interest", []).duplicate()
 	else:
 		for resource in scene.find_child("Resources").get_children():
 			deposits.append(Vector2(resource.position.x, resource.position.z))
@@ -165,6 +168,19 @@ func _draw():
 					point + Vector2(-5, 0)
 				]
 			),
+			Color("e4e6dc")
+		)
+	for site in points_of_interest:
+		var point = origin + site.position * scale_factor
+		draw_circle(point, 8, Color("111e29cc"), true, -1, true)
+		var symbol = {"refinery": "R", "mercenary": "M", "repair": "+"}.get(site.kind, "+")
+		draw_string(
+			ThemeDB.fallback_font,
+			point + Vector2(-4, 4),
+			symbol,
+			HORIZONTAL_ALIGNMENT_LEFT,
+			-1,
+			12,
 			Color("e4e6dc")
 		)
 	for deposit in deposits:

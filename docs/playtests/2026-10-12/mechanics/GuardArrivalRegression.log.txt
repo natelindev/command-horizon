@@ -1,0 +1,42 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+CAPTURE res://docs/playtests/2026-10-04/guard-travel-3-0.json explicit teammate resumes=0
+CAPTURED GUARD before=(19.68929, 0.0, 38.51071) after=(18.89663, 0.0, 39.09309) anchor=(18.5, 0.0, 40.0) state=Running reason=Watching assigned area.
+CAPTURE res://docs/playtests/2026-10-04/guard-travel-4-0.json explicit teammate resumes=0
+CAPTURED GUARD before=(19.84398, 0.0, 38.35603) after=(21.21611, 0.0, 37.41611) anchor=(18.5, 0.0, 40.0) state=Running reason=Watching assigned area.
+CAPTURE res://docs/playtests/2026-10-04/guard-travel-4-1.json explicit teammate resumes=0
+CAPTURED GUARD before=(18.19223, 0.0, 38.64377) after=(18.1114, 0.0, 38.59208) anchor=(18.5, 0.0, 40.0) state=Running reason=Watching assigned area.
+CAPTURE res://docs/playtests/2026-10-04/guard-travel-4-2.json explicit teammate resumes=2
+CAPTURED GUARD before=(19.70349, 0.0, 38.38692) after=(19.68822, 0.0, 38.37093) anchor=(18.5, 0.0, 40.0) state=Running reason=Watching assigned area.
+CAPTURE res://docs/playtests/2026-10-04/guard-travel-4-3.json explicit teammate resumes=2
+CAPTURED GUARD before=(18.03248, 0.0, 38.57707) after=(17.95823, 0.0, 38.51485) anchor=(18.5, 0.0, 40.0) state=Running reason=Watching assigned area.
+CAPTURE res://docs/playtests/2026-10-04/guard-travel-4-4.json explicit teammate resumes=3
+CAPTURED GUARD before=(17.80043, 0.0, 36.77136) after=(17.91083, 0.0, 36.82921) anchor=(18.5, 0.0, 40.0) state=Running reason=Watching assigned area.
+CAPTURE res://docs/playtests/2026-10-04/guard-travel-4-5.json explicit teammate resumes=4
+CAPTURED GUARD before=(16.39219, 0.0, 37.68672) after=(16.44875, 0.0, 37.78901) anchor=(18.5, 0.0, 40.0) state=Running reason=Watching assigned area.
+GUARD BOUNDS bastion enemy/moving/assignment/radius/obstruction/foundation/air checked
+TIMED ARRIVAL bastion preset state=Running stalled=0.0
+MANUAL DEPARTURE bastion preset position=(71.45026, 0.0, 51.13571) distance=7.50022172927856 mode=Manual
+GROUP GUARD bastion preset eight-unit arrival, archive, combat and manual authority
+TIMED ARRIVAL bastion lua state=Running stalled=0.0
+MANUAL DEPARTURE bastion lua position=(71.38238, 0.0, 51.35137) distance=7.41081809997559 mode=Manual
+GROUP GUARD bastion lua eight-unit arrival, archive, combat and manual authority
+TIMED ARRIVAL bastion visual state=Running stalled=0.0
+MANUAL DEPARTURE bastion visual position=(71.51479, 0.0, 51.85759) distance=7.51613521575928 mode=Manual
+GROUP GUARD bastion visual eight-unit arrival, archive, combat and manual authority
+GUARD BOUNDS helix enemy/moving/assignment/radius/obstruction/foundation/air checked
+TIMED ARRIVAL helix preset state=Running stalled=0.0
+MANUAL DEPARTURE helix preset position=(70.48045, 0.0, 53.6175) distance=6.67925786972046 mode=Manual
+GROUP GUARD helix preset eight-unit arrival, archive, combat and manual authority
+TIMED ARRIVAL helix lua state=Running stalled=0.0
+MANUAL DEPARTURE helix lua position=(71.46675, 0.0, 51.80511) distance=7.46929407119751 mode=Manual
+GROUP GUARD helix lua eight-unit arrival, archive, combat and manual authority
+TIMED ARRIVAL helix visual state=Running stalled=0.0
+MANUAL DEPARTURE helix visual position=(70.66845, 0.0, 51.69436) distance=6.67545032501221 mode=Manual
+GROUP GUARD helix visual eight-unit arrival, archive, combat and manual authority
+Guard arrival: 0 failures
+ERROR: 2 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 2 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

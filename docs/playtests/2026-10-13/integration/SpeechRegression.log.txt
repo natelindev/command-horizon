@@ -1,0 +1,32 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+PASS legacy announcement transcripts, defaults, invalid preferences and persistence
+PASS bastion combat speech: first/sustained/base damage, foundations, casualties, enemy isolation
+PASS paused orders, shared channel, bounded priority/repeat/stale queue and every transcript
+PASS actual paid production emits Training and Unit ready with shared subtitles
+ERROR: Cannot save file 'user://speech-missing-25559/options.tres.pending.tres'.
+   at: save (scene/resources/resource_format_text.cpp:1756)
+   GDScript backtrace (most recent call first):
+       [0] persist (res://source/data-model/Options.gd:170)
+       [1] _finish (res://source/main-menu/SettingsDialog.gd:330)
+       [2] _settings_speech (res://tests/headless/SpeechRegression.gd:251)
+       [3] _frames (res://tests/headless/CampaignRegression.gd:258)
+PASS muted captions, live text sizing, disable/enable, modal freeze and Cancel rollback
+PASS actual disk restoration omits transient speech and suppresses reconstruction events
+PASS playable result priority, terminal latch and silent draw
+PASS helix combat speech: first/sustained/base damage, foundations, casualties, enemy isolation
+PASS paused orders, shared channel, bounded priority/repeat/stale queue and every transcript
+PASS actual paid production emits Training and Unit ready with shared subtitles
+ERROR: Cannot save file 'user://speech-missing-25559/options.tres.pending.tres'.
+   at: save (scene/resources/resource_format_text.cpp:1756)
+   GDScript backtrace (most recent call first):
+       [0] persist (res://source/data-model/Options.gd:170)
+       [1] _finish (res://source/main-menu/SettingsDialog.gd:330)
+       [2] _settings_speech (res://tests/headless/SpeechRegression.gd:251)
+       [3] _frames (res://tests/headless/CampaignRegression.gd:258)
+PASS muted captions, live text sizing, disable/enable, modal freeze and Cancel rollback
+PASS actual disk restoration omits transient speech and suppresses reconstruction events
+PASS playable result priority, terminal latch and silent draw
+Speech regression: 0 failures
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)

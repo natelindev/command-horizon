@@ -1,0 +1,11 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+EARNED BUDGET bastion funds=(120, 32) elapsed=141.950000000006
+EARNED BUDGET helix funds=(120, 32) elapsed=144.333333333341
+EARNED BUDGET frontier funds=(120, 32) elapsed=138.783333333337
+Foundation recovery: 0 failures
+ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 2 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

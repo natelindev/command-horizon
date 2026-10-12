@@ -1,0 +1,13 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+FOUNDRY node 0 disabled=true time=28.2499999999997 army=24
+FOUNDRY node 1 disabled=true time=61.7499999999978 army=21
+FOUNDRY result Victory seconds=131.749999999997 survivors=17
+FOUNDRY survivors bastion { "CommandCenter": 1, "PowerPlant": 3, "Barracks": 1, "VehicleFactory": 1, "CommandLab": 1, "RepairDepot": 1, "Worker": 2, "Drone": 1, "RepairRobot": 2, "AdvancedTank": 2, "Tank": 5, "Infantry": 5 }
+FOUNDRY survivors helix { "CommandLab": 1, "PowerPlant": 2, "Tank": 1, "RepairRobot": 2 }
+FOUNDRY control 0.0 hold 30.0 contested false
+Broken Foundry: 0 failures
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 3 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

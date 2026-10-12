@@ -59,7 +59,7 @@ func _ready():
 	relay = load("res://source/match/objectives/DeploymentControl.gd").new()
 	relay.position = DEPLOYMENT
 	add_child(relay)
-	for point in [Vector3(10, 0, 89), Vector3(82, 0, 78)]:
+	for point in [Vector3(10, 0, 89), Vector3(82, 0, 78), Vector3(164, 0, 25)]:
 		for offset in [-3, 0, 3]:
 			var resource = load("res://source/match/units/non-player/ResourceA.tscn").instantiate()
 			resource.resource_a = 300

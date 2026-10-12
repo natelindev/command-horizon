@@ -16,6 +16,7 @@ var _spoken_at = {}
 var _clock = 0.0
 var _remaining = 0.0
 var _ended = false
+var _narration_active = false
 var _audio: AudioStreamPlayer
 var _chirp_audio: AudioStreamPlayer
 var _chirp_in: AudioStream
@@ -81,6 +82,7 @@ func _accept(line):
 	var event = line.event
 	if (
 		_ended
+		or (_narration_active and line.priority < 70 and event not in Lines.TERMINAL)
 		or not is_instance_valid(_game)
 		or _game.restoring
 		or _game.is_queued_for_deletion()
@@ -127,6 +129,16 @@ func _accept(line):
 	return true
 
 
+func begin_narration():
+	_narration_active = true
+	_pending.clear()
+	_clear()
+
+
+func end_narration():
+	_narration_active = false
+
+
 func finish(result):
 	if result == "Victory":
 		say(Lines.EVENTS.MATCH_FINISHED_WITH_VICTORY)
@@ -151,7 +163,12 @@ func _start(line):
 	_audio.bus = "Effects" if mechanical else "Voice"
 	_audio.volume_db = -5.0 if mechanical else 0.0
 	_audio.play()
-	if not mechanical and is_instance_valid(_chirp_audio) and _chirp_in != null and Globals.options.voice_volume > 0:
+	if (
+		not mechanical
+		and is_instance_valid(_chirp_audio)
+		and _chirp_in != null
+		and Globals.options.voice_volume > 0
+	):
 		_chirp_audio.stream = _chirp_in
 		_chirp_audio.volume_db = -8.0
 		_chirp_audio.play()
@@ -182,7 +199,12 @@ func _process(delta):
 
 
 func _clear():
-	if not current.get("mechanical", false) and is_instance_valid(_chirp_audio) and _chirp_out != null and Globals.options.voice_volume > 0:
+	if (
+		not current.get("mechanical", false)
+		and is_instance_valid(_chirp_audio)
+		and _chirp_out != null
+		and Globals.options.voice_volume > 0
+	):
 		_chirp_audio.stream = _chirp_out
 		_chirp_audio.volume_db = -10.0
 		_chirp_audio.play()

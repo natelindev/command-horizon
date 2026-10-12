@@ -1,0 +1,29 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+LOOP bastion economy at 0.7
+LOOP bastion Barracks at 1.2
+LOOP bastion defense at 24.2
+LOOP bastion defense_pending at 33.2
+LOOP bastion VehicleFactory at 41.2
+LOOP bastion PowerPlant at 76.7
+LOOP bastion armor_pending at 99.2
+LOOP bastion fund_CommandLab at 112.2
+LOOP bastion CommandLab at 132.7
+LOOP bastion retrofit at 175.2
+LOOP bastion chips_pending at 175.7
+LOOP bastion scout at 200.7
+LOOP bastion defend_economy at 205.2
+LOOP bastion hq_funds at 387.7
+LOOP RESULT bastion Defeat seconds=447.749999999921 income=(295.0, 132.0) produced=27 enemy_attacks=3 army=6
+ERROR: Programmed army never received the player's assault order
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/SkirmishLoop.gd:33)
+       [1] _play (res://tests/headless/SkirmishLoop.gd:93)
+       [2] _frames (res://tests/headless/Skirmish.gd:299)
+Standard-start gameplay loop: 1 failures
+ERROR: 2 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 4 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

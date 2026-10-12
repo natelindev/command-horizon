@@ -8,6 +8,7 @@ const STATS = {
 	"tug": {"health": 220.0, "radius": 1.8, "height": 2.4, "speed": 1.3}
 }
 
+const EXPANDED_MAPS = ["ExpandedDesertFrontier", "ExpandedAlpineRelay", "ExpandedCoastalFoundry"]
 const BUILDING_HEALTH = 420.0
 const HABITABLE = [
 	"SawtoothWorkshop",
@@ -52,14 +53,19 @@ const STRUCTURES = {
 }
 
 
+static func authored_name(map_path):
+	var name = map_path.get_file().get_basename()
+	return name.trim_prefix("Expanded") if name in EXPANDED_MAPS else name
+
+
 static func structures(map_path):
-	return STRUCTURES.get(map_path.get_file().get_basename(), [])
+	return STRUCTURES.get(authored_name(map_path), [])
 
 
 # Authored loops are map content, never executable or editable archive data.
 static func entries(map_path):
 	var result = []
-	match map_path.get_file().get_basename():
+	match authored_name(map_path):
 		"CommandHorizonMap":
 			_add(result, "car", [[34, 64.5], [67, 64.5], [67, 68], [34, 68]], 2)
 			_add(result, "resident", [[45, 37], [59, 37], [59, 51], [45, 51]], 2)
@@ -101,6 +107,13 @@ static func entries(map_path):
 		"DesertFrontier":
 			_add(result, "fox", [[29, 8], [41, 9], [40, 15], [27, 16]], 2)
 			_add(result, "fox", [[87, 80], [99, 81], [98, 87], [85, 88]], 2)
+	if map_path.get_file().get_basename() in EXPANDED_MAPS:
+		for entry in result:
+			entry.path = entry.path.duplicate()
+			for index in entry.path.size():
+				entry.path[index] *= Vector3(1.5, 1, 1.5)
+			entry.length *= 1.5
+			entry.start *= 1.5
 	return result
 
 

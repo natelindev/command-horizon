@@ -1,0 +1,16 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+ANCHOR RETREAT diagnostic kind=anchor mode=Manual reason=Direct orders have priority. Resume to return to the assignment. travel=0.0 active=false path=[] pos=(35.6, 0.0, 10.0) origin=(35.6, 0.0, 10.0)
+ERROR: Anchor blocked the program's low-health retreat
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _check (res://tests/headless/WeaponModeRegression.gd:263)
+       [1] _anchor (res://tests/headless/SignatureRegression.gd:91)
+       [2] _frames (res://tests/headless/CampaignRegression.gd:258)
+PASS: six-unit Anchor, research/chips, all-direction damage, manual/program retreat, regroup, archives/death/legacy
+PASS: one-use Precision, exact charge archive, unchanged damage/reload, cancellation/visibility/cooldowns
+Faction signatures: 1 failures
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 6 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

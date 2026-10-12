@@ -287,7 +287,7 @@ func _difficulty_and_limits():
 	for mode in [0, 2]:
 		difficulty = mode
 		await _make_match()
-		_check(game._enemy.population() == [7, 9, 11][mode], "Difficulty defender budget wrong")
+		_check(game._enemy.population() == [10, 12, 14][mode], "Difficulty defender budget wrong")
 		for site in game.sites:
 			site.unit.hp = 0
 		await _frames(5)

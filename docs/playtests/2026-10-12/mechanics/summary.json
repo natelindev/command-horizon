@@ -1,0 +1,329 @@
+{
+  "started": "2026-10-12",
+  "finished": "2026-10-13",
+  "engine": "Godot 4.6 stable",
+  "platform": "macOS",
+  "fixed_fps": 60,
+  "headless_results": [
+    {
+      "suite": "MechanicsRegression",
+      "result": "pass",
+      "script_error": false,
+      "resource_diagnostics": false,
+      "evidence": "MechanicsRegression.log.txt",
+      "test_hash": "0723baa167fade62cde0f93ecbcda1cd6cdd3cb531859f63f2d08da72148918e"
+    },
+    {
+      "suite": "FormationCapRegression",
+      "result": "pass",
+      "script_error": false,
+      "resource_diagnostics": false,
+      "evidence": "FormationCapRegression.log.txt",
+      "test_hash": "5c9c7f1dd77b487da3a52769475424a347c68de82ea0347a62f9a352bcbfc118"
+    },
+    {
+      "suite": "NavigationRegression",
+      "result": "pass",
+      "script_error": false,
+      "resource_diagnostics": false,
+      "evidence": "NavigationRegression.log.txt",
+      "test_hash": "c40a2bfaf0bdc20bce079d7fe2ba4540533189a532e9415295f855e0c34d5764"
+    },
+    {
+      "suite": "OrdersRegression",
+      "result": "pass",
+      "script_error": false,
+      "resource_diagnostics": false,
+      "evidence": "OrdersRegression.log.txt",
+      "test_hash": "46691bb67f5abeeee639466cef30cafe90b3f42fe0507b53a033104486add791"
+    },
+    {
+      "suite": "DirectOrdersRegression",
+      "result": "pass",
+      "script_error": false,
+      "resource_diagnostics": false,
+      "evidence": "DirectOrdersRegression.log.txt",
+      "test_hash": "816d5cf3888fd6e6043c04237ce51b3e7fe07de3f88751fa6b3730a366a226ee"
+    },
+    {
+      "suite": "CombatRegression",
+      "result": "pass",
+      "script_error": false,
+      "resource_diagnostics": false,
+      "evidence": "CombatRegression.log.txt",
+      "test_hash": "101d228e67a24926f58fe4d0a32dfe7a58760e67f286f8143cd6ab5193decaba"
+    },
+    {
+      "suite": "RecoveryOrdersRegression",
+      "result": "pass",
+      "script_error": false,
+      "resource_diagnostics": false,
+      "evidence": "RecoveryOrdersRegression.log.txt",
+      "test_hash": "8052eccd5374b7af3cd59426df4f7c5499e55aad4b06caddc77e1fc9dcd6b4ac"
+    },
+    {
+      "suite": "ResourceFieldRegression",
+      "result": "pass",
+      "script_error": false,
+      "resource_diagnostics": false,
+      "evidence": "ResourceFieldRegression.log.txt",
+      "test_hash": "3877ea0d40775d33df86005ae0a52af58f7ef5f6b483a880050bad9d8d8069ca"
+    },
+    {
+      "suite": "HarvestContinuity",
+      "result": "pass",
+      "script_error": false,
+      "resource_diagnostics": false,
+      "evidence": "HarvestContinuity.log.txt",
+      "test_hash": "a2d9e9610f7211ed259b32ff82084e4ba74e026e7f7caa201c73e627154ab779"
+    },
+    {
+      "suite": "SkirmishRecoveryRegression",
+      "result": "pass",
+      "script_error": false,
+      "resource_diagnostics": false,
+      "evidence": "SkirmishRecoveryRegression.log.txt",
+      "test_hash": "e758f7501d9da3e45507eb2322c4025c7f90f878509e19bd0c8aa76847aa9ad3"
+    },
+    {
+      "suite": "SkirmishSupportRegression",
+      "result": "pass",
+      "script_error": false,
+      "resource_diagnostics": false,
+      "evidence": "SkirmishSupportRegression.log.txt",
+      "test_hash": "ccb0b38c48ffd7fcaba9fbd8ecd10f60cbb3e0d7d6808f74117d14a62611fea6"
+    },
+    {
+      "suite": "SkirmishDefenseRegression",
+      "result": "pass",
+      "script_error": false,
+      "resource_diagnostics": false,
+      "evidence": "SkirmishDefenseRegression.log.txt",
+      "test_hash": "9af434ee43c4307c809cd29dab851ed7172a424f342e02e47f6462d551fbf0dc"
+    },
+    {
+      "suite": "SkirmishOffenseRegression",
+      "result": "fail",
+      "script_error": false,
+      "resource_diagnostics": false,
+      "evidence": "SkirmishOffenseRegression.log.txt",
+      "test_hash": "1a2f2d1ef66170f0082fc6677eb47629014806f7041f22d120464b4689135333"
+    },
+    {
+      "suite": "SkirmishBudgetRegression",
+      "result": "pass",
+      "script_error": false,
+      "resource_diagnostics": false,
+      "evidence": "SkirmishBudgetRegression.log.txt",
+      "test_hash": "d033d62aafed8b4adcd7d150e67b310510d2e22900939bb24f13b07b746026de"
+    },
+    {
+      "suite": "SkirmishCoordinationRegression",
+      "result": "pass",
+      "script_error": false,
+      "resource_diagnostics": false,
+      "evidence": "SkirmishCoordinationRegression.log.txt",
+      "test_hash": "118c16f18cb8c6d58b8553c2b07d464b7b6207d936918a503c0d82a151dcc987"
+    },
+    {
+      "suite": "InfantryHeroesRegression",
+      "result": "pass",
+      "script_error": false,
+      "resource_diagnostics": false,
+      "evidence": "InfantryHeroesRegression.log.txt",
+      "test_hash": "02c51d3b68817de26b154334299fc3c19f230b159c6946bfaeb5f9c74545dd4b"
+    },
+    {
+      "suite": "NeutralWorldRegression",
+      "result": "pass",
+      "script_error": false,
+      "resource_diagnostics": false,
+      "evidence": "NeutralWorldRegression.log.txt",
+      "test_hash": "507804d711d119e188d47eeebcb8ffe0fbd33b0d78a84481319b011901adad29"
+    },
+    {
+      "suite": "SignatureRegression",
+      "result": "pass",
+      "script_error": false,
+      "resource_diagnostics": false,
+      "evidence": "SignatureRegression.log.txt",
+      "test_hash": "1231f16fe8bd6e1cb62a96c59da10bca09c9f50074d3fb2fa6a20ba90d68aa83"
+    },
+    {
+      "suite": "ProgramRegression",
+      "result": "pass",
+      "script_error": false,
+      "resource_diagnostics": false,
+      "evidence": "ProgramRegression.log.txt",
+      "test_hash": "9bec13b6a4dc70db06cfbd66a9f88e817f242f0e02011041897783d45295b9cf"
+    },
+    {
+      "suite": "CampaignRegression",
+      "result": "pass",
+      "script_error": false,
+      "resource_diagnostics": false,
+      "evidence": "CampaignRegression.log.txt",
+      "test_hash": "57db24b3f7a61efdb6f2b5febbd538c5151dfcf7e16345bffc10892537e99d1d"
+    },
+    {
+      "suite": "SaveRestoreCombat",
+      "result": "pass",
+      "script_error": false,
+      "resource_diagnostics": false,
+      "evidence": "SaveRestoreCombat.log.txt",
+      "test_hash": "a962fc6235c4fbef706a065d7c7fc770b195a5d09e4e2ed274f8a2ea171a07a9"
+    },
+    {
+      "suite": "TechnologyAIRegression",
+      "result": "pass",
+      "script_error": false,
+      "resource_diagnostics": false,
+      "evidence": "TechnologyAIRegression.log.txt",
+      "test_hash": "948765012ff989877247e951c8e90cc76c0e0c184115a9689b0ecb973b98612e"
+    },
+    {
+      "suite": "FoundationRecoveryRegression",
+      "result": "pass",
+      "script_error": false,
+      "resource_diagnostics": false,
+      "evidence": "FoundationRecoveryRegression.log.txt",
+      "test_hash": "c6fd814bd9d94ac41372ee6e0f9ec38a2d15d753ac35689ef6c7866dfba812f8"
+    },
+    {
+      "suite": "SquadRegression",
+      "result": "pass",
+      "script_error": false,
+      "resource_diagnostics": false,
+      "evidence": "SquadRegression.log.txt",
+      "test_hash": "811b5064863820883b1e5a321ca61fb30967f5d022d8cbe07ada8960993eda46"
+    },
+    {
+      "suite": "LuaProgramRegression",
+      "result": "pass",
+      "script_error": false,
+      "resource_diagnostics": false,
+      "evidence": "LuaProgramRegression.log.txt",
+      "test_hash": "533cd3443d9d96af2dd97f9922551dd0e9461aeb8dfaf0fa5f6b0b12d0112159"
+    },
+    {
+      "suite": "VisualRulesRegression",
+      "result": "pass",
+      "script_error": false,
+      "resource_diagnostics": false,
+      "evidence": "VisualRulesRegression.log.txt",
+      "test_hash": "e4a4a19df51b7914e7eecb4a3ba792c77924b662603bd76358602c4d87f52be3"
+    },
+    {
+      "suite": "LuaAuthoringRegression",
+      "result": "pass",
+      "script_error": false,
+      "resource_diagnostics": false,
+      "evidence": "LuaAuthoringRegression.log.txt",
+      "test_hash": "922fdaeb362362a556ed06c5f1fb37675fc9be70ce6367dbecf6ee0340c2f804"
+    },
+    {
+      "suite": "GuardAreaRegression",
+      "result": "pass",
+      "script_error": false,
+      "resource_diagnostics": false,
+      "evidence": "GuardAreaRegression.log.txt",
+      "test_hash": "0d1c66202c1d4955ea18ba26295da7fbcd8cd0bc618f5bc442d332d5fc9b9640"
+    },
+    {
+      "suite": "GuardArrivalRegression",
+      "result": "pass",
+      "script_error": false,
+      "resource_diagnostics": false,
+      "evidence": "GuardArrivalRegression.log.txt",
+      "test_hash": "014f2a30b8b6f9264b5f25c8012cb251b0b90dc661990b889f60f2f7d9d78a91"
+    },
+    {
+      "suite": "SpecialistRegression",
+      "result": "pass",
+      "script_error": false,
+      "resource_diagnostics": false,
+      "evidence": "SpecialistRegression.log.txt",
+      "test_hash": "a2e0ec1f4d644c364382b6d7797cd7db0c62e210a0a537179480e8cc392a0e2b"
+    },
+    {
+      "suite": "LocalizationRegression",
+      "result": "pass",
+      "script_error": false,
+      "resource_diagnostics": false,
+      "evidence": "LocalizationRegression.log.txt",
+      "test_hash": "6b3f05693ef4c0710d21f58b06303777e88e9e07f4d1c79790c9bde57d38f332"
+    },
+    {
+      "suite": "SupplyLineRegression",
+      "result": "pass",
+      "script_error": false,
+      "resource_diagnostics": true,
+      "evidence": "SupplyLineRegression.log.txt",
+      "test_hash": "0b3cd611f4eff1ba4577d340e48160f91eab0cb8d87f57e7f2a38d0f02d812a0"
+    },
+    {
+      "suite": "SplitSignalRegression",
+      "result": "fail",
+      "script_error": false,
+      "resource_diagnostics": false,
+      "evidence": "SplitSignalRegression.log.txt",
+      "test_hash": "3f009ac069e72e0390a750db515b6bf1fa7dce7775ce792473be517034e7c099"
+    },
+    {
+      "suite": "AirCorridorRegression",
+      "result": "pass",
+      "script_error": false,
+      "resource_diagnostics": true,
+      "evidence": "AirCorridorRegression.log.txt",
+      "test_hash": "433809190ff01986192cbd0ec1851fb336cb2d2b2b7c5a4ae0b8df93f9371879"
+    },
+    {
+      "suite": "BrokenFoundryRegression",
+      "result": "fail",
+      "script_error": false,
+      "resource_diagnostics": false,
+      "evidence": "BrokenFoundryRegression.log.txt",
+      "test_hash": "f924ef157a529bdaefed7c1304e3932962347cefca98f8864a2f37473de73bb1"
+    },
+    {
+      "suite": "CommandHorizonRegression",
+      "result": "pass",
+      "script_error": false,
+      "resource_diagnostics": false,
+      "evidence": "CommandHorizonRegression.log.txt",
+      "test_hash": "5e9bb0a79c9d6a94c900897e6afc2645cbf54f3c87ae4266c6bee61c8bd9fb6c"
+    }
+  ],
+  "passed": 33,
+  "failed": 3,
+  "rendered_evidence": "AcceptedRenderedDirectOrders.log.txt",
+  "source_hashes": {
+    "assets/translations/ui.csv": "da936248781cc566616d782bf72878c4c16fe727d850cb6135b1b8320c550a09",
+    "source/match/combat/AlliedDefense.gd": "657b6d69fbc379c32b6f9961af09b5a2055116f95caff95572b00211880fcc06",
+    "source/match/combat/Battlefield.gd": "d4e3a0aa707d23d75b7acf138a030162fc48166cdd9b18d409ddad1bb33d6efd",
+    "source/match/hud/DirectOrders.gd": "e9551de48c0b6644403df40cff04e6c59729419692c3607c1bc7355ff910c5f2",
+    "source/match/hud/ProgramPanel.gd": "efc2fdb72bfa330d373c4aca62ce565a0127f2d802b36069ba94162272f10e3f",
+    "source/match/players/skirmish-ai/SkirmishAI.gd": "253691af6c103748592b27a4aa0f51c3b79650134263ecc8b92cdda48e470562",
+    "source/match/players/skirmish-ai/SkirmishProduction.gd": "1a4ed3f77a3db57e3acb490bbbe72652fcaaf9b189a79ba23ee3d96298bc08d6",
+    "source/match/players/skirmish-ai/SkirmishRecovery.gd": "1d2847854f3dc93cc92cdb7d019076f6ded9fef55fb1f12e753725151a0adf04",
+    "source/match/programs/PresetAction.gd": "4955734694b744ed932437811d527a60a9f859e5aee5137588e9c7665c6b610d",
+    "source/match/programs/ProgramLibrary.gd": "4d45fd2acb2f32754ab14e40e07ede456a91f5290b3e722de3a9485e7005c1ff",
+    "source/match/programs/ProgramRecord.gd": "69c0a9b9d74e9fe7a1d73a6ef7dcb039289047bea8b5e3346620161c3a02fc3c",
+    "source/match/programs/UnitProgram.gd": "39962b58e13832909d68ab3856d43a74cdfce8517d19bc4b98e1ab58680e5d07",
+    "source/match/units/actions/AttackMoving.gd": "12d3f8171005700311daece3a3f648cd493ba6b9061a427cbaca00b758d8c120",
+    "source/match/units/actions/CollectingResourcesSequentially.gd": "df60d4863ff6053bc8afae384358f29179746c7183fe14a7aefe78e9e3bb8091",
+    "source/match/units/actions/Garrisoning.gd": "df39dc858697b465faca4500ae4b47198284c2d7485b78e89dcdc7022da1a22b",
+    "source/match/units/actions/WaitingForTargets.gd": "6827eadb4c38b7f6fb0faf1eeca7911ac992eadce91398369fa6302ec17e6a47",
+    "source/match/utils/UnitMovementUtils.gd": "919ebc96b631f4dc150cada8979dcc95b44eeca2caae9fd32e433e8b2c73c48f"
+  },
+  "base_commit": "10c33b8d16b1973cf7c80da29f997691a444b70e",
+  "original_mechanics_assertion_failures": 18,
+  "final_mechanics_assertion_failures": 0,
+  "rendered_result": "pass",
+  "rendered_input": "engine-routed mouse and keyboard",
+  "rendered_resolution": [
+    1280,
+    720
+  ],
+  "interface_scale": 1.5
+}

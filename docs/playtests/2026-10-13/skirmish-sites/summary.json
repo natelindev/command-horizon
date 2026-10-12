@@ -1,0 +1,31 @@
+{
+  "result": "pass",
+  "failures": 0,
+  "factions": [
+    "bastion",
+    "helix",
+    "frontier"
+  ],
+  "command": "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot --headless --path . --script tests/headless/SkirmishSitesRegression.gd",
+  "sha256": {
+    "tests/headless/SkirmishSitesRegression.gd": "6f42872edaa50bb4b8ba4b8e01927e9ed1445d7a73222f43e87410396819aa7f",
+    "source/match/players/skirmish-ai/SkirmishSites.gd": "ced7a46b173d56bd38c5c3ce060b01b022bc2288bf7fdb631f11b0214e9d1fd5"
+  },
+  "raw_log": "regression.log.txt",
+  "remaining_diagnostics": [
+    "Existing Godot shutdown ObjectDB/resource-in-use warnings"
+  ],
+  "coverage": [
+    "Opening two-infantry screen is retained",
+    "Four healthy infantry assign one capture detachment and retain three",
+    "Repeated orders preserve the detachment through army coordination",
+    "Wounded screen and visible unsafe site are refused",
+    "Home raid blocks capture and mercenary spending",
+    "Hidden enemy is not inspected",
+    "Actual ten-second infantry camp capture",
+    "Faction 25 percent premium is debited once for one contract per tick",
+    "Materials/electronics construction and urgent production reserves are protected",
+    "Reserved funds subsequently buy actual urgent producer jobs",
+    "A contested first camp does not block another operational camp"
+  ]
+}

@@ -89,7 +89,14 @@ func _clear_owners(node):
 
 func find_route():
 	if _route_ready:
-		return clear_route()
+		if clear_route():
+			return true
+		# A selected exit can become occupied during assembly or a paused
+		# archive. Before departure starts, try another legal route. Preserve
+		# the path once the unit has started emerging from the building.
+		if job.time_left < duration:
+			return false
+		_route_ready = false
 	var reach = producer.radius + radius + .35
 	for ring in range(3):
 		for angle in [0.0, -.35, .35, -.7, .7]:

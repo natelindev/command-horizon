@@ -190,6 +190,12 @@ func _setup_player_units():
 			_spawn_player_units(
 				player, map.find_child("SpawnPoints").get_child(player_index).global_transform
 			)
+		# All starting bases face the bottom of the default camera view. Rotate
+		# the complete structure so its portal and production exit face it too.
+		# Restored games return above and retain their saved orientations.
+		for unit in player.get_children():
+			if unit is Structure:
+				unit.global_rotation.y = PI
 
 
 func _spawn_player_units(player, spawn_transform):

@@ -11,6 +11,7 @@ const RepairService = preload("res://source/match/combat/RepairService.gd")
 const Coordination = preload("res://source/match/players/skirmish-ai/SkirmishCoordination.gd")
 const Recovery = preload("res://source/match/players/skirmish-ai/SkirmishRecovery.gd")
 const Labor = preload("res://source/match/players/skirmish-ai/SkirmishLabor.gd")
+const Sites = preload("res://source/match/players/skirmish-ai/SkirmishSites.gd")
 const ManualOrders = preload("res://source/match/orders/ManualOrders.gd")
 const Production = preload("res://source/match/players/skirmish-ai/SkirmishProduction.gd")
 const Economy = preload("res://source/match/players/skirmish-ai/SkirmishEconomy.gd")
@@ -44,6 +45,7 @@ func _process(delta):
 	_research(units, desired)
 	_train(units, desired)
 	_arm_units_with_programs(units)
+	Sites.recruit(_match, self, _units(), desired)
 	_command_army(units)
 
 
@@ -96,19 +98,32 @@ func _power_ready_building(units, role):
 
 func _build(units, desired):
 	var workers = _of_type(units, "Worker")
-	if workers.is_empty() or workers.any(func(unit): return unit.action is Construct):
+	if (
+		workers.is_empty()
+		or workers.any(
+			func(unit): return unit.action is Construct or Labor.awaiting_construction(unit)
+		)
+	):
 		return
 	var pending = units.filter(
 		func(unit): return unit.has_method("is_constructed") and not unit.is_constructed()
 	)
 	if not pending.is_empty():
-		workers[0].issue_manual_order(Construct.new(pending[0]))
+		var builder = Labor.builder(
+			workers, pending[0].global_position_yless, not has_completed_structure("CommandCenter")
+		)
+		if builder != null:
+			Labor.assign_construction(builder, pending[0])
 		return
 	if (
 		desired == ""
 		or not Factions.available(self, desired, true)
 		or not has_resources(Factions.cost(self, desired, true))
 	):
+		return
+	var cost = Factions.cost(self, desired, true)
+	var emergency = Production.emergency_budget(_match, self, units, desired)
+	if resource_a < cost.resource_a + emergency.x or resource_b < cost.resource_b + emergency.y:
 		return
 	var reference = _of_type(units, "CommandCenter")
 	var origin = (
@@ -120,16 +135,13 @@ func _build(units, desired):
 	if not position_to_build.is_finite():
 		building.free()
 		return
+	var builder = Labor.builder(workers, position_to_build, desired == "CommandCenter")
+	if builder == null:
+		building.free()
+		return
 	subtract_resources(Factions.cost(self, desired, true))
 	_match._setup_and_spawn_unit(building, Transform3D(Basis(), position_to_build), self)
-	workers.sort_custom(
-		func(a, b):
-			return (
-				a.global_position.distance_squared_to(position_to_build)
-				< b.global_position.distance_squared_to(position_to_build)
-			)
-	)
-	workers[0].issue_manual_order(Construct.new(building))
+	Labor.assign_construction(builder, building)
 	structures_built += 1
 
 
@@ -254,9 +266,14 @@ func _harvest(units):
 func _train(units, desired):
 	var reserve = Production.reserve(self, units, desired)
 	var research = _research_candidate(units)
+	var urgent = (
+		desired in Production.OPTIONAL_BUILDINGS and Production.under_raid(_match, self, units)
+	)
 	for job in Production.requests(_match, self, units):
 		var price = Vector2i(job.cost.resource_a, job.cost.resource_b)
 		var protected = Vector2i.ZERO if job.role == "Worker" else reserve
+		if urgent and job.priority <= 2:
+			protected = Vector2i.ZERO
 		if job.priority >= 6 and not research.is_empty():
 			# Accumulate the selected technology across deliveries before buying
 			# another routine vehicle. Urgent production keeps its precedence.
@@ -287,6 +304,8 @@ func _command_army(units):
 			enemies.append(enemy)
 	var recovering = Recovery.command(_match, units, enemies)
 	var available = units.filter(func(unit): return unit not in recovering)
+	var capturers = Sites.command(_match, self, units, available, enemies)
+	available = available.filter(func(unit): return unit not in capturers)
 	var response = Coordination.command(_match, self, units, available, enemies)
 	_choose_weapon_modes(available.filter(func(unit): return unit not in response.defenders))
 	# Maneuver supports existing retreat and regroup routes too. Activation never

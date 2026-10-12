@@ -1,0 +1,49 @@
+{
+  "engine": "Godot 4.6.stable.official.89cea1439",
+  "source_sha256": {
+    "source/match/maps/ExpandedMapLayout.gd": "dfd8ea11e761f89776c21d1a48e20fb411d94ce6f7ca0c0af9b9c7bcc80fcafd",
+    "source/match/maps/ExpandedDesertFrontier.gd": "67816e85e94c9319b92dc20a05efe08f831b1b0209b631d9e89752f1a68c000c",
+    "source/match/maps/ExpandedAlpineRelay.gd": "529f4db09ee3980fc691acff38192f1ad43f3161e441e0408759a49e30bf22db",
+    "source/match/maps/ExpandedCoastalFoundry.gd": "6493e49d7b8e70aab2eb2984a6d2d2b087838ade1182268024c8709f1370d5ed",
+    "source/match/maps/ExpandedDesertFrontier.tscn": "f131e7762170e33f39d8f201a73c91df4c7b49db22f580f29ab1014481b32d80",
+    "source/match/maps/ExpandedAlpineRelay.tscn": "9869553f7b0e5cdac167bbdb30fb7dd41befe1b95259de27354b1bd56445d184",
+    "source/match/maps/ExpandedCoastalFoundry.tscn": "21d3d824e6c08504056cf8e359a79325abca996bf0a38ac5b8a4b28302cd2401",
+    "source/main-menu/Play.gd": "1bbf833bf2273c9c042551a4407c7f5b41ba89066f6636bd7fb3610630c20af4",
+    "source/main-menu/SkirmishMapPreview.gd": "103c16ef4ac830797fbd79dcce22ce5601cadc5647f9e057c0350a803d696526",
+    "source/match/MatchConstants.gd": "3b00297fd231893610bd58c737aeb18f6543b1e2e5a46cf173cffa60a51772dc",
+    "source/match/ambient/AmbientCatalog.gd": "403d10813c30fbfe95300ef5874a1ed817415b6c0b25531ea224e469e86b5e5c",
+    "source/match/environment/LivingWorld.gd": "2a22b5f2002e8b12d149f56dc305234b9002d5f46991ce003386f969fe66fb52",
+    "source/match/audio/EnvironmentAudio.gd": "9022cc617e9fb68c1a66ad8424cd15b989089e7857bd53d9c56ad4172ca4626e",
+    "source/shaders/3d/coastal_ground.gdshader": "99bca147d536fdf3d2f7f3ae8e304e5c5619acaaa4e05c451c0ec5749f96d1e5",
+    "source/shaders/3d/coastal_water.gdshader": "f47c08a0c241d135233b4eeb4126360ea1905ad25b4109000d96f4ae19ad5761",
+    "tests/headless/ExpandedMapRegression.gd": "ad0f909151eabda6715119b26c85c8a17635541797f6fc10c02523d8c46faabb",
+    "tests/rendered/ExpandedMapsPreview.gd": "49f456da6e43210ba5c9b3fe7bf8e86933f7061d944382726a849557d7979a12"
+  },
+  "checks": {
+    "final-regression.log.txt": {
+      "reported_failures": 0,
+      "exit_code": 0
+    },
+    "coastal-symmetry-regression.log.txt": {
+      "reported_failures": 0,
+      "exit_code": 0
+    },
+    "final-geometry-symmetry.log.txt": {
+      "reported_failures": 0,
+      "exit_code": 0
+    },
+    "environment-audio.log.txt": {
+      "reported_failures": 0,
+      "exit_code": 0
+    },
+    "ambient-life.log.txt": {
+      "reported_failures": 0,
+      "exit_code": 0
+    },
+    "neutral-world.log.txt": {
+      "reported_failures": 0,
+      "exit_code": 0
+    }
+  },
+  "stage_note": "Full suite completed before the final coastal electronics horizontal-pair correction. Coastal-only and geometry/symmetry runs verify the final source."
+}

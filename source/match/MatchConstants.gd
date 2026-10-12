@@ -3,6 +3,12 @@ const ADVERSARY_PLAYER_CIRCLE_COLOR = Color.RED
 const RESOURCE_CIRCLE_COLOR = Color.YELLOW
 const DEFAULT_CIRCLE_COLOR = Color.WHITE
 const MAPS = {
+	"res://source/match/maps/ExpandedDesertFrontier.tscn":
+	{"name": "Desert Frontier — Expanded", "players": 2, "size": Vector2i(192, 144)},
+	"res://source/match/maps/ExpandedAlpineRelay.tscn":
+	{"name": "Alpine Relay — Expanded", "players": 2, "size": Vector2i(192, 156)},
+	"res://source/match/maps/ExpandedCoastalFoundry.tscn":
+	{"name": "Coastal Foundry — Expanded", "players": 2, "size": Vector2i(192, 156)},
 	"res://source/match/maps/BastionDesert.tscn":
 	{"name": "Desert Frontier (original)", "players": 2, "size": Vector2i(64, 64)},
 	"res://source/match/maps/DesertFrontier.tscn":

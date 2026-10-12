@@ -62,7 +62,7 @@ func _ready():
 	row.add_child(_preset)
 	_priority = OptionButton.new()
 	_priority.name = "TargetPriority"
-	for title in ["Nearest target", "Lowest health", "Heavy armor first"]:
+	for title in ["Nearest target", "Lowest health", "Heavy armor first", "Best counter"]:
 		_priority.add_item(title)
 	row.add_child(_priority)
 	var parameters = HBoxContainer.new()

@@ -111,7 +111,10 @@ func _standoff(player):
 	await _frames(30)
 	unit.program.run()
 	var max_distance = 0.0
-	for index in range(400):
+	# Include the current artillery travel speed plus deployment/preparation.
+	# The old fixed 6.7-second window was shorter than the Helix retreat alone.
+	var frames = ceili((unit.attack_range * 0.85 / unit.movement_speed + 3.0) * 60)
+	for index in range(frames):
 		await process_frame
 		max_distance = maxf(max_distance, unit.global_position_yless.distance_to(point))
 	_check(

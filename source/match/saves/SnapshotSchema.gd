@@ -5,6 +5,7 @@ const Catalog = preload("res://source/match/BastionCatalog.gd")
 const AmbientCatalog = preload("res://source/match/ambient/AmbientCatalog.gd")
 const Factions = preload("res://source/match/FactionRules.gd")
 const Salvage = preload("res://source/match/economy/SalvageRules.gd")
+const Sites = preload("res://source/match/world/PointOfInterestCatalog.gd")
 const Technology = preload("res://source/match/research/TechnologyCatalog.gd")
 
 const Campaigns = preload("res://source/match/campaign/CampaignCatalog.gd")
@@ -42,12 +43,14 @@ var fog_image = null
 var _nodes_left = 20000
 var _version = 1
 var _neutral_ids = {}
+var _poi_ids = {}
 
 
 func validate(data):
 	error = ""
 	entities.clear()
 	_neutral_ids.clear()
+	_poi_ids.clear()
 	sides.clear()
 	fog_image = null
 	_nodes_left = 20000
@@ -237,6 +240,8 @@ func validate(data):
 		if building != (unit.construction != null) or (building and unit.construction > 1):
 			return _fail("Invalid construction state.")
 	if _version >= 11 and not _neutral_buildings(data.neutral_buildings, data.settings.map_path):
+		return false
+	if not _site_records(data.mission.get("points_of_interest", []), data.settings.map_path):
 		return false
 	for unit in data.units:
 		if not _unit(unit):
@@ -828,6 +833,8 @@ func _action(action, unit, depth):
 			)
 		):
 			return _fail("Unsupported action on a neutral target.")
+		if _poi_ids.has(id) and kind not in ["RecoveringAtService", "MovingToUnit"]:
+			return _fail("Unsupported action on a captured facility.")
 		var target = entities.get(id, {})
 		if target.is_empty():
 			continue
@@ -1064,6 +1071,8 @@ func _order(order, unit):
 		return _fail("Invalid garrison order.")
 	if _neutral_ids.has(order.target) and order.kind not in ["attack", "approach", "garrison"]:
 		return _fail("Unsupported order on a neutral target.")
+	if _poi_ids.has(order.target) and order.kind not in ["recover", "approach"]:
+		return _fail("Unsupported facility order.")
 	var target = entities.get(order.target, {})
 	if target.is_empty():
 		return true
@@ -1149,6 +1158,139 @@ func _squads(side):
 
 
 func _mission(value, id, map_path):
+	var core = value.duplicate()
+	if core.has("story"):
+		var story = core.story
+		var allowed = load("res://source/match/campaign/CampaignNarration.gd").ids(id)
+		if id == "" or not _shape(story, "seen:list") or story.seen.size() > allowed.size():
+			return _fail("Invalid campaign story state.")
+		var seen = []
+		for cue in story.seen:
+			if cue not in allowed or cue in seen:
+				return _fail("Unknown or repeated campaign narration.")
+			seen.append(cue)
+		core.erase("story")
+	if core.has("opposition"):
+		if id not in ["command_horizon", "air_corridor"] or not _opposition(core.opposition, id):
+			return false
+		core.erase("opposition")
+	if core.has("points_of_interest"):
+		if map_path not in Sites.MAPS:
+			return _fail("Facilities do not belong to this map.")
+		core.erase("points_of_interest")
+	return _mission_rules(core, id, map_path)
+
+
+func _site_records(records, map_path):
+	if not records is Array:
+		return _fail("Invalid facility records.")
+	var sites = Sites
+	if map_path not in sites.MAPS:
+		return records.is_empty() or _fail("Unexpected captured facilities.")
+	if records.size() != 6:
+		return _fail("Invalid facility population.")
+	var definitions = load(map_path.replace(".tscn", ".gd")).POI_SITES
+	for index in records.size():
+		var site = records[index]
+		if not _shape(
+			site,
+			(
+				"id:text owner:text candidate:text progress:num contested:bool "
+				+ "income_left:num stock_a:int stock_b:int jobs:list"
+			)
+		):
+			return false
+		if (
+			site.id != "poi-%d" % index
+			or site.owner not in ["", "player-0", "player-1"]
+			or site.candidate not in ["", "player-0", "player-1"]
+		):
+			return _fail("Invalid facility identity or ownership.")
+		if (
+			site.progress >= 10
+			or site.income_left > 10
+			or site.stock_a > 600
+			or site.stock_b > 300
+			or site.jobs.size() > 3
+		):
+			return _fail("Invalid facility budget or clock.")
+		var definition = definitions[index]
+		_poi_ids[site.id] = definition.kind
+		entities[site.id] = {
+			"role": "RepairDepot" if definition.kind == "repair" else "PointOfInterest",
+			"player": site.owner,
+			"construction": 1.0,
+			"position": Vector3(definition.position.x, 0, definition.position.y)
+		}
+		if definition.kind != "mercenary" and not site.jobs.is_empty():
+			return _fail("This facility cannot recruit.")
+		for job in site.jobs:
+			if (
+				site.owner == ""
+				or not _shape(job, "role:text left:num paid_cost:dict")
+				or job.role not in sites.ROLES
+			):
+				return _fail("Invalid mercenary contract.")
+			if (
+				job.paid_cost != sites.price(sides[site.owner].faction, job.role)
+				or job.left > load("res://source/match/FactionCatalog.gd").UNIT_TIMES[job.role]
+			):
+				return _fail("Invalid mercenary payment or duration.")
+			sides[site.owner].mobile += 1
+	return true
+
+
+func _opposition(value, mission):
+	if not _shape(
+		value,
+		(
+			"active:bool production_left:num admitted:int boss_started:bool boss_defeated:bool "
+			+ "boss:text warning_left:signed target:list salvo_left:num reinforcements:list"
+		)
+	):
+		return false
+	if (
+		value.production_left > 120
+		or value.admitted > 100000
+		or value.warning_left < -1
+		or value.warning_left > 4
+		or value.salvo_left > 14
+		or value.target.size() != 3
+		or value.reinforcements.size() > 4
+	):
+		return _fail("Invalid opposition budget or warning.")
+	for coordinate in value.target:
+		if not _type(coordinate, "signed"):
+			return _fail("Invalid barrage point.")
+	if (
+		not _position(Vector3(value.target[0], value.target[1], value.target[2]))
+		or absf(value.target[1]) > 1
+	):
+		return _fail("Barrage point outside map.")
+	if value.boss != "":
+		var boss = entities.get(value.boss, {})
+		if (
+			mission != "command_horizon"
+			or boss.get("role") != "AdvancedTank"
+			or boss.get("player") != "player-1"
+		):
+			return _fail("Invalid siege commander.")
+	elif value.warning_left >= 0:
+		return _fail("Barrage has no commander.")
+	var unique = []
+	for reference in value.reinforcements:
+		var unit = entities.get(reference, {})
+		if (
+			reference in unique
+			or unit.get("player") != "player-1"
+			or unit.get("role") not in ["Infantry", "Tank"]
+		):
+			return _fail("Invalid reinforcement reference.")
+		unique.append(reference)
+	return true
+
+
+func _mission_rules(value, id, map_path):
 	if id == "command_horizon":
 		return _horizon_mission(value)
 	if id == "broken_foundry":
@@ -1187,6 +1329,7 @@ func _mission(value, id, map_path):
 			map_path
 			in [
 				"res://source/match/maps/AlpineRelay.tscn",
+				"res://source/match/maps/ExpandedAlpineRelay.tscn",
 				"res://source/match/maps/IndustrialCrossroads.tscn"
 			]
 		)
@@ -1264,6 +1407,7 @@ func _entity_reference(id):
 			and (
 				id == ""
 				or _neutral_ids.has(id)
+				or _poi_ids.has(id)
 				or ((id.begins_with("unit-") or id.begins_with("resource-")) and id.length() <= 32)
 			)
 		)
@@ -1275,7 +1419,7 @@ func _unit_reference(id):
 	return (
 		(
 			_entity_reference(id)
-			and (id == "" or id.begins_with("unit-") or _neutral_ids.has(id))
+			and (id == "" or id.begins_with("unit-") or _neutral_ids.has(id) or _poi_ids.has(id))
 			and (not entities.has(id) or entities[id].has("role"))
 		)
 		or _fail("Expected a unit reference.")

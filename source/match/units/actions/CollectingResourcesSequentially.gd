@@ -264,14 +264,17 @@ static func _find_cc_closest_to_unit(unit):
 				and not cc.is_queued_for_deletion()
 			)
 	)
-	choices.sort_custom(
-		func(a, b):
-			return (
-				unit.global_position_yless.distance_squared_to(a.global_position_yless)
-				< unit.global_position_yless.distance_squared_to(b.global_position_yless)
-			)
-	)
-	return choices[0] if not choices.is_empty() else null
+	var best = null
+	var distance = INF
+	for cc in choices:
+		var contact = unit.radius + cc.radius + Utils.Match.Unit.Movement.adherence_margin(unit, cc)
+		var route = Utils.Match.Unit.Movement.path_distance_to(
+			unit, cc.global_position_yless, contact
+		)
+		if route < distance:
+			best = cc
+			distance = route
+	return best
 
 
 func _on_sub_action_finished():

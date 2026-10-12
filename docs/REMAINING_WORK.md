@@ -1,6 +1,8 @@
 # Remaining work — resumed 2026-10-11
 
-Work resumed at the user's request on 2026-10-11. The last unfinished implementation item, faction ability feedback, has been repaired; the overall gameplay-polish work remains incomplete. Historical paused/active entries below describe their state at the time.
+Mechanics/campaign completion, 2026-10-13: the requested implementation is complete, including the previously retained engineer, Split Signal and Foundry failures. Starting buildings face bottom; three larger maps provide more resources and infantry-capturable refineries, mercenary camps and repair shops. Campaigns have animated briefings, Hugging Face English/Mandarin narration, operating paid enemy production and a finale siege commander. Existing art style and original map/archive layouts are preserved. Fifty-three headless suites and bilingual 720p/150% controls pass; fresh paid reference matches reach Victory for all three factions. See [the completion report](playtests/2026-10-13/MECHANICS_COMPLETION.md) for verification and bounded acceptance limits.
+
+Historical paused/active entries below describe their state at the time. The remaining queue concerns broader participant, balance, device and release acceptance, rather than an unfinished requested feature.
 
 ## Last completed work
 
@@ -10,7 +12,7 @@ Work resumed at the user's request on 2026-10-11. The last unfinished implementa
 
 ## Next work
 
-Resume the retained unsuccessful campaign/skirmish cohorts and choose a bounded strategy or gameplay issue from their evidence. The ability-feedback pass did not change balance values or AI/reference strategies. Repeated full-match observations must retain failures as well as victories and distinguish ordinary live continuation from reconstruction of a test commander.
+Run broader participant and repeated balance cohorts across maps, factions and strategies. The retained mechanics failures were resolved in the 13 October continuation; historical defeats remain evidence rather than being rewritten as victories. Keep distinguishing ordinary live play from fixture reconstruction.
 
 Novice and subjective acceptance require actual participants/user review; do not replace them with scripted assertions. Keep performance optimization deferred as previously requested, and record unavailable provider/platform/device acceptance explicitly.
 
@@ -25,6 +27,8 @@ Novice and subjective acceptance require actual participants/user review; do not
 Naval content, faction variants, elaborate logistics and PvP remain later scope decisions. The [development roadmap](DEVELOPMENT_ROADMAP.md) and individual playtest reports retain the detailed implementation history and evidence limits.
 
 ## Agent progress
+
+- 2026-10-13: Completed the requested mechanics continuation and expanded map/campaign implementation. Final integration and rendered evidence is linked from the completion report; historical findings below remain retained.
 
 - 2026-10-11: Resumed at the user's request. Stages 1–2 complete: reproduced the original ten failures, repaired feedback/localization and extended the reviewed regression. Stage 3 complete: all-faction headless, shared rules/Frontier/localization, disk/pause and 720p/150% bilingual rendered hover/layout checks pass. Final real mouse/keyboard repeat passed with zero failures; evidence and the remaining queue are updated. Broader acceptance remains open.
 - 2026-10-07: Wrapped up at the user's request. Recorded the unfinished ability-feedback diagnostic and remaining acceptance gates; stopped implementation and further verification. Goal paused for a future explicit resume.

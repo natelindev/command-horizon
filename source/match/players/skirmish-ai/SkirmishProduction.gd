@@ -3,6 +3,31 @@ extends RefCounted
 const Catalog = preload("res://source/match/BastionCatalog.gd")
 const Factions = preload("res://source/match/FactionCatalog.gd")
 const Composition = preload("res://source/match/players/skirmish-ai/SkirmishComposition.gd")
+const Defense = preload("res://source/match/players/skirmish-ai/SkirmishDefense.gd")
+const OPTIONAL_BUILDINGS = ["CommandLab", "AircraftFactory", "RepairDepot", "AntiGroundTurret"]
+
+
+static func under_raid(game, player, units):
+	var contacts = game.get_tree().get_nodes_in_group("units").filter(
+		func(unit):
+			return (
+				unit.player != player
+				and not unit.is_queued_for_deletion()
+				and unit.hp > 0
+				and game.battlefield.is_observed(player, unit)
+			)
+	)
+	return not Defense.plan(game, player, units, contacts).threats.is_empty()
+
+
+static func emergency_budget(game, player, units, desired):
+	if desired not in OPTIONAL_BUILDINGS or not under_raid(game, player, units):
+		return Vector2i.ZERO
+	var budget = Vector2i.ZERO
+	for job in requests(game, player, units):
+		if job.priority <= 2:
+			budget += Vector2i(job.cost.resource_a, job.cost.resource_b)
+	return budget
 
 
 static func requests(game, player, units, include_busy = false):

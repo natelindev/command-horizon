@@ -1,0 +1,78 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+ERROR: Cannot open file 'res://.godot/imported/radio_chirp_in.wav-d4e162b53b91a9013518209f3310bf88.sample'.
+   at: load (core/io/resource_format_binary.cpp:1220)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://source/match/audio/BattleVoice.gd:37)
+       [1] _create_players_from_settings (res://source/match/Match.gd:176)
+       [2] _setup_players (res://source/match/Match.gd:157)
+       [3] _ready (res://source/match/Match.gd:66)
+       [4] _ready (res://source/match/Skirmish.gd:21)
+       [5] _ready (res://source/match/campaign/AirCorridor.gd:15)
+       [6] _make_match (res://tests/headless/AirCorridorRegression.gd:19)
+       [7] _run (res://tests/headless/AirCorridorRegression.gd:29)
+ERROR: Failed loading resource: res://.godot/imported/radio_chirp_in.wav-d4e162b53b91a9013518209f3310bf88.sample.
+   at: _load (core/io/resource_loader.cpp:343)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://source/match/audio/BattleVoice.gd:37)
+       [1] _create_players_from_settings (res://source/match/Match.gd:176)
+       [2] _setup_players (res://source/match/Match.gd:157)
+       [3] _ready (res://source/match/Match.gd:66)
+       [4] _ready (res://source/match/Skirmish.gd:21)
+       [5] _ready (res://source/match/campaign/AirCorridor.gd:15)
+       [6] _make_match (res://tests/headless/AirCorridorRegression.gd:19)
+       [7] _run (res://tests/headless/AirCorridorRegression.gd:29)
+ERROR: Failed loading resource: res://assets/audio/voices/radio_chirp_in.wav.
+   at: _load (core/io/resource_loader.cpp:343)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://source/match/audio/BattleVoice.gd:37)
+       [1] _create_players_from_settings (res://source/match/Match.gd:176)
+       [2] _setup_players (res://source/match/Match.gd:157)
+       [3] _ready (res://source/match/Match.gd:66)
+       [4] _ready (res://source/match/Skirmish.gd:21)
+       [5] _ready (res://source/match/campaign/AirCorridor.gd:15)
+       [6] _make_match (res://tests/headless/AirCorridorRegression.gd:19)
+       [7] _run (res://tests/headless/AirCorridorRegression.gd:29)
+ERROR: Cannot open file 'res://.godot/imported/radio_chirp_out.wav-9e454f2e261b986c350d8d5c57f83a53.sample'.
+   at: load (core/io/resource_format_binary.cpp:1220)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://source/match/audio/BattleVoice.gd:39)
+       [1] _create_players_from_settings (res://source/match/Match.gd:176)
+       [2] _setup_players (res://source/match/Match.gd:157)
+       [3] _ready (res://source/match/Match.gd:66)
+       [4] _ready (res://source/match/Skirmish.gd:21)
+       [5] _ready (res://source/match/campaign/AirCorridor.gd:15)
+       [6] _make_match (res://tests/headless/AirCorridorRegression.gd:19)
+       [7] _run (res://tests/headless/AirCorridorRegression.gd:29)
+ERROR: Failed loading resource: res://.godot/imported/radio_chirp_out.wav-9e454f2e261b986c350d8d5c57f83a53.sample.
+   at: _load (core/io/resource_loader.cpp:343)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://source/match/audio/BattleVoice.gd:39)
+       [1] _create_players_from_settings (res://source/match/Match.gd:176)
+       [2] _setup_players (res://source/match/Match.gd:157)
+       [3] _ready (res://source/match/Match.gd:66)
+       [4] _ready (res://source/match/Skirmish.gd:21)
+       [5] _ready (res://source/match/campaign/AirCorridor.gd:15)
+       [6] _make_match (res://tests/headless/AirCorridorRegression.gd:19)
+       [7] _run (res://tests/headless/AirCorridorRegression.gd:29)
+ERROR: Failed loading resource: res://assets/audio/voices/radio_chirp_out.wav.
+   at: _load (core/io/resource_loader.cpp:343)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://source/match/audio/BattleVoice.gd:39)
+       [1] _create_players_from_settings (res://source/match/Match.gd:176)
+       [2] _setup_players (res://source/match/Match.gd:157)
+       [3] _ready (res://source/match/Match.gd:66)
+       [4] _ready (res://source/match/Skirmish.gd:21)
+       [5] _ready (res://source/match/campaign/AirCorridor.gd:15)
+       [6] _make_match (res://tests/headless/AirCorridorRegression.gd:19)
+       [7] _run (res://tests/headless/AirCorridorRegression.gd:29)
+AIR battery 0 cleared=true at 33.7499999999994
+AIR battery 1 cleared=true at 52.2499999999983
+AIR flight 0 extracted at 127.249999999994
+AIR flight 1 extracted at 172.250000000029
+AIR flight 2 extracted at 217.050000000065
+AIR result Victory safe=3 seconds=217.050000000065
+AIR unescorted lost minimum HP=5.0
+Air Corridor: 0 failures
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)

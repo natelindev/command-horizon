@@ -40,7 +40,7 @@ func _ready():
 			_landmark(Vector3(x, 0, z), "QuarryContainerA" if x == 44 else "QuarryContainerB", 3.0)
 	add_child(load("res://source/match/maps/QuarryBackdrop.gd").new())
 	_atmosphere()
-	for point in [Vector3(9, 0, 72), Vector3(42, 0, 93)]:
+	for point in [Vector3(9, 0, 72), Vector3(42, 0, 93), Vector3(133, 0, 85)]:
 		for offset in [-2.5, 0.0, 2.5]:
 			var deposit = load("res://source/match/units/non-player/ResourceA.tscn").instantiate()
 			deposit.resource_a = 200

@@ -1,0 +1,65 @@
+Preparing en hexgrad/Kokoro-82M
+/tmp/rts-campaign-tts/lib/python3.12/site-packages/torch/nn/modules/rnn.py:1011: UserWarning: dropout option adds dropout after all but last recurrent layer, so non-zero dropout expects num_layers greater than 1, but got dropout=0.2 and num_layers=1
+  super().__init__("LSTM", *args, **kwargs)
+/tmp/rts-campaign-tts/lib/python3.12/site-packages/torch/nn/utils/weight_norm.py:145: FutureWarning: `torch.nn.utils.weight_norm` is deprecated in favor of `torch.nn.utils.parametrizations.weight_norm`.
+  WeightNorm.apply(module, name, dim)
+/tmp/rts-campaign-tts/lib/python3.12/site-packages/torch/jit/_script.py:1491: FutureWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(
+Rendered supply_line_intro_en.wav 10.36 seconds
+Rendered supply_line_checkpoint_en.wav 9.69 seconds
+Rendered supply_line_victory_en.wav 9.29 seconds
+Rendered first_orders_intro_en.wav 11.79 seconds
+Rendered first_orders_lab_en.wav 9.46 seconds
+Rendered first_orders_relay_en.wav 8.81 seconds
+Rendered first_orders_victory_en.wav 10.59 seconds
+Rendered split_signal_intro_en.wav 9.91 seconds
+Rendered split_signal_network_en.wav 11.61 seconds
+Rendered split_signal_victory_en.wav 9.26 seconds
+Rendered air_corridor_intro_en.wav 11.36 seconds
+Rendered air_corridor_batteries_en.wav 9.23 seconds
+Rendered air_corridor_flight_en.wav 9.46 seconds
+Rendered air_corridor_victory_en.wav 9.88 seconds
+Rendered broken_foundry_intro_en.wav 12.29 seconds
+Rendered broken_foundry_node_en.wav 9.79 seconds
+Rendered broken_foundry_control_en.wav 9.31 seconds
+Rendered broken_foundry_victory_en.wav 10.94 seconds
+Rendered command_horizon_intro_en.wav 12.34 seconds
+Rendered command_horizon_deployment_en.wav 10.11 seconds
+Rendered command_horizon_command_en.wav 8.94 seconds
+Rendered command_horizon_victory_en.wav 10.94 seconds
+Rendered common_defeat_en.wav 9.86 seconds
+Rendered common_enemy_base_en.wav 9.41 seconds
+Rendered common_boss_arrives_en.wav 11.31 seconds
+Rendered common_boss_defeated_en.wav 9.19 seconds
+Preparing zh_CN hexgrad/Kokoro-82M-v1.1-zh
+Warning: en_callable is None, so English may be removed
+Building prefix dict from the default dictionary ...
+Loading model from cache /var/folders/0c/26gks5n97_9_m0hkz10k7y2r0000gn/T/jieba.cache
+Loading model cost 0.463 seconds.
+Prefix dict has been built successfully.
+Rendered supply_line_intro_zh.wav 14.31 seconds
+Rendered supply_line_checkpoint_zh.wav 12.48 seconds
+Rendered supply_line_victory_zh.wav 11.46 seconds
+Rendered first_orders_intro_zh.wav 14.46 seconds
+Rendered first_orders_lab_zh.wav 12.08 seconds
+Rendered first_orders_relay_zh.wav 10.76 seconds
+Rendered first_orders_victory_zh.wav 11.23 seconds
+Rendered split_signal_intro_zh.wav 12.03 seconds
+Rendered split_signal_network_zh.wav 13.51 seconds
+Rendered split_signal_victory_zh.wav 11.33 seconds
+Rendered air_corridor_intro_zh.wav 11.8 seconds
+Rendered air_corridor_batteries_zh.wav 13.36 seconds
+Rendered air_corridor_flight_zh.wav 11.73 seconds
+Rendered air_corridor_victory_zh.wav 12.76 seconds
+Rendered broken_foundry_intro_zh.wav 13.58 seconds
+Rendered broken_foundry_node_zh.wav 11.78 seconds
+Rendered broken_foundry_control_zh.wav 9.82 seconds
+Rendered broken_foundry_victory_zh.wav 13.94 seconds
+Rendered command_horizon_intro_zh.wav 15.29 seconds
+Rendered command_horizon_deployment_zh.wav 11.98 seconds
+Rendered command_horizon_command_zh.wav 11.78 seconds
+Rendered command_horizon_victory_zh.wav 14.84 seconds
+Rendered common_defeat_zh.wav 11.65 seconds
+Rendered common_enemy_base_zh.wav 11.83 seconds
+Rendered common_boss_arrives_zh.wav 13.26 seconds
+Rendered common_boss_defeated_zh.wav 12.48 seconds

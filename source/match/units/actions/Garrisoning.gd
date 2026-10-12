@@ -21,16 +21,9 @@ func _physics_process(delta):
 		return
 	if _unit.has_meta("garrison_host") and _unit.get_meta("garrison_host") == _target_unit:
 		if not is_instance_valid(_shot) or _shot.is_queued_for_deletion():
-			var enemies = _unit._match.battlefield.fireable_targets(_unit)
-			if not enemies.is_empty():
-				enemies.sort_custom(
-					func(a, b):
-						return (
-							_unit.global_position.distance_squared_to(a.global_position)
-							< _unit.global_position.distance_squared_to(b.global_position)
-						)
-				)
-				_shot = Shooting.new(enemies[0])
+			var target = _unit._match.battlefield.automatic_target(_unit)
+			if target != null:
+				_shot = Shooting.new(target)
 				add_child(_shot)
 		return
 	if not _target_unit.can_garrison(_unit):

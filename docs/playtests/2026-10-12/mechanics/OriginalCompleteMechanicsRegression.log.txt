@@ -1,0 +1,103 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+ISLANDS iteration=2 path=[(7.523077, 0.0, 3.215384), (8.0, 0.0, 4.0)] source=(7.523077, 0.0, 3.215384) target=(13.0, 0.0, 4.0)
+MECHANICS faction=bastion cumulative_failures=18
+ISLANDS iteration=2 path=[(7.523077, 0.0, 3.215384), (8.0, 0.0, 4.0)] source=(7.523077, 0.0, 3.215384) target=(13.0, 0.0, 4.0)
+MECHANICS faction=helix cumulative_failures=18
+ISLANDS iteration=2 path=[(7.523077, 0.0, 3.215384), (8.0, 0.0, 4.0)] source=(7.523077, 0.0, 3.215384) target=(13.0, 0.0, 4.0)
+MECHANICS faction=frontier cumulative_failures=18
+ERROR: Group destination falls outside navigable ground
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/MechanicsRegression.gd:46)
+       [1] _frames (res://tests/headless/ProgramRegression.gd:369)
+ERROR: Group destinations collapse into overlapping boundary slots
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/MechanicsRegression.gd:46)
+       [1] _frames (res://tests/headless/ProgramRegression.gd:369)
+ERROR: Coincident origins produce coincident destinations
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/MechanicsRegression.gd:46)
+       [1] _frames (res://tests/headless/ProgramRegression.gd:369)
+ERROR: Anti-armor infantry wastes automatic fire on the nearer rifleman
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/MechanicsRegression.gd:46)
+       [1] _frames (res://tests/headless/ProgramRegression.gd:369)
+ERROR: Attack-move ignores the weapon's effective counter
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/MechanicsRegression.gd:46)
+       [1] _frames (res://tests/headless/ProgramRegression.gd:369)
+ERROR: Fresh preset does not offer role-aware targeting
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/MechanicsRegression.gd:46)
+       [1] _frames (res://tests/headless/ProgramRegression.gd:369)
+ERROR: Programmed artillery prefers the nearer rifleman
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/MechanicsRegression.gd:46)
+       [1] _frames (res://tests/headless/ProgramRegression.gd:369)
+ERROR: New-default script envelope lost compatibility
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/MechanicsRegression.gd:46)
+       [1] _frames (res://tests/headless/ProgramRegression.gd:369)
+ERROR: Automatic fire wastes a second rocket on an already lethal incoming shot
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/MechanicsRegression.gd:46)
+       [1] _frames (res://tests/headless/ProgramRegression.gd:369)
+ERROR: Attack-move discarded a legal garrison-range shot
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/MechanicsRegression.gd:46)
+       [1] _frames (res://tests/headless/ProgramRegression.gd:369)
+ERROR: Resume leaves the old attack active until the next tick
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/MechanicsRegression.gd:46)
+       [1] _frames (res://tests/headless/ProgramRegression.gd:369)
+ERROR: Defensive assistance overrides a program awaiting its first tick
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/MechanicsRegression.gd:46)
+       [1] _frames (res://tests/headless/ProgramRegression.gd:369)
+ERROR: Accepted Resume never starts its program
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/MechanicsRegression.gd:46)
+       [1] _frames (res://tests/headless/ProgramRegression.gd:369)
+ERROR: Attack-move leaves selected repair support behind
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/MechanicsRegression.gd:46)
+       [1] _frames (res://tests/headless/ProgramRegression.gd:369)
+ERROR: Recovery selects a nearer facility on an unreachable island
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/MechanicsRegression.gd:46)
+       [1] _frames (res://tests/headless/ProgramRegression.gd:369)
+ERROR: Cargo delivery selects an unreachable HQ
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/MechanicsRegression.gd:46)
+       [1] _frames (res://tests/headless/ProgramRegression.gd:369)
+ERROR: Optional lab savings block affordable emergency infantry
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/MechanicsRegression.gd:46)
+       [1] _frames (res://tests/headless/ProgramRegression.gd:369)
+ERROR: Emergency reinforcement did not pay its normal cost
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/MechanicsRegression.gd:46)
+       [1] _frames (res://tests/headless/ProgramRegression.gd:369)
+Mechanics regression: 18 failures
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 4 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

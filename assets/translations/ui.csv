@@ -670,7 +670,7 @@ Enemy ground units within 10 metres suspend clearance. Use your escorts to clear
 Enemy in weapon range,Enemy in weapon range,敌人在武器射程内
 Enemy moved out of all allied sight.,Enemy moved out of all allied sight.,敌人已离开全部友方视野。
 Enemy owned,Enemy owned,敌方控制
-Engage observed enemies in the area; regroup near its center with nearby guards.,Engage observed enemies in the area; regroup near its center with nearby guards.,攻击区域内已发现的敌军，并与附近守卫在区域中心集结。
+Guard the area; return fire at visible attackers without outside pursuit.,Guard the area; return fire at visible attackers without outside pursuit.,守卫区域并攻击已发现的敌军；反击向区域内开火的敌军，但不追出区域。
 "Engage the visible target, then stop requesting attacks after it leaves sight at 3 seconds.","Engage the visible target, then stop requesting attacks after it leaves sight at 3 seconds.",攻击可见目标；第 3 秒目标离开视野后停止请求攻击。
 Engaging inside assigned area.,Engaging inside assigned area.,在指定区域内交战。
 Engaging: %s target priority.,Engaging: %s target priority.,交战中：优先目标为%s。
@@ -2305,3 +2305,45 @@ VICTORY // MISSION ACCOMPLISHED,VICTORY // MISSION ACCOMPLISHED,胜利 // 任务
 Your surviving units,Your surviving units,幸存单位
 Your surviving units: %d / 100,Your surviving units: %d / 100,幸存单位：%d / 100
 Your surviving units: %s,Your surviving units: %s,幸存单位：%s
+Best counter,Best counter,优先克制目标
+Sites,Sites,设施
+Capturable facilities,Capturable facilities,可占领设施
+Move infantry within 5 m and hold for 10 seconds. Enemy ground forces suspend capture and services.,Move infantry within 5 m and hold for 10 seconds. Enemy ground forces suspend capture and services.,让步兵在 5 米内驻守 10 秒以占领。敌方地面部队会暂停占领与服务。
+Infantry within 5 m capture in 10 seconds. Opposing ground combatants pause capture and services.,Infantry within 5 m capture in 10 seconds. Opposing ground combatants pause capture and services.,步兵在 5 米内驻守 10 秒可占领。敌方地面战斗单位会暂停占领与服务。
+Refinery · 2 M / 1 E every 10 s · stock %d M / %d E,Refinery · 2 M / 1 E every 10 s · stock %d M / %d E,炼油厂 · 每 10 秒提供 2 材料 / 1 电子元件 · 储备 %d 材料 / %d 电子元件
+Repair shop · two ground machines within 5 m,Repair shop · two ground machines within 5 m,维修站 · 为 5 米内的两台地面机械提供维修
+Mercenary camp · paid infantry recruitment · %d / 3 queued,Mercenary camp · paid infantry recruitment · %d / 3 queued,佣兵营地 · 付费招募步兵 · 队列 %d / 3
+Hire %s · %d M / %d E,Hire %s · %d M / %d E,招募 %s · %d 材料 / %d 电子元件
+Ready in %ds,Ready in %ds,%d 秒后就绪
+Cancel recruitment · refund,Cancel recruitment · refund,取消招募 · 返还费用
+Desert Frontier — Expanded,Desert Frontier — Expanded,沙漠边疆 — 扩展
+Alpine Relay — Expanded,Alpine Relay — Expanded,高山中继 — 扩展
+Coastal Foundry — Expanded,Coastal Foundry — Expanded,海岸铸造厂 — 扩展
+"Eight resource fields · capture refineries, mercenary camps and repair shops","Eight resource fields · capture refineries, mercenary camps and repair shops",八处资源区 · 占领炼油厂、佣兵营地与维修站
+Wide mountain passes · eight resource fields · six capturable facilities,Wide mountain passes · eight resource fields · six capturable facilities,宽阔山口 · 八处资源区 · 六座可占领设施
+Wide harbor routes · eight resource fields · six capturable facilities,Wide harbor routes · eight resource fields · six capturable facilities,宽阔港区通道 · 八处资源区 · 六座可占领设施
+R: refinery · M: mercenary camp · +: repair shop,R: refinery · M: mercenary camp · +: repair shop,R：炼油厂 · M：佣兵营地 · +：维修站
+Continue / skip briefing,Continue / skip briefing,继续 / 跳过简报
+"Enemy base operational. Raid its workers, power and production to stop reinforcements.","Enemy base operational. Raid its workers, power and production to stop reinforcements.",敌方基地正在运转。袭击工程师、电力与生产设施以阻止增援。
+Enemy base queued a paid reinforcement. Destroy its producer to cancel it.,Enemy base queued a paid reinforcement. Destroy its producer to cancel it.,敌方基地已支付费用并排入增援队列。摧毁生产设施可取消增援。
+Siege commander destroyed. Precision barrages stopped.,Siege commander destroyed. Precision barrages stopped.,攻城指挥官已被摧毁。精准弹幕停止。
+Siege commander locks a barrage in 4 seconds. Move clear of the marked area; attack during cooldown.,Siege commander locks a barrage in 4 seconds. Move clear of the marked area; attack during cooldown.,攻城指挥官将在 4 秒后发射弹幕。离开标记区域，并在冷却期间攻击。
+Siege commander,Siege commander,攻城指挥官
+Siege commander · defeated,Siege commander · defeated,攻城指挥官 · 已击败
+Barrage locked · move clear · %.1f s,Barrage locked · move clear · %.1f s,弹幕锁定 · 立即离开 · %.1f 秒
+Siege commander · %d / %d HP,Siege commander · %d / %d HP,攻城指挥官 · %d / %d 生命值
+Siege commander · destroy the artillery guarding command,Siege commander · destroy the artillery guarding command,攻城指挥官 · 摧毁守卫指挥部的火炮
+Destroy the siege commander and keep deployment guarded.,Destroy the siege commander and keep deployment guarded.,摧毁攻城指挥官，并继续守卫部署区域。
+Hold deployment; destroy Helix command and its siege commander.,Hold deployment; destroy Helix command and its siege commander.,守住部署区域；摧毁螺旋指挥部及其攻城指挥官。
+North Refinery,North Refinery,北侧炼油厂
+North Mercenary Camp,North Mercenary Camp,北侧佣兵营地
+North Repair Shop,North Repair Shop,北侧维修站
+South Refinery,South Refinery,南侧炼油厂
+South Mercenary Camp,South Mercenary Camp,南侧佣兵营地
+South Repair Shop,South Repair Shop,南侧维修站
+West Refinery,West Refinery,西侧炼油厂
+West Mercenary Camp,West Mercenary Camp,西侧佣兵营地
+West Repair Shop,West Repair Shop,西侧维修站
+East Refinery,East Refinery,东侧炼油厂
+East Mercenary Camp,East Mercenary Camp,东侧佣兵营地
+East Repair Shop,East Repair Shop,东侧维修站

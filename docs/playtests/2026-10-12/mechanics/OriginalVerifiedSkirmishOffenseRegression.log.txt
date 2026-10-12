@@ -1,0 +1,45 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+ARCHIVE WAVE alpine Tank (17.0, 0.0, 19.0)
+ARCHIVE WAVE alpine Tank (18.0, 0.0, 18.0)
+ARCHIVE WAVE alpine Tank (18.0, 0.0, 18.0)
+ARCHIVE WAVE alpine Tank (18.0, 0.0, 19.0)
+ARCHIVE DEPARTURE alpine 84.7887191772461
+ARCHIVE DEPARTURE alpine 79.8050079345703
+ARCHIVE DEPARTURE alpine 81.9345016479492
+ARCHIVE DEPARTURE alpine 84.6674499511719
+PASS: archived alpine wave, actual departure and paused disk restore
+ARCHIVE WAVE desert Tank (18.0, 0.0, 27.0)
+ARCHIVE WAVE desert Tank (19.0, 0.0, 26.0)
+ARCHIVE WAVE desert Tank (19.0, 0.0, 26.0)
+ARCHIVE WAVE desert Tank (19.0, 0.0, 27.0)
+ARCHIVE WAVE desert Tank (20.0, 0.0, 27.0)
+ARCHIVE WAVE desert Tank (18.0, 0.0, 26.0)
+ARCHIVE DEPARTURE desert 57.6408729553223
+ARCHIVE DEPARTURE desert 71.0297088623047
+ARCHIVE DEPARTURE desert 71.3736724853516
+ARCHIVE DEPARTURE desert 66.2588577270508
+ARCHIVE DEPARTURE desert 67.0569381713867
+ARCHIVE DEPARTURE desert 54.4889526367188
+PASS: archived desert wave, actual departure and paused disk restore
+ENGINEER TRACE 9.99999999999091 position=(122.1692, 0.0, 86.59569) action=Constructing(ConstructingWhileInRange) destination=(122.1692, 0.0, 86.59569) path=[]
+ENGINEER TRACE 19.9999999999818 position=(122.1692, 0.0, 86.59569) action=Constructing(ConstructingWhileInRange) destination=(122.1692, 0.0, 86.59569) path=[]
+ENGINEER TRACE 29.9999999999727 position=(119.545, 0.0, 88.93585) action=Constructing(MovingToUnit) destination=(117.082, 0.0, 97.39637) path=[(121.8562, 0.6, 86.87997), (117.0, 0.6, 91.2), (116.1, 0.6, 92.10001), (116.1, 0.6, 93.9), (117.7392, 0.6, 96.73917)]
+ENGINEER TRACE 39.9999999999636 position=(117.5181, 0.0, 96.30553) action=Constructing(ConstructingWhileInRange) destination=(117.5123, 0.0, 96.29597) path=[]
+ENGINEER TRACE 49.9999999999545 position=(117.5181, 0.0, 96.30553) action=Constructing(ConstructingWhileInRange) destination=(117.5123, 0.0, 96.29597) path=[]
+ENGINEER TRACE 59.9999999999454 position=(118.8, 0.0, 75.62885) action=Harvest(Materials · approaching work slot) destination=(117.5004, 0.0, 70.6) path=[(117.5181, 0.6, 96.30553), (118.8, 0.6, 95.10001), (120.0, 0.6, 93.60001), (120.0, 0.6, 79.5), (117.5004, 0.6, 71.4)]
+ARCHIVED ENGINEER cargo=-1.0 delivered=false elapsed=59.9999999999454
+PASS: bastion priorities, hidden contacts, ownership, domains and wave interval
+PASS: helix priorities, hidden contacts, ownership, domains and wave interval
+ERROR: Archived engineer did not collect and deliver within sixty seconds
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/SkirmishOffenseRegression.gd:18)
+       [1] _goal_contract (res://tests/headless/SkirmishOffenseRegression.gd:300)
+       [2] _frames (res://tests/headless/CampaignRegression.gd:258)
+Skirmish offense: 1 failures
+ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 6 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

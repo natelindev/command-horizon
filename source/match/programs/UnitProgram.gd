@@ -39,7 +39,15 @@ func _ready():
 
 
 func ready_to_run():
-	var unlocked = unit.player.basic_programs_unlocked() if ("player" in unit and unit.player != null and unit.player.has_method("basic_programs_unlocked")) else true
+	var unlocked = (
+		unit.player.basic_programs_unlocked()
+		if (
+			"player" in unit
+			and unit.player != null
+			and unit.player.has_method("basic_programs_unlocked")
+		)
+		else true
+	)
 	return installed and unlocked and install_left <= 0.0
 
 
@@ -92,6 +100,14 @@ func run():
 			return false
 	if "manual_orders" in unit and unit.manual_orders != null:
 		unit.manual_orders.cancel()
+	# Resume takes authority immediately, including while paused. Retire the
+	# old attack/move before its late completion can install an idle action and
+	# cancel the accepted program while it is waiting for its first tick.
+	_changing = true
+	if "action" in unit:
+		unit.action = null
+	_owned_action = null
+	_changing = false
 	_pending = true
 	set_status("Ready", "Program starts on the next simulation tick.")
 	return true
@@ -116,7 +132,11 @@ func set_status(state, explanation):
 		return
 	mode = state
 	reason = explanation
-	var match_time = unit._match.simulation_time if ("_match" in unit and unit._match != null and "simulation_time" in unit._match) else 0.0
+	var match_time = (
+		unit._match.simulation_time
+		if ("_match" in unit and unit._match != null and "simulation_time" in unit._match)
+		else 0.0
+	)
 	trace.append({"time": match_time, "reason": explanation})
 	if trace.size() > 16:
 		trace.pop_front()

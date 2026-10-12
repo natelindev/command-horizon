@@ -35,10 +35,12 @@ func _on_hit(victim, attacker):
 func _available(unit, attacker):
 	if not Attack.is_applicable(unit, attacker) or unit.movement_speed <= 0:
 		return false
+	if "stance" in unit and unit.stance in [unit.Stance.HOLD_FIRE, unit.Stance.HOLD_POSITION]:
+		return false
 	if unit.has_meta("garrison_host"):
 		return false
 	if unit.manual_orders != null and unit.manual_orders._engaged:
 		return false
-	if unit.program != null and unit.program.mode in ["Running", "Waiting", "Blocked"]:
+	if unit.program != null and unit.program.mode in ["Ready", "Running", "Waiting", "Blocked"]:
 		return false
 	return unit.action == null or (unit.action is Waiting and unit.action.is_idle())

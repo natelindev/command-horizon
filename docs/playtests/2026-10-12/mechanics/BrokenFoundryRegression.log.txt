@@ -1,0 +1,20 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+FOUNDRY node 0 disabled=true time=26.7499999999998 army=24
+FOUNDRY node 1 disabled=true time=60.7499999999978 army=21
+FOUNDRY result Victory seconds=129.099999999995 survivors=18
+FOUNDRY survivors bastion { "CommandCenter": 1, "PowerPlant": 3, "Barracks": 1, "VehicleFactory": 1, "CommandLab": 1, "RepairDepot": 1, "Worker": 2, "Drone": 1, "RepairRobot": 1, "AdvancedTank": 2, "Tank": 6, "Infantry": 6 }
+FOUNDRY survivors helix { "CommandLab": 1, "PowerPlant": 2, "Tank": 1, "RepairRobot": 2 }
+FOUNDRY control 0.0 hold 30.0 contested false
+ERROR: Standard node did not finish six actual tanks
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/BrokenFoundryRegression.gd:62)
+       [1] _rewards (res://tests/headless/BrokenFoundryRegression.gd:368)
+       [2] _close (res://tests/headless/SupplyLineRegression.gd:89)
+       [3] _frames (res://tests/headless/SupplyLineRegression.gd:325)
+Broken Foundry: 1 failures
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 4 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

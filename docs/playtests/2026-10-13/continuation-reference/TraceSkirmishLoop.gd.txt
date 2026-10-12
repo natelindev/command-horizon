@@ -1,0 +1,28 @@
+extends "res://tests/headless/SkirmishLoop.gd"
+
+var _captured_failures = {}
+
+
+func _check(condition, message):
+	super._check(condition, message)
+	if condition or not is_instance_valid(game) or game.get_instance_id() in _captured_failures:
+		return
+	_captured_failures[game.get_instance_id()] = true
+	var was_paused = paused
+	paused = true
+	var builder = load("res://source/match/saves/MatchSnapshot.gd").new()
+	var data = builder.capture(game)
+	paused = was_paused
+	if data == null:
+		print("REFERENCE ARCHIVE capture_failed=", builder.error)
+		return
+	var destination = (
+		"res://docs/playtests/2026-10-13/continuation-reference/%s-failure.json" % human.faction
+	)
+	var file = FileAccess.open(destination, FileAccess.WRITE)
+	if file == null:
+		print("REFERENCE ARCHIVE write_failed=", FileAccess.get_open_error())
+		return
+	file.store_string(JSON.stringify(data, "\t"))
+	file.close()
+	print("REFERENCE ARCHIVE ", destination, " reason=", message)

@@ -1,0 +1,28 @@
+{
+  "field_cases": 24,
+  "failures": 0,
+  "before_failure": {
+    "map": "ExpandedAlpineRelay",
+    "faction": "frontier",
+    "field": [
+      37.5,
+      0,
+      114
+    ],
+    "worker_position": [
+      23.71269,
+      0,
+      54.76546
+    ],
+    "simulated_timeout": 120
+  },
+  "fixed_failure_case_seconds": 58.0,
+  "hq_fixture_cases": 54,
+  "paused_waypoint_roundtrips": 6,
+  "source_sha256": {
+    "source/match/units/actions/MovingToUnit.gd": "e76a0e9461c5df50faba17fece8d5c180b1df61bb52c862caaaea7a82bfabea8",
+    "tests/headless/ExpandedFieldApproachRegression.gd": "03334b0594dcea9d498c92a5fe9893c7aad7fcee694839bb276a4c588e3e7aaa",
+    "tests/headless/HQDeliveryRegression.gd": "8049784639d8684b17f9d39642295d9d0c7db3b1c02431fb3e00ab029b0ea2dd",
+    "tests/headless/HQDeliveryRestoreRegression.gd": "17a6e36bb2ce345a70249b5c0af5f9d987034f3130a7fe81a631f83a90be3442"
+  }
+}

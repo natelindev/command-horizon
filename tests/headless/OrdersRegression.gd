@@ -1,9 +1,10 @@
 extends "res://tests/headless/ProgramRegression.gd"
 
-const Orders = preload("res://source/match/orders/ManualOrders.gd")
+var orders
 
 
 func _run():
+	orders = load("res://source/match/orders/ManualOrders.gd")
 	var settings = load("res://source/data-model/MatchSettings.gd").new()
 	settings.skirmish = true
 	settings.map_path = "res://source/match/maps/BigArena.tscn"
@@ -67,8 +68,8 @@ func _movement_and_authority(player):
 	var start = tank.global_position
 	var first = Vector3(28, 0, 25)
 	var last = Vector3(28, 0, 29)
-	_check(tank.manual_orders.submit(Orders.point_order("move", first)), "First order rejected")
-	tank.manual_orders.submit(Orders.point_order("move", last), true)
+	_check(tank.manual_orders.submit(orders.point_order("move", first)), "First order rejected")
+	tank.manual_orders.submit(orders.point_order("move", last), true)
 	await _frames(15)
 	_check(
 		tank.manual_orders.pending.size() == 2 and tank.global_position == start,
@@ -84,25 +85,25 @@ func _movement_and_authority(player):
 	)
 	_check(tank.program.mode == "Manual", "Program resumed without consent")
 	paused = true
-	for index in range(Orders.LIMIT):
+	for index in range(orders.LIMIT):
 		_check(
-			tank.manual_orders.submit(Orders.point_order("move", first), true),
+			tank.manual_orders.submit(orders.point_order("move", first), true),
 			"Queue rejected before limit"
 		)
 	_check(
-		not tank.manual_orders.submit(Orders.point_order("move", last), true),
+		not tank.manual_orders.submit(orders.point_order("move", last), true),
 		"Unbounded order queue"
 	)
-	tank.manual_orders.submit(Orders.point_order("move", last))
+	tank.manual_orders.submit(orders.point_order("move", last))
 	_check(tank.manual_orders.pending.size() == 1, "Replacement retained stale orders")
 	tank.issue_manual_order(null)
 	_check(tank.manual_orders.pending.is_empty(), "Stop retained waiting orders")
 	tank.manual_orders.auto_resume = true
-	tank.manual_orders.submit(Orders.point_order("move", last))
+	tank.manual_orders.submit(orders.point_order("move", last))
 	paused = false
 	await _frames(30)
 	_check(tank.program.mode == "Running", "Explicit auto-resume did not run program")
-	tank.manual_orders.submit(Orders.point_order("move", first))
+	tank.manual_orders.submit(orders.point_order("move", first))
 	tank.program.run()
 	_check(tank.manual_orders.pending.is_empty(), "Explicit Resume retained manual queue")
 	await _frames(3)
@@ -128,8 +129,8 @@ func _movement_and_authority(player):
 	for role in ["Drone", "Infantry"]:
 		var unit = _mobile(role, player, Vector3(32, 0, 25))
 		await _frames(20)
-		unit.manual_orders.submit(Orders.point_order("move", Vector3(34, 0, 25)))
-		unit.manual_orders.submit(Orders.point_order("move", Vector3(34, 0, 28)), true)
+		unit.manual_orders.submit(orders.point_order("move", Vector3(34, 0, 25)))
+		unit.manual_orders.submit(orders.point_order("move", Vector3(34, 0, 28)), true)
 		await _frames(300)
 		_check(
 			unit.global_position_yless.distance_to(Vector3(34, 0, 28)) < 1,
@@ -145,16 +146,16 @@ func _targets(player):
 	var ally = _spawn("Tank", player, Vector3(31, 0, 35))
 	ally.hp -= 4
 	await _frames(25)
-	robot.manual_orders.submit(Orders.target_order("repair", ally))
-	robot.manual_orders.submit(Orders.point_order("move", Vector3(34, 0, 35)), true)
+	robot.manual_orders.submit(orders.target_order("repair", ally))
+	robot.manual_orders.submit(orders.point_order("move", Vector3(34, 0, 35)), true)
 	await _frames(300)
 	_check(ally.hp == ally.hp_max, "Queued repair did not heal")
 	_check(
 		robot.global_position_yless.distance_to(Vector3(34, 0, 35)) < 1,
 		"Repair did not release next order"
 	)
-	robot.manual_orders.submit(Orders.target_order("follow", ally))
-	robot.manual_orders.submit(Orders.point_order("move", Vector3(34, 0, 38)), true)
+	robot.manual_orders.submit(orders.target_order("follow", ally))
+	robot.manual_orders.submit(orders.point_order("move", Vector3(34, 0, 38)), true)
 	await _frames(60)
 	_check(robot.manual_orders.pending.size() == 1, "Follow unexpectedly expired")
 	robot.manual_orders.skip()
@@ -164,8 +165,8 @@ func _targets(player):
 		"Skip did not advance queue"
 	)
 	paused = true
-	robot.manual_orders.submit(Orders.target_order("repair", ally))
-	robot.manual_orders.submit(Orders.point_order("move", Vector3(32, 0, 38)), true)
+	robot.manual_orders.submit(orders.target_order("repair", ally))
+	robot.manual_orders.submit(orders.point_order("move", Vector3(32, 0, 38)), true)
 	ally.queue_free()
 	await _frames(2)
 	paused = false
@@ -177,7 +178,7 @@ func _targets(player):
 	var enemy = _spawn("Tank", opponent, Vector3(33, 0, 40))
 	var attacker = _mobile("Tank", player, Vector3(30, 0, 40))
 	await _frames(30)
-	var order = Orders.target_order("attack", enemy)
+	var order = orders.target_order("attack", enemy)
 	enemy.global_position = Vector3(80, 0, 80)
 	await _frames(20)
 	attacker.manual_orders.submit(order)
@@ -203,8 +204,8 @@ func _harvest():
 	worker.resources_max = 2
 	await _frames(40)
 	var stock = _human.resource_a
-	worker.manual_orders.submit(Orders.target_order("gather", resource))
-	worker.manual_orders.submit(Orders.point_order("move", Vector3(30, 0, 25)), true)
+	worker.manual_orders.submit(orders.target_order("gather", resource))
+	worker.manual_orders.submit(orders.point_order("move", Vector3(30, 0, 25)), true)
 	await _frames(1600)
 	_check(_human.resource_a == stock + 2, "Queued harvest did not deliver exactly one load")
 	_check(worker.resource_a == 0, "Harvest queue dropped carried cargo")
@@ -224,13 +225,13 @@ func _combat_and_build(player):
 		victim.hp = 1
 		await _frames(30)
 		var order = (
-			Orders.target_order("attack", victim)
+			orders.target_order("attack", victim)
 			if kind == "attack"
-			else Orders.point_order("attack_move", Vector3(42, 0, 31))
+			else orders.point_order("attack_move", Vector3(42, 0, 31))
 		)
 		tank.process_mode = Node.PROCESS_MODE_INHERIT
 		tank.manual_orders.submit(order)
-		tank.manual_orders.submit(Orders.point_order("move", Vector3(43, 0, 34)), true)
+		tank.manual_orders.submit(orders.point_order("move", Vector3(43, 0, 34)), true)
 		await _frames(600)
 		_check(
 			not is_instance_valid(victim), "Queued combat failed to kill visible target: " + kind
@@ -246,15 +247,15 @@ func _combat_and_build(player):
 	building.mark_as_under_construction()
 	building.construct(0.95)
 	await _frames(30)
-	worker.manual_orders.submit(Orders.target_order("construct", building))
-	worker.manual_orders.submit(Orders.point_order("move", Vector3(35, 0, 48)), true)
+	worker.manual_orders.submit(orders.target_order("construct", building))
+	worker.manual_orders.submit(orders.point_order("move", Vector3(35, 0, 48)), true)
 	await _frames(600)
 	_check(building.is_constructed(), "Queued construction did not finish")
 	_check(
 		worker.global_position_yless.distance_to(Vector3(35, 0, 48)) < 1,
 		"Construction failed to release next order"
 	)
-	worker.manual_orders.submit(Orders.point_order("move", Vector3(32, 0, 48)))
+	worker.manual_orders.submit(orders.point_order("move", Vector3(32, 0, 48)))
 	await _frames(3)
 	worker.get_node("Movement").speed = 0.0
 	await _frames(360)

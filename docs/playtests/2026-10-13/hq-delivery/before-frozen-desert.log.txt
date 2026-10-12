@@ -1,0 +1,22 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+DELIVERY frozen ExpandedDesertFrontier bastion standard time=81.48333333333 workers=[(26.48651, 0.0, 44.18394), (29.0, 0.0, 42.201)]
+DELIVERY frozen ExpandedDesertFrontier bastion advanced time=81.4999999999967 workers=[(23.51168, 0.0, 41.8163), (24.67792, 0.0, 41.20435)]
+ERROR: Frozen starting bodies blocked both deliveries: ExpandedDesertFrontier bastion standard
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/HQDeliveryRegression.gd:29)
+       [1] _frozen_roster (res://tests/headless/HQDeliveryRegression.gd:131)
+       [2] _frames (res://tests/headless/Skirmish.gd:299)
+ERROR: Frozen starting bodies blocked both deliveries: ExpandedDesertFrontier bastion advanced
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/HQDeliveryRegression.gd:29)
+       [1] _frozen_roster (res://tests/headless/HQDeliveryRegression.gd:131)
+       [2] _frames (res://tests/headless/Skirmish.gd:299)
+HQ delivery: 2 failures
+ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 2 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

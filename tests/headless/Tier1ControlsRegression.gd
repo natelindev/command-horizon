@@ -1,5 +1,19 @@
 extends SceneTree
 
+
+class FixtureUnit:
+	extends Node3D
+	var radius = 1.2
+	var hp = 100
+
+
+class FixtureMovement:
+	extends NavigationAgent3D
+	# Provisional geometry before map synchronization; real navigation is
+	# exercised by FormationCapRegression's synchronized army fixtures.
+	var _synchronized = false
+
+
 var errors = []
 
 
@@ -21,9 +35,11 @@ func _test_formation_slots():
 	var UtilsMovement = load("res://source/match/utils/UnitMovementUtils.gd")
 	var dummy_units = []
 	for i in range(5):
-		var u = Node3D.new()
+		var u = FixtureUnit.new()
+		var movement = FixtureMovement.new()
+		movement.name = "Movement"
+		u.add_child(movement)
 		root.add_child(u)
-		u.set("radius", 1.2)
 		u.global_position = Vector3(float(i) * 3.0, 0.0, 0.0)
 		dummy_units.append(u)
 
@@ -31,14 +47,18 @@ func _test_formation_slots():
 	var heading = Vector3(0, 0, 1)  # Facing North (positive Z)
 
 	# 1. Line formation
-	var line_slots = UtilsMovement.calculate_formation_slots(dummy_units, target, heading, "line", 3.0)
+	var line_slots = UtilsMovement.calculate_formation_slots(
+		dummy_units, target, heading, "line", 3.0
+	)
 	_check(line_slots.size() == 5, "Line formation did not generate 5 slots")
-	# With heading (0,0,1), right vector is (-1,0,0), so X coordinates vary while Z remains near target.z
+	# Facing positive Z, slots vary along X while sharing the target's Z.
 	var z_coords = line_slots.map(func(pair): return pair[1].z)
 	_check(is_equal_approx(z_coords[0], z_coords[1]), "Line slots not aligned along rank")
 
 	# 2. Wedge formation
-	var wedge_slots = UtilsMovement.calculate_formation_slots(dummy_units, target, heading, "wedge", 3.0)
+	var wedge_slots = UtilsMovement.calculate_formation_slots(
+		dummy_units, target, heading, "wedge", 3.0
+	)
 	_check(wedge_slots.size() == 5, "Wedge formation did not generate 5 slots")
 	# Tip at target, trailing wings behind tip in Z
 	var has_tip = wedge_slots.any(func(pair): return is_equal_approx(pair[1].z, target.z))
@@ -47,6 +67,15 @@ func _test_formation_slots():
 	# 3. Crowd moved wrapper with heading
 	var crowd_slots = UtilsMovement.crowd_moved_to_new_pivot(dummy_units, target, heading, "line")
 	_check(crowd_slots.size() == 5, "crowd_moved_to_new_pivot failed with heading")
+	for index in crowd_slots.size():
+		for earlier in index:
+			_check(
+				(
+					crowd_slots[index][1].distance_to(crowd_slots[earlier][1])
+					>= crowd_slots[index][0].radius + crowd_slots[earlier][0].radius
+				),
+				"Heading wrapper collapsed provisional formation destinations"
+			)
 
 	for u in dummy_units:
 		u.queue_free()
@@ -80,25 +109,25 @@ func _test_tactical_stances():
 func _test_control_groups_and_snap():
 	var handler = load("res://source/match/handlers/UnitGroupSelectionHandler.gd").new()
 	root.add_child(handler)
-	handler._ready()
 
-	var dummy_unit1 = Node3D.new()
+	var dummy_unit1 = FixtureUnit.new()
 	dummy_unit1.add_to_group("controlled_units")
 	dummy_unit1.add_to_group("selected_units")
-	dummy_unit1.set("hp", 100)
 	root.add_child(dummy_unit1)
 
 	handler.set_group(1)
 	_check(dummy_unit1.is_in_group("unit_group_1"), "Unit not added to group 1")
 
-	var dummy_unit2 = Node3D.new()
+	var dummy_unit2 = FixtureUnit.new()
 	dummy_unit2.add_to_group("controlled_units")
 	dummy_unit2.add_to_group("selected_units")
-	dummy_unit2.set("hp", 100)
 	root.add_child(dummy_unit2)
 
 	handler.append_to_group(1)
-	_check(dummy_unit1.is_in_group("unit_group_1") and dummy_unit2.is_in_group("unit_group_1"), "Append to group 1 failed")
+	_check(
+		dummy_unit1.is_in_group("unit_group_1") and dummy_unit2.is_in_group("unit_group_1"),
+		"Append to group 1 failed"
+	)
 
 	# Double-tap camera centering tracking
 	handler.access_group(1)

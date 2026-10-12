@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://source/match/maps/AlpineRelay.tscn" id="base"]
+[ext_resource type="Script" path="res://source/match/maps/ExpandedAlpineRelay.gd" id="script"]
+
+[node name="Map" instance=ExtResource("base")]
+script = ExtResource("script")
+size = Vector2(192, 156)
+
+[node name="West" parent="SpawnPoints" index="0"]
+position = Vector3(25.5, 0, 27)
+
+[node name="East" parent="SpawnPoints" index="1"]
+position = Vector3(166.5, 0, 129)

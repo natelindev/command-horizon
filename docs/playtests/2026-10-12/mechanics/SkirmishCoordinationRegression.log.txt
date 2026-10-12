@@ -1,0 +1,21 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+COORDINATION bastion difficulty=0 goals=[(93.0, 0.0, 80.0)]
+COORDINATION bastion difficulty=1 goals=[(93.0, 0.0, 80.0), (17.0, 0.0, 18.0)]
+COORDINATION bastion difficulty=2 goals=[(93.0, 0.0, 80.0), (17.0, 0.0, 18.0), (71.0, 0.0, 73.0)]
+COORDINATION PREEMPTION AND RECOVERY bastion
+COORDINATION ENGAGED ORDER bastion goal=(88.0, 0.0, 30.0)
+COORDINATED GUARD RETURN bastion at 696.999999999986
+COORDINATION LIVE bastion assault_travel=97.6693496704102 support_healed=true relays=2 human_damage=700.5
+COORDINATION helix difficulty=0 goals=[(93.0, 0.0, 80.0)]
+COORDINATION helix difficulty=1 goals=[(93.0, 0.0, 80.0), (17.0, 0.0, 18.0)]
+COORDINATION helix difficulty=2 goals=[(93.0, 0.0, 80.0), (17.0, 0.0, 18.0), (71.0, 0.0, 73.0)]
+COORDINATION PREEMPTION AND RECOVERY helix
+COORDINATION ENGAGED ORDER helix goal=(88.0, 0.0, 30.0)
+COORDINATED GUARD RETURN helix at 695.499999999988
+COORDINATION LIVE helix assault_travel=105.408622741699 support_healed=true relays=2 human_damage=863.1
+Global coordination: 0 failures
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 4 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

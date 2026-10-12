@@ -19,7 +19,7 @@ var _scan_left = 0.0
 
 
 static func region_for(map_path):
-	match map_path.get_file().get_basename():
+	match load("res://source/match/ambient/AmbientCatalog.gd").authored_name(map_path):
 		"BastionDesert", "DesertFrontier", "SupplyLineMap", "FirstOrdersMap":
 			return "desert"
 		"AlpineRelay", "SplitSignalMap":

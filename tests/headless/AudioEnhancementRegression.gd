@@ -268,8 +268,11 @@ func _power_transitions():
 		narrator._power_check_left = 0
 		narrator._process(.1)
 	_check(heard.size() == 1, "Persistent low power spammed speech")
-	var restored = _spawn_weapon("PowerPlant", human, Vector3(40, 0, 35))
-	restored.construct(1.0)
+	# The advanced base plus airfield consumes 25; HQ + one plant supplies 20.
+	for index in 2:
+		var restored = _spawn_weapon("PowerPlant", human, Vector3(40 + index * 7, 0, 35))
+		restored.construct(1.0)
+	_check(human.production_factor() == 1.0, "Power recovery fixture remains underpowered")
 	_reset_speech()
 	narrator._power_check_left = 0
 	narrator._process(.1)

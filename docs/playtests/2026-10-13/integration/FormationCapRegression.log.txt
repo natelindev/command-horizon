@@ -1,0 +1,16 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+FORMATION CAP bastion point=(0.1, 0.0, 0.1) overlaps=0
+FORMATION CAP bastion point=(99.9, 0.0, 99.9) overlaps=0
+FORMATION CAP bastion point=(50.0, 0.0, 50.0) overlaps=0
+FORMATION CAP helix point=(0.1, 0.0, 0.1) overlaps=0
+FORMATION CAP helix point=(99.9, 0.0, 99.9) overlaps=0
+FORMATION CAP helix point=(50.0, 0.0, 50.0) overlaps=0
+FORMATION CAP frontier point=(0.1, 0.0, 0.1) overlaps=0
+FORMATION CAP frontier point=(99.9, 0.0, 99.9) overlaps=0
+FORMATION CAP frontier point=(50.0, 0.0, 50.0) overlaps=0
+Formation cap regression: 0 failures
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 4 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

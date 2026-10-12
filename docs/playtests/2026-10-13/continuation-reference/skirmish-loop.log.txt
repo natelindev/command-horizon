@@ -1,0 +1,61 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+LOOP bastion economy at 0.7
+LOOP bastion Barracks at 1.2
+LOOP bastion defense at 25.7
+LOOP bastion defense_pending at 34.7
+LOOP bastion VehicleFactory at 42.7
+LOOP bastion PowerPlant at 79.2
+LOOP bastion armor_pending at 101.2
+LOOP bastion fund_CommandLab at 113.7
+LOOP bastion CommandLab at 134.2
+LOOP bastion retrofit at 182.2
+LOOP bastion chips_pending at 182.7
+LOOP bastion defend_economy at 200.7
+LOOP bastion fund_VehicleFactory at 274.7
+LOOP bastion assault at 376.2
+LOOP RESULT bastion Victory seconds=420.049999999947 income=(384.0, 168.0) produced=35 enemy_attacks=1 army=9
+LOOP helix economy at 0.8
+LOOP helix Barracks at 1.3
+LOOP helix defense at 25.2
+LOOP helix defense_pending at 34.2
+LOOP helix VehicleFactory at 42.2
+LOOP helix PowerPlant at 78.7
+LOOP helix armor_pending at 98.7
+LOOP helix fund_CommandLab at 111.7
+LOOP helix CommandLab at 121.7
+LOOP helix retrofit at 162.8
+LOOP helix chips_pending at 163.3
+LOOP helix scout at 188.3
+LOOP helix assault at 198.8
+LOOP helix repair_army at 203.8
+LOOP helix RepairDepot at 209.8
+LOOP helix defend_economy at 210.3
+LOOP helix reinforce at 281.8
+LOOP helix distribute at 451.2
+LOOP helix expand at 639.7
+LOOP RESULT helix  seconds=1200.74999999924 income=(907.0, 436.0) produced=111 enemy_attacks=7 army=3
+LOOP frontier economy at 0.8
+LOOP frontier Barracks at 1.3
+LOOP frontier defense at 25.7
+LOOP frontier defense_pending at 34.7
+LOOP frontier VehicleFactory at 48.2
+LOOP frontier PowerPlant at 75.7
+LOOP frontier armor_pending at 96.7
+LOOP frontier fund_CommandLab at 110.7
+LOOP frontier CommandLab at 123.2
+LOOP frontier retrofit at 169.8
+LOOP frontier chips_pending at 170.3
+LOOP frontier scout at 193.8
+LOOP frontier defend_economy at 202.3
+LOOP frontier RepairDepot at 235.8
+LOOP frontier repair_army at 243.8
+LOOP RESULT frontier Victory seconds=411.083333333288 income=(371.0, 164.0) produced=37 enemy_attacks=1 army=13
+ERROR: The played match never reached a valid outcome
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/SkirmishLoop.gd:33)
+       [1] _play (res://tests/headless/SkirmishLoop.gd:93)
+       [2] _frames (res://tests/headless/Skirmish.gd:299)
+Standard-start gameplay loop: 1 failures
+ERROR: 2 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.

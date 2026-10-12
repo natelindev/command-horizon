@@ -1,0 +1,41 @@
+{
+  "fixtures": 54,
+  "final_failures": 0,
+  "baseline_frozen_desert_failures": 2,
+  "coverage": {
+    "factions": [
+      "bastion",
+      "helix",
+      "frontier"
+    ],
+    "maps": [
+      "ExpandedDesertFrontier",
+      "ExpandedAlpineRelay",
+      "ExpandedCoastalFoundry"
+    ],
+    "starts": [
+      "standard",
+      "advanced"
+    ],
+    "scenarios": [
+      "one original human engineer harvesting while three idle",
+      "two new human engineers around frozen original mobile roster",
+      "two enemy engineers around frozen original mobile roster"
+    ]
+  },
+  "related_checks": [
+    "NavigationRegression",
+    "HarvestContinuity",
+    "FoundationRecoveryRegression",
+    "HQDeliveryRestoreRegression"
+  ],
+  "source_sha256": {
+    "source/match/units/actions/MovingToUnit.gd": "e76a0e9461c5df50faba17fece8d5c180b1df61bb52c862caaaea7a82bfabea8",
+    "tests/headless/ExpandedFieldApproachRegression.gd": "03334b0594dcea9d498c92a5fe9893c7aad7fcee694839bb276a4c588e3e7aaa",
+    "tests/headless/HQDeliveryRegression.gd": "8049784639d8684b17f9d39642295d9d0c7db3b1c02431fb3e00ab029b0ea2dd",
+    "tests/headless/HQDeliveryRestoreRegression.gd": "17a6e36bb2ce345a70249b5c0af5f9d987034f3130a7fe81a631f83a90be3442"
+  },
+  "baseline_source_sha256": "b2fb4236f66081f657b0249b5e748affecaa23a630f1cdccc9492f8e05a25d9b",
+  "paused_archive_roundtrips": 6,
+  "sequential_alpine_field_cases": 24
+}

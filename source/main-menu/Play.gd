@@ -43,6 +43,24 @@ const MAPS = [
 		"Harbor inlet · quay and inland routes · aircraft cross the water",
 		"128 × 104"
 	],
+	[
+		"res://source/match/maps/ExpandedDesertFrontier.tscn",
+		"Desert Frontier — Expanded",
+		"Eight resource fields · capture refineries, mercenary camps and repair shops",
+		"192 × 144"
+	],
+	[
+		"res://source/match/maps/ExpandedAlpineRelay.tscn",
+		"Alpine Relay — Expanded",
+		"Wide mountain passes · eight resource fields · six capturable facilities",
+		"192 × 156"
+	],
+	[
+		"res://source/match/maps/ExpandedCoastalFoundry.tscn",
+		"Coastal Foundry — Expanded",
+		"Wide harbor routes · eight resource fields · six capturable facilities",
+		"192 × 156"
+	],
 ]
 const FACTION_DESCRIPTIONS = [
 	Lore.FACTIONS.bastion.short,
@@ -180,6 +198,7 @@ func _build_ui():
 	preview_frame.add_child(_preview)
 
 	_map_details = _label(map_column, "", 13, Color("bac6ca"))
+	_map_details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
 	var legend_panel = PanelContainer.new()
 	var leg_style = StyleBoxFlat.new()
@@ -202,6 +221,8 @@ func _build_ui():
 			+ tr("Dots: resources · Small squares: relays")
 			+ "\n"
 			+ tr("Blocks: buildings · Lines: roads · Blue: water")
+			+ "\n"
+			+ tr("R: refinery · M: mercenary camp · +: repair shop")
 		),
 		12,
 		Color("8296a6")
@@ -235,7 +256,9 @@ func _build_ui():
 	)
 	_label(grid, tr("Tactical doctrine"), 14, Color("bac6ca"))
 	_doctrine_selector = _option(
-		grid, "TacticalDoctrine", ["Standard Field Protocol", "Hit & Run Kiting", "Ironclad Defense"]
+		grid,
+		"TacticalDoctrine",
+		["Standard Field Protocol", "Hit & Run Kiting", "Ironclad Defense"]
 	)
 
 	var summary_box = PanelContainer.new()
@@ -449,6 +472,8 @@ func _save_preferences():
 		if pair[1] == null:
 			continue
 		var value = pair[1].selected
+		if pair[0] == "map":
+			value = _map_paths[value]
 		if pair[0] in ["player", "enemy"]:
 			value = (Factions.IDS + ["random"])[value]
 		config.set_value("setup", pair[0], value)
@@ -459,7 +484,7 @@ func _load_preferences():
 	var config = ConfigFile.new()
 	config.load(preferences_path)
 	for pair in [
-		["map", _map_list, 0],
+		["map", _map_list, "res://source/match/maps/ExpandedDesertFrontier.tscn"],
 		["player", _player_faction, "bastion"],
 		["enemy", _enemy_faction, "random"],
 		["difficulty", _difficulty, 1],
@@ -469,6 +494,11 @@ func _load_preferences():
 		if pair[1] == null:
 			continue
 		var value = config.get_value("setup", pair[0], pair[2])
+		if pair[0] == "map":
+			if not value is int:
+				value = _map_paths.find(str(value))
+				if value < 0:
+					value = _map_paths.find("res://source/match/maps/ExpandedDesertFrontier.tscn")
 		if pair[0] in ["player", "enemy"]:
 			# Old index 2 meant Random. Persist stable IDs before adding further factions.
 			if value is int:

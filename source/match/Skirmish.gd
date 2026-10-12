@@ -7,6 +7,7 @@ var hud = null
 var alerts = null
 var units_produced = 0
 var battle_record
+var campaign_story = null
 var _old_god_mode = false
 var _defeat_timers = {}
 
@@ -37,6 +38,17 @@ func _ready():
 	MatchSignals.unit_production_finished.connect(func(_unit, _producer): units_produced += 1)
 	battle_record = load("res://source/match/BattleRecord.gd").new()
 	add_child(battle_record)
+	_attach_campaign_story.call_deferred()
+
+
+func _attach_campaign_story():
+	if campaign_story != null:
+		return
+	var story = load("res://source/match/campaign/CampaignStory.gd")
+	if story.supports(self):
+		campaign_story = story.new()
+		campaign_story.name = "CampaignStory"
+		add_child(campaign_story)
 
 
 func _spawn_player_units(player, spawn_transform):

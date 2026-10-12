@@ -1,0 +1,96 @@
+{
+  "engine": "Godot 4.6.stable.official.89cea1439",
+  "merge_review": {
+    "main": "18b4b435167488b5dbd7e7a599a7b077dc18452f",
+    "mechanics": "02870474f646710540700cf7617086e723996ced",
+    "Play": "Both expanded map menu/default/path preferences and doctrine menu/settings/preferences retained.",
+    "Movement": "Root fixed the heading wrapper to resolve generated formation slots through existing reachable destination packing. Raw geometry API retained."
+  },
+  "headless": [
+    {
+      "test": "Tier1ControlsRegression",
+      "reported_failures": 0,
+      "exit_code": 0
+    },
+    {
+      "test": "Tier3UiRegression",
+      "reported_failures": 0,
+      "exit_code": 0
+    },
+    {
+      "test": "FormationCapRegression",
+      "reported_failures": 0,
+      "exit_code": 0
+    }
+  ],
+  "formation_cases": {
+    "real_units_per_case": 100,
+    "factions": [
+      "bastion",
+      "helix",
+      "frontier"
+    ],
+    "ordinary_click_cases": 9,
+    "drag_heading_cases": 12,
+    "formations": [
+      "line",
+      "wedge"
+    ],
+    "total_cases": 21,
+    "checks": [
+      "planar targets",
+      "on-mesh targets",
+      "route reachability",
+      "unit disc separation"
+    ]
+  },
+  "source_sha256": {
+    "source/main-menu/Play.gd": "83ac501f91888ecd7c0d714a96bf15981e07c63914f404a80d3b5b4bd9d50c77",
+    "source/match/utils/UnitMovementUtils.gd": "e326cd0c744ce89e1b667f63b6f7e65c0a730716ed70db163a4f39d69e888078",
+    "source/match/players/human/UnitActionsController.gd": "18ae2c464dbb54c11486705b6ab7cef925a12141ffe2b9032d84a5e41dd1f497",
+    "tests/headless/Tier1ControlsRegression.gd": "602a87b7b416cf63b61b8a17e864ca00c808831170c9947992ae68f653461269",
+    "tests/headless/Tier3UiRegression.gd": "f9b8ea02fdac6d6ef0314a37280bd7f67c02ca0785f9248620f8c45bd196e975",
+    "tests/headless/FormationCapRegression.gd": "e43f0b56bf9810dbc5227d2846b5c7d7a49b27f6f6b9a0ed7ee8fd11bcc5832e",
+    "source/match/hud/SkirmishHUD.gd": "32356dd158c10348e2f1dac126ddce7bbfccbf056abb4661198cbe0b9c21f3ff",
+    "source/match/hud/PointOfInterestOverview.gd": "4f0e2c9ab1a7e2f8e8bcdedd4e15ae86c2f81af3ab52377144bfd12504825ef8",
+    "source/match/world/PointOfInterest.gd": "da1e816ba22e599b60cacf4d0cff5fa6dd30e02548e20e08b385da74ece0bc30",
+    "source/match/world/PointOfInterestCatalog.gd": "64ad3a49dbc9e9037630e43e4fdde34e8ff32c8364de3caab70f1fda0b3f9a54",
+    "tests/rendered/PointOfInterestPreview.gd": "b8382809cf48e5144eb188c903ab6a74264607aa568320ca2087190976a4529f"
+  },
+  "rendered_facility_controls": {
+    "reported_failures": 0,
+    "exit_code": 0,
+    "locales": [
+      "en",
+      "zh_CN"
+    ],
+    "resolution": [
+      1280,
+      720
+    ],
+    "interface_scale": 1.5,
+    "screenshots_inspected": 6,
+    "input": "Engine-routed Window.push_input mouse motion/button/wheel and keyboard events; no direct callbacks or physical OS automation",
+    "checks": [
+      "actual Sites button and scrollable six-card overview",
+      "neutral recruitment disabled",
+      "real infantry captures camp",
+      "paid hire debit, cancel/refund and actual recruit completion",
+      "View camera center and prior pause restoration",
+      "focused Enter Back and modal order isolation",
+      "labels and buttons can scroll within viewport"
+    ]
+  },
+  "artifact_sha256": {
+    "FormationCapRegression.log.txt": "a616e937f1c757c2c7c52eb38d845ebb2d4df27c059877ccd27245bc34a73634",
+    "PointOfInterestPreview.log.txt": "581779d3f20f5b61b839fb144d976669abe817c65eb04bf283dd961ed732c52a",
+    "Tier1ControlsRegression.log.txt": "693f2486140b3a09a2cb56746a12551025bc84e21bd47a66b91b367760f28c74",
+    "Tier3UiRegression.log.txt": "99838c18a692f212c02d6e8067c80773f228974a71a4e04391e4f40729cb4095",
+    "en-camp.png": "fd174752d07867c26d17d4e8ce48ac90e62c6d635d372da00aef15469db1fce5",
+    "en-neutral.png": "6761463b74643dbb6ab65c15a648fc1e9b608635f40adc5b87553439a348918d",
+    "en-paid.png": "bec6a12bd4ca4e38047da8b721360bfca370260dcd9f91bbb66d26e000a99bc7",
+    "zh_CN-camp.png": "d82e1144f2b38cd4af0dbbe8e92e42f8fbec868a1b0465ca1c0caaa394f2b3a6",
+    "zh_CN-neutral.png": "0c92f0002e63546a9adb47bc7a848b68d312860bd12a97560696fb6e11a374ea",
+    "zh_CN-paid.png": "f243b5433db9b1fcade32b42abcba3f433d3964fb2a54953de7e214134e186ef"
+  }
+}

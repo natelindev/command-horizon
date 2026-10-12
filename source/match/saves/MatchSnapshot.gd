@@ -86,6 +86,8 @@ func capture(game):
 		_ids[deposits[index]] = "resource-%d" % index
 	for target in game.get_tree().get_nodes_in_group("neutral_targets"):
 		_ids[target] = target.neutral_id
+	for site in load("res://source/match/world/PointOfInterestCatalog.gd").sites(game):
+		_ids[site] = site.site_id
 	var settings = _properties(
 		game.settings,
 		[
@@ -247,6 +249,16 @@ func capture(game):
 		result.mission.relays = game.map.capture_state(_reference).relays
 	elif game.map.has_method("capture_state"):
 		result.mission = game.map.capture_state(_reference)
+	if "points_of_interest" in game.map:
+		result.mission.points_of_interest = game.map.points_of_interest.map(
+			func(site): return site.capture_state(_reference)
+		)
+	if settings.mission_id != "":
+		game._attach_campaign_story()
+		if is_instance_valid(game.campaign_story):
+			result.mission.story = game.campaign_story.snapshot()
+		if "opposition" in game and is_instance_valid(game.opposition):
+			result.mission.opposition = game.opposition.capture_state(_reference)
 	if not error.is_empty():
 		return null
 	# Detach every nested container, reject engine objects, NaN and unsupported types.

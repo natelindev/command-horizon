@@ -41,3 +41,18 @@ func _draw():
 		if map.relays[index].captured_by != null:
 			color = map.relays[index].captured_by.color
 		draw_rect(Rect2(point - Vector2(3, 3), Vector2(6, 6)), color)
+	if "points_of_interest" in map:
+		for site in map.points_of_interest:
+			var point = Vector2(site.position.x, site.position.z) * pixel_scale
+			var color = Color("dae3e3") if site.player == null else site.player.color
+			draw_circle(point, 4, color)
+			var glyph = {"refinery": "R", "mercenary": "M", "repair": "+"}[site.kind]
+			draw_string(
+				ThemeDB.fallback_font,
+				point + Vector2(5, 4),
+				glyph,
+				HORIZONTAL_ALIGNMENT_LEFT,
+				-1,
+				11,
+				color
+			)

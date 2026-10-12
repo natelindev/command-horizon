@@ -1,4 +1,5 @@
 shader_type spatial;
+uniform float layout_scale = 1.0;
 varying vec3 world_position;
 uniform vec4 shoreline[16];
 uniform int shoreline_count = 11;
@@ -10,7 +11,7 @@ float noise(vec2 p) {
 }
 void vertex() { world_position=(MODEL_MATRIX*vec4(VERTEX,1.0)).xyz; }
 void fragment() {
-	vec2 p=world_position.xz;
+	vec2 p=world_position.xz / layout_scale;
 	float coast=1000.0;
 	for(int i=0;i<16;i++) {
 		if(i>=shoreline_count) { break; }

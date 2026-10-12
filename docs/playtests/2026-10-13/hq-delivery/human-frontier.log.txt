@@ -1,0 +1,26 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+DELIVERY idle ExpandedDesertFrontier frontier standard resource_a time=17.0500000000003 cargo=0
+DELIVERY idle ExpandedDesertFrontier frontier standard resource_b time=36.7666666666659 cargo=0
+DELIVERY frozen ExpandedDesertFrontier frontier standard human time=25.1666666666665 workers=[(22.96663, 0.0, 53.21273), (29.82409, 0.0, 40.8872)]
+DELIVERY idle ExpandedDesertFrontier frontier advanced resource_a time=17.4833333333336 cargo=0
+DELIVERY idle ExpandedDesertFrontier frontier advanced resource_b time=38.3333333333324 cargo=0
+DELIVERY frozen ExpandedDesertFrontier frontier advanced human time=29.4166666666663 workers=[(21.2558, 0.0, 57.08224), (29.85884, 0.0, 37.15998)]
+DELIVERY idle ExpandedAlpineRelay frontier standard resource_a time=16.2000000000004 cargo=0
+DELIVERY idle ExpandedAlpineRelay frontier standard resource_b time=35.0499999999993 cargo=0
+DELIVERY frozen ExpandedAlpineRelay frontier standard human time=24.3333333333332 workers=[(21.58146, 0.0, 41.27951), (28.32158, 0.0, 28.88539)]
+DELIVERY idle ExpandedAlpineRelay frontier advanced resource_a time=16.5000000000003 cargo=0
+DELIVERY idle ExpandedAlpineRelay frontier advanced resource_b time=36.2999999999992 cargo=0
+DELIVERY frozen ExpandedAlpineRelay frontier advanced human time=30.5166666666662 workers=[(21.3847, 0.0, 49.32732), (22.61502, 0.0, 25.24266)]
+DELIVERY idle ExpandedCoastalFoundry frontier standard resource_a time=12.8333333333336 cargo=0
+DELIVERY idle ExpandedCoastalFoundry frontier standard resource_b time=28.1499999999997 cargo=0
+DELIVERY frozen ExpandedCoastalFoundry frontier standard human time=17.4000000000003 workers=[(20.35819, 0.0, 53.55792), (27.37121, 0.0, 51.40434)]
+DELIVERY idle ExpandedCoastalFoundry frontier advanced resource_a time=12.8833333333336 cargo=0
+DELIVERY idle ExpandedCoastalFoundry frontier advanced resource_b time=29.8333333333329 cargo=0
+DELIVERY frozen ExpandedCoastalFoundry frontier advanced human time=23.4666666666666 workers=[(16.6272, 0.0, 61.6392), (26.86263, 0.0, 49.18037)]
+HQ delivery: 0 failures
+ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 2 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

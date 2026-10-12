@@ -1,0 +1,93 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+ERROR: Cannot open file 'res://.godot/imported/radio_chirp_in.wav-d4e162b53b91a9013518209f3310bf88.sample'.
+   at: load (core/io/resource_format_binary.cpp:1220)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://source/match/audio/BattleVoice.gd:37)
+       [1] _create_players_from_settings (res://source/match/Match.gd:176)
+       [2] _setup_players (res://source/match/Match.gd:157)
+       [3] _ready (res://source/match/Match.gd:66)
+       [4] _ready (res://source/match/Skirmish.gd:21)
+       [5] _ready (res://source/match/campaign/SupplyLine.gd:16)
+       [6] _make_match (res://tests/headless/SupplyLineRegression.gd:23)
+       [7] _run (res://tests/headless/SupplyLineRegression.gd:33)
+ERROR: Failed loading resource: res://.godot/imported/radio_chirp_in.wav-d4e162b53b91a9013518209f3310bf88.sample.
+   at: _load (core/io/resource_loader.cpp:343)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://source/match/audio/BattleVoice.gd:37)
+       [1] _create_players_from_settings (res://source/match/Match.gd:176)
+       [2] _setup_players (res://source/match/Match.gd:157)
+       [3] _ready (res://source/match/Match.gd:66)
+       [4] _ready (res://source/match/Skirmish.gd:21)
+       [5] _ready (res://source/match/campaign/SupplyLine.gd:16)
+       [6] _make_match (res://tests/headless/SupplyLineRegression.gd:23)
+       [7] _run (res://tests/headless/SupplyLineRegression.gd:33)
+ERROR: Failed loading resource: res://assets/audio/voices/radio_chirp_in.wav.
+   at: _load (core/io/resource_loader.cpp:343)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://source/match/audio/BattleVoice.gd:37)
+       [1] _create_players_from_settings (res://source/match/Match.gd:176)
+       [2] _setup_players (res://source/match/Match.gd:157)
+       [3] _ready (res://source/match/Match.gd:66)
+       [4] _ready (res://source/match/Skirmish.gd:21)
+       [5] _ready (res://source/match/campaign/SupplyLine.gd:16)
+       [6] _make_match (res://tests/headless/SupplyLineRegression.gd:23)
+       [7] _run (res://tests/headless/SupplyLineRegression.gd:33)
+ERROR: Cannot open file 'res://.godot/imported/radio_chirp_out.wav-9e454f2e261b986c350d8d5c57f83a53.sample'.
+   at: load (core/io/resource_format_binary.cpp:1220)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://source/match/audio/BattleVoice.gd:39)
+       [1] _create_players_from_settings (res://source/match/Match.gd:176)
+       [2] _setup_players (res://source/match/Match.gd:157)
+       [3] _ready (res://source/match/Match.gd:66)
+       [4] _ready (res://source/match/Skirmish.gd:21)
+       [5] _ready (res://source/match/campaign/SupplyLine.gd:16)
+       [6] _make_match (res://tests/headless/SupplyLineRegression.gd:23)
+       [7] _run (res://tests/headless/SupplyLineRegression.gd:33)
+ERROR: Failed loading resource: res://.godot/imported/radio_chirp_out.wav-9e454f2e261b986c350d8d5c57f83a53.sample.
+   at: _load (core/io/resource_loader.cpp:343)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://source/match/audio/BattleVoice.gd:39)
+       [1] _create_players_from_settings (res://source/match/Match.gd:176)
+       [2] _setup_players (res://source/match/Match.gd:157)
+       [3] _ready (res://source/match/Match.gd:66)
+       [4] _ready (res://source/match/Skirmish.gd:21)
+       [5] _ready (res://source/match/campaign/SupplyLine.gd:16)
+       [6] _make_match (res://tests/headless/SupplyLineRegression.gd:23)
+       [7] _run (res://tests/headless/SupplyLineRegression.gd:33)
+ERROR: Failed loading resource: res://assets/audio/voices/radio_chirp_out.wav.
+   at: _load (core/io/resource_loader.cpp:343)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://source/match/audio/BattleVoice.gd:39)
+       [1] _create_players_from_settings (res://source/match/Match.gd:176)
+       [2] _setup_players (res://source/match/Match.gd:157)
+       [3] _ready (res://source/match/Match.gd:66)
+       [4] _ready (res://source/match/Skirmish.gd:21)
+       [5] _ready (res://source/match/campaign/SupplyLine.gd:16)
+       [6] _make_match (res://tests/headless/SupplyLineRegression.gd:23)
+       [7] _run (res://tests/headless/SupplyLineRegression.gd:33)
+ERROR: Resource file not found: res://assets/ui/bastion/SupplyTruck.png (expected type: unknown)
+   at: _load (core/io/resource_loader.cpp:351)
+   GDScript backtrace (most recent call first):
+       [0] _reset_menus (res://source/match/hud/UnitMenus.gd:155)
+       [1] <anonymous lambda> (res://source/match/hud/UnitMenus.gd:62)
+       [2] select (res://source/match/units/traits/Selection.gd:34)
+       [3] _rules_archive (res://tests/headless/SupplyLineRegression.gd:141)
+       [4] _frames (res://tests/headless/SupplyLineRegression.gd:325)
+ERROR: Resource file not found: res://assets/ui/bastion/SupplyTruck.png (expected type: unknown)
+   at: _load (core/io/resource_loader.cpp:351)
+   GDScript backtrace (most recent call first):
+       [0] _reset_menus (res://source/match/hud/UnitMenus.gd:155)
+       [1] <anonymous lambda> (res://source/match/hud/UnitMenus.gd:62)
+       [2] select (res://source/match/units/traits/Selection.gd:34)
+       [3] restore (res://source/match/saves/MatchRestore.gd:249)
+       [4] _synchronize (res://source/match/saves/MatchRestore.gd:502)
+CONVOY stage 0 at 51.7499999999983 trucks=3
+CONVOY stage 1 at 134.749999999999 trucks=3
+CONVOY stage 2 at 216.933333333398 trucks=1
+CONVOY result Victory seconds=216.933333333398
+Supply Line: 0 failures
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 4 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

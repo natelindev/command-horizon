@@ -1,0 +1,27 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+LOOP helix economy at 0.7
+LOOP helix Barracks at 1.2
+LOOP helix defense at 25.2
+LOOP helix defense_pending at 34.2
+LOOP helix VehicleFactory at 47.2
+LOOP helix PowerPlant at 78.7
+LOOP helix armor_pending at 100.2
+LOOP helix fund_CommandLab at 116.2
+LOOP helix CommandLab at 131.2
+LOOP helix retrofit at 171.7
+LOOP helix chips_pending at 172.2
+LOOP helix scout at 197.2
+LOOP helix defend_economy at 203.7
+LOOP helix RepairDepot at 231.7
+LOOP helix repair_army at 243.2
+LOOP helix reinforce at 276.2
+LOOP helix assault at 369.2
+LOOP helix distribute at 511.2
+LOOP RESULT helix Victory seconds=541.966666666502 income=(492.0, 232.0) produced=46 enemy_attacks=2 army=12
+Standard-start gameplay loop: 0 failures
+ERROR: 2 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 2 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

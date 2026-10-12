@@ -1,0 +1,40 @@
+extends SceneTree
+
+func _initialize():
+	var failure = 0
+	var catalog_path = "res://assets/audio/campaign/narration.json"
+	if FileAccess.file_exists(catalog_path):
+		push_error("Probe is not isolated from source assets")
+		quit(2)
+		return
+	if not ProjectSettings.load_resource_pack("/tmp/rts-final-integration/campaign-assets.pck"):
+		push_error("Pack could not be mounted")
+		quit(1)
+		return
+	var narration = JSON.parse_string(FileAccess.get_file_as_string(catalog_path))
+	var manifest = JSON.parse_string(FileAccess.get_file_as_string(
+		"res://assets/audio/campaign/generation-manifest.json"
+	))
+	if not narration is Dictionary or narration.size() != 26:
+		push_error("Pack lacks complete narration catalog")
+		failure += 1
+	if not manifest is Dictionary or manifest.clips.size() != 52:
+		push_error("Pack lacks complete neural voice manifest")
+		failure += 1
+	var count = 0
+	if narration is Dictionary:
+		for id in narration:
+			for locale in ["en", "zh"]:
+				var path = "res://assets/audio/campaign/%s_%s.wav" % [id.replace(".", "_"), locale]
+				var stream = load(path)
+				if not stream is AudioStreamWAV or stream.get_length() < .25:
+					push_error("Pack lacks playable clip: " + path)
+					failure += 1
+				else:
+					count += 1
+	for name in ["ExpandedDesertFrontier", "ExpandedAlpineRelay", "ExpandedCoastalFoundry"]:
+		if not ResourceLoader.exists("res://source/match/maps/%s.tscn" % name):
+			push_error("Pack lacks expanded map: " + name)
+			failure += 1
+	print("Isolated exported pack: %d playable neural clips, 26 narration pairs, 3 maps, %d failures" % [count, failure])
+	quit(0 if failure == 0 else 1)

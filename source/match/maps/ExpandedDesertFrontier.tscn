@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://source/match/maps/DesertFrontier.tscn" id="base"]
+[ext_resource type="Script" path="res://source/match/maps/ExpandedDesertFrontier.gd" id="script"]
+
+[node name="Map" instance=ExtResource("base")]
+script = ExtResource("script")
+size = Vector2(192, 144)
+
+[node name="Bastion" parent="SpawnPoints" index="0"]
+position = Vector3(27, 0, 39)
+
+[node name="Opposition" parent="SpawnPoints" index="1"]
+position = Vector3(165, 0, 105)

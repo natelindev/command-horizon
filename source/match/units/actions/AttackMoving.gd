@@ -44,13 +44,7 @@ func _physics_process(delta):
 	if is_instance_valid(_shot) and not _shot.is_queued_for_deletion():
 		return
 	_shot = null
-	var target = null
-	var closest = _unit.attack_range
-	for candidate in _unit._match.battlefield.fireable_targets(_unit):
-		var distance = _unit.global_position_yless.distance_to(candidate.global_position_yless)
-		if distance <= closest:
-			closest = distance
-			target = candidate
+	var target = _unit._match.battlefield.automatic_target(_unit)
 	if target != null:
 		_movement.stop()
 		_shot = Shooting.new(target)

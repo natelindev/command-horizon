@@ -1,0 +1,27 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+HORIZON deployed=true time=53.2333333333316 population=34
+HORIZON result=Victory time=251.200000000092 deployed=true HQdown=true held=true waves=4 route=false challenge=
+HORIZON survivors bastion { "CommandCenter": 1, "PowerPlant": 3, "Barracks": 1, "VehicleFactory": 1, "CommandLab": 1, "RepairDepot": 1, "AircraftFactory": 1, "Drone": 1, "RepairRobot": 2, "AdvancedTank": 2, "Helicopter": 2, "Worker": 4, "Tank": 2, "CombatRobot": 1, "Infantry": 3 } funds=170/106
+HORIZON infantry bastion (73.50815, 0.0, 67.34228) action=Moving
+HORIZON infantry bastion (51.76176, 0.0, 57.45772) action=Moving
+HORIZON infantry bastion (25.83198, 0.0, 46.89253) action=Moving
+HORIZON strike AdvancedTank (148.2081, 0.0, 70.94224) hp=37.5499999999998 action=WaitingForTargets()
+HORIZON strike AdvancedTank (146.4063, 0.0, 69.12463) hp=39.3749999999996 action=WaitingForTargets()
+HORIZON strike RepairRobot (138.5428, 0.0, 65.16579) hp=9.0 action=PresetAction
+HORIZON aircraft (145.4321, 1.5, 83.72802) hp=50 program=Running reason=Strike complete; returning to regroup point.
+HORIZON aircraft (134.4183, 1.5, 100.121) hp=50 program=Running reason=Approaching assigned strike area.
+HORIZON guard RepairRobot (64.77915, 0.0, 66.41223) hp=9.0 program=Running
+HORIZON guard Tank (79.72111, 0.0, 60.67776) hp=39.0 program=Running
+HORIZON guard Tank (63.97503, 0.0, 65.08533) hp=80.0 program=Blocked
+HORIZON guard CombatRobot (79.21866, 0.0, 62.33976) hp=54.5083333333332 program=Running
+HORIZON guard Infantry (73.50815, 0.0, 67.34228) hp=22 program=none
+HORIZON guard Infantry (51.76176, 0.0, 57.45772) hp=22 program=none
+HORIZON guard Infantry (25.83198, 0.0, 46.89253) hp=22 program=none
+HORIZON survivors helix { "PowerPlant": 3, "Barracks": 1, "VehicleFactory": 1, "CommandLab": 1, "RepairDepot": 1, "AircraftFactory": 1, "AntiAirTurret": 1, "Tank": 1, "CombatRobot": 1, "AdvancedTank": 1, "Helicopter": 2, "RepairRobot": 2, "Worker": 4 } funds=140/42
+Command Horizon: 0 failures
+ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 7 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

@@ -1,0 +1,24 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+LOOP frontier economy at 0.7
+LOOP frontier Barracks at 1.2
+LOOP frontier defense at 25.7
+LOOP frontier defense_pending at 34.7
+LOOP frontier VehicleFactory at 42.7
+LOOP frontier PowerPlant at 78.2
+LOOP frontier armor_pending at 99.7
+LOOP frontier fund_CommandLab at 115.7
+LOOP frontier CommandLab at 130.2
+LOOP frontier retrofit at 172.7
+LOOP frontier chips_pending at 173.2
+LOOP frontier scout at 196.2
+LOOP frontier defend_economy at 205.2
+LOOP frontier repair_army at 250.7
+LOOP frontier assault at 252.2
+LOOP RESULT frontier Victory seconds=386.68333333331 income=(339.0, 172.0) produced=31 enemy_attacks=1 army=11
+Standard-start gameplay loop: 0 failures
+ERROR: 2 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 4 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

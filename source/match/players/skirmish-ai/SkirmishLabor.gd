@@ -4,6 +4,66 @@ const Harvest = preload("res://source/match/units/actions/CollectingResourcesSeq
 const Production = preload("res://source/match/players/skirmish-ai/SkirmishProduction.gd")
 
 
+static func builder(workers, point, allow_interrupt = false):
+	var candidates = workers.filter(
+		func(worker):
+			return (
+				worker.action == null
+				or (
+					worker.action is Harvest
+					and (
+						allow_interrupt or worker.action.needs_assignment() or handoff_ready(worker)
+					)
+				)
+			)
+	)
+	var counts = {1: 0, 2: 0}
+	for worker in workers:
+		if worker.action is Harvest and worker.action._kind in counts:
+			counts[worker.action._kind] += 1
+	var best = null
+	var best_score = INF
+	for worker in candidates:
+		var distance = Utils.Match.Unit.Movement.path_distance_to(worker, point, 4.0)
+		if not is_finite(distance):
+			continue
+		var disruption = 0
+		if worker.action is Harvest and not worker.action.needs_assignment():
+			# Prefer a delivery-boundary handoff over stopping an outward trip or
+			# collection. Never interrupt the only gatherer of a resource first.
+			disruption = 1 if handoff_ready(worker) else 2
+			if counts.get(worker.action._kind, 0) == 1:
+				disruption += 4
+		var score = disruption * 1000.0 + distance
+		if score < best_score:
+			best = worker
+			best_score = score
+	return best
+
+
+static func awaiting_construction(worker):
+	return (
+		worker.manual_orders != null
+		and worker.manual_orders.pending.any(func(order): return order.kind == "construct")
+	)
+
+
+static func assign_construction(worker, building):
+	if (
+		worker.resource_a + worker.resource_b > 0
+		and worker.action is Harvest
+		and worker.player.has_completed_structure("CommandCenter")
+	):
+		# Finish delivery before consuming construction time. Replace only a
+		# stale queued economic handoff, retaining the active cargo operation.
+		worker.manual_orders.clear_waiting()
+		worker.manual_orders.submit(worker.manual_orders.target_order("construct", building), true)
+	else:
+		worker.issue_manual_order(
+			load("res://source/match/units/actions/Constructing.gd").new(building)
+		)
+
+
 static func queued_target(worker):
 	if worker.manual_orders == null or worker.manual_orders.pending.is_empty():
 		return null

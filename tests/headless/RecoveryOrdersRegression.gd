@@ -155,6 +155,9 @@ func _controls():
 		members.append(unit)
 	var flight = load("res://source/match/units/AircraftFactory.tscn").instantiate()
 	game._setup_and_spawn_unit(flight, Transform3D(Basis(), Vector3(30, 0, 24)), owner, false)
+	# Adding flight service exceeds the Advanced start's power supply. This
+	# fixture verifies full-rate healing; low-power service is covered separately.
+	_spawn_role(owner, "PowerPlant", Vector3(30, 0, 15))
 	var healthy = _units(owner, "Infantry")[1]
 	healthy.hp = healthy.hp_max
 	healthy.manual_orders.submit(commands.Orders.point_order("move", healthy.position))
