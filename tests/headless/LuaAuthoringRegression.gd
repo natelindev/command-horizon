@@ -260,6 +260,12 @@ func _application_and_factory(player):
 	DirAccess.remove_absolute(_path)
 	library.save_record(draft, _path)
 	queue.program_pin = Record.pin(draft)
+	# The first case intentionally produces a stationary Hold unit. Clear it
+	# from the exit before the separate rally-precedence case; batch egress has
+	# dedicated regressions.
+	for unit in produced:
+		unit.queue_free()
+	await _frames(3)
 	factory.get_node("RallyPoint").global_position = factory.global_position + Vector3(8, 0, 5)
 	var before_rally = player.get_children()
 	job = queue.produce(load(Catalog.scene_path("CombatRobot")))

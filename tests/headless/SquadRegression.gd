@@ -27,6 +27,8 @@ func _run():
 	for unit in get_nodes_in_group("units"):
 		unit.process_mode = Node.PROCESS_MODE_DISABLED
 	for player in [_human, _enemy]:
+		# Coordination is tested at full speed; factory + lab exceed HQ power.
+		_spawn("PowerPlant", player, Vector3(10, 0, 18))
 		_spawn("VehicleFactory", player, Vector3(15, 0, 12))
 		_spawn("CommandLab", player, Vector3(20, 0, 12))
 		_check(player.basic_programs_unlocked(), "Basic unlock fixture failed")

@@ -1,0 +1,22 @@
+import concurrent.futures,json,pathlib,subprocess,time,re
+root=pathlib.Path('/Users/linlilu/godot-open-rts')
+folder=pathlib.Path('/tmp/rts-final-integration')
+old=json.loads((root/'docs/playtests/2026-10-12/mechanics/summary.json').read_text())
+suites=[x['suite'] for x in old['headless_results']]
+suites+=['SkirmishLaborRegression','StructureActivityRegression','MechanicsCompletionRegression','StartingOrientationRegression','CampaignStoryRegression','CampaignStoryMissionsRegression','CampaignOppositionRegression','CampaignOppositionRestore','PointOfInterestRegression','ExpandedMapRegression','AudioEnhancementRegression','SpeechRegression']
+engine=root/'tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot'
+def run(suite):
+ start=time.monotonic()
+ cmd=[str(engine),'--headless','--path',str(root),'--fixed-fps','60','--script',f'tests/headless/{suite}.gd']
+ with (folder/(suite+'.log.txt')).open('w') as output:
+  try:code=subprocess.run(cmd,stdout=output,stderr=subprocess.STDOUT,timeout=1800).returncode
+  except subprocess.TimeoutExpired:code=124
+ text=(folder/(suite+'.log.txt')).read_text()
+ result={'suite':suite,'result':'pass' if code==0 and 'SCRIPT ERROR:' not in text else 'fail','exit_code':code,'script_error':'SCRIPT ERROR:' in text,'test_hash':__import__('hashlib').sha256((root/f'tests/headless/{suite}.gd').read_bytes()).hexdigest(),'elapsed_seconds':round(time.monotonic()-start,2),'evidence':suite+'.log.txt'}
+ (folder/(suite+'.result.json')).write_text(json.dumps(result,indent=2))
+ print(json.dumps(result),flush=True)
+ return result
+with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:
+ results=list(pool.map(run,suites))
+(folder/'results.json').write_text(json.dumps(results,indent=2))
+print('FINISHED',len(results),'FAILURES',sum(r['result']=='fail' for r in results),flush=True)

@@ -1,4 +1,5 @@
 shader_type spatial;
+uniform float layout_scale = 1.0;
 varying vec3 world_position;
 uniform vec4 roads[8];
 uniform int road_count = 7;
@@ -14,7 +15,7 @@ float box_mask(vec2 p,vec2 center,vec2 extent,float fade) {
 }
 void vertex() { world_position=(MODEL_MATRIX*vec4(VERTEX,1.0)).xyz; }
 void fragment() {
-	vec2 p=world_position.xz;
+	vec2 p=world_position.xz / layout_scale;
 	float fine=hash(floor(p*26.0));
 	float wear=noise(p*.28);
 	float turf=noise(p*.075)*.60+noise(p*.31)*.27+noise(p*.9)*.13;

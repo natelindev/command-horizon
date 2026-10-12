@@ -104,6 +104,9 @@ func _test_library():
 
 
 func _test_progression():
+	# The current HQ supplies 8 power. Factory + depot need 9 before the
+	# deliberate low-power aircraft fixtures are added below.
+	_spawn("PowerPlant", _human, Vector3(5, 0, 15))
 	var robot = _spawn("CombatRobot", _human, Vector3(20, 0, 20))
 	_check(robot.program.installed and not robot.program.run(), "Hardware bypassed tech unlock")
 	_check(

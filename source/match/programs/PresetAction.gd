@@ -299,13 +299,16 @@ func _pick_target(center, radius, assigned_guard = false):
 		claims = _unit.program_squad.claim_snapshot(_unit)
 	var reach = _target_reach()
 	if assigned_guard:
-		reach = _unit.global_position_yless.distance_to(center) + radius
+		reach = maxf(_unit.attack_range, _unit.global_position_yless.distance_to(center) + radius)
 	for target in _unit._match.battlefield.observed_enemies_near(_unit, reach):
 		if (
 			(assigned_guard or Library.behavior(controller.config.preset) != "hold")
 			and target.global_position_yless.distance_to(center) > radius
 		):
-			continue
+			# A guard can return visible fire into its area without leaving that
+			# area. An idle outsider remains excluded, and pursuit stays bounded.
+			if not assigned_guard or not _return_fire(target, center, radius):
+				continue
 		var distance = _unit.global_position_yless.distance_to(target.global_position_yless)
 		if distance > reach:
 			continue
@@ -316,12 +319,32 @@ func _pick_target(center, radius, assigned_guard = false):
 			value = 100.0 * target.hp / target.hp_max + distance * 0.01
 		elif controller.config.priority == "armor":
 			value = distance - (100.0 if Rules.armor_for(target.type) == 2 else 0.0)
+		elif controller.config.priority == "effective":
+			var field = _unit._match.battlefield
+			value = field.target_score(_unit, target)
+			# Take an available shot before pursuing a better counter. Pursuit
+			# still respects the same assigned area and line-of-fire checks.
+			if not field.can_fire(_unit, target):
+				value += 1000.0
 		if is_instance_valid(_unit.program_squad):
 			value += _unit.program_squad.target_bias(_unit, target, "fire", claims)
 		if value < score:
 			score = value
 			best = target
 	return best
+
+
+func _return_fire(attacker, center, radius):
+	var victim = attacker.aim_target
+	return (
+		attacker.can_process()
+		and is_instance_valid(victim)
+		and not victim.is_queued_for_deletion()
+		and victim.hp > 0
+		and victim.player == _unit.player
+		and victim.global_position_yless.distance_to(center) <= radius
+		and _unit._match.battlefield.can_fire(_unit, attacker)
+	)
 
 
 func _service(center, radius):
@@ -360,8 +383,10 @@ func _service(center, radius):
 func _at_assigned_service():
 	# A safe point placed on a service building means its usable service area;
 	# the structure's center is outside the ground navigation mesh.
-	for service in _unit.player.get_children():
-		if not service.is_in_group("units") or not Repairs.facility_eligible(service, _unit):
+	for service in load("res://source/match/world/PointOfInterestCatalog.gd").services(
+		_unit.player
+	):
+		if not Repairs.facility_eligible(service, _unit):
 			continue
 		if controller.safe_point.distance_to(service.global_position_yless) > service.radius:
 			continue

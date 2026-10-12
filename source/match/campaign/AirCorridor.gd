@@ -8,6 +8,7 @@ var flights = []
 var command_left = 60.0
 var progress_path = Progress.PATH
 var progress_error = ""
+var opposition
 var _enemy
 
 
@@ -18,6 +19,10 @@ func _ready():
 	)
 	_enemy = opponents[0]
 	_enemy.set_process(false)
+	opposition = load("res://source/match/campaign/CampaignOpposition.gd").new()
+	opposition.name = "CampaignOpposition"
+	add_child(opposition)
+	opposition.configure(self, _enemy, map.SCREEN)
 	if not restoring:
 		for index in 3:
 			flights.append(
@@ -35,6 +40,16 @@ func _create_hud():
 
 func _spawn_player_units(side, _spawn_transform):
 	if side.faction == "helix":
+		side.resource_a = 50
+		side.resource_b = 15
+		for entry in [
+			["CommandCenter", Vector3(135, 0, 77)],
+			["PowerPlant", Vector3(129, 0, 96)],
+			["Barracks", Vector3(138, 0, 94)]
+		]:
+			_spawn(entry[0], side, entry[1])
+		for index in 3:
+			_spawn("Worker", side, Vector3(130 + index * 2, 0, 83))
 		for point in map.SITES:
 			sites.append({"unit": _spawn("AntiAirTurret", side, point), "cleared": false})
 			for index in [2, 3, 4][side.difficulty]:
@@ -117,6 +132,7 @@ func launch_flight():
 		hud.show_notice(reason)
 		return false
 	var flight = flights.filter(func(entry): return entry.state == "ready")[0]
+	opposition.activate()
 	flight.unit = _spawn("EvacTransport", _get_human_player(), map.LAUNCH)
 	flight.state = "flying"
 	flight.response_left = 10.0
@@ -146,6 +162,7 @@ func finish_evacuation():
 func _check_outcome(delta):
 	if _enemy == null or flights.size() != 3:
 		return
+	opposition.step(delta)
 	var human = _get_human_player()
 	command_left = 60.0 if human.has_completed_structure("CommandCenter") else command_left - delta
 	if (

@@ -1,0 +1,43 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+PASS regional assets, real settings file, legacy defaults, bounds, mute and bus routing
+PASS current observation, fog loss, camera culling, bounded voices and RNG isolation
+ERROR: Cannot save file 'user://missing-environment-directory/options.tres.pending.tres'.
+   at: save (scene/resources/resource_format_text.cpp:1756)
+   GDScript backtrace (most recent call first):
+       [0] persist (res://source/data-model/Options.gd:170)
+       [1] _finish (res://source/main-menu/SettingsDialog.gd:330)
+       [2] _lifecycle (res://tests/headless/EnvironmentAudioRegression.gd:193)
+       [3] _frames (res://tests/headless/CampaignRegression.gd:258)
+ERROR: Cannot save file 'user://missing-environment-directory/options.tres.pending.tres'.
+   at: save (scene/resources/resource_format_text.cpp:1756)
+   GDScript backtrace (most recent call first):
+       [0] persist (res://source/data-model/Options.gd:170)
+       [1] _finish (res://source/main-menu/SettingsDialog.gd:330)
+       [2] _lifecycle (res://tests/headless/EnvironmentAudioRegression.gd:193)
+       [3] _frames (res://tests/headless/CampaignRegression.gd:258)
+PASS pause/resume, mute/fade, settings sample/cancel/write failure, restoration and result
+PASS actual disk restoration: no reconstruction sound, preserved region and gentle resume
+PASS current observation, fog loss, camera culling, bounded voices and RNG isolation
+ERROR: Cannot save file 'user://missing-environment-directory/options.tres.pending.tres'.
+   at: save (scene/resources/resource_format_text.cpp:1756)
+   GDScript backtrace (most recent call first):
+       [0] persist (res://source/data-model/Options.gd:170)
+       [1] _finish (res://source/main-menu/SettingsDialog.gd:330)
+       [2] _lifecycle (res://tests/headless/EnvironmentAudioRegression.gd:193)
+       [3] _frames (res://tests/headless/CampaignRegression.gd:258)
+ERROR: Cannot save file 'user://missing-environment-directory/options.tres.pending.tres'.
+   at: save (scene/resources/resource_format_text.cpp:1756)
+   GDScript backtrace (most recent call first):
+       [0] persist (res://source/data-model/Options.gd:170)
+       [1] _finish (res://source/main-menu/SettingsDialog.gd:330)
+       [2] _lifecycle (res://tests/headless/EnvironmentAudioRegression.gd:193)
+       [3] _frames (res://tests/headless/CampaignRegression.gd:258)
+PASS pause/resume, mute/fade, settings sample/cancel/write failure, restoration and result
+PASS actual disk restoration: no reconstruction sound, preserved region and gentle resume
+PASS all six real campaign scenes start their authored environment bed
+Environment audio regression: 0 failures
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 6 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

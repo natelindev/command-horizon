@@ -1,0 +1,36 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+ARCHIVE WAVE alpine Tank (17.0, 0.0, 19.0)
+ARCHIVE WAVE alpine Tank (18.0, 0.0, 18.0)
+ARCHIVE WAVE alpine Tank (18.0, 0.0, 18.0)
+ARCHIVE WAVE alpine Tank (18.0, 0.0, 19.0)
+ARCHIVE DEPARTURE alpine 87.4313201904297
+ARCHIVE DEPARTURE alpine 89.2473068237305
+ARCHIVE DEPARTURE alpine 85.205451965332
+ARCHIVE DEPARTURE alpine 87.6458206176758
+PASS: archived alpine wave, actual departure and paused disk restore
+ARCHIVE WAVE desert Tank (18.0, 0.0, 27.0)
+ARCHIVE WAVE desert Tank (19.0, 0.0, 26.0)
+ARCHIVE WAVE desert Tank (19.0, 0.0, 26.0)
+ARCHIVE WAVE desert Tank (19.0, 0.0, 27.0)
+ARCHIVE WAVE desert Tank (20.0, 0.0, 27.0)
+ARCHIVE WAVE desert Tank (18.0, 0.0, 26.0)
+ARCHIVE DEPARTURE desert 69.465446472168
+ARCHIVE DEPARTURE desert 71.0183029174805
+ARCHIVE DEPARTURE desert 71.3961944580078
+ARCHIVE DEPARTURE desert 72.6065979003906
+ARCHIVE DEPARTURE desert 66.138427734375
+ARCHIVE DEPARTURE desert 55.8028106689453
+PASS: archived desert wave, actual departure and paused disk restore
+ENGINEER TRACE 9.99999999999091 position=(114.2423, 0.0, 88.23252) action=Harvest(Materials · approaching work slot) destination=(112.3238, 0.0, 70.57355) path=[(113.7064, 0.6, 87.65628), (114.0, 0.6, 87.3), (114.0, 0.6, 84.60001), (113.1, 0.6, 75.3), (112.3238, 0.6, 71.4)]
+ENGINEER TRACE 19.9999999999818 position=(113.0412, 0.0, 75.02538) action=Harvest(Materials · approaching work slot) destination=(112.3238, 0.0, 70.57355) path=[(113.7074, 0.6, 87.65573), (114.0, 0.6, 87.3), (114.0, 0.6, 84.60001), (113.1, 0.6, 75.3), (112.3238, 0.6, 71.4)]
+ENGINEER TRACE 29.9999999999727 position=(110.2151, 0.0, 82.12492) action=Harvest(Returning cargo to HQ) destination=(110.3538, 0.0, 82.81541) path=[(111.5839, 0.6, 71.54544), (108.9, 0.6, 75.3), (110.3538, 0.6, 82.81541)]
+ARCHIVED ENGINEER cargo=23.1666666666456 delivered=true elapsed=30.5833333333055
+PASS: bastion priorities, hidden contacts, ownership, domains and wave interval
+PASS: helix priorities, hidden contacts, ownership, domains and wave interval
+Skirmish offense: 0 failures
+ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 6 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

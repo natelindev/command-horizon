@@ -6,6 +6,7 @@ const Orders = preload("res://source/match/orders/ManualOrders.gd")
 const Rules = preload("res://source/match/combat/CombatRules.gd")
 const Harvest = preload("res://source/match/units/actions/CollectingResourcesSequentially.gd")
 const Repairs = preload("res://source/match/combat/RepairService.gd")
+const Recover = preload("res://source/match/units/actions/RecoveringAtService.gd")
 const COMMANDS = {
 	"move":
 	{
@@ -38,7 +39,7 @@ func _ready():
 
 
 func eligible(command):
-	return get_tree().get_nodes_in_group("selected_units").filter(
+	var mobile = get_tree().get_nodes_in_group("selected_units").filter(
 		func(unit):
 			return (
 				is_instance_valid(unit)
@@ -47,9 +48,14 @@ func eligible(command):
 				and unit.hp > 0
 				and unit.manual_orders != null
 				and unit.movement_speed > 0
-				and (command == "move" or unit.attack_range != null)
 			)
 	)
+	if command == "move":
+		return mobile
+	var armed = mobile.filter(func(unit): return unit.attack_range != null)
+	# A mixed army advances its selected scouts, engineers and repair support
+	# along with the combatants. Unarmed-only selections retain ordinary Move.
+	return mobile if command == "attack_move" and not armed.is_empty() else armed
 
 
 func arm(command):
@@ -138,14 +144,19 @@ func recovery_state():
 	var facilities = get_tree().get_nodes_in_group("units").filter(
 		func(unit): return unit.type in ["Barracks", "RepairDepot", "AircraftFactory"]
 	)
+	facilities.append_array(
+		load("res://source/match/world/PointOfInterestCatalog.gd").sites(hud.get_parent()).filter(
+			func(site): return site.kind == "repair"
+		)
+	)
 	for unit in wounded:
 		var nearest = null
 		var distance = INF
 		for facility in facilities:
 			if not Repairs.facility_eligible(facility, unit):
 				continue
-			var candidate = unit.global_position_yless.distance_squared_to(
-				facility.global_position_yless
+			var candidate = Utils.Match.Unit.Movement.path_distance_to(
+				unit, facility.global_position_yless, Recover.ARRIVAL_RANGE
 			)
 			if candidate < distance:
 				nearest = facility
@@ -317,7 +328,8 @@ func commit(point, target, append):
 		]:
 			var members = units.filter(func(unit): return unit.movement_domain == domain)
 			for pair in Utils.Match.Unit.Movement.crowd_moved_to_new_pivot(members, point):
-				orders.append([pair[0], Orders.point_order(kind, pair[1])])
+				var order_kind = "move" if pair[0].attack_range == null else kind
+				orders.append([pair[0], Orders.point_order(order_kind, pair[1])])
 	var accepted = 0
 	for pair in orders:
 		if pair[0].manual_orders.submit(pair[1], append):

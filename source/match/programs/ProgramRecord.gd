@@ -37,7 +37,7 @@ static func lua(title, revision, source, roles, requirements, notes = ""):
 			"version": revision,
 			"mode": "lua",
 			"api_version": API_VERSION,
-			"config": Library.defaults(),
+			"config": _script_config(),
 			"source": source,
 			"roles": roles.duplicate(),
 			"requirements": requirements.duplicate(),
@@ -59,6 +59,12 @@ static func visual(title, revision, document, roles):
 
 static func is_script(value):
 	return value.get("mode") in ["lua", "visual"]
+
+
+static func _script_config():
+	# Script behavior comes from its exact source. Keep the canonical envelope
+	# independent of fresh preset defaults so existing pins and archives stay valid.
+	return {"preset": "hold", "radius": 6.0, "retreat": 30, "return": 80, "priority": "nearest"}
 
 
 static func identifier(title):
@@ -143,7 +149,12 @@ static func validate(value):
 	if not "movement" in value.requirements:
 		return false
 	if is_script(value):
-		if _canonical(value.config) != _canonical(Library.defaults()):
+		var expected = _script_config()
+		# Accept the new-default envelope too, without rewriting its sealed hash.
+		if value.config.priority not in ["nearest", "effective"]:
+			return false
+		expected.priority = value.config.priority
+		if _canonical(value.config) != _canonical(expected):
 			return false
 		var size = value.source.to_utf8_buffer().size()
 		if size < 1 or size > SOURCE_BYTES or value.source.to_utf8_buffer().has(0):

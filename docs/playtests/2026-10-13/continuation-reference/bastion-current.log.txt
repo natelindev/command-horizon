@@ -1,0 +1,25 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+LOOP bastion economy at 0.7
+LOOP bastion Barracks at 1.2
+LOOP bastion defense at 25.7
+LOOP bastion defense_pending at 34.7
+LOOP bastion fund_VehicleFactory at 42.7
+LOOP bastion VehicleFactory at 43.2
+LOOP bastion PowerPlant at 80.2
+LOOP bastion armor_pending at 104.7
+LOOP bastion fund_CommandLab at 117.2
+LOOP bastion CommandLab at 132.2
+LOOP bastion retrofit at 176.2
+LOOP bastion chips_pending at 176.7
+LOOP bastion defend_economy at 201.2
+LOOP bastion repair_army at 240.2
+LOOP bastion fund_RepairDepot at 258.7
+LOOP bastion assault at 275.2
+LOOP RESULT bastion Victory seconds=412.633333333287 income=(392.0, 152.0) produced=41 enemy_attacks=1 army=10
+Standard-start gameplay loop: 0 failures
+ERROR: 2 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 7 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

@@ -107,6 +107,8 @@ func population(include_queued = false):
 			var queue = child.find_child("ProductionQueue", true, false)
 			if queue != null:
 				count += queue.size()
+	if include_queued:
+		count += load("res://source/match/world/PointOfInterestCatalog.gd").reserved(self)
 	return count
 
 

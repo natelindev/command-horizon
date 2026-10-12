@@ -40,9 +40,9 @@ func _attack_unit(unit):
 
 
 func _on_timer_timeout():
-	var units_to_attack = _get_units_to_attack()
-	if not units_to_attack.is_empty():
-		_attack_unit(_pick_closest_unit(units_to_attack, _unit))
+	var target = _unit._match.battlefield.automatic_target(_unit)
+	if target != null:
+		_attack_unit(target)
 
 
 func _on_attack_finished():

@@ -34,26 +34,27 @@ func _process(delta):
 		+ _target_unit.radius
 		+ Utils.Match.Unit.Movement.adherence_margin(_unit, _target_unit)
 	)
-	# Near a work face, sideways avoidance can move the engineer without
-	# advancing along its route. Use the next path corner: an open approach
-	# can require moving away from the building before circling its footprint.
+	# Keep the best distance to the reachable endpoint, rather than restarting
+	# progress on each sideways avoidance window. Otherwise an engineer can
+	# repeatedly leave and return to the same blocked front without ever
+	# triggering a new work face.
 	var path = _movement_trait.get_current_navigation_path()
-	var index = _movement_trait.get_current_navigation_path_index()
-	var next = path[index] * Vector3(1, 0, 1) if index < path.size() else _target_position
-	var orbiting = (
-		distance < contact + 2.0
-		and (
-			_contact_progress.distance_to(next) - _unit.global_position_yless.distance_to(next)
-			< 0.2
-		)
+	var endpoint = path[-1] * Vector3(1, 0, 1) if not path.is_empty() else _target_position
+	var progress = (
+		_contact_progress.distance_to(endpoint) - _unit.global_position_yless.distance_to(endpoint)
 	)
-	_orbit_windows = _orbit_windows + 1 if orbiting else 0
-	# A new work face may require a short outward avoidance detour. Require
-	# two windows before replacing a route that is still moving.
-	if _unit.global_position.distance_to(_contact_progress) < 0.2 or _orbit_windows >= 2:
+	if progress >= .2:
+		_contact_progress = _unit.global_position_yless
+		_orbit_windows = 0
+		return
+	var near_contact = distance < contact + 2.0
+	_orbit_windows = _orbit_windows + 1 if near_contact else 0
+	# Give an honest outside detour time to clear the footprint. Long routes
+	# only retry when stationary; near-contact loops retain a progress high-water.
+	if _unit.global_position.distance_to(_contact_progress) < .2 or _orbit_windows >= 2:
 		_try_open_approach()
 		_orbit_windows = 0
-	_contact_progress = _unit.global_position
+		_contact_progress = _unit.global_position_yless
 
 
 func _ready():
@@ -68,19 +69,24 @@ func _ready():
 		)
 	)
 	super()
+	# Structures need an open work face; deposits retain their ordinary field
+	# route unless a settled mobile row actually blocks that original route.
+	var obstacle = _target_unit.get_node_or_null("MovementObstacle")
+	if obstacle != null and obstacle.affect_navigation_mesh:
+		_try_open_approach(not _target_unit.has_method("is_constructed"))
 
 
 func _on_movement_finished():
 	if Utils.Match.Unit.Movement.units_adhere(_unit, _target_unit):
 		queue_free()
-	else:
-		_target_position = _target_unit.global_position
+	elif not _try_open_approach():
+		_target_position = _target_unit.global_position_yless
 		_movement_trait.move(_target_position)
 
 
-func _try_open_approach():
+func _try_open_approach(preserve_clear_route = false):
 	if not _movement_trait._synchronized:
-		return
+		return false
 	var center = _target_unit.global_position_yless
 	var origin = _unit.global_position_yless
 	var contact = (
@@ -103,8 +109,21 @@ func _try_open_approach():
 			)
 	)
 	var navmap = _movement_trait.get_navigation_map()
+	if preserve_clear_route:
+		var ordinary_path = NavigationServer3D.map_get_path(navmap, origin, _target_position, true)
+		var settled = blockers.filter(
+			func(other):
+				var movement = other.get_node_or_null("Movement")
+				return (
+					other.process_mode == Node.PROCESS_MODE_DISABLED
+					or (movement != null and not movement._has_destination)
+				)
+		)
+		if _path_clear_of_bodies(ordinary_path, settled):
+			return false
 	var best = Vector3.INF
 	var best_length = INF
+	var faces = []
 	# Choose another reachable work face without widening contact range or
 	# ignoring the agents occupying the original approach. Ordinary RVO stays on.
 	for index in 32:
@@ -125,12 +144,81 @@ func _try_open_approach():
 		var path = NavigationServer3D.map_get_path(navmap, origin, point, true)
 		if path.size() < 2 or (path[-1] * Vector3(1, 0, 1)).distance_to(point) > 0.1:
 			continue
-		var length = 0.0
-		for step in range(1, path.size()):
-			length += path[step - 1].distance_to(path[step])
+		faces.append(point)
+		if not _path_clear_of_bodies(path, blockers):
+			continue
+		var length = _path_length(path)
 		if length < best_length:
 			best = point
 			best_length = length
-	if best.is_finite():
-		_target_position = best
-		_movement_trait.move(best)
+	# A free work face can still lie behind a settled row of engineers. The
+	# static navmesh cannot see that row. Find a short, clear outside waypoint
+	# before entering the contact face; RVO and ordinary body clipping still
+	# govern every step. Finishing the waypoint rechecks contact and the route.
+	if not best.is_finite() and not faces.is_empty():
+		for ring in [
+			[origin, 2.0],
+			[origin, 4.0],
+			[center, contact + 2.0],
+			[center, contact + 4.0],
+			[center, contact + 8.0]
+		]:
+			for index in 64:
+				var offset = Vector3(cos(index * TAU / 64), 0, sin(index * TAU / 64))
+				var waypoint = ring[0] + offset * ring[1]
+				var projected = NavigationServer3D.map_get_closest_point(navmap, waypoint)
+				projected *= Vector3(1, 0, 1)
+				if projected.distance_to(waypoint) > .15:
+					continue
+				var first = NavigationServer3D.map_get_path(navmap, origin, projected, true)
+				if (
+					first.size() < 2
+					or (first[-1] * Vector3(1, 0, 1)).distance_to(projected) > .1
+					or not _path_clear_of_bodies(first, blockers)
+				):
+					continue
+				for face in faces:
+					var second = NavigationServer3D.map_get_path(navmap, projected, face, true)
+					if (
+						second.size() < 2
+						or (second[-1] * Vector3(1, 0, 1)).distance_to(face) > .1
+						or not _path_clear_of_bodies(second, blockers)
+					):
+						continue
+					var length = _path_length(first) + _path_length(second)
+					if length < best_length:
+						best = projected
+						best_length = length
+	if not best.is_finite():
+		return false
+	_target_position = best
+	_movement_trait.move(best)
+	return true
+
+
+func _path_length(path):
+	var length = 0.0
+	for step in range(1, path.size()):
+		length += path[step - 1].distance_to(path[step])
+	return length
+
+
+func _path_clear_of_bodies(path, blockers):
+	for index in range(1, path.size()):
+		var start = path[index - 1] * Vector3(1, 0, 1)
+		var end = path[index] * Vector3(1, 0, 1)
+		var segment = end - start
+		var length_squared = segment.length_squared()
+		if length_squared < .000001:
+			continue
+		for other in blockers:
+			var center = other.global_position_yless
+			var separation = _unit.radius + other.radius - _movement_trait.GROUND_CONTACT_MARGIN
+			var offset = start - center
+			# A pre-existing crowd contact must allow an outward escape.
+			if offset.length() < separation and offset.dot(segment) >= 0:
+				continue
+			var fraction = clampf((center - start).dot(segment) / length_squared, 0, 1)
+			if start.lerp(end, fraction).distance_to(center) < separation:
+				return false
+	return true

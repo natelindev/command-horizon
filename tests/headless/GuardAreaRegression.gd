@@ -26,7 +26,7 @@ func _run():
 		game.battlefield.invalidate()
 		_check(game.battlefield.is_observed(human, raider), "Area fixture target is hidden")
 		_check(game.battlefield.has_line_of_fire(guard, raider), "Area fixture line is blocked")
-		_check(guard.attack_range + 2 < 11, "Area fixture lies within old acquisition range")
+		_check(guard.attack_range < 11, "Area fixture is already inside weapon range")
 		guard.program.installed = true
 		var config = load("res://source/match/programs/ProgramLibrary.gd").defaults("guard")
 		config.radius = 12.0
@@ -136,6 +136,10 @@ func _boundaries():
 	# A scout/engineer can provide observation, but losing it must stop acquisition.
 	raider.position = anchor + Vector3(11, 0, 0)
 	observer.position = anchor + Vector3(-20, 0, 0)
+	# The current tank can itself observe this point. Isolate shared-spotter
+	# loss with a bounded temporary sensor range, then restore its real stats.
+	var sight = guard.sight_range
+	guard.sight_range = minf(sight, 8.0)
 	await _reset_guard(anchor)
 	_check(
 		not game.battlefield.is_observed(guard.player, raider), "Hidden guard fixture is visible"
@@ -145,6 +149,7 @@ func _boundaries():
 	_check(
 		guard.position.distance_to(anchor) < 0.5 and raider.hp == hp, "Guard acquired hidden target"
 	)
+	guard.sight_range = sight
 	observer.position = raider.position + Vector3(0, 0, 3)
 	var blocker = _actor("Barracks", guard.player, anchor + Vector3(5.5, 0, 0))
 	blocker.process_mode = Node.PROCESS_MODE_DISABLED

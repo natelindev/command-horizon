@@ -42,6 +42,7 @@ static func facility_eligible(service, unit):
 		and service.type == facility_for_role(unit.type)
 		and service.has_method("is_constructed")
 		and service.is_constructed()
+		and (not service.has_method("service_active") or service.service_active())
 		and unit.movement_speed > 0
 	)
 
@@ -101,6 +102,9 @@ func service(delta):
 					"range": FACILITY_RANGE
 				}
 			)
+	for site in load("res://source/match/world/PointOfInterestCatalog.gd").sites(_match):
+		if site.kind == "repair" and site.operational():
+			providers.append({"unit": site, "rate": 0.04, "slots": 2, "range": FACILITY_RANGE})
 	providers.sort_custom(func(a, b): return a.rate > b.rate)
 	var assigned = {}
 	for provider in providers:

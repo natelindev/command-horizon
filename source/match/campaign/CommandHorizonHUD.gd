@@ -6,6 +6,7 @@ var _zone
 var _score
 var _waves
 var _route
+var _boss
 
 
 func _ready():
@@ -27,6 +28,7 @@ func _ready():
 	column.add_child(_score)
 	_waves = _label(column, "", 12)
 	_route = _label(column, "", 12)
+	_boss = _label(column, "", 12)
 	var row = HBoxContainer.new()
 	column.add_child(row)
 	_button(row, "Deployment", _view.bind(get_parent().map.DEPLOYMENT))
@@ -63,9 +65,16 @@ func _process(delta):
 	super(delta)
 	var mission = get_parent()
 	objective_panel.position = Vector2(14, _command_panel.position.y + _command_panel.size.y + 10)
+	var minimap = mission.find_child("Minimap").get_global_rect()
+	if objective_panel.get_global_rect().intersects(minimap):
+		objective_panel.position = Vector2(
+			_command_panel.position.x + _command_panel.size.x + 10, _command_panel.position.y
+		)
 	_zone.text = mission.deployment_status()
 	_zone.tooltip_text = mission.deployment_help()
 	_score.value = mission.hold_seconds
+	if mission.opposition != null:
+		_boss.text = mission.opposition.boss_status()
 	_waves.text = "Responses · %d / 4" % mission.waves_sent
 	if mission.waves_warned > mission.waves_sent:
 		_waves.text += (

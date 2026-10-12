@@ -113,7 +113,9 @@ func _guard(unit, point, preset = "guard"):
 func _produced(unit, factory):
 	for index in nodes.size():
 		if nodes[index].unit == factory:
-			_guard(unit, map.NODES[index] + Vector3(-5, 0, 0))
+			# Assemble west of the node, leaving room for the entire finite
+			# output. A tight group beside the portal traps its own last tank.
+			_guard(unit, map.NODES[index] + Vector3(-9, 0, 0))
 			return
 
 

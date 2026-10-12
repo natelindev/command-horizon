@@ -25,7 +25,7 @@ func _ready():
 	name = "LivingWorld"
 	_game = get_parent().get_parent()
 	_size = get_parent().size
-	var map_name = _game.settings.map_path.get_file().get_basename()
+	var map_name = Catalog.authored_name(_game.settings.map_path)
 	_coastal = map_name == "CoastalFoundry"
 	_alpine = map_name in ["AlpineRelay", "SplitSignalMap"]
 	_desert = (

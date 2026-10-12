@@ -2,6 +2,7 @@ extends RefCounted
 
 const Recover = preload("res://source/match/units/actions/RecoveringAtService.gd")
 const Repairs = preload("res://source/match/combat/RepairService.gd")
+const Sites = preload("res://source/match/world/PointOfInterestCatalog.gd")
 const Economy = preload("res://source/match/players/skirmish-ai/SkirmishEconomy.gd")
 const RETREAT_HEALTH = 0.3
 
@@ -20,7 +21,7 @@ static func command(game, units, observed):
 		if current != null and not current._blocked and _safe(current._target, unit, observed):
 			recovering.append(unit)
 			continue
-		var options = units.filter(
+		var options = (units + Sites.repair_sites(unit.player)).filter(
 			func(service):
 				return (
 					_safe(service, unit, observed)
@@ -35,8 +36,12 @@ static func command(game, units, observed):
 		options.sort_custom(
 			func(a, b):
 				return (
-					unit.global_position_yless.distance_squared_to(a.global_position_yless)
-					< unit.global_position_yless.distance_squared_to(b.global_position_yless)
+					Utils.Match.Unit.Movement.path_distance_to(
+						unit, a.global_position, Recover.ARRIVAL_RANGE
+					)
+					< Utils.Match.Unit.Movement.path_distance_to(
+						unit, b.global_position, Recover.ARRIVAL_RANGE
+					)
 				)
 		)
 		var target = null
@@ -62,15 +67,9 @@ static func _safe(service, unit, observed):
 	)
 
 
-static func _reachable(game, unit, service):
-	var navmap = game.navigation.get_navigation_map_rid_by_domain(unit.movement_domain)
-	var route = NavigationServer3D.map_get_path(
-		navmap, unit.global_position, service.global_position, true
-	)
-	return (
-		not route.is_empty()
-		and (
-			(route[-1] * Vector3(1, 0, 1)).distance_to(service.global_position_yless)
-			<= Recover.ARRIVAL_RANGE
+static func _reachable(_game, unit, service):
+	return is_finite(
+		Utils.Match.Unit.Movement.path_distance_to(
+			unit, service.global_position, Recover.ARRIVAL_RANGE
 		)
 	)

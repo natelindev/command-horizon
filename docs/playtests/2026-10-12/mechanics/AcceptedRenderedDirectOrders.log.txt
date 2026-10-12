@@ -1,0 +1,27 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+Metal 4.0 - Forward+ - Using Device #0: Apple - Apple M1 Pro (Apple7)
+
+DIRECT COMMAND CAPTURE bastion move
+DIRECT COMMAND CAPTURE bastion attack
+TARGET PICK point=(33.0, 0.3, 30.0) screen=(665.7143, 314.7479) hit=Tank:<Area3D#370206055914> role=Tank
+TARGET PICK point=(30.0, 0.0, 38.0) screen=(588.5714, 424.2858) hit=<null> role=none
+TARGET PICK point=(30.0, 0.0, 38.0) screen=(588.5714, 424.2858) hit=<null> role=none
+DIRECT COMMAND CAPTURE bastion mixed
+DIRECT COMMAND CAPTURE bastion counter-priority
+COMMAND DEATH button_down=1
+DIRECT LIVE bastion move damage=0 travel=3.81338882446289
+DIRECT LIVE bastion attack_move damage=18.0 travel=0.26673921942711
+DIRECT COMMAND CAPTURE helix move
+DIRECT COMMAND CAPTURE helix attack
+TARGET PICK point=(33.0, 0.3, 30.0) screen=(665.7143, 314.7479) hit=Tank:<Area3D#1027302496719> role=Tank
+TARGET PICK point=(30.0, 0.0, 38.0) screen=(588.5714, 424.2858) hit=<null> role=none
+TARGET PICK point=(30.0, 0.0, 38.0) screen=(588.5714, 424.2858) hit=<null> role=none
+DIRECT COMMAND CAPTURE helix mixed
+DIRECT COMMAND CAPTURE helix counter-priority
+COMMAND DEATH button_down=1
+DIRECT LIVE helix move damage=0 travel=4.57590866088867
+DIRECT LIVE helix attack_move damage=18.0 travel=0.32745316624641
+DIRECT COMMAND CAPTURE bastion campaign
+Rendered direct orders: 0 failures
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)

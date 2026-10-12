@@ -199,6 +199,10 @@ func restore(tree, snapshot):
 		}
 	for target in tree.get_nodes_in_group("neutral_targets"):
 		entities[target.neutral_id] = target
+	for site in load("res://source/match/world/PointOfInterestCatalog.gd").sites(game):
+		entities[site.site_id] = site
+	for saved in _data.mission.get("points_of_interest", []):
+		entities[saved.id].restore_state(saved, entities)
 	if _data.snapshot_version >= 11:
 		for saved in _data.neutral_buildings:
 			entities[saved.id].restore(saved, entities)
@@ -324,13 +328,13 @@ func restore(tree, snapshot):
 			game.convoy.append(entry)
 	elif game.settings.mission_id == "split_signal":
 		for key in _data.mission:
-			if key != "relays":
+			if key not in ["relays", "story", "opposition"]:
 				game.set(key, _data.mission[key])
 		game.map.restore_state(_data.mission, entities)
-	elif not _data.mission.is_empty():
+	elif game.settings.mission_id != "" and not _data.mission.is_empty():
 		var mission = _data.mission
 		for key in mission:
-			if key != "relay":
+			if key not in ["relay", "story", "opposition"]:
 				game.set(key, mission[key])
 		game.relay.captured_by = entities.get(mission.relay.owner)
 		game.relay.candidate = entities.get(mission.relay.candidate)
@@ -338,6 +342,16 @@ func restore(tree, snapshot):
 		game.relay.contested = mission.relay.contested
 		game.relay._update_presentation()
 	game.repair_service._elapsed = _data.repair_elapsed
+	if game.settings.mission_id != "":
+		game._attach_campaign_story()
+		if is_instance_valid(game.campaign_story):
+			game.campaign_story.restore(_data.mission.get("story", {}))
+		if "opposition" in game and is_instance_valid(game.opposition):
+			var state = _data.mission.get("opposition", {})
+			if not state.is_empty():
+				game.opposition.restore_state(state, entities)
+			elif game.settings.mission_id == "command_horizon":
+				game.opposition.boss_defeated = true
 	game.battlefield.invalidate()
 	# Wrecks entered the tree before their observers; refresh while the load stays paused.
 	for saved in _data.resources:

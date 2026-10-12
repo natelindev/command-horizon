@@ -39,6 +39,6 @@ func _available(unit, attacker):
 		return false
 	if unit.manual_orders != null and unit.manual_orders._engaged:
 		return false
-	if unit.program != null and unit.program.mode in ["Running", "Waiting", "Blocked"]:
+	if unit.program != null and unit.program.mode in ["Ready", "Running", "Waiting", "Blocked"]:
 		return false
 	return unit.action == null or (unit.action is Waiting and unit.action.is_idle())

@@ -1,0 +1,34 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+HORIZON deployed=true time=53.2333333333316 population=34
+HORIZON result=Victory time=206.016666666723 deployed=true HQdown=true held=true waves=4 route=false challenge=
+HORIZON survivors bastion { "CommandCenter": 1, "PowerPlant": 3, "Barracks": 1, "VehicleFactory": 1, "CommandLab": 1, "RepairDepot": 1, "AircraftFactory": 1, "Drone": 1, "RepairRobot": 3, "AdvancedTank": 2, "Helicopter": 2, "Worker": 4, "Tank": 9, "CombatRobot": 2, "Infantry": 2 } funds=184/102
+HORIZON infantry bastion (75.11927, 0.0, 68.85919) action=Moving
+HORIZON infantry bastion (74.47507, 0.0, 68.6577) action=Moving
+HORIZON strike RepairRobot (143.9104, 0.0, 66.9521) hp=45 action=PresetAction
+HORIZON strike AdvancedTank (145.1998, 0.0, 68.31694) hp=43.6 action=WaitingForTargets()
+HORIZON strike AdvancedTank (145.4528, 0.0, 70.12338) hp=55.9499999999997 action=WaitingForTargets()
+HORIZON strike Tank (149.5698, 0.0, 71.13222) hp=80 action=WaitingForTargets()
+HORIZON strike Tank (146.3606, 0.0, 65.6494) hp=33.6666666666667 action=WaitingForTargets()
+HORIZON strike Tank (147.3931, 0.0, 67.13349) hp=33.6 action=WaitingForTargets()
+HORIZON strike Tank (147.3314, 0.0, 64.13355) hp=33.4 action=WaitingForTargets(AttackingWhileInRange)
+HORIZON strike RepairRobot (143.615, 0.0, 68.29935) hp=36.0 action=PresetAction
+HORIZON strike Tank (142.5393, 0.0, 69.81291) hp=33.6333333333333 action=WaitingForTargets()
+HORIZON aircraft (134.584, 1.5, 100.6143) hp=43.0 program=Running reason=Strike complete; returning to regroup point.
+HORIZON aircraft (132.9986, 1.5, 103.7551) hp=43.0 program=Running reason=Strike complete; returning to regroup point.
+HORIZON guard RepairRobot (66.03951, 0.0, 66.723) hp=45 program=Running
+HORIZON guard Tank (79.79151, 0.0, 60.55939) hp=80 program=Running
+HORIZON guard Tank (80.11954, 0.0, 62.81829) hp=80 program=Running
+HORIZON guard Tank (80.08549, 0.0, 68.12506) hp=26.0 program=Running
+HORIZON guard Tank (63.70732, 0.0, 65.89291) hp=23.5333333333333 program=Running
+HORIZON guard CombatRobot (81.38798, 0.0, 61.5155) hp=20.7166666666665 program=Running
+HORIZON guard CombatRobot (79.79228, 0.0, 64.51756) hp=53.2666666666665 program=Running
+HORIZON guard Infantry (75.11927, 0.0, 68.85919) hp=13.0 program=none
+HORIZON guard Infantry (74.47507, 0.0, 68.6577) hp=22 program=none
+HORIZON survivors helix { "PowerPlant": 3, "Barracks": 1, "VehicleFactory": 1, "CommandLab": 1, "RepairDepot": 1, "AircraftFactory": 1, "AntiAirTurret": 1, "Tank": 1, "CombatRobot": 1, "AdvancedTank": 1, "Helicopter": 2, "RepairRobot": 2, "Worker": 2 } funds=146/48
+Command Horizon: 0 failures
+ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 6 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

@@ -163,13 +163,24 @@ func _contracts(player, air, factory):
 	var deposit = get_nodes_in_group("resource_units")[0]
 	worker.issue_manual_order(harvest.new(deposit))
 	worker.manual_orders.submit(orders.target_order("gather", deposit), true)
+	# An idle engineer should recover the foundation without stealing an
+	# active income route or replacing that gatherer's delivery handoff.
 	player._build(player._units(), "RepairDepot")
+	var builders = _units(player, "Worker").filter(
+		func(unit):
+			return (
+				unit.action != null
+				and unit.action.get_script().resource_path.ends_with("Constructing.gd")
+			)
+	)
 	_check(
 		(
-			worker.action.get_script().resource_path.ends_with("Constructing.gd")
-			and worker.manual_orders.pending.is_empty()
+			builders.size() == 1
+			and builders[0] != worker
+			and builders[0].manual_orders.pending.is_empty()
+			and worker.manual_orders.pending.size() == 1
 		),
-		"Foundation recovery retained a stale economic handoff"
+		"Foundation recovery interrupted productive labor or retained a builder's stale handoff"
 	)
 	_check(
 		production.reserve(player, player._units(), "RepairDepot") == Vector2i.ZERO,

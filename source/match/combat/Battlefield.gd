@@ -160,6 +160,61 @@ func fireable_targets(source):
 	return result
 
 
+func automatic_target(source):
+	var best = null
+	var score = INF
+	var targets = fireable_targets(source)
+	if targets.is_empty():
+		return null
+	var incoming = _incoming_damage(source, targets)
+	for target in targets:
+		var value = target_score(source, target, incoming.get(target, 0.0))
+		if value < score:
+			score = value
+			best = target
+	return best
+
+
+func target_score(source, target, incoming_damage = 0.0):
+	var damage = Rules.damage(source, target)
+	if damage <= 0:
+		return INF
+	# Armed opposition, effective counters and finishing comparable wounded
+	# targets. Explicit attacks and saved/programmed priorities retain authority.
+	var effectiveness = damage / maxf(0.01, source.attack_damage)
+	var shots = maxf(1, ceilf(target.hp / damage))
+	var distance = source.global_position_yless.distance_to(target.global_position_yless)
+	return (
+		(0.0 if Rules.can_target(target, source) else 100.0)
+		+ (20.0 if incoming_damage >= target.hp else 0.0)
+		- effectiveness * 4.0
+		- 1.0 / shots
+		+ distance / maxf(1.0, Rules.range_for(source, target)) * 0.25
+	)
+
+
+func _incoming_damage(source, targets):
+	var incoming = {}
+	# Count actual unresolved projectiles, not allies merely aiming or reloading.
+	# Restrict claims to our own active shooters and currently legal targets.
+	for ally in source.player.get_children():
+		if not ally.is_in_group("units") or ally.is_queued_for_deletion() or not ally.can_process():
+			continue
+		for projectile in ally.get_children():
+			if (
+				projectile.is_queued_for_deletion()
+				or not "target_unit" in projectile
+				or not "_resolved" in projectile
+				or projectile._resolved
+				or projectile.target_unit not in targets
+			):
+				continue
+			var target = projectile.target_unit
+			if has_line_of_fire(ally, target):
+				incoming[target] = incoming.get(target, 0.0) + Rules.damage(ally, target)
+	return incoming
+
+
 func has_line_of_fire(source, target):
 	return line_clear(
 		source.global_position + Vector3.UP * 0.8,

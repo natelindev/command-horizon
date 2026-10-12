@@ -32,6 +32,12 @@ func can_open():
 		and not is_instance_valid(Globals.settings_dialog)
 		and not is_instance_valid(dialog)
 		and (game == null or not is_instance_valid(game.hud.program_editor))
+		and (
+			game == null
+			or not "campaign_story" in game
+			or not is_instance_valid(game.campaign_story)
+			or not game.campaign_story.cinematic
+		)
 	)
 
 
@@ -76,6 +82,12 @@ func _input(event):
 		return
 	var game = active_game()
 	if game == null or game.finished or is_instance_valid(game.hud.program_editor):
+		return
+	if (
+		"campaign_story" in game
+		and is_instance_valid(game.campaign_story)
+		and game.campaign_story.cinematic
+	):
 		return
 	if not event is InputEventKey or not event.pressed or event.echo:
 		return

@@ -22,7 +22,86 @@ static func crowd_moved_to_new_pivot(units, new_pivot):
 	var condensed_unit_positions = _attract_unit_positions_towards_pivot(
 		new_unit_positions, new_pivot, Constants.Match.Units.ADHERENCE_MARGIN_M * 2
 	)
-	return condensed_unit_positions
+	return _resolve_group_destinations(condensed_unit_positions, new_pivot)
+
+
+static func _resolve_group_destinations(unit_positions, pivot):
+	# Projection at a shoreline, wall or map edge can collapse different slots
+	# onto one endpoint. Pack the actual reachable points, not the raw offsets.
+	var result = []
+	var discs = []
+	var margin = Constants.Match.Units.ADHERENCE_MARGIN_M * 2
+	var max_radius = 0.0
+	for pair in unit_positions:
+		max_radius = maxf(max_radius, pair[0].radius)
+	var step = max_radius * 2 + margin + 0.05
+	# Search square rings with enough sites for a full army even when only
+	# one quadrant is usable and the nearby base occupies part of that quadrant.
+	var rings = ceili(sqrt(unit_positions.size())) * 2 + 2
+	var slots = []
+	for ring in range(1, rings + 1):
+		for offset in range(-ring, ring + 1):
+			slots.append(pivot + Vector3(offset, 0, -ring) * step)
+			slots.append(pivot + Vector3(offset, 0, ring) * step)
+		for offset in range(-ring + 1, ring):
+			slots.append(pivot + Vector3(-ring, 0, offset) * step)
+			slots.append(pivot + Vector3(ring, 0, offset) * step)
+	for pair in unit_positions:
+		var unit = pair[0]
+		var fallback = _reachable_point(unit, pair[1])
+		var chosen = Vector3.INF
+		for candidate in [pair[1]] + slots:
+			var point = _reachable_point(unit, candidate, discs, margin)
+			if not point.is_finite():
+				continue
+			chosen = point
+			break
+		# A tiny disconnected pocket may have less room than the selected army.
+		# Keep ordinary navigation/arrival behavior when no separate slot fits.
+		if not chosen.is_finite():
+			chosen = fallback if fallback.is_finite() else pair[1]
+		result.append([unit, chosen])
+		discs.append([chosen, unit.radius])
+	return result
+
+
+static func _reachable_point(unit, point, discs = [], margin = 0.0):
+	var movement = unit.get_node("Movement")
+	var nav = movement.get_navigation_map()
+	if not movement._synchronized or NavigationServer3D.map_get_iteration_id(nav) == 0:
+		return (
+			Vector3.INF
+			if _disc_collides_with_others([point, unit.radius], discs, margin)
+			else point
+		)
+	var projected = NavigationServer3D.map_get_closest_point(nav, point)
+	if _disc_collides_with_others([projected * Vector3(1, 0, 1), unit.radius], discs, margin):
+		return Vector3.INF
+	var path = NavigationServer3D.map_get_path(nav, unit.global_position, projected, true)
+	if path.is_empty() or path[-1].distance_to(projected) > 0.1:
+		return Vector3.INF
+	# Orders use planar world coordinates. Navigation meshes can be baked
+	# above the rendered ground; movement owns that height offset.
+	return projected * Vector3(1, 0, 1)
+
+
+static func path_distance_to(unit, point, arrival_range):
+	var movement = unit.get_node("Movement")
+	var nav = movement.get_navigation_map()
+	# Before initial synchronization, retain the provisional nearest choice.
+	# Normal movement waits for navigation before starting the trip.
+	if not movement._synchronized or NavigationServer3D.map_get_iteration_id(nav) == 0:
+		return unit.global_position_yless.distance_to(point * Vector3(1, 0, 1))
+	var path = NavigationServer3D.map_get_path(nav, unit.global_position, point, true)
+	if (
+		path.is_empty()
+		or (path[-1] * Vector3(1, 0, 1)).distance_to(point * Vector3(1, 0, 1)) > arrival_range
+	):
+		return INF
+	var distance = 0.0
+	for index in range(1, path.size()):
+		distance += path[index - 1].distance_to(path[index])
+	return distance
 
 
 static func calculate_aabb_crowd_pivot_yless(units):

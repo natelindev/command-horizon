@@ -82,6 +82,13 @@ func run():
 		if not result.ok:
 			return false
 	unit.manual_orders.cancel()
+	# Resume takes authority immediately, including while paused. Retire the
+	# old attack/move before its late completion can install an idle action and
+	# cancel the accepted program while it is waiting for its first tick.
+	_changing = true
+	unit.action = null
+	_owned_action = null
+	_changing = false
 	_pending = true
 	set_status("Ready", "Program starts on the next simulation tick.")
 	return true

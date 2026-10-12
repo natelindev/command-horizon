@@ -1,0 +1,404 @@
+# gdlint: disable=max-returns
+extends Node
+
+signal caption_changed(line)
+
+const Narration = preload("res://source/match/campaign/CampaignNarration.gd")
+const UiTheme = preload("res://source/match/hud/BattleTheme.gd")
+const Catalog = preload("res://source/match/campaign/CampaignCatalog.gd")
+var current = {}
+var seen = []
+var cinematic = false
+var _game
+var _audio: AudioStreamPlayer
+var _voice
+var _pending = []
+var _remaining = 0.0
+var _started = false
+var _scene_time = 0.0
+var _scene_length = 0.0
+var _was_paused = false
+var _camera_state = {}
+var _input_state = []
+var _hud_state = []
+var _focus_before
+var _layer: CanvasLayer
+var _modal: Control
+var _briefing: PanelContainer
+var _title: Label
+var _subtitle
+var _skip: Button
+var _skip_release = false
+var _interrupted = false
+
+
+static func supports(game):
+	return game.settings.mission_id in Narration.MISSIONS
+
+
+func _ready():
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	_game = get_parent()
+	_voice = _game._get_human_player().get_node_or_null("BattleVoice")
+	_audio = AudioStreamPlayer.new()
+	_audio.bus = "Voice"
+	add_child(_audio)
+	var captions = load("res://source/match/hud/BattleSubtitles.gd").new()
+	captions.name = "CampaignSubtitles"
+	captions.voice = self
+	_game.add_child(captions)
+	_build_briefing()
+	Globals.options.changed.connect(_refresh_language)
+
+
+func snapshot():
+	return {"seen": seen.duplicate()}
+
+
+func restore(data):
+	seen = data.get("seen", []).duplicate()
+	_started = true
+	# A legacy save resumes its battle, rather than replaying an opening briefing.
+	if data.is_empty():
+		_mark_seen(_game.settings.mission_id + ".intro")
+		for id in _milestones():
+			_mark_seen(id)
+
+
+func cue(id):
+	var key = id if id.contains(".") else "common." + id
+	if key not in Narration.ids(_game.settings.mission_id) or key in seen:
+		return false
+	_mark_seen(key)
+	_pending.append(key)
+	return true
+
+
+func start_briefing(force_cinematic = false):
+	if cinematic or _game.restoring or _game.finished:
+		return false
+	_started = true
+	var id = _game.settings.mission_id + ".intro"
+	_mark_seen(id)
+	# Headless replays have no camera presentation. Tests can explicitly exercise
+	# the cinematic path; all narrated gameplay cues still use the same observer.
+	if not force_cinematic and DisplayServer.get_name() == "headless":
+		_pending.append(id)
+		return true
+	_pending.clear()
+	_begin_cinematic()
+	_play(id)
+	_scene_length = _remaining
+	return true
+
+
+func skip_briefing():
+	if not cinematic:
+		return
+	_end_cinematic()
+	_clear()
+
+
+func _process(delta):
+	if _game.restoring:
+		return
+	if not _started:
+		start_briefing()
+	if is_instance_valid(Globals.settings_dialog) or get_node("/root/SaveManager").busy:
+		_audio.stream_paused = true
+		return
+	# A dangerous battlefield report takes precedence over story exposition.
+	if not cinematic and _voice != null and _voice.current.get("priority", 0) >= 70:
+		_audio.stream_paused = true
+		if not _interrupted:
+			_interrupted = true
+			caption_changed.emit({})
+		return
+	_audio.stream_paused = false
+	if _interrupted:
+		_interrupted = false
+		caption_changed.emit(current.duplicate())
+	var elapsed = delta / maxf(Engine.time_scale, 0.001)
+	if cinematic:
+		_scene_time += elapsed
+		_animate_camera()
+	else:
+		_observe()
+	if not current.is_empty():
+		_remaining -= elapsed
+		if _remaining <= 0:
+			if cinematic:
+				_end_cinematic()
+			_clear()
+	if current.is_empty() and not _pending.is_empty():
+		_play(_pending.pop_front())
+
+
+func _observe():
+	if _game.finished:
+		var id = (
+			_game.settings.mission_id + ".victory" if _game.result == "Victory" else "common.defeat"
+		)
+		if id not in seen:
+			_pending.clear()
+			_clear()
+			cue(id)
+		return
+	for id in _milestones():
+		cue(id)
+	if "opposition" in _game and is_instance_valid(_game.opposition):
+		if _game.opposition.active:
+			cue("enemy_base")
+		# Air Corridor has a working base without a siege commander. Its helper
+		# treats the absent boss as defeated for outcome checks, not storytelling.
+		if _game.settings.mission_id == "command_horizon":
+			if _game.opposition.boss_started:
+				cue("boss_arrives")
+			if _game.opposition.boss_defeated:
+				cue("boss_defeated")
+
+
+func _milestones():
+	var result = []
+	var mission = _game.settings.mission_id
+	match mission:
+		"supply_line":
+			if _game.convoy.any(func(entry): return entry.leg > 0):
+				result.append("supply_line.checkpoint")
+		"first_orders":
+			if _game.phase >= 1:
+				result.append("first_orders.lab")
+			if _game.defence_started:
+				result.append("first_orders.relay")
+		"split_signal":
+			var human = _game._get_human_player()
+			if _game.map.relays.filter(func(relay): return relay.captured_by == human).size() >= 2:
+				result.append("split_signal.network")
+		"air_corridor":
+			if _game.sites.size() == 2 and _game.sites.all(func(site): return site.cleared):
+				result.append("air_corridor.batteries")
+			if _game.rescued() > 0:
+				result.append("air_corridor.flight")
+		"broken_foundry":
+			var disabled = _game.nodes.filter(func(entry): return entry.disabled).size()
+			if disabled > 0:
+				result.append("broken_foundry.node")
+			if disabled == 2:
+				result.append("broken_foundry.control")
+		"command_horizon":
+			if _game.deployed:
+				result.append("command_horizon.deployment")
+			if _game.command_destroyed:
+				result.append("command_horizon.command")
+	return result
+
+
+func _play(id):
+	current = Narration.record(id, Globals.options.language)
+	if current.is_empty():
+		return
+	if _voice != null:
+		_voice.begin_narration()
+	_audio.stream = load(current.stream)
+	if _audio.stream != null:
+		_audio.play()
+		_remaining = maxf(_audio.stream.get_length() + 0.4, 2.2)
+	else:
+		# Retain readable objectives and a working skip even if an installation's
+		# narration asset is missing; asset coverage is checked by regression.
+		_remaining = maxf(2.2, current.text.length() / 18.0)
+	if cinematic:
+		_subtitle.set_line(current.speaker, current.text, Globals.options.subtitle_size)
+	else:
+		caption_changed.emit(current.duplicate())
+
+
+func _clear():
+	_audio.stop()
+	_interrupted = false
+	current.clear()
+	_remaining = 0.0
+	caption_changed.emit({})
+	if _voice != null:
+		_voice.end_narration()
+
+
+func _mark_seen(id):
+	if id not in seen:
+		seen.append(id)
+
+
+func _begin_cinematic():
+	cinematic = true
+	_scene_time = 0.0
+	_was_paused = get_tree().paused
+	_focus_before = get_viewport().gui_get_focus_owner()
+	get_tree().paused = true
+	var camera = _game.get_node("IsometricCamera3D")
+	_camera_state = {
+		"transform": camera.global_transform,
+		"size": camera.size,
+		"physics": camera.is_physics_processing(),
+		"point": camera.get_ray_intersection(get_viewport().get_visible_rect().size / 2)
+	}
+	camera.set_physics_process(false)
+	_suspend_input(_game)
+	for hud in [_game.hud, _game.get_node_or_null("HUD")]:
+		if hud != null:
+			_hud_state.append({"node": weakref(hud), "visible": hud.visible})
+			hud.hide()
+	_modal.show()
+	_skip.grab_focus()
+	_title.text = (
+		"%s / %s"
+		% [
+			Catalog.OPERATIONS[_game.settings.mission_id].number,
+			tr(Catalog.OPERATIONS[_game.settings.mission_id].title)
+		]
+	)
+	_update_layout()
+
+
+func _suspend_input(node):
+	if node == self or node == _layer:
+		return
+	_input_state.append(
+		{
+			"node": weakref(node),
+			"input": node.is_processing_input(),
+			"unhandled": node.is_processing_unhandled_input(),
+			"key": node.is_processing_unhandled_key_input()
+		}
+	)
+	node.set_process_input(false)
+	node.set_process_unhandled_input(false)
+	node.set_process_unhandled_key_input(false)
+	for child in node.get_children():
+		_suspend_input(child)
+
+
+func _end_cinematic():
+	var camera = _game.get_node("IsometricCamera3D")
+	camera.set_size_safely(_camera_state.size)
+	camera.global_transform = _camera_state.transform
+	camera.set_physics_process(_camera_state.physics)
+	for saved in _input_state:
+		var node = saved.node.get_ref()
+		if is_instance_valid(node):
+			node.set_process_input(saved.input)
+			node.set_process_unhandled_input(saved.unhandled)
+			node.set_process_unhandled_key_input(saved.key)
+	_input_state.clear()
+	for saved in _hud_state:
+		var hud = saved.node.get_ref()
+		if is_instance_valid(hud):
+			hud.visible = saved.visible
+	_hud_state.clear()
+	cinematic = false
+	_modal.hide()
+	get_tree().paused = _was_paused
+	if is_instance_valid(_focus_before):
+		_focus_before.grab_focus()
+	else:
+		_skip.release_focus()
+
+
+func _animate_camera():
+	if Globals.options.reduced_flashes or not Globals.options.menu_motion:
+		return
+	var camera = _game.get_node("IsometricCamera3D")
+	var origin = _camera_state.point
+	if origin == null:
+		return
+	var amount = smoothstep(0.0, 1.0, clampf(_scene_time / maxf(_scene_length, 1), 0, 1))
+	camera.set_position_safely(origin.lerp(_objective_point(), amount))
+	camera.set_size_safely(lerpf(_camera_state.size, minf(36.0, camera.size_max), amount))
+
+
+func _objective_point():
+	match _game.settings.mission_id:
+		"supply_line":
+			return _game.map.POINTS[0]
+		"first_orders":
+			return _game.relay.global_position
+		"split_signal":
+			return _game.map.relays[1].global_position
+		"air_corridor":
+			return _game.map.SITES[0]
+		"broken_foundry":
+			return _game.map.NODES[0]
+		"command_horizon":
+			return _game.map.DEPLOYMENT
+	return Vector3.ZERO
+
+
+func _input(event):
+	if _skip_release and event is InputEventKey and not event.pressed:
+		_skip_release = false
+		get_viewport().set_input_as_handled()
+		return
+	if not cinematic or not event is InputEventKey:
+		return
+	get_viewport().set_input_as_handled()
+	if event.pressed and not event.echo and event.keycode in [KEY_ESCAPE, KEY_ENTER, KEY_SPACE]:
+		_skip_release = true
+		skip_briefing()
+
+
+func _build_briefing():
+	_layer = CanvasLayer.new()
+	_layer.layer = 12
+	add_child(_layer)
+	_modal = Control.new()
+	_modal.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_modal.mouse_filter = Control.MOUSE_FILTER_STOP
+	_layer.add_child(_modal)
+	_briefing = PanelContainer.new()
+	UiTheme.apply(_briefing, 22, 16)
+	_modal.add_child(_briefing)
+	var column = VBoxContainer.new()
+	column.add_theme_constant_override("separation", 10)
+	_briefing.add_child(column)
+	_title = Label.new()
+	_title.add_theme_font_size_override("font_size", 22)
+	column.add_child(_title)
+	_subtitle = load("res://source/match/hud/SubtitleCard.gd").new()
+	column.add_child(_subtitle)
+	_skip = Button.new()
+	_skip.text = "Continue / skip briefing"
+	_skip.size_flags_horizontal = Control.SIZE_SHRINK_END
+	_skip.pressed.connect(skip_briefing)
+	column.add_child(_skip)
+	_modal.hide()
+	get_viewport().size_changed.connect(_update_layout)
+
+
+func _update_layout():
+	if not is_instance_valid(_briefing):
+		return
+	var viewport = get_viewport().get_visible_rect().size
+	_briefing.size.x = minf(760, maxf(1, viewport.x - 48))
+	_briefing.size.y = _briefing.get_combined_minimum_size().y
+	_briefing.position = Vector2((viewport.x - _briefing.size.x) / 2, 24)
+
+
+func _refresh_language():
+	if not current.is_empty():
+		var localized = Narration.record(current.id, Globals.options.language)
+		current.text = localized.text
+		current.speaker = localized.speaker
+		# Let an in-flight recording finish; a locale change never restarts a cue.
+		if cinematic:
+			_subtitle.set_line(current.speaker, current.text, Globals.options.subtitle_size)
+		else:
+			caption_changed.emit(current.duplicate())
+	_update_layout()
+
+
+func _exit_tree():
+	if cinematic:
+		_end_cinematic()
+	if is_instance_valid(_audio):
+		_audio.stop()
+	if is_instance_valid(_voice):
+		_voice.end_narration()

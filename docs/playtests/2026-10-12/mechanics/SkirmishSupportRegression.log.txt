@@ -1,0 +1,13 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+SUPPORT helix before=26.0266666666667 after=31.1466666666667
+PASS: distinct repair targets, wounded-machine priority, pause and dead/invalid target recovery
+PASS: moving support disk archive, resumed healing and no-target cleanup
+SUPPORT bastion before=33.0666666666667 after=38.9333333333333
+PASS: distinct repair targets, wounded-machine priority, pause and dead/invalid target recovery
+PASS: moving support disk archive, resumed healing and no-target cleanup
+Skirmish support: 0 failures
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 2 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

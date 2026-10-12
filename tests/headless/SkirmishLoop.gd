@@ -25,8 +25,12 @@ func _run():
 	library = load("res://source/match/programs/ProgramLibrary.gd")
 	factions = load("res://source/match/FactionCatalog.gd")
 	constants = root.get_node("Constants")
+	var selected_factions = []
 	for faction in factions.IDS:
-		if "--bastion" in OS.get_cmdline_user_args() and faction != "bastion":
+		if "--" + faction in OS.get_cmdline_user_args():
+			selected_factions.append(faction)
+	for faction in factions.IDS:
+		if not selected_factions.is_empty() and faction not in selected_factions:
 			continue
 		await _play(faction)
 	for error in _errors:
@@ -289,7 +293,9 @@ func _command():
 				_programmed = true
 				_program_at = game.simulation_time
 				break
-	if not _programmed or game.simulation_time - _program_at < 5 or army.size() < 9:
+	# The opening trains four infantry and armor. Commit a six-unit force
+	# instead of waiting for nine while refusing further infantry production.
+	if not _programmed or game.simulation_time - _program_at < 5 or army.size() < 6:
 		return
 	if game.simulation_time - _last_attack < 25:
 		return

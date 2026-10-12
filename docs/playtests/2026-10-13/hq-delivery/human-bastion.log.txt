@@ -1,0 +1,26 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+DELIVERY idle ExpandedDesertFrontier bastion standard resource_a time=18.2333333333336 cargo=0
+DELIVERY idle ExpandedDesertFrontier bastion standard resource_b time=39.2999999999991 cargo=0
+DELIVERY frozen ExpandedDesertFrontier bastion standard human time=26.7999999999998 workers=[(22.9429, 0.0, 52.67826), (29.82491, 0.0, 40.8876)]
+DELIVERY idle ExpandedDesertFrontier bastion advanced resource_a time=18.6333333333336 cargo=0
+DELIVERY idle ExpandedDesertFrontier bastion advanced resource_b time=40.8333333333323 cargo=0
+DELIVERY frozen ExpandedDesertFrontier bastion advanced human time=31.2999999999995 workers=[(17.31631, 0.0, 56.37196), (24.11396, 0.0, 37.23502)]
+DELIVERY idle ExpandedAlpineRelay bastion standard resource_a time=17.316666666667 cargo=0
+DELIVERY idle ExpandedAlpineRelay bastion standard resource_b time=37.4333333333325 cargo=0
+DELIVERY frozen ExpandedAlpineRelay bastion standard human time=25.5666666666665 workers=[(21.49709, 0.0, 39.67305), (28.78555, 0.0, 27.78942)]
+DELIVERY idle ExpandedAlpineRelay bastion advanced resource_a time=17.566666666667 cargo=0
+DELIVERY idle ExpandedAlpineRelay bastion advanced resource_b time=38.6499999999991 cargo=0
+DELIVERY frozen ExpandedAlpineRelay bastion advanced human time=31.3333333333328 workers=[(15.0349, 0.0, 41.30209), (22.62587, 0.0, 25.18778)]
+DELIVERY idle ExpandedCoastalFoundry bastion standard resource_a time=13.6000000000003 cargo=0
+DELIVERY idle ExpandedCoastalFoundry bastion standard resource_b time=29.7333333333329 cargo=0
+DELIVERY frozen ExpandedCoastalFoundry bastion standard human time=18.3833333333336 workers=[(20.52279, 0.0, 53.42387), (27.36384, 0.0, 51.38054)]
+DELIVERY idle ExpandedCoastalFoundry bastion advanced resource_a time=13.6666666666669 cargo=0
+DELIVERY idle ExpandedCoastalFoundry bastion advanced resource_b time=31.5499999999995 cargo=0
+DELIVERY frozen ExpandedCoastalFoundry bastion advanced human time=23.2333333333333 workers=[(15.18778, 0.0, 56.06028), (26.87106, 0.0, 49.20621)]
+HQ delivery: 0 failures
+ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 2 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

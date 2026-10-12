@@ -1,0 +1,120 @@
+{
+  "initial_cohort": {
+    "source_note": "The process started before MovingToUnit preventive approach planning was refined for resource routes. Its scripts stayed cached through all three factions; this is preserved as the earlier-source cohort.",
+    "map": "DesertFrontier",
+    "start": "standard",
+    "ai_difficulty": "Easy",
+    "results": [
+      {
+        "faction": "bastion",
+        "outcome": "Victory",
+        "seconds": 420.049999999947,
+        "income_materials": 384.0,
+        "income_electronics": 168.0,
+        "units_produced": 35,
+        "enemy_attacks": 1,
+        "surviving_army": 9
+      },
+      {
+        "faction": "helix",
+        "outcome": "unfinished",
+        "seconds": 1200.74999999924,
+        "income_materials": 907.0,
+        "income_electronics": 436.0,
+        "units_produced": 111,
+        "enemy_attacks": 7,
+        "surviving_army": 3
+      },
+      {
+        "faction": "frontier",
+        "outcome": "Victory",
+        "seconds": 411.083333333288,
+        "income_materials": 371.0,
+        "income_electronics": 164.0,
+        "units_produced": 37,
+        "enemy_attacks": 1,
+        "surviving_army": 13
+      }
+    ],
+    "reported_failures": 1,
+    "exit_code": 1
+  },
+  "poi_ui_rerun": {
+    "reported_failures": 0,
+    "exit_code": 0,
+    "resolution": [
+      1280,
+      720
+    ],
+    "interface_scale": 1.5,
+    "locales": [
+      "en",
+      "zh_CN"
+    ]
+  },
+  "fresh_reruns": {
+    "source_note": "Final settled/frozen-body guard. Deposits preserve ordinary routes unless those routes intersect settled bodies; structures retain preventive approach planning. Fresh processes use the existing paid reference strategy and unchanged timeout.",
+    "map": "DesertFrontier",
+    "start": "standard",
+    "ai_difficulty": "Easy",
+    "results": [
+      {
+        "faction": "bastion",
+        "outcome": "Victory",
+        "seconds": 412.633333333287,
+        "income_materials": 392.0,
+        "income_electronics": 152.0,
+        "units_produced": 41,
+        "enemy_attacks": 1,
+        "surviving_army": 10,
+        "reported_failures": 0,
+        "exit_code": 0,
+        "log": "bastion-current.log.txt"
+      },
+      {
+        "faction": "helix",
+        "outcome": "Victory",
+        "seconds": 541.966666666502,
+        "income_materials": 492.0,
+        "income_electronics": 232.0,
+        "units_produced": 46,
+        "enemy_attacks": 2,
+        "surviving_army": 12,
+        "reported_failures": 0,
+        "exit_code": 0,
+        "log": "helix-current.log.txt"
+      },
+      {
+        "faction": "frontier",
+        "outcome": "Victory",
+        "seconds": 386.68333333331,
+        "income_materials": 339.0,
+        "income_electronics": 172.0,
+        "units_produced": 31,
+        "enemy_attacks": 1,
+        "surviving_army": 11,
+        "reported_failures": 0,
+        "exit_code": 0,
+        "log": "frontier-current.log.txt"
+      }
+    ],
+    "source_manifest": "fresh-source.json",
+    "source_changes_since_launch": [],
+    "reported_failures": 0,
+    "exit_codes": [
+      0,
+      0,
+      0
+    ],
+    "working_tree_head": "10c33b8d16b1973cf7c80da29f997691a444b70e"
+  },
+  "artifact_sha256": {
+    "TraceSkirmishLoop.gd.txt": "c01a0472fc12e76a2985d5112bf48f2b3dfc6a2bc2ea89d967dd86327123099f",
+    "bastion-current.log.txt": "bfc9e66eb9d667ccc0c620a956b05e28df93eda73378b9c620ead30ed28f84bd",
+    "fresh-source.json": "cdf51c592efb22c78490670a2361d5e746378c94a62d4c28fd28e8bfc3233fa0",
+    "frontier-current.log.txt": "55d9d41836c5eb12648cc50470e31888147f03509db9b8588bcad201a44673b1",
+    "helix-current.log.txt": "8ea2cf77e7b11eeae4f75276459206766ffb9b9eab182eee4ad643ed7ad0d0b9",
+    "point-of-interest-preview.log.txt": "6eba9e179c8a50aca6f7d526c3f7d3d3c03c9dc09f1291a7b45be47114f4c17d",
+    "skirmish-loop.log.txt": "3f22ae3cd816c3230f91c2f2d8b74911cbc603348eecfc50993c4ffb42e151e5"
+  }
+}

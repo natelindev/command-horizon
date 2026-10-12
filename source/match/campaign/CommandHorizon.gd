@@ -19,6 +19,8 @@ var waves_sent = 0
 var waves_warned = 0
 var progress_path = Progress.PATH
 var progress_error = ""
+var opposition
+var siege_commander
 var _enemy
 
 
@@ -31,6 +33,10 @@ func _ready():
 	)
 	_enemy = opponents[0]
 	_enemy.set_process(false)
+	opposition = load("res://source/match/campaign/CampaignOpposition.gd").new()
+	opposition.name = "CampaignOpposition"
+	add_child(opposition)
+	opposition.configure(self, _enemy, map.DEPLOYMENT, siege_commander)
 	map.relay.captured.connect(_zone_captured)
 	_checkpoint("Operation start")
 	hud.show_notice("Infantry secure deployment. Leave a guard while your strike force advances.")
@@ -42,8 +48,8 @@ func _create_hud():
 
 func _spawn_player_units(side, _spawn_transform):
 	if side.faction == "helix":
-		side.resource_a = 0
-		side.resource_b = 0
+		side.resource_a = 100
+		side.resource_b = 30
 		target_command = _spawn("CommandCenter", side, map.TARGET)
 		for entry in [
 			["PowerPlant", Vector3(174, 0, 43)],
@@ -89,11 +95,10 @@ func _spawn_player_units(side, _spawn_transform):
 				_spawn("CombatRobot", side, map.TARGET + Vector3(-5, 0, z)),
 				map.TARGET + Vector3(-6, 0, z)
 			)
-			_guard(
-				_spawn("AdvancedTank", side, map.TARGET + Vector3(0, 0, z)),
-				map.TARGET + Vector3(0, 0, z),
-				"fire_support"
-			)
+			var artillery = _spawn("AdvancedTank", side, map.TARGET + Vector3(0, 0, z))
+			_guard(artillery, map.TARGET + Vector3(0, 0, z), "fire_support")
+			if z == 9:
+				siege_commander = artillery
 			_guard(
 				_spawn("Helicopter", side, map.TARGET + Vector3(8, 0, z)),
 				map.TARGET + Vector3(2, 0, z)
@@ -103,6 +108,8 @@ func _spawn_player_units(side, _spawn_transform):
 				map.TARGET + Vector3(4, 0, z),
 				"hold_service"
 			)
+		for index in 4:
+			_spawn("Worker", side, Vector3(165 + index * 2, 0, 34))
 		return
 	var lean = settings.campaign_challenge == "lean"
 	side.resource_a = 80 if lean else 180
@@ -200,7 +207,8 @@ func deployment_help():
 	var text = map.relay.capture_help(_get_human_player()).replace(". ", ".\n")
 	text += "\nAfter capture, keep infantry here for 30 uncontested seconds."
 	text += "\nSecured time is retained when you leave or lose control."
-	text += "\nTo win, destroy enemy command and keep an uncontested infantry guard here."
+	text += "\nTo win, destroy enemy command and its siege commander; "
+	text += "keep an uncontested infantry guard here."
 	if map.relay.captured_by == _get_human_player() and not has_deployment_infantry():
 		text += "\nReturn infantry; no recapture is needed unless ownership changes."
 	return text
@@ -231,11 +239,13 @@ func _check_outcome(delta):
 			hud.show_notice(
 				"Deployment ready. Keep infantry here while your strike force destroys command."
 			)
-	if deployed and command_destroyed and zone_held():
+	if deployed and command_destroyed and opposition.boss_defeated and zone_held():
 		_finish("Victory")
 		return
 	if not defence_started:
 		return
+	opposition.activate()
+	opposition.step(delta)
 	defence_time += delta
 	if waves_warned < WAVE_TIMES.size() and defence_time >= WAVE_TIMES[waves_warned] - 10:
 		waves_warned += 1
@@ -303,6 +313,8 @@ func _finish(value):
 func objective_text():
 	if command_left < 60:
 		return "Rebuild HQ · %ds remaining" % ceili(command_left)
+	if command_destroyed and not opposition.boss_defeated:
+		return "Destroy the siege commander and keep deployment guarded."
 	if command_destroyed:
 		var deployment = "retake deployment with infantry"
 		if not deployed:
@@ -318,7 +330,7 @@ func objective_text():
 		return "Command destroyed · " + deployment
 	if not deployed or not zone_held():
 		return "Deployment · " + deployment_status()
-	return "Hold deployment and destroy Helix command."
+	return "Hold deployment; destroy Helix command and its siege commander."
 
 
 func result_summary():

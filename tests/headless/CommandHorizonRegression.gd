@@ -222,25 +222,27 @@ func _play_horizon():
 				plane.program.run()
 			for scout in _units(human, "Drone"):
 				scout.issue_manual_order(moving.new(game.map.TARGET + Vector3(-6, 0, 5)))
+		var target = (
+			game.target_command if game._alive(game.target_command) else game.opposition.boss
+		)
 		for unit in _strike_units():
 			if unit.position.x < 50 and _idle(unit):
 				_assign(unit, game.map.TARGET + Vector3(-6, 0, 0))
 			if (
 				game.simulation_time - start > 90
-				and game._alive(game.target_command)
+				and game._alive(target)
 				and unit.attack_range != null
 			):
 				if (unit.program != null and unit.program.mode != "Manual") or _idle(unit):
-					if game.battlefield.is_observed(human, game.target_command):
+					if game.battlefield.is_observed(human, target):
 						unit.issue_manual_order(
-							load("res://source/match/units/actions/AutoAttacking.gd").new(
-								game.target_command
-							)
+							load("res://source/match/units/actions/AutoAttacking.gd").new(target)
 						)
 					else:
 						unit.issue_manual_order(attack_move.new(game.map.TARGET))
 		await _frames(30)
 	_check(game.finished and game.result == "Victory", "Final HQ assault did not reach victory")
+	_check(game.opposition.boss_defeated, "Finale siege commander was not defeated")
 	_check(air_shots, "Mixed force did not fire an air weapon")
 	_report()
 	await _stage_capture("horizon-live-result", game.map.TARGET)

@@ -44,7 +44,7 @@ const BEHAVIORS = {
 	"hold_service": "guard"
 }
 const DESCRIPTIONS = {
-	"guard": "Engage observed enemies in the area; regroup near its center with nearby guards.",
+	"guard": "Guard the area; return fire at visible attackers without outside pursuit.",
 	"standoff": "Preserve 55–80% weapon-range spacing inside your assigned area.",
 	"strike_return":
 	"One shot per pass, then regroup and wait for cooldown. Requires area and safe point.",
@@ -53,7 +53,7 @@ const DESCRIPTIONS = {
 	"escort_repair": "Follow a chosen ally and repair eligible units inside the escort area.",
 	"hold_service": "Repair damaged allies inside the assigned service area.",
 }
-const PRIORITIES = ["nearest", "weakest", "armor"]
+const PRIORITIES = ["nearest", "weakest", "armor", "effective"]
 const MAX_VERSIONS = 128
 const MAX_FILE_BYTES = 8 * 1024 * 1024
 var versions = []
@@ -61,7 +61,7 @@ var error = ""
 
 
 static func defaults(preset = "hold"):
-	return {"preset": preset, "radius": 6.0, "retreat": 30, "return": 80, "priority": "nearest"}
+	return {"preset": preset, "radius": 6.0, "retreat": 30, "return": 80, "priority": "effective"}
 
 
 static func validate(config):
