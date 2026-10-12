@@ -30,6 +30,8 @@ var _damage_elapsed = 0.0
 var _airborne = false
 var _mobile = false
 var _heavy = false
+var _suspension_pitch = 0.0
+var _suspension_velocity = 0.0
 var _movement = null
 @onready var _geometry = get_parent().get_node("Geometry")
 @onready var _unit = get_parent()
@@ -89,6 +91,10 @@ func fire_recoil():
 	_sync_muzzle()
 	motion.next_shot()
 	_recoil = 1.0
+	if _heavy:
+		_suspension_velocity = -0.36
+	elif _mobile and _infantry_motion == null:
+		_suspension_velocity = -0.16
 
 
 func hit_reaction(source_position = Vector3.INF):
@@ -122,11 +128,18 @@ func _physics_process(delta):
 	_update_parts(delta, moving)
 	_recoil = maxf(0.0, _recoil - delta / motion.recoil_duration)
 	_hit_kick = maxf(0.0, _hit_kick - delta * 6.0)
+	if absf(_suspension_pitch) > 0.0001 or absf(_suspension_velocity) > 0.0001:
+		var spring_force = -32.0 * _suspension_pitch - 8.0 * _suspension_velocity
+		_suspension_velocity += spring_force * delta
+		_suspension_pitch += _suspension_velocity * delta
+	else:
+		_suspension_pitch = 0.0
+		_suspension_velocity = 0.0
 	var kick = _recoil * _recoil * motion.recoil_strength
 	if _barrel != null:
 		var model_scale = maxf(0.05, _barrel.global_basis.get_scale().z)
 		_barrel.position = (
-			_barrel_rest + Vector3.BACK * kick * (0.18 if _heavy else 0.06) / model_scale
+			_barrel_rest + Vector3.BACK * kick * (0.28 if _heavy else 0.12) / model_scale
 		)
 	_geometry.transform = _geometry_rest
 	# Buildings keep their foundation fixed; their articulated parts still animate.
@@ -134,6 +147,7 @@ func _physics_process(delta):
 		_geometry.rotation += _hit_axis * sin(_hit_kick * PI)
 		_geometry.rotation.x += (
 			kick * (0.0 if _infantry_motion != null else (0.04 if _heavy else 0.06))
+			+ (_suspension_pitch if _infantry_motion == null else 0.0)
 		)
 		_geometry.rotation.z += kick * motion.recoil_roll
 		if _infantry_motion != null:

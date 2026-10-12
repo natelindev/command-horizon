@@ -17,6 +17,9 @@ var _clock = 0.0
 var _remaining = 0.0
 var _ended = false
 var _audio: AudioStreamPlayer
+var _chirp_audio: AudioStreamPlayer
+var _chirp_in: AudioStream
+var _chirp_out: AudioStream
 var _game
 var _bank = Bank.new()
 
@@ -27,6 +30,13 @@ func _ready():
 	_audio = AudioStreamPlayer.new()
 	_audio.bus = "Voice"
 	add_child(_audio)
+	_chirp_audio = AudioStreamPlayer.new()
+	_chirp_audio.bus = "Voice"
+	add_child(_chirp_audio)
+	if ResourceLoader.exists("res://assets/audio/voices/radio_chirp_in.wav"):
+		_chirp_in = load("res://assets/audio/voices/radio_chirp_in.wav")
+	if ResourceLoader.exists("res://assets/audio/voices/radio_chirp_out.wav"):
+		_chirp_out = load("res://assets/audio/voices/radio_chirp_out.wav")
 
 
 func say(event):
@@ -137,9 +147,14 @@ func _start(line):
 	_bank.accepted(line)
 	_audio.stop()
 	_audio.stream = load(line.stream)
-	_audio.bus = "Effects" if line.get("mechanical", false) else "Voice"
-	_audio.volume_db = -5.0 if line.get("mechanical", false) else 0.0
+	var mechanical = line.get("mechanical", false)
+	_audio.bus = "Effects" if mechanical else "Voice"
+	_audio.volume_db = -5.0 if mechanical else 0.0
 	_audio.play()
+	if not mechanical and is_instance_valid(_chirp_audio) and _chirp_in != null and Globals.options.voice_volume > 0:
+		_chirp_audio.stream = _chirp_in
+		_chirp_audio.volume_db = -8.0
+		_chirp_audio.play()
 	_remaining = maxf(_audio.stream.get_length() + 0.25, 1.2 + line.text.length() / 18.0)
 	_remaining = maxf(2.2, _remaining)
 	caption_changed.emit(current.duplicate())
@@ -167,6 +182,10 @@ func _process(delta):
 
 
 func _clear():
+	if not current.get("mechanical", false) and is_instance_valid(_chirp_audio) and _chirp_out != null and Globals.options.voice_volume > 0:
+		_chirp_audio.stream = _chirp_out
+		_chirp_audio.volume_db = -10.0
+		_chirp_audio.play()
 	_audio.stop()
 	current.clear()
 	_remaining = 0
@@ -177,5 +196,8 @@ func _exit_tree():
 	if is_instance_valid(_audio):
 		_audio.stop()
 		_audio.stream = null
+	if is_instance_valid(_chirp_audio):
+		_chirp_audio.stop()
+		_chirp_audio.stream = null
 	_pending.clear()
 	current.clear()

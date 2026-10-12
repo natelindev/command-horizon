@@ -21,6 +21,12 @@ const EXPECTED_PROJECTION = PROJECTION_ORTHOGONAL
 @export var visible_height_min = -10
 @export var visible_height_max = 10
 
+const TRAUMA_DECAY = 1.9
+const MAX_H_OFFSET = 0.35
+const MAX_V_OFFSET = 0.35
+
+var trauma = 0.0
+var _trauma_clock = 0.0
 var _mouse_pos_when_rotation_started = null
 var _camera_global_pos_when_rotation_started = null
 
@@ -33,11 +39,30 @@ func _ready():
 	_align_camera_properties_to_current_size()
 
 
+func add_trauma(amount: float):
+	if Globals.options.reduced_flashes:
+		return
+	trauma = clampf(trauma + amount, 0.0, 1.0)
+
+
+func _update_trauma(delta: float):
+	if trauma > 0.0:
+		_trauma_clock += delta * 35.0
+		trauma = maxf(0.0, trauma - delta * TRAUMA_DECAY)
+		var shake = trauma * trauma
+		h_offset = sin(_trauma_clock * 1.6) * MAX_H_OFFSET * shake
+		v_offset = cos(_trauma_clock * 2.1) * MAX_V_OFFSET * shake
+	elif h_offset != 0.0 or v_offset != 0.0:
+		h_offset = 0.0
+		v_offset = 0.0
+
+
 func _physics_process(delta: float):
+	var realtime_delta = delta / Engine.time_scale
+	_update_trauma(realtime_delta)
 	var focus = get_viewport().gui_get_focus_owner()
 	if focus is LineEdit or focus is TextEdit:
 		return
-	var realtime_delta = delta / Engine.time_scale
 	if _try_handling_movement(realtime_delta):
 		return
 	_try_handling_arrowkey_rotation(realtime_delta)

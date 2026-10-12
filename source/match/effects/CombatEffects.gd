@@ -5,6 +5,7 @@ const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
 # Shared GPU particle buffers and bounded tracer/wreck pools, independent of combat authority.
 const MAX_TRACERS = 96
 const MAX_WRECKS = 24
+const MAX_COOK_OFFS = 6
 var shots_emitted = 0
 var impacts_emitted = 0
 var deaths_emitted = 0
@@ -13,11 +14,13 @@ var _emitters = {}
 var _tracers = []
 var _free_tracers = []
 var _wrecks = []
+var _cook_offs = []
 var _materials = {}
 var _tracer_mesh = BoxMesh.new()
 var _random = RandomNumberGenerator.new()
 var _headless = false
 var _paused = false
+var _camera = null
 
 
 func _ready():
@@ -27,6 +30,8 @@ func _ready():
 	_tracer_mesh.size = Vector3.ONE
 	if _headless:
 		return
+	if get_parent() != null:
+		_camera = get_parent().get_node_or_null("IsometricCamera3D")
 	aftermath = preload("res://source/match/effects/BattleAftermath.gd").new()
 	aftermath.name = "BattleAftermath"
 	add_child(aftermath)
@@ -97,6 +102,8 @@ func shot(unit, origin, target_point, duration, missile = false, target_unit = n
 		else Color("ffe4b0")
 	)
 	var heavy = unit.type in ["Tank", "AdvancedTank", "AntiGroundTurret"]
+	if heavy:
+		_shake_camera(origin, 0.08)
 	var direction = origin.direction_to(target_point)
 	_puff("flash", origin, direction * 0.2, color, 0.65 if heavy else 0.3)
 	for _index in range(5 if heavy else 2):
@@ -178,7 +185,21 @@ func _can_show(unit):
 	)
 
 
+func _shake_camera(point, amount):
+	if _headless or not is_instance_valid(_camera) or not _camera.has_method("add_trauma"):
+		return
+	if Globals.options.reduced_flashes:
+		return
+	var screen = _camera.unproject_position(point)
+	if not get_viewport().get_visible_rect().grow(128).has_point(screen):
+		return
+	var dist = point.distance_to(_camera.global_position)
+	var factor = clampf(1.0 - (dist / 70.0), 0.25, 1.0)
+	_camera.add_trauma(amount * factor)
+
+
 func _explosion(point, strength, ground_hit):
+	_shake_camera(point, strength * 0.14)
 	_puff("flash", point, Vector3.ZERO, Color("ffe9c0"), strength * 1.7)
 	for _index in range(10):
 		var velocity = _jitter(3.8) + Vector3.UP * 2.8
@@ -226,6 +247,7 @@ func destruction(unit):
 	var point = unit.global_position + Vector3.UP * 0.35
 	var infantry = InfantryRoster.is_infantry(unit.type)
 	var size = clampf(unit.radius, 0.5, 2.0)
+	_shake_camera(point, size * 0.18)
 	if not infantry:
 		_explosion(point, size * 2.0, point.y < 1.6)
 	else:
@@ -265,6 +287,10 @@ func _wreck(unit, infantry):
 		for surface in mesh.get_surface_override_material_count():
 			mesh.set_surface_override_material(surface, null)
 		mesh.material_override = material
+	if not infantry and unit.type in ["Tank", "AdvancedTank"] and not Globals.options.reduced_flashes:
+		var turret_node = wreck.find_child("*TurretPivot*", true, false)
+		if turret_node != null:
+			_launch_turret_cook_off(turret_node, unit.radius)
 	_wrecks.append(
 		{
 			"node": wreck,
@@ -278,6 +304,55 @@ func _wreck(unit, infantry):
 			"motion": unit.get_node("BastionVisuals").death_motion()
 		}
 	)
+
+
+func _launch_turret_cook_off(turret_node, unit_radius):
+	while _cook_offs.size() >= MAX_COOK_OFFS:
+		var old = _cook_offs.pop_front()
+		if is_instance_valid(old.node):
+			old.node.queue_free()
+	var global_xform = turret_node.global_transform if turret_node.is_inside_tree() else turret_node.transform
+	var parent = turret_node.get_parent()
+	if parent != null:
+		parent.remove_child(turret_node)
+
+	var body = RigidBody3D.new()
+	body.collision_layer = 0
+	body.collision_mask = 1
+	body.input_ray_pickable = false
+	body.mass = 2.5
+	body.continuous_cd = true
+	body.linear_damp = 0.2
+	body.angular_damp = 0.5
+	if aftermath != null:
+		body.physics_material_override = aftermath._physics_material
+
+	body.add_child(turret_node)
+	turret_node.transform = Transform3D.IDENTITY
+
+	var collider = CollisionShape3D.new()
+	var shape = BoxShape3D.new()
+	shape.size = Vector3(unit_radius * 0.9, 0.45, unit_radius * 0.9)
+	collider.shape = shape
+	body.add_child(collider)
+
+	add_child(body)
+	body.global_transform = global_xform
+
+	var angle = _random.randf() * TAU
+	var up_speed = _random.randf_range(4.5, 6.8)
+	var out_speed = _random.randf_range(1.0, 2.2)
+	body.linear_velocity = Vector3(cos(angle) * out_speed, up_speed, sin(angle) * out_speed)
+	body.angular_velocity = Vector3(
+		_random.randf_range(-8, 8),
+		_random.randf_range(-12, 12),
+		_random.randf_range(-8, 8)
+	)
+	_cook_offs.append({
+		"node": body,
+		"age": 0.0,
+		"smoke_clock": 0.0,
+	})
 
 
 func _jitter(amount):
@@ -317,6 +392,9 @@ func _process(_delta):
 		_paused = get_tree().paused
 		for emitter in _emitters.values():
 			emitter.speed_scale = 0.0 if _paused else 1.0
+		for entry in _cook_offs:
+			if is_instance_valid(entry.node) and entry.node is RigidBody3D:
+				entry.node.freeze = _paused
 
 
 func _physics_process(delta):
@@ -407,6 +485,25 @@ func _physics_process(delta):
 				entry.size * 0.65,
 				entry.node.position.y < 1.2
 			)
+	for index in range(_cook_offs.size() - 1, -1, -1):
+		var entry = _cook_offs[index]
+		if not is_instance_valid(entry.node):
+			_cook_offs.remove_at(index)
+			continue
+		entry.age += delta
+		entry.smoke_clock += delta
+		if entry.age < 3.5 and entry.smoke_clock >= 0.09:
+			entry.smoke_clock = 0.0
+			_puff(
+				"smoke",
+				entry.node.global_position,
+				Vector3.UP * 0.25,
+				Color(0.18, 0.18, 0.17, 0.35),
+				0.35
+			)
+		if entry.age >= 14.0:
+			entry.node.queue_free()
+			_cook_offs.remove_at(index)
 	if aftermath != null:
 		aftermath.advance(delta)
 
@@ -441,3 +538,10 @@ func damage_smoke(unit):
 	)
 	if severity > 0.8:
 		_puff("fire", point, Vector3.UP * 0.3, Color(1, 0.4, 0.1, 0.65), 0.38)
+
+
+func _exit_tree():
+	for entry in _cook_offs:
+		if is_instance_valid(entry.node):
+			entry.node.queue_free()
+	_cook_offs.clear()

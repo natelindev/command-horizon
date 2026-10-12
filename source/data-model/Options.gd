@@ -128,6 +128,7 @@ func apply():
 	_volume(music, music_volume)
 	_limiter(ambience, -9.0)
 	_limiter(effects, -4.0)
+	_radio_dsp(voice)
 	_limiter(AudioServer.get_bus_index("Master"), -1.0)
 	emit_changed()
 
@@ -206,4 +207,34 @@ func _limiter(bus, ceiling):
 			return
 	var limiter = AudioEffectHardLimiter.new()
 	limiter.ceiling_db = ceiling
+	AudioServer.add_bus_effect(bus, limiter)
+
+
+func _radio_dsp(bus):
+	for index in AudioServer.get_bus_effect_count(bus):
+		if AudioServer.get_bus_effect(bus, index) is AudioEffectHighPassFilter:
+			return
+	var high_pass = AudioEffectHighPassFilter.new()
+	high_pass.cutoff_hz = 380.0
+	high_pass.resonance = 0.25
+	AudioServer.add_bus_effect(bus, high_pass)
+
+	var low_pass = AudioEffectLowPassFilter.new()
+	low_pass.cutoff_hz = 3600.0
+	low_pass.resonance = 0.25
+	AudioServer.add_bus_effect(bus, low_pass)
+
+	var dist = AudioEffectDistortion.new()
+	dist.mode = AudioEffectDistortion.MODE_OVERDRIVE
+	dist.drive = 0.16
+	AudioServer.add_bus_effect(bus, dist)
+
+	var comp = AudioEffectCompressor.new()
+	comp.threshold = -16.0
+	comp.ratio = 3.5
+	comp.gain = 1.0
+	AudioServer.add_bus_effect(bus, comp)
+
+	var limiter = AudioEffectHardLimiter.new()
+	limiter.ceiling_db = -2.0
 	AudioServer.add_bus_effect(bus, limiter)

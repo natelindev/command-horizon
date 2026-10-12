@@ -61,12 +61,13 @@ def resonances(t: np.ndarray, frequencies: list[float], decay: float) -> np.ndar
 
 
 def blast(t: np.ndarray, rng: np.random.Generator, weight: float = 1.0) -> np.ndarray:
-    # Broadband attack, descending pressure pulse, and turbulent low-mid tail.
+    # Broadband attack, descending pressure pulse, visceral sub-bass thump, and turbulent low-mid tail.
     crack = noise(t, rng, 900, 13000) * envelope(t, 0.008 * weight, 0.00025)
-    pressure = sweep(t, 165 / weight, 38 / weight, 0.045 * weight) * envelope(t, 0.10 * weight)
-    body = noise(t, rng, 55, 850) * envelope(t, 0.075 * weight, 0.002)
-    tail = noise(t, rng, 140, 2300) * envelope(t, 0.13 * weight, 0.009)
-    return 0.85 * crack + 0.28 * pressure + 0.85 * body + 0.36 * tail
+    pressure = sweep(t, 180 / weight, 36 / weight, 0.055 * weight) * envelope(t, 0.12 * weight, 0.0005)
+    sub_thump = sweep(t, 75 / weight, 28 / weight, 0.085 * weight) * envelope(t, 0.18 * weight, 0.001)
+    body = noise(t, rng, 50, 850) * envelope(t, 0.085 * weight, 0.002)
+    tail = noise(t, rng, 140, 2300) * envelope(t, 0.14 * weight, 0.009)
+    return 0.85 * crack + 0.52 * pressure + 0.48 * sub_thump + 0.85 * body + 0.36 * tail
 
 
 def synthesize(name: str, duration: float, seed: int) -> np.ndarray:
@@ -84,7 +85,9 @@ def synthesize(name: str, duration: float, seed: int) -> np.ndarray:
         add_at(out, noise(t, rng, 650, 4300) * envelope(t, 0.013), 0.065, 0.13)
     elif name == "cannon_fire":
         out = blast(t, rng, 1.65)
-        out += 0.24 * noise(t, rng, 45, 230) * envelope(t, 0.21, 0.012)
+        sub_punch = sweep(t, 65, 26, 0.11) * envelope(t, 0.32, 0.001)
+        out += 0.55 * sub_punch
+        out += 0.28 * noise(t, rng, 40, 240) * envelope(t, 0.25, 0.010)
         add_at(out, blast(t, rng, 0.72), 0.085, 0.08)
         add_at(out, blast(t, rng, 0.70), 0.170, 0.035)
     elif name == "energy_fire":
@@ -99,19 +102,19 @@ def synthesize(name: str, duration: float, seed: int) -> np.ndarray:
     elif name == "rail_fire":
         # Very fast induction crack, bass concussion, then a short metallic trace.
         out = 0.9 * noise(t, rng, 1400, 16000) * envelope(t, 0.010, 0.0002)
-        out += 0.47 * sweep(t, 340, 58, 0.026) * envelope(t, 0.065)
-        out += 0.38 * noise(t, rng, 80, 1600) * envelope(t, 0.057, 0.003)
+        out += 0.58 * sweep(t, 280, 42, 0.035) * envelope(t, 0.085)
+        out += 0.38 * noise(t, rng, 70, 1600) * envelope(t, 0.065, 0.003)
         out += 0.16 * resonances(t, [1193, 2789, 4567], 0.073)
         out += 0.11 * noise(t, rng, 1000, 7600) * envelope(t, 0.12, 0.016)
     elif name == "missile_launch":
         # Ignition thump into a descending, fluttering rocket exhaust.
-        out = 0.31 * blast(t, rng, 0.45)
+        out = 0.38 * blast(t, rng, 0.50)
         exhaust = noise(t, rng, 160, 6300)
-        exhaust_low = noise(t, rng, 60, 1000)
+        exhaust_low = noise(t, rng, 50, 1000)
         ignition = (1 - np.exp(-t / 0.018)) * np.exp(-t / 0.105)
         out += 0.50 * exhaust * ignition * (0.72 + 0.28 * np.sin(2 * np.pi * 61 * t) ** 2)
-        out += 0.45 * exhaust_low * envelope(t, 0.17, 0.009)
-        out += 0.12 * sweep(t, 290, 90, 0.08) * envelope(t, 0.13, 0.015)
+        out += 0.52 * exhaust_low * envelope(t, 0.19, 0.008)
+        out += 0.16 * sweep(t, 260, 75, 0.09) * envelope(t, 0.15, 0.012)
     elif name == "impact_light":
         out = 0.50 * noise(t, rng, 800, 11000) * envelope(t, 0.007, 0.00025)
         out += 0.50 * noise(t, rng, 130, 1700) * envelope(t, 0.019)
@@ -119,7 +122,9 @@ def synthesize(name: str, duration: float, seed: int) -> np.ndarray:
         out += 0.10 * sweep(t, 280, 110, 0.01) * envelope(t, 0.025)
     elif name == "impact_heavy":
         out = 0.85 * blast(t, rng, 2.25)
-        out += 0.42 * noise(t, rng, 35, 440) * envelope(t, 0.38, 0.008)
+        impact_thump = sweep(t, 70, 24, 0.10) * envelope(t, 0.32, 0.001)
+        out += 0.52 * impact_thump
+        out += 0.45 * noise(t, rng, 30, 440) * envelope(t, 0.42, 0.008)
         out += 0.26 * noise(t, rng, 180, 2900) * envelope(t, 0.22, 0.02)
         for delay, gain in [(0.09, 0.22), (0.19, 0.16), (0.32, 0.12), (0.53, 0.06)]:
             add_at(out, noise(t, rng, 700, 6800) * envelope(t, 0.025), delay, gain)
@@ -133,8 +138,10 @@ def synthesize(name: str, duration: float, seed: int) -> np.ndarray:
             tap += 0.25 * resonances(t, [632, 1371, 2791], 0.016)
             add_at(out, tap, delay, gain)
     elif name == "vehicle_destroy":
-        out = 0.95 * blast(t, rng, 2.00)
-        out += 0.24 * noise(t, rng, 45, 1200) * envelope(t, 0.32, 0.028)
+        out = 0.95 * blast(t, rng, 2.10)
+        hull_thump = sweep(t, 55, 20, 0.16) * envelope(t, 0.48, 0.001)
+        out += 0.60 * hull_thump
+        out += 0.28 * noise(t, rng, 35, 1200) * envelope(t, 0.38, 0.025)
         for delay, gain, pitch in [(0.072, 0.20, 330), (0.165, 0.15, 220), (0.295, 0.10, 420), (0.441, 0.075, 280), (0.625, 0.036, 610)]:
             debris = 0.45 * noise(t, rng, 400, 4200) * envelope(t, 0.023)
             debris += resonances(t, [pitch, pitch * 2.73, pitch * 4.29], 0.066)
@@ -142,8 +149,10 @@ def synthesize(name: str, duration: float, seed: int) -> np.ndarray:
         out += 0.08 * noise(t, rng, 2300, 9000) * envelope(t, 0.27, 0.07)
     elif name == "structure_destroy":
         # Multiple broad masonry fractures form a rolling collapse, with falling grit.
-        out = 0.66 * blast(t, rng, 1.75)
-        out += 0.20 * noise(t, rng, 30, 420) * envelope(t, 0.37, 0.04)
+        out = 0.68 * blast(t, rng, 1.85)
+        structure_thump = sweep(t, 48, 18, 0.22) * envelope(t, 0.65, 0.002)
+        out += 0.55 * structure_thump
+        out += 0.24 * noise(t, rng, 25, 420) * envelope(t, 0.42, 0.035)
         for delay, gain, size in [(0.085, 0.30, 1.0), (0.181, 0.32, 0.8), (0.312, 0.24, 0.9), (0.472, 0.19, 0.7), (0.656, 0.12, 0.6), (0.873, 0.08, 0.5), (1.089, 0.035, 0.5)]:
             chunk = noise(t, rng, 95, 2800) * envelope(t, 0.053 * size, 0.001)
             chunk += 0.3 * sweep(t, 220, 65, 0.027) * envelope(t, 0.05)
@@ -159,7 +168,7 @@ def synthesize(name: str, duration: float, seed: int) -> np.ndarray:
         for delay, gain in [(0.071, 0.15), (0.137, 0.105), (0.233, 0.065), (0.389, 0.038)]:
             add_at(out, dry, delay * rng.uniform(0.88, 1.12), gain)
     if name in ["cannon_fire", "impact_heavy", "vehicle_destroy", "structure_destroy"]:
-        out += 0.17 * noise(t, rng, 45, 520) * envelope(t, 0.52, 0.045)
+        out += 0.22 * noise(t, rng, 35, 520) * envelope(t, 0.55, 0.040)
     return finish(out)
 
 
