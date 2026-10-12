@@ -3,7 +3,8 @@
 tmp/
 *.translation
 misc/
-build/
+build/*
+!build/.gdignore
 
 # Local caches, logs, and exported game builds.
 .DS_Store
