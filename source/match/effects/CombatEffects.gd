@@ -28,6 +28,9 @@ func _ready():
 	_headless = DisplayServer.get_name() == "headless"
 	_random.seed = 73819  # Cosmetic randomness never changes the gameplay RNG.
 	_tracer_mesh.size = Vector3.ONE
+	var signals = get_node_or_null("/root/MatchSignals")
+	if signals != null and not signals.tactical_ping.is_connected(_on_tactical_ping):
+		signals.tactical_ping.connect(_on_tactical_ping)
 	if _headless:
 		return
 	if get_parent() != null:
@@ -545,3 +548,39 @@ func _exit_tree():
 		if is_instance_valid(entry.node):
 			entry.node.queue_free()
 	_cook_offs.clear()
+
+
+func _on_tactical_ping(point):
+	var stream = load("res://assets/audio/combat/tactical_ping.wav")
+	if stream != null and not _headless:
+		var audio_player = AudioStreamPlayer3D.new()
+		audio_player.bus = "Effects"
+		audio_player.stream = stream
+		audio_player.unit_size = 40.0
+		audio_player.max_distance = 250.0
+		add_child(audio_player)
+		audio_player.global_position = point
+		audio_player.play()
+		audio_player.finished.connect(audio_player.queue_free)
+	_spawn_ping_visual(point)
+
+
+func _spawn_ping_visual(point):
+	if _headless:
+		return
+	var ring = MeshInstance3D.new()
+	var torus = TorusMesh.new()
+	torus.inner_radius = 0.85
+	torus.outer_radius = 1.0
+	ring.mesh = torus
+	var mat = StandardMaterial3D.new()
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.albedo_color = Color(1.0, 0.78, 0.15, 0.85)
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	ring.material_override = mat
+	add_child(ring)
+	ring.global_position = point + Vector3.UP * 0.05
+	var tween = create_tween()
+	tween.tween_property(ring, "scale", Vector3(4.5, 1.0, 4.5), 0.85)
+	tween.parallel().tween_property(mat, "albedo_color:a", 0.0, 0.85)
+	tween.tween_callback(ring.queue_free)

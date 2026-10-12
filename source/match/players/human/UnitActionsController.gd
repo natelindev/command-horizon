@@ -22,12 +22,13 @@ class Actions:
 
 func _ready():
 	MatchSignals.terrain_targeted.connect(_on_terrain_targeted)
+	MatchSignals.terrain_targeted_with_heading.connect(_on_terrain_targeted_with_heading)
 	MatchSignals.unit_targeted.connect(_on_unit_targeted)
 	MatchSignals.unit_spawned.connect(_on_unit_spawned)
 	MatchSignals.navigate_unit_to_rally_point.connect(_on_navigate_unit_to_rally_point)
 
 
-func _try_navigating_selected_units_towards_position(target_point):
+func _try_navigating_selected_units_towards_position(target_point, heading = null):
 	var terrain_units_to_move = get_tree().get_nodes_in_group("selected_units").filter(
 		func(unit):
 			return (
@@ -45,10 +46,10 @@ func _try_navigating_selected_units_towards_position(target_point):
 			)
 	)
 	var new_unit_targets = Utils.Match.Unit.Movement.crowd_moved_to_new_pivot(
-		terrain_units_to_move, target_point
+		terrain_units_to_move, target_point, heading
 	)
 	new_unit_targets += Utils.Match.Unit.Movement.crowd_moved_to_new_pivot(
-		air_units_to_move, target_point
+		air_units_to_move, target_point, heading
 	)
 	for tuple in new_unit_targets:
 		var unit = tuple[0]
@@ -150,6 +151,11 @@ func _try_setting_rally_point_to_unit(unit, target_unit):
 
 func _on_terrain_targeted(position):
 	_try_navigating_selected_units_towards_position(position)
+	_try_setting_rally_points(position)
+
+
+func _on_terrain_targeted_with_heading(position, heading):
+	_try_navigating_selected_units_towards_position(position, heading)
 	_try_setting_rally_points(position)
 
 

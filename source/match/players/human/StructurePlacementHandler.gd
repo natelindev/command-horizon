@@ -240,15 +240,19 @@ func _cancel_structure_placement():
 
 func _finish_structure_placement():
 	if _player_has_enough_resources():
-		var construction_cost = Factions.cost(
-			_player, _pending_structure_prototype.resource_path.get_file().get_basename(), true
+		var structure_name = (
+			_pending_structure_prototype.resource_path.get_file().get_basename()
 		)
+		var construction_cost = Factions.cost(_player, structure_name, true)
 		_player.subtract_resources(construction_cost)
 		MatchSignals.setup_and_spawn_unit.emit(
 			_pending_structure_prototype.instantiate(),
 			_active_blueprint_node.global_transform,
 			_player
 		)
+		if Input.is_key_pressed(KEY_SHIFT) and _player_has_enough_resources():
+			# Continuous shift-building keeps blueprint active for repeated placement
+			return
 	_cancel_structure_placement()
 
 

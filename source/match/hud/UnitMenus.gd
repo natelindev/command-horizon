@@ -38,6 +38,7 @@ var _recover_health = null
 var _command_mouse_held = false
 var _selection_roster = null
 var _discard_control_release = false
+var _command_card = null
 
 
 func _ready():
@@ -128,6 +129,7 @@ func _reset_menus():
 	_weapon_modes = null
 	_signature_panel = null
 	_selection_roster = null
+	_command_card = null
 	_stop_button = null
 	_selection = get_tree().get_nodes_in_group("selected_units").filter(
 		func(unit):
@@ -307,6 +309,10 @@ func _add_direct_buttons(unit):
 		func(): _direct_orders.recover_health(Globals.options.selection_modifier_pressed())
 	)
 	_commands.add_child(_recover_health)
+	_command_card = preload("res://source/match/hud/CommandCard.gd").new()
+	_command_card.name = "CommandCard"
+	_commands.add_child(_command_card)
+	_command_card.update_layout(_selection, _direct_orders)
 
 
 func _remember_command_mouse(event):
@@ -423,6 +429,8 @@ func _refresh_buttons():
 			_recover_health.accessibility_description = state.description
 	if is_instance_valid(_selection_roster):
 		_selection_roster.refresh()
+	if is_instance_valid(_command_card):
+		_command_card.update_layout(_selection, _direct_orders)
 	if is_instance_valid(_signature_panel):
 		_signature_panel.refresh()
 	if is_instance_valid(_weapon_modes):

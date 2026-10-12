@@ -51,6 +51,10 @@ func empty():
 	return _data.is_empty()
 
 
+func is_empty():
+	return _data.is_empty()
+
+
 func size():
 	return _data.size()
 

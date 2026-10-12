@@ -6,12 +6,14 @@ const DISTANCE_REDUCTION_BY_SUBTRACTION_ITERATIONS_MAX = 10
 # pivot - pivot point, central point of crowd
 
 
-static func crowd_moved_to_new_pivot(units, new_pivot):
+static func crowd_moved_to_new_pivot(units, new_pivot, heading = null, formation = "line"):
 	"""calculates new unit positions relative to new_pivot"""
 	if units.is_empty():
 		return []
 	if units.size() == 1:
 		return [[units[0], new_pivot]]
+	if heading != null and heading is Vector3 and heading.length_squared() > 0.001:
+		return calculate_formation_slots(units, new_pivot, heading.normalized(), formation)
 	var old_pivot = calculate_aabb_crowd_pivot_yless(units)
 	var yless_unit_offsets_from_old_pivot = _calculate_yless_unit_offsets_from_old_pivot(
 		units, old_pivot
@@ -23,6 +25,82 @@ static func crowd_moved_to_new_pivot(units, new_pivot):
 		new_unit_positions, new_pivot, Constants.Match.Units.ADHERENCE_MARGIN_M * 2
 	)
 	return condensed_unit_positions
+
+
+static func calculate_formation_slots(
+	units, new_pivot: Vector3, heading: Vector3, formation: String = "line", custom_spacing: float = 0.0
+):
+	if units.is_empty():
+		return []
+	if units.size() == 1:
+		return [[units[0], new_pivot]]
+
+	var base_spacing = custom_spacing
+	if base_spacing <= 0.0:
+		for unit in units:
+			if "radius" in unit and unit.radius != null:
+				base_spacing = maxf(base_spacing, unit.radius * 2.4)
+		base_spacing = maxf(base_spacing, 2.4)
+
+	var forward = Vector3(heading.x, 0.0, heading.z).normalized()
+	if forward.is_zero_approx():
+		forward = Vector3.FORWARD
+	var right = Vector3(-forward.z, 0.0, forward.x)
+	var pivot_yless = new_pivot * Vector3(1, 0, 1)
+
+	var raw_slots = []
+	var count = units.size()
+
+	if formation == "wedge":
+		for i in range(count):
+			if i == 0:
+				raw_slots.append(pivot_yless)
+			else:
+				var tier = int(ceil(float(i) / 2.0))
+				var side = 1.0 if (i % 2 == 1) else -1.0
+				raw_slots.append(
+					pivot_yless
+					- forward * (tier * base_spacing * 1.1)
+					+ right * (side * tier * base_spacing)
+				)
+	elif formation == "staggered" or formation == "box":
+		var cols = int(ceil(sqrt(count)))
+		var rows = int(ceil(float(count) / float(cols)))
+		for i in range(count):
+			var r = i / cols
+			var c = i % cols
+			var stagger = (base_spacing * 0.5) if (r % 2 == 1) else 0.0
+			var x_off = (float(c) - (cols - 1) * 0.5) * base_spacing + stagger
+			var z_off = -(float(r) - (rows - 1) * 0.5) * base_spacing * 1.2
+			raw_slots.append(pivot_yless + right * x_off + forward * z_off)
+	else:
+		# "line" rank-and-file formation
+		var max_per_rank = 8 if count > 8 else count
+		for i in range(count):
+			var rank = i / max_per_rank
+			var col = i % max_per_rank
+			var rank_count = min(max_per_rank, count - rank * max_per_rank)
+			var x_off = (float(col) - (rank_count - 1) * 0.5) * base_spacing
+			var z_off = -rank * base_spacing * 1.2
+			raw_slots.append(pivot_yless + right * x_off + forward * z_off)
+
+	# Greedy slot assignment: assign units to nearest available slot
+	var remaining_slots = raw_slots.duplicate()
+	var assignments = []
+	for unit in units:
+		var u_pos = unit.global_position * Vector3(1, 0, 1)
+		var best_idx = 0
+		var best_dist = INF
+		for s_idx in range(remaining_slots.size()):
+			var d = u_pos.distance_squared_to(remaining_slots[s_idx])
+			if d < best_dist:
+				best_dist = d
+				best_idx = s_idx
+		var chosen_slot = remaining_slots[best_idx]
+		remaining_slots.remove_at(best_idx)
+		assignments.append([unit, Vector3(chosen_slot.x, new_pivot.y, chosen_slot.z)])
+
+	return assignments
 
 
 static func calculate_aabb_crowd_pivot_yless(units):
@@ -107,7 +185,10 @@ static func _attract_unit_positions_towards_pivot(unit_positions, pivot, interun
 			else:
 				break
 		discs.append([new_unit_positions[unit], unit.radius])
-	return Utils.Dict.items(new_unit_positions)
+	var result = []
+	for unit in new_unit_positions:
+		result.append([unit, new_unit_positions[unit]])
+	return result
 
 
 static func _disc_collides_with_others(disc, discs, adherence_margin):

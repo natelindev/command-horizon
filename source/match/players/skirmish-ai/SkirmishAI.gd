@@ -43,6 +43,7 @@ func _process(delta):
 	_harvest(units)
 	_research(units, desired)
 	_train(units, desired)
+	_arm_units_with_programs(units)
 	_command_army(units)
 
 
@@ -519,3 +520,21 @@ func _choose_weapon_modes(units):
 			func(other): return other.movement_domain == Constants.Match.Navigation.Domain.AIR
 		)
 		unit.request_weapon_mode("interception" if air else "precision")
+
+
+func _arm_units_with_programs(units):
+	if difficulty < 1:
+		return
+	var Library = load("res://source/match/programs/ProgramLibrary.gd")
+	for unit in units:
+		if "type" in unit and unit.type in ["CombatRobot", "AdvancedTank", "Drone"]:
+			var prog = unit.get_node_or_null("UnitProgram")
+			if prog != null and prog.mode == "Manual":
+				prog.installed = true
+				if unit.type == "CombatRobot":
+					prog.configure(Library.defaults("fire_support"), "AI Fire Support")
+				elif unit.type == "AdvancedTank":
+					prog.configure(Library.defaults("standoff"), "AI Standoff")
+				elif unit.type == "Drone":
+					prog.configure(Library.defaults("scout_patrol"), "AI Scout")
+				prog.run()

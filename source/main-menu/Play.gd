@@ -59,6 +59,7 @@ var _player_faction = null
 var _enemy_faction = null
 var _difficulty = null
 var _start_mode = null
+var _doctrine_selector = null
 var _start_button = null
 var _summary = null
 var _cards = []
@@ -232,6 +233,10 @@ func _build_ui():
 	_start_mode = _option(
 		grid, "StartMode", ["Standard — build your base", "Advanced — armor and technology"]
 	)
+	_label(grid, tr("Tactical doctrine"), 14, Color("bac6ca"))
+	_doctrine_selector = _option(
+		grid, "TacticalDoctrine", ["Standard Field Protocol", "Hit & Run Kiting", "Ironclad Defense"]
+	)
 
 	var summary_box = PanelContainer.new()
 	var sum_style = StyleBoxFlat.new()
@@ -387,6 +392,10 @@ func _create_match_settings():
 	result.advanced_start = _start_mode.selected == 1
 	result.map_path = _get_selected_map_path()
 	result.match_seed = randi() & 0x7fffffff
+	var doctrine_keys = ["balanced", "kiting", "ironclad"]
+	result.tactical_doctrine = (
+		doctrine_keys[_doctrine_selector.selected] if _doctrine_selector != null else "balanced"
+	)
 	var rng = RandomNumberGenerator.new()
 	rng.seed = result.match_seed
 	for index in range(2):
@@ -434,8 +443,11 @@ func _save_preferences():
 		["player", _player_faction],
 		["enemy", _enemy_faction],
 		["difficulty", _difficulty],
-		["start", _start_mode]
+		["start", _start_mode],
+		["doctrine", _doctrine_selector]
 	]:
+		if pair[1] == null:
+			continue
 		var value = pair[1].selected
 		if pair[0] in ["player", "enemy"]:
 			value = (Factions.IDS + ["random"])[value]
@@ -451,8 +463,11 @@ func _load_preferences():
 		["player", _player_faction, "bastion"],
 		["enemy", _enemy_faction, "random"],
 		["difficulty", _difficulty, 1],
-		["start", _start_mode, 0]
+		["start", _start_mode, 0],
+		["doctrine", _doctrine_selector, 0]
 	]:
+		if pair[1] == null:
+			continue
 		var value = config.get_value("setup", pair[0], pair[2])
 		if pair[0] in ["player", "enemy"]:
 			# Old index 2 meant Random. Persist stable IDs before adding further factions.

@@ -33,6 +33,10 @@ func _ready():
 		features.map = _match.map
 		features.pixel_scale = MINIMAP_PIXELS_PER_WORLD_METER
 		_viewport_background.add_child(features)
+	if _camera_indicator != null:
+		_camera_indicator.default_color = Color("f0b429")
+		_camera_indicator.width = 2.0
+	MatchSignals.tactical_ping.connect(_on_tactical_ping)
 
 
 func _physics_process(_delta):
@@ -168,6 +172,11 @@ func _issue_movement_action(position_2d_within_texture_rect):
 func _on_gui_input(event):
 	if event is InputEventMouseButton:
 		if event.is_pressed() and event.button_index == MOUSE_BUTTON_LEFT:
+			if event.ctrl_pressed:
+				var world_pos_2d = _texture_rect_position_to_world_position(event.position)
+				if world_pos_2d != null:
+					MatchSignals.tactical_ping.emit(Vector3(world_pos_2d.x, 0, world_pos_2d.y))
+				return
 			_try_teleporting_camera_based_on_local_texture_rect_position(event.position)
 			_camera_movement_active = true
 		if not event.is_pressed() and event.button_index == MOUSE_BUTTON_LEFT:
@@ -176,3 +185,22 @@ func _on_gui_input(event):
 			_issue_movement_action(event.position)
 	elif event is InputEventMouseMotion and _camera_movement_active:
 		_try_teleporting_camera_based_on_local_texture_rect_position(event.position)
+
+
+func _on_tactical_ping(world_position: Vector3):
+	var ping_node = Line2D.new()
+	ping_node.width = 2.0
+	ping_node.default_color = Color("f0b429")
+	var pts = PackedVector2Array()
+	var segs = 16
+	for i in range(segs + 1):
+		var ang = (float(i) / segs) * TAU
+		pts.append(Vector2(cos(ang), sin(ang)))
+	ping_node.points = pts
+	var minimap_pos = Vector2(world_position.x, world_position.z) * MINIMAP_PIXELS_PER_WORLD_METER
+	ping_node.position = minimap_pos
+	_viewport_background.add_child(ping_node)
+	var tween = create_tween()
+	tween.tween_property(ping_node, "scale", Vector2(16.0, 16.0), 0.9)
+	tween.parallel().tween_property(ping_node, "modulate:a", 0.0, 0.9)
+	tween.tween_callback(ping_node.queue_free)

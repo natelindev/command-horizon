@@ -14,3 +14,4 @@ enum Visibility { PER_PLAYER, ALL_PLAYERS, FULL }
 
 # Finale replay choice; its archive contract is stored with that mission.
 @export var campaign_challenge = ""
+@export var tactical_doctrine = "balanced"

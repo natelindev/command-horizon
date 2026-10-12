@@ -28,21 +28,30 @@ var _last_lua_alert = ""
 
 
 func _ready():
-	installed = unit.type in BUILT_IN or unit.get_meta("chip_installed", false)
-	unit.action_changed.connect(_on_action_changed)
+	installed = ("type" in unit and unit.type in BUILT_IN) or unit.get_meta("chip_installed", false)
+	if unit.has_signal("action_changed"):
+		unit.action_changed.connect(_on_action_changed)
+	if DisplayServer.get_name() != "headless":
+		var badge = preload("res://source/match/hud/UnitProgramBadge3D.gd").new()
+		badge.name = "ProgramBadge"
+		unit.add_child(badge)
+		badge.setup(unit, self)
 
 
 func ready_to_run():
-	return installed and unit.player.basic_programs_unlocked() and install_left <= 0.0
+	var unlocked = unit.player.basic_programs_unlocked() if ("player" in unit and unit.player != null and unit.player.has_method("basic_programs_unlocked")) else true
+	return installed and unlocked and install_left <= 0.0
 
 
 func configure(value, title = "Custom preset"):
 	if not Library.validate(value) or not Library.compatible(value.preset, unit.type):
 		return false
-	unit.manual_orders.cancel()
+	if "manual_orders" in unit and unit.manual_orders != null:
+		unit.manual_orders.cancel()
 	# Editing a draft never silently replaces a live program.
 	manual_override()
-	unit.action = null
+	if "action" in unit:
+		unit.action = null
 	config = value.duplicate(true)
 	program_title = title
 	saved_record = {}
@@ -81,14 +90,15 @@ func run():
 		var result = lua_runtime.resume()
 		if not result.ok:
 			return false
-	unit.manual_orders.cancel()
+	if "manual_orders" in unit and unit.manual_orders != null:
+		unit.manual_orders.cancel()
 	_pending = true
 	set_status("Ready", "Program starts on the next simulation tick.")
 	return true
 
 
 func manual_override():
-	if is_instance_valid(unit.program_squad):
+	if "program_squad" in unit and is_instance_valid(unit.program_squad):
 		unit.program_squad.release(unit)
 	_pending = false
 	set_status("Manual", "Direct orders have priority. Resume to return to the assignment.")
@@ -97,7 +107,7 @@ func manual_override():
 func disable():
 	var was_active = mode in ["Running", "Ready", "Blocked", "Waiting", "Error"]
 	manual_override()
-	if was_active:
+	if was_active and "action" in unit:
 		unit.action = null
 
 
@@ -106,7 +116,8 @@ func set_status(state, explanation):
 		return
 	mode = state
 	reason = explanation
-	trace.append({"time": unit._match.simulation_time, "reason": explanation})
+	var match_time = unit._match.simulation_time if ("_match" in unit and unit._match != null and "simulation_time" in unit._match) else 0.0
+	trace.append({"time": match_time, "reason": explanation})
 	if trace.size() > 16:
 		trace.pop_front()
 

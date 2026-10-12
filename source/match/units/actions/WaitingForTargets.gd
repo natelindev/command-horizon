@@ -28,12 +28,32 @@ func is_idle():
 
 
 func _get_units_to_attack():
-	return _unit._match.battlefield.fireable_targets(_unit)
+	if "stance" in _unit and _unit.stance == _unit.Stance.HOLD_FIRE:
+		return []
+	var targets = _unit._match.battlefield.fireable_targets(_unit)
+	if "stance" in _unit and _unit.stance == _unit.Stance.HOLD_POSITION:
+		return targets.filter(
+			func(target):
+				if not is_instance_valid(target) or _unit.attack_range == null:
+					return false
+				var dist = _unit.global_position_yless.distance_to(target.global_position_yless)
+				return dist <= (_unit.attack_range + target.radius + _unit.radius)
+		)
+	return targets
 
 
 func _attack_unit(unit):
 	_timer.timeout.disconnect(_on_timer_timeout)
-	_sub_action = AttackingWhileInRange.new(unit)
+	if "stance" in _unit and _unit.stance == _unit.Stance.DEFENSIVE:
+		var auto = preload("res://source/match/units/actions/AutoAttacking.gd").new(unit)
+		auto._defense_origin = _unit.global_position_yless
+		auto._defense_radius = maxf(
+			_unit.sight_range * 1.25 if _unit.sight_range != null else 15.0,
+			_unit.attack_range * 1.5 if _unit.attack_range != null else 10.0
+		)
+		_sub_action = auto
+	else:
+		_sub_action = AttackingWhileInRange.new(unit)
 	_sub_action.tree_exited.connect(_on_attack_finished)
 	add_child(_sub_action)
 	_unit.action_updated.emit()

@@ -5,6 +5,12 @@ signal deselected
 signal hp_changed
 signal action_changed(new_action)
 signal action_updated
+signal stance_changed(new_stance)
+
+enum Stance { AGGRESSIVE, DEFENSIVE, HOLD_POSITION, HOLD_FIRE }
+
+var stance = Stance.AGGRESSIVE:
+	set = _set_stance
 
 const MATERIAL_ALBEDO_TO_REPLACE = Color(0.99, 0.81, 0.48)
 const MATERIAL_ALBEDO_TO_REPLACE_EPSILON = 0.05
@@ -54,19 +60,21 @@ var _cached_type = ""
 
 
 func _ready():
-	if not _match.is_node_ready():
+	if _match != null and not _match.is_node_ready():
 		await _match.ready
-	_setup_color()
+	if player != null:
+		_setup_color()
+		if player.technology != null:
+			player.technology.apply_unit(self)
 	_setup_default_properties_from_constants()
 	load("res://source/match/FactionCatalog.gd").apply_stats(self)
 	base_hp_max = hp_max
-	if player.technology != null:
-		player.technology.apply_unit(self)
-	if type == "AdvancedTank" or (type == "CombatRobot" and player.faction == "helix"):
+	if player != null and (type == "AdvancedTank" or (type == "CombatRobot" and player.faction == "helix")):
 		var preparation_visual = load("res://source/match/effects/WeaponPreparationVisual.gd").new()
 		preparation_visual.name = "WeaponPreparationVisual"
 		add_child(preparation_visual)
-	assert(_safety_checks())
+	if _match != null:
+		assert(_safety_checks())
 	if movement_speed > 0:
 		manual_orders = load("res://source/match/orders/ManualOrders.gd").new()
 		manual_orders.name = "ManualOrders"
@@ -221,9 +229,10 @@ func _handle_unit_death():
 
 
 func _setup_default_properties_from_constants():
-	var default_properties = Constants.Match.Units.DEFAULT_PROPERTIES[
-		get_script().resource_path.replace(".gd", ".tscn")
-	]
+	var key = get_script().resource_path.replace(".gd", ".tscn")
+	if not Constants.Match.Units.DEFAULT_PROPERTIES.has(key):
+		return
+	var default_properties = Constants.Match.Units.DEFAULT_PROPERTIES[key]
 	for property in default_properties:
 		set(property, default_properties[property])
 
@@ -239,3 +248,28 @@ func issue_manual_order(order):
 	if program != null:
 		program.manual_override()
 	action = order
+
+
+func _set_stance(new_stance):
+	if stance != new_stance:
+		stance = new_stance
+		stance_changed.emit(stance)
+
+
+func cycle_stance() -> int:
+	var next = (int(stance) + 1) % 4
+	stance = next
+	return stance
+
+
+func stance_name() -> String:
+	match stance:
+		Stance.AGGRESSIVE:
+			return "Aggressive"
+		Stance.DEFENSIVE:
+			return "Defensive"
+		Stance.HOLD_POSITION:
+			return "Hold Position"
+		Stance.HOLD_FIRE:
+			return "Hold Fire"
+	return "Aggressive"
