@@ -34,7 +34,6 @@ var _suspension_pitch = 0.0
 var _suspension_velocity = 0.0
 var _movement = null
 var _leg_data = []
-var _muzzle_dirty = true
 var _settled = false
 @onready var _geometry = get_parent().get_node("Geometry")
 @onready var _unit = get_parent()
@@ -97,7 +96,6 @@ func fire_recoil():
 	_quiet_time = 0.0
 	_idle_blend = 0.0
 	_settled = false
-	_muzzle_dirty = true
 	_geometry.transform = _geometry_rest
 	_aim(1.0)
 	_sync_muzzle()
@@ -136,7 +134,8 @@ func _physics_process(delta):
 	var moving = distance > 0.002
 	if moving:
 		_settled = false
-	if _wheel_motion != null and moving:
+	# Wheels also roll through pivot turns, which have no root translation.
+	if _wheel_motion != null:
 		_wheel_motion.advance(delta)
 	_recoil = maxf(0.0, _recoil - delta / motion.recoil_duration)
 	_hit_kick = maxf(0.0, _hit_kick - delta * 6.0)
@@ -153,15 +152,16 @@ func _physics_process(delta):
 	if aiming:
 		_settled = false
 
+	# Idle timing continues while hidden or settled, so gestures resume in step.
+	_update_idle(delta, moving)
 	if not _unit.is_visible_in_tree():
 		return
 
-	if _settled and not moving and not aiming and _rotors.is_empty():
+	if _settled and not moving and not aiming and _idle_blend <= 0.001 and _rotors.is_empty():
 		return
 
 	_clock += delta * motion.cadence
 	_phase += distance * 9.0 * motion.cadence
-	_update_idle(delta, moving)
 	_update_parts(delta, moving)
 
 	var kick = _recoil * _recoil * motion.recoil_strength
@@ -181,12 +181,7 @@ func _physics_process(delta):
 		_geometry.rotation.z += kick * motion.recoil_roll
 		if _infantry_motion != null:
 			_infantry_motion.advance(
-				delta,
-				distance,
-				_clock,
-				_idle_gesture(),
-				kick,
-				1.0 if aiming else 0.0
+				delta, distance, _clock, _idle_gesture(), kick, 1.0 if aiming else 0.0
 			)
 		else:
 			_update_body(moving)
@@ -205,11 +200,24 @@ func _physics_process(delta):
 		and _hit_kick <= 0.0001
 		and _idle_blend <= 0.001
 		and _rotors.is_empty()
+		and _pose_at_rest()
 	):
 		_settled = true
 		_geometry.transform = _geometry_rest
 		if _barrel != null:
 			_barrel.position = _barrel_rest
+
+
+func _pose_at_rest():
+	# Settling stops part easing, so every eased part must already be at rest.
+	for item in _leg_data:
+		if absf(angle_difference(item.node.rotation.x, item.rest_x)) > 0.001:
+			return false
+	if _turret != null and absf(angle_difference(_turret.rotation.y, _rests[_turret].y)) > 0.001:
+		return false
+	if _barrel != null and absf(angle_difference(_barrel.rotation.x, _rests[_barrel].x)) > 0.001:
+		return false
+	return _infantry_motion == null or _infantry_motion.blend <= 0.001
 
 
 func _update_idle(delta, moving):
@@ -280,7 +288,6 @@ func _update_body(moving):
 
 func _aim(delta):
 	if is_instance_valid(_unit.aim_target) and _turret != null:
-		_muzzle_dirty = true
 		var target_position = _unit.aim_target.global_position + Vector3.UP * 0.45
 		var target_local = _turret.get_parent().to_local(target_position) - _turret.position
 		_turret.rotation.y = lerp_angle(
@@ -294,6 +301,6 @@ func _aim(delta):
 
 
 func _sync_muzzle():
-	if _muzzle_dirty and _muzzle != null and _projectile_origin != null:
-		_muzzle_dirty = false
+	# Every animated frame can move the muzzle; settled frames return before this.
+	if _muzzle != null and _projectile_origin != null:
 		_projectile_origin.global_transform = _muzzle.global_transform.orthonormalized()

@@ -235,42 +235,28 @@ func _incoming_damage(source, targets):
 	var target_set = {}
 	for target in targets:
 		target_set[target] = true
-	var projectiles = get_tree().get_nodes_in_group("projectiles")
-	if not projectiles.is_empty():
-		for projectile in projectiles:
-			if (
-				not is_instance_valid(projectile)
-				or projectile.is_queued_for_deletion()
-				or not "_resolved" in projectile
-				or projectile._resolved
-				or not "target_unit" in projectile
-				or not target_set.has(projectile.target_unit)
-			):
-				continue
-			var ally = projectile.get_parent()
-			if (
-				not is_instance_valid(ally)
-				or ally.player != source.player
-				or ally.is_queued_for_deletion()
-				or not ally.can_process()
-			):
-				continue
-			var target = projectile.target_unit
-			incoming[target] = incoming.get(target, 0.0) + Rules.damage(ally, target)
-		return incoming
-	for ally in source.player.get_children():
-		if not ally.is_in_group("units") or ally.is_queued_for_deletion() or not ally.can_process():
+	# Both projectile types join this group, including restored shots.
+	for projectile in get_tree().get_nodes_in_group("projectiles"):
+		if (
+			not is_instance_valid(projectile)
+			or projectile.is_queued_for_deletion()
+			or not "_resolved" in projectile
+			or projectile._resolved
+			or not "target_unit" in projectile
+			or not target_set.has(projectile.target_unit)
+		):
 			continue
-		for projectile in ally.get_children():
-			if (
-				projectile.is_queued_for_deletion()
-				or not "target_unit" in projectile
-				or not "_resolved" in projectile
-				or projectile._resolved
-				or not target_set.has(projectile.target_unit)
-			):
-				continue
-			var target = projectile.target_unit
+		var ally = projectile.get_parent()
+		if (
+			not is_instance_valid(ally)
+			or ally.player != source.player
+			or ally.is_queued_for_deletion()
+			or not ally.can_process()
+		):
+			continue
+		var target = projectile.target_unit
+		# Shots re-check line of fire on impact, so blocked ones will miss.
+		if has_line_of_fire(ally, target):
 			incoming[target] = incoming.get(target, 0.0) + Rules.damage(ally, target)
 	return incoming
 

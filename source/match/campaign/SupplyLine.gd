@@ -199,10 +199,13 @@ func objective_text():
 func result_summary():
 	var delivered = convoy.filter(func(entry): return entry.delivered).size()
 	var text = "%d / 3 trucks extracted." % delivered
-	text += "\n" + (
-		"First Orders starts with +20 materials."
-		if result == "Victory"
-		else "Two truck losses make the delivery impossible."
+	text += (
+		"\n"
+		+ (
+			"First Orders starts with +20 materials."
+			if result == "Victory"
+			else "Two truck losses make the delivery impossible."
+		)
 	)
 	return text + ("\n" + progress_error if not progress_error.is_empty() else "")
 

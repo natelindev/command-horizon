@@ -62,6 +62,7 @@ func _run():
 			_units(game._get_human_player(), role)[0].get_node("Selection").select()
 			await _frames(3)
 			_scan(game)
+		_production_text(game._get_human_player())
 		for panel in ["open_technology", "open_relays", "open_sites", "_open_menu"]:
 			game.hud.call(panel)
 			await _frames(3)
@@ -99,6 +100,30 @@ func _run():
 		)
 	)
 	quit(0 if errors.is_empty() else 1)
+
+
+func _production_text(human):
+	var factory = _units(human, "VehicleFactory")[0]
+	var queue = factory.production_queue
+	var job = queue.ProductionQueueElement.new()
+	job.unit_prototype = load("res://source/match/units/Tank.tscn")
+	job.fitted_chip = true
+	job.time_total = 1.0
+	job.time_left = 1.0
+	job.program_snapshot = {"title": "Hold · built-in"}
+	var button = load("res://source/match/hud/ProductionQueueElement.tscn").instantiate()
+	button.queue = queue
+	button.queue_element = job
+	game.hud.add_child(button)
+	_check_text(button.tooltip_text, "production queue tooltip")
+	button.queue_free()
+	var Factions = load("res://source/match/FactionCatalog.gd")
+	for reason in [
+		"Finish construction to resume this queue.",
+		"Rebuild %s to resume this queue." % Factions.title(human.faction, "RepairDepot"),
+		"Research Coordination to resume this queue.",
+	]:
+		_check_text(reason, "production blocked reason")
 
 
 func _campaign(id, entry):

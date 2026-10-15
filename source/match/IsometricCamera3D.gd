@@ -4,6 +4,9 @@ const Bindings = preload("res://source/input/KeyBindings.gd")
 
 const EXPECTED_X_ROTATION_DEGREES = -30.0
 const EXPECTED_PROJECTION = PROJECTION_ORTHOGONAL
+const TRAUMA_DECAY = 1.9
+const MAX_H_OFFSET = 0.35
+const MAX_V_OFFSET = 0.35
 
 @export_group("Size")
 @export var size_min = 1
@@ -20,10 +23,6 @@ const EXPECTED_PROJECTION = PROJECTION_ORTHOGONAL
 @export_group("View")
 @export var visible_height_min = -10
 @export var visible_height_max = 10
-
-const TRAUMA_DECAY = 1.9
-const MAX_H_OFFSET = 0.35
-const MAX_V_OFFSET = 0.35
 
 var trauma = 0.0
 var _trauma_clock = 0.0

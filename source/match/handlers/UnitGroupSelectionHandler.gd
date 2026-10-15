@@ -1,14 +1,12 @@
 extends Node3D
 
+signal groups_changed
+
 const Bindings = preload("res://source/input/KeyBindings.gd")
 
 var _set_action_names = [null]
 var _get_action_names = [null]
 var _unit_group_names = [null]
-
-
-signal groups_changed
-
 var _last_access_id = -1
 var _last_access_time = -1
 

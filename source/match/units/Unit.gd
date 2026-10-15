@@ -66,11 +66,12 @@ func _ready():
 		_setup_color()
 		if has_node("Movement"):
 			add_child(load("res://source/match/units/traits/TeamFootprint.gd").new(self))
-		if player.technology != null:
-			player.technology.apply_unit(self)
 	_setup_default_properties_from_constants()
 	load("res://source/match/FactionCatalog.gd").apply_stats(self)
 	base_hp_max = hp_max
+	# Completed armor research scales the final base stats, so apply it last.
+	if player != null and player.technology != null:
+		player.technology.apply_unit(self)
 	if (
 		player != null
 		and (type == "AdvancedTank" or (type == "CombatRobot" and player.faction == "helix"))

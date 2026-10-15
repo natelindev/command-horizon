@@ -16,18 +16,16 @@ func _ready():
 	var faction = queue.get_parent().player.faction
 	icon = load(factions.icon(faction, unit_type))
 	expand_icon = true
+	# Translate each part: the composed line has no catalog entry of its own.
 	tooltip_text = (
-		factions.title(faction, unit_type)
-		+ (" · basic chip fitted" if queue_element.fitted_chip else "")
+		tr(factions.title(faction, unit_type))
+		+ (tr(" · basic chip fitted") if queue_element.fitted_chip else "")
 		+ (
-			" · " + queue_element.program_snapshot.title
+			" · " + tr(queue_element.program_snapshot.title)
 			if not queue_element.program_snapshot.is_empty()
 			else ""
 		)
-		+ " — click to cancel and refund"
-	)
-	tooltip_text = (
-		tr(tooltip_text)
+		+ tr(" — click to cancel and refund")
 		+ "\n"
 		+ tr("Producer: %s") % tr(factions.title(faction, queue.get_parent().type))
 	)

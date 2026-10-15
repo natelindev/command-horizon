@@ -40,7 +40,10 @@ func _ready():
 	if environment.sky and environment.sky.sky_material is ProceduralSkyMaterial:
 		_sky = environment.sky.sky_material
 		_sky.sun_angle_max = 3.0
-	_game.get_node("Fog").hide()
+	# The battle arena removes the tactical fog layer before the match is ready.
+	var fog = _game.get_node_or_null("Fog")
+	if fog != null:
+		fog.hide()
 	sun.shadow_bias = .025
 	sun.shadow_normal_bias = .65
 	sun.shadow_blur = 1.0

@@ -16,6 +16,8 @@ func _run():
 	var settings = load("res://source/data-model/MatchSettings.gd").new()
 	settings.skirmish = true
 	settings.map_path = "res://source/match/maps/BastionDesert.tscn"
+	# Fogged units skip pose updates; reveal both factions to animate them.
+	settings.visibility = settings.Visibility.FULL
 	var constants = root.get_node("Constants")
 	for side in range(2):
 		var player = load("res://source/data-model/PlayerSettings.gd").new()
