@@ -5,6 +5,8 @@ const Factions = preload("res://source/match/FactionCatalog.gd")
 const Harvest = preload("res://source/match/units/actions/CollectingResourcesSequentially.gd")
 var game
 var _pointer = null
+var _card = {}
+var _raycast_elapsed = 0.0
 
 
 func _ready():
@@ -18,15 +20,24 @@ func _ready():
 func _notification(what):
 	if what == NOTIFICATION_DISABLED:
 		_pointer = null
+		_card = {}
+		queue_redraw()
 
 
-func _process(_delta):
-	queue_redraw()
+func _process(delta):
+	_raycast_elapsed += delta
+	if not _card.is_empty() or _raycast_elapsed >= 0.05:
+		_raycast_elapsed = 0.0
+		var new_card = hover_card()
+		if not new_card.is_empty() or not _card.is_empty():
+			_card = new_card
+			queue_redraw()
 
 
 func _input(event):
 	if event is InputEventMouseMotion:
 		_pointer = event.position
+		_raycast_elapsed = 0.05
 
 
 func _hovered_unit(camera):
@@ -44,7 +55,7 @@ func _hovered_unit(camera):
 
 func _draw():
 	# Selection uses the player-colored ground outline; keep this layer for hover cards.
-	var card = hover_card()
+	var card = _card if not _card.is_empty() else hover_card()
 	if card.is_empty():
 		return
 	var font = get_theme_default_font()

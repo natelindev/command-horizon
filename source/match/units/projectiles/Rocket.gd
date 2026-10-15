@@ -8,6 +8,7 @@ var _resolved = false
 
 
 func _ready():
+	add_to_group("projectiles")
 	if restoring:
 		return
 	if not is_instance_valid(target_unit):

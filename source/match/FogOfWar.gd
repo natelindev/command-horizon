@@ -77,8 +77,9 @@ func _sync_circles_to_unit(unit):
 			circle.radius = radius
 	var unit_pos_3d = unit.global_transform.origin
 	var unit_pos_2d = Vector2(unit_pos_3d.x, unit_pos_3d.z) * texture_units_per_world_unit
-	_unit_to_circles_mapping[unit][0].position = unit_pos_2d
-	_unit_to_circles_mapping[unit][1].position = unit_pos_2d
+	if (_unit_to_circles_mapping[unit][0].position - unit_pos_2d).length_squared() > 0.0001:
+		_unit_to_circles_mapping[unit][0].position = unit_pos_2d
+		_unit_to_circles_mapping[unit][1].position = unit_pos_2d
 
 
 func _cleanup_mapping(unit):

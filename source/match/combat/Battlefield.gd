@@ -8,11 +8,26 @@ var _observers = {}
 var _max_sight = 0.0
 var _max_unit_radius = 0.0
 var _blockers = {}
+var _blockers_dirty = true
 var _observer_hints = {}
+
+
+func _ready():
+	var signals = get_node_or_null("/root/MatchSignals")
+	if signals != null:
+		signals.unit_spawned.connect(_on_unit_topology_changed)
+		signals.unit_died.connect(_on_unit_topology_changed)
+		signals.schedule_navigation_rebake.connect(_on_unit_topology_changed)
+
+
+func _on_unit_topology_changed(_arg = null):
+	_blockers_dirty = true
+	_observer_hints.clear()
 
 
 func invalidate():
 	_frame = -1
+	_blockers_dirty = true
 	_observer_hints.clear()
 
 
@@ -43,26 +58,28 @@ func _refresh():
 		_max_sight = maxf(_max_sight, reach)
 		if unit.is_in_group("units"):
 			_max_unit_radius = maxf(_max_unit_radius, unit.radius)
-	_blockers.clear()
-	for obstacle in get_tree().get_nodes_in_group("sight_blockers"):
-		var body = obstacle.get_parent()
-		if body.is_queued_for_deletion():
-			continue
-		var center = body.global_position
-		var entry = {
-			"body": body,
-			"center": center,
-			"radius": obstacle.radius,
-			"height": obstacle.sight_height
-		}
-		var low = _cell(center - Vector3.ONE * obstacle.radius)
-		var high = _cell(center + Vector3.ONE * obstacle.radius)
-		for x in range(low.x, high.x + 1):
-			for y in range(low.y, high.y + 1):
-				var cell = Vector2i(x, y)
-				if not _blockers.has(cell):
-					_blockers[cell] = []
-				_blockers[cell].append(entry)
+	if _blockers_dirty:
+		_blockers_dirty = false
+		_blockers.clear()
+		for obstacle in get_tree().get_nodes_in_group("sight_blockers"):
+			var body = obstacle.get_parent()
+			if not is_instance_valid(body) or body.is_queued_for_deletion():
+				continue
+			var center = body.global_position
+			var entry = {
+				"body": body,
+				"center": center,
+				"radius": obstacle.radius,
+				"height": obstacle.sight_height
+			}
+			var low = _cell(center - Vector3.ONE * obstacle.radius)
+			var high = _cell(center + Vector3.ONE * obstacle.radius)
+			for x in range(low.x, high.x + 1):
+				for y in range(low.y, high.y + 1):
+					var cell = Vector2i(x, y)
+					if not _blockers.has(cell):
+						_blockers[cell] = []
+					_blockers[cell].append(entry)
 
 
 func can_observe(observer, target):
@@ -213,8 +230,34 @@ func target_score(source, target, incoming_damage = 0.0):
 
 func _incoming_damage(source, targets):
 	var incoming = {}
-	# Count actual unresolved projectiles, not allies merely aiming or reloading.
-	# Restrict claims to our own active shooters and currently legal targets.
+	if targets.is_empty():
+		return incoming
+	var target_set = {}
+	for target in targets:
+		target_set[target] = true
+	var projectiles = get_tree().get_nodes_in_group("projectiles")
+	if not projectiles.is_empty():
+		for projectile in projectiles:
+			if (
+				not is_instance_valid(projectile)
+				or projectile.is_queued_for_deletion()
+				or not "_resolved" in projectile
+				or projectile._resolved
+				or not "target_unit" in projectile
+				or not target_set.has(projectile.target_unit)
+			):
+				continue
+			var ally = projectile.get_parent()
+			if (
+				not is_instance_valid(ally)
+				or ally.player != source.player
+				or ally.is_queued_for_deletion()
+				or not ally.can_process()
+			):
+				continue
+			var target = projectile.target_unit
+			incoming[target] = incoming.get(target, 0.0) + Rules.damage(ally, target)
+		return incoming
 	for ally in source.player.get_children():
 		if not ally.is_in_group("units") or ally.is_queued_for_deletion() or not ally.can_process():
 			continue
@@ -224,12 +267,11 @@ func _incoming_damage(source, targets):
 				or not "target_unit" in projectile
 				or not "_resolved" in projectile
 				or projectile._resolved
-				or projectile.target_unit not in targets
+				or not target_set.has(projectile.target_unit)
 			):
 				continue
 			var target = projectile.target_unit
-			if has_line_of_fire(ally, target):
-				incoming[target] = incoming.get(target, 0.0) + Rules.damage(ally, target)
+			incoming[target] = incoming.get(target, 0.0) + Rules.damage(ally, target)
 	return incoming
 
 

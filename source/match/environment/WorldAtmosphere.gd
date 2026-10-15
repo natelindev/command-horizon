@@ -42,7 +42,7 @@ func _ready():
 	sun.directional_shadow_split_1 = .15
 	sun.directional_shadow_split_2 = .35
 	sun.directional_shadow_split_3 = .65
-	sun.directional_shadow_max_distance = 240
+	sun.directional_shadow_max_distance = 120
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	environment.tonemap_exposure = 1.0
