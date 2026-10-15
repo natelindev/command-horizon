@@ -33,6 +33,9 @@ var _heavy = false
 var _suspension_pitch = 0.0
 var _suspension_velocity = 0.0
 var _movement = null
+var _leg_data = []
+var _muzzle_dirty = true
+var _settled = false
 @onready var _geometry = get_parent().get_node("Geometry")
 @onready var _unit = get_parent()
 @onready var _projectile_origin = _unit.find_child("ProjectileOrigin", true, false)
@@ -59,6 +62,11 @@ func _ready():
 	for part in _legs + _rotors + _tools + [_turret, _barrel]:
 		if part != null:
 			_rests[part] = part.rotation
+	for leg in _legs:
+		var sign_value = -1.0 if "Left" in leg.name else 1.0
+		if "Rear" in leg.name:
+			sign_value *= -1.0
+		_leg_data.append({"node": leg, "rest_x": _rests[leg].x, "sign": sign_value})
 	for rotor in _rotors:
 		rotor.rotation.y += motion.phase
 	_previous_position = _unit.global_position
@@ -76,16 +84,20 @@ func _ready():
 		_infantry_motion = load("res://source/match/units/traits/InfantryMotion.gd").new()
 		_infantry_motion.setup(_unit, motion.phase)
 	_unit.action_changed.connect(_on_order)
+	_sync_muzzle()
 
 
 func _on_order(_action):
 	_quiet_time = 0.0
+	_settled = false
 
 
 func fire_recoil():
 	# Remove any idle scan before the weapon samples its actual muzzle transform.
 	_quiet_time = 0.0
 	_idle_blend = 0.0
+	_settled = false
+	_muzzle_dirty = true
 	_geometry.transform = _geometry_rest
 	_aim(1.0)
 	_sync_muzzle()
@@ -100,6 +112,7 @@ func fire_recoil():
 func hit_reaction(source_position = Vector3.INF):
 	_quiet_time = 0.0
 	_hit_kick = 1.0
+	_settled = false
 	var direction = Vector3.RIGHT.rotated(Vector3.UP, motion.phase)
 	if source_position.is_finite():
 		direction = (
@@ -116,25 +129,41 @@ func _physics_process(delta):
 	_damage_elapsed += delta
 	if _damage_elapsed > 0.8:
 		_damage_elapsed = 0.0
-		_unit._match.combat_effects.damage_smoke(_unit)
-	if _wheel_motion != null:
-		_wheel_motion.advance(delta)
+		if _unit.hp != null and _unit.hp_max != null and _unit.hp <= _unit.hp_max * 0.3:
+			_unit._match.combat_effects.damage_smoke(_unit)
 	var distance = _unit.global_position.distance_to(_previous_position)
 	_previous_position = _unit.global_position
 	var moving = distance > 0.002
-	_clock += delta * motion.cadence
-	_phase += distance * 9.0 * motion.cadence
-	_update_idle(delta, moving)
-	_update_parts(delta, moving)
+	if moving:
+		_settled = false
+	if _wheel_motion != null and moving:
+		_wheel_motion.advance(delta)
 	_recoil = maxf(0.0, _recoil - delta / motion.recoil_duration)
 	_hit_kick = maxf(0.0, _hit_kick - delta * 6.0)
 	if absf(_suspension_pitch) > 0.0001 or absf(_suspension_velocity) > 0.0001:
+		_settled = false
 		var spring_force = -32.0 * _suspension_pitch - 8.0 * _suspension_velocity
 		_suspension_velocity += spring_force * delta
 		_suspension_pitch += _suspension_velocity * delta
 	else:
 		_suspension_pitch = 0.0
 		_suspension_velocity = 0.0
+
+	var aiming = is_instance_valid(_unit.aim_target)
+	if aiming:
+		_settled = false
+
+	if not _unit.is_visible_in_tree():
+		return
+
+	if _settled and not moving and not aiming and _rotors.is_empty():
+		return
+
+	_clock += delta * motion.cadence
+	_phase += distance * 9.0 * motion.cadence
+	_update_idle(delta, moving)
+	_update_parts(delta, moving)
+
 	var kick = _recoil * _recoil * motion.recoil_strength
 	if _barrel != null:
 		var model_scale = maxf(0.05, _barrel.global_basis.get_scale().z)
@@ -157,7 +186,7 @@ func _physics_process(delta):
 				_clock,
 				_idle_gesture(),
 				kick,
-				1.0 if is_instance_valid(_unit.aim_target) else 0.0
+				1.0 if aiming else 0.0
 			)
 		else:
 			_update_body(moving)
@@ -168,6 +197,19 @@ func _physics_process(delta):
 			_unit._match.combat_effects.movement_dust(_unit)
 	_aim(delta)
 	_sync_muzzle()
+
+	if (
+		not moving
+		and not aiming
+		and _recoil <= 0.0001
+		and _hit_kick <= 0.0001
+		and _idle_blend <= 0.001
+		and _rotors.is_empty()
+	):
+		_settled = true
+		_geometry.transform = _geometry_rest
+		if _barrel != null:
+			_barrel.position = _barrel_rest
 
 
 func _update_idle(delta, moving):
@@ -195,12 +237,11 @@ func _idle_gesture():
 
 
 func _update_parts(delta, moving):
-	for leg in _legs:
-		var sign_value = -1.0 if "Left" in leg.name else 1.0
-		if "Rear" in leg.name:
-			sign_value *= -1.0
-		var step = sin(_phase) * 0.35 * motion.amplitude * sign_value if moving else 0.0
-		leg.rotation.x = lerp_angle(leg.rotation.x, _rests[leg].x + step, minf(1.0, delta * 18.0))
+	for item in _leg_data:
+		var step = sin(_phase) * 0.35 * motion.amplitude * item.sign if moving else 0.0
+		item.node.rotation.x = lerp_angle(
+			item.node.rotation.x, item.rest_x + step, minf(1.0, delta * 18.0)
+		)
 	for rotor in _rotors:
 		rotor.rotation.y = wrapf(rotor.rotation.y + delta * 25.0 * motion.cadence, -PI, PI)
 	var gesture = _idle_gesture()
@@ -239,6 +280,7 @@ func _update_body(moving):
 
 func _aim(delta):
 	if is_instance_valid(_unit.aim_target) and _turret != null:
+		_muzzle_dirty = true
 		var target_position = _unit.aim_target.global_position + Vector3.UP * 0.45
 		var target_local = _turret.get_parent().to_local(target_position) - _turret.position
 		_turret.rotation.y = lerp_angle(
@@ -252,5 +294,6 @@ func _aim(delta):
 
 
 func _sync_muzzle():
-	if _muzzle != null and _projectile_origin != null:
+	if _muzzle_dirty and _muzzle != null and _projectile_origin != null:
+		_muzzle_dirty = false
 		_projectile_origin.global_transform = _muzzle.global_transform.orthonormalized()

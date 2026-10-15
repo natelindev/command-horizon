@@ -45,6 +45,8 @@ func advance(delta):
 		forward = -new_facing
 	var turn = atan2(old_facing.cross(new_facing).y, old_facing.dot(new_facing))
 	var translation = (current.origin - previous.origin).dot(forward)
+	if absf(translation) < 0.0001 and absf(turn) < 0.0001:
+		return
 	for wheel in wheels:
 		# Signed arc length also handles a pivot turn with no root translation.
 		var travel = translation + turn * wheel.offset.x

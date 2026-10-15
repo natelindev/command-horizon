@@ -211,6 +211,9 @@ func _ground_recovery_direction(path_direction):
 			)
 		)
 	for angle in [PI / 2.0, -PI / 2.0, PI / 4.0, -PI / 4.0, 3 * PI / 4.0, -3 * PI / 4.0, PI]:
+		# Early exit if full 2.0m unobstructed recovery is found.
+		if clearance >= GROUND_RECOVERY_DISTANCE and free_distance >= GROUND_RECOVERY_DISTANCE - 0.01:
+			break
 		# Prefer a side route when terrain permits one. A clear backward ray
 		# can simply return the unit to the same blocked approach afterward.
 		if (
@@ -245,8 +248,13 @@ func _ground_recovery_direction(path_direction):
 
 func _recovery_clearance(direction):
 	var origin = _unit.global_position
+	# Fast check: test full 2.0m clearance first.
+	var candidate_max = origin + direction * GROUND_RECOVERY_DISTANCE
+	var nav_max = NavigationServer3D.map_get_closest_point(get_navigation_map(), candidate_max)
+	if ((nav_max - candidate_max) * Vector3(1, 0, 1)).length_squared() <= 0.0225:
+		return GROUND_RECOVERY_DISTANCE
 	var clearance = 0.0
-	for step in 4:
+	for step in 3:
 		var distance = (step + 1) * 0.5
 		var candidate = origin + direction * distance
 		var navigable = NavigationServer3D.map_get_closest_point(get_navigation_map(), candidate)
