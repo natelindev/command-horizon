@@ -1,6 +1,7 @@
 extends PanelContainer
 
 const Plan = preload("res://source/match/SkirmishPlan.gd")
+const HudLayout = preload("res://source/match/hud/HudLayout.gd")
 # A collapsed plan stays collapsed for later battles in the same session.
 static var _collapsed = false
 var hud
@@ -19,8 +20,8 @@ var _scroll: ScrollContainer
 
 
 func _ready():
-	custom_minimum_size.x = 340
-	size.x = 340
+	custom_minimum_size.x = HudLayout.COLUMN_WIDTH
+	size.x = HudLayout.COLUMN_WIDTH
 	hud._style(self)
 	var box = VBoxContainer.new()
 	box.add_theme_constant_override("separation", 8)
@@ -79,7 +80,7 @@ func _ready():
 func _label(parent, font_size):
 	var label = Label.new()
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.custom_minimum_size.x = 308
+	label.custom_minimum_size.x = HudLayout.COLUMN_WIDTH - 36
 	label.add_theme_font_size_override("font_size", font_size)
 	parent.add_child(label)
 	return label
@@ -87,7 +88,7 @@ func _label(parent, font_size):
 
 func _process(delta):
 	var command = hud.get_child(0)
-	position = Vector2(16, command.position.y + command.size.y + 12)
+	position = Vector2(0, command.position.y + command.size.y + 8)
 	_description.visible = get_viewport_rect().size.y >= 820
 	var minimap = hud.get_parent().get_node_or_null("HUD/MarginContainer/Minimap")
 	var bottom = get_viewport_rect().size.y - 16

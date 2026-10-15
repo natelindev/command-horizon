@@ -45,6 +45,15 @@ var _visual_serial = 0
 func _enter_tree():
 	assert(settings != null, "match cannot start without settings, see examples in tests/manual/")
 	assert(map != null, "match cannot start without map, see examples in tests/manual/")
+	# The battle console wears the human player's faction kit; HUD nodes read it as they
+	# become ready, which happens after this.
+	var sides = settings.players.filter(
+		func(side): return side.controller == Constants.PlayerType.HUMAN
+	)
+	if sides.is_empty():
+		sides = settings.players
+	if not sides.is_empty():
+		preload("res://source/match/hud/BattleTheme.gd").use_faction(sides[0].faction)
 
 
 func _ready():

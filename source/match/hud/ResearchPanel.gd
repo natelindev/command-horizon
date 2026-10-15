@@ -24,7 +24,7 @@ func _ready():
 	if player == null and is_instance_valid(lab):
 		player = lab.player
 	add_theme_constant_override("separation", 8)
-	custom_minimum_size.x = 440
+	size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var overview = HBoxContainer.new()
 	overview.add_theme_constant_override("separation", 12)
 	add_child(overview)
@@ -61,7 +61,7 @@ func _ready():
 	heading.text = "UNIT UPGRADES"
 	for branch in Technologies.BRANCHES:
 		var plate = PanelContainer.new()
-		plate.add_theme_stylebox_override("panel", BattleTheme.surface(Color("19272e"), 12, 12))
+		plate.add_theme_stylebox_override("panel", BattleTheme.card(12, 12))
 		add_child(plate)
 		var content = HBoxContainer.new()
 		content.add_theme_constant_override("separation", 12)

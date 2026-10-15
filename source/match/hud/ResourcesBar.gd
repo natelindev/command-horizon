@@ -1,12 +1,18 @@
 extends PanelContainer
 
+## Top-left console plate: resource readouts in recessed screens, assigned
+## engineers, unit count and a segmented power gauge.
+
 const BattleTheme = preload("res://source/match/hud/BattleTheme.gd")
+const HudLayout = preload("res://source/match/hud/HudLayout.gd")
 
 const MATERIALS_ICON = preload("res://assets/ui/economy/materials.svg")
 const ELECTRONICS_ICON = preload("res://assets/ui/economy/electronics.svg")
 const UNITS_ICON = preload("res://assets/ui/economy/units.svg")
 const POWER_ICON = preload("res://assets/ui/economy/power.svg")
 const Assignments = preload("res://source/match/EconomyAssignments.gd")
+const MATERIALS_TINT = Color("e3c48a")
+const ELECTRONICS_TINT = Color("8fd3c6")
 
 var player = null
 var _materials: Label
@@ -15,95 +21,109 @@ var _population: Label
 var _power_title: Label
 var _power_status: Label
 var _power_meter: ProgressBar
-var _power_fill: StyleBoxFlat
+var _power_fill: StyleBox
 var _power_icon: TextureRect
 var _elapsed = 0.0
 var _assignment_buttons = {}
+var _counters = {}
 
 
 func _ready():
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	BattleTheme.apply(self, 18, 8)
+	theme = BattleTheme.create()
+	var plate = BattleTheme.strip(18, 0)
+	# Hang below the top rail; the plate's own bevel carries the bottom edge.
+	plate.content_margin_top = HudLayout.TOP_RAIL + 2
+	plate.content_margin_bottom = 6
+	plate.content_margin_right = 22
+	add_theme_stylebox_override("panel", plate)
+	custom_minimum_size.y = HudLayout.TOP_PLATE
 	var row = HBoxContainer.new()
-	row.add_theme_constant_override("separation", 20)
+	row.add_theme_constant_override("separation", 10)
 	add_child(row)
 	_materials = _stat(
 		row,
-		"MATERIALS",
-		120,
+		"Materials",
 		MATERIALS_ICON,
+		MATERIALS_TINT,
 		"Recover industrial stock and armor salvage with workers. Used for construction and units."
 	)
 	_electronics = _stat(
 		row,
-		"ELECTRONICS",
-		125,
+		"Electronics",
 		ELECTRONICS_ICON,
+		ELECTRONICS_TINT,
 		"Recover circuitry with workers. Used for advanced units, chips and research."
 	)
 	_add_assignments(_materials, 1)
 	_add_assignments(_electronics, 2)
 	_population = _stat(
 		row,
-		"UNITS",
-		100,
+		"Units",
 		UNITS_ICON,
+		BattleTheme.IVORY,
 		"Active units / unit limit. Units in production also reserve capacity."
 	)
+	_population.custom_minimum_size.x = 70
 	row.add_child(VSeparator.new())
-	_power_icon = _icon(row, POWER_ICON)
+	_power_icon = _icon_socket(row, POWER_ICON, BattleTheme.SIGNAL_OK)
 	var power = VBoxContainer.new()
-	power.custom_minimum_size.x = 270
-	power.add_theme_constant_override("separation", 1)
+	power.custom_minimum_size.x = 168
+	power.alignment = BoxContainer.ALIGNMENT_CENTER
+	power.add_theme_constant_override("separation", 2)
 	row.add_child(power)
 	_power_title = Label.new()
+	_power_title.theme_type_variation = "HudCaption"
+	_power_title.uppercase = true
 	_power_title.add_theme_font_size_override("font_size", 12)
+	_power_title.add_theme_color_override("font_color", Color("c9c4b6"))
 	power.add_child(_power_title)
 	_power_meter = ProgressBar.new()
-	_power_meter.custom_minimum_size.y = 5
+	_power_meter.custom_minimum_size.y = 11
 	_power_meter.show_percentage = false
-	var background = StyleBoxFlat.new()
-	background.bg_color = Color("0d141c")
-	background.set_corner_radius_all(2)
-	_power_fill = StyleBoxFlat.new()
-	_power_fill.set_corner_radius_all(2)
-	_power_meter.add_theme_stylebox_override("background", background)
+	_power_fill = BattleTheme.bar_fill(BattleTheme.SIGNAL_OK)
 	_power_meter.add_theme_stylebox_override("fill", _power_fill)
 	power.add_child(_power_meter)
 	_power_status = Label.new()
+	_power_status.theme_type_variation = "HudCaption"
 	_power_status.add_theme_font_size_override("font_size", 12)
 	power.add_child(_power_status)
 
 
-func _icon(row, texture):
+func _icon_socket(row, texture, tint):
+	var socket = PanelContainer.new()
+	socket.add_theme_stylebox_override("panel", BattleTheme.socket(5, 5))
+	socket.custom_minimum_size = Vector2(32, 32)
+	socket.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	socket.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(socket)
 	var icon = TextureRect.new()
 	icon.texture = texture
-	icon.custom_minimum_size = Vector2(24, 24)
+	icon.modulate = tint
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_child(icon)
+	socket.add_child(icon)
 	return icon
 
 
-func _stat(row, title, width, texture, description):
+func _stat(row, title, texture, tint, description):
+	# Icon socket + large tabular numeral; the name lives in the tooltip.
 	var group = HBoxContainer.new()
-	group.custom_minimum_size.x = width
-	group.add_theme_constant_override("separation", 8)
+	group.name = title + "Readout"
+	group.add_theme_constant_override("separation", 7)
 	group.tooltip_text = description
+	group.accessibility_name = title
 	row.add_child(group)
-	_icon(group, texture)
-	var column = VBoxContainer.new()
-	column.add_theme_constant_override("separation", 0)
+	_icon_socket(group, texture, tint)
+	var column = HBoxContainer.new()
+	column.add_theme_constant_override("separation", 6)
 	group.add_child(column)
-	var heading = Label.new()
-	heading.text = title
-	heading.add_theme_font_size_override("font_size", 11)
-	heading.add_theme_color_override("font_color", Color("a9b4b3"))
-	column.add_child(heading)
 	var amount = Label.new()
-	amount.add_theme_font_size_override("font_size", 20)
+	amount.theme_type_variation = "HudNumeral"
+	amount.custom_minimum_size.x = 40
+	amount.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	amount.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	column.add_child(amount)
 	return amount
 
@@ -117,19 +137,17 @@ func setup(a_player):
 
 
 func _add_assignments(amount, kind):
-	var column = amount.get_parent()
-	column.remove_child(amount)
-	var row = HBoxContainer.new()
-	row.add_theme_constant_override("separation", 6)
-	column.add_child(row)
-	row.add_child(amount)
 	var button = Button.new()
 	button.name = "SelectMaterialEngineers" if kind == 1 else "SelectElectronicsEngineers"
-	button.flat = true
+	button.theme_type_variation = "BattleQuietButton"
 	button.add_theme_font_size_override("font_size", 11)
+	button.add_theme_stylebox_override("normal", BattleTheme.surface(Color.TRANSPARENT, 4, 2))
+	button.add_theme_stylebox_override("hover", BattleTheme.glow(.55, 4, 2))
+	button.add_theme_stylebox_override("pressed", BattleTheme.socket(4, 2))
+	button.add_theme_stylebox_override("disabled", BattleTheme.surface(Color.TRANSPARENT, 4, 2))
 	button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	button.pressed.connect(_select_assignments.bind(kind))
-	row.add_child(button)
+	amount.get_parent().add_child(button)
 	_assignment_buttons[kind] = button
 
 
@@ -183,33 +201,55 @@ func _process(delta):
 		_refresh()
 
 
+func _count(label: Label, value: int):
+	# Readouts roll to new totals and glint on income, like a mechanical counter.
+	var previous = _counters.get(label, null)
+	_counters[label] = value
+	if previous == null or not is_inside_tree():
+		label.text = str(value)
+		return
+	if previous == value:
+		return
+	if label.has_meta("counter"):
+		var running = label.get_meta("counter")
+		if running.is_valid():
+			running.kill()
+	var tween = create_tween().set_parallel(true)
+	label.set_meta("counter", tween)
+	tween.tween_method(
+		func(shown): label.text = str(int(round(shown))), float(previous), float(value), .35
+	)
+	if value > previous:
+		label.modulate = Color(1.35, 1.25, 1.0)
+		tween.tween_property(label, "modulate", Color.WHITE, .5)
+
+
 func _refresh():
 	if not is_instance_valid(player) or _power_meter == null:
 		return
 	var mission = player.find_parent("Match")
 	if mission != null and mission.settings.mission_id == "supply_line":
-		var row = _power_icon.get_parent()
+		var row = _power_icon.get_parent().get_parent()
 		var population_group = _population.get_parent().get_parent()
 		for item in row.get_children():
 			item.visible = item == population_group
-		_population.get_parent().get_child(0).text = "FIELD FORCE"
 		_population.text = str(player.population())
 		population_group.tooltip_text = "Surviving escorts and trucks; no base economy."
 		size.x = 0
 		return
-	_materials.text = str(player.resource_a)
-	_electronics.text = str(player.resource_b)
+	_count(_materials, player.resource_a)
+	_count(_electronics, player.resource_b)
 	_refresh_assignments()
 	_population.text = "%d / 100" % player.population()
 	var power = player.power_totals()
 	var spare = power.x - power.y
 	var low = spare < 0
 	var near_capacity = not low and spare <= power.x * 0.1
-	var color = Color("79d3c5")
+	var color = BattleTheme.SIGNAL_OK
 	if low:
-		color = Color("ffad75")
+		color = BattleTheme.SIGNAL_BAD
 	elif near_capacity:
-		color = Color("e7c578")
+		color = BattleTheme.SIGNAL_WARN
 	_power_icon.modulate = color
 	_power_title.text = "POWER   %d used / %d supply" % [power.y, power.x]
 	_power_meter.max_value = maxi(1, power.x)
@@ -217,7 +257,8 @@ func _refresh():
 	# A deficit with no generators still needs a visible warning meter.
 	if low and power.x == 0:
 		_power_meter.value = 1
-	_power_fill.bg_color = color
+	_power_fill.modulate = color
+	_power_meter.queue_redraw()
 	_power_status.add_theme_color_override("font_color", color)
 	if low:
 		_power_status.text = "LOW POWER · %d deficit · 35%% speed" % -spare

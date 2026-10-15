@@ -109,8 +109,8 @@ func _process(delta):
 			not camera.is_position_behind(point)
 			and get_viewport().get_visible_rect().encloses(_relay_marker.get_rect())
 		)
-	var top = _command_panel.position.y + _command_panel.size.y + 10
-	lesson_panel.position = Vector2(14, top)
+	var top = _command_panel.position.y + _command_panel.size.y + 8
+	lesson_panel.position = Vector2(0, top)
 	lesson_panel.size = Vector2(
 		325, maxf(220, get_viewport().get_visible_rect().size.y - 230 - top)
 	)

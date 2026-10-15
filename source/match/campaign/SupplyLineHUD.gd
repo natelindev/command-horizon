@@ -74,7 +74,7 @@ func _process(delta):
 			)
 		]
 	)
-	objective_panel.position = Vector2(14, _command_panel.position.y + _command_panel.size.y + 10)
+	objective_panel.position = Vector2(0, _command_panel.position.y + _command_panel.size.y + 8)
 	for index in mission.convoy.size():
 		var entry = mission.convoy[index]
 		var state = "Extracted" if entry.delivered else "Lost"

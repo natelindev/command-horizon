@@ -315,7 +315,7 @@ func _build_ui():
 func _panel(parent):
 	var panel = PanelContainer.new()
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var style = preload("res://source/match/hud/BattleTheme.gd").panel(20, 18)
+	var style = ArtTheme.section(20, 18)
 	panel.add_theme_stylebox_override("panel", style)
 	parent.add_child(panel)
 	var box = VBoxContainer.new()

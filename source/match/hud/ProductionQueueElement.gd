@@ -29,8 +29,34 @@ func _ready():
 		+ "\n"
 		+ tr("Producer: %s") % tr(factions.title(faction, queue.get_parent().type))
 	)
-	find_child("Label").text = "{0}%".format([int(queue_element.progress() * 100.0)])
+	var kit = load("res://source/match/hud/BattleTheme.gd")
+	var label = find_child("Label")
+	label.add_theme_font_override("font", kit.numeral_font())
+	label.add_theme_font_size_override("font_size", 12)
+	label.add_theme_constant_override("outline_size", 4)
+	label.add_theme_color_override("font_outline_color", Color("050607"))
+	label.offset_right = -5
+	label.offset_bottom = -6
+	# A segmented progress strip along the key's lip.
+	var bar = ProgressBar.new()
+	bar.name = "Progress"
+	bar.show_percentage = false
+	bar.max_value = 1.0
+	bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	bar.add_theme_stylebox_override("background", StyleBoxEmpty.new())
+	bar.add_theme_stylebox_override("fill", kit.bar_fill(kit.accent()))
+	bar.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
+	bar.offset_left = 5
+	bar.offset_right = -5
+	bar.offset_top = -9
+	bar.offset_bottom = -4
+	add_child(bar)
+	_on_queue_element_changed()
 
 
 func _on_queue_element_changed():
-	find_child("Label").text = "{0}%".format([int(queue_element.progress() * 100.0)])
+	var progress = queue_element.progress()
+	find_child("Label").text = "{0}%".format([int(progress * 100.0)])
+	var bar = get_node_or_null("Progress")
+	if bar != null:
+		bar.value = progress

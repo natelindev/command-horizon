@@ -66,7 +66,7 @@ func _label(parent, text, size):
 func _process(delta):
 	super(delta)
 	var mission = get_parent()
-	objective_panel.position = Vector2(14, _command_panel.position.y + _command_panel.size.y + 10)
+	objective_panel.position = Vector2(0, _command_panel.position.y + _command_panel.size.y + 8)
 	for index in mission.nodes.size():
 		var entry = mission.nodes[index]
 		var status = "Disabled"

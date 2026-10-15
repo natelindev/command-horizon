@@ -35,11 +35,11 @@ func _test_command_card_grid():
 
 	card.update_layout([dummy_combat_unit], null)
 	var stop_btn = card._slots[0][1]
-	_check(stop_btn.text.begins_with("[W]"), "Stop button missing [W] hotkey badge")
+	_check(stop_btn.badge == "W", "Stop button missing W hotkey badge")
 	_check(not stop_btn.disabled, "Stop button disabled for combat unit")
 
 	var atk_move_btn = card._slots[1][0]
-	_check(atk_move_btn.text.begins_with("[A]"), "Attack move button missing [A] hotkey badge")
+	_check(atk_move_btn.badge == "A", "Attack move button missing A hotkey badge")
 
 	dummy_combat_unit.queue_free()
 	card.queue_free()

@@ -1,14 +1,20 @@
-extends MarginContainer
+extends PanelContainer
 
 const ProductionQueueElement = preload("res://source/match/hud/ProductionQueueElement.tscn")
 
 var _production_queues = []
+var _tray: StyleBox
 
 @onready var _queue_elements = find_child("QueueElements")
 
 
 func _ready():
-	theme = preload("res://source/match/hud/BattleTheme.gd").create()
+	var Kit = preload("res://source/match/hud/BattleTheme.gd")
+	theme = Kit.create()
+	# The rack hugs its jobs at the right end of the deck instead of spanning it.
+	size_flags_horizontal = Control.SIZE_SHRINK_END
+	# A queue rack sitting on top of the command deck; it only shows while it holds jobs.
+	_tray = Kit.strip(14, 7)
 	_fit_queue()
 	get_viewport().size_changed.connect(_fit_queue)
 	_reset()
@@ -25,6 +31,7 @@ func _reset():
 	visible = _is_observing_production_queue()
 	_remove_queue_element_nodes()
 	_try_rendering_queue()
+	_sync_tray.call_deferred()
 
 
 func _remove_queue_element_nodes():
@@ -73,6 +80,7 @@ func _add_queue_element_node(element, queue):
 	node.queue_element = element
 	_queue_elements.add_child(node)
 	_queue_elements.move_child(node, 0)
+	_sync_tray.call_deferred()
 
 
 func _on_production_queue_element_enqueued(element, queue):
@@ -86,7 +94,24 @@ func _on_production_queue_element_removed(element):
 		. filter(func(queue_element_node): return queue_element_node.queue_element == element)
 		. map(func(queue_element_node): queue_element_node.queue_free())
 	)
+	_sync_tray.call_deferred()
+
+
+func _sync_tray():
+	if not is_inside_tree():
+		return
+	var jobs = _queue_elements.get_children().filter(
+		func(node): return not node.is_queued_for_deletion()
+	)
+	if jobs.is_empty():
+		add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+	else:
+		add_theme_stylebox_override("panel", _tray)
+	_fit_queue()
 
 
 func _fit_queue():
-	find_child("QueueScroll").custom_minimum_size.x = minf(480, get_viewport_rect().size.x * .45)
+	# Hug the queued jobs, scrolling once they outgrow the rack.
+	var limit = minf(480, get_viewport_rect().size.x * .45)
+	var jobs = _queue_elements.get_combined_minimum_size().x if _queue_elements != null else limit
+	find_child("QueueScroll").custom_minimum_size.x = minf(limit, jobs)

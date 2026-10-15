@@ -1,5 +1,7 @@
 extends CanvasLayer
 
+const HudLayout = preload("res://source/match/hud/HudLayout.gd")
+
 var voice
 var _card
 var _line = {}
@@ -51,8 +53,10 @@ func _fit_card():
 func _position_card():
 	var viewport = get_viewport().get_visible_rect().size
 	var space = _horizontal_space()
+	# Captions ride on the bottom rail between the minimap housing and the deck.
 	_card.position = Vector2(
-		space.x + (space.y - space.x - _card.size.x) / 2, viewport.y - _card.size.y - 20
+		space.x + (space.y - space.x - _card.size.x) / 2,
+		viewport.y - HudLayout.BOTTOM_RAIL - 8 - _card.size.y
 	)
 
 

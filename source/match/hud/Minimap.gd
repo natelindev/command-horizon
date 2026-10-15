@@ -5,6 +5,8 @@ const Unit = preload("res://source/match/units/Unit.gd")
 const Moving = preload("res://source/match/units/actions/Moving.gd")
 const AtmosphereProfiles = preload("res://source/match/environment/AtmosphereProfiles.gd")
 const MinimapTerrain = preload("res://source/match/hud/MinimapTerrain.gd")
+const HudLayout = preload("res://source/match/hud/HudLayout.gd")
+const BattleTheme = preload("res://source/match/hud/BattleTheme.gd")
 # Shown until (or instead of, when rendering is unavailable) the terrain capture.
 const BIOME_GROUND = {
 	"desert": Color("6d604c"),
@@ -28,13 +30,35 @@ var _marker_elapsed = .05
 
 
 func _ready():
-	preload("res://source/match/hud/BattleTheme.gd").apply(self, 8, 8)
+	BattleTheme.apply_housing(self, 20, 20)
 	if not FeatureFlags.show_minimap:
 		queue_free()
+	# A recessed screen behind the map and a bezel over its edges.
+	var backing = Panel.new()
+	backing.name = "Screen"
+	backing.add_theme_stylebox_override("panel", BattleTheme.socket())
+	backing.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_texture_rect.add_sibling(backing)
+	_texture_rect.get_parent().move_child(backing, 0)
+	var bezel = Panel.new()
+	bezel.name = "Bezel"
+	bezel.add_theme_stylebox_override("panel", BattleTheme.socket_frame())
+	bezel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_texture_rect.add_sibling(bezel)
 	_remove_dummy_nodes()
 	await _match.ready  # make sure Match is ready as it may change map on setup
-	find_child("MinimapViewport").size = (
-		_match.find_child("Map").size * MINIMAP_PIXELS_PER_WORLD_METER
+	var map_size = _match.find_child("Map").size
+	find_child("MinimapViewport").size = map_size * MINIMAP_PIXELS_PER_WORLD_METER
+	# A fixed-height screen in the console housing; wide maps letterbox inside it.
+	var screen = HudLayout.MINIMAP_SCREEN
+	_texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_texture_rect.custom_minimum_size = Vector2(
+		clampf(
+			screen * map_size.x / maxf(1.0, map_size.y),
+			screen,
+			screen * HudLayout.MINIMAP_ASPECT_LIMIT
+		),
+		screen
 	)
 	_texture_rect.gui_input.connect(_on_gui_input)
 	_texture_rect.tooltip_text = Ownership.legend(_match)
@@ -50,7 +74,7 @@ func _ready():
 		_viewport_background.add_child(features)
 	terrain.capture(_match.map, MINIMAP_PIXELS_PER_WORLD_METER)
 	if _camera_indicator != null:
-		_camera_indicator.default_color = Color("f0b429")
+		_camera_indicator.default_color = BattleTheme.accent()
 		_camera_indicator.width = 2.0
 	MatchSignals.tactical_ping.connect(_on_tactical_ping)
 
@@ -210,7 +234,7 @@ func _on_gui_input(event):
 func _on_tactical_ping(world_position: Vector3):
 	var ping_node = Line2D.new()
 	ping_node.width = 2.0
-	ping_node.default_color = Color("f0b429")
+	ping_node.default_color = BattleTheme.accent()
 	var pts = PackedVector2Array()
 	var segs = 16
 	for i in range(segs + 1):

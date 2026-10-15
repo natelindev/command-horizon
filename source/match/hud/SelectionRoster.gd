@@ -5,6 +5,7 @@ signal subset_requested(members, remove)
 const Catalog = preload("res://source/match/BastionCatalog.gd")
 const Factions = preload("res://source/match/FactionCatalog.gd")
 const Bindings = preload("res://source/input/KeyBindings.gd")
+const BattleTheme = preload("res://source/match/hud/BattleTheme.gd")
 const PAGE_SIZE = 8
 
 var selection = []
@@ -52,7 +53,7 @@ func _build():
 		var title = Factions.title(members[0].player.faction, role)
 		var button = _button()
 		button.name = "Select" + role
-		button.custom_minimum_size = Vector2(150, 28)
+		button.custom_minimum_size = Vector2(112, 30)
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		button.pressed.connect(_request.bind(members))
 		types.add_child(button)
@@ -124,7 +125,7 @@ func _rebuild_tiles():
 		if not _eligible(unit):
 			continue
 		var button = _button()
-		button.custom_minimum_size = Vector2(52, 56)
+		button.custom_minimum_size = Vector2(42, 56)
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		button.add_theme_font_size_override("font_size", 12)
 		button.pressed.connect(_request.bind([unit]))
@@ -160,16 +161,16 @@ func _rebuild_tiles():
 			box.add_child(mission)
 			box.move_child(mission, 0)
 		var health = ProgressBar.new()
-		health.custom_minimum_size.y = 4
+		health.custom_minimum_size.y = 6
 		health.show_percentage = false
 		health.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		for style in ["background", "fill"]:
-			var fill = StyleBoxFlat.new()
-			fill.bg_color = Color("73c6ae") if style == "fill" else Color("333e49")
-			fill.set_corner_radius_all(2)
-			health.add_theme_stylebox_override(style, fill)
+		var fill = BattleTheme.bar_fill(BattleTheme.HEALTH_OK)
+		health.add_theme_stylebox_override("background", BattleTheme.bar_track())
+		health.add_theme_stylebox_override("fill", fill)
 		box.add_child(health)
-		_tiles.append({"unit": unit, "button": button, "label": label, "health": health})
+		_tiles.append(
+			{"unit": unit, "button": button, "label": label, "health": health, "fill": fill}
+		)
 	_previous.disabled = _page == 0
 	_next.disabled = (_page + 1) * PAGE_SIZE >= _members.size()
 	_range.text = (
@@ -199,6 +200,12 @@ func refresh():
 			continue
 		var percent = clampf(100.0 * unit.hp / unit.hp_max, 0, 100)
 		entry.health.value = percent
+		entry.fill.modulate = (
+			BattleTheme.HEALTH_OK
+			if percent > 60
+			else (BattleTheme.SIGNAL_WARN if percent > 30 else BattleTheme.SIGNAL_BAD)
+		)
+		entry.health.queue_redraw()
 		entry.label.text = "%d%%" % ceili(percent)
 		var title = (
 			"%s · %d / %d HP"

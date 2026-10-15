@@ -1,6 +1,7 @@
 extends CanvasLayer
 
 const BattleTheme = preload("res://source/match/hud/BattleTheme.gd")
+const ArtTheme = preload("res://source/main-menu/ArtTheme.gd")
 
 const Bindings = preload("res://source/input/KeyBindings.gd")
 
@@ -31,7 +32,12 @@ func _ready():
 	add_child(center)
 	var panel = PanelContainer.new()
 	panel.custom_minimum_size = Vector2(850, 620)
-	BattleTheme.apply(panel, 22, 22)
+	if manager.active_game() != null:
+		BattleTheme.apply(panel, 22, 22)
+	else:
+		# Opened from the front end: match the menus rather than the battle console.
+		panel.theme = ArtTheme.create()
+		panel.add_theme_stylebox_override("panel", ArtTheme.section(22, 22))
 	center.add_child(panel)
 	var column = VBoxContainer.new()
 	column.add_theme_constant_override("separation", 12)

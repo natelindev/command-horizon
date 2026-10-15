@@ -14,7 +14,7 @@ func _ready():
 	add_theme_constant_override("separation", 3)
 	_status = Label.new()
 	_status.add_theme_font_size_override("font_size", 12)
-	_status.custom_minimum_size.x = 470
+	_status.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_status.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	add_child(_status)
 	var row = HBoxContainer.new()

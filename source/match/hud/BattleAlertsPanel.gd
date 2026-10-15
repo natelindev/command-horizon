@@ -1,6 +1,8 @@
 extends CanvasLayer
 
 const Bindings = preload("res://source/input/KeyBindings.gd")
+const BattleTheme = preload("res://source/match/hud/BattleTheme.gd")
+const HudLayout = preload("res://source/match/hud/HudLayout.gd")
 var hud
 var model
 var toggle
@@ -13,6 +15,7 @@ var _close
 var _dirty = true
 var _elapsed = 0.0
 var _open_order = []
+var _pulse: Tween
 
 
 func _ready():
@@ -22,16 +25,20 @@ func _ready():
 	model.changed.connect(func(): _dirty = true)
 	Globals.options.changed.connect(func(): _dirty = true)
 	toggle = Button.new()
-	toggle.theme = preload("res://source/match/hud/BattleTheme.gd").create()
-	# A filled control: it floats over the battlefield with no panel behind it.
-	toggle.custom_minimum_size = Vector2(170, 40)
+	toggle.name = "AlertsBeacon"
+	toggle.theme = BattleTheme.create()
+	# A keycap docked in the system plate; it lights up amber while events need attention.
+	toggle.custom_minimum_size = Vector2(164, 38)
+	toggle.icon = BattleTheme.icon("alerts")
+	toggle.expand_icon = true
+	toggle.add_theme_constant_override("icon_max_width", 18)
+	toggle.add_theme_font_size_override("font_size", 14)
+	toggle.clip_text = true
 	toggle.tooltip_text = "Battle alerts · inspect events and affected units without changing orders."
 	toggle.pressed.connect(_toggle)
 	add_child(toggle)
 	panel = PanelContainer.new()
 	hud._style(panel)
-	# History floats over the unit panel; keep underlying text from bleeding through.
-	panel.get_theme_stylebox("panel").bg_color = Color("10191f")
 	add_child(panel)
 	var box = VBoxContainer.new()
 	box.add_theme_constant_override("separation", 10)
@@ -40,8 +47,8 @@ func _ready():
 	box.add_child(heading)
 	var title = Label.new()
 	title.text = "BATTLE ALERTS"
+	title.theme_type_variation = "HudHeading"
 	title.add_theme_font_size_override("font_size", 20)
-	title.add_theme_color_override("font_color", Color("d8bc80"))
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	heading.add_child(title)
 	_close = hud._button(heading, "Close", close)
@@ -97,8 +104,13 @@ func _available():
 
 func _layout():
 	var viewport = get_viewport().get_visible_rect().size
-	toggle.position = Vector2(viewport.x - 184, 12)
-	panel.position = Vector2(viewport.x - 404, 62)
+	var slot = hud.get("alert_slot")
+	if is_instance_valid(slot) and slot.is_visible_in_tree():
+		toggle.position = slot.get_global_rect().position
+		toggle.size = slot.size
+	else:
+		toggle.position = Vector2(viewport.x - toggle.size.x - 12, HudLayout.TOP_RAIL + 6)
+	panel.position = Vector2(viewport.x - 404, HudLayout.TOP_PLATE + 4)
 	panel.size = Vector2(390, minf(480, viewport.y - 170))
 
 
@@ -145,6 +157,7 @@ func _refresh():
 		"%d new · %d active alerts. Open history to inspect locations and units. Orders stay unchanged."
 		% [unread, active]
 	)
+	_beacon(unread > 0 or toggle.text.ends_with("under attack"))
 	toggle.accessibility_description = toggle.text + ". " + toggle.tooltip_text
 	var ordered = model.entries.duplicate()
 	ordered.sort_custom(_before)
@@ -186,6 +199,23 @@ func _refresh():
 		model.mark_read()
 
 
+func _beacon(lit):
+	# Lit while events need attention: an amber key that breathes, never a coloured border.
+	var variation = "BattlePrimaryButton" if lit else ""
+	if toggle.theme_type_variation == variation:
+		return
+	toggle.theme_type_variation = variation
+	if _pulse != null and _pulse.is_valid():
+		_pulse.kill()
+	toggle.modulate = Color.WHITE
+	if lit:
+		_pulse = toggle.create_tween().set_loops()
+		_pulse.tween_property(toggle, "modulate", Color(1.18, 1.1, .92), .7).set_trans(
+			Tween.TRANS_SINE
+		)
+		_pulse.tween_property(toggle, "modulate", Color.WHITE, .7).set_trans(Tween.TRANS_SINE)
+
+
 func _before(a, b):
 	# Keep targets still under the pointer while the history is open.
 	if panel.visible and not _open_order.is_empty():
@@ -220,8 +250,8 @@ func _row(id):
 	var card = PanelContainer.new()
 	var style = StyleBoxFlat.new()
 	style.bg_color = Color.TRANSPARENT
-	style.border_width_bottom = 1
-	style.border_color = Color("c4a56a40")
+	style.border_width_bottom = 2
+	style.border_color = Color("00000070")
 	style.content_margin_left = 2
 	style.content_margin_right = 2
 	style.content_margin_top = 8

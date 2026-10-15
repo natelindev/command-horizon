@@ -1,6 +1,7 @@
 extends GridContainer
 
 const BattleTheme = preload("res://source/match/hud/BattleTheme.gd")
+const HudKey = preload("res://source/match/hud/HudKey.gd")
 const Orders = preload("res://source/match/orders/ManualOrders.gd")
 const WaitingForTargets = preload("res://source/match/units/actions/WaitingForTargets.gd")
 
@@ -8,6 +9,15 @@ const GRID_HOTKEYS = [
 	[KEY_Q, KEY_W, KEY_E, KEY_R], [KEY_A, KEY_S, KEY_D, KEY_F], [KEY_Z, KEY_X, KEY_C, KEY_V]
 ]
 const GRID_LABELS = [["Q", "W", "E", "R"], ["A", "S", "D", "F"], ["Z", "X", "C", "V"]]
+const GLYPHS = {
+	"Move": "move",
+	"Stop": "stop",
+	"Hold": "hold",
+	"Return": "return",
+	"Atk Move": "attack_move",
+	"Target": "attack",
+	"Reverse": "reverse",
+}
 
 var _slots = []
 var _selection = []
@@ -22,12 +32,10 @@ func _ready():
 	for r in range(3):
 		var row_slots = []
 		for c in range(4):
-			var btn = Button.new()
+			var btn = HudKey.new()
 			btn.name = "Slot_%s" % GRID_LABELS[r][c]
-			btn.custom_minimum_size = Vector2(58, 48)
-			btn.theme_type_variation = "BattleQuietButton"
-			btn.add_theme_font_size_override("font_size", 11)
-			btn.clip_text = true
+			btn.custom_minimum_size = Vector2(62, 48)
+			btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			add_child(btn)
 			row_slots.append(btn)
 		_slots.append(row_slots)
@@ -120,7 +128,10 @@ func _clear_slots():
 	for r in range(3):
 		for c in range(4):
 			var btn = _slots[r][c]
-			btn.text = "[%s]" % GRID_LABELS[r][c]
+			btn.badge = GRID_LABELS[r][c]
+			btn.caption = ""
+			btn.glyph = null
+			btn.tooltip_text = ""
 			btn.disabled = true
 			btn.visible = false
 			for conn in btn.pressed.get_connections():
@@ -129,7 +140,11 @@ func _clear_slots():
 
 func _setup_slot(r: int, c: int, label: String, key: String, callable: Callable, enabled: bool):
 	var btn = _slots[r][c]
-	btn.text = "[%s]\n%s" % [key, tr(label)]
+	btn.badge = key
+	btn.caption = label
+	btn.glyph = BattleTheme.icon(GLYPHS.get(label, "stance"))
+	btn.tooltip_text = "%s [%s]" % [label, key]
+	btn.accessibility_name = btn.tooltip_text
 	btn.disabled = not enabled
 	btn.pressed.connect(callable)
 	for slot in _slots[r]:
@@ -179,7 +194,8 @@ func _on_cycle_stance():
 		if unit.is_in_group("controlled_units") and unit.has_method("cycle_stance"):
 			unit.cycle_stance()
 			new_stance_name = unit.stance_name()
-	_slots[1][1].text = "[S]\n%s" % tr(new_stance_name)
+	_slots[1][1].caption = new_stance_name
+	_slots[1][1].tooltip_text = "%s [S]" % new_stance_name
 
 
 func _on_attack_target():

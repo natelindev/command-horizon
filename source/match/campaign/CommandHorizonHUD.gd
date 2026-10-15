@@ -64,11 +64,11 @@ func _label(parent, text, size):
 func _process(delta):
 	super(delta)
 	var mission = get_parent()
-	objective_panel.position = Vector2(14, _command_panel.position.y + _command_panel.size.y + 10)
+	objective_panel.position = Vector2(0, _command_panel.position.y + _command_panel.size.y + 8)
 	var minimap = mission.find_child("Minimap").get_global_rect()
 	if objective_panel.get_global_rect().intersects(minimap):
 		objective_panel.position = Vector2(
-			_command_panel.position.x + _command_panel.size.x + 10, _command_panel.position.y
+			_command_panel.position.x + _command_panel.size.x + 8, _command_panel.position.y
 		)
 	_zone.text = mission.deployment_status()
 	_zone.tooltip_text = mission.deployment_help()

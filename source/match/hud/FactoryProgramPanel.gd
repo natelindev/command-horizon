@@ -25,7 +25,7 @@ func _ready():
 	row.add_child(reload_button)
 	_summary = Label.new()
 	_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_summary.custom_minimum_size.x = 470
+	_summary.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_summary.add_theme_font_size_override("font_size", 12)
 	add_child(_summary)
 	reload_library()

@@ -3,6 +3,8 @@ extends "res://source/match/hud/BastionDemoHUD.gd"
 
 const Factions = preload("res://source/match/FactionCatalog.gd")
 const Repairs = preload("res://source/match/combat/RepairService.gd")
+const HudLayout = preload("res://source/match/hud/HudLayout.gd")
+const HudKey = preload("res://source/match/hud/HudKey.gd")
 var program_editor = null
 var lua_draft = {}
 var visual_draft = {}
@@ -11,10 +13,14 @@ var alert_panel = null
 var direct_orders
 var technology_panel = null
 var research_status
+## Top-right console plate: mission clock, system keys and the alerts beacon slot.
+var system_plate: PanelContainer
+var alert_slot: Control
 var _technology_scroll = null
 var _technology_button
 var _objective = null
 var _clock = null
+var _clock_state = null
 var _overlay = null
 var _attack_button = null
 var _menu_button
@@ -36,43 +42,33 @@ var _pending_notice = ""
 func _ready():
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	layer = 5
+	# Mission briefing: hangs from the resources plate at the top of the left column.
 	var panel = PanelContainer.new()
-	panel.position = Vector2(16, 86)
+	panel.name = "MissionBriefing"
+	panel.position = Vector2(0, HudLayout.COLUMN_TOP)
+	panel.custom_minimum_size.x = HudLayout.COLUMN_WIDTH
 	_style(panel)
-	panel.get_theme_stylebox("panel").content_margin_top = 6
-	panel.get_theme_stylebox("panel").content_margin_bottom = 6
+	panel.get_theme_stylebox("panel").content_margin_top = 12
+	panel.get_theme_stylebox("panel").content_margin_bottom = 10
 	add_child(panel)
 	var content = VBoxContainer.new()
-	content.add_theme_constant_override("separation", 8)
+	content.add_theme_constant_override("separation", 6)
 	panel.add_child(content)
 	var title = Label.new()
 	var players = get_tree().get_nodes_in_group("players")
 	title.text = (
 		"%s  vs  %s" % [Factions.NAMES[players[0].faction], Factions.NAMES[players[1].faction]]
 	)
-	title.add_theme_font_size_override("font_size", 17)
+	title.add_theme_font_size_override("font_size", 15)
 	BattleTheme.heading(content, title, 30)
+	# Long matchups trim on the nameplate; the full title stays available on hover.
+	title.tooltip_text = title.text
+	title.mouse_filter = Control.MOUSE_FILTER_PASS
 	_objective = Label.new()
-	_objective.add_theme_font_size_override("font_size", 12)
+	_objective.add_theme_font_size_override("font_size", 13)
+	_objective.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	content.add_child(_objective)
-	_clock = Label.new()
-	_clock.add_theme_color_override("font_color", Color("a9b4b3"))
-	_clock.add_theme_font_size_override("font_size", 12)
-	content.add_child(_clock)
-	var buttons = HBoxContainer.new()
-	buttons.add_theme_constant_override("separation", 6)
-	content.add_child(buttons)
-	_pause_button = _button(buttons, Bindings.hint("Pause", "pause_battle"), _toggle_pause)
-	_attack_button = _button(buttons, Bindings.hint("Attack move", "attack_move"), _arm_attack)
-	_menu_button = _button(buttons, Bindings.hint("Menu", "toggle_match_menu"), _open_menu)
-	_technology_button = _button(buttons, "Tech", open_technology)
-	_technology_button.name = "OpenTechnology"
-	if "points_of_interest" in get_parent().map:
-		_button(buttons, "Sites", open_sites).name = "OpenSites"
-	if not _is_campaign() and "relays" in get_parent().map:
-		var relays = _button(buttons, "Relays", open_relays)
-		relays.name = "OpenRelays"
-		relays.tooltip_text = "View relay ownership, capture progress and locations."
+	_build_system_plate()
 	Globals.options.changed.connect(_refresh_shortcuts)
 	_assignment_hint = Label.new()
 	_assignment_hint.add_theme_font_size_override("font_size", 13)
@@ -81,7 +77,7 @@ func _ready():
 	# Reserve two lines so notices cannot move the mission controls below this panel.
 	# Longer feedback remains readable by scrolling instead of growing over the minimap.
 	_notice_slot = ScrollContainer.new()
-	_notice_slot.custom_minimum_size = Vector2(350, 42)
+	_notice_slot.custom_minimum_size = Vector2(HudLayout.COLUMN_WIDTH - 32, 42)
 	_notice_slot.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_notice_slot.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
 	_notice_slot.get_v_scroll_bar().focus_mode = Control.FOCUS_ALL
@@ -120,6 +116,91 @@ func _style(panel):
 	BattleTheme.apply(panel)
 
 
+func _build_system_plate():
+	system_plate = PanelContainer.new()
+	system_plate.name = "SystemPlate"
+	system_plate.theme = BattleTheme.create()
+	var plate = BattleTheme.strip(16, 0)
+	plate.content_margin_top = HudLayout.TOP_RAIL + 1
+	plate.content_margin_bottom = 7
+	plate.content_margin_right = 10
+	system_plate.add_theme_stylebox_override("panel", plate)
+	system_plate.custom_minimum_size.y = HudLayout.TOP_PLATE
+	add_child(system_plate)
+	var row = HBoxContainer.new()
+	row.add_theme_constant_override("separation", 6)
+	system_plate.add_child(row)
+	var readout = PanelContainer.new()
+	readout.name = "MissionClock"
+	readout.add_theme_stylebox_override("panel", BattleTheme.socket(10, 1))
+	readout.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	readout.custom_minimum_size = Vector2(84, 36)
+	readout.tooltip_text = "100 units per side"
+	row.add_child(readout)
+	var clock_column = VBoxContainer.new()
+	clock_column.add_theme_constant_override("separation", -5)
+	clock_column.alignment = BoxContainer.ALIGNMENT_CENTER
+	clock_column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	readout.add_child(clock_column)
+	_clock = Label.new()
+	_clock.theme_type_variation = "HudNumeral"
+	_clock.add_theme_font_size_override("font_size", 20)
+	_clock.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	clock_column.add_child(_clock)
+	_clock_state = Label.new()
+	_clock_state.theme_type_variation = "HudCaption"
+	_clock_state.uppercase = true
+	_clock_state.add_theme_font_size_override("font_size", 10)
+	_clock_state.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_clock_state.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	_clock_state.custom_minimum_size.x = 72
+	clock_column.add_child(_clock_state)
+	row.add_child(VSeparator.new())
+	_pause_button = _key(row, "pause", _toggle_pause)
+	_attack_button = _key(row, "attack_move", _arm_attack)
+	_attack_button.toggle_mode = true
+	_technology_button = _key(row, "tech", open_technology)
+	_technology_button.name = "OpenTechnology"
+	_technology_button.tooltip_text = "Technology"
+	if "points_of_interest" in get_parent().map:
+		var sites = _key(row, "sites", open_sites)
+		sites.name = "OpenSites"
+		sites.tooltip_text = "Capturable facilities"
+	if not _is_campaign() and "relays" in get_parent().map:
+		var relays = _key(row, "relays", open_relays)
+		relays.name = "OpenRelays"
+		relays.tooltip_text = "View relay ownership, capture progress and locations."
+	_menu_button = _key(row, "menu", _open_menu)
+	for key in [_technology_button, _menu_button]:
+		key.accessibility_name = key.tooltip_text
+	row.add_child(VSeparator.new())
+	# BattleAlertsPanel docks its beacon here; it lives on a higher canvas layer.
+	alert_slot = Control.new()
+	alert_slot.name = "AlertSlot"
+	alert_slot.custom_minimum_size = Vector2(164, 38)
+	alert_slot.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	alert_slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.add_child(alert_slot)
+	_refresh_shortcuts()
+
+
+func _key(parent, glyph, callback):
+	var key = HudKey.new()
+	key.glyph = BattleTheme.icon(glyph)
+	key.custom_minimum_size = Vector2(44, 42)
+	key.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	key.pressed.connect(callback)
+	parent.add_child(key)
+	return key
+
+
+func _sync_key(key, title, action):
+	# Icon keys carry their shortcut in the badge and the full hint in the tooltip.
+	key.badge = Bindings.label(action)
+	key.tooltip_text = Bindings.hint(title, action)
+	key.accessibility_name = key.tooltip_text
+
+
 func _button(parent, text_value, callback):
 	var button = Button.new()
 	button.theme = BattleTheme.create()
@@ -147,13 +228,15 @@ func _process(_delta):
 		show_notice(notice)
 	_objective.text = get_parent().objective_text()
 	var seconds = int(get_parent().simulation_time)
-	_clock.text = (
-		"%02d:%02d · %s · 100 units per side"
-		% [
-			seconds / 60,
-			seconds % 60,
-			"PAUSED — orders ready on resume" if get_tree().paused else _match_label()
-		]
+	_clock.text = "%02d:%02d" % [seconds / 60, seconds % 60]
+	var paused = get_tree().paused
+	_clock_state.text = "Paused" if paused else _match_label()
+	_clock_state.add_theme_color_override(
+		"font_color", BattleTheme.accent() if paused else BattleTheme.MUTED
+	)
+	_clock_state.tooltip_text = "PAUSED — orders ready on resume" if paused else ""
+	system_plate.position = Vector2(
+		get_viewport().get_visible_rect().size.x - system_plate.size.x, 0
 	)
 
 
@@ -216,7 +299,7 @@ func cancel_map_assignment():
 func pause_after_load():
 	_pause_owned = true
 	get_tree().paused = true
-	_pause_button.text = Bindings.hint("Resume", "pause_battle")
+	_refresh_shortcuts()
 
 
 func _toggle_pause():
@@ -225,11 +308,7 @@ func _toggle_pause():
 	if _overlay != null or get_parent().finished:
 		return
 	super()
-	_pause_button.text = (
-		Bindings.hint("Resume", "pause_battle")
-		if _pause_owned
-		else Bindings.hint("Pause", "pause_battle")
-	)
+	_refresh_shortcuts()
 
 
 func _make_overlay(title_text, cinematic = false):
@@ -593,13 +672,15 @@ func _refresh_shortcuts():
 	if is_instance_valid(direct_orders) and not direct_orders.kind.is_empty():
 		direct_orders.prompt()
 	if is_instance_valid(_pause_button):
-		_pause_button.text = Bindings.hint("Resume" if _pause_owned else "Pause", "pause_battle")
+		_sync_key(_pause_button, "Resume" if _pause_owned else "Pause", "pause_battle")
+		_pause_button.glyph = BattleTheme.icon("resume" if _pause_owned else "pause")
 	if is_instance_valid(_attack_button):
-		_attack_button.text = (
-			"Choose destination…" if _attack_armed else Bindings.hint("Attack move", "attack_move")
-		)
+		_sync_key(_attack_button, "Attack move", "attack_move")
+		if _attack_armed:
+			_attack_button.tooltip_text = "Choose destination…"
+		_attack_button.set_pressed_no_signal(_attack_armed)
 	if is_instance_valid(_menu_button):
-		_menu_button.text = Bindings.hint("Menu", "toggle_match_menu")
+		_sync_key(_menu_button, "Menu", "toggle_match_menu")
 	if is_instance_valid(_menu_help):
 		_menu_help.text = _controls_help()
 

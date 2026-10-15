@@ -47,7 +47,7 @@ func _ready():
 	_reason.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_reason.max_lines_visible = 2
 	_reason.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	_reason.custom_minimum_size.x = 470
+	_reason.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var draft_heading = _label("Preset draft", 12)
 	draft_heading.add_theme_color_override("font_color", Color("bcc7d3"))
 	var row = HBoxContainer.new()
@@ -108,7 +108,7 @@ func _ready():
 	_button(saved_row, "Save version", _save)
 	_notice = _label("", 12)
 	_notice.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_notice.custom_minimum_size.x = 470
+	_notice.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	if not _library.read_library(library_path):
 		_notice.text = _library.error
 	_refresh_saved()

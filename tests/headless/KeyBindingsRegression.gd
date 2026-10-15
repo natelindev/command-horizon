@@ -93,7 +93,8 @@ func _capture_and_rollback():
 	panel.begin_capture("pause_battle")
 	await _press(KEY_Y)
 	_check(Keys.label("pause_battle") == "Y", "Key capture did not preview pause")
-	_check("[Y]" in game.hud._pause_button.text, "Pause hint did not follow preview")
+	_check("[Y]" in game.hud._pause_button.tooltip_text, "Pause hint did not follow preview")
+	_check(game.hud._pause_button.badge == "Y", "Pause badge did not follow preview")
 	panel.begin_capture("pause_battle")
 	await _press(KEY_R)
 	_check(
@@ -130,7 +131,7 @@ func _capture_and_rollback():
 		preferences.capture() == before and not paused,
 		"Cancel did not restore nested bindings/pause"
 	)
-	_check("[P]" in game.hud._pause_button.text, "Cancel left stale pause hint")
+	_check("[P]" in game.hud._pause_button.tooltip_text, "Cancel left stale pause hint")
 	# Rebinding a held camera action cannot leave its old press latched.
 	Input.action_press("move_map_up")
 	_bind("move_map_up", KEY_I)
@@ -222,7 +223,7 @@ func _commands():
 	await _press(KEY_SPACE)
 	_check(not paused, "Old pause key still active")
 	await _press(KEY_P)
-	_check(paused and "[P]" in game.hud._pause_button.text, "Remapped pause failed")
+	_check(paused and "[P]" in game.hud._pause_button.tooltip_text, "Remapped pause failed")
 	await _press(KEY_P)
 	_check(not paused, "Remapped resume failed")
 	await _press(KEY_F)

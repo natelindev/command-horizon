@@ -52,13 +52,13 @@ static func build(hud, result):
 
 	# Top Status Banner
 	var accent_color = (
-		Color("2ecc71") if is_victory else (Color("e74c3c") if is_defeat else Color("d8bc80"))
+		Color("a6d77e") if is_victory else (Color("e8735a") if is_defeat else Color("d8bc80"))
 	)
 	var banner_bg = (
 		Color("0d2118") if is_victory else (Color("210d0d") if is_defeat else Color("1a1811"))
 	)
 	var banner_border = (
-		Color("27ae6088") if is_victory else (Color("c0392b88") if is_defeat else Color("d8bc8066"))
+		Color("8fc26a88") if is_victory else (Color("d0604888") if is_defeat else Color("d8bc8066"))
 	)
 
 	var banner_code = (
@@ -92,14 +92,17 @@ static func build(hud, result):
 	var banner_bg_node = Panel.new()
 	banner_bg_node.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	banner_bg_node.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var banner_style = StyleBoxFlat.new()
-	banner_style.bg_color = banner_bg
-	banner_style.border_color = banner_border
-	banner_style.set_border_width_all(1)
-	banner_style.border_width_left = 5
-	banner_style.border_color = accent_color
-	banner_style.set_corner_radius_all(0)
+	# A recessed status screen tinted by the outcome; the title carries the accent.
+	var banner_style = BattleTheme.socket(0, 0)
+	banner_style.modulate = banner_bg.lightened(.55)
 	banner_bg_node.add_theme_stylebox_override("panel", banner_style)
+	var glow = Panel.new()
+	glow.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var glow_style = BattleTheme.glow(.35)
+	glow_style.modulate = Color(banner_border, .4)
+	glow.add_theme_stylebox_override("panel", glow_style)
+	banner_bg_node.add_child(glow)
 	banner_card.add_child(banner_bg_node)
 
 	var banner_inner = MarginContainer.new()
@@ -122,8 +125,9 @@ static func build(hud, result):
 
 	var title_lbl = Label.new()
 	title_lbl.text = hud.tr(banner_title)
-	title_lbl.add_theme_font_size_override("font_size", 21)
-	title_lbl.add_theme_color_override("font_color", BattleTheme.IVORY)
+	title_lbl.theme_type_variation = "HudHeading"
+	title_lbl.add_theme_font_size_override("font_size", 24)
+	title_lbl.add_theme_color_override("font_color", accent_color.lerp(BattleTheme.IVORY, .25))
 	banner_titles.add_child(title_lbl)
 
 	var sub_lbl = Label.new()
@@ -185,7 +189,7 @@ static func build(hud, result):
 	var debrief_bg = Panel.new()
 	debrief_bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	debrief_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	debrief_bg.add_theme_stylebox_override("panel", BattleTheme.surface(Color("091116"), 0, 0))
+	debrief_bg.add_theme_stylebox_override("panel", BattleTheme.socket(0, 0))
 	debrief_card.add_child(debrief_bg)
 
 	var debrief_inner = MarginContainer.new()
@@ -282,7 +286,7 @@ static func build(hud, result):
 	var telemetry_bg = Panel.new()
 	telemetry_bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	telemetry_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	telemetry_bg.add_theme_stylebox_override("panel", BattleTheme.surface(Color("091116"), 0, 0))
+	telemetry_bg.add_theme_stylebox_override("panel", BattleTheme.socket(0, 0))
 	telemetry_card.add_child(telemetry_bg)
 
 	var telemetry_inner = MarginContainer.new()
@@ -318,9 +322,9 @@ static func build(hud, result):
 		value.text = str(count)
 		value.add_theme_font_size_override("font_size", 14)
 		if entry[0] in ["Units lost", "Buildings lost"] and count > 0:
-			value.add_theme_color_override("font_color", Color("e06c75"))
+			value.add_theme_color_override("font_color", BattleTheme.SIGNAL_BAD)
 		elif entry[0] in ["Enemy units destroyed", "Enemy buildings destroyed"] and count > 0:
-			value.add_theme_color_override("font_color", Color("98c379"))
+			value.add_theme_color_override("font_color", BattleTheme.HEALTH_OK)
 		else:
 			value.add_theme_color_override("font_color", BattleTheme.IVORY)
 		row.add_child(value)
