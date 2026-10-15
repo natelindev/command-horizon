@@ -1,6 +1,7 @@
 shader_type spatial;
 varying vec3 world_position;
 uniform vec4 roads[8];
+uniform float wetness = 0.0;
 
 uniform int road_count = 6;
 uniform float road_half_width = 4.0;
@@ -14,7 +15,8 @@ float noise(vec2 p) {
 void vertex() { world_position=(MODEL_MATRIX*vec4(VERTEX,1.0)).xyz; }
 void fragment() {
 	vec2 p=world_position.xz;
-	float fine=hash(floor(p*24.0));
+	// Sub-pixel grain fades to its mean instead of shimmering at battle zoom.
+	float fine=mix(.5,hash(floor(p*24.0)),1.0-smoothstep(.5,1.5,length(fwidth(p))*24.0));
 	float wear=noise(p*.28);
 	vec3 earth=mix(vec3(.20,.22,.175),vec3(.255,.247,.198),noise(p*.08));
 	vec2 district=abs(p-pavement_center)-pavement_extent;
@@ -47,9 +49,11 @@ void fragment() {
 		float ends=smoothstep(3.0,5.0,min(along,len-along));
 		markings=max(markings,(1.0-smoothstep(.05,.10,dist))*step(.4,fract(along/5.0))*ends);
 	}
-	float road=1.0-smoothstep(road_half_width-.10,road_half_width+.05,nearest);
+	// Slightly crumbled asphalt edges blend into the verge.
+	float road_edge=nearest+(noise(p*1.3)-.5)*.3;
+	float road=1.0-smoothstep(road_half_width-.15,road_half_width+.1,road_edge);
 	float curb=(1.0-smoothstep(.035,.10,abs(nearest-road_half_width-.18)))*paved;
-	float shoulder=(1.0-smoothstep(road_half_width+.3,road_half_width+1.0,nearest))*(1.0-road);
+	float shoulder=(1.0-smoothstep(road_half_width+.3,road_half_width+1.1,road_edge))*(1.0-road);
 	float side_line=1.0-smoothstep(.045,.075,abs(nearest-road_half_width+.45));
 	vec3 asphalt=vec3(.078,.093,.097)+fine*.015+wear*.013;
 	float repairs=smoothstep(.72,.80,noise(floor(p*.20)+33.0));
@@ -76,6 +80,8 @@ void fragment() {
 		apron*=1.0-tire;
 		surface=mix(surface,apron,inside);
 	}
-	ALBEDO=surface;
-	ROUGHNESS=.95;
+	float puddle=smoothstep(.38,.68,noise(p*.38+3.0))*wetness*max(road,paved*.6);
+	ALBEDO=surface*(1.0-wetness*.22);
+	ROUGHNESS=mix(.95,.55,puddle);
+	SPECULAR=.22+wetness*.08;
 }

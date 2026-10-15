@@ -41,6 +41,8 @@ static func build(faction, role):
 			chest, "AmmoPouch", Vector3(side * .069, .075, -.122), Vector3(.075, .085, .035), cloth
 		)
 	_box(chest, "FieldPack", Vector3(0, .15, .13), Vector3(.21, .24, .11), cloth)
+	# Team trim sits on upward-facing surfaces so ownership reads from the battle camera.
+	_team_box(chest, "PackFlap", Vector3(0, .275, .13), Vector3(.19, .022, .095), trim)
 	_team_box(chest, "UnitMark", Vector3(-.075, .24, -.113), Vector3(.052, .032, .013), trim)
 	var head = _pivot(chest, "Head", Vector3(0, .33, 0))
 	_ellipsoid(head, "Neck", Vector3(0, -.015, 0), Vector3(.075, .10, .078), skin)
@@ -52,10 +54,10 @@ static func build(faction, role):
 		_ellipsoid(head, "Ear", Vector3(side * .072, .075, 0), Vector3(.032, .052, .036), skin)
 	_ellipsoid(head, "Nose", Vector3(0, .054, -.093), Vector3(.034, .044, .029), skin)
 	_box(head, "ChinStrap", Vector3(0, .004, -.062), Vector3(.10, .018, .025), dark)
-	_team_box(head, "HelmetStripe", Vector3(0, .208, .006), Vector3(.03, .014, .10), trim)
+	_team_box(head, "HelmetStripe", Vector3(0, .212, .006), Vector3(.055, .018, .17), trim)
 	for side in [-1, 1]:
 		_team_box(
-			chest, "ShoulderMark", Vector3(side * .18, .24, -.05), Vector3(.085, .065, .025), trim
+			chest, "ShoulderMark", Vector3(side * .18, .25, -.02), Vector3(.09, .045, .1), trim
 		)
 	# Bent elbows and role-specific grips keep hands on the carried weapon.
 	var left_hand = Vector3(.08, .08, -.34)

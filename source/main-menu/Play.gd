@@ -435,7 +435,7 @@ func _create_match_settings():
 			if selected == Factions.IDS.size()
 			else selected
 		]
-		player.color = Color("e0ad46") if index == 0 else Color("d86965")
+		player.color = Constants.Player.COLORS[index]
 		player.difficulty = _difficulty.selected
 		player.spawn_index_offset = (
 			0 if index == 0 else Constants.Match.MAPS[result.map_path].players / 2 - 1

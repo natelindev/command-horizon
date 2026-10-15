@@ -5,7 +5,7 @@ func _setup_players():
 	for index in range(2):
 		var player = load("res://source/match/players/Player.tscn").instantiate()
 		player.faction = settings.players[index].faction
-		player.color = Color("6fbccf") if index == 0 else Color("ed936a")
+		player.color = Constants.Player.COLORS[3 if index == 0 else 1]
 		player.set_meta("skirmish", true)
 		# Test fixtures supply hardware/technology; the live match still owns its gates.
 		player._basic_programs = true

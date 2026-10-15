@@ -20,6 +20,10 @@ static func expand(map, original_fields, factor):
 	if "relays" in map:
 		for relay in map.relays:
 			relay.position *= Vector3(factor, 1, factor)
+	# Shader-drawn landmark pads follow the moved landmarks.
+	var ground = map.get_node("Geometry/Terrain").get_active_material(0)
+	if ground is ShaderMaterial:
+		ground.set_shader_parameter("layout_scale", factor)
 	if map.exterior != null:
 		# The surrounding terrain remains outside the enlarged playable rectangle.
 		map.exterior.ground.scale = Vector3(factor, 1, factor)

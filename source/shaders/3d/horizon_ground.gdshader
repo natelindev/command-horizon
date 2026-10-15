@@ -15,7 +15,8 @@ void fragment() {
 	vec2 p = world_position.xz;
 	float broad = noise(p * 0.045) * .6 + noise(p * .16) * .4;
 	float grit = noise(p * 4.0);
-	float grain = hash(floor(p * 22.0));
+	// Sub-pixel grain fades to its mean instead of shimmering at battle zoom.
+	float grain = mix(.5, hash(floor(p * 22.0)), 1.0 - smoothstep(.5, 1.5, length(fwidth(p)) * 22.0));
 	vec3 dust = mix(vec3(.205,.187,.146), vec3(.255,.237,.191), broad);
 	vec3 gravel = mix(vec3(.145,.16,.144), vec3(.205,.214,.18), grit);
 	float verge = 1.0 - smoothstep(5.0, 15.0, abs(p.x - 116.0) + noise(p*.3)*4.0);
@@ -49,8 +50,10 @@ void fragment() {
 		float dash = (1.0-smoothstep(.065,.12,distance_m)) * step(.42,fract(along/5.0));
 		paint = max(paint, dash * ends);
 	}
-	float road = 1.0-smoothstep(3.85,4.25,nearest);
-	float shoulders = (1.0-smoothstep(4.1,5.1,nearest))*(1.0-road);
+	// Slightly crumbled asphalt edges blend into the verge.
+	float road_edge = nearest + (noise(p * 1.3) - .5) * .35;
+	float road = 1.0-smoothstep(3.85,4.25,road_edge);
+	float shoulders = (1.0-smoothstep(4.1,5.2,road_edge))*(1.0-road);
 	float side_line = (1.0-smoothstep(.04,.08,abs(nearest-3.35)));
 	vec3 asphalt = vec3(.075,.091,.087)+grain*.018 + noise(p*.3)*.018;
 	float repairs = smoothstep(.73,.81,noise(p*.32+33.0));

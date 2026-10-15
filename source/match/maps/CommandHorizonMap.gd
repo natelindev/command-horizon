@@ -20,17 +20,6 @@ func _ready():
 		progress.read_progress(game.progress_path)
 		game.alternate_route = progress.foundry_complete
 	alternate_route = game.alternate_route
-	game.get_node("Fog").hide()
-	var world = game.get_node("WorldEnvironment")
-	world.environment = world.environment.duplicate()
-	world.environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	world.environment.ambient_light_color = Color("9daea9")
-	world.environment.ambient_light_energy = 0.45
-	world.environment.tonemap_exposure = 0.85
-	game.get_node("DirectionalLight3D").light_color = Color("ffe6ba")
-	game.get_node("DirectionalLight3D").light_energy = 1.2
-	game.get_node("DirectionalLight3D").shadow_normal_bias = 2.0
-	game.get_node("DirectionalLight3D").shadow_blur = 0.4
 	var overlay = game.get_node("FogOfWar/ScreenOverlay")
 	overlay.material_override = overlay.material_override.duplicate()
 	overlay.material_override.set_shader_parameter("exterior_visibility", .22)

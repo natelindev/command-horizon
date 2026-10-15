@@ -607,7 +607,7 @@ func _start():
 			Constants.PlayerType.HUMAN if index == 0 else Constants.PlayerType.SIMPLE_CLAIRVOYANT_AI
 		)
 		player.faction = "bastion" if index == 0 else "helix"
-		player.color = Color("e3ad48") if index == 0 else Color("38c8ce")
+		player.color = Constants.Player.COLORS[0 if index == 0 else 2]
 		player.difficulty = _difficulty.selected
 		settings.players.append(player)
 	var loading = load("res://source/main-menu/Loading.tscn").instantiate()

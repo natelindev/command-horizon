@@ -26,6 +26,7 @@ var coordination_unlocked = false
 var coordination_left = -1.0
 
 var _color_material = null
+var _footprint_material = null
 var _basic_programs = false
 
 
@@ -66,9 +67,21 @@ func get_color_material():
 		_color_material = StandardMaterial3D.new()
 		_color_material.vertex_color_use_as_albedo = true
 		_color_material.albedo_color = color
-		_color_material.metallic = 0.25
-		_color_material.roughness = 0.5
+		# Low metalness and a faint self-light keep team trim readable in shadow and fog memory.
+		_color_material.metallic = 0.1
+		_color_material.roughness = 0.55
+		_color_material.emission_enabled = true
+		_color_material.emission = color
+		_color_material.emission_energy_multiplier = 0.12
 	return _color_material
+
+
+func get_footprint_material():
+	if _footprint_material == null:
+		_footprint_material = ShaderMaterial.new()
+		_footprint_material.shader = preload("res://source/shaders/3d/team_footprint.gdshader")
+		_footprint_material.set_shader_parameter("color", color)
+	return _footprint_material
 
 
 func has_completed_structure(unit_type):

@@ -3,6 +3,8 @@ shader_type spatial;
 uniform bool exterior = false;
 uniform int road_count = 0;
 uniform vec4 roads[16];
+// Enlarged layouts move landmarks away from the origin without resizing them.
+uniform float layout_scale = 1.0;
 varying vec3 world_position;
 
 float grain(vec2 p) {
@@ -60,7 +62,7 @@ void fragment() {
 		float tracks = 1.0 - smoothstep(0.10, 0.24, abs(lane - 1.02));
 		color *= 1.0 - tracks * (0.04 + medium * 0.06);
 		// The freight apron is worn, continuous terrain, with broken paint and sand incursions.
-		vec2 q = p - vec2(64, 48);
+		vec2 q = p - vec2(64, 48) * layout_scale;
 		float patch = weathering(p * 0.45);
 		float apron = 1.0 - smoothstep(7.5, 8.4, max(abs(q.x), abs(q.y)) + patch * 0.4);
 		vec2 joints = abs(fract((q + 8.0) / 4.0) - 0.5);

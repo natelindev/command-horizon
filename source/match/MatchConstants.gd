@@ -1,7 +1,7 @@
-const OWNED_PLAYER_CIRCLE_COLOR = Color.GREEN
-const ADVERSARY_PLAYER_CIRCLE_COLOR = Color.RED
-const RESOURCE_CIRCLE_COLOR = Color.YELLOW
-const DEFAULT_CIRCLE_COLOR = Color.WHITE
+const OWNED_PLAYER_CIRCLE_COLOR = Color("7fd9a0")
+const ADVERSARY_PLAYER_CIRCLE_COLOR = Color("ee6b5e")
+const RESOURCE_CIRCLE_COLOR = Color("e8c56a")
+const DEFAULT_CIRCLE_COLOR = Color("eef1f1")
 const MAPS = {
 	"res://source/match/maps/ExpandedDesertFrontier.tscn":
 	{"name": "Desert Frontier — Expanded", "players": 2, "size": Vector2i(192, 144)},

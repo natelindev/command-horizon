@@ -16,7 +16,8 @@ float box_mask(vec2 p,vec2 center,vec2 extent,float fade) {
 void vertex() { world_position=(MODEL_MATRIX*vec4(VERTEX,1.0)).xyz; }
 void fragment() {
 	vec2 p=world_position.xz / layout_scale;
-	float fine=hash(floor(p*26.0));
+	// Sub-pixel grain fades to its mean instead of shimmering at battle zoom.
+	float fine=mix(.5,hash(floor(p*26.0)),1.0-smoothstep(.5,1.5,length(fwidth(p))*26.0));
 	float wear=noise(p*.28);
 	float turf=noise(p*.075)*.60+noise(p*.31)*.27+noise(p*.9)*.13;
 	float grit=smoothstep(.54,.77,noise(p*.43+vec2(12.3,8.1)));
@@ -60,8 +61,10 @@ void fragment() {
 		float ends=smoothstep(3.0,5.0,min(along,len-along));
 		markings=max(markings,(1.0-smoothstep(.05,.10,distance))*step(.4,fract(along/5.0))*ends);
 	}
-	float road=1.0-smoothstep(3.9,4.05,nearest);
-	float shoulder=(1.0-smoothstep(4.3,5.0,nearest))*(1.0-road);
+	// Slightly crumbled asphalt edges blend into the verge.
+	float road_edge=nearest+(noise(p*1.3)-.5)*.35;
+	float road=1.0-smoothstep(3.85,4.1,road_edge);
+	float shoulder=(1.0-smoothstep(4.3,5.1,road_edge))*(1.0-road);
 	float stripe=1.0-smoothstep(.045,.075,abs(nearest-3.55));
 	float tires=1.0-smoothstep(.18,.47,abs(nearest-1.1));
 	vec3 asphalt=vec3(.078,.102,.106)+fine*.010+wear*.018-tires*.009;

@@ -1,5 +1,7 @@
 extends Node3D
 
+const AtmosphereProfiles = preload("res://source/match/environment/AtmosphereProfiles.gd")
+
 # Presentation is derived from the saved match clock; no gameplay or global RNG changes.
 var environment: Environment
 var sun: DirectionalLight3D
@@ -9,10 +11,12 @@ var rain: GPUParticles3D
 var cloud_cover = 0.0
 var wetness = 0.0
 var hour = 14.0
+var profile: Dictionary
 var _game
 var _options
 var _base_ambient: Color
 var _base_sun: Color
+var _haze: Color
 var _sky: ProceduralSkyMaterial
 var _wet_materials = []
 var _last_wetness = -1.0
@@ -25,9 +29,11 @@ func _ready():
 	var world = _game.get_node("WorldEnvironment")
 	world.environment = world.environment.duplicate(true)
 	environment = world.environment
-	_base_ambient = environment.ambient_light_color
 	sun = _game.get_node("DirectionalLight3D")
-	_base_sun = sun.light_color
+	profile = AtmosphereProfiles.for_map(_game.map)
+	_base_ambient = profile.fill
+	_base_sun = profile.key
+	_haze = profile.haze
 	camera = _game.get_node("IsometricCamera3D")
 	attributes = CameraAttributesPractical.new()
 	camera.attributes = attributes
@@ -45,7 +51,11 @@ func _ready():
 	sun.directional_shadow_max_distance = 120
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
-	environment.tonemap_exposure = 1.0
+	environment.tonemap_exposure = profile.exposure
+	environment.adjustment_enabled = true
+	environment.adjustment_contrast = profile.contrast
+	environment.adjustment_saturation = profile.saturation
+	environment.adjustment_color_correction = AtmosphereProfiles.grade(profile)
 	environment.ssao_radius = 1.6
 	environment.ssao_intensity = 1.5
 	environment.ssao_power = 1.25
@@ -107,14 +117,15 @@ func _update(_delta):
 	var altitude = sin((hour - 6.0) / 24.0 * TAU)
 	var daylight = smoothstep(-.12, .35, altitude)
 	var golden = (1.0 - smoothstep(.0, .5, absf(altitude))) * daylight
-	# A cool moon key takes over at night to retain tactical silhouettes.
-	sun.rotation_degrees = Vector3(-maxf(12.0, absf(altitude) * 67.0), -35.0 + hour * 15.0, 0)
+	# A lower key keeps cast shadows readable at midday; a cool moon key takes over at night
+	# to retain tactical silhouettes.
+	sun.rotation_degrees = Vector3(-maxf(12.0, absf(altitude) * 54.0), -35.0 + hour * 15.0, 0)
 	sun.light_color = Color("9ebae5").lerp(_base_sun.lerp(Color("ffb56a"), golden), daylight)
 	sun.light_energy = lerpf(.38, 1.35, daylight) * (1.0 - cloud_cover * .58)
 	environment.ambient_light_color = Color("7086ac").lerp(_base_ambient, daylight)
 	environment.ambient_light_energy = lerpf(.36, .48, daylight) + cloud_cover * .08
 	environment.background_energy_multiplier = lerpf(.3, 1.0, daylight)
-	environment.fog_light_color = Color("263955").lerp(Color("b3c3c9"), daylight).lerp(
+	environment.fog_light_color = Color("263955").lerp(_haze, daylight).lerp(
 		Color("d4aa83"), golden * .35
 	)
 	var target_fog = .0015 if weather == 4 else lerpf(.00015, .00065, cloud_levels[weather])
@@ -184,6 +195,7 @@ func _collect_weather_materials(node):
 					material.shader.resource_path
 					in [
 						"res://source/shaders/3d/district_ground.gdshader",
+						"res://source/shaders/3d/foundry_ground.gdshader",
 						"res://source/shaders/3d/district_surface.gdshader"
 					]
 				)

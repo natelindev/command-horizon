@@ -90,18 +90,6 @@ func _escarpment(point, index):
 
 func _atmosphere():
 	var game = get_parent()
-	game.get_node("Fog").hide()
-	var world = game.get_node("WorldEnvironment")
-	world.environment = world.environment.duplicate()
-	world.environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	world.environment.ambient_light_color = Color("a8b9bf")
-	world.environment.ambient_light_energy = 0.46
-	world.environment.tonemap_exposure = 0.93
-	var sun = game.get_node("DirectionalLight3D")
-	sun.light_color = Color("ffe0b7")
-	sun.light_energy = 1.16
-	sun.shadow_normal_bias = 1.4
-	sun.shadow_blur = 0.6
 	var overlay = game.get_node("FogOfWar/ScreenOverlay")
 	overlay.material_override = overlay.material_override.duplicate()
 	overlay.material_override.set_shader_parameter("exterior_visibility", 0.22)

@@ -89,21 +89,9 @@ func _ready():
 
 func _configure_atmosphere():
 	var game = get_parent()
-	game.get_node("Fog").hide()
 	var camera = game.get_node("IsometricCamera3D")
 	camera.visible_height_max = 24
 	camera._align_camera_properties_to_current_size()
-	var world = game.get_node("WorldEnvironment")
-	world.environment = world.environment.duplicate()
-	world.environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	world.environment.ambient_light_color = Color("a9c4d6")
-	world.environment.ambient_light_energy = 0.43
-	world.environment.tonemap_exposure = 0.90
-	var sun = game.get_node("DirectionalLight3D")
-	sun.light_color = Color("fff1dc")
-	sun.light_energy = 1.10
-	sun.shadow_normal_bias = 1.2
-	sun.shadow_blur = 0.7
 	var overlay = game.get_node("FogOfWar/ScreenOverlay")
 	overlay.material_override = overlay.material_override.duplicate()
 	overlay.material_override.set_shader_parameter("exterior_visibility", 0.18)

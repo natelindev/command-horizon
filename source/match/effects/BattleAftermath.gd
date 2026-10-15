@@ -88,16 +88,25 @@ func burst(point, strength, ground_hit = true):
 		add_child(body)
 		debris.append({"node": body, "mesh": mesh, "age": 0.0, "rest": dimensions})
 
-	if not Globals.options.reduced_flashes:
-		_evict(lights, MAX_LIGHTS)
-		var light = OmniLight3D.new()
-		light.light_color = Color("ffc078")
-		light.omni_range = strength * 3.0 + 2.0
-		light.light_energy = strength * 1.5
-		light.shadow_enabled = false
-		add_child(light)
-		light.position = point + Vector3.UP * 0.5
-		lights.append({"node": light, "age": 0.0, "energy": light.light_energy})
+	flash(point + Vector3.UP * 0.5, strength, Color("ffc078"))
+
+
+# Brief unshadowed light. Optional flashes (muzzle fire) never displace blast lights and use
+# at most half of the shared budget.
+func flash(point, strength, color, optional = false):
+	if Globals.options.reduced_flashes:
+		return
+	if optional and lights.size() >= MAX_LIGHTS / 2:
+		return
+	_evict(lights, MAX_LIGHTS)
+	var light = OmniLight3D.new()
+	light.light_color = color
+	light.omni_range = strength * 3.0 + 2.0
+	light.light_energy = strength * 1.5
+	light.shadow_enabled = false
+	add_child(light)
+	light.position = point
+	lights.append({"node": light, "age": 0.0, "energy": light.light_energy})
 
 
 func _evict(pool, limit):

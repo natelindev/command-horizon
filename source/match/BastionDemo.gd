@@ -16,7 +16,7 @@ func _enter_tree():
 		player_settings.controller = (
 			Constants.PlayerType.HUMAN if index == 0 else Constants.PlayerType.SIMPLE_CLAIRVOYANT_AI
 		)
-		player_settings.color = Color("e0ad46") if index == 0 else Color("c65455")
+		player_settings.color = Constants.Player.COLORS[index]
 		settings.players.append(player_settings)
 	map = load("res://source/match/maps/BastionDesert.tscn").instantiate()
 	super()

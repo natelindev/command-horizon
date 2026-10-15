@@ -6,6 +6,13 @@ const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
 const MAX_TRACERS = 96
 const MAX_WRECKS = 24
 const MAX_COOK_OFFS = 6
+# Faction-tinted fire so a crossfire reads by owner; rail shots keep a cold charge color.
+const FACTION_FIRE = {
+	"bastion": Color("ffd9a0"),
+	"helix": Color("aee4ee"),
+	"frontier": Color("e3f0a6"),
+}
+const RAIL_FIRE = Color("b6d9e1")
 var shots_emitted = 0
 var impacts_emitted = 0
 var deaths_emitted = 0
@@ -96,17 +103,13 @@ func shot(unit, origin, target_point, duration, missile = false, target_unit = n
 	shots_emitted += 1
 	if not _can_show(unit):
 		return
-	var color = (
-		Color("b6d9e1")
-		if (
-			unit.player.faction == "helix"
-			or (unit.type == "AdvancedTank" and unit.player.faction != "frontier")
-		)
-		else Color("ffe4b0")
-	)
+	var color = FACTION_FIRE.get(unit.player.faction, FACTION_FIRE.bastion)
+	if unit.type == "AdvancedTank" and unit.player.faction != "frontier":
+		color = RAIL_FIRE
 	var heavy = unit.type in ["Tank", "AdvancedTank", "AntiGroundTurret"]
 	if heavy:
 		_shake_camera(origin, 0.08)
+		aftermath.flash(origin, 0.3, color, true)
 	var direction = origin.direction_to(target_point)
 	_puff("flash", origin, direction * 0.2, color, 0.65 if heavy else 0.3)
 	for _index in range(5 if heavy else 2):

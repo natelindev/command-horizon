@@ -23,8 +23,8 @@ func _ready():
 	Globals.options.changed.connect(func(): _dirty = true)
 	toggle = Button.new()
 	toggle.theme = preload("res://source/match/hud/BattleTheme.gd").create()
+	# A filled control: it floats over the battlefield with no panel behind it.
 	toggle.custom_minimum_size = Vector2(170, 40)
-	toggle.theme_type_variation = "BattleQuietButton"
 	toggle.tooltip_text = "Battle alerts · inspect events and affected units without changing orders."
 	toggle.pressed.connect(_toggle)
 	add_child(toggle)

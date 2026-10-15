@@ -19,28 +19,18 @@ class Match:
 
 
 class Player:
+	# Designed team palette: mid-value, moderately saturated hues that stay distinct from
+	# each other, from fog memory and from every biome ground. Slots 0/1 face each other
+	# in skirmish; campaign opponents use slot 2.
 	const COLORS = [
-		Color("66b1ff"),
-		Color("ff5c73"),
-		Color("a5ff99"),
-		Color("ed85ff"),
-		Color("006400"),
-		Color("bdb76b"),
-		Color("000080"),
-		Color("48d1cc"),
-		# TODO: make sure the colors below are visually distinct from the ones above
-		Color("ff0000"),
-		Color("ffa500"),
-		Color("ffff00"),
-		Color("00ff00"),
-		Color("00fa9a"),
-		Color("0000ff"),
-		Color("da70d6"),
-		Color("d8bfd8"),
-		Color("ff00ff"),
-		Color("1e90ff"),
-		Color("fa8072"),
-		Color("2f4f4f"),
+		Color("e0ad46"),  # amber
+		Color("d86965"),  # coral
+		Color("38c8ce"),  # teal
+		Color("6f9fe0"),  # cornflower
+		Color("a984d8"),  # violet
+		Color("8fbf5a"),  # moss
+		Color("4fb38a"),  # jade
+		Color("d97ab0"),  # rose
 	]
 
 

@@ -21,7 +21,8 @@ static func surface(color: Color, horizontal = 8, vertical = 4) -> StyleBoxFlat:
 
 
 static func panel(horizontal = 18, vertical = 16) -> StyleBoxFlat:
-	var style = surface(Color("0a1216f6"), horizontal, vertical)
+	# Slightly translucent so the battlefield stays present behind docked panels.
+	var style = surface(Color("0a1216e8"), horizontal, vertical)
 	style.set_corner_radius_all(0)
 	style.set_border_width_all(1)
 	style.border_color = Color("1e2f3bc8")

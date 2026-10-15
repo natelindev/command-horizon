@@ -10,6 +10,12 @@ uniform float exterior_visibility : hint_range(0.0, 1.0) = 0.0;
 uniform float living_world_visibility = 0.0;
 uniform bool debug_texture_view = false;
 uniform sampler2D depth_texture : hint_depth_texture;
+uniform sampler2D screen_texture : hint_screen_texture, filter_linear;
+// Explored ground outside current vision is remembered as a dim, cool, desaturated view
+// rather than a flat dark veil. Unexplored ground keeps the opaque base color.
+uniform vec3 memory_tint : source_color = vec3(0.78, 0.84, 0.92);
+uniform float memory_brightness : hint_range(0.0, 1.0) = 0.55;
+uniform float explored_level = 0.25;
 
 void vertex()
 {
@@ -53,10 +59,14 @@ void fragment()
     if (world_visibility_texture_uv.x >= 0.0 && world_visibility_texture_uv.x <= 1.0 &&
         world_visibility_texture_uv.y >= 0.0 && world_visibility_texture_uv.y <= 1.0)
     {
-      float transparency_from_world_visibility_texture = 0.0;
-      transparency_from_world_visibility_texture =
-          textureLod(world_visibility_texture, world_visibility_texture_uv, 0.0).r;
-      ALPHA = max(ALPHA, 1.0 - transparency_from_world_visibility_texture);
+      float visibility = textureLod(world_visibility_texture, world_visibility_texture_uv, 0.0).r;
+      float memory = clamp(visibility / explored_level, 0.0, 1.0);
+      float current = clamp((visibility - explored_level) / (1.0 - explored_level), 0.0, 1.0);
+      vec3 scene = textureLod(screen_texture, SCREEN_UV, 0.0).rgb;
+      float luminance = dot(scene, vec3(0.2126, 0.7152, 0.0722));
+      vec3 remembered = mix(vec3(luminance), scene, 0.45) * memory_brightness * memory_tint;
+      ALBEDO = mix(ALBEDO, remembered, memory);
+      ALPHA = max(ALPHA, 1.0 - current);
     }
     else if (max(exterior_visibility, living_world_visibility) > 0.0)
     {

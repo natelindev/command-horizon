@@ -95,18 +95,6 @@ func _ready():
 
 func _atmosphere():
 	var game = get_parent()
-	game.get_node("Fog").hide()
-	var world = game.get_node("WorldEnvironment")
-	world.environment = world.environment.duplicate()
-	world.environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	world.environment.ambient_light_color = Color("acbdc5")
-	world.environment.ambient_light_energy = .5
-	world.environment.tonemap_exposure = .9
-	var sunlight = game.get_node("DirectionalLight3D")
-	sunlight.light_color = Color("ffe3b9")
-	sunlight.light_energy = 1.15
-	sunlight.shadow_normal_bias = 2.0
-	sunlight.shadow_blur = .5
 	var overlay = game.get_node("FogOfWar/ScreenOverlay")
 	overlay.material_override = overlay.material_override.duplicate()
 	overlay.material_override.set_shader_parameter("exterior_visibility", .22)

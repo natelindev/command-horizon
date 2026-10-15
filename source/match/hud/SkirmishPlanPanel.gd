@@ -1,6 +1,8 @@
 extends PanelContainer
 
 const Plan = preload("res://source/match/SkirmishPlan.gd")
+# A collapsed plan stays collapsed for later battles in the same session.
+static var _collapsed = false
 var hud
 var _body
 var _title
@@ -69,6 +71,8 @@ func _ready():
 		"Select combat and support units below 50% health. Selection keeps their orders. "
 		+ "Use Recover health for a manual retreat, or review their program safe points."
 	)
+	if _collapsed:
+		_toggle_body()
 	refresh()
 
 
@@ -173,6 +177,7 @@ func _toggle_body():
 	_body.visible = not _body.visible
 	_scroll.visible = _body.visible
 	_toggle.text = "Battle plan  ▾" if _body.visible else "Battle plan  ▸"
+	_collapsed = not _body.visible
 	size.y = 0
 
 

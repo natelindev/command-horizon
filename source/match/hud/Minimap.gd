@@ -3,6 +3,16 @@ extends PanelContainer
 const Ownership = preload("res://source/match/hud/Ownership.gd")
 const Unit = preload("res://source/match/units/Unit.gd")
 const Moving = preload("res://source/match/units/actions/Moving.gd")
+const AtmosphereProfiles = preload("res://source/match/environment/AtmosphereProfiles.gd")
+const MinimapTerrain = preload("res://source/match/hud/MinimapTerrain.gd")
+# Shown until (or instead of, when rendering is unavailable) the terrain capture.
+const BIOME_GROUND = {
+	"desert": Color("6d604c"),
+	"alpine": Color("7f8b95"),
+	"coastal": Color("566760"),
+	"urban": Color("4c5659"),
+	"temperate": Color("515d4b"),
+}
 
 const GROUND_LEVEL_PLANE = Plane(Vector3.UP, 0)
 const MINIMAP_PIXELS_PER_WORLD_METER = 2
@@ -29,11 +39,16 @@ func _ready():
 	_texture_rect.gui_input.connect(_on_gui_input)
 	_texture_rect.tooltip_text = Ownership.legend(_match)
 	_texture_rect.accessibility_name = "Battlefield minimap. " + Ownership.legend(_match)
+	_viewport_background.color = BIOME_GROUND[AtmosphereProfiles.biome(_match.map)]
+	var terrain = MinimapTerrain.new()
+	_viewport_background.add_child(terrain)
 	if _match.map.has_method("overview"):
 		var features = load("res://source/match/hud/MapFeatures.gd").new()
 		features.map = _match.map
 		features.pixel_scale = MINIMAP_PIXELS_PER_WORLD_METER
+		features.terrain = terrain
 		_viewport_background.add_child(features)
+	terrain.capture(_match.map, MINIMAP_PIXELS_PER_WORLD_METER)
 	if _camera_indicator != null:
 		_camera_indicator.default_color = Color("f0b429")
 		_camera_indicator.width = 2.0

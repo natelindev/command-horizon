@@ -116,11 +116,13 @@ func update_layout(selected_units: Array, direct_orders = null):
 
 
 func _clear_slots():
+	# Rows without any assigned command are hidden rather than shown as empty key boxes.
 	for r in range(3):
 		for c in range(4):
 			var btn = _slots[r][c]
 			btn.text = "[%s]" % GRID_LABELS[r][c]
 			btn.disabled = true
+			btn.visible = false
 			for conn in btn.pressed.get_connections():
 				btn.pressed.disconnect(conn.callable)
 
@@ -130,6 +132,8 @@ func _setup_slot(r: int, c: int, label: String, key: String, callable: Callable,
 	btn.text = "[%s]\n%s" % [key, tr(label)]
 	btn.disabled = not enabled
 	btn.pressed.connect(callable)
+	for slot in _slots[r]:
+		slot.visible = true
 
 
 func _on_move():

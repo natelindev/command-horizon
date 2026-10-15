@@ -3,6 +3,8 @@ shader_type spatial;
 uniform bool exterior = false;
 uniform int road_count = 0;
 uniform vec4 roads[16];
+// Enlarged layouts move landmarks away from the origin without resizing them.
+uniform float layout_scale = 1.0;
 varying vec3 world_point;
 
 float hash(vec2 p) {
@@ -55,7 +57,7 @@ void fragment() {
 		float tyre = 1.0 - smoothstep(0.08, 0.22, abs(lane - 1.15));
 		color *= 1.0 - tyre * (0.06 + medium * 0.07);
 		for (int index=0; index<2; index++) {
-			vec2 relay = index == 0 ? vec2(55,36) : vec2(73,73);
+			vec2 relay = (index == 0 ? vec2(55,36) : vec2(73,73)) * layout_scale;
 			vec2 q = abs(p - relay);
 			float pad = 1.0 - smoothstep(3.0,3.4, max(q.x,q.y));
 			vec3 concrete = mix(vec3(0.24,0.30,0.33), snow, smoothstep(0.45,0.72,medium) * 0.55);

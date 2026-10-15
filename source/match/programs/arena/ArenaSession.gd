@@ -101,6 +101,7 @@ func _create_match():
 	game.settings.visibility = game.settings.Visibility.FULL
 	for index in range(2):
 		var player_settings = load("res://source/data-model/PlayerSettings.gd").new()
+		player_settings.color = Constants.Player.COLORS[3 if index == 0 else 1]
 		player_settings.faction = (
 			faction if index == 0 else ("helix" if faction == "bastion" else "bastion")
 		)

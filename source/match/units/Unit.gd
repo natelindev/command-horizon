@@ -64,6 +64,8 @@ func _ready():
 		await _match.ready
 	if player != null:
 		_setup_color()
+		if has_node("Movement"):
+			add_child(load("res://source/match/units/traits/TeamFootprint.gd").new(self))
 		if player.technology != null:
 			player.technology.apply_unit(self)
 	_setup_default_properties_from_constants()
