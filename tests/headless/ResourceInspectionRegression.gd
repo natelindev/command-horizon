@@ -93,12 +93,12 @@ func _authority():
 func _details(faction):
 	var before = _authority()
 	await _point_at(material)
-	_check("Materials · 300 M" in _card_text(), faction + ": material stock missing")
+	_check("Materials · 600 M" in _card_text(), faction + ": material stock missing")
 	_check("2 work slots" in _card_text(), faction + ": work slots missing")
 	material.resource_a = 127
 	_check("Materials · 127 M" in _card_text(), faction + ": material stock stale")
 	await _point_at(electronics)
-	_check("Electronics · 300 E" in _card_text(), faction + ": electronics stock missing")
+	_check("Electronics · 600 E" in _card_text(), faction + ": electronics stock missing")
 	await _point_at(aircraft)
 	_check("Your forces" in _card_text(), faction + ": aircraft ownership missing")
 	await _point_at(wreck)
@@ -208,7 +208,7 @@ func _archive():
 		wreck = restore.entities[ids[1]]
 		_check(paused, "Resource inspection archive resumed")
 		await _point_at(material)
-		_check("300 M" in _card_text(), "Restored material stock missing")
+		_check("600 M" in _card_text(), "Restored material stock missing")
 		await _point_at(wreck)
 		_check("4 M · expires in 2:58" in _card_text(), "Restored wreck details changed")
 		_check(wreck.find_children("*", "Label3D", true, false).is_empty(), "Restored wreck label")

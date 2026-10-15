@@ -60,14 +60,18 @@ func _create(map_name, faction, mission = ""):
 		game.progress_path = progress_path
 	root.add_child(game)
 	current_scene = game
-	# Keep authored buildings and stationary armies, but isolate the resource routes
-	# from combat, mission responses, automatic orders and paid production.
+	# Keep authored buildings and isolate resource routes from combat and production.
+	# Frozen opening troops cannot yield to harvesters and can seal HQ exits, even
+	# on the original legacy maps. Live crowd avoidance has its own navigation test.
 	game.set_process(false)
 	for player in get_nodes_in_group("players"):
 		player.set_process(false)
 	for unit in get_nodes_in_group("units"):
 		unit.issue_manual_order(null)
-		unit.process_mode = Node.PROCESS_MODE_DISABLED
+		if unit.movement_speed > 0:
+			unit.queue_free()
+		else:
+			unit.process_mode = Node.PROCESS_MODE_DISABLED
 	game.get_node("IsometricCamera3D").set_physics_process(false)
 	await _frames(120)
 
@@ -120,7 +124,9 @@ func _fields():
 		workers[0].issue_manual_order(harvest.new(materials[0]))
 		workers[1].issue_manual_order(harvest.new(field))
 		var started = game.simulation_time
-		for frame in 7200:
+		# The farthest Command Horizon field needs more than two minutes for a
+		# complete round trip to the player's starting HQ, even on a clear route.
+		for frame in 14400:
 			await physics_frame
 			if side.resource_a >= balance.x + 4 and side.resource_b >= balance.y + 4:
 				break

@@ -41,15 +41,21 @@ func _ready():
 	add_child(load("res://source/match/maps/QuarryBackdrop.gd").new())
 	_atmosphere()
 	for point in [Vector3(9, 0, 72), Vector3(42, 0, 93), Vector3(133, 0, 85)]:
-		for offset in [-2.5, 0.0, 2.5]:
+		for offset in [
+			Vector2(-2.5, 0), Vector2.ZERO, Vector2(2.5, 0), Vector2(-1.5, -3), Vector2(1.5, -3)
+		]:
 			var deposit = load("res://source/match/units/non-player/ResourceA.tscn").instantiate()
-			deposit.resource_a = 200
-			deposit.position = point + Vector3(offset, 0, 0)
+			deposit.resource_a = 400
+			deposit.position = point + Vector3(offset.x, 0, offset.y)
 			$Resources.add_child(deposit)
-		var electronics = load("res://source/match/units/non-player/ResourceB.tscn").instantiate()
-		electronics.resource_b = 240
-		electronics.position = point + Vector3(0, 0, 5)
-		$Resources.add_child(electronics)
+		for extra in 2:
+			var electronics = (
+				load("res://source/match/units/non-player/ResourceB.tscn").instantiate()
+			)
+			electronics.resource_b = 480
+			electronics.position = point + Vector3(0, 0, 5)
+			electronics.position += Vector3(3, 0, 0) * extra
+			$Resources.add_child(electronics)
 
 
 func _landmark(point, asset, radius):

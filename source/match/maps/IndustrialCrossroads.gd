@@ -63,17 +63,27 @@ func _ready():
 	for index in FIELDS.size():
 		var point = FIELDS[index]
 		var mirror = 1 if index % 2 == 0 else -1
-		for offset in [-3.5, 0.0, 3.5]:
+		for offset in [
+			Vector2(-3.5, 0),
+			Vector2.ZERO,
+			Vector2(3.5, 0),
+			Vector2(-1.75, -3.5),
+			Vector2(1.75, -3.5)
+		]:
 			var deposit = load("res://source/match/units/non-player/ResourceA.tscn").instantiate()
-			deposit.resource_a = 200 if index < 2 else 300
-			deposit.position = Vector3(point.x + offset, 0, point.y)
+			deposit.resource_a = 400 if index < 2 else 600
+			deposit.position = Vector3(point.x + offset.x, 0, point.y + offset.y * mirror)
 			$Resources.add_child(deposit)
-		var electronics = load("res://source/match/units/non-player/ResourceB.tscn").instantiate()
-		electronics.resource_b = 360 if index < 2 else 600
-		electronics.position = Vector3(
-			point.x + mirror * 6.5, 0, point.y + mirror * (-2 if index < 2 else 2)
-		)
-		$Resources.add_child(electronics)
+		for extra in 2:
+			var electronics = (
+				load("res://source/match/units/non-player/ResourceB.tscn").instantiate()
+			)
+			electronics.resource_b = 720 if index < 2 else 1200
+			electronics.position = Vector3(
+				point.x + mirror * 6.5, 0, point.y + mirror * (-2 if index < 2 else 2)
+			)
+			electronics.position += Vector3(0, 0, mirror * 3.5) * extra
+			$Resources.add_child(electronics)
 	for index in RELAYS.size():
 		var relay = load("res://source/match/objectives/CaptureRelay.gd").new()
 		relay.name = "NorthRelay" if index == 0 else "SouthRelay"

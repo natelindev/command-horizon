@@ -52,15 +52,21 @@ func _ready():
 	for index in FIELDS.size():
 		var anchor = FIELDS[index]
 		var mirror = 1 if index % 2 == 0 else -1
-		for offset in [-2.5, 0.0, 2.5]:
+		for offset in [
+			Vector2(-2.5, 0), Vector2.ZERO, Vector2(2.5, 0), Vector2(-1.5, -3), Vector2(1.5, -3)
+		]:
 			var deposit = load("res://source/match/units/non-player/ResourceA.tscn").instantiate()
-			deposit.resource_a = 200 if index < 2 else 300
-			deposit.position = Vector3(anchor.x + offset, 0, anchor.y)
+			deposit.resource_a = 400 if index < 2 else 600
+			deposit.position = Vector3(anchor.x + offset.x, 0, anchor.y + offset.y * mirror)
 			$Resources.add_child(deposit)
-		var electronics = load("res://source/match/units/non-player/ResourceB.tscn").instantiate()
-		electronics.resource_b = 360 if index < 2 else 600
-		electronics.position = Vector3(anchor.x + 5.5 * mirror, 0, anchor.y + 2 * mirror)
-		$Resources.add_child(electronics)
+		for extra in 2:
+			var electronics = (
+				load("res://source/match/units/non-player/ResourceB.tscn").instantiate()
+			)
+			electronics.resource_b = 720 if index < 2 else 1200
+			electronics.position = Vector3(anchor.x + 5.5 * mirror, 0, anchor.y + 2 * mirror)
+			electronics.position += Vector3(0, 0, mirror * 3) * extra
+			$Resources.add_child(electronics)
 	for index in RIDGES.size():
 		_ridge(RIDGES[index], index)
 	for index in RELAYS.size():

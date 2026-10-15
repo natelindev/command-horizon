@@ -209,39 +209,44 @@ def capacitor_pack():
     box('Torn cover', (.14, .25, .18), (.38, .17, .04), white, .21)
 
 
-manifest = []
-for kind, builders in [('materials', (beam_stock, armor_wreck, steel_coil)),
-                       ('electronics', (server_cache, relay_wreck, capacitor_pack))]:
-    for variant, builder in enumerate(builders):
-        bpy.ops.object.select_all(action='SELECT')
-        bpy.ops.object.delete(use_global=False)
-        builder()
-        bpy.ops.object.select_all(action='SELECT')
-        bpy.context.view_layer.objects.active = bpy.context.selected_objects[0]
-        bpy.ops.object.join()
-        obj = bpy.context.object
-        obj.name = f'{kind}_{variant}'
-        bpy.context.scene.cursor.location = (0, 0, 0)
-        bpy.ops.object.origin_set(type='ORIGIN_CURSOR')
-        bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
-        # Check actual vertices, including bevels and rotated parts, not nominal sizes.
-        radius = max(math.hypot(v.co.x, v.co.y) for v in obj.data.vertices)
-        if radius > .565:
-            scale = .565 / radius
-            for vertex in obj.data.vertices:
-                vertex.co.x *= scale
-                vertex.co.y *= scale
-        radius = max(math.hypot(v.co.x, v.co.y) for v in obj.data.vertices)
-        obj.data.calc_loop_triangles()
-        triangles = len(obj.data.loop_triangles)
-        assert radius < .6 and triangles < 3000
-        path = OUT / f'{kind}_{variant}.glb'
-        bpy.ops.export_scene.gltf(filepath=str(path), export_format='GLB', use_selection=True)
-        bpy.ops.wm.save_as_mainfile(filepath=str(ROOT / f'art/resources/{kind}_{variant}.blend'))
-        manifest.append(dict(asset=path.name, design=builder.__name__, triangles=triangles,
-                             surfaces=len(set(p.material_index for p in obj.data.polygons)),
-                             radius=round(radius, 4),
-                             height=round(max(v.co.z for v in obj.data.vertices), 4),
-                             bytes=path.stat().st_size))
-(ROOT / 'art/resources/manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
-print('Built six distinct neutral salvage assets; footprint and triangle budgets verified')
+def build_full_deposits():
+    manifest = []
+    for kind, builders in [('materials', (beam_stock, armor_wreck, steel_coil)),
+                           ('electronics', (server_cache, relay_wreck, capacitor_pack))]:
+        for variant, builder in enumerate(builders):
+            bpy.ops.object.select_all(action='SELECT')
+            bpy.ops.object.delete(use_global=False)
+            builder()
+            bpy.ops.object.select_all(action='SELECT')
+            bpy.context.view_layer.objects.active = bpy.context.selected_objects[0]
+            bpy.ops.object.join()
+            obj = bpy.context.object
+            obj.name = f'{kind}_{variant}'
+            bpy.context.scene.cursor.location = (0, 0, 0)
+            bpy.ops.object.origin_set(type='ORIGIN_CURSOR')
+            bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+            # Check actual vertices, including bevels and rotated parts, not nominal sizes.
+            radius = max(math.hypot(v.co.x, v.co.y) for v in obj.data.vertices)
+            if radius > .565:
+                scale = .565 / radius
+                for vertex in obj.data.vertices:
+                    vertex.co.x *= scale
+                    vertex.co.y *= scale
+            radius = max(math.hypot(v.co.x, v.co.y) for v in obj.data.vertices)
+            obj.data.calc_loop_triangles()
+            triangles = len(obj.data.loop_triangles)
+            assert radius < .6 and triangles < 3000
+            path = OUT / f'{kind}_{variant}.glb'
+            bpy.ops.export_scene.gltf(filepath=str(path), export_format='GLB', use_selection=True)
+            bpy.ops.wm.save_as_mainfile(filepath=str(ROOT / f'art/resources/{kind}_{variant}.blend'))
+            manifest.append(dict(asset=path.name, design=builder.__name__, triangles=triangles,
+                                 surfaces=len(set(p.material_index for p in obj.data.polygons)),
+                                 radius=round(radius, 4),
+                                 height=round(max(v.co.z for v in obj.data.vertices), 4),
+                                 bytes=path.stat().st_size))
+    (ROOT / 'art/resources/manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
+    print('Built six distinct neutral salvage assets; footprint and triangle budgets verified')
+
+
+if __name__ == "__main__":
+    build_full_deposits()

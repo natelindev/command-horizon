@@ -132,7 +132,7 @@ func _industrial_routes():
 		"Archive changed district"
 	)
 	_check(
-		get_nodes_in_group("resource_units").size() == 16, "District archive duplicated deposits"
+		get_nodes_in_group("resource_units").size() == 28, "District archive duplicated deposits"
 	)
 	game.hud._toggle_pause()
 	await _frames(1800)
@@ -261,7 +261,7 @@ func _industrial_economy(faction):
 			func(unit):
 				return (
 					"resource_b" in unit
-					and unit.resource_b == 600
+					and unit.resource_b == 1200
 					and ((unit.position.x < 64) == (index == 0))
 				)
 		)

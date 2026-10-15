@@ -2,6 +2,18 @@ extends Area3D
 
 const ResourceDecayAnimation = preload("res://source/match/utils/ResourceDecayAnimation.tscn")
 
+# Absolute stock thresholds keep partially harvested and legacy saves visually exact
+# without introducing a second, potentially stale resource balance into the archive.
+const PILE_THRESHOLDS = [60, 150, 300]
+const PILE_POSITIONS = [
+	Vector3.ZERO,
+	Vector3(-0.27, 0.05, 0.12),
+	Vector3(0.25, 0.08, -0.15),
+	Vector3(-0.06, 0.32, 0.02),
+	Vector3(0.06, 0.58, -0.02),
+]
+const PILE_SCALES = [1.0, 0.42, 0.42, 0.68, 0.46]
+
 const SALVAGE_MODELS = {
 	"materials":
 	[
@@ -17,12 +29,31 @@ const SALVAGE_MODELS = {
 	],
 }
 
+const DEPLETED_MODELS = {
+	"materials":
+	[
+		preload("res://assets/models/resources/materials_depleted_0.glb"),
+		preload("res://assets/models/resources/materials_depleted_1.glb"),
+		preload("res://assets/models/resources/materials_depleted_2.glb"),
+	],
+	"electronics":
+	[
+		preload("res://assets/models/resources/electronics_depleted_0.glb"),
+		preload("res://assets/models/resources/electronics_depleted_1.glb"),
+		preload("res://assets/models/resources/electronics_depleted_2.glb"),
+	],
+}
+
 var radius:
 	get:
 		return find_child("MovementObstacle").radius
 var global_position_yless:
 	get:
 		return global_position * Vector3(1, 0, 1)
+
+var _salvage_kind = ""
+var _salvage_key = 0
+var _salvage_stage = -1
 
 
 func _enter_tree():
@@ -43,16 +74,37 @@ func _animate_decay():
 
 func _setup_salvage(kind):
 	# Position hashing is cosmetic and never consumes simulation randomness.
-	var key = absi(int(round(global_position.x * 31)) + int(round(global_position.z * 73)))
-	var variant = key % 3
+	_salvage_kind = kind
+	_salvage_key = absi(int(round(global_position.x * 31)) + int(round(global_position.z * 73)))
+	get_node("Geometry").rotation.y = float(_salvage_key % 16) * TAU / 16.0
+	_update_salvage(get("resource_a") if kind == "materials" else get("resource_b"))
+
+
+func _update_salvage(amount):
+	# Setters also run before ready and for vehicle wrecks, which have their own art.
+	if _salvage_kind.is_empty():
+		return
+	var stage = 0
+	for threshold in PILE_THRESHOLDS:
+		if amount > threshold:
+			stage += 1
+	if stage == _salvage_stage:
+		return
+	_salvage_stage = stage
 	var geometry = get_node("Geometry")
-	if variant != 0:
-		var original = geometry.get_child(0)
+	for original in geometry.get_children():
 		geometry.remove_child(original)
 		original.queue_free()
-		var model = SALVAGE_MODELS[kind][variant]
-		geometry.add_child(model.instantiate())
-	geometry.rotation.y = float(key % 16) * TAU / 16.0
+	if stage < PILE_THRESHOLDS.size():
+		# Open bundles -> loose parts -> scraps: authored geometry, at its real scale.
+		geometry.add_child(DEPLETED_MODELS[_salvage_kind][stage].instantiate())
+		return
+	for index in PILE_POSITIONS.size():
+		var pile = SALVAGE_MODELS[_salvage_kind][(_salvage_key + index) % 3].instantiate()
+		pile.position = PILE_POSITIONS[index]
+		pile.scale = Vector3.ONE * PILE_SCALES[index]
+		pile.rotation.y = float((_salvage_key + index * 5) % 16) * TAU / 16.0
+		geometry.add_child(pile)
 
 
 func can_harvest(_worker):

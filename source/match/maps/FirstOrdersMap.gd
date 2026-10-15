@@ -5,13 +5,19 @@ const Obstacle = preload("res://source/match/units/traits/MovementObstacle.tscn"
 
 func _ready():
 	for anchor in [Vector2(9, 28), Vector2(26, 13), Vector2(27, 47)]:
-		for offset in [-2.0, 0.0, 2.0]:
+		for offset in [
+			Vector2(-2.0, 0), Vector2.ZERO, Vector2(2.0, 0), Vector2(-1.5, -3), Vector2(1.5, -3)
+		]:
 			var deposit = load("res://source/match/units/non-player/ResourceA.tscn").instantiate()
-			deposit.position = Vector3(anchor.x + offset, 0, anchor.y)
+			deposit.position = Vector3(anchor.x + offset.x, 0, anchor.y + offset.y)
 			$Resources.add_child(deposit)
-		var electronics = load("res://source/match/units/non-player/ResourceB.tscn").instantiate()
-		electronics.position = Vector3(anchor.x + 5, 0, anchor.y + 1)
-		$Resources.add_child(electronics)
+		for extra in 2:
+			var electronics = (
+				load("res://source/match/units/non-player/ResourceB.tscn").instantiate()
+			)
+			electronics.position = Vector3(anchor.x + 5, 0, anchor.y + 1)
+			electronics.position += Vector3(0, 0, 3) * extra
+			$Resources.add_child(electronics)
 	# Two broad approaches around the sandstone ridge; the relay is beyond base defenses.
 	for point in [
 		Vector3(31, 0, 30),

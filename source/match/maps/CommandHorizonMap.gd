@@ -60,15 +60,21 @@ func _ready():
 	relay.position = DEPLOYMENT
 	add_child(relay)
 	for point in [Vector3(10, 0, 89), Vector3(82, 0, 78), Vector3(164, 0, 25)]:
-		for offset in [-3, 0, 3]:
+		for offset in [
+			Vector2(-3, 0), Vector2.ZERO, Vector2(3, 0), Vector2(-1.5, -3), Vector2(1.5, -3)
+		]:
 			var resource = load("res://source/match/units/non-player/ResourceA.tscn").instantiate()
-			resource.resource_a = 300
-			resource.position = point + Vector3(offset, 0, 0)
+			resource.resource_a = 600
+			resource.position = point + Vector3(offset.x, 0, offset.y)
 			$Resources.add_child(resource)
-		var electronics = load("res://source/match/units/non-player/ResourceB.tscn").instantiate()
-		electronics.resource_b = 300
-		electronics.position = point + Vector3(0, 0, 5)
-		$Resources.add_child(electronics)
+		for extra in 2:
+			var electronics = (
+				load("res://source/match/units/non-player/ResourceB.tscn").instantiate()
+			)
+			electronics.resource_b = 600
+			electronics.position = point + Vector3(0, 0, 5)
+			electronics.position += Vector3(3, 0, 0) * extra
+			$Resources.add_child(electronics)
 
 
 func _landmark(point, asset):

@@ -51,17 +51,24 @@ static func add_fields(map, fields, rotational_pairs = true):
 	for index in fields.size():
 		var point = fields[index]
 		var mirror = 1 if index % 2 == 0 else -1
-		for offset in [-2.5, 0.0, 2.5]:
+		var depth_direction = mirror if rotational_pairs else 1
+		for offset in [
+			Vector2(-2.5, 0), Vector2.ZERO, Vector2(2.5, 0), Vector2(-1.5, -3), Vector2(1.5, -3)
+		]:
 			var deposit = load("res://source/match/units/non-player/ResourceA.tscn").instantiate()
-			deposit.resource_a = 300
-			deposit.position = Vector3(point.x + offset, 0, point.y)
+			deposit.resource_a = 600
+			deposit.position = Vector3(point.x + offset.x, 0, point.y + offset.y * depth_direction)
 			map.get_node("Resources").add_child(deposit)
-		var electronics = load("res://source/match/units/non-player/ResourceB.tscn").instantiate()
-		electronics.resource_b = 600
-		electronics.position = Vector3(
-			point.x + mirror * 5.5, 0, point.y + (mirror * 2 if rotational_pairs else 2)
-		)
-		map.get_node("Resources").add_child(electronics)
+		for extra in 2:
+			var electronics = (
+				load("res://source/match/units/non-player/ResourceB.tscn").instantiate()
+			)
+			electronics.resource_b = 1200
+			electronics.position = Vector3(
+				point.x + mirror * 5.5, 0, point.y + (mirror * 2 if rotational_pairs else 2)
+			)
+			electronics.position += Vector3(0, 0, depth_direction * 3) * extra
+			map.get_node("Resources").add_child(electronics)
 
 
 static func roads(map, segments):

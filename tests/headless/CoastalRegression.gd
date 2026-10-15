@@ -138,7 +138,7 @@ func _coastal_routes():
 		),
 		"Loaded water clock differs"
 	)
-	_check(get_nodes_in_group("resource_units").size() == 16, "Restore duplicated deposits")
+	_check(get_nodes_in_group("resource_units").size() == 28, "Restore duplicated deposits")
 	for index in army.size():
 		_check(
 			army[index].position.distance_to(positions[index]) < .02,
@@ -274,7 +274,7 @@ func _coastal_economy(faction):
 			func(unit):
 				return (
 					"resource_b" in unit
-					and unit.resource_b == 600
+					and unit.resource_b == 1200
 					and ((unit.position.x < 64) == (index == 0))
 				)
 		)

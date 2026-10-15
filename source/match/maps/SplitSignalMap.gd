@@ -50,15 +50,21 @@ func _ready():
 		add_child(relay)
 		relays.append(relay)
 	for point in DEPOSITS:
-		for offset in [-2.5, 0.0, 2.5]:
+		for offset in [
+			Vector2(-2.5, 0), Vector2.ZERO, Vector2(2.5, 0), Vector2(-1.5, -3), Vector2(1.5, -3)
+		]:
 			var resource = load("res://source/match/units/non-player/ResourceA.tscn").instantiate()
-			resource.resource_a = 200
-			resource.position = Vector3(point.x + offset, 0, point.y)
+			resource.resource_a = 400
+			resource.position = Vector3(point.x + offset.x, 0, point.y + offset.y)
 			$Resources.add_child(resource)
-		var electronics = load("res://source/match/units/non-player/ResourceB.tscn").instantiate()
-		electronics.resource_b = 180
-		electronics.position = Vector3(point.x + 5, 0, point.y + 2)
-		$Resources.add_child(electronics)
+		for extra in 2:
+			var electronics = (
+				load("res://source/match/units/non-player/ResourceB.tscn").instantiate()
+			)
+			electronics.resource_b = 360
+			electronics.position = Vector3(point.x + 5, 0, point.y + 2)
+			electronics.position += Vector3(0, 0, 3) * extra
+			$Resources.add_child(electronics)
 
 
 func _split_ground_cover():

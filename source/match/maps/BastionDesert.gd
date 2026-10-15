@@ -9,13 +9,21 @@ const Obstacle = preload("res://source/match/units/traits/MovementObstacle.tscn"
 func _ready():
 	# Deterministic paired resource fields and a contested central expansion.
 	for anchor in [Vector2(9, 26), Vector2(54, 38), Vector2(30, 17), Vector2(34, 48)]:
-		for offset in [Vector2(-1.7, 0), Vector2(0, 1.5), Vector2(1.7, 0)]:
+		for offset in [
+			Vector2(-1.7, 0),
+			Vector2(0, 1.5),
+			Vector2(1.7, 0),
+			Vector2(-1.5, -2.5),
+			Vector2(1.5, -2.5)
+		]:
 			var deposit = ResourceA.instantiate()
 			deposit.position = Vector3(anchor.x + offset.x, 0, anchor.y + offset.y)
 			$Resources.add_child(deposit)
-		var electronics = ResourceB.instantiate()
-		electronics.position = Vector3(anchor.x + 4.0, 0, anchor.y)
-		$Resources.add_child(electronics)
+		for extra in 2:
+			var electronics = ResourceB.instantiate()
+			electronics.position = Vector3(anchor.x + 4.0, 0, anchor.y)
+			electronics.position += Vector3(0, 0, 3) * extra
+			$Resources.add_child(electronics)
 	for position_2d in [
 		Vector2(27, 30),
 		Vector2(37, 35),

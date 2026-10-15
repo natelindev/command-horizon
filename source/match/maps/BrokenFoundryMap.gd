@@ -55,15 +55,21 @@ func _ready():
 	for body in flight_obstacles:
 		load("res://source/match/maps/IndustrialMaterials.gd").weather(body)
 	for point in [Vector3(10, 0, 79), Vector3(43, 0, 105)]:
-		for offset in [-2.5, 0.0, 2.5]:
+		for offset in [
+			Vector2(-2.5, 0), Vector2.ZERO, Vector2(2.5, 0), Vector2(-1.5, -3), Vector2(1.5, -3)
+		]:
 			var deposit = load("res://source/match/units/non-player/ResourceA.tscn").instantiate()
-			deposit.resource_a = 240
-			deposit.position = point + Vector3(offset, 0, 0)
+			deposit.resource_a = 480
+			deposit.position = point + Vector3(offset.x, 0, offset.y)
 			$Resources.add_child(deposit)
-		var electronics = load("res://source/match/units/non-player/ResourceB.tscn").instantiate()
-		electronics.resource_b = 240
-		electronics.position = point + Vector3(0, 0, 5)
-		$Resources.add_child(electronics)
+		for extra in 2:
+			var electronics = (
+				load("res://source/match/units/non-player/ResourceB.tscn").instantiate()
+			)
+			electronics.resource_b = 480
+			electronics.position = point + Vector3(0, 0, 5)
+			electronics.position += Vector3(3, 0, 0) * extra
+			$Resources.add_child(electronics)
 
 
 func flight_height_at(point, baseline):

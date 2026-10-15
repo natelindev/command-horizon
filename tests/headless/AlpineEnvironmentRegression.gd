@@ -225,7 +225,7 @@ func _passes():
 		game.map.size == Vector2(128, 104) and game.settings.map_path == ALPINE,
 		"Alpine archive map identity changed"
 	)
-	_check(get_nodes_in_group("resource_units").size() == 16, "Alpine archive duplicated fields")
+	_check(get_nodes_in_group("resource_units").size() == 28, "Alpine archive duplicated fields")
 	game.hud._toggle_pause()
 	await _frames(3000)
 	_check(army.all(func(unit): return unit.position.x > 85), "Alpine 16-tank approach stuck")
@@ -276,7 +276,7 @@ func _economy(faction):
 			materials += deposit.resource_a
 		else:
 			electronics += deposit.resource_b
-	_check(materials == 3000 and electronics == 1920, "Alpine stockpiles changed")
+	_check(materials == 10000 and electronics == 7680, "Alpine stockpiles changed")
 	var balances = []
 	for side in sides:
 		var workers = _units(side, "Worker")

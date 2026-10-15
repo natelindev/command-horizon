@@ -29,53 +29,85 @@ transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 40, 0,
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 10, 0, 43)
 
 [node name="ResourceA" parent="Resources" index="0" instance=ExtResource("3_3gxbc")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.52981, -7.15256e-06, 15.5708)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.5000, 0, 16.0000)
 
 [node name="ResourceA2" parent="Resources" index="1" instance=ExtResource("3_3gxbc")]
-transform = Transform3D(0.157813, 0, -0.987469, 0, 1, 0, 0.987469, 0, 0.157813, 9.4963, -7.15256e-06, 15.3833)
-resource_a = 5
+transform = Transform3D(0.157813, 0, -0.987469, 0, 1, 0, 0.987469, 0, 0.157813, 5.5000, 0, 16.0000)
 
 [node name="ResourceA3" parent="Resources" index="2" instance=ExtResource("3_3gxbc")]
-transform = Transform3D(-0.984384, 0, 0.176037, 0, 1, 0, -0.176037, 0, -0.984384, 9.07351, -7.62939e-06, 17.1366)
+transform = Transform3D(-0.984384, 0, 0.176037, 0, 1, 0, -0.176037, 0, -0.984384, 9.0000, 0, 16.0000)
 
 [node name="ResourceA4" parent="Resources" index="3" instance=ExtResource("3_3gxbc")]
-transform = Transform3D(-0.878559, 0, -0.477634, 0, 1, 0, 0.477634, 0, -0.878559, 40.5191, -5.72204e-06, 14.7519)
+transform = Transform3D(-0.878559, 0, -0.477634, 0, 1, 0, 0.477634, 0, -0.878559, 44.5000, 0, 16.0000)
 
 [node name="ResourceA5" parent="Resources" index="4" instance=ExtResource("3_3gxbc")]
-transform = Transform3D(-0.878559, 0, -0.477634, 0, 1, 0, 0.477634, 0, -0.878559, 41.412, -5.72204e-06, 13.361)
-resource_a = 5
+transform = Transform3D(-0.878559, 0, -0.477634, 0, 1, 0, 0.477634, 0, -0.878559, 41.0000, 0, 16.0000)
 
 [node name="ResourceA6" parent="Resources" index="5" instance=ExtResource("3_3gxbc")]
-transform = Transform3D(-0.878559, 0, -0.477634, 0, 1, 0, 0.477634, 0, -0.878559, 42.5933, -7.62939e-06, 14.65)
+transform = Transform3D(-0.878559, 0, -0.477634, 0, 1, 0, 0.477634, 0, -0.878559, 37.5000, 0, 16.0000)
 
 [node name="ResourceB" parent="Resources" index="6" instance=ExtResource("4_4hhxt")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.2571, -7.62939e-06, 15.2579)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.0000, 0, 16.0000)
 
 [node name="ResourceB2" parent="Resources" index="7" instance=ExtResource("4_4hhxt")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.3143, -5.72204e-06, 14.8547)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34.0000, 0, 16.0000)
 
 [node name="ResourceA7" parent="Resources" index="8" instance=ExtResource("3_3gxbc")]
-transform = Transform3D(-0.878559, 0, -0.477634, 0, 1, 0, 0.477634, 0, -0.878559, 40.685, -5.72204e-06, 34.3027)
+transform = Transform3D(-0.878559, 0, -0.477634, 0, 1, 0, 0.477634, 0, -0.878559, 44.5000, 0, 34.0000)
 
 [node name="ResourceA8" parent="Resources" index="9" instance=ExtResource("3_3gxbc")]
-transform = Transform3D(-0.878559, 0, -0.477634, 0, 1, 0, 0.477634, 0, -0.878559, 41.533, -5.72204e-06, 35.8383)
-resource_a = 5
+transform = Transform3D(-0.878559, 0, -0.477634, 0, 1, 0, 0.477634, 0, -0.878559, 41.0000, 0, 34.0000)
 
 [node name="ResourceA9" parent="Resources" index="10" instance=ExtResource("3_3gxbc")]
-transform = Transform3D(-0.878559, 0, -0.477634, 0, 1, 0, 0.477634, 0, -0.878559, 42.7592, -7.62939e-06, 34.2008)
+transform = Transform3D(-0.878559, 0, -0.477634, 0, 1, 0, 0.477634, 0, -0.878559, 37.5000, 0, 34.0000)
 
 [node name="ResourceB3" parent="Resources" index="11" instance=ExtResource("4_4hhxt")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 36.4802, -5.72204e-06, 34.4055)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34.0000, 0, 34.0000)
 
 [node name="ResourceA10" parent="Resources" index="12" instance=ExtResource("3_3gxbc")]
-transform = Transform3D(0.960455, 0, 0.278438, 0, 1, 0, -0.278438, 0, 0.960455, 9.6306, -5.72204e-06, 33.1921)
+transform = Transform3D(0.960455, 0, 0.278438, 0, 1, 0, -0.278438, 0, 0.960455, 5.5000, 0, 34.0000)
 
 [node name="ResourceA11" parent="Resources" index="13" instance=ExtResource("3_3gxbc")]
-transform = Transform3D(0.960455, 0, 0.278438, 0, 1, 0, -0.278438, 0, 0.960455, 8.46063, -5.72204e-06, 34.3596)
-resource_a = 5
+transform = Transform3D(0.960455, 0, 0.278438, 0, 1, 0, -0.278438, 0, 0.960455, 9.0000, 0, 34.0000)
 
 [node name="ResourceA12" parent="Resources" index="14" instance=ExtResource("3_3gxbc")]
-transform = Transform3D(0.960455, 0, 0.278438, 0, 1, 0, -0.278438, 0, 0.960455, 7.58274, -7.62939e-06, 32.8476)
+transform = Transform3D(0.960455, 0, 0.278438, 0, 1, 0, -0.278438, 0, 0.960455, 12.5000, 0, 34.0000)
 
 [node name="ResourceB4" parent="Resources" index="15" instance=ExtResource("4_4hhxt")]
-transform = Transform3D(-0.976807, 0, 0.214122, 0, 1, 0, -0.214122, 0, -0.976807, 13.7599, -5.72204e-06, 33.992)
+transform = Transform3D(-0.976807, 0, 0.214122, 0, 1, 0, -0.214122, 0, -0.976807, 16.0000, 0, 34.0000)
+
+[node name="ExtraMaterials0_0" parent="Resources" instance=ExtResource("3_3gxbc")]
+position = Vector3(7.2500, 0, 19.5000)
+
+[node name="ExtraMaterials0_1" parent="Resources" instance=ExtResource("3_3gxbc")]
+position = Vector3(10.7500, 0, 19.5000)
+
+[node name="ExtraElectronics0" parent="Resources" instance=ExtResource("4_4hhxt")]
+position = Vector3(16.0000, 0, 19.5000)
+
+[node name="ExtraMaterials1_0" parent="Resources" instance=ExtResource("3_3gxbc")]
+position = Vector3(42.7500, 0, 19.5000)
+
+[node name="ExtraMaterials1_1" parent="Resources" instance=ExtResource("3_3gxbc")]
+position = Vector3(39.2500, 0, 19.5000)
+
+[node name="ExtraElectronics1" parent="Resources" instance=ExtResource("4_4hhxt")]
+position = Vector3(34.0000, 0, 19.5000)
+
+[node name="ExtraMaterials2_0" parent="Resources" instance=ExtResource("3_3gxbc")]
+position = Vector3(42.7500, 0, 30.5000)
+
+[node name="ExtraMaterials2_1" parent="Resources" instance=ExtResource("3_3gxbc")]
+position = Vector3(39.2500, 0, 30.5000)
+
+[node name="ExtraElectronics2" parent="Resources" instance=ExtResource("4_4hhxt")]
+position = Vector3(34.0000, 0, 30.5000)
+
+[node name="ExtraMaterials3_0" parent="Resources" instance=ExtResource("3_3gxbc")]
+position = Vector3(7.2500, 0, 30.5000)
+
+[node name="ExtraMaterials3_1" parent="Resources" instance=ExtResource("3_3gxbc")]
+position = Vector3(10.7500, 0, 30.5000)
+
+[node name="ExtraElectronics3" parent="Resources" instance=ExtResource("4_4hhxt")]
+position = Vector3(16.0000, 0, 30.5000)
