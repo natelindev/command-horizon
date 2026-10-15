@@ -23,7 +23,9 @@ func _ready():
 		status.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		status.add_theme_font_size_override("font_size", 14)
 		row.add_child(status)
-		var button = hud._button(row, "View " + relay.label_title.capitalize(), _view.bind(relay))
+		var button = hud._button(
+			row, tr("View %s") % tr(relay.label_title).capitalize(), _view.bind(relay)
+		)
 		button.name = "View" + str(relay.name)
 		button.tooltip_text = "Center the camera here. Your selection and orders stay unchanged."
 		_rows.append({"relay": relay, "status": status, "button": button})
@@ -38,13 +40,14 @@ func refresh():
 	var owner = hud.get_parent()._get_human_player()
 	for row in _rows:
 		var relay = row.relay
-		var ownership = "Neutral"
+		var ownership = tr("Neutral")
 		if relay.captured_by != null:
-			ownership = "Yours" if relay.captured_by == owner else "Enemy owned"
+			ownership = tr("Yours") if relay.captured_by == owner else tr("Enemy owned")
 		var state = relay.capture_status(owner)
-		if state not in ["Unclaimed", "Secured", "Enemy owned"]:
+		if state not in [tr("Unclaimed"), tr("Secured"), tr("Enemy owned")]:
 			ownership += " · " + state
-		row.status.text = relay.label_title.capitalize() + "\n" + ownership
+		row.status.text = tr(relay.label_title).capitalize() + "\n" + ownership
+		row.button.text = tr("View %s") % tr(relay.label_title).capitalize()
 		row.status.tooltip_text = relay.capture_help(owner)
 		row.button.accessibility_description = row.status.text + ". " + row.button.tooltip_text
 

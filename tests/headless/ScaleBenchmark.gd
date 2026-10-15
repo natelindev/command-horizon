@@ -308,7 +308,7 @@ func _program_guard(unit, point):
 
 
 func _measure(label, frames):
-	print("SCALE BEGIN ", label)
+	print("SCALE BEGIN ", label, " paused=", paused, " simulation_time=", _game.simulation_time)
 	if _profile_field:
 		_game.battlefield.timings.clear()
 	_frame_times.clear()
@@ -351,6 +351,15 @@ func _measure(label, frames):
 						claims += squad._claims.size()
 				_peak_claims = maxi(_peak_claims, claims)
 		index += 1
+		if (Time.get_ticks_usec() - started) > 60000000:
+			push_error(
+				(
+					"Scale benchmark exceeded 60 wall seconds: paused=%s simulation=%s frames=%s"
+					% [paused, _game.simulation_time, index]
+				)
+			)
+			quit(1)
+			return
 	if _profile_field:
 		print("FIELD PROFILE ", label, " ", JSON.stringify(_game.battlefield.timings))
 	_frame_times.sort()

@@ -30,6 +30,22 @@ const HELIX_COSTS = {
 	"Drone": [8, 6],
 	"Helicopter": [28, 18],
 }
+# Archives may contain contracts bought before the pacing rebalance. Their paid
+# remaining time stays valid; newly purchased contracts use current durations.
+const ARCHIVE_PRODUCTION_LIMITS = {
+	"Hero": 40.0,
+	"AssaultInfantry": 12.0,
+	"SniperInfantry": 16.0,
+	"RocketInfantry": 14.0,
+	"Worker": 8.0,
+	"Infantry": 8.0,
+	"Tank": 20.0,
+	"RepairRobot": 18.0,
+	"CombatRobot": 24.0,
+	"AdvancedTank": 32.0,
+	"Drone": 12.0,
+	"Helicopter": 28.0,
+}
 const IDS = ["bastion", "helix", "frontier"]
 const NAMES = {
 	"bastion": "Bastion Directorate",

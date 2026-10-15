@@ -110,7 +110,9 @@ func service(delta):
 	for provider in providers:
 		var source = provider.unit
 		var candidates = []
-		for target in units:
+		for target in _match.battlefield.nearby_bodies(
+			source.global_position, provider.range, source.player
+		):
 			if _eligible(provider, target) and not assigned.has(target):
 				candidates.append(target)
 		candidates.sort_custom(func(a, b): return float(a.hp) / a.hp_max < float(b.hp) / b.hp_max)

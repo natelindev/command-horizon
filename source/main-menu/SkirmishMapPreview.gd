@@ -1,5 +1,7 @@
 extends Control
 
+const MAP_FONT = preload("res://assets/fonts/NotoSansSC.ttf")
+
 var map_size = Vector2(64, 64)
 var starts = []
 var deposits = []
@@ -19,6 +21,11 @@ var _terrain_cache = {}
 func _ready():
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	resized.connect(queue_redraw)
+
+
+func _notification(what):
+	if what == NOTIFICATION_TRANSLATION_CHANGED:
+		queue_redraw()
 
 
 func set_map(path):
@@ -173,9 +180,16 @@ func _draw():
 	for site in points_of_interest:
 		var point = origin + site.position * scale_factor
 		draw_circle(point, 8, Color("111e29cc"), true, -1, true)
-		var symbol = {"refinery": "R", "mercenary": "M", "repair": "+"}.get(site.kind, "+")
+		var symbol = (
+			{
+				"refinery": tr("R", "map_refinery"),
+				"mercenary": tr("M", "map_mercenary"),
+				"repair": "+"
+			}
+			. get(site.kind, "+")
+		)
 		draw_string(
-			ThemeDB.fallback_font,
+			MAP_FONT,
 			point + Vector2(-4, 4),
 			symbol,
 			HORIZONTAL_ALIGNMENT_LEFT,
@@ -195,7 +209,7 @@ func _draw():
 		draw_circle(point + Vector2(0, 2), 15, Color("0d191ecc"), true, -1, true)
 		draw_circle(point, 13, color, true, -1, true)
 		draw_string(
-			ThemeDB.fallback_font,
+			MAP_FONT,
 			point + Vector2(-4, 5),
 			str(index + 1),
 			HORIZONTAL_ALIGNMENT_LEFT,
@@ -204,9 +218,9 @@ func _draw():
 			Color("101b25")
 		)
 	draw_string(
-		ThemeDB.fallback_font,
+		MAP_FONT,
 		origin + Vector2(0, -9),
-		"N ↑",
+		tr("N ↑"),
 		HORIZONTAL_ALIGNMENT_LEFT,
 		-1,
 		11,
@@ -215,9 +229,9 @@ func _draw():
 	var ruler = origin + Vector2(extent.x - 20 * scale_factor, extent.y + 12)
 	draw_line(ruler, ruler + Vector2(20 * scale_factor, 0), Color("a7b6bc"), 2, true)
 	draw_string(
-		ThemeDB.fallback_font,
+		MAP_FONT,
 		ruler - Vector2(36, -4),
-		"20 m",
+		tr("%d m") % 20,
 		HORIZONTAL_ALIGNMENT_LEFT,
 		-1,
 		10,

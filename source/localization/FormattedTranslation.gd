@@ -23,7 +23,7 @@ func _init(source: Translation):
 		var tokens = _format.search_all(original)
 		if not tokens.is_empty():
 			_compile_pattern(original, tokens)
-		elif original.ends_with(" ") and original.length() > 5:
+		elif (original.ends_with(" ") or original.ends_with(".")) and original.length() > 5:
 			_prefixes.append(original)
 
 
@@ -83,6 +83,10 @@ func _bucket(value):
 
 func _get_message(src_message: StringName, _context: StringName) -> StringName:
 	var source = str(src_message)
+	if _context == "map_refinery":
+		return "油"
+	if _context == "map_mercenary":
+		return "兵"
 	var direct = catalog.get_message(src_message)
 	if not direct.is_empty():
 		return direct
@@ -109,6 +113,16 @@ func _translate(source, depth):
 			+ _translate(trimmed, depth + 1)
 			+ source.substr(start + trimmed.length())
 		)
+	# Authored complete sentences may be followed by runtime instructions.
+	# Match the longest known prefix before breaking apart its internal sentences.
+	for prefix in _prefixes:
+		var boundary = prefix if prefix.ends_with(" ") else prefix + " "
+		if source.begins_with(boundary):
+			return (
+				str(catalog.get_message(prefix))
+				+ (" " if prefix.ends_with(".") else "")
+				+ _translate(source.substr(boundary.length()), depth + 1)
+			)
 	var candidates = _patterns.get(_bucket(source), []).duplicate()
 	if _bucket(source) != "":
 		candidates += _patterns.get("", [])
@@ -143,19 +157,33 @@ func _translate(source, depth):
 				index += 1
 			end = token.get_end()
 		return result + output.substr(end)
+	# Preserve each complete line before splitting sentences or separators.
+	# This keeps multi-sentence descriptions together in composed roster tooltips.
+	if "\n" in source:
+		return "\n".join(
+			Array(source.split("\n")).map(func(line): return _translate(line, depth + 1))
+		)
 	var shortcut = _shortcut.search(source)
 	if shortcut != null:
 		return _translate(shortcut.get_string(1), depth + 1) + shortcut.get_string(2)
+	if ". " in source:
+		var split = source.find(". ")
+		return (
+			_translate(source.left(split + 1), depth + 1)
+			+ " "
+			+ _translate(source.substr(split + 2), depth + 1)
+		)
+	if source.ends_with("."):
+		var stem = source.trim_suffix(".")
+		var translated = _translate(stem, depth + 1)
+		if translated != stem:
+			return translated if translated.ends_with("。") else translated + "。"
 	for separator in ["\n", " · ", " • ", " / ", ": "]:
 		if separator in source:
-			var parts = source.split(separator)
-			for index in parts.size():
-				parts[index] = _translate(parts[index], depth + 1)
-			return separator.join(parts)
-	for prefix in _prefixes:
-		if source.begins_with(prefix):
+			var split = source.find(separator)
 			return (
-				str(catalog.get_message(prefix))
-				+ _translate(source.substr(prefix.length()), depth + 1)
+				_translate(source.left(split), depth + 1)
+				+ separator
+				+ _translate(source.substr(split + separator.length()), depth + 1)
 			)
 	return source

@@ -68,16 +68,9 @@ func _review(faction, overlay, own, target):
 	hover.global_position = target_point
 	root.push_input(hover, false)
 	await _frames(12)
-	_check(
-		overlay.markers().any(func(row): return row.unit == target and row.hovered),
-		"Actual pointer did not expose opponent nameplate"
-	)
-	var marker = overlay.markers().filter(func(row): return row.unit == target)[0]
-	var label_size = (
-		ThemeDB.fallback_font.get_string_size(marker.caption, HORIZONTAL_ALIGNMENT_LEFT, -1, 15)
-		+ Vector2(16, 8)
-	)
-	var label_rect = overlay.caption_rect(marker.point, label_size)
+	var card = overlay.hover_card()
+	_check(card.get("unit") == target, "Actual pointer did not expose opponent nameplate")
+	var label_rect = card.get("rect", Rect2())
 	_check(
 		(
 			label_rect.has_area()
@@ -97,16 +90,13 @@ func _review(faction, overlay, own, target):
 	)
 	await _key(KEY_SPACE)
 	_check(
-		not preferences.ownership_symbols and overlay.markers().is_empty(),
+		not preferences.ownership_symbols and overlay.hover_card().is_empty(),
 		"Keyboard ownership preview failed"
 	)
 	await _capture(faction, "settings")
 	await _click(root.get_final_transform() * dialog._cancel.get_global_rect().get_center())
 	_check(preferences.ownership_symbols, "Cancel did not restore ownership symbols")
-	_check(
-		not overlay.markers().any(func(row): return row.hovered),
-		"Closing settings restored a stale unit hover"
-	)
+	_check(overlay.hover_card().is_empty(), "Closing settings restored a stale unit hover")
 	await _capture(faction, "restored")
 	# Inspect the same-color skirmish at the larger window size too.
 	root.size = Vector2i(1440, 900)

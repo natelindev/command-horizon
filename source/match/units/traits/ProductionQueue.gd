@@ -38,8 +38,12 @@ var _queue = []
 @onready var _unit = get_parent()
 
 
+func _ready():
+	set_process(false)
+
+
 func _process(delta):
-	if not _unit.is_constructed():
+	if _queue.is_empty() or not _unit.is_constructed():
 		return
 	delta *= _unit.player.production_factor()
 	while _queue.size() > 0 and delta > 0.0:
@@ -177,6 +181,7 @@ func cancel(element):
 
 func _enqueue_element(element):
 	_queue.push_back(element)
+	set_process(true)
 	element_enqueued.emit(element)
 
 
@@ -186,6 +191,7 @@ func _remove_element(element):
 		departure = null
 		exit_blocked = false
 	_queue.erase(element)
+	set_process(not _queue.is_empty())
 	element_removed.emit(element)
 
 

@@ -9,8 +9,11 @@ const Rules = preload("res://source/match/combat/CombatRules.gd")
 
 static func endangered_workers(player, units):
 	var game = player.get_parent().get_parent()
+	var workers = units.filter(func(unit): return unit.type == "Worker")
+	if workers.is_empty():
+		return []
 	var contacts = _contacts(player)
-	return units.filter(
+	return workers.filter(
 		func(unit):
 			return (
 				unit.player == player

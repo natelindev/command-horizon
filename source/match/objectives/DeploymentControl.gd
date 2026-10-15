@@ -7,4 +7,4 @@ func _init():
 
 func _update_presentation():
 	super()
-	_label.text = "DEPLOYMENT · " + _match.deployment_status().to_upper()
+	_label.text = tr("DEPLOYMENT") + " · " + tr(_match.deployment_status()).to_upper()

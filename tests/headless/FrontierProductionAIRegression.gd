@@ -92,7 +92,10 @@ func _procurement(faction):
 	)
 	_check(player.resource_a == 0 and player.resource_b == 0, "AI purchase did not use exact funds")
 	_check(
-		job.time_total == 20 + (3 if fitted else 0),
+		(
+			job.time_total
+			== factions.duration(player, "Tank") + (factions.chip_seconds(faction) if fitted else 0)
+		),
 		"AI fitting did not use actual factory duration"
 	)
 	var previous = _units(player, "Tank")
@@ -100,6 +103,21 @@ func _procurement(faction):
 	await _frames(1500)
 	paused = true
 	var built = _units(player, "Tank").filter(func(tank): return tank not in previous)
+	if built.size() != 1:
+		print(
+			"AI DELIVERY ",
+			faction,
+			" queued=",
+			factory.production_queue.size(),
+			" left=",
+			job.time_left,
+			" reason=",
+			factory.production_queue.blocked_reason(),
+			" producer=",
+			factory.position,
+			" power=",
+			player.production_factor()
+		)
 	_check(built.size() == 1, "Paid factory job did not deliver one tank")
 	if built.size() == 1:
 		_check(built[0].program.installed == fitted, "Delivered AI tank lost its paid hardware")

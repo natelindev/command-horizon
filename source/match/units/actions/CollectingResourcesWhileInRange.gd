@@ -42,7 +42,13 @@ func _setup_timer():
 	_timer.timeout.connect(_transfer_single_resource_unit_from_resource_to_worker)
 	add_child(_timer)
 	if "resource_a" in _resource_unit:
-		_timer.start(Constants.Match.Resources.A.COLLECTING_TIME_S)
+		_timer.start(
+			(
+				.5
+				if _resource_unit.is_in_group("salvage_wrecks")
+				else Constants.Match.Resources.A.COLLECTING_TIME_S
+			)
+		)
 	elif "resource_b" in _resource_unit:
 		_timer.start(Constants.Match.Resources.B.COLLECTING_TIME_S)
 

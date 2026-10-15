@@ -5,15 +5,9 @@ const Orders = preload("res://source/match/orders/ManualOrders.gd")
 const WaitingForTargets = preload("res://source/match/units/actions/WaitingForTargets.gd")
 
 const GRID_HOTKEYS = [
-	[KEY_Q, KEY_W, KEY_E, KEY_R],
-	[KEY_A, KEY_S, KEY_D, KEY_F],
-	[KEY_Z, KEY_X, KEY_C, KEY_V]
+	[KEY_Q, KEY_W, KEY_E, KEY_R], [KEY_A, KEY_S, KEY_D, KEY_F], [KEY_Z, KEY_X, KEY_C, KEY_V]
 ]
-const GRID_LABELS = [
-	["Q", "W", "E", "R"],
-	["A", "S", "D", "F"],
-	["Z", "X", "C", "V"]
-]
+const GRID_LABELS = [["Q", "W", "E", "R"], ["A", "S", "D", "F"], ["Z", "X", "C", "V"]]
 
 var _slots = []
 var _selection = []
@@ -61,7 +55,10 @@ func _unhandled_input(event):
 
 func update_layout(selected_units: Array, direct_orders = null):
 	_selection = selected_units.filter(
-		func(u): return is_instance_valid(u) and not u.is_queued_for_deletion() and ("hp" in u and u.hp > 0)
+		func(u):
+			return (
+				is_instance_valid(u) and not u.is_queued_for_deletion() and ("hp" in u and u.hp > 0)
+			)
 	)
 	_direct_orders = direct_orders
 	_clear_slots()
@@ -69,7 +66,14 @@ func update_layout(selected_units: Array, direct_orders = null):
 		return
 
 	# Q: Move
-	_setup_slot(0, 0, "Move", "Q", _on_move, direct_orders != null and not direct_orders.eligible("move").is_empty())
+	_setup_slot(
+		0,
+		0,
+		"Move",
+		"Q",
+		_on_move,
+		direct_orders != null and not direct_orders.eligible("move").is_empty()
+	)
 	# W: Stop
 	_setup_slot(0, 1, "Stop", "W", _on_stop, true)
 	# E: Hold
@@ -80,14 +84,34 @@ func update_layout(selected_units: Array, direct_orders = null):
 
 	# A: Attack Move
 	var has_attack = _selection.any(func(u): return "attack_range" in u and u.attack_range != null)
-	_setup_slot(1, 0, "Atk Move", "A", _on_attack_move, has_attack and direct_orders != null and not direct_orders.eligible("attack_move").is_empty())
+	_setup_slot(
+		1,
+		0,
+		"Atk Move",
+		"A",
+		_on_attack_move,
+		(
+			has_attack
+			and direct_orders != null
+			and not direct_orders.eligible("attack_move").is_empty()
+		)
+	)
 	# S: Stance Toggle
 	var current_stance = _selection[0].stance_name() if "stance_name" in _selection[0] else "Stance"
 	_setup_slot(1, 1, current_stance, "S", _on_cycle_stance, true)
 	# D: Attack Target
-	_setup_slot(1, 2, "Target", "D", _on_attack_target, has_attack and direct_orders != null and not direct_orders.eligible("attack").is_empty())
+	_setup_slot(
+		1,
+		2,
+		"Target",
+		"D",
+		_on_attack_target,
+		has_attack and direct_orders != null and not direct_orders.eligible("attack").is_empty()
+	)
 	# F: Reverse Move
-	var is_armored = _selection.any(func(u): return "type" in u and u.type in ["Tank", "AdvancedTank"])
+	var is_armored = _selection.any(
+		func(u): return "type" in u and u.type in ["Tank", "AdvancedTank"]
+	)
 	_setup_slot(1, 3, "Reverse", "F", _on_reverse_move, is_armored)
 
 
@@ -103,7 +127,7 @@ func _clear_slots():
 
 func _setup_slot(r: int, c: int, label: String, key: String, callable: Callable, enabled: bool):
 	var btn = _slots[r][c]
-	btn.text = "[%s]\n%s" % [key, label]
+	btn.text = "[%s]\n%s" % [key, tr(label)]
 	btn.disabled = not enabled
 	btn.pressed.connect(callable)
 
@@ -151,7 +175,7 @@ func _on_cycle_stance():
 		if unit.is_in_group("controlled_units") and unit.has_method("cycle_stance"):
 			unit.cycle_stance()
 			new_stance_name = unit.stance_name()
-	_slots[1][1].text = "[S]\n%s" % new_stance_name
+	_slots[1][1].text = "[S]\n%s" % tr(new_stance_name)
 
 
 func _on_attack_target():

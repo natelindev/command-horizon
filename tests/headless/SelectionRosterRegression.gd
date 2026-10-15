@@ -190,7 +190,7 @@ func _large_roster(player):
 	)
 	var roster = await _choose(members)
 	_check(roster._members.size() == 140, "Full own-army roster size is wrong")
-	_check(roster._types.size() == 17, "Full roster omitted a role")
+	_check(roster._types.size() == catalog.NAMES.size(), "Full roster omitted a role")
 	_check(roster._tiles.size() == 8, "First page is not bounded to eight units")
 	await _inspect_layout(player, roster, "full")
 	var seen = []

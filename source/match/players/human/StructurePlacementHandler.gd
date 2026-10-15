@@ -23,6 +23,7 @@ var _pending_structure_radius = null
 var _pending_structure_navmap_rid = null
 var _pending_structure_prototype = null
 var _blueprint_rotating = false
+var _placement_range = null
 
 @onready var _player = get_parent()
 @onready var _match = find_parent("Match")
@@ -165,7 +166,7 @@ func _update_feedback_label(blueprint_position_validity):
 	_feedback_label.visible = (blueprint_position_validity != BlueprintPositionValidity.VALID)
 	match blueprint_position_validity:
 		BlueprintPositionValidity.STRUCTURE_LIMIT:
-			_feedback_label.text = "Structure limit reached (40)"
+			_feedback_label.text = tr("Structure limit reached (%d).") % 40
 		BlueprintPositionValidity.COLLIDES_WITH_OBJECT:
 			_feedback_label.text = tr("BLUEPRINT_COLLIDES_WITH_OBJECT")
 		BlueprintPositionValidity.NOT_NAVIGABLE:
@@ -209,7 +210,20 @@ func _start_structure_placement(structure_prototype):
 		. navigation
 		. get_navigation_map_rid_by_domain(temporary_structure_instance.movement_domain)
 	)
+	var properties = Constants.Match.Units.DEFAULT_PROPERTIES.get(
+		structure_prototype.resource_path, {}
+	)
+	_placement_range = preload("res://source/match/effects/TacticalRangeRing.gd").create(
+		properties.get("attack_range")
+	)
+	if _placement_range != null:
+		add_child(_placement_range)
+		_placement_range.position = blueprint_origin
 	temporary_structure_instance.free()
+	_set_blueprint_position(get_viewport().get_mouse_position())
+	var validity = _calculate_blueprint_position_validity()
+	_update_feedback_label(validity)
+	_update_blueprint_color(validity == BlueprintPositionValidity.VALID)
 
 
 func _set_blueprint_position(mouse_pos_2d):
@@ -218,6 +232,8 @@ func _set_blueprint_position(mouse_pos_2d):
 		return
 	_active_blueprint_node.global_transform.origin = mouse_pos_3d
 	_feedback_label.global_transform.origin = mouse_pos_3d
+	if is_instance_valid(_placement_range):
+		_placement_range.global_position = mouse_pos_3d + Vector3.UP * .065
 
 
 func _update_blueprint_color(blueprint_position_is_valid):
@@ -236,13 +252,14 @@ func _cancel_structure_placement():
 		_feedback_label.hide()
 		_active_blueprint_node.queue_free()
 		_active_blueprint_node = null
+		if is_instance_valid(_placement_range):
+			_placement_range.queue_free()
+		_placement_range = null
 
 
 func _finish_structure_placement():
 	if _player_has_enough_resources():
-		var structure_name = (
-			_pending_structure_prototype.resource_path.get_file().get_basename()
-		)
+		var structure_name = _pending_structure_prototype.resource_path.get_file().get_basename()
 		var construction_cost = Factions.cost(_player, structure_name, true)
 		_player.subtract_resources(construction_cost)
 		MatchSignals.setup_and_spawn_unit.emit(

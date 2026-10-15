@@ -26,6 +26,11 @@ func _ready():
 		)
 		+ " — click to cancel and refund"
 	)
+	tooltip_text = (
+		tr(tooltip_text)
+		+ "\n"
+		+ tr("Producer: %s") % tr(factions.title(faction, queue.get_parent().type))
+	)
 	find_child("Label").text = "{0}%".format([int(queue_element.progress() * 100.0)])
 
 

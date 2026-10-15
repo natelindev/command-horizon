@@ -20,6 +20,7 @@ func _enter_tree():
 	if Engine.is_editor_hint():
 		return
 	var catalog = load("res://source/match/ambient/AmbientCatalog.gd")
+	catalog.populate_settlements(self)
 	if catalog.entries(scene_file_path).is_empty():
 		return
 	var life = load("res://source/match/ambient/AmbientLife.gd").new()

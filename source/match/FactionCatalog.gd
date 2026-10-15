@@ -102,30 +102,61 @@ const BUILD_COSTS = {
 	"AntiGroundTurret": [20, 8],
 	"AntiAirTurret": [20, 12],
 }
+# Seconds at full power. Keep early reinforcements responsive while preserving
+# the extra commitment for heavy units, heroes and additional technology.
 const BUILD_TIMES = {
-	"CommandCenter": 45.0,
-	"Barracks": 20.0,
-	"VehicleFactory": 35.0,
-	"AircraftFactory": 35.0,
-	"PowerPlant": 20.0,
-	"CommandLab": 40.0,
-	"RepairDepot": 25.0,
-	"AntiGroundTurret": 20.0,
-	"AntiAirTurret": 20.0,
+	"CommandCenter": 35.0,
+	"Barracks": 14.0,
+	"VehicleFactory": 24.0,
+	"AircraftFactory": 26.0,
+	"PowerPlant": 12.0,
+	"CommandLab": 28.0,
+	"RepairDepot": 18.0,
+	"AntiGroundTurret": 14.0,
+	"AntiAirTurret": 16.0,
 }
 const UNIT_TIMES = {
-	"Hero": 40.0,
-	"AssaultInfantry": 12.0,
-	"SniperInfantry": 16.0,
-	"RocketInfantry": 14.0,
-	"Worker": 8.0,
-	"Infantry": 8.0,
-	"Tank": 20.0,
-	"RepairRobot": 18.0,
-	"CombatRobot": 24.0,
-	"AdvancedTank": 32.0,
-	"Drone": 12.0,
-	"Helicopter": 28.0,
+	"Hero": 30.0,
+	"AssaultInfantry": 8.0,
+	"SniperInfantry": 11.0,
+	"RocketInfantry": 10.0,
+	"Worker": 6.0,
+	"Infantry": 5.0,
+	"Tank": 14.0,
+	"RepairRobot": 12.0,
+	"CombatRobot": 18.0,
+	"AdvancedTank": 24.0,
+	"Drone": 8.0,
+	"Helicopter": 20.0,
+}
+const SPECIALIST_TIMES = {
+	"bastion": {"AdvancedTank": 22.0, "AssaultInfantry": 7.0},
+	"helix": {"Drone": 6.0, "CombatRobot": 16.0, "Helicopter": 18.0},
+	"frontier": {"Worker": 5.0, "Tank": 12.0, "RepairRobot": 10.0, "AdvancedTank": 26.0},
+}
+const UNIT_REQUIRES = {
+	"bastion": {"CombatRobot": "RepairDepot"},
+	"helix": {},
+	"frontier": {"CombatRobot": "", "AdvancedTank": "RepairDepot"},
+}
+const TECH_SUMMARY = {
+	"bastion":
+	(
+		"Repair depots unlock Sentinels; Coordination unlocks siege armor. "
+		+ "Anchor sectors reward holding ground."
+	),
+	"helix":
+	(
+		"Build a flight deck after an operator hub. Signal labs unlock "
+		+ "mode-switching Lancers and Wraiths; Coordination unlocks deploying "
+		+ "Prisms."
+	),
+	"frontier":
+	(
+		"Motor pools unlock Jackals; field workshops unlock Ironbacks without "
+		+ "Coordination. Scrapper rigs recover tank wrecks; Maneuver Burst "
+		+ "enables fast raids."
+	),
 }
 const BUILD_REQUIRES = {
 	"VehicleFactory": "Barracks",
@@ -185,6 +216,11 @@ static func description(faction, role):
 		}[faction]
 	if faction == "frontier" and Frontier.DESCRIPTIONS.has(role):
 		return Frontier.DESCRIPTIONS[role]
+	if faction == "bastion" and role == "CommandLab":
+		return (
+			"Unlocks programs and heroes. Research Coordination for siege tanks "
+			+ "and Anchor sectors. Sentinels require a repair depot. Uses 5 power."
+		)
 	if role == "RepairRobot":
 		return (
 			"Repairs one mechanical ground ally or completed building at a time. "
@@ -209,7 +245,7 @@ static func cost(player, role, building = false):
 
 static func duration(player, role):
 	return (
-		UNIT_TIMES[role]
+		SPECIALIST_TIMES.get(player.faction, {}).get(role, UNIT_TIMES[role])
 		if player.get_meta("skirmish", false)
 		else Constants.Match.Units.PRODUCTION_TIMES[Bastion.scene_path(role)]
 	)
@@ -217,10 +253,26 @@ static func duration(player, role):
 
 static func requirement(player, role, building = false):
 	if building:
+		if (
+			player.get_meta("skirmish", false)
+			and player.faction == "helix"
+			and role == "AircraftFactory"
+		):
+			return "Barracks"
 		return BUILD_REQUIRES.get(role, "") if player.get_meta("skirmish", false) else ""
+	if player.get_meta("skirmish", false) and UNIT_REQUIRES.get(player.faction, {}).has(role):
+		return UNIT_REQUIRES[player.faction][role]
 	if role == "Helicopter" and player.get_meta("skirmish", false):
 		return "CommandLab"
 	return Bastion.REQUIRES.get(role, "")
+
+
+static func requires_coordination(player, role):
+	return (
+		role == "AdvancedTank"
+		and player.get_meta("skirmish", false)
+		and player.faction != "frontier"
+	)
 
 
 static func hero_reserved(player, ignore_job = null):
@@ -249,7 +301,7 @@ static func available(player, role, building = false, ignore_job = null):
 		and player.structure_count() >= Bastion.STRUCTURE_LIMIT
 	):
 		return false
-	if not building and role == "AdvancedTank" and player.get_meta("skirmish", false):
+	if not building and requires_coordination(player, role):
 		if not player.coordination_unlocked:
 			return false
 	var required = requirement(player, role, building)

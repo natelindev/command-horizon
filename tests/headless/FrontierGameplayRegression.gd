@@ -135,7 +135,13 @@ func _roster_and_retrofit():
 	_check(job != null, "Frontier paid fitted production rejected")
 	if job != null:
 		_check(
-			job.paid_cost == {"resource_a": 20, "resource_b": 6} and job.time_total == 23,
+			(
+				job.paid_cost == {"resource_a": 20, "resource_b": 6}
+				and (
+					job.time_total
+					== factions.duration(human, "Tank") + factions.chip_seconds("frontier")
+				)
+			),
 			"Fitted factory price/time incorrect"
 		)
 		_check(

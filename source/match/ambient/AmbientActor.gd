@@ -35,6 +35,9 @@ func setup(definition, combat_enabled = true):
 	var stats = Catalog.STATS[entry.kind]
 	configure_target(entry.kind, stats.radius, stats.health, stats.height)
 	load("res://source/match/ambient/NeutralDetails.gd").dress_actor(_model, entry)
+	_model.scale *= Catalog.MODEL_SCALES[entry.kind]
+	_model_scale = _model.scale
+	_model_origin = _model.position
 	for node in _model.find_children("*", "Node3D", true, false):
 		if "Leg" in node.name and not "fur" in node.name:
 			_limbs.append([node, -1.0 if ("Left" in node.name) != ("Back" in node.name) else 1.0])
@@ -87,7 +90,7 @@ func _blocked(game, speed):
 	if entry.kind in ["gull", "tug"]:
 		return false
 	var ahead = Catalog.point(entry, travel + speed * 1.2)
-	for unit in game.get_tree().get_nodes_in_group("units"):
+	for unit in game.battlefield.nearby_bodies(ahead, 2.0 if entry.kind == "car" else 1.0):
 		if unit.is_queued_for_deletion() or unit.movement_domain == 0:
 			continue
 		var obstacle = unit.get_node_or_null("MovementObstacle")

@@ -9,6 +9,7 @@ const MINIMAP_PIXELS_PER_WORLD_METER = 2
 
 var _unit_to_corresponding_node_mapping = {}
 var _camera_movement_active = false
+var _marker_elapsed = .05
 
 @onready var _match = find_parent("Match")
 @onready var _camera_indicator = find_child("CameraIndicator")
@@ -39,8 +40,13 @@ func _ready():
 	MatchSignals.tactical_ping.connect(_on_tactical_ping)
 
 
-func _physics_process(_delta):
-	_sync_real_units_with_minimap_representations()
+func _physics_process(delta):
+	# Twenty marker updates per second keep motion smooth at minimap scale.
+	# Camera input/outline still updates every tick; combat uses live visibility.
+	_marker_elapsed += delta
+	if _marker_elapsed >= .05:
+		_marker_elapsed = 0.0
+		_sync_real_units_with_minimap_representations()
 	_update_camera_indicator()
 
 
@@ -81,7 +87,6 @@ func _sync_unit(unit):
 	var unit_pos_2d = Vector2(unit_pos_3d.x, unit_pos_3d.z) * MINIMAP_PIXELS_PER_WORLD_METER
 	_unit_to_corresponding_node_mapping[unit].position = unit_pos_2d
 	_unit_to_corresponding_node_mapping[unit].kind = Ownership.kind(unit, _match)
-	_unit_to_corresponding_node_mapping[unit].queue_redraw()
 	_unit_to_corresponding_node_mapping[unit].color = (
 		unit.player.color if unit is Unit else unit.color
 	)

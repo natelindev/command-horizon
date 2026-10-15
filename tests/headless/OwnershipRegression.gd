@@ -10,6 +10,7 @@ func _new_settings():
 
 
 func _run():
+	TranslationServer.set_locale("en")
 	root.get_node("SaveManager").autosaves_enabled = false
 	for faction in ["bastion", "helix"]:
 		await _ownership(faction)
@@ -61,17 +62,13 @@ func _exercise(faction, overlay):
 	game.get_node("Handlers/UnitVisibilityHandler")._recalculate_unit_visibility(target)
 	var mini = game.find_child("Minimap")
 	mini._sync_real_units_with_minimap_representations()
-	var data = overlay.markers()
-	_check(
-		data.any(func(row): return row.unit == own and row.kind == "own"),
-		"Own color-independent symbol missing"
-	)
-	_check(
-		data.any(func(row): return row.unit == target and row.kind == "opponent"),
-		"Same-color/same-faction opponent symbol missing"
-	)
-	_check(data.any(func(row): return row.unit == aircraft), "Raised aircraft marker missing")
-	_check(not data.any(func(row): return row.unit == hidden), "Hidden enemy has a world symbol")
+	for unit in [own, target, aircraft]:
+		unit.get_node("Selection").select()
+		var circle = unit.get_node("Selection")._circle
+		_check(
+			circle.visible and circle.color == unit.player.color, "Player-colored outline missing"
+		)
+	_check(not ownership.known_now(hidden, game), "Hidden enemy has live identity")
 	_check(ownership.caption(own, game).begins_with("Your forces"), "Own nameplate ambiguous")
 	_check(ownership.caption(target, game).begins_with("Opponent"), "Opponent nameplate ambiguous")
 	_check(mini._unit_to_corresponding_node_mapping[own].kind == "own", "Own minimap shape wrong")
@@ -86,17 +83,6 @@ func _exercise(faction, overlay):
 	var deposit = get_nodes_in_group("resource_units")[0]
 	_check(ownership.kind(deposit, game) == "resource", "Resource classified as combatant")
 	_check(overlay.mouse_filter == Control.MOUSE_FILTER_IGNORE, "World overlay intercepts commands")
-	var original_camera_position = camera.global_position
-	camera.set_position_safely(_units(human, "CommandCenter")[0].global_position)
-	_check(
-		overlay.markers().any(func(row): return row.unit == _units(human, "CommandCenter")[0]),
-		"Own building marker missing"
-	)
-	camera.global_position = original_camera_position
-	_check(
-		data.all(func(row): return row.unit.is_in_group("units")),
-		"Neutral scenery received military identity"
-	)
 	var clock = game.simulation_time
 	own.get_node("Selection").select()
 	own.hp *= .7
@@ -108,10 +94,6 @@ func _exercise(faction, overlay):
 	# Presentation can be one frame old; symbols must use current observation immediately.
 	target.show()
 	_check(not ownership.known_now(target, game), "Stale visible flag leaks current enemy symbol")
-	_check(
-		not overlay.markers().any(func(row): return row.unit == target),
-		"World marker persisted after lost sight"
-	)
 	mini._sync_real_units_with_minimap_representations()
 	_check(
 		not mini._unit_to_corresponding_node_mapping.has(target),
@@ -139,7 +121,7 @@ func _exercise(faction, overlay):
 	game.battlefield.invalidate()
 	game.get_node("Handlers/UnitVisibilityHandler")._recalculate_unit_visibility(target)
 	options.ownership_symbols = false
-	_check(overlay.markers().is_empty(), "Disabled world symbols remain")
+	_check(overlay.hover_card().is_empty(), "Disabled owner hover remains")
 	mini._sync_real_units_with_minimap_representations()
 	_check(
 		mini._unit_to_corresponding_node_mapping[target].kind == "opponent",
@@ -182,28 +164,23 @@ func _archive_ownership(own, target):
 	if not result.ok:
 		return
 	game = result.game
-	var overlay = game.get_node("OwnershipLayer/OwnershipOverlay")
 	var camera = game.get_node("IsometricCamera3D")
 	camera.set_position_safely(Vector3(61, 0, 52))
 	camera.set_size_safely(32)
 	await _frames(12)
-	var rows = overlay.markers()
+	var mini = game.find_child("Minimap")
+	mini._sync_real_units_with_minimap_representations()
 	_check(
-		rows.any(func(row): return row.unit == restore.entities[own_id] and row.kind == "own"),
-		"Loaded own symbol wrong"
+		mini._unit_to_corresponding_node_mapping[restore.entities[own_id]].kind == "own",
+		"Loaded own identity wrong"
 	)
 	_check(
-		rows.any(
-			func(row): return row.unit == restore.entities[target_id] and row.kind == "opponent"
-		),
-		"Loaded opponent symbol wrong"
+		mini._unit_to_corresponding_node_mapping[restore.entities[target_id]].kind == "opponent",
+		"Loaded opponent identity wrong"
 	)
 	var target_unit = restore.entities[target_id]
 	target_unit.hp = 0
-	_check(
-		not overlay.markers().any(func(row): return row.unit == target_unit),
-		"Dead unit retained symbol"
-	)
+	_check(not _identity_script().known_now(target_unit, game), "Dead unit retained symbol")
 	print(
 		"PASS same-color ownership, current fog, aircraft, pause, preference and disk reconstruction"
 	)

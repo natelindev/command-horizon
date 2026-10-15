@@ -141,6 +141,8 @@ func _reset_menus():
 	for selected_unit in _selection:
 		if not selected_unit.tree_exited.is_connected(_reset_menus):
 			selected_unit.tree_exited.connect(_reset_menus)
+		if selected_unit is Structure and not selected_unit.constructed.is_connected(_reset_menus):
+			selected_unit.constructed.connect(_reset_menus)
 	var unit = _selection[0]
 	var conventional = (
 		unit._match.settings.mission_id == "supply_line"
@@ -154,7 +156,13 @@ func _reset_menus():
 		if _selection.size() == 1
 		else "%d units selected" % _selection.size()
 	)
-	BattleTheme.heading(_content, _title, 96, load(Factions.icon(unit.player.faction, unit.type)))
+	var heading_icon = (
+		null
+		if unit.type in Catalog.MISSION_NAMES
+		else load(Factions.icon(unit.player.faction, unit.type))
+	)
+	BattleTheme.heading(_content, _title, 96, heading_icon)
+	_content.tooltip_text = tr(Factions.TECH_SUMMARY.get(unit.player.faction, ""))
 	_status = Label.new()
 	_status.add_theme_font_size_override("font_size", 13)
 	_status.add_theme_color_override("font_color", Color("a9b4b3"))
@@ -178,9 +186,15 @@ func _reset_menus():
 	grid.add_theme_constant_override("h_separation", 7)
 	grid.add_theme_constant_override("v_separation", 7)
 	_commands.add_child(grid)
+	var production_roles = []
+	for producer in _selection:
+		if producer is Structure and producer.is_constructed():
+			for role in Catalog.PRODUCES.get(producer.type, []):
+				if role not in production_roles:
+					production_roles.append(role)
+	for role in production_roles:
+		_add_roster_button(grid, role, false)
 	if _selection.size() == 1 and unit is Structure and unit.is_constructed():
-		for unit_type in Catalog.PRODUCES.get(unit.type, []):
-			_add_roster_button(grid, unit_type, false)
 		if unit.type == "VehicleFactory" and unit.player.get_meta("skirmish", false):
 			var fit = CheckBox.new()
 			_chip_option = fit
@@ -353,7 +367,8 @@ func _service_input(event, button, command):
 
 func _add_roster_button(grid, unit_type, construction):
 	var player = _selection[0].player
-	var info = RosterInfo.inspect(_selection[0], unit_type, construction)
+	var producer = _selection[0] if construction else _production_target(unit_type)
+	var info = RosterInfo.inspect(producer, unit_type, construction)
 	var cost = info.cost
 	var button = RosterButton.new()
 	button.name = "Build" + unit_type if construction else "Produce" + unit_type
@@ -453,7 +468,7 @@ func _refresh_buttons():
 		_chip_option.disabled = not unit.player.basic_programs_unlocked()
 	if unit.hp == null:
 		return
-	# Mixed selections intentionally have no production grid to rebuild.
+	# Resolve each role against the current eligible producer before refreshing.
 	if (
 		_selection.size() == 1
 		and unit is Structure
@@ -516,7 +531,11 @@ func _refresh_buttons():
 		)
 	_status.text = details
 	for entry in _buttons:
-		var info = RosterInfo.inspect(unit, entry.type, entry.construction)
+		var producer = unit if entry.construction else _production_target(entry.type)
+		if producer == null:
+			entry.button.disabled = true
+			continue
+		var info = RosterInfo.inspect(producer, entry.type, entry.construction)
 		entry.cost = info.cost
 		entry.button.text = (
 			"%s\n%d M · %d E"
@@ -552,8 +571,37 @@ func _activate(unit_type, construction):
 	if construction:
 		MatchSignals.place_structure.emit(scene)
 	else:
-		_selection[0].production_queue.produce(scene)
+		var producer = _production_target(unit_type)
+		if producer != null:
+			producer.production_queue.produce(scene)
 	_refresh_buttons()
+
+
+func _production_target(role):
+	var best = null
+	var shortest = INF
+	for producer in _selection:
+		if (
+			not is_instance_valid(producer)
+			or producer.is_queued_for_deletion()
+			or not producer is Structure
+			or not producer.is_constructed()
+			or role not in Catalog.PRODUCES.get(producer.type, [])
+		):
+			continue
+		var info = RosterInfo.inspect(producer, role, false)
+		var workload = 0.0
+		for job in producer.production_queue.get_elements():
+			workload += job.time_left
+		# Keep a disabled candidate for cost/tooltips when all queues are unavailable.
+		if not info.allowed:
+			workload += 1e12
+		elif not producer.production_queue.blocked_reason().is_empty():
+			workload += 1e9
+		if workload < shortest:
+			shortest = workload
+			best = producer
+	return best
 
 
 func _stop_orders():

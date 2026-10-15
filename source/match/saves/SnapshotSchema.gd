@@ -1233,7 +1233,7 @@ func _site_records(records, map_path):
 				return _fail("Invalid mercenary contract.")
 			if (
 				job.paid_cost != sites.price(sides[site.owner].faction, job.role)
-				or job.left > load("res://source/match/FactionCatalog.gd").UNIT_TIMES[job.role]
+				or job.left > Factions.ARCHIVE_PRODUCTION_LIMITS[job.role]
 			):
 				return _fail("Invalid mercenary payment or duration.")
 			sides[site.owner].mobile += 1
@@ -1713,7 +1713,10 @@ func _horizon_mission(value):
 func _ambient(saved, map_path):
 	var entries = AmbientCatalog.entries(map_path)
 	if saved.size() != entries.size():
-		return _fail("Invalid neutral population.")
+		# Accept the complete pre-settlement population; new residents start at their authored pose.
+		entries = AmbientCatalog.entries(map_path, false)
+		if saved.size() != entries.size():
+			return _fail("Invalid neutral population.")
 	var seen = {}
 	for record in saved:
 		if not _shape(
@@ -1753,7 +1756,9 @@ func _neutral_buildings(saved, map_path):
 	var catalog = AmbientCatalog
 	var assets = catalog.structures(map_path)
 	if saved.size() != assets.size():
-		return _fail("Invalid neutral building population.")
+		assets = catalog.structures(map_path, false)
+		if saved.size() != assets.size():
+			return _fail("Invalid neutral building population.")
 	var assigned = []
 	for index in saved.size():
 		var record = saved[index]

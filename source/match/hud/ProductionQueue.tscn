@@ -7,32 +7,15 @@ process_mode = 3
 theme_override_constants/margin_right = 5
 script = ExtResource("1_iis45")
 
-[node name="QueueElements" type="HBoxContainer" parent="."]
+[node name="QueueScroll" type="ScrollContainer" parent="."]
+custom_minimum_size = Vector2(480, 64)
 layout_mode = 2
+horizontal_scroll_mode = 1
+vertical_scroll_mode = 0
+follow_focus = true
+
+[node name="QueueElements" type="HBoxContainer" parent="QueueScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_constants/separation = 5
 alignment = 2
-
-[node name="ColorRect" type="ColorRect" parent="QueueElements"]
-custom_minimum_size = Vector2(48, 48)
-layout_mode = 2
-color = Color(1, 0.466667, 0.435294, 1)
-
-[node name="ColorRect2" type="ColorRect" parent="QueueElements"]
-custom_minimum_size = Vector2(48, 48)
-layout_mode = 2
-color = Color(1, 0.466667, 0.435294, 1)
-
-[node name="ColorRect3" type="ColorRect" parent="QueueElements"]
-custom_minimum_size = Vector2(48, 48)
-layout_mode = 2
-color = Color(1, 0.466667, 0.435294, 1)
-
-[node name="ColorRect4" type="ColorRect" parent="QueueElements"]
-custom_minimum_size = Vector2(48, 48)
-layout_mode = 2
-color = Color(1, 0.466667, 0.435294, 1)
-
-[node name="ColorRect5" type="ColorRect" parent="QueueElements"]
-custom_minimum_size = Vector2(48, 48)
-layout_mode = 2
-color = Color(1, 0.466667, 0.435294, 1)

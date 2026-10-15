@@ -164,6 +164,7 @@ func _build_model():
 	for x in [-0.5, 0.5]:
 		_box(Vector3(0.08, 1.1, 0.08), Vector3(x, 3.05, 0), steel)
 	_label = Label3D.new()
+	_label.font = load("res://assets/fonts/NotoSansSC.ttf")
 	_label.position = Vector3(0, 4.0, 0)
 	_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	_label.font_size = 48

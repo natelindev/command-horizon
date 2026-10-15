@@ -290,7 +290,11 @@ func _wreck(unit, infantry):
 		for surface in mesh.get_surface_override_material_count():
 			mesh.set_surface_override_material(surface, null)
 		mesh.material_override = material
-	if not infantry and unit.type in ["Tank", "AdvancedTank"] and not Globals.options.reduced_flashes:
+	if (
+		not infantry
+		and unit.type in ["Tank", "AdvancedTank"]
+		and not Globals.options.reduced_flashes
+	):
 		var turret_node = wreck.find_child("*TurretPivot*", true, false)
 		if turret_node != null:
 			_launch_turret_cook_off(turret_node, unit.radius)
@@ -314,7 +318,9 @@ func _launch_turret_cook_off(turret_node, unit_radius):
 		var old = _cook_offs.pop_front()
 		if is_instance_valid(old.node):
 			old.node.queue_free()
-	var global_xform = turret_node.global_transform if turret_node.is_inside_tree() else turret_node.transform
+	var global_xform = (
+		turret_node.global_transform if turret_node.is_inside_tree() else turret_node.transform
+	)
 	var parent = turret_node.get_parent()
 	if parent != null:
 		parent.remove_child(turret_node)
@@ -331,7 +337,11 @@ func _launch_turret_cook_off(turret_node, unit_radius):
 		body.physics_material_override = aftermath._physics_material
 
 	body.add_child(turret_node)
-	turret_node.transform = Transform3D.IDENTITY
+	# Physics bodies must stay unscaled: the physics server discards body scale.
+	# Keep the imported vehicle scale on the detached visual instead.
+	turret_node.transform = Transform3D(
+		Basis.IDENTITY.scaled(global_xform.basis.get_scale()), Vector3.ZERO
+	)
 
 	var collider = CollisionShape3D.new()
 	var shape = BoxShape3D.new()
@@ -340,22 +350,25 @@ func _launch_turret_cook_off(turret_node, unit_radius):
 	body.add_child(collider)
 
 	add_child(body)
-	body.global_transform = global_xform
+	body.global_transform = Transform3D(global_xform.basis.orthonormalized(), global_xform.origin)
 
 	var angle = _random.randf() * TAU
 	var up_speed = _random.randf_range(4.5, 6.8)
 	var out_speed = _random.randf_range(1.0, 2.2)
 	body.linear_velocity = Vector3(cos(angle) * out_speed, up_speed, sin(angle) * out_speed)
 	body.angular_velocity = Vector3(
-		_random.randf_range(-8, 8),
-		_random.randf_range(-12, 12),
-		_random.randf_range(-8, 8)
+		_random.randf_range(-8, 8), _random.randf_range(-12, 12), _random.randf_range(-8, 8)
 	)
-	_cook_offs.append({
-		"node": body,
-		"age": 0.0,
-		"smoke_clock": 0.0,
-	})
+	(
+		_cook_offs
+		. append(
+			{
+				"node": body,
+				"age": 0.0,
+				"smoke_clock": 0.0,
+			}
+		)
+	)
 
 
 func _jitter(amount):

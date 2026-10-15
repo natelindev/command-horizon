@@ -46,9 +46,13 @@ func _draw():
 			var point = Vector2(site.position.x, site.position.z) * pixel_scale
 			var color = Color("dae3e3") if site.player == null else site.player.color
 			draw_circle(point, 4, color)
-			var glyph = {"refinery": "R", "mercenary": "M", "repair": "+"}[site.kind]
+			var glyph = {
+				"refinery": tr("R", "map_refinery"),
+				"mercenary": tr("M", "map_mercenary"),
+				"repair": "+"
+			}[site.kind]
 			draw_string(
-				ThemeDB.fallback_font,
+				load("res://assets/fonts/NotoSansSC.ttf"),
 				point + Vector2(5, 4),
 				glyph,
 				HORIZONTAL_ALIGNMENT_LEFT,

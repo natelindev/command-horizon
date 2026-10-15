@@ -9,7 +9,8 @@ func _ready():
 	for relay in game.map.relays:
 		relay._label.hide()
 		var label = Label.new()
-		label.text = "◆  " + relay.label_title
+		label.text = "◆  " + tr(relay.label_title)
+		label.add_theme_font_override("font", preload("res://assets/fonts/NotoSansSC.ttf"))
 		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		label.add_theme_font_size_override("font_size", 14)
 		label.add_theme_color_override("font_shadow_color", Color.BLACK)
@@ -23,6 +24,12 @@ func _ready():
 		marker.z_index = 2
 		game.find_child("MinimapViewport").add_child(marker)
 		_markers.append({"relay": relay, "label": label, "minimap": marker})
+
+
+func _notification(what):
+	if what == NOTIFICATION_TRANSLATION_CHANGED:
+		for marker in _markers:
+			marker.label.text = "◆  " + tr(marker.relay.label_title)
 
 
 func _process(_delta):

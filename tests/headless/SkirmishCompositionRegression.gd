@@ -26,6 +26,8 @@ func _run():
 		opponent.resource_a = 500
 		opponent.resource_b = 300
 		factory = _units(opponent, "VehicleFactory")[0]
+		# Isolate threat priorities from the advanced base's existing power deficit.
+		_actor("PowerPlant", opponent, Vector3(104, 0, 82))
 		observer = _actor("Worker", opponent, Vector3(80, 0, 10))
 		contact = _actor("Helicopter", human, Vector3(83, 2, 10))
 		await _frames(30)
@@ -173,6 +175,9 @@ func _faction_roles():
 	var added = []
 	while _units(opponent, "Infantry").size() < 6:
 		added.append(_actor("Infantry", opponent, Vector3(96, 0, 72 + added.size())))
+	# Fill the hero/specialist goals before checking the remaining rifle-screen goal.
+	for role in ["Hero", "AssaultInfantry", "SniperInfantry", "SniperInfantry", "RocketInfantry"]:
+		added.append(_actor(role, opponent, Vector3(96 + added.size(), 0, 82)))
 	await _frames(10)
 	var barracks = _units(opponent, "Barracks")[0]
 	opponent._train(_training_units([barracks]), "")
@@ -201,13 +206,13 @@ func _faction_roles():
 
 func _budget_and_technology():
 	await _replace_contact("Helicopter")
-	var lab = _units(opponent, "CommandLab")[0]
-	lab._construction_progress = 0.5
+	var prerequisite = _units(opponent, factions.requirement(opponent, "CombatRobot"))[0]
+	prerequisite._construction_progress = 0.5
 	opponent._production_index = 0
 	opponent._train(_training_units([factory]), "")
-	_check(_queued(factory) == "Tank", "Counter production bypassed completed-lab prerequisite")
+	_check(_queued(factory) == "Tank", "Counter production bypassed its faction prerequisite")
 	factory.production_queue.cancel_all()
-	lab._construction_progress = 1.0
+	prerequisite._construction_progress = 1.0
 	var cost = factions.cost(opponent, "CombatRobot")
 	var reserve = factions.cost(opponent, "AntiAirTurret", true)
 	opponent.resource_a = cost.resource_a + reserve.resource_a

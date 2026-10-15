@@ -10,4 +10,4 @@ func _physics_process(delta):
 
 func _update_presentation():
 	super()
-	_label.text = "FOUNDRY · " + _match.control_status().to_upper()
+	_label.text = tr("FOUNDRY") + " · " + tr(_match.control_status()).to_upper()

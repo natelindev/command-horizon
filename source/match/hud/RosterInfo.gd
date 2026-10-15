@@ -53,12 +53,13 @@ static func inspect(producer, role, construction):
 	if role == "Hero" and Factions.hero_reserved(player):
 		reasons.append("A hero is already alive or in training.")
 	var required = "CommandLab" if fitted else Factions.requirement(player, role, construction)
+	if required != "":
+		lines.append("Tech path: %s." % Factions.title(player.faction, required))
 	if required != "" and not player.has_completed_structure(required):
 		reasons.append("Requires " + Factions.title(player.faction, required) + ".")
 	if (
 		not construction
-		and role == "AdvancedTank"
-		and player.get_meta("skirmish", false)
+		and Factions.requires_coordination(player, role)
 		and not player.coordination_unlocked
 	):
 		reasons.append("Research Coordination at your lab.\n20 M / 20 E · 30 s at full power.")

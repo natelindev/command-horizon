@@ -27,7 +27,10 @@ const PASSIVE_MOVEMENT_TRACKING_ENABLED = true
 		)
 		return speed * factor
 
+var _exit_clearance_target = Vector3.INF
+var _exit_clearance_until = 0.0
 var _physics_delta = 0.0
+var _last_navigation_iteration = 0
 var _has_destination = false
 var _synchronized = false
 var _command_revision = 0
@@ -55,6 +58,8 @@ func _physics_process(delta):
 	avoidance_priority = (
 		0.8 if not _has_destination and is_instance_valid(_unit.aim_target) else 0.5
 	)
+	if _advance_exit_clearance(delta):
+		return
 	if not _has_destination:
 		velocity = Vector3.ZERO
 		return
@@ -123,6 +128,28 @@ func _physics_process(delta):
 	velocity = direction * min(speed, offset.length() / delta)
 
 
+func request_exit_clearance(point):
+	if not _synchronized or _unit.has_meta("garrison_host"):
+		return
+	if _exit_clearance_target.is_finite() and _match.simulation_time < _exit_clearance_until:
+		return
+	_exit_clearance_target = point
+	_exit_clearance_until = _match.simulation_time + 2.5
+
+
+func _advance_exit_clearance(delta):
+	if not _exit_clearance_target.is_finite():
+		return false
+	var offset = (_exit_clearance_target - _unit.global_position) * Vector3(1, 0, 1)
+	if offset.length() < .15 or _match.simulation_time >= _exit_clearance_until:
+		_exit_clearance_target = Vector3.INF
+		return false
+	# This is a short avoidance maneuver, not a new order. Keep the navigation
+	# destination, action, queued orders and program assignments intact.
+	velocity = offset.normalized() * minf(speed, offset.length() / delta)
+	return true
+
+
 func has_occupied_endpoint(require_short_route = true):
 	var path = get_current_navigation_path()
 	if path.is_empty():
@@ -140,7 +167,7 @@ func has_occupied_endpoint(require_short_route = true):
 			previous = point
 	# A plain point order can finish beside a settled ally occupying its final
 	# reachable position. MovingToUnit owns its own process/contact checks.
-	for other in _unit.player.get_children():
+	for other in _match.battlefield.nearby_bodies(end, _unit.radius, _unit.player):
 		if (
 			other == _unit
 			or not other.is_in_group("units")
@@ -356,20 +383,32 @@ func _update_passive_movement_tracking(safe_velocity):
 func _on_velocity_computed(safe_velocity: Vector3):
 	if not _synchronized or get_tree().paused or _unit.has_meta("garrison_host"):
 		return
-	var displacement = safe_velocity.limit_length(speed) * _physics_delta
+	var navigation_iteration = NavigationServer3D.map_get_iteration_id(get_navigation_map())
+	if (
+		safe_velocity.is_zero_approx()
+		and _previously_set_global_transform_of_unit == _unit.global_transform
+		and navigation_iteration == _last_navigation_iteration
+	):
+		# Already aligned and untouched: a stationary body needs no navmesh or
+		# neighbor query. Preserve the passive-stop notification for work actions.
+		_update_passive_movement_tracking(Vector3.ZERO)
+		return
+	_last_navigation_iteration = navigation_iteration
+	var current_speed = speed
+	var displacement = safe_velocity.limit_length(current_speed) * _physics_delta
 	var candidate = _unit.global_position + displacement
 	# Local avoidance can push agents off the mesh; constrain the resulting step.
 	var navigable = NavigationServer3D.map_get_closest_point(get_navigation_map(), candidate)
 	navigable.y -= path_height_offset
 	var next = _unit.global_position.move_toward(
-		Vector3(navigable.x, _unit.global_position.y, navigable.z), speed * _physics_delta
+		Vector3(navigable.x, _unit.global_position.y, navigable.z), current_speed * _physics_delta
 	)
 	# Flight clearance follows the map without consuming horizontal movement speed.
 	# Ground agents retain the existing navmesh-constrained elevation step.
 	if _uses_flight_clearance():
 		next.y = _flight_height(Vector3(next.x, navigable.y, next.z))
 	else:
-		next = _unit.global_position.move_toward(navigable, speed * _physics_delta)
+		next = _unit.global_position.move_toward(navigable, current_speed * _physics_delta)
 	if domain == Constants.Match.Navigation.Domain.TERRAIN:
 		next = _clip_ground_step(next)
 		# Only retry when mesh projection displaced avoidance and the final
@@ -384,14 +423,14 @@ func _on_velocity_computed(safe_velocity: Vector3):
 			# Avoidance can steer an escape back into a boundary contact. Try
 			# the committed recovery step with the same mesh/body constraints.
 			var recovery_point = (
-				_unit.global_position + velocity.limit_length(speed) * _physics_delta
+				_unit.global_position + velocity.limit_length(current_speed) * _physics_delta
 			)
 			var recovery_nav = NavigationServer3D.map_get_closest_point(
 				get_navigation_map(), recovery_point
 			)
 			recovery_nav.y -= path_height_offset
 			var recovery_step = _clip_ground_step(
-				_unit.global_position.move_toward(recovery_nav, speed * _physics_delta)
+				_unit.global_position.move_toward(recovery_nav, current_speed * _physics_delta)
 			)
 			if (
 				recovery_step.distance_squared_to(_unit.global_position)

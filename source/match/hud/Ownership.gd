@@ -2,6 +2,7 @@ extends RefCounted
 
 const Factions = preload("res://source/match/FactionCatalog.gd")
 const LEGEND = "● Your forces   ▲ Opponent   ◆ Resources"
+static var _symbols = {}
 
 
 static func legend(game):
@@ -43,21 +44,34 @@ static func caption(unit, game):
 	return "%s · %s" % [owner, Factions.NAMES.get(unit.player.faction, unit.player.faction)]
 
 
-static func paint(canvas, point, shape, radius, tint):
-	# Neutral backing keeps the silhouette readable against both snow and dark roads.
-	if shape == "own":
-		canvas.draw_circle(point, radius + 1.2, Color("17202bea"), true, -1.0, true)
-		canvas.draw_circle(point, radius, tint, true, -1.0, true)
-	else:
-		var corners = (
-			PackedVector2Array([Vector2(0, -1.15), Vector2(1, .8), Vector2(-1, .8)])
-			if shape == "opponent"
-			else PackedVector2Array([Vector2(0, -1), Vector2(1, 0), Vector2(0, 1), Vector2(-1, 0)])
+# Cache antialiased silhouettes once. Rebuilding circles/polygons for hundreds of
+# minimap markers every physics tick otherwise reallocates GPU vertex/index buffers.
+
+
+static func _symbol(shape):
+	if not _symbols.has(shape):
+		var geometry = {
+			"own": '<circle cx="0" cy="0" r="1" fill="white"/>',
+			"opponent": '<path d="M0,-1.15 L1,.8 L-1,.8 Z" fill="white"/>',
+			"resource": '<path d="M0,-1 L1,0 L0,1 L-1,0 Z" fill="white"/>'
+		}[shape]
+		var image = Image.new()
+		(
+			image
+			. load_svg_from_string(
+				(
+					'<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="-1.25 -1.25 2.5 2.5">'
+					+ geometry
+					+ "</svg>"
+				)
+			)
 		)
-		var outer = PackedVector2Array()
-		var inner = PackedVector2Array()
-		for corner in corners:
-			outer.append(point + corner * (radius + 1.2))
-			inner.append(point + corner * radius)
-		canvas.draw_colored_polygon(outer, Color("17202bea"))
-		canvas.draw_colored_polygon(inner, tint)
+		_symbols[shape] = ImageTexture.create_from_image(image)
+	return _symbols[shape]
+
+
+static func paint(canvas, point, shape, radius, tint):
+	var texture = _symbol(shape)
+	for layer in [[radius + 1.2, Color("17202bea")], [radius, tint]]:
+		var extent = Vector2.ONE * layer[0] * 1.25
+		canvas.draw_texture_rect(texture, Rect2(point - extent, extent * 2), false, layer[1])

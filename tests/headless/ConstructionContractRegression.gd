@@ -1,6 +1,7 @@
 extends "res://tests/headless/HQCountdownRegression.gd"
 
 var factions = ["bastion", "helix", "frontier"]
+var faction_catalog
 var construction_action
 var hq_scene
 var workers = []
@@ -11,6 +12,7 @@ var contracts = false
 
 
 func _run():
+	faction_catalog = load("res://source/match/FactionCatalog.gd")
 	construction_action = load("res://source/match/units/actions/Constructing.gd")
 	hq_scene = load("res://source/match/units/CommandCenter.tscn")
 	root.get_node("SaveManager").autosaves_enabled = false
@@ -63,7 +65,7 @@ func _crew_rate():
 	game.hud._toggle_pause()
 	await _frames(600)
 	game.hud.pause_after_load()
-	var expected = (game.simulation_time - start) / 45.0
+	var expected = (game.simulation_time - start) / faction_catalog.BUILD_TIMES.CommandCenter
 	_check(
 		absf(foundation._construction_progress - expected) < .015,
 		label + ": four engineers changed one-engineer build rate"
@@ -118,7 +120,16 @@ func _handoff_and_complete():
 	await _frames(120)
 	game.hud.pause_after_load()
 	_check(
-		absf(foundation._construction_progress - before - 2.0 / 45.0) < .01,
+		(
+			absf(
+				(
+					foundation._construction_progress
+					- before
+					- 2.0 / faction_catalog.BUILD_TIMES.CommandCenter
+				)
+			)
+			< .01
+		),
 		"Manual handoff changed construction rate"
 	)
 	_check(
@@ -132,7 +143,16 @@ func _handoff_and_complete():
 	await _frames(120)
 	game.hud.pause_after_load()
 	_check(
-		absf(foundation._construction_progress - before - 2.0 / 45.0) < .01,
+		(
+			absf(
+				(
+					foundation._construction_progress
+					- before
+					- 2.0 / faction_catalog.BUILD_TIMES.CommandCenter
+				)
+			)
+			< .01
+		),
 		"Death handoff changed construction rate"
 	)
 	game.hud._toggle_pause()
@@ -251,7 +271,14 @@ func _review_contract(_stage):
 		var quote = "%d M / %d E back" % [refund.resource_a, refund.resource_b]
 		_check(quote in menus._stop_button.text, "Cancellation button hides the live refund")
 		_check(
-			"unused" in menus._stop_button.accessibility_description,
+			(
+				str(
+					TranslationServer.translate(
+						"Refunds unused construction costs, rounded down to whole resources."
+					)
+				)
+				in menus._stop_button.accessibility_description
+			),
 			"Cancellation refund lacks accessible explanation"
 		)
 
@@ -273,7 +300,7 @@ func _legacy_contract():
 		absf(site._construction_progress - speed * crew.size()) < .01,
 		"Legacy construction lost additive worker rate"
 	)
-	var cost = load("res://source/match/FactionCatalog.gd").cost(owner, "CommandCenter", true)
+	var cost = faction_catalog.cost(owner, "CommandCenter", true)
 	var funds = Vector2i(owner.resource_a, owner.resource_b)
 	site.cancel_construction()
 	_check(

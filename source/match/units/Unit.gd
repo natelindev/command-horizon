@@ -9,11 +9,11 @@ signal stance_changed(new_stance)
 
 enum Stance { AGGRESSIVE, DEFENSIVE, HOLD_POSITION, HOLD_FIRE }
 
-var stance = Stance.AGGRESSIVE:
-	set = _set_stance
-
 const MATERIAL_ALBEDO_TO_REPLACE = Color(0.99, 0.81, 0.48)
 const MATERIAL_ALBEDO_TO_REPLACE_EPSILON = 0.05
+
+var stance = Stance.AGGRESSIVE:
+	set = _set_stance
 
 var hp = null:
 	set = _set_hp
@@ -69,7 +69,10 @@ func _ready():
 	_setup_default_properties_from_constants()
 	load("res://source/match/FactionCatalog.gd").apply_stats(self)
 	base_hp_max = hp_max
-	if player != null and (type == "AdvancedTank" or (type == "CombatRobot" and player.faction == "helix")):
+	if (
+		player != null
+		and (type == "AdvancedTank" or (type == "CombatRobot" and player.faction == "helix"))
+	):
 		var preparation_visual = load("res://source/match/effects/WeaponPreparationVisual.gd").new()
 		preparation_visual.name = "WeaponPreparationVisual"
 		add_child(preparation_visual)
@@ -128,25 +131,24 @@ func _set_hp_max(value):
 
 
 func _get_radius():
-	if find_child("Movement") != null:
-		return find_child("Movement").radius
-	if find_child("MovementObstacle") != null:
-		return find_child("MovementObstacle").radius
-	return null
+	var movement = get_node_or_null("Movement")
+	if movement != null:
+		return movement.radius
+	var obstacle = get_node_or_null("MovementObstacle")
+	return obstacle.radius if obstacle != null else null
 
 
 func _get_movement_domain():
-	if find_child("Movement") != null:
-		return find_child("Movement").domain
-	if find_child("MovementObstacle") != null:
-		return find_child("MovementObstacle").domain
-	return null
+	var movement = get_node_or_null("Movement")
+	if movement != null:
+		return movement.domain
+	var obstacle = get_node_or_null("MovementObstacle")
+	return obstacle.domain if obstacle != null else null
 
 
 func _get_movement_speed():
-	if find_child("Movement") != null:
-		return find_child("Movement").speed
-	return 0.0
+	var movement = get_node_or_null("Movement")
+	return movement.speed if movement != null else 0.0
 
 
 func _is_movable():

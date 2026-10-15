@@ -20,6 +20,7 @@ var _sensor_rest = Vector3.ZERO
 var _glow
 var _metal
 var _light_level = 0.0
+var _settled_idle = false
 
 
 func _ready():
@@ -44,8 +45,14 @@ func refresh(delta = 0.0):
 	if not is_instance_valid(_unit) or _unit.hp == null:
 		return
 	_read_activity()
+	# Idle structures retain their last pose/materials. Still read state each frame
+	# so construction, research and queued work wake the animation immediately.
+	if state == "idle" and _settled_idle:
+		return
 	var working = state in ["construction", "production", "research"]
-	var rate = _unit.player.production_factor() if _unit.is_constructed() else 1.0
+	var rate = (
+		_unit.player.production_factor() if state in ["production", "research", "blocked"] else 1.0
+	)
 	if working:
 		phase += delta * rate
 	_scaffold.visible = state == "construction"
@@ -80,6 +87,8 @@ func refresh(delta = 0.0):
 		door.position.x = (
 			door.get_meta("rest_x") + door.get_meta("side") * _door_open * door.get_meta("travel")
 		)
+
+	_settled_idle = state == "idle" and _light_level == 0.0 and _door_open == 0.0
 
 
 func _read_activity():

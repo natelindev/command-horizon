@@ -174,7 +174,14 @@ func _test_progression():
 	factory.production_queue.fit_chips = true
 	var queued = factory.production_queue.produce(load(Catalog.scene_path("Tank")))
 	_check(
-		queued != null and queued.time_total == 25 and queued.fitted_chip,
+		(
+			queued != null
+			and (
+				queued.time_total
+				== load("res://source/match/FactionCatalog.gd").duration(_human, "Tank") + 5
+			)
+			and queued.fitted_chip
+		),
 		"Chip factory job missing fee/time"
 	)
 	_check(_human.resource_b == 90, "Factory chip fee incorrect")

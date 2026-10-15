@@ -9,6 +9,30 @@ func _run():
 	await _loading_translations()
 	for pair in [
 		["Settings", "设置"],
+		["NORTH RELAY", "北侧中继站"],
+		["SOUTH RELAY", "南侧中继站"],
+		["North Refinery", "北侧炼油厂"],
+		["West Mercenary Camp", "西侧佣兵营地"],
+		["Garrison 2 / 8", "驻军 2 / 8"],
+		["⚒ Idle: 3", "⚒ 空闲：3"],
+		["Atk Move", "攻击移动"],
+		["N ↑", "北 ↑"],
+		[
+			"Build Flux generator (15 M / 0 E). Low power slows production and service buildings.",
+			"建造 通量发电机（15 材料 / 0 电子元件）。 供电不足会降低生产与维修速度。"
+		],
+		["Stop", "停止"],
+		[
+			(
+				"Cancel construction · 80 M / 20 E back. Refunds unused construction "
+				+ "costs, rounded down to whole resources."
+			),
+			"取消建造 · 返还 80 材料 / 20 电子元件。 返还尚未投入施工的费用，资源数量向下取整。"
+		],
+		["Tech path: Field workshop.", "科技路线：野战维修站。"],
+		["Helix Control", "螺旋控制中心"],
+		["Needle skimmer online.", "针刺悬浮战车已就绪。"],
+		["Needle skimmer linked.", "针刺悬浮战车已连接。"],
 		["Bastion vs Helix", "堡垒 对阵 螺旋"],
 		["Manual slot 3", "手动存档 3"],
 		["Cargo: 4 M / 2 E", "货物：4 材料 / 2 电子元件"],
@@ -79,16 +103,15 @@ func _run():
 
 func _loading_translations():
 	var messages = {
-		"en": [
+		"en":
+		[
 			"Taking ammunition out of depot...",
 			"Creating map...",
 			"Preparing a ground for combat...",
 			"Setting up a camera...",
 			"Placing units in the field..."
 		],
-		"zh_CN": [
-			"正在从仓库搬运弹药…", "正在创建地图…", "正在准备战场…", "正在设置镜头…", "正在部署单位…"
-		]
+		"zh_CN": ["正在从仓库搬运弹药…", "正在创建地图…", "正在准备战场…", "正在设置镜头…", "正在部署单位…"]
 	}
 	var previous_locale = TranslationServer.get_locale()
 	for locale in messages:

@@ -52,7 +52,7 @@ func _ready():
 		_relay_labels.append(label)
 		_relay_buttons.append(_button(row, "View", _view_relay.bind(index)))
 		_infantry_buttons.append(_button(row, "Find infantry", _find_capture_unit.bind(index)))
-		var marker = _label(markers, "◆  " + mission.map.NAMES[index].to_upper() + " RELAY", 14)
+		var marker = _label(markers, "◆  " + (tr("%s relay") % tr(mission.map.NAMES[index])), 14)
 		marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		marker.add_theme_color_override("font_shadow_color", Color.BLACK)
 		marker.add_theme_constant_override("shadow_offset_x", 2)
@@ -118,6 +118,7 @@ func _process(delta):
 			recovery.accessibility_description = (
 				mission.map.NAMES[index] + " relay. " + recovery.tooltip_text
 			)
+		_markers[index].text = "◆  " + (tr("%s relay") % tr(mission.map.NAMES[index]))
 		var point = relay.global_position + Vector3.UP * 4.5
 		_markers[index].position = camera.unproject_position(point) - _markers[index].size * 0.5
 		_markers[index].visible = (

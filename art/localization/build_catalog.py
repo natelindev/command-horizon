@@ -19,6 +19,10 @@ for source in sorted((ROOT / 'art/localization').glob('*.tsv')):
         if re.findall(markers, english) != re.findall(markers, chinese):
             raise ValueError(f"Placeholder mismatch: {source}:{line_number}: {english}")
         entries[english] = chinese
+# Some older UI fragments include a leading newline or separator whitespace.
+# Retain those keys while also accepting the same complete line in composed text.
+for english, chinese in list(entries.items()):
+    entries.setdefault(english.strip(), chinese.strip())
 # Existing symbolic keys keep working in old scenes and narration.
 legacy = {'main_menu': {}, 'match': {}}
 for name in legacy:
@@ -28,7 +32,7 @@ for name in legacy:
                 entries[row[0]] = entries[row[1]]
                 english_values[row[0]] = row[1]
 with (ROOT / 'assets/translations/ui.csv').open('w', newline='') as stream:
-    writer = csv.writer(stream)
+    writer = csv.writer(stream, lineterminator="\n", quoting=csv.QUOTE_ALL)
     writer.writerow(['keys', 'en', 'zh_CN'])
     for english, chinese in sorted(entries.items()):
         writer.writerow([english, english_values.get(english, english), chinese])

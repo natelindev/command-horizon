@@ -80,6 +80,30 @@ func _next_building(units):
 		"AntiAirTurret": 220.0,
 		"AntiGroundTurret": 260.0
 	}
+	if faction == "bastion":
+		expansion = {
+			"RepairDepot": 85.0,
+			"CommandLab": 115.0,
+			"AircraftFactory": 165.0,
+			"AntiAirTurret": 220.0,
+			"AntiGroundTurret": 260.0
+		}
+	elif faction == "helix":
+		expansion = {
+			"AircraftFactory": 75.0,
+			"CommandLab": 100.0,
+			"RepairDepot": 180.0,
+			"AntiAirTurret": 220.0,
+			"AntiGroundTurret": 260.0
+		}
+	elif faction == "frontier":
+		expansion = {
+			"RepairDepot": 75.0,
+			"CommandLab": 130.0,
+			"AircraftFactory": 165.0,
+			"AntiAirTurret": 220.0,
+			"AntiGroundTurret": 260.0
+		}
 	for role in expansion:
 		if _match.simulation_time >= expansion[role] and _of_type(units, role).is_empty():
 			return _power_ready_building(units, role)

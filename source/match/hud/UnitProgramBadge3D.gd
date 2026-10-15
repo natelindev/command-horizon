@@ -9,6 +9,7 @@ func setup(unit, program):
 	_program = program
 	billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	no_depth_test = true
+	font = load("res://assets/fonts/NotoSansSC.ttf")
 	font_size = 14
 	pixel_size = 0.0035
 	outline_size = 3
@@ -32,7 +33,7 @@ func _on_evaluated(_snapshot, result):
 	if result != null and typeof(result) == TYPE_DICTIONARY and "intent" in result:
 		var intent = result.intent
 		if typeof(intent) == TYPE_DICTIONARY and "kind" in intent:
-			var action_kind = str(intent.kind).to_upper()
+			var action_kind = tr(str(intent.kind).capitalize())
 			text = "⚙ [%s]" % action_kind
 			return
 	_update_text()
@@ -43,8 +44,11 @@ func _update_text():
 		return
 	var preset = _program.config.get("preset", "")
 	if not preset.is_empty():
-		text = "⚙ [%s]" % preset.to_upper()
+		text = (
+			"⚙ [%s]"
+			% tr(load("res://source/match/programs/ProgramLibrary.gd").TITLES.get(preset, "Active"))
+		)
 	elif _program.mode in ["Running", "Ready"]:
-		text = "⚙ [ACTIVE]"
+		text = "⚙ [%s]" % tr("Active")
 	else:
 		text = ""

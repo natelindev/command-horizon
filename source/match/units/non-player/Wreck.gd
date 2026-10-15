@@ -20,7 +20,7 @@ func _ready():
 	var model = prototype.get_node("Geometry").duplicate()
 	prototype.free()
 	var bounds = Factions._bounds(model, Transform3D.IDENTITY)
-	var factor = .95 / maxf(bounds.size.x, bounds.size.z)
+	var factor = .9  # Retain the source vehicle scale; only compress the damaged hull.
 	model.scale *= Vector3(factor, factor * .55, factor)
 	model.position.y = -bounds.position.y * factor * .55
 	var material = StandardMaterial3D.new()

@@ -143,10 +143,10 @@ func _ready():
 	_check(general, "Scroll at screen edges", "edge_scrolling")
 	_check(general, "Keep pointer inside the game window", "mouse_restricted")
 	_heading(general, "Display")
-	var symbols = _check(general, "Show unit ownership symbols", "ownership_symbols")
+	var symbols = _check(general, "Show unit owner on hover", "ownership_symbols")
 	symbols.tooltip_text = (
-		"● Your forces · ▲ Opponent. Hover a unit for its owner. "
-		+ "Minimap shapes remain visible."
+		"Hover a unit for its owner. Player-colored selection outlines and "
+		+ "minimap shapes remain visible."
 	)
 	var scale_row = _row(general, "Interface size")
 	var interface_scale = OptionButton.new()

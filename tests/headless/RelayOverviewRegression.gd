@@ -2,6 +2,8 @@ extends "res://tests/headless/SaveRestoreEdges.gd"
 
 
 func _run():
+	var original_locale = TranslationServer.get_locale()
+	TranslationServer.set_locale("en")
 	root.get_node("SaveManager").autosaves_enabled = false
 	for map_name in ["AlpineRelay", "IndustrialCrossroads"]:
 		for faction in ["bastion", "helix", "frontier"]:
@@ -13,6 +15,7 @@ func _run():
 	for error in errors:
 		push_error(error)
 	print("Relay overview: %d failures" % errors.size())
+	TranslationServer.set_locale(original_locale)
 	quit(0 if errors.is_empty() else 1)
 
 

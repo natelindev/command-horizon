@@ -26,7 +26,7 @@ func _ready():
 
 
 func set_line(speaker, text, font_size):
-	_speaker.text = speaker.to_upper()
+	_speaker.text = tr(speaker).to_upper()
 	_text.text = text
 	_text.add_theme_font_size_override("font_size", font_size)
 	reset_size()

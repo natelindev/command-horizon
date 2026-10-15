@@ -112,10 +112,23 @@ func _ready():
 
 	var faction_configs = {
 		"bastion":
-		{"accent": Color("d8af67"), "bg_accent": Color("1f1a14cc"), "tag": "// BASTION // "},
-		"helix": {"accent": Color("38c8ce"), "bg_accent": Color("101d24cc"), "tag": "// HELIX // "},
+		{
+			"accent": Color("d8af67"),
+			"bg_accent": Color("1f1a14cc"),
+			"tag": "// " + tr("Bastion") + " // "
+		},
+		"helix":
+		{
+			"accent": Color("38c8ce"),
+			"bg_accent": Color("101d24cc"),
+			"tag": "// " + tr("Helix") + " // "
+		},
 		"frontier":
-		{"accent": Color("e29b68"), "bg_accent": Color("221814cc"), "tag": "// FRONTIER // "}
+		{
+			"accent": Color("e29b68"),
+			"bg_accent": Color("221814cc"),
+			"tag": "// " + tr("Frontier") + " // "
+		}
 	}
 
 	for faction in ["bastion", "helix", "frontier"]:

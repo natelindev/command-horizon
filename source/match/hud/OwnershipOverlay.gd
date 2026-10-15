@@ -42,41 +42,8 @@ func _hovered_unit(camera):
 	return hit.get("collider")
 
 
-func markers():
-	var result = []
-	if not Globals.options.ownership_symbols or not is_instance_valid(game):
-		return result
-	var camera = get_viewport().get_camera_3d()
-	if camera == null:
-		return result
-	var hovered = _hovered_unit(camera)
-	for unit in get_tree().get_nodes_in_group("units"):
-		if not Ownership.known_now(unit, game):
-			continue
-		var health = unit.get_node_or_null("HealthBar")
-		var position_3d = (
-			health.global_position if health != null else unit.global_position + Vector3.UP * 2
-		)
-		if camera.is_position_behind(position_3d):
-			continue
-		var point = camera.unproject_position(position_3d) + Vector2(0, -12)
-		if not get_viewport_rect().grow(-8).has_point(point):
-			continue
-		result.append(
-			{
-				"unit": unit,
-				"point": point,
-				"kind": Ownership.kind(unit, game),
-				"caption": Ownership.caption(unit, game),
-				"hovered": unit == hovered
-			}
-		)
-	return result
-
-
 func _draw():
-	for marker in markers():
-		Ownership.paint(self, marker.point, marker.kind, 4.5, Color("eef1f1"))
+	# Selection uses the player-colored ground outline; keep this layer for hover cards.
 	var card = hover_card()
 	if card.is_empty():
 		return

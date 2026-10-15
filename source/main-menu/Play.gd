@@ -380,6 +380,9 @@ func _faction_card(parent, heading, index):
 
 func _update_faction(index, selected):
 	_cards[index].description.text = tr(FACTION_DESCRIPTIONS[selected])
+	_cards[index].description.tooltip_text = (
+		tr(Factions.TECH_SUMMARY[Factions.IDS[selected]]) if selected < Factions.IDS.size() else ""
+	)
 	_cards[index].portrait.texture = load(
 		Factions.icon(
 			Factions.IDS[selected] if selected < Factions.IDS.size() else "bastion",

@@ -10,6 +10,7 @@ Font: [Noto Sans SC from Google Fonts](https://github.com/google/fonts/tree/main
 
 Verification:
 
+- `tests/headless/ChineseUIRegression.gd`: assembled labels/options/tooltips in menus, settings, all factions and all campaign HUDs; relay language switching while paused; complete voice-caption catalog. Run without `--headless` to save rendered relay previews.
 - `tests/headless/LocalizationRegression.gd`: fixed and formatted messages, Chinese glyphs, world lore, live read-only diagnostics, save/cancel, persistence and unsupported-locale fallback.
 - `tests/rendered/WorldAndLanguagePreview.gd`: English/Chinese menu, world, skirmish and campaign screens; Chinese battle, unit program, technology, visual rules and archive.
 - Menu, settings, key binding and unit-menu layout regressions cover existing interactions and 100/125/150% UI sizes.

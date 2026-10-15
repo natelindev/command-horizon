@@ -1,12 +1,15 @@
 extends RefCounted
 
 const STATS = {
-	"car": {"health": 95.0, "radius": 1.45, "height": 1.25, "speed": 2.8},
-	"resident": {"health": 22.0, "radius": .4, "height": 1.6, "speed": .85},
-	"fox": {"health": 18.0, "radius": .55, "height": 1.05, "speed": 1.2},
-	"gull": {"health": 12.0, "radius": .5, "height": .7, "speed": 3.5},
+	"car": {"health": 95.0, "radius": .7, "height": .65, "speed": 2.8},
+	"resident": {"health": 22.0, "radius": .3, "height": 1.15, "speed": .85},
+	"fox": {"health": 18.0, "radius": .28, "height": .38, "speed": 1.2},
+	"gull": {"health": 12.0, "radius": .3, "height": .25, "speed": 3.5},
 	"tug": {"health": 220.0, "radius": 1.8, "height": 2.4, "speed": 1.3}
 }
+
+# Match 1.15 m player infantry; a fox is knee-high and a car smaller than armor.
+const MODEL_SCALES = {"resident": .75, "fox": .36, "car": .52, "gull": .36, "tug": 1.0}
 
 const EXPANDED_MAPS = ["ExpandedDesertFrontier", "ExpandedAlpineRelay", "ExpandedCoastalFoundry"]
 const BUILDING_HEALTH = 420.0
@@ -58,12 +61,37 @@ static func authored_name(map_path):
 	return name.trim_prefix("Expanded") if name in EXPANDED_MAPS else name
 
 
-static func structures(map_path):
-	return STRUCTURES.get(authored_name(map_path), [])
+# Compact settlements flank the central routes, clear of resource fields and passes.
+static func settlements(map_path):
+	match authored_name(map_path):
+		"PlainAndSimple":
+			return [Vector2(18, 25), Vector2(32, 25)]
+		"BigArena":
+			return [Vector2(40, 45), Vector2(60, 55)]
+		"DesertFrontier":
+			return [Vector2(45, 57), Vector2(83, 39)]
+		"AlpineRelay":
+			return [Vector2(45, 46), Vector2(83, 58)]
+	return []
+
+
+static func structures(map_path, include_settlements = true):
+	var result = STRUCTURES.get(authored_name(map_path), []).duplicate()
+	if include_settlements:
+		for point in settlements(map_path):
+			result.append("ServiceOffice")
+	return result
+
+
+static func populate_settlements(map):
+	for point in settlements(map.scene_file_path):
+		load("res://source/match/maps/IndustrialLandmarks.gd").place(
+			map.get_node("Decorations"), Vector3(point.x, 0, point.y), "ServiceOffice", 2.4, .36
+		)
 
 
 # Authored loops are map content, never executable or editable archive data.
-static func entries(map_path):
+static func entries(map_path, include_settlements = true):
 	var result = []
 	match authored_name(map_path):
 		"CommandHorizonMap":
@@ -107,6 +135,32 @@ static func entries(map_path):
 		"DesertFrontier":
 			_add(result, "fox", [[29, 8], [41, 9], [40, 15], [27, 16]], 2)
 			_add(result, "fox", [[87, 80], [99, 81], [98, 87], [85, 88]], 2)
+	if include_settlements:
+		for point in settlements(map_path):
+			_add(
+				result,
+				"resident",
+				[
+					[point.x - 4, point.y - 4],
+					[point.x + 4, point.y - 4],
+					[point.x + 4, point.y + 4],
+					[point.x - 4, point.y + 4]
+				],
+				3
+			)
+		match authored_name(map_path):
+			"PlainAndSimple":
+				_add(result, "fox", [[22, 32], [28, 32], [28, 36], [22, 36]], 2)
+				_add(result, "car", [[22, 18], [28, 18], [28, 20], [22, 20]], 1)
+			"BigArena":
+				_add(result, "fox", [[46, 56], [52, 56], [52, 62], [46, 62]], 2)
+				_add(result, "car", [[40, 49], [60, 49], [60, 51], [40, 51]], 2)
+			"DesertFrontier":
+				_add(result, "fox", [[53, 42], [61, 42], [61, 52], [53, 52]], 2)
+				_add(result, "car", [[44, 47.5], [84, 47.5], [84, 48], [44, 48]], 2)
+			"AlpineRelay":
+				_add(result, "fox", [[43, 60], [49, 60], [49, 66], [43, 66]], 2)
+				_add(result, "car", [[40, 34], [84, 34], [84, 38], [40, 38]], 2)
 	if map_path.get_file().get_basename() in EXPANDED_MAPS:
 		for entry in result:
 			entry.path = entry.path.duplicate()

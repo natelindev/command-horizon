@@ -6,6 +6,7 @@ const MAX_OBSERVER_HINTS = 512
 var _frame = -1
 var _observers = {}
 var _max_sight = 0.0
+var _max_unit_radius = 0.0
 var _blockers = {}
 var _observer_hints = {}
 
@@ -22,6 +23,7 @@ func _refresh():
 	_frame = frame
 	_observers.clear()
 	_max_sight = 0.0
+	_max_unit_radius = 0.0
 	for unit in (
 		get_tree().get_nodes_in_group("units") + get_tree().get_nodes_in_group("vision_sources")
 	):
@@ -35,7 +37,12 @@ func _refresh():
 		if not _observers[unit.player].has(cell):
 			_observers[unit.player][cell] = []
 		_observers[unit.player][cell].append(unit)
-		_max_sight = maxf(_max_sight, unit.sight_range)
+		var reach = unit.sight_range
+		if unit.has_meta("garrison_host"):
+			reach += unit.get_meta("garrison_host").radius + 2.0
+		_max_sight = maxf(_max_sight, reach)
+		if unit.is_in_group("units"):
+			_max_unit_radius = maxf(_max_unit_radius, unit.radius)
 	_blockers.clear()
 	for obstacle in get_tree().get_nodes_in_group("sight_blockers"):
 		var body = obstacle.get_parent()
@@ -109,13 +116,24 @@ func is_observed(player, target):
 	if is_instance_valid(witness) and witness.player == player and can_observe(witness, target):
 		return true
 	hints.erase(target_id)
-	var cell = _cell(target.global_position)
-	var extent = ceili(_max_sight / CELL_SIZE) + 1
+	var point = target.global_position * Vector3(1, 0, 1)
+	var reach = _max_sight + (target.radius if target.is_in_group("neutral_buildings") else 0.0)
+	var low = _cell(point - Vector3.ONE * (reach + CELL_SIZE))
+	var high = _cell(point + Vector3.ONE * (reach + CELL_SIZE))
 	var cells = _observers.get(player, {})
-	for x in range(cell.x - extent, cell.x + extent + 1):
-		for y in range(cell.y - extent, cell.y + extent + 1):
+	for x in range(low.x, high.x + 1):
+		for y in range(low.y, high.y + 1):
 			for ally in cells.get(Vector2i(x, y), []):
-				if is_instance_valid(ally) and ally.player == player and can_observe(ally, target):
+				# Reject distant cells' members before the full visibility query.
+				# Live range, ownership and occlusion are still authoritative below.
+				if not is_instance_valid(ally) or ally.player != player:
+					continue
+				if (
+					(ally.global_position * Vector3(1, 0, 1)).distance_squared_to(point)
+					> reach * reach
+				):
+					continue
+				if can_observe(ally, target):
 					if hints.size() >= MAX_OBSERVER_HINTS:
 						hints.clear()
 					hints[target_id] = weakref(ally)
@@ -291,6 +309,11 @@ func observed_enemies_near(source, radius):
 		if Rules.can_target(source, candidate) and is_observed(source.player, candidate):
 			result.append(candidate)
 	return result
+
+
+func nearby_bodies(point, margin, player_filter = null):
+	_refresh()
+	return nearby_units(point * Vector3(1, 0, 1), _max_unit_radius + margin, player_filter)
 
 
 func nearby_units(point, radius, player_filter = null):

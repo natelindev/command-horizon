@@ -19,6 +19,7 @@ func _ready():
 	_mode_badge = Label3D.new()
 	_mode_badge.position = Vector3(0, 1.85, 0)
 	_mode_badge.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	_mode_badge.font = load("res://assets/fonts/NotoSansSC.ttf")
 	_mode_badge.font_size = 32
 	_mode_badge.pixel_size = 0.012
 	_mode_badge.no_depth_test = false
@@ -91,8 +92,22 @@ func _update_badge():
 	if not is_instance_valid(_mode_badge):
 		return
 	_mode_badge.text = (
-		"%s %.1f" % ["P" if pending_weapon_mode == "precision" else "AA", weapon_switch_left]
+		(
+			"%s %.1f"
+			% [
+				(
+					tr("Precision", "weapon_badge")
+					if pending_weapon_mode == "precision"
+					else tr("Anti-air", "weapon_badge")
+				),
+				weapon_switch_left
+			]
+		)
 		if weapon_switch_left > 0
-		else ("P" if weapon_mode == "precision" else "AA")
+		else (
+			tr("Precision", "weapon_badge")
+			if weapon_mode == "precision"
+			else tr("Anti-air", "weapon_badge")
+		)
 	)
 	_mode_badge.modulate = Color("eac77d") if weapon_switch_left > 0 else Color("d7ecf5")

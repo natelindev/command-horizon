@@ -41,7 +41,8 @@ func restore(saved):
 	for entry in saved:
 		by_id[entry.id] = entry
 	for actor in actors:
-		actor.restore(by_id[actor.entry.id])
+		if by_id.has(actor.entry.id):
+			actor.restore(by_id[actor.entry.id])
 	refresh_visibility()
 
 

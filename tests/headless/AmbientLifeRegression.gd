@@ -11,8 +11,15 @@ func _run():
 		"AlpineRelay",
 		"DesertFrontier",
 		"IndustrialCrossroads",
-		"CoastalFoundry"
+		"CoastalFoundry",
+		"ExpandedDesertFrontier",
+		"ExpandedAlpineRelay",
+		"ExpandedCoastalFoundry",
+		"PlainAndSimple",
+		"BigArena"
 	]:
+		if not OS.get_cmdline_user_args().is_empty() and map_name not in OS.get_cmdline_user_args():
+			continue
 		await _create(map_name)
 		_check(await _behavior() == true, map_name + " behavior aborted")
 		_check(await _archives() == true, map_name + " archive aborted")
@@ -65,6 +72,7 @@ func _freeze_units():
 
 
 func _behavior():
+	var combat_rules = load("res://source/match/combat/CombatRules.gd")
 	var life = game.map.get_node("AmbientLife")
 	var expected = Ambient.entries(game.settings.map_path)
 	_check(life.actors.size() == expected.size(), "Missing authored population")
@@ -105,17 +113,20 @@ func _behavior():
 					continue
 				_check(
 					point.distance_to(obstacle.get_parent().position) > obstacle.radius + .5,
-					"Authored route clips scenery: " + actor.entry.id
+					(
+						"Authored route clips scenery: "
+						+ game.settings.map_path
+						+ " / "
+						+ actor.entry.id
+					)
 				)
 		var source = _units(game._get_human_player(), "Tank")
 		if not source.is_empty():
 			_check(
 				(
-					load("res://source/match/combat/CombatRules.gd").can_target(source[0], actor)
+					combat_rules.can_target(source[0], actor)
 					if actor.entry.kind != "gull"
-					else not load("res://source/match/combat/CombatRules.gd").can_target(
-						source[0], actor
-					)
+					else not combat_rules.can_target(source[0], actor)
 				),
 				"Neutral weapon-domain targeting failed"
 			)
@@ -158,7 +169,7 @@ func _behavior():
 	game.settings.visibility = game.settings.Visibility.PER_PLAYER
 	life.refresh_visibility()
 	_check(not actor.visible, "Unobserved neutral leaked through fog")
-	unit.position = actor.position + Vector3(0, 0, 2)
+	unit.position = Ambient.point(actor.entry, actor.travel + .5)
 	game.battlefield.invalidate()
 	life.refresh_visibility()
 	_check(actor.visible, "Observed neutral stayed invisible")

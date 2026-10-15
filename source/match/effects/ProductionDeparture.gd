@@ -21,6 +21,8 @@ var _clock = 0.0
 var _travel = 0.0
 var _previous = Vector3.ZERO
 var _route_ready = false
+var _exit_blockers = []
+var _clearance_retry = 0.0
 var _geometry
 
 
@@ -95,8 +97,11 @@ func find_route():
 		# archive. Before departure starts, try another legal route. Preserve
 		# the path once the unit has started emerging from the building.
 		if job.time_left < duration:
+			if clear_route(true):
+				_clear_friendly_exit()
 			return false
 		_route_ready = false
+	var yield_endpoint = Vector3.INF
 	var reach = producer.radius + radius + .35
 	for ring in range(3):
 		for angle in [0.0, -.35, .35, -.7, .7]:
@@ -114,10 +119,20 @@ func find_route():
 				job.departure_endpoint = endpoint
 				_route_ready = true
 				return true
+			if not yield_endpoint.is_finite() and clear_route(true):
+				yield_endpoint = endpoint
+	if yield_endpoint.is_finite():
+		endpoint = yield_endpoint
+		job.departure_endpoint = endpoint
+		_route_ready = true
+		clear_route(true)
+		_clear_friendly_exit()
 	return false
 
 
-func clear_route():
+func clear_route(ignore_friendly = false):
+	if ignore_friendly:
+		_exit_blockers.clear()
 	var game = producer._match
 	var units = (
 		get_tree().get_nodes_in_group("units") + get_tree().get_nodes_in_group("resource_units")
@@ -147,6 +162,10 @@ func clear_route():
 			):
 				continue
 			if point.distance_to(unit.global_position) < radius + unit.radius + .08:
+				if ignore_friendly and _can_clear_exit(unit):
+					if unit not in _exit_blockers:
+						_exit_blockers.append(unit)
+					continue
 				return false
 		if not airborne:
 			for side in [-1, 0, 1]:
@@ -166,6 +185,88 @@ func clear_route():
 					return false
 		previous = point
 	return true
+
+
+func _can_clear_exit(unit):
+	return (
+		unit.is_in_group("units")
+		and unit.player == producer.player
+		and unit.movement_speed > 0
+		and unit.hp > 0
+		and not unit.has_meta("garrison_host")
+	)
+
+
+func _clear_friendly_exit():
+	var game = producer._match
+	if game.simulation_time < _clearance_retry:
+		return
+	_clearance_retry = game.simulation_time + .3
+	var units = (
+		get_tree().get_nodes_in_group("units") + get_tree().get_nodes_in_group("resource_units")
+	)
+	# A packed row needs its adjacent allies to yield too; otherwise every
+	# candidate sidestep can be occupied. Only expand one local neighbor layer.
+	for blocker in _exit_blockers.duplicate():
+		for neighbor in game.battlefield.nearby_bodies(
+			blocker.global_position, blocker.radius + 1.0, producer.player
+		):
+			if (
+				neighbor not in _exit_blockers
+				and _can_clear_exit(neighbor)
+				and neighbor.movement_domain == blocker.movement_domain
+				and (
+					neighbor.global_position.distance_to(blocker.global_position)
+					< neighbor.radius + blocker.radius + 1.0
+				)
+			):
+				_exit_blockers.append(neighbor)
+	for unit in _exit_blockers:
+		var movement = unit.get_node("Movement")
+		var side = producer.global_basis.x.normalized()
+		if (unit.global_position - endpoint).dot(side) < 0:
+			side = -side
+		for offset in [side, -side, -producer.global_basis.z.normalized()]:
+			var requested = unit.global_position + offset * (radius + unit.radius + 1.0)
+			var point = NavigationServer3D.map_get_closest_point(
+				movement.get_navigation_map(), requested
+			)
+			point.y -= movement.path_height_offset
+			if ((point - requested) * Vector3(1, 0, 1)).length() > .12:
+				continue
+			if units.any(
+				func(other):
+					return (
+						other != unit
+						and not other.is_queued_for_deletion()
+						and not other.is_in_group("salvage_wrecks")
+						and (
+							not "movement_domain" in other
+							or other.movement_domain == unit.movement_domain
+						)
+						and (
+							point.distance_to(other.global_position)
+							< unit.radius + other.radius + .15
+						)
+					)
+			):
+				continue
+			if (
+				not airborne
+				and not game.battlefield.line_clear(
+					unit.global_position + Vector3.UP * .6, point + Vector3.UP * .6, unit
+				)
+			):
+				continue
+			# The destination must clear the whole exit, not just its endpoint.
+			var outside = true
+			for index in range(1, 13):
+				if point.distance_to(route_point(index / 12.0)) < radius + unit.radius + .3:
+					outside = false
+					break
+			if outside:
+				movement.request_exit_clearance(point)
+				break
 
 
 func route_point(progress):
