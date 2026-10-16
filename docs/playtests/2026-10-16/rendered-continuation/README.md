@@ -69,7 +69,7 @@ Some Godot test exits still report ObjectDB/resource/RID cleanup warnings. Passi
 - Maximum-population rendered performance remains poor; further CPU profiling and optimization are needed for smooth play at that extreme.
 - GPU timestamp data is unavailable on this setup.
 - Subjective voice listening, art-direction and balance acceptance remain human review items.
-- Native packaged main-menu rendering was observed on Apple Silicon. Automated clicking failed with `noWindowsAvailable` after discovery and exact-path rebinding; manual launch-to-battle interaction is unverified. Scripted rendered interactions pass. Included x86_64 libraries do not establish Intel or other-platform runtime acceptance.
+- Native packaged main-menu rendering was observed on Apple Silicon. Automated clicking failed with `noWindowsAvailable` after discovery and exact-path rebinding; manual launch-to-battle interaction is unverified. Scripted rendered interactions pass. Intel macOS execution and graphical interaction on Windows/Linux remain unverified; the release checks below cover native headless startup and packaged gameplay on each desktop platform.
 
 ## Final verification
 
@@ -85,3 +85,12 @@ Existing options and all three autosaves match their pre-launch hashes. A later 
 - [macOS release ZIP](../../../../build/Open%20RTS-rendered-verified.zip) (141,401,276 bytes)
 
 Release SHA-256: `732d7b68c5f71cda099c41492f306bd05f54c0ecb3a489bbc8b9ad0e0ea38bd2`.
+
+## Published release — 2026-10-17
+
+[Open RTS v0.11.0](https://github.com/natelindev/copperfin/releases/tag/v0.11.0) is published from commit `b5392ff2163b2e9e372436acff5b917b86bfaddb`. Linux, Windows and universal macOS packages include native Lua, with a SHA-256 manifest. GitHub's uploaded asset digests match the downloaded CI artifacts. These versioned release packages supersede the earlier local verification ZIP above.
+
+[Release verification](https://github.com/natelindev/copperfin/actions/runs/38930052716) passes on all three native runners: exported-game headless startup plus LuaSandbox, LuaProgram, PersistentCapture, CampaignInterior, HeroCampaign and MapRoster regressions. Source static checks also pass. Windows verification exposed and fixed portable allocation alignment and extension-manifest selection when SCons emits an import library alongside its DLL. All 569 native sanitizer assertions pass after the allocator change.
+
+- [Release checksums](release-v0.11.0-SHA256SUMS.txt)
+- [Native sanitizer result](release-native-sanitizers.txt)

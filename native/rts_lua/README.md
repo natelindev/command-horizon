@@ -19,7 +19,9 @@ For the universal macOS export, also build the x86_64 library:
 uv tool run --from scons==4.11.1 scons -C native/rts_lua platform=macos arch=x86_64 target=template_release build_profile=build_profile.json -j 4
 ```
 
-Linux and Windows mappings/build paths are provided but **not verified**. Build the library for the export's architecture before making a package. Do not ship a registration file without its matching library. Export filters include `source/native/THIRD_PARTY_LICENSES.txt`; source notices are also in `licenses/`. The 2026-10-16 universal macOS release package includes both libraries and boots headlessly on arm64. LuaSandbox and LuaProgram pass against its exported PCK using the test-capable Godot executable and copies of the packaged libraries in an isolated directory. The official release template ignores `--script`, so it cannot run those tests directly. x86_64 execution, other desktop packages and rendered acceptance remain unverified. See [headless package evidence](../../docs/playtests/2026-10-16/headless-continuation/README.md).
+The v0.11.0 release builds and validates native libraries on Linux x86_64, Windows x86_64 and macOS (both arm64 and x86_64 libraries). Build the library for the export's architecture before making a package. Do not ship a registration file without its matching library. Export filters include `source/native/THIRD_PARTY_LICENSES.txt`; source notices are also in `licenses/`.
+
+[Release CI](https://github.com/natelindev/copperfin/actions/runs/38930052716) verifies exported-game headless startup and six packaged gameplay/Lua regressions on each native runner, using the test-capable Godot executable in an isolated directory. The official release template ignores `--script`, so it cannot run those tests directly. Windows uses Lua's portable allocation alignment fields; registration copies the manifest explicitly rather than indexing into the DLL/import-library output list. All 569 native sanitizer assertions pass. Intel macOS execution and Windows/Linux graphical acceptance remain unverified. See [release evidence](../../docs/playtests/2026-10-16/rendered-continuation/README.md).
 
 ## Verification
 

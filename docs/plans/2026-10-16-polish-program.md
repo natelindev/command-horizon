@@ -154,4 +154,8 @@ Evidence: `docs/playtests/2026-10-16/rendered-continuation/README.md`.
 
 - [x] Version and changelog updated; release workflow builds native Lua on Linux, Windows
   and macOS and checks exported gameplay resources before uploading packages.
-- [ ] Commit/push, native platform builds and release publication.
+- [x] Complete project committed and pushed to main. All three native desktop builds
+  and six packaged regressions per platform pass; 569 native sanitizer assertions pass.
+- [x] Published [v0.11.0](https://github.com/natelindev/copperfin/releases/tag/v0.11.0)
+  from `b5392ff2` with Linux, Windows, universal macOS and verified SHA-256 downloads.
+  Windows allocator alignment and extension registration were corrected during release validation.
