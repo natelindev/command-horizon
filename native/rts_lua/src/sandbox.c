@@ -27,7 +27,8 @@ struct RtsLua {
 /* Track actual allocations (including aligned headers), independently of Lua's
  * requested-size hints. A failed shrink can retain the old allocation safely. */
 typedef union {
-    max_align_t alignment;
+    /* Use Lua's portable alignment fields, including on MSVC's C compiler. */
+    LUAI_MAXALIGN;
     size_t size;
 } Allocation;
 
