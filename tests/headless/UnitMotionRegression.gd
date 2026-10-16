@@ -61,7 +61,7 @@ func _run():
 			var rest = geometry.transform
 			var visual = unit.get_node("BastionVisuals")
 			for frame in range(900):
-				visual._physics_process(1.0 / 60)
+				visual._process(1.0 / 60)
 			_check(geometry.transform.is_equal_approx(rest), "Structure foundation moved: " + role)
 	_test_group_variation(players[0])
 	await _test_pause(_units[0])
@@ -114,23 +114,23 @@ func _test_idle(unit):
 	var interval = unit.attack_interval
 	var action_before = unit.action
 	for frame in range(180):
-		visual._physics_process(1.0 / 60)
+		visual._process(1.0 / 60)
 	_check(visual._idle_blend == 0.0, "Long-idle gesture started before threshold")
 	for frame in range(480):
-		visual._physics_process(1.0 / 60)
+		visual._process(1.0 / 60)
 	var animated_body = (
 		geometry.get_node("InfantryRig/Chest") if geometry.has_node("InfantryRig") else geometry
 	)
 	var pose = animated_body.transform
 	for frame in range(30):
-		visual._physics_process(1.0 / 60)
+		visual._process(1.0 / 60)
 	_check(
 		not pose.is_equal_approx(animated_body.transform),
 		"Frozen long idle: " + unit.player.faction + unit.type
 	)
 	_check(visual._idle_blend > 0.99, "Long idle never activated")
 	for frame in range(3600):
-		visual._physics_process(1.0 / 60)
+		visual._process(1.0 / 60)
 		if frame % 60 == 0:
 			_check(
 				geometry.position.distance_to(visual._geometry_rest.origin) < 0.08,
@@ -144,7 +144,7 @@ func _test_idle(unit):
 	# A queued movement order suppresses gestures even when physically blocked.
 	visual._movement._has_destination = true
 	for frame in range(30):
-		visual._physics_process(1.0 / 60)
+		visual._process(1.0 / 60)
 	_check(visual._idle_blend == 0.0 and visual._quiet_time == 0.0, "Blocked movement appears idle")
 	visual._movement._has_destination = false
 
@@ -158,7 +158,7 @@ func _test_attack(unit):
 		_check(visual._idle_blend == 0.0, "Shot failed to cancel idle")
 		strengths[snappedf(visual.motion.recoil_strength, 0.001)] = true
 		for frame in range(60):
-			visual._physics_process(1.0 / 60)
+			visual._process(1.0 / 60)
 		_check(visual._recoil == 0.0, "Recoil did not recover")
 		if visual._barrel != null:
 			_check(visual._barrel.position.is_equal_approx(visual._barrel_rest), "Barrel drift")
@@ -177,7 +177,7 @@ func _test_group_variation(player):
 		var unit = _spawn("Tank", player, Vector3(20 + index, 0, 22))
 		var visual = unit.get_node("BastionVisuals")
 		for frame in range(660):
-			visual._physics_process(1.0 / 60)
+			visual._process(1.0 / 60)
 		poses[str(unit.get_node("Geometry").transform)] = true
 		visual.fire_recoil()
 		timings[snappedf(visual.motion.recoil_duration, 0.001)] = true

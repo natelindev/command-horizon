@@ -175,10 +175,11 @@ func _refresh_assignments():
 	var panel = _selection_panel()
 	for kind in _assignment_buttons:
 		var button = _assignment_buttons[kind]
-		button.visible = is_instance_valid(panel)
-		if not button.visible:
-			continue
 		var count = Assignments.workers(player.get_children(), kind).size()
+		# Only assigned engineers are worth a readout; zero is the default.
+		button.visible = is_instance_valid(panel) and count > 0
+		if not is_instance_valid(panel):
+			continue
 		var resource = "materials" if kind == 1 else "electronics"
 		button.text = "%d engineer%s" % [count, "" if count == 1 else "s"]
 		button.disabled = count == 0
@@ -269,7 +270,9 @@ func _refresh():
 	elif near_capacity:
 		_power_status.text = "%d available · build power soon" % spare
 	else:
-		_power_status.text = "%d power available" % spare
+		# Spare power is supply minus demand, already on the meter: say nothing.
+		_power_status.text = ""
+	_power_status.visible = not _power_status.text.is_empty()
 	tooltip_text = (
 		"Power meter: demand / supply. Only completed structures supply or consume power. "
 		+ "Low power runs production, chip installation, research and depot repair at 35% speed. "

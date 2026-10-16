@@ -1,7 +1,9 @@
 extends "res://tests/headless/SaveRestoreEdges.gd"
 
-# Rendered review captures for the faction battle consoles: closed deck, worker, tank,
-# producer with a paid queue, multi-selection, lit alerts beacon, pause menu and technology.
+# Rendered review captures for the faction battle consoles in English and Chinese:
+# closed deck, worker, tank, producer with a full paid queue while other buildings
+# produce, the production overview with nothing selected, a hidden battle plan,
+# multi-selection, lit alerts beacon, pause menu and technology.
 # Run without --headless: Godot --path . --script tests/rendered/HudConsolePreview.gd
 
 const OUTPUT = "res://art/hud-console/"
@@ -14,18 +16,25 @@ func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT))
 	for setup in [
-		["bastion", "ExpandedDesertFrontier", Vector2i(1280, 720), 1.5, "720p"],
-		["helix", "AlpineRelay", Vector2i(1920, 1080), 1.0, "1080p"],
-		["frontier", "CoastalFoundry", Vector2i(1280, 720), 1.5, "720p"],
+		["bastion", "ExpandedDesertFrontier", Vector2i(1280, 720), 1.5, "720p", "en"],
+		["helix", "AlpineRelay", Vector2i(1920, 1080), 1.0, "1080p", "en"],
+		["frontier", "CoastalFoundry", Vector2i(1280, 720), 1.5, "720p", "en"],
+		["bastion", "ExpandedDesertFrontier", Vector2i(1280, 720), 1.5, "720p-zh", "zh_CN"],
+		["helix", "AlpineRelay", Vector2i(1920, 1080), 1.0, "1080p-zh", "zh_CN"],
+		["frontier", "CoastalFoundry", Vector2i(1280, 720), 1.5, "720p-zh", "zh_CN"],
 	]:
-		preferences.restore(
-			{
-				"screen": 1,
-				"edge_scrolling": false,
-				"day_cycle": false,
-				"weather": 1,
-				"interface_scale": setup[3]
-			}
+		(
+			preferences
+			. restore(
+				{
+					"screen": 1,
+					"edge_scrolling": false,
+					"day_cycle": false,
+					"weather": 1,
+					"interface_scale": setup[3],
+					"language": setup[5],
+				}
+			)
 		)
 		await create_timer(.5).timeout
 		root.mode = Window.MODE_WINDOWED
@@ -45,6 +54,9 @@ func _battle(faction, map_name, suffix):
 	for player in get_nodes_in_group("players"):
 		if player != game._get_human_player():
 			player.set_process(false)
+	# Hiding the plan for a capture must not touch the reviewer's settings file.
+	var preference_path = "user://hud-preview-options-%d.tres" % OS.get_process_id()
+	game.hud.battle_plan.options_path = preference_path
 	var human = game._get_human_player()
 	var camera = game.get_node("IsometricCamera3D")
 	var tank = _units(human, "Tank")[0]
@@ -59,16 +71,37 @@ func _battle(faction, map_name, suffix):
 	tank.hp = int(tank.hp_max * .55)
 	await _select([tank])
 	await _shot(label + "-tank")
+	# A full factory queue while the barracks and HQ produce and a generator rises.
+	human.resource_a += 2000
+	human.resource_b += 2000
 	var factory = _units(human, "VehicleFactory")[0]
-	for index in 2:
+	var hq = _units(human, "CommandCenter")[0]
+	for index in root.get_node("Constants").Match.Units.PRODUCTION_QUEUE_LIMIT:
 		factory.production_queue.produce(load("res://source/match/units/Tank.tscn"))
+	for index in 3:
+		_units(human, "Barracks")[0].production_queue.produce(
+			load("res://source/match/units/Infantry.tscn")
+		)
+	hq.production_queue.produce(load("res://source/match/units/Worker.tscn"))
+	var site = load("res://source/match/units/PowerPlant.tscn").instantiate()
+	var spot = hq.global_position + Vector3(-10, 0, 8)
+	game._setup_and_spawn_unit(site, Transform3D(Basis(), spot), human)
+	site.construct(.4)
 	await _select([factory])
 	await _shot(label + "-factory")
+	root.get_node("MatchSignals").deselect_all_units.emit()
+	await _frames(20)
+	await _shot(label + "-production")
+	game.hud.battle_plan.set_dismissed(true)
+	await _frames(10)
+	await _shot(label + "-plan-hidden")
+	game.hud.battle_plan.set_dismissed(false)
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(preference_path))
 	await _select(_units(human, "Tank") + _units(human, "Worker"))
 	await _shot(label + "-multi")
 	root.get_node("MatchSignals").deselect_all_units.emit()
 	# Incoming fire on the HQ lights the alerts beacon.
-	game.alerts._hit(_units(human, "CommandCenter")[0], null)
+	game.alerts._hit(hq, null)
 	await _frames(30)
 	await _shot(label + "-alerts")
 	game.hud._open_menu()

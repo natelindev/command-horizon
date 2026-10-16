@@ -2,9 +2,12 @@ extends PanelContainer
 
 const Plan = preload("res://source/match/SkirmishPlan.gd")
 const HudLayout = preload("res://source/match/hud/HudLayout.gd")
+const BattleTheme = preload("res://source/match/hud/BattleTheme.gd")
 # A collapsed plan stays collapsed for later battles in the same session.
 static var _collapsed = false
 var hud
+## Where hiding or restoring the plan is remembered: the player's settings file.
+var options_path = Constants.OPTIONS_FILE_PATH
 var _body
 var _title
 var _description
@@ -17,15 +20,23 @@ var _elapsed = 0.0
 var _toggle
 var _programs
 var _scroll: ScrollContainer
+var _content: VBoxContainer
+var _plate: StyleBox
+## The header key hides the whole card; a compact restore key takes its place.
+var _dismiss: Button
+var _restore: Button
+var _dismissed = false
 
 
 func _ready():
 	custom_minimum_size.x = HudLayout.COLUMN_WIDTH
 	size.x = HudLayout.COLUMN_WIDTH
 	hud._style(self)
+	_plate = get_theme_stylebox("panel")
 	var box = VBoxContainer.new()
 	box.add_theme_constant_override("separation", 8)
 	add_child(box)
+	_content = box
 	var heading = HBoxContainer.new()
 	heading.add_theme_constant_override("separation", 6)
 	box.add_child(heading)
@@ -39,6 +50,16 @@ func _ready():
 		"Select units with blocked programs or program errors. Review their program status, "
 		+ "then reassign or Resume. Selection keeps their orders and does not restart programs."
 	)
+	_dismiss = hud._button(heading, "", set_dismissed.bind(true))
+	_dismiss.name = "HideBattlePlan"
+	_dismiss.theme_type_variation = "BattleQuietButton"
+	_dismiss.icon = BattleTheme.icon("hide")
+	_dismiss.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_dismiss.add_theme_constant_override("icon_max_width", 18)
+	_dismiss.custom_minimum_size.x = 36
+	_dismiss.tooltip_text = "Hide battle plan"
+	_dismiss.accessibility_name = tr("Hide battle plan")
+	_dismiss.accessibility_description = tr("Show it again with the Battle plan key.")
 	_scroll = ScrollContainer.new()
 	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_scroll.follow_focus = true
@@ -49,8 +70,11 @@ func _ready():
 	_scroll.add_child(_body)
 	_title = _label(_body, 16)
 	_title.mouse_filter = Control.MOUSE_FILTER_PASS
+	# The step's explanation reads on demand: the title's tooltip and accessible
+	# description carry it, so the card shows only what to do next.
 	_description = _label(_body, 12)
 	_description.add_theme_color_override("font_color", Color("a9b4b3"))
+	_description.visible = false
 	var actions = HBoxContainer.new()
 	actions.add_theme_constant_override("separation", 6)
 	_body.add_child(actions)
@@ -74,6 +98,16 @@ func _ready():
 	)
 	if _collapsed:
 		_toggle_body()
+	# Restore key shown in place of a hidden card: it docks under the briefing and
+	# takes no more room than one console key.
+	_restore = hud._button(self, "Battle plan", set_dismissed.bind(false))
+	_restore.name = "ShowBattlePlan"
+	_restore.icon = BattleTheme.icon("plan")
+	_restore.add_theme_constant_override("icon_max_width", 16)
+	_restore.custom_minimum_size.y = 34
+	_restore.tooltip_text = "Show battle plan"
+	_restore.accessibility_name = tr("Show battle plan")
+	_apply_dismissed(not Globals.options.show_battle_plan)
 	refresh()
 
 
@@ -89,7 +123,12 @@ func _label(parent, font_size):
 func _process(delta):
 	var command = hud.get_child(0)
 	position = Vector2(0, command.position.y + command.size.y + 8)
-	_description.visible = get_viewport_rect().size.y >= 820
+	visible = not hud.get_parent().finished and not hud.map_assignment_active()
+	# Settings can change the preference while a battle is paused.
+	if _dismissed == Globals.options.show_battle_plan:
+		_apply_dismissed(not Globals.options.show_battle_plan)
+	if _dismissed:
+		return
 	var minimap = hud.get_parent().get_node_or_null("HUD/MarginContainer/Minimap")
 	var bottom = get_viewport_rect().size.y - 16
 	if is_instance_valid(minimap):
@@ -107,11 +146,45 @@ func _process(delta):
 	if _scroll.custom_minimum_size.y != height:
 		_scroll.custom_minimum_size.y = height
 		size.y = 0
-	visible = not hud.get_parent().finished and not hud.map_assignment_active()
 	_elapsed += delta
 	if _elapsed >= 0.25:
 		_elapsed = 0.0
 		refresh()
+
+
+func is_dismissed() -> bool:
+	return _dismissed
+
+
+## Hides the whole card behind a compact restore key, or brings it back. The choice
+## is saved with the player's settings, so later skirmishes open the same way.
+func set_dismissed(dismissed: bool):
+	if dismissed == _dismissed:
+		return
+	var had_focus = (
+		get_viewport().gui_get_focus_owner() in [_dismiss, _restore] if is_inside_tree() else false
+	)
+	Globals.options.show_battle_plan = not dismissed
+	# The card still follows the choice when the settings file cannot be written.
+	Globals.options.persist(options_path)
+	_apply_dismissed(dismissed)
+	if not dismissed:
+		refresh()
+	# Keyboard users land on the key that undoes what they just did.
+	if had_focus:
+		(_restore if dismissed else _dismiss).grab_focus()
+
+
+func _apply_dismissed(dismissed: bool):
+	_dismissed = dismissed
+	_content.visible = not dismissed
+	_restore.visible = dismissed
+	var compact = StyleBoxEmpty.new()
+	# The restore key keeps the column's inset from the screen edge.
+	compact.content_margin_left = 8
+	add_theme_stylebox_override("panel", compact if dismissed else _plate)
+	custom_minimum_size.x = 0 if dismissed else HudLayout.COLUMN_WIDTH
+	size = Vector2.ZERO
 
 
 func _player():
@@ -163,9 +236,23 @@ func refresh():
 	var damaged = Plan.damaged_units(player).size()
 	_damaged.text = "Low health · %d" % damaged
 	_damaged.accessibility_description = _damaged.text + ". " + _damaged.tooltip_text
-	if _damaged.visible != (damaged > 0):
-		_damaged.visible = damaged > 0
-		size.y = 0
+	# Shortcuts appear only while they have something to select that the primary
+	# action does not already select.
+	var idle_targets = endangered if not endangered.is_empty() else Plan.idle_workers(player)
+	var shown = [
+		not _idle.disabled and not _same_units(idle_targets, step.units),
+		army > 0 and not _same_units(Plan.army(player), step.units),
+		damaged > 0,
+	]
+	var chips = [_idle, _army, _damaged]
+	for index in chips.size():
+		if chips[index].visible != shown[index]:
+			chips[index].visible = shown[index]
+			size.y = 0
+
+
+static func _same_units(a, b):
+	return a.size() == b.size() and a.all(func(unit): return unit in b)
 
 
 func _select_engineers():
@@ -191,25 +278,10 @@ func _select_step():
 
 
 func _select(units, focus = null):
-	if hud._overlay != null or is_instance_valid(hud.program_editor) or hud.get_parent().finished:
-		return false
 	if units.is_empty():
 		refresh()
 		return false
-	hud._assignment_kind = ""
-	hud._assignment_units.clear()
-	hud._assignment_points.clear()
-	hud._assignment_hint.hide()
-	hud.direct_orders.cancel()
-	hud._refresh_shortcuts()
-	_player().get_node("StructurePlacementHandler")._cancel_structure_placement()
-	MatchSignals.deselect_all_units.emit()
-	for unit in units:
-		unit.get_node("Selection").select()
-	hud.get_parent().get_node("IsometricCamera3D").set_position_safely(
-		focus if focus is Vector3 and focus.is_finite() else units[0].global_position_yless
-	)
-	return true
+	return hud.select_units(units, focus)
 
 
 func _select_program_issues():

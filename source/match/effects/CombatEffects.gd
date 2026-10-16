@@ -1,6 +1,7 @@
 extends Node3D
 
 const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
+const InfantryMotion = preload("res://source/match/units/traits/InfantryMotion.gd")
 
 # Shared GPU particle buffers and bounded tracer/wreck pools, independent of combat authority.
 const MAX_TRACERS = 96
@@ -50,6 +51,7 @@ func _ready():
 	_emitter("smoke", 384, 1.8, Vector3(0.08, 0.16, 0.035), 0.0, 0.95)
 	_emitter("dust", 512, 2.1, Vector3(0, -0.15, 0), 0.0, 0.95)
 	_emitter("fire", 256, 0.65, Vector3(0, 0.8, 0), 2.0, 0.85)
+	_emitter("mote", 192, 1.2, Vector3(0, 0.25, 0), 2.2, 0.2)
 
 
 func _emitter(kind, amount, lifetime, gravity, glow, roughness):
@@ -180,6 +182,25 @@ func impact(unit, source, point):
 			)
 
 
+func can_show_construction(unit):
+	return _can_show(unit) and (_camera == null or _camera_sees(unit.global_position))
+
+
+func construction_puff(kind, point, velocity, color, size):
+	# Construction sites share the combat pools; callers check can_show_construction.
+	_puff(kind, point, velocity, color, size)
+
+
+func _camera_sees(point):
+	if not is_instance_valid(_camera):
+		return true
+	var screen = _camera.unproject_position(point)
+	return (
+		not _camera.is_position_behind(point)
+		and get_viewport().get_visible_rect().grow(96).has_point(screen)
+	)
+
+
 func _can_show(unit):
 	return (
 		not _headless
@@ -281,7 +302,9 @@ func movement_dust(unit):
 func _wreck(unit, infantry):
 	while _wrecks.size() >= MAX_WRECKS:
 		_wrecks.pop_front().node.queue_free()
-	var wreck = unit.get_node("Geometry").duplicate()
+	# Copy the posed meshes only: scripted model builders (convoy, VTOL) must not
+	# run again on the wreck and stack a second hull inside it.
+	var wreck = unit.get_node("Geometry").duplicate(0)
 	add_child(wreck)
 	wreck.global_transform = unit.get_node("Geometry").global_transform
 	var material = StandardMaterial3D.new()
@@ -532,7 +555,17 @@ func _update_wreck(entry):
 	var progress = clampf(entry.age / motion.duration, 0.0, 1.0)
 	# Air wrecks accelerate downward; grounded units ease into a soft settle.
 	var settle = progress * progress if motion.airborne else smoothstep(0.0, 1.0, progress)
+	if motion.get("infantry", false):
+		# Soldiers buckle at the knees first, then topple with gravity and a small bounce.
+		var fall = clampf((progress - .3) / .7, 0.0, 1.0)
+		settle = fall * fall - sin(clampf((progress - .92) / .08, 0.0, 1.0) * PI) * .05
+		if progress < 1.0 or not entry.has("posed"):
+			InfantryMotion.pose_death(entry.node, progress, motion.style)
+			if progress >= 1.0:
+				entry.posed = true
 	entry.node.rotation = entry.rotation + motion.tilt * settle
+	# Stricken aircraft yaw as they fall.
+	entry.node.rotation.y += motion.get("spin", 0.0) * settle
 	entry.node.position = entry.origin + motion.slide * settle
 	var ground = 0.02 if motion.mobile else entry.origin.y - 0.18
 	entry.node.position.y = lerpf(entry.origin.y, ground, settle)

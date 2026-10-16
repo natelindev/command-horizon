@@ -1,0 +1,31 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+SCALE BEGIN movement paused=false simulation_time=1.55
+SCALE movement renderer=headless mean_frame_ms=33.34 p95_frame_ms=147.34 p99_frame_ms=159.3 frames_over_33ms=70 samples=320 simulation_seconds=10.1 wall_seconds=10.67 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=13.83 mean_engine_physics_ms=21.7 physics_ticks=606 diagnostic_no_motion=false diagnostic_no_queues=false
+SCALE BEGIN combat paused=false simulation_time=11.6500000000002
+SCALE combat renderer=headless mean_frame_ms=143.73 p95_frame_ms=184.55 p99_frame_ms=225.32 frames_over_33ms=81 samples=86 simulation_seconds=10.02 wall_seconds=12.36 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=14.47 mean_engine_physics_ms=34.1 physics_ticks=601 diagnostic_no_motion=false diagnostic_no_queues=false
+SCALE Lua VMs=200 peak_VM_bytes=59817 combat_evaluations=8891
+SCALE moved=200/200 travelled=200/200 fired=99 peak_live_projectiles=16 resources=62 sampled_peak_tracers=0 sampled_peak_claims=0 viewport_pixels=(1920.0, 1080.0)
+PASS: 200 mobile units + 80 structures; programs=true squads=false specialists=false lua=true visual=false
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 2 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)
+       27.14 real        26.04 user         1.46 sys
+           447512576  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               32990  page reclaims
+                4303  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                 806  voluntary context switches
+               68432  involuntary context switches
+        294958200408  instructions retired
+         86208924660  cycles elapsed
+           444777648  peak memory footprint

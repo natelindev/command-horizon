@@ -1,7 +1,5 @@
 extends VBoxContainer
 
-const Bindings = preload("res://source/input/KeyBindings.gd")
-
 var selection = []
 var _status
 var _resume
@@ -61,11 +59,8 @@ func refresh():
 	_eject.visible = units.any(func(unit): return unit.has_meta("garrison_host"))
 	var first = units[0].manual_orders
 	var same = units.all(func(unit): return unit.manual_orders.status == first.status)
-	_status.text = (
-		first.status
-		if same
-		else ("Mixed orders · Hold %s + right-click to queue" % Bindings.label("shift_selecting"))
-	)
+	_status.text = first.status if same else "Mixed orders"
+	# Idle units only repeat the queue hint, which the order keys' tooltips carry.
 	if (
 		_status.text
 		in [
@@ -73,17 +68,19 @@ func refresh():
 			"Hold the queue key and right-click to queue orders."
 		]
 	):
-		_status.text = (
-			"Hold %s + right-click to queue orders." % Bindings.label("shift_selecting")
-		)
+		_status.text = ""
 	if units.all(func(unit): return unit.has_meta("garrison_host")):
 		_status.text = tr("Garrisoned · Move to leave")
+	_status.visible = not _status.text.is_empty()
 	_status.tooltip_text = (
 		"Solid route: active order. Dashed route: waiting orders. "
 		+ "Gathering yields after the next delivery. Follow continues until target loss or Skip."
 	)
 	_skip.disabled = units.all(func(unit): return not unit.manual_orders._engaged)
 	_clear.disabled = units.all(func(unit): return unit.manual_orders.pending.is_empty())
+	# Queue controls appear while there is an order to skip or a queue to clear.
+	_skip.visible = not _skip.disabled
+	_clear.visible = not _clear.disabled
 	var all_resume = units.all(func(unit): return unit.manual_orders.auto_resume)
 	var any_resume = units.any(func(unit): return unit.manual_orders.auto_resume)
 	_resume.set_pressed_no_signal(all_resume)

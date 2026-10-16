@@ -38,11 +38,14 @@ func _process(delta):
 		_check_left = .25
 		_sync_scene()
 	for index in players.size():
+		var previous_gain = _gains[index]
 		_gains[index] = move_toward(
 			_gains[index], 1.0 if index == _target else 0.0, delta / FADE_SECONDS
 		)
-		players[index].volume_db = linear_to_db(maxf(.0001, sin(_gains[index] * PI / 2.0)))
-		if _gains[index] == 0.0 and index != _target:
+		# Settled tracks need no further audio-thread bus updates.
+		if _gains[index] != previous_gain:
+			players[index].volume_db = linear_to_db(maxf(.0001, sin(_gains[index] * PI / 2.0)))
+		if _gains[index] == 0.0 and index != _target and players[index].playing:
 			players[index].stop()
 
 

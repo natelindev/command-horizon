@@ -4,12 +4,13 @@ extends Node3D
 # TODO: add editor-only 2nd pass shader to 'Terrain' mesh highlighting map boundries
 
 const EXTRA_MARGIN = 2
-
 @export var size = Vector2(50, 50):
 	set(a_size):
 		size = a_size
 		find_child("Terrain").mesh.size = size + Vector2(EXTRA_MARGIN, EXTRA_MARGIN) * 2
 		find_child("Terrain").mesh.center_offset = Vector3(size.x, 0.0, size.y) / 2.0
+
+var interior_obstacles = []
 
 
 func get_topdown_polygon_2d():
@@ -26,3 +27,9 @@ func _enter_tree():
 	var life = load("res://source/match/ambient/AmbientLife.gd").new()
 	life.name = "AmbientLife"
 	add_child(life)
+
+
+func flight_height_at(point, baseline):
+	return load("res://source/match/maps/IndustrialLandmarks.gd").flight_height(
+		interior_obstacles, point, baseline
+	)

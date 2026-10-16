@@ -127,7 +127,7 @@ func _run():
 			if _no_motion:
 				var visual = unit.get_node_or_null("BastionVisuals")
 				if visual != null:
-					visual.set_physics_process(false)
+					visual.set_process(false)
 			if _no_queues:
 				var queue = unit.get_node_or_null("ProductionQueue")
 				if queue != null:

@@ -1,6 +1,7 @@
 extends RefCounted
 
 const Rules = preload("res://source/match/combat/CombatRules.gd")
+const Difficulty = preload("res://source/match/players/skirmish-ai/SkirmishDifficulty.gd")
 
 
 static func plan(game, player, units, contacts):
@@ -44,12 +45,14 @@ static func plan(game, player, units, contacts):
 	)
 	var assignments = []
 	var assigned_groups = []
-	# Difficulty changes how many simultaneous raids the commander coordinates.
+	# Difficulty changes how many simultaneous raids the commander coordinates
+	# and how many defenders answer each one.
 	# Reconstruct plans from current observation; existing actions preserve their
 	# last observed destination across fog and saves without retaining hidden units.
+	var profile = Difficulty.of(player.difficulty)
 	var coordinated = 0
 	for group in groups:
-		if coordinated >= player.difficulty + 1:
+		if coordinated >= profile.task_groups:
 			break
 		var target = group.target
 		var candidates = available.filter(func(unit): return _can_respond(unit, target))
@@ -57,7 +60,7 @@ static func plan(game, player, units, contacts):
 			continue
 		coordinated += 1
 		candidates.sort_custom(func(a, b): return _score(a, target) < _score(b, target))
-		var members = candidates.slice(0, mini(6, group.count * 2))
+		var members = candidates.slice(0, mini(profile.defense_responders, group.count * 2))
 		assigned_groups.append({"point": group.point, "members": members})
 		for unit in members:
 			assignments.append({"unit": unit, "point": group.point, "target": target})

@@ -25,6 +25,9 @@ func _captured_return(repetition):
 	var movement = unit.get_node("Movement")
 	var start = unit.position
 	var hp = unit.hp
+	# Observe completion of the archived Move. Aggressive idle acquisition can
+	# immediately start a separate pursuit after that command finishes.
+	unit.stance = unit.Stance.HOLD_FIRE
 	_check(
 		unit.action.get_script().resource_path.ends_with("/Moving.gd"),
 		"Capture no longer contains plain Move"

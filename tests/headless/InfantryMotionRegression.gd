@@ -84,7 +84,7 @@ func _test_articulation(unit):
 			"Idle boot is not planted"
 		)
 	visual.fire_recoil()
-	visual._physics_process(1.0 / 60.0)
+	visual._process(1.0 / 60.0)
 	_check(
 		visual._projectile_origin.global_position.is_equal_approx(visual._muzzle.global_position),
 		"Shot muzzle detached from held weapon"

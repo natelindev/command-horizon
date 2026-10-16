@@ -6,16 +6,24 @@ import subprocess
 from pathlib import Path
 
 import numpy as np
+import pyloudnorm
 
 ROOT = Path(__file__).resolve().parents[2]
 DEST = ROOT / 'docs/playtests/2026-10-11/audio-enhancement'
-RATE = 22050
+RATE = 24000
+# Speech is mastered to -16 LUFS; Vorbis encoding may shift it slightly.
+SPEECH_LUFS, LUFS_TOLERANCE = -16.0, 1.0
 
 
 def decode(path):
     result = subprocess.run(['ffmpeg', '-v', 'error', '-i', str(path), '-f', 'f32le',
                              '-ac', '1', '-ar', str(RATE), '-'], check=True, capture_output=True)
     return np.frombuffer(result.stdout, dtype='<f4')
+
+
+def loudness(data):
+    padded = np.pad(data.astype(np.float64), (0, max(0, int(.8 * RATE) - len(data))))
+    return pyloudnorm.Meter(RATE).integrated_loudness(padded)
 
 
 def inspect(entry):
@@ -26,9 +34,13 @@ def inspect(entry):
     assert np.isfinite(data).all() and .03 < len(data) / RATE < 8, path
     assert .01 < peak < .95 and rms > .002, (path, peak, rms)
     assert hashlib.sha256(path.read_bytes()).hexdigest() == entry['sha256'], path
-    return {'file': entry['file'], 'seconds': round(len(data) / RATE, 3),
-            'peak_dbfs': round(20 * np.log10(peak), 2),
-            'rms_dbfs': round(20 * np.log10(rms), 2)}
+    report = {'file': entry['file'], 'seconds': round(len(data) / RATE, 3),
+              'peak_dbfs': round(20 * np.log10(peak), 2),
+              'rms_dbfs': round(20 * np.log10(rms), 2)}
+    if entry['speaker_id'] is not None:
+        report['lufs'] = round(loudness(data), 2)
+        assert abs(report['lufs'] - SPEECH_LUFS) <= LUFS_TOLERANCE, (path, report['lufs'])
+    return report
 
 
 def main():
@@ -37,11 +49,13 @@ def main():
     with concurrent.futures.ThreadPoolExecutor(max_workers=6) as pool:
         report = list(pool.map(inspect, manifest))
     speakers = {entry['speaker_id'] for entry in manifest if entry['speaker_id'] is not None}
-    from voice_cast import PROFILES, CAST, MACHINES
+    from voice_cast import PROFILES, CAST, ROBOT_CAST
     from verify_voice_cast import verify_catalog
     verify_catalog()
     assert speakers == set(PROFILES)
-    summary = {'clips': len(report), 'distinct_male_speakers': len(speakers),
+    speech = [item['lufs'] for item in report if 'lufs' in item]
+    summary = {'clips': len(report), 'speech_clips': len(speech), 'distinct_speakers': len(speakers),
+               'speech_lufs_range': [min(speech), max(speech)],
                'total_seconds': round(sum(item['seconds'] for item in report), 2),
                'highest_peak_dbfs': max(item['peak_dbfs'] for item in report), 'assets': report}
     (ROOT / 'art/audio/battle-audio-verification.json').write_text(json.dumps(summary, indent=2) + '\n')
@@ -50,11 +64,9 @@ def main():
     offset = 0.
     for faction in ['bastion', 'helix', 'frontier']:
         parts = ['Command/MATCH_STARTED_0', 'Command/BASE_UNDER_ATTACK_0']
-        parts += [role + '/select_0' for role in CAST[faction]]
-        for role in MACHINES:
-            if role not in CAST[faction]:
-                parts += [role + '/select_0', role + '/select_1', role + '/attack_0']
-        parts += ['Command/RESEARCH_COMPLETED_0']
+        for role in [*CAST[faction], *ROBOT_CAST[faction]]:
+            parts += [role + '/select_0', role + '/attack_0']
+        parts += ['CommandCenter/select_0', 'Command/RESEARCH_COMPLETED_0']
         for part in parts:
             relative = f'{faction}/{part}.ogg'
             clip = decode(ROOT / 'assets/audio/voices' / relative)

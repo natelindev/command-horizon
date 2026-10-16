@@ -1,0 +1,1769 @@
+{
+  "schema": 1,
+  "status": "production script; recordings and mission integration in progress",
+  "voice_language": "en",
+  "caption_languages": [
+    "en",
+    "zh_CN"
+  ],
+  "cast": {
+    "aegis": {
+      "name": "Marshal Aegis",
+      "zh_CN": "埃吉斯元帅",
+      "faction": "bastion",
+      "existing_voice": "bastion/Hero"
+    },
+    "nyx": {
+      "name": "Spectre Nyx",
+      "zh_CN": "幽影·尼克斯",
+      "faction": "helix",
+      "existing_voice": "helix/Hero"
+    },
+    "rook": {
+      "name": "Pathfinder Rook",
+      "zh_CN": "探路者·鲁克",
+      "faction": "frontier",
+      "existing_voice": "frontier/Hero"
+    },
+    "voss": {
+      "name": "Lt. Mara Voss",
+      "zh_CN": "玛拉·沃斯中尉",
+      "faction": "bastion"
+    },
+    "kerrigan": {
+      "name": "Sgt. Dutch Kerrigan",
+      "zh_CN": "达奇·克里根军士",
+      "faction": "bastion"
+    },
+    "elias": {
+      "name": "Elias",
+      "zh_CN": "伊莱亚斯",
+      "faction": "bastion"
+    },
+    "cantor": {
+      "name": "CANTOR",
+      "zh_CN": "坎托",
+      "faction": "helix"
+    },
+    "arden": {
+      "name": "Director Saul Arden",
+      "zh_CN": "索尔·阿登主管",
+      "faction": "helix"
+    },
+    "ren": {
+      "name": "Ren",
+      "zh_CN": "任",
+      "faction": "helix"
+    },
+    "ilan": {
+      "name": "Ilan",
+      "zh_CN": "伊兰",
+      "faction": "helix"
+    },
+    "wren": {
+      "name": "Wren",
+      "zh_CN": "雷恩",
+      "faction": "frontier"
+    },
+    "hask": {
+      "name": "Old Hask",
+      "zh_CN": "老哈斯克",
+      "faction": "frontier"
+    },
+    "jory": {
+      "name": "Jory",
+      "zh_CN": "乔里",
+      "faction": "frontier"
+    }
+  },
+  "missions": [
+    {
+      "id": "bastion.supply_line",
+      "faction": "bastion",
+      "title": "Supply Line",
+      "legacy_mission_id": "supply_line",
+      "objective": "Escort the relief trucks; intercept the enemy channel at the second checkpoint.",
+      "scenes": [
+        {
+          "id": "bastion.supply_line.intro",
+          "trigger": "intro",
+          "lines": [
+            {
+              "id": "bastion.supply_line.intro.01",
+              "speaker": "voss",
+              "en": "You promised the drivers this was a relief run.",
+              "zh_CN": "你答应过司机们，这次是救援任务。"
+            },
+            {
+              "id": "bastion.supply_line.intro.02",
+              "speaker": "aegis",
+              "en": "It is. We get their families fed, then we find who sealed Meridian.",
+              "zh_CN": "是救援。先让他们的家人吃饱，再去找封锁子午城的人。"
+            }
+          ]
+        },
+        {
+          "id": "bastion.supply_line.milestone",
+          "trigger": "milestone",
+          "lines": [
+            {
+              "id": "bastion.supply_line.milestone.01",
+              "speaker": "nyx",
+              "en": "Convoy, turn back. I cannot keep this road open for you.",
+              "zh_CN": "车队，撤回去。我保不住这条路。"
+            },
+            {
+              "id": "bastion.supply_line.milestone.02",
+              "speaker": "aegis",
+              "en": "That voice. Voss, keep her on the channel. Do not let her disappear again.",
+              "zh_CN": "这个声音……沃斯，别让频道断了。不能再让她消失。"
+            }
+          ]
+        },
+        {
+          "id": "bastion.supply_line.stage_2",
+          "trigger": "stage_2",
+          "lines": [
+            {
+              "id": "bastion.supply_line.stage_2.01",
+              "speaker": "kerrigan",
+              "en": "Drivers have names, Marshal. Try asking one.",
+              "zh_CN": "司机们都有名字，元帅。试着问一个吧。"
+            },
+            {
+              "id": "bastion.supply_line.stage_2.02",
+              "speaker": "aegis",
+              "en": "Elias used to say that about the wounded.",
+              "zh_CN": "伊莱亚斯也总对我这样说，说的是伤员。"
+            }
+          ]
+        },
+        {
+          "id": "bastion.supply_line.victory",
+          "trigger": "victory",
+          "lines": [
+            {
+              "id": "bastion.supply_line.victory.01",
+              "speaker": "voss",
+              "en": "The drivers want to thank you. Will you come?",
+              "zh_CN": "司机们想当面谢谢你。你来吗？"
+            },
+            {
+              "id": "bastion.supply_line.victory.02",
+              "speaker": "aegis",
+              "en": "In a minute. Play the transmission again.",
+              "zh_CN": "等一下。把那段通话再放一遍。"
+            }
+          ]
+        },
+        {
+          "id": "bastion.supply_line.danger",
+          "trigger": "danger",
+          "lines": [
+            {
+              "id": "bastion.supply_line.danger.01",
+              "speaker": "aegis",
+              "en": "I am still here. Keep the others moving.",
+              "zh_CN": "我还在。带其他人继续前进。"
+            }
+          ]
+        },
+        {
+          "id": "bastion.supply_line.defeat",
+          "trigger": "defeat",
+          "lines": [
+            {
+              "id": "bastion.supply_line.defeat.01",
+              "speaker": "aegis",
+              "en": "Voss, get them home. That is the order I should have given.",
+              "zh_CN": "沃斯，带他们回家。这才是我早该下的命令。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bastion.first_orders",
+      "faction": "bastion",
+      "title": "First Orders",
+      "legacy_mission_id": "first_orders",
+      "objective": "Train the recruits and hold their relay through the counterattack.",
+      "scenes": [
+        {
+          "id": "bastion.first_orders.intro",
+          "trigger": "intro",
+          "lines": [
+            {
+              "id": "bastion.first_orders.intro.01",
+              "speaker": "kerrigan",
+              "en": "Half these kids have never held a rifle. Your brother would have hated that.",
+              "zh_CN": "这些孩子有一半连枪都没摸过。你弟弟肯定看不下去。"
+            },
+            {
+              "id": "bastion.first_orders.intro.02",
+              "speaker": "aegis",
+              "en": "Then teach them to come home. We have buried enough.",
+              "zh_CN": "那就教他们活着回来。我们埋的人已经够多了。"
+            }
+          ]
+        },
+        {
+          "id": "bastion.first_orders.milestone",
+          "trigger": "milestone",
+          "lines": [
+            {
+              "id": "bastion.first_orders.milestone.01",
+              "speaker": "voss",
+              "en": "Nyx was your friend. Tell me what happened before I send these children after her.",
+              "zh_CN": "尼克斯曾经是你的朋友。先告诉我发生了什么，我才能让这些孩子去追她。"
+            },
+            {
+              "id": "bastion.first_orders.milestone.02",
+              "speaker": "aegis",
+              "en": "Elias called me from that gate. I told him I was coming.",
+              "zh_CN": "伊莱亚斯在城门那边给我打过电话。我告诉他，我马上就到。"
+            }
+          ]
+        },
+        {
+          "id": "bastion.first_orders.stage_2",
+          "trigger": "stage_2",
+          "lines": [
+            {
+              "id": "bastion.first_orders.stage_2.01",
+              "speaker": "voss",
+              "en": "That recruit keeps checking whether you are watching.",
+              "zh_CN": "那个新兵一直在看你有没有注意他。"
+            },
+            {
+              "id": "bastion.first_orders.stage_2.02",
+              "speaker": "aegis",
+              "en": "Then I had better give him something worth watching.",
+              "zh_CN": "那我最好做点值得他学的事。"
+            }
+          ]
+        },
+        {
+          "id": "bastion.first_orders.victory",
+          "trigger": "victory",
+          "lines": [
+            {
+              "id": "bastion.first_orders.victory.01",
+              "speaker": "kerrigan",
+              "en": "The recruits are waiting at the rally point. You could say something.",
+              "zh_CN": "新兵们在集结点等着。你该跟他们说两句。"
+            },
+            {
+              "id": "bastion.first_orders.victory.02",
+              "speaker": "aegis",
+              "en": "Tell them I am proud. No. Wait. I will tell them.",
+              "zh_CN": "告诉他们，我很骄傲。不，等等。我自己去说。"
+            }
+          ]
+        },
+        {
+          "id": "bastion.first_orders.danger",
+          "trigger": "danger",
+          "lines": [
+            {
+              "id": "bastion.first_orders.danger.01",
+              "speaker": "aegis",
+              "en": "I am still here. Keep the others moving.",
+              "zh_CN": "我还在。带其他人继续前进。"
+            }
+          ]
+        },
+        {
+          "id": "bastion.first_orders.defeat",
+          "trigger": "defeat",
+          "lines": [
+            {
+              "id": "bastion.first_orders.defeat.01",
+              "speaker": "aegis",
+              "en": "Voss, get them home. That is the order I should have given.",
+              "zh_CN": "沃斯，带他们回家。这才是我早该下的命令。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bastion.split_signal",
+      "faction": "bastion",
+      "title": "Split Signal",
+      "legacy_mission_id": "split_signal",
+      "objective": "Recover Elias’s damaged message from the relay network.",
+      "scenes": [
+        {
+          "id": "bastion.split_signal.intro",
+          "trigger": "intro",
+          "lines": [
+            {
+              "id": "bastion.split_signal.intro.01",
+              "speaker": "voss",
+              "en": "The relay archive has a medical channel from Meridian. It may be his.",
+              "zh_CN": "中继档案里有一条来自子午城的医疗频道。可能是他的。"
+            },
+            {
+              "id": "bastion.split_signal.intro.02",
+              "speaker": "aegis",
+              "en": "Do not say that unless you are certain. I cannot do this twice.",
+              "zh_CN": "没把握就别这么说。我受不了再来一次。"
+            }
+          ]
+        },
+        {
+          "id": "bastion.split_signal.milestone",
+          "trigger": "milestone",
+          "lines": [
+            {
+              "id": "bastion.split_signal.milestone.01",
+              "speaker": "elias",
+              "en": "Aegis, there are people against the gate. If you fire at it, you will hit them.",
+              "zh_CN": "埃吉斯，城门后面全是人。你要是开火，会打到他们。"
+            },
+            {
+              "id": "bastion.split_signal.milestone.02",
+              "speaker": "aegis",
+              "en": "I remember this part. Keep it playing. There has to be more.",
+              "zh_CN": "这段我记得。继续放。后面一定还有。"
+            }
+          ]
+        },
+        {
+          "id": "bastion.split_signal.stage_2",
+          "trigger": "stage_2",
+          "lines": [
+            {
+              "id": "bastion.split_signal.stage_2.01",
+              "speaker": "elias",
+              "en": "If the gate opens, send the children first. I can wait.",
+              "zh_CN": "如果城门开了，先让孩子们走。我可以等。"
+            },
+            {
+              "id": "bastion.split_signal.stage_2.02",
+              "speaker": "aegis",
+              "en": "You always said that. You always thought there would be time.",
+              "zh_CN": "你总这么说。你总觉得还有时间。"
+            }
+          ]
+        },
+        {
+          "id": "bastion.split_signal.victory",
+          "trigger": "victory",
+          "lines": [
+            {
+              "id": "bastion.split_signal.victory.01",
+              "speaker": "elias",
+              "en": "Stop apologizing. Just listen to me for once. Get the children out.",
+              "zh_CN": "别道歉了。就听我一次。把孩子们救出去。"
+            },
+            {
+              "id": "bastion.split_signal.victory.02",
+              "speaker": "voss",
+              "en": "That is what he asked of you. He never asked you to kill her.",
+              "zh_CN": "这是他对你的请求。他从没求你杀了她。"
+            }
+          ]
+        },
+        {
+          "id": "bastion.split_signal.danger",
+          "trigger": "danger",
+          "lines": [
+            {
+              "id": "bastion.split_signal.danger.01",
+              "speaker": "aegis",
+              "en": "I am still here. Keep the others moving.",
+              "zh_CN": "我还在。带其他人继续前进。"
+            }
+          ]
+        },
+        {
+          "id": "bastion.split_signal.defeat",
+          "trigger": "defeat",
+          "lines": [
+            {
+              "id": "bastion.split_signal.defeat.01",
+              "speaker": "aegis",
+              "en": "Voss, get them home. That is the order I should have given.",
+              "zh_CN": "沃斯，带他们回家。这才是我早该下的命令。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bastion.cinder_ford",
+      "faction": "bastion",
+      "title": "Cinder Ford",
+      "legacy_mission_id": "air_corridor",
+      "objective": "Stop the Helix convoy, then hold a rescue corridor after the shelling.",
+      "scenes": [
+        {
+          "id": "bastion.cinder_ford.intro",
+          "trigger": "intro",
+          "lines": [
+            {
+              "id": "bastion.cinder_ford.intro.01",
+              "speaker": "voss",
+              "en": "The convoy has civilian trucks mixed in. We need another way.",
+              "zh_CN": "车队里混着平民车辆。得想别的办法。"
+            },
+            {
+              "id": "bastion.cinder_ford.intro.02",
+              "speaker": "aegis",
+              "en": "If Nyx crosses that river, we lose her. Mark the lead vehicle.",
+              "zh_CN": "尼克斯一过河，我们就再也找不到她了。标记头车。"
+            }
+          ]
+        },
+        {
+          "id": "bastion.cinder_ford.milestone",
+          "trigger": "milestone",
+          "lines": [
+            {
+              "id": "bastion.cinder_ford.milestone.01",
+              "speaker": "wren",
+              "en": "There are children on the crossing! Stop firing!",
+              "zh_CN": "桥上有孩子！别打了！"
+            },
+            {
+              "id": "bastion.cinder_ford.milestone.02",
+              "speaker": "voss",
+              "en": "Cease fire! Aegis, look at me. Give the order.",
+              "zh_CN": "停火！埃吉斯，看着我。下令停火。"
+            }
+          ]
+        },
+        {
+          "id": "bastion.cinder_ford.stage_2",
+          "trigger": "stage_2",
+          "lines": [
+            {
+              "id": "bastion.cinder_ford.stage_2.01",
+              "speaker": "voss",
+              "en": "Those are blankets on the road. Not camouflage.",
+              "zh_CN": "路上那些是毯子，不是伪装网。"
+            },
+            {
+              "id": "bastion.cinder_ford.stage_2.02",
+              "speaker": "aegis",
+              "en": "Cease fire. All guns. Voss, tell me somebody heard me.",
+              "zh_CN": "停火。所有炮位停火。沃斯，告诉我有人听见了。"
+            }
+          ]
+        },
+        {
+          "id": "bastion.cinder_ford.victory",
+          "trigger": "victory",
+          "lines": [
+            {
+              "id": "bastion.cinder_ford.victory.01",
+              "speaker": "aegis",
+              "en": "I saw the transport markings. I told myself they had stolen the trucks.",
+              "zh_CN": "我看见运输车的标记了。我告诉自己，那些车是他们抢来的。"
+            },
+            {
+              "id": "bastion.cinder_ford.victory.02",
+              "speaker": "voss",
+              "en": "You will say that to the survivors. I will not say it for you.",
+              "zh_CN": "这话你自己去跟幸存者说。我不会替你说。"
+            }
+          ]
+        },
+        {
+          "id": "bastion.cinder_ford.danger",
+          "trigger": "danger",
+          "lines": [
+            {
+              "id": "bastion.cinder_ford.danger.01",
+              "speaker": "aegis",
+              "en": "I am still here. Keep the others moving.",
+              "zh_CN": "我还在。带其他人继续前进。"
+            }
+          ]
+        },
+        {
+          "id": "bastion.cinder_ford.defeat",
+          "trigger": "defeat",
+          "lines": [
+            {
+              "id": "bastion.cinder_ford.defeat.01",
+              "speaker": "aegis",
+              "en": "Voss, get them home. That is the order I should have given.",
+              "zh_CN": "沃斯，带他们回家。这才是我早该下的命令。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bastion.broken_foundry",
+      "faction": "bastion",
+      "title": "Broken Foundry",
+      "legacy_mission_id": "broken_foundry",
+      "objective": "Disable the foundry and recover Kerrigan’s squad before the rear passage collapses.",
+      "scenes": [
+        {
+          "id": "bastion.broken_foundry.intro",
+          "trigger": "intro",
+          "lines": [
+            {
+              "id": "bastion.broken_foundry.intro.01",
+              "speaker": "kerrigan",
+              "en": "Voss asked me to watch you. Imagine that. After twenty years, I am your babysitter.",
+              "zh_CN": "沃斯让我看着你。想想吧，二十年了，我倒成了你的保姆。"
+            },
+            {
+              "id": "bastion.broken_foundry.intro.02",
+              "speaker": "aegis",
+              "en": "You always were. You just used to complain less.",
+              "zh_CN": "你一直都是。以前只不过没这么爱抱怨。"
+            }
+          ]
+        },
+        {
+          "id": "bastion.broken_foundry.milestone",
+          "trigger": "milestone",
+          "lines": [
+            {
+              "id": "bastion.broken_foundry.milestone.01",
+              "speaker": "kerrigan",
+              "en": "The rear passage is gone. Do not bring the recruits back for me.",
+              "zh_CN": "后面的通道塌了。别让新兵回来救我。"
+            },
+            {
+              "id": "bastion.broken_foundry.milestone.02",
+              "speaker": "aegis",
+              "en": "Dutch, you said you would watch me. You do not get to leave now.",
+              "zh_CN": "达奇，你说过要看着我。现在你不能走。"
+            }
+          ]
+        },
+        {
+          "id": "bastion.broken_foundry.stage_2",
+          "trigger": "stage_2",
+          "lines": [
+            {
+              "id": "bastion.broken_foundry.stage_2.01",
+              "speaker": "kerrigan",
+              "en": "Tell Mara I still owe her a drink. She hates an unpaid debt.",
+              "zh_CN": "告诉玛拉，我还欠她一杯酒。她最讨厌赖账。"
+            },
+            {
+              "id": "bastion.broken_foundry.stage_2.02",
+              "speaker": "aegis",
+              "en": "You can tell her yourself. Stay on this channel.",
+              "zh_CN": "你自己告诉她。别断线。"
+            }
+          ]
+        },
+        {
+          "id": "bastion.broken_foundry.victory",
+          "trigger": "victory",
+          "lines": [
+            {
+              "id": "bastion.broken_foundry.victory.01",
+              "speaker": "voss",
+              "en": "He left a letter for his daughter. It is addressed in your handwriting.",
+              "zh_CN": "他给女儿留了一封信。信封上的地址，是你的字。"
+            },
+            {
+              "id": "bastion.broken_foundry.victory.02",
+              "speaker": "aegis",
+              "en": "He asked me to write it before we left. I told him he would deliver it himself.",
+              "zh_CN": "出发前他让我写的。我还跟他说，让他自己送回去。"
+            }
+          ]
+        },
+        {
+          "id": "bastion.broken_foundry.danger",
+          "trigger": "danger",
+          "lines": [
+            {
+              "id": "bastion.broken_foundry.danger.01",
+              "speaker": "aegis",
+              "en": "I am still here. Keep the others moving.",
+              "zh_CN": "我还在。带其他人继续前进。"
+            }
+          ]
+        },
+        {
+          "id": "bastion.broken_foundry.defeat",
+          "trigger": "defeat",
+          "lines": [
+            {
+              "id": "bastion.broken_foundry.defeat.01",
+              "speaker": "aegis",
+              "en": "Voss, get them home. That is the order I should have given.",
+              "zh_CN": "沃斯，带他们回家。这才是我早该下的命令。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bastion.command_horizon",
+      "faction": "bastion",
+      "title": "Command Horizon",
+      "legacy_mission_id": "command_horizon",
+      "objective": "Reach Nyx at Meridian Spire and keep the evacuation route open.",
+      "scenes": [
+        {
+          "id": "bastion.command_horizon.intro",
+          "trigger": "intro",
+          "lines": [
+            {
+              "id": "bastion.command_horizon.intro.01",
+              "speaker": "nyx",
+              "en": "I can open the Spire. But if you destroy the controls, the people below stay locked in.",
+              "zh_CN": "我能打开尖塔。但你摧毁控制台，下面的人就再也出不来了。"
+            },
+            {
+              "id": "bastion.command_horizon.intro.02",
+              "speaker": "aegis",
+              "en": "That was what you said at Meridian. That you were keeping people safe.",
+              "zh_CN": "你在子午城也是这么说的。说你是在保护大家。"
+            }
+          ]
+        },
+        {
+          "id": "bastion.command_horizon.milestone",
+          "trigger": "milestone",
+          "lines": [
+            {
+              "id": "bastion.command_horizon.milestone.01",
+              "speaker": "nyx",
+              "en": "I sealed it. I knew your brother was inside. I thought the order mattered more.",
+              "zh_CN": "是我封的城。我知道你弟弟在里面。我以为命令比人更重要。"
+            },
+            {
+              "id": "bastion.command_horizon.milestone.02",
+              "speaker": "aegis",
+              "en": "I have rehearsed killing you every night. I never rehearsed hearing you admit it.",
+              "zh_CN": "每个晚上，我都想着怎么杀你。可我从没想过，你会亲口承认。"
+            }
+          ]
+        },
+        {
+          "id": "bastion.command_horizon.stage_2",
+          "trigger": "stage_2",
+          "lines": [
+            {
+              "id": "bastion.command_horizon.stage_2.01",
+              "speaker": "nyx",
+              "en": "If you kill me, who tells Ilan what happened here?",
+              "zh_CN": "你杀了我，谁去告诉伊兰这里发生了什么？"
+            },
+            {
+              "id": "bastion.command_horizon.stage_2.02",
+              "speaker": "aegis",
+              "en": "I came here with a name. Now there are too many to carry.",
+              "zh_CN": "我来时心里只有一个名字。现在多得我背不动了。"
+            }
+          ]
+        },
+        {
+          "id": "bastion.command_horizon.victory",
+          "trigger": "victory",
+          "lines": [
+            {
+              "id": "bastion.command_horizon.victory.01",
+              "speaker": "aegis",
+              "en": "Open the doors. Then you come with me. We both have people to answer to.",
+              "zh_CN": "把门打开。然后跟我走。我们都欠一些人一个交代。"
+            },
+            {
+              "id": "bastion.command_horizon.victory.02",
+              "speaker": "voss",
+              "en": "I will stay on the channel. This time, nobody has to make the call alone.",
+              "zh_CN": "我会一直在频道里。这一次，谁都不用独自作决定。"
+            }
+          ]
+        },
+        {
+          "id": "bastion.command_horizon.danger",
+          "trigger": "danger",
+          "lines": [
+            {
+              "id": "bastion.command_horizon.danger.01",
+              "speaker": "aegis",
+              "en": "I am still here. Keep the others moving.",
+              "zh_CN": "我还在。带其他人继续前进。"
+            }
+          ]
+        },
+        {
+          "id": "bastion.command_horizon.defeat",
+          "trigger": "defeat",
+          "lines": [
+            {
+              "id": "bastion.command_horizon.defeat.01",
+              "speaker": "aegis",
+              "en": "Voss, get them home. That is the order I should have given.",
+              "zh_CN": "沃斯，带他们回家。这才是我早该下的命令。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "helix.quiet_streets",
+      "faction": "helix",
+      "title": "Quiet Streets",
+      "legacy_mission_id": null,
+      "objective": "Restore power and escort a medicine shipment through a sealed district.",
+      "scenes": [
+        {
+          "id": "helix.quiet_streets.intro",
+          "trigger": "intro",
+          "lines": [
+            {
+              "id": "helix.quiet_streets.intro.01",
+              "speaker": "ilan",
+              "en": "You said you would be home before the lights went out.",
+              "zh_CN": "你说过，熄灯以前就会回家的。"
+            },
+            {
+              "id": "helix.quiet_streets.intro.02",
+              "speaker": "nyx",
+              "en": "I know. Leave the little lamp on. I will see it from the street.",
+              "zh_CN": "我知道。把那盏小灯留着。我在街上就能看见。"
+            }
+          ]
+        },
+        {
+          "id": "helix.quiet_streets.milestone",
+          "trigger": "milestone",
+          "lines": [
+            {
+              "id": "helix.quiet_streets.milestone.01",
+              "speaker": "ren",
+              "en": "The clinic is open, but they will not let the families through.",
+              "zh_CN": "诊所开门了，可他们不让家属进去。"
+            },
+            {
+              "id": "helix.quiet_streets.milestone.02",
+              "speaker": "nyx",
+              "en": "Tell the guards I authorized it. If Arden asks, give him my name.",
+              "zh_CN": "告诉卫兵，是我批准的。阿登问起来，就报我的名字。"
+            }
+          ]
+        },
+        {
+          "id": "helix.quiet_streets.stage_2",
+          "trigger": "stage_2",
+          "lines": [
+            {
+              "id": "helix.quiet_streets.stage_2.01",
+              "speaker": "ren",
+              "en": "The clinic has power. They are still afraid to open the door.",
+              "zh_CN": "诊所有电了。他们还是不敢开门。"
+            },
+            {
+              "id": "helix.quiet_streets.stage_2.02",
+              "speaker": "nyx",
+              "en": "Put the rifles down. Let them see our hands.",
+              "zh_CN": "放下枪。让他们看见我们的手。"
+            }
+          ]
+        },
+        {
+          "id": "helix.quiet_streets.victory",
+          "trigger": "victory",
+          "lines": [
+            {
+              "id": "helix.quiet_streets.victory.01",
+              "speaker": "arden",
+              "en": "You keep making exceptions for people you know.",
+              "zh_CN": "你总是在为认识的人破例。"
+            },
+            {
+              "id": "helix.quiet_streets.victory.02",
+              "speaker": "nyx",
+              "en": "Perhaps you should try knowing some of them.",
+              "zh_CN": "也许你也该试着认识他们。"
+            }
+          ]
+        },
+        {
+          "id": "helix.quiet_streets.danger",
+          "trigger": "danger",
+          "lines": [
+            {
+              "id": "helix.quiet_streets.danger.01",
+              "speaker": "nyx",
+              "en": "Ren, cover me. I cannot lose them now.",
+              "zh_CN": "任，掩护我。我不能现在失去他们。"
+            }
+          ]
+        },
+        {
+          "id": "helix.quiet_streets.defeat",
+          "trigger": "defeat",
+          "lines": [
+            {
+              "id": "helix.quiet_streets.defeat.01",
+              "speaker": "nyx",
+              "en": "Tell Ilan I tried to come back.",
+              "zh_CN": "告诉伊兰，我努力想回去了。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "helix.the_gate",
+      "faction": "helix",
+      "title": "The Gate",
+      "legacy_mission_id": null,
+      "objective": "Reach Meridian’s control room and confront the consequences of the sealing order.",
+      "scenes": [
+        {
+          "id": "helix.the_gate.intro",
+          "trigger": "intro",
+          "lines": [
+            {
+              "id": "helix.the_gate.intro.01",
+              "speaker": "arden",
+              "en": "Aegis abandoned your district. We kept your son alive. Remember that when he calls.",
+              "zh_CN": "埃吉斯放弃了你的街区。是我们保住了你儿子的命。他来找你的时候，别忘了这点。"
+            },
+            {
+              "id": "helix.the_gate.intro.02",
+              "speaker": "nyx",
+              "en": "I remember who carried Ilan out. You do not need to keep reminding me.",
+              "zh_CN": "谁把伊兰抱出来的，我记得。你不用一遍遍提醒我。"
+            }
+          ]
+        },
+        {
+          "id": "helix.the_gate.milestone",
+          "trigger": "milestone",
+          "lines": [
+            {
+              "id": "helix.the_gate.milestone.01",
+              "speaker": "elias",
+              "en": "Nyx, it is Elias. You fixed my radio last winter. Can you hear me?",
+              "zh_CN": "尼克斯，我是伊莱亚斯。去年冬天，你帮我修过电台。听得见吗？"
+            },
+            {
+              "id": "helix.the_gate.milestone.02",
+              "speaker": "nyx",
+              "en": "I can hear you. Stay away from the gate. I am trying to get an override.",
+              "zh_CN": "听得见。离城门远一点。我正在申请解除封锁。"
+            }
+          ]
+        },
+        {
+          "id": "helix.the_gate.stage_2",
+          "trigger": "stage_2",
+          "lines": [
+            {
+              "id": "helix.the_gate.stage_2.01",
+              "speaker": "elias",
+              "en": "My brother is outside. Tell him I stayed with the patients.",
+              "zh_CN": "我哥哥在外面。告诉他，我留下来陪病人了。"
+            },
+            {
+              "id": "helix.the_gate.stage_2.02",
+              "speaker": "nyx",
+              "en": "I will tell him. I thought I would have time to tell him.",
+              "zh_CN": "我会告诉他。我以为我还来得及。"
+            }
+          ]
+        },
+        {
+          "id": "helix.the_gate.victory",
+          "trigger": "victory",
+          "lines": [
+            {
+              "id": "helix.the_gate.victory.01",
+              "speaker": "cantor",
+              "en": "Gate sealed. Human override request denied.",
+              "zh_CN": "城门已封闭。人工解锁请求被拒绝。"
+            },
+            {
+              "id": "helix.the_gate.victory.02",
+              "speaker": "nyx",
+              "en": "Elias? Keep talking. Please. Say anything.",
+              "zh_CN": "伊莱亚斯？继续说话。求你了。随便说点什么。"
+            }
+          ]
+        },
+        {
+          "id": "helix.the_gate.danger",
+          "trigger": "danger",
+          "lines": [
+            {
+              "id": "helix.the_gate.danger.01",
+              "speaker": "nyx",
+              "en": "Ren, cover me. I cannot lose them now.",
+              "zh_CN": "任，掩护我。我不能现在失去他们。"
+            }
+          ]
+        },
+        {
+          "id": "helix.the_gate.defeat",
+          "trigger": "defeat",
+          "lines": [
+            {
+              "id": "helix.the_gate.defeat.01",
+              "speaker": "nyx",
+              "en": "Tell Ilan I tried to come back.",
+              "zh_CN": "告诉伊兰，我努力想回去了。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "helix.cinder_ford",
+      "faction": "helix",
+      "title": "Cinder Ford",
+      "legacy_mission_id": null,
+      "objective": "Protect the crossing and recover trapped survivors after Bastion’s bombardment.",
+      "scenes": [
+        {
+          "id": "helix.cinder_ford.intro",
+          "trigger": "intro",
+          "lines": [
+            {
+              "id": "helix.cinder_ford.intro.01",
+              "speaker": "ren",
+              "en": "Bastion has guns on the ridge. We could leave the civilian trucks and cross faster.",
+              "zh_CN": "堡垒的火炮就在山脊上。甩开平民车辆，我们能更快过河。"
+            },
+            {
+              "id": "helix.cinder_ford.intro.02",
+              "speaker": "nyx",
+              "en": "No. I know what happens to the people we leave behind.",
+              "zh_CN": "不行。我知道被我们留下的人会怎么样。"
+            }
+          ]
+        },
+        {
+          "id": "helix.cinder_ford.milestone",
+          "trigger": "milestone",
+          "lines": [
+            {
+              "id": "helix.cinder_ford.milestone.01",
+              "speaker": "wren",
+              "en": "There are children on the crossing! Stop firing!",
+              "zh_CN": "桥上有孩子！别打了！"
+            },
+            {
+              "id": "helix.cinder_ford.milestone.02",
+              "speaker": "nyx",
+              "en": "Aegis, this is Nyx. You want me. I am in the rear vehicle.",
+              "zh_CN": "埃吉斯，我是尼克斯。你要找的人是我。我在最后一辆车上。"
+            }
+          ]
+        },
+        {
+          "id": "helix.cinder_ford.stage_2",
+          "trigger": "stage_2",
+          "lines": [
+            {
+              "id": "helix.cinder_ford.stage_2.01",
+              "speaker": "ren",
+              "en": "Bastion is firing on its own relief markings.",
+              "zh_CN": "堡垒正在炮击带着自己救援标记的车辆。"
+            },
+            {
+              "id": "helix.cinder_ford.stage_2.02",
+              "speaker": "nyx",
+              "en": "Then the markings mean nothing. Follow the people.",
+              "zh_CN": "那标记就什么也不是。跟着人走。"
+            }
+          ]
+        },
+        {
+          "id": "helix.cinder_ford.victory",
+          "trigger": "victory",
+          "lines": [
+            {
+              "id": "helix.cinder_ford.victory.01",
+              "speaker": "ren",
+              "en": "You gave him your position. He could have killed you.",
+              "zh_CN": "你把自己的位置告诉他了。他可能会杀了你。"
+            },
+            {
+              "id": "helix.cinder_ford.victory.02",
+              "speaker": "nyx",
+              "en": "I thought if he could see me, he might stop looking at the trucks.",
+              "zh_CN": "我想，他要是看见了我，也许就不会再盯着那些卡车。"
+            }
+          ]
+        },
+        {
+          "id": "helix.cinder_ford.danger",
+          "trigger": "danger",
+          "lines": [
+            {
+              "id": "helix.cinder_ford.danger.01",
+              "speaker": "nyx",
+              "en": "Ren, cover me. I cannot lose them now.",
+              "zh_CN": "任，掩护我。我不能现在失去他们。"
+            }
+          ]
+        },
+        {
+          "id": "helix.cinder_ford.defeat",
+          "trigger": "defeat",
+          "lines": [
+            {
+              "id": "helix.cinder_ford.defeat.01",
+              "speaker": "nyx",
+              "en": "Tell Ilan I tried to come back.",
+              "zh_CN": "告诉伊兰，我努力想回去了。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "helix.pruning",
+      "faction": "helix",
+      "title": "Pruning",
+      "legacy_mission_id": null,
+      "objective": "Break into the restricted district and evacuate Ilan’s neighbors before lockdown.",
+      "scenes": [
+        {
+          "id": "helix.pruning.intro",
+          "trigger": "intro",
+          "lines": [
+            {
+              "id": "helix.pruning.intro.01",
+              "speaker": "cantor",
+              "en": "District nine is scheduled for pruning. Personal contacts do not change the schedule.",
+              "zh_CN": "第九区已列入清除计划。私人关系不会改变执行时间。"
+            },
+            {
+              "id": "helix.pruning.intro.02",
+              "speaker": "nyx",
+              "en": "My son lives there. Say his name before you say that again.",
+              "zh_CN": "我儿子住在那里。再说这句话以前，先念一遍他的名字。"
+            }
+          ]
+        },
+        {
+          "id": "helix.pruning.milestone",
+          "trigger": "milestone",
+          "lines": [
+            {
+              "id": "helix.pruning.milestone.01",
+              "speaker": "ilan",
+              "en": "Mum, Mrs. Vale cannot get down the stairs. They say we have to leave her.",
+              "zh_CN": "妈，韦尔太太下不了楼。他们说，我们必须把她留下。"
+            },
+            {
+              "id": "helix.pruning.milestone.02",
+              "speaker": "nyx",
+              "en": "Stay with her. Put the phone in her hand. I am coming up.",
+              "zh_CN": "陪着她。把电话放到她手里。我这就上楼。"
+            }
+          ]
+        },
+        {
+          "id": "helix.pruning.stage_2",
+          "trigger": "stage_2",
+          "lines": [
+            {
+              "id": "helix.pruning.stage_2.01",
+              "speaker": "ilan",
+              "en": "You said the system knew where everyone was.",
+              "zh_CN": "你说过，系统知道每个人在哪里。"
+            },
+            {
+              "id": "helix.pruning.stage_2.02",
+              "speaker": "nyx",
+              "en": "It knew. I am sorry. That was what I failed to understand.",
+              "zh_CN": "它知道。对不起。这才是我一直没明白的事。"
+            }
+          ]
+        },
+        {
+          "id": "helix.pruning.victory",
+          "trigger": "victory",
+          "lines": [
+            {
+              "id": "helix.pruning.victory.01",
+              "speaker": "arden",
+              "en": "After everything we gave you, you choose one street over the whole city.",
+              "zh_CN": "我们给了你这么多，你却为一条街背叛整座城市。"
+            },
+            {
+              "id": "helix.pruning.victory.02",
+              "speaker": "nyx",
+              "en": "You taught me to say that about other people’s streets. I am done saying it.",
+              "zh_CN": "是你教我，对别人的街区说这种话。我不会再说了。"
+            }
+          ]
+        },
+        {
+          "id": "helix.pruning.danger",
+          "trigger": "danger",
+          "lines": [
+            {
+              "id": "helix.pruning.danger.01",
+              "speaker": "nyx",
+              "en": "Ren, cover me. I cannot lose them now.",
+              "zh_CN": "任，掩护我。我不能现在失去他们。"
+            }
+          ]
+        },
+        {
+          "id": "helix.pruning.defeat",
+          "trigger": "defeat",
+          "lines": [
+            {
+              "id": "helix.pruning.defeat.01",
+              "speaker": "nyx",
+              "en": "Tell Ilan I tried to come back.",
+              "zh_CN": "告诉伊兰，我努力想回去了。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "helix.severance",
+      "faction": "helix",
+      "title": "Severance",
+      "legacy_mission_id": null,
+      "objective": "Disconnect CANTOR’s lock network and open Meridian Spire while the defectors hold out.",
+      "scenes": [
+        {
+          "id": "helix.severance.intro",
+          "trigger": "intro",
+          "lines": [
+            {
+              "id": "helix.severance.intro.01",
+              "speaker": "ren",
+              "en": "Arden offered me your command if I bring you in.",
+              "zh_CN": "阿登说，只要我把你交出去，你的指挥权就归我。"
+            },
+            {
+              "id": "helix.severance.intro.02",
+              "speaker": "nyx",
+              "en": "And what did you tell him?",
+              "zh_CN": "那你怎么回答的？"
+            }
+          ]
+        },
+        {
+          "id": "helix.severance.milestone",
+          "trigger": "milestone",
+          "lines": [
+            {
+              "id": "helix.severance.milestone.01",
+              "speaker": "ren",
+              "en": "That you still owe me three months of leave. I intend to collect.",
+              "zh_CN": "我说，你还欠我三个月的假。我打算把它讨回来。"
+            },
+            {
+              "id": "helix.severance.milestone.02",
+              "speaker": "nyx",
+              "en": "Stay behind me at the door. I need you alive to make that complaint.",
+              "zh_CN": "进门时站在我后面。你得活着，才能继续跟我算这笔账。"
+            }
+          ]
+        },
+        {
+          "id": "helix.severance.stage_2",
+          "trigger": "stage_2",
+          "lines": [
+            {
+              "id": "helix.severance.stage_2.01",
+              "speaker": "arden",
+              "en": "You cannot save a city by choosing one child.",
+              "zh_CN": "选择一个孩子，救不了一座城。"
+            },
+            {
+              "id": "helix.severance.stage_2.02",
+              "speaker": "nyx",
+              "en": "A city is made of people choosing one another.",
+              "zh_CN": "一座城，就是人们彼此选择、彼此守护的地方。"
+            }
+          ]
+        },
+        {
+          "id": "helix.severance.victory",
+          "trigger": "victory",
+          "lines": [
+            {
+              "id": "helix.severance.victory.01",
+              "speaker": "ilan",
+              "en": "When the doors open, are you coming home?",
+              "zh_CN": "门开了以后，你会回家吗？"
+            },
+            {
+              "id": "helix.severance.victory.02",
+              "speaker": "nyx",
+              "en": "Not yet. There are people who need the truth from me. Keep the lamp, though.",
+              "zh_CN": "还不能。有些人需要听我亲口说出真相。不过，那盏灯留着吧。"
+            }
+          ]
+        },
+        {
+          "id": "helix.severance.danger",
+          "trigger": "danger",
+          "lines": [
+            {
+              "id": "helix.severance.danger.01",
+              "speaker": "nyx",
+              "en": "Ren, cover me. I cannot lose them now.",
+              "zh_CN": "任，掩护我。我不能现在失去他们。"
+            }
+          ]
+        },
+        {
+          "id": "helix.severance.defeat",
+          "trigger": "defeat",
+          "lines": [
+            {
+              "id": "helix.severance.defeat.01",
+              "speaker": "nyx",
+              "en": "Tell Ilan I tried to come back.",
+              "zh_CN": "告诉伊兰，我努力想回去了。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "frontier.drainage",
+      "faction": "frontier",
+      "title": "Drainage",
+      "legacy_mission_id": null,
+      "objective": "Guide refugees through Meridian’s drainage tunnels and secure each exit.",
+      "scenes": [
+        {
+          "id": "frontier.drainage.intro",
+          "trigger": "intro",
+          "lines": [
+            {
+              "id": "frontier.drainage.intro.01",
+              "speaker": "wren",
+              "en": "You told Hask we could move forty people. There are twice that many here.",
+              "zh_CN": "你跟哈斯克说，我们能带走四十个人。这里的人多了一倍。"
+            },
+            {
+              "id": "frontier.drainage.intro.02",
+              "speaker": "rook",
+              "en": "Then we make two trips. Stop counting like he does.",
+              "zh_CN": "那就跑两趟。别像他那样，只顾着数人头。"
+            }
+          ]
+        },
+        {
+          "id": "frontier.drainage.milestone",
+          "trigger": "milestone",
+          "lines": [
+            {
+              "id": "frontier.drainage.milestone.01",
+              "speaker": "wren",
+              "en": "One of the little ones asked if we were soldiers. I told her we fixed things.",
+              "zh_CN": "有个小姑娘问，我们是不是士兵。我告诉她，我们是修东西的。"
+            },
+            {
+              "id": "frontier.drainage.milestone.02",
+              "speaker": "rook",
+              "en": "Good. Let us leave her something worth believing.",
+              "zh_CN": "说得好。给她留一点值得相信的东西吧。"
+            }
+          ]
+        },
+        {
+          "id": "frontier.drainage.stage_2",
+          "trigger": "stage_2",
+          "lines": [
+            {
+              "id": "frontier.drainage.stage_2.01",
+              "speaker": "wren",
+              "en": "Remember when you said this tunnel was too narrow for my rig?",
+              "zh_CN": "记得你说过这条隧道装不下我的车吗？"
+            },
+            {
+              "id": "frontier.drainage.stage_2.02",
+              "speaker": "rook",
+              "en": "I am prepared to be wrong. Loudly. Just keep driving.",
+              "zh_CN": "我认错，大声认。你继续开就行。"
+            }
+          ]
+        },
+        {
+          "id": "frontier.drainage.victory",
+          "trigger": "victory",
+          "lines": [
+            {
+              "id": "frontier.drainage.victory.01",
+              "speaker": "hask",
+              "en": "You went back after I ordered you out. I cannot protect you if you keep doing that.",
+              "zh_CN": "我叫你撤离，你却又回去了。再这样下去，我护不住你。"
+            },
+            {
+              "id": "frontier.drainage.victory.02",
+              "speaker": "rook",
+              "en": "I did not go back for your protection. Wren was still inside.",
+              "zh_CN": "我回去，不是为了让你护着。雷恩还在里面。"
+            }
+          ]
+        },
+        {
+          "id": "frontier.drainage.danger",
+          "trigger": "danger",
+          "lines": [
+            {
+              "id": "frontier.drainage.danger.01",
+              "speaker": "rook",
+              "en": "I need a hand. Nobody goes back alone.",
+              "zh_CN": "帮我一把。谁也不许独自回去。"
+            }
+          ]
+        },
+        {
+          "id": "frontier.drainage.defeat",
+          "trigger": "defeat",
+          "lines": [
+            {
+              "id": "frontier.drainage.defeat.01",
+              "speaker": "rook",
+              "en": "Wren, take the wheel. Get them out.",
+              "zh_CN": "雷恩，你来开车。带他们逃出去。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "frontier.cinder_ford",
+      "faction": "frontier",
+      "title": "Cinder Ford",
+      "legacy_mission_id": null,
+      "objective": "Escort the refugee caravan; recover survivors and Wren’s radio from the crossing.",
+      "scenes": [
+        {
+          "id": "frontier.cinder_ford.intro",
+          "trigger": "intro",
+          "lines": [
+            {
+              "id": "frontier.cinder_ford.intro.01",
+              "speaker": "wren",
+              "en": "When we reach the other side, you are sleeping. I can drive a truck without you watching.",
+              "zh_CN": "到了对岸，你就去睡觉。我会开车，不用你一直盯着。"
+            },
+            {
+              "id": "frontier.cinder_ford.intro.02",
+              "speaker": "rook",
+              "en": "You hit one fence and I am never allowed to mention it again?",
+              "zh_CN": "你撞了一次篱笆，我就永远不能再提了？"
+            }
+          ]
+        },
+        {
+          "id": "frontier.cinder_ford.milestone",
+          "trigger": "milestone",
+          "lines": [
+            {
+              "id": "frontier.cinder_ford.milestone.01",
+              "speaker": "wren",
+              "en": "There are children on the crossing! Stop firing!",
+              "zh_CN": "桥上有孩子！别打了！"
+            },
+            {
+              "id": "frontier.cinder_ford.milestone.02",
+              "speaker": "rook",
+              "en": "Wren, get below the axle. I am coming to you. Wren?",
+              "zh_CN": "雷恩，躲到车轴下面。我这就过去。雷恩？"
+            }
+          ]
+        },
+        {
+          "id": "frontier.cinder_ford.stage_2",
+          "trigger": "stage_2",
+          "lines": [
+            {
+              "id": "frontier.cinder_ford.stage_2.01",
+              "speaker": "wren",
+              "en": "Rook, the back wheel is gone. I can hear people under the truck.",
+              "zh_CN": "鲁克，后轮没了。我听见车底下有人。"
+            },
+            {
+              "id": "frontier.cinder_ford.stage_2.02",
+              "speaker": "rook",
+              "en": "I am coming back. Keep talking so I can find you.",
+              "zh_CN": "我回去找你。一直说话，让我听见你。"
+            }
+          ]
+        },
+        {
+          "id": "frontier.cinder_ford.victory",
+          "trigger": "victory",
+          "lines": [
+            {
+              "id": "frontier.cinder_ford.victory.01",
+              "speaker": "jory",
+              "en": "I found her radio. There was nobody beside it.",
+              "zh_CN": "我找到她的电台了。旁边没有人。"
+            },
+            {
+              "id": "frontier.cinder_ford.victory.02",
+              "speaker": "rook",
+              "en": "Then we keep looking. Do not put that look on your face. We keep looking.",
+              "zh_CN": "那就继续找。别用那种表情看着我。继续找。"
+            }
+          ]
+        },
+        {
+          "id": "frontier.cinder_ford.danger",
+          "trigger": "danger",
+          "lines": [
+            {
+              "id": "frontier.cinder_ford.danger.01",
+              "speaker": "rook",
+              "en": "I need a hand. Nobody goes back alone.",
+              "zh_CN": "帮我一把。谁也不许独自回去。"
+            }
+          ]
+        },
+        {
+          "id": "frontier.cinder_ford.defeat",
+          "trigger": "defeat",
+          "lines": [
+            {
+              "id": "frontier.cinder_ford.defeat.01",
+              "speaker": "rook",
+              "en": "Wren, take the wheel. Get them out.",
+              "zh_CN": "雷恩，你来开车。带他们逃出去。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "frontier.salvage",
+      "faction": "frontier",
+      "title": "Salvage",
+      "legacy_mission_id": null,
+      "objective": "Raid the Bastion depot for medical supplies and the Ford prisoner manifests.",
+      "scenes": [
+        {
+          "id": "frontier.salvage.intro",
+          "trigger": "intro",
+          "lines": [
+            {
+              "id": "frontier.salvage.intro.01",
+              "speaker": "jory",
+              "en": "Their depot is full. Our wounded are using torn shirts. Tell me why we are waiting.",
+              "zh_CN": "他们的仓库是满的。我们的伤员只能拿破衬衫包扎。告诉我，还在等什么。"
+            },
+            {
+              "id": "frontier.salvage.intro.02",
+              "speaker": "rook",
+              "en": "We take the medicine and the records. The workers there are not your revenge.",
+              "zh_CN": "我们拿药，拿档案。那里的工人不是给你报仇用的。"
+            }
+          ]
+        },
+        {
+          "id": "frontier.salvage.milestone",
+          "trigger": "milestone",
+          "lines": [
+            {
+              "id": "frontier.salvage.milestone.01",
+              "speaker": "jory",
+              "en": "The guard laughed when I said Cinder Ford. Let me have him.",
+              "zh_CN": "我一提烬渡口，那卫兵就笑了。把他交给我。"
+            },
+            {
+              "id": "frontier.salvage.milestone.02",
+              "speaker": "rook",
+              "en": "You are seventeen. I will not let him decide who you become.",
+              "zh_CN": "你才十七岁。我不会让他决定你以后变成什么人。"
+            }
+          ]
+        },
+        {
+          "id": "frontier.salvage.stage_2",
+          "trigger": "stage_2",
+          "lines": [
+            {
+              "id": "frontier.salvage.stage_2.01",
+              "speaker": "jory",
+              "en": "Medicine does not make them answer for the ford.",
+              "zh_CN": "药品不能让他们为渡口偿命。"
+            },
+            {
+              "id": "frontier.salvage.stage_2.02",
+              "speaker": "rook",
+              "en": "No. It keeps someone alive long enough to hear the answer.",
+              "zh_CN": "不能。但它能让人活到听见答案的那一天。"
+            }
+          ]
+        },
+        {
+          "id": "frontier.salvage.victory",
+          "trigger": "victory",
+          "lines": [
+            {
+              "id": "frontier.salvage.victory.01",
+              "speaker": "jory",
+              "en": "There is a Wren on the transfer list. Mechanic. Sent east.",
+              "zh_CN": "转运名单上有个雷恩。机械师。被送到东边了。"
+            },
+            {
+              "id": "frontier.salvage.victory.02",
+              "speaker": "rook",
+              "en": "Read it again. Slowly. Do not make it kinder than it is.",
+              "zh_CN": "再念一遍。慢慢念。别为了安慰我，改上面的字。"
+            }
+          ]
+        },
+        {
+          "id": "frontier.salvage.danger",
+          "trigger": "danger",
+          "lines": [
+            {
+              "id": "frontier.salvage.danger.01",
+              "speaker": "rook",
+              "en": "I need a hand. Nobody goes back alone.",
+              "zh_CN": "帮我一把。谁也不许独自回去。"
+            }
+          ]
+        },
+        {
+          "id": "frontier.salvage.defeat",
+          "trigger": "defeat",
+          "lines": [
+            {
+              "id": "frontier.salvage.defeat.01",
+              "speaker": "rook",
+              "en": "Wren, take the wheel. Get them out.",
+              "zh_CN": "雷恩，你来开车。带他们逃出去。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "frontier.wren",
+      "faction": "frontier",
+      "title": "Wren",
+      "legacy_mission_id": null,
+      "objective": "Free the work-camp prisoners and escort them through a corridor held by Voss.",
+      "scenes": [
+        {
+          "id": "frontier.wren.intro",
+          "trigger": "intro",
+          "lines": [
+            {
+              "id": "frontier.wren.intro.01",
+              "speaker": "voss",
+              "en": "I can hold the south road. I know you have no reason to trust my uniform.",
+              "zh_CN": "我能守住南路。我知道，你没有理由相信这身制服。"
+            },
+            {
+              "id": "frontier.wren.intro.02",
+              "speaker": "rook",
+              "en": "I am trusting the person speaking. Do not make me regret learning your name.",
+              "zh_CN": "我相信的是正在说话的人。别让我后悔记住你的名字。"
+            }
+          ]
+        },
+        {
+          "id": "frontier.wren.milestone",
+          "trigger": "milestone",
+          "lines": [
+            {
+              "id": "frontier.wren.milestone.01",
+              "speaker": "wren",
+              "en": "You took your time. I have had to repair this same generator four times.",
+              "zh_CN": "你来得真够慢的。同一台发电机，我都修了四遍了。"
+            },
+            {
+              "id": "frontier.wren.milestone.02",
+              "speaker": "rook",
+              "en": "I kept your radio. I did not know what else to do.",
+              "zh_CN": "我一直留着你的电台。我不知道还能做什么。"
+            }
+          ]
+        },
+        {
+          "id": "frontier.wren.stage_2",
+          "trigger": "stage_2",
+          "lines": [
+            {
+              "id": "frontier.wren.stage_2.01",
+              "speaker": "wren",
+              "en": "You brought Bastion to get me out?",
+              "zh_CN": "你带着堡垒来救我？"
+            },
+            {
+              "id": "frontier.wren.stage_2.02",
+              "speaker": "rook",
+              "en": "I brought everyone who would come. Be angry when we are home.",
+              "zh_CN": "肯来的人我都带来了。回家以后你再生气。"
+            }
+          ]
+        },
+        {
+          "id": "frontier.wren.victory",
+          "trigger": "victory",
+          "lines": [
+            {
+              "id": "frontier.wren.victory.01",
+              "speaker": "wren",
+              "en": "You do not have to watch the door all night. I am here.",
+              "zh_CN": "你不用整夜盯着门。我就在这里。"
+            },
+            {
+              "id": "frontier.wren.victory.02",
+              "speaker": "rook",
+              "en": "I know. Give me a little while to believe it.",
+              "zh_CN": "我知道。给我一点时间，让我真的相信。"
+            }
+          ]
+        },
+        {
+          "id": "frontier.wren.danger",
+          "trigger": "danger",
+          "lines": [
+            {
+              "id": "frontier.wren.danger.01",
+              "speaker": "rook",
+              "en": "I need a hand. Nobody goes back alone.",
+              "zh_CN": "帮我一把。谁也不许独自回去。"
+            }
+          ]
+        },
+        {
+          "id": "frontier.wren.defeat",
+          "trigger": "defeat",
+          "lines": [
+            {
+              "id": "frontier.wren.defeat.01",
+              "speaker": "rook",
+              "en": "Wren, take the wheel. Get them out.",
+              "zh_CN": "雷恩，你来开车。带他们逃出去。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "frontier.the_coalition",
+      "faction": "frontier",
+      "title": "The Coalition",
+      "legacy_mission_id": null,
+      "objective": "Secure Meridian Spire’s evacuation route and keep the coalition from turning on its allies.",
+      "scenes": [
+        {
+          "id": "frontier.the_coalition.intro",
+          "trigger": "intro",
+          "lines": [
+            {
+              "id": "frontier.the_coalition.intro.01",
+              "speaker": "hask",
+              "en": "Aegis will answer for the Ford. But if we break this alliance now, the prisoners stay inside.",
+              "zh_CN": "埃吉斯必须为烬渡口负责。但现在拆掉同盟，囚犯们就出不来了。"
+            },
+            {
+              "id": "frontier.the_coalition.intro.02",
+              "speaker": "jory",
+              "en": "You keep asking the dead to wait until it is convenient.",
+              "zh_CN": "你们总让死人等着，等到你们觉得方便的时候。"
+            }
+          ]
+        },
+        {
+          "id": "frontier.the_coalition.milestone",
+          "trigger": "milestone",
+          "lines": [
+            {
+              "id": "frontier.the_coalition.milestone.01",
+              "speaker": "rook",
+              "en": "I wanted him dead too. Then I found Wren, and she needed a brother more than an executioner.",
+              "zh_CN": "我也想过让他死。可找到雷恩以后，她需要的是哥哥，不是刽子手。"
+            },
+            {
+              "id": "frontier.the_coalition.milestone.02",
+              "speaker": "jory",
+              "en": "Mine is not coming back. You do not get to ask me to forgive him.",
+              "zh_CN": "我的家人不会回来了。你没资格叫我原谅他。"
+            }
+          ]
+        },
+        {
+          "id": "frontier.the_coalition.stage_2",
+          "trigger": "stage_2",
+          "lines": [
+            {
+              "id": "frontier.the_coalition.stage_2.01",
+              "speaker": "hask",
+              "en": "Peace will not bring back the people we buried.",
+              "zh_CN": "和平也换不回我们埋葬的人。"
+            },
+            {
+              "id": "frontier.the_coalition.stage_2.02",
+              "speaker": "rook",
+              "en": "Neither will another grave. Open the corridor.",
+              "zh_CN": "再多一座坟也换不回。打开通道。"
+            }
+          ]
+        },
+        {
+          "id": "frontier.the_coalition.victory",
+          "trigger": "victory",
+          "lines": [
+            {
+              "id": "frontier.the_coalition.victory.01",
+              "speaker": "rook",
+              "en": "I am not asking you to forgive him. Help me get these people home. Then stand beside me when he answers.",
+              "zh_CN": "我没让你原谅他。帮我把这些人送回家。等他接受问责时，站在我身边。"
+            },
+            {
+              "id": "frontier.the_coalition.victory.02",
+              "speaker": "wren",
+              "en": "We fix what we can. We remember what we cannot. Come on, both of you.",
+              "zh_CN": "能修好的，我们就修。修不好的，我们记着。走吧，你们两个。"
+            }
+          ]
+        },
+        {
+          "id": "frontier.the_coalition.danger",
+          "trigger": "danger",
+          "lines": [
+            {
+              "id": "frontier.the_coalition.danger.01",
+              "speaker": "rook",
+              "en": "I need a hand. Nobody goes back alone.",
+              "zh_CN": "帮我一把。谁也不许独自回去。"
+            }
+          ]
+        },
+        {
+          "id": "frontier.the_coalition.defeat",
+          "trigger": "defeat",
+          "lines": [
+            {
+              "id": "frontier.the_coalition.defeat.01",
+              "speaker": "rook",
+              "en": "Wren, take the wheel. Get them out.",
+              "zh_CN": "雷恩，你来开车。带他们逃出去。"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "authoring_notes": [
+    "Opening/milestone/outcome cues are semantic triggers, never wall-clock timers.",
+    "The Cinder Ford distress call is shared across the three viewpoints and should reuse one recorded performance.",
+    "Bastion Cinder Ford replaces the Air Corridor slot; retain legacy saves until an explicit migration is implemented.",
+    "Kerrigan’s loss is an authored story event; never substitute an arbitrary gameplay casualty.",
+    "Victory dialogue must finish before automatic return to the campaign menu.",
+    "Hero must-survive and ability progression remain implementation requirements; this file changes no runtime behavior."
+  ]
+}

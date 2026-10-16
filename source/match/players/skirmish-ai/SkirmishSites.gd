@@ -3,6 +3,8 @@ extends RefCounted
 const Sites = preload("res://source/match/world/PointOfInterestCatalog.gd")
 const Infantry = preload("res://source/match/BastionCatalog.gd")
 const Production = preload("res://source/match/players/skirmish-ai/SkirmishProduction.gd")
+const Composition = preload("res://source/match/players/skirmish-ai/SkirmishComposition.gd")
+const Difficulty = preload("res://source/match/players/skirmish-ai/SkirmishDifficulty.gd")
 const AttackMove = preload("res://source/match/units/actions/AttackMoving.gd")
 
 
@@ -71,6 +73,12 @@ static func recruit(game, player, units, desired):
 		):
 			continue
 		if units.filter(func(unit): return Infantry.is_infantry(unit.type)).size() >= 8:
+			return
+		var cap = Difficulty.army_cap(player.difficulty, game.simulation_time)
+		if (
+			cap > 0
+			and Production.army_size(Composition.inventory(units)) + Sites.reserved(player) >= cap
+		):
 			return
 		var cost = Sites.price(player.faction, "RocketInfantry")
 		if (

@@ -2,6 +2,7 @@ extends RefCounted
 
 const BattleTheme = preload("res://source/match/hud/BattleTheme.gd")
 const TacticalButton = preload("res://source/main-menu/TacticalButton.gd")
+const Difficulty = preload("res://source/match/players/skirmish-ai/SkirmishDifficulty.gd")
 
 
 static func build(hud, result):
@@ -305,7 +306,15 @@ static func build(hud, result):
 	rows.add_theme_constant_override("separation", 2)
 	telemetry_inner.add_child(rows)
 
-	for entry in game.battle_record.statistics_rows():
+	var statistics = game.battle_record.statistics_rows()
+	if not hud._is_campaign():
+		var opponents = game.get_tree().get_nodes_in_group("players").filter(
+			func(player): return player != game._get_human_player()
+		)
+		if not opponents.is_empty():
+			statistics.push_front(["AI difficulty", Difficulty.name_of(opponents[0].difficulty)])
+
+	for entry in statistics:
 		var row = HBoxContainer.new()
 		row.custom_minimum_size.y = 22
 		rows.add_child(row)

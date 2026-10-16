@@ -1,5 +1,23 @@
-kokoro-onnx==0.6.1
-piper-tts==1.4.2
-onnxruntime==1.31.0
+# Voice build environment (Python 3.11). Build inputs only; the game ships no TTS.
+#   uv venv --python 3.11 tmp/voice-venv
+#   VIRTUAL_ENV=tmp/voice-venv uv pip install -r art/audio/voice-requirements.txt
+#   VIRTUAL_ENV=tmp/voice-venv uv pip install --no-deps kokoro-onnx==0.6.1
+# kokoro-onnx declares numpy>=2 but runs on the numpy pinned by chatterbox-tts.
+chatterbox-tts==0.1.7
+resemble-perth==1.0.1
+setuptools==80.10.2
+transformers==5.2.0
+diffusers==0.29.0
+torch==2.6.0
+torchaudio==2.6.0
+numpy==1.26.4
+scipy==1.17.1
+librosa==0.11.0
 soundfile==0.14.0
-numpy==2.5.4
+pyloudnorm==0.2.0
+openai-whisper==20250625
+speechbrain==1.1.2
+onnxruntime==1.23.2
+phonemizer-fork==3.3.2
+espeakng-loader==0.2.4
+segments==2.4.0

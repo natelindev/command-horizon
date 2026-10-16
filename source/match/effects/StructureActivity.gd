@@ -9,7 +9,6 @@ var portal = Vector3.ZERO
 var _unit
 var _bounds = AABB()
 var _portal_root
-var _scaffold
 var _work_head
 var _work_rest = Vector3.ZERO
 var _lamps = []
@@ -32,7 +31,6 @@ func _ready():
 	_glow = Kit._material(Color("303536"), .1)
 	_glow.emission_enabled = true
 	_glow.emission = Color("c6ad7d")
-	_build_scaffold()
 	_build_machinery()
 	refresh(0.0)
 
@@ -55,11 +53,8 @@ func refresh(delta = 0.0):
 	)
 	if working:
 		phase += delta * rate
-	_scaffold.visible = state == "construction"
 	if _portal_root != null:
 		_portal_root.visible = _unit.is_constructed()
-	for level in _scaffold.get_children():
-		level.visible = level.get_index() == 0 or progress > float(level.get_index() - 1) / 4.0
 	# Practical fixtures stay in place. Only their illumination fades when work
 	# starts or stops; machinery carries the activity instead of a chasing blink.
 	var illumination = (1.0 if working else .25 if state == "blocked" else 0.0) * rate
@@ -118,45 +113,6 @@ func _read_activity():
 			)
 			return
 	state = "idle"
-
-
-func _build_scaffold():
-	_scaffold = Node3D.new()
-	_scaffold.name = "ConstructionScaffold"
-	add_child(_scaffold)
-	var width = minf(_unit.radius * .8, _bounds.size.x * .55)
-	var depth = minf(_unit.radius * .8, _bounds.size.z * .55)
-	var height = maxf(1.2, _bounds.size.y * .8)
-	for index in range(5):
-		var level = Node3D.new()
-		_scaffold.add_child(level)
-		var y = height * index / 4.0
-		for side in [-1, 1]:
-			Kit._box(
-				level,
-				"Crossbar",
-				Vector3(0, y + .13, side * depth),
-				Vector3(width * 2, .055, .055),
-				_metal
-			)
-			Kit._box(
-				level,
-				"SideRail",
-				Vector3(side * width, y + .13, 0),
-				Vector3(.055, .055, depth * 2),
-				_metal
-			)
-			for end in [-1, 1]:
-				Kit._box(
-					level,
-					"Upright",
-					Vector3(side * width, y + height / 8, end * depth),
-					Vector3(.055, height / 4, .055),
-					_metal
-				)
-		if index == 0:
-			for side in [-1, 1]:
-				_task_light(level, Vector3(side * width, .13, -depth - .05))
 
 
 func _build_machinery():

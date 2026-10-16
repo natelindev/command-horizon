@@ -1,7 +1,8 @@
 extends RefCounted
 
 # Articulation only: use the rigid unit root so recoil, idle sway and suspension
-# bob never create wheel travel. The authored axle is local +X, forward is -Z.
+# bob never create wheel travel. Forward is -Z; each wheel spins about its axle,
+# the pivot axis parallel to the unit's local X (authored wheels may be rotated).
 var wheels = []
 var _unit
 var _previous = Transform3D.IDENTITY
@@ -10,25 +11,46 @@ var _previous = Transform3D.IDENTITY
 func setup(unit):
 	_unit = unit
 	_previous = unit.global_transform
-	for pivot in unit.find_children("*WheelPivot*", "Node3D", true, false):
+	var pivots = unit.find_children("*WheelPivot*", "Node3D", true, false)
+	for pivot in unit.find_children("*_Wheel_*", "Node3D", true, false):
+		if not pivot is MeshInstance3D and pivot not in pivots:
+			pivots.append(pivot)
+	for pivot in unit.find_children("*", "VehicleWheel3D", true, false):
+		if pivot not in pivots:
+			pivots.append(pivot)
+	for pivot in pivots:
+		var pivot_in_unit = _transform_to(pivot, unit)
+		var axle = (pivot_in_unit.basis.inverse() * Vector3.RIGHT).normalized()
 		var radius = 0.0
 		for mesh in pivot.find_children("*", "MeshInstance3D", true, false):
-			var relative = pivot.global_transform.affine_inverse() * mesh.global_transform
+			var relative = pivot_in_unit.affine_inverse() * _transform_to(mesh, unit)
 			for surface in mesh.mesh.get_surface_count():
 				for vertex in mesh.mesh.surface_get_arrays(surface)[Mesh.ARRAY_VERTEX]:
 					var point = relative * vertex
-					var radial = pivot.global_basis * Vector3(0, point.y, point.z)
+					var radial = pivot_in_unit.basis * (point - axle * point.dot(axle))
 					radius = maxf(radius, radial.length())
 		if radius > .001:
 			wheels.append(
 				{
 					"pivot": pivot,
 					"rest": pivot.basis,
-					"offset": unit.to_local(pivot.global_position),
+					"axle": axle,
+					"offset": pivot_in_unit.origin,
 					"radius": radius,
 					"angle": 0.0
 				}
 			)
+
+
+static func _transform_to(node, ancestor):
+	# Works before the unit enters the scene tree (production proxies).
+	var result = Transform3D.IDENTITY
+	var current = node
+	while current != null and current != ancestor:
+		if current is Node3D:
+			result = current.transform * result
+		current = current.get_parent()
+	return result
 
 
 func advance(delta):
@@ -51,4 +73,4 @@ func advance(delta):
 		# Signed arc length also handles a pivot turn with no root translation.
 		var travel = translation + turn * wheel.offset.x
 		wheel.angle = wrapf(wheel.angle - travel / wheel.radius, -PI, PI)
-		wheel.pivot.basis = wheel.rest * Basis(Vector3.RIGHT, wheel.angle)
+		wheel.pivot.basis = wheel.rest * Basis(wheel.axle, wheel.angle)

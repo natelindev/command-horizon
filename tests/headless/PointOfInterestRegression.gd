@@ -45,10 +45,14 @@ func _open_sites(faction):
 
 
 func _claim(site, soldier, side):
+	var previous_owner = site.captured_by
 	soldier.position = site.position + Vector3(3.8, 0, 0)
 	_game.battlefield.invalidate()
 	site._physics_process(5)
-	_check(site.captured_by != side and site.progress == 5, "Capture skipped its infantry hold")
+	_check(
+		site.captured_by == previous_owner and site.progress == 5,
+		"Capture changed ownership before completing"
+	)
 	site._physics_process(5)
 	_check(
 		site.captured_by == side and site.progress == 0, "Infantry failed to capture the facility"
@@ -83,6 +87,19 @@ func _exercise_sites():
 	_check(
 		refinery.stock_a == 598 and refinery.stock_b == 299, "Refinery did not consume its stock"
 	)
+	soldier.position += Vector3(20, 0, 0)
+	_game.battlefield.invalidate()
+	funds = Vector2i(_human.resource_a, _human.resource_b)
+	refinery._physics_process(30)
+	_check(
+		(
+			refinery.captured_by == _human
+			and refinery.operational()
+			and Vector2i(_human.resource_a, _human.resource_b) == funds + Vector2i(6, 3)
+		),
+		"Vacant captured refinery lost ownership or stopped paying"
+	)
+	soldier.position = refinery.position + Vector3(3.8, 0, 0)
 	var rival = _spawn("Infantry", _enemy, refinery.position + Vector3(-3.8, 0, 0))
 	await _frames(5)
 	_game.battlefield.invalidate()

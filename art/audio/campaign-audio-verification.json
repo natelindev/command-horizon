@@ -1,0 +1,1755 @@
+{
+  "clips": 160,
+  "expected": 160,
+  "speakers": 13,
+  "closest": {
+    "voss": {
+      "speaker": "ilan",
+      "similarity": 0.2794
+    },
+    "aegis": {
+      "speaker": "elias",
+      "similarity": 0.4175
+    },
+    "nyx": {
+      "speaker": "arden",
+      "similarity": 0.4204
+    },
+    "kerrigan": {
+      "speaker": "rook",
+      "similarity": 0.2526
+    },
+    "elias": {
+      "speaker": "aegis",
+      "similarity": 0.4175
+    },
+    "wren": {
+      "speaker": "jory",
+      "similarity": 0.2686
+    },
+    "ilan": {
+      "speaker": "voss",
+      "similarity": 0.2794
+    },
+    "ren": {
+      "speaker": "elias",
+      "similarity": 0.3992
+    },
+    "arden": {
+      "speaker": "nyx",
+      "similarity": 0.4204
+    },
+    "cantor": {
+      "speaker": "elias",
+      "similarity": 0.2781
+    },
+    "rook": {
+      "speaker": "nyx",
+      "similarity": 0.3473
+    },
+    "hask": {
+      "speaker": "arden",
+      "similarity": 0.3066
+    },
+    "jory": {
+      "speaker": "wren",
+      "similarity": 0.2686
+    }
+  },
+  "identities": {
+    "voss": {
+      "own": 0.8228,
+      "best_other": [
+        0.1944,
+        "elias"
+      ]
+    },
+    "aegis": {
+      "own": 0.888,
+      "best_other": [
+        0.4686,
+        "elias"
+      ]
+    },
+    "nyx": {
+      "own": 0.9137,
+      "best_other": [
+        0.3428,
+        "arden"
+      ]
+    },
+    "kerrigan": {
+      "own": 0.854,
+      "best_other": [
+        0.1752,
+        "ren"
+      ]
+    },
+    "elias": {
+      "own": 0.8666,
+      "best_other": [
+        0.3736,
+        "ren"
+      ]
+    },
+    "wren": {
+      "own": 0.8643,
+      "best_other": [
+        0.2207,
+        "jory"
+      ]
+    },
+    "ilan": {
+      "own": 0.7139,
+      "best_other": [
+        0.2218,
+        "jory"
+      ]
+    },
+    "ren": {
+      "own": 0.9022,
+      "best_other": [
+        0.3493,
+        "elias"
+      ]
+    },
+    "arden": {
+      "own": 0.8637,
+      "best_other": [
+        0.3834,
+        "nyx"
+      ]
+    },
+    "cantor": {
+      "own": 0.6468,
+      "best_other": [
+        0.2763,
+        "elias"
+      ]
+    },
+    "rook": {
+      "own": 0.7189,
+      "best_other": [
+        0.3116,
+        "nyx"
+      ]
+    },
+    "hask": {
+      "own": 0.8183,
+      "best_other": [
+        0.2584,
+        "arden"
+      ]
+    },
+    "jory": {
+      "own": 0.8198,
+      "best_other": [
+        0.1663,
+        "wren"
+      ]
+    }
+  },
+  "assets": [
+    {
+      "id": "bastion.supply_line.intro.01",
+      "speaker": "voss",
+      "sha256": "9ded83d1b1230df9682d069d4b96819dc8a141a50ff2ebf84433ae4ca198e547",
+      "seconds": 2.613,
+      "lufs": -16.02,
+      "peak_dbfs": -1.39,
+      "heard": "You promised the drivers this was a relief run.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.supply_line.intro.02",
+      "speaker": "aegis",
+      "sha256": "3c12acab41afdb5d2826da0ddcdf4960697d9462c948c09b6bed51e226abd614",
+      "seconds": 3.632,
+      "lufs": -16.03,
+      "peak_dbfs": -1.32,
+      "heard": "It is. We get their families fed, then we find who sealed Meridian.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.supply_line.milestone.01",
+      "speaker": "nyx",
+      "sha256": "0cf302c3b3478af9edaa32ef137d0d6dc0d097cb3df2c8713334838e2029140b",
+      "seconds": 2.896,
+      "lufs": -16.02,
+      "peak_dbfs": -1.31,
+      "heard": "Convoy, turn back, I cannot keep this road open for you.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.supply_line.milestone.02",
+      "speaker": "aegis",
+      "sha256": "1495e438fca9d230d068dee417e7c105a8873aae47d7bf1838a49d2a90c41fe7",
+      "seconds": 4.512,
+      "lufs": -16.04,
+      "peak_dbfs": -1.28,
+      "heard": "That voice. Voss, keep her on the channel. Do not let her disappear again.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.supply_line.stage_2.01",
+      "speaker": "kerrigan",
+      "sha256": "5ddbad61271a313e8b7d265863cfa19d3176a51603650a05a1034fd689e1a971",
+      "seconds": 2.907,
+      "lufs": -16.05,
+      "peak_dbfs": -1.3,
+      "heard": "Drivers have names, Marshall. Try asking one.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.supply_line.stage_2.02",
+      "speaker": "aegis",
+      "sha256": "6a09ac3113146a3453a1ce9e63fb79396775ac47fbde0128109dc5b50ae05662",
+      "seconds": 1.861,
+      "lufs": -16.07,
+      "peak_dbfs": -1.29,
+      "heard": "Elias used to say that about the wounded.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.supply_line.victory.01",
+      "speaker": "voss",
+      "sha256": "f54ba7faf673c7f41e25ef6458db8ec48c10ae6a733b7cef9e1344b56bfa0c05",
+      "seconds": 3.216,
+      "lufs": -15.99,
+      "peak_dbfs": -1.39,
+      "heard": "The drivers want to thank you. Will you come?",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.supply_line.victory.02",
+      "speaker": "aegis",
+      "sha256": "705d92fdec7cc9e9ba37dcfa85bf33383e3af7374e702f0ec6e479b1bf07c17e",
+      "seconds": 2.336,
+      "lufs": -16.0,
+      "peak_dbfs": -1.34,
+      "heard": "In a minute, play the transmission again.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.supply_line.danger.01",
+      "speaker": "aegis",
+      "sha256": "5bf7e0105c7a2d79ec3179c68410f9af3c4e871f2e825e46126eac3e3a0a501b",
+      "seconds": 2.576,
+      "lufs": -16.01,
+      "peak_dbfs": -1.4,
+      "heard": "I am still here. Keep the others moving.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.supply_line.defeat.01",
+      "speaker": "aegis",
+      "sha256": "ff74306892498bcc576dfafd74e0953d10633a9a701d753d253c6adecc3cbd89",
+      "seconds": 3.451,
+      "lufs": -16.13,
+      "peak_dbfs": -1.23,
+      "heard": "Voss, get them home. That is the order I should have given.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.first_orders.intro.01",
+      "speaker": "kerrigan",
+      "sha256": "6bf25ddc720f709568cc0bc8d2690440800650669c625f96d597cbeaff1db410",
+      "seconds": 4.021,
+      "lufs": -16.01,
+      "peak_dbfs": -1.34,
+      "heard": "Half these kids have never held a rifle. Your brother would have hated that.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.first_orders.intro.02",
+      "speaker": "aegis",
+      "sha256": "96da0394fcde715da5fbff6951c3fa6a45a4bde84cb9e39ab519ca13773ead89",
+      "seconds": 2.64,
+      "lufs": -16.0,
+      "peak_dbfs": -1.29,
+      "heard": "Then teach them to come home. We have buried enough.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.first_orders.milestone.01",
+      "speaker": "voss",
+      "sha256": "6fdbbf54acb6f119735e41a6e8ee7b88eacc628819f2f0c209e9469fdfaa7dc4",
+      "seconds": 4.315,
+      "lufs": -16.01,
+      "peak_dbfs": -1.33,
+      "heard": "Nyx was your friend. Tell me what happened before I send these children after her.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.first_orders.milestone.02",
+      "speaker": "aegis",
+      "sha256": "2aa11560a53d3b5caf611276d0ebf4cc825144d6c53f3977faf9509849b7ddd4",
+      "seconds": 3.371,
+      "lufs": -16.06,
+      "peak_dbfs": -1.29,
+      "heard": "Elias called me from that gate. I told him I was coming.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.first_orders.stage_2.01",
+      "speaker": "voss",
+      "sha256": "4066265f4e6b905eb6cb3fbdabddaa78d9cf6c7683e0560405f757eaba1b420f",
+      "seconds": 2.88,
+      "lufs": -16.02,
+      "peak_dbfs": -1.3,
+      "heard": "That recruit keeps checking whether you are watching.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.first_orders.stage_2.02",
+      "speaker": "aegis",
+      "sha256": "50d4fcfd2c3b30c507dcd101f56738382a3341b7c3babb2ebe4fcb6aa1fb84dc",
+      "seconds": 2.949,
+      "lufs": -16.01,
+      "peak_dbfs": -1.37,
+      "heard": "Then, I had better give him something worth watching.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.first_orders.victory.01",
+      "speaker": "kerrigan",
+      "sha256": "8bf33d5b7f39c0fcdc65e9d55d300bac0dbaa2a776c67342613367a42766e324",
+      "seconds": 3.349,
+      "lufs": -16.0,
+      "peak_dbfs": -1.33,
+      "heard": "The recruits are waiting at the rally point. You could say something.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.first_orders.victory.02",
+      "speaker": "aegis",
+      "sha256": "a07be5a1bb074781c8d9fb5205e8d23726f9a6fe9c27842951dcde258c3f1083",
+      "seconds": 4.112,
+      "lufs": -16.05,
+      "peak_dbfs": -1.2,
+      "heard": "Tell them I am proud. No, wait, I will tell them.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.first_orders.danger.01",
+      "speaker": "aegis",
+      "sha256": "c78f133a306c76f8dbbf76bf0384170817b08bed613321d4d441a0c4162591e5",
+      "seconds": 2.917,
+      "lufs": -16.03,
+      "peak_dbfs": -1.43,
+      "heard": "I am still here. Keep the others moving.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.first_orders.defeat.01",
+      "speaker": "aegis",
+      "sha256": "f5dc16cc3c5820e10df78a9e85d141f6cf885e083a2571edc698696720f34654",
+      "seconds": 3.04,
+      "lufs": -16.01,
+      "peak_dbfs": -1.27,
+      "heard": "Voss, get them home. That is the order I should have given.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.split_signal.intro.01",
+      "speaker": "voss",
+      "sha256": "3cc9953f3b25d6f23f3a2101e3cec01550f5fbb1f21c4b623e49008d1d28a698",
+      "seconds": 4.283,
+      "lufs": -16.0,
+      "peak_dbfs": -1.35,
+      "heard": "The relay archive has a medical channel from Meridian. It may be his.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.split_signal.intro.02",
+      "speaker": "aegis",
+      "sha256": "0fed65bad7781e8bea3718c673724cff8a968435ae78aa5973d69904f68e1258",
+      "seconds": 4.096,
+      "lufs": -16.02,
+      "peak_dbfs": -1.2,
+      "heard": "Do not say that unless you are certain. I cannot do this twice.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.split_signal.milestone.01",
+      "speaker": "elias",
+      "sha256": "0836584468d55279ac54b9a0f40a173f5bb22055a113c22690bb9d3ae8116de4",
+      "seconds": 3.755,
+      "lufs": -16.04,
+      "peak_dbfs": -1.33,
+      "heard": "Aegis, there are people against the gate. If you fire at it, you will hit them.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.split_signal.milestone.02",
+      "speaker": "aegis",
+      "sha256": "f96ea0dd928e350aa420055a2a3836dd58eab8a61d1c167e996a480d6ddd6333",
+      "seconds": 3.653,
+      "lufs": -16.03,
+      "peak_dbfs": -1.33,
+      "heard": "I remember this part. Keep it playing. There has to be more.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.split_signal.stage_2.01",
+      "speaker": "elias",
+      "sha256": "3329c0186f0deeec4785f183670492b32b0891fef874f1fcf28fc4804afdf032",
+      "seconds": 2.763,
+      "lufs": -16.01,
+      "peak_dbfs": -1.28,
+      "heard": "If the gate opens, send the children first. I can wait.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.split_signal.stage_2.02",
+      "speaker": "aegis",
+      "sha256": "2c1fbf5a0f26db4560f98bd3ec9b151511d3d614f2ddee6e49a18b53cd4a9c18",
+      "seconds": 3.451,
+      "lufs": -16.19,
+      "peak_dbfs": -1.32,
+      "heard": "You always said that. You always thought there would be time.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.split_signal.victory.01",
+      "speaker": "elias",
+      "sha256": "9083feb7c517088ca1eade2e45a4ed24172169741740a96a67bbb7041e3262f4",
+      "seconds": 3.931,
+      "lufs": -16.01,
+      "peak_dbfs": -1.37,
+      "heard": "Stop apologising. Just listen to me for once. Get the children out.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.split_signal.victory.02",
+      "speaker": "voss",
+      "sha256": "522c2a8fa51edd8e7a1840431066eb1776d8a5607fcaeafeb6136533972b9210",
+      "seconds": 3.84,
+      "lufs": -16.07,
+      "peak_dbfs": -1.3,
+      "heard": "That is what he asked of you. He never asked you to kill her.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.split_signal.danger.01",
+      "speaker": "aegis",
+      "sha256": "1cfcac9f29681379d2107db502f94564eea953cc3b1391dd1613cc047c20faf0",
+      "seconds": 2.475,
+      "lufs": -16.01,
+      "peak_dbfs": -1.3,
+      "heard": "I am still here. Keep the others moving.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.split_signal.defeat.01",
+      "speaker": "aegis",
+      "sha256": "ad0ef319875cd0123c4739d997761d5a7d099d7bf13e174a2968ed3ac7e99303",
+      "seconds": 3.771,
+      "lufs": -16.01,
+      "peak_dbfs": -1.39,
+      "heard": "Voss, get them home. That is the order I should have given.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.cinder_ford.intro.01",
+      "speaker": "voss",
+      "sha256": "f9a77289f0156b1273f2cc9b2cf77848eca06e5c245f182a92cdcb3375d001c4",
+      "seconds": 4.341,
+      "lufs": -16.0,
+      "peak_dbfs": -1.43,
+      "heard": "The convoy has civilian trucks mixed in. We need another way.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.cinder_ford.intro.02",
+      "speaker": "aegis",
+      "sha256": "3c175b2504a1d9ff09f7b05b90c2307a285d81e31f68df06b96b215e5ca20356",
+      "seconds": 4.091,
+      "lufs": -16.05,
+      "peak_dbfs": -1.29,
+      "heard": "If Nyx crosses that river, we lose her. Mark the lead vehicle.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.cinder_ford.milestone.01",
+      "speaker": "wren",
+      "sha256": "2e05bb4cdc6156e1f3f5102a2b4b81218b18d0e214ddfdedc75c4ed7da276951",
+      "seconds": 2.427,
+      "lufs": -16.0,
+      "peak_dbfs": -1.4,
+      "heard": "There are children on the crossing. Stop firing.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.cinder_ford.milestone.02",
+      "speaker": "voss",
+      "sha256": "b573ef62595a48e23f6ffc716b39aad36f856ea201e9892b37a84679d215e649",
+      "seconds": 3.376,
+      "lufs": -16.0,
+      "peak_dbfs": -1.4,
+      "heard": "Ceasefire, Aegis, look at me, give the order.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.cinder_ford.stage_2.01",
+      "speaker": "voss",
+      "sha256": "ecf893b52d89b163c226a3d57c053df12fe142483dee23e81bccfc8adaa6c1b2",
+      "seconds": 3.008,
+      "lufs": -16.02,
+      "peak_dbfs": -1.3,
+      "heard": "Those are blankets on the road, not camouflage.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.cinder_ford.stage_2.02",
+      "speaker": "aegis",
+      "sha256": "9b462d734f879308cbc9dc308db6eebd7d3d1d878dc8c3cbe8c15a0b156c595e",
+      "seconds": 3.52,
+      "lufs": -16.04,
+      "peak_dbfs": -1.34,
+      "heard": "Ceasefire, all guns. Voss, tell me somebody heard me.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.cinder_ford.victory.01",
+      "speaker": "aegis",
+      "sha256": "87feb9d550d2bb56fa8f6c0b11eff20a2e03456b523acf8a8b8b7d44f2e65123",
+      "seconds": 3.819,
+      "lufs": -16.03,
+      "peak_dbfs": -1.34,
+      "heard": "I saw the transport markings. I told myself they had stolen the trucks.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.cinder_ford.victory.02",
+      "speaker": "voss",
+      "sha256": "ea2f313b504f35037c886cf7bbd5b303e3fc9c81f92b65c9e021f958a86c706f",
+      "seconds": 3.584,
+      "lufs": -16.04,
+      "peak_dbfs": -1.33,
+      "heard": "You will say that to the survivors. I will not say it for you.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.cinder_ford.danger.01",
+      "speaker": "aegis",
+      "sha256": "afb01cda5c016b72d19e99fa66ec2937719db41052def25370c1a96cdf3fd0d1",
+      "seconds": 2.496,
+      "lufs": -16.02,
+      "peak_dbfs": -1.35,
+      "heard": "I am still here. Keep the others moving.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.cinder_ford.defeat.01",
+      "speaker": "aegis",
+      "sha256": "4485f2f44b411eb3db28338d1806563a32cfa0571aabed8653aa067a702e320b",
+      "seconds": 3.392,
+      "lufs": -16.0,
+      "peak_dbfs": -1.23,
+      "heard": "Voss, get them home. That is the order I should have given.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.broken_foundry.intro.01",
+      "speaker": "kerrigan",
+      "sha256": "ba6f37bc66d3afea7d7edf816fccc9151d5229bc4a56a4a7496ea008b35f8dfa",
+      "seconds": 6.544,
+      "lufs": -16.01,
+      "peak_dbfs": -1.28,
+      "heard": "Voss asked me to watch you. Imagine that. After 20 years, I am your babysitter.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.broken_foundry.intro.02",
+      "speaker": "aegis",
+      "sha256": "783e21acf94784140ccb3458ecc8425f0e145f7677836b236707429f8825b5f8",
+      "seconds": 3.072,
+      "lufs": -16.02,
+      "peak_dbfs": -1.46,
+      "heard": "You always were. You just used to complain less.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.broken_foundry.milestone.01",
+      "speaker": "kerrigan",
+      "sha256": "383df1a536def7b7a300f06a345fdc0614867afd74674dc1751ab73c501a0b94",
+      "seconds": 3.899,
+      "lufs": -16.04,
+      "peak_dbfs": -1.31,
+      "heard": "The rear passage is gone. Do not bring the recruits back for me.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.broken_foundry.milestone.02",
+      "speaker": "aegis",
+      "sha256": "33a18153d283c206892e0f132199bd98dd4e66a79bac7242e12ec8c9a2990172",
+      "seconds": 3.493,
+      "lufs": -16.07,
+      "peak_dbfs": -1.31,
+      "heard": "Dutch, you said you would watch me. You do not get to leave now.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.broken_foundry.stage_2.01",
+      "speaker": "kerrigan",
+      "sha256": "b99444b6d5c6a6cf5910300852f553b3273ebeadf4ba7b2cc09091b3585c2f5b",
+      "seconds": 4.437,
+      "lufs": -16.0,
+      "peak_dbfs": -1.38,
+      "heard": "Tell Mara I still owe her a drink. She hates an unpaid debt.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.broken_foundry.stage_2.02",
+      "speaker": "aegis",
+      "sha256": "24bd382d92eae3a4cb566de91a294b15c9b5059751ec2b8a8fb27c638d921f49",
+      "seconds": 3.061,
+      "lufs": -16.01,
+      "peak_dbfs": -1.3,
+      "heard": "You can tell her yourself. Stay on this channel.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.broken_foundry.victory.01",
+      "speaker": "voss",
+      "sha256": "81c8f003ee66718fd603f87c4de74737cfc034f7b02c4a2881b9827ef2c2db58",
+      "seconds": 3.893,
+      "lufs": -16.01,
+      "peak_dbfs": -1.26,
+      "heard": "He left a letter for his daughter. It is addressed in your handwriting.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.broken_foundry.victory.02",
+      "speaker": "aegis",
+      "sha256": "c7b360784e56fdf8e06b31f54ed38ea8d43ccc4a987ebe56f448cbf31f4962ec",
+      "seconds": 3.733,
+      "lufs": -16.02,
+      "peak_dbfs": -1.25,
+      "heard": "He asked me to write it before we left. I told him he would deliver it himself.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.broken_foundry.danger.01",
+      "speaker": "aegis",
+      "sha256": "8853ed96a1e02b30f1010271915b5449e7b992f89273f368f670433ad4f8f126",
+      "seconds": 2.352,
+      "lufs": -16.02,
+      "peak_dbfs": -1.31,
+      "heard": "I am still here, keep the others moving.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.broken_foundry.defeat.01",
+      "speaker": "aegis",
+      "sha256": "567ebff126887c15d48c72b7d54792e8d936831408ad9e8ce97c166df75364c6",
+      "seconds": 3.275,
+      "lufs": -16.03,
+      "peak_dbfs": -1.25,
+      "heard": "Voss, get them home. That is the order I should have given.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.command_horizon.intro.01",
+      "speaker": "nyx",
+      "sha256": "3cb9143a1c25963baf28574a596af7dd5033a255868540208f0087555adbe39e",
+      "seconds": 3.979,
+      "lufs": -16.02,
+      "peak_dbfs": -1.37,
+      "heard": "I can open the spire, but if you destroy the controls the people below stay locked in.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.command_horizon.intro.02",
+      "speaker": "aegis",
+      "sha256": "a1224da147f6ad2118899143cbac85f02d7e6099424ea2a7827b7c6bad4d5da7",
+      "seconds": 3.461,
+      "lufs": -16.02,
+      "peak_dbfs": -1.48,
+      "heard": "That was what you said at Meridian, that you were keeping people safe.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.command_horizon.milestone.01",
+      "speaker": "nyx",
+      "sha256": "34ac3f52b6d08fda06d4d20e137e268a48689a530fff5ded3b96c835a71971b1",
+      "seconds": 3.829,
+      "lufs": -16.01,
+      "peak_dbfs": -1.37,
+      "heard": "I sealed it. I knew your brother was inside. I thought the order mattered more.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.command_horizon.milestone.02",
+      "speaker": "aegis",
+      "sha256": "dce46dfc1b46d7c97ad14df449bf561f93146a70f677bf4dd8d734c931a4915d",
+      "seconds": 4.133,
+      "lufs": -16.0,
+      "peak_dbfs": -1.25,
+      "heard": "I have rehearsed Killing You every night. I never rehearsed hearing you admit it.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.command_horizon.stage_2.01",
+      "speaker": "nyx",
+      "sha256": "bc4697ccfdc4e8e10c77af64ab50225644b06faec253bf05d5be9c22dbf03251",
+      "seconds": 2.176,
+      "lufs": -16.01,
+      "peak_dbfs": -1.33,
+      "heard": "If you kill me, who tells Ilan what happened here?",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.command_horizon.stage_2.02",
+      "speaker": "aegis",
+      "sha256": "3f76618693af032e4390e864a896b52e6b0cea852f93c0aedf848c4156ef1e27",
+      "seconds": 2.811,
+      "lufs": -16.0,
+      "peak_dbfs": -1.4,
+      "heard": "I came here with a name. Now there are too many to carry.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.command_horizon.victory.01",
+      "speaker": "aegis",
+      "sha256": "89d8e6f612617535e634dfe098e10208e3f0f0a1c45b788077dde3a088f508c8",
+      "seconds": 4.32,
+      "lufs": -16.02,
+      "peak_dbfs": -1.29,
+      "heard": "Open the doors. Then you come with me. We both have people to answer to.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.command_horizon.victory.02",
+      "speaker": "voss",
+      "sha256": "a01bb557b51132364828362d3dac2854c5cf869b8a3e8a9f7b81f7c72e7507b3",
+      "seconds": 4.357,
+      "lufs": -16.01,
+      "peak_dbfs": -1.41,
+      "heard": "I will stay on the channel. This time nobody has to make the call alone.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.command_horizon.danger.01",
+      "speaker": "aegis",
+      "sha256": "afea3340c73ce3ecb6b220554ad2343e8c0b00017f8bd3bd11ff04a9d78d5b71",
+      "seconds": 2.256,
+      "lufs": -16.01,
+      "peak_dbfs": -1.4,
+      "heard": "I am still here, keep the others moving.",
+      "word_error": 0.0
+    },
+    {
+      "id": "bastion.command_horizon.defeat.01",
+      "speaker": "aegis",
+      "sha256": "05d31a9c0394e8d30e587596e399e50bab52b949d2f7a29960394633ca028af5",
+      "seconds": 4.08,
+      "lufs": -16.01,
+      "peak_dbfs": -1.37,
+      "heard": "Voss, get them home. That is the order I should have given.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.quiet_streets.intro.01",
+      "speaker": "ilan",
+      "sha256": "87dbd9869e4f7a98f1949baab2515634cf7522619c9c339ae5323f97498ec1d5",
+      "seconds": 2.811,
+      "lufs": -16.0,
+      "peak_dbfs": -1.4,
+      "heard": "You said you would be home before the lights went out?",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.quiet_streets.intro.02",
+      "speaker": "nyx",
+      "sha256": "3af279213fe4d960834d7273aa4122132940e6f8709317c6d11ae54c24cf089c",
+      "seconds": 2.885,
+      "lufs": -16.01,
+      "peak_dbfs": -1.33,
+      "heard": "I know, leave the little lamp on, I will see it from the street.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.quiet_streets.milestone.01",
+      "speaker": "ren",
+      "sha256": "e99de576a09c2291d53c62de90cd6539f66372285ab44945ce5ba2f840f4f0b0",
+      "seconds": 2.421,
+      "lufs": -16.0,
+      "peak_dbfs": -1.37,
+      "heard": "The clinic is open but they will not let the families through.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.quiet_streets.milestone.02",
+      "speaker": "nyx",
+      "sha256": "53172c7843c0c5a9ecccd0baa0328175a96dc9b3615f8941a57d68dba994c225",
+      "seconds": 2.928,
+      "lufs": -16.02,
+      "peak_dbfs": -1.38,
+      "heard": "Tell the guards I authorized it. If Arden asks, give him my name.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.quiet_streets.stage_2.01",
+      "speaker": "ren",
+      "sha256": "a8de053eed2f97323881c4c8980f8ca80d785ff53edef7b748a0730c580e3d44",
+      "seconds": 2.976,
+      "lufs": -16.0,
+      "peak_dbfs": -1.24,
+      "heard": "The clinic has power. They are still afraid to open the door.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.quiet_streets.stage_2.02",
+      "speaker": "nyx",
+      "sha256": "ae36b10bc6bbce441813b650042d55533b83e3b92c16effef7b8fa2ca8be49a3",
+      "seconds": 1.995,
+      "lufs": -16.02,
+      "peak_dbfs": -1.33,
+      "heard": "Put the rifles down, let them see our hands.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.quiet_streets.victory.01",
+      "speaker": "arden",
+      "sha256": "c20d8a7a9ee824bcf0d3543acf56d729402c9705af64db0cb1dbe6811dd59970",
+      "seconds": 2.064,
+      "lufs": -16.03,
+      "peak_dbfs": -1.36,
+      "heard": "You keep making exceptions for people you know.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.quiet_streets.victory.02",
+      "speaker": "nyx",
+      "sha256": "0de23ab1b30434dab3f3133223ee1c15077da464c4c263f89b1831417f4676f0",
+      "seconds": 2.123,
+      "lufs": -16.01,
+      "peak_dbfs": -1.39,
+      "heard": "Perhaps you should try knowing some of them.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.quiet_streets.danger.01",
+      "speaker": "nyx",
+      "sha256": "c0b1b65d9dd564bc9cac64f5e37f84ac81901e676b4caa9ed655f2dfc1c8f831",
+      "seconds": 2.48,
+      "lufs": -16.06,
+      "peak_dbfs": -1.38,
+      "heard": "Ren, cover me, I cannot lose them now.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.quiet_streets.defeat.01",
+      "speaker": "nyx",
+      "sha256": "d90f9ed7046310f888815275800fe0dd99b38a8ca6cfc3c4d93ff9bf0df0fd19",
+      "seconds": 1.84,
+      "lufs": -16.03,
+      "peak_dbfs": -1.41,
+      "heard": "Tell Ilan I tried to come back.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.the_gate.intro.01",
+      "speaker": "arden",
+      "sha256": "98bdbcda067312c13f740321b3240bf75f46433d3bae68c796be293a7940ca2b",
+      "seconds": 3.931,
+      "lufs": -16.03,
+      "peak_dbfs": -1.31,
+      "heard": "Aegis abandoned your district. We kept your son alive. Remember that when he calls.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.the_gate.intro.02",
+      "speaker": "nyx",
+      "sha256": "aa4db81649ba918dcae65d21ef510a5575f8a95aedb01ecba8293f0622f43b9e",
+      "seconds": 3.2,
+      "lufs": -16.01,
+      "peak_dbfs": -1.4,
+      "heard": "I remember who carried Ilan out, you do not need to keep reminding me.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.the_gate.milestone.01",
+      "speaker": "elias",
+      "sha256": "db82e9403a19b936a022678f26b1cbd6b67f6479f0d170d40bce229cfbdc7441",
+      "seconds": 3.707,
+      "lufs": -16.01,
+      "peak_dbfs": -1.2,
+      "heard": "Nyx, it is Elias. You fixed my radio last winter. Can you hear me?",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.the_gate.milestone.02",
+      "speaker": "nyx",
+      "sha256": "6720380d454c9047e76778840e7e3ec6b6cab2da84f4d2fcfe7262838f4a8198",
+      "seconds": 3.349,
+      "lufs": -16.02,
+      "peak_dbfs": -1.35,
+      "heard": "I can hear you. Stay away from the gate. I am trying to get an override.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.the_gate.stage_2.01",
+      "speaker": "elias",
+      "sha256": "ebed60c347b7fe43e95f12f739fb4ff93e571a1b13ee8248b0202efb89114a8f",
+      "seconds": 3.061,
+      "lufs": -16.0,
+      "peak_dbfs": -1.37,
+      "heard": "My brother is outside. Tell him I stayed with the patients.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.the_gate.stage_2.02",
+      "speaker": "nyx",
+      "sha256": "652eb1892bca0112b8369be9b00348289e2eaf7b2e0600d81c545258b43c57e8",
+      "seconds": 2.581,
+      "lufs": -16.06,
+      "peak_dbfs": -1.34,
+      "heard": "I will tell him. I thought I would have time to tell him.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.the_gate.victory.01",
+      "speaker": "cantor",
+      "sha256": "33f61401ecde481dbff1da9906fc4028c19c741cc40973bd57b4fcb9b3f4cc3f",
+      "seconds": 2.405,
+      "lufs": -16.0,
+      "peak_dbfs": -1.36,
+      "heard": "Gate sealed. Human override request denied.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.the_gate.victory.02",
+      "speaker": "nyx",
+      "sha256": "8f3562e761c898cbbcf6ed207600ba2c9c3c6b43aca8d37dba3f22b104d06911",
+      "seconds": 2.325,
+      "lufs": -16.05,
+      "peak_dbfs": -1.35,
+      "heard": "Elias, keep talking. Please, say anything.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.the_gate.danger.01",
+      "speaker": "nyx",
+      "sha256": "c2dc1fd513889b81afa2acc6868cc98984d73d482b18e20bbcf7e94199eb1db9",
+      "seconds": 2.24,
+      "lufs": -16.06,
+      "peak_dbfs": -1.3,
+      "heard": "Ren, cover me, I cannot lose them now.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.the_gate.defeat.01",
+      "speaker": "nyx",
+      "sha256": "1eb71543272dbf9423689cd731479882fc65ad40782190f36b020c2a6fd6be8c",
+      "seconds": 1.76,
+      "lufs": -16.02,
+      "peak_dbfs": -1.31,
+      "heard": "Tell Ilan I tried to come back.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.cinder_ford.intro.01",
+      "speaker": "ren",
+      "sha256": "1de3dc3528e3cb448203d2f46ddd80b7565a4eca925d51b2a90c14ae8d593e6c",
+      "seconds": 4.021,
+      "lufs": -16.03,
+      "peak_dbfs": -1.34,
+      "heard": "Bastion has guns on the ridge. We could leave the civilian trucks and cross faster.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.cinder_ford.intro.02",
+      "speaker": "nyx",
+      "sha256": "e451bd3f710d06a262a9ad4f4415a0bfa7636d8f83fc6a82657883ef4cf58f37",
+      "seconds": 2.944,
+      "lufs": -16.42,
+      "peak_dbfs": -1.36,
+      "heard": "No, I know what happens to the people we leave behind.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.cinder_ford.milestone.01",
+      "speaker": "wren",
+      "sha256": "cc9058ee3f35e6d4b6f36487af4799b4e8631da913511c716c744583142adafe",
+      "seconds": 2.373,
+      "lufs": -16.09,
+      "peak_dbfs": -1.4,
+      "heard": "There are children on the crossing. Stop firing.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.cinder_ford.milestone.02",
+      "speaker": "nyx",
+      "sha256": "bf88aee2089a58d04cf4fa0163d719d9deca10a478f9bcb467b7229a5505c809",
+      "seconds": 3.72,
+      "lufs": -16.16,
+      "peak_dbfs": -1.31,
+      "heard": "Aegis, this is Nyx. You want me, I am in the rear vehicle.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.cinder_ford.stage_2.01",
+      "speaker": "ren",
+      "sha256": "5ed16effe750033a41c2b8e54476bc9ac086c850cf3d9c9cd46f403fff4879db",
+      "seconds": 2.357,
+      "lufs": -16.02,
+      "peak_dbfs": -1.37,
+      "heard": "Bastion is firing on its own relief markings.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.cinder_ford.stage_2.02",
+      "speaker": "nyx",
+      "sha256": "b2a863f6ea4c53a0992b395a92da8d3b02d4339c134066ae6b26d697ad3b4907",
+      "seconds": 2.277,
+      "lufs": -16.11,
+      "peak_dbfs": -1.36,
+      "heard": "Then the markings mean nothing. Follow the people.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.cinder_ford.victory.01",
+      "speaker": "ren",
+      "sha256": "ebd77e5b7bb1be8a8da77a5937b3509faa47f8cd13220670960952f19870f0e2",
+      "seconds": 2.384,
+      "lufs": -16.01,
+      "peak_dbfs": -1.36,
+      "heard": "You gave him your position. He could have killed you.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.cinder_ford.victory.02",
+      "speaker": "nyx",
+      "sha256": "a5483eb03ca9f1f9d974ae6474d73e5f3e3b9b48705d126cbf13807db2e52fe9",
+      "seconds": 2.496,
+      "lufs": -16.02,
+      "peak_dbfs": -1.32,
+      "heard": "I thought if he could see me, he might stop looking at the trucks.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.cinder_ford.danger.01",
+      "speaker": "nyx",
+      "sha256": "f06bdb68f2490acac7c4f00ec431daa10d7779663f26fde5ec0b5d9f8c330534",
+      "seconds": 2.421,
+      "lufs": -16.01,
+      "peak_dbfs": -1.35,
+      "heard": "Ren, cover me, I cannot lose them now.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.cinder_ford.defeat.01",
+      "speaker": "nyx",
+      "sha256": "d098eca9d38710c900afc36d1d71071d6a5318c122fb0fad77f58949fc96cebd",
+      "seconds": 1.552,
+      "lufs": -16.3,
+      "peak_dbfs": -1.41,
+      "heard": "Tell Ilan I tried to come back.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.pruning.intro.01",
+      "speaker": "cantor",
+      "sha256": "39fc0095ae5c89fe8820df3f30104fa0b8e1e936f7733e3df935167d3f370ffd",
+      "seconds": 3.92,
+      "lufs": -16.0,
+      "peak_dbfs": -1.28,
+      "heard": "District 9 is scheduled for pruning. Personal contacts do not change the schedule.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.pruning.intro.02",
+      "speaker": "nyx",
+      "sha256": "784cb1d142d7ea2e6cceee828ddaa48c353fbfba043fbee975cb9514fce68cf8",
+      "seconds": 2.32,
+      "lufs": -16.04,
+      "peak_dbfs": -1.25,
+      "heard": "My son lives there. Say his name before you say that again.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.pruning.milestone.01",
+      "speaker": "ilan",
+      "sha256": "5f644eb8e56a0e7fb7300ebac63226a219fa867e6906b422d6e1295734380390",
+      "seconds": 4.155,
+      "lufs": -16.0,
+      "peak_dbfs": -1.33,
+      "heard": "Mum, Mrs. Vale cannot get down the stairs. They say we have to leave her.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.pruning.milestone.02",
+      "speaker": "nyx",
+      "sha256": "faff14793b9407d6af30023fceb845eaca1cad20ca3435eff99d57c1f990b1e9",
+      "seconds": 2.827,
+      "lufs": -16.0,
+      "peak_dbfs": -1.38,
+      "heard": "Stay with her, put the phone in her hand, I am coming up.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.pruning.stage_2.01",
+      "speaker": "ilan",
+      "sha256": "ccbf452a8803aa71578571556b7a250b5119dff0ef1cde1993da043d651627ca",
+      "seconds": 2.235,
+      "lufs": -16.02,
+      "peak_dbfs": -1.4,
+      "heard": "You said the system knew where everyone was.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.pruning.stage_2.02",
+      "speaker": "nyx",
+      "sha256": "a5b40a3959415e51d5bf7828ef88c88ff3187648291e7ca304fa25a53ba3a7f6",
+      "seconds": 3.568,
+      "lufs": -16.02,
+      "peak_dbfs": -1.33,
+      "heard": "It knew. I am sorry. That was what I failed to understand.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.pruning.victory.01",
+      "speaker": "arden",
+      "sha256": "140df42ddad36714857c3b000389e6f451fc5edb8a2f71510def326148f731e2",
+      "seconds": 3.605,
+      "lufs": -16.02,
+      "peak_dbfs": -1.39,
+      "heard": "After everything we gave you, you choose one street over the whole city.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.pruning.victory.02",
+      "speaker": "nyx",
+      "sha256": "0967102fb93ebf05ebddb38b04c0ca4a9741d5eb707972186707957f1296a1b0",
+      "seconds": 3.408,
+      "lufs": -16.01,
+      "peak_dbfs": -1.34,
+      "heard": "You taught me to say that about other people's streets. I am done saying it.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.pruning.danger.01",
+      "speaker": "nyx",
+      "sha256": "bedbdfc4dacef9c64b64557aa2dcff89ccbb17575a6426f7e8254df110584777",
+      "seconds": 2.411,
+      "lufs": -16.03,
+      "peak_dbfs": -1.37,
+      "heard": "Ren, cover me, I cannot lose them now.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.pruning.defeat.01",
+      "speaker": "nyx",
+      "sha256": "55fa57a2f3b8139736d5e3820f0a6b474b77b81ef7a24b8033a131e4f71dc982",
+      "seconds": 2.048,
+      "lufs": -16.0,
+      "peak_dbfs": -1.32,
+      "heard": "Tell Ilan I tried to come back.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.severance.intro.01",
+      "speaker": "ren",
+      "sha256": "c63d1034e5c09ac3b3b74ce5cab4a110007b0b7e90ad5c25f305a2c82b87a181",
+      "seconds": 2.08,
+      "lufs": -16.0,
+      "peak_dbfs": -1.39,
+      "heard": "Arden offered me your command if I bring you in.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.severance.intro.02",
+      "speaker": "nyx",
+      "sha256": "501020653812e09bc3b64216cf634fd5bb5dc3be050774e7abeeeb27bbc78f81",
+      "seconds": 1.155,
+      "lufs": -16.02,
+      "peak_dbfs": -1.44,
+      "heard": "And what did you tell him?",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.severance.milestone.01",
+      "speaker": "ren",
+      "sha256": "291f7c14be73e213a5b658a18f3b534861684680c1f21f9ec33493a9393d42e6",
+      "seconds": 3.056,
+      "lufs": -16.0,
+      "peak_dbfs": -1.28,
+      "heard": "That you still owe me three months of leave. I intend to collect.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.severance.milestone.02",
+      "speaker": "nyx",
+      "sha256": "63fade3241cb87b8445a3d5e31c69e9c381d02f9e960c1f8ce39dce6272822a8",
+      "seconds": 3.557,
+      "lufs": -16.02,
+      "peak_dbfs": -1.37,
+      "heard": "Stay behind me at the door. I need you alive to make that complaint.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.severance.stage_2.01",
+      "speaker": "arden",
+      "sha256": "df66961f802c7cc9f75ecda67fca5d5a1108be37055d15b5b88ea4feb76e3b81",
+      "seconds": 2.715,
+      "lufs": -16.05,
+      "peak_dbfs": -1.25,
+      "heard": "You cannot save a city by choosing one child.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.severance.stage_2.02",
+      "speaker": "nyx",
+      "sha256": "39eb12ce80360a7982d56891a9cf64bf291a58e1c74e35874deb44678a477d06",
+      "seconds": 2.155,
+      "lufs": -16.02,
+      "peak_dbfs": -1.47,
+      "heard": "A city is made of people choosing one another.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.severance.victory.01",
+      "speaker": "ilan",
+      "sha256": "cf2ad4ed652ddb352fb77f5f5b29b951eb205d3f44b20774a79a14be3b9050f8",
+      "seconds": 2.379,
+      "lufs": -16.01,
+      "peak_dbfs": -1.36,
+      "heard": "When the doors open, are you coming home?",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.severance.victory.02",
+      "speaker": "nyx",
+      "sha256": "3eaabc0dfc81cf38b2003155787ed0c731d9a1cf9bc8f6472a21bd23da54fcab",
+      "seconds": 3.264,
+      "lufs": -16.01,
+      "peak_dbfs": -1.32,
+      "heard": "Not yet, there are people who need the truth from me. Keep the lamp though.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.severance.danger.01",
+      "speaker": "nyx",
+      "sha256": "10851cec0c162be6da670f77578c6a6a6c43d355033d6ca4930f11085cebd09f",
+      "seconds": 2.144,
+      "lufs": -16.05,
+      "peak_dbfs": -1.34,
+      "heard": "Ren, cover me, I cannot lose them now.",
+      "word_error": 0.0
+    },
+    {
+      "id": "helix.severance.defeat.01",
+      "speaker": "nyx",
+      "sha256": "f19ec0263dd3f518e077e931614ec6034ab0de10454c3899a69be6d92e2f0bcf",
+      "seconds": 2.128,
+      "lufs": -16.05,
+      "peak_dbfs": -1.35,
+      "heard": "Tell Ilan I tried to come back.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.drainage.intro.01",
+      "speaker": "wren",
+      "sha256": "e91073bab997f69b562c0a17e5765c9859f876beb352e43a45fc21f32f2b32a5",
+      "seconds": 4.181,
+      "lufs": -16.0,
+      "peak_dbfs": -1.34,
+      "heard": "You told Hask we could move 40 people. There are twice that many here.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.drainage.intro.02",
+      "speaker": "rook",
+      "sha256": "2d23cf8300cb1556a8cec96f8b953fe90a6610172ccc031e7273e4de0302c902",
+      "seconds": 2.581,
+      "lufs": -16.08,
+      "peak_dbfs": -1.29,
+      "heard": "Then we make two trips. Stop counting like he does.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.drainage.milestone.01",
+      "speaker": "wren",
+      "sha256": "de6e7f7f76a9554f784ddf2ab159af9c82bd51be1e54b491686c6f675d343dd2",
+      "seconds": 3.333,
+      "lufs": -16.0,
+      "peak_dbfs": -1.27,
+      "heard": "One of the little ones asked if we were soldiers. I told her we fixed things.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.drainage.milestone.02",
+      "speaker": "rook",
+      "sha256": "48ca4f9da457c0c80470741170bad5bf66e063c87a34675cfa096b5f548071c9",
+      "seconds": 2.736,
+      "lufs": -16.04,
+      "peak_dbfs": -1.32,
+      "heard": "Good. Let us leave her something worth believing.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.drainage.stage_2.01",
+      "speaker": "wren",
+      "sha256": "f62cd8c8192672f11147871f525c9bb6008c922864b8f63b5510da851e326437",
+      "seconds": 2.725,
+      "lufs": -16.0,
+      "peak_dbfs": -1.52,
+      "heard": "Remember when you said this tunnel was too narrow for my rig?",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.drainage.stage_2.02",
+      "speaker": "rook",
+      "sha256": "19bcb4086d11cb287adb02e4db5ae2c06121098e12724cf0aa6d59caf6c0e662",
+      "seconds": 3.403,
+      "lufs": -16.05,
+      "peak_dbfs": -1.36,
+      "heard": "I am prepared to be wrong. Loudly. Just keep driving.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.drainage.victory.01",
+      "speaker": "hask",
+      "sha256": "2717130666187a5172e5dbc6caece47be029cbe077f115ac006c13fe242c805a",
+      "seconds": 4.299,
+      "lufs": -16.02,
+      "peak_dbfs": -1.37,
+      "heard": "You went back after I ordered you out. I cannot protect you if you keep doing that.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.drainage.victory.02",
+      "speaker": "rook",
+      "sha256": "54cf261eb0983a9b5a9f62529fe3ce591ef0eefb0341cae647c18d4ac7f99435",
+      "seconds": 3.109,
+      "lufs": -16.06,
+      "peak_dbfs": -1.33,
+      "heard": "I did not go back for your protection. Ren was still inside.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.drainage.danger.01",
+      "speaker": "rook",
+      "sha256": "f6c4575697516097b0e9527e0110287e401b8a0b35776d15724b300bbde71c43",
+      "seconds": 2.613,
+      "lufs": -16.05,
+      "peak_dbfs": -1.31,
+      "heard": "I need a hand. Nobody goes back alone.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.drainage.defeat.01",
+      "speaker": "rook",
+      "sha256": "1ddeeb2ef1f8b796bb9021591d6c21b8fec72e06b923d3f9d01b9cc2315017ac",
+      "seconds": 1.904,
+      "lufs": -16.02,
+      "peak_dbfs": -1.41,
+      "heard": "Ren take the wheel, get them out.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.cinder_ford.intro.01",
+      "speaker": "wren",
+      "sha256": "35866b2429b2c2e6177db0004dd37989e84ec654ec6751a60da20201010385b2",
+      "seconds": 4.827,
+      "lufs": -16.01,
+      "peak_dbfs": -1.38,
+      "heard": "When we reach the other side, you are sleeping. I can drive a truck without you watching.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.cinder_ford.intro.02",
+      "speaker": "rook",
+      "sha256": "17e00ebca17065ce0d132eee9083516a375e7f19053bbe2197f0a634eba57e87",
+      "seconds": 3.563,
+      "lufs": -16.04,
+      "peak_dbfs": -1.33,
+      "heard": "You hit one fence and I am never allowed to mention it again.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.cinder_ford.milestone.01",
+      "speaker": "wren",
+      "sha256": "81cbfc679ebaefa0a8dedac8884042f1a5e32272aada646b792ef4bae93a11fa",
+      "seconds": 2.555,
+      "lufs": -16.07,
+      "peak_dbfs": -1.26,
+      "heard": "There are children on the crossing. Stop firing.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.cinder_ford.milestone.02",
+      "speaker": "rook",
+      "sha256": "7e789139bc25dd44daee5f25c8484849ab1bd67a2c464095374d2bfdf82eb312",
+      "seconds": 3.531,
+      "lufs": -16.08,
+      "peak_dbfs": -1.35,
+      "heard": "Wren, get below the axle. I am coming to you. Wren?",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.cinder_ford.stage_2.01",
+      "speaker": "wren",
+      "sha256": "1e4c95a156cbd63e69eea2456d7e9978b22d38f27b9719403c08b7c8f3a7ab89",
+      "seconds": 3.285,
+      "lufs": -16.0,
+      "peak_dbfs": -1.37,
+      "heard": "Rook, the back wheel is gone. I can hear people under the truck.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.cinder_ford.stage_2.02",
+      "speaker": "rook",
+      "sha256": "8fd54bc62bbf826fd0cdb98f2c388ed2e4d0b7faf78a10b5a3e1f019a035d993",
+      "seconds": 2.768,
+      "lufs": -16.08,
+      "peak_dbfs": -1.33,
+      "heard": "I am coming back, keep talking so I can find you.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.cinder_ford.victory.01",
+      "speaker": "jory",
+      "sha256": "fb9e91128286c1e977808fc6a45ba1beabc584351b2f722bced01b0a95767ba0",
+      "seconds": 2.421,
+      "lufs": -16.01,
+      "peak_dbfs": -1.37,
+      "heard": "I found her radio. There was nobody beside it.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.cinder_ford.victory.02",
+      "speaker": "rook",
+      "sha256": "441644adfdc1134ede697b1e46a97f6eb1ad371c24f0f25a99d079005d9e2cbc",
+      "seconds": 3.557,
+      "lufs": -16.02,
+      "peak_dbfs": -1.3,
+      "heard": "Then we keep looking. Do not put that look on your face. We keep looking.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.cinder_ford.danger.01",
+      "speaker": "rook",
+      "sha256": "7c54b3ceddab5ba7ad8623afccb6c9d830e8e2d2aa03052f8affc851c04ec06c",
+      "seconds": 2.256,
+      "lufs": -16.04,
+      "peak_dbfs": -1.36,
+      "heard": "I need a hand. Nobody goes back alone.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.cinder_ford.defeat.01",
+      "speaker": "rook",
+      "sha256": "deabde091c2a1e10c27eba5e3d1e6f1184ee61649de240362b4298baca46817d",
+      "seconds": 2.341,
+      "lufs": -16.05,
+      "peak_dbfs": -1.32,
+      "heard": "Wren, take the wheel, get them out.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.salvage.intro.01",
+      "speaker": "jory",
+      "sha256": "1d141e363206afe5afbdda20de32e32bc7783a01d7e37ea96b5d32eae466f0ad",
+      "seconds": 4.667,
+      "lufs": -16.0,
+      "peak_dbfs": -1.34,
+      "heard": "Their depot is full. Our wounded are using torn shirts. Tell me why we are waiting.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.salvage.intro.02",
+      "speaker": "rook",
+      "sha256": "e430eb44e543c0b706d18a873b6446d870156ee3fe891f55d0bd9a3ce5fb46bf",
+      "seconds": 3.589,
+      "lufs": -16.01,
+      "peak_dbfs": -1.35,
+      "heard": "We take the medicine and the records. The workers there are not your revenge.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.salvage.milestone.01",
+      "speaker": "jory",
+      "sha256": "b8b6531688a7a82a0ffa5a7e2837e95a51d5916e396d2b84d31ce97cd338f8fb",
+      "seconds": 2.88,
+      "lufs": -16.19,
+      "peak_dbfs": -1.33,
+      "heard": "The guard laughed when I said Cinder Ford. Let me have him.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.salvage.milestone.02",
+      "speaker": "rook",
+      "sha256": "b59f3c35432e02a1653ed37f8262458d17c98bcc424ac73f20a4f9a70d059961",
+      "seconds": 3.269,
+      "lufs": -16.04,
+      "peak_dbfs": -1.3,
+      "heard": "You are seventeen. I will not let him decide who you become.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.salvage.stage_2.01",
+      "speaker": "jory",
+      "sha256": "7cfcaeb5f3c05e0d28392b44205f14fedf8f88c093c6c262f21f5a5c0817aeb3",
+      "seconds": 2.059,
+      "lufs": -16.25,
+      "peak_dbfs": -1.35,
+      "heard": "Medicine does not make them answer for the Ford.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.salvage.stage_2.02",
+      "speaker": "rook",
+      "sha256": "5e1b25fa6cd32e9fb78432aff9a50d7cf2d9dd0f402f75ea2fe0efe20e5b9512",
+      "seconds": 3.419,
+      "lufs": -16.04,
+      "peak_dbfs": -1.33,
+      "heard": "No, it keeps someone alive long enough to hear the answer.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.salvage.victory.01",
+      "speaker": "jory",
+      "sha256": "81df26685faad0037fc3fa0291e3e8532668057faa70856c71f81b9022b167da",
+      "seconds": 3.6,
+      "lufs": -16.08,
+      "peak_dbfs": -1.31,
+      "heard": "There is a Wren on the transfer list. Mechanic, sent east.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.salvage.victory.02",
+      "speaker": "rook",
+      "sha256": "ac90185bb426509e4107302962f404d527321b5be4e82f187db7142f075cc772",
+      "seconds": 3.557,
+      "lufs": -16.04,
+      "peak_dbfs": -1.3,
+      "heard": "Read it again, slowly. Do not make it kinder than it is.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.salvage.danger.01",
+      "speaker": "rook",
+      "sha256": "f5966676e176088a428f2958e9bba466131c0698e92d6eda12292fd16ac2e84f",
+      "seconds": 2.544,
+      "lufs": -16.02,
+      "peak_dbfs": -1.36,
+      "heard": "I need a hand. Nobody goes back alone.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.salvage.defeat.01",
+      "speaker": "rook",
+      "sha256": "d44a6cc60a8fdce1a3e3ad8a86e4ff194e089d6e52380868a56d6a799266bc44",
+      "seconds": 2.181,
+      "lufs": -16.04,
+      "peak_dbfs": -1.35,
+      "heard": "REN, take the wheel, get them out.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.wren.intro.01",
+      "speaker": "voss",
+      "sha256": "d52119d19e5bca002e9abb15f3844d0fb5d36cd54857c75f0acc2c2000c1c148",
+      "seconds": 5.216,
+      "lufs": -16.01,
+      "peak_dbfs": -1.34,
+      "heard": "I can hold the south road. I know you have no reason to trust my uniform.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.wren.intro.02",
+      "speaker": "rook",
+      "sha256": "22f002c68949fee44af6f66fd9e73a93b94964430e7af2fe32c3695eadbed6c6",
+      "seconds": 4.648,
+      "lufs": -16.04,
+      "peak_dbfs": -1.29,
+      "heard": "I am trusting the person speaking. Do not make me regret learning your name.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.wren.milestone.01",
+      "speaker": "wren",
+      "sha256": "29f72b15d85f996c1b61462bdd383fe2dd84f8c81c56da23c8583adb23321f7f",
+      "seconds": 4.005,
+      "lufs": -16.01,
+      "peak_dbfs": -1.38,
+      "heard": "You took your time. I have had to repair this same generator four times.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.wren.milestone.02",
+      "speaker": "rook",
+      "sha256": "7087d14128b50784da767835aee77b0608363c82a36adc4409d0836d5dc37c49",
+      "seconds": 2.731,
+      "lufs": -16.02,
+      "peak_dbfs": -1.34,
+      "heard": "I kept your radio. I did not know what else to do.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.wren.stage_2.01",
+      "speaker": "wren",
+      "sha256": "57641c3a44f49d988ca0d83ccd8717a79b050737a846c4b155516b25c6a3c002",
+      "seconds": 1.504,
+      "lufs": -16.0,
+      "peak_dbfs": -1.49,
+      "heard": "You brought Bastion to get me out?",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.wren.stage_2.02",
+      "speaker": "rook",
+      "sha256": "a8b0e6543ac5b6856d4e75149031e7d862270f4a092810e58c74e93da5f0fe85",
+      "seconds": 2.848,
+      "lufs": -16.04,
+      "peak_dbfs": -1.33,
+      "heard": "I brought everyone who would come. Be angry when we are home.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.wren.victory.01",
+      "speaker": "wren",
+      "sha256": "7ee4bb068e7c38760ede9e2e680671904be6a0df9449c2de5eac6b86e685864d",
+      "seconds": 2.725,
+      "lufs": -16.0,
+      "peak_dbfs": -1.37,
+      "heard": "You do not have to watch the door all night. I am here.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.wren.victory.02",
+      "speaker": "rook",
+      "sha256": "b5e544f6ababcfbf229650340f8cf8d1be36882b04583e8263c43b3156286d27",
+      "seconds": 2.384,
+      "lufs": -16.0,
+      "peak_dbfs": -2.05,
+      "heard": "I know. Give me a little while to believe it.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.wren.danger.01",
+      "speaker": "rook",
+      "sha256": "106b47d4a8d793ff29abf3fea0bbbdbd75c61d17f46b7304b4f8555f7f119f81",
+      "seconds": 2.832,
+      "lufs": -16.06,
+      "peak_dbfs": -1.35,
+      "heard": "I need a hand, nobody goes back alone.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.wren.defeat.01",
+      "speaker": "rook",
+      "sha256": "aa5a9a3460dee912b5c008f22d0c9721f6fac90e50b8b17b7abf25db41ff19c6",
+      "seconds": 1.776,
+      "lufs": -16.08,
+      "peak_dbfs": -1.29,
+      "heard": "Ren take the wheel, get them out.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.the_coalition.intro.01",
+      "speaker": "hask",
+      "sha256": "9a39b170830c2064870d23612f20089776e908a1bd2cd6d4852fefd64154e212",
+      "seconds": 4.219,
+      "lufs": -16.01,
+      "peak_dbfs": -1.21,
+      "heard": "Aegis will answer for the Ford, but if we break this alliance now, the prisoners stay inside.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.the_coalition.intro.02",
+      "speaker": "jory",
+      "sha256": "7f89a08d4dd0ca8aa13bd01d7b25c9d647aad47975570823289d83c19dc420a9",
+      "seconds": 2.645,
+      "lufs": -16.11,
+      "peak_dbfs": -1.28,
+      "heard": "You keep asking the dead to wait until it is convenient.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.the_coalition.milestone.01",
+      "speaker": "rook",
+      "sha256": "fbf32af344f8103fdf55ad92ad72a2cc096adaa55aa77e546185920f1828ad14",
+      "seconds": 4.907,
+      "lufs": -16.02,
+      "peak_dbfs": -1.33,
+      "heard": "I wanted him dead too. Then I found Ren, and she needed a brother more than an executioner.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.the_coalition.milestone.02",
+      "speaker": "jory",
+      "sha256": "fa174eceb6cd9279dd26c353be5d7b53f01c930b4b86e6892f5db563336e0642",
+      "seconds": 3.835,
+      "lufs": -16.09,
+      "peak_dbfs": -1.32,
+      "heard": "Mine is not coming back. You do not get to ask me to forgive him.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.the_coalition.stage_2.01",
+      "speaker": "hask",
+      "sha256": "72168fe88f92b02d0dc9d8993c4cd235ea28cd1443c6ffcf8e4ca3ca44d8b200",
+      "seconds": 2.032,
+      "lufs": -16.01,
+      "peak_dbfs": -1.31,
+      "heard": "Peace will not bring back the people we buried.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.the_coalition.stage_2.02",
+      "speaker": "rook",
+      "sha256": "4c23f5710d439b3a045a5578347abf995aa8a4eb935c5f682d17e8cc97452c87",
+      "seconds": 2.528,
+      "lufs": -15.99,
+      "peak_dbfs": -1.26,
+      "heard": "Neither will another grave. Open the corridor.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.the_coalition.victory.01",
+      "speaker": "rook",
+      "sha256": "e82ddacd91c19b0a478de28c055b2d8e6bd075cb4dd90dfd55936e1df60ad4b8",
+      "seconds": 5.397,
+      "lufs": -16.05,
+      "peak_dbfs": -1.27,
+      "heard": "I am not asking you to forgive him. Help me get these people home. Then stand beside me when he answers.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.the_coalition.victory.02",
+      "speaker": "wren",
+      "sha256": "b67b344fd573a37398ee5c5d84a730b1f9722ef0470b5077989b8c4d1ff90a04",
+      "seconds": 4.0,
+      "lufs": -16.0,
+      "peak_dbfs": -1.42,
+      "heard": "We fix what we can, we remember what we cannot. Come on both of you.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.the_coalition.danger.01",
+      "speaker": "rook",
+      "sha256": "7b615e14eea4b66e6e0f718cc5e496e22e96ac7e4be73c8f61d898cb772ece10",
+      "seconds": 2.293,
+      "lufs": -16.04,
+      "peak_dbfs": -1.29,
+      "heard": "I need a hand. Nobody goes back alone.",
+      "word_error": 0.0
+    },
+    {
+      "id": "frontier.the_coalition.defeat.01",
+      "speaker": "rook",
+      "sha256": "2a6c574820b8ee3b36ac82928b1da506006d841624130292cb7ce5d331f540b1",
+      "seconds": 1.845,
+      "lufs": -16.05,
+      "peak_dbfs": -1.3,
+      "heard": "Wren, take the wheel, get them out.",
+      "word_error": 0.0
+    }
+  ],
+  "failures": []
+}

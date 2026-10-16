@@ -99,7 +99,10 @@ func _ready():
 
 
 func receive_weapon_hit(source):
-	var amount = load("res://source/match/combat/CombatRules.gd").damage(source, self)
+	receive_damage(source, load("res://source/match/combat/CombatRules.gd").damage(source, self))
+
+
+func receive_damage(source, amount):
 	if amount > 0:
 		last_enemy_damage_time = _match.simulation_time
 		_match.combat_effects.impact(self, source, global_position + Vector3.UP * 0.5)

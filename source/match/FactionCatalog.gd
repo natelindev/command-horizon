@@ -195,6 +195,22 @@ static func icon(faction, role):
 	)
 
 
+static func portrait(faction, role) -> Texture2D:
+	# Pre-rendered model portraits, shared by the selection bay, rosters and queues.
+	# A role without a faction portrait borrows the Bastion plate; otherwise none.
+	var paths = [Bastion.icon_path(role)]
+	if (
+		role in Bastion.INFANTRY_ROLES
+		or (faction == "frontier" and Frontier.MODELS.has(role))
+		or (faction == "helix" and HELIX_MODELS.has(role))
+	):
+		paths.push_front(icon(faction, role))
+	for path in paths:
+		if ResourceLoader.exists(path):
+			return load(path)
+	return null
+
+
 static func description(faction, role):
 	if role == "Hero":
 		return {
@@ -317,7 +333,10 @@ static func prepare_model(unit, faction):
 			load("res://source/match/units/traits/InfantryModel.gd").build(faction, unit.type)
 		)
 		unit.set_meta("model_faction", faction)
-	elif faction in ["helix", "frontier"]:
+	elif (
+		(faction == "helix" and HELIX_MODELS.has(unit.type))
+		or (faction == "frontier" and Frontier.MODELS.has(unit.type))
+	):
 		for child in geometry.get_children():
 			child.free()
 		geometry.add_child(model_geometry(faction, unit.type, unit.radius))

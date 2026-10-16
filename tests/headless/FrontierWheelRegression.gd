@@ -109,23 +109,23 @@ func _controlled(unit):
 		)
 	var forward = -unit.basis.z.normalized()
 	unit.position += forward * radius * PI / 2
-	visual._physics_process(.1)
+	visual._process(.1)
 	for index in drive.wheels.size():
 		_check(
 			_basis_close(_wheels(unit)[index].basis, before[index] * Basis(Vector3.RIGHT, -PI / 2)),
 			unit.type + ": quarter-circumference roll is wrong"
 		)
 	unit.position -= forward * radius * PI / 2
-	visual._physics_process(.1)
+	visual._process(.1)
 	_check(_same_poses(before, _poses(unit)), unit.type + ": reversing does not unwind roll")
 	unit.position += unit.basis.x * .1
-	visual._physics_process(.1)
+	visual._process(.1)
 	_check(_same_poses(before, _poses(unit)), unit.type + ": sideways crowd push spins wheels")
 	unit.position -= unit.basis.x * .1
-	visual._physics_process(.1)
+	visual._process(.1)
 	var angles = drive.wheels.map(func(wheel): return wheel.angle)
 	unit.rotate_y(.2)
-	visual._physics_process(.1)
+	visual._process(.1)
 	for index in drive.wheels.size():
 		var wheel = drive.wheels[index]
 		var roll = angle_difference(angles[index], wheel.angle)
@@ -134,19 +134,19 @@ func _controlled(unit):
 			unit.type + ": turn fails to roll opposite sides independently"
 		)
 	unit.rotate_y(-.2)
-	visual._physics_process(.1)
+	visual._process(.1)
 	_check(
 		_same_poses(before, _poses(unit)), unit.type + ": reciprocal turn accumulates roll drift"
 	)
 	for cycle in 1000:
 		unit.position += forward * .025
-		visual._physics_process(1.0 / 60)
+		visual._process(1.0 / 60)
 		unit.position -= forward * .025
-		visual._physics_process(1.0 / 60)
+		visual._process(1.0 / 60)
 	_check(_same_poses(before, _poses(unit)), unit.type + ": repeated reverse cycles drift")
 	var start_angles = drive.wheels.map(func(wheel): return wheel.angle)
 	unit.rotate_y(PI)
-	visual._physics_process(.1)
+	visual._process(.1)
 	for index in drive.wheels.size():
 		var wheel = drive.wheels[index]
 		var positive = (
@@ -168,18 +168,18 @@ func _controlled(unit):
 		drive.wheels[index].angle = start_angles[index]
 		drive.wheels[index].pivot.basis = before[index]
 	unit.position += Vector3(12, 0, 0)
-	visual._physics_process(1.0 / 60)
+	visual._process(1.0 / 60)
 	_check(_same_poses(before, _poses(unit)), unit.type + ": relocation creates wheel travel")
 	unit.transform = original
-	visual._physics_process(1.0 / 60)
+	visual._process(1.0 / 60)
 	visual._movement._has_destination = true
 	for frame in 120:
-		visual._physics_process(1.0 / 60)
+		visual._process(1.0 / 60)
 	_check(_same_poses(before, _poses(unit)), unit.type + ": blocked order spins wheels")
 	visual._movement._has_destination = false
 	visual.fire_recoil()
 	for frame in 600:
-		visual._physics_process(1.0 / 60)
+		visual._process(1.0 / 60)
 	_check(_same_poses(before, _poses(unit)), unit.type + ": recoil/idle body motion spins wheels")
 	_check(
 		(

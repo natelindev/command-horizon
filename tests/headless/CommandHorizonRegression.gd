@@ -209,6 +209,10 @@ func _play_horizon():
 		_track_air()
 		_reinforce_guard()
 		_keep_capturers()
+		if game.command_destroyed and game.opposition.boss_defeated and game.campaign_hero.alive():
+			var hero = game.campaign_hero.unit
+			if _idle(hero):
+				hero.issue_manual_order(moving.new(game.map.TARGET + Vector3(-10, 0, 0)))
 		if game.waves_sent == 4 and not assault_support_sent:
 			assault_support_sent = true
 			if challenge == "lean":

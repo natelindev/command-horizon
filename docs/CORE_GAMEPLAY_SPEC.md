@@ -290,6 +290,24 @@ Skirmish AI pays resources, uses queues, needs power and respects population. Th
 
 Story / Standard / Veteran initially change reaction delay (3 / 1.5 / 0.75 seconds), attack frequency and ability to coordinate one / two / three groups. HP and damage remain identical. The [global task coordinator](playtests/2026-10-04/AI_COORDINATION.md) shares that one/two/three budget across observed defense, assaults, field guards, relay captures and standalone reconnaissance. Defense preempts ordinary tasks; ordinary commitments last up to ninety seconds before an eligible waiting task can replace them. A retiring field task returns its harvesters with cargo before releasing its guards, unless defense or guard loss preempts protection. Assaults keep a three-member core and make surplus reinforcements available for other task slots; completed cargo returns can request fresh field protection. Scouts and healthy repair escorts attach to active tasks. Critical military recovery and individual economic/maintenance work retain their separate authority. Task membership, commitment age, selector position and returning engineers survive battle archives, including compatibility with older archives. A retired defender already at its regroup point drops the previous attack-move even when its movement agent is stopped; a distant defender moves home without repeated order replacement. [Task-handoff verification](playtests/2026-10-04/COORDINATION_HANDOFF.md) covers both factions, all three task budgets, archives and shared prepared-fire behavior. Campaign wave budgets can scale to 75% / 100% / 125% and are recorded in mission data. Any future income bonus must be disclosed in setup; no silent clairvoyance. Tactical pause is available at every initial difficulty.
 
+Skirmish setup offers Easy / Normal / Hard commanders (`SkirmishDifficulty.gd`); the level is stored with the battle archive and shown in setup, the battle header, the debrief and save-slot summaries. Normal is the reference commander described above. Levels change decisions only, never prices, gathering rates, health or damage:
+
+| | Easy | Normal | Hard |
+| --- | --- | --- | --- |
+| Decision interval | 3 s | 1.5 s | 0.75 s |
+| First wave / wave interval | 180 s / 100 s | 120 s / 65 s | 75 s / 40 s |
+| Task and raid-response groups | 1 | 2 | 3 |
+| Defenders per raid | 4 | 6 | 8 |
+| Engineers | 5 | 6 | 8 |
+| Optional building timings | ×1.35 | ×1 | ×1 |
+| Vehicle factories | 1 | 1 | 2 (from 210 s) |
+| Army | 3 units, +1 per 30 s, at most 14; waves of at most 6 | population limit | population limit |
+| Research | Coordination, Weapons I, Armor I after 8 guards | full path after 6 guards | full path after 4 guards |
+| Retreat for repair | never | below 30% health | below 40% health |
+| Unit programs / signature abilities | off | on | on |
+
+`tests/headless/SkirmishDifficultyRegression.gd` plays ten-minute standard openings at each level against a stationary commander and requires Hard > Normal > Easy for first-attack timing, army value at 7 and 10 minutes, materials mined and engineers, plus setup, archive and reload of the chosen level.
+
 ## 10. Readability, persistence and engineering gates
 
 ### Player-facing information

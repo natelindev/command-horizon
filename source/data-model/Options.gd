@@ -12,7 +12,7 @@ const DEFAULTS = {
 	"ambience_volume": 0.55,
 	"music_volume": 0.5,
 	"language": "en",
-	"subtitles": true,
+	"subtitles": false,
 	"ownership_symbols": true,
 	"subtitle_size": 22,
 	"interface_scale": 1.0,
@@ -32,7 +32,8 @@ const DEFAULTS = {
 	"weather": 0,
 	"weather_particles": true,
 	"living_world": true,
-	"menu_motion": true
+	"menu_motion": true,
+	"show_battle_plan": true
 }
 @export var screen: Screen = Screen.FULL
 @export var mouse_restricted = false
@@ -42,7 +43,7 @@ const DEFAULTS = {
 @export var ambience_volume = 0.55
 @export var music_volume = 0.5
 @export var language = "zh_CN" if OS.get_locale_language() == "zh" else "en"
-@export var subtitles = true
+@export var subtitles = false
 @export var ownership_symbols = true
 @export var subtitle_size = 22
 @export var interface_scale = 1.0
@@ -63,6 +64,7 @@ const DEFAULTS = {
 @export var weather_particles = true
 @export var living_world = true
 @export var menu_motion = true
+@export var show_battle_plan = true
 var _display_target = DisplayServer.WINDOW_MODE_WINDOWED
 var _display_until = 0
 var _display_next = 0
@@ -128,7 +130,7 @@ func apply():
 	_volume(music, music_volume)
 	_limiter(ambience, -9.0)
 	_limiter(effects, -4.0)
-	_radio_dsp(voice)
+	_speech_clarity(voice)
 	_limiter(AudioServer.get_bus_index("Master"), -1.0)
 	emit_changed()
 
@@ -210,31 +212,27 @@ func _limiter(bus, ceiling):
 	AudioServer.add_bus_effect(bus, limiter)
 
 
-func _radio_dsp(bus):
-	for index in AudioServer.get_bus_effect_count(bus):
-		if AudioServer.get_bus_effect(bus, index) is AudioEffectHighPassFilter:
-			return
+func _speech_clarity(bus):
+	# Full-band speech: a radio band-pass muffles words and makes every speaker sound alike.
+	# Clips are loudness-matched offline, so the chain only removes rumble and catches peaks.
+	if (
+		AudioServer.get_bus_effect_count(bus) == 3
+		and AudioServer.get_bus_effect(bus, 0) is AudioEffectHighPassFilter
+		and AudioServer.get_bus_effect(bus, 1) is AudioEffectCompressor
+		and AudioServer.get_bus_effect(bus, 2) is AudioEffectHardLimiter
+	):
+		return
+	while AudioServer.get_bus_effect_count(bus) > 0:
+		AudioServer.remove_bus_effect(bus, 0)
 	var high_pass = AudioEffectHighPassFilter.new()
-	high_pass.cutoff_hz = 380.0
-	high_pass.resonance = 0.25
+	high_pass.cutoff_hz = 85.0
 	AudioServer.add_bus_effect(bus, high_pass)
-
-	var low_pass = AudioEffectLowPassFilter.new()
-	low_pass.cutoff_hz = 3600.0
-	low_pass.resonance = 0.25
-	AudioServer.add_bus_effect(bus, low_pass)
-
-	var dist = AudioEffectDistortion.new()
-	dist.mode = AudioEffectDistortion.MODE_OVERDRIVE
-	dist.drive = 0.16
-	AudioServer.add_bus_effect(bus, dist)
-
-	var comp = AudioEffectCompressor.new()
-	comp.threshold = -16.0
-	comp.ratio = 3.5
-	comp.gain = 1.0
-	AudioServer.add_bus_effect(bus, comp)
-
+	var compressor = AudioEffectCompressor.new()
+	compressor.threshold = -14.0
+	compressor.ratio = 2.0
+	compressor.attack_us = 5000.0
+	compressor.release_ms = 120.0
+	AudioServer.add_bus_effect(bus, compressor)
 	var limiter = AudioEffectHardLimiter.new()
-	limiter.ceiling_db = -2.0
+	limiter.ceiling_db = -1.0
 	AudioServer.add_bus_effect(bus, limiter)

@@ -11,6 +11,11 @@ func _ready():
 	for x in [-0.42, 0.42]:
 		_box(Vector3(0.18, 0.14, 0.05), Vector3(x, 0.63, -1.16), Color("ffdea0"))
 		for z in [-0.74, 0.5, 0.95]:
+			# Each wheel sits in its own pivot so it can roll with the truck.
+			var pivot = Node3D.new()
+			pivot.name = "WheelPivot"
+			pivot.position = Vector3(sign(x) * 0.68, 0.3, z)
+			add_child(pivot, true)
 			var wheel = MeshInstance3D.new()
 			var mesh = CylinderMesh.new()
 			mesh.top_radius = 0.28
@@ -18,9 +23,8 @@ func _ready():
 			mesh.height = 0.2
 			wheel.mesh = mesh
 			wheel.rotation.z = PI / 2
-			wheel.position = Vector3(sign(x) * 0.68, 0.3, z)
 			wheel.material_override = _material(Color("18212a"))
-			add_child(wheel)
+			pivot.add_child(wheel)
 
 
 func _box(dimensions, point, color):

@@ -2,6 +2,32 @@
 
 ## [main]
 
+## [0.11.0]
+
+### New features
+ - Sixteen hero-led campaign operations across Bastion, Helix and Frontier, with persistent abilities and progression
+ - 160 English campaign voice recordings, named speakers, portraits and English/Chinese conversations
+ - Fuller campaign interiors with biome-specific districts, groves and moving residents
+ - Persistent neutral-building ownership: ownership survives evacuation and save/load until enemy infantry recapture an empty building
+
+### Changed
+ - New skirmishes use the three expanded maps; legacy preferences migrate and old saves remain loadable
+ - Faction HUD, responsive menus, production controls, construction effects and unit animation improvements
+ - Revised unit voice casting and robot processing; audited speech and campaign recordings
+ - Difficulty-aware AI army limits, improved navigation and lower CPU costs
+ - Snapshot version 13 preserves independent neutral-building ownership and reads older archives
+ - Release builds include native Lua libraries for each desktop platform and validate exported resources
+
+### Fixed
+ - Production costs overflowing two-line buttons
+ - Black opening briefings, visible alert layers during conversations, stale faction frames and duplicate objectives
+ - Campaign scenery blocking Command Horizon reinforcements or forward construction
+ - Worker contact recovery and crowded navigation regressions
+
+### Verification and limits
+ - Campaign combat, save compatibility, audio audits, rendered previews and 14 packaged macOS checks pass
+ - Maximum-population performance remains below the smooth-play target; human voice/art/balance review remains open
+
 ## [0.10.0]
 
 ### New features

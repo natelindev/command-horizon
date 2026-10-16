@@ -1,0 +1,29 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+SCALE BEGIN movement paused=false simulation_time=1.6
+SCALE movement renderer=headless mean_frame_ms=97.72 p95_frame_ms=199.87 p99_frame_ms=206.8 frames_over_33ms=77 samples=136 simulation_seconds=10.07 wall_seconds=13.29 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=9.58 mean_engine_physics_ms=22.2 physics_ticks=604 diagnostic_no_motion=false diagnostic_no_queues=false
+SCALE BEGIN combat paused=false simulation_time=11.6666666666668
+SCALE combat renderer=headless mean_frame_ms=197.56 p95_frame_ms=227.85 p99_frame_ms=234.55 frames_over_33ms=78 samples=78 simulation_seconds=10.12 wall_seconds=15.41 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=8.84 mean_engine_physics_ms=39.38 physics_ticks=607 diagnostic_no_motion=false diagnostic_no_queues=false
+SCALE Lua VMs=200 peak_VM_bytes=59889 combat_evaluations=8952
+SCALE moved=200/200 travelled=200/200 fired=101 peak_live_projectiles=7 resources=62 sampled_peak_tracers=0 sampled_peak_claims=0 viewport_pixels=(1920.0, 1080.0)
+PASS: 200 mobile units + 80 structures; programs=true squads=false specialists=false lua=true visual=false
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+       32.39 real        31.61 user         1.41 sys
+           505511936  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               36067  page reclaims
+                  40  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                 800  voluntary context switches
+               67331  involuntary context switches
+        339774002727  instructions retired
+        102684378174  cycles elapsed
+           444089472  peak memory footprint

@@ -1,0 +1,43 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+ERROR: Last infantry leaving erased building ownership
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/PersistentCaptureRegression.gd:48)
+       [1] _close (res://tests/headless/SupplyLineRegression.gd:89)
+       [2] _frames (res://tests/headless/SupplyLineRegression.gd:325)
+ERROR: Vacant building lost ownership over time
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/PersistentCaptureRegression.gd:48)
+       [1] _close (res://tests/headless/SupplyLineRegression.gd:89)
+       [2] _frames (res://tests/headless/SupplyLineRegression.gd:325)
+ERROR: Empty ownership lost on load
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/PersistentCaptureRegression.gd:48)
+       [1] _close (res://tests/headless/SupplyLineRegression.gd:89)
+       [2] _frames (res://tests/headless/SupplyLineRegression.gd:325)
+ERROR: Save omitted owner
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/PersistentCaptureRegression.gd:48)
+       [1] _close (res://tests/headless/SupplyLineRegression.gd:89)
+       [2] _frames (res://tests/headless/SupplyLineRegression.gd:325)
+ERROR: Last occupant dying erased ownership
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/PersistentCaptureRegression.gd:48)
+       [1] _close (res://tests/headless/SupplyLineRegression.gd:89)
+       [2] _frames (res://tests/headless/SupplyLineRegression.gd:325)
+ERROR: Death cleanup erased ownership
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/PersistentCaptureRegression.gd:48)
+       [1] _close (res://tests/headless/SupplyLineRegression.gd:89)
+       [2] _frames (res://tests/headless/SupplyLineRegression.gd:325)
+Persistent neutral ownership: 6 failures
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 2 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

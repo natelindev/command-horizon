@@ -8,19 +8,12 @@ const EXTRA_FIELDS = [
 	Vector2(58, 143),
 	Vector2(134, 143),
 ]
-const POI_SITES = [
-	{"kind": "refinery", "position": Vector2(56, 78), "name": "West Refinery"},
-	{"kind": "refinery", "position": Vector2(136, 78), "name": "East Refinery"},
-	{"kind": "mercenary", "position": Vector2(78, 149), "name": "West Mercenary Camp"},
-	{"kind": "mercenary", "position": Vector2(114, 149), "name": "East Mercenary Camp"},
-	{"kind": "repair", "position": Vector2(62, 104), "name": "West Repair Shop"},
-	{"kind": "repair", "position": Vector2(130, 104), "name": "East Repair Shop"},
-]
-var points_of_interest = []
 
 
 func overview():
-	var result = Layout.overview(super.overview(), EXPANSION, EXTRA_FIELDS, POI_SITES)
+	var result = Layout.overview(
+		super.overview(), EXPANSION, EXTRA_FIELDS, Sites.definitions(scene_file_path)
+	)
 	result.road_width = result.get("road_width", 4.0) * EXPANSION
 	return result
 
@@ -30,7 +23,6 @@ func _ready():
 	Layout.expand(self, FIELDS, EXPANSION)
 	exterior.ground.mesh.surface_get_material(0).set_shader_parameter("layout_scale", EXPANSION)
 	Layout.add_fields(self, EXTRA_FIELDS, false)
-	load("res://source/match/world/PointOfInterestCatalog.gd").populate(self)
 
 
 func get_topdown_polygon_2d():

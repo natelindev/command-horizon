@@ -45,8 +45,11 @@ func _run():
 	record.parameter_schema = load("res://source/match/programs/LuaParameters.gd").schema(params)
 	Record.seal(record)
 	tanks[0].program.installed = true
-	_check(tanks[0].program.configure_lua(record.source).ok, "Could not compile restore fixture")
-	tanks[0].program.saved_record = record.duplicate(true)
+	# Apply through the real transaction so the live config matches the sealed record.
+	var applied = load("res://source/match/programs/ProgramApplication.gd").apply(
+		record, [tanks[0]], human
+	)
+	_check(applied.ok, "Could not apply restore fixture")
 	tanks[0].program.run()
 	tanks[1].manual_orders.submit({"kind": "move", "point": Vector3(65, 0, 23)})
 	tanks[1].manual_orders.submit({"kind": "move", "point": Vector3(30, 0, 22)}, true)

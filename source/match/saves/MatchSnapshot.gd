@@ -109,7 +109,7 @@ func capture(game):
 		)
 	var camera = game.get_node("IsometricCamera3D")
 	var result = {
-		"snapshot_version": 12,
+		"snapshot_version": 13,
 		"map_revision": 1,
 		"settings": settings,
 		"simulation_time": game.simulation_time,
@@ -249,11 +249,15 @@ func capture(game):
 		result.mission.relays = game.map.capture_state(_reference).relays
 	elif game.map.has_method("capture_state"):
 		result.mission = game.map.capture_state(_reference)
+	if Campaigns.is_story(settings.mission_id):
+		result.mission = game.capture_operation(_reference)
 	if "points_of_interest" in game.map:
 		result.mission.points_of_interest = game.map.points_of_interest.map(
 			func(site): return site.capture_state(_reference)
 		)
 	if settings.mission_id != "":
+		if game.campaign_hero != null:
+			result.mission.hero = game.campaign_hero.capture(_reference)
 		game._attach_campaign_story()
 		if is_instance_valid(game.campaign_story):
 			result.mission.story = game.campaign_story.snapshot()

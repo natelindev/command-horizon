@@ -41,7 +41,8 @@ func _run():
 			camera.set_position_safely(Vector3(game.map.size.x / 2, 0, game.map.size.y / 2))
 			await _capture(map_name + "-overview")
 			camera.set_size_safely(45)
-			var site = game.map.POI_SITES[0].position
+			var sites = load("res://source/match/world/PointOfInterestCatalog.gd")
+			var site = sites.definitions(settings.map_path)[0].position
 			camera.set_position_safely(Vector3(site.x, 0, site.y))
 			await _capture(map_name + "-facility")
 			game.queue_free()

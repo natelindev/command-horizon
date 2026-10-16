@@ -1,17 +1,94 @@
 extends RefCounted
 
-const MAPS = [
-	"res://source/match/maps/ExpandedDesertFrontier.tscn",
-	"res://source/match/maps/ExpandedAlpineRelay.tscn",
-	"res://source/match/maps/ExpandedCoastalFoundry.tscn"
-]
 const ROLES = ["Infantry", "RocketInfantry", "SniperInfantry"]
 const Factions = preload("res://source/match/FactionRules.gd")
+# Capturable facilities per skirmish map, in save order. Every list pairs its
+# sites with the map's start symmetry so no start owns a uniquely close one.
+# Append new sites after existing ones: saves identify sites by their index.
+const SITES = {
+	"BastionDesert":
+	[
+		{"kind": "refinery", "position": Vector2(21, 53), "name": "South Refinery"},
+		{"kind": "refinery", "position": Vector2(43, 11), "name": "North Refinery"},
+	],
+	"ExpandedDesertFrontier":
+	[
+		{"kind": "refinery", "position": Vector2(66, 20), "name": "North Refinery"},
+		{"kind": "refinery", "position": Vector2(126, 124), "name": "South Refinery"},
+		{"kind": "mercenary", "position": Vector2(44, 82), "name": "West Mercenary Camp"},
+		{"kind": "mercenary", "position": Vector2(148, 62), "name": "East Mercenary Camp"},
+		{"kind": "repair", "position": Vector2(84, 68), "name": "West Repair Shop"},
+		{"kind": "repair", "position": Vector2(108, 76), "name": "East Repair Shop"},
+	],
+	"ExpandedAlpineRelay":
+	[
+		{"kind": "refinery", "position": Vector2(50, 45), "name": "West Refinery"},
+		{"kind": "refinery", "position": Vector2(142, 111), "name": "East Refinery"},
+		{"kind": "mercenary", "position": Vector2(56, 114), "name": "South Mercenary Camp"},
+		{"kind": "mercenary", "position": Vector2(136, 42), "name": "North Mercenary Camp"},
+		{"kind": "repair", "position": Vector2(72, 78), "name": "West Repair Shop"},
+		{"kind": "repair", "position": Vector2(120, 78), "name": "East Repair Shop"},
+	],
+	"ExpandedCoastalFoundry":
+	[
+		{"kind": "refinery", "position": Vector2(56, 78), "name": "West Refinery"},
+		{"kind": "refinery", "position": Vector2(136, 78), "name": "East Refinery"},
+		{"kind": "mercenary", "position": Vector2(78, 149), "name": "West Mercenary Camp"},
+		{"kind": "mercenary", "position": Vector2(114, 149), "name": "East Mercenary Camp"},
+		{"kind": "repair", "position": Vector2(62, 104), "name": "West Repair Shop"},
+		{"kind": "repair", "position": Vector2(130, 104), "name": "East Repair Shop"},
+	],
+	"DesertFrontier":
+	[
+		{"kind": "refinery", "position": Vector2(30, 72), "name": "West Refinery"},
+		{"kind": "refinery", "position": Vector2(98, 24), "name": "East Refinery"},
+		{"kind": "repair", "position": Vector2(64, 82), "name": "South Repair Shop"},
+		{"kind": "repair", "position": Vector2(64, 14), "name": "North Repair Shop"},
+	],
+	"IndustrialCrossroads":
+	[
+		{"kind": "repair", "position": Vector2(24, 8), "name": "West Repair Shop"},
+		{"kind": "repair", "position": Vector2(104, 96), "name": "East Repair Shop"},
+		{"kind": "refinery", "position": Vector2(46, 98), "name": "South Refinery"},
+		{"kind": "refinery", "position": Vector2(82, 6), "name": "North Refinery"},
+	],
+	"CoastalFoundry":
+	[
+		{"kind": "refinery", "position": Vector2(38, 48), "name": "West Refinery"},
+		{"kind": "refinery", "position": Vector2(90, 48), "name": "East Refinery"},
+		{"kind": "repair", "position": Vector2(40, 88), "name": "West Repair Shop"},
+		{"kind": "repair", "position": Vector2(88, 88), "name": "East Repair Shop"},
+	],
+	"PlainAndSimple":
+	[
+		{"kind": "refinery", "position": Vector2(25, 6), "name": "North Refinery"},
+		{"kind": "refinery", "position": Vector2(25, 44), "name": "South Refinery"},
+	],
+	"BigArena":
+	[
+		{"kind": "refinery", "position": Vector2(25, 63), "name": "West Refinery"},
+		{"kind": "refinery", "position": Vector2(75, 37), "name": "East Refinery"},
+	],
+}
+# Site counts of saves written before a map gained further facilities.
+const LEGACY_COUNTS = {
+	"ExpandedDesertFrontier": 6, "ExpandedAlpineRelay": 6, "ExpandedCoastalFoundry": 6
+}
+
+
+static func definitions(map_path):
+	return SITES.get(map_path.get_file().get_basename(), [])
+
+
+static func accepts_population(map_path, count):
+	var name = map_path.get_file().get_basename()
+	return count == definitions(map_path).size() or count == LEGACY_COUNTS.get(name, 0)
 
 
 static func populate(map):
-	for index in map.POI_SITES.size():
-		var entry = map.POI_SITES[index]
+	var entries = definitions(map.scene_file_path)
+	for index in entries.size():
+		var entry = entries[index]
 		var site = load("res://source/match/world/PointOfInterest.gd").new()
 		site.site_id = "poi-%d" % index
 		site.kind = entry.kind

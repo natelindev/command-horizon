@@ -1,0 +1,40 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+CAMPAIGN LOAD {"after_free_static_mib":77.8419075012207,"load_ms":2999.933,"mission":"supply_line","navigation_ready":true,"nodes":5372,"static_mib":116.771606445312}
+CAMPAIGN LOAD {"after_free_static_mib":81.6300497055054,"load_ms":213.952,"mission":"first_orders","navigation_ready":true,"nodes":3767,"static_mib":104.503426551819}
+CAMPAIGN LOAD {"after_free_static_mib":82.7963666915894,"load_ms":4165.148,"mission":"split_signal","navigation_ready":true,"nodes":6394,"static_mib":116.888798713684}
+CAMPAIGN LOAD {"after_free_static_mib":82.8577470779419,"load_ms":313.872,"mission":"bastion_cinder_ford","navigation_ready":true,"nodes":6679,"static_mib":116.680777549744}
+CAMPAIGN LOAD {"after_free_static_mib":86.5354700088501,"load_ms":1571.662,"mission":"broken_foundry","navigation_ready":true,"nodes":10386,"static_mib":144.044595718384}
+CAMPAIGN LOAD {"after_free_static_mib":89.4840068817139,"load_ms":3159.911,"mission":"command_horizon","navigation_ready":true,"nodes":11711,"static_mib":153.326308250427}
+CAMPAIGN LOAD {"after_free_static_mib":92.7803392410278,"load_ms":283.199,"mission":"helix_quiet_streets","navigation_ready":true,"nodes":6562,"static_mib":127.040150642395}
+CAMPAIGN LOAD {"after_free_static_mib":92.7951641082764,"load_ms":287.619,"mission":"helix_the_gate","navigation_ready":true,"nodes":7020,"static_mib":128.624481201172}
+CAMPAIGN LOAD {"after_free_static_mib":93.1487140655518,"load_ms":300.95,"mission":"helix_cinder_ford","navigation_ready":true,"nodes":6771,"static_mib":127.963165283203}
+CAMPAIGN LOAD {"after_free_static_mib":92.9946050643921,"load_ms":276.746,"mission":"helix_pruning","navigation_ready":true,"nodes":6688,"static_mib":127.640362739563}
+CAMPAIGN LOAD {"after_free_static_mib":93.0117416381836,"load_ms":298.342,"mission":"helix_severance","navigation_ready":true,"nodes":7343,"static_mib":129.863706588745}
+CAMPAIGN LOAD {"after_free_static_mib":95.8099498748779,"load_ms":292.207,"mission":"frontier_drainage","navigation_ready":true,"nodes":6648,"static_mib":130.776470184326}
+CAMPAIGN LOAD {"after_free_static_mib":95.6895895004272,"load_ms":295.993,"mission":"frontier_cinder_ford","navigation_ready":true,"nodes":6514,"static_mib":129.360108375549}
+CAMPAIGN LOAD {"after_free_static_mib":95.7077646255493,"load_ms":291.095,"mission":"frontier_salvage","navigation_ready":true,"nodes":6627,"static_mib":130.875903129578}
+CAMPAIGN LOAD {"after_free_static_mib":95.7576484680176,"load_ms":292.095,"mission":"frontier_wren","navigation_ready":true,"nodes":6809,"static_mib":131.538328170776}
+CAMPAIGN LOAD {"after_free_static_mib":95.7009782791138,"load_ms":307.404,"mission":"frontier_the_coalition","navigation_ready":true,"nodes":7335,"static_mib":133.282580375671}
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 4 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)
+       16.44 real        16.17 user         0.78 sys
+           372310016  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               24765  page reclaims
+                   0  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                  94  voluntary context switches
+               20686  involuntary context switches
+        251265953722  instructions retired
+         52940096223  cycles elapsed
+           233604128  peak memory footprint

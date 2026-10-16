@@ -6,6 +6,9 @@ var _earliest_frame_to_perform_next_rebake = null
 var _is_baking = false
 var _iteration_before_publication = -1
 var _region_before_publication = -1
+var _projection_cells = {}
+var _projection_height = INF
+var _projection_iteration = -1
 var _map_geometry = NavigationMeshSourceGeometryData3D.new()
 
 # A match owns its navigation lifetime. Reusing the viewport's world map can
@@ -91,6 +94,7 @@ func _rebake():
 
 # TODO: remove whenever Godot fixes that on its side
 func _sync_navmesh_changes():
+	_projection_iteration = -1
 	"""this function forces synchronization between server-level primitives and nodes"""
 	_navigation_region.navigation_mesh = _navigation_region.navigation_mesh
 	_iteration_before_publication = NavigationServer3D.map_get_iteration_id(navigation_map_rid)
@@ -148,3 +152,54 @@ func _on_schedule_navigation_rebake(domain):
 func _on_bake_finished():
 	_sync_navmesh_changes()
 	_is_baking = false
+
+
+# Most moving ground units are below the lowest, horizontal navmesh surface
+# by their path-height offset. Inside one of those polygons, vertical projection
+# is provably the nearest point: every other polygon is at least as high.
+# Boundary points, higher terrain and in-flight rebakes use the server query.
+func closest_point(point: Vector3) -> Vector3:
+	var iteration := NavigationServer3D.map_get_iteration_id(navigation_map_rid)
+	if not _is_baking and _earliest_frame_to_perform_next_rebake == null:
+		if _projection_iteration != iteration and is_synchronized():
+			_index_projection_surface(iteration)
+		if _projection_iteration == iteration and point.y <= _projection_height:
+			var flat := Vector2(point.x, point.z)
+			var cell := Vector2i(floori(point.x / 6.0), floori(point.z / 6.0))
+			for polygon in _projection_cells.get(cell, []):
+				if Geometry2D.is_point_in_polygon(flat, polygon):
+					return Vector3(point.x, _projection_height, point.z)
+	return NavigationServer3D.map_get_closest_point(navigation_map_rid, point)
+
+
+func _index_projection_surface(iteration: int):
+	_projection_cells.clear()
+	_projection_height = INF
+	var mesh: NavigationMesh = _navigation_region.navigation_mesh
+	var vertices := mesh.get_vertices()
+	var transform: Transform3D = _navigation_region.global_transform
+	for index in vertices.size():
+		vertices[index] = transform * vertices[index]
+		_projection_height = minf(_projection_height, vertices[index].y)
+	for index in mesh.get_polygon_count():
+		var polygon := PackedVector2Array()
+		var low := Vector2(INF, INF)
+		var high := Vector2(-INF, -INF)
+		for vertex in mesh.get_polygon(index):
+			var point := vertices[vertex]
+			if point.y != _projection_height:
+				polygon.clear()
+				break
+			var flat := Vector2(point.x, point.z)
+			polygon.append(flat)
+			low = low.min(flat)
+			high = high.max(flat)
+		if polygon.size() < 3:
+			continue
+		for x in range(floori(low.x / 6.0), floori(high.x / 6.0) + 1):
+			for y in range(floori(low.y / 6.0), floori(high.y / 6.0) + 1):
+				var cell := Vector2i(x, y)
+				if not _projection_cells.has(cell):
+					_projection_cells[cell] = []
+				_projection_cells[cell].append(polygon)
+	_projection_iteration = iteration

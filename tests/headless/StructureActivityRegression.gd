@@ -56,7 +56,7 @@ func _construction():
 		var activity = building.get_node("StructureActivity")
 		activity.refresh(.1)
 		_check(
-			activity.state == "construction" and activity._scaffold.visible,
+			activity.state == "construction" and building.has_node("ConstructionVisual"),
 			"Missing construction state: " + role
 		)
 		_check(
@@ -69,8 +69,9 @@ func _construction():
 		_check(is_equal_approx(activity.progress, .4), "Construction progress differs")
 		building.construct(1.0)
 		activity.refresh(.1)
+		await _frames(1)
 		_check(
-			activity.state == "idle" and not activity._scaffold.visible,
+			activity.state == "idle" and not building.has_node("ConstructionVisual"),
 			"Completed scaffold persists"
 		)
 		_check(
@@ -238,6 +239,8 @@ func _archive_and_pause():
 	var obstruction_id = builder._reference(obstruction)
 	var legacy = data.duplicate(true)
 	legacy.snapshot_version = 11
+	for saved in legacy.neutral_buildings:
+		saved.erase("owner")
 	for saved in legacy.units:
 		for old_job in saved.production.get("jobs", []):
 			old_job.erase("departure_endpoint")

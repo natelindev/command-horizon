@@ -7,6 +7,7 @@ const Factions = preload("res://source/match/FactionRules.gd")
 const Salvage = preload("res://source/match/economy/SalvageRules.gd")
 const Sites = preload("res://source/match/world/PointOfInterestCatalog.gd")
 const Technology = preload("res://source/match/research/TechnologyCatalog.gd")
+const Difficulty = preload("res://source/match/players/skirmish-ai/SkirmishDifficulty.gd")
 
 const Campaigns = preload("res://source/match/campaign/CampaignCatalog.gd")
 const Snapshot = preload("res://source/match/saves/MatchSnapshot.gd")
@@ -63,17 +64,20 @@ func validate(data):
 			+ "structure_memory:list"
 			+ (
 				" neutral_buildings:list"
-				if data is Dictionary and data.get("snapshot_version") in [11, 12]
+				if data is Dictionary and data.get("snapshot_version") in [11, 12, 13]
 				else ""
 			)
 			+ (
 				" battle_record:dict"
-				if data is Dictionary and data.get("snapshot_version") in [9, 10, 11, 12]
+				if data is Dictionary and data.get("snapshot_version") in [9, 10, 11, 12, 13]
 				else ""
 			)
 			+ (
 				" ambient:list"
-				if data is Dictionary and data.get("snapshot_version") in [6, 7, 8, 9, 10, 11, 12]
+				if (
+					data is Dictionary
+					and data.get("snapshot_version") in [6, 7, 8, 9, 10, 11, 12, 13]
+				)
 				else ""
 			)
 		)
@@ -88,7 +92,7 @@ func validate(data):
 	):
 		return _fail("Invalid battle record.")
 	if (
-		data.snapshot_version not in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+		data.snapshot_version not in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
 		or data.map_revision != 1
 		or not _settings(data.settings)
 	):
@@ -208,7 +212,13 @@ func validate(data):
 				and not (
 					unit.player == "player-0"
 					and (
-						(data.settings.mission_id == "supply_line" and unit.role == "SupplyTruck")
+						(
+							(
+								data.settings.mission_id == "supply_line"
+								or Campaigns.is_story(data.settings.mission_id)
+							)
+							and unit.role == "SupplyTruck"
+						)
 						or (
 							data.settings.mission_id == "air_corridor"
 							and unit.role == "EvacTransport"
@@ -283,7 +293,8 @@ func _army_groups(data):
 	var ai = data.players[1].ai
 	if not ai.has("groups"):
 		return true
-	if ai.cursor > 3 or ai.groups.size() > data.settings.players[1].difficulty + 1:
+	var budget = Difficulty.of(data.settings.players[1].difficulty).task_groups
+	if ai.cursor > 3 or ai.groups.size() > budget:
 		return _fail("Invalid AI coordination budget or cursor.")
 	var assigned = []
 	var guards = 0
@@ -492,11 +503,21 @@ func _settings(settings):
 		if (
 			side.controller != index + 1
 			or side.faction not in (Factions.IDS if _version >= 8 else ["bastion", "helix"])
-			or side.difficulty > 2
+			or side.difficulty < Difficulty.EASY
+			or side.difficulty > Difficulty.HARD
 			or spawn_index >= spawn_count
 		):
 			return false
-		if settings.mission_id != "" and side.faction != ["bastion", "helix"][index]:
+		if (
+			settings.mission_id != ""
+			and (
+				side.faction
+				!= [
+					Campaigns.OPERATIONS[settings.mission_id].faction,
+					Campaigns.OPERATIONS[settings.mission_id].enemy
+				][index]
+			)
+		):
 			return false
 	return true
 
@@ -1159,23 +1180,31 @@ func _squads(side):
 
 func _mission(value, id, map_path):
 	var core = value.duplicate()
+	if core.has("hero"):
+		var hero = core.hero
+		if (
+			not _shape(hero, "unit:text tier:int cooldown:num")
+			or hero.tier < 1
+			or hero.tier > 3
+			or hero.cooldown > 30
+		):
+			return _fail("Invalid campaign hero state.")
+		var record = entities.get(hero.unit, {})
+		if id == "" or record.get("role") != "Hero" or record.get("player") != "player-0":
+			return _fail("Campaign hero does not belong to the commander.")
+		core.erase("hero")
 	if core.has("story"):
 		var story = core.story
-		var allowed = load("res://source/match/campaign/CampaignNarration.gd").ids(id)
-		if id == "" or not _shape(story, "seen:list") or story.seen.size() > allowed.size():
-			return _fail("Invalid campaign story state.")
-		var seen = []
-		for cue in story.seen:
-			if cue not in allowed or cue in seen:
-				return _fail("Unknown or repeated campaign narration.")
-			seen.append(cue)
+		var narration = load("res://source/match/campaign/CampaignNarration.gd")
+		if id == "" or not narration.valid_state(story, id):
+			return _fail("Invalid campaign conversation state.")
 		core.erase("story")
 	if core.has("opposition"):
 		if id not in ["command_horizon", "air_corridor"] or not _opposition(core.opposition, id):
 			return false
 		core.erase("opposition")
 	if core.has("points_of_interest"):
-		if map_path not in Sites.MAPS:
+		if Sites.definitions(map_path).is_empty():
 			return _fail("Facilities do not belong to this map.")
 		core.erase("points_of_interest")
 	return _mission_rules(core, id, map_path)
@@ -1185,11 +1214,11 @@ func _site_records(records, map_path):
 	if not records is Array:
 		return _fail("Invalid facility records.")
 	var sites = Sites
-	if map_path not in sites.MAPS:
+	var definitions = sites.definitions(map_path)
+	if definitions.is_empty():
 		return records.is_empty() or _fail("Unexpected captured facilities.")
-	if records.size() != 6:
+	if not sites.accepts_population(map_path, records.size()):
 		return _fail("Invalid facility population.")
-	var definitions = load(map_path.replace(".tscn", ".gd")).POI_SITES
 	for index in records.size():
 		var site = records[index]
 		if not _shape(
@@ -1291,6 +1320,8 @@ func _opposition(value, mission):
 
 
 func _mission_rules(value, id, map_path):
+	if Campaigns.is_story(id):
+		return _hero_operation(value, id)
 	if id == "command_horizon":
 		return _horizon_mission(value)
 	if id == "broken_foundry":
@@ -1762,7 +1793,13 @@ func _neutral_buildings(saved, map_path):
 	var assigned = []
 	for index in saved.size():
 		var record = saved[index]
-		if not _shape(record, "id:text combat:dict occupants:list slots:list"):
+		if not _shape(
+			record,
+			(
+				"id:text combat:dict occupants:list slots:list"
+				+ (" owner:text" if _version >= 13 else "")
+			)
+		):
 			return false
 		if (
 			record.id != "neutral-building-%d" % index
@@ -1789,7 +1826,14 @@ func _neutral_buildings(saved, map_path):
 			):
 				return _fail("Invalid garrison slot.")
 			slots.append(slot)
-		var owner = ""
+		var owner = record.get("owner", "")
+		if (
+			owner != ""
+			and (not sides.has(owner) or record.combat.hp == 0 or not _neutral_ids[record.id])
+		):
+			return _fail("Invalid neutral building owner.")
+		if _version >= 13 and owner == "" and not record.occupants.is_empty():
+			return _fail("Garrison has no owner.")
 		for id in record.occupants:
 			if not id is String or not entities.has(id) or id in assigned:
 				return _fail("Invalid garrison occupant.")
@@ -1804,4 +1848,47 @@ func _neutral_buildings(saved, map_path):
 				return _fail("Invalid garrison ownership or action.")
 			owner = unit.player
 			assigned.append(id)
+	return true
+
+
+func _hero_operation(value, id):
+	if not _shape(
+		value, "stage:int elapsed:num wave_left:num waves:int targets:list escort:text relays:list"
+	):
+		return false
+	var objectives = Campaigns.STORIES[id].objectives
+	if (
+		value.stage >= objectives.size()
+		or value.elapsed > 120
+		or value.wave_left > 40
+		or value.waves > 4
+		or value.targets.size() != objectives.size()
+		or value.relays.size() != objectives.size()
+	):
+		return _fail("Invalid hero operation progression.")
+	var objective = objectives[value.stage]
+	if value.elapsed > (objective.seconds if objective.kind == "hold" else 0):
+		return _fail("Invalid objective hold time.")
+	if objective.kind == "escort" and value.escort == "":
+		return _fail("Active story convoy is missing.")
+	var assigned_targets = []
+	for index in value.targets.size():
+		var ref = value.targets[index]
+		if ref != "":
+			if ref in assigned_targets:
+				return _fail("Duplicate operation target.")
+			assigned_targets.append(ref)
+			var target = entities.get(ref, {})
+			if (
+				objectives[index].kind != "destroy"
+				or target.get("player") != "player-1"
+				or target.get("role") != objectives[index].role
+			):
+				return _fail("Invalid operation target.")
+		if not _relay(value.relays[index]):
+			return false
+	if value.escort != "":
+		var escort = entities.get(value.escort, {})
+		if escort.get("player") != "player-0" or escort.get("role") != "SupplyTruck":
+			return _fail("Invalid story convoy.")
 	return true

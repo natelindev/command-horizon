@@ -43,3 +43,39 @@
   - Rendered 280-entity `ScaleBenchmark.gd` passed with all 200 units moving, travelling, and 160 firing.
   - Regressions passed: `BattlePolishRegression.gd`, `ExitClearanceRegression.gd`, `CombatRegression.gd`, `OwnershipRegression.gd`.
   - `git diff --check` passed cleanly.
+
+### 2026-10-16 headless continuation
+
+- Moved visual posing to render-frame processing; immediate firing still aligns the muzzle
+  synchronously. Animation, wheel, infantry, recoil and gameplay-invariance checks pass.
+- Typed the hottest geometric/suspension calculations. Discarded an experimental unit
+  trait lookup cache because its measured benefit was negligible.
+- Added a terrain projection index for the lowest flat navmesh surface. Elevated points,
+  boundaries and asynchronous rebakes retain Godot's native query. Compared 13,500
+  deterministic queries across three maps and pending/completed rebakes: no mismatches.
+- Isolated 200-unit/80-structure/200-Lua-VM real-time headless baseline versus current:
+  movement 13.75 → 10.60 wall seconds; combat 15.77 → 12.22 per ~10 simulated seconds.
+  All 200 units move and travel. CPU remains above real time at this debug-build maximum;
+  the final integrated rerun measures 10.67/12.36 seconds and 426.8 MiB peak RSS.
+  All 16 campaign loads reach navigation readiness in 214–4165 ms (warm filesystem);
+  OS peak RSS is 355 MiB and post-close static memory settles near 96 MiB.
+  The independent final campaign audio audit passes all 160 recordings.
+- Removed redundant settled-music volume updates from the render loop; fade, track
+  switching and audio regressions cover the unchanged behavior.
+- At the end of the headless phase, non-headless launches were still prohibited. These
+  numbers are CPU throughput; subsequent authorized rendered measurements follow below.
+
+### 2026-10-16 authorized rendered continuation
+
+- Measured uncapped real-time rendering on Apple M1 Pro / Metal Forward+ / Godot 4.6.
+  Validated advancing simulation and actual frame draws; discarded a paused-clock sample.
+- At 2304×1296, ordinary 30-unit base / 70-unit combat scenes average 105.2 / 73.0 FPS
+  (P95 12.83 / 16.84 ms). These skirmish samples precede campaign-only interior additions.
+- At 1920×1080, 200 mobile units + 80 structures + 200 Lua VMs average 7.0 / 4.7 FPS
+  in movement / combat (P95 209.84 / 243.61 ms). Functional checks pass; smooth maximum-load
+  performance acceptance does not. Half 3D resolution improves only about 7–9%, indicating
+  substantial CPU/simulation pressure. GPU timestamp data is unavailable, not zero cost.
+- Remaining: profile and optimize maximum-load CPU work; subjective performance acceptance
+  and platform coverage beyond this Apple Silicon machine remain open.
+
+Evidence: `docs/playtests/2026-10-16/rendered-continuation/README.md`.

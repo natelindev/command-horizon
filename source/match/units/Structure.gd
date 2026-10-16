@@ -85,6 +85,10 @@ func is_under_construction():
 	return not is_constructed()
 
 
+func construction_progress():
+	return _construction_progress
+
+
 func _finish_construction():
 	var visual = get_node_or_null("ConstructionVisual")
 	if visual != null:

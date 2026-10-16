@@ -12,8 +12,9 @@ func _run():
 	original = preferences.capture()
 	archive = "user://speech-options-%d.tres" % OS.get_process_id()
 	save_path = "user://speech-battle-%d.json" % OS.get_process_id()
-	preferences.restore({"screen": 1, "edge_scrolling": false})
 	_storage_speech()
+	# Captions are off by default; this suite verifies them, so it opts in.
+	preferences.restore({"screen": 1, "edge_scrolling": false, "subtitles": true})
 	for faction in ["bastion", "helix"]:
 		await _setup(faction)
 		_attach_voice()
@@ -52,13 +53,15 @@ func _reset_speech():
 
 
 func _storage_speech():
+	preferences.restore({"screen": 1, "edge_scrolling": false})
 	_check(
-		preferences.subtitles and preferences.subtitle_size == 22,
-		"Legacy subtitle defaults missing"
+		not preferences.subtitles and preferences.subtitle_size == 22,
+		"Subtitles not off by default"
 	)
-	preferences.restore({"screen": 1, "subtitles": "false", "subtitle_size": 999})
+	preferences.restore({"screen": 1, "subtitles": "true", "subtitle_size": 999})
 	_check(
-		preferences.subtitles and preferences.subtitle_size == 22, "Malformed subtitles accepted"
+		not preferences.subtitles and preferences.subtitle_size == 22,
+		"Malformed subtitles accepted"
 	)
 	preferences.subtitles = false
 	preferences.subtitle_size = 26

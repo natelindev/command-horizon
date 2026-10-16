@@ -33,5 +33,7 @@ static func info_bay(viewport_width: float) -> float:
 	return 210.0 if deck_width(viewport_width) < 760.0 else 236.0
 
 
-static func roster_columns(viewport_width: float) -> int:
-	return 3 if deck_width(viewport_width) < 760.0 else 4
+static func roster_columns(_viewport_width: float) -> int:
+	# Three tiles per row leave every name room beside its portrait, also in Chinese;
+	# a wider deck widens the tiles instead of squeezing in a fourth.
+	return 3

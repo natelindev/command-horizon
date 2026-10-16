@@ -6,6 +6,9 @@ const Progress = preload("res://source/match/campaign/CampaignProgress.gd")
 const Library = preload("res://source/match/programs/ProgramLibrary.gd")
 const ProductionFactions = preload("res://source/match/FactionCatalog.gd")
 const AttackMove = preload("res://source/match/units/actions/AttackMoving.gd")
+## Mission pacing: a foundry admits another batch only while it holds at most five
+## jobs, independent of the longer queue the player's producers accept.
+const BATCH_QUEUE_CAPACITY = 5
 var nodes = []
 var alarm = false
 var hold_seconds = 0.0
@@ -65,7 +68,7 @@ func _spawn_player_units(side, _spawn_transform):
 	var progress = Progress.new()
 	progress.read_progress(progress_path)
 	side.resource_a = 160
-	side.resource_b = 80 + (20 if progress.air_support else 0)
+	side.resource_b = 80 + (20 if progress.foundry_support() else 0)
 	for entry in [
 		["CommandCenter", Vector3(15, 0, 49)],
 		["PowerPlant", Vector3(7, 0, 39)],
@@ -190,7 +193,7 @@ func batch_wait_reason(entry):
 		return "Factory unavailable"
 	var queue = entry.unit.get_node("ProductionQueue")
 	var count = batch_size()
-	if queue.size() + count > Constants.Match.Units.PRODUCTION_QUEUE_LIMIT:
+	if queue.size() + count > BATCH_QUEUE_CAPACITY:
 		return "Queue space needed"
 	if _enemy.population(true) + count > Catalog.POPULATION_LIMIT:
 		return "Unit limit"

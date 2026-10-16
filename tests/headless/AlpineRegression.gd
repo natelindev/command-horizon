@@ -67,7 +67,8 @@ func _routes_and_army(human):
 			materials += deposit.resource_a
 		else:
 			electronics += deposit.resource_b
-	_check(materials == 10000 and electronics == 7680, "Authored paired stockpiles changed")
+	# Authored fields plus two salvage caches of 600 materials / 300 electronics.
+	_check(materials == 11200 and electronics == 8280, "Authored paired stockpiles changed")
 	var army = []
 	for index in 16:
 		var unit = _spawn_alpine(

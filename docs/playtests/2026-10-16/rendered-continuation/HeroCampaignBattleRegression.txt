@@ -1,0 +1,79 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+CAMPAIGN BATTLE BEGIN bastion_cinder_ford
+CAMPAIGN BATTLE bastion_cinder_ford stage=0 time=0.0
+CAMPAIGN BATTLE bastion_cinder_ford stage=1 time=16.0
+CAMPAIGN BATTLE bastion_cinder_ford stage=2 time=38.0
+CAMPAIGN STATUS bastion_cinder_ford time=60.0 stage=2 infantry=10 tanks=5
+CAMPAIGN BATTLE bastion_cinder_ford stage=3 time=106.0
+CAMPAIGN STATUS bastion_cinder_ford time=120.0 stage=3 infantry=10 tanks=5
+CAMPAIGN BATTLE END bastion_cinder_ford stage=4 result=Victory
+CAMPAIGN BATTLE BEGIN helix_quiet_streets
+CAMPAIGN BATTLE helix_quiet_streets stage=0 time=0.0
+CAMPAIGN BATTLE helix_quiet_streets stage=1 time=14.0
+CAMPAIGN BATTLE helix_quiet_streets stage=2 time=40.0
+CAMPAIGN STATUS helix_quiet_streets time=60.0 stage=2 infantry=10 tanks=5
+CAMPAIGN BATTLE END helix_quiet_streets stage=3 result=Victory
+CAMPAIGN BATTLE BEGIN helix_the_gate
+CAMPAIGN BATTLE helix_the_gate stage=0 time=0.0
+CAMPAIGN BATTLE helix_the_gate stage=1 time=24.0
+CAMPAIGN STATUS helix_the_gate time=60.0 stage=1 infantry=10 tanks=5
+CAMPAIGN BATTLE helix_the_gate stage=2 time=100.0
+CAMPAIGN STATUS helix_the_gate time=120.0 stage=2 infantry=8 tanks=5
+CAMPAIGN BATTLE END helix_the_gate stage=3 result=Victory
+CAMPAIGN BATTLE BEGIN helix_cinder_ford
+CAMPAIGN BATTLE helix_cinder_ford stage=0 time=0.0
+CAMPAIGN BATTLE helix_cinder_ford stage=1 time=22.0
+CAMPAIGN BATTLE helix_cinder_ford stage=2 time=52.0
+CAMPAIGN STATUS helix_cinder_ford time=60.0 stage=2 infantry=7 tanks=5
+CAMPAIGN STATUS helix_cinder_ford time=120.0 stage=3 infantry=10 tanks=5
+CAMPAIGN BATTLE END helix_cinder_ford stage=3 result=Victory
+CAMPAIGN BATTLE BEGIN helix_pruning
+CAMPAIGN BATTLE helix_pruning stage=0 time=0.0
+CAMPAIGN BATTLE helix_pruning stage=1 time=16.0
+CAMPAIGN BATTLE helix_pruning stage=2 time=42.0
+CAMPAIGN STATUS helix_pruning time=60.0 stage=2 infantry=10 tanks=5
+CAMPAIGN BATTLE END helix_pruning stage=3 result=Victory
+CAMPAIGN BATTLE BEGIN helix_severance
+CAMPAIGN BATTLE helix_severance stage=0 time=0.0
+CAMPAIGN BATTLE helix_severance stage=1 time=28.0
+CAMPAIGN BATTLE helix_severance stage=2 time=52.0
+CAMPAIGN STATUS helix_severance time=60.0 stage=2 infantry=10 tanks=5
+CAMPAIGN BATTLE END helix_severance stage=3 result=Victory
+CAMPAIGN BATTLE BEGIN frontier_drainage
+CAMPAIGN BATTLE frontier_drainage stage=0 time=0.0
+CAMPAIGN BATTLE frontier_drainage stage=1 time=14.0
+CAMPAIGN BATTLE frontier_drainage stage=2 time=46.0
+CAMPAIGN STATUS frontier_drainage time=60.0 stage=2 infantry=9 tanks=5
+CAMPAIGN BATTLE END frontier_drainage stage=3 result=Victory
+CAMPAIGN BATTLE BEGIN frontier_cinder_ford
+CAMPAIGN BATTLE frontier_cinder_ford stage=0 time=0.0
+CAMPAIGN BATTLE frontier_cinder_ford stage=1 time=8.0
+CAMPAIGN BATTLE frontier_cinder_ford stage=2 time=38.0
+CAMPAIGN STATUS frontier_cinder_ford time=60.0 stage=2 infantry=9 tanks=5
+CAMPAIGN BATTLE END frontier_cinder_ford stage=3 result=Victory
+CAMPAIGN BATTLE BEGIN frontier_salvage
+CAMPAIGN BATTLE frontier_salvage stage=0 time=0.0
+CAMPAIGN BATTLE frontier_salvage stage=1 time=24.0
+CAMPAIGN BATTLE frontier_salvage stage=2 time=48.0
+CAMPAIGN STATUS frontier_salvage time=60.0 stage=2 infantry=9 tanks=5
+CAMPAIGN BATTLE END frontier_salvage stage=3 result=Victory
+CAMPAIGN BATTLE BEGIN frontier_wren
+CAMPAIGN BATTLE frontier_wren stage=0 time=0.0
+CAMPAIGN BATTLE frontier_wren stage=1 time=20.0
+CAMPAIGN BATTLE frontier_wren stage=2 time=46.0
+CAMPAIGN STATUS frontier_wren time=60.0 stage=2 infantry=10 tanks=5
+CAMPAIGN BATTLE END frontier_wren stage=3 result=Victory
+CAMPAIGN BATTLE BEGIN frontier_the_coalition
+CAMPAIGN BATTLE frontier_the_coalition stage=0 time=0.0
+CAMPAIGN BATTLE frontier_the_coalition stage=1 time=30.0
+CAMPAIGN STATUS frontier_the_coalition time=60.0 stage=1 infantry=10 tanks=5
+CAMPAIGN BATTLE frontier_the_coalition stage=2 time=118.0
+CAMPAIGN STATUS frontier_the_coalition time=120.0 stage=2 infantry=10 tanks=5
+CAMPAIGN BATTLE END frontier_the_coalition stage=3 result=Victory
+Hero campaign battles: 0 failures
+ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 4 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

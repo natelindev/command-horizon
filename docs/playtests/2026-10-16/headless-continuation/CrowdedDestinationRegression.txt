@@ -1,0 +1,12 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+CROWDED ARRIVAL 0 travel=0.33870810270309 hp=3.204 -> 4.35386666666667 max_step=0.05833429843187
+CROWDED ARRIVAL 1 travel=0.35900557041168 hp=3.204 -> 4.35386666666667 max_step=0.05833411589265
+CROWDED ARRIVAL 2 travel=0.35900557041168 hp=3.204 -> 4.35386666666667 max_step=0.05833411589265
+PASS distant occupied endpoint retains movement
+PASS enemy blocker does not satisfy friendly arrival
+PASS paused disk queue handoff=0.48333333333289 destination=(29.85313, 0.0, 15.10092)
+Crowded destination: 0 failures
+ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)

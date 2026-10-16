@@ -2,6 +2,7 @@ extends RefCounted
 
 const FileStore = preload("res://source/match/saves/SaveFile.gd")
 const Schema = preload("res://source/match/saves/SnapshotSchema.gd")
+const Difficulty = preload("res://source/match/players/skirmish-ai/SkirmishDifficulty.gd")
 const IDS = [
 	"manual-1",
 	"manual-2",
@@ -74,6 +75,11 @@ func describe(id):
 		result.summary = error if data == null else "Incompatible battle: " + schema.error
 		return result
 	result.valid = true
+	result.summary = summary_for(data, result.modified)
+	return result
+
+
+static func summary_for(data, modified = 0):
 	var settings = data.settings
 	var title = (
 		load("res://source/match/campaign/CampaignCatalog.gd").OPERATIONS[settings.mission_id].title
@@ -81,18 +87,18 @@ func describe(id):
 		else Schema.Rules.MAPS[settings.map_path].name
 	)
 	var seconds = int(data.simulation_time)
-	result.summary = (
-		"%s · %s vs %s · %02d:%02d\n%s"
+	return (
+		"%s · %s vs %s · %s · %02d:%02d\n%s"
 		% [
 			title,
 			settings.players[0].faction.capitalize(),
 			settings.players[1].faction.capitalize(),
+			Difficulty.TAGS[Difficulty.clamp_level(settings.players[1].difficulty)],
 			seconds / 60,
 			seconds % 60,
-			Time.get_datetime_string_from_unix_time(result.modified).replace("T", " ") + " UTC"
+			Time.get_datetime_string_from_unix_time(modified).replace("T", " ") + " UTC"
 		]
 	)
-	return result
 
 
 func next_auto_slot():

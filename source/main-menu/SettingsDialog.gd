@@ -148,6 +148,11 @@ func _ready():
 		"Hover a unit for its owner. Player-colored selection outlines and "
 		+ "minimap shapes remain visible."
 	)
+	var plan = _check(general, "Show battle plan in skirmish", "show_battle_plan")
+	plan.tooltip_text = (
+		"Next-step advice in the left column of the battle console. "
+		+ "You can also hide or restore it during a battle."
+	)
 	var scale_row = _row(general, "Interface size")
 	var interface_scale = OptionButton.new()
 	for title in ["100%", "125%", "150%"]:
@@ -319,7 +324,12 @@ func _refresh():
 		controls[key].set_value_no_signal(options.get(key))
 		controls[key + "_value"].text = "%d%%" % roundi(options.get(key) * 100)
 	for key in [
-		"edge_scrolling", "mouse_restricted", "reduced_flashes", "subtitles", "ownership_symbols"
+		"edge_scrolling",
+		"mouse_restricted",
+		"reduced_flashes",
+		"subtitles",
+		"ownership_symbols",
+		"show_battle_plan"
 	]:
 		controls[key].set_pressed_no_signal(options.get(key))
 

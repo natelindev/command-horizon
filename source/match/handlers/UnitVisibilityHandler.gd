@@ -72,8 +72,30 @@ func _create_dummy_structure(unit):
 	dummy.set_meta("memory_faction", unit.player.faction)
 	dummy.set_meta("memory_color", unit.player.color)
 	dummy.global_transform = unit.find_child("Geometry").global_transform
+	if unit.is_under_construction():
+		_freeze_construction(dummy)
 	add_child(dummy)
 	_structure_to_dummy_mapping[unit] = dummy
+
+
+func _freeze_construction(dummy):
+	# Remember the site as last seen instead of sharing its live assembly materials.
+	var meshes = dummy.find_children("*", "MeshInstance3D", true, false)
+	for mesh in meshes:
+		for surface in mesh.get_surface_override_material_count():
+			var material = mesh.get_surface_override_material(surface)
+			if material is ShaderMaterial:
+				mesh.set_surface_override_material(surface, material.duplicate(true))
+	# Release the copies while their meshes still exist; a material freed together with
+	# its mesh leaves the renderer referencing it.
+	dummy.tree_exiting.connect(_release_frozen_materials.bind(meshes), CONNECT_ONE_SHOT)
+
+
+func _release_frozen_materials(meshes):
+	for mesh in meshes:
+		if is_instance_valid(mesh):
+			for surface in mesh.get_surface_override_material_count():
+				mesh.set_surface_override_material(surface, null)
 
 
 func _try_removing_dummy_structure(unit):

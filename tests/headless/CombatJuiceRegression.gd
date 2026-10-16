@@ -21,31 +21,30 @@ func _run():
 
 func _test_voice_bus_dsp():
 	var options = root.get_node("Globals").options
-	options.apply()
 	var voice_bus = AudioServer.get_bus_index("Voice")
+	if voice_bus >= 0:
+		# A bus left with the legacy radio band-pass must be rebuilt, not kept.
+		AudioServer.add_bus_effect(voice_bus, AudioEffectLowPassFilter.new())
+	options.apply()
+	voice_bus = AudioServer.get_bus_index("Voice")
 	_check(voice_bus >= 0, "Voice bus missing from AudioServer")
 
-	var has_hp = false
-	var has_lp = false
-	var has_dist = false
+	var low_cut = null
 	var has_comp = false
 	var has_limit = false
 	for i in AudioServer.get_bus_effect_count(voice_bus):
 		var eff = AudioServer.get_bus_effect(voice_bus, i)
 		if eff is AudioEffectHighPassFilter:
-			has_hp = true
-		elif eff is AudioEffectLowPassFilter:
-			has_lp = true
-		elif eff is AudioEffectDistortion:
-			has_dist = true
+			low_cut = eff
 		elif eff is AudioEffectCompressor:
 			has_comp = true
 		elif eff is AudioEffectHardLimiter:
 			has_limit = true
+		# Radio colouring is baked per clip; a bus band-pass or overdrive muffles every word.
+		_check(not eff is AudioEffectLowPassFilter, "Voice bus band-limits speech")
+		_check(not eff is AudioEffectDistortion, "Voice bus distorts speech")
 
-	_check(has_hp, "Voice bus missing HighPassFilter")
-	_check(has_lp, "Voice bus missing LowPassFilter")
-	_check(has_dist, "Voice bus missing Distortion overdrive")
+	_check(low_cut != null and low_cut.cutoff_hz <= 120.0, "Voice bus low cut removes voice body")
 	_check(has_comp, "Voice bus missing Compressor")
 	_check(has_limit, "Voice bus missing HardLimiter")
 
@@ -55,7 +54,7 @@ func _test_voice_bus_dsp():
 		AudioServer.get_bus_effect_count(voice_bus) == effect_count,
 		"Voice bus DSP effects duplicated on repeated apply()"
 	)
-	print("PASS Voice bus tactical radio DSP pipeline")
+	print("PASS Voice bus full-band clarity chain")
 
 
 func _test_radio_chirp_assets():
@@ -64,15 +63,20 @@ func _test_radio_chirp_assets():
 		_check(ResourceLoader.exists(path), "Missing radio chirp asset: " + path)
 		var stream = load(path)
 		_check(stream is AudioStream, "Chirp is not AudioStream: " + path)
-		_check(stream.get_length() > 0.02 and stream.get_length() < 0.1, "Chirp duration out of range: " + path)
+		_check(
+			stream.get_length() > 0.02 and stream.get_length() < 0.1,
+			"Chirp duration out of range: " + path
+		)
 	print("PASS Radio squelch and key-up chirp assets")
 
 
-class DummyPlayer extends Node:
+class DummyPlayer:
+	extends Node
 	var faction = "bastion"
 
 
-class DummyUnit extends Node3D:
+class DummyUnit:
+	extends Node3D
 	signal action_changed(new_action)
 	var type = "Tank"
 	var movement_domain = 0
@@ -94,12 +98,16 @@ func _test_camera_trauma():
 	_check(is_equal_approx(camera.trauma, 0.5), "Camera trauma not applied")
 	camera._update_trauma(0.1)
 	_check(camera.trauma < 0.5 and camera.trauma > 0.0, "Camera trauma failed to decay")
-	_check(camera.h_offset != 0.0 or camera.v_offset != 0.0, "Camera offsets zero during trauma shake")
+	_check(
+		camera.h_offset != 0.0 or camera.v_offset != 0.0, "Camera offsets zero during trauma shake"
+	)
 
 	# Decay to completion
 	camera._update_trauma(2.0)
 	_check(camera.trauma == 0.0, "Camera trauma did not fully decay to 0")
-	_check(camera.h_offset == 0.0 and camera.v_offset == 0.0, "Camera offsets not reset on zero trauma")
+	_check(
+		camera.h_offset == 0.0 and camera.v_offset == 0.0, "Camera offsets not reset on zero trauma"
+	)
 
 	# Reduced flashes suppression
 	options.reduced_flashes = true
@@ -127,10 +135,12 @@ func _test_suspension_recoil():
 
 	_check(visuals._heavy, "Tank not identified as heavy unit")
 	visuals.fire_recoil()
-	_check(visuals._suspension_velocity < -0.1, "Recoil failed to impart suspension backward impulse")
+	_check(
+		visuals._suspension_velocity < -0.1, "Recoil failed to impart suspension backward impulse"
+	)
 
 	# Advance spring-damper physics
-	visuals._physics_process(0.05)
+	visuals._process(0.05)
 	_check(visuals._suspension_pitch != 0.0, "Suspension pitch failed to respond to impulse")
 
 	dummy_unit.queue_free()
@@ -155,10 +165,15 @@ func _test_cook_off_limits():
 		turret.name = "TurretPivot"
 		effects._launch_turret_cook_off(turret, 1.0)
 
-	_check(effects._cook_offs.size() <= effects.MAX_COOK_OFFS, "Cook-off pool exceeded maximum limit")
+	_check(
+		effects._cook_offs.size() <= effects.MAX_COOK_OFFS, "Cook-off pool exceeded maximum limit"
+	)
 	for entry in effects._cook_offs:
 		_check(entry.node is RigidBody3D, "Cook-off node is not a RigidBody3D")
-		_check(entry.node.collision_layer == 0 and entry.node.collision_mask == 1, "Cook-off collision layers invalid")
+		_check(
+			entry.node.collision_layer == 0 and entry.node.collision_mask == 1,
+			"Cook-off collision layers invalid"
+		)
 
 	effects.queue_free()
 	print("PASS Armored vehicle turret cook-off physics and pool bounds")

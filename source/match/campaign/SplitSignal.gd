@@ -102,7 +102,7 @@ func _check_outcome(delta):
 		network_seconds = minf(20.0, network_seconds + delta)
 		if network_seconds >= 20:
 			network_badge = true
-			hud.show_notice("Full network secured · Air Corridor support earned.")
+			hud.show_notice("Full network secured · Cinder Ford reconnaissance support earned.")
 	if control_seconds >= 120:
 		_finish("Victory")
 		return
@@ -201,7 +201,7 @@ func result_summary():
 	text += (
 		"\n"
 		+ (
-			"Air Corridor support earned."
+			"Cinder Ford reconnaissance support earned."
 			if network_badge
 			else "Optional: control all three relays for 20 cumulative seconds."
 		)

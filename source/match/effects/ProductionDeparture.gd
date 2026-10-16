@@ -3,6 +3,7 @@ extends Node3D
 const Factions = preload("res://source/match/FactionCatalog.gd")
 const InfantryMotion = preload("res://source/match/units/traits/InfantryMotion.gd")
 const WheelMotion = preload("res://source/match/units/traits/WheelMotion.gd")
+const WalkerGait = preload("res://source/match/units/traits/WalkerGait.gd")
 var movement_speed = 3.0
 var endpoint = Vector3.ZERO
 var duration = 1.8
@@ -16,9 +17,8 @@ var _navigation_map = RID()
 var _motion
 var _wheels
 var _rotors = []
-var _legs = []
+var _walker = null
 var _clock = 0.0
-var _travel = 0.0
 var _previous = Vector3.ZERO
 var _route_ready = false
 var _exit_blockers = []
@@ -74,9 +74,14 @@ func prepare(building, element):
 	_wheels.setup(self)
 	for pattern in ["*RotorLeft", "*RotorRight", "*Rotor?"]:
 		_rotors += find_children(pattern, "Node3D", true, false)
+	var legs = []
 	for pattern in ["*LegLeft*", "*LegRight*"]:
 		for leg in find_children(pattern, "Node3D", true, false):
-			_legs.append([leg, leg.rotation])
+			if not leg is MeshInstance3D:
+				legs.append(leg)
+	if not legs.is_empty():
+		_walker = WalkerGait.new()
+		_walker.setup(self, legs, 0.0)
 	if job.departure_endpoint != null:
 		endpoint = job.departure_endpoint
 		_route_ready = true
@@ -294,21 +299,19 @@ func update_pose(delta):
 	var distance = global_position.distance_to(_previous)
 	_previous = global_position
 	_clock += delta
-	_travel += distance * 9.0
 	if _motion != null:
 		_motion.advance(delta, distance, _clock, 0.0, 0.0, 0.0)
 	_wheels.advance(delta)
 	for rotor in _rotors:
 		rotor.rotation.y += delta * 25.0
-	for entry in _legs:
-		entry[0].rotation.x = (
-			entry[1].x + sin(_travel) * .35 * (-1.0 if "Left" in entry[0].name else 1.0)
-		)
+	if _walker != null:
+		_walker.advance(delta, distance, 0.0)
 
 
 func handoff(unit):
-	if _motion != null:
-		var visual = unit.get_node("BastionVisuals")
-		visual._infantry_motion.phase = _motion.phase
-		visual._infantry_motion.blend = _motion.blend
-		visual._infantry_motion.advance(0.0, 0.0, _clock, 0.0, 0.0, 0.0)
+	# Continue the exit stride on the real unit instead of restarting its gait.
+	var visual = unit.get_node("BastionVisuals")
+	if _motion != null and visual._infantry_motion != null:
+		visual._infantry_motion.copy_from(_motion)
+	if _walker != null and visual._walker != null:
+		visual._walker.copy_from(_walker)

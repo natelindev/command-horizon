@@ -4,6 +4,8 @@ const Catalog = preload("res://source/match/BastionCatalog.gd")
 const Factions = preload("res://source/match/FactionCatalog.gd")
 const Composition = preload("res://source/match/players/skirmish-ai/SkirmishComposition.gd")
 const Defense = preload("res://source/match/players/skirmish-ai/SkirmishDefense.gd")
+const Difficulty = preload("res://source/match/players/skirmish-ai/SkirmishDifficulty.gd")
+const Sites = preload("res://source/match/world/PointOfInterestCatalog.gd")
 const OPTIONAL_BUILDINGS = ["CommandLab", "AircraftFactory", "RepairDepot", "AntiGroundTurret"]
 
 
@@ -34,6 +36,8 @@ static func requests(game, player, units, include_busy = false):
 	var counts = Composition.inventory(units)
 	var threats = Composition.observed(game, player)
 	var sequence = player._production_index
+	var cap = Difficulty.army_cap(player.difficulty, game.simulation_time)
+	var pending_hires = Sites.reserved(player)
 	var result = []
 	if player.population(true) >= Catalog.POPULATION_LIMIT:
 		return result
@@ -43,6 +47,12 @@ static func requests(game, player, units, include_busy = false):
 			or not producer.is_constructed()
 			or producer.production_queue == null
 			or (not include_busy and producer.production_queue.size() > 0)
+		):
+			continue
+		if (
+			cap > 0
+			and producer.type != "CommandCenter"
+			and army_size(counts) + pending_hires >= cap
 		):
 			continue
 		var choice = _choice(player, producer, counts, threats, sequence)
@@ -111,10 +121,21 @@ static func demand(game, player, units):
 	return result
 
 
+static func army_size(counts):
+	# Mobile units ordered from barracks, factories and airfields, queued or fielded.
+	var total = 0
+	for producer in Catalog.PRODUCES:
+		if producer == "CommandCenter":
+			continue
+		for role in Catalog.PRODUCES[producer]:
+			total += counts.get(role, 0)
+	return total
+
+
 static func _choice(player, producer, counts, threats, sequence):
 	match producer.type:
 		"CommandCenter":
-			if counts.get("Worker", 0) < 6:
+			if counts.get("Worker", 0) < Difficulty.of(player.difficulty).workers:
 				return {"role": "Worker", "priority": 0}
 		"Barracks":
 			if counts.get("Infantry", 0) < 4:

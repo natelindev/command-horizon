@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Campaigns = preload("res://source/match/campaign/CampaignCatalog.gd")
+
 const PATH = "user://campaign-progress.json"
 var supply_complete = false
 var complete = false
@@ -13,10 +15,12 @@ var foundry_complete = false
 var air_complete = false
 var air_support = false
 var error = ""
+var operations = []
 
 
 func read_progress(path = PATH):
 	error = ""
+	operations.clear()
 	supply_complete = false
 	complete = false
 	doctrine_badge = false
@@ -52,6 +56,7 @@ func read_progress(path = PATH):
 	foundry_complete = data.get("broken_foundry", false)
 	air_complete = data.get("air_corridor", false)
 	air_support = data.get("air_support", false)
+	operations = data.get("operations", []).duplicate()
 	complete = data.first_orders
 	doctrine_badge = data.doctrine_badge
 	return true
@@ -68,10 +73,17 @@ func _valid(data):
 	if data.get("schema") == 1:
 		return data.size() == 3
 	var version = data.get("schema")
-	if version != 2 and version != 3 and version != 4 and version != 5 and version != 6:
+	if (
+		version != 2
+		and version != 3
+		and version != 4
+		and version != 5
+		and version != 6
+		and version != 7
+	):
 		return false
 	return (
-		data.size() == {2: 5, 3: 6, 4: 8, 5: 9, 6: 12}[int(version)]
+		data.size() == {2: 5, 3: 6, 4: 8, 5: 9, 6: 12, 7: 13}[int(version)]
 		and (
 			version < 6
 			or (
@@ -85,6 +97,7 @@ func _valid(data):
 		and (version < 4 or (data.get("air_corridor") is bool and data.get("air_support") is bool))
 		and data.get("split_signal") is bool
 		and data.get("network_badge") is bool
+		and (version < 7 or _valid_operations(data.get("operations")))
 	)
 
 
@@ -99,8 +112,11 @@ func record_split_victory(badge, path = PATH):
 func _record(mission, badge, path, challenge = ""):
 	if not read_progress(path):
 		return false
+	if Campaigns.is_story(mission) and mission not in operations:
+		operations.append(mission)
 	var data = {
-		"schema": 6,
+		"schema": 7,
+		"operations": operations.duplicate(),
 		"command_horizon": horizon_complete or mission == "command_horizon",
 		"lean_complete": lean_complete or (mission == "command_horizon" and challenge == "lean"),
 		"reinforced_complete":
@@ -133,6 +149,7 @@ func _record(mission, badge, path, challenge = ""):
 	foundry_complete = data.get("broken_foundry", false)
 	air_complete = data.get("air_corridor", false)
 	air_support = data.get("air_support", false)
+	operations = data.get("operations", []).duplicate()
 	complete = data.first_orders
 	doctrine_badge = data.doctrine_badge
 	split_complete = data.split_signal
@@ -159,20 +176,54 @@ func record_horizon_victory(challenge = "", path = PATH):
 	return _record("command_horizon", false, path, challenge)
 
 
-func completed_count():
+func completed_count(faction = "bastion"):
+	var count = 0
+	for id in Campaigns.ORDER.get(faction, []):
+		if completed(id):
+			count += 1
+	return count
+
+
+func campaign_finished(faction = "bastion"):
 	return (
-		[
-			supply_complete,
-			complete,
-			split_complete,
-			air_complete,
-			foundry_complete,
-			horizon_complete
-		]
-		. filter(func(value): return value)
-		. size()
+		faction in Campaigns.ORDER and completed_count(faction) == Campaigns.ORDER[faction].size()
 	)
 
 
-func campaign_finished():
-	return completed_count() == 6
+func _valid_operations(value):
+	if not value is Array or value.size() > 11:
+		return false
+	var seen = []
+	for id in value:
+		if not Campaigns.is_story(id) or id in seen:
+			return false
+		seen.append(id)
+	return true
+
+
+func record_operation(id, path = PATH):
+	if not Campaigns.is_story(id):
+		error = "Unknown campaign operation."
+		return false
+	return _record(id, false, path)
+
+
+func completed(id):
+	if id in operations:
+		return true
+	return (
+		{
+			"supply_line": supply_complete,
+			"first_orders": complete,
+			"split_signal": split_complete,
+			"air_corridor": air_complete,
+			"bastion_cinder_ford": air_complete,
+			"broken_foundry": foundry_complete,
+			"command_horizon": horizon_complete
+		}
+		. get(id, false)
+	)
+
+
+func foundry_support():
+	return air_support or "bastion_cinder_ford" in operations

@@ -1,4 +1,4 @@
-"""Regression checks for male casting and quiet, low-hiss ambience assets."""
+"""Regression checks for the speech bank format and quiet, low-hiss ambience assets."""
 import json
 from pathlib import Path
 
@@ -25,7 +25,8 @@ def main():
                 info = sf.info(ROOT / line['stream'].removeprefix('res://'))
                 assert info.samplerate == 24000, line
                 speech_count += 1
-    assert speech_count == 293
+    # 293 crew/command lines plus 97 robot lines.
+    assert speech_count == 390
     for region in ['desert', 'alpine', 'industrial', 'coastal']:
         data, rate = sf.read(ROOT / f'assets/audio/environment/{region}.wav')
         rms_db = 10 * np.log10(np.mean(data * data))
@@ -35,7 +36,7 @@ def main():
         hiss_db = 10 * np.log10(np.mean(hiss * hiss))
         assert rms_db <= -23.9, (region, rms_db)
         assert hiss_db <= -46.5, (region, hiss_db)
-    print('PASS 34 separate male speakers, 293 speech clips, four quiet low-hiss beds')
+    print('PASS 45 separate voices, 390 speech clips at 24 kHz, four quiet low-hiss beds')
 
 
 if __name__ == '__main__':

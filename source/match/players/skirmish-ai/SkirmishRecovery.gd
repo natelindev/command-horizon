@@ -7,13 +7,13 @@ const Economy = preload("res://source/match/players/skirmish-ai/SkirmishEconomy.
 const RETREAT_HEALTH = 0.3
 
 
-static func command(game, units, observed):
+static func command(game, units, observed, retreat_health = RETREAT_HEALTH):
 	var recovering = []
 	for unit in units:
 		if unit.movement_speed <= 0 or unit.type == "Worker" or unit.hp <= 0:
 			continue
 		var current = unit.action if unit.action is Recover else null
-		if current == null and unit.hp >= unit.hp_max * RETREAT_HEALTH:
+		if current == null and unit.hp >= unit.hp_max * retreat_health:
 			continue
 		if current != null and unit.hp >= unit.hp_max * Recover.RETURN_HEALTH:
 			unit.issue_manual_order(null)

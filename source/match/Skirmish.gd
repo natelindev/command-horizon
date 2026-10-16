@@ -8,6 +8,7 @@ var alerts = null
 var units_produced = 0
 var battle_record
 var campaign_story = null
+var campaign_hero = null
 var _old_god_mode = false
 var _defeat_timers = {}
 
@@ -38,6 +39,10 @@ func _ready():
 	MatchSignals.unit_production_finished.connect(func(_unit, _producer): units_produced += 1)
 	battle_record = load("res://source/match/BattleRecord.gd").new()
 	add_child(battle_record)
+	if not settings.mission_id.is_empty():
+		campaign_hero = load("res://source/match/campaign/CampaignHero.gd").new()
+		campaign_hero.name = "CampaignHero"
+		add_child(campaign_hero)
 	_attach_campaign_story.call_deferred()
 
 
@@ -92,6 +97,10 @@ func _physics_process(delta):
 	if finished or hud == null:
 		return
 	battle_record.observe()
+	if campaign_hero != null:
+		campaign_hero.step(delta)
+		if finished:
+			return
 	_check_outcome(delta)
 
 

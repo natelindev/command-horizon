@@ -30,7 +30,9 @@ const FOUNDRIES = [Vector2(54, 80), Vector2(74, 80)]
 const CRANES = [Vector2(42, 30), Vector2(86, 30)]
 const BEACONS = [Vector2(40, 19), Vector2(88, 19)]
 const PINES = [Vector2(8, 65), Vector2(120, 65), Vector2(8, 96), Vector2(120, 96)]
+const Sites = preload("res://source/match/world/PointOfInterestCatalog.gd")
 var flight_obstacles = []
+var points_of_interest = []
 var water_material
 var exterior
 
@@ -57,7 +59,8 @@ func overview():
 		"relays": [],
 		"roads": ROADS,
 		"buildings": buildings,
-		"land": SHORE
+		"land": SHORE,
+		"points_of_interest": Sites.definitions(scene_file_path)
 	}
 
 

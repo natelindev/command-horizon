@@ -6,13 +6,15 @@ func _run():
 	root.content_scale_mode = Window.CONTENT_SCALE_MODE_VIEWPORT
 	root.content_scale_size = root.size
 	root.get_node("SaveManager").autosaves_enabled = false
-	root.get_node("Globals").options.restore({"screen": 1, "edge_scrolling": false})
+	root.get_node("Globals").options.restore(
+		{"screen": 1, "edge_scrolling": false, "subtitles": true}
+	)
 	path = "user://campaign-story-preview-%d.json" % OS.get_process_id()
 	await _make_match()
 	var story = game.campaign_story
 	_check(story.cinematic and paused, "Rendered campaign did not show animated intro")
 	await _frames(5)
-	await RenderingServer.frame_post_draw
+	RenderingServer.force_draw(false)
 	get_root().get_texture().get_image().save_png("/tmp/campaign-story-en.png")
 	var modal_rect = story._briefing.get_global_rect()
 	_check(root.get_visible_rect().encloses(modal_rect), "Briefing clipped outside viewport")
@@ -22,7 +24,7 @@ func _run():
 	root.get_node("Globals").options.interface_scale = 1.5
 	root.get_node("Globals").options.apply()
 	await _frames(5)
-	await RenderingServer.frame_post_draw
+	RenderingServer.force_draw(false)
 	get_root().get_texture().get_image().save_png("/tmp/campaign-story-zh.png")
 	_check(
 		root.get_visible_rect().encloses(story._briefing.get_global_rect()),
@@ -134,7 +136,7 @@ func _result_cases(mission):
 		_check(bar.value > before, "Debrief keyboard scrolling failed: " + mission + locale)
 		bar.value = 0
 		overlay.find_child("PlayAgainButton", true, false).grab_focus()
-		await RenderingServer.frame_post_draw
+		RenderingServer.force_draw(false)
 		get_root().get_texture().get_image().save_png(
 			"/tmp/campaign-story-%s-result-%s.png" % [mission, locale]
 		)

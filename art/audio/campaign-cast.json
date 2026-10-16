@@ -1,0 +1,119 @@
+{
+  "aegis": {
+    "engine": "chatterbox",
+    "reference": "vctk/p360_023_enhanced.wav",
+    "reference_sha256": "b6743e9195e5e3fd34fe9d1633ae93f7ffab787b249e45f6467d7d6f7a6ee6ad",
+    "reference_license": "CC-BY-4.0",
+    "max_word_error": 0.25,
+    "battle_voice": "bastion/Hero"
+  },
+  "nyx": {
+    "engine": "chatterbox",
+    "reference": "vctk/p254_023_enhanced.wav",
+    "reference_sha256": "6b681a429198f16e378d53bccb08d06939da7b00144a7696111d4f8f76be7756",
+    "reference_license": "CC-BY-4.0",
+    "max_word_error": 0.25,
+    "battle_voice": "helix/Hero"
+  },
+  "rook": {
+    "engine": "chatterbox",
+    "reference": "vctk/p326_023_enhanced.wav",
+    "reference_sha256": "07ba4e711bb128934d55f2342bb5cd2a1cd371de2ccac6e3a52d5e05ae88ba6b",
+    "reference_license": "CC-BY-4.0",
+    "max_word_error": 0.25,
+    "battle_voice": "frontier/Hero"
+  },
+  "voss": {
+    "engine": "chatterbox",
+    "reference": "vctk/p294_023_enhanced.wav",
+    "reference_sha256": "4d3113ac66bd2da5535b40968aa2183dddc9ff7615a317ba7f45c2745ee073c0",
+    "reference_license": "CC-BY-4.0",
+    "max_word_error": 0.1,
+    "min_similarity": 0.4
+  },
+  "kerrigan": {
+    "engine": "chatterbox",
+    "reference": "donations/Allen_enhanced.wav",
+    "reference_sha256": "18d9095eace38cd7e1a1df2e9a7355fd820bd3257237c1595ea515f2edc57099",
+    "reference_license": "CC0-1.0",
+    "max_word_error": 0.1,
+    "min_similarity": 0.4
+  },
+  "elias": {
+    "engine": "chatterbox",
+    "reference": "vctk/p302_023_enhanced.wav",
+    "reference_sha256": "886d70644f1a8deb5faa3513b58deed2866bfc9397c08232992fe64c88c047bd",
+    "reference_license": "CC-BY-4.0",
+    "max_word_error": 0.1,
+    "min_similarity": 0.4
+  },
+  "cantor": {
+    "engine": "chatterbox",
+    "reference": "vctk/p270_023_enhanced.wav",
+    "reference_sha256": "1ff9bcfc72038adff8f8855e2d8c92cfe8ddd61a8c9073c487444b047412044f",
+    "reference_license": "CC-BY-4.0",
+    "max_word_error": 0.1,
+    "min_similarity": 0.4,
+    "processing": {
+      "vocoder_hz": [
+        98,
+        196
+      ],
+      "vocoder_mix": 0.55,
+      "comb_ms": 2.8,
+      "comb_fb": 0.3,
+      "band": [
+        100,
+        9000
+      ]
+    }
+  },
+  "arden": {
+    "engine": "chatterbox",
+    "reference": "vctk/p256_023_enhanced.wav",
+    "reference_sha256": "f9518f910a7596ae0537fabd7923a1916f99eb84532df5aa44051c170a4f71d0",
+    "reference_license": "CC-BY-4.0",
+    "max_word_error": 0.1,
+    "min_similarity": 0.4
+  },
+  "ren": {
+    "engine": "chatterbox",
+    "reference": "vctk/p259_023_enhanced.wav",
+    "reference_sha256": "7aba504fe0b3b16478b69eb27ce6007e3cb42b0c1915b5f1c6a6024ae37d679b",
+    "reference_license": "CC-BY-4.0",
+    "max_word_error": 0.1,
+    "min_similarity": 0.4
+  },
+  "ilan": {
+    "engine": "chatterbox",
+    "reference": "donations/Haku_enhanced.wav",
+    "reference_sha256": "787da356e19d359b51377b80fa612fdf7c63ddfd397202373e10e7c809e534ba",
+    "reference_license": "CC0-1.0",
+    "max_word_error": 0.1,
+    "min_similarity": 0.4
+  },
+  "wren": {
+    "engine": "chatterbox",
+    "reference": "vctk/p266_023_enhanced.wav",
+    "reference_sha256": "711d98b58263a34ff6228e0319fdac5eb71979f80de9a8dba560aa1f5a6c9327",
+    "reference_license": "CC-BY-4.0",
+    "max_word_error": 0.1,
+    "min_similarity": 0.4
+  },
+  "hask": {
+    "engine": "chatterbox",
+    "reference": "vctk/p316_023_enhanced.wav",
+    "reference_sha256": "4be1d36682a8c136241b5c5e3d90fce3e6ff608d3079b54e2f87e7d4bd54d4ec",
+    "reference_license": "CC-BY-4.0",
+    "max_word_error": 0.1,
+    "min_similarity": 0.4
+  },
+  "jory": {
+    "engine": "chatterbox",
+    "reference": "donations/Jeffrey_enhanced.wav",
+    "reference_sha256": "fd6f17a40420c92d68839fbb7abafa99b0cd926f1ed5e732dca6404499553a1d",
+    "reference_license": "CC0-1.0",
+    "max_word_error": 0.1,
+    "min_similarity": 0.4
+  }
+}

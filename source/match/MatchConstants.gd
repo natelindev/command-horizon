@@ -4,11 +4,11 @@ const RESOURCE_CIRCLE_COLOR = Color("e8c56a")
 const DEFAULT_CIRCLE_COLOR = Color("eef1f1")
 const MAPS = {
 	"res://source/match/maps/ExpandedDesertFrontier.tscn":
-	{"name": "Desert Frontier — Expanded", "players": 2, "size": Vector2i(192, 144)},
+	{"name": "Desert Frontier", "players": 2, "size": Vector2i(192, 144)},
 	"res://source/match/maps/ExpandedAlpineRelay.tscn":
-	{"name": "Alpine Relay — Expanded", "players": 2, "size": Vector2i(192, 156)},
+	{"name": "Alpine Relay", "players": 2, "size": Vector2i(192, 156)},
 	"res://source/match/maps/ExpandedCoastalFoundry.tscn":
-	{"name": "Coastal Foundry — Expanded", "players": 2, "size": Vector2i(192, 156)},
+	{"name": "Coastal Foundry", "players": 2, "size": Vector2i(192, 156)},
 	"res://source/match/maps/BastionDesert.tscn":
 	{"name": "Desert Frontier (original)", "players": 2, "size": Vector2i(64, 64)},
 	"res://source/match/maps/DesertFrontier.tscn":
@@ -119,7 +119,7 @@ class Units:
 		"res://source/match/units/Drone.tscn": 3.0,
 		"res://source/match/units/Tank.tscn": 6.0,
 	}
-	const PRODUCTION_QUEUE_LIMIT = 5
+	const PRODUCTION_QUEUE_LIMIT = 12
 	const STRUCTURE_BLUEPRINTS = {
 		"res://source/match/units/Barracks.tscn":
 		"res://source/match/units/structure-geometries/Barracks.tscn",

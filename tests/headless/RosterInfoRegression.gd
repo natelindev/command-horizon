@@ -133,7 +133,7 @@ func _blocked_roster(player, menus, factory):
 		)
 		factory.production_queue.cancel(job)
 	await _review_roster(player, "low-power")
-	for index in 5:
+	for index in root.get_node("Constants").Match.Units.PRODUCTION_QUEUE_LIMIT:
 		factory.production_queue.produce(load(catalog.scene_path("Tank")))
 	menus._refresh_buttons()
 	_check(tank.button.disabled, "Full production queue remains enabled")

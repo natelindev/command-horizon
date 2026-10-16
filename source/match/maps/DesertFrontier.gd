@@ -23,7 +23,9 @@ const ROADS = [
 const FIELDS = [Vector2(14, 43), Vector2(114, 53), Vector2(52, 6), Vector2(76, 90)]
 const DesertMaterials = preload("res://source/match/maps/DesertMaterials.gd")
 const TREES = DesertMaterials.TREES
+const Sites = preload("res://source/match/world/PointOfInterestCatalog.gd")
 var exterior
+var points_of_interest = []
 
 
 func overview():
@@ -33,7 +35,8 @@ func overview():
 		"fields": FIELDS,
 		"relays": [],
 		"roads": ROADS,
-		"road_width": 5.2
+		"road_width": 5.2,
+		"points_of_interest": Sites.definitions(scene_file_path)
 	}
 
 

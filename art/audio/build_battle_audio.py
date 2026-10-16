@@ -1,30 +1,44 @@
-"""Build original male dialogue and mechanical/UI effects; no runtime TTS.
+"""Build battle dialogue, robot voices and mechanical/UI effects offline; no runtime TTS.
 
-Run with kokoro-onnx, piper-tts, soundfile, numpy and ffmpeg installed:
-  python art/audio/build_battle_audio.py --model tmp/kokoro/kokoro-v1.0.onnx --voices tmp/kokoro/voices-v1.0.bin --unit-model tmp/piper/en_GB-vctk-medium.onnx
-The upstream model/config are build inputs only; see assets/audio/voices/LICENSES.md.
+Run in the voice build environment (see README.md) with ffmpeg installed:
+  tmp/voice-venv/bin/python art/audio/build_battle_audio.py --model tmp/kokoro/kokoro-v1.0.onnx --voices tmp/kokoro/voices-v1.0.bin
+Models, reference voices and QC models are build inputs only; see assets/audio/voices/LICENSES.md.
 """
 import argparse
 import hashlib
 import json
-from importlib.metadata import version
+import re
 import subprocess
 import tempfile
 import wave
+from difflib import SequenceMatcher
+from importlib.metadata import version
 from pathlib import Path
 
 import numpy as np
-from kokoro_onnx import Kokoro
-from piper import PiperVoice, SynthesisConfig
-import soundfile as sf
-from voice_cast import CAST, ANNOUNCERS, ANNOUNCER_TEXT, MACHINES, STRUCTURES, EVENTS, PROFILES
+from voice_cast import (ANNOUNCERS, ANNOUNCER_TEXT, CAST, EVENTS, MACHINES, POOL, PROFILES,
+                        ROBOT_CAST, STOP_TEXT, STRUCTURES, WORKER_TASKS, delivery)
 from verify_voice_cast import validate_cast
+from radio_voice import radio
+from robot_voice import ROBOT_VOICES, robot_voice
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / 'assets/audio/voices'
+REFERENCES = ROOT / 'tmp/voice-refs'
 RATE = 22050
-# Bump when synthesis or filtering changes; dialogue/casting changes invalidate per clip.
-BUILD_REVISION = 3
+SPEECH_RATE = 24000
+# Bump when synthesis, QC or mastering changes; dialogue/casting changes invalidate per clip.
+BUILD_REVISION = 5
+SPEECH_LUFS = -16.0
+MACHINE_LUFS = -20.0
+PEAK_CEILING = 10 ** (-1.5 / 20)
+CANDIDATES = 6
+# Effort dB + half the pitch rise in semitones; calm reading scores about -12, a fired-up call
+# -6 or higher (crew pilot). Reaching it ends the search early.
+ENERGY_TARGET = -6.
+POOL_F0 = {info['sha256']: info['f0_median_hz'] for info in POOL.values()}
+# Names Whisper cannot know; spelling them out keeps transcription QC honest.
+GLOSSARY = 'Aegis, Nyx, Rook, Bastion, Helix, Kestrel, Ironback, Outrider, Wraith, Lancer, Kite, Mender, Jackal.'
 
 
 def clip_source_hash(text, speaker, identity, event, index, faction, provenance):
@@ -33,19 +47,29 @@ def clip_source_hash(text, speaker, identity, event, index, faction, provenance)
     synthesis = {'mechanical_revision': 4}
     if speaker is not None:
         profile = provenance['profiles'][speaker]
-        model = provenance['models'][profile['engine']].copy()
-        speaker_ids = model.pop('speaker_ids', {})
-        synthesis = [profile, model, speaker_ids.get(profile.get('speaker'))]
+        model = provenance['models'][profile['engine']]
+        synthesis = [profile, model, delivery(speaker, event), processing(speaker)]
     return hashlib.sha256(json.dumps(
         [BUILD_REVISION, text, speaker, identity, event, index, faction, synthesis],
         sort_keys=True).encode()).hexdigest()
 
 
-def write_wave(path, data):
+def processing(speaker):
+    """Post-synthesis design that shapes a speaker's clips: robot voice or crew radio."""
+    from radio_voice import CHANNELS, GEAR, UNIT_CLASS
+    faction, role = speaker.split('/')
+    if PROFILES[speaker].get('robot'):
+        return ROBOT_VOICES[speaker]
+    if role in UNIT_CLASS:
+        return [CHANNELS[UNIT_CLASS[role]], GEAR[faction]]
+    return None
+
+
+def write_wave(path, data, rate=RATE):
     data = np.asarray(data)
     data = data / max(1., float(np.max(np.abs(data))) / .65)
     with wave.open(str(path), 'wb') as wav:
-        wav.setparams((1, 2, RATE, 0, 'NONE', 'not compressed'))
+        wav.setparams((1, 2, rate, 0, 'NONE', 'not compressed'))
         wav.writeframes((data * 32767).astype('<i2').tobytes())
 
 
@@ -69,20 +93,21 @@ def structure_console(identity, event, variant):
     return body
 
 
-def mechanical(identity, event, variant, role, faction):
+def mechanical(identity, event, variant, role, faction, duration=None, rate=RATE):
     """Role-specific machinery, with event gestures and faction tuning.
 
     Workers: piston motor + ratchet; repair bots: servo sweeps + tool taps;
     combat robots: heavy gear + latch; drones: rotor tremolo + telemetry arpeggio.
-    Buildings retain their short console/motor feedback.
+    Robots speak over this body; buildings retain their short console/motor feedback.
     """
     if role not in MACHINES:
         return structure_console(identity, event, variant)
     seed = int.from_bytes(hashlib.sha256(f'{identity}:{event}:{variant}'.encode()).digest()[:4], 'little')
     rng = np.random.default_rng(seed)
-    duration = ({'Worker': .78, 'RepairRobot': .65, 'CombatRobot': .9, 'Drone': .7}[role]
-                + {'ready': .28, 'move': .08, 'attack': .12, 'stop': -.08}.get(event, 0))
-    t = np.arange(int(RATE * duration)) / RATE
+    if duration is None:
+        duration = ({'Worker': .78, 'RepairRobot': .65, 'CombatRobot': .9, 'Drone': .7}[role]
+                    + {'ready': .28, 'move': .08, 'attack': .12, 'stop': -.08}.get(event, 0))
+    t = np.arange(int(rate * duration)) / rate
     env = np.minimum(t / .018, 1) * np.minimum((duration - t) / .1, 1)
     tuning = {'bastion': 1.0, 'helix': 1.32, 'frontier': .81}[faction]
     gesture = {'select': 1., 'move': 1.12, 'attack': 1.26, 'ready': .92,
@@ -138,103 +163,345 @@ def ui_sound(kind):
     return .28 * env * (np.sin(2 * np.pi * freq * t) + .2 * np.sin(2 * np.pi * freq * 2 * t))
 
 
+def words(text):
+    # A spoken "'s" is barely audible and transcribers drop it; it is not a missing word.
+    text = re.sub(r"[’']s\b", '', text.lower().replace('-', ' '))
+    # "'em" is how "them" is spoken in a shout; transcribers write it either way.
+    return ['them' if word == 'em' else word for word in re.sub(r'[^a-z0-9 ]', '', text).split()]
+
+
+def transcript_error(expected, heard):
+    """Word-level mismatch ratio; 0 means every word was heard as written."""
+    a, b = words(expected), words(heard)
+    return 1 - SequenceMatcher(None, a, b).ratio() if a or b else 0.
+
+
+def trim(audio, rate):
+    """Cut leading/trailing silence and breaths, keeping a short natural margin."""
+    import librosa
+    _, (start, end) = librosa.effects.trim(audio, top_db=38, frame_length=512, hop_length=128)
+    start = max(0, start - int(.03 * rate))
+    end = min(len(audio), end + int(.08 * rate))
+    audio = audio[start:end].copy()
+    fade = int(.04 * rate)
+    audio[-fade:] *= np.linspace(1, 0, fade)
+    audio[:int(.004 * rate)] *= np.linspace(0, 1, int(.004 * rate))
+    return audio
+
+
+def master(audio, rate, lufs):
+    """Exact per-clip loudness, then a smooth limiter for the true-peak ceiling."""
+    import pyloudnorm
+    from scipy import ndimage
+    meter = pyloudnorm.Meter(rate)
+    window = int(.003 * rate)
+    # Limiting lowers loudness slightly; a few passes converge on the target.
+    for _ in range(4):
+        padded = np.pad(audio, (0, max(0, int(.8 * rate) - len(audio))))
+        audio = audio * 10 ** ((lufs - meter.integrated_loudness(padded)) / 20)
+        gain = np.minimum(1, PEAK_CEILING / np.maximum(np.abs(audio), 1e-9))
+        gain = ndimage.uniform_filter1d(ndimage.minimum_filter1d(gain, window * 2), window)
+        audio = np.clip(audio * gain, -PEAK_CEILING, PEAK_CEILING)
+    return audio
+
+
+def ffmpeg_filter(audio, rate, filters):
+    result = subprocess.run(
+        ['ffmpeg', '-v', 'error', '-f', 'f32le', '-ar', str(rate), '-ac', '1', '-i', '-',
+         '-af', filters, '-f', 'f32le', '-'],
+        input=audio.astype('<f4').tobytes(), capture_output=True, check=True)
+    return np.frombuffer(result.stdout, dtype='<f4').astype(np.float64)
+
+
+def encode(path, audio, rate):
+    # ffmpeg's Vorbis encoder can abort on exact digital silence; -100 dB dither is inaudible.
+    audio = audio + np.random.default_rng(len(audio)).normal(0, 1e-5, len(audio))
+    subprocess.run(['ffmpeg', '-v', 'error', '-y', '-f', 'f32le', '-ar', str(rate), '-ac', '1',
+                    '-i', '-', '-c:a', 'vorbis', '-strict', '-2', '-ac', '2', '-q:a', '6', str(path)],
+                   input=audio.astype('<f4').tobytes(), check=True)
+
+
+class Rejected(ValueError):
+    """No take met the bar; carries the best attempt so a long build can finish and report."""
+
+    def __init__(self, message, best):
+        super().__init__(message)
+        self.best = best
+
+
+class Voices:
+    """Speech engines plus the transcription and speaker models used to accept takes."""
+
+    def __init__(self, args):
+        import torch
+        import whisper
+        from chatterbox.tts import ChatterboxTTS
+        from kokoro_onnx import Kokoro
+        from speechbrain.inference.speaker import EncoderClassifier
+        self.torch = torch
+        cuda = torch.cuda.is_available()
+        device = 'cuda' if cuda else 'mps' if torch.backends.mps.is_available() else 'cpu'
+        self.kokoro = Kokoro(str(args.model), str(args.voices))
+        self.chatterbox = ChatterboxTTS.from_pretrained(device=device)
+        self.asr = whisper.load_model('medium.en', device='cuda' if cuda else 'cpu')
+        self.ecapa = EncoderClassifier.from_hparams(
+            'speechbrain/spkrec-ecapa-voxceleb', savedir=str(ROOT / 'tmp/voice-work/ecapa'),
+            run_opts={'device': 'cpu'})
+        self.reference_embeddings = {}
+        self.models = {
+            'kokoro': {'engine': 'kokoro-onnx ' + version('kokoro-onnx'), 'model': args.model.name,
+                       'model_sha256': hashlib.sha256(args.model.read_bytes()).hexdigest(),
+                       'voices_sha256': hashlib.sha256(args.voices.read_bytes()).hexdigest(),
+                       'source': 'https://huggingface.co/hexgrad/Kokoro-82M',
+                       'model_license': 'Apache-2.0'},
+            'chatterbox': {'engine': 'chatterbox-tts ' + version('chatterbox-tts'),
+                           'source': 'https://huggingface.co/ResembleAI/chatterbox',
+                           'model_license': 'MIT', 'candidates': CANDIDATES,
+                           'qc': 'openai-whisper medium.en transcript; speechbrain ECAPA speaker similarity',
+                           'references': 'https://huggingface.co/kyutai/tts-voices (voice-donations, CC0)'},
+        }
+
+    def embedding(self, audio, rate):
+        import librosa
+        audio16 = librosa.resample(np.asarray(audio, dtype=np.float32), orig_sr=rate, target_sr=16000)
+        with self.torch.inference_mode():
+            vector = self.ecapa.encode_batch(self.torch.from_numpy(audio16)[None]).squeeze().numpy()
+        return vector / np.linalg.norm(vector)
+
+    def hear(self, audio, rate):
+        import librosa
+        audio16 = librosa.resample(np.asarray(audio, dtype=np.float32), orig_sr=rate, target_sr=16000)
+        return self.asr.transcribe(audio16, language='en', fp16=False, temperature=0,
+                                   initial_prompt=GLOSSARY)['text'].strip()
+
+    def reference(self, profile):
+        path = REFERENCES / profile['reference']
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        if digest != profile['reference_sha256']:
+            raise ValueError(f'Reference voice differs from the cast: {path}')
+        if path not in self.reference_embeddings:
+            import librosa
+            audio, rate = librosa.load(path, sr=None)
+            self.reference_embeddings[path] = self.embedding(audio, rate)
+        return path
+
+    def kokoro_line(self, text, profile):
+        voice = self.kokoro.get_voice_style(next(iter(profile['voices'])))
+        samples, rate = self.kokoro.create(text, voice=voice, speed=profile['speed'],
+                                           lang=profile['lang'])
+        assert rate == SPEECH_RATE
+        return trim(np.asarray(samples, dtype=np.float64), rate), {'engine': 'kokoro'}
+
+    def cloned_line(self, text, speaker, event, finish=None):
+        """Best of several seeded takes.
+
+        Crew: among takes with the exact words that still sound like the cast voice, the most
+        fired-up one wins; a take whose pitch leaps into a screech is rejected. Robots: the
+        first exact, clean take wins.
+        """
+        profile = PROFILES[speaker]
+        path = self.reference(profile)
+        target = self.reference_embeddings[path]
+        settings = delivery(speaker, event)
+        robot = profile.get('robot', False)
+        resting_f0 = POOL_F0[profile['reference_sha256']]
+        seed = int(hashlib.sha256(f'{speaker}:{event}:{text}'.encode()).hexdigest()[:8], 16)
+        # A second, slightly calmer pass rescues lines whose intense takes all lost the voice.
+        calmer = dict(settings, exaggeration=round(max(.3, settings['exaggeration'] - .2), 2))
+        passes = [settings] * CANDIDATES + ([] if robot else [calmer] * (CANDIDATES // 2))
+        best = None
+        for attempt, settings in enumerate(passes):
+            if attempt == CANDIDATES and best is not None and not best[0][0]:
+                break
+            self.torch.manual_seed(seed + attempt)
+            with self.torch.inference_mode():
+                wav = self.chatterbox.generate(text, audio_prompt_path=str(path), **settings)
+            take = trim(wav.squeeze(0).cpu().numpy().astype(np.float64), SPEECH_RATE)
+            # A bloated take is a hallucination even if it ends with the right words.
+            expected = .35 + .075 * len(text)
+            if len(take) / SPEECH_RATE > 2.2 * expected:
+                continue
+            similarity = float(self.embedding(take, SPEECH_RATE) @ target)
+            effort, f0 = vocal_energy(take, SPEECH_RATE)
+            sane = robot or (similarity >= profile.get('min_similarity', .4)
+                             and f0 is not None and f0 <= 2.2 * resting_f0)
+            rise = 12 * np.log2(f0 / resting_f0) if f0 else 0.
+            # Energy: vocal effort (upper-mid vs low spectrum) plus a raised, shouting pitch.
+            energy = 0. if robot else effort + .5 * min(max(rise, 0), 10)
+            # Transcription is the slow check; skip it for takes that cannot win.
+            if best is not None and not best[0][0] and (
+                    not sane or (best[0][1] == 0 and -energy >= best[0][2])):
+                continue
+            final = finish(take) if finish else take
+            heard = self.hear(final, SPEECH_RATE)
+            error = transcript_error(text, heard)
+            score = (not sane, round(error, 2), -energy, -similarity)
+            if best is None or score < best[0]:
+                best = (score, final, {'engine': 'chatterbox', 'seed': seed + attempt,
+                                       'heard': heard, 'word_error': round(error, 3),
+                                       'reference_similarity': round(similarity, 3),
+                                       'effort_db': round(effort, 1),
+                                       'pitch_rise_st': round(float(rise), 1),
+                                       'exaggeration': settings['exaggeration']})
+            if error == 0 and (robot or (sane and energy >= ENERGY_TARGET)):
+                break
+        if best is None or best[0][0] or best[2]['word_error'] > profile.get('max_word_error', 0.):
+            raise Rejected(f'No acceptable take for {speaker} {event}: {text!r} -> {best and best[2]}',
+                           best)
+        return best[1], best[2]
+
+
+def vocal_energy(audio, rate):
+    """Vocal effort in dB (1-5 kHz vs 50 Hz-1 kHz) and median pitch; shouting raises both."""
+    import librosa
+    audio16 = librosa.resample(np.asarray(audio, dtype=np.float32), orig_sr=rate, target_sr=16000)
+    spectrum = np.abs(np.fft.rfft(audio16)) ** 2
+    freqs = np.fft.rfftfreq(len(audio16), 1 / 16000)
+    effort = 10 * np.log10(spectrum[(freqs > 1000) & (freqs < 5000)].sum()
+                           / (spectrum[(freqs > 50) & (freqs < 1000)].sum() + 1e-12))
+    f0, voiced, _ = librosa.pyin(audio16, fmin=60, fmax=600, sr=16000, frame_length=1024)
+    f0 = f0[voiced & np.isfinite(f0)]
+    return float(effort), (float(np.median(f0)) if len(f0) else None)
+
+
+def speech_eq(audio):
+    # Natural, close voice: rumble cut, slight mud cut, presence and air for consonants
+    # (the synthesis vocoder rolls off above 8 kHz relative to the donated references).
+    return ffmpeg_filter(audio, SPEECH_RATE, 'highpass=f=75,equalizer=f=320:t=q:w=1:g=-1.5,'
+                                               'equalizer=f=3300:t=q:w=1.1:g=2,highshelf=f=7000:g=3')
+
+
+def robot_take(audio, speaker, faction, role, event, index):
+    design = ROBOT_VOICES[f'{faction}/{role}']
+    voice = robot_voice(audio, SPEECH_RATE, design)
+    lead = int(.12 * SPEECH_RATE)
+    bed = mechanical(0, event, index, role, faction, duration=(len(voice) + lead) / SPEECH_RATE + .1,
+                     rate=SPEECH_RATE)
+    mix = np.zeros(len(bed))
+    mix[lead:lead + len(voice)] = voice / (np.sqrt(np.mean(voice ** 2)) + 1e-9) * .1
+    mix += bed / (np.sqrt(np.mean(bed ** 2)) + 1e-9) * .1 * 10 ** (-13 / 20)
+    return mix
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--model', type=Path, required=True)
     parser.add_argument('--voices', type=Path, required=True)
-    parser.add_argument('--unit-model', type=Path, required=True)
+    parser.add_argument('--only', help='Rebuild only clips whose path starts with this prefix')
+    parser.add_argument('--shard', help='Comma-separated path prefixes: render only their cloned '
+                        'speech into the checkpoint (for another machine); no catalog/manifest')
+    parser.add_argument('--checkpoint', type=Path, default=ROOT / 'tmp/voice-work/build-checkpoint.json')
     args = parser.parse_args()
+    shard = tuple(args.shard.split(',')) if args.shard else None
     validate_cast(PROFILES)
     OUT.mkdir(parents=True, exist_ok=True)
-    voice = Kokoro(str(args.model), str(args.voices))
-    unit_voice = PiperVoice.load(str(args.unit_model))
-    unit_config = Path(str(args.unit_model) + '.json')
-    speaker_ids = json.loads(unit_config.read_text())['speaker_id_map']
-    styles = {key: sum(voice.get_voice_style(name) * weight for name, weight in profile['voices'].items())
-              for key, profile in PROFILES.items() if profile['engine'] == 'kokoro'}
-    catalog = {'factions': {}, 'provenance': {'profiles': PROFILES, 'models': {'kokoro': {
-        'engine': 'kokoro-onnx ' + version('kokoro-onnx'), 'model': args.model.name,
-        'model_sha256': hashlib.sha256(args.model.read_bytes()).hexdigest(),
-        'voices_sha256': hashlib.sha256(args.voices.read_bytes()).hexdigest(),
-        'source': 'https://huggingface.co/hexgrad/Kokoro-82M',
-        'model_license': 'Apache-2.0',
-    }, 'piper': {
-        'engine': 'piper-tts ' + version('piper-tts'), 'model': args.unit_model.name,
-        'model_sha256': hashlib.sha256(args.unit_model.read_bytes()).hexdigest(),
-        'config_sha256': hashlib.sha256(unit_config.read_bytes()).hexdigest(),
-        'source': 'https://huggingface.co/rhasspy/piper-voices/tree/main/en/en_GB/vctk/medium',
-        'dataset': 'https://doi.org/10.7488/ds/2645', 'dataset_license': 'CC-BY-4.0',
-        'speaker_ids': {p['speaker']: speaker_ids[p['speaker']] for p in PROFILES.values()
-                        if p['engine'] == 'piper'},
-    }}}}
-    audit = []
+    engines = None
     manifest_path = ROOT / 'art/audio/battle-audio-manifest.json'
     previous = {entry['file']: entry for entry in json.loads(manifest_path.read_text())} if manifest_path.exists() else {}
+    # Each newly rendered clip is checkpointed, so an interrupted multi-hour build resumes.
+    checkpoint_path = args.checkpoint
+    checkpoint = json.loads(checkpoint_path.read_text()) if checkpoint_path.exists() else {}
+    previous.update(checkpoint)
+    catalog = {'factions': {}, 'provenance': {'profiles': PROFILES, 'robot_voices': ROBOT_VOICES}}
+    audit = []
+    rejected = []
+
+    def models():
+        nonlocal engines
+        if engines is None:
+            engines = Voices(args)
+        return engines
+
+    model_provenance = {
+        'kokoro': {'model': args.model.name, 'model_sha256': hashlib.sha256(args.model.read_bytes()).hexdigest()},
+        'chatterbox': {'engine': 'chatterbox-tts ' + version('chatterbox-tts')},
+    }
     with tempfile.TemporaryDirectory() as work:
         raw = Path(work) / 'raw.wav'
+
         def asset(faction, role, event, index, text, speaker=None, identity=0):
             relative = f'{faction}/{role}/{event}_{index}.ogg'
             path = OUT / relative
             path.parent.mkdir(parents=True, exist_ok=True)
-            source_hash = clip_source_hash(text, speaker, identity, event, index,
-                                           faction, catalog['provenance'])
+            source_hash = clip_source_hash(text, speaker, identity, event, index, faction,
+                                           {'profiles': PROFILES, 'models': model_provenance})
             cached = previous.get(relative, {})
             valid_cache = (path.exists() and cached.get('source_hash') == source_hash
-                           and cached.get('sha256') == hashlib.sha256(path.read_bytes()).hexdigest())
+                           and cached.get('sha256') == hashlib.sha256(path.read_bytes()).hexdigest()
+                           and not cached.get('qc', {}).get('rejected')
+                           and not (args.only and relative.startswith(args.only)))
+            qc = cached.get('qc') if valid_cache else None
+            robotic = speaker is not None and PROFILES[speaker].get('robot', False)
+            if shard and not valid_cache and not (
+                    relative.startswith(shard) and speaker and PROFILES[speaker]['engine'] == 'chatterbox'):
+                return {}
             if not valid_cache:
                 if speaker is None:
                     write_wave(raw, mechanical(identity, event, index, role, faction))
+                    band = {'bastion': 'highpass=f=180,lowpass=f=4300',
+                            'helix': 'highpass=f=260,lowpass=f=5100',
+                            'frontier': 'highpass=f=330,lowpass=f=3300'}[faction]
+                    subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', str(raw), '-af',
+                                    band + f',loudnorm=I={MACHINE_LUFS}:TP=-3:LRA=7,afade=t=in:d=0.008',
+                                    '-ar', str(RATE), '-ac', '2', '-c:a', 'vorbis', '-strict', '-2',
+                                    '-q:a', '4', str(path)], check=True)
                 else:
                     profile = PROFILES[speaker]
                     if profile['engine'] == 'kokoro':
-                        samples, sample_rate = voice.create(text, voice=styles[speaker],
-                            speed=profile['speed'], lang=profile['lang'])
-                        sf.write(str(raw), samples, sample_rate)
+                        audio, qc = models().kokoro_line(text, profile)
+                        audio = speech_eq(audio)
                     else:
-                        config = SynthesisConfig(speaker_id=speaker_ids[profile['speaker']],
-                            length_scale=profile['length_scale'], normalize_audio=False)
-                        with wave.open(str(raw), 'wb') as wav:
-                            unit_voice.synthesize_wav(text, wav, syn_config=config)
-                # Structures keep their original band; machines retain their distinct low/high bodies.
-                band = {'bastion': 'highpass=f=180,lowpass=f=4300',
-                        'helix': 'highpass=f=260,lowpass=f=5100',
-                        'frontier': 'highpass=f=330,lowpass=f=3300'}[faction]
-                if speaker is None and role in MACHINES:
-                    band = 'highpass=f=50,lowpass=f=7000'
-                filters = (band + ',loudnorm=I=-20:TP=-3:LRA=7' if speaker is None else
-                           'highpass=f=70,equalizer=f=280:t=q:w=0.8:g=-2,'
-                           'equalizer=f=2800:t=q:w=0.7:g=1.5,loudnorm=I=-18:TP=-3:LRA=7')
-                filters += ',afade=t=in:d=0.008'
-                subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', str(raw), '-af', filters,
-                                '-ar', str(RATE if speaker is None else 24000), '-ac', '2', '-c:a', 'vorbis', '-strict', '-2', '-q:a', '4', str(path)], check=True)
-            audit.append({'file': relative, 'sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
-                          'speaker_id': speaker, 'text': text, 'source_hash': source_hash})
+                        if robotic:
+                            finish = lambda take: robot_take(take, speaker, faction, role, event, index)
+                        else:
+                            # Crew talk over field comms; the radio blend is checked by the
+                            # same transcription as the dry take.
+                            seed = int(hashlib.sha256(relative.encode()).hexdigest()[:8], 16)
+                            finish = lambda take: radio(speech_eq(take), SPEECH_RATE, faction, role, seed)
+                        try:
+                            audio, qc = models().cloned_line(text, speaker, event, finish=finish)
+                        except Rejected as error:
+                            # Keep going; the clip is flagged, reported and fails verification.
+                            if error.best is None:
+                                raise
+                            rejected.append(str(error))
+                            audio, qc = error.best[1], dict(error.best[2], rejected=True)
+                    encode(path, master(audio, SPEECH_RATE, SPEECH_LUFS), SPEECH_RATE)
+                print(f'  {relative}', qc or '', flush=True)
+            entry = {'file': relative, 'sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
+                     'speaker_id': speaker, 'text': text, 'source_hash': source_hash}
+            if qc:
+                entry['qc'] = qc
+            audit.append(entry)
+            if not valid_cache:
+                checkpoint[relative] = entry
+                checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
+                checkpoint_path.write_text(json.dumps(checkpoint))
             return {'stream': 'res://assets/audio/voices/' + relative, 'text': text,
-                    'mechanical': speaker is None,
+                    'mechanical': speaker is None, 'robotic': robotic,
                     'speaker_id': speaker if speaker else f'machine:{faction}/{role}'}
+
         for faction_index, (faction, roles) in enumerate(CAST.items()):
             entry = {'announcer': {}, 'units': {}}
             catalog['factions'][faction] = entry
             for event, text in ANNOUNCER_TEXT.items():
                 entry['announcer'][event] = asset(faction, 'Command', event, 0, text, ANNOUNCERS[faction])
-            for role, (speaker, texts) in roles.items():
+            for role, (speaker, texts) in {**roles, **ROBOT_CAST[faction]}.items():
                 lines = {}
-                for event, text in zip(EVENTS, texts):
+                for event, text in zip(EVENTS, texts['lines'] if isinstance(texts, dict) else texts):
                     variants = lines.setdefault(event, [])
                     variants.append(asset(faction, role, event, len(variants), text, speaker))
-                stop_text = {'bastion': 'Holding position.', 'helix': 'Position locked.', 'frontier': 'Holding here.'}[faction]
-                lines['stop'] = [asset(faction, role, 'stop', 0, stop_text, speaker)]
-                if role == 'Worker':
-                    for event, text in {'gather': 'Let us see what we can salvage.',
-                                        'construct': 'Tools out. Let us build.',
-                                        'repair': 'I can patch that up.'}.items():
-                        lines[event] = [asset(faction, role, event, 0, text, speaker)]
+                extra = texts.get('tasks', {}) if isinstance(texts, dict) else {}
+                if role == 'Worker' and role in roles:
+                    extra = WORKER_TASKS
+                stop_text = texts['stop'] if isinstance(texts, dict) else STOP_TEXT[faction]
+                extra = {**extra, 'stop': stop_text}
+                for event, text in extra.items():
+                    lines[event] = [asset(faction, role, event, 0, text, speaker)]
                 entry['units'][role] = lines
                 print(f'{faction}/{role} voiced', flush=True)
-            for role_index, role in enumerate(MACHINES + STRUCTURES):
-                if role in roles:
-                    continue
-                identity = faction_index * 17 + role_index
+            for role_index, role in enumerate(STRUCTURES):
+                identity = faction_index * 17 + len(MACHINES) + role_index
                 lines = {}
                 for event in ['select', 'move', 'attack', 'ready', 'gather', 'construct', 'repair', 'stop']:
                     text = {'select': '[Telemetry chirp]', 'move': '[Drive engaged]',
@@ -244,13 +511,29 @@ def main():
                     lines[event] = [asset(faction, role, event, i, text, identity=identity)
                                     for i in range(2 if event in ['select', 'move', 'attack'] else 1)]
                 entry['units'][role] = lines
+        if shard:
+            print(f'Shard rendered; checkpoint {checkpoint_path}', flush=True)
+            if rejected:
+                raise SystemExit('Rejected:\n' + '\n'.join(rejected))
+            return
         ui = ROOT / 'assets/audio/ui'
         ui.mkdir(parents=True, exist_ok=True)
         for kind in ['click', 'select', 'adjust', 'confirm']:
             write_wave(ui / f'{kind}.wav', ui_sound(kind))
+    if engines is not None:
+        catalog['provenance']['models'] = engines.models
+    elif (OUT / 'catalog.json').exists():
+        catalog['provenance']['models'] = json.loads((OUT / 'catalog.json').read_text())['provenance'].get('models', {})
+    for stale in set(previous) - {entry['file'] for entry in audit}:
+        (OUT / stale).unlink(missing_ok=True)
+        Path(str(OUT / stale) + '.import').unlink(missing_ok=True)
     (OUT / 'catalog.json').write_text(json.dumps(catalog, indent=2) + '\n')
-    (ROOT / 'art/audio/battle-audio-manifest.json').write_text(json.dumps(audit, indent=2) + '\n')
+    manifest_path.write_text(json.dumps(audit, indent=2) + '\n')
+    checkpoint_path.unlink(missing_ok=True)
     print(f'Built {len(audit)} battle clips and 4 UI cues.', flush=True)
+    if rejected:
+        raise SystemExit('Lines without an acceptable take (rewrite or recast, then rebuild):\n'
+                         + '\n'.join(rejected))
 
 
 if __name__ == '__main__':

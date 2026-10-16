@@ -13,6 +13,9 @@ var _game
 var _audio: AudioStreamPlayer
 var _voice
 var _pending = []
+var _active_cue = ""
+var _line_index = 0
+var _resume = {}
 var _remaining = 0.0
 var _started = false
 var _scene_time = 0.0
@@ -33,7 +36,7 @@ var _interrupted = false
 
 
 static func supports(game):
-	return game.settings.mission_id in Narration.MISSIONS
+	return game.settings.mission_id in Narration.missions()
 
 
 func _ready():
@@ -52,11 +55,24 @@ func _ready():
 
 
 func snapshot():
-	return {"seen": seen.duplicate()}
+	var active = _resume.duplicate()
+	if not current.is_empty():
+		active = {
+			"cue": _active_cue,
+			"line": current.id,
+			"remaining": maxf(0, _remaining),
+			"position": _audio.get_playback_position()
+		}
+	return {"seen": seen.duplicate(), "pending": _pending.duplicate(), "active": active}
 
 
 func restore(data):
+	if cinematic:
+		_end_cinematic()
+	_clear()
 	seen = data.get("seen", []).duplicate()
+	_pending = data.get("pending", []).duplicate()
+	_resume = data.get("active", {}).duplicate()
 	_started = true
 	# A legacy save resumes its battle, rather than replaying an opening briefing.
 	if data.is_empty():
@@ -86,9 +102,13 @@ func start_briefing(force_cinematic = false):
 		_pending.append(id)
 		return true
 	_pending.clear()
+	_clear()
 	_begin_cinematic()
 	_play(id)
-	_scene_length = _remaining
+	_scene_length = 0.0
+	for line in Narration.scene(id):
+		var stream = load(line.stream) if ResourceLoader.exists(line.stream) else null
+		_scene_length += _line_duration(line, stream)
 	return true
 
 
@@ -104,6 +124,11 @@ func _process(delta):
 		return
 	if not _started:
 		start_briefing()
+	# Battle dialogue follows tactical pause. Result dialogue and cinematic briefings
+	# still run while their presentation owns the pause.
+	if get_tree().paused and not cinematic and not _game.finished:
+		_audio.stream_paused = true
+		return
 	if is_instance_valid(Globals.settings_dialog) or get_node("/root/SaveManager").busy:
 		_audio.stream_paused = true
 		return
@@ -115,6 +140,12 @@ func _process(delta):
 			caption_changed.emit({})
 		return
 	_audio.stream_paused = false
+	if not _resume.is_empty():
+		var saved = _resume.duplicate()
+		_resume.clear()
+		var sequence = Narration.scene(saved.cue)
+		var index = sequence.map(func(line): return line.id).find(saved.line)
+		_play(saved.cue, index, saved.position, saved.remaining)
 	if _interrupted:
 		_interrupted = false
 		caption_changed.emit(current.duplicate())
@@ -127,9 +158,7 @@ func _process(delta):
 	if not current.is_empty():
 		_remaining -= elapsed
 		if _remaining <= 0:
-			if cinematic:
-				_end_cinematic()
-			_clear()
+			_advance_line()
 	if current.is_empty() and not _pending.is_empty():
 		_play(_pending.pop_front())
 
@@ -137,7 +166,13 @@ func _process(delta):
 func _observe():
 	if _game.finished:
 		var id = (
-			_game.settings.mission_id + ".victory" if _game.result == "Victory" else "common.defeat"
+			_game.settings.mission_id + ".victory"
+			if _game.result == "Victory"
+			else (
+				_game.settings.mission_id + ".defeat"
+				if Narration.lines().has(_game.settings.mission_id + ".defeat")
+				else "common.defeat"
+			)
 		)
 		if id not in seen:
 			_pending.clear()
@@ -146,6 +181,10 @@ func _observe():
 		return
 	for id in _milestones():
 		cue(id)
+	if _game.campaign_hero != null and _game.campaign_hero.alive():
+		var hero = _game.campaign_hero.unit
+		if hero.hp < hero.hp_max * .35:
+			cue(_game.settings.mission_id + ".danger")
 	if "opposition" in _game and is_instance_valid(_game.opposition):
 		if _game.opposition.active:
 			cue("enemy_base")
@@ -190,33 +229,80 @@ func _milestones():
 				result.append("command_horizon.deployment")
 			if _game.command_destroyed:
 				result.append("command_horizon.command")
+	if Catalog.is_story(mission):
+		if _game.stage > 0:
+			result.append(mission + ".milestone")
+		if _game.stage > 1:
+			result.append(mission + ".stage_2")
+	elif mission == "supply_line" and _game.convoy.any(func(entry): return entry.leg >= 2):
+		result.append(mission + ".stage_2")
+	elif mission == "split_signal" and _game.network_badge:
+		result.append(mission + ".stage_2")
 	return result
 
 
-func _play(id):
-	current = Narration.record(id, Globals.options.language)
-	if current.is_empty():
+func _play(id, index = 0, position = 0.0, remaining = -1.0):
+	var sequence = Narration.scene(id, Globals.options.language)
+	if (index < 0 and not Narration.legacy(id)) or index >= sequence.size():
 		return
+	_active_cue = id
+	_line_index = index
+	current = (
+		Narration._legacy_record(id, Globals.options.language)
+		if index < 0
+		else sequence[index].duplicate()
+	)
 	if _voice != null:
 		_voice.begin_narration()
-	_audio.stream = load(current.stream)
+	_audio.stream = load(current.stream) if ResourceLoader.exists(current.stream) else null
 	if _audio.stream != null:
-		_audio.play()
-		_remaining = maxf(_audio.stream.get_length() + 0.4, 2.2)
-	else:
-		# Retain readable objectives and a working skip even if an installation's
-		# narration asset is missing; asset coverage is checked by regression.
-		_remaining = maxf(2.2, current.text.length() / 18.0)
+		_audio.play(minf(position, _audio.stream.get_length()))
+	_remaining = _line_duration(current, _audio.stream)
+	if remaining >= 0:
+		_remaining = remaining
+	_present_line()
+
+
+func _line_duration(line, stream):
+	if stream != null:
+		return maxf(stream.get_length() + .4, 2.2)
+	# A missing asset must not trap the player in a briefing.
+	return maxf(2.2, line.text.length() / 18.0)
+
+
+func _present_line():
 	if cinematic:
 		_subtitle.set_line(current.speaker, current.text, Globals.options.subtitle_size)
+		_subtitle.set_portrait(current.get("portrait", ""))
+		_subtitle.set_caption_visible(Globals.options.subtitles)
 	else:
 		caption_changed.emit(current.duplicate())
+
+
+func _advance_line():
+	if _line_index >= 0 and _line_index + 1 < Narration.scene(_active_cue).size():
+		_play(_active_cue, _line_index + 1)
+		return
+	if cinematic:
+		_end_cinematic()
+	_clear()
+
+
+func skip_dialogue():
+	# Skip the active conversation as a whole; queued mission events remain intact.
+	if cinematic:
+		skip_briefing()
+	else:
+		_clear()
 
 
 func _clear():
 	_audio.stop()
 	_interrupted = false
 	current.clear()
+	_resume.clear()
+	_active_cue = ""
+	_line_index = 0
 	_remaining = 0.0
 	caption_changed.emit({})
 	if _voice != null:
@@ -233,6 +319,9 @@ func _begin_cinematic():
 	_scene_time = 0.0
 	_was_paused = get_tree().paused
 	_focus_before = get_viewport().gui_get_focus_owner()
+	# An opening can precede the first physics tick. Populate only the player's
+	# existing sight circles before pausing, so the briefing has a visible world.
+	_game.fog_of_war._physics_process(0)
 	get_tree().paused = true
 	var camera = _game.get_node("IsometricCamera3D")
 	_camera_state = {
@@ -243,8 +332,9 @@ func _begin_cinematic():
 	}
 	camera.set_physics_process(false)
 	_suspend_input(_game)
-	for hud in [_game.hud, _game.get_node_or_null("HUD")]:
-		if hud != null:
+	# Nested CanvasLayers (notably alerts) do not inherit their parent's visibility.
+	for hud in _game.find_children("*", "CanvasLayer", true, false):
+		if hud != _layer:
 			_hud_state.append({"node": weakref(hud), "visible": hud.visible})
 			hud.hide()
 	_modal.show()
@@ -316,6 +406,9 @@ func _animate_camera():
 
 
 func _objective_point():
+	if Catalog.is_story(_game.settings.mission_id):
+		var point = _game.current_objective().point
+		return Vector3(point[0], 0, point[1])
 	match _game.settings.mission_id:
 		"supply_line":
 			return _game.map.POINTS[0]
@@ -388,10 +481,7 @@ func _refresh_language():
 		current.text = localized.text
 		current.speaker = localized.speaker
 		# Let an in-flight recording finish; a locale change never restarts a cue.
-		if cinematic:
-			_subtitle.set_line(current.speaker, current.text, Globals.options.subtitle_size)
-		else:
-			caption_changed.emit(current.duplicate())
+		_present_line()
 	_update_layout()
 
 

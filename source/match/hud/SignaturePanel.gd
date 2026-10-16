@@ -72,6 +72,8 @@ func refresh():
 	_activate.accessibility_description = _activate.tooltip_text
 	_summary.accessibility_name = state.summary
 	_summary.accessibility_description = _summary.tooltip_text
+	# A locked ability is a research goal, listed in Tech; it needs no space here.
+	visible = player.coordination_unlocked
 
 
 func _feedback(units, player, ready):

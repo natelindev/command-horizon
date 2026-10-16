@@ -39,6 +39,7 @@ func _menu():
 	setup.preferences_path = preferences
 	root.add_child(setup)
 	_check("ExpandedDesertFrontier" in setup._get_selected_map_path(), "Fresh setup uses small map")
+	_check(setup._map_paths.size() == 3, "Retired sparse maps remain in the new-game picker")
 	for map_name in EXPANDED_MAPS:
 		var path = "res://source/match/maps/%s.tscn" % map_name
 		var index = setup._map_paths.find(path)
@@ -59,8 +60,17 @@ func _menu():
 	legacy.save(preferences)
 	setup._load_preferences()
 	_check(
-		"/CoastalFoundry.tscn" in setup._get_selected_map_path(), "Legacy map preference changed"
+		"/ExpandedCoastalFoundry.tscn" in setup._get_selected_map_path(),
+		"Legacy coastal preference did not select its replacement"
 	)
+	for old_name in setup.LEGACY_MAP_NAMES:
+		legacy.set_value("setup", "map", "res://source/match/maps/%s.tscn" % old_name)
+		legacy.save(preferences)
+		setup._load_preferences()
+		var expected = old_name if old_name in EXPANDED_MAPS else "Expanded" + old_name
+		if expected not in EXPANDED_MAPS:
+			expected = "ExpandedDesertFrontier"
+		_check(expected in setup._get_selected_map_path(), "Legacy map routing failed: " + old_name)
 	setup.queue_free()
 	await _frames(3)
 	DirAccess.remove_absolute(preferences)
@@ -110,7 +120,9 @@ func _geometry(map_name):
 	_check(not route.is_empty(), "No ground route between bases: " + map_name)
 	if not route.is_empty():
 		_check((route[-1] * Vector3(1, 0, 1)).distance_to(to) < 1.5, "Cross-map route ends early")
-	for site in map.POI_SITES:
+	for site in load("res://source/match/world/PointOfInterestCatalog.gd").definitions(
+		game.settings.map_path
+	):
 		var point = Vector3(site.position.x, 0, site.position.y)
 		for resource in map.get_node("Resources").get_children():
 			_check(point.distance_to(resource.position) >= 14, "Facility crowds resource deposit")

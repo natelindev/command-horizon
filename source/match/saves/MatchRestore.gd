@@ -1,6 +1,8 @@
 # gdlint: disable=max-returns,max-file-lines
 extends RefCounted
 
+const Campaigns = preload("res://source/match/campaign/CampaignCatalog.gd")
+
 const FactionRules = preload("res://source/match/FactionRules.gd")
 
 const Schema = preload("res://source/match/saves/SnapshotSchema.gd")
@@ -77,11 +79,7 @@ func restore(tree, snapshot):
 	var scene_path = (
 		"res://source/match/Skirmish.tscn"
 		if settings.mission_id == ""
-		else (
-			load("res://source/match/campaign/CampaignCatalog.gd")
-			. OPERATIONS[settings.mission_id]
-			. scene
-		)
+		else (Campaigns.OPERATIONS[settings.mission_id].scene)
 	)
 	var game = load(scene_path).instantiate()
 	game.restoring = true
@@ -274,7 +272,9 @@ func restore(tree, snapshot):
 	warnings.append_array(actions.warnings)
 	_army_groups(game)
 	_squads()
-	if game.settings.mission_id == "" and game.map.has_method("restore_state"):
+	if Campaigns.is_story(game.settings.mission_id):
+		game.restore_operation(_data.mission, entities)
+	elif game.settings.mission_id == "" and game.map.has_method("restore_state"):
 		game.map.restore_state(_data.mission, entities)
 	elif game.settings.mission_id == "command_horizon":
 		for key in [
@@ -328,13 +328,13 @@ func restore(tree, snapshot):
 			game.convoy.append(entry)
 	elif game.settings.mission_id == "split_signal":
 		for key in _data.mission:
-			if key not in ["relays", "story", "opposition"]:
+			if key not in ["relays", "story", "opposition", "hero"]:
 				game.set(key, _data.mission[key])
 		game.map.restore_state(_data.mission, entities)
 	elif game.settings.mission_id != "" and not _data.mission.is_empty():
 		var mission = _data.mission
 		for key in mission:
-			if key not in ["relay", "story", "opposition"]:
+			if key not in ["relay", "story", "opposition", "hero"]:
 				game.set(key, mission[key])
 		game.relay.captured_by = entities.get(mission.relay.owner)
 		game.relay.candidate = entities.get(mission.relay.candidate)
@@ -343,6 +343,7 @@ func restore(tree, snapshot):
 		game.relay._update_presentation()
 	game.repair_service._elapsed = _data.repair_elapsed
 	if game.settings.mission_id != "":
+		game.campaign_hero.restore(_data.mission.get("hero", {}), entities)
 		game._attach_campaign_story()
 		if is_instance_valid(game.campaign_story):
 			game.campaign_story.restore(_data.mission.get("story", {}))

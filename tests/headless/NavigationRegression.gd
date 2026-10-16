@@ -65,10 +65,18 @@ func _spawn(role, point):
 
 
 func _test_obstacle_route():
-	var factory = _spawn("VehicleFactory", Vector3(25, 0, 25))
-	var tank = _spawn("Tank", Vector3(17, 0, 25))
+	var factory = _spawn("VehicleFactory", Vector3(25, 0, 32))
+	var tank = _spawn("Tank", Vector3(17, 0, 32))
 	await _frames(90)
-	var destination = Vector3(33, 0, 25)
+	var destination = Vector3(33, 0, 32)
+	# Keep the isolated route clear of the authored settlements at (18,25)/(32,25).
+	var projected = NavigationServer3D.map_get_closest_point(
+		_game.navigation.terrain.navigation_map_rid, destination
+	)
+	_check(
+		(projected * Vector3(1, 0, 1)).distance_to(destination) < .05,
+		"Route fixture targets blocked ground"
+	)
 	tank.action = _moving.new(destination)
 	var min_distance = 100.0
 	for _index in range(900):

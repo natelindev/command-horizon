@@ -7,8 +7,11 @@ func _run():
 	var preferences = root.get_node("Globals").options
 	var original = preferences.capture()
 	preferences.restore({"screen": 1, "edge_scrolling": false})
+	Engine.max_fps = 0
+	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
 	root.size = Vector2i(1440, 900)
 	root.content_scale_size = root.size
+	RenderingServer.viewport_set_measure_render_time(root.get_viewport_rid(), true)
 	await _skirmish("helix", "res://source/match/maps/ExpandedDesertFrontier.tscn")
 	for player in get_nodes_in_group("players"):
 		player.set_process(false)
@@ -41,21 +44,33 @@ func _run():
 	game.queue_free()
 	await _frames(5)
 	preferences.restore(original)
-	quit()
+	for message in errors:
+		push_error(message)
+	quit(0 if errors.is_empty() else 1)
 
 
 func _measure_frames(label):
 	await _frames(60)
 	var times = []
+	var gpu_ms = 0.0
+	var render_cpu_ms = 0.0
 	var last = Time.get_ticks_usec()
 	var started = game.simulation_time
+	var drawn = Engine.get_frames_drawn()
+	var physics_started = Engine.get_physics_frames()
 	for frame in 240:
 		await process_frame
 		var now = Time.get_ticks_usec()
 		times.append((now - last) / 1000.0)
+		gpu_ms += RenderingServer.viewport_get_measured_render_time_gpu(root.get_viewport_rid())
+		render_cpu_ms += RenderingServer.viewport_get_measured_render_time_cpu(
+			root.get_viewport_rid()
+		)
 		last = now
 	times.sort()
 	var mean = times.reduce(func(total, sample): return total + sample, 0.0) / times.size()
+	_check(Engine.get_frames_drawn() - drawn >= 230, "Benchmark window did not render its samples")
+	_check(game.simulation_time - started > 1.0, "Benchmark simulation did not advance")
 	print(
 		"GAMEPLAY ",
 		label,
@@ -72,5 +87,19 @@ func _measure_frames(label):
 		" wall_seconds=",
 		mean * times.size() / 1000.0,
 		" viewport=",
-		root.get_visible_rect().size
+		root.get_visible_rect().size,
+		" pixels=",
+		root.get_texture().get_size(),
+		" gpu_ms=",
+		snappedf(gpu_ms / times.size(), .01),
+		" render_cpu_ms=",
+		snappedf(render_cpu_ms / times.size(), .01),
+		" adapter=",
+		RenderingServer.get_video_adapter_name(),
+		" rendered_frames=",
+		Engine.get_frames_drawn() - drawn,
+		" physics_ticks=",
+		Engine.get_physics_frames() - physics_started,
+		" paused=",
+		paused
 	)

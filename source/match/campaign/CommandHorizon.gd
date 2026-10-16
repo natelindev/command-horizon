@@ -240,7 +240,11 @@ func _check_outcome(delta):
 				"Deployment ready. Keep infantry here while your strike force destroys command."
 			)
 	if deployed and command_destroyed and opposition.boss_defeated and zone_held():
-		_finish("Victory")
+		if (
+			campaign_hero.alive()
+			and campaign_hero.unit.global_position_yless.distance_to(map.TARGET) < 18
+		):
+			_finish("Victory")
 		return
 	if not defence_started:
 		return
@@ -311,6 +315,8 @@ func _finish(value):
 
 
 func objective_text():
+	if deployed and command_destroyed and opposition.boss_defeated and zone_held():
+		return "Bring Aegis to the Spire controls to open the gates."
 	if command_left < 60:
 		return "Rebuild HQ · %ds remaining" % ceili(command_left)
 	if command_destroyed and not opposition.boss_defeated:

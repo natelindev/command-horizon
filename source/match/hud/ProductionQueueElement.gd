@@ -14,7 +14,8 @@ func _ready():
 	text = ""
 	var factions = load("res://source/match/FactionCatalog.gd")
 	var faction = queue.get_parent().player.faction
-	icon = load(factions.icon(faction, unit_type))
+	# A missing portrait leaves the percentage readable on a plain key.
+	icon = factions.portrait(faction, unit_type)
 	expand_icon = true
 	# Translate each part: the composed line has no catalog entry of its own.
 	tooltip_text = (
@@ -56,7 +57,8 @@ func _ready():
 
 func _on_queue_element_changed():
 	var progress = queue_element.progress()
-	find_child("Label").text = "{0}%".format([int(progress * 100.0)])
+	# Waiting jobs stay quiet; only work in progress shows its percentage.
+	find_child("Label").text = "{0}%".format([int(progress * 100.0)]) if progress > 0.0 else ""
 	var bar = get_node_or_null("Progress")
 	if bar != null:
 		bar.value = progress

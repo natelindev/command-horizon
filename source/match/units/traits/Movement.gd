@@ -249,7 +249,7 @@ func _recovery_clearance(direction):
 	for step in 4:
 		var distance = (step + 1) * 0.5
 		var candidate = origin + direction * distance
-		var navigable = NavigationServer3D.map_get_closest_point(get_navigation_map(), candidate)
+		var navigable = _closest_navigation_point(candidate)
 		if ((navigable - candidate) * Vector3(1, 0, 1)).length() > 0.15:
 			break
 		clearance = distance
@@ -398,7 +398,7 @@ func _on_velocity_computed(safe_velocity: Vector3):
 	var displacement = safe_velocity.limit_length(current_speed) * _physics_delta
 	var candidate = _unit.global_position + displacement
 	# Local avoidance can push agents off the mesh; constrain the resulting step.
-	var navigable = NavigationServer3D.map_get_closest_point(get_navigation_map(), candidate)
+	var navigable = _closest_navigation_point(candidate)
 	navigable.y -= path_height_offset
 	var next = _unit.global_position.move_toward(
 		Vector3(navigable.x, _unit.global_position.y, navigable.z), current_speed * _physics_delta
@@ -425,9 +425,7 @@ func _on_velocity_computed(safe_velocity: Vector3):
 			var recovery_point = (
 				_unit.global_position + velocity.limit_length(current_speed) * _physics_delta
 			)
-			var recovery_nav = NavigationServer3D.map_get_closest_point(
-				get_navigation_map(), recovery_point
-			)
+			var recovery_nav = _closest_navigation_point(recovery_point)
 			recovery_nav.y -= path_height_offset
 			var recovery_step = _clip_ground_step(
 				_unit.global_position.move_toward(recovery_nav, current_speed * _physics_delta)
@@ -472,7 +470,7 @@ func _clip_ground_step(next):
 	var step = (next - origin) * Vector3(1, 0, 1)
 	var normal = contact.normal
 	var slide = step - normal * minf(0.0, step.dot(normal))
-	var navigable = NavigationServer3D.map_get_closest_point(get_navigation_map(), origin + slide)
+	var navigable = _closest_navigation_point(origin + slide)
 	navigable.y -= path_height_offset
 	var alternative = origin.move_toward(navigable, speed * _physics_delta)
 	var slide_contact = _ground_step_contact(origin, alternative, neighbors)
@@ -507,3 +505,9 @@ func _ground_step_contact(origin, next, neighbors):
 			result.fraction = fraction
 			result.normal = offset.normalized()
 	return result
+
+
+func _closest_navigation_point(point: Vector3) -> Vector3:
+	if domain == Constants.Match.Navigation.Domain.TERRAIN:
+		return _match.navigation.terrain.closest_point(point)
+	return NavigationServer3D.map_get_closest_point(get_navigation_map(), point)

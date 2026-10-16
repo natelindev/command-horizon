@@ -163,8 +163,9 @@ func _start(line):
 	_audio.bus = "Effects" if mechanical else "Voice"
 	_audio.volume_db = -5.0 if mechanical else 0.0
 	_audio.play()
+	# Robots speak through their own machinery; only crew and command use the radio.
 	if (
-		not mechanical
+		_radioed(line)
 		and is_instance_valid(_chirp_audio)
 		and _chirp_in != null
 		and Globals.options.voice_volume > 0
@@ -198,9 +199,15 @@ func _process(delta):
 			break
 
 
+func _radioed(line):
+	return (
+		not line.is_empty() and not line.get("mechanical", false) and not line.get("robotic", false)
+	)
+
+
 func _clear():
 	if (
-		not current.get("mechanical", false)
+		_radioed(current)
 		and is_instance_valid(_chirp_audio)
 		and _chirp_out != null
 		and Globals.options.voice_volume > 0

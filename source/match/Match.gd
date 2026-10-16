@@ -71,6 +71,9 @@ func _ready():
 	repair_service = load("res://source/match/combat/RepairService.gd").new()
 	add_child(repair_service)
 	MatchSignals.setup_and_spawn_unit.connect(_setup_and_spawn_unit)
+	# Facilities, landmarks and caches use the map's final (expanded) layout.
+	load("res://source/match/world/MapLandmarks.gd").populate(map)
+	load("res://source/match/maps/CampaignInteriors.gd").populate(map, settings.mission_id)
 	_setup_subsystems_dependent_on_map()
 	_setup_players()
 	_setup_player_units()

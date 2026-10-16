@@ -1,6 +1,7 @@
-[gd_scene load_steps=6 format=3 uid="uid://cbe63rdjw7y4p"]
+[gd_scene load_steps=7 format=3 uid="uid://cbe63rdjw7y4p"]
 
 [ext_resource type="PackedScene" uid="uid://b7c1crf36x1li" path="res://source/match/Map.tscn" id="1_sqrvi"]
+[ext_resource type="Script" path="res://source/match/maps/AuthoredSceneMap.gd" id="script"]
 [ext_resource type="Material" uid="uid://co8vfcoqqs5i8" path="res://source/match/resources/materials/terrain.material.tres" id="2_sguro"]
 [ext_resource type="PackedScene" uid="uid://bf3jjdafqvh0w" path="res://source/match/units/non-player/ResourceA.tscn" id="3_3gxbc"]
 [ext_resource type="PackedScene" uid="uid://bufgjfa3ne3uk" path="res://source/match/units/non-player/ResourceB.tscn" id="4_4hhxt"]
@@ -12,6 +13,7 @@ size = Vector2(54, 54)
 center_offset = Vector3(25, 0, 25)
 
 [node name="Map" instance=ExtResource("1_sqrvi")]
+script = ExtResource("script")
 
 [node name="Terrain" parent="Geometry" index="1"]
 mesh = SubResource("PlaneMesh_frqq2")

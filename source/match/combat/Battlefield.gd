@@ -158,7 +158,7 @@ func is_observed(player, target):
 	return false
 
 
-func _cell(point):
+func _cell(point: Vector3) -> Vector2i:
 	return Vector2i(floori(point.x / CELL_SIZE), floori(point.z / CELL_SIZE))
 
 
@@ -270,7 +270,9 @@ func has_line_of_fire(source, target):
 	)
 
 
-func line_clear(origin, end, ignored_source = null, ignored_target = null):
+func line_clear(
+	origin: Vector3, end: Vector3, ignored_source = null, ignored_target = null
+) -> bool:
 	_refresh()
 	if is_instance_valid(ignored_source) and ignored_source.has_meta("garrison_host"):
 		ignored_source = ignored_source.get_meta("garrison_host")
@@ -300,32 +302,34 @@ func line_clear(origin, end, ignored_source = null, ignored_target = null):
 
 
 # Intersection with the finite cylinder, including sloping airborne sight lines.
-static func segment_hits_cylinder(origin, end, center, radius, height):
-	var direction = end - origin
-	var offset = origin - center
-	var a = direction.x * direction.x + direction.z * direction.z
-	var b = 2.0 * (offset.x * direction.x + offset.z * direction.z)
-	var c = offset.x * offset.x + offset.z * offset.z - radius * radius
-	var low = 0.0
-	var high = 1.0
+static func segment_hits_cylinder(
+	origin: Vector3, end: Vector3, center: Vector3, radius: float, height: float
+) -> bool:
+	var direction := end - origin
+	var offset := origin - center
+	var a := direction.x * direction.x + direction.z * direction.z
+	var b := 2.0 * (offset.x * direction.x + offset.z * direction.z)
+	var c := offset.x * offset.x + offset.z * offset.z - radius * radius
+	var low := 0.0
+	var high := 1.0
 	if a < 0.000001:
 		if c > 0:
 			return false
 	else:
-		var discriminant = b * b - 4.0 * a * c
+		var discriminant := b * b - 4.0 * a * c
 		if discriminant < 0:
 			return false
-		var root = sqrt(discriminant)
-		low = max(low, (-b - root) / (2.0 * a))
-		high = min(high, (-b + root) / (2.0 * a))
+		var root := sqrt(discriminant)
+		low = maxf(low, (-b - root) / (2.0 * a))
+		high = minf(high, (-b + root) / (2.0 * a))
 	if abs(direction.y) < 0.000001:
 		if offset.y < 0 or offset.y > height:
 			return false
 	else:
-		var bottom = -offset.y / direction.y
-		var top = (height - offset.y) / direction.y
-		low = max(low, min(bottom, top))
-		high = min(high, max(bottom, top))
+		var bottom := -offset.y / direction.y
+		var top := (height - offset.y) / direction.y
+		low = maxf(low, minf(bottom, top))
+		high = minf(high, maxf(bottom, top))
 	return low <= high
 
 
@@ -344,24 +348,27 @@ func nearby_bodies(point, margin, player_filter = null):
 	return nearby_units(point * Vector3(1, 0, 1), _max_unit_radius + margin, player_filter)
 
 
-func nearby_units(point, radius, player_filter = null):
+func nearby_units(point: Vector3, radius: float, player_filter = null):
 	_refresh()
 	var result = []
-	var low = _cell(point - Vector3.ONE * radius)
-	var high = _cell(point + Vector3.ONE * radius)
-	for player in _observers:
-		if player_filter != null and player != player_filter:
-			continue
-		var cells = _observers[player]
+	var low := _cell(point - Vector3.ONE * radius)
+	var high := _cell(point + Vector3.ONE * radius)
+	var radius_squared := radius * radius
+	var players = [player_filter] if player_filter != null else _observers.keys()
+	for player in players:
+		var cells: Dictionary = _observers.get(player, {})
 		for x in range(low.x, high.x + 1):
 			for y in range(low.y, high.y + 1):
 				for unit in cells.get(Vector2i(x, y), []):
 					if (
-						is_instance_valid(unit)
-						and not unit.is_queued_for_deletion()
-						and unit.is_in_group("units")
-						and unit.global_position_yless.distance_squared_to(point) <= radius * radius
+						not is_instance_valid(unit)
+						or unit.is_queued_for_deletion()
+						or not unit.is_in_group("units")
 					):
+						continue
+					var position: Vector3 = unit.global_position
+					position.y = 0.0
+					if position.distance_squared_to(point) <= radius_squared:
 						result.append(unit)
 	return result
 

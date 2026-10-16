@@ -50,7 +50,20 @@ func _industrial_routes():
 			asset.radius <= asset.radius_limit and asset.height <= asset.height_limit,
 			"Industrial art exceeds obstacle"
 		)
-	_check(game.map.flight_obstacles.size() == 6, "Wrong district obstacle count")
+	# District buildings only; story landmarks add their own flight clearance.
+	_check(
+		(
+			(
+				game
+				. map
+				. flight_obstacles
+				. filter(func(body): return body.has_meta("neutral_asset"))
+				. size()
+			)
+			== 6
+		),
+		"Wrong district obstacle count"
+	)
 	for z in [22, 52, 82]:
 		var route = _route(ground, Vector3(34, 0, z), Vector3(94, 0, z))
 		_check(route.size() >= 2 and _length(route) < 65, "Street approach blocked")
@@ -131,8 +144,9 @@ func _industrial_routes():
 		game.settings.map_path == INDUSTRIAL and game.map.relays.size() == 2,
 		"Archive changed district"
 	)
+	# Four authored fields of seven deposits and two salvage caches of three.
 	_check(
-		get_nodes_in_group("resource_units").size() == 28, "District archive duplicated deposits"
+		get_nodes_in_group("resource_units").size() == 34, "District archive duplicated deposits"
 	)
 	game.hud._toggle_pause()
 	await _frames(1800)

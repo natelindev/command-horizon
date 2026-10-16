@@ -7,7 +7,7 @@ var label = ""
 func _run():
 	options = root.get_node("Globals").options
 	var original = options.capture()
-	options.restore({"screen": 1, "edge_scrolling": false})
+	options.restore({"screen": 1, "edge_scrolling": false, "subtitles": true})
 	root.size = Vector2i(1280, 720)
 	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
 	root.content_scale_size = Vector2i(1920, 1080)

@@ -6,6 +6,7 @@ const Economy = preload("res://source/match/players/skirmish-ai/SkirmishEconomy.
 const Harvest = preload("res://source/match/units/actions/CollectingResourcesSequentially.gd")
 const AttackMove = preload("res://source/match/units/actions/AttackMoving.gd")
 const Moving = preload("res://source/match/units/actions/Moving.gd")
+const Difficulty = preload("res://source/match/players/skirmish-ai/SkirmishDifficulty.gd")
 const KINDS = ["assault", "guard", "capture", "scout"]
 const COMMIT_SECONDS = 90.0
 const FIELD_GROUP_RADIUS = 12.0
@@ -19,6 +20,7 @@ static func command(game, player, units, available, observed):
 	var fields = _fields(game, units, observed)
 	var free = available.filter(func(unit): return unit not in response.units)
 	var old_groups = player._army_groups
+	var budget = Difficulty.of(player.difficulty).task_groups
 	for old in old_groups:
 		if old.kind == "defense":
 			continue
@@ -31,7 +33,7 @@ static func command(game, player, units, available, observed):
 				)
 		)
 		old.members = members
-		if groups.size() >= player.difficulty + 1:
+		if groups.size() >= budget:
 			if old.kind == "guard":
 				_retire_guard(old, units)
 			continue
@@ -59,7 +61,7 @@ static func command(game, player, units, available, observed):
 		groups.append(old)
 		for unit in members:
 			free.erase(unit)
-	while groups.size() < player.difficulty + 1:
+	while groups.size() < budget:
 		var next = _choose(game, player, groups, free, fields)
 		if next.is_empty():
 			break
@@ -67,9 +69,13 @@ static func command(game, player, units, available, observed):
 		for unit in next.members:
 			free.erase(unit)
 	# Guards/capturers get their bounded teams before the assault receives reserves.
+	# A capped assault leaves the remaining reserves regrouped at home.
+	var limit = Difficulty.of(player.difficulty).assault_limit
 	for group in groups:
 		if group.kind == "assault":
 			var reserves = free.filter(_combatant)
+			if limit > 0:
+				reserves = reserves.slice(0, maxi(0, limit - group.members.size()))
 			group.members.append_array(reserves)
 			for unit in reserves:
 				free.erase(unit)
@@ -193,7 +199,10 @@ static func _candidate(game, player, kind, groups, free, fields):
 			_nearest(relays, infantry[0].position)
 			var point = relays[0].position * Vector3(1, 0, 1)
 			_nearest(infantry, point)
-			var multiple = relays.size() > 1 and groups.size() < player.difficulty
+			var multiple = (
+				relays.size() > 1
+				and groups.size() < Difficulty.of(player.difficulty).task_groups - 1
+			)
 			return _group(kind, point, infantry.slice(0, 1 if multiple else 2), now)
 	elif kind == "scout":
 		# Reconnaissance joins another task when there is one to support.

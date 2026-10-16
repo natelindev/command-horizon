@@ -63,7 +63,7 @@ func can_garrison(unit):
 		and InfantryRoster.is_infantry(unit.type)
 		and unit.hp > 0
 		and occupants.size() < CAPACITY
-		and (player == null or player == unit.player)
+		and (occupants.is_empty() or player == unit.player)
 	)
 
 
@@ -112,7 +112,7 @@ func leave(unit):
 	movement.avoidance_enabled = true
 	unit.get_node("Geometry").show()
 	unit.collision_layer = 2
-	player = occupants[0].player if not occupants.is_empty() else null
+	# Leaving a garrison does not relinquish the captured building.
 	_match.battlefield.invalidate()
 	update_label()
 
@@ -126,7 +126,7 @@ func select_occupants():
 func update_label():
 	_label.text = (
 		tr("Garrison %d / %d") % [occupants.size(), CAPACITY]
-		if not occupants.is_empty()
+		if player != null
 		else (
 			tr("Infantry shelter · %d slots") % CAPACITY if habitable else tr("Neutral structure")
 		)
@@ -141,6 +141,7 @@ func begin_death():
 		leave(unit)
 		unit.action = null
 		unit.hp -= unit.hp_max * .35
+	player = null
 	_obstacle.sight_height = .65
 	_label.hide()
 	_match.battlefield.invalidate()
@@ -149,9 +150,9 @@ func begin_death():
 func _physics_process(delta):
 	if not _match.is_node_ready():
 		return
+	var previous_count = occupants.size()
 	occupants = occupants.filter(func(unit): return is_instance_valid(unit) and unit.hp > 0)
-	if occupants.is_empty() and player != null:
-		player = null
+	if occupants.size() != previous_count:
 		update_label()
 	advance_damage(delta)
 	if hp > 0:
@@ -165,6 +166,7 @@ func _physics_process(delta):
 func capture(reference):
 	return {
 		"id": neutral_id,
+		"owner": reference.call(player),
 		"combat": capture_combat(),
 		"occupants": occupants.map(reference),
 		"slots": occupants.map(func(unit): return unit.get_meta("garrison_slot", 0))
@@ -173,6 +175,8 @@ func capture(reference):
 
 func restore(saved, entities):
 	restore_combat(saved.combat)
+	# Pre-v13 saves derive ownership from their garrison, as before.
+	player = entities.get(saved.get("owner", ""))
 	for index in saved.occupants.size():
 		enter(entities[saved.occupants[index]], saved.slots[index])
 	if hp == 0:

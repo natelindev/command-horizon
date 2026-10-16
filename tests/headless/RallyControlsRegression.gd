@@ -28,7 +28,10 @@ func _controls_case():
 		menus._stop_button.text == "Clear rally" and menus._stop_button.disabled,
 		"Unassigned producer has no disabled Clear rally"
 	)
-	_check("Rally · At producer" in menus._status.text, "Unassigned rally status missing")
+	_check(
+		"Rally · At producer" in menus._stop_button.tooltip_text, "Unassigned rally status missing"
+	)
+	_check(not menus._stop_button.visible, "Unassigned rally shows an unusable Clear rally")
 	var field = get_nodes_in_group("resource_units").filter(func(node): return "resource_b" in node)
 	field.sort_custom(
 		func(a, b): return hq.position.distance_to(a.position) < hq.position.distance_to(b.position)
@@ -36,11 +39,14 @@ func _controls_case():
 	current_target = field[0]
 	await _target(current_target)
 	menus._refresh_buttons()
-	_check("Rally · Electronics" in menus._status.text, "Resource rally not described")
+	_check("Rally · Electronics" in menus._stop_button.tooltip_text, "Resource rally not described")
 	_check(not menus._stop_button.disabled, "Assigned rally cannot be cleared")
+	_check(menus._stop_button.visible, "Assigned rally hides Clear rally")
 	await _review("assigned")
 	var worker = _units(owner, "Worker")[0]
-	worker.manual_orders.submit({"kind": "gather", "target": current_target})
+	worker.manual_orders.submit(
+		load("res://source/match/orders/ManualOrders.gd").target_order("gather", current_target)
+	)
 	var action = worker.action
 	var orders = worker.manual_orders.pending.duplicate(true)
 	var job = hq.production_queue.produce(load("res://source/match/units/Worker.tscn"))
@@ -68,7 +74,9 @@ func _controls_case():
 	worker.issue_manual_order(null)
 	await _point(hq.position + Vector3(6, 0, 5))
 	menus._refresh_buttons()
-	_check("Rally · Map destination" in menus._status.text, "Point rally not described")
+	_check(
+		"Rally · Map destination" in menus._stop_button.tooltip_text, "Point rally not described"
+	)
 	await _clear()
 	_check(
 		rally.position == Vector3.ZERO and rally.target_unit == null,
@@ -77,7 +85,9 @@ func _controls_case():
 	await _target(worker)
 	menus._refresh_buttons()
 	var title = load("res://source/match/FactionCatalog.gd").title(owner.faction, "Worker")
-	_check(("Rally · " + title) in menus._status.text, "Friendly rally lost faction name")
+	_check(
+		("Rally · " + title) in menus._stop_button.tooltip_text, "Friendly rally lost faction name"
+	)
 	await _clear()
 	worker.hp = 0
 	await _frames(5)
@@ -184,6 +194,6 @@ func _cleared_archive():
 		"Cleared archive changed paid production"
 	)
 	_check(
-		menus._stop_button.disabled and "Rally · At producer" in menus._status.text,
+		menus._stop_button.disabled and "Rally · At producer" in menus._stop_button.tooltip_text,
 		"Loaded producer shows stale rally controls"
 	)

@@ -19,6 +19,7 @@ const Defense = preload("res://source/match/players/skirmish-ai/SkirmishDefense.
 const Composition = preload("res://source/match/players/skirmish-ai/SkirmishComposition.gd")
 const Technologies = preload("res://source/match/research/TechnologyCatalog.gd")
 const CombatRules = preload("res://source/match/combat/CombatRules.gd")
+const Difficulty = preload("res://source/match/players/skirmish-ai/SkirmishDifficulty.gd")
 
 var structures_built = 0
 var attacks_launched = 0
@@ -32,7 +33,7 @@ var _army_cursor = 0
 
 func _process(delta):
 	_elapsed += delta
-	if _elapsed < [3.0, 1.5, 0.75][difficulty] or not _match.is_node_ready():
+	if _elapsed < profile().decision_interval or not _match.is_node_ready():
 		return
 	_elapsed = 0.0
 	var units = _units()
@@ -47,6 +48,10 @@ func _process(delta):
 	_arm_units_with_programs(units)
 	Sites.recruit(_match, self, _units(), desired)
 	_command_army(units)
+
+
+func profile():
+	return Difficulty.of(difficulty)
 
 
 func _units():
@@ -73,6 +78,11 @@ func _next_building(units):
 			return _power_ready_building(units, role)
 	if _of_type(units, "AntiAirTurret").is_empty() and Composition.observed(_match, self).air > 0:
 		return _power_ready_building(units, "AntiAirTurret")
+	var optional = _expansion_building(units)
+	return _power_ready_building(units, optional) if optional != "" else ""
+
+
+func _expansion_building(units):
 	var expansion = {
 		"CommandLab": 100.0,
 		"AircraftFactory": 150.0,
@@ -104,9 +114,16 @@ func _next_building(units):
 			"AntiAirTurret": 220.0,
 			"AntiGroundTurret": 260.0
 		}
+	var scale = profile().timing_scale
 	for role in expansion:
-		if _match.simulation_time >= expansion[role] and _of_type(units, role).is_empty():
-			return _power_ready_building(units, role)
+		if _match.simulation_time >= expansion[role] * scale and _of_type(units, role).is_empty():
+			return role
+	# Stronger commanders add production once the opening base is complete.
+	if (
+		_match.simulation_time >= Difficulty.EXTRA_FACTORY_TIME
+		and _of_type(units, "VehicleFactory").size() < 1 + profile().extra_factories
+	):
+		return "VehicleFactory"
 	return ""
 
 
@@ -326,7 +343,7 @@ func _command_army(units):
 			continue
 		if _match.battlefield.is_observed(self, enemy):
 			enemies.append(enemy)
-	var recovering = Recovery.command(_match, units, enemies)
+	var recovering = Recovery.command(_match, units, enemies, profile().retreat_health)
 	var available = units.filter(func(unit): return unit not in recovering)
 	var capturers = Sites.command(_match, self, units, available, enemies)
 	available = available.filter(func(unit): return unit not in capturers)
@@ -340,8 +357,8 @@ func _command_army(units):
 
 func _wave_ready():
 	return (
-		_match.simulation_time > [180.0, 120.0, 75.0][difficulty]
-		and _match.simulation_time - _last_wave >= [100.0, 65.0, 40.0][difficulty]
+		_match.simulation_time > profile().first_wave
+		and _match.simulation_time - _last_wave >= profile().wave_interval
 	)
 
 
@@ -482,10 +499,10 @@ func _research_candidate(units):
 	var id = "coordination"
 	var cost = Vector2i(COORDINATION_COST.resource_a, COORDINATION_COST.resource_b)
 	if coordination_unlocked:
-		if Economy.guards(units).size() < 6:
+		if Economy.guards(units).size() < profile().research_guards:
 			return {}
 		id = ""
-		for option in ["weapons_1", "armor_1", "service", "doctrine", "weapons_2", "armor_2"]:
+		for option in profile().research:
 			if option not in technology.completed:
 				id = option
 				cost = Technologies.ITEMS[id].cost
@@ -518,7 +535,7 @@ func _idle_order(unit):
 
 
 func _use_signatures(units):
-	if not coordination_unlocked:
+	if not coordination_unlocked or not profile().signatures:
 		return
 	var ready = units.filter(
 		func(unit):
@@ -566,7 +583,7 @@ func _choose_weapon_modes(units):
 
 
 func _arm_units_with_programs(units):
-	if difficulty < 1:
+	if not profile().programs:
 		return
 	var Library = load("res://source/match/programs/ProgramLibrary.gd")
 	for unit in units:

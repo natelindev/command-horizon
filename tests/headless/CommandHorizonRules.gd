@@ -185,7 +185,17 @@ func _objective_archive():
 	_units(human, "Infantry")[0].position = game.map.DEPLOYMENT + Vector3(-1.6, 0, 0)
 	game.battlefield.invalidate()
 	await _frames(2)
-	_check(game.finished and game.result == "Victory", "Returning infantry did not complete finale")
+	_check(not game.finished, "Returning infantry completed the finale without Aegis")
+	game.campaign_hero.unit.position = game.map.TARGET + Vector3(-6, 0, 0)
+	game.battlefield.invalidate()
+	await _frames(2)
+	_check(not game.finished, "Aegis bypassed the living siege commander")
+	game.opposition.boss.hp = 0
+	game.opposition._step_boss(0)
+	await _frames(2)
+	_check(
+		game.finished and game.result == "Victory", "Aegis at the controls did not complete finale"
+	)
 	var progress = Progress.new()
 	_check(
 		(

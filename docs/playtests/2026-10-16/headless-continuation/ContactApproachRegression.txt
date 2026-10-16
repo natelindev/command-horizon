@@ -1,0 +1,19 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+
+CAPTURED CONTACT 0 excursion_at_four=3.81242609024048 collected=7.16666666667237 max_step=0.06400167942047 clearance=-0.00001335144043
+CAPTURED CONTACT 1 excursion_at_four=3.81342649459839 collected=7.16666666667237 max_step=0.06400134414434 clearance=-0.00001680850983
+CAPTURED CONTACT 2 excursion_at_four=3.81293869018555 collected=7.16666666667237 max_step=0.06400072574615 clearance=-0.00001382827759
+CHECKED: detour disk archive preserves paused position, cargo and destination; real work resumes
+CHECKED: manual replacement ends recovery and retains cargo
+BUILDING CONTACT bastion CommandCenter first_work=2.89999999999999
+BUILDING CONTACT bastion PowerPlant first_work=5.38333333333303
+CHECKED: bastion occupied work faces retain destination; removed target cancels
+BUILDING CONTACT helix CommandCenter first_work=2.44999999999999
+BUILDING CONTACT helix PowerPlant first_work=4.49999999999974
+CHECKED: helix occupied work faces retain destination; removed target cancels
+Contact approach: 0 failures
+ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 2 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

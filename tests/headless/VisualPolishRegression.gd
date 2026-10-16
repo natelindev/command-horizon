@@ -79,7 +79,7 @@ func _run():
 	await _frames(6)
 	_check_layout(menus, "barracks")
 	for entry in menus._buttons:
-		_check(entry.button.icon != null, "Barracks missing " + entry.type)
+		_check(entry.button.portrait() != null, "Barracks missing " + entry.type)
 	await _capture("barracks")
 	var lab = _units(human, "CommandLab")[0]
 	menus = _select(lab)

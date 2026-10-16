@@ -6,62 +6,41 @@ const PlayerSettings = preload("res://source/data-model/PlayerSettings.gd")
 const Factions = preload("res://source/match/FactionCatalog.gd")
 const LoadingScene = preload("res://source/main-menu/Loading.tscn")
 const Lore = preload("res://source/lore/WorldLore.gd")
+const Difficulty = preload("res://source/match/players/skirmish-ai/SkirmishDifficulty.gd")
+# New games use the fully populated maps. Legacy scenes remain loadable by saves.
 const MAPS = [
 	[
-		"res://source/match/maps/DesertFrontier.tscn",
-		"Desert Frontier",
-		"Central staging ground · two flanks · outer electronics",
-		"128 × 96"
-	],
-	[
-		"res://source/match/maps/PlainAndSimple.tscn",
-		"Open Plains",
-		"Close bases · open ground · quick engagements",
-		"50 × 50"
-	],
-	[
-		"res://source/match/maps/BigArena.tscn",
-		"Great Expanse",
-		"Longer supply lines · room to expand",
-		"100 × 100"
-	],
-	[
-		"res://source/match/maps/AlpineRelay.tscn",
-		"Alpine Relay",
-		"Two passes · rear bypass · infantry capture relays for vision",
-		"128 × 104"
-	],
-	[
-		"res://source/match/maps/IndustrialCrossroads.tscn",
-		"Industrial Crossroads",
-		"Three streets · opaque warehouses · infantry vision relays",
-		"128 × 104"
-	],
-	[
-		"res://source/match/maps/CoastalFoundry.tscn",
-		"Coastal Foundry",
-		"Harbor inlet · quay and inland routes · aircraft cross the water",
-		"128 × 104"
-	],
-	[
 		"res://source/match/maps/ExpandedDesertFrontier.tscn",
-		"Desert Frontier — Expanded",
+		"Desert Frontier",
 		"Eight resource fields · capture refineries, mercenary camps and repair shops",
 		"192 × 144"
 	],
 	[
 		"res://source/match/maps/ExpandedAlpineRelay.tscn",
-		"Alpine Relay — Expanded",
+		"Alpine Relay",
 		"Wide mountain passes · eight resource fields · six capturable facilities",
 		"192 × 156"
 	],
 	[
 		"res://source/match/maps/ExpandedCoastalFoundry.tscn",
-		"Coastal Foundry — Expanded",
+		"Coastal Foundry",
 		"Wide harbor routes · eight resource fields · six capturable facilities",
 		"192 × 156"
 	],
 ]
+# Old numeric preferences used this order. Resolve them before selecting a new index.
+const LEGACY_MAP_NAMES = [
+	"DesertFrontier",
+	"PlainAndSimple",
+	"BigArena",
+	"AlpineRelay",
+	"IndustrialCrossroads",
+	"CoastalFoundry",
+	"ExpandedDesertFrontier",
+	"ExpandedAlpineRelay",
+	"ExpandedCoastalFoundry"
+]
+
 const FACTION_DESCRIPTIONS = [
 	Lore.FACTIONS.bastion.short,
 	Lore.FACTIONS.helix.short,
@@ -76,12 +55,14 @@ var _map_details = null
 var _player_faction = null
 var _enemy_faction = null
 var _difficulty = null
+var _difficulty_note = null
 var _start_mode = null
 var _doctrine_selector = null
 var _start_button = null
 var _summary = null
 var _cards = []
 var _starting = false
+var _body_grid: GridContainer
 
 
 func _ready():
@@ -98,225 +79,134 @@ func _ready():
 func _build_ui():
 	var backdrop = load("res://source/main-menu/ArtBackdrop.gd").new()
 	backdrop.dim = .68
-	backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(backdrop)
 	var margin = MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	for edge in ["left", "right"]:
-		margin.add_theme_constant_override("margin_" + edge, 36)
-	for edge in ["top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + edge, 22)
+	for edge in ["left", "right", "top", "bottom"]:
+		margin.add_theme_constant_override("margin_" + edge, 24)
 	add_child(margin)
 	var page = VBoxContainer.new()
-	page.add_theme_constant_override("separation", 14)
+	page.add_theme_constant_override("separation", 16)
 	margin.add_child(page)
-
-	# --- TOP HEADER BAR ---
-	var top_bar = HBoxContainer.new()
-	page.add_child(top_bar)
-	var title_box = VBoxContainer.new()
-	title_box.add_theme_constant_override("separation", 2)
-	top_bar.add_child(title_box)
-
-	var tag = Label.new()
-	tag.text = tr("// THEATER OF OPERATIONS // TACTICAL SIMULATION")
-	tag.add_theme_font_size_override("font_size", 11)
-	tag.add_theme_color_override("font_color", Color("d8a846"))
-	title_box.add_child(tag)
-
-	_label(title_box, tr("SKIRMISH"), 28)
-	_label(
-		title_box,
-		tr("Choose your battlefield. Build your army. Defeat the enemy command."),
-		13,
-		Color("9eb0b8")
-	)
-
-	var top_spacer = Control.new()
-	top_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	top_bar.add_child(top_spacer)
-
-	var top_telemetry = HBoxContainer.new()
-	top_telemetry.add_theme_constant_override("separation", 14)
-	top_bar.add_child(top_telemetry)
-	_label(top_telemetry, tr("GRID: TACTICAL-01"), 11, Color("4da8cc"))
-	_label(top_telemetry, "·", 11, Color("41545e"))
-	_label(top_telemetry, tr("STATUS: BRIEFING READY"), 11, Color("7b929e"))
-	_label(top_telemetry, "·", 11, Color("41545e"))
-	_label(top_telemetry, tr("ORBITAL RECON: ACTIVE"), 11, Color("d8a846"))
-
-	var top_line = ColorRect.new()
-	top_line.custom_minimum_size.y = 1
-	top_line.color = Color("ffffff15")
-	top_line.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	page.add_child(top_line)
-
-	# --- BODY ---
-	var body = HBoxContainer.new()
-	var body_scroll = ScrollContainer.new()
-	body_scroll.name = "SetupScroll"
-	body_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	body_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	body_scroll.follow_focus = true
-	page.add_child(body_scroll)
-	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	body.add_theme_constant_override("separation", 20)
-	body_scroll.add_child(body)
-
-	var map_column = _panel(body)
-	map_column.custom_minimum_size.x = 420
-	map_column.get_parent().size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	map_column.get_parent().size_flags_stretch_ratio = .9
-	_label(map_column, tr("01 // BATTLEFIELD"), 13, Color("d8a846"))
-	_map_list = OptionButton.new()
-	_map_list.name = "MapList"
-	_map_list.custom_minimum_size.y = 38
-	map_column.add_child(_map_list)
+	var title = _label(page, "SKIRMISH", 28)
+	title.theme_type_variation = "HudHeading"
+	var scroll = ScrollContainer.new()
+	scroll.name = "SetupScroll"
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.follow_focus = true
+	page.add_child(scroll)
+	_body_grid = GridContainer.new()
+	_body_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_body_grid.add_theme_constant_override("h_separation", 20)
+	_body_grid.add_theme_constant_override("v_separation", 16)
+	scroll.add_child(_body_grid)
+	var map_column = _panel(_body_grid)
+	_label(map_column, "Battlefield", 18).theme_type_variation = "HudHeading"
+	_map_list = _option(map_column, "MapList", [])
 	for entry in MAPS:
 		_map_paths.append(entry[0])
 		_map_list.add_item(tr(entry[1]))
 	_map_list.item_selected.connect(_on_map_list_item_selected)
-
 	var preview_frame = PanelContainer.new()
-	preview_frame.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	var preview_style = StyleBoxFlat.new()
-	preview_style.bg_color = Color("060b10ea")
-	preview_style.set_corner_radius_all(0)
-	preview_style.set_border_width_all(1)
-	preview_style.border_color = Color("233b4ac0")
-	preview_style.set_content_margin_all(6)
-	preview_frame.add_theme_stylebox_override("panel", preview_style)
+	preview_frame.theme_type_variation = "HudSocket"
 	map_column.add_child(preview_frame)
-
 	_preview = load("res://source/main-menu/SkirmishMapPreview.gd").new()
-	_preview.custom_minimum_size.y = clampf(get_viewport_rect().size.y * .42, 240, 460)
-	resized.connect(
-		func(): _preview.custom_minimum_size.y = clampf(get_viewport_rect().size.y * .42, 240, 460)
-	)
-	_preview.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_preview.custom_minimum_size.y = 280
 	preview_frame.add_child(_preview)
-
-	_map_details = _label(map_column, "", 13, Color("bac6ca"))
+	_map_details = _label(map_column, "", 13, ArtTheme.MUTED)
 	_map_details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-
-	var legend_panel = PanelContainer.new()
-	var leg_style = StyleBoxFlat.new()
-	leg_style.bg_color = Color("070d13b3")
-	leg_style.set_corner_radius_all(0)
-	leg_style.set_border_width_all(1)
-	leg_style.border_color = Color("1e2f3bc0")
-	leg_style.set_content_margin_all(8)
-	legend_panel.add_theme_stylebox_override("panel", leg_style)
-	map_column.add_child(legend_panel)
-
-	_label(
-		legend_panel,
-		(
-			"1  "
-			+ tr("Your base")
-			+ "    2  "
-			+ tr("Enemy base")
-			+ "\n"
-			+ tr("Dots: resources · Small squares: relays")
-			+ "\n"
-			+ tr("Blocks: buildings · Lines: roads · Blue: water")
-			+ "\n"
-			+ tr("R: refinery · M: mercenary camp · +: repair shop")
-		),
-		12,
-		Color("8296a6")
+	var legend_toggle = Button.new()
+	legend_toggle.text = "Map legend"
+	legend_toggle.theme_type_variation = "BattleQuietButton"
+	legend_toggle.toggle_mode = true
+	map_column.add_child(legend_toggle)
+	var legend = _label(map_column, "", 12, ArtTheme.MUTED)
+	legend.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	legend.text = (
+		"1  "
+		+ tr("Your base")
+		+ "    2  "
+		+ tr("Enemy base")
+		+ "\n"
+		+ tr("Dots: resources · Small squares: relays")
+		+ "\n"
+		+ tr("Blocks: buildings · Lines: roads · Blue: water")
+		+ "\n"
+		+ tr("R: refinery · M: mercenary camp · +: repair shop")
 	)
-
+	legend.hide()
+	legend_toggle.toggled.connect(func(shown): legend.visible = shown)
 	var right = VBoxContainer.new()
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	right.size_flags_stretch_ratio = 1.0
-	right.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	right.add_theme_constant_override("separation", 14)
-	body.add_child(right)
-
+	right.add_theme_constant_override("separation", 16)
+	_body_grid.add_child(right)
 	var faction_row = HBoxContainer.new()
-	faction_row.add_theme_constant_override("separation", 16)
+	faction_row.add_theme_constant_override("separation", 12)
 	right.add_child(faction_row)
-	_player_faction = _faction_card(faction_row, tr("02 // YOUR FACTION"), 0)
-	_enemy_faction = _faction_card(faction_row, tr("03 // ENEMY FACTION"), 1)
-
+	_player_faction = _faction_card(faction_row, "Your faction", 0)
+	_enemy_faction = _faction_card(faction_row, "Enemy faction", 1)
 	var rules = _panel(right)
-	_label(rules, tr("// ENGAGEMENT PARAMETERS"), 13, Color("d8a846"))
 	var grid = GridContainer.new()
 	grid.columns = 2
-	grid.add_theme_constant_override("h_separation", 24)
+	grid.add_theme_constant_override("h_separation", 16)
 	grid.add_theme_constant_override("v_separation", 10)
 	rules.add_child(grid)
-	_label(grid, tr("AI difficulty"), 14, Color("bac6ca"))
-	_difficulty = _option(grid, "Difficulty", ["Easy", "Normal", "Hard"])
-	_label(grid, tr("Starting forces"), 14, Color("bac6ca"))
+	_label(grid, "AI difficulty", 14, ArtTheme.MUTED)
+	_difficulty = _option(grid, "Difficulty", Difficulty.NAMES)
+	_difficulty.tooltip_text = tr(
+		"AI levels change decisions only. No health, damage or resource bonuses."
+	)
+	grid.add_child(Control.new())
+	_difficulty_note = _label(grid, "", 12, ArtTheme.MUTED)
+	_difficulty_note.name = "DifficultyNote"
+	_difficulty_note.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_difficulty_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_label(grid, "Starting forces", 14, ArtTheme.MUTED)
 	_start_mode = _option(
 		grid, "StartMode", ["Standard — build your base", "Advanced — armor and technology"]
 	)
-	_label(grid, tr("Tactical doctrine"), 14, Color("bac6ca"))
+	_label(grid, "Tactical doctrine", 14, ArtTheme.MUTED)
 	_doctrine_selector = _option(
 		grid,
 		"TacticalDoctrine",
 		["Standard Field Protocol", "Hit & Run Kiting", "Ironclad Defense"]
 	)
-
-	var summary_box = PanelContainer.new()
-	var sum_style = StyleBoxFlat.new()
-	sum_style.bg_color = Color("070d13b3")
-	sum_style.set_corner_radius_all(0)
-	sum_style.set_content_margin_all(10)
-	sum_style.set_border_width_all(1)
-	sum_style.border_color = Color("1e2f3bc0")
-	summary_box.add_theme_stylebox_override("panel", sum_style)
-	rules.add_child(summary_box)
-
-	_summary = _label(summary_box, "", 13, Color("bac6ca"))
+	_summary = _label(rules, "", 12, ArtTheme.MUTED)
 	_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_difficulty.item_selected.connect(func(_index): _update_summary())
 	_start_mode.item_selected.connect(func(_index): _update_summary())
-
-	# --- FOOTER BAR ---
 	var footer = HBoxContainer.new()
 	footer.add_theme_constant_override("separation", 16)
 	page.add_child(footer)
-
 	var back = Button.new()
-	back.text = tr("Back")
-	back.add_theme_font_size_override("font_size", 16)
-	back.custom_minimum_size = Vector2(130, 46)
-	back.add_theme_stylebox_override("normal", ArtTheme.secondary_button_style())
-	back.add_theme_stylebox_override("hover", ArtTheme.secondary_button_hover_style())
+	back.text = "Back"
+	back.custom_minimum_size = Vector2(100, 46)
 	back.pressed.connect(_on_back_button_pressed)
 	footer.add_child(back)
-
-	var note = _label(
-		footer, tr("1 vs 1 · Fog of war · Tactical pause · 100 units per side"), 13, Color("8ea0a8")
-	)
-	note.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	note.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-
+	var space = Control.new()
+	space.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	footer.add_child(space)
 	_start_button = Button.new()
 	_start_button.name = "StartButton"
+	_start_button.text = "START BATTLE  →"
 	_start_button.theme_type_variation = "BattlePrimaryButton"
-	_start_button.add_theme_font_size_override("font_size", 16)
-	_start_button.text = tr("START BATTLE  →")
-	_start_button.custom_minimum_size = Vector2(250, 46)
-	_start_button.add_theme_stylebox_override("normal", ArtTheme.primary_button_style())
-	_start_button.add_theme_stylebox_override("hover", ArtTheme.primary_button_hover_style())
-	_start_button.add_theme_stylebox_override("pressed", ArtTheme.primary_button_pressed_style())
-	_start_button.add_theme_color_override("font_color", Color("142130"))
-	_start_button.add_theme_color_override("font_hover_color", Color("142130"))
-	_start_button.add_theme_color_override("font_pressed_color", Color("142130"))
+	_start_button.custom_minimum_size = Vector2(220, 46)
 	_start_button.pressed.connect(_on_start_button_pressed)
 	footer.add_child(_start_button)
+	resized.connect(_layout_setup)
+	_layout_setup()
+
+
+func _layout_setup():
+	_body_grid.columns = 2 if size.x >= 1100 else 1
+	_preview.custom_minimum_size.y = clampf(size.y * .34, 200, 360)
 
 
 func _panel(parent):
 	var panel = PanelContainer.new()
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var style = ArtTheme.section(20, 18)
-	panel.add_theme_stylebox_override("panel", style)
+	panel.theme_type_variation = "HudHousing"
 	parent.add_child(panel)
 	var box = VBoxContainer.new()
 	box.add_theme_constant_override("separation", 10)
@@ -337,7 +227,9 @@ func _option(parent, node_name, items):
 	var choice = OptionButton.new()
 	choice.name = node_name
 	choice.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	choice.custom_minimum_size.y = 36
+	choice.custom_minimum_size = Vector2(160, 38)
+	choice.fit_to_longest_item = false
+	choice.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	choice.add_theme_font_size_override("font_size", 14)
 	for item in items:
 		choice.add_item(tr(item))
@@ -350,19 +242,13 @@ func _faction_card(parent, heading, index):
 	_label(box, tr(heading), 13, Color("d8a846"))
 
 	var portrait_box = PanelContainer.new()
-	var port_style = StyleBoxFlat.new()
-	port_style.bg_color = Color("060b10e0")
-	port_style.set_corner_radius_all(0)
-	port_style.set_border_width_all(1)
-	port_style.border_color = Color("1e2f3bc0")
-	port_style.set_content_margin_all(6)
-	portrait_box.add_theme_stylebox_override("panel", port_style)
+	portrait_box.theme_type_variation = "HudSocket"
 	box.add_child(portrait_box)
 
 	var portrait = TextureRect.new()
 	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	portrait.custom_minimum_size = Vector2(140, 112)
+	portrait.custom_minimum_size = Vector2(100, 88)
 	portrait_box.add_child(portrait)
 
 	var choice = _option(
@@ -379,6 +265,11 @@ func _faction_card(parent, heading, index):
 
 
 func _update_faction(index, selected):
+	if index == 0:
+		ArtTheme.Console.use_faction(
+			Factions.IDS[selected] if selected < Factions.IDS.size() else "bastion"
+		)
+		theme = ArtTheme.create()
 	_cards[index].description.text = tr(FACTION_DESCRIPTIONS[selected])
 	_cards[index].description.tooltip_text = (
 		tr(Factions.TECH_SUMMARY[Factions.IDS[selected]]) if selected < Factions.IDS.size() else ""
@@ -397,12 +288,11 @@ func _update_summary():
 		if _start_mode.selected == 0
 		else "Established base, 2 tanks, repair support · 120 M / 60 E"
 	)
-	_summary.text = (
-		tr(opening)
-		+ "\n"
-		+ tr("Win by destroying the enemy HQ and preventing a rebuild for 60 seconds.")
+	_summary.text = (tr(opening))
+	_start_button.tooltip_text = tr(
+		"Win by destroying the enemy HQ and preventing a rebuild for 60 seconds."
 	)
-	_summary.tooltip_text = "Difficulty changes AI timing. No health, damage or resource bonuses."
+	_difficulty_note.text = tr(Difficulty.DESCRIPTIONS[_difficulty.selected])
 
 
 func _on_map_list_item_selected(index):
@@ -436,7 +326,9 @@ func _create_match_settings():
 			else selected
 		]
 		player.color = Constants.Player.COLORS[index]
-		player.difficulty = _difficulty.selected
+		# The level belongs to the computer commander; the human keeps the default.
+		if index > 0:
+			player.difficulty = _difficulty.selected
 		player.spawn_index_offset = (
 			0 if index == 0 else Constants.Match.MAPS[result.map_path].players / 2 - 1
 		)
@@ -498,10 +390,14 @@ func _load_preferences():
 			continue
 		var value = config.get_value("setup", pair[0], pair[2])
 		if pair[0] == "map":
-			if not value is int:
-				value = _map_paths.find(str(value))
-				if value < 0:
-					value = _map_paths.find("res://source/match/maps/ExpandedDesertFrontier.tscn")
+			if value is int:
+				value = "res://source/match/maps/%s.tscn" % LEGACY_MAP_NAMES[clampi(value, 0, 8)]
+			var map_name = str(value).get_file().get_basename()
+			if map_name in ["DesertFrontier", "AlpineRelay", "CoastalFoundry"]:
+				value = "res://source/match/maps/Expanded%s.tscn" % map_name
+			value = _map_paths.find(str(value))
+			if value < 0:
+				value = 0
 		if pair[0] in ["player", "enemy"]:
 			# Old index 2 meant Random. Persist stable IDs before adding further factions.
 			if value is int:

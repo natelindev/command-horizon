@@ -1,0 +1,737 @@
+[
+  {
+    "test": "CampaignHeroAbilityRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 4.0,
+    "run_log": "ability-damage-check.txt"
+  },
+  {
+    "test": "CombatRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 2.9,
+    "run_log": "ability-damage-check.txt"
+  },
+  {
+    "test": "CampaignDialogueRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 2.3,
+    "run_log": "briefing-caption-check.txt"
+  },
+  {
+    "test": "SubtitleLayoutRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 28.1,
+    "run_log": "briefing-caption-check.txt"
+  },
+  {
+    "test": "NavigationRegression",
+    "exit": 1,
+    "script_errors": false,
+    "seconds": 34.3,
+    "run_log": "broad-navigation.txt"
+  },
+  {
+    "test": "ResourceNavigationRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 53.5,
+    "run_log": "broad-navigation.txt"
+  },
+  {
+    "test": "ExpandedMapRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 944.4,
+    "run_log": "broad-navigation.txt"
+  },
+  {
+    "test": "AirEnvironmentRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 5.6,
+    "run_log": "broad-navigation.txt"
+  },
+  {
+    "test": "ContactApproachRegression",
+    "exit": 1,
+    "script_errors": false,
+    "seconds": 59.2,
+    "run_log": "broad-navigation.txt"
+  },
+  {
+    "test": "CrowdedDestinationRegression",
+    "exit": 1,
+    "script_errors": false,
+    "seconds": 37.1,
+    "run_log": "broad-navigation.txt"
+  },
+  {
+    "test": "AttackCrowdedArrivalRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 26.6,
+    "run_log": "broad-navigation.txt"
+  },
+  {
+    "test": "ArrivalWindowRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 61.4,
+    "run_log": "broad-navigation.txt"
+  },
+  {
+    "test": "HQTrafficFactionsRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 11.2,
+    "run_log": "broad-navigation.txt"
+  },
+  {
+    "test": "DirectOrdersRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 14.5,
+    "run_log": "broad-navigation.txt"
+  },
+  {
+    "test": "SaveRestoreRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 2.9,
+    "run_log": "broad-navigation.txt"
+  },
+  {
+    "test": "SaveRestoreEdges",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 7.6,
+    "run_log": "broad-navigation.txt"
+  },
+  {
+    "test": "SaveSnapshotRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 6.3,
+    "run_log": "broad-navigation.txt"
+  },
+  {
+    "test": "FoundationDurabilityRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 20.2,
+    "run_log": "broad-navigation.txt"
+  },
+  {
+    "test": "InfantryHeroesRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 23.5,
+    "run_log": "broad-navigation.txt"
+  },
+  {
+    "test": "HeroCampaignMapRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 7.0,
+    "run_log": "campaign-map-access.txt"
+  },
+  {
+    "test": "ContactApproachRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 50.6,
+    "run_log": "contact-approach-final.txt"
+  },
+  {
+    "test": "ResourceNavigationRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 51.9,
+    "run_log": "contact-integration.txt"
+  },
+  {
+    "test": "HarvestTrafficRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 45.5,
+    "run_log": "contact-integration.txt"
+  },
+  {
+    "test": "HQTrafficFactionsRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 12.4,
+    "run_log": "contact-integration.txt"
+  },
+  {
+    "test": "ExpandedFieldApproachRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 362.7,
+    "run_log": "contact-integration.txt"
+  },
+  {
+    "test": "EconomyAssignmentsRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 78.2,
+    "run_log": "contact-integration.txt"
+  },
+  {
+    "test": "NavigationRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 36.6,
+    "run_log": "corrections-check.txt"
+  },
+  {
+    "test": "CampaignHeroAbilityRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 3.2,
+    "run_log": "corrections-check.txt"
+  },
+  {
+    "test": "HeroCampaignMenuRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 1.1,
+    "run_log": "corrections-check.txt"
+  },
+  {
+    "test": "CrowdedDestinationRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 35.2,
+    "run_log": "crowded-destination-final.txt"
+  },
+  {
+    "test": "CampaignStoryRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 2.1,
+    "run_log": "dialogue-compatibility.txt"
+  },
+  {
+    "test": "CampaignDialogueRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 1.8,
+    "run_log": "dialogue-compatibility.txt"
+  },
+  {
+    "test": "CampaignDialogueRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 2.9,
+    "run_log": "dialogue-duration.txt"
+  },
+  {
+    "test": "CampaignStoryRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 2.0,
+    "run_log": "dialogue-duration.txt"
+  },
+  {
+    "test": "CampaignStoryRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 2.2,
+    "run_log": "final-campaign-runtime.txt"
+  },
+  {
+    "test": "CampaignDialogueRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 2.0,
+    "run_log": "final-campaign-runtime.txt"
+  },
+  {
+    "test": "CampaignStoryMissionsRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 20.2,
+    "run_log": "final-campaign-runtime.txt"
+  },
+  {
+    "test": "CampaignPortraitLayoutRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 10.1,
+    "run_log": "final-campaign-runtime.txt"
+  },
+  {
+    "test": "HeroCampaignRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 33.0,
+    "run_log": "final-campaign-runtime.txt"
+  },
+  {
+    "test": "HeroCampaignRoutesRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 30.7,
+    "run_log": "final-campaign-runtime.txt"
+  },
+  {
+    "test": "HeroCampaignMenuRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 1.1,
+    "run_log": "final-campaign-runtime.txt"
+  },
+  {
+    "test": "CampaignControlsRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 5.9,
+    "run_log": "final-campaign-runtime.txt"
+  },
+  {
+    "test": "ChineseUIRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 37.1,
+    "run_log": "final-campaign-runtime.txt"
+  },
+  {
+    "test": "LocalizationRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 3.1,
+    "run_log": "final-campaign-runtime.txt"
+  },
+  {
+    "test": "MenuConsoleRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 4.0,
+    "run_log": "final-campaign-runtime.txt"
+  },
+  {
+    "test": "BattleHudProductionRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 19.0,
+    "run_log": "final-campaign-runtime.txt"
+  },
+  {
+    "test": "SpeechRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 3.0,
+    "run_log": "final-campaign-runtime.txt"
+  },
+  {
+    "test": "CombatAudioRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 3.2,
+    "run_log": "final-campaign-runtime.txt"
+  },
+  {
+    "test": "CommandHorizonRules",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 103.2,
+    "run_log": "finale-rules-final.txt"
+  },
+  {
+    "test": "FrontierCrowdRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 147.6,
+    "run_log": "followup-checks.txt"
+  },
+  {
+    "test": "HeroCampaignMenuRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 1.5,
+    "run_log": "followup-checks.txt"
+  },
+  {
+    "test": "CampaignControlsRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 7.1,
+    "run_log": "followup-checks.txt"
+  },
+  {
+    "test": "HeroCampaignRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 34.9,
+    "run_log": "hero-objectives.txt"
+  },
+  {
+    "test": "CommandHorizonRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 157.4,
+    "run_log": "hero-objectives.txt"
+  },
+  {
+    "test": "CampaignRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 21.8,
+    "run_log": "legacy-campaign-checks.txt"
+  },
+  {
+    "test": "SupplyLineRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 44.0,
+    "run_log": "legacy-campaign-checks.txt"
+  },
+  {
+    "test": "SplitSignalRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 64.7,
+    "run_log": "legacy-campaign-checks.txt"
+  },
+  {
+    "test": "BrokenFoundryRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 120.1,
+    "run_log": "legacy-campaign-checks.txt"
+  },
+  {
+    "test": "AirCorridorRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 76.6,
+    "run_log": "legacy-campaign-checks.txt"
+  },
+  {
+    "test": "CommandHorizonRules",
+    "exit": 1,
+    "script_errors": false,
+    "seconds": 100.3,
+    "run_log": "legacy-campaign-checks.txt"
+  },
+  {
+    "test": "HeroCampaignRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 35.4,
+    "run_log": "map-campaign-checks.txt"
+  },
+  {
+    "test": "HeroCampaignRoutesRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 32.9,
+    "run_log": "map-campaign-checks.txt"
+  },
+  {
+    "test": "HeroCampaignMenuRegression",
+    "exit": -15,
+    "script_errors": true,
+    "seconds": 44.8,
+    "run_log": "menu-ability-runner.txt"
+  },
+  {
+    "test": "CampaignHeroAbilityRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 2.6,
+    "run_log": "menu-ability-runner.txt"
+  },
+  {
+    "test": "CampaignStoryRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 1.9,
+    "run_log": "menu-ability-runner.txt"
+  },
+  {
+    "test": "CampaignDialogueRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 1.9,
+    "run_log": "menu-ability-runner.txt"
+  },
+  {
+    "test": "HeroCampaignMenuRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 1.3,
+    "run_log": "menu-runner.txt"
+  },
+  {
+    "test": "CombatJuiceRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 1.0,
+    "run_log": "motion-checks.txt"
+  },
+  {
+    "test": "FrontierWheelRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 2.9,
+    "run_log": "motion-checks.txt"
+  },
+  {
+    "test": "UnitMotionRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 2.6,
+    "run_log": "motion-checks.txt"
+  },
+  {
+    "test": "InfantryMotionRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 6.2,
+    "run_log": "motion-checks.txt"
+  },
+  {
+    "test": "CrowdBoundaryRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 54.0,
+    "run_log": "motion-checks.txt"
+  },
+  {
+    "test": "ExitClearanceRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 15.0,
+    "run_log": "motion-checks.txt"
+  },
+  {
+    "test": "MusicRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 0.8,
+    "run_log": "music-final.txt"
+  },
+  {
+    "test": "CampaignStoryRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 1.9,
+    "run_log": "music-final.txt"
+  },
+  {
+    "test": "CampaignDialogueRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 1.9,
+    "run_log": "music-final.txt"
+  },
+  {
+    "test": "CombatAudioRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 2.8,
+    "run_log": "music-final.txt"
+  },
+  {
+    "test": "LuaProgramRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 8.2,
+    "run_log": "navigation-integration.txt"
+  },
+  {
+    "test": "LuaSandboxRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 1.0,
+    "run_log": "navigation-integration.txt"
+  },
+  {
+    "test": "SaveRestoreCombat",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 2.5,
+    "run_log": "navigation-integration.txt"
+  },
+  {
+    "test": "PresetRecoveryCrowdRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 23.0,
+    "run_log": "navigation-integration.txt"
+  },
+  {
+    "test": "FrontierCrowdRegression",
+    "exit": 1,
+    "script_errors": false,
+    "seconds": 125.9,
+    "run_log": "navigation-integration.txt"
+  },
+  {
+    "test": "HeroCampaignRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 39.2,
+    "run_log": "navigation-integration.txt"
+  },
+  {
+    "test": "HeroCampaignRoutesRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 39.2,
+    "run_log": "navigation-integration.txt"
+  },
+  {
+    "test": "CampaignStoryRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 4.0,
+    "run_log": "package-check.txt"
+  },
+  {
+    "test": "CampaignDialogueRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 1.7,
+    "run_log": "package-check.txt"
+  },
+  {
+    "test": "CampaignPortraitLayoutRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 9.5,
+    "run_log": "package-check.txt"
+  },
+  {
+    "test": "HeroCampaignRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 31.0,
+    "run_log": "package-check.txt"
+  },
+  {
+    "test": "LuaSandboxRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 0.8,
+    "run_log": "package-check.txt"
+  },
+  {
+    "test": "LuaProgramRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 6.6,
+    "run_log": "package-check.txt"
+  },
+  {
+    "test": "CampaignStoryRegression",
+    "exit": 1,
+    "script_errors": false,
+    "seconds": 2.3,
+    "run_log": "package-path-override-attempt.txt"
+  },
+  {
+    "test": "CombatRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 2.6,
+    "run_log": "performance-regressions.txt"
+  },
+  {
+    "test": "UnitAnimationRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 4.7,
+    "run_log": "performance-regressions.txt"
+  },
+  {
+    "test": "NavigationProjectionRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 5.9,
+    "run_log": "projection-check.txt"
+  },
+  {
+    "test": "UnitAnimationRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 4.6,
+    "run_log": "render-timing-checks.txt"
+  },
+  {
+    "test": "BattlePolishRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 10.9,
+    "run_log": "render-timing-checks.txt"
+  },
+  {
+    "test": "VisualPolishRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 8.7,
+    "run_log": "render-timing-checks.txt"
+  },
+  {
+    "test": "CombatJuiceRegression",
+    "exit": 0,
+    "script_errors": true,
+    "seconds": 0.9,
+    "run_log": "render-timing-checks.txt"
+  },
+  {
+    "test": "HeroCampaignRoutesRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 29.7,
+    "run_log": "routes-runner.txt"
+  },
+  {
+    "test": "HeroCampaignRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 42.2,
+    "run_log": "state-validation.txt"
+  },
+  {
+    "test": "HeroCampaignRoutesRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 44.3,
+    "run_log": "state-validation.txt"
+  },
+  {
+    "test": "CampaignDialogueRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 2.3,
+    "run_log": "story-compatibility-expanded.txt"
+  },
+  {
+    "test": "CampaignStoryMissionsRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 17.6,
+    "run_log": "story-compatibility-expanded.txt"
+  },
+  {
+    "test": "HeroCampaignRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 34.3,
+    "run_log": "test-runner.txt"
+  },
+  {
+    "test": "CampaignControlsRegression",
+    "exit": 0,
+    "script_errors": false,
+    "seconds": 6.1,
+    "run_log": "test-runner.txt"
+  }
+]

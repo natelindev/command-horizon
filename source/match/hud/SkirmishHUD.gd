@@ -5,17 +5,24 @@ const Factions = preload("res://source/match/FactionCatalog.gd")
 const Repairs = preload("res://source/match/combat/RepairService.gd")
 const HudLayout = preload("res://source/match/hud/HudLayout.gd")
 const HudKey = preload("res://source/match/hud/HudKey.gd")
+const Difficulty = preload("res://source/match/players/skirmish-ai/SkirmishDifficulty.gd")
 var program_editor = null
 var lua_draft = {}
 var visual_draft = {}
 var battle_plan = null
 var alert_panel = null
+## Every building producing or under construction, docked under the system plate.
+var production_overview = null
 var direct_orders
 var technology_panel = null
 var research_status
 ## Top-right console plate: mission clock, system keys and the alerts beacon slot.
 var system_plate: PanelContainer
 var alert_slot: Control
+var _hero_action: Button
+var _hero_select: Button
+var _escort_action: Button
+var _dialogue_skip: Button
 var _technology_scroll = null
 var _technology_button
 var _objective = null
@@ -60,10 +67,12 @@ func _ready():
 		"%s  vs  %s" % [Factions.NAMES[players[0].faction], Factions.NAMES[players[1].faction]]
 	)
 	title.add_theme_font_size_override("font_size", 15)
-	BattleTheme.heading(content, title, 30)
+	var header = BattleTheme.heading(content, title, 30)
 	# Long matchups trim on the nameplate; the full title stays available on hover.
 	title.tooltip_text = title.text
 	title.mouse_filter = Control.MOUSE_FILTER_PASS
+	if not _is_campaign():
+		_difficulty_tag(header, players)
 	_objective = Label.new()
 	_objective.add_theme_font_size_override("font_size", 13)
 	_objective.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -104,6 +113,9 @@ func _ready():
 		battle_plan = load("res://source/match/hud/SkirmishPlanPanel.gd").new()
 		battle_plan.hud = self
 		add_child(battle_plan)
+	production_overview = load("res://source/match/hud/ProductionOverview.gd").new()
+	production_overview.hud = self
+	add_child(production_overview)
 	alert_panel = load("res://source/match/hud/BattleAlertsPanel.gd").new()
 	alert_panel.hud = self
 	add_child(alert_panel)
@@ -129,7 +141,9 @@ func _build_system_plate():
 	add_child(system_plate)
 	var row = HBoxContainer.new()
 	row.add_theme_constant_override("separation", 6)
-	system_plate.add_child(row)
+	var column = VBoxContainer.new()
+	system_plate.add_child(column)
+	column.add_child(row)
 	var readout = PanelContainer.new()
 	readout.name = "MissionClock"
 	readout.add_theme_stylebox_override("panel", BattleTheme.socket(10, 1))
@@ -181,6 +195,15 @@ func _build_system_plate():
 	alert_slot.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	alert_slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(alert_slot)
+	if _is_campaign():
+		var hero_row = HBoxContainer.new()
+		column.add_child(hero_row)
+		_hero_select = _button(hero_row, "Hero", _select_hero)
+		_hero_action = _button(hero_row, "Ability", func(): get_parent().campaign_hero.activate())
+		_escort_action = _button(hero_row, "Advance convoy", func(): get_parent().advance_escort())
+		_dialogue_skip = _button(
+			hero_row, "Skip dialogue", func(): get_parent().campaign_story.skip_dialogue()
+		)
 	_refresh_shortcuts()
 
 
@@ -201,6 +224,21 @@ func _sync_key(key, title, action):
 	key.accessibility_name = key.tooltip_text
 
 
+func _difficulty_tag(header, players):
+	var human = get_parent()._get_human_player()
+	var opponents = players.filter(func(player): return player != human)
+	if opponents.is_empty():
+		return
+	var tag = Label.new()
+	tag.name = "OpponentDifficulty"
+	tag.text = Difficulty.TAGS[Difficulty.clamp_level(opponents[0].difficulty)]
+	tag.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	tag.add_theme_font_size_override("font_size", 12)
+	tag.add_theme_color_override("font_color", Color("a9b4b3"))
+	tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	header.add_child(tag)
+
+
 func _button(parent, text_value, callback):
 	var button = Button.new()
 	button.theme = BattleTheme.create()
@@ -213,6 +251,7 @@ func _button(parent, text_value, callback):
 
 
 func _process(_delta):
+	_refresh_hero_controls()
 	if is_instance_valid(technology_panel):
 		technology_panel.refresh()
 		_technology_scroll.custom_minimum_size.y = maxf(
@@ -230,7 +269,9 @@ func _process(_delta):
 	var seconds = int(get_parent().simulation_time)
 	_clock.text = "%02d:%02d" % [seconds / 60, seconds % 60]
 	var paused = get_tree().paused
-	_clock_state.text = "Paused" if paused else _match_label()
+	# The caption names a campaign operation or a pause; a skirmish clock needs no label.
+	_clock_state.text = "Paused" if paused else (_match_label() if _is_campaign() else "")
+	_clock_state.visible = not _clock_state.text.is_empty()
 	_clock_state.add_theme_color_override(
 		"font_color", BattleTheme.accent() if paused else BattleTheme.MUTED
 	)
@@ -294,6 +335,30 @@ func cancel_map_assignment():
 	_assignment_hint.hide()
 	if is_instance_valid(direct_orders):
 		direct_orders.cancel()
+
+
+## Replaces the selection and centres the camera, as HUD shortcuts do. Pending map
+## assignments, direct orders and structure placement end; unit orders are kept.
+func select_units(units, focus = null):
+	if _overlay != null or is_instance_valid(program_editor) or get_parent().finished:
+		return false
+	if units.is_empty():
+		return false
+	cancel_map_assignment()
+	_refresh_shortcuts()
+	(
+		get_parent()
+		. _get_human_player()
+		. get_node("StructurePlacementHandler")
+		. _cancel_structure_placement()
+	)
+	MatchSignals.deselect_all_units.emit()
+	for unit in units:
+		unit.get_node("Selection").select()
+	get_parent().get_node("IsometricCamera3D").set_position_safely(
+		focus if focus is Vector3 and focus.is_finite() else units[0].global_position_yless
+	)
+	return true
 
 
 func pause_after_load():
@@ -782,3 +847,35 @@ func open_sites():
 	overview.name = "PointOfInterestOverview"
 	overview.hud = self
 	box.add_child(overview)
+
+
+func _select_hero():
+	var hero = get_parent().campaign_hero
+	if hero == null or not hero.alive():
+		return
+	MatchSignals.deselect_all_units.emit()
+	hero.unit.get_node("Selection").select()
+	get_parent().get_node("IsometricCamera3D").set_position_safely(hero.unit.global_position)
+
+
+func _refresh_hero_controls():
+	if _hero_action == null:
+		return
+	var game = get_parent()
+	var hero = game.campaign_hero
+	if hero != null:
+		_hero_action.text = (
+			tr(hero.title()) + (" · %ds" % ceili(hero.cooldown) if hero.cooldown > 0 else "")
+		)
+		_hero_action.tooltip_text = tr(hero.description()) + "\n" + tr("Hero tier %d") % hero.tier
+		_hero_action.disabled = (
+			not hero.alive() or hero.cooldown > 0 or game.finished or get_tree().paused
+		)
+		_hero_select.disabled = not hero.alive()
+	_escort_action.visible = (
+		game.has_method("advance_escort") and game.current_objective().kind == "escort"
+	)
+	_escort_action.disabled = game.finished
+	_dialogue_skip.visible = (
+		game.campaign_story != null and not game.campaign_story.current.is_empty()
+	)

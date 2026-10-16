@@ -249,7 +249,7 @@ func _position(entry):
 		_human = _game._get_human_player()
 	var speech = _human.get_node_or_null("BattleVoice") if is_instance_valid(_human) else null
 	var duck = (
-		-4.0
+		-6.0
 		if speech != null and speech._audio.playing and Globals.options.voice_volume > 0
 		else 0.0
 	)

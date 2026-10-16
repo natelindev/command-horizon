@@ -1,11 +1,13 @@
 extends "res://tests/headless/CampaignStoryRegression.gd"
 
+const Campaigns = preload("res://source/match/campaign/CampaignCatalog.gd")
+
 
 func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
 	root.get_node("Globals").options.restore({"screen": 1, "edge_scrolling": false})
-	for mission in Narration.MISSIONS:
-		var operation = load("res://source/match/campaign/CampaignCatalog.gd").OPERATIONS[mission]
+	for mission in Narration.missions():
+		var operation = Campaigns.OPERATIONS[mission]
 		var settings = load("res://source/data-model/MatchSettings.gd").new()
 		settings.skirmish = true
 		settings.mission_id = mission
@@ -17,7 +19,7 @@ func _run():
 				if index == 0
 				else root.get_node("Constants").PlayerType.SIMPLE_CLAIRVOYANT_AI
 			)
-			side.faction = "bastion" if index == 0 else "helix"
+			side.faction = operation.faction if index == 0 else operation.enemy
 			side.difficulty = 1
 			settings.players.append(side)
 		game = load(operation.scene).instantiate()
@@ -28,7 +30,10 @@ func _run():
 		current_scene = game
 		game.get_node("IsometricCamera3D").set_physics_process(false)
 		await _frames(5)
-		_check(game.campaign_story.current.id == mission + ".intro", "Missing intro: " + mission)
+		_check(
+			game.campaign_story.current.id == Narration.scene(mission + ".intro")[0].id,
+			"Missing intro: " + mission
+		)
 		game.campaign_story.start_briefing(true)
 		game.campaign_story._scene_time = game.campaign_story._scene_length / 2
 		game.campaign_story._animate_camera()
@@ -60,9 +65,39 @@ func _run():
 				),
 				"A commander killed before its first barrage was not narrated"
 			)
+		_verify_authored_events(mission)
 		game.queue_free()
 		await _frames(5)
 	for message in errors:
 		push_error(message)
 	print("All story missions: %d failures" % errors.size())
 	quit(0 if errors.is_empty() else 1)
+
+
+func _verify_authored_events(mission):
+	if not Narration.lines().has(mission + ".danger"):
+		return  # Retained Air Corridor saves use the original narrator.
+	var story = game.campaign_story
+	if Campaigns.is_story(mission):
+		game.stage = 1
+		story._observe()
+		_check(mission + ".milestone" in story.seen, "Missing first stage conversation: " + mission)
+		_check(
+			mission + ".stage_2" not in story.seen,
+			"Final stage conversation fired early: " + mission
+		)
+		game.stage = 2
+		story._observe()
+		_check(mission + ".stage_2" in story.seen, "Missing final stage conversation: " + mission)
+	game.campaign_hero.unit.hp = game.campaign_hero.unit.hp_max * .3
+	story._observe()
+	_check(mission + ".danger" in story.seen, "Missing wounded hero conversation: " + mission)
+	for result in ["Victory", "Defeat"]:
+		game.finished = true
+		game.result = result
+		story._observe()
+		var cue = mission + "." + result.to_lower()
+		_check(story._pending == [cue], "Result did not replace pending chatter: " + cue)
+		_check(cue in story.seen, "Missing result conversation: " + cue)
+		story._observe()
+		_check(story._pending == [cue], "Result conversation repeated: " + cue)

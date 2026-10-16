@@ -6,6 +6,7 @@ const OUTBUILDINGS = [Vector2(52, 8), Vector2(76, 96)]
 const ASSETS = ["SawtoothWorkshop", "CoolingHall", "ServiceOffice", "DamagedWarehouse"]
 const FIELDS = [Vector2(14, 62), Vector2(114, 42), Vector2(32, 90), Vector2(96, 14)]
 const RELAYS = [Vector2(64, 14), Vector2(64, 90)]
+const Sites = preload("res://source/match/world/PointOfInterestCatalog.gd")
 const ROADS = [
 	Vector4(4, 22, 124, 22),
 	Vector4(4, 52, 124, 52),
@@ -17,6 +18,7 @@ const ROADS = [
 var exterior
 var relays = []
 var flight_obstacles = []
+var points_of_interest = []
 
 
 func overview():
@@ -31,7 +33,8 @@ func overview():
 		"fields": FIELDS,
 		"relays": RELAYS,
 		"buildings": buildings,
-		"roads": ROADS
+		"roads": ROADS,
+		"points_of_interest": Sites.definitions(scene_file_path)
 	}
 
 

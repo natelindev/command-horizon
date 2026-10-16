@@ -12,16 +12,32 @@ func _run():
 	_check(story != null, "Campaign storyline did not attach")
 	_check(not story.cinematic, "Headless campaign requires an invisible skip")
 	_check("first_orders.intro" in story.seen, "Campaign opening narration missing")
-	for id in Narration.lines():
+	for cue in Narration.lines():
+		var english = Narration.scene(cue, "en")
 		for locale in ["en", "zh_CN"]:
-			var line = Narration.record(id, locale)
-			var audio = load(line.stream)
-			_check(
-				audio is AudioStreamWAV and audio.get_length() > 1,
-				"Missing actual voiceover: " + id + locale
-			)
-			_check(audio.mix_rate == 24000, "Neural recording import is stale: " + id + locale)
-			_check(not line.text.is_empty(), "Missing narration subtitle: " + id + locale)
+			var sequence = Narration.scene(cue, locale)
+			_check(not sequence.is_empty(), "Empty narration scene: " + cue)
+			for index in sequence.size():
+				var line = sequence[index]
+				var audio = load(line.stream)
+				_check(
+					audio != null and audio.get_length() > 1, "Missing actual voiceover: " + line.id
+				)
+				_check(
+					line.stream == english[index].stream, "Locale changed English voice: " + line.id
+				)
+				if audio is AudioStreamWAV:
+					_check(audio.mix_rate == 24000, "Neural recording import is stale: " + line.id)
+				else:
+					_check(audio is AudioStreamOggVorbis, "Unsupported dialogue stream: " + line.id)
+				_check(
+					not line.text.is_empty() and not line.speaker.is_empty(),
+					"Missing localized dialogue: " + line.id
+				)
+				if line.has("portrait"):
+					_check(
+						load(line.portrait) is Texture2D, "Missing character portrait: " + line.id
+					)
 	await _cinematic_rules(story)
 	await _narration_rules(story)
 	_restore_rules(story)
@@ -47,8 +63,17 @@ func _cinematic_rules(story):
 	var wallets = Vector2(human.resource_a, human.resource_b)
 	var units = _units(human, "Tank")
 	var actions = units.map(func(unit): return unit.action)
+	var layers = game.find_children("*", "CanvasLayer", true, false)
+	var visibility = layers.map(func(layer): return layer.visible)
 	story.start_briefing(true)
 	_check(story.cinematic and paused, "Opening camera sequence did not pause simulation")
+	for layer in layers:
+		if layer != story._layer:
+			_check(not layer.visible, "Briefing left a HUD canvas visible: " + str(layer.name))
+	_check(
+		not game.fog_of_war._unit_to_circles_mapping.is_empty(),
+		"Briefing paused before initializing player sight"
+	)
 	_check(
 		not root.get_node("SaveManager").can_open(),
 		"Save dialog accepts a transient camera sequence"
@@ -67,6 +92,10 @@ func _cinematic_rules(story):
 	key.pressed = true
 	root.push_input(key, true)
 	_check(not story.cinematic and not paused, "Keyboard skip did not return to battle")
+	_check(
+		layers.map(func(layer): return layer.visible) == visibility,
+		"Skip changed HUD canvas visibility"
+	)
 	_check(
 		camera.global_transform == transform and camera.size == camera_size,
 		"Skip did not restore camera"
@@ -96,7 +125,10 @@ func _narration_rules(story):
 	_check(story.cue("first_orders.lab"), "Milestone narration not queued")
 	_check(not story.cue("first_orders.lab"), "Milestone narration repeated")
 	await _frames(2)
-	_check(story.current.id == "first_orders.lab", "Milestone voiceover did not play")
+	_check(
+		story.current.id == Narration.scene("first_orders.lab")[0].id,
+		"Milestone voiceover did not play"
+	)
 	_check(voice._narration_active, "Unit chatter overlaps narration")
 	_check(
 		not voice.say_unit(_units(game._get_human_player(), "Tank")[0], "select"),
@@ -112,8 +144,9 @@ func _narration_rules(story):
 	voice._clear()
 	await _frames(2)
 	_check(not story._audio.stream_paused, "Narration did not resume after critical warning")
-	story._remaining = 0
-	await _frames(2)
+	for line in Narration.scene("first_orders.lab"):
+		story._remaining = 0
+		await _frames(1)
 	_check(not voice._narration_active, "Narration permanently muted unit replies")
 	story._clear()
 	game.phase = 1
@@ -129,7 +162,10 @@ func _narration_rules(story):
 	story._observe()
 	_check(story._pending == ["first_orders.victory"], "Outro did not supersede stale cues")
 	await _frames(2)
-	_check(story.current.id == "first_orders.victory", "Story outro not played during result pause")
+	_check(
+		story.current.id == Narration.scene("first_orders.victory")[0].id,
+		"Story outro not played during result pause"
+	)
 	game.finished = false
 
 

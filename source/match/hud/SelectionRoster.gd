@@ -173,6 +173,10 @@ func _rebuild_tiles():
 		)
 	_previous.disabled = _page == 0
 	_next.disabled = (_page + 1) * PAGE_SIZE >= _members.size()
+	# Paging controls only when the selection spans more than one page.
+	var paged = _members.size() > PAGE_SIZE
+	for control in [_previous, _range, _next]:
+		control.visible = paged
 	_range.text = (
 		"%d–%d / %d"
 		% [_page * PAGE_SIZE + 1, mini((_page + 1) * PAGE_SIZE, _members.size()), _members.size()]
@@ -192,6 +196,7 @@ func refresh():
 	var damaged = _members.filter(func(unit): return _eligible(unit) and unit.hp < unit.hp_max)
 	_damaged.text = "Select damaged · %d" % damaged.size()
 	_damaged.disabled = damaged.is_empty()
+	_damaged.visible = not damaged.is_empty()
 	_damaged.tooltip_text = hint
 	for entry in _tiles:
 		var unit = entry.unit
@@ -206,7 +211,8 @@ func refresh():
 			else (BattleTheme.SIGNAL_WARN if percent > 30 else BattleTheme.SIGNAL_BAD)
 		)
 		entry.health.queue_redraw()
-		entry.label.text = "%d%%" % ceili(percent)
+		# The bar shows health; the number appears once a unit is hurt.
+		entry.label.text = "%d%%" % ceili(percent) if percent < 100 else ""
 		var title = (
 			"%s · %d / %d HP"
 			% [Factions.title(unit.player.faction, unit.type), ceili(unit.hp), unit.hp_max]

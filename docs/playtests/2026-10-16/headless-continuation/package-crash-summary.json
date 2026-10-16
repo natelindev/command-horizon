@@ -1,0 +1,49 @@
+{
+  "command_note": "Official release template ignored --script; uncapped --headless --fixed-fps 60 menu run",
+  "exit": -11,
+  "seconds": 108.5,
+  "exception": {
+    "codes": "0x0000000000000001, 0x0000000000000410",
+    "rawCodes": [
+      1,
+      1040
+    ],
+    "type": "EXC_BAD_ACCESS",
+    "signal": "SIGSEGV",
+    "subtype": "KERN_INVALID_ADDRESS at 0x0000000000000410"
+  },
+  "crashed_thread": [
+    {
+      "symbol": "AudioServer::thread_find_bus_index(StringName const&)",
+      "offset": 48
+    },
+    {
+      "symbol": "AudioServer::_mix_step()",
+      "offset": 1372
+    },
+    {
+      "symbol": "AudioServer::_mix_step()",
+      "offset": 1372
+    },
+    {
+      "symbol": "AudioServer::_driver_process(int, int*)",
+      "offset": 272
+    },
+    {
+      "symbol": "AudioDriverDummy::thread_func(void*)",
+      "offset": 136
+    },
+    {
+      "symbol": "Thread::thread_callback(void*)",
+      "offset": 80
+    },
+    {
+      "symbol": "_pthread_start",
+      "offset": 136
+    },
+    {
+      "symbol": "thread_start",
+      "offset": 8
+    }
+  ]
+}

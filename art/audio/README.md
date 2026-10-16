@@ -2,41 +2,63 @@
 
 ## Battle voices and interface sounds
 
-The offline battle bank contains 711 clips: 293 spoken lines and 418 mechanical
-cues. Three male Kokoro voices are reserved for faction announcements. The 31
-speaking faction/unit roles each use a separate male Piper/VCTK speaker, with no
-speaker reuse or announcer blends. Selection, movement, attack, ready and stop
-responses stay with the same speaker. Frontier's scrapper also speaks for gathering,
-building and repair orders. All speech has matching captions.
+The offline battle bank contains 687 clips: 293 crew/command lines, 97 robot lines and
+297 structure console cues. Three male Kokoro voices are reserved for faction
+announcements. The 31 speaking faction/unit roles and the 11 robots each clone their own
+reference voice with Chatterbox. Crew are native English speakers with one accent family
+per army — Bastion North American, Helix English, Frontier mostly Irish/Australian — cast
+from VCTK speakers (self-reported accents) and confidently native CC0 donations. Casting is
+chosen for distinctness: across all 42 references the closest pair scores 0.39 ECAPA
+cosine (same-person pairs score above roughly 0.5), and none is close to an announcer.
+Selection, movement, attack, ready and stop responses stay with the same voice. Soldiers are
+spoiling for a fight: the script is battle-hungry, delivery runs hot (Chatterbox
+exaggeration 0.65–1.0, most intense on attack) and Frontier's scrapper also speaks for
+gathering, building and repair orders. All speech has matching captions.
 
-Autonomous units have 11 faction/role identities and 121 distinct clips: workers
-use piston motors and ratchets, repair robots use servos and tool taps, combat
-robots use heavy gears and latches, and drones use rotors and telemetry arpeggios.
-Each has multiple selection/move/attack variations and separate task/ready/stop
-responses. Faction tuning and texture preserve the unit's mechanical character.
-Structures use short console cues. Generic sourceless unit events are rejected;
-only a real unit can supply a unit reply.
+Every spoken line is the best of up to nine seeded takes: Whisper `medium.en` must hear the
+written words, the take must still sound like its cast voice (ECAPA similarity) and must not
+leap into a screech; among those, the most fired-up take wins (vocal effort plus raised
+pitch). Crew lines get light, baked field-radio colouring by unit class and faction
+(`radio_voice.py`: handset, throat mic, command net, helmet intercom, pilot headset or CB
+radio; Bastion analog, Helix digital, Frontier rough), blended in parallel with the dry
+voice so consonants stay clear. Speech is trimmed, equalized and normalized to −16 LUFS per
+clip with a −1.5 dBFS peak limit. The game's Voice bus plays it full-band (low cut, gentle
+compression, limiter); a runtime radio band-pass previously muffled words and made
+speakers sound alike. Crew and command lines keep a short radio chirp.
 
-`voice_cast.py` contains explicit casting and original dialogue; `vctk-speakers.json`
-records the male speaker metadata source. `build_battle_audio.py` uses Kokoro ONNX,
-Piper, soundfile, NumPy and ffmpeg. Build inputs stay under `tmp`; the game requires
-no TTS installation or network. The catalog and manifest pin inputs and output
-hashes. The per-clip cache includes only its own speaker/model, so a unit recast
-leaves other speech and mechanical clips untouched. Speech uses light EQ without
-narrow radio filtering. Kokoro synthesizes at 24 kHz and Piper at 22.05 kHz; spoken
-Oggs are encoded at 24 kHz.
+Robots speak short machine reports through their own voice designs in `robot_voice.py`:
+Bastion machines are metallic and clean, Helix machines are vocoded and glassy, Frontier
+machines are scrap-built and gritty, and within a faction each role has its own register
+and mechanism. Their speech sits over role-specific machinery: workers use piston motors
+and ratchets, repair robots use servos and tool taps, combat robots use heavy gears and
+latches, and drones use rotors and telemetry. Structures use short console cues. Generic
+sourceless unit events are rejected; only a real unit can supply a unit reply.
+
+`voice_cast.py` contains explicit casting, delivery and original dialogue.
+`analyze_voice_pool.py` profiles the reference voices (language, accent, pitch, quality)
+into `voice-pool.json`, and `select_voice_cast.py` proposes a native, maximally distinct cast. `build_battle_audio.py` uses
+Kokoro ONNX, Chatterbox, Whisper, SpeechBrain, soundfile, NumPy and ffmpeg. Build
+inputs stay under `tmp`; the game requires no TTS installation or network. The catalog
+and manifest pin inputs, output hashes and each accepted take's transcription. The
+per-clip cache includes only its own voice/model, so recasting one unit leaves other
+speech and mechanical clips untouched.
 
 ```sh
-python art/audio/build_battle_audio.py --model tmp/kokoro/kokoro-v1.0.onnx --voices tmp/kokoro/voices-v1.0.bin --unit-model tmp/piper/en_GB-vctk-medium.onnx
-python -m unittest discover -s art/audio -p 'test_voice_cast.py'
-python art/audio/verify_voice_cast.py
-python art/audio/verify_battle_audio.py
-python art/audio/verify_clean_mix.py
+uv venv --python 3.11 tmp/voice-venv
+VIRTUAL_ENV=tmp/voice-venv uv pip install -r art/audio/voice-requirements.txt
+VIRTUAL_ENV=tmp/voice-venv uv pip install --no-deps kokoro-onnx==0.6.1
+# Reference voices from huggingface.co/kyutai/tts-voices: voice-donations/*_enhanced.wav into
+# tmp/voice-refs/donations/, vctk/*_enhanced.wav into tmp/voice-refs/vctk/ (hashes are checked
+# against voice-pool.json). A CUDA machine can render a slice: --shard <prefixes> --checkpoint <file>;
+# merge its Oggs and checkpoint, then run the full build once to assemble the catalog.
+tmp/voice-venv/bin/python art/audio/build_battle_audio.py --model tmp/kokoro/kokoro-v1.0.onnx --voices tmp/kokoro/voices-v1.0.bin
+cd art/audio
+../../tmp/voice-venv/bin/python -m unittest test_voice_cast
+../../tmp/voice-venv/bin/python verify_voice_cast.py
+../../tmp/voice-venv/bin/python verify_battle_audio.py
+../../tmp/voice-venv/bin/python verify_voice_identity.py
+../../tmp/voice-venv/bin/python verify_clean_mix.py
 ```
-
-Download the Piper model and matching `.onnx.json` from the model link in
-[voice attribution](../../assets/audio/voices/LICENSES.md). Reproducible build
-packages are listed in `voice-requirements.txt`; ffmpeg is also required.
 
 The four regional beds are 10.3–13.2 dB quieter in the mix than the previous
 version, with their noise above 2 kHz reduced by 22.9–31.5 dB. Local ambient
@@ -61,8 +83,8 @@ movement, rejected full queues, enemy activity and save reconstruction stay sile
 UI buttons, toggles, tabs, menus, lists and sliders use one Effects player with a
 75 ms global debounce; programmatic refresh and hover do not trigger audio.
 
-Speech follows Voice volume; mechanical responses and UI follow Effects volume.
-The existing combat and ambience systems retain their voice ducking and limits.
+Crew, command and robot speech follow Voice volume; structure cues and UI follow Effects
+volume. While anyone speaks, combat effects duck by 6 dB and ambience by 8 dB.
 
 ## Background recordings
 
@@ -108,3 +130,26 @@ checked on 2026-10-11. `suno-tasks.json` retains their IDs to prevent duplicate
 submissions. No new paid jobs were submitted, and the game no longer depends on
 those requests. Credentials remain only in macOS Keychain. Music playback is
 fully local and requires no account or network connection.
+
+## Hero campaign conversations
+
+`docs/plans/hero-campaign-dialogue.json` authors 160 English/Chinese lines for 16
+missions and 13 characters. `build_campaign_audio.py` uses the battle pipeline's
+reference voices and quality checks; CANTOR adds a distinct vocoder design. Aegis,
+Nyx and Rook keep their battle identities. Source hashes allow interrupted builds
+to resume without replacing accepted recordings. Each take is encoded to Ogg before
+transcription, and accepted bytes are retained unchanged. The builder and audit share
+a vocabulary and normalize equivalent spoken spellings (including written numbers
+and the homophones Ren/Wren); wrong numbers and missing words still fail checks.
+
+Run `verify_campaign_audio.py` with the voice environment to audit the actual Ogg
+files, including transcript accuracy, loudness, peaks and cast identity. Its
+transcript cache is keyed by file hash and expected text. Only after the complete
+audit passes does `install_campaign_dialogue.py` assemble the runtime conversation
+catalog. It verifies the shipped hashes against that audit. Import with Godot's
+headless editor before running the campaign dialogue regressions.
+
+Portraits are original SVGs produced by `tools/ui/generate_campaign_portraits.py`.
+The campaign distribution credits are `assets/audio/campaign/LICENSES.md`. Legacy
+narration remains for save compatibility. Listening and rendered review remain
+separate from these automated checks.

@@ -189,11 +189,61 @@ func _try_open_approach(preserve_clear_route = false):
 					if length < best_length:
 						best = projected
 						best_length = length
+	if not best.is_finite() and not faces.is_empty():
+		best = _two_corner_approach(navmap, origin, center, contact, faces, blockers)
 	if not best.is_finite():
 		return false
 	_target_position = best
 	_movement_trait.move(best)
 	return true
+
+
+func _two_corner_approach(navmap, origin, center, contact, faces, blockers):
+	# Two offset rows can require two turns: no single outside waypoint has a
+	# clear path both from the worker and to a work face. Search a bounded local
+	# set only after the cheaper direct and one-corner approaches fail.
+	var starts = []
+	var finishes = []
+	for ring in [[origin, 4.0], [center, contact + 4.0], [center, contact + 8.0]]:
+		for index in 16:
+			var angle = index * TAU / 16
+			var candidate = ring[0] + Vector3(cos(angle), 0, sin(angle)) * ring[1]
+			var point = NavigationServer3D.map_get_closest_point(navmap, candidate)
+			point *= Vector3(1, 0, 1)
+			if point.distance_to(candidate) > .15:
+				continue
+			var first = _clear_path_length(navmap, origin, point, blockers)
+			if is_finite(first):
+				starts.append({"point": point, "length": first})
+			var last = INF
+			for face in faces:
+				last = minf(last, _clear_path_length(navmap, point, face, blockers))
+			if is_finite(last):
+				finishes.append({"point": point, "length": last})
+	var best = Vector3.INF
+	var best_length = INF
+	for first in starts:
+		for last in finishes:
+			var lower_bound = first.length + first.point.distance_to(last.point) + last.length
+			if lower_bound >= best_length:
+				continue
+			var middle = _clear_path_length(navmap, first.point, last.point, blockers)
+			var total = first.length + middle + last.length
+			if total < best_length:
+				best = first.point
+				best_length = total
+	return best
+
+
+func _clear_path_length(navmap, start, end, blockers):
+	var path = NavigationServer3D.map_get_path(navmap, start, end, true)
+	if (
+		path.size() < 2
+		or (path[-1] * Vector3(1, 0, 1)).distance_to(end) > .1
+		or not _path_clear_of_bodies(path, blockers)
+	):
+		return INF
+	return _path_length(path)
 
 
 func _path_length(path):

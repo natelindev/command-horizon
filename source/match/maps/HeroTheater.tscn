@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3]
+[ext_resource type="PackedScene" path="res://source/match/Map.tscn" id="base"]
+[ext_resource type="Script" path="res://source/match/maps/HeroTheater.gd" id="script"]
+[node name="Map" instance=ExtResource("base")]
+script = ExtResource("script")
+size = Vector2(168, 120)
+[node name="Human" type="Marker3D" parent="SpawnPoints" index="0"]
+position = Vector3(18, 0, 100)
+[node name="Enemy" type="Marker3D" parent="SpawnPoints" index="1"]
+position = Vector3(138, 0, 44)

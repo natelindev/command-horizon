@@ -20,7 +20,14 @@ func _run():
 		game.hud._toggle_pause()
 		_check_kit()
 		for scale_value in [1.5, 1.0]:
-			options.restore({"screen": 1, "edge_scrolling": false, "interface_scale": scale_value})
+			options.restore(
+				{
+					"screen": 1,
+					"edge_scrolling": false,
+					"subtitles": true,
+					"interface_scale": scale_value
+				}
+			)
 			root.size = Vector2i(1280, 720) if scale_value == 1.5 else Vector2i(1920, 1080)
 			root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
 			root.content_scale_size = Vector2i(1920, 1080)

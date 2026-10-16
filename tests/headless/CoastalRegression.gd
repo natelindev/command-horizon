@@ -27,7 +27,20 @@ func _coastal_routes():
 	var air = root.get_node("Constants").Match.Navigation.Domain.AIR
 	var nav = game.navigation.get_navigation_map_rid_by_domain(ground)
 	var placement = load("res://source/match/utils/UnitPlacementUtils.gd")
-	_check(game.map.flight_obstacles.size() == 11, "Coastal obstacle count changed")
+	# Harbor landmarks only; story landmarks add their own flight clearance.
+	_check(
+		(
+			(
+				game
+				. map
+				. flight_obstacles
+				. filter(func(body): return body.has_meta("neutral_asset"))
+				. size()
+			)
+			== 11
+		),
+		"Coastal obstacle count changed"
+	)
 	var manifest = JSON.parse_string(
 		FileAccess.get_file_as_string("res://art/environment/coastal-manifest.json")
 	)
@@ -138,7 +151,8 @@ func _coastal_routes():
 		),
 		"Loaded water clock differs"
 	)
-	_check(get_nodes_in_group("resource_units").size() == 28, "Restore duplicated deposits")
+	# Four authored fields of seven deposits and the shared salvage cache of three.
+	_check(get_nodes_in_group("resource_units").size() == 31, "Restore duplicated deposits")
 	for index in army.size():
 		_check(
 			army[index].position.distance_to(positions[index]) < .02,

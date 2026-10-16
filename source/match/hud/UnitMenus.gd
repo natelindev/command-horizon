@@ -11,8 +11,6 @@ const Structure = preload("res://source/match/units/Structure.gd")
 const Worker = preload("res://source/match/units/Worker.gd")
 const RosterInfo = preload("res://source/match/hud/RosterInfo.gd")
 const RosterButton = preload("res://source/match/hud/RosterButton.gd")
-const HudKey = preload("res://source/match/hud/HudKey.gd")
-const ORDER_GLYPHS = {"move": "move", "attack": "attack", "attack_move": "attack_move"}
 
 var _selection = []
 var _stop_button = null
@@ -204,7 +202,7 @@ func _reset_menus():
 	var heading_icon = (
 		null
 		if unit.type in Catalog.MISSION_NAMES
-		else load(Factions.icon(unit.player.faction, unit.type))
+		else Factions.portrait(unit.player.faction, unit.type)
 	)
 	_build_info(heading_icon)
 	_content.tooltip_text = tr(Factions.TECH_SUMMARY.get(unit.player.faction, ""))
@@ -288,7 +286,9 @@ func _reset_menus():
 	stop.add_theme_constant_override("icon_max_width", 14)
 	stop.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	stop.pressed.connect(_stop_orders)
-	# Stop / cancel / clear rally applies to the whole selection: keep it on every page.
+	# Cancel construction and Clear rally apply to the whole selection on every page.
+	# A unit's Stop already sits in the command grid (W), so it is not repeated here.
+	stop.visible = stop.text != "Stop current orders" or not is_instance_valid(_command_card)
 	_info.add_child(stop)
 	if not conventional and _selection.any(func(member): return member.signature != null):
 		_signature_panel = load("res://source/match/hud/SignaturePanel.gd").new()
@@ -318,13 +318,21 @@ func _reset_menus():
 		_program_panel = load("res://source/match/hud/ProgramPanel.gd").new()
 		_program_panel.selection = _selection.duplicate()
 		_page("Programs").add_child(_program_panel)
+	# An empty roster would still claim page spacing.
+	grid.visible = grid.get_child_count() > 0
+	# A page with nothing to show (an idle producer's Orders) is not offered as a tab.
+	for page in _pages.get_children():
+		if (
+			_pages.get_child_count() > 1
+			and page.get_children().all(func(item): return not item.visible)
+		):
+			_pages.remove_child(page)
+			page.queue_free()
 	if previous_selection == _selection:
 		for index in _pages.get_tab_count():
 			if _pages.get_child(index).name == page_name:
 				_pages.current_tab = index
 	_pages.tabs_visible = _pages.get_tab_count() > 1
-	# An empty roster would still claim page spacing.
-	grid.visible = grid.get_child_count() > 0
 	_refresh_buttons()
 	# Rebuilding an identical selection can return to the same content minimum.
 	# Refit after layout settles even when no final minimum-size signal is emitted.
@@ -334,6 +342,8 @@ func _reset_menus():
 func _build_info(portrait):
 	var header = HBoxContainer.new()
 	header.name = "Identity"
+	# Hovering portrait or name shows the full identity and reference facts.
+	header.mouse_filter = Control.MOUSE_FILTER_PASS
 	header.add_theme_constant_override("separation", 10)
 	_info.add_child(header)
 	if portrait != null:
@@ -359,7 +369,6 @@ func _build_info(portrait):
 	_title.add_theme_font_size_override("font_size", 16)
 	_title.add_theme_color_override("font_color", BattleTheme.IVORY)
 	_title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	_title.tooltip_text = _title.text
 	_title.mouse_filter = Control.MOUSE_FILTER_PASS
 	names.add_child(_title)
 	_health = ProgressBar.new()
@@ -368,7 +377,7 @@ func _build_info(portrait):
 	_health.show_percentage = false
 	_health_fill = BattleTheme.bar_fill(BattleTheme.HEALTH_OK)
 	_health.add_theme_stylebox_override("fill", _health_fill)
-	_health.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_health.mouse_filter = Control.MOUSE_FILTER_PASS
 	names.add_child(_health)
 	_status = Label.new()
 	_status.add_theme_font_size_override("font_size", 12)
@@ -420,21 +429,6 @@ func _add_direct_buttons(unit):
 	var row = HBoxContainer.new()
 	row.add_theme_constant_override("separation", 5)
 	_commands.add_child(row)
-	for kind in _direct_orders.COMMANDS:
-		# Icon keys: the binding sits in the badge and the full hint in the tooltip.
-		var button = HudKey.new()
-		button.name = "Order" + kind.capitalize().replace(" ", "")
-		button.glyph = BattleTheme.icon(ORDER_GLYPHS.get(kind, "move"))
-		button.caption = _direct_orders.COMMANDS[kind].title
-		button.custom_minimum_size = Vector2(66, 54)
-		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		button.toggle_mode = true
-		button.gui_input.connect(_remember_command_mouse)
-		button.pressed.connect(_direct_orders.arm.bind(kind))
-		row.add_child(button)
-		_command_buttons[kind] = button
-		if kind != "move" and _selection.all(func(member): return member is Worker):
-			button.hide()
 	if _selection.any(func(member): return member is Worker):
 		_return_cargo = Button.new()
 		_return_cargo.name = "ReturnCargo"
@@ -456,12 +450,19 @@ func _add_direct_buttons(unit):
 	_recover_health.pressed.connect(
 		func(): _direct_orders.recover_health(Globals.options.selection_modifier_pressed())
 	)
-	# One row of order keys keeps the deck within the console height.
+	# Service orders with their own feedback sit above the grid, which holds every other
+	# order once: Move, Attack target and Attack move there arm the direct orders.
 	row.add_child(_recover_health)
 	_command_card = preload("res://source/match/hud/CommandCard.gd").new()
 	_command_card.name = "CommandCard"
+	_command_card.stop_override = _stop_units
 	_commands.add_child(_command_card)
 	_command_card.update_layout(_selection, _direct_orders)
+	for kind in _direct_orders.COMMANDS:
+		var key = _command_card.order_slot(kind)
+		key.toggle_mode = true
+		key.gui_input.connect(_remember_command_mouse)
+		_command_buttons[kind] = key
 
 
 func _remember_command_mouse(event):
@@ -507,22 +508,16 @@ func _add_roster_button(grid, unit_type, construction):
 	var cost = info.cost
 	var button = RosterButton.new()
 	button.name = "Build" + unit_type if construction else "Produce" + unit_type
-	# Compact console tiles: the unit's plate on the left, name and cost on the right.
-	button.custom_minimum_size = Vector2(104, 58)
+	# Console tiles: the role's portrait on the left, name and price glyphs on the right.
+	button.custom_minimum_size = Vector2(112, 60)
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	button.theme_type_variation = "BattleCardButton"
-	button.icon = load(Factions.icon(player.faction, unit_type))
-	button.expand_icon = true
-	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
-	button.add_theme_constant_override("icon_max_width", 40)
-	button.add_theme_constant_override("h_separation", 6)
-	button.add_theme_font_size_override("font_size", 13)
-	button.text = (
-		"%s\n%d M · %d E"
-		% [Factions.title(player.faction, unit_type), cost.resource_a, cost.resource_b]
+	button.show_role(
+		Factions.portrait(player.faction, unit_type),
+		Factions.title(player.faction, unit_type),
+		cost
 	)
 	button.tooltip_text = info.text
-	button.accessibility_name = Factions.title(player.faction, unit_type)
+	button.accessibility_name = tr(Factions.title(player.faction, unit_type))
 	button.accessibility_description = info.text
 	button.disabled = not info.allowed
 	button.pressed.connect(_activate.bind(unit_type, construction))
@@ -537,9 +532,19 @@ func _refresh_buttons():
 	if is_instance_valid(_stop_button) and rally != null:
 		_stop_button.text = "Clear rally"
 		_stop_button.disabled = not rally.is_assigned()
+		# Without a rally there is nothing to clear; the destination is in the tooltip.
+		_stop_button.visible = rally.is_assigned()
 		_stop_button.tooltip_text = (
-			"Removes the destination for new units. Paid production and existing unit orders continue.\n"
-			+ "Right-click ground, resources or a friendly unit to set a new rally."
+			tr("Rally ·")
+			+ " "
+			+ tr(_rally_destination(rally))
+			+ "\n"
+			+ tr(
+				(
+					"Removes the destination for new units. Paid production and existing unit orders continue.\n"
+					+ "Right-click ground, resources or a friendly unit to set a new rally."
+				)
+			)
 		)
 		_stop_button.accessibility_description = _stop_button.tooltip_text
 	if is_instance_valid(_stop_button) and _selection.size() == 1:
@@ -557,13 +562,16 @@ func _refresh_buttons():
 			_stop_button.accessibility_description = (
 				_stop_button.text + ". " + _stop_button.tooltip_text
 			)
+	# The grid resets its keys first; order keys then take their armed state and hints.
+	if is_instance_valid(_command_card):
+		_command_card.update_layout(_selection, _direct_orders)
 	if is_instance_valid(_direct_orders):
 		for kind in _command_buttons:
 			var button = _command_buttons[kind]
 			var spec = _direct_orders.COMMANDS[kind]
-			button.badge = Bindings.label(spec.action)
 			button.set_pressed_no_signal(_direct_orders.kind == kind)
 			button.disabled = _direct_orders.eligible(kind).is_empty()
+			# The badge shows the grid key; the tooltip adds the player's own binding.
 			button.tooltip_text = (
 				Bindings.hint(spec.title, spec.action)
 				+ "\n"
@@ -585,8 +593,6 @@ func _refresh_buttons():
 			_recover_health.accessibility_description = state.description
 	if is_instance_valid(_selection_roster):
 		_selection_roster.refresh()
-	if is_instance_valid(_command_card):
-		_command_card.update_layout(_selection, _direct_orders)
 	if is_instance_valid(_signature_panel):
 		_signature_panel.refresh()
 	if is_instance_valid(_weapon_modes):
@@ -619,44 +625,42 @@ func _refresh_buttons():
 	):
 		_reset_menus()
 		return
-	var details = "%d / %d HP" % [ceili(unit.hp), ceili(unit.hp_max)]
+	var health = "%d / %d HP" % [ceili(unit.hp), ceili(unit.hp_max)]
+	# The bay lists only what changes or needs action. Stable facts (class, weapons,
+	# upgrades, service rules) live in the identity tooltip over portrait and name.
+	var lines = []
+	var facts = []
 	if unit is Structure:
 		if unit.is_under_construction():
-			details += "   ·   Under construction"
+			lines.append("Under construction")
 		else:
 			if unit.player.production_factor() < 1.0:
-				details += "   ·   Low power — production at 35%"
-			if unit.type == "CommandLab":
-				details += "\nBasic programs and walkers unlocked"
-			elif unit.type == "RepairDepot":
-				details += "\nGround service: 2 slots · 5 m"
-			elif unit.type == "Barracks":
-				details += "\nInfantry recovery: 2 slots · stationary within 5 m"
-			elif unit.type == "AircraftFactory":
-				details += "\nAircraft service: 2 slots · stationary within 5 m"
-	elif unit.type == "RepairRobot":
-		details += "   ·   Right-click an ally to repair"
+				lines.append("Low power — production at 35%")
+			var service = {
+				"CommandLab": "Basic programs and walkers unlocked",
+				"RepairDepot": "Ground service: 2 slots · 5 m",
+				"Barracks": "Infantry recovery: 2 slots · stationary within 5 m",
+				"AircraftFactory": "Aircraft service: 2 slots · stationary within 5 m",
+			}
+			if service.has(unit.type):
+				facts.append(service[unit.type])
 	if _selection.size() > 1:
-		var damaged = (
-			_selection
-			. filter(func(member): return member.hp != null and member.hp < member.hp_max)
-			. size()
-		)
-		details = "%d selected · %d damaged" % [_selection.size(), damaged]
+		# The title counts the selection and the roster counts damaged units.
+		lines.clear()
 	if _selection.size() == 1:
-		details += "\n" + load("res://source/match/combat/CombatRules.gd").describe(unit)
-		if rally != null:
-			details += "\nRally · " + _rally_destination(rally)
+		facts.push_front(load("res://source/match/combat/CombatRules.gd").describe(unit))
 		if unit.player.technology != null:
 			var upgrades = unit.player.technology.summary(unit.type)
 			if upgrades != "":
-				details += "\n" + upgrades
+				facts.append(upgrades)
 		if unit.type == "RepairRobot":
-			details += "\nRepair: 1 target · 3 m (building edge)"
+			facts.append("Right-click an ally to repair")
+			facts.append("Repair: 1 target · 3 m (building edge)")
 		if unit is Worker:
-			details += "\nCargo: %d M / %d E" % [unit.resource_a, unit.resource_b]
+			if unit.resource_a > 0 or unit.resource_b > 0:
+				lines.append("Cargo: %d M / %d E" % [unit.resource_a, unit.resource_b])
 			if unit.action != null and unit.action.has_method("harvest_status"):
-				details += "\n" + unit.action.harvest_status()
+				lines.append(unit.action.harvest_status())
 	elif _selection.all(func(member): return member is Worker):
 		var gathering = 0
 		var waiting = 0
@@ -666,11 +670,21 @@ func _refresh_buttons():
 					waiting += 1
 				else:
 					gathering += 1
-		details += (
-			"\nEconomy: %d gathering / %d waiting / %d other"
-			% [gathering, waiting, _selection.size() - gathering - waiting]
+		lines.append(
+			(
+				"Economy: %d gathering / %d waiting / %d other"
+				% [gathering, waiting, _selection.size() - gathering - waiting]
+			)
 		)
-	_status.text = details
+	_status.text = "\n".join(lines.map(func(line): return tr(line)))
+	_status.visible = not lines.is_empty()
+	_health.tooltip_text = tr(health)
+	var identity = _info.get_node_or_null("Identity")
+	if identity != null:
+		identity.tooltip_text = "\n".join(
+			[tr(_title.text), tr(health)] + facts.map(func(fact): return tr(fact))
+		)
+		identity.accessibility_description = identity.tooltip_text
 	_refresh_health()
 	for entry in _buttons:
 		var producer = unit if entry.construction else _production_target(entry.type)
@@ -679,13 +693,8 @@ func _refresh_buttons():
 			continue
 		var info = RosterInfo.inspect(producer, entry.type, entry.construction)
 		entry.cost = info.cost
-		entry.button.text = (
-			"%s\n%d M · %d E"
-			% [
-				Factions.title(unit.player.faction, entry.type),
-				entry.cost.resource_a,
-				entry.cost.resource_b
-			]
+		entry.button.show_role(
+			entry.button.portrait(), Factions.title(unit.player.faction, entry.type), entry.cost
 		)
 		entry.button.disabled = not info.allowed
 		entry.button.tooltip_text = info.text
@@ -758,6 +767,14 @@ func _stop_orders():
 		if unit is Structure and unit.is_under_construction():
 			unit.cancel_construction()
 		else:
+			unit.issue_manual_order(null)
+			MatchSignals.unit_order_issued.emit(unit, "stop")
+
+
+func _stop_units():
+	# The grid's Stop halts units only; construction sites and rallies have own keys.
+	for unit in _selection.duplicate():
+		if is_instance_valid(unit) and not unit is Structure:
 			unit.issue_manual_order(null)
 			MatchSignals.unit_order_issued.emit(unit, "stop")
 

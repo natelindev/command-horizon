@@ -64,6 +64,7 @@ func _frontier_routes(human):
 		)
 	await _frames(600)
 	paused = true
+	var deposits_before = get_nodes_in_group("resource_units").size()
 	var builder = Snapshot.new()
 	var snapshot = builder.capture(game)
 	_check(snapshot != null, "Frontier snapshot failed: " + builder.error)
@@ -87,7 +88,9 @@ func _frontier_routes(human):
 		game.map.size == Vector2(128, 96) and game.settings.map_path == FRONTIER,
 		"Restored original desert instead of revision"
 	)
-	_check(get_nodes_in_group("resource_units").size() == 16, "Restore duplicated fields")
+	_check(
+		get_nodes_in_group("resource_units").size() == deposits_before, "Restore duplicated fields"
+	)
 	game.hud._toggle_pause()
 	await _frames(1800)
 	_check(

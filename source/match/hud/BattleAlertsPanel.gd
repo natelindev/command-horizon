@@ -110,7 +110,9 @@ func _layout():
 		toggle.size = slot.size
 	else:
 		toggle.position = Vector2(viewport.x - toggle.size.x - 12, HudLayout.TOP_RAIL + 6)
-	panel.position = Vector2(viewport.x - 404, HudLayout.TOP_PLATE + 4)
+	panel.position = Vector2(
+		viewport.x - 404, maxf(HudLayout.TOP_PLATE, hud.system_plate.size.y) + 4
+	)
 	panel.size = Vector2(390, minf(480, viewport.y - 170))
 
 

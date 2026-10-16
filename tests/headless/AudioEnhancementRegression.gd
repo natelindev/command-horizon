@@ -293,12 +293,19 @@ func _mechanical_and_lifecycle():
 	_reset_speech()
 	var human = game._get_human_player()
 	var robot = _spawn_weapon("RepairRobot", human, Vector3(32, 0, 32))
+	voice._chirp_audio.stop()
 	root.get_node("MatchSignals").unit_selected.emit(robot)
 	_check(
-		voice.current.get("mechanical", false) and voice._audio.bus == "Effects",
-		"Autonomous machine was voiced as a person"
+		(
+			voice.current.get("robotic", false)
+			and not voice.current.get("mechanical", false)
+			and voice._audio.bus == "Voice"
+			and voice.current.speaker_id == "%s/RepairRobot" % human.faction
+		),
+		"Robot did not speak with its own machine voice"
 	)
-	_check(voice.current.text.begins_with("["), "Machine subtitle invents spoken dialogue")
+	_check(not voice.current.text.begins_with("["), "Robot caption does not match its speech")
+	_check(not voice._chirp_audio.playing, "Robot speech used the crew radio chirp")
 	_reset_speech()
 	var building = _units(human, "CommandCenter")[0]
 	root.get_node("MatchSignals").unit_selected.emit(building)

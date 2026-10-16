@@ -5,7 +5,19 @@ func _run():
 	path = "user://horizon-environment-%d.json" % OS.get_process_id()
 	moving = load("res://source/match/units/actions/Moving.gd")
 	await _make_match()
-	_check(game.map.flight_obstacles.size() == 15, "Environment changed obstacle count")
+	_check(
+		(
+			(
+				game
+				. map
+				. flight_obstacles
+				. filter(func(body): return not body.has_meta("campaign_scenery"))
+				. size()
+			)
+			== 15
+		),
+		"Environment changed obstacle count"
+	)
 	var manifest = JSON.parse_string(
 		FileAccess.get_file_as_string("res://art/environment/manifest.json")
 	)

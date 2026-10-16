@@ -98,11 +98,13 @@ func _voice_credits():
 		+ tr("Male voice styles · Apache 2.0 model")
 		+ "\n"
 		+ "[url=https://github.com/thewh1teagle/kokoro-onnx]kokoro-onnx[/url] · MIT\n"
-		+ "[url=https://huggingface.co/rhasspy/piper-voices]Piper / VCTK unit voices[/url]\n"
+		+ "[url=https://github.com/resemble-ai/chatterbox]Chatterbox TTS[/url] · Resemble AI · MIT\n"
+		+ "[url=https://huggingface.co/kyutai/tts-voices]Unmute voice donations[/url] · "
+		+ "Kyutai · CC0\n"
 		+ "Christophe Veaux, Junichi Yamagishi, Kirsten MacDonald · CSTR, Edinburgh\n"
 		+ "[url=https://doi.org/10.7488/ds/2645]VCTK 0.92[/url] · "
 		+ "[url=https://creativecommons.org/licenses/by/4.0/]CC BY 4.0[/url]\n"
-		+ tr("Original dialogue, synthetic male speakers, equalization and Ogg encoding.")
+		+ tr("Original dialogue, unit and robot voices, equalization and Ogg encoding.")
 	)
 
 

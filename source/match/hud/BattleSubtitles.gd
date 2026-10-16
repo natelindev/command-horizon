@@ -36,12 +36,18 @@ func _on_line(line):
 
 
 func _refresh():
-	_card.visible = Globals.options.subtitles and not _line.is_empty()
+	# Story portraits identify the speaking character even with captions off.
+	_card.visible = (
+		not _line.is_empty()
+		and (Globals.options.subtitles or not _line.get("portrait", "").is_empty())
+	)
 	var space = _horizontal_space()
 	_card.custom_minimum_size.x = minf(560, maxf(1, space.y - space.x))
 	_card.size.x = _card.custom_minimum_size.x
 	if not _line.is_empty():
 		_card.set_line(_line.speaker, _line.text, Globals.options.subtitle_size)
+		_card.set_portrait(_line.get("portrait", ""))
+		_card.set_caption_visible(Globals.options.subtitles)
 	_fit_card()
 
 

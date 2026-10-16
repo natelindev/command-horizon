@@ -1,6 +1,7 @@
 extends PanelContainer
 
 const ProductionQueueElement = preload("res://source/match/hud/ProductionQueueElement.tscn")
+const HudLayout = preload("res://source/match/hud/HudLayout.gd")
 
 var _production_queues = []
 var _tray: StyleBox
@@ -111,7 +112,8 @@ func _sync_tray():
 
 
 func _fit_queue():
-	# Hug the queued jobs, scrolling once they outgrow the rack.
-	var limit = minf(480, get_viewport_rect().size.x * .45)
+	# Hug the queued jobs. A full queue fits the deck's width; larger combined
+	# queues of several selected producers scroll.
+	var limit = HudLayout.deck_width(get_viewport_rect().size.x) - 24
 	var jobs = _queue_elements.get_combined_minimum_size().x if _queue_elements != null else limit
 	find_child("QueueScroll").custom_minimum_size.x = minf(limit, jobs)

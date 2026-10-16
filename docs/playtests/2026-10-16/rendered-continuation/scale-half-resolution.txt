@@ -1,0 +1,16 @@
+Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org
+Metal 4.0 - Forward+ - Using Device #0: Apple - Apple M1 Pro (Apple7)
+
+SCALE BEGIN movement paused=false simulation_time=3.84999999999999
+SCALE movement renderer=macOS mean_frame_ms=130.29 p95_frame_ms=195.58 p99_frame_ms=205.49 frames_over_33ms=89 samples=96 simulation_seconds=10.07 wall_seconds=12.51 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=29.73 mean_engine_physics_ms=27.19 physics_ticks=604 diagnostic_no_motion=false diagnostic_no_queues=false
+RENDER movement gpu_ms=0.0 render_cpu_ms=4.41 pixels=(1920.0, 1080.0) scale_3d=0.5 adapter=Apple M1 Pro (Apple7) rendered_frames=96
+SCALE BEGIN combat paused=false simulation_time=13.9166666666669
+SCALE combat renderer=macOS mean_frame_ms=197.25 p95_frame_ms=222.8 p99_frame_ms=229.11 frames_over_33ms=76 samples=76 simulation_seconds=10.02 wall_seconds=14.99 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=32.46 mean_engine_physics_ms=36.78 physics_ticks=601 diagnostic_no_motion=false diagnostic_no_queues=false
+RENDER combat gpu_ms=0.0 render_cpu_ms=5.22 pixels=(1920.0, 1080.0) scale_3d=0.5 adapter=Apple M1 Pro (Apple7) rendered_frames=76
+SCALE Lua VMs=200 peak_VM_bytes=59868 combat_evaluations=8906
+SCALE moved=200/200 travelled=200/200 fired=101 peak_live_projectiles=7 resources=62 sampled_peak_tracers=6 sampled_peak_claims=0 viewport_pixels=(1920.0, 1080.0)
+PASS: 200 mobile units + 80 structures; programs=true squads=false specialists=false lua=true visual=false
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+ERROR: 2 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:810)

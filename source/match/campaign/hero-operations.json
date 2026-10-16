@@ -1,0 +1,549 @@
+{
+  "bastion_cinder_ford": {
+    "title": "Cinder Ford",
+    "zh_CN": "烬河渡口",
+    "faction": "bastion",
+    "enemy": "helix",
+    "act": 4,
+    "biome": "ford",
+    "summary": "Aegis takes the river guns to stop a Helix convoy. Voss follows a civilian signal through the barrage.",
+    "summary_zh": "埃吉斯夺取河岸炮阵，阻止螺旋车队。沃斯在炮火中追踪平民的求救信号。",
+    "objectives": [
+      {
+        "kind": "capture",
+        "title": "Secure the western fire-control post",
+        "zh_CN": "夺取西岸火控站",
+        "point": [
+          44,
+          76
+        ],
+        "seconds": 12,
+        "guards": 3
+      },
+      {
+        "kind": "destroy",
+        "title": "Disable the convoy command vehicle",
+        "zh_CN": "击毁车队指挥车",
+        "point": [
+          88,
+          60
+        ],
+        "seconds": 12,
+        "guards": 5,
+        "role": "AdvancedTank"
+      },
+      {
+        "kind": "hold",
+        "title": "Hold the ford while Voss searches the wrecks",
+        "zh_CN": "守住渡口，掩护沃斯搜索残骸",
+        "point": [
+          112,
+          72
+        ],
+        "seconds": 50,
+        "guards": 4
+      },
+      {
+        "kind": "escort",
+        "title": "Bring the survivors to the aid station",
+        "zh_CN": "护送幸存者前往救护站",
+        "point": [
+          112,
+          72
+        ],
+        "seconds": 12,
+        "guards": 0,
+        "destination": [
+          146,
+          96
+        ]
+      }
+    ]
+  },
+  "helix_quiet_streets": {
+    "title": "Quiet Streets",
+    "zh_CN": "寂静街道",
+    "faction": "helix",
+    "enemy": "frontier",
+    "act": 1,
+    "biome": "city",
+    "summary": "Nyx restores power to a sealed district. A detained family makes order look less like mercy.",
+    "summary_zh": "尼克斯恢复封锁街区的供电。一个被扣押的家庭让“秩序”不再像仁慈。",
+    "objectives": [
+      {
+        "kind": "capture",
+        "title": "Reconnect the clinic substation",
+        "zh_CN": "接通诊所变电站",
+        "point": [
+          46,
+          78
+        ],
+        "seconds": 12,
+        "guards": 3
+      },
+      {
+        "kind": "escort",
+        "title": "Escort the detained families to the clinic",
+        "zh_CN": "护送被扣押的家庭前往诊所",
+        "point": [
+          46,
+          78
+        ],
+        "seconds": 12,
+        "guards": 0,
+        "destination": [
+          88,
+          44
+        ]
+      },
+      {
+        "kind": "hold",
+        "title": "Protect the clinic until its power stabilizes",
+        "zh_CN": "保护诊所，等待供电稳定",
+        "point": [
+          88,
+          44
+        ],
+        "seconds": 40,
+        "guards": 4
+      }
+    ]
+  },
+  "helix_the_gate": {
+    "title": "The Gate",
+    "zh_CN": "城门",
+    "faction": "helix",
+    "enemy": "bastion",
+    "act": 2,
+    "biome": "city",
+    "summary": "The night Meridian closed. Nyx must keep two gate controls online while Elias calls from the other side.",
+    "summary_zh": "子午城封锁之夜。尼克斯必须维持两座城门控制站，而伊莱亚斯正在门外呼救。",
+    "objectives": [
+      {
+        "kind": "capture",
+        "title": "Restore the outer gate controls",
+        "zh_CN": "恢复外门控制",
+        "point": [
+          42,
+          42
+        ],
+        "seconds": 12,
+        "guards": 3
+      },
+      {
+        "kind": "hold",
+        "title": "Keep the evacuation channel open",
+        "zh_CN": "维持撤离通道",
+        "point": [
+          80,
+          62
+        ],
+        "seconds": 55,
+        "guards": 5
+      },
+      {
+        "kind": "capture",
+        "title": "Reach the inner gate before CANTOR seals it",
+        "zh_CN": "赶在坎托封门前抵达内门",
+        "point": [
+          130,
+          42
+        ],
+        "seconds": 12,
+        "guards": 6
+      }
+    ]
+  },
+  "helix_cinder_ford": {
+    "title": "Cinder Ford",
+    "zh_CN": "烬河渡口",
+    "faction": "helix",
+    "enemy": "bastion",
+    "act": 3,
+    "biome": "ford",
+    "summary": "The crossing is under Bastion fire. Nyx turns the convoy toward civilians CANTOR has written off.",
+    "summary_zh": "渡口遭到堡垒炮击。尼克斯把车队引向那些被坎托放弃的平民。",
+    "objectives": [
+      {
+        "kind": "destroy",
+        "title": "Silence the north-bank artillery",
+        "zh_CN": "摧毁北岸火炮",
+        "point": [
+          56,
+          40
+        ],
+        "seconds": 12,
+        "guards": 4,
+        "role": "AdvancedTank"
+      },
+      {
+        "kind": "escort",
+        "title": "Guide the relief convoy across the ford",
+        "zh_CN": "引导救援车队穿过渡口",
+        "point": [
+          42,
+          88
+        ],
+        "seconds": 12,
+        "guards": 3,
+        "destination": [
+          102,
+          76
+        ]
+      },
+      {
+        "kind": "hold",
+        "title": "Cover the last vehicles at the eastern ramp",
+        "zh_CN": "在东岸坡道掩护最后的车辆",
+        "point": [
+          126,
+          76
+        ],
+        "seconds": 50,
+        "guards": 5
+      }
+    ]
+  },
+  "helix_pruning": {
+    "title": "Pruning",
+    "zh_CN": "剪枝",
+    "faction": "helix",
+    "enemy": "helix",
+    "act": 4,
+    "biome": "city",
+    "summary": "Ilan lives in a district marked for erasure. Nyx breaks the command chain to find him.",
+    "summary_zh": "伊兰所在街区被列入清除名单。尼克斯违抗指挥系统，去找自己的儿子。",
+    "objectives": [
+      {
+        "kind": "destroy",
+        "title": "Destroy the district isolation node",
+        "zh_CN": "摧毁街区隔离节点",
+        "point": [
+          50,
+          80
+        ],
+        "seconds": 12,
+        "guards": 4,
+        "role": "PowerPlant"
+      },
+      {
+        "kind": "capture",
+        "title": "Locate Ilan through the school terminal",
+        "zh_CN": "在学校终端定位伊兰",
+        "point": [
+          92,
+          40
+        ],
+        "seconds": 12,
+        "guards": 5
+      },
+      {
+        "kind": "escort",
+        "title": "Bring Ilan and the children to the tunnels",
+        "zh_CN": "护送伊兰和孩子们进入隧道",
+        "point": [
+          92,
+          40
+        ],
+        "seconds": 12,
+        "guards": 0,
+        "destination": [
+          146,
+          86
+        ]
+      }
+    ]
+  },
+  "helix_severance": {
+    "title": "Severance",
+    "zh_CN": "决裂",
+    "faction": "helix",
+    "enemy": "helix",
+    "act": 5,
+    "biome": "spire",
+    "summary": "Arden holds the Meridian Spire. Ren must decide whether loyalty means obeying or staying beside Nyx.",
+    "summary_zh": "阿登控制着子午尖塔。任必须决定，忠诚是服从命令，还是留在尼克斯身边。",
+    "objectives": [
+      {
+        "kind": "capture",
+        "title": "Cut Arden off from the outer defense grid",
+        "zh_CN": "切断阿登与外围防御网的连接",
+        "point": [
+          48,
+          40
+        ],
+        "seconds": 12,
+        "guards": 5
+      },
+      {
+        "kind": "destroy",
+        "title": "Breach the command shield generator",
+        "zh_CN": "摧毁指挥屏障发生器",
+        "point": [
+          92,
+          78
+        ],
+        "seconds": 12,
+        "guards": 6,
+        "role": "PowerPlant"
+      },
+      {
+        "kind": "destroy",
+        "title": "Destroy CANTOR's command core",
+        "zh_CN": "摧毁坎托指挥核心",
+        "point": [
+          138,
+          44
+        ],
+        "seconds": 12,
+        "guards": 7,
+        "role": "CommandCenter"
+      }
+    ]
+  },
+  "frontier_drainage": {
+    "title": "Drainage",
+    "zh_CN": "排水道",
+    "faction": "frontier",
+    "enemy": "helix",
+    "act": 1,
+    "biome": "tunnels",
+    "summary": "Rook and Wren lead the last families below Meridian. The safe route is the one they build together.",
+    "summary_zh": "鲁克和雷恩带领最后的家庭潜入子午城地下。他们必须亲手开辟安全通道。",
+    "objectives": [
+      {
+        "kind": "capture",
+        "title": "Open the drainage sluice",
+        "zh_CN": "打开排水闸门",
+        "point": [
+          44,
+          84
+        ],
+        "seconds": 12,
+        "guards": 3
+      },
+      {
+        "kind": "escort",
+        "title": "Guide the refugees through the service trench",
+        "zh_CN": "引导难民穿过检修沟",
+        "point": [
+          44,
+          84
+        ],
+        "seconds": 12,
+        "guards": 0,
+        "destination": [
+          94,
+          48
+        ]
+      },
+      {
+        "kind": "hold",
+        "title": "Hold the tunnel mouth for the stragglers",
+        "zh_CN": "守住隧道口，等待掉队者",
+        "point": [
+          132,
+          66
+        ],
+        "seconds": 40,
+        "guards": 4
+      }
+    ]
+  },
+  "frontier_cinder_ford": {
+    "title": "Cinder Ford",
+    "zh_CN": "烬河渡口",
+    "faction": "frontier",
+    "enemy": "bastion",
+    "act": 2,
+    "biome": "ford",
+    "summary": "Wren's caravan is caught beneath the guns. Rook has to choose a route through the smoke.",
+    "summary_zh": "雷恩的车队陷入炮火。鲁克必须在浓烟中找到一条生路。",
+    "objectives": [
+      {
+        "kind": "destroy",
+        "title": "Break the southern roadblock",
+        "zh_CN": "摧毁南侧路障",
+        "point": [
+          50,
+          86
+        ],
+        "seconds": 12,
+        "guards": 4,
+        "role": "Tank"
+      },
+      {
+        "kind": "escort",
+        "title": "Get Wren's caravan beyond the river guns",
+        "zh_CN": "护送雷恩的车队逃离河岸炮火",
+        "point": [
+          42,
+          76
+        ],
+        "seconds": 12,
+        "guards": 0,
+        "destination": [
+          98,
+          70
+        ]
+      },
+      {
+        "kind": "capture",
+        "title": "Search the abandoned ambulance station",
+        "zh_CN": "搜索废弃救护站",
+        "point": [
+          138,
+          44
+        ],
+        "seconds": 12,
+        "guards": 5
+      }
+    ]
+  },
+  "frontier_salvage": {
+    "title": "Salvage",
+    "zh_CN": "拾荒",
+    "faction": "frontier",
+    "enemy": "bastion",
+    "act": 3,
+    "biome": "desert",
+    "summary": "Jory wants a raid. Rook wants medicine. The depot has both, and a commander who will remember the choice.",
+    "summary_zh": "乔里想要复仇，鲁克想要药品。仓库里两者都有，还有一个会记住这次选择的指挥官。",
+    "objectives": [
+      {
+        "kind": "capture",
+        "title": "Take the depot inventory office",
+        "zh_CN": "夺取仓库清点室",
+        "point": [
+          48,
+          42
+        ],
+        "seconds": 12,
+        "guards": 4
+      },
+      {
+        "kind": "destroy",
+        "title": "Disable the armored depot guard",
+        "zh_CN": "击毁仓库装甲守卫",
+        "point": [
+          90,
+          78
+        ],
+        "seconds": 12,
+        "guards": 5,
+        "role": "AdvancedTank"
+      },
+      {
+        "kind": "escort",
+        "title": "Deliver the medical stores to Hask",
+        "zh_CN": "把医疗物资送到哈斯克手中",
+        "point": [
+          90,
+          78
+        ],
+        "seconds": 12,
+        "guards": 0,
+        "destination": [
+          142,
+          96
+        ]
+      }
+    ]
+  },
+  "frontier_wren": {
+    "title": "Wren",
+    "zh_CN": "雷恩",
+    "faction": "frontier",
+    "enemy": "helix",
+    "act": 4,
+    "biome": "city",
+    "summary": "A Bastion transmission names the work camp. Rook accepts help from the army he cannot forgive.",
+    "summary_zh": "堡垒的通话透露了劳役营的位置。鲁克接受了那个他无法原谅的军队的帮助。",
+    "objectives": [
+      {
+        "kind": "destroy",
+        "title": "Shut down the camp perimeter grid",
+        "zh_CN": "关闭营地外围防御网",
+        "point": [
+          48,
+          80
+        ],
+        "seconds": 12,
+        "guards": 5,
+        "role": "PowerPlant"
+      },
+      {
+        "kind": "capture",
+        "title": "Find Wren in the workshop block",
+        "zh_CN": "在工坊区找到雷恩",
+        "point": [
+          92,
+          42
+        ],
+        "seconds": 12,
+        "guards": 6
+      },
+      {
+        "kind": "escort",
+        "title": "Escort Wren and the prisoners to extraction",
+        "zh_CN": "护送雷恩和囚犯前往撤离点",
+        "point": [
+          92,
+          42
+        ],
+        "seconds": 12,
+        "guards": 0,
+        "destination": [
+          144,
+          92
+        ]
+      }
+    ]
+  },
+  "frontier_the_coalition": {
+    "title": "The Coalition",
+    "zh_CN": "联盟",
+    "faction": "frontier",
+    "enemy": "helix",
+    "act": 5,
+    "biome": "spire",
+    "summary": "Hask offers a coalition. Jory wants a war. At the Spire, Rook decides what surviving was for.",
+    "summary_zh": "哈斯克主张结盟，乔里渴望战争。在尖塔下，鲁克必须决定他们为何而活。",
+    "objectives": [
+      {
+        "kind": "capture",
+        "title": "Unite the coalition at the relay square",
+        "zh_CN": "在中继广场集结联盟",
+        "point": [
+          50,
+          42
+        ],
+        "seconds": 12,
+        "guards": 5
+      },
+      {
+        "kind": "hold",
+        "title": "Protect the joint relief corridor",
+        "zh_CN": "保护联合救援通道",
+        "point": [
+          90,
+          76
+        ],
+        "seconds": 65,
+        "guards": 6
+      },
+      {
+        "kind": "destroy",
+        "title": "Break the Spire command garrison",
+        "zh_CN": "摧毁尖塔指挥驻军",
+        "point": [
+          138,
+          44
+        ],
+        "seconds": 12,
+        "guards": 7,
+        "role": "CommandCenter"
+      }
+    ]
+  }
+}

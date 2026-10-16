@@ -10,7 +10,7 @@ func _run():
 		var data = capture.capture(game)
 		if map_name == "ExpandedDesertFrontier":
 			var sites = load("res://source/match/world/PointOfInterestCatalog.gd")
-			var definitions = game.map.POI_SITES
+			var definitions = sites.definitions(game.settings.map_path)
 			for index in definitions.size():
 				if definitions[index].kind == "mercenary":
 					var site = data.mission.points_of_interest[index]
