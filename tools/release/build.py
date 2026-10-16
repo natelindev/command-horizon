@@ -26,7 +26,10 @@ def run(args, cwd=ROOT, timeout=900):
     result = subprocess.run([str(arg) for arg in args], cwd=cwd, timeout=timeout,
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     print(result.stdout, flush=True)
-    if result.returncode or "SCRIPT ERROR:" in result.stdout or "Parse Error:" in result.stdout:
+    fatal = ("SCRIPT ERROR:", "Parse Error:", "ERROR: GDExtension",
+             "ERROR: Can't open GDExtension", "ERROR: Error loading extension",
+             "ERROR: Failed to export")
+    if result.returncode or any(message in result.stdout for message in fatal):
         raise RuntimeError(f"Command failed ({result.returncode}): {args}")
 
 
@@ -56,6 +59,9 @@ def main():
         run([sys.executable, "-m", "SCons", "-C", "native/rts_lua",
              f"platform={PLATFORM}", f"arch={arch}", "target=template_release",
              "build_profile=build_profile.json", "-j", "4"], timeout=1800)
+    if ((ROOT / "source/native/rts_lua.gdextension").read_bytes()
+            != (ROOT / "native/rts_lua/extension.template").read_bytes()):
+        raise RuntimeError("Native build produced an invalid extension registration")
     with tempfile.TemporaryDirectory(prefix="rts-release-") as temporary:
         work = Path(temporary)
         engine_archive = work / "engine.zip"

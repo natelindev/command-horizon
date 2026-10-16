@@ -17,6 +17,9 @@ if env['platform'] == 'macos':
     sources += Glob('src/*.mm')
 extension = {'macos': '.dylib', 'linux': '.so', 'windows': '.dll'}[env['platform']]
 library = env.SharedLibrary('../../source/native/bin/rts_lua.' + env['platform'] + '.' + env['arch'] + extension, source=sources)
-registration = env.Command('../../source/native/rts_lua.gdextension', [library, 'extension.template'],
-                           Copy('$TARGET', '${SOURCES[1]}'))
+registration = env.Command('../../source/native/rts_lua.gdextension', 'extension.template',
+                           Copy('$TARGET', '$SOURCE'))
+# Windows SharedLibrary returns DLL and import-library nodes; do not use a
+# positional index into that expanded source list to select the manifest.
+env.Depends(registration, library)
 Default(library, registration)
