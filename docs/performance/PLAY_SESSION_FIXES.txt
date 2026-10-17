@@ -42,6 +42,11 @@ Engine pipeline-counter semantics: https://docs.godotengine.org/en/4.6/tutorials
 The release also includes the menu audio/preview loading changes, render-rate
 camera and visual interpolation updates, the Windows avoidance-thread setting,
 and the visible battlefield boundary from the preceding optimization work.
+Packaged map verification also found inherited scenes restoring the child terrain
+mesh after the root size setter: a 192 x 144 battlefield retained a 132 x 100
+ground mesh and click collider. Map entry now reapplies the final dimensions
+before collision construction. The packaged grid test checks clickable land,
+camera coverage and navigation on all 16 skirmish maps.
 
 Desktop builds no longer build, register or package the retired Lua native
 extension or Lua program assets. Old-save behavior compatibility remains.
