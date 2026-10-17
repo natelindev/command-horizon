@@ -35,3 +35,30 @@ native/rts_lua/src/*.os
 # Register the extension only after its library has been built successfully.
 source/native/rts_lua.gdextension
 source/native/rts_lua.gdextension.uid
+
+# Generated review media belongs in artifacts, not Git history.
+# Keep authoring scripts, Blender projects, written reports and JSON test fixtures.
+/art/**/*.png
+/art/**/*.jpg
+/art/**/*.jpeg
+/art/**/*.webp
+/art/**/*.gif
+/art/**/*.wav
+/art/**/*.ogg
+/art/**/*.mp3
+/art/**/*.mp4
+/art/**/*.webm
+/art/**/*.mov
+/art/**/*.import
+/docs/playtests/**/*.png
+/docs/playtests/**/*.jpg
+/docs/playtests/**/*.jpeg
+/docs/playtests/**/*.webp
+/docs/playtests/**/*.gif
+/docs/playtests/**/*.wav
+/docs/playtests/**/*.ogg
+/docs/playtests/**/*.mp3
+/docs/playtests/**/*.mp4
+/docs/playtests/**/*.webm
+/docs/playtests/**/*.mov
+/docs/playtests/**/*.import

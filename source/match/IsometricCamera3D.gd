@@ -31,6 +31,8 @@ var _camera_global_pos_when_rotation_started = null
 
 
 func _ready():
+	# Input follows the display, independently of the 30 Hz battle simulation.
+	physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	assert(projection == EXPECTED_PROJECTION, "unexpected projection")
 	assert(
 		is_equal_approx(rotation_degrees.x, EXPECTED_X_ROTATION_DEGREES), "unexptected X rotation"
@@ -56,7 +58,10 @@ func _update_trauma(delta: float):
 		v_offset = 0.0
 
 
-func _physics_process(delta: float):
+func _process(delta: float):
+	# Preserve the existing camera-disable API used by previews and scripted scenes.
+	if not is_physics_processing():
+		return
 	var realtime_delta = delta / Engine.time_scale
 	_update_trauma(realtime_delta)
 	var focus = get_viewport().gui_get_focus_owner()
@@ -65,6 +70,10 @@ func _physics_process(delta: float):
 	if _try_handling_movement(realtime_delta):
 		return
 	_try_handling_arrowkey_rotation(realtime_delta)
+
+
+func _physics_process(_delta: float):
+	pass
 
 
 func _unhandled_input(event: InputEvent):

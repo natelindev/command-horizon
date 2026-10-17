@@ -29,6 +29,7 @@ func _run():
 	var original = preferences.capture()
 	preferences.restore({"screen": 1, "edge_scrolling": false})
 	root.get_node("SaveManager").autosaves_enabled = false
+	await _batch_upload()
 	var logger = MaterialErrorLog.new()
 	OS.add_logger(logger)
 	for faction in ["bastion", "helix", "frontier"]:
@@ -60,6 +61,29 @@ func _run():
 	preferences.restore(original)
 	print("Construction wreck regression: %d failures" % errors.size())
 	quit(0 if errors.is_empty() else 1)
+
+
+func _batch_upload():
+	var rig = load("res://source/match/effects/construction/ConstructionRig.gd").new()
+	root.add_child(rig)
+	var pose = Transform3D(
+		Basis.from_euler(Vector3(.2, .5, -.1)).scaled(Vector3(2, 3, 4)), Vector3(7, 8, 9)
+	)
+	var tint = Color(.2, .4, .7, .9)
+	rig._add("Probe", rig.BOX, rig.finish("probe"), pose, tint, 2.0)
+	rig._add("Probe", rig.BOX, rig.finish("probe"), Transform3D.IDENTITY, Color.WHITE, 1.0)
+	rig._commit(rig._batches.Probe)
+	var batch = rig._batches.Probe.node.multimesh
+	_check(
+		batch.get_instance_transform(0).is_equal_approx(Transform3D.IDENTITY),
+		"Batch sort changed pose"
+	)
+	_check(
+		batch.get_instance_transform(1).is_equal_approx(pose), "Batch upload transposed/scaled pose"
+	)
+	_check(batch.get_instance_color(1).is_equal_approx(tint), "Batch upload changed colour")
+	rig.queue_free()
+	await process_frame
 
 
 func _destroy_foundation(human):

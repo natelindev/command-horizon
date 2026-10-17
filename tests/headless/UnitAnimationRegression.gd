@@ -39,6 +39,7 @@ func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
 	for faction in ["bastion", "helix", "frontier"]:
 		await _fixture(faction)
+		_test_authored_body_transform()
 		_test_render_cadence()
 		_test_no_skating()
 		_test_walker_stance()
@@ -56,6 +57,32 @@ func _run():
 		push_error(message)
 	print("Unit animation regression: %d failures" % _errors.size())
 	quit(0 if _errors.is_empty() else 1)
+
+
+func _test_authored_body_transform():
+	var unit = _spawn("Tank", 0, Vector3(30, 0, 12))
+	var visual = unit.get_node("BastionVisuals")
+	var reference = Node3D.new()
+	# Imported models may carry both an authored rotation and nonuniform scale.
+	# Compare the in-memory composition against Node3D's rotation/position setters.
+	var rest = Transform3D(
+		Basis.from_euler(Vector3(.2, -.3, .4)) * Basis.from_scale(Vector3(1.2, .8, 1.1)),
+		Vector3(.1, .3, -.2)
+	)
+	var rotation = Vector3(-.04, .15, .08)
+	var offset = Vector3(.01, -.02, .03)
+	reference.transform = rest
+	reference.rotation += rotation
+	reference.position += offset
+	visual._geometry_rest = rest
+	visual._rest_is_identity = false
+	visual._pose_geometry(rotation, offset)
+	_check(
+		visual._geometry_pose.is_equal_approx(reference.transform),
+		"Batched pose changed authored rotation or nonuniform scale"
+	)
+	reference.free()
+	unit.queue_free()
 
 
 func _fixture(faction):

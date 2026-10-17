@@ -62,11 +62,17 @@ func height_at(point):
 	var height = _raw_height(point)
 	for entry in LANDMARKS:
 		var radius = entry[2] * entry[4]
-		var blend = 1.0 - smoothstep(radius, radius + 3.0, point.distance_to(entry[1]))
+		var distance = point.distance_to(entry[1])
+		if distance >= radius + 3.0:
+			continue
+		var blend = 1.0 - smoothstep(radius, radius + 3.0, distance)
 		height = lerpf(height, _raw_height(entry[1]), blend)
 	for grove in GROVES:
 		var center = Vector2(grove.x, grove.y)
-		var blend = 1.0 - smoothstep(4.0 * grove.z, 6.0 * grove.z, point.distance_to(center))
+		var distance = point.distance_to(center)
+		if distance >= 6.0 * grove.z:
+			continue
+		var blend = 1.0 - smoothstep(4.0 * grove.z, 6.0 * grove.z, distance)
 		height = lerpf(height, _raw_height(center), blend)
 	var outside = maxf(maxf(-point.x, point.x - 128), maxf(-point.y, point.y - 104))
 	return height * smoothstep(2.0, 4.0, outside)
@@ -92,6 +98,7 @@ func _ground():
 	material.shader = load("res://source/shaders/3d/alpine.gdshader")
 	material.set_shader_parameter("exterior", true)
 	surface.set_material(material)
+	var vertices = {}
 	for x in range(-46, 174, 2):
 		for z in range(-46, 150, 2):
 			if x >= -2 and x < 130 and z >= -2 and z < 106:
@@ -101,9 +108,13 @@ func _ground():
 			]
 			for index in [0, 1, 2, 1, 3, 2]:
 				var point = corners[index]
+				if not vertices.has(point):
+					vertices[point] = [
+						Vector3(point.x, height_at(point), point.y), _normal_at(point)
+					]
 				surface.set_uv(point / Vector2(128, 104))
-				surface.set_normal(_normal_at(point))
-				surface.add_vertex(Vector3(point.x, height_at(point), point.y))
+				surface.set_normal(vertices[point][1])
+				surface.add_vertex(vertices[point][0])
 	ground = MeshInstance3D.new()
 	ground.name = "MountainSnowfield"
 	ground.mesh = surface.commit()

@@ -65,7 +65,7 @@ func _cargo_controls(faction):
 		return
 	_check(not menus._command_buttons.attack.visible, "Worker still shows unusable attack button")
 	_check(
-		"nearest completed friendly HQ" in button.accessibility_description,
+		button.accessibility_description == button.tr(commands.cargo_return_state().description),
 		"Missing accessible destination explanation"
 	)
 	var funds = Vector2i(owner.resource_a, owner.resource_b)

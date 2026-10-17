@@ -93,7 +93,7 @@ func _captured_approach(repetition):
 		"Contact recovery lost finite resource stock"
 	)
 	_check(
-		maximum_step <= worker.movement_speed / 60.0 + 0.002,
+		maximum_step <= worker.movement_speed / Engine.physics_ticks_per_second + 0.002,
 		"Contact recovery teleported the engineer"
 	)
 	_check(clearance >= -0.08, "Contact recovery crossed another unit's footprint")

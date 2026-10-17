@@ -19,6 +19,9 @@ var _gains = [0.0, 0.0]
 var _target = -1
 var _scene
 var _check_left = 0.0
+var _pending_track = ""
+var _streams = {}
+var _requests = {}
 
 
 func _ready():
@@ -33,6 +36,7 @@ func _ready():
 
 
 func _process(delta):
+	_poll_streams()
 	_check_left -= delta
 	if _check_left <= 0:
 		_check_left = .25
@@ -67,16 +71,50 @@ func _sync_scene():
 
 
 func play_track(track):
-	if not TRACKS.has(track) or current_track == track:
+	if not TRACKS.has(track):
 		return
-	current_track = track
+	_pending_track = track
+	if current_track == track:
+		_pending_track = ""
+		return
 	# Reuse an already fading track when a quick back/load transition reverses.
 	for index in players.size():
 		if players[index].get_meta("track", "") == track and players[index].playing:
 			_target = index
+			current_track = track
+			_pending_track = ""
 			return
+	if _streams.has(track):
+		_start_track(track, _streams[track])
+	elif not _requests.has(track):
+		var path = "res://assets/audio/music/%s.ogg" % TRACKS[track]
+		if ResourceLoader.load_threaded_request(path) == OK:
+			_requests[track] = path
+		else:
+			_pending_track = ""
+
+
+func _poll_streams():
+	# Reading a long Ogg on a scene change must not block an input/render frame.
+	# Drain superseded requests too, retaining four reusable streams at most.
+	for track in _requests.keys():
+		var path = _requests[track]
+		var status = ResourceLoader.load_threaded_get_status(path)
+		if status == ResourceLoader.THREAD_LOAD_LOADED:
+			_streams[track] = ResourceLoader.load_threaded_get(path)
+			_requests.erase(track)
+			if _pending_track == track:
+				_start_track(track, _streams[track])
+		elif status == ResourceLoader.THREAD_LOAD_FAILED:
+			_requests.erase(track)
+			if _pending_track == track:
+				_pending_track = ""
+
+
+func _start_track(track, stream):
+	_pending_track = ""
+	current_track = track
 	_target = 0 if _gains[0] <= _gains[1] else 1
-	var stream = load("res://assets/audio/music/%s.ogg" % TRACKS[track])
 	if stream == null:
 		current_track = ""
 		_target = -1
@@ -85,3 +123,16 @@ func play_track(track):
 	players[_target].stream = stream
 	players[_target].set_meta("track", track)
 	players[_target].play()
+
+
+func _exit_tree():
+	# Join outstanding loads only at shutdown, never on an interactive frame.
+	for path in _requests.values():
+		if ResourceLoader.load_threaded_get_status(path) != ResourceLoader.THREAD_LOAD_FAILED:
+			ResourceLoader.load_threaded_get(path)
+	_requests.clear()
+	_streams.clear()
+	for player in players:
+		if is_instance_valid(player):
+			player.stop()
+			player.stream = null

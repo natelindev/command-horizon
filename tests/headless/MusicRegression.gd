@@ -7,9 +7,25 @@ func _run():
 	preferences.restore({"screen": 1})
 	var director = root.get_node("MusicDirector")
 	director.set_process(false)
+	# A superseded background load must never replace the newest scene's music.
+	director.play_track("bastion")
+	director.play_track("helix")
+	director.play_track("menu")
+	var pending_deadline = Time.get_ticks_msec() + 10000
+	while not director._requests.is_empty() and Time.get_ticks_msec() < pending_deadline:
+		await process_frame
+		director._poll_streams()
+	_check(director._requests.is_empty(), "Background music loads did not finish")
+	_check(director.current_track == "menu", "A stale music load replaced the latest request")
 	for track in director.TRACKS:
 		director.play_track(track)
+		var deadline = Time.get_ticks_msec() + 10000
+		while director.current_track != track and Time.get_ticks_msec() < deadline:
+			await process_frame
+			director._poll_streams()
 		_check(director.current_track == track, "Track selection failed: " + track)
+		if director.current_track != track:
+			continue
 		var player = director.players[director._target]
 		_check(player.stream is AudioStreamOggVorbis, "Music is not decoded Ogg")
 		_check(player.stream.get_length() >= 150, "Music is unexpectedly short")

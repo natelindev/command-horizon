@@ -1,0 +1,54 @@
+Copperfin 0.14.0 — play-session performance fixes
+
+The Windows debug recording identified worker return-path searches as the main
+source of long gameplay stalls. One search took 1.84 seconds and its sampled frame
+made 1.1 million unit-radius lookups. These are profiled timings, not release
+benchmark numbers.
+
+MovingToUnit now evaluates candidate routes across frames under a shared work
+budget (2 ms / 24 query checkpoints per frame, plus one atomic query). Workers
+hold their search origin while planning, then resume ordinary navigation and
+collision handling. Positions/radii are sampled once per search frame. Candidate
+route selection, contact margins, occupied-face rejection, cancellation and
+fallback behavior are preserved. A path is checked again before committing it.
+
+An unprofiled rendered comparison on Ryzen 7 5800X3D / RTX 4090 used the same
+30-blocker HQ approach and worker in both versions. The worker reached the HQ in
+both runs. Maximum frame time fell from 506.60 ms to 10.27 ms; >100 ms frames fell
+from two to zero during the 15-second sample. This is a specific crowded-route
+fixture, not a claim about all maps or maximum-population combat.
+Repeating the comparison with the final Godot 4.6.3 engine measured 477.91 ms
+before and 13.95 ms after (two versus zero frames over 100 ms); both workers
+reached the HQ and the fixed run advanced 15 simulation seconds in 15 real seconds.
+
+Alpine ground generation skips zero-influence height blends and computes shared
+vertices/normals once. A headless unprofiled comparison measured 7278.40 ms before
+and 316.01 ms after; every generated vertex and normal matched exactly.
+
+A subsequent rendered Alpine run exposed a separate first-construction hitch.
+The 122.10 ms interval coincided with 17 additional surface pipeline compilations
+(67 -> 84), while GPU execution stayed below 1 ms. Construction mesh/material
+combinations now register during match loading. The same short capture then had
+a 25.95 ms maximum interval and no frames over 100 ms. Construction rigs also
+upload transforms/colours in one buffer and reuse converted finishes within each
+site. Rendered checks verify buffer layout, colour, all three factions, wreck
+expiry, pool eviction and scene teardown.
+Engine pipeline-counter semantics: https://docs.godotengine.org/en/4.6/tutorials/performance/pipeline_compilations.html
+
+The release also includes the menu audio/preview loading changes, render-rate
+camera and visual interpolation updates, the Windows avoidance-thread setting,
+and the visible battlefield boundary from the preceding optimization work.
+
+Desktop builds no longer build, register or package the retired Lua native
+extension or Lua program assets. Old-save behavior compatibility remains.
+Release builds use Godot 4.6.3. The same exported Windows pack that crashed during
+shutdown under 4.6.0 exits successfully under 4.6.3; static-cache leak diagnostics
+remain visible in some test processes. The engine patch fixes the observed crash,
+not all upstream resource-lifetime diagnostics.
+
+Verification checks include crowded contact recovery, cargo accounting and
+save/load, cancellation and target removal, navigation, unit behaviors and
+animation, map reachability, preview equivalence, music loading, and packaged
+runtime absence. Test movement limits use the configured physics tick rate;
+accessibility assertions compare translated text. A crowd test measures maximum
+departure rather than mistaking a worker returning with cargo for a stuck worker.

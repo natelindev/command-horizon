@@ -30,8 +30,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: python -m pip install scons==4.11.1
-      - name: Build native runtime, export and check packaged resources
+      - name: Export and check packaged resources
         env:
           RTS_RELEASE_PLATFORM: ${{ matrix.platform }}
         run: python tools/release/build.py

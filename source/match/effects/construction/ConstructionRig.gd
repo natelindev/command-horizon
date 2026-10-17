@@ -134,11 +134,26 @@ func _commit(batch):
 	multimesh.mesh = mesh(batch.kind)
 	multimesh.instance_count = batch.items.size()
 	batch["keys"] = PackedFloat32Array()
+	# Upload the entire batch once. Per-instance setters repeatedly cross into
+	# the rendering server while a new construction site is being created.
+	var buffer = PackedFloat32Array()
+	buffer.resize(batch.items.size() * 16)
 	for index in batch.items.size():
 		var item = batch.items[index]
 		batch.keys.append(item[0])
-		multimesh.set_instance_transform(index, item[1])
-		multimesh.set_instance_color(index, item[2])
+		var pose: Transform3D = item[1]
+		var color: Color = item[2]
+		var offset = index * 16
+		for row in 3:
+			buffer[offset + row * 4] = pose.basis.x[row]
+			buffer[offset + row * 4 + 1] = pose.basis.y[row]
+			buffer[offset + row * 4 + 2] = pose.basis.z[row]
+			buffer[offset + row * 4 + 3] = pose.origin[row]
+		buffer[offset + 12] = color.r
+		buffer[offset + 13] = color.g
+		buffer[offset + 14] = color.b
+		buffer[offset + 15] = color.a
+	multimesh.buffer = buffer
 	var node = MultiMeshInstance3D.new()
 	node.name = batch.name
 	node.multimesh = multimesh

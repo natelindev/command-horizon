@@ -10,6 +10,14 @@ func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
 	Engine.max_fps = 0
 	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
+	# Keep the measured viewport at 1920x1080 even if Windows resizes the window.
+	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+	print(
+		"BENCHMARK avoidance_threads=",
+		ProjectSettings.get_setting_with_override(
+			"navigation/avoidance/thread_model/avoidance_use_multiple_threads"
+		)
+	)
 	RenderingServer.viewport_set_measure_render_time(root.get_viewport_rid(), true)
 	await super()
 

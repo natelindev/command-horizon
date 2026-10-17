@@ -106,7 +106,7 @@ func _test_group_route():
 	for _frame in range(1500):
 		await physics_frame
 		for entry in destinations:
-			if entry[0].global_position_yless.distance_to(entry[1]) < 0.6:
+			if _formation_arrived(entry[0], entry[1], units):
 				arrivals[entry[0]] = true
 	for entry in destinations:
 		if not arrivals.has(entry[0]):
@@ -130,6 +130,31 @@ func _test_group_route():
 	for unit in units:
 		unit.queue_free()
 	await _frames(6)
+
+
+func _formation_arrived(unit, goal, units):
+	if unit.global_position_yless.distance_to(goal) < .6:
+		return true
+	# Plain Move may finish beside a settled ally occupying its endpoint. Keep
+	# active/stuck movers failing, but accept the existing occupied-arrival policy.
+	if unit.get_node("Movement")._has_destination:
+		return false
+	for other in units:
+		if other == unit:
+			continue
+		var movement = other.get_node("Movement")
+		if movement._has_destination or movement.velocity.length_squared() >= .01:
+			continue
+		var spacing = unit.radius + other.radius
+		var separation = unit.global_position_yless.distance_to(other.global_position_yless)
+		if (
+			other.global_position_yless.distance_to(goal) < spacing
+			and unit.global_position_yless.distance_to(goal) <= spacing + .2
+			and separation <= spacing + .2
+			and separation >= spacing - .03
+		):
+			return true
+	return false
 
 
 func _test_harvesting():

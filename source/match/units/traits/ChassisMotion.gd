@@ -41,7 +41,7 @@ var idle := 0.0
 var clock := 0.0
 var max_speed := 4.0
 var length := 2.0
-var _tuning = TUNING[Kind.TRACKED]
+var _tuning := PackedFloat64Array(TUNING[Kind.TRACKED])
 var _drift := Vector3.ONE
 var _previous := Transform3D.IDENTITY
 var _root_yaw := 0.0
@@ -59,7 +59,7 @@ var _rate_weight := 0.0
 
 func configure(motion_kind, profile, top_speed, body_length):
 	kind = motion_kind
-	_tuning = TUNING[kind].duplicate()
+	_tuning = PackedFloat64Array(TUNING[kind])
 	_tuning[0] *= profile.yaw_response
 	_drift = profile.drift_rates
 	clock = profile.phase

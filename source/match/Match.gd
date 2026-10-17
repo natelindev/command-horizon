@@ -102,6 +102,8 @@ func _ready():
 	add_child(neutral_world)
 	var atmosphere = load("res://source/match/environment/WorldAtmosphere.gd").new()
 	add_child(atmosphere)
+	if DisplayServer.get_name() != "headless":
+		add_child(load("res://source/match/effects/ConstructionPrewarm.gd").new())
 	MatchSignals.match_started.emit()
 
 
@@ -150,6 +152,7 @@ func _get_visible_players():
 
 func _setup_subsystems_dependent_on_map():
 	_terrain.update_shape(map.find_child("Terrain").mesh)
+	map.add_child(load("res://source/match/maps/BattlefieldBoundary.gd").new())
 	fog_of_war.resize(map.size)
 	_recalculate_camera_bounding_planes(map.size)
 	navigation.setup(map)

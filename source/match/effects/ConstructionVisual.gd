@@ -54,21 +54,25 @@ func _ready():
 		hologram = ShaderMaterial.new()
 		hologram.shader = HOLOGRAM_SHADER
 		_configure(hologram, bounds)
+	# Model parts commonly share a finish. They also share the same site bounds
+	# and progress, so one converted material per original is sufficient.
+	var converted = {}
 	for mesh in meshes:
 		var original_override = mesh.material_override
 		for surface in mesh.mesh.get_surface_count():
-			var material = ShaderMaterial.new()
-			material.shader = STYLES[style].shader
-			_copy_surface(mesh.get_active_material(surface), material)
-			_configure(material, bounds)
-			material.next_pass = hologram
+			var original = mesh.get_active_material(surface)
+			if not converted.has(original):
+				var material = ShaderMaterial.new()
+				material.shader = STYLES[style].shader
+				_copy_surface(original, material)
+				_configure(material, bounds)
+				material.next_pass = hologram
+				converted[original] = material
 			_surfaces.append(
 				[mesh, surface, mesh.get_surface_override_material(surface), original_override]
 			)
-			mesh.set_surface_override_material(surface, material)
+			mesh.set_surface_override_material(surface, converted[original])
 		mesh.material_override = null
-	if hologram != null:
-		_materials.append(hologram)
 	rig = STYLES[style].rig.new()
 	rig.name = style.capitalize() + "ConstructionRig"
 	add_child(rig)

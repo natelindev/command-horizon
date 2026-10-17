@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Open RTS"
-config/version="0.13.1"
+config/version="0.14.0"
 run/main_scene="res://source/Main.tscn"
 config/features=PackedStringArray("4.6", "Forward Plus")
 boot_splash/bg_color=Color(0, 0, 0, 1)
@@ -235,6 +235,8 @@ locale/translations=PackedStringArray("res://assets/translations/match.en.transl
 
 3d/merge_rasterizer_cell_scale=0.001
 3d/use_edge_connections=false
+; Small avoidance batches are cheaper without worker dispatch on Windows.
+avoidance/thread_model/avoidance_use_multiple_threads.windows=false
 
 [physics]
 

@@ -70,7 +70,14 @@ func _measure_frames(label):
 	times.sort()
 	var mean = times.reduce(func(total, sample): return total + sample, 0.0) / times.size()
 	_check(Engine.get_frames_drawn() - drawn >= 230, "Benchmark window did not render its samples")
-	_check(game.simulation_time - started > 1.0, "Benchmark simulation did not advance")
+	# A fast machine can render all samples in under a second.
+	_check(
+		(
+			absf((game.simulation_time - started) - mean * times.size() / 1000.0) < 0.15
+			and Engine.get_physics_frames() > physics_started
+		),
+		"Benchmark simulation did not advance in real time"
+	)
 	print(
 		"GAMEPLAY ",
 		label,

@@ -1,9 +1,20 @@
+# gdlint: disable=max-returns
 extends "res://source/match/units/actions/Moving.gd"
+
+const SEARCH_USEC_PER_FRAME = 2000
+const SEARCH_QUERIES_PER_FRAME = 24
+static var _budget_frame = -1
+static var _budget_usec = 0
+static var _budget_queries = 0
 
 var _target_unit = null
 var _contact_elapsed = 0.0
 var _contact_progress = null
 var _orbit_windows = 0
+var _searching = false
+var _slice_started = 0
+var _blocker_frame = -1
+var _blocker_geometry = []
 
 
 func _init(target_unit):
@@ -79,12 +90,90 @@ func _ready():
 func _on_movement_finished():
 	if Utils.Match.Unit.Movement.units_adhere(_unit, _target_unit):
 		queue_free()
-	elif not _try_open_approach():
+	elif not _try_open_approach(false, true):
 		_target_position = _target_unit.global_position_yless
 		_movement_trait.move(_target_position)
 
 
-func _try_open_approach(preserve_clear_route = false):
+func _try_open_approach(preserve_clear_route = false, return_to_center = false):
+	if _searching:
+		return true
+	if not _movement_trait._synchronized:
+		return false
+	_searching = true
+	_run_approach.call_deferred(preserve_clear_route, return_to_center)
+	return true
+
+
+func _run_approach(preserve_clear_route, return_to_center):
+	_slice_started = Time.get_ticks_usec()
+	_blocker_frame = -1
+	if not await _search_budget():
+		_searching = false
+		return
+	# Keep the search origin stable instead of walking into the blocked route
+	# while candidates are evaluated across frames. RVO/body clipping stay on.
+	_movement_trait.stop()
+	var found = await _search_approach(preserve_clear_route)
+	_searching = false
+	if _search_valid() and not found:
+		if return_to_center:
+			_target_position = _target_unit.global_position_yless
+		_movement_trait.move(_target_position)
+
+
+func _search_valid():
+	return (
+		is_inside_tree()
+		and not is_queued_for_deletion()
+		and is_instance_valid(_target_unit)
+		and not _target_unit.is_queued_for_deletion()
+		and is_instance_valid(_unit)
+		and not _unit.is_queued_for_deletion()
+	)
+
+
+func _search_budget():
+	# All workers share a frame budget. A single native path query is atomic;
+	# charge its actual cost before admitting the next one.
+	var now = Time.get_ticks_usec()
+	if _budget_frame == Engine.get_process_frames():
+		_budget_usec += now - _slice_started
+	while _search_valid():
+		var frame = Engine.get_process_frames()
+		if _budget_frame != frame:
+			_budget_frame = frame
+			_budget_usec = 0
+			_budget_queries = 0
+		if (
+			can_process()
+			and _budget_usec < SEARCH_USEC_PER_FRAME
+			and _budget_queries < SEARCH_QUERIES_PER_FRAME
+		):
+			_budget_queries += 1
+			_slice_started = Time.get_ticks_usec()
+			return true
+		await get_tree().process_frame
+	return false
+
+
+func _geometry(blockers):
+	# Radius and position are live properties. Read them once per slice/frame,
+	# not millions of times inside candidate x segment x blocker loops.
+	if _blocker_frame != Engine.get_process_frames():
+		_blocker_frame = Engine.get_process_frames()
+		_blocker_geometry.clear()
+		var radius = _unit.radius
+		for other in blockers:
+			if is_instance_valid(other) and not other.is_queued_for_deletion():
+				var point = other.global_position_yless
+				_blocker_geometry.append(Vector4(point.x, point.y, point.z, radius + other.radius))
+	return _blocker_geometry
+
+
+func _search_approach(preserve_clear_route):
+	if not await _search_budget():
+		return false
 	if not _movement_trait._synchronized:
 		return false
 	var center = _target_unit.global_position_yless
@@ -119,7 +208,9 @@ func _try_open_approach(preserve_clear_route = false):
 					or (movement != null and not movement._has_destination)
 				)
 		)
-		if _path_clear_of_bodies(ordinary_path, settled):
+		var clear = _path_clear_of_bodies(ordinary_path, settled)
+		_blocker_frame = -1
+		if clear:
 			return false
 	var best = Vector3.INF
 	var best_length = INF
@@ -127,18 +218,18 @@ func _try_open_approach(preserve_clear_route = false):
 	# Choose another reachable work face without widening contact range or
 	# ignoring the agents occupying the original approach. Ordinary RVO stays on.
 	for index in 32:
+		if not await _search_budget():
+			return false
 		var radial = Vector3(cos(index * TAU / 32), 0, sin(index * TAU / 32))
 		var point = NavigationServer3D.map_get_closest_point(navmap, center + radial * radius)
 		point *= Vector3(1, 0, 1)
 		if point.distance_to(center) > contact or point.distance_to(_target_position) < 0.5:
 			continue
-		var occupied = blockers.any(
-			func(other):
-				return (
-					point.distance_to(other.global_position_yless)
-					< _unit.radius + other.radius + 0.1
-				)
-		)
+		var occupied = false
+		for body in _geometry(blockers):
+			if point.distance_squared_to(Vector3(body.x, body.y, body.z)) < pow(body.w + .1, 2):
+				occupied = true
+				break
 		if occupied:
 			continue
 		var path = NavigationServer3D.map_get_path(navmap, origin, point, true)
@@ -164,6 +255,8 @@ func _try_open_approach(preserve_clear_route = false):
 			[center, contact + 8.0]
 		]:
 			for index in 64:
+				if not await _search_budget():
+					return false
 				var offset = Vector3(cos(index * TAU / 64), 0, sin(index * TAU / 64))
 				var waypoint = ring[0] + offset * ring[1]
 				var projected = NavigationServer3D.map_get_closest_point(navmap, waypoint)
@@ -178,6 +271,8 @@ func _try_open_approach(preserve_clear_route = false):
 				):
 					continue
 				for face in faces:
+					if not await _search_budget():
+						return false
 					var second = NavigationServer3D.map_get_path(navmap, projected, face, true)
 					if (
 						second.size() < 2
@@ -190,8 +285,20 @@ func _try_open_approach(preserve_clear_route = false):
 						best = projected
 						best_length = length
 	if not best.is_finite() and not faces.is_empty():
-		best = _two_corner_approach(navmap, origin, center, contact, faces, blockers)
+		best = await _two_corner_approach(navmap, origin, center, contact, faces, blockers)
 	if not best.is_finite():
+		return false
+	if not await _search_budget():
+		return false
+	# The worker and nearby agents may move while the search yields.
+	var current_path = NavigationServer3D.map_get_path(
+		navmap, _unit.global_position_yless, best, true
+	)
+	if (
+		current_path.size() < 2
+		or (current_path[-1] * Vector3(1, 0, 1)).distance_to(best) > .1
+		or not _path_clear_of_bodies(current_path, blockers)
+	):
 		return false
 	_target_position = best
 	_movement_trait.move(best)
@@ -206,18 +313,20 @@ func _two_corner_approach(navmap, origin, center, contact, faces, blockers):
 	var finishes = []
 	for ring in [[origin, 4.0], [center, contact + 4.0], [center, contact + 8.0]]:
 		for index in 16:
+			if not await _search_budget():
+				return Vector3.INF
 			var angle = index * TAU / 16
 			var candidate = ring[0] + Vector3(cos(angle), 0, sin(angle)) * ring[1]
 			var point = NavigationServer3D.map_get_closest_point(navmap, candidate)
 			point *= Vector3(1, 0, 1)
 			if point.distance_to(candidate) > .15:
 				continue
-			var first = _clear_path_length(navmap, origin, point, blockers)
+			var first = await _clear_path_length(navmap, origin, point, blockers)
 			if is_finite(first):
 				starts.append({"point": point, "length": first})
 			var last = INF
 			for face in faces:
-				last = minf(last, _clear_path_length(navmap, point, face, blockers))
+				last = minf(last, await _clear_path_length(navmap, point, face, blockers))
 			if is_finite(last):
 				finishes.append({"point": point, "length": last})
 	var best = Vector3.INF
@@ -227,7 +336,7 @@ func _two_corner_approach(navmap, origin, center, contact, faces, blockers):
 			var lower_bound = first.length + first.point.distance_to(last.point) + last.length
 			if lower_bound >= best_length:
 				continue
-			var middle = _clear_path_length(navmap, first.point, last.point, blockers)
+			var middle = await _clear_path_length(navmap, first.point, last.point, blockers)
 			var total = first.length + middle + last.length
 			if total < best_length:
 				best = first.point
@@ -236,6 +345,8 @@ func _two_corner_approach(navmap, origin, center, contact, faces, blockers):
 
 
 func _clear_path_length(navmap, start, end, blockers):
+	if not await _search_budget():
+		return INF
 	var path = NavigationServer3D.map_get_path(navmap, start, end, true)
 	if (
 		path.size() < 2
@@ -254,6 +365,7 @@ func _path_length(path):
 
 
 func _path_clear_of_bodies(path, blockers):
+	var geometry = _geometry(blockers)
 	for index in range(1, path.size()):
 		var start = path[index - 1] * Vector3(1, 0, 1)
 		var end = path[index] * Vector3(1, 0, 1)
@@ -261,14 +373,14 @@ func _path_clear_of_bodies(path, blockers):
 		var length_squared = segment.length_squared()
 		if length_squared < .000001:
 			continue
-		for other in blockers:
-			var center = other.global_position_yless
-			var separation = _unit.radius + other.radius - _movement_trait.GROUND_CONTACT_MARGIN
+		for body in geometry:
+			var center = Vector3(body.x, body.y, body.z)
+			var separation = body.w - _movement_trait.GROUND_CONTACT_MARGIN
 			var offset = start - center
 			# A pre-existing crowd contact must allow an outward escape.
-			if offset.length() < separation and offset.dot(segment) >= 0:
+			if offset.length_squared() < separation * separation and offset.dot(segment) >= 0:
 				continue
 			var fraction = clampf((center - start).dot(segment) / length_squared, 0, 1)
-			if start.lerp(end, fraction).distance_to(center) < separation:
+			if start.lerp(end, fraction).distance_squared_to(center) < separation * separation:
 				return false
 	return true

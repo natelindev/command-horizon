@@ -13,17 +13,19 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[2]
 PLATFORM = os.environ["RTS_RELEASE_PLATFORM"]
-VERSION = "4.6-stable"
+VERSION = "4.6.3-stable"
 PRESETS = {"linux": "Linux/X11", "windows": "Windows Desktop", "macos": "macOS"}
 ENGINE_SUFFIX = {"linux": "linux.x86_64", "windows": "win64.exe", "macos": "macos.universal"}
 TESTS = [
-    "LuaSandboxRegression", "BehaviorRegression", "UnitAnimationRegression",
+    "NoLuaRuntimeRegression", "BehaviorRegression", "UnitAnimationRegression",
     "PersistentCaptureRegression",
     "CampaignInteriorRegression", "HeroCampaignRegression", "MapRosterRegression",
     "WorkerDistributionRegression", "CargoReturnRegression", "ResourceFieldRegression",
     "GarrisonCombatExitRegression", "PointOfInterestRegression",
     "BattlefieldExpansionRegression", "BattlefieldOpeningRegression",
     "SaveNavigationTimingRegression",
+    "ContactApproachRegression", "NavigationRegression", "MapPlayabilityRegression",
+    "MapPreviewRegression", "MusicRegression",
 ]
 
 
@@ -59,14 +61,6 @@ def main():
     output.mkdir(parents=True, exist_ok=True)
     artifacts = ROOT / "build" / "release-assets"
     artifacts.mkdir(parents=True, exist_ok=True)
-    run([sys.executable, ROOT / "native/rts_lua/fetch_dependencies.py"])
-    for arch in (["arm64", "x86_64"] if PLATFORM == "macos" else ["x86_64"]):
-        run([sys.executable, "-m", "SCons", "-C", "native/rts_lua",
-             f"platform={PLATFORM}", f"arch={arch}", "target=template_release",
-             "build_profile=build_profile.json", "-j", "4"], timeout=1800)
-    if ((ROOT / "source/native/rts_lua.gdextension").read_bytes()
-            != (ROOT / "native/rts_lua/extension.template").read_bytes()):
-        raise RuntimeError("Native build produced an invalid extension registration")
     with tempfile.TemporaryDirectory(prefix="rts-release-") as temporary:
         work = Path(temporary)
         engine_archive = work / "engine.zip"
@@ -84,7 +78,7 @@ def main():
             "linux": Path.home() / ".local/share/godot",
             "macos": Path.home() / "Library/Application Support/Godot",
             "windows": Path(os.environ.get("APPDATA", str(Path.home()))) / "Godot",
-        }[PLATFORM] / "export_templates" / "4.6.stable"
+        }[PLATFORM] / "export_templates" / VERSION.replace("-", ".")
         shutil.copytree(work / "templates", template_root, dirs_exist_ok=True)
         run([engine, "--headless", "--path", ROOT, "--editor", "--quit"])
         filename = {"linux": "Open_RTS_Linux.x86_64", "windows": "Open_RTS_Windows.exe",
@@ -100,13 +94,10 @@ def main():
             pack = executable = exported
         run([executable, "--headless", "--quit-after", "120"], cwd=output)
         isolated = work / "isolated"
-        native = isolated / "source/native/bin"
-        native.mkdir(parents=True)
+        isolated.mkdir(parents=True)
         libraries = [p for p in output.rglob("*rts_lua*") if p.suffix in (".dll", ".so", ".dylib")]
-        if not libraries:
-            raise RuntimeError("Export omitted native Lua libraries")
-        for library in libraries:
-            shutil.copy2(library, native / library.name)
+        if libraries:
+            raise RuntimeError("Export still contains the retired native Lua runtime")
         for test in TESTS:
             run([engine, "--headless", "--main-pack", pack, "--fixed-fps", "60",
                  "--script", f"res://tests/headless/{test}.gd"], cwd=isolated, timeout=300)

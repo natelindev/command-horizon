@@ -46,6 +46,8 @@ var _hit_push = Vector3.ZERO
 var _hit_clock = -INF
 var _barrel_rest = Vector3.ZERO
 var _geometry_rest := Transform3D.IDENTITY
+var _geometry_pose := Transform3D.IDENTITY
+var _presentation_root := Transform3D.IDENTITY
 var _dust_elapsed = 0.0
 var _damage_elapsed = 0.0
 var _airborne = false
@@ -93,8 +95,8 @@ func _init():
 
 
 func _ready():
-	# Unit roots interpolate their physics motion; these local poses are
-	# already evaluated at display rate and must not be interpolated twice.
+	# Disabling interpolation also disables inherited root interpolation.
+	# Compose the interpolated root with the local pose explicitly in _process.
 	_geometry.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	if not _unit.has_meta("visual_seed"):
 		_unit.set_meta("visual_seed", _unit.find_parent("Match").allocate_visual_seed())
@@ -126,6 +128,7 @@ func _ready():
 		_barrel_scale = maxf(0.05, _barrel.global_basis.get_scale().z)
 	_previous_position = _unit.global_position
 	_geometry_rest = _geometry.transform
+	_geometry_pose = _geometry_rest
 	_rest_is_identity = _geometry_rest.basis.is_equal_approx(Basis.IDENTITY)
 	_movement = _unit.get_node_or_null("Movement")
 	_mobile = _movement != null
@@ -211,6 +214,8 @@ func _on_order(action):
 
 
 func fire_recoil():
+	# Weapon authority samples the current simulation root, never the render offset.
+	_geometry.transform = _geometry_pose
 	# Remove any idle scan before the weapon samples its actual muzzle transform,
 	# and bring a lagging body onto the firing line.
 	_quiet_time = 0.0
@@ -224,6 +229,7 @@ func fire_recoil():
 		_infantry_motion.raise_for_shot()
 	_aim(1.0)
 	_sync_muzzle()
+	_geometry_pose = _geometry.transform
 	motion.next_shot()
 	_recoil = 1.0
 	if _heavy:
@@ -262,11 +268,33 @@ func death_motion():
 # steps without repeatedly dirtying the same model hierarchy. fire_recoil()
 # synchronizes the muzzle immediately when gameplay actually fires a shot.
 func _process(delta: float):
+	_advance_pose(delta)
+	if _culled:
+		if _geometry.transform != _geometry_pose:
+			_geometry.transform = _geometry_pose
+		return
+	var presented = _presentation_root * _geometry_pose
+	# Build the local pose in memory, then publish it once. Restoring the previous
+	# pose before animating dirties every mesh in the hierarchy several times.
+	if _geometry.global_transform != presented:
+		_geometry.global_transform = presented
+	_aim(delta)
+	if _aiming or _recoil > 0.0:
+		_sync_muzzle()
+
+
+func _notification(what):
+	if what == NOTIFICATION_PAUSED and is_instance_valid(_geometry):
+		_geometry.transform = _geometry_pose
+
+
+func _advance_pose(delta: float):
 	var root: Transform3D = (
 		_unit.get_global_transform_interpolated()
 		if get_tree().physics_interpolation and _unit.can_process()
 		else _unit.global_transform
 	)
+	_presentation_root = root
 	_damage_elapsed += delta
 	if _damage_elapsed > 0.8:
 		_damage_elapsed = 0.0
@@ -322,10 +350,6 @@ func _process(delta: float):
 		if _dust_elapsed > 0.22 * motion.cadence:
 			_dust_elapsed = 0.0
 			_unit._match.combat_effects.movement_dust(_unit)
-	_aim(delta)
-	# The projectile origin only matters while a weapon is engaged or recoiling.
-	if _aiming or _recoil > 0.0:
-		_sync_muzzle()
 
 	if (
 		not moving
@@ -340,7 +364,7 @@ func _process(delta: float):
 	):
 		_settled = true
 		chassis.settle()
-		_geometry.transform = _geometry_rest
+		_geometry_pose = _geometry_rest
 		if _barrel != null:
 			_barrel.position = _barrel_rest
 
@@ -393,15 +417,19 @@ func _apply_geometry(delta, ground_distance):
 
 
 func _pose_geometry(rotation: Vector3, offset: Vector3):
-	# One transform write per frame: each write re-dirties the whole model subtree.
+	# Keep simulation-local posing separate from the final interpolated transform.
 	if _rest_is_identity:
-		_geometry.transform = Transform3D(
-			Basis.from_euler(rotation), _geometry_rest.origin + offset
-		)
+		_geometry_pose = Transform3D(Basis.from_euler(rotation), _geometry_rest.origin + offset)
 	else:
-		_geometry.transform = _geometry_rest
-		_geometry.rotation += rotation
-		_geometry.position += offset
+		_geometry_pose = Transform3D(
+			(
+				Basis.from_euler(
+					_geometry_rest.basis.get_rotation_quaternion().get_euler() + rotation
+				)
+				* Basis.from_scale(_geometry_rest.basis.get_scale())
+			),
+			_geometry_rest.origin + offset
+		)
 
 
 func _pose_at_rest():

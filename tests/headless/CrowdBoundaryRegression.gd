@@ -42,7 +42,7 @@ func _archived_traffic(repetition):
 	var maximum_step = 0.0
 	var previous = start
 	var travel_at_ten = 0.0
-	for frame in 900:
+	for frame in Engine.physics_ticks_per_second * 15:
 		await physics_frame
 		if not is_instance_valid(worker):
 			_check(false, "Archived engineer died before its travel check")
@@ -50,14 +50,18 @@ func _archived_traffic(repetition):
 		maximum_step = maxf(maximum_step, worker.position.distance_to(previous))
 		previous = worker.position
 		observed_cargo = observed_cargo or worker.resource_b > 0
-		if frame == 599:
-			travel_at_ten = worker.position.distance_to(start)
+		# Measure departure, not displacement after a worker has returned cargo.
+		if frame < Engine.physics_ticks_per_second * 10:
+			travel_at_ten = maxf(travel_at_ten, worker.position.distance_to(start))
 	if is_instance_valid(worker):
 		var travel = travel_at_ten
 		print("ARCHIVED TRAFFIC ", repetition, " travel=", travel, " cargo=", observed_cargo)
 		_check(travel > 8, "Archived engineer remained stuck at the base boundary")
 		_check(observed_cargo, "Archived engineer did not reach electronics within fifteen seconds")
-		_check(maximum_step < worker.movement_speed / 60.0 + .002, "Recovery teleported engineer")
+		_check(
+			maximum_step < worker.movement_speed / Engine.physics_ticks_per_second + .002,
+			"Recovery teleported engineer"
+		)
 		await _review_traffic(worker, "archive-after")
 	paused = false
 	game.queue_free()
