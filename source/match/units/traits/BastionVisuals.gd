@@ -4,6 +4,7 @@ extends Node
 # articulated parts from the unit's authoritative state; the unit root, its
 # collision, orders and weapon timing are never modified here.
 
+const Unit = preload("res://source/match/units/Unit.gd")
 const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
 const MotionProfile = preload("res://source/match/units/traits/UnitMotionProfile.gd")
 const Chassis = preload("res://source/match/units/traits/ChassisMotion.gd")
@@ -16,8 +17,8 @@ static var _frustum_frame = -1
 static var _frustum = []
 static var _headless = DisplayServer.get_name() == "headless"
 
-var motion
-var chassis
+var motion: MotionProfile
+var chassis: Chassis
 var _wheel_motion = null
 var _infantry_motion = null
 var _walker = null
@@ -30,7 +31,7 @@ var _rotor_angles = []
 var _tools = []
 var _stabilizers = []
 var _rests = {}
-var _previous_position = Vector3.ZERO
+var _previous_position := Vector3.ZERO
 var _clock = 0.0
 var _quiet_time = 0.0
 var _idle_blend = 0.0
@@ -44,7 +45,7 @@ var _hit_axis = Vector3.ZERO
 var _hit_push = Vector3.ZERO
 var _hit_clock = -INF
 var _barrel_rest = Vector3.ZERO
-var _geometry_rest = Transform3D.IDENTITY
+var _geometry_rest := Transform3D.IDENTITY
 var _dust_elapsed = 0.0
 var _damage_elapsed = 0.0
 var _airborne = false
@@ -82,8 +83,8 @@ var _suspension_velocity:
 		return chassis.pitch_velocity
 	set(value):
 		chassis.pitch_velocity = value
-@onready var _geometry = get_parent().get_node("Geometry")
-@onready var _unit = get_parent()
+@onready var _geometry: Node3D = get_parent().get_node("Geometry")
+@onready var _unit: Unit = get_parent()
 @onready var _projectile_origin = _unit.find_child("ProjectileOrigin", true, false)
 
 
@@ -187,7 +188,7 @@ func _body_length():
 	return reach * 2.0 if reach != null else 2.0
 
 
-func _on_screen(center):
+func _on_screen(center: Vector3) -> bool:
 	# Off-screen units keep their timers but skip posing. One frustum per rendered
 	# frame is shared by every unit; headless runs have nothing to cull.
 	if _headless:
@@ -197,7 +198,7 @@ func _on_screen(center):
 		_frustum_frame = frame
 		var camera = get_viewport().get_camera_3d()
 		_frustum = camera.get_frustum() if camera != null else []
-	for plane in _frustum:
+	for plane: Plane in _frustum:
 		if plane.distance_to(center) > _cull_radius:
 			return false
 	return true
@@ -274,7 +275,7 @@ func _process(delta: float):
 	var travel: Vector3 = root.origin - _previous_position
 	var distance := travel.length()
 	_previous_position = root.origin
-	var moving = distance > maxf(.000001, delta * .02)
+	var moving: bool = distance > maxf(.000001, delta * .02)
 	if moving:
 		_settled = false
 	_recoil = maxf(0.0, _recoil - delta / motion.recoil_duration)

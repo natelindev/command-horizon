@@ -89,7 +89,7 @@ func restore(tree, snapshot):
 	game.simulation_time = _data.simulation_time
 	game.units_produced = _data.units_produced
 	var players = game.get_node("Players").get_children().filter(func(p): return "faction" in p)
-	for index in range(2):
+	for index in _data.players.size():
 		var side = _data.players[index]
 		var player = players[index]
 		entities[side.id] = player
@@ -107,6 +107,8 @@ func restore(tree, snapshot):
 		if _data.snapshot_version >= 7:
 			player.technology.restore(side.technology)
 		game._defeat_timers[player] = side.command_left
+		if side.command_left <= 0:
+			player.set_physics_process(false)
 		if not side.ai.is_empty():
 			_copy(
 				player,
@@ -452,21 +454,22 @@ func _order(saved):
 
 
 func _army_groups(game):
-	var saved = _data.players[1].ai
-	var player = entities["player-1"]
-	player._army_cursor = saved.get("cursor", 0)
-	player._army_groups = []
-	for group in saved.get("groups", []):
-		player._army_groups.append(
-			{
-				"kind": group.kind,
-				"point": group.point,
-				"members": group.members.map(func(id): return entities[id]),
-				"started": game.simulation_time - group.age,
-				"retiring": group.retiring,
-				"workers": group.workers.map(func(id): return entities[id])
-			}
-		)
+	for index in range(1, _data.players.size()):
+		var saved = _data.players[index].ai
+		var player = entities["player-%d" % index]
+		player._army_cursor = saved.get("cursor", 0)
+		player._army_groups = []
+		for group in saved.get("groups", []):
+			player._army_groups.append(
+				{
+					"kind": group.kind,
+					"point": group.point,
+					"members": group.members.map(func(id): return entities[id]),
+					"started": game.simulation_time - group.age,
+					"retiring": group.retiring,
+					"workers": group.workers.map(func(id): return entities[id])
+				}
+			)
 
 
 func _squads():

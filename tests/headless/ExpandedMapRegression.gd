@@ -39,7 +39,10 @@ func _menu():
 	setup.preferences_path = preferences
 	root.add_child(setup)
 	_check("ExpandedDesertFrontier" in setup._get_selected_map_path(), "Fresh setup uses small map")
-	_check(setup._map_paths.size() == 3, "Retired sparse maps remain in the new-game picker")
+	_check(
+		setup._map_paths.size() == 16,
+		"Skirmish roster must contain three existing and thirteen new maps"
+	)
 	for map_name in EXPANDED_MAPS:
 		var path = "res://source/match/maps/%s.tscn" % map_name
 		var index = setup._map_paths.find(path)

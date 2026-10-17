@@ -83,7 +83,12 @@ const BIOMES = {
 
 static func biome(map):
 	var name = String(map.scene_file_path if map else "").get_file().get_basename()
-	return BIOMES.get(name.trim_prefix("Expanded"), "temperate")
+	var battlefield = preload("res://source/match/maps/BattlefieldCatalog.gd").MAPS.get(name, {})
+	return (
+		battlefield.biome
+		if not battlefield.is_empty()
+		else BIOMES.get(name.trim_prefix("Expanded"), "temperate")
+	)
 
 
 static func for_map(map):

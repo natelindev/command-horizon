@@ -1,0 +1,190 @@
+{
+  "date": "2026-10-17",
+  "engine": "Godot 4.6 stable official",
+  "hardware": "Apple M1 Pro",
+  "scope": "14 targeted headless scripts, six rendered worker cases, two scale benchmark repeats and one smaller-battle comparison. Existing shutdown resource warnings remain. No Windows/export verification.",
+  "headless_arguments": [
+    "--headless",
+    "--path",
+    ".",
+    "--fixed-fps",
+    "60",
+    "--script",
+    "<script>"
+  ],
+  "checks": [
+    {
+      "script": "tests/headless/SpatialQueryRegression.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "Spatial query regression: 0 failures"
+      ],
+      "shutdown_warnings": false
+    },
+    {
+      "script": "tests/headless/WorkerDistributionRegression.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "DISTRIBUTION bastion A spread=4/4 delivered=4/4",
+        "DISTRIBUTION bastion B spread=4/4 delivered=4/4",
+        "DISTRIBUTION helix A spread=4/4 delivered=4/4",
+        "DISTRIBUTION helix B spread=4/4 delivered=4/4",
+        "DISTRIBUTION frontier A spread=4/4 delivered=4/4",
+        "DISTRIBUTION frontier B spread=4/4 delivered=4/4",
+        "Worker distribution: 0 failures"
+      ],
+      "shutdown_warnings": true
+    },
+    {
+      "script": "tests/headless/ResourceFieldRegression.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "Resource fields: 0 failures"
+      ],
+      "shutdown_warnings": true
+    },
+    {
+      "script": "tests/headless/NavigationRegression.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "PASS: obstacle routing, crowded movement, harvesting and factory egress"
+      ],
+      "shutdown_warnings": true
+    },
+    {
+      "script": "tests/headless/ResourceNavigationRegression.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "Resource navigation: 0 failures"
+      ],
+      "shutdown_warnings": true
+    },
+    {
+      "script": "tests/headless/CargoReturnRegression.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "Cargo return: 0 failures"
+      ],
+      "shutdown_warnings": true
+    },
+    {
+      "script": "tests/headless/CombatRegression.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "PASS: occluded/allied/elevated vision, legal firing, hidden-target loss, armor counters, fractional damage, repair cap/service slots/power/combat suppression/pause"
+      ],
+      "shutdown_warnings": true
+    },
+    {
+      "script": "tests/headless/OwnershipRegression.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "PASS same-color ownership, current fog, aircraft, pause, preference and disk reconstruction",
+        "PASS same-color ownership, current fog, aircraft, pause, preference and disk reconstruction",
+        "PASS observer-only legacy match identity",
+        "Ownership readability: 0 failures"
+      ],
+      "shutdown_warnings": true
+    },
+    {
+      "script": "tests/headless/GraphicsRegression.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "Graphics regression: 0 failures"
+      ],
+      "shutdown_warnings": true
+    },
+    {
+      "script": "tests/headless/UnitMotionRegression.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "PASS: all 16 faction/mobile roles idle; motion bounds/no drift; orders/aim interrupt; attack/death variety; RNG isolation; foundations fixed; pause"
+      ],
+      "shutdown_warnings": true
+    },
+    {
+      "script": "tests/headless/UnitAnimationRegression.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "Unit animation regression: 0 failures"
+      ],
+      "shutdown_warnings": true
+    },
+    {
+      "script": "tests/headless/BehaviorRegression.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "Unit behaviors: 0 failures"
+      ],
+      "shutdown_warnings": true
+    },
+    {
+      "script": "tests/headless/GarrisonCombatExitRegression.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "Garrison ExpandedDesertFrontier.tscn / ServiceOffice: 0 failures",
+        "Garrison ExpandedDesertFrontier.tscn / ServiceOffice: 0 failures",
+        "Garrison IndustrialCrossroads.tscn / SawtoothWorkshop: 0 failures",
+        "Garrison IndustrialCrossroads.tscn / CoolingHall: 0 failures",
+        "Garrison IndustrialCrossroads.tscn / ServiceOffice: 0 failures",
+        "Garrison IndustrialCrossroads.tscn / DamagedWarehouse: 0 failures",
+        "Garrison IndustrialCrossroads.tscn / SawtoothWorkshop: 0 failures",
+        "Garrison IndustrialCrossroads.tscn / ServiceOffice: 0 failures",
+        "Garrison CoastalFoundry.tscn / SawtoothWorkshop: 0 failures",
+        "Garrison CoastalFoundry.tscn / CoolingHall: 0 failures",
+        "Garrison combat and exits: 0 failures"
+      ],
+      "shutdown_warnings": true
+    },
+    {
+      "script": "tests/headless/PointOfInterestRegression.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "SITES faction=bastion cumulative_failures=0",
+        "SITES faction=helix cumulative_failures=0",
+        "SITES faction=frontier cumulative_failures=0",
+        "Capturable facilities: 0 failures"
+      ],
+      "shutdown_warnings": true
+    },
+    {
+      "script": "tests/rendered/WorkerDistributionPreview.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "DISTRIBUTION bastion A spread=4/4 delivered=4/4",
+        "DISTRIBUTION bastion B spread=4/4 delivered=4/4",
+        "DISTRIBUTION helix A spread=4/4 delivered=4/4",
+        "DISTRIBUTION helix B spread=4/4 delivered=4/4",
+        "DISTRIBUTION frontier A spread=4/4 delivered=4/4",
+        "DISTRIBUTION frontier B spread=4/4 delivered=4/4",
+        "Worker distribution: 0 failures"
+      ],
+      "shutdown_warnings": true,
+      "captures": "art/worker-distribution/"
+    }
+  ],
+  "static_checks": {
+    "gdformat": "11 changed/new GDScript files passed",
+    "gdlint": "11 changed/new GDScript files passed",
+    "git_diff_check": "passed"
+  },
+  "visual_review": [
+    "Worker distribution captures: Bastion materials, Helix electronics, Frontier materials",
+    "IndustrialCrossroads shared scenery: wide and close rendered views"
+  ]
+}

@@ -27,6 +27,84 @@ const MAPS = [
 		"Wide harbor routes · eight resource fields · six capturable facilities",
 		"192 × 156"
 	],
+	[
+		"res://source/match/maps/RedrockDivide.tscn",
+		"Redrock Divide",
+		"Three canyon crossings with rich outer flanks.",
+		"192 × 160"
+	],
+	[
+		"res://source/match/maps/SaltwindBasin.tscn",
+		"Saltwind Basin",
+		"A pale salt pan: exposed center, sheltered edge expansions.",
+		"192 × 160"
+	],
+	[
+		"res://source/match/maps/PinebreakValley.tscn",
+		"Pinebreak Valley",
+		"Wooded islands split a winding valley into ambush lanes.",
+		"192 × 160"
+	],
+	[
+		"res://source/match/maps/GlacierNarrows.tscn",
+		"Glacier Narrows",
+		"Frozen meltwater divides two broad mountain passes.",
+		"192 × 160"
+	],
+	[
+		"res://source/match/maps/Emberworks.tscn",
+		"Emberworks",
+		"Abandoned furnaces and service alleys around a central works.",
+		"192 × 160"
+	],
+	[
+		"res://source/match/maps/CinderRing.tscn",
+		"Cinder Ring",
+		"A black volcanic caldera with an open outer circuit.",
+		"224 × 224"
+	],
+	[
+		"res://source/match/maps/FourRivers.tscn",
+		"Four Rivers",
+		"Four headwater pools separate spokes into a shared heartland.",
+		"224 × 224"
+	],
+	[
+		"res://source/match/maps/SunkenExchange.tscn",
+		"Sunken Exchange",
+		"Flooded port basins leave a cross of cargo roads.",
+		"224 × 224"
+	],
+	[
+		"res://source/match/maps/FrostboundCrown.tscn",
+		"Frostbound Crown",
+		"A crown of glacial shelves guards the central repair network.",
+		"224 × 224"
+	],
+	[
+		"res://source/match/maps/CopperBadlands.tscn",
+		"Copper Badlands",
+		"Staggered copper mesas create diagonal flanking corridors.",
+		"224 × 224"
+	],
+	[
+		"res://source/match/maps/VerdantCommons.tscn",
+		"Verdant Commons",
+		"Sheltered groves ring a broad, resource-rich common.",
+		"224 × 224"
+	],
+	[
+		"res://source/match/maps/RailspireJunction.tscn",
+		"Railspire Junction",
+		"Rail depots divide a grid of long industrial sightlines.",
+		"224 × 224"
+	],
+	[
+		"res://source/match/maps/ShatteredOasis.tscn",
+		"Shattered Oasis",
+		"A turquoise oasis forces clockwise expansion around its shores.",
+		"224 × 224"
+	],
 ]
 # Old numeric preferences used this order. Resolve them before selecting a new index.
 const LEGACY_MAP_NAMES = [
@@ -106,7 +184,9 @@ func _build_ui():
 	_map_list = _option(map_column, "MapList", [])
 	for entry in MAPS:
 		_map_paths.append(entry[0])
-		_map_list.add_item(tr(entry[1]))
+		_map_list.add_item(
+			tr(entry[1]) + " · " + (tr("%d players") % Constants.Match.MAPS[entry[0]].players)
+		)
 	_map_list.item_selected.connect(_on_map_list_item_selected)
 	var preview_frame = PanelContainer.new()
 	preview_frame.theme_type_variation = "HudSocket"
@@ -127,7 +207,7 @@ func _build_ui():
 		"1  "
 		+ tr("Your base")
 		+ "    2  "
-		+ tr("Enemy base")
+		+ tr("Enemy bases")
 		+ "\n"
 		+ tr("Dots: resources · Small squares: relays")
 		+ "\n"
@@ -145,7 +225,7 @@ func _build_ui():
 	faction_row.add_theme_constant_override("separation", 12)
 	right.add_child(faction_row)
 	_player_faction = _faction_card(faction_row, "Your faction", 0)
-	_enemy_faction = _faction_card(faction_row, "Enemy faction", 1)
+	_enemy_faction = _faction_card(faction_row, "AI factions", 1)
 	var rules = _panel(right)
 	var grid = GridContainer.new()
 	grid.columns = 2
@@ -298,7 +378,15 @@ func _update_summary():
 func _on_map_list_item_selected(index):
 	_preview.set_map(MAPS[index][0])
 	_map_details.text = (
-		tr(MAPS[index][2]) + "\n" + MAPS[index][3] + " · " + tr("Opposite starting positions")
+		tr(MAPS[index][2])
+		+ "\n"
+		+ MAPS[index][3]
+		+ " · "
+		+ (
+			tr("4 players · Free-for-all")
+			if Constants.Match.MAPS[MAPS[index][0]].players == 4
+			else tr("2 players · Head-to-head")
+		)
 	)
 
 
@@ -314,7 +402,7 @@ func _create_match_settings():
 	)
 	var rng = RandomNumberGenerator.new()
 	rng.seed = result.match_seed
-	for index in range(2):
+	for index in range(Constants.Match.MAPS[result.map_path].players):
 		var player = PlayerSettings.new()
 		player.controller = (
 			Constants.PlayerType.HUMAN if index == 0 else Constants.PlayerType.SIMPLE_CLAIRVOYANT_AI
@@ -329,9 +417,7 @@ func _create_match_settings():
 		# The level belongs to the computer commander; the human keeps the default.
 		if index > 0:
 			player.difficulty = _difficulty.selected
-		player.spawn_index_offset = (
-			0 if index == 0 else Constants.Match.MAPS[result.map_path].players / 2 - 1
-		)
+		player.spawn_index_offset = 0
 		result.players.append(player)
 	return result
 

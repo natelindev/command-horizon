@@ -17,6 +17,7 @@ var _desert = false
 var _lamps = []
 var _overlay: ShaderMaterial
 var _materials = {}
+var _box_meshes = {}
 var _cloths = []
 var _tree_serial = 0
 
@@ -38,6 +39,13 @@ func _ready():
 		map_name
 		in ["IndustrialCrossroads", "BrokenFoundryMap", "CommandHorizonMap", "CoastalFoundry"]
 	)
+	var battlefield = preload("res://source/match/maps/BattlefieldCatalog.gd").profile(
+		_game.settings.map_path
+	)
+	if not battlefield.is_empty():
+		_alpine = battlefield.biome == "alpine"
+		_desert = battlefield.biome == "desert"
+		_urban = battlefield.biome in ["urban", "coastal"]
 	windows = _material(Color("f4ca87"))
 	windows.emission_enabled = true
 	windows.emission = Color("ffb55e")
@@ -71,12 +79,19 @@ func _material(color):
 
 
 func _box(label, point, dimensions, material):
-	var mesh = BoxMesh.new()
-	mesh.size = dimensions
-	mesh.material = material
+	# Shared geometry lets Forward+ instance repeated architectural details.
+	# Keep authored dimensions (and local shader coordinates) exactly intact.
+	if not _box_meshes.has(material):
+		_box_meshes[material] = {}
+	var meshes = _box_meshes[material]
+	if not meshes.has(dimensions):
+		var box = BoxMesh.new()
+		box.size = dimensions
+		box.material = material
+		meshes[dimensions] = box
 	var instance = MeshInstance3D.new()
 	instance.name = label
-	instance.mesh = mesh
+	instance.mesh = meshes[dimensions]
 	instance.position = point
 	add_child(instance)
 	return instance
@@ -371,7 +386,7 @@ func _lamp(point):
 
 
 func _mountains():
-	var desert = "Desert" in _game.settings.map_path or "Supply" in _game.settings.map_path
+	var desert = _desert or "Supply" in _game.settings.map_path
 	for index in 9:
 		var asset = (
 			"desert/CanyonMesa%d" % (index % 3 + 1)

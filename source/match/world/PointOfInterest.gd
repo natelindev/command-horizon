@@ -123,8 +123,32 @@ func operational():
 	return captured_by != null and not contested and capture_side() == null
 
 
+func income_payment():
+	return Vector2i(mini(2, stock_a), mini(1, stock_b)) if kind == "refinery" else Vector2i.ZERO
+
+
+func income_status():
+	var payment = income_payment()
+	if payment == Vector2i.ZERO:
+		return tr("Depleted")
+	if not operational():
+		return tr("Income paused")
+	return tr("+%d M / +%d E every 10 s · next in %ds") % [payment.x, payment.y, ceili(income_left)]
+
+
+func _update_presentation():
+	super()
+	if kind == "refinery" and captured_by != null:
+		_label.text += "\n" + income_status()
+
+
 func _physics_process(delta):
-	if not _match.is_node_ready() or _match.restoring or _match.finished or get_tree().paused:
+	if (
+		not _match.is_node_ready()
+		or _match.restoring
+		or ("finished" in _match and _match.finished)
+		or get_tree().paused
+	):
 		return
 	var previous_owner = captured_by
 	super(delta)
@@ -142,6 +166,7 @@ func _physics_process(delta):
 			captured_by.add_resources({"resource_a": materials, "resource_b": electronics})
 			MatchSignals.resources_mined.emit(self, "materials", materials)
 			MatchSignals.resources_mined.emit(self, "electronics", electronics)
+		_update_presentation()
 	elif kind == "mercenary" and not jobs.is_empty():
 		jobs[0].left = maxf(0, jobs[0].left - delta)
 		if jobs[0].left == 0 and captured_by.population(true) <= Factions.Bastion.POPULATION_LIMIT:

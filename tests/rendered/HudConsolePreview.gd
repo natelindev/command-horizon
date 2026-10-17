@@ -17,12 +17,14 @@ func _run():
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT))
 	for setup in [
 		["bastion", "ExpandedDesertFrontier", Vector2i(1280, 720), 1.5, "720p", "en"],
-		["helix", "AlpineRelay", Vector2i(1920, 1080), 1.0, "1080p", "en"],
+		["helix", "ExpandedAlpineRelay", Vector2i(1920, 1080), 1.0, "1080p", "en"],
 		["frontier", "CoastalFoundry", Vector2i(1280, 720), 1.5, "720p", "en"],
 		["bastion", "ExpandedDesertFrontier", Vector2i(1280, 720), 1.5, "720p-zh", "zh_CN"],
-		["helix", "AlpineRelay", Vector2i(1920, 1080), 1.0, "1080p-zh", "zh_CN"],
+		["helix", "ExpandedAlpineRelay", Vector2i(1920, 1080), 1.0, "1080p-zh", "zh_CN"],
 		["frontier", "CoastalFoundry", Vector2i(1280, 720), 1.5, "720p-zh", "zh_CN"],
 	]:
+		if not OS.get_cmdline_user_args().is_empty() and setup[0] not in OS.get_cmdline_user_args():
+			continue
 		(
 			preferences
 			. restore(
@@ -66,6 +68,18 @@ func _battle(faction, map_name, suffix):
 	await _frames(40)
 	var label = "%s-%s" % [faction, suffix]
 	await _shot(label + "-closed")
+	var refineries = load("res://source/match/world/PointOfInterestCatalog.gd").sites(game).filter(
+		func(site): return site.kind == "refinery"
+	)
+	if not refineries.is_empty():
+		var refinery = refineries[0]
+		refinery.captured_by = human
+		refinery._update_presentation()
+		game.find_child("ResourcesBar")._refresh()
+		camera.set_position_safely(refinery.global_position)
+		await _frames(20)
+		await _shot(label + "-refinery")
+		camera.set_position_safely(tank.global_position)
 	await _select([_units(human, "Worker")[0]])
 	await _shot(label + "-worker")
 	tank.hp = int(tank.hp_max * .55)
@@ -125,6 +139,11 @@ func _select(units):
 
 
 func _shot(label):
+	var resources = game.find_child("ResourcesBar").get_global_rect()
+	_check(
+		resources.end.x + 8 <= game.hud.system_plate.get_global_rect().position.x,
+		"Top plates overlap: " + label
+	)
 	var mini = game.find_child("Minimap", true, false).get_global_rect()
 	var deck = game.find_child("UnitMenus", true, false)
 	if not deck.is_visible_in_tree():

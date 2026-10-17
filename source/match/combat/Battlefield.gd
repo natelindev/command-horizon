@@ -4,6 +4,8 @@ const Rules = preload("res://source/match/combat/CombatRules.gd")
 const CELL_SIZE = 12.0
 const BODY_CELL_SIZE = 3.0
 const MAX_OBSERVER_HINTS = 512
+const EMPTY_CELLS = {}
+const EMPTY_UNITS = []
 var _frame = -1
 var _observers = {}
 var _bodies = {}
@@ -49,14 +51,17 @@ func _refresh():
 	):
 		if unit.is_queued_for_deletion() or unit.sight_range == null:
 			continue
-		if unit.player == null:
+		var player = unit.player
+		if player == null:
 			continue
-		if not _observers.has(unit.player):
-			_observers[unit.player] = {}
-		var cell = _cell(unit.global_position)
-		if not _observers[unit.player].has(cell):
-			_observers[unit.player][cell] = []
-		_observers[unit.player][cell].append(unit)
+		if not _observers.has(player):
+			_observers[player] = {}
+		var observer_cells: Dictionary = _observers[player]
+		var position: Vector3 = unit.global_position
+		var cell := _cell(position)
+		if not observer_cells.has(cell):
+			observer_cells[cell] = []
+		observer_cells[cell].append(unit)
 		var reach = unit.sight_range
 		if unit.has_meta("garrison_host"):
 			reach += unit.get_meta("garrison_host").radius + 2.0
@@ -66,12 +71,13 @@ func _refresh():
 			_max_body_step = maxf(
 				_max_body_step, unit.movement_speed * get_physics_process_delta_time()
 			)
-			if not _bodies.has(unit.player):
-				_bodies[unit.player] = {}
-			var body_cell = _body_cell(unit.global_position)
-			if not _bodies[unit.player].has(body_cell):
-				_bodies[unit.player][body_cell] = []
-			_bodies[unit.player][body_cell].append(unit)
+			if not _bodies.has(player):
+				_bodies[player] = {}
+			var body_cells: Dictionary = _bodies[player]
+			var body_cell := _body_cell(position)
+			if not body_cells.has(body_cell):
+				body_cells[body_cell] = []
+			body_cells[body_cell].append(unit)
 	if _blockers_dirty:
 		_blockers_dirty = false
 		_blockers.clear()
@@ -149,12 +155,14 @@ func is_observed(player, target):
 	hints.erase(target_id)
 	var point = target.global_position * Vector3(1, 0, 1)
 	var reach = _max_sight + (target.radius if target.is_in_group("neutral_buildings") else 0.0)
-	var low = _cell(point - Vector3.ONE * (reach + CELL_SIZE))
-	var high = _cell(point + Vector3.ONE * (reach + CELL_SIZE))
-	var cells = _observers.get(player, {})
+	# Observers can move after the index is built; cover their maximum step
+	# instead of scanning an entire extra ring of twelve-metre cells.
+	var low = _cell(point - Vector3.ONE * (reach + _max_body_step))
+	var high = _cell(point + Vector3.ONE * (reach + _max_body_step))
+	var cells: Dictionary = _observers.get(player, EMPTY_CELLS)
 	for x in range(low.x, high.x + 1):
 		for y in range(low.y, high.y + 1):
-			for ally in cells.get(Vector2i(x, y), []):
+			for ally in cells.get(Vector2i(x, y), EMPTY_UNITS):
 				# Reject distant cells' members before the full visibility query.
 				# Live range, ownership and occlusion are still authoritative below.
 				if not is_instance_valid(ally) or ally.player != player:
@@ -296,7 +304,7 @@ func line_clear(
 	var checked = {}
 	for x in range(low.x, high.x + 1):
 		for y in range(low.y, high.y + 1):
-			for entry in _blockers.get(Vector2i(x, y), []):
+			for entry in _blockers.get(Vector2i(x, y), EMPTY_UNITS):
 				var body = entry.body
 				if not is_instance_valid(body) or body.is_queued_for_deletion():
 					continue
@@ -389,10 +397,10 @@ func nearby_units(point: Vector3, radius: float, player_filter = null, excluded_
 	for player in players:
 		if player == excluded_player:
 			continue
-		var cells: Dictionary = index.get(player, {})
+		var cells: Dictionary = index.get(player, EMPTY_CELLS)
 		for x in range(low.x, high.x + 1):
 			for y in range(low.y, high.y + 1):
-				for unit in cells.get(Vector2i(x, y), []):
+				for unit in cells.get(Vector2i(x, y), EMPTY_UNITS):
 					if not is_instance_valid(unit) or unit.is_queued_for_deletion():
 						continue
 					if coarse and not unit.is_in_group("units"):

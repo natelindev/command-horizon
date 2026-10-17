@@ -4,6 +4,8 @@ signal movement_finished
 signal passive_movement_started
 signal passive_movement_finished
 
+const Unit = preload("res://source/match/units/Unit.gd")
+
 const PROGRESS_WINDOW = 1.0
 const MINIMUM_PROGRESS = 0.2
 const RECOVERY_DURATION = 0.6
@@ -29,7 +31,7 @@ const PASSIVE_MOVEMENT_TRACKING_ENABLED = true
 
 var _exit_clearance_target = Vector3.INF
 var _exit_clearance_until = 0.0
-var _physics_delta = 0.0
+var _physics_delta: float = 0.0
 var _last_navigation_iteration = 0
 var _has_destination = false
 var _synchronized = false
@@ -47,17 +49,19 @@ var _previously_set_global_transform_of_unit = null
 var _passive_movement_detected = false
 
 @onready var _match = find_parent("Match")
-@onready var _unit = get_parent()
+@onready var _unit: Unit = get_parent()
 
 
 func _physics_process(delta):
 	_physics_delta = delta
-	max_speed = speed
+	var current_speed: float = speed
+	if max_speed != current_speed:
+		max_speed = current_speed
 	# A settled firing line holds its ground while arriving allies flow around it.
 	# Equal avoidance priority lets the rear ranks push shooters toward the enemy.
-	avoidance_priority = (
-		0.8 if not _has_destination and is_instance_valid(_unit.aim_target) else 0.5
-	)
+	var priority := 0.8 if not _has_destination and is_instance_valid(_unit.aim_target) else 0.5
+	if avoidance_priority != priority:
+		avoidance_priority = priority
 	if _advance_exit_clearance(delta):
 		return
 	if not _has_destination:
@@ -154,7 +158,13 @@ func has_occupied_endpoint(require_short_route = true):
 	var path = get_current_navigation_path()
 	if path.is_empty():
 		return false
-	var end = path[-1] * Vector3(1, 0, 1)
+	var end: Vector3 = path[-1] * Vector3(1, 0, 1)
+	# A settled mobile body can only finish this order within contact range.
+	# Most recovering units are farther away; avoid scanning their destination
+	# neighbors (and the remaining path) until arrival is actually possible.
+	var contact_bound: float = radius + Constants.Match.Terrain.Navmesh.MAX_AGENT_RADIUS + .2
+	if _unit.global_position_yless.distance_squared_to(end) > contact_bound * contact_bound:
+		return false
 	var remaining = 0.0
 	if require_short_route:
 		# A nearby endpoint can sit just beyond a tiny polygon bend. Bound
@@ -249,7 +259,7 @@ func _recovery_clearance(direction):
 	for step in 4:
 		var distance = (step + 1) * 0.5
 		var candidate = origin + direction * distance
-		var navigable = _closest_navigation_point(candidate)
+		var navigable := _closest_navigation_point(candidate)
 		if ((navigable - candidate) * Vector3(1, 0, 1)).length() > 0.15:
 			break
 		clearance = distance
@@ -395,13 +405,13 @@ func _on_velocity_computed(safe_velocity: Vector3):
 		_update_passive_movement_tracking(Vector3.ZERO)
 		return
 	_last_navigation_iteration = navigation_iteration
-	var current_speed = speed
-	var displacement = safe_velocity.limit_length(current_speed) * _physics_delta
-	var candidate = _unit.global_position + displacement
+	var current_speed: float = speed
+	var displacement := safe_velocity.limit_length(current_speed) * _physics_delta
+	var candidate := _unit.global_position + displacement
 	# Local avoidance can push agents off the mesh; constrain the resulting step.
-	var navigable = _closest_navigation_point(candidate)
+	var navigable := _closest_navigation_point(candidate)
 	navigable.y -= path_height_offset
-	var next = _unit.global_position.move_toward(
+	var next := _unit.global_position.move_toward(
 		Vector3(navigable.x, _unit.global_position.y, navigable.z), current_speed * _physics_delta
 	)
 	# Flight clearance follows the map without consuming horizontal movement speed.
@@ -436,7 +446,7 @@ func _on_velocity_computed(safe_velocity: Vector3):
 				> next.distance_squared_to(_unit.global_position)
 			):
 				next = recovery_step
-	var actual_velocity = (next - _unit.global_position) / maxf(_physics_delta, 0.001)
+	var actual_velocity := (next - _unit.global_position) / maxf(_physics_delta, 0.001)
 	if (
 		domain == Constants.Match.Navigation.Domain.TERRAIN
 		and actual_velocity.distance_to(safe_velocity) > 0.1
@@ -453,27 +463,29 @@ func _on_velocity_computed(safe_velocity: Vector3):
 
 func _clip_ground_step(next: Vector3) -> Vector3:
 	var origin: Vector3 = _unit.global_position
-	if _match.battlefield == null:
+	# The contact solver accepts a negligible planar step unchanged. Avoid
+	# building a neighbor list for that same no-op (including elevation only).
+	if (
+		_match.battlefield == null
+		or ((next - origin) * Vector3(1, 0, 1)).length_squared() < 0.00000001
+	):
 		return next
-	var reach = (
-		_unit.radius
-		+ Constants.Match.Terrain.Navmesh.MAX_AGENT_RADIUS
-		+ speed * _physics_delta
-		+ .25
+	var reach: float = (
+		radius + Constants.Match.Terrain.Navmesh.MAX_AGENT_RADIUS + speed * _physics_delta + .25
 	)
 	var neighbors = _match.battlefield.nearby_units(origin, reach)
 	var contact = _ground_step_contact(origin, next, neighbors)
 	if contact.fraction >= 1.0:
 		return next
-	var clipped = origin.lerp(next, contact.fraction)
+	var clipped := origin.lerp(next, contact.fraction)
 	# Preserve the tangential part of a blocked step. Clamping alone can pin
 	# two agents together at a mesh boundary even when there is room to pass.
 	var step := (next - origin) * Vector3(1, 0, 1)
-	var normal = contact.normal
-	var slide = step - normal * minf(0.0, step.dot(normal))
-	var navigable = _closest_navigation_point(origin + slide)
+	var normal: Vector3 = contact.normal
+	var slide := step - normal * minf(0.0, step.dot(normal))
+	var navigable := _closest_navigation_point(origin + slide)
 	navigable.y -= path_height_offset
-	var alternative = origin.move_toward(navigable, speed * _physics_delta)
+	var alternative := origin.move_toward(navigable, speed * _physics_delta)
 	var slide_contact = _ground_step_contact(origin, alternative, neighbors)
 	alternative = origin.lerp(alternative, slide_contact.fraction)
 	if alternative.distance_squared_to(origin) > clipped.distance_squared_to(origin):
@@ -487,17 +499,23 @@ func _ground_step_contact(origin: Vector3, next: Vector3, neighbors: Array) -> D
 	var result = {"fraction": 1.0, "normal": Vector3.ZERO}
 	if length_squared < 0.00000001:
 		return result
-	var own_radius: float = _unit.radius
-	for other in neighbors:
-		if other == _unit or other.movement_speed <= 0 or other.movement_domain != domain:
+	var own_radius: float = radius
+	for candidate in neighbors:
+		var other: Unit = candidate
+		if other == _unit:
+			continue
+		# Read the neighbor's trait once instead of resolving radius, speed and
+		# domain through three separate unit property getters for every contact.
+		var movement = other._get_navigation_trait()
+		if not movement is NavigationAgent3D or movement.domain != domain or movement.speed <= 0:
 			continue
 		var offset: Vector3 = (origin - other.global_position) * Vector3(1, 0, 1)
-		var separation: float = own_radius + other.radius - GROUND_CONTACT_MARGIN
+		var separation: float = own_radius + movement.radius - GROUND_CONTACT_MARGIN
 		var outside := offset.length_squared() - separation * separation
 		var toward := offset.dot(step)
 		if toward >= 0:
 			continue
-		var fraction = 0.0
+		var fraction := 0.0
 		if outside > 0:
 			var discriminant := toward * toward - length_squared * outside
 			if discriminant < 0:

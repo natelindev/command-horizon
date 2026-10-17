@@ -13,6 +13,11 @@ var roads = []
 var road_width = 4.0
 var buildings = []
 var land = []
+var water = []
+var water_radius = 0.0
+var water_color = Color("315e68")
+var terrain_low = Color("554f3e")
+var terrain_high = Color("89816a")
 var _terrain: ImageTexture
 var _biome = "desert"
 var _terrain_cache = {}
@@ -37,6 +42,11 @@ func set_map(path):
 	roads.clear()
 	buildings.clear()
 	land.clear()
+	water.clear()
+	water_radius = 0.0
+	water_color = Color("315e68")
+	terrain_low = Color("554f3e")
+	terrain_high = Color("89816a")
 	ridge_radius = 0.0
 	road_width = 4.0
 	_biome = (
@@ -47,9 +57,14 @@ func set_map(path):
 	var scene = load(path).instantiate()
 	map_size = Vector2(scene.size)
 	var markers = scene.find_child("SpawnPoints").get_children()
-	starts = [markers[0].position, markers[markers.size() / 2].position]
+	starts = markers.map(func(marker): return marker.position)
 	if scene.has_method("overview"):
 		var overview = scene.overview()
+		water = overview.get("water", []).duplicate()
+		water_radius = overview.get("water_radius", 0.0)
+		water_color = overview.get("water_color", Color("315e68"))
+		terrain_low = overview.get("low", terrain_low)
+		terrain_high = overview.get("high", terrain_high)
 		deposits = overview.fields.duplicate()
 		rocks = overview.ridges.duplicate()
 		relays = overview.relays.duplicate()
@@ -76,8 +91,8 @@ func _make_terrain():
 	noise.seed = 481
 	noise.frequency = .025
 	var image = Image.create(384, 384, false, Image.FORMAT_RGB8)
-	var low = Color("554f3e")
-	var high = Color("89816a")
+	var low = terrain_low
+	var high = terrain_high
 	if _biome == "alpine":
 		low = Color("3e555b")
 		high = Color("8c9c96")
@@ -137,6 +152,10 @@ func _draw():
 			Color("ffffff09"),
 			1,
 			true
+		)
+	for pool in water:
+		draw_circle(
+			origin + pool * scale_factor, water_radius * scale_factor, water_color, true, -1, true
 		)
 	for building in buildings:
 		var rect = Rect2(origin + building.position * scale_factor, building.size * scale_factor)
@@ -204,7 +223,7 @@ func _draw():
 			draw_circle(point + offset, 2.5, Color("bed1a2"), true, -1, true)
 	for index in starts.size():
 		var point = origin + Vector2(starts[index].x, starts[index].z) * scale_factor
-		var color = Color("e2c180") if index == 0 else Color("dd8d81")
+		var color = [Color("e2c180"), Color("dd8d81"), Color("88bad4"), Color("b5a1d4")][index % 4]
 		draw_circle(point, 24, Color(color, .12), true, -1, true)
 		draw_circle(point + Vector2(0, 2), 15, Color("0d191ecc"), true, -1, true)
 		draw_circle(point, 13, color, true, -1, true)

@@ -92,7 +92,11 @@ static func summary_for(data, modified = 0):
 		% [
 			title,
 			settings.players[0].faction.capitalize(),
-			settings.players[1].faction.capitalize(),
+			(
+				"%d rivals" % (settings.players.size() - 1)
+				if settings.players.size() > 2
+				else settings.players[1].faction.capitalize()
+			),
 			Difficulty.TAGS[Difficulty.clamp_level(settings.players[1].difficulty)],
 			seconds / 60,
 			seconds % 60,

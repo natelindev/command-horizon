@@ -47,5 +47,16 @@ func _exit_tree():
 		_unit.get_node("Movement").stop()
 
 
+func attack_from_building(target):
+	if not _unit._match.battlefield.can_fire(_unit, target):
+		return false
+	if is_instance_valid(_shot):
+		remove_child(_shot)
+		_shot.queue_free()
+	_shot = Shooting.new(target)
+	add_child(_shot)
+	return true
+
+
 func _to_string():
 	return tr("Garrisoned · Move to leave")

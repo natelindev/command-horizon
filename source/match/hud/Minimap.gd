@@ -96,6 +96,9 @@ func _remove_dummy_nodes():
 
 func _sync_real_units_with_minimap_representations():
 	var units_synced = {}
+	var observer = _match._get_human_player()
+	if observer == null:
+		observer = _match.visible_player
 	var units_to_sync = (
 		get_tree().get_nodes_in_group("units") + get_tree().get_nodes_in_group("resource_units")
 	)
@@ -105,7 +108,7 @@ func _sync_real_units_with_minimap_representations():
 		units_synced[unit] = 1
 		if not _unit_is_mapped(unit):
 			_map_unit(unit)
-		_sync_unit(unit)
+		_sync_unit(unit, observer)
 	for mapped_unit in _unit_to_corresponding_node_mapping:
 		if not mapped_unit in units_synced:
 			_cleanup_mapping(mapped_unit)
@@ -121,14 +124,17 @@ func _map_unit(unit):
 	_unit_to_corresponding_node_mapping[unit] = node_representing_unit
 
 
-func _sync_unit(unit):
+func _sync_unit(unit, observer):
 	var unit_pos_3d = unit.global_transform.origin
 	var unit_pos_2d = Vector2(unit_pos_3d.x, unit_pos_3d.z) * MINIMAP_PIXELS_PER_WORLD_METER
-	_unit_to_corresponding_node_mapping[unit].position = unit_pos_2d
-	_unit_to_corresponding_node_mapping[unit].kind = Ownership.kind(unit, _match)
-	_unit_to_corresponding_node_mapping[unit].color = (
-		unit.player.color if unit is Unit else unit.color
+	var marker = _unit_to_corresponding_node_mapping[unit]
+	marker.position = unit_pos_2d
+	marker.kind = (
+		"resource"
+		if unit.is_in_group("resource_units")
+		else ("own" if unit.player == observer else "opponent")
 	)
+	marker.color = unit.player.color if unit is Unit else unit.color
 
 
 func _cleanup_mapping(unit):

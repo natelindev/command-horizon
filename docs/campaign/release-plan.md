@@ -1,35 +1,33 @@
-# Release 0.12.0
+# Release 0.13.0
 
-## Stage 1 — Prepare
+## Stage 1 — Prepare all local changes
 
-Review the completed performance/gameplay/UI changes, update package versions and
-changelog, and verify formatting/lint plus the desktop release smoke tests.
+Include the entire non-ignored working tree: battlefield expansion, four-player
+skirmishes, garrison/refinery feedback, worker cargo, performance, distribution,
+regressions and review artifacts. Update release versions and changelog, run
+static checks and verify the exported macOS package with the expanded smoke suite.
 
-## Stage 2 — Push main
+## Stage 2 — Commit and push
 
-Commit the reviewed changes, synchronize with origin, push main without rewriting
-history, and wait for the repository static checks.
+Commit all local changes, push main without rewriting history, and require the
+repository static checks to pass on the release commit.
 
-## Stage 3 — Build and publish
+## Stage 3 — Build, publish and verify
 
-Tag the verified main commit as v0.12.0. Monitor the native Windows/macOS/Linux
-release jobs and packaged smoke tests. Resolve failures before publishing complete
-packages, then publish focused release notes and verify uploaded assets.
+Tag the verified commit as v0.13.0. Monitor native Linux, macOS and Windows builds
+and packaged regressions, publish focused release notes, then download and verify
+all published packages and their checksums. Record final release evidence.
 
 ## Agent progress
 
-- Confirmed local main matches origin/main at 31aadfca before the release changes.
-- Confirmed v0.11.0 is the latest published release. Chose v0.12.0 for the gameplay
-  redesign and performance work.
-- Existing tag workflow builds/tests all three desktop platforms and publishes only
-  after every platform passes. GitHub CLI authentication is available through Keychain.
-- Local macOS export starts successfully and passes all seven packaged release
-  regressions. Bundle versions are 0.12.0; formatting/lint checks pass. An outdated
-  behavior-test assertion for the removed Battle plan panel was corrected before
-  the successful packaged run.
-- Pushed the release implementation to main as ff9c391b. GitHub static checks pass.
-- Tagged v0.12.0. All three native desktop CI jobs and seven packaged checks per
-  platform pass; publication completed successfully.
-- Downloaded all three published packages, verified archive integrity and SHA-256
-  digests, and attached SHA256SUMS.txt. Published focused release notes and confirmed
-  v0.12.0 is the latest release. Details are in release-v0.12.0.json.
+- User explicitly authorized committing all local changes and creating a release.
+- Confirmed main and origin/main match at f60bca94 and v0.12.0 is the latest release.
+- Selected v0.13.0 for thirteen additional battlefields and four-player skirmishes.
+- All 377 shipping GDScript files pass formatting and lint. Existing map, HUD,
+  garrison, cargo and performance verification records reviewed.
+- Updated app/package versions and changelog. Added packaged release checks for
+  worker distribution, cargo, field capacity, garrison exits, facilities, map
+  connectivity/save compatibility and opening economy.
+- Local macOS release export, packaged startup, and all fourteen packaged
+  regressions pass without script errors. Verified 0.13.0 bundle metadata,
+  Intel/Apple Silicon executable slices and the ad-hoc signature.

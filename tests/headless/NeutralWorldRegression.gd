@@ -180,12 +180,19 @@ func _interaction():
 	soldier.manual_orders.submit(
 		Manual.point_order("move", building.global_position + Vector3(15, 0, 0))
 	)
+	var exit_point = soldier.global_position
 	await _frames(30)
 	_check(
 		not soldier.has_meta("garrison_host") and soldier.get_node("Geometry").visible,
 		"Move order did not release occupant"
 	)
 	_check(building.occupants.size() == 7, "Garrison count not updated on exit")
+	await _frames(120)
+	_check(
+		soldier.global_position.distance_to(exit_point) > 2.0,
+		"Restored occupant became stuck after its move order released it"
+	)
+	_check("7 / 8" in building._label.text, "World occupancy indicator did not update on exit")
 	var departing = building.occupants[0]
 	root.get_node("MatchSignals").deselect_all_units.emit()
 	departing.get_node("Selection").select()
@@ -193,6 +200,10 @@ func _interaction():
 	var panel = game.find_child("UnitMenus")._orders_panel
 	_check(
 		is_instance_valid(panel) and panel._eject.visible, "Garrison Leave building button missing"
+	)
+	_check(
+		is_instance_valid(panel) and "7 / 8" in panel._status.text,
+		"Selected shelter occupancy is missing"
 	)
 	if is_instance_valid(panel):
 		panel._eject.pressed.emit()

@@ -37,10 +37,12 @@ func setup(body, identity):
 	_label = Label3D.new()
 	_label.position.y = _height + 1
 	_label.font = load("res://assets/fonts/NotoSansSC.ttf")
-	_label.font_size = 28
-	_label.pixel_size = .012
+	_label.font_size = 32
+	_label.pixel_size = .018
+	_label.outline_size = 8
+	_label.outline_modulate = Color("15232c")
 	_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	_label.no_depth_test = false
+	_label.no_depth_test = true
 	add_child(_label)
 	NeutralDetails.dress_building(_model, radius / _model_scale.x, _asset)
 	for mesh in _model.find_children("*", "MeshInstance3D", true, false):
@@ -105,9 +107,14 @@ func leave(unit):
 	var movement = unit.get_node("Movement")
 	var radial = Vector3(cos(index * TAU / CAPACITY), 0, sin(index * TAU / CAPACITY))
 	var exit = global_position + radial * (radius + 1.4)
-	unit.global_position = NavigationServer3D.map_get_closest_point(
-		movement.get_navigation_map(), exit
+	# Navigation points sit above the feet, just as on ordinary unit spawns.
+	unit.global_position = (
+		NavigationServer3D.map_get_closest_point(movement.get_navigation_map(), exit)
+		- Vector3.UP * movement.path_height_offset
 	)
+	unit.reset_physics_interpolation()
+	movement.stop()
+	movement.set_velocity_forced(Vector3.ZERO)
 	movement.set_physics_process(true)
 	movement.avoidance_enabled = true
 	unit.get_node("Geometry").show()
@@ -131,7 +138,7 @@ func update_label():
 			tr("Infantry shelter · %d slots") % CAPACITY if habitable else tr("Neutral structure")
 		)
 	)
-	_label.modulate = player.color if player != null else Color("e1dccb")
+	_label.modulate = player.color.lightened(.65) if player != null else Color("e1dccb")
 	_label.visible = hp > 0
 
 
@@ -187,7 +194,7 @@ func restore(saved, entities):
 
 func firing_origin(target_point):
 	var direction = (target_point - global_position) * Vector3(1, 0, 1)
-	return global_position + direction.normalized() * radius * .66 + Vector3.UP * 2.0
+	return global_position + direction.normalized() * (radius + .15) + Vector3.UP * 2.0
 
 
 func _create_debris():

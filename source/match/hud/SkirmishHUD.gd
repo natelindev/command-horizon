@@ -68,7 +68,9 @@ func _ready():
 	var title = Label.new()
 	var players = get_tree().get_nodes_in_group("players")
 	title.text = (
-		"%s  vs  %s" % [Factions.NAMES[players[0].faction], Factions.NAMES[players[1].faction]]
+		tr("Free-for-all · %d commanders") % players.size()
+		if players.size() > 2
+		else "%s  vs  %s" % [Factions.NAMES[players[0].faction], Factions.NAMES[players[1].faction]]
 	)
 	title.add_theme_font_size_override("font_size", 15)
 	var header = BattleTheme.heading(content, title, 30)

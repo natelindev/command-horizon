@@ -20,6 +20,9 @@ TESTS = [
     "LuaSandboxRegression", "BehaviorRegression", "UnitAnimationRegression",
     "PersistentCaptureRegression",
     "CampaignInteriorRegression", "HeroCampaignRegression", "MapRosterRegression",
+    "WorkerDistributionRegression", "CargoReturnRegression", "ResourceFieldRegression",
+    "GarrisonCombatExitRegression", "PointOfInterestRegression",
+    "BattlefieldExpansionRegression", "BattlefieldOpeningRegression",
 ]
 
 

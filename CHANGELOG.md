@@ -2,6 +2,31 @@
 
 ## [main]
 
+## [0.13.0]
+
+### New features
+ - Thirteen new battlefields: five two-player maps and eight four-player maps, with balanced starting fields and capturable facilities
+ - Four-player free-for-all skirmishes against three independent AI commanders, including elimination, victory and save/load support
+ - Workers spread across nearby reachable resource deposits using travel time and existing assignments
+ - Visible carried materials and electronics on workers, with verified Return cargo handling
+
+### Changed
+ - Shared scenery geometry and reduced visibility, movement, animation and minimap overhead improve large-battle frame pacing
+ - Clearer shelter occupancy and refinery income, payout timing, suspension and depletion feedback
+ - Expanded map previews, faction setup, battle briefings and English/Chinese HUD text
+ - Desktop release packages now run regressions for worker distribution, cargo accounting, garrisons, facilities and the new battlefields
+
+### Fixed
+ - Infantry getting stuck after leaving shelters and explicit attacks unexpectedly evacuating garrisons
+ - Legacy spectator matches repeatedly accessing a skirmish-only match state
+ - Resource-field reassignment and cargo accounting coverage now supports automatic deposit selection
+
+### Verification and limits
+ - Targeted gameplay, navigation, save/load, cargo, combat, animation, map-opening and rendered HUD checks pass on macOS
+ - M1 Pro 200-unit combat frame time improves from 32.03 ms to 28.62–28.74 ms, with roughly 80% fewer frames over 33 ms; maximum-population combat remains below 60 FPS
+ - Extended four-player competitive balance and Windows/RTX 4090 gameplay performance require hardware playtests
+ - Existing campaign checkpoint/custom-Lua test limitations remain documented in docs/plans/battlefield-expansion-verification.md
+
 ## [0.12.0]
 
 ### Changed

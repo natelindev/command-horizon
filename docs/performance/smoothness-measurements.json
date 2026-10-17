@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-17",
+  "hardware": "Apple M1 Pro (Apple7)",
+  "engine": "Godot 4.6 stable official editor binary",
+  "renderer": "Metal Forward+",
+  "notes": "Full resolution, 30 Hz physics with interpolation, VSync disabled, no --fixed-fps; two final scale repeats. GPU timestamps unavailable (0).",
+  "before_scale": [
+    "SCALE BEGIN movement paused=false simulation_time=3.36666666666666",
+    "SCALE movement renderer=macOS mean_frame_ms=25.34 p95_frame_ms=34.3 p99_frame_ms=37.83 frames_over_33ms=33 samples=396 simulation_seconds=10.03 wall_seconds=10.03 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=22.17 mean_engine_physics_ms=14.64 physics_ticks=301 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false",
+    "RENDER movement gpu_ms=0.0 render_cpu_ms=3.95 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=396",
+    "SCALE BEGIN combat paused=false simulation_time=13.4",
+    "SCALE combat renderer=macOS mean_frame_ms=32.03 p95_frame_ms=36.62 p99_frame_ms=38.06 frames_over_33ms=105 samples=312 simulation_seconds=10.0 wall_seconds=9.99 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=24.2 mean_engine_physics_ms=16.53 physics_ticks=300 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false",
+    "RENDER combat gpu_ms=0.0 render_cpu_ms=4.3 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=312",
+    "SCALE lua_vm_count=0 behaviors=true moved=200/200 travelled=200/200 fired=107 peak_live_projectiles=37 resources=62 sampled_peak_tracers=37 sampled_peak_claims=0 viewport_pixels=(1920.0, 1080.0)",
+    "PASS: 200 mobile units + 80 structures; programs=false squads=false specialists=false lua=false visual=false"
+  ],
+  "after_scale_1": [
+    "SCALE BEGIN movement paused=false simulation_time=3.0",
+    "SCALE movement renderer=macOS mean_frame_ms=23.19 p95_frame_ms=32.01 p99_frame_ms=33.95 frames_over_33ms=8 samples=432 simulation_seconds=10.03 wall_seconds=10.02 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=21.57 mean_engine_physics_ms=13.13 physics_ticks=301 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false",
+    "RENDER movement gpu_ms=0.0 render_cpu_ms=3.76 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=432",
+    "SCALE BEGIN combat paused=false simulation_time=13.0333333333333",
+    "SCALE combat renderer=macOS mean_frame_ms=28.62 p95_frame_ms=33.56 p99_frame_ms=35.76 frames_over_33ms=22 samples=349 simulation_seconds=10.0 wall_seconds=9.99 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=22.6 mean_engine_physics_ms=15.16 physics_ticks=300 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false",
+    "RENDER combat gpu_ms=0.0 render_cpu_ms=4.18 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=349",
+    "SCALE lua_vm_count=0 behaviors=true moved=200/200 travelled=200/200 fired=105 peak_live_projectiles=36 resources=62 sampled_peak_tracers=36 sampled_peak_claims=0 viewport_pixels=(1920.0, 1080.0)",
+    "PASS: 200 mobile units + 80 structures; programs=false squads=false specialists=false lua=false visual=false"
+  ],
+  "after_scale_2": [
+    "SCALE BEGIN movement paused=false simulation_time=3.03333333333333",
+    "SCALE movement renderer=macOS mean_frame_ms=23.2 p95_frame_ms=31.82 p99_frame_ms=36.15 frames_over_33ms=10 samples=432 simulation_seconds=10.03 wall_seconds=10.02 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=21.1 mean_engine_physics_ms=13.53 physics_ticks=301 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false",
+    "RENDER movement gpu_ms=0.0 render_cpu_ms=3.74 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=432",
+    "SCALE BEGIN combat paused=false simulation_time=13.0666666666666",
+    "SCALE combat renderer=macOS mean_frame_ms=28.74 p95_frame_ms=33.74 p99_frame_ms=35.13 frames_over_33ms=23 samples=348 simulation_seconds=10.0 wall_seconds=10.0 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=22.57 mean_engine_physics_ms=14.9 physics_ticks=300 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false",
+    "RENDER combat gpu_ms=0.0 render_cpu_ms=4.14 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=348",
+    "SCALE lua_vm_count=0 behaviors=true moved=200/200 travelled=200/200 fired=100 peak_live_projectiles=32 resources=62 sampled_peak_tracers=32 sampled_peak_claims=0 viewport_pixels=(1920.0, 1080.0)",
+    "PASS: 200 mobile units + 80 structures; programs=false squads=false specialists=false lua=false visual=false"
+  ],
+  "before_battle": [
+    "GAMEPLAY base units=30 mean_ms=9.04 p95_ms=12.11 fps=110.6 simulation_seconds=2.16666666666666 wall_seconds=2.169478 viewport=(1600.0, 900.0) pixels=(2304.0, 1296.0) gpu_ms=0.0 render_cpu_ms=0.95 adapter=Apple M1 Pro (Apple7) rendered_frames=240 physics_ticks=65 paused=false",
+    "GAMEPLAY midfield-combat units=70 mean_ms=11.91 p95_ms=16.63 fps=84.0 simulation_seconds=2.86666666666666 wall_seconds=2.857656 viewport=(1600.0, 900.0) pixels=(2304.0, 1296.0) gpu_ms=0.0 render_cpu_ms=2.05 adapter=Apple M1 Pro (Apple7) rendered_frames=240 physics_ticks=86 paused=false"
+  ],
+  "after_battle": [
+    "GAMEPLAY base units=30 mean_ms=9.05 p95_ms=12.29 fps=110.5 simulation_seconds=2.16666666666666 wall_seconds=2.171711 viewport=(1600.0, 900.0) pixels=(2304.0, 1296.0) gpu_ms=0.0 render_cpu_ms=0.95 adapter=Apple M1 Pro (Apple7) rendered_frames=240 physics_ticks=65 paused=false",
+    "GAMEPLAY midfield-combat units=70 mean_ms=11.96 p95_ms=16.5 fps=83.6 simulation_seconds=2.86666666666666 wall_seconds=2.869243 viewport=(1600.0, 900.0) pixels=(2304.0, 1296.0) gpu_ms=0.0 render_cpu_ms=2.1 adapter=Apple M1 Pro (Apple7) rendered_frames=240 physics_ticks=86 paused=false"
+  ],
+  "before_draw_counters": [
+    "COUNTERS movement nodes=15040.0 draws=6099.0 objects=17680.0 primitives=1540629.0",
+    "COUNTERS combat nodes=15452.0 draws=8675.0 objects=24950.0 primitives=1946371.0"
+  ],
+  "shared_geometry_draw_counters": [
+    "COUNTERS movement nodes=15040.0 draws=5205.0 objects=17681.0 primitives=1541653.0",
+    "COUNTERS combat nodes=15465.0 draws=7770.0 objects=24963.0 primitives=1946497.0"
+  ]
+}

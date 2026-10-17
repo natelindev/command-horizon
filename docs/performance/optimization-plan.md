@@ -24,7 +24,39 @@ Reproduce render/physics cadence differences, inspect the Windows export configu
 
 Inspect all playable map spawn layouts, apply one shared starting-field distance rule, and verify geometry, reachability and save compatibility.
 
+## Stage 7 — Improve large-battle frame pacing
+
+Rebaseline the current rendered stress workload, profile the remaining hot paths,
+and remove redundant work without changing unit counts, combat rules, or visual
+quality. Repeat rendered measurements and focused gameplay regressions, recording
+frame-time tails as well as averages and any remaining hardware limits.
+
+## Stage 8 — Balance nearby worker assignments
+
+Spread harvesters across reachable deposits of the ordered resource type within
+the selected field. Account for existing reservations and travel cost, preserve
+cargo and queued orders, and verify four-worker assignments, depletion, pause,
+save restoration and real deliveries across factions.
+
 ## Agent progress
+
+- Stages 7–8 complete: repeated rendered stress measurements improve movement
+  from 25.34 to 23.19–23.20 ms and combat from 32.03 to 28.62–28.74 ms. Combat
+  frames over 33 ms fall from 33.7% to 6.3–6.6%; maximum-population performance
+  remains below 60 FPS on M1 Pro. See SMOOTHNESS.md and the accompanying raw rows.
+- Four-worker distribution, pause/save/load, unreachable deposits, cargo
+  accounting, navigation, combat and animation pass 14 targeted headless
+  regressions. Six rendered worker cases pass across all factions/resource types;
+  worker and shared-scenery captures reviewed. Formatting, lint and diff checks pass.
+- Log review also found and fixed an existing resource-site exception in legacy
+  spectator matches; ownership and facility regressions now pass without script errors.
+- Stage 7 started: preserving ongoing garrison/refinery/cargo edits; collecting a
+  fresh full-resolution, real-time 200-unit baseline before changes.
+- Fresh baseline: 25.34 ms movement / 32.03 ms combat at 1920×1080. Shared scenery
+  meshes remove about 900 initial draw calls; typed hot paths and tighter spatial
+  searches are under regression review.
+- Stage 8 added at the user's request. Existing harvest logic caps deposits at
+  two workers but fills the nearest node first and scans the full army repeatedly.
 
 - Initial repository inspection complete; existing scale benchmarks exercise 200 mobile units and 80 structures. Earlier verification concentrated on headless simulation, leaving rendered performance unverified.
 - Baseline rendering and CPU profiling complete; per-unit Lua snapshot preparation dominates the original stress workload.

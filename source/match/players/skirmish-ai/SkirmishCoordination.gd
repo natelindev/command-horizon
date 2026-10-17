@@ -172,7 +172,7 @@ static func _candidate(game, player, kind, groups, free, fields):
 			return {}
 		var soldiers = free.filter(_combatant)
 		if soldiers.size() >= 3:
-			return _group(kind, _enemy_start(game), soldiers.slice(0, 3), now)
+			return _group(kind, _enemy_start(game, player), soldiers.slice(0, 3), now)
 	elif kind == "guard":
 		var used = 0
 		for group in groups:
@@ -210,7 +210,7 @@ static func _candidate(game, player, kind, groups, free, fields):
 			return {}
 		var scouts = free.filter(func(unit): return unit.type == "Drone")
 		if not scouts.is_empty():
-			return _group(kind, _enemy_start(game), scouts.slice(0, 1), now)
+			return _group(kind, _enemy_start(game, player), scouts.slice(0, 1), now)
 	return {}
 
 
@@ -242,7 +242,7 @@ static func _apply(game, player, group, units, observed, threats):
 			group.point = player._offensive_goal(
 				group.members,
 				observed.filter(func(enemy): return enemy not in threats),
-				_enemy_start(game)
+				_enemy_start(game, player)
 			)
 			player._last_wave = game.simulation_time
 			player.attacks_launched += 1
@@ -349,8 +349,22 @@ static func _relays(game):
 	return game.map.relays if "relays" in game.map else []
 
 
-static func _enemy_start(game):
-	return game.map.find_child("SpawnPoints").get_child(0).position * Vector3(1, 0, 1)
+static func _enemy_start(game, player):
+	var starts = game.map.find_child("SpawnPoints")
+	var origin = starts.get_child(player.get_index()).position
+	var enemies = game.get_tree().get_nodes_in_group("players").filter(
+		func(other): return other != player and game._defeat_timers.get(other, 60.0) > 0
+	)
+	if enemies.is_empty():
+		return origin
+	enemies.sort_custom(
+		func(a, b):
+			return (
+				origin.distance_squared_to(starts.get_child(a.get_index()).position)
+				< origin.distance_squared_to(starts.get_child(b.get_index()).position)
+			)
+	)
+	return starts.get_child(enemies[0].get_index()).position * Vector3(1, 0, 1)
 
 
 static func _nearest(units, point):

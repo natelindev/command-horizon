@@ -62,8 +62,8 @@ func capture(game):
 	_game = game
 	if not game.get_tree().paused or not game.is_node_ready():
 		return _fail("Pause at a simulation boundary before capturing the match.")
-	if not game.settings.skirmish or game.settings.players.size() != 2 or game.finished:
-		return _fail("Only active two-player skirmishes and supported operations can be saved.")
+	if not game.settings.skirmish or game.settings.players.size() not in [2, 4] or game.finished:
+		return _fail("Only active skirmishes and supported operations can be saved.")
 	var maps = game.get_node("/root/Constants").Match.MAPS.keys()
 	for operation in Campaigns.OPERATIONS.values():
 		maps.append(operation.map)
@@ -76,7 +76,7 @@ func capture(game):
 	var players = game.get_node("Players").get_children().filter(func(p): return "faction" in p)
 	var units = game.get_tree().get_nodes_in_group("units").filter(_live)
 	var deposits = game.get_tree().get_nodes_in_group("resource_units").filter(_live)
-	if units.size() > 280 or deposits.size() > 512:
+	if units.size() > 140 * players.size() or deposits.size() > 512:
 		return _fail("Match exceeds the supported save population or resource limit.")
 	for index in range(players.size()):
 		_ids[players[index]] = "player-%d" % index

@@ -88,6 +88,8 @@ func refresh():
 				tr("Refinery · 2 M / 1 E every 10 s · stock %d M / %d E")
 				% [site.stock_a, site.stock_b]
 			)
+			if site.player != null:
+				detail += "\n" + site.income_status()
 		elif site.kind == "repair":
 			detail = tr("Repair shop · two ground machines within 5 m")
 		else:

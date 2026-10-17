@@ -35,6 +35,14 @@ func _cargo_fixture(faction):
 	carrier.position = hq.position + Vector3(-8, 0, 0)
 	carrier.resource_a = 3
 	carrier.resource_b = 1
+	_check(
+		(
+			carrier._cargo.visible
+			and carrier._cargo._materials.visible
+			and carrier._cargo._electronics.visible
+		),
+		faction + ": mixed cargo is not visible on the worker"
+	)
 	await _select_units([carrier])
 
 
@@ -239,6 +247,7 @@ func _cargo_archive_and_delivery(faction):
 	_check(
 		paused and carrier.resource_a == 3 and carrier.resource_b == 1, "Paused reload lost cargo"
 	)
+	_check(carrier._cargo.visible, "Paused reload lost the visible resource load")
 	var funds = Vector2i(owner.resource_a, owner.resource_b)
 	game.hud._toggle_pause()
 	for frame in 1800:
@@ -249,6 +258,7 @@ func _cargo_archive_and_delivery(faction):
 		Vector2i(owner.resource_a, owner.resource_b) == funds + Vector2i(3, 1),
 		"Actual HQ arrival failed exact cargo accounting"
 	)
+	_check(not carrier._cargo.visible, "Delivered resources remain visible on the worker")
 	_check(
 		(
 			is_instance_of(carrier.action, harvest_rules)
@@ -280,13 +290,38 @@ func _cargo_archive_and_delivery(faction):
 			)
 	)
 	var deposit = deposits[0]
-	var stock = deposit.resource_a
+	# Gather orders may choose a less crowded or shorter route within this field.
+	var field = deposits.filter(
+		func(candidate):
+			return candidate.position.distance_to(deposit.position) <= harvest_rules.FIELD_RADIUS
+	)
+	var stock = field.reduce(func(total, candidate): return total + candidate.resource_a, 0)
 	carrier.manual_orders.submit(commands.Orders.target_order("gather", deposit))
+	var carried_pile_seen = false
 	for frame in 3600:
 		await _frames(1)
+		if carrier.resource_a > 0:
+			carried_pile_seen = (
+				carried_pile_seen
+				or (
+					carrier._cargo.visible
+					and carrier._cargo._materials.visible
+					and not carrier._cargo._electronics.visible
+				)
+			)
 		if owner.resource_a > funds.x + 3:
 			break
+	_check(carried_pile_seen, "Mining did not show a material pile before delivery")
+	var remaining = field.reduce(
+		func(total, candidate):
+			return total + (candidate.resource_a if is_instance_valid(candidate) else 0),
+		0
+	)
 	_check(
-		owner.resource_a > funds.x + 3 and deposit.resource_a < stock,
+		owner.resource_a > funds.x + 3 and remaining < stock,
 		"Explicit reassignment did not deliver newly collected materials"
+	)
+	_check(
+		stock - remaining == owner.resource_a - (funds.x + 3) + carrier.resource_a,
+		"Field reassignment lost or duplicated materials"
 	)

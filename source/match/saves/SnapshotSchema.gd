@@ -99,7 +99,11 @@ func validate(data):
 		return _fail("Unsupported snapshot, map or settings version.")
 	if _version >= 6 and not _ambient(data.ambient, data.settings.map_path):
 		return false
-	if data.players.size() != 2 or data.units.size() > 280 or data.resources.size() > 512:
+	if (
+		data.players.size() != data.settings.players.size()
+		or data.units.size() > 140 * data.players.size()
+		or data.resources.size() > 512
+	):
 		return _fail("Save exceeds match population limits.")
 	if (
 		not _shape(data.camera, "position:vec rotation:vec size:num")
@@ -107,7 +111,7 @@ func validate(data):
 		or data.camera.size > 45
 	):
 		return _fail("Invalid saved camera.")
-	for index in range(2):
+	for index in data.players.size():
 		var side = data.players[index]
 		if not _shape(
 			side,
@@ -141,7 +145,7 @@ func validate(data):
 			"technology": side.technology.completed if _version >= 7 else [],
 			"coordination": side.coordination_unlocked
 		}
-		if index == 1:
+		if index > 0:
 			if not _shape(
 				side.ai,
 				(
@@ -293,10 +297,17 @@ func validate(data):
 
 
 func _army_groups(data):
-	var ai = data.players[1].ai
+	for index in range(1, data.players.size()):
+		if not _side_army_groups(data, index):
+			return false
+	return true
+
+
+func _side_army_groups(data, index):
+	var ai = data.players[index].ai
 	if not ai.has("groups"):
 		return true
-	var budget = Difficulty.of(data.settings.players[1].difficulty).task_groups
+	var budget = Difficulty.of(data.settings.players[index].difficulty).task_groups
 	if ai.cursor > 3 or ai.groups.size() > budget:
 		return _fail("Invalid AI coordination budget or cursor.")
 	var assigned = []
@@ -324,7 +335,7 @@ func _army_groups(data):
 			if not id is String or not entities.has(id) or id in assigned:
 				return _fail("Missing or duplicate AI task member.")
 			var unit = entities[id]
-			if not unit.has("player") or unit.player != "player-1":
+			if not unit.has("player") or unit.player != "player-%d" % index:
 				return _fail("AI task member belongs to another side.")
 			var roles = (
 				["Tank", "AdvancedTank", "CombatRobot", "Helicopter"] + Catalog.INFANTRY_ROLES
@@ -345,7 +356,7 @@ func _army_groups(data):
 			if not id is String or not entities.has(id) or id in workers:
 				return _fail("Missing or duplicate returning engineer.")
 			var unit = entities[id]
-			if unit.get("player") != "player-1" or unit.get("role") != "Worker":
+			if unit.get("player") != "player-%d" % index or unit.get("role") != "Worker":
 				return _fail("Invalid returning engineer owner or role.")
 			workers.append(id)
 	return guards <= 2 or _fail("AI guard roster exceeds two units.")
@@ -481,11 +492,13 @@ func _settings(settings):
 	if (
 		not settings.skirmish
 		or settings.visibility > 2
-		or settings.visible_player > 1
-		or settings.players.size() != 2
+		or settings.visible_player >= settings.players.size()
+		or settings.players.size() not in [2, 4]
 	):
 		return false
 	if settings.mission_id in Campaigns.OPERATIONS:
+		if settings.players.size() != 2:
+			return false
 		var operation = Campaigns.OPERATIONS[settings.mission_id]
 		if settings.map_path != operation.map:
 			return false
@@ -495,8 +508,10 @@ func _settings(settings):
 	else:
 		return false
 	var spawn_count = 2 if settings.mission_id != "" else Rules.MAPS[settings.map_path].players
+	if settings.players.size() > spawn_count:
+		return false
 	var spawn_index = 0
-	for index in range(2):
+	for index in settings.players.size():
 		var side = settings.players[index]
 		if not _shape(
 			side, "color:color controller:int spawn_index_offset:int faction:text difficulty:int"
@@ -504,7 +519,7 @@ func _settings(settings):
 			return false
 		spawn_index += side.spawn_index_offset + (1 if index > 0 else 0)
 		if (
-			side.controller != index + 1
+			side.controller != (1 if index == 0 else 2)
 			or side.faction not in (Factions.IDS if _version >= 8 else ["bastion", "helix"])
 			or side.difficulty < Difficulty.EASY
 			or side.difficulty > Difficulty.HARD
@@ -1234,8 +1249,8 @@ func _site_records(records, map_path):
 			return false
 		if (
 			site.id != "poi-%d" % index
-			or site.owner not in ["", "player-0", "player-1"]
-			or site.candidate not in ["", "player-0", "player-1"]
+			or site.owner != "" and not sides.has(site.owner)
+			or site.candidate != "" and not sides.has(site.candidate)
 		):
 			return _fail("Invalid facility identity or ownership.")
 		if (

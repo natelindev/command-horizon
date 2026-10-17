@@ -109,25 +109,48 @@ func _create_hud():
 
 
 func _check_outcome(delta):
-	var losers = []
+	var survivors = []
 	for player in _defeat_timers:
+		# Zero is a persistent eliminated state, including after save restoration.
+		if _defeat_timers[player] <= 0:
+			continue
 		var units = player.get_children().filter(
 			func(unit): return "type" in unit and not unit.is_queued_for_deletion()
 		)
 		if player.has_completed_structure("CommandCenter"):
 			_defeat_timers[player] = 60.0
 		else:
-			_defeat_timers[player] -= delta
+			_defeat_timers[player] = maxf(0, _defeat_timers[player] - delta)
 		if units.is_empty() or _defeat_timers[player] <= 0:
-			losers.append(player)
-	if not losers.is_empty():
+			_eliminate(player, units)
+		else:
+			survivors.append(player)
+	var human = _get_human_player()
+	if survivors.size() <= 1 or human not in survivors:
 		finished = true
-		result = (
-			"Draw"
-			if losers.size() > 1
-			else ("Defeat" if _get_human_player() in losers else "Victory")
-		)
+		result = "Draw" if survivors.is_empty() else ("Victory" if human in survivors else "Defeat")
 		hud.show_result(result)
+
+
+func _eliminate(player, units):
+	_defeat_timers[player] = 0.0
+	player.set_process(false)
+	player.set_physics_process(false)
+	# A defeated commander's remaining army surrenders; it cannot keep fighting
+	# or rebuild while the other free-for-all participants continue.
+	for unit in units:
+		unit.queue_free()
+	if "_army_groups" in player:
+		player._army_groups.clear()
+	for site in load("res://source/match/world/PointOfInterestCatalog.gd").sites(self):
+		if site.captured_by == player:
+			site.captured_by = null
+			site._ownership_changed(null)
+			site._update_presentation()
+		if site.candidate == player:
+			site.candidate = null
+			site.progress = 0.0
+	battlefield.invalidate()
 
 
 func result_summary():
@@ -149,7 +172,11 @@ func objective_text():
 	players.push_front(human)
 	var recovery = []
 	for player in players:
-		if not _defeat_timers.has(player) or player.has_completed_structure("CommandCenter"):
+		if (
+			not _defeat_timers.has(player)
+			or _defeat_timers[player] <= 0
+			or player.has_completed_structure("CommandCenter")
+		):
 			continue
 		var seconds = maxi(0, ceili(_defeat_timers[player]))
 		recovery.append(
@@ -163,6 +190,16 @@ func objective_text():
 		return "\n".join(recovery)
 
 	var text = "Destroy the enemy HQ. Prevent a rebuild for 60 seconds."
+	if settings.players.size() > 2:
+		text = (
+			tr("Eliminate every rival HQ. Prevent rebuilding for 60 seconds. Rivals left: %d.")
+			% (
+				_defeat_timers
+				. keys()
+				. filter(func(side): return side != human and _defeat_timers[side] > 0)
+				. size()
+			)
+		)
 	if "relays" in map:
 		var owned = (
 			map.relays.filter(func(relay): return relay.captured_by == _get_human_player()).size()

@@ -19,6 +19,10 @@ func _run():
 		await _skirmish(combo[0], "res://source/match/maps/%s.tscn" % combo[1])
 		game.hud._toggle_pause()
 		_check_kit()
+		var refinery = game.map.points_of_interest.filter(func(site): return site.kind == "refinery")[0]
+		refinery.captured_by = game._get_human_player()
+		refinery._update_presentation()
+		game.find_child("ResourcesBar")._refresh()
 		for scale_value in [1.5, 1.0]:
 			options.restore(
 				{
@@ -127,7 +131,8 @@ func _check_console(selected):
 	_check(bay.position.y >= HudLayout.DECK_TOP_LIMIT, label + ": deck rises over the top plates")
 	var caption = game.subtitles._card.get_global_rect()
 	_check(caption.position.x >= minimap.end.x, label + ": caption overlaps the minimap")
-	_check(caption.end.x <= bay.position.x, label + ": caption overlaps the deck")
+	_check(not caption.intersects(bay), label + ": caption overlaps the deck")
+	_check(caption.end.x <= viewport.x, label + ": caption extends beyond the viewport")
 	_check(caption.size.x >= 240, label + ": caption gap is too narrow " + str(caption.size))
 	var rail = game.find_child("BottomRail", true, false).get_global_rect()
 	_check(
@@ -135,7 +140,7 @@ func _check_console(selected):
 		label + ": caption does not sit on the bottom rail"
 	)
 	for panel in [game.hud.get_child(0), game.hud.battle_plan]:
-		if panel.is_visible_in_tree():
+		if is_instance_valid(panel) and panel.is_visible_in_tree():
 			var rect = panel.get_global_rect()
 			_check(rect.position.x == 0, label + ": %s is not docked left" % panel.name)
 			_check(

@@ -4,6 +4,7 @@ enum State { NULL, MOVING_TO_RESOURCE, COLLECTING, MOVING_TO_CC, WAITING }
 enum Wait { NONE, SLOT, DEPLETED, HQ, DELIVERED }
 const FIELD_RADIUS = 10.0
 const WORK_SLOTS = 2
+const ASSIGNMENTS = &"harvest_assignments"
 const CommandCenter = preload("res://source/match/units/CommandCenter.gd")
 const CollectingResourcesWhileInRange = preload(
 	"res://source/match/units/actions/CollectingResourcesWhileInRange.gd"
@@ -46,6 +47,7 @@ func _init(unit):
 
 
 func _ready():
+	add_to_group(ASSIGNMENTS)
 	if restoring:
 		return
 	if _kind != 0:
@@ -110,6 +112,7 @@ func holds_harvest_slot(deposit):
 	return (
 		not is_queued_for_deletion()
 		and is_inside_tree()
+		and not _unit.is_queued_for_deletion()
 		and _resource_unit == deposit
 		and _state in [State.MOVING_TO_RESOURCE, State.COLLECTING]
 	)
@@ -120,14 +123,7 @@ func can_work(deposit):
 		return false
 	# Scene order also reconciles overbooked legacy saves without granting extra work.
 	var index = 0
-	for worker in get_tree().get_nodes_in_group("units"):
-		var action = worker.action
-		if (
-			worker.is_queued_for_deletion()
-			or action == null
-			or not action.has_method("holds_harvest_slot")
-		):
-			continue
+	for action in get_tree().get_nodes_in_group(ASSIGNMENTS):
 		if action.holds_harvest_slot(deposit):
 			if action == self:
 				return index < WORK_SLOTS
@@ -135,15 +131,15 @@ func can_work(deposit):
 	return false
 
 
-func _slot_available(deposit):
-	var count = 0
-	for worker in get_tree().get_nodes_in_group("units"):
-		var action = worker.action
-		if worker.is_queued_for_deletion() or action == null or action == self:
+func _slot_counts():
+	var counts = {}
+	for action in get_tree().get_nodes_in_group(ASSIGNMENTS):
+		if action == self:
 			continue
-		if action.has_method("holds_harvest_slot") and action.holds_harvest_slot(deposit):
-			count += 1
-	return count < WORK_SLOTS
+		var deposit = action.get_resource_unit()
+		if is_instance_valid(deposit) and action.holds_harvest_slot(deposit):
+			counts[deposit] = counts.get(deposit, 0) + 1
+	return counts
 
 
 func _field_deposits():
@@ -174,20 +170,39 @@ func _start_resource_leg():
 		else:
 			_wait(Wait.DEPLETED)
 		return
-	deposits.sort_custom(
-		func(a, b):
-			return (
-				_unit.global_position_yless.distance_squared_to(a.global_position_yless)
-				< _unit.global_position_yless.distance_squared_to(b.global_position_yless)
-			)
+	var counts = _slot_counts()
+	var best = null
+	var best_cost = INF
+	var collecting_time = (
+		Constants.Match.Resources.A.COLLECTING_TIME_S
+		if _kind == 1
+		else Constants.Match.Resources.B.COLLECTING_TIME_S
 	)
+	# A second worker competes for the approach/exit lane. Prefer an unused nearby
+	# pile when its extra travel costs less than one loading cycle.
+	var congestion_cost: float = collecting_time * _unit.resources_max
 	for deposit in deposits:
-		if _slot_available(deposit):
-			_set_resource_unit(deposit)
-			_state = State.MOVING_TO_RESOURCE
-			_waiting_reason = Wait.NONE
-			_child(MovingToUnit.new(deposit))
-			return
+		var occupied: int = counts.get(deposit, 0)
+		if occupied >= WORK_SLOTS:
+			continue
+		var contact = (
+			_unit.radius
+			+ deposit.radius
+			+ Utils.Match.Unit.Movement.adherence_margin(_unit, deposit)
+		)
+		var route: float = Utils.Match.Unit.Movement.path_distance_to(
+			_unit, deposit.global_position_yless, contact
+		)
+		var cost: float = route / maxf(.01, _unit.movement_speed) + occupied * congestion_cost
+		if cost < best_cost:
+			best_cost = cost
+			best = deposit
+	if best != null:
+		_set_resource_unit(best)
+		_state = State.MOVING_TO_RESOURCE
+		_waiting_reason = Wait.NONE
+		_child(MovingToUnit.new(best))
+		return
 	_wait(Wait.SLOT)
 
 

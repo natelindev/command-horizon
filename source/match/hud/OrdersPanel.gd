@@ -59,6 +59,9 @@ func refresh():
 		_status.text = ""
 	if units.all(func(unit): return unit.has_meta("garrison_host")):
 		_status.text = tr("Garrisoned · Move to leave")
+		var host = units[0].get_meta("garrison_host")
+		if units.all(func(unit): return unit.get_meta("garrison_host") == host):
+			_status.text = tr("Garrison %d / %d") % [host.occupants.size(), host.CAPACITY]
 	_status.visible = not _status.text.is_empty()
 	_status.tooltip_text = (
 		"Solid route: active order. Dashed route: waiting orders. "

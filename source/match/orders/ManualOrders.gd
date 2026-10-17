@@ -33,6 +33,24 @@ func submit(order, append = false, audible = true):
 	var programmed = unit.program != null and unit.program.mode != "Manual"
 	if unit.program != null:
 		unit.program.manual_override()
+	# A direct shot uses the shelter's firing ports. Movement and Leave building
+	# still replace the garrison action and evacuate normally.
+	if not append and order.kind == "attack" and unit.has_meta("garrison_host"):
+		var target = order.target.get_ref()
+		if not is_instance_valid(unit.action) or not unit.action.has_method("attack_from_building"):
+			return false
+		if not unit.action.attack_from_building(target):
+			status = "Target outside building firing range or line of fire."
+			return false
+		cancel()
+		_active = unit.action
+		current = target_order("garrison", unit.get_meta("garrison_host"))
+		_engaged = true
+		set_physics_process(true)
+		status = "Garrisoned · attacking target"
+		if audible:
+			MatchSignals.unit_order_issued.emit(unit, order.kind)
+		return true
 	if not append or programmed:
 		cancel()
 		unit.action = null

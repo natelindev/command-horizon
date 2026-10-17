@@ -77,7 +77,12 @@ const LEGACY_COUNTS = {
 
 
 static func definitions(map_path):
-	return SITES.get(map_path.get_file().get_basename(), [])
+	var battlefield = preload("res://source/match/maps/BattlefieldCatalog.gd").profile(map_path)
+	return (
+		battlefield.sites
+		if not battlefield.is_empty()
+		else SITES.get(map_path.get_file().get_basename(), [])
+	)
 
 
 static func accepts_population(map_path, count):

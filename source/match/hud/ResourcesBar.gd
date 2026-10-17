@@ -26,6 +26,7 @@ var _power_icon: TextureRect
 var _elapsed = 0.0
 var _assignment_buttons = {}
 var _counters = {}
+var _income_labels = {}
 
 
 func _ready():
@@ -119,12 +120,24 @@ func _stat(row, title, texture, tint, description):
 	var column = HBoxContainer.new()
 	column.add_theme_constant_override("separation", 6)
 	group.add_child(column)
+	var values = VBoxContainer.new()
+	values.alignment = BoxContainer.ALIGNMENT_CENTER
+	values.add_theme_constant_override("separation", 0)
+	column.add_child(values)
 	var amount = Label.new()
 	amount.theme_type_variation = "HudNumeral"
 	amount.custom_minimum_size.x = 40
 	amount.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	amount.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	column.add_child(amount)
+	values.add_child(amount)
+	if title in ["Materials", "Electronics"]:
+		var income = Label.new()
+		income.name = "RefineryIncome"
+		income.add_theme_font_size_override("font_size", 11)
+		income.add_theme_color_override("font_color", tint)
+		income.hide()
+		values.add_child(income)
+		_income_labels[1 if title == "Materials" else 2] = income
 	return amount
 
 
@@ -147,7 +160,7 @@ func _add_assignments(amount, kind):
 	button.add_theme_stylebox_override("disabled", BattleTheme.surface(Color.TRANSPARENT, 4, 2))
 	button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	button.pressed.connect(_select_assignments.bind(kind))
-	amount.get_parent().add_child(button)
+	amount.get_parent().get_parent().add_child(button)
 	_assignment_buttons[kind] = button
 
 
@@ -202,6 +215,26 @@ func _process(delta):
 		_refresh()
 
 
+func _refresh_refinery_income():
+	var payment = Vector2i.ZERO
+	var owned = 0
+	var active = 0
+	for site in get_tree().get_nodes_in_group("points_of_interest"):
+		if site.kind != "refinery" or site.player != player:
+			continue
+		owned += 1
+		if site.operational() and site.income_payment() != Vector2i.ZERO:
+			active += 1
+			payment += site.income_payment()
+	for kind in _income_labels:
+		var label = _income_labels[kind]
+		var amount = payment.x if kind == 1 else payment.y
+		label.visible = owned > 0
+		label.text = tr("+%d / 10s") % amount
+		label.tooltip_text = tr("Refinery income · %d / %d active") % [active, owned]
+		label.accessibility_name = label.tooltip_text + ": " + label.text
+
+
 func _count(label: Label, value: int):
 	# Readouts roll to new totals and glint on income, like a mechanical counter.
 	var previous = _counters.get(label, null)
@@ -231,7 +264,7 @@ func _refresh():
 	var mission = player.find_parent("Match")
 	if mission != null and mission.settings.mission_id == "supply_line":
 		var row = _power_icon.get_parent().get_parent()
-		var population_group = _population.get_parent().get_parent()
+		var population_group = _population.get_parent().get_parent().get_parent()
 		for item in row.get_children():
 			item.visible = item == population_group
 		_population.text = str(player.population())
@@ -241,6 +274,7 @@ func _refresh():
 	_count(_materials, player.resource_a)
 	_count(_electronics, player.resource_b)
 	_refresh_assignments()
+	_refresh_refinery_income()
 	_population.text = "%d / 100" % player.population()
 	var power = player.power_totals()
 	var spare = power.x - power.y

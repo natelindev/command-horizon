@@ -87,6 +87,18 @@ func _exercise_sites():
 	_check(
 		refinery.stock_a == 598 and refinery.stock_b == 299, "Refinery did not consume its stock"
 	)
+	var resources = _game.find_child("ResourcesBar")
+	resources._refresh()
+	_check(
+		(
+			resources._income_labels[1].visible
+			and resources._income_labels[1].text == "+2 / 10s"
+			and resources._income_labels[2].visible
+			and resources._income_labels[2].text == "+1 / 10s"
+		),
+		"Refinery trickle missing from resource readouts"
+	)
+	_check("next in 10s" in refinery._label.text, "Refinery payout countdown is missing")
 	soldier.position += Vector3(20, 0, 0)
 	_game.battlefield.invalidate()
 	funds = Vector2i(_human.resource_a, _human.resource_b)
@@ -108,6 +120,11 @@ func _exercise_sites():
 	_check(
 		refinery.contested and Vector2i(_human.resource_a, _human.resource_b) == funds,
 		"Contested refinery kept paying"
+	)
+	resources._refresh()
+	_check(
+		resources._income_labels[1].text == "+0 / 10s" and "Income paused" in refinery._label.text,
+		"Contested refinery still advertises active income"
 	)
 	rival.position += Vector3(20, 0, 0)
 	_claim(camp, soldier, _human)
