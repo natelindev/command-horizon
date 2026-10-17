@@ -11,6 +11,10 @@ hold their search origin while planning, then resume ordinary navigation and
 collision handling. Positions/radii are sampled once per search frame. Candidate
 route selection, contact margins, occupied-face rejection, cancellation and
 fallback behavior are preserved. A path is checked again before committing it.
+If a save captures the temporary search stop, the restored action resumes its
+saved goal once navigation is synchronized. The packaged worker-distribution
+suite caught this edge case; all four workers now mine and deliver after restore
+for both resources and all three factions.
 
 An unprofiled rendered comparison on Ryzen 7 5800X3D / RTX 4090 used the same
 30-blocker HQ approach and worker in both versions. The worker reached the HQ in

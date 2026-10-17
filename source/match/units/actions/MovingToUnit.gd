@@ -25,6 +25,11 @@ func _process(delta):
 	if Utils.Match.Unit.Movement.units_adhere(_unit, _target_unit):
 		queue_free()
 		return
+	# A save made during a sliced search contains the temporarily stopped
+	# movement, but not the coroutine. Resume its saved goal once navigation is
+	# ready; crowd displacement must not leave that restored action idle forever.
+	if not _searching and _movement_trait._synchronized and not _movement_trait._has_destination:
+		_movement_trait.move(_target_position)
 	var obstacle = _target_unit.get_node_or_null("MovementObstacle")
 	if (
 		_unit.movement_domain != Constants.Match.Navigation.Domain.TERRAIN

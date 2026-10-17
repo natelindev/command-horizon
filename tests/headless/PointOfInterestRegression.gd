@@ -92,13 +92,19 @@ func _exercise_sites():
 	_check(
 		(
 			resources._income_labels[1].visible
-			and resources._income_labels[1].text == "+2 / 10s"
+			and resources._income_labels[1].text == resources.tr("+%d / 10s") % 2
 			and resources._income_labels[2].visible
-			and resources._income_labels[2].text == "+1 / 10s"
+			and resources._income_labels[2].text == resources.tr("+%d / 10s") % 1
 		),
 		"Refinery trickle missing from resource readouts"
 	)
-	_check("next in 10s" in refinery._label.text, "Refinery payout countdown is missing")
+	_check(
+		(
+			(refinery.tr("+%d M / +%d E every 10 s · next in %ds") % [2, 1, 10])
+			in refinery._label.text
+		),
+		"Refinery payout countdown is missing"
+	)
 	soldier.position += Vector3(20, 0, 0)
 	_game.battlefield.invalidate()
 	funds = Vector2i(_human.resource_a, _human.resource_b)
@@ -123,7 +129,10 @@ func _exercise_sites():
 	)
 	resources._refresh()
 	_check(
-		resources._income_labels[1].text == "+0 / 10s" and "Income paused" in refinery._label.text,
+		(
+			resources._income_labels[1].text == resources.tr("+%d / 10s") % 0
+			and refinery.tr("Income paused") in refinery._label.text
+		),
 		"Contested refinery still advertises active income"
 	)
 	rival.position += Vector3(20, 0, 0)

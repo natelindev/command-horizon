@@ -2,6 +2,7 @@ extends "res://tests/headless/ResourceFieldRegression.gd"
 
 
 func _run():
+	seed(12345)
 	factions = load("res://source/match/FactionCatalog.gd")
 	constants = root.get_node("Constants")
 	harvest = load("res://source/match/units/actions/CollectingResourcesSequentially.gd")

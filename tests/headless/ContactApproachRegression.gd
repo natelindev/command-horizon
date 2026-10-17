@@ -1,6 +1,6 @@
 extends "res://tests/headless/SaveRestoreEdges.gd"
 
-const CONTACT_ARCHIVE = "res://docs/playtests/2026-10-04/ai-coordination-stall.json"
+const CONTACT_ARCHIVE = "res://tests/fixtures/contact-approach.json"
 var contact_deadline = 0
 var detour_frames = 150
 
