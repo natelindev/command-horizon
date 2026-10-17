@@ -1,0 +1,186 @@
+{
+  "version": "0.12.0",
+  "release_commit": "ff9c391b7b79120a66dffc4263c749ae5dc0add7",
+  "release_url": "https://github.com/natelindev/copperfin/releases/tag/v0.12.0",
+  "published_at": "2026-10-17T04:15:51Z",
+  "workflow_url": "https://github.com/natelindev/copperfin/actions/runs/39001519585",
+  "workflow_conclusion": "success",
+  "platforms": [
+    {
+      "platform": "linux",
+      "conclusion": "success",
+      "packaged_checks": [
+        "LuaSandboxRegression",
+        "BehaviorRegression",
+        "UnitAnimationRegression",
+        "PersistentCaptureRegression",
+        "CampaignInteriorRegression",
+        "HeroCampaignRegression",
+        "MapRosterRegression"
+      ],
+      "summaries": [
+        "PASS: Lua engine bridge, isolation, immutable input, budgets, result guards, clean Resume",
+        "Unit behaviors: 0 failures",
+        "Unit animation regression: 0 failures",
+        "Persistent neutral ownership: 0 failures",
+        "Campaign interiors: 0 failures",
+        "Hero campaigns: 0 failures",
+        "Map roster and legacy preference migration: 0 failures"
+      ]
+    },
+    {
+      "platform": "macos",
+      "conclusion": "success",
+      "packaged_checks": [
+        "LuaSandboxRegression",
+        "BehaviorRegression",
+        "UnitAnimationRegression",
+        "PersistentCaptureRegression",
+        "CampaignInteriorRegression",
+        "HeroCampaignRegression",
+        "MapRosterRegression"
+      ],
+      "summaries": [
+        "PASS: Lua engine bridge, isolation, immutable input, budgets, result guards, clean Resume",
+        "Unit behaviors: 0 failures",
+        "Unit animation regression: 0 failures",
+        "Persistent neutral ownership: 0 failures",
+        "Campaign interiors: 0 failures",
+        "Hero campaigns: 0 failures",
+        "Map roster and legacy preference migration: 0 failures"
+      ]
+    },
+    {
+      "platform": "windows",
+      "conclusion": "success",
+      "packaged_checks": [
+        "LuaSandboxRegression",
+        "BehaviorRegression",
+        "UnitAnimationRegression",
+        "PersistentCaptureRegression",
+        "CampaignInteriorRegression",
+        "HeroCampaignRegression",
+        "MapRosterRegression"
+      ],
+      "summaries": [
+        "PASS: Lua engine bridge, isolation, immutable input, budgets, result guards, clean Resume",
+        "Unit behaviors: 0 failures",
+        "Unit animation regression: 0 failures",
+        "Persistent neutral ownership: 0 failures",
+        "Campaign interiors: 0 failures",
+        "Hero campaigns: 0 failures",
+        "Map roster and legacy preference migration: 0 failures"
+      ]
+    }
+  ],
+  "local_macos_export_checks": [
+    {
+      "name": "import",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 3.72,
+      "summary": []
+    },
+    {
+      "name": "export",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 16.16,
+      "summary": []
+    },
+    {
+      "name": "packaged-start",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 2.79,
+      "summary": []
+    },
+    {
+      "name": "LuaSandboxRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 0.77,
+      "summary": [
+        "PASS: Lua engine bridge, isolation, immutable input, budgets, result guards, clean Resume"
+      ]
+    },
+    {
+      "name": "BehaviorRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 9.32,
+      "summary": [
+        "Unit behaviors: 0 failures"
+      ]
+    },
+    {
+      "name": "UnitAnimationRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 4.84,
+      "summary": [
+        "Unit animation regression: 0 failures"
+      ]
+    },
+    {
+      "name": "PersistentCaptureRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 18.67,
+      "summary": [
+        "Persistent neutral ownership: 0 failures"
+      ]
+    },
+    {
+      "name": "CampaignInteriorRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 19.68,
+      "summary": [
+        "Campaign interiors: 0 failures"
+      ]
+    },
+    {
+      "name": "HeroCampaignRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 34.72,
+      "summary": [
+        "Hero campaigns: 0 failures"
+      ]
+    },
+    {
+      "name": "MapRosterRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 2.1,
+      "summary": [
+        "Map roster and legacy preference migration: 0 failures"
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "name": "Open_RTS_Linux.tar.gz",
+      "size": 106271330,
+      "sha256": "e78fc4cac715321bdab5c4000b1d37363af7aaa6ace4b938195d1531056a1b8b",
+      "archive_integrity": "passed"
+    },
+    {
+      "name": "Open_RTS_macOS.zip",
+      "size": 141476293,
+      "sha256": "ee0d7a29835dc018b8401658f6038c23e985c39f4629c0d9f85ea9592a43a871",
+      "archive_integrity": "passed"
+    },
+    {
+      "name": "Open_RTS_Windows.zip",
+      "size": 114746450,
+      "sha256": "c03a2433bf1bdcacdc5f597d578e61bd0403296e928bf3dc5ea2ac634a5df357",
+      "archive_integrity": "passed"
+    }
+  ],
+  "limits": [
+    "Native CI packaged checks passed; RTX 4090 gameplay performance and subjective Windows animation still require a hardware playtest.",
+    "Archived environment fixture limits remain documented in POLISH_VERIFICATION.md."
+  ]
+}
