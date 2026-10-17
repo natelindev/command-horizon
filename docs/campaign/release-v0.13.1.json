@@ -1,0 +1,283 @@
+{
+  "version": "0.13.1",
+  "release_commit": "1008c68214c605442d2f9ce4d984d6587706b527",
+  "release_url": "https://github.com/natelindev/copperfin/releases/tag/v0.13.1",
+  "published_at": "2026-10-17T05:41:17Z",
+  "workflow_url": "https://github.com/natelindev/copperfin/actions/runs/39006377541",
+  "workflow_conclusion": "success",
+  "platforms": [
+    {
+      "platform": "macos",
+      "conclusion": "success",
+      "job_url": "https://github.com/natelindev/copperfin/actions/runs/39006377541/job/117319598444",
+      "packaged_checks": [
+        "LuaSandboxRegression",
+        "BehaviorRegression",
+        "UnitAnimationRegression",
+        "PersistentCaptureRegression",
+        "CampaignInteriorRegression",
+        "HeroCampaignRegression",
+        "MapRosterRegression",
+        "WorkerDistributionRegression",
+        "CargoReturnRegression",
+        "ResourceFieldRegression",
+        "GarrisonCombatExitRegression",
+        "PointOfInterestRegression",
+        "BattlefieldExpansionRegression",
+        "BattlefieldOpeningRegression",
+        "SaveNavigationTimingRegression"
+      ],
+      "summaries": [
+        "PASS: Lua engine bridge, isolation, immutable input, budgets, result guards, clean Resume",
+        "Unit behaviors: 0 failures",
+        "Unit animation regression: 0 failures",
+        "Persistent neutral ownership: 0 failures",
+        "Campaign interiors: 0 failures",
+        "Hero campaigns: 0 failures",
+        "Map roster and legacy preference migration: 0 failures",
+        "Worker distribution: 0 failures",
+        "Cargo return: 0 failures",
+        "Resource fields: 0 failures",
+        "Garrison ExpandedDesertFrontier.tscn / ServiceOffice: 0 failures",
+        "Garrison ExpandedDesertFrontier.tscn / ServiceOffice: 0 failures",
+        "Garrison IndustrialCrossroads.tscn / SawtoothWorkshop: 0 failures",
+        "Garrison IndustrialCrossroads.tscn / CoolingHall: 0 failures",
+        "Garrison IndustrialCrossroads.tscn / ServiceOffice: 0 failures",
+        "Garrison IndustrialCrossroads.tscn / DamagedWarehouse: 0 failures",
+        "Garrison IndustrialCrossroads.tscn / SawtoothWorkshop: 0 failures",
+        "Garrison IndustrialCrossroads.tscn / ServiceOffice: 0 failures",
+        "Garrison CoastalFoundry.tscn / SawtoothWorkshop: 0 failures",
+        "Garrison CoastalFoundry.tscn / CoolingHall: 0 failures",
+        "Garrison combat and exits: 0 failures",
+        "SITES faction=bastion cumulative_failures=0",
+        "SITES faction=helix cumulative_failures=0",
+        "SITES faction=frontier cumulative_failures=0",
+        "Capturable facilities: 0 failures",
+        "Battlefield expansion: 0 failures",
+        "Battlefield opening economy and production: 0 failures",
+        "Save navigation timing: 0 failures"
+      ]
+    },
+    {
+      "platform": "windows",
+      "conclusion": "success",
+      "job_url": "https://github.com/natelindev/copperfin/actions/runs/39006377541/job/117319598606",
+      "packaged_checks": [
+        "LuaSandboxRegression",
+        "BehaviorRegression",
+        "UnitAnimationRegression",
+        "PersistentCaptureRegression",
+        "CampaignInteriorRegression",
+        "HeroCampaignRegression",
+        "MapRosterRegression",
+        "WorkerDistributionRegression",
+        "CargoReturnRegression",
+        "ResourceFieldRegression",
+        "GarrisonCombatExitRegression",
+        "PointOfInterestRegression",
+        "BattlefieldExpansionRegression",
+        "BattlefieldOpeningRegression",
+        "SaveNavigationTimingRegression"
+      ],
+      "summaries": [
+        "PASS: Lua engine bridge, isolation, immutable input, budgets, result guards, clean Resume",
+        "Unit behaviors: 0 failures",
+        "Unit animation regression: 0 failures",
+        "Persistent neutral ownership: 0 failures",
+        "Campaign interiors: 0 failures",
+        "Hero campaigns: 0 failures",
+        "Map roster and legacy preference migration: 0 failures",
+        "Worker distribution: 0 failures",
+        "Cargo return: 0 failures",
+        "Resource fields: 0 failures",
+        "Garrison ExpandedDesertFrontier.tscn / ServiceOffice: 0 failures",
+        "Garrison ExpandedDesertFrontier.tscn / ServiceOffice: 0 failures",
+        "Garrison IndustrialCrossroads.tscn / SawtoothWorkshop: 0 failures",
+        "Garrison IndustrialCrossroads.tscn / CoolingHall: 0 failures",
+        "Garrison IndustrialCrossroads.tscn / ServiceOffice: 0 failures",
+        "Garrison IndustrialCrossroads.tscn / DamagedWarehouse: 0 failures",
+        "Garrison IndustrialCrossroads.tscn / SawtoothWorkshop: 0 failures",
+        "Garrison IndustrialCrossroads.tscn / ServiceOffice: 0 failures",
+        "Garrison CoastalFoundry.tscn / SawtoothWorkshop: 0 failures",
+        "Garrison CoastalFoundry.tscn / CoolingHall: 0 failures",
+        "Garrison combat and exits: 0 failures",
+        "SITES faction=bastion cumulative_failures=0",
+        "SITES faction=helix cumulative_failures=0",
+        "SITES faction=frontier cumulative_failures=0",
+        "Capturable facilities: 0 failures",
+        "Battlefield expansion: 0 failures",
+        "Battlefield opening economy and production: 0 failures",
+        "Save navigation timing: 0 failures"
+      ]
+    },
+    {
+      "platform": "linux",
+      "conclusion": "success",
+      "job_url": "https://github.com/natelindev/copperfin/actions/runs/39006377541/job/117319598691",
+      "packaged_checks": [
+        "LuaSandboxRegression",
+        "BehaviorRegression",
+        "UnitAnimationRegression",
+        "PersistentCaptureRegression",
+        "CampaignInteriorRegression",
+        "HeroCampaignRegression",
+        "MapRosterRegression",
+        "WorkerDistributionRegression",
+        "CargoReturnRegression",
+        "ResourceFieldRegression",
+        "GarrisonCombatExitRegression",
+        "PointOfInterestRegression",
+        "BattlefieldExpansionRegression",
+        "BattlefieldOpeningRegression",
+        "SaveNavigationTimingRegression"
+      ],
+      "summaries": [
+        "PASS: Lua engine bridge, isolation, immutable input, budgets, result guards, clean Resume",
+        "Unit behaviors: 0 failures",
+        "Unit animation regression: 0 failures",
+        "Persistent neutral ownership: 0 failures",
+        "Campaign interiors: 0 failures",
+        "Hero campaigns: 0 failures",
+        "Map roster and legacy preference migration: 0 failures",
+        "Worker distribution: 0 failures",
+        "Cargo return: 0 failures",
+        "Resource fields: 0 failures",
+        "Garrison ExpandedDesertFrontier.tscn / ServiceOffice: 0 failures",
+        "Garrison ExpandedDesertFrontier.tscn / ServiceOffice: 0 failures",
+        "Garrison IndustrialCrossroads.tscn / SawtoothWorkshop: 0 failures",
+        "Garrison IndustrialCrossroads.tscn / CoolingHall: 0 failures",
+        "Garrison IndustrialCrossroads.tscn / ServiceOffice: 0 failures",
+        "Garrison IndustrialCrossroads.tscn / DamagedWarehouse: 0 failures",
+        "Garrison IndustrialCrossroads.tscn / SawtoothWorkshop: 0 failures",
+        "Garrison IndustrialCrossroads.tscn / ServiceOffice: 0 failures",
+        "Garrison CoastalFoundry.tscn / SawtoothWorkshop: 0 failures",
+        "Garrison CoastalFoundry.tscn / CoolingHall: 0 failures",
+        "Garrison combat and exits: 0 failures",
+        "SITES faction=bastion cumulative_failures=0",
+        "SITES faction=helix cumulative_failures=0",
+        "SITES faction=frontier cumulative_failures=0",
+        "Capturable facilities: 0 failures",
+        "Battlefield expansion: 0 failures",
+        "Battlefield opening economy and production: 0 failures",
+        "Save navigation timing: 0 failures"
+      ]
+    }
+  ],
+  "unpublished_candidate": {
+    "tag": "v0.13.0",
+    "commit": "07bdff6d242102962f09afea51fd9f59929104dc",
+    "workflow": "https://github.com/natelindev/copperfin/actions/runs/39005467810",
+    "reason": "Linux/Windows large-map restore synchronization timed out under accelerated frames; fixed in 0.13.1."
+  },
+  "local_macos_export_checks": [
+    {
+      "name": "import",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 3.38,
+      "summary": []
+    },
+    {
+      "name": "export",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 16.05,
+      "summary": []
+    },
+    {
+      "name": "packaged-start",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 3.6,
+      "summary": []
+    },
+    {
+      "name": "SaveNavigationTimingRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 1.09,
+      "summary": [
+        "Save navigation timing: 0 failures"
+      ]
+    },
+    {
+      "name": "BattlefieldExpansionRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 17.85,
+      "summary": [
+        "Battlefield expansion: 0 failures"
+      ]
+    },
+    {
+      "name": "WorkerDistributionRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 12.02,
+      "summary": [
+        "Worker distribution: 0 failures"
+      ]
+    },
+    {
+      "name": "CargoReturnRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 23.22,
+      "summary": [
+        "Cargo return: 0 failures"
+      ]
+    },
+    {
+      "name": "PersistentCaptureRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 18.07,
+      "summary": [
+        "Persistent neutral ownership: 0 failures"
+      ]
+    },
+    {
+      "name": "CampaignInteriorRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 18.84,
+      "summary": [
+        "Campaign interiors: 0 failures"
+      ]
+    },
+    {
+      "name": "HeroCampaignRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 33.43,
+      "summary": [
+        "Hero campaigns: 0 failures"
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "name": "Open_RTS_Linux.tar.gz",
+      "size": 106361981,
+      "sha256": "787b1aeb0c33c2fb3da0ab88d1730f2c72d018633dbc8a20e511e93831f37c5f",
+      "archive_integrity": "passed"
+    },
+    {
+      "name": "Open_RTS_macOS.zip",
+      "size": 141569141,
+      "sha256": "1bad8cebc92d5148444f3be6335a4fb8cb8b3413fa71f1d50566b6b6f6e039af",
+      "archive_integrity": "passed"
+    },
+    {
+      "name": "Open_RTS_Windows.zip",
+      "size": 114839128,
+      "sha256": "83c1e67272f035d6e06a825b1b396290e5b9cd9c96996e847ec256811d9b5a2e",
+      "archive_integrity": "passed"
+    }
+  ],
+  "limits": [
+    "Windows/GPU gameplay performance and extended four-player competitive balance have not been hardware-playtested.",
+    "The macOS package is ad-hoc signed, not notarized.",
+    "Known campaign checkpoint/custom-Lua test limitations are recorded in docs/plans/battlefield-expansion-verification.md."
+  ]
+}

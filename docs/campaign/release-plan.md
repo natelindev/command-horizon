@@ -42,3 +42,12 @@ all published packages and their checksums. Record final release evidence.
   passes with the fix. The fresh 0.13.1 macOS export/startup and seven focused
   packaged checks pass, including larger-map restore, worker/cargo, ownership
   and both campaign suites. Bundle metadata/signature and changed-script lint pass.
+- Committed the navigation fix and regression as 1008c682, pushed main, and
+  passed static CI. Tagged the fix as v0.13.1 without changing v0.13.0.
+- Release workflow 39006377541 passed on native Linux, macOS and Windows runners:
+  packaged startup and all fifteen packaged regression checks passed per platform.
+- Published v0.13.1 as the latest release with all three desktop packages and
+  focused release notes. Downloaded each archive, checked its integrity and
+  SHA-256 digest against GitHub, and uploaded SHA256SUMS.txt.
+- Recorded platform results, archive digests and remaining verification limits in
+  docs/campaign/release-v0.13.1.json. Release preparation and publication are complete.
