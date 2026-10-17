@@ -146,6 +146,8 @@ func _legacy_foundations():
 		fixtures.append(site)
 	var data = builder.capture(game)
 	data.snapshot_version = 9
+	for stance_unit in data.units:
+		stance_unit.erase("stance")
 	data.erase("neutral_buildings")
 	for ambient in data.get("ambient", []):
 		ambient.erase("combat")

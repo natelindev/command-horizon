@@ -55,6 +55,7 @@ var manual_orders = null
 var program = null
 var _action_locked = false
 var _cached_type = ""
+var _navigation_trait = null
 
 @onready var _match = find_parent("Match")
 
@@ -136,25 +137,29 @@ func _set_hp_max(value):
 	hp_changed.emit()
 
 
+# Radius/domain are live trait properties; resolve their fixed node only once.
+# These getters also run before _ready while faction models are prepared.
+func _get_navigation_trait():
+	if not is_instance_valid(_navigation_trait):
+		_navigation_trait = get_node_or_null("Movement")
+		if _navigation_trait == null:
+			_navigation_trait = get_node_or_null("MovementObstacle")
+	return _navigation_trait
+
+
 func _get_radius():
-	var movement = get_node_or_null("Movement")
-	if movement != null:
-		return movement.radius
-	var obstacle = get_node_or_null("MovementObstacle")
-	return obstacle.radius if obstacle != null else null
+	var navigation_trait = _get_navigation_trait()
+	return navigation_trait.radius if navigation_trait != null else null
 
 
 func _get_movement_domain():
-	var movement = get_node_or_null("Movement")
-	if movement != null:
-		return movement.domain
-	var obstacle = get_node_or_null("MovementObstacle")
-	return obstacle.domain if obstacle != null else null
+	var navigation_trait = _get_navigation_trait()
+	return navigation_trait.domain if navigation_trait != null else null
 
 
 func _get_movement_speed():
-	var movement = get_node_or_null("Movement")
-	return movement.speed if movement != null else 0.0
+	var navigation_trait = _get_navigation_trait()
+	return navigation_trait.speed if navigation_trait is NavigationAgent3D else 0.0
 
 
 func _is_movable():

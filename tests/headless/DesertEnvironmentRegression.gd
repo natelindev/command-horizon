@@ -87,7 +87,7 @@ func _geometry():
 		var height = 0.0
 		for vertex in _vertices(plant):
 			height = maxf(height, vertex.y)
-		_check(height > 2.4 and height < 4.8, "Desert trees lost their intended world scale")
+		_check(height > 6.2 and height < 7.5, "Desert trees lost their intended world scale")
 	_check(variants.size() == 4, "Desert trees lack four distinct authored variants")
 	var exterior = map.exterior
 	_check(exterior.models.size() == 28, "Exterior landmarks or vegetation missing")

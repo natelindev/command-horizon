@@ -52,6 +52,7 @@ func _align_unit_position_to_navigation():
 		aligned.x = _unit.global_position.x
 		aligned.z = _unit.global_position.z
 	_unit.global_position = aligned
+	_unit.reset_physics_interpolation()
 
 
 func _affect_navigation_if_needed():

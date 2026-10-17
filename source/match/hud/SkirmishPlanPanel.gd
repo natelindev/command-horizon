@@ -18,7 +18,6 @@ var _damaged
 var _support
 var _elapsed = 0.0
 var _toggle
-var _programs
 var _scroll: ScrollContainer
 var _content: VBoxContainer
 var _plate: StyleBox
@@ -44,12 +43,6 @@ func _ready():
 	_toggle.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	_toggle.theme_type_variation = "BattleQuietButton"
 	_toggle.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_programs = hud._button(heading, "", _select_program_issues)
-	_programs.name = "SelectProgramIssues"
-	_programs.tooltip_text = (
-		"Select units with blocked programs or program errors. Review their program status, "
-		+ "then reassign or Resume. Selection keeps their orders and does not restart programs."
-	)
 	_dismiss = hud._button(heading, "", set_dismissed.bind(true))
 	_dismiss.name = "HideBattlePlan"
 	_dismiss.theme_type_variation = "BattleQuietButton"
@@ -94,7 +87,7 @@ func _ready():
 	_damaged.name = "SelectLowHealth"
 	_damaged.tooltip_text = (
 		"Select combat and support units below 50% health. Selection keeps their orders. "
-		+ "Use Recover health for a manual retreat, or review their program safe points."
+		+ "Use Recover health to send them to a friendly service building."
 	)
 	if _collapsed:
 		_toggle_body()
@@ -193,11 +186,6 @@ func _player():
 
 func refresh():
 	var player = _player()
-	var issues = Plan.program_issues(player).size()
-	_programs.text = "Program issues · %d" % issues
-	_programs.accessibility_description = _programs.text + ". " + _programs.tooltip_text
-	_programs.visible = issues > 0
-	_programs.disabled = issues == 0
 	var step = Plan.next_step(player)
 	_title.text = step.title
 	_title.tooltip_text = step.description
@@ -282,28 +270,6 @@ func _select(units, focus = null):
 		refresh()
 		return false
 	return hud.select_units(units, focus)
-
-
-func _select_program_issues():
-	if not _select(Plan.program_issues(_player())):
-		return
-	var menus = hud.get_parent().find_child("UnitMenus")
-	var panel = menus._program_panel
-	if is_instance_valid(panel):
-		menus._pages.current_tab = panel.get_parent().get_index()
-	# Selection creates the controls immediately; scrolling needs their layout.
-	await get_tree().process_frame
-	await get_tree().process_frame
-	if (
-		is_instance_valid(menus)
-		and is_instance_valid(panel)
-		and menus._program_panel == panel
-		and hud._overlay == null
-		and not is_instance_valid(hud.program_editor)
-	):
-		menus._scroll.scroll_vertical = int(
-			panel.global_position.y - menus._content.global_position.y
-		)
 
 
 func _select_support():

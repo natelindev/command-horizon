@@ -1,6 +1,6 @@
 extends "res://tests/headless/ScaleBenchmark.gd"
 
-# Run without --fixed-fps, with -- --lua --realtime, for rendered throughput.
+# Run without --fixed-fps, with -- --behaviors --realtime --no-capture.
 var _gpu_samples = []
 var _render_cpu_samples = []
 

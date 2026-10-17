@@ -21,12 +21,13 @@ var _content = null
 var _scroll: ScrollContainer
 var _pages: TabContainer
 var _commands: VBoxContainer
+var _support: VBoxContainer
+var _minimap: Control
 var _queue: Control
 var _refresh_elapsed = 0.0
-var _squad_panel = null
 var _orders_panel = null
 var _program_panel = null
-var _chip_option = null
+var _behavior_panel = null
 var _research_panel = null
 var _factory_program_panel = null
 var _was_under_construction = false
@@ -48,9 +49,9 @@ var _health_fill: StyleBox
 
 
 func _ready():
-	# The command deck: a heavy housing flush in the bottom-right corner with an
-	# info bay (selection) beside the command bay (pages of orders and rosters).
-	BattleTheme.apply_housing(self, 20, 18)
+	# A fixed-height bottom console beside the minimap: selection on the left,
+	# direct orders and behaviors side by side, with separate build/produce pages.
+	BattleTheme.apply_housing(self, 16, 12)
 	custom_minimum_size = Vector2(
 		HudLayout.deck_width(get_viewport_rect().size.x), HudLayout.CONSOLE_HEIGHT
 	)
@@ -66,7 +67,7 @@ func _ready():
 	deck.add_child(_info_scroll)
 	_info = VBoxContainer.new()
 	_info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_info.add_theme_constant_override("separation", 8)
+	_info.add_theme_constant_override("separation", 6)
 	_info_scroll.add_child(_info)
 	_info.minimum_size_changed.connect(_fit_menu)
 	deck.add_child(VSeparator.new())
@@ -91,26 +92,28 @@ func _ready():
 	MatchSignals.unit_selected.connect(func(_unit): _reset_menus())
 	MatchSignals.unit_deselected.connect(func(_unit): _reset_menus())
 	MatchSignals.unit_died.connect(func(_unit): _reset_menus())
+	_minimap = find_parent("Match").find_child("Minimap", true, false)
+	if is_instance_valid(_minimap):
+		_minimap.resized.connect(_fit_menu)
 	_reset_menus()
 
 
 func _fit_menu():
-	# The deck fills the console; taller pages raise it, but never over the top
-	# plates or a paid production queue.
 	var viewport = get_viewport().get_visible_rect().size
-	custom_minimum_size.x = HudLayout.deck_width(viewport.x)
-	_info_scroll.custom_minimum_size.x = HudLayout.info_bay(viewport.x)
+	var height = HudLayout.CONSOLE_HEIGHT
+	var width = HudLayout.deck_width(viewport.x)
+	if is_instance_valid(_minimap) and _minimap.is_visible_in_tree():
+		height = _minimap.size.y
+		width = viewport.x - _minimap.get_global_rect().end.x
+	custom_minimum_size = Vector2(width, height)
+	_info_scroll.custom_minimum_size.x = (
+		384 if _selection.size() > 1 else HudLayout.info_bay(viewport.x)
+	)
 	if is_instance_valid(_status):
 		_status.custom_minimum_size.x = _info_scroll.custom_minimum_size.x - 12
-	var housing = get_theme_stylebox("panel").get_minimum_size().y
-	var reserved = HudLayout.DECK_TOP_LIMIT + housing
-	if is_instance_valid(_queue) and _queue.is_visible_in_tree():
-		reserved += (
-			_queue.get_combined_minimum_size().y + get_parent().get_theme_constant("separation")
-		)
-	var available = maxf(1, viewport.y - reserved)
-	_scroll.custom_minimum_size.y = minf(_content.get_combined_minimum_size().y, available)
-	_info_scroll.custom_minimum_size.y = minf(_info.get_combined_minimum_size().y, available)
+	var available = maxf(1, height - get_theme_stylebox("panel").get_minimum_size().y)
+	_scroll.custom_minimum_size.y = available
+	_info_scroll.custom_minimum_size.y = available
 
 
 func _process(delta):
@@ -157,10 +160,9 @@ func _reset_menus():
 	_return_cargo = null
 	_recover_health = null
 	_direct_orders = null
-	_squad_panel = null
 	_orders_panel = null
 	_program_panel = null
-	_chip_option = null
+	_behavior_panel = null
 	_research_panel = null
 	_factory_program_panel = null
 	_weapon_modes = null
@@ -225,7 +227,23 @@ func _reset_menus():
 	var builds = not production_roles.is_empty() or unit is Worker
 	if builds and _selection.all(func(member): return member is Structure or member is Worker):
 		roster_page = _page(roster_title)
-	_commands = _page("Orders")
+	var orders_page = _page("Orders")
+	var columns = HBoxContainer.new()
+	columns.name = "OrderColumns"
+	columns.add_theme_constant_override("separation", 12)
+	orders_page.add_child(columns)
+	_commands = VBoxContainer.new()
+	_commands.name = "DirectCommands"
+	_commands.custom_minimum_size.x = 266
+	_commands.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_commands.add_theme_constant_override("separation", 6)
+	columns.add_child(_commands)
+	_support = VBoxContainer.new()
+	_support.name = "UnitBehaviorAndOrders"
+	_support.custom_minimum_size.x = 210
+	_support.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_support.add_theme_constant_override("separation", 6)
+	columns.add_child(_support)
 	if builds and roster_page == null:
 		roster_page = _page(roster_title)
 	if _selection.size() > 1:
@@ -233,7 +251,7 @@ func _reset_menus():
 		_selection_roster.name = "SelectionRoster"
 		_selection_roster.selection = _selection.duplicate()
 		_selection_roster.subset_requested.connect(_select_subset)
-		_commands.add_child(_selection_roster)
+		_info.add_child(_selection_roster)
 	_add_direct_buttons(unit)
 	var grid = GridContainer.new()
 	grid.name = "Roster"
@@ -244,33 +262,12 @@ func _reset_menus():
 	for role in production_roles:
 		_add_roster_button(grid, role, false)
 	if _selection.size() == 1 and unit is Structure and unit.is_constructed():
-		if unit.type == "VehicleFactory" and unit.player.get_meta("skirmish", false):
-			var fit = CheckBox.new()
-			_chip_option = fit
-			fit.text = (
-				"Fit chips to new tanks · +%d E / +%d s"
-				% [
-					Factions.chip_cost(unit.player.faction),
-					Factions.chip_seconds(unit.player.faction)
-				]
-			)
-			fit.button_pressed = unit.production_queue.fit_chips
-			fit.disabled = not unit.player.basic_programs_unlocked()
-			fit.toggled.connect(
-				func(enabled):
-					unit.production_queue.fit_chips = enabled
-					_refresh_buttons()
-			)
-			_page("Programs").add_child(fit)
 		if unit.player.get_meta("skirmish", false):
 			if unit.type == "CommandLab":
 				_research_panel = load("res://source/match/hud/ResearchPanel.gd").new()
 				_research_panel.lab = unit
-				_commands.add_child(_research_panel)
-			if unit.type in ["VehicleFactory", "AircraftFactory"]:
-				_factory_program_panel = load("res://source/match/hud/FactoryProgramPanel.gd").new()
-				_factory_program_panel.queue = unit.production_queue
-				_page("Programs").add_child(_factory_program_panel)
+				_support.add_child(_research_panel)
+
 	elif unit is Worker:
 		for unit_type in Catalog.STRUCTURES:
 			_add_roster_button(grid, unit_type, true)
@@ -293,33 +290,28 @@ func _reset_menus():
 	if not conventional and _selection.any(func(member): return member.signature != null):
 		_signature_panel = load("res://source/match/hud/SignaturePanel.gd").new()
 		_signature_panel.selection = _selection.duplicate()
-		_commands.add_child(_signature_panel)
+		_support.add_child(_signature_panel)
 	if _selection.any(
 		func(member): return member.type == "CombatRobot" and member.can_switch_weapon()
 	):
 		_weapon_modes = load("res://source/match/hud/WeaponModes.gd").new()
 		_weapon_modes.selection = _selection.duplicate()
-		_commands.add_child(_weapon_modes)
+		_support.add_child(_weapon_modes)
 	if _selection.any(func(member): return member.manual_orders != null):
 		_orders_panel = load("res://source/match/hud/OrdersPanel.gd").new()
 		_orders_panel.selection = _selection.duplicate()
-		_commands.add_child(_orders_panel)
-		if conventional:
-			_orders_panel._resume.hide()
-	if (
-		not conventional
-		and unit.player.squad_roster != null
-		and _selection.all(func(member): return member.movement_speed > 0)
-	):
-		_squad_panel = load("res://source/match/hud/SquadPanel.gd").new()
-		_squad_panel.selection = _selection.duplicate()
-		_page("Squads").add_child(_squad_panel)
-	if not conventional and _selection.any(func(member): return member.program != null):
-		_program_panel = load("res://source/match/hud/ProgramPanel.gd").new()
-		_program_panel.selection = _selection.duplicate()
-		_page("Programs").add_child(_program_panel)
+		_support.add_child(_orders_panel)
+	if _selection.all(func(member): return member.manual_orders != null):
+		_behavior_panel = load("res://source/match/hud/BehaviorPanel.gd").new()
+		_behavior_panel.selection = _selection.duplicate()
+		_behavior_panel.hud = unit._match.hud
+		_support.add_child(_behavior_panel)
+
 	# An empty roster would still claim page spacing.
 	grid.visible = grid.get_child_count() > 0
+	_commands.visible = _commands.get_children().any(func(item): return item.visible)
+	_support.visible = _support.get_children().any(func(item): return item.visible)
+	columns.visible = _commands.visible or _support.visible
 	# A page with nothing to show (an idle producer's Orders) is not offered as a tab.
 	for page in _pages.get_children():
 		if (
@@ -346,10 +338,10 @@ func _build_info(portrait):
 	header.mouse_filter = Control.MOUSE_FILTER_PASS
 	header.add_theme_constant_override("separation", 10)
 	_info.add_child(header)
-	if portrait != null:
+	if portrait != null and _selection.size() == 1:
 		var frame = PanelContainer.new()
 		frame.name = "Portrait"
-		frame.custom_minimum_size = Vector2(78, 70)
+		frame.custom_minimum_size = Vector2(64, 64)
 		frame.add_theme_stylebox_override("panel", BattleTheme.socket(4, 4))
 		frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		header.add_child(frame)
@@ -373,7 +365,7 @@ func _build_info(portrait):
 	names.add_child(_title)
 	_health = ProgressBar.new()
 	_health.name = "Health"
-	_health.custom_minimum_size.y = 12
+	_health.custom_minimum_size.y = 8
 	_health.show_percentage = false
 	_health_fill = BattleTheme.bar_fill(BattleTheme.HEALTH_OK)
 	_health.add_theme_stylebox_override("fill", _health_fill)
@@ -413,7 +405,7 @@ func _order_key(button, glyph):
 	button.icon = BattleTheme.icon(glyph)
 	button.add_theme_constant_override("icon_max_width", 16)
 	button.add_theme_font_size_override("font_size", 14)
-	button.custom_minimum_size.y = 54
+	button.custom_minimum_size.y = 32
 
 
 func _add_direct_buttons(unit):
@@ -460,6 +452,8 @@ func _add_direct_buttons(unit):
 	_command_card.update_layout(_selection, _direct_orders)
 	for kind in _direct_orders.COMMANDS:
 		var key = _command_card.order_slot(kind)
+		if key == null:
+			continue
 		key.toggle_mode = true
 		key.gui_input.connect(_remember_command_mouse)
 		_command_buttons[kind] = key
@@ -599,20 +593,16 @@ func _refresh_buttons():
 		_weapon_modes.refresh()
 	if is_instance_valid(_research_panel):
 		_research_panel.refresh()
-	if is_instance_valid(_squad_panel):
-		_squad_panel.refresh()
 	if is_instance_valid(_orders_panel):
 		_orders_panel.refresh()
-	if is_instance_valid(_program_panel):
-		_program_panel.refresh()
+	if is_instance_valid(_behavior_panel):
+		_behavior_panel.refresh()
 	if _selection.is_empty() or not is_instance_valid(_selection[0]):
 		return
 	var unit = _selection[0]
 	if unit is Structure and unit.is_under_construction() != _was_under_construction:
 		_reset_menus()
 		return
-	if is_instance_valid(_chip_option):
-		_chip_option.disabled = not unit.player.basic_programs_unlocked()
 	if unit.hp == null:
 		return
 	# Resolve each role against the current eligible producer before refreshing.
@@ -637,7 +627,7 @@ func _refresh_buttons():
 			if unit.player.production_factor() < 1.0:
 				lines.append("Low power — production at 35%")
 			var service = {
-				"CommandLab": "Basic programs and walkers unlocked",
+				"CommandLab": "Research and advanced units unlocked",
 				"RepairDepot": "Ground service: 2 slots · 5 m",
 				"Barracks": "Infantry recovery: 2 slots · stationary within 5 m",
 				"AircraftFactory": "Aircraft service: 2 slots · stationary within 5 m",

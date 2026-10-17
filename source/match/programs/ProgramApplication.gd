@@ -1,7 +1,6 @@
 extends RefCounted
 
 const Record = preload("res://source/match/programs/ProgramRecord.gd")
-const Runtime = preload("res://source/match/programs/LuaRuntime.gd")
 
 
 static func preview(entry, selection, player):
@@ -31,16 +30,12 @@ static func apply(entry, selection, player):
 	var targets = preview(entry, selection, player)
 	if targets.eligible.is_empty():
 		return {"ok": false, "error": "No compatible selected unit has an active chip."}
-	# Prepare every VM before changing any order. No yields between prepare and commit.
-	var prepared = []
+	if entry.mode != "preset":
+		return {"ok": false, "error": "Scripted unit orders have been replaced by fixed behaviors."}
 	for unit in targets.eligible:
-		var runtime = null
-		if Record.is_script(entry):
-			runtime = Runtime.new()
-			var result = runtime.compile_source(entry.source)
-			if not result.ok:
-				return {"ok": false, "error": result.error}
-		prepared.append(runtime)
-	for index in range(targets.eligible.size()):
-		targets.eligible[index].program.apply_prepared(entry, prepared[index])
-	return {"ok": true, "applied": prepared.size(), "skipped": selection.size() - prepared.size()}
+		unit.program.apply_prepared(entry, null)
+	return {
+		"ok": true,
+		"applied": targets.eligible.size(),
+		"skipped": selection.size() - targets.eligible.size()
+	}

@@ -34,6 +34,20 @@ func _ready():
 	obstacle.affect_navigation_mesh = true
 	add_child(obstacle)
 	captured.connect(_ownership_changed)
+	if kind == "mercenary":
+		var area = Area3D.new()
+		area.name = "RecruitmentArea"
+		area.collision_layer = 2
+		area.collision_mask = 0
+		var collider = CollisionShape3D.new()
+		var shape = CylinderShape3D.new()
+		shape.radius = radius
+		shape.height = 4.0
+		collider.shape = shape
+		collider.position.y = 2.0
+		area.add_child(collider)
+		add_child(area)
+		area.input_event.connect(_recruitment_input)
 
 
 func _build_model():
@@ -241,3 +255,16 @@ func restore_state(saved, entities):
 	jobs = saved.jobs.duplicate(true)
 	_payer = captured_by if not jobs.is_empty() else null
 	_update_presentation()
+
+
+func _recruitment_input(_camera, event, _point, _normal, _shape):
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		if open_recruitment():
+			get_viewport().set_input_as_handled()
+
+
+func open_recruitment():
+	if captured_by != _match._get_human_player():
+		return false
+	_match.hud.open_sites(self)
+	return true

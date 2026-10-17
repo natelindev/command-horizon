@@ -44,7 +44,12 @@ func _ready():
 	for entry in LANDMARKS:
 		_model(entry[0], entry[1], entry[2], entry[3], entry[4])
 	for point in SCRUB:
-		_model("DryScrub", point, 1.0, point.x * .13, 1.8)
+		var bush = load("res://source/match/maps/Vegetation.gd").bush(models.size())
+		bush.position = Vector3(point.x, height_at(point), point.y)
+		bush.rotation.y = point.x * .13
+		bush.set_meta("exterior_radius", 2.5)
+		add_child(bush)
+		models.append(bush)
 
 
 func _outside(point):

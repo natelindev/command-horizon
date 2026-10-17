@@ -83,7 +83,7 @@ func _ground_cover():
 		Vector2(152, 14),
 		Vector2(151, 104)
 	]:
-		var model = load("res://assets/models/environment/supply/RoadSage.glb").instantiate()
+		var model = load("res://source/match/maps/Vegetation.gd").bush(cover.get_child_count())
 		model.position = Vector3(point.x, .006, point.y)
 		model.rotation.y = point.x * .31
 		cover.add_child(model)

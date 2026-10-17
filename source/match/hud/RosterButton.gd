@@ -73,7 +73,7 @@ func _init():
 func _fit_contents():
 	# Button does not derive its minimum from the internal caption/price controls.
 	# Include their wrapped height so two-line names cannot push prices off the tile.
-	custom_minimum_size = Vector2(112, 60).max(_body.get_combined_minimum_size() + Vector2(12, 12))
+	custom_minimum_size = Vector2(112, 56).max(_body.get_combined_minimum_size() + Vector2(12, 12))
 
 
 func _price(parent, texture, tint):

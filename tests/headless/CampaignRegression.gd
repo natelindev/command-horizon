@@ -169,13 +169,9 @@ func _full_mission():
 			break
 	_check(lab.is_constructed() and game.phase == 1, "Actual construction did not advance tutorial")
 	var repair = _units(human, "RepairRobot")[0]
-	repair.program.configure(
-		load("res://source/match/programs/ProgramLibrary.gd").defaults("hold_service")
-	)
-	repair.program.anchor = Vector3(41, 0, 38)
-	repair.program.run()
+	load("res://source/match/orders/UnitBehavior.gd").guard(repair, Vector3(41, 0, 38))
 	await _frames(35)
-	_check(game.phase == 2, "Shipped repair preset did not satisfy program lesson")
+	_check(game.phase == 2, "Guard did not satisfy behavior lesson")
 	for unit in human.get_children():
 		if "type" in unit and unit.type in ["Tank", "Infantry"]:
 			unit.issue_manual_order(
@@ -187,7 +183,7 @@ func _full_mission():
 			break
 	_check(
 		game.finished and game.result == "Victory",
-		"Preset-only full mission did not win: " + game.objective_text()
+		"Built-in behavior mission did not win: " + game.objective_text()
 	)
 	_check(game.waves_sent == 3, "Full mission did not exercise all response waves")
 	var time = game.simulation_time

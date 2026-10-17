@@ -3,6 +3,8 @@ extends CanvasLayer
 const HudLayout = preload("res://source/match/hud/HudLayout.gd")
 
 var voice
+# Campaign dialogue remains readable when routine unit captions are disabled.
+var always_show_captions = false
 var _card
 var _line = {}
 var _minimap: Control
@@ -39,7 +41,11 @@ func _refresh():
 	# Story portraits identify the speaking character even with captions off.
 	_card.visible = (
 		not _line.is_empty()
-		and (Globals.options.subtitles or not _line.get("portrait", "").is_empty())
+		and (
+			always_show_captions
+			or Globals.options.subtitles
+			or not _line.get("portrait", "").is_empty()
+		)
 	)
 	var space = _horizontal_space()
 	_card.custom_minimum_size.x = minf(560, maxf(1, space.y - space.x))
@@ -47,7 +53,7 @@ func _refresh():
 	if not _line.is_empty():
 		_card.set_line(_line.speaker, _line.text, Globals.options.subtitle_size)
 		_card.set_portrait(_line.get("portrait", ""))
-		_card.set_caption_visible(Globals.options.subtitles)
+		_card.set_caption_visible(always_show_captions or Globals.options.subtitles)
 	_fit_card()
 
 
@@ -59,10 +65,14 @@ func _fit_card():
 func _position_card():
 	var viewport = get_viewport().get_visible_rect().size
 	var space = _horizontal_space()
-	# Captions ride on the bottom rail between the minimap housing and the deck.
+	# The bottom console now spans the width. Keep captions above its queue rack,
+	# with the same reservation for empty and selected states to avoid jumping text.
+	var top = viewport.y - HudLayout.CONSOLE_HEIGHT
+	if is_instance_valid(_minimap) and _minimap.is_visible_in_tree():
+		top = _minimap.get_global_rect().position.y
 	_card.position = Vector2(
 		space.x + (space.y - space.x - _card.size.x) / 2,
-		viewport.y - HudLayout.BOTTOM_RAIL - 8 - _card.size.y
+		maxf(HudLayout.TOP_PLATE + 8, top - 96 - _card.size.y)
 	)
 
 
@@ -71,11 +81,4 @@ func _horizontal_space():
 	var right = get_viewport().get_visible_rect().size.x - 12
 	if is_instance_valid(_minimap) and _minimap.is_visible_in_tree():
 		left = maxf(left, _minimap.get_global_rect().end.x + 12)
-	# Keep room for selection controls even while empty, so selecting a unit does
-	# not move a caption. Wider production/command layouts reserve their real bounds.
-	if is_instance_valid(_unit_menu):
-		right -= _unit_menu.custom_minimum_size.x
-	if is_instance_valid(_commands) and _commands.is_visible_in_tree():
-		right -= _commands.get_theme_constant("margin_right")
-		right = minf(right, _commands.get_global_rect().position.x - 12)
 	return Vector2(left, maxf(left + 1, right))

@@ -37,7 +37,7 @@ func _run():
 	_check(story.current.id == "first_orders.intro.aegis", "First speaker did not start")
 	var card = game.get_node("CampaignSubtitles")._card
 	_check(card.visible and card._portrait.visible, "Captions off hid the speaking character")
-	_check(not card._text.visible, "Battle dialogue ignored captions off")
+	_check(card._text.visible, "Unit-caption preference hid campaign dialogue")
 	story._remaining = 0
 	await _frames(1)
 	_check(story.current.id == "first_orders.intro.nyx", "Conversation did not advance")
@@ -79,7 +79,7 @@ func _run():
 	var options = root.get_node("Globals").options
 	options.subtitles = false
 	story._refresh_language()
-	_check(not story._subtitle._text.visible, "Briefing ignored captions off")
+	_check(story._subtitle._text.visible, "Unit-caption preference hid briefing dialogue")
 	var briefing_stream = story._audio.stream
 	options.subtitles = true
 	story._refresh_language()

@@ -5,16 +5,15 @@ const LESSONS = [
 		"01 / BRING COMMAND ONLINE",
 		(
 			"Select an engineer, choose Command lab, then place it near your base.\n\n"
-			+ "Right-click salvage to harvest. Materials build your army; electronics fund chips."
+			+ "Right-click salvage to harvest. Materials build your army; electronics fund research."
 		)
 	],
 	[
-		"02 / GIVE THE UNIT A PROGRAM",
+		"02 / CHOOSE A BEHAVIOR",
 		(
-			"Select your repair robot. Choose Service area, click Assign area / route, "
-			+ "choose a point, then Apply & run.\n\n"
-			+ "Or fit a tank chip at HQ (4 E), choose Guard area, and set area + safe point. "
-			+ "Direct orders always override programs."
+			"Select a tank, choose Guard in Orders, then click a defensive position. "
+			+ "Use Follow to keep support with a friendly unit.\n\n"
+			+ "Attack fires automatically; Defensive limits pursuit; Hold Fire stops automatic attacks."
 		)
 	],
 	[
@@ -112,25 +111,39 @@ func _process(delta):
 	var top = _command_panel.position.y + _command_panel.size.y + 8
 	lesson_panel.position = Vector2(0, top)
 	lesson_panel.size = Vector2(
-		325, maxf(220, get_viewport().get_visible_rect().size.y - 230 - top)
+		325,
+		maxf(
+			180,
+			(
+				get_viewport().get_visible_rect().size.y
+				- HudLayout.CONSOLE_HEIGHT
+				- HudLayout.GAP
+				- top
+			)
+		)
 	)
 	_lesson_title.text = LESSONS[mission.phase][0]
 	_lesson_text.text = LESSONS[mission.phase][1]
-	_find_button.text = ["Find engineer", "Find repair robot", "Find infantry"][mission.phase]
+	_find_button.text = ["Find engineer", "Find tank", "Find infantry"][mission.phase]
 	_hold_bar.value = mission.hold_seconds
 	_relay_status.text = (
-		"Relay · %d / 60 s · responses %d / 3" % [int(mission.hold_seconds), mission.waves_sent]
+		mission.relay.capture_status(mission._get_human_player())
+		+ "\n"
+		+ (
+			tr("Hold %d / 60 s · responses %d / 3")
+			% [int(mission.hold_seconds), mission.waves_sent]
+		)
 	)
 	_optional.text = (
 		"Optional complete · Adaptive doctrine"
 		if mission.reuse_badge
-		else "Optional badge: change retreat %, save a version, then load and apply it."
+		else "Optional badge: use Guard and Follow together."
 	)
 
 
 func _find_unit():
 	var mission = get_parent()
-	var role = ["Worker", "RepairRobot", "Infantry"][mission.phase]
+	var role = ["Worker", "Tank", "Infantry"][mission.phase]
 	var units = mission._get_human_player().get_children().filter(
 		func(unit):
 			return "type" in unit and unit.type == role and not unit.is_queued_for_deletion()

@@ -53,7 +53,7 @@ const COSTS = {
 	"Helicopter": [28, 12],
 }
 const DESCRIPTIONS = {
-	"RepairRobot": "Field repair support. Built-in program chip; service damaged ground machines.",
+	"RepairRobot": "Field repair support. Services damaged ground machines.",
 	"Worker":
 	(
 		"Unarmed engineer. Harvest fields, construct buildings and recover "
@@ -97,24 +97,16 @@ const DESCRIPTIONS = {
 		"Trains four infantry classes and a unique hero. Two infantry recovery "
 		+ "slots within 5 m. Uses 3 power."
 	),
-	"VehicleFactory":
-	(
-		"Produces refurbished armor and service rigs. Fit chips to new "
-		+ "Outriders for +2 E / +3 s. Uses 6 power."
-	),
+	"VehicleFactory": "Produces refurbished armor and service rigs. Uses 6 power.",
 	"AircraftFactory":
 	"Produces scouts and strike rotorcraft. Two aircraft service slots within 5 m. Uses 8 power.",
 	"CommandLab":
 	(
-		"Unlocks programs, heroes and Kestrels. Research Coordination for Maneuver Burst. "
+		"Unlocks heroes and Kestrels. Research Coordination for Maneuver Burst. "
 		+ "Jackals need a motor pool; Ironbacks need a field workshop. Uses 5 power."
 	),
 	"PowerPlant": "Supplies 12 power to keep production and research running.",
-	"RepairDepot":
-	(
-		"Unlocks Ironbacks without Coordination. Repairs ground machines and "
-		+ "fits chips for 2 E / 3 s. Uses 3 power."
-	),
+	"RepairDepot": "Unlocks Ironbacks without Coordination. Repairs ground machines. Uses 3 power.",
 	"AntiGroundTurret": "Fixed ground cannon; protect against infantry and aircraft. Uses 2 power.",
 	"AntiAirTurret": "Dedicated air defense. Cannot fire at ground targets. Uses 2 power.",
 }

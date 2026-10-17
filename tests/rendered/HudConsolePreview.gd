@@ -36,7 +36,7 @@ func _run():
 				}
 			)
 		)
-		await create_timer(.5).timeout
+		await create_timer(2).timeout
 		root.mode = Window.MODE_WINDOWED
 		root.size = setup[2]
 		root.content_scale_size = Vector2i(1920, 1080)
@@ -56,7 +56,7 @@ func _battle(faction, map_name, suffix):
 			player.set_process(false)
 	# Hiding the plan for a capture must not touch the reviewer's settings file.
 	var preference_path = "user://hud-preview-options-%d.tres" % OS.get_process_id()
-	game.hud.battle_plan.options_path = preference_path
+	_check(game.hud.battle_plan == null, "Skirmish still has a battle-plan panel")
 	var human = game._get_human_player()
 	var camera = game.get_node("IsometricCamera3D")
 	var tank = _units(human, "Tank")[0]
@@ -92,10 +92,10 @@ func _battle(faction, map_name, suffix):
 	root.get_node("MatchSignals").deselect_all_units.emit()
 	await _frames(20)
 	await _shot(label + "-production")
-	game.hud.battle_plan.set_dismissed(true)
+
 	await _frames(10)
 	await _shot(label + "-plan-hidden")
-	game.hud.battle_plan.set_dismissed(false)
+
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(preference_path))
 	await _select(_units(human, "Tank") + _units(human, "Worker"))
 	await _shot(label + "-multi")
@@ -125,6 +125,17 @@ func _select(units):
 
 
 func _shot(label):
+	var mini = game.find_child("Minimap", true, false).get_global_rect()
+	var deck = game.find_child("UnitMenus", true, false)
+	if not deck.is_visible_in_tree():
+		deck = game.find_child("ConsoleFrame", true, false).empty_deck
+	var rect = deck.get_global_rect()
+	_check(absf(rect.position.y - mini.position.y) < .5, "Console/minimap top mismatch: " + label)
+	_check(absf(rect.position.x - mini.end.x) < .5, "Console/minimap gap: " + label)
+	_check(
+		absf(rect.end.x - root.get_visible_rect().end.x) < .5,
+		"Console does not span bottom: " + label
+	)
 	RenderingServer.force_draw(false)
 	root.get_texture().get_image().save_png(OUTPUT + label + ".png")
 	print("Captured ", label)

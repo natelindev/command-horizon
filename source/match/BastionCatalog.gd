@@ -84,7 +84,7 @@ const DESCRIPTIONS = {
 	"PowerPlant": "Supplies 12 power. Low power slows production and service buildings.",
 	"CommandLab":
 	(
-		"With a vehicle factory, unlocks chip programs, combat walkers and strike aircraft. "
+		"With a vehicle factory, unlocks combat walkers and strike aircraft. "
 		+ "Research Coordination for railgun tanks. Uses 5 power."
 	),
 	"RepairDepot":

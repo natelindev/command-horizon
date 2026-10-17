@@ -49,9 +49,10 @@ func _ready():
 		Vector2(83, 106),
 		Vector2(24, 103)
 	]:
-		var model = _model(trees[tree_index % trees.size()], point, 0.85, point.x * 0.37)
+		var model = _model(trees[tree_index % trees.size()], point, 1.0, point.x * 0.37)
+		load("res://source/match/maps/Vegetation.gd").fit_height(model, 7.0)
 		tree_index += 1
-		model.set_meta("exterior_radius", 3.1)
+		model.set_meta("exterior_radius", 5.0)
 		models.append(model)
 
 

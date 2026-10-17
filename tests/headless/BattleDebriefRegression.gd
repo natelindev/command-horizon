@@ -129,6 +129,8 @@ func _exercise(faction):
 	await _review_result(faction + "-complete")
 	var legacy = snapshot.duplicate(true)
 	legacy.snapshot_version = 8
+	for stance_unit in legacy.units:
+		stance_unit.erase("stance")
 	legacy.erase("neutral_buildings")
 	for ambient in legacy.get("ambient", []):
 		ambient.erase("combat")

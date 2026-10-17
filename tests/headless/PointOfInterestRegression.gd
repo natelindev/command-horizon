@@ -111,6 +111,25 @@ func _exercise_sites():
 	)
 	rival.position += Vector3(20, 0, 0)
 	_claim(camp, soldier, _human)
+	# Open recruitment from the captured camp, then buy through the displayed UI.
+	_check(camp.has_node("RecruitmentArea"), "Captured camp cannot be clicked")
+	var click = InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	camp.get_node("RecruitmentArea").input_event.emit(null, click, Vector3.ZERO, Vector3.UP, 0)
+	await _frames(2)
+	var overview = _game.hud.find_child("PointOfInterestOverview", true, false)
+	_check(
+		overview != null and overview._rows.size() == 1,
+		"Camp did not open its own recruitment menu"
+	)
+	if overview != null:
+		var hire = overview._rows[0].hires[0].button
+		_check(not hire.disabled, "Owned camp has no enabled recruitment control")
+		hire.pressed.emit()
+		_check(camp.jobs.size() == 1, "Recruitment button did not queue a mercenary")
+		camp.cancel_hire(_human)
+	_game.hud._close_menu()
 	var cost = catalog.price(_human.faction, "RocketInfantry")
 	funds = Vector2i(_human.resource_a, _human.resource_b)
 	_check(camp.hire(_human, "RocketInfantry"), "Owned camp rejected affordable recruitment")

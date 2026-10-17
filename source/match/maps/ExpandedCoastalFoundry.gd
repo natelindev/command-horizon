@@ -1,6 +1,7 @@
 extends "res://source/match/maps/CoastalFoundry.gd"
 
 const Layout = preload("res://source/match/maps/ExpandedMapLayout.gd")
+const Opening = preload("res://source/match/maps/StartingResourceLayout.gd")
 const EXPANSION = 1.5
 const EXTRA_FIELDS = [
 	Vector2(24, 96),
@@ -15,7 +16,7 @@ func overview():
 		super.overview(), EXPANSION, EXTRA_FIELDS, Sites.definitions(scene_file_path)
 	)
 	result.road_width = result.get("road_width", 4.0) * EXPANSION
-	return result
+	return Opening.overview(self, result)
 
 
 func _ready():
@@ -23,6 +24,7 @@ func _ready():
 	Layout.expand(self, FIELDS, EXPANSION)
 	exterior.ground.mesh.surface_get_material(0).set_shader_parameter("layout_scale", EXPANSION)
 	Layout.add_fields(self, EXTRA_FIELDS, false)
+	Opening.apply(self, FIELDS.map(func(field): return field * EXPANSION))
 
 
 func get_topdown_polygon_2d():

@@ -83,8 +83,14 @@ func _geometry():
 			plant.find_children("*", "CollisionObject3D", true, false).is_empty(),
 			"Low ground cover gained physics"
 		)
-		for vertex in _vertices(plant):
-			_check(vertex.y < 0.3, "Ground cover obstructs unit visibility")
+		if plant.get_meta("vegetation_kind", "") == "tree":
+			var top = 0.0
+			for vertex in _vertices(plant):
+				top = maxf(top, vertex.y)
+			_check(top > 6.8 and top < 7.2, "Alpine trees are not mature size")
+		else:
+			for vertex in _vertices(plant):
+				_check(vertex.y < 0.3, "Low ground cover obstructs unit visibility")
 	var exterior = map.exterior
 	_check(exterior.models.size() == 28, "Exterior landmarks or vegetation missing")
 	for model in exterior.models:

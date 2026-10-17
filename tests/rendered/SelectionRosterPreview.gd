@@ -28,7 +28,7 @@ func _run():
 	var saves = root.get_node("SaveManager")
 	var autosaves = saves.autosaves_enabled
 	saves.autosaves_enabled = false
-	for faction in ["bastion", "helix"]:
+	for faction in ["bastion", "helix", "frontier"]:
 		await _selection_roster(faction)
 	saves.autosaves_enabled = autosaves
 	options.restore(original)
@@ -40,7 +40,7 @@ func _run():
 
 func _activate_control(button, keyboard = false):
 	var menus = game.find_child("UnitMenus")
-	menus._scroll.ensure_control_visible(button)
+	menus._info_scroll.ensure_control_visible(button)
 	await _frames(3)
 	if keyboard:
 		button.grab_focus()
@@ -76,8 +76,20 @@ func _activate_control(button, keyboard = false):
 func _inspect_layout(player, roster, label):
 	var menus = game.find_child("UnitMenus")
 	menus._scroll.scroll_vertical = 0
+	menus._info_scroll.scroll_vertical = 0
 	await _frames(5)
 	var viewport = root.get_visible_rect()
+	var minimap = game.find_child("Minimap", true, false).get_global_rect()
+	var deck = menus.get_global_rect()
+	_check(absf(deck.position.x - minimap.end.x) < .5, "Bottom console/minimap mismatch: " + label)
+	_check(
+		absf(deck.position.y - minimap.position.y) < .5,
+		"Bottom console top is not aligned with the minimap"
+	)
+	_check(
+		absf(deck.end.x - viewport.end.x) < .5 and absf(deck.end.y - minimap.end.y) < .5,
+		"Bottom console does not span the remaining bottom edge"
+	)
 	_check(viewport.encloses(menus.get_global_rect()), "Selection menu escaped viewport: " + label)
 	_check(menus.position.y >= 0, "Selection menu has negative offset")
 	_check(
@@ -105,7 +117,7 @@ func _inspect_layout(player, roster, label):
 
 func _destroy_target(roster, victim):
 	var button = roster._tiles[-1].button
-	game.find_child("UnitMenus")._scroll.ensure_control_visible(button)
+	game.find_child("UnitMenus")._info_scroll.ensure_control_visible(button)
 	await _frames(3)
 	var point = root.get_final_transform() * button.get_global_rect().get_center()
 	var motion = InputEventMouseMotion.new()

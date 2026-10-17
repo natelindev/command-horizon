@@ -53,7 +53,7 @@ func _ready():
 		"Electronics",
 		ELECTRONICS_ICON,
 		ELECTRONICS_TINT,
-		"Recover circuitry with workers. Used for advanced units, chips and research."
+		"Recover circuitry with workers. Used for advanced units and research."
 	)
 	_add_assignments(_materials, 1)
 	_add_assignments(_electronics, 2)
@@ -161,13 +161,13 @@ func _selection_panel():
 		or player != match_node._get_human_player()
 	):
 		return null
-	return match_node.hud.battle_plan
+	return match_node.hud
 
 
 func _select_assignments(kind):
 	var panel = _selection_panel()
 	if is_instance_valid(panel):
-		panel._select(Assignments.workers(player.get_children(), kind))
+		panel.select_units(Assignments.workers(player.get_children(), kind))
 	_refresh()
 
 
@@ -275,7 +275,7 @@ func _refresh():
 	_power_status.visible = not _power_status.text.is_empty()
 	tooltip_text = (
 		"Power meter: demand / supply. Only completed structures supply or consume power. "
-		+ "Low power runs production, chip installation, research and depot repair at 35% speed. "
+		+ "Low power runs production, research and depot repair at 35% speed. "
 		+ (
 			"Queued units reserve population. Structures: %d / 40 (includes foundations)."
 			% player.structure_count()

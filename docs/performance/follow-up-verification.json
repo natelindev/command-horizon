@@ -1,0 +1,140 @@
+{
+  "date": "2026-10-17",
+  "engine": "Godot 4.6 stable official",
+  "platform": "macOS / Apple M1 Pro / Metal Forward+ for rendered runs",
+  "checks": [
+    {
+      "name": "BehaviorRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 9.04,
+      "summaries": [
+        "Unit behaviors: 0 failures"
+      ]
+    },
+    {
+      "name": "BattlePlanRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 12.58,
+      "summaries": [
+        "Battle plan regression: 0 failures"
+      ]
+    },
+    {
+      "name": "UnitAnimationRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 4.89,
+      "summaries": [
+        "Unit animation regression: 0 failures"
+      ]
+    },
+    {
+      "name": "TechnologyRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 104.0,
+      "summaries": [
+        "Classic RTS technology: 0 failures"
+      ]
+    },
+    {
+      "name": "LocalizationRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 2.26,
+      "summaries": [
+        "Localization regression: 0 failures"
+      ]
+    },
+    {
+      "name": "ChineseUIRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 33.05,
+      "summaries": [
+        "Chinese UI: 1141 unique strings, 687 voice captions, 0 failures"
+      ]
+    },
+    {
+      "name": "HudConsolePreview",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 74.46,
+      "summaries": [
+        "HUD console preview: 0 failures"
+      ]
+    },
+    {
+      "name": "StartingResourceRegression (standard, all factions)",
+      "exit": 0,
+      "script_errors": false,
+      "arguments": [],
+      "summaries": [
+        "EXPANDED GEOMETRY ExpandedDesertFrontier size=(192.0, 144.0) fields=8 facilities=6 route_points=54",
+        "HOME HARVEST ExpandedDesertFrontier.tscn bastion both_players=true seconds=13.6000000000002",
+        "EXPANDED GEOMETRY ExpandedDesertFrontier size=(192.0, 144.0) fields=8 facilities=6 route_points=54",
+        "HOME HARVEST ExpandedDesertFrontier.tscn helix both_players=true seconds=14.0000000000002",
+        "EXPANDED GEOMETRY ExpandedDesertFrontier size=(192.0, 144.0) fields=8 facilities=6 route_points=54",
+        "HOME HARVEST ExpandedDesertFrontier.tscn frontier both_players=true seconds=13.5000000000002",
+        "EXPANDED GEOMETRY ExpandedAlpineRelay size=(192.0, 156.0) fields=8 facilities=6 route_points=67",
+        "HOME HARVEST ExpandedAlpineRelay.tscn bastion both_players=true seconds=13.4333333333335",
+        "EXPANDED GEOMETRY ExpandedAlpineRelay size=(192.0, 156.0) fields=8 facilities=6 route_points=67",
+        "HOME HARVEST ExpandedAlpineRelay.tscn helix both_players=true seconds=13.5333333333335",
+        "EXPANDED GEOMETRY ExpandedAlpineRelay size=(192.0, 156.0) fields=8 facilities=6 route_points=67",
+        "HOME HARVEST ExpandedAlpineRelay.tscn frontier both_players=true seconds=14.3666666666669",
+        "EXPANDED GEOMETRY ExpandedCoastalFoundry size=(192.0, 156.0) fields=8 facilities=6 route_points=48",
+        "HOME HARVEST ExpandedCoastalFoundry.tscn bastion both_players=true seconds=15.1666666666669",
+        "EXPANDED GEOMETRY ExpandedCoastalFoundry size=(192.0, 156.0) fields=8 facilities=6 route_points=48",
+        "HOME HARVEST ExpandedCoastalFoundry.tscn helix both_players=true seconds=13.3000000000002",
+        "EXPANDED GEOMETRY ExpandedCoastalFoundry size=(192.0, 156.0) fields=8 facilities=6 route_points=48",
+        "HOME HARVEST ExpandedCoastalFoundry.tscn frontier both_players=true seconds=13.3000000000002",
+        "Starting resources: 0 failures"
+      ]
+    },
+    {
+      "name": "StartingResourceRegression (advanced starts)",
+      "exit": 0,
+      "script_errors": false,
+      "arguments": [
+        "--",
+        "--advanced-only"
+      ],
+      "summaries": [
+        "EXPANDED GEOMETRY ExpandedDesertFrontier size=(192.0, 144.0) fields=8 facilities=6 route_points=62",
+        "EXPANDED GEOMETRY ExpandedAlpineRelay size=(192.0, 156.0) fields=8 facilities=6 route_points=71",
+        "EXPANDED GEOMETRY ExpandedCoastalFoundry size=(192.0, 156.0) fields=8 facilities=6 route_points=46",
+        "Starting resources: 0 failures"
+      ]
+    },
+    {
+      "name": "UnitAnimationCapture",
+      "exit": 0,
+      "script_errors": false,
+      "arguments": [
+        "--stage=2026-10-17-cadence",
+        "--roles=Infantry"
+      ],
+      "summaries": [
+        "Unit animation capture complete: res://art/animation/2026-10-17-cadence/"
+      ]
+    }
+  ],
+  "static_checks": [
+    "gdformat: 64 changed/new GDScript files unchanged",
+    "gdlint source/: no problems",
+    "git diff --check: passed",
+    "python3 -m py_compile tools/release/build.py: passed"
+  ],
+  "before_fix": "New cadence checks produced 70 failures with the prior gait implementation; fixed implementation reports zero failures.",
+  "visual_review": [
+    "Three-faction soldier contact sheets: starting, cruising, turning, stopping",
+    "English/Chinese HUD console captures across all factions"
+  ],
+  "limitations": [
+    "Windows native execution remains unverified. Cadence reproduction and fixes were tested locally.",
+    "Existing Godot shutdown resource/RID/shader warnings remain.",
+    "Targeted regressions, not a full repository test suite."
+  ]
+}

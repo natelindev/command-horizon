@@ -338,6 +338,8 @@ func _invalid_and_legacy():
 	if human.faction == "frontier":
 		return true  # Frontier did not exist in legacy versions; old factions cover migration.
 	legacy.snapshot_version = 6
+	for stance_unit in legacy.units:
+		stance_unit.erase("stance")
 	legacy.erase("neutral_buildings")
 	for ambient in legacy.get("ambient", []):
 		ambient.erase("combat")

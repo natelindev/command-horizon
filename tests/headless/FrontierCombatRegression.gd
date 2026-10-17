@@ -19,7 +19,7 @@ func _run():
 		var hp = target.hp
 		var attack = shoot.new(target, 1)
 		cannon.issue_manual_order(attack)
-		await _frames(35)
+		await _wait_for_hit(target, hp)
 		var expected = 23.4 if target_role == "Tank" else 6.3
 		_check(
 			is_equal_approx(hp - target.hp, expected),
@@ -37,7 +37,7 @@ func _run():
 	_check(game.battlefield.can_fire(jackal, drone), "Jackal cannot acquire nearby aircraft")
 	var hp = drone.hp
 	jackal.issue_manual_order(shoot.new(drone, 1))
-	await _frames(45)
+	await _wait_for_hit(drone, hp)
 	_check(is_equal_approx(hp - drone.hp, jackal.attack_damage), "Real Jackal AA hit differs")
 	drone.position = Vector3(29.2, 3, 22)
 	_check(not game.battlefield.can_fire(jackal, drone), "Jackal exceeds 6.5 m AA range")
@@ -46,3 +46,11 @@ func _run():
 		push_error(message)
 	print("Frontier combat: %d failures" % errors.size())
 	quit(0 if errors.is_empty() else 1)
+
+
+func _wait_for_hit(target, previous_hp):
+	var deadline = game.simulation_time + 3.0
+	while (
+		is_instance_valid(target) and target.hp == previous_hp and game.simulation_time < deadline
+	):
+		await physics_frame

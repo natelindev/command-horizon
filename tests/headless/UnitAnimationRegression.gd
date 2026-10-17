@@ -39,6 +39,7 @@ func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
 	for faction in ["bastion", "helix", "frontier"]:
 		await _fixture(faction)
+		_test_render_cadence()
 		_test_no_skating()
 		_test_walker_stance()
 		_test_eased_heading()
@@ -116,6 +117,43 @@ func _drive(unit, velocity, frames, turn_rate = 0.0):
 			unit.rotate_y(turn_rate * STEP)
 			velocity = velocity.rotated(Vector3.UP, turn_rate * STEP)
 		visual._process(STEP)
+
+
+# A fast renderer may draw several frames between simulation ticks. Test the
+# sampled-root path too: those zero-travel frames must not restart the stride.
+func _test_render_cadence():
+	for role in ["Infantry", "RocketInfantry", "SniperInfantry", "AssaultInfantry", "Hero"]:
+		for fps in [30, 60, 144, 240, 1000]:
+			var unit = _spawn(role, 0, Vector3(30, 0, 12))
+			var motion = unit.get_node("BastionVisuals")._infantry_motion
+			var delta = 1.0 / fps
+			var previous_tick = 0
+			var restarts = 0
+			var started = false
+			for frame in range(fps * 2):
+				var tick = floori(float(frame + 1) * 30.0 / fps)
+				var distance = (tick - previous_tick) * 2.5 / 30.0
+				previous_tick = tick
+				var was_moving = motion._moving
+				motion.advance(delta, distance, frame * delta, 0.0, 0.0, 0.0)
+				if started and not was_moving and motion._moving:
+					restarts += 1
+				started = started or motion._moving
+			_check(
+				restarts == 0,
+				(
+					"%s %s stride restarted %d times at %d render / 30 physics Hz"
+					% [_players[0].faction, role, restarts, fps]
+				)
+			)
+			# Tiny but continuous travel at high FPS must still count as walking.
+			for frame in range(fps):
+				motion.advance(delta, .1 * delta, frame * delta, 0.0, 0.0, 0.0)
+			_check(motion._moving, "%s slow walk frozen at %d FPS" % [role, fps])
+			for frame in range(fps):
+				motion.advance(delta, 0.0, frame * delta, 0.0, 0.0, 0.0)
+			_check(motion.is_at_rest(), "%s did not stop at %d FPS" % [role, fps])
+			unit.queue_free()
 
 
 func _test_no_skating():

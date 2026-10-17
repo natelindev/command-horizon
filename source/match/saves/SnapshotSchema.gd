@@ -64,19 +64,19 @@ func validate(data):
 			+ "structure_memory:list"
 			+ (
 				" neutral_buildings:list"
-				if data is Dictionary and data.get("snapshot_version") in [11, 12, 13]
+				if data is Dictionary and data.get("snapshot_version") in [11, 12, 13, 14]
 				else ""
 			)
 			+ (
 				" battle_record:dict"
-				if data is Dictionary and data.get("snapshot_version") in [9, 10, 11, 12, 13]
+				if data is Dictionary and data.get("snapshot_version") in [9, 10, 11, 12, 13, 14]
 				else ""
 			)
 			+ (
 				" ambient:list"
 				if (
 					data is Dictionary
-					and data.get("snapshot_version") in [6, 7, 8, 9, 10, 11, 12, 13]
+					and data.get("snapshot_version") in [6, 7, 8, 9, 10, 11, 12, 13, 14]
 				)
 				else ""
 			)
@@ -92,7 +92,7 @@ func validate(data):
 	):
 		return _fail("Invalid battle record.")
 	if (
-		data.snapshot_version not in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+		data.snapshot_version not in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
 		or data.map_revision != 1
 		or not _settings(data.settings)
 	):
@@ -200,6 +200,7 @@ func validate(data):
 					+ (" weapon_mode:dict" if data.snapshot_version >= 2 else "")
 					+ (" deployment:dict" if data.snapshot_version >= 3 else "")
 					+ (" signature:dict" if _version >= 4 else "")
+					+ (" stance:int" if _version >= 14 else "")
 				)
 			)
 			or not _identify(unit, "unit-")
@@ -234,6 +235,8 @@ func validate(data):
 			if sides[unit.player].heroes > 1:
 				return _fail("Duplicate hero reservation.")
 		var building = unit.role in Catalog.STRUCTURES
+		if _version >= 14 and unit.stance not in [0, 1, 2, 3]:
+			return _fail("Invalid unit stance.")
 		if data.snapshot_version >= 2 and not _weapon_mode(unit):
 			return false
 		if data.snapshot_version >= 3 and not _deployment(unit):

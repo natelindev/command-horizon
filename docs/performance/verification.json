@@ -1,0 +1,261 @@
+{
+  "date": "2026-10-17",
+  "engine": "Godot 4.6 stable official",
+  "hardware": "Apple M1 Pro",
+  "scope": "Targeted regressions and release smoke scripts; latest passing run per script. Not a full repository test suite or Windows export test.",
+  "headless_arguments": [
+    "--headless",
+    "--path",
+    ".",
+    "--fixed-fps",
+    "60",
+    "--script",
+    "<script>"
+  ],
+  "rendered_arguments": [
+    "--path",
+    ".",
+    "--script",
+    "<script>"
+  ],
+  "checks": [
+    {
+      "script": "tests/headless/NavigationRegression.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "PASS: obstacle routing, crowded movement, harvesting and factory egress"
+      ],
+      "wall_seconds": 44.7
+    },
+    {
+      "script": "tests/headless/OrdersRegression.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "PASS: both factions queued routes, pause, Shift input, replace/Stop/cap/resume; target loss/fog, repair, follow/skip, harvest, attack/attack-move/build handoffs"
+      ],
+      "wall_seconds": 11.4
+    },
+    {
+      "script": "tests/headless/UnitMotionRegression.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "PASS: all 16 faction/mobile roles idle; motion bounds/no drift; orders/aim interrupt; attack/death variety; RNG isolation; foundations fixed; pause"
+      ],
+      "wall_seconds": 2.35
+    },
+    {
+      "script": "tests/headless/CombatJuiceRegression.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "PASS Voice bus full-band clarity chain",
+        "PASS Radio squelch and key-up chirp assets",
+        "PASS Camera trauma shake and reduced-motion suppression",
+        "PASS Vehicle suspension recoil spring-damper dynamics",
+        "PASS 33 combat Foley cues verified with sub-bass transient energy",
+        "PASS Armored vehicle turret cook-off physics and pool bounds",
+        "Combat juice regression: 0 failures"
+      ],
+      "wall_seconds": 0.75
+    },
+    {
+      "script": "tests/headless/CampaignControlsRegression.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "Campaign controls: 0 failures"
+      ],
+      "wall_seconds": 5.72
+    },
+    {
+      "script": "tests/headless/NeutralWorldRegression.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "Neutral world: 0 failures"
+      ],
+      "wall_seconds": 13.73
+    },
+    {
+      "script": "tests/headless/BehaviorRegression.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "Unit behaviors: 0 failures"
+      ],
+      "wall_seconds": 9.09
+    },
+    {
+      "script": "tests/headless/CombatRegression.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "PASS: occluded/allied/elevated vision, legal firing, hidden-target loss, armor counters, fractional damage, repair cap/service slots/power/combat suppression/pause"
+      ],
+      "wall_seconds": 2.23
+    },
+    {
+      "script": "tests/headless/FrontierCombatRegression.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "Frontier combat: 0 failures"
+      ],
+      "wall_seconds": 1.81
+    },
+    {
+      "script": "tests/headless/LuaSandboxRegression.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "PASS: Lua engine bridge, isolation, immutable input, budgets, result guards, clean Resume"
+      ],
+      "wall_seconds": 0.73
+    },
+    {
+      "script": "tests/headless/PersistentCaptureRegression.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "Persistent neutral ownership: 0 failures"
+      ],
+      "wall_seconds": 18.4
+    },
+    {
+      "script": "tests/headless/CampaignInteriorRegression.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "Campaign interiors: 0 failures"
+      ],
+      "wall_seconds": 18.97
+    },
+    {
+      "script": "tests/headless/HeroCampaignRegression.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "Hero campaigns: 0 failures"
+      ],
+      "wall_seconds": 33.84
+    },
+    {
+      "script": "tests/headless/MapRosterRegression.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "Map roster and legacy preference migration: 0 failures"
+      ],
+      "wall_seconds": 2.18
+    },
+    {
+      "script": "tests/headless/UnitAnimationRegression.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "Unit animation regression: 0 failures"
+      ],
+      "wall_seconds": 3.97
+    },
+    {
+      "script": "tests/headless/FoundationDurabilityRegression.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "PASS bastion: all 9 roles, enemy fire, save/load, continued construction and destruction",
+        "PASS legacy foundation upgrade: zero/partial/damaged, one-time migration, completion",
+        "PASS helix: all 9 roles, enemy fire, save/load, continued construction and destruction",
+        "PASS legacy foundation upgrade: zero/partial/damaged, one-time migration, completion",
+        "PASS frontier: all 9 roles, enemy fire, save/load, continued construction and destruction",
+        "PASS legacy foundation upgrade: zero/partial/damaged, one-time migration, completion",
+        "Foundation durability: 0 failures"
+      ],
+      "wall_seconds": 18.52
+    },
+    {
+      "script": "tests/headless/WeaponModeRegression.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "PASS: Bastion ground/AA range, armor and shared reload",
+        "PASS: Helix domains, switch firing lock, movement/pause, cooldown and v1/v2 archives",
+        "PASS: AI chooses modes from observed contacts and retains stance without contacts",
+        "Weapon modes: 0 failures"
+      ]
+    },
+    {
+      "script": "tests/headless/CampaignRegression.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "PASS: First Orders preset victory; capture/contest/vision; pause/defeat/progress"
+      ]
+    },
+    {
+      "script": "tests/headless/ChineseUIRegression.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "Chinese UI: 1145 unique strings, 687 voice captions, 0 failures"
+      ]
+    },
+    {
+      "script": "tests/headless/LocalizationRegression.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "Localization regression: 0 failures"
+      ]
+    },
+    {
+      "script": "tests/rendered/BehaviorPreview.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "Unit behaviors: 0 failures"
+      ]
+    },
+    {
+      "script": "tests/rendered/HudConsolePreview.gd",
+      "status": "passed",
+      "script_errors": false,
+      "summary": [
+        "HUD console preview: 0 failures"
+      ]
+    }
+  ],
+  "static_checks": [
+    {
+      "command": "gdformat --check source tests/headless/BehaviorRegression.gd tests/rendered/BehaviorPreview.gd tests/headless/WeaponModeRegression.gd",
+      "status": "passed",
+      "summary": "374 files unchanged"
+    },
+    {
+      "command": "gdlint source/",
+      "status": "passed",
+      "summary": "Success: no problems found"
+    },
+    {
+      "command": "git diff --check",
+      "status": "passed"
+    }
+  ],
+  "corrected_failures": [
+    "Freed cached bodies were validated before typed position access.",
+    "Physics interpolation root motion now drives display-rate gait sampling.",
+    "Snapshot v14 persists stance; older-version fixtures erase the new field.",
+    "Projectile fixture waits for actual damage within a bounded simulation deadline.",
+    "First Orders fixture uses Guard and tests Guard plus Follow for the optional doctrine badge.",
+    "Locale tests use fixed behavior controls; new captions translated.",
+    "Weapon-mode fixture explicitly centers its occluder after deferred spawn navigation alignment.",
+    "Spatial query extent is explicitly typed; tests reject script errors even if the script prints a zero-failure summary."
+  ],
+  "remaining_limitations": [
+    "Existing Godot shutdown ObjectDB/resource/RID/shader warnings remain. Passing status does not mean clean stderr.",
+    "RTX 4090, Windows and release export performance are unverified.",
+    "Legacy battle Lua and programmable editor regressions are retired; Lua sandbox still passes as a standalone compatibility backend."
+  ]
+}

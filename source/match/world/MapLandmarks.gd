@@ -71,12 +71,13 @@ const CACHE = [
 	["resource_b", Vector2(0, 3.0), 300],
 ]
 const SCATTER = {
-	"desert": ["desert/DryScrub", "supply/RoadSage"],
-	"alpine": ["alpine/WinterSedge"],
-	"industrial": ["supply/RoadSage", "desert/DryScrub"],
-	"coastal": ["supply/RoadSage", "desert/DryScrub"],
-	"plain": ["desert/DryScrub", "supply/RoadSage"],
+	"desert": ["industrial-surroundings/BirchScrub"],
+	"alpine": ["alpine/SnowPineGrove"],
+	"industrial": ["industrial-surroundings/BirchScrub"],
+	"coastal": ["industrial-surroundings/BirchScrub"],
+	"plain": ["industrial-surroundings/BirchScrub"],
 }
+
 # Authored layouts: landmarks are [prefab, position, heading]; caches are
 # [position, heading, optional story prefab, story position, story heading].
 const LAYOUTS = {
@@ -419,10 +420,10 @@ static func _cache(map, item):
 	map.get_node("Resources").add_child(deposit)
 
 
-# Low ground cover drawn with one multimesh per plant model. It never blocks
+# Scenic vegetation drawn with one multimesh per plant model. It never blocks
 # paths, sight or construction and stays off roads, bases and objectives.
 static func _scatter(map, parent, layout, placed, scale):
-	var count = roundi(layout.scatter * scale * scale)
+	var count = maxi(1, roundi(layout.scatter * scale * scale * .35))
 	var random = RandomNumberGenerator.new()
 	random.seed = hash(layout_name(map.scene_file_path))
 	var blockers = _scatter_blockers(map, placed)
@@ -443,7 +444,7 @@ static func _scatter(map, parent, layout, placed, scale):
 			var point = center + Vector2.from_angle(random.randf() * TAU) * random.randf() * 3.2
 			if accepted >= count or not _open_ground(map, point, blockers):
 				continue
-			var size = random.randf_range(.6, 1.15)
+			var size = random.randf_range(.9, 1.1)
 			var basis = Basis(Vector3.UP, random.randf() * TAU).scaled(Vector3(size, size, size))
 			transforms[choice].append(Transform3D(basis, Vector3(point.x, .012, point.y)))
 			accepted += 1
@@ -478,7 +479,7 @@ static func _scatter_blockers(map, placed):
 
 
 static func _open_ground(map, point, blockers):
-	var margin = 1.5
+	var margin = 3.0
 	if (
 		point.x < margin
 		or point.y < margin
@@ -492,7 +493,7 @@ static func _open_ground(map, point, blockers):
 		if point.distance_to(circle[0]) < circle[1]:
 			return false
 	var overview = blockers.overview
-	var half_width = overview.get("road_width", 4.0) / 2.0 + 1.0
+	var half_width = overview.get("road_width", 4.0) / 2.0 + 2.5
 	for road in overview.get("roads", []):
 		var closest = Geometry2D.get_closest_point_to_segment(
 			point, Vector2(road.x, road.y), Vector2(road.z, road.w)
@@ -508,7 +509,7 @@ static func _open_ground(map, point, blockers):
 static func _multimesh(parent, asset, transforms):
 	var multimesh = MultiMesh.new()
 	multimesh.transform_format = MultiMesh.TRANSFORM_3D
-	multimesh.mesh = _merged_mesh(asset)
+	multimesh.mesh = _merged_mesh(asset, 6.5 if "Pine" in asset else 1.9)
 	multimesh.instance_count = transforms.size()
 	for index in transforms.size():
 		multimesh.set_instance_transform(index, transforms[index])
@@ -521,8 +522,9 @@ static func _multimesh(parent, asset, transforms):
 
 # One mesh per model with a surface per material keeps each cover type to a
 # few draw calls however many pieces the source model contains.
-static func _merged_mesh(asset):
+static func _merged_mesh(asset, height):
 	var source = load("res://assets/models/environment/%s.glb" % asset).instantiate()
+	load("res://source/match/maps/Vegetation.gd").fit_height(source, height)
 	var tools = {}
 	for mesh in source.find_children("*", "MeshInstance3D", true, false):
 		var local = Transform3D.IDENTITY
@@ -530,6 +532,7 @@ static func _merged_mesh(asset):
 		while node != source:
 			local = node.transform * local
 			node = node.get_parent()
+		local = source.transform * local
 		for surface in mesh.mesh.get_surface_count():
 			var material = mesh.get_active_material(surface)
 			if not tools.has(material):

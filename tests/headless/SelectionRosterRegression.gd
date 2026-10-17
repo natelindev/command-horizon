@@ -3,7 +3,7 @@ extends "res://tests/headless/SaveRestoreEdges.gd"
 
 func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
-	for faction in ["bastion", "helix"]:
+	for faction in ["bastion", "helix", "frontier"]:
 		await _selection_roster(faction)
 	for message in errors:
 		push_error(message)
@@ -17,6 +17,22 @@ func _selection_roster(faction):
 		side.set_process(false)
 	game.hud._toggle_pause()
 	var player = game._get_human_player()
+	var soldiers = _units(player, "Infantry")
+	while soldiers.size() < 2:
+		soldiers.append(_spawn_member(player, "Infantry"))
+	var infantry_roster = await _choose(soldiers.slice(0, 2))
+	await _inspect_layout(player, infantry_roster, "infantry")
+	for entry in infantry_roster._tiles:
+		var portrait = entry.button.find_child("Portrait", true, false)
+		_check(
+			portrait.texture.get_width() < portrait.texture.get_height() * .8,
+			"Square padding shrinks the soldier portrait"
+		)
+		_check(portrait.size.y >= 48, "Healthy soldier portrait does not fill its card")
+		_check(not entry.label.visible, "Empty health label leaves the soldier miniature")
+	# These temporary portrait fixtures do not change the full-army population fixture.
+	for unit in soldiers.slice(2):
+		unit.queue_free()
 	var members = _units(player, "Tank") + _units(player, "Worker")
 	members[0].hp = members[0].hp_max / 2.0
 	var roster = await _choose(members)
@@ -46,6 +62,13 @@ func _exercise(player, members, roster):
 		var expected = members.filter(func(unit): return unit.type == entry.members[0].type)
 		_check(entry.members == expected, "Type button has wrong units")
 	_check(roster._damaged.text.ends_with("1"), "Damaged total is wrong")
+	for entry in roster._tiles:
+		var portrait = entry.button.find_child("Portrait", true, false)
+		_check(portrait != null and portrait.size.y >= 32, "Selection portrait is miniature")
+		_check(
+			entry.label.visible == (entry.unit.hp < entry.unit.hp_max),
+			"Empty health label steals portrait space"
+		)
 	var identities = roster._tiles.map(func(entry): return entry.button.get_instance_id())
 	var units = roster._tiles.map(func(entry): return entry.unit)
 	members[0].hp = members[0].hp_max * 0.25

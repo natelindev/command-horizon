@@ -114,9 +114,6 @@ func update_layout(selected_units: Array, direct_orders = null):
 			and not direct_orders.eligible("attack_move").is_empty()
 		)
 	)
-	# S: Stance Toggle
-	var current_stance = _selection[0].stance_name() if "stance_name" in _selection[0] else "Stance"
-	_setup_slot(1, 1, current_stance, "S", _on_cycle_stance, true)
 	# D: Attack Target
 	_setup_slot(
 		1,

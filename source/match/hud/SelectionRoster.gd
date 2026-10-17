@@ -42,7 +42,13 @@ func _build():
 	types.columns = 3
 	types.add_theme_constant_override("h_separation", 5)
 	types.add_theme_constant_override("v_separation", 5)
-	add_child(types)
+	var type_scroll = ScrollContainer.new()
+	type_scroll.name = "UnitTypeCounts"
+	type_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	type_scroll.follow_focus = true
+	add_child(type_scroll)
+	type_scroll.add_child(types)
+	types.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var cohorts = {}
 	for unit in _members:
 		if not cohorts.has(unit.type):
@@ -76,6 +82,7 @@ func _build():
 		count.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		row.add_child(count)
 		_types.append({"button": button, "title": title, "members": members})
+	type_scroll.custom_minimum_size.y = minf(65, ceili(cohorts.size() / 3.0) * 35 - 5)
 	_grid = GridContainer.new()
 	_grid.columns = PAGE_SIZE
 	_grid.add_theme_constant_override("h_separation", 5)
@@ -125,7 +132,7 @@ func _rebuild_tiles():
 		if not _eligible(unit):
 			continue
 		var button = _button()
-		button.custom_minimum_size = Vector2(42, 56)
+		button.custom_minimum_size = Vector2(42, 68)
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		button.add_theme_font_size_override("font_size", 12)
 		button.pressed.connect(_request.bind([unit]))
@@ -146,10 +153,12 @@ func _rebuild_tiles():
 		box.add_child(label)
 		if unit.type not in Catalog.MISSION_NAMES:
 			var icon = TextureRect.new()
-			icon.texture = load(Factions.icon(unit.player.faction, unit.type))
+			icon.texture = Factions.selection_portrait(unit.player.faction, unit.type)
 			icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 			icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			icon.custom_minimum_size.y = 20
+			icon.name = "Portrait"
+			icon.custom_minimum_size.y = 32
+			icon.size_flags_vertical = Control.SIZE_EXPAND_FILL
 			icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			box.add_child(icon)
 			box.move_child(icon, 0)
@@ -213,6 +222,7 @@ func refresh():
 		entry.health.queue_redraw()
 		# The bar shows health; the number appears once a unit is hurt.
 		entry.label.text = "%d%%" % ceili(percent) if percent < 100 else ""
+		entry.label.visible = percent < 100
 		var title = (
 			"%s · %d / %d HP"
 			% [Factions.title(unit.player.faction, unit.type), ceili(unit.hp), unit.hp_max]

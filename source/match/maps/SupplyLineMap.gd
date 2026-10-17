@@ -71,7 +71,13 @@ func _roadside(route):
 				if POINTS.any(func(checkpoint): return point.distance_to(checkpoint) < 9):
 					continue
 				var asset = "DrainageRemnant" if step % 3 == 0 else "RoadSage"
-				var model = load(KIT + asset + ".glb").instantiate()
+				var model = (
+					load(KIT + asset + ".glb").instantiate()
+					if asset == "DrainageRemnant"
+					else load("res://source/match/maps/Vegetation.gd").bush(
+						details.get_child_count()
+					)
+				)
 				model.position = point + Vector3.UP * .01
 				model.rotation.y = (
 					atan2(direction.x, direction.z) + (PI / 2 if sign_value < 0 else 0)

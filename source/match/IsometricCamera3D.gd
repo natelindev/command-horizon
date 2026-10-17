@@ -77,10 +77,12 @@ func set_size_safely(a_size: float):
 		return
 	size = clamp(a_size, size_min, size_max)
 	_align_camera_properties_to_current_size()
+	reset_physics_interpolation()
 
 
 func set_position_safely(target_position: Vector3):
 	global_transform.origin = _target_position_to_camera_position(target_position)
+	reset_physics_interpolation()
 
 
 func get_ray_intersection(mouse_pos: Vector2) -> Variant:
@@ -207,6 +209,7 @@ func _reset_rotation():
 		new_camera_position_yless.x, camera_position.y, new_camera_position_yless.z
 	)
 	global_transform = global_transform.looking_at(pivot_point, Vector3(0, 1, 0))
+	reset_physics_interpolation()
 
 
 func _start_rotation(event: InputEvent):
@@ -227,6 +230,8 @@ func _rotate_from_reference_position_by(reference_position: Vector3, angle_radia
 	var rotated_reference_position = pivot_point + rotated_diff_vec
 	global_position = rotated_reference_position
 	global_transform = global_transform.looking_at(pivot_point, Vector3.UP)
+	if not Engine.is_in_physics_frame():
+		reset_physics_interpolation()
 
 
 func _is_rotating() -> bool:

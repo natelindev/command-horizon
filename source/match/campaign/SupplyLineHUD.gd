@@ -5,7 +5,10 @@ var _truck_labels = []
 var _view_buttons = []
 var _advance
 var _hold
+var _guidance: Label
 var _command_panel
+var _objective_scroll: ScrollContainer
+var _objective_content: VBoxContainer
 
 
 func _ready():
@@ -15,11 +18,23 @@ func _ready():
 	objective_panel.custom_minimum_size.x = 340
 	_style(objective_panel)
 	add_child(objective_panel)
+	_objective_scroll = ScrollContainer.new()
+	_objective_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_objective_scroll.follow_focus = true
+	objective_panel.add_child(_objective_scroll)
 	var column = VBoxContainer.new()
+	_objective_content = column
+	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	column.add_theme_constant_override("separation", 5)
-	objective_panel.add_child(column)
+	_objective_scroll.add_child(column)
 	_label(column, "SUPPLY LINE · DELIVER 2 / 3", 16)
-	var hint = _label(column, "At checkpoints: hold, defend, repair, then advance.", 12)
+	var hint = _label(
+		column, "Save 2 trucks. Clear each checkpoint for 12 seconds, then advance again.", 12
+	)
+	hint.custom_minimum_size.x = 308
+	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_guidance = _label(column, "", 12)
+	_guidance.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	hint.tooltip_text = (
 		"Repair robots: right-click a damaged truck. Scout and screen with your escorts. "
 		+ "Truck and escort orders remain separate. Use tactical pause to plan orders."
@@ -31,6 +46,10 @@ func _ready():
 	column.add_child(commands)
 	_advance = _button(commands, "Advance convoy", func(): get_parent().advance_convoy())
 	_hold = _button(commands, "Hold convoy", func(): get_parent().hold_convoy())
+	_advance.tooltip_text = (
+		"Send surviving trucks to their next checkpoint. " + "Escorts keep their own orders."
+	)
+	_hold.tooltip_text = "Stop trucks at the checkpoint so clearance can progress."
 	var selection = HBoxContainer.new()
 	selection.add_theme_constant_override("separation", 5)
 	column.add_child(selection)
@@ -75,6 +94,18 @@ func _process(delta):
 		]
 	)
 	objective_panel.position = Vector2(0, _command_panel.position.y + _command_panel.size.y + 8)
+	var available = (
+		get_viewport().get_visible_rect().size.y
+		- HudLayout.CONSOLE_HEIGHT
+		- HudLayout.GAP
+		- objective_panel.position.y
+	)
+	var margins = objective_panel.get_theme_stylebox("panel").get_minimum_size().y
+	_objective_scroll.custom_minimum_size.y = minf(
+		_objective_content.get_combined_minimum_size().y, maxf(80, available - margins)
+	)
+	objective_panel.size.y = _objective_scroll.custom_minimum_size.y + margins
+	_guidance.text = mission.convoy_guidance()
 	for index in mission.convoy.size():
 		var entry = mission.convoy[index]
 		var state = "Extracted" if entry.delivered else "Lost"

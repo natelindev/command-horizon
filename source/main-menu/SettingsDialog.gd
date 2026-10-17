@@ -124,7 +124,8 @@ func _ready():
 	_sample.bus = "Voice"
 	_sample.stream = load("res://assets/audio/voices/bastion/Command/MATCH_STARTED_0.ogg")
 	add_child(_sample)
-	_check(general, "Show speech subtitles", "subtitles")
+	var captions = _check(general, "Show unit speech subtitles", "subtitles")
+	captions.tooltip_text = "Campaign dialogue always shows subtitles."
 	var subtitle_row = _row(general, "Subtitle size")
 	var subtitle_size = OptionButton.new()
 	for title in ["Small", "Standard", "Large"]:
@@ -147,11 +148,6 @@ func _ready():
 	symbols.tooltip_text = (
 		"Hover a unit for its owner. Player-colored selection outlines and "
 		+ "minimap shapes remain visible."
-	)
-	var plan = _check(general, "Show battle plan in skirmish", "show_battle_plan")
-	plan.tooltip_text = (
-		"Next-step advice in the left column of the battle console. "
-		+ "You can also hide or restore it during a battle."
 	)
 	var scale_row = _row(general, "Interface size")
 	var interface_scale = OptionButton.new()
@@ -324,12 +320,7 @@ func _refresh():
 		controls[key].set_value_no_signal(options.get(key))
 		controls[key + "_value"].text = "%d%%" % roundi(options.get(key) * 100)
 	for key in [
-		"edge_scrolling",
-		"mouse_restricted",
-		"reduced_flashes",
-		"subtitles",
-		"ownership_symbols",
-		"show_battle_plan"
+		"edge_scrolling", "mouse_restricted", "reduced_flashes", "subtitles", "ownership_symbols"
 	]:
 		controls[key].set_pressed_no_signal(options.get(key))
 

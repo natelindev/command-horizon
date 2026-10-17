@@ -46,8 +46,8 @@ func _run():
 			game.map.get_node("FoundryGroundCover").get_child_count() == 8, "Ground cover missing"
 		)
 		var cover = game.map.get_node("FoundryGroundCover")
-		for point in _vertices(cover):
-			_check(point.y <= .3, "Ground cover obscures low units")
+		for model in cover.get_children():
+			_check(model.get_meta("vegetation_height", 0) >= 1.6, "Shrub remains miniature")
 		for branch in [exterior, cover]:
 			for child in branch.find_children("*", "Node", true, false):
 				_check(

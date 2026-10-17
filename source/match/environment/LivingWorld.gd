@@ -342,14 +342,14 @@ func _pitched_roof(point, dimensions):
 
 
 func _tree(point, size_factor):
-	var asset = "alpine/SnowPineGrove" if _alpine else "industrial-surroundings/BirchScrub"
-	if _desert:
-		var variants = load("res://source/match/maps/DesertMaterials.gd").TREES
-		asset = "desert/" + variants[_tree_serial % variants.size()]
-		_tree_serial += 1
-	var model = load("res://assets/models/environment/%s.glb" % asset).instantiate()
+	var biome = (
+		"alpine" if _alpine else ("desert" if _desert else ("coastal" if _coastal else "urban"))
+	)
+	var model = load("res://source/match/maps/Vegetation.gd").tree(
+		biome, _tree_serial, 7.5 * maxf(1.0, size_factor)
+	)
+	_tree_serial += 1
 	model.position = point
-	model.scale = (Vector3.ONE if _desert else Vector3.ONE * 1.35) * size_factor
 	model.rotation.y = point.x * .73
 	add_child(model)
 

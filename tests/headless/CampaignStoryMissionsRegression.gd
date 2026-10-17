@@ -5,7 +5,9 @@ const Campaigns = preload("res://source/match/campaign/CampaignCatalog.gd")
 
 func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
-	root.get_node("Globals").options.restore({"screen": 1, "edge_scrolling": false})
+	root.get_node("Globals").options.restore(
+		{"screen": 1, "edge_scrolling": false, "subtitles": false}
+	)
 	for mission in Narration.missions():
 		var operation = Campaigns.OPERATIONS[mission]
 		var settings = load("res://source/data-model/MatchSettings.gd").new()
@@ -34,7 +36,27 @@ func _run():
 			game.campaign_story.current.id == Narration.scene(mission + ".intro")[0].id,
 			"Missing intro: " + mission
 		)
+		var objectives = load("res://source/match/campaign/CampaignObjectives.gd")
+		_check(
+			not objectives.instructions(game).is_empty(),
+			"Mission has no objective instructions: " + mission
+		)
+		_check(objectives.point(game).is_finite(), "Mission objective has no location: " + mission)
+		_check(game.hud._view_objective != null, "Mission has no objective locator: " + mission)
+		var card = game.get_node("CampaignSubtitles")._card
+		_check(
+			(
+				card.is_visible_in_tree()
+				and card._text.is_visible_in_tree()
+				and not card._text.text.is_empty()
+			),
+			"Missing battle dialogue captions with default settings: " + mission
+		)
 		game.campaign_story.start_briefing(true)
+		_check(
+			game.campaign_story._subtitle._text.is_visible_in_tree(),
+			"Missing briefing captions with default settings: " + mission
+		)
 		game.campaign_story._scene_time = game.campaign_story._scene_length / 2
 		game.campaign_story._animate_camera()
 		await _frames(2)

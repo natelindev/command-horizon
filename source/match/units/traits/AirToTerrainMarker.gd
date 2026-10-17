@@ -12,6 +12,7 @@ const ADVERSARY_UNIT_MATERIAL = preload(
 
 
 func _ready():
+	physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	_mesh_instance.visible = _unit.is_in_group("selected_units")
 	_unit.selected.connect(_on_unit_selected)
 	_unit.deselected.connect(_mesh_instance.hide)

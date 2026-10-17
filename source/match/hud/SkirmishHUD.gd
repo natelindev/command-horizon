@@ -1,6 +1,8 @@
 # gdlint: disable=max-returns
 extends "res://source/match/hud/BastionDemoHUD.gd"
 
+const CampaignCatalog = preload("res://source/match/campaign/CampaignCatalog.gd")
+const CampaignObjectives = preload("res://source/match/campaign/CampaignObjectives.gd")
 const Factions = preload("res://source/match/FactionCatalog.gd")
 const Repairs = preload("res://source/match/combat/RepairService.gd")
 const HudLayout = preload("res://source/match/hud/HudLayout.gd")
@@ -26,6 +28,8 @@ var _dialogue_skip: Button
 var _technology_scroll = null
 var _technology_button
 var _objective = null
+var _objective_hint: Label
+var _view_objective: Button
 var _clock = null
 var _clock_state = null
 var _overlay = null
@@ -77,6 +81,13 @@ func _ready():
 	_objective.add_theme_font_size_override("font_size", 13)
 	_objective.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	content.add_child(_objective)
+	if _is_campaign() and CampaignCatalog.is_story(get_parent().settings.mission_id):
+		_objective_hint = Label.new()
+		_objective_hint.name = "ObjectiveInstructions"
+		_objective_hint.add_theme_font_size_override("font_size", 12)
+		_objective_hint.add_theme_color_override("font_color", BattleTheme.MUTED)
+		_objective_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		content.add_child(_objective_hint)
 	_build_system_plate()
 	Globals.options.changed.connect(_refresh_shortcuts)
 	_assignment_hint = Label.new()
@@ -103,16 +114,12 @@ func _ready():
 	var assignment_layer = CanvasLayer.new()
 	assignment_layer.layer = -1
 	add_child(assignment_layer)
-	assignment_layer.add_child(load("res://source/match/hud/ProgramAssignments.gd").new())
 	if get_parent().settings.mission_id.is_empty():
 		if "relays" in get_parent().map:
 			var markers = load("res://source/match/hud/RelayMarkers.gd").new()
 			markers.name = "RelayMarkers"
 			markers.hud = self
 			assignment_layer.add_child(markers)
-		battle_plan = load("res://source/match/hud/SkirmishPlanPanel.gd").new()
-		battle_plan.hud = self
-		add_child(battle_plan)
 	production_overview = load("res://source/match/hud/ProductionOverview.gd").new()
 	production_overview.hud = self
 	add_child(production_overview)
@@ -199,6 +206,8 @@ func _build_system_plate():
 		var hero_row = HBoxContainer.new()
 		column.add_child(hero_row)
 		_hero_select = _button(hero_row, "Hero", _select_hero)
+		_view_objective = _button(hero_row, "View objective", _focus_objective)
+		_view_objective.name = "ViewObjective"
 		_hero_action = _button(hero_row, "Ability", func(): get_parent().campaign_hero.activate())
 		_escort_action = _button(hero_row, "Advance convoy", func(): get_parent().advance_escort())
 		_dialogue_skip = _button(
@@ -266,6 +275,13 @@ func _process(_delta):
 		_pending_notice = ""
 		show_notice(notice)
 	_objective.text = get_parent().objective_text()
+	if _is_campaign():
+		var help = CampaignObjectives.instructions(get_parent())
+		_objective.tooltip_text = help
+		_objective.accessibility_description = help
+		_view_objective.tooltip_text = help
+		if _objective_hint != null:
+			_objective_hint.text = help
 	var seconds = int(get_parent().simulation_time)
 	_clock.text = "%02d:%02d" % [seconds / 60, seconds % 60]
 	var paused = get_tree().paused
@@ -481,11 +497,7 @@ func _setup_title():
 
 func _match_label():
 	if _is_campaign():
-		return (
-			load("res://source/match/campaign/CampaignCatalog.gd")
-			. OPERATIONS[get_parent().settings.mission_id]
-			. title
-		)
+		return CampaignCatalog.OPERATIONS[get_parent().settings.mission_id].title
 	return "Skirmish"
 
 
@@ -691,32 +703,8 @@ func open_visual_editor(units, path, entry = {}):
 	_open_program_editor(units, path, "visual", entry)
 
 
-func _open_program_editor(units, path, mode, entry):
-	if is_instance_valid(program_editor) or _overlay != null or get_parent().finished:
-		return
-	var editor_path = (
-		"res://source/match/hud/VisualProgramEditor.gd"
-		if mode == "visual"
-		else "res://source/match/hud/LuaProgramEditor.gd"
-	)
-	program_editor = load(editor_path).new()
-	program_editor.library_changed.connect(_refresh_program_library)
-	program_editor.game = get_parent()
-	program_editor.selection = units.duplicate()
-	program_editor.library_path = path
-	program_editor.initial = entry
-	var cached = visual_draft if mode == "visual" else lua_draft
-	if entry.is_empty() and not cached.is_empty():
-		program_editor.initial = cached.draft
-	get_parent().add_child(program_editor)
-	if entry.is_empty() and not cached.is_empty():
-		program_editor._roles.select(cached.role_index)
-		program_editor._requirements.select(cached.requirement_index)
-		program_editor._loaded = cached.loaded.duplicate(true)
-		program_editor._assistant_state = cached.get("assistant_state", {}).duplicate(true)
-		program_editor._refresh()
-		if not cached.get("arena_report", {}).is_empty():
-			program_editor._arena_finished(cached.arena_report)
+func _open_program_editor(_units, _path, _mode, _entry):
+	show_notice("Choose Attack, Defensive, Follow, Guard or Hold Fire in the unit's Orders panel.")
 
 
 func open_lua_copy(units, path, draft, was_paused):
@@ -829,7 +817,7 @@ func open_relays():
 	box.add_child(overview)
 
 
-func open_sites():
+func open_sites(site = null):
 	if _overlay != null or is_instance_valid(program_editor) or get_parent().finished:
 		return
 	cancel_map_assignment()
@@ -845,8 +833,16 @@ func open_sites():
 	_button(box, "Back to battle", _close_menu).grab_focus()
 	var overview = load("res://source/match/hud/PointOfInterestOverview.gd").new()
 	overview.name = "PointOfInterestOverview"
+	overview.focus_site = site
 	overview.hud = self
 	box.add_child(overview)
+
+
+func _focus_objective():
+	if _overlay != null or get_parent().finished:
+		return
+	var point = CampaignObjectives.point(get_parent())
+	get_parent().get_node("IsometricCamera3D").set_position_safely(point)
 
 
 func _select_hero():

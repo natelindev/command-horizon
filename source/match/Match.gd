@@ -230,6 +230,7 @@ func _setup_and_spawn_unit(unit, a_transform, player, mark_structure_under_const
 		unit.mark_as_under_construction()
 	_setup_unit_groups(unit, player)
 	player.add_child(unit)
+	unit.reset_physics_interpolation()
 	battlefield.invalidate()
 	MatchSignals.unit_spawned.emit(unit)
 

@@ -8,21 +8,18 @@ const FactionRules = preload("res://source/match/FactionRules.gd")
 const Schema = preload("res://source/match/saves/SnapshotSchema.gd")
 const Values = preload("res://source/match/saves/SaveValue.gd")
 const Actions = preload("res://source/match/saves/ActionRestore.gd")
-const Runtime = preload("res://source/match/programs/LuaRuntime.gd")
 const Catalog = preload("res://source/match/BastionCatalog.gd")
 var error = ""
 var warnings = []
 var entities = {}
 var _schema
 var _data
-var _runtimes = {}
 
 
 func prepare(snapshot):
 	error = ""
 	warnings.clear()
 	entities.clear()
-	_runtimes.clear()
 	_data = null
 	var values = Values.new()
 	var encoded = values.encode(snapshot)
@@ -48,16 +45,9 @@ func prepare(snapshot):
 			)
 		if unit.program.is_empty() or unit.program.lua_source.is_empty():
 			continue
-		var runtime = Runtime.new()
-		var result = runtime.restore_checkpoint(unit.program.lua_source, unit.program.runtime)
-		if not result.ok:
-			runtime.source = unit.program.lua_source
-			runtime.suspended = true
-			runtime.error = result.error
-			warnings.append("%s program suspended: %s" % [unit.role, result.error])
-		elif not result.warning.is_empty():
-			warnings.append("%s: %s" % [unit.role, result.warning])
-		_runtimes[unit.id] = runtime
+		if not warnings.has("Legacy scripted orders were replaced with Defensive behavior."):
+			warnings.append("Legacy scripted orders were replaced with Defensive behavior.")
+
 	_data = data
 	return true
 
@@ -155,6 +145,7 @@ func restore(tree, snapshot):
 		)
 		entities[saved.id] = unit
 		unit.hp = saved.hp
+		unit.stance = saved.get("stance", unit.Stance.AGGRESSIVE)
 		if not saved.get("signature", {}).is_empty():
 			unit.signature.restore(saved.signature)
 		var deployment = saved.get("deployment", {})
@@ -216,7 +207,12 @@ func restore(tree, snapshot):
 		unit.rotation = saved.rotation
 		if unit.program != null:
 			unit.program._changing = true
-		var action = actions.restore(saved.action, unit, unit)
+		var legacy_behavior = (
+			saved.action.get("kind") in ["LuaAction", "PresetAction", "SpecialistAction"]
+		)
+		if legacy_behavior:
+			unit.stance = unit.Stance.DEFENSIVE
+		var action = actions.restore({} if legacy_behavior else saved.action, unit, unit)
 		if action == null:
 			unit.action = null
 			if saved.action.get("kind") == "ChipInstalling":
@@ -230,9 +226,7 @@ func restore(tree, snapshot):
 			unit.program._changing = false
 			if saved.action.get("kind") in ["PresetAction", "SpecialistAction", "LuaAction"]:
 				unit.program._owned_action = action
-			if unit.program.lua_runtime != null and unit.program.lua_runtime.suspended:
-				unit.program._pending = false
-				unit.program.set_status("Error", unit.program.lua_runtime.error)
+
 		_orders(unit, saved.orders)
 		if not saved.movement.is_empty():
 			_copy(unit.get_node("Movement"), saved.movement, saved.movement.keys())
@@ -249,6 +243,7 @@ func restore(tree, snapshot):
 			unit.add_to_group("unit_group_%d" % group)
 		if saved.selected:
 			unit.get_node("Selection").select()
+		unit.reset_physics_interpolation()
 		for shot in saved.projectiles:
 			var target = entities.get(shot.target)
 			if target == null:
@@ -404,7 +399,13 @@ func _program(unit, saved):
 			"_pending"
 		]
 	)
-	program.lua_runtime = _runtimes.get(saved.id)
+	program.installed = true
+	program.lua_runtime = null
+	program.lua_source = ""
+	program.saved_record = {}
+	program._pending = false
+	program.set_physics_process(false)
+	program.set_status("Manual", "Choose a unit behavior.")
 	# Escort references are linked after all units exist in _orders.
 
 
@@ -412,8 +413,8 @@ func _production(unit, saved):
 	if saved.is_empty():
 		return
 	var queue = unit.production_queue
-	queue.fit_chips = saved.fit_chips
-	queue.program_pin = saved.pin.duplicate(true)
+	queue.fit_chips = false
+	queue.program_pin = {}
 	for item in saved.jobs:
 		var job = (
 			load("res://source/match/units/traits/ProductionQueue.gd").ProductionQueueElement.new()
@@ -438,6 +439,8 @@ func _orders(unit, saved):
 	# Only a persisted current order owns that action; otherwise start pending work.
 	orders._active = unit.action if orders._engaged and not orders.current.is_empty() else null
 	orders.set_physics_process(orders._engaged)
+
+	unit.manual_orders.auto_resume = false
 
 
 func _order(saved):

@@ -2,7 +2,6 @@ extends VBoxContainer
 
 var selection = []
 var _status
-var _resume
 var _skip
 var _eject
 var _clear
@@ -29,13 +28,6 @@ func _ready():
 	_eject.text = "Leave building"
 	_eject.pressed.connect(_leave_building)
 	row.add_child(_eject)
-	_resume = CheckBox.new()
-	_resume.text = "Auto-resume program"
-	_resume.add_theme_font_size_override("font_size", 12)
-	_resume.tooltip_text = "After all manual orders finish, resume each unit's assigned program."
-	_resume.visible = selection.any(func(unit): return unit.program != null)
-	_resume.toggled.connect(_set_resume)
-	row.add_child(_resume)
 	refresh()
 
 
@@ -44,10 +36,6 @@ func _each(callback):
 		if is_instance_valid(unit) and unit.manual_orders != null:
 			callback.call(unit.manual_orders)
 	refresh()
-
-
-func _set_resume(enabled):
-	_each(func(orders): orders.auto_resume = enabled)
 
 
 func refresh():
@@ -81,10 +69,6 @@ func refresh():
 	# Queue controls appear while there is an order to skip or a queue to clear.
 	_skip.visible = not _skip.disabled
 	_clear.visible = not _clear.disabled
-	var all_resume = units.all(func(unit): return unit.manual_orders.auto_resume)
-	var any_resume = units.any(func(unit): return unit.manual_orders.auto_resume)
-	_resume.set_pressed_no_signal(all_resume)
-	_resume.text = "Auto-resume: mixed" if any_resume and not all_resume else "Auto-resume program"
 
 
 func _leave_building():

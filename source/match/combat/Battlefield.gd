@@ -2,11 +2,14 @@ extends Node
 
 const Rules = preload("res://source/match/combat/CombatRules.gd")
 const CELL_SIZE = 12.0
+const BODY_CELL_SIZE = 3.0
 const MAX_OBSERVER_HINTS = 512
 var _frame = -1
 var _observers = {}
+var _bodies = {}
 var _max_sight = 0.0
 var _max_unit_radius = 0.0
+var _max_body_step: float = 0.0
 var _blockers = {}
 var _blockers_dirty = true
 var _observer_hints = {}
@@ -37,8 +40,10 @@ func _refresh():
 		return
 	_frame = frame
 	_observers.clear()
+	_bodies.clear()
 	_max_sight = 0.0
 	_max_unit_radius = 0.0
+	_max_body_step = 0.0
 	for unit in (
 		get_tree().get_nodes_in_group("units") + get_tree().get_nodes_in_group("vision_sources")
 	):
@@ -58,6 +63,15 @@ func _refresh():
 		_max_sight = maxf(_max_sight, reach)
 		if unit.is_in_group("units"):
 			_max_unit_radius = maxf(_max_unit_radius, unit.radius)
+			_max_body_step = maxf(
+				_max_body_step, unit.movement_speed * get_physics_process_delta_time()
+			)
+			if not _bodies.has(unit.player):
+				_bodies[unit.player] = {}
+			var body_cell = _body_cell(unit.global_position)
+			if not _bodies[unit.player].has(body_cell):
+				_bodies[unit.player][body_cell] = []
+			_bodies[unit.player][body_cell].append(unit)
 	if _blockers_dirty:
 		_blockers_dirty = false
 		_blockers.clear()
@@ -92,7 +106,7 @@ func can_observe(observer, target):
 	return can_observe_point(observer, target.global_position + Vector3.UP * 0.8, target)
 
 
-func can_observe_point(observer, point, ignored_target = null):
+func can_observe_point(observer, point: Vector3, ignored_target = null) -> bool:
 	if (
 		not is_instance_valid(observer)
 		or not observer.is_inside_tree()
@@ -103,13 +117,13 @@ func can_observe_point(observer, point, ignored_target = null):
 		return false
 	if observer.has_method("is_constructed") and not observer.is_constructed():
 		return false
-	var origin = observer.global_position + Vector3.UP * 0.8
+	var origin: Vector3 = observer.global_position + Vector3.UP * 0.8
 	var reach = observer.sight_range
 	if observer.has_meta("garrison_host"):
 		reach += observer.get_meta("garrison_host").radius + 2.0
 	if is_instance_valid(ignored_target) and ignored_target.is_in_group("neutral_buildings"):
 		reach += ignored_target.radius
-	var offset = (point - origin) * Vector3(1, 0, 1)
+	var offset := (point - origin) * Vector3(1, 0, 1)
 	return (
 		offset.length_squared() <= reach * reach
 		and line_clear(origin, point, observer, ignored_target)
@@ -188,7 +202,8 @@ func fireable_targets(source):
 				if source.has_meta("garrison_host")
 				else 0.0
 			)
-		)
+		),
+		source.player
 	):
 		if can_fire(source, candidate):
 			result.append(candidate)
@@ -337,7 +352,7 @@ func observed_enemies_near(source, radius):
 	# Broad-phase culling belongs to perception, not to a program's world view.
 	# Only currently observed enemies leave this query.
 	var result = []
-	for candidate in nearby_combat_targets(source.global_position_yless, radius):
+	for candidate in nearby_combat_targets(source.global_position_yless, radius, source.player):
 		if Rules.can_target(source, candidate) and is_observed(source.player, candidate):
 			result.append(candidate)
 	return result
@@ -348,23 +363,39 @@ func nearby_bodies(point, margin, player_filter = null):
 	return nearby_units(point * Vector3(1, 0, 1), _max_unit_radius + margin, player_filter)
 
 
-func nearby_units(point: Vector3, radius: float, player_filter = null):
+# Body contact queries need a much finer grid than shared vision queries.
+# Keep live positions in the narrow phase, including changes within this tick.
+func _body_cell(point: Vector3) -> Vector2i:
+	return Vector2i(floori(point.x / BODY_CELL_SIZE), floori(point.z / BODY_CELL_SIZE))
+
+
+func nearby_units(point: Vector3, radius: float, player_filter = null, excluded_player = null):
 	_refresh()
 	var result = []
-	var low := _cell(point - Vector3.ONE * radius)
-	var high := _cell(point + Vector3.ONE * radius)
+	var coarse := radius >= CELL_SIZE * 0.5
+	var cell_size := CELL_SIZE if coarse else BODY_CELL_SIZE
+	var index: Dictionary = _observers if coarse else _bodies
+	# Avoidance callbacks move bodies sequentially after this tick's index is
+	# built. Include one speed-bounded step so crossing a cell cannot hide a body.
+	var indexed_reach := radius + _max_body_step
+	var low := Vector2i(
+		floori((point.x - indexed_reach) / cell_size), floori((point.z - indexed_reach) / cell_size)
+	)
+	var high := Vector2i(
+		floori((point.x + indexed_reach) / cell_size), floori((point.z + indexed_reach) / cell_size)
+	)
 	var radius_squared := radius * radius
-	var players = [player_filter] if player_filter != null else _observers.keys()
+	var players = [player_filter] if player_filter != null else index.keys()
 	for player in players:
-		var cells: Dictionary = _observers.get(player, {})
+		if player == excluded_player:
+			continue
+		var cells: Dictionary = index.get(player, {})
 		for x in range(low.x, high.x + 1):
 			for y in range(low.y, high.y + 1):
 				for unit in cells.get(Vector2i(x, y), []):
-					if (
-						not is_instance_valid(unit)
-						or unit.is_queued_for_deletion()
-						or not unit.is_in_group("units")
-					):
+					if not is_instance_valid(unit) or unit.is_queued_for_deletion():
+						continue
+					if coarse and not unit.is_in_group("units"):
 						continue
 					var position: Vector3 = unit.global_position
 					position.y = 0.0
@@ -373,10 +404,10 @@ func nearby_units(point: Vector3, radius: float, player_filter = null):
 	return result
 
 
-func nearby_combat_targets(point, radius):
-	var result = nearby_units(point, radius)
+func nearby_combat_targets(point, radius, excluded_player = null):
+	var result = nearby_units(point, radius, null, excluded_player)
 	for building in get_tree().get_nodes_in_group("neutral_buildings"):
-		if building.player != null and building.hp > 0:
+		if building.player != null and building.player != excluded_player and building.hp > 0:
 			if (
 				building.global_position_yless.distance_squared_to(point)
 				<= (radius + building.radius) * (radius + building.radius)

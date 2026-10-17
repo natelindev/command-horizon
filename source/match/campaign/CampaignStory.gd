@@ -49,6 +49,7 @@ func _ready():
 	var captions = load("res://source/match/hud/BattleSubtitles.gd").new()
 	captions.name = "CampaignSubtitles"
 	captions.voice = self
+	captions.always_show_captions = true
 	_game.add_child(captions)
 	_build_briefing()
 	Globals.options.changed.connect(_refresh_language)
@@ -274,7 +275,7 @@ func _present_line():
 	if cinematic:
 		_subtitle.set_line(current.speaker, current.text, Globals.options.subtitle_size)
 		_subtitle.set_portrait(current.get("portrait", ""))
-		_subtitle.set_caption_visible(Globals.options.subtitles)
+		_subtitle.set_caption_visible(true)
 	else:
 		caption_changed.emit(current.duplicate())
 

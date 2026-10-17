@@ -1,6 +1,7 @@
 extends "res://source/match/maps/DesertFrontier.gd"
 
 const Layout = preload("res://source/match/maps/ExpandedMapLayout.gd")
+const Opening = preload("res://source/match/maps/StartingResourceLayout.gd")
 const EXPANSION = 1.5
 const EXTRA_FIELDS = [
 	Vector2(34, 104),
@@ -11,8 +12,11 @@ const EXTRA_FIELDS = [
 
 
 func overview():
-	return Layout.overview(
-		super.overview(), EXPANSION, EXTRA_FIELDS, Sites.definitions(scene_file_path)
+	return Opening.overview(
+		self,
+		Layout.overview(
+			super.overview(), EXPANSION, EXTRA_FIELDS, Sites.definitions(scene_file_path)
+		)
 	)
 
 
@@ -21,3 +25,4 @@ func _ready():
 	Layout.expand(self, FIELDS, EXPANSION)
 	Layout.add_fields(self, EXTRA_FIELDS)
 	Layout.roads(self, overview().roads)
+	Opening.apply(self, FIELDS.map(func(field): return field * EXPANSION))

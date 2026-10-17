@@ -15,6 +15,8 @@ const FOOT_HEIGHT = .045
 const CHEST_REST = Vector3(0, .62, 0)
 const CARRY_PIVOT = Vector3(0, .25, 0)
 const SETTLE_SECONDS = .2
+# Render frames between simulation ticks are not a stop command.
+const STOP_GRACE_SECONDS = .06
 # Held weapon and both arms move as one carried assembly.
 const CARRIED = [
 	"ArmLeft",
@@ -79,6 +81,7 @@ var _settle_from = Vector3.ZERO
 var _settle_time = 0.0
 var _hip_height = HIP_HEIGHT
 var _moving = false
+var _travel_idle = INF
 # Last written poses; unchanged parts are not rewritten (each write dirties a subtree).
 var _posed_pelvis = Transform3D()
 var _posed_feet = []
@@ -129,7 +132,11 @@ func _carry(parent, relative):
 func advance(delta, distance, clock, gesture, recoil, aiming):
 	# Gait runs in rig units; a scaled rig (heroes) must not out-stride its body.
 	distance /= rig.scale.z
-	var moving = distance > .0005
+	# Detect speed, not a fixed distance per rendered frame. Preserve the stride
+	# through brief zero-distance samples when rendering outpaces physics.
+	var traveling = distance > maxf(.0000001, delta * .02)
+	_travel_idle = 0.0 if traveling else _travel_idle + delta
+	var moving = traveling or (_moving and _travel_idle < STOP_GRACE_SECONDS)
 	if delta > 0.0:
 		speed = lerpf(speed, distance / delta, 1.0 - exp(-delta * 10.0))
 	if not moving:
@@ -352,6 +359,7 @@ func copy_from(other):
 	blend = other.blend
 	speed = other.speed
 	_moving = other._moving
+	_travel_idle = other._travel_idle
 	_start_mix = 1.0
 	for index in range(2):
 		_feet[index] = other._feet[index]

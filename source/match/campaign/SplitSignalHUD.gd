@@ -27,9 +27,9 @@ func _ready():
 	title.tooltip_text = (
 		"Infantry capture in 10 seconds; enemy ground forces contest. "
 		+ "Uplink progress is retained when a relay is lost. "
-		+ "Try two Guard areas with Service area support. Manual orders always take priority."
+		+ "Guard two relays and use repair units to support the defenders."
 	)
-	_label(column, "Hold any two. Keep your accumulated progress.", 13)
+	_label(column, "Hold any two for 120 seconds. Lost control pauses progress.", 13)
 	_score = ProgressBar.new()
 	_score.max_value = 120
 	_score.show_percentage = false

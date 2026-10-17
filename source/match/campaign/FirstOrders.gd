@@ -81,31 +81,38 @@ func _check_outcome(delta):
 		_finish("Defeat")
 		return
 	var units = human.get_children().filter(
-		func(unit): return "program" in unit and unit.program != null
+		func(unit): return unit.is_in_group("units") and not unit.is_queued_for_deletion()
 	)
-	for unit in units:
-		var program = unit.program
-		if program.mode not in ["Running", "Ready"] or not program.ready_to_run():
-			continue
-		if not program.saved_record.is_empty():
-			var saved = program.saved_record
-			if saved.mode == "preset" and saved.config.retreat != 30:
-				reuse_badge = true
-		if phase == 1 and program.anchor != null:
-			if unit.type == "RepairRobot" or program.safe_point != null:
-				phase = 2
-				_checkpoint("Program assigned")
-				(
-					hud
-					. show_notice(
-						"Program online. Move infantry to the relay; tanks screen and repair supports them."
-					)
+	if not reuse_badge:
+		var guarding = units.any(func(unit): return unit.stance == unit.Stance.HOLD_POSITION)
+		var following = units.any(
+			func(unit):
+				return (
+					unit.manual_orders != null
+					and unit.manual_orders.current.get("kind") == "follow"
 				)
+		)
+		reuse_badge = guarding and following
+	if phase == 1:
+		for unit in units:
+			if (
+				unit.stance == unit.Stance.HOLD_POSITION
+				or (
+					unit.manual_orders != null
+					and unit.manual_orders.current.get("kind") == "follow"
+				)
+			):
+				phase = 2
+				_checkpoint("Behavior assigned")
+				hud.show_notice(
+					"Behavior assigned. Move infantry to the relay; armor screens the approach."
+				)
+				break
 	if phase == 0 and human.basic_programs_unlocked():
 		phase = 1
 		_checkpoint("Command lab complete")
 		hud.show_notice(
-			"Lab complete. Your repair robot already has a chip; tanks can fit one at HQ for 4 E."
+			"Lab complete. Select your tank, choose Guard, then choose a defensive position."
 		)
 	if phase == 2 and relay.captured_by == human:
 		if not defence_started:
@@ -178,7 +185,7 @@ func objective_text():
 		return "Rebuild HQ · %ds remaining" % ceili(command_left)
 	return [
 		"Build a command lab",
-		"Assign a retreat or repair program",
+		"Choose Guard and assign a position",
 		"Secure relay · %d / 60 s" % int(hold_seconds)
 	][phase]
 
@@ -194,7 +201,7 @@ func result_summary():
 		+ (
 			"Adaptive doctrine badge earned."
 			if reuse_badge
-			else "Optional: change a retreat threshold, save it, then load and apply that version."
+			else "Use Guard and Follow together before securing the relay."
 		)
 	)
 	if not progress_error.is_empty():

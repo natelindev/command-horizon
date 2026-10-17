@@ -3,6 +3,7 @@ extends VBoxContainer
 const Sites = preload("res://source/match/world/PointOfInterestCatalog.gd")
 const Factions = preload("res://source/match/FactionCatalog.gd")
 var hud
+var focus_site = null
 var _rows = []
 
 
@@ -31,6 +32,8 @@ func _ready():
 	list.add_theme_constant_override("separation", 14)
 	scroll.add_child(list)
 	for site in Sites.sites(hud.get_parent()):
+		if focus_site != null and site != focus_site:
+			continue
 		var row = VBoxContainer.new()
 		row.add_theme_constant_override("separation", 5)
 		list.add_child(row)

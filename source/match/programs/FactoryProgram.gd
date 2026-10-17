@@ -2,7 +2,6 @@ extends RefCounted
 
 const Library = preload("res://source/match/programs/ProgramLibrary.gd")
 const Record = preload("res://source/match/programs/ProgramRecord.gd")
-const Runtime = preload("res://source/match/programs/LuaRuntime.gd")
 const ROLES = ["Tank", "CombatRobot", "RepairRobot", "AdvancedTank", "Drone", "Helicopter"]
 
 
@@ -32,8 +31,8 @@ static func snapshot(pin, role, path = Library.PATH):
 		return hold("Saved version has changed. New unit received Hold.")
 	if not Record.compatible(entry, role):
 		return hold("Saved program is incompatible with this unit role. New unit received Hold.")
-	if Record.is_script(entry) and not Runtime.available():
-		return hold("Lua is unavailable on this installation. New unit received Hold.")
+	if Record.is_script(entry):
+		return hold("Legacy scripted factory orders were replaced by built-in behavior.")
 	return {
 		"record": entry.duplicate(true),
 		"title": "%s · v%d" % [entry.name, entry.version],
@@ -42,31 +41,8 @@ static func snapshot(pin, role, path = Library.PATH):
 	}
 
 
-static func apply_to(unit, snapshot_value):
-	if unit.program == null or snapshot_value.is_empty():
-		return
-	var value = snapshot_value
-	if (
-		not Library.validate(value.get("config"))
-		or not Library.compatible(value.config.preset, unit.type)
-	):
-		value = hold("Invalid or incompatible queued program. New unit received Hold.")
-	var applied = false
-	if value.has("record"):
-		var entry = value.record
-		if Record.validate(entry) and Record.compatible(entry, unit.type):
-			var result = load("res://source/match/programs/ProgramApplication.gd").apply(
-				entry, [unit], unit.player
-			)
-			applied = result.ok
-		if not applied:
-			value = hold("Queued program could not start. New unit received Hold.")
-	if not applied:
-		unit.program.configure(value.config, value.title)
-		unit.program.run()
-	if value.notice != "":
-		unit.set_meta("program_fallback_reason", value.notice)
-		unit.program.set_status(unit.program.mode, value.notice)
-		var game = unit._match
-		if "hud" in game and game.hud != null and unit.is_in_group("controlled_units"):
-			game.hud.show_notice(value.notice)
+static func apply_to(unit, _snapshot_value):
+	# Production delivers ordinary units. No VM, decision loop or library lookup
+	# is attached; rally points and the five built-in behaviors own their orders.
+	if unit.program != null:
+		unit.program.manual_override()

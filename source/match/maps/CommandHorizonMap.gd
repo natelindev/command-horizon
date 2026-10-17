@@ -114,8 +114,7 @@ func _ground_cover():
 		Vector2(162, 109),
 		Vector2(175, 29)
 	]:
-		var model = load("res://assets/models/environment/desert/DryScrub.glb").instantiate()
+		var model = load("res://source/match/maps/Vegetation.gd").bush(cover.get_child_count())
 		model.position = Vector3(point.x, .01, point.y)
-		model.scale = Vector3(.9, .4, .9)
 		model.rotation.y = point.x * .13
 		cover.add_child(model)

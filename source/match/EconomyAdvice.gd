@@ -102,7 +102,7 @@ static func building(player, units, building_role, title):
 		if pending.is_empty():
 			description += " Construction takes %d s." % Factions.BUILD_TIMES.CommandCenter
 	elif building_role == "CommandLab":
-		description += " A completed factory and lab unlock chip programs."
+		description += " A completed factory and lab unlock research and advanced units."
 	elif building_role == "PowerPlant":
 		description += " Low power slows production and service buildings."
 	return step(building_role, title, description, "Select engineer", selected)

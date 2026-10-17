@@ -8,9 +8,11 @@ func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
 	var options = root.get_node("Globals").options
 	var original = options.capture()
-	options.restore({"screen": 1, "edge_scrolling": false, "language": "en", "subtitles": true})
+	options.restore({"screen": 1, "edge_scrolling": false, "language": "en", "subtitles": false})
+	await create_timer(2).timeout
+	root.mode = Window.MODE_WINDOWED
 	root.size = Vector2i(1280, 720)
-	root.content_scale_size = root.size
+	root.content_scale_size = Vector2i(1920, 1080)
 	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
 	DirAccess.make_dir_recursive_absolute(OUTPUT)
 	path = "user://rendered-hero-%d.json" % OS.get_process_id()
@@ -24,11 +26,25 @@ func _run():
 			var story = game.campaign_story
 			_check(story.cinematic and paused, "Missing rendered opening: " + id)
 			await _shot(id + "-intro")
+			_check(
+				(
+					story._subtitle._text.is_visible_in_tree()
+					and not story._subtitle._text.text.is_empty()
+				),
+				"Default settings hid English dialogue: " + id
+			)
 			options.language = "zh_CN"
 			options.interface_scale = 1.5
 			options.subtitle_size = 26
 			options.apply()
 			await _shot(id + "-intro-zh")
+			_check(
+				(
+					story._subtitle._text.is_visible_in_tree()
+					and not story._subtitle._text.text.is_empty()
+				),
+				"Default settings hid Chinese dialogue: " + id
+			)
 			_check(
 				root.get_visible_rect().encloses(story._briefing.get_global_rect()),
 				"Briefing clipped: " + id
@@ -52,6 +68,37 @@ func _run():
 			)
 			print("Interior ", id, " buildings=", game.map.interior_obstacles.size())
 			await _shot(id + "-battle")
+			# Keep this caption fixture free of urgent combat reports, which correctly
+			# interrupt narration and have their own headless regression coverage.
+			for side in get_nodes_in_group("players"):
+				side.set_process(false)
+			for unit in get_nodes_in_group("units"):
+				unit.process_mode = Node.PROCESS_MODE_DISABLED
+			if story._voice != null:
+				story._voice._clear()
+			story._play(id + ".intro")
+			await _shot(id + "-dialogue")
+			var card = game.get_node("CampaignSubtitles")._card
+			_check(
+				card._text.is_visible_in_tree() and not card._text.text.is_empty(),
+				"Battle dialogue has no English captions: " + id
+			)
+			options.language = "zh_CN"
+			options.interface_scale = 1.5
+			options.apply()
+			await _shot(id + "-dialogue-zh")
+			_check(
+				card._text.is_visible_in_tree() and not card._text.text.is_empty(),
+				"Battle dialogue has no Chinese captions: " + id
+			)
+			_check(
+				root.get_visible_rect().encloses(card.get_global_rect()),
+				"Battle captions clipped: " + id
+			)
+			story.skip_dialogue()
+			options.language = "en"
+			options.interface_scale = 1.0
+			options.apply()
 			game.settings.visibility = game.settings.Visibility.FULL
 			game.fog_of_war.reveal()
 			camera.size_max = 190

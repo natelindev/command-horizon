@@ -192,8 +192,27 @@ func _finish(value):
 	hud.show_result("Supply Line · " + value)
 
 
+func convoy_guidance():
+	for entry in convoy:
+		if not _alive(entry):
+			continue
+		var near = entry.unit.global_position_yless.distance_to(map.POINTS[entry.leg]) <= 7
+		if near and checkpoint_contested(entry.leg):
+			return tr("Clear enemy ground units within 10 m of the checkpoint.")
+		if near and entry.unit.get_node("Movement")._has_destination:
+			return tr("Click Hold convoy to stop trucks and begin checkpoint clearance.")
+		if near:
+			return tr("Defend stopped trucks until their 12-second clearance finishes.")
+		if not entry.unit.get_node("Movement")._has_destination:
+			return tr("Click Advance convoy. Truck and escort orders are separate.")
+	return tr("Escort the moving trucks. Stop at the next checkpoint to clear it.")
+
+
 func objective_text():
-	return "Escort at least two supply trucks through all three checkpoints."
+	return (
+		tr("Deliver trucks · %d / 2 safe. Your hero must survive.")
+		% convoy.filter(func(entry): return entry.delivered).size()
+	)
 
 
 func result_summary():

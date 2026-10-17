@@ -1,6 +1,9 @@
 extends "res://tests/headless/SaveRestoreEdges.gd"
 
+const Catalog = preload("res://source/match/BastionCatalog.gd")
+
 var plan_rules
+# Retained for archived program-issue preview subclasses.
 var library
 
 
@@ -42,13 +45,9 @@ func _guidance(faction):
 	game.hud._toggle_pause()
 	_check(paused, "Battle-plan fixture did not pause")
 	_check(plan_rules.army(human).size() == 9, "Guidance fixture did not reach nine combatants")
-	_check(plan_rules.next_step(human).id == "programs", "Nine units skipped programming guidance")
-	await _review_plan(human, faction + "-programs")
+	_check(game.hud.battle_plan == null, "Skirmish still has the retired Battle plan panel")
 	var tank = plan_rules.army(human).filter(func(unit): return unit.type == "Tank")[0]
-	tank.program.configure(library.defaults("guard"), "Guard economy")
-	tank.program.anchor = tank.position
-	tank.program.safe_point = tank.position
-	_check(tank.program.run(), "Guidance fixture could not start preset")
+	load("res://source/match/orders/UnitBehavior.gd").set_stance(tank, "defensive")
 	_check(
 		plan_rules.next_step(human).id == "scout",
 		"Unseen defenses were treated as an assault-ready target"
@@ -62,8 +61,11 @@ func _guidance(faction):
 		"Advice leaked a hidden reinforcement"
 	)
 	await _review_plan(human, faction + "-scout")
-	tank.program.manual_override()
-	_check(plan_rules.next_step(human).id == "scout", "Manual override repeated the program lesson")
+	load("res://source/match/orders/UnitBehavior.gd").set_stance(tank, "attack")
+	_check(
+		plan_rules.next_step(human).id == "scout",
+		"Changing stance repeated retired programming guidance"
+	)
 	tank.hp = int(tank.hp_max * .25)
 	_check(
 		plan_rules.next_step(human).id == "repair_army", "Damaged army was encouraged to assault"
@@ -78,6 +80,8 @@ func _guidance(faction):
 	support.hp = support.hp_max
 	# This check exercises selection of a supported damaged scout. Missing
 	# flight-service guidance has its own regression.
+	# Keep the added service building powered, so the fixture tests tactics.
+	_spawn_for_plan("PowerPlant", human, Vector3(38, 0, 38))
 	_spawn_for_plan("AircraftFactory", human, Vector3(34, 0, 38))
 	var scout = _spawn_for_plan("Drone", human, Vector3(24, 1.5, 36))
 	scout.hp = int(scout.hp_max * .25)
@@ -98,8 +102,8 @@ func _guidance(faction):
 	game.battlefield.invalidate()
 	_check(not game.battlefield.is_observed(human, attacker), "Withdrawn attacker remains visible")
 	var infantry = plan_rules.army(human).filter(func(unit): return unit.type == "Infantry")[0]
-	infantry.position = Vector3(43, 0, 10)
-	attacker.position = Vector3(47, 0, 10)
+	infantry.position = Vector3(53, 0, 10)
+	attacker.position = Vector3(57, 0, 10)
 	game.battlefield.invalidate()
 	_check(game.battlefield.is_observed(human, attacker), "Field contact is not observed")
 	_check(
@@ -172,14 +176,20 @@ func _guidance(faction):
 	var menus = game.find_child("UnitMenus")
 	menus._refresh_buttons()
 	_check(menus._selection.size() == 2, "Mixed production selection lost a building")
-	_check(menus._buttons.is_empty(), "Mixed production selection offers an ambiguous job")
+	_check(not menus._buttons.is_empty(), "Mixed production roster is missing")
+	for entry in menus._buttons:
+		var producer = menus._production_target(entry.type)
+		_check(
+			producer in producers and entry.type in Catalog.PRODUCES.get(producer.type, []),
+			"Mixed production selection offers a job without an eligible producer"
+		)
 	_check(
 		plan_rules.next_step(human).units.size() == 1,
 		"Production advice did not choose one producer"
 	)
 	await _review_plan(human, faction + "-reinforce")
 	await _double_click_selection(human)
-	print("BATTLE PLAN ", faction, " programming/scouting/repair/defense/archive checked")
+	print("BATTLE PLAN ", faction, " scouting/repair/defense/archive checked")
 	paused = false
 	game.queue_free()
 	await _frames(5)

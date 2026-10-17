@@ -87,7 +87,7 @@ func _unhandled_input(event):
 			get_viewport().set_input_as_handled()
 
 
-func _pick_unit(screen_position):
+func _pick_unit(screen_position, include_facilities = false):
 	var camera = get_viewport().get_camera_3d()
 	var origin = camera.project_ray_origin(screen_position)
 	var query = PhysicsRayQueryParameters3D.create(
@@ -97,6 +97,8 @@ func _pick_unit(screen_position):
 	query.collide_with_bodies = false
 	var hit = camera.get_world_3d().direct_space_state.intersect_ray(query)
 	if not hit.is_empty() and hit.collider.visible:
+		if hit.collider.name == "RecruitmentArea":
+			return hit.collider.get_parent() if include_facilities else null
 		return hit.collider
 	return null
 
@@ -105,9 +107,11 @@ func _select_while_paused(screen_position):
 	if not Globals.options.selection_modifier_pressed():
 		MatchSignals.deselect_all_units.emit()
 	if _selection_start.distance_to(screen_position) < 8.0:
-		var unit = _pick_unit(screen_position)
+		var unit = _pick_unit(screen_position, true)
 		if unit != null:
-			if unit.has_method("select_occupants"):
+			if unit.has_method("open_recruitment"):
+				unit.open_recruitment()
+			elif unit.has_method("select_occupants"):
 				unit.select_occupants()
 			elif unit.has_node("Selection"):
 				unit.get_node("Selection").select()

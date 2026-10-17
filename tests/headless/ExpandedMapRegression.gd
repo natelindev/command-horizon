@@ -112,6 +112,7 @@ func _geometry(map_name):
 	_check(map.points_of_interest.size() == 6, "Expanded facilities were not populated")
 	var nav = game.navigation.terrain.navigation_map_rid
 	var starts = map.get_node("SpawnPoints").get_children()
+	_check_starting_fields(map, nav, starts, overview)
 	var from = starts[0].position + Vector3(0, 0, 12)
 	var to = (
 		starts[1].position + Vector3(0, 0, -12 if starts[1].position.z > map.size.y / 2 else 12)
@@ -184,6 +185,65 @@ func _geometry(map_name):
 		" route_points=",
 		route.size()
 	)
+
+
+func _check_starting_fields(map, nav, starts, overview):
+	var deposits = map.get_node("Resources").get_children()
+	# The seven individual distances, not just the field center, match both
+	# players on all maps. Stocks and expansion layouts are unaffected.
+	var expected = [
+		sqrt(336.25), 18.0, sqrt(336.25), sqrt(213.3125), sqrt(213.3125), sqrt(298.25), sqrt(422.5)
+	]
+	for side in 2:
+		var start: Vector3 = starts[side].position
+		var origin = Vector2(start.x, start.z)
+		_check(
+			absf(overview.fields[side].distance_to(origin) - 18.0) < .001,
+			"Starting field distance differs"
+		)
+		var forward: Vector2 = (overview.fields[side] - origin).normalized()
+		var doorstep = start + Vector3(forward.x, 0, forward.y) * 5.0
+		for slot in 7:
+			var deposit = deposits[side * 7 + slot]
+			var point: Vector3 = deposit.position * Vector3(1, 0, 1)
+			_check(
+				absf(point.distance_to(start) - expected[slot]) < .05,
+				(
+					"Starting pile moved or has inconsistent distance: %s side %d slot %d"
+					% [map.scene_file_path, side, slot]
+				)
+			)
+			_check(
+				(
+					deposit.get("resource_a" if slot < 5 else "resource_b")
+					== (400 if slot < 5 else 720)
+				),
+				"Starting resource stock changed"
+			)
+			var route = NavigationServer3D.map_get_path(nav, doorstep, point, true)
+			# Resource footprints are excluded from the shared largest-agent mesh.
+			# The reachable endpoint must be inside the actual gathering range.
+			var work_range = (
+				deposit.radius
+				+ constants.Match.Terrain.Navmesh.MAX_AGENT_RADIUS
+				+ constants.Match.Terrain.Navmesh.CELL_SIZE
+			)
+			_check(
+				(
+					not route.is_empty()
+					and (route[-1] * Vector3(1, 0, 1)).distance_to(point) <= work_range
+				),
+				(
+					"Starting pile has no harvest approach: %s side %d slot %d endpoint %s target %s"
+					% [
+						map.scene_file_path,
+						side,
+						slot,
+						route[-1] if not route.is_empty() else Vector3.INF,
+						point
+					]
+				)
+			)
 
 
 func _egress(map_name):

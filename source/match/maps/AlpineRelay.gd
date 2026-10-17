@@ -147,6 +147,7 @@ func _ground_cover():
 	var cover = Node3D.new()
 	cover.name = "AlpineGroundCover"
 	add_child(cover)
+	var index = 0
 	for point in [
 		Vector2(10, 8),
 		Vector2(30, 11),
@@ -161,7 +162,12 @@ func _ground_cover():
 		Vector2(99, 95),
 		Vector2(118, 96)
 	]:
-		var model = load("res://assets/models/environment/alpine/WinterSedge.glb").instantiate()
+		var model = (
+			load("res://source/match/maps/Vegetation.gd").tree("alpine", index, 7.0)
+			if index % 3 == 0
+			else load("res://assets/models/environment/alpine/WinterSedge.glb").instantiate()
+		)
+		index += 1
 		model.position = Vector3(point.x, 0.006, point.y)
 		model.rotation.y = point.x * 0.31
 		cover.add_child(model)

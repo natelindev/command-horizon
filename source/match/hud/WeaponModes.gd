@@ -1,13 +1,17 @@
-extends HBoxContainer
+extends VBoxContainer
 
 var selection = []
 var _precision
 var _interception
+var _row
 var _status
 
 
 func _ready():
 	add_theme_constant_override("separation", 6)
+	_row = HBoxContainer.new()
+	_row.add_theme_constant_override("separation", 6)
+	add_child(_row)
 	_precision = _button("Precision", "precision")
 	_interception = _button("Interception", "interception")
 	_status = Label.new()
@@ -29,7 +33,9 @@ func _button(title, mode):
 		+ "\nTwo seconds without firing to switch. Movement and programs continue."
 	)
 	button.pressed.connect(func(): _choose(mode))
-	add_child(button)
+	button.add_theme_font_size_override("font_size", 13)
+	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_row.add_child(button)
 	return button
 
 

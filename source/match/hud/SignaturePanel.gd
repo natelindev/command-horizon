@@ -132,7 +132,7 @@ func _feedback(units, player, ready):
 			(
 				tr("Needs a ready precision shot")
 				if player.faction == "helix"
-				else tr("Needs ready chipped ground combatants")
+				else tr("Needs ready ground combatants")
 			)
 		)
 	if summary.is_empty():
@@ -165,7 +165,7 @@ func _help(player):
 	var upgraded = player.technology != null and player.technology.has_doctrine()
 	if player.faction == "bastion":
 		return (
-			tr("Choose a sector for the closest six ready chipped ground combatants.")
+			tr("Choose a sector for the closest six ready ground combatants.")
 			+ "\n"
 			+ (
 				tr("Hold still for 2 s inside the 6 m sector: %d%% damage reduction.")
@@ -176,14 +176,14 @@ func _help(player):
 		)
 	if player.faction == "frontier":
 		return (
-			tr("Up to six ready chipped ground combatants.")
+			tr("Up to six ready ground combatants.")
 			+ "\n"
 			+ tr("+%d%% movement speed for 6 s.") % (50 if upgraded else 35)
 			+ "\n"
 			+ tr("25 s cooldown. Orders continue.")
 		)
 	return (
-		tr("Use chipped Lancers in Precision mode or deployed Prism artillery.")
+		tr("Use Lancers in Precision mode or deployed Prism artillery.")
 		+ "\n"
 		+ tr("Stop moving; wait for reload and a visible legal target.")
 		+ "\n"

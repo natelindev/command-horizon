@@ -1,11 +1,12 @@
 extends Node
 
+# Compatibility state for authored native mission orders and older archives.
+# Battle controls use UnitBehavior and never create a Lua VM.
+
 signal evaluated(snapshot, result)
 
 const FactionRules = preload("res://source/match/FactionRules.gd")
 const Library = preload("res://source/match/programs/ProgramLibrary.gd")
-const LuaRuntime = preload("res://source/match/programs/LuaRuntime.gd")
-const BUILT_IN = ["CombatRobot", "RepairRobot", "Drone", "Helicopter", "AdvancedTank"]
 var installed = false
 var config = Library.defaults()
 var program_title = "Hold · built-in"
@@ -28,27 +29,14 @@ var _last_lua_alert = ""
 
 
 func _ready():
-	installed = ("type" in unit and unit.type in BUILT_IN) or unit.get_meta("chip_installed", false)
+	installed = true
 	if unit.has_signal("action_changed"):
 		unit.action_changed.connect(_on_action_changed)
-	if DisplayServer.get_name() != "headless":
-		var badge = preload("res://source/match/hud/UnitProgramBadge3D.gd").new()
-		badge.name = "ProgramBadge"
-		unit.add_child(badge)
-		badge.setup(unit, self)
+	set_physics_process(false)
 
 
 func ready_to_run():
-	var unlocked = (
-		unit.player.basic_programs_unlocked()
-		if (
-			"player" in unit
-			and unit.player != null
-			and unit.player.has_method("basic_programs_unlocked")
-		)
-		else true
-	)
-	return installed and unlocked and install_left <= 0.0
+	return installed and install_left <= 0.0
 
 
 func configure(value, title = "Custom preset"):
@@ -68,26 +56,18 @@ func configure(value, title = "Custom preset"):
 	return true
 
 
-func configure_lua(source, title = "Custom Lua"):
-	var candidate = LuaRuntime.new()
-	var result = candidate.compile_source(source)
-	if not result.ok:
-		return result
-	if not configure(Library.defaults(), title):
-		return {"ok": false, "error": "This unit cannot run programs."}
-	lua_source = source
-	lua_runtime = candidate
-	return {"ok": true}
+func configure_lua(_source, _title = "Custom Lua"):
+	return {"ok": false, "error": "Use Attack, Defensive, Follow, Guard or Hold Fire."}
 
 
-func apply_prepared(entry, runtime):
-	# Only the validated, synchronous application transaction calls this method.
+func apply_prepared(entry, _runtime):
+	# Legacy native presets remain available to authored missions and archive tools.
+	if entry.mode != "preset":
+		return
 	configure(entry.config, "%s · v%d" % [entry.name, entry.version])
 	saved_record = entry.duplicate(true)
-	if entry.mode in ["lua", "visual"]:
-		lua_source = entry.source
-		lua_runtime = runtime
 	_pending = true
+	set_physics_process(true)
 	set_status("Ready", "Program starts on the next simulation tick.")
 
 
@@ -95,9 +75,7 @@ func run():
 	if not ready_to_run() or not Library.compatible(config.preset, unit.type):
 		return false
 	if not lua_source.is_empty():
-		var result = lua_runtime.resume()
-		if not result.ok:
-			return false
+		return false
 	if "manual_orders" in unit and unit.manual_orders != null:
 		unit.manual_orders.cancel()
 	# Resume takes authority immediately, including while paused. Retire the
@@ -109,6 +87,7 @@ func run():
 	_owned_action = null
 	_changing = false
 	_pending = true
+	set_physics_process(true)
 	set_status("Ready", "Program starts on the next simulation tick.")
 	return true
 
@@ -117,6 +96,7 @@ func manual_override():
 	if "program_squad" in unit and is_instance_valid(unit.program_squad):
 		unit.program_squad.release(unit)
 	_pending = false
+	set_physics_process(false)
 	set_status("Manual", "Direct orders have priority. Resume to return to the assignment.")
 
 
@@ -143,6 +123,7 @@ func set_status(state, explanation):
 
 
 func _physics_process(_delta):
+	set_physics_process(false)
 	if not _pending:
 		return
 	_pending = false
@@ -157,7 +138,7 @@ func _physics_process(_delta):
 		else "res://source/match/programs/PresetAction.gd"
 	)
 	if not lua_source.is_empty():
-		action_path = "res://source/match/programs/LuaAction.gd"
+		return
 	_owned_action = load(action_path).new(self)
 	unit.action = _owned_action
 	_changing = false

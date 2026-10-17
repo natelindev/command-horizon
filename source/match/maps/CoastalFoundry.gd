@@ -76,7 +76,7 @@ func _ready():
 		crane.get_node("Model").rotation.y = PI * index
 		_landmark("coastal/HarborBeacon", BEACONS[index], 3.0, 7.5)
 	for point in PINES:
-		_landmark("coastal/CoastalPineStand", point, 3.6, 5.5)
+		_landmark("coastal/CoastalPineStand", point, 3.6, 7.3)
 	_landmark("coastal/CargoBarge", Vector2(76, 34), 7.0, 4.4, false)
 	_resources()
 	exterior = load("res://source/match/maps/CoastalBackdrop.gd").new()
@@ -203,6 +203,10 @@ func _landmark(asset, point, radius, height, ground = true):
 	$Decorations.add_child(body)
 	var model = load("res://assets/models/environment/%s.glb" % asset).instantiate()
 	model.name = "Model"
+	if asset == "coastal/CoastalPineStand":
+		var vegetation = load("res://source/match/maps/Vegetation.gd")
+		vegetation.fit_height(model, 7.0)
+		vegetation.fit_footprint(model, radius)
 	load("res://source/match/maps/CoastalMaterials.gd").weather(model)
 	body.add_child(model)
 	if ground:

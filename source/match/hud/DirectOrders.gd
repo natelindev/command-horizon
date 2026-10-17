@@ -1,3 +1,4 @@
+# gdlint: disable=max-returns
 extends Node
 
 const Bindings = preload("res://source/input/KeyBindings.gd")
@@ -7,7 +8,10 @@ const Rules = preload("res://source/match/combat/CombatRules.gd")
 const Harvest = preload("res://source/match/units/actions/CollectingResourcesSequentially.gd")
 const Repairs = preload("res://source/match/combat/RepairService.gd")
 const Recover = preload("res://source/match/units/actions/RecoveringAtService.gd")
+const Behavior = preload("res://source/match/orders/UnitBehavior.gd")
 const COMMANDS = {
+	"follow": {"title": "Follow", "action": "", "description": "Follow a friendly unit."},
+	"guard": {"title": "Guard", "action": "", "description": "Move to a position and defend it."},
 	"move":
 	{
 		"title": "Move",
@@ -50,7 +54,7 @@ func eligible(command):
 				and unit.movement_speed > 0
 			)
 	)
-	if command == "move":
+	if command in ["move", "guard", "follow"]:
 		return mobile
 	var armed = mobile.filter(func(unit): return unit.attack_range != null)
 	# A mixed army advances its selected scouts, engineers and repair support
@@ -66,7 +70,11 @@ func arm(command):
 		return
 	if eligible(command).is_empty():
 		hud.show_notice(
-			"Select mobile units." if command == "move" else "Select armed mobile units."
+			(
+				"Select mobile units."
+				if command in ["move", "guard", "follow"]
+				else "Select armed mobile units."
+			)
 		)
 		return
 	hud.cancel_map_assignment()
@@ -244,9 +252,13 @@ func prompt(message = ""):
 	hud._assignment_hint.text = (
 		(
 			(
-				"Attack target: choose a visible enemy or neutral target."
-				if kind == "attack"
-				else COMMANDS[kind].title + ": choose a destination."
+				"Follow: choose a friendly unit."
+				if kind == "follow"
+				else (
+					"Attack target: choose a visible enemy or neutral target."
+					if kind in ["attack", "follow"]
+					else COMMANDS[kind].title + ": choose a destination."
+				)
 			)
 			if message.is_empty()
 			else message
@@ -259,7 +271,7 @@ func handle_input(event):
 	if _blocked():
 		return false
 	for command in COMMANDS:
-		if Bindings.pressed(event, COMMANDS[command].action):
+		if COMMANDS[command].action != "" and Bindings.pressed(event, COMMANDS[command].action):
 			arm(command)
 			get_viewport().set_input_as_handled()
 			return true
@@ -281,7 +293,7 @@ func handle_input(event):
 		cancel()
 	else:
 		var point = get_viewport().get_camera_3d().get_ray_intersection(event.position)
-		var target = hud._pick_unit(event.position) if kind == "attack" else null
+		var target = hud._pick_unit(event.position) if kind in ["attack", "follow"] else null
 		commit(point, target, Bindings.held("shift_selecting"))
 	return true
 
@@ -295,7 +307,23 @@ func commit(point, target, append):
 		hud.show_notice("No selected units can carry out that command.")
 		return false
 	var orders = []
-	if kind == "attack":
+	if kind == "follow":
+		if (
+			not is_instance_valid(target)
+			or target.is_queued_for_deletion()
+			or not target.is_in_group("units")
+			or target.player != units[0].player
+			or target.hp <= 0
+		):
+			prompt("Choose a friendly unit to follow.")
+			return false
+		for unit in units:
+			if unit != target:
+				orders.append([unit, Orders.target_order("follow", target)])
+		if orders.is_empty():
+			prompt("Choose another friendly unit to follow.")
+			return false
+	elif kind == "attack":
 		if (
 			not is_instance_valid(target)
 			or target.is_queued_for_deletion()
@@ -328,11 +356,20 @@ func commit(point, target, append):
 		]:
 			var members = units.filter(func(unit): return unit.movement_domain == domain)
 			for pair in Utils.Match.Unit.Movement.crowd_moved_to_new_pivot(members, point):
-				var order_kind = "move" if pair[0].attack_range == null else kind
+				var order_kind = "move" if pair[0].attack_range == null or kind == "guard" else kind
 				orders.append([pair[0], Orders.point_order(order_kind, pair[1])])
 	var accepted = 0
 	for pair in orders:
-		if pair[0].manual_orders.submit(pair[1], append):
+		var accepted_order = (
+			Behavior.guard(pair[0], pair[1].point, append)
+			if kind == "guard"
+			else (
+				Behavior.follow(pair[0], target, append)
+				if kind == "follow"
+				else pair[0].manual_orders.submit(pair[1], append)
+			)
+		)
+		if accepted_order:
 			accepted += 1
 	var title = COMMANDS[kind].title
 	cancel()

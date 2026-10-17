@@ -17,7 +17,8 @@ VERSION = "4.6-stable"
 PRESETS = {"linux": "Linux/X11", "windows": "Windows Desktop", "macos": "macOS"}
 ENGINE_SUFFIX = {"linux": "linux.x86_64", "windows": "win64.exe", "macos": "macos.universal"}
 TESTS = [
-    "LuaSandboxRegression", "LuaProgramRegression", "PersistentCaptureRegression",
+    "LuaSandboxRegression", "BehaviorRegression", "UnitAnimationRegression",
+    "PersistentCaptureRegression",
     "CampaignInteriorRegression", "HeroCampaignRegression", "MapRosterRegression",
 ]
 

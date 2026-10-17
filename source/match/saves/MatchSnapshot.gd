@@ -109,7 +109,7 @@ func capture(game):
 		)
 	var camera = game.get_node("IsometricCamera3D")
 	var result = {
-		"snapshot_version": 13,
+		"snapshot_version": 14,
 		"map_revision": 1,
 		"settings": settings,
 		"simulation_time": game.simulation_time,
@@ -330,6 +330,7 @@ func _unit(unit):
 		"role": unit.type,
 		"position": unit.position,
 		"rotation": unit.rotation,
+		"stance": int(unit.stance),
 		"hp": unit.hp,
 		"visual_seed": unit.get_meta("visual_seed", 0),
 		"signature": unit.signature.capture() if unit.signature != null else {},

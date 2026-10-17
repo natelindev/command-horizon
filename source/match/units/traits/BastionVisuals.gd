@@ -92,6 +92,9 @@ func _init():
 
 
 func _ready():
+	# Unit roots interpolate their physics motion; these local poses are
+	# already evaluated at display rate and must not be interpolated twice.
+	_geometry.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	if not _unit.has_meta("visual_seed"):
 		_unit.set_meta("visual_seed", _unit.find_parent("Match").allocate_visual_seed())
 	motion = MotionProfile.new(_unit.get_meta("visual_seed"))
@@ -258,7 +261,11 @@ func death_motion():
 # steps without repeatedly dirtying the same model hierarchy. fire_recoil()
 # synchronizes the muzzle immediately when gameplay actually fires a shot.
 func _process(delta: float):
-	var root: Transform3D = _unit.global_transform
+	var root: Transform3D = (
+		_unit.get_global_transform_interpolated()
+		if get_tree().physics_interpolation and _unit.can_process()
+		else _unit.global_transform
+	)
 	_damage_elapsed += delta
 	if _damage_elapsed > 0.8:
 		_damage_elapsed = 0.0
@@ -267,7 +274,7 @@ func _process(delta: float):
 	var travel: Vector3 = root.origin - _previous_position
 	var distance := travel.length()
 	_previous_position = root.origin
-	var moving = distance > 0.002
+	var moving = distance > maxf(.000001, delta * .02)
 	if moving:
 		_settled = false
 	_recoil = maxf(0.0, _recoil - delta / motion.recoil_duration)

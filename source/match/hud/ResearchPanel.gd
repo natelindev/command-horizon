@@ -151,7 +151,7 @@ func refresh():
 	var running = technology_running or player.coordination_left > 0.0
 	_status.text = research.status() if technology_running else player.coordination_status()
 	_description.text = (
-		"Coordination unlocks long-range armor, squad programs and %s. One research project at a time."
+		"Coordination unlocks long-range armor and %s. One research project at a time."
 		% load("res://source/match/FactionCatalog.gd").signature_title(player.faction)
 	)
 	var active_branch = research.active.trim_suffix("_1").trim_suffix("_2")

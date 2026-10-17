@@ -1,5 +1,7 @@
 # Programmable Combat RTS — Living Game Design
 
+2026-10-17 decision: [Attack, Defensive, Follow, Guard and Hold Fire](UNIT_BEHAVIORS.md) replace player-authored unit programs. Economy, combat counters, research and campaign objectives continue; First Orders now teaches Guard. Earlier programming sections below are historical.
+
 Status: playable two-faction skirmish, programmable units and six Bastion campaign prototypes, version 0.7  
 Last updated: 2026-10-04  
 Working title: undecided  
@@ -1897,3 +1899,19 @@ Both route layouts retain their original 15/13 blocker envelopes and all ten mea
 All five wheeled Frontier roles now roll their 28 wheels from signed chassis displacement and pivot-turn arc length. Their normalized imported radii set rotation; opposite sides respond independently to turns. Blocked orders, recoil and idle sway add no travel, tactical pause freezes the pose and large relocations skip the jump. Renamed WheelPivot nodes avoid unintended vehicle-physics import; editable sources and exports agree, with unchanged mesh data.
 
 The original actual-travel fixture leaves every wheel static. Final five-role travel, reverse/sideways/half-turn, one-thousand-cycle, blocked/idle/pause and exact gameplay archive checks pass. All seventeen asset reimports, shared faction animation, Frontier combat, paid retrofits, Maneuver and salvage checks pass. [Wheel evidence](playtests/2026-10-07/FRONTIER_WHEELS.md) includes nineteen classified processes, a 7.5-second native clip and inspected detail frames. Cosmetic wheel phase resets on reload; no save schema or gameplay rules change. Repeated balance, novice/final art/platform acceptance remain open, performance remains deferred and the broad goal stays active.
+
+
+## Campaign and bottom console update — 2026-10-17
+
+The battle controls now occupy a fixed-height band beside the minimap, with matching
+top and bottom edges. Selection portraits, direct orders and behaviors use separate
+columns; construction and production remain on their own pages. Skirmish no longer
+shows Battle plan advice or its settings toggle. Captured mercenary camps open paid
+recruitment directly when clicked, including during tactical pause.
+
+Campaign dialogue always displays subtitles independently of optional unit speech.
+Current-stage instructions explain capture, hold, convoy and hero requirements;
+View objective moves the camera to the current destination. Existing mature trees
+and leafy bushes replace flat scrub placeholders. Scenic scatter remains batched,
+and taller coastal pines retain their ground footprint with greater air clearance.
+[Verification and limits](campaign/POLISH_VERIFICATION.md).

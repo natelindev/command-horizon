@@ -225,6 +225,10 @@ func _enemy_modes():
 	var blocker = _spawn_weapon("Barracks", ai, Vector3(43, 0, 10))
 	blocker.construct(1.0)
 	await _frames(40)
+	# Spawn alignment may move the structure to clear map obstacles. Keep this
+	# visibility fixture centered on the ray after deferred navigation settles.
+	blocker.global_position = Vector3(43, 0, 10)
+	blocker.reset_physics_interpolation()
 	# A nearby aircraft behind a building must not influence the AI's weapon choice.
 	for unit in ai.get_children():
 		if "sight_range" in unit:
@@ -266,6 +270,8 @@ func _check(value, message):
 func _legacy_snapshot(snapshot, version):
 	var result = snapshot.duplicate(true)
 	result.snapshot_version = version
+	for stance_unit in result.units:
+		stance_unit.erase("stance")
 	result.erase("neutral_buildings")
 	for ambient in result.get("ambient", []):
 		ambient.erase("combat")

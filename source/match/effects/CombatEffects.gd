@@ -137,6 +137,8 @@ func shot(unit, origin, target_point, duration, missile = false, target_unit = n
 	entry.rail = unit.type == "AdvancedTank" and unit.player.faction != "frontier"
 	entry.width = 0.045 if heavy or missile else 0.018
 	entry.trail_clock = 0.0
+	entry.node.position = origin
+	entry.node.reset_physics_interpolation()
 	entry.node.show()
 	_tracers.append(entry)
 
@@ -377,6 +379,7 @@ func _launch_turret_cook_off(turret_node, unit_radius):
 
 	add_child(body)
 	body.global_transform = Transform3D(global_xform.basis.orthonormalized(), global_xform.origin)
+	body.reset_physics_interpolation()
 
 	var angle = _random.randf() * TAU
 	var up_speed = _random.randf_range(4.5, 6.8)

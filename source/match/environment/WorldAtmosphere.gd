@@ -23,6 +23,7 @@ var _last_wetness = -1.0
 
 
 func _ready():
+	physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	name = "WorldAtmosphere"
 	_game = get_parent()
 	_options = Globals.options
@@ -30,6 +31,7 @@ func _ready():
 	world.environment = world.environment.duplicate(true)
 	environment = world.environment
 	sun = _game.get_node("DirectionalLight3D")
+	sun.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	profile = AtmosphereProfiles.for_map(_game.map)
 	_base_ambient = profile.fill
 	_base_sun = profile.key

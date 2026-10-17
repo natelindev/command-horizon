@@ -1,0 +1,216 @@
+{
+  "platform": "macOS / Apple M1 Pro / Godot 4.6",
+  "checks": [
+    {
+      "name": "CampaignDialogueRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 2.08,
+      "summary": [
+        "Campaign conversations: 0 failures"
+      ]
+    },
+    {
+      "name": "CampaignStoryRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 2.03,
+      "summary": [
+        "Campaign story: 0 failures"
+      ]
+    },
+    {
+      "name": "CampaignStoryMissionsRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 19.85,
+      "summary": [
+        "All story missions: 0 failures"
+      ]
+    },
+    {
+      "name": "HeroCampaignRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 35.4,
+      "summary": [
+        "Hero campaigns: 0 failures"
+      ]
+    },
+    {
+      "name": "CampaignRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 19.46,
+      "summary": [
+        "PASS: First Orders preset victory; capture/contest/vision; pause/defeat/progress"
+      ]
+    },
+    {
+      "name": "SupplyLineRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 40.28,
+      "summary": [
+        "Supply Line: 0 failures"
+      ]
+    },
+    {
+      "name": "CampaignControlsRegression",
+      "exit": 0,
+      "script_errors": false,
+      "summary": [
+        "Campaign controls: 0 failures"
+      ]
+    },
+    {
+      "name": "VegetationRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 0.73,
+      "summary": [
+        "Vegetation: 0 failures"
+      ]
+    },
+    {
+      "name": "ExpandedMapRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 35.14,
+      "summary": [
+        "Expanded maps: 0 failures"
+      ]
+    },
+    {
+      "name": "LocalizationRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 2.05,
+      "summary": [
+        "Localization regression: 0 failures"
+      ]
+    },
+    {
+      "name": "ChineseUIRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 32.96,
+      "summary": [
+        "Chinese UI: 1140 unique strings, 687 voice captions, 0 failures"
+      ]
+    },
+    {
+      "name": "SelectionRosterRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 37.96,
+      "summary": [
+        "Selection roster: 0 failures"
+      ]
+    },
+    {
+      "name": "BattleHudProductionRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 17.1,
+      "summary": [
+        "Battle HUD production: 0 failures over 8 sections"
+      ]
+    },
+    {
+      "name": "SubtitleLayoutRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 25.47,
+      "summary": [
+        "Subtitle layout: 0 failures"
+      ]
+    },
+    {
+      "name": "PointOfInterestRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 18.81,
+      "summary": [
+        "SITES faction=bastion cumulative_failures=0",
+        "SITES faction=helix cumulative_failures=0",
+        "SITES faction=frontier cumulative_failures=0",
+        "Capturable facilities: 0 failures"
+      ]
+    },
+    {
+      "name": "BattlePlanRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 12.71,
+      "summary": [
+        "Battle plan regression: 0 failures"
+      ]
+    },
+    {
+      "name": "VegetationMapsRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 21.33,
+      "summary": [
+        "Vegetation maps: 0 failures"
+      ]
+    },
+    {
+      "name": "WeaponModeRegression",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 3.45,
+      "summary": [
+        "PASS: Bastion ground/AA range, armor and shared reload",
+        "PASS: Helix domains, switch firing lock, movement/pause, cooldown and v1/v2 archives",
+        "PASS: AI chooses modes from observed contacts and retains stance without contacts",
+        "Weapon modes: 0 failures"
+      ]
+    },
+    {
+      "name": "HeroCampaignPreview",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 57.44,
+      "summary": [
+        "Hero campaigns rendered: 0 failures"
+      ]
+    },
+    {
+      "name": "HudConsolePreview",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 81.38,
+      "summary": [
+        "HUD console preview: 0 failures"
+      ]
+    },
+    {
+      "name": "MercenaryCampPreview",
+      "exit": 0,
+      "script_errors": false,
+      "seconds": 21.36,
+      "summary": [
+        "Rendered mercenary camps: 0 failures"
+      ]
+    },
+    {
+      "name": "SelectionRosterPreview",
+      "exit": 0,
+      "script_errors": false,
+      "summary": [
+        "Rendered selection roster: 0 failures"
+      ]
+    },
+    {
+      "name": "CoastalFoundryGeometry",
+      "exit": 0,
+      "script_errors": false,
+      "summary": [
+        "CoastalFoundry geometry: 0 failures"
+      ]
+    }
+  ],
+  "legacy_environment_diagnostics": "See POLISH_VERIFICATION.md; excluded from passing checks."
+}

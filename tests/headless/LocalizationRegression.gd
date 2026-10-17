@@ -72,17 +72,18 @@ func _run():
 	menu.queue_free()
 	await _frames(3)
 	await _skirmish("bastion")
-	game.hud.open_visual_editor(
-		[_units(game._get_human_player(), "Tank")[0]], "user://locale-regression-programs.json"
+	root.get_node("MatchSignals").deselect_all_units.emit()
+	_units(game._get_human_player(), "Tank")[0].get_node("Selection").select()
+	await _frames(3)
+	var panel = game.find_child("UnitMenus")._behavior_panel
+	_check(panel._status.text == "行为 · 攻击", "Behavior status not translated")
+	_check(
+		TranslationServer.translate(panel._buttons.guard.text) == "警戒", "Guard key not translated"
 	)
-	var editor = game.hud.program_editor
-	await _frames(3)
-	_check(editor._trace.text == "应用前请用样本输入检查草稿。", "Read-only trace not translated")
 	TranslationServer.set_locale("en")
-	await _frames(2)
-	_check(editor._trace.text.begins_with("Check the draft"), "Trace did not switch to English")
-	editor.close_editor()
 	await _frames(3)
+	_check(panel._status.text == "Behavior · Attack", "Behavior status did not switch to English")
+
 	preferences.apply()
 	var archive = "user://locale-regression-%d.tres" % OS.get_process_id()
 	_check(preferences.persist(archive) == OK, "Language save failed")

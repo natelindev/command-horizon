@@ -45,7 +45,6 @@ func _process(delta):
 	_harvest(units)
 	_research(units, desired)
 	_train(units, desired)
-	_arm_units_with_programs(units)
 	Sites.recruit(_match, self, _units(), desired)
 	_command_army(units)
 

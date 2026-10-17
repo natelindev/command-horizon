@@ -59,20 +59,7 @@ static func requests(game, player, units, include_busy = false):
 		if choice.is_empty() or not Factions.available(player, choice.role):
 			continue
 		var price = Factions.cost(player, choice.role).duplicate()
-		var fit_chips = producer.production_queue.fit_chips
-		if player.faction == "frontier" and producer.type == "VehicleFactory":
-			# Frontier invests its cheaper fitting in new armor once the lab is ready.
-			# Forecast without mutating the queue; a lost lab falls back to plain armor.
-			fit_chips = (
-				player.has_completed_structure("CommandLab") and player.basic_programs_unlocked()
-			)
-		if choice.role == "Tank" and fit_chips:
-			if (
-				not player.has_completed_structure("CommandLab")
-				or not player.basic_programs_unlocked()
-			):
-				continue
-			price.resource_b += Factions.chip_cost(player.faction)
+		var fit_chips = false
 		result.append(
 			{
 				"producer": producer,

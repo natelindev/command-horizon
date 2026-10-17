@@ -72,7 +72,17 @@ func _dress(mission):
 		)
 	# Roadside props give every approach landmarks while leaving broad convoy routes.
 	for index in 24:
-		var prop = load("res://assets/models/environment/desert/DryScrub.glb").instantiate()
+		var vegetation = load("res://source/match/maps/Vegetation.gd")
+		var vegetation_biome = (
+			"urban"
+			if mission.biome in ["city", "spire"]
+			else ("coastal" if mission.biome == "ford" else "desert")
+		)
+		var prop = (
+			vegetation.tree(vegetation_biome, index, 6.5 + index % 3 * .5)
+			if index % 3 == 0
+			else vegetation.bush(index)
+		)
 		prop.position = Vector3(10 + index % 12 * 13, 0, 8 if index < 12 else 117)
 		$Decorations.add_child(prop)
 	# Urban objectives use the street network rather than a diagonal stripe across blocks.

@@ -80,7 +80,7 @@ func _layout():
 		left = _minimap.get_global_rect().end.x
 	var right = viewport.x
 	var deck_shown = is_instance_valid(_deck) and _deck.is_visible_in_tree()
-	var width = HudLayout.deck_width(viewport.x)
+	var width = viewport.x - left
 	if deck_shown:
 		right = _deck.get_global_rect().position.x
 	else:
@@ -97,6 +97,6 @@ func _layout():
 		stripe.visible = right - left > stripe_size.x * 2 + 60
 	empty_deck.visible = is_instance_valid(_deck) and not deck_shown
 	if empty_deck.visible:
-		var height = HudLayout.CLOSED_DECK_HEIGHT
+		var height = _minimap.size.y if is_instance_valid(_minimap) else HudLayout.CONSOLE_HEIGHT
 		empty_deck.position = Vector2(viewport.x - width, viewport.y - height)
 		empty_deck.size = Vector2(width, height)

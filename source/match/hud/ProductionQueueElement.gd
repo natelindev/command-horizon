@@ -20,12 +20,6 @@ func _ready():
 	# Translate each part: the composed line has no catalog entry of its own.
 	tooltip_text = (
 		tr(factions.title(faction, unit_type))
-		+ (tr(" · basic chip fitted") if queue_element.fitted_chip else "")
-		+ (
-			" · " + tr(queue_element.program_snapshot.title)
-			if not queue_element.program_snapshot.is_empty()
-			else ""
-		)
 		+ tr(" — click to cancel and refund")
 		+ "\n"
 		+ tr("Producer: %s") % tr(factions.title(faction, queue.get_parent().type))

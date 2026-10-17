@@ -246,7 +246,7 @@ func _select_operation(index):
 			+ "2. Advance or hold the convoy; use repair robots on damaged trucks.\n"
 			+ "3. Each truck stops for 12 seconds at a clear checkpoint. Extract at least two.\n\n"
 			+ "Two truck losses mean defeat. Use Tactical pause to plan orders. "
-			+ "No base building or programs are required."
+			+ "No base building is required."
 		)
 		_note.text = (
 			"Completion gives First Orders +20 starting materials. "
@@ -269,8 +269,8 @@ func _select_operation(index):
 			"Helix is fragmenting the mountain uplink. Keep two fronts supplied "
 			+ "while you reconnect it.\n\n1. Capture any two of three relays with "
 			+ "infantry.\n2. Hold two uncontested relays for 120 cumulative "
-			+ "seconds.\n3. Split your armor and repair programs across separate "
-			+ "assignments.\n\nYour command lab and tank chips are ready. Direct "
+			+ "seconds.\n3. Split your armor and repair support across separate "
+			+ "assignments.\n\nYour command lab and armored support are ready. Direct "
 			+ "orders always take priority.\nDefeat: lose all forces and HQ, or "
 			+ "fail to rebuild HQ within 60 seconds."
 		)
@@ -286,7 +286,7 @@ func _select_operation(index):
 			"Helix has cut access to a logistics relay. Restore your command "
 			+ "network,\nteach a support unit its assignment, and take the relay "
 			+ "back.\n\n1. Build a command lab.\n2. Assign a retreat or repair "
-			+ "program.\n3. Capture the relay with infantry and hold for 60 "
+			+ "Guard order.\n3. Capture the relay with infantry and hold for 60 "
 			+ "uncontested seconds.\n\nDefeat: lose all forces and HQ, or fail to "
 			+ "rebuild HQ within 60 seconds.\nReinforcements begin after you "
 			+ "secure the relay. No code or network required."
@@ -384,7 +384,7 @@ func _horizon_briefing():
 			if _progress.foundry_complete
 			else "Use the south ground pass. Broken Foundry completion opens a north passage."
 		)
-		+ "\nRequired troops, chips, Coordination and air support are available in every run."
+		+ "\nRequired troops, Coordination and air support are available in every run."
 	)
 	if _progress.lean_complete or _progress.reinforced_complete:
 		_completion.text += (

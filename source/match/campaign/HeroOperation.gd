@@ -189,6 +189,11 @@ func objective_text():
 	var text = objective.zh_CN if Globals.options.language == "zh_CN" else objective.title
 	if not _hero_at_objective():
 		text += " · " + tr("Bring your hero to the objective.")
+	if objective.kind in ["capture", "hold"]:
+		text += (
+			"\n"
+			+ tr(map.relays[mini(stage, map.relays.size() - 1)].capture_status(_get_human_player()))
+		)
 	if objective.kind == "hold":
 		text += " · %d / %d s" % [int(elapsed), objective.seconds]
 	return (

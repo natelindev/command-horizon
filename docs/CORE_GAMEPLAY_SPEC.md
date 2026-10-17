@@ -1,5 +1,7 @@
 # Core gameplay specification — two-faction prototype
 
+Current unit-control decision (2026-10-17): [five built-in behaviors](UNIT_BEHAVIORS.md) replace the programmable-unit/chip/authoring requirements below. The older sections retain design history.
+
 Version 0.4 · 2026-10-01 · Design defaults for the next playable milestone
 
 This specification resolves gaps in the [living design](GAME_DESIGN.md) using the [prototype review](playtests/2026-10-01/REVIEW.md). It describes intended behavior, not features already implemented. Both Bastion and Helix now have playable skirmish integration; [living design section 19](GAME_DESIGN.md#19-playable-two-faction-skirmish--implemented-2026-10-01) records the delivered subset and deviations. [Living design section 20](GAME_DESIGN.md#20-combat-foundation-and-animation--implemented-2026-10-01) adds combat/repair rules, battle animation and first scale measurements. Basic hardware, built-in presets, assignment UI and parameter-version reuse now work in both factions (living design section 21); bounded custom Lua execution and the source library/editor are also implemented (living design sections 27–30). Values marked **tuning seeds** are inputs to experiments, not balance findings. This specification takes precedence over earlier open proposals where it explicitly settles them.

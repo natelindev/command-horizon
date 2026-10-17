@@ -3,7 +3,7 @@ extends "res://tests/headless/SaveRestoreEdges.gd"
 ## Battle HUD production and guidance:
 ## - every producible unit and structure has a faction portrait, and production and
 ##   build tiles show it with a name and price that fit in English and Chinese;
-## - the skirmish battle plan hides to a compact key, comes back, and remembers it;
+## - the retired skirmish Battle plan stays absent, including with old preferences;
 ## - producers accept a twelve-job queue that reserves and refunds exact costs, and
 ##   the selected producer's rack shows every job without scrolling;
 ## - the production overview follows queued, completed and cancelled jobs and
@@ -126,63 +126,17 @@ func _tiles(faction):
 	_sections += 1
 
 
-func _battle_plan(options):
-	var plan = game.hud.battle_plan
-	var path = "user://battle-plan-options-%d.tres" % OS.get_process_id()
-	plan.options_path = path
-	root.get_node("MatchSignals").deselect_all_units.emit()
-	await _frames(3)
-	_check(plan.visible and not plan.is_dismissed(), "Battle plan starts hidden")
-	var full = plan.get_global_rect()
-	plan._dismiss.grab_focus()
-	plan._dismiss.pressed.emit()
-	await _frames(3)
-	_check(plan.is_dismissed(), "Hide key did not hide the battle plan")
-	_check(not plan._content.visible and plan._restore.visible, "Hidden plan shows its card")
-	_check(not options.show_battle_plan, "Hidden plan was not remembered")
-	var stored = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE)
-	_check(stored != null and not stored.show_battle_plan, "Hidden plan was not saved")
-	var compact = plan.get_global_rect()
-	_check(
-		compact.size.y < full.size.y / 3 and compact.size.x < full.size.x / 2,
-		"Hidden plan still takes space: %s vs %s" % [compact.size, full.size]
-	)
-	_check(compact.position.x == 0, "Restore key left the mission column")
-	_check(root.gui_get_focus_owner() == plan._restore, "Keyboard focus lost on hide")
-	_check(plan._restore.focus_mode == Control.FOCUS_ALL, "Restore key is not focusable")
-	plan._restore.pressed.emit()
-	await _frames(3)
-	_check(not plan.is_dismissed() and plan._content.visible, "Restore key did not restore")
-	_check(not plan._restore.visible, "Restore key stays after restoring")
-	_check(options.show_battle_plan, "Restored plan was not remembered")
-	_check(plan.get_global_rect().size.y >= full.size.y - 1, "Restored plan is truncated")
-	_check(root.gui_get_focus_owner() == plan._dismiss, "Keyboard focus lost on restore")
-	# Settings change the preference while a battle is paused.
-	options.show_battle_plan = false
-	await _frames(2)
-	_check(plan.is_dismissed(), "Settings did not hide the plan")
-	options.show_battle_plan = true
-	await _frames(2)
-	_check(not plan.is_dismissed(), "Settings did not restore the plan")
-	plan._dismiss.pressed.emit()
-	await _frames(2)
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+func _battle_plan(_options):
+	_check(game.hud.battle_plan == null, "Battle plan remains in skirmish")
 	_sections += 1
 
 
 func _plan_preference_survives(options):
-	# The previous section left the plan hidden: the next skirmish opens that way.
-	_check(not options.show_battle_plan, "Fixture lost the hidden preference")
+	# A legacy preference must not bring the retired panel back.
+	options.show_battle_plan = true
 	await _skirmish("helix", MAP)
 	_hold_players()
-	var plan = game.hud.battle_plan
-	plan.options_path = "user://battle-plan-options-%d.tres" % OS.get_process_id()
-	await _frames(3)
-	_check(plan.is_dismissed() and plan._restore.visible, "New skirmish ignored hidden plan")
-	plan._restore.pressed.emit()
-	await _frames(2)
-	_check(not plan.is_dismissed(), "Restore failed in a new skirmish")
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(plan.options_path))
+	_check(game.hud.battle_plan == null, "Legacy preference restored the Battle plan")
 	paused = false
 	game.queue_free()
 	await _frames(5)
@@ -330,7 +284,7 @@ func _check_layout(overview):
 		game.hud.get_child(0),
 		game.hud.battle_plan,
 	]:
-		if other.is_visible_in_tree():
+		if is_instance_valid(other) and other.is_visible_in_tree():
 			_check(
 				not rect.intersects(other.get_global_rect()), "Overview overlaps " + str(other.name)
 			)

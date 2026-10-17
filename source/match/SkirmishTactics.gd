@@ -334,7 +334,7 @@ static func next_step(player, units, combatants):
 		"Assess the visible opposition",
 		(
 			"Inspect visible weapon and armor roles, then choose a raid or HQ assault. "
-			+ "Keep a reserve and retreat damaged forces. Direct orders override programs."
+			+ "Keep a reserve and retreat damaged forces. Guard positions or follow friendly units."
 		),
 		"Select army",
 		combatants

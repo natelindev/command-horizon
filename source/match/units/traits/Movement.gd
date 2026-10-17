@@ -308,6 +308,7 @@ func _align_unit_position_to_navigation():
 	)
 	aligned.y = _flight_height(aligned)
 	_unit.global_position = aligned
+	_unit.reset_physics_interpolation()
 
 
 func _uses_flight_clearance():
@@ -450,8 +451,8 @@ func _on_velocity_computed(safe_velocity: Vector3):
 	_update_passive_movement_tracking(actual_velocity)
 
 
-func _clip_ground_step(next):
-	var origin = _unit.global_position
+func _clip_ground_step(next: Vector3) -> Vector3:
+	var origin: Vector3 = _unit.global_position
 	if _match.battlefield == null:
 		return next
 	var reach = (
@@ -467,7 +468,7 @@ func _clip_ground_step(next):
 	var clipped = origin.lerp(next, contact.fraction)
 	# Preserve the tangential part of a blocked step. Clamping alone can pin
 	# two agents together at a mesh boundary even when there is room to pass.
-	var step = (next - origin) * Vector3(1, 0, 1)
+	var step := (next - origin) * Vector3(1, 0, 1)
 	var normal = contact.normal
 	var slide = step - normal * minf(0.0, step.dot(normal))
 	var navigable = _closest_navigation_point(origin + slide)
@@ -480,24 +481,25 @@ func _clip_ground_step(next):
 	return clipped
 
 
-func _ground_step_contact(origin, next, neighbors):
-	var step = (next - origin) * Vector3(1, 0, 1)
-	var length_squared = step.length_squared()
+func _ground_step_contact(origin: Vector3, next: Vector3, neighbors: Array) -> Dictionary:
+	var step := (next - origin) * Vector3(1, 0, 1)
+	var length_squared := step.length_squared()
 	var result = {"fraction": 1.0, "normal": Vector3.ZERO}
 	if length_squared < 0.00000001:
 		return result
+	var own_radius: float = _unit.radius
 	for other in neighbors:
 		if other == _unit or other.movement_speed <= 0 or other.movement_domain != domain:
 			continue
-		var offset = (origin - other.global_position) * Vector3(1, 0, 1)
-		var separation = _unit.radius + other.radius - GROUND_CONTACT_MARGIN
-		var outside = offset.length_squared() - separation * separation
-		var toward = offset.dot(step)
+		var offset: Vector3 = (origin - other.global_position) * Vector3(1, 0, 1)
+		var separation: float = own_radius + other.radius - GROUND_CONTACT_MARGIN
+		var outside := offset.length_squared() - separation * separation
+		var toward := offset.dot(step)
 		if toward >= 0:
 			continue
 		var fraction = 0.0
 		if outside > 0:
-			var discriminant = toward * toward - length_squared * outside
+			var discriminant := toward * toward - length_squared * outside
 			if discriminant < 0:
 				continue
 			fraction = (-toward - sqrt(discriminant)) / length_squared

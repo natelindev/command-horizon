@@ -2,6 +2,31 @@
 
 ## [main]
 
+## [0.12.0]
+
+### Changed
+ - Native unit behaviors replace per-unit Lua execution in normal gameplay: Attack, Defensive, Follow, Guard and Hold Fire
+ - Faster battlefield contact queries, fewer idle updates, and 30 Hz simulation with interpolated rendering
+ - Full-width bottom command console aligned with the minimap, larger unit portraits, and simpler battle menus
+ - Removed the skirmish Battle plan panel and its settings toggle
+ - Unified starting resource distance and pile layout across the current skirmish maps
+ - Reused mature tree and leafy bush models in place of flat scrub props, with batched scatter
+ - Snapshot version 14 stores behavior stance and converts older scripted orders to Defensive
+
+### Fixed
+ - Soldier walk/run stride resets and sliding caused by rendering faster than simulation updates
+ - Missing campaign dialogue captions when optional unit subtitles are disabled
+ - Unclear capture/hold, convoy and hero requirements; added current-objective camera navigation
+ - Captured mercenary camps now open paid recruitment directly, including during tactical pause
+ - Empty health labels and transparent portrait margins shrinking selection avatars
+ - Production queue layout after selection changes and oversized coastal tree footprints
+
+### Verification and limits
+ - Targeted gameplay, save compatibility, localization, animation and native rendered HUD/campaign checks pass on macOS
+ - Initial M1 Pro maximum-population combat benchmark improved from about 5.2 to 31 FPS; 60 FPS at maximum population remains a target
+ - Windows/RTX 4090 gameplay performance and subjective animation review require a hardware playtest
+ - Archived environment fixtures have stale map/save assumptions; see docs/campaign/POLISH_VERIFICATION.md
+
 ## [0.11.0]
 
 ### New features

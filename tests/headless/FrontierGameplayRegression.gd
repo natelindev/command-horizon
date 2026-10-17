@@ -369,6 +369,8 @@ func _legacy():
 	paused = true
 	var data = Snapshot.new().capture(game)
 	data.snapshot_version = 7
+	for stance_unit in data.units:
+		stance_unit.erase("stance")
 	data.erase("neutral_buildings")
 	for ambient in data.get("ambient", []):
 		ambient.erase("combat")

@@ -117,12 +117,10 @@ func _ground_cover():
 		Vector2(116, 83),
 		Vector2(120, 86)
 	]:
-		var plant = (
-			load("res://assets/models/environment/desert/%s.glb" % TREES[tree_index % TREES.size()])
-			. instantiate()
+		var plant = load("res://source/match/maps/Vegetation.gd").tree(
+			"desert", tree_index, 6.5 + (tree_index % 3) * .4
 		)
 		plant.position = Vector3(point.x, 0.01, point.y)
-		plant.scale = Vector3.ONE * (0.85 + (tree_index % 3) * 0.12)
 		plant.rotation.y = point.x * 0.27
 		cover.add_child(plant)
 		tree_index += 1

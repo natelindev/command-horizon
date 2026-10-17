@@ -131,6 +131,8 @@ func _legacy_ownership():
 		paused = true
 		var data = Snapshot.new().capture(game)
 		data.snapshot_version = version
+		for stance_unit in data.units:
+			stance_unit.erase("stance")
 		for record in data.neutral_buildings:
 			record.erase("owner")
 		if version == 11:

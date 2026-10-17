@@ -129,6 +129,28 @@ func _objectives():
 	for index in objectives.size():
 		var objective = objectives[index]
 		_check(game.stage == index and not game.finished, "Objective skipped: " + _id)
+		var guide = load("res://source/match/campaign/CampaignObjectives.gd")
+		var expected = objective.destination if objective.kind == "escort" else objective.point
+		_check(
+			guide.point(game) == Vector3(expected[0], 0, expected[1]),
+			"Locator points to wrong stage: " + _id
+		)
+		for language in ["en", "zh_CN"]:
+			root.get_node("Globals").options.language = language
+			root.get_node("Globals").options.apply()
+			game.hud._process(0)
+			_check(
+				"24" in game.hud._objective_hint.text, "Hero distance requirement hidden: " + _id
+			)
+			_check(
+				not game.hud._objective_hint.text.is_empty(), "Stage instructions missing: " + _id
+			)
+		var action = game.campaign_hero.unit.action
+		game.hud._view_objective.pressed.emit()
+		_check(
+			game.campaign_hero.unit.action == action,
+			"Objective locator changed hero orders: " + _id
+		)
 		match objective.kind:
 			"capture", "hold":
 				game.map.relays[index].captured_by = game._get_human_player()

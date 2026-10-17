@@ -85,7 +85,7 @@ const HELIX_DESCRIPTIONS = {
 	),
 	"CommandLab":
 	(
-		"With a robotics foundry, unlocks chip programs, Lancers and Wraiths. Research "
+		"With a robotics foundry, unlocks Lancers and Wraiths. Research "
 		+ "Coordination for Prism artillery. Uses 5 power."
 	),
 }
@@ -167,6 +167,8 @@ const BUILD_REQUIRES = {
 	"AntiAirTurret": "VehicleFactory",
 }
 
+static var _selection_portraits = {}
+
 
 static func title(faction, role):
 	if role == "Hero":
@@ -193,6 +195,26 @@ static func icon(faction, role):
 		if faction == "helix"
 		else Bastion.icon_path(role)
 	)
+
+
+static func selection_portrait(faction, role) -> Texture2D:
+	# Selection cards are tall and narrow. Trim the transparent square canvas so
+	# a standing soldier can use their height, without changing shared art files.
+	var key = faction + ":" + role
+	if _selection_portraits.has(key):
+		return _selection_portraits[key]
+	var texture = portrait(faction, role)
+	if texture == null:
+		return null
+	var image = texture.get_image()
+	var region = Rect2(image.get_used_rect()).grow(3).intersection(
+		Rect2(Vector2.ZERO, image.get_size())
+	)
+	var framed = AtlasTexture.new()
+	framed.atlas = texture
+	framed.region = region
+	_selection_portraits[key] = framed
+	return framed
 
 
 static func portrait(faction, role) -> Texture2D:
@@ -234,7 +256,7 @@ static func description(faction, role):
 		return Frontier.DESCRIPTIONS[role]
 	if faction == "bastion" and role == "CommandLab":
 		return (
-			"Unlocks programs and heroes. Research Coordination for siege tanks "
+			"Unlocks heroes. Research Coordination for siege tanks "
 			+ "and Anchor sectors. Sentinels require a repair depot. Uses 5 power."
 		)
 	if role == "RepairRobot":

@@ -44,15 +44,6 @@ static func damaged_units(player):
 	return Tactics.damaged_units(owned_units(player))
 
 
-static func program_issues(player):
-	return owned_units(player).filter(
-		func(unit):
-			return (
-				unit.hp > 0 and unit.program != null and unit.program.mode in ["Blocked", "Error"]
-			)
-	)
-
-
 static func next_step(player):
 	var units = owned_units(player)
 	var workers = _role(units, "Worker")
@@ -91,28 +82,7 @@ static func next_step(player):
 	var supply = Supply.next_step(player, units)
 	if not supply.is_empty():
 		return supply
-	if not player.has_completed_structure("CommandLab"):
-		if not player.basic_programs_unlocked() and _role(units, "CommandLab").is_empty():
-			var armor = Opening.armor(player, units)
-			if not armor.is_empty():
-				return armor
-		return _building_step(player, units, "CommandLab", "Unlock programmable units")
-	var chipped = units.filter(
-		func(unit): return unit.program != null and unit.program.ready_to_run()
-	)
-	if chipped.is_empty():
-		return Opening.chips(player, units)
-	if not chipped.any(
-		func(unit):
-			return (
-				unit.program.mode in ["Ready", "Running", "Waiting"]
-				or unit.program.anchor != null
-				or not unit.program.lua_source.is_empty()
-				or unit.program.route.size() == 2
-				or is_instance_valid(unit.program.escort)
-			)
-	):
-		return Opening.programs(player, units, chipped[0])
+
 	return Tactics.next_step(player, units, combatants)
 
 

@@ -20,6 +20,8 @@ const LUA_GUARD = """return function(s,m)
     end
     return {intent={kind='hold'},state=m}
 end"""
+var _behaviors = "--behaviors" in OS.get_cmdline_user_args()
+var _no_capture = "--no-capture" in OS.get_cmdline_user_args()
 var _visual = "--visual" in OS.get_cmdline_user_args()
 var _lua = "--lua" in OS.get_cmdline_user_args() or _visual
 var _specialists = "--specialists" in OS.get_cmdline_user_args()
@@ -97,7 +99,7 @@ func _run():
 		var army = []
 		for index in range(40):
 			var roles = ["PowerPlant", "VehicleFactory", "Barracks", "RepairDepot"]
-			if _programs:
+			if _programs or _behaviors:
 				roles.append("CommandLab")
 			var role = "CommandCenter" if index == 0 else roles[index % roles.size()]
 			_spawn(
@@ -107,7 +109,7 @@ func _run():
 			)
 		for index in range(100):
 			var roles = ["Tank", "Infantry", "CombatRobot", "Helicopter", "RepairRobot"]
-			if _programs:
+			if _programs or _behaviors:
 				roles[1] = "Drone"
 			var point = Vector3(
 				(30 + (index % 5) * 2) if side == 0 else (70 - (index % 5) * 2),
@@ -163,7 +165,9 @@ func _run():
 			var unit = _armies[side][index]
 			_start_positions[unit] = unit.global_position
 			var point = Vector3(46 if side == 0 else 54, 0, 6 + (index / 5) * 4.5)
-			if _programs:
+			if _behaviors:
+				load("res://source/match/orders/UnitBehavior.gd").guard(unit, point)
+			elif _programs:
 				_program_guard(unit, point)
 			else:
 				unit.action = load("res://source/match/units/actions/Moving.gd").new(point)
@@ -177,7 +181,11 @@ func _run():
 	assert(moved >= 190, "Too many units failed to move under load")
 	for side in range(2):
 		for unit in _armies[side]:
-			if _programs:
+			if _behaviors:
+				load("res://source/match/orders/UnitBehavior.gd").guard(
+					unit, Vector3(50, 0, unit.global_position.z)
+				)
+			elif _programs:
 				_program_guard(unit, Vector3(50, 0, unit.global_position.z))
 			elif unit.attack_range != null:
 				unit.action = load("res://source/match/units/actions/AttackMoving.gd").new(
@@ -210,8 +218,18 @@ func _run():
 		)
 	if _squads:
 		assert(_peak_claims >= 20, "Squad benchmark did not exercise target sharing")
+	var vm_count = 0
+	for unit in get_nodes_in_group("units"):
+		if unit.program != null and unit.program.lua_runtime != null:
+			vm_count += 1
+	if _behaviors:
+		assert(vm_count == 0, "Built-in behaviors allocated script VMs")
 	print(
-		"SCALE moved=",
+		"SCALE lua_vm_count=",
+		vm_count,
+		" behaviors=",
+		_behaviors,
+		" moved=",
 		moved,
 		"/200 travelled=",
 		travelled,
@@ -228,7 +246,7 @@ func _run():
 		" viewport_pixels=",
 		root.get_texture().get_size()
 	)
-	if DisplayServer.get_name() != "headless" and not (_no_motion or _no_queues):
+	if DisplayServer.get_name() != "headless" and not (_no_motion or _no_queues or _no_capture):
 		await RenderingServer.frame_post_draw
 		var title = (
 			"scale-visual"
@@ -397,6 +415,10 @@ func _measure(label, frames):
 		snappedf(physics_ms / index, 0.01),
 		" physics_ticks=",
 		Engine.get_physics_frames() - physics_started,
+		" physics_hz=",
+		Engine.physics_ticks_per_second,
+		" interpolation=",
+		physics_interpolation,
 		" diagnostic_no_motion=",
 		_no_motion,
 		" diagnostic_no_queues=",

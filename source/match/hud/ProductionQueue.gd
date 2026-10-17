@@ -17,6 +17,7 @@ func _ready():
 	# A queue rack sitting on top of the command deck; it only shows while it holds jobs.
 	_tray = Kit.strip(14, 7)
 	_fit_queue()
+	_queue_elements.minimum_size_changed.connect(_fit_queue)
 	get_viewport().size_changed.connect(_fit_queue)
 	_reset()
 	MatchSignals.unit_selected.connect(func(_unit): _reset())
@@ -37,6 +38,7 @@ func _reset():
 
 func _remove_queue_element_nodes():
 	for child in _queue_elements.get_children():
+		_queue_elements.remove_child(child)
 		child.queue_free()
 
 

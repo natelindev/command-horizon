@@ -239,6 +239,8 @@ func _archive_and_pause():
 	var obstruction_id = builder._reference(obstruction)
 	var legacy = data.duplicate(true)
 	legacy.snapshot_version = 11
+	for stance_unit in legacy.units:
+		stance_unit.erase("stance")
 	for saved in legacy.neutral_buildings:
 		saved.erase("owner")
 	for saved in legacy.units:

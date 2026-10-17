@@ -251,6 +251,8 @@ func _archives():
 	paused = true
 	var legacy = data.duplicate(true)
 	legacy.snapshot_version = 5
+	for stance_unit in legacy.units:
+		stance_unit.erase("stance")
 	legacy.erase("battle_record")
 	for resource in legacy.resources:
 		resource.erase("wreck")
