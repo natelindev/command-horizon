@@ -23,6 +23,7 @@ TESTS = [
     "WorkerDistributionRegression", "CargoReturnRegression", "ResourceFieldRegression",
     "GarrisonCombatExitRegression", "PointOfInterestRegression",
     "BattlefieldExpansionRegression", "BattlefieldOpeningRegression",
+    "SaveNavigationTimingRegression",
 ]
 
 

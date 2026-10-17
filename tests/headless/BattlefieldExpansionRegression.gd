@@ -224,7 +224,9 @@ func _four_player_lifecycle():
 	var restored = await Restore.new().restore(self, snapshot)
 	_check(restored.ok, "Four-player restore failed: " + str(restored.get("error", "")))
 	if not restored.ok:
-		game.queue_free()
+		# A synchronization failure retains the newly loaded match, paused.
+		current_scene.queue_free()
+		paused = false
 		await _frames(5)
 		return
 	game = current_scene
@@ -249,7 +251,12 @@ func _four_player_lifecycle():
 	var eliminated_save = _snapshot()
 	_check(Schema.new().validate(eliminated_save), "Eliminated-player save rejected")
 	restored = await Restore.new().restore(self, eliminated_save)
-	_check(restored.ok, "Elimination restore failed")
+	_check(restored.ok, "Elimination restore failed: " + str(restored.get("error", "")))
+	if not restored.ok:
+		current_scene.queue_free()
+		paused = false
+		await _frames(5)
+		return
 	game = current_scene
 	players = get_nodes_in_group("players")
 	game._check_outcome(.1)

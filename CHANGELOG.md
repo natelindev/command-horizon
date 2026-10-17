@@ -2,7 +2,17 @@
 
 ## [main]
 
-## [0.13.0]
+## [0.13.1]
+
+### Fixed
+ - Large-map save restoration now waits for navigation using a wall-time deadline instead of a frame-count limit, fixing Windows/Linux release checks
+ - Failed restore fixtures clean up the retained paused match before testing another scenario
+ - Packaged releases include a regression for delayed navigation synchronization under accelerated frame delivery
+
+All features below are included in 0.13.1. The 0.13.0 candidate was not published
+because its new cross-platform save/load checks caught the synchronization race.
+
+## [0.13.0 — unpublished candidate]
 
 ### New features
  - Thirteen new battlefields: five two-player maps and eight four-player maps, with balanced starting fields and capturable facilities

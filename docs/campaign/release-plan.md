@@ -1,4 +1,4 @@
-# Release 0.13.0
+# Release 0.13.1
 
 ## Stage 1 — Prepare all local changes
 
@@ -14,7 +14,7 @@ repository static checks to pass on the release commit.
 
 ## Stage 3 — Build, publish and verify
 
-Tag the verified commit as v0.13.0. Monitor native Linux, macOS and Windows builds
+Tag the verified fix as v0.13.1. Monitor native Linux, macOS and Windows builds
 and packaged regressions, publish focused release notes, then download and verify
 all published packages and their checksums. Record final release evidence.
 
@@ -31,3 +31,14 @@ all published packages and their checksums. Record final release evidence.
 - Local macOS release export, packaged startup, and all fourteen packaged
   regressions pass without script errors. Verified 0.13.0 bundle metadata,
   Intel/Apple Silicon executable slices and the ad-hoc signature.
+- Committed every local change as 07bdff6d and pushed main. Static CI passed.
+- The v0.13.0 candidate passed macOS CI, but the new larger-map restore checks
+  failed on Linux/Windows: 300 accelerated frames could expire before asynchronous
+  navigation completed. Publication was correctly skipped.
+- Replaced the frame-count timeout with a ten-second wall-time deadline, retained
+  terrain/agent readiness checks, and added a deterministic delayed-sync regression.
+  Preparing v0.13.1 while retaining the unpublished v0.13.0 tag unchanged.
+- The delayed-sync regression fails against the candidate's original code and
+  passes with the fix. The fresh 0.13.1 macOS export/startup and seven focused
+  packaged checks pass, including larger-map restore, worker/cargo, ownership
+  and both campaign suites. Bundle metadata/signature and changed-script lint pass.

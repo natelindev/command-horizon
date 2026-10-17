@@ -9,6 +9,7 @@ const Schema = preload("res://source/match/saves/SnapshotSchema.gd")
 const Values = preload("res://source/match/saves/SaveValue.gd")
 const Actions = preload("res://source/match/saves/ActionRestore.gd")
 const Catalog = preload("res://source/match/BastionCatalog.gd")
+const NAVIGATION_SYNC_TIMEOUT_MS = 10000
 var error = ""
 var warnings = []
 var entities = {}
@@ -505,13 +506,20 @@ func _squads():
 
 
 func _synchronize(tree, game):
-	for frame in range(300):
+	# Baking and server publication run asynchronously in wall time. A fixed
+	# frame budget can expire in milliseconds during accelerated/headless play.
+	var deadline = Time.get_ticks_msec() + NAVIGATION_SYNC_TIMEOUT_MS
+	var frame = 0
+	while Time.get_ticks_msec() < deadline:
 		await tree.process_frame
 		await tree.physics_frame
+		frame += 1
 		game.navigation.terrain._process(0.0)
 		# A finished bake is still queued for NavigationServer publication.
 		# Do not restore active movement against the previous mesh's footprints.
 		var ready = game.navigation.terrain.is_synchronized()
+		if not ready:
+			continue
 		for saved in _data.units + _data.resources:
 			var obstacle = entities[saved.id].get_node_or_null("MovementObstacle")
 			if obstacle != null and not obstacle._synchronized:
@@ -519,7 +527,7 @@ func _synchronize(tree, game):
 			var movement = entities[saved.id].get_node_or_null("Movement")
 			if movement != null and not movement._synchronized:
 				ready = false
-		if ready and frame >= 4:
+		if ready and frame >= 5:
 			return true
 	return false
 
