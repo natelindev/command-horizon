@@ -41,6 +41,7 @@ var _command_mouse_held = false
 var _selection_roster = null
 var _discard_control_release = false
 var _command_card = null
+var _menu_reset_queued = false
 ## Left bay of the deck: portrait, name, health and status of the selection.
 var _info: VBoxContainer
 var _info_scroll: ScrollContainer
@@ -89,9 +90,9 @@ func _ready():
 	if _queue != null:
 		_queue.minimum_size_changed.connect(_fit_menu)
 		_queue.visibility_changed.connect(_fit_menu)
-	MatchSignals.unit_selected.connect(func(_unit): _reset_menus())
-	MatchSignals.unit_deselected.connect(func(_unit): _reset_menus())
-	MatchSignals.unit_died.connect(func(_unit): _reset_menus())
+	MatchSignals.unit_selected.connect(func(_unit): _queue_menu_reset())
+	MatchSignals.unit_deselected.connect(func(_unit): _queue_menu_reset())
+	MatchSignals.unit_died.connect(_on_selected_unit_died)
 	_minimap = find_parent("Match").find_child("Minimap", true, false)
 	if is_instance_valid(_minimap):
 		_minimap.resized.connect(_fit_menu)
@@ -136,15 +137,54 @@ func _input(event):
 		get_viewport().set_input_as_handled()
 
 
+func _on_selected_unit_died(unit):
+	if unit in _selection:
+		_queue_menu_reset()
+
+
+func _queue_menu_reset():
+	if _content == null or not is_inside_tree():
+		return
+	# Preserve the press before removing its control, including when several
+	# selection signals arrive before the matching mouse release.
+	if (
+		_command_mouse_held
+		or (is_instance_valid(_selection_roster) and _selection_roster.has_active_mouse_press())
+	):
+		_discard_control_release = true
+	if _menu_reset_queued:
+		return
+	_menu_reset_queued = true
+	# Old commands must not accept input for a selection that has already changed.
+	_content.hide()
+	_info.hide()
+	_flush_menu_reset.call_deferred()
+
+
+func _flush_menu_reset():
+	_menu_reset_queued = false
+	if is_inside_tree() and not is_queued_for_deletion():
+		_reset_menus()
+
+
 func _reset_menus():
 	if _content == null or not is_inside_tree():
 		return
+	_content.show()
+	_info.show()
 	if (
 		_command_mouse_held
 		or (is_instance_valid(_selection_roster) and _selection_roster.has_active_mouse_press())
 	):
 		_discard_control_release = true
 	var previous_selection = _selection.duplicate()
+	for previous_unit in previous_selection:
+		if not is_instance_valid(previous_unit):
+			continue
+		if previous_unit.tree_exited.is_connected(_queue_menu_reset):
+			previous_unit.tree_exited.disconnect(_queue_menu_reset)
+		if previous_unit is Structure and previous_unit.constructed.is_connected(_queue_menu_reset):
+			previous_unit.constructed.disconnect(_queue_menu_reset)
 	var page_name = "Orders"
 	if is_instance_valid(_pages) and _pages.current_tab >= 0:
 		page_name = _pages.get_current_tab_control().name
@@ -185,10 +225,13 @@ func _reset_menus():
 			self, "modulate:a", 1.0, .14
 		)
 	for selected_unit in _selection:
-		if not selected_unit.tree_exited.is_connected(_reset_menus):
-			selected_unit.tree_exited.connect(_reset_menus)
-		if selected_unit is Structure and not selected_unit.constructed.is_connected(_reset_menus):
-			selected_unit.constructed.connect(_reset_menus)
+		if not selected_unit.tree_exited.is_connected(_queue_menu_reset):
+			selected_unit.tree_exited.connect(_queue_menu_reset)
+		if (
+			selected_unit is Structure
+			and not selected_unit.constructed.is_connected(_queue_menu_reset)
+		):
+			selected_unit.constructed.connect(_queue_menu_reset)
 	var unit = _selection[0]
 	var conventional = (
 		unit._match.settings.mission_id == "supply_line"

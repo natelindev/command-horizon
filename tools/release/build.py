@@ -26,6 +26,7 @@ TESTS = [
     "SaveNavigationTimingRegression",
     "ContactApproachRegression", "NavigationRegression", "MapPlayabilityRegression",
     "MapPreviewRegression", "MusicRegression",
+    "SelectionBatchRegression",
 ]
 
 

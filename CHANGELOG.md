@@ -2,6 +2,18 @@
 
 ## [main]
 
+## [0.14.1]
+
+### Fixed
+ - Batch selection changes into one command/build-panel refresh, eliminating repeated control-tree construction when selecting groups
+ - Disconnect old selection callbacks and avoid refreshing the panel when an unrelated unit dies
+ - Preserve paused selection updates and held-button release safety during deferred refreshes
+
+### Verification
+ - Add a packaged regression for selection batching, paused construction commands and selection lifecycle cleanup
+ - A local rendered 40-builder selection improved from a 1,383 ms maximum frame to 49 ms; results depend on hardware and workload
+ - The exported Windows candidate completed four minutes of scripted gameplay with no frames over 100 ms; targeted headless and all-faction rendered selection checks passed
+
 ## [0.13.1]
 
 ### Fixed
