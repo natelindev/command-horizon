@@ -1,12 +1,19 @@
 extends RefCounted
 
-# Every map in the new-game picker uses this opening field, oriented toward its
-# existing resource approach. Expansion fields keep their authored positions.
+# A compact circular arc faces the base. Opening nodes share the same HQ radius;
+# three-metre chords leave room for two workers without the previous wide span.
 const FIELD_DISTANCE = 18.0
-const MATERIAL_OFFSETS = [
-	Vector2(-3.5, 0), Vector2.ZERO, Vector2(3.5, 0), Vector2(-1.75, -3.5), Vector2(1.75, -3.5)
-]
-const ELECTRONICS_OFFSETS = [Vector2(6.5, -2), Vector2(6.5, 1.5)]
+const NODE_SPACING = 3.0
+const SLOT_ORDER = [-2, -1, 0, 1, 2, -3, 3]
+
+
+static func offsets():
+	var result = []
+	var step = 2.0 * asin(NODE_SPACING / (2.0 * FIELD_DISTANCE))
+	for slot in SLOT_ORDER:
+		var angle = slot * step
+		result.append(Vector2(sin(angle), cos(angle) - 1.0) * FIELD_DISTANCE)
+	return result
 
 
 static func basis_for(map, fields, index):
@@ -33,13 +40,22 @@ static func overview(map, layout):
 
 static func apply(map, original_fields):
 	var deposits = map.get_node("Resources").get_children()
-	for index in 2:
-		var frame = basis_for(map, original_fields, index)
-		var center: Vector2 = frame.origin + frame.forward * FIELD_DISTANCE
-		var offsets = MATERIAL_OFFSETS + ELECTRONICS_OFFSETS
-		for slot in offsets.size():
+	var fields = map.overview().fields
+	var points = offsets()
+	for index in fields.size():
+		var frame = basis_for(map, original_fields, index % 2)
+		var center: Vector2 = fields[index]
+		# Coastal expansion arcs follow the shore, clear of pine stands and camps.
+		if map.scene_file_path.ends_with("ExpandedCoastalFoundry.tscn") and index >= 4:
+			frame.right = Vector2(0, 1)
+		if map.scene_file_path.ends_with("ExpandedAlpineRelay.tscn") and index >= 2:
+			frame.right = Vector2(0, 1)
+		if frame.right == Vector2(0, 1):
+			frame.forward = Vector2(1 if center.x < map.size.x / 2 else -1, 0)
+		for slot in points.size():
 			var point: Vector2 = (
-				center + frame.right * offsets[slot].x + frame.forward * offsets[slot].y
+				center + frame.right * points[slot].x + frame.forward * points[slot].y
 			)
-			var deposit = deposits[index * offsets.size() + slot]
+			var deposit = deposits[index * points.size() + slot]
 			deposit.position = Vector3(point.x, deposit.position.y, point.y)
+			deposit.harvest_origin = Vector3(center.x, 0, center.y)

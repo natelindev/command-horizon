@@ -10,7 +10,7 @@ The evolving RTS design is recorded in
 [the living game design document](docs/GAME_DESIGN.md), including confirmed
 decisions, proposed mechanics, and open questions.
 
-Units now use five built-in choices: **Attack, Defensive, Follow, Guard and Hold Fire**. Choose them in the selected unit's Orders panel. Per-unit Lua programs, rule editors, chip fitting and factory program assignment are retired from battles. Guard positions, follow targets, stances and queued direct orders persist in battle saves; legacy scripted orders load as Defensive behavior. See [unit behavior rules](docs/UNIT_BEHAVIORS.md) and [performance measurements](docs/performance/RESULTS.md).
+Units now use five built-in choices: **Auto-engage, Defensive, Follow, Guard and Hold Fire**. Choose them in the selected unit's Orders panel. Per-unit Lua programs, rule editors, chip fitting and factory program assignment are retired from battles. Guard positions, follow targets, stances and queued direct orders persist in battle saves; legacy scripted orders load as Defensive behavior. See [unit behavior rules](docs/UNIT_BEHAVIORS.md) and [performance measurements](docs/performance/RESULTS.md).
 
 The [core gameplay specification](docs/CORE_GAMEPLAY_SPEC.md) and older playtest reports retain the project's design history. Economy, faction rosters, research, repair, capture, hero campaigns, dialogue and battle archives remain available.
 
@@ -62,7 +62,7 @@ Combat now includes armor/weapon counters, blocked sight and fire, non-stacking 
 
 Both factions now have individual long-idle gestures, gait/hover timing, recoil and death variations. [Watch the idle/combat review](art/skirmish/unit-motion-preview.mp4) · [Motion rules and verification](docs/playtests/2026-10-01/UNIT_MOTION.md).
 
-Choose **Attack**, **Defensive**, **Follow**, **Guard** or **Hold Fire** in the Orders panel. Behaviors require no chip, script or network connection. Follow selects a friendly unit; Guard selects a position. Ordinary move, attack, gathering, construction and repair orders remain available.
+Choose **Auto-engage**, **Defensive**, **Follow**, **Guard** or **Hold Fire** in the Orders panel. Behaviors require no chip, script or network connection. Follow selects a friendly unit; Guard selects a position. Ordinary move, attack, gathering, construction and repair orders remain available.
 
 ```sh
 godot --headless --path . --fixed-fps 60 --script tests/headless/CombatRegression.gd

@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Mercenaries = preload("res://source/match/world/MercenaryCatalog.gd")
+
 const STRUCTURE_LIMIT = 40
 const INFANTRY_ROLES = ["Infantry", "RocketInfantry", "SniperInfantry", "AssaultInfantry", "Hero"]
 const GARRISON_CAPACITY = 8
@@ -7,6 +9,9 @@ const GARRISON_CAPACITY = 8
 const MISSION_NAMES = {"SupplyTruck": "Supply truck", "EvacTransport": "Rescue VTOL"}
 
 const NAMES = {
+	"MercenaryWarden": "Iron Warden",
+	"MercenaryRanger": "Dust Ranger",
+	"MercenaryLancer": "Breach Lancer",
 	"RocketInfantry": "Anti-armor infantry",
 	"SniperInfantry": "Sniper",
 	"AssaultInfantry": "Assault infantry",
@@ -129,7 +134,7 @@ static func scene_path(unit_type):
 
 
 static func is_infantry(role):
-	return role in INFANTRY_ROLES
+	return role in INFANTRY_ROLES or role in Mercenaries.ROLES
 
 
 static func icon_path(unit_type):

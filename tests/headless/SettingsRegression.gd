@@ -193,6 +193,8 @@ func _battle_dialog():
 	preferences.zoom_speed = 2.0
 	camera.set_size_safely(28)
 	camera._zoom_in()
+	for frame in 30:
+		camera._advance_zoom(1.0 / 60)
 	_check(camera.size == 26, "Camera does not use zoom preference")
 	var human = game._get_human_player()
 	_check(

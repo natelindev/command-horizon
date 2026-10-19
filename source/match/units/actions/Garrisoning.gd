@@ -20,6 +20,10 @@ func _physics_process(delta):
 		queue_free()
 		return
 	if _unit.has_meta("garrison_host") and _unit.get_meta("garrison_host") == _target_unit:
+		# Explicit attacks may finish their shot action, but Hold Fire must never
+		# acquire a new target merely because the infantry entered a building.
+		if _unit.stance == _unit.Stance.HOLD_FIRE:
+			return
 		if not is_instance_valid(_shot) or _shot.is_queued_for_deletion():
 			var target = _unit._match.battlefield.automatic_target(_unit)
 			if target != null:

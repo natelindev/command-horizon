@@ -10,7 +10,7 @@ var captured_by = null
 var candidate = null
 var progress = 0.0
 var contested = false
-var sight_range = 9.0
+var sight_range = 27.0
 var hp = 1.0
 var player:
 	get:

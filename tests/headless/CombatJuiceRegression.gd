@@ -1,4 +1,4 @@
-extends SceneTree
+extends "res://tests/headless/UnitAnimationRegression.gd"
 
 var errors = []
 
@@ -70,21 +70,6 @@ func _test_radio_chirp_assets():
 	print("PASS Radio squelch and key-up chirp assets")
 
 
-class DummyPlayer:
-	extends Node
-	var faction = "bastion"
-
-
-class DummyUnit:
-	extends Node3D
-	signal action_changed(new_action)
-	var type = "Tank"
-	var movement_domain = 0
-	var aim_target = null
-	var action = null
-	var player = null
-
-
 func _test_camera_trauma():
 	var camera = load("res://source/match/IsometricCamera3D.gd").new()
 	camera.projection = camera.EXPECTED_PROJECTION
@@ -120,18 +105,9 @@ func _test_camera_trauma():
 
 
 func _test_suspension_recoil():
-	var dummy_unit = DummyUnit.new()
-	dummy_unit.name = "DummyTank"
-	var geom = Node3D.new()
-	geom.name = "Geometry"
-	dummy_unit.add_child(geom)
-	dummy_unit.set_meta("visual_seed", 42)
-	var dummy_player = DummyPlayer.new()
-	dummy_unit.player = dummy_player
-
-	root.add_child(dummy_unit)
-	var visuals = load("res://source/match/units/traits/BastionVisuals.gd").new()
-	dummy_unit.add_child(visuals)
+	await _fixture("bastion")
+	var tank = _spawn("Tank", 0, Vector3(30, 0, 12))
+	var visuals = tank.get_node("BastionVisuals")
 
 	_check(visuals._heavy, "Tank not identified as heavy unit")
 	visuals.fire_recoil()
@@ -143,7 +119,7 @@ func _test_suspension_recoil():
 	visuals._process(0.05)
 	_check(visuals._suspension_pitch != 0.0, "Suspension pitch failed to respond to impulse")
 
-	dummy_unit.queue_free()
+	await _close()
 	print("PASS Vehicle suspension recoil spring-damper dynamics")
 
 

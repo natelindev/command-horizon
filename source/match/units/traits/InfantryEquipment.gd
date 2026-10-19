@@ -20,7 +20,7 @@ static func equip(unit, faction):
 		{"bastion": Color("4c555f"), "helix": Color("2e4357"), "frontier": Color("79744d")}[faction],
 		0
 	)
-	if unit.type in ["RocketInfantry", "SniperInfantry"]:
+	if unit.type in ["RocketInfantry", "SniperInfantry", "MercenaryRanger", "MercenaryLancer"]:
 		for mesh in geometry.find_children("*", "MeshInstance3D", true, false):
 			if (
 				"Rifle" in str(mesh.name)
@@ -29,22 +29,36 @@ static func equip(unit, faction):
 				or "WoodStock" in str(mesh.name)
 			):
 				mesh.hide()
-	if unit.type in ["RocketInfantry", "SniperInfantry"]:
+	if unit.type in ["RocketInfantry", "SniperInfantry", "MercenaryRanger", "MercenaryLancer"]:
 		for old_muzzle in geometry.find_children("*Muzzle", "Node3D", true, false):
 			old_muzzle.name = "StockEmitter"
 		var muzzle = Marker3D.new()
 		muzzle.name = "ClassMuzzle"
 		muzzle.position = (
-			Vector3(.22, .75, -.68) if unit.type == "RocketInfantry" else Vector3(.12, .66, -1.02)
+			Vector3(.22, .75, -.68)
+			if unit.type in ["RocketInfantry", "MercenaryLancer"]
+			else Vector3(.12, .66, -1.02)
 		)
 		gear.add_child(muzzle)
-	match unit.type:
+	var role = unit.type
+	var Mercenaries = preload("res://source/match/world/MercenaryCatalog.gd")
+	if role in Mercenaries.ROLES:
+		role = Mercenaries.UNITS[role].base
+		_box(gear, "ContractMantle", Vector3(0, .78, .17), Vector3(.56, .2, .35), dark)
+		_box(gear, "ContractBadge", Vector3(0, .89, .17), Vector3(.18, .025, .14), metal)
+		if unit.type == "MercenaryWarden":
+			_box(gear, "TowerShield", Vector3(-.28, .5, -.2), Vector3(.34, .78, .12), dark)
+		elif unit.type == "MercenaryRanger":
+			_box(gear, "ReconAntenna", Vector3(-.16, 1.03, .22), Vector3(.025, .44, .025), metal)
+		else:
+			_tube(gear, "HeavyWarhead", Vector3(.22, .75, -.54), .16, .28, metal)
+	match role:
 		"RocketInfantry":
-			_tube(gear, "Launcher", Vector3(.22, .75, -.15), .11, .86, dark)
+			_tube(gear, "Launcher", Vector3(.22, .75, -.15), .14, .86, dark)
 			_tube(gear, "LaunchMouth", Vector3(.22, .75, -.60), .125, .09, metal)
 			_tube(gear, "RocketTip", Vector3(.22, .75, -.65), .075, .05, accent)
 			_box(gear, "Optic", Vector3(.22, .89, -.15), Vector3(.09, .08, .15), accent)
-			_box(gear, "AmmoPack", Vector3(0, .6, .21), Vector3(.32, .4, .17), cloth)
+			_box(gear, "AmmoPack", Vector3(0, .6, .21), Vector3(.38, .45, .22), cloth)
 			for x in [-.1, .1]:
 				_tube(gear, "SpareRocket", Vector3(x, .65, .32), .06, .48, metal).rotation.x = 0
 		"SniperInfantry":
@@ -52,11 +66,11 @@ static func equip(unit, faction):
 			_tube(gear, "LongBarrel", Vector3(.12, .66, -.68), .026, .42, metal)
 			_tube(gear, "Suppressor", Vector3(.12, .66, -.94), .042, .14, dark)
 			_tube(gear, "Scope", Vector3(.12, .76, -.32), .045, .23, accent)
-			_box(gear, "Mantle", Vector3(0, .75, .06), Vector3(.47, .16, .24), cloth)
+			_box(gear, "Mantle", Vector3(0, .75, .06), Vector3(.58, .16, .32), cloth)
 			_box(gear, "FieldPack", Vector3(0, .52, .23), Vector3(.29, .4, .10), cloth)
 		"AssaultInfantry":
 			_armor(gear, dark, accent)
-			_box(gear, "BreachingShield", Vector3(-.28, .53, -.14), Vector3(.20, .55, .09), metal)
+			_box(gear, "BreachingShield", Vector3(-.28, .53, -.14), Vector3(.28, .64, .09), metal)
 			_box(gear, "ShieldMark", Vector3(-.28, .58, -.19), Vector3(.09, .2, .018), accent)
 			_tube(gear, "DrumMagazine", Vector3(.12, .52, -.26), .09, .15, dark)
 		"Hero":

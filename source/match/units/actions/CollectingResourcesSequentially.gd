@@ -2,7 +2,8 @@ extends "res://source/match/units/actions/Action.gd"
 
 enum State { NULL, MOVING_TO_RESOURCE, COLLECTING, MOVING_TO_CC, WAITING }
 enum Wait { NONE, SLOT, DEPLETED, HQ, DELIVERED }
-const FIELD_RADIUS = 10.0
+const FIELD_RADIUS = 13.0
+const LEGACY_FIELD_RADIUS = 10.0
 const WORK_SLOTS = 2
 const ASSIGNMENTS = &"harvest_assignments"
 const CommandCenter = preload("res://source/match/units/CommandCenter.gd")
@@ -40,7 +41,9 @@ static func is_applicable(source_unit, target_unit):
 func _init(unit):
 	if unit is ResourceUnit:
 		_kind = 1 if "resource_a" in unit else 2
-		_field_origin = unit.global_position_yless
+		_field_origin = (
+			unit.harvest_origin if unit.harvest_origin.is_finite() else unit.global_position_yless
+		)
 		_set_resource_unit(unit)
 	elif unit is CommandCenter:
 		_set_cc_unit(unit)
@@ -152,8 +155,12 @@ func _field_deposits():
 				and property in deposit
 				and deposit.get(property) > 0
 				and (
-					deposit.global_position_yless.distance_squared_to(_field_origin)
-					<= FIELD_RADIUS * FIELD_RADIUS
+					deposit.harvest_origin.is_equal_approx(_field_origin)
+					if deposit.harvest_origin.is_finite()
+					else (
+						deposit.global_position_yless.distance_squared_to(_field_origin)
+						<= LEGACY_FIELD_RADIUS * LEGACY_FIELD_RADIUS
+					)
 				)
 			)
 	)

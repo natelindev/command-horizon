@@ -12,7 +12,7 @@ func _run():
 	constants = root.get_node("Constants")
 	harvest = load("res://source/match/units/actions/CollectingResourcesSequentially.gd")
 	orders = load("res://source/match/orders/ManualOrders.gd")
-	for faction in ["bastion", "helix"]:
+	for faction in ["bastion", "helix", "frontier"]:
 		game = await _start(_settings(faction, "helix", false))
 		human = game._get_human_player()
 		get_nodes_in_group("players")[1].set_process(false)
@@ -79,7 +79,9 @@ func _slots_and_type():
 		workers[2].action._waiting_reason == harvest.Wait.SLOT, "Third worker overbooked deposit"
 	)
 	await _frames(130)
-	_check(workers[0].resource_b + workers[1].resource_b > 0, "Reserved workers did not gather")
+	_check(
+		workers[0].resource_b > 0 and workers[1].resource_b > 0, "Reserved workers did not gather"
+	)
 	_check(
 		workers[2].resource_b == 0 and wrong.resource_a == 100,
 		"Waiting worker gathered or switched type"
@@ -182,7 +184,7 @@ func _hq_and_queue():
 		worker.action._state == harvest.State.MOVING_TO_CC,
 		"New field order discarded carried cargo"
 	)
-	await _roundtrip(true)
+	await _roundtrip(human.faction != "frontier")
 	worker = workers[0]
 	hq = _unit(human, "CommandCenter")
 	_check(worker.action._kind == 2, "Legacy archive did not infer surviving field type")

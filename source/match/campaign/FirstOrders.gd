@@ -192,16 +192,16 @@ func objective_text():
 
 func result_summary():
 	var text = (
-		"Relay logistics are back online."
+		tr("Relay logistics are back online.")
 		if result == "Victory"
-		else "Command lost. Rebuild the HQ within 60 seconds to stay in the operation."
+		else tr("Command lost. Rebuild the HQ within 60 seconds to stay in the operation.")
 	)
 	text += (
 		"\n"
 		+ (
-			"Adaptive doctrine badge earned."
+			tr("Adaptive doctrine badge earned.")
 			if reuse_badge
-			else "Use Guard and Follow together before securing the relay."
+			else tr("Use Guard and Follow together before securing the relay.")
 		)
 	)
 	if not progress_error.is_empty():

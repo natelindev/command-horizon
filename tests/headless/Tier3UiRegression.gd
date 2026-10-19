@@ -27,7 +27,13 @@ func _test_command_card_grid():
 
 	var dummy_combat_unit = Node3D.new()
 	var dummy_script = GDScript.new()
-	dummy_script.source_code = "extends Node3D\nvar hp = 150\nvar attack_range = 18.0\nsignal input_event(cam, ev, pos, norm, idx)\nsignal selected\nsignal deselected"
+	dummy_script.source_code = """extends Node3D
+var hp = 150
+var attack_range = 18.0
+signal input_event(cam, ev, pos, norm, idx)
+signal selected
+signal deselected
+"""
 	dummy_script.reload()
 	dummy_combat_unit.set_script(dummy_script)
 	dummy_combat_unit.add_to_group("controlled_units")
@@ -35,11 +41,14 @@ func _test_command_card_grid():
 
 	card.update_layout([dummy_combat_unit], null)
 	var stop_btn = card._slots[0][1]
-	_check(stop_btn.badge == "W", "Stop button missing W hotkey badge")
+	_check(stop_btn.badge.is_empty(), "Stop advertises the camera pan key")
 	_check(not stop_btn.disabled, "Stop button disabled for combat unit")
 
 	var atk_move_btn = card._slots[1][0]
-	_check(atk_move_btn.badge == "A", "Attack move button missing A hotkey badge")
+	_check(
+		atk_move_btn.badge == load("res://source/input/KeyBindings.gd").label("attack_move"),
+		"Attack move badge does not match configured binding"
+	)
 
 	dummy_combat_unit.queue_free()
 	card.queue_free()
@@ -50,7 +59,13 @@ func _test_tactical_range_ring():
 	var SelectionScript = load("res://source/match/units/traits/Selection.gd")
 	var dummy_unit = Node3D.new()
 	var dummy_script = GDScript.new()
-	dummy_script.source_code = "extends Node3D\nvar hp = 150\nvar attack_range = 14.0\nsignal input_event(cam, ev, pos, norm, idx)\nsignal selected\nsignal deselected"
+	dummy_script.source_code = """extends Node3D
+var hp = 150
+var attack_range = 14.0
+signal input_event(cam, ev, pos, norm, idx)
+signal selected
+signal deselected
+"""
 	dummy_script.reload()
 	dummy_unit.set_script(dummy_script)
 
@@ -59,6 +74,7 @@ func _test_tactical_range_ring():
 	dummy_unit.add_child(circle)
 
 	var selection_trait = SelectionScript.new()
+	selection_trait.name = "Selection"
 	dummy_unit.add_child(selection_trait)
 	root.add_child(dummy_unit)
 
@@ -67,7 +83,9 @@ func _test_tactical_range_ring():
 	_check(selection_trait._range_ring.visible, "Tactical range ring is hidden when selected")
 
 	selection_trait.deselect()
-	_check(not selection_trait._range_ring.visible, "Tactical range ring was not hidden on deselect")
+	_check(
+		not selection_trait._range_ring.visible, "Tactical range ring was not hidden on deselect"
+	)
 
 	dummy_unit.queue_free()
 	print("PASS Selected unit tactical attack range ring projection and lifecycle")

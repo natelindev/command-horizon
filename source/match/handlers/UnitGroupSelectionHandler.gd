@@ -59,7 +59,7 @@ func access_group(group_id: int):
 	Utils.Match.select_units(units_in_group)
 	var now = Time.get_ticks_msec()
 	if _last_access_id == group_id and (now - _last_access_time) < 400:
-		_snap_camera_to_units(units_in_group)
+		_snap_camera_to_units(raw_nodes)
 	_last_access_id = group_id
 	_last_access_time = now
 

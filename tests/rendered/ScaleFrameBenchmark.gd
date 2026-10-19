@@ -52,6 +52,64 @@ func _measure(label, frames):
 		" rendered_frames=",
 		Engine.get_frames_drawn() - drawn
 	)
+	print(
+		"TAIL ",
+		label,
+		" max_frame_ms=",
+		snappedf(_frame_times[-1], .01),
+		" frames_over_100ms=",
+		_frame_times.filter(func(ms): return ms > 100.0).size()
+	)
+	if label == "combat" and "--input-latency" in OS.get_cmdline_user_args():
+		await _input_probe()
+
+
+func _input_probe():
+	# Run after the matched combat sample so input probes cannot change its load.
+	# This measures engine event dispatch to frame submission, not mouse hardware
+	# or display scan-out latency.
+	var hud = _game.hud
+	var feedback = hud.command_feedback
+	var camera = _game.get_node("IsometricCamera3D")
+	hud.select_units(_armies[0].slice(0, 24))
+	await _frames(3)
+	var samples = []
+	for index in 10:
+		feedback.markers.clear()
+		hud.direct_orders.arm("move")
+		var point = camera.unproject_position(Vector3(40 + index % 2, 0, 45))
+		point = root.get_final_transform() * point
+		var motion = InputEventMouseMotion.new()
+		motion.position = point
+		motion.global_position = point
+		root.push_input(motion, false)
+		await process_frame
+		var started = Time.get_ticks_usec()
+		for pressed in [true, false]:
+			var click = InputEventMouseButton.new()
+			click.button_index = MOUSE_BUTTON_LEFT
+			click.pressed = pressed
+			click.position = point
+			click.global_position = point
+			click.button_mask = MOUSE_BUTTON_MASK_LEFT if pressed else 0
+			root.push_input(click, false)
+		await RenderingServer.frame_post_draw
+		if feedback.markers.is_empty():
+			await RenderingServer.frame_post_draw
+		if feedback.markers.is_empty() or not feedback.markers[-1].accepted:
+			push_error("Maximum-population input probe did not acknowledge a move")
+			quit(1)
+			return
+		samples.append((Time.get_ticks_usec() - started) / 1000.0)
+		await _frames(3)
+	samples.sort()
+	print(
+		"INPUT selected=24 samples=10 event_to_feedback_submit_mean_ms=",
+		snappedf(_mean(samples), .01),
+		" p95_ms=",
+		snappedf(samples[9], .01),
+		" maximum_population=true"
+	)
 
 
 func _sample_render():

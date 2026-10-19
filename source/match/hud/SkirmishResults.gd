@@ -255,6 +255,16 @@ static func build(hud, result):
 	details.add_theme_font_size_override("font_size", 12)
 	details.add_theme_color_override("font_color", Color("c0ccd2"))
 	details_box.add_child(details)
+	var next_step = preload("res://source/match/campaign/OpeningGuidance.gd").debrief(game)
+	if not next_step.is_empty():
+		var advice = Label.new()
+		advice.name = "NextStep"
+		advice.text = hud.tr("Try next") + "\n" + hud.tr(next_step)
+		advice.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		advice.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		advice.add_theme_font_size_override("font_size", 12)
+		advice.add_theme_color_override("font_color", BattleTheme.IVORY)
+		details_box.add_child(advice)
 
 	if game.battle_record.data.statistics.recorded_from > 0:
 		var note = Label.new()

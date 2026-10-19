@@ -33,6 +33,9 @@ const HELIX_COSTS = {
 # Archives may contain contracts bought before the pacing rebalance. Their paid
 # remaining time stays valid; newly purchased contracts use current durations.
 const ARCHIVE_PRODUCTION_LIMITS = {
+	"MercenaryWarden": 14.0,
+	"MercenaryRanger": 15.0,
+	"MercenaryLancer": 18.0,
 	"Hero": 40.0,
 	"AssaultInfantry": 12.0,
 	"SniperInfantry": 16.0,

@@ -3,7 +3,7 @@ extends RefCounted
 # Five fixed choices. Stances persist independently of queued move/follow orders.
 const Orders = preload("res://source/match/orders/ManualOrders.gd")
 const CHOICES = ["attack", "defensive", "follow", "guard", "hold_fire"]
-const TITLES = ["Attack", "Defensive", "Follow", "Guard", "Hold Fire"]
+const TITLES = ["Auto-engage", "Defensive", "Follow", "Guard", "Hold Fire"]
 
 
 static func set_stance(unit, behavior):
@@ -27,7 +27,9 @@ static func set_stance(unit, behavior):
 static func guard(unit, point, append = false):
 	if not point is Vector3 or not point.is_finite() or unit.manual_orders == null:
 		return false
-	var accepted = unit.manual_orders.submit(Orders.point_order("move", point), append)
+	var accepted = unit.manual_orders.submit(
+		Orders.point_order("move", point), append, true, "guard"
+	)
 	if accepted:
 		unit.stance = unit.Stance.HOLD_POSITION
 	return accepted

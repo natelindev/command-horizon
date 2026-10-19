@@ -85,7 +85,7 @@ func _coordination():
 		"Feedback changed the Coordination price"
 	)
 	await _unchanged("paid Coordination")
-	var elapsed = await _advance(120)
+	var elapsed = await _advance(Engine.physics_ticks_per_second * 2)
 	_check(absf(elapsed - 2.0) < .05, "Clock interval differs from two seconds")
 	_check(
 		is_equal_approx(30.0 - human.coordination_left, elapsed), "Normal research speed differs"
@@ -135,7 +135,7 @@ func _power_and_lab_loss():
 	)
 	_check("35%" in status._button.tooltip_text, "Low-power explanation is missing")
 	var remaining = human.coordination_left
-	var elapsed = await _advance(120)
+	var elapsed = await _advance(Engine.physics_ticks_per_second * 2)
 	_check(
 		is_equal_approx(remaining - human.coordination_left, elapsed * .35),
 		"Research low-power timing was changed"

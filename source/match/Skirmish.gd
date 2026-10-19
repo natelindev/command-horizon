@@ -189,7 +189,7 @@ func objective_text():
 	if not recovery.is_empty():
 		return "\n".join(recovery)
 
-	var text = "Destroy the enemy HQ. Prevent a rebuild for 60 seconds."
+	var text = "Destroy enemy HQ · prevent rebuilding for 60s."
 	if settings.players.size() > 2:
 		text = (
 			tr("Eliminate every rival HQ. Prevent rebuilding for 60 seconds. Rivals left: %d.")

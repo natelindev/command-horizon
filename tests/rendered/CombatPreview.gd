@@ -5,6 +5,7 @@ var _game
 var _errors = []
 var _preferences
 var _original_options
+var _capture_dir
 
 
 func _initialize():
@@ -15,7 +16,15 @@ func _run():
 	Engine.max_fps = 60
 	_preferences = root.get_node("Globals").options
 	_original_options = _preferences.capture()
-	_preferences.reduced_flashes = false
+	_preferences.reduced_flashes = "--reduced" in OS.get_cmdline_user_args()
+	if "--muted" in OS.get_cmdline_user_args():
+		_preferences.master_volume = 0.0
+	_preferences.apply()
+	var variant = "reduced" if _preferences.reduced_flashes else "normal"
+	if "--muted" in OS.get_cmdline_user_args():
+		variant += "-muted"
+	_capture_dir = "res://art/game-polish/combat/" + variant
+	DirAccess.make_dir_recursive_absolute(_capture_dir)
 	root.mode = Window.MODE_WINDOWED
 	root.content_scale_mode = Window.CONTENT_SCALE_MODE_VIEWPORT
 	root.size = Vector2i(1440, 900)
@@ -83,7 +92,7 @@ func _run():
 			await RenderingServer.frame_post_draw
 			var image = root.get_texture().get_image()
 			if frame in [120, 240, 360]:
-				image.save_png("res://art/skirmish/combat-%d.png" % frame)
+				image.save_png(_capture_dir + "/combat-%d.png" % frame)
 			if capture_video and frame % 2 == 0:
 				image.save_jpg(directory + "/frame-%04d.jpg" % (frame / 2), 0.9)
 	var effects = _game.combat_effects
@@ -118,7 +127,7 @@ func _run():
 		await process_frame
 		if frame in [6, 35, 170]:
 			await RenderingServer.frame_post_draw
-			root.get_texture().get_image().save_png("res://art/skirmish/impact-%d.png" % frame)
+			root.get_texture().get_image().save_png(_capture_dir + "/impact-%d.png" % frame)
 	print(
 		"PASS: combat animation shots=",
 		effects.shots_emitted,

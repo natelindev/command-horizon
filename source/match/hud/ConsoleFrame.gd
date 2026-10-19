@@ -3,7 +3,7 @@ extends Control
 ## Structural chrome of the battle console, drawn beneath the functional panels:
 ## a rail across the top that the resource and system plates hang from, a rail
 ## along the bottom joining the minimap housing to the command deck, and an
-## empty deck housing that keeps the console whole while nothing is selected.
+## command deck. Nothing is drawn over the battlefield for an empty selection.
 
 const BattleTheme = preload("res://source/match/hud/BattleTheme.gd")
 const HudLayout = preload("res://source/match/hud/HudLayout.gd")
@@ -95,8 +95,5 @@ func _layout():
 	for stripe in _hazards:
 		stripe.size = stripe_size
 		stripe.visible = right - left > stripe_size.x * 2 + 60
-	empty_deck.visible = is_instance_valid(_deck) and not deck_shown
-	if empty_deck.visible:
-		var height = _minimap.size.y if is_instance_valid(_minimap) else HudLayout.CONSOLE_HEIGHT
-		empty_deck.position = Vector2(viewport.x - width, viewport.y - height)
-		empty_deck.size = Vector2(width, height)
+	empty_deck.hide()
+	bottom_rail.visible = deck_shown

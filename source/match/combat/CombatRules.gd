@@ -18,6 +18,9 @@ const MULTIPLIERS = {
 }
 const ARMOR_NAMES = ["Infantry", "Light machine", "Heavy armor", "Structure"]
 const PROFILES = {
+	"MercenaryLancer": "Infantry rocket",
+	"MercenaryRanger": "Sniper rifle",
+	"MercenaryWarden": "Assault rifle",
 	"RocketInfantry": "Infantry rocket",
 	"SniperInfantry": "Sniper rifle",
 	"AssaultInfantry": "Assault rifle",

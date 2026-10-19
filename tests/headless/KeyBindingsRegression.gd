@@ -268,6 +268,16 @@ func _commands():
 	root.get_node("MatchSignals").deselect_all_units.emit()
 	await _press(KEY_B)
 	_check(tank.is_in_group("selected_units"), "Remapped group recall failed")
+	camera.set_position_safely(Vector3(55, 0, 55))
+	var groups = game.find_child("UnitGroupSelectionHandler")
+	groups._last_access_time = Time.get_ticks_msec()
+	await _press(KEY_B)
+	_check(
+		camera.global_position.is_equal_approx(
+			camera._target_position_to_camera_position(tank.global_position)
+		),
+		"Double group recall did not center the camera"
+	)
 	await _press(KEY_P)
 	_release_focus()
 	# Queue attack-move with a non-Shift hold binding through the actual HUD handler.

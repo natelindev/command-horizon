@@ -140,6 +140,8 @@ func capture(game):
 				"kind": kind,
 				"amount": deposit.get(kind),
 				"position": deposit.position,
+				"field_origin":
+				deposit.harvest_origin if deposit.harvest_origin.is_finite() else null,
 				"wreck":
 				(
 					_properties(deposit, ["wreck_role", "wreck_faction", "salvage_left"])

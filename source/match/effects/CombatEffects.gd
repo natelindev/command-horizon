@@ -156,13 +156,19 @@ func impact(unit, source, point):
 			"Helicopter",
 			"AntiGroundTurret",
 			"AntiAirTurret",
-			"RocketInfantry"
+			"RocketInfantry",
+			"MercenaryLancer"
 		]
 	)
 	var ground_hit = point.y < 1.6
 	var direction = source.global_position.direction_to(point)
 	if heavy:
-		_explosion(point, 0.95 if source.type == "RocketInfantry" else 1.25, ground_hit)
+		if source.type in ["RocketInfantry", "MercenaryLancer", "Helicopter", "AntiAirTurret"]:
+			_explosion(point, .95, ground_hit)
+		else:
+			_armor_impact(
+				point, direction, ground_hit, FACTION_FIRE.get(source.player.faction, RAIL_FIRE)
+			)
 	else:
 		_puff("flash", point, Vector3.ZERO, Color("ffe2a8"), 0.24)
 		for _index in range(5):
@@ -227,13 +233,34 @@ func _shake_camera(point, amount):
 	_camera.add_trauma(amount * factor)
 
 
-func _explosion(point, strength, ground_hit):
+func _armor_impact(point, direction, ground_hit, color):
+	# A penetrating shell has a short, directional impact. Fireballs and physical
+	# debris are reserved for destruction so surviving armor stays readable.
+	_shake_camera(point, .08)
+	_puff("flash", point, Vector3.ZERO, color, .65)
+	for index in 7:
+		_puff(
+			"spark",
+			point,
+			-direction * 2.8 + _jitter(2.2) + Vector3.UP,
+			color,
+			_random.randf_range(.045, .085)
+		)
+	_puff("smoke", point, Vector3.UP * .4, Color(.25, .26, .27, .28), .55)
+	if ground_hit:
+		_puff(
+			"dust", Vector3(point.x, .12, point.z), Vector3.UP * .5, Color(.48, .40, .30, .38), .9
+		)
+		aftermath.scar(Vector3(point.x, 0, point.z), .65)
+
+
+func _explosion(point, strength, ground_hit, destructive = false):
 	_shake_camera(point, strength * 0.14)
 	_puff("flash", point, Vector3.ZERO, Color("ffe9c0"), strength * 1.7)
-	for _index in range(10):
+	for _index in range(10 if destructive else 6):
 		var velocity = _jitter(3.8) + Vector3.UP * 2.8
 		_puff("spark", point, velocity * strength, Color("ffce8b"), _random.randf_range(0.04, 0.09))
-	for _index in range(6):
+	for _index in range(6 if destructive else 2):
 		var offset = _jitter(strength * 0.3)
 		_puff(
 			"fire",
@@ -253,8 +280,9 @@ func _explosion(point, strength, ground_hit):
 			)
 	if ground_hit:
 		# Uneven radial dirt jets, not a uniform expanding ring.
-		for index in range(12):
-			var angle = index * TAU / 12.0 + _random.randf_range(-0.2, 0.2)
+		var jets = 12 if destructive else 4
+		for index in range(jets):
+			var angle = index * TAU / jets + _random.randf_range(-0.2, 0.2)
 			var outward = Vector3(cos(angle), 0, sin(angle))
 			var velocity = outward * _random.randf_range(1.4, 3.4) * strength
 			velocity.y = _random.randf_range(0.15, 1.2)
@@ -265,7 +293,10 @@ func _explosion(point, strength, ground_hit):
 				Color(0.48, 0.40, 0.30, 0.65),
 				strength * _random.randf_range(0.8, 1.5)
 			)
-	aftermath.burst(point, strength, ground_hit)
+	if destructive:
+		aftermath.burst(point, strength, ground_hit)
+	elif ground_hit:
+		aftermath.scar(Vector3(point.x, 0, point.z), strength * .7)
 
 
 func destruction(unit):
@@ -278,7 +309,7 @@ func destruction(unit):
 	var size = clampf(unit.radius, 0.5, 2.0)
 	_shake_camera(point, size * 0.18)
 	if not infantry:
-		_explosion(point, size * 2.0, point.y < 1.6)
+		_explosion(point, size * 2.0, point.y < 1.6, true)
 	else:
 		_puff(
 			"dust",

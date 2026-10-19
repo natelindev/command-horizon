@@ -198,6 +198,36 @@ class Units:
 		},
 	}
 	const DEFAULT_PROPERTIES = {
+		"res://source/match/units/MercenaryLancer.tscn":
+		{
+			"hp": 44,
+			"hp_max": 44,
+			"attack_damage": 18,
+			"attack_interval": 3,
+			"attack_range": 11.0,
+			"sight_range": 12.0,
+			"attack_domains": [Navigation.Domain.TERRAIN]
+		},
+		"res://source/match/units/MercenaryRanger.tscn":
+		{
+			"hp": 28,
+			"hp_max": 28,
+			"attack_damage": 10,
+			"attack_interval": 1.8,
+			"attack_range": 12.0,
+			"sight_range": 18.0,
+			"attack_domains": [Navigation.Domain.TERRAIN]
+		},
+		"res://source/match/units/MercenaryWarden.tscn":
+		{
+			"hp": 70,
+			"hp_max": 70,
+			"attack_damage": 5,
+			"attack_interval": 0.5,
+			"attack_range": 6.0,
+			"sight_range": 10.0,
+			"attack_domains": [Navigation.Domain.TERRAIN]
+		},
 		"res://source/match/units/Hero.tscn":
 		{
 			"hp": 110,
@@ -349,6 +379,12 @@ class Units:
 		},
 	}
 	const PROJECTILES = {
+		"res://source/match/units/MercenaryLancer.tscn":
+		"res://source/match/units/projectiles/Rocket.tscn",
+		"res://source/match/units/MercenaryRanger.tscn":
+		"res://source/match/units/projectiles/CannonShell.tscn",
+		"res://source/match/units/MercenaryWarden.tscn":
+		"res://source/match/units/projectiles/CannonShell.tscn",
 		"res://source/match/units/Hero.tscn":
 		"res://source/match/units/projectiles/CannonShell.tscn",
 		"res://source/match/units/AssaultInfantry.tscn":

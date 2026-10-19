@@ -8,6 +8,10 @@ static var _materials = {}
 
 
 static func build(faction, role):
+	var Mercenaries = preload("res://source/match/world/MercenaryCatalog.gd")
+	if role in Mercenaries.ROLES:
+		faction = "bastion"
+		role = Mercenaries.UNITS[role].base
 	var model = Node3D.new()
 	model.name = "InfantryRig"
 	var palette = {

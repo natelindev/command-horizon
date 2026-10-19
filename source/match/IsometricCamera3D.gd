@@ -28,6 +28,8 @@ var trauma = 0.0
 var _trauma_clock = 0.0
 var _mouse_pos_when_rotation_started = null
 var _camera_global_pos_when_rotation_started = null
+var _zoom_target = NAN
+var _zoom_anchor = Vector2.ZERO
 
 
 func _ready():
@@ -67,6 +69,7 @@ func _process(delta: float):
 	var focus = get_viewport().gui_get_focus_owner()
 	if focus is LineEdit or focus is TextEdit:
 		return
+	_advance_zoom(realtime_delta)
 	if _try_handling_movement(realtime_delta):
 		return
 	_try_handling_arrowkey_rotation(realtime_delta)
@@ -82,6 +85,7 @@ func _unhandled_input(event: InputEvent):
 
 
 func set_size_safely(a_size: float):
+	_zoom_target = NAN
 	if a_size == size:
 		return
 	size = clamp(a_size, size_min, size_max)
@@ -90,6 +94,7 @@ func set_size_safely(a_size: float):
 
 
 func set_position_safely(target_position: Vector3):
+	_zoom_target = NAN
 	global_transform.origin = _target_position_to_camera_position(target_position)
 	reset_physics_interpolation()
 
@@ -162,11 +167,33 @@ func _try_handling_zoom(event: InputEvent):
 
 
 func _zoom_in():
-	set_size_safely(size - Globals.options.zoom_speed)
+	_request_zoom(-Globals.options.zoom_speed)
 
 
 func _zoom_out():
-	set_size_safely(size + Globals.options.zoom_speed)
+	_request_zoom(Globals.options.zoom_speed)
+
+
+func _request_zoom(step: float):
+	_zoom_target = clampf(
+		(size if is_nan(_zoom_target) else _zoom_target) + step, size_min, size_max
+	)
+	_zoom_anchor = get_viewport().get_mouse_position()
+
+
+func _advance_zoom(delta: float):
+	if is_nan(_zoom_target):
+		return
+	var before = get_ray_intersection(_zoom_anchor)
+	size = lerpf(size, _zoom_target, 1.0 - exp(-18.0 * delta))
+	if absf(size - _zoom_target) < .005:
+		size = _zoom_target
+		_zoom_target = NAN
+	_align_camera_properties_to_current_size()
+	var after = get_ray_intersection(_zoom_anchor)
+	if before is Vector3 and after is Vector3:
+		global_position += before - after
+	_align_position_to_bounding_planes()
 
 
 func _try_handling_arrowkey_rotation(delta: float):

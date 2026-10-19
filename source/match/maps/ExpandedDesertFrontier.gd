@@ -12,12 +12,13 @@ const EXTRA_FIELDS = [
 
 
 func overview():
-	return Opening.overview(
-		self,
-		Layout.overview(
-			super.overview(), EXPANSION, EXTRA_FIELDS, Sites.definitions(scene_file_path)
-		)
+	var result = Layout.overview(
+		super.overview(), EXPANSION, EXTRA_FIELDS, Sites.definitions(scene_file_path)
 	)
+	# Leave the wider outer rows clear of the refinery capture rings.
+	result.fields[2] += Vector2(6, 0)
+	result.fields[3] -= Vector2(6, 0)
+	return Opening.overview(self, result)
 
 
 func _ready():

@@ -1,7 +1,6 @@
 extends VBoxContainer
 
 const Sites = preload("res://source/match/world/PointOfInterestCatalog.gd")
-const Factions = preload("res://source/match/FactionCatalog.gd")
 var hud
 var focus_site = null
 var _rows = []
@@ -49,22 +48,10 @@ func _ready():
 		status.add_theme_font_size_override("font_size", 13)
 		status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		row.add_child(status)
-		var entry = {"site": site, "status": status, "hires": [], "cancel": null}
+		var entry = {"site": site, "status": status, "recruit": null}
 		if site.kind == "mercenary":
-			for role in Sites.ROLES:
-				var cost = Sites.price(hud.get_parent()._get_human_player().faction, role)
-				var caption = (
-					tr("Hire %s · %d M / %d E")
-					% [
-						tr(Factions.title(hud.get_parent()._get_human_player().faction, role)),
-						cost.resource_a,
-						cost.resource_b
-					]
-				)
-				var hire = hud._button(row, caption, _hire.bind(site, role))
-				hire.add_theme_font_size_override("font_size", 13)
-				entry.hires.append({"button": hire, "cost": cost})
-			entry.cancel = hud._button(row, "Cancel recruitment · refund", _cancel.bind(site))
+			var recruit = hud._button(row, "Produce", _recruit.bind(site))
+			entry.recruit = recruit
 		_rows.append(entry)
 	refresh()
 
@@ -100,16 +87,8 @@ func refresh():
 				detail += " · " + tr("Ready in %ds") % ceili(site.jobs[0].left)
 		row.status.text = owner + " · " + tr(site.capture_status(viewer)) + "\n" + detail
 		row.status.tooltip_text = site.capture_help(viewer)
-		for contract in row.hires:
-			contract.button.disabled = (
-				site.player != viewer
-				or not site.operational()
-				or site.jobs.size() >= 3
-				or viewer.population(true) >= 100
-				or not viewer.has_resources(contract.cost)
-			)
-		if row.cancel != null:
-			row.cancel.disabled = site.player != viewer or site.jobs.is_empty()
+		if row.recruit != null:
+			row.recruit.disabled = site.player != viewer
 
 
 func _view(site):
@@ -117,11 +96,6 @@ func _view(site):
 	hud._close_menu()
 
 
-func _hire(site, role):
-	site.hire(hud.get_parent()._get_human_player(), role)
-	refresh()
-
-
-func _cancel(site):
-	site.cancel_hire(hud.get_parent()._get_human_player())
-	refresh()
+func _recruit(site):
+	hud._close_menu()
+	hud.open_camp(site)

@@ -79,7 +79,9 @@ func _exercise_sites():
 	await _frames(5)
 	_claim(refinery, soldier, _human)
 	var funds = Vector2i(_human.resource_a, _human.resource_b)
+	var pump_phase = refinery.machinery.phase
 	refinery._physics_process(10)
+	_check(refinery.machinery.phase != pump_phase, "Producing refinery pump did not animate")
 	_check(
 		Vector2i(_human.resource_a, _human.resource_b) == funds + Vector2i(2, 1),
 		"Captured refinery failed to pay finite income"
@@ -122,7 +124,9 @@ func _exercise_sites():
 	await _frames(5)
 	_game.battlefield.invalidate()
 	funds = Vector2i(_human.resource_a, _human.resource_b)
+	pump_phase = refinery.machinery.phase
 	refinery._physics_process(20)
+	_check(refinery.machinery.phase == pump_phase, "Contested refinery kept pumping")
 	_check(
 		refinery.contested and Vector2i(_human.resource_a, _human.resource_b) == funds,
 		"Contested refinery kept paying"
@@ -144,21 +148,23 @@ func _exercise_sites():
 	click.pressed = true
 	camp.get_node("RecruitmentArea").input_event.emit(null, click, Vector3.ZERO, Vector3.UP, 0)
 	await _frames(2)
-	var overview = _game.hud.find_child("PointOfInterestOverview", true, false)
+	var menu = _game.find_child("UnitMenus")
+	_check(menu._camp == camp and menu.visible, "Camp did not open standard production console")
+	_check(_game.hud._overlay == null and not paused, "Camp recruitment interrupted live play")
+	var hire = menu._camp_buttons[0].button
+	_check(not hire.disabled, "Owned camp has no enabled recruitment control")
+	hire.pressed.emit()
+	_check(camp.jobs.size() == 1, "Recruitment button did not queue a mercenary")
 	_check(
-		overview != null and overview._rows.size() == 1,
-		"Camp did not open its own recruitment menu"
+		menu._queue._queue_elements.get_child_count() == 1,
+		"Contract missing from shared queue tray"
 	)
-	if overview != null:
-		var hire = overview._rows[0].hires[0].button
-		_check(not hire.disabled, "Owned camp has no enabled recruitment control")
-		hire.pressed.emit()
-		_check(camp.jobs.size() == 1, "Recruitment button did not queue a mercenary")
-		camp.cancel_hire(_human)
-	_game.hud._close_menu()
-	var cost = catalog.price(_human.faction, "RocketInfantry")
+	menu._queue._queue_elements.get_child(0).pressed.emit()
+	_check(camp.jobs.is_empty(), "Shared queue did not cancel recruitment")
+
+	var cost = catalog.price(_human.faction, "MercenaryLancer")
 	funds = Vector2i(_human.resource_a, _human.resource_b)
-	_check(camp.hire(_human, "RocketInfantry"), "Owned camp rejected affordable recruitment")
+	_check(camp.hire(_human, "MercenaryLancer"), "Owned camp rejected affordable recruitment")
 	_check(
 		(
 			Vector2i(_human.resource_a, _human.resource_b)
@@ -166,7 +172,7 @@ func _exercise_sites():
 		),
 		"Mercenary recruitment did not debit the displayed price"
 	)
-	_check(not camp.hire(_enemy, "Infantry"), "Opponent purchased from a captured camp")
+	_check(not camp.hire(_enemy, "MercenaryWarden"), "Opponent purchased from a captured camp")
 	var before = _human.population(true)
 	_check(camp.cancel_hire(_human), "Camp cancellation failed")
 	_check(
@@ -176,11 +182,11 @@ func _exercise_sites():
 		),
 		"Camp cancellation lost its reservation or refund"
 	)
-	camp.hire(_human, "Infantry")
+	camp.hire(_human, "MercenaryWarden")
 	var infantry_count = (
 		_human
 		. get_children()
-		. filter(func(unit): return "type" in unit and unit.type == "Infantry")
+		. filter(func(unit): return "type" in unit and unit.type == "MercenaryWarden")
 		. size()
 	)
 	camp._physics_process(30)
@@ -191,7 +197,7 @@ func _exercise_sites():
 				(
 					_human
 					. get_children()
-					. filter(func(unit): return "type" in unit and unit.type == "Infantry")
+					. filter(func(unit): return "type" in unit and unit.type == "MercenaryWarden")
 					. size()
 				)
 				== infantry_count + 1
@@ -201,9 +207,9 @@ func _exercise_sites():
 	)
 	# Remove the completed recruit from the capture ring before recapture.
 	for unit in _human.get_children():
-		if "type" in unit and unit.type == "Infantry" and unit != soldier:
+		if "type" in unit and unit.type == "MercenaryWarden" and unit != soldier:
 			unit.position = Vector3(10, 0, 10)
-	camp.hire(_human, "RocketInfantry")
+	camp.hire(_human, "MercenaryLancer")
 	funds = Vector2i(_human.resource_a, _human.resource_b)
 	soldier.position = Vector3(10, 0, 10)
 	_claim(camp, rival, _enemy)
@@ -238,7 +244,10 @@ func _exercise_sites():
 	armor.action = recover.new(shop)
 	_claim(camp, soldier, _human)
 	await _service_safeguards(camp, refinery)
-	camp.hire(_human, "RocketInfantry")
+	await _mercenary_combat(camp, catalog)
+	camp.hire(_human, "MercenaryRanger")
+	camp._physics_process(20)
+	camp.hire(_human, "MercenaryLancer")
 	paused = true
 	var builder = load("res://source/match/saves/MatchSnapshot.gd").new()
 	var data = builder.capture(_game)
@@ -253,6 +262,15 @@ func _exercise_sites():
 		not schema._site_records(1, "res://source/match/maps/DesertFrontier.tscn"),
 		"Legacy map accepted malformed facility records"
 	)
+	var legacy = data.duplicate(true)
+	for site in legacy.mission.points_of_interest:
+		if not site.jobs.is_empty():
+			site.jobs[0] = {
+				"role": "Infantry",
+				"left": 8.0,
+				"paid_cost": catalog.price(_human.faction, "Infantry")
+			}
+	_check(schema.validate(legacy), "Legacy paid mercenary contract was rejected: " + schema.error)
 	var bad = data.duplicate(true)
 	bad.mission.points_of_interest = 1
 	_check(not schema.validate(bad), "Archive accepted malformed facility records")
@@ -285,10 +303,11 @@ func _exercise_sites():
 
 func _service_safeguards(camp, refinery):
 	# The actual service clock, not just tree scheduling, must obey pause.
-	camp.hire(_human, "Infantry")
+	camp.hire(_human, "MercenaryWarden")
 	var job_clock = camp.jobs[0].left
 	var stock = Vector2i(refinery.stock_a, refinery.stock_b)
 	var income_clock = refinery.income_left
+	var pump_phase = refinery.machinery.phase
 	paused = true
 	camp._physics_process(60)
 	refinery._physics_process(60)
@@ -297,11 +316,19 @@ func _service_safeguards(camp, refinery):
 			camp.jobs[0].left == job_clock
 			and Vector2i(refinery.stock_a, refinery.stock_b) == stock
 			and refinery.income_left == income_clock
+			and refinery.machinery.phase == pump_phase
 		),
 		"Paused facility advanced recruitment or refinery income"
 	)
 	paused = false
 	camp.cancel_hire(_human)
+	# Depleted facilities remain visibly stopped even while still owned.
+	refinery.stock_a = 0
+	refinery.stock_b = 0
+	refinery._physics_process(3)
+	_check(refinery.machinery.phase == pump_phase, "Depleted refinery kept pumping")
+	refinery.stock_a = stock.x
+	refinery.stock_b = stock.y
 	# An occupied exit keeps the paid contract rather than dropping or overlapping it.
 	var blockers = []
 	for ring in [4.5, 5.5, 6.5]:
@@ -311,7 +338,7 @@ func _service_safeguards(camp, refinery):
 				_spawn("Tank", _human, camp.position + Vector3(sin(angle), 0, cos(angle)) * ring)
 			)
 	await _frames(3)
-	camp.hire(_human, "Infantry")
+	camp.hire(_human, "MercenaryWarden")
 	var population = _human.population(false)
 	camp._physics_process(60)
 	_check(
@@ -330,12 +357,12 @@ func _service_safeguards(camp, refinery):
 	var filler = []
 	while _human.population(true) < 99:
 		filler.append(_spawn("Worker", _human, Vector3(12, 0, 10)))
-	_check(camp.hire(_human, "Infantry"), "Camp rejected the last legal population slot")
+	_check(camp.hire(_human, "MercenaryWarden"), "Camp rejected the last legal population slot")
 	var funds = Vector2i(_human.resource_a, _human.resource_b)
 	_check(
 		(
 			_human.population(true) == 100
-			and not camp.hire(_human, "Infantry")
+			and not camp.hire(_human, "MercenaryWarden")
 			and Vector2i(_human.resource_a, _human.resource_b) == funds
 		),
 		"Camp ignored its reserved population slot or charged a rejected contract"
@@ -348,3 +375,39 @@ func _service_safeguards(camp, refinery):
 	for unit in filler:
 		unit.queue_free()
 	await _frames(3)
+
+
+func _mercenary_combat(camp, sites):
+	var factions = load("res://source/match/FactionCatalog.gd")
+	var combat = load("res://source/match/combat/CombatRules.gd")
+	for role in sites.ROLES:
+		_check(
+			role not in factions.Bastion.PRODUCES.Barracks, "Camp recruit is available at barracks"
+		)
+		var origin = camp.position + Vector3(0, 0, 12)
+		var recruit = _spawn(role, _human, origin)
+		var target = _spawn(
+			"Tank" if role == "MercenaryLancer" else "Infantry", _enemy, origin + Vector3(0, 0, 4)
+		)
+		_check(combat.armor_for(role) == 0, "Mercenary uses structure armor")
+		_check(factions.portrait(_human.faction, role) != null, "Mercenary lacks a portrait")
+		recruit.process_mode = Node.PROCESS_MODE_INHERIT
+		_game.hud.select_units([recruit])
+		await _frames(3)
+		_check(
+			_game.find_child("UnitMenus")._title.text == factions.title(_human.faction, role),
+			"Mercenary selection lost its identity"
+		)
+		var hp = target.hp
+		recruit.issue_manual_order(
+			load("res://source/match/units/actions/AttackingWhileInRange.gd").new(target)
+		)
+		await _frames(210)
+		_check(
+			not is_instance_valid(target) or target.hp < hp,
+			"Mercenary weapon did not deal damage: " + role
+		)
+		recruit.queue_free()
+		if is_instance_valid(target):
+			target.queue_free()
+		await _frames(3)

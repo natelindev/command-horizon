@@ -165,6 +165,11 @@ func validate(data):
 				(
 					"id:text kind:text amount:int position:vec"
 					+ (" wreck:dict" if _version >= 8 else "")
+					+ (
+						" field_origin:maybevec"
+						if entry is Dictionary and entry.has("field_origin")
+						else ""
+					)
 				)
 			)
 			or not _identify(entry, "resource-")
@@ -176,6 +181,8 @@ func validate(data):
 			or not _position(entry.position)
 		):
 			return _fail("Invalid resource deposit.")
+		if entry.get("field_origin") != null and not _position(entry.field_origin):
+			return _fail("Invalid resource field origin.")
 		if _version >= 8 and not entry.wreck.is_empty():
 			var wreck = entry.wreck
 			wreck_count += 1
@@ -960,7 +967,7 @@ func _action(action, unit, depth):
 		elif slot == "_sub_action":
 			allowed = (
 				{
-					"WaitingForTargets": ["AttackingWhileInRange"],
+					"WaitingForTargets": ["AttackingWhileInRange", "AutoAttacking"],
 					"Following": ["MovingToUnit"],
 					"Constructing": ["MovingToUnit", "ConstructingWhileInRange"],
 					"CollectingResourcesSequentially":
@@ -1275,7 +1282,7 @@ func _site_records(records, map_path):
 			if (
 				site.owner == ""
 				or not _shape(job, "role:text left:num paid_cost:dict")
-				or job.role not in sites.ROLES
+				or job.role not in sites.ARCHIVE_ROLES
 			):
 				return _fail("Invalid mercenary contract.")
 			if (

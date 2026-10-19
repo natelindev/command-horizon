@@ -16,8 +16,9 @@ const COLUMN_WIDTH = 372.0
 const DECK_TOP_LIMIT = 84.0
 const BOTTOM_RAIL = 30.0
 const CONSOLE_HEIGHT = 246.0
-## The empty console keeps the same footprint as the selected-unit deck.
-const CLOSED_DECK_HEIGHT = CONSOLE_HEIGHT
+## Selected decks fit their contents; an empty selection exposes the battlefield.
+const DECK_MIN_HEIGHT = 128.0
+const CLOSED_DECK_HEIGHT = 0.0
 ## The minimap screen keeps a fixed height; its width follows the map's aspect.
 const MINIMAP_SCREEN = 196.0
 const MINIMAP_ASPECT_LIMIT = 1.25

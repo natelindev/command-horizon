@@ -122,16 +122,21 @@ func _check_console(selected):
 	var deck = game.find_child("UnitMenus")
 	var shutter = game.find_child("EmptyDeck", true, false)
 	_check(deck.visible == selected, label + ": deck visibility does not follow selection")
-	_check(shutter.visible != selected, label + ": closed deck shutter state is wrong")
+	_check(not shutter.visible, label + ": empty deck obscures the battlefield")
 	var bay = deck.get_global_rect() if selected else shutter.get_global_rect()
-	_check(
-		is_equal_approx(bay.end.x, viewport.x) and is_equal_approx(bay.end.y, viewport.y),
-		label + ": command deck is not flush"
-	)
-	_check(bay.position.y >= HudLayout.DECK_TOP_LIMIT, label + ": deck rises over the top plates")
+	if selected:
+		_check(
+			is_equal_approx(bay.end.x, viewport.x) and is_equal_approx(bay.end.y, viewport.y),
+			label + ": command deck is not flush"
+		)
+		_check(
+			bay.position.y >= HudLayout.DECK_TOP_LIMIT, label + ": deck rises over the top plates"
+		)
+		_check(bay.size.y <= HudLayout.CONSOLE_HEIGHT, label + ": deck exceeds its height budget")
 	var caption = game.subtitles._card.get_global_rect()
 	_check(caption.position.x >= minimap.end.x, label + ": caption overlaps the minimap")
-	_check(not caption.intersects(bay), label + ": caption overlaps the deck")
+	if selected:
+		_check(not caption.intersects(bay), label + ": caption overlaps the deck")
 	_check(caption.end.x <= viewport.x, label + ": caption extends beyond the viewport")
 	_check(caption.size.x >= 240, label + ": caption gap is too narrow " + str(caption.size))
 	var rail = game.find_child("BottomRail", true, false).get_global_rect()

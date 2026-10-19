@@ -43,6 +43,7 @@ var _last_variant = {}
 var _game
 var _camera
 var _human
+var _impact_focus_until = 0.0
 
 
 func _ready():
@@ -60,9 +61,9 @@ func _ready():
 static func weapon_cue(unit):
 	var helix = unit.player.faction == "helix"
 	match unit.type:
-		"RocketInfantry":
+		"RocketInfantry", "MercenaryLancer":
 			return "missile_launch"
-		"SniperInfantry":
+		"SniperInfantry", "MercenaryRanger":
 			return "rail_fire"
 		"Hero":
 			return "energy_fire" if helix else "autocannon_fire"
@@ -87,7 +88,12 @@ func shot(unit, point):
 		if unit.type in ["Tank", "AntiGroundTurret"] and unit.player.faction == "helix"
 		else 1.0
 	)
-	return _play(weapon_cue(unit), unit, point, 2, pitch)
+	var cue = weapon_cue(unit)
+	var light = (
+		unit.type in ["Infantry", "AssaultInfantry", "MercenaryWarden"]
+		or cue in ["rifle_fire", "autocannon_fire"]
+	)
+	return _play(cue, unit, point, 1 if light else 2, pitch)
 
 
 func impact(unit, source, point):
@@ -99,7 +105,8 @@ func impact(unit, source, point):
 			"Helicopter",
 			"AntiGroundTurret",
 			"AntiAirTurret",
-			"RocketInfantry"
+			"RocketInfantry",
+			"MercenaryLancer"
 		]
 	)
 	return _play("impact_heavy" if heavy else "impact_light", unit, point, 2 if heavy else 1)
@@ -111,7 +118,7 @@ func destruction(unit):
 		cue = "infantry_fall"
 	elif unit.has_method("is_constructed"):
 		cue = "structure_destroy"
-	return _play(cue, unit, unit.global_position, 3)
+	return _play(cue, unit, unit.global_position, 4 if cue == "structure_destroy" else 3)
 
 
 func _observed(unit):
@@ -149,7 +156,9 @@ func _play(kind, unit, point, priority, pitch = 1.0):
 	if entry == null:
 		dropped_count += 1
 		return false
-	_recent[key] = _clock + (0.04 if priority == 3 else 0.08)
+	_recent[key] = _clock + (0.04 if priority >= 3 else 0.08)
+	if priority >= 3 and kind != "infantry_fall":
+		_impact_focus_until = _clock + .35
 	entry.active = true
 	entry.point = point
 	entry.unit = weakref(unit)
@@ -253,7 +262,9 @@ func _position(entry):
 		if speech != null and speech._audio.playing and Globals.options.voice_volume > 0
 		else 0.0
 	)
-	entry.node.volume_db = LEVELS[entry.kind] + duck
+	# Briefly make room for a major loss without interrupting weapons or speech.
+	var impact_duck = -3.5 if _clock < _impact_focus_until and entry.priority < 3 else 0.0
+	entry.node.volume_db = LEVELS[entry.kind] + duck + impact_duck
 
 
 func _options_changed():

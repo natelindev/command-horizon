@@ -1,6 +1,8 @@
 extends RefCounted
 
-const ROLES = ["Infantry", "RocketInfantry", "SniperInfantry"]
+const Mercenaries = preload("res://source/match/world/MercenaryCatalog.gd")
+const ROLES = Mercenaries.ROLES
+const ARCHIVE_ROLES = ROLES + Mercenaries.LEGACY_ROLES
 const Factions = preload("res://source/match/FactionRules.gd")
 # Capturable facilities per skirmish map, in save order. Every list pairs its
 # sites with the map's start symmetry so no start owns a uniquely close one.
@@ -122,6 +124,9 @@ static func services(player):
 
 
 static func price(faction, role):
+	if role in ROLES:
+		var cost = Mercenaries.UNITS[role].cost
+		return {"resource_a": cost[0], "resource_b": cost[1]}
 	var normal = Factions.unit_costs(faction)[role]
 	return {"resource_a": ceili(normal[0] * 1.25), "resource_b": ceili(normal[1] * 1.25)}
 

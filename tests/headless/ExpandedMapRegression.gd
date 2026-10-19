@@ -129,7 +129,13 @@ func _geometry(map_name):
 	):
 		var point = Vector3(site.position.x, 0, site.position.y)
 		for resource in map.get_node("Resources").get_children():
-			_check(point.distance_to(resource.position) >= 14, "Facility crowds resource deposit")
+			_check(
+				point.distance_to(resource.position) >= 14,
+				(
+					"%s: %s crowds deposit %s (%.1fm)"
+					% [map_name, site.name, resource.position, point.distance_to(resource.position)]
+				)
+			)
 		for index in overview.ridges.size():
 			_check(
 				site.position.distance_to(overview.ridges[index]) >= overview.radius + 14,
@@ -193,10 +199,8 @@ func _geometry(map_name):
 func _check_starting_fields(map, nav, starts, overview):
 	var deposits = map.get_node("Resources").get_children()
 	# The seven individual distances, not just the field center, match both
-	# players on all maps. Stocks and expansion layouts are unaffected.
-	var expected = [
-		sqrt(336.25), 18.0, sqrt(336.25), sqrt(213.3125), sqrt(213.3125), sqrt(298.25), sqrt(422.5)
-	]
+	# players on all maps. Stocks remain unchanged.
+	var expected = [18.0, 18.0, 18.0, 18.0, 18.0, 18.0, 18.0]
 	for side in 2:
 		var start: Vector3 = starts[side].position
 		var origin = Vector2(start.x, start.z)

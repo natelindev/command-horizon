@@ -5,6 +5,7 @@ var _truck_labels = []
 var _view_buttons = []
 var _advance
 var _hold
+var _repair
 var _guidance: Label
 var _command_panel
 var _objective_scroll: ScrollContainer
@@ -46,6 +47,13 @@ func _ready():
 	column.add_child(commands)
 	_advance = _button(commands, "Advance convoy", func(): get_parent().advance_convoy())
 	_hold = _button(commands, "Hold convoy", func(): get_parent().hold_convoy())
+	_repair = _button(
+		commands,
+		"Repair support",
+		func():
+			_select(get_parent().escorts().filter(func(unit): return unit.type == "RepairRobot"))
+	)
+	_repair.tooltip_text = "Select repair robots, then right-click a damaged truck."
 	_advance.tooltip_text = (
 		"Send surviving trucks to their next checkpoint. " + "Escorts keep their own orders."
 	)
@@ -80,19 +88,7 @@ func _label(parent, text, size):
 func _process(delta):
 	super(delta)
 	var mission = get_parent()
-	var seconds = int(mission.simulation_time)
-	_clock.text = (
-		"%02d:%02d · %s"
-		% [
-			seconds / 60,
-			seconds % 60,
-			(
-				"PAUSED · orders ready on resume"
-				if get_tree().paused
-				else "Supply Line · Convoy escort"
-			)
-		]
-	)
+	_repair.disabled = not mission.escorts().any(func(unit): return unit.type == "RepairRobot")
 	objective_panel.position = Vector2(0, _command_panel.position.y + _command_panel.size.y + 8)
 	var available = (
 		get_viewport().get_visible_rect().size.y

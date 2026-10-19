@@ -26,9 +26,10 @@ func _ready():
 	set_physics_process(false)
 
 
-func submit(order, append = false, audible = true):
+func submit(order, append = false, audible = true, feedback_kind = ""):
 	if append and pending.size() >= LIMIT:
 		status = "Queue full · maximum 16 waiting orders."
+		_feedback(order, false, append, audible, status, feedback_kind)
 		return false
 	var programmed = unit.program != null and unit.program.mode != "Manual"
 	if unit.program != null:
@@ -41,6 +42,7 @@ func submit(order, append = false, audible = true):
 			return false
 		if not unit.action.attack_from_building(target):
 			status = "Target outside building firing range or line of fire."
+			_feedback(order, false, append, audible, status, feedback_kind)
 			return false
 		cancel()
 		_active = unit.action
@@ -50,6 +52,7 @@ func submit(order, append = false, audible = true):
 		status = "Garrisoned · attacking target"
 		if audible:
 			MatchSignals.unit_order_issued.emit(unit, order.kind)
+		_feedback(order, true, append, audible, "", feedback_kind)
 		return true
 	if not append or programmed:
 		cancel()
@@ -63,13 +66,23 @@ func submit(order, append = false, audible = true):
 	pending.append(order.duplicate())
 	_engaged = true
 	set_physics_process(true)
-	status = "%d waiting · manual control" % pending.size()
+	status = tr("%d waiting · manual control") % pending.size()
 	if audible:
 		MatchSignals.unit_order_issued.emit(unit, order.kind)
+	_feedback(order, true, append, audible, "", feedback_kind)
 	return true
 
 
+func _feedback(order, accepted, queued, audible, reason = "", feedback_kind = ""):
+	if audible and unit.is_in_group("controlled_units"):
+		var kind = order.kind if feedback_kind.is_empty() else feedback_kind
+		MatchSignals.order_feedback.emit(unit, kind, order.point, accepted, queued, reason)
+
+
 func cancel():
+	# Replacing or stopping orders also ends an earlier production sidestep.
+	# Appending a queued order keeps the current operation and its clearance.
+	unit.get_node("Movement").cancel_exit_clearance()
 	pending.clear()
 	current = {}
 	_active = null
@@ -98,14 +111,14 @@ func _physics_process(delta):
 	var order = pending.pop_front()
 	var action = _make_action(order)
 	if action == null:
-		status = "Skipped unavailable %s target." % order.kind
+		status = tr("Skipped unavailable %s target.") % tr(str(order.kind).capitalize())
 		return
 	current = order
 	_still = 0.0
 	_progress = unit.global_position
 	_active = action
 	unit.action = action
-	status = "%s · %d waiting" % [str(order.kind).capitalize(), pending.size()]
+	status = tr("%s · %d waiting") % [tr(str(order.kind).capitalize()), pending.size()]
 
 
 func _make_action(order):
@@ -174,18 +187,18 @@ func _track_progress(delta):
 			skip()
 			status = "Recovery facility lost · continuing queued orders."
 		else:
-			status = str(_active) + " · %d waiting" % pending.size()
+			status = tr("%s · %d waiting") % [str(_active), pending.size()]
 		return
 	if current.get("kind") not in ["move", "attack_move"]:
 		return
 	if "_shot" in _active and is_instance_valid(_active._shot):
 		_still = 0.0
-		status = "Engaging · %d waiting" % pending.size()
+		status = tr("Engaging · %d waiting") % pending.size()
 		return
 	if unit.global_position.distance_to(_progress) > 0.15:
 		_progress = unit.global_position
 		_still = 0.0
-		status = "%s · %d waiting" % [str(current.kind).capitalize(), pending.size()]
+		status = tr("%s · %d waiting") % [tr(str(current.kind).capitalize()), pending.size()]
 	else:
 		_still += delta
 		if _still >= 5.0:

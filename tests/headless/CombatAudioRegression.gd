@@ -17,6 +17,7 @@ func _run():
 		combat_audio.cue_started.connect(func(kind, _point): cues.append(kind))
 		await _actual_combat(faction)
 		await _variants_and_rockets()
+		_impact_hierarchy()
 		await _audibility()
 		await _audio_lifecycle()
 		await _audio_restore()
@@ -96,6 +97,41 @@ func _actual_combat(faction):
 	for cue in ["infantry_fall", "vehicle_destroy", "structure_destroy"]:
 		_check(cues.has(cue), "Actual death lacks " + cue)
 	print("PASS actual %s projectile, hit, infantry/vehicle/structure destruction" % faction)
+
+
+func _impact_hierarchy():
+	var owner = game._get_human_player()
+	var tank = _units(owner, "Tank")[0]
+	var infantry = _units(owner, "Infantry")[0]
+	var camera = game.get_node("IsometricCamera3D")
+	camera.set_position_safely(tank.global_position)
+	infantry.global_position = tank.global_position + Vector3.RIGHT
+	for entry in combat_audio._players:
+		entry.node.stop()
+		entry.active = false
+	combat_audio._recent.clear()
+	var voice_volume = preferences.voice_volume
+	preferences.voice_volume = 0.0
+	_check(combat_audio.destruction(tank), "Hierarchy fixture lacks destruction")
+	_check(combat_audio.shot(infantry, infantry.global_position), "Hierarchy suppressed infantry")
+	var shot = combat_audio._players.filter(
+		func(entry): return entry.active and entry.priority == 1
+	)
+	_check(not shot.is_empty(), "Infantry did not retain its own audio priority")
+	if not shot.is_empty():
+		combat_audio._position(shot[0])
+		_check(
+			is_equal_approx(shot[0].node.volume_db, combat_audio.LEVELS[shot[0].kind] - 3.5),
+			"Destruction did not briefly make room in the weapon mix"
+		)
+		combat_audio._clock += .36
+		combat_audio._position(shot[0])
+		_check(
+			is_equal_approx(shot[0].node.volume_db, combat_audio.LEVELS[shot[0].kind]),
+			"Weapon mix failed to recover after destruction"
+		)
+	preferences.voice_volume = voice_volume
+	print("PASS destruction focus preserves infantry cues and restores weapon gain")
 
 
 func _audibility():

@@ -1,6 +1,9 @@
 extends RefCounted
 
 const COMBAT_ROLES = [
+	"MercenaryWarden",
+	"MercenaryRanger",
+	"MercenaryLancer",
 	"Infantry",
 	"RocketInfantry",
 	"SniperInfantry",

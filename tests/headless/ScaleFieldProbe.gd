@@ -18,7 +18,7 @@ func is_observed(player, target):
 	return result
 
 
-func can_observe_point(observer, point, ignored_target = null):
+func can_observe_point(observer, point: Vector3, ignored_target = null) -> bool:
 	var started = Time.get_ticks_usec()
 	var result = super(observer, point, ignored_target)
 	_record_timing("can_observe_point", started)
@@ -32,8 +32,8 @@ func line_clear(origin, end, ignored_source = null, ignored_target = null):
 	return result
 
 
-func nearby_units(point, radius, player_filter = null):
+func nearby_units(point: Vector3, radius: float, player_filter = null, excluded_player = null):
 	var started = Time.get_ticks_usec()
-	var result = super(point, radius, player_filter)
+	var result = super(point, radius, player_filter, excluded_player)
 	_record_timing("nearby_units", started)
 	return result

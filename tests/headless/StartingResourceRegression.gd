@@ -42,7 +42,10 @@ func _harvest_home_fields():
 	var deposits = game.map.get_node("Resources").get_children()
 	var sides = get_nodes_in_group("players")
 	for side in sides:
-		var hq = side.get_children().filter(func(unit): return "type" in unit and unit.type == "CommandCenter")[0]
+		var headquarters = side.get_children().filter(
+			func(unit): return "type" in unit and unit.type == "CommandCenter"
+		)
+		var hq = headquarters[0]
 		var balances = Vector2(side.resource_a, side.resource_b)
 		targets.append({"side": side, "balances": balances})
 		for kind in ["resource_a", "resource_b"]:
@@ -118,6 +121,10 @@ func _archive_positions():
 		_check(
 			again.resources[index].position.is_equal_approx(snapshot.resources[index].position),
 			"Restore normalized an archived resource position"
+		)
+		_check(
+			again.resources[index].field_origin == snapshot.resources[index].field_origin,
+			"Restore lost the resource row assignment origin"
 		)
 		_check(
 			again.resources[index].amount == snapshot.resources[index].amount,

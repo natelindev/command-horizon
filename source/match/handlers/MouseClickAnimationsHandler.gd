@@ -8,6 +8,9 @@ func _ready():
 
 
 func _on_terrain_targeted(target_position):
+	var game = find_parent("Match")
+	if game != null and "hud" in game and "command_feedback" in game.hud:
+		return  # The battle HUD shows only commands accepted by the order queue.
 	if (
 		get_tree()
 		. get_nodes_in_group("selected_units")

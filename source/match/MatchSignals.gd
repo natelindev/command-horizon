@@ -33,4 +33,6 @@ signal resources_mined(worker, kind, amount)
 
 # Accepted player orders only; automatic rally movement is silent.
 signal unit_order_issued(unit, kind)
+# Presentation only: the destination is captured when the order is submitted.
+signal order_feedback(unit, kind, point, accepted, queued, reason)
 signal research_completed(player, technology)

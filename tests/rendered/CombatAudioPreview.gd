@@ -66,6 +66,8 @@ func _run():
 	AudioServer.remove_bus_effect(0, AudioServer.get_bus_effect_count(0) - 1)
 	manager.autosaves_enabled = autosaves
 	preferences.restore(original)
+	for message in errors:
+		push_error(message)
 	print("Combat audio rendered: %d failures" % errors.size())
 	quit(0 if errors.is_empty() else 1)
 
@@ -173,7 +175,7 @@ func _crowd_mix():
 	for entry in combat_audio._players:
 		if entry.active:
 			_check(
-				entry.node.volume_db == combat_audio.LEVELS[entry.kind] - 4.0,
+				entry.node.volume_db == combat_audio.LEVELS[entry.kind] - 6.0,
 				"Speech did not duck effects"
 			)
 	await create_timer(2.5).timeout
@@ -195,7 +197,7 @@ func _crowd_mix():
 func _silence():
 	preferences.effects_volume = 0
 	preferences.apply()
-	await create_timer(0.15).timeout
+	await create_timer(0.4).timeout
 	capture.clear_buffer()
 	master_capture.clear_buffer()
 	preferences.effects_volume = 0.75

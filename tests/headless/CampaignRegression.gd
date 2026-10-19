@@ -104,10 +104,10 @@ func _capture_rules():
 	_check(relay.captured_by == human, "Infantry did not finish capture")
 	infantry.global_position = Vector3(8, 0, 8)
 	second_infantry.global_position = Vector3(8, 0, 8)
-	tank.global_position = relay.global_position + Vector3(0, 0, 8.5)
+	tank.global_position = relay.global_position + Vector3(0, 0, relay.sight_range - .5)
 	game.battlefield.invalidate()
 	_check(game.battlefield.is_observed(human, tank), "Owned relay did not reveal its local area")
-	tank.global_position = relay.global_position + Vector3(0, 0, 12)
+	tank.global_position = relay.global_position + Vector3(0, 0, relay.sight_range + 3)
 	game.battlefield.invalidate()
 	_check(not game.battlefield.is_observed(human, tank), "Relay revealed beyond its local sight")
 	_check(

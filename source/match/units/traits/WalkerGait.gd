@@ -10,7 +10,19 @@ const SWING_ABDUCT = .12
 const SETTLE_SECONDS = .28
 const START_SECONDS = .16
 
-var legs = []
+
+class Leg:
+	var node: Node3D
+	var rest: Basis
+	var length: float
+	var offset: float
+	var side: float
+	var angle := 0.0
+	var abduct := 0.0
+	var start := 0.0
+
+
+var legs: Array[Leg] = []
 var phase = 0.0
 var heave = 0.0
 var brace = 0.0
@@ -26,16 +38,12 @@ func setup(unit, nodes, initial_phase):
 	for node in nodes:
 		var side = -1.0 if "Left" in str(node.name) else 1.0
 		var rear = "Rear" in str(node.name)
-		var leg = {
-			"node": node,
-			"rest": node.basis,
-			"length": maxf(.2, _height(node, unit)),
-			"offset": 0.0 if (side < 0.0) != rear else .5,
-			"side": side,
-			"angle": 0.0,
-			"abduct": 0.0,
-			"start": 0.0,
-		}
+		var leg = Leg.new()
+		leg.node = node
+		leg.rest = node.basis
+		leg.length = maxf(.2, _height(node, unit))
+		leg.offset = 0.0 if (side < 0.0) != rear else .5
+		leg.side = side
 		legs.append(leg)
 	phase = initial_phase
 	if not legs.is_empty():
@@ -53,7 +61,7 @@ static func _height(node, ancestor):
 	return point.y
 
 
-func advance(delta, distance, bracing):
+func advance(delta: float, distance: float, bracing: float):
 	if legs.is_empty():
 		return
 	brace = move_toward(brace, bracing, delta * 3.0)
@@ -68,27 +76,29 @@ func advance(delta, distance, bracing):
 				leg.start = leg.angle
 		phase = fposmod(phase + distance / _cycle * TAU, TAU)
 		_start_mix = minf(1.0, _start_mix + delta / START_SECONDS)
-		var mix = smoothstep(0.0, 1.0, _start_mix)
+		var mix := smoothstep(0.0, 1.0, _start_mix)
 		for leg in legs:
-			var gait = _gait(fposmod(phase / TAU + leg.offset, 1.0))
+			var gait := _gait(fposmod(phase / TAU + leg.offset, 1.0))
 			leg.angle = lerpf(leg.start, gait.x, mix)
 			leg.abduct = gait.y * mix
 	else:
 		_moving = false
 		_settle(delta)
-	var lowest = 0.0
+	var lowest := 0.0
 	for leg in legs:
-		var abduct = leg.abduct + .1 * brace
-		leg.node.basis = (
+		var abduct: float = leg.abduct + .1 * brace
+		var pose := (
 			Basis(Vector3.BACK, leg.side * abduct) * Basis(Vector3.RIGHT, leg.angle) * leg.rest
 		)
+		if leg.node.basis != pose:
+			leg.node.basis = pose
 		if leg.abduct < .02:
 			lowest = maxf(lowest, leg.length * (1.0 - cos(leg.angle)))
 	# Drop the hull so the planted feet stay on the ground; bracing crouches.
 	heave = -lowest - legs[0].length * .045 * brace
 
 
-func _gait(cycle):
+func _gait(cycle: float) -> Vector2:
 	if cycle < .5:
 		return Vector2(asin(lerpf(sin(AMPLITUDE), -sin(AMPLITUDE), cycle * 2.0)), 0.0)
 	var swing = (cycle - .5) * 2.0
@@ -97,9 +107,9 @@ func _gait(cycle):
 	)
 
 
-func _settle(delta):
+func _settle(delta: float):
 	if _settle_index >= 0:
-		var leg = legs[_settle_index]
+		var leg: Leg = legs[_settle_index]
 		_settle_time = minf(1.0, _settle_time + delta / SETTLE_SECONDS)
 		leg.angle = lerpf(_settle_from, 0.0, smoothstep(0.0, 1.0, _settle_time))
 		leg.abduct = sin(_settle_time * PI) * SWING_ABDUCT * .8

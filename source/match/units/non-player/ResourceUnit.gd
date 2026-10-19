@@ -51,6 +51,8 @@ var global_position_yless:
 	get:
 		return global_position * Vector3(1, 0, 1)
 
+var harvest_origin = Vector3.INF
+
 var _salvage_kind = ""
 var _salvage_key = 0
 var _salvage_stage = -1

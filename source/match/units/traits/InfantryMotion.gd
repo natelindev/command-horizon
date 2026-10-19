@@ -38,6 +38,8 @@ const CARRIED = [
 	"Scope",
 	"DrumMagazine",
 	"BreachingShield",
+	"TowerShield",
+	"HeavyWarhead",
 	"ShieldMark",
 	"MarshalShield",
 	"Lance",
@@ -94,7 +96,8 @@ func setup(unit, initial_phase, role = "Infantry"):
 	chest = rig.get_node("Chest")
 	head = chest.get_node("Head")
 	phase = initial_phase
-	_role = ROLES.get(role, ROLES["Infantry"])
+	var Mercenaries = preload("res://source/match/world/MercenaryCatalog.gd")
+	_role = ROLES.get(Mercenaries.UNITS.get(role, {}).get("base", role), ROLES["Infantry"])
 	stride_scale = _role[2]
 	weapon = chest.get_node_or_null("WeaponCarry")
 	if weapon == null:

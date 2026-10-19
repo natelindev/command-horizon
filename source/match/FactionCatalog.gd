@@ -1,5 +1,6 @@
 extends RefCounted
 
+const Mercenaries = preload("res://source/match/world/MercenaryCatalog.gd")
 const Bastion = preload("res://source/match/BastionCatalog.gd")
 const Frontier = preload("res://source/match/FrontierCatalog.gd")
 const FrontierSurfaces = preload("res://source/match/FrontierMaterials.gd")
@@ -171,6 +172,8 @@ static var _selection_portraits = {}
 
 
 static func title(faction, role):
+	if role in Mercenaries.ROLES:
+		return Mercenaries.UNITS[role].title
 	if role == "Hero":
 		return (
 			{"bastion": "Marshal Aegis", "helix": "Spectre Nyx", "frontier": "Pathfinder Rook"}
@@ -186,6 +189,8 @@ static func title(faction, role):
 
 
 static func icon(faction, role):
+	if role in Mercenaries.ROLES:
+		return "res://assets/ui/mercenaries/%s.png" % role
 	if role in Bastion.INFANTRY_ROLES:
 		return "res://assets/ui/infantry/%s/%s.png" % [faction, role]
 	if faction == "frontier":
@@ -218,6 +223,8 @@ static func selection_portrait(faction, role) -> Texture2D:
 
 
 static func portrait(faction, role) -> Texture2D:
+	if role in Mercenaries.ROLES:
+		return load(icon(faction, role))
 	# Pre-rendered model portraits, shared by the selection bay, rosters and queues.
 	# A role without a faction portrait borrows the Bastion plate; otherwise none.
 	var paths = [Bastion.icon_path(role)]
@@ -234,6 +241,8 @@ static func portrait(faction, role) -> Texture2D:
 
 
 static func description(faction, role):
+	if role in Mercenaries.ROLES:
+		return Mercenaries.UNITS[role].description
 	if role == "Hero":
 		return {
 			"bastion":
@@ -270,6 +279,9 @@ static func description(faction, role):
 
 
 static func cost(player, role, building = false):
+	if role in Mercenaries.ROLES:
+		var price = Mercenaries.UNITS[role].cost
+		return {"resource_a": price[0], "resource_b": price[1]}
 	if not player.get_meta("skirmish", false):
 		var values = (
 			Constants.Match.Units.CONSTRUCTION_COSTS
@@ -282,6 +294,8 @@ static func cost(player, role, building = false):
 
 
 static func duration(player, role):
+	if role in Mercenaries.ROLES:
+		return Mercenaries.UNITS[role].seconds
 	return (
 		SPECIALIST_TIMES.get(player.faction, {}).get(role, UNIT_TIMES[role])
 		if player.get_meta("skirmish", false)
@@ -420,6 +434,10 @@ static func signature_cooldown(faction):
 
 
 static func apply_stats(unit):
+	if unit.type in Mercenaries.ROLES:
+		unit.get_node("Movement").speed *= {
+			"MercenaryWarden": .72, "MercenaryRanger": 1.25, "MercenaryLancer": .8
+		}[unit.type]
 	if unit.type == "RocketInfantry":
 		unit.get_node("Movement").speed *= .82
 	elif unit.type == "SniperInfantry":

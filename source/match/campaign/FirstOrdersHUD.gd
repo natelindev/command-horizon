@@ -1,30 +1,7 @@
 extends "res://source/match/hud/SkirmishHUD.gd"
 
-const LESSONS = [
-	[
-		"01 / BRING COMMAND ONLINE",
-		(
-			"Select an engineer, choose Command lab, then place it near your base.\n\n"
-			+ "Right-click salvage to harvest. Materials build your army; electronics fund research."
-		)
-	],
-	[
-		"02 / CHOOSE A BEHAVIOR",
-		(
-			"Select a tank, choose Guard in Orders, then click a defensive position. "
-			+ "Use Follow to keep support with a friendly unit.\n\n"
-			+ "Attack fires automatically; Defensive limits pursuit; Hold Fire stops automatic attacks."
-		)
-	],
-	[
-		"03 / SECURE THE RELAY",
-		(
-			"Infantry within 3 m capture in 10 seconds. Clear enemy ground combatants, "
-			+ "then hold for 60 uncontested seconds.\n\nTanks screen; repair robots support. "
-			+ "Enemy recapture resets the hold. Three responses arrive from the east."
-		)
-	]
-]
+const OpeningGuidance = preload("res://source/match/campaign/OpeningGuidance.gd")
+
 var lesson_panel
 var _lesson_title: Label
 var _lesson_text: Label
@@ -34,6 +11,7 @@ var _optional: Label
 var _find_button: Button
 var _command_panel: PanelContainer
 var _relay_marker: Label
+var _lesson_scroll: ScrollContainer
 
 
 func _ready():
@@ -48,6 +26,7 @@ func _ready():
 	lesson_panel.add_child(content)
 	_lesson_title = _lesson_label(content, "", 14)
 	var scroll = ScrollContainer.new()
+	_lesson_scroll = scroll
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	content.add_child(scroll)
@@ -110,21 +89,27 @@ func _process(delta):
 		)
 	var top = _command_panel.position.y + _command_panel.size.y + 8
 	lesson_panel.position = Vector2(0, top)
-	lesson_panel.size = Vector2(
-		325,
-		maxf(
-			180,
-			(
-				get_viewport().get_visible_rect().size.y
-				- HudLayout.CONSOLE_HEIGHT
-				- HudLayout.GAP
-				- top
-			)
-		)
+	var available = (
+		get_viewport().get_visible_rect().size.y - HudLayout.CONSOLE_HEIGHT - HudLayout.GAP - top
 	)
-	_lesson_title.text = LESSONS[mission.phase][0]
-	_lesson_text.text = LESSONS[mission.phase][1]
-	_find_button.text = ["Find engineer", "Find tank", "Find infantry"][mission.phase]
+	lesson_panel.size = Vector2(
+		325, clampf(lesson_panel.get_combined_minimum_size().y, 200, maxf(200, available))
+	)
+	var step = OpeningGuidance.first_orders(mission)
+	_lesson_title.text = step.title
+	_lesson_text.text = step.text
+	_lesson_scroll.custom_minimum_size.y = clampf(_lesson_text.get_minimum_size().y, 54, 108)
+	_find_button.text = {
+		"Worker": "Find engineer",
+		"Tank": "Find tank",
+		"Infantry": "Find infantry",
+		"CommandCenter": "Select HQ",
+		"Barracks": "Select barracks"
+	}[step.role]
+	_find_button.tooltip_text = tr(step.text)
+	_relay_status.visible = mission.phase == 2
+	_hold_bar.visible = mission.phase == 2
+	_optional.visible = mission.phase >= 1
 	_hold_bar.value = mission.hold_seconds
 	_relay_status.text = (
 		mission.relay.capture_status(mission._get_human_player())
@@ -143,7 +128,7 @@ func _process(delta):
 
 func _find_unit():
 	var mission = get_parent()
-	var role = ["Worker", "Tank", "Infantry"][mission.phase]
+	var role = OpeningGuidance.first_orders(mission).role
 	var units = mission._get_human_player().get_children().filter(
 		func(unit):
 			return "type" in unit and unit.type == role and not unit.is_queued_for_deletion()

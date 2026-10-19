@@ -43,8 +43,11 @@ func _run():
 	_restore_rules(story)
 	await _disk_restore()
 	paused = false
+	game.campaign_story.start_briefing(true)
+	_check(game.campaign_story.cinematic, "Teardown fixture did not enter briefing")
 	game.queue_free()
 	await _frames(5)
+	_check(not paused, "Leaving during briefing retained cinematic pause")
 	DirAccess.remove_absolute(path)
 	for message in errors:
 		push_error(message)

@@ -1,6 +1,6 @@
 extends "res://tests/headless/PointOfInterestRegression.gd"
 
-const OUTPUT = "res://tmp/campaign-polish-2026-10-17/mercenaries/"
+const OUTPUT = "res://art/neutral-sites/"
 
 
 func _run():
@@ -15,42 +15,41 @@ func _run():
 	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
 	root.get_node("SaveManager").autosaves_enabled = false
 	DirAccess.make_dir_recursive_absolute(OUTPUT)
-	for faction in ["bastion", "helix", "frontier"]:
-		await _open_sites(faction)
-		var camp = _game.map.points_of_interest.filter(func(site): return site.kind == "mercenary")[0]
-		var soldier = _spawn("Infantry", _human, camp.position + Vector3(3.8, 0, 0))
-		await _frames(5)
-		_claim(camp, soldier, _human)
-		_human.resource_a = 5000
-		_human.resource_b = 5000
-		_game.fog_of_war._physics_process(0)
-		var camera = _game.get_node("IsometricCamera3D")
-		camera.set_position_safely(camp.global_position)
-		camera.set_size_safely(30)
-		await _frames(10)
-		await RenderingServer.frame_post_draw
-		root.get_texture().get_image().save_png(OUTPUT + faction + "-before.png")
-		await _click(camera.unproject_position(camp.global_position + Vector3.UP * 2))
-		var overview = _game.hud.find_child("PointOfInterestOverview", true, false)
-		_check(overview != null, faction + ": clicking the captured camp did not open recruitment")
-		if overview != null:
-			var hire = overview._rows[0].hires[0].button
-			await _click(hire.get_global_rect().get_center())
-			_check(camp.jobs.size() == 1, faction + ": clicking Hire did not queue a mercenary")
+	for locale in ["en", "zh_CN"]:
+		options.restore({"language": locale})
+		for faction in ["bastion", "helix", "frontier"]:
+			await _open_sites(faction)
+			var camp = _game.map.points_of_interest.filter(func(site): return site.kind == "mercenary")[0]
+			var soldier = _spawn("Infantry", _human, camp.position + Vector3(3.8, 0, 0))
+			await _frames(5)
+			_claim(camp, soldier, _human)
+			_human.resource_a = 5000
+			_human.resource_b = 5000
+			_game.fog_of_war._physics_process(0)
+			var camera = _game.get_node("IsometricCamera3D")
+			camera.set_position_safely(camp.global_position)
+			camera.set_size_safely(30)
+			await _frames(10)
 			await RenderingServer.frame_post_draw
-			root.get_texture().get_image().save_png(OUTPUT + faction + ".png")
-			_game.hud._close_menu()
-			_game.hud._toggle_pause()
+			root.get_texture().get_image().save_png(OUTPUT + locale + "-" + faction + "-before.png")
 			await _click(camera.unproject_position(camp.global_position + Vector3.UP * 2))
-			_check(
-				_game.hud.find_child("PointOfInterestOverview", true, false) != null,
-				faction + ": tactical pause blocked camp recruitment"
-			)
-			_game.hud._close_menu()
-			_game.hud._toggle_pause()
-		paused = false
-		_game.queue_free()
-		await _frames(5)
+			var menu = _game.find_child("UnitMenus")
+			_check(menu._camp == camp, faction + ": click did not open production console")
+			if menu._camp == camp:
+				await _click(menu._camp_buttons[0].button.get_global_rect().get_center())
+				_check(camp.jobs.size() == 1, faction + ": clicking roster did not queue recruit")
+				camp._physics_process(4)
+				await _frames(10)
+				await RenderingServer.frame_post_draw
+				root.get_texture().get_image().save_png(OUTPUT + locale + "-" + faction + ".png")
+				_game.hud._toggle_pause()
+				await _click(menu._camp_buttons[1].button.get_global_rect().get_center())
+				_check(camp.jobs.size() == 2, faction + ": tactical pause blocked recruitment")
+				_game.hud._toggle_pause()
+
+			paused = false
+			_game.queue_free()
+			await _frames(5)
 	options.restore(original)
 	for message in _errors:
 		push_error(message)

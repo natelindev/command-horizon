@@ -246,6 +246,8 @@ func cancel():
 func prompt(message = ""):
 	if kind.is_empty():
 		return
+	if not message.is_empty() and is_instance_valid(hud.command_feedback):
+		hud.command_feedback.reject(message)
 	hud._hint_left = 0.0
 	hud._notice_slot.scroll_vertical = 0
 	hud._assignment_hint.show()

@@ -1,0 +1,311 @@
+{
+  "date": "2026-10-19",
+  "scope": "Focused automated and rendered checks, not the full repository suite.",
+  "checks": [
+    {
+      "name": "GamePolishRegression",
+      "exit_code": 0,
+      "seconds": 2.7,
+      "script_errors": 0,
+      "passed": true,
+      "log": "tmp/polish-2026-10-19/GamePolishRegression-final.log"
+    },
+    {
+      "name": "OpeningGuidanceRegression",
+      "exit_code": 0,
+      "seconds": 4.5,
+      "script_errors": 0,
+      "passed": true,
+      "log": "tmp/polish-2026-10-19/OpeningGuidanceRegression-acceptance.log"
+    },
+    {
+      "name": "CommandReliabilityRegression",
+      "exit_code": 0,
+      "seconds": 5.8,
+      "script_errors": 0,
+      "passed": true,
+      "log": "tmp/polish-2026-10-19/CommandReliabilityRegression-final.log"
+    },
+    {
+      "name": "BehaviorReliabilityRegression",
+      "exit_code": 0,
+      "seconds": 6.9,
+      "script_errors": 0,
+      "passed": true,
+      "log": "tmp/polish-2026-10-19/BehaviorReliabilityRegression-final.log"
+    },
+    {
+      "name": "NavigationRegression",
+      "exit_code": 0,
+      "seconds": 36.9,
+      "script_errors": 0,
+      "passed": true,
+      "log": "tmp/polish-2026-10-19/NavigationRegression.log"
+    },
+    {
+      "name": "CombatRegression",
+      "exit_code": 0,
+      "seconds": 2.1,
+      "script_errors": 0,
+      "passed": true,
+      "log": "tmp/polish-2026-10-19/CombatRegression.log"
+    },
+    {
+      "name": "CombatJuiceRegression",
+      "exit_code": 0,
+      "seconds": 1.5,
+      "script_errors": 0,
+      "passed": true,
+      "log": "tmp/polish-2026-10-19/CombatJuiceRegression.log"
+    },
+    {
+      "name": "CombatAudioRegression",
+      "exit_code": 0,
+      "seconds": 2.7,
+      "script_errors": 0,
+      "passed": true,
+      "log": "tmp/polish-2026-10-19/CombatAudioRegression-acceptance.log"
+    },
+    {
+      "name": "UnitAnimationRegression",
+      "exit_code": 0,
+      "seconds": 4.6,
+      "script_errors": 0,
+      "passed": true,
+      "log": "tmp/polish-2026-10-19/UnitAnimationRegression.log"
+    },
+    {
+      "name": "SettingsRegression",
+      "exit_code": 0,
+      "seconds": 1.7,
+      "script_errors": 0,
+      "passed": true,
+      "log": "tmp/polish-2026-10-19/SettingsRegression.log"
+    },
+    {
+      "name": "HudConsoleRegression",
+      "exit_code": 0,
+      "seconds": 6.8,
+      "script_errors": 0,
+      "passed": true,
+      "log": "tmp/polish-2026-10-19/HudConsoleRegression.log"
+    },
+    {
+      "name": "ResearchFeedbackRegression",
+      "exit_code": 0,
+      "seconds": 28.6,
+      "script_errors": 0,
+      "passed": true,
+      "log": "tmp/polish-2026-10-19/ResearchFeedbackRegression.log"
+    },
+    {
+      "name": "CampaignControlsRegression",
+      "exit_code": 0,
+      "seconds": 5.7,
+      "script_errors": 0,
+      "passed": true,
+      "log": "tmp/polish-2026-10-19/CampaignControlsRegression.log"
+    },
+    {
+      "name": "CampaignRegression",
+      "exit_code": 0,
+      "seconds": 16.0,
+      "script_errors": 0,
+      "passed": true,
+      "log": "tmp/polish-2026-10-19/CampaignRegression.log"
+    },
+    {
+      "name": "SupplyLineRegression",
+      "exit_code": 0,
+      "seconds": 36.6,
+      "script_errors": 0,
+      "passed": true,
+      "log": "tmp/polish-2026-10-19/SupplyLineRegression.log"
+    },
+    {
+      "name": "SaveSnapshotRegression",
+      "exit_code": 1,
+      "seconds": 48.9,
+      "script_errors": 1,
+      "passed": false,
+      "log": "tmp/polish-2026-10-19/SaveSnapshotRegression.log"
+    },
+    {
+      "name": "BattleDebriefRegression",
+      "exit_code": 0,
+      "seconds": 34.2,
+      "script_errors": 0,
+      "passed": true,
+      "log": "tmp/polish-2026-10-19/BattleDebriefRegression.log"
+    },
+    {
+      "name": "PointOfInterestRegression",
+      "exit_code": 0,
+      "seconds": 21.3,
+      "script_errors": 0,
+      "passed": true,
+      "log": "tmp/polish-2026-10-19/PointOfInterestRegression.log"
+    },
+    {
+      "name": "AmbientRouteRegression",
+      "exit_code": 0,
+      "seconds": 0.7,
+      "script_errors": 0,
+      "passed": true,
+      "log": "tmp/polish-2026-10-19/AmbientRouteRegression.log"
+    },
+    {
+      "name": "GraphicsRegression",
+      "exit_code": 0,
+      "seconds": 2.9,
+      "script_errors": 0,
+      "passed": true,
+      "log": "tmp/polish-2026-10-19/GraphicsRegression.log"
+    },
+    {
+      "name": "SaveRestoreEdges",
+      "exit_code": 0,
+      "seconds": 3.1,
+      "script_errors": 4,
+      "passed": false,
+      "log": "tmp/polish-2026-10-19/SaveRestoreEdges.log"
+    },
+    {
+      "name": "AmbientLifeRegression",
+      "exit_code": 1,
+      "seconds": 59.8,
+      "script_errors": 0,
+      "passed": false,
+      "log": "tmp/polish-2026-10-19/AmbientLifeRegression.log"
+    },
+    {
+      "name": "CampaignStoryRegression",
+      "exit_code": 0,
+      "seconds": 2.1,
+      "script_errors": 0,
+      "passed": true,
+      "log": "tmp/polish-2026-10-19/CampaignStoryRegression-acceptance.log"
+    },
+    {
+      "name": "NoLuaRuntimeRegression",
+      "exit_code": 1,
+      "seconds": 0.7,
+      "script_errors": 0,
+      "passed": false,
+      "log": "tmp/polish-2026-10-19/NoLuaRuntimeRegression-acceptance.log"
+    },
+    {
+      "name": "SaveNavigationTimingRegression",
+      "exit_code": 0,
+      "seconds": 0.7,
+      "script_errors": 0,
+      "passed": true,
+      "log": "tmp/polish-2026-10-19/SaveNavigationTimingRegression-acceptance.log"
+    },
+    {
+      "name": "GamePolishPreview",
+      "exit_code": 0,
+      "seconds": 33.6,
+      "script_errors": 0,
+      "passed": true,
+      "log": "tmp/polish-2026-10-19/GamePolishPreview-final.log"
+    },
+    {
+      "name": "Combat-normal",
+      "exit_code": 0,
+      "seconds": 16.1,
+      "script_errors": 0,
+      "passed": true,
+      "log": "tmp/polish-2026-10-19/Combat-normal-acceptance.log"
+    },
+    {
+      "name": "Combat-muted",
+      "exit_code": 0,
+      "seconds": 16.1,
+      "script_errors": 0,
+      "passed": true,
+      "log": "tmp/polish-2026-10-19/Combat-muted-acceptance.log"
+    },
+    {
+      "name": "Combat-reduced",
+      "exit_code": 0,
+      "seconds": 16.1,
+      "script_errors": 0,
+      "passed": true,
+      "log": "tmp/polish-2026-10-19/Combat-reduced-acceptance.log"
+    },
+    {
+      "name": "CombatAudioPreview",
+      "passed": true,
+      "script_errors": 0,
+      "log": "tmp/polish-2026-10-19/audio-render-final.log"
+    },
+    {
+      "name": "OriginalAmbientLifeRegression",
+      "exit_code": 1,
+      "seconds": 17.4,
+      "script_errors": 0,
+      "passed": false,
+      "log": "tmp/polish-2026-10-19/OriginalAmbientLifeRegression-acceptance.log"
+    },
+    {
+      "name": "export-release",
+      "exit_code": 0,
+      "seconds": 15.1,
+      "script_errors": 0,
+      "passed": true,
+      "log": "tmp/polish-2026-10-19/export-release-final.log"
+    },
+    {
+      "name": "HudConsolePreview",
+      "passed": true,
+      "script_errors": 0,
+      "log": "tmp/polish-2026-10-19/hud-render-final.log"
+    },
+    {
+      "name": "NoLuaRuntimeRegression (exported package)",
+      "passed": true,
+      "script_errors": 0,
+      "log": "tmp/polish-2026-10-19/NoLuaRuntime-package.log"
+    }
+  ],
+  "static_checks": [
+    {
+      "name": "gdformat",
+      "exit_code": 0,
+      "passed": true,
+      "files": 45
+    },
+    {
+      "name": "gdlint",
+      "exit_code": 0,
+      "passed": true,
+      "files": 45
+    },
+    {
+      "name": "git diff --check",
+      "exit_code": 0,
+      "passed": true
+    }
+  ],
+  "release_runs": [
+    {
+      "log": "tmp/polish-2026-10-19/scale-release-input.log",
+      "workload_passed": true,
+      "input_probe_passed": true
+    },
+    {
+      "log": "tmp/polish-2026-10-19/scale-release-repeat.log",
+      "workload_passed": true,
+      "input_probe_passed": true
+    }
+  ],
+  "limitations": [
+    "Fresh Windows measurements unavailable.",
+    "No unfamiliar-player observation or subjective human audio review.",
+    "Legacy Lua/save fixture failures remain.",
+    "Local NoLuaRuntimeRegression fails on existing native-extension cache; isolated exported package passes.",
+    "Ambient scenery assertions reproduce with original route lookup.",
+    "Early release movement wall-time delay was not reproduced in the final instrumented runs."
+  ]
+}

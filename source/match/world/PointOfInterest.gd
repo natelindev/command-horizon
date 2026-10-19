@@ -1,5 +1,7 @@
 extends "res://source/match/objectives/CaptureRelay.gd"
 
+signal recruitment_changed
+
 const Sites = preload("res://source/match/world/PointOfInterestCatalog.gd")
 const Factions = preload("res://source/match/FactionCatalog.gd")
 const CAPTURE_RADIUS = 5.0
@@ -11,20 +13,23 @@ var radius = 2.2
 var movement_domain = 1
 var movement_speed = 0.0
 var attack_range = null
+var jobs = []
+var stock_a = 600
+var stock_b = 300
+var income_left = INCOME_INTERVAL
+var machinery = null
 var type:
 	get:
 		return "RepairDepot" if kind == "repair" else "PointOfInterest"
 var global_position_yless:
 	get:
 		return global_position * Vector3(1, 0, 1)
-var jobs = []
-var stock_a = 600
-var stock_b = 300
-var income_left = INCOME_INTERVAL
+
 var _payer = null
 
 
 func _ready():
+	sight_range = 9.0
 	add_to_group("vision_sources")
 	add_to_group("points_of_interest")
 	_build_model()
@@ -69,6 +74,13 @@ func _build_model():
 		true
 	)
 	prototype.free()
+	if kind == "refinery":
+		machinery = load("res://source/match/world/RefineryMachinery.gd").new()
+		machinery.name = "ExtractionPump"
+		machinery.position = Vector3(0, 1.6, 0)
+		machinery.rotation.y = PI / 4
+		machinery.scale = Vector3.ONE * .72
+		add_child(machinery)
 	_label = Label3D.new()
 	_label.position = Vector3(0, 5.5, 0)
 	_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
@@ -152,6 +164,8 @@ func _physics_process(delta):
 		return
 	var previous_owner = captured_by
 	super(delta)
+	if machinery != null:
+		machinery.advance(delta, operational() and income_payment() != Vector2i.ZERO)
 	if previous_owner != captured_by or not operational():
 		return
 	if kind == "refinery":
@@ -176,6 +190,7 @@ func _physics_process(delta):
 				unit.free()
 				return
 			jobs.pop_front()
+			recruitment_changed.emit()
 			_match._setup_and_spawn_unit(
 				unit, Transform3D(Basis(Vector3.UP, PI), point), captured_by, false
 			)
@@ -203,14 +218,17 @@ func hire(requester, role):
 	requester.subtract_resources(cost)
 	_payer = requester
 	jobs.append({"role": role, "left": Factions.duration(requester, role), "paid_cost": cost})
+	recruitment_changed.emit()
 	MatchSignals.unit_production_started.emit(load(Factions.Bastion.scene_path(role)), self)
 	return true
 
 
-func cancel_hire(requester):
-	if jobs.is_empty() or requester != _payer:
+func cancel_hire(requester, index = 0):
+	if index < 0 or index >= jobs.size() or requester != _payer:
 		return false
-	requester.add_resources(jobs.pop_front().paid_cost)
+	requester.add_resources(jobs[index].paid_cost)
+	jobs.remove_at(index)
+	recruitment_changed.emit()
 	if jobs.is_empty():
 		_payer = null
 	return true
@@ -223,6 +241,7 @@ func _ownership_changed(_side):
 		jobs.pop_front()
 	_payer = null
 	income_left = INCOME_INTERVAL
+	recruitment_changed.emit()
 
 
 func _spawn_point(unit_radius):
@@ -291,5 +310,5 @@ func _recruitment_input(_camera, event, _point, _normal, _shape):
 func open_recruitment():
 	if captured_by != _match._get_human_player():
 		return false
-	_match.hud.open_sites(self)
+	_match.hud.open_camp(self)
 	return true

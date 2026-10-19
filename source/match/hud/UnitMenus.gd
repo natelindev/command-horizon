@@ -12,6 +12,8 @@ const Worker = preload("res://source/match/units/Worker.gd")
 const RosterInfo = preload("res://source/match/hud/RosterInfo.gd")
 const RosterButton = preload("res://source/match/hud/RosterButton.gd")
 
+var _camp = null
+var _camp_buttons = []
 var _selection = []
 var _stop_button = null
 var _buttons = []
@@ -50,7 +52,7 @@ var _health_fill: StyleBox
 
 
 func _ready():
-	# A fixed-height bottom console beside the minimap: selection on the left,
+	# A content-sized bottom console beside the minimap: selection on the left,
 	# direct orders and behaviors side by side, with separate build/produce pages.
 	BattleTheme.apply_housing(self, 16, 12)
 	custom_minimum_size = Vector2(
@@ -90,6 +92,7 @@ func _ready():
 	if _queue != null:
 		_queue.minimum_size_changed.connect(_fit_menu)
 		_queue.visibility_changed.connect(_fit_menu)
+	MatchSignals.deselect_all_units.connect(_clear_camp)
 	MatchSignals.unit_selected.connect(func(_unit): _queue_menu_reset())
 	MatchSignals.unit_deselected.connect(func(_unit): _queue_menu_reset())
 	MatchSignals.unit_died.connect(_on_selected_unit_died)
@@ -101,20 +104,27 @@ func _ready():
 
 func _fit_menu():
 	var viewport = get_viewport().get_visible_rect().size
-	var height = HudLayout.CONSOLE_HEIGHT
 	var width = HudLayout.deck_width(viewport.x)
 	if is_instance_valid(_minimap) and _minimap.is_visible_in_tree():
-		height = _minimap.size.y
 		width = viewport.x - _minimap.get_global_rect().end.x
-	custom_minimum_size = Vector2(width, height)
 	_info_scroll.custom_minimum_size.x = (
 		384 if _selection.size() > 1 else HudLayout.info_bay(viewport.x)
 	)
 	if is_instance_valid(_status):
 		_status.custom_minimum_size.x = _info_scroll.custom_minimum_size.x - 12
-	var available = maxf(1, height - get_theme_stylebox("panel").get_minimum_size().y)
+	var margins = get_theme_stylebox("panel").get_minimum_size().y
+	var content_height = maxf(
+		_content.get_combined_minimum_size().y, _info.get_combined_minimum_size().y
+	)
+	var height = clampf(
+		content_height + margins, HudLayout.DECK_MIN_HEIGHT, HudLayout.CONSOLE_HEIGHT
+	)
+	var available = maxf(1, height - margins)
 	_scroll.custom_minimum_size.y = available
 	_info_scroll.custom_minimum_size.y = available
+	custom_minimum_size = Vector2(width, height)
+	# Containers grow automatically; explicitly release height after a smaller selection.
+	reset_size()
 
 
 func _process(delta):
@@ -143,6 +153,7 @@ func _on_selected_unit_died(unit):
 
 
 func _queue_menu_reset():
+	_camp = null
 	if _content == null or not is_inside_tree():
 		return
 	# Preserve the press before removing its control, including when several
@@ -214,6 +225,9 @@ func _reset_menus():
 		func(unit):
 			return unit.is_in_group("controlled_units") and not unit.is_queued_for_deletion()
 	)
+	if is_instance_valid(_camp):
+		_build_camp()
+		return
 	var opening = not visible and not _selection.is_empty()
 	visible = not _selection.is_empty()
 	if _selection.is_empty():
@@ -327,7 +341,7 @@ func _reset_menus():
 	stop.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	stop.pressed.connect(_stop_orders)
 	# Cancel construction and Clear rally apply to the whole selection on every page.
-	# A unit's Stop already sits in the command grid (W), so it is not repeated here.
+	# A unit's Stop already sits in the command grid, so it is not repeated here.
 	stop.visible = stop.text != "Stop current orders" or not is_instance_valid(_command_card)
 	_info.add_child(stop)
 	if not conventional and _selection.any(func(member): return member.signature != null):
@@ -565,6 +579,9 @@ func _add_roster_button(grid, unit_type, construction):
 
 
 func _refresh_buttons():
+	if is_instance_valid(_camp):
+		_refresh_camp()
+		return
 	var rally = _selected_rally()
 	if is_instance_valid(_stop_button) and rally != null:
 		_stop_button.text = "Clear rally"
@@ -608,7 +625,8 @@ func _refresh_buttons():
 			var spec = _direct_orders.COMMANDS[kind]
 			button.set_pressed_no_signal(_direct_orders.kind == kind)
 			button.disabled = _direct_orders.eligible(kind).is_empty()
-			# The badge shows the grid key; the tooltip adds the player's own binding.
+			# The badge and tooltip both follow the player's configured binding.
+			button.badge = Bindings.label(spec.action)
 			button.tooltip_text = (
 				Bindings.hint(spec.title, spec.action)
 				+ "\n"
@@ -848,3 +866,86 @@ func _page(title: String) -> VBoxContainer:
 	page.add_theme_constant_override("separation", 8)
 	_pages.add_child(page)
 	return page
+
+
+func open_camp(site):
+	_camp = site
+	_reset_menus()
+
+
+func _build_camp():
+	visible = true
+	modulate.a = 1.0
+	_camp_buttons.clear()
+	_title = Label.new()
+	_title.text = tr(_camp.label_title)
+	_build_info(Factions.portrait("bastion", "Barracks"))
+	_health.hide()
+	var heading = Label.new()
+	heading.text = tr("Produce")
+	heading.theme_type_variation = "HudHeading"
+	_content.add_child(heading)
+	var grid = GridContainer.new()
+	grid.name = "Roster"
+	grid.columns = HudLayout.roster_columns(get_viewport_rect().size.x)
+	grid.add_theme_constant_override("h_separation", 6)
+	grid.add_theme_constant_override("v_separation", 6)
+	_content.add_child(grid)
+	var Sites = preload("res://source/match/world/PointOfInterestCatalog.gd")
+	for role in Sites.ROLES:
+		var button = RosterButton.new()
+		button.name = "Produce" + role
+		button.custom_minimum_size = Vector2(112, 60)
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		var cost = Sites.price(_camp.player.faction, role)
+		button.show_role(
+			Factions.portrait("bastion", role), tr(Factions.title("bastion", role)), cost
+		)
+		button.tooltip_text = (
+			tr(Factions.title("bastion", role))
+			+ "\n"
+			+ tr(Factions.description("bastion", role))
+			+ "\n"
+			+ (
+				tr("%d s production; queue wait extra.")
+				% ceili(Factions.duration(_camp.player, role))
+			)
+		)
+		button.accessibility_name = tr(Factions.title("bastion", role))
+		button.accessibility_description = button.tooltip_text
+		button.pressed.connect(
+			func():
+				if is_instance_valid(_camp):
+					_camp.hire(find_parent("Match")._get_human_player(), role)
+					_refresh_camp()
+		)
+		grid.add_child(button)
+		_camp_buttons.append({"button": button, "cost": cost})
+	_queue.show_camp(_camp)
+	_refresh_camp()
+	_fit_menu.call_deferred()
+
+
+func _refresh_camp():
+	var viewer = find_parent("Match")._get_human_player()
+	if _camp.player != viewer:
+		_camp = null
+		_queue._reset()
+		_reset_menus()
+		return
+	_status.text = tr(_camp.capture_status(viewer)) + "\n" + tr("%d / 3 queued") % _camp.jobs.size()
+	_status.tooltip_text = _camp.capture_help(viewer)
+	for entry in _camp_buttons:
+		entry.button.disabled = (
+			not _camp.operational()
+			or _camp.jobs.size() >= 3
+			or viewer.population(true) >= Catalog.POPULATION_LIMIT
+			or not viewer.has_resources(entry.cost)
+		)
+
+
+func _clear_camp():
+	if is_instance_valid(_camp):
+		_camp = null
+		_queue._reset()
+		_queue_menu_reset()

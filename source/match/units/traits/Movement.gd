@@ -135,10 +135,19 @@ func _physics_process(delta):
 func request_exit_clearance(point):
 	if not _synchronized or _unit.has_meta("garrison_host"):
 		return
+	# An actively travelling manual order already clears its current position.
+	# Production must not steer it away from the player's destination.
+	if _has_destination and _unit.manual_orders != null and _unit.manual_orders._engaged:
+		return
 	if _exit_clearance_target.is_finite() and _match.simulation_time < _exit_clearance_until:
 		return
 	_exit_clearance_target = point
 	_exit_clearance_until = _match.simulation_time + 2.5
+
+
+func cancel_exit_clearance():
+	_exit_clearance_target = Vector3.INF
+	_exit_clearance_until = 0.0
 
 
 func _advance_exit_clearance(delta):

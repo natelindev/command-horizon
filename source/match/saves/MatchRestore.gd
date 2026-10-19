@@ -132,6 +132,9 @@ func restore(tree, snapshot):
 		for key in salvage:
 			deposit.set(key, salvage[key])
 		deposit.position = saved.position
+		deposit.harvest_origin = (
+			saved.field_origin if saved.get("field_origin") != null else Vector3.INF
+		)
 		deposit.set(saved.kind, saved.amount)
 		game.map.get_node("Resources").add_child(deposit)
 		entities[saved.id] = deposit

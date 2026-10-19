@@ -47,9 +47,12 @@ func _refresh():
 		if not _unit._match.battlefield.is_observed(_unit.player, _target_unit):
 			queue_free()
 			return
+	# Avoidance and production clearance can displace a settled follower even
+	# when its leader has not moved. Recheck contact before leaving it idle.
 	if (
 		_last_known_target_unit_position == null
 		or not _target_unit.global_position.is_equal_approx(_last_known_target_unit_position)
+		or (_sub_action == null and not Utils.Match.Unit.Movement.units_adhere(_unit, _target_unit))
 	):
 		if _sub_action != null:
 			_sub_action.tree_exited.disconnect(_on_sub_action_finished)

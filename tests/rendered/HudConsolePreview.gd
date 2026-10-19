@@ -146,15 +146,22 @@ func _shot(label):
 	)
 	var mini = game.find_child("Minimap", true, false).get_global_rect()
 	var deck = game.find_child("UnitMenus", true, false)
-	if not deck.is_visible_in_tree():
-		deck = game.find_child("ConsoleFrame", true, false).empty_deck
-	var rect = deck.get_global_rect()
-	_check(absf(rect.position.y - mini.position.y) < .5, "Console/minimap top mismatch: " + label)
-	_check(absf(rect.position.x - mini.end.x) < .5, "Console/minimap gap: " + label)
 	_check(
-		absf(rect.end.x - root.get_visible_rect().end.x) < .5,
-		"Console does not span bottom: " + label
+		not game.find_child("ConsoleFrame", true, false).empty_deck.visible,
+		"Empty console covers battlefield: " + label
 	)
+	if deck.is_visible_in_tree():
+		var rect = deck.get_global_rect()
+		_check(rect.position.y >= mini.position.y - .5, "Console exceeds height budget: " + label)
+		_check(absf(rect.position.x - mini.end.x) < .5, "Console/minimap gap: " + label)
+		_check(
+			absf(rect.end.x - root.get_visible_rect().end.x) < .5,
+			"Console does not span bottom: " + label
+		)
+		_check(
+			absf(rect.end.y - root.get_visible_rect().end.y) < .5,
+			"Console does not sit at bottom: " + label
+		)
 	RenderingServer.force_draw(false)
 	root.get_texture().get_image().save_png(OUTPUT + label + ".png")
 	print("Captured ", label)

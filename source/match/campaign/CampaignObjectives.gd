@@ -52,14 +52,8 @@ static func instructions(game):
 				)
 			)
 		"first_orders":
-			return (
-				game
-				. tr(
-					(
-						"Build a command lab, assign Guard or Follow, then capture the relay with infantry "
-						+ "within 3 m. Hold it uncontested for 60 seconds. Keep your hero alive."
-					)
-				)
+			return game.tr(
+				preload("res://source/match/campaign/OpeningGuidance.gd").first_orders(game).text
 			)
 		"split_signal":
 			return (

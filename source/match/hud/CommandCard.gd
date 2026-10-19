@@ -1,13 +1,11 @@
 extends GridContainer
 
+const Bindings = preload("res://source/input/KeyBindings.gd")
 const BattleTheme = preload("res://source/match/hud/BattleTheme.gd")
 const HudKey = preload("res://source/match/hud/HudKey.gd")
 const Orders = preload("res://source/match/orders/ManualOrders.gd")
 const WaitingForTargets = preload("res://source/match/units/actions/WaitingForTargets.gd")
 
-const GRID_HOTKEYS = [
-	[KEY_Q, KEY_W, KEY_E, KEY_R], [KEY_A, KEY_S, KEY_D, KEY_F], [KEY_Z, KEY_X, KEY_C, KEY_V]
-]
 const GRID_LABELS = [["Q", "W", "E", "R"], ["A", "S", "D", "F"], ["Z", "X", "C", "V"]]
 const GLYPHS = {
 	"Move": "move",
@@ -43,26 +41,9 @@ func _ready():
 		_slots.append(row_slots)
 
 
-func _unhandled_input(event):
-	var globals = get_node_or_null("/root/Globals")
-	if globals != null and is_instance_valid(globals.settings_dialog):
-		return
-	var focus = get_viewport().gui_get_focus_owner()
-	if focus is LineEdit or focus is TextEdit:
-		return
-	if not event is InputEventKey or not event.pressed or event.echo:
-		return
-	var key = event.keycode
-	for r in range(3):
-		for c in range(4):
-			if key == GRID_HOTKEYS[r][c]:
-				var btn = _slots[r][c]
-				if btn.visible and not btn.disabled:
-					btn.emit_signal("pressed")
-					get_viewport().set_input_as_handled()
-					return
-
-
+# Battle shortcuts are dispatched by the HUD through KeyBindings. The card
+# must not add Q/W/E/A/D/F aliases: those collide with camera controls and
+# player remappings, including when this card sits on a hidden tab.
 func update_layout(selected_units: Array, direct_orders = null):
 	_selection = selected_units.filter(
 		func(u):
@@ -75,24 +56,22 @@ func update_layout(selected_units: Array, direct_orders = null):
 	if _selection.is_empty():
 		return
 
-	# Q: Move
+	# Configured direct-order keys are the only keyboard shortcuts shown here.
 	_setup_slot(
 		0,
 		0,
 		"Move",
-		"Q",
+		Bindings.label("move_order"),
 		_on_move,
 		direct_orders != null and not direct_orders.eligible("move").is_empty()
 	)
-	# W: Stop
-	_setup_slot(0, 1, "Stop", "W", _on_stop, true)
-	# E: Hold
-	_setup_slot(0, 2, "Hold", "E", _on_hold, true)
-	# R: Return Cargo. The command deck carries its own Return cargo key beside direct
+	_setup_slot(0, 1, "Stop", "", _on_stop, true)
+	_setup_slot(0, 2, "Hold", "", _on_hold, true)
+	# Return Cargo. The command deck carries its own Return cargo key beside direct
 	# orders, with queueing and delivery feedback, so the card leaves R blank there.
 	var has_cargo = _selection.any(func(u): return "type" in u and u.type == "Worker")
 	if direct_orders == null:
-		_setup_slot(0, 3, "Return", "R", _on_return_cargo, has_cargo)
+		_setup_slot(0, 3, "Return", "", _on_return_cargo, has_cargo)
 
 	var has_attack = _selection.any(func(u): return "attack_range" in u and u.attack_range != null)
 	var is_armored = _selection.any(
@@ -101,12 +80,11 @@ func update_layout(selected_units: Array, direct_orders = null):
 	# Combat commands only for selections that can fight; engineers keep one row.
 	if not has_attack and not is_armored:
 		return
-	# A: Attack Move
 	_setup_slot(
 		1,
 		0,
 		"Atk Move",
-		"A",
+		Bindings.label("attack_move"),
 		_on_attack_move,
 		(
 			has_attack
@@ -114,17 +92,15 @@ func update_layout(selected_units: Array, direct_orders = null):
 			and not direct_orders.eligible("attack_move").is_empty()
 		)
 	)
-	# D: Attack Target
 	_setup_slot(
 		1,
 		2,
 		"Target",
-		"D",
+		Bindings.label("attack_target"),
 		_on_attack_target,
 		has_attack and direct_orders != null and not direct_orders.eligible("attack").is_empty()
 	)
-	# F: Reverse Move
-	_setup_slot(1, 3, "Reverse", "F", _on_reverse_move, is_armored)
+	_setup_slot(1, 3, "Reverse", "", _on_reverse_move, is_armored)
 
 
 func _clear_slots():
@@ -134,7 +110,7 @@ func _clear_slots():
 		for c in range(4):
 			var btn = _slots[r][c]
 			_set_blank(btn, true)
-			btn.badge = GRID_LABELS[r][c]
+			btn.badge = ""
 			btn.caption = ""
 			btn.glyph = null
 			btn.tooltip_text = ""
@@ -149,7 +125,7 @@ func _setup_slot(r: int, c: int, label: String, key: String, callable: Callable,
 	btn.badge = key
 	btn.caption = label
 	btn.glyph = BattleTheme.icon(GLYPHS.get(label, "stance"))
-	btn.tooltip_text = "%s [%s]" % [label, key]
+	btn.tooltip_text = label if key.is_empty() else "%s [%s]" % [label, key]
 	btn.accessibility_name = btn.tooltip_text
 	btn.disabled = not enabled
 	_set_blank(btn, false)
@@ -226,9 +202,11 @@ func _on_attack_target():
 
 
 func _on_reverse_move():
-	# Reverse move backtracks the unit's position while retaining target facing
+	# Step back along the current facing through the ordinary manual queue.
 	for unit in _selection:
 		if unit.is_in_group("controlled_units") and unit.type in ["Tank", "AdvancedTank"]:
-			var back_dir = -unit.global_transform.basis.z * Vector3(1, 0, 1)
+			var back_dir = unit.global_transform.basis.z * Vector3(1, 0, 1)
 			var reverse_target = unit.global_position + back_dir * 12.0
-			unit.issue_manual_order(Orders.point_order("move", reverse_target))
+			unit.manual_orders.submit(
+				Orders.point_order("move", reverse_target), Bindings.held("shift_selecting")
+			)

@@ -193,12 +193,17 @@ func _finish(value):
 
 
 func convoy_guidance():
+	var repair_available = escorts().any(func(unit): return unit.type == "RepairRobot")
 	for entry in convoy:
 		if not _alive(entry):
 			continue
 		var near = entry.unit.global_position_yless.distance_to(map.POINTS[entry.leg]) <= 7
 		if near and checkpoint_contested(entry.leg):
 			return tr("Clear enemy ground units within 10 m of the checkpoint.")
+		if repair_available and entry.unit.hp < entry.unit.hp_max * .5:
+			return tr(
+				"Truck badly damaged. Select Repair support, then right-click the truck before advancing."
+			)
 		if near and entry.unit.get_node("Movement")._has_destination:
 			return tr("Click Hold convoy to stop trucks and begin checkpoint clearance.")
 		if near:
@@ -217,13 +222,13 @@ func objective_text():
 
 func result_summary():
 	var delivered = convoy.filter(func(entry): return entry.delivered).size()
-	var text = "%d / 3 trucks extracted." % delivered
+	var text = tr("%d / 3 trucks extracted.") % delivered
 	text += (
 		"\n"
 		+ (
-			"First Orders starts with +20 materials."
+			tr("First Orders starts with +20 materials.")
 			if result == "Victory"
-			else "Two truck losses make the delivery impossible."
+			else tr("Two truck losses make the delivery impossible.")
 		)
 	)
 	return text + ("\n" + progress_error if not progress_error.is_empty() else "")

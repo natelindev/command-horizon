@@ -66,6 +66,7 @@ func _try_setting_rally_points(target_point: Vector3):
 			rally_point.target_unit = null
 			rally_point.global_position = target_point
 			MatchSignals.unit_order_issued.emit(structure, "move")
+			MatchSignals.order_feedback.emit(structure, "rally", target_point, true, false, "")
 
 
 func _try_ordering_selected_workers_to_construct_structure(potential_structure):
@@ -94,36 +95,42 @@ func _navigate_selected_units_towards_unit(target_unit):
 
 
 func _navigate_unit_towards_unit(unit, target_unit, rally = false):
+	var kind = context_kind(unit, target_unit)
+	if kind == "":
+		return false
+	if kind == "rally":
+		return _try_setting_rally_point_to_unit(unit, target_unit)
+	return _submit(unit, Orders.target_order(kind, target_unit), rally)
+
+
+static func context_kind(unit, target_unit):
 	if "player" in target_unit and target_unit.player != unit.player:
 		if not unit._match.battlefield.is_observed(unit.player, target_unit):
-			return false
+			return ""
 	if target_unit.has_method("can_garrison") and target_unit.can_garrison(unit):
-		_submit(unit, Orders.target_order("garrison", target_unit), rally)
-		return true
+		return "garrison"
 	if Actions.Repairing.is_applicable(unit, target_unit):
-		_submit(unit, Orders.target_order("repair", target_unit), rally)
-		return true
+		return "repair"
 	if Actions.CollectingResourcesSequentially.is_applicable(unit, target_unit):
-		_submit(unit, Orders.target_order("gather", target_unit), rally)
-		return true
+		return "gather"
 	if Actions.AutoAttacking.is_applicable(unit, target_unit):
-		_submit(unit, Orders.target_order("attack", target_unit), rally)
-		return true
+		return "attack"
 	if Actions.Constructing.is_applicable(unit, target_unit):
-		_submit(unit, Orders.target_order("construct", target_unit), rally)
-		return true
+		return "construct"
 	if (
 		(target_unit.is_in_group("adversary_units") or target_unit.is_in_group("controlled_units"))
 		and Actions.Following.is_applicable(unit)
 	):
-		_submit(unit, Orders.target_order("follow", target_unit), rally)
-		return true
+		return "follow"
 	if Actions.MovingToUnit.is_applicable(unit):
-		_submit(unit, Orders.target_order("approach", target_unit), rally)
-		return true
-	if _try_setting_rally_point_to_unit(unit, target_unit):
-		return true
-	return false  # gdlint: ignore = max-returns
+		return "approach"
+	if unit is Structure and unit.find_child("RallyPoint") != null:
+		if (
+			target_unit is ResourceUnit
+			or ("player" in target_unit and unit.player == target_unit.player)
+		):
+			return "rally"
+	return ""  # gdlint: ignore = max-returns
 
 
 func _try_setting_rally_point_to_unit(unit, target_unit):
@@ -138,6 +145,7 @@ func _try_setting_rally_point_to_unit(unit, target_unit):
 		return false
 	rally_point.target_unit = target_unit
 	MatchSignals.unit_order_issued.emit(unit, "move")
+	MatchSignals.order_feedback.emit(unit, "rally", target_unit.global_position, true, false, "")
 	return true
 
 
@@ -171,12 +179,14 @@ func _on_navigate_unit_to_rally_point(unit, rally_point):
 
 func _submit(unit, order, rally = false):
 	if unit.manual_orders == null:
-		return
+		return false
 	var append = not rally and Globals.options.selection_modifier_pressed()
+	var accepted = unit.manual_orders.submit(order, append, not rally)
 	if (
-		not unit.manual_orders.submit(order, append, not rally)
+		not accepted
 		and "hud" in unit._match
 		and unit._match.hud != null
 		and unit._match.hud.has_method("show_notice")
 	):
 		unit._match.hud.show_notice(unit.manual_orders.status)
+	return accepted

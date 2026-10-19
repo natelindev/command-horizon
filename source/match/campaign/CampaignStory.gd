@@ -369,10 +369,19 @@ func _suspend_input(node):
 
 
 func _end_cinematic():
+	if _game.is_queued_for_deletion() or not _game.is_inside_tree():
+		# The match is leaving: its canvases may still be attached while their
+		# controls have already exited. Only release the cinematic pause.
+		cinematic = false
+		_input_state.clear()
+		_hud_state.clear()
+		get_tree().paused = _was_paused
+		return
 	var camera = _game.get_node("IsometricCamera3D")
-	camera.set_size_safely(_camera_state.size)
-	camera.global_transform = _camera_state.transform
-	camera.set_physics_process(_camera_state.physics)
+	if camera.is_inside_tree():
+		camera.set_size_safely(_camera_state.size)
+		camera.global_transform = _camera_state.transform
+		camera.set_physics_process(_camera_state.physics)
 	for saved in _input_state:
 		var node = saved.node.get_ref()
 		if is_instance_valid(node):
@@ -382,15 +391,17 @@ func _end_cinematic():
 	_input_state.clear()
 	for saved in _hud_state:
 		var hud = saved.node.get_ref()
-		if is_instance_valid(hud):
+		# Match teardown may already have removed the HUD. Toggling visibility
+		# there invokes layout callbacks without a viewport.
+		if is_instance_valid(hud) and hud.is_inside_tree():
 			hud.visible = saved.visible
 	_hud_state.clear()
 	cinematic = false
 	_modal.hide()
 	get_tree().paused = _was_paused
-	if is_instance_valid(_focus_before):
+	if is_instance_valid(_focus_before) and _focus_before.is_inside_tree():
 		_focus_before.grab_focus()
-	else:
+	elif _skip.is_inside_tree():
 		_skip.release_focus()
 
 

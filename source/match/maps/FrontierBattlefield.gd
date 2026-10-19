@@ -68,10 +68,13 @@ func _terrain(data):
 func _fields(data):
 	for index in data.fields.size():
 		var center: Vector2 = data.fields[index]
-		var side = index % data.players
-		var forward: Vector2 = (size / 2 - data.starts[side]).normalized()
+		# Tangential arcs follow each field's own position, preserving rotational symmetry.
+		var forward: Vector2 = (size / 2 - center).normalized()
+		# Crown's ring approaches follow diagonal passes rather than radial lanes.
+		if map_id == "FrostboundCrown":
+			forward = (size / 2 - data.starts[index % data.players]).normalized()
 		var right = Vector2(forward.y, -forward.x)
-		var offsets = Opening.MATERIAL_OFFSETS + Opening.ELECTRONICS_OFFSETS
+		var offsets = Opening.offsets()
 		for slot in offsets.size():
 			var kind = "A" if slot < 5 else "B"
 			var deposit = (
@@ -84,6 +87,7 @@ func _fields(data):
 			)
 			var point = center + right * offsets[slot].x + forward * offsets[slot].y
 			deposit.position = Vector3(point.x, 0, point.y)
+			deposit.harvest_origin = Vector3(center.x, 0, center.y)
 			$Resources.add_child(deposit)
 
 
@@ -191,7 +195,7 @@ func _clear_scenery(point, data):
 		if point.distance_to(start) < 24:
 			return false
 	for field in data.fields:
-		if point.distance_to(field) < 12:
+		if point.distance_to(field) < 16:
 			return false
 	for site in data.sites:
 		if point.distance_to(site.position) < 13:

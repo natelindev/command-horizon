@@ -16,6 +16,7 @@ var alert_panel = null
 ## Every building producing or under construction, docked under the system plate.
 var production_overview = null
 var direct_orders
+var command_feedback
 var technology_panel = null
 var research_status
 ## Top-right console plate: mission clock, system keys and the alerts beacon slot.
@@ -48,6 +49,7 @@ var _notice_slot: ScrollContainer
 var _assignment_release = false
 var _hint_left = 0.0
 var _pending_notice = ""
+var _briefing: PanelContainer
 
 
 func _ready():
@@ -55,6 +57,7 @@ func _ready():
 	layer = 5
 	# Mission briefing: hangs from the resources plate at the top of the left column.
 	var panel = PanelContainer.new()
+	_briefing = panel
 	panel.name = "MissionBriefing"
 	panel.position = Vector2(0, HudLayout.COLUMN_TOP)
 	panel.custom_minimum_size.x = HudLayout.COLUMN_WIDTH
@@ -79,9 +82,14 @@ func _ready():
 	title.mouse_filter = Control.MOUSE_FILTER_PASS
 	if not _is_campaign():
 		_difficulty_tag(header, players)
+		# Match setup already names the factions. Keep the battle objective prominent.
+		header.hide()
 	_objective = Label.new()
 	_objective.add_theme_font_size_override("font_size", 13)
 	_objective.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	if not _is_campaign():
+		_objective.tooltip_text = title.text
+		_objective.mouse_filter = Control.MOUSE_FILTER_PASS
 	content.add_child(_objective)
 	if _is_campaign() and CampaignCatalog.is_story(get_parent().settings.mission_id):
 		_objective_hint = Label.new()
@@ -131,6 +139,9 @@ func _ready():
 	direct_orders = load("res://source/match/hud/DirectOrders.gd").new()
 	direct_orders.name = "DirectOrders"
 	add_child(direct_orders)
+	command_feedback = load("res://source/match/hud/CommandFeedback.gd").new()
+	command_feedback.hud = self
+	add_child(command_feedback)
 
 
 func _style(panel):
@@ -277,6 +288,10 @@ func _process(_delta):
 		_pending_notice = ""
 		show_notice(notice)
 	_objective.text = get_parent().objective_text()
+	# Campaign controls below this card must stay still during held clicks.
+	_notice_slot.visible = _is_campaign() or _assignment_hint.visible or research_status.visible
+	_notice_slot.custom_minimum_size.y = 42 if _is_campaign() or _assignment_hint.visible else 34
+	_briefing.size.y = _briefing.get_combined_minimum_size().y
 	if _is_campaign():
 		var help = CampaignObjectives.instructions(get_parent())
 		_objective.tooltip_text = help
@@ -706,7 +721,9 @@ func open_visual_editor(units, path, entry = {}):
 
 
 func _open_program_editor(_units, _path, _mode, _entry):
-	show_notice("Choose Attack, Defensive, Follow, Guard or Hold Fire in the unit's Orders panel.")
+	show_notice(
+		"Choose Auto-engage, Defensive, Follow, Guard or Hold Fire in the unit's Orders panel."
+	)
 
 
 func open_lua_copy(units, path, draft, was_paused):
@@ -817,6 +834,20 @@ func open_relays():
 	overview.name = "RelayOverview"
 	overview.hud = self
 	box.add_child(overview)
+
+
+func open_camp(site):
+	if _overlay != null or is_instance_valid(program_editor) or get_parent().finished:
+		return
+	cancel_map_assignment()
+	(
+		get_parent()
+		. _get_human_player()
+		. get_node("StructurePlacementHandler")
+		. _cancel_structure_placement()
+	)
+	MatchSignals.deselect_all_units.emit()
+	get_parent().find_child("UnitMenus").open_camp(site)
 
 
 func open_sites(site = null):

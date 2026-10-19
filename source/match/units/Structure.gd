@@ -17,6 +17,7 @@ func _ready():
 	var activity = load("res://source/match/effects/StructureActivity.gd").new()
 	activity.name = "StructureActivity"
 	add_child(activity)
+	add_child(load("res://source/match/effects/BaseApron.gd").new())
 
 
 func is_revealing():

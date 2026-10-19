@@ -139,6 +139,7 @@ func _rules_archive():
 	_check("Hold to clear" in game.hud._truck_labels[0].text, "Arrived truck has no stop hint")
 	root.get_node("MatchSignals").deselect_all_units.emit()
 	truck.get_node("Selection").select()
+	await _frames(3)
 	_check(game.find_child("UnitMenus")._title.text == "Supply truck", "Single truck menu failed")
 	_check(game.find_child("UnitMenus")._buttons.is_empty(), "Truck exposes engineer construction")
 	var capture = load("res://source/match/saves/MatchSnapshot.gd").new()

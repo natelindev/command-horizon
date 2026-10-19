@@ -3,6 +3,7 @@ extends PanelContainer
 const ProductionQueueElement = preload("res://source/match/hud/ProductionQueueElement.tscn")
 const HudLayout = preload("res://source/match/hud/HudLayout.gd")
 
+var _camp = null
 var _production_queues = []
 var _tray: StyleBox
 
@@ -28,6 +29,9 @@ func _ready():
 func _reset():
 	if not is_inside_tree():
 		return
+	if is_instance_valid(_camp) and _camp.recruitment_changed.is_connected(_render_camp):
+		_camp.recruitment_changed.disconnect(_render_camp)
+	_camp = null
 	_detach_observed_production_queue()
 	_try_observing_production_queue()
 	visible = _is_observing_production_queue()
@@ -119,3 +123,21 @@ func _fit_queue():
 	var limit = HudLayout.deck_width(get_viewport_rect().size.x) - 24
 	var jobs = _queue_elements.get_combined_minimum_size().x if _queue_elements != null else limit
 	find_child("QueueScroll").custom_minimum_size.x = minf(limit, jobs)
+
+
+func show_camp(site):
+	_reset()
+	_camp = site
+	_camp.recruitment_changed.connect(_render_camp)
+	_render_camp()
+
+
+func _render_camp():
+	_remove_queue_element_nodes()
+	visible = true
+	for index in _camp.jobs.size():
+		var node = ProductionQueueElement.instantiate()
+		node.camp = _camp
+		node.contract_index = index
+		_queue_elements.add_child(node)
+	_sync_tray.call_deferred()

@@ -208,12 +208,29 @@ static func _add(result, kind, corners, count, height = 0.0):
 
 
 static func point(entry, distance):
-	var remaining = fposmod(distance, entry.length)
-	for index in entry.path.size():
-		var a = entry.path[index]
-		var b = entry.path[(index + 1) % entry.path.size()]
-		var length = a.distance_to(b)
-		if remaining <= length and length > 0:
-			return a.lerp(b, remaining / length)
-		remaining -= length
-	return entry.path[0]
+	var remaining: float = fposmod(distance, entry.length)
+	var route: PackedVector3Array = entry.path
+	# Authored routes (including campaign interiors) are immutable after setup.
+	# Cache distances on first use, after any map scaling has been applied.
+	if not entry.has("cumulative"):
+		var measured = PackedFloat64Array([0.0])
+		for index in route.size():
+			measured.append(
+				measured[-1] + route[index].distance_to(route[(index + 1) % route.size()])
+			)
+		entry.cumulative = measured
+	var cumulative: PackedFloat64Array = entry.cumulative
+	var low := 0
+	var high := route.size() - 1
+	while low < high:
+		var middle := (low + high) / 2
+		if cumulative[middle + 1] < remaining:
+			low = middle + 1
+		else:
+			high = middle
+	var length := cumulative[low + 1] - cumulative[low]
+	if length <= 0.0:
+		return route[low]
+	return route[low].lerp(
+		route[(low + 1) % route.size()], clampf((remaining - cumulative[low]) / length, 0.0, 1.0)
+	)
