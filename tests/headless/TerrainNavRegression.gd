@@ -26,6 +26,7 @@ func _run():
 	_check_placement()
 	await _check_picking()
 	await _check_rebake()
+	await _check_rotated_footprint()
 	await _check_travel()
 	await _check_save_round_trip()
 	await _close()
@@ -250,3 +251,35 @@ func _check_save_round_trip():
 		"Restored tank left its tier"
 	)
 	_check(game.map.is_elevated(), "Restored map is not elevated")
+
+
+# A polygon footprint turns with its body exactly once.
+func _check_rotated_footprint():
+	var body = Node3D.new()
+	body.position = Vector3(140, 0, 100)
+	body.rotation.y = deg_to_rad(30)
+	var obstacle = load("res://source/match/units/traits/MovementObstacle.tscn").instantiate()
+	obstacle.footprint = PackedVector2Array(
+		[Vector2(-1, -8), Vector2(1, -8), Vector2(1, 8), Vector2(-1, 8)]
+	)
+	obstacle.affect_navigation_mesh = true
+	obstacle.path_height_offset = .6
+	body.add_child(obstacle)
+	game.map.get_node("Decorations").add_child(body)
+	await _frames(10)
+	while not game.navigation.terrain.is_synchronized():
+		await process_frame
+	var along = body.position + Vector3(0, 0, 6).rotated(Vector3.UP, body.rotation.y)
+	var unturned = body.position + Vector3(0, 0, 6)
+	var blocked = NavigationServer3D.map_get_closest_point(nav, along + Vector3(0, 0.5, 0))
+	var open = NavigationServer3D.map_get_closest_point(nav, unturned + Vector3(0, 0.5, 0))
+	_check(
+		Vector2(blocked.x, blocked.z).distance_to(Vector2(along.x, along.z)) > 0.5,
+		"Rotated footprint does not cover its own axis"
+	)
+	_check(
+		Vector2(open.x, open.z).distance_to(Vector2(unturned.x, unturned.z)) < 0.2,
+		"Rotated footprint was turned twice"
+	)
+	body.queue_free()
+	await _frames(10)

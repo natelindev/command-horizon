@@ -3,7 +3,7 @@ extends NavigationObstacle3D
 @export var domain = Constants.Match.Navigation.Domain.TERRAIN
 @export var path_height_offset = 0.0
 @export var sight_height = 3.0
-# Optional local XZ outline (any polygon, e.g. a rotated rectangle); empty uses
+# Optional local XZ outline (any polygon); it turns with the body. Empty uses
 # the circular footprint of `radius`.
 @export var footprint = PackedVector2Array()
 
@@ -31,10 +31,10 @@ func _ready():
 				var angle = index * TAU / 16.0
 				outline.append(Vector3(cos(angle), 0, sin(angle)) * radius)
 		else:
-			# Obstacle vertices ignore node rotation; apply the body's heading here.
-			var heading = global_rotation.y
+			# Local outline: navigation baking and avoidance both apply the
+			# node's global rotation themselves.
 			for point in footprint:
-				outline.append(Vector3(point.x, 0, point.y).rotated(Vector3.UP, heading))
+				outline.append(Vector3(point.x, 0, point.y))
 		vertices = outline
 	if _match.navigation == null:
 		await _match.ready
