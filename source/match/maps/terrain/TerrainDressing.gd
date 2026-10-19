@@ -31,6 +31,7 @@ static func populate(map):
 	_scatter(map, model, kit.rocks, kit.rock_density, rng, batches, clear, true)
 	_scatter(map, model, kit.lone_trees, kit.tree_density, rng, batches, clear, true)
 	_talus(map, layout, model, kit, rng, batches)
+	_shores(map, layout, kit, rng, batches)
 	var parent = Node3D.new()
 	parent.name = "Dressing"
 	map.add_child(parent)
@@ -115,7 +116,8 @@ static func _scatter(map, model, entries: Array, density: float, rng, batches, c
 				continue
 			var i = clampi(int(point.x / TerrainModel.RESOLUTION), 0, model.columns - 1)
 			var j = clampi(int(point.y / TerrainModel.RESOLUTION), 0, model.rows - 1)
-			if not model.is_walkable_cell(i, j):
+			# Scenery also dresses inaccessible tops, never cliffs or water.
+			if not model.is_walkable_cell(i, j) and not cell & TerrainModel.BARRIER:
 				continue
 			_add(batches, entries[rng.randi() % entries.size()], _placement(map, point, rng))
 
@@ -142,6 +144,26 @@ static func _talus(map, layout: Dictionary, model, kit: Dictionary, rng, batches
 				batches,
 				kit.talus[rng.randi() % kit.talus.size()],
 				_placement(map, foot, rng, Vector2(0.7, 1.15))
+			)
+
+
+# Rocks ring natural pools so their banks read as worn stone, not a cut edge.
+static func _shores(map, layout: Dictionary, kit: Dictionary, rng, batches):
+	for water in layout.water:
+		if water.get("ford", false):
+			continue
+		var polygon: PackedVector2Array = water.polygon
+		var outward = -1.0 if Geometry2D.is_polygon_clockwise(polygon) else 1.0
+		var points = CliffMesh.densified(polygon, 1.6)
+		for index in points.size():
+			if rng.randf() > 0.7:
+				continue
+			var normal = CliffMesh.vertex_normal(points, index, outward)
+			var bank = points[index] + normal * rng.randf_range(0.2, 0.9)
+			_add(
+				batches,
+				kit.talus[rng.randi() % kit.talus.size()],
+				_placement(map, bank, rng, Vector2(0.45, 0.8))
 			)
 
 

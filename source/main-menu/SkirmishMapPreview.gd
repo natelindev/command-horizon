@@ -2,6 +2,8 @@ extends Control
 
 const MAP_FONT = preload("res://assets/fonts/NotoSansSC.ttf")
 const PreviewData = preload("res://source/main-menu/MapPreviewData.gd")
+const Registry = preload("res://source/match/maps/terrain/BattlefieldRegistry.gd")
+const AuthoredPreview = preload("res://source/main-menu/AuthoredMapPreview.gd")
 const PREVIEW_FIELDS = [
 	"map_size",
 	"starts",
@@ -72,6 +74,9 @@ func set_map(path):
 
 
 func _generate_map(path):
+	if Registry.is_authored(path):
+		_generate_authored(path)
+		return
 	starts.clear()
 	deposits.clear()
 	rocks.clear()
@@ -121,6 +126,25 @@ func _generate_map(path):
 		_terrain_cache[path] = _terrain
 	else:
 		_terrain = _terrain_cache[path]
+	queue_redraw()
+
+
+# Authored battlefields preview their real terrain; markers come from the layout.
+func _generate_authored(path):
+	var layout = Registry.layout(path)
+	map_size = layout.size
+	starts = layout.bases.map(func(base): return Vector3(base.start.x, 0, base.start.y))
+	deposits = layout.bases.map(func(base): return base.field)
+	deposits.append_array(layout.expansions.map(func(expansion): return expansion.field))
+	points_of_interest = layout.sites.duplicate()
+	for list in [rocks, relays, roads, buildings, land, water]:
+		list.clear()
+	water_radius = 0.0
+	ridge_radius = 0.0
+	_biome = layout.biome
+	if not _terrain_cache.has(path):
+		_terrain_cache[path] = ImageTexture.create_from_image(AuthoredPreview.image(path))
+	_terrain = _terrain_cache[path]
 	queue_redraw()
 
 

@@ -41,6 +41,7 @@ const DEFINITION = {
 		{
 			"name": "Divide south block",
 			"height": 6.0,
+			"walkable": false,
 			"natural": true,
 			"polygon":
 			[
@@ -130,9 +131,19 @@ const DEFINITION = {
 			"name": "Tinaja",
 			"level": 0.0,
 			"natural": true,
-			"roughness": 0.8,
+			"roughness": 0.6,
 			"polygon":
-			[Vector2(6, 96), Vector2(12, 92), Vector2(18, 95), Vector2(17, 102), Vector2(9, 104)]
+			[
+				Vector2(7, 96),
+				Vector2(9.5, 93.2),
+				Vector2(13, 92.4),
+				Vector2(16.5, 94),
+				Vector2(18, 97.5),
+				Vector2(17, 101),
+				Vector2(13.5, 103.4),
+				Vector2(9.5, 102.8),
+				Vector2(7.2, 100)
+			]
 		},
 	],
 	"blockers":
@@ -354,6 +365,7 @@ const DEFINITION = {
 	{
 		"expand_order":
 		["West flats", "Canyon floor", "Bench spring", "Butte shadow", "Divide top", "Bench rim"],
-		"chokes": [Vector2(60, 72), Vector2(96, 24.5), Vector2(96, 80)],
+		# Divide crossings: the central wash and the slot canyons at either end.
+		"lanes": [Vector2(96, 80), Vector2(96, 24.5)],
 	},
 }

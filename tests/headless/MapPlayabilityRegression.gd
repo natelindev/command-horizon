@@ -7,7 +7,7 @@ func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
 	for entry in load("res://source/main-menu/Play.gd").MAPS:
 		var map_name = entry[0].get_file().get_basename()
-		await _create(map_name, "bastion")
+		await _create(entry[0], "bastion")
 		_check_playable_ground(map_name)
 		await _close()
 	for message in _errors:
@@ -26,26 +26,35 @@ func _check_playable_ground(map_name):
 	var land = 0
 	var navigable = 0
 	var reachable = 0
+	# Authored terrain deliberately leaves water, rock, cliffs and inaccessible
+	# tops unwalkable; only open ground counts as land there.
+	var terrain = game.map.get("terrain")
 	for x in range(8, int(game.map.size.x), 8):
 		for z in range(8, int(game.map.size.y), 8):
 			if not Geometry2D.is_point_in_polygon(Vector2(x, z), polygon):
 				continue
-			land += 1
-			var point = Vector3(x, 0, z)
+			var flat = Vector2(x, z)
+			var point = game.map.ground_point(flat)
 			var query = PhysicsRayQueryParameters3D.create(
-				point + Vector3(0, 50, 0), point - Vector3.UP, 1
+				point + Vector3(0, 50, 0), point - Vector3.UP * 3.0, 1
 			)
 			_check(
 				not space.intersect_ray(query).is_empty(),
 				"Visible land cannot receive mouse clicks: %s %s" % [map_name, point]
 			)
-			camera.set_position_safely(point)
+			camera.set_position_safely(point * Vector3(1, 0, 1))
 			_check(
-				camera._calculate_pivot_point().distance_to(point) < .05,
+				camera._calculate_pivot_point().distance_to(point * Vector3(1, 0, 1)) < .05,
 				"Camera cannot reach map interior: %s %s" % [map_name, point]
 			)
-			var nearest = NavigationServer3D.map_get_closest_point(nav, point)
-			if (nearest * Vector3(1, 0, 1)).distance_to(point) > 1:
+			if terrain != null:
+				var i = clampi(int(x / terrain.RESOLUTION), 0, terrain.columns - 1)
+				var j = clampi(int(z / terrain.RESOLUTION), 0, terrain.rows - 1)
+				if not terrain.is_walkable_cell(i, j):
+					continue
+			land += 1
+			var nearest = NavigationServer3D.map_get_closest_point(nav, point + Vector3.UP * .5)
+			if (nearest * Vector3(1, 0, 1)).distance_to(point * Vector3(1, 0, 1)) > 1:
 				continue
 			navigable += 1
 			var route = NavigationServer3D.map_get_path(nav, origin, nearest, true)

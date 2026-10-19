@@ -10,7 +10,8 @@ const DEFINITION = {
 	"players": 2,
 	"size": Vector2(192, 160),
 	"symmetry": "rotate",
-	"biome": "canyon",
+	"biome": "desert",
+	"ground": "canyon",
 	"tiers":
 	[
 		{

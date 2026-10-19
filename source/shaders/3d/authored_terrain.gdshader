@@ -56,6 +56,11 @@ void fragment()
                + texture(control, p / map_size + vec2(0.0, texel.y * 3.0))
                + texture(control, p / map_size - vec2(0.0, texel.y * 3.0)))
               * 0.25;
+  // Beyond the battlefield the landscape carries no roads, water or forest.
+  vec2 uv = p / map_size;
+  float inside = step(0.0, uv.x) * step(uv.x, 1.0) * step(0.0, uv.y) * step(uv.y, 1.0);
+  mask *= inside;
+  soft *= inside;
   float macro = noise(p * .06) * .6 + noise(p * .19) * .4;
   float grain = noise(p * 3.1);
   vec3 color = mix(ground_low.rgb, ground_high.rgb, macro);
@@ -71,8 +76,9 @@ void fragment()
   float sandy = max(mask.a, soft.a * .7);
   float ripples = sin(p.x * 2.1 + p.y * .6 + noise(p * .4) * 3.0) * .5 + .5;
   color = mix(color, sand.rgb * (.94 + ripples * .05 + grain * .05), sandy * .9);
-  float forest = max(mask.b, soft.b * .6);
-  color = mix(color, forest_floor.rgb * (.85 + macro * .3), forest * .45);
+  // A light, broken litter layer under trees rather than a painted patch.
+  float forest = max(mask.b, soft.b * .6) * smoothstep(.3, .7, noise(p * .35 + 4.2));
+  color = mix(color, forest_floor.rgb * (.85 + macro * .3), forest * .3);
   float lane = mask.r;
   color = mix(color, road.rgb * (.9 + macro * .18), lane * .85);
   color *= 1.0 - (1.0 - smoothstep(.0, .12, abs(lane - .55))) * .06;

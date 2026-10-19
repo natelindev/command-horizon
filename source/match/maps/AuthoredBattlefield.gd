@@ -106,6 +106,9 @@ func click_collision() -> Array:
 
 
 func overview():
+	# Previews call this on scenes that never entered the tree.
+	if layout.is_empty():
+		layout = Registry.layout(scene_file_path)
 	var roads = []
 	for road in layout.roads:
 		for index in road.line.size() - 1:
@@ -150,11 +153,13 @@ func _build_ground():
 	material.set_shader_parameter("map_size", size)
 	material.set_shader_parameter("tier_step", terrain.tier_step)
 	ground.mesh.surface_set_material(0, material)
-	ground.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	# Cliff and formation meshes cast the shadows; the ground only receives them.
+	ground.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	var backdrop = MeshInstance3D.new()
 	backdrop.name = "Backdrop"
 	backdrop.mesh = TerrainBackdrop.build(terrain, layout.get("backdrop", {}), layout.id)
 	backdrop.material_override = material
+	backdrop.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	$Geometry.add_child(backdrop)
 	# The anti-aliasing backdrop must stay below the lowest basin.
 	$Geometry/BlackBackgroundFixingAntiAliasingBug.position.y = terrain.min_height - 2.0

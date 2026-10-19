@@ -11,6 +11,8 @@ const SOLID = 2
 const FOREST = 4
 const RAMP = 8
 const FORD = 16
+# Inaccessible ground (mesa tops with no way up): no navigation, scenery only.
+const BARRIER = 32
 # One cell may rise 0.5 m (45 degrees); steeper cells are cliffs.
 const MAX_WALKABLE_STEP = 0.5
 const WATER_DEPTH = 1.2
@@ -48,6 +50,9 @@ func _init(layout: Dictionary):
 	flags.resize(columns * rows)
 	for tier in layout.get("tiers", []):
 		_fill_corners(tier.polygon, func(_old): return tier.height)
+	for tier in layout.get("tiers", []):
+		if not tier.get("walkable", true):
+			_fill_cells(tier.polygon, BARRIER)
 	for ramp in layout.get("ramps", []):
 		_ramp(ramp)
 	# Fords cross streams: they apply after open water and replace it.
@@ -101,7 +106,7 @@ func flag_at(point: Vector2) -> int:
 
 func is_walkable_cell(i: int, j: int) -> bool:
 	var cell = flags[j * columns + i]
-	if cell & (WATER | SOLID):
+	if cell & (WATER | SOLID | BARRIER):
 		return false
 	var a = _corner(i, j)
 	var b = _corner(i + 1, j)
@@ -131,7 +136,7 @@ func navigation_faces() -> PackedVector3Array:
 			var c = heights[index + stride + 1]
 			var d = heights[index + stride]
 			var walkable = (
-				flags[j * columns + i] & (WATER | SOLID) == 0
+				flags[j * columns + i] & (WATER | SOLID | BARRIER) == 0
 				and absf(a - b) <= MAX_WALKABLE_STEP
 				and absf(b - c) <= MAX_WALKABLE_STEP
 				and absf(c - d) <= MAX_WALKABLE_STEP

@@ -40,7 +40,9 @@ func _run():
 
 func _create(map_name, faction, mission = ""):
 	var settings = _settings(faction, "helix" if faction == "bastion" else "bastion", false)
-	settings.map_path = "res://source/match/maps/%s.tscn" % map_name
+	settings.map_path = (
+		map_name if map_name.begins_with("res://") else "res://source/match/maps/%s.tscn" % map_name
+	)
 	var scene = "res://source/match/Skirmish.tscn"
 	if not mission.is_empty():
 		var operation = load("res://source/match/campaign/CampaignCatalog.gd").OPERATIONS[mission]

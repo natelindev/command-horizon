@@ -28,9 +28,12 @@ const MAPS = [
 		"192 × 156"
 	],
 	[
-		"res://source/match/maps/RedrockDivide.tscn",
+		"res://source/match/maps/battlefields/RedrockDivideMap.tscn",
 		"Redrock Divide",
-		"Three canyon crossings with rich outer flanks.",
+		(
+			"A sandstone mesa splits the canyon · cross by the wash or slot canyons"
+			+ " · 14 resource fields"
+		),
 		"192 × 160"
 	],
 	[

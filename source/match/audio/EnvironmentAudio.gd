@@ -19,6 +19,20 @@ var _scan_left = 0.0
 
 
 static func region_for(map_path):
+	var authored = preload("res://source/match/maps/terrain/BattlefieldRegistry.gd").layout(
+		map_path
+	)
+	if not authored.is_empty():
+		return (
+			{
+				"desert": "desert",
+				"alpine": "alpine",
+				"temperate": "alpine",
+				"urban": "industrial",
+				"coastal": "coastal"
+			}
+			. get(authored.biome, "")
+		)
 	var battlefield = preload("res://source/match/maps/BattlefieldCatalog.gd").profile(map_path)
 	if not battlefield.is_empty():
 		return {"temperate": "alpine", "urban": "industrial"}.get(

@@ -184,10 +184,10 @@ def shrub(seed, mats, radius, height, flowers=False):
         r = rng.uniform(0, radius * .55)
         centre = (math.cos(angle) * r, math.sin(angle) * r, height * rng.uniform(.35, .55))
         size = radius * rng.uniform(.35, .55)
-        blob("Shrub clump", centre, (size, size, height * .5), rng.choice(mats), rng, .3)
+        blob("Shrub clump", centre, (size, size, height * .5), rng.choice(mats), rng, .3, 0)
         if flowers:
             blob("Bloom", (centre[0], centre[1], centre[2] + height * .35),
-                 (size * .7, size * .7, height * .18), BLOOM, rng, .35)
+                 (size * .7, size * .7, height * .18), BLOOM, rng, .35, 0)
 
 
 def yucca(seed):
@@ -205,12 +205,12 @@ def yucca(seed):
 
 def boulder(seed, size, mat_index):
     rng = random.Random(seed)
-    blob("Boulder", (0, 0, size[2] * .45), size, SANDSTONE[mat_index], rng, .18, 2)
+    blob("Boulder", (0, 0, size[2] * .45), size, SANDSTONE[mat_index], rng, .18, 1)
     for chip in range(3):
         angle = rng.uniform(0, math.tau)
         r = max(size[0], size[1]) * 1.05
         blob("Spall", (math.cos(angle) * r, math.sin(angle) * r, .12),
-             (.25, .2, .14), SANDSTONE[(mat_index + 1) % 4], rng, .25)
+             (.25, .2, .14), SANDSTONE[(mat_index + 1) % 4], rng, .25, 0)
 
 
 def talus(seed):
@@ -220,7 +220,7 @@ def talus(seed):
         r = rng.uniform(0, 2.2)
         s = rng.uniform(.2, .75) * (1.2 - r / 2.4)
         blob("Talus block", (math.cos(angle) * r, math.sin(angle) * r, s * .35),
-             (s, s * rng.uniform(.6, 1.0), s * .6), rng.choice(SANDSTONE), rng, .2)
+             (s, s * rng.uniform(.6, 1.0), s * .6), rng.choice(SANDSTONE), rng, .2, 0)
 
 
 def trestle_bent(seed, height):
