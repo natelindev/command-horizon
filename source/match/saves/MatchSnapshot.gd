@@ -96,7 +96,10 @@ func capture(game):
 	var camera = game.get_node("IsometricCamera3D")
 	var result = {
 		"snapshot_version": VERSION,
-		"map_revision": 1,
+		"map_revision":
+		load("res://source/match/maps/terrain/BattlefieldRegistry.gd").revision(
+			game.settings.map_path
+		),
 		"settings": settings,
 		"simulation_time": game.simulation_time,
 		"visual_serial": game._visual_serial,

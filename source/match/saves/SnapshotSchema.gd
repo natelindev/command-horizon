@@ -61,7 +61,10 @@ func validate(data):
 		return false
 	if not load("res://source/match/BattleRecord.gd").valid(data.battle_record):
 		return _fail("Invalid battle record.")
-	if data.map_revision != 1 or not _settings(data.settings):
+	if (
+		data.map_revision != _map_revision(data.settings.map_path)
+		or not _settings(data.settings)
+	):
 		return _fail("Unsupported snapshot, map or settings version.")
 	if not _ambient(data.ambient, data.settings.map_path):
 		return false
@@ -1564,3 +1567,8 @@ func _hero_operation(value, id):
 		if escort.get("player") != "player-0" or escort.get("role") != "SupplyTruck":
 			return _fail("Invalid story convoy.")
 	return true
+
+
+# Authored battlefields version their layouts; every other map is revision 1.
+static func _map_revision(map_path):
+	return load("res://source/match/maps/terrain/BattlefieldRegistry.gd").revision(map_path)

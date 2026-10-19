@@ -2,6 +2,7 @@ extends RefCounted
 
 const Mercenaries = preload("res://source/match/world/MercenaryCatalog.gd")
 const ROLES = Mercenaries.ROLES
+const Authored = preload("res://source/match/maps/terrain/BattlefieldRegistry.gd")
 # Capturable facilities per skirmish map, in save order. Every list pairs its
 # sites with the map's start symmetry so no start owns a uniquely close one.
 # Append new sites after existing ones: saves identify sites by their index.
@@ -73,6 +74,8 @@ const SITES = {
 
 
 static func definitions(map_path):
+	if Authored.is_authored(map_path):
+		return Authored.layout(map_path).sites
 	var battlefield = preload("res://source/match/maps/BattlefieldCatalog.gd").profile(map_path)
 	return (
 		battlefield.sites
@@ -93,7 +96,7 @@ static func populate(map):
 		site.site_id = "poi-%d" % index
 		site.kind = entry.kind
 		site.label_title = entry.name
-		site.position = Vector3(entry.position.x, 0, entry.position.y)
+		site.position = map.ground_point(entry.position)
 		map.add_child(site)
 		map.points_of_interest.append(site)
 

@@ -1,0 +1,78 @@
+shader_type spatial;
+// Ground for authored, elevated battlefields. A per-map control texture marks
+// roads, water beds, fords and forest floor; slope exposes rock on cliffs and
+// higher tiers read slightly lighter so elevation is legible from above.
+
+uniform sampler2D control : filter_linear, repeat_disable;
+uniform vec2 map_size = vec2(192.0, 160.0);
+uniform float tier_step = 3.0;
+uniform vec4 ground_low : source_color = vec4(0.47, 0.29, 0.21, 1.0);
+uniform vec4 ground_high : source_color = vec4(0.73, 0.55, 0.38, 1.0);
+uniform vec4 accent : source_color = vec4(0.52, 0.48, 0.30, 1.0);
+uniform vec4 road : source_color = vec4(0.58, 0.42, 0.28, 1.0);
+uniform vec4 rock : source_color = vec4(0.55, 0.33, 0.24, 1.0);
+uniform vec4 bed : source_color = vec4(0.30, 0.27, 0.22, 1.0);
+uniform vec4 forest_floor : source_color = vec4(0.30, 0.30, 0.18, 1.0);
+uniform float accent_amount = 0.35;
+uniform float strata = 1.0;
+
+varying vec3 world_point;
+varying vec3 world_normal;
+
+float hash(vec2 p)
+{
+  return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+}
+
+float noise(vec2 p)
+{
+  vec2 i = floor(p);
+  vec2 f = fract(p);
+  f = f * f * (3.0 - 2.0 * f);
+  return mix(
+      mix(hash(i), hash(i + vec2(1, 0)), f.x),
+      mix(hash(i + vec2(0, 1)), hash(i + vec2(1, 1)), f.x),
+      f.y);
+}
+
+void vertex()
+{
+  world_point = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+  world_normal = normalize((MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz);
+}
+
+void fragment()
+{
+  vec2 p = world_point.xz;
+  vec4 mask = texture(control, p / map_size);
+  // Wide, soft taps let shores and forest edges bleed naturally.
+  vec2 texel = 1.0 / vec2(textureSize(control, 0));
+  vec4 soft = (texture(control, p / map_size + vec2(texel.x * 3.0, 0.0))
+               + texture(control, p / map_size - vec2(texel.x * 3.0, 0.0))
+               + texture(control, p / map_size + vec2(0.0, texel.y * 3.0))
+               + texture(control, p / map_size - vec2(0.0, texel.y * 3.0)))
+              * 0.25;
+  float macro = noise(p * .06) * .6 + noise(p * .19) * .4;
+  float grain = noise(p * 3.1);
+  vec3 color = mix(ground_low.rgb, ground_high.rgb, macro);
+  color = mix(color, accent.rgb, smoothstep(.55, .8, noise(p * .11 + 7.3)) * accent_amount);
+  // Higher tiers read lighter; a darker band hugs each tier's foot.
+  float level = world_point.y / max(tier_step, .1);
+  color *= .93 + clamp(level, -1.0, 2.0) * .045;
+  float forest = max(mask.b, soft.b * .8);
+  color = mix(color, forest_floor.rgb * (.85 + macro * .3), forest * .8);
+  float lane = mask.r;
+  color = mix(color, road.rgb * (.9 + macro * .18), lane * .85);
+  color *= 1.0 - (1.0 - smoothstep(.0, .12, abs(lane - .55))) * .06;
+  float wet = clamp(soft.g * 1.6, 0.0, 1.0);
+  color = mix(color, bed.rgb, wet * .55);
+  color = mix(color, bed.rgb * .8, mask.g * .9);
+  // Cliffs: banded rock with strata following elevation.
+  float slope = 1.0 - clamp(world_normal.y, 0.0, 1.0);
+  float cliff = smoothstep(.28, .55, slope + (grain - .5) * .12);
+  float band = noise(vec2(world_point.y * 1.7, p.x * .05 + p.y * .05)) * strata;
+  vec3 stone = rock.rgb * (.78 + band * .35 + grain * .08);
+  color = mix(color, stone, cliff);
+  ALBEDO = color + (grain - .5) * .03;
+  ROUGHNESS = mix(.95, .82, cliff);
+}

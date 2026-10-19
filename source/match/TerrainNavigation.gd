@@ -2,6 +2,9 @@ extends Node3D
 
 const DOMAIN = Constants.Match.Navigation.Domain.TERRAIN
 const ELEVATED_MAX_CLIMB = 0.6
+# Baked walkable surfaces sit about one voxel step above the authored ground.
+const SURFACE_LIFT = 0.5
+const SURFACE_MATCH = 0.35
 
 var _earliest_frame_to_perform_next_rebake = null
 var _is_baking = false
@@ -11,6 +14,7 @@ var _projection_cells = {}
 var _projection_height = INF
 var _projection_tolerance = INF
 var _elevated = false
+var _map = null
 var _projection_iteration = -1
 var _map_geometry = NavigationMeshSourceGeometryData3D.new()
 
@@ -64,6 +68,7 @@ func bake(map):
 	var mesh: NavigationMesh = _navigation_region.navigation_mesh
 	mesh.filter_baking_aabb = AABB(Vector3.ZERO, Vector3(map.size.x, 5.0, map.size.y))
 	_elevated = map.is_elevated()
+	_map = map if _elevated else null
 	if _elevated:
 		# Tiers and ramps: two voxels of climb joins ramp cells; cliffs stay walls.
 		mesh.agent_max_climb = ELEVATED_MAX_CLIMB
@@ -164,6 +169,8 @@ func _on_bake_finished():
 # half the gap to any other level. Ramps, boundary points and in-flight
 # rebakes use the server query.
 func closest_point(point: Vector3) -> Vector3:
+	if _elevated:
+		return _closest_point_on_terrain(point)
 	var iteration := NavigationServer3D.map_get_iteration_id(navigation_map_rid)
 	if not _is_baking and _earliest_frame_to_perform_next_rebake == null:
 		if _projection_iteration != iteration and is_synchronized():
@@ -184,6 +191,29 @@ func closest_point(point: Vector3) -> Vector3:
 			if best < INF:
 				return Vector3(point.x, point.y + best, point.z)
 	return NavigationServer3D.map_get_closest_point(navigation_map_rid, point)
+
+
+# Elevated maps know their ground height, so project vertically from the
+# expected surface. A query from below a sloped detail triangle would move the
+# point sideways (downhill on ramps) every tick.
+func _closest_point_on_terrain(point: Vector3) -> Vector3:
+	var flat := Vector2(point.x, point.z)
+	var surface: float = _map.height_at(flat) + SURFACE_LIFT
+	var iteration := NavigationServer3D.map_get_iteration_id(navigation_map_rid)
+	if not _is_baking and _earliest_frame_to_perform_next_rebake == null:
+		if _projection_iteration != iteration and is_synchronized():
+			_index_projection_surface(iteration)
+		if _projection_iteration == iteration:
+			var cell := Vector2i(floori(point.x / 6.0), floori(point.z / 6.0))
+			for entry in _projection_cells.get(cell, []):
+				if (
+					absf(entry[1] - surface) <= SURFACE_MATCH
+					and Geometry2D.is_point_in_polygon(flat, entry[0])
+				):
+					return Vector3(point.x, entry[1], point.z)
+	return NavigationServer3D.map_get_closest_point(
+		navigation_map_rid, Vector3(point.x, surface, point.z)
+	)
 
 
 func _index_projection_surface(iteration: int):

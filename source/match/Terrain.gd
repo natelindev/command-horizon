@@ -16,6 +16,11 @@ func update_shape(reference_mesh):
 	_collision_shape.shape = reference_mesh.create_trimesh_shape()
 
 
+func use_shape(shape: Shape3D, shape_transform: Transform3D):
+	_collision_shape.shape = shape
+	_collision_shape.transform = shape_transform
+
+
 func _on_input_event(_camera, event, _click_position, _click_normal, _shape_idx):
 	if (
 		event is InputEventMouseButton

@@ -151,7 +151,11 @@ func _get_visible_players():
 
 
 func _setup_subsystems_dependent_on_map():
-	_terrain.update_shape(map.find_child("Terrain").mesh)
+	if map.has_method("click_collision"):
+		var click = map.click_collision()
+		_terrain.use_shape(click[0], click[1])
+	else:
+		_terrain.update_shape(map.find_child("Terrain").mesh)
 	map.add_child(load("res://source/match/maps/BattlefieldBoundary.gd").new())
 	var decals = load("res://source/match/effects/GroundDecals.gd").new()
 	decals.name = "GroundDecals"

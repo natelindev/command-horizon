@@ -57,6 +57,9 @@ const MAPS = {
 	{"name": "Industrial Crossroads", "players": 2, "size": Vector2i(128, 104)},
 	"res://source/match/maps/CoastalFoundry.tscn":
 	{"name": "Coastal Foundry", "players": 2, "size": Vector2i(128, 104)},
+	# Engine verification only; never offered in the skirmish picker.
+	"res://source/match/maps/battlefields/TerrainTestMap.tscn":
+	{"name": "Terrain Test", "players": 2, "size": Vector2i(192, 160)},
 }
 
 
