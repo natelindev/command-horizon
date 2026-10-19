@@ -7,6 +7,8 @@ const Factions = preload("res://source/match/FactionCatalog.gd")
 const CAPTURE_RADIUS = 5.0
 const INCOME_INTERVAL = 10.0
 const QUEUE_LIMIT = 3
+const REFINERY = preload("res://assets/models/environment/neutral/OilRefinery.glb")
+const OWNERSHIP_MATERIAL = "Ownership band"
 var site_id = ""
 var kind = "refinery"
 var radius = 2.2
@@ -56,7 +58,44 @@ func _ready():
 
 
 func _build_model():
-	var role = {"refinery": "PowerPlant", "mercenary": "Barracks", "repair": "RepairDepot"}[kind]
+	if kind == "refinery":
+		_build_refinery()
+	else:
+		_build_faction_building()
+	_label = Label3D.new()
+	_label.position = Vector3(0, 5.5, 0)
+	_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	_label.font = load("res://assets/fonts/NotoSansSC.ttf")
+	_label.font_size = 28
+	_label.pixel_size = .012
+	add_child(_label)
+	_update_presentation()
+
+
+# A neutral field refinery: painted bands take the owner's colour and the
+# nodding pump on the pad's open corner shows active extraction.
+func _build_refinery():
+	var geometry = REFINERY.instantiate()
+	geometry.name = "Geometry"
+	add_child(geometry)
+	_lamp = StandardMaterial3D.new()
+	_lamp.albedo_color = Color("d0baa0")
+	_lamp.roughness = 0.5
+	for mesh in geometry.find_children("*", "MeshInstance3D", true, false):
+		for surface in mesh.mesh.get_surface_count():
+			var material = mesh.mesh.surface_get_material(surface)
+			if material != null and material.resource_name.begins_with(OWNERSHIP_MATERIAL):
+				mesh.set_surface_override_material(surface, _lamp)
+	machinery = load("res://source/match/world/RefineryMachinery.gd").new()
+	machinery.name = "ExtractionPump"
+	machinery.position = Vector3(-1.45, 0.12, 1.55)
+	machinery.rotation.y = PI / 2
+	machinery.scale = Vector3.ONE * .5
+	add_child(machinery)
+
+
+func _build_faction_building():
+	var role = {"mercenary": "Barracks", "repair": "RepairDepot"}[kind]
 	var prototype = load(Factions.Bastion.scene_path(role)).instantiate()
 	Factions.prepare_model(prototype, "bastion")
 	var geometry = prototype.get_node("Geometry")
@@ -74,21 +113,6 @@ func _build_model():
 		true
 	)
 	prototype.free()
-	if kind == "refinery":
-		machinery = load("res://source/match/world/RefineryMachinery.gd").new()
-		machinery.name = "ExtractionPump"
-		machinery.position = Vector3(0, 1.6, 0)
-		machinery.rotation.y = PI / 4
-		machinery.scale = Vector3.ONE * .72
-		add_child(machinery)
-	_label = Label3D.new()
-	_label.position = Vector3(0, 5.5, 0)
-	_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	_label.font = load("res://assets/fonts/NotoSansSC.ttf")
-	_label.font_size = 28
-	_label.pixel_size = .012
-	add_child(_label)
-	_update_presentation()
 
 
 func _capture_presence():
