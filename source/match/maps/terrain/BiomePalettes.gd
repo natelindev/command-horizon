@@ -14,8 +14,14 @@ const PALETTES = {
 		"rock": Color("9a5636"),
 		"bed": Color("5a4433"),
 		"forest_floor": Color("5d5434"),
+		"slickrock": Color("d7a582"),
+		"sand": Color("d9a97a"),
 		"accent_amount": 0.22,
+		"slickrock_amount": 0.6,
 		"strata": 1.0,
+		"water_deep": Color("1f3330"),
+		"water_shallow": Color("5b6146"),
+		"water_foam": Color("cdb79a"),
 	},
 	"desert":
 	{
@@ -60,4 +66,12 @@ static func configure(material: ShaderMaterial, biome: String, overrides := {}):
 	var palette = PALETTES.get(biome, PALETTES.desert).duplicate()
 	palette.merge(overrides, true)
 	for key in palette:
-		material.set_shader_parameter(key, palette[key])
+		if not key.begins_with("water_"):
+			material.set_shader_parameter(key, palette[key])
+
+
+static func configure_water(material: ShaderMaterial, biome: String):
+	var palette = PALETTES.get(biome, PALETTES.desert)
+	for key in ["deep", "shallow", "foam"]:
+		if palette.has("water_" + key):
+			material.set_shader_parameter(key, palette["water_" + key])

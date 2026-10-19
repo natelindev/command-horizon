@@ -8,6 +8,7 @@ extends "res://tests/headless/TerrainNavRegression.gd"
 
 const Registry = preload("res://source/match/maps/terrain/BattlefieldRegistry.gd")
 const TANK_SPEED = 2.6
+const HQ_CLEARANCE = 4.5
 const TARGETS = {
 	"base_to_base": [75.0, 110.0],
 	"natural": [0.0, 25.0],
@@ -85,9 +86,12 @@ func _measure(path):
 	nav = game.navigation.terrain.navigation_map_rid
 	var id = layout.id
 	print("== %s (%s, %d players)" % [layout.name, id, layout.players])
+	# Measure from just outside each headquarters, toward the map centre; a
+	# start inside the HQ footprint would snap out on an arbitrary side.
 	var starts = []
 	for base in layout.bases:
-		starts.append(game.map.ground_point(base.start))
+		var outward = (layout.size / 2.0 - base.start).normalized() * HQ_CLEARANCE
+		starts.append(game.map.ground_point(base.start + outward))
 	_travel(id, starts)
 	_naturals(id, layout, starts)
 	_home_fields(id, layout)

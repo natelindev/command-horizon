@@ -6,8 +6,9 @@ extends RefCounted
 # players receive identical terrain, routes and resources. Features listed
 # under "shared" (a central lake, a crater) appear once.
 
-const FEATURES = ["tiers", "ramps", "water", "blockers", "forests", "roads", "landmarks"]
+const FEATURES = ["tiers", "ramps", "water", "blockers", "forests", "roads", "landmarks", "sands"]
 const ORDERED = ["bases", "expansions", "sites"]
+const NATURAL_STEP = 2.5
 
 
 static func expand(definition: Dictionary) -> Dictionary:
@@ -18,12 +19,18 @@ static func expand(definition: Dictionary) -> Dictionary:
 	# Per-player entries interleave by player so bases[i] belongs to player i
 	# and site order (a permanent save identity) is stable.
 	for key in FEATURES + ORDERED:
+		var index = 0
 		for entry in definition.get(key, []):
+			var shaped = _roughened(entry, "%s-%s-%d" % [definition.id, key, index])
+			index += 1
 			for player in players:
-				layout[key].append(_transformed(entry, definition, player))
+				layout[key].append(_transformed(shaped, definition, player))
 	for key in FEATURES:
+		var index = 0
 		for entry in definition.get("shared", {}).get(key, []):
-			layout[key].append(_normalized(entry.duplicate(true)))
+			var shaped = _roughened(entry, "%s-shared-%s-%d" % [definition.id, key, index])
+			index += 1
+			layout[key].append(_normalized(shaped.duplicate(true)))
 	for key in ORDERED:
 		for entry in definition.get("shared", {}).get(key, []):
 			layout[key].append(_normalized(entry.duplicate(true)))
@@ -71,3 +78,34 @@ static func _normalized(entry: Dictionary) -> Dictionary:
 		)
 		entry.polygon = outlines[0] if not outlines.is_empty() else PackedVector2Array()
 	return entry
+
+
+# Natural outlines: each authored edge is subdivided and its new points pushed
+# along the edge normal by seeded noise, so cliffs, rock and shores do not read
+# as straight polygons. Authored vertices stay exact (ramps and chokes keep
+# their positions); the shape is computed once, then copied to every player.
+static func _roughened(entry: Dictionary, seed_text: String) -> Dictionary:
+	if not entry.get("natural", false) or not entry.has("polygon"):
+		return entry
+	var amplitude: float = entry.get("roughness", 1.2)
+	var noise = FastNoiseLite.new()
+	noise.seed = seed_text.hash()
+	noise.frequency = 0.18
+	var polygon = PackedVector2Array(entry.polygon)
+	var outline = PackedVector2Array()
+	for index in polygon.size():
+		var a = polygon[index]
+		var b = polygon[(index + 1) % polygon.size()]
+		outline.append(a)
+		var length = a.distance_to(b)
+		var pieces = int(length / NATURAL_STEP)
+		var normal = (b - a).orthogonal().normalized()
+		for piece in range(1, pieces):
+			var t = float(piece) / pieces
+			# Taper toward the authored corners so they stay where they were placed.
+			var taper = minf(1.0, minf(t, 1.0 - t) * length / (NATURAL_STEP * 2.0))
+			var point = a.lerp(b, t)
+			outline.append(point + normal * noise.get_noise_2dv(point) * amplitude * taper)
+	var shaped = entry.duplicate(true)
+	shaped.polygon = outline
+	return shaped

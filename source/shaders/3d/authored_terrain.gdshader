@@ -1,7 +1,8 @@
 shader_type spatial;
 // Ground for authored, elevated battlefields. A per-map control texture marks
-// roads, water beds, fords and forest floor; slope exposes rock on cliffs and
-// higher tiers read slightly lighter so elevation is legible from above.
+// roads (R), water beds and fords (G), forest floor (B) and sand (A); slope
+// exposes rock, bare slickrock shows through in patches, and higher tiers read
+// slightly lighter so elevation is legible from above.
 
 uniform sampler2D control : filter_linear, repeat_disable;
 uniform vec2 map_size = vec2(192.0, 160.0);
@@ -13,7 +14,10 @@ uniform vec4 road : source_color = vec4(0.58, 0.42, 0.28, 1.0);
 uniform vec4 rock : source_color = vec4(0.55, 0.33, 0.24, 1.0);
 uniform vec4 bed : source_color = vec4(0.30, 0.27, 0.22, 1.0);
 uniform vec4 forest_floor : source_color = vec4(0.30, 0.30, 0.18, 1.0);
+uniform vec4 slickrock : source_color = vec4(0.84, 0.62, 0.45, 1.0);
+uniform vec4 sand : source_color = vec4(0.86, 0.68, 0.50, 1.0);
 uniform float accent_amount = 0.35;
+uniform float slickrock_amount = 0.0;
 uniform float strata = 1.0;
 
 varying vec3 world_point;
@@ -59,8 +63,16 @@ void fragment()
   // Higher tiers read lighter; a darker band hugs each tier's foot.
   float level = world_point.y / max(tier_step, .1);
   color *= .93 + clamp(level, -1.0, 2.0) * .045;
-  float forest = max(mask.b, soft.b * .8);
-  color = mix(color, forest_floor.rgb * (.85 + macro * .3), forest * .8);
+  // Bare, cross-bedded slickrock exposures on open ground.
+  float slick = smoothstep(.64, .74, noise(p * .055 + 11.7) * .7 + noise(p * .17) * .3)
+                * slickrock_amount;
+  float bedding = smoothstep(.9, 1.0, sin((p.x * .7 + p.y * .35 + noise(p * .2) * 4.0) * 2.2) * .5 + .5);
+  color = mix(color, slickrock.rgb * (.92 + macro * .12) * (1.0 - bedding * .1), slick);
+  float sandy = max(mask.a, soft.a * .7);
+  float ripples = sin(p.x * 2.1 + p.y * .6 + noise(p * .4) * 3.0) * .5 + .5;
+  color = mix(color, sand.rgb * (.94 + ripples * .05 + grain * .05), sandy * .9);
+  float forest = max(mask.b, soft.b * .6);
+  color = mix(color, forest_floor.rgb * (.85 + macro * .3), forest * .45);
   float lane = mask.r;
   color = mix(color, road.rgb * (.9 + macro * .18), lane * .85);
   color *= 1.0 - (1.0 - smoothstep(.0, .12, abs(lane - .55))) * .06;

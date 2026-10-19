@@ -33,37 +33,36 @@ static func build_mesh(model, seed_text: String) -> ArrayMesh:
 			var i: int = clampi(column - margin_cells, 0, model.columns)
 			var index: int = j * stride + i
 			var height: float = corners[index]
-			var amplitude = WALKABLE_RELIEF
-			# Cliff faces, their lips and ground beyond the edge read as rough rock.
-			if (
+			var lowest = height
+			var highest = height
+			for neighbour in [
+				index - 1 if i > 0 else index,
+				index + 1 if i < model.columns else index,
+				index - stride if j > 0 else index,
+				index + stride if j < model.rows else index
+			]:
+				lowest = minf(lowest, corners[neighbour])
+				highest = maxf(highest, corners[neighbour])
+			var relief = (
+				noise.get_noise_2d(
+					(column - margin_cells) * resolution, (row - margin_cells) * resolution
+				)
+				* WALKABLE_RELIEF
+			)
+			var rough = (
 				outside_row
 				or column < margin_cells
 				or column > model.columns + margin_cells
-				or (i > 0 and absf(corners[index - 1] - height) > TerrainModel.MAX_WALKABLE_STEP)
-				or (
-					i < model.columns
-					and absf(corners[index + 1] - height) > TerrainModel.MAX_WALKABLE_STEP
-				)
-				or (
-					j > 0
-					and absf(corners[index - stride] - height) > TerrainModel.MAX_WALKABLE_STEP
-				)
-				or (
-					j < model.rows
-					and absf(corners[index + stride] - height) > TerrainModel.MAX_WALKABLE_STEP
-				)
 				or _solid_corner(model, i, j)
-			):
-				amplitude = ROUGH_RELIEF
-			heights[row * width + column] = (
-				height
-				+ (
-					noise.get_noise_2d(
-						(column - margin_cells) * resolution, (row - margin_cells) * resolution
-					)
-					* amplitude
-				)
 			)
+			if height - lowest > TerrainModel.MAX_WALKABLE_STEP:
+				# A cliff lip only sinks, so it stays under the rock cap.
+				relief = -absf(relief / WALKABLE_RELIEF) * ROUGH_RELIEF - 0.08
+			elif rough or highest - height > TerrainModel.MAX_WALKABLE_STEP:
+				# Cliff feet and ground beyond the edge read as rough, hidden by talus.
+				relief = relief / WALKABLE_RELIEF * ROUGH_RELIEF
+			heights[row * width + column] = height + relief
+
 	var vertices = PackedVector3Array()
 	var normals = PackedVector3Array()
 	vertices.resize(width * depth)
@@ -116,10 +115,29 @@ static func build_mesh(model, seed_text: String) -> ArrayMesh:
 	return mesh
 
 
-# R: road, G: water (1) or ford (0.5), B: forest floor, A: solid ground cover.
+# R: road, G: water (1) or ford (0.5), B: forest floor, A: sand.
 static func build_control(model, layout: Dictionary) -> Image:
 	var image = Image.create(model.columns, model.rows, false, Image.FORMAT_RGBA8)
 	var resolution = TerrainModel.RESOLUTION
+	var sand = PackedByteArray()
+	sand.resize(model.columns * model.rows)
+	for area in layout.get("sands", []):
+		var polygon: PackedVector2Array = area.polygon
+		var bounds = Rect2(polygon[0], Vector2.ZERO)
+		for point in polygon:
+			bounds = bounds.expand(point)
+		for j in range(
+			maxi(int(bounds.position.y / resolution), 0),
+			mini(int(bounds.end.y / resolution) + 1, model.rows)
+		):
+			for i in range(
+				maxi(int(bounds.position.x / resolution), 0),
+				mini(int(bounds.end.x / resolution) + 1, model.columns)
+			):
+				if Geometry2D.is_point_in_polygon(
+					(Vector2(i, j) + Vector2(0.5, 0.5)) * resolution, polygon
+				):
+					sand[j * model.columns + i] = 1
 	var roads = PackedFloat32Array()
 	roads.resize(model.columns * model.rows)
 	for road in layout.get("roads", []):
@@ -153,7 +171,7 @@ static func build_control(model, layout: Dictionary) -> Image:
 					roads[j * model.columns + i],
 					water,
 					1.0 if cell & TerrainModel.FOREST else 0.0,
-					1.0 if cell & TerrainModel.SOLID else 0.0
+					float(sand[j * model.columns + i])
 				)
 			)
 	return image

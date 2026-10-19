@@ -8,13 +8,15 @@ extends "res://source/match/Map.gd"
 const Registry = preload("res://source/match/maps/terrain/BattlefieldRegistry.gd")
 const TerrainModel = preload("res://source/match/maps/terrain/TerrainModel.gd")
 const TerrainMesh = preload("res://source/match/maps/terrain/TerrainMesh.gd")
-const MeshBatch = preload("res://source/match/maps/terrain/MeshBatch.gd")
 const Palettes = preload("res://source/match/maps/terrain/BiomePalettes.gd")
-const Vegetation = preload("res://source/match/maps/Vegetation.gd")
 const RESOURCE_A = preload("res://source/match/units/non-player/ResourceA.tscn")
 const RESOURCE_B = preload("res://source/match/units/non-player/ResourceB.tscn")
 const GROUND_SHADER = preload("res://source/shaders/3d/authored_terrain.gdshader")
-const WATER_SHADER = preload("res://source/shaders/3d/battlefield_water.gdshader")
+const WATER_SHADER = preload("res://source/shaders/3d/authored_water.gdshader")
+const ROCK_SHADER = preload("res://source/shaders/3d/canyon_rock.gdshader")
+const CliffMesh = preload("res://source/match/maps/terrain/CliffMesh.gd")
+const TerrainDressing = preload("res://source/match/maps/terrain/TerrainDressing.gd")
+const TerrainBackdrop = preload("res://source/match/maps/terrain/TerrainBackdrop.gd")
 # Materials and electronics stock per deposit for each kind of field.
 const STOCKS = {"home": [400, 720], "expansion": [600, 1200], "rich": [900, 1800]}
 # Five material piles then two electronics nodes on an arc around the site
@@ -42,9 +44,8 @@ func _ready():
 	_place_fields()
 	for water in layout.water:
 		_place_water(water)
-	for blocker in layout.blockers:
-		_place_blocker(blocker)
-	_place_forests()
+	_place_rock()
+	TerrainDressing.populate(self)
 
 
 func height_at(point: Vector2) -> float:
@@ -142,7 +143,7 @@ func _build_ground():
 	ground.mesh = TerrainMesh.build_mesh(terrain, layout.id)
 	var material = ShaderMaterial.new()
 	material.shader = GROUND_SHADER
-	Palettes.configure(material, layout.biome, layout.get("palette", {}))
+	Palettes.configure(material, _ground_palette(), layout.get("palette", {}))
 	material.set_shader_parameter(
 		"control", ImageTexture.create_from_image(TerrainMesh.build_control(terrain, layout))
 	)
@@ -150,6 +151,11 @@ func _build_ground():
 	material.set_shader_parameter("tier_step", terrain.tier_step)
 	ground.mesh.surface_set_material(0, material)
 	ground.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	var backdrop = MeshInstance3D.new()
+	backdrop.name = "Backdrop"
+	backdrop.mesh = TerrainBackdrop.build(terrain, layout.get("backdrop", {}), layout.id)
+	backdrop.material_override = material
+	$Geometry.add_child(backdrop)
 	# The anti-aliasing backdrop must stay below the lowest basin.
 	$Geometry/BlackBackgroundFixingAntiAliasingBug.position.y = terrain.min_height - 2.0
 	var markers = $SpawnPoints
@@ -162,6 +168,10 @@ func _build_ground():
 			marker.name = "Start%d" % (index + 1)
 			markers.add_child(marker)
 		marker.position = ground_point(layout.bases[index].start)
+
+
+func _ground_palette() -> String:
+	return layout.get("ground", layout.biome)
 
 
 # Every field in save order: home fields per start, then expansions.
@@ -221,69 +231,25 @@ func _place_water(water: Dictionary):
 	var surface = _flat_mesh(vertices)
 	var material = ShaderMaterial.new()
 	material.shader = WATER_SHADER
-	material.set_shader_parameter("hot", water.get("hot", false))
+	Palettes.configure_water(material, _ground_palette())
 	surface.material_override = material
 	surface.name = "Ford" if ford else "Water"
 	surface.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	$Decorations.add_child(surface)
 
 
-func _place_blocker(blocker: Dictionary):
-	var polygon: PackedVector2Array = blocker.polygon
-	var base = INF
-	for point in polygon:
-		base = minf(base, terrain.height_at(point))
-	var body = Node3D.new()
-	body.name = "Formation%d" % $Decorations.get_child_count()
-	body.set_meta("solid_polygon", polygon)
-	body.set_meta("sight_height", base + blocker.height)
-	$Decorations.add_child(body)
-	# Placeholder geometry until a kit dresses the formation.
-	var material = StandardMaterial3D.new()
-	material.albedo_color = Palettes.PALETTES.get(layout.biome, Palettes.PALETTES.desert).rock
-	material.roughness = 0.9
-	var prism = _prism(_upward(polygon), base - 0.5, base + blocker.height)
-	prism.material_override = material
-	body.add_child(prism)
-
-
-func _place_forests():
-	var variants = Vegetation.TREES.get(layout.biome, Vegetation.TREES.desert)
-	var batches = {}
-	var rng = RandomNumberGenerator.new()
-	rng.seed = ("%s-forest" % layout.id).hash()
-	for forest in layout.forests:
-		var spacing = 3.4 / sqrt(clampf(forest.get("density", 0.5), 0.1, 1.0))
-		var polygon: PackedVector2Array = forest.polygon
-		var bounds = Rect2(polygon[0], Vector2.ZERO)
-		for point in polygon:
-			bounds = bounds.expand(point)
-		for x in range(int(bounds.size.x / spacing) + 1):
-			for z in range(int(bounds.size.y / spacing) + 1):
-				var point = (
-					bounds.position
-					+ Vector2(x, z) * spacing
-					+ Vector2(rng.randf() - 0.5, rng.randf() - 0.5) * spacing * 0.8
-				)
-				if not Geometry2D.is_point_in_polygon(point, polygon):
-					continue
-				var variant = variants[rng.randi() % variants.size()]
-				if not batches.has(variant):
-					batches[variant] = []
-				var scale = rng.randf_range(0.8, 1.15)
-				batches[variant].append(
-					Transform3D(
-						Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * scale),
-						ground_point(point)
-					)
-				)
-	var cover = Node3D.new()
-	cover.name = "Forests"
-	add_child(cover)
-	for variant in batches:
-		MeshBatch.add(
-			cover, MeshBatch.merged_mesh(variant, 6.5), batches[variant], variant.get_file(), true
-		)
+# Cliffs along every tier edge and ramp cut, and solid formations, in one
+# mesh with the biome's rock material.
+func _place_rock():
+	var rock = MeshInstance3D.new()
+	rock.name = "Rock"
+	rock.mesh = CliffMesh.build(terrain, layout, layout.id)
+	var material = ShaderMaterial.new()
+	material.shader = ROCK_SHADER
+	for key in layout.get("rock", {}):
+		material.set_shader_parameter(key, layout.rock[key])
+	rock.material_override = material
+	$Decorations.add_child(rock)
 
 
 # Counter-clockwise outlines (in Godot's 2D sense) triangulate to faces that
@@ -308,28 +274,4 @@ static func _flat_mesh(vertices: PackedVector3Array) -> MeshInstance3D:
 	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	var instance = MeshInstance3D.new()
 	instance.mesh = mesh
-	return instance
-
-
-static func _prism(polygon: PackedVector2Array, bottom: float, top: float) -> MeshInstance3D:
-	var tool = SurfaceTool.new()
-	tool.begin(Mesh.PRIMITIVE_TRIANGLES)
-	for index in Geometry2D.triangulate_polygon(polygon):
-		tool.add_vertex(Vector3(polygon[index].x, top, polygon[index].y))
-	for index in polygon.size():
-		var a = polygon[index]
-		var b = polygon[(index + 1) % polygon.size()]
-		var quad = [
-			Vector3(a.x, top, a.y),
-			Vector3(b.x, top, b.y),
-			Vector3(b.x, bottom, b.y),
-			Vector3(a.x, top, a.y),
-			Vector3(b.x, bottom, b.y),
-			Vector3(a.x, bottom, a.y)
-		]
-		for vertex in quad:
-			tool.add_vertex(vertex)
-	tool.generate_normals()
-	var instance = MeshInstance3D.new()
-	instance.mesh = tool.commit()
 	return instance
