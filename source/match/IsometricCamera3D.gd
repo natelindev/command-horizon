@@ -7,6 +7,7 @@ const EXPECTED_PROJECTION = PROJECTION_ORTHOGONAL
 const TRAUMA_DECAY = 1.9
 const MAX_H_OFFSET = 0.35
 const MAX_V_OFFSET = 0.35
+const RAY_MARCH_STEP = 0.25  # horizontal metres per terrain sample
 
 @export_group("Size")
 @export var size_min = 1
@@ -30,6 +31,7 @@ var _mouse_pos_when_rotation_started = null
 var _camera_global_pos_when_rotation_started = null
 var _zoom_target = NAN
 var _zoom_anchor = Vector2.ZERO
+var _map = null
 
 
 func _ready():
@@ -100,11 +102,43 @@ func set_position_safely(target_position: Vector3):
 
 
 func get_ray_intersection(mouse_pos: Vector2) -> Variant:
-	return get_ray_intersection_with_plane(mouse_pos, reference_plane_for_rotation)
+	var map = _battle_map()
+	if map == null or not map.is_elevated():
+		return get_ray_intersection_with_plane(mouse_pos, reference_plane_for_rotation)
+	return _terrain_intersection(project_ray_origin(mouse_pos), project_ray_normal(mouse_pos), map)
 
 
 func get_ray_intersection_with_plane(mouse_pos: Vector2, plane: Plane) -> Variant:
 	return plane.intersects_ray(project_ray_origin(mouse_pos), project_ray_normal(mouse_pos))
+
+
+func _battle_map():
+	if not is_instance_valid(_map) or not _map.is_inside_tree():
+		_map = get_tree().get_first_node_in_group("battle_map") if is_inside_tree() else null
+	return _map
+
+
+# March down the ray from the highest tier until it passes below the gameplay
+# ground, then refine. Deterministic and independent of physics frames.
+func _terrain_intersection(origin: Vector3, direction: Vector3, map) -> Variant:
+	var top = Plane(Vector3.UP, map.max_height() + 0.01).intersects_ray(origin, direction)
+	if top == null:
+		return null
+	var horizontal = Vector2(direction.x, direction.z).length()
+	var step = RAY_MARCH_STEP / horizontal if horizontal > 0.001 else map.max_height() + 1.0
+	var above: Vector3 = top
+	for _index in range(int((map.max_height() + 2.0) / maxf(-direction.y * step, 0.001)) + 1):
+		var below: Vector3 = above + direction * step
+		if below.y <= map.height_at(Vector2(below.x, below.z)):
+			for _refinement in range(10):
+				var middle = (above + below) / 2.0
+				if middle.y <= map.height_at(Vector2(middle.x, middle.z)):
+					below = middle
+				else:
+					above = middle
+			return map.ground_point(Vector2(below.x, below.z))
+		above = below
+	return Plane(Vector3.UP, 0.0).intersects_ray(origin, direction)
 
 
 func _try_handling_movement(delta: float) -> bool:

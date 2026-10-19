@@ -202,8 +202,10 @@ func _find_site(origin, radius, navmap):
 				continue
 			if not _leaves_base_access(point, radius, obstacles):
 				continue
+			if _match.map.is_elevated():
+				point = _match.map.ground_point(Vector2(point.x, point.z))
 			var validity = Utils.Match.Unit.Placement.validate_agent_placement_position(
-				point, radius, obstacles, navmap
+				point, radius, obstacles, navmap, _match.map
 			)
 			if validity == Utils.Match.Unit.Placement.VALID:
 				return point

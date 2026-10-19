@@ -57,6 +57,10 @@ func _setup_static_obstacles():
 			Constants.Match.Navigation.Domain.TERRAIN: 0,
 		}[domain]
 		NavigationServer3D.obstacle_set_position(obstacle, Vector3(0, obstacle_y, 0))
+		if domain == Constants.Match.Navigation.Domain.TERRAIN and _match.map.is_elevated():
+			# 2D avoidance skips obstacles above or below an agent; span every tier.
+			NavigationServer3D.obstacle_set_position(obstacle, Vector3(0, -5, 0))
+			NavigationServer3D.obstacle_set_height(obstacle, _match.map.max_height() + 10.0)
 		var obstacle_vertices = [
 			Vector3(0, 0, 0),
 			Vector3(0, 0, _match.map.size.y),
