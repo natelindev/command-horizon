@@ -1,5 +1,6 @@
 // Shared inputs for the faction construction shaders. Each building site gets one
 // material per surface; the original surface is approximated from these values.
+#include "res://source/shaders/3d/surface_detail.gdshaderinc"
 uniform vec4 base_color : source_color = vec4(0.5, 0.57, 0.6, 1.0);
 uniform sampler2D base_texture : source_color, filter_linear_mipmap;
 uniform bool has_texture = false;
@@ -14,6 +15,8 @@ uniform float phase = 0.0;
 uniform bool steady = false;
 varying vec3 world_position;
 varying vec3 world_normal;
+varying vec3 construction_local_position;
+varying vec3 construction_local_normal;
 
 float construction_hash(vec3 p)
 {
@@ -38,6 +41,10 @@ vec3 original_albedo(vec2 uv)
   if (has_texture)
   {
     color *= texture(base_texture, uv).rgb;
+  }
+  if (armor_panels)
+  {
+    color *= armor_detail(construction_local_position, construction_local_normal);
   }
   return color;
 }

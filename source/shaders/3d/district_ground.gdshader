@@ -1,4 +1,10 @@
 shader_type spatial;
+uniform sampler2D concrete_color : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D concrete_normal : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D concrete_roughness : hint_default_white, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D asphalt_color : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D asphalt_normal : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
+uniform sampler2D asphalt_roughness : hint_default_white, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform float wetness = 0.0;
 varying vec3 world_position;
 uniform vec4 roads[8];
@@ -31,7 +37,10 @@ void fragment() {
 	}
 	vec2 tiles=abs(fract(p/4.0)-.5);
 	float seams=smoothstep(.483,.498,max(tiles.x,tiles.y));
-	vec3 concrete=vec3(.265,.275,.26)+(wear-.5)*.035-seams*.045;
+	vec2 concrete_uv = vec2(p.x, -p.y) / 2.4;
+	vec2 asphalt_uv = vec2(p.x, -p.y) / 2.0;
+	vec3 concrete=vec3(.265,.275,.26)+(wear-.5)*.035;
+	concrete = mix(concrete, texture(concrete_color, concrete_uv).rgb * 1.25, 0.7) - seams*.045;
 	vec3 ground=mix(earth,concrete,paved)+(fine-.5)*.025;
 	if(district_wear) {
 		float grass=noise(p*.19)*noise(p*.047+18.0);
@@ -60,6 +69,7 @@ void fragment() {
 	float shoulder=(1.0-smoothstep(road_half_width+.3,road_half_width+1.1,road_edge))*(1.0-road);
 	float side_line=1.0-smoothstep(.045,.075,abs(nearest-road_half_width+.45));
 	vec3 asphalt=vec3(.078,.093,.097)+fine*.015+wear*.013;
+	asphalt = mix(asphalt, texture(asphalt_color, asphalt_uv).rgb * vec3(.85,1.2,1.55), 0.65);
 	if(district_wear) {
 		float repairs=smoothstep(.72,.80,noise(floor(p*.20)+33.0));
 		asphalt*=1.0-repairs*.2;
@@ -71,6 +81,15 @@ void fragment() {
 	ALBEDO=mix(ground,asphalt,road)+curb*.065;
 	float puddle=smoothstep(.38,.68,noise(p*.38+3.0))*wetness*max(road,paved*.6);
 	ALBEDO*=1.0-wetness*.22;
-	ROUGHNESS=mix(.95,.55,puddle);
+	float dry_roughness = mix(.95, .72 + texture(concrete_roughness, concrete_uv).r*.26, paved);
+	dry_roughness = mix(dry_roughness, .72 + texture(asphalt_roughness, asphalt_uv).r*.26, road);
+	ROUGHNESS=mix(dry_roughness,.55,puddle);
+	// World-projected UVs need the matching tangent basis, independent of the plane's UVs.
+	vec3 projected_x = (VIEW_MATRIX * vec4(1.0, 0.0, 0.0, 0.0)).xyz;
+	TANGENT = normalize(projected_x - NORMAL * dot(NORMAL, projected_x));
+	BINORMAL = normalize(cross(NORMAL, TANGENT));
+	NORMAL_MAP = mix(vec3(.5,.5,1.0), texture(concrete_normal, concrete_uv).rgb, paved);
+	NORMAL_MAP = mix(NORMAL_MAP, texture(asphalt_normal, asphalt_uv).rgb, road);
+	NORMAL_MAP_DEPTH = .4 * (1.0 - puddle*.65);
 	SPECULAR=.22+wetness*.08;
 }

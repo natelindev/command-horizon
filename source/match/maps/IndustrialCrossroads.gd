@@ -41,6 +41,7 @@ func overview():
 func _ready():
 	_atmosphere()
 	var material = $Geometry/Terrain.mesh.material.duplicate()
+	load("res://source/match/SurfaceTextures.gd").configure_ground(material)
 	var roads = PackedVector4Array(ROADS)
 	roads.resize(8)
 	for index in 3:

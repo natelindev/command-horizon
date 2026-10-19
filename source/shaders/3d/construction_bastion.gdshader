@@ -16,6 +16,8 @@ float girder_distance(float coordinate, float spacing)
 
 void vertex()
 {
+  construction_local_position = VERTEX;
+  construction_local_normal = NORMAL;
   world_position = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
   world_normal = normalize((MODEL_MATRIX * vec4(NORMAL, 0.0)).xyz);
 }

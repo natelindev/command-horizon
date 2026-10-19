@@ -1,6 +1,7 @@
 extends RefCounted
 
 const SURFACE = preload("res://source/shaders/3d/frontier_surface.gdshader")
+const Textures = preload("res://source/match/SurfaceTextures.gd")
 static var _materials = {}
 
 
@@ -32,5 +33,8 @@ static func apply(model):
 				material.set_shader_parameter("base_color", tint)
 				material.set_shader_parameter("metalness", original.metallic * 0.6)
 				material.set_shader_parameter("fabric", key == "Frontier_Canvas")
+				Textures.configure_armor(
+					material, key in ["Frontier_Ceramic", "Frontier_Secondary", "Frontier_Titanium"]
+				)
 				_materials[key] = material
 			mesh.set_surface_override_material(index, _materials[key])

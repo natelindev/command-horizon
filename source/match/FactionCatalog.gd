@@ -4,6 +4,7 @@ const Mercenaries = preload("res://source/match/world/MercenaryCatalog.gd")
 const Bastion = preload("res://source/match/BastionCatalog.gd")
 const Frontier = preload("res://source/match/FrontierCatalog.gd")
 const FrontierSurfaces = preload("res://source/match/FrontierMaterials.gd")
+const SurfaceTextures = preload("res://source/match/SurfaceTextures.gd")
 const Rules = preload("res://source/match/FactionRules.gd")
 const IDS = Rules.IDS
 const NAMES = Rules.NAMES
@@ -379,6 +380,7 @@ static func prepare_model(unit, faction):
 		unit.set_meta("model_faction", faction)
 	if Bastion.is_infantry(unit.type):
 		load("res://source/match/units/traits/InfantryEquipment.gd").equip(unit, faction)
+	SurfaceTextures.apply_armor(geometry)
 
 
 static func helix_geometry(role, radius):
@@ -390,6 +392,8 @@ static func model_geometry(faction, role, radius):
 	var model = load("res://assets/models/%s/v1/%s.glb" % [faction, models[role]]).instantiate()
 	if faction == "frontier":
 		FrontierSurfaces.apply(model)
+	else:
+		SurfaceTextures.apply_armor(model)
 	var bounds = _bounds(model, Transform3D.IDENTITY)
 	var factor = radius * 1.85 / max(bounds.size.x, bounds.size.z)
 	if role == "Infantry":

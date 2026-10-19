@@ -19,5 +19,8 @@ static func weather(model):
 				material.shader = load("res://source/shaders/3d/district_surface.gdshader")
 				material.set_shader_parameter("base_tint", original.albedo_color)
 				material.set_shader_parameter("metallic", original.metallic)
+				load("res://source/match/SurfaceTextures.gd").configure_industrial(
+					material, "panels" in label or "roof" in label
+				)
 				materials[key] = material
 			mesh.set_surface_override_material(index, materials[key])

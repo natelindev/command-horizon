@@ -1,10 +1,13 @@
 shader_type spatial;
 render_mode cull_disabled;
 
+#include "res://source/shaders/3d/surface_detail.gdshaderinc"
+
 uniform vec4 base_color : source_color = vec4(0.3, 0.32, 0.22, 1.0);
 uniform float metalness = 0.0;
 uniform bool fabric = false;
 varying vec3 local_position;
+varying vec3 local_normal;
 
 float hash(vec3 p)
 {
@@ -26,6 +29,7 @@ float noise(vec3 p)
 void vertex()
 {
   local_position = VERTEX;
+  local_normal = NORMAL;
 }
 void fragment()
 {
@@ -47,6 +51,6 @@ void fragment()
     color = mix(color, vec3(0.12, 0.105, 0.08), chips * 0.25);
     ROUGHNESS = mix(0.68, 0.91, dust);
   }
-  ALBEDO = color;
+  ALBEDO = color * (armor_panels ? armor_detail(local_position, local_normal) : 1.0);
   METALLIC = metalness;
 }

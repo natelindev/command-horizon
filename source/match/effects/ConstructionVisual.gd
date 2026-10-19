@@ -103,13 +103,18 @@ static func _copy_surface(original, material):
 				"base_emission", original.emission * original.emission_energy_multiplier
 			)
 	elif original is ShaderMaterial:
-		# Frontier surfaces keep their palette in a weathering shader.
+		# Faction surfaces keep their palette and local-space artwork in shaders.
 		var color = original.get_shader_parameter("base_color")
 		if color != null:
 			material.set_shader_parameter("base_color", color)
 		var metallic = original.get_shader_parameter("metalness")
 		if metallic != null:
 			material.set_shader_parameter("base_metallic", metallic)
+		var roughness = original.get_shader_parameter("base_roughness")
+		if roughness != null:
+			material.set_shader_parameter("base_roughness", roughness)
+		if original.get_shader_parameter("armor_panels") == true:
+			load("res://source/match/SurfaceTextures.gd").configure_armor(material)
 
 
 func _process(delta):
