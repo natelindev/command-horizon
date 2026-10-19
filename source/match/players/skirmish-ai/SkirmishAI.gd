@@ -20,6 +20,7 @@ const Composition = preload("res://source/match/players/skirmish-ai/SkirmishComp
 const Technologies = preload("res://source/match/research/TechnologyCatalog.gd")
 const CombatRules = preload("res://source/match/combat/CombatRules.gd")
 const Difficulty = preload("res://source/match/players/skirmish-ai/SkirmishDifficulty.gd")
+const Expansion = preload("res://source/match/players/skirmish-ai/SkirmishExpansion.gd")
 
 var structures_built = 0
 var attacks_launched = 0
@@ -28,6 +29,8 @@ var _last_wave = 0.0
 var _production_index = 0
 var _army_groups = []
 var _army_cursor = 0
+# Authored expansion site chosen for the next headquarters, if any.
+var _expansion_site = null
 @onready var _match = find_parent("Match")
 
 
@@ -64,8 +67,18 @@ func _of_type(units, role):
 
 
 func _next_building(units):
+	_expansion_site = null
 	if _of_type(units, "CommandCenter").is_empty():
 		return "CommandCenter"
+	# Once the core base stands, a due expansion comes first: a headquarters
+	# needs no power and supplies its own.
+	if (
+		not _of_type(units, "Barracks").is_empty()
+		and not _of_type(units, "VehicleFactory").is_empty()
+	):
+		_expansion_site = Expansion.next_site(_match, self, units, Economy.contacts(_match, self))
+		if _expansion_site != null:
+			return "CommandCenter"
 	var power = power_totals()
 	if (
 		power.x < power.y + 6
@@ -172,6 +185,8 @@ func _build(units, desired):
 	var building = load(Catalog.scene_path(desired)).instantiate()
 	var navmap = _match.navigation.get_navigation_map_rid_by_domain(building.movement_domain)
 	var position_to_build = _find_site(origin, building.radius, navmap)
+	if desired == "CommandCenter" and _expansion_site != null:
+		position_to_build = _expansion_position(_expansion_site, building.radius, navmap)
 	if not position_to_build.is_finite():
 		building.free()
 		return
@@ -183,6 +198,28 @@ func _build(units, desired):
 	_match._setup_and_spawn_unit(building, Transform3D(Basis(), position_to_build), self)
 	Labor.assign_construction(builder, building)
 	structures_built += 1
+
+
+# The authored site itself, else the nearest level spot beside it.
+func _expansion_position(site, radius, navmap):
+	var obstacles = (
+		get_tree().get_nodes_in_group("units") + get_tree().get_nodes_in_group("resource_units")
+	)
+	# Guards and gatherers often stand on the site itself; try rings around it.
+	for distance in [0.0, 2.0, 4.0, 6.0, 8.0]:
+		for index in range(1 if distance == 0.0 else 12):
+			var point = (
+				site + Vector3(cos(index * TAU / 12.0), 0, sin(index * TAU / 12.0)) * distance
+			)
+			point = _match.map.ground_point(Vector2(point.x, point.z))
+			if (
+				Utils.Match.Unit.Placement.validate_agent_placement_position(
+					point, radius, obstacles, navmap, _match.map
+				)
+				== Utils.Match.Unit.Placement.VALID
+			):
+				return point
+	return Vector3.INF
 
 
 func _find_site(origin, radius, navmap):

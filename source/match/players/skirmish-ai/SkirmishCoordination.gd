@@ -3,6 +3,7 @@ extends RefCounted
 const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
 
 const Economy = preload("res://source/match/players/skirmish-ai/SkirmishEconomy.gd")
+const Lanes = preload("res://source/match/players/skirmish-ai/SkirmishLanes.gd")
 const Harvest = preload("res://source/match/units/actions/CollectingResourcesSequentially.gd")
 const AttackMove = preload("res://source/match/units/actions/AttackMoving.gd")
 const Moving = preload("res://source/match/units/actions/Moving.gd")
@@ -244,12 +245,21 @@ static func _apply(game, player, group, units, observed, threats):
 				observed.filter(func(enemy): return enemy not in threats),
 				_enemy_start(game, player)
 			)
+			# A wave keeps the crossing it chose until it gets there.
+			if not group.has("via"):
+				group["via"] = Lanes.choose(
+					game, group.members, group.point, player.attacks_launched
+				)
 			player._last_wave = game.simulation_time
 			player.attacks_launched += 1
+		var goal = group.point
+		if group.get("via") != null:
+			if Lanes.reached(group.members, group.via, group.point):
+				group.via = null
+			else:
+				goal = group.via
 		for unit in group.members:
-			_order(
-				player, unit, group.point + Vector3(unit.get_index() % 3, 0, unit.get_index() % 2)
-			)
+			_order(player, unit, goal + Vector3(unit.get_index() % 3, 0, unit.get_index() % 2))
 	elif group.kind == "scout":
 		for unit in group.members:
 			_move(unit, group.point)

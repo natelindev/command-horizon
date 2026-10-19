@@ -320,6 +320,9 @@ func move(movement_target: Vector3):
 	if not movement_target.is_finite():
 		stop()
 		return
+	if domain == Constants.Match.Navigation.Domain.TERRAIN and _match.map.is_elevated():
+		# Orders often carry flattened points; aim at the ground of their own tier.
+		movement_target.y = _match.map.height_at(Vector2(movement_target.x, movement_target.z))
 	if _has_destination and target_position.distance_to(movement_target) < 0.1:
 		return
 	_command_revision += 1
