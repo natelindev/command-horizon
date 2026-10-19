@@ -6,6 +6,8 @@ const BODY_CELL_SIZE = 3.0
 const MAX_OBSERVER_HINTS = 512
 const EMPTY_CELLS = {}
 const EMPTY_UNITS = []
+const TerrainSight = preload("res://source/match/maps/terrain/TerrainSight.gd")
+const AIR = Constants.Match.Navigation.Domain.AIR
 var _frame = -1
 var _observers = {}
 var _bodies = {}
@@ -15,9 +17,15 @@ var _max_body_step: float = 0.0
 var _blockers = {}
 var _blockers_dirty = true
 var _observer_hints = {}
+# Authored elevated maps: their TerrainModel adds ground, formation, forest
+# and high-ground occlusion to every sight and fire check.
+var _terrain = null
 
 
 func _ready():
+	var map = get_parent().get("map")
+	if map != null and map.is_elevated() and "terrain" in map:
+		_terrain = map.terrain
 	var signals = get_node_or_null("/root/MatchSignals")
 	if signals != null:
 		signals.unit_spawned.connect(_on_unit_topology_changed)
@@ -132,8 +140,33 @@ func can_observe_point(observer, point: Vector3, ignored_target = null) -> bool:
 	var offset := (point - origin) * Vector3(1, 0, 1)
 	return (
 		offset.length_squared() <= reach * reach
+		and _terrain_visible(observer, origin, point, ignored_target)
 		and line_clear(origin, point, observer, ignored_target)
 	)
+
+
+func _terrain_visible(observer, origin: Vector3, point: Vector3, target) -> bool:
+	if _terrain == null or _airborne(observer):
+		return true
+	var observer_flat = Vector2(origin.x, origin.z)
+	var target_flat = Vector2(point.x, point.z)
+	var airborne_target = is_instance_valid(target) and _airborne(target)
+	if (
+		not airborne_target
+		and TerrainSight.high_ground_hidden(_terrain, observer_flat, target_flat)
+	):
+		return false
+	return TerrainSight.segment_clear(
+		_terrain, _eye(observer_flat), point if airborne_target else _eye(target_flat)
+	)
+
+
+func _airborne(unit) -> bool:
+	return "movement_domain" in unit and unit.movement_domain == AIR
+
+
+func _eye(point: Vector2) -> Vector3:
+	return Vector3(point.x, _terrain.height_at(point) + TerrainSight.EYE, point.y)
 
 
 func is_observed(player, target):
@@ -285,6 +318,21 @@ func _incoming_damage(source, targets):
 
 
 func has_line_of_fire(source, target):
+	# Shots pass through forest canopy but not through ground or formations.
+	if _terrain != null and not _airborne(source):
+		var source_flat = Vector2(source.global_position.x, source.global_position.z)
+		var target_flat = Vector2(target.global_position.x, target.global_position.z)
+		if not TerrainSight.segment_clear(
+			_terrain,
+			_eye(source_flat),
+			(
+				target.global_position + Vector3.UP * TerrainSight.EYE
+				if _airborne(target)
+				else _eye(target_flat)
+			),
+			false
+		):
+			return false
 	return line_clear(
 		source.global_position + Vector3.UP * 0.8,
 		target.global_position + Vector3.UP * 0.8,

@@ -15,6 +15,10 @@ const FORD = 16
 const MAX_WALKABLE_STEP = 0.5
 const WATER_DEPTH = 1.2
 const FORD_DEPTH = 0.3
+const FOREST_CANOPY = 4.5
+# Sight broad phase: 4 m blocks record their tallest occluder and any forest.
+const COARSE = 8
+const NO_COVER = -1000.0
 
 var size := Vector2.ZERO
 var columns := 0
@@ -24,6 +28,14 @@ var flags := PackedByteArray()
 var tier_step := 3.0
 var min_height := 0.0
 var max_height := 0.0
+# Per cell: highest ground corner, and formation or forest-canopy top.
+var ground_tops := PackedFloat32Array()
+var cell_heights := PackedFloat32Array()
+var cover_tops := PackedFloat32Array()
+var coarse_columns := 0
+var coarse_tops := PackedFloat32Array()
+var coarse_bottoms := PackedFloat32Array()
+var coarse_forest := PackedByteArray()
 
 
 func _init(layout: Dictionary):
@@ -48,10 +60,16 @@ func _init(layout: Dictionary):
 			var bed = water.get("level", 0.0) - FORD_DEPTH
 			_fill_corners(water.polygon, func(_old): return bed)
 			_fill_cells(water.polygon, FORD, WATER)
-	for blocker in layout.get("blockers", []):
-		_fill_cells(blocker.polygon, SOLID)
+	cover_tops.resize(columns * rows)
+	cover_tops.fill(NO_COVER)
 	for forest in layout.get("forests", []):
 		_fill_cells(forest.polygon, FOREST)
+	for blocker in layout.get("blockers", []):
+		var base = INF
+		for point in blocker.polygon:
+			base = minf(base, height_at(point))
+		_fill_cells(blocker.polygon, SOLID, 0, base + blocker.height)
+	_index_sight()
 	min_height = INF
 	max_height = -INF
 	for height in heights:
@@ -194,13 +212,68 @@ func _fill_corners(polygon: PackedVector2Array, value: Callable):
 
 
 # Even-odd scanline fill of cells whose centres lie inside `polygon`.
-func _fill_cells(polygon: PackedVector2Array, flag: int, cleared := 0):
+func _fill_cells(polygon: PackedVector2Array, flag: int, cleared := 0, cover := NO_COVER):
 	for j in rows:
 		for span in _spans(polygon, (j + 0.5) * RESOLUTION):
 			var first = maxi(ceili(span.x / RESOLUTION - 0.5), 0)
 			var last = mini(floori(span.y / RESOLUTION - 0.5), columns - 1)
 			for i in range(first, last + 1):
 				flags[j * columns + i] = (flags[j * columns + i] & ~cleared) | flag
+				if cover > NO_COVER:
+					cover_tops[j * columns + i] = cover
+
+
+func cell_index(point: Vector2) -> int:
+	var i = clampi(int(point.x / RESOLUTION), 0, columns - 1)
+	var j = clampi(int(point.y / RESOLUTION), 0, rows - 1)
+	return j * columns + i
+
+
+func coarse_index(point: Vector2) -> int:
+	var i = clampi(int(point.x / (RESOLUTION * COARSE)), 0, coarse_columns - 1)
+	var j = clampi(int(point.y / (RESOLUTION * COARSE)), 0, coarse_tops.size() / coarse_columns - 1)
+	return j * coarse_columns + i
+
+
+func _index_sight():
+	var stride = columns + 1
+	ground_tops.resize(columns * rows)
+	cell_heights.resize(columns * rows)
+	for j in rows:
+		for i in columns:
+			var index = j * stride + i
+			var cell = j * columns + i
+			ground_tops[cell] = maxf(
+				maxf(heights[index], heights[index + 1]),
+				maxf(heights[index + stride], heights[index + stride + 1])
+			)
+			cell_heights[cell] = (
+				(
+					heights[index]
+					+ heights[index + 1]
+					+ heights[index + stride]
+					+ heights[index + stride + 1]
+				)
+				/ 4.0
+			)
+			if flags[cell] & FOREST and cover_tops[cell] == NO_COVER:
+				cover_tops[cell] = ground_tops[cell] + FOREST_CANOPY
+	coarse_columns = ceili(float(columns) / COARSE)
+	var coarse_rows = ceili(float(rows) / COARSE)
+	coarse_tops.resize(coarse_columns * coarse_rows)
+	coarse_tops.fill(NO_COVER)
+	coarse_bottoms.resize(coarse_columns * coarse_rows)
+	coarse_bottoms.fill(-NO_COVER)
+	coarse_forest.resize(coarse_columns * coarse_rows)
+	coarse_forest.fill(0)
+	for j in rows:
+		for i in columns:
+			var cell = j * columns + i
+			var block = (j / COARSE) * coarse_columns + i / COARSE
+			coarse_tops[block] = maxf(coarse_tops[block], maxf(ground_tops[cell], cover_tops[cell]))
+			coarse_bottoms[block] = minf(coarse_bottoms[block], heights[j * stride + i])
+			if flags[cell] & FOREST:
+				coarse_forest[block] = 1
 
 
 func _spans(polygon: PackedVector2Array, z: float) -> Array:
