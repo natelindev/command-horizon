@@ -30,6 +30,8 @@ const FORD_SURFACE_DROP = 0.08
 var layout = {}
 var terrain = null
 var points_of_interest = []
+# Capturable relays that grant local vision (maps that define them).
+var relays = []
 
 
 func _enter_tree():
@@ -42,10 +44,49 @@ func _ready():
 	if Engine.is_editor_hint():
 		return
 	_place_fields()
+	_place_relays()
 	for water in layout.water:
 		_place_water(water)
 	_place_rock()
 	TerrainDressing.populate(self)
+
+
+func _place_relays():
+	for entry in layout.get("relays", []):
+		var relay = load("res://source/match/objectives/CaptureRelay.gd").new()
+		relay.name = entry.name.to_pascal_case()
+		relay.label_title = entry.name.to_upper()
+		relay.position = ground_point(entry.position)
+		add_child(relay)
+		relays.append(relay)
+
+
+# Relay state is the map's skirmish mission; maps without relays have none.
+func capture_state(reference):
+	if relays.is_empty():
+		return {}
+	var state = {"relays": []}
+	for relay in relays:
+		state.relays.append(
+			{
+				"owner": reference.call(relay.captured_by),
+				"candidate": reference.call(relay.candidate),
+				"progress": relay.progress,
+				"contested": relay.contested
+			}
+		)
+	return state
+
+
+func restore_state(state, entities):
+	for index in mini(relays.size(), state.get("relays", []).size()):
+		var saved = state.relays[index]
+		var relay = relays[index]
+		relay.captured_by = entities.get(saved.owner)
+		relay.candidate = entities.get(saved.candidate)
+		relay.progress = saved.progress
+		relay.contested = saved.contested
+		relay._update_presentation()
 
 
 func height_at(point: Vector2) -> float:
@@ -126,7 +167,7 @@ func overview():
 		"fields": fields,
 		"ridges": [],
 		"radius": 0.0,
-		"relays": [],
+		"relays": layout.get("relays", []).map(func(relay): return relay.position),
 		"roads": roads,
 		"road_width": 6.0,
 		"points_of_interest": layout.sites,
@@ -249,19 +290,25 @@ func _place_water(water: Dictionary):
 
 
 # Cliffs along every tier edge and ramp cut, and solid formations, in one
-# mesh with the biome's rock material.
+# mesh with the biome's rock material, plus one mesh per other named rock.
 func _place_rock():
-	var rock = MeshInstance3D.new()
-	rock.name = "Rock"
-	rock.mesh = CliffMesh.build(terrain, layout, layout.id)
-	var material = ShaderMaterial.new()
-	material.shader = ROCK_SHADER
-	var rock_colours = Palettes.rock(_ground_palette()).duplicate()
-	rock_colours.merge(layout.get("rock", {}), true)
-	for key in rock_colours:
-		material.set_shader_parameter(key, rock_colours[key])
-	rock.material_override = material
-	$Decorations.add_child(rock)
+	for variant in CliffMesh.variants(layout):
+		var mesh = CliffMesh.build(terrain, layout, layout.id, variant)
+		if mesh == null:
+			continue
+		var rock = MeshInstance3D.new()
+		rock.name = "Rock" if variant == "" else "Rock" + variant.to_pascal_case()
+		rock.mesh = mesh
+		var material = ShaderMaterial.new()
+		material.shader = ROCK_SHADER
+		var rock_colours = Palettes.rock(variant if variant != "" else _ground_palette())
+		rock_colours = rock_colours.duplicate()
+		if variant == "":
+			rock_colours.merge(layout.get("rock", {}), true)
+		for key in rock_colours:
+			material.set_shader_parameter(key, rock_colours[key])
+		rock.material_override = material
+		$Decorations.add_child(rock)
 
 
 # Counter-clockwise outlines (in Godot's 2D sense) triangulate to faces that

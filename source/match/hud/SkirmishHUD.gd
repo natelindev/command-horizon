@@ -119,7 +119,7 @@ func _ready():
 	assignment_layer.layer = -1
 	add_child(assignment_layer)
 	if get_parent().settings.mission_id.is_empty():
-		if "relays" in get_parent().map:
+		if "relays" in get_parent().map and not get_parent().map.relays.is_empty():
 			var markers = load("res://source/match/hud/RelayMarkers.gd").new()
 			markers.name = "RelayMarkers"
 			markers.hud = self
@@ -194,7 +194,11 @@ func _build_system_plate():
 		var sites = _key(row, "sites", open_sites)
 		sites.name = "OpenSites"
 		sites.tooltip_text = "Capturable facilities"
-	if not _is_campaign() and "relays" in get_parent().map:
+	if (
+		not _is_campaign()
+		and "relays" in get_parent().map
+		and not get_parent().map.relays.is_empty()
+	):
 		var relays = _key(row, "relays", open_relays)
 		relays.name = "OpenRelays"
 		relays.tooltip_text = "View relay ownership, capture progress and locations."

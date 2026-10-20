@@ -73,6 +73,12 @@ const MAPS = {
 	{"name": "Four Rivers", "players": 4, "size": Vector2i(224, 224)},
 	"res://source/match/maps/battlefields/VerdantCommonsMap.tscn":
 	{"name": "Verdant Commons", "players": 4, "size": Vector2i(224, 224)},
+	"res://source/match/maps/battlefields/GlacierNarrowsMap.tscn":
+	{"name": "Glacier Narrows", "players": 2, "size": Vector2i(192, 160)},
+	"res://source/match/maps/battlefields/FrostboundCrownMap.tscn":
+	{"name": "Frostbound Crown", "players": 4, "size": Vector2i(224, 224)},
+	"res://source/match/maps/battlefields/AlpineRelayMap.tscn":
+	{"name": "Alpine Relay", "players": 2, "size": Vector2i(192, 160)},
 	# Engine verification only; never offered in the skirmish picker.
 	"res://source/match/maps/battlefields/TerrainTestMap.tscn":
 	{"name": "Terrain Test", "players": 2, "size": Vector2i(192, 160)},

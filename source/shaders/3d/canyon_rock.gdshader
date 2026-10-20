@@ -10,6 +10,7 @@ uniform vec4 band_light : source_color = vec4(0.80, 0.55, 0.36, 1.0);
 uniform vec4 cap : source_color = vec4(0.78, 0.60, 0.42, 1.0);
 uniform vec4 varnish : source_color = vec4(0.20, 0.12, 0.09, 1.0);
 uniform float strata_scale = 1.6;
+uniform float rock_roughness = 0.92;
 
 varying vec3 world_point;
 varying vec3 world_normal;
@@ -57,5 +58,5 @@ void fragment()
   float level_top = smoothstep(0.75, 0.95, world_normal.y);
   color = mix(color, cap.rgb * (0.88 + grain * 0.2), level_top);
   ALBEDO = color;
-  ROUGHNESS = 0.92;
+  ROUGHNESS = rock_roughness;
 }

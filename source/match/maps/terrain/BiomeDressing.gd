@@ -146,6 +146,54 @@ const FARMLAND = {
 	"tree_density": 0.0015,
 }
 
+const FJORD = {
+	"trees": [["cold/NorwaySpruce", 10.5], ["cold/NorwaySpruce", 8.6], ["cold/SpruceSapling", 4.6]],
+	"riparian": [["cold/MountainBirch", 6.2], ["cold/MountainBirch", 5.0]],
+	"shrubs":
+	[
+		["cold/DwarfJuniper", 0.6],
+		["cold/Heather", 0.35],
+		["cold/Tussock", 0.5],
+		["cold/Heather", 0.3]
+	],
+	"rocks":
+	[
+		["cold/GneissBoulderA", 1.5],
+		["cold/GneissBoulderB", 1.1],
+		["cold/BareBoulder", 1.0],
+		["cold/Scree", 0.6]
+	],
+	"talus": [["cold/Scree", 0.6], ["cold/BareBoulder", 0.9], ["cold/GneissBoulderB", 0.8]],
+	"lone_trees": [["cold/MountainBirch", 5.6], ["cold/SpruceSapling", 4.6]],
+	"shrub_density": 0.018,
+	"rock_density": 0.006,
+	"tree_density": 0.0015,
+}
+# Above the tree line: dwarf shrubs, tussock grass and frost-shattered rock.
+const ALPINE = {
+	"trees": [["cold/NorwaySpruce", 9.5], ["cold/SpruceSapling", 4.6], ["cold/NorwaySpruce", 7.8]],
+	"riparian": [["cold/SpruceSapling", 4.2]],
+	"shrubs": [["cold/DwarfJuniper", 0.55], ["cold/Tussock", 0.5], ["cold/Scree", 0.5]],
+	"rocks": [["cold/GneissBoulderA", 1.4], ["cold/GneissBoulderB", 1.0], ["cold/Scree", 0.6]],
+	"talus": [["cold/Scree", 0.6], ["cold/GneissBoulderB", 0.9], ["cold/BareBoulder", 0.8]],
+	"lone_trees": [["cold/SpruceSapling", 4.2]],
+	"shrub_density": 0.01,
+	"rock_density": 0.008,
+	"tree_density": 0.0008,
+}
+# Ice sheet: wind-carved sastrugi and drifts, ice blocks below fronts and walls.
+const POLAR = {
+	"trees": [["cold/IceBlockA", 1.9]],
+	"riparian": [["cold/IceBlockB", 1.2]],
+	"shrubs": [["cold/Sastrugi", 0.5], ["cold/SnowDrift", 0.8], ["cold/Sastrugi", 0.4]],
+	"rocks": [["cold/IceBlockB", 1.2], ["cold/BareBoulder", 1.0]],
+	"talus": [["cold/IceBlockA", 1.0], ["cold/IceBlockB", 0.8], ["cold/BareBoulder", 0.8]],
+	"lone_trees": [],
+	"shrub_density": 0.008,
+	"rock_density": 0.002,
+	"tree_density": 0.0,
+}
+
 
 static func kit(ground: String) -> Dictionary:
 	match ground:
@@ -161,4 +209,10 @@ static func kit(ground: String) -> Dictionary:
 			return OASIS
 		"mojave":
 			return MOJAVE
+		"fjord":
+			return FJORD
+		"alpine":
+			return ALPINE
+		"polar":
+			return POLAR
 	return KITS.get(ground, KITS.canyon)

@@ -23,6 +23,10 @@ uniform vec4 crust : source_color = vec4(0.94, 0.93, 0.89, 1.0);
 uniform float crust_amount = 0.0;
 // Farmland: sand-mask areas become ploughed fields of alternating crops.
 uniform float furrow_amount = 0.0;
+uniform vec4 snow : source_color = vec4(0.93, 0.95, 0.97, 1.0);
+// Snow cover on low ground and from the 6 m tier up; 0 leaves the ground bare.
+uniform float snow_amount = 0.0;
+uniform float snow_high = 0.0;
 uniform vec4 crop : source_color = vec4(0.62, 0.55, 0.30, 1.0);
 uniform vec4 crop_alt : source_color = vec4(0.40, 0.48, 0.22, 1.0);
 uniform float strata = 1.0;
@@ -119,6 +123,17 @@ void fragment()
     color = mix(color, crust.rgb * (.96 + grain * .05), crusted);
     color = mix(color, color * .8, ridge * crusted * .6);
   }
+  // Snow drifts over open ground and deepens with altitude; wind scours
+  // patches bare. Roads, gravel and ice (the sand mask) are painted over it.
+  float snowed = 0.0;
+  if (max(snow_amount, snow_high) > 0.0)
+  {
+    float cover = mix(snow_amount, snow_high, smoothstep(-.5, 6.0, world_point.y));
+    float drift = noise(p * .045 + 5.3) * .65 + noise(p * .21 + 1.7) * .35;
+    snowed = smoothstep(.88 - cover, 1.12 - cover, drift);
+    float ripple = sin(dot(p, vec2(.8, .35)) * 2.6 + noise(p * .3) * 4.0) * .5 + .5;
+    color = mix(color, snow.rgb * (.95 + ripple * .04 + grain * .03), snowed);
+  }
   float sandy = max(mask.a, soft.a * .7);
   float ripples = sin(p.x * 2.1 + p.y * .6 + noise(p * .4) * 3.0) * .5 + .5;
   vec3 sand_color = sand.rgb * (.94 + ripples * .05 + grain * .05);
@@ -147,9 +162,9 @@ void fragment()
   float band = noise(vec2(world_point.y * 1.7, p.x * .05 + p.y * .05)) * strata;
   vec3 stone = rock.rgb * (.78 + band * .35 + grain * .08);
   // Scanned ground detail on walkable surfaces: roads take the path layer,
-  // slickrock, sand and salt crust the biome accent. Steep faces keep the
+  // slickrock, sand, salt crust and snow the biome accent. Steep faces keep the
   // procedural rock, which top-down projection would smear.
-  float feature = clamp(max(max(slick, sandy * .8), crust_amount * .7), 0.0, 1.0);
+  float feature = clamp(max(max(slick, sandy * .8), max(crust_amount * .7, snowed * .9)), 0.0, 1.0);
   TerrainSurface ground = terrain_surface(p, color + (grain - .5) * .03, lane, feature, .95);
   ALBEDO = mix(ground.albedo, stone, cliff);
   ROUGHNESS = mix(ground.roughness, .82, cliff);

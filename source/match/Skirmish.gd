@@ -197,11 +197,13 @@ func objective_text():
 				. size()
 			)
 		)
-	if "relays" in map:
+	if "relays" in map and not map.relays.is_empty():
 		var owned = (
 			map.relays.filter(func(relay): return relay.captured_by == _get_human_player()).size()
 		)
-		text += "\nRelays %d/2 · Infantry hold 10s for local vision." % owned
+		text += (
+			"\nRelays %d/%d · Infantry hold 10s for local vision." % [owned, map.relays.size()]
+		)
 	return text
 
 

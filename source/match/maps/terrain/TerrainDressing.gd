@@ -178,10 +178,18 @@ static func _landmark(map, layout: Dictionary, landmark: Dictionary):
 	var body = Node3D.new()
 	body.name = landmark.get("name", landmark.asset.get_file()).to_pascal_case()
 	body.position = map.ground_point(landmark.position)
-	var turn = 0.0
-	if layout.get("symmetry", "rotate") == "rotate":
-		turn = landmark.get("player", 0) * 360.0 / layout.players
-	body.rotation.y = -deg_to_rad(landmark.get("heading", 0.0) + turn)
+	# Heading is the direction of the model's +X in the ground plane; reflected
+	# copies face the reflected direction.
+	var heading = landmark.get("heading", 0.0)
+	var reflected = landmark.get("player", 0) % 2 == 1
+	match layout.get("symmetry", "rotate"):
+		"mirror_x":
+			heading = 180.0 - heading if reflected else heading
+		"mirror_y":
+			heading = -heading if reflected else heading
+		_:
+			heading += landmark.get("player", 0) * 360.0 / layout.players
+	body.rotation.y = -deg_to_rad(heading)
 	body.set_meta("landmark", landmark.asset)
 	map.get_node("Decorations").add_child(body)
 	var model = load("res://assets/models/environment/%s.glb" % landmark.asset).instantiate()

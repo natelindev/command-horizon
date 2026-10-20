@@ -178,17 +178,70 @@ const PALETTES = {
 		"accent_amount": 0.35,
 		"strata": 0.5,
 	},
+	# Fjord head: wet dark gneiss and heath by the water, snow from the moraines up.
+	"fjord":
+	{
+		"canopy": Color("2c3d31"),
+		"ground_low": Color("4c5446"),
+		"ground_high": Color("6c7259"),
+		"accent": Color("6b5f45"),
+		"road": Color("6e6a62"),
+		"rock": Color("585d5e"),
+		"bed": Color("3c4a4c"),
+		"forest_floor": Color("c9d1d4"),
+		"slickrock": Color("7b8080"),
+		"sand": Color("8a877d"),
+		"snow": Color("e9eef1"),
+		"accent_amount": 0.35,
+		"snow_amount": 0.18,
+		"snow_high": 0.85,
+		"strata": 0.6,
+		"water_deep": Color("17414b"),
+		"water_shallow": Color("4a8a8a"),
+		"water_foam": Color("e6eeee"),
+	},
+	# High alpine pass: wind-crusted snow over scree, the valleys partly bare.
 	"alpine":
 	{
-		"ground_low": Color("c9d3da"),
-		"ground_high": Color("eef2f5"),
-		"accent": Color("a9b4b7"),
-		"road": Color("8f9497"),
+		"canopy": Color("33443a"),
+		"ground_low": Color("6a6c63"),
+		"ground_high": Color("8a8b80"),
+		"accent": Color("7d7458"),
+		"road": Color("7f7d78"),
 		"rock": Color("6e7276"),
-		"bed": Color("59646b"),
-		"forest_floor": Color("aab4b5"),
+		"bed": Color("4d5a60"),
+		"forest_floor": Color("d3dade"),
+		"slickrock": Color("8f9294"),
+		"sand": Color("94918a"),
+		"snow": Color("edf1f4"),
 		"accent_amount": 0.3,
+		"snow_amount": 0.55,
+		"snow_high": 1.0,
 		"strata": 0.7,
+		"water_deep": Color("1c4250"),
+		"water_shallow": Color("4f8592"),
+		"water_foam": Color("eef2f4"),
+	},
+	# Polar plateau: snow throughout; the sand mask marks wind-scoured blue ice.
+	"polar":
+	{
+		"ground_low": Color("c9d3da"),
+		"ground_high": Color("e4eaee"),
+		"accent": Color("b7c3cb"),
+		"road": Color("b9c0c4"),
+		"rock": Color("5d6166"),
+		"bed": Color("51606a"),
+		"forest_floor": Color("c8d0d4"),
+		"slickrock": Color("d6dee3"),
+		"sand": Color("9cc2d6"),
+		"snow": Color("eef3f6"),
+		"accent_amount": 0.25,
+		"snow_amount": 1.0,
+		"snow_high": 1.0,
+		"strata": 0.4,
+		"water_deep": Color("1b3f52"),
+		"water_shallow": Color("6aa2b8"),
+		"water_foam": Color("f2f6f8"),
 	},
 }
 
@@ -249,6 +302,44 @@ const ROCK = {
 		"varnish": Color("7a7566"),
 		"strata_scale": 2.2,
 	},
+	"fjord":
+	{
+		"band_dark": Color("3c4042"),
+		"band_mid": Color("53585a"),
+		"band_light": Color("6d7170"),
+		"cap": Color("5f6a52"),
+		"varnish": Color("23292b"),
+		"strata_scale": 0.9,
+	},
+	"alpine":
+	{
+		"band_dark": Color("4f5357"),
+		"band_mid": Color("676b6f"),
+		"band_light": Color("85898b"),
+		"cap": Color("e6ebee"),
+		"varnish": Color("34383b"),
+		"strata_scale": 0.8,
+	},
+	"polar":
+	{
+		"band_dark": Color("3f4347"),
+		"band_mid": Color("55595e"),
+		"band_light": Color("6c7075"),
+		"cap": Color("e9eef1"),
+		"varnish": Color("2a2d31"),
+		"strata_scale": 0.7,
+	},
+	# Glacier fronts, seracs and crevasse walls.
+	"ice":
+	{
+		"band_dark": Color("5d93ad"),
+		"band_mid": Color("8dbcd2"),
+		"band_light": Color("c4e0ea"),
+		"cap": Color("eef4f7"),
+		"varnish": Color("3e7590"),
+		"strata_scale": 1.3,
+		"rock_roughness": 0.3,
+	},
 	"mojave":
 	{
 		"band_dark": Color("7c5a40"),
@@ -269,7 +360,8 @@ static func configure(material: ShaderMaterial, biome: String, overrides := {}):
 	var palette = PALETTES.get(biome, PALETTES.desert).duplicate()
 	palette.merge(overrides, true)
 	for key in palette:
-		if not key.begins_with("water_"):
+		# Water colours go to the water material; the canopy is preview-only.
+		if not key.begins_with("water_") and key != "canopy":
 			material.set_shader_parameter(key, palette[key])
 
 

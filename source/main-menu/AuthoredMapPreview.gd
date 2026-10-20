@@ -38,11 +38,22 @@ static func image(map_path: String) -> Image:
 			)
 			var macro = noise.get_noise_2dv(point) * 0.5 + 0.5
 			var color: Color = palette.ground_low.lerp(palette.ground_high, macro)
+			if palette.has("snow"):
+				# The ground shader's drifts: cover deepens toward the 6 m tier.
+				var cover = lerpf(
+					palette.snow_amount, palette.snow_high, smoothstep(-0.5, 6.0, height)
+				)
+				var drift = noise.get_noise_2dv(point * 0.75 + Vector2(83, 41)) * 0.5 + 0.5
+				color = color.lerp(palette.snow, smoothstep(0.88 - cover, 1.12 - cover, drift))
 			color = color.lerp(palette.get("sand", palette.ground_high), texel.a * 0.85)
-			color = color.lerp(palette.forest_floor, texel.b * 0.7)
+			# Snowy grounds keep a pale forest floor; the preview shows the canopy.
+			color = color.lerp(palette.get("canopy", palette.forest_floor), texel.b * 0.7)
 			color = color.lerp(palette.road, texel.r * 0.8)
 			color = color.lerp(palette.bed, texel.g)
-			color = color.lightened(clampf(height / (model.tier_step * 3.5), -0.25, 0.3))
+			# Snowfields are near white: low ground shades darker so tiers still read.
+			var snowfield = palette.get("snow_amount", 0.0) > 0.5
+			var rise = height / (model.tier_step * 3.5) - (0.15 if snowfield else 0.0)
+			color = color.lightened(clampf(rise, -0.25, 0.3))
 			# Hill shading from the gameplay slope picks out cliffs and ramps.
 			var gradient = Vector2(
 				(
@@ -54,7 +65,8 @@ static func image(map_path: String) -> Image:
 					- model.height_at(point - Vector2(0, scale))
 				)
 			)
-			var shade = clampf(gradient.dot(LIGHT) / (scale * 2.0) * 0.6, -0.55, 0.4)
+			var relief = 0.9 if snowfield else 0.6
+			var shade = clampf(gradient.dot(LIGHT) / (scale * 2.0) * relief, -0.55, 0.4)
 			color = color.lightened(shade) if shade > 0.0 else color.darkened(-shade)
 			if model.flag_at(point) & TerrainModel.SOLID:
 				color = palette.rock.lightened(0.1 + macro * 0.1)

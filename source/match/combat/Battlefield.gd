@@ -440,6 +440,8 @@ func nearby_units(point: Vector3, radius: float, player_filter = null, excluded_
 		floori((point.x + indexed_reach) / cell_size), floori((point.z + indexed_reach) / cell_size)
 	)
 	var radius_squared := radius * radius
+	# Ground-plane distance: on elevated maps the query point stands on its tier.
+	var flat := Vector3(point.x, 0.0, point.z)
 	var players = [player_filter] if player_filter != null else index.keys()
 	for player in players:
 		if player == excluded_player:
@@ -454,17 +456,18 @@ func nearby_units(point: Vector3, radius: float, player_filter = null, excluded_
 						continue
 					var position: Vector3 = unit.global_position
 					position.y = 0.0
-					if position.distance_squared_to(point) <= radius_squared:
+					if position.distance_squared_to(flat) <= radius_squared:
 						result.append(unit)
 	return result
 
 
 func nearby_combat_targets(point, radius, excluded_player = null):
 	var result = nearby_units(point, radius, null, excluded_player)
+	var flat = Vector3(point.x, 0.0, point.z)
 	for building in get_tree().get_nodes_in_group("neutral_buildings"):
 		if building.player != null and building.player != excluded_player and building.hp > 0:
 			if (
-				building.global_position_yless.distance_squared_to(point)
+				building.global_position_yless.distance_squared_to(flat)
 				<= (radius + building.radius) * (radius + building.radius)
 			):
 				result.append(building)

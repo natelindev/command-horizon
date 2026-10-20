@@ -9,7 +9,7 @@ extends RefCounted
 const FEATURES = [
 	"tiers", "ramps", "water", "bridges", "blockers", "forests", "roads", "landmarks", "sands"
 ]
-const ORDERED = ["bases", "expansions", "sites"]
+const ORDERED = ["bases", "expansions", "sites", "relays"]
 const NATURAL_STEP = 2.5
 
 

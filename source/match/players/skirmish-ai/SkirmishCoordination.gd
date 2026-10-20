@@ -136,7 +136,9 @@ static func _completed(game, player, group, fields):
 	if group.kind == "capture":
 		return _relays(game).all(
 			func(relay):
-				return relay.position.distance_to(group.point) > 3 or relay.captured_by == player
+				return (
+					_relay_point(relay).distance_to(group.point) > 3 or relay.captured_by == player
+				)
 		)
 	if group.kind == "scout":
 		return group.members.all(
@@ -192,13 +194,14 @@ static func _candidate(game, player, kind, groups, free, fields):
 		var relays = _relays(game).filter(
 			func(relay):
 				return (
-					relay.captured_by != player and _unassigned(groups, kind, relay.position, 3.0)
+					relay.captured_by != player
+					and _unassigned(groups, kind, _relay_point(relay), 3.0)
 				)
 		)
 		var infantry = free.filter(func(unit): return InfantryRoster.is_infantry(unit.type))
 		if not relays.is_empty() and not infantry.is_empty():
 			_nearest(relays, infantry[0].position)
-			var point = relays[0].position * Vector3(1, 0, 1)
+			var point = _relay_point(relays[0])
 			_nearest(infantry, point)
 			var multiple = (
 				relays.size() > 1
@@ -357,6 +360,11 @@ static func _regroup(player, unit, units):
 
 static func _relays(game):
 	return game.map.relays if "relays" in game.map else []
+
+
+# Task points lie on the ground plane; relays on elevated maps stand on their tier.
+static func _relay_point(relay) -> Vector3:
+	return relay.global_position * Vector3(1, 0, 1)
 
 
 static func _enemy_start(game, player):

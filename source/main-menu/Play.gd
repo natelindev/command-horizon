@@ -16,10 +16,10 @@ const MAPS = [
 		"192 × 144"
 	],
 	[
-		"res://source/match/maps/ExpandedAlpineRelay.tscn",
+		"res://source/match/maps/battlefields/AlpineRelayMap.tscn",
 		"Alpine Relay",
-		"Wide mountain passes · eight resource fields · six capturable facilities",
-		"192 × 156"
+		"Two cols cut a snowbound massif · capture relays for local vision · 12 resource fields",
+		"192 × 160"
 	],
 	[
 		"res://source/match/maps/ExpandedCoastalFoundry.tscn",
@@ -52,9 +52,12 @@ const MAPS = [
 		"192 × 160"
 	],
 	[
-		"res://source/match/maps/GlacierNarrows.tscn",
+		"res://source/match/maps/battlefields/GlacierNarrowsMap.tscn",
 		"Glacier Narrows",
-		"Frozen meltwater divides two broad mountain passes.",
+		(
+			"A fjord head below a glacier · cross by the moraine, the lakeshore, the dam"
+			+ " or the outwash ford · 14 resource fields"
+		),
 		"192 × 160"
 	],
 	[
@@ -82,9 +85,9 @@ const MAPS = [
 		"224 × 224"
 	],
 	[
-		"res://source/match/maps/FrostboundCrown.tscn",
+		"res://source/match/maps/battlefields/FrostboundCrownMap.tscn",
 		"Frostbound Crown",
-		"A crown of glacial shelves guards the central repair network.",
+		"A polar research plateau · crevasse fields ring a radar crown · 24 resource fields",
 		"224 × 224"
 	],
 	[
@@ -137,7 +140,10 @@ const SUCCESSORS = {
 	"PinebreakValley": "res://source/match/maps/battlefields/PinebreakValleyMap.tscn",
 	"FourRivers": "res://source/match/maps/battlefields/FourRiversMap.tscn",
 	"VerdantCommons": "res://source/match/maps/battlefields/VerdantCommonsMap.tscn",
-	"AlpineRelay": "res://source/match/maps/ExpandedAlpineRelay.tscn",
+	"AlpineRelay": "res://source/match/maps/battlefields/AlpineRelayMap.tscn",
+	"ExpandedAlpineRelay": "res://source/match/maps/battlefields/AlpineRelayMap.tscn",
+	"GlacierNarrows": "res://source/match/maps/battlefields/GlacierNarrowsMap.tscn",
+	"FrostboundCrown": "res://source/match/maps/battlefields/FrostboundCrownMap.tscn",
 	"CoastalFoundry": "res://source/match/maps/ExpandedCoastalFoundry.tscn",
 }
 

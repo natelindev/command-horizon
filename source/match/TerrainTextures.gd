@@ -33,6 +33,16 @@ const PRESETS = {
 		"base_strength": .45,
 		"accent_strength": .55,
 	},
+	# Snow throughout: tracks are packed snow and the accent is blue ice.
+	"polar":
+	{
+		"base": "snow",
+		"path": "snow",
+		"accent": "sand",
+		"base_strength": .5,
+		"path_strength": .4,
+		"accent_strength": .3,
+	},
 	# Catalog urban and coastal maps are paved throughout (4 m joints). Concrete
 	# fills the whole view there, so its repeating stains stay faint.
 	"urban":

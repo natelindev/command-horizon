@@ -142,6 +142,10 @@ func _generate_authored(path):
 	water_radius = 0.0
 	ridge_radius = 0.0
 	_biome = layout.biome
+	# The map's own ground colours, never those left by the previous preview.
+	var palette = AuthoredPreview.Palettes.PALETTES.get(layout.get("ground", layout.biome), {})
+	terrain_low = palette.get("ground_low", Color("554f3e"))
+	terrain_high = palette.get("ground_high", Color("89816a"))
 	if not _terrain_cache.has(path):
 		_terrain_cache[path] = ImageTexture.create_from_image(AuthoredPreview.image(path))
 	_terrain = _terrain_cache[path]

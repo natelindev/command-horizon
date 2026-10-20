@@ -12,6 +12,7 @@ const Difficulty = preload("res://source/match/players/skirmish-ai/SkirmishDiffi
 const Campaigns = preload("res://source/match/campaign/CampaignCatalog.gd")
 const Snapshot = preload("res://source/match/saves/MatchSnapshot.gd")
 const Rules = preload("res://source/match/MatchConstants.gd")
+const Registry = preload("res://source/match/maps/terrain/BattlefieldRegistry.gd")
 const LINKS = {
 	"Garrisoning": [["_target_unit"], ["_shot"], []],
 	"Moving": [[], [], []],
@@ -968,6 +969,20 @@ func _mission(value, id, map_path):
 	return _mission_rules(core, id, map_path)
 
 
+# Capture relays a skirmish map carries; their state is the map's mission.
+func _skirmish_relays(map_path) -> int:
+	if (
+		map_path
+		in [
+			"res://source/match/maps/AlpineRelay.tscn",
+			"res://source/match/maps/ExpandedAlpineRelay.tscn",
+			"res://source/match/maps/IndustrialCrossroads.tscn"
+		]
+	):
+		return 2
+	return Registry.layout(map_path).get("relays", []).size()
+
+
 func _site_records(records, map_path):
 	if not records is Array:
 		return _fail("Invalid facility records.")
@@ -1110,18 +1125,9 @@ func _mission_rules(value, id, map_path):
 			if not _relay(relay):
 				return false
 		return true
-	if (
-		id == ""
-		and (
-			map_path
-			in [
-				"res://source/match/maps/AlpineRelay.tscn",
-				"res://source/match/maps/ExpandedAlpineRelay.tscn",
-				"res://source/match/maps/IndustrialCrossroads.tscn"
-			]
-		)
-	):
-		if not _shape(value, "relays:list") or value.relays.size() != 2:
+	var relay_count = _skirmish_relays(map_path) if id == "" else 0
+	if relay_count > 0:
+		if not _shape(value, "relays:list") or value.relays.size() != relay_count:
 			return _fail("Invalid skirmish relay state.")
 		for relay in value.relays:
 			if not _relay(relay):
@@ -1571,4 +1577,4 @@ func _hero_operation(value, id):
 
 # Authored battlefields version their layouts; every other map is revision 1.
 static func _map_revision(map_path):
-	return load("res://source/match/maps/terrain/BattlefieldRegistry.gd").revision(map_path)
+	return Registry.revision(map_path)

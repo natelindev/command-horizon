@@ -123,9 +123,20 @@ func _battle(map_id, pairing, match_seed, minutes):
 			}
 		)
 		_check(peak >= 2, "%s commander %d never expanded" % [map_id, index])
+		# Duels must vary their approach. In free-for-all each commander attacks
+		# through the crossing facing its target, so variety is checked overall.
+		if sides.size() == 2:
+			_check(
+				lanes[index].size() >= 2 or sides[index].attacks_launched < 2,
+				"%s commander %d used %d lanes" % [map_id, index, lanes[index].size()]
+			)
+	if sides.size() > 2:
+		var used = {}
+		for list in lanes:
+			used.merge(list)
 		_check(
-			lanes[index].size() >= 2 or sides[index].attacks_launched < 2,
-			"%s commander %d used %d lanes" % [map_id, index, lanes[index].size()]
+			used.size() >= sides.size() - 1,
+			"%s: commanders used only %d crossings" % [map_id, used.size()]
 		)
 	_check(
 		row.sides.any(func(side): return side.peak_bases >= 3),

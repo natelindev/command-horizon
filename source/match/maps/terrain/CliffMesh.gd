@@ -13,25 +13,45 @@ const LIP = 0.8
 const CAP_LIFT = 0.04
 
 
-static func build(model, layout: Dictionary, seed_text: String) -> ArrayMesh:
+# Features may name another rock ("rock": "ice"); each variant is its own mesh
+# so it takes its own material. Ramp cuts belong to the map's own rock.
+static func variants(layout: Dictionary) -> Array:
+	var found = [""]
+	for key in ["tiers", "blockers"]:
+		for entry in layout.get(key, []):
+			if not entry.get("rock", "") in found:
+				found.append(entry.rock)
+	return found
+
+
+static func build(model, layout: Dictionary, seed_text: String, variant := "") -> ArrayMesh:
 	var noise = FastNoiseLite.new()
 	noise.seed = seed_text.hash()
 	noise.frequency = 0.35
 	var tool = SurfaceTool.new()
 	tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var faces = 0
 	for tier in layout.get("tiers", []):
 		# Smooth mounds (falloff) have no rock faces.
-		if not tier.has("falloff"):
+		if not tier.has("falloff") and tier.get("rock", "") == variant:
+			faces += 1
 			_outline_faces(tool, model, tier.polygon, noise, INF)
 	for blocker in layout.get("blockers", []):
+		if blocker.get("rock", "") != variant:
+			continue
+		faces += 1
 		var base = INF
 		for point in blocker.polygon:
 			base = minf(base, model.height_at(point))
 		var top = base + blocker.height
 		_outline_faces(tool, model, blocker.polygon, noise, top)
 		_capstone(tool, blocker.polygon, top, noise)
-	for ramp in layout.get("ramps", []):
-		_ramp_cuts(tool, model, ramp, noise)
+	if variant == "":
+		for ramp in layout.get("ramps", []):
+			faces += 1
+			_ramp_cuts(tool, model, ramp, noise)
+	if faces == 0:
+		return null
 	tool.generate_normals()
 	return tool.commit()
 
