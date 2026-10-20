@@ -8,6 +8,8 @@ uniform float metalness = 0.0;
 uniform bool fabric = false;
 varying vec3 local_position;
 varying vec3 local_normal;
+varying vec4 local_weathering;
+varying float world_height;
 
 float hash(vec3 p)
 {
@@ -30,6 +32,8 @@ void vertex()
 {
   local_position = VERTEX;
   local_normal = NORMAL;
+  local_weathering = COLOR;
+  world_height = (MODEL_MATRIX * vec4(VERTEX, 1.0)).y;
 }
 void fragment()
 {
@@ -37,20 +41,23 @@ void fragment()
   float wear = noise(p * 5.0);
   float dust = noise(p * 1.7 + vec3(8.0));
   vec3 color = base_color.rgb * (0.78 + wear * 0.25);
+  float roughness;
   color = mix(color, vec3(0.30, 0.255, 0.17), smoothstep(0.48, 0.85, dust) * 0.24);
   if (fabric)
   {
     float folds = sin(p.z * 8.0 + noise(p * 2.0) * 2.0);
     float seams = 1.0 - smoothstep(0.025, 0.07, abs(fract(p.z * 0.8) - 0.5));
     color *= 0.90 + folds * 0.018 - seams * 0.08;
-    ROUGHNESS = 0.96;
+    roughness = 0.96;
   }
   else
   {
     float chips = smoothstep(0.76, 0.88, noise(p * 42.0));
     color = mix(color, vec3(0.12, 0.105, 0.08), chips * 0.25);
-    ROUGHNESS = mix(0.68, 0.91, dust);
+    roughness = mix(0.68, 0.91, dust);
   }
-  ALBEDO = color * (armor_panels ? armor_detail(local_position, local_normal) : 1.0);
+  color *= armor_panels ? armor_detail(local_position, local_normal) : 1.0;
+  ALBEDO = weathered(ground_dust(color, world_height), local_weathering, !fabric);
+  ROUGHNESS = weathered_roughness(roughness, local_weathering);
   METALLIC = metalness;
 }

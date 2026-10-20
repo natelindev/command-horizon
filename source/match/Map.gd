@@ -3,6 +3,7 @@ extends Node3D
 
 # TODO: add editor-only 2nd pass shader to 'Terrain' mesh highlighting map boundries
 
+const TerrainTextures = preload("res://source/match/TerrainTextures.gd")
 const EXTRA_MARGIN = 2
 @export var size = Vector2(50, 50):
 	set(a_size):
@@ -22,6 +23,10 @@ func _enter_tree():
 	_resize_terrain()
 	if Engine.is_editor_hint():
 		return
+	# Before map scripts duplicate the terrain material, so copies inherit the layers.
+	var terrain = get_node_or_null("Geometry/Terrain")
+	if terrain != null and terrain.mesh != null:
+		TerrainTextures.apply(terrain.mesh.material)
 	var catalog = load("res://source/match/ambient/AmbientCatalog.gd")
 	catalog.populate_settlements(self)
 	if catalog.entries(scene_file_path).is_empty():

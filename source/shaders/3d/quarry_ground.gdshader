@@ -1,4 +1,5 @@
 shader_type spatial;
+#include "res://source/shaders/3d/terrain_layers.gdshaderinc"
 uniform bool exterior = false;
 uniform vec4 roads[4];
 uniform vec2 pads[2];
@@ -19,6 +20,7 @@ void fragment() {
  float cut=1.0-smoothstep(4.0,12.0,abs(p.x-66.0));
  cut*=1.0-smoothstep(23.0,32.0,abs(p.y-51.0));
  vec3 color=mix(soil,vec3(.27,.295,.28)+(wear-.5)*.05,cut*.8);
+ float path=0.0, paved=cut*.8;
  if(!exterior) {
   float nearest=1000.0;
   for(int i=0;i<4;i++) {
@@ -33,6 +35,7 @@ void fragment() {
   float edge=1.0-smoothstep(.04,.09,abs(nearest-3.05));
   pavement=mix(pavement,vec3(.58,.51,.31),edge*smoothstep(.2,.6,wear)*.62);
   color=mix(color,pavement,road);
+  path=road;
   for(int i=0;i<2;i++) {
    vec2 q=p-pads[i];
    float apron=1.0-smoothstep(.0,.5,rectangle(q,vec2(6.5,6.0)));
@@ -47,11 +50,16 @@ void fragment() {
    color=mix(color,concrete,apron);
    float site=1.0-smoothstep(0.0,.6,rectangle(p-sites[i],vec2(4.5)));
    color=mix(color,vec3(.30,.325,.30)+(wear-.5)*.035,site);
+   paved=max(paved,max(apron,site));
   }
   float flight_line=(1.0-smoothstep(.09,.15,abs(p.y-52.0)))*step(80.0,p.x)*step(p.x,116.0);
   flight_line*=step(3.8,mod(p.x-80.0,7.0));
   color=mix(color,vec3(.64,.56,.32),flight_line*.65);
  }
- ALBEDO=color;
- ROUGHNESS=.95;
+ // The quarry cut, pads and sites take concrete; roads the asphalt scan.
+ TerrainSurface ground=terrain_surface(p,color,path,paved,.95);
+ ALBEDO=ground.albedo;
+ ROUGHNESS=ground.roughness;
+ AO=ground.occlusion;
+ NORMAL=terrain_normal(ground,NORMAL,VIEW_MATRIX,INV_VIEW_MATRIX);
 }

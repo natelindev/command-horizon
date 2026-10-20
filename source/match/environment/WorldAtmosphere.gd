@@ -1,6 +1,7 @@
 extends Node3D
 
 const AtmosphereProfiles = preload("res://source/match/environment/AtmosphereProfiles.gd")
+const GroundDecals = preload("res://source/match/effects/GroundDecals.gd")
 
 # Presentation is derived from the saved match clock; no gameplay or global RNG changes.
 var environment: Environment
@@ -82,6 +83,7 @@ func apply_options():
 	sun.shadow_enabled = _options.graphics_shadows
 	environment.ssao_enabled = _options.graphics_ao and forward
 	environment.glow_enabled = _options.graphics_glow
+	GroundDecals.set_detail(_game.map, _options.graphics_ground_detail)
 	environment.fog_enabled = _options.graphics_fog
 	attributes.dof_blur_far_enabled = _options.graphics_dof and forward
 	attributes.dof_blur_near_enabled = false

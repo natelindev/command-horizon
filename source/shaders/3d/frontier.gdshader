@@ -1,4 +1,5 @@
 shader_type spatial;
+#include "res://source/shaders/3d/terrain_layers.gdshaderinc"
 
 uniform bool exterior = false;
 uniform int road_count = 0;
@@ -48,6 +49,7 @@ void fragment() {
 	sand += (ripples - 0.5) * 0.014 * ripple_detail;
 	vec3 color = sand;
 	float lane = 1000.0;
+	float path = 0.0;
 	if (!exterior) {
 		for (int index = 0; index < 16; index++) {
 			if (index >= road_count) { break; }
@@ -61,6 +63,7 @@ void fragment() {
 		color = mix(color, vec3(0.245, 0.226, 0.188) + medium * 0.045, travelled * 0.66);
 		float tracks = 1.0 - smoothstep(0.10, 0.24, abs(lane - 1.02));
 		color *= 1.0 - tracks * (0.04 + medium * 0.06);
+		path = max(max(travelled, shoulder * 0.5), tracks * 0.6);
 		// The freight apron is worn, continuous terrain, with broken paint and sand incursions.
 		vec2 q = p - vec2(64, 48) * layout_scale;
 		float patch = weathering(p * 0.45);
@@ -75,7 +78,12 @@ void fragment() {
 		float crack = 1.0 - smoothstep(0.02, 0.06, abs(q.y - sin(q.x * 1.3) * 0.22 - q.x * 0.4));
 		concrete *= 1.0 - crack * 0.20;
 		color = mix(color, concrete, apron);
+		path = max(path, apron);
 	}
-	ALBEDO = color;
-	ROUGHNESS = 0.97;
+	// Iron-stained hardpan takes the rock scan; roads and the apron the packed dirt.
+	TerrainSurface ground = terrain_surface(p, color, path, iron, 0.97);
+	ALBEDO = ground.albedo;
+	ROUGHNESS = ground.roughness;
+	AO = ground.occlusion;
+	NORMAL = terrain_normal(ground, NORMAL, VIEW_MATRIX, INV_VIEW_MATRIX);
 }

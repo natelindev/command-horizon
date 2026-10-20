@@ -2,6 +2,15 @@
 
 ## [main]
 
+### Added
+ - Scanned CC0 ground layers (grass, rock, sand, dirt, asphalt, snow, concrete) on every battlefield, backdrop and campaign theater, blended around each map's authored colors, roads and biome features
+ - Baked crevice shading, chipped edges and lower-hull dust on all Bastion, Helix and Frontier models, including team trim and construction sites
+ - Ground decals: oil stains, skid marks, cracks and repairs along roads, plus tracks, scuffs and debris across open ground; identical after loading a save
+ - Ground detail graphics setting to turn scanned ground and decals off for faster rendering
+
+### Changed
+ - Plain & Simple and Big Arena use a temperate battlefield instead of the legacy flat salmon ground
+
 ## [0.14.1]
 
 ### Fixed

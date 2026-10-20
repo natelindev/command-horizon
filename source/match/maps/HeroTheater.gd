@@ -14,9 +14,22 @@ func _ready():
 		"tunnels": "777060",
 		"desert": "aa9270"
 	}
-	var ground = StandardMaterial3D.new()
-	ground.albedo_color = Color(colors[mission.biome])
-	ground.roughness = 1
+	# Paved districts keep 4 m joints; every theater gets its biome's scanned layers.
+	var layers = {
+		"city": "urban",
+		"spire": "urban",
+		"ford": "temperate",
+		"tunnels": "desert",
+		"desert": "desert"
+	}
+	var tone = Color(colors[mission.biome])
+	var ground = ShaderMaterial.new()
+	ground.shader = preload("res://source/shaders/3d/battlefield.gdshader")
+	ground.set_shader_parameter("low", tone.darkened(.12))
+	ground.set_shader_parameter("high", tone.lightened(.1))
+	ground.set_shader_parameter("road", tone)
+	ground.set_shader_parameter("surface", 3 if mission.biome in ["city", "spire"] else 0)
+	TerrainTextures.configure(ground, layers[mission.biome])
 	$Geometry/Terrain.material_override = ground
 	for objective in mission.objectives:
 		if objective.kind not in ["capture", "hold"]:

@@ -99,6 +99,7 @@ func _ground():
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var material = ShaderMaterial.new()
 	material.shader = load("res://source/shaders/3d/coastal_ground.gdshader")
+	load("res://source/match/TerrainTextures.gd").apply(material)
 	material.set_shader_parameter("exterior", true)
 	material.set_shader_parameter("road_count", 0)
 	surface.set_material(material)

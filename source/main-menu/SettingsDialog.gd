@@ -297,6 +297,7 @@ func _refresh():
 		"graphics_glow",
 		"graphics_fog",
 		"graphics_dof",
+		"graphics_ground_detail",
 		"day_cycle",
 		"weather_particles",
 		"living_world",
@@ -419,6 +420,10 @@ func _build_graphics():
 	_check(column, "Soft sun and moon shadows", "graphics_shadows")
 	_check(column, "Ambient occlusion (contact shading)", "graphics_ao")
 	_check(column, "Bloom / light glow", "graphics_glow")
+	_check(column, "Ground detail", "graphics_ground_detail")
+	controls.graphics_ground_detail.tooltip_text = tr(
+		"High-resolution ground textures and wear marks. Turn off to improve performance."
+	)
 	_check(column, "Cinematic depth of field", "graphics_dof")
 	controls.graphics_dof.tooltip_text = tr(
 		"Keep the camera focus sharp; softly blur distant scenery."

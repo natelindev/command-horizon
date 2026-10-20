@@ -1,4 +1,5 @@
 shader_type spatial;
+#include "res://source/shaders/3d/terrain_layers.gdshaderinc"
 
 uniform bool exterior = false;
 uniform int road_count = 0;
@@ -40,6 +41,7 @@ void fragment() {
 	float detail = 1.0 - smoothstep(0.3, 1.1, length(fwidth(p)) * 5.0);
 	float drift = sin(p.x * 4.6 + p.y * 1.5 + medium * 6.0);
 	color += ((fine - 0.5) * 0.014 + drift * 0.008) * detail;
+	float path = 0.0;
 	if (!exterior) {
 		float lane = 1000.0;
 		for (int index=0; index<16; index++) {
@@ -54,6 +56,7 @@ void fragment() {
 		grit = mix(grit, vec3(0.34, 0.46, 0.52), ice);
 		color = mix(color, gravel, shoulder * 0.48);
 		color = mix(color, grit, plowed * 0.84);
+		path = max(plowed, shoulder * 0.5);
 		float tyre = 1.0 - smoothstep(0.08, 0.22, abs(lane - 1.15));
 		color *= 1.0 - tyre * (0.06 + medium * 0.07);
 		for (int index=0; index<2; index++) {
@@ -67,8 +70,13 @@ void fragment() {
 				* smoothstep(0.32,0.55,medium);
 			concrete = mix(concrete,vec3(0.62,0.48,0.24),marking*0.62);
 			color = mix(color,concrete,pad);
+			path = max(path, pad);
 		}
 	}
-	ALBEDO = color;
-	ROUGHNESS = 0.94;
+	// Exposed gravel takes the rock scan; plowed roads and pads the packed dirt.
+	TerrainSurface ground = terrain_surface(p, color, path, exposed, 0.94);
+	ALBEDO = ground.albedo;
+	ROUGHNESS = ground.roughness;
+	AO = ground.occlusion;
+	NORMAL = terrain_normal(ground, NORMAL, VIEW_MATRIX, INV_VIEW_MATRIX);
 }
