@@ -9,6 +9,7 @@ var sun: DirectionalLight3D
 var camera: Camera3D
 var attributes: CameraAttributesPractical
 var rain: GPUParticles3D
+var effects
 var cloud_cover = 0.0
 var wetness = 0.0
 var hour = 14.0
@@ -74,6 +75,9 @@ func _ready():
 	environment.fog_sun_scatter = .15
 	_collect_weather_materials(_game.map)
 	_create_rain()
+	effects = load("res://source/match/environment/BattlefieldEffects.gd").new()
+	add_child(effects)
+	effects.setup(_game, camera, AtmosphereProfiles.biome(_game.map))
 	_options.changed.connect(apply_options)
 	apply_options()
 
@@ -91,6 +95,7 @@ func apply_options():
 	get_viewport().msaa_3d = [Viewport.MSAA_DISABLED, Viewport.MSAA_2X, Viewport.MSAA_4X][
 		_options.graphics_msaa
 	]
+	effects.apply_options()
 	# Preview edits even while settings pause the scene.
 	_update(0.0)
 	_game.base_area_lighting.refresh()
@@ -142,6 +147,12 @@ func _update(_delta):
 		.0015 if previous_weather == 4 else lerpf(.00015, .00065, cloud_levels[previous_weather])
 	)
 	environment.fog_density = lerpf(previous_fog, target_fog, blend)
+	var mist = lerpf(
+		.8 if previous_weather == 4 else .08 * cloud_levels[previous_weather],
+		.8 if weather == 4 else .08 * cloud_levels[weather],
+		blend
+	)
+	effects.update(elapsed, cloud_cover, wetness, mist, daylight, environment.fog_light_color)
 	if _sky:
 		_sky.sky_top_color = Color("0a162b").lerp(Color("376585"), daylight).lerp(
 			Color("677984"), cloud_cover * .7

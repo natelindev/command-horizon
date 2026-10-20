@@ -219,6 +219,7 @@ func impact(unit, source, point):
 			"Bomber"
 		]
 	)
+	_water_impact(point, 1.0 if heavy else .3)
 	var ground_hit = point.y - _ground_height(point) < 1.6
 	var direction = source.global_position.direction_to(point)
 	if heavy:
@@ -275,6 +276,7 @@ func trail(point, direction):
 
 # A round that struck the ground, a wreck-free obstacle, or expired in the air.
 func miss(point, ground, heavy, color):
+	_water_impact(point, .8 if heavy else .25)
 	if heavy:
 		_explosion(point, 0.75, ground)
 		return
@@ -293,6 +295,7 @@ func miss(point, ground, heavy, color):
 
 # A heavy warhead (bomb) detonating: a large blast scaled by its splash radius.
 func warhead(point, radius, ground):
+	_water_impact(point, clampf(radius * .4, .5, 2.0))
 	_explosion(point, clampf(radius * 0.7, 1.0, 2.2), ground, true)
 
 
@@ -816,3 +819,9 @@ func _spawn_ping_visual(point):
 	tween.tween_property(ring, "scale", Vector3(4.5, 1.0, 4.5), 0.85)
 	tween.parallel().tween_property(mat, "albedo_color:a", 0.0, 0.85)
 	tween.tween_callback(ring.queue_free)
+
+
+func _water_impact(point: Vector3, strength: float):
+	var atmosphere = get_parent().get_node_or_null("WorldAtmosphere")
+	if atmosphere != null and atmosphere.effects != null:
+		atmosphere.effects.water_interactions.impact(point, strength)

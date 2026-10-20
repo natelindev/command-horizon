@@ -290,13 +290,16 @@ func _refresh():
 	if is_instance_valid(key_panel):
 		key_panel.refresh()
 	controls.language.select(["en", "zh_CN"].find(options.language))
-	for key in ["graphics_msaa", "time_of_day", "weather"]:
+	for key in ["graphics_msaa", "time_of_day", "weather", "environment_quality"]:
 		controls[key].select(options.get(key))
 	for key in [
 		"graphics_shadows",
 		"graphics_ao",
 		"graphics_glow",
 		"graphics_fog",
+		"graphics_liquids",
+		"graphics_clouds",
+		"graphics_dust",
 		"graphics_dof",
 		"graphics_ground_detail",
 		"battlefield_wear",
@@ -452,6 +455,13 @@ func _build_graphics():
 	_choice(column, "Weather", "weather", ["Changing skies", "Clear", "Overcast", "Rain", "Mist"])
 	_check(column, "Rain particles", "weather_particles")
 	_check(column, "Atmospheric fog", "graphics_fog")
+	_check(column, "Clouds and cloud shadows", "graphics_clouds")
+	_check(column, "Windblown dust and ash", "graphics_dust")
+	_check(column, "Animated water and lava", "graphics_liquids")
+	_choice(column, "Environment detail", "environment_quality", ["Low", "High"])
+	controls.environment_quality.tooltip_text = tr(
+		"Low uses simpler clouds and fewer embers. Disable individual effects for more performance."
+	)
 	_heading(column, "Rendering")
 	_check(column, "Soft sun and moon shadows", "graphics_shadows")
 	_check(column, "Ambient occlusion (contact shading)", "graphics_ao")

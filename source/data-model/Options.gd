@@ -25,6 +25,10 @@ const DEFAULTS = {
 	"graphics_ao": true,
 	"graphics_glow": true,
 	"graphics_fog": true,
+	"graphics_liquids": true,
+	"graphics_clouds": true,
+	"graphics_dust": true,
+	"environment_quality": 0,
 	"graphics_dof": false,
 	"graphics_msaa": 1,
 	"graphics_ground_detail": true,
@@ -62,6 +66,10 @@ const DEFAULTS = {
 @export var graphics_ao = true
 @export var graphics_glow = true
 @export var graphics_fog = true
+@export var graphics_liquids = true
+@export var graphics_clouds = true
+@export var graphics_dust = true
+@export var environment_quality = 0
 @export var graphics_dof = false
 @export var graphics_msaa = 1
 @export var graphics_ground_detail = true
@@ -110,6 +118,7 @@ func apply():
 	graphics_msaa = clampi(graphics_msaa, 0, 2)
 	time_of_day = clampi(time_of_day, 0, 3)
 	weather = clampi(weather, 0, 4)
+	environment_quality = clampi(environment_quality, 0, 1)
 	key_bindings = Bindings.normalize(key_bindings)
 	Bindings.apply(key_bindings)
 	if screen not in [Screen.FULL, Screen.WINDOW]:

@@ -12,6 +12,7 @@ const Palettes = preload("res://source/match/maps/terrain/BiomePalettes.gd")
 const RESOURCE_A = preload("res://source/match/units/non-player/ResourceA.tscn")
 const RESOURCE_B = preload("res://source/match/units/non-player/ResourceB.tscn")
 const GROUND_SHADER = preload("res://source/shaders/3d/authored_terrain.gdshader")
+const WaterSurface = preload("res://source/match/maps/terrain/WaterSurface.gd")
 const WATER_SHADER = preload("res://source/shaders/3d/authored_water.gdshader")
 const LAVA_SHADER = preload("res://source/shaders/3d/authored_lava.gdshader")
 const ROCK_SHADER = preload("res://source/shaders/3d/canyon_rock.gdshader")
@@ -29,6 +30,7 @@ const ELECTRONICS_NODES = 2
 const WATER_SURFACE_DROP = 0.3
 const FORD_SURFACE_DROP = 0.08
 
+var water_flow
 var layout = {}
 var terrain = null
 var points_of_interest = []
@@ -48,6 +50,8 @@ func _ready():
 	_place_fields()
 	_place_relays()
 	_place_garrisons()
+	water_flow = load("res://source/match/maps/terrain/WaterFlowField.gd").new()
+	water_flow.build(layout)
 	for water in layout.water:
 		_place_water(water)
 	_place_rock()
@@ -293,18 +297,41 @@ static func field_points(site: Vector2, centre: Vector2) -> Array:
 
 
 func _place_water(water: Dictionary):
+	# Ford footprints include dry approaches. A connected river carries the
+	# shallow crossing in its own mesh, keeping one continuous flowing skin.
+	if water.get("ford", false):
+		for river in layout.water:
+			if not river.get("ford", false) and not river.get("lava", false):
+				if not Geometry2D.intersect_polygons(water.polygon, river.polygon).is_empty():
+					return
+	_place_water_surface(water)
+
+
+func _place_water_surface(water: Dictionary):
 	var ford = water.get("ford", false)
 	var level = water.get("level", 0.0) - (FORD_SURFACE_DROP if ford else WATER_SURFACE_DROP)
 	var polygon = _upward(water.polygon)
-	var vertices = PackedVector3Array()
-	for index in Geometry2D.triangulate_polygon(polygon):
-		vertices.append(Vector3(polygon[index].x, level, polygon[index].y))
-	var surface = _flat_mesh(vertices)
+	var surface: MeshInstance3D
 	var material = ShaderMaterial.new()
 	if water.get("lava", false):
+		var vertices = PackedVector3Array()
+		for index in Geometry2D.triangulate_polygon(polygon):
+			vertices.append(Vector3(polygon[index].x, level, polygon[index].y))
+		surface = _flat_mesh(vertices)
 		material.shader = LAVA_SHADER
 	else:
+		var builder = WaterSurface.new()
+		var definition = water.duplicate()
+		definition.polygon = polygon
+		surface = MeshInstance3D.new()
+		surface.mesh = builder.build(definition, layout.water, level)
+		surface.extra_cull_margin = .4
 		material.shader = WATER_SHADER
+		material.set_shader_parameter("flow_field", water_flow.texture)
+		material.set_shader_parameter("flow_map_size", water_flow.size)
+		material.set_shader_parameter("has_flow_field", true)
+		material.set_shader_parameter("flow_speed", builder.speed)
+		material.set_shader_parameter("wave_height", .012 if ford else .065)
 		Palettes.configure_water(material, _ground_palette())
 	surface.material_override = material
 	surface.name = "Lava" if water.get("lava", false) else ("Ford" if ford else "Water")

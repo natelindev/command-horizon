@@ -102,11 +102,22 @@ const DEFINITION = {
 	[
 		{
 			"name": "Grand canal",
+			"line": [Vector2(104, -2), Vector2(104, 76)],
+			"flow_speed": .7,
 			"level": -2.4,
 			"polygon": [Vector2(100, -2), Vector2(108, -2), Vector2(108, 74), Vector2(100, 74)]
 		},
 		{
 			"name": "Ring canal",
+			"line":
+			[
+				Vector2(76, 112),
+				Vector2(78.7, 98.2),
+				Vector2(86.5, 86.5),
+				Vector2(98.2, 78.7),
+				Vector2(112, 76)
+			],
+			"flow_speed": .7,
 			"level": -2.4,
 			"polygon":
 			[

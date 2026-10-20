@@ -31,6 +31,10 @@ func _storage():
 	preferences.zoom_speed = 2.0
 	preferences.edge_scrolling = false
 	preferences.reduced_flashes = true
+	preferences.graphics_liquids = false
+	preferences.graphics_clouds = false
+	preferences.graphics_dust = false
+	preferences.environment_quality = 1
 	preferences.battlefield_wear = false
 	preferences.area_lighting = true
 	preferences.hud_motion = false
@@ -57,6 +61,7 @@ func _storage():
 	broken.master_volume = -5.0
 	broken.zoom_speed = 999.0
 	broken.edge_scrolling = "invalid"
+	broken.environment_quality = 900
 	broken.hdr_peak_nits = INF
 	broken.hdr_paper_white = -10.0
 	preferences.restore(broken)
@@ -67,6 +72,7 @@ func _storage():
 			and preferences.master_volume == 0
 			and preferences.zoom_speed == 3
 			and preferences.edge_scrolling
+			and preferences.environment_quality == 1
 			and preferences.hdr_peak_nits == 0
 			and preferences.hdr_paper_white == 0
 		),
@@ -102,6 +108,10 @@ func _battle_dialog():
 		dialog.save_path = archive
 		await _frames(5)
 		_check(not saves.can_open(), "Archive can open over settings")
+		dialog._preview("graphics_liquids", false)
+		dialog._preview("graphics_clouds", false)
+		dialog._preview("graphics_dust", false)
+		dialog._preview("environment_quality", 1)
 		dialog._preview("battlefield_wear", false)
 		dialog._preview("area_lighting", true)
 		dialog._preview("hud_motion", false)
