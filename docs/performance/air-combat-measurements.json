@@ -1,0 +1,1245 @@
+{
+  "date": "2026-10-20",
+  "baseline_revision": "26ebdcd9",
+  "candidate_revision": "b22f40b7dd10c5ff98bf6d540f288bc64ce414e0",
+  "engine": "4.6.stable.official.89cea1439",
+  "renderer": "Metal 4.0 Forward+",
+  "hardware": "Apple M1 Pro (Apple7)",
+  "memory_gib": 32,
+  "os": "macOS 27.0.1 (26A434)",
+  "baseline_verified_files": 3981,
+  "p95_target_ms": 33.3,
+  "gpu_timer_available": false,
+  "aggregation": "Median of three per-run statistics; p95 values are not pooled percentiles.",
+  "summary": {
+    "baseline": {
+      "movement": {
+        "median_mean_frame_ms": 24.11,
+        "median_p95_frame_ms": 32.3,
+        "p95_range_ms": [
+          30.36,
+          32.39
+        ],
+        "median_p99_frame_ms": 35.41,
+        "maximum_frame_ms": 38.92,
+        "frames_over_100ms": 0,
+        "frames_over_33_333ms": 33,
+        "total_samples": 1277
+      },
+      "combat": {
+        "median_mean_frame_ms": 28.23,
+        "median_p95_frame_ms": 32.74,
+        "p95_range_ms": [
+          31.09,
+          33.6
+        ],
+        "median_p99_frame_ms": 35.3,
+        "maximum_frame_ms": 40.24,
+        "frames_over_100ms": 0,
+        "frames_over_33_333ms": 38,
+        "total_samples": 1082
+      }
+    },
+    "candidate-common": {
+      "movement": {
+        "median_mean_frame_ms": 26.27,
+        "median_p95_frame_ms": 35.32,
+        "p95_range_ms": [
+          34.9,
+          35.41
+        ],
+        "median_p99_frame_ms": 38.18,
+        "maximum_frame_ms": 54.3,
+        "frames_over_100ms": 0,
+        "frames_over_33_333ms": 157,
+        "total_samples": 1159
+      },
+      "combat": {
+        "median_mean_frame_ms": 32.45,
+        "median_p95_frame_ms": 35.94,
+        "p95_range_ms": [
+          35.17,
+          37.6
+        ],
+        "median_p99_frame_ms": 39.67,
+        "maximum_frame_ms": 46.3,
+        "frames_over_100ms": 0,
+        "frames_over_33_333ms": 320,
+        "total_samples": 933
+      }
+    },
+    "candidate-air": {
+      "movement": {
+        "median_mean_frame_ms": 35.23,
+        "median_p95_frame_ms": 57.91,
+        "p95_range_ms": [
+          55.15,
+          57.96
+        ],
+        "median_p99_frame_ms": 61.41,
+        "maximum_frame_ms": 64.35,
+        "frames_over_100ms": 0,
+        "frames_over_33_333ms": 510,
+        "total_samples": 873
+      },
+      "combat": {
+        "median_mean_frame_ms": 42.32,
+        "median_p95_frame_ms": 58.55,
+        "p95_range_ms": [
+          56.69,
+          59.07
+        ],
+        "median_p99_frame_ms": 62.2,
+        "maximum_frame_ms": 66.76,
+        "frames_over_100ms": 0,
+        "frames_over_33_333ms": 695,
+        "total_samples": 713
+      }
+    }
+  },
+  "runs": [
+    {
+      "variant": "baseline",
+      "repetition": 1,
+      "exit": 0,
+      "elapsed_seconds": 25.95,
+      "phases": {
+        "movement": {
+          "renderer": "macOS",
+          "mean_frame_ms": 22.43,
+          "p95_frame_ms": 30.36,
+          "p99_frame_ms": 34.2,
+          "frames_over_33ms": 5,
+          "samples": 447,
+          "simulation_seconds": 10.03,
+          "wall_seconds": 10.03,
+          "realtime": true,
+          "baseline_field": false,
+          "baseline_targets": false,
+          "mean_engine_process_ms": 22.11,
+          "mean_engine_physics_ms": 12.39,
+          "physics_ticks": 301,
+          "physics_hz": 30,
+          "interpolation": true,
+          "diagnostic_no_motion": false,
+          "diagnostic_no_queues": false,
+          "gpu_ms": 0.0,
+          "render_cpu_ms": 3.74,
+          "pixels": [
+            1920.0,
+            1080.0
+          ],
+          "scale_3d": 1.0,
+          "adapter": "Apple M1 Pro (Apple7)",
+          "rendered_frames": 447,
+          "max_frame_ms": 38.03,
+          "frames_over_100ms": 0
+        },
+        "combat": {
+          "renderer": "macOS",
+          "mean_frame_ms": 26.36,
+          "p95_frame_ms": 31.09,
+          "p99_frame_ms": 33.69,
+          "frames_over_33ms": 4,
+          "samples": 379,
+          "simulation_seconds": 10.0,
+          "wall_seconds": 9.99,
+          "realtime": true,
+          "baseline_field": false,
+          "baseline_targets": false,
+          "mean_engine_process_ms": 22.55,
+          "mean_engine_physics_ms": 13.43,
+          "physics_ticks": 300,
+          "physics_hz": 30,
+          "interpolation": true,
+          "diagnostic_no_motion": false,
+          "diagnostic_no_queues": false,
+          "gpu_ms": 0.0,
+          "render_cpu_ms": 4.06,
+          "pixels": [
+            1920.0,
+            1080.0
+          ],
+          "scale_3d": 1.0,
+          "adapter": "Apple M1 Pro (Apple7)",
+          "rendered_frames": 379,
+          "max_frame_ms": 36.93,
+          "frames_over_100ms": 0
+        }
+      },
+      "raw_log": "Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org\nMetal 4.0 - Forward+ - Using Device #0: Apple - Apple M1 Pro (Apple7)\n\nBENCHMARK avoidance_threads=true\nSCALE BEGIN movement paused=false simulation_time=3.16666666666667\nSCALE movement renderer=macOS mean_frame_ms=22.43 p95_frame_ms=30.36 p99_frame_ms=34.2 frames_over_33ms=5 samples=447 simulation_seconds=10.03 wall_seconds=10.03 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=22.11 mean_engine_physics_ms=12.39 physics_ticks=301 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false\nRENDER movement gpu_ms=0.0 render_cpu_ms=3.74 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=447\nTAIL movement max_frame_ms=38.03 frames_over_100ms=0\nSCALE BEGIN combat paused=false simulation_time=13.2\nSCALE combat renderer=macOS mean_frame_ms=26.36 p95_frame_ms=31.09 p99_frame_ms=33.69 frames_over_33ms=4 samples=379 simulation_seconds=10.0 wall_seconds=9.99 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=22.55 mean_engine_physics_ms=13.43 physics_ticks=300 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false\nRENDER combat gpu_ms=0.0 render_cpu_ms=4.06 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=379\nTAIL combat max_frame_ms=36.93 frames_over_100ms=0\nSCALE behaviors=true moved=200/200 travelled=200/200 fired=105 peak_live_projectiles=37 resources=62 sampled_peak_tracers=34 viewport_pixels=(1920.0, 1080.0)\nPASS: 200 mobile units + 80 structures; behaviors=true\nWARNING: ObjectDB instances leaked at exit (run with --verbose for details).\n     at: cleanup (core/object/object.cpp:2641)\n",
+      "settings": {
+        "avoidance_threads": true
+      },
+      "workload": {
+        "behaviors": true,
+        "moved": "200/200",
+        "travelled": "200/200",
+        "fired": 105,
+        "peak_live_projectiles": 37,
+        "resources": 62,
+        "sampled_peak_tracers": 34,
+        "viewport_pixels": [
+          1920.0,
+          1080.0
+        ]
+      }
+    },
+    {
+      "variant": "candidate-common",
+      "repetition": 1,
+      "exit": 0,
+      "elapsed_seconds": 25.93,
+      "phases": {
+        "movement": {
+          "renderer": "macOS",
+          "mean_frame_ms": 25.31,
+          "p95_frame_ms": 34.9,
+          "p99_frame_ms": 38.05,
+          "frames_over_33ms": 43,
+          "samples": 396,
+          "simulation_seconds": 10.03,
+          "wall_seconds": 10.02,
+          "realtime": true,
+          "baseline_field": false,
+          "baseline_targets": false,
+          "mean_engine_process_ms": 21.7,
+          "mean_engine_physics_ms": 14.23,
+          "physics_ticks": 301,
+          "physics_hz": 30,
+          "interpolation": true,
+          "diagnostic_no_motion": false,
+          "diagnostic_no_queues": false,
+          "gpu_ms": 0.0,
+          "render_cpu_ms": 3.91,
+          "pixels": [
+            1920.0,
+            1080.0
+          ],
+          "scale_3d": 1.0,
+          "adapter": "Apple M1 Pro (Apple7)",
+          "rendered_frames": 396,
+          "max_frame_ms": 48.04,
+          "frames_over_100ms": 0
+        },
+        "combat": {
+          "renderer": "macOS",
+          "mean_frame_ms": 30.97,
+          "p95_frame_ms": 35.17,
+          "p99_frame_ms": 36.6,
+          "frames_over_33ms": 70,
+          "samples": 322,
+          "simulation_seconds": 10.0,
+          "wall_seconds": 9.97,
+          "realtime": true,
+          "baseline_field": false,
+          "baseline_targets": false,
+          "mean_engine_process_ms": 23.16,
+          "mean_engine_physics_ms": 16.32,
+          "physics_ticks": 300,
+          "physics_hz": 30,
+          "interpolation": true,
+          "diagnostic_no_motion": false,
+          "diagnostic_no_queues": false,
+          "gpu_ms": 0.0,
+          "render_cpu_ms": 4.25,
+          "pixels": [
+            1920.0,
+            1080.0
+          ],
+          "scale_3d": 1.0,
+          "adapter": "Apple M1 Pro (Apple7)",
+          "rendered_frames": 322,
+          "max_frame_ms": 40.7,
+          "frames_over_100ms": 0
+        }
+      },
+      "raw_log": "Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org\nMetal 4.0 - Forward+ - Using Device #0: Apple - Apple M1 Pro (Apple7)\n\nBENCHMARK avoidance_threads=true\nSCALE BEGIN movement paused=false simulation_time=3.1\nSCALE movement renderer=macOS mean_frame_ms=25.31 p95_frame_ms=34.9 p99_frame_ms=38.05 frames_over_33ms=43 samples=396 simulation_seconds=10.03 wall_seconds=10.02 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=21.7 mean_engine_physics_ms=14.23 physics_ticks=301 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false\nRENDER movement gpu_ms=0.0 render_cpu_ms=3.91 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=396\nTAIL movement max_frame_ms=48.04 frames_over_100ms=0\nSCALE BEGIN combat paused=false simulation_time=13.1333333333333\nSCALE combat renderer=macOS mean_frame_ms=30.97 p95_frame_ms=35.17 p99_frame_ms=36.6 frames_over_33ms=70 samples=322 simulation_seconds=10.0 wall_seconds=9.97 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=23.16 mean_engine_physics_ms=16.32 physics_ticks=300 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false\nRENDER combat gpu_ms=0.0 render_cpu_ms=4.25 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=322\nTAIL combat max_frame_ms=40.7 frames_over_100ms=0\nSCALE behaviors=true air_combat=false moved=200/200 travelled=200/200 fired=106 peak_live_projectiles=29 resources=62 sampled_peak_tracers=0 viewport_pixels=(1920.0, 1080.0)\nPASS: 200 mobile units + 80 structures; behaviors=true\nWARNING: ObjectDB instances leaked at exit (run with --verbose for details).\n     at: cleanup (core/object/object.cpp:2641)\n",
+      "settings": {
+        "avoidance_threads": true
+      },
+      "workload": {
+        "behaviors": true,
+        "air_combat": false,
+        "moved": "200/200",
+        "travelled": "200/200",
+        "fired": 106,
+        "peak_live_projectiles": 29,
+        "resources": 62,
+        "sampled_peak_tracers": 0,
+        "viewport_pixels": [
+          1920.0,
+          1080.0
+        ]
+      }
+    },
+    {
+      "variant": "candidate-air",
+      "repetition": 1,
+      "exit": 0,
+      "elapsed_seconds": 26.65,
+      "phases": {
+        "movement": {
+          "renderer": "macOS",
+          "mean_frame_ms": 32.93,
+          "p95_frame_ms": 55.15,
+          "p99_frame_ms": 61.41,
+          "frames_over_33ms": 168,
+          "samples": 305,
+          "simulation_seconds": 10.03,
+          "wall_seconds": 10.04,
+          "realtime": true,
+          "baseline_field": false,
+          "baseline_targets": false,
+          "mean_engine_process_ms": 21.35,
+          "mean_engine_physics_ms": 17.43,
+          "physics_ticks": 301,
+          "physics_hz": 30,
+          "interpolation": true,
+          "diagnostic_no_motion": false,
+          "diagnostic_no_queues": false,
+          "gpu_ms": 0.0,
+          "render_cpu_ms": 3.93,
+          "pixels": [
+            1920.0,
+            1080.0
+          ],
+          "scale_3d": 1.0,
+          "adapter": "Apple M1 Pro (Apple7)",
+          "rendered_frames": 305,
+          "max_frame_ms": 64.18,
+          "frames_over_100ms": 0
+        },
+        "combat": {
+          "renderer": "macOS",
+          "mean_frame_ms": 40.78,
+          "p95_frame_ms": 56.69,
+          "p99_frame_ms": 60.58,
+          "frames_over_33ms": 236,
+          "samples": 245,
+          "simulation_seconds": 10.0,
+          "wall_seconds": 9.99,
+          "realtime": true,
+          "baseline_field": false,
+          "baseline_targets": false,
+          "mean_engine_process_ms": 23.53,
+          "mean_engine_physics_ms": 21.3,
+          "physics_ticks": 300,
+          "physics_hz": 30,
+          "interpolation": true,
+          "diagnostic_no_motion": false,
+          "diagnostic_no_queues": false,
+          "gpu_ms": 0.0,
+          "render_cpu_ms": 4.16,
+          "pixels": [
+            1920.0,
+            1080.0
+          ],
+          "scale_3d": 1.0,
+          "adapter": "Apple M1 Pro (Apple7)",
+          "rendered_frames": 245,
+          "max_frame_ms": 65.74,
+          "frames_over_100ms": 0
+        }
+      },
+      "raw_log": "Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org\nMetal 4.0 - Forward+ - Using Device #0: Apple - Apple M1 Pro (Apple7)\n\nBENCHMARK avoidance_threads=true\nSCALE BEGIN movement paused=false simulation_time=3.7\nSCALE movement renderer=macOS mean_frame_ms=32.93 p95_frame_ms=55.15 p99_frame_ms=61.41 frames_over_33ms=168 samples=305 simulation_seconds=10.03 wall_seconds=10.04 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=21.35 mean_engine_physics_ms=17.43 physics_ticks=301 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false\nRENDER movement gpu_ms=0.0 render_cpu_ms=3.93 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=305\nTAIL movement max_frame_ms=64.18 frames_over_100ms=0\nSCALE BEGIN combat paused=false simulation_time=13.7333333333333\nSCALE combat renderer=macOS mean_frame_ms=40.78 p95_frame_ms=56.69 p99_frame_ms=60.58 frames_over_33ms=236 samples=245 simulation_seconds=10.0 wall_seconds=9.99 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=23.53 mean_engine_physics_ms=21.3 physics_ticks=300 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false\nRENDER combat gpu_ms=0.0 render_cpu_ms=4.16 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=245\nTAIL combat max_frame_ms=65.74 frames_over_100ms=0\nSCALE behaviors=true air_combat=true moved=200/200 travelled=200/200 fired=101 peak_live_projectiles=45 resources=62 sampled_peak_tracers=0 viewport_pixels=(1920.0, 1080.0)\nPASS: 200 mobile units + 80 structures; behaviors=true\nWARNING: ObjectDB instances leaked at exit (run with --verbose for details).\n     at: cleanup (core/object/object.cpp:2641)\n",
+      "settings": {
+        "avoidance_threads": true
+      },
+      "workload": {
+        "behaviors": true,
+        "air_combat": true,
+        "moved": "200/200",
+        "travelled": "200/200",
+        "fired": 101,
+        "peak_live_projectiles": 45,
+        "resources": 62,
+        "sampled_peak_tracers": 0,
+        "viewport_pixels": [
+          1920.0,
+          1080.0
+        ]
+      }
+    },
+    {
+      "variant": "baseline",
+      "repetition": 2,
+      "exit": 0,
+      "elapsed_seconds": 25.84,
+      "phases": {
+        "movement": {
+          "renderer": "macOS",
+          "mean_frame_ms": 24.22,
+          "p95_frame_ms": 32.39,
+          "p99_frame_ms": 35.41,
+          "frames_over_33ms": 14,
+          "samples": 414,
+          "simulation_seconds": 10.03,
+          "wall_seconds": 10.03,
+          "realtime": true,
+          "baseline_field": false,
+          "baseline_targets": false,
+          "mean_engine_process_ms": 22.33,
+          "mean_engine_physics_ms": 12.63,
+          "physics_ticks": 301,
+          "physics_hz": 30,
+          "interpolation": true,
+          "diagnostic_no_motion": false,
+          "diagnostic_no_queues": false,
+          "gpu_ms": 0.0,
+          "render_cpu_ms": 4.04,
+          "pixels": [
+            1920.0,
+            1080.0
+          ],
+          "scale_3d": 1.0,
+          "adapter": "Apple M1 Pro (Apple7)",
+          "rendered_frames": 414,
+          "max_frame_ms": 38.76,
+          "frames_over_100ms": 0
+        },
+        "combat": {
+          "renderer": "macOS",
+          "mean_frame_ms": 28.23,
+          "p95_frame_ms": 32.74,
+          "p99_frame_ms": 35.7,
+          "frames_over_33ms": 13,
+          "samples": 354,
+          "simulation_seconds": 10.0,
+          "wall_seconds": 9.99,
+          "realtime": true,
+          "baseline_field": false,
+          "baseline_targets": false,
+          "mean_engine_process_ms": 23.63,
+          "mean_engine_physics_ms": 13.47,
+          "physics_ticks": 300,
+          "physics_hz": 30,
+          "interpolation": true,
+          "diagnostic_no_motion": false,
+          "diagnostic_no_queues": false,
+          "gpu_ms": 0.0,
+          "render_cpu_ms": 4.32,
+          "pixels": [
+            1920.0,
+            1080.0
+          ],
+          "scale_3d": 1.0,
+          "adapter": "Apple M1 Pro (Apple7)",
+          "rendered_frames": 354,
+          "max_frame_ms": 38.51,
+          "frames_over_100ms": 0
+        }
+      },
+      "raw_log": "Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org\nMetal 4.0 - Forward+ - Using Device #0: Apple - Apple M1 Pro (Apple7)\n\nBENCHMARK avoidance_threads=true\nSCALE BEGIN movement paused=false simulation_time=3.13333333333333\nSCALE movement renderer=macOS mean_frame_ms=24.22 p95_frame_ms=32.39 p99_frame_ms=35.41 frames_over_33ms=14 samples=414 simulation_seconds=10.03 wall_seconds=10.03 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=22.33 mean_engine_physics_ms=12.63 physics_ticks=301 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false\nRENDER movement gpu_ms=0.0 render_cpu_ms=4.04 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=414\nTAIL movement max_frame_ms=38.76 frames_over_100ms=0\nSCALE BEGIN combat paused=false simulation_time=13.1666666666666\nSCALE combat renderer=macOS mean_frame_ms=28.23 p95_frame_ms=32.74 p99_frame_ms=35.7 frames_over_33ms=13 samples=354 simulation_seconds=10.0 wall_seconds=9.99 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=23.63 mean_engine_physics_ms=13.47 physics_ticks=300 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false\nRENDER combat gpu_ms=0.0 render_cpu_ms=4.32 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=354\nTAIL combat max_frame_ms=38.51 frames_over_100ms=0\nSCALE behaviors=true moved=200/200 travelled=200/200 fired=113 peak_live_projectiles=47 resources=62 sampled_peak_tracers=43 viewport_pixels=(1920.0, 1080.0)\nPASS: 200 mobile units + 80 structures; behaviors=true\nWARNING: ObjectDB instances leaked at exit (run with --verbose for details).\n     at: cleanup (core/object/object.cpp:2641)\n",
+      "settings": {
+        "avoidance_threads": true
+      },
+      "workload": {
+        "behaviors": true,
+        "moved": "200/200",
+        "travelled": "200/200",
+        "fired": 113,
+        "peak_live_projectiles": 47,
+        "resources": 62,
+        "sampled_peak_tracers": 43,
+        "viewport_pixels": [
+          1920.0,
+          1080.0
+        ]
+      }
+    },
+    {
+      "variant": "candidate-common",
+      "repetition": 2,
+      "exit": 0,
+      "elapsed_seconds": 26.1,
+      "phases": {
+        "movement": {
+          "renderer": "macOS",
+          "mean_frame_ms": 26.27,
+          "p95_frame_ms": 35.41,
+          "p99_frame_ms": 38.18,
+          "frames_over_33ms": 61,
+          "samples": 382,
+          "simulation_seconds": 10.03,
+          "wall_seconds": 10.03,
+          "realtime": true,
+          "baseline_field": false,
+          "baseline_targets": false,
+          "mean_engine_process_ms": 21.95,
+          "mean_engine_physics_ms": 14.84,
+          "physics_ticks": 301,
+          "physics_hz": 30,
+          "interpolation": true,
+          "diagnostic_no_motion": false,
+          "diagnostic_no_queues": false,
+          "gpu_ms": 0.0,
+          "render_cpu_ms": 3.95,
+          "pixels": [
+            1920.0,
+            1080.0
+          ],
+          "scale_3d": 1.0,
+          "adapter": "Apple M1 Pro (Apple7)",
+          "rendered_frames": 382,
+          "max_frame_ms": 50.63,
+          "frames_over_100ms": 0
+        },
+        "combat": {
+          "renderer": "macOS",
+          "mean_frame_ms": 33.02,
+          "p95_frame_ms": 37.6,
+          "p99_frame_ms": 42.79,
+          "frames_over_33ms": 133,
+          "samples": 303,
+          "simulation_seconds": 10.0,
+          "wall_seconds": 10.01,
+          "realtime": true,
+          "baseline_field": false,
+          "baseline_targets": false,
+          "mean_engine_process_ms": 23.89,
+          "mean_engine_physics_ms": 17.51,
+          "physics_ticks": 300,
+          "physics_hz": 30,
+          "interpolation": true,
+          "diagnostic_no_motion": false,
+          "diagnostic_no_queues": false,
+          "gpu_ms": 0.0,
+          "render_cpu_ms": 4.36,
+          "pixels": [
+            1920.0,
+            1080.0
+          ],
+          "scale_3d": 1.0,
+          "adapter": "Apple M1 Pro (Apple7)",
+          "rendered_frames": 303,
+          "max_frame_ms": 46.3,
+          "frames_over_100ms": 0
+        }
+      },
+      "raw_log": "Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org\nMetal 4.0 - Forward+ - Using Device #0: Apple - Apple M1 Pro (Apple7)\n\nBENCHMARK avoidance_threads=true\nSCALE BEGIN movement paused=false simulation_time=3.23333333333333\nSCALE movement renderer=macOS mean_frame_ms=26.27 p95_frame_ms=35.41 p99_frame_ms=38.18 frames_over_33ms=61 samples=382 simulation_seconds=10.03 wall_seconds=10.03 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=21.95 mean_engine_physics_ms=14.84 physics_ticks=301 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false\nRENDER movement gpu_ms=0.0 render_cpu_ms=3.95 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=382\nTAIL movement max_frame_ms=50.63 frames_over_100ms=0\nSCALE BEGIN combat paused=false simulation_time=13.2666666666666\nSCALE combat renderer=macOS mean_frame_ms=33.02 p95_frame_ms=37.6 p99_frame_ms=42.79 frames_over_33ms=133 samples=303 simulation_seconds=10.0 wall_seconds=10.01 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=23.89 mean_engine_physics_ms=17.51 physics_ticks=300 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false\nRENDER combat gpu_ms=0.0 render_cpu_ms=4.36 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=303\nTAIL combat max_frame_ms=46.3 frames_over_100ms=0\nSCALE behaviors=true air_combat=false moved=200/200 travelled=200/200 fired=113 peak_live_projectiles=20 resources=62 sampled_peak_tracers=0 viewport_pixels=(1920.0, 1080.0)\nPASS: 200 mobile units + 80 structures; behaviors=true\nWARNING: ObjectDB instances leaked at exit (run with --verbose for details).\n     at: cleanup (core/object/object.cpp:2641)\n",
+      "settings": {
+        "avoidance_threads": true
+      },
+      "workload": {
+        "behaviors": true,
+        "air_combat": false,
+        "moved": "200/200",
+        "travelled": "200/200",
+        "fired": 113,
+        "peak_live_projectiles": 20,
+        "resources": 62,
+        "sampled_peak_tracers": 0,
+        "viewport_pixels": [
+          1920.0,
+          1080.0
+        ]
+      }
+    },
+    {
+      "variant": "candidate-air",
+      "repetition": 2,
+      "exit": 0,
+      "elapsed_seconds": 26.7,
+      "phases": {
+        "movement": {
+          "renderer": "macOS",
+          "mean_frame_ms": 35.23,
+          "p95_frame_ms": 57.91,
+          "p99_frame_ms": 61.33,
+          "frames_over_33ms": 172,
+          "samples": 285,
+          "simulation_seconds": 10.03,
+          "wall_seconds": 10.04,
+          "realtime": true,
+          "baseline_field": false,
+          "baseline_targets": false,
+          "mean_engine_process_ms": 22.19,
+          "mean_engine_physics_ms": 17.41,
+          "physics_ticks": 301,
+          "physics_hz": 30,
+          "interpolation": true,
+          "diagnostic_no_motion": false,
+          "diagnostic_no_queues": false,
+          "gpu_ms": 0.0,
+          "render_cpu_ms": 4.09,
+          "pixels": [
+            1920.0,
+            1080.0
+          ],
+          "scale_3d": 1.0,
+          "adapter": "Apple M1 Pro (Apple7)",
+          "rendered_frames": 285,
+          "max_frame_ms": 62.11,
+          "frames_over_100ms": 0
+        },
+        "combat": {
+          "renderer": "macOS",
+          "mean_frame_ms": 43.23,
+          "p95_frame_ms": 59.07,
+          "p99_frame_ms": 63.89,
+          "frames_over_33ms": 229,
+          "samples": 232,
+          "simulation_seconds": 10.03,
+          "wall_seconds": 10.03,
+          "realtime": true,
+          "baseline_field": false,
+          "baseline_targets": false,
+          "mean_engine_process_ms": 24.39,
+          "mean_engine_physics_ms": 21.59,
+          "physics_ticks": 301,
+          "physics_hz": 30,
+          "interpolation": true,
+          "diagnostic_no_motion": false,
+          "diagnostic_no_queues": false,
+          "gpu_ms": 0.0,
+          "render_cpu_ms": 4.32,
+          "pixels": [
+            1920.0,
+            1080.0
+          ],
+          "scale_3d": 1.0,
+          "adapter": "Apple M1 Pro (Apple7)",
+          "rendered_frames": 232,
+          "max_frame_ms": 66.76,
+          "frames_over_100ms": 0
+        }
+      },
+      "raw_log": "Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org\nMetal 4.0 - Forward+ - Using Device #0: Apple - Apple M1 Pro (Apple7)\n\nBENCHMARK avoidance_threads=true\nSCALE BEGIN movement paused=false simulation_time=3.76666666666666\nSCALE movement renderer=macOS mean_frame_ms=35.23 p95_frame_ms=57.91 p99_frame_ms=61.33 frames_over_33ms=172 samples=285 simulation_seconds=10.03 wall_seconds=10.04 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=22.19 mean_engine_physics_ms=17.41 physics_ticks=301 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false\nRENDER movement gpu_ms=0.0 render_cpu_ms=4.09 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=285\nTAIL movement max_frame_ms=62.11 frames_over_100ms=0\nSCALE BEGIN combat paused=false simulation_time=13.8\nSCALE combat renderer=macOS mean_frame_ms=43.23 p95_frame_ms=59.07 p99_frame_ms=63.89 frames_over_33ms=229 samples=232 simulation_seconds=10.03 wall_seconds=10.03 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=24.39 mean_engine_physics_ms=21.59 physics_ticks=301 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false\nRENDER combat gpu_ms=0.0 render_cpu_ms=4.32 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=232\nTAIL combat max_frame_ms=66.76 frames_over_100ms=0\nSCALE behaviors=true air_combat=true moved=200/200 travelled=200/200 fired=100 peak_live_projectiles=45 resources=62 sampled_peak_tracers=0 viewport_pixels=(1920.0, 1080.0)\nPASS: 200 mobile units + 80 structures; behaviors=true\nWARNING: ObjectDB instances leaked at exit (run with --verbose for details).\n     at: cleanup (core/object/object.cpp:2641)\n",
+      "settings": {
+        "avoidance_threads": true
+      },
+      "workload": {
+        "behaviors": true,
+        "air_combat": true,
+        "moved": "200/200",
+        "travelled": "200/200",
+        "fired": 100,
+        "peak_live_projectiles": 45,
+        "resources": 62,
+        "sampled_peak_tracers": 0,
+        "viewport_pixels": [
+          1920.0,
+          1080.0
+        ]
+      }
+    },
+    {
+      "variant": "baseline",
+      "repetition": 3,
+      "exit": 0,
+      "elapsed_seconds": 25.8,
+      "phases": {
+        "movement": {
+          "renderer": "macOS",
+          "mean_frame_ms": 24.11,
+          "p95_frame_ms": 32.3,
+          "p99_frame_ms": 35.94,
+          "frames_over_33ms": 14,
+          "samples": 416,
+          "simulation_seconds": 10.03,
+          "wall_seconds": 10.03,
+          "realtime": true,
+          "baseline_field": false,
+          "baseline_targets": false,
+          "mean_engine_process_ms": 22.69,
+          "mean_engine_physics_ms": 12.73,
+          "physics_ticks": 301,
+          "physics_hz": 30,
+          "interpolation": true,
+          "diagnostic_no_motion": false,
+          "diagnostic_no_queues": false,
+          "gpu_ms": 0.0,
+          "render_cpu_ms": 3.97,
+          "pixels": [
+            1920.0,
+            1080.0
+          ],
+          "scale_3d": 1.0,
+          "adapter": "Apple M1 Pro (Apple7)",
+          "rendered_frames": 416,
+          "max_frame_ms": 38.92,
+          "frames_over_100ms": 0
+        },
+        "combat": {
+          "renderer": "macOS",
+          "mean_frame_ms": 28.66,
+          "p95_frame_ms": 33.6,
+          "p99_frame_ms": 35.3,
+          "frames_over_33ms": 21,
+          "samples": 349,
+          "simulation_seconds": 10.0,
+          "wall_seconds": 10.0,
+          "realtime": true,
+          "baseline_field": false,
+          "baseline_targets": false,
+          "mean_engine_process_ms": 23.58,
+          "mean_engine_physics_ms": 14.56,
+          "physics_ticks": 300,
+          "physics_hz": 30,
+          "interpolation": true,
+          "diagnostic_no_motion": false,
+          "diagnostic_no_queues": false,
+          "gpu_ms": 0.0,
+          "render_cpu_ms": 4.25,
+          "pixels": [
+            1920.0,
+            1080.0
+          ],
+          "scale_3d": 1.0,
+          "adapter": "Apple M1 Pro (Apple7)",
+          "rendered_frames": 349,
+          "max_frame_ms": 40.24,
+          "frames_over_100ms": 0
+        }
+      },
+      "raw_log": "Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org\nMetal 4.0 - Forward+ - Using Device #0: Apple - Apple M1 Pro (Apple7)\n\nBENCHMARK avoidance_threads=true\nSCALE BEGIN movement paused=false simulation_time=3.1\nSCALE movement renderer=macOS mean_frame_ms=24.11 p95_frame_ms=32.3 p99_frame_ms=35.94 frames_over_33ms=14 samples=416 simulation_seconds=10.03 wall_seconds=10.03 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=22.69 mean_engine_physics_ms=12.73 physics_ticks=301 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false\nRENDER movement gpu_ms=0.0 render_cpu_ms=3.97 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=416\nTAIL movement max_frame_ms=38.92 frames_over_100ms=0\nSCALE BEGIN combat paused=false simulation_time=13.1333333333333\nSCALE combat renderer=macOS mean_frame_ms=28.66 p95_frame_ms=33.6 p99_frame_ms=35.3 frames_over_33ms=21 samples=349 simulation_seconds=10.0 wall_seconds=10.0 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=23.58 mean_engine_physics_ms=14.56 physics_ticks=300 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false\nRENDER combat gpu_ms=0.0 render_cpu_ms=4.25 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=349\nTAIL combat max_frame_ms=40.24 frames_over_100ms=0\nSCALE behaviors=true moved=200/200 travelled=200/200 fired=106 peak_live_projectiles=44 resources=62 sampled_peak_tracers=43 viewport_pixels=(1920.0, 1080.0)\nPASS: 200 mobile units + 80 structures; behaviors=true\nWARNING: ObjectDB instances leaked at exit (run with --verbose for details).\n     at: cleanup (core/object/object.cpp:2641)\n",
+      "settings": {
+        "avoidance_threads": true
+      },
+      "workload": {
+        "behaviors": true,
+        "moved": "200/200",
+        "travelled": "200/200",
+        "fired": 106,
+        "peak_live_projectiles": 44,
+        "resources": 62,
+        "sampled_peak_tracers": 43,
+        "viewport_pixels": [
+          1920.0,
+          1080.0
+        ]
+      }
+    },
+    {
+      "variant": "candidate-common",
+      "repetition": 3,
+      "exit": 0,
+      "elapsed_seconds": 26.0,
+      "phases": {
+        "movement": {
+          "renderer": "macOS",
+          "mean_frame_ms": 26.33,
+          "p95_frame_ms": 35.32,
+          "p99_frame_ms": 38.77,
+          "frames_over_33ms": 53,
+          "samples": 381,
+          "simulation_seconds": 10.03,
+          "wall_seconds": 10.03,
+          "realtime": true,
+          "baseline_field": false,
+          "baseline_targets": false,
+          "mean_engine_process_ms": 22.2,
+          "mean_engine_physics_ms": 14.86,
+          "physics_ticks": 301,
+          "physics_hz": 30,
+          "interpolation": true,
+          "diagnostic_no_motion": false,
+          "diagnostic_no_queues": false,
+          "gpu_ms": 0.0,
+          "render_cpu_ms": 3.95,
+          "pixels": [
+            1920.0,
+            1080.0
+          ],
+          "scale_3d": 1.0,
+          "adapter": "Apple M1 Pro (Apple7)",
+          "rendered_frames": 381,
+          "max_frame_ms": 54.3,
+          "frames_over_100ms": 0
+        },
+        "combat": {
+          "renderer": "macOS",
+          "mean_frame_ms": 32.45,
+          "p95_frame_ms": 35.94,
+          "p99_frame_ms": 39.67,
+          "frames_over_33ms": 117,
+          "samples": 308,
+          "simulation_seconds": 10.0,
+          "wall_seconds": 9.99,
+          "realtime": true,
+          "baseline_field": false,
+          "baseline_targets": false,
+          "mean_engine_process_ms": 24.13,
+          "mean_engine_physics_ms": 16.79,
+          "physics_ticks": 300,
+          "physics_hz": 30,
+          "interpolation": true,
+          "diagnostic_no_motion": false,
+          "diagnostic_no_queues": false,
+          "gpu_ms": 0.0,
+          "render_cpu_ms": 4.31,
+          "pixels": [
+            1920.0,
+            1080.0
+          ],
+          "scale_3d": 1.0,
+          "adapter": "Apple M1 Pro (Apple7)",
+          "rendered_frames": 308,
+          "max_frame_ms": 44.38,
+          "frames_over_100ms": 0
+        }
+      },
+      "raw_log": "Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org\nMetal 4.0 - Forward+ - Using Device #0: Apple - Apple M1 Pro (Apple7)\n\nBENCHMARK avoidance_threads=true\nSCALE BEGIN movement paused=false simulation_time=3.16666666666667\nSCALE movement renderer=macOS mean_frame_ms=26.33 p95_frame_ms=35.32 p99_frame_ms=38.77 frames_over_33ms=53 samples=381 simulation_seconds=10.03 wall_seconds=10.03 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=22.2 mean_engine_physics_ms=14.86 physics_ticks=301 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false\nRENDER movement gpu_ms=0.0 render_cpu_ms=3.95 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=381\nTAIL movement max_frame_ms=54.3 frames_over_100ms=0\nSCALE BEGIN combat paused=false simulation_time=13.2\nSCALE combat renderer=macOS mean_frame_ms=32.45 p95_frame_ms=35.94 p99_frame_ms=39.67 frames_over_33ms=117 samples=308 simulation_seconds=10.0 wall_seconds=9.99 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=24.13 mean_engine_physics_ms=16.79 physics_ticks=300 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false\nRENDER combat gpu_ms=0.0 render_cpu_ms=4.31 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=308\nTAIL combat max_frame_ms=44.38 frames_over_100ms=0\nSCALE behaviors=true air_combat=false moved=200/200 travelled=200/200 fired=111 peak_live_projectiles=18 resources=62 sampled_peak_tracers=0 viewport_pixels=(1920.0, 1080.0)\nPASS: 200 mobile units + 80 structures; behaviors=true\nWARNING: ObjectDB instances leaked at exit (run with --verbose for details).\n     at: cleanup (core/object/object.cpp:2641)\nERROR: 2 resources still in use at exit (run with --verbose for details).\n   at: clear (core/io/resource.cpp:810)\n",
+      "settings": {
+        "avoidance_threads": true
+      },
+      "workload": {
+        "behaviors": true,
+        "air_combat": false,
+        "moved": "200/200",
+        "travelled": "200/200",
+        "fired": 111,
+        "peak_live_projectiles": 18,
+        "resources": 62,
+        "sampled_peak_tracers": 0,
+        "viewport_pixels": [
+          1920.0,
+          1080.0
+        ]
+      }
+    },
+    {
+      "variant": "candidate-air",
+      "repetition": 3,
+      "exit": 0,
+      "elapsed_seconds": 26.65,
+      "phases": {
+        "movement": {
+          "renderer": "macOS",
+          "mean_frame_ms": 35.42,
+          "p95_frame_ms": 57.96,
+          "p99_frame_ms": 62.13,
+          "frames_over_33ms": 170,
+          "samples": 283,
+          "simulation_seconds": 10.03,
+          "wall_seconds": 10.02,
+          "realtime": true,
+          "baseline_field": false,
+          "baseline_targets": false,
+          "mean_engine_process_ms": 22.57,
+          "mean_engine_physics_ms": 17.81,
+          "physics_ticks": 301,
+          "physics_hz": 30,
+          "interpolation": true,
+          "diagnostic_no_motion": false,
+          "diagnostic_no_queues": false,
+          "gpu_ms": 0.0,
+          "render_cpu_ms": 4.1,
+          "pixels": [
+            1920.0,
+            1080.0
+          ],
+          "scale_3d": 1.0,
+          "adapter": "Apple M1 Pro (Apple7)",
+          "rendered_frames": 283,
+          "max_frame_ms": 64.35,
+          "frames_over_100ms": 0
+        },
+        "combat": {
+          "renderer": "macOS",
+          "mean_frame_ms": 42.32,
+          "p95_frame_ms": 58.55,
+          "p99_frame_ms": 62.2,
+          "frames_over_33ms": 230,
+          "samples": 236,
+          "simulation_seconds": 10.0,
+          "wall_seconds": 9.99,
+          "realtime": true,
+          "baseline_field": false,
+          "baseline_targets": false,
+          "mean_engine_process_ms": 24.06,
+          "mean_engine_physics_ms": 21.3,
+          "physics_ticks": 300,
+          "physics_hz": 30,
+          "interpolation": true,
+          "diagnostic_no_motion": false,
+          "diagnostic_no_queues": false,
+          "gpu_ms": 0.0,
+          "render_cpu_ms": 4.3,
+          "pixels": [
+            1920.0,
+            1080.0
+          ],
+          "scale_3d": 1.0,
+          "adapter": "Apple M1 Pro (Apple7)",
+          "rendered_frames": 236,
+          "max_frame_ms": 66.35,
+          "frames_over_100ms": 0
+        }
+      },
+      "raw_log": "Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org\nMetal 4.0 - Forward+ - Using Device #0: Apple - Apple M1 Pro (Apple7)\n\nBENCHMARK avoidance_threads=true\nSCALE BEGIN movement paused=false simulation_time=3.8\nSCALE movement renderer=macOS mean_frame_ms=35.42 p95_frame_ms=57.96 p99_frame_ms=62.13 frames_over_33ms=170 samples=283 simulation_seconds=10.03 wall_seconds=10.02 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=22.57 mean_engine_physics_ms=17.81 physics_ticks=301 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false\nRENDER movement gpu_ms=0.0 render_cpu_ms=4.1 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=283\nTAIL movement max_frame_ms=64.35 frames_over_100ms=0\nSCALE BEGIN combat paused=false simulation_time=13.8333333333333\nSCALE combat renderer=macOS mean_frame_ms=42.32 p95_frame_ms=58.55 p99_frame_ms=62.2 frames_over_33ms=230 samples=236 simulation_seconds=10.0 wall_seconds=9.99 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=24.06 mean_engine_physics_ms=21.3 physics_ticks=300 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false\nRENDER combat gpu_ms=0.0 render_cpu_ms=4.3 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=236\nTAIL combat max_frame_ms=66.35 frames_over_100ms=0\nSCALE behaviors=true air_combat=true moved=200/200 travelled=200/200 fired=99 peak_live_projectiles=33 resources=62 sampled_peak_tracers=0 viewport_pixels=(1920.0, 1080.0)\nPASS: 200 mobile units + 80 structures; behaviors=true\nWARNING: ObjectDB instances leaked at exit (run with --verbose for details).\n     at: cleanup (core/object/object.cpp:2641)\n",
+      "settings": {
+        "avoidance_threads": true
+      },
+      "workload": {
+        "behaviors": true,
+        "air_combat": true,
+        "moved": "200/200",
+        "travelled": "200/200",
+        "fired": 99,
+        "peak_live_projectiles": 33,
+        "resources": 62,
+        "sampled_peak_tracers": 0,
+        "viewport_pixels": [
+          1920.0,
+          1080.0
+        ]
+      }
+    }
+  ],
+  "warmups_excluded": [
+    {
+      "variant": "baseline",
+      "phases": {
+        "movement": {
+          "renderer": "macOS",
+          "mean_frame_ms": 23.4,
+          "p95_frame_ms": 31.52,
+          "p99_frame_ms": 33.56,
+          "frames_over_33ms": 7,
+          "samples": 428,
+          "simulation_seconds": 10.03,
+          "wall_seconds": 10.02,
+          "realtime": true,
+          "baseline_field": false,
+          "baseline_targets": false,
+          "mean_engine_process_ms": 22.53,
+          "mean_engine_physics_ms": 12.85,
+          "physics_ticks": 301,
+          "physics_hz": 30,
+          "interpolation": true,
+          "diagnostic_no_motion": false,
+          "diagnostic_no_queues": false,
+          "gpu_ms": 0.0,
+          "render_cpu_ms": 3.95,
+          "pixels": [
+            1920.0,
+            1080.0
+          ],
+          "scale_3d": 1.0,
+          "adapter": "Apple M1 Pro (Apple7)",
+          "rendered_frames": 428,
+          "max_frame_ms": 37.92,
+          "frames_over_100ms": 0
+        },
+        "combat": {
+          "renderer": "macOS",
+          "mean_frame_ms": 27.34,
+          "p95_frame_ms": 33.16,
+          "p99_frame_ms": 34.24,
+          "frames_over_33ms": 14,
+          "samples": 365,
+          "simulation_seconds": 10.0,
+          "wall_seconds": 9.98,
+          "realtime": true,
+          "baseline_field": false,
+          "baseline_targets": false,
+          "mean_engine_process_ms": 22.96,
+          "mean_engine_physics_ms": 13.71,
+          "physics_ticks": 300,
+          "physics_hz": 30,
+          "interpolation": true,
+          "diagnostic_no_motion": false,
+          "diagnostic_no_queues": false,
+          "gpu_ms": 0.0,
+          "render_cpu_ms": 4.27,
+          "pixels": [
+            1920.0,
+            1080.0
+          ],
+          "scale_3d": 1.0,
+          "adapter": "Apple M1 Pro (Apple7)",
+          "rendered_frames": 365,
+          "max_frame_ms": 36.81,
+          "frames_over_100ms": 0
+        }
+      },
+      "raw_log": "Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org\nMetal 4.0 - Forward+ - Using Device #0: Apple - Apple M1 Pro (Apple7)\n\nBENCHMARK avoidance_threads=true\nSCALE BEGIN movement paused=false simulation_time=3.06666666666667\nSCALE movement renderer=macOS mean_frame_ms=23.4 p95_frame_ms=31.52 p99_frame_ms=33.56 frames_over_33ms=7 samples=428 simulation_seconds=10.03 wall_seconds=10.02 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=22.53 mean_engine_physics_ms=12.85 physics_ticks=301 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false\nRENDER movement gpu_ms=0.0 render_cpu_ms=3.95 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=428\nTAIL movement max_frame_ms=37.92 frames_over_100ms=0\nSCALE BEGIN combat paused=false simulation_time=13.1\nSCALE combat renderer=macOS mean_frame_ms=27.34 p95_frame_ms=33.16 p99_frame_ms=34.24 frames_over_33ms=14 samples=365 simulation_seconds=10.0 wall_seconds=9.98 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=22.96 mean_engine_physics_ms=13.71 physics_ticks=300 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false\nRENDER combat gpu_ms=0.0 render_cpu_ms=4.27 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=365\nTAIL combat max_frame_ms=36.81 frames_over_100ms=0\nSCALE behaviors=true moved=200/200 travelled=200/200 fired=103 peak_live_projectiles=33 resources=62 sampled_peak_tracers=33 viewport_pixels=(1920.0, 1080.0)\nPASS: 200 mobile units + 80 structures; behaviors=true\nWARNING: ObjectDB instances leaked at exit (run with --verbose for details).\n     at: cleanup (core/object/object.cpp:2641)\n",
+      "settings": {
+        "avoidance_threads": true
+      },
+      "workload": {
+        "behaviors": true,
+        "moved": "200/200",
+        "travelled": "200/200",
+        "fired": 103,
+        "peak_live_projectiles": 33,
+        "resources": 62,
+        "sampled_peak_tracers": 33,
+        "viewport_pixels": [
+          1920.0,
+          1080.0
+        ]
+      }
+    },
+    {
+      "variant": "candidate-common",
+      "phases": {
+        "movement": {
+          "renderer": "macOS",
+          "mean_frame_ms": 25.78,
+          "p95_frame_ms": 35.72,
+          "p99_frame_ms": 39.71,
+          "frames_over_33ms": 51,
+          "samples": 389,
+          "simulation_seconds": 10.03,
+          "wall_seconds": 10.03,
+          "realtime": true,
+          "baseline_field": false,
+          "baseline_targets": false,
+          "mean_engine_process_ms": 22.03,
+          "mean_engine_physics_ms": 14.49,
+          "physics_ticks": 301,
+          "physics_hz": 30,
+          "interpolation": true,
+          "diagnostic_no_motion": false,
+          "diagnostic_no_queues": false,
+          "gpu_ms": 0.0,
+          "render_cpu_ms": 4.03,
+          "pixels": [
+            1920.0,
+            1080.0
+          ],
+          "scale_3d": 1.0,
+          "adapter": "Apple M1 Pro (Apple7)",
+          "rendered_frames": 389,
+          "max_frame_ms": 56.38,
+          "frames_over_100ms": 0
+        },
+        "combat": {
+          "renderer": "macOS",
+          "mean_frame_ms": 31.48,
+          "p95_frame_ms": 35.69,
+          "p99_frame_ms": 37.62,
+          "frames_over_33ms": 77,
+          "samples": 317,
+          "simulation_seconds": 10.0,
+          "wall_seconds": 9.98,
+          "realtime": true,
+          "baseline_field": false,
+          "baseline_targets": false,
+          "mean_engine_process_ms": 23.32,
+          "mean_engine_physics_ms": 16.49,
+          "physics_ticks": 300,
+          "physics_hz": 30,
+          "interpolation": true,
+          "diagnostic_no_motion": false,
+          "diagnostic_no_queues": false,
+          "gpu_ms": 0.0,
+          "render_cpu_ms": 4.58,
+          "pixels": [
+            1920.0,
+            1080.0
+          ],
+          "scale_3d": 1.0,
+          "adapter": "Apple M1 Pro (Apple7)",
+          "rendered_frames": 317,
+          "max_frame_ms": 45.37,
+          "frames_over_100ms": 0
+        }
+      },
+      "raw_log": "Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org\nMetal 4.0 - Forward+ - Using Device #0: Apple - Apple M1 Pro (Apple7)\n\nBENCHMARK avoidance_threads=true\nSCALE BEGIN movement paused=false simulation_time=3.13333333333333\nSCALE movement renderer=macOS mean_frame_ms=25.78 p95_frame_ms=35.72 p99_frame_ms=39.71 frames_over_33ms=51 samples=389 simulation_seconds=10.03 wall_seconds=10.03 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=22.03 mean_engine_physics_ms=14.49 physics_ticks=301 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false\nRENDER movement gpu_ms=0.0 render_cpu_ms=4.03 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=389\nTAIL movement max_frame_ms=56.38 frames_over_100ms=0\nSCALE BEGIN combat paused=false simulation_time=13.1666666666666\nSCALE combat renderer=macOS mean_frame_ms=31.48 p95_frame_ms=35.69 p99_frame_ms=37.62 frames_over_33ms=77 samples=317 simulation_seconds=10.0 wall_seconds=9.98 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=23.32 mean_engine_physics_ms=16.49 physics_ticks=300 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false\nRENDER combat gpu_ms=0.0 render_cpu_ms=4.58 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=317\nTAIL combat max_frame_ms=45.37 frames_over_100ms=0\nSCALE behaviors=true air_combat=false moved=200/200 travelled=200/200 fired=108 peak_live_projectiles=26 resources=62 sampled_peak_tracers=0 viewport_pixels=(1920.0, 1080.0)\nPASS: 200 mobile units + 80 structures; behaviors=true\nWARNING: ObjectDB instances leaked at exit (run with --verbose for details).\n     at: cleanup (core/object/object.cpp:2641)\nERROR: 2 resources still in use at exit (run with --verbose for details).\n   at: clear (core/io/resource.cpp:810)\n",
+      "settings": {
+        "avoidance_threads": true
+      },
+      "workload": {
+        "behaviors": true,
+        "air_combat": false,
+        "moved": "200/200",
+        "travelled": "200/200",
+        "fired": 108,
+        "peak_live_projectiles": 26,
+        "resources": 62,
+        "sampled_peak_tracers": 0,
+        "viewport_pixels": [
+          1920.0,
+          1080.0
+        ]
+      }
+    },
+    {
+      "variant": "candidate-air",
+      "phases": {
+        "movement": {
+          "renderer": "macOS",
+          "mean_frame_ms": 35.04,
+          "p95_frame_ms": 58.14,
+          "p99_frame_ms": 62.4,
+          "frames_over_33ms": 174,
+          "samples": 287,
+          "simulation_seconds": 10.03,
+          "wall_seconds": 10.06,
+          "realtime": true,
+          "baseline_field": false,
+          "baseline_targets": false,
+          "mean_engine_process_ms": 22.54,
+          "mean_engine_physics_ms": 17.57,
+          "physics_ticks": 301,
+          "physics_hz": 30,
+          "interpolation": true,
+          "diagnostic_no_motion": false,
+          "diagnostic_no_queues": false,
+          "gpu_ms": 0.0,
+          "render_cpu_ms": 4.17,
+          "pixels": [
+            1920.0,
+            1080.0
+          ],
+          "scale_3d": 1.0,
+          "adapter": "Apple M1 Pro (Apple7)",
+          "rendered_frames": 287,
+          "max_frame_ms": 64.53,
+          "frames_over_100ms": 0
+        },
+        "combat": {
+          "renderer": "macOS",
+          "mean_frame_ms": 45.22,
+          "p95_frame_ms": 61.3,
+          "p99_frame_ms": 64.99,
+          "frames_over_33ms": 218,
+          "samples": 221,
+          "simulation_seconds": 10.0,
+          "wall_seconds": 9.99,
+          "realtime": true,
+          "baseline_field": false,
+          "baseline_targets": false,
+          "mean_engine_process_ms": 24.84,
+          "mean_engine_physics_ms": 21.6,
+          "physics_ticks": 300,
+          "physics_hz": 30,
+          "interpolation": true,
+          "diagnostic_no_motion": false,
+          "diagnostic_no_queues": false,
+          "gpu_ms": 0.0,
+          "render_cpu_ms": 4.46,
+          "pixels": [
+            1920.0,
+            1080.0
+          ],
+          "scale_3d": 1.0,
+          "adapter": "Apple M1 Pro (Apple7)",
+          "rendered_frames": 221,
+          "max_frame_ms": 68.87,
+          "frames_over_100ms": 0
+        }
+      },
+      "raw_log": "Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org\nMetal 4.0 - Forward+ - Using Device #0: Apple - Apple M1 Pro (Apple7)\n\nBENCHMARK avoidance_threads=true\nSCALE BEGIN movement paused=false simulation_time=3.7\nSCALE movement renderer=macOS mean_frame_ms=35.04 p95_frame_ms=58.14 p99_frame_ms=62.4 frames_over_33ms=174 samples=287 simulation_seconds=10.03 wall_seconds=10.06 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=22.54 mean_engine_physics_ms=17.57 physics_ticks=301 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false\nRENDER movement gpu_ms=0.0 render_cpu_ms=4.17 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=287\nTAIL movement max_frame_ms=64.53 frames_over_100ms=0\nSCALE BEGIN combat paused=false simulation_time=13.7333333333333\nSCALE combat renderer=macOS mean_frame_ms=45.22 p95_frame_ms=61.3 p99_frame_ms=64.99 frames_over_33ms=218 samples=221 simulation_seconds=10.0 wall_seconds=9.99 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=24.84 mean_engine_physics_ms=21.6 physics_ticks=300 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false\nRENDER combat gpu_ms=0.0 render_cpu_ms=4.46 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=221\nTAIL combat max_frame_ms=68.87 frames_over_100ms=0\nSCALE behaviors=true air_combat=true moved=200/200 travelled=200/200 fired=100 peak_live_projectiles=53 resources=62 sampled_peak_tracers=0 viewport_pixels=(1920.0, 1080.0)\nPASS: 200 mobile units + 80 structures; behaviors=true\nWARNING: ObjectDB instances leaked at exit (run with --verbose for details).\n     at: cleanup (core/object/object.cpp:2641)\n",
+      "settings": {
+        "avoidance_threads": true
+      },
+      "workload": {
+        "behaviors": true,
+        "air_combat": true,
+        "moved": "200/200",
+        "travelled": "200/200",
+        "fired": 100,
+        "peak_live_projectiles": 53,
+        "resources": 62,
+        "sampled_peak_tracers": 0,
+        "viewport_pixels": [
+          1920.0,
+          1080.0
+        ]
+      }
+    }
+  ],
+  "weapon_probe": {
+    "method": "Separate headless fixed-fps60 pass sampling unique live-round serials by shot.type; not a performance sample.",
+    "observed_live_rounds_by_role": {
+      "AntiAirVehicle": 311,
+      "Bomber": 138,
+      "CombatRobot": 199,
+      "Fighter": 139,
+      "Helicopter": 195,
+      "Tank": 135
+    }
+  },
+  "diagnostic_half_resolution": {
+    "variant": "candidate-air",
+    "raster_scale": 0.5,
+    "purpose": "Single resolution diagnostic, excluded from full-resolution summary.",
+    "phases": {
+      "movement": {
+        "renderer": "macOS",
+        "mean_frame_ms": 37.06,
+        "p95_frame_ms": 61.28,
+        "p99_frame_ms": 70.51,
+        "frames_over_33ms": 168,
+        "samples": 271,
+        "simulation_seconds": 10.03,
+        "wall_seconds": 10.04,
+        "realtime": true,
+        "baseline_field": false,
+        "baseline_targets": false,
+        "mean_engine_process_ms": 24.1,
+        "mean_engine_physics_ms": 17.23,
+        "physics_ticks": 301,
+        "physics_hz": 30,
+        "interpolation": true,
+        "diagnostic_no_motion": false,
+        "diagnostic_no_queues": false,
+        "gpu_ms": 0.0,
+        "render_cpu_ms": 4.28,
+        "pixels": [
+          1920.0,
+          1080.0
+        ],
+        "scale_3d": 0.5,
+        "adapter": "Apple M1 Pro (Apple7)",
+        "rendered_frames": 271,
+        "max_frame_ms": 76.62,
+        "frames_over_100ms": 0
+      },
+      "combat": {
+        "renderer": "macOS",
+        "mean_frame_ms": 43.73,
+        "p95_frame_ms": 60.84,
+        "p99_frame_ms": 66.91,
+        "frames_over_33ms": 227,
+        "samples": 229,
+        "simulation_seconds": 10.03,
+        "wall_seconds": 10.01,
+        "realtime": true,
+        "baseline_field": false,
+        "baseline_targets": false,
+        "mean_engine_process_ms": 24.47,
+        "mean_engine_physics_ms": 21.4,
+        "physics_ticks": 301,
+        "physics_hz": 30,
+        "interpolation": true,
+        "diagnostic_no_motion": false,
+        "diagnostic_no_queues": false,
+        "gpu_ms": 0.0,
+        "render_cpu_ms": 4.39,
+        "pixels": [
+          1920.0,
+          1080.0
+        ],
+        "scale_3d": 0.5,
+        "adapter": "Apple M1 Pro (Apple7)",
+        "rendered_frames": 229,
+        "max_frame_ms": 69.53,
+        "frames_over_100ms": 0
+      }
+    },
+    "raw_log": "Godot Engine v4.6.stable.official.89cea1439 - https://godotengine.org\nMetal 4.0 - Forward+ - Using Device #0: Apple - Apple M1 Pro (Apple7)\n\nBENCHMARK avoidance_threads=true\nSCALE BEGIN movement paused=false simulation_time=3.93333333333333\nSCALE movement renderer=macOS mean_frame_ms=37.06 p95_frame_ms=61.28 p99_frame_ms=70.51 frames_over_33ms=168 samples=271 simulation_seconds=10.03 wall_seconds=10.04 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=24.1 mean_engine_physics_ms=17.23 physics_ticks=301 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false\nRENDER movement gpu_ms=0.0 render_cpu_ms=4.28 pixels=(1920.0, 1080.0) scale_3d=0.5 adapter=Apple M1 Pro (Apple7) rendered_frames=271\nTAIL movement max_frame_ms=76.62 frames_over_100ms=0\nSCALE BEGIN combat paused=false simulation_time=13.9666666666666\nSCALE combat renderer=macOS mean_frame_ms=43.73 p95_frame_ms=60.84 p99_frame_ms=66.91 frames_over_33ms=227 samples=229 simulation_seconds=10.03 wall_seconds=10.01 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=24.47 mean_engine_physics_ms=21.4 physics_ticks=301 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false\nRENDER combat gpu_ms=0.0 render_cpu_ms=4.39 pixels=(1920.0, 1080.0) scale_3d=0.5 adapter=Apple M1 Pro (Apple7) rendered_frames=229\nTAIL combat max_frame_ms=69.53 frames_over_100ms=0\nSCALE behaviors=true air_combat=true moved=200/200 travelled=200/200 fired=100 peak_live_projectiles=35 resources=62 sampled_peak_tracers=0 viewport_pixels=(1920.0, 1080.0)\nPASS: 200 mobile units + 80 structures; behaviors=true\nWARNING: ObjectDB instances leaked at exit (run with --verbose for details).\n     at: cleanup (core/object/object.cpp:2641)\n",
+    "settings": {
+      "avoidance_threads": true
+    },
+    "workload": {
+      "behaviors": true,
+      "air_combat": true,
+      "moved": "200/200",
+      "travelled": "200/200",
+      "fired": 100,
+      "peak_live_projectiles": 35,
+      "resources": 62,
+      "sampled_peak_tracers": 0,
+      "viewport_pixels": [
+        1920.0,
+        1080.0
+      ]
+    }
+  }
+}

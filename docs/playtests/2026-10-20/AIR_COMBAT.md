@@ -153,21 +153,61 @@ Accepted runs have no script or parse errors. Existing Godot shutdown
 resource/RID cleanup warnings and a dummy-renderer material diagnostic remain.
 Negative settings-persistence tests deliberately exercise failed file writes.
 
-## Visual checks and limits
+## Rendered follow-up
 
-Before the user's headless-only instruction, all three factions completed
-`AirOpsPreview`: taxi, takeoff, banking, bomb release, approach, rollout and
-parking. `ProjectilePreview` showed physical rounds and verified that pause
-freezes their positions. Captures are local ignored artifacts under
-`art/air-combat/review/`.
+The user subsequently permitted game launches. Final checks use the same Godot
+4.6 stable binary with Metal Forward+ on an Apple M1 Pro:
 
-Subsequent runs are headless only. The final terrain shader parameter rename
-has not been recompiled through Metal in a rendered run. No final rendered
-frame-time comparison, Windows run or Linux run is claimed.
+- All three factions repeat `AirOpsPreview` through taxi, takeoff, banking,
+  bomb release, approach, rollout and parking. `ProjectilePreview` fires 78
+  rounds, reaches seven simultaneous rounds and verifies that pause freezes
+  their positions. Reviewed captures are local ignored artifacts under
+  `art/air-combat/review/final/` and `art/air-combat/projectiles/`.
+- `WeatheringPreview` now captures individual on/off comparisons for all 11 new
+  aircraft and mobile-AA models, alongside the existing base/vehicle views.
+  All 34 captures pass framing, asset identity and renderer checks. Visual
+  review finds no missing geometry, materials or clipped featured models.
+- `TerrainLayersPreview` passes on Desert Frontier, Pinebreak Valley, Coastal
+  Foundry and Glacier Narrows, including ground-detail controls. This compiles
+  the final terrain shader through Metal.
+- Glacier initially exposed four navigation edge warnings, also reproduced on
+  unchanged main. Server-created navigation maps had not inherited the
+  project's merge-raster precision. Applying the configured setting to both
+  owned maps removes false edge collisions between the ford's close vertices.
+  The engine's effective scale is 0.01, giving a 3 mm ground raster instead of
+  3 cm; it clamps the project's requested 0.001. No geometry or route
+  tolerances change. The new regression fails three checks on unchanged main
+  and passes after the fix, as do terrain, movement, harvest and projection
+  checks. All 24 registered maps also repeat the resource/path balance check
+  successfully. Glacier's rendered retry has no navigation warnings.
+- The full HUD preview covers ordinary selection/production/menu states for
+  all factions in English and Chinese. Adding 42 eight-player and spectator
+  captures exposed subtitles covering resource readouts. Captions now reserve
+  the tall roster's column while retaining normal one/two-player placement.
+  All 42 corrected captures pass automated checks and visual review. A further
+  four-player harvest fixture covers short/long caption transitions: wrapping
+  now refits width while preserving the 8 px roster gap and 12 px right margin.
+  All 66 layout states pass both headlessly and with the Metal renderer. The
+  harvest fixture waits for animated resource readouts to settle before
+  measuring their width, including at uncapped frame rates. Spectator captures
+  allow initial visibility updates before pausing instead of capturing
+  uninitialized fog.
+- `FramePacingRegression` passes all factions, observing 61–63 rendered
+  movement updates between physics ticks per 100 samples. Camera input,
+  recoil authority and pause assertions also pass.
+
+The three measured aircraft-heavy runs have a median combat p95 of **58.55 ms**,
+so the plan's **33.3 ms target remains unmet**. The common roster's mean combat
+frame time increases about 15% against main. Raw measurements and method are in
+[the performance report](../../performance/AIR_COMBAT.md). Windows, Linux and
+packaged release exports remain unverified. Existing exit-time resource/RID
+cleanup warnings remain; accepted previews have no shader or script errors.
 
 ## Agent progress
 
 - Implementation, archive conversion, audio/model audits and available
   headless verification are complete.
 - Integration commit `ebb398ea` was fast-forwarded into local `main`.
-- Rendered/platform verification limits are recorded above.
+- The rendered follow-up closes the Metal, model, flight and HUD review gaps,
+  with navigation and subtitle fixes backed by regressions. Performance and
+  remaining platform limits are recorded separately.

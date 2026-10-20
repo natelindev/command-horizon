@@ -199,7 +199,19 @@ func _caption_roster_crossover(options):
 		workers[index].issue_manual_order(harvest.new(deposits[0]))
 	var bar = game.find_child("ResourcesBar")
 	bar._refresh()
-	await _frames(30)
+	# The readouts animate for 0.35 seconds; uncapped rendered frames can reach
+	# this assertion before four-digit values widen the resource plate.
+	var counter_deadline = Time.get_ticks_msec() + 2000
+	while (
+		(bar._materials.text != "1250" or bar._electronics.text != "1250")
+		and Time.get_ticks_msec() < counter_deadline
+	):
+		await process_frame
+	_check(
+		bar._materials.text == "1250" and bar._electronics.text == "1250",
+		"Caption crossover resource counters did not settle"
+	)
+	await _frames(3)
 	_check(
 		bar._assignment_buttons.values().all(func(button): return button.visible),
 		"Caption crossover fixture lacks real harvest assignment controls"

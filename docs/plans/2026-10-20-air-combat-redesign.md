@@ -442,3 +442,29 @@ Headless command:
   `ebb398ea` was fast-forwarded into local `main`; detailed results and remaining
   rendered/platform limits are recorded in
   `docs/playtests/2026-10-20/AIR_COMBAT.md`.
+- 2026-10-20 (rendered follow-up): the user now permits game launches, superseding
+  the earlier headless-only restriction. Remaining stages:
+  1. Review final terrain, all-faction aircraft/weathering and HUD captures;
+     investigate any renderer or preview failures.
+  2. Measure comparable before/after rendered workloads and the new mixed
+     aircraft/AA workload on the available Metal device.
+  3. Record results and remaining platform limits, then merge verified follow-up
+     changes into local `main`.
+- Final rendered review passes all-faction flight/projectiles, 11 individual
+  aircraft/AA model comparisons, four representative terrain maps and English/
+  Chinese HUD captures. It exposed two corrected issues: owned navigation maps
+  were ignoring the configured merge raster, and captions overlapped tall
+  resource rosters. Caption width also updates when a wrapped line crosses
+  into that roster's vertical band. Commit `b22f40b7` includes the fixes and
+  expanded regression/preview coverage.
+- Nine serialized 1080p Metal stress samples pass movement and weapon workload
+  checks. The common roster's median mean combat frame time increases from
+  28.23 to 32.45 ms. The new aircraft-heavy roster's median combat p95 is
+  58.55 ms: **the 33.3 ms performance target remains unmet**. Results, raw
+  measurements and the half-resolution diagnostic are in
+  `docs/performance/AIR_COMBAT.md`. Windows/Linux and packaged release checks
+  remain unverified.
+- Follow-up verification and documentation are complete. The final HUD
+  regression passes all 66 states headlessly and with Metal at uncapped frame
+  rates; its harvest fixture waits for animated counters before measuring
+  layout. Resource/path balance also passes again on all 24 registered maps.
