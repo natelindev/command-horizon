@@ -54,9 +54,12 @@ func _run():
 	aftermath.burst(Vector3(0, 1, 0), 1.0, false)
 	var body = aftermath.debris[0].node
 	var start = body.position
+	var peak = start.y
+	# Track the apex: the fragment may already be falling after a fixed tick count at 30 Hz.
 	for _index in range(25):
 		await physics_frame
-	_check(body.position.y > start.y, "Physics impulse did not lift fragment")
+		peak = maxf(peak, body.position.y)
+	_check(peak > start.y, "Physics impulse did not lift fragment")
 	paused = true
 	var frozen_position = body.position
 	for _index in range(12):

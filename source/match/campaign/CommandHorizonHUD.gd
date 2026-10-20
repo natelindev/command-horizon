@@ -1,5 +1,7 @@
 extends "res://source/match/hud/SkirmishHUD.gd"
 
+const Catalog = preload("res://source/match/BastionCatalog.gd")
+
 var objective_panel
 var _command_panel
 var _zone
@@ -100,9 +102,9 @@ func _select(kind):
 	if _overlay != null or get_parent().finished:
 		return
 	var roles = {
-		"infantry": load("res://source/match/BastionCatalog.gd").INFANTRY_ROLES,
-		"armor": ["Tank", "AdvancedTank", "CombatRobot"],
-		"air": ["Drone", "Helicopter"],
+		"infantry": Catalog.INFANTRY_ROLES,
+		"armor": ["Tank", "AntiAirVehicle", "AdvancedTank", "CombatRobot"],
+		"air": Catalog.AIRCRAFT_ROLES,
 		"repair": ["RepairRobot"]
 	}[kind]
 	var units = get_parent()._get_human_player().get_children().filter(

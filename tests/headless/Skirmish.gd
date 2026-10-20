@@ -122,10 +122,14 @@ func _test_roster(faction, opponent):
 	human.resource_b = 10000
 	var air = load(Catalog.scene_path("AircraftFactory")).instantiate()
 	game._setup_and_spawn_unit(air, Transform3D(Basis(), Vector3(32, 0, 12)), human, false)
+	# HQs supply 8 power and generators 12: the airfield needs a second generator.
+	var generator = load(Catalog.scene_path("PowerPlant")).instantiate()
+	game._setup_and_spawn_unit(generator, Transform3D(Basis(), Vector3(26, 0, 12)), human, false)
 	await _frames(2)
 	_check(human.start_coordination(_unit(human, "CommandLab")), "Could not start Coordination")
 	human._physics_process(30.0)
 	_check(human.coordination_unlocked, "Coordination did not unlock")
+	var parked = 0
 	for producer_type in Catalog.PRODUCES:
 		var producer = _unit(human, producer_type)
 		for role in Catalog.PRODUCES[producer_type]:
@@ -145,9 +149,15 @@ func _test_roster(faction, opponent):
 				funds == Vector2i(human.resource_a, human.resource_b),
 				"Cancellation refund mismatch"
 			)
+			var existing = human.get_children()
 			producer.production_queue.produce(load(Catalog.scene_path(role)))
 			producer.production_queue._process(1000)
 			_check(_unit(human, role) != null, "Production failed " + role)
+			# No frames pass here, so move each new unit off the exit for the next job.
+			for unit in human.get_children():
+				if not unit in existing and "type" in unit:
+					unit.global_position = Vector3(8 + parked * 2.5, unit.global_position.y, 34)
+					parked += 1
 			if faction in ["helix", "frontier"]:
 				_check(
 					_unit(human, role).get_meta("model_faction", "") == faction,
@@ -177,10 +187,11 @@ func _test_roster(faction, opponent):
 		_check(walker.request_weapon_mode("interception"), "Missing mobile AA stance")
 		await _frames(125)
 	_check(walker.attack_domains.has(constants.Match.Navigation.Domain.AIR), "Missing mobile AA")
-	var lab = _unit(human, "CommandLab")
-	lab._construction_progress = 0.0
-	_check(not factions.available(human, "AdvancedTank"), "Lab requirement bypassed")
-	lab._construction_progress = 1.0
+	# Frontier's heavy tank needs a field workshop; the others need the lab.
+	var gate = _unit(human, factions.requirement(human, "AdvancedTank"))
+	gate._construction_progress = 0.0
+	_check(not factions.available(human, "AdvancedTank"), "Heavy tank requirement bypassed")
+	gate._construction_progress = 1.0
 	# Finish a real skirmish through HQ loss; survivors cannot indefinitely stall it.
 	var losers = [enemy]
 	var expected_result = "Victory"

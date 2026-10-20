@@ -1,6 +1,7 @@
 extends Node
 
 const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
+const Footprint = preload("res://source/match/utils/Footprint.gd")
 
 const Rules = preload("res://source/match/combat/CombatRules.gd")
 const INTERVAL = 0.25
@@ -28,7 +29,7 @@ static func mobile_eligible(source, target):
 static func facility_for_role(role):
 	if InfantryRoster.is_infantry(role):
 		return "Barracks"
-	if role in ["Drone", "Helicopter"]:
+	if InfantryRoster.is_aircraft(role):
 		return "AircraftFactory"
 	return "RepairDepot"
 
@@ -56,7 +57,7 @@ static func stationary(unit):
 
 
 static func mobile_distance(source, target):
-	var distance = source.global_position_yless.distance_to(target.global_position_yless)
+	var distance = Footprint.reach_distance(target, source.global_position)
 	# A robot services a building at its footprint, not at its inaccessible center.
 	# Mobile targets retain the existing center-to-center channel range.
 	if target.has_method("is_constructed"):
@@ -93,7 +94,17 @@ func service(delta):
 				and (unit.action == null or unit.action.has_method("repair_target"))
 			):
 				providers.append({"unit": unit, "rate": 0.025 * upgrade, "slots": 1, "range": 3.0})
-		elif unit.type in ["RepairDepot", "AircraftFactory", "Barracks"] and unit.is_constructed():
+		elif unit.type == "AircraftFactory" and unit.is_constructed():
+			# Aircraft are serviced on the airfield's stands and helipads.
+			providers.append(
+				{
+					"unit": unit,
+					"rate": 0.04 * unit.player.production_factor() * upgrade,
+					"slots": unit.service_slots(),
+					"range": unit.SERVICE_REACH
+				}
+			)
+		elif unit.type in ["RepairDepot", "Barracks"] and unit.is_constructed():
 			providers.append(
 				{
 					"unit": unit,
@@ -156,10 +167,7 @@ func _eligible(provider, target):
 		"RepairDepot":
 			return mobile_eligible(source, target) and target.movement_speed > 0
 		"AircraftFactory":
-			return (
-				target.movement_domain == Constants.Match.Navigation.Domain.AIR
-				and stationary(target)
-			)
+			return source.services(target) and stationary(target)
 		"Barracks":
 			return InfantryRoster.is_infantry(target.type) and stationary(target)
 	return false  # gdlint: ignore = max-returns

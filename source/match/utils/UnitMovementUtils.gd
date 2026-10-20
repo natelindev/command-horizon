@@ -1,4 +1,5 @@
 # TODO: refactor required after porting from Godot 3
+const Footprint = preload("res://source/match/utils/Footprint.gd")
 const DISTANCE_REDUCTION_BY_DIVISION_ITERATIONS_MAX = 10
 const DISTANCE_REDUCTION_BY_SUBTRACTION_ITERATIONS_MAX = 10
 
@@ -225,12 +226,12 @@ static func adherence_margin(unit_a, unit_b):
 
 static func _unit_in_range_of_other(unit_a, unit_b, b_range):
 	"""checks if distance from one unit border to another is within range"""
-	var unit_a_position_yless = unit_a.global_position * Vector3(1, 0, 1)
-	var unit_b_position_yless = unit_b.global_position * Vector3(1, 0, 1)
-	return (
-		unit_a_position_yless.distance_to(unit_b_position_yless)
-		<= (unit_a.radius + unit_b.radius + b_range)
+	# Footprinted structures measure from their outline (Footprint.reach_distance).
+	var distance = minf(
+		Footprint.reach_distance(unit_b, unit_a.global_position),
+		Footprint.reach_distance(unit_a, unit_b.global_position)
 	)
+	return distance <= (unit_a.radius + unit_b.radius + b_range)
 
 
 static func _attract_unit_positions_towards_pivot(unit_positions, pivot, interunit_threshold):

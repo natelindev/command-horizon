@@ -47,7 +47,7 @@ func _spawn_player_units(side, _spawn_transform):
 			["PowerPlant", Vector3(129, 0, 96)],
 			["Barracks", Vector3(138, 0, 94)]
 		]:
-			_spawn(entry[0], side, entry[1])
+			_spawn(entry[0], side, entry[1], entry[2] if entry.size() > 2 else 0.0)
 		for index in 3:
 			_spawn("Worker", side, Vector3(130 + index * 2, 0, 83))
 		for point in map.SITES:
@@ -58,7 +58,8 @@ func _spawn_player_units(side, _spawn_transform):
 		var progress = Progress.new()
 		progress.read_progress(progress_path)
 		if not progress.network_badge:
-			var patrol = _spawn("Helicopter", side, Vector3(108, 0, 34))
+			# Interceptors threaten the evacuation flights; helicopters only hit ground.
+			var patrol = _spawn("Fighter", side, Vector3(108, 0, 34))
 			var orders = load("res://source/match/orders/ManualOrders.gd")
 			for index in 16:
 				patrol.manual_orders.submit(
@@ -79,16 +80,17 @@ func _spawn_player_units(side, _spawn_transform):
 		["VehicleFactory", Vector3(31, 0, 31)],
 		["CommandLab", Vector3(23, 0, 36)],
 		["RepairDepot", Vector3(31, 0, 41)],
-		["AircraftFactory", Vector3(14, 0, 62)],
+		# Runway north of the evacuation pad; the helicopters wait on its helipads.
+		["AircraftFactory", Vector3(14, 0, 61), 90.0],
 		["Worker", Vector3(9, 0, 66)],
 		["Worker", Vector3(12, 0, 69)],
 		["Drone", Vector3(32, 0, 56)],
-		["Helicopter", Vector3(18, 0, 62)],
-		["Helicopter", Vector3(22, 0, 62)],
+		["Helicopter", Vector3(24.7, 0, 58)],
+		["Helicopter", Vector3(3.8, 0, 58)],
 		["RepairRobot", Vector3(33, 0, 48)],
 		["RepairRobot", Vector3(33, 0, 58)]
 	]:
-		_spawn(entry[0], side, entry[1])
+		_spawn(entry[0], side, entry[1], entry[2] if entry.size() > 2 else 0.0)
 	for index in 4:
 		_spawn("Tank", side, Vector3(36 + index * 2.4, 0, 49))
 		_spawn("CombatRobot", side, Vector3(36 + index * 2.4, 0, 55))
@@ -96,11 +98,17 @@ func _spawn_player_units(side, _spawn_transform):
 		_spawn("Infantry", side, Vector3(35 + index % 3 * 1.7, 0, 61 + index / 3 * 1.7))
 
 
-func _spawn(role, side, point):
+# `heading` (degrees) orients long structures such as the runway airfield.
+func _spawn(role, side, point, heading = 0.0):
 	var unit = load(Catalog.scene_path(role)).instantiate()
 	if role == "Tank" and side.faction == "bastion":
 		unit.set_meta("chip_installed", true)
-	_setup_and_spawn_unit(unit, Transform3D(Basis(), point), side, false)
+	# Helix aircraft here have no airfield to rearm at.
+	if role in ["Helicopter", "Fighter"] and side != _get_human_player():
+		unit.unlimited_stores = true
+	_setup_and_spawn_unit(
+		unit, Transform3D(Basis(Vector3.UP, deg_to_rad(heading)), point), side, false
+	)
 	return unit
 
 
@@ -220,7 +228,7 @@ func _send_response(flight):
 			continue
 		var count = ([1, 2, 3] if lane == 0 else [1, 1, 2])[_enemy.difficulty]
 		for member in count:
-			var role = "CombatRobot" if lane == 0 else "Helicopter"
+			var role = "CombatRobot" if lane == 0 else "Fighter"
 			var unit = _spawn(role, _enemy, entry + Vector3(member * 2.5, 0, 0))
 			if role == "CombatRobot":
 				unit.request_weapon_mode("interception")

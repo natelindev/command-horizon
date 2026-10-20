@@ -68,7 +68,8 @@ func _create(map_name, faction, mission = ""):
 		player.set_process(false)
 	for unit in get_nodes_in_group("units"):
 		unit.issue_manual_order(null)
-		if unit.movement_speed > 0:
+		# Losing the campaign hero ends an operation in defeat; keep it, frozen.
+		if unit.movement_speed > 0 and unit.type != "Hero":
 			unit.queue_free()
 		else:
 			unit.process_mode = Node.PROCESS_MODE_DISABLED

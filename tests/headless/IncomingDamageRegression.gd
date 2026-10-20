@@ -17,11 +17,10 @@ func _run():
 	shooter.global_position = hq.global_position + Vector3(-7, 0, 0)
 	spotter.global_position = hq.global_position + Vector3(-7, 0, 4)
 	target.global_position = hq.global_position + Vector3(7, 0, 0)
-	var shell = load("res://source/match/units/projectiles/CannonShell.tscn").instantiate()
-	shell.restoring = true
-	shell.target_unit = target
-	shell.process_mode = Node.PROCESS_MODE_DISABLED
-	shooter.add_child(shell)
+	# Hold the round in flight; the checks query it without letting it land.
+	var system = game.projectile_system
+	system.process_mode = Node.PROCESS_MODE_DISABLED
+	system.launch(shooter, target)
 	var battlefield = game.battlefield
 	battlefield.invalidate()
 	_check(not battlefield.has_line_of_fire(shooter, target), "Fixture HQ does not block the shell")
@@ -45,7 +44,7 @@ func _run():
 		battlefield._incoming_damage(spotter, [target]).get(target, 0.0) > 0.0,
 		"Clear in-flight shot was not counted as incoming damage"
 	)
-	shell.queue_free()
+	system.clear()
 	game.queue_free()
 	await _frames(5)
 	for message in errors:

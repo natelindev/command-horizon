@@ -3,6 +3,9 @@ extends NavigationObstacle3D
 @export var domain = Constants.Match.Navigation.Domain.TERRAIN
 @export var path_height_offset = 0.0
 @export var sight_height = 3.0
+# Optional local XZ outline (any polygon); it turns with the body. Empty uses
+# the circular footprint of `radius`.
+@export var footprint = PackedVector2Array()
 
 var _synchronized = false
 
@@ -21,11 +24,17 @@ func _ready():
 	# This includes deposits: their old 0.2 m bake footprint admitted gaps that
 	# their 0.6 m avoidance radius could not pass, stranding loaded engineers.
 	if affect_navigation_mesh:
-		var footprint = PackedVector3Array()
-		for index in range(16):
-			var angle = index * TAU / 16.0
-			footprint.append(Vector3(cos(angle), 0, sin(angle)) * radius)
-		vertices = footprint
+		var outline = PackedVector3Array()
+		if footprint.is_empty():
+			for index in range(16):
+				var angle = index * TAU / 16.0
+				outline.append(Vector3(cos(angle), 0, sin(angle)) * radius)
+		else:
+			# Local outline: navigation baking and avoidance both apply the
+			# node's global rotation themselves.
+			for point in footprint:
+				outline.append(Vector3(point.x, 0, point.y))
+		vertices = outline
 	if _match.navigation == null:
 		await _match.ready
 	await _match.navigation.wait_until_synchronized(domain)

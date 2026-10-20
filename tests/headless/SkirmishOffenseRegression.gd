@@ -361,7 +361,8 @@ func _archived_engineer():
 	_check(returned, "Archived engineer did not collect and deliver within sixty seconds")
 	if is_instance_valid(worker):
 		_check(
-			maximum_step <= worker.movement_speed / 60.0 + 0.002, "Engineer replay exceeded speed"
+			maximum_step <= worker.movement_speed / Engine.physics_ticks_per_second + 0.002,
+			"Engineer replay exceeded speed"
 		)
 	print(
 		"ARCHIVED ENGINEER cargo=",

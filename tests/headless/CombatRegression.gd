@@ -291,36 +291,48 @@ func _test_damage():
 
 
 func _test_projectiles():
-	var shell_scene = load("res://source/match/units/projectiles/CannonShell.tscn")
+	var system = _game.projectile_system
 	var shooter = _spawn("Tank", _human, Vector3(40, 0, 8))
 	var target = _spawn("Tank", _enemy, Vector3(44, 0, 8))
 	await _frames(30)
 	var before = target.hp
-	var shell = shell_scene.instantiate()
-	shell.process_mode = Node.PROCESS_MODE_PAUSABLE
-	shell.target_unit = target
-	shooter.add_child(shell)
+	var shell = system.launch(shooter, target)
 	_check(target.hp == before, "Cannon hit before its flight completed")
 	paused = true
-	var remaining = shell._flight_left
+	var remaining = shell.life - shell.age
 	await _frames(20)
-	_check(shell._flight_left == remaining and target.hp == before, "Projectile advanced in pause")
+	_check(
+		shell.life - shell.age == remaining and target.hp == before, "Projectile advanced in pause"
+	)
 	paused = false
 	await _frames(30)
 	_check(
 		is_equal_approx(before - target.hp, shooter.attack_damage),
-		"Projectile hit twice or failed to resolve"
+		(
+			"Projectile hit twice or failed to resolve: %s of %s"
+			% [before - target.hp, shooter.attack_damage]
+		)
 	)
-	var rocket = load("res://source/match/units/projectiles/Rocket.tscn").instantiate()
-	rocket.process_mode = Node.PROCESS_MODE_PAUSABLE
-	rocket.target_unit = target
-	shooter.add_child(rocket)
+	var rocket = system.launch(shooter, target)
 	var impacts = _game.combat_effects.impacts_emitted
 	target.queue_free()
 	await _frames(50)
-	_check(not is_instance_valid(rocket), "Missile retained a destroyed target")
+	_check(not system._rounds.has(rocket), "Missile retained a destroyed target")
 	_check(
 		_game.combat_effects.impacts_emitted == impacts, "Destroyed target produced a ghost impact"
+	)
+	# Rounds already flying keep their frozen weapon facts after the shooter dies.
+	var gunner = _spawn("Tank", _human, Vector3(40, 0, 14))
+	var mark = _spawn("Tank", _enemy, Vector3(44, 0, 14))
+	await _frames(30)
+	before = mark.hp
+	var damage = load("res://source/match/combat/CombatRules.gd").damage(gunner, mark)
+	system.launch(gunner, mark)
+	gunner.queue_free()
+	await _frames(30)
+	_check(
+		is_instance_valid(mark) and is_equal_approx(before - mark.hp, damage),
+		"Round in flight was lost with its destroyed shooter"
 	)
 	var survivor = _spawn("Worker", _enemy, Vector3(47, 0, 8))
 	shooter.process_mode = Node.PROCESS_MODE_PAUSABLE
@@ -407,7 +419,8 @@ func _test_repair():
 	_check(is_equal_approx(infantry.hp, 5.88), "Infantry producer does not recover infantry")
 	var airfield = _spawn("AircraftFactory", _human, Vector3(48, 0, 14))
 	airfield.process_mode = Node.PROCESS_MODE_PAUSABLE
-	var aircraft = _spawn("Drone", _human, Vector3(48, 2, 17))
+	# Rotorcraft are serviced on the airfield's helipads.
+	var aircraft = _spawn("Drone", _human, airfield.pad_point(1) + Vector3.UP * 2)
 	aircraft.hp = 5.0
 	service.service(1.0)
 	_check(aircraft.hp > 5.0, "Stationary aircraft did not recover")

@@ -1,6 +1,15 @@
 extends RefCounted
 
 const CATALOG_PATH = "res://assets/audio/voices/catalog.json"
+# Roles without a recorded cast speak with the closest recorded role's voice.
+const VOICE_ALIASES = {
+	"MercenaryWarden": "AssaultInfantry",
+	"MercenaryRanger": "SniperInfantry",
+	"MercenaryLancer": "RocketInfantry",
+	"Fighter": "Helicopter",
+	"Bomber": "Helicopter",
+	"AntiAirVehicle": "Tank",
+}
 var _catalog = {}
 var _variants = {}
 
@@ -16,9 +25,10 @@ func announcer(faction, event_name):
 func unit_line(unit, kind):
 	var faction = unit.player.faction
 	var roster = _catalog.get(faction, _catalog.bastion).units
-	if not roster.has(unit.type):
+	var role = voice_role(unit.type)
+	if not roster.has(role):
 		return {}
-	var lines = roster[unit.type]
+	var lines = roster[role]
 	if not lines.has(kind):
 		kind = "move"
 	var key = "%s:%s:%s" % [faction, unit.type, kind]
@@ -29,6 +39,10 @@ func unit_line(unit, kind):
 	result.variant_key = key
 	result.variant_index = index
 	return result
+
+
+static func voice_role(unit_type):
+	return VOICE_ALIASES.get(unit_type, unit_type)
 
 
 func accepted(line):

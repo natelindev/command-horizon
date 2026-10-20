@@ -27,8 +27,9 @@ func _run():
 		tank.manual_orders.submit({"kind": "attack_move", "point": Vector3(80, 0, 48)})
 		tank.manual_orders.submit({"kind": "move", "point": Vector3(81, 0, 58)}, true)
 		await _frames(40)
-		var airfield = _support_unit("AircraftFactory", human, Vector3(80, 0, 48))
-		airfield.construct(1.0)
+		# Any 2.3 m structure works as the dynamic blocker; the runway is far larger.
+		var blocker = _support_unit("VehicleFactory", human, Vector3(80, 0, 48))
+		blocker.construct(1.0)
 		await _frames(60)
 		var point = tank.global_position
 		paused = true

@@ -146,13 +146,20 @@ func caption_rect(point, dimensions):
 		var control = game.find_child(node_name)
 		if control is Control and control.is_visible_in_tree():
 			occupied.append(control.get_global_rect().grow(6))
+	var viewport = get_viewport_rect().grow(-4)
 	if "hud" in game and is_instance_valid(game.hud):
 		for control in game.hud.get_children():
-			if control is Control and control.is_visible_in_tree():
-				occupied.append(control.get_global_rect().grow(6))
+			if not control is Control or not control.is_visible_in_tree():
+				continue
+			# Full-screen pass-through layers (command feedback) occupy no panel space.
+			if (
+				control.mouse_filter == Control.MOUSE_FILTER_IGNORE
+				and control.get_global_rect().encloses(viewport)
+			):
+				continue
+			occupied.append(control.get_global_rect().grow(6))
 	if game.subtitles != null and game.subtitles._card.is_visible_in_tree():
 		occupied.append(game.subtitles._card.get_global_rect().grow(6))
-	var viewport = get_viewport_rect().grow(-4)
 	for y in [point.y - dimensions.y - 10, point.y + 12]:
 		for x in [point.x - dimensions.x / 2, point.x - dimensions.x, point.x]:
 			var rect = Rect2(

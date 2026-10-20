@@ -63,7 +63,14 @@ func _turret_archive():
 	turret.action = moving.new(Vector3(100, 0, 100))
 	_check(turret.action == action, "Archive fix allowed ordinary turret movement orders")
 	await _frames(180)
-	_check(tank.hp < hp[0] and aircraft.hp < hp[1], "Restored turrets failed to resume actual fire")
+	# Destroyed targets also prove that restored turrets resumed actual fire.
+	_check(
+		(
+			(not is_instance_valid(tank) or tank.hp < hp[0])
+			and (not is_instance_valid(aircraft) or aircraft.hp < hp[1])
+		),
+		"Restored turrets failed to resume actual fire"
+	)
 
 
 func _round_trip():
@@ -172,6 +179,9 @@ func _objective_archive():
 		game.deployed and game.hold_seconds == 30 and not game.finished,
 		"Deployment did not unlock HQ assault"
 	)
+	# At the 30 Hz simulation rate the hold window also admits the response
+	# waves; clear them so only the finale conditions decide the outcome.
+	_isolate()
 	infantry.position = Vector3(14, 0, 103)
 	game.battlefield.invalidate()
 	game.target_command.hp = 0

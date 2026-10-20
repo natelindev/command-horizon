@@ -50,6 +50,18 @@ func _process(delta):
 		var element = _queue.front()
 		if not blocked_reason(false).is_empty():
 			return
+		if BastionCatalog.is_fixed_wing(
+			BastionCatalog.type_from_path(element.unit_prototype.resource_path)
+		):
+			# Jets are assembled in place and appear parked on their stand.
+			var built = minf(delta, element.time_left)
+			element.time_left -= built
+			delta -= built
+			if element.time_left > 0.0:
+				return
+			_remove_element(element)
+			_finalize_parked(element)
+			continue
 		# The exit animation consumes the final part of the paid production time.
 		var departure_seconds = Departure.seconds(element)
 		if element.time_left > departure_seconds:
@@ -135,6 +147,9 @@ func produce(unit_prototype, ignore_limit = false):
 		return null
 	if not ignore_limit and _queue.size() >= Constants.Match.Units.PRODUCTION_QUEUE_LIMIT:
 		return null
+	# Every jet needs a stand to park and rearm on; it is promised at queue time.
+	if BastionCatalog.is_fixed_wing(unit_type) and _unit.stands_for_production() <= 0:
+		return null
 	var production_cost = Factions.cost(_unit.player, unit_type).duplicate()
 	var fitted_chip = fit_chips and unit_type == "Tank"
 	if fitted_chip:
@@ -193,6 +208,18 @@ func _remove_element(element):
 	_queue.erase(element)
 	set_process(not _queue.is_empty())
 	element_removed.emit(element)
+
+
+func _finalize_parked(former_queue_element):
+	var index = _unit.first_free_stand()
+	var produced_unit = former_queue_element.unit_prototype.instantiate()
+	# The new aircraft claims this stand as it settles (FixedWingFlight).
+	var placement = _unit.stand_transform(index) if index >= 0 else _unit.global_transform
+	MatchSignals.setup_and_spawn_unit.emit(produced_unit, placement, _unit.player)
+	MatchSignals.unit_production_finished.emit(produced_unit, _unit)
+	var rally_point = _unit.find_child("RallyPoint")
+	if rally_point != null:
+		MatchSignals.navigate_unit_to_rally_point.emit(produced_unit, rally_point)
 
 
 func _finalize_production(former_queue_element, launch):

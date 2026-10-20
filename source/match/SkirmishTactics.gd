@@ -205,7 +205,15 @@ static func _air_defense(player, units, combatants, threats, air):
 	var step = Economy.building(player, units, role, "Prepare anti-air protection")
 	step.id = "defend_economy"
 	step.title = "Prepare anti-air protection"
-	step.description = "Aircraft threaten your economy. " + step.description
+	step.description = (
+		"Aircraft threaten your economy. "
+		+ step.description
+		+ " "
+		+ (
+			"Rocket infantry and %s also engage aircraft."
+			% Factions.title(player.faction, "AntiAirVehicle")
+		)
+	)
 	return step
 
 

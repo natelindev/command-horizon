@@ -74,10 +74,8 @@ func _run():
 	var enemy = _units(game._enemy, "Infantry")[0]
 	var orders = load("res://source/match/orders/ManualOrders.gd")
 	tanks[1].manual_orders.submit(orders.target_order("attack", enemy), true)
-	var rocket = load("res://source/match/units/projectiles/Rocket.tscn").instantiate()
-	rocket.target_unit = enemy
-	tank.add_child(rocket)
-	rocket._flight_left = 0.375
+	var rocket = game.projectile_system.launch(tank, enemy)
+	rocket.life = 0.375
 	game.phase = 2
 	game.hold_seconds = 17.25
 	game.defence_time = 23.5
@@ -115,8 +113,15 @@ func _run():
 		saved.action.kind == "LuaAction" and not saved.action.contacts.is_empty(),
 		"Live contact mapping lost"
 	)
+	var saved_id = saved.id
+	var flying = snapshot.rounds.flying.filter(func(round): return round.shooter == saved_id)
 	_check(
-		saved.projectiles.size() == 1 and saved.projectiles[0].left == 0.375,
+		(
+			flying.size() == 1
+			and flying[0].life - flying[0].age == 0.375
+			and flying[0].target == builder._reference(enemy)
+			and flying[0].damage == tank.attack_damage
+		),
 		"In-flight damage lost"
 	)
 	_check(abs(saved.weapon_left - 1.75) < 0.002, "Weapon cooldown is not a remaining duration")

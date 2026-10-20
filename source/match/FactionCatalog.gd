@@ -5,6 +5,8 @@ const Bastion = preload("res://source/match/BastionCatalog.gd")
 const Frontier = preload("res://source/match/FrontierCatalog.gd")
 const FrontierSurfaces = preload("res://source/match/FrontierMaterials.gd")
 const SurfaceTextures = preload("res://source/match/SurfaceTextures.gd")
+# Loaded at runtime: the airfield builder reads this catalog.
+const RUNWAY_AIRFIELD = "res://source/match/units/structure-geometries/RunwayAirfield.gd"
 const Rules = preload("res://source/match/FactionRules.gd")
 const IDS = Rules.IDS
 const NAMES = Rules.NAMES
@@ -16,7 +18,10 @@ const HELIX_MODELS = {
 	"CombatRobot": "LancerWalker",
 	"AdvancedTank": "PrismArtillery",
 	"Drone": "KiteScout",
-	"Helicopter": "WraithStriker",
+	"Helicopter": "WraithTiltrotor",
+	"Fighter": "TalonInterceptor",
+	"Bomber": "ShrikeBomber",
+	"AntiAirVehicle": "HaloSkimmer",
 	"CommandCenter": "NexusHQ",
 	"Barracks": "OperatorHub",
 	"VehicleFactory": "RoboticsFoundry",
@@ -34,8 +39,11 @@ const HELIX_NAMES = {
 	"RepairRobot": "Mender robot",
 	"CombatRobot": "Lancer walker",
 	"AdvancedTank": "Prism artillery",
-	"Drone": "Kite scout",
-	"Helicopter": "Wraith striker",
+	"Drone": "Kite drone",
+	"Helicopter": "Wraith gunship",
+	"Fighter": "Talon interceptor",
+	"Bomber": "Shrike bomber",
+	"AntiAirVehicle": "Halo AA skimmer",
 	"CommandCenter": "Nexus HQ",
 	"Barracks": "Operator hub",
 	"VehicleFactory": "Robotics foundry",
@@ -71,13 +79,13 @@ const HELIX_DESCRIPTIONS = {
 	),
 	"Drone":
 	(
-		"Fast, unarmed scout with extended vision. Reveal routes and defenses before "
-		+ "committing your army."
+		"Expendable loitering munition. Scouts while hovering; an attack order sends it "
+		+ "diving into a vehicle or structure as its own warhead. Holds fire by default."
 	),
 	"Helicopter":
 	(
-		"Fast strike aircraft for ground raids and air combat. Avoid dedicated anti-air and "
-		+ "return to a flight deck for service."
+		"Attack helicopter. Rockets against ground forces while hovering in place; lands on "
+		+ "an airfield helipad to rearm. Vulnerable to rocket infantry and anti-air."
 	),
 	"CommandCenter": "Produces Mule engineers, receives harvested resources and supplies 8 power.",
 	"Barracks":
@@ -130,6 +138,9 @@ const UNIT_TIMES = {
 	"AdvancedTank": 24.0,
 	"Drone": 8.0,
 	"Helicopter": 20.0,
+	"Fighter": 18.0,
+	"Bomber": 26.0,
+	"AntiAirVehicle": 14.0,
 }
 const SPECIALIST_TIMES = {
 	"bastion": {"AdvancedTank": 22.0, "AssaultInfantry": 7.0},
@@ -315,7 +326,7 @@ static func requirement(player, role, building = false):
 		return BUILD_REQUIRES.get(role, "") if player.get_meta("skirmish", false) else ""
 	if player.get_meta("skirmish", false) and UNIT_REQUIRES.get(player.faction, {}).has(role):
 		return UNIT_REQUIRES[player.faction][role]
-	if role == "Helicopter" and player.get_meta("skirmish", false):
+	if role in ["Helicopter", "Fighter", "Bomber"] and player.get_meta("skirmish", false):
 		return "CommandLab"
 	return Bastion.REQUIRES.get(role, "")
 
@@ -363,6 +374,16 @@ static func available(player, role, building = false, ignore_job = null):
 
 static func prepare_model(unit, faction):
 	var geometry = unit.get_node("Geometry")
+	if unit.type == "AircraftFactory":
+		# The runway airfield is composed for its faction, not swapped and rescaled.
+		for child in geometry.get_children():
+			child.free()
+		load(RUNWAY_AIRFIELD).build(geometry, faction)
+		if "faction" in geometry:
+			geometry.faction = faction
+		unit.set_meta("model_faction", faction)
+		SurfaceTextures.apply_armor(geometry)
+		return
 	if Bastion.is_infantry(unit.type):
 		for child in geometry.get_children():
 			child.free()
@@ -388,6 +409,8 @@ static func helix_geometry(role, radius):
 
 
 static func model_geometry(faction, role, radius):
+	if role == "AircraftFactory":
+		return load(RUNWAY_AIRFIELD).create(faction)
 	var models = Frontier.MODELS if faction == "frontier" else HELIX_MODELS
 	var model = load("res://assets/models/%s/v1/%s.glb" % [faction, models[role]]).instantiate()
 	if faction == "frontier":
@@ -398,7 +421,7 @@ static func model_geometry(faction, role, radius):
 	var factor = radius * 1.85 / max(bounds.size.x, bounds.size.z)
 	if role == "Infantry":
 		factor = 1.15 / bounds.size.y
-	elif role in ["Drone", "Helicopter"]:
+	elif Bastion.is_aircraft(role):
 		factor *= 1.35
 	if faction == "frontier" and role == "AdvancedTank":
 		factor *= 1.2  # Long cannon overhang must not shrink the refurbished heavy hull.
@@ -425,8 +448,8 @@ static func chip_seconds(faction):
 	return Rules.chip_seconds(faction)
 
 
-static func health_factor(faction):
-	return Rules.health_factor(faction)
+static func health_factor(faction, role = ""):
+	return Rules.health_factor(faction, role)
 
 
 static func signature_title(faction):
@@ -458,13 +481,14 @@ static func apply_stats(unit):
 				unit.attack_interval = .45
 				unit.attack_range = 8.0
 	if unit.player.faction == "frontier" and unit.movement_speed > 0:
-		unit.hp_max = roundi(unit.hp_max * health_factor("frontier"))
+		unit.hp_max = roundi(unit.hp_max * health_factor("frontier", unit.type))
 		unit.hp = unit.hp_max
-		unit.get_node("Movement").speed *= (
-			1.2 if (Bastion.is_infantry(unit.type) or unit.type == "Drone") else 1.1
-		)
-		if unit.type == "Drone":
-			unit.sight_range += 2.0
+		if unit.attack_damage != null:
+			unit.attack_damage *= Rules.damage_factor("frontier", unit.type)
+		if Bastion.is_infantry(unit.type):
+			unit.get_node("Movement").speed *= 1.2
+		elif not Bastion.is_aircraft(unit.type):
+			unit.get_node("Movement").speed *= 1.1
 		if unit.type == "AdvancedTank":
 			unit.attack_interval = 2.2
 	if unit.player.faction == "helix" and unit.movement_speed > 0:
@@ -477,5 +501,15 @@ static func apply_stats(unit):
 			unit.attack_range = 14.0
 			unit.sight_range = 15.0
 			unit.get_node("Movement").speed *= 0.75
+	if unit.type == "AntiAirVehicle":
+		match unit.player.faction:
+			"helix":
+				unit.attack_damage = 15
+				unit.attack_interval = 1.4
+				unit.attack_range = 12.0
+			"frontier":
+				unit.attack_damage = 4
+				unit.attack_interval = 0.18
+				unit.attack_range = 10.0
 	if unit.type == "CombatRobot":
 		unit.configure_weapon()

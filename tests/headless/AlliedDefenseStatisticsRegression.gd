@@ -167,6 +167,6 @@ func _statistics():
 	game.result = "Victory"
 	game.hud.show_result(game.result)
 	_check(
-		game.hud._overlay.find_children("Statistics", "ScrollContainer", true, false).size() == 1,
+		game.hud._overlay.find_children("Statistics", "VBoxContainer", true, false).size() == 1,
 		"Result screen missing statistics table"
 	)

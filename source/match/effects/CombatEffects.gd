@@ -100,7 +100,9 @@ func _puff(kind, point, velocity, color, size):
 	_emitters[kind].emit_particle(transform_here, velocity, color, Color(), 1 | 2 | 4 | 8)
 
 
-func shot(unit, origin, target_point, duration, missile = false, target_unit = null):
+# Muzzle presentation and sound for one shot. Physical rounds draw themselves
+# (ProjectileRenderer), so only instant rail beams still use a pooled tracer.
+func shot(unit, origin, target_point, duration, missile = false, target_unit = null, tracer = true):
 	get_parent().combat_audio.shot(unit, origin)
 	shots_emitted += 1
 	if not _can_show(unit):
@@ -122,7 +124,7 @@ func shot(unit, origin, target_point, duration, missile = false, target_unit = n
 		_puff(
 			"smoke", origin, direction * 0.8 + Vector3.UP * 0.2, Color(0.48, 0.46, 0.41, 0.2), 0.55
 		)
-	if is_instance_valid(unit.aim_target) and not unit.aim_target.visible:
+	if not tracer or (is_instance_valid(unit.aim_target) and not unit.aim_target.visible):
 		return
 	var entry = _take_tracer()
 	if entry == null:
@@ -157,13 +159,18 @@ func impact(unit, source, point):
 			"AntiGroundTurret",
 			"AntiAirTurret",
 			"RocketInfantry",
-			"MercenaryLancer"
+			"MercenaryLancer",
+			"Fighter",
+			"Bomber"
 		]
 	)
 	var ground_hit = point.y < 1.6
 	var direction = source.global_position.direction_to(point)
 	if heavy:
-		if source.type in ["RocketInfantry", "MercenaryLancer", "Helicopter", "AntiAirTurret"]:
+		if (
+			source.type
+			in ["RocketInfantry", "MercenaryLancer", "Helicopter", "AntiAirTurret", "Fighter"]
+		):
 			_explosion(point, .95, ground_hit)
 		else:
 			_armor_impact(
@@ -188,6 +195,58 @@ func impact(unit, source, point):
 				Color(0.49, 0.43, 0.34, 0.5),
 				0.6
 			)
+
+
+func can_show_point(point):
+	return (
+		not _headless
+		and not get_tree().paused
+		and not get_parent().restoring
+		and (_camera == null or _camera_sees(point))
+	)
+
+
+# Exhaust smoke behind a motor-driven round.
+func trail(point, direction):
+	_puff(
+		"smoke",
+		point,
+		-direction * 0.4 + Vector3.UP * 0.1,
+		Color(0.6, 0.58, 0.54, 0.32),
+		_random.randf_range(0.16, 0.3)
+	)
+
+
+# A round that struck the ground, a wreck-free obstacle, or expired in the air.
+func miss(point, ground, heavy, color):
+	if heavy:
+		_explosion(point, 0.75, ground)
+		return
+	_puff("flash", point, Vector3.ZERO, color, 0.16)
+	for _index in range(3):
+		_puff("spark", point, _jitter(1.6) + Vector3.UP * 1.2, color, 0.04)
+	if ground:
+		_puff(
+			"dust",
+			Vector3(point.x, point.y + 0.05, point.z),
+			Vector3.UP * 0.5,
+			Color(0.49, 0.43, 0.34, 0.45),
+			0.38
+		)
+
+
+# A heavy warhead (bomb) detonating: a large blast scaled by its splash radius.
+func warhead(point, radius, ground):
+	_explosion(point, clampf(radius * 0.7, 1.0, 2.2), ground, true)
+
+
+# Proximity-fused detonation in the air (flak, missiles).
+func airburst(point, strength, color):
+	_shake_camera(point, strength * 0.06)
+	_puff("flash", point, Vector3.ZERO, color, strength * 1.2)
+	for _index in range(6):
+		_puff("spark", point, _jitter(3.0) * strength, Color("ffd9a0"), 0.05)
+	_puff("smoke", point, Vector3.UP * 0.15, Color(0.18, 0.17, 0.16, 0.5), strength * 0.9)
 
 
 func can_show_construction(unit):
@@ -357,19 +416,35 @@ func _wreck(unit, infantry):
 		var turret_node = wreck.find_child("*TurretPivot*", true, false)
 		if turret_node != null:
 			_launch_turret_cook_off(turret_node, unit.radius)
-	_wrecks.append(
-		{
-			"node": wreck,
-			"age": 0.0,
-			"smoke_clock": 0.0,
-			"secondary": false,
-			"size": clampf(unit.radius, 0.5, 2.0),
-			"infantry": infantry,
-			"origin": wreck.position,
-			"rotation": wreck.rotation,
-			"motion": unit.get_node("BastionVisuals").death_motion()
-		}
+	(
+		_wrecks
+		. append(
+			{
+				"node": wreck,
+				"age": 0.0,
+				"smoke_clock": 0.0,
+				"secondary": false,
+				"size": clampf(unit.radius, 0.5, 2.0),
+				"infantry": infantry,
+				"origin": wreck.position,
+				"rotation": wreck.rotation,
+				"motion": unit.get_node("BastionVisuals").death_motion(),
+				"momentum": _crash_momentum(unit),
+			}
+		)
 	)
+
+
+# A stricken aircraft keeps its horizontal velocity and slows as it falls, so a
+# jet arcs forward into the ground instead of dropping in place.
+func _crash_momentum(unit):
+	var movement = unit.get_node_or_null("Movement")
+	if movement == null or unit.movement_domain != 0:
+		return Vector3.ZERO
+	var velocity = (
+		movement.flight_velocity() if movement.has_method("flight_velocity") else movement.velocity
+	)
+	return velocity * Vector3(1, 0, 1)
 
 
 func _launch_turret_cook_off(turret_node, unit_radius):
@@ -601,6 +676,11 @@ func _update_wreck(entry):
 	# Stricken aircraft yaw as they fall.
 	entry.node.rotation.y += motion.get("spin", 0.0) * settle
 	entry.node.position = entry.origin + motion.slide * settle
+	entry.node.position += (
+		entry.get("momentum", Vector3.ZERO)
+		* motion.duration
+		* (progress - progress * progress * .5)
+	)
 	var ground = 0.02 if motion.mobile else entry.origin.y - 0.18
 	entry.node.position.y = lerpf(entry.origin.y, ground, settle)
 	entry.node.position.y -= maxf(0.0, entry.age - maxf(16.0, motion.sink_start)) * 0.25

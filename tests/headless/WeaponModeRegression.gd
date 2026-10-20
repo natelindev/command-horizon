@@ -270,6 +270,10 @@ func _check(value, message):
 func _legacy_snapshot(snapshot, version):
 	var result = snapshot.duplicate(true)
 	result.snapshot_version = version
+	result.erase("rounds")
+	for legacy_unit in result.units:
+		legacy_unit.projectiles = []
+		legacy_unit.erase("air")
 	for stance_unit in result.units:
 		stance_unit.erase("stance")
 	result.erase("neutral_buildings")

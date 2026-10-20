@@ -18,7 +18,12 @@ func _run():
 		var bottom = 0.0
 		for vertex in _vertices(unit.get_node("Geometry")):
 			bottom = minf(bottom, vertex.y - unit.position.y)
-		for body in game.map.flight_obstacles:
+		# Cross the thirteen quarry landmarks. Campaign interior districts also
+		# register flight obstacles, some beside the map edge where a 15 m
+		# crossing would leave the playable area.
+		for body in game.map.flight_obstacles.filter(
+			func(item): return not item.has_meta("campaign_scenery")
+		):
 			var obstacle = body.get_node("MovementObstacle")
 			var top = 0.0
 			for vertex in _vertices(body):

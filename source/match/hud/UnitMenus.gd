@@ -691,7 +691,7 @@ func _refresh_buttons():
 				"CommandLab": "Research and advanced units unlocked",
 				"RepairDepot": "Ground service: 2 slots · 5 m",
 				"Barracks": "Infantry recovery: 2 slots · stationary within 5 m",
-				"AircraftFactory": "Aircraft service: 2 slots · stationary within 5 m",
+				"AircraftFactory": "Aircraft service: 4 jet stands, 2 helipads · rearm and repair",
 			}
 			if service.has(unit.type):
 				facts.append(service[unit.type])

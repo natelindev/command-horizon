@@ -31,6 +31,16 @@ func _earned_budget():
 	var player = get_nodes_in_group("players").filter(func(side): return side != human)[0]
 	for side in get_nodes_in_group("players"):
 		side.set_process(false)
+	# This archive predates power scarcity (HQ 8 / generator 12) and armed drones.
+	# Restore its recorded decision context: the commander's original power margin
+	# and no observed aircraft (the human's drone is now an air threat that
+	# correctly triggers an anti-air counter, covered by _counter_reserve).
+	var archived_plant = _units(player, "PowerPlant")[0]
+	_spawn("PowerPlant", player, archived_plant.position + Vector3(0, 0, 6))
+	for drone in _units(human, "Drone"):
+		drone.queue_free()
+	await _frames(2)
+	game.battlefield.invalidate()
 	var desired = player._next_building(player._units())
 	var reserve = policy.reserve(player, player._units(), desired)
 	var funds = Vector2i(player.resource_a, player.resource_b)
@@ -216,10 +226,10 @@ func _counter_reserve(player, barracks, factory):
 	_check(game.battlefield.is_observed(player, target), "Reserve counter fixture is hidden")
 	var requests = policy.requests(game, player, [factory, barracks])
 	_check(
-		requests.size() == 2 and requests[0].role == "CombatRobot",
+		requests.size() == 2 and requests[0].role == "AntiAirVehicle",
 		"Missing priority counter request"
 	)
-	if requests.size() != 2 or requests[0].role != "CombatRobot":
+	if requests.size() != 2 or requests[0].role != "AntiAirVehicle":
 		return
 	var counter = requests[0].cost
 	var infantry = factions.cost(player, "Infantry")
@@ -242,7 +252,7 @@ func _counter_reserve(player, barracks, factory):
 	player.resource_b = counter.resource_b
 	player._train([factory, barracks], "")
 	_check(
-		_queued(factory) == "CombatRobot" and _queued(barracks) == "Infantry",
+		_queued(factory) == "AntiAirVehicle" and _queued(barracks) == "Infantry",
 		"Funded priority pair did not purchase"
 	)
 	_check(

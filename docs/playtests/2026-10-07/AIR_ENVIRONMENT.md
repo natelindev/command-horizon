@@ -12,6 +12,8 @@ The map uses the existing industrial flight-clearance helper for all thirteen la
 
 All four baseline route lengths match exactly: ground staging→SCREEN 95.7588 m, LAUNCH→north battery 91.1350 m, LAUNCH→south battery 115.3807 m, and direct air LAUNCH→EXIT 112 m. Sites, pads, responses, resources and ground navigation retain their positions. Exterior hills, crusher and conveyor remain wholly outside the 144×104 playable rectangle, with no navigation/physics components. Surrounding terrain joins the ground at zero height. Interior enemy observation remains unchanged in the ordinary-fog opening check.
 
+**Baseline re-recorded 2026-10-20.** The v0.11.0 campaign interiors added district scenery to Air Corridor, and the air-combat redesign moved its airfield to a runway at (14, 0, 61) clear of LAUNCH. `baseline.json` now holds ground staging→SCREEN 95.68 m, LAUNCH→north battery 90.54 m, LAUNCH→south battery 94.92 m and direct air LAUNCH→EXIT 112 m; quarry obstacle positions, radii and sight heights are unchanged.
+
 **Altitude is a gameplay change:** aircraft position affects weapon range and sight. Preserving ground routes does not imply identical combat outcomes. No weapon stats, difficulty budgets, mission rules or save schema were changed.
 
 ## Archives and complete routes

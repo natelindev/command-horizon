@@ -19,6 +19,7 @@ var battlefield = null
 var repair_service = null
 var wreck_salvage = null
 var combat_effects = null
+var projectile_system = null
 var combat_audio = null
 var environment_audio = null
 var subtitles = null
@@ -66,6 +67,10 @@ func _ready():
 	add_child(environment_audio)
 	combat_effects = load("res://source/match/effects/CombatEffects.gd").new()
 	add_child(combat_effects)
+	projectile_system = load("res://source/match/combat/ProjectileSystem.gd").new()
+	projectile_system.name = "ProjectileSystem"
+	projectile_system.process_mode = Node.PROCESS_MODE_PAUSABLE
+	add_child(projectile_system)
 	wreck_salvage = load("res://source/match/economy/WreckSalvage.gd").new()
 	add_child(wreck_salvage)
 	repair_service = load("res://source/match/combat/RepairService.gd").new()
@@ -208,8 +213,9 @@ func _setup_player_units():
 		# All starting bases face the bottom of the default camera view. Rotate
 		# the complete structure so its portal and production exit face it too.
 		# Restored games return above and retain their saved orientations.
+		# Runways keep the heading their layout chose for room and approach.
 		for unit in player.get_children():
-			if unit is Structure:
+			if unit is Structure and not unit.is_in_group("footprinted_structures"):
 				unit.global_rotation.y = PI
 
 

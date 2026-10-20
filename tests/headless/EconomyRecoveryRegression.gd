@@ -175,8 +175,9 @@ func _headquarters():
 	hq.queue_free()
 	await _frames(6)
 	var step = plan.next_step(human)
+	var build_time = "%d s" % factions.BUILD_TIMES.CommandCenter
 	_check(
-		step.id == "CommandCenter" and "45 s" in step.description,
+		step.id == "CommandCenter" and build_time in step.description,
 		"HQ rebuild guidance omitted budget or build time"
 	)
 	var builder = step.units[0]

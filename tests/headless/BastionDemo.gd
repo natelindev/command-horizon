@@ -1,6 +1,27 @@
 extends SceneTree
 
 const Catalog = preload("res://source/match/BastionCatalog.gd")
+# The demo's authored starting roster (BastionDemo._spawn_player_units); later catalog
+# roles are produced in _test_production instead of starting on the field.
+const STARTERS = [
+	"CommandCenter",
+	"PowerPlant",
+	"Barracks",
+	"VehicleFactory",
+	"AircraftFactory",
+	"CommandLab",
+	"RepairDepot",
+	"AntiGroundTurret",
+	"AntiAirTurret",
+	"Worker",
+	"Infantry",
+	"Tank",
+	"Drone",
+	"RepairRobot",
+	"CombatRobot",
+	"AdvancedTank",
+	"Helicopter",
+]
 var auto_attacking
 var _failures = []
 var _game = null
@@ -23,7 +44,7 @@ func _run():
 		if player != _human:
 			player.process_mode = Node.PROCESS_MODE_DISABLED
 	await _frames(60)
-	for unit_type in Catalog.NAMES:
+	for unit_type in STARTERS:
 		var unit = _unit(unit_type)
 		_check(unit != null, "Missing starter: " + unit_type)
 		if unit == null:
@@ -71,12 +92,20 @@ func _test_production():
 	_human.resource_b = 10000
 	var menus = _game.find_child("UnitMenus")
 	var signals = root.get_node("MatchSignals")
+	var produced = 0
 	for producer in Catalog.PRODUCES:
 		var unit = _unit(producer)
 		signals.deselect_all_units.emit()
 		unit.get_node("Selection").select()
+		# Selection menus rebuild in a batched deferred refresh.
+		await _frames(3)
 		var queue = unit.production_queue
 		queue.set_process(false)
+		# Rally away from the building so finished units clear the production exit.
+		var center = Vector3(_game.map.size.x, 0, _game.map.size.y) / 2.0
+		unit.find_child("RallyPoint").global_position = (
+			unit.global_position + (center - unit.global_position).normalized() * 14.0
+		)
 		for product in Catalog.PRODUCES[producer]:
 			var button = menus.find_child("Produce" + product, true, false)
 			_check(
@@ -85,9 +114,16 @@ func _test_production():
 			if button != null:
 				button.pressed.emit()
 		_check(queue.size() == Catalog.PRODUCES[producer].size(), "Roster not queued: " + producer)
-		queue._process(1000.0)
+		# Each finished unit drives out of the production exit before the next can leave.
+		for _attempt in range(40):
+			if queue.size() == 0:
+				break
+			queue._process(1000.0)
+			await _frames(10)
 		_check(queue.size() == 0, "Queue did not finish: " + producer)
-	_check(_human.population() == 18, "Every mobile unit must actually spawn")
+		produced += Catalog.PRODUCES[producer].size()
+	_check(_human.population() == 10 + produced, "Every mobile unit must actually spawn")
+	await _frames(120)  # Let the last finished units drive clear of the exits.
 	var factory = _unit("VehicleFactory")
 	var queue = factory.production_queue
 	var tank = load(Catalog.scene_path("Tank"))

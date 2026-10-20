@@ -56,9 +56,14 @@ func _catalog_coverage():
 			)
 		var roles = Roster.NAMES.keys() + Roster.MISSION_NAMES.keys()
 		for role in roles:
-			_check(catalog.units.has(role), faction + " missing voice role " + role)
+			var voice_role = Bank.voice_role(role)
+			_check(catalog.units.has(voice_role), faction + " missing voice role " + role)
+			if not catalog.units.has(voice_role):
+				continue
 			for kind in ["select", "move", "attack", "ready", "stop"]:
-				_check(catalog.units[role].has(kind), faction + ":" + role + " missing " + kind)
+				_check(
+					catalog.units[voice_role].has(kind), faction + ":" + role + " missing " + kind
+				)
 		for line in catalog.announcer.values():
 			_check_clip(line)
 			count += 1
@@ -113,6 +118,21 @@ func _all_unit_speakers(faction):
 		identities.append(identity)
 		_reset_speech()
 		unit.free()
+	for role in Bank.VOICE_ALIASES:
+		# Uncast roles borrow the closest role's recordings but keep their own caption title.
+		var unit = _spawn_weapon(role, human, Vector3(50, 0, 50))
+		_reset_speech()
+		_check(voice.say_unit(unit, "select"), role + " voice rejected")
+		_check(
+			voice.current.get("speaker_id") == "%s/%s" % [faction, Bank.VOICE_ALIASES[role]],
+			role + " did not use its alias voice"
+		)
+		_check(
+			voice.current.get("speaker") == _unit_title(faction, role),
+			role + " caption lost its unit title"
+		)
+		_reset_speech()
+		unit.free()
 	for event in Lines.UNIT_EVENTS:
 		_reset_speech()
 		_check(not voice.say(event), "Sourceless reply reached announcer")
@@ -128,10 +148,7 @@ func _identity_and_bursts(faction):
 	var signals = root.get_node("MatchSignals")
 	signals.unit_selected.emit(tank)
 	var first = voice.current.duplicate()
-	_check(
-		first.speaker == load("res://source/match/FactionCatalog.gd").title(faction, "Tank"),
-		"Wrong unit speaker"
-	)
+	_check(first.speaker == _unit_title(faction, "Tank"), "Wrong unit speaker")
 	_check(first.stream.contains("/%s/Tank/select_" % faction), "Selection uses generic voice")
 	for index in 100:
 		signals.unit_selected.emit(infantry if index % 2 else tank)
@@ -377,3 +394,8 @@ func _ui_events():
 	panel.queue_free()
 	await _frames(2)
 	print("PASS UI inputs, burst limits, disabled controls, quiet refresh and mute")
+
+
+func _unit_title(faction, role):
+	# Loaded at runtime: FactionCatalog depends on autoloads absent at script compile time.
+	return load("res://source/match/FactionCatalog.gd").title(faction, role)

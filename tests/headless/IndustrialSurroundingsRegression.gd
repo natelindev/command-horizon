@@ -87,7 +87,13 @@ func _geometry():
 		)
 	for body in map.flight_obstacles:
 		var obstacle = body.get_node("MovementObstacle")
-		for point in _vertices(body):
+		# Garrisonable neutral buildings carry flat targeting/selection ground quads;
+		# only the imported model shares the navigation and sight envelope.
+		var points = PackedVector3Array()
+		for child in body.get_children():
+			if child.name != "NeutralBuilding":
+				points.append_array(_vertices(child))
+		for point in points:
 			var offset = point - body.position
 			_check(
 				Vector2(offset.x, offset.z).length() <= obstacle.radius + .002,

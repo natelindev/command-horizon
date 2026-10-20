@@ -1,6 +1,9 @@
 extends Node
 
 const Rules = preload("res://source/match/combat/CombatRules.gd")
+const Footprint = preload("res://source/match/utils/Footprint.gd")
+# Furthest footprint point from a footprinted structure's center (runway airfield).
+const FOOTPRINT_REACH = 13.0
 const CELL_SIZE = 12.0
 const BODY_CELL_SIZE = 3.0
 const MAX_OBSERVER_HINTS = 512
@@ -109,7 +112,11 @@ func can_observe(observer, target):
 		or target.is_queued_for_deletion()
 	):
 		return false
-	return can_observe_point(observer, target.global_position + Vector3.UP * 0.8, target)
+	var point = target.global_position
+	if target.is_in_group("footprinted_structures"):
+		# A long structure is seen wherever its footprint is in sight.
+		point = Footprint.closest_point(target, observer.global_position)
+	return can_observe_point(observer, point + Vector3.UP * 0.8, target)
 
 
 func can_observe_point(observer, point: Vector3, ignored_target = null) -> bool:
@@ -155,6 +162,8 @@ func is_observed(player, target):
 	hints.erase(target_id)
 	var point = target.global_position * Vector3(1, 0, 1)
 	var reach = _max_sight + (target.radius if target.is_in_group("neutral_buildings") else 0.0)
+	if target.is_in_group("footprinted_structures"):
+		reach += FOOTPRINT_REACH
 	# Observers can move after the index is built; cover their maximum step
 	# instead of scanning an entire extra ring of twelve-metre cells.
 	var low = _cell(point - Vector3.ONE * (reach + _max_body_step))
@@ -187,11 +196,7 @@ func _cell(point: Vector3) -> Vector2i:
 func can_fire(source, target):
 	if not Rules.can_target(source, target):
 		return false
-	var reach = Rules.range_for(source, target)
-	if (
-		source.global_position_yless.distance_squared_to(target.global_position_yless)
-		> reach * reach
-	):
+	if Footprint.reach_distance(target, source.global_position) > Rules.range_for(source, target):
 		return false
 	return is_observed(source.player, target) and has_line_of_fire(source, target)
 
@@ -215,6 +220,14 @@ func fireable_targets(source):
 	):
 		if can_fire(source, candidate):
 			result.append(candidate)
+	# Long structures can be in range while their center is not.
+	for structure in get_tree().get_nodes_in_group("footprinted_structures"):
+		if (
+			structure.player != source.player
+			and not structure in result
+			and can_fire(source, structure)
+		):
+			result.append(structure)
 	return result
 
 
@@ -252,36 +265,10 @@ func target_score(source, target, incoming_damage = 0.0):
 
 
 func _incoming_damage(source, targets):
-	var incoming = {}
 	if targets.is_empty():
-		return incoming
-	var target_set = {}
-	for target in targets:
-		target_set[target] = true
-	# Both projectile types join this group, including restored shots.
-	for projectile in get_tree().get_nodes_in_group("projectiles"):
-		if (
-			not is_instance_valid(projectile)
-			or projectile.is_queued_for_deletion()
-			or not "_resolved" in projectile
-			or projectile._resolved
-			or not "target_unit" in projectile
-			or not target_set.has(projectile.target_unit)
-		):
-			continue
-		var ally = projectile.get_parent()
-		if (
-			not is_instance_valid(ally)
-			or ally.player != source.player
-			or ally.is_queued_for_deletion()
-			or not ally.can_process()
-		):
-			continue
-		var target = projectile.target_unit
-		# Shots re-check line of fire on impact, so blocked ones will miss.
-		if has_line_of_fire(ally, target):
-			incoming[target] = incoming.get(target, 0.0) + Rules.damage(ally, target)
-	return incoming
+		return {}
+	# Rounds re-check line of fire on arrival, so blocked ones are excluded.
+	return get_parent().projectile_system.incoming_damage(source.player, targets)
 
 
 func has_line_of_fire(source, target):
@@ -322,6 +309,70 @@ func line_clear(
 				if segment_hits_cylinder(origin, end, entry.center, entry.radius, entry.height):
 					return false
 	return true
+
+
+# The first sight blocker a moving round enters between origin and end, as
+# {"body", "t"} with t the fraction along the segment; empty when clear.
+func first_blocker(origin: Vector3, end: Vector3, ignored_source = null, ignored_target = null):
+	_refresh()
+	if is_instance_valid(ignored_source) and ignored_source.has_meta("garrison_host"):
+		ignored_source = ignored_source.get_meta("garrison_host")
+	var low = _cell(origin.min(end))
+	var high = _cell(origin.max(end))
+	var best = {}
+	for x in range(low.x, high.x + 1):
+		for y in range(low.y, high.y + 1):
+			for entry in _blockers.get(Vector2i(x, y), EMPTY_UNITS):
+				var body = entry.body
+				# Drive-over salvage rubble hides low sight lines but does not stop rounds.
+				if (
+					not is_instance_valid(body)
+					or body.is_queued_for_deletion()
+					or body == ignored_source
+					or body == ignored_target
+					or body.is_in_group("salvage_wrecks")
+					or (body.has_method("is_constructed") and not body.is_constructed())
+				):
+					continue
+				var t = segment_cylinder_entry(
+					origin, end, entry.center, entry.radius, entry.height
+				)
+				if t >= 0.0 and (best.is_empty() or t < best.t):
+					best = {"body": body, "t": t}
+	return best
+
+
+# Fraction along origin→end where the segment first enters the finite upright
+# cylinder standing on `base`, or -1 when it never does.
+static func segment_cylinder_entry(
+	origin: Vector3, end: Vector3, base: Vector3, radius: float, height: float
+) -> float:
+	var direction := end - origin
+	var offset := origin - base
+	var a := direction.x * direction.x + direction.z * direction.z
+	var b := 2.0 * (offset.x * direction.x + offset.z * direction.z)
+	var c := offset.x * offset.x + offset.z * offset.z - radius * radius
+	var low := 0.0
+	var high := 1.0
+	if a < 0.000001:
+		if c > 0:
+			return -1.0
+	else:
+		var discriminant := b * b - 4.0 * a * c
+		if discriminant < 0:
+			return -1.0
+		var root := sqrt(discriminant)
+		low = maxf(low, (-b - root) / (2.0 * a))
+		high = minf(high, (-b + root) / (2.0 * a))
+	if abs(direction.y) < 0.000001:
+		if offset.y < 0 or offset.y > height:
+			return -1.0
+	else:
+		var bottom := -offset.y / direction.y
+		var top := (height - offset.y) / direction.y
+		low = maxf(low, minf(bottom, top))
+		high = minf(high, maxf(bottom, top))
+	return low if low <= high else -1.0
 
 
 # Intersection with the finite cylinder, including sloping airborne sight lines.

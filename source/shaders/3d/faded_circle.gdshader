@@ -5,6 +5,8 @@ uniform vec4 color : source_color = vec4(1.0);
 uniform float width_pixels = 15.0;
 uniform float inner_edge_width_pixels = 1.0;
 uniform float outer_edge_width_pixels = 1.0;
+// Non-zero half extents draw a rectangular ring of that size instead.
+uniform vec2 half_extents = vec2(0.0);
 
 varying vec3 vertex_model;
 
@@ -16,7 +18,16 @@ void vertex()
 void fragment()
 {
   ALBEDO.rgb = color.rgb;
-  if (UV.x == 0.5 && UV.y == 0.5)
+  if (half_extents.x > 0.0)
+  {
+    vec2 q = abs(vertex_model.xz) - half_extents;
+    float signed_distance = max(q.x, q.y);
+    vec2 gradient = vec2(dFdx(signed_distance), dFdy(signed_distance));
+    float rangeFromLine = signed_distance / length(gradient);
+    ALPHA = smoothstep(-width_pixels, -width_pixels + inner_edge_width_pixels, rangeFromLine);
+    ALPHA = min(ALPHA, 1.0 - smoothstep(-outer_edge_width_pixels, 0.0, rangeFromLine));
+  }
+  else if (UV.x == 0.5 && UV.y == 0.5)
   {
     ALPHA = 0.0;
   }

@@ -66,16 +66,17 @@ func _spawn_player_units(player, spawn_transform):
 		["Infantry", Vector3(3, 0, 10)],
 		["Infantry", Vector3(4, 0, 10)],
 		["Tank", Vector3(7, 0, 7)],
-		["Drone", Vector3(-2, 0, -3)],
+		["Drone", Vector3(-2, 0, 3)],
 	]
 	if human:
 		roster += [
 			["PowerPlant", Vector3(-11, 0, 0)],
-			["AircraftFactory", Vector3(6, 0, -6)],
-			["CommandLab", Vector3(0, 0, -6)],
+			# The runway runs east-west along the base's north edge.
+			["AircraftFactory", Vector3(1, 0, -6), 90.0],
+			["CommandLab", Vector3(11, 0, 9)],
 			["RepairDepot", Vector3(-6, 0, 6)],
 			["AntiGroundTurret", Vector3(11, 0, 5)],
-			["AntiAirTurret", Vector3(-6, 0, -5)],
+			["AntiAirTurret", Vector3(-10, 0, 5)],
 			["RepairRobot", Vector3(5, 0, 8)],
 			["CombatRobot", Vector3(7, 0, 10)],
 			["AdvancedTank", Vector3(10, 0, 9)],
@@ -83,7 +84,10 @@ func _spawn_player_units(player, spawn_transform):
 		]
 	for entry in roster:
 		var offset = entry[1] if human else -entry[1]
-		var transform_to_spawn = Transform3D(Basis(), spawn_transform.origin + offset)
+		var heading = deg_to_rad(entry[2]) if entry.size() > 2 else 0.0
+		var transform_to_spawn = Transform3D(
+			Basis(Vector3.UP, heading), spawn_transform.origin + offset
+		)
 		_setup_and_spawn_unit(
 			load(Catalog.scene_path(entry[0])).instantiate(), transform_to_spawn, player, false
 		)

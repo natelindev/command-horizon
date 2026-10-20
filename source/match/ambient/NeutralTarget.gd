@@ -35,6 +35,10 @@ var _charred = false
 var _meshes = []
 
 
+func combat_domain():
+	return movement_domain
+
+
 func configure_target(kind, size, health, height = 1.7):
 	_death_kind = kind
 	radius = size
@@ -75,10 +79,21 @@ func _inspect(_camera, event, _point, _normal, _shape):
 func receive_weapon_hit(source):
 	if hp <= 0 or not interactive:
 		return
-	var damage = Rules.damage(source, self)
+	_take_hit(source, Rules.damage(source, self))
+
+
+func receive_shot(shot, point = null, share = 1.0):
+	if hp <= 0 or not interactive:
+		return
+	_take_hit(shot.feedback_source(), Rules.damage_from(shot, self) * share, point)
+
+
+func _take_hit(source, damage, point = null):
 	if damage <= 0:
 		return
-	_match.combat_effects.impact(self, source, global_position + Vector3.UP * .5)
+	_match.combat_effects.impact(
+		self, source, point if point != null else global_position + Vector3.UP * .5
+	)
 	hp = maxf(0, hp - damage)
 	hp_changed.emit()
 	hit_left = .3

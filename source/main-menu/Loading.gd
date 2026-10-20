@@ -49,7 +49,6 @@ func _ready():
 
 func _preload_scenes():
 	var scene_paths = []
-	scene_paths += Constants.Match.Units.PROJECTILES.values()
 	scene_paths += Constants.Match.Units.CONSTRUCTION_COSTS.keys()
 	for scene_path in scene_paths:
 		Globals.cache[scene_path] = load(scene_path)

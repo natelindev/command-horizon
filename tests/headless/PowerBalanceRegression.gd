@@ -70,9 +70,13 @@ func _ai_power():
 	_spawn("Barracks", opponent, Vector3(100, 0, 60))
 	_spawn("VehicleFactory", opponent, Vector3(100, 0, 70))
 	_spawn("CommandLab", opponent, Vector3(100, 0, 80))
+	# Expansion order is faction specific (Bastion and Frontier add a repair depot
+	# first); with the depot and lab built, every faction's next expansion is the
+	# air factory once its timing (at most 165 s at Normal) has passed.
+	_spawn("RepairDepot", opponent, Vector3(90, 0, 80))
 	_spawn("PowerPlant", opponent, Vector3(110, 0, 60))
-	game.simulation_time = 160
-	_check(opponent.power_totals() == Vector2i(20, 14), "AI expansion fixture has wrong power")
+	game.simulation_time = 170
+	_check(opponent.power_totals() == Vector2i(20, 17), "AI expansion fixture has wrong power")
 	_check(
 		opponent._next_building(opponent._units()) == "PowerPlant",
 		"AI did not reserve power before adding its air factory"

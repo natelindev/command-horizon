@@ -5,6 +5,9 @@ const Mercenaries = preload("res://source/match/world/MercenaryCatalog.gd")
 const STRUCTURE_LIMIT = 40
 const INFANTRY_ROLES = ["Infantry", "RocketInfantry", "SniperInfantry", "AssaultInfantry", "Hero"]
 const GARRISON_CAPACITY = 8
+const ROTORCRAFT_ROLES = ["Drone", "Helicopter"]
+const FIXED_WING_ROLES = ["Fighter", "Bomber"]
+const AIRCRAFT_ROLES = ROTORCRAFT_ROLES + FIXED_WING_ROLES
 
 const MISSION_NAMES = {"SupplyTruck": "Supply truck", "EvacTransport": "Rescue VTOL"}
 
@@ -22,8 +25,11 @@ const NAMES = {
 	"AdvancedTank": "Railgun tank",
 	"RepairRobot": "Repair robot",
 	"CombatRobot": "Combat walker",
-	"Drone": "Recon drone",
-	"Helicopter": "VTOL strike aircraft",
+	"Drone": "Strike drone",
+	"Helicopter": "Attack helicopter",
+	"Fighter": "Interceptor jet",
+	"Bomber": "Heavy bomber",
+	"AntiAirVehicle": "Flak tank",
 	"CommandCenter": "Headquarters",
 	"Barracks": "Barracks",
 	"VehicleFactory": "Vehicle factory",
@@ -35,8 +41,26 @@ const NAMES = {
 	"AntiAirTurret": "Missile battery",
 }
 const DESCRIPTIONS = {
+	"AntiAirVehicle":
+	(
+		"Mobile air defense on a tank chassis. Engages aircraft only; escort it with "
+		+ "tanks and infantry against ground attack."
+	),
+	"Fighter":
+	(
+		"Air superiority jet. Guided missiles and cannon hit aircraft only; "
+		+ "lands at its airfield to rearm."
+	),
+	"Bomber":
+	(
+		"Heavy level bomber. One stick of bombs per sortie against ground forces and "
+		+ "structures; needs fighter escort."
+	),
 	"RocketInfantry":
-	"Shoulder-launched rockets break heavy armor and structures; slow reload, weak against infantry.",
+	(
+		"Shoulder-launched rockets break heavy armor and structures; guided missiles lock onto "
+		+ "aircraft. Slow reload, weak against infantry."
+	),
 	"SniperInfantry":
 	"Long-range precision rifle against infantry. Fragile and ineffective against heavy armor.",
 	"AssaultInfantry":
@@ -71,11 +95,15 @@ const DESCRIPTIONS = {
 		"Autocannon against infantry and light machines; weaker against heavy armor. 8 m "
 		+ "ground / 6.5 m anti-air, shared reload."
 	),
-	"Drone": "Unarmed reconnaissance with extended vision.",
+	"Drone":
+	(
+		"Expendable loitering munition. Scouts while hovering; an attack order sends it "
+		+ "diving into a vehicle or structure as its own warhead. Holds fire by default."
+	),
 	"Helicopter":
 	(
-		"Strike aircraft for ground raids and air combat. Avoid dedicated anti-air and "
-		+ "return to an airfield for service."
+		"Attack helicopter. Rockets against ground forces while hovering in place; lands on "
+		+ "an airfield helipad to rearm. Vulnerable to rocket infantry and anti-air."
 	),
 	"CommandCenter": "Produces engineer rovers. Receives harvested resources. Supplies 8 power.",
 	"Barracks":
@@ -85,7 +113,10 @@ const DESCRIPTIONS = {
 	),
 	"VehicleFactory": "Produces armor and support robots. Uses 6 power.",
 	"AircraftFactory":
-	"Produces scouts and strike aircraft. Two aircraft service slots within 5 m. Uses 8 power.",
+	(
+		"Runway airfield. Builds drones, helicopters, fighters and bombers; jets park, rearm "
+		+ "and repair on 4 stands, rotorcraft on 2 helipads. Uses 8 power."
+	),
 	"PowerPlant": "Supplies 12 power. Low power slows production and service buildings.",
 	"CommandLab":
 	(
@@ -101,8 +132,8 @@ const DESCRIPTIONS = {
 const PRODUCES = {
 	"CommandCenter": ["Worker"],
 	"Barracks": INFANTRY_ROLES,
-	"VehicleFactory": ["Tank", "RepairRobot", "CombatRobot", "AdvancedTank"],
-	"AircraftFactory": ["Drone", "Helicopter"],
+	"VehicleFactory": ["Tank", "AntiAirVehicle", "RepairRobot", "CombatRobot", "AdvancedTank"],
+	"AircraftFactory": ["Drone", "Helicopter", "Fighter", "Bomber"],
 }
 const STRUCTURES = [
 	"CommandCenter",
@@ -115,7 +146,13 @@ const STRUCTURES = [
 	"AntiGroundTurret",
 	"AntiAirTurret"
 ]
-const REQUIRES = {"Hero": "CommandLab", "AdvancedTank": "CommandLab", "CombatRobot": "CommandLab"}
+const REQUIRES = {
+	"Hero": "CommandLab",
+	"AdvancedTank": "CommandLab",
+	"CombatRobot": "CommandLab",
+	"Fighter": "CommandLab",
+	"Bomber": "CommandLab",
+}
 const POWER_SUPPLY = {"CommandCenter": 8, "PowerPlant": 12}
 const POWER_USAGE = {
 	"Barracks": 3,
@@ -135,6 +172,14 @@ static func scene_path(unit_type):
 
 static func is_infantry(role):
 	return role in INFANTRY_ROLES or role in Mercenaries.ROLES
+
+
+static func is_aircraft(role):
+	return role in AIRCRAFT_ROLES
+
+
+static func is_fixed_wing(role):
+	return role in FIXED_WING_ROLES
 
 
 static func icon_path(unit_type):

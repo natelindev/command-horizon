@@ -23,11 +23,15 @@ func _run():
 	await _frames(2)
 	_check(scout.position.y >= 4, "Legacy aircraft did not gain clearance on movement")
 	print("LEGACY RESUME old=", record.position.y, " raised=", scout.position.y)
-	await _frames(240)
-	_check(
-		is_instance_valid(scout) and scout.position.x > 83,
-		"Legacy aircraft did not complete its route"
-	)
+	# Physics runs at 30 Hz: after arriving, the drone hovers beside an active
+	# enemy battery and may be destroyed later in the window. Record arrival.
+	var arrived = false
+	for frame in 240:
+		await physics_frame
+		if not is_instance_valid(scout):
+			break
+		arrived = arrived or scout.position.x > 83
+	_check(arrived, "Legacy aircraft did not complete its route")
 	await _close()
 	for message in errors:
 		push_error(message)

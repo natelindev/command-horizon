@@ -119,7 +119,10 @@ func _rebuild_archived_turret():
 		commander.resource_b > funds,
 		"Engineer did not deliver electronics through the rebuilt base"
 	)
-	_check(maximum_step < worker.movement_speed / 60.0 + .002, "Engineer recovery teleported")
+	_check(
+		maximum_step < worker.movement_speed / Engine.physics_ticks_per_second + .002,
+		"Engineer recovery teleported"
+	)
 	await _review_traffic(worker, "base-open")
 	game.queue_free()
 	await _frames(5)

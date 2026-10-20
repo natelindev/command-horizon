@@ -6,6 +6,8 @@ const RADIUS_DEVIATION_FACTOR = 0.1
 
 @export_range(0.001, 50.0) var radius = 1.0:
 	set = _set_radius
+# Rectangular structures (the runway airfield) outline their footprint instead.
+@export var half_extents = Vector2.ZERO
 @export_range(0.001, 50.0) var width = 5.0:
 	set = _set_width
 
@@ -58,6 +60,7 @@ func _update_circle_params():
 	if _circle == null:
 		return
 	_circle.radius = radius
+	_circle.half_extents = half_extents
 	_circle.width = width
 
 

@@ -13,6 +13,9 @@ extends Node3D
 	set = _set_color
 @export var render_priority = 0:
 	set = _set_render_priority
+# Non-zero: draw a rectangle with these half extents instead of a circle.
+@export var half_extents = Vector2.ZERO:
+	set = _set_half_extents
 
 var _plane = null
 
@@ -56,10 +59,18 @@ func _set_render_priority(a_render_priority):
 	_recalculate_plane_parameters()
 
 
+func _set_half_extents(value):
+	half_extents = value
+	_recalculate_plane_parameters()
+
+
 func _recalculate_plane_parameters():
 	if _plane == null:
 		return
-	_plane.mesh.size = Vector2(radius * 2.0, radius * 2.0)
+	_plane.mesh.size = (
+		half_extents * 2.0 if half_extents != Vector2.ZERO else Vector2(radius * 2.0, radius * 2.0)
+	)
+	_plane.material_override.set_shader_parameter("half_extents", half_extents)
 	_plane.material_override.render_priority = render_priority
 	_plane.material_override.set_shader_parameter("color", color)
 	_plane.material_override.set_shader_parameter("width_pixels", width)

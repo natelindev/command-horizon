@@ -80,7 +80,7 @@ func _idle_roster(map_name, faction, advanced):
 			"Idle starting roster blocked income: " + label
 		)
 		_check(
-			maximum_step <= worker.movement_speed / 60.0 + .002,
+			maximum_step <= worker.movement_speed / Engine.physics_ticks_per_second + .002,
 			"Delivery bypassed movement speed: " + label
 		)
 		worker.issue_manual_order(null)

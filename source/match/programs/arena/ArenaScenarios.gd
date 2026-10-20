@@ -70,5 +70,5 @@ const CASES = [
 static func available(index, role):
 	var needs = CASES[index].needs
 	if needs == "ground":
-		return role not in ["Drone", "Helicopter"]
+		return not load("res://source/match/BastionCatalog.gd").is_aircraft(role)
 	return load("res://source/match/programs/ProgramRecord.gd").meets_requirements([needs], role)

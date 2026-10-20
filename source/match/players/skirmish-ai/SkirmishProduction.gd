@@ -116,6 +116,9 @@ static func army_size(counts):
 			continue
 		for role in Catalog.PRODUCES[producer]:
 			total += counts.get(role, 0)
+	# Fielded camp recruits; pending contracts are counted by Sites.reserved().
+	for role in Catalog.Mercenaries.ROLES:
+		total += counts.get(role, 0)
 	return total
 
 
@@ -129,8 +132,11 @@ static func _choice(player, producer, counts, threats, sequence):
 				return {"role": "Infantry", "priority": 2}
 			if counts.get("Hero", 0) == 0 and Factions.available(player, "Hero"):
 				return {"role": "Hero", "priority": 4}
+			# Rocket infantry answer both armor and aircraft.
 			var preferred = (
-				"RocketInfantry" if threats.armor > threats.infantry else "SniperInfantry"
+				"RocketInfantry"
+				if threats.armor + threats.air > threats.infantry
+				else "SniperInfantry"
 			)
 			var roles = [preferred, "AssaultInfantry", "RocketInfantry", "SniperInfantry"]
 			for role in roles:
@@ -141,12 +147,5 @@ static func _choice(player, producer, counts, threats, sequence):
 		"VehicleFactory":
 			return Composition.vehicle_choice(player, counts, threats, sequence)
 		"AircraftFactory":
-			if counts.get("Drone", 0) == 0:
-				return {"role": "Drone", "priority": 4}
-			var machinery = (
-				counts.get("Tank", 0) + counts.get("CombatRobot", 0) + counts.get("AdvancedTank", 0)
-			)
-			var wings = maxi(1, ceili(machinery / 4.0))
-			if machinery >= 2 and counts.get("Helicopter", 0) < wings:
-				return {"role": "Helicopter", "priority": 5}
+			return Composition.air_choice(player, producer, counts, threats)
 	return {}

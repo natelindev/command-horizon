@@ -102,6 +102,10 @@ func _fallback():
 	var preserved = infantry[0].manual_orders.pending.duplicate(true)
 	for index in range(1, infantry.size()):
 		infantry[index].queue_free()
+	# Hero-led operations also field the campaign hero, an idle infantry unit that the
+	# shortcut rightly prefers. Remove it during the tactical pause (its loss is only
+	# judged when the battle resumes) to isolate the busy-survivor and no-infantry paths.
+	game.campaign_hero.unit.queue_free()
 	await _frames(3)
 	await _activate(game.hud._infantry_buttons[0])
 	_check(

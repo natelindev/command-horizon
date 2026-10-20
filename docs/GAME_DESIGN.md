@@ -295,7 +295,7 @@ The first campaign's heavy mechanized identity is selected. Sections 16–17 rec
 
 ### Free Frontier gameplay integration — 2026-10-04
 
-The [Frontier roster](../art/frontier/README.md) is now integrated into skirmish selection: seventeen editable models and icons, lower-cost mobile units with 85% base health, 2 E / 3 s retrofits, finite wreck collection and a distinct Maneuver Burst. Coordination enables a six-unit, six-second +35% movement window with a 25-second cooldown; Rapid redeployment raises it to +50%. Engineers must collect and return 20% of a destroyed ground machine’s material cost before its three-minute wreck expires. Paid economy, combat, program authority, research, exact archives and four-map travel have functional coverage. See [verification and limits](playtests/2026-10-04/FRONTIER_GAMEPLAY.md). Working names and initial balance remain provisional; repeated full-match and novice acceptance remain open.
+The [Frontier roster](../art/frontier/README.md) is now integrated into skirmish selection: seventeen editable models and icons, lower-cost mobile units with 85% base health (revised 2026-10-20: infantry 110%, aircraft 70%), 2 E / 3 s retrofits, finite wreck collection and a distinct Maneuver Burst. Coordination enables a six-unit, six-second +35% movement window with a 25-second cooldown; Rapid redeployment raises it to +50%. Engineers must collect and return 20% of a destroyed ground machine’s material cost before its three-minute wreck expires. Paid economy, combat, program authority, research, exact archives and four-map travel have functional coverage. See [verification and limits](playtests/2026-10-04/FRONTIER_GAMEPLAY.md). Working names and initial balance remain provisional; repeated full-match and novice acceptance remain open.
 
 ### 9.1 Concept-art review set
 
@@ -1915,3 +1915,28 @@ View objective moves the camera to the current destination. Existing mature tree
 and leafy bushes replace flat scrub placeholders. Scenic scatter remains batched,
 and taller coastal pines retain their ground footprint with greater air clearance.
 [Verification and limits](campaign/POLISH_VERIFICATION.md).
+
+## Air combat redesign — 2026-10-20
+
+Supersedes the hover-only aircraft, the two-role airfield roster and the
+timer-based projectiles recorded in earlier sections. Rules are in
+[core specification: air combat and physical projectiles](CORE_GAMEPLAY_SPEC.md#air-combat-and-physical-projectiles-2026-10-20);
+the staged plan and its progress are in
+[the air-combat plan](plans/2026-10-20-air-combat-redesign.md).
+
+| Producer | Roles | Purpose |
+| --- | --- | --- |
+| Airfield (runway) | Drone, fighter, bomber, helicopter | Kamikaze strikes on machines; air superiority; heavy strikes on structures and clusters; sustained anti-armor gunship. |
+| Vehicle factory | + anti-air vehicle | Mobile air denial escorted by armor. |
+| Barracks | Rocket infantry | Anti-armor rockets and guided missiles against aircraft. |
+
+Fixed-wing aircraft fly a point-mass model (stall and cruise speeds, banked
+turns, climb and sink limits) through explicit taxi, take-off, approach, flare
+and rollout phases; they rearm on their own stand. Rotorcraft accelerate and
+brake, launch from the tower helipad and settle onto a pad to rearm. New models
+and icons are built by `art/air-combat/build_aircraft.py`.
+
+Frontier's rough bush airstrip fields weaker aircraft (70% health, 80% damage,
+no speed bonus) and compensates with hardened infantry (110% health, 115%
+damage, still 20% faster). Frontier armies should lean on rocket teams and
+massed riflemen for both anti-armor and anti-air rather than contest the sky.

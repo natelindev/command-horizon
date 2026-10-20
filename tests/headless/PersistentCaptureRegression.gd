@@ -131,6 +131,10 @@ func _legacy_ownership():
 		paused = true
 		var data = Snapshot.new().capture(game)
 		data.snapshot_version = version
+		data.erase("rounds")
+		for legacy_unit in data.units:
+			legacy_unit.projectiles = []
+			legacy_unit.erase("air")
 		for stance_unit in data.units:
 			stance_unit.erase("stance")
 		for record in data.neutral_buildings:

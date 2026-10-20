@@ -236,6 +236,8 @@ func restore(tree, snapshot):
 		_orders(unit, saved.orders)
 		if not saved.movement.is_empty():
 			_copy(unit.get_node("Movement"), saved.movement, saved.movement.keys())
+		if not saved.get("air", {}).is_empty():
+			unit.restore_air(saved.air, entities)
 		if action == null and not saved.action.is_empty():
 			var movement = unit.get_node_or_null("Movement")
 			if movement != null:
@@ -250,17 +252,8 @@ func restore(tree, snapshot):
 		if saved.selected:
 			unit.get_node("Selection").select()
 		unit.reset_physics_interpolation()
-		for shot in saved.projectiles:
-			var target = entities.get(shot.target)
-			if target == null:
-				continue
-			var projectile = (
-				load("res://source/match/units/projectiles/%s.tscn" % shot.kind).instantiate()
-			)
-			projectile.restoring = true
-			projectile.target_unit = target
-			projectile._flight_left = shot.left
-			unit.add_child(projectile)
+	if _data.snapshot_version >= 15:
+		game.projectile_system.restore(_data.rounds, entities)
 	# Recreate the visible final production stage while the restored battle is
 	# still paused, after every unit has recovered its authoritative position.
 	for saved in _data.units:

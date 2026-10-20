@@ -9,6 +9,9 @@ const MODELS = {
 	"AdvancedTank": "Ironback",
 	"Drone": "LookoutDrone",
 	"Helicopter": "KestrelGunship",
+	"Fighter": "HornetFighter",
+	"Bomber": "BuzzardBomber",
+	"AntiAirVehicle": "RipsawTruck",
 	"CommandCenter": "ConvoyHQ",
 	"Barracks": "RangerCamp",
 	"VehicleFactory": "MotorPool",
@@ -28,10 +31,13 @@ const NAMES = {
 	"AdvancedTank": "Ironback",
 	"Drone": "Lookout drone",
 	"Helicopter": "Kestrel gunship",
+	"Fighter": "Hornet fighter",
+	"Bomber": "Buzzard bomber",
+	"AntiAirVehicle": "Ripsaw AA truck",
 	"CommandCenter": "Convoy HQ",
 	"Barracks": "Ranger camp",
 	"VehicleFactory": "Motor pool",
-	"AircraftFactory": "Rotor pad",
+	"AircraftFactory": "Bush airstrip",
 	"PowerPlant": "Diesel array",
 	"CommandLab": "Relay workshop",
 	"RepairDepot": "Field workshop",
@@ -51,6 +57,9 @@ const COSTS = {
 	"AdvancedTank": [34, 14],
 	"Drone": [7, 4],
 	"Helicopter": [28, 12],
+	"Fighter": [26, 14],
+	"Bomber": [38, 16],
+	"AntiAirVehicle": [18, 6],
 }
 const DESCRIPTIONS = {
 	"RepairRobot": "Field repair support. Services damaged ground machines.",
@@ -82,13 +91,13 @@ const DESCRIPTIONS = {
 	),
 	"Drone":
 	(
-		"Unarmed quadrotor with extended vision. Scout flanks and wreck "
-		+ "sites before committing engineers."
+		"Expendable loitering munition. Scouts while hovering; an attack order sends it "
+		+ "diving into a vehicle or structure as its own warhead. Holds fire by default."
 	),
 	"Helicopter":
 	(
-		"Mobile strike rotorcraft against ground and air targets. Avoid "
-		+ "anti-air; return to a rotor pad for service."
+		"Attack helicopter. Rockets against ground forces while hovering in place; lands on "
+		+ "an airfield helipad to rearm. Vulnerable to rocket infantry and anti-air."
 	),
 	"CommandCenter":
 	"Produces scrapper rigs, accepts harvested and salvaged materials, and supplies 8 power.",
@@ -99,7 +108,10 @@ const DESCRIPTIONS = {
 	),
 	"VehicleFactory": "Produces refurbished armor and service rigs. Uses 6 power.",
 	"AircraftFactory":
-	"Produces scouts and strike rotorcraft. Two aircraft service slots within 5 m. Uses 8 power.",
+	(
+		"Runway airfield. Builds drones, helicopters, fighters and bombers; jets park, rearm "
+		+ "and repair on 4 stands, rotorcraft on 2 helipads. Uses 8 power."
+	),
 	"CommandLab":
 	(
 		"Unlocks heroes and Kestrels. Research Coordination for Maneuver Burst. "

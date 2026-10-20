@@ -56,6 +56,8 @@ func _research_tests(player):
 	var offset = 0 if player == _human else 45
 	var factory = _spawn("VehicleFactory", player, Vector3(20 + offset, 0, 20))
 	var lab = _spawn("CommandLab", player, Vector3(10 + offset, 0, 20))
+	# HQs supply 8 power; the factory and lab need a generator to research at full speed.
+	_spawn("PowerPlant", player, Vector3(30 + offset, 0, 20))
 	player.set_physics_process(false)
 	player.resource_a = 100
 	player.resource_b = 100

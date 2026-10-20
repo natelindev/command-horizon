@@ -4,6 +4,7 @@ const Battlefields = preload("res://source/match/maps/BattlefieldCatalog.gd")
 const Snapshot = preload("res://source/match/saves/MatchSnapshot.gd")
 const Schema = preload("res://source/match/saves/SnapshotSchema.gd")
 const Restore = preload("res://source/match/saves/MatchRestore.gd")
+const Opening = preload("res://source/match/maps/StartingResourceLayout.gd")
 var game
 var settings_by_map = {}
 
@@ -127,7 +128,8 @@ func _geometry(map_name):
 	# Every field retains its authored center after navigation initialization,
 	# and the whole resource population has a rotated, equally stocked partner.
 	for index in data.fields.size():
-		var center: Vector3 = resources[index * 7 + 1].position
+		# The arc's middle slot (offset zero) sits on the authored field center.
+		var center: Vector3 = resources[index * 7 + Opening.SLOT_ORDER.find(0)].position
 		_check(
 			Vector2(center.x, center.z).distance_to(data.fields[index]) < .05,
 			map_name + " displaced field"

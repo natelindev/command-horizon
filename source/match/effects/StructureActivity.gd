@@ -1,11 +1,14 @@
 extends Node3D
 
+const Layout = preload("res://source/match/units/AirfieldLayout.gd")
 const Kit = preload("res://source/match/units/traits/InfantryEquipment.gd")
 const Technology = preload("res://source/match/research/TechnologyCatalog.gd")
 var state = "idle"
 var progress = 0.0
 var phase = 0.0
 var portal = Vector3.ZERO
+# Local direction units leave the portal in.
+var portal_direction = Vector3.FORWARD
 var _unit
 var _bounds = AABB()
 var _portal_root
@@ -155,11 +158,9 @@ func _build_portal():
 		portal.z = -_bounds.size.z * .46
 		portal.x = -_bounds.size.x * .235 if _unit.player.faction != "helix" else 0.0
 	if airborne:
-		portal = Vector3(
-			0,
-			{"bastion": .58, "helix": .38, "frontier": .18}[_unit.player.faction],
-			-_bounds.size.z * .08
-		)
+		# Rotorcraft lift off the tower's helipad and leave away from the runway.
+		portal = Layout.PAD_POINTS[0] + Vector3.UP * Layout.pad_height(_unit.player.faction, 0)
+		portal_direction = Vector3.RIGHT
 		for side in [-1, 1]:
 			_task_light(_portal_root, portal + Vector3(side * .75, .04, -.4))
 		return

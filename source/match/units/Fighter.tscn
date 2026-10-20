@@ -1,0 +1,67 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://source/match/units/Fighter.gd" id="unit"]
+[ext_resource type="Script" path="res://source/match/units/traits/BastionVisuals.gd" id="visuals"]
+[ext_resource type="PackedScene" path="res://assets/models/bastion/air-v1/Fighter.glb" id="model"]
+[ext_resource type="PackedScene" path="res://source/match/units/traits/Highlight.tscn" id="Highlight"]
+[ext_resource type="PackedScene" path="res://source/match/units/traits/Selection.tscn" id="Selection"]
+[ext_resource type="PackedScene" path="res://source/match/units/traits/HealthBar.tscn" id="HealthBar"]
+[ext_resource type="PackedScene" path="res://source/match/units/traits/Targetability.tscn" id="Targetability"]
+[ext_resource type="Script" path="res://source/match/units/traits/FixedWingFlight.gd" id="flight"]
+[ext_resource type="PackedScene" path="res://source/match/units/traits/AirToTerrainMarker.tscn" id="AirToTerrainMarker"]
+
+[sub_resource type="CylinderShape3D" id="collision"]
+radius = 0.75
+height = 0.5
+
+[node name="Fighter" type="Area3D"]
+collision_layer = 4
+collision_mask = 0
+script = ExtResource("unit")
+
+[node name="Geometry" type="Node3D" parent="."]
+
+[node name="Model" parent="Geometry" instance=ExtResource("model")]
+transform = Transform3D(0.4, 0, 0, 0, 0.4, 0, 0, 0, 0.4, 0, 0, 0)
+
+[node name="ProjectileOrigin" type="Marker3D" parent="."]
+position = Vector3(0, 0.2, -0.7)
+
+[node name="BastionVisuals" type="Node" parent="."]
+script = ExtResource("visuals")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.25, 0)
+shape = SubResource("collision")
+
+[node name="Highlight" parent="." instance=ExtResource("Highlight")]
+radius = 0.75
+position = Vector3(0, 0.04, 0)
+
+[node name="Selection" parent="." instance=ExtResource("Selection")]
+radius = 0.75
+position = Vector3(0, 0.04, 0)
+
+[node name="Targetability" parent="." instance=ExtResource("Targetability")]
+radius = 0.75
+position = Vector3(0, 0.04, 0)
+
+[node name="Movement" type="NavigationAgent3D" parent="."]
+avoidance_enabled = false
+radius = 0.75
+domain = 0
+script = ExtResource("flight")
+cruise_speed = 9.5
+stall_speed = 4.6
+rotate_speed = 5.6
+max_bank = 1.05
+roll_rate = 2.6
+cruise_height = 5.2
+orbit_radius = 7.0
+speed = 9.5
+
+[node name="HealthBar" parent="." instance=ExtResource("HealthBar")]
+position = Vector3(0, 0.9, 0)
+size = Vector2(88, 8)
+
+[node name="AirToTerrainMarker" parent="." instance=ExtResource("AirToTerrainMarker")]

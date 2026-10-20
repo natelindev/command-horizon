@@ -147,7 +147,9 @@ func _countdown_case(faction):
 	)
 	await _review_countdown(faction + "-rebuilt")
 	paused = false
-	for frame in 1000:
+	# Wait out the enemy's remaining recovery window (plus one second) rather
+	# than a fixed span that depends on how quickly the own HQ was rebuilt.
+	for frame in ceili(game._defeat_timers[enemy] * 60) + 60:
 		await _frames(1)
 		if game.finished:
 			break

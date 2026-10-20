@@ -233,6 +233,10 @@ func _roundtrip(legacy = false):
 		return
 	if legacy:
 		data.snapshot_version = 4
+		data.erase("rounds")
+		for legacy_unit in data.units:
+			legacy_unit.projectiles = []
+			legacy_unit.erase("air")
 		for stance_unit in data.units:
 			stance_unit.erase("stance")
 		data.erase("neutral_buildings")

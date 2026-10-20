@@ -136,6 +136,10 @@ func _save_behaviors():
 	_check(not Restore.new().prepare(invalid), "Archive accepted an invalid stance")
 	var older = saved.duplicate(true)
 	older.snapshot_version = 13
+	older.erase("rounds")
+	for legacy_unit in older.units:
+		legacy_unit.projectiles = []
+		legacy_unit.erase("air")
 	for unit in older.units:
 		unit.erase("stance")
 	_check(Restore.new().prepare(older), "Previous save format was rejected")

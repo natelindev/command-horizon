@@ -120,6 +120,21 @@ class Units:
 			"resource_a": 16,
 			"resource_b": 10,
 		},
+		"res://source/match/units/AntiAirVehicle.tscn":
+		{
+			"resource_a": 14,
+			"resource_b": 6,
+		},
+		"res://source/match/units/Fighter.tscn":
+		{
+			"resource_a": 18,
+			"resource_b": 10,
+		},
+		"res://source/match/units/Bomber.tscn":
+		{
+			"resource_a": 24,
+			"resource_b": 12,
+		},
 		"res://source/match/units/Drone.tscn":
 		{
 			"resource_a": 4,
@@ -142,6 +157,9 @@ class Units:
 		"res://source/match/units/AdvancedTank.tscn": 12.0,
 		"res://source/match/units/Worker.tscn": 3.0,
 		"res://source/match/units/Helicopter.tscn": 6.0,
+		"res://source/match/units/AntiAirVehicle.tscn": 6.0,
+		"res://source/match/units/Fighter.tscn": 7.0,
+		"res://source/match/units/Bomber.tscn": 9.0,
 		"res://source/match/units/Drone.tscn": 3.0,
 		"res://source/match/units/Tank.tscn": 6.0,
 	}
@@ -160,7 +178,7 @@ class Units:
 		"res://source/match/units/VehicleFactory.tscn":
 		"res://source/match/units/structure-geometries/VehicleFactory.tscn",
 		"res://source/match/units/AircraftFactory.tscn":
-		"res://source/match/units/structure-geometries/AircraftFactory.tscn",
+		"res://source/match/units/structure-geometries/RunwayAirfield.tscn",
 		"res://source/match/units/AntiGroundTurret.tscn":
 		"res://source/match/units/structure-geometries/AntiGroundTurret.tscn",
 		"res://source/match/units/AntiAirTurret.tscn":
@@ -266,7 +284,7 @@ class Units:
 			"attack_interval": 2.3,
 			"attack_range": 10.0,
 			"sight_range": 11.0,
-			"attack_domains": [Navigation.Domain.TERRAIN]
+			"attack_domains": [Navigation.Domain.TERRAIN, Navigation.Domain.AIR]
 		},
 		"res://source/match/units/EvacTransport.tscn":
 		{"hp": 150, "hp_max": 150, "sight_range": 8.0},
@@ -311,6 +329,11 @@ class Units:
 			"sight_range": 13.0,
 			"hp": 25,
 			"hp_max": 25,
+			# One-way warhead: the drone itself strikes the target.
+			"attack_damage": 34,
+			"attack_interval": 1.0,
+			"attack_range": 1.5,
+			"attack_domains": [Navigation.Domain.TERRAIN],
 		},
 		"res://source/match/units/Worker.tscn":
 		{
@@ -318,6 +341,36 @@ class Units:
 			"hp": 35,
 			"hp_max": 35,
 			"resources_max": 4,
+		},
+		"res://source/match/units/AntiAirVehicle.tscn":
+		{
+			"sight_range": 12.0,
+			"hp": 70,
+			"hp_max": 70,
+			"attack_damage": 6,
+			"attack_interval": 0.3,
+			"attack_range": 11.0,
+			"attack_domains": [Navigation.Domain.AIR],
+		},
+		"res://source/match/units/Fighter.tscn":
+		{
+			"sight_range": 13.0,
+			"hp": 45,
+			"hp_max": 45,
+			"attack_damage": 13,
+			"attack_interval": 1.1,
+			"attack_range": 11.0,
+			"attack_domains": [Navigation.Domain.AIR],
+		},
+		"res://source/match/units/Bomber.tscn":
+		{
+			"sight_range": 11.0,
+			"hp": 90,
+			"hp_max": 90,
+			"attack_damage": 30,
+			"attack_interval": 0.14,
+			"attack_range": 2.5,
+			"attack_domains": [Navigation.Domain.TERRAIN],
 		},
 		"res://source/match/units/Helicopter.tscn":
 		{
@@ -327,7 +380,7 @@ class Units:
 			"attack_damage": 7,
 			"attack_interval": 1.4,
 			"attack_range": 9.0,
-			"attack_domains": [Navigation.Domain.TERRAIN, Navigation.Domain.AIR],
+			"attack_domains": [Navigation.Domain.TERRAIN],
 		},
 		"res://source/match/units/Tank.tscn":
 		{
@@ -377,36 +430,6 @@ class Units:
 			"attack_range": 12.0,
 			"attack_domains": [Navigation.Domain.AIR],
 		},
-	}
-	const PROJECTILES = {
-		"res://source/match/units/MercenaryLancer.tscn":
-		"res://source/match/units/projectiles/Rocket.tscn",
-		"res://source/match/units/MercenaryRanger.tscn":
-		"res://source/match/units/projectiles/CannonShell.tscn",
-		"res://source/match/units/MercenaryWarden.tscn":
-		"res://source/match/units/projectiles/CannonShell.tscn",
-		"res://source/match/units/Hero.tscn":
-		"res://source/match/units/projectiles/CannonShell.tscn",
-		"res://source/match/units/AssaultInfantry.tscn":
-		"res://source/match/units/projectiles/CannonShell.tscn",
-		"res://source/match/units/SniperInfantry.tscn":
-		"res://source/match/units/projectiles/CannonShell.tscn",
-		"res://source/match/units/RocketInfantry.tscn":
-		"res://source/match/units/projectiles/Rocket.tscn",
-		"res://source/match/units/Infantry.tscn":
-		"res://source/match/units/projectiles/CannonShell.tscn",
-		"res://source/match/units/CombatRobot.tscn":
-		"res://source/match/units/projectiles/CannonShell.tscn",
-		"res://source/match/units/AdvancedTank.tscn":
-		"res://source/match/units/projectiles/CannonShell.tscn",
-		"res://source/match/units/Helicopter.tscn":
-		"res://source/match/units/projectiles/Rocket.tscn",
-		"res://source/match/units/Tank.tscn":
-		"res://source/match/units/projectiles/CannonShell.tscn",
-		"res://source/match/units/AntiGroundTurret.tscn":
-		"res://source/match/units/projectiles/CannonShell.tscn",
-		"res://source/match/units/AntiAirTurret.tscn":
-		"res://source/match/units/projectiles/Rocket.tscn"
 	}
 	const ADHERENCE_MARGIN_M = 0.3  # TODO: try lowering while fixing a 'push' problem
 	const NEW_RESOURCE_SEARCH_RADIUS_M = 30

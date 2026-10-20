@@ -107,8 +107,9 @@ func _income(faction):
 	for role in ["Tank", "Helicopter"]:
 		var cost = factions.cost(player, role)
 		paid += Vector2i(cost.resource_a, cost.resource_b)
-	var electronics = _deposit(hq, "resource_b")
-	var stock_before = electronics.resource_b
+	# Two engineers share each deposit, so the electronics crews spread across
+	# nearby fields; conserve the total finite stock rather than one deposit.
+	var stock_before = _electronics_stock()
 	var funding_start = game.simulation_time
 	game.hud._toggle_pause()
 	var delivered_material = false
@@ -149,7 +150,7 @@ func _income(faction):
 	for worker in workers:
 		carried += worker.resource_b
 	_check(
-		stock_before - electronics.resource_b == player.resource_b + carried,
+		stock_before - _electronics_stock() == player.resource_b + carried,
 		"Electronics income violated finite-stock conservation"
 	)
 	game.hud._toggle_pause()
@@ -361,4 +362,12 @@ func _labor_economy(player):
 				deposit.resource_a if "resource_a" in deposit else 0,
 				deposit.resource_b if "resource_b" in deposit else 0
 			)
+	return total
+
+
+func _electronics_stock():
+	var total = 0
+	for deposit in get_nodes_in_group("resource_units"):
+		if not deposit.is_queued_for_deletion() and "resource_b" in deposit:
+			total += deposit.resource_b
 	return total

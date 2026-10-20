@@ -218,9 +218,7 @@ func _incoming_fire():
 	first.process_mode = Node.PROCESS_MODE_INHERIT
 	first.action = load("res://source/match/units/actions/AttackingWhileInRange.gd").new(doomed)
 	_check(
-		first.get_children().any(
-			func(child): return "target_unit" in child and child.target_unit == doomed
-		),
+		not _game.projectile_system.rounds_at(doomed).is_empty(),
 		"Incoming-fire fixture did not launch a projectile"
 	)
 	second.action = waiting.new()

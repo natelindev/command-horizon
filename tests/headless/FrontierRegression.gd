@@ -159,14 +159,19 @@ func _frontier_economy(faction):
 	var human = game._get_human_player()
 	_enemy().set_process(false)
 	var harvest = load("res://source/match/units/actions/CollectingResourcesSequentially.gd")
+	# Authored salvage caches (MapLandmarks) sit outside the paired fields.
+	var piles = get_nodes_in_group("resource_units").filter(
+		func(unit): return not unit.has_meta("salvage_cache")
+	)
 	var totals = []
 	for kind in ["resource_a", "resource_b"]:
 		var total = 0
-		for deposit in get_nodes_in_group("resource_units"):
+		for deposit in piles:
 			if kind in deposit:
 				total += deposit.get(kind)
 		totals.append(total)
-	_check(totals == [3000, 1920], "Paired field amounts changed")
+	# Two home fields of 5 x 400 M / 2 x 720 E and two expansions of 5 x 600 M / 2 x 1,200 E.
+	_check(totals == [10000, 7680], "Paired field amounts changed")
 	var balances = []
 	for side in [human, _enemy()]:
 		var workers = _units(side, "Worker")
@@ -196,16 +201,25 @@ func _frontier_economy(faction):
 	for side in [human, _enemy()]:
 		for worker in _units(side, "Worker"):
 			worker.issue_manual_order(null)
-	var outer_fields = get_nodes_in_group("resource_units").filter(
+	var outer_fields = piles.filter(
 		func(unit): return "resource_b" in unit and unit.position.z < 10
 	)
 	var outer = outer_fields[0]
+	# Harvesting may move on to the field's neighbouring electronics pile.
+	var outer_piles = piles.filter(
+		func(unit): return "resource_b" in unit and unit.position.distance_to(outer.position) < 4
+	)
+	var field_stock = func():
+		return outer_piles.reduce(
+			func(sum, unit): return sum + (unit.resource_b if is_instance_valid(unit) else 0), 0
+		)
+	var stock_before = field_stock.call()
 	var worker = _units(human, "Worker")[2]
 	worker.issue_manual_order(harvest.new(outer))
 	var before = human.resource_b
 	await _frames(5000)
 	_check(
-		outer.resource_b < 600 and human.resource_b > before,
+		field_stock.call() < stock_before and human.resource_b > before,
 		"Outer electronics cannot be collected and returned"
 	)
 	print("PASS: %s both home economies, outer electronics return and paired stockpiles" % faction)

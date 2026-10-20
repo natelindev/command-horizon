@@ -38,8 +38,13 @@ func _run():
 				"Environment changed a convoy navigation route"
 			)
 		var details = game.map.get_node("RoadsideDetails")
-		for vertex in _vertices(details):
-			_check(vertex.y <= 0.32, "Passable roadside detail is too tall")
+		# Leafy bushes replaced the flat scrub props in 0.12.0 (CHANGELOG); they stay
+		# scenic (no physics or navigation, checked below). Other details stay low.
+		for detail in details.get_children():
+			if detail.has_meta("vegetation_kind"):
+				continue
+			for vertex in _vertices(detail):
+				_check(vertex.y <= 0.32, "Passable roadside detail is too tall")
 		var exterior = game.map.get_node("SupplyExterior")
 		for point in [Vector2(-2, 0), Vector2(194, 64), Vector2(96, -2), Vector2(96, 130)]:
 			_check(is_zero_approx(exterior.height_at(point)), "Exterior terrain seam is raised")

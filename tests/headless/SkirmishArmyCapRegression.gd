@@ -29,7 +29,7 @@ func _run():
 		var camps = _game.map.points_of_interest.filter(func(site): return site.kind == "mercenary")
 		for camp in camps:
 			camp.captured_by = _enemy
-		_check(camps[0].hire(_enemy, "RocketInfantry"), "Cap fixture failed to queue mercenary")
+		_check(camps[0].hire(_enemy, "MercenaryLancer"), "Cap fixture failed to queue mercenary")
 		var requests = _production.requests(_game, _enemy, _enemy._units())
 		_check(
 			requests.all(func(job): return job.role == "Worker"),

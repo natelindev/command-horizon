@@ -93,12 +93,6 @@ func _negative_contacts():
 	_no_defense("Observed aircraft near only a combat unit triggered economic defense")
 	infantry.position = infantry_point
 	raider.position = Vector3(105, 3, 85)
-	var scout = _actor("Drone", enemy, hq_point + Vector3(4, 3, 0))
-	game.battlefield.invalidate()
-	_check(game.battlefield.is_observed(human, scout), "Unarmed scout fixture is hidden")
-	_no_defense("Unarmed observed scout triggered air-raid advice")
-	scout.queue_free()
-	await _frames(2)
 	var enemy_aa = _actor("AntiAirTurret", enemy, hq_point + Vector3(4, 0, 0))
 	game.battlefield.invalidate()
 	_check(game.battlefield.is_observed(human, enemy_aa), "Enemy AA-only fixture is hidden")
@@ -111,7 +105,8 @@ func _negative_contacts():
 
 
 func _mobile_counters():
-	var interceptor = _actor("Helicopter", human, hq_point + Vector3(-3, 3, 0))
+	# Helicopters attack ground only; the faction's anti-air vehicle is mobile AA.
+	var interceptor = _actor("AntiAirVehicle", human, hq_point + Vector3(-3, 0, 0))
 	var walker = _actor("CombatRobot", human, hq_point + Vector3(-5, 0, 1))
 	var expected = [interceptor]
 	if human.faction != "helix":

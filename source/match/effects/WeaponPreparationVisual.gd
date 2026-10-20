@@ -3,11 +3,14 @@ extends Node3D
 var _orb
 var _label
 var _feet = []
+# Rocket infantry lock onto aircraft instead of charging a heavy weapon.
+var _lock = false
 @onready var _unit = get_parent()
 @onready var _marker = _unit.get_node("ProjectileOrigin")
 
 
 func _ready():
+	_lock = _unit.type == "RocketInfantry"
 	_orb = MeshInstance3D.new()
 	var sphere = SphereMesh.new()
 	sphere.radius = 0.22
@@ -52,9 +55,10 @@ func refresh():
 	var progress = _unit.weapon_charge_progress
 	_orb.visible = progress >= 0
 	_orb.global_position = _marker.global_position
-	_orb.scale = Vector3.ONE * (0.35 + maxf(0, progress) * 1.2)
-	_label.visible = progress >= 0
-	_label.text = "CHARGE %d%%" % roundi(maxf(progress, 0) * 100)
+	_orb.scale = Vector3.ONE * (0.35 + maxf(0, progress) * 1.2) * (0.45 if _lock else 1.0)
+	# Squads of soldiers would crowd the view with labels; show theirs on selection.
+	_label.visible = progress >= 0 and (not _lock or _unit.is_in_group("selected_units"))
+	_label.text = ("LOCK %d%%" if _lock else "CHARGE %d%%") % roundi(maxf(progress, 0) * 100)
 	if not _feet.is_empty():
 		var setup = 1.0 - _unit.deployment_left / _unit.DEPLOY_SECONDS
 		for foot in _feet:

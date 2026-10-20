@@ -190,7 +190,16 @@ func _live_recovery(faction):
 	opponent._last_wave = game.simulation_time - 70
 	opponent._command_army(opponent._units())
 	for unit in wounded:
-		if unit.attack_range != null:
+		if unit.type == "Drone":
+			# Kamikaze drones escort the wave with a move order rather than attack-moving.
+			_check(
+				(
+					unit.action != null
+					and unit.action.get_script().resource_path.ends_with("Moving.gd")
+				),
+				"Recovered drone did not rejoin the next wave"
+			)
+		elif unit.attack_range != null:
 			_check(
 				(
 					unit.action != null
@@ -420,7 +429,7 @@ func _restore_blocked(unit, depot):
 	var restore = Restore.new()
 	var loaded = await restore.restore(self, file.read_file(path))
 	DirAccess.remove_absolute(path)
-	_check(loaded.ok, "Blocked recovery restore failed")
+	_check(loaded.ok, "Blocked recovery restore failed: " + loaded.get("error", ""))
 	if not loaded.ok:
 		return {}
 	game = loaded.game

@@ -75,7 +75,10 @@ func _ready():
 		player.technology.apply_unit(self)
 	if (
 		player != null
-		and (type == "AdvancedTank" or (type == "CombatRobot" and player.faction == "helix"))
+		and (
+			type in ["AdvancedTank", "RocketInfantry"]
+			or (type == "CombatRobot" and player.faction == "helix")
+		)
 	):
 		var preparation_visual = load("res://source/match/effects/WeaponPreparationVisual.gd").new()
 		preparation_visual.name = "WeaponPreparationVisual"
@@ -100,18 +103,32 @@ func _ready():
 
 
 func receive_weapon_hit(source):
-	receive_damage(source, load("res://source/match/combat/CombatRules.gd").damage(source, self))
+	receive_damage(source, _rules().damage(source, self))
 
 
-func receive_damage(source, amount):
+# A projectile arrival. Damage uses the round's frozen weapon facts; splash
+# passes the share of full damage that reached this body.
+func receive_shot(shot, point = null, share = 1.0):
+	receive_damage(shot.feedback_source(), _rules().damage_from(shot, self) * share, point)
+
+
+func receive_damage(source, amount, point = null):
 	if amount > 0:
 		last_enemy_damage_time = _match.simulation_time
-		_match.combat_effects.impact(self, source, global_position + Vector3.UP * 0.5)
+		_match.combat_effects.impact(
+			self, source, point if point != null else global_position + Vector3.UP * 0.5
+		)
 		var visuals = get_node_or_null("BastionVisuals")
 		if visuals != null:
 			visuals.hit_reaction(source.global_position)
 		hp -= amount
 		MatchSignals.unit_weapon_hit.emit(self, source)
+
+
+# Loaded at runtime: preloading combat rules here compiles autoload-dependent
+# scripts before the autoloads exist.
+static func _rules():
+	return load("res://source/match/combat/CombatRules.gd")
 
 
 func weapon_delay():
@@ -184,13 +201,26 @@ func _set_action(action_node):
 		return
 	_action_locked = true
 	_teardown_current_action()
-	action = action_node
+	action = _adapt_action(action_node)
 	if action != null:
 		var action_copy = action  # bind() performs copy itself, but lets force copy just in case
 		action.tree_exited.connect(_on_action_node_tree_exited.bind(action_copy))
-		add_child(action_node)
+		add_child(action)
 	_action_locked = false
 	action_changed.emit(action)
+
+
+# Every order source assigns actions through `action`. Units whose movement
+# cannot use the generic actions (aircraft that cannot hover) replace them here;
+# callers that keep a reference must read `unit.action` after assignment.
+func _adapt_action(action_node):
+	return action_node
+
+
+# The domain weapons see. Aircraft on the ground are ground targets even though
+# they navigate in the air domain.
+func combat_domain():
+	return movement_domain
 
 
 func _get_type():

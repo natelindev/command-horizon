@@ -135,7 +135,7 @@ func _select(kind):
 			if kind == "flight":
 				return unit.type == "EvacTransport"
 			if kind == "air":
-				return unit.type in ["Helicopter", "Drone"]
+				return load("res://source/match/BastionCatalog.gd").is_aircraft(unit.type)
 			return unit.movement_speed > 0 and unit.movement_domain == 1 and unit.type != "Worker"
 	)
 	MatchSignals.deselect_all_units.emit()

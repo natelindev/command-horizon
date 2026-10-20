@@ -35,7 +35,7 @@ static func waiting(unit):
 		return "Recovery support nearby; waiting for healing."
 	var facility = Factions.title(unit.player.faction, Repairs.facility_for_role(unit.type))
 	var text = "No recovery support here. Set the safe point at a %s" % facility
-	if unit.type not in ["Drone", "Helicopter"] and not Factions.Bastion.is_infantry(unit.type):
+	if not Factions.Bastion.is_aircraft(unit.type) and not Factions.Bastion.is_infantry(unit.type):
 		text += (
 			" or bring another repair robot"
 			if unit.type == "RepairRobot"

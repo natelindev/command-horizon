@@ -20,6 +20,8 @@ const Composition = preload("res://source/match/players/skirmish-ai/SkirmishComp
 const Technologies = preload("res://source/match/research/TechnologyCatalog.gd")
 const CombatRules = preload("res://source/match/combat/CombatRules.gd")
 const Difficulty = preload("res://source/match/players/skirmish-ai/SkirmishDifficulty.gd")
+const Footprint = preload("res://source/match/utils/Footprint.gd")
+const AirfieldLayout = preload("res://source/match/units/AirfieldLayout.gd")
 
 var structures_built = 0
 var attacks_launched = 0
@@ -171,7 +173,12 @@ func _build(units, desired):
 	)
 	var building = load(Catalog.scene_path(desired)).instantiate()
 	var navmap = _match.navigation.get_navigation_map_rid_by_domain(building.movement_domain)
-	var position_to_build = _find_site(origin, building.radius, navmap)
+	var site = Transform3D.IDENTITY
+	if Footprint.has_outline(building):
+		site = _find_footprint_site(origin, Footprint.local_outline(building), navmap)
+	else:
+		site.origin = _find_site(origin, building.radius, navmap)
+	var position_to_build = site.origin
 	if not position_to_build.is_finite():
 		building.free()
 		return
@@ -180,7 +187,7 @@ func _build(units, desired):
 		building.free()
 		return
 	subtract_resources(Factions.cost(self, desired, true))
-	_match._setup_and_spawn_unit(building, Transform3D(Basis(), position_to_build), self)
+	_match._setup_and_spawn_unit(building, site, self)
 	Labor.assign_construction(builder, building)
 	structures_built += 1
 
@@ -210,6 +217,57 @@ func _find_site(origin, radius, navmap):
 	return Vector3.INF
 
 
+# Long structures (the runway airfield) try several headings at each candidate.
+func _find_footprint_site(origin, outline, navmap):
+	var obstacles = (
+		get_tree().get_nodes_in_group("units") + get_tree().get_nodes_in_group("resource_units")
+	)
+	var map_polygon = _match.map.get_topdown_polygon_2d()
+	for distance in [16.0, 20.0, 24.0, 28.0, 32.0]:
+		for index in range(16):
+			var angle = index * TAU / 16.0
+			var point = origin + Vector3(cos(angle), 0, sin(angle)) * distance
+			for heading in [0.0, PI * 0.5, PI * 0.25, PI * 0.75]:
+				var site = Transform3D(Basis(Vector3.UP, heading), point)
+				var polygon = Footprint.outline_at(outline, site)
+				if not Array(polygon).all(
+					func(corner): return Geometry2D.is_point_in_polygon(corner, map_polygon)
+				):
+					continue
+				if not AirfieldLayout.approach_fits(site, _match.map.size):
+					continue
+				if not _polygon_leaves_base_access(polygon, obstacles):
+					continue
+				var validity = Utils.Match.Unit.Placement.validate_footprint_placement(
+					polygon, obstacles, navmap
+				)
+				if validity == Utils.Match.Unit.Placement.VALID:
+					return site
+	return Transform3D(Basis(), Vector3.INF)
+
+
+func _polygon_leaves_base_access(polygon, obstacles):
+	var navigation = Constants.Match.Terrain.Navmesh
+	var passage = 2.0 * (navigation.MAX_AGENT_RADIUS + navigation.CELL_SIZE)
+	for unit in obstacles:
+		var obstacle = unit.get_node_or_null("MovementObstacle")
+		if (
+			unit.is_queued_for_deletion()
+			or obstacle == null
+			or not obstacle.affect_navigation_mesh
+			or obstacle.domain != Constants.Match.Navigation.Domain.TERRAIN
+		):
+			continue
+		var other = Footprint.world_outline(unit)
+		if other.is_empty():
+			var center = Vector2(unit.global_position.x, unit.global_position.z)
+			if Footprint.polygon_touches_circle(polygon, center, unit.radius + passage):
+				return false
+		elif Footprint.polygons_touch(Geometry2D.offset_polygon(polygon, passage)[0], other):
+			return false
+	return true
+
+
 func _leaves_base_access(point, radius, obstacles):
 	# Collision-free footprints can still close an entire navigation corridor.
 	# Leave room for erosion on both sides plus a cell on each boundary, so
@@ -225,7 +283,7 @@ func _leaves_base_access(point, radius, obstacles):
 			or obstacle.domain != Constants.Match.Navigation.Domain.TERRAIN
 		):
 			continue
-		if point.distance_to(unit.global_position_yless) < radius + unit.radius + passage:
+		if Footprint.reach_distance(unit, point) < radius + unit.radius + passage:
 			return false
 	return true
 

@@ -29,7 +29,7 @@ var _geometry
 static func seconds(element):
 	var role = element.unit_prototype.resource_path.get_file().get_basename()
 	var length = 1.1 if Factions.Bastion.is_infantry(role) else 1.8
-	if role in ["Drone", "Helicopter"]:
+	if Factions.Bastion.is_aircraft(role):
 		length = 2.4
 	return minf(length, element.time_total * .35)
 
@@ -107,11 +107,22 @@ func find_route():
 			return false
 		_route_ready = false
 	var yield_endpoint = Vector3.INF
+	var activity = producer.get_node("StructureActivity")
 	var reach = producer.radius + radius + .35
+	var base = Vector3(activity.portal.x, 0, 0)
+	if airborne and activity.portal_direction != Vector3.FORWARD:
+		# Leave from the helipad itself, not from the structure's center.
+		reach = radius + 2.5
+		base = activity.portal * Vector3(1, 0, 1)
 	for ring in range(3):
 		for angle in [0.0, -.35, .35, -.7, .7]:
-			var offset = Vector3.FORWARD.rotated(Vector3.UP, angle) * (reach + ring * radius * 1.5)
-			offset.x += producer.get_node("StructureActivity").portal.x
+			var offset = (
+				base
+				+ (
+					activity.portal_direction.rotated(Vector3.UP, angle)
+					* (reach + ring * radius * 1.5)
+				)
+			)
 			var requested = producer.to_global(offset)
 			var navigable = NavigationServer3D.map_get_closest_point(_navigation_map, requested)
 			if ((navigable - requested) * Vector3(1, 0, 1)).length() > .1:

@@ -107,13 +107,15 @@ func _capped_income(player):
 	var started = -1.0
 	paused = false
 	for frame in 10800:
+		# Stop before the next decision: once Coordination completes, the
+		# commander rightly buys its next technology, which this stage does not pay.
+		if player.coordination_unlocked:
+			break
 		if frame % 90 == 0:
 			player._harvest(player._units())
 			player._research(player._units(), player._next_building(player._units()))
 			if started < 0 and player.coordination_left > 0:
 				started = game.simulation_time - start
-		if player.coordination_unlocked:
-			break
 		await physics_frame
 	paused = true
 	_check(started >= 0, player.faction + ": actual harvesting never funded Coordination")
@@ -196,7 +198,7 @@ func _urgent_contracts(player):
 	var target = _spawn("Helicopter", game._get_human_player(), scout.position + Vector3(3, 0, 0))
 	game.battlefield.invalidate()
 	_check(game.battlefield.is_observed(player, target), "Research counter fixture is hidden")
-	_check_purchase(player, "CombatRobot", 1)
+	_check_purchase(player, "AntiAirVehicle", 1)
 	target.queue_free()
 	await _frames(2)
 	game.battlefield.invalidate()

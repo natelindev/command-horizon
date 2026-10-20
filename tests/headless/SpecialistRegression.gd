@@ -177,16 +177,17 @@ func _strike(player):
 	enemy.hp_max = 10000
 	enemy.hp = 10000
 	_launches = 0
-	unit.child_entered_tree.connect(
-		func(child):
-			if "target_unit" in child:
-				_launches += 1
-	)
+	# Rounds are simulated centrally; each launch spends one rocket (no airfield
+	# here to rearm at), so the rocket count marks every launch.
+	var rockets = unit.rockets
 	var visited_home = false
 	var paused_checked = false
 	var last_count = 0
 	for frame in range(900):
 		await process_frame
+		if unit.rockets < rockets:
+			_launches += rockets - unit.rockets
+		rockets = unit.rockets
 		if unit.global_position_yless.distance_to(home) <= 1.0:
 			visited_home = true
 			if not paused_checked and _launches > 0:

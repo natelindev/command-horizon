@@ -146,6 +146,8 @@ func _guards():
 	var observer = _units(ai, "Tank")[0]
 	var observer_position = observer.position
 	observer.position = wreck.position
+	# Observation uses a per-frame spatial index; refresh it after teleporting.
+	game.battlefield.invalidate()
 	_check(wreck.known_to(ai) and _choice() == wreck, "Far wreck fixture is not observed/preferred")
 	_unchanged(action, "Distant wreck")
 	observer.position = observer_position
@@ -158,7 +160,7 @@ func _opportunity():
 	var funds = ai.resource_a
 	var workers = _units(ai, "Worker")
 	var electronic_actions = workers.slice(1).map(func(worker): return worker.action)
-	var wreck = _wreck(hq.global_position_yless + Vector3(0, 0, -6))
+	var wreck = _wreck(_home_opportunity_point())
 	_check(wreck.known_to(ai) and _choice() == wreck, "Safe nearby wreck was not preferred")
 	for structure in ai._units().filter(func(unit): return unit.movement_speed == 0):
 		_check(
@@ -258,3 +260,31 @@ func _opportunity():
 		salvaged
 	)
 	return true
+
+
+# Starting resources form compact arcs 18 m from HQ and a field spans 13 m, so
+# a fixed offset can fall inside the engineer's current field. Pick an open,
+# reachable home point outside that field and clear of every structure.
+func _home_opportunity_point():
+	var origin = engineer.action._field_origin
+	var nav = game.navigation.get_navigation_map_rid_by_domain(engineer.movement_domain)
+	var structures = ai._units().filter(func(unit): return unit.movement_speed == 0)
+	for distance in [6.0, 8.0, 10.0, 12.0, 14.0]:
+		for index in 16:
+			var angle = index * TAU / 16
+			var point = hq.global_position_yless + Vector3(cos(angle), 0, sin(angle)) * distance
+			if point.distance_to(origin) <= harvest.FIELD_RADIUS + 1.0:
+				continue
+			if structures.any(
+				func(structure):
+					return (
+						point.distance_to(structure.global_position_yless)
+						<= structure.radius + engineer.radius + 1.5
+					)
+			):
+				continue
+			var ground = NavigationServer3D.map_get_closest_point(nav, point) * Vector3(1, 0, 1)
+			if ground.distance_to(point) < .1:
+				return point
+	_check(false, "No open home salvage point outside the current field")
+	return hq.global_position_yless

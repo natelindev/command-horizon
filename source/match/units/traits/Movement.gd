@@ -12,6 +12,8 @@ const RECOVERY_DURATION = 0.6
 const GROUND_RECOVERY_DURATION = 2.0
 const GROUND_RECOVERY_DISTANCE = 2.0
 const GROUND_CONTACT_MARGIN = .02
+# Vertical speed of rotorcraft settling onto or lifting off a helipad.
+const SETTLE_RATE = 1.2
 
 const ROTATION_LOW_PASS_FILTER_ENABLED = true
 const ROTATION_LOW_PASS_FILTER_WINDOW_SIZE = 10  # number of frames for accumulating directions
@@ -20,6 +22,9 @@ const ROTATION_LOW_PASS_FILTER_VELOCITY_THRESHOLD = 0.01  # velocities below wil
 const PASSIVE_MOVEMENT_TRACKING_ENABLED = true
 
 @export var domain = Constants.Match.Navigation.Domain.TERRAIN
+# Rotorcraft and drones accelerate and brake at this rate instead of snapping
+# to full speed (metres per second squared). Ground units are unaffected.
+@export var air_acceleration = 7.0
 @export var speed: float = 4.0:
 	get:
 		var factor = (
@@ -29,6 +34,8 @@ const PASSIVE_MOVEMENT_TRACKING_ENABLED = true
 		)
 		return speed * factor
 
+# Rotorcraft settle onto a helipad deck at this height, then climb back out.
+var settle_height = INF
 var _exit_clearance_target = Vector3.INF
 var _exit_clearance_until = 0.0
 var _physics_delta: float = 0.0
@@ -47,6 +54,8 @@ var _total_direction_in_the_low_pass_filter_window = Vector3.ZERO
 var _previously_set_global_transform_of_unit = null
 
 var _passive_movement_detected = false
+var _air_velocity = Vector3.ZERO
+var _climbing_out = false
 
 @onready var _match = find_parent("Match")
 @onready var _unit: Unit = get_parent()
@@ -65,7 +74,7 @@ func _physics_process(delta):
 	if _advance_exit_clearance(delta):
 		return
 	if not _has_destination:
-		velocity = Vector3.ZERO
+		velocity = _air_inertia(Vector3.ZERO, delta)
 		return
 	# Advance the path exactly once per physics tick, never from an avoidance callback.
 	var next_point: Vector3
@@ -129,7 +138,28 @@ func _physics_process(delta):
 			_recovery_left = minf(_recovery_left, RECOVERY_DURATION)
 			direction = (direction * 0.35 + _recovery_direction).normalized()
 	# Avoidance consumes metres per second. Apply delta only when moving the unit.
-	velocity = direction * min(speed, offset.length() / delta)
+	if domain == Constants.Match.Navigation.Domain.AIR:
+		# Brake in time to stop at the destination instead of arriving at speed.
+		var braking = sqrt(2.0 * air_acceleration * offset.length())
+		velocity = _air_inertia(direction * minf(speed, braking), delta)
+	else:
+		velocity = direction * min(speed, offset.length() / delta)
+
+
+func _changing_height():
+	return (
+		(is_finite(settle_height) and absf(_unit.global_position.y - settle_height) > 0.005)
+		or _climbing_out
+	)
+
+
+func _air_inertia(desired, delta):
+	if domain != Constants.Match.Navigation.Domain.AIR:
+		return desired
+	_air_velocity = _air_velocity.move_toward(desired, air_acceleration * delta)
+	if _air_velocity.length_squared() < 0.0004:
+		_air_velocity = Vector3.ZERO
+	return _air_velocity
 
 
 func request_exit_clearance(point):
@@ -408,6 +438,7 @@ func _on_velocity_computed(safe_velocity: Vector3):
 		safe_velocity.is_zero_approx()
 		and _previously_set_global_transform_of_unit == _unit.global_transform
 		and navigation_iteration == _last_navigation_iteration
+		and not _changing_height()
 	):
 		# Already aligned and untouched: a stationary body needs no navmesh or
 		# neighbor query. Preserve the passive-stop notification for work actions.
@@ -427,6 +458,14 @@ func _on_velocity_computed(safe_velocity: Vector3):
 	# Ground agents retain the existing navmesh-constrained elevation step.
 	if _uses_flight_clearance():
 		next.y = _flight_height(Vector3(next.x, navigable.y, next.z))
+		if is_finite(settle_height):
+			next.y = move_toward(
+				_unit.global_position.y, settle_height, SETTLE_RATE * _physics_delta
+			)
+			_climbing_out = true
+		elif _climbing_out:
+			next.y = move_toward(_unit.global_position.y, next.y, SETTLE_RATE * _physics_delta)
+			_climbing_out = next.y < _flight_height(next) - 0.01
 	else:
 		next = _unit.global_position.move_toward(navigable, current_speed * _physics_delta)
 	if domain == Constants.Match.Navigation.Domain.TERRAIN:

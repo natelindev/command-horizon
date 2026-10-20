@@ -9,6 +9,7 @@ func _run():
 	for unit in get_nodes_in_group("units"):
 		unit.process_mode = Node.PROCESS_MODE_DISABLED
 	game.repair_service.set_physics_process(false)
+	await _check_role_balance()
 	var shoot = load("res://source/match/units/actions/AttackingWhileInRange.gd")
 	for target_role in ["Tank", "Infantry"]:
 		var cannon = _spawn_frontier("AdvancedTank", human, Vector3(22, 0, 22))
@@ -46,6 +47,46 @@ func _run():
 		push_error(message)
 	print("Frontier combat: %d failures" % errors.size())
 	quit(0 if errors.is_empty() else 1)
+
+
+# Frontier fields rough aircraft and hardened infantry: health, damage and speed
+# factors must reach the spawned unit, and saved health must stay valid.
+func _check_role_balance():
+	var defaults = load("res://source/match/MatchConstants.gd").Units.DEFAULT_PROPERTIES
+	var expected = {
+		"Infantry": [1.1, 1.15, 1.2],
+		"RocketInfantry": [1.1, 1.15, 1.2 * 0.82],
+		"Tank": [0.85, 1.0, 1.1],
+		"Worker": [0.85, 1.0, 1.1],
+		"Drone": [0.7, 0.8, 1.0],
+		"Helicopter": [0.7, 0.8, 1.0],
+		"Fighter": [0.7, 0.8, 1.0],
+		"Bomber": [0.7, 0.8, 1.0],
+	}
+	for role in expected:
+		var path = factions.Bastion.scene_path(role)
+		var base = defaults[path]
+		var template = load(path).instantiate()
+		var base_speed = template.get_node("Movement").speed
+		template.free()
+		var unit = _spawn_frontier(role, human, Vector3(40, 0, 40))
+		var factors = expected[role]
+		_check(unit.hp_max == roundi(base.hp_max * factors[0]), "Frontier %s health" % role)
+		if base.has("attack_damage"):
+			_check(
+				is_equal_approx(unit.attack_damage, base.attack_damage * factors[1]),
+				"Frontier %s damage" % role
+			)
+		_check(
+			is_equal_approx(unit.get_node("Movement").speed, base_speed * factors[2]),
+			"Frontier %s speed" % role
+		)
+		_check(
+			factions.health_factor("frontier", role) == factors[0],
+			"Frontier %s save health factor" % role
+		)
+		unit.queue_free()
+	await _frames(3)
 
 
 func _wait_for_hit(target, previous_hp):

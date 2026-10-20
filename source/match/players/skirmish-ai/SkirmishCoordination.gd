@@ -114,8 +114,9 @@ static func _group(kind, point, members, now):
 	}
 
 
+# Kamikaze drones scout or escort waves (_attach_scouts); they are not wave members.
 static func _combatant(unit):
-	return unit.movement_speed > 0 and unit.attack_range != null
+	return unit.movement_speed > 0 and unit.attack_range != null and unit.type != "Drone"
 
 
 static func _fields(game, units, observed):
@@ -291,7 +292,11 @@ static func _attach_scouts(groups, free, assigned):
 	var candidates = groups.filter(func(group): return group.kind != "scout")
 	if candidates.is_empty():
 		return
-	for drone in free.filter(func(unit): return unit.type == "Drone"):
+	var drones = free.filter(func(unit): return unit.type == "Drone")
+	for index in range(drones.size()):
+		var drone = drones[index]
+		# The first drone keeps scouting; the rest dive onto machines they find.
+		drone.stance = drone.Stance.HOLD_FIRE if index == 0 else drone.Stance.AGGRESSIVE
 		candidates.sort_custom(
 			func(a, b):
 				return drone.position.distance_to(a.point) < drone.position.distance_to(b.point)

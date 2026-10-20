@@ -338,6 +338,10 @@ func _invalid_and_legacy():
 	if human.faction == "frontier":
 		return true  # Frontier did not exist in legacy versions; old factions cover migration.
 	legacy.snapshot_version = 6
+	legacy.erase("rounds")
+	for legacy_unit in legacy.units:
+		legacy_unit.projectiles = []
+		legacy_unit.erase("air")
 	for stance_unit in legacy.units:
 		stance_unit.erase("stance")
 	legacy.erase("neutral_buildings")

@@ -4,6 +4,10 @@ const MAP_NAMES = ["DesertFrontier", "AlpineRelay", "IndustrialCrossroads", "Coa
 const SPECIALISTS = ["RepairRobot", "CombatRobot", "AdvancedTank", "Helicopter"]
 # One support/armor/air group should fit this electronics budget for each faction.
 const MIXED_BUDGET = {"bastion": 50, "helix": 62, "frontier": 38}
+# README economy: home piles hold 400 M / 720 E, expansion piles 600 M / 1,200 E;
+# two home and two expansion fields of five material and two electronics piles.
+const HOME_ELECTRONICS = 720
+const FIELD_STOCK = Vector2i(10000, 7680)
 
 
 func _run():
@@ -35,14 +39,17 @@ func _run():
 
 
 func _supply(map_name):
-	var fields = get_nodes_in_group("resource_units")
+	# Authored salvage caches (MapLandmarks) sit outside the paired fields.
+	var fields = get_nodes_in_group("resource_units").filter(
+		func(field): return not field.has_meta("salvage_cache")
+	)
 	var stock = Vector2i.ZERO
 	for field in fields:
 		if "resource_a" in field:
 			stock.x += field.resource_a
 		else:
 			stock.y += field.resource_b
-	_check(stock == Vector2i(3000, 1920), map_name + ": insufficient mixed-army reserves")
+	_check(stock == FIELD_STOCK, map_name + ": insufficient mixed-army reserves")
 	var sides = get_nodes_in_group("players")
 	var assigned = []
 	var before = []
@@ -56,7 +63,7 @@ func _supply(map_name):
 					< b.position.distance_to(worker.position)
 				)
 		)
-		_check(deposits[0].resource_b == 360, map_name + ": unequal home electronics")
+		_check(deposits[0].resource_b == HOME_ELECTRONICS, map_name + ": unequal home electronics")
 		assigned.append(deposits[0])
 		before.append(side.resource_b)
 		worker.issue_manual_order(harvest.new(deposits[0]))
@@ -71,7 +78,7 @@ func _supply(map_name):
 		var delivered = side.resource_b - before[index]
 		_check(delivered >= 8, map_name + ": home electronics cannot sustain repeat deliveries")
 		_check(
-			360 - assigned[index].resource_b == delivered + worker.resource_b,
+			HOME_ELECTRONICS - assigned[index].resource_b == delivered + worker.resource_b,
 			map_name + ": gathering lost or created electronics"
 		)
 	print("SUPPLY ", map_name, " stock=", stock, " repeat deliveries from both starts")

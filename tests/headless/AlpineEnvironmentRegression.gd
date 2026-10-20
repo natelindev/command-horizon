@@ -40,9 +40,12 @@ func _enemy():
 
 func _geometry():
 	var map = game.map
-	_check(map.get_node("Decorations").get_child_count() == 6, "Alpine blocker count changed")
-	for index in range(6):
-		var shelf = map.get_node("Decorations").get_child(index)
+	# Neutral settlements share Decorations with the six authored ridges.
+	var shelves = map.get_node("Decorations").get_children().filter(
+		func(child): return child.name.begins_with("GlacialRidge")
+	)
+	_check(shelves.size() == 6, "Alpine blocker count changed")
+	for shelf in shelves:
 		var blocker = shelf.get_node("MovementObstacle")
 		_check(
 			is_equal_approx(blocker.radius, 6.5) and is_equal_approx(blocker.sight_height, 1.15),
@@ -180,8 +183,16 @@ func _flight():
 	print("PASS: drone and strike aircraft cross all six alpine shelves")
 
 
+func _hold_enemy_units(mode):
+	# The east lane ends beside the enemy start; its idle army must not join the pass test.
+	for unit in _enemy().get_children():
+		if "type" in unit:
+			unit.process_mode = mode
+
+
 func _passes():
 	var human = game._get_human_player()
+	_hold_enemy_units(Node.PROCESS_MODE_DISABLED)
 	var ground = root.get_node("Constants").Match.Navigation.Domain.TERRAIN
 	var air = root.get_node("Constants").Match.Navigation.Domain.AIR
 	for z in [36.0, 73.0, 2.5]:
@@ -226,6 +237,7 @@ func _passes():
 		return
 	game = restored.game
 	_enemy().set_process(false)
+	_hold_enemy_units(Node.PROCESS_MODE_DISABLED)
 	army = ids.map(func(id): return reader.entities[id])
 	_check(
 		game.map.size == Vector2(128, 104) and game.settings.map_path == ALPINE,
@@ -250,6 +262,7 @@ func _passes():
 	_check(army.all(func(unit): return unit.position.x < 43), "Alpine 16-tank retreat stuck")
 	for unit in army:
 		unit.queue_free()
+	_hold_enemy_units(Node.PROCESS_MODE_INHERIT)
 	await _frames(5)
 	var placement = load("res://source/match/utils/UnitPlacementUtils.gd")
 	var nav = game.navigation.get_navigation_map_rid_by_domain(ground)
@@ -317,7 +330,7 @@ func _economy(faction):
 		for worker in _units(sides[index], "Worker"):
 			worker.issue_manual_order(null)
 	var outer_fields = get_nodes_in_group("resource_units").filter(
-		func(unit): return "resource_b" in unit and unit.resource_b == 600
+		func(unit): return "resource_b" in unit and unit.resource_b == 1200
 	)
 	var chosen = []
 	balances = []
@@ -336,7 +349,7 @@ func _economy(faction):
 	await _frames(5400)
 	for index in 2:
 		_check(
-			chosen[index].resource_b < 600 and sides[index].resource_b > balances[index],
+			chosen[index].resource_b < 1200 and sides[index].resource_b > balances[index],
 			"Alpine outer electronics cannot be collected and returned"
 		)
 	for worker in _units(human, "Worker"):

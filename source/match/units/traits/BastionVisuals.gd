@@ -378,6 +378,11 @@ func _apply_geometry(delta, ground_distance):
 	# Buildings keep their foundation fixed; their articulated parts still animate.
 	if not _mobile:
 		return
+	if _movement.has_method("flight_velocity"):
+		# Fixed-wing attitude is authoritative flight state, not synthesized sway:
+		# nose follows the flight path, wings bank into coordinated turns.
+		_pose_geometry(Vector3(_movement.pitch + kick * 0.03, 0, -_movement.bank), Vector3.ZERO)
+		return
 	if _infantry_motion != null:
 		_pose_geometry(Vector3(0, chassis.yaw_lag, 0), Vector3.ZERO)
 		var flinch = sin(_hit_kick * PI) * _hit_kick

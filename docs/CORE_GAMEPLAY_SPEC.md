@@ -163,6 +163,41 @@ One weapon profile plus armor multipliers is the first counter model; no second 
 
 These are tuning seeds. Walkers count as light machines; tank/Needle/railgun/Prism as heavy armor; aircraft as light machines in the air domain. Air eligibility comes from the weapon, never from the armor multiplier. Direct hits may use immediate damage with tracer effects initially; missiles resolve on impact and are cancelled if their target no longer exists. No firing through blockers due to cosmetic projectiles.
 
+### Air combat and physical projectiles (2026-10-20)
+
+This supersedes the hover/VTOL and immediate-damage statements above. See
+[the air-combat plan](plans/2026-10-20-air-combat-redesign.md).
+
+- **Projectiles are physical.** Every shot is a round flown by `ProjectileSystem`:
+  bullets and shells under gravity, rockets with a motor burn, guided missiles
+  with a turn-rate limit and proximity fuse, bombs released with the carrier's
+  velocity. Shooters lead moving targets; dispersion is deterministic per match
+  seed. Rounds can miss, are stopped by sight blockers and the ground, splash
+  nearby enemies with linear falloff (no friendly fire) and keep flying after
+  their shooter dies. Railguns remain an instant line.
+- **Aircraft roles.** Drone: kamikaze loitering munition, holds fire by default.
+  Fighter: air-to-air missiles and cannon, air only. Bomber: one stick of
+  gravity bombs per sortie, ground only. Helicopter: hovering ground-attack
+  gunship with limited rockets. All four come from the airfield.
+- **Fixed-wing flight.** Fighters and bombers never hover. They park on stands,
+  taxi, roll down the runway, climb, turn by banking (turn rate = g·tan(bank)/
+  speed), orbit their station, return when out of stores, fly a glide-slope
+  approach to whichever runway end has room, flare, roll out and taxi back to
+  rearm. Parked and taxiing aircraft are ground targets.
+- **Runway airfield.** About 8.5 × 24.7 m, rotatable at placement, with four
+  jet stands (one per jet, reserved when queued) and two helipads. Range, sight,
+  contact and repair measure from its outline.
+- **Anti-air.** Rocket infantry lock guided missiles onto aircraft (0.8 s lock,
+  9 m, shared reload). Each faction has a tank-class anti-air vehicle: Bastion
+  radar flak, Helix guided interceptors, Frontier autocannon truck. Static
+  batteries and walker anti-air remain.
+- **Frontier balance.** Frontier is the least technical faction, so its
+  aircraft (drone, helicopter, fighter, bomber) have 70% base health, deal 80%
+  damage and get no faction speed bonus. Its Barracks infantry, including the
+  hero, are hardened instead: 110% base health and 115% damage, keeping the
+  +20% infantry speed. Other Frontier mobile units keep 85% health and +10%
+  speed; mercenaries keep the general Frontier factors.
+
 Aim for 8–15 seconds for an unassisted equal-tier armor duel at effective range and at least a few seconds to react to ordinary focus fire. This is a measurement target, not a guarantee that all units survive any volley. Special charge attacks need visible warning. Keep current Bastion HP/damage as the starting reference; initially give Helix's comparable mobile machines about 80% HP and 120% movement speed, without increasing all their DPS. Record each actual stat in a faction catalog during implementation. Cost, movement and information advantages must be tested together; do not assume equal unit counts mean equal army value.
 
 ### Repair rules

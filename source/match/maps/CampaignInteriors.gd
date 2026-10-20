@@ -5,6 +5,9 @@ extends RefCounted
 const Landmarks = preload("res://source/match/world/MapLandmarks.gd")
 const Catalog = preload("res://source/match/campaign/CampaignCatalog.gd")
 const Obstacle = preload("res://source/match/units/traits/MovementObstacle.tscn")
+const Ambient = preload("res://source/match/ambient/AmbientCatalog.gd")
+# Open ground kept between scenery and the authored ambient traffic loops.
+const WALKWAY_CLEARANCE = 1.0
 const KITS = {
 	"city": ["industrial/ServiceOffice", "industrial/SawtoothWorkshop", "industrial/CoolingHall"],
 	"spire":
@@ -51,7 +54,13 @@ static func populate(map, mission_id):
 				point += Vector2(random.randf_range(-3, 3), random.randf_range(-3, 3))
 			var radius = 2.5 if compact else (4.4 if urban else 3.8)
 			if not _clear(
-				point, radius, map.size, occupied, protected.roads, protected.road_clearance
+				point,
+				radius,
+				map.size,
+				occupied,
+				protected.roads,
+				protected.road_clearance,
+				protected.walkways
 			):
 				continue
 			var asset = KITS[biome][serial % KITS[biome].size()]
@@ -67,7 +76,15 @@ static func populate(map, mission_id):
 		var point = Vector2(
 			random.randf_range(4, map.size.x - 4), random.randf_range(4, map.size.y - 4)
 		)
-		if not _clear(point, 1.7, map.size, occupied, protected.roads, protected.road_clearance):
+		if not _clear(
+			point,
+			1.7,
+			map.size,
+			occupied,
+			protected.roads,
+			protected.road_clearance,
+			protected.walkways
+		):
 			continue
 		# Three plants form a grove, with enough open space between groves for troops.
 		for member in 3:
@@ -189,16 +206,25 @@ static func protection(map, id):
 	for node in map.get_children():
 		if node is Node3D and ("captured_by" in node or "capture_progress" in node):
 			circles.append([Vector2(node.position.x, node.position.z), 12.0])
+	# Authored residents, foxes and cars walk their loops without passing through scenery.
+	var walkways = []
+	for entry in Ambient.entries(map.scene_file_path):
+		var path: PackedVector3Array = entry.path
+		for index in path.size():
+			var a = path[index]
+			var b = path[(index + 1) % path.size()]
+			walkways.append(Vector4(a.x, a.z, b.x, b.z))
 	# The finale sends replacement infantry past a standing armored guard. Preserve
 	# lateral room for local avoidance along both reinforcement and assault corridors.
 	return {
 		"circles": circles,
 		"roads": roads,
-		"road_clearance": 11.0 if id == "command_horizon" else 5.0
+		"road_clearance": 11.0 if id == "command_horizon" else 5.0,
+		"walkways": walkways
 	}
 
 
-static func _clear(point, radius, size, circles, roads, road_clearance):
+static func _clear(point, radius, size, circles, roads, road_clearance, walkways = []):
 	if not Rect2(Vector2.ONE * (radius + 2), size - Vector2.ONE * (radius + 2) * 2).has_point(
 		point
 	):
@@ -211,6 +237,12 @@ static func _clear(point, radius, size, circles, roads, road_clearance):
 			point, Vector2(road.x, road.y), Vector2(road.z, road.w)
 		)
 		if point.distance_to(nearest) < radius + road_clearance:
+			return false
+	for walkway in walkways:
+		var nearest = Geometry2D.get_closest_point_to_segment(
+			point, Vector2(walkway.x, walkway.y), Vector2(walkway.z, walkway.w)
+		)
+		if point.distance_to(nearest) < radius + WALKWAY_CLEARANCE:
 			return false
 	return true
 

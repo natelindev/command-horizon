@@ -123,7 +123,9 @@ func _expansion(faction, map_name):
 	hq = _units(opponent, "CommandCenter")[0]
 	field = _nearest_deposit(hq, "resource_b")
 	game.hud._toggle_pause()
-	var stock_before = field.resource_b
+	# Two engineers share each deposit, so crews may spread across neighbouring
+	# deposits; conserve the total finite stock rather than one deposit.
+	var stock_before = _finite_stock().y
 	var entered = false
 	var enter_time = 0.0
 	for frame in 7200:
@@ -150,7 +152,7 @@ func _expansion(faction, map_name):
 	for gatherer in _units(opponent, "Worker"):
 		carried += gatherer.resource_b
 	_check(
-		stock_before - field.resource_b == opponent.resource_b + carried,
+		stock_before - _finite_stock().y == opponent.resource_b + carried,
 		"Expansion income did not conserve finite stock and carried cargo"
 	)
 	game.hud._toggle_pause()
@@ -323,8 +325,13 @@ func _threat_contract(faction):
 		aa, Transform3D(Basis(), worker.position + Vector3(-2, 0, 0)), human, false
 	)
 	_check(
-		not economy.danger(worker.global_position_yless, worker, [scout, aa]),
-		"Unarmed/air-only contact threatened ground engineer"
+		not economy.danger(worker.global_position_yless, worker, [aa]),
+		"Air-only contact threatened ground engineer"
+	)
+	# Drones are armed loitering munitions that can dive onto ground targets.
+	_check(
+		economy.danger(worker.global_position_yless, worker, [scout]),
+		"Armed drone did not threaten a ground engineer"
 	)
 	var remote = Vector3(76, 0, 90)
 	for unit in economy.guards(opponent._units()):
@@ -429,7 +436,7 @@ func _split_fields(faction):
 		_units(player, "Worker").all(func(worker): return worker.action == null),
 		"Split-field gatherers left before guards arrived"
 	)
-	var before = Vector2i(materials.resource_a, electronics.resource_b)
+	var before = _finite_stock()
 	game.hud._toggle_pause()
 	for frame in 7200:
 		if frame % 90 == 0:
@@ -447,10 +454,7 @@ func _split_fields(faction):
 	for worker in _units(player, "Worker"):
 		cargo += Vector2i(worker.resource_a, worker.resource_b)
 	_check(
-		(
-			before - Vector2i(materials.resource_a, electronics.resource_b)
-			== Vector2i(player.resource_a - 200, player.resource_b) + cargo
-		),
+		before - _finite_stock() == Vector2i(player.resource_a - 200, player.resource_b) + cargo,
 		"Split-field income did not conserve finite resources"
 	)
 	print("EXPANSION SPLIT ", faction, " M=", player.resource_a - 200, " E=", player.resource_b)
@@ -467,3 +471,14 @@ func _guard_step(player, units = null):
 		if group.kind == "guard":
 			result.append_array(group.members)
 	return result
+
+
+func _finite_stock():
+	var total = Vector2i.ZERO
+	for deposit in get_nodes_in_group("resource_units"):
+		if not deposit.is_queued_for_deletion():
+			total += Vector2i(
+				deposit.resource_a if "resource_a" in deposit else 0,
+				deposit.resource_b if "resource_b" in deposit else 0
+			)
+	return total

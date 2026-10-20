@@ -74,12 +74,12 @@ func _budget(faction):
 	var threat = _spawn("Helicopter", human, scout.position + Vector3(3, 0, 0))
 	game.battlefield.invalidate()
 	_check(game.battlefield.is_observed(player, threat), "Budget counter fixture is hidden")
-	var counter = factions.cost(player, "CombatRobot")
+	var counter = factions.cost(player, "AntiAirVehicle")
 	player.resource_a = counter.resource_a
 	player.resource_b = counter.resource_b
 	player._production_index = 0
 	player._train(player._units(), "")
-	_check(_queued(factory) == "CombatRobot", "First-wing saving delayed a visible-air counter")
+	_check(_queued(factory) == "AntiAirVehicle", "First-wing saving delayed a visible-air counter")
 	factory.production_queue.cancel_all()
 	air.production_queue.cancel_all()
 	threat.queue_free()

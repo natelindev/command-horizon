@@ -2,6 +2,24 @@
 
 ## [main]
 
+### Air combat redesign
+ - Physical projectiles: visible bullets, shells, rockets, guided missiles and bombs follow gravity, thrust and turn limits; rounds can miss, are blocked by terrain and buildings, splash nearby enemies and outlive their shooter
+ - Four distinct aircraft from one runway airfield: kamikaze drones, fighters, bombers and attack helicopters
+ - Fighters and bombers taxi, take off from the runway, bank to turn, orbit, land on a glide slope and rearm on their stand; parked jets can be destroyed on the ground
+ - Rocket infantry fire guided missiles at aircraft, and every faction gains a tank-class anti-air vehicle
+ - The airfield is now a rotatable runway with four jet stands and two helipads; helicopters and drones rearm and repair on the helipads
+ - Skirmish AI builds anti-air against observed aircraft and uses each aircraft for its role; air-defense advice recommends mobile anti-air
+ - Frontier aircraft are weaker (70% health, 80% damage, no speed bonus); Frontier infantry are tougher and hit harder (110% health, 115% damage)
+ - Save format 15 stores rounds in flight and flight state; older saves are not supported
+
+### Fixed
+ - Skirmish AI hires camp mercenaries again (it requested rocket infantry, which camps no longer sell) and counts fielded mercenaries against its army cap
+ - Hover cards for resources and units appear again; the full-screen command-feedback layer no longer counts as an occupied HUD panel
+ - Campaign district buildings keep clear of the authored resident, fox and car loops
+ - Save → load → save keeps action timers identical, including timers that are due on the saved tick
+ - Fighters, bombers, anti-air vehicles and camp mercenaries speak instead of staying silent
+ - Expanded Desert Frontier map preview shows the current resource fields
+
 ## [0.14.1]
 
 ### Fixed

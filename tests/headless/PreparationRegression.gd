@@ -61,6 +61,9 @@ func _rail():
 	rail.issue_manual_order(shooting.new(target))
 	await _frames(15)
 	var blocker = _spawn_weapon("Barracks", sides[0], Vector3(43, 0, 10))
+	# The North Refinery site at (43, 11) cuts the navigation mesh, so spawn alignment
+	# slides the structure off the firing lane; pin it back onto the lane.
+	blocker.global_position = Vector3(43, 0, 10)
 	blocker.construct(1)
 	game.battlefield.invalidate()
 	await _frames(50)

@@ -31,7 +31,10 @@ func _ready():
 
 func _physics_process(delta):
 	_retry_left = maxf(0.0, _retry_left - delta)
-	if _unit.hp >= _unit.hp_max * (1.0 if _full_recovery else RETURN_HEALTH):
+	if (
+		_unit.hp >= _unit.hp_max * (1.0 if _full_recovery else RETURN_HEALTH)
+		and not (_unit.has_method("needs_rearm") and _unit.needs_rearm())
+	):
 		queue_free()
 		return
 	_elapsed += delta
@@ -44,9 +47,12 @@ func _physics_process(delta):
 		return
 	if _blocked:
 		return
-	if _unit.global_position_yless.distance_to(_target.global_position_yless) <= ARRIVAL_RANGE:
+	if _unit.global_position_yless.distance_to(_destination()) <= _arrival_range():
 		_stalled = 0.0
 		_movement.stop()
+		if _target.has_method("service_height"):
+			# Rotorcraft settle onto the helipad deck while serviced.
+			_movement.settle_height = _target.service_height(_unit)
 		return
 	if _unit.global_position_yless.distance_to(_last_progress) >= 0.35:
 		_last_progress = _unit.global_position_yless
@@ -68,15 +74,29 @@ func block():
 
 func _refresh():
 	if Repairs.facility_eligible(_target, _unit):
-		if _unit.global_position_yless.distance_to(_target.global_position_yless) > ARRIVAL_RANGE:
-			_movement.move(_target.global_position_yless)
+		if _unit.global_position_yless.distance_to(_destination()) > _arrival_range():
+			_movement.move(_destination())
 		else:
 			_movement.stop()
+
+
+# Facilities with service points (airfield helipads and stands) receive the
+# aircraft there; others service anything near their center.
+func _destination():
+	if _target.has_method("service_point"):
+		return _target.service_point(_unit) * Vector3(1, 0, 1)
+	return _target.global_position_yless
+
+
+func _arrival_range():
+	return _target.service_reach() if _target.has_method("service_reach") else ARRIVAL_RANGE
 
 
 func _exit_tree():
 	if is_instance_valid(_movement):
 		_movement.stop()
+		if "settle_height" in _movement:
+			_movement.settle_height = INF
 
 
 func _to_string():

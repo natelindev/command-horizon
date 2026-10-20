@@ -50,7 +50,7 @@ func _physics_process(delta):
 	if (
 		_moving_during_preparation()
 		or _unit.weapon_delay() > 0
-		or Rules.preparation_for(_unit) == 0
+		or Rules.preparation_for(_unit, _target_unit) == 0
 	):
 		_cancel_charge()
 		_one_shot_timer.start(maxf(0.05, _unit.weapon_delay()))
@@ -109,7 +109,7 @@ func _schedule_hit():
 	else:
 		if _teardown_if_out_of_range():
 			return
-		var preparation = Rules.preparation_for(_unit)
+		var preparation = Rules.preparation_for(_unit, _target_unit)
 		if preparation == 0:
 			_hit_target()
 		elif _unit_movement_trait != null and _unit_movement_trait._has_destination:
@@ -125,9 +125,12 @@ func _schedule_hit():
 
 
 func _moving_during_preparation():
+	# Heavy weapons must stay planted; a soldier holding a missile lock only has
+	# to stop walking, since crowd contact nudges infantry slightly.
+	var drift = 0.35 if _unit.type == "RocketInfantry" else 0.02
 	return (
 		(_unit_movement_trait != null and _unit_movement_trait._has_destination)
-		or _unit.global_position.distance_squared_to(_charge_origin) > 0.0004
+		or _unit.global_position.distance_squared_to(_charge_origin) > drift * drift
 	)
 
 
@@ -175,16 +178,7 @@ func _hit_target():
 		"next_attack_availability_time",
 		int(_unit._match.simulation_time * 1000.0) + int(_unit.attack_interval * 1000.0)
 	)
-	var projectile = (
-		load(
-			Constants.Match.Units.PROJECTILES[_unit.get_script().resource_path.replace(
-				".gd", ".tscn"
-			)]
-		)
-		. instantiate()
-	)
-	projectile.target_unit = _target_unit
-	_unit.add_child(projectile)
+	_unit._match.projectile_system.fire(_unit, _target_unit)
 	_shots += 1
 	shot_fired.emit()
 	if _shot_limit > 0 and _shots >= _shot_limit:

@@ -116,8 +116,12 @@ func _physics_process(delta):
 	current = order
 	_still = 0.0
 	_progress = unit.global_position
-	_active = action
 	unit.action = action
+	# The unit may replace a generic action with one its movement supports, or
+	# reject it and fall back to its idle behavior, which completes the order.
+	_active = unit.action
+	if is_instance_valid(_active) and _active.has_method("is_idle") and _active.is_idle():
+		_active = null
 	status = tr("%s · %d waiting") % [tr(str(order.kind).capitalize()), pending.size()]
 
 

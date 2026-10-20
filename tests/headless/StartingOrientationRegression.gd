@@ -44,7 +44,8 @@ func _check_starting_fronts():
 		side.set_process(false)
 	for unit in get_nodes_in_group("units"):
 		unit.process_mode = Node.PROCESS_MODE_DISABLED
-		if not unit.has_method("is_constructed"):
+		# Runways are oriented per site for room and approach, not toward the camera.
+		if not unit.has_method("is_constructed") or unit.is_in_group("footprinted_structures"):
 			continue
 		var front = -unit.global_basis.z
 		_check(front.dot(Vector3.BACK) > .999, "Starting structure faces away from the bottom")

@@ -46,7 +46,10 @@ func _captured_return(repetition):
 		unit.position.distance_to(start) < 1.0,
 		"Crowded arrival moved the unit to another destination"
 	)
-	_check(max_step <= unit.movement_speed / 60.0 + 0.002, "Crowded arrival teleported the unit")
+	_check(
+		max_step <= unit.movement_speed / Engine.physics_ticks_per_second + 0.002,
+		"Crowded arrival teleported the unit"
+	)
 	print(
 		"CROWDED ARRIVAL ",
 		repetition,

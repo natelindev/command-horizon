@@ -135,7 +135,7 @@ func _roundtrip(faction, advanced):
 			"Restored waypoint never delivered preserved cargo: " + label
 		)
 		_check(
-			maximum_step <= worker.movement_speed / 60.0 + .002,
+			maximum_step <= worker.movement_speed / Engine.physics_ticks_per_second + .002,
 			"Restored delivery bypassed movement speed: " + label
 		)
 		print(

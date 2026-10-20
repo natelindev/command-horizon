@@ -16,6 +16,9 @@ func _on_hit(victim, attacker):
 		return
 	if not is_instance_valid(victim) or not is_instance_valid(attacker):
 		return
+	# A round whose shooter was destroyed reports its frozen Shot record.
+	if not attacker is Node3D:
+		return
 	if (
 		victim.player == attacker.player
 		or not game.battlefield.is_observed(victim.player, attacker)

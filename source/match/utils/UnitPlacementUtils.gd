@@ -1,5 +1,9 @@
 enum { VALID, COLLIDES_WITH_AGENT, NOT_NAVIGABLE }
 
+const Footprint = preload("res://source/match/utils/Footprint.gd")
+# Interior navigability probes for polygon footprints, in metres.
+const FOOTPRINT_PROBE_SPACING = 2.0
+
 
 static func find_valid_position_radially(
 	starting_position: Vector3, radius: float, navigation_map_rid: RID, scene_tree
@@ -67,12 +71,7 @@ static func validate_agent_placement_position(position, radius, existing_units, 
 	for existing_unit in existing_units:
 		if existing_unit.is_in_group("salvage_wrecks"):
 			continue  # Drive-over rubble never blocks rebuilding or production exits.
-		if (
-			(existing_unit.global_position * Vector3(1, 0, 1)).distance_to(
-				position * Vector3(1, 0, 1)
-			)
-			<= existing_unit.radius + radius
-		):
+		if Footprint.reach_distance(existing_unit, position) <= existing_unit.radius + radius:
 			return COLLIDES_WITH_AGENT
 	var points_expected_to_be_navigable = []
 	for x in [-1, 0, 1]:
@@ -89,6 +88,40 @@ static func validate_agent_placement_position(position, radius, existing_units, 
 				* Vector3(1, 0, 1)
 			)
 		):
+			return NOT_NAVIGABLE
+	return VALID
+
+
+# Placement of a structure with a polygon footprint (world XZ outline): no
+# overlap with any unit or deposit, and its outline and interior on navigable
+# ground.
+static func validate_footprint_placement(polygon, existing_units, navigation_map_rid):
+	for existing_unit in existing_units:
+		if existing_unit.is_in_group("salvage_wrecks"):
+			continue
+		var other = Footprint.world_outline(existing_unit)
+		if other.is_empty():
+			var center = Vector2(existing_unit.global_position.x, existing_unit.global_position.z)
+			if Footprint.polygon_touches_circle(polygon, center, existing_unit.radius):
+				return COLLIDES_WITH_AGENT
+		elif Footprint.polygons_touch(polygon, other):
+			return COLLIDES_WITH_AGENT
+	var probes = Footprint.edge_samples(polygon, 1.0)
+	var bounds = Rect2(polygon[0], Vector2.ZERO)
+	for point in polygon:
+		bounds = bounds.expand(point)
+	var x = bounds.position.x + FOOTPRINT_PROBE_SPACING * 0.5
+	while x < bounds.end.x:
+		var z = bounds.position.y + FOOTPRINT_PROBE_SPACING * 0.5
+		while z < bounds.end.y:
+			if Geometry2D.is_point_in_polygon(Vector2(x, z), polygon):
+				probes.append(Vector2(x, z))
+			z += FOOTPRINT_PROBE_SPACING
+		x += FOOTPRINT_PROBE_SPACING
+	for probe in probes:
+		var point = Vector3(probe.x, 0, probe.y)
+		var closest = NavigationServer3D.map_get_closest_point(navigation_map_rid, point)
+		if not (closest * Vector3(1, 0, 1)).is_equal_approx(point):
 			return NOT_NAVIGABLE
 	return VALID
 

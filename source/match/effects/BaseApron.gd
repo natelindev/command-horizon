@@ -23,7 +23,8 @@ func _ready():
 	var bounds = Factions._bounds(unit.get_node("Geometry"), Transform3D.IDENTITY)
 	footprint = Vector2(bounds.size.x, bounds.size.z) * .55 + Vector2(.25, .25)
 	footprint = footprint.max(Vector2(.7, .7))
-	var span = footprint * 3.5
+	# Long structures (the runway) keep a proportionate worn margin, not 3.5x.
+	var span = (footprint * 3.5).min(footprint * 2.0 + Vector2(10, 10))
 	var faction = unit.player.faction
 	var biome = Profiles.biome(unit._match.map)
 	var key = [faction, biome, footprint]

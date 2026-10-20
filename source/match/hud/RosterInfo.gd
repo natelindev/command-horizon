@@ -81,6 +81,8 @@ static func inspect(producer, role, construction):
 			)
 		if producer.production_queue.size() >= Constants.Match.Units.PRODUCTION_QUEUE_LIMIT:
 			reasons.append("Queue full (%d jobs)." % Constants.Match.Units.PRODUCTION_QUEUE_LIMIT)
+		if Catalog.is_fixed_wing(role) and producer.stands_for_production() <= 0:
+			reasons.append("No free stand · every jet parks and rearms on its own stand.")
 	lines.append_array(reasons)
 	return {
 		"cost": cost,

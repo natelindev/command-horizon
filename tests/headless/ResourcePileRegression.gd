@@ -5,10 +5,11 @@ func _run():
 	factions = load("res://source/match/FactionCatalog.gd")
 	constants = root.get_node("Constants")
 	var game = await _start(_settings("bastion", "helix", false))
-	_check(
-		get_nodes_in_group("resource_units").size() == 28,
-		"Fields lack five materials / two electronics"
+	# Authored salvage caches (MapLandmarks) are extra piles outside the four fields.
+	var field_piles = get_nodes_in_group("resource_units").filter(
+		func(pile): return not pile.has_meta("salvage_cache")
 	)
+	_check(field_piles.size() == 28, "Fields lack five materials / two electronics")
 	for player in get_nodes_in_group("players"):
 		player.set_process(false)
 	paused = true

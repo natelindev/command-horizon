@@ -40,9 +40,12 @@ func _run():
 
 func _geometry():
 	var map = game.map
-	_check(map.get_node("Decorations").get_child_count() == 4, "Desert blocker count changed")
-	for index in range(4):
-		var shelf = map.get_node("Decorations").get_child(index)
+	# Story landmarks and neutral buildings (MapLandmarks) share Decorations with the shelves.
+	var shelves = map.get_node("Decorations").get_children().filter(
+		func(node): return node.name.begins_with("SandstoneShelf")
+	)
+	_check(shelves.size() == 4, "Desert blocker count changed")
+	for shelf in shelves:
 		var blocker = shelf.get_node("MovementObstacle")
 		_check(
 			is_equal_approx(blocker.radius, 5.8) and is_equal_approx(blocker.sight_height, 1.15),

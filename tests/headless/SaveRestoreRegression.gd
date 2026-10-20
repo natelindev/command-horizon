@@ -79,10 +79,8 @@ func _run():
 	victim.issue_manual_order(
 		load("res://source/match/units/actions/Moving.gd").new(Vector3(60, 0, 23))
 	)
-	var shot = load("res://source/match/units/projectiles/CannonShell.tscn").instantiate()
-	shot.target_unit = victim
-	tanks[0].add_child(shot)
-	shot._flight_left = 0.25
+	var shot = game.projectile_system.launch(tanks[0], victim)
+	shot.life = 0.25
 	squad.write_state(tanks[0], "phase", "hold")
 	squad.claim(tanks[0], victim)
 	game.phase = 2
@@ -167,9 +165,13 @@ func _run():
 		is_equal_approx(game.simulation_time - lua.last_enemy_damage_time, saved_lua.damage_age),
 		"Damage suppression duration changed"
 	)
-	var shell_script = load("res://source/match/units/projectiles/CannonShell.gd")
-	var shells = lua.get_children().filter(func(child): return child.get_script() == shell_script)
-	_check(shells.size() == 1, "Reload replayed the pending shot")
+	var shells = game.projectile_system._rounds.filter(
+		func(round): return round.shot.shooter() == lua
+	)
+	_check(
+		shells.size() == 1 and is_equal_approx(shells[0].life - shells[0].age, 0.25),
+		"Reload replayed or retimed the pending shot"
+	)
 	_check(factory.production_queue._queue[0].time_left == 2.5, "Queued duration changed")
 	_check(
 		(
@@ -261,7 +263,7 @@ func _validate_corruption(snapshot, ids):
 		func(data): _saved(data, ids.manual).action.state._target_position = null,
 		func(data): _saved(data, ids.retreat).action.state._waypoint = 2,
 		func(data): _saved(data, ids.factory).production.pin = {"oops": 7},
-		func(data): _saved(data, ids.lua).projectiles[0].target = "player-1",
+		func(data): data.rounds.flying[0].target = "player-1",
 		func(data): _saved(data, ids.lua).action.state._next_handle = 1.5,
 		func(data): _saved(data, ids.worker).action.references._cc_unit = "player-0",
 		func(data):

@@ -42,7 +42,7 @@ func _run():
 		)
 		opponent._production_index = 0
 		opponent._train(_training_units([factory]), "")
-		_check(_queued(factory) == "CombatRobot", "AI ignored visible air threat when training")
+		_check(_queued(factory) == "AntiAirVehicle", "AI ignored visible air threat when training")
 		factory.production_queue.cancel_all()
 		var hq = _units(opponent, "CommandCenter")[0]
 		opponent._production_index = 0
@@ -104,13 +104,13 @@ func _visibility_and_queues():
 	var second = _actor("VehicleFactory", opponent, Vector3(95, 0, 40))
 	await _frames(60)
 	var funds = Vector2(opponent.resource_a, opponent.resource_b)
-	# The first adaptive counter advances onto a baseline walker slot. That
-	# slot must also count the just-paid counter rather than duplicate it.
+	# One observed aircraft calls for one mobile anti-air vehicle. A second idle
+	# factory must count the just-paid counter rather than duplicate it.
 	opponent._production_index = 1
 	opponent._train(_training_units([factory, second]), "")
 	var roles = [_queued(factory), _queued(second)]
 	_check(
-		roles.count("CombatRobot") == 1 and roles.count("Tank") == 1,
+		roles.count("AntiAirVehicle") == 1 and roles.count("") == 0,
 		"Two factories duplicated an already-funded counter"
 	)
 	var paid = Vector2.ZERO
@@ -122,7 +122,7 @@ func _visibility_and_queues():
 		"Counter queues paid incorrect costs"
 	)
 	_check(
-		composition.inventory(opponent._units()).get("CombatRobot", 0) == 1,
+		composition.inventory(opponent._units()).get("AntiAirVehicle", 0) == 1,
 		"Inventory omitted queued counter"
 	)
 	opponent._train(_training_units([factory, second]), "")
@@ -138,13 +138,17 @@ func _visibility_and_queues():
 	)
 	second.queue_free()
 	await _frames(90)
+	# Drones are armed loitering munitions: an observed drone is an air threat.
 	await _replace_contact("Drone")
-	_check(opponent._next_building(opponent._units()) == "", "Unarmed scout triggered emergency AA")
+	_check(
+		opponent._next_building(opponent._units()) == "AntiAirTurret",
+		"Armed drone did not trigger emergency AA"
+	)
 	opponent._production_index = 0
 	opponent._train(_training_units([factory]), "")
-	_check(_queued(factory) == "Tank", "Unarmed scout triggered mobile AA production")
+	_check(_queued(factory) == "AntiAirVehicle", "Armed drone did not trigger mobile AA production")
 	factory.production_queue.cancel_all()
-	print("PASS: hidden/unarmed contacts, two-factory queued quotas, paid costs and refunds")
+	print("PASS: hidden/armed-drone contacts, two-factory queued quotas, paid costs and refunds")
 
 
 func _replace_contact(role):
@@ -190,7 +194,7 @@ func _faction_roles():
 	for unit in added:
 		unit.queue_free()
 	await _frames(5)
-	await _replace_contact("Drone")
+	await _replace_contact("Worker")
 	var tank = _actor("Tank", opponent, Vector3(96, 0, 74))
 	for repair in _units(opponent, "RepairRobot"):
 		repair.queue_free()
@@ -205,7 +209,9 @@ func _faction_roles():
 
 
 func _budget_and_technology():
-	await _replace_contact("Helicopter")
+	# Mobile anti-air has no prerequisite; exercise the walker counter instead
+	# (Helix answers armor with Lancers, Bastion answers infantry with walkers).
+	await _replace_contact("Tank" if opponent.faction == "helix" else "Infantry")
 	var prerequisite = _units(opponent, factions.requirement(opponent, "CombatRobot"))[0]
 	prerequisite._construction_progress = 0.5
 	opponent._production_index = 0
@@ -297,7 +303,7 @@ func _counter_completion():
 	await _replace_contact("Helicopter")
 	opponent._production_index = 0
 	opponent._train(_training_units([factory]), "")
-	_check(_queued(factory) == "CombatRobot", "Completion fixture queued wrong counter")
+	_check(_queued(factory) == "AntiAirVehicle", "Completion fixture queued wrong counter")
 	factory.process_mode = Node.PROCESS_MODE_INHERIT
 	await _frames(300)
 	var jobs = factory.production_queue.get_elements()
@@ -354,20 +360,20 @@ func _counter_completion():
 		"Counter restore changed remaining work"
 	)
 	_check(
-		composition.inventory(opponent._units()).get("CombatRobot", 0) == 1,
+		composition.inventory(opponent._units()).get("AntiAirVehicle", 0) == 1,
 		"Restored queue lost planned counter count"
 	)
 	game.hud._toggle_pause()
 	await _frames(1500)
 	_check(
-		factory.production_queue.size() == 0 and _units(opponent, "CombatRobot").size() == 1,
+		factory.production_queue.size() == 0 and _units(opponent, "AntiAirVehicle").size() == 1,
 		"Paid restored counter did not complete exactly once"
 	)
 	_check(
 		Vector2(opponent.resource_a, opponent.resource_b) == funds,
 		"Counter completion charged twice"
 	)
-	var robots = _units(opponent, "CombatRobot")
+	var robots = _units(opponent, "AntiAirVehicle")
 	if not robots.is_empty():
 		await _review_counter(robots[0])
 		var hp = contact.hp

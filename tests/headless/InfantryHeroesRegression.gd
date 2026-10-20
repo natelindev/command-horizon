@@ -195,13 +195,7 @@ func _combat_and_garrison():
 		soldier.position = Vector3(50, 0, 16)
 		game.battlefield.invalidate()
 		var before = armor.hp
-		var projectile = (
-			load(root.get_node("Constants").Match.Units.PROJECTILES[Roster.scene_path(role)])
-			. instantiate()
-		)
-		projectile.target_unit = armor
-		soldier.add_child(projectile)
-		projectile.process_mode = Node.PROCESS_MODE_ALWAYS
+		game.projectile_system.launch(soldier, armor)
 		await _frames(50)
 		_check(armor.hp < before, role + " projectile failed to deal damage")
 		armor.hp = armor.hp_max

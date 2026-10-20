@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://source/match/units/Helicopter.gd" id="unit"]
 [ext_resource type="Script" path="res://source/match/units/traits/BastionVisuals.gd" id="visuals"]
-[ext_resource type="PackedScene" path="res://assets/models/bastion/demo/Helicopter.glb" id="model"]
+[ext_resource type="PackedScene" path="res://assets/models/bastion/air-v1/Helicopter.glb" id="model"]
 [ext_resource type="PackedScene" path="res://source/match/units/traits/Highlight.tscn" id="Highlight"]
 [ext_resource type="PackedScene" path="res://source/match/units/traits/Selection.tscn" id="Selection"]
 [ext_resource type="PackedScene" path="res://source/match/units/traits/HealthBar.tscn" id="HealthBar"]
@@ -22,7 +22,7 @@ script = ExtResource("unit")
 [node name="Geometry" type="Node3D" parent="."]
 
 [node name="Model" parent="Geometry" instance=ExtResource("model")]
-scale = Vector3(0.25, 0.25, 0.25)
+scale = Vector3(0.39, 0.39, 0.39)
 
 [node name="ProjectileOrigin" type="Marker3D" parent="."]
 position = Vector3(0, 0.36, -0.8)

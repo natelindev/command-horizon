@@ -35,7 +35,14 @@ const LINKS = {
 	"PresetAction": [["_target", "_repair"], ["_shot", "_defense"], []],
 	"SpecialistAction": [["_target", "_repair"], ["_shot", "_defense"], []],
 	"LuaAction": [["_target", "_repair"], ["_shot", "_defense"], []],
+	"AirStation": [["_escort"], [], []],
+	"AirStrike": [["_target_unit"], [], []],
+	"AirReturn": [[], [], []],
+	"AirIdle": [[], [], []],
+	"DroneDive": [["_target_unit"], [], []],
 }
+const AIR_ACTIONS = ["AirStation", "AirStrike", "AirReturn", "AirIdle"]
+const AIR_MODES = ["idle", "station", "strike", "return"]
 var error = ""
 var entities = {}
 var sides = {}
@@ -63,20 +70,28 @@ func validate(data):
 			+ "players:list units:list resources:list mission:dict fog:dict "
 			+ "structure_memory:list"
 			+ (
+				" rounds:dict"
+				if data is Dictionary and data.get("snapshot_version") in [15]
+				else ""
+			)
+			+ (
 				" neutral_buildings:list"
-				if data is Dictionary and data.get("snapshot_version") in [11, 12, 13, 14]
+				if data is Dictionary and data.get("snapshot_version") in [11, 12, 13, 14, 15]
 				else ""
 			)
 			+ (
 				" battle_record:dict"
-				if data is Dictionary and data.get("snapshot_version") in [9, 10, 11, 12, 13, 14]
+				if (
+					data is Dictionary
+					and data.get("snapshot_version") in [9, 10, 11, 12, 13, 14, 15]
+				)
 				else ""
 			)
 			+ (
 				" ambient:list"
 				if (
 					data is Dictionary
-					and data.get("snapshot_version") in [6, 7, 8, 9, 10, 11, 12, 13, 14]
+					and data.get("snapshot_version") in [6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
 				)
 				else ""
 			)
@@ -92,7 +107,7 @@ func validate(data):
 	):
 		return _fail("Invalid battle record.")
 	if (
-		data.snapshot_version not in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+		data.snapshot_version not in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
 		or data.map_revision != 1
 		or not _settings(data.settings)
 	):
@@ -207,7 +222,9 @@ func validate(data):
 					"id:text player:text role:text position:vec rotation:vec hp:num "
 					+ "visual_seed:int weapon_left:num damage_age:maybenum construction:maybenum "
 					+ "cargo:dict action:dict program:dict orders:dict production:dict rally:dict "
-					+ "movement:dict groups:list selected:bool projectiles:list"
+					+ "movement:dict groups:list selected:bool"
+					+ (" air:dict" if _version >= 15 else "")
+					+ (" projectiles:list" if _version < 15 else "")
 					+ (" weapon_mode:dict" if data.snapshot_version >= 2 else "")
 					+ (" deployment:dict" if data.snapshot_version >= 3 else "")
 					+ (" signature:dict" if _version >= 4 else "")
@@ -248,6 +265,8 @@ func validate(data):
 		var building = unit.role in Catalog.STRUCTURES
 		if _version >= 14 and unit.stance not in [0, 1, 2, 3]:
 			return _fail("Invalid unit stance.")
+		if _version >= 15 and not _air(unit):
+			return false
 		if data.snapshot_version >= 2 and not _weapon_mode(unit):
 			return false
 		if data.snapshot_version >= 3 and not _deployment(unit):
@@ -257,7 +276,9 @@ func validate(data):
 		sides[unit.player]["structures" if building else "mobile"] += 1
 		var maximum = Rules.Units.DEFAULT_PROPERTIES[Catalog.scene_path(unit.role)].hp_max
 		if not building:
-			maximum = roundi(maximum * Factions.health_factor(sides[unit.player].faction))
+			maximum = roundi(
+				maximum * Factions.health_factor(sides[unit.player].faction, unit.role)
+			)
 		maximum *= Technology.health_factor(unit.role, sides[unit.player].technology)
 		if unit.hp <= 0 or unit.hp > maximum + 0.000001 or unit.weapon_left > 120:
 			return _fail("Invalid unit health or cooldown.")
@@ -280,6 +301,7 @@ func validate(data):
 	if (
 		not _mission(data.mission, data.settings.mission_id, data.settings.map_path)
 		or not _fog(data.fog)
+		or not _rounds(data)
 	):
 		return false
 	if data.structure_memory.size() > 2048:
@@ -300,6 +322,52 @@ func validate(data):
 			)
 		):
 			return _fail("Invalid remembered structure.")
+	return true
+
+
+func _rounds(data):
+	if _version < 15:
+		return true
+	# Runtime loads: combat scripts read autoloads, and this schema is preloaded
+	# by scripts that compile before autoloads exist.
+	var projectiles = load("res://source/match/combat/ProjectileSystem.gd")
+	var profiles = load("res://source/match/combat/CombatRules.gd").PROFILES
+	var weapons = load("res://source/match/combat/WeaponCatalog.gd")
+	if not _shape(data.rounds, "serial:int flying:list"):
+		return false
+	if data.rounds.flying.size() > 600:
+		return _fail("Too many rounds in flight.")
+	for round in data.rounds.flying:
+		if (
+			not _shape(
+				round,
+				(
+					"kind:text weapon:text player:text shooter:text type:text damage:num "
+					+ "domains:list "
+					+ "mode:text origin:vec target:text position:vec velocity:vec age:num "
+					+ "life:num burn:num serial:int"
+				)
+			)
+			or round.kind not in projectiles.KINDS
+			or round.weapon not in weapons.ids()
+			or weapons.by_id(round.weapon).kind != round.kind
+			or not sides.has(round.player)
+			or not profiles.has(round.type)
+			or round.damage > 1000
+			or round.life > projectiles.MAX_FLIGHT
+			or round.age > round.life
+			or round.burn > projectiles.MAX_FLIGHT
+			or round.serial >= data.rounds.serial
+			or round.velocity.length() > 500
+			or round.mode not in ["", "precision", "interception"]
+			or round.domains.size() > 2
+			or round.domains.any(func(domain): return not domain is int or domain not in [0, 1])
+			or not _position(round.origin)
+			or not _position(round.position)
+		):
+			return _fail("Invalid round in flight.")
+		if not _unit_reference(round.shooter) or not _unit_reference(round.target):
+			return false
 	return true
 
 
@@ -344,11 +412,10 @@ func _side_army_groups(data, index):
 			var unit = entities[id]
 			if not unit.has("player") or unit.player != "player-%d" % index:
 				return _fail("AI task member belongs to another side.")
-			var roles = (
-				["Tank", "AdvancedTank", "CombatRobot", "Helicopter"] + Catalog.INFANTRY_ROLES
-			)
+			var ground = ["Tank", "AdvancedTank", "CombatRobot", "AntiAirVehicle"]
+			var roles = ground + Catalog.AIRCRAFT_ROLES + Catalog.INFANTRY_ROLES
 			if group.kind == "guard":
-				roles.erase("Helicopter")
+				roles = ground + Catalog.INFANTRY_ROLES
 			elif group.kind == "capture":
 				roles = Catalog.INFANTRY_ROLES
 			elif group.kind == "scout":
@@ -451,6 +518,61 @@ func _signature_groups(side, units):
 			var id = unit.signature.group_id
 			if not ids.has(id) or unit.id not in ids[id].members:
 				return _fail("Missing unit activation group.")
+	return true
+
+
+func _air(unit):
+	if unit.role == "Helicopter":
+		if not _shape(unit.air, "stores:dict resume_station:maybevec unlimited:bool"):
+			return false
+		var rockets = unit.air.stores.get("rockets")
+		if unit.air.stores.size() != 1 or not rockets is int or rockets < 0 or rockets > 50:
+			return _fail("Invalid helicopter stores.")
+		return true
+	if not Catalog.is_fixed_wing(unit.role):
+		return unit.air.is_empty() or _fail("Only fixed-wing aircraft carry flight state.")
+	if not _shape(unit.air, "flight:dict stores:dict resume_station:maybevec unlimited:bool"):
+		return false
+	var flight = unit.air.flight
+	if not _shape(
+		flight,
+		(
+			"phase:int heading:signed airspeed:num bank:signed vertical_speed:signed mode:text "
+			+ "station:maybevec strike_target:text airfield:text stand:signedint "
+			+ "orbit_sign:signedint ordered:bool route:list route_after:text "
+			+ "approach_entry:bool landing_end:signedint arrived:bool"
+		)
+	):
+		return false
+	if (
+		flight.phase > 5
+		or absf(flight.heading) > 4.0
+		or flight.airspeed > 60.0
+		or absf(flight.bank) > 1.6
+		or absf(flight.vertical_speed) > 30.0
+		or flight.mode not in AIR_MODES
+		or flight.stand < -1
+		or flight.stand > 3
+		or flight.orbit_sign not in [-1, 1]
+		or flight.route.size() > 6
+		or flight.route.any(func(point): return not _type(point, "vec") or not _position(point))
+		or flight.route_after not in ["", "takeoff", "park"]
+		or flight.landing_end not in [-1, 0, 1]
+		or (flight.station != null and not _position(flight.station))
+		or not _unit_reference(flight.strike_target)
+		or not _unit_reference(flight.airfield)
+		or (
+			entities.has(flight.airfield)
+			and entities[flight.airfield].get("role") != "AircraftFactory"
+		)
+	):
+		return _fail("Invalid flight state.")
+	var stores = unit.air.stores
+	if (
+		stores.size() > 4
+		or stores.values().any(func(count): return not count is int or count < 0 or count > 200)
+	):
+		return _fail("Invalid aircraft stores.")
 	return true
 
 
@@ -640,6 +762,8 @@ func _unit(unit):
 			or not _entity_reference(unit.rally.target)
 		):
 			return false
+	if _version >= 15:
+		return true
 	if unit.projectiles.size() > 32:
 		return _fail("Too many pending shots.")
 	for shot in unit.projectiles:
@@ -746,6 +870,10 @@ func _action(action, unit, depth):
 		and unit.role != "Worker"
 	):
 		return _fail("Only engineers can gather or construct.")
+	if (kind in AIR_ACTIONS) != Catalog.is_fixed_wing(unit.role):
+		return _fail("Fixed-wing aircraft and air actions must match.")
+	if kind == "DroneDive" and unit.role != "Drone":
+		return _fail("Only drones dive onto targets.")
 	if kind == "Repairing" and unit.role != "RepairRobot":
 		return _fail("Invalid repair action owner.")
 	if kind == "ChipInstalling" and unit.role not in PROGRAM_ROLES:
@@ -798,7 +926,9 @@ func _action(action, unit, depth):
 				"_strike_returning",
 				"_faulted",
 				"_guarding_area",
-				"_blocked"
+				"_blocked",
+				"sweep",
+				"diving"
 			]
 		)
 		var point = (
@@ -815,7 +945,10 @@ func _action(action, unit, depth):
 				"_destination",
 				"_charge_origin",
 				"_field_origin",
-				"_arrival_progress"
+				"_arrival_progress",
+				"_point",
+				"_velocity",
+				"_aim_point"
 			]
 		)
 		if not _type(value, "bool" if flag else ("maybevec" if point else "signed")):
@@ -933,9 +1066,7 @@ func _action(action, unit, depth):
 						"Barracks"
 						if Catalog.is_infantry(unit.role)
 						else (
-							"AircraftFactory"
-							if unit.role in ["Drone", "Helicopter"]
-							else "RepairDepot"
+							"AircraftFactory" if Catalog.is_aircraft(unit.role) else "RepairDepot"
 						)
 					)
 				)
@@ -1003,6 +1134,10 @@ func _action(action, unit, depth):
 
 
 func _action_state(kind, state):
+	if kind == "AirStation" and (not _type(state._point, "vec") or not state.sweep is bool):
+		return _fail("Invalid air station.")
+	if kind == "AirIdle" and (not _type(state._scan_left, "signed") or absf(state._scan_left) > 1):
+		return _fail("Invalid air patrol scan.")
 	if kind == "AttackingWhileInRange" and _version >= 3:
 		if not _type(state._charge_origin, "vec") or state._charge_left < -1:
 			return _fail("Invalid weapon preparation origin or duration.")
@@ -1126,7 +1261,7 @@ func _order(order, unit):
 		var expected = (
 			"Barracks"
 			if Catalog.is_infantry(unit.role)
-			else ("AircraftFactory" if unit.role in ["Drone", "Helicopter"] else "RepairDepot")
+			else ("AircraftFactory" if Catalog.is_aircraft(unit.role) else "RepairDepot")
 		)
 		if (
 			unit.role in Catalog.STRUCTURES

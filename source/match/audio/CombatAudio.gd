@@ -106,7 +106,9 @@ func impact(unit, source, point):
 			"AntiGroundTurret",
 			"AntiAirTurret",
 			"RocketInfantry",
-			"MercenaryLancer"
+			"MercenaryLancer",
+			"Fighter",
+			"Bomber"
 		]
 	)
 	return _play("impact_heavy" if heavy else "impact_light", unit, point, 2 if heavy else 1)

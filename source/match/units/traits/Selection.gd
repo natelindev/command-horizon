@@ -3,6 +3,8 @@ extends Node3D
 
 @export_range(0.001, 50.0) var radius = 1.0:
 	set = _set_radius
+# Rectangular structures (the runway airfield) outline their footprint instead.
+@export var half_extents = Vector2.ZERO
 @export_range(0.001, 50.0) var width = 3.0:
 	set = _set_width
 
@@ -118,6 +120,7 @@ func _update_circle_params():
 	if _circle == null:
 		return
 	_circle.radius = radius
+	_circle.half_extents = half_extents
 	_circle.width = width
 	_circle.inner_edge_width = 1.5
 	_circle.outer_edge_width = 1.0

@@ -11,6 +11,7 @@ enum BlueprintPositionValidity {
 
 const Bindings = preload("res://source/input/KeyBindings.gd")
 const Factions = preload("res://source/match/FactionCatalog.gd")
+const Footprint = preload("res://source/match/utils/Footprint.gd")
 const ROTATION_BY_KEY_STEP = 45.0
 const ROTATION_DEAD_ZONE_DISTANCE = 0.1
 
@@ -20,6 +21,8 @@ const BLUEPRINT_INVALID_PATH = MATERIALS_ROOT + "blueprint_invalid.material.tres
 
 var _active_blueprint_node = null
 var _pending_structure_radius = null
+# Local outline of a polygon-footprint structure (runway airfield); empty otherwise.
+var _pending_structure_outline = PackedVector2Array()
 var _pending_structure_navmap_rid = null
 var _pending_structure_prototype = null
 var _blueprint_rotating = false
@@ -127,6 +130,12 @@ func _calculate_blueprint_position_validity():
 		return BlueprintPositionValidity.OUT_OF_MAP
 	if not _player_has_enough_resources():
 		return BlueprintPositionValidity.NOT_ENOUGH_RESOURCES
+	if not _pending_structure_outline.is_empty():
+		return _footprint_validity()
+	return _radius_validity()
+
+
+func _radius_validity():
 	var placement_validity = Utils.Match.Unit.Placement.validate_agent_placement_position(
 		_active_blueprint_node.global_position,
 		_pending_structure_radius,
@@ -136,6 +145,26 @@ func _calculate_blueprint_position_validity():
 	if placement_validity == Utils.Match.Unit.Placement.COLLIDES_WITH_AGENT:
 		return BlueprintPositionValidity.COLLIDES_WITH_OBJECT
 	if placement_validity == Utils.Match.Unit.Placement.NOT_NAVIGABLE:
+		return BlueprintPositionValidity.NOT_NAVIGABLE
+	return BlueprintPositionValidity.VALID
+
+
+func _footprint_validity():
+	var polygon = Footprint.outline_at(
+		_pending_structure_outline, _active_blueprint_node.global_transform
+	)
+	var map_polygon = _match.map.get_topdown_polygon_2d()
+	for point in polygon:
+		if not Geometry2D.is_point_in_polygon(point, map_polygon):
+			return BlueprintPositionValidity.OUT_OF_MAP
+	var validity = Utils.Match.Unit.Placement.validate_footprint_placement(
+		polygon,
+		get_tree().get_nodes_in_group("units") + get_tree().get_nodes_in_group("resource_units"),
+		_pending_structure_navmap_rid
+	)
+	if validity == Utils.Match.Unit.Placement.COLLIDES_WITH_AGENT:
+		return BlueprintPositionValidity.COLLIDES_WITH_OBJECT
+	if validity == Utils.Match.Unit.Placement.NOT_NAVIGABLE:
 		return BlueprintPositionValidity.NOT_NAVIGABLE
 	return BlueprintPositionValidity.VALID
 
@@ -205,6 +234,7 @@ func _start_structure_placement(structure_prototype):
 	add_child(_active_blueprint_node)
 	var temporary_structure_instance = _pending_structure_prototype.instantiate()
 	_pending_structure_radius = temporary_structure_instance.radius
+	_pending_structure_outline = Footprint.local_outline(temporary_structure_instance)
 	_pending_structure_navmap_rid = (
 		find_parent("Match")
 		. navigation

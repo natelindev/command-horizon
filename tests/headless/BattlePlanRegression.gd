@@ -174,7 +174,8 @@ func _guidance(faction):
 	for producer in producers:
 		producer.get_node("Selection").select()
 	var menus = game.find_child("UnitMenus")
-	menus._refresh_buttons()
+	# Selection changes rebuild the console once, deferred to the end of the frame.
+	await _frames(2)
 	_check(menus._selection.size() == 2, "Mixed production selection lost a building")
 	_check(not menus._buttons.is_empty(), "Mixed production roster is missing")
 	for entry in menus._buttons:

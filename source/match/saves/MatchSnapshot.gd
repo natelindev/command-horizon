@@ -36,6 +36,11 @@ const ACTION_FIELDS = {
 	"PresetAction": [],
 	"SpecialistAction": ["_backing_off", "_strike_returning"],
 	"LuaAction": ["_faulted", "_next_handle", "_guarding_area"],
+	"AirStation": ["_point", "sweep"],
+	"AirStrike": [],
+	"AirReturn": [],
+	"AirIdle": ["_scan_left"],
+	"DroneDive": ["diving", "_velocity", "_aim_point"],
 }
 const PROGRAM_ACTION_FIELDS = [
 	"_retreating",
@@ -47,7 +52,7 @@ const PROGRAM_ACTION_FIELDS = [
 	"_destination"
 ]
 const ACTION_REFERENCES = [
-	"_target_unit", "_resource_unit", "_cc_unit", "_target", "_repair", "service"
+	"_target_unit", "_resource_unit", "_cc_unit", "_target", "_repair", "service", "_escort"
 ]
 const ACTION_CHILDREN = ["_shot", "_sub_action", "_defense"]
 const ACTION_TIMERS = ["_timer", "_one_shot_timer", "_range_check_timer"]
@@ -109,7 +114,7 @@ func capture(game):
 		)
 	var camera = game.get_node("IsometricCamera3D")
 	var result = {
-		"snapshot_version": 14,
+		"snapshot_version": 15,
 		"map_revision": 1,
 		"settings": settings,
 		"simulation_time": game.simulation_time,
@@ -127,6 +132,7 @@ func capture(game):
 		"neutral_buildings": game.get_node("NeutralWorld").capture(_reference),
 		"fog": _fog(),
 		"structure_memory": _structure_memory(),
+		"rounds": game.projectile_system.capture(_reference),
 	}
 	for player in players:
 		result.players.append(_player(player))
@@ -366,6 +372,7 @@ func _unit(unit):
 		"production": {},
 		"rally": {},
 		"movement": {},
+		"air": unit.capture_air(_reference) if unit.has_method("capture_air") else {},
 		"groups": [],
 		"selected": unit.is_in_group("selected_units"),
 	}
@@ -412,23 +419,6 @@ func _unit(unit):
 	var rally = unit.get_node_or_null("RallyPoint")
 	if rally != null:
 		result.rally = {"position": rally.position, "target": _reference(rally.target_unit)}
-	result.projectiles = []
-	for child in unit.get_children():
-		if child.get_script() == null:
-			continue
-		var kind = child.get_script().resource_path.get_file().get_basename()
-		if (
-			kind in ["CannonShell", "Rocket"]
-			and not child.is_queued_for_deletion()
-			and not child._resolved
-		):
-			result.projectiles.append(
-				{
-					"kind": kind,
-					"target": _reference(child.target_unit),
-					"left": maxf(0, child._flight_left)
-				}
-			)
 	return result
 
 
@@ -505,8 +495,10 @@ func _action(action, depth = 0):
 	for field in ACTION_TIMERS:
 		if field in action and is_instance_valid(action.get(field)):
 			var timer = action.get(field)
+			# A running timer cannot restart at zero, so ActionRestore starts a due timer
+			# at 1 us; record that as due so save/load/save keeps an identical archive.
 			result.timers[field] = {
-				"left": timer.time_left,
+				"left": 0.0 if timer.time_left <= 0.000001 else timer.time_left,
 				"wait": timer.wait_time,
 				"stopped": timer.is_stopped(),
 				"paused": timer.paused

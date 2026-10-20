@@ -123,7 +123,10 @@ func _complete_pinch():
 			var unit = watched[index]
 			maximum_speed_ratio = maxf(
 				maximum_speed_ratio,
-				unit.position.distance_to(previous[index]) / (unit.movement_speed / 60.0)
+				(
+					unit.position.distance_to(previous[index])
+					/ (unit.movement_speed / Engine.physics_ticks_per_second)
+				)
 			)
 			previous[index] = unit.position
 			_measure_clearance(unit)

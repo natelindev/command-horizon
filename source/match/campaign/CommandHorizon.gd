@@ -59,12 +59,12 @@ func _spawn_player_units(side, _spawn_transform):
 			["VehicleFactory", Vector3(169, 0, 75)],
 			["CommandLab", Vector3(173, 0, 87)],
 			["RepairDepot", Vector3(162, 0, 84)],
-			["AircraftFactory", Vector3(161, 0, 99)],
+			["AircraftFactory", Vector3(155, 0, 99), 157.5],
 			["AntiAirTurret", Vector3(146, 0, 51)],
 			["AntiGroundTurret", Vector3(132, 0, 104)],
 			["AntiGroundTurret", Vector3(142, 0, 88)]
 		]:
-			_spawn(entry[0], side, entry[1])
+			_spawn(entry[0], side, entry[1], entry[2] if entry.size() > 2 else 0.0)
 		for index in [4, 6, 8][side.difficulty]:
 			_spawn(
 				"Infantry",
@@ -124,7 +124,7 @@ func _spawn_player_units(side, _spawn_transform):
 		["VehicleFactory", Vector3(32, 0, 54)],
 		["CommandLab", Vector3(23, 0, 64)],
 		["RepairDepot", Vector3(32, 0, 73)],
-		["AircraftFactory", Vector3(15, 0, 77)],
+		["AircraftFactory", Vector3(15, 0, 77), 112.5],
 		["Drone", Vector3(39, 0, 59)],
 		["RepairRobot", Vector3(37, 0, 45)],
 		["RepairRobot", Vector3(37, 0, 82)],
@@ -133,7 +133,7 @@ func _spawn_player_units(side, _spawn_transform):
 		["Helicopter", Vector3(22, 0, 80)],
 		["Helicopter", Vector3(27, 0, 80)]
 	]:
-		_spawn(entry[0], side, entry[1])
+		_spawn(entry[0], side, entry[1], entry[2] if entry.size() > 2 else 0.0)
 	for index in 2 if lean else 4:
 		_spawn("Worker", side, Vector3(9 + index * 2, 0, 86))
 	for index in 4 if lean else 8:
@@ -144,11 +144,14 @@ func _spawn_player_units(side, _spawn_transform):
 		_spawn("Infantry", side, Vector3(39 + index % 6 * 1.8, 0, 42 + index / 6 * 38))
 
 
-func _spawn(role, side, point):
+# `heading` (degrees) orients long structures such as the runway airfield.
+func _spawn(role, side, point, heading = 0.0):
 	var unit = load(Catalog.scene_path(role)).instantiate()
 	if role == "Tank":
 		unit.set_meta("chip_installed", true)
-	_setup_and_spawn_unit(unit, Transform3D(Basis(), point), side, false)
+	_setup_and_spawn_unit(
+		unit, Transform3D(Basis(Vector3.UP, deg_to_rad(heading)), point), side, false
+	)
 	return unit
 
 

@@ -30,6 +30,8 @@ func _review_expansion(player, field, label):
 	_check(game.battlefield.is_observed(player, raider), "Expansion raider not observed")
 	var before = player.resource_b
 	var stock = field.resource_b
+	# Engineers may spread across neighbouring deposits; conserve the total stock.
+	var total_stock = _finite_stock().y
 	var workers = _units(player, "Worker")
 	var cargo_before = _cargo(workers)
 	var start = game.simulation_time
@@ -64,7 +66,10 @@ func _review_expansion(player, field, label):
 	)
 	_check(field.resource_b <= stock - 4, "Post-raid income did not consume new field stock")
 	_check(
-		stock - field.resource_b == player.resource_b - before + _cargo(workers) - cargo_before,
+		(
+			total_stock - _finite_stock().y
+			== player.resource_b - before + _cargo(workers) - cargo_before
+		),
 		"Raid income failed finite-stock conservation including in-transit cargo"
 	)
 	print(

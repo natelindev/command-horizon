@@ -15,7 +15,15 @@ const MULTIPLIERS = {
 	"Anti-armor lance": [0.3, 0.8, 2.0, 0.5],
 	"Strike missile": [0.75, 1.0, 1.0, 0.6],
 	"Anti-air": [0.0, 1.0, 0.0, 0.0],
+	"Infantry SAM": [0.0, 0.85, 0.0, 0.0],
+	"Air-to-air missile": [0.0, 1.0, 0.0, 0.0],
+	"Heavy bomb": [1.1, 1.0, 0.9, 1.5],
+	"Loitering munition": [0.6, 1.3, 1.5, 1.2],
+	"Flak": [0.0, 1.0, 0.0, 0.0],
 }
+# Shoulder-launched missiles need a short lock before launching at aircraft.
+const INFANTRY_SAM_RANGE = 9.0
+const INFANTRY_SAM_LOCK = 0.8
 const ARMOR_NAMES = ["Infantry", "Light machine", "Heavy armor", "Structure"]
 const PROFILES = {
 	"MercenaryLancer": "Infantry rocket",
@@ -30,6 +38,10 @@ const PROFILES = {
 	"Tank": "Tank cannon",
 	"AdvancedTank": "Precision rail",
 	"Helicopter": "Strike missile",
+	"Fighter": "Air-to-air missile",
+	"Bomber": "Heavy bomb",
+	"Drone": "Loitering munition",
+	"AntiAirVehicle": "Flak",
 	"AntiGroundTurret": "Tank cannon",
 	"AntiAirTurret": "Anti-air",
 }
@@ -38,19 +50,11 @@ const PROFILES = {
 static func armor_for(role):
 	if InfantryRoster.is_infantry(role):
 		return 0
-	if role in ["Tank", "AdvancedTank"]:
+	if role in ["Tank", "AdvancedTank", "AntiAirVehicle"]:
 		return 2
 	if (
-		role
-		in [
-			"EvacTransport",
-			"SupplyTruck",
-			"Worker",
-			"RepairRobot",
-			"CombatRobot",
-			"Drone",
-			"Helicopter"
-		]
+		InfantryRoster.is_aircraft(role)
+		or (role in ["EvacTransport", "SupplyTruck", "Worker", "RepairRobot", "CombatRobot"])
 	):
 		return 1
 	return 3
@@ -59,35 +63,59 @@ static func armor_for(role):
 static func can_target(source, target):
 	return (
 		is_instance_valid(source)
-		and is_instance_valid(target)
 		and not source.is_queued_for_deletion()
+		and source.hp != null
+		and source.hp > 0
+		and source.attack_range != null
+		and (not source.has_method("is_constructed") or source.is_constructed())
+		and (not source.has_method("armed") or source.armed())
+		and can_receive(source, target)
+	)
+
+
+# Target-side legality shared by live shooters and in-flight rounds (Shot).
+static func can_receive(source, target):
+	return (
+		is_instance_valid(target)
 		and not target.is_queued_for_deletion()
 		and not target.has_meta("garrison_host")
 		and (not "interactive" in target or target.interactive)
-		and source.hp != null
-		and source.hp > 0
 		and "hp" in target
 		and target.hp != null
 		and target.hp > 0
 		and "player" in target
 		and source.player != target.player
-		and source.attack_range != null
-		and target.movement_domain in source.attack_domains
-		and (not source.has_method("is_constructed") or source.is_constructed())
+		and target.combat_domain() in source.attack_domains
 	)
 
 
 static func damage(source, target):
 	if not can_target(source, target):
 		return 0.0
+	return _damage(source, target)
+
+
+# A round keeps its frozen weapon facts after its shooter is destroyed.
+static func damage_from(shot, target):
+	if not can_receive(shot, target):
+		return 0.0
+	return _damage(shot, target)
+
+
+static func _damage(source, target):
 	var profile = profile_for(source)
 	if (
 		source.type == "CombatRobot"
-		and target.movement_domain == Constants.Match.Navigation.Domain.AIR
+		and target.combat_domain() == Constants.Match.Navigation.Domain.AIR
 	):
 		profile = "Anti-air"
 	elif source.type == "CombatRobot" and source.player.faction == "helix":
 		profile = "Anti-armor lance"
+	elif (
+		source.type == "RocketInfantry"
+		and target.combat_domain() == Constants.Match.Navigation.Domain.AIR
+	):
+		profile = "Infantry SAM"
 	if not MULTIPLIERS.has(profile):
 		return 0.0
 	var factor = target.signature.damage_factor() if target.signature != null else 1.0
@@ -96,7 +124,7 @@ static func damage(source, target):
 	var armor = armor_for(target.type)
 	if (
 		target.is_in_group("neutral_targets")
-		and target.movement_domain == Constants.Match.Navigation.Domain.AIR
+		and target.combat_domain() == Constants.Match.Navigation.Domain.AIR
 	):
 		armor = 1
 	return float(source.attack_damage) * MULTIPLIERS[profile][armor] * factor
@@ -106,9 +134,11 @@ static func range_for(source, target):
 	if (
 		source.type == "CombatRobot"
 		and source.player.faction != "helix"
-		and target.movement_domain == Constants.Match.Navigation.Domain.AIR
+		and target.combat_domain() == Constants.Match.Navigation.Domain.AIR
 	):
 		return minf(6.5, source.attack_range)
+	if source.type == "RocketInfantry" and _airborne(target):
+		return minf(INFANTRY_SAM_RANGE, source.attack_range)
 	return (
 		source.attack_range
 		+ (target.radius if target.is_in_group("neutral_buildings") else 0.0)
@@ -120,7 +150,9 @@ static func range_for(source, target):
 	)
 
 
-static func preparation_for(unit):
+static func preparation_for(unit, target = null):
+	if unit.type == "RocketInfantry":
+		return INFANTRY_SAM_LOCK if target != null and _airborne(target) else 0.0
 	if unit.type == "AdvancedTank":
 		return 0.0 if unit.player.faction == "frontier" else 0.75
 	if (
@@ -142,7 +174,16 @@ static func describe(unit):
 			if unit.player.faction == "helix":
 				return ARMOR_NAMES[armor_for(unit.type)] + " · " + unit.weapon_status()
 			text += " 8 m / AA 6.5 m · shared reload"
+		elif unit.type == "RocketInfantry":
+			text += " 10 m / AA missile 9 m · shared reload"
 	return text
+
+
+static func _airborne(target):
+	return (
+		is_instance_valid(target)
+		and target.combat_domain() == Constants.Match.Navigation.Domain.AIR
+	)
 
 
 static func profile_for(unit):

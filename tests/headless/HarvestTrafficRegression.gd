@@ -97,7 +97,8 @@ func _archived_traffic(faction):
 		for worker in workers:
 			var step = worker.position.distance_to(previous[worker].position)
 			maximum_step_ratio = maxf(
-				maximum_step_ratio, step / (worker.movement_speed / 60.0 + .002)
+				maximum_step_ratio,
+				step / (worker.movement_speed / Engine.physics_ticks_per_second + .002)
 			)
 			minimum_clearance = minf(minimum_clearance, _clearance(worker, actors))
 			if worker in watched:
@@ -203,7 +204,7 @@ func _residual_traffic():
 				maximum_step_ratio,
 				(
 					worker.position.distance_to(previous[worker].position)
-					/ (worker.movement_speed / 60.0 + .002)
+					/ (worker.movement_speed / Engine.physics_ticks_per_second + .002)
 				)
 			)
 			minimum_clearance = minf(minimum_clearance, _clearance(worker, actors))
@@ -326,10 +327,14 @@ func _manual_replacement():
 	_check(worker.position == position, "Paused replacement moved the engineer")
 	await _review_traffic("manual-replaced", worker, blocker)
 	paused = false
-	for frame in 600:
+	# Record the actual arrival within ten simulated seconds. Once idle, the
+	# engineer may later yield passively to the remaining workers' traffic.
+	var reached = false
+	for frame in Engine.physics_ticks_per_second * 10:
 		await physics_frame
+		reached = reached or worker.position.distance_to(goal) < .4
 	paused = true
-	_check(worker.position.distance_to(goal) < .4, "Manual replacement did not reach its goal")
+	_check(reached, "Manual replacement did not reach its goal")
 	_check(
 		(
 			Vector2i(worker.resource_a, worker.resource_b) == cargo

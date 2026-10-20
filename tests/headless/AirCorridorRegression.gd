@@ -37,7 +37,7 @@ func _run():
 	_migrate_progress()
 	await _make_match()
 	_check(
-		_units(game._enemy, "Helicopter").is_empty() and game._get_human_player().resource_b == 80,
+		_units(game._enemy, "Fighter").is_empty() and game._get_human_player().resource_b == 80,
 		"Network reward did not remove initial patrol"
 	)
 	await _close()
@@ -52,6 +52,7 @@ func _rules():
 	_check(
 		game.flights.size() == 3 and game.sites.size() == 2, "Air Corridor objective setup failed"
 	)
+	_runway_layout()
 	_check(not game.launch_flight(), "Evacuation launched before batteries were cleared")
 	_check(game._get_human_player().basic_programs_unlocked(), "Air/ground presets unavailable")
 	var a = Vector3(36, 0, 52)
@@ -131,7 +132,9 @@ func _rules():
 	# Air service heals the transport; a mobile repair robot must not heal aircraft.
 	ship = game.flights[0].unit
 	ship.issue_manual_order(null)
-	ship.position = Vector3(14, ship.position.y, 64)
+	# Rotorcraft are serviced on the airfield's helipads.
+	var pad = _units(game._get_human_player(), "AircraftFactory")[0].pad_point(1)
+	ship.position = Vector3(pad.x, ship.position.y, pad.z)
 	ship.hp = 80
 	paused = false
 	await _frames(120)
@@ -357,3 +360,34 @@ func _stage_capture(_title, _point):
 
 func _launch_air():
 	return game.launch_flight()
+
+
+# The runway must leave the evacuation pad, campaign scenery and the starting
+# force clear: a transport launching onto parked jets or a hangar is a bug.
+func _runway_layout():
+	var footprint = load("res://source/match/utils/Footprint.gd")
+	var field = _units(game._get_human_player(), "AircraftFactory")[0]
+	var outline = footprint.world_outline(field)
+	var launch = Vector2(game.map.LAUNCH.x, game.map.LAUNCH.z)
+	_check(
+		not footprint.polygon_touches_circle(outline, launch, 3.0),
+		"Runway covers the evacuation launch pad"
+	)
+	for body in game.map.interior_obstacles:
+		_check(
+			not footprint.polygon_touches_circle(
+				outline,
+				Vector2(body.position.x, body.position.z),
+				body.get_meta("clearance_radius")
+			),
+			"Campaign scenery overlaps the runway: %s" % body.name
+		)
+	for unit in get_nodes_in_group("units"):
+		if unit == field or unit.type in ["Drone", "Helicopter", "Fighter", "Bomber"]:
+			continue
+		_check(
+			not footprint.polygon_touches_circle(
+				outline, Vector2(unit.global_position.x, unit.global_position.z), unit.radius
+			),
+			"Starting unit overlaps the runway: %s" % unit.type
+		)

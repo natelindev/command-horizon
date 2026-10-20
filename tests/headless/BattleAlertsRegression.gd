@@ -321,10 +321,17 @@ func _economy_conditions():
 	_check(_kind("power", true).size() == 1, "Low power lacks grouped alert")
 	var power = _kind("power", true)[0]
 	_check(power.detail.contains("35%"), "Low power alert claims a full production block")
-	var plant = _spawn_weapon("PowerPlant", human, Vector3(25, 0, 32))
-	plant.construct(1.0)
+	# A full base with an airfield needs two generators (HQ 8 + 2 x 12 supply).
+	var plants = []
+	for point in [Vector3(25, 0, 32), Vector3(25, 0, 38)]:
+		var plant = _spawn_weapon("PowerPlant", human, point)
+		plant.construct(1.0)
+		plants.append(plant)
 	await _frames(40)
-	_check(plant.is_constructed() and not power.active, "Restored power did not resolve alert")
+	_check(
+		plants.all(func(plant): return plant.is_constructed()) and not power.active,
+		"Restored power did not resolve alert"
+	)
 	print("PASS real depletion/reassignment, stranded cargo, paid queue/lab and power recovery")
 
 	return true

@@ -82,7 +82,7 @@ func _paired_harvesting(faction):
 	_traffic_unit("CommandCenter", enemy, Vector3(18, 0, 27))
 	for item in [
 		["CommandCenter", Vector3(110, 0, 70)],
-		["AircraftFactory", Vector3(104.4567, 0, 67.7039)],
+		["VehicleFactory", Vector3(104.4567, 0, 67.7039)],
 		["RepairDepot", Vector3(110, 0, 64)]
 	]:
 		_traffic_unit(item[0], human, item[1])

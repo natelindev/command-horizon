@@ -68,7 +68,9 @@ func restore(saved, unit, parent):
 		if state.stopped:
 			timer.stop()
 		else:
-			timer.start(maxf(0.000001, state.left))
+			# Timer.start rejects zero; keep any positive residual exact so reloads
+			# re-archive the same timer state.
+			timer.start(state.left if state.left > 0.0 else 0.000001)
 			# start(left) also changes the repeat interval; retain the saved cadence.
 			timer.wait_time = state.wait
 	if kind == "LuaAction":
@@ -95,8 +97,15 @@ func _instantiate(kind, state, refs, unit):
 			return script.new(state.destination)
 		"AutoAttacking", "Garrisoning":
 			return script.new(target)
-		"WaitingForTargets":
+		"WaitingForTargets", "AirReturn", "AirIdle":
 			return script.new()
+		"AirStation":
+			return script.new(state._point, state.sweep, refs.get("_escort"))
+		"AirStrike":
+			return script.new(target) if target != null else null
+		"DroneDive":
+			# A committed dive continues even if its target is gone.
+			return script.new(target) if target != null or state.diving else null
 		"MovingToUnit", "Following", "Constructing", "ConstructingWhileInRange":
 			return script.new(target) if target != null else null
 		"AttackingWhileInRange":
