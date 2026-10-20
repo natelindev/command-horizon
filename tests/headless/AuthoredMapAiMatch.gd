@@ -29,9 +29,14 @@ func _run():
 			minutes = float(argument.trim_prefix("--minutes="))
 		elif not argument.begins_with("--"):
 			map_id = argument
-	var factions = [["bastion", "helix"], ["helix", "frontier"], ["frontier", "bastion"]]
+	var path = "res://source/match/maps/battlefields/%s.tscn" % map_id
+	var count = root.get_node("Constants").Match.MAPS[path].players
+	var roster = ["bastion", "helix", "frontier"]
 	for index in matches:
-		await _battle(map_id, factions[index % factions.size()], 713 + index, minutes)
+		var pairing = []
+		for side in count:
+			pairing.append(roster[(index + side) % roster.size()])
+		await _battle(map_id, pairing, 713 + index, minutes)
 	var durations = _results.map(func(row): return row.minutes)
 	durations.sort()
 	var median = durations[durations.size() / 2] if not durations.is_empty() else 0.0
@@ -51,12 +56,12 @@ func _battle(map_id, pairing, match_seed, minutes):
 	settings.skirmish = true
 	settings.map_path = "res://source/match/maps/battlefields/%s.tscn" % map_id
 	settings.match_seed = match_seed
-	for index in 2:
+	for index in pairing.size():
 		var side = load("res://source/data-model/PlayerSettings.gd").new()
 		side.faction = pairing[index]
-		side.controller = index + 1
+		side.controller = 1 if index == 0 else 2
 		side.difficulty = 1
-		side.color = Color.GOLD if index == 0 else Color.CYAN
+		side.color = Color.from_hsv(index / float(pairing.size()), 0.75, 0.95)
 		settings.players.append(side)
 	game = load("res://source/match/Skirmish.tscn").instantiate()
 	game.set_script(load("res://tests/headless/ActiveAiMatch.gd"))
@@ -66,19 +71,22 @@ func _battle(map_id, pairing, match_seed, minutes):
 	current_scene = game
 	game.get_node("IsometricCamera3D").set_physics_process(false)
 	var sides = game.get_node("Players").get_children()
-	var lanes = [{}, {}]
-	var expansions = [[], []]
+	var lanes = []
+	var expansions = []
+	for _side in sides:
+		lanes.append({})
+		expansions.append([])
 	var next_report = 60.0
-	print("AUTHORED AI BEGIN %s %s vs %s" % [map_id, pairing[0], pairing[1]])
+	print("AUTHORED AI BEGIN %s %s" % [map_id, " vs ".join(pairing)])
 	while game.simulation_time < minutes * 60.0 and not game.finished:
 		await process_frame
-		for index in 2:
+		for index in sides.size():
 			for group in sides[index]._army_groups:
 				var via = group.get("via")
 				if via != null:
 					lanes[index]["%d,%d" % [roundi(via.x), roundi(via.z)]] = true
 		if game.simulation_time >= next_report:
-			for index in 2:
+			for index in sides.size():
 				var bases = sides[index].get_children().filter(
 					func(unit): return "type" in unit and unit.type == "CommandCenter"
 				)
@@ -88,9 +96,9 @@ func _battle(map_id, pairing, match_seed, minutes):
 					"AUTHORED AI t=%d bases=%s attacks=%s population=%s"
 					% [
 						next_report,
-						[expansions[0][-1], expansions[1][-1]],
-						[sides[0].attacks_launched, sides[1].attacks_launched],
-						[sides[0].population(), sides[1].population()]
+						expansions.map(func(list): return list[-1]),
+						sides.map(func(side): return side.attacks_launched),
+						sides.map(func(side): return side.population())
 					]
 				)
 			)
@@ -103,7 +111,7 @@ func _battle(map_id, pairing, match_seed, minutes):
 		"result": game.result,
 		"sides": []
 	}
-	for index in 2:
+	for index in sides.size():
 		var peak = expansions[index].max() if not expansions[index].is_empty() else 1
 		row.sides.append(
 			{

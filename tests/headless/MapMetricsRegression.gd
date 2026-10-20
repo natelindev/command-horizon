@@ -10,7 +10,9 @@ const Registry = preload("res://source/match/maps/terrain/BattlefieldRegistry.gd
 const TANK_SPEED = 2.6
 const HQ_CLEARANCE = 4.5
 const TARGETS = {
+	# Corner bases of four-player maps sit closer together in free-for-all.
 	"base_to_base": [75.0, 110.0],
+	"base_to_base_4p": [65.0, 100.0],
 	"natural": [0.0, 25.0],
 	"home_field": [7.0, 11.0],
 	"ramp_width": 6.0,
@@ -117,9 +119,10 @@ func _travel(id, starts):
 		return
 	times.sort()
 	var nearest = times[0]
+	var band = TARGETS.base_to_base if starts.size() == 2 else TARGETS.base_to_base_4p
 	_metric(
-		nearest >= TARGETS.base_to_base[0] and nearest <= TARGETS.base_to_base[1],
-		"%s nearest rival base %.1f s outside %s" % [id, nearest, TARGETS.base_to_base]
+		nearest >= band[0] and nearest <= band[1],
+		"%s nearest rival base %.1f s outside %s" % [id, nearest, band]
 	)
 
 

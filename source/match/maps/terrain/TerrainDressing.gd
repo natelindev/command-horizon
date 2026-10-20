@@ -131,7 +131,8 @@ static func _scatter(
 static func _talus(map, layout: Dictionary, model, kit: Dictionary, rng, batches):
 	var outlines = []
 	for tier in layout.tiers:
-		outlines.append(tier.polygon)
+		if not tier.has("falloff"):
+			outlines.append(tier.polygon)
 	for blocker in layout.blockers:
 		outlines.append(blocker.polygon)
 	for polygon in outlines:
@@ -187,13 +188,23 @@ static func _landmark(map, layout: Dictionary, landmark: Dictionary):
 	model.scale = Vector3.ONE * landmark.get("scale", 1.0)
 	body.add_child(model)
 	if landmark.has("solid"):
-		var obstacle = OBSTACLE.instantiate()
-		obstacle.name = "MovementObstacle"
-		obstacle.radius = landmark.solid
-		obstacle.sight_height = landmark.get("sight_height", 3.0)
-		obstacle.path_height_offset = .6
-		obstacle.affect_navigation_mesh = true
-		body.add_child(obstacle)
+		_obstacle(body, landmark.solid, landmark.get("sight_height", 3.0))
+	# Walls with openings: local outlines that turn with the landmark.
+	for outline in landmark.get("footprints", []):
+		_obstacle(body, 0.5, landmark.get("sight_height", 3.0), PackedVector2Array(outline))
+
+
+static func _obstacle(
+	body: Node3D, radius: float, sight_height: float, footprint := PackedVector2Array()
+):
+	var obstacle = OBSTACLE.instantiate()
+	obstacle.name = "MovementObstacle"
+	obstacle.radius = radius
+	obstacle.footprint = footprint
+	obstacle.sight_height = sight_height
+	obstacle.path_height_offset = .6
+	obstacle.affect_navigation_mesh = true
+	body.add_child(obstacle)
 
 
 # Circles kept free of clutter: starts, resource fields and lanes, facilities,

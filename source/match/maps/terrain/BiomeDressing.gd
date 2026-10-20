@@ -52,8 +52,64 @@ const SALT = {
 	"low_ground_density": 0.12,
 }
 
+const COPPER = {
+	"trees": [["drylands/Greasewood", 1.5]],
+	"riparian": [["drylands/Greasewood", 1.5]],
+	"shrubs": [["drylands/Tumbleweed", 0.7], ["drylands/Saltbush", 0.5]],
+	"rocks":
+	[["drylands/OreBoulderA", 1.2], ["drylands/OreBoulderB", 0.9], ["canyon/BoulderC", 0.8]],
+	"talus": [["drylands/OreBoulderA", 0.9], ["drylands/OreBoulderB", 0.7]],
+	"lone_trees": [],
+	"shrub_density": 0.004,
+	"rock_density": 0.009,
+	"tree_density": 0.0,
+}
+const OASIS = {
+	"trees":
+	[["drylands/DatePalmA", 7.5], ["drylands/DatePalmB", 5.8], ["drylands/DatePalmA", 6.4]],
+	"riparian": [["drylands/DatePalmA", 7.5], ["drylands/Oleander", 1.6]],
+	"shrubs":
+	[
+		["drylands/DuneGrass", 0.7],
+		["drylands/PalmScrub", 1.3],
+		["drylands/Saltbush", 0.6],
+		["drylands/DuneGrass", 0.55]
+	],
+	"rocks": [["canyon/BoulderC", 0.7], ["canyon/BoulderA", 0.9]],
+	"talus": [["canyon/TalusCluster", 0.7], ["canyon/BoulderC", 0.6]],
+	"lone_trees": [["drylands/DatePalmB", 5.8]],
+	"shrub_density": 0.012,
+	"rock_density": 0.002,
+	"tree_density": 0.0006,
+}
+const MOJAVE = {
+	"trees":
+	[["drylands/JoshuaTree", 5.0], ["drylands/JoshuaTree", 4.2], ["drylands/Creosote", 1.3]],
+	"riparian": [["canyon/FremontCottonwood", 7.5]],
+	"shrubs":
+	[
+		["drylands/Creosote", 1.1],
+		["drylands/Creosote", 0.9],
+		["drylands/Cholla", 1.0],
+		["canyon/Sagebrush", 0.6]
+	],
+	"rocks": [["canyon/BoulderA", 1.0], ["canyon/BoulderB", 1.4], ["canyon/BoulderC", 0.7]],
+	"talus": [["canyon/TalusCluster", 0.8], ["canyon/BoulderC", 0.7]],
+	"lone_trees": [["drylands/JoshuaTree", 4.6], ["drylands/JoshuaTree", 3.8]],
+	"shrub_density": 0.018,
+	"rock_density": 0.004,
+	"tree_density": 0.0018,
+}
+
 
 static func kit(ground: String) -> Dictionary:
-	if ground == "salt":
-		return SALT
+	match ground:
+		"salt":
+			return SALT
+		"copper":
+			return COPPER
+		"oasis":
+			return OASIS
+		"mojave":
+			return MOJAVE
 	return KITS.get(ground, KITS.canyon)

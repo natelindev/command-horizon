@@ -59,6 +59,14 @@ const MAPS = {
 	{"name": "Coastal Foundry", "players": 2, "size": Vector2i(128, 104)},
 	"res://source/match/maps/battlefields/RedrockDivideMap.tscn":
 	{"name": "Redrock Divide", "players": 2, "size": Vector2i(192, 160)},
+	"res://source/match/maps/battlefields/SaltwindBasinMap.tscn":
+	{"name": "Saltwind Basin", "players": 2, "size": Vector2i(192, 160)},
+	"res://source/match/maps/battlefields/CopperBadlandsMap.tscn":
+	{"name": "Copper Badlands", "players": 4, "size": Vector2i(224, 224)},
+	"res://source/match/maps/battlefields/ShatteredOasisMap.tscn":
+	{"name": "Shattered Oasis", "players": 4, "size": Vector2i(224, 224)},
+	"res://source/match/maps/battlefields/DesertFrontierMap.tscn":
+	{"name": "Desert Frontier", "players": 2, "size": Vector2i(192, 144)},
 	# Engine verification only; never offered in the skirmish picker.
 	"res://source/match/maps/battlefields/TerrainTestMap.tscn":
 	{"name": "Terrain Test", "players": 2, "size": Vector2i(192, 160)},

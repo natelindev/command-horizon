@@ -20,7 +20,9 @@ static func build(model, layout: Dictionary, seed_text: String) -> ArrayMesh:
 	var tool = SurfaceTool.new()
 	tool.begin(Mesh.PRIMITIVE_TRIANGLES)
 	for tier in layout.get("tiers", []):
-		_outline_faces(tool, model, tier.polygon, noise, INF)
+		# Smooth mounds (falloff) have no rock faces.
+		if not tier.has("falloff"):
+			_outline_faces(tool, model, tier.polygon, noise, INF)
 	for blocker in layout.get("blockers", []):
 		var base = INF
 		for point in blocker.polygon:

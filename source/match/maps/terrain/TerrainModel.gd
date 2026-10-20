@@ -49,7 +49,10 @@ func _init(layout: Dictionary):
 	heights.fill(layout.get("base_height", 0.0))
 	flags.resize(columns * rows)
 	for tier in layout.get("tiers", []):
-		_fill_corners(tier.polygon, func(_old): return tier.height)
+		if tier.has("falloff"):
+			_raise_smoothly(tier.polygon, tier.height, tier.falloff)
+		else:
+			_fill_corners(tier.polygon, func(_old): return tier.height)
 	for tier in layout.get("tiers", []):
 		if not tier.get("walkable", true):
 			_fill_cells(tier.polygon, BARRIER)
@@ -203,6 +206,34 @@ func _ramp(ramp: Dictionary):
 			heights[j * (columns + 1) + i] = lerpf(ramp.from_height, ramp.to_height, t)
 			if i < columns and j < rows:
 				flags[j * columns + i] |= RAMP
+
+
+# Dunes and mounds: full height inside the outline, easing to the existing
+# ground over `falloff` metres outside it (no cliff).
+func _raise_smoothly(polygon: PackedVector2Array, height: float, falloff: float):
+	var low = polygon[0]
+	var high = polygon[0]
+	for point in polygon:
+		low = low.min(point)
+		high = high.max(point)
+	low = (low - Vector2.ONE * falloff).max(Vector2.ZERO)
+	high = (high + Vector2.ONE * falloff).min(size)
+	for j in range(int(low.y / RESOLUTION), int(high.y / RESOLUTION) + 1):
+		for i in range(int(low.x / RESOLUTION), int(high.x / RESOLUTION) + 1):
+			var point = Vector2(i, j) * RESOLUTION
+			var weight = 1.0
+			if not Geometry2D.is_point_in_polygon(point, polygon):
+				var distance = INF
+				for index in polygon.size():
+					var closest = Geometry2D.get_closest_point_to_segment(
+						point, polygon[index], polygon[(index + 1) % polygon.size()]
+					)
+					distance = minf(distance, point.distance_to(closest))
+				weight = 1.0 - smoothstep(0.0, falloff, distance)
+			if weight <= 0.0:
+				continue
+			var index = j * (columns + 1) + i
+			heights[index] = lerpf(heights[index], height, weight)
 
 
 # Even-odd scanline fill of lattice corners inside `polygon`.

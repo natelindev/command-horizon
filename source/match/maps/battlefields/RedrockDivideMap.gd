@@ -353,7 +353,7 @@ const DEFINITION = {
 		{
 			"kind": "mercenary",
 			"position": Vector2(66, 40),
-			"names": ["South Canyon Camp", "North Canyon Camp"]
+			"names": ["North Canyon Camp", "South Canyon Camp"]
 		},
 		{
 			"kind": "repair",

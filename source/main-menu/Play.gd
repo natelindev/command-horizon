@@ -7,12 +7,12 @@ const Factions = preload("res://source/match/FactionCatalog.gd")
 const LoadingScene = preload("res://source/main-menu/Loading.tscn")
 const Lore = preload("res://source/lore/WorldLore.gd")
 const Difficulty = preload("res://source/match/players/skirmish-ai/SkirmishDifficulty.gd")
-# New games use the fully populated maps. Legacy scenes remain loadable by saves.
+# Skirmish roster; the first entry is the default for a fresh setup.
 const MAPS = [
 	[
-		"res://source/match/maps/ExpandedDesertFrontier.tscn",
+		"res://source/match/maps/battlefields/DesertFrontierMap.tscn",
 		"Desert Frontier",
-		"Eight resource fields · capture refineries, mercenary camps and repair shops",
+		"A Mojave rail outpost · three routes past sandstone escarpments · 12 resource fields",
 		"192 × 144"
 	],
 	[
@@ -37,9 +37,9 @@ const MAPS = [
 		"192 × 160"
 	],
 	[
-		"res://source/match/maps/SaltwindBasin.tscn",
+		"res://source/match/maps/battlefields/SaltwindBasinMap.tscn",
 		"Saltwind Basin",
-		"A pale salt pan: exposed center, sheltered edge expansions.",
+		"Rim terraces above an exposed salt pan · potash ponds crossed by dikes · 12 resource fields",
 		"192 × 160"
 	],
 	[
@@ -85,9 +85,9 @@ const MAPS = [
 		"224 × 224"
 	],
 	[
-		"res://source/match/maps/CopperBadlands.tscn",
+		"res://source/match/maps/battlefields/CopperBadlandsMap.tscn",
 		"Copper Badlands",
-		"Staggered copper mesas create diagonal flanking corridors.",
+		"An open-pit copper mine · haul roads spiral down to a contested pit floor · 16 resource fields",
 		"224 × 224"
 	],
 	[
@@ -103,9 +103,9 @@ const MAPS = [
 		"224 × 224"
 	],
 	[
-		"res://source/match/maps/ShatteredOasis.tscn",
+		"res://source/match/maps/battlefields/ShatteredOasisMap.tscn",
 		"Shattered Oasis",
-		"A turquoise oasis forces clockwise expansion around its shores.",
+		"A palm-grove oasis split by dry wadis · caravanserai camps · 16 resource fields",
 		"224 × 224"
 	],
 ]
@@ -121,6 +121,19 @@ const LEGACY_MAP_NAMES = [
 	"ExpandedAlpineRelay",
 	"ExpandedCoastalFoundry"
 ]
+
+# Saved preferences may name maps that left the roster; open their successors.
+const SUCCESSORS = {
+	"BastionDesert": "res://source/match/maps/battlefields/DesertFrontierMap.tscn",
+	"DesertFrontier": "res://source/match/maps/battlefields/DesertFrontierMap.tscn",
+	"ExpandedDesertFrontier": "res://source/match/maps/battlefields/DesertFrontierMap.tscn",
+	"RedrockDivide": "res://source/match/maps/battlefields/RedrockDivideMap.tscn",
+	"SaltwindBasin": "res://source/match/maps/battlefields/SaltwindBasinMap.tscn",
+	"CopperBadlands": "res://source/match/maps/battlefields/CopperBadlandsMap.tscn",
+	"ShatteredOasis": "res://source/match/maps/battlefields/ShatteredOasisMap.tscn",
+	"AlpineRelay": "res://source/match/maps/ExpandedAlpineRelay.tscn",
+	"CoastalFoundry": "res://source/match/maps/ExpandedCoastalFoundry.tscn",
+}
 
 const FACTION_DESCRIPTIONS = [
 	Lore.FACTIONS.bastion.short,
@@ -468,7 +481,7 @@ func _load_preferences():
 	var config = ConfigFile.new()
 	config.load(preferences_path)
 	for pair in [
-		["map", _map_list, "res://source/match/maps/ExpandedDesertFrontier.tscn"],
+		["map", _map_list, MAPS[0][0]],
 		["player", _player_faction, "bastion"],
 		["enemy", _enemy_faction, "random"],
 		["difficulty", _difficulty, 1],
@@ -481,9 +494,8 @@ func _load_preferences():
 		if pair[0] == "map":
 			if value is int:
 				value = "res://source/match/maps/%s.tscn" % LEGACY_MAP_NAMES[clampi(value, 0, 8)]
-			var map_name = str(value).get_file().get_basename()
-			if map_name in ["DesertFrontier", "AlpineRelay", "CoastalFoundry"]:
-				value = "res://source/match/maps/Expanded%s.tscn" % map_name
+			if str(value) not in _map_paths:
+				value = SUCCESSORS.get(str(value).get_file().get_basename(), MAPS[0][0])
 			value = _map_paths.find(str(value))
 			if value < 0:
 				value = 0
