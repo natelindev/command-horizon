@@ -151,6 +151,7 @@ func _build_ground():
 	var material = ShaderMaterial.new()
 	material.shader = GROUND_SHADER
 	Palettes.configure(material, _ground_palette(), layout.get("palette", {}))
+	TerrainTextures.configure(material, layout.get("texture_preset", layout.biome))
 	material.set_shader_parameter(
 		"control", ImageTexture.create_from_image(TerrainMesh.build_control(terrain, layout))
 	)

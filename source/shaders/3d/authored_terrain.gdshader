@@ -1,4 +1,5 @@
 shader_type spatial;
+#include "res://source/shaders/3d/terrain_layers.gdshaderinc"
 // Ground for authored, elevated battlefields. A per-map control texture marks
 // roads (R), water beds and fords (G), forest floor (B) and sand (A); slope
 // exposes rock, bare slickrock shows through in patches, and higher tiers read
@@ -54,15 +55,15 @@ float plate_edge(vec2 p)
     {
       vec2 offset = vec2(float(x), float(y));
       vec2 seed = offset + vec2(hash(cell + offset), hash(cell + offset + 17.3)) - local;
-      float distance = dot(seed, seed);
-      if (distance < nearest)
+      float span = dot(seed, seed);
+      if (span < nearest)
       {
         second = nearest;
-        nearest = distance;
+        nearest = span;
       }
-      else if (distance < second)
+      else if (span < second)
       {
-        second = distance;
+        second = span;
       }
     }
   }
@@ -131,7 +132,14 @@ void fragment()
   float cliff = smoothstep(.28, .55, slope + (grain - .5) * .12);
   float band = noise(vec2(world_point.y * 1.7, p.x * .05 + p.y * .05)) * strata;
   vec3 stone = rock.rgb * (.78 + band * .35 + grain * .08);
-  color = mix(color, stone, cliff);
-  ALBEDO = color + (grain - .5) * .03;
-  ROUGHNESS = mix(.95, .82, cliff);
+  // Scanned ground detail on walkable surfaces: roads take the path layer,
+  // slickrock, sand and salt crust the biome accent. Steep faces keep the
+  // procedural rock, which top-down projection would smear.
+  float feature = clamp(max(max(slick, sandy * .8), crust_amount * .7), 0.0, 1.0);
+  TerrainSurface ground = terrain_surface(p, color + (grain - .5) * .03, lane, feature, .95);
+  ALBEDO = mix(ground.albedo, stone, cliff);
+  ROUGHNESS = mix(ground.roughness, .82, cliff);
+  AO = mix(ground.occlusion, 1.0, cliff);
+  ground.slope *= 1.0 - cliff;
+  NORMAL = terrain_normal(ground, NORMAL, VIEW_MATRIX, INV_VIEW_MATRIX);
 }
