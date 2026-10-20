@@ -52,6 +52,50 @@ func _ready():
 	_emitter("dust", 512, 2.1, Vector3(0, -0.15, 0), 0.0, 0.95)
 	_emitter("fire", 256, 0.65, Vector3(0, 0.8, 0), 2.0, 0.85)
 	_emitter("mote", 192, 1.2, Vector3(0, 0.25, 0), 2.2, 0.2)
+	_emitter("exhaust", 192, .32, Vector3.ZERO, .6, .5)
+	_debris_emitter()
+
+
+func _debris_emitter():
+	var particles = GPUParticles3D.new()
+	particles.name = "Shards"
+	particles.emitting = false
+	particles.amount = 192
+	particles.lifetime = 1.1
+	particles.local_coords = false
+	particles.fixed_fps = 30
+	particles.visibility_aabb = AABB(Vector3(-64, -16, -64), Vector3(384, 80, 384))
+	particles.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var motion = ParticleProcessMaterial.new()
+	motion.gravity = Vector3(0, -9.8, 0)
+	motion.use_rotation_3d = true
+	motion.rotation_3d_min = Vector3(-180, -180, -180)
+	motion.rotation_3d_max = Vector3(180, 180, 180)
+	motion.use_rotation_velocity_3d = true
+	motion.rotation_velocity_3d_min = Vector3(-240, -300, -180)
+	motion.rotation_velocity_3d_max = Vector3(240, 300, 180)
+	motion.use_scale_3d = true
+	motion.scale_3d_min = Vector3(.04, .025, .08)
+	motion.scale_3d_max = Vector3(.09, .045, .18)
+	var shrink = Curve.new()
+	shrink.add_point(Vector2(0, 1))
+	shrink.add_point(Vector2(.65, 1))
+	shrink.add_point(Vector2(1, 0))
+	var curve = CurveXYZTexture.new()
+	curve.curve_x = shrink
+	curve.curve_y = shrink
+	curve.curve_z = shrink
+	motion.scale_curve = curve
+	particles.process_material = motion
+	var mesh = BoxMesh.new()
+	var surface = StandardMaterial3D.new()
+	surface.albedo_color = Color("67594a")
+	surface.metallic = .45
+	surface.roughness = .7
+	mesh.material = surface
+	particles.draw_pass_1 = mesh
+	add_child(particles)
+	_emitters.debris = particles
 
 
 func _emitter(kind, amount, lifetime, gravity, glow, roughness):
@@ -70,10 +114,11 @@ func _emitter(kind, amount, lifetime, gravity, glow, roughness):
 	material.set_shader_parameter("gravity", gravity)
 	material.set_shader_parameter("growth_start", 0.35 if kind in ["smoke", "dust"] else 1.0)
 	material.set_shader_parameter(
-		"growth_end", 1.15 if kind == "smoke" else (1.65 if kind == "dust" else 0.35)
+		"growth_end", 1.15 if kind == "smoke" else (1.65 if kind in ["dust", "flash"] else 0.35)
 	)
 	material.set_shader_parameter("damping", 1.1 if kind == "dust" else 0.45)
 	material.set_shader_parameter("grounded", kind in ["dust", "spark"])
+	material.set_shader_parameter("directional", kind in ["dust", "exhaust"])
 	particles.process_material = material
 	var mesh = QuadMesh.new()
 	mesh.size = Vector2.ONE
@@ -83,6 +128,9 @@ func _emitter(kind, amount, lifetime, gravity, glow, roughness):
 	shader.set_shader_parameter("flame", kind == "fire")
 	shader.set_shader_parameter("glow", glow)
 	shader.set_shader_parameter("rough_edge", roughness)
+	shader.set_shader_parameter(
+		"elongation", 3.5 if kind == "exhaust" else (1.7 if kind == "dust" else 1.0)
+	)
 	mesh.material = shader
 	particles.draw_pass_1 = mesh
 	add_child(particles)
@@ -97,7 +145,14 @@ func _puff(kind, point, velocity, color, size):
 	):
 		return
 	var transform_here = Transform3D(Basis.IDENTITY.scaled(Vector3.ONE * size), point)
-	_emitters[kind].emit_particle(transform_here, velocity, color, Color(), 1 | 2 | 4 | 8)
+	var ground = _ground_height(point)
+	_emitters[kind].emit_particle(
+		transform_here, velocity, color, Color(ground, 0, 0, 0), 1 | 2 | 4 | 8 | 16
+	)
+
+
+func _ground_height(point):
+	return get_parent().map.height_at(Vector2(point.x, point.z))
 
 
 # Muzzle presentation and sound for one shot. Physical rounds draw themselves
@@ -164,7 +219,7 @@ func impact(unit, source, point):
 			"Bomber"
 		]
 	)
-	var ground_hit = point.y < 1.6
+	var ground_hit = point.y - _ground_height(point) < 1.6
 	var direction = source.global_position.direction_to(point)
 	if heavy:
 		if (
@@ -190,7 +245,7 @@ func impact(unit, source, point):
 		if ground_hit:
 			_puff(
 				"dust",
-				Vector3(point.x, 0.1, point.z),
+				Vector3(point.x, _ground_height(point) + 0.1, point.z),
 				Vector3.UP * 0.4,
 				Color(0.49, 0.43, 0.34, 0.5),
 				0.6
@@ -208,6 +263,7 @@ func can_show_point(point):
 
 # Exhaust smoke behind a motor-driven round.
 func trail(point, direction):
+	_puff("exhaust", point, -direction * 1.8, Color(.9, .72, .45, .28), .14)
 	_puff(
 		"smoke",
 		point,
@@ -308,12 +364,25 @@ func _armor_impact(point, direction, ground_hit, color):
 	_puff("smoke", point, Vector3.UP * .4, Color(.25, .26, .27, .28), .55)
 	if ground_hit:
 		_puff(
-			"dust", Vector3(point.x, .12, point.z), Vector3.UP * .5, Color(.48, .40, .30, .38), .9
+			"dust",
+			Vector3(point.x, _ground_height(point) + .12, point.z),
+			Vector3.UP * .5,
+			Color(.48, .40, .30, .38),
+			.9
 		)
 		aftermath.scar(Vector3(point.x, 0, point.z), .65)
 
 
 func _explosion(point, strength, ground_hit, destructive = false):
+	if destructive:
+		for index in 10:
+			_puff(
+				"debris",
+				point,
+				(_jitter(2.5) + Vector3.UP * 3.0) * sqrt(strength),
+				Color.WHITE,
+				1.0
+			)
 	_shake_camera(point, strength * 0.14)
 	_puff("flash", point, Vector3.ZERO, Color("ffe9c0"), strength * 1.7)
 	for _index in range(10 if destructive else 6):
@@ -347,7 +416,7 @@ func _explosion(point, strength, ground_hit, destructive = false):
 			velocity.y = _random.randf_range(0.15, 1.2)
 			_puff(
 				"dust",
-				Vector3(point.x, 0.15, point.z) + outward * 0.2,
+				Vector3(point.x, _ground_height(point) + 0.15, point.z) + outward * 0.2,
 				velocity,
 				Color(0.48, 0.40, 0.30, 0.65),
 				strength * _random.randf_range(0.8, 1.5)
@@ -368,11 +437,11 @@ func destruction(unit):
 	var size = clampf(unit.radius, 0.5, 2.0)
 	_shake_camera(point, size * 0.18)
 	if not infantry:
-		_explosion(point, size * 2.0, point.y < 1.6, true)
+		_explosion(point, size * 2.0, point.y - _ground_height(point) < 1.6, true)
 	else:
 		_puff(
 			"dust",
-			Vector3(point.x, 0.12, point.z),
+			Vector3(point.x, _ground_height(point) + 0.12, point.z),
 			Vector3.UP * 0.3,
 			Color(0.5, 0.43, 0.33, 0.45),
 			size * 1.4
@@ -385,7 +454,7 @@ func movement_dust(unit):
 		_puff(
 			"dust",
 			unit.global_position + Vector3.UP * 0.12,
-			Vector3.UP * 0.12,
+			unit.global_basis.z * -.35 + Vector3.UP * 0.12,
 			Color(0.6, 0.49, 0.33, 0.17),
 			unit.radius * 0.9
 		)

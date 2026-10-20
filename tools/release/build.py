@@ -13,7 +13,7 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[2]
 PLATFORM = os.environ["RTS_RELEASE_PLATFORM"]
-VERSION = "4.6.3-stable"
+VERSION = "4.7.2-stable"
 PRESETS = {"linux": "Linux/X11", "windows": "Windows Desktop", "macos": "macOS"}
 ENGINE_SUFFIX = {"linux": "linux.x86_64", "windows": "win64.exe", "macos": "macos.universal"}
 TESTS = [
@@ -34,6 +34,8 @@ TESTS = [
     "AirSaveContinuityRegression", "RotorcraftCombatRegression", "FrontierCombatRegression",
     "AirfieldOperationsRegression", "GroundHeightAlignmentRegression", "GroundCrowdRecoveryRegression",
     "SkirmishBuildReadinessRegression",
+    "PresentationFeaturesRegression", "SettingsRegression",
+    "BattleHudProductionRegression", "BattleAftermathRegression",
 ]
 
 

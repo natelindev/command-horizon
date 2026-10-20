@@ -1,7 +1,9 @@
 enum { VALID, COLLIDES_WITH_AGENT, NOT_NAVIGABLE, NOT_LEVEL }
 
-# Footprints may not straddle a cliff or sit on a ramp (height samples differ).
-const LEVEL_TOLERANCE = 0.05
+# Foundations tolerate modest relief and gentle ramps, but not cliff edges.
+const FOUNDATION_HEIGHT_TOLERANCE = 0.6
+const FOUNDATION_MAX_GRADE = 0.35
+const NAVIGATION_TOLERANCE = 0.05
 # Baked walkable surfaces sit this far above authored ground (TerrainNavigation).
 const SURFACE_LIFT = 0.5
 
@@ -74,7 +76,7 @@ static func find_valid_position_radially_yet_skip_starting_radius(
 	return Vector3.INF
 
 
-# Pass an elevated `map` to require level ground and query from its tier.
+# Pass an elevated `map` to check foundation support and query from its surface.
 static func validate_agent_placement_position(
 	position, radius, existing_units, navigation_map_rid, map = null
 ):
@@ -94,21 +96,15 @@ static func validate_agent_placement_position(
 		for index in points_expected_to_be_navigable.size():
 			var point = points_expected_to_be_navigable[index]
 			var height = map.height_at(Vector2(point.x, point.z))
-			if absf(height - level) > LEVEL_TOLERANCE:
+			var distance = Vector2(point.x - position.x, point.z - position.z).length()
+			if not _foundation_supports(level, height, distance):
 				return NOT_LEVEL
 			# Query from the walkable surface so the projection stays vertical.
 			points_expected_to_be_navigable[index] = Vector3(
 				point.x, height + SURFACE_LIFT, point.z
 			)
 	for point_expected_to_be_navigable in points_expected_to_be_navigable:
-		if not (point_expected_to_be_navigable * Vector3(1, 0, 1)).is_equal_approx(
-			(
-				NavigationServer3D.map_get_closest_point(
-					navigation_map_rid, point_expected_to_be_navigable
-				)
-				* Vector3(1, 0, 1)
-			)
-		):
+		if not _is_navigable(point_expected_to_be_navigable, navigation_map_rid):
 			return NOT_NAVIGABLE
 	return VALID
 
@@ -116,7 +112,7 @@ static func validate_agent_placement_position(
 # Placement of a structure with a polygon footprint (world XZ outline): no
 # overlap with any unit or deposit, and its outline and interior on navigable
 # ground.
-static func validate_footprint_placement(polygon, existing_units, navigation_map_rid):
+static func validate_footprint_placement(polygon, existing_units, navigation_map_rid, map = null):
 	for existing_unit in existing_units:
 		if existing_unit.is_in_group("salvage_wrecks"):
 			continue
@@ -129,8 +125,12 @@ static func validate_footprint_placement(polygon, existing_units, navigation_map
 			return COLLIDES_WITH_AGENT
 	var probes = Footprint.edge_samples(polygon, 1.0)
 	var bounds = Rect2(polygon[0], Vector2.ZERO)
+	var center = Vector2.ZERO
 	for point in polygon:
 		bounds = bounds.expand(point)
+		center += point
+	center /= polygon.size()
+	probes.append(center)
 	var x = bounds.position.x + FOOTPRINT_PROBE_SPACING * 0.5
 	while x < bounds.end.x:
 		var z = bounds.position.y + FOOTPRINT_PROBE_SPACING * 0.5
@@ -139,12 +139,28 @@ static func validate_footprint_placement(polygon, existing_units, navigation_map
 				probes.append(Vector2(x, z))
 			z += FOOTPRINT_PROBE_SPACING
 		x += FOOTPRINT_PROBE_SPACING
+	var elevated = map != null and map.is_elevated()
+	var level = map.height_at(center) if elevated else 0.0
 	for probe in probes:
 		var point = Vector3(probe.x, 0, probe.y)
-		var closest = NavigationServer3D.map_get_closest_point(navigation_map_rid, point)
-		if not (closest * Vector3(1, 0, 1)).is_equal_approx(point):
+		if elevated:
+			var height = map.height_at(probe)
+			if not _foundation_supports(level, height, center.distance_to(probe)):
+				return NOT_LEVEL
+			point.y = height + SURFACE_LIFT
+		if not _is_navigable(point, navigation_map_rid):
 			return NOT_NAVIGABLE
 	return VALID
+
+
+static func _foundation_supports(center_height, height, distance):
+	var allowance = minf(FOUNDATION_HEIGHT_TOLERANCE, maxf(0.05, distance * FOUNDATION_MAX_GRADE))
+	return absf(height - center_height) <= allowance
+
+
+static func _is_navigable(point, navigation_map_rid):
+	var closest = NavigationServer3D.map_get_closest_point(navigation_map_rid, point)
+	return Vector2(closest.x - point.x, closest.z - point.z).length() <= NAVIGATION_TOLERANCE
 
 
 static func _is_agent_placement_position_valid(

@@ -15,7 +15,7 @@ var _close
 var _dirty = true
 var _elapsed = 0.0
 var _open_order = []
-var _pulse: Tween
+var _last_unread = 0
 
 
 func _ready():
@@ -140,6 +140,9 @@ func _refresh():
 	_dirty = false
 	_close.text = Bindings.hint("Close", "toggle_match_menu")
 	var unread = model.unread_count()
+	if unread > _last_unread:
+		load("res://source/match/hud/HudMotion.gd").play(toggle, true)
+	_last_unread = unread
 	var active = model.entries.filter(func(entry): return entry.active).size()
 	toggle.text = "Alerts · %d new" % unread if unread > 0 else "Alerts · %d active" % active
 	if unread == 0 and active == 0:
@@ -201,20 +204,8 @@ func _refresh():
 
 
 func _beacon(lit):
-	# Lit while events need attention: an amber key that breathes, never a coloured border.
-	var variation = "BattlePrimaryButton" if lit else ""
-	if toggle.theme_type_variation == variation:
-		return
-	toggle.theme_type_variation = variation
-	if _pulse != null and _pulse.is_valid():
-		_pulse.kill()
-	toggle.modulate = Color.WHITE
-	if lit:
-		_pulse = toggle.create_tween().set_loops()
-		_pulse.tween_property(toggle, "modulate", Color(1.18, 1.1, .92), .7).set_trans(
-			Tween.TRANS_SINE
-		)
-		_pulse.tween_property(toggle, "modulate", Color.WHITE, .7).set_trans(Tween.TRANS_SINE)
+	# A steady filled key remains readable with motion and flashes disabled.
+	toggle.theme_type_variation = "BattlePrimaryButton" if lit else ""
 
 
 func _before(a, b):

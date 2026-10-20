@@ -137,7 +137,7 @@ func _battle_flow():
 	game.hud._technology_scroll.ensure_control_visible(research._branches.doctrine.button)
 	await _frames(6)
 	_check(
-		"Rapid redeployment" in research._branches.doctrine.title.text,
+		"Rapid redeployment" in research._branches.doctrine.button.title(),
 		"Frontier doctrine uses another faction's title"
 	)
 	await _click(research._branches.doctrine.button)

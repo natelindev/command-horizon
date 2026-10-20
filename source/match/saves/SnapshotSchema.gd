@@ -68,7 +68,7 @@ func validate(data):
 			+ "visual_serial:int units_produced:int repair_elapsed:num camera:dict "
 			+ "players:list units:list resources:list mission:dict fog:dict "
 			+ "structure_memory:list neutral_buildings:list battle_record:dict ambient:list "
-			+ "rounds:dict"
+			+ "rounds:dict battlefield_wear:list"
 		)
 	):
 		return false
@@ -242,6 +242,7 @@ func validate(data):
 		not _mission(data.mission, data.settings.mission_id, data.settings.map_path)
 		or not _fog(data.fog)
 		or not _rounds(data)
+		or not _wear(data.battlefield_wear)
 	):
 		return false
 	if data.structure_memory.size() > 2048:
@@ -262,6 +263,24 @@ func validate(data):
 			)
 		):
 			return _fail("Invalid remembered structure.")
+	return true
+
+
+func _wear(marks):
+	if marks.size() > 2048:
+		return _fail("Too many battlefield marks.")
+	for mark in marks:
+		if not _shape(mark, "x:num z:num radius:num angle:signed kind:int"):
+			return false
+		if (
+			mark.x >= map_size.x
+			or mark.z >= map_size.y
+			or mark.radius < .3
+			or mark.radius > 6.0
+			or mark.kind > 1
+			or absf(mark.angle) > TAU
+		):
+			return _fail("Invalid battlefield mark.")
 	return true
 
 

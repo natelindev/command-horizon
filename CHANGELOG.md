@@ -13,6 +13,11 @@
  - Save format 16 stores rounds in flight and flight state; retained playtest archives were converted
 
 ### Added
+ - Event-driven HUD motion for production, research, newly available commands and notices, with stable hit targets and reduced-flash support
+ - Resource and weapon tooltip icons sized relative to text at every interface scale
+ - Directional rocket exhaust and dust, expanding blast flashes, and bounded debris with independent 3D rotation and scale
+ - Persistent observed vehicle tracks and blast soot painted onto terrain, including elevated ground; save format 17 stores the bounded mark history
+ - Optional rectangular base lights (up to four visible facilities), HDR output detection and calibration with SDR fallback, and English/Chinese settings
  - Sixteen rebuilt skirmish battlefields, each a recognisable real place with its own signature: Redrock Divide, Saltwind Basin, Desert Frontier, Pinebreak Valley, Glacier Narrows, Alpine Relay, Emberworks and Coastal Foundry for two players; Copper Badlands, Shattered Oasis, Four Rivers, Verdant Commons, Frostbound Crown, Railspire Junction, Sunken Exchange and Cinder Ring for four
  - Real elevation on battlefields: raised tiers and sunken gorges, canals and quays joined by ramps, with high ground that blocks sight and fire from below unless spotted
  - Forests that hide units, fords, bridges, flooded quays and lava; capture relays and garrisonable buildings on the maps that use them
@@ -24,6 +29,7 @@
  - Ground detail graphics setting to turn scanned ground and decals off for faster rendering
 
 ### Changed
+ - Upgraded the project, desktop release engine/export templates, Mac launchers and playtest runner to Godot 4.7.2 stable
  - Plain & Simple and Big Arena use a temperate battlefield instead of the legacy flat salmon ground
  - Broken Foundry and Command Horizon enemy posts use the native Guard behavior; posted repair robots service damaged allies within 8 m, and foundry tanks keep their previous assembly time
  - Lab research and Coordination unlock when a vehicle factory and lab have both been completed, as before, without any program terminology

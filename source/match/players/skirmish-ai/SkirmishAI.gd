@@ -290,6 +290,8 @@ func _find_footprint_site(origin, outline, navmap):
 		for index in range(16):
 			var angle = index * TAU / 16.0
 			var point = origin + Vector3(cos(angle), 0, sin(angle)) * distance
+			if _match.map.is_elevated():
+				point = _match.map.ground_point(Vector2(point.x, point.z))
 			for heading in [0.0, PI * 0.5, PI * 0.25, PI * 0.75]:
 				var site = Transform3D(Basis(Vector3.UP, heading), point)
 				var polygon = Footprint.outline_at(outline, site)
@@ -302,7 +304,7 @@ func _find_footprint_site(origin, outline, navmap):
 				if not _polygon_leaves_base_access(polygon, obstacles):
 					continue
 				var validity = Utils.Match.Unit.Placement.validate_footprint_placement(
-					polygon, obstacles, navmap
+					polygon, obstacles, navmap, _match.map
 				)
 				if validity == Utils.Match.Unit.Placement.VALID:
 					return site

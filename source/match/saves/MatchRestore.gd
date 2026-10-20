@@ -197,6 +197,7 @@ func restore(tree, snapshot):
 			unit.get_node("Selection").select()
 		unit.reset_physics_interpolation()
 	game.projectile_system.restore(_data.rounds, entities)
+	game.battlefield_wear.restore(_data.battlefield_wear)
 	# Recreate the visible final production stage while the restored battle is
 	# still paused, after every unit has recovered its authoritative position.
 	for saved in _data.units:
@@ -295,6 +296,7 @@ func restore(tree, snapshot):
 	camera.rotation = _data.camera.rotation
 	game.battle_record.restore(_data.battle_record)
 	game.restoring = false
+	game.base_area_lighting.refresh()
 	for player in players:
 		player.emit_changed()
 	game.hud.pause_after_load()

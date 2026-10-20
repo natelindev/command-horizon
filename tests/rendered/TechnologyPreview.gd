@@ -39,6 +39,7 @@ func _interface(faction):
 	_check(is_instance_valid(menus._research_panel), "Selected lab omitted research")
 	await _capture(faction + "-lab")
 	lab.get_node("Selection").deselect()
+	await _frames(5)
 	var action = tank.action
 	await _click(hud._technology_button)
 	_check(is_instance_valid(hud.technology_panel), "Tech button did not open research")
@@ -47,13 +48,16 @@ func _interface(faction):
 	var panel = hud.technology_panel
 	_check(panel._branches.doctrine.button.disabled, "Doctrine ignored Coordination prerequisite")
 	await _capture(faction + "-overview")
-	hud._technology_scroll.get_v_scroll_bar().grab_focus()
-	await _key(KEY_END)
-	await _frames(6)
-	_check(hud._technology_scroll.scroll_vertical > 0, "Research screen did not scroll")
+	_check(
+		not hud._technology_scroll.get_v_scroll_bar().visible,
+		"Compact research choices still require scrolling"
+	)
+	for tile in panel._grid.get_children():
+		_check(
+			hud._technology_scroll.get_global_rect().encloses(tile.get_global_rect()),
+			"Research choice is clipped in the Tech overlay"
+		)
 	await _capture(faction + "-prerequisites")
-	await _key(KEY_HOME)
-	await _frames(6)
 	var funds = Vector2i(human.resource_a, human.resource_b)
 	await _click(panel._branches.weapons.button)
 	_check(human.technology.active == "weapons_1", "Weapon research button failed")
@@ -109,7 +113,11 @@ func _capture(label):
 	await RenderingServer.frame_post_draw
 	var frame = root.get_texture().get_image()
 	_check(frame.get_size() == Vector2i(1280, 720), "Technology preview resolution changed")
-	frame.save_png("res://art/skirmish/technology-%s.png" % label)
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://art/skirmish"))
+	_check(
+		frame.save_png("res://art/skirmish/technology-%s.png" % label) == OK,
+		"Could not save technology capture: " + label
+	)
 	print("TECHNOLOGY CAPTURE ", label)
 
 

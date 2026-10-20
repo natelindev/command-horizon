@@ -19,6 +19,7 @@ var _flow: HFlowContainer
 ## Keys in display order; each holds its building in the "building" meta.
 var _keys = []
 var _elapsed = 0.0
+var _completed = {}
 
 
 func _ready():
@@ -31,6 +32,7 @@ func _ready():
 	_flow.add_theme_constant_override("h_separation", SEPARATION)
 	_flow.add_theme_constant_override("v_separation", SEPARATION)
 	add_child(_flow)
+	get_node("/root/MatchSignals").unit_production_finished.connect(_production_finished)
 	refresh()
 
 
@@ -85,6 +87,17 @@ func entries() -> Array:
 				}
 			)
 		)
+	for building in _completed.keys():
+		var item = _completed[building]
+		if (
+			not is_instance_valid(building)
+			or building.is_queued_for_deletion()
+			or Time.get_ticks_msec() > item.until
+		):
+			_completed.erase(building)
+			continue
+		result = result.filter(func(entry): return entry.building != building)
+		result.append(item)
 	result.sort_custom(_before)
 	return result
 
@@ -199,7 +212,9 @@ func _update(key, item):
 	var percent = int(item.progress * 100.0)
 	var title = tr(Factions.title(faction, item.role))
 	var lines = []
-	if item.construction:
+	if item.get("completed", false):
+		lines.append(tr("%s ready") % title)
+	elif item.construction:
 		lines.append(tr("%s · under construction %d%%") % [title, percent])
 	else:
 		lines.append(tr("%s · %d%%") % [title, percent])
@@ -218,3 +233,27 @@ func _select(key):
 	var building = key.get_meta("building")
 	if is_instance_valid(building) and not building.is_queued_for_deletion():
 		hud.select_units([building])
+
+
+func _production_finished(unit, building):
+	if building.player != hud.get_parent()._get_human_player() or hud.get_parent().restoring:
+		return
+	# Captured mercenary camps emit the same signal but use a different hiring queue.
+	if not building is Structure:
+		hud.show_notice(tr("%s ready") % tr(Factions.title(unit.player.faction, unit.type)))
+		return
+	if building.production_queue.size() == 0:
+		_completed[building] = {
+			"building": building,
+			"role": unit.type,
+			"progress": 1.0,
+			"jobs": 0,
+			"construction": false,
+			"blocked": "",
+			"completed": true,
+			"until": Time.get_ticks_msec() + 1600,
+		}
+	refresh()
+	for key in _keys:
+		if key.get_meta("building") == building:
+			load("res://source/match/hud/HudMotion.gd").play(key)

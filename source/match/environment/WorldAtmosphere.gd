@@ -93,6 +93,7 @@ func apply_options():
 	]
 	# Preview edits even while settings pause the scene.
 	_update(0.0)
+	_game.base_area_lighting.refresh()
 
 
 func _process(delta):
@@ -123,6 +124,7 @@ func _update(_delta):
 	wetness = lerpf(1.0 if previous_weather == 3 else 0.0, 1.0 if weather == 3 else 0.0, blend)
 	var altitude = sin((hour - 6.0) / 24.0 * TAU)
 	var daylight = smoothstep(-.12, .35, altitude)
+	_game.base_area_lighting.daylight = daylight
 	var golden = (1.0 - smoothstep(.0, .5, absf(altitude))) * daylight
 	# A lower key keeps cast shadows readable at midday; a cool moon key takes over at night
 	# to retain tactical silhouettes.

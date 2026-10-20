@@ -22,6 +22,7 @@ func _ready():
 	_progress.show_percentage = false
 	_progress.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_progress)
+	get_node("/root/MatchSignals").research_completed.connect(_completed)
 	refresh()
 
 
@@ -123,3 +124,9 @@ func _choices():
 	_button.tooltip_text = (
 		"Open Tech to choose research. Each project is paid separately.\n" + "\n".join(choices)
 	)
+
+
+func _completed(owner_player, _technology):
+	if owner_player == player:
+		refresh()
+		load("res://source/match/hud/HudMotion.gd").play(_button)

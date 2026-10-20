@@ -4,7 +4,7 @@ extends RefCounted
 const Campaigns = preload("res://source/match/campaign/CampaignCatalog.gd")
 const Values = preload("res://source/match/saves/SaveValue.gd")
 # Saves from any other version are rejected; there is no migration.
-const VERSION = 16
+const VERSION = 17
 const ACTION_FIELDS = {
 	"Garrisoning": ["_elapsed"],
 	"Moving": ["_target_position", "_arrival_elapsed", "_arrival_progress"],
@@ -122,6 +122,7 @@ func capture(game):
 		"fog": _fog(),
 		"structure_memory": _structure_memory(),
 		"rounds": game.projectile_system.capture(_reference),
+		"battlefield_wear": game.battlefield_wear.capture(),
 	}
 	for player in players:
 		result.players.append(_player(player))

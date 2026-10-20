@@ -11,6 +11,7 @@ extends "res://tests/headless/SaveRestoreEdges.gd"
 const HudLayout = preload("res://source/match/hud/HudLayout.gd")
 const OUTPUT = "res://art/hud-console/"
 var _full_visibility_only = false
+var _research_only = false
 var _roster_cases = 0
 
 
@@ -35,6 +36,8 @@ func _run():
 	var factions = Array(OS.get_cmdline_user_args())
 	_full_visibility_only = factions.has("--full-visibility")
 	factions.erase("--full-visibility")
+	_research_only = factions.has("--research")
+	factions.erase("--research")
 	var rosters_only = factions.has("--rosters")
 	factions.erase("--rosters")
 	var preferences = root.get_node("Globals").options
@@ -56,7 +59,7 @@ func _run():
 		await _configure(preferences, setup[2], setup[3], setup[5])
 		await _battle(setup[0], setup[1], setup[4])
 	var expected_rosters = 0
-	if rosters_only or not _full_visibility_only:
+	if rosters_only or (not _full_visibility_only and not _research_only):
 		for faction in ["bastion", "helix", "frontier"]:
 			if not factions.is_empty() and faction not in factions:
 				continue
@@ -114,6 +117,15 @@ func _battle(faction, map_name, suffix):
 	game.subtitles._on_line({"speaker": "Command", "text": "Battle control online."})
 	await _frames(40)
 	var label = "%s-%s" % [faction, suffix]
+	if _research_only:
+		human.resource_a += 2000
+		human.resource_b += 2000
+		paused = true
+		await _review_research(human, label)
+		paused = false
+		game.queue_free()
+		await _frames(5)
+		return
 	if not _full_visibility_only:
 		await _shot(label + "-closed")
 	var resource_stack = game.get_node("HUD/MarginContainer2/Resources")
@@ -179,13 +191,64 @@ func _battle(faction, map_name, suffix):
 	await _frames(20)
 	await _shot(label + "-pause")
 	game.hud._close_menu()
+	await _review_research(human, label)
+	paused = false
+	game.queue_free()
+	await _frames(5)
+
+
+func _review_research(human, label):
+	var was_paused = paused
+	paused = true
+	await _select([_units(human, "CommandLab")[0]])
+	await _shot(label + "-research")
+	var research = game.find_child("UnitMenus")._research_panel
+	var research_tile = research._branches.weapons.button
+	var motion = InputEventMouseMotion.new()
+	motion.position = root.get_final_transform() * research_tile.get_global_rect().get_center()
+	motion.global_position = motion.position
+	root.push_input(motion, false)
+	await create_timer(.9, true).timeout
+	_check(
+		_research_tooltip(root, research_tile.tooltip_text) != null, "Research hover has no tooltip"
+	)
+	await _shot(label + "-research-tooltip")
+	motion = InputEventMouseMotion.new()
+	motion.position = Vector2(640, 350)
+	motion.global_position = motion.position
+	root.push_input(motion, false)
 	game.hud.open_technology()
 	await _frames(20)
 	await _shot(label + "-technology")
 	game.hud._close_menu()
-	paused = false
-	game.queue_free()
-	await _frames(5)
+	var funds = Vector2i(human.resource_a, human.resource_b)
+	research_tile.grab_focus()
+	for pressed in [true, false]:
+		var event = InputEventKey.new()
+		event.keycode = KEY_ENTER
+		event.physical_keycode = KEY_ENTER
+		event.pressed = pressed
+		root.push_input(event, false)
+		await _frames(2)
+	_check(human.technology.active == "weapons_1", "Enter did not start research")
+	_check(
+		Vector2i(human.resource_a, human.resource_b) == funds - Vector2i(30, 20),
+		"Keyboard research charged the wrong price"
+	)
+	await _shot(label + "-research-active")
+	research._cancel.pressed.emit()
+	_check(Vector2i(human.resource_a, human.resource_b) == funds, "Research refund differs")
+	paused = was_paused
+
+
+func _research_tooltip(node, content):
+	if node.get_meta("roster_tooltip", "") == content:
+		return node
+	for child in node.get_children(true):
+		var found = _research_tooltip(child, content)
+		if found != null:
+			return found
+	return null
 
 
 func _select(units):

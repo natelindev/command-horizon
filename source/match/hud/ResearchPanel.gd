@@ -1,7 +1,7 @@
 extends VBoxContainer
 
 const Technologies = preload("res://source/match/research/TechnologyCatalog.gd")
-const BattleTheme = preload("res://source/match/hud/BattleTheme.gd")
+const ResearchButton = preload("res://source/match/hud/ResearchButton.gd")
 const ICONS = {
 	"weapons": preload("res://assets/ui/research/weapons.svg"),
 	"armor": preload("res://assets/ui/research/armor.svg"),
@@ -15,101 +15,65 @@ var _status
 var _progress
 var _start
 var _cancel
-var _description
-var _overview_icon
+var _grid
 var _branches = {}
 
 
 func _ready():
 	if player == null and is_instance_valid(lab):
 		player = lab.player
-	add_theme_constant_override("separation", 8)
+	add_theme_constant_override("separation", 6)
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var overview = HBoxContainer.new()
-	overview.add_theme_constant_override("separation", 12)
-	add_child(overview)
-	_overview_icon = _icon(overview, "coordination")
-	var summary = VBoxContainer.new()
-	summary.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	overview.add_child(summary)
-	_status = _label(15, summary)
-	_description = _label(12, summary)
-	_description.add_theme_color_override("font_color", BattleTheme.MUTED)
-	_progress = ProgressBar.new()
-	_progress.custom_minimum_size.y = 5
-	_progress.show_percentage = false
-	add_child(_progress)
-	var row = HBoxContainer.new()
-	add_child(row)
-	_start = Button.new()
-	_start.theme_type_variation = "BattlePrimaryButton"
+	_grid = GridContainer.new()
+	_grid.name = "ResearchChoices"
+	_grid.add_theme_constant_override("h_separation", 6)
+	_grid.add_theme_constant_override("v_separation", 6)
+	add_child(_grid)
+	_start = _tile("coordination")
 	_start.name = "ResearchCoordination"
-	_start.text = "Research Coordination · 20 M / 20 E"
-	_start.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_start.pressed.connect(
 		func():
 			player.start_coordination(lab)
 			refresh()
 	)
-	row.add_child(_start)
+	for branch in Technologies.BRANCHES:
+		var button = _tile(branch)
+		button.pressed.connect(_research_branch.bind(branch))
+		_branches[branch] = {"button": button}
+	var row = HBoxContainer.new()
+	row.name = "ActiveResearch"
+	row.add_theme_constant_override("separation", 12)
+	add_child(row)
+	_status = Label.new()
+	_status.add_theme_font_size_override("font_size", 13)
+	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_status.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(_status)
 	_cancel = Button.new()
 	_cancel.name = "CancelResearch"
 	_cancel.text = "Cancel & refund"
 	_cancel.pressed.connect(_cancel_active)
 	row.add_child(_cancel)
-	var heading = _label(14)
-	heading.text = "UNIT UPGRADES"
-	for branch in Technologies.BRANCHES:
-		var plate = PanelContainer.new()
-		plate.add_theme_stylebox_override("panel", BattleTheme.card(12, 12))
-		add_child(plate)
-		var content = HBoxContainer.new()
-		content.add_theme_constant_override("separation", 12)
-		plate.add_child(content)
-		_icon(content, branch)
-		var card = VBoxContainer.new()
-		card.add_theme_constant_override("separation", 5)
-		card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		content.add_child(card)
-		var title = _label(14, card)
-		title.add_theme_color_override("font_color", Color("d4bb8e"))
-		var description = _label(12, card)
-		description.add_theme_color_override("font_color", BattleTheme.MUTED)
-		var button = Button.new()
-		button.name = "Research" + branch.capitalize()
-		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		button.pressed.connect(func(): _research_branch(branch))
-		card.add_child(button)
-		var reason = _label(12, card)
-		reason.add_theme_color_override("font_color", Color("c2cbd4"))
-		_branches[branch] = {
-			"title": title, "description": description, "button": button, "reason": reason
-		}
+	_progress = ProgressBar.new()
+	_progress.custom_minimum_size.y = 5
+	_progress.show_percentage = false
+	add_child(_progress)
+	resized.connect(_fit_grid)
+	_fit_grid()
 	refresh()
 
 
-func _icon(parent, branch):
-	var icon = TextureRect.new()
-	icon.name = branch.capitalize() + "Artwork"
-	icon.texture = ICONS[branch]
-	icon.custom_minimum_size = Vector2(60, 60)
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	parent.add_child(icon)
-	return icon
+func _tile(branch):
+	var button = ResearchButton.new()
+	button.name = "Research" + branch.capitalize()
+	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_grid.add_child(button)
+	return button
 
 
-func _label(font_size, parent = null):
-	if parent == null:
-		parent = self
-	var label = Label.new()
-	label.add_theme_font_size_override("font_size", font_size)
-	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	parent.add_child(label)
-	return label
+func _fit_grid():
+	# Use the actual panel width: the selected lab and the Tech overlay differ.
+	_grid.columns = clampi(floori((size.x + 6) / 160), 1, 5)
 
 
 func _cancel_active():
@@ -150,14 +114,7 @@ func refresh():
 	var technology_running = research.active != ""
 	var running = technology_running or player.coordination_left > 0.0
 	_status.text = research.status() if technology_running else player.coordination_status()
-	_description.text = (
-		"Coordination unlocks long-range armor and %s. One research project at a time."
-		% load("res://source/match/FactionCatalog.gd").signature_title(player.faction)
-	)
-	var active_branch = research.active.trim_suffix("_1").trim_suffix("_2")
-	_overview_icon.texture = ICONS.get(active_branch, ICONS.coordination)
-	if technology_running:
-		_description.text = Technologies.description(research.active, player.faction)
+	_status.get_parent().visible = running
 	_progress.visible = running
 	var duration = (
 		Technologies.ITEMS[research.active].seconds
@@ -166,44 +123,87 @@ func refresh():
 	)
 	var remaining = research.left if technology_running else player.coordination_left
 	_progress.value = 100.0 * (1.0 - maxf(0.0, remaining) / duration)
-	_start.visible = not player.coordination_unlocked and not running
-	_start.disabled = (
-		not is_instance_valid(lab)
-		or not player.lab_research_unlocked()
-		or not player.has_resources(player.COORDINATION_COST)
-	)
-	_start.tooltip_text = (
-		"Requires a completed factory and lab. 30 s at full power; "
-		+ "low power gives 35% research speed."
-	)
-	_cancel.visible = running
+	_refresh_coordination(running)
 	for branch in _branches:
-		_refresh_branch(branch, running)
+		_refresh_branch(branch)
 
 
-func _refresh_branch(branch, busy):
+func _refresh_coordination(busy):
+	var reason = ""
+	if player.coordination_unlocked:
+		reason = tr("Research complete.")
+	elif busy:
+		reason = tr("Finish or cancel the current research first.")
+	elif not is_instance_valid(lab) or not lab.is_constructed():
+		reason = tr("Requires a completed friendly lab.")
+	elif not player.lab_research_unlocked():
+		reason = tr("Requires a completed vehicle factory and lab.")
+	elif not player.has_resources(player.COORDINATION_COST):
+		reason = (
+			tr("Need %d M / %d E more.")
+			% [
+				maxi(0, player.COORDINATION_COST.resource_a - player.resource_a),
+				maxi(0, player.COORDINATION_COST.resource_b - player.resource_b)
+			]
+		)
+	var description = (
+		tr("Coordination unlocks long-range armor and %s. One research project at a time.")
+		% tr(load("res://source/match/FactionCatalog.gd").signature_title(player.faction))
+	)
+	_update_tile(
+		_start,
+		"coordination",
+		tr("Coordination"),
+		player.COORDINATION_COST,
+		description,
+		player.COORDINATION_DURATION,
+		reason,
+		player.coordination_unlocked,
+		player.coordination_left > 0,
+		player.coordination_left
+	)
+
+
+func _refresh_branch(branch):
 	var research = player.technology
 	var id = Technologies.next_in_branch(branch, research.completed)
 	var complete = id == ""
 	if complete:
 		id = branch + "_2" if branch in ["weapons", "armor"] else branch
 	var item = Technologies.ITEMS[id]
-	var row = _branches[branch]
-	row.title.text = Technologies.title(id, player.faction) + (" · complete" if complete else "")
-	row.description.text = Technologies.description(id, player.faction)
-	row.button.visible = not complete
-	row.button.text = (
-		"Research · %d M / %d E · %d s"
-		% [item.cost.x, item.cost.y, ceili(item.seconds / player.production_factor())]
+	_update_tile(
+		_branches[branch].button,
+		branch,
+		tr(Technologies.title(id, player.faction)),
+		{"resource_a": item.cost.x, "resource_b": item.cost.y},
+		tr(Technologies.description(id, player.faction)),
+		item.seconds,
+		tr(research.reason(id, lab)),
+		complete,
+		research.active == id,
+		research.left
 	)
-	if research.active == id:
-		row.button.text = (
-			"Researching · %d s remaining" % ceili(research.left / player.production_factor())
-		)
-	var reason = research.reason(id, lab)
-	row.button.disabled = reason != ""
-	row.button.tooltip_text = (
-		row.title.text + ". " + row.description.text + ("\n" + reason if reason != "" else "")
-	)
-	row.reason.visible = not complete and not busy and reason != ""
-	row.reason.text = reason
+
+
+func _update_tile(
+	button, branch, title, cost, description, seconds, reason, complete, active, left
+):
+	button.show_role(ICONS[branch], title, cost)
+	button.disabled = complete or reason != ""
+	var state = tr("Completed") if complete else ""
+	if active:
+		state = tr("%d s remaining") % ceili(left / player.production_factor())
+	button.show_state(state)
+	var timing = tr("%d s research at current power.") % ceili(seconds / player.production_factor())
+	if active:
+		timing = tr("Researching · %d s remaining") % ceili(left / player.production_factor())
+		reason = ""
+	elif complete:
+		timing = tr("Research complete.")
+	# Match production tooltips: title, description, price, then timing/status.
+	var price = tr("%d M / %d E") % [cost.resource_a, cost.resource_b]
+	button.tooltip_text = title + "\n" + description + "\n" + price + "\n" + timing
+	if reason != "":
+		button.tooltip_text += "\n" + reason
+	button.accessibility_name = title
+	button.accessibility_description = button.tooltip_text

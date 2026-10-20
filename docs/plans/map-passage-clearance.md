@@ -23,3 +23,5 @@ All three stages are complete.
 - `TerrainNavRegression`, `MapResourceBalanceRegression` on all five affected maps, `MapPreviewRegression`, and `RichTexturesRegression`: 0 failures. Regenerated map previews; only the three changed terrain/road previews differ.
 - Reviewed non-headless `AuthoredMapReview` captures and the user's Coastal Foundry angle. The focused `TerrainLayersPreview` run for all five changed maps completed with 0 failures. An earlier unfiltered preview run reached the legacy maps before its timeout; the focused run completed the required review.
 - Godot reports shutdown resource-leak warnings in existing harnesses; successful verification commands exit with status 0. Live user-built obstructions and arbitrary army sizes are outside these bounded scenarios.
+
+- Integration with `main`: preserved the Godot 4.7.2 upgrade and gentle-slope placement changes. The combined tree passed `MapPassageRegression` (all 16 maps), `TerrainNavRegression`, and `MapPreviewRegression` on Godot 4.7.2.

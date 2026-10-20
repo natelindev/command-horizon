@@ -28,6 +28,11 @@ func _ready():
 
 
 func scar(point, radius):
+	var game = get_parent().get_parent()
+	var wear = game.battlefield_wear if game != null and "battlefield_wear" in game else null
+	if wear != null:
+		wear.scar(point, radius)
+		return
 	# Merge overlapping hits so sustained fire darkens one site without z-fighting.
 	for entry in scars:
 		if entry.node.position.distance_squared_to(point) < pow(radius * 0.45, 2):

@@ -164,11 +164,12 @@ func _footprint_validity():
 	var validity = Utils.Match.Unit.Placement.validate_footprint_placement(
 		polygon,
 		get_tree().get_nodes_in_group("units") + get_tree().get_nodes_in_group("resource_units"),
-		_pending_structure_navmap_rid
+		_pending_structure_navmap_rid,
+		_match.map
 	)
 	if validity == Utils.Match.Unit.Placement.COLLIDES_WITH_AGENT:
 		return BlueprintPositionValidity.COLLIDES_WITH_OBJECT
-	if validity == Utils.Match.Unit.Placement.NOT_NAVIGABLE:
+	if validity in [Utils.Match.Unit.Placement.NOT_NAVIGABLE, Utils.Match.Unit.Placement.NOT_LEVEL]:
 		return BlueprintPositionValidity.NOT_NAVIGABLE
 	return BlueprintPositionValidity.VALID
 
