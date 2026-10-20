@@ -85,6 +85,12 @@ func _measure(path):
 		if unit.movement_speed > 0:
 			unit.queue_free()
 	await _frames(60)
+	# Landmarks, deposits and facilities carve navigation asynchronously.
+	var waited = 0
+	while not game.navigation.terrain.is_synchronized() and waited < 600:
+		await process_frame
+		waited += 1
+	await _frames(10)
 	nav = game.navigation.terrain.navigation_map_rid
 	var id = layout.id
 	print("== %s (%s, %d players)" % [layout.name, id, layout.players])

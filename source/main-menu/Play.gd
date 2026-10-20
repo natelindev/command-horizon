@@ -43,9 +43,12 @@ const MAPS = [
 		"192 × 160"
 	],
 	[
-		"res://source/match/maps/PinebreakValley.tscn",
+		"res://source/match/maps/battlefields/PinebreakValleyMap.tscn",
 		"Pinebreak Valley",
-		"Wooded islands split a winding valley into ambush lanes.",
+		(
+			"A logging valley split by a river · fir stands, a log bridge and gravel fords"
+			+ " · 12 resource fields"
+		),
 		"192 × 160"
 	],
 	[
@@ -67,9 +70,9 @@ const MAPS = [
 		"224 × 224"
 	],
 	[
-		"res://source/match/maps/FourRivers.tscn",
+		"res://source/match/maps/battlefields/FourRiversMap.tscn",
 		"Four Rivers",
-		"Four headwater pools separate spokes into a shared heartland.",
+		"Farmland where four rivers meet · hedged fields, stone bridges and fords · 16 resource fields",
 		"224 × 224"
 	],
 	[
@@ -91,9 +94,9 @@ const MAPS = [
 		"224 × 224"
 	],
 	[
-		"res://source/match/maps/VerdantCommons.tscn",
+		"res://source/match/maps/battlefields/VerdantCommonsMap.tscn",
 		"Verdant Commons",
-		"Sheltered groves ring a broad, resource-rich common.",
+		"A village green ringed by groves · lanes, walled fields and chalk downs · 16 resource fields",
 		"224 × 224"
 	],
 	[
@@ -131,6 +134,9 @@ const SUCCESSORS = {
 	"SaltwindBasin": "res://source/match/maps/battlefields/SaltwindBasinMap.tscn",
 	"CopperBadlands": "res://source/match/maps/battlefields/CopperBadlandsMap.tscn",
 	"ShatteredOasis": "res://source/match/maps/battlefields/ShatteredOasisMap.tscn",
+	"PinebreakValley": "res://source/match/maps/battlefields/PinebreakValleyMap.tscn",
+	"FourRivers": "res://source/match/maps/battlefields/FourRiversMap.tscn",
+	"VerdantCommons": "res://source/match/maps/battlefields/VerdantCommonsMap.tscn",
 	"AlpineRelay": "res://source/match/maps/ExpandedAlpineRelay.tscn",
 	"CoastalFoundry": "res://source/match/maps/ExpandedCoastalFoundry.tscn",
 }

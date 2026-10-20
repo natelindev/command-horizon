@@ -2,6 +2,8 @@ enum { VALID, COLLIDES_WITH_AGENT, NOT_NAVIGABLE, NOT_LEVEL }
 
 # Footprints may not straddle a cliff or sit on a ramp (height samples differ).
 const LEVEL_TOLERANCE = 0.05
+# Baked walkable surfaces sit this far above authored ground (TerrainNavigation).
+const SURFACE_LIFT = 0.5
 
 
 static func find_valid_position_radially(
@@ -95,7 +97,10 @@ static func validate_agent_placement_position(
 			var height = map.height_at(Vector2(point.x, point.z))
 			if absf(height - level) > LEVEL_TOLERANCE:
 				return NOT_LEVEL
-			points_expected_to_be_navigable[index] = Vector3(point.x, height, point.z)
+			# Query from the walkable surface so the projection stays vertical.
+			points_expected_to_be_navigable[index] = Vector3(
+				point.x, height + SURFACE_LIFT, point.z
+			)
 	for point_expected_to_be_navigable in points_expected_to_be_navigable:
 		if not (point_expected_to_be_navigable * Vector3(1, 0, 1)).is_equal_approx(
 			(

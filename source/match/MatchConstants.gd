@@ -67,6 +67,12 @@ const MAPS = {
 	{"name": "Shattered Oasis", "players": 4, "size": Vector2i(224, 224)},
 	"res://source/match/maps/battlefields/DesertFrontierMap.tscn":
 	{"name": "Desert Frontier", "players": 2, "size": Vector2i(192, 144)},
+	"res://source/match/maps/battlefields/PinebreakValleyMap.tscn":
+	{"name": "Pinebreak Valley", "players": 2, "size": Vector2i(192, 160)},
+	"res://source/match/maps/battlefields/FourRiversMap.tscn":
+	{"name": "Four Rivers", "players": 4, "size": Vector2i(224, 224)},
+	"res://source/match/maps/battlefields/VerdantCommonsMap.tscn":
+	{"name": "Verdant Commons", "players": 4, "size": Vector2i(224, 224)},
 	# Engine verification only; never offered in the skirmish picker.
 	"res://source/match/maps/battlefields/TerrainTestMap.tscn":
 	{"name": "Terrain Test", "players": 2, "size": Vector2i(192, 160)},

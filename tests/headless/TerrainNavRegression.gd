@@ -89,6 +89,8 @@ func _check_navigation():
 		),
 		"Solid formation is walkable"
 	)
+	var bridged = _path_length(Vector3(130, 0, 15), Vector3(158, 0, 14))
+	_check(bridged < 34.0, "Stream bridge not used (path %.1f m)" % bridged)
 	var ford = NavigationServer3D.map_get_closest_point(nav, Vector3(160, -0.3, 52))
 	_check(Vector2(ford.x, ford.z).distance_to(Vector2(160, 52)) < 0.5, "Ford is not walkable")
 	# Nothing walkable hides beneath a plateau.

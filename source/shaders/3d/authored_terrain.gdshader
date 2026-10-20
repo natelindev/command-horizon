@@ -21,6 +21,10 @@ uniform float accent_amount = 0.35;
 uniform float slickrock_amount = 0.0;
 uniform vec4 crust : source_color = vec4(0.94, 0.93, 0.89, 1.0);
 uniform float crust_amount = 0.0;
+// Farmland: sand-mask areas become ploughed fields of alternating crops.
+uniform float furrow_amount = 0.0;
+uniform vec4 crop : source_color = vec4(0.62, 0.55, 0.30, 1.0);
+uniform vec4 crop_alt : source_color = vec4(0.40, 0.48, 0.22, 1.0);
 uniform float strata = 1.0;
 
 varying vec3 world_point;
@@ -117,7 +121,17 @@ void fragment()
   }
   float sandy = max(mask.a, soft.a * .7);
   float ripples = sin(p.x * 2.1 + p.y * .6 + noise(p * .4) * 3.0) * .5 + .5;
-  color = mix(color, sand.rgb * (.94 + ripples * .05 + grain * .05), sandy * .9);
+  vec3 sand_color = sand.rgb * (.94 + ripples * .05 + grain * .05);
+  if (furrow_amount > 0.0)
+  {
+    // Fields alternate crops in large blocks; furrows run in rows within each.
+    float block = step(.5, hash(floor(p / 26.0)));
+    vec2 axis = block > .5 ? vec2(1.0, .15) : vec2(.15, 1.0);
+    float furrow = smoothstep(.35, .65, sin(dot(p, axis) * 3.6) * .5 + .5);
+    vec3 field = mix(crop.rgb, crop_alt.rgb, step(.5, hash(floor(p / 26.0) + 3.1)));
+    sand_color = mix(sand_color, field * (.82 + furrow * .22 + grain * .05), furrow_amount);
+  }
+  color = mix(color, sand_color, sandy * .9);
   // A light, broken litter layer under trees rather than a painted patch.
   float forest = max(mask.b, soft.b * .6) * smoothstep(.3, .7, noise(p * .35 + 4.2));
   color = mix(color, forest_floor.rgb * (.85 + macro * .3), forest * .3);

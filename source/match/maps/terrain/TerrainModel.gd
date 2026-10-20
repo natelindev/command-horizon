@@ -13,6 +13,8 @@ const RAMP = 8
 const FORD = 16
 # Inaccessible ground (mesa tops with no way up): no navigation, scenery only.
 const BARRIER = 32
+# Bridge decks: walkable spans laid over water at their own height.
+const BRIDGE = 64
 # One cell may rise 0.5 m (45 degrees); steeper cells are cliffs.
 const MAX_WALKABLE_STEP = 0.5
 const WATER_DEPTH = 1.2
@@ -72,6 +74,10 @@ func _init(layout: Dictionary):
 	cover_tops.fill(NO_COVER)
 	for forest in layout.get("forests", []):
 		_fill_cells(forest.polygon, FOREST)
+	for bridge in layout.get("bridges", []):
+		var deck = bridge.get("level", 0.3)
+		_fill_corners(bridge.polygon, func(_old): return deck)
+		_fill_cells(bridge.polygon, BRIDGE, WATER | FORD)
 	for blocker in layout.get("blockers", []):
 		var base = INF
 		for point in blocker.polygon:

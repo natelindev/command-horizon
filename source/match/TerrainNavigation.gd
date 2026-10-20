@@ -75,9 +75,17 @@ func bake(map):
 		var floor_y = -1.0 - ceilf(maxf(0.0, -map.min_height()) / 3.0) * 3.0
 		# Tiers and ramps: two voxels of climb joins ramp cells; cliffs stay walls.
 		mesh.agent_max_climb = ELEVATED_MAX_CLIMB
+		# Centre the voxel grid on the map so rotated or mirrored starts see
+		# identical rasterization (sizes are not whole multiples of a cell).
+		var cell: float = mesh.cell_size
+		var inset = Vector2(fmod(map.size.x, cell) / 2.0, fmod(map.size.y, cell) / 2.0)
 		mesh.filter_baking_aabb = AABB(
-			Vector3(0, floor_y, 0),
-			Vector3(map.size.x, map.max_height() - floor_y + 5.0, map.size.y)
+			Vector3(inset.x, floor_y, inset.y),
+			Vector3(
+				map.size.x - inset.x * 2.0,
+				map.max_height() - floor_y + 5.0,
+				map.size.y - inset.y * 2.0
+			)
 		)
 	NavigationServer3D.parse_source_geometry_data(
 		_navigation_region.navigation_mesh, _map_geometry, get_tree().root

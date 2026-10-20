@@ -6,7 +6,9 @@ extends RefCounted
 # players receive identical terrain, routes and resources. Features listed
 # under "shared" (a central lake, a crater) appear once.
 
-const FEATURES = ["tiers", "ramps", "water", "blockers", "forests", "roads", "landmarks", "sands"]
+const FEATURES = [
+	"tiers", "ramps", "water", "bridges", "blockers", "forests", "roads", "landmarks", "sands"
+]
 const ORDERED = ["bases", "expansions", "sites"]
 const NATURAL_STEP = 2.5
 

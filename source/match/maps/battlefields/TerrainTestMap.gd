@@ -68,6 +68,7 @@ const DEFINITION = {
 			"polygon": [Vector2(158, 46), Vector2(166, 50), Vector2(162, 58), Vector2(154, 54)]
 		},
 	],
+	"bridges": [{"level": 0.3, "line": [Vector2(137, 16), Vector2(151, 13)], "width": 4.0}],
 	"blockers":
 	[
 		{

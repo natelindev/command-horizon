@@ -101,9 +101,58 @@ const MOJAVE = {
 	"tree_density": 0.0018,
 }
 
+const FOREST = {
+	"trees":
+	[
+		["temperate/DouglasFir", 13.0],
+		["temperate/WesternRedCedar", 9.8],
+		["temperate/DouglasFir", 11.0],
+		["temperate/YoungSpruce", 5.0]
+	],
+	"riparian":
+	[["temperate/RiverWillow", 6.5], ["temperate/MapleTree", 8.0], ["temperate/BirchCluster", 8.0]],
+	"shrubs":
+	[
+		["temperate/FernClump", 0.6],
+		["temperate/SalalShrub", 1.0],
+		["temperate/Bramble", 1.0],
+		["temperate/FernClump", 0.5]
+	],
+	"rocks":
+	[
+		["temperate/GraniteBoulderA", 1.2],
+		["temperate/GraniteBoulderB", 0.9],
+		["temperate/MossyLog", 0.8],
+		["temperate/Stump", 0.7]
+	],
+	"talus": [["temperate/GraniteBoulderA", 0.9], ["temperate/GraniteBoulderB", 0.7]],
+	"lone_trees": [["temperate/YoungSpruce", 5.0], ["temperate/DouglasFir", 11.0]],
+	"shrub_density": 0.03,
+	"rock_density": 0.006,
+	"tree_density": 0.004,
+}
+const FARMLAND = {
+	"trees":
+	[["temperate/OakTree", 9.0], ["temperate/MapleTree", 8.0], ["temperate/BirchCluster", 8.0]],
+	"riparian": [["temperate/RiverWillow", 6.5], ["temperate/BirchCluster", 7.5]],
+	"hedges": [["temperate/HedgeSegment", 1.8]],
+	"shrubs":
+	[["temperate/Wildflowers", 0.4], ["temperate/Bramble", 0.9], ["temperate/FernClump", 0.5]],
+	"rocks": [["temperate/GraniteBoulderB", 0.8]],
+	"talus": [["temperate/GraniteBoulderA", 0.8], ["temperate/GraniteBoulderB", 0.6]],
+	"lone_trees": [["temperate/OakTree", 9.0], ["temperate/MapleTree", 7.5]],
+	"shrub_density": 0.012,
+	"rock_density": 0.002,
+	"tree_density": 0.0015,
+}
+
 
 static func kit(ground: String) -> Dictionary:
 	match ground:
+		"forest":
+			return FOREST
+		"farmland", "village":
+			return FARMLAND
 		"salt":
 			return SALT
 		"copper":
