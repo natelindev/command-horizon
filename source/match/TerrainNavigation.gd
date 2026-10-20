@@ -70,10 +70,14 @@ func bake(map):
 	_elevated = map.is_elevated()
 	_map = map if _elevated else null
 	if _elevated:
+		# The bake floor steps in whole tiers below -1 m so voxel rows, and with
+		# them SURFACE_LIFT, sit at the same offset above authored ground.
+		var floor_y = -1.0 - ceilf(maxf(0.0, -map.min_height()) / 3.0) * 3.0
 		# Tiers and ramps: two voxels of climb joins ramp cells; cliffs stay walls.
 		mesh.agent_max_climb = ELEVATED_MAX_CLIMB
 		mesh.filter_baking_aabb = AABB(
-			Vector3(0, -1, 0), Vector3(map.size.x, map.max_height() + 5.0, map.size.y)
+			Vector3(0, floor_y, 0),
+			Vector3(map.size.x, map.max_height() - floor_y + 5.0, map.size.y)
 		)
 	NavigationServer3D.parse_source_geometry_data(
 		_navigation_region.navigation_mesh, _map_geometry, get_tree().root

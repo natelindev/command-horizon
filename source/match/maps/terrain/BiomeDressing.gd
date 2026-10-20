@@ -31,6 +31,29 @@ const KITS = {
 	},
 }
 
+# Shared by grounds without their own kit entry below.
+const SALT = {
+	"trees": [["drylands/Greasewood", 1.7], ["drylands/Greasewood", 1.4]],
+	"riparian": [["drylands/Greasewood", 1.7]],
+	"shrubs":
+	[
+		["drylands/Saltbush", 0.75],
+		["drylands/Saltbush", 0.6],
+		["drylands/Greasewood", 1.0],
+		["drylands/Tumbleweed", 0.8]
+	],
+	"rocks": [["drylands/GypsumBoulderA", 1.0], ["drylands/GypsumBoulderB", 0.7]],
+	"talus": [["drylands/GypsumBoulderA", 0.8], ["drylands/GypsumBoulderB", 0.6]],
+	"lone_trees": [],
+	"shrub_density": 0.016,
+	"rock_density": 0.003,
+	"tree_density": 0.0,
+	# The pan floor stays nearly bare.
+	"low_ground_density": 0.12,
+}
+
 
 static func kit(ground: String) -> Dictionary:
+	if ground == "salt":
+		return SALT
 	return KITS.get(ground, KITS.canyon)

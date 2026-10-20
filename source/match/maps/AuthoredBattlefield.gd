@@ -60,6 +60,10 @@ func max_height() -> float:
 	return terrain.max_height
 
 
+func min_height() -> float:
+	return terrain.min_height
+
+
 func is_elevated() -> bool:
 	return true
 
@@ -251,8 +255,10 @@ func _place_rock():
 	rock.mesh = CliffMesh.build(terrain, layout, layout.id)
 	var material = ShaderMaterial.new()
 	material.shader = ROCK_SHADER
-	for key in layout.get("rock", {}):
-		material.set_shader_parameter(key, layout.rock[key])
+	var rock_colours = Palettes.rock(_ground_palette()).duplicate()
+	rock_colours.merge(layout.get("rock", {}), true)
+	for key in rock_colours:
+		material.set_shader_parameter(key, rock_colours[key])
 	rock.material_override = material
 	$Decorations.add_child(rock)
 

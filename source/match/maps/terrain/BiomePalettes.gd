@@ -23,6 +23,25 @@ const PALETTES = {
 		"water_shallow": Color("5b6146"),
 		"water_foam": Color("cdb79a"),
 	},
+	"salt":
+	{
+		"ground_low": Color("b3a690"),
+		"ground_high": Color("cbbfa8"),
+		"accent": Color("9c8f74"),
+		"road": Color("8f8676"),
+		"rock": Color("a8977f"),
+		"bed": Color("8e9a92"),
+		"forest_floor": Color("8a8466"),
+		"slickrock": Color("cbbfa8"),
+		"sand": Color("bfae92"),
+		"crust": Color("f0eee6"),
+		"accent_amount": 0.2,
+		"crust_amount": 0.9,
+		"strata": 0.6,
+		"water_deep": Color("1f6f7c"),
+		"water_shallow": Color("6fc1bd"),
+		"water_foam": Color("f4f2ea"),
+	},
 	"desert":
 	{
 		"ground_low": Color("b08a5c"),
@@ -60,6 +79,51 @@ const PALETTES = {
 		"strata": 0.7,
 	},
 }
+
+# Cliff and formation colours (canyon_rock.gdshader) per ground; grounds
+# without an entry keep the shader's canyon sandstone.
+const ROCK = {
+	"salt":
+	{
+		"band_dark": Color("8c7a66"),
+		"band_mid": Color("a8977f"),
+		"band_light": Color("cbbfa8"),
+		"cap": Color("ddd4c2"),
+		"varnish": Color("5a4a3c"),
+		"strata_scale": 2.2,
+	},
+	"copper":
+	{
+		"band_dark": Color("6e4a35"),
+		"band_mid": Color("8f6a4a"),
+		"band_light": Color("7d8a6e"),
+		"cap": Color("a88d6c"),
+		"varnish": Color("3f5a4f"),
+		"strata_scale": 0.34,
+	},
+	"oasis":
+	{
+		"band_dark": Color("9a7650"),
+		"band_mid": Color("b8946a"),
+		"band_light": Color("d6b88e"),
+		"cap": Color("e0c9a0"),
+		"varnish": Color("6d5238"),
+		"strata_scale": 1.2,
+	},
+	"mojave":
+	{
+		"band_dark": Color("7c5a40"),
+		"band_mid": Color("9c7656"),
+		"band_light": Color("bf9e7a"),
+		"cap": Color("cdb08a"),
+		"varnish": Color("3d2c22"),
+		"strata_scale": 1.4,
+	},
+}
+
+
+static func rock(ground: String) -> Dictionary:
+	return ROCK.get(ground, {})
 
 
 static func configure(material: ShaderMaterial, biome: String, overrides := {}):

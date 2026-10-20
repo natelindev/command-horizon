@@ -27,9 +27,10 @@ static func populate(map):
 	var clear = _clearances(map, layout)
 	for forest in layout.forests:
 		_forest(map, forest, kit, rng, batches)
-	_scatter(map, model, kit.shrubs, kit.shrub_density, rng, batches, clear, false)
-	_scatter(map, model, kit.rocks, kit.rock_density, rng, batches, clear, true)
-	_scatter(map, model, kit.lone_trees, kit.tree_density, rng, batches, clear, true)
+	var low = kit.get("low_ground_density", 1.0)
+	_scatter(map, model, kit.shrubs, kit.shrub_density, rng, batches, clear, false, low)
+	_scatter(map, model, kit.rocks, kit.rock_density, rng, batches, clear, true, low)
+	_scatter(map, model, kit.lone_trees, kit.tree_density, rng, batches, clear, true, low)
 	_talus(map, layout, model, kit, rng, batches)
 	_shores(map, layout, kit, rng, batches)
 	var parent = Node3D.new()
@@ -90,7 +91,10 @@ static func _forest(map, forest: Dictionary, kit: Dictionary, rng, batches):
 					)
 
 
-static func _scatter(map, model, entries: Array, density: float, rng, batches, clear, avoid_slopes):
+# `low_share` thins scatter on ground at or below 1 m (salt pans, mud flats).
+static func _scatter(
+	map, model, entries: Array, density: float, rng, batches, clear, avoid_slopes, low_share := 1.0
+):
 	if entries.is_empty() or density <= 0.0:
 		return
 	var spacing = 1.0 / sqrt(density)
@@ -118,6 +122,8 @@ static func _scatter(map, model, entries: Array, density: float, rng, batches, c
 			var j = clampi(int(point.y / TerrainModel.RESOLUTION), 0, model.rows - 1)
 			# Scenery also dresses inaccessible tops, never cliffs or water.
 			if not model.is_walkable_cell(i, j) and not cell & TerrainModel.BARRIER:
+				continue
+			if low_share < 1.0 and model.height_at(point) < 1.0 and rng.randf() > low_share:
 				continue
 			_add(batches, entries[rng.randi() % entries.size()], _placement(map, point, rng))
 

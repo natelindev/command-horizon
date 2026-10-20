@@ -60,6 +60,10 @@ func max_height() -> float:
 	return 0.0
 
 
+func min_height() -> float:
+	return 0.0
+
+
 func is_elevated() -> bool:
 	return max_height() > 0.0
 

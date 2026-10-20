@@ -18,6 +18,8 @@ uniform vec4 slickrock : source_color = vec4(0.84, 0.62, 0.45, 1.0);
 uniform vec4 sand : source_color = vec4(0.86, 0.68, 0.50, 1.0);
 uniform float accent_amount = 0.35;
 uniform float slickrock_amount = 0.0;
+uniform vec4 crust : source_color = vec4(0.94, 0.93, 0.89, 1.0);
+uniform float crust_amount = 0.0;
 uniform float strata = 1.0;
 
 varying vec3 world_point;
@@ -37,6 +39,34 @@ float noise(vec2 p)
       mix(hash(i), hash(i + vec2(1, 0)), f.x),
       mix(hash(i + vec2(0, 1)), hash(i + vec2(1, 1)), f.x),
       f.y);
+}
+
+// Distance to the nearest Voronoi cell border: polygonal salt-crust plates.
+float plate_edge(vec2 p)
+{
+  vec2 cell = floor(p);
+  vec2 local = fract(p);
+  float nearest = 8.0;
+  float second = 8.0;
+  for (int y = -1; y <= 1; y++)
+  {
+    for (int x = -1; x <= 1; x++)
+    {
+      vec2 offset = vec2(float(x), float(y));
+      vec2 seed = offset + vec2(hash(cell + offset), hash(cell + offset + 17.3)) - local;
+      float distance = dot(seed, seed);
+      if (distance < nearest)
+      {
+        second = nearest;
+        nearest = distance;
+      }
+      else if (distance < second)
+      {
+        second = distance;
+      }
+    }
+  }
+  return sqrt(second) - sqrt(nearest);
 }
 
 void vertex()
@@ -73,6 +103,17 @@ void fragment()
                 * slickrock_amount;
   float bedding = smoothstep(.9, 1.0, sin((p.x * .7 + p.y * .35 + noise(p * .2) * 4.0) * 2.2) * .5 + .5);
   color = mix(color, slickrock.rgb * (.92 + macro * .12) * (1.0 - bedding * .1), slick);
+  // Salt flats: bright crust plates with raised, darker pressure ridges.
+  if (crust_amount > 0.0)
+  {
+    float plates = plate_edge(p * .45);
+    float ridge = 1.0 - smoothstep(.03, .12, plates);
+    // Crust forms only on the pan floor; raised terraces stay gravel.
+    float crusted = crust_amount * smoothstep(.3, .6, noise(p * .04 + 3.7) * .8 + .25)
+                    * (1.0 - smoothstep(1.2, 2.4, world_point.y));
+    color = mix(color, crust.rgb * (.96 + grain * .05), crusted);
+    color = mix(color, color * .8, ridge * crusted * .6);
+  }
   float sandy = max(mask.a, soft.a * .7);
   float ripples = sin(p.x * 2.1 + p.y * .6 + noise(p * .4) * 3.0) * .5 + .5;
   color = mix(color, sand.rgb * (.94 + ripples * .05 + grain * .05), sandy * .9);

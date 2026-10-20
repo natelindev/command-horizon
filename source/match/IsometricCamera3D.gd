@@ -127,7 +127,8 @@ func _terrain_intersection(origin: Vector3, direction: Vector3, map) -> Variant:
 	var horizontal = Vector2(direction.x, direction.z).length()
 	var step = RAY_MARCH_STEP / horizontal if horizontal > 0.001 else map.max_height() + 1.0
 	var above: Vector3 = top
-	for _index in range(int((map.max_height() + 2.0) / maxf(-direction.y * step, 0.001)) + 1):
+	var drop = map.max_height() - map.min_height() + 2.0
+	for _index in range(int(drop / maxf(-direction.y * step, 0.001)) + 1):
 		var below: Vector3 = above + direction * step
 		if below.y <= map.height_at(Vector2(below.x, below.z)):
 			for _refinement in range(10):
