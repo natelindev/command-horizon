@@ -132,7 +132,9 @@ func _run():
 		"Weapon cooldown changed"
 	)
 	_check(
-		is_equal_approx(game.simulation_time - guard.last_enemy_damage_time, saved_guard.damage_age),
+		is_equal_approx(
+			game.simulation_time - guard.last_enemy_damage_time, saved_guard.damage_age
+		),
 		"Damage suppression duration changed"
 	)
 	var shell_script = load("res://source/match/units/projectiles/CannonShell.gd")

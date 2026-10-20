@@ -99,10 +99,7 @@ func _rules_archive():
 		"Idle truck outside pad has no order hint"
 	)
 	var truck = game.convoy[0].unit
-	_check(
-		truck.attack_range == null,
-		"Supply truck acquired a weapon"
-	)
+	_check(truck.attack_range == null, "Supply truck acquired a weapon")
 	truck.hp = 90
 	var repair = game.escorts().filter(func(u): return u.type == "RepairRobot")[0]
 	repair.position = truck.position + Vector3(5, 0, 0)

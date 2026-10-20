@@ -1,4 +1,5 @@
 shader_type spatial;
+#include "res://source/shaders/3d/terrain_layers.gdshaderinc"
 
 varying vec3 world_position;
 
@@ -37,6 +38,10 @@ void fragment() {
 	sand = mix(sand, vec3(0.30, 0.245, 0.185), pebbles * 0.5);
 	float hardpan = smoothstep(0.6, 0.75, strata(p * 0.12 + vec2(3, 41)));
 	sand = mix(sand, vec3(0.43, 0.36, 0.27), hardpan * 0.35);
-	ALBEDO = sand;
-	ROUGHNESS = 0.96;
+	// Hardpan and pebble beds take the rock scan; this ground has no roads.
+	TerrainSurface ground = terrain_surface(p, sand, 0.0, max(hardpan, pebbles), 0.96);
+	ALBEDO = ground.albedo;
+	ROUGHNESS = ground.roughness;
+	AO = ground.occlusion;
+	NORMAL = terrain_normal(ground, NORMAL, VIEW_MATRIX, INV_VIEW_MATRIX);
 }

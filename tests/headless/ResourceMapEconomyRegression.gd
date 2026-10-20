@@ -25,9 +25,7 @@ func _run():
 			await _create(map_name, faction)
 			_check(await _fields() == true, "Map field check aborted: " + map_name)
 			await _close()
-	for mission in [
-		"first_orders", "split_signal", "broken_foundry", "command_horizon"
-	]:
+	for mission in ["first_orders", "split_signal", "broken_foundry", "command_horizon"]:
 		if "--coastal-only" in OS.get_cmdline_user_args():
 			continue
 		await _create("", "bastion", mission)

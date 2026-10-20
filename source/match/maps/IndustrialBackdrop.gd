@@ -79,6 +79,7 @@ func _ground():
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var material = ShaderMaterial.new()
 	material.shader = load("res://source/shaders/3d/district_ground.gdshader")
+	load("res://source/match/TerrainTextures.gd").apply(material)
 	load("res://source/match/SurfaceTextures.gd").configure_ground(material)
 	material.set_shader_parameter("district_wear", true)
 	material.set_shader_parameter("pavement_extent", Vector2(34, 40))

@@ -75,8 +75,7 @@ func _paid_queue():
 	var selected = get_nodes_in_group("selected_units").duplicate()
 	await _frames(12)
 	_check(
-		game.simulation_time == time and first.time_left == left,
-		"Pause advanced paid production"
+		game.simulation_time == time and first.time_left == left, "Pause advanced paid production"
 	)
 	_check(
 		(

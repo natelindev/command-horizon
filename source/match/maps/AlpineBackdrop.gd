@@ -96,6 +96,7 @@ func _ground():
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var material = ShaderMaterial.new()
 	material.shader = load("res://source/shaders/3d/alpine.gdshader")
+	load("res://source/match/TerrainTextures.gd").apply(material)
 	material.set_shader_parameter("exterior", true)
 	surface.set_material(material)
 	var vertices = {}

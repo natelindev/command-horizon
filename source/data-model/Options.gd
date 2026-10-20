@@ -27,6 +27,7 @@ const DEFAULTS = {
 	"graphics_fog": true,
 	"graphics_dof": false,
 	"graphics_msaa": 1,
+	"graphics_ground_detail": true,
 	"time_of_day": 0,
 	"day_cycle": true,
 	"weather": 0,
@@ -57,6 +58,7 @@ const DEFAULTS = {
 @export var graphics_fog = true
 @export var graphics_dof = false
 @export var graphics_msaa = 1
+@export var graphics_ground_detail = true
 @export var time_of_day = 0
 @export var day_cycle = true
 @export var weather = 0

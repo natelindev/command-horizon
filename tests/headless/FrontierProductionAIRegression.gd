@@ -111,9 +111,7 @@ func _procurement(faction):
 		player._train([factory], "")
 		queue = factory.production_queue.get_elements()
 		_check(queue.size() == 1, "Lost lab blocked tank production")
-		_check(
-			player.resource_a == 0 and player.resource_b == 0, "Lab-loss purchase charged extra"
-		)
+		_check(player.resource_a == 0 and player.resource_b == 0, "Lab-loss purchase charged extra")
 		factory.production_queue.cancel_all()
 		_check(
 			player.resource_a == cost.resource_a and player.resource_b == cost.resource_b,

@@ -226,6 +226,7 @@ locale/translations=PackedStringArray("res://assets/translations/match.en.transl
 
 [layer_names]
 
+3d_render/layer_11="Ground decals"
 3d_physics/layer_1="Terrain"
 3d_physics/layer_2="TerrainObjects"
 3d_physics/layer_3="AirObjects"
@@ -246,3 +247,10 @@ common/physics_interpolation=true
 [rendering]
 
 textures/vram_compression/import_etc2_astc=true
+
+[shader_globals]
+
+ground_detail={
+"type": "float",
+"value": 1.0
+}

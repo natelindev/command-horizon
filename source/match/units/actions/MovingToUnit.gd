@@ -87,8 +87,10 @@ func _ready():
 	super()
 	# Structures need an open work face; deposits retain their ordinary field
 	# route unless a settled mobile row actually blocks that original route.
+	# A ghosted harvest run cannot be blocked by units: its ordinary route ends
+	# on the nearest reachable face, and arrival still falls back to a search.
 	var obstacle = _target_unit.get_node_or_null("MovementObstacle")
-	if obstacle != null and obstacle.affect_navigation_mesh:
+	if obstacle != null and obstacle.affect_navigation_mesh and not _movement_trait.ghosted:
 		_try_open_approach(not _target_unit.has_method("is_constructed"))
 
 
@@ -116,9 +118,10 @@ func _run_approach(preserve_clear_route, return_to_center):
 	if not await _search_budget():
 		_searching = false
 		return
-	# Keep the search origin stable instead of walking into the blocked route
-	# while candidates are evaluated across frames. RVO/body clipping stay on.
-	_movement_trait.stop()
+	# Keep following the current route while candidates are evaluated across
+	# frames. Stopping here made every searching unit a settled blocker for its
+	# neighbors and delayed fresh orders; the result is revalidated from the
+	# live position before it replaces the route.
 	var found = await _search_approach(preserve_clear_route)
 	_searching = false
 	if _search_valid() and not found:
@@ -189,13 +192,17 @@ func _search_approach(preserve_clear_route):
 		+ Utils.Match.Unit.Movement.adherence_margin(_unit, _target_unit)
 	)
 	var radius = maxf(_target_unit.radius, contact - _movement_trait.target_desired_distance - 0.05)
+	# Ghosted harvest runs pass through units, and nobody is blocked by them.
+	var ghosted = _movement_trait.ghosted
 	var blockers = get_tree().get_nodes_in_group("units").filter(
 		func(other):
 			return (
 				other != _unit
+				and not ghosted
 				and not other.is_queued_for_deletion()
 				and other.movement_speed > 0
 				and other.movement_domain == _unit.movement_domain
+				and not other.get_node("Movement").ghosted
 				and (
 					other.player == _unit.player
 					or _unit._match.battlefield.is_observed(_unit.player, other)

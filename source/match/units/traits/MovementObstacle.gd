@@ -11,6 +11,7 @@ var _synchronized = false
 
 
 func _ready():
+	avoidance_layers |= Constants.Match.Navigation.AVOIDANCE_STATIC
 	if affect_navigation_mesh and not _unit.is_in_group("resource_units"):
 		add_to_group("sight_blockers")
 		var collider = _unit.get_node_or_null("CollisionShape3D")

@@ -2,6 +2,20 @@
 
 ## [main]
 
+### Added
+ - Scanned CC0 ground layers (grass, rock, sand, dirt, asphalt, snow, concrete) on every battlefield, backdrop and campaign theater, blended around each map's authored colors, roads and biome features
+ - Baked crevice shading, chipped edges and lower-hull dust on all Bastion, Helix and Frontier models, including team trim and construction sites
+ - Ground decals: oil stains, skid marks, cracks and repairs along roads, plus tracks, scuffs and debris across open ground; identical after loading a save
+ - Ground detail graphics setting to turn scanned ground and decals off for faster rendering
+
+### Changed
+ - Plain & Simple and Big Arena use a temperate battlefield instead of the legacy flat salmon ground
+ - Broken Foundry and Command Horizon enemy posts use the native Guard behavior; posted repair robots service damaged allies within 8 m, and foundry tanks keep their previous assembly time
+ - Lab research and Coordination unlock when a vehicle factory and lab have both been completed, as before, without any program terminology
+ - Battle debriefs no longer list program milestones. Campaign briefings, the First Orders badge objective, the Frontier Outrider description, difficulty and weapon-mode text no longer mention presets, programs or retrofits
+ - Retained playtest archives were converted to snapshot version 15
+ - Command Horizon saves must include their opposition state
+
 ### Removed
  - The Lua script engine: the native `rts_lua` extension, sandbox, Lua runtime and actions, Lua/visual-rule editors, LLM program assistant and the program test arena
  - The programmable-unit system: unit programs and presets, specialist programs, chips and retrofit installation, factory program pins, squads, program panels and badges
@@ -9,13 +23,6 @@
  - The Air Corridor operation, which no campaign order reached any more, with its map, HUD, rescue VTOL, voice lines and narration; earlier progress that recorded it still counts toward Cinder Ford
  - The skirmish battle-plan advisor and its hidden settings option, retired from the HUD in 0.12.0
  - Single-narrator campaign lines replaced by recorded dialogue, and remaining old-save handling for heroes, conversations, facility counts and mercenary contracts
-
-### Changed
- - Broken Foundry and Command Horizon enemy posts use the native Guard behavior; posted repair robots service damaged allies within 8 m, and foundry tanks keep their previous assembly time
- - Lab research and Coordination unlock when a vehicle factory and lab have both been completed, as before, without any program terminology
- - Battle debriefs no longer list program milestones. Campaign briefings, the First Orders badge objective, the Frontier Outrider description, Air Corridor, difficulty and weapon-mode text no longer mention presets, programs or retrofits
- - Retained playtest archives were converted to snapshot version 15
- - Command Horizon and Air Corridor saves must include their opposition state
 
 ### Fixed
  - A restored order whose target no longer exists no longer shows as the unit's current order while paused

@@ -1,5 +1,7 @@
 extends "res://tests/headless/SupplyLineRegression.gd"
 
+# Loaded at runtime: its order scripts use autoloads.
+const UNIT_BEHAVIOR = "res://source/match/orders/UnitBehavior.gd"
 var challenge = ""
 var guard_ids = []
 var air_shots = false
@@ -237,7 +239,7 @@ func _assign(unit, point):
 	if unit.type not in ["Tank", "AdvancedTank", "CombatRobot", "RepairRobot"]:
 		unit.issue_manual_order(attack_move.new(point))
 		return
-	var behavior = load("res://source/match/orders/UnitBehavior.gd")
+	var behavior = load(UNIT_BEHAVIOR)
 	if unit.type == "RepairRobot":
 		behavior.guard(unit, point + Vector3(-9, 0, 0))
 		return
@@ -375,7 +377,9 @@ func _report():
 					unit.action
 				)
 			for plane in _units(side, "Helicopter"):
-				print("HORIZON aircraft ", plane.position, " hp=", plane.hp, " action=", plane.action)
+				print(
+					"HORIZON aircraft ", plane.position, " hp=", plane.hp, " action=", plane.action
+				)
 			for unit in side.get_children():
 				if unit.get_instance_id() in guard_ids:
 					print(
@@ -387,7 +391,7 @@ func _report():
 						unit.hp,
 						" behavior=",
 						(
-							load("res://source/match/orders/UnitBehavior.gd").current(unit)
+							load(UNIT_BEHAVIOR).current(unit)
 							if unit.manual_orders != null
 							else "structure"
 						)

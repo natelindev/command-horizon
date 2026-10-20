@@ -38,4 +38,3 @@ func _command():
 
 func _protected_from_command(unit):
 	return unit in armor_protected or super(unit)
-

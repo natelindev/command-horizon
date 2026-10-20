@@ -40,4 +40,3 @@ func _review(label):
 	frame.save_png("res://art/skirmish/opening-armor-%s.png" % label)
 	print("OPENING CAPTURE ", label)
 	return true
-

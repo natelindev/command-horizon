@@ -138,4 +138,3 @@ func _save_behaviors():
 		tank.stance == tank.Stance.DEFENSIVE and tank.action.get_script() == Following,
 		"Follow/stance failed to restore"
 	)
-

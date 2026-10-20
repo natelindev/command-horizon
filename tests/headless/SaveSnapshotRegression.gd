@@ -97,9 +97,7 @@ func _run():
 		saved.position.distance_to(guard_point) < 2.5 and saved.orders.current.is_empty(),
 		"Guard post did not settle before capture"
 	)
-	var queued = snapshot.units.filter(
-		func(item): return item.id == builder._reference(tanks[1])
-	)[0]
+	var queued = snapshot.units.filter(func(item): return item.id == builder._reference(tanks[1]))[0]
 	var attacks = (queued.orders.pending + [queued.orders.current]).filter(
 		func(order): return order.get("kind") == "attack"
 	)

@@ -128,9 +128,7 @@ func _exercise_commands(commands):
 	game.hud.arm_signature_sector([tank])
 	_check(commands.kind.is_empty(), "Signature sector left direct targeting active")
 	commands.arm("attack")
-	_check(
-		game.hud._assignment_kind.is_empty(), "Direct targeting left a signature sector active"
-	)
+	_check(game.hud._assignment_kind.is_empty(), "Direct targeting left a signature sector active")
 	root.get_node("MatchSignals").place_structure.emit(generator)
 	_check(commands.kind.is_empty(), "Building placement left direct targeting active")
 	placement._cancel_structure_placement()

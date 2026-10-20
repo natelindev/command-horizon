@@ -129,8 +129,7 @@ func _battle_state(faction):
 
 
 func _spawn_actor(role, player, point):
-	var catalog = load("res://source/match/BastionCatalog.gd")
-	var unit = load(catalog.scene_path(role)).instantiate()
+	var unit = load(Catalog.scene_path(role)).instantiate()
 	game._setup_and_spawn_unit(unit, Transform3D(Basis(), point), player, false)
 	return unit
 

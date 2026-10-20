@@ -130,7 +130,10 @@ func _travel():
 	)
 	_check(collected, "Stalled engineer never collected electronics")
 	_check(delivered, "Stalled engineer never delivered electronics")
-	_check(maximum_step < 3.84 / 60 + .002, "Traffic recovery teleported a worker")
+	_check(
+		maximum_step < 3.84 / Engine.physics_ticks_per_second + .002,
+		"Traffic recovery teleported a worker"
+	)
 	_check(minimum_clearance >= -.05, "Traffic recovery crossed a mobile body")
 	_check(maximum_off_mesh <= .16, "Traffic recovery left the navigation boundary")
 	print(
@@ -168,6 +171,9 @@ func _measure_clearance(unit):
 			other == unit
 			or other.movement_speed <= 0
 			or other.movement_domain != unit.movement_domain
+			# Harvest runs ghost through mobile units by design.
+			or movement.ghosted
+			or other.get_node("Movement").ghosted
 		):
 			continue
 		minimum_clearance = minf(

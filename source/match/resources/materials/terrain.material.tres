@@ -1,6 +1,11 @@
-[gd_resource type="StandardMaterial3D" format=3 uid="uid://co8vfcoqqs5i8"]
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://co8vfcoqqs5i8"]
+
+[ext_resource type="Shader" uid="uid://cxhxluyvkkll3" path="res://source/shaders/3d/battlefield.gdshader" id="1_ground"]
 
 [resource]
-vertex_color_use_as_albedo = true
-albedo_color = Color(0.960784, 0.745098, 0.654902, 1)
-metallic = 1.0
+shader = ExtResource("1_ground")
+shader_parameter/low = Color(0.223529, 0.305882, 0.223529, 1)
+shader_parameter/high = Color(0.454902, 0.505882, 0.376471, 1)
+shader_parameter/road = Color(0.466667, 0.443137, 0.352941, 1)
+shader_parameter/surface = 0
+shader_parameter/road_count = 0

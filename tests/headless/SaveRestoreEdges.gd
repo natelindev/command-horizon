@@ -151,7 +151,5 @@ func _edge_cases():
 	other.manual_orders.submit({"kind": "move", "point": other.position + Vector3(3, 0, 0)})
 	position = other.position
 	await _frames(90)
-	_check(
-		other.position.distance_to(position) > 0.2, "Missing follow target lost manual control"
-	)
+	_check(other.position.distance_to(position) > 0.2, "Missing follow target lost manual control")
 	print("PASS: ", game._get_human_player().faction, " reload/repeat/stances/targets/knowledge")

@@ -150,10 +150,16 @@ func _shortcut_remapping(human):
 	# to Unit.action (which requires a Node).
 	var reverse_goal = tank.position + tank.global_basis.z * Vector3(1, 0, 1) * 12.0
 	menus._command_card._slots[1][3].pressed.emit()
+	# An idle queue starts the order at once; otherwise it waits at the head.
+	var reverse = (
+		tank.manual_orders.current
+		if tank.manual_orders.pending.is_empty()
+		else tank.manual_orders.pending[0]
+	)
 	_check(
 		(
-			tank.manual_orders.pending.size() == 1
-			and tank.manual_orders.pending[0].point.is_equal_approx(reverse_goal)
+			tank.manual_orders.pending.size() <= 1
+			and reverse.get("point", Vector3.INF).is_equal_approx(reverse_goal)
 		),
 		"Reverse did not queue a backwards move"
 	)

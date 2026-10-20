@@ -29,6 +29,11 @@ const PASSIVE_MOVEMENT_TRACKING_ENABLED = true
 		)
 		return speed * factor
 
+# A harvest run passes through other ground units in both directions. Terrain,
+# structures and deposits still constrain it through the navmesh and obstacles.
+var ghosted = false:
+	set = set_ghosted
+
 var _exit_clearance_target = Vector3.INF
 var _exit_clearance_until = 0.0
 var _physics_delta: float = 0.0
@@ -133,7 +138,7 @@ func _physics_process(delta):
 
 
 func request_exit_clearance(point):
-	if not _synchronized or _unit.has_meta("garrison_host"):
+	if not _synchronized or ghosted or _unit.has_meta("garrison_host"):
 		return
 	# An actively travelling manual order already clears its current position.
 	# Production must not steer it away from the player's destination.
@@ -199,6 +204,7 @@ func has_occupied_endpoint(require_short_route = true):
 		var movement = other.get_node_or_null("Movement")
 		if (
 			movement == null
+			or movement.ghosted
 			or movement._has_destination
 			or movement.velocity.length_squared() >= 0.01
 		):
@@ -219,7 +225,7 @@ func _ground_recovery_direction(path_direction):
 	var free_distance = -1.0
 	var origin = _unit.global_position
 	var neighbors = []
-	if _match.battlefield != null:
+	if _match.battlefield != null and not ghosted:
 		neighbors = _match.battlefield.nearby_units(
 			origin,
 			(
@@ -294,6 +300,20 @@ func _ready():
 	if not _has_destination:
 		target_position = _unit.global_position
 	set_physics_process(true)
+
+
+func set_ghosted(value):
+	ghosted = value
+	avoidance_layers = (
+		Constants.Match.Navigation.AVOIDANCE_GHOSTS
+		if value
+		else Constants.Match.Navigation.AVOIDANCE_UNITS
+	)
+	avoidance_mask = (
+		Constants.Match.Navigation.AVOIDANCE_STATIC
+		if value
+		else Constants.Match.Navigation.AVOIDANCE_UNITS
+	)
 
 
 func move(movement_target: Vector3):
@@ -475,7 +495,8 @@ func _clip_ground_step(next: Vector3) -> Vector3:
 	# The contact solver accepts a negligible planar step unchanged. Avoid
 	# building a neighbor list for that same no-op (including elevation only).
 	if (
-		_match.battlefield == null
+		ghosted
+		or _match.battlefield == null
 		or ((next - origin) * Vector3(1, 0, 1)).length_squared() < 0.00000001
 	):
 		return next
@@ -516,7 +537,12 @@ func _ground_step_contact(origin: Vector3, next: Vector3, neighbors: Array) -> D
 		# Read the neighbor's trait once instead of resolving radius, speed and
 		# domain through three separate unit property getters for every contact.
 		var movement = other._get_navigation_trait()
-		if not movement is NavigationAgent3D or movement.domain != domain or movement.speed <= 0:
+		if (
+			not movement is NavigationAgent3D
+			or movement.domain != domain
+			or movement.speed <= 0
+			or movement.ghosted
+		):
 			continue
 		var offset: Vector3 = (origin - other.global_position) * Vector3(1, 0, 1)
 		var separation: float = own_radius + movement.radius - GROUND_CONTACT_MARGIN

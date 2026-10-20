@@ -153,6 +153,9 @@ func _get_visible_players():
 func _setup_subsystems_dependent_on_map():
 	_terrain.update_shape(map.find_child("Terrain").mesh)
 	map.add_child(load("res://source/match/maps/BattlefieldBoundary.gd").new())
+	var decals = load("res://source/match/effects/GroundDecals.gd").new()
+	decals.name = "GroundDecals"
+	map.add_child(decals)
 	fog_of_war.resize(map.size)
 	_recalculate_camera_bounding_planes(map.size)
 	navigation.setup(map)

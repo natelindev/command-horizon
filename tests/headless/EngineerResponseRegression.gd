@@ -142,11 +142,6 @@ func _archive_and_retreat(faction):
 		"Ordinary Move discarded carried resources"
 	)
 	_check(
-		Vector2i(human.resource_a, human.resource_b) == funds,
-		"Evacuation spent or granted funds"
+		Vector2i(human.resource_a, human.resource_b) == funds, "Evacuation spent or granted funds"
 	)
-	print(
-		"PASS: ",
-		faction,
-		" archive and explicit cargo-preserving retreat"
-	)
+	print("PASS: ", faction, " archive and explicit cargo-preserving retreat")

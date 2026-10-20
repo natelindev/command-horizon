@@ -43,9 +43,7 @@ func update(game, player, units, phase, unavailable, home):
 	var infantry = units.filter(
 		func(unit):
 			return (
-				unit.type == "Infantry"
-				and unit.hp >= unit.hp_max * .8
-				and unit not in unavailable
+				unit.type == "Infantry" and unit.hp >= unit.hp_max * .8 and unit not in unavailable
 			)
 	)
 	# Keep at least one healthy conventional infantry at home. Expeditions do

@@ -32,3 +32,24 @@ vec3 surface_triplanar_color(sampler2D map, vec3 point, vec3 normal) {
 		+ texture(map, point.xz).rgb * weights.y
 		+ texture(map, point.xy).rgb * weights.z;
 }
+
+// Baked vertex weathering from art/common/weathering.py: rgb is occlusion and
+// alpha is 1 - edge wear. Meshes without vertex colors read as unweathered.
+vec3 weathered(vec3 color, vec4 weathering, bool painted) {
+	float occlusion = weathering.r;
+	float wear = painted ? 1.0 - weathering.a : 0.0;
+	// Grime settles where little sky reaches; chipped paint shows lighter steel.
+	color = mix(color, color * vec3(0.80, 0.72, 0.60), (1.0 - occlusion) * 0.8);
+	color = mix(color, vec3(0.62, 0.61, 0.58), wear * 0.65);
+	return color * occlusion;
+}
+
+// Road dust climbs the lower metre of hulls and walls; flying units stay clean.
+vec3 ground_dust(vec3 color, float height) {
+	float dust = (1.0 - smoothstep(0.05, 0.9, height)) * 0.32;
+	return mix(color, vec3(0.42, 0.37, 0.29), dust);
+}
+
+float weathered_roughness(float roughness, vec4 weathering) {
+	return clamp(roughness + (1.0 - weathering.r) * 0.15 - (1.0 - weathering.a) * 0.22, 0.15, 1.0);
+}

@@ -118,5 +118,8 @@ func _run():
 func _shot(label):
 	# A paused static dialog may skip redraws; explicitly render for capture.
 	RenderingServer.force_draw(false)
+	DirAccess.make_dir_recursive_absolute(
+		ProjectSettings.globalize_path("res://art/visual-upgrade")
+	)
 	root.get_texture().get_image().save_png("res://art/visual-upgrade/" + label + ".png")
 	print("Captured ", label)

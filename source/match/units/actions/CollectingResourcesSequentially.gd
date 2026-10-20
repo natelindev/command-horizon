@@ -14,7 +14,8 @@ const CollectingResourcesWhileInRange = preload(
 const MovingToUnit = preload("res://source/match/units/actions/MovingToUnit.gd")
 const Worker = preload("res://source/match/units/Worker.gd")
 const ResourceUnit = preload("res://source/match/units/non-player/ResourceUnit.gd")
-var _state = State.NULL
+var _state = State.NULL:
+	set = _set_state
 var _kind = 0
 var _field_origin = Vector3.ZERO
 var _waiting_reason = Wait.NONE
@@ -52,6 +53,7 @@ func _init(unit):
 
 func _ready():
 	add_to_group(ASSIGNMENTS)
+	_sync_ghost()
 	if restoring:
 		return
 	if _kind != 0:
@@ -63,6 +65,12 @@ func _ready():
 		_start_return()
 
 
+func _exit_tree():
+	var movement = _unit.get_node_or_null("Movement") if is_instance_valid(_unit) else null
+	if movement != null:
+		movement.ghosted = false
+
+
 func _process(delta):
 	if needs_assignment() and _has_pending_orders():
 		queue_free()
@@ -72,6 +80,24 @@ func _process(delta):
 	_retry_left = maxf(0, _retry_left - delta)
 	if _retry_left == 0:
 		_start_resource_leg()
+
+
+func _set_state(value):
+	_state = value
+	_sync_ghost()
+
+
+func _sync_ghost():
+	# Engineers on a harvest run ghost through ground units, as in other RTS
+	# economies: lanes never jam. Waiting or idle engineers are solid again.
+	# The @onready unit is still unset while a save restores the state.
+	if _unit == null or not is_inside_tree():
+		return
+	var movement = _unit.get_node_or_null("Movement")
+	if movement != null:
+		movement.ghosted = (
+			_state in [State.MOVING_TO_RESOURCE, State.COLLECTING, State.MOVING_TO_CC]
+		)
 
 
 func _to_string():

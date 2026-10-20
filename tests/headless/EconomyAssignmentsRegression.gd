@@ -247,9 +247,7 @@ func _delivery(faction):
 		game.simulation_time == clock and carrier.resource_a == cargo,
 		"Paused restore changed queued cargo"
 	)
-	_check(
-		_count(1) == 0 and _count(2) == 1, "Reloaded allocation counts ignored the queued job"
-	)
+	_check(_count(1) == 0 and _count(2) == 1, "Reloaded allocation counts ignored the queued job")
 	await _controls(faction + "-restored")
 	var factory = _units(owner, "VehicleFactory")[0]
 	var price = factions.cost(owner, "Tank")

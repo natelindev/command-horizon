@@ -1,4 +1,5 @@
 shader_type spatial;
+#include "res://source/shaders/3d/terrain_layers.gdshaderinc"
 varying vec3 world_position;
 uniform vec4 roads[8];
 uniform float wetness = 0.0;
@@ -79,9 +80,15 @@ void fragment() {
 		float tire=(1.0-smoothstep(.15,.27,abs(abs(local.x)-2.1)))*(.15+.10*noise(p*.7));
 		apron*=1.0-tire;
 		surface=mix(surface,apron,inside);
+		paved=max(paved,inside);
 	}
 	float puddle=smoothstep(.38,.68,noise(p*.38+3.0))*wetness*max(road,paved*.6);
-	ALBEDO=surface*(1.0-wetness*.22);
-	ROUGHNESS=mix(.95,.55,puddle);
+	// Yards and aprons take concrete, roads the asphalt scan; puddles flatten both.
+	TerrainSurface terrain=terrain_surface(p,surface,road,paved,.95);
+	terrain.slope*=1.0-puddle*.65;
+	ALBEDO=terrain.albedo*(1.0-wetness*.22);
+	ROUGHNESS=mix(terrain.roughness,.55,puddle);
+	AO=terrain.occlusion;
+	NORMAL=terrain_normal(terrain,NORMAL,VIEW_MATRIX,INV_VIEW_MATRIX);
 	SPECULAR=.22+wetness*.08;
 }

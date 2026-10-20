@@ -35,6 +35,10 @@ func _on_input_event(_camera, event, _click_position, _click_normal, _shape_idx)
 			_rmb_start_world = (
 				camera.get_ray_intersection(event.position) if camera != null else null
 			)
+			# Orders go out on press; a drag past the threshold revises them with
+			# formation and facing on release.
+			if _rmb_start_world != null:
+				MatchSignals.terrain_targeted.emit(_rmb_start_world)
 		else:
 			_resolve_rmb(event.position)
 
@@ -50,22 +54,21 @@ func _unhandled_input(event):
 
 
 func _resolve_rmb(mouse_pos):
-	if _rmb_start_world == null:
-		_rmb_drag_start = null
-		return
-	var camera = get_viewport().get_camera_3d()
-	var dist = mouse_pos.distance_to(_rmb_drag_start) if _rmb_drag_start != null else 0.0
-	if dist > DRAG_THRESHOLD and camera != null:
-		var end_world = camera.get_ray_intersection(mouse_pos)
-		if end_world != null:
-			var heading = (end_world - _rmb_start_world) * Vector3(1, 0, 1)
-			if heading.length() > 0.1:
-				MatchSignals.terrain_targeted_with_heading.emit(
-					_rmb_start_world, heading.normalized()
-				)
-				_rmb_drag_start = null
-				_rmb_start_world = null
-				return
-	MatchSignals.terrain_targeted.emit(_rmb_start_world)
+	var start = _rmb_drag_start
+	var start_world = _rmb_start_world
 	_rmb_drag_start = null
 	_rmb_start_world = null
+	var camera = get_viewport().get_camera_3d()
+	if (
+		start == null
+		or start_world == null
+		or camera == null
+		or mouse_pos.distance_to(start) <= DRAG_THRESHOLD
+	):
+		return
+	var end_world = camera.get_ray_intersection(mouse_pos)
+	if end_world == null:
+		return
+	var heading = (end_world - start_world) * Vector3(1, 0, 1)
+	if heading.length() > 0.1:
+		MatchSignals.terrain_target_heading_set.emit(start_world, heading.normalized())

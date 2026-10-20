@@ -44,7 +44,7 @@ func _roundtrip(faction, advanced):
 		+ hq.radius
 		+ root.get_node("Utils").Match.Unit.Movement.adherence_margin(worker, hq)
 	)
-	var outside = false
+	var returning = false
 	for frame in 3000:
 		await physics_frame
 		if worker.resource_a != 4 or worker.action == null or not "_sub_action" in worker.action:
@@ -52,14 +52,16 @@ func _roundtrip(faction, advanced):
 		var leg = worker.action._sub_action
 		if leg == null or not "_target_position" in leg:
 			continue
-		outside = (
-			leg._target_unit == hq and leg._target_position.distance_to(hq.position) > contact + .5
+		# Harvest runs ghost through units, so a return leg no longer needs an
+		# outside waypoint around settled engineers; any HQ leg must survive.
+		returning = (
+			leg._target_unit == hq and worker.position.distance_to(hq.position) > contact + 1.0
 		)
-		if outside:
+		if returning:
 			break
 	var label = "%s %s" % [faction, "advanced" if advanced else "standard"]
-	_check(outside, "No real outside-waypoint return leg for restore: " + label)
-	if not outside:
+	_check(returning, "No HQ return leg for restore: " + label)
+	if not returning:
 		game.queue_free()
 		await _frames(3)
 		return
@@ -107,8 +109,9 @@ func _roundtrip(faction, advanced):
 				worker.action._sub_action._target_position == waypoint
 				and worker.get_node("Movement").target_position == waypoint
 			),
-			"Loading discarded the outside waypoint: " + label
+			"Loading discarded the return destination: " + label
 		)
+		_check(worker.get_node("Movement").ghosted, "Loading lost harvest ghosting: " + label)
 		_check(
 			worker.action._sub_action._contact_progress == null,
 			"Loading retained stale contact observations: " + label
@@ -135,7 +138,7 @@ func _roundtrip(faction, advanced):
 			"Restored waypoint never delivered preserved cargo: " + label
 		)
 		_check(
-			maximum_step <= worker.movement_speed / 60.0 + .002,
+			maximum_step <= worker.movement_speed / Engine.physics_ticks_per_second + .002,
 			"Restored delivery bypassed movement speed: " + label
 		)
 		print(

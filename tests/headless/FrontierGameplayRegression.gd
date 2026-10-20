@@ -107,9 +107,7 @@ func _maneuver():
 		{"kind": "move", "point": tank.global_position_yless + Vector3(8, 0, 0)}
 	)
 	var order = tank.action
-	_check(
-		human.signatures.activate([tank, tank]) == 1, "Maneuver accepted duplicate participants"
-	)
+	_check(human.signatures.activate([tank, tank]) == 1, "Maneuver accepted duplicate participants")
 	_check(
 		tank.action == order and tank.signature.kind == "maneuver",
 		"Maneuver replaced manual order or used wrong ability"

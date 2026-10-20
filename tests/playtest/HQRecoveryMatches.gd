@@ -134,6 +134,7 @@ func _recover_hq_funds(units, cost):
 			_spent -= Vector2(refund.resource_a, refund.resource_b)
 			return
 
+
 func _place(role, builder):
 	if (
 		hq_recovery_enabled

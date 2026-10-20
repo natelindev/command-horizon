@@ -265,4 +265,3 @@ func _until(predicate, limit = 1800):
 	for worker in workers:
 		print("TIMEOUT: ", worker.action, worker.position, worker.resource_a, worker.resource_b)
 	_check(false, "Timed out waiting for field operation")
-

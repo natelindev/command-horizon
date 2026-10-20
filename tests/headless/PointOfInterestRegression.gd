@@ -263,7 +263,9 @@ func _exercise_sites():
 		"Legacy map accepted malformed facility records"
 	)
 	var retired = data.duplicate(true)
-	var hired = retired.mission.points_of_interest.filter(func(site): return not site.jobs.is_empty())
+	var hired = retired.mission.points_of_interest.filter(
+		func(site): return not site.jobs.is_empty()
+	)
 	_check(not hired.is_empty(), "Facility archive fixture has no paid contract")
 	for site in hired:
 		site.jobs[0].role = "Infantry"

@@ -156,10 +156,7 @@ func _archive():
 	_check(not schema.validate(broken), "AI record without task groups accepted")
 	var file = FileStore.new()
 	var destination = "user://coordination-%d.json" % OS.get_process_id()
-	_check(
-		file.write_file(destination, data),
-		"Task roster disk write failed"
-	)
+	_check(file.write_file(destination, data), "Task roster disk write failed")
 	var restore = Restore.new()
 	var loaded = await restore.restore(self, file.read_file(destination))
 	_check(loaded.ok, "Task roster restore failed: " + loaded.get("error", ""))

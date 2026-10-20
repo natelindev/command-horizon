@@ -62,6 +62,7 @@ func _terrain(data):
 	roads.resize(16)
 	material.set_shader_parameter("roads", roads)
 	material.set_shader_parameter("road_count", data.roads.size())
+	TerrainTextures.configure(material, data.biome)
 	ground.mesh.material = material
 
 
