@@ -3,7 +3,7 @@ extends "res://tests/headless/ResourceMapEconomyRegression.gd"
 # Elevated-terrain engine contract on the hidden TerrainTestMap: tiers, ramps,
 # cliffs, water, fords and solid formations reach navigation exactly as
 # authored; vehicles climb ramps but never cliffs; camera picking lands on the
-# surface players see; placement requires level ground; rebakes stay fast.
+# surface players see; foundations accept gentle ramps but reject cliffs; rebakes stay fast.
 
 const MAP = "res://source/match/maps/battlefields/TerrainTestMap.tscn"
 const Placement = preload("res://source/match/utils/UnitPlacementUtils.gd")
@@ -148,10 +148,52 @@ func _check_placement():
 			Placement.validate_agent_placement_position(
 				Vector3(49, 1.5, 45), 2.0, units, nav, game.map
 			)
+			== Placement.VALID
+		),
+		"Gentle ramp rejects a small foundation"
+	)
+	_check(
+		(
+			Placement.validate_agent_placement_position(Vector3(19, 3, 92), 3.0, [], nav, game.map)
 			== Placement.NOT_LEVEL
 		),
-		"Structure may stand on a ramp"
+		"Large foundation accepts excessive height variation"
 	)
+	for point in [Vector3(121, 0, 27), Vector3(115.5, 0, 64.5)]:
+		_check(
+			(
+				Placement.validate_agent_placement_position(point, 2.0, [], nav, game.map)
+				!= Placement.VALID
+			),
+			"Relaxed placement accepts water or solid rock at %s" % point
+		)
+	var footprint = load("res://source/match/utils/Footprint.gd")
+	var outline = PackedVector2Array(
+		[Vector2(-2, -2), Vector2(2, -2), Vector2(2, 2), Vector2(-2, 2)]
+	)
+	for entry in [
+		[Vector3(36, 3, 12), Placement.VALID],
+		[Vector3(49, 1.5, 45), Placement.VALID],
+		[Vector3(56, 3, 20), Placement.NOT_LEVEL],
+	]:
+		var polygon = footprint.outline_at(outline, Transform3D(Basis(), entry[0]))
+		var result = Placement.validate_footprint_placement(polygon, [], nav, game.map)
+		_check(
+			(result == Placement.VALID) == (entry[1] == Placement.VALID),
+			"Polygon foundation disagrees with terrain at %s: %d" % [entry[0], result]
+		)
+	var opponents = get_nodes_in_group("players").filter(
+		func(player): return player.has_method("_find_footprint_site")
+	)
+	var site = opponents[0]._find_footprint_site(Vector3(49, 1.5, 45), outline, nav)
+	_check(site.origin.is_finite(), "AI cannot find a supported polygon foundation")
+	if site.origin.is_finite():
+		_check(
+			is_equal_approx(
+				site.origin.y, game.map.height_at(Vector2(site.origin.x, site.origin.z))
+			),
+			"AI polygon placement inherits its search origin's height"
+		)
 
 
 func _check_picking():

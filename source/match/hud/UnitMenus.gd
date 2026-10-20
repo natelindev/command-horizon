@@ -278,6 +278,15 @@ func _reset_menus():
 	var roster_page = null
 	var roster_title = "Produce" if not production_roles.is_empty() else "Build"
 	var builds = not production_roles.is_empty() or unit is Worker
+	var researches = (
+		_selection.size() == 1
+		and unit is Structure
+		and unit.is_constructed()
+		and unit.type == "CommandLab"
+		and unit.player.get_meta("skirmish", false)
+	)
+	if researches:
+		roster_page = _page("Research")
 	if builds and _selection.all(func(member): return member is Structure or member is Worker):
 		roster_page = _page(roster_title)
 	var orders_page = _page("Orders")
@@ -314,13 +323,10 @@ func _reset_menus():
 	(roster_page if roster_page != null else _commands).add_child(grid)
 	for role in production_roles:
 		_add_roster_button(grid, role, false)
-	if _selection.size() == 1 and unit is Structure and unit.is_constructed():
-		if unit.player.get_meta("skirmish", false):
-			if unit.type == "CommandLab":
-				_research_panel = load("res://source/match/hud/ResearchPanel.gd").new()
-				_research_panel.lab = unit
-				_support.add_child(_research_panel)
-
+	if researches:
+		_research_panel = load("res://source/match/hud/ResearchPanel.gd").new()
+		_research_panel.lab = unit
+		roster_page.add_child(_research_panel)
 	elif unit is Worker:
 		for unit_type in Catalog.STRUCTURES:
 			_add_roster_button(grid, unit_type, true)

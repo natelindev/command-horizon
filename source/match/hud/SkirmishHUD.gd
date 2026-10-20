@@ -276,8 +276,9 @@ func _process(_delta):
 	_refresh_hero_controls()
 	if is_instance_valid(technology_panel):
 		technology_panel.refresh()
-		_technology_scroll.custom_minimum_size.y = maxf(
-			100, get_viewport().get_visible_rect().size.y - 256
+		_technology_scroll.custom_minimum_size.y = minf(
+			technology_panel.get_combined_minimum_size().y,
+			maxf(100, get_viewport().get_visible_rect().size.y - 256)
 		)
 	if _hint_left > 0:
 		_hint_left -= _delta
@@ -675,9 +676,7 @@ func open_technology():
 	_technology_scroll = ScrollContainer.new()
 	_technology_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_technology_scroll.follow_focus = true
-	_technology_scroll.custom_minimum_size = Vector2(
-		510, maxf(100, get_viewport().get_visible_rect().size.y - 256)
-	)
+	_technology_scroll.custom_minimum_size = Vector2(510, 100)
 	_technology_scroll.get_v_scroll_bar().focus_mode = Control.FOCUS_ALL
 	_technology_scroll.get_v_scroll_bar().custom_step = 28
 	box.add_child(_technology_scroll)
