@@ -3,11 +3,15 @@ extends "res://tests/headless/SaveRestoreEdges.gd"
 # Rendered review captures for the faction battle consoles in English and Chinese:
 # closed deck, full visibility, worker, tank, producer with a full paid queue while other buildings
 # produce, the production overview with nothing selected, multi-selection, lit
-# alerts beacon, pause menu and technology.
+# alerts beacon, pause menu and technology; eight-player and true spectator
+# resource rosters at 720p with large UI, including both scroll endpoints.
 # Run without --headless: Godot --path . --script tests/rendered/HudConsolePreview.gd
+# Use -- --rosters [bastion helix frontier] for only the eight-player matrix.
 
+const HudLayout = preload("res://source/match/hud/HudLayout.gd")
 const OUTPUT = "res://art/hud-console/"
 var _full_visibility_only = false
+var _roster_cases = 0
 
 
 class RenderErrorLog:
@@ -31,6 +35,8 @@ func _run():
 	var factions = Array(OS.get_cmdline_user_args())
 	_full_visibility_only = factions.has("--full-visibility")
 	factions.erase("--full-visibility")
+	var rosters_only = factions.has("--rosters")
+	factions.erase("--rosters")
 	var preferences = root.get_node("Globals").options
 	var original = preferences.capture()
 	root.get_node("SaveManager").autosaves_enabled = false
@@ -45,27 +51,24 @@ func _run():
 		["helix", "battlefields/AlpineRelayMap", Vector2i(1920, 1080), 1.0, "1080p-zh", "zh_CN"],
 		["frontier", "CoastalFoundry", Vector2i(1280, 720), 1.5, "720p-zh", "zh_CN"],
 	]:
-		if not factions.is_empty() and setup[0] not in factions:
+		if rosters_only or (not factions.is_empty() and setup[0] not in factions):
 			continue
-		(
-			preferences
-			. restore(
-				{
-					"screen": 1,
-					"edge_scrolling": false,
-					"day_cycle": false,
-					"weather": 1,
-					"interface_scale": setup[3],
-					"language": setup[5],
-				}
-			)
-		)
-		await create_timer(2).timeout
-		root.mode = Window.MODE_WINDOWED
-		root.size = setup[2]
-		root.content_scale_size = Vector2i(1920, 1080)
-		root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+		await _configure(preferences, setup[2], setup[3], setup[5])
 		await _battle(setup[0], setup[1], setup[4])
+	var expected_rosters = 0
+	if rosters_only or not _full_visibility_only:
+		for faction in ["bastion", "helix", "frontier"]:
+			if not factions.is_empty() and faction not in factions:
+				continue
+			for language in ["en", "zh_CN"]:
+				await _configure(preferences, Vector2i(1280, 720), 1.5, language)
+				for spectator in [false, true]:
+					expected_rosters += 1
+					await _many_players(faction, language, spectator)
+	_check(
+		_roster_cases == expected_rosters,
+		"Only %d of %d resource roster cases completed" % [_roster_cases, expected_rosters]
+	)
 	OS.remove_logger(logger)
 	for message in logger.messages:
 		_check(false, message)
@@ -74,6 +77,28 @@ func _run():
 		push_error(message)
 	print("HUD console preview: %d failures" % errors.size())
 	quit(0 if errors.is_empty() else 1)
+
+
+func _configure(preferences, resolution, scale_value, language):
+	(
+		preferences
+		. restore(
+			{
+				"screen": 1,
+				"edge_scrolling": false,
+				"day_cycle": false,
+				"weather": 1,
+				"subtitles": true,
+				"interface_scale": scale_value,
+				"language": language,
+			}
+		)
+	)
+	await create_timer(2).timeout
+	root.mode = Window.MODE_WINDOWED
+	root.size = resolution
+	root.content_scale_size = Vector2i(1920, 1080)
+	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
 
 
 func _battle(faction, map_name, suffix):
@@ -170,17 +195,143 @@ func _select(units):
 	await _frames(30)
 
 
-func _shot(label):
+func _many_players(faction, language, spectator):
+	var settings = load("res://source/data-model/MatchSettings.gd").new()
+	settings.skirmish = not spectator
+	settings.map_path = "res://source/match/maps/BigArena.tscn"
+	# PER_PLAYER with no human exercises the real spectator roster path.
+	settings.visibility = settings.Visibility.PER_PLAYER if spectator else settings.Visibility.FULL
+	var constants = root.get_node("Constants")
+	var controllers = constants.PlayerType
+	for index in range(8):
+		var side = load("res://source/data-model/PlayerSettings.gd").new()
+		side.controller = (
+			controllers.HUMAN if index == 0 and not spectator else controllers.SIMPLE_CLAIRVOYANT_AI
+		)
+		side.faction = faction
+		side.color = constants.Player.COLORS[index]
+		settings.players.append(side)
+	var scene = "Match" if spectator else "Skirmish"
+	game = load("res://source/match/%s.tscn" % scene).instantiate()
+	game.settings = settings
+	game.map = load(settings.map_path).instantiate()
+	root.add_child(game)
+	current_scene = game
+	var players = get_nodes_in_group("players")
+	for index in players.size():
+		var player = players[index]
+		player.set_process(false)
+		# Distinct readouts make the first and last plates recognizable in captures.
+		player.resource_a = 1000 + index * 250
+		player.resource_b = 500 + index * 125
+	var human = game._get_human_player()
+	_check((human == null) == spectator, "Eight-player fixture has the wrong viewer")
+	var camera = game.get_node("IsometricCamera3D")
+	camera.set_physics_process(false)
+	camera.set_size_safely(30)
+	camera.set_position_safely(_units(players[0], "CommandCenter")[0].global_position)
+	# Visibility and fog revealers need their first physics updates. Pausing a
+	# PER_PLAYER spectator at construction leaves the viewport artificially dark.
+	for _tick in range(12):
+		await physics_frame
+	if spectator:
+		var headquarters = _units(players[0], "CommandCenter")[0]
+		_check(headquarters.visible, "Spectator cannot see its viewed side after initialization")
+		_check(
+			game.fog_of_war._unit_to_circles_mapping.has(headquarters),
+			"Spectator has no fog reveal for its viewed headquarters"
+		)
+	paused = true
+	await _frames(30)
+	var label = (
+		"%s-720p-%s-%s"
+		% [
+			faction,
+			"zh" if language == "zh_CN" else "en",
+			"spectator-eight-players" if spectator else "eight-players"
+		]
+	)
+	for selected in [false] if spectator else [false, true]:
+		root.get_node("MatchSignals").deselect_all_units.emit()
+		if selected:
+			_units(human, "Worker")[0].get_node("Selection").select()
+		if not spectator:
+			game.subtitles._on_line({"speaker": "Command", "text": "Battle control online."})
+		await _frames(12)
+		var state = label + ("-worker" if selected else "-closed")
+		_check(
+			game.find_child("UnitMenus").is_visible_in_tree() == selected,
+			"Roster preview deck does not follow selection: " + state
+		)
+		await _capture_roster(state, spectator)
+	if not spectator:
+		# Shrinking the visible roster must clear a previously scrolled offset.
+		var resources = game.get_node("HUD/MarginContainer2/Resources")
+		resources._hide_all_bars()
+		resources._show_player_bars([human])
+		await _frames(12)
+		_check(
+			is_equal_approx(resources.size.y, HudLayout.TOP_PLATE),
+			"Roster did not shrink: " + label
+		)
+		_check(resources.scroll_vertical == 0, "Shrunk roster retained its offset: " + label)
+		_check(not resources.get_v_scroll_bar().visible, "Shrunk roster still scrolls: " + label)
+		await _shot(label + "-single-player")
+	_roster_cases += 1
+	paused = false
+	game.queue_free()
+	await _frames(5)
+
+
+func _capture_roster(label, spectator):
+	var resources = game.get_node("HUD/MarginContainer2/Resources")
+	var scrollbar = resources.get_v_scroll_bar()
+	var bars = resources.get_node("Bars").get_children()
+	_check(
+		bars.size() == 8 and bars.all(func(bar): return bar.visible),
+		"Roster omits players: " + label
+	)
+	_check(scrollbar.visible, "Eight-player roster does not scroll at 720p large UI: " + label)
+	_check(
+		scrollbar.focus_mode == Control.FOCUS_ALL and resources.follow_focus,
+		"Roster scrolling lacks keyboard access: " + label
+	)
+	_check(resources.theme != null, "Roster scrollbar has no battle theme: " + label)
+	for bottom in [false, true]:
+		resources.scroll_vertical = 10000 if bottom else 0
+		await _frames(3)
+		var endpoint = bars[-1] if bottom else bars[0]
+		_check(
+			resources.get_global_rect().encloses(endpoint.get_global_rect()),
+			"Roster scroll endpoint is clipped: " + label
+		)
+		await _shot(label + ("-bottom" if bottom else "-top"), spectator)
+
+
+func _shot(label, spectator = false):
 	var resources = game.get_node("HUD/MarginContainer2/Resources").get_global_rect()
-	_check(
-		game.hud._briefing.position.y >= resources.end.y,
-		"Objective covers resource stack: " + label
-	)
-	_check(
-		resources.end.x + 8 <= game.hud.system_plate.get_global_rect().position.x,
-		"Top plates overlap: " + label
-	)
 	var mini = game.find_child("Minimap", true, false).get_global_rect()
+	_check(
+		resources.position == Vector2.ZERO, "Resource stack is not flush to the corner: " + label
+	)
+	_check(root.get_visible_rect().encloses(resources), "Resource stack exceeds viewport: " + label)
+	_check(
+		resources.end.y + HudLayout.GAP <= mini.position.y,
+		"Resource stack covers minimap: " + label
+	)
+	if not spectator:
+		var briefing = game.hud._briefing.get_global_rect()
+		_check(briefing.position.y >= resources.end.y, "Objective covers resource stack: " + label)
+		_check(not briefing.intersects(mini), "Objective covers minimap: " + label)
+		_check(
+			resources.end.x + HudLayout.GAP <= game.hud.system_plate.get_global_rect().position.x,
+			"Top plates overlap: " + label
+		)
+		if game.subtitles._card.is_visible_in_tree():
+			_check(
+				not game.subtitles._card.get_global_rect().intersects(resources),
+				"Caption covers resource stack: " + label
+			)
 	var deck = game.find_child("UnitMenus", true, false)
 	_check(
 		not game.find_child("ConsoleFrame", true, false).empty_deck.visible,
@@ -198,6 +349,10 @@ func _shot(label):
 			absf(rect.end.y - root.get_visible_rect().end.y) < .5,
 			"Console does not sit at bottom: " + label
 		)
+	# Keep an unrelated OS cursor hover from leaving a tooltip over the capture.
+	Input.warp_mouse(root.get_visible_rect().size - Vector2(16, 280))
+	await _frames(2)
 	RenderingServer.force_draw(false)
-	root.get_texture().get_image().save_png(OUTPUT + label + ".png")
+	var saved = root.get_texture().get_image().save_png(OUTPUT + label + ".png")
+	_check(saved == OK, "Could not save HUD capture: " + label)
 	print("Captured ", label)

@@ -82,6 +82,12 @@ func _run():
 							deck_width = deck.size.x
 						_check(deck.size.x == deck_width, label + ": deck width follows selection")
 					var card = game.subtitles._card.get_global_rect()
+					var normal_left = game.find_child("Minimap").get_global_rect().end.x + 12
+					var normal_right = root.get_visible_rect().size.x - 12
+					_check(
+						absf(card.position.x - (normal_left + normal_right - card.size.x) / 2) < .5,
+						label + ": normal one/two-player caption placement changed"
+					)
 					if caption.has_area():
 						_check(card == caption, label + ": selection moved the caption")
 					caption = card
@@ -125,22 +131,24 @@ func _run():
 	paused = false
 	game.queue_free()
 	await _frames(5)
+	await _caption_roster_crossover(options)
 	options.restore(original)
-	_check(_checked == 62, "Only %d of 62 console states were checked" % _checked)
+	_check(_checked == 66, "Only %d of 66 console states were checked" % _checked)
 	for error in errors:
 		push_error(error)
 	print("HUD console: %d failures over %d console states" % [errors.size(), _checked])
 	quit(0 if errors.is_empty() else 1)
 
 
-func _many_players(faction, spectator):
+func _many_players(faction, spectator, player_count = 8, advanced = false):
 	var settings = load("res://source/data-model/MatchSettings.gd").new()
 	settings.skirmish = not spectator
+	settings.advanced_start = advanced
 	settings.map_path = "res://source/match/maps/BigArena.tscn"
 	# PER_PLAYER without a human still shows the whole spectator roster.
 	settings.visibility = settings.Visibility.PER_PLAYER if spectator else settings.Visibility.FULL
 	var controllers = root.get_node("Constants").PlayerType
-	for index in range(8):
+	for index in range(player_count):
 		var side = load("res://source/data-model/PlayerSettings.gd").new()
 		side.controller = (
 			controllers.HUMAN if index == 0 and not spectator else controllers.SIMPLE_CLAIRVOYANT_AI
@@ -154,8 +162,74 @@ func _many_players(faction, spectator):
 	root.add_child(game)
 	current_scene = game
 	game.get_node("IsometricCamera3D").set_physics_process(false)
+	for player in get_nodes_in_group("players"):
+		player.set_process(false)
+	if spectator:
+		_check(game._get_human_player() == null, "Spectator fixture unexpectedly has a human")
+		# Let visibility and fog update naturally before pausing this UI fixture.
+		for _tick in range(12):
+			await physics_frame
+		var headquarters = _units(game.visible_player, "CommandCenter")[0]
+		_check(headquarters.visible, "Spectator cannot see its viewed side after initialization")
+		_check(
+			game.fog_of_war._unit_to_circles_mapping.has(headquarters),
+			"Spectator has no fog reveal for its viewed headquarters"
+		)
 	paused = true
 	await _frames(12)
+
+
+func _caption_roster_crossover(options):
+	_set_resolution(options, 1.5)
+	var preferences = options.capture()
+	preferences.language = "zh_CN"
+	preferences.subtitle_size = 18
+	options.restore(preferences)
+	await _many_players("bastion", false, 4, true)
+	var human = game._get_human_player()
+	human.resource_a = 1250
+	human.resource_b = 1250
+	var workers = _units(human, "Worker")
+	var harvest = load("res://source/match/units/actions/CollectingResourcesSequentially.gd")
+	for index in workers.size():
+		var property = "resource_a" if index % 2 == 0 else "resource_b"
+		var deposits = get_nodes_in_group("resource_units").filter(
+			func(unit): return property in unit and unit.can_harvest(workers[index])
+		)
+		workers[index].issue_manual_order(harvest.new(deposits[0]))
+	var bar = game.find_child("ResourcesBar")
+	bar._refresh()
+	await _frames(30)
+	_check(
+		bar._assignment_buttons.values().all(func(button): return button.visible),
+		"Caption crossover fixture lacks real harvest assignment controls"
+	)
+	var resources = game.get_node("HUD/MarginContainer2/Resources").get_global_rect()
+	_check(resources.size.x > 700, "Caption crossover roster did not reach the narrow-width case")
+	var long_line = (
+		"The enemy is approaching the northern crossing. Keep your engineers behind cover "
+		+ "and hold the bridge until our reinforcements arrive."
+	)
+	for text in ["Ready.", long_line, "Ready.", long_line + " The convoy needs more time."]:
+		game.subtitles._on_line({"speaker": "Command", "text": text})
+		await _frames(12)
+		var card = game.subtitles._card.get_global_rect()
+		_check(root.get_visible_rect().size == Vector2(1280, 720), "Crossover viewport changed")
+		_check(not card.intersects(resources), "Changed caption covers the resource roster")
+		_check(card.end.x <= 1268.5, "Changed caption lost its right margin")
+		if text == "Ready.":
+			_check(card.position.y >= resources.end.y + HudLayout.GAP, "Short line crosses roster")
+			_check(is_equal_approx(card.size.x, 560), "Short caption retained the narrow width")
+		else:
+			_check(card.position.y < resources.end.y, "Long line did not exercise roster crossover")
+			_check(
+				card.position.x >= resources.end.x + HudLayout.GAP - .5,
+				"Wrapped caption lost its resource-roster gap"
+			)
+		_checked += 1
+	paused = false
+	game.queue_free()
+	await _frames(5)
 
 
 func _set_resolution(options, scale_value):
@@ -265,6 +339,7 @@ func _check_console(selected):
 		)
 		_check(bay.size.y <= HudLayout.CONSOLE_HEIGHT, label + ": deck exceeds its height budget")
 	var caption = game.subtitles._card.get_global_rect()
+	_check(not caption.intersects(resources), label + ": caption overlaps the resource roster")
 	_check(caption.position.x >= minimap.end.x, label + ": caption overlaps the minimap")
 	if selected:
 		_check(not caption.intersects(bay), label + ": caption overlaps the deck")

@@ -59,6 +59,8 @@
  - Dragging a jet's move destination preserves the next queued order
  - Hero campaign operations play ambience matching their environment
  - Objectives stay below the resource bars when full visibility shows multiple players
+ - Subtitles stay clear of tall resource rosters in eight-player battles
+ - Owned navigation maps use the configured edge-matching precision, avoiding false edge collisions during Glacier startup
  - New aircraft and mobile anti-air models include the same baked weathering as the rest of their faction
  - Paid jet orders retain their stands across saves; returning jets respect those reservations and can move to another airfield when theirs is destroyed
  - Fighters and bombers receive stand repairs after returning, and grounded aircraft obey terrain and forest concealment

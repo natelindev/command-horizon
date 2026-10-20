@@ -34,6 +34,11 @@ func _ready():
 	NavigationServer3D.map_set_cell_height(
 		navigation_map_rid, Constants.Match.Terrain.Navmesh.CELL_HEIGHT
 	)
+	# Server-created maps do not inherit the default world's project settings.
+	NavigationServer3D.map_set_merge_rasterizer_cell_scale(
+		navigation_map_rid,
+		ProjectSettings.get_setting_with_override("navigation/3d/merge_rasterizer_cell_scale")
+	)
 	_navigation_region.set_navigation_map(navigation_map_rid)
 	NavigationServer3D.map_set_active(navigation_map_rid, true)
 	MatchSignals.schedule_navigation_rebake.connect(_on_schedule_navigation_rebake)
