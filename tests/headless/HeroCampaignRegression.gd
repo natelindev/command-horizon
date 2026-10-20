@@ -6,7 +6,7 @@ var _id = ""
 
 func _make_operation(id):
 	_id = id
-	var operation = Campaigns.OPERATIONS[id]
+	var operation = Campaigns.operations()[id]
 	var settings = load("res://source/data-model/MatchSettings.gd").new()
 	settings.skirmish = true
 	settings.mission_id = id
@@ -43,7 +43,10 @@ func _run():
 			_check(game.campaign_hero.alive(), "Hero absent: " + id)
 			_check(game.campaign_hero.unit.player.faction == faction, "Wrong hero faction: " + id)
 			_check(
-				game.campaign_hero.tier == mini(3, 1 + int((Campaigns.OPERATIONS[id].act - 1) / 2)),
+				(
+					game.campaign_hero.tier
+					== mini(3, 1 + int((Campaigns.operations()[id].act - 1) / 2))
+				),
 				"Hero tier wrong: " + id
 			)
 			await _save_restore()
@@ -56,7 +59,7 @@ func _run():
 			paused = false
 			game.queue_free()
 			await _frames(4)
-	for id in Campaigns.STORIES:
+	for id in Campaigns.stories():
 		_check(Progress.new().record_operation(id, path), "Campaign progress write failed: " + id)
 	var progress = Progress.new()
 	_check(progress.read_progress(path), "Expanded progress could not reload")
@@ -78,7 +81,7 @@ func _run():
 	for message in errors:
 		push_error(message)
 	print("Hero campaigns: %d failures" % errors.size())
-	quit(0 if errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
 
 
 func _save_restore():
@@ -100,7 +103,7 @@ func _save_restore():
 	_check(not restore.prepare(invalid), "Invalid hero cooldown accepted: " + _id)
 	if Campaigns.is_story(_id):
 		invalid = state.duplicate(true)
-		invalid.mission.stage = Campaigns.STORIES[_id].objectives.size()
+		invalid.mission.stage = Campaigns.stories()[_id].objectives.size()
 		_check(not restore.prepare(invalid), "Out-of-range objective accepted: " + _id)
 		invalid = state.duplicate(true)
 		invalid.mission.wave_left = 41.0
@@ -125,7 +128,7 @@ func _save_restore():
 
 
 func _objectives():
-	var objectives = Campaigns.STORIES[_id].objectives
+	var objectives = Campaigns.stories()[_id].objectives
 	for index in objectives.size():
 		var objective = objectives[index]
 		_check(game.stage == index and not game.finished, "Objective skipped: " + _id)

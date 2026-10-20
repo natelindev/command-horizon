@@ -49,7 +49,7 @@ func _ready():
 	if fog != null:
 		fog.hide()
 	sun.shadow_bias = .025
-	sun.shadow_normal_bias = .65
+	sun.shadow_normal_bias = .35
 	sun.shadow_blur = 1.0
 	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
 	sun.directional_shadow_split_1 = .15

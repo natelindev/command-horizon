@@ -12,8 +12,8 @@ func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
 	path = "user://campaign-layout-%d.json" % OS.get_process_id()
 	var catalog = load("res://source/match/campaign/CampaignCatalog.gd")
-	for mission in catalog.OPERATIONS:
-		var definition = catalog.OPERATIONS[mission]
+	for mission in catalog.operations():
+		var definition = catalog.operations()[mission]
 		var settings = load("res://source/data-model/MatchSettings.gd").new()
 		settings.skirmish = true
 		settings.mission_id = mission

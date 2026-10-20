@@ -101,10 +101,23 @@ const ORDER = {
 		"frontier_the_coalition"
 	]
 }
-static var STORIES = JSON.parse_string(
-	FileAccess.get_file_as_string("res://source/match/campaign/hero-operations.json")
-)
-static var OPERATIONS = _operations()
+const Cache = preload("res://source/utils/RuntimeCache.gd")
+
+
+static func stories() -> Dictionary:
+	var cache = Cache.bucket("campaign_catalog")
+	if not cache.has("stories"):
+		cache.stories = JSON.parse_string(
+			FileAccess.get_file_as_string("res://source/match/campaign/hero-operations.json")
+		)
+	return cache.stories
+
+
+static func operations() -> Dictionary:
+	var cache = Cache.bucket("campaign_catalog")
+	if not cache.has("operations"):
+		cache.operations = _operations()
+	return cache.operations
 
 
 static func _operations():
@@ -113,8 +126,8 @@ static func _operations():
 		result[id].faction = "bastion"
 		result[id].enemy = "helix"
 		result[id].act = int(result[id].number)
-	for id in STORIES:
-		var entry = STORIES[id].duplicate(true)
+	for id in stories():
+		var entry = stories()[id].duplicate(true)
 		entry.number = "%02d" % entry.act
 		entry.scene = "res://source/match/campaign/HeroOperation.tscn"
 		entry.map = "res://source/match/maps/HeroTheater.tscn"
@@ -124,7 +137,7 @@ static func _operations():
 
 
 static func is_story(id):
-	return STORIES.has(id)
+	return stories().has(id)
 
 
 static func story_key(id):

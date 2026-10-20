@@ -20,7 +20,7 @@ func _run():
 		_check_ground()
 		_check_units()
 		await _check_construction()
-		var materials_before_restore = Textures._armor_materials.size()
+		var materials_before_restore = Textures.armor_materials().size()
 		# Rebuild the real match from a save: presentation must be recreated through
 		# the same spawn paths, not depend on material mutations in the old instance.
 		paused = true
@@ -37,7 +37,7 @@ func _run():
 				_check_ground()
 				_check_units()
 				_check(
-					Textures._armor_materials.size() == materials_before_restore,
+					Textures.armor_materials().size() == materials_before_restore,
 					"Save reload grew the armor material cache"
 				)
 		paused = false
@@ -49,7 +49,7 @@ func _run():
 		push_error(message)
 	print("Surface textures: %d failures" % errors.size())
 	# Release this coroutine's snapshot/restore locals before engine shutdown.
-	quit.call_deferred(0 if errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
 
 
 func _check_shaders():

@@ -17,5 +17,8 @@ static func weather(model):
 				material.shader = load("res://source/shaders/3d/alpine_stone.gdshader")
 				material.set_shader_parameter("base_tint", original.albedo_color)
 				material.set_shader_parameter("snow", snow)
+				load("res://source/match/ObjectMaterials.gd").configure_rock(
+					material, "concrete" if snow else "stone", .12 if snow else .65
+				)
 				materials[key] = material
 			mesh.set_surface_override_material(index, materials[key])

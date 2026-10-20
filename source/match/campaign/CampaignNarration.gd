@@ -72,7 +72,7 @@ static func single_narrator(id):
 
 
 static func missions():
-	return Campaigns.OPERATIONS.keys().filter(func(id): return lines().has(id + ".intro"))
+	return Campaigns.operations().keys().filter(func(id): return lines().has(id + ".intro"))
 
 
 static func valid_state(data, mission):

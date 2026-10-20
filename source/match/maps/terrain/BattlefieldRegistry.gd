@@ -7,7 +7,7 @@ extends RefCounted
 
 const ROOT = "res://source/match/maps/battlefields/"
 const Layout = preload("res://source/match/maps/terrain/BattlefieldLayout.gd")
-static var _layouts = {}
+const Cache = preload("res://source/utils/RuntimeCache.gd")
 
 
 static func is_authored(map_path: String) -> bool:
@@ -23,9 +23,10 @@ static func definition(map_path: String) -> Dictionary:
 static func layout(map_path: String) -> Dictionary:
 	if not is_authored(map_path):
 		return {}
-	if not _layouts.has(map_path):
-		_layouts[map_path] = Layout.expand(definition(map_path))
-	return _layouts[map_path]
+	var layouts = Cache.bucket("battlefield_layouts")
+	if not layouts.has(map_path):
+		layouts[map_path] = Layout.expand(definition(map_path))
+	return layouts[map_path]
 
 
 static func revision(map_path: String) -> int:

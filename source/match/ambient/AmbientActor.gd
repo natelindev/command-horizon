@@ -35,6 +35,7 @@ func setup(definition, combat_enabled = true):
 	var stats = Catalog.STATS[entry.kind]
 	configure_target(entry.kind, stats.radius, stats.health, stats.height)
 	load("res://source/match/ambient/NeutralDetails.gd").dress_actor(_model, entry)
+	load("res://source/match/ObjectMaterials.gd").apply(_model)
 	_model.scale *= Catalog.MODEL_SCALES[entry.kind]
 	_model_scale = _model.scale
 	_model_origin = _model.position

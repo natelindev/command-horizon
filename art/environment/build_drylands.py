@@ -174,6 +174,40 @@ def shrub(seed, mats, radius, height, clumps=7, bloom=None):
                  (size * .5, size * .5, height * .15), bloom, rng, .4, 0)
 
 
+def dune_grass(seed):
+    """Open tufts of bent, tapered blades; keep the original scenery envelope."""
+    rng = random.Random(seed)
+    vertices, faces = [], []
+    for tuft in range(5):
+        angle = tuft * math.tau / 5
+        root = Vector((math.cos(angle) * .42, math.sin(angle) * .42, .008))
+        for blade in range(12):
+            heading = blade * math.tau / 12 + rng.uniform(-.3, .3)
+            outward = Vector((math.cos(heading), math.sin(heading), 0))
+            side = Vector((-outward.y, outward.x, 0))
+            base = root + outward * rng.uniform(0, .075)
+            height = rng.uniform(.32, .69)
+            lean = rng.uniform(.12, .34)
+            width = rng.uniform(.018, .032)
+            middle = base + outward * lean * .38 + Vector((0, 0, height * .65))
+            tip = base + outward * lean + Vector((0, 0, height))
+            start = len(vertices)
+            vertices += [
+                base - side * width, base + Vector((0, 0, .008)), base + side * width,
+                middle - side * width * .65, middle + Vector((0, 0, .012)),
+                middle + side * width * .65, tip,
+            ]
+            faces += [tuple(start + i for i in face) for face in [
+                (0, 3, 4), (0, 4, 1), (1, 4, 5), (1, 5, 2), (3, 6, 4), (4, 6, 5)
+            ]]
+    mesh = bpy.data.meshes.new("Dune grass blades")
+    mesh.from_pydata(vertices, [], faces)
+    mesh.update()
+    obj = bpy.data.objects.new("Dune grass blades", mesh)
+    bpy.context.scene.collection.objects.link(obj)
+    attach(obj, "Dune grass blades", GRASS, flat=True)
+
+
 # ---------------------------------------------------------------- salt flats
 
 def tumbleweed():
@@ -492,7 +526,7 @@ builders = [
     ("CaravanseraiGate", 9.2, 7.1, caravanserai_gate),
     ("StoneWell", 2.3, 2.5, stone_well),
     ("BedouinTent", 2.6, 2.2, tent),
-    ("DuneGrass", 1.1, .9, lambda: shrub(114, [GRASS], 1.0, .7, 6)),
+    ("DuneGrass", 1.1, .9, lambda: dune_grass(114)),
     # Mojave.
     ("JoshuaTree", 2.0, 6.0, lambda: joshua_tree(115, 5.0)),
     ("Creosote", 1.2, 1.4, lambda: shrub(116, CREOSOTE, 1.1, 1.2, 8)),

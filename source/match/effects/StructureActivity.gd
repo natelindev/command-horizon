@@ -31,6 +31,7 @@ func _ready():
 		_unit.get_node("Geometry"), Transform3D.IDENTITY
 	)
 	_metal = Kit._material(Color("727f86"), .6)
+	_metal = load("res://source/match/ObjectMaterials.gd").textured(_metal)
 	_glow = Kit._material(Color("303536"), .1)
 	_glow.emission_enabled = true
 	_glow.emission = Color("c6ad7d")

@@ -2,6 +2,14 @@ extends "res://tests/headless/BattlePolishRegression.gd"
 
 
 func _run():
+	if (
+		DisplayServer.get_name() == "headless"
+		or Array(OS.get_cmdline_args()).any(func(arg): return arg.begins_with("--fixed-fps"))
+		or "--disable-render-loop" in OS.get_cmdline_args()
+	):
+		push_error("BattleFrameBenchmark requires graphical, real-time rendering")
+		quit(1)
+		return
 	factions = load("res://source/match/FactionCatalog.gd")
 	root.get_node("SaveManager").autosaves_enabled = false
 	var preferences = root.get_node("Globals").options
@@ -54,11 +62,17 @@ func _run():
 	preferences.restore(original)
 	for message in errors:
 		push_error(message)
-	quit(0 if errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
 
 
 func _measure_frames(label):
-	await _frames(60)
+	# Update ticks can run without a draw (e.g. native window transitions).
+	# Warm both the renderer and real-time simulation before sampling draws.
+	var warm_until = Time.get_ticks_msec() + 3000
+	for frame in 120:
+		await RenderingServer.frame_post_draw
+	while Time.get_ticks_msec() < warm_until:
+		await RenderingServer.frame_post_draw
 	var times = []
 	var gpu_ms = 0.0
 	var render_cpu_ms = 0.0
@@ -67,7 +81,7 @@ func _measure_frames(label):
 	var drawn = Engine.get_frames_drawn()
 	var physics_started = Engine.get_physics_frames()
 	for frame in 240:
-		await process_frame
+		await RenderingServer.frame_post_draw
 		var now = Time.get_ticks_usec()
 		times.append((now - last) / 1000.0)
 		gpu_ms += RenderingServer.viewport_get_measured_render_time_gpu(root.get_viewport_rid())
@@ -77,7 +91,10 @@ func _measure_frames(label):
 		last = now
 	times.sort()
 	var mean = times.reduce(func(total, sample): return total + sample, 0.0) / times.size()
-	_check(Engine.get_frames_drawn() - drawn >= 230, "Benchmark window did not render its samples")
+	_check(
+		Engine.get_frames_drawn() - drawn == times.size(),
+		"Benchmark window did not render every sample"
+	)
 	# A fast machine can render all samples in under a second.
 	_check(
 		(
@@ -106,7 +123,7 @@ func _measure_frames(label):
 		" pixels=",
 		root.get_texture().get_size(),
 		" gpu_ms=",
-		snappedf(gpu_ms / times.size(), .01),
+		snappedf(gpu_ms / times.size(), .01) if gpu_ms > 0.0 else "unavailable",
 		" render_cpu_ms=",
 		snappedf(render_cpu_ms / times.size(), .01),
 		" adapter=",

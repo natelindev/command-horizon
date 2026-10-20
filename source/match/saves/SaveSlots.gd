@@ -82,7 +82,11 @@ func describe(id):
 static func summary_for(data, modified = 0):
 	var settings = data.settings
 	var title = (
-		load("res://source/match/campaign/CampaignCatalog.gd").OPERATIONS[settings.mission_id].title
+		(
+			load("res://source/match/campaign/CampaignCatalog.gd")
+			. operations()[settings.mission_id]
+			. title
+		)
 		if settings.mission_id != ""
 		else Schema.Rules.MAPS[settings.map_path].name
 	)

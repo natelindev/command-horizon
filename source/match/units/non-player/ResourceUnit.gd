@@ -1,6 +1,7 @@
 extends Area3D
 
 const ResourceDecayAnimation = preload("res://source/match/utils/ResourceDecayAnimation.tscn")
+const ObjectMaterials = preload("res://source/match/ObjectMaterials.gd")
 
 # Absolute stock thresholds keep partially harvested deposits and restored saves visually
 # exact without introducing a second, potentially stale resource balance into the archive.
@@ -100,6 +101,7 @@ func _update_salvage(amount):
 	if stage < PILE_THRESHOLDS.size():
 		# Open bundles -> loose parts -> scraps: authored geometry, at its real scale.
 		geometry.add_child(DEPLETED_MODELS[_salvage_kind][stage].instantiate())
+		ObjectMaterials.apply(geometry)
 		return
 	for index in PILE_POSITIONS.size():
 		var pile = SALVAGE_MODELS[_salvage_kind][(_salvage_key + index) % 3].instantiate()
@@ -107,6 +109,7 @@ func _update_salvage(amount):
 		pile.scale = Vector3.ONE * PILE_SCALES[index]
 		pile.rotation.y = float((_salvage_key + index * 5) % 16) * TAU / 16.0
 		geometry.add_child(pile)
+	ObjectMaterials.apply(geometry)
 
 
 func can_harvest(_worker):

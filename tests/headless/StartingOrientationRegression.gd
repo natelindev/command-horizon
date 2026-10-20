@@ -11,17 +11,17 @@ func _run():
 			await _archive_orientation()
 			await _close_orientation()
 	var catalog = load("res://source/match/campaign/CampaignCatalog.gd")
-	for mission in catalog.OPERATIONS:
+	for mission in catalog.operations():
 		var settings = load("res://source/data-model/MatchSettings.gd").new()
 		settings.skirmish = true
 		settings.mission_id = mission
-		settings.map_path = catalog.OPERATIONS[mission].map
+		settings.map_path = catalog.operations()[mission].map
 		for index in 2:
 			var side = load("res://source/data-model/PlayerSettings.gd").new()
 			side.controller = index + 1
 			side.faction = "bastion" if index == 0 else "helix"
 			settings.players.append(side)
-		game = load(catalog.OPERATIONS[mission].scene).instantiate()
+		game = load(catalog.operations()[mission].scene).instantiate()
 		game.settings = settings
 		game.map = load(settings.map_path).instantiate()
 		game.progress_path = "user://orientation-campaign-%d.json" % OS.get_process_id()

@@ -9,7 +9,7 @@ func _run():
 		{"screen": 1, "edge_scrolling": false, "subtitles": false}
 	)
 	for mission in Narration.missions():
-		var operation = Campaigns.OPERATIONS[mission]
+		var operation = Campaigns.operations()[mission]
 		var settings = load("res://source/data-model/MatchSettings.gd").new()
 		settings.skirmish = true
 		settings.mission_id = mission

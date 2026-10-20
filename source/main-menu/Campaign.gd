@@ -141,7 +141,7 @@ func _select_faction(index):
 	_operation_buttons.clear()
 	var group = ButtonGroup.new()
 	for slot in _ids.size():
-		var operation = Catalog.OPERATIONS[_ids[slot]]
+		var operation = Catalog.operations()[_ids[slot]]
 		var button = _button(
 			_operation_list,
 			operation.number + " · " + tr(operation.title),
@@ -177,13 +177,13 @@ func _select_operation(index):
 	_operation_buttons[index].set_pressed_no_signal(true)
 
 	_theater_intel.text = tr("Your hero must survive.")
-	var entry = Catalog.OPERATIONS[_mission_id]
+	var entry = Catalog.operations()[_mission_id]
 	_hero_story.visible = not Catalog.is_story(_mission_id) and entry.has("summary")
 	_hero_story.text = entry.get(
 		"summary_zh" if Globals.options.language == "zh_CN" else "summary", ""
 	)
 	if Catalog.is_story(_mission_id):
-		var operation = Catalog.OPERATIONS[_mission_id]
+		var operation = Catalog.operations()[_mission_id]
 		_completion.text = tr("Completed") if _progress.completed(_mission_id) else tr("Available")
 		_briefing.text = (
 			operation.summary_zh if Globals.options.language == "zh_CN" else operation.summary
@@ -234,7 +234,7 @@ func _select_operation(index):
 	):
 		_difficulty.add_item(tr(title))
 	_difficulty.select(1)
-	_start_button.text = tr("Start %s") % tr(Catalog.OPERATIONS[_ids[index]].title)
+	_start_button.text = tr("Start %s") % tr(Catalog.operations()[_ids[index]].title)
 	if supply:
 		_briefing.text = (
 			"A Bastion convoy must cross a contested freight corridor.\n\n"
@@ -409,16 +409,16 @@ func _start():
 	settings.mission_id = _mission_id
 	if _mission_id == "command_horizon":
 		settings.campaign_challenge = ["", "lean", "reinforced"][_challenge.selected]
-	settings.map_path = Catalog.OPERATIONS[settings.mission_id].map
+	settings.map_path = Catalog.operations()[settings.mission_id].map
 	for index in range(2):
 		var player = load("res://source/data-model/PlayerSettings.gd").new()
 		player.controller = (
 			Constants.PlayerType.HUMAN if index == 0 else Constants.PlayerType.SIMPLE_CLAIRVOYANT_AI
 		)
 		player.faction = (
-			Catalog.OPERATIONS[_mission_id].faction
+			Catalog.operations()[_mission_id].faction
 			if index == 0
-			else Catalog.OPERATIONS[_mission_id].enemy
+			else Catalog.operations()[_mission_id].enemy
 		)
 		player.color = Constants.Player.COLORS[0 if index == 0 else 2]
 		player.difficulty = _difficulty.selected

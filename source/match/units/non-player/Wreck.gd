@@ -30,6 +30,7 @@ func _ready():
 	for mesh in model.find_children("*", "MeshInstance3D", true, false):
 		mesh.material_override = material
 	geometry.add_child(model)
+	load("res://source/match/ObjectMaterials.gd").apply(model)
 	geometry.rotation.y = fmod(position.x * 31 + position.z * 73, TAU)
 	_refresh()
 

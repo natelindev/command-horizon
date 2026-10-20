@@ -1,5 +1,6 @@
 shader_type spatial;
 render_mode cull_disabled;
+#include "res://source/shaders/3d/rock_detail.gdshaderinc"
 // Layered sandstone for cliffs, ramp cuts and formations: horizontal strata
 // keyed to world height, desert-varnish streaks down the faces, a pale
 // weathered caprock on level tops and grain at close range.
@@ -59,4 +60,6 @@ void fragment()
   color = mix(color, cap.rgb * (0.88 + grain * 0.2), level_top);
   ALBEDO = color;
   ROUGHNESS = rock_roughness;
+  ALBEDO = rock_albedo(ALBEDO, world_point, world_normal);
+  NORMAL = rock_relief(world_point, NORMAL, VIEW_MATRIX, INV_VIEW_MATRIX);
 }

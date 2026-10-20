@@ -56,11 +56,11 @@ func capture(game):
 	if not game.settings.skirmish or game.settings.players.size() not in [2, 4] or game.finished:
 		return _fail("Only active skirmishes and supported operations can be saved.")
 	var maps = game.get_node("/root/Constants").Match.MAPS.keys()
-	for operation in Campaigns.OPERATIONS.values():
+	for operation in Campaigns.operations().values():
 		maps.append(operation.map)
 	if (
 		game.settings.map_path not in maps
-		or game.settings.mission_id not in [""] + Campaigns.OPERATIONS.keys()
+		or game.settings.mission_id not in [""] + Campaigns.operations().keys()
 	):
 		return _fail("This map or mission does not have a save contract yet.")
 	game.wreck_salvage.flush()

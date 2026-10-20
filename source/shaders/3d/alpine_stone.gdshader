@@ -1,4 +1,5 @@
 shader_type spatial;
+#include "res://source/shaders/3d/rock_detail.gdshaderinc"
 uniform vec4 base_tint : source_color = vec4(0.25,0.3,0.32,1.0);
 uniform bool snow = false;
 varying vec3 world_point;
@@ -19,4 +20,6 @@ void fragment() {
 	float exposure=snow ? 0.91+stain*0.08+fine*0.06 : 0.77+stain*0.30+fine*0.14;
 	ALBEDO=base_tint.rgb*exposure;
 	ROUGHNESS=0.96;
+	ALBEDO = rock_albedo(ALBEDO, world_point, (INV_VIEW_MATRIX * vec4(NORMAL, 0.0)).xyz);
+	NORMAL = rock_relief(world_point, NORMAL, VIEW_MATRIX, INV_VIEW_MATRIX);
 }

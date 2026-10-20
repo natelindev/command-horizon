@@ -23,7 +23,7 @@ func _run():
 	root.content_scale_size = Vector2i(1920, 1080)
 	root.get_node("SaveManager").autosaves_enabled = false
 	path = "user://campaign-scale-%d.json" % OS.get_process_id()
-	for mission in Campaigns.OPERATIONS:
+	for mission in Campaigns.operations():
 		await _campaign(mission)
 		game.hud._toggle_pause()
 		# This matrix isolates layout; SpeechRegression covers real caption timing.
@@ -93,7 +93,7 @@ func _run():
 
 
 func _campaign(mission):
-	var entry = Campaigns.OPERATIONS[mission]
+	var entry = Campaigns.operations()[mission]
 	var settings = load("res://source/data-model/MatchSettings.gd").new()
 	settings.skirmish = true
 	settings.mission_id = mission

@@ -50,7 +50,7 @@ static func populate(map):
 			MeshBatch.merged_mesh(batch.asset, batch.height),
 			batch.transforms,
 			batch.asset.get_file(),
-			batch.height > 1.2
+			true
 		)
 	for landmark in layout.get("landmarks", []):
 		_landmark(map, layout, landmark)

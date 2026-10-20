@@ -4,7 +4,7 @@ extends "res://tests/headless/HeroCampaignRegression.gd"
 func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
 	path = "user://hero-routes-%d.json" % OS.get_process_id()
-	for id in Campaigns.STORIES:
+	for id in Campaigns.stories():
 		paused = false
 		await _make_operation(id)
 		game.set_physics_process(false)
@@ -12,8 +12,8 @@ func _run():
 			if enemy.is_in_group("units"):
 				enemy.hp = 0
 		await _frames(3)
-		for index in Campaigns.STORIES[id].objectives.size():
-			var objective = Campaigns.STORIES[id].objectives[index]
+		for index in Campaigns.stories()[id].objectives.size():
+			var objective = Campaigns.stories()[id].objectives[index]
 			if objective.kind != "escort":
 				continue
 			game.stage = index

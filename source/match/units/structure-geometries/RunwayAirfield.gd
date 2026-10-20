@@ -207,6 +207,11 @@ func _light(root, point, color):
 func _material(color):
 	if not _materials.has(color):
 		var material = StandardMaterial3D.new()
+		material.resource_name = (
+			"Runway asphalt"
+			if color == ASPHALT
+			else "Runway concrete" if color == CONCRETE else "Markings / runway"
+		)
 		material.albedo_color = color
 		material.roughness = 0.92
 		_materials[color] = material

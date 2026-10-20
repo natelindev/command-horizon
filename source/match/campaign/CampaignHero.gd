@@ -11,7 +11,7 @@ var _game
 
 func _ready():
 	_game = get_parent()
-	var act = Catalog.OPERATIONS[_game.settings.mission_id].get("act", 1)
+	var act = Catalog.operations()[_game.settings.mission_id].get("act", 1)
 	tier = mini(3, 1 + int((act - 1) / 2))
 	if not _game.restoring:
 		_bind_or_spawn()

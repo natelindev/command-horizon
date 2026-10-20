@@ -4,7 +4,7 @@ extends "res://tests/headless/HeroCampaignRegression.gd"
 func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
 	path = "user://hero-map-%d.json" % OS.get_process_id()
-	for id in Campaigns.STORIES:
+	for id in Campaigns.stories():
 		paused = false
 		await _make_operation(id)
 		for frame in 600:
@@ -21,7 +21,7 @@ func _run():
 				_reachable(nav, start, field.position, 3),
 				"Unreachable resource: %s %s" % [id, field.position]
 			)
-		for objective in Campaigns.STORIES[id].objectives:
+		for objective in Campaigns.stories()[id].objectives:
 			_check(
 				_reachable(nav, start, game._point(objective.point), 5),
 				"Unreachable objective: %s %s" % [id, objective.title]

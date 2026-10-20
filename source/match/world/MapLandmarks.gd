@@ -469,7 +469,7 @@ static func _multimesh(parent, asset, transforms):
 	var instance = MultiMeshInstance3D.new()
 	instance.name = "%sCover" % asset.get_file()
 	instance.multimesh = multimesh
-	instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 	parent.add_child(instance)
 
 

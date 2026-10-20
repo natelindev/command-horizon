@@ -45,7 +45,7 @@ func _create(map_name, faction, mission = ""):
 	)
 	var scene = "res://source/match/Skirmish.tscn"
 	if not mission.is_empty():
-		var operation = load("res://source/match/campaign/CampaignCatalog.gd").OPERATIONS[mission]
+		var operation = load("res://source/match/campaign/CampaignCatalog.gd").operations()[mission]
 		settings.mission_id = mission
 		settings.map_path = operation.map
 		scene = operation.scene

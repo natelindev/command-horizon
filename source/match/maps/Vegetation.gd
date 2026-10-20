@@ -14,7 +14,7 @@ const TREES = {
 	"coastal": ["coastal/CoastalPineStand", "coastal/ShorePines"],
 	"urban": ["industrial-surroundings/BirchScrub"]
 }
-static var _heights = {}
+const Cache = preload("res://source/utils/RuntimeCache.gd")
 
 
 static func tree(biome, index, height = 7.0):
@@ -36,9 +36,10 @@ static func fit_height(model, height):
 	# Call on a fresh model before setting its placement scale. Cache one mesh
 	# traversal per shared asset; no vegetation code runs during simulation.
 	var path = model.scene_file_path
-	if not _heights.has(path):
-		_heights[path] = bounds(model).size.y
-	var original: float = _heights[path]
+	var heights = Cache.bucket("vegetation_heights")
+	if not heights.has(path):
+		heights[path] = bounds(model).size.y
+	var original: float = heights[path]
 	if original > .001:
 		model.scale *= height / original
 	model.set_meta("vegetation_height", height)

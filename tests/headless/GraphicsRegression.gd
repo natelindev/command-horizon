@@ -88,4 +88,4 @@ func _run():
 	for error in errors:
 		push_error(error)
 	print("Graphics regression: %d failures" % errors.size())
-	quit(0 if errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)

@@ -111,6 +111,7 @@ func _ready():
 	add_child(battlefield_wear)
 	base_area_lighting = load("res://source/match/environment/BaseAreaLighting.gd").new()
 	add_child(base_area_lighting)
+	load("res://source/match/ObjectMaterials.gd").apply(map)
 	var atmosphere = load("res://source/match/environment/WorldAtmosphere.gd").new()
 	add_child(atmosphere)
 	if DisplayServer.get_name() != "headless":

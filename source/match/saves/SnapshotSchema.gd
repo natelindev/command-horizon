@@ -606,10 +606,10 @@ func _settings(settings):
 		or settings.players.size() not in [2, 4]
 	):
 		return false
-	if settings.mission_id in Campaigns.OPERATIONS:
+	if settings.mission_id in Campaigns.operations():
 		if settings.players.size() != 2:
 			return false
-		var operation = Campaigns.OPERATIONS[settings.mission_id]
+		var operation = Campaigns.operations()[settings.mission_id]
 		if settings.map_path != operation.map:
 			return false
 		map_size = operation.size
@@ -641,8 +641,8 @@ func _settings(settings):
 			and (
 				side.faction
 				!= [
-					Campaigns.OPERATIONS[settings.mission_id].faction,
-					Campaigns.OPERATIONS[settings.mission_id].enemy
+					Campaigns.operations()[settings.mission_id].faction,
+					Campaigns.operations()[settings.mission_id].enemy
 				][index]
 			)
 		):
@@ -1723,7 +1723,7 @@ func _hero_operation(value, id):
 		value, "stage:int elapsed:num wave_left:num waves:int targets:list escort:text relays:list"
 	):
 		return false
-	var objectives = Campaigns.STORIES[id].objectives
+	var objectives = Campaigns.stories()[id].objectives
 	if (
 		value.stage >= objectives.size()
 		or value.elapsed > 120

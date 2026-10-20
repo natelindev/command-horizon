@@ -6,7 +6,7 @@ var relays = []
 
 
 func _ready():
-	var mission = Catalog.STORIES[get_parent().settings.mission_id]
+	var mission = Catalog.stories()[get_parent().settings.mission_id]
 	var colors = {
 		"city": "787b75",
 		"spire": "626a72",

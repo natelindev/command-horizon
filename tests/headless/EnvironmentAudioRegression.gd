@@ -261,7 +261,7 @@ func _campaign_regions():
 		"frontier_wren": "industrial",
 		"frontier_the_coalition": "industrial"
 	}
-	_check(expected.size() == catalog.OPERATIONS.size(), "Campaign climate coverage is stale")
+	_check(expected.size() == catalog.operations().size(), "Campaign climate coverage is stale")
 	_check(
 		(
 			soundscape_rules
@@ -270,11 +270,11 @@ func _campaign_regions():
 		),
 		"Unknown hero operation guessed climate"
 	)
-	for mission in catalog.OPERATIONS:
+	for mission in catalog.operations():
 		_check(expected.has(mission), "Missing campaign climate expectation: " + mission)
 		if not expected.has(mission):
 			continue
-		var definition = catalog.OPERATIONS[mission]
+		var definition = catalog.operations()[mission]
 		var settings = load("res://source/data-model/MatchSettings.gd").new()
 		settings.skirmish = true
 		settings.mission_id = mission

@@ -514,7 +514,7 @@ func _setup_title():
 
 func _match_label():
 	if _is_campaign():
-		return CampaignCatalog.OPERATIONS[get_parent().settings.mission_id].title
+		return CampaignCatalog.operations()[get_parent().settings.mission_id].title
 	return "Skirmish"
 
 

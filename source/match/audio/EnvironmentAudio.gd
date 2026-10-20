@@ -21,7 +21,7 @@ var _scan_left = 0.0
 static func region_for(map_path, mission_id = ""):
 	if map_path == "res://source/match/maps/HeroTheater.tscn":
 		# One scene hosts several authored environments; its filename cannot select a bed.
-		var story = load("res://source/match/campaign/CampaignCatalog.gd").STORIES.get(
+		var story = load("res://source/match/campaign/CampaignCatalog.gd").stories().get(
 			mission_id, {}
 		)
 		return (

@@ -132,7 +132,7 @@ func _run():
 			% [errors.size(), _air_models_checked, _captures]
 		)
 	)
-	quit(0 if errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
 
 
 func _air_pairs(faction, player, point):

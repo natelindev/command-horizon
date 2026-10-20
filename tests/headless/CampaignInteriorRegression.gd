@@ -4,7 +4,7 @@ extends "res://tests/headless/HeroCampaignMapRegression.gd"
 func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
 	path = "user://interior-%d.json" % OS.get_process_id()
-	for id in Campaigns.OPERATIONS:
+	for id in Campaigns.operations():
 		paused = false
 		await _make_operation(id)
 		for frame in 600:
@@ -18,7 +18,10 @@ func _run():
 		var quadrants = {}
 		for building in game.map.interior_obstacles:
 			var point = Vector2(building.position.x, building.position.z)
-			quadrants[Vector2i(int(point.x > game.map.size.x / 2), int(point.y > game.map.size.y / 2))] = true
+			var quadrant = Vector2i(
+				int(point.x > game.map.size.x / 2), int(point.y > game.map.size.y / 2)
+			)
+			quadrants[quadrant] = true
 			var obstacle = building.get_node("MovementObstacle")
 			_check(obstacle.is_in_group("sight_blockers"), "Scenery does not block sight: " + id)
 			var height = game.map.flight_height_at(building.position, 1.5)
@@ -63,4 +66,4 @@ func _run():
 	for message in errors:
 		push_error(message)
 	print("Campaign interiors: %d failures" % errors.size())
-	quit(0 if errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)

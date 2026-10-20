@@ -28,7 +28,11 @@ const ARMOR_NAMES = [
 	"Helix_Ceramic",
 	"Helix_Secondary",
 ]
-static var _armor_materials = {}
+const Cache = preload("res://source/utils/RuntimeCache.gd")
+
+
+static func armor_materials() -> Dictionary:
+	return Cache.bucket("armor_materials")
 
 
 static func configure_ground(material):
@@ -52,6 +56,7 @@ static func configure_armor(material, enabled = true):
 
 
 static func apply_armor(model):
+	var materials = armor_materials()
 	for mesh in model.find_children("*", "MeshInstance3D", true, false):
 		for surface in mesh.mesh.get_surface_count():
 			var original = mesh.get_active_material(surface)
@@ -65,7 +70,7 @@ static func apply_armor(model):
 			var key = [
 				original.resource_name, original.albedo_color, original.metallic, original.roughness
 			]
-			if not _armor_materials.has(key):
+			if not materials.has(key):
 				var material = ShaderMaterial.new()
 				material.resource_name = original.resource_name
 				material.shader = ARMOR_SHADER
@@ -73,5 +78,5 @@ static func apply_armor(model):
 				material.set_shader_parameter("metalness", original.metallic)
 				material.set_shader_parameter("base_roughness", original.roughness)
 				configure_armor(material)
-				_armor_materials[key] = material
-			mesh.set_surface_override_material(surface, _armor_materials[key])
+				materials[key] = material
+			mesh.set_surface_override_material(surface, materials[key])

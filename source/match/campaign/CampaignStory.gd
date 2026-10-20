@@ -333,8 +333,8 @@ func _begin_cinematic():
 	_title.text = (
 		"%s / %s"
 		% [
-			Catalog.OPERATIONS[_game.settings.mission_id].number,
-			tr(Catalog.OPERATIONS[_game.settings.mission_id].title)
+			Catalog.operations()[_game.settings.mission_id].number,
+			tr(Catalog.operations()[_game.settings.mission_id].title)
 		]
 	)
 	_update_layout()

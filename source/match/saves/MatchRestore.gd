@@ -51,7 +51,7 @@ func restore(tree, snapshot):
 	var scene_path = (
 		"res://source/match/Skirmish.tscn"
 		if settings.mission_id == ""
-		else (Campaigns.OPERATIONS[settings.mission_id].scene)
+		else (Campaigns.operations()[settings.mission_id].scene)
 	)
 	var game = load(scene_path).instantiate()
 	game.restoring = true

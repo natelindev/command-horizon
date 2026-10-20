@@ -22,7 +22,7 @@ func _ready():
 
 	_label.text = tr("LOADING_STEP_LOADING_MATCH")
 	await get_tree().physics_frame
-	var campaigns = load("res://source/match/campaign/CampaignCatalog.gd").OPERATIONS
+	var campaigns = load("res://source/match/campaign/CampaignCatalog.gd").operations()
 	var scene_path = (
 		"res://source/match/Skirmish.tscn"
 		if match_settings.skirmish

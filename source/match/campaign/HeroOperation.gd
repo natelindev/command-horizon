@@ -15,7 +15,7 @@ var progress_error = ""
 var _enemy
 var _definition:
 	get:
-		return Operations.STORIES[settings.mission_id]
+		return Operations.stories()[settings.mission_id]
 
 
 func _ready():

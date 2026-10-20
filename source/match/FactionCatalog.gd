@@ -5,6 +5,7 @@ const Bastion = preload("res://source/match/BastionCatalog.gd")
 const Frontier = preload("res://source/match/FrontierCatalog.gd")
 const FrontierSurfaces = preload("res://source/match/FrontierMaterials.gd")
 const SurfaceTextures = preload("res://source/match/SurfaceTextures.gd")
+const ObjectMaterials = preload("res://source/match/ObjectMaterials.gd")
 # Loaded at runtime: the airfield builder reads this catalog.
 const RUNWAY_AIRFIELD = "res://source/match/units/structure-geometries/RunwayAirfield.gd"
 const Rules = preload("res://source/match/FactionRules.gd")
@@ -383,6 +384,7 @@ static func prepare_model(unit, faction):
 			geometry.faction = faction
 		unit.set_meta("model_faction", faction)
 		SurfaceTextures.apply_armor(geometry)
+		ObjectMaterials.apply(geometry)
 		return
 	if Bastion.is_infantry(unit.type):
 		for child in geometry.get_children():
@@ -402,6 +404,7 @@ static func prepare_model(unit, faction):
 	if Bastion.is_infantry(unit.type):
 		load("res://source/match/units/traits/InfantryEquipment.gd").equip(unit, faction)
 	SurfaceTextures.apply_armor(geometry)
+	ObjectMaterials.apply(geometry)
 
 
 static func helix_geometry(role, radius):

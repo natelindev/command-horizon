@@ -122,7 +122,11 @@ func _start_track(track, stream):
 	players[_target].play()
 
 
-func _exit_tree():
+func shutdown():
+	set_process(false)
+	_pending_track = ""
+	_target = -1
+	current_track = ""
 	# Join outstanding loads only at shutdown, never on an interactive frame.
 	for path in _requests.values():
 		if ResourceLoader.load_threaded_get_status(path) != ResourceLoader.THREAD_LOAD_FAILED:
@@ -133,3 +137,7 @@ func _exit_tree():
 		if is_instance_valid(player):
 			player.stop()
 			player.stream = null
+
+
+func _exit_tree():
+	shutdown()

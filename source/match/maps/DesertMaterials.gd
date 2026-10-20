@@ -20,5 +20,6 @@ static func weather_stone(model):
 				var material = ShaderMaterial.new()
 				material.shader = load("res://source/shaders/3d/desert_stone.gdshader")
 				material.set_shader_parameter("stone_tint", original.albedo_color)
+				load("res://source/match/ObjectMaterials.gd").configure_rock(material)
 				materials[key] = material
 			mesh.set_surface_override_material(index, materials[key])

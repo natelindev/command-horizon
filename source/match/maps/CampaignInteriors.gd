@@ -113,7 +113,7 @@ static func populate(map, mission_id):
 
 static func _biome(id):
 	if Catalog.is_story(id):
-		return Catalog.STORIES[id].biome
+		return Catalog.stories()[id].biome
 	if id == "split_signal":
 		return "alpine"
 	return "city" if id in ["broken_foundry", "command_horizon"] else "desert"
@@ -160,7 +160,7 @@ static func protection(map, id):
 		circles.append([Vector2(65, 105), 7.0])
 	if Catalog.is_story(id):
 		var previous = Vector2(18, 100)
-		for objective in Catalog.STORIES[id].objectives:
+		for objective in Catalog.stories()[id].objectives:
 			var point = Vector2(objective.point[0], objective.point[1])
 			circles.append([point, 13.0])
 			roads.append(Vector4(previous.x, previous.y, point.x, point.y))
@@ -169,7 +169,7 @@ static func protection(map, id):
 				var destination = Vector2(objective.destination[0], objective.destination[1])
 				circles.append([destination, 10.0])
 				roads.append(Vector4(point.x, point.y, destination.x, destination.y))
-		var biome = Catalog.STORIES[id].biome
+		var biome = Catalog.stories()[id].biome
 		if biome in ["city", "spire"]:
 			for x in [40, 80, 120]:
 				roads.append(Vector4(x, 0, x, map.size.y))

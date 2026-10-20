@@ -14,7 +14,7 @@ func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
 	path = "user://hero-battle-%d.json" % OS.get_process_id()
 	var only = OS.get_cmdline_user_args()
-	for id in Campaigns.STORIES:
+	for id in Campaigns.stories():
 		if not only.is_empty() and id not in only:
 			continue
 		paused = false

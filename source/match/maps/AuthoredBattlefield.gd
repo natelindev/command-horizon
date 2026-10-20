@@ -351,6 +351,9 @@ func _place_rock():
 		rock.mesh = mesh
 		var material = ShaderMaterial.new()
 		material.shader = ROCK_SHADER
+		load("res://source/match/ObjectMaterials.gd").configure_rock(
+			material, "concrete" if variant == "ice" else "stone", .12 if variant == "ice" else .65
+		)
 		var rock_colours = Palettes.rock(variant if variant != "" else _ground_palette())
 		rock_colours = rock_colours.duplicate()
 		if variant == "":

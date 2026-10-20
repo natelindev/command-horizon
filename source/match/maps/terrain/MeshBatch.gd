@@ -15,6 +15,7 @@ static func merged_mesh(asset: String, height: float) -> ArrayMesh:
 		return _meshes[key]
 	var source = load(ROOT % asset).instantiate()
 	Vegetation.fit_height(source, height)
+	load("res://source/match/ObjectMaterials.gd").apply(source)
 	var tools = {}
 	for mesh in source.find_children("*", "MeshInstance3D", true, false):
 		var local = Transform3D.IDENTITY

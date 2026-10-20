@@ -29,6 +29,7 @@ func _ready():
 func _pile(scene):
 	var pile = Node3D.new()
 	var model = scene.instantiate()
+	load("res://source/match/ObjectMaterials.gd").apply(model)
 	var bounds = load("res://source/match/FactionCatalog.gd")._bounds(model, Transform3D.IDENTITY)
 	var factor = .38 / maxf(bounds.size.x, bounds.size.z)
 	model.scale = Vector3.ONE * factor

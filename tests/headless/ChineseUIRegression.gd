@@ -76,7 +76,7 @@ func _run():
 			game.hud._close_menu()
 		game.queue_free()
 		await _frames(5)
-	var operations = load("res://source/match/campaign/CampaignCatalog.gd").OPERATIONS
+	var operations = load("res://source/match/campaign/CampaignCatalog.gd").operations()
 	for id in operations:
 		await _campaign(id, operations[id])
 		_scan(game)
