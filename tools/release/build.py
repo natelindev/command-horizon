@@ -36,6 +36,8 @@ TESTS = [
     "SkirmishBuildReadinessRegression",
     "PresentationFeaturesRegression", "SettingsRegression",
     "BattleHudProductionRegression", "BattleAftermathRegression",
+    "MapPassageRegression", "ObjectMaterialsRegression", "RuntimeShutdownRegression",
+    "EnvironmentEffectsRegression", "WaterFlowRegression", "WaterHybridRegression",
 ]
 
 

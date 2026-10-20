@@ -2,6 +2,8 @@
 
 ## [main]
 
+## [0.15.0]
+
 ### Air combat redesign
  - Physical projectiles: visible bullets, shells, rockets, guided missiles and bombs follow gravity, thrust and turn limits; rounds can miss, are blocked by terrain and buildings, splash nearby enemies and outlive their shooter
  - Four distinct aircraft from one runway airfield: kamikaze drones, fighters, bombers and attack helicopters
@@ -13,6 +15,8 @@
  - Save format 16 stores rounds in flight and flight state; retained playtest archives were converted
 
 ### Added
+ - Textured object materials for vegetation, stone, buildings, vehicles and props, with improved lighting and shadows
+ - Scalable battlefield clouds, dust, fog and lava effects, plus interactive water with authored currents and local ripples
  - Event-driven HUD motion for production, research, newly available commands and notices, with stable hit targets and reduced-flash support
  - Resource and weapon tooltip icons sized relative to text at every interface scale
  - Directional rocket exhaust and dust, expanding blast flashes, and bounded debris with independent 3D rotation and scale
@@ -49,6 +53,10 @@
  - Single-narrator campaign lines replaced by recorded dialogue, and remaining old-save handling for heroes, conversations, facility counts and mercenary contracts
 
 ### Fixed
+ - Wider battlefield passages and approaches keep opposing ground traffic moving
+ - High-altitude aircraft can be selected with a drag box
+ - Compact research tiles and construction on gentle slopes improve base management
+ - Runtime caches and audio are released cleanly when quitting, including during paused battles
  - A restored order whose target no longer exists no longer shows as the unit's current order while paused
  - The skirmish AI now actually hires mercenaries at captured camps; it previously requested a unit camps do not sell
  - `build_catalog.py` reproduces the shipped translation catalog again; strings that existed only in `ui.csv` moved to `art/localization/interface.tsv`
