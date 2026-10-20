@@ -1,13 +1,13 @@
 {
- "spoken_clips": 390,
- "speakers": 45,
- "exact_transcripts": 381,
- "mean_word_error": 0.006,
+ "spoken_clips": 366,
+ "speakers": 42,
+ "exact_transcripts": 357,
+ "mean_word_error": 0.0064,
  "max_cross_speaker_similarity": 0.494,
  "closest_pairs": {
   "bastion/AdvancedTank": [
-   "bastion/EvacTransport",
-   0.4
+   "bastion/Infantry",
+   0.385
   ],
   "bastion/AssaultInfantry": [
    "helix/AdvancedTank",
@@ -24,10 +24,6 @@
   "bastion/Drone": [
    "helix/RepairRobot",
    0.442
-  ],
-  "bastion/EvacTransport": [
-   "frontier/SupplyTruck",
-   0.421
   ],
   "bastion/Helicopter": [
    "helix/SupplyTruck",
@@ -85,10 +81,6 @@
    "helix/Helicopter",
    0.169
   ],
-  "frontier/EvacTransport": [
-   "helix/Infantry",
-   0.387
-  ],
   "frontier/Helicopter": [
    "bastion/Infantry",
    0.323
@@ -114,8 +106,8 @@
    0.392
   ],
   "frontier/SupplyTruck": [
-   "bastion/EvacTransport",
-   0.421
+   "helix/AssaultInfantry",
+   0.379
   ],
   "frontier/Tank": [
    "frontier/AssaultInfantry",
@@ -144,10 +136,6 @@
   "helix/Drone": [
    "bastion/RepairRobot",
    0.408
-  ],
-  "helix/EvacTransport": [
-   "helix/AssaultInfantry",
-   0.348
   ],
   "helix/Helicopter": [
    "helix/SniperInfantry",
@@ -199,13 +187,6 @@
    "best_other": [
     0.325,
     "helix/AdvancedTank"
-   ]
-  },
-  "bastion/EvacTransport": {
-   "own_reference": 0.753,
-   "best_other": [
-    0.386,
-    "frontier/SupplyTruck"
    ]
   },
   "bastion/Helicopter": {
@@ -271,13 +252,6 @@
     "frontier/Hero"
    ]
   },
-  "frontier/EvacTransport": {
-   "own_reference": 0.691,
-   "best_other": [
-    0.301,
-    "frontier/Hero"
-   ]
-  },
   "frontier/Helicopter": {
    "own_reference": 0.732,
    "best_other": [
@@ -309,8 +283,8 @@
   "frontier/SniperInfantry": {
    "own_reference": 0.739,
    "best_other": [
-    0.303,
-    "frontier/EvacTransport"
+    0.27,
+    "helix/SupplyTruck"
    ]
   },
   "frontier/SupplyTruck": {
@@ -348,13 +322,6 @@
     "frontier/SupplyTruck"
    ]
   },
-  "helix/EvacTransport": {
-   "own_reference": 0.795,
-   "best_other": [
-    0.297,
-    "bastion/RocketInfantry"
-   ]
-  },
   "helix/Helicopter": {
    "own_reference": 0.798,
    "best_other": [
@@ -372,8 +339,8 @@
   "helix/Infantry": {
    "own_reference": 0.777,
    "best_other": [
-    0.321,
-    "frontier/EvacTransport"
+    0.297,
+    "helix/SupplyTruck"
    ]
   },
   "helix/RocketInfantry": {
