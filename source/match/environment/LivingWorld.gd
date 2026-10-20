@@ -29,9 +29,7 @@ func _ready():
 	var map_name = Catalog.authored_name(_game.settings.map_path)
 	_coastal = map_name == "CoastalFoundry"
 	_alpine = map_name in ["AlpineRelay", "SplitSignalMap"]
-	_desert = (
-		"Desert" in map_name or map_name in ["SupplyLineMap", "AirCorridorMap", "DesertFrontier"]
-	)
+	_desert = "Desert" in map_name or map_name in ["SupplyLineMap", "DesertFrontier"]
 	if _coastal:
 		# Harbor water is north; inhabited expansion belongs on the inland edge.
 		transform = Transform3D(Basis(Vector3.UP, PI), Vector3(_size.x, 0, _size.y))
@@ -39,13 +37,6 @@ func _ready():
 		map_name
 		in ["IndustrialCrossroads", "BrokenFoundryMap", "CommandHorizonMap", "CoastalFoundry"]
 	)
-	var battlefield = preload("res://source/match/maps/BattlefieldCatalog.gd").profile(
-		_game.settings.map_path
-	)
-	if not battlefield.is_empty():
-		_alpine = battlefield.biome == "alpine"
-		_desert = battlefield.biome == "desert"
-		_urban = battlefield.biome in ["urban", "coastal"]
 	windows = _material(Color("f4ca87"))
 	windows.emission_enabled = true
 	windows.emission = Color("ffb55e")

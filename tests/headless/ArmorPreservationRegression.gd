@@ -5,13 +5,9 @@ var candidate
 
 func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
-	field_application = load("res://source/match/programs/ProgramApplication.gd")
-	field_records = load("res://source/match/programs/ProgramRecord.gd")
-	field_rules = load("res://source/match/programs/VisualRules.gd")
 	constants = root.get_node("Constants")
 	factions = load("res://source/match/FactionCatalog.gd")
-	plan_rules = load("res://source/match/SkirmishPlan.gd")
-	library = load("res://source/match/programs/ProgramLibrary.gd")
+	plan_rules = load("res://tests/UnitQueries.gd")
 	moving_order = load("res://source/match/units/actions/Moving.gd")
 	attack_move_action = load("res://source/match/units/actions/AttackMoving.gd")
 	repair_order = load("res://source/match/units/actions/Repairing.gd")
@@ -71,15 +67,13 @@ func _fixture(faction):
 	armor_recovery = load("res://tests/playtest/reference/ArmorRecoveryPolicy.gd").new()
 	if "--original-policy" in OS.get_cmdline_user_args():
 		armor_recovery = infantry_policy.new()
-	retrofit = load("res://tests/playtest/reference/PaidRetrofitPolicy.gd").new()
-	retrofit_spent = 0
 	conventional_recovery_enabled = true
 	conventional_recovery = infantry_policy.new()
 	armor_protected.clear()
 	phase = "defend"
 	saw_home_attack = false
 	defense_point = candidate.position
-	metrics = {"first_assault": null, "first_program": null}
+	metrics = {"first_assault": null}
 	_command()
 	_check(candidate in armor_protected, faction + ": conventional wounded tank not withdrawn")
 	if candidate not in armor_protected:
@@ -96,13 +90,10 @@ func _fixture(faction):
 		phase_started = game.simulation_time
 		_command()
 		_check(candidate.action == action, "Command phase interrupted armor treatment")
-	# Treatment must retain authority above the 60% fitting threshold until 80%.
+	# Treatment must retain authority above the 60% entry threshold until 80%.
 	candidate.hp = candidate.hp_max * .65
 	_command()
-	_check(
-		candidate.action == action and retrofit.active.is_empty(),
-		"Fitting interrupted active treatment"
-	)
+	_check(candidate.action == action, "Command interrupted active treatment above entry")
 	candidate.hp = hp
 	game.hud._toggle_pause()
 	var treatment_funds = Vector2i(human.resource_a, human.resource_b)
@@ -112,32 +103,19 @@ func _fixture(faction):
 			_command()
 		if candidate not in armor_protected and candidate.hp >= candidate.hp_max * .8:
 			released = true
-		if released and candidate.program.installed and candidate.program.mode == "Running":
 			break
 		await _frames(1)
 	_check(released, "Healed tank never released")
 	_check(
-		candidate.program.installed and candidate.program.mode == "Running",
-		"Healed conventional tank did not fit and run Guard"
+		armor_recovery.episodes.any(func(episode): return episode.result == "ready"),
+		"Released treatment was not recorded as ready"
 	)
 	_check(
-		retrofit.episodes.size() == 1 and retrofit.episodes[0].result == "installed",
-		"Recovery/retrofit handoff did not complete exactly once"
-	)
-	_check(
-		(
-			Vector2i(human.resource_a, human.resource_b)
-			== treatment_funds - Vector2i(0, factions.chip_cost(faction))
-		),
-		"Treatment and fitting charged an unexpected fee"
+		Vector2i(human.resource_a, human.resource_b) == treatment_funds,
+		"Treatment charged an unexpected fee"
 	)
 	game.hud.pause_after_load()
 	candidate.hp = candidate.hp_max * .2
-	var installed_action = candidate.action
-	armor_recovery.update(game, human, plan_rules.owned_units(human), true)
-	_check(candidate.action == installed_action, "Conventional policy seized installed program")
-	candidate.program.installed = false
-	candidate.program.mode = "Manual"
 	candidate.issue_manual_order(null)
 	candidate.manual_orders.submit({"kind": "move", "point": Vector3(45, 0, 25)})
 	var queued_action = candidate.action
@@ -149,7 +127,7 @@ func _fixture(faction):
 	print(
 		"ARMOR ",
 		faction,
-		" paid depot, live healing, release, paid chip and Running Guard; episodes=",
+		" paid depot, live healing, release and player authority; episodes=",
 		armor_recovery.episodes
 	)
 

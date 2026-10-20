@@ -440,14 +440,6 @@ static func _bounds(node, parent_transform):
 	return result
 
 
-static func chip_cost(faction):
-	return Rules.chip_cost(faction)
-
-
-static func chip_seconds(faction):
-	return Rules.chip_seconds(faction)
-
-
 static func health_factor(faction, role = ""):
 	return Rules.health_factor(faction, role)
 

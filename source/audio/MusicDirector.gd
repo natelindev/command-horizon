@@ -57,9 +57,6 @@ func _sync_scene():
 	var scene = get_tree().current_scene
 	if not is_instance_valid(scene) or not scene.is_node_ready():
 		return
-	# Headless program arenas are tools, not playable battle screens.
-	if "--program-arena" in OS.get_cmdline_user_args():
-		return
 	var track = "menu"
 	if scene.has_method("_get_human_player"):
 		var human = scene._get_human_player()

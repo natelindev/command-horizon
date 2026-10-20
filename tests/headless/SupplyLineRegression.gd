@@ -91,7 +91,7 @@ func _close():
 
 func _rules_archive():
 	_check(
-		game.trucks().size() == 3 and not game._get_human_player().basic_programs_unlocked(),
+		game.trucks().size() == 3 and not game._get_human_player().lab_research_unlocked(),
 		"Conventional convoy setup failed"
 	)
 	_check(
@@ -99,10 +99,7 @@ func _rules_archive():
 		"Idle truck outside pad has no order hint"
 	)
 	var truck = game.convoy[0].unit
-	_check(
-		truck.program == null and truck.attack_range == null,
-		"Supply truck acquired a program or weapon"
-	)
+	_check(truck.attack_range == null, "Supply truck acquired a weapon")
 	truck.hp = 90
 	var repair = game.escorts().filter(func(u): return u.type == "RepairRobot")[0]
 	repair.position = truck.position + Vector3(5, 0, 0)

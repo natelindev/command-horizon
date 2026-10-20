@@ -37,42 +37,12 @@ const HELIX_COSTS = {
 	"Bomber": [40, 22],
 	"AntiAirVehicle": [20, 12],
 }
-# Archives may contain contracts bought before the pacing rebalance. Their paid
-# remaining time stays valid; newly purchased contracts use current durations.
-const ARCHIVE_PRODUCTION_LIMITS = {
-	"MercenaryWarden": 14.0,
-	"MercenaryRanger": 15.0,
-	"MercenaryLancer": 18.0,
-	"Hero": 40.0,
-	"AssaultInfantry": 12.0,
-	"SniperInfantry": 16.0,
-	"RocketInfantry": 14.0,
-	"Worker": 8.0,
-	"Infantry": 8.0,
-	"Tank": 20.0,
-	"RepairRobot": 18.0,
-	"CombatRobot": 24.0,
-	"AdvancedTank": 32.0,
-	"Drone": 12.0,
-	"Helicopter": 28.0,
-	"Fighter": 22.0,
-	"Bomber": 32.0,
-	"AntiAirVehicle": 18.0,
-}
 const IDS = ["bastion", "helix", "frontier"]
 const NAMES = {
 	"bastion": "Bastion Directorate",
 	"helix": "Helix Systems",
 	"frontier": "Free Frontier Coalition"
 }
-
-
-static func chip_cost(faction):
-	return 2 if faction == "frontier" else 4
-
-
-static func chip_seconds(faction):
-	return 3.0 if faction == "frontier" else 5.0
 
 
 # Frontier trades rough, salvaged aircraft for hardened Barracks infantry.

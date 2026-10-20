@@ -80,10 +80,6 @@ func _produce():
 		if product == "" or not factions.available(human, product):
 			continue
 		var price = factions.cost(human, product)
-		if role == "VehicleFactory":
-			producer.production_queue.fit_chips = human.has_completed_structure("CommandLab")
-			if product == "Tank" and producer.production_queue.fit_chips:
-				price.resource_b += factions.chip_cost(human.faction)
 		var protected = reserve if product != "Worker" else {"resource_a": 0, "resource_b": 0}
 		if (
 			human.resource_a < price.resource_a + protected.resource_a
@@ -141,22 +137,33 @@ func _command():
 	var hangar = _unit(human, "AircraftFactory")
 	if targets.is_empty() or hangar == null or not hangar.is_constructed():
 		return
+	var target = targets[0].global_position_yless
 	for aircraft in units.filter(func(unit): return unit.type == "Helicopter"):
-		if not aircraft.get_meta("mixed_raid", false):
-			var config = library.defaults("strike_return")
-			config.radius = 12.0
-			config.retreat = 40
-			config["return"] = 85
-			aircraft.program.configure(config, "Scouted economy raid")
-			aircraft.program.anchor = targets[0].global_position_yless
-			aircraft.program.safe_point = hangar.global_position_yless
-			_check(aircraft.program.run(), "Mixed-force strike preset refused assignment")
-			aircraft.set_meta("mixed_raid", true)
+		# Strike the scouted economy, withdraw to the hangar when badly damaged
+		# and return once repaired.
+		var health = float(aircraft.hp) / aircraft.hp_max
+		if aircraft.get_meta("mixed_withdrawn", false):
+			if health < .85:
+				continue
+			aircraft.set_meta("mixed_withdrawn", false)
+			aircraft.remove_meta("mixed_raid")
+		elif health <= .4:
+			aircraft.issue_manual_order(moving_order.new(hangar.global_position_yless))
+			aircraft.set_meta("mixed_withdrawn", true)
+			continue
+		var idle = (
+			aircraft.action == null
+			or (aircraft.action.has_method("is_idle") and aircraft.action.is_idle())
+		)
+		if (
+			idle
+			or not aircraft.has_meta("mixed_raid")
+			or aircraft.get_meta("mixed_raid").distance_to(target) > 12
+		):
+			aircraft.issue_manual_order(attack_move_action.new(target))
+			aircraft.set_meta("mixed_raid", target)
 			if not metrics.has("first_air_raid"):
 				metrics.first_air_raid = game.simulation_time
-		elif aircraft.hp >= aircraft.hp_max * .85:
-			if aircraft.program.anchor.distance_to(targets[0].global_position_yless) > 12:
-				aircraft.program.anchor = targets[0].global_position_yless
 
 
 func _raid_score(unit, enemy_start):

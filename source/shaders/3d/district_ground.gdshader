@@ -1,4 +1,5 @@
 shader_type spatial;
+#include "res://source/shaders/3d/terrain_layers.gdshaderinc"
 uniform sampler2D concrete_color : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D concrete_normal : hint_normal, filter_linear_mipmap_anisotropic, repeat_enable;
 uniform sampler2D concrete_roughness : hint_default_white, filter_linear_mipmap_anisotropic, repeat_enable;
@@ -78,12 +79,16 @@ void fragment() {
 	markings*=1.0-smoothstep(1.15,1.65,crossing);
 	asphalt=mix(asphalt,vec3(.58,.49,.30),max(markings,side_line*.5)*(.55+wear*.35));
 	ground=mix(ground,vec3(.31,.32,.30),shoulder*.7);
-	ALBEDO=mix(ground,asphalt,road)+curb*.065;
 	float puddle=smoothstep(.38,.68,noise(p*.38+3.0))*wetness*max(road,paved*.6);
-	ALBEDO*=1.0-wetness*.22;
 	float dry_roughness = mix(.95, .72 + texture(concrete_roughness, concrete_uv).r*.26, paved);
 	dry_roughness = mix(dry_roughness, .72 + texture(asphalt_roughness, asphalt_uv).r*.26, road);
-	ROUGHNESS=mix(dry_roughness,.55,puddle);
+	// Large scans add yard stains and road wear; the 2 m maps below keep close-up grain.
+	TerrainSurface terrain=terrain_surface(p,mix(ground,asphalt,road)+curb*.065,road,paved,dry_roughness);
+	terrain.slope*=1.0-puddle*.65;
+	ALBEDO=terrain.albedo*(1.0-wetness*.22);
+	ROUGHNESS=mix(terrain.roughness,.55,puddle);
+	AO=terrain.occlusion;
+	NORMAL=terrain_normal(terrain,NORMAL,VIEW_MATRIX,INV_VIEW_MATRIX);
 	// World-projected UVs need the matching tangent basis, independent of the plane's UVs.
 	vec3 projected_x = (VIEW_MATRIX * vec4(1.0, 0.0, 0.0, 0.0)).xyz;
 	TANGENT = normalize(projected_x - NORMAL * dot(NORMAL, projected_x));

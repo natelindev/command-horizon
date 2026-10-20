@@ -46,17 +46,10 @@ func _exercise_commands(commands):
 	await _select_units([tank, worker])
 	var menus = game.find_child("UnitMenus")
 	_check(menus._command_buttons.size() == 3, "Distinct command buttons are missing")
-	tank.program.installed = true
-	tank.program.configure(load("res://source/match/programs/ProgramLibrary.gd").defaults("guard"))
-	tank.program.run()
-	var mode = tank.program.mode
 	var clock = game.simulation_time
 	var destination = Vector3(30, 0, 38)
 	commands.arm("move")
-	_check(
-		tank.program.mode == mode and tank.manual_orders.pending.is_empty(),
-		"Arming issued an order"
-	)
+	_check(tank.manual_orders.pending.is_empty(), "Arming issued an order")
 	commands.prompt()
 	var prompt = game.hud._assignment_hint.text
 	game.hud.show_notice("Pending test notice")
@@ -64,7 +57,6 @@ func _exercise_commands(commands):
 	_check(commands.commit(destination, target, false), "Explicit Move rejected a valid point")
 	_check(tank.manual_orders.pending[0].kind == "move", "Move became contextual attack")
 	_check(worker.manual_orders.pending[0].kind == "move", "Unarmed unit cannot use Move")
-	_check(tank.program.mode == "Manual", "Move did not override program")
 	var worker_queue = worker.manual_orders.pending.duplicate(true)
 	commands.arm("attack")
 	var before = tank.manual_orders.pending.duplicate(true)
@@ -133,12 +125,10 @@ func _exercise_commands(commands):
 	root.get_node("MatchSignals").place_structure.emit(generator)
 	commands.arm("move")
 	_check(not placement._structure_placement_started(), "Move left a live building blueprint")
-	game.hud.arm_program_assignment("anchor", [tank])
-	_check(commands.kind.is_empty(), "Program assignment left direct targeting active")
+	game.hud.arm_signature_sector([tank])
+	_check(commands.kind.is_empty(), "Signature sector left direct targeting active")
 	commands.arm("attack")
-	_check(
-		game.hud._assignment_kind.is_empty(), "Direct targeting left a program assignment active"
-	)
+	_check(game.hud._assignment_kind.is_empty(), "Direct targeting left a signature sector active")
 	root.get_node("MatchSignals").place_structure.emit(generator)
 	_check(commands.kind.is_empty(), "Building placement left direct targeting active")
 	placement._cancel_structure_placement()

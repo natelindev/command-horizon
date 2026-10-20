@@ -51,23 +51,17 @@ func _skirmish(faction, map_path = "res://source/match/maps/BastionDesert.tscn",
 
 
 func _edge_cases():
+	var behavior = load("res://source/match/orders/UnitBehavior.gd")
 	var human = game._get_human_player()
 	var tank = _units(human, "Tank")[0]
 	var other = _units(human, "Tank")[1]
 	var worker = _units(human, "Worker")[0]
-	var hq = _units(human, "CommandCenter")[0]
+	var leader = _units(human, "Worker")[1]
 	var enemy = get_nodes_in_group("players").filter(func(p): return p != human)[0]
 	enemy.set_process(false)
-	human.resource_b = 100
-	tank.program.installed = false
-	tank.position = hq.position + Vector3(0, 0, 2.5)
-	_check(tank.program.install_at(hq), "Retrofit fixture could not start")
-	other.program.configure_lua(HOLD)
-	other.program.run()
+	_check(behavior.set_stance(tank, "hold_fire"), "Hold Fire fixture failed")
+	_check(behavior.follow(other, leader), "Follow fixture failed")
 	await _frames(90)
-	_check(
-		tank.program.install_left > 0 and tank.program.install_left < 5, "Retrofit never progressed"
-	)
 	var deposit = get_nodes_in_group("resource_units")[0]
 	worker.issue_manual_order(
 		load("res://source/match/units/actions/CollectingResourcesSequentially.gd").new(deposit)
@@ -77,8 +71,6 @@ func _edge_cases():
 	var visibility = game.get_node("Handlers/UnitVisibilityHandler")
 	visibility._create_dummy_structure(remembered)
 	# The real structure stays hidden; its remembered identity must survive repeated reloads.
-	other.program.lua_runtime.suspended = true
-	other.program.lua_runtime.error = "Saved fault fixture"
 	paused = true
 	var builder = Snapshot.new()
 	var snapshot = builder.capture(game)
@@ -86,14 +78,12 @@ func _edge_cases():
 	if snapshot == null:
 		return
 	var ids = {
-		"chip": builder._reference(tank),
-		"fault": builder._reference(other),
+		"hold": builder._reference(tank),
+		"follow": builder._reference(other),
+		"leader": builder._reference(leader),
 		"worker": builder._reference(worker),
 		"resource": builder._reference(worker.action.get_resource_unit()),
-		"hq": builder._reference(hq)
 	}
-	var before = snapshot.players[0].resource_b
-	var left = tank.program.install_left
 	var restore = Restore.new()
 	for cycle in range(2):
 		var loaded = await restore.restore(self, snapshot)
@@ -102,17 +92,15 @@ func _edge_cases():
 			return
 		game = loaded.game
 		game.get_node("IsometricCamera3D").set_physics_process(false)
-		tank = restore.entities[ids.chip]
-		other = restore.entities[ids.fault]
-		_check(tank.program.install_left == left, "Reload advanced retrofit")
-		_check(game._get_human_player().resource_b == before, "Reload duplicated retrofit fee")
+		tank = restore.entities[ids.hold]
+		other = restore.entities[ids.follow]
+		_check(behavior.current(tank) == "hold_fire", "Reload lost Hold Fire")
 		_check(
-			other.program.mode == "Error" and other.program.lua_runtime.suspended,
-			"Fault resumed automatically"
-		)
-		_check(
-			other.action == null or other.action.has_method("is_idle"),
-			"Fault kept active Lua action"
+			(
+				behavior.current(other) == "follow"
+				and other.manual_orders.current.target.get_ref() == restore.entities[ids.leader]
+			),
+			"Reload lost the follow target"
 		)
 		_check(
 			game.get_node("Handlers/UnitVisibilityHandler")._structure_to_dummy_mapping.size() == 1,
@@ -127,12 +115,9 @@ func _edge_cases():
 			recaptured.simulation_time == snapshot.simulation_time, "Repeated reload advanced time"
 		)
 	game.hud._pause_button.pressed.emit()
-	await _frames(320)
-	_check(
-		tank.program.installed and tank.program.install_left == 0,
-		"Restored retrofit did not finish"
-	)
-	_check(other.program.lua_runtime.suspended, "Fault silently recovered after resume")
+	await _frames(120)
+	_check(behavior.current(tank) == "hold_fire", "Hold Fire did not survive resume")
+	_check(behavior.current(other) == "follow", "Follow did not survive resume")
 	# Remove the actual reserved deposit (which may differ from the clicked field anchor).
 	var missing = snapshot.duplicate(true)
 	missing.resources = missing.resources.filter(func(value): return value.id != ids.resource)
@@ -152,42 +137,19 @@ func _edge_cases():
 	_check(
 		worker.position.distance_to(position) > 0.2, "Missing target fallback lost manual control"
 	)
-	# A missing paid retrofit service cancels once and refunds exactly its paid fee.
+	# A missing follow target falls back to Hold without rejecting the army.
 	missing = snapshot.duplicate(true)
-	missing.units = missing.units.filter(func(value): return value.id != ids.hq)
+	missing.units = missing.units.filter(func(value): return value.id != ids.leader)
 	loaded = await restore.restore(self, missing)
-	_check(loaded.ok, "Missing chip service rejected whole army")
+	_check(loaded.ok, "Missing follow target rejected whole army")
 	if not loaded.ok:
 		return
 	game = loaded.game
-	tank = restore.entities[ids.chip]
-	_check(
-		tank.program.install_left == 0 and not tank.program.installed,
-		"Missing service left installation active"
-	)
-	_check(game._get_human_player().resource_b == before + 4, "Missing service refund incorrect")
-	# Invalid explicit memory resets with feedback, while the army/program remain available.
-	var invalid_memory = snapshot.duplicate(true)
-	var saved_program = _saved(invalid_memory, ids.fault).program
-	saved_program.runtime.state = {"unsafe": Vector3.ZERO}
-	saved_program.runtime.suspended = false
-	saved_program.runtime.error = ""
-	loaded = await restore.restore(self, invalid_memory)
-	_check(loaded.ok, "Invalid memory rejected whole army")
-	if not loaded.ok:
-		return
-	game = loaded.game
-	other = restore.entities[ids.fault]
-	_check(other.program.lua_runtime.state_snapshot().is_empty(), "Invalid memory was retained")
-	_check(not loaded.warnings.is_empty(), "Memory reset feedback missing")
+	other = restore.entities[ids.follow]
+	_check(behavior.current(other) != "follow", "Follow survived without its target")
 	game.hud._pause_button.pressed.emit()
-	await _frames(20)
-	_check(
-		other.program.lua_runtime.state_snapshot().get("ticks", 0) > 0,
-		"Program failed to resume after memory reset"
-	)
-	print(
-		"PASS: ",
-		game._get_human_player().faction,
-		" reload/repeat/chip/targets/faults/memory/knowledge"
-	)
+	other.manual_orders.submit({"kind": "move", "point": other.position + Vector3(3, 0, 0)})
+	position = other.position
+	await _frames(90)
+	_check(other.position.distance_to(position) > 0.2, "Missing follow target lost manual control")
+	print("PASS: ", game._get_human_player().faction, " reload/repeat/stances/targets/knowledge")

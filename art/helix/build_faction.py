@@ -6,10 +6,14 @@ import json
 import math
 from pathlib import Path
 import random
+import sys
 
 import bmesh
 import bpy
 from mathutils import Vector
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "common"))
+import weathering  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "assets/models/helix/v1"
@@ -560,8 +564,10 @@ for name,collection,asset_root in assets:
     bpy.ops.object.select_all(action="DESELECT")
     for obj in live: obj.select_set(True)
     triangles=sum(len(obj.data.polygons) for obj in live if obj.type=="MESH")
+    weathering.bake(live)
     bpy.ops.export_scene.gltf(filepath=str(OUT/(name+".glb")),export_format="GLB",use_selection=True,
-        export_animations=False,export_yup=True,export_cameras=False,export_lights=False)
+        export_animations=False,export_yup=True,export_cameras=False,export_lights=False,
+        export_vertex_color="ACTIVE")
     for obj in live: bpy.data.objects.remove(obj,do_unlink=True)
     manifest.append({"name":name,"triangles":triangles,"file":name+".glb"})
     collection.hide_render=True

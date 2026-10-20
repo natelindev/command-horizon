@@ -42,7 +42,7 @@ func _ready():
 		Vector2(17, -9),
 		Vector2(46, -6),
 		Vector2(85, -8),
-		Vector2(133, 36),
+		Vector2(134, 36),
 		Vector2(135, 42),
 		Vector2(138, 94),
 		Vector2(77, 103),
@@ -84,6 +84,7 @@ func _ground():
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var material = ShaderMaterial.new()
 	material.shader = load("res://source/shaders/3d/frontier.gdshader")
+	load("res://source/match/TerrainTextures.gd").apply(material)
 	material.set_shader_parameter("exterior", true)
 	surface.set_material(material)
 	for x in range(-46, 174, 2):

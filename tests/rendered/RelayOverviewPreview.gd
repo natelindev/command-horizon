@@ -72,13 +72,7 @@ func _activate(button, label):
 func _review(label):
 	await _frames(8)
 	var command = game.hud.get_child(0)
-	var plan = game.hud.battle_plan
-	var minimap = game.get_node("HUD/MarginContainer/Minimap")
 	_check(root.get_visible_rect().encloses(command.get_global_rect()), "Command panel overflow")
-	_check(
-		not plan.get_global_rect().intersects(minimap.get_global_rect()),
-		"Battle plan covers minimap"
-	)
 	var overview = game.hud.find_child("RelayOverview", true, false)
 	if overview != null:
 		var panel = overview.get_parent().get_parent()

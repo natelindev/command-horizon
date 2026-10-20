@@ -2,8 +2,7 @@ extends RefCounted
 
 const Mercenaries = preload("res://source/match/world/MercenaryCatalog.gd")
 const ROLES = Mercenaries.ROLES
-const ARCHIVE_ROLES = ROLES + Mercenaries.LEGACY_ROLES
-const Factions = preload("res://source/match/FactionRules.gd")
+const Authored = preload("res://source/match/maps/terrain/BattlefieldRegistry.gd")
 # Capturable facilities per skirmish map, in save order. Every list pairs its
 # sites with the map's start symmetry so no start owns a uniquely close one.
 # Append new sites after existing ones: saves identify sites by their index.
@@ -12,33 +11,6 @@ const SITES = {
 	[
 		{"kind": "refinery", "position": Vector2(21, 53), "name": "South Refinery"},
 		{"kind": "refinery", "position": Vector2(43, 11), "name": "North Refinery"},
-	],
-	"ExpandedDesertFrontier":
-	[
-		{"kind": "refinery", "position": Vector2(66, 20), "name": "North Refinery"},
-		{"kind": "refinery", "position": Vector2(126, 124), "name": "South Refinery"},
-		{"kind": "mercenary", "position": Vector2(44, 82), "name": "West Mercenary Camp"},
-		{"kind": "mercenary", "position": Vector2(148, 62), "name": "East Mercenary Camp"},
-		{"kind": "repair", "position": Vector2(84, 68), "name": "West Repair Shop"},
-		{"kind": "repair", "position": Vector2(108, 76), "name": "East Repair Shop"},
-	],
-	"ExpandedAlpineRelay":
-	[
-		{"kind": "refinery", "position": Vector2(50, 45), "name": "West Refinery"},
-		{"kind": "refinery", "position": Vector2(142, 111), "name": "East Refinery"},
-		{"kind": "mercenary", "position": Vector2(56, 114), "name": "South Mercenary Camp"},
-		{"kind": "mercenary", "position": Vector2(136, 42), "name": "North Mercenary Camp"},
-		{"kind": "repair", "position": Vector2(72, 78), "name": "West Repair Shop"},
-		{"kind": "repair", "position": Vector2(120, 78), "name": "East Repair Shop"},
-	],
-	"ExpandedCoastalFoundry":
-	[
-		{"kind": "refinery", "position": Vector2(56, 78), "name": "West Refinery"},
-		{"kind": "refinery", "position": Vector2(136, 78), "name": "East Refinery"},
-		{"kind": "mercenary", "position": Vector2(78, 149), "name": "West Mercenary Camp"},
-		{"kind": "mercenary", "position": Vector2(114, 149), "name": "East Mercenary Camp"},
-		{"kind": "repair", "position": Vector2(62, 104), "name": "West Repair Shop"},
-		{"kind": "repair", "position": Vector2(130, 104), "name": "East Repair Shop"},
 	],
 	"DesertFrontier":
 	[
@@ -72,24 +44,16 @@ const SITES = {
 		{"kind": "refinery", "position": Vector2(75, 37), "name": "East Refinery"},
 	],
 }
-# Site counts of saves written before a map gained further facilities.
-const LEGACY_COUNTS = {
-	"ExpandedDesertFrontier": 6, "ExpandedAlpineRelay": 6, "ExpandedCoastalFoundry": 6
-}
 
 
 static func definitions(map_path):
-	var battlefield = preload("res://source/match/maps/BattlefieldCatalog.gd").profile(map_path)
-	return (
-		battlefield.sites
-		if not battlefield.is_empty()
-		else SITES.get(map_path.get_file().get_basename(), [])
-	)
+	if Authored.is_authored(map_path):
+		return Authored.layout(map_path).sites
+	return SITES.get(map_path.get_file().get_basename(), [])
 
 
 static func accepts_population(map_path, count):
-	var name = map_path.get_file().get_basename()
-	return count == definitions(map_path).size() or count == LEGACY_COUNTS.get(name, 0)
+	return count == definitions(map_path).size()
 
 
 static func populate(map):
@@ -100,7 +64,7 @@ static func populate(map):
 		site.site_id = "poi-%d" % index
 		site.kind = entry.kind
 		site.label_title = entry.name
-		site.position = Vector3(entry.position.x, 0, entry.position.y)
+		site.position = map.ground_point(entry.position)
 		map.add_child(site)
 		map.points_of_interest.append(site)
 
@@ -123,12 +87,9 @@ static func services(player):
 	)
 
 
-static func price(faction, role):
-	if role in ROLES:
-		var cost = Mercenaries.UNITS[role].cost
-		return {"resource_a": cost[0], "resource_b": cost[1]}
-	var normal = Factions.unit_costs(faction)[role]
-	return {"resource_a": ceili(normal[0] * 1.25), "resource_b": ceili(normal[1] * 1.25)}
+static func price(role):
+	var cost = Mercenaries.UNITS[role].cost
+	return {"resource_a": cost[0], "resource_b": cost[1]}
 
 
 static func reserved(player):

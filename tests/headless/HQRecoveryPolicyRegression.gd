@@ -6,7 +6,7 @@ var plan
 
 func _run():
 	recovery_policy = load("res://tests/playtest/reference/HQRecoveryPolicy.gd").new()
-	plan = load("res://source/match/SkirmishPlan.gd")
+	plan = load("res://tests/UnitQueries.gd")
 	await super()
 
 
@@ -83,12 +83,13 @@ func _paid_site():
 		workers[0] not in eligible and eligible.size() == 3, "Recovery steals protected engineer"
 	)
 	var point = foundation.position + Vector3(7, 0, 0)
+	var build_time = faction_catalog.BUILD_TIMES.CommandCenter
 	_check(
-		recovery_policy.site_allowed(game, owner, workers[1], point, 60),
+		recovery_policy.site_allowed(game, owner, workers[1], point, build_time + 25),
 		"Reachable timely HQ site rejected"
 	)
 	_check(
-		not recovery_policy.site_allowed(game, owner, workers[1], point, 45),
+		not recovery_policy.site_allowed(game, owner, workers[1], point, build_time),
 		"Late HQ placement ignores build duration"
 	)
 	for worker in workers:

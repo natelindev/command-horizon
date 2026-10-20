@@ -7,10 +7,14 @@ The original demo catalogue remains available for civilian scenery.
 import json
 import math
 from pathlib import Path
+import sys
 
 import bmesh
 import bpy
 from mathutils import Vector
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "common"))
+import weathering  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "assets/models/bastion/structures-v2"
@@ -457,8 +461,10 @@ for name, collection, asset_root in assets:
     for obj in live:
         obj.select_set(True)
     triangles = sum(len(obj.data.polygons) for obj in live if obj.type == "MESH")
+    weathering.bake(live)
     bpy.ops.export_scene.gltf(filepath=str(OUT/(name+".glb")), export_format="GLB", use_selection=True,
-                             export_animations=False, export_yup=True, export_cameras=False, export_lights=False)
+                             export_animations=False, export_yup=True, export_cameras=False, export_lights=False,
+                             export_vertex_color="ACTIVE")
     for obj in live:
         bpy.data.objects.remove(obj, do_unlink=True)
     points = [obj.matrix_world@Vector(p) for obj in collection.objects if obj.type == "MESH" for p in obj.bound_box]

@@ -49,7 +49,7 @@ def main():
     with concurrent.futures.ThreadPoolExecutor(max_workers=6) as pool:
         report = list(pool.map(inspect, manifest))
     speakers = {entry['speaker_id'] for entry in manifest if entry['speaker_id'] is not None}
-    from voice_cast import PROFILES, CAST, ROBOT_CAST
+    from voice_cast import CAST, MERCENARY, MERCENARY_CAST, PROFILES, ROBOT_CAST
     from verify_voice_cast import verify_catalog
     verify_catalog()
     assert speakers == set(PROFILES)
@@ -76,6 +76,14 @@ def main():
             offset += len(clip) / RATE + .45
         reel.append(np.zeros(RATE, dtype='<f4'))
         offset += 1
+    for role in MERCENARY_CAST:
+        for part in ['select_0', 'attack_0']:
+            relative = f'{MERCENARY}/{role}/{part}.ogg'
+            clip = decode(ROOT / 'assets/audio/voices' / relative)
+            entry = next(item for item in manifest if item['file'] == relative)
+            cue_sheet.append({'seconds': round(offset, 2), 'clip': relative, 'text': entry['text']})
+            reel.extend([clip, np.zeros(int(.45 * RATE), dtype='<f4')])
+            offset += len(clip) / RATE + .45
     (DEST / 'audition-cues.json').write_text(json.dumps(cue_sheet, indent=2) + '\n')
     subprocess.run(['ffmpeg', '-v', 'error', '-y', '-f', 'f32le', '-ar', str(RATE), '-ac', '1',
                     '-i', '-', '-ac', '2', '-c:a', 'vorbis', '-strict', '-2', '-q:a', '5',

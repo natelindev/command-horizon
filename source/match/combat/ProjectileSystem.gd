@@ -494,7 +494,7 @@ func capture(reference):
 	for round in _rounds:
 		var target = reference.call(round.target)
 		var player = reference.call(round.shot.player)
-		if (target.is_empty() and round.kind != "bomb") or player.is_empty():
+		if player.is_empty():
 			continue
 		(
 			flying
@@ -510,6 +510,7 @@ func capture(reference):
 					"mode": round.shot.weapon_mode,
 					"origin": round.shot.origin,
 					"target": target,
+					"target_base": round.target_base if round.target_base.is_finite() else null,
 					"position": round.position,
 					"velocity": round.velocity,
 					"age": round.age,
@@ -528,7 +529,7 @@ func restore(saved, entities):
 	for record in saved.flying:
 		var target = entities.get(record.target)
 		var player = entities.get(record.player)
-		if (not _live(target) and record.kind != "bomb") or player == null:
+		if player == null:
 			continue
 		if not _live(target):
 			target = null
@@ -548,6 +549,7 @@ func restore(saved, entities):
 		round.shot = shot
 		round.target = target
 		round.target_id = target.get_instance_id() if target != null else 0
+		round.target_base = record.target_base if record.target_base != null else Vector3.INF
 		round.position = record.position
 		round.velocity = record.velocity
 		round.age = float(record.age)

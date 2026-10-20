@@ -108,6 +108,9 @@ func _run():
 	await _frames(3)
 	await _assert_missing_infantry()
 	await _review("guard-absent")
+	# Complete the separate commander objective; this fixture isolates guard return.
+	game.opposition.boss.hp = 0
+	game.opposition._step_boss(0)
 	game.target_command.hp = 0
 	await _frames(3)
 	_check(game.command_destroyed and not game.finished, "Missing guard bypassed victory condition")
@@ -117,6 +120,8 @@ func _run():
 	)
 	game.hud._toggle_pause()
 	await _review("command-destroyed")
+	game.campaign_hero.unit.position = game.map.TARGET + Vector3(-6, 0, 0)
+	game.battlefield.invalidate()
 	await _recover()
 	start = game.simulation_time
 	game.hud._toggle_pause()

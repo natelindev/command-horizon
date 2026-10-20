@@ -39,8 +39,9 @@ func _run():
 		var expected = 18 if branch == "legacy" else 20
 		var funds = [game._enemy.resource_a, game._enemy.resource_b]
 		_check(tanks.size() == expected, "Restoration lost or granted factory output: " + branch)
+		# Batches queued after loading no longer pay a chip fee on top of the tank price.
 		_check(
-			funds == ([248, 76] if branch == "legacy" else [204, 48]),
+			funds == ([248, 76] if branch == "legacy" else [204, 72]),
 			"Restoration charged wrong production cost"
 		)
 		_check(
@@ -53,8 +54,8 @@ func _run():
 			)
 		for tank in tanks:
 			_check(
-				tank.program.installed and tank.program.mode != "Manual",
-				"Restored factory output lost chips/Guard"
+				tank.stance == tank.Stance.HOLD_POSITION,
+				"Restored factory output lost its guard post"
 			)
 		reports.append(
 			{"branch": branch, "tanks": tanks.size(), "funds": funds, "time": game.simulation_time}

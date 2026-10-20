@@ -166,12 +166,12 @@ func _recruitment_budget():
 		building.x > 0 and urgent.x > 0, "Recruitment fixture has no real building/urgent reserve"
 	)
 	var reserve = building + urgent
-	# Camps sell only their exclusive roster at its catalog contract price.
-	var price = _site_catalog.price(_enemy.faction, "MercenaryLancer")
-	var listed = load("res://source/match/world/MercenaryCatalog.gd").UNITS.MercenaryLancer.cost
+	# The commander hires the camp's anti-armor Breach Lancer at its fixed contract price.
+	var price = _site_catalog.price("MercenaryLancer")
+	var contract = load("res://source/match/world/MercenaryCatalog.gd").UNITS.MercenaryLancer.cost
 	_check(
-		price.resource_a == listed[0] and price.resource_b == listed[1],
-		"Camp price does not match the exclusive contract price"
+		price.resource_a == contract[0] and price.resource_b == contract[1],
+		"Camp price differs from the Breach Lancer contract"
 	)
 	var cost = Vector2i(price.resource_a, price.resource_b)
 	_enemy.resource_a = reserve.x + cost.x - 1
@@ -197,7 +197,7 @@ func _recruitment_budget():
 	_check(_contracts() == 1, "Recruitment tick queued zero or multiple camp contracts")
 	_check(
 		Vector2i(_enemy.resource_a, _enemy.resource_b) == reserve,
-		"Camp did not debit its premium price exactly once"
+		"Camp did not debit its contract price exactly once"
 	)
 	var busy = camps.filter(func(site): return not site.jobs.is_empty())
 	_check(
@@ -226,6 +226,21 @@ func _recruitment_budget():
 
 func _alternate_camp():
 	var camps = _game.map.points_of_interest.filter(func(site): return site.kind == "mercenary")
+	# Glacier Narrows has one camp; this case needs two real recruitment queues.
+	if camps.size() == 1:
+		var alternate = load("res://source/match/world/PointOfInterest.gd").new()
+		alternate.site_id = "regression-alternate-camp"
+		alternate.kind = "mercenary"
+		alternate.label_title = "Alternate camp"
+		alternate.position = camps[0].position + Vector3(12, 0, 0)
+		_game.map.add_child(alternate)
+		_game.map.points_of_interest.append(alternate)
+		alternate.captured_by = _enemy
+		alternate.set_physics_process(false)
+		camps.append(alternate)
+	_check(camps.size() >= 2, "Alternate recruitment fixture lacks two camps")
+	if camps.size() < 2:
+		return
 	camps[0].contested = true
 	camps[1].contested = false
 	_enemy.resource_a = 5000

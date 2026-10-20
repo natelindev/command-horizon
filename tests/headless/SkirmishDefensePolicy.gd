@@ -128,28 +128,9 @@ func _command():
 			if unit.position.distance_to(safe) > 6:
 				continue
 			retreating.erase(id)
-		if unit.program != null and unit.program.ready_to_run():
-			var reassigned = unit.program.mode == "Blocked" and unit.program.safe_point != safe
-			unit.program.safe_point = safe
-			if not unit.get_meta("policy_programmed", false):
-				var config = library.defaults("guard")
-				config.radius = 12.0
-				config.retreat = 40
-				config["return"] = 85
-				unit.program.configure(config, "Base defense and recovery")
-				unit.program.anchor = anchor
-				unit.set_meta("policy_programmed", true)
-			if unit.program.mode == "Manual" or reassigned:
-				_check(unit.program.run(), "Defense preset refused to run")
-				if reassigned:
-					metrics.policy_reassignments = metrics.get("policy_reassignments", 0) + 1
-				if not _programmed:
-					_programmed = true
-					_program_at = game.simulation_time
-					metrics.first_program = game.simulation_time
-		elif _respond_to_home_threat(unit, threats):
+		if _respond_to_home_threat(unit, threats):
 			continue
-		elif game.simulation_time - last_infantry_order >= 15:
+		if game.simulation_time - last_infantry_order >= 15:
 			unit.issue_manual_order(
 				attack_move_action.new(anchor + Vector3(unit.get_index() % 3, 0, 0))
 			)
@@ -202,10 +183,9 @@ func _fallback_point(unit, headquarters):
 	var center = headquarters.global_position_yless
 	var navigation = unit.get_node("Movement").get_navigation_map()
 	var previous = unit.get_meta("policy_recovery_fallback", {})
-	var recheck_mobile = unit.program != null and unit.program.mode == "Blocked"
 	if (
 		previous.get("headquarters") == headquarters.get_instance_id()
-		and _clear_fallback(unit, previous.point, recheck_mobile)
+		and _clear_fallback(unit, previous.point, false)
 	):
 		return previous.point
 	var candidates = []

@@ -1,4 +1,4 @@
-extends "res://tests/rendered/ProgramRecoveryPreview.gd"
+extends "res://tests/rendered/EarnedServiceRecoveryPreview.gd"
 
 
 func _review_earned_service(label):
@@ -14,8 +14,6 @@ func _review_earned_service(label):
 	(engineer if label == "paid-foundation" else tank).get_node("Selection").select()
 	await _frames(12)
 	var menus = game.find_child("UnitMenus")
-	if menus._program_panel != null:
-		menus._scroll.ensure_control_visible(menus._program_panel._reason)
 	await _frames(8)
 	game.fog_of_war._physics_process(0.0)
 	await RenderingServer.frame_post_draw

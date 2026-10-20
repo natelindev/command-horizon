@@ -16,7 +16,7 @@ func restore(saved, unit, parent):
 	for field in saved.references:
 		refs[field] = entities.get(saved.references[field])
 	var target = refs.get("_target_unit")
-	var action = _instantiate(kind, saved.state, refs, unit)
+	var action = _instantiate(kind, saved.state, refs)
 	if action == null:
 		warnings.append("An unavailable action target was replaced with Hold.")
 		return null
@@ -28,13 +28,6 @@ func restore(saved, unit, parent):
 		action.set(field, value)
 	for field in refs:
 		action.set(field, refs[field])
-	if kind == "CollectingResourcesSequentially" and not saved.state.has("_kind"):
-		# Old saves have no field boundary. Infer it only from a surviving deposit;
-		# after a cargo-only return, ask for a new assignment instead of guessing.
-		var deposit = refs.get("_resource_unit")
-		if deposit != null:
-			action._kind = 1 if "resource_a" in deposit else 2
-			action._field_origin = deposit.global_position_yless
 	if parent == unit:
 		unit.action = action
 	else:
@@ -54,17 +47,13 @@ func restore(saved, unit, parent):
 				"WaitingForTargets":
 					action._timer.timeout.disconnect(action._on_timer_timeout)
 					child.tree_exited.connect(action._on_attack_finished)
-		if slot == "_shot" and kind == "SpecialistAction" and child._shot_limit == 1:
-			child.shot_fired.connect(func(): action._strike_returning = true)
 	for slot in saved.timers:
 		var timer = action.get(slot)
 		var state = saved.timers[slot]
 		if timer == null:
 			continue
 		timer.wait_time = state.wait
-		# Older archives may retain a harvester's crowd-induced pause. Collection
-		# now uses live contact range; tactical pause still belongs to SceneTree.
-		timer.paused = state.paused and kind != "CollectingResourcesWhileInRange"
+		timer.paused = state.paused
 		if state.stopped:
 			timer.stop()
 		else:
@@ -73,22 +62,11 @@ func restore(saved, unit, parent):
 			timer.start(state.left if state.left > 0.0 else 0.000001)
 			# start(left) also changes the repeat interval; retain the saved cadence.
 			timer.wait_time = state.wait
-	if kind == "LuaAction":
-		for contact in saved.contacts:
-			var other = entities.get(contact.entity)
-			if other != null:
-				action._known[other.get_instance_id()] = contact.handle
-				action._handles[contact.handle] = weakref(other)
 	return action
 
 
-func _instantiate(kind, state, refs, unit):
-	var directory = (
-		"programs"
-		if kind in ["PresetAction", "SpecialistAction", "LuaAction", "ChipInstalling"]
-		else "units/actions"
-	)
-	var script = load("res://source/match/%s/%s.gd" % [directory, kind])
+func _instantiate(kind, state, refs):
+	var script = load("res://source/match/units/actions/%s.gd" % kind)
 	var target = refs.get("_target_unit")
 	match kind:
 		"Moving":
@@ -124,15 +102,6 @@ func _instantiate(kind, state, refs, unit):
 				if refs.get("_target") != null
 				else null
 			)
-		"ChipInstalling":
-			return script.new(unit.program, refs.service) if refs.get("service") != null else null
-		"PresetAction", "SpecialistAction", "LuaAction":
-			if (
-				kind == "LuaAction"
-				and (unit.program.lua_runtime == null or unit.program.lua_runtime.suspended)
-			):
-				return null
-			return script.new(unit.program)
 	return null
 
 
@@ -198,7 +167,6 @@ func _targets_available(saved):
 		"AttackingWhileInRange": "_target_unit",
 		"CollectingResourcesWhileInRange": "_resource_unit",
 		"Repairing": "_target",
-		"ChipInstalling": "service"
 	}
 	if saved.kind in required and not entities.has(saved.references[required[saved.kind]]):
 		return false

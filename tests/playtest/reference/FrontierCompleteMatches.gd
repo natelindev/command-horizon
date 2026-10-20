@@ -32,7 +32,6 @@ func _process(delta):
 		return result
 	if not metrics.has("frontier"):
 		metrics.frontier = {
-			"fitted_orders": [],
 			"bursts": [],
 			"wrecks": 0,
 			"observed_home_wrecks": [0, 0],
@@ -109,23 +108,6 @@ func _sample_cargo(worker, side):
 	old.wreck = at_wreck
 	old.target = target_id
 	worker_cargo[id] = old
-
-
-func _observe_production(prototype, producer):
-	super(prototype, producer)
-	if not metrics.has("frontier") or Catalog.type_from_path(prototype.resource_path) != "Tank":
-		return
-	var job = producer.production_queue.get_elements()[-1]
-	if job.fitted_chip:
-		metrics.frontier.fitted_orders.append(
-			{
-				"side": 0 if producer.player == human else 1,
-				"faction": producer.player.faction,
-				"seconds": game.simulation_time,
-				"cost": job.paid_cost.duplicate(),
-				"duration": job.time_total
-			}
-		)
 
 
 func _loss(unit):

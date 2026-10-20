@@ -55,3 +55,14 @@ func bomb_impact():
 	var fall = sqrt(2.0 * height / Weapons.GRAVITY)
 	var ground_velocity = _flight.flight_velocity() * Vector3(1, 0, 1)
 	return global_position * Vector3(1, 0, 1) + ground_velocity * fall
+
+
+func capture_air(reference):
+	var saved = super(reference)
+	saved.stick_left = _stick_left
+	return saved
+
+
+func restore_air(saved, entities):
+	super(saved, entities)
+	_stick_left = saved.stick_left

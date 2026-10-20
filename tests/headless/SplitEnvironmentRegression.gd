@@ -1,6 +1,8 @@
 extends "res://tests/headless/SplitSignalRegression.gd"
 
 const EVIDENCE = "res://docs/playtests/2026-10-07/split-environment/"
+# Current navigation contract; the dated playtest evidence remains historical.
+const GEOMETRY_FIXTURE = "res://tests/fixtures/split-environment-geometry.json"
 
 
 func _run():
@@ -10,7 +12,7 @@ func _run():
 	var report = _geometry()
 	var baseline = "--baseline" in OS.get_cmdline_user_args()
 	if not baseline:
-		var original = JSON.parse_string(FileAccess.get_file_as_string(EVIDENCE + "baseline.json"))
+		var original = JSON.parse_string(FileAccess.get_file_as_string(GEOMETRY_FIXTURE))
 		_check(report.blockers.size() == original.blockers.size(), "Split blocker count changed")
 		for index in report.blockers.size():
 			var item = report.blockers[index]
@@ -49,7 +51,7 @@ func _run():
 		)
 	(
 		FileAccess
-		. open(EVIDENCE + ("baseline.json" if baseline else "geometry.json"), FileAccess.WRITE)
+		. open(GEOMETRY_FIXTURE if baseline else EVIDENCE + "geometry.json", FileAccess.WRITE)
 		. store_string(JSON.stringify(report, "\t"))
 	)
 	await _cleanup()

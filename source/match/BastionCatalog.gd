@@ -9,7 +9,7 @@ const ROTORCRAFT_ROLES = ["Drone", "Helicopter"]
 const FIXED_WING_ROLES = ["Fighter", "Bomber"]
 const AIRCRAFT_ROLES = ROTORCRAFT_ROLES + FIXED_WING_ROLES
 
-const MISSION_NAMES = {"SupplyTruck": "Supply truck", "EvacTransport": "Rescue VTOL"}
+const MISSION_NAMES = {"SupplyTruck": "Supply truck"}
 
 const NAMES = {
 	"MercenaryWarden": "Iron Warden",

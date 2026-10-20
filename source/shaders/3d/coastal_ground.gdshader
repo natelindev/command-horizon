@@ -1,4 +1,5 @@
 shader_type spatial;
+#include "res://source/shaders/3d/terrain_layers.gdshaderinc"
 uniform float layout_scale = 1.0;
 varying vec3 world_position;
 uniform vec4 roads[8];
@@ -71,7 +72,8 @@ void fragment() {
 	markings*=1.0-smoothstep(1.15,1.65,crossing);
 	asphalt=mix(asphalt,vec3(.63,.60,.43),max(markings,stripe*.40)*(.45+wear*.45));
 	ground=mix(ground,vec3(.32,.34,.30),shoulder*.65);
-	ALBEDO=mix(ground,asphalt,road);
+	vec3 color=mix(ground,asphalt,road);
+	float path=road;
 	if(exterior || (p.y>=94.0 && abs(p.x-64.0)<4.0)) {
 		// Narrow back-of-port service roads join the yards and utilities.
 		float lane=abs(p.y-111.0);
@@ -84,7 +86,13 @@ void fragment() {
 		east=max(east,max(44.0-p.y,p.y-80.0));
 		float service=min(min(lane,spur),min(west,east));
 		float access=(1.0-smoothstep(1.5,2.6,service))*(.82+noise(p*1.4)*.18);
-		ALBEDO=mix(ALBEDO,asphalt+vec3(.045,.04,.025),access*.82);
+		color=mix(color,asphalt+vec3(.045,.04,.025),access*.82);
+		path=max(path,access*.82);
 	}
-	ROUGHNESS=.95;
+	// Scans stay at physical scale when the layout is enlarged.
+	TerrainSurface terrain=terrain_surface(world_position.xz,color,path,paved,.95);
+	ALBEDO=terrain.albedo;
+	ROUGHNESS=terrain.roughness;
+	AO=terrain.occlusion;
+	NORMAL=terrain_normal(terrain,NORMAL,VIEW_MATRIX,INV_VIEW_MATRIX);
 }

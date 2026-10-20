@@ -111,10 +111,7 @@ func _delivery(faction):
 		game.simulation_time == clock and carrier.resource_a == cargo,
 		"Paused restore changed queued cargo"
 	)
-	_check(
-		_count(1) == 0 and _count(2) == 1 and _advice() != "supply_electronics",
-		"Archive lost planned allocation"
-	)
+	_check(_count(1) == 0 and _count(2) == 1, "Archive lost planned allocation")
 	await _controls(faction + "-restored")
 
 

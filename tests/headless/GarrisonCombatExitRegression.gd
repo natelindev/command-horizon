@@ -5,7 +5,7 @@ func _run():
 	Manual = load("res://source/match/orders/ManualOrders.gd")
 	root.get_node("SaveManager").autosaves_enabled = false
 	path = "user://garrison-combat-exit-%d.json" % OS.get_process_id()
-	for map_name in ["ExpandedDesertFrontier", "IndustrialCrossroads", "CoastalFoundry"]:
+	for map_name in ["battlefields/EmberworksMap", "IndustrialCrossroads", "CoastalFoundry"]:
 		if not OS.get_cmdline_user_args().is_empty() and map_name not in OS.get_cmdline_user_args():
 			continue
 		await _create(map_name)

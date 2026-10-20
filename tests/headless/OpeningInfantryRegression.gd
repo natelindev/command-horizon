@@ -1,4 +1,4 @@
-extends "res://tests/headless/BattlePlanRegression.gd"
+extends "res://tests/headless/SaveRestoreEdges.gd"
 
 var human
 var factions
@@ -9,12 +9,11 @@ var spent = Vector2i.ZERO
 
 func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
-	plan_rules = load("res://source/match/SkirmishPlan.gd")
 	factions = load("res://source/match/FactionCatalog.gd")
 	catalog = load("res://source/match/BastionCatalog.gd")
 	for faction in factions.IDS:
 		await _paid_fixture(faction)
-		await _queue_guidance()
+		await _paid_queue()
 		if not "--original-only" in OS.get_cmdline_user_args():
 			await _paid_progression()
 		print("PAID OPENING VERIFIED ", faction, " time=", game.simulation_time, " spent=", spent)
@@ -52,27 +51,17 @@ func _paid_fixture(faction):
 	)
 	barracks = _units(human, "Barracks")[0]
 	game.hud._toggle_pause()
-	_check(
-		plan_rules.next_step(human).id == "defense", "Paid opening did not reach infantry advice"
-	)
+	_check(paused, "Paid opening did not pause after the barracks completed")
 
 
-func _queue_guidance():
+func _paid_queue():
 	var scene = load(catalog.scene_path("Infantry"))
 	var cost = factions.cost(human, "Infantry")
 	var funds = Vector2i(human.resource_a, human.resource_b)
 	var first = barracks.production_queue.produce(scene)
 	_check(first != null, "First paid infantry job failed")
-	_check(
-		"1 more" in plan_rules.next_step(human).description,
-		"One paid infantry did not reduce recommendation"
-	)
 	var second = barracks.production_queue.produce(scene)
 	_check(second != null, "Second paid infantry job failed")
-	_check(
-		plan_rules.next_step(human).id == "defense_pending",
-		"Two paid infantry still invite duplicate purchases"
-	)
 	_check(
 		(
 			Vector2i(human.resource_a, human.resource_b)
@@ -84,26 +73,20 @@ func _queue_guidance():
 	var left = first.time_left
 	var paid_funds = Vector2i(human.resource_a, human.resource_b)
 	var selected = get_nodes_in_group("selected_units").duplicate()
-	for index in 5:
-		plan_rules.next_step(human)
 	await _frames(12)
 	_check(
-		game.simulation_time == time and first.time_left == left,
-		"Advice advanced paused production"
+		game.simulation_time == time and first.time_left == left, "Pause advanced paid production"
 	)
 	_check(
 		(
 			Vector2i(human.resource_a, human.resource_b) == paid_funds
 			and barracks.production_queue.size() == 2
 		),
-		"Advice changed funds or paid jobs"
+		"Pause changed funds or paid jobs"
 	)
-	_check(get_nodes_in_group("selected_units") == selected, "Advice changed player selection")
+	_check(get_nodes_in_group("selected_units") == selected, "Pause changed player selection")
 	barracks.production_queue.cancel(first)
-	_check(
-		"1 more" in plan_rules.next_step(human).description,
-		"Cancelled infantry still counted as paid"
-	)
+	_check(barracks.production_queue.size() == 1, "Cancelled infantry remained queued")
 	_check(
 		(
 			Vector2i(human.resource_a, human.resource_b)
@@ -115,8 +98,10 @@ func _queue_guidance():
 	var original = Vector2i(human.resource_a, human.resource_b)
 	human.resource_a = cost.resource_a - 1
 	human.resource_b = cost.resource_b
+	_check(barracks.production_queue.produce(scene) == null, "Unaffordable infantry was queued")
 	_check(
-		"Short: 1 M / 0 E" in plan_rules.next_step(human).description, "Infantry shortage hidden"
+		human.resource_a == cost.resource_a - 1 and human.resource_b == cost.resource_b,
+		"Refused infantry changed funds"
 	)
 	human.resource_a = original.x
 	human.resource_b = original.y
@@ -143,10 +128,7 @@ func _paid_progression():
 	barracks = _units(human, "Barracks")[0]
 	for player in get_nodes_in_group("players"):
 		player.set_process(false)
-	_check(
-		plan_rules.next_step(human).id == "defense_pending",
-		"Restored paid infantry lost pending advice"
-	)
+	_check(barracks.production_queue.size() == 2, "Restored barracks lost paid infantry")
 	_check(
 		(
 			is_equal_approx(barracks.production_queue.get_elements()[0].time_left, left)
@@ -156,10 +138,6 @@ func _paid_progression():
 	)
 	game.hud._toggle_pause()
 	await _until(func(): return _units(human, "Infantry").size() == 4, 60, "Two paid infantry")
-	_check(
-		plan_rules.next_step(human).id == "VehicleFactory",
-		"Completed infantry did not advance to armor production"
-	)
 	var builder = _units(human, "Worker")[3]
 	await _place_paid("VehicleFactory", builder)
 	await _until(
@@ -168,80 +146,24 @@ func _paid_progression():
 	var factory = _units(human, "VehicleFactory")[0]
 	var cost = factions.cost(human, "Tank")
 	await _until(func(): return human.has_resources(cost), 120, "Harvest for armor")
-	_check(plan_rules.next_step(human).id == "armor", "Paid opening skipped conventional armor")
+	var funds = Vector2i(human.resource_a, human.resource_b)
 	var job = factory.production_queue.produce(load(catalog.scene_path("Tank")))
-	_check(job != null and not job.fitted_chip, "First tank required an unpaid lab or chip")
+	_check(job != null, "First tank required an unpaid lab")
+	_check(
+		(
+			Vector2i(human.resource_a, human.resource_b)
+			== funds - Vector2i(cost.resource_a, cost.resource_b)
+		),
+		"First tank charged the wrong price"
+	)
 	spent += Vector2i(cost.resource_a, cost.resource_b)
-	_check(
-		plan_rules.next_step(human).id == "armor_pending",
-		"Paid first tank still invites duplicate spending"
-	)
 	await _until(func(): return not _units(human, "Tank").is_empty(), 90, "Paid first tank")
-	_check(
-		plan_rules.next_step(human).id in ["CommandLab", "fund_CommandLab"],
-		"Completed tank did not advance to lab: " + plan_rules.next_step(human).id
-	)
 	await _place_paid("CommandLab", builder)
 	await _until(func(): return human.has_completed_structure("CommandLab"), 120, "Paid lab")
-	var tank = _units(human, "Tank")[0]
-	var fee = factions.chip_cost(human.faction)
-	await _until(func(): return human.resource_b >= fee, 90, "Harvest for retrofit")
-	_check(plan_rules.next_step(human).id == "retrofit", "Paid lab omitted conventional retrofit")
-	_check(tank.program.install_at(_units(human, "CommandCenter")[0]), "Paid retrofit failed")
-	spent.y += fee
-	await _until(func(): return tank.program.ready_to_run(), 90, "Paid chip installation")
-	_check(
-		plan_rules.next_step(human).id == "programs", "Installed opening tank omitted program setup"
-	)
-	tank.program.configure(load("res://source/match/programs/ProgramLibrary.gd").defaults("guard"))
-	tank.program.anchor = tank.position
-	tank.program.safe_point = tank.position
-	_check(tank.program.run(), "Opening guard program rejected")
-	await _frames(90)
-	_check(tank.program.mode in ["Running", "Waiting"], "Paid opening program never ran")
+	_check(human.lab_research_unlocked(), "Paid factory and lab did not unlock lab research")
 	_check(_units(human, "Infantry").size() == 4, "Opening overproduced infantry")
 	game.hud._toggle_pause()
-	print("PAID PATH ", human.faction, " infantry=4 tank=1 chip=true program=", tank.program.mode)
-	await _adverse_cases()
-
-
-func _adverse_cases():
-	var opening = load("res://source/match/SkirmishOpening.gd")
-	var units = plan_rules.owned_units(human)
-	var defenders = _units(human, "Infantry").slice(0, 2)
-	var other = _spawn_for_plan("Barracks", human, barracks.position + Vector3(0, 0, 9))
-	var scene = load(catalog.scene_path("Infantry"))
-	barracks.production_queue.produce(scene)
-	other.production_queue.produce(scene)
-	units = plan_rules.owned_units(human)
-	var advice = opening.infantry(human, units, defenders)
-	_check(
-		advice.id == "defense_pending" and advice.units.size() == 2,
-		"Split paid queues were not combined"
-	)
-	other.queue_free()
-	await _frames(2)
-	units = plan_rules.owned_units(human)
-	_check(
-		"1 more" in opening.infantry(human, units, defenders).description,
-		"Destroyed producer still counted"
-	)
-	_check(
-		"2 more" in opening.infantry(human, units, defenders.slice(0, 1)).description,
-		"Casualty did not increase demand"
-	)
-	barracks.production_queue.cancel_all()
-	var fillers = []
-	while human.population(true) < 100:
-		fillers.append(_spawn_for_plan("Worker", human, Vector3(40, 0, 45)))
-	units = plan_rules.owned_units(human)
-	_check(
-		"Unit limit reached" in opening.infantry(human, units, defenders).description,
-		"Population limit hidden"
-	)
-	for unit in fillers:
-		unit.queue_free()
-	await _frames(2)
+	print("PAID PATH ", human.faction, " infantry=4 tank=1 lab=true")
 
 
 func _until(predicate, seconds, label):

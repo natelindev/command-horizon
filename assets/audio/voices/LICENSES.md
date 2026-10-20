@@ -14,9 +14,11 @@ These voices are reserved for announcements; no unit uses them or their blends.
 
 ## Unit and robot speech — Chatterbox / VCTK / Unmute voice donations
 
-Each of the 31 speaking faction/unit roles and each of the 11 robots has its own voice,
-cloned from a separate reference recording. Crew are native English speakers, one accent
-family per army (Bastion North American, Helix English, Frontier Australian/Irish). No
+Each of the 37 speaking faction/unit roles, each of the three camp mercenaries (one voice in
+every army) and each of the 11 robots has its own voice, cloned from a separate reference
+recording. Crew are native English speakers, one accent family per army (Bastion North
+American, Helix English, Frontier mostly Australian/Irish with native English backups);
+the neutral mercenaries are Scottish. No
 reference is reused, none resembles an announcer, and delivery settings do not count as a
 different voice. Assignments are in `art/audio/voice_cast.py`; each reference's file,
 SHA-256, license, language, accent, pitch and recording metrics are in

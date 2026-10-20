@@ -17,6 +17,8 @@ varying vec3 world_position;
 varying vec3 world_normal;
 varying vec3 construction_local_position;
 varying vec3 construction_local_normal;
+// Each faction's vertex() copies COLOR here so sites keep the baked weathering.
+varying vec4 construction_weathering;
 
 float construction_hash(vec3 p)
 {
@@ -46,7 +48,7 @@ vec3 original_albedo(vec2 uv)
   {
     color *= armor_detail(construction_local_position, construction_local_normal);
   }
-  return color;
+  return weathered(color, construction_weathering, armor_panels);
 }
 
 float flicker(vec3 cell, float rate)

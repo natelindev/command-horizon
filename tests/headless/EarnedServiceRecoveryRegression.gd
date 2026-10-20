@@ -1,4 +1,4 @@
-extends "res://tests/headless/BattlePlanRegression.gd"
+extends "res://tests/headless/SaveRestoreEdges.gd"
 
 const ARCHIVE = "res://docs/playtests/2026-10-06/program-recovery/pressure-helix-unsupported.json"
 var owner
@@ -20,13 +20,15 @@ func _run():
 
 func _earned_service():
 	var loaded = await Restore.new().restore(self, FileStore.new().read_file(ARCHIVE))
-	_check(loaded.ok, "Earned unserviced guard could not restore")
+	_check(loaded.ok, "Earned unserviced tank could not restore")
 	if not loaded.ok:
 		return
 	game = loaded.game
 	owner = game._get_human_player()
 	var candidates = _units(owner, "Tank")
-	tank = candidates.filter(func(unit): return "No recovery support" in unit.program.reason)[0]
+	candidates.sort_custom(func(a, b): return a.hp / a.hp_max < b.hp / b.hp_max)
+	tank = candidates[0]
+	_check(tank.hp < tank.hp_max * .8, "Earned archive has no damaged tank")
 	var workers = _units(owner, "Worker")
 	workers.sort_custom(
 		func(a, b):
@@ -34,7 +36,6 @@ func _earned_service():
 	)
 	engineer = workers[0]
 	var action = tank.action
-	var safe = tank.program.safe_point
 	var start = game.simulation_time
 	peak_health = tank.hp
 	_check(
@@ -48,10 +49,7 @@ func _earned_service():
 	_check(depot != null, "No legal paid service placement near retreat point")
 	if depot == null:
 		return
-	_check(
-		tank.action == action and tank.program.safe_point == safe,
-		"Construction changed guard authority"
-	)
+	_check(tank.action == action, "Construction changed the tank's orders")
 	await _review_earned_service("paid-foundation")
 	_resume_earned_review()
 	var healing_captured = false
@@ -65,18 +63,11 @@ func _earned_service():
 			await _review_earned_service("healing")
 			_resume_earned_review()
 			healing_captured = true
-		if (
-			peak_health >= tank.hp_max * .8
-			and not tank.action._retreating
-			and not tank.action._returning
-		):
+		if peak_health >= tank.hp_max * .8:
 			returned = true
 			break
-	_check(is_instance_valid(tank), "Earned recovering guard was destroyed")
-	_check(
-		peak_health >= 64 * .8, "Paid service did not heal the earned guard to its return threshold"
-	)
-	_check(returned, "Earned guard did not resume its assignment")
+	_check(is_instance_valid(tank), "Earned recovering tank was destroyed")
+	_check(returned, "Paid service did not heal the earned tank to its return threshold")
 	game.hud.pause_after_load()
 	await _review_earned_service("returned")
 	print(

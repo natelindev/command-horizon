@@ -87,8 +87,6 @@ func _spawn_player_units(player, spawn_transform):
 	for entry in roster:
 		var point = origin + entry[1] * direction
 		var unit = load(Catalog.scene_path(entry[0])).instantiate()
-		if settings.advanced_start and entry[0] == "Tank":
-			unit.set_meta("chip_installed", true)
 		_setup_and_spawn_unit(unit, Transform3D(Basis(), point), player, false)
 
 
@@ -96,7 +94,6 @@ func _physics_process(delta):
 	super(delta)
 	if finished or hud == null:
 		return
-	battle_record.observe()
 	if campaign_hero != null:
 		campaign_hero.step(delta)
 		if finished:
@@ -200,11 +197,13 @@ func objective_text():
 				. size()
 			)
 		)
-	if "relays" in map:
+	if "relays" in map and not map.relays.is_empty():
 		var owned = (
 			map.relays.filter(func(relay): return relay.captured_by == _get_human_player()).size()
 		)
-		text += "\nRelays %d/2 · Infantry hold 10s for local vision." % owned
+		text += (
+			"\nRelays %d/%d · Infantry hold 10s for local vision." % [owned, map.relays.size()]
+		)
 	return text
 
 

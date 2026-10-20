@@ -9,7 +9,7 @@ extends "res://tests/headless/Skirmish.gd"
 # Pass --report-only to print the balance tables without failing, and map file
 # names (for example BigArena) to measure only those maps.
 
-# Deposits closer than this belong to the same field.
+# Legacy maps have no authored field identity; group nearby deposits there.
 const FIELD_LINK = 5.0
 # A field belongs to a start only when no other start is within this margin of it.
 const OWNERSHIP_MARGIN = .1
@@ -98,6 +98,7 @@ func _ring(center, radius, sides):
 	for index in sides:
 		var angle = index * TAU / sides
 		var side = Vector3(center.x, 0, center.z) + Vector3(cos(angle), 0, sin(angle)) * reach
+		side = game.map.ground_point(Vector2(side.x, side.z))
 		var closest = NavigationServer3D.map_get_closest_point(nav, side)
 		if Vector2(closest.x, closest.z).distance_to(Vector2(side.x, side.z)) <= .6:
 			result.append(side)
@@ -113,6 +114,15 @@ func _trip(start_ring, deposit_ring):
 
 
 func _fields(deposits):
+	if "layout" in game.map:
+		# Authored piles follow wide arcs and can span several terrain heights.
+		# Their shared harvest origin is the field identity, not pile proximity.
+		var grouped = {}
+		for deposit in deposits:
+			if not grouped.has(deposit.harvest_origin):
+				grouped[deposit.harvest_origin] = []
+			grouped[deposit.harvest_origin].append(deposit)
+		return grouped.values()
 	var fields = []
 	var assigned = {}
 	for deposit in deposits:
@@ -132,6 +142,15 @@ func _fields(deposits):
 			cursor += 1
 		fields.append(field)
 	return fields
+
+
+func _authored_owner(field):
+	var origin = Vector2(field[0].harvest_origin.x, field[0].harvest_origin.z)
+	for entry in game.map.layout.bases + game.map.layout.expansions:
+		if entry.field.is_equal_approx(origin):
+			return entry.get("player", -1)
+	_check(false, "Authored resource field at %s has no layout entry" % origin)
+	return -1
 
 
 func _field_metrics(field, trips):
@@ -210,17 +229,24 @@ func _measure(map_path):
 		for field in fields:
 			var own = _field_metrics(field, trips[index])
 			own.opponent = _field_metrics(field, trips[opponent]).mean
-			# Contested fields, about as close to another start, belong to nobody.
-			own.owned = range(starts.size()).all(
-				func(other):
-					return (
-						other == index
-						or (
-							_field_metrics(field, trips[other]).mean
-							> own.mean * (1 + OWNERSHIP_MARGIN)
+			if "layout" in game.map:
+				# Compare each authored sector's allocation. Small legal route
+				# differences must not flip a contested-distance threshold and
+				# invent an extra field for one start. Actual travel costs and
+				# enemy exposure still face the same strict comparisons below.
+				own.owned = _authored_owner(field) == index
+			else:
+				# Legacy maps infer ownership from distance to the other starts.
+				own.owned = range(starts.size()).all(
+					func(other):
+						return (
+							other == index
+							or (
+								_field_metrics(field, trips[other]).mean
+								> own.mean * (1 + OWNERSHIP_MARGIN)
+							)
 						)
-					)
-			)
+				)
 			signature.append(own)
 		signature.sort_custom(func(a, b): return a.mean < b.mean)
 		signatures.append(signature)
@@ -315,8 +341,11 @@ func _compare(label_prefix, reference, other, complete):
 			if cost < best_cost:
 				best_cost = cost
 				best = candidate
-		other.erase(best)
 		var label = "%s field #%d" % [label_prefix, rank + 1]
+		_check(best != null, label + " has no reachable counterpart")
+		if best == null:
+			continue
+		other.erase(best)
 		_check(best_cost < 100000.0, label + " stock or deposit count differs")
 		var tolerance = NEAR_TOLERANCE if rank < 2 else FAR_TOLERANCE
 		var metrics = ["mean", "nearest_materials", "nearest_electronics"]

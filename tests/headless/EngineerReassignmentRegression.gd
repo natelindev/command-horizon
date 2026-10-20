@@ -28,7 +28,7 @@ func _clear_fixture():
 
 
 func _live_neighbors():
-	var plan = load("res://source/match/SkirmishPlan.gd")
+	var plan = load("res://tests/UnitQueries.gd")
 	for unit in plan.owned_units(owner):
 		unit.process_mode = Node.PROCESS_MODE_INHERIT
 	return plan.owned_units(owner)

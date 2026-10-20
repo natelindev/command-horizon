@@ -9,6 +9,8 @@ const BODY_CELL_SIZE = 3.0
 const MAX_OBSERVER_HINTS = 512
 const EMPTY_CELLS = {}
 const EMPTY_UNITS = []
+const TerrainSight = preload("res://source/match/maps/terrain/TerrainSight.gd")
+const AIR = Constants.Match.Navigation.Domain.AIR
 var _frame = -1
 var _observers = {}
 var _bodies = {}
@@ -18,9 +20,15 @@ var _max_body_step: float = 0.0
 var _blockers = {}
 var _blockers_dirty = true
 var _observer_hints = {}
+# Authored elevated maps: their TerrainModel adds ground, formation, forest
+# and high-ground occlusion to every sight and fire check.
+var _terrain = null
 
 
 func _ready():
+	var map = get_parent().get("map")
+	if map != null and map.is_elevated() and "terrain" in map:
+		_terrain = map.terrain
 	var signals = get_node_or_null("/root/MatchSignals")
 	if signals != null:
 		signals.unit_spawned.connect(_on_unit_topology_changed)
@@ -139,8 +147,37 @@ func can_observe_point(observer, point: Vector3, ignored_target = null) -> bool:
 	var offset := (point - origin) * Vector3(1, 0, 1)
 	return (
 		offset.length_squared() <= reach * reach
+		and _terrain_visible(observer, origin, point, ignored_target)
 		and line_clear(origin, point, observer, ignored_target)
 	)
+
+
+func _terrain_visible(observer, origin: Vector3, point: Vector3, target) -> bool:
+	if _terrain == null or _airborne(observer):
+		return true
+	var observer_flat = Vector2(origin.x, origin.z)
+	var target_flat = Vector2(point.x, point.z)
+	var airborne_target = is_instance_valid(target) and _airborne(target)
+	if (
+		not airborne_target
+		and TerrainSight.high_ground_hidden(_terrain, observer_flat, target_flat)
+	):
+		return false
+	return TerrainSight.segment_clear(
+		_terrain, _eye(observer_flat), point if airborne_target else _eye(target_flat)
+	)
+
+
+func _airborne(unit) -> bool:
+	if not is_instance_valid(unit):
+		return false
+	if unit.has_method("combat_domain"):
+		return unit.combat_domain() == AIR
+	return "movement_domain" in unit and unit.movement_domain == AIR
+
+
+func _eye(point: Vector2) -> Vector3:
+	return Vector3(point.x, _terrain.height_at(point) + TerrainSight.EYE, point.y)
 
 
 func is_observed(player, target):
@@ -251,7 +288,7 @@ func target_score(source, target, incoming_damage = 0.0):
 	if damage <= 0:
 		return INF
 	# Armed opposition, effective counters and finishing comparable wounded
-	# targets. Explicit attacks and saved/programmed priorities retain authority.
+	# targets. Explicit attacks retain authority.
 	var effectiveness = damage / maxf(0.01, source.attack_damage)
 	var shots = maxf(1, ceilf(target.hp / damage))
 	var distance = source.global_position_yless.distance_to(target.global_position_yless)
@@ -272,6 +309,21 @@ func _incoming_damage(source, targets):
 
 
 func has_line_of_fire(source, target):
+	# Shots pass through forest canopy but not through ground or formations.
+	if _terrain != null and not _airborne(source):
+		var source_flat = Vector2(source.global_position.x, source.global_position.z)
+		var target_flat = Vector2(target.global_position.x, target.global_position.z)
+		if not TerrainSight.segment_clear(
+			_terrain,
+			_eye(source_flat),
+			(
+				target.global_position + Vector3.UP * TerrainSight.EYE
+				if _airborne(target)
+				else _eye(target_flat)
+			),
+			false
+		):
+			return false
 	return line_clear(
 		source.global_position + Vector3.UP * 0.8,
 		target.global_position + Vector3.UP * 0.8,
@@ -408,7 +460,6 @@ static func segment_hits_cylinder(
 
 
 func observed_enemies_near(source, radius):
-	# Broad-phase culling belongs to perception, not to a program's world view.
 	# Only currently observed enemies leave this query.
 	var result = []
 	for candidate in nearby_combat_targets(source.global_position_yless, radius, source.player):
@@ -444,6 +495,8 @@ func nearby_units(point: Vector3, radius: float, player_filter = null, excluded_
 		floori((point.x + indexed_reach) / cell_size), floori((point.z + indexed_reach) / cell_size)
 	)
 	var radius_squared := radius * radius
+	# Ground-plane distance: on elevated maps the query point stands on its tier.
+	var flat := Vector3(point.x, 0.0, point.z)
 	var players = [player_filter] if player_filter != null else index.keys()
 	for player in players:
 		if player == excluded_player:
@@ -458,17 +511,18 @@ func nearby_units(point: Vector3, radius: float, player_filter = null, excluded_
 						continue
 					var position: Vector3 = unit.global_position
 					position.y = 0.0
-					if position.distance_squared_to(point) <= radius_squared:
+					if position.distance_squared_to(flat) <= radius_squared:
 						result.append(unit)
 	return result
 
 
 func nearby_combat_targets(point, radius, excluded_player = null):
 	var result = nearby_units(point, radius, null, excluded_player)
+	var flat = Vector3(point.x, 0.0, point.z)
 	for building in get_tree().get_nodes_in_group("neutral_buildings"):
 		if building.player != null and building.player != excluded_player and building.hp > 0:
 			if (
-				building.global_position_yless.distance_squared_to(point)
+				building.global_position_yless.distance_squared_to(flat)
 				<= (radius + building.radius) * (radius + building.radius)
 			):
 				result.append(building)

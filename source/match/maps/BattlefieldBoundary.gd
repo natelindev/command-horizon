@@ -4,6 +4,7 @@ extends MeshInstance3D
 # Mark the land outline once, without adding physics bodies or per-frame work.
 const DASH_LENGTH = 2.0
 const DASH_GAP = 1.5
+const ELEVATED_PIECE = 0.5
 
 
 func _ready():
@@ -40,6 +41,20 @@ func _ready():
 
 
 func _strip(surface, start, end, half_width, height, color):
+	var map = get_parent()
+	# On elevated terrain the line drapes over tiers in short pieces.
+	if map.is_elevated() and start.distance_to(end) > ELEVATED_PIECE:
+		var pieces = ceili(start.distance_to(end) / ELEVATED_PIECE)
+		for piece in pieces:
+			_strip(
+				surface,
+				start.lerp(end, float(piece) / pieces),
+				start.lerp(end, float(piece + 1) / pieces),
+				half_width,
+				height,
+				color
+			)
+		return
 	var direction = (end - start).normalized()
 	var side = Vector2(-direction.y, direction.x) * half_width
 	var corners = [start - side, start + side, end + side, end - side]
@@ -47,4 +62,4 @@ func _strip(surface, start, end, half_width, height, color):
 	surface.set_normal(Vector3.UP)
 	for index in [0, 1, 2, 0, 2, 3]:
 		var point = corners[index]
-		surface.add_vertex(Vector3(point.x, height, point.y))
+		surface.add_vertex(Vector3(point.x, map.height_at(point) + height, point.y))

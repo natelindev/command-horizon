@@ -37,11 +37,14 @@ func _get_controlled_units_from_navigation_domain_within_topdown_polygon_2d(
 	if topdown_polygon_2d == null:
 		return Utils.Set.new()
 	var units_within_polygon = Utils.Set.new()
+	# On elevated terrain ground units stand on their tier, not the y = 0 plane.
+	var map = get_tree().get_first_node_in_group("battle_map")
+	var elevated = map != null and map.is_elevated()
 	for unit in get_tree().get_nodes_in_group("controlled_units"):
 		if not unit.visible or unit.movement_domain != navigation_domain:
 			continue
 		var polygon = topdown_polygon_2d
-		if navigation_domain == Constants.Match.Navigation.Domain.AIR:
+		if navigation_domain == Constants.Match.Navigation.Domain.AIR or elevated:
 			polygon = _rebase_topdown_polygon_2d_to_different_plane(
 				topdown_polygon_2d, Plane(Vector3.UP, unit.global_position.y)
 			)

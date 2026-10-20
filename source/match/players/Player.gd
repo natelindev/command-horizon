@@ -20,14 +20,13 @@ const BastionCatalog = preload("res://source/match/BastionCatalog.gd")
 @export var difficulty = 1
 
 var technology = null
-var squad_roster = null
 var signatures = null
 var coordination_unlocked = false
 var coordination_left = -1.0
 
 var _color_material = null
 var _footprint_material = null
-var _basic_programs = false
+var _lab_research = false
 
 
 func _ready():
@@ -35,9 +34,6 @@ func _ready():
 		technology = load("res://source/match/research/TechnologyResearch.gd").new()
 		technology.name = "TechnologyResearch"
 		add_child(technology)
-		squad_roster = load("res://source/match/programs/SquadRoster.gd").new()
-		squad_roster.name = "SquadRoster"
-		add_child(squad_roster)
 		signatures = load("res://source/match/combat/FactionSignatures.gd").new()
 		signatures.name = "FactionSignatures"
 		add_child(signatures)
@@ -137,17 +133,18 @@ func emit_changed():
 	changed.emit()
 
 
-func basic_programs_unlocked():
-	if not _basic_programs and get_meta("skirmish", false):
-		_basic_programs = (
+func lab_research_unlocked():
+	# Research opens permanently once a vehicle factory and lab have both stood.
+	if not _lab_research and get_meta("skirmish", false):
+		_lab_research = (
 			has_completed_structure("VehicleFactory") and has_completed_structure("CommandLab")
 		)
-	return _basic_programs
+	return _lab_research
 
 
 func _physics_process(delta):
-	if not _basic_programs:
-		basic_programs_unlocked()
+	if not _lab_research:
+		lab_research_unlocked()
 	if coordination_left > 0.0 and has_completed_structure("CommandLab"):
 		coordination_left = maxf(0.0, coordination_left - delta * production_factor())
 		if coordination_left == 0.0:
@@ -162,7 +159,7 @@ func _physics_process(delta):
 func start_coordination(lab):
 	if technology != null and technology.active != "":
 		return false
-	if coordination_unlocked or coordination_left >= 0.0 or not basic_programs_unlocked():
+	if coordination_unlocked or coordination_left >= 0.0 or not lab_research_unlocked():
 		return false
 	if not is_instance_valid(lab) or lab.is_queued_for_deletion():
 		return false

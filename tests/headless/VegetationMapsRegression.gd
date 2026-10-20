@@ -5,14 +5,7 @@ const Vegetation = preload("res://source/match/maps/Vegetation.gd")
 
 func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
-	for map_name in [
-		"DesertFrontier",
-		"AlpineRelay",
-		"CoastalFoundry",
-		"ExpandedDesertFrontier",
-		"ExpandedAlpineRelay",
-		"ExpandedCoastalFoundry"
-	]:
+	for map_name in ["DesertFrontier", "AlpineRelay", "CoastalFoundry"]:
 		await _skirmish("bastion", "res://source/match/maps/%s.tscn" % map_name)
 		paused = true
 		var plants = game.map.find_children("*", "Node3D", true, false).filter(

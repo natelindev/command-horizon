@@ -13,7 +13,7 @@ func _run():
 	harvest = load("res://source/match/units/actions/CollectingResourcesSequentially.gd")
 	root.get_node("SaveManager").autosaves_enabled = false
 	await _fixture()
-	_check(await _roster_and_retrofit() == true, "roster_and_retrofit suite did not finish")
+	_check(await _roster() == true, "roster suite did not finish")
 	await _cleanup()
 	await _fixture()
 	_check(await _maneuver() == true, "maneuver suite did not finish")
@@ -24,7 +24,6 @@ func _run():
 	await _fixture()
 	_check(await _salvage() == true, "salvage suite did not finish")
 	await _cleanup()
-	_check(await _legacy() == true, "legacy suite did not finish")
 	for message in errors:
 		push_error(message)
 	print("Frontier gameplay: %d failures" % errors.size())
@@ -48,7 +47,7 @@ func _cleanup():
 	await _frames(5)
 
 
-func _roster_and_retrofit():
+func _roster():
 	var tank = _units(human, "Tank")[0]
 	var base = root.get_node("Constants").Match.Units.DEFAULT_PROPERTIES
 	_check(
@@ -67,85 +66,20 @@ func _roster_and_retrofit():
 		tank.has_meta("model_faction") and tank.get_meta("model_faction") == "frontier",
 		"Spawn retained Bastion geometry"
 	)
-	var hq = _units(human, "CommandCenter")[0]
-	tank.program.installed = false
-	tank.global_position = hq.global_position + Vector3(0, 0, 3)
-	var funds = human.resource_b
-	_check(tank.program.install_at(hq), "Paid Frontier retrofit rejected")
-	_check(
-		human.resource_b == funds - 2 and tank.program.install_left == 3,
-		"Retrofit did not use 2 E / 3 s"
-	)
-	tank.issue_manual_order(null)
-	await _frames(2)
-	_check(human.resource_b == funds, "Cancelled retrofit refunded the wrong fee")
-	_check(tank.program.install_at(hq), "Second retrofit rejected")
-	await _frames(30)
-	paused = true
-	var builder = Snapshot.new()
-	var snapshot = builder.capture(game)
-	_check(snapshot != null, "Retrofit capture failed: " + builder.error)
-	if snapshot == null:
-		return
-	var id = builder._reference(tank)
-	var hq_id = builder._reference(hq)
-	var left = tank.program.install_left
-	_check(left > 0 and left < 3, "Retrofit did not advance at actual service")
-	var archive = "user://frontier-%d.json" % OS.get_process_id()
-	var store = FileStore.new()
-	_check(
-		store.write_file(archive, snapshot), "Frontier disk archive write failed: " + store.error
-	)
-	var restore = Restore.new()
-	var loaded = await restore.restore(self, store.read_file(archive))
-	DirAccess.remove_absolute(archive)
-	_check(loaded.ok, "Frontier disk archive restore failed: " + loaded.get("error", ""))
-	if not loaded.ok:
-		return
-	game = loaded.game
-	human = game._get_human_player()
-	tank = restore.entities[id]
-	_check(
-		tank.program.install_left == left and human.resource_b == funds - 2,
-		"Loaded retrofit changed its payment/timer"
-	)
-	game.hud._toggle_pause()
-	await _frames(210)
-	_check(
-		tank.program.installed and human.resource_b == funds - 2,
-		"Restored retrofit failed to finish exactly once"
-	)
-	paused = true
-	var missing = snapshot.duplicate(true)
-	missing.units = missing.units.filter(func(unit): return unit.id != hq_id)
-	loaded = await restore.restore(self, missing)
-	_check(loaded.ok, "Missing Frontier retrofit service rejected archive")
-	if not loaded.ok:
-		return
-	game = loaded.game
-	human = game._get_human_player()
-	_check(
-		human.resource_b == funds and not restore.entities[id].program.installed,
-		"Missing service duplicated/refunded wrong retrofit fee"
-	)
 	var factory = _units(human, "VehicleFactory")[0]
-	factory.production_queue.fit_chips = true
 	var before = Vector2i(human.resource_a, human.resource_b)
 	var job = factory.production_queue.produce(load(factions.Bastion.scene_path("Tank")))
-	_check(job != null, "Frontier paid fitted production rejected")
+	_check(job != null, "Frontier paid production rejected")
 	if job != null:
 		_check(
 			(
-				job.paid_cost == {"resource_a": 20, "resource_b": 6}
-				and (
-					job.time_total
-					== factions.duration(human, "Tank") + factions.chip_seconds("frontier")
-				)
+				job.paid_cost == {"resource_a": 20, "resource_b": 4}
+				and job.time_total == factions.duration(human, "Tank")
 			),
-			"Fitted factory price/time incorrect"
+			"Factory price/time incorrect"
 		)
 		_check(
-			Vector2i(human.resource_a, human.resource_b) == before - Vector2i(20, 6),
+			Vector2i(human.resource_a, human.resource_b) == before - Vector2i(20, 4),
 			"Factory used wrong real debit"
 		)
 	var heavy = _spawn_frontier("AdvancedTank", human, Vector3(20, 0, 15))
@@ -157,19 +91,14 @@ func _roster_and_retrofit():
 		),
 		"Frontier cannon inherited precision charge"
 	)
-	print(
-		"PASS: Frontier roster, actual 2 E retrofit/refund/restoration and paid fitted production"
-	)
+	print("PASS: Frontier roster, models and paid factory production")
 
 	return true
 
 
 func _maneuver():
-	var tanks = _units(human, "Tank")
-	var tank = tanks[0]
-	tanks[1].program.installed = false
+	var tank = _units(human, "Tank")[0]
 	tank.global_position = Vector3(22, 0, 22)
-	tank.program.installed = true
 	_check(human.signatures.activate([tank]) == 0, "Maneuver bypasses Coordination")
 	human.coordination_unlocked = true
 	var movement = tank.get_node("Movement")
@@ -178,10 +107,7 @@ func _maneuver():
 		{"kind": "move", "point": tank.global_position_yless + Vector3(8, 0, 0)}
 	)
 	var order = tank.action
-	_check(
-		human.signatures.activate([tank, tank, tanks[1]]) == 1,
-		"Maneuver accepted duplicate or unchipped participants"
-	)
+	_check(human.signatures.activate([tank, tank]) == 1, "Maneuver accepted duplicate participants")
 	_check(
 		tank.action == order and tank.signature.kind == "maneuver",
 		"Maneuver replaced manual order or used wrong ability"
@@ -360,37 +286,6 @@ func _salvage():
 	print(
 		"PASS: finite observed salvage, deferred-death archive, partial cargo reload and exact delivery"
 	)
-
-	return true
-
-
-func _legacy():
-	await _skirmish("bastion", "res://source/match/maps/PlainAndSimple.tscn")
-	paused = true
-	var data = Snapshot.new().capture(game)
-	data.snapshot_version = 7
-	data.erase("rounds")
-	for legacy_unit in data.units:
-		legacy_unit.projectiles = []
-		legacy_unit.erase("air")
-	for stance_unit in data.units:
-		stance_unit.erase("stance")
-	data.erase("neutral_buildings")
-	for ambient in data.get("ambient", []):
-		ambient.erase("combat")
-	data.erase("battle_record")
-	for resource in data.resources:
-		resource.erase("wreck")
-	var restore = Restore.new()
-	_check(restore.prepare(data), "Legacy version-seven archive rejected: " + restore.error)
-	var loaded = await restore.restore(self, data)
-	_check(loaded.ok, "Legacy version-seven reconstruction failed")
-	if loaded.ok:
-		game = loaded.game
-	_check(
-		get_nodes_in_group("salvage_wrecks").is_empty(), "Legacy two-faction match invented wrecks"
-	)
-	await _cleanup()
 
 	return true
 

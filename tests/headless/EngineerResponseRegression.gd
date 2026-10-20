@@ -2,7 +2,6 @@ extends "res://tests/headless/SaveRestoreEdges.gd"
 
 var human
 var enemy
-var panel
 var plan
 var worker
 var raider
@@ -10,19 +9,10 @@ var raider
 
 func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
-	plan = load("res://source/match/SkirmishPlan.gd")
+	plan = load("res://tests/UnitQueries.gd")
 	for faction in ["bastion", "helix", "frontier"]:
 		await _response_fixture(faction)
-		panel.refresh()
-		_check(not panel._idle.disabled, faction + ": busy endangered engineer shortcut disabled")
-		_check("risk" in panel._idle.text, faction + ": engineer shortcut omits current danger")
-		panel._idle.pressed.emit()
-		_check(
-			get_nodes_in_group("selected_units") == [worker],
-			faction + ": threatened gatherer not selected"
-		)
-		await _selection_authority(faction)
-		await _visibility_and_roles(faction)
+		_queue_cargo_move()
 		await _archive_and_retreat(faction)
 		paused = false
 		game.queue_free()
@@ -42,7 +32,6 @@ func _response_fixture(faction):
 	for unit in get_nodes_in_group("units"):
 		unit.set_physics_process(false)
 	game.hud._toggle_pause()
-	panel = game.hud.battle_plan
 	worker = _units(human, "Worker")[0]
 	worker.position = Vector3(40, 0, 28)
 	var deposit = get_nodes_in_group("resource_units")[0]
@@ -75,104 +64,15 @@ func _authority():
 	return result
 
 
-func _selection_authority(faction):
+func _queue_cargo_move():
 	worker.resource_a = 3
 	worker.resource_b = 1
 	worker.manual_orders.submit({"kind": "move", "point": Vector3(30, 0, 28)}, true)
-	var builder = _units(human, "Worker")[1]
-	var original = builder.position
-	builder.position = worker.position + Vector3(0, 0, 2)
-	var foundation = _spawn_response("PowerPlant", human, Vector3(38, 0, 30))
-	foundation._construction_progress = .2
-	builder.issue_manual_order(
-		load("res://source/match/units/actions/Constructing.gd").new(foundation)
-	)
 	root.get_node("MatchSignals").deselect_all_units.emit()
-	var before = _authority()
-	for index in 10:
-		panel.refresh()
-		panel._idle.pressed.emit()
-		await _frames(1)
-	var selected = get_nodes_in_group("selected_units")
-	_check(
-		selected.size() == 2 and worker in selected and builder in selected,
-		faction + ": danger shortcut omits busy builder or gatherer"
-	)
-	_check(_authority() == before, faction + ": danger refresh/selection changed gameplay")
-	_check(
-		"Selection keeps their current orders" in panel._idle.accessibility_description,
-		"Engineer shortcut lacks an accessible selection explanation"
-	)
-	# Existing primary advice must still select the appropriate combat response.
-	_check(
-		plan.next_step(human).id == "defend_economy", "Engineer shortcut displaced defense advice"
-	)
-	builder.position = original
-	builder.issue_manual_order(null)
-	foundation.queue_free()
-	await _frames(3)
-	# A stale visible shortcut rechecks eligibility when actually clicked.
-	raider.position = Vector3(110, 0, 85)
-	game.battlefield.invalidate()
-	panel._idle.pressed.emit()
-	_check(
-		get_nodes_in_group("selected_units") == [builder],
-		"Stale risk shortcut kept safe busy worker"
-	)
-	panel.refresh()
-	_check(
-		panel._idle.text == "Idle engineers · 1", "Safe shortcut did not return to idle engineers"
-	)
-	raider.position = Vector3(44, 0, 28)
-	game.battlefield.invalidate()
-
-
-func _visibility_and_roles(faction):
-	var sights = {}
-	for unit in plan.owned_units(human):
-		sights[unit] = unit.sight_range
-		unit.sight_range = 1.0
-	game.battlefield.invalidate()
-	raider.visible = true
-	_check(not game.battlefield.is_observed(human, raider), "Hidden raider fixture is observed")
-	_check(plan.endangered_workers(human).is_empty(), faction + ": hidden attacker leaked danger")
-	worker.receive_weapon_hit(raider)
-	_check(worker.hp > 0, "Recent-hit fixture killed engineer")
-	_check(
-		plan.endangered_workers(human) == [worker], "Unseen incoming damage lacks own-unit danger"
-	)
-	worker.last_enemy_damage_time = game.simulation_time - 6.01
-	_check(plan.endangered_workers(human).is_empty(), "Expired hit kept danger shortcut")
-	for unit in sights:
-		unit.sight_range = sights[unit]
-	game.battlefield.invalidate()
-	raider.position = Vector3(110, 0, 85)
-	var scout = _spawn_response("Drone", enemy, worker.position + Vector3(3, 3, 0))
-	var aa = _spawn_response("AntiAirTurret", enemy, worker.position + Vector3(4, 0, 0))
-	await _frames(3)
-	game.battlefield.invalidate()
-	_check(game.battlefield.is_observed(human, scout), "Scout fixture not visible")
-	_check(
-		plan.endangered_workers(human).is_empty(),
-		"Unarmed/AA-only contact endangered ground engineers"
-	)
-	var helicopter = _spawn_response("Helicopter", enemy, worker.position + Vector3(4, 3, 0))
-	await _frames(3)
-	game.battlefield.invalidate()
-	_check(
-		plan.endangered_workers(human) == [worker], "Visible strike aircraft did not flag engineer"
-	)
-	helicopter.queue_free()
-	scout.queue_free()
-	aa.queue_free()
-	await _frames(3)
-	raider.position = Vector3(44, 0, 28)
-	game.battlefield.invalidate()
+	worker.get_node("Selection").select()
 
 
 func _archive_and_retreat(faction):
-	panel.refresh()
-	panel._idle.pressed.emit()
 	var builder = Snapshot.new()
 	var data = builder.capture(game)
 	_check(data != null, "Engineer response capture failed: " + builder.error)
@@ -193,7 +93,6 @@ func _archive_and_retreat(faction):
 	enemy = get_nodes_in_group("players").filter(func(side): return side != human)[0]
 	worker = restore.entities[ids[0]]
 	raider = restore.entities[ids[1]]
-	panel = game.hud.battle_plan
 	game.get_node("IsometricCamera3D").set_physics_process(false)
 	for side in get_nodes_in_group("players"):
 		side.set_process(false)
@@ -201,11 +100,15 @@ func _archive_and_retreat(faction):
 		if unit != worker:
 			unit.disable_mode = CollisionObject3D.DISABLE_MODE_KEEP_ACTIVE
 			unit.process_mode = Node.PROCESS_MODE_DISABLED
-	panel.refresh()
-	_check(paused and "risk" in panel._idle.text, "Paused archive lost visible danger context")
+	_check(paused, "Paused archive resumed the match")
+	_check(game.battlefield.is_observed(human, raider), "Archive lost the visible raider")
+	_check(
+		worker.manual_orders.pending.size() == 1 and worker.manual_orders.pending[0].kind == "move",
+		"Archive lost the engineer's queued move"
+	)
+	root.get_node("MatchSignals").deselect_all_units.emit()
+	worker.get_node("Selection").select()
 	var before = _authority()
-	panel._idle.pressed.emit()
-	_check(_authority() == before, "Restored shortcut changed orders/cargo")
 	_check(worker.resource_a == 3 and worker.resource_b == 1, "Archive lost engineer cargo")
 	var commands = game.hud.direct_orders
 	commands.arm("move")
@@ -239,11 +142,6 @@ func _archive_and_retreat(faction):
 		"Ordinary Move discarded carried resources"
 	)
 	_check(
-		Vector2i(human.resource_a, human.resource_b) == funds,
-		"Evacuation shortcut spent or granted funds"
+		Vector2i(human.resource_a, human.resource_b) == funds, "Evacuation spent or granted funds"
 	)
-	print(
-		"PASS: ",
-		faction,
-		" danger selection, fog, busy jobs, archive and explicit cargo-preserving retreat"
-	)
+	print("PASS: ", faction, " archive and explicit cargo-preserving retreat")

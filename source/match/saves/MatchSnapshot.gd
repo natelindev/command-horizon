@@ -3,7 +3,8 @@ extends RefCounted
 
 const Campaigns = preload("res://source/match/campaign/CampaignCatalog.gd")
 const Values = preload("res://source/match/saves/SaveValue.gd")
-const Record = preload("res://source/match/programs/ProgramRecord.gd")
+# Saves from any other version are rejected; there is no migration.
+const VERSION = 16
 const ACTION_FIELDS = {
 	"Garrisoning": ["_elapsed"],
 	"Moving": ["_target_position", "_arrival_elapsed", "_arrival_progress"],
@@ -32,29 +33,14 @@ const ACTION_FIELDS = {
 	"Repairing": ["_elapsed", "_finish_when_repaired"],
 	"RecoveringAtService":
 	["_elapsed", "_stalled", "_blocked", "_last_progress", "_retry_left", "_full_recovery"],
-	"ChipInstalling": ["_paid", "_last_position", "_stalled"],
-	"PresetAction": [],
-	"SpecialistAction": ["_backing_off", "_strike_returning"],
-	"LuaAction": ["_faulted", "_next_handle", "_guarding_area"],
 	"AirStation": ["_point", "sweep"],
 	"AirStrike": [],
 	"AirReturn": [],
 	"AirIdle": ["_scan_left"],
 	"DroneDive": ["diving", "_velocity", "_aim_point"],
 }
-const PROGRAM_ACTION_FIELDS = [
-	"_retreating",
-	"_returning",
-	"_elapsed",
-	"_waypoint",
-	"_last_progress",
-	"_stalled",
-	"_destination"
-]
-const ACTION_REFERENCES = [
-	"_target_unit", "_resource_unit", "_cc_unit", "_target", "_repair", "service", "_escort"
-]
-const ACTION_CHILDREN = ["_shot", "_sub_action", "_defense"]
+const ACTION_REFERENCES = ["_target_unit", "_resource_unit", "_cc_unit", "_target", "_escort"]
+const ACTION_CHILDREN = ["_shot", "_sub_action"]
 const ACTION_TIMERS = ["_timer", "_one_shot_timer", "_range_check_timer"]
 var error = ""
 var _ids = {}
@@ -114,8 +100,11 @@ func capture(game):
 		)
 	var camera = game.get_node("IsometricCamera3D")
 	var result = {
-		"snapshot_version": 15,
-		"map_revision": 1,
+		"snapshot_version": VERSION,
+		"map_revision":
+		load("res://source/match/maps/terrain/BattlefieldRegistry.gd").revision(
+			game.settings.map_path
+		),
 		"settings": settings,
 		"simulation_time": game.simulation_time,
 		"visual_serial": game._visual_serial,
@@ -190,24 +179,6 @@ func capture(game):
 		result.mission.relay = _properties(game.map.relay, ["progress", "contested"])
 		result.mission.relay.owner = _reference(game.map.relay.captured_by)
 		result.mission.relay.candidate = _reference(game.map.relay.candidate)
-	elif settings.mission_id == "air_corridor":
-		result.mission = {"command_left": game.command_left, "sites": [], "flights": []}
-		for site in game.sites:
-			result.mission.sites.append(
-				{
-					"unit": _reference(site.unit) if is_instance_valid(site.unit) else "",
-					"cleared": site.cleared
-				}
-			)
-		for flight in game.flights:
-			result.mission.flights.append(
-				{
-					"unit": _reference(flight.unit) if is_instance_valid(flight.unit) else "",
-					"state": flight.state,
-					"response_left": flight.response_left,
-					"response_done": flight.response_done
-				}
-			)
 	elif settings.mission_id == "supply_line":
 		result.mission = {
 			"convoy": [],
@@ -284,13 +255,7 @@ func capture(game):
 func _player(player):
 	var result = _properties(
 		player,
-		[
-			"resource_a",
-			"resource_b",
-			"coordination_unlocked",
-			"coordination_left",
-			"_basic_programs"
-		]
+		["resource_a", "resource_b", "coordination_unlocked", "coordination_left", "_lab_research"]
 	)
 	result.technology = player.technology.capture()
 	result.id = _reference(player)
@@ -305,29 +270,6 @@ func _player(player):
 		result.ai.enabled = player.is_processing()
 		result.ai.cursor = player._army_cursor
 		result.ai.groups = _army_groups(player)
-	result.squads = []
-	var roster = player.squad_roster
-	result.next_squad_id = roster._next_id if roster != null else 1
-	if roster != null:
-		for squad in roster.squads():
-			var item = _properties(squad, ["id", "title", "policy", "_state"])
-			item.members = squad.active_members().map(_reference)
-			item.claims = []
-			for claim in squad._claims.values():
-				var owner = _reference(claim.unit.get_ref())
-				var target = _reference(claim.target.get_ref())
-				var remaining = maxf(0, claim.expires - _game.simulation_time)
-				if owner != "" and target != "" and remaining > 0:
-					item.claims.append(
-						{
-							"owner": owner,
-							"target": target,
-							"left": remaining,
-							"channel": claim.channel,
-							"damage": claim.damage
-						}
-					)
-			result.squads.append(item)
 	return result
 
 
@@ -367,7 +309,6 @@ func _unit(unit):
 		"construction": unit._construction_progress if unit.has_method("is_constructed") else null,
 		"cargo": _properties(unit, ["resource_a", "resource_b"]) if unit.type == "Worker" else {},
 		"action": _action(unit.action),
-		"program": _program(unit.program),
 		"orders": {},
 		"production": {},
 		"rally": {},
@@ -381,7 +322,7 @@ func _unit(unit):
 			result.groups.append(index)
 	if unit.manual_orders != null:
 		var orders = unit.manual_orders
-		result.orders = _properties(orders, ["auto_resume", "status", "_engaged", "_still"])
+		result.orders = _properties(orders, ["status", "_engaged", "_still"])
 		result.orders.progress = orders._progress if orders._progress.is_finite() else null
 		result.orders.current = _order(orders.current)
 		result.orders.pending = orders.pending.map(_order)
@@ -401,53 +342,16 @@ func _unit(unit):
 		)
 	if "production_queue" in unit and unit.production_queue != null:
 		var queue = unit.production_queue
-		result.production = {"fit_chips": queue.fit_chips, "pin": queue.program_pin, "jobs": []}
+		result.production = {"jobs": []}
 		for job in queue.get_elements():
 			var item = _properties(
-				job,
-				[
-					"time_total",
-					"time_left",
-					"paid_cost",
-					"fitted_chip",
-					"program_snapshot",
-					"departure_endpoint"
-				]
+				job, ["time_total", "time_left", "paid_cost", "departure_endpoint"]
 			)
 			item.role = job.unit_prototype.resource_path.get_file().get_basename()
 			result.production.jobs.append(item)
 	var rally = unit.get_node_or_null("RallyPoint")
 	if rally != null:
 		result.rally = {"position": rally.position, "target": _reference(rally.target_unit)}
-	return result
-
-
-func _program(program):
-	if program == null:
-		return {}
-	if not program.saved_record.is_empty() and not Record.validate(program.saved_record):
-		_fail("Active program version is invalid; match was not saved.")
-	var result = _properties(
-		program,
-		[
-			"installed",
-			"config",
-			"program_title",
-			"anchor",
-			"safe_point",
-			"route",
-			"mode",
-			"reason",
-			"install_left",
-			"saved_record",
-			"lua_source",
-			"_pending"
-		]
-	)
-	result.escort = _reference(program.escort)
-	result.runtime = {}
-	if program.lua_runtime != null:
-		result.runtime = program.lua_runtime.checkpoint()
 	return result
 
 
@@ -470,18 +374,10 @@ func _action(action, depth = 0):
 		return {}
 	var path = action.get_script().resource_path
 	var kind = path.get_file().get_basename()
-	var directory = (
-		"programs"
-		if kind in ["PresetAction", "SpecialistAction", "LuaAction", "ChipInstalling"]
-		else "units/actions"
-	)
-	if kind not in ACTION_FIELDS or path != "res://source/match/%s/%s.gd" % [directory, kind]:
+	if kind not in ACTION_FIELDS or path != "res://source/match/units/actions/%s.gd" % kind:
 		_fail("Unsupported active action: " + kind)
 		return {}
-	var fields = ACTION_FIELDS[kind].duplicate()
-	if kind in ["PresetAction", "SpecialistAction", "LuaAction"]:
-		fields.append_array(PROGRAM_ACTION_FIELDS)
-	var state = _properties(action, fields)
+	var state = _properties(action, ACTION_FIELDS[kind])
 	for key in state:
 		if state[key] is Vector3 and not state[key].is_finite():
 			state[key] = null  # Explicit not-yet-known position sentinel.
@@ -503,12 +399,6 @@ func _action(action, depth = 0):
 				"stopped": timer.is_stopped(),
 				"paused": timer.paused
 			}
-	if kind == "LuaAction":
-		result.contacts = []
-		for handle in action._handles:
-			var target = _reference(action._handles[handle].get_ref())
-			if target != "":
-				result.contacts.append({"handle": handle, "entity": target})
 	return result
 
 

@@ -1,12 +1,10 @@
-extends "res://tests/headless/ProgramRegression.gd"
+extends "res://tests/headless/MatchFixture.gd"
 
 var _factions
-var _library_path
 
 
 func _run():
 	_factions = load("res://source/match/FactionCatalog.gd")
-	_library_path = "user://factory-regression-%d.json" % OS.get_process_id()
 	var settings = load("res://source/data-model/MatchSettings.gd").new()
 	settings.skirmish = true
 	settings.map_path = "res://source/match/maps/BigArena.tscn"
@@ -34,19 +32,17 @@ func _run():
 	_game.repair_service.set_physics_process(false)
 	for player in [_human, _enemy]:
 		await _research_tests(player)
-		await _pin_tests(player)
 	await _ai_orders()
 	await _clear()
 	_game.queue_free()
 	await _frames(8)
-	DirAccess.remove_absolute(_library_path)
 	for message in _errors:
 		push_error(message)
 	if _errors.is_empty():
 		print(
 			(
 				"PASS: both-faction Coordination costs/cancel/power/pause/lab loss; "
-				+ "production gate; exact factory versions/queue snapshots/fallback/rally; AI orders"
+				+ "production gate; AI orders"
 			)
 		)
 	quit(0 if _errors.is_empty() else 1)
@@ -56,7 +52,7 @@ func _research_tests(player):
 	var offset = 0 if player == _human else 45
 	var factory = _spawn("VehicleFactory", player, Vector3(20 + offset, 0, 20))
 	var lab = _spawn("CommandLab", player, Vector3(10 + offset, 0, 20))
-	# HQs supply 8 power; the factory and lab need a generator to research at full speed.
+	# The HQ alone cannot power a factory and lab; research starts at full power.
 	_spawn("PowerPlant", player, Vector3(30 + offset, 0, 20))
 	player.set_physics_process(false)
 	player.resource_a = 100
@@ -73,7 +69,13 @@ func _research_tests(player):
 	_check(player.resource_a == 80 and player.resource_b == 80, "Research charged wrong fee")
 	_check(not player.start_coordination(lab), "Duplicate research accepted")
 	player._physics_process(10.0)
-	_check(is_equal_approx(player.coordination_left, 20.0), "Research timing incorrect")
+	_check(
+		is_equal_approx(player.coordination_left, 20.0),
+		(
+			"Research timing incorrect: %.2f s left at power factor %.2f"
+			% [player.coordination_left, player.production_factor()]
+		)
+	)
 	_check(player.cancel_coordination(), "Research cancellation failed")
 	_check(
 		player.resource_a == 100 and player.resource_b == 100,
@@ -138,121 +140,18 @@ func _research_tests(player):
 	factory.production_queue.cancel(job)
 
 
-func _pin_tests(player):
-	DirAccess.remove_absolute(_library_path)
-	var library = Library.new()
-	library.read_library(_library_path)
-	var config = Library.defaults("guard")
-	config.radius = 8.0
-	library.save_version("Watch", config, _library_path)
-	config.radius = 4.0
-	library.save_version("Watch", config, _library_path)
-	var factories = player.get_children().filter(
-		func(unit): return "type" in unit and unit.type == "VehicleFactory"
-	)
-	var factory = factories[0]
-	var queue = factory.production_queue
-	queue.program_library_path = _library_path
-	queue.program_pin = {"name": "Watch", "version": 1}
-	player.resource_a = 1000
-	player.resource_b = 1000
-	var job = queue.produce(load(Catalog.scene_path("CombatRobot")))
-	_check(
-		job.program_snapshot.config.radius == 8.0,
-		"Factory followed latest instead of exact version"
-	)
-	queue.program_pin.version = 2
-	config.radius = 10.0
-	library.save_version("Watch", config, _library_path)
-	_check(
-		job.program_snapshot.title == "Watch · v1" and job.program_snapshot.config.radius == 8.0,
-		"Queue snapshot changed with factory/library"
-	)
-	# Deleting a source file cannot invalidate an already captured job.
-	DirAccess.remove_absolute(_library_path)
-	var produced = await _finish_job(factory, job)
-	_check(
-		produced.program.config.radius == 8.0 and produced.program.program_title == "Watch · v1",
-		"Produced unit lost pinned version"
-	)
-	_check(produced.program.mode == "Waiting", "Factory invented a guard assignment")
-	job.program_snapshot.config.radius = 12.0
-	_check(produced.program.config.radius == 8.0, "Produced unit aliases queued config")
-	# A newly queued missing version has an explicit safe fallback and notification.
-	job = queue.produce(load(Catalog.scene_path("CombatRobot")))
-	_check(
-		job.program_snapshot.config.preset == "hold" and job.program_snapshot.notice != "",
-		"Missing version did not fall back to Hold"
-	)
-	var fallback = await _finish_job(factory, job)
-	_check(
-		fallback.program.config.preset == "hold" and fallback.has_meta("program_fallback_reason"),
-		"Fallback lost reason or preset"
-	)
-	# A pinned program must not steal a factory's manual rally order.
-	library = Library.new()
-	library.read_library(_library_path)
-	config = Library.defaults("guard")
-	library.save_version("Watch", config, _library_path)
-	queue.program_pin = {"name": "Watch", "version": 1}
-	factory.get_node("RallyPoint").global_position = factory.global_position + Vector3(8, 0, 5)
-	job = queue.produce(load(Catalog.scene_path("CombatRobot")))
-	var rallied = await _finish_job(factory, job)
-	_check(
-		rallied.program.mode == "Manual" and rallied.program.config.preset == "guard",
-		"Factory program overrode rally order"
-	)
-	# Duplicate identities are invalid rather than resolving ambiguously.
-	var file = FileAccess.open(_library_path, FileAccess.WRITE)
-	file.store_string(
-		JSON.stringify({"schema": 1, "versions": [library.versions[0], library.versions[0]]})
-	)
-	file.close()
-	_check(not library.read_library(_library_path), "Duplicate version identity accepted")
-	job = queue.produce(load(Catalog.scene_path("CombatRobot")))
-	_check(
-		job.program_snapshot.config.preset == "hold", "Corrupt library blocked usable production"
-	)
-	queue.cancel(job)
-
-
-func _finish_job(factory, job):
-	var existing = factory.player.get_children()
-	job.time_left = 0.1
-	factory.production_queue._process(1.0)
-	var created = factory.player.get_children().filter(
-		func(node): return node not in existing and "type" in node
-	)
-	_check(created.size() == 1, "Job did not create exactly one unit")
-	var unit = created[0]
-	_fixtures.append(unit)
-	await _frames(35)
-	return unit
-
-
 func _ai_orders():
 	var drone = _spawn("Drone", _enemy, Vector3(70, 0, 70))
 	var robot = _spawn("RepairRobot", _enemy, Vector3(73, 0, 70))
 	var tank = _spawn("Tank", _enemy, Vector3(76, 0, 70))
 	for unit in [drone, robot]:
 		unit.process_mode = Node.PROCESS_MODE_INHERIT
-		unit.program.configure(Library.defaults("hold"))
-		unit.program.run()
 	await _frames(35)
-	# Make the target eligible after the idle preset settles. Healthy reserves
-	# do not request escorts, and an actively repairing program should retain control.
+	# Make the target eligible after idle units settle. Healthy reserves do
+	# not request escorts, and an active repair should retain control.
 	tank.hp = tank.hp_max * .8
 	_enemy._command_army([drone, robot, tank])
-	_check(
-		drone.program.mode == "Manual" and drone.get_node("Movement")._has_destination,
-		"Default Hold blocked AI scouting"
-	)
-	_check(
-		robot.program.mode == "Manual" and robot.action.has_method("repair_target"),
-		"Default Hold blocked AI support order"
-	)
+	_check(drone.get_node("Movement")._has_destination, "Idle drone ignored AI scouting")
+	_check(robot.action.has_method("repair_target"), "Idle repair robot ignored AI support order")
 	await _frames(40)
-	_check(
-		robot.program.mode == "Manual" and robot.action.has_method("repair_target"),
-		"Default Hold reclaimed the assigned AI repair order"
-	)
+	_check(robot.action.has_method("repair_target"), "AI repair order did not persist")

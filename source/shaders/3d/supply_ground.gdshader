@@ -1,4 +1,5 @@
 shader_type spatial;
+#include "res://source/shaders/3d/terrain_layers.gdshaderinc"
 
 uniform bool exterior = false;
 uniform vec4 roads[3];
@@ -29,6 +30,8 @@ void fragment() {
 		abs(sin(p.x * .048 + p.y * .021 + broad * 1.2)));
 	soil *= 1.0 - dry_channel * .13;
 	vec3 color = soil;
+	float path = 0.0;
+	float paved = 0.0;
 	if (!exterior) {
 		float lane = 1000.0;
 		float stripes = 0.0;
@@ -55,6 +58,7 @@ void fragment() {
 		asphalt = mix(asphalt, soil, smoothstep(.53, .76, wear) * .28);
 		color = mix(color, gravel, shoulder * .88);
 		color = mix(color, asphalt, pavement);
+		path = max(pavement, shoulder * .5);
 		color = mix(color, vec3(.59, .555, .43), stripes * pavement * smoothstep(.23, .62, wear) * .6);
 		for (int index = 0; index < 3; index++) {
 			vec2 q = p - checkpoints[index];
@@ -72,8 +76,13 @@ void fragment() {
 			stop_line *= step(abs(q.x), 4.5) * smoothstep(.25, .65, wear);
 			concrete = mix(concrete, vec3(.64, .60, .46), stop_line * .65);
 			color = mix(color, concrete, apron);
+			paved = max(paved, apron);
 		}
 	}
-	ALBEDO = color;
-	ROUGHNESS = .95;
+	// Checkpoint aprons take concrete; the highway and its shoulders the asphalt scan.
+	TerrainSurface ground = terrain_surface(p, color, path, paved, .95);
+	ALBEDO = ground.albedo;
+	ROUGHNESS = ground.roughness;
+	AO = ground.occlusion;
+	NORMAL = terrain_normal(ground, NORMAL, VIEW_MATRIX, INV_VIEW_MATRIX);
 }

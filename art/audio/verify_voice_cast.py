@@ -3,17 +3,17 @@ import json
 from pathlib import Path
 
 from robot_voice import ROBOT_VOICES
-from voice_cast import (ANNOUNCERS, ANNOUNCER_TEXT, CAST, MALE_VOICES, POOL, PROFILES, ROBOT_CAST,
-                        native_accent)
+from voice_cast import (ANNOUNCERS, ANNOUNCER_TEXT, CAST, MALE_VOICES, MERCENARY, MERCENARY_CAST, POOL,
+                        PROFILES, ROBOT_CAST, native_accent)
 
 ROOT = Path(__file__).resolve().parents[2]
-UNIT_ROLES = sum(len(roles) for roles in CAST.values())
+UNIT_ROLES = sum(len(roles) for roles in CAST.values()) + len(MERCENARY_CAST)
 ROBOT_ROLES = sum(len(roles) for roles in ROBOT_CAST.values())
 
 
 def validate_cast(profiles):
     commands = set(ANNOUNCERS.values())
-    units = {speaker for faction in CAST.values() for speaker, _ in faction.values()}
+    units = {speaker for faction in [*CAST.values(), MERCENARY_CAST] for speaker, _ in faction.values()}
     robots = {speaker for faction in ROBOT_CAST.values() for speaker, _ in faction.values()}
     assert set(profiles) == commands | units | robots
     references = {info['sha256']: info for info in POOL.values()}
@@ -46,7 +46,7 @@ def validate_cast(profiles):
 
 
 def verify_catalog():
-    assert validate_cast(PROFILES) == len(ANNOUNCERS) + UNIT_ROLES + ROBOT_ROLES == 45
+    assert validate_cast(PROFILES) == len(ANNOUNCERS) + UNIT_ROLES + ROBOT_ROLES == 54
     catalog = json.loads((ROOT / 'assets/audio/voices/catalog.json').read_text())
     assert catalog['provenance']['profiles'] == PROFILES
     assert catalog['provenance']['robot_voices'] == json.loads(json.dumps(ROBOT_VOICES))
@@ -57,12 +57,22 @@ def verify_catalog():
     # duplication despite distinct metadata.
     stop_hashes = set()
     robots = 0
-    for faction, bank in catalog['factions'].items():
-        assert set(bank['announcer']) == set(ANNOUNCER_TEXT)
-        speakers = {role: speaker for role, (speaker, _) in {**CAST[faction], **ROBOT_CAST[faction]}.items()}
-        for role, events in [('Command', bank['announcer']), *bank['units'].items()]:
+    # Mercenaries are voiced once, never per army: the same hire keeps one identity.
+    assert set(catalog['mercenaries']) == set(MERCENARY_CAST)
+    banks = [(faction, bank['announcer'], bank['units']) for faction, bank in catalog['factions'].items()]
+    for faction, announcer, units in banks + [(MERCENARY, None, catalog['mercenaries'])]:
+        if announcer is None:
+            speakers = {role: speaker for role, (speaker, _) in MERCENARY_CAST.items()}
+            sections = []
+        else:
+            assert set(announcer) == set(ANNOUNCER_TEXT)
+            assert not set(units) & set(MERCENARY_CAST), f'{faction} recasts a mercenary'
+            speakers = {role: speaker for role, (speaker, _)
+                        in {**CAST[faction], **ROBOT_CAST[faction]}.items()}
+            sections = [('Command', announcer)]
+        for role, events in [*sections, *units.items()]:
             expected = ANNOUNCERS[faction] if role == 'Command' else speakers.get(role)
-            robotic = role in ROBOT_CAST[faction]
+            robotic = role in ROBOT_CAST.get(faction, {})
             for event, variants in events.items():
                 for clip in variants if isinstance(variants, list) else [variants]:
                     relative = clip['stream'].removeprefix('res://assets/audio/voices/')
@@ -76,6 +86,7 @@ def verify_catalog():
                         assert entry['qc']['engine'] == 'kokoro', relative
                     elif expected:
                         assert not clip['text'].startswith('['), relative
+                        assert not entry['qc'].get('rejected'), relative
                         assert entry['qc']['word_error'] <= PROFILES[expected]['max_word_error'], relative
                     used.add(relative)
                     if expected and role != 'Command' and event == 'stop':
@@ -87,8 +98,9 @@ def verify_catalog():
                     assert len(events[event]) >= 2
     assert used == set(entries)
     assert len(stop_hashes) == UNIT_ROLES + ROBOT_ROLES and robots == ROBOT_ROLES
-    print(f'PASS {UNIT_ROLES} distinct male unit voices, {ROBOT_ROLES} distinct robot voices, '
-          f'three exclusive announcers, every spoken clip transcription-checked')
+    print(f'PASS {UNIT_ROLES} distinct male unit voices ({len(MERCENARY_CAST)} shared mercenaries), '
+          f'{ROBOT_ROLES} distinct robot voices, three exclusive announcers, '
+          f'every spoken clip transcription-checked')
 
 
 if __name__ == '__main__':

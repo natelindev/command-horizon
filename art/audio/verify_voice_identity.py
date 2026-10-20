@@ -4,8 +4,10 @@ Decodes each spoken Ogg, transcribes it with Whisper and embeds each speaker's f
 lines with ECAPA. Writes voice-identity-verification.json:
   cd art/audio && ../../tmp/voice-venv/bin/python verify_voice_identity.py
 """
+import hashlib
 import json
 from collections import defaultdict
+from importlib.metadata import version
 from pathlib import Path
 
 import librosa
@@ -25,7 +27,13 @@ MAX_CROSS_SIMILARITY = .5
 
 def main():
     manifest = json.loads((ROOT / 'art/audio/battle-audio-manifest.json').read_text())
-    asr = whisper.load_model('medium.en', device='cpu')
+    # Keep completed transcripts across interrupted audits or a single-line repair. Only
+    # actual encoded bytes and the exact recognizer configuration can reuse a transcript.
+    cache_path = ROOT / 'tmp/voice-work/battle-transcripts.json'
+    cache = json.loads(cache_path.read_text()) if cache_path.exists() else {}
+    recognizer = {'engine': version('openai-whisper'), 'model': 'medium.en', 'language': 'en',
+                  'fp16': False, 'temperature': 0, 'initial_prompt': GLOSSARY}
+    asr = None
     ecapa = EncoderClassifier.from_hparams('speechbrain/spkrec-ecapa-voxceleb',
                                            savedir=str(ROOT / 'tmp/voice-work/ecapa'),
                                            run_opts={'device': 'cpu'})
@@ -41,10 +49,23 @@ def main():
         speaker = entry['speaker_id']
         if speaker is None:
             continue
-        audio16 = librosa.resample(decode(ROOT / 'assets/audio/voices' / entry['file']),
+        path = ROOT / 'assets/audio/voices' / entry['file']
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        assert digest == entry['sha256'], f'Asset changed since manifest: {entry["file"]}'
+        audio16 = librosa.resample(decode(path),
                                    orig_sr=24000, target_sr=16000)
-        heard = asr.transcribe(audio16, language='en', fp16=False, temperature=0,
-                               initial_prompt=GLOSSARY)['text'].strip()
+        cache_key = hashlib.sha256(json.dumps([digest, recognizer], sort_keys=True).encode()).hexdigest()
+        heard = cache.get(cache_key)
+        if heard is None:
+            if asr is None:
+                asr = whisper.load_model('medium.en', device='cpu')
+            heard = asr.transcribe(audio16, language='en', fp16=False, temperature=0,
+                                   initial_prompt=GLOSSARY)['text'].strip()
+            cache[cache_key] = heard
+            cache_path.parent.mkdir(parents=True, exist_ok=True)
+            pending_cache = cache_path.with_suffix('.tmp')
+            pending_cache.write_text(json.dumps(cache, ensure_ascii=False) + '\n')
+            pending_cache.replace(cache_path)
         error = transcript_error(entry['text'], heard)
         errors[entry['file']] = {'text': entry['text'], 'heard': heard, 'word_error': round(error, 3)}
         limit = PROFILES[speaker].get('max_word_error', .25)
@@ -53,6 +74,8 @@ def main():
         lines[speaker].append(audio16)
         silence = np.zeros(1600, dtype=np.float32)
         lines[speaker].append(silence)
+        if len(errors) % 25 == 0:
+            print(f'Checked {len(errors)} spoken clips', flush=True)
     speakers = sorted(lines)
     vectors = np.array([embed(np.concatenate(lines[s])) for s in speakers])
     similarity = vectors @ vectors.T

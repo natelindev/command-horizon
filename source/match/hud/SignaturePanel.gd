@@ -34,7 +34,7 @@ func _activate_selection():
 		return
 	var player = units[0].player
 	if player.faction == "bastion":
-		units[0]._match.hud.arm_program_assignment("signature", units)
+		units[0]._match.hud.arm_signature_sector(units)
 	else:
 		var count = player.signatures.activate(units)
 		units[0]._match.hud.show_notice(
@@ -84,29 +84,22 @@ func _feedback(units, player, ready):
 		}
 	var effects = {}
 	var recharge = INF
-	var missing = 0
-	var installing = 0
 	for unit in units:
-		if unit.signature == null or unit.program == null or unit.hp <= 0:
+		if unit.signature == null or unit.hp <= 0:
 			continue
-		if unit.program.install_left > 0:
-			installing += 1
-		elif not unit.program.installed:
-			missing += 1
-		else:
-			var effect = _effect(unit)
-			if not effect.is_empty():
-				if not effects.has(effect.title):
-					effects[effect.title] = {"count": 0, "left": effect.left}
-				effects[effect.title].count += 1
-				effects[effect.title].left = minf(effects[effect.title].left, effect.left)
-			var left = unit.signature.cooldown
-			for group in player.signatures.groups:
-				if unit in group.members:
-					left = maxf(left, group.left)
-			# Settled Anchor stays active until movement breaks it.
-			if left > 0 and unit.signature.kind != "anchor":
-				recharge = minf(recharge, left)
+		var effect = _effect(unit)
+		if not effect.is_empty():
+			if not effects.has(effect.title):
+				effects[effect.title] = {"count": 0, "left": effect.left}
+			effects[effect.title].count += 1
+			effects[effect.title].left = minf(effects[effect.title].left, effect.left)
+		var left = unit.signature.cooldown
+		for group in player.signatures.groups:
+			if unit in group.members:
+				left = maxf(left, group.left)
+		# Settled Anchor stays active until movement breaks it.
+		if left > 0 and unit.signature.kind != "anchor":
+			recharge = minf(recharge, left)
 	var summary = []
 	if ready > 0:
 		summary.append(tr("%d ready · up to 6") % ready)
@@ -122,11 +115,6 @@ func _feedback(units, player, ready):
 	var lines = summary.duplicate()
 	if recharge < INF:
 		lines.append(tr("Recharging · %.1f s") % recharge)
-	if installing > 0:
-		lines.append(tr("Installing chip · %d") % installing)
-	if missing > 0:
-		lines.append(tr("Install a chip · %d") % missing)
-		lines.append(tr("Select the unit, then install a chip at your headquarters."))
 	if lines.is_empty():
 		lines.append(
 			(

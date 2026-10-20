@@ -172,6 +172,11 @@ func _expansion(faction, map_name):
 		" seconds=",
 		game.simulation_time - 200
 	)
+	# Normal supports two concurrent tasks. Finish unrelated relay captures so
+	# this phase isolates a field guard coexisting with an offensive wave.
+	if "relays" in game.map:
+		for relay in game.map.relays:
+			relay.captured_by = opponent
 	for index in 3:
 		var reserve = load(catalog.scene_path("Tank")).instantiate()
 		game._setup_and_spawn_unit(
@@ -184,7 +189,17 @@ func _expansion(faction, map_name):
 	var waves = opponent.attacks_launched
 	opponent._last_wave = game.simulation_time - 70
 	opponent._command_army(opponent._units())
-	_check(opponent.attacks_launched == waves + 1, "Field guard consumed entire offensive wave")
+	_check(
+		opponent.attacks_launched == waves + 1,
+		(
+			"%s %s: field guard blocked the offensive wave; groups=%s"
+			% [
+				faction,
+				map_name,
+				opponent._army_groups.map(func(group): return [group.kind, group.members.size()])
+			]
+		)
+	)
 	for guard in guards:
 		_check(
 			(

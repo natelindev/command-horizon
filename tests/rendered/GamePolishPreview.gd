@@ -25,7 +25,9 @@ func _run():
 		root.size = Vector2i(1280, 720)
 		root.content_scale_size = Vector2i(1920, 1080)
 		root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
-		await _skirmish("bastion", "res://source/match/maps/ExpandedDesertFrontier.tscn", true)
+		await _skirmish(
+			"bastion", "res://source/match/maps/battlefields/DesertFrontierMap.tscn", true
+		)
 		for player in get_nodes_in_group("players"):
 			player.set_process(false)
 		paused = true

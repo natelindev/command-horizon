@@ -166,6 +166,10 @@ func claim_stand(aircraft):
 	var current = stand_of(aircraft)
 	if current >= 0:
 		return current
+	# Paid jobs already own the remaining capacity. A visitor may only use
+	# an unpromised stand; production releases its promise before spawning.
+	if stands_for_production() <= 0:
+		return -1
 	_forget_lost()
 	for index in range(_stands.size()):
 		if _stands[index] == null:

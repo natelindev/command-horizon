@@ -6,8 +6,6 @@ const Production = preload("res://source/match/players/skirmish-ai/SkirmishProdu
 const Composition = preload("res://source/match/players/skirmish-ai/SkirmishComposition.gd")
 const Difficulty = preload("res://source/match/players/skirmish-ai/SkirmishDifficulty.gd")
 const AttackMove = preload("res://source/match/units/actions/AttackMoving.gd")
-# Camps only accept their exclusive roster; the commander hires the anti-armor Lancer.
-const CAMP_ROLE = "MercenaryLancer"
 
 
 static func command(game, player, units, available, observed):
@@ -82,10 +80,10 @@ static func recruit(game, player, units, desired):
 			and Production.army_size(Composition.inventory(units)) + Sites.reserved(player) >= cap
 		):
 			return
-		var cost = Sites.price(player.faction, CAMP_ROLE)
+		var cost = Sites.price("MercenaryLancer")
 		if (
 			player.resource_a >= reserve.x + cost.resource_a
 			and player.resource_b >= reserve.y + cost.resource_b
 		):
-			site.hire(player, CAMP_ROLE)
+			site.hire(player, "MercenaryLancer")
 			return

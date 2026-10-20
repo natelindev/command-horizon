@@ -74,11 +74,7 @@ const DESCRIPTIONS = {
 		"Fast field infantry against infantry and light machines. Capture "
 		+ "relays; recover at a ranger camp. Weak against armor."
 	),
-	"Tank":
-	(
-		"Mobile, lightly protected ground cannon. Retrofit at HQ or "
-		+ "workshop for 2 E / 3 s. Use flanks and withdraw for repairs."
-	),
+	"Tank": "Mobile, lightly protected ground cannon. Use flanks and withdraw for repairs.",
 	"CombatRobot":
 	(
 		"Shielded autocannon against infantry and light machines. "

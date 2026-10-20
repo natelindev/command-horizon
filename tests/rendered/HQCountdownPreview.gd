@@ -32,38 +32,6 @@ func _review_countdown(label):
 	root.content_scale_size = Vector2i(1920, 1080)
 	game.hud.pause_after_load()
 	game.get_node("IsometricCamera3D").set_physics_process(false)
-	var plan = game.hud.battle_plan
-	plan.refresh()
-	await _frames(12)
-	var clock = game.simulation_time
-	var human = game._get_human_player()
-	var funds = Vector2i(human.resource_a, human.resource_b)
-	var units = get_nodes_in_group("units")
-	var orders = units.map(func(unit): return unit.action)
-	if not plan._action.disabled:
-		var point = plan._action.get_global_rect().get_center()
-		var motion = InputEventMouseMotion.new()
-		motion.position = point
-		root.push_input(motion, true)
-		for pressed in [true, false]:
-			var event = InputEventMouseButton.new()
-			event.position = point
-			event.button_index = MOUSE_BUTTON_LEFT
-			event.pressed = pressed
-			root.push_input(event, true)
-			await _frames(2)
-		_check(
-			not get_nodes_in_group("selected_units").is_empty(),
-			"Recovery advice action selected nothing"
-		)
-		_check(
-			units.map(func(unit): return unit.action) == orders, "Recovery selection changed orders"
-		)
-		_check(
-			Vector2i(human.resource_a, human.resource_b) == funds,
-			"Recovery selection changed funds"
-		)
-		_check(game.simulation_time == clock and paused, "Recovery selection advanced countdown")
 	await _frames(12)
 	var command = game.hud.get_child(0)
 	var minimap = game.get_node("HUD/MarginContainer/Minimap")
@@ -72,12 +40,8 @@ func _review_countdown(label):
 		"HQ command panel leaves viewport"
 	)
 	_check(
-		not command.get_global_rect().intersects(plan.get_global_rect()),
-		"HQ objective overlaps battle plan"
-	)
-	_check(
-		not plan.get_global_rect().intersects(minimap.get_global_rect()),
-		"HQ recovery plan covers minimap"
+		not command.get_global_rect().intersects(minimap.get_global_rect()),
+		"HQ command panel covers minimap"
 	)
 	_check(game.hud._objective.text == game.objective_text(), "Rendered countdown is stale")
 	if captures != "":

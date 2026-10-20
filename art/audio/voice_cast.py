@@ -1,7 +1,8 @@
 """Original dialogue and casting for the offline battle voice bank.
 
 Each speaking faction/role has a dedicated male voice; each robot has its own machine voice;
-command never voices units. Tuple order: selection (2), movement (2), attack (2), produced (1).
+command never voices units. Camp mercenaries are neutral hires with one voice each, whichever
+army pays them. Tuple order: selection (2), movement (2), attack (2), produced (1).
 """
 import json
 from pathlib import Path
@@ -41,10 +42,19 @@ CAST = {
         'SupplyTruck': ('SupplyTruck', ["Supply run! Let's move it!", 'Ammo for the killers!', 'Pedal down! Go!',
                                         'Clear the road! Coming through!', 'You want me in there? Fine!',
                                         "Run them over if we must!", 'Supply truck loaded! Bullets for everyone!']),
-        'EvacTransport': ('EvacTransport', ['Rescue flight! Nobody dies on my watch!', 'Room for more! Move it!',
-                                            'Inbound! Hang on!', 'Full speed! Go, go!',
-                                            'Evasive! Hold on to something!', 'Get them out of the fire!',
-                                            'Rescue bird! Ready to fly through hell!']),
+        'Fighter': ('Fighter', ['Interceptor up! Give me bandits!', 'Nothing flies in my sky!',
+                                'Afterburners! Go, go!', 'Climbing! Full thrust!',
+                                'Firing missiles! Bring them down!', 'Knock them out of the sky!',
+                                'Interceptor jet! Hungry for bandits!']),
+        'Bomber': ('Bomber', ['Heavy bomber! Bomb bays full!', 'Who gets flattened today?',
+                              'Heavy bird inbound! Hold course!', 'Steady! Big payload aboard!',
+                              'Bombs away! Level it!', 'Turn it all to rubble!',
+                              'Heavy bomber! Loaded for a firestorm!']),
+        'AntiAirVehicle': ('AntiAirVehicle', ['Flak tank! Radar is hungry!',
+                                              'Let them fly! My guns are waiting!',
+                                              'Flak tracks rolling! Move!', 'Moving the guns! Eyes up!',
+                                              'Flak up! Shred them!', 'Bring those birds down!',
+                                              'Flak tank! Radar up, guns hot!']),
     },
     'helix': {
         'Infantry': ('Infantry', ['Vector operator! I want blood!', 'Signal clean! Let me hunt!',
@@ -80,9 +90,19 @@ CAST = {
                                         'Route set! Full speed!', 'Rolling! Out of my way!',
                                         'Not my fight! Moving!', 'Protect the shipment!',
                                         'Logistics transport! Rolling hot!']),
-        'EvacTransport': ('EvacTransport', ["Recovery flight! Let's go!", 'Cabin open! Get in!',
-                                            'Inbound fast!', 'Extraction route! Punch it!', 'Evasive! Hold on!',
-                                            'Out of the fire! Now!', 'Recovery transport! Ready to fly!']),
+        'Fighter': ('Fighter', ['Talon online! Something to chase?', 'Their pilots are prey!',
+                                'Vector set! Fast!', 'Burners lit! Climbing!', 'Locked! Missile away!',
+                                'Clip their wings! Kill!', "Talon interceptor! Let's hunt the sky!"]),
+        'Bomber': ('Bomber', ['Shrike bomber! Payload armed!', 'Show me what should burn!',
+                              'Inbound! Steady and silent!', 'Holding altitude! Swift!',
+                              'Payload released! Burn!', 'Erase that position!',
+                              'Shrike bomber! Bays full of fire!']),
+        'AntiAirVehicle': ('AntiAirVehicle', ['Halo skimmer! The sky is my hunting ground!',
+                                              'Interceptors armed! Bring me aircraft!',
+                                              'Skimming! Repositioning!', 'Gliding in! Covering the sky!',
+                                              'Interceptors away! Track and kill!',
+                                              'Pluck them out of the air!',
+                                              'Halo skimmer! Nothing flies past me!']),
     },
     'frontier': {
         'Worker': ('Worker', ['Scrapper! What needs smashing?', 'This rig is itching for a fight!',
@@ -121,14 +141,39 @@ CAST = {
                                         'Convoy rolling! Go!', 'Found a road! Floor it!',
                                         "This cargo's getting through!", 'Heads down! Punch it!',
                                         "Supply rig loaded! Let's ride!"]),
-        'EvacTransport': ('EvacTransport', ['Rescue pilot! Who needs a lift?', 'Nobody gets left out here!',
-                                            'Coming in hot!', 'Clear the landing zone! Move!',
-                                            'Hold tight back there!', 'Out of the crossfire! Go!',
-                                            'Rescue bird! Ready to fly!']),
+        'Fighter': ('Fighter', ["Hornet! Let's stir up some trouble!", 'Point me at a pilot!',
+                                'Throttle wide open! Go!', 'Over the hills! Hang on!',
+                                'Sting them! Shoot them down!', 'Chase them down! Fire!',
+                                'Hornet fighter! Fueled and spoiling for it!']),
+        'Bomber': ('Bomber', ['Buzzard! Loaded with trouble!', 'Bombs loaded! Give us a target!',
+                              'Big bird flying! Hold tight!', 'Low and loud! Go!', 'Drop the lot! Boom!',
+                              'Bury them in the dirt!', "Buzzard bomber! Let's wreck something!"]),
+        'AntiAirVehicle': ('AntiAirVehicle', ['Ripsaw truck! Sky is full of targets!',
+                                              'Let them fly! I dare them!', 'Truck rolling! Hang on!',
+                                              'Bumpy road! Guns up!', 'Tear them out of the sky!',
+                                              'Shred that bird! Fire!', 'Ripsaw truck! Loaded and looking up!']),
     },
 }
+# Neutral camp contracts: the same sellswords answer whichever army hires them.
+MERCENARY = 'mercenary'
+MERCENARY_CAST = {
+    'MercenaryWarden': ('MercenaryWarden', ['Iron Warden! Paid up and ready to brawl!',
+                                            'Shield up! Let them try me!', 'Marching! Shield first!',
+                                            'Heavy boots! Coming through!', 'Up close! Grind them down!',
+                                            'Behind the shield! Fire!',
+                                            "Iron Warden! You've bought yourself a wall!"]),
+    'MercenaryRanger': ('MercenaryRanger', ['Ranger here! I see them all!', 'Good coin, better hunting!',
+                                            'Fast and quiet! Moving!', 'Scouting ahead! Keep up!',
+                                            'In my sights! Drop!', 'Clean shot! Next!',
+                                            'Ranger! Contract signed! Who dies first?']),
+    'MercenaryLancer': ('MercenaryLancer', ['Breach Lancer! Show me a wall!',
+                                            'Pay me and point me at armor!', 'Hauling the lance! Move!',
+                                            'Finding a firing line!', 'Lance away! Crack it open!',
+                                            'Blow a hole straight through!',
+                                            'Breach Lancer! Heavy rockets for hire!']),
+}
 STOP_TEXT = {'bastion': 'Holding! Let them come!', 'helix': 'Holding! Waiting for prey!',
-             'frontier': "Fine! We'll wait!"}
+             'frontier': "Fine! We'll wait!", MERCENARY: 'Holding! Your coin, your call!'}
 WORKER_TASKS = {'gather': 'Rip it up! Salvage!', 'construct': 'Hammers out! Build it!',
                 'repair': 'Patch it up! Fast!'}
 # Announcers are exclusive Kokoro voices. Every unit and robot clones its own reference voice
@@ -138,27 +183,32 @@ MALE_VOICES = {'am_michael', 'bm_george', 'am_fenrir'}
 COMMAND_VOICES = {'bastion': 'am_michael', 'helix': 'bm_george', 'frontier': 'am_fenrir'}
 # Stable explicit assignments (from select_voice_cast.py, reviewed): adding a role must never
 # recast existing units. Crew are native speakers, one accent family per army: Bastion North
-# American, Helix English, Frontier Irish/Australian. Reference metrics: voice-pool.json.
+# American, Helix English, Frontier Irish/Australian; the neutral mercenaries are Scottish, an
+# accent no army uses. Reference metrics: voice-pool.json.
 UNIT_VOICES = {
     'bastion': {
         'Hero': 'vctk/p360', 'AdvancedTank': 'Bobby_McFern', 'Tank': 'vctk/p311',
         'AssaultInfantry': 'vctk/p345', 'SniperInfantry': 'Greggy', 'RocketInfantry': 'vctk/p334',
-        'Infantry': 'vctk/p363', 'SupplyTruck': 'oldNerd3', 'EvacTransport': 'efeb',
-        'Helicopter': 'BrokenHypocrite',
+        'Infantry': 'vctk/p363', 'SupplyTruck': 'oldNerd3',
+        'Helicopter': 'BrokenHypocrite', 'Bomber': 'Antoni', 'AntiAirVehicle': 'MrHat',
+        'Fighter': 'Gonzalo-1',
     },
     'helix': {
         'Hero': 'vctk/p254', 'AdvancedTank': 'vctk/p274', 'Tank': 'vctk/p287',
         'AssaultInfantry': 'vctk/p232', 'SniperInfantry': 'vctk/p258', 'RocketInfantry': 'vctk/p243',
-        'Infantry': 'vctk/p279', 'SupplyTruck': 'vctk/p227', 'EvacTransport': 'vctk/p286',
-        'Helicopter': 'vctk/p273',
+        'Infantry': 'vctk/p279', 'SupplyTruck': 'vctk/p227',
+        'Helicopter': 'vctk/p273', 'Bomber': 'Midlands_Bedfordshire_Dialect', 'AntiAirVehicle': '29da',
+        'Fighter': 'vctk/p286',
     },
     'frontier': {
         'Hero': 'vctk/p326', 'AdvancedTank': 'vctk/p245', 'Tank': 'Mystery_Sir',
         'AssaultInfantry': 'vctk/p304', 'SniperInfantry': 'vctk/p364', 'RocketInfantry': 'vctk/p292',
         'Infantry': 'vctk/p226', 'Worker': 'vctk/p298', 'SupplyTruck': 'vctk/p315',
-        'EvacTransport': 'vctk/p374', 'Helicopter': 'Lake',
+        'Helicopter': 'Lake', 'Bomber': 'Roscoe', 'AntiAirVehicle': 'Jeremy_Q', 'Fighter': 'vctk/p374',
     },
 }
+MERCENARY_VOICES = {'MercenaryWarden': 'vctk/p281', 'MercenaryLancer': 'vctk/p275',
+                    'MercenaryRanger': 'vctk/p255'}
 ROBOT_VOICE_REFERENCES = {
     'bastion/Worker': '7020', 'bastion/RepairRobot': 'Hannah', 'bastion/CombatRobot': 'vctk/p301',
     'bastion/Drone': 'vctk/p248', 'helix/Worker': 'vctk/p303', 'helix/RepairRobot': 'fc96',
@@ -233,8 +283,9 @@ EVENT_DELIVERY = {
     'select': (.75, .35), 'move': (.8, .35), 'attack': (.95, .3), 'ready': (.85, .35),
     'stop': (.75, .35), 'gather': (.8, .35), 'construct': (.8, .35), 'repair': (.8, .35),
 }
-TEMPERAMENT = {'Hero': .05, 'AssaultInfantry': .05, 'SniperInfantry': -.1}
-FACTION_TEMPERAMENT = {'bastion': 0., 'helix': 0., 'frontier': .05}
+TEMPERAMENT = {'Hero': .05, 'AssaultInfantry': .05, 'SniperInfantry': -.1, 'Fighter': .05,
+               'MercenaryWarden': .05, 'MercenaryRanger': -.1}
+FACTION_TEMPERAMENT = {'bastion': 0., 'helix': 0., 'frontier': .05, MERCENARY: .05}
 
 
 def delivery(speaker, event):
@@ -254,11 +305,14 @@ def delivery(speaker, event):
 POOL = json.loads((Path(__file__).with_name('voice-pool.json')).read_text())
 
 
-# Crew must sound like native speakers. VCTK speakers carry their own reported accent; the
-# accent classifier only knows native English varieties, so a donation counts only with
-# confident English and a confident native-variety score.
+# Crew must sound like native speakers. VCTK speakers carry their own reported accent. A
+# donation counts only with confident English and either a confident native-variety score or
+# an accent classifier that hesitates only between native varieties (its three strongest).
 CORPUS_ACCENTS = {'American': 'us', 'Canadian': 'canada', 'English': 'england',
-                  'Australian': 'australia', 'Irish': 'ireland', 'NorthernIrish': 'ireland'}
+                  'Australian': 'australia', 'Irish': 'ireland', 'NorthernIrish': 'ireland',
+                  'Scottish': 'scotland'}
+NATIVE_VARIETIES = {'us', 'canada', 'england', 'australia', 'ireland', 'scotland', 'wales',
+                    'newzealand'}
 
 
 def native_accent(info):
@@ -266,6 +320,8 @@ def native_accent(info):
         return CORPUS_ACCENTS.get(info['corpus_accent']) if info['gender'] == 'M' else None
     if (info['english'] >= .99 and info['accent'] in {'us', 'canada', 'england', 'australia'}
             and info['accent_scores'][info['accent']] >= .75):
+        return info['accent']
+    if info['english'] >= .99 and set(info['accent_scores']) <= NATIVE_VARIETIES:
         return info['accent']
     return None
 
@@ -276,6 +332,8 @@ def cloned(name, **extra):
             'reference_sha256': info['sha256'], 'reference_license': info['license'], **extra}
 
 
+# A role without an assigned voice has no profile, so validate_cast rejects it until
+# select_voice_cast.py proposes one.
 PROFILES = {}
 ANNOUNCERS = {}
 for faction, roles in CAST.items():
@@ -287,13 +345,19 @@ for faction, roles in CAST.items():
     }
     for role, (_, lines) in roles.items():
         profile = faction + '/' + role
-        PROFILES[profile] = cloned(UNIT_VOICES[faction][role], max_word_error=.25)
+        if role in UNIT_VOICES[faction]:
+            PROFILES[profile] = cloned(UNIT_VOICES[faction][role], max_word_error=.25)
         roles[role] = (profile, lines)
     for role, script in ROBOT_CAST[faction].items():
         profile = faction + '/' + role
         PROFILES[profile] = cloned(ROBOT_VOICE_REFERENCES[profile], robot=True, max_word_error=.4,
                                    min_similarity=0.)
         ROBOT_CAST[faction][role] = (profile, script)
+for role, (_, lines) in MERCENARY_CAST.items():
+    profile = MERCENARY + '/' + role
+    if role in MERCENARY_VOICES:
+        PROFILES[profile] = cloned(MERCENARY_VOICES[role], max_word_error=.25)
+    MERCENARY_CAST[role] = (profile, lines)
 
 # Stable event names mirror VoiceLines.gd, not integer enum ordinals.
 ANNOUNCER_TEXT = {

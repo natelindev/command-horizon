@@ -2,11 +2,13 @@ extends "res://tests/headless/SaveRestoreEdges.gd"
 
 const CONTACT_ARCHIVE = "res://tests/fixtures/contact-approach.json"
 var contact_deadline = 0
-var detour_frames = 150
+var contact_phase = "approach"
+var harvest_action
 
 
 func _initialize():
 	contact_deadline = Time.get_ticks_msec() + 240000
+	harvest_action = load("res://source/match/units/actions/CollectingResourcesSequentially.gd")
 	_run.call_deferred()
 
 
@@ -48,9 +50,10 @@ func _captured_approach(repetition):
 	var maximum_step = 0.0
 	var previous = start
 	var excursion = 0.0
-	var progress_at_four = 0.0
 	var collected = -1.0
 	var clearance = INF
+	var gaps = {}
+	var deepened = 0
 	var started = game.simulation_time
 	_check(cargo == 3, "Captured engineer cargo changed")
 	paused = false
@@ -58,32 +61,37 @@ func _captured_approach(repetition):
 		await physics_frame
 		maximum_step = maxf(maximum_step, worker.position.distance_to(previous))
 		previous = worker.position
+		# A harvest run ghosts through units. Once solid again (here: no HQ to
+		# return to), a leftover overlap may only shrink; it must never deepen.
+		var ghosted = worker.get_node("Movement").ghosted
 		for other in get_nodes_in_group("units"):
 			if (
 				other != worker
 				and other.movement_speed > 0
 				and other.movement_domain == worker.movement_domain
 			):
-				clearance = minf(
-					clearance,
-					(
-						worker.global_position_yless.distance_to(other.global_position_yless)
-						- worker.radius
-						- other.radius
-					)
+				var gap = (
+					worker.global_position_yless.distance_to(other.global_position_yless)
+					- worker.radius
+					- other.radius
 				)
+				if not ghosted and gap < -0.08 and gap < gaps.get(other, INF) - 0.001:
+					deepened += 1
+				gaps[other] = gap
+				if not ghosted:
+					clearance = minf(clearance, gap)
 		excursion = maxf(excursion, worker.position.distance_to(start))
-		if frame == 239:
-			progress_at_four = excursion
 		if worker.resource_a > cargo and collected < 0:
 			collected = game.simulation_time - started
 			_check(
 				root.get_node("Utils").Match.Unit.Movement.units_adhere(worker, deposit),
 				"Collected outside contact range"
 			)
+	# The captured settled row used to force a 4 m detour and ~10 s of searching.
+	# Harvest runs pass through it and start loading almost at once.
 	_check(
-		progress_at_four > 0.3,
-		"Captured engineer failed to leave the blocked approach within four seconds"
+		collected >= 0 and collected <= 3.0,
+		"Captured engineer was held up by settled units for over three seconds"
 	)
 	_check(
 		collected >= 0 and worker.resource_a == 4, "Captured engineer never completed its real work"
@@ -96,12 +104,12 @@ func _captured_approach(repetition):
 		maximum_step <= worker.movement_speed / Engine.physics_ticks_per_second + 0.002,
 		"Contact recovery teleported the engineer"
 	)
-	_check(clearance >= -0.08, "Contact recovery crossed another unit's footprint")
+	_check(deepened == 0, "Solid engineer pushed deeper into another unit's footprint")
 	print(
 		"CAPTURED CONTACT ",
 		repetition,
-		" excursion_at_four=",
-		progress_at_four,
+		" excursion=",
+		excursion,
 		" collected=",
 		collected,
 		" max_step=",
@@ -123,8 +131,49 @@ func _load_detour():
 	for player in get_nodes_in_group("players"):
 		player.set_process(false)
 	paused = false
-	await _frames(detour_frames)
-	return restore.entities["unit-0"]
+	var worker = restore.entities["unit-0"]
+	for frame in 240:
+		if _contact_phase_matches(worker):
+			return worker
+		await physics_frame
+	_check(false, "Captured contact did not reach its %s phase" % contact_phase)
+	game.queue_free()
+	await _frames(5)
+	return null
+
+
+func _contact_phase_matches(worker):
+	var action = worker.action
+	if action == null or action.get_script() != harvest_action:
+		return false
+	var child = action._sub_action
+	match contact_phase:
+		"approach":
+			return (
+				action._state == harvest_action.State.MOVING_TO_RESOURCE
+				and worker.resource_a == 3
+				and is_instance_valid(child)
+				and child.get_script().resource_path.ends_with("MovingToUnit.gd")
+			)
+		"loading":
+			# Sample a running timer after part of the cycle has elapsed.
+			return (
+				action._state == harvest_action.State.COLLECTING
+				and worker.resource_a == 3
+				and is_instance_valid(child)
+				and child.get_script().resource_path.ends_with("CollectingResourcesWhileInRange.gd")
+				and is_instance_valid(child._timer)
+				and child._timer.time_left > 0
+				and child._timer.time_left < child._timer.wait_time * 0.75
+			)
+		"waiting":
+			return (
+				action._state == harvest_action.State.WAITING
+				and action._waiting_reason == harvest_action.Wait.HQ
+				and worker.resource_a == 4
+				and child == null
+			)
+	return false
 
 
 func _detour_archive():
@@ -132,17 +181,20 @@ func _detour_archive():
 	if worker == null:
 		return
 	paused = true
-	var action = worker.action._sub_action
-	var destination = action._target_position
 	var position = worker.position
 	var cargo = worker.resource_a
-	_check(
-		cargo == 3 and action.get_script().resource_path.ends_with("MovingToUnit.gd"),
-		"Archive missed active detour"
-	)
+	var ghosted = contact_phase != "waiting"
+	_check(_contact_phase_matches(worker), "Archive missed its %s phase" % contact_phase)
+	_check(worker.get_node("Movement").ghosted == ghosted, "Contact phase has wrong ghosting")
 	var snapshotter = Snapshot.new()
 	var snapshot = snapshotter.capture(game)
+	_check(snapshot != null, "Contact phase capture failed: " + snapshotter.error)
+	if snapshot == null:
+		game.queue_free()
+		await _frames(5)
+		return
 	var id = snapshotter._reference(worker)
+	var action_record = snapshotter._action(worker.action)
 	var disk = "user://contact-approach-%d.json" % OS.get_process_id()
 	_check(FileStore.new().write_file(disk, snapshot), "Detour disk write failed")
 	var restore = Restore.new()
@@ -160,15 +212,26 @@ func _detour_archive():
 		worker.position == position and worker.resource_a == cargo,
 		"Paused detour changed position/cargo"
 	)
+	var restored_snapshotter = Snapshot.new()
+	var restored_snapshot = restored_snapshotter.capture(game)
+	_check(restored_snapshot != null, "Restored contact phase could not be captured")
 	_check(
-		worker.action._sub_action._target_position.is_equal_approx(destination),
-		"Detour destination lost in archive"
+		restored_snapshotter._action(worker.action) == action_record,
+		"Contact action state, destination, timers or references changed in archive"
+	)
+	_check(_contact_phase_matches(worker), "Restored archive changed contact phase")
+	_check(
+		worker.get_node("Movement").ghosted == ghosted,
+		"Restored contact phase changed its ghosting"
 	)
 	paused = false
 	await _frames(600)
 	_check(worker.resource_a == 4, "Restored detour did not complete harvesting")
 	print(
-		"CHECKED: detour disk archive preserves paused position, cargo and destination; real work resumes"
+		(
+			"CHECKED: %s disk archive preserves paused position, cargo and full action; real work resumes"
+			% contact_phase
+		)
 	)
 	game.queue_free()
 	await _frames(5)
@@ -179,12 +242,14 @@ func _manual_replacement():
 	if worker == null:
 		return
 	var start = worker.position
+	var cargo = worker.resource_a
 	var goal = start + Vector3(4, 0, 0)
 	worker.manual_orders.submit({"kind": "move", "point": goal})
 	await _frames(300)
 	_check(worker.position.distance_to(goal) < 0.4, "Detour overrode replacement move")
-	_check(worker.resource_a == 3, "Cancelled detour kept collecting")
-	print("CHECKED: manual replacement ends recovery and retains cargo")
+	_check(worker.resource_a == cargo, "Cancelled detour kept collecting")
+	_check(not worker.get_node("Movement").ghosted, "Manual move kept harvest ghosting")
+	print("CHECKED: manual replacement during %s retains cargo" % contact_phase)
 	game.queue_free()
 	await _frames(5)
 
@@ -215,11 +280,7 @@ func _building_contacts(faction):
 		var before = human.resource_b
 		if role == "CommandCenter":
 			worker.resource_b = 4
-			worker.issue_manual_order(
-				load("res://source/match/units/actions/CollectingResourcesSequentially.gd").new(
-					target
-				)
-			)
+			worker.issue_manual_order(harvest_action.new(target))
 		else:
 			worker.issue_manual_order(
 				load("res://source/match/units/actions/Constructing.gd").new(target)

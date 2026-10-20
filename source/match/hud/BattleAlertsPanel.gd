@@ -96,7 +96,6 @@ func _available():
 	return (
 		not hud.get_parent().finished
 		and hud._overlay == null
-		and not is_instance_valid(hud.program_editor)
 		and not is_instance_valid(Globals.settings_dialog)
 		and not is_instance_valid(get_node("/root/SaveManager").dialog)
 	)
@@ -310,11 +309,7 @@ func navigate(id):
 	var entry = model.entry_by_id(id)
 	if entry == null:
 		return
-	hud._assignment_kind = ""
-	hud._assignment_units.clear()
-	hud._assignment_points.clear()
-	hud._assignment_hint.hide()
-	hud.direct_orders.cancel()
+	hud.cancel_map_assignment()
 	hud._refresh_shortcuts()
 	var human = hud.get_parent()._get_human_player()
 	human.get_node("StructurePlacementHandler")._cancel_structure_placement()

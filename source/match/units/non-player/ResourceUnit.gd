@@ -2,8 +2,8 @@ extends Area3D
 
 const ResourceDecayAnimation = preload("res://source/match/utils/ResourceDecayAnimation.tscn")
 
-# Absolute stock thresholds keep partially harvested and legacy saves visually exact
-# without introducing a second, potentially stale resource balance into the archive.
+# Absolute stock thresholds keep partially harvested deposits and restored saves visually
+# exact without introducing a second, potentially stale resource balance into the archive.
 const PILE_THRESHOLDS = [60, 150, 300]
 const PILE_POSITIONS = [
 	Vector3.ZERO,

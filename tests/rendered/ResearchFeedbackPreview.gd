@@ -127,16 +127,4 @@ func _layout(label):
 		not command.get_global_rect().intersects(game.find_child("Minimap").get_global_rect()),
 		"Research command panel overlaps minimap"
 	)
-	_check(
-		not hud.battle_plan.get_global_rect().intersects(
-			game.find_child("Minimap").get_global_rect()
-		),
-		"Research pushed battle plan into minimap"
-	)
-	_check(
-		not hud.battle_plan.get_global_rect().intersects(
-			game.find_child("UnitMenus").get_global_rect()
-		),
-		"Research pushed advice into selected-unit controls"
-	)
 	await _capture(label)

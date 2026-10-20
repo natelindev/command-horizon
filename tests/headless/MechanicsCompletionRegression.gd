@@ -84,28 +84,23 @@ func _builder_handoff():
 
 
 func _guard_return_fire():
-	var center = Vector3(40, 0, 40)
-	var guard = _spawn("Tank", _human, center, true)
+	# Clear of the builder fixture's HQ footprint, which navigation may still carve.
+	var center = Vector3(30, 0, 60)
+	var guard = _spawn("Tank", _human, center)
 	var victim = _spawn("Worker", _human, center + Vector3(2, 0, 0))
 	var attacker = _spawn("Tank", _enemy, center + Vector3(6, 0, 0))
 	await _frames(10)
-	var library = load("res://source/match/programs/ProgramLibrary.gd")
-	var config = library.defaults("guard")
-	config.radius = 4.0
-	guard.program.configure(config)
-	guard.program.anchor = center
-	guard.program.run()
+	var behavior = load("res://source/match/orders/UnitBehavior.gd")
+	_check(behavior.guard(guard, center), "Native guard order was rejected")
 	guard.process_mode = Node.PROCESS_MODE_INHERIT
-	await _frames(60)
-	_check(attacker.hp == attacker.hp_max, "Guard attacked an idle outsider")
 	attacker.action = auto_attack.new(victim)
 	attacker.process_mode = Node.PROCESS_MODE_INHERIT
 	await _frames(150)
 	_check(victim.hp < victim.hp_max, "Return-fire fixture did not attack the protected engineer")
-	_check(attacker.hp < attacker.hp_max, "Guard ignored legal fire into its assigned area")
+	_check(attacker.hp < attacker.hp_max, "Guard ignored an attacker inside its weapon range")
 	_check(
-		guard.position.distance_to(center) <= config.radius,
-		"Guard pursued an attacker outside its area"
+		guard.position.distance_to(center) <= 1.0,
+		"Guard left its post to pursue: %.2f m" % guard.position.distance_to(center)
 	)
 	paused = true
 	var snapshot = load("res://source/match/saves/MatchSnapshot.gd").new()
@@ -115,17 +110,26 @@ func _guard_return_fire():
 	paused = false
 	attacker.issue_manual_order(null)
 	attacker.process_mode = Node.PROCESS_MODE_DISABLED
-	await _frames(45)
-	_check(
-		guard.action._target == null, "Guard retained retaliation after the outside attack stopped"
-	)
-	# Observation still governs retaliation, even when the attacker has a
-	# legal target pointer. A distant unseen attacker supplies no contact.
+	# Observation still governs guard fire, even when the attacker has a legal
+	# target pointer. A distant unseen attacker supplies no contact.
 	attacker.position = Vector3(130, 0, 100)
 	attacker.aim_target = victim
 	_game.battlefield.invalidate()
-	await _frames(30)
-	_check(guard.action._target == null, "Guard return fire acquired a hidden attacker")
+	await _frames(45)
+	_check(_engaged_target(guard) != attacker, "Guard return fire tracked a hidden attacker")
+	_check(
+		guard.position.distance_to(center) <= 1.0,
+		"Guard followed a departing attacker: %.2f m" % guard.position.distance_to(center)
+	)
+
+
+func _engaged_target(unit):
+	var action = unit.action
+	if not is_instance_valid(action) or not "_sub_action" in action:
+		return null
+	if not is_instance_valid(action._sub_action):
+		return null
+	return action._sub_action._target_unit
 
 
 func _departure_replan():

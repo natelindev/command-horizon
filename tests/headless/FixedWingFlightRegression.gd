@@ -15,8 +15,8 @@ var _field
 var _units = []
 # Loaded at runtime: these scripts depend on autoloads that a SceneTree script
 # compiles before.
-var Rules
-var Phase
+var _combat_rules
+var _phase
 
 
 func _initialize():
@@ -24,8 +24,8 @@ func _initialize():
 
 
 func _run():
-	Rules = load("res://source/match/combat/CombatRules.gd")
-	Phase = load("res://source/match/units/traits/FixedWingFlight.gd").Phase
+	_combat_rules = load("res://source/match/combat/CombatRules.gd")
+	_phase = load("res://source/match/units/traits/FixedWingFlight.gd").Phase
 	var constants = root.get_node("Constants")
 	var settings = load("res://source/data-model/MatchSettings.gd").new()
 	settings.skirmish = true
@@ -58,6 +58,7 @@ func _run():
 	var fighter = _spawn("Fighter", _human, FIELD_CENTER + Vector3(2, 0, -4))
 	await _ticks(10)
 	await _test_parking(fighter)
+	await _test_dragged_order()
 	await _test_sortie(fighter)
 	await _test_return(fighter)
 	await _test_rearm(fighter)
@@ -79,7 +80,7 @@ func _run():
 
 func _test_parking(fighter):
 	var flight = fighter.get_node("Movement")
-	_check(flight.phase == Phase.PARKED, "New fighter did not park at the airfield")
+	_check(flight.phase == _phase.PARKED, "New fighter did not park at the airfield")
 	_check(flight.airfield == _field and flight.stand == 0, "Fighter did not claim the first stand")
 	_check(
 		_flat(fighter.global_position).distance_to(_flat(_field.stand_point(0))) < 0.05,
@@ -87,8 +88,39 @@ func _test_parking(fighter):
 	)
 	var rifle = _spawn("Infantry", _enemy, FIELD_CENTER + Vector3(8, 0, 0))
 	await _ticks(2)
-	_check(Rules.can_target(rifle, fighter), "Parked aircraft is not a ground target")
+	_check(_combat_rules.can_target(rifle, fighter), "Parked aircraft is not a ground target")
 	rifle.queue_free()
+
+
+func _test_dragged_order():
+	var fighter = _spawn("Fighter", _human, Vector3(20, 0, 20))
+	await _ticks(5)
+	var orders = fighter.manual_orders
+	var first = orders.point_order("move", Vector3(24, 0, 22))
+	first.token = 173
+	orders.submit(first)
+	orders.submit(orders.point_order("move", Vector3(64, 0, 52)), true)
+	var revised = Vector3(30, 0, 22)
+	_check(orders.revise(first.token, revised), "Dragged aircraft order was not revised")
+	await _ticks(3)
+	_check(
+		orders.current.get("token") == first.token and orders.pending.size() == 1,
+		"Dragging an aircraft order started its next queued order"
+	)
+	_check(
+		(
+			is_instance_valid(orders._active)
+			and orders._active == fighter.action
+			and str(fighter.action).begins_with("AirStation")
+		),
+		"Revised aircraft queue lost its translated flight action"
+	)
+	_check(
+		fighter.get_node("Movement").station == revised,
+		"Revised aircraft destination was not flown"
+	)
+	fighter.queue_free()
+	await _ticks(3)
 
 
 func _test_sortie(fighter):
@@ -110,13 +142,13 @@ func _test_sortie(fighter):
 		if phases.is_empty() or phases[-1] != flight.phase:
 			phases.append(flight.phase)
 		var relative = _flat(fighter.global_position - threshold)
-		if flight.phase == Phase.TAKEOFF:
+		if flight.phase == _phase.TAKEOFF:
 			worst_lateral = maxf(
 				worst_lateral, absf(relative.dot(direction.rotated(Vector3.UP, PI / 2.0)))
 			)
 			if lift_off_along == INF and flight.height_above_ground() > 0.05:
 				lift_off_along = relative.dot(direction)
-		if flight.phase == Phase.AIRBORNE:
+		if flight.phase == _phase.AIRBORNE:
 			max_bank = maxf(max_bank, absf(flight.bank))
 			var rate = absf(angle_difference(previous_heading, flight.heading)) * 30.0
 			if rate > 0.05:
@@ -127,7 +159,7 @@ func _test_sortie(fighter):
 			arrived_at = tick
 			break
 	_check(
-		phases.slice(0, 4) == [Phase.PARKED, Phase.TAXI, Phase.TAKEOFF, Phase.AIRBORNE],
+		phases.slice(0, 4) == [_phase.PARKED, _phase.TAXI, _phase.TAKEOFF, _phase.AIRBORNE],
 		"Departure did not taxi, roll and climb: %s" % [phases]
 	)
 	_check(worst_lateral < 0.35, "Take-off roll left the runway centerline: %s" % worst_lateral)
@@ -175,13 +207,13 @@ func _test_return(fighter):
 			direction = _field.landing_direction(end)
 		var relative = _flat(fighter.global_position - threshold)
 		var lateral = absf(relative.dot(direction.rotated(Vector3.UP, PI / 2.0)))
-		if flight.phase == Phase.APPROACH:
+		if flight.phase == _phase.APPROACH:
 			var to_touchdown = -relative.dot(direction)
 			if to_touchdown > 2.0:
 				above_slope = maxf(
 					above_slope, flight.height_above_ground() - to_touchdown * flight.glide_slope
 				)
-		if flight.phase == Phase.ROLLOUT:
+		if flight.phase == _phase.ROLLOUT:
 			if touchdown == null:
 				touchdown = [relative.dot(direction), lateral]
 			rollout_lateral = maxf(rollout_lateral, lateral)

@@ -7,102 +7,114 @@ const Factions = preload("res://source/match/FactionCatalog.gd")
 const LoadingScene = preload("res://source/main-menu/Loading.tscn")
 const Lore = preload("res://source/lore/WorldLore.gd")
 const Difficulty = preload("res://source/match/players/skirmish-ai/SkirmishDifficulty.gd")
-# New games use the fully populated maps. Legacy scenes remain loadable by saves.
+# Skirmish roster; the first entry is the default for a fresh setup.
 const MAPS = [
 	[
-		"res://source/match/maps/ExpandedDesertFrontier.tscn",
+		"res://source/match/maps/battlefields/DesertFrontierMap.tscn",
 		"Desert Frontier",
-		"Eight resource fields · capture refineries, mercenary camps and repair shops",
+		"A Mojave rail outpost · three routes past sandstone escarpments · 12 resource fields",
 		"192 × 144"
 	],
 	[
-		"res://source/match/maps/ExpandedAlpineRelay.tscn",
+		"res://source/match/maps/battlefields/AlpineRelayMap.tscn",
 		"Alpine Relay",
-		"Wide mountain passes · eight resource fields · six capturable facilities",
-		"192 × 156"
+		"Two cols cut a snowbound massif · capture relays for local vision · 12 resource fields",
+		"192 × 160"
 	],
 	[
-		"res://source/match/maps/ExpandedCoastalFoundry.tscn",
+		"res://source/match/maps/battlefields/CoastalFoundryMap.tscn",
 		"Coastal Foundry",
-		"Wide harbor routes · eight resource fields · six capturable facilities",
-		"192 × 156"
+		(
+			"A harbour town with a ship foundry · over the fort hill, the swing bridge"
+			+ " or the mole · 12 resource fields"
+		),
+		"192 × 160"
 	],
 	[
-		"res://source/match/maps/RedrockDivide.tscn",
+		"res://source/match/maps/battlefields/RedrockDivideMap.tscn",
 		"Redrock Divide",
-		"Three canyon crossings with rich outer flanks.",
+		(
+			"A sandstone mesa splits the canyon · cross by the wash or slot canyons"
+			+ " · 14 resource fields"
+		),
 		"192 × 160"
 	],
 	[
-		"res://source/match/maps/SaltwindBasin.tscn",
+		"res://source/match/maps/battlefields/SaltwindBasinMap.tscn",
 		"Saltwind Basin",
-		"A pale salt pan: exposed center, sheltered edge expansions.",
+		"Rim terraces above an exposed salt pan · potash ponds crossed by dikes · 12 resource fields",
 		"192 × 160"
 	],
 	[
-		"res://source/match/maps/PinebreakValley.tscn",
+		"res://source/match/maps/battlefields/PinebreakValleyMap.tscn",
 		"Pinebreak Valley",
-		"Wooded islands split a winding valley into ambush lanes.",
+		(
+			"A logging valley split by a river · fir stands, a log bridge and gravel fords"
+			+ " · 12 resource fields"
+		),
 		"192 × 160"
 	],
 	[
-		"res://source/match/maps/GlacierNarrows.tscn",
+		"res://source/match/maps/battlefields/GlacierNarrowsMap.tscn",
 		"Glacier Narrows",
-		"Frozen meltwater divides two broad mountain passes.",
+		(
+			"A fjord head below a glacier · cross by the moraine, the lakeshore, the dam"
+			+ " or the outwash ford · 14 resource fields"
+		),
 		"192 × 160"
 	],
 	[
-		"res://source/match/maps/Emberworks.tscn",
+		"res://source/match/maps/battlefields/EmberworksMap.tscn",
 		"Emberworks",
-		"Abandoned furnaces and service alleys around a central works.",
+		"A steelworks split by its canal · two bridges under the slag heaps · 14 resource fields",
 		"192 × 160"
 	],
 	[
-		"res://source/match/maps/CinderRing.tscn",
+		"res://source/match/maps/battlefields/CinderRingMap.tscn",
 		"Cinder Ring",
-		"A black volcanic caldera with an open outer circuit.",
+		"A caldera around a lava lake · climb the crater rim or pass its breaches · 24 resource fields",
 		"224 × 224"
 	],
 	[
-		"res://source/match/maps/FourRivers.tscn",
+		"res://source/match/maps/battlefields/FourRiversMap.tscn",
 		"Four Rivers",
-		"Four headwater pools separate spokes into a shared heartland.",
+		"Farmland where four rivers meet · hedged fields, stone bridges and fords · 16 resource fields",
 		"224 × 224"
 	],
 	[
-		"res://source/match/maps/SunkenExchange.tscn",
+		"res://source/match/maps/battlefields/SunkenExchangeMap.tscn",
 		"Sunken Exchange",
-		"Flooded port basins leave a cross of cargo roads.",
+		"A drowned port city · canals and bridges round the flooded exchange · 24 resource fields",
 		"224 × 224"
 	],
 	[
-		"res://source/match/maps/FrostboundCrown.tscn",
+		"res://source/match/maps/battlefields/FrostboundCrownMap.tscn",
 		"Frostbound Crown",
-		"A crown of glacial shelves guards the central repair network.",
+		"A polar research plateau · crevasse fields ring a radar crown · 24 resource fields",
 		"224 × 224"
 	],
 	[
-		"res://source/match/maps/CopperBadlands.tscn",
+		"res://source/match/maps/battlefields/CopperBadlandsMap.tscn",
 		"Copper Badlands",
-		"Staggered copper mesas create diagonal flanking corridors.",
+		"An open-pit copper mine · haul roads spiral down to a contested pit floor · 16 resource fields",
 		"224 × 224"
 	],
 	[
-		"res://source/match/maps/VerdantCommons.tscn",
+		"res://source/match/maps/battlefields/VerdantCommonsMap.tscn",
 		"Verdant Commons",
-		"Sheltered groves ring a broad, resource-rich common.",
+		"A village green ringed by groves · lanes, walled fields and chalk downs · 16 resource fields",
 		"224 × 224"
 	],
 	[
-		"res://source/match/maps/RailspireJunction.tscn",
+		"res://source/match/maps/battlefields/RailspireJunctionMap.tscn",
 		"Railspire Junction",
-		"Rail depots divide a grid of long industrial sightlines.",
+		"Four track fields meet at a signal box · overpasses over long sightlines · 24 resource fields",
 		"224 × 224"
 	],
 	[
-		"res://source/match/maps/ShatteredOasis.tscn",
+		"res://source/match/maps/battlefields/ShatteredOasisMap.tscn",
 		"Shattered Oasis",
-		"A turquoise oasis forces clockwise expansion around its shores.",
+		"A palm-grove oasis split by dry wadis · caravanserai camps · 16 resource fields",
 		"224 × 224"
 	],
 ]
@@ -118,6 +130,30 @@ const LEGACY_MAP_NAMES = [
 	"ExpandedAlpineRelay",
 	"ExpandedCoastalFoundry"
 ]
+
+# Saved preferences may name maps that left the roster; open their successors.
+const SUCCESSORS = {
+	"BastionDesert": "res://source/match/maps/battlefields/DesertFrontierMap.tscn",
+	"DesertFrontier": "res://source/match/maps/battlefields/DesertFrontierMap.tscn",
+	"ExpandedDesertFrontier": "res://source/match/maps/battlefields/DesertFrontierMap.tscn",
+	"RedrockDivide": "res://source/match/maps/battlefields/RedrockDivideMap.tscn",
+	"SaltwindBasin": "res://source/match/maps/battlefields/SaltwindBasinMap.tscn",
+	"CopperBadlands": "res://source/match/maps/battlefields/CopperBadlandsMap.tscn",
+	"ShatteredOasis": "res://source/match/maps/battlefields/ShatteredOasisMap.tscn",
+	"PinebreakValley": "res://source/match/maps/battlefields/PinebreakValleyMap.tscn",
+	"FourRivers": "res://source/match/maps/battlefields/FourRiversMap.tscn",
+	"VerdantCommons": "res://source/match/maps/battlefields/VerdantCommonsMap.tscn",
+	"AlpineRelay": "res://source/match/maps/battlefields/AlpineRelayMap.tscn",
+	"ExpandedAlpineRelay": "res://source/match/maps/battlefields/AlpineRelayMap.tscn",
+	"GlacierNarrows": "res://source/match/maps/battlefields/GlacierNarrowsMap.tscn",
+	"FrostboundCrown": "res://source/match/maps/battlefields/FrostboundCrownMap.tscn",
+	"CoastalFoundry": "res://source/match/maps/battlefields/CoastalFoundryMap.tscn",
+	"ExpandedCoastalFoundry": "res://source/match/maps/battlefields/CoastalFoundryMap.tscn",
+	"Emberworks": "res://source/match/maps/battlefields/EmberworksMap.tscn",
+	"CinderRing": "res://source/match/maps/battlefields/CinderRingMap.tscn",
+	"SunkenExchange": "res://source/match/maps/battlefields/SunkenExchangeMap.tscn",
+	"RailspireJunction": "res://source/match/maps/battlefields/RailspireJunctionMap.tscn",
+}
 
 const FACTION_DESCRIPTIONS = [
 	Lore.FACTIONS.bastion.short,
@@ -465,7 +501,7 @@ func _load_preferences():
 	var config = ConfigFile.new()
 	config.load(preferences_path)
 	for pair in [
-		["map", _map_list, "res://source/match/maps/ExpandedDesertFrontier.tscn"],
+		["map", _map_list, MAPS[0][0]],
 		["player", _player_faction, "bastion"],
 		["enemy", _enemy_faction, "random"],
 		["difficulty", _difficulty, 1],
@@ -478,9 +514,8 @@ func _load_preferences():
 		if pair[0] == "map":
 			if value is int:
 				value = "res://source/match/maps/%s.tscn" % LEGACY_MAP_NAMES[clampi(value, 0, 8)]
-			var map_name = str(value).get_file().get_basename()
-			if map_name in ["DesertFrontier", "AlpineRelay", "CoastalFoundry"]:
-				value = "res://source/match/maps/Expanded%s.tscn" % map_name
+			if str(value) not in _map_paths:
+				value = SUCCESSORS.get(str(value).get_file().get_basename(), MAPS[0][0])
 			value = _map_paths.find(str(value))
 			if value < 0:
 				value = 0

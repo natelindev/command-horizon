@@ -8,10 +8,7 @@ var _last = {}
 
 
 func command(unit, contacts, now):
-	if (
-		(unit.program != null and unit.program.mode != "Manual")
-		or is_instance_of(unit.action, Recover)
-	):
+	if is_instance_of(unit.action, Recover):
 		return false
 	var targets = contacts.filter(
 		func(target):

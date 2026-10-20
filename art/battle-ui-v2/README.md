@@ -37,12 +37,11 @@
 
 图库模式只在测试进程中揭示地图并固定镜头，截图是实际原生 UI，不是生成的界面合成图。
 
+程序编辑器、程序问题与作战计划已于 2026-10-20 随相关功能一并移除；上方对应验证条目仅作历史记录，以下命令仅列出仍存在的预览。
+
 ```sh
 godot --path . --script tests/rendered/BattleArtPreview.gd
 godot --path . --script tests/rendered/BattleArtPreview.gd -- --gallery
 godot --path . --script tests/rendered/BattleAlertsPreview.gd
 godot --path . --script tests/rendered/RosterInfoPreview.gd
-godot --path . --script tests/rendered/ProgramIssuesPreview.gd
-godot --headless --max-fps 60 --path . --script tests/headless/ProgramIssuesEdges.gd
-godot --path . --script tests/rendered/BattlePlanPreview.gd
 ```

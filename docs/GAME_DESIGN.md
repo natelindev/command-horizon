@@ -1,6 +1,6 @@
 # Programmable Combat RTS — Living Game Design
 
-2026-10-17 decision: [Attack, Defensive, Follow, Guard and Hold Fire](UNIT_BEHAVIORS.md) replace player-authored unit programs. Economy, combat counters, research and campaign objectives continue; First Orders now teaches Guard. Earlier programming sections below are historical.
+2026-10-17 decision: [Attack, Defensive, Follow, Guard and Hold Fire](UNIT_BEHAVIORS.md) replace player-authored unit programs. Economy, combat counters, research and campaign objectives continue; First Orders now teaches Guard. Earlier programming sections below are historical: on 2026-10-20 the Lua runtime, presets, chips, squads, rule/code editors, LLM assistant and program arena were removed from the codebase, together with the unreachable Air Corridor operation (04) and the retired Battle plan advisor.
 
 Status: playable two-faction skirmish, programmable units and six Bastion campaign prototypes, version 0.7  
 Last updated: 2026-10-04  
@@ -1915,6 +1915,10 @@ View objective moves the camera to the current destination. Existing mature tree
 and leafy bushes replace flat scrub placeholders. Scenic scatter remains batched,
 and taller coastal pines retain their ground footprint with greater air clearance.
 [Verification and limits](campaign/POLISH_VERIFICATION.md).
+
+## Skirmish battlefield rebuild — 2026-10-20
+
+Every skirmish map is now an authored battlefield with real elevation, built from one start's sector and copied to the others by rotation or reflection. The sixteen maps each portray one real place, from a Utah canyon and a Norwegian fjord head to a Ruhr steelworks, a drowned port city and a volcanic caldera, and each carries one signature mechanic: overlooks, forest concealment, water crossings, capture relays, garrisoned buildings, long sightlines or lava. Home fields sit beside each HQ, every map holds at least 12 (2-player) or 16 (4-player) fields, and bases are 75–110 seconds apart for a basic tank so matches last longer. The map contract, field stock and roster are in [the core gameplay specification](CORE_GAMEPLAY_SPEC.md#maps-that-change-decisions).
 
 ## Air combat redesign — 2026-10-20
 

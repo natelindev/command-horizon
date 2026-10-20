@@ -161,6 +161,7 @@ func clear_route(ignore_friendly = false):
 				unit == producer
 				or unit.is_queued_for_deletion()
 				or unit.is_in_group("salvage_wrecks")
+				or _ghosted(unit)
 			):
 				continue
 			var domain = (
@@ -203,6 +204,12 @@ func clear_route(ignore_friendly = false):
 	return true
 
 
+func _ghosted(unit):
+	# Harvest runs pass through other units, including a departing one.
+	var movement = unit.get_node_or_null("Movement")
+	return movement != null and movement.ghosted
+
+
 func _can_clear_exit(unit):
 	return (
 		unit.is_in_group("units")
@@ -210,6 +217,7 @@ func _can_clear_exit(unit):
 		and unit.movement_speed > 0
 		and unit.hp > 0
 		and not unit.has_meta("garrison_host")
+		and not _ghosted(unit)
 	)
 
 

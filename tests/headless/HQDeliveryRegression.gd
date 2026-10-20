@@ -1,6 +1,10 @@
 extends "res://tests/headless/Skirmish.gd"
 
-const MAP_NAMES = ["ExpandedDesertFrontier", "ExpandedAlpineRelay", "ExpandedCoastalFoundry"]
+const MAP_NAMES = [
+	"battlefields/DesertFrontierMap",
+	"battlefields/AlpineRelayMap",
+	"battlefields/CoastalFoundryMap"
+]
 var harvest_script
 
 
@@ -17,7 +21,7 @@ func _run():
 		MAP_NAMES.slice(0, 1) if "--smoke" in OS.get_cmdline_user_args() else MAP_NAMES
 	)
 	if "--alpine" in OS.get_cmdline_user_args():
-		selected_maps = ["ExpandedAlpineRelay"]
+		selected_maps = ["battlefields/AlpineRelayMap"]
 	var starts = [true] if "--advanced" in OS.get_cmdline_user_args() else [false, true]
 	for faction in selected_factions:
 		for map_name in selected_maps:

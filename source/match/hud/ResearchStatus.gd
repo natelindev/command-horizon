@@ -49,7 +49,7 @@ func refresh():
 
 
 func _sync_visibility():
-	_button.disabled = hud._overlay != null or is_instance_valid(hud.program_editor)
+	_button.disabled = hud._overlay != null
 	visible = (
 		_button.text != ""
 		and not hud.get_parent().finished
@@ -103,7 +103,7 @@ func _choices():
 				and unit.is_constructed()
 			)
 	)
-	if labs.is_empty() or not player.basic_programs_unlocked():
+	if labs.is_empty() or not player.lab_research_unlocked():
 		return
 	var choices = PackedStringArray()
 	if not player.coordination_unlocked and player.has_resources(player.COORDINATION_COST):

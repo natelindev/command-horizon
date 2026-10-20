@@ -78,7 +78,7 @@ func _geometry_support():
 	var infantry_hp = infantry.hp
 	await _frames(360)
 	_check(not is_instance_valid(infantry) or infantry.hp < infantry_hp, "Foundry artillery does not threaten control yard")
-	_check(artillery.program.anchor.distance_to(game.map.CONTROL) <= artillery.program.config.radius, "Artillery sector excludes its defended objective")
+	_check(artillery.stance == artillery.Stance.HOLD_POSITION and artillery.global_position_yless.distance_to(game.map.CONTROL) <= 12, "Artillery post excludes its defended objective")
 	if is_instance_valid(infantry):
 		infantry.position = original_point
 		infantry.process_mode = Node.PROCESS_MODE_INHERIT
@@ -108,7 +108,7 @@ func _geometry_support():
 	tank.position = Vector3(68, 0, 58)
 	var target = _units(game._enemy, "Tank")[0]
 	target.position = Vector3(73, 0, 58)
-	game._guard(tank, Vector3(68, 0, 58))
+	load("res://source/match/campaign/CampaignPosts.gd").guard(tank, Vector3(68, 0, 58))
 	game.battlefield.invalidate()
 	var hp = target.hp
 	await _frames(180)
@@ -127,9 +127,16 @@ func _geometry_support():
 		repair.position = tank.position + Vector3(1.4, 0, 0)
 	var damaged = tank.hp
 	tank.last_enemy_damage_time = -100
+	var repair_started = game.simulation_time
 	await _frames(120)
 	var recovered = tank.hp - damaged
-	_check(recovered > 0 and recovered < tank.hp_max * 0.075, "Mobile repair failed or stacked channels")
+	var single_channel_limit = (
+		tank.hp_max * 0.025 * (game.simulation_time - repair_started + 0.25)
+	)
+	_check(
+		recovered > 0 and recovered <= single_channel_limit,
+		"Mobile repair failed or stacked channels"
+	)
 
 
 func _difficulty_budgets():
@@ -203,11 +210,20 @@ func _production_archive():
 	await _frames(60)
 	_check(entry.unit.get_node("ProductionQueue").get_elements()[0].time_left == pending, "Paused factory produced")
 	var tanks = _units(game._enemy, "Tank").size()
+	var surviving_queue = game.nodes[1].unit.get_node("ProductionQueue")
+	var first_batch = surviving_queue.get_elements().duplicate()
 	entry.unit.hp = 0
 	paused = false
 	await _frames(2)
 	_check(entry.disabled and entry.unit == null, "Destroyed production node stayed active")
-	await _frames(3300)
+	# Wait for the jobs restored above, before later scheduled batches finish.
+	# _frames now counts physics ticks; a fixed 3300 ticks spans 110 seconds.
+	var batch_wait_started = game.simulation_time
+	while (
+		first_batch.any(func(job): return job in surviving_queue.get_elements())
+		and game.simulation_time - batch_wait_started < 120
+	):
+		await _frames(1)
 	_check(_units(game._enemy, "Tank").size() == tanks + 2, "Destroyed factory completed paid units or surviving factory failed")
 	var start = game.simulation_time
 	while game.nodes[1].batches < 3 and game.simulation_time - start < 120:
@@ -219,7 +235,7 @@ func _production_archive():
 	_check(count == _units(game._enemy, "Tank").size(), "Production continued beyond three batches")
 	_check(count == tanks + 6, "Standard node did not finish six actual tanks")
 	for unit in _units(game._enemy, "Tank"):
-		_check(unit.program.installed and unit.program.mode != "Manual", "Factory output lacks bounded guard program")
+		_check(unit.stance == unit.Stance.HOLD_POSITION, "Factory output lacks a guard post")
 
 
 func _capture_rules_foundry():
@@ -339,9 +355,7 @@ func _order_army(point):
 		if not unit.is_in_group("units") or unit.movement_speed <= 0 or unit.type in ["Worker", "Drone"] or unit in reserve:
 			continue
 		if unit.type == "RepairRobot":
-			unit.program.configure(load("res://source/match/programs/ProgramLibrary.gd").defaults("hold_service"))
-			unit.program.anchor = point + Vector3(-5, 0, 0)
-			unit.program.run()
+			load("res://source/match/orders/UnitBehavior.gd").guard(unit, point + Vector3(-5, 0, 0))
 		else:
 			unit.issue_manual_order(attack_move.new(point + Vector3(unit.get_index() % 3, 0, 0)))
 
@@ -349,9 +363,13 @@ func _order_army(point):
 func _rewards():
 	var progress = Progress.new()
 	_check(progress.read_progress(path) and progress.foundry_complete, "Foundry completion not saved")
-	_check(progress.record_air_victory(true, path), "Air reward could not be written")
+	_check(
+		progress.record_operation("bastion_cinder_ford", path), "Cinder Ford result could not be written"
+	)
 	await _make_match()
-	_check(game._get_human_player().resource_b == 100, "Air rescue did not grant +20 electronics")
+	_check(
+		game._get_human_player().resource_b == 100, "Cinder Ford support did not grant +20 electronics"
+	)
 	await _close()
 	for version in [1, 2, 3, 4]:
 		var data = {"schema": version, "first_orders": true, "doctrine_badge": true}

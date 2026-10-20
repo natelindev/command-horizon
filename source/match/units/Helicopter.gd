@@ -93,6 +93,7 @@ func _home_airfield():
 func capture_air(_reference):
 	return {
 		"stores": {"rockets": rockets},
+		"rearm_left": _rearm_left,
 		"resume_station": resume_point if resume_point.is_finite() else null,
 		"unlimited": unlimited_stores,
 	}
@@ -100,5 +101,6 @@ func capture_air(_reference):
 
 func restore_air(saved, _entities):
 	rockets = clampi(saved.stores.get("rockets", ROCKET_CAPACITY), 0, ROCKET_CAPACITY)
+	_rearm_left = saved.rearm_left
 	resume_point = saved.resume_station if saved.resume_station != null else Vector3.INF
 	unlimited_stores = saved.unlimited

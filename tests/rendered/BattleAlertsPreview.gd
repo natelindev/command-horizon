@@ -86,11 +86,12 @@ func _prepare_alerts():
 		lost.receive_weapon_hit(attacker)
 	if game.settings.mission_id.is_empty():
 		var factory = _units(human, "VehicleFactory")[0]
-		factory.get_node("ProductionQueue").fit_chips = true
+		# Lab-gated armor stalls visibly once the lab below is destroyed.
+		human.coordination_unlocked = true
 		_check(
 			(
 				factory.get_node("ProductionQueue").produce(
-					load("res://source/match/units/Tank.tscn")
+					load("res://source/match/units/AdvancedTank.tscn")
 				)
 				!= null
 			),
@@ -122,7 +123,6 @@ func _input_preview(faction):
 	var tank = _units(game._get_human_player(), "Tank")[0]
 	tank.get_node("Selection").select()
 	var action = tank.action
-	var mode = tank.program.mode
 	await _click(panel.toggle)
 	_check(panel.panel.visible and alerts.unread_count() == 0, "Mouse did not open/read alerts")
 	await _capture("alerts-" + faction + "-720p")
@@ -151,10 +151,7 @@ func _input_preview(faction):
 	await _key(KEY_ENTER)
 	_check(not panel.panel.visible, "Keyboard Show did not close the list")
 	_check(game.get_node("IsometricCamera3D").position != before, "Keyboard Show did not navigate")
-	_check(
-		tank.action == action and tank.program.mode == mode,
-		"Alert input changed unrelated tank orders/program"
-	)
+	_check(tank.action == action, "Alert input changed unrelated tank orders")
 	_check(paused and game.simulation_time == clock, "Alert controls resumed simulation")
 	var field_alerts = _kind("field_electronics", true)
 	_check(field_alerts.size() == 1, "Rendered field alert missing")

@@ -25,9 +25,7 @@ func _run():
 			await _create(map_name, faction)
 			_check(await _fields() == true, "Map field check aborted: " + map_name)
 			await _close()
-	for mission in [
-		"first_orders", "split_signal", "air_corridor", "broken_foundry", "command_horizon"
-	]:
+	for mission in ["first_orders", "split_signal", "broken_foundry", "command_horizon"]:
 		if "--coastal-only" in OS.get_cmdline_user_args():
 			continue
 		await _create("", "bastion", mission)
@@ -42,7 +40,9 @@ func _run():
 
 func _create(map_name, faction, mission = ""):
 	var settings = _settings(faction, "helix" if faction == "bastion" else "bastion", false)
-	settings.map_path = "res://source/match/maps/%s.tscn" % map_name
+	settings.map_path = (
+		map_name if map_name.begins_with("res://") else "res://source/match/maps/%s.tscn" % map_name
+	)
 	var scene = "res://source/match/Skirmish.tscn"
 	if not mission.is_empty():
 		var operation = load("res://source/match/campaign/CampaignCatalog.gd").OPERATIONS[mission]

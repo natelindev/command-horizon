@@ -1,4 +1,5 @@
 shader_type spatial;
+#include "res://source/shaders/3d/terrain_layers.gdshaderinc"
 varying vec3 world_position;
 uniform vec4 roads[8];
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
@@ -75,6 +76,10 @@ void fragment() {
 		surface *= 1.0-tires*.14;
 		surface = mix(surface,vec3(.47,.38,.20),max(side,ends)*(.5+wear*.25));
 	}
-	ALBEDO = surface;
-	ROUGHNESS = .95;
+	// Command aprons and yards take concrete; roads the asphalt scan.
+	TerrainSurface terrain = terrain_surface(p, surface, road, max(apron, yards), .95);
+	ALBEDO = terrain.albedo;
+	ROUGHNESS = terrain.roughness;
+	AO = terrain.occlusion;
+	NORMAL = terrain_normal(terrain, NORMAL, VIEW_MATRIX, INV_VIEW_MATRIX);
 }

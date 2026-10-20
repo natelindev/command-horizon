@@ -1,6 +1,7 @@
 extends "res://tests/headless/RallyRetargetRegression.gd"
 
 var menus
+var _checked = 0
 
 
 func _run():
@@ -16,6 +17,7 @@ func _run():
 		await _producer_scope()
 		await _dispose()
 	manager.autosaves_enabled = autosaves
+	_check(_checked == factions.size() * 2, "Not every rally control case completed")
 	for error in errors:
 		push_error(error)
 	print("Rally controls: %d failures" % errors.size())
@@ -23,6 +25,8 @@ func _run():
 
 
 func _controls_case():
+	# Selection rebuilds the command deck on the deferred frame.
+	await _frames(2)
 	menus._refresh_buttons()
 	_check(
 		menus._stop_button.text == "Clear rally" and menus._stop_button.disabled,
@@ -118,6 +122,7 @@ func _controls_case():
 	)
 	print("RALLY CLEAR PRODUCTION ", case_label, " seconds=", game.simulation_time - seconds)
 	await _review("spawned")
+	_checked += 1
 
 
 func _clear():
@@ -133,6 +138,7 @@ func _producer_scope():
 		game._setup_and_spawn_unit(building, Transform3D(Basis(), Vector3(40, 0, 25)), owner, false)
 		root.get_node("MatchSignals").deselect_all_units.emit()
 		building.get_node("Selection").select()
+		await _frames(2)
 		var point = building.get_node("RallyPoint")
 		point.position = Vector3(5, 0, 0)
 		menus._refresh_buttons()
@@ -151,6 +157,7 @@ func _producer_scope():
 	root.get_node("MatchSignals").deselect_all_units.emit()
 	for unit in [hq, worker]:
 		unit.get_node("Selection").select()
+	await _frames(2)
 	menus._refresh_buttons()
 	_check(menus._stop_button.text == "Stop current orders", "Mixed Stop changed meaning")
 	menus._stop_button.pressed.emit()
@@ -159,6 +166,7 @@ func _producer_scope():
 		"Mixed Stop left worker orders"
 	)
 	_check(rally.position == Vector3(5, 0, 0), "Mixed Stop silently cleared producer rally")
+	_checked += 1
 
 
 func _cleared_archive():

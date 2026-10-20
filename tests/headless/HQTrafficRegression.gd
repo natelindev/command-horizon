@@ -171,6 +171,9 @@ func _measure_clearance(unit):
 			other == unit
 			or other.movement_speed <= 0
 			or other.movement_domain != unit.movement_domain
+			# Harvest runs ghost through mobile units by design.
+			or movement.ghosted
+			or other.get_node("Movement").ghosted
 		):
 			continue
 		minimum_clearance = minf(

@@ -95,12 +95,8 @@ func _interface(faction):
 	await _frames(5)
 	human.resource_a = 0
 	human.resource_b = 0
-	var advice = load("res://source/match/SkirmishPlan.gd").next_step(human)
-	_check(advice.get("open_technology", false), "Recovery advice hid paid technology refund")
-	hud.battle_plan.refresh()
-	await _frames(5)
-	await _click(hud.battle_plan._action)
-	_check(is_instance_valid(hud.technology_panel), "Recovery advice did not open technology")
+	await _click(hud._technology_button)
+	_check(is_instance_valid(hud.technology_panel), "Technology button did not open after lab loss")
 	if is_instance_valid(hud.technology_panel):
 		await _capture(faction + "-lost-lab")
 		await _click(hud.technology_panel._cancel)

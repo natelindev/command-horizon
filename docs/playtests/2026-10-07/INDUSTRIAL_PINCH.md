@@ -51,3 +51,11 @@ tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot --headless --path . --fixed
 ```
 
 Use fresh output paths. Raw logs, rejected/final sources, earned archives, classified run results, source fingerprints and a SHA256 manifest are retained in [industrial-pinch](industrial-pinch/).
+
+## 2026-10-20 headless integration follow-up
+
+The retained live-combat replay exposed a test accounting error: the infantry can reach its original guard point, enter a later fight, and die before the engineer finishes its separate delivery. The test then stopped both observations and reported a missing delivery by the still-living engineer. This also reproduced on unchanged main commit `26ebdcd9`; it is not evidence of a new navigation stall.
+
+The regression now records the attacker and time of a casualty, permits an enemy-caused infantry death only after its original arrival, and continues observing the engineer. Pre-arrival infantry death and engineer death still fail. The original escape, arrival, collection, delivery, finite-stock, contact, speed, clearance and navmesh assertions remain. Speed and clearance are sampled at physics boundaries, since a process frame can include multiple physics steps under load.
+
+The updated headless run passes all six replay/checkpoint branches and manual replacement. Escape takes **0.57–0.63 seconds**, original infantry arrival **1.53–1.73 seconds**, collection **4.60–4.73 seconds**, and delivery **10.27–10.40 seconds**. One branch includes a Frontier tank killing the infantry at **9.47 seconds**, after its guard arrival at **1.63 seconds**; the engineer still delivers at **10.40 seconds**. Maximum observed speed ratio is **1.000015**, minimum mobile clearance approximately **-0.020001 m**, and maximum navmesh offset **0.05512 m**. Combat, queues, earned geometry and original work orders stay live. These results verify the traffic objectives; they do not guarantee survival in the later battle.

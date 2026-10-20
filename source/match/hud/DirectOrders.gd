@@ -390,7 +390,6 @@ func _blocked():
 	return (
 		hud.get_parent().finished
 		or hud._overlay != null
-		or is_instance_valid(hud.program_editor)
 		or is_instance_valid(Globals.settings_dialog)
 		or (manager != null and is_instance_valid(manager.dialog))
 	)

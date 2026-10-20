@@ -1,8 +1,9 @@
 # Built-in unit behaviors — 2026-10-17
 
 This decision replaces the earlier programmable-unit design at the user's request.
-Battle units use fixed native game actions instead of per-unit Lua execution or
-contact snapshots. No chips, code editor, rule library or factory program is required.
+Battle units use fixed native game actions. On 2026-10-20 the Lua runtime, program
+presets, chips, squads, rule/code editors and the program arena were removed from
+the codebase entirely.
 
 | Choice | Behavior |
 | --- | --- |
@@ -17,18 +18,17 @@ orders remain available. Stance choices cancel the current order. Guard and Foll
 can be issued during tactical pause; the simulation resumes only when unpaused.
 Hold Fire allows projectiles already in flight to resolve.
 
-Stances and follow orders persist in snapshot version 14. Versions 1–13 remain
-readable, with their previously unrecorded stance defaulting to Auto-engage. Archived
-Lua/visual and specialist program actions are replaced with Defensive behavior;
-the loader does not compile or execute their source. New production and AI armies
-use direct orders. Old script libraries are left on disk. Legacy preset classes
-remain for authored mission internals and archive validation, outside the battle UI.
+Stances and follow orders persist in battle saves (snapshot version 15). Saves from
+other versions are rejected; there is no migration. Production and AI armies use
+direct orders. Authored campaign posts in Broken Foundry and Command Horizon use the
+same Guard behavior; their posted repair robots service damaged allies within 8 m
+(`source/match/campaign/CampaignPosts.gd`).
 
 The simulation runs at 30 ticks per second with physics interpolation. Unit roots
 interpolate between simulation ticks; local procedural posing remains at display
 rate. Spawning, navigation alignment, camera jumps, restored positions and reused
 tracers reset interpolation to avoid streaking. No graphics quality option is reduced.
 
-Run `tests/headless/BehaviorRegression.gd` for the three-faction behavior, pause,
-follow/save restoration and legacy-script migration checks. Run
+Run `tests/headless/BehaviorRegression.gd` for the three-faction behavior, pause and
+follow/save restoration checks. Run
 `tests/rendered/HudConsolePreview.gd` without `--headless` for faction HUD captures.

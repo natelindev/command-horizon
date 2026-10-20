@@ -3,7 +3,8 @@ extends "res://source/match/units/actions/Action.gd"
 enum State { NULL, MOVING_TO_RESOURCE, COLLECTING, MOVING_TO_CC, WAITING }
 enum Wait { NONE, SLOT, DEPLETED, HQ, DELIVERED }
 const FIELD_RADIUS = 13.0
-const LEGACY_FIELD_RADIUS = 10.0
+# Deposits without an authored field origin group around the engineer's first deposit.
+const UNANCHORED_FIELD_RADIUS = 10.0
 const WORK_SLOTS = 2
 const ASSIGNMENTS = &"harvest_assignments"
 const CommandCenter = preload("res://source/match/units/CommandCenter.gd")
@@ -13,7 +14,8 @@ const CollectingResourcesWhileInRange = preload(
 const MovingToUnit = preload("res://source/match/units/actions/MovingToUnit.gd")
 const Worker = preload("res://source/match/units/Worker.gd")
 const ResourceUnit = preload("res://source/match/units/non-player/ResourceUnit.gd")
-var _state = State.NULL
+var _state = State.NULL:
+	set = _set_state
 var _kind = 0
 var _field_origin = Vector3.ZERO
 var _waiting_reason = Wait.NONE
@@ -51,6 +53,7 @@ func _init(unit):
 
 func _ready():
 	add_to_group(ASSIGNMENTS)
+	_sync_ghost()
 	if restoring:
 		return
 	if _kind != 0:
@@ -62,6 +65,12 @@ func _ready():
 		_start_return()
 
 
+func _exit_tree():
+	var movement = _unit.get_node_or_null("Movement") if is_instance_valid(_unit) else null
+	if movement != null:
+		movement.ghosted = false
+
+
 func _process(delta):
 	if needs_assignment() and _has_pending_orders():
 		queue_free()
@@ -71,6 +80,24 @@ func _process(delta):
 	_retry_left = maxf(0, _retry_left - delta)
 	if _retry_left == 0:
 		_start_resource_leg()
+
+
+func _set_state(value):
+	_state = value
+	_sync_ghost()
+
+
+func _sync_ghost():
+	# Engineers on a harvest run ghost through ground units, as in other RTS
+	# economies: lanes never jam. Waiting or idle engineers are solid again.
+	# The @onready unit is still unset while a save restores the state.
+	if _unit == null or not is_inside_tree():
+		return
+	var movement = _unit.get_node_or_null("Movement")
+	if movement != null:
+		movement.ghosted = (
+			_state in [State.MOVING_TO_RESOURCE, State.COLLECTING, State.MOVING_TO_CC]
+		)
 
 
 func _to_string():
@@ -124,7 +151,7 @@ func holds_harvest_slot(deposit):
 func can_work(deposit):
 	if not deposit.can_harvest(_unit):
 		return false
-	# Scene order also reconciles overbooked legacy saves without granting extra work.
+	# Scene order decides which assignments hold a deposit's limited work slots.
 	var index = 0
 	for action in get_tree().get_nodes_in_group(ASSIGNMENTS):
 		if action.holds_harvest_slot(deposit):
@@ -159,7 +186,7 @@ func _field_deposits():
 					if deposit.harvest_origin.is_finite()
 					else (
 						deposit.global_position_yless.distance_squared_to(_field_origin)
-						<= LEGACY_FIELD_RADIUS * LEGACY_FIELD_RADIUS
+						<= UNANCHORED_FIELD_RADIUS * UNANCHORED_FIELD_RADIUS
 					)
 				)
 			)

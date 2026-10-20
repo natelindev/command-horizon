@@ -102,9 +102,6 @@ Return infantry to resume securing.	让步兵返回以继续稳固控制。
 Foundry secured · alternate finale approach unlocked.	铸造厂已控制 · 已解锁最终行动的备用路线。
 Command lost. Protect repair support and rebuild HQ within 60 seconds.	指挥中心已失守。保护维修支援，在 60 秒内重建总部。
 01 / BRING COMMAND ONLINE	01 / 启用指挥系统
-Select an engineer, choose Command lab, then place it near your base.\n\nRight-click salvage to harvest. Materials build your army; electronics fund chips.	选择工程师，再选择指挥实验室并放置在基地附近。\n\n右键点击资源堆以采集。材料用于组建部队，电子元件用于芯片。
-02 / GIVE THE UNIT A PROGRAM	02 / 为单位配置程序
-Select your repair robot. Choose Service area, click Assign area / route, choose a point, then Apply & run.\n\nOr fit a tank chip at HQ (4 E), choose Guard area, and set area + safe point. Direct orders always override programs.	选择维修机器人，选择区域维修，点击指定区域 / 路线，指定位置后应用并运行。\n\n也可在总部为坦克安装芯片（4 电子元件），选择区域警戒并设置区域与安全点。直接指令始终优先于程序。
 03 / SECURE THE RELAY	03 / 控制中继站
 Infantry within 3 m capture in 10 seconds. Clear enemy ground combatants, then hold for 60 uncontested seconds.\n\nTanks screen; repair robots support. Enemy recapture resets the hold. Three responses arrive from the east.	步兵在 3 米内驻留 10 秒可完成占领。清除敌方地面战斗单位，再无争夺驻守 60 秒。\n\n坦克掩护，维修机器人支援。敌军夺回将重置驻守时间。三波增援将从东侧抵达。
 Find engineer	查找工程师
@@ -134,33 +131,14 @@ Uplink restored. Your independent assignments secured the network.	上行已恢�
 Command lost. Rebuild HQ within 60 seconds to remain in the operation.	指挥中心已失守。在 60 秒内重建总部以继续行动。
 Air Corridor support earned.	已获得空中走廊支援。
 Optional: control all three relays for 20 cumulative seconds.	可选：累计控制全部三座中继站 20 秒。
-AIR CORRIDOR · EVACUATION	空中走廊 · 撤离
-Escort position	护航位置
 Exit	出口
-Launch flight	起飞
-Continue flight	继续飞行
-Finish operation	结束行动
-Ground screen	地面掩护
-Active flight	当前航班
 Hangar	机库
-North AA	北侧防空
-South AA	南侧防空
-Ready to board	准备登机
-In flight	飞行中
-Safe	安全抵达
 Lost	损失
 Holding	待命
-Holding position. Continue flight sends this transport to extraction.	正在待命。继续飞行将让运输机前往撤离点。
 · %d%% HP	· %d%% 生命值
 · Response %ds	· 增援 %d 秒
 Flight %d · %s	航班 %d · %s
-Send the active transport to extraction, replacing its current orders.	替换当前指令，让活动运输机前往撤离点。
-Ground screen counters AA; walkers cover air.	地面掩护对付防空单位；步行机提供防空。
-Ground troops counter mobile anti-air; walkers protect against aircraft. Strike aircraft can return to the flight hangar for stationary repairs. Programs and direct orders both work. All three flights saved earns operation 05 support.	地面部队对付机动防空，步行机抵御敌机。攻击机可返回机库停驻维修。程序与直接指令均可使用。救出全部三个航班可获得行动 05 支援。
-Flight holding. Use Continue flight when ready.	航班待命中。准备好后选择继续飞行。
-All three flights safe.	三个航班全部安全抵达。
-Two flights safe.	两个航班安全抵达。
-Two safe · Finish, or save all three.	已救出两个航班 · 可结束行动，或救出全部三个。
+Ground troops counter mobile anti-air; walkers protect against aircraft. Strike aircraft can return to the flight hangar for stationary repairs. All three flights saved earns operation 05 support.	地面部队对付机动防空，步行机抵御敌机。攻击机可返回机库停驻维修。救出全部三个航班可获得行动 05 支援。
 Infantry secure deployment. Leave a guard while your strike force advances.	步兵控制部署区。突击部队推进时留守一支警卫。
 Guard in place · 30 / 30 s	警卫就位 · 30 / 30 秒
 After capture, keep infantry here for 30 uncontested seconds.	占领后，让步兵在此无争夺驻守 30 秒。
@@ -220,10 +198,7 @@ Three paid batches per node. Destroy nodes to stop them.	每个节点有三批�
 Final response resolved.	最后一波增援已解决。
 East response in %ds	东侧增援将在 %d 秒后抵达
 First Orders: build your command lab. There is no attack timer while you learn.	第一道命令：建造指挥实验室。学习期间没有进攻倒计时。
-Program assigned	程序已分配
-Program online. Move infantry to the relay; tanks screen and repair supports them.	程序已启动。派步兵前往中继站；坦克掩护，维修单位支援。
 Command lab complete	指挥实验室已完工
-Lab complete. Your repair robot already has a chip; tanks can fit one at HQ for 4 E.	实验室已完工。维修机器人自带芯片；坦克可在总部花费 4 电子元件安装芯片。
 Helix response %d / 3 · eastern approach in 10 seconds.	螺旋增援 %d / 3 · 10 秒后从东侧抵达。
 Relay secured	中继站已控制
 Relay secured. Hold for 60 uncontested seconds.	中继站已控制。无争夺驻守 60 秒。
@@ -231,32 +206,11 @@ Helix controls the relay. Infantry can recapture it after the defenders are clea
 Helix response %d / 3 approaching the relay from the east.	螺旋增援 %d / 3 正从东侧接近中继站。
 First Orders · 	第一道命令 · 
 Build a command lab	建造指挥实验室
-Assign a retreat or repair program	分配撤退或维修程序
 Secure relay · %d / 60 s	稳固中继站 · %d / 60 秒
 Relay logistics are back online.	中继站后勤已恢复。
 Command lost. Rebuild the HQ within 60 seconds to stay in the operation.	指挥中心已失守。在 60 秒内重建总部以继续行动。
 Adaptive doctrine badge earned.	已获得灵活战术徽章。
 Optional: change a retreat threshold, save it, then load and apply that version.	可选：修改撤退阈值，保存版本，再加载并应用该版本。
-Clear both batteries with ground troops. Position your screen before launching.	派地面部队清除两座炮台。起飞前部署掩护。
-Operation ended.	行动结束。
-Destroy both anti-air batteries first.	先摧毁两座防空炮台。
-Escort the active flight before launching another.	先护送当前航班，再发起下一航班。
-No flights remaining.	没有剩余航班。
-Reserve one unit slot for the rescue VTOL.	为救援垂直起降机预留一个单位名额。
-Flight launched. Helix ground/air response in 10 seconds at the east approaches.	航班已起飞。螺旋地面与空中增援将在 10 秒后从东侧抵达。
-Evacuation launched	撤离已开始
-Anti-air battery destroyed	防空炮台已摧毁
-Evacuation flight lost. Two losses end the operation.	撤离航班损失。损失两个航班将导致行动失败。
-Flight safe. Launch another when your escort is ready.	航班安全抵达。护卫准备好后可发起下一航班。
-Evacuation secured	撤离成功
-Helix response entered · %d units. Ground troops counter the Lancers.	螺旋增援已进入 · %d 个单位。用地面部队对付长枪步行机。
-Air Corridor · 	空中走廊 · 
-Destroy both batteries · %d / 2	摧毁两座炮台 · %d / 2
-Evacuate two flights · %d / 2 safe	撤离两个航班 · %d / 2 安全抵达
-%d / 3 flights evacuated.	%d / 3 航班已撤离。
-All flights saved · operation 05 electronics support recorded.	所有航班获救 · 已获得行动 05 电子元件支援。
-Optional: evacuate all three flights for operation 05 support.	可选：撤离全部三个航班以获得行动 05 支援。
-Protect your HQ and at least two flights.	保护总部及至少两个航班。
 Supply Line: scout the route, then advance your convoy. Use tactical pause to plan orders.	补给线：先侦察路线，再让车队前进。使用战术暂停规划指令。
 %s: Helix response in 10 seconds. Hold and repair if needed.	%s：螺旋增援将在 10 秒后抵达。必要时停留并维修。
 Truck %d cleared %s. Repair, then order the next leg.	卡车 %d 已通过 %s。维修后下令进入下一段。

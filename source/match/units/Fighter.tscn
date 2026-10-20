@@ -49,8 +49,8 @@ position = Vector3(0, 0.04, 0)
 [node name="Movement" type="NavigationAgent3D" parent="."]
 avoidance_enabled = false
 radius = 0.75
-domain = 0
 script = ExtResource("flight")
+domain = 0
 cruise_speed = 9.5
 stall_speed = 4.6
 rotate_speed = 5.6

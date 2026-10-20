@@ -93,7 +93,7 @@ The four solid models fit the mission's existing 5 m radius / 3 m height limits;
 `SupplyLineMap.gd` preserves checkpoint, response and obstacle positions. `supply_ground.gdshader` creates the continuous road, worn paint, tyre tracks, concrete checkpoint aprons and soil. `SupplyBackdrop.gd` reuses the desert kit for exterior mesas and freight landmarks over continuous surrounding terrain; all its geometry stays outside the playable rectangle and carries no gameplay components. The map owns lighting/fog material instances. See [environment verification](../../docs/playtests/2026-10-07/SUPPLY_ENVIRONMENT.md). Final art acceptance and physical-device testing remain open.
 
 
-## Air Corridor quarry kit
+## Quarry kit
 
 `build_quarry.py` generates `QuarryKit.blend`, `quarry-manifest.json` and seven original GLBs under `assets/models/environment/quarry`: QuarryBenchA/B/C, QuarryContainerA/B, QuarryCrusher and QuarryConveyor. Independent collections preserve editable geometry at local origin. Layered cut stone, scree, drill scars, container hardware, crusher bracing, cyclone/ducts, deck railings, ladders and conveyor structure use original geometry/materials.
 
@@ -101,6 +101,4 @@ The four solid models fit the mission's existing 5 m radius / 3 m height limits;
 blender --background --factory-startup --python-exit-code 1 --python art/environment/build_quarry.py
 ```
 
-Benches fit the original 6.5 m radius / 3 m height envelope (max 6.3065 / 2.9085); containers fit 3 / 3 m (2.781 / 1.605). AirCorridorMap retains obstacle parents at 0.6 m and offsets meshes by -0.6 m. The map uses the shared industrial flight-height contract: aircraft climb to root altitude 4.1 m above these obstacles. Preserve that coupling when changing geometry. Old archives preserve exact paused coordinates, then regain clearance on movement.
-
-`quarry_ground.gdshader` supplies continuous gravel/soil, haul roads, worn paint, battery aprons and evacuation pads. `QuarryMaterials.gd` weathers stone through the existing stone shader. `QuarryBackdrop.gd` places larger benches, crusher and conveyor entirely outside the playable rectangle over continuous surrounding terrain. Interior bench foundations join the cut; exterior scaled instances hide those foundation meshes. The map owns lighting/fog instances. See [geometry, flight, archive and full-match verification](../../docs/playtests/2026-10-07/AIR_ENVIRONMENT.md).
+The kit was built for the retired Air Corridor operation. It now supplies Cinder Ring's bench landmark, the freight-container neutral landmarks and the crusher/conveyor in tunnel campaign interiors. `QuarryMaterials.gd` weathers the `Quarry *` stone materials through the desert stone shader.

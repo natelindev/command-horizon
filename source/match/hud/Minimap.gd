@@ -211,12 +211,7 @@ func _issue_movement_action(position_2d_within_texture_rect):
 	)
 	if world_position_2d == null:
 		return
-	var abstract_world_position_3d = Vector3(world_position_2d.x, 0, world_position_2d.y)
-	var camera = get_viewport().get_camera_3d()
-	var target_point_on_colliding_surface = camera.get_ray_intersection(
-		camera.unproject_position(abstract_world_position_3d)
-	)
-	MatchSignals.terrain_targeted.emit(target_point_on_colliding_surface)
+	MatchSignals.terrain_targeted.emit(_match.map.ground_point(world_position_2d))
 
 
 func _on_gui_input(event):
@@ -225,7 +220,7 @@ func _on_gui_input(event):
 			if event.ctrl_pressed:
 				var world_pos_2d = _texture_rect_position_to_world_position(event.position)
 				if world_pos_2d != null:
-					MatchSignals.tactical_ping.emit(Vector3(world_pos_2d.x, 0, world_pos_2d.y))
+					MatchSignals.tactical_ping.emit(_match.map.ground_point(world_pos_2d))
 				return
 			_try_teleporting_camera_based_on_local_texture_rect_position(event.position)
 			_camera_movement_active = true

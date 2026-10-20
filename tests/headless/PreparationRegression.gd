@@ -121,19 +121,9 @@ func _prism():
 	await _frames(2)
 	_check(prism.deployment_left > 1.4, "Displacement retained deployed state")
 	paused = true
-	var legacy = _legacy_snapshot(Snapshot.new().capture(game), 2)
-	var restored = await Restore.new().restore(self, legacy)
-	_check(restored.ok, "Version-two Prism archive failed reconstruction")
-	if not restored.ok:
-		return false
-	game = restored.game
-	prism = _units(game._get_human_player(), "AdvancedTank")[0]
-	_check(prism.deployment_left == 1.5, "Legacy Prism bypassed fresh deployment")
-	game.hud._toggle_pause()
-	await _frames(60)
-	_check(prism.deployment_left > 0.4, "Legacy Prism setup completed too early")
-	await _frames(40)
-	_check(prism.deployment_left == 0, "Legacy Prism could not deploy after resume")
+	var stale = _legacy_snapshot(Snapshot.new().capture(game), 2)
+	_check(not Restore.new().prepare(stale), "Version-two Prism archive accepted")
+	paused = false
 	print("PASS: Prism setup/charge, movement/displacement, exact disk restoration and resume")
 	return true
 
@@ -158,8 +148,8 @@ func _reload_preparation(unit, target):
 	_check(not Restore.new().prepare(invalid), "Oversized preparation accepted")
 	for version in [1, 2]:
 		_check(
-			Restore.new().prepare(_legacy_snapshot(snapshot, version)),
-			"Legacy preparation archive rejected"
+			not Restore.new().prepare(_legacy_snapshot(snapshot, version)),
+			"Snapshot from another version accepted"
 		)
 	var file = FileStore.new()
 	var archive = "user://preparation-%d.json" % OS.get_process_id()

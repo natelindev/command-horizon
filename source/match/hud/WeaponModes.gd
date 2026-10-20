@@ -30,7 +30,7 @@ func _button(title, mode):
 			if mode == "precision"
 			else "Air targets only · 8 m"
 		)
-		+ "\nTwo seconds without firing to switch. Movement and programs continue."
+		+ "\nTwo seconds without firing to switch. Movement and orders continue."
 	)
 	button.pressed.connect(func(): _choose(mode))
 	button.add_theme_font_size_override("font_size", 13)

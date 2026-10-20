@@ -240,6 +240,8 @@ func capture_air(reference):
 	return {
 		"flight": _flight.capture_flight(reference),
 		"stores": stores.duplicate(),
+		"cooldowns": _cooldowns.duplicate(),
+		"rearm_left": _rearm_left,
 		"resume_station": resume_station if resume_station.is_finite() else null,
 		"unlimited": unlimited_stores,
 	}
@@ -252,6 +254,8 @@ func restore_air(saved, entities):
 	for store in saved.stores:
 		if stores.has(store):
 			stores[store] = mini(saved.stores[store], loadout()[store].capacity)
+	_cooldowns = saved.cooldowns.duplicate()
+	_rearm_left = saved.rearm_left
 	resume_station = saved.resume_station if saved.resume_station != null else Vector3.INF
 	unlimited_stores = saved.unlimited
 	_flight.restore_flight(saved.flight, entities)

@@ -34,7 +34,7 @@ func _input(event):
 		and "hud" in game
 		and is_instance_valid(game.hud)
 		and "_overlay" in game.hud
-		and (game.hud._overlay != null or is_instance_valid(game.hud.program_editor))
+		and game.hud._overlay != null
 	):
 		return
 	for group_id in range(1, 10):

@@ -5,6 +5,7 @@ const Factions = preload("res://source/match/FactionCatalog.gd")
 const Composition = preload("res://source/match/players/skirmish-ai/SkirmishComposition.gd")
 const Defense = preload("res://source/match/players/skirmish-ai/SkirmishDefense.gd")
 const Difficulty = preload("res://source/match/players/skirmish-ai/SkirmishDifficulty.gd")
+const Expansion = preload("res://source/match/players/skirmish-ai/SkirmishExpansion.gd")
 const Sites = preload("res://source/match/world/PointOfInterestCatalog.gd")
 const OPTIONAL_BUILDINGS = ["CommandLab", "AircraftFactory", "RepairDepot", "AntiGroundTurret"]
 
@@ -58,15 +59,12 @@ static func requests(game, player, units, include_busy = false):
 		var choice = _choice(player, producer, counts, threats, sequence)
 		if choice.is_empty() or not Factions.available(player, choice.role):
 			continue
-		var price = Factions.cost(player, choice.role).duplicate()
-		var fit_chips = false
 		result.append(
 			{
 				"producer": producer,
 				"role": choice.role,
 				"priority": choice.priority,
-				"cost": price,
-				"fit_chips": fit_chips
+				"cost": Factions.cost(player, choice.role).duplicate()
 			}
 		)
 		counts[choice.role] = counts.get(choice.role, 0) + 1
@@ -125,7 +123,10 @@ static func army_size(counts):
 static func _choice(player, producer, counts, threats, sequence):
 	match producer.type:
 		"CommandCenter":
-			if counts.get("Worker", 0) < Difficulty.of(player.difficulty).workers:
+			var bonus = Expansion.worker_bonus(
+				player.get_children().filter(func(unit): return "type" in unit)
+			)
+			if counts.get("Worker", 0) < Difficulty.of(player.difficulty).workers + bonus:
 				return {"role": "Worker", "priority": 0}
 		"Barracks":
 			if counts.get("Infantry", 0) < 4:

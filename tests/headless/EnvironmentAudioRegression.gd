@@ -247,11 +247,33 @@ func _campaign_regions():
 		"supply_line": "desert",
 		"first_orders": "desert",
 		"split_signal": "alpine",
-		"air_corridor": "industrial",
+		"bastion_cinder_ford": "coastal",
 		"broken_foundry": "industrial",
-		"command_horizon": "industrial"
+		"command_horizon": "industrial",
+		"helix_quiet_streets": "industrial",
+		"helix_the_gate": "industrial",
+		"helix_cinder_ford": "coastal",
+		"helix_pruning": "industrial",
+		"helix_severance": "industrial",
+		"frontier_drainage": "industrial",
+		"frontier_cinder_ford": "coastal",
+		"frontier_salvage": "desert",
+		"frontier_wren": "industrial",
+		"frontier_the_coalition": "industrial"
 	}
+	_check(expected.size() == catalog.OPERATIONS.size(), "Campaign climate coverage is stale")
+	_check(
+		(
+			soundscape_rules
+			. region_for("res://source/match/maps/HeroTheater.tscn", "unknown")
+			. is_empty()
+		),
+		"Unknown hero operation guessed climate"
+	)
 	for mission in catalog.OPERATIONS:
+		_check(expected.has(mission), "Missing campaign climate expectation: " + mission)
+		if not expected.has(mission):
+			continue
 		var definition = catalog.OPERATIONS[mission]
 		var settings = load("res://source/data-model/MatchSettings.gd").new()
 		settings.skirmish = true
@@ -260,7 +282,7 @@ func _campaign_regions():
 		for index in 2:
 			var side = load("res://source/data-model/PlayerSettings.gd").new()
 			side.controller = index + 1
-			side.faction = "bastion" if index == 0 else "helix"
+			side.faction = definition.faction if index == 0 else definition.enemy
 			settings.players.append(side)
 		game = load(definition.scene).instantiate()
 		game.settings = settings
@@ -272,6 +294,9 @@ func _campaign_regions():
 		_check(
 			game.environment_audio.region == expected[mission], "Wrong campaign climate: " + mission
 		)
-		_check(game.environment_audio._bed.playing, "Campaign ambience silent: " + mission)
+		_check(
+			game.environment_audio._bed != null and game.environment_audio._bed.playing,
+			"Campaign ambience silent: " + mission
+		)
 		await _remove_environment_match()
-	print("PASS all six real campaign scenes start their authored environment bed")
+	print("PASS all %d campaign operations start their authored environment bed" % expected.size())

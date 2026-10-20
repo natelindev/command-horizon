@@ -1,4 +1,4 @@
-extends "res://tests/playtest/PaidRetrofitMatches.gd"
+extends "res://tests/playtest/ScreenedOpeningMatches.gd"
 
 var next_sustain_sample = 0.0
 
@@ -15,7 +15,6 @@ func _measure():
 	next_sustain_sample = game.simulation_time + 10.0
 	var units = plan_rules.owned_units(human)
 	var repairs = load("res://source/match/combat/RepairService.gd")
-	var advice = load("res://source/match/programs/RecoveryAdvice.gd")
 	var wounded = units.filter(
 		func(unit):
 			return unit.movement_speed > 0 and unit.type != "Worker" and unit.hp < unit.hp_max * .8
@@ -29,11 +28,9 @@ func _measure():
 				"hp": unit.hp,
 				"max_hp": unit.hp_max,
 				"position": [unit.position.x, unit.position.z],
-				"support_near": advice.support_near(unit),
+				"support_near": _support_near(unit, repairs),
 				"has_facility":
 				units.any(func(source): return repairs.facility_eligible(source, unit)),
-				"program": unit.program.mode if unit.program != null else "",
-				"reason": unit.program.reason if unit.program != null else "",
 				"action": unit.action.get_script().resource_path if unit.action != null else ""
 			}
 		)
@@ -60,8 +57,25 @@ func _measure():
 		metrics.sustain_samples = []
 	metrics.sustain_samples.append(row)
 	print("SUSTAIN ", JSON.stringify(row))
-	if (
-		archive_prefix != ""
-		and patients.any(func(patient): return "No recovery support" in patient.reason)
-	):
-		_archive_progress("unsupported_program")
+
+
+func _support_near(unit, repairs):
+	for source in unit.player.get_children():
+		if not source.is_in_group("units") or source.is_queued_for_deletion() or source.hp <= 0:
+			continue
+		var distance = unit.global_position_yless.distance_to(source.global_position_yless)
+		if repairs.facility_eligible(source, unit) and distance <= repairs.FACILITY_RANGE:
+			return true
+		if (
+			source.type == "RepairRobot"
+			and repairs.mobile_eligible(source, unit)
+			and repairs.mobile_distance(source, unit) <= 3.0
+			and repairs.stationary(source)
+		):
+			return true
+	return false
+
+
+# Subclasses reserve units for their own recovery policies.
+func _protected_from_command(_unit):
+	return false

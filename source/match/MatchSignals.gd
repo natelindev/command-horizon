@@ -13,7 +13,7 @@ signal match_aborted
 signal match_finished_with_victory
 signal match_finished_with_defeat
 signal terrain_targeted(position)
-signal terrain_targeted_with_heading(position, heading)
+signal terrain_target_heading_set(position, heading)
 signal tactical_ping(world_position)
 signal unit_spawned(unit)
 signal unit_targeted(unit)

@@ -1,4 +1,4 @@
-extends "res://tests/rendered/LuaEditorPreview.gd"
+extends "res://tests/rendered/PreviewFixture.gd"
 
 var _deadline = 0
 
@@ -28,23 +28,19 @@ func _run():
 	for faction in ["bastion", "helix"]:
 		await _start_loop(faction, false)
 		var human = _game._get_human_player()
-		var plan = _game.hud.battle_plan
-		_check(plan != null and plan.visible, "Skirmish battle plan is missing")
-		await _click(plan._action)
-		_check(get_nodes_in_group("selected_units").size() == 4, "Guide did not select engineers")
-		var worker = get_nodes_in_group("selected_units")[0]
-		_check(worker.action == null, "Selection shortcut issued an order")
-		_check(plan.get_global_rect().end.y < 495, "Battle plan overlaps minimap at 720p")
-		_check(
-			not plan.get_global_rect().intersects(_game.find_child("UnitMenus").get_global_rect()),
-			"Guide covers construction controls"
+		var engineers = human.get_children().filter(
+			func(unit): return "type" in unit and unit.type == "Worker"
 		)
-		await _capture("loop-%s-economy-720p" % faction)
-		plan._toggle.grab_focus()
-		_key(KEY_ENTER)
+		for engineer in engineers:
+			engineer.get_node("Selection").select()
 		await _frames(4)
-		_check(not plan._body.visible and plan.size.y < 85, "Keyboard collapse failed")
-		await _click(plan._toggle)
+		_check(
+			get_nodes_in_group("selected_units").size() == engineers.size(),
+			"Opening engineers were not selected"
+		)
+		var worker = engineers[0]
+		_check(worker.action == null, "Selecting engineers issued an order")
+		await _capture("loop-%s-economy-720p" % faction)
 		var camera = _game.get_node("IsometricCamera3D")
 		var materials = get_nodes_in_group("resource_units").filter(
 			func(unit): return "resource_a" in unit
@@ -55,67 +51,25 @@ func _run():
 		await _right_click(camera.unproject_position(deposit.global_position + Vector3.UP * 0.5))
 		await _frames(20)
 		_check(worker.action != null, "World right-click failed to start harvesting")
-		plan.refresh()
-		_check("production" in plan._title.text, "Economy orders did not advance guidance")
-		await _click(plan._army)
-		_check(
-			get_nodes_in_group("selected_units").size() == 2,
-			"Army shortcut selected noncombat units"
-		)
 		_game.hud._toggle_pause()
 		var time = _game.simulation_time
-		await _click(plan._action)
 		await _frames(8)
-		_check(_game.simulation_time == time, "Guide advanced a paused battle")
+		_check(_game.simulation_time == time, "Tactical pause advanced the battle")
 		_game.hud._toggle_pause()
 		_game.queue_free()
 		await _frames(6)
 		await _start_loop(faction, true)
-		plan = _game.hud.battle_plan
-		# Assign the opening economy through ordinary orders so advanced guidance
-		# can show the program/assault step without manufacturing any unlock.
+		# Assign the opening economy through ordinary orders.
 		human = _game._get_human_player()
-		var engineers = human.get_children().filter(
+		engineers = human.get_children().filter(
 			func(unit): return "type" in unit and unit.type == "Worker"
 		)
-		var engineer = engineers[0]
 		deposit = get_nodes_in_group("resource_units")[0]
-		engineer.issue_manual_order(
+		engineers[0].issue_manual_order(
 			load("res://source/match/units/actions/CollectingResourcesSequentially.gd").new(deposit)
 		)
-		plan.refresh()
 		await _frames(4)
-		await _click(plan._action)
-		_check(
-			_game.find_child("UnitMenus")._program_panel != null,
-			"Guide did not expose chip-unit programs"
-		)
-		_check(plan.get_global_rect().end.y < 495, "Assault guidance covers minimap")
-		await _capture("loop-%s-programs-720p" % faction)
-		var panel = _game.find_child("UnitMenus")._program_panel
-		if panel != null:
-			var tank = get_nodes_in_group("selected_units")[0]
-			panel._preset.select(panel._preset_ids.find("guard"))
-			panel._preset.item_selected.emit(panel._preset.selected)
-			await _click(_button_named(panel, "Assign area / route"))
-			camera = _game.get_node("IsometricCamera3D")
-			await _mouse_click(
-				camera.unproject_position(tank.global_position_yless), MOUSE_BUTTON_LEFT
-			)
-			await _click(_button_named(panel, "Set safe point"))
-			await _mouse_click(camera.unproject_position(Vector3(18, 0, 26)), MOUSE_BUTTON_LEFT)
-			await _click(panel._run)
-			await _frames(30)
-			_check(tank.program.mode == "Running", "Guide route failed to start a built-in guard")
-			plan.refresh()
-			_check("Scout" in plan._title.text, "Guide skipped scouting after programming")
-			await _capture("loop-%s-scout-720p" % faction)
-			await _click(_button_named(panel, "Manual hold"))
-			plan.refresh()
-			_check(
-				"Scout" in plan._title.text,
-				"Manual override incorrectly repeated the program setup lesson"
-			)
+		await _capture("loop-%s-advanced-720p" % faction)
 		_game.queue_free()
 		await _frames(6)
 	options.restore(original)

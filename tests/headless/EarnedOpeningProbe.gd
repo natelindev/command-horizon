@@ -11,8 +11,7 @@ var home_defense
 func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
 	constants = root.get_node("Constants")
-	plan_rules = load("res://source/match/SkirmishPlan.gd")
-	library = load("res://source/match/programs/ProgramLibrary.gd")
+	plan_rules = load("res://tests/UnitQueries.gd")
 	moving_order = load("res://source/match/units/actions/Moving.gd")
 	attack_move_action = load("res://source/match/units/actions/AttackMoving.gd")
 	repair_order = load("res://source/match/units/actions/Repairing.gd")
@@ -36,7 +35,7 @@ func _run():
 	defense_point = Vector3(18.5, 0, 40)
 	if "--service-line" in OS.get_cmdline_user_args():
 		defense_point = _unit(human, "Barracks").global_position_yless + Vector3(0, 0, 3)
-	metrics = {"first_assault": null, "first_program": null}
+	metrics = {"first_assault": null}
 	var start = game.simulation_time
 	paused = false
 	for frame in 7200:

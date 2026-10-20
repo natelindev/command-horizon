@@ -1,6 +1,10 @@
 extends Node3D
 
 const DOMAIN = Constants.Match.Navigation.Domain.TERRAIN
+const ELEVATED_MAX_CLIMB = 0.6
+# Baked walkable surfaces sit about one voxel step above the authored ground.
+const SURFACE_LIFT = 0.5
+const SURFACE_MATCH = 0.35
 
 var _earliest_frame_to_perform_next_rebake = null
 var _is_baking = false
@@ -8,6 +12,9 @@ var _iteration_before_publication = -1
 var _region_before_publication = -1
 var _projection_cells = {}
 var _projection_height = INF
+var _projection_tolerance = INF
+var _elevated = false
+var _map = null
 var _projection_iteration = -1
 var _map_geometry = NavigationMeshSourceGeometryData3D.new()
 
@@ -53,20 +60,33 @@ func bake(map):
 		"bake() should be called exactly once - during runtime"
 	)
 	if _reference_static_collider_shape != null:
-		# Bake the land outline, not the rectangular map bounds: coastal inlets
-		# remain impassable on both the initial bake and later obstacle rebakes.
-		var polygon = PackedVector2Array(map.get_topdown_polygon_2d())
-		var faces = PackedVector3Array()
-		for index in Geometry2D.triangulate_polygon(polygon):
-			faces.append(Vector3(polygon[index].x, 0, polygon[index].y))
 		var shape = ConcavePolygonShape3D.new()
-		shape.set_faces(faces)
+		shape.set_faces(map.navigation_source_faces())
 		_reference_static_collider_shape.shape = shape
 	# setting custom AABB for baking so that height of dynamic AABB is always the same
 	# - without such setting, re-baking may yield different results depending on geometry height
-	_navigation_region.navigation_mesh.filter_baking_aabb = AABB(
-		Vector3.ZERO, Vector3(map.size.x, 5.0, map.size.y)
-	)
+	var mesh: NavigationMesh = _navigation_region.navigation_mesh
+	mesh.filter_baking_aabb = AABB(Vector3.ZERO, Vector3(map.size.x, 5.0, map.size.y))
+	_elevated = map.is_elevated()
+	_map = map if _elevated else null
+	if _elevated:
+		# The bake floor steps in whole tiers below -1 m so voxel rows, and with
+		# them SURFACE_LIFT, sit at the same offset above authored ground.
+		var floor_y = -1.0 - ceilf(maxf(0.0, -map.min_height()) / 3.0) * 3.0
+		# Tiers and ramps: two voxels of climb joins ramp cells; cliffs stay walls.
+		mesh.agent_max_climb = ELEVATED_MAX_CLIMB
+		# Centre the voxel grid on the map so rotated or mirrored starts see
+		# identical rasterization (sizes are not whole multiples of a cell).
+		var cell: float = mesh.cell_size
+		var inset = Vector2(fmod(map.size.x, cell) / 2.0, fmod(map.size.y, cell) / 2.0)
+		mesh.filter_baking_aabb = AABB(
+			Vector3(inset.x, floor_y, inset.y),
+			Vector3(
+				map.size.x - inset.x * 2.0,
+				map.max_height() - floor_y + 5.0,
+				map.size.y - inset.y * 2.0
+			)
+		)
 	NavigationServer3D.parse_source_geometry_data(
 		_navigation_region.navigation_mesh, _map_geometry, get_tree().root
 	)
@@ -154,52 +174,98 @@ func _on_bake_finished():
 	_is_baking = false
 
 
-# Most moving ground units are below the lowest, horizontal navmesh surface
-# by their path-height offset. Inside one of those polygons, vertical projection
-# is provably the nearest point: every other polygon is at least as high.
-# Boundary points, higher terrain and in-flight rebakes use the server query.
+# Most moving ground units are below a horizontal navmesh surface by their
+# path-height offset. Inside the lowest surface, vertical projection is
+# provably the nearest point: every other polygon is at least as high. On
+# elevated maps a higher level qualifies while the point is closer to it than
+# half the gap to any other level. Ramps, boundary points and in-flight
+# rebakes use the server query.
 func closest_point(point: Vector3) -> Vector3:
+	if _elevated:
+		return _closest_point_on_terrain(point)
 	var iteration := NavigationServer3D.map_get_iteration_id(navigation_map_rid)
 	if not _is_baking and _earliest_frame_to_perform_next_rebake == null:
 		if _projection_iteration != iteration and is_synchronized():
 			_index_projection_surface(iteration)
-		if _projection_iteration == iteration and point.y <= _projection_height:
+		if _projection_iteration == iteration:
 			var flat := Vector2(point.x, point.z)
 			var cell := Vector2i(floori(point.x / 6.0), floori(point.z / 6.0))
-			for polygon in _projection_cells.get(cell, []):
-				if Geometry2D.is_point_in_polygon(flat, polygon):
-					return Vector3(point.x, _projection_height, point.z)
+			var best := INF
+			for entry in _projection_cells.get(cell, []):
+				var height: float = entry[1]
+				var gap := height - point.y
+				if gap < 0.0 or gap >= best:
+					continue
+				if height != _projection_height and gap >= _projection_tolerance:
+					continue
+				if Geometry2D.is_point_in_polygon(flat, entry[0]):
+					best = gap
+			if best < INF:
+				return Vector3(point.x, point.y + best, point.z)
 	return NavigationServer3D.map_get_closest_point(navigation_map_rid, point)
+
+
+# Elevated maps know their ground height, so project vertically from the
+# expected surface. A query from below a sloped detail triangle would move the
+# point sideways (downhill on ramps) every tick.
+func _closest_point_on_terrain(point: Vector3) -> Vector3:
+	var flat := Vector2(point.x, point.z)
+	var surface: float = _map.height_at(flat) + SURFACE_LIFT
+	var iteration := NavigationServer3D.map_get_iteration_id(navigation_map_rid)
+	if not _is_baking and _earliest_frame_to_perform_next_rebake == null:
+		if _projection_iteration != iteration and is_synchronized():
+			_index_projection_surface(iteration)
+		if _projection_iteration == iteration:
+			var cell := Vector2i(floori(point.x / 6.0), floori(point.z / 6.0))
+			for entry in _projection_cells.get(cell, []):
+				if (
+					absf(entry[1] - surface) <= SURFACE_MATCH
+					and Geometry2D.is_point_in_polygon(flat, entry[0])
+				):
+					return Vector3(point.x, entry[1], point.z)
+	return NavigationServer3D.map_get_closest_point(
+		navigation_map_rid, Vector3(point.x, surface, point.z)
+	)
 
 
 func _index_projection_surface(iteration: int):
 	_projection_cells.clear()
 	_projection_height = INF
+	_projection_tolerance = INF
 	var mesh: NavigationMesh = _navigation_region.navigation_mesh
 	var vertices := mesh.get_vertices()
 	var transform: Transform3D = _navigation_region.global_transform
 	for index in vertices.size():
 		vertices[index] = transform * vertices[index]
 		_projection_height = minf(_projection_height, vertices[index].y)
+	var levels := {}
 	for index in mesh.get_polygon_count():
 		var polygon := PackedVector2Array()
 		var low := Vector2(INF, INF)
 		var high := Vector2(-INF, -INF)
-		for vertex in mesh.get_polygon(index):
+		var indices := mesh.get_polygon(index)
+		var height := vertices[indices[0]].y
+		for vertex in indices:
 			var point := vertices[vertex]
-			if point.y != _projection_height:
+			if point.y != height:
 				polygon.clear()
 				break
 			var flat := Vector2(point.x, point.z)
 			polygon.append(flat)
 			low = low.min(flat)
 			high = high.max(flat)
-		if polygon.size() < 3:
+		if polygon.size() < 3 or (not _elevated and height != _projection_height):
 			continue
+		levels[height] = true
 		for x in range(floori(low.x / 6.0), floori(high.x / 6.0) + 1):
 			for y in range(floori(low.y / 6.0), floori(high.y / 6.0) + 1):
 				var cell := Vector2i(x, y)
 				if not _projection_cells.has(cell):
 					_projection_cells[cell] = []
-				_projection_cells[cell].append(polygon)
+				_projection_cells[cell].append([polygon, height])
+	var heights := levels.keys()
+	heights.sort()
+	for index in range(1, heights.size()):
+		var gap: float = heights[index] - heights[index - 1]
+		_projection_tolerance = minf(_projection_tolerance, gap / 2.0)
 	_projection_iteration = iteration

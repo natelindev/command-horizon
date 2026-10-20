@@ -28,10 +28,8 @@ var _minimap: Control
 var _queue: Control
 var _refresh_elapsed = 0.0
 var _orders_panel = null
-var _program_panel = null
 var _behavior_panel = null
 var _research_panel = null
-var _factory_program_panel = null
 var _was_under_construction = false
 var _weapon_modes = null
 var _signature_panel = null
@@ -212,10 +210,8 @@ func _reset_menus():
 	_recover_health = null
 	_direct_orders = null
 	_orders_panel = null
-	_program_panel = null
 	_behavior_panel = null
 	_research_panel = null
-	_factory_program_panel = null
 	_weapon_modes = null
 	_signature_panel = null
 	_selection_roster = null
@@ -760,7 +756,7 @@ func _select_subset(members, remove):
 	if wanted.is_empty():
 		return
 	# Every requested unit is already selected. Deselect only the unwanted members;
-	# selection never changes orders, squads, production, camera or pause ownership.
+	# selection never changes orders, production, camera or pause ownership.
 	for unit in current:
 		if (unit in wanted) == remove:
 			unit.get_node("Selection").deselect()
@@ -897,7 +893,7 @@ func _build_camp():
 		button.name = "Produce" + role
 		button.custom_minimum_size = Vector2(112, 60)
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		var cost = Sites.price(_camp.player.faction, role)
+		var cost = Sites.price(role)
 		button.show_role(
 			Factions.portrait("bastion", role), tr(Factions.title("bastion", role)), cost
 		)

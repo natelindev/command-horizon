@@ -61,11 +61,7 @@ func _cleanup():
 func _rules_and_archive():
 	var human = game._get_human_player()
 	var enemy = game._enemy
-	_check(human.basic_programs_unlocked(), "Advanced mission did not start with programs")
-	_check(
-		_units(human, "Tank").all(func(unit): return unit.program.installed),
-		"Starting armor lacks chips"
-	)
+	_check(human.lab_research_unlocked(), "Advanced mission did not start with lab research")
 	# Leave authored defenses alive but stop fixture actions for deterministic objective rules.
 	for unit in get_nodes_in_group("units"):
 		unit.process_mode = Node.PROCESS_MODE_DISABLED
@@ -268,27 +264,27 @@ func _preset_victory():
 	var tanks = _units(human, "Tank")
 	var infantry = _units(human, "Infantry")
 	var repairs = _units(human, "RepairRobot")
-	var library = load("res://source/match/programs/ProgramLibrary.gd")
+	var behavior = load("res://source/match/orders/UnitBehavior.gd")
 	for lane in 2:
 		var point = game.map.relays[0 if lane == 0 else 2].position
 		for index in 3:
 			var tank = tanks[lane * 3 + index]
-			tank.program.configure(library.defaults("guard"))
-			tank.program.anchor = point + Vector3(3, 0, (index - 1) * 2.5)
-			tank.program.safe_point = point - Vector3(4, 0, 0)
-			tank.program.run()
+			_check(
+				behavior.guard(tank, point + Vector3(3, 0, (index - 1) * 2.5)),
+				"Armor rejected guard order"
+			)
 		for index in 6:
 			infantry[lane * 6 + index].issue_manual_order(
 				attack_move.new(point + Vector3(-1, 0, index * 0.3))
 			)
-		repairs[lane].program.configure(library.defaults("hold_service"))
-		repairs[lane].program.anchor = point - Vector3(2, 0, 0)
-		repairs[lane].program.run()
+		_check(
+			behavior.guard(repairs[lane], point - Vector3(2, 0, 0)), "Repair rejected guard order"
+		)
 	for frame in 16000:
 		if clearance != null and frame % 60 == 0:
 			clearance.step(game)
 		# Infantry still needs player direction after combat pulls a screen off its relay.
-		# Keep the default programs on armor/support; issue ordinary recapture orders.
+		# Keep armor/support on guard; issue ordinary recapture orders.
 		if frame > 0 and frame % 600 == 0:
 			for unit in _units(human, "Infantry"):
 				var index = 0 if unit.position.z < 44 else 2
@@ -308,12 +304,12 @@ func _preset_victory():
 					unit.hp,
 					" pos=",
 					unit.position,
-					" program=",
-					unit.program.mode if unit.program != null else "none"
+					" behavior=",
+					behavior.current(unit)
 				)
 	_check(
 		game.finished and game.result == "Victory",
-		"Split preset-only mission did not win: " + game.objective_text()
+		"Split guard/attack-move mission did not win: " + game.objective_text()
 	)
 	_check(game.waves_sent >= 4, "Actual victory bypassed timed counterattacks")
 	var time = game.simulation_time
@@ -326,7 +322,7 @@ func _preset_victory():
 	)
 	print(
 		(
-			"Split preset encounter: %d responses, %d survivors, %.2f seconds"
+			"Split guarded encounter: %d responses, %d survivors, %.2f seconds"
 			% [game.waves_sent, human.population(), time]
 		)
 	)

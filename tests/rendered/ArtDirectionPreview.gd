@@ -19,7 +19,7 @@ func _run():
 	root.content_scale_size = Vector2i(1920, 1080)
 	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT))
-	await _battle("res://source/match/maps/ExpandedDesertFrontier.tscn", "desert", true)
+	await _battle("res://source/match/maps/battlefields/DesertFrontierMap.tscn", "desert", true)
 	await _battle("res://source/match/maps/AlpineRelay.tscn", "alpine", false)
 	await _battle("res://source/match/maps/CoastalFoundry.tscn", "coastal", false)
 	await _battle("res://source/match/maps/IndustrialCrossroads.tscn", "urban", false)

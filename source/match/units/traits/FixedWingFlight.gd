@@ -234,7 +234,10 @@ func _parked(delta):
 	if not _valid_airfield() or mode in ["idle", "return"]:
 		if not _valid_airfield():
 			# Our airfield is gone: an aircraft cannot stay parked on rubble.
-			mode = "station" if station.is_finite() else "idle"
+			# Preserve an ordered sortie; idle/returning aircraft seek another
+			# home once airborne instead of discarding their return command.
+			if mode in ["idle", "return"]:
+				mode = "return"
 			_depart_without_runway()
 		return
 	if _unit.sortie_ready(ordered):
@@ -281,7 +284,9 @@ func _finish_taxi(delta):
 	var error = _turn_on_ground(_heading_of(airfield.stand_direction()), delta)
 	if absf(error) < 0.05:
 		phase = Phase.PARKED
-		mode = "idle" if mode == "return" else mode
+		if mode == "return":
+			mode = "idle"
+			_has_destination = false
 		_unit.landed()
 
 
@@ -636,7 +641,10 @@ func _nearest_airfield(point, reach = INF):
 		):
 			continue
 		var distance = field.global_position.distance_to(point)
-		if distance < best_distance and field.free_stands() + int(field.stand_of(_unit) >= 0) > 0:
+		if (
+			distance < best_distance
+			and (field.stand_of(_unit) >= 0 or field.stands_for_production() > 0)
+		):
 			best = field
 			best_distance = distance
 	return best
@@ -650,6 +658,9 @@ func _find_home():
 		airfield.release_stand(_unit)
 	airfield = _nearest_airfield(_unit.global_position)
 	stand = airfield.claim_stand(_unit) if airfield != null else -1
+	# The captured fix and landing direction belong to the old runway.
+	_approach_entry = false
+	_landing_end = -1
 
 
 # --- Saves --------------------------------------------------------------------

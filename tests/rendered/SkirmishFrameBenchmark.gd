@@ -13,7 +13,7 @@ func _run():
 	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
 	RenderingServer.viewport_set_measure_render_time(root.get_viewport_rid(), true)
 	var load_start = Time.get_ticks_usec()
-	await _skirmish("bastion", "res://source/match/maps/ExpandedAlpineRelay.tscn", true)
+	await _skirmish("bastion", "res://source/match/maps/battlefields/AlpineRelayMap.tscn", true)
 	print("FINAL_LOAD_MS ", (Time.get_ticks_usec() - load_start) / 1000.0)
 	game.get_node("IsometricCamera3D").set_position_safely(
 		_units(game._get_human_player(), "CommandCenter")[0].position

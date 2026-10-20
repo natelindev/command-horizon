@@ -169,11 +169,6 @@ func _paid_route():
 		owner.resource_b >= funds.y + 4, "Replacement rally engineer did not deliver electronics"
 	)
 	_check(owner.resource_a == funds.x, "Electronics rally unexpectedly delivered materials")
-	if created.size() == 1:
-		_check(
-			created[0].program == null or created[0].program.mode != "Running",
-			"Rally lost manual authority"
-		)
 	print(
 		"RALLY DELIVERY ",
 		case_label,

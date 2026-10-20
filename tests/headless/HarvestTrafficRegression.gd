@@ -6,6 +6,7 @@ const BLOCKER_ID = "unit-29"
 const COLLECTION_DEADLINE = 12.0
 const RETURN_DEADLINE = 12.0
 var harvest_script
+var _ghost_overlaps = {}
 
 
 func _run():
@@ -296,14 +297,28 @@ func _clearance(worker, actors):
 			continue
 		if "movement_domain" in other and other.movement_domain != worker.movement_domain:
 			continue
-		result = minf(
-			result,
-			(
-				worker.global_position_yless.distance_to(other.global_position_yless)
-				- worker.radius
-				- other.radius
-			)
+		var gap = (
+			worker.global_position_yless.distance_to(other.global_position_yless)
+			- worker.radius
+			- other.radius
 		)
+		# Harvest runs ghost through mobile units; static footprints still apply.
+		# An overlap left when a run ends may only resolve, so it is exempt until
+		# the pair separates.
+		var pair = [worker.get_instance_id(), other.get_instance_id()]
+		if (
+			other.is_in_group("units")
+			and other.movement_speed > 0
+			and (worker.get_node("Movement").ghosted or other.get_node("Movement").ghosted)
+		):
+			if gap < -.08:
+				_ghost_overlaps[pair] = true
+			continue
+		if _ghost_overlaps.has(pair):
+			if gap >= -.08:
+				_ghost_overlaps.erase(pair)
+			continue
+		result = minf(result, gap)
 	return result
 
 

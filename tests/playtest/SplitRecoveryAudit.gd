@@ -52,7 +52,6 @@ func _audit():
 				"role": unit.type,
 				"hp": unit.hp,
 				"position": [unit.position.x, unit.position.y, unit.position.z],
-				"program": unit.program.mode if unit.program != null else "none",
 				"order": unit.manual_orders.current.get("kind", "none"),
 				"order_status": unit.manual_orders.status,
 				"pending": unit.manual_orders.pending.map(func(order): return order.kind),

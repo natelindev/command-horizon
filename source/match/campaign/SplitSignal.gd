@@ -67,8 +67,6 @@ func _spawn_player_units(side, _spawn_transform):
 
 func _spawn(role, side, point):
 	var unit = load(Catalog.scene_path(role)).instantiate()
-	if side.faction == "bastion" and role == "Tank":
-		unit.set_meta("chip_installed", true)
 	_setup_and_spawn_unit(unit, Transform3D(Basis(), point), side, false)
 	return unit
 

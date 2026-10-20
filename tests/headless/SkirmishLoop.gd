@@ -4,25 +4,23 @@ var plan_rules
 var harvest_action
 var construct_action
 var attack_move_action
-var library
 var game
 var human
 var opponent
-var _programmed = false
+var _guarded = false
+var _guard = null
 var _launched = false
 var _spent = Vector2.ZERO
-var _steps = {}
 var _last_attack = -100.0
-var _program_at = 0.0
+var _guard_at = 0.0
 var _last_defense = -100.0
 
 
 func _run():
-	plan_rules = load("res://source/match/SkirmishPlan.gd")
+	plan_rules = load("res://tests/UnitQueries.gd")
 	harvest_action = load("res://source/match/units/actions/CollectingResourcesSequentially.gd")
 	construct_action = load("res://source/match/units/actions/Constructing.gd")
 	attack_move_action = load("res://source/match/units/actions/AttackMoving.gd")
-	library = load("res://source/match/programs/ProgramLibrary.gd")
 	factions = load("res://source/match/FactionCatalog.gd")
 	constants = root.get_node("Constants")
 	var selected_factions = []
@@ -47,29 +45,24 @@ func _play(faction):
 	game = await _start(settings)
 	human = game._get_human_player()
 	opponent = get_nodes_in_group("players").filter(func(player): return player != human)[0]
-	_programmed = false
+	_guarded = false
+	_guard = null
 	_launched = false
 	_spent = Vector2.ZERO
-	_steps.clear()
 	_last_attack = -100.0
 	_last_defense = -100.0
-	_check(plan_rules.next_step(human).id == "economy", "Standard start lacks economy guidance")
 	_check(plan_rules.idle_workers(human).size() == 4, "Starting engineers are not idle/selectable")
 	for tick in 2400:
 		if game.finished:
 			break
-		var step = plan_rules.next_step(human)
-		if not _steps.has(step.id):
-			_steps[step.id] = snappedf(game.simulation_time, 0.1)
-			print("LOOP ", faction, " ", step.id, " at ", _steps[step.id])
 		_economy()
 		_produce()
 		_command()
 		await _frames(30)
 	var income = Vector2(human.resource_a - 60, human.resource_b - 12) + _spent
 	_check(income.x > 100 and income.y > 30, "Real harvesting did not fund progression")
-	_check(_programmed, "Paid standard opening did not reach a running built-in program")
-	_check(_launched, "Programmed army never received the player's assault order")
+	_check(_guarded, "Standard opening never completed the lab and posted armor on guard")
+	_check(_launched, "Army never received the player's assault order")
 	# This exercises the match lifecycle, not an unbeatable strategy or a balance oracle.
 	_check(
 		game.finished and game.result in ["Victory", "Defeat", "Draw"],
@@ -264,7 +257,6 @@ func _produce():
 			# Field conventional armor before buying the first lab.
 			if not human.has_completed_structure("CommandLab") and _unit(human, "Tank") != null:
 				continue
-			producer.production_queue.fit_chips = human.has_completed_structure("CommandLab")
 			product = "Tank"
 		if product != "":
 			var entry = producer.production_queue.produce(load(Catalog.scene_path(product)))
@@ -276,26 +268,25 @@ func _command():
 	var army = plan_rules.army(human)
 	if not _launched and game.simulation_time - _last_defense >= 15:
 		for defender in army:
-			if defender.program != null and defender.program.mode != "Manual":
+			if defender == _guard:
 				continue
 			defender.issue_manual_order(
 				attack_move_action.new(Vector3(19 + defender.get_index() % 3, 0, 43))
 			)
 		_last_defense = game.simulation_time
 
-	if not _programmed:
+	if not _guarded and human.has_completed_structure("CommandLab"):
+		var behavior = load("res://source/match/orders/UnitBehavior.gd")
 		for unit in army:
-			if unit.program != null and unit.program.ready_to_run():
-				unit.program.configure(library.defaults("guard"), "Opening guard")
-				unit.program.anchor = Vector3(20, 0, 43)
-				unit.program.safe_point = _unit(human, "CommandCenter").global_position_yless
-				_check(unit.program.run(), "First built-in program refused to run")
-				_programmed = true
-				_program_at = game.simulation_time
+			if unit.type == "Tank":
+				_check(behavior.guard(unit, Vector3(20, 0, 43)), "Opening guard order rejected")
+				_guarded = true
+				_guard = unit
+				_guard_at = game.simulation_time
 				break
 	# The opening trains four infantry and armor. Commit a six-unit force
 	# instead of waiting for nine while refusing further infantry production.
-	if not _programmed or game.simulation_time - _program_at < 5 or army.size() < 6:
+	if not _guarded or game.simulation_time - _guard_at < 5 or army.size() < 6:
 		return
 	if game.simulation_time - _last_attack < 25:
 		return
@@ -306,7 +297,13 @@ func _command():
 		unit.issue_manual_order(
 			attack_move_action.new(destination + Vector3(unit.get_index() % 3, 0, 0))
 		)
-		if unit.program != null:
-			_check(unit.program.mode == "Manual", "Assault order did not override program")
+		if unit == _guard:
+			_check(
+				(
+					unit.manual_orders.current.is_empty()
+					and is_instance_of(unit.action, attack_move_action)
+				),
+				"Assault order did not replace the guard order"
+			)
 	_launched = true
 	_last_attack = game.simulation_time

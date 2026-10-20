@@ -7,9 +7,6 @@ const Catalog = preload("res://source/match/BastionCatalog.gd")
 static func inspect(producer, role, construction):
 	var player = producer.player
 	var cost = Factions.cost(player, role, construction)
-	var fitted = not construction and role == "Tank" and producer.production_queue.fit_chips
-	if fitted:
-		cost.resource_b += Factions.chip_cost(player.faction)
 	var lines = PackedStringArray(
 		[
 			Factions.title(player.faction, role),
@@ -25,26 +22,13 @@ static func inspect(producer, role, construction):
 		)
 		lines.append("%d s construction with one engineer; travel extra." % ceili(seconds))
 	else:
-		var seconds = (
-			(
-				Factions.duration(player, role)
-				+ (Factions.chip_seconds(player.faction) if fitted else 0.0)
-			)
-			/ player.production_factor()
-		)
+		var seconds = Factions.duration(player, role) / player.production_factor()
 		lines.append(
 			(
 				"%d s production%s; queue wait extra."
 				% [ceili(seconds), " at low power" if player.production_factor() < 1.0 else ""]
 			)
 		)
-		if fitted:
-			lines.append(
-				(
-					"Includes basic chip (+%d E / +%d s base time)."
-					% [Factions.chip_cost(player.faction), Factions.chip_seconds(player.faction)]
-				)
-			)
 	if player.technology != null:
 		var upgrades = player.technology.summary(role)
 		if upgrades != "":
@@ -52,7 +36,7 @@ static func inspect(producer, role, construction):
 	var reasons = PackedStringArray()
 	if role == "Hero" and Factions.hero_reserved(player):
 		reasons.append("A hero is already alive or in training.")
-	var required = "CommandLab" if fitted else Factions.requirement(player, role, construction)
+	var required = Factions.requirement(player, role, construction)
 	if required != "":
 		lines.append("Tech path: %s." % Factions.title(player.faction, required))
 	if required != "" and not player.has_completed_structure(required):

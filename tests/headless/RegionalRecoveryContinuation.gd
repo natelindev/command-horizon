@@ -37,7 +37,6 @@ func _continue_recovery(index):
 	var before = game.simulation_time
 	var action = tank.action
 	var funds = Vector2i(owner.resource_a, owner.resource_b)
-	_check(not tank.program.installed, "Archive patient already has a chip")
 	await _review(str(index) + "-withdrawal", tank)
 	_check(tank.hp == hp and tank.action == action, "Paused review changed patient")
 	_check(Vector2i(owner.resource_a, owner.resource_b) == funds, "Paused review spent funds")
@@ -65,7 +64,6 @@ func _continue_recovery(index):
 		tank.hp if is_instance_valid(tank) else 0
 	)
 	if ready:
-		_check(not tank.program.installed, "Continuation installed an unrequested chip")
 		await _review(str(index) + "-recovered", tank)
 	paused = false
 	game.queue_free()

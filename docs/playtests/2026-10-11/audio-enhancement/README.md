@@ -1,112 +1,96 @@
 # Faction and unit audio
 
-The current bank has 711 clips: 293 spoken recordings and 418 mechanical cues.
-Three male Kokoro announcers speak only command announcements. Each of the 31
-speaking faction/unit roles has a unique male Piper/VCTK speaker ID, without
-announcer blending or speaker reuse between roles/factions. Original dialogue
-and captions retain each unit's identity across selection, orders and readiness.
+The battle bank contains 759 clips: 365 crew and command lines, 97 robot lines and
+297 structure console cues. Its 54 speakers comprise 37 faction crew roles, three
+neutral mercenaries, 11 robots and three exclusive announcers. Every unit keeps its
+own speaker across selection, movement, attack, readiness and stop responses.
 
-Autonomous units have 11 faction/role identities and 121 distinct cues. Workers
-use piston motors/ratchets, repair robots use servos/tools, combat robots use
-heavy gears/latches, and drones use rotors/telemetry. Each has two selection,
-movement and attack variants plus separate task/ready/stop cues. Faction tuning
-adds engineering character. Buildings retain their existing console cues.
+Fighters, bombers and mobile anti-air crews now have their own voices in all three
+armies. Camp mercenaries keep one identity whichever faction hires them. The 96 new
+recordings preserve all 663 existing clip hashes.
+
+## New cast
+
+All new roles are human crew. Pilot lines use the pilot headset; anti-air crews
+use helmet intercoms; mercenaries use their own commercial handsets. Reference
+similarity below is the nearest other cast reference, measured with ECAPA cosine.
+The entire reference cast's closest pair is 0.392.
+
+| Faction | Role | Reference | Accent | Nearest similarity |
+| --- | --- | --- | --- | --- |
+| Bastion | Fighter | Gonzalo-1 | US | 0.207 |
+| Bastion | Bomber | Antoni | US | 0.353 |
+| Bastion | Anti-air | MrHat | US | 0.326 |
+| Helix | Fighter | VCTK p286 | English | 0.309 |
+| Helix | Bomber | Midlands_Bedfordshire_Dialect | English | 0.282 |
+| Helix | Anti-air | 29da | English | 0.350 |
+| Frontier | Fighter | VCTK p374 | Australian | 0.358 |
+| Frontier | Bomber | Roscoe | Australian | 0.365 |
+| Frontier | Anti-air | Jeremy_Q | US | 0.355 |
+| Neutral | Iron Warden | VCTK p281 | Scottish | 0.321 |
+| Neutral | Dust Ranger | VCTK p255 | Scottish | 0.341 |
+| Neutral | Breach Lancer | VCTK p275 | Scottish | 0.353 |
+
+VCTK accents are self-reported; donation accents use the pool's classifier. Frontier
+retains its predominantly Irish/Australian cast with native English backups.
+Assignments, reference hashes and licenses are recorded in `art/audio/voice_cast.py`
+and `art/audio/voice-pool.json`.
 
 ## Listen
 
-- [Faction audition reel](faction-voice-audition.ogg): Bastion, Helix, then Frontier; every speaking unit and autonomous role is included;
-  [cue sheet](audition-cues.json) identifies each line and its timestamp.
-- Live game mixes: [Bastion](bastion-live-mix.wav), [Helix](helix-live-mix.wav),
-  [Frontier](frontier-live-mix.wav). Each uses default audio volumes and includes a real HUD click, selection,
-  accepted attack-move, each autonomous unit selection, actual incoming damage and completed paid research.
-- Caption examples: [Bastion unit](bastion-unit-caption.png),
-  [Helix announcer](helix-announcer-caption.png),
-  [Frontier unit](frontier-unit-caption.png).
+- [Faction audition reel](faction-voice-audition.ogg) and [cue sheet](audition-cues.json):
+  Bastion, Helix, Frontier, then the neutral mercenaries; selection and attack clips
+  from every current crew and robot role.
+- Earlier gameplay mix captures: [Bastion](bastion-live-mix.wav),
+  [Helix](helix-live-mix.wav), [Frontier](frontier-live-mix.wav).
+- Earlier caption captures: [Bastion unit](bastion-unit-caption.png),
+  [Helix announcer](helix-announcer-caption.png), [Frontier unit](frontier-unit-caption.png).
 
-The recordings are synthesized performances, not human voice acting. Decode,
-levels, routing and event behavior were verified; subjective acting quality still
-benefits from a listening review. Voice attribution and modifications are recorded
-in [LICENSES.md](../../../../assets/audio/voices/LICENSES.md).
+Chatterbox synthesizes the unit and robot performances; Kokoro synthesizes the
+announcers. Crew retain energetic battle dialogue and light radio colouring mixed
+with dry speech. Robots keep their own processors and machinery. All speech is
+encoded at 24 kHz and mastered to -16 LUFS with a -1.5 dBFS peak limit before
+encoding. The runtime Voice bus remains full-band. Speech follows Voice volume;
+structure and UI cues follow Effects volume.
 
-## Casting and mixing
+Decode, words, identity, levels and event routing have automated checks. Acting
+quality remains a listening judgment; the earlier gameplay mixes and screenshots
+were not recreated for this cast extension. See [voice credits](../../../../assets/audio/voices/LICENSES.md)
+for source attribution and processing details.
 
-All speakers have documented male source voices. The three announcers remain
-Michael, George and Fenrir; unit speakers are listed explicitly in
-`art/audio/voice_cast.py` with gender/accent provenance in `vctk-speakers.json`.
-Distinct profile names, blend weights or delivery rates no longer count as
-speaker diversity. The builder rejects borrowed announcers and reused unit IDs.
-Generic unit reply assets were removed from Command, and `say` rejects unit
-reply events without a source; normal unit replies use `say_unit`.
-
-Speech has light EQ and is mastered at -18 LUFS / -3 dBTP without narrow radio
-filters. Native synthesis is 24 kHz for command and 22.05 kHz for units; all spoken
-Oggs use 24 kHz encoding. Autonomous cues preserve low gears and high telemetry
-through a broad 50–7000 Hz passband. Their Effects volume routing is unchanged.
-
-The previous ambience reduction remains intact: beds are 10.3–13.2 dB quieter,
-with noise above 2 kHz reduced 22.9–31.5 dB. See
-[before/after measurements](ambience-comparison.json). Settings previews share
-gameplay's -16 dB bed gain. No persisted volume preference was changed.
-
-## Behavior
-
-- Selection, move, attack, stop, gathering, construction and repair orders receive
-  appropriate role responses. Only accepted manual orders speak; automatic rally
-  movement and rejected full queues do not. Manually setting a rally point has a
-  building response.
-- Completed production uses the produced unit's ready line or machine startup cue.
-  Construction, research (including Coordination), power changes, insufficient
-  resources, incoming fire, losses and match outcomes use the faction announcer.
-- One battle channel prevents overlapping voices. Chatter has a shared 1.5-second
-  cooldown and never enters the queue. Batch production and identical events
-  coalesce. The queue holds at most four notifications, expiring after six seconds;
-  dead units cannot play an old ready line.
-- Base warnings preempt lesser reports. Attack events have ten-second cooldowns,
-  losses six seconds, and lesser danger reports share a four-second budget.
-  Power transitions have fifteen-second per-event cooldowns; opposite queued power
-  states replace each other. Final results clear the queue and latch it closed.
-- Native buttons, toggles, tabs, lists, menus and sliders have short UI cues through
-  one player with a 75 ms global debounce. Hover and programmatic value refreshes
-  are silent. Keyboard activation works too.
-- Voice volume controls speech; Effects volume controls machine and UI sounds.
-  Tactical pause permits feedback, settings freeze the battle audio, and save
-  reconstruction produces no historical notifications. Existing combat effects,
-  ambient sound and their limits remain active.
-
-## Verification — dedicated unit cast and machine revision
-
-Godot 4.6 on macOS; headless suites use `--fixed-fps 60`.
+## Verification — 2026-10-20
 
 | Check | Result |
 | --- | --- |
-| Cast/cache/machine Python regressions | 4 passed: announcer borrowing rejected, rate-only duplicate rejected, cache isolation, distinct machine bodies |
-| verify_voice_cast.py | 31 separate male unit speakers, three exclusive male announcers; 11 mechanical identities and 121 distinct clips |
-| verify_battle_audio.py | All 711 clips decode and match hashes; highest decoded peak -2.63 dBFS |
-| verify_clean_mix.py | All 293 spoken clips encoded at 24 kHz; all four quiet, low-hiss beds pass |
-| Repeat build | All 711 existing clip hashes preserved on the second build |
-| AudioEnhancementRegression | 0 failures across all three factions, every unit/event identity, captions, source requirements, scheduling and lifecycle |
-| SpeechRegression | 0 failures for real orders/production, damage, subtitles, mute/pause, save restoration and terminal events |
-| Godot import | Passed |
-| AudioEnhancementPreview | 0 failures at 720p; real UI/selection/order/damage/research plus every autonomous role; clean shutdown |
-| Live mix audit | All three default-volume mixes contain audio without clipping; see live-mix-verification.json |
-| gdformat / gdlint / git diff --check | Passed for changed scripts and patch |
+| Cast validation and reference separation | 51 unique reference voices; closest pair 0.392 cosine; closest announcer/reference 0.284 |
+| Shipped speaker separation | 54 speakers; maximum cross-speaker cosine 0.494, below the 0.5 limit |
+| Human donor identity | All 40 crew/mercenary voices match their own reference better than any other cast reference |
+| Whisper audit of encoded Ogg speech | 462 clips; 451 exact after spelling normalization; mean word mismatch 0.0054; none exceeds its configured limit |
+| Decode, hashes and mastering | 759 clips; speech -16.72 to -15.47 LUFS; highest decoded peak -0.89 dBFS |
+| Existing content preserved | All 663 pre-existing clip hashes unchanged; 96 new recordings |
+| Repeat build | All 759 clip hashes, catalog and manifest unchanged |
+| Cast and transcript unit tests | 11 passed |
+| Clean mix audit | 54 voices, 462 speech clips at 24 kHz, four quiet regional beds |
+| AudioEnhancementRegression | 0 failures across all three factions and neutral hires |
+| LocalizationRegression | 0 failures; captions for every new recording translated |
+| EnvironmentAudioRegression | 0 failures; all 16 current campaign operations receive the appropriate regional bed |
 
-The complete audition reel includes every speaking unit and two selection
-variants plus an attack cue for each autonomous role. Decode and routing checks
-do not assess subjective performance quality; the reel supports listening review.
+Machine-readable details: [asset audit](../../../../art/audio/battle-audio-verification.json)
+and [speech/identity audit](../../../../art/audio/voice-identity-verification.json).
+The speech report preserves raw ASR output for inexact lines. Compound spacing
+(`Duststorm` / `dust storm`) does not change the spoken words. Whisper's joined
+`Rootset` spelling is
+split into `root set`; its mismatch with written `route` still counts, at 0.25 for
+that existing supply-truck line. Missing or changed words remain scored. Godot
+headless checks completed with inherited resource-cleanup warnings at process exit.
 
-The inherited headless fixtures report retained resources at shutdown (38 in the
-expanded audio suite, 10 in the speech suite). SpeechRegression also intentionally
-logs a failed-save error while checking recovery. No runtime script errors remain
-in the audio suite. Mission transports use their authored scene geometry in the
-voice fixture: Helix/Frontier skirmish model catalogs have no transport model slots.
+The identity audit transcribes the actual encoded recordings and compares every
+speaker with the other speakers and source references. A hash-keyed transcript
+cache lets an interrupted audit resume while invalidating changed clips or
+recognizer settings. The runtime regression rejects borrowed role identities and
+checks that neutral mercenaries retain one voice across all factions.
 
-Earlier audio/mix work also passed combat/environment, settings, direct-order,
-subtitle and research-feedback checks listed in the plan. Those unrelated suites
-are not claimed as rerun for this casting change. The prior research-economy
-baseline comparison remains in [research-baseline-comparison.json](research-baseline-comparison.json).
-
-Build dependencies are pinned in `art/audio/voice-requirements.txt`; ffmpeg is
-also required. See [build commands](../../../../art/audio/README.md). Neither TTS
-engine nor model ships with the game. Attribution and the voice catalog are
-included by each export preset.
+Build dependencies are pinned in `art/audio/voice-requirements.txt`. See
+[build and verification commands](../../../../art/audio/README.md). Models,
+reference recordings and synthesis tools stay outside the shipped game; playback
+is fully local.

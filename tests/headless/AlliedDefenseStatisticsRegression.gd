@@ -144,19 +144,14 @@ func _statistics():
 	harvest._transfer_single_resource_unit_from_resource_to_worker()
 	_check(record.data.statistics.materials == before + 1, "Actual mining transfer not recorded")
 	var original = record.capture()
-	var legacy = original.duplicate(true)
-	legacy.erase("statistics")
-	_check(record.valid(legacy, game.simulation_time), "Old battle record rejected")
-	record.restore(legacy)
-	_check(
-		record.data.statistics.recorded_from == game.simulation_time,
-		"Old record claimed a complete resource history"
-	)
-	record.restore(original)
+	_check(record.valid(original), "Current battle record rejected")
+	var incomplete = original.duplicate(true)
+	incomplete.erase("statistics")
+	_check(not record.valid(incomplete), "Battle record without statistics accepted")
 	for value in [-1, 1.5, INF]:
 		var corrupt = original.duplicate(true)
 		corrupt.statistics.materials = value
-		_check(not record.valid(corrupt, game.simulation_time), "Invalid statistic accepted")
+		_check(not record.valid(corrupt), "Invalid statistic accepted")
 	var snapshot = Snapshot.new().capture(game)
 	var loaded = await Restore.new().restore(self, snapshot)
 	_check(loaded.ok, "Statistics archive restore failed")

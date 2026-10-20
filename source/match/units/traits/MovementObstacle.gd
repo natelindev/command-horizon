@@ -14,6 +14,7 @@ var _synchronized = false
 
 
 func _ready():
+	avoidance_layers |= Constants.Match.Navigation.AVOIDANCE_STATIC
 	if affect_navigation_mesh and not _unit.is_in_group("resource_units"):
 		add_to_group("sight_blockers")
 		var collider = _unit.get_node_or_null("CollisionShape3D")
@@ -41,7 +42,25 @@ func _ready():
 	set_navigation_map(_match.navigation.get_navigation_map_rid_by_domain(domain))
 	_align_unit_position_to_navigation()
 	_affect_navigation_if_needed()
+	if not footprint.is_empty():
+		_setup_polygon_avoidance()
 	_synchronized = true
+
+
+func _setup_polygon_avoidance():
+	# Keep this node's radius for gameplay and baking. Godot reapplies it to
+	# avoidance every physics tick, so the outline needs a separate obstacle
+	# with no circular proxy extending into otherwise walkable ground.
+	var outline = NavigationObstacle3D.new()
+	outline.name = "PolygonAvoidance"
+	outline.radius = 0.0
+	outline.vertices = vertices
+	outline.height = height
+	outline.avoidance_layers = avoidance_layers
+	outline.avoidance_enabled = avoidance_enabled
+	avoidance_enabled = false
+	add_child(outline)
+	outline.set_navigation_map(get_navigation_map())
 
 
 func _exit_tree():
@@ -51,8 +70,12 @@ func _exit_tree():
 
 
 func _align_unit_position_to_navigation():
+	var origin = _unit.global_position
+	if _match.map.is_elevated():
+		# Query from the unit's own tier; from y = 0 a plateau point snaps to the cliff base.
+		origin = _match.map.ground_point(Vector2(origin.x, origin.z))
 	var aligned = (
-		NavigationServer3D.map_get_closest_point(get_navigation_map(), _unit.global_position)
+		NavigationServer3D.map_get_closest_point(get_navigation_map(), origin)
 		- Vector3(0, path_height_offset, 0)
 	)
 	# Reload baking already contains these footprints. Snapping onto their edges

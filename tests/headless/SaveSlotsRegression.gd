@@ -1,6 +1,21 @@
 extends "res://tests/headless/SaveRestoreEdges.gd"
 
 var manager
+var _deadline = 0
+
+
+func _initialize():
+	# Two deliberately stalled navigation loads each wait ten wall-clock seconds.
+	# A simulation timer expires early under accelerated headless execution.
+	_deadline = Time.get_ticks_msec() + 180000
+	_run.call_deferred()
+
+
+func _process(_delta):
+	if Time.get_ticks_msec() >= _deadline:
+		push_error("Save slots regression timed out")
+		quit(1)
+	return false
 
 
 func _run():
@@ -83,14 +98,10 @@ func _run():
 	game._spawn("CommandLab", human, Vector3(28, 0, 8))
 	await _frames(100)
 	_check(manager.slots.describe("auto-2").valid, "Lab checkpoint missing")
-	var repair = _units(human, "RepairRobot")[0]
-	repair.program.configure(
-		load("res://source/match/programs/ProgramLibrary.gd").defaults("hold_service")
-	)
-	repair.program.anchor = repair.position
-	repair.program.run()
+	var tank = _units(human, "Tank")[0]
+	load("res://source/match/orders/UnitBehavior.gd").guard(tank, tank.position)
 	await _frames(100)
-	_check(manager.slots.describe("auto-3").valid, "Program checkpoint missing")
+	_check(manager.slots.describe("auto-3").valid, "Behavior checkpoint missing")
 	game.relay.captured_by = human
 	game.relay._update_presentation()
 	game.relay.captured.emit(human)

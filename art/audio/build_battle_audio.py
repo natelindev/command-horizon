@@ -16,8 +16,9 @@ from importlib.metadata import version
 from pathlib import Path
 
 import numpy as np
-from voice_cast import (ANNOUNCERS, ANNOUNCER_TEXT, CAST, EVENTS, MACHINES, POOL, PROFILES,
-                        ROBOT_CAST, STOP_TEXT, STRUCTURES, WORKER_TASKS, delivery)
+from voice_cast import (ANNOUNCERS, ANNOUNCER_TEXT, CAST, EVENTS, MACHINES, MERCENARY,
+                        MERCENARY_CAST, POOL, PROFILES, ROBOT_CAST, STOP_TEXT, STRUCTURES,
+                        WORKER_TASKS, delivery)
 from verify_voice_cast import validate_cast
 from radio_voice import radio
 from robot_voice import ROBOT_VOICES, robot_voice
@@ -38,7 +39,8 @@ CANDIDATES = 6
 ENERGY_TARGET = -6.
 POOL_F0 = {info['sha256']: info['f0_median_hz'] for info in POOL.values()}
 # Names Whisper cannot know; spelling them out keeps transcription QC honest.
-GLOSSARY = 'Aegis, Nyx, Rook, Bastion, Helix, Kestrel, Ironback, Outrider, Wraith, Lancer, Kite, Mender, Jackal.'
+GLOSSARY = ('Aegis, Nyx, Rook, Bastion, Helix, Kestrel, Ironback, Outrider, Wraith, Lancer, Kite, '
+            'Mender, Jackal, Shrike, Ripsaw.')
 
 
 def clip_source_hash(text, speaker, identity, event, index, faction, provenance):
@@ -166,6 +168,9 @@ def ui_sound(kind):
 def words(text):
     # A spoken "'s" is barely audible and transcribers drop it; it is not a missing word.
     text = re.sub(r"[’']s\b", '', text.lower().replace('-', ' '))
+    # Whisper sometimes joins the homophone "root set" into a non-word. Restore
+    # its boundary; "root" still counts as a mismatch against written "route".
+    text = re.sub(r'\brootset\b', 'root set', text)
     # "'em" is how "them" is spoken in a shout; transcribers write it either way.
     return ['them' if word == 'em' else word for word in re.sub(r'[^a-z0-9 ]', '', text).split()]
 
@@ -173,6 +178,10 @@ def words(text):
 def transcript_error(expected, heard):
     """Word-level mismatch ratio; 0 means every word was heard as written."""
     a, b = words(expected), words(heard)
+    # Compound spacing is not audible: "duststorm" and "dust storm" have exactly
+    # the same letters. This accepts no added, missing or substituted letters.
+    if ''.join(a) == ''.join(b):
+        return 0.
     return 1 - SequenceMatcher(None, a, b).ratio() if a or b else 0.
 
 
@@ -402,7 +411,8 @@ def main():
     checkpoint_path = args.checkpoint
     checkpoint = json.loads(checkpoint_path.read_text()) if checkpoint_path.exists() else {}
     previous.update(checkpoint)
-    catalog = {'factions': {}, 'provenance': {'profiles': PROFILES, 'robot_voices': ROBOT_VOICES}}
+    catalog = {'factions': {}, 'mercenaries': {},
+               'provenance': {'profiles': PROFILES, 'robot_voices': ROBOT_VOICES}}
     audit = []
     rejected = []
 
@@ -511,6 +521,15 @@ def main():
                     lines[event] = [asset(faction, role, event, i, text, identity=identity)
                                     for i in range(2 if event in ['select', 'move', 'attack'] else 1)]
                 entry['units'][role] = lines
+        # Camp mercenaries keep one voice in every army, so they are voiced once.
+        for role, (speaker, texts) in MERCENARY_CAST.items():
+            lines = {}
+            for event, text in zip(EVENTS, texts):
+                variants = lines.setdefault(event, [])
+                variants.append(asset(MERCENARY, role, event, len(variants), text, speaker))
+            lines['stop'] = [asset(MERCENARY, role, 'stop', 0, STOP_TEXT[MERCENARY], speaker)]
+            catalog['mercenaries'][role] = lines
+            print(f'{MERCENARY}/{role} voiced', flush=True)
         if shard:
             print(f'Shard rendered; checkpoint {checkpoint_path}', flush=True)
             if rejected:

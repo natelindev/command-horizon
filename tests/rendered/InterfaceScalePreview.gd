@@ -149,24 +149,6 @@ func _battle_scale(faction, factor):
 		"Scaled subtitles cover commands"
 	)
 	await _shot("interface-battle-%s-%d-720p" % [faction, roundi(factor * 100)])
-	game.hud.open_visual_editor([tank], "user://interface-scale-library.json")
-	await _frames(8)
-	var editor = game.hud.program_editor
-	_check(is_instance_valid(editor), "Visual editor did not open")
-	if is_instance_valid(editor):
-		_inside(editor._actions, "Editor actions")
-		_inside(editor._cards, "Visual cards")
-		if factor == 1.5:
-			await _shot("interface-editor-%s-150-720p" % faction)
-		editor.close_editor()
-	await _frames(5)
-	game.hud.open_lua_editor([tank], "user://interface-scale-library.json")
-	await _frames(6)
-	editor = game.hud.program_editor
-	_inside(editor._actions, "Lua editor actions")
-	_inside(editor._source, "Lua source")
-	editor.close_editor()
-	await _frames(5)
 	await manager_dialog_check()
 	await _frames(5)
 	var dialog = root.get_node("SaveManager").dialog
@@ -176,7 +158,7 @@ func _battle_scale(faction, factor):
 				_inside(control, "Archive action")
 		await _key(KEY_ESCAPE)
 		_check(not is_instance_valid(root.get_node("SaveManager").dialog), "Archive did not close")
-	print("PASS: ", faction, " ", factor, " battle panels, map target, alerts, editor, archive")
+	print("PASS: ", faction, " ", factor, " battle panels, map target, alerts, archive")
 
 
 func manager_dialog_check():

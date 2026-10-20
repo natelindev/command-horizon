@@ -8,17 +8,63 @@
  - Fighters and bombers taxi, take off from the runway, bank to turn, orbit, land on a glide slope and rearm on their stand; parked jets can be destroyed on the ground
  - Rocket infantry fire guided missiles at aircraft, and every faction gains a tank-class anti-air vehicle
  - The airfield is now a rotatable runway with four jet stands and two helipads; helicopters and drones rearm and repair on the helipads
- - Skirmish AI builds anti-air against observed aircraft and uses each aircraft for its role; air-defense advice recommends mobile anti-air
+ - Skirmish AI builds anti-air against observed aircraft and uses each aircraft for its role
  - Frontier aircraft are weaker (70% health, 80% damage, no speed bonus); Frontier infantry are tougher and hit harder (110% health, 115% damage)
- - Save format 15 stores rounds in flight and flight state; older saves are not supported
+ - Save format 16 stores rounds in flight and flight state; retained playtest archives were converted
+
+### Added
+ - Sixteen rebuilt skirmish battlefields, each a recognisable real place with its own signature: Redrock Divide, Saltwind Basin, Desert Frontier, Pinebreak Valley, Glacier Narrows, Alpine Relay, Emberworks and Coastal Foundry for two players; Copper Badlands, Shattered Oasis, Four Rivers, Verdant Commons, Frostbound Crown, Railspire Junction, Sunken Exchange and Cinder Ring for four
+ - Real elevation on battlefields: raised tiers and sunken gorges, canals and quays joined by ramps, with high ground that blocks sight and fire from below unless spotted
+ - Forests that hide units, fords, bridges, flooded quays and lava; capture relays and garrisonable buildings on the maps that use them
+ - A new neutral oil refinery model with a working pump
+ - Skirmish commanders expand to authored expansion sites and vary their attack routes across each map's crossings
+ - Scanned CC0 ground layers (grass, rock, sand, dirt, asphalt, snow, concrete) on every battlefield, backdrop and campaign theater, blended around each map's authored colors, roads and biome features
+ - Baked crevice shading, chipped edges and lower-hull dust on all Bastion, Helix and Frontier models, including team trim and construction sites
+ - Ground decals: oil stains, skid marks, cracks and repairs along roads, plus tracks, scuffs and debris across open ground; identical after loading a save
+ - Ground detail graphics setting to turn scanned ground and decals off for faster rendering
+
+### Changed
+ - Plain & Simple and Big Arena use a temperate battlefield instead of the legacy flat salmon ground
+ - Broken Foundry and Command Horizon enemy posts use the native Guard behavior; posted repair robots service damaged allies within 8 m, and foundry tanks keep their previous assembly time
+ - Lab research and Coordination unlock when a vehicle factory and lab have both been completed, as before, without any program terminology
+ - Battle debriefs no longer list program milestones. Campaign briefings, the First Orders badge objective, the Frontier Outrider description, difficulty and weapon-mode text no longer mention presets, programs or retrofits
+ - Retained playtest archives were converted to snapshot version 15, then 16 with the air combat redesign
+ - Command Horizon saves must include their opposition state
+ - The skirmish picker offers only the rebuilt battlefields; a saved choice of a retired map opens its successor
+ - Larger, richer resource fields: home fields sit beside the HQ, and rich fields hold half again an expansion's stock on exposed ground
+ - Bases are farther apart along real paths (about 75–110 seconds for a basic tank), with naturals within 25 seconds
+
+### Removed
+ - The Lua script engine: the native `rts_lua` extension, sandbox, Lua runtime and actions, Lua/visual-rule editors, LLM program assistant and the program test arena
+ - The programmable-unit system: unit programs and presets, specialist programs, chips and retrofit installation, factory program pins, squads, program panels and badges
+ - Battle-save backward compatibility: saves now use the current snapshot version only, and saves from other versions are rejected instead of migrated
+ - The Air Corridor operation, which no campaign order reached any more, with its map, HUD, rescue VTOL, voice lines and narration; earlier progress that recorded it still counts toward Cinder Ford
+ - The skirmish battle-plan advisor and its hidden settings option, retired from the HUD in 0.12.0
+ - Single-narrator campaign lines replaced by recorded dialogue, and remaining old-save handling for heroes, conversations, facility counts and mercenary contracts
 
 ### Fixed
- - Skirmish AI hires camp mercenaries again (it requested rocket infantry, which camps no longer sell) and counts fielded mercenaries against its army cap
+ - A restored order whose target no longer exists no longer shows as the unit's current order while paused
+ - The skirmish AI now actually hires mercenaries at captured camps; it previously requested a unit camps do not sell
+ - `build_catalog.py` reproduces the shipped translation catalog again; strings that existed only in `ui.csv` moved to `art/localization/interface.tsv`
+ - Infantry could not capture relays or neutral facilities standing on raised ground
+ - Hired mercenaries could not leave a camp standing on raised ground
+ - The skirmish AI counts mercenaries already in the field against its army cap
  - Hover cards for resources and units appear again; the full-screen command-feedback layer no longer counts as an occupied HUD panel
  - Campaign district buildings keep clear of the authored resident, fox and car loops
  - Save → load → save keeps action timers identical, including timers that are due on the saved tick
  - Fighters, bombers, anti-air vehicles and camp mercenaries speak instead of staying silent
- - Expanded Desert Frontier map preview shows the current resource fields
+ - Skirmish commanders fund their army before optional facilities and rebalance workers when their army reaches its cap
+ - Ground units finish settling after a teleport or restored elevation instead of becoming stuck above their route
+ - Aircraft saves preserve weapon cooldowns, partial rearming and bomb releases; rounds keep flying after their target is destroyed
+ - Dragging a jet's move destination preserves the next queued order
+ - Hero campaign operations play ambience matching their environment
+ - Objectives stay below the resource bars when full visibility shows multiple players
+ - New aircraft and mobile anti-air models include the same baked weathering as the rest of their faction
+ - Paid jet orders retain their stands across saves; returning jets respect those reservations and can move to another airfield when theirs is destroyed
+ - Fighters and bombers receive stand repairs after returning, and grounded aircraft obey terrain and forest concealment
+ - Ground units can approach the runway's actual outline without being stopped by an extra circular avoidance obstacle
+ - Glacier's boathouses no longer obstruct two electronics deposits
+ - Crowded ground units choose usable escape space instead of repeatedly taking a nearly blocked side step
 
 ## [0.14.1]
 

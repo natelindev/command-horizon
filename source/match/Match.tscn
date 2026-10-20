@@ -371,32 +371,36 @@ stretch_mode = 5
 offset_right = 40.0
 offset_bottom = 11.0
 
-[node name="Resources" type="VBoxContainer" parent="HUD/MarginContainer2"]
+[node name="Resources" type="ScrollContainer" parent="HUD/MarginContainer2"]
 layout_mode = 2
 script = ExtResource("16_vjwpn")
 
-[node name="ResourcesBar" parent="HUD/MarginContainer2/Resources" instance=ExtResource("12_r13sk")]
+[node name="Bars" type="VBoxContainer" parent="HUD/MarginContainer2/Resources"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ResourcesBar" parent="HUD/MarginContainer2/Resources/Bars" instance=ExtResource("12_r13sk")]
 layout_mode = 2
 
-[node name="ResourcesBar2" parent="HUD/MarginContainer2/Resources" instance=ExtResource("12_r13sk")]
+[node name="ResourcesBar2" parent="HUD/MarginContainer2/Resources/Bars" instance=ExtResource("12_r13sk")]
 layout_mode = 2
 
-[node name="ResourcesBar3" parent="HUD/MarginContainer2/Resources" instance=ExtResource("12_r13sk")]
+[node name="ResourcesBar3" parent="HUD/MarginContainer2/Resources/Bars" instance=ExtResource("12_r13sk")]
 layout_mode = 2
 
-[node name="ResourcesBar4" parent="HUD/MarginContainer2/Resources" instance=ExtResource("12_r13sk")]
+[node name="ResourcesBar4" parent="HUD/MarginContainer2/Resources/Bars" instance=ExtResource("12_r13sk")]
 layout_mode = 2
 
-[node name="ResourcesBar5" parent="HUD/MarginContainer2/Resources" instance=ExtResource("12_r13sk")]
+[node name="ResourcesBar5" parent="HUD/MarginContainer2/Resources/Bars" instance=ExtResource("12_r13sk")]
 layout_mode = 2
 
-[node name="ResourcesBar6" parent="HUD/MarginContainer2/Resources" instance=ExtResource("12_r13sk")]
+[node name="ResourcesBar6" parent="HUD/MarginContainer2/Resources/Bars" instance=ExtResource("12_r13sk")]
 layout_mode = 2
 
-[node name="ResourcesBar7" parent="HUD/MarginContainer2/Resources" instance=ExtResource("12_r13sk")]
+[node name="ResourcesBar7" parent="HUD/MarginContainer2/Resources/Bars" instance=ExtResource("12_r13sk")]
 layout_mode = 2
 
-[node name="ResourcesBar8" parent="HUD/MarginContainer2/Resources" instance=ExtResource("12_r13sk")]
+[node name="ResourcesBar8" parent="HUD/MarginContainer2/Resources/Bars" instance=ExtResource("12_r13sk")]
 layout_mode = 2
 
 [node name="MarginContainer3" type="MarginContainer" parent="HUD"]

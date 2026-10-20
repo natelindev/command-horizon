@@ -14,6 +14,7 @@ func _run():
 	for faction in ["bastion", "helix", "frontier"]:
 		for difficulty in 3:
 			await _battle(faction, difficulty)
+	DirAccess.make_dir_recursive_absolute("res://tmp/hero-campaign")
 	var file = FileAccess.open("res://tmp/hero-campaign/active-ai-results.json", FileAccess.WRITE)
 	file.store_string(JSON.stringify(_results, "  "))
 	for error in errors:

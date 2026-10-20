@@ -65,10 +65,8 @@ func step(game):
 func _dispatch(game, unit, index):
 	var point = game.map.relays[index].position
 	if unit.type == "RepairRobot":
-		var config = load("res://source/match/programs/ProgramLibrary.gd").defaults("hold_service")
-		unit.program.configure(config)
-		unit.program.anchor = point - Vector3(2, 0, 0)
-		unit.program.run()
+		# Hold beside the relay; a stationary robot services nearby allies.
+		load("res://source/match/orders/UnitBehavior.gd").guard(unit, point - Vector3(2, 0, 0))
 	else:
 		unit.issue_manual_order(
 			load("res://source/match/units/actions/AttackMoving.gd").new(point - Vector3(1.5, 0, 0))

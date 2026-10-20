@@ -38,7 +38,3 @@ func _command():
 
 func _protected_from_command(unit):
 	return unit in armor_protected or super(unit)
-
-
-func _retrofit_candidates():
-	return super().filter(func(unit): return unit not in armor_protected)

@@ -1,4 +1,5 @@
 shader_type spatial;
+#include "res://source/shaders/3d/terrain_layers.gdshaderinc"
 uniform vec4 low : source_color;
 uniform vec4 high : source_color;
 uniform vec4 road : source_color;
@@ -30,14 +31,18 @@ void fragment()
   float macro = noise(p * .075) * .65 + noise(p * .23) * .35;
   float grain = noise(p * 3.8);
   vec3 color = mix(low.rgb, high.rgb, macro);
+  // Bright patches carry the biome's accent layer unless a surface defines its own.
+  float accent = smoothstep(.55, .8, macro);
   if (surface == 1)
   {
     float crust = smoothstep(.46, .51, noise(p * .7));
     color = mix(color * .85, high.rgb, crust * .65);
+    accent = crust;
   }
   else if (surface == 2)
   {
-    color = mix(color, high.rgb, smoothstep(.48, .7, macro) * .7);
+    accent = smoothstep(.48, .7, macro);
+    color = mix(color, high.rgb, accent * .7);
   }
   else if (surface == 3)
   {
@@ -66,6 +71,10 @@ void fragment()
   color = mix(color, road.rgb * (.92 + macro * .16), lane * .72);
   float tracks = 1.0 - smoothstep(.08, .2, abs(distance_to_road - 1.1));
   color *= 1.0 - tracks * .08;
-  ALBEDO = color + (grain - .5) * .025;
-  ROUGHNESS = .94;
+  TerrainSurface ground =
+      terrain_surface(p, color + (grain - .5) * .025, max(lane, tracks * .6), accent, .94);
+  ALBEDO = ground.albedo;
+  ROUGHNESS = ground.roughness;
+  AO = ground.occlusion;
+  NORMAL = terrain_normal(ground, NORMAL, VIEW_MATRIX, INV_VIEW_MATRIX);
 }

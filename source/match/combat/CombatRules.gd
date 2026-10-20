@@ -54,7 +54,7 @@ static func armor_for(role):
 		return 2
 	if (
 		InfantryRoster.is_aircraft(role)
-		or (role in ["EvacTransport", "SupplyTruck", "Worker", "RepairRobot", "CombatRobot"])
+		or role in ["SupplyTruck", "Worker", "RepairRobot", "CombatRobot"]
 	):
 		return 1
 	return 3
@@ -79,6 +79,9 @@ static func can_receive(source, target):
 		is_instance_valid(target)
 		and not target.is_queued_for_deletion()
 		and not target.has_meta("garrison_host")
+		# Capturable sites expose HP/ownership for vision but cannot take damage.
+		and target.has_method("combat_domain")
+		and target.has_method("receive_shot")
 		and (not "interactive" in target or target.interactive)
 		and "hp" in target
 		and target.hp != null

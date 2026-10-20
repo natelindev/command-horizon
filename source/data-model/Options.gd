@@ -27,13 +27,13 @@ const DEFAULTS = {
 	"graphics_fog": true,
 	"graphics_dof": false,
 	"graphics_msaa": 1,
+	"graphics_ground_detail": true,
 	"time_of_day": 0,
 	"day_cycle": true,
 	"weather": 0,
 	"weather_particles": true,
 	"living_world": true,
-	"menu_motion": true,
-	"show_battle_plan": true
+	"menu_motion": true
 }
 @export var screen: Screen = Screen.FULL
 @export var mouse_restricted = false
@@ -58,13 +58,13 @@ const DEFAULTS = {
 @export var graphics_fog = true
 @export var graphics_dof = false
 @export var graphics_msaa = 1
+@export var graphics_ground_detail = true
 @export var time_of_day = 0
 @export var day_cycle = true
 @export var weather = 0
 @export var weather_particles = true
 @export var living_world = true
 @export var menu_motion = true
-@export var show_battle_plan = true
 var _display_target = DisplayServer.WINDOW_MODE_WINDOWED
 var _display_until = 0
 var _display_next = 0

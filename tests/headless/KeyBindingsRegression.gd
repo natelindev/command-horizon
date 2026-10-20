@@ -171,7 +171,18 @@ func _queue_shortcuts():
 		click.pressed = true
 		click.shift_pressed = true
 		game.hud._unhandled_input(click)
-	_check(tank.manual_orders.pending.size() == 2, "Shift+F replaced queued attack orders")
+	var orders = tank.manual_orders
+	# An idle queue starts its first order immediately, even between physics ticks.
+	_check(
+		(
+			orders.current.get("kind") == "attack_move"
+			and orders.current.point.distance_to(Vector3(31, 0, 30)) < 0.1
+			and orders.pending.size() == 1
+			and orders.pending[0].kind == "attack_move"
+			and orders.pending[0].point.distance_to(Vector3(35, 0, 30)) < 0.1
+		),
+		"Shift+F replaced queued attack orders"
+	)
 	await _up(KEY_SHIFT)
 	tank.manual_orders.cancel()
 	_bind("pause_battle", KEY_F | KEY_MASK_SHIFT)

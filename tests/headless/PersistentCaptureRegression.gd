@@ -8,7 +8,7 @@ func _run():
 	Manual = load("res://source/match/orders/ManualOrders.gd")
 	root.get_node("SaveManager").autosaves_enabled = false
 	path = "user://persistent-capture-%d.json" % OS.get_process_id()
-	await _create("ExpandedDesertFrontier")
+	await _create("battlefields/EmberworksMap")
 	game.settings.visibility = game.settings.Visibility.FULL
 	var building = _building()
 	var human = game._get_human_player()
@@ -47,7 +47,7 @@ func _run():
 		building.player == enemy and building.occupants.is_empty(), "Death cleanup erased ownership"
 	)
 	await _archive_owned_building(building)
-	await _legacy_ownership()
+	await _retired_snapshot_rejected()
 	await _close()
 	for message in errors:
 		push_error(message)
@@ -121,40 +121,14 @@ func _archive_owned_building(building):
 	paused = false
 
 
-func _legacy_ownership():
-	# Older saves had no independent owner: occupied buildings inherit their
-	# infantry's side; empty buildings remain neutral because no owner was stored.
-	for version in [12, 11]:
-		var building = _building()
-		if version == 11:
-			await _enter_building(building, game._get_human_player())
-		paused = true
-		var data = Snapshot.new().capture(game)
-		data.snapshot_version = version
-		data.erase("rounds")
-		for legacy_unit in data.units:
-			legacy_unit.projectiles = []
-			legacy_unit.erase("air")
-		for stance_unit in data.units:
-			stance_unit.erase("stance")
-		for record in data.neutral_buildings:
-			record.erase("owner")
-		if version == 11:
-			for unit in data.units:
-				for job in unit.production.get("jobs", []):
-					job.erase("departure_endpoint")
-		var result = await Restore.new().restore(self, data)
-		_check(result.ok, "Legacy garrison restore failed: " + result.get("error", ""))
-		if result.ok:
-			game = result.game
-			building = _building()
-			_check(
-				building.player == (game._get_human_player() if version == 11 else null),
-				"Legacy ownership migration failed"
-			)
-			for side in get_nodes_in_group("players"):
-				side.set_process(false)
-		paused = false
+func _retired_snapshot_rejected():
+	# Only the current snapshot version restores; a retired version must not load.
+	paused = true
+	var data = Snapshot.new().capture(game)
+	data.snapshot_version = Snapshot.VERSION - 1
+	var result = await Restore.new().restore(self, data)
+	_check(not result.ok, "Retired snapshot version restored")
+	paused = false
 
 
 func _building():

@@ -380,3 +380,65 @@ Headless command:
   Frontier Barracks infantry including the hero: 110% health, 115% damage,
   +20% speed kept. `FactionRules.health_factor(faction, role)` feeds both spawn
   stats and save validation. Covered by `FrontierCombatRegression`.
+- 2026-10-20 (resumed integration): recovered Claude session
+  `b6e67fd0-0817-47f3-9949-898a5990ee8e` after its API failure. The user
+  authorized completing verification and merging all work into `main`.
+  Commit `94ce9a9d` contains the air redesign; the pending merge integrates
+  `main` at `26ebdcd9`, including the rebuilt maps and retired programmable
+  units/Air Corridor systems. Resolved source conflicts and 810 converted
+  archives are being verified against snapshot format 16.
+- Remaining stages for this continuation:
+  1. Validate converted archives and merged source; recover AI difficulty and
+     unique-voice work from the interrupted agents.
+  2. Run the current regression suite in an isolated copy, investigate failures
+     against `main`, and finish projectile/aircraft rendered checks and the
+     available-platform performance check.
+  3. Record verification results and explicit platform/balance limitations,
+     commit the verified integration, and fast-forward the clean `main`
+     checkout. Release smoke checks now include physical projectiles,
+     fixed-wing flight/saves and Frontier role balance.
+- 2026-10-20 (headless acceptance): all nine difficulty cases and all nine live
+  AI matches pass. All-faction rocket/mobile AA, helicopter rearm/resume and
+  drone dives pass. The 24 controlled role matchups are recorded in
+  `docs/playtests/2026-10-20/air-role-matchups.json`; they measure one carried
+  load and do not establish whole-match faction balance.
+- All 810 supported version-16 archives validate, with IDs and envelope
+  checksums verified. Eight unchanged historical Air Corridor version-9
+  artifacts are documented as unsupported. Save fixes preserve cooldowns,
+  partial rearm, committed bomb sticks and targetless rounds; bounded
+  off-map fixed-wing turns remain savable.
+- Resumed verification found and fixed ground-height settling, capture-relay
+  projectile handling, dragged aircraft order queues, missing HeroTheater
+  ambience, and objective/resource-bar overlap. Older test assumptions about
+  removed campaigns, deferred menus, immediate order starts and simulation
+  timing are being updated against unchanged-main evidence.
+- The user has now requested **headless runs only**. No more rendered previews
+  or game launches will be performed. Earlier all-faction flight/projectile
+  reviews completed; final Metal shader recompilation, rendered performance
+  comparison and Windows/Linux verification remain outside this acceptance.
+- New air models are regenerated through faction build entrypoints with the
+  shared weathering bake. Expanded texture checks and model geometry
+  verification pass. The final audio audit passes all 462 speech clips and 54
+  speakers, with all 663 existing audio hashes preserved.
+- Paid stand capacity, queued/mixed save restoration, airfield destruction,
+  reassignment, landing, rearming and repairs pass for all three factions.
+  Fighter/Bomber scene properties now correctly initialize AIR movement.
+  Polygon avoidance follows the runway outline; the original repair and
+  navigation regressions pass.
+- All 24 registered maps pass resource balance with unchanged distance and
+  stock tolerances. Authored field identity and terrain-height sampling replace
+  stale flat-map assumptions; Glacier's obstructing boathouses are moved, with
+  real-worker harvesting covered by a new regression.
+- Grounded aircraft sight/fog now respect terrain, including takeoff/landing
+  cache invalidation. The eight-player resource stack scrolls within the HUD;
+  all 62 layout states pass headlessly.
+- The broad run covered 236 regression entrypoints; all 39 initial nonzero
+  results were subsequently verified clean. Final acceptance covered 36
+  targeted checks, and the complete nine-case difficulty rerun has no script
+  errors. A late crowded-movement failure led to a controlled reproduction
+  and a minimal escape-choice fix; the new regression and five related
+  movement checks pass without weakening the original arrival thresholds.
+- Implementation and available verification are complete. The integration is
+  ready for the authorized commit and fast-forward of local `main`; detailed
+  results and remaining rendered/platform limits are recorded in
+  `docs/playtests/2026-10-20/AIR_COMBAT.md`.

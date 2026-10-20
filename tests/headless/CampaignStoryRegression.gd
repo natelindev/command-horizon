@@ -177,12 +177,6 @@ func _restore_rules(story):
 	story.restore(state)
 	_check(story.snapshot() == state, "Story save changed heard-cue history")
 	_check(not story.cue("first_orders.lab"), "Restore replayed heard milestone")
-	story.seen.clear()
-	story.restore({})
-	_check(
-		"first_orders.intro" in story.seen and "first_orders.lab" in story.seen,
-		"Legacy restore replayed past briefing"
-	)
 
 
 func _disk_restore():

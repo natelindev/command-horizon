@@ -34,15 +34,13 @@ func _run():
 		_hold_players()
 		await _tiles(faction)
 		if faction == "bastion":
-			await _battle_plan(options)
 			await _queue_and_overview()
 		paused = false
 		game.queue_free()
 		await _frames(5)
-	await _plan_preference_survives(options)
 	options.restore(original)
 	TranslationServer.set_locale(options.language)
-	_check(_sections == 8, "Only %d of 8 sections completed" % _sections)
+	_check(_sections == 6, "Only %d of 6 sections completed" % _sections)
 	for message in errors:
 		push_error(message)
 	print("Battle HUD production: %d failures over %d sections" % [errors.size(), _sections])
@@ -123,23 +121,6 @@ func _tiles(faction):
 					"%s: %s portrait is squeezed" % [label, entry.type]
 				)
 	TranslationServer.set_locale("en")
-	_sections += 1
-
-
-func _battle_plan(_options):
-	_check(game.hud.battle_plan == null, "Battle plan remains in skirmish")
-	_sections += 1
-
-
-func _plan_preference_survives(options):
-	# A legacy preference must not bring the retired panel back.
-	options.show_battle_plan = true
-	await _skirmish("helix", MAP)
-	_hold_players()
-	_check(game.hud.battle_plan == null, "Legacy preference restored the Battle plan")
-	paused = false
-	game.queue_free()
-	await _frames(5)
 	_sections += 1
 
 
@@ -282,7 +263,6 @@ func _check_layout(overview):
 		game.find_child("Minimap"),
 		game.find_child("UnitMenus"),
 		game.hud.get_child(0),
-		game.hud.battle_plan,
 	]:
 		if is_instance_valid(other) and other.is_visible_in_tree():
 			_check(

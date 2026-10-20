@@ -8,35 +8,14 @@ Enemy owned	敌方控制
 Unclaimed	无人控制
 Base under attack	基地遭到攻击
 Units under attack	部队遭到攻击
-Custom preset	自定义预设
-Custom Lua	自定义 Lua
 %s · %d M / %d E	%s · %d 材料 / %d 电子元件
 %s: %s	%s：%s
 %s · v%d	%s · 版本 %d
-Hold position	坚守位置
-Guard & regroup	警戒与集结
-Repair area	区域维修
 Active	进行中
 Hold the queue key and right-click to queue orders.	按住队列键并右键点击，追加指令。
 Battlefield minimap. 	战场小地图。
-Squad name	小队名称
-Create squad	创建小队
-Rename	重命名
 Select	选择
-Add selected	加入所选单位
 Leave	离开
-Disband	解散
-Spread fire	分散火力
-Focus fire	集中火力
-Independent	独立作战
-Squad created. Current programs and orders are unchanged.	小队已创建，现有程序与指令保持不变。
-Selected units joined this squad.	所选单位已加入小队。
-Choose squad…	选择小队…
-Only running programs share targets, within their own legal assignments. Spread reduces duplicate shots; Focus favors a squadmate's target. Repair robots spread service targets. Independent disables sharing.	仅运行中的程序会在任务允许范围内共享目标。分散火力可减少重复射击；集中火力优先攻击队友的目标。维修机器人会分配不同维修对象，独立作战则关闭共享。
-24 members max	最多 24 名成员
-Squads: research Coordination	小队：需研究协同科技
-%d / 24 members · %d program-ready	%d / 24 名成员 · %d 个程序就绪
-Unchipped members accept manual group orders. Select the squad to apply a program explicitly.	未安装芯片的成员仍可接受手动编队指令。选择小队后可为其应用程序。
  · rebuild lab	 · 重建实验室
 %s is paused until a friendly lab completes. The project is already paid for. Open Tech to review it or cancel for a refund.	%s 已暂停，等待我方实验室完工。该项目已付款，可打开科技界面查看或取消退款。
  · paused	 · 已暂停
@@ -48,25 +27,6 @@ Unchipped members accept manual group orders. Select the squad to apply a progra
 Coordination · 20 M / 20 E	协同科技 · 20 材料 / 20 电子元件
 Research available · %d choice%s	可研究项目 · %d 项%s
 Open Tech to choose research. Each project is paid separately.\n\n	打开科技界面选择研究，各项目分别付费。\n\n
-Battle plan  ▾	作战计划  ▾
-Select units with blocked programs or program errors. Review their program status, then reassign or Resume. Selection keeps their orders and does not restart programs.	选择程序受阻或出错的单位。查看状态后重新指派或恢复运行。选择不会改变指令，也不会重新启动程序。
-Select combat and support units below 50% health. Selection keeps their orders. Use Recover health for a manual retreat, or review their program safe points.	选择生命值低于 50% 的战斗与支援单位，保留其现有指令。可用“恢复生命”手动撤退，或检查程序中的安全点。
-Program issues · %d	程序问题 · %d
-Repair support. 	维修支援。
-Idle engineers · %d	空闲工程师 · %d
-Select engineers waiting for an assignment.	选择等待任务的工程师。
-Engineers at risk · %d	危险中的工程师 · %d
-Select engineers near visible threats or recently hit by enemy fire. Move them behind your defenses. Selection keeps their current orders.	选择靠近可见威胁或近期遭到攻击的工程师，将其转移到防线后方。选择不会改变现有指令。
-Army · %d	部队 · %d
-Low health · %d	低生命值 · %d
-Battle plan  ▸	作战计划  ▸
-Refresh library	刷新程序库
-New units: Hold · built-in	新单位：坚守 · 内置
-New units: %s · v%d%s	新单位：%s · 版本 %d%s
-Missing: %s · v%d	缺失：%s · 版本 %d
-Exact version applies to new jobs. Rally orders keep manual control; unsupported roles use Hold. Choose map assignments per unit.	所选版本用于新生产任务。集结指令保留手动控制；不支持的单位类型使用坚守。地图任务按单位设置。
-Saved version unavailable. New jobs receive Hold until you choose another version.	已保存版本不可用，选择其他版本前，新生产单位将使用坚守。
-Factory updated. Existing units and queued jobs keep their current program.	工厂设置已更新，现有单位与队列任务保留当前程序。
 Maneuver burst · %d unit%s · 6 seconds of faster movement.	机动突进 · %d 个单位%s · 提升移动速度，持续 6 秒。
 Precision window · %d unit%s · one faster preparation each.	精确窗口 · %d 个单位%s · 各自获得一次加速蓄力。
 %d ready · up to 6	%d 个就绪 · 最多 6 个
@@ -74,17 +34,15 @@ Research Coordination	研究协同科技
 Recharging · %.1f s	冷却中 · %.1f 秒
 Anchor assigned · %d	已指派锚定 · %d
 Needs a ready precision shot	需要已就绪的精确武器
-Closest six ready chipped ground combatants. Hold still for 2 s inside a 6 m sector 	最近的六个已安装芯片且就绪的地面战斗单位，在 6 米区域内静止 2 秒，
 for %d%% damage reduction. Moving breaks Anchor. 10 s cooldown. Orders continue.	获得 %d%% 伤害减免。移动会解除锚定，冷却 10 秒，现有指令继续。
 Up to six ready precision weapons with a visible legal target. 	最多六个就绪且拥有可见有效目标的精确武器。
 Their first preparation is %d%% faster within 2 s. 8 s cooldown. 	2 秒内首次蓄力速度提升 %d%%，冷却 8 秒。
 Damage and reload do not change.	伤害与装填速度不变。
-Up to six ready chipped ground combatants gain +%d%% movement speed for 6 s. 25 s cooldown. Orders continue.	最多六个已安装芯片且就绪的地面战斗单位获得 +%d%% 移速，持续 6 秒。冷却 25 秒，现有指令继续。
 Precision	精确模式
 Interception	拦截模式
 Ground targets · anti-armor lance · 12 m\n30 vs heavy armor · 0.75 s charge · weak vs infantry	地面目标 · 反装甲光矛 · 射程 12 米\n对重甲伤害 30 · 蓄力 0.75 秒 · 对步兵较弱
 Air targets only · 8 m	仅限空中目标 · 射程 8 米
-\nTwo seconds without firing to switch. Movement and programs continue.	\n切换需停火 2 秒，移动和程序继续运行。
+\nTwo seconds without firing to switch. Movement and orders continue.	\n切换需停火 2 秒，移动和指令继续执行。
 %d switching	%d 个正在切换
 %d Lancer%s	%d 个枪骑兵%s
 Move	移动
@@ -131,14 +89,12 @@ Electronics · %d E	电子元件 · %d
 %d s construction with one engineer; travel extra.	单名工程师施工需 %d 秒，行进时间另计。
 %d s production%s; queue wait extra.	生产需 %d 秒%s，排队时间另计。
  at low power	（电力不足）
-Includes basic chip (+%d E / +%d s base time).	包含基础芯片（+%d 电子元件 / +%d 秒基础时间）。
 Requires 	需要：
 Research Coordination at your lab.\n20 M / 20 E · 30 s at full power.	在实验室研究协同科技。\n20 材料 / 20 电子元件 · 满电力时 30 秒。
 Short: %d M / %d E	还缺：%d 材料 / %d 电子元件
 Structure limit reached (%d).	已达建筑上限（%d）。
 Unit limit reached (%d, including paid queues).	已达单位上限（%d，包含已付款队列）。
 Queue full (%d jobs).	队列已满（%d 个任务）。
- · basic chip fitted	 · 已安装基础芯片
  — click to cancel and refund	 — 点击取消并退款
 Battle alerts · inspect events and affected units without changing orders.	战斗警报 · 查看事件与受影响单位，不改变指令。
 BATTLE ALERTS	战斗警报
@@ -171,7 +127,6 @@ Side %d	阵营 %d
 MATERIALS	材料
 Recover industrial stock and armor salvage with workers. Used for construction and units.	派工程师回收工业储备与装甲残骸，用于建筑和单位生产。
 ELECTRONICS	电子元件
-Recover circuitry with workers. Used for advanced units, chips and research.	派工程师回收电路，用于高级单位、芯片与研究。
 UNITS	单位
 Active units / unit limit. Units in production also reserve capacity.	现有单位 / 单位上限，生产中的单位同样占用名额。
 %d engineer%s	%d 名工程师%s
@@ -184,13 +139,11 @@ No generation · build a power plant	没有供电 · 请建造发电站
 At capacity · build more power	供电已满负荷 · 请增加发电站
 %d available · build power soon	剩余 %d · 请尽快增加供电
 %d power available	剩余电力 %d
-Power meter: demand / supply. Only completed structures supply or consume power. Low power runs production, chip installation, research and depot repair at 35% speed. 	电力表：需求 / 供给。只有已完工建筑供电或耗电。电力不足时，生产、芯片安装、研究和维修站速度降至 35%。
 Queued units reserve population. Structures: %d / 40 (includes foundations).	队列单位预占人口。建筑：%d / 40（包含地基）。
 Research Coordination · 20 M / 20 E	研究协同科技 · 20 材料 / 20 电子元件
 Cancel & refund	取消并退款
 UNIT UPGRADES	单位升级
 Research	研究
-Coordination unlocks long-range armor, squad programs and %s. One research project at a time.	协同科技解锁远程装甲、小队程序与%s。同时只能进行一项研究。
 Requires a completed factory and lab. 30 s at full power; low power gives 35% research speed.	需要已完工的工厂和实验室。满电力时需 30 秒，电力不足时研究速度为 35%。
  · complete	 · 已完成
 Research · %d M / %d E · %d s	研究 · %d 材料 / %d 电子元件 · %d 秒
@@ -213,22 +166,7 @@ Campaign	战役
 Skirmish setup	遭遇战设置
 Skirmish	遭遇战
 Choose an Anchor sector (6 m). Units keep their orders. %s / right-click cancels.	选择锚定区域（6 米），单位保留现有指令。按 %s 或右键取消。
-Click a guard point. %s / right-click cancels.	点击警戒点。按 %s 或右键取消。
-Click a safe point for retreat. %s / right-click cancels.	点击撤退安全点。按 %s 或右键取消。
-Click a friendly unit to escort. %s / right-click cancels.	点击需要护送的友方单位。按 %s 或右键取消。
-Click the first patrol waypoint. %s / right-click cancels.	点击第一个巡逻点。按 %s 或右键取消。
-Click your HQ or service building to fit chips (%d E each).	点击我方总部或支援建筑安装芯片（每枚 %d 电子元件）。
-First waypoint is blocked by your building. Choose it again.	第一个路径点被我方建筑阻挡，请重新选择。
-Choose open ground or a completed repair facility for these units.	请为这些单位选择空地或已完工的维修设施。
-Choose a point outside your buildings for ground units.	请为地面单位选择建筑外的位置。
 Anchor assigned · %d units. Hold still inside the sector for 2 s.	已指派锚定 · %d 个单位。需在区域内静止 2 秒。
-Choose a friendly unit.	请选择友方单位。
-Choose an ally outside the selected escort group.	请选择护送小队以外的友方单位。
-Choose a completed friendly HQ or service building.	请选择已完工的友方总部或支援建筑。
-Need %d electronics for %d chips.	需要 %d 电子元件以安装 %d 枚芯片。
-Click the second patrol waypoint.	点击第二个巡逻点。
-Installation ordered.	已下达安装指令。
-Assignment set. Resume your program, or apply a preset draft.	任务已设置，可恢复程序或应用预设草稿。
 Choose destination…	选择目的地…
 Drag: select · Hold %s: add selection / queue orders\nRight-click: contextual order\n%s: move · %s: attack target · %s: attack move; then click\n%s: tactical pause · Wheel: zoom\n%s / %s / %s / %s: pan · %s / %s: rotate\n%s: assign group 1 · %s: select group 1\nAll group bindings: Settings → Controls	拖拽：选择 · 按住 %s：追加选择 / 队列指令\n右键：情境指令\n%s：移动 · %s：攻击目标 · %s：攻击移动；随后点击\n%s：战术暂停 · 滚轮：缩放\n%s / %s / %s / %s：移动镜头 · %s / %s：旋转\n%s：设为编队 1 · %s：选择编队 1\n全部编队按键：设置 → 操作
 Technology	科技
@@ -240,7 +178,6 @@ Center the camera here. Your selection and orders stay unchanged.	将镜头移�
 Neutral	中立
 Yours	我方
 %d units selected	已选择 %d 个单位
-Fit chips to new tanks · +%d E / +%d s	为新坦克安装芯片 · +%d 电子元件 / +%d 秒
 Cancel construction	取消建造
 Stop current orders	停止当前指令
 Order	指令
@@ -257,10 +194,8 @@ Refunds the full construction cost.	返还全部建造费用。
 %d / %d HP	%d / %d 生命值
    ·   Under construction	   ·   建造中
    ·   Low power — production at 35%	   ·   电力不足 — 生产速度 35%
-\nBasic programs and walkers unlocked	\n已解锁基础程序与步行机甲
 \nGround service: 2 slots · 5 m	\n地面维修：2 个工位 · 5 米
 \nInfantry recovery: 2 slots · stationary within 5 m	\n步兵恢复：2 个位置 · 在 5 米内静止
-\nAircraft service: 2 slots · stationary within 5 m	\n飞行单位维修：2 个位置 · 在 5 米内静止
    ·   Right-click an ally to repair	   ·   右键点击友方单位维修
 %d selected · %d damaged	已选择 %d 个 · %d 个受损
 \nRally · 	\n集结点 · 
@@ -274,47 +209,11 @@ Materials	材料
 Electronics	电子元件
 Skip order	跳过指令
 Clear waiting	清除等待指令
-Auto-resume program	自动恢复程序
-After all manual orders finish, resume each unit's assigned program.	所有手动指令结束后，恢复各单位原有程序。
 Mixed orders · Hold %s + right-click to queue	不同指令 · 按住 %s 并右键点击可加入队列
 Shift + right-click to queue orders.	Shift + 右键点击可追加指令。
 Hold %s + right-click to queue orders.	按住 %s 并右键点击可追加指令。
 Solid route: active order. Dashed route: waiting orders. Gathering yields after the next delivery. Follow continues until target loss or Skip.	实线：当前指令；虚线：等待指令。采集会在下次交货后交接；跟随会持续到目标丢失或手动跳过。
 Auto-resume: mixed	自动恢复：不同设置
-Visual rules	可视化规则
-Lua editor	Lua 编辑器
-Preset draft	预设草稿
-Preset	预设
-Nearest target	最近目标
-Lowest health	最低生命值
-Heavy armor first	优先重甲
-Area (m)	区域（米）
-Retreat (%)	撤退（%）
-Return (%)	返回（%）
-Assign area / route	指派区域 / 路线
-Set route	设置路线
-Choose escort	选择护送目标
-Set safe point	设置安全点
-Replace the selected units' programs with this preset draft.	用此预设草稿替换所选单位的程序。
-Manual hold	手动坚守
-Fit chip · %d E	安装芯片 · %d 电子元件
-Preset name	预设名称
- · incompatible	 · 不兼容
-Set regroup point	设置集结点
-Bounded unit behavior within your assignment.	单位行为限制在你指派的任务范围内。
-Mixed states	不同状态
-UNIT PROGRAM   ·   %s	单位程序   ·   %s
-Mixed programs	不同程序
-%s   ·   %d / %d compatible & ready	%s   ·   %d / %d 个兼容且就绪
-Complete a vehicle producer and faction lab to unlock basic programs.	建成车辆生产设施与阵营实验室，以解锁基础程序。
-Conventional armor. Fit a chip at your HQ or service building (%d E, %d s).	常规装甲，可在总部或支援建筑安装芯片（%d 电子元件，%d 秒）。
-Select a compatible unit for this preset.	请选择兼容此预设的单位。
-Return threshold must be at least 10 points above retreat.	返回阈值必须比撤退阈值高至少 10 个百分点。
-No selected unit has an active chip compatible with this preset.	所选单位均未配备兼容此预设的有效芯片。
-Applied to %d unit(s). %d other unit(s) keep their orders.	已应用到 %d 个单位，其余 %d 个保留原指令。
-Saved programs…	已保存的程序…
-Saved %s · v%d. Assignments are chosen per map.	已保存 %s · 版本 %d。任务需按地图重新选择。
-Loaded draft: %s. Apply & run when ready.	已载入草稿：%s。准备好后点击“应用并运行”。
 BASTION  /  DESERT FRONTIER	堡垒  /  沙漠边境
 Destroy the opposing force. Expand and reinforce your base.\nDrag to select · Right-click to command · Wheel to zoom\nCamera and control groups: Settings → Controls	歼灭敌军，扩建并巩固基地。\n拖拽选择 · 右键下令 · 滚轮缩放\n镜头与编队设置：设置 → 操作
 Cargo: %d M / %d E	货物：%d 材料 / %d 电子元件
@@ -355,8 +254,6 @@ Economy and destruction recorded since %s	经济与战损记录开始于 %s
 STATUS: OPERATION COMPLETE · TAC-NET SECURED	状态：行动达成 · 战术网络安全
 STATUS: FORCES COMPROMISED · RETRY RECOMMENDED	状态：部队受创 · 建议重新部署
 STATUS: SIMULTANEOUS NEUTRALIZATION	状态：同时全灭 · 战局僵持
-Basic programs unlocked	基础程序解锁
-First program active	首个程序启动
 Battle time %s	战斗时间 %s
 Your surviving units: %s	幸存单位：%s
 Your surviving units: %d / 100	幸存单位：%d / 100
@@ -365,5 +262,4 @@ Battle time	战斗时间
 Forces · %d trained / %d lost	部队 · 训练 %d / 损失 %d
 Engineers · %d trained / %d lost	工程师 · 训练 %d / 损失 %d
 Structures lost · %d built / %d unfinished	建筑损失 · 已完工 %d / 未完工 %d
-Basic programs unlocked · %s	基础程序解锁 · %s
-First program active · %s	首个程序启动 · %s
+%s vs %s	%s 对阵 %s

@@ -91,9 +91,6 @@ func capture(reference):
 
 
 func restore(data, entities):
-	if data.is_empty():
-		_bind_or_spawn()
-		return
 	unit = entities.get(data.unit)
 	tier = data.tier
 	cooldown = data.cooldown

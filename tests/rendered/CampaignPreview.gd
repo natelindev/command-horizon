@@ -1,4 +1,4 @@
-extends "res://tests/rendered/LuaEditorPreview.gd"
+extends "res://tests/rendered/PreviewFixture.gd"
 
 
 func _run():
@@ -58,38 +58,45 @@ func _run():
 	while _game.phase == 0 and _game.simulation_time - construction_started < 75:
 		await process_frame
 	_check(_game.phase == 1, "Constructed lab did not unlock second lesson")
+	# The second lesson finds the tank; Guard and Follow are chosen from the behavior deck.
 	await _click(_game.hud._find_button)
-	camera.set_position_safely(Vector3(19, 0, 25))
 	await _frames(5)
-	var panel = _game.find_child("UnitMenus")._program_panel
-	_check(is_instance_valid(panel), "Find repair robot did not expose programming")
-	if not is_instance_valid(panel):
+	var menus = _game.find_child("UnitMenus")
+	_check(
+		is_instance_valid(menus._behavior_panel) and menus._selection.size() == 1,
+		"Find tank did not expose behavior controls"
+	)
+	if not is_instance_valid(menus._behavior_panel) or menus._selection.size() != 1:
 		for message in _errors:
 			push_error(message)
 		quit(1)
 		return
-	panel.library_path = "user://campaign-ui-program-%d.json" % OS.get_process_id()
-	panel._preset.select(panel._preset_ids.find("hold_service"))
-	panel._preset.item_selected.emit(panel._preset.selected)
-	await _click(_button_named(panel, "Assign area / route"))
-	await _world_click(camera.unproject_position(Vector3(19, 0, 26)))
-	await _click(_button_named(panel, "Apply & run"))
+	var tank = menus._selection[0]
+	_check(tank.type == "Tank", "Second lesson did not find the tank")
+	await _press_behavior(menus, "guard")
+	_check(_game.hud.direct_orders.kind == "guard", "Guard did not ask for a position")
+	await _world_click(camera.unproject_position(tank.global_position_yless + Vector3(0, 0, 2)))
 	await _frames(40)
-	_check(_game.phase == 2, "UI preset Apply did not advance mission")
-	panel._retreat.value = 40
-	panel._name.text = "First Orders support"
-	await _click(_button_named(panel, "Save version"))
-	panel._load_saved(1)
-	await _click(_button_named(panel, "Apply & run"))
-	await _frames(40)
-	_check(_game.reuse_badge, "Saved threshold reuse was not recognized")
-	var menus = _game.find_child("UnitMenus")
+	_check(_game.phase == 2, "UI Guard did not advance mission")
+	var repair = human.get_children().filter(
+		func(unit): return "type" in unit and unit.type == "RepairRobot"
+	)
+	_check(not repair.is_empty(), "First Orders lacks a repair robot")
+	if not repair.is_empty():
+		root.get_node("MatchSignals").deselect_all_units.emit()
+		repair[0].get_node("Selection").select()
+		await _frames(5)
+		await _press_behavior(menus, "follow")
+		_check(_game.hud.direct_orders.kind == "follow", "Follow did not ask for a unit")
+		await _world_click(camera.unproject_position(tank.global_position))
+		await _frames(40)
+		_check(_game.reuse_badge, "Guard and Follow did not earn the optional badge")
 	_check(
 		not _game.hud.lesson_panel.get_global_rect().intersects(menus.get_global_rect()),
-		"Lesson covers program controls"
+		"Lesson covers behavior controls"
 	)
 	_check(_game.hud.lesson_panel.get_global_rect().end.y < 505, "Lesson covers minimap at 720p")
-	await _capture("first-orders-program-720p")
+	await _capture("first-orders-behavior-720p")
 	await _click(_button_named(_game.hud, "View relay"))
 	await _frames(4)
 	root.get_node("MatchSignals").deselect_all_units.emit()
@@ -123,7 +130,6 @@ func _run():
 	await _click(_button_named(_game.hud, "Campaign"))
 	await _frames(8)
 	_check(not paused and current_scene.has_method("_start"), "Campaign return left game paused")
-	DirAccess.remove_absolute("user://campaign-ui-program-%d.json" % OS.get_process_id())
 	DirAccess.remove_absolute("user://campaign-ui-progress-%d.json" % OS.get_process_id())
 	var saves = root.get_node("SaveManager")
 	saves.autosaves_enabled = false
@@ -136,9 +142,16 @@ func _run():
 		push_error(message)
 	if _errors.is_empty():
 		print(
-			"PASS: campaign entry/briefing, real build/assignment/preset/reuse input, 720p layout and return"
+			"PASS: campaign entry/briefing, real build/guard/follow input, 720p layout and return"
 		)
 	quit(0 if _errors.is_empty() else 1)
+
+
+func _press_behavior(menus, choice):
+	var button = menus._behavior_panel._buttons[choice]
+	menus._scroll.ensure_control_visible(button)
+	await _frames(3)
+	await _click(button)
 
 
 func _world_click(point):

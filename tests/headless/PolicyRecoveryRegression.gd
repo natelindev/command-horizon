@@ -2,11 +2,10 @@ extends "res://tests/headless/SkirmishDefensePolicy.gd"
 
 
 func _run():
-	plan_rules = load("res://source/match/SkirmishPlan.gd")
+	plan_rules = load("res://tests/UnitQueries.gd")
 	moving_order = load("res://source/match/units/actions/Moving.gd")
 	attack_move_action = load("res://source/match/units/actions/AttackMoving.gd")
 	repair_order = load("res://source/match/units/actions/Repairing.gd")
-	library = load("res://source/match/programs/ProgramLibrary.gd")
 	factions = load("res://source/match/FactionCatalog.gd")
 	constants = root.get_node("Constants")
 	root.get_node("SaveManager").autosaves_enabled = false
@@ -78,6 +77,9 @@ func _recovery_fixture(faction):
 			" point=",
 			unit.position
 		)
+	# Recovered units can win this live match; victory pauses the SceneTree.
+	# The next faction needs a running simulation of its own.
+	paused = false
 	game.queue_free()
 	await _frames(5)
 

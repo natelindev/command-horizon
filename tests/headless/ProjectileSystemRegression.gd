@@ -1,7 +1,7 @@
 extends "res://tests/headless/SaveRestoreEdges.gd"
 
 # Rounds in flight: saved centrally, validated, restored with their exact state,
-# and kept after the shooter is destroyed.
+# and kept after the shooter or target is destroyed.
 
 
 func _run():
@@ -23,9 +23,15 @@ func _run():
 	system.clear()
 	system.launch(shooter, target)
 	system.launch(gunner, target)
+	var doomed = load("res://source/match/units/Tank.tscn").instantiate()
+	game._setup_and_spawn_unit(doomed, Transform3D(Basis(), Vector3(28, 0, 40)), enemy, false)
+	doomed.process_mode = Node.PROCESS_MODE_DISABLED
+	var orphan = system.launch(gunner, doomed)
+	var orphan_serial = orphan.serial
+	doomed.queue_free()
 	var expected = 2.0 * load("res://source/match/combat/CombatRules.gd").damage(shooter, target)
 	gunner.queue_free()
-	await _frames(1)
+	await _frames(2)
 	paused = true
 	var builder = Snapshot.new()
 	var snapshot = builder.capture(game)
@@ -36,14 +42,23 @@ func _run():
 	var shooter_id = builder._reference(shooter)
 	var target_id = builder._reference(target)
 	var flying = snapshot.rounds.flying
-	_check(flying.size() == 2, "Snapshot lost a round in flight")
+	_check(flying.size() == 3, "Snapshot lost a round in flight after its target died")
 	var saved = flying.filter(func(item): return item.shooter == shooter_id)
 	_check(
 		saved.size() == 1 and saved[0].target == target_id and saved[0].kind == "shell",
 		"Round lost its shooter, target or kind"
 	)
+	_check(
+		saved.size() == 1 and saved[0].target_base != null,
+		"Fixture did not capture an established moving-target collision sweep"
+	)
 	var lost = flying.filter(func(item): return item.shooter == "")
-	_check(lost.size() == 1 and lost[0].type == "Tank", "Round of a destroyed shooter not saved")
+	_check(lost.size() == 2 and lost[0].type == "Tank", "Round of a destroyed shooter not saved")
+	var unclaimed = flying.filter(func(item): return item.serial == orphan_serial)
+	_check(
+		unclaimed.size() == 1 and unclaimed[0].target == "",
+		"Physical round lost with its destroyed target"
+	)
 	_check(Restore.new().prepare(snapshot), "Valid rounds rejected")
 	for corruption in [
 		func(data): data.rounds.flying[0].kind = "laser",
@@ -52,6 +67,7 @@ func _run():
 		func(data): data.rounds.flying[0].domains = [7],
 		func(data): data.rounds.flying[0].serial = data.rounds.serial,
 		func(data): data.rounds.flying[0].velocity = Vector3(1e6, 0, 0),
+		func(data): data.rounds.flying[0].target_base = Vector3(1e6, 0, 0),
 	]:
 		var broken = snapshot.duplicate(true)
 		corruption.call(broken)
@@ -66,7 +82,7 @@ func _run():
 	target = restorer.entities[target_id]
 	_hold_units()
 	system = game.projectile_system
-	_check(system.round_count() == 2, "Reload duplicated or dropped rounds")
+	_check(system.round_count() == 3, "Reload duplicated or dropped rounds")
 	var restored = system.rounds_at(target).filter(
 		func(round): return round.shot.shooter() == restorer.entities[shooter_id]
 	)
@@ -77,13 +93,17 @@ func _run():
 			and restored[0].velocity == saved[0].velocity
 			and restored[0].age == saved[0].age
 			and restored[0].kind == "shell"
+			and (
+				restored[0].target_base
+				== (saved[0].target_base if saved[0].target_base != null else Vector3.INF)
+			)
 		),
 		"Reload moved or retimed a round"
 	)
 	_check(system.rounds_fired == snapshot.rounds.serial, "Round serial not restored")
 	var hp = target.hp
 	await _frames(40)
-	_check(target.hp == hp and system.round_count() == 2, "Pause advanced restored rounds")
+	_check(target.hp == hp and system.round_count() == 3, "Pause advanced restored rounds")
 	paused = false
 	game.get_tree().paused = false
 	await _frames(60)
@@ -108,5 +128,7 @@ func _finish():
 	for message in errors:
 		push_error(message)
 	if errors.is_empty():
-		print("PASS: rounds save centrally, validate, keep exact state and outlive shooters")
+		print(
+			"PASS: rounds save centrally, keep exact collision state and outlive shooters/targets"
+		)
 	quit(0 if errors.is_empty() else 1)

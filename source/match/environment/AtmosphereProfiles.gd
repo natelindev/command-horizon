@@ -71,7 +71,6 @@ const BIOMES = {
 	"BastionDesert": "desert",
 	"FirstOrdersMap": "desert",
 	"SupplyLineMap": "desert",
-	"AirCorridorMap": "desert",
 	"AlpineRelay": "alpine",
 	"SplitSignalMap": "alpine",
 	"CoastalFoundry": "coastal",
@@ -82,13 +81,13 @@ const BIOMES = {
 
 
 static func biome(map):
-	var name = String(map.scene_file_path if map else "").get_file().get_basename()
-	var battlefield = preload("res://source/match/maps/BattlefieldCatalog.gd").MAPS.get(name, {})
-	return (
-		battlefield.biome
-		if not battlefield.is_empty()
-		else BIOMES.get(name.trim_prefix("Expanded"), "temperate")
+	var authored = preload("res://source/match/maps/terrain/BattlefieldRegistry.gd").layout(
+		String(map.scene_file_path if map else "")
 	)
+	if not authored.is_empty():
+		return authored.biome
+	var name = String(map.scene_file_path if map else "").get_file().get_basename()
+	return BIOMES.get(name, "temperate")
 
 
 static func for_map(map):

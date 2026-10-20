@@ -62,21 +62,7 @@ func _run():
 		await _frames(2)
 		game.campaign_story.skip_briefing()
 		game.campaign_story._observe()
-		if mission == "air_corridor":
-			game.opposition.activate()
-			game.campaign_story._observe()
-			_check(
-				"common.enemy_base" in game.campaign_story.seen,
-				"Air Corridor base activation was not narrated"
-			)
-			_check(
-				(
-					"common.boss_arrives" not in game.campaign_story.seen
-					and "common.boss_defeated" not in game.campaign_story.seen
-				),
-				"Air Corridor narrated a siege commander that does not exist"
-			)
-		elif mission == "command_horizon":
+		if mission == "command_horizon":
 			game.opposition.boss.hp = 0
 			game.opposition._step_boss(0)
 			game.campaign_story._observe()

@@ -110,10 +110,6 @@ func _produce():
 		if product == "" or not factions.available(human, product):
 			continue
 		var price = factions.cost(human, product)
-		if role == "VehicleFactory":
-			producer.production_queue.fit_chips = human.has_completed_structure("CommandLab")
-			if product == "Tank" and producer.production_queue.fit_chips:
-				price.resource_b += factions.chip_cost(human.faction)
 		var protected = reserve if product != "Worker" else {"resource_a": 0, "resource_b": 0}
 		if (
 			human.resource_a < price.resource_a + protected.resource_a

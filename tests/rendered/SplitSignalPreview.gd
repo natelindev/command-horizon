@@ -76,14 +76,14 @@ func _run():
 		await _click(game.hud._relay_buttons[index])
 		_check(game.hud._markers[index].visible, "Relay locator did not expose public objective")
 	await _capture("split-signal-relay-720p")
-	# The regular preset panel must coexist with the mission panel.
+	# The regular unit orders panel must coexist with the mission panel.
 	var tank = _units(game._get_human_player(), "Tank")[0]
 	tank.get_node("Selection").select()
 	await _frames(5)
 	var menus = game.find_child("UnitMenus")
 	_check(
 		not game.hud.objective_panel.get_global_rect().intersects(menus.get_global_rect()),
-		"Mission covers selection/program controls"
+		"Mission covers selection/order controls"
 	)
 	await _capture("split-signal-program-720p")
 	root.get_node("MatchSignals").deselect_all_units.emit()

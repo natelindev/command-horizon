@@ -1,34 +1,34 @@
 extends RefCounted
 
 const CATALOG_PATH = "res://assets/audio/voices/catalog.json"
-# Roles without a recorded cast speak with the closest recorded role's voice.
-const VOICE_ALIASES = {
-	"MercenaryWarden": "AssaultInfantry",
-	"MercenaryRanger": "SniperInfantry",
-	"MercenaryLancer": "RocketInfantry",
-	"Fighter": "Helicopter",
-	"Bomber": "Helicopter",
-	"AntiAirVehicle": "Tank",
-}
+const Mercenaries = preload("res://source/match/world/MercenaryCatalog.gd")
 var _catalog = {}
+# Camp mercenaries are neutral hires: one cast voice each, whichever army pays them.
+var _mercenaries = {}
 var _variants = {}
 
 
 func _init():
-	_catalog = JSON.parse_string(FileAccess.get_file_as_string(CATALOG_PATH)).factions
+	var data = JSON.parse_string(FileAccess.get_file_as_string(CATALOG_PATH))
+	_catalog = data.factions
+	_mercenaries = data.get("mercenaries", {})
 
 
 func announcer(faction, event_name):
 	return _catalog.get(faction, _catalog.bastion).announcer.get(event_name, {}).duplicate()
 
 
+func role_lines(faction, role):
+	if role in Mercenaries.ROLES:
+		return _mercenaries.get(role, {})
+	return _catalog.get(faction, _catalog.bastion).units.get(role, {})
+
+
 func unit_line(unit, kind):
 	var faction = unit.player.faction
-	var roster = _catalog.get(faction, _catalog.bastion).units
-	var role = voice_role(unit.type)
-	if not roster.has(role):
+	var lines = role_lines(faction, unit.type)
+	if lines.is_empty():
 		return {}
-	var lines = roster[role]
 	if not lines.has(kind):
 		kind = "move"
 	var key = "%s:%s:%s" % [faction, unit.type, kind]
@@ -39,10 +39,6 @@ func unit_line(unit, kind):
 	result.variant_key = key
 	result.variant_index = index
 	return result
-
-
-static func voice_role(unit_type):
-	return VOICE_ALIASES.get(unit_type, unit_type)
 
 
 func accepted(line):

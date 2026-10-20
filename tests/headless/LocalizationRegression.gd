@@ -22,6 +22,7 @@ func _run():
 			"建造 通量发电机（15 材料 / 0 电子元件）。 供电不足会降低生产与维修速度。"
 		],
 		["Stop", "停止"],
+		["Free an aircraft stand to resume this queue.", "腾出一个停机位以继续此生产队列。"],
 		[
 			(
 				"Cancel construction · 80 M / 20 E back. Refunds unused construction "

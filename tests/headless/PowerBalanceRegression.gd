@@ -75,6 +75,9 @@ func _ai_power():
 	# air factory once its timing (at most 165 s at Normal) has passed.
 	_spawn("RepairDepot", opponent, Vector3(90, 0, 80))
 	_spawn("PowerPlant", opponent, Vector3(110, 0, 60))
+	# Optional facilities follow army readiness as well as their build time.
+	for index in 15:
+		_spawn("Infantry", opponent, Vector3(90 + index, 0, 90))
 	game.simulation_time = 170
 	_check(opponent.power_totals() == Vector2i(20, 17), "AI expansion fixture has wrong power")
 	_check(

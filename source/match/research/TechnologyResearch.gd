@@ -25,7 +25,7 @@ func reason(id, lab):
 		or not lab.is_constructed()
 	):
 		return "Requires a completed friendly lab."
-	if not player.basic_programs_unlocked():
+	if not player.lab_research_unlocked():
 		return "Requires a completed vehicle factory and lab."
 	for required in Catalog.ITEMS[id].requires:
 		if not (

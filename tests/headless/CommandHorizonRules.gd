@@ -239,7 +239,7 @@ func _budgets():
 					and _units(human, "CombatRobot").size() == 4
 					and _units(human, "Helicopter").size() == 2
 				),
-				"Challenge removed required counters/programs"
+				"Challenge removed required counters"
 			)
 			if mode == 1 and variant != "":
 				await _round_trip()

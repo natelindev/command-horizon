@@ -1,7 +1,8 @@
 """Build the air-combat redesign models: fighters, bombers, rotorcraft and mobile
 anti-air for all three factions, plus their roster icons.
 
-blender --background --factory-startup --python-exit-code 1 --python art/air-combat/build_aircraft.py
+Rebuild faction GLBs with art/<faction>/build_aircraft.py. This shared builder
+also generates the complete editable catalogue and icons when run directly.
 
 Models follow the faction builders' conventions: Blender Z up, nose toward +Y
 (exported as -Z in Godot), faceted low-poly parts on named pivots that the game
@@ -12,13 +13,19 @@ textures and team colors apply in game.
 import json
 import math
 from pathlib import Path
+import sys
 
 import bmesh
 import bpy
 from mathutils import Vector
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "common"))
+import weathering  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "art/air-combat"
+# Faction entrypoints export only their models, preserving shared review assets.
+BUILD_FACTION = globals().get("BUILD_FACTION")
 OUTPUT = {
     "bastion": (ROOT / "assets/models/bastion/air-v1", ROOT / "assets/ui/bastion"),
     "helix": (ROOT / "assets/models/helix/v1", ROOT / "assets/ui/helix"),
@@ -521,6 +528,8 @@ frontier_fighter(); frontier_bomber(); frontier_aa()
 # faction builders do) so pivots stay separate nodes in Godot.
 manifest = []
 for faction, name, collection, asset_root in assets:
+    if BUILD_FACTION is not None and faction != BUILD_FACTION:
+        continue
     bpy.context.view_layer.update()
     deps = bpy.context.evaluated_depsgraph_get()
     copies = {}
@@ -555,74 +564,83 @@ for faction, name, collection, asset_root in assets:
     for obj in live:
         obj.select_set(True)
     triangles = sum(len(obj.data.polygons) for obj in live if obj.type == "MESH")
+    weathering.bake(live)
     models, _icons = OUTPUT[faction]
     bpy.ops.export_scene.gltf(filepath=str(models / (name + ".glb")), export_format="GLB", use_selection=True,
-                              export_animations=False, export_yup=True, export_cameras=False, export_lights=False)
+                              export_animations=False, export_yup=True, export_cameras=False, export_lights=False,
+                              export_vertex_color="ACTIVE")
     for obj in live:
         bpy.data.objects.remove(obj, do_unlink=True)
     manifest.append({"faction": faction, "name": name, "triangles": triangles})
     collection.hide_render = True
 
-# Roster icons from the actual geometry, matching the faction icon renders.
-world = bpy.data.worlds.new("Studio")
-scene.world = world
-world.use_nodes = True
-world.node_tree.nodes["Background"].inputs[0].default_value = (.22, .27, .34, 1)
-world.node_tree.nodes["Background"].inputs[1].default_value = .45
-for light_name, loc, power, color in (("Key", (4, 6, 11), 1800, (1, .88, .72)),
-                                      ("Fill", (-6, 1, 6), 1500, (.7, .83, 1)),
-                                      ("Rim", (3, -6, 8), 2100, (1, .92, .78))):
-    data = bpy.data.lights.new(light_name, "AREA")
-    data.energy = power
-    data.shape = "DISK"
-    data.size = 7
-    data.color = color
-    obj = bpy.data.objects.new(light_name, data)
-    scene.collection.objects.link(obj)
-    obj.location = loc
-    obj.rotation_euler = (Vector((0, 0, 1)) - obj.location).to_track_quat("-Z", "Y").to_euler()
-camera_data = bpy.data.cameras.new("Camera")
-camera = bpy.data.objects.new("Camera", camera_data)
-scene.collection.objects.link(camera)
-scene.camera = camera
-camera_data.type = "ORTHO"
-scene.render.engine = "CYCLES"
-scene.cycles.samples = 16
-scene.cycles.use_denoising = True
-scene.render.resolution_percentage = 100
-scene.render.resolution_x = 256
-scene.render.resolution_y = 256
-scene.render.image_settings.file_format = "PNG"
-scene.render.film_transparent = True
-scene.view_settings.view_transform = "AgX"
-for faction, name, collection, asset_root in assets:
-    collection.hide_render = False
-    points = [obj.matrix_world @ Vector(p) for obj in collection.objects if obj.type == "MESH" for p in obj.bound_box]
-    lo = Vector([min(p[i] for p in points) for i in range(3)])
-    hi = Vector([max(p[i] for p in points) for i in range(3)])
-    center = (lo + hi) / 2
-    camera.location = center + Vector((9, 12, 10))
-    camera.rotation_euler = (center - camera.location).to_track_quat("-Z", "Y").to_euler()
-    camera_data.ortho_scale = max(hi - lo) * 1.45
-    _models, icons = OUTPUT[faction]
-    scene.render.filepath = str(icons / (name + ".png"))
-    bpy.ops.render.render(write_still=True)
-    collection.hide_render = True
+def render_catalogue():
+    # Roster icons from the actual geometry, matching the faction icon renders.
+    world = bpy.data.worlds.new("Studio")
+    scene.world = world
+    world.use_nodes = True
+    world.node_tree.nodes["Background"].inputs[0].default_value = (.22, .27, .34, 1)
+    world.node_tree.nodes["Background"].inputs[1].default_value = .45
+    for light_name, loc, power, color in (("Key", (4, 6, 11), 1800, (1, .88, .72)),
+                                          ("Fill", (-6, 1, 6), 1500, (.7, .83, 1)),
+                                          ("Rim", (3, -6, 8), 2100, (1, .92, .78))):
+        data = bpy.data.lights.new(light_name, "AREA")
+        data.energy = power
+        data.shape = "DISK"
+        data.size = 7
+        data.color = color
+        obj = bpy.data.objects.new(light_name, data)
+        scene.collection.objects.link(obj)
+        obj.location = loc
+        obj.rotation_euler = (Vector((0, 0, 1)) - obj.location).to_track_quat("-Z", "Y").to_euler()
+    camera_data = bpy.data.cameras.new("Camera")
+    camera = bpy.data.objects.new("Camera", camera_data)
+    scene.collection.objects.link(camera)
+    scene.camera = camera
+    camera_data.type = "ORTHO"
+    scene.render.engine = "CYCLES"
+    scene.cycles.samples = 16
+    scene.cycles.use_denoising = True
+    scene.render.resolution_percentage = 100
+    scene.render.resolution_x = 256
+    scene.render.resolution_y = 256
+    scene.render.image_settings.file_format = "PNG"
+    scene.render.film_transparent = True
+    scene.view_settings.view_transform = "AgX"
+    for faction, name, collection, asset_root in assets:
+        collection.hide_render = False
+        points = [obj.matrix_world @ Vector(p) for obj in collection.objects if obj.type == "MESH" for p in obj.bound_box]
+        lo = Vector([min(p[i] for p in points) for i in range(3)])
+        hi = Vector([max(p[i] for p in points) for i in range(3)])
+        center = (lo + hi) / 2
+        camera.location = center + Vector((9, 12, 10))
+        camera.rotation_euler = (center - camera.location).to_track_quat("-Z", "Y").to_euler()
+        camera_data.ortho_scale = max(hi - lo) * 1.45
+        _models, icons = OUTPUT[faction]
+        scene.render.filepath = str(icons / (name + ".png"))
+        bpy.ops.render.render(write_still=True)
+        collection.hide_render = True
 
-# Editable catalogue of every new model.
-for index, (faction, name, collection, asset_root) in enumerate(assets):
-    collection.hide_render = False
-    asset_root.location = Vector(((index % 4 - 1.5) * 10, (index // 4 - 1) * 10, 0))
-camera.location = (30, 38, 40)
-camera.rotation_euler = (Vector((0, 0, 0)) - camera.location).to_track_quat("-Z", "Y").to_euler()
-camera_data.ortho_scale = 46
-scene.render.film_transparent = False
-scene.render.resolution_x = 1800
-scene.render.resolution_y = 1400
-scene.cycles.samples = 32
-SOURCE.mkdir(parents=True, exist_ok=True)
-scene.render.filepath = str(SOURCE / "aircraft-catalogue.png")
-bpy.ops.wm.save_as_mainfile(filepath=str(SOURCE / "aircraft.blend"))
-bpy.ops.render.render(write_still=True)
-(SOURCE / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
-print("Air-combat assets complete:", len(manifest))
+    # Editable catalogue of every new model.
+    for index, (faction, name, collection, asset_root) in enumerate(assets):
+        collection.hide_render = False
+        asset_root.location = Vector(((index % 4 - 1.5) * 10, (index // 4 - 1) * 10, 0))
+    camera.location = (30, 38, 40)
+    camera.rotation_euler = (Vector((0, 0, 0)) - camera.location).to_track_quat("-Z", "Y").to_euler()
+    camera_data.ortho_scale = 46
+    scene.render.film_transparent = False
+    scene.render.resolution_x = 1800
+    scene.render.resolution_y = 1400
+    scene.cycles.samples = 32
+    SOURCE.mkdir(parents=True, exist_ok=True)
+    scene.render.filepath = str(SOURCE / "aircraft-catalogue.png")
+    bpy.ops.wm.save_as_mainfile(filepath=str(SOURCE / "aircraft.blend"))
+    bpy.ops.render.render(write_still=True)
+    (SOURCE / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
+    print("Air-combat assets complete:", len(manifest))
+
+
+if BUILD_FACTION is None:
+    render_catalogue()
+else:
+    print(f"Air-combat models complete: {BUILD_FACTION}, {len(manifest)} assets")

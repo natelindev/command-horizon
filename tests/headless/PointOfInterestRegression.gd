@@ -1,5 +1,8 @@
 extends "res://tests/headless/MechanicsRegression.gd"
 
+# Glacier Narrows holds a refinery, a mercenary camp and repair shops.
+var sites_map = "res://source/match/maps/battlefields/GlacierNarrowsMap.tscn"
+
 
 func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
@@ -21,7 +24,7 @@ func _open_sites(faction):
 	var settings = load("res://source/data-model/MatchSettings.gd").new()
 	settings.skirmish = true
 	settings.advanced_start = true
-	settings.map_path = "res://source/match/maps/ExpandedDesertFrontier.tscn"
+	settings.map_path = sites_map
 	for index in 2:
 		var side = load("res://source/data-model/PlayerSettings.gd").new()
 		side.controller = index + 1
@@ -62,7 +65,10 @@ func _claim(site, soldier, side):
 func _exercise_sites():
 	var catalog = load("res://source/match/world/PointOfInterestCatalog.gd")
 	var sites = _game.map.points_of_interest
-	_check(sites.size() == 6, "Expanded map lacks six points of interest")
+	_check(
+		sites.size() == catalog.definitions(_game.settings.map_path).size() and sites.size() >= 5,
+		"Battlefield lacks its points of interest"
+	)
 	var refinery = sites.filter(func(site): return site.kind == "refinery")[0]
 	var camp = sites.filter(func(site): return site.kind == "mercenary")[0]
 	var shop = sites.filter(func(site): return site.kind == "repair")[0]
@@ -162,7 +168,7 @@ func _exercise_sites():
 	menu._queue._queue_elements.get_child(0).pressed.emit()
 	_check(camp.jobs.is_empty(), "Shared queue did not cancel recruitment")
 
-	var cost = catalog.price(_human.faction, "MercenaryLancer")
+	var cost = catalog.price("MercenaryLancer")
 	funds = Vector2i(_human.resource_a, _human.resource_b)
 	_check(camp.hire(_human, "MercenaryLancer"), "Owned camp rejected affordable recruitment")
 	_check(
@@ -262,15 +268,14 @@ func _exercise_sites():
 		not schema._site_records(1, "res://source/match/maps/DesertFrontier.tscn"),
 		"Legacy map accepted malformed facility records"
 	)
-	var legacy = data.duplicate(true)
-	for site in legacy.mission.points_of_interest:
-		if not site.jobs.is_empty():
-			site.jobs[0] = {
-				"role": "Infantry",
-				"left": 8.0,
-				"paid_cost": catalog.price(_human.faction, "Infantry")
-			}
-	_check(schema.validate(legacy), "Legacy paid mercenary contract was rejected: " + schema.error)
+	var retired = data.duplicate(true)
+	var hired = retired.mission.points_of_interest.filter(
+		func(site): return not site.jobs.is_empty()
+	)
+	_check(not hired.is_empty(), "Facility archive fixture has no paid contract")
+	for site in hired:
+		site.jobs[0].role = "Infantry"
+	_check(not schema.validate(retired), "Archive accepted a non-mercenary camp contract")
 	var bad = data.duplicate(true)
 	bad.mission.points_of_interest = 1
 	_check(not schema.validate(bad), "Archive accepted malformed facility records")

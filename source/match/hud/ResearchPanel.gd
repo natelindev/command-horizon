@@ -169,7 +169,7 @@ func refresh():
 	_start.visible = not player.coordination_unlocked and not running
 	_start.disabled = (
 		not is_instance_valid(lab)
-		or not player.basic_programs_unlocked()
+		or not player.lab_research_unlocked()
 		or not player.has_resources(player.COORDINATION_COST)
 	)
 	_start.tooltip_text = (

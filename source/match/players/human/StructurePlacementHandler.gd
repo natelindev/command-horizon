@@ -51,8 +51,8 @@ func _input(event):
 		or (
 			"hud" in _match
 			and is_instance_valid(_match.hud)
-			and "program_editor" in _match.hud
-			and (is_instance_valid(_match.hud.program_editor) or _match.hud._overlay != null)
+			and "_overlay" in _match.hud
+			and _match.hud._overlay != null
 		)
 	):
 		return
@@ -140,11 +140,15 @@ func _radius_validity():
 		_active_blueprint_node.global_position,
 		_pending_structure_radius,
 		get_tree().get_nodes_in_group("units") + get_tree().get_nodes_in_group("resource_units"),
-		_pending_structure_navmap_rid
+		_pending_structure_navmap_rid,
+		_match.map
 	)
 	if placement_validity == Utils.Match.Unit.Placement.COLLIDES_WITH_AGENT:
 		return BlueprintPositionValidity.COLLIDES_WITH_OBJECT
-	if placement_validity == Utils.Match.Unit.Placement.NOT_NAVIGABLE:
+	if (
+		placement_validity
+		in [Utils.Match.Unit.Placement.NOT_NAVIGABLE, Utils.Match.Unit.Placement.NOT_LEVEL]
+	):
 		return BlueprintPositionValidity.NOT_NAVIGABLE
 	return BlueprintPositionValidity.VALID
 

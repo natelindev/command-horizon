@@ -3,14 +3,16 @@ extends "res://tests/headless/SaveRestoreEdges.gd"
 
 func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
-	await _skirmish("bastion", "res://source/match/maps/ExpandedAlpineRelay.tscn", true)
+	await _skirmish("bastion", "res://source/match/maps/battlefields/AlpineRelayMap.tscn", true)
 	for side in get_nodes_in_group("players"):
 		side.set_process(false)
 	var human = game._get_human_player()
 	var workers = _units(human, "Worker")
 	while workers.size() < 40:
 		var worker = load("res://source/match/units/Worker.tscn").instantiate()
-		game._setup_and_spawn_unit(worker, Transform3D(Basis(), Vector3(30, 0, 30)), human, false)
+		game._setup_and_spawn_unit(
+			worker, Transform3D(Basis(), game.map.ground_point(Vector2(30, 30))), human, false
+		)
 		workers.append(worker)
 	await _frames(5)
 	var menus = game.find_child("UnitMenus")

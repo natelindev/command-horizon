@@ -2,12 +2,7 @@ extends "res://tests/headless/CampaignRegression.gd"
 
 const Snapshot = preload("res://source/match/saves/MatchSnapshot.gd")
 const Restore = preload("res://source/match/saves/MatchRestore.gd")
-const Record = preload("res://source/match/programs/ProgramRecord.gd")
 const FileStore = preload("res://source/match/saves/SaveFile.gd")
-const HOLD = """return function(s,m)
- m.ticks=(m.ticks or 0)+1
- return {intent={kind='hold'},state=m}
-end"""
 var save_path
 
 
@@ -19,6 +14,8 @@ func _run():
 		root.content_scale_mode = Window.CONTENT_SCALE_MODE_VIEWPORT
 		root.size = Vector2i(1280, 720)
 		root.content_scale_size = root.size
+	var behavior = load("res://source/match/orders/UnitBehavior.gd")
+	var guard_point = Vector3(25, 0, 28)
 	await _make_match()
 	var human = game._get_human_player()
 	human.resource_a = 500
@@ -37,41 +34,14 @@ func _run():
 	workers[1].issue_manual_order(
 		load("res://source/match/units/actions/Constructing.gd").new(building)
 	)
-	var params = [
-		{"name": "threshold", "label": "Threshold", "value": 30, "min": 1, "max": 90, "step": 1}
-	]
-	var prefix = load("res://source/match/programs/llm/DraftResponse.gd").parameter_prefix(params)
-	var record = Record.lua("Restored counter", 2, prefix + HOLD, ["Tank"], ["movement"])
-	record.parameter_schema = load("res://source/match/programs/LuaParameters.gd").schema(params)
-	Record.seal(record)
-	tanks[0].program.installed = true
-	# Apply through the real transaction so the live config matches the sealed record.
-	var applied = load("res://source/match/programs/ProgramApplication.gd").apply(
-		record, [tanks[0]], human
-	)
-	_check(applied.ok, "Could not apply restore fixture")
-	tanks[0].program.run()
+	_check(behavior.guard(tanks[0], guard_point), "Could not post the guard fixture")
 	tanks[1].manual_orders.submit({"kind": "move", "point": Vector3(65, 0, 23)})
 	tanks[1].manual_orders.submit({"kind": "move", "point": Vector3(30, 0, 22)}, true)
-	tanks[2].program.installed = true
-	tanks[2].program.configure(
-		load("res://source/match/programs/ProgramLibrary.gd").defaults("guard")
-	)
-	tanks[2].program.anchor = Vector3(25, 0, 28)
-	tanks[2].program.safe_point = Vector3(15, 0, 20)
-	tanks[2].hp = 18
-	tanks[2].program.run()
-	var squad = human.squad_roster.create("Restored armor", [tanks[0], tanks[2]])
+	_check(behavior.follow(tanks[2], tanks[1]), "Could not start the follow fixture")
 	await _frames(300)
 	var factory = _units(human, "VehicleFactory")[0]
-	factory.production_queue.fit_chips = true
 	var job = factory.production_queue.produce(load("res://source/match/units/Tank.tscn"))
-	job.program_snapshot = {
-		"record": record.duplicate(true),
-		"title": "Restored counter · v2",
-		"config": record.config.duplicate(true),
-		"notice": ""
-	}
+	_check(job != null, "Could not queue the production fixture")
 	job.time_left = 2.5
 	tanks[0].set_meta("next_attack_availability_time", int(game.simulation_time * 1000) + 1750)
 	tanks[0].last_enemy_damage_time = game.simulation_time - 0.75
@@ -81,8 +51,6 @@ func _run():
 	)
 	var shot = game.projectile_system.launch(tanks[0], victim)
 	shot.life = 0.25
-	squad.write_state(tanks[0], "phase", "hold")
-	squad.claim(tanks[0], victim)
 	game.phase = 2
 	game.relay.captured_by = human
 	game.hold_seconds = 11.5
@@ -103,9 +71,9 @@ func _run():
 		await _finish()
 		return
 	var ids = {
-		"lua": builder._reference(tanks[0]),
+		"guard": builder._reference(tanks[0]),
 		"manual": builder._reference(tanks[1]),
-		"retreat": builder._reference(tanks[2]),
+		"follow": builder._reference(tanks[2]),
 		"worker": builder._reference(workers[0]),
 		"building": builder._reference(building),
 		"factory": builder._reference(factory),
@@ -135,14 +103,14 @@ func _run():
 	await _verify_fog(snapshot)
 	game.progress_path = path
 	game.get_node("IsometricCamera3D").set_physics_process(false)
-	var lua = restorer.entities[ids.lua]
+	var guard = restorer.entities[ids.guard]
 	var manual = restorer.entities[ids.manual]
-	var retreat = restorer.entities[ids.retreat]
+	var follower = restorer.entities[ids.follow]
 	var worker = restorer.entities[ids.worker]
 	building = restorer.entities[ids.building]
 	factory = restorer.entities[ids.factory]
 	victim = restorer.entities[ids.victim]
-	var saved_lua = snapshot.units.filter(func(unit): return unit.id == ids.lua)[0]
+	var saved_guard = snapshot.units.filter(func(unit): return unit.id == ids.guard)[0]
 	_check(paused and game.simulation_time == snapshot.simulation_time, "Load advanced battle time")
 	_check(
 		game._get_human_player().resource_a == snapshot.players[0].resource_a,
@@ -152,9 +120,9 @@ func _run():
 		(
 			absf(
 				(
-					float(lua.get_meta("next_attack_availability_time")) / 1000.0
+					float(guard.get_meta("next_attack_availability_time")) / 1000.0
 					- game.simulation_time
-					- saved_lua.weapon_left
+					- saved_guard.weapon_left
 				)
 			)
 			< 0.002
@@ -162,11 +130,13 @@ func _run():
 		"Weapon cooldown changed"
 	)
 	_check(
-		is_equal_approx(game.simulation_time - lua.last_enemy_damage_time, saved_lua.damage_age),
+		is_equal_approx(
+			game.simulation_time - guard.last_enemy_damage_time, saved_guard.damage_age
+		),
 		"Damage suppression duration changed"
 	)
 	var shells = game.projectile_system._rounds.filter(
-		func(round): return round.shot.shooter() == lua
+		func(round): return round.shot.shooter() == guard
 	)
 	_check(
 		shells.size() == 1 and is_equal_approx(shells[0].life - shells[0].age, 0.25),
@@ -175,26 +145,24 @@ func _run():
 	_check(factory.production_queue._queue[0].time_left == 2.5, "Queued duration changed")
 	_check(
 		(
-			lua.program.saved_record == record
-			and lua.program.lua_runtime.state_snapshot() == saved_lua.program.runtime.state
+			behavior.current(guard) == "guard"
+			and guard.global_position_yless.distance_to(guard_point) < 2.5
 		),
-		"Exact program/state lost"
+		"Guard post lost"
 	)
+	_check(manual.manual_orders.pending.size() == 1, "Manual queue authority changed")
 	_check(
-		manual.manual_orders.pending.size() == 1 and manual.program.mode == "Manual",
-		"Manual queue authority changed"
+		(
+			behavior.current(follower) == "follow"
+			and follower.manual_orders.current.target.get_ref() == manual
+		),
+		"Follow target lost"
 	)
-	_check(retreat.action._retreating, "Retreat hysteresis lost")
 	_check(worker.resource_a > 0, "Cargo lost")
 	_check(
 		game.hold_seconds == 11.5 and game.waves_warned == 1 and game.waves_sent == 0,
 		"Mission durations changed"
 	)
-	_check(
-		lua.program_squad.title == "Restored armor" and lua.program_squad._state.phase == "hold",
-		"Squad state lost"
-	)
-	_check(lua.program_squad._claims.size() == 1, "Claim duration lost")
 	var bar = game.find_child("ResourcesBar")
 	var human_loaded = game._get_human_player()
 	var power = human_loaded.power_totals()
@@ -214,27 +182,19 @@ func _run():
 		victim.hp == health and game.simulation_time == time and manual.position == position,
 		"Paused restore caused damage/movement"
 	)
-	var ticks = lua.program.lua_runtime.state_snapshot().ticks
 	var construction = building._construction_progress
 	await _resume_from_hud()
 	_check(not paused, "Loaded battle could not resume through its HUD")
 	await _frames(35)
 	_check(victim.hp < health, "Saved in-flight shot did not resolve")
-	_check(
-		lua.program.lua_runtime.state_snapshot().ticks > ticks,
-		"Lua failed to continue explicit state"
-	)
 	_check(manual.position.distance_to(position) > 0.2, "Manual movement did not resume")
 	_check(building._construction_progress > construction, "Construction did not resume")
 	await _frames(150)
 	_check(factory.production_queue.size() == 0, "Paid production did not complete")
 	var produced = _units(game._get_human_player(), "Tank").filter(
-		func(unit): return unit != lua and unit != manual and unit != retreat
+		func(unit): return unit not in [guard, manual, follower]
 	)
-	_check(
-		produced.size() == 1 and produced[0].program.saved_record == record,
-		"Production lost embedded version"
-	)
+	_check(produced.size() == 1, "Paid production did not deliver its tank")
 	await _finish()
 
 
@@ -250,8 +210,8 @@ func _finish():
 	if errors.is_empty():
 		print(
 			(
-				"PASS: actual reload preserves jobs, actions, programs, cargo, cooldowns and mission; "
-				+ "resume works"
+				"PASS: actual reload preserves jobs, actions, guard/follow orders, cargo, cooldowns "
+				+ "and mission; resume works"
 			)
 		)
 	quit(0 if errors.is_empty() else 1)
@@ -259,12 +219,13 @@ func _finish():
 
 func _validate_corruption(snapshot, ids):
 	var corruptions = [
+		func(data): data.snapshot_version = Snapshot.VERSION - 1,
+		func(data): data.players[0].erase("_lab_research"),
 		func(data): data.units[0].rally = {"position": Vector3.ZERO, "target": "player-0"},
 		func(data): _saved(data, ids.manual).action.state._target_position = null,
-		func(data): _saved(data, ids.retreat).action.state._waypoint = 2,
-		func(data): _saved(data, ids.factory).production.pin = {"oops": 7},
+		func(data): _saved(data, ids.follow).stance = 7,
+		func(data): _saved(data, ids.factory).production.jobs[0].role = "Barracks",
 		func(data): data.rounds.flying[0].target = "player-1",
-		func(data): _saved(data, ids.lua).action.state._next_handle = 1.5,
 		func(data): _saved(data, ids.worker).action.references._cc_unit = "player-0",
 		func(data):
 			_saved(data, ids.manual).orders.pending = [

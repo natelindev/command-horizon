@@ -3,14 +3,14 @@ extends RefCounted
 const PATH = "res://assets/audio/campaign/narration.json"
 const Campaigns = preload("res://source/match/campaign/CampaignCatalog.gd")
 const CONVERSATIONS = "res://assets/audio/campaign/conversations.json"
-static var _legacy_lines = {}
+static var _narrator_lines = {}
 static var _lines = {}
 
 
 static func lines():
 	if _lines.is_empty():
-		_legacy_lines = JSON.parse_string(FileAccess.get_file_as_string(PATH))
-		_lines = _legacy_lines.duplicate(true)
+		_narrator_lines = JSON.parse_string(FileAccess.get_file_as_string(PATH))
+		_lines = _narrator_lines.duplicate(true)
 		if FileAccess.file_exists(CONVERSATIONS):
 			_lines.merge(JSON.parse_string(FileAccess.get_file_as_string(CONVERSATIONS)), true)
 	return _lines
@@ -22,27 +22,27 @@ static func ids(mission):
 	)
 
 
-static func _legacy_record(id, language = "en"):
-	if not legacy(id):
+static func _narrator_record(id, language = "en"):
+	if not single_narrator(id):
 		return {}
 	var locale = "zh_CN" if language == "zh_CN" else "en"
 	var path = "res://assets/audio/campaign/%s_en.wav" % id.replace(".", "_")
 	return {
 		"id": id,
 		"speaker": "堡垒指挥部" if locale == "zh_CN" else "Bastion Command",
-		"text": _legacy_lines[id][locale],
+		"text": _narrator_lines[id][locale],
 		"stream": path
 	}
 
 
-# A cue may retain its legacy single narrator or define an ordered dialogue array.
+# A cue either has a single Bastion Command narrator or an ordered dialogue array.
 # Dialogue voices are English in both locales; captions and speaker names localize.
 static func scene(id, language = "en"):
 	if not lines().has(id):
 		return []
 	var entry = lines()[id]
 	if not entry.has("dialogue"):
-		return [_legacy_record(id, language)]
+		return [_narrator_record(id, language)]
 	var locale = "zh_CN" if language == "zh_CN" else "en"
 	var result = []
 	for line in entry.dialogue:
@@ -63,12 +63,12 @@ static func record(id, language = "en"):
 		for line in scene(cue, language):
 			if line.id == id:
 				return line
-	return _legacy_record(id, language) if legacy(id) else {}
+	return _narrator_record(id, language) if single_narrator(id) else {}
 
 
-static func legacy(id):
+static func single_narrator(id):
 	lines()
-	return _legacy_lines.has(id)
+	return _narrator_lines.has(id)
 
 
 static func missions():
@@ -84,8 +84,6 @@ static func valid_state(data, mission):
 		if cue not in allowed or cue in heard:
 			return false
 		heard.append(cue)
-	if data.size() == 1:
-		return true  # Legacy history-only snapshots.
 	if data.size() != 3 or not data.get("pending") is Array or not data.get("active") is Dictionary:
 		return false
 	var queued = []
@@ -103,7 +101,7 @@ static func valid_state(data, mission):
 		not active.get("line") is String
 		or (
 			active.line not in sequence.map(func(line): return line.id)
-			and not (active.line == active.cue and legacy(active.line))
+			and not (active.line == active.cue and single_narrator(active.line))
 		)
 	):
 		return false

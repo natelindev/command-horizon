@@ -29,13 +29,13 @@ func _anchor():
 			)
 		)
 	var source = _spawn_weapon("Tank", sides[1], Vector3(54, 0, 10))
-	var unchipped = _spawn_weapon("Tank", human, Vector3(40, 0, 16))
+	var support = _spawn_weapon("RepairRobot", human, Vector3(40, 0, 16))
 	await _frames(40)
 	_check(human.signatures.activate(members, Vector3(37, 0, 11)) == 0, "Anchor bypasses research")
 	human.coordination_unlocked = true
 	_check(
-		human.signatures.activate([unchipped, source], Vector3(37, 0, 11)) == 0,
-		"Anchor accepts unchipped/enemy units"
+		human.signatures.activate([support, source], Vector3(37, 0, 11)) == 0,
+		"Anchor accepts support/enemy units"
 	)
 	for unit in members:
 		unit.process_mode = Node.PROCESS_MODE_PAUSABLE
@@ -69,11 +69,9 @@ func _anchor():
 	unit.receive_weapon_hit(source)
 	_check(is_equal_approx(hp - unit.hp, damage * 0.85), "Anchor fails against rear damage")
 	unit.hp = unit.hp_max
-	var squad = human.squad_roster.create("Regroup", [unit])
-	_check(squad != null, "Squad regroup fixture failed")
-	human.squad_roster.disband(squad)
 	_check(
-		human.signatures.activate([unit], unit.global_position_yless) == 0, "Regroup reset cooldown"
+		human.signatures.activate([unit], unit.global_position_yless) == 0,
+		"Anchored unit reactivated during its window"
 	)
 	unit.issue_manual_order(moving.new(unit.global_position_yless + Vector3(5, 0, 0)))
 	_check(
@@ -81,21 +79,7 @@ func _anchor():
 		"Move order retained anchored protection"
 	)
 	_check(unit.signature.kind == "", "Movement did not break Anchor")
-	var retreating = active[2]
-	var origin = retreating.global_position_yless
-	retreating.program.safe_point = origin + Vector3(0, 0, 10)
-	retreating.hp = retreating.hp_max * 0.2
-	_check(retreating.program.run(), "Anchored unit could not resume its program")
-	await _frames(60)
-	_check(
-		(
-			retreating.signature.kind == ""
-			and retreating.program.mode == "Running"
-			and retreating.global_position_yless.distance_to(origin) > 0.5
-		),
-		"Anchor blocked the program's low-health retreat"
-	)
-	await _frames(590)
+	await _frames(650)
 	_check(not unit.signature.anchored, "Anchor reactivated automatically after movement")
 	_check(
 		human.signatures.activate([unit], unit.global_position_yless) == 1,
@@ -106,21 +90,14 @@ func _anchor():
 	paused = true
 	var saved = Snapshot.new().capture(game)
 	_check(saved != null and Restore.new().prepare(saved), "Death left stale activation references")
-	var legacy = await Restore.new().restore(self, _legacy_snapshot(saved, 3))
-	_check(legacy.ok, "Version-three archive cannot reconstruct")
-	if not legacy.ok:
-		return false
-	game = legacy.game
-	human = game._get_human_player()
-	_check(human.signatures.groups.is_empty(), "Legacy archive invented activation groups")
 	_check(
-		_units(human, "CombatRobot").all(func(member): return member.signature.kind == ""),
-		"Legacy archive invented Anchor"
+		not Restore.new().prepare(_legacy_snapshot(saved, 3)),
+		"Retired version-three archive was accepted"
 	)
 	print(
 		(
-			"PASS: six-unit Anchor, research/chips, all-direction damage, "
-			+ "manual/program retreat, regroup, archives/death/legacy"
+			"PASS: six-unit Anchor, research/eligibility, all-direction damage, "
+			+ "manual movement, cooldown, archives/death"
 		)
 	)
 	return true
@@ -220,11 +197,20 @@ func _precision():
 	)
 	_check(human.signatures.activate([lancer]) == 0, "Precision cooldown bypassed")
 	# A separate eligible unit can activate, but a cancelled shot never refunds its use.
+	lancer.process_mode = Node.PROCESS_MODE_DISABLED
 	var other = _spawn_weapon("CombatRobot", human, Vector3(42, 0, 13))
 	await _frames(5)
 	other.process_mode = Node.PROCESS_MODE_PAUSABLE
 	other.issue_manual_order(shooting.new(target))
-	await _frames(5)
+	var charge_deadline = game.simulation_time + 3.0
+	while (
+		not is_instance_valid(other.weapon_charge_owner) and game.simulation_time < charge_deadline
+	):
+		await _frames(1)
+	_check(
+		is_instance_valid(other.weapon_charge_owner),
+		"Cancellation fixture never began weapon preparation"
+	)
 	_check(human.signatures.activate([other]) == 1, "Disjoint activation group was blocked")
 	other.issue_manual_order(moving.new(Vector3(37, 0, 13)))
 	_check(not other.signature.precision_ready, "Cancelled accelerated shot refunded Precision")

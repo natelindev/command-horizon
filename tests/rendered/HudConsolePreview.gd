@@ -1,29 +1,51 @@
 extends "res://tests/headless/SaveRestoreEdges.gd"
 
 # Rendered review captures for the faction battle consoles in English and Chinese:
-# closed deck, worker, tank, producer with a full paid queue while other buildings
-# produce, the production overview with nothing selected, a hidden battle plan,
-# multi-selection, lit alerts beacon, pause menu and technology.
+# closed deck, full visibility, worker, tank, producer with a full paid queue while other buildings
+# produce, the production overview with nothing selected, multi-selection, lit
+# alerts beacon, pause menu and technology.
 # Run without --headless: Godot --path . --script tests/rendered/HudConsolePreview.gd
 
 const OUTPUT = "res://art/hud-console/"
+var _full_visibility_only = false
+
+
+class RenderErrorLog:
+	extends Logger
+
+	var messages = []
+	var mutex = Mutex.new()
+
+	func _log_error(_function, file, _line, code, rationale, _notify, _type, _backtraces):
+		mutex.lock()
+		messages.append(file + ": " + code + " " + rationale)
+		mutex.unlock()
 
 
 func _run():
+	if DisplayServer.get_name() == "headless":
+		push_error("HUD console preview needs a renderer; omit --headless")
+		quit(1)
+		return
 	Engine.max_fps = 60
+	var factions = Array(OS.get_cmdline_user_args())
+	_full_visibility_only = factions.has("--full-visibility")
+	factions.erase("--full-visibility")
 	var preferences = root.get_node("Globals").options
 	var original = preferences.capture()
 	root.get_node("SaveManager").autosaves_enabled = false
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT))
+	var logger = RenderErrorLog.new()
+	OS.add_logger(logger)
 	for setup in [
-		["bastion", "ExpandedDesertFrontier", Vector2i(1280, 720), 1.5, "720p", "en"],
-		["helix", "ExpandedAlpineRelay", Vector2i(1920, 1080), 1.0, "1080p", "en"],
+		["bastion", "battlefields/DesertFrontierMap", Vector2i(1280, 720), 1.5, "720p", "en"],
+		["helix", "battlefields/AlpineRelayMap", Vector2i(1920, 1080), 1.0, "1080p", "en"],
 		["frontier", "CoastalFoundry", Vector2i(1280, 720), 1.5, "720p", "en"],
-		["bastion", "ExpandedDesertFrontier", Vector2i(1280, 720), 1.5, "720p-zh", "zh_CN"],
-		["helix", "ExpandedAlpineRelay", Vector2i(1920, 1080), 1.0, "1080p-zh", "zh_CN"],
+		["bastion", "battlefields/DesertFrontierMap", Vector2i(1280, 720), 1.5, "720p-zh", "zh_CN"],
+		["helix", "battlefields/AlpineRelayMap", Vector2i(1920, 1080), 1.0, "1080p-zh", "zh_CN"],
 		["frontier", "CoastalFoundry", Vector2i(1280, 720), 1.5, "720p-zh", "zh_CN"],
 	]:
-		if not OS.get_cmdline_user_args().is_empty() and setup[0] not in OS.get_cmdline_user_args():
+		if not factions.is_empty() and setup[0] not in factions:
 			continue
 		(
 			preferences
@@ -44,6 +66,9 @@ func _run():
 		root.content_scale_size = Vector2i(1920, 1080)
 		root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
 		await _battle(setup[0], setup[1], setup[4])
+	OS.remove_logger(logger)
+	for message in logger.messages:
+		_check(false, message)
 	preferences.restore(original)
 	for message in errors:
 		push_error(message)
@@ -56,9 +81,6 @@ func _battle(faction, map_name, suffix):
 	for player in get_nodes_in_group("players"):
 		if player != game._get_human_player():
 			player.set_process(false)
-	# Hiding the plan for a capture must not touch the reviewer's settings file.
-	var preference_path = "user://hud-preview-options-%d.tres" % OS.get_process_id()
-	_check(game.hud.battle_plan == null, "Skirmish still has a battle-plan panel")
 	var human = game._get_human_player()
 	var camera = game.get_node("IsometricCamera3D")
 	var tank = _units(human, "Tank")[0]
@@ -67,7 +89,22 @@ func _battle(faction, map_name, suffix):
 	game.subtitles._on_line({"speaker": "Command", "text": "Battle control online."})
 	await _frames(40)
 	var label = "%s-%s" % [faction, suffix]
-	await _shot(label + "-closed")
+	if not _full_visibility_only:
+		await _shot(label + "-closed")
+	var resource_stack = game.get_node("HUD/MarginContainer2/Resources")
+	game.settings.visibility = game.settings.Visibility.FULL
+	resource_stack._show_player_bars(get_nodes_in_group("players"))
+	await _frames(12)
+	await _shot(label + "-full-visibility")
+	if _full_visibility_only:
+		paused = false
+		game.queue_free()
+		await _frames(5)
+		return
+	game.settings.visibility = game.settings.Visibility.PER_PLAYER
+	resource_stack._hide_all_bars()
+	resource_stack._show_player_bars([human])
+	await _frames(12)
 	var refineries = load("res://source/match/world/PointOfInterestCatalog.gd").sites(game).filter(
 		func(site): return site.kind == "refinery"
 	)
@@ -106,11 +143,6 @@ func _battle(faction, map_name, suffix):
 	root.get_node("MatchSignals").deselect_all_units.emit()
 	await _frames(20)
 	await _shot(label + "-production")
-
-	await _frames(10)
-	await _shot(label + "-plan-hidden")
-
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(preference_path))
 	await _select(_units(human, "Tank") + _units(human, "Worker"))
 	await _shot(label + "-multi")
 	root.get_node("MatchSignals").deselect_all_units.emit()
@@ -139,7 +171,11 @@ func _select(units):
 
 
 func _shot(label):
-	var resources = game.find_child("ResourcesBar").get_global_rect()
+	var resources = game.get_node("HUD/MarginContainer2/Resources").get_global_rect()
+	_check(
+		game.hud._briefing.position.y >= resources.end.y,
+		"Objective covers resource stack: " + label
+	)
 	_check(
 		resources.end.x + 8 <= game.hud.system_plate.get_global_rect().position.x,
 		"Top plates overlap: " + label

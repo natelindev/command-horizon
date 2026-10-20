@@ -41,7 +41,10 @@ func _earned_budget():
 		drone.queue_free()
 	await _frames(2)
 	game.battlefield.invalidate()
-	var desired = player._next_building(player._units())
+	# Keep the archived airfield-saving decision for this budget contract. The
+	# current growth planner first rebuilds its depleted army before adding it.
+	var desired = "AircraftFactory"
+	_check(_units(player, desired).is_empty(), "Earned archive already has its planned airfield")
 	var reserve = policy.reserve(player, player._units(), desired)
 	var funds = Vector2i(player.resource_a, player.resource_b)
 	var requests = policy.requests(game, player, player._units())

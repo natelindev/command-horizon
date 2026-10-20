@@ -20,13 +20,17 @@ CHANNELS = {
 UNIT_CLASS = {
     'Infantry': 'infantry', 'RocketInfantry': 'infantry', 'AssaultInfantry': 'infantry',
     'SniperInfantry': 'sniper', 'Hero': 'commander', 'Tank': 'armor', 'AdvancedTank': 'armor',
-    'Helicopter': 'air', 'EvacTransport': 'air', 'SupplyTruck': 'logistics', 'Worker': 'logistics',
+    'Helicopter': 'air', 'SupplyTruck': 'logistics', 'Worker': 'logistics',
+    'Fighter': 'air', 'Bomber': 'air', 'AntiAirVehicle': 'armor',
+    'MercenaryWarden': 'infantry', 'MercenaryRanger': 'sniper', 'MercenaryLancer': 'infantry',
 }
-# Faction gear: Bastion analog military, Helix digital codec, Frontier older and rougher.
+# Faction gear: Bastion analog military, Helix digital codec, Frontier older and rougher;
+# mercenaries carry their own cheap commercial handsets, whoever pays them.
 GEAR = {
     'bastion': {'drive': 1.0, 'bits': None, 'low': 0, 'high': 0, 'static_db': -40},
     'helix': {'drive': 0., 'bits': 11, 'low': -30, 'high': 600, 'static_db': None},
     'frontier': {'drive': 1.4, 'bits': None, 'low': 50, 'high': -500, 'static_db': -36},
+    'mercenary': {'drive': 1.2, 'bits': 12, 'low': 80, 'high': -300, 'static_db': -42},
 }
 
 

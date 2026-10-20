@@ -1,8 +1,8 @@
 extends "res://tests/headless/SupplyLineRegression.gd"
 
+# Loaded at runtime: its order scripts use autoloads.
+const UNIT_BEHAVIOR = "res://source/match/orders/UnitBehavior.gd"
 var challenge = ""
-var perimeter = {}
-var service = {}
 var guard_ids = []
 var air_shots = false
 
@@ -51,7 +51,6 @@ func _run():
 	_check(await _play_horizon() == true, "Commander stopped before completing assertions")
 	await _close()
 	DirAccess.remove_absolute(path)
-	DirAccess.remove_absolute(path + ".programs")
 	for message in errors:
 		push_error(message)
 	print("Command Horizon: %d failures" % errors.size())
@@ -60,16 +59,6 @@ func _run():
 
 func _play_horizon():
 	var human = game._get_human_player()
-	var library = load("res://source/match/programs/ProgramLibrary.gd").new()
-	var config = library.defaults("guard")
-	config.radius = 10.0
-	perimeter = library.save_version("Perimeter", config, path + ".programs")
-	var service_config = library.defaults("hold_service")
-	service_config.radius = 12.0
-	service = library.save_version("Service", service_config, path + ".programs")
-	_check(perimeter != null and service != null, "Could not save reusable doctrines")
-	if perimeter == null or service == null:
-		return
 	var deposits = get_nodes_in_group("resource_units").filter(
 		func(unit): return unit.position.x < 20
 	)
@@ -106,12 +95,7 @@ func _play_horizon():
 				attack_move.new(game.map.DEPLOYMENT + Vector3(-1.5, 0, unit.get_index() % 2))
 			)
 		elif unit.type == "Helicopter":
-			var strike = library.defaults("strike_return")
-			strike.radius = 12.0
-			_check(unit.program.configure(strike), "Air strike configuration rejected")
-			unit.program.anchor = game.map.DEPLOYMENT + Vector3(6, 0, 0)
-			unit.program.safe_point = Vector3(15, 0, 77)
-			_check(unit.program.run(), "Air strike program could not start")
+			unit.issue_manual_order(attack_move.new(game.map.DEPLOYMENT + Vector3(6, 0, 0)))
 		else:
 			_assign(unit, game.map.DEPLOYMENT)
 	var start = game.simulation_time
@@ -149,7 +133,6 @@ func _play_horizon():
 	for index in 4:
 		_check(barracks.produce(_infantry_scene()) != null, "Could not buy replacement infantry")
 	var factory = _units(human, "VehicleFactory")[0].get_node("ProductionQueue")
-	factory.fit_chips = true
 	var repair_scene = load("res://source/match/units/RepairRobot.tscn")
 	var tank_scene = load("res://source/match/units/Tank.tscn")
 	_check(factory.produce(repair_scene) != null, "Could not buy replacement repair support")
@@ -202,7 +185,6 @@ func _play_horizon():
 			unit.issue_manual_order(attack_move.new(game.map.TARGET))
 		else:
 			_assign(unit, game.map.TARGET + Vector3(-6, 0, 0))
-	_check(_strike_units().any(_uses_saved_perimeter), "Saved doctrine was not reused for assault")
 	start = game.simulation_time
 	var assault_support_sent = false
 	while not game.finished and game.simulation_time - start < 300:
@@ -221,9 +203,7 @@ func _play_horizon():
 					"Lean force could not pay for second field repair support"
 				)
 			for plane in _units(human, "Helicopter"):
-				plane.program.anchor = game.map.TARGET + Vector3(-4, 0, 6)
-				plane.program.safe_point = game.map.SOUTH + Vector3(10, 0, 0)
-				plane.program.run()
+				plane.issue_manual_order(attack_move.new(game.map.TARGET + Vector3(-4, 0, 6)))
 			for scout in _units(human, "Drone"):
 				scout.issue_manual_order(moving.new(game.map.TARGET + Vector3(-6, 0, 5)))
 		var target = (
@@ -237,7 +217,7 @@ func _play_horizon():
 				and game._alive(target)
 				and unit.attack_range != null
 			):
-				if (unit.program != null and unit.program.mode != "Manual") or _idle(unit):
+				if unit.stance == unit.Stance.HOLD_POSITION or _idle(unit):
 					if game.battlefield.is_observed(human, target):
 						unit.issue_manual_order(
 							load("res://source/match/units/actions/AutoAttacking.gd").new(target)
@@ -253,22 +233,21 @@ func _play_horizon():
 	return true
 
 
+# Vehicles defend a spread position around the point with bounded pursuit; repair robots
+# hold a native Guard post behind it and service damaged allies nearby.
 func _assign(unit, point):
-	if unit.program == null:
+	if unit.type not in ["Tank", "AdvancedTank", "CombatRobot", "RepairRobot"]:
 		unit.issue_manual_order(attack_move.new(point))
 		return
-	var offset = Vector3(4, 0, (unit.get_index() % 4 - 1.5) * 3)
+	var behavior = load(UNIT_BEHAVIOR)
 	if unit.type == "RepairRobot":
-		offset = Vector3(-9, 0, 0)
-	elif unit.type == "AdvancedTank":
+		behavior.guard(unit, point + Vector3(-9, 0, 0))
+		return
+	var offset = Vector3(4, 0, (unit.get_index() % 4 - 1.5) * 3)
+	if unit.type == "AdvancedTank":
 		offset = Vector3(-6, 0, -5 if unit.get_index() % 2 == 0 else 5)
-	unit.program.anchor = point + offset
-	unit.program.safe_point = point + Vector3(-12, 0, 0)
-	unit.program.apply_prepared(service if unit.type == "RepairRobot" else perimeter, null)
-
-
-func _uses_saved_perimeter(unit):
-	return unit.program != null and unit.program.saved_record.get("id") == perimeter.id
+	behavior.set_stance(unit, "defensive")
+	unit.issue_manual_order(attack_move.new(point + offset))
 
 
 func _idle(unit):
@@ -282,7 +261,7 @@ func _strike_units():
 				unit.is_in_group("units")
 				and game._alive(unit)
 				and unit.movement_speed > 0
-				and unit.type not in ["Worker", "Drone", "Helicopter"]
+				and unit.type not in ["Worker", "Drone", "Helicopter", "Hero"]
 				and unit.get_instance_id() not in guard_ids
 			)
 	)
@@ -300,6 +279,7 @@ func _move_strike(point):
 
 
 func _reinforce_guard():
+	load("res://source/match/campaign/CampaignPosts.gd").service(game._get_human_player())
 	var infantry = _units(game._get_human_player(), "Infantry")
 	var holding = infantry.filter(func(unit): return unit.get_instance_id() in guard_ids)
 	for unit in infantry:
@@ -398,14 +378,7 @@ func _report():
 				)
 			for plane in _units(side, "Helicopter"):
 				print(
-					"HORIZON aircraft ",
-					plane.position,
-					" hp=",
-					plane.hp,
-					" program=",
-					plane.program.mode,
-					" reason=",
-					plane.program.reason
+					"HORIZON aircraft ", plane.position, " hp=", plane.hp, " action=", plane.action
 				)
 			for unit in side.get_children():
 				if unit.get_instance_id() in guard_ids:
@@ -416,8 +389,12 @@ func _report():
 						unit.position,
 						" hp=",
 						unit.hp,
-						" program=",
-						unit.program.mode if unit.program != null else "none"
+						" behavior=",
+						(
+							load(UNIT_BEHAVIOR).current(unit)
+							if unit.manual_orders != null
+							else "structure"
+						)
 					)
 
 

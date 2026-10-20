@@ -2,13 +2,23 @@ extends Node3D
 
 const DynamicCircle2D = preload("res://source/generic-scenes-and-nodes/2d/DynamicCircle2D.tscn")
 
+const RevealShape2D = preload("res://source/generic-scenes-and-nodes/2d/RevealShape2D.gd")
+const TerrainSight = preload("res://source/match/maps/terrain/TerrainSight.gd")
 const DEFAULT_SIZE = Vector2i(100, 100)
+# Occlusion outlines refresh after this much movement (metres).
+const OUTLINE_REFRESH = 0.75
+const OUTLINE_BUDGET_USEC = 2000
 
 @export_range(1, 10) var texture_units_per_world_unit = 2  # px/m
 @export var fog_circle_color = Color(0.25, 0.25, 0.25)
 @export var shroud_circle_color = Color(1.0, 1.0, 1.0)
 
 var _unit_to_circles_mapping = {}
+# Elevated maps reveal what units can actually see, not full circles.
+var _terrain = null
+var _outline_origins = {}
+var _outline_airborne = {}
+var _outline_deadline = 0
 
 @onready var _revealer = find_child("Revealer")
 @onready var _fog_viewport = find_child("FogViewport")
@@ -18,8 +28,11 @@ var _unit_to_circles_mapping = {}
 
 
 func _ready():
+	var map = find_parent("Match").find_child("Map")
+	if map != null and map.is_elevated() and "terrain" in map:
+		_terrain = map.terrain
 	if _fog_viewport.size == DEFAULT_SIZE:
-		resize(find_parent("Match").find_child("Map").size)
+		resize(map.size)
 	_screen_overlay.material_override.set_shader_parameter(
 		"texture_units_per_world_unit", texture_units_per_world_unit
 	)
@@ -28,6 +41,7 @@ func _ready():
 
 
 func _physics_process(_delta):
+	_outline_deadline = Time.get_ticks_usec() + OUTLINE_BUDGET_USEC
 	var units_synced = {}
 	var units_to_sync = get_tree().get_nodes_in_group("revealed_units")
 	for unit in units_to_sync:
@@ -55,12 +69,16 @@ func _unit_is_mapped(unit):
 	return unit in _unit_to_circles_mapping
 
 
+func _new_reveal():
+	return RevealShape2D.new() if _terrain != null else DynamicCircle2D.instantiate()
+
+
 func _map_unit_to_new_circles(unit):
-	var shroud_circle = DynamicCircle2D.instantiate()
+	var shroud_circle = _new_reveal()
 	shroud_circle.color = fog_circle_color
 	shroud_circle.radius = unit.sight_range * texture_units_per_world_unit
 	_fog_viewport.add_child(shroud_circle)
-	var fow_circle = DynamicCircle2D.instantiate()
+	var fow_circle = _new_reveal()
 	fow_circle.color = shroud_circle_color
 	fow_circle.radius = unit.sight_range * texture_units_per_world_unit
 	_fog_viewport_container.add_sibling(fow_circle)
@@ -80,9 +98,42 @@ func _sync_circles_to_unit(unit):
 	if (_unit_to_circles_mapping[unit][0].position - unit_pos_2d).length_squared() > 0.0001:
 		_unit_to_circles_mapping[unit][0].position = unit_pos_2d
 		_unit_to_circles_mapping[unit][1].position = unit_pos_2d
+	if _terrain != null:
+		_sync_outline(unit, Vector2(unit_pos_3d.x, unit_pos_3d.z), reach)
+
+
+func _sync_outline(unit, centre: Vector2, reach: float):
+	var airborne = (
+		unit.combat_domain() == Constants.Match.Navigation.Domain.AIR
+		if unit.has_method("combat_domain")
+		else (
+			"movement_domain" in unit
+			and unit.movement_domain == Constants.Match.Navigation.Domain.AIR
+		)
+	)
+	var previous = _outline_origins.get(unit)
+	if (
+		previous != null
+		and previous.distance_to(centre) < OUTLINE_REFRESH
+		and _outline_airborne.get(unit) == airborne
+	):
+		return
+	# Spread terrain occlusion work across frames; a reveal lags at most briefly.
+	if Time.get_ticks_usec() > _outline_deadline:
+		return
+	_outline_origins[unit] = centre
+	_outline_airborne[unit] = airborne
+	var local = PackedVector2Array()
+	if not airborne:
+		for point in TerrainSight.reveal_triangles(_terrain, centre, reach):
+			local.append((point - centre) * texture_units_per_world_unit)
+	for circle in _unit_to_circles_mapping[unit]:
+		circle.triangles = local
 
 
 func _cleanup_mapping(unit):
 	_unit_to_circles_mapping[unit][0].queue_free()
 	_unit_to_circles_mapping[unit][1].queue_free()
 	_unit_to_circles_mapping.erase(unit)
+	_outline_origins.erase(unit)
+	_outline_airborne.erase(unit)

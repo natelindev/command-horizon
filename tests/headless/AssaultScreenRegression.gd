@@ -5,7 +5,7 @@ func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
 	constants = root.get_node("Constants")
 	factions = load("res://source/match/FactionCatalog.gd")
-	plan_rules = load("res://source/match/SkirmishPlan.gd")
+	plan_rules = load("res://tests/UnitQueries.gd")
 	composition = load("res://source/match/players/skirmish-ai/SkirmishComposition.gd")
 	economy_policy = load("res://source/match/players/skirmish-ai/SkirmishEconomy.gd")
 	tech_catalog = load("res://source/match/research/TechnologyCatalog.gd")
@@ -36,7 +36,6 @@ func _screen_fixture(faction):
 		_actor("Worker", index)
 	var factory = _unit(human, "VehicleFactory")
 	var cost = factions.cost(human, "Tank")
-	cost.resource_b += factions.chip_cost(faction)
 	human.resource_a = 100
 	human.resource_b = cost.resource_b + 3
 	metrics = {}

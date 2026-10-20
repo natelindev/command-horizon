@@ -1,4 +1,4 @@
-extends "res://tests/rendered/ProgramPreview.gd"
+extends "res://tests/rendered/PreviewFixture.gd"
 
 
 func _run():
@@ -67,14 +67,9 @@ func _run():
 		_check(tank.manual_orders.pending[2].kind == "attack_move", "Wrong queued attack order")
 	await _frames(20)
 	var menu = _game.find_child("UnitMenus")
-	menu._orders_panel._resume.button_pressed = true
-	_check(
-		tanks.all(func(unit): return unit.manual_orders.auto_resume),
-		"Selection auto-resume toggle failed"
-	)
 	await _capture("orders-paused-720p")
-	_check(menu.get_global_rect().position.y >= 0, "Queue/program panel exceeds 720p height")
-	_check(menu.get_global_rect().end.x <= 1280, "Queue/program panel exceeds 720p width")
+	_check(menu.get_global_rect().position.y >= 0, "Queue panel exceeds 720p height")
+	_check(menu.get_global_rect().end.x <= 1280, "Queue panel exceeds 720p width")
 	_game.hud._toggle_pause()
 	await _frames(90)
 	await _capture("orders-active-720p")
@@ -88,7 +83,10 @@ func _run():
 	)
 	menu._stop_orders()
 	await _frames(20)
-	_check(tanks.all(func(unit): return unit.program.mode == "Manual"), "Stop auto-resumed program")
+	_check(
+		tanks.all(func(unit): return not unit.manual_orders._engaged),
+		"Stop left manual orders running"
+	)
 	root.get_node("MatchSignals").deselect_all_units.emit()
 	var workers = human.get_children().filter(
 		func(unit): return "type" in unit and unit.type == "Worker"
@@ -105,7 +103,7 @@ func _run():
 	if _errors.is_empty():
 		print(
 			(
-				"PASS: rendered Shift move/attack-move, paused routes, clear/Stop/auto-resume controls; "
+				"PASS: rendered Shift move/attack-move, paused routes, clear/Stop controls; "
 				+ "group and worker 720p layout"
 			)
 		)

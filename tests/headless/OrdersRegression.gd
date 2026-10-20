@@ -1,4 +1,4 @@
-extends "res://tests/headless/ProgramRegression.gd"
+extends "res://tests/headless/MatchFixture.gd"
 
 var orders
 
@@ -30,9 +30,6 @@ func _run():
 	for unit in get_nodes_in_group("units"):
 		unit.process_mode = Node.PROCESS_MODE_DISABLED
 	for player in [_human, _enemy]:
-		_spawn("VehicleFactory", player, Vector3(15, 0, 12))
-		_spawn("CommandLab", player, Vector3(20, 0, 12))
-		_check(player.basic_programs_unlocked(), "Fixture unlock failed")
 		await _movement_and_authority(player)
 		await _targets(player)
 		await _combat_and_build(player)
@@ -46,7 +43,7 @@ func _run():
 	if _errors.is_empty():
 		print(
 			(
-				"PASS: both factions queued routes, pause, Shift input, replace/Stop/cap/resume; "
+				"PASS: both factions queued routes, pause, Shift input, replace/Stop/cap; "
 				+ "target loss/fog, repair, follow/skip, harvest, attack/attack-move/build handoffs"
 			)
 		)
@@ -54,7 +51,7 @@ func _run():
 
 
 func _mobile(role, player, point):
-	var unit = _spawn(role, player, point, true)
+	var unit = _spawn(role, player, point)
 	unit.process_mode = Node.PROCESS_MODE_INHERIT
 	return unit
 
@@ -62,8 +59,6 @@ func _mobile(role, player, point):
 func _movement_and_authority(player):
 	var tank = _mobile("Tank", player, Vector3(25, 0, 25))
 	await _frames(30)
-	tank.program.run()
-	await _frames(3)
 	paused = true
 	var start = tank.global_position
 	var first = Vector3(28, 0, 25)
@@ -75,7 +70,6 @@ func _movement_and_authority(player):
 		tank.manual_orders.pending.size() == 2 and tank.global_position == start,
 		"Paused queue advanced"
 	)
-	_check(tank.program.mode == "Manual", "Queued command did not suspend program")
 	paused = false
 	await _frames(500)
 	_check(tank.global_position_yless.distance_to(last) < 0.8, "Queued waypoints did not finish")
@@ -83,7 +77,6 @@ func _movement_and_authority(player):
 		tank.manual_orders.pending.is_empty() and not tank.manual_orders._engaged,
 		"Queue failed to drain"
 	)
-	_check(tank.program.mode == "Manual", "Program resumed without consent")
 	paused = true
 	for index in range(orders.LIMIT):
 		_check(
@@ -98,14 +91,7 @@ func _movement_and_authority(player):
 	_check(tank.manual_orders.pending.size() == 1, "Replacement retained stale orders")
 	tank.issue_manual_order(null)
 	_check(tank.manual_orders.pending.is_empty(), "Stop retained waiting orders")
-	tank.manual_orders.auto_resume = true
-	tank.manual_orders.submit(orders.point_order("move", last))
 	paused = false
-	await _frames(30)
-	_check(tank.program.mode == "Running", "Explicit auto-resume did not run program")
-	tank.manual_orders.submit(orders.point_order("move", first))
-	tank.program.run()
-	_check(tank.manual_orders.pending.is_empty(), "Explicit Resume retained manual queue")
 	await _frames(3)
 	if player == _human:
 		root.get_node("MatchSignals").deselect_all_units.emit()
@@ -125,7 +111,7 @@ func _movement_and_authority(player):
 		_check(tank.manual_orders.pending.size() == 2, "Human Shift terrain input did not append")
 		tank.issue_manual_order(null)
 		paused = false
-	# Air and conventional infantry use the same manual queue without requiring a chip.
+	# Air and conventional infantry use the same manual queue.
 	for role in ["Drone", "Infantry"]:
 		var unit = _mobile(role, player, Vector3(32, 0, 25))
 		await _frames(20)
@@ -220,7 +206,7 @@ func _combat_and_build(player):
 	root.get_node("MatchSignals").deselect_all_units.emit()
 	var opponent = _enemy if player == _human else _human
 	for kind in ["attack", "attack_move"]:
-		var tank = _spawn("Tank", player, Vector3(40, 0, 30), true)
+		var tank = _spawn("Tank", player, Vector3(40, 0, 30))
 		var victim = _spawn("Infantry", opponent, Vector3(42, 0, 30))
 		victim.hp = 1
 		await _frames(30)

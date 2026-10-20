@@ -15,11 +15,8 @@ func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
 	_latin.compile("[A-Za-z]{3,}")
 	# Product/language names and the actual printed keyboard keys remain recognizable.
-	(
-		_allowed
-		. compile(
-			"\\b(OPEN RTS|Lua|English|MSAA|Shift|Ctrl|Space|Esc|Escape|Tab|Alt|Enter|Backspace|Delete)\\b"
-		)
+	_allowed.compile(
+		"\\b(OPEN RTS|English|MSAA|Shift|Ctrl|Space|Esc|Escape|Tab|Alt|Enter|Backspace|Delete)\\b"
 	)
 	for scene_name in ["Main", "World", "Play", "Campaign"]:
 		var scene = load("res://source/main-menu/%s.tscn" % scene_name).instantiate()
@@ -35,7 +32,7 @@ func _run():
 		scene.queue_free()
 		await _frames(3)
 	var factions = ["bastion", "helix", "frontier"]
-	var maps = ["AlpineRelay", "IndustrialCrossroads", "ExpandedAlpineRelay"]
+	var maps = ["AlpineRelay", "IndustrialCrossroads", "battlefields/AlpineRelayMap"]
 	for index in factions.size():
 		await _skirmish(factions[index], "res://source/match/maps/%s.tscn" % maps[index])
 		for side in get_nodes_in_group("players"):
@@ -107,10 +104,8 @@ func _production_text(human):
 	var queue = factory.production_queue
 	var job = queue.ProductionQueueElement.new()
 	job.unit_prototype = load("res://source/match/units/Tank.tscn")
-	job.fitted_chip = true
 	job.time_total = 1.0
 	job.time_left = 1.0
-	job.program_snapshot = {"title": "Hold · built-in"}
 	var button = load("res://source/match/hud/ProductionQueueElement.tscn").instantiate()
 	button.queue = queue
 	button.queue_element = job

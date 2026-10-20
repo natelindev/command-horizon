@@ -1,6 +1,8 @@
 extends "res://tests/headless/CommandHorizonRegression.gd"
 
 const EVIDENCE = "res://docs/playtests/2026-10-07/horizon-surroundings/"
+# Includes ambient walkway clearance; the dated playtest evidence remains historical.
+const GEOMETRY_FIXTURE = "res://tests/fixtures/horizon-surroundings-geometry"
 
 
 func _run():
@@ -14,7 +16,7 @@ func _run():
 	var baseline = "--baseline" in OS.get_cmdline_user_args()
 	if not baseline:
 		var original = JSON.parse_string(
-			FileAccess.get_file_as_string(EVIDENCE + "baseline" + suffix + ".json")
+			FileAccess.get_file_as_string(GEOMETRY_FIXTURE + suffix + ".json")
 		)
 		_check(report.blockers.size() == original.blockers.size(), "Horizon blocker count changed")
 		for index in report.blockers.size():
@@ -74,7 +76,8 @@ func _run():
 	(
 		FileAccess
 		. open(
-			EVIDENCE + ("baseline" if baseline else "geometry") + suffix + ".json", FileAccess.WRITE
+			(GEOMETRY_FIXTURE if baseline else EVIDENCE + "geometry") + suffix + ".json",
+			FileAccess.WRITE
 		)
 		. store_string(JSON.stringify(report, "\t"))
 	)
@@ -109,7 +112,10 @@ func _geometry():
 		)
 		var radius = 0.0
 		var height = 0.0
-		for point in _vertices(body):
+		# NeutralBuilding adds selection rings beside the authored model.
+		var model = body.get_child(0)
+		_check(model.scene_file_path.ends_with(".glb"), "Landmark model missing")
+		for point in _vertices(model):
 			var offset = point - body.global_position
 			radius = maxf(radius, Vector2(offset.x, offset.z).length())
 			height = maxf(height, offset.y)

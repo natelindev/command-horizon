@@ -5,7 +5,8 @@ Normal production, the battle UI, AI armies and save restoration no longer start
 per-unit Lua execution. The former code/rule editors, factory program selectors,
 chip purchases and squad-program pages are retired from battle controls. Legacy
 source and preset classes remain for archive validation and authored mission
-internals. See [behavior rules](../UNIT_BEHAVIORS.md).
+internals. See [behavior rules](../UNIT_BEHAVIORS.md). Update 2026-10-20: those
+legacy classes, the Lua runtime and old-save migration have since been removed.
 
 Follow-up menu cleanup, soldier animation timing and shared resource spacing are
 recorded in [the follow-up report](FOLLOW_UP.md). The measurements below were

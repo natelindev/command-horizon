@@ -22,6 +22,11 @@ const CombatRules = preload("res://source/match/combat/CombatRules.gd")
 const Difficulty = preload("res://source/match/players/skirmish-ai/SkirmishDifficulty.gd")
 const Footprint = preload("res://source/match/utils/Footprint.gd")
 const AirfieldLayout = preload("res://source/match/units/AirfieldLayout.gd")
+const Expansion = preload("res://source/match/players/skirmish-ai/SkirmishExpansion.gd")
+
+# Optional facilities follow a growing army instead of consuming its opening budget.
+const OPTIONAL_ARMY_STEP = 5
+const OPTIONAL_ARMY_LIMIT = 20
 
 var structures_built = 0
 var attacks_launched = 0
@@ -30,6 +35,8 @@ var _last_wave = 0.0
 var _production_index = 0
 var _army_groups = []
 var _army_cursor = 0
+# Authored expansion site chosen for the next headquarters, if any.
+var _expansion_site = null
 @onready var _match = find_parent("Match")
 
 
@@ -66,8 +73,18 @@ func _of_type(units, role):
 
 
 func _next_building(units):
+	_expansion_site = null
 	if _of_type(units, "CommandCenter").is_empty():
 		return "CommandCenter"
+	# Once the core base stands, a due expansion comes first: a headquarters
+	# needs no power and supplies its own.
+	if (
+		not _of_type(units, "Barracks").is_empty()
+		and not _of_type(units, "VehicleFactory").is_empty()
+	):
+		_expansion_site = Expansion.next_site(_match, self, units, Economy.contacts(_match, self))
+		if _expansion_site != null:
+			return "CommandCenter"
 	var power = power_totals()
 	if (
 		power.x < power.y + 6
@@ -116,16 +133,36 @@ func _expansion_building(units):
 			"AntiGroundTurret": 260.0
 		}
 	var scale = profile().timing_scale
+	var order = 0
 	for role in expansion:
+		order += 1
 		if _match.simulation_time >= expansion[role] * scale and _of_type(units, role).is_empty():
-			return role
-	# Stronger commanders add production once the opening base is complete.
+			return role if _army_supports_optional(units, order) else ""
+	# Additional capacity must not compete with the army it should produce.
 	if (
 		_match.simulation_time >= Difficulty.EXTRA_FACTORY_TIME
 		and _of_type(units, "VehicleFactory").size() < 1 + profile().extra_factories
+		and _can_fund_extra_factory(units)
 	):
 		return "VehicleFactory"
 	return ""
+
+
+func _army_supports_optional(units, order):
+	# Queued units already have their production cost paid. Capped commanders
+	# can finish their base after reaching their current army limit.
+	var needed = mini(OPTIONAL_ARMY_STEP * order, OPTIONAL_ARMY_LIMIT)
+	var cap = Difficulty.army_cap(difficulty, _match.simulation_time)
+	if cap > 0:
+		needed = mini(needed, cap)
+	return Production.army_size(Composition.inventory(units)) >= needed
+
+
+func _can_fund_extra_factory(units):
+	var budget = Production.reserve(self, units, "VehicleFactory")
+	for job in Production.requests(_match, self, units, true):
+		budget += Vector2i(job.cost.resource_a, job.cost.resource_b)
+	return resource_a >= budget.x and resource_b >= budget.y
 
 
 func _power_ready_building(units, role):
@@ -176,6 +213,8 @@ func _build(units, desired):
 	var site = Transform3D.IDENTITY
 	if Footprint.has_outline(building):
 		site = _find_footprint_site(origin, Footprint.local_outline(building), navmap)
+	elif desired == "CommandCenter" and _expansion_site != null:
+		site.origin = _expansion_position(_expansion_site, building.radius, navmap)
 	else:
 		site.origin = _find_site(origin, building.radius, navmap)
 	var position_to_build = site.origin
@@ -190,6 +229,28 @@ func _build(units, desired):
 	_match._setup_and_spawn_unit(building, site, self)
 	Labor.assign_construction(builder, building)
 	structures_built += 1
+
+
+# The authored site itself, else the nearest level spot beside it.
+func _expansion_position(site, radius, navmap):
+	var obstacles = (
+		get_tree().get_nodes_in_group("units") + get_tree().get_nodes_in_group("resource_units")
+	)
+	# Guards and gatherers often stand on the site itself; try rings around it.
+	for distance in [0.0, 2.0, 4.0, 6.0, 8.0]:
+		for index in range(1 if distance == 0.0 else 12):
+			var point = (
+				site + Vector3(cos(index * TAU / 12.0), 0, sin(index * TAU / 12.0)) * distance
+			)
+			point = _match.map.ground_point(Vector2(point.x, point.z))
+			if (
+				Utils.Match.Unit.Placement.validate_agent_placement_position(
+					point, radius, obstacles, navmap, _match.map
+				)
+				== Utils.Match.Unit.Placement.VALID
+			):
+				return point
+	return Vector3.INF
 
 
 func _find_site(origin, radius, navmap):
@@ -209,8 +270,10 @@ func _find_site(origin, radius, navmap):
 				continue
 			if not _leaves_base_access(point, radius, obstacles):
 				continue
+			if _match.map.is_elevated():
+				point = _match.map.ground_point(Vector2(point.x, point.z))
 			var validity = Utils.Match.Unit.Placement.validate_agent_placement_position(
-				point, radius, obstacles, navmap
+				point, radius, obstacles, navmap, _match.map
 			)
 			if validity == Utils.Match.Unit.Placement.VALID:
 				return point
@@ -387,7 +450,6 @@ func _train(units, desired):
 			# producers, instead of spending its next delivery on cheaper armor.
 			reserve += price
 			continue
-		job.producer.production_queue.fit_chips = job.fit_chips
 		if job.producer.production_queue.produce(load(Catalog.scene_path(job.role))) != null:
 			if job.producer.type == "VehicleFactory":
 				_production_index += 1
@@ -550,7 +612,7 @@ func _research_candidate(units):
 		coordination_left > 0
 		or technology.active != ""
 		or not has_completed_structure("CommandLab")
-		or not basic_programs_unlocked()
+		or not lab_research_unlocked()
 	):
 		return {}
 	var id = "coordination"
@@ -620,7 +682,7 @@ func _choose_weapon_modes(units):
 	for unit in _of_type(units, "CombatRobot"):
 		if unit.weapon_switch_left > 0:
 			continue
-		# Mode choice belongs to the opponent commander, not the player's Lua API.
+		# Mode choice belongs to the opponent commander.
 		# Keep the current stance when no contact is observed; never inspect hidden forces.
 		var contacts = _match.battlefield.nearby_units(unit.global_position_yless, unit.sight_range)
 		contacts = contacts.filter(
@@ -637,21 +699,3 @@ func _choose_weapon_modes(units):
 			func(other): return other.movement_domain == Constants.Match.Navigation.Domain.AIR
 		)
 		unit.request_weapon_mode("interception" if air else "precision")
-
-
-func _arm_units_with_programs(units):
-	if not profile().programs:
-		return
-	var Library = load("res://source/match/programs/ProgramLibrary.gd")
-	for unit in units:
-		if "type" in unit and unit.type in ["CombatRobot", "AdvancedTank", "Drone"]:
-			var prog = unit.get_node_or_null("UnitProgram")
-			if prog != null and prog.mode == "Manual":
-				prog.installed = true
-				if unit.type == "CombatRobot":
-					prog.configure(Library.defaults("fire_support"), "AI Fire Support")
-				elif unit.type == "AdvancedTank":
-					prog.configure(Library.defaults("standoff"), "AI Standoff")
-				elif unit.type == "Drone":
-					prog.configure(Library.defaults("scout_patrol"), "AI Scout")
-				prog.run()

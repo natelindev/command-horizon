@@ -1,12 +1,12 @@
 {
-  "clips": 687,
-  "speech_clips": 390,
-  "distinct_speakers": 45,
+  "clips": 759,
+  "speech_clips": 462,
+  "distinct_speakers": 54,
   "speech_lufs_range": [
     -16.72,
     -15.47
   ],
-  "total_seconds": 853.67,
+  "total_seconds": 1000.17,
   "highest_peak_dbfs": -0.89,
   "assets": [
     {
@@ -612,59 +612,171 @@
       "lufs": -16.0
     },
     {
-      "file": "bastion/EvacTransport/select_0.ogg",
-      "seconds": 3.12,
-      "peak_dbfs": -2.77,
-      "rms_dbfs": -16.8,
+      "file": "bastion/Fighter/select_0.ogg",
+      "seconds": 2.741,
+      "peak_dbfs": -1.93,
+      "rms_dbfs": -16.83,
+      "lufs": -15.99
+    },
+    {
+      "file": "bastion/Fighter/select_1.ogg",
+      "seconds": 1.787,
+      "peak_dbfs": -1.55,
+      "rms_dbfs": -17.09,
       "lufs": -16.0
     },
     {
-      "file": "bastion/EvacTransport/select_1.ogg",
-      "seconds": 1.776,
-      "peak_dbfs": -3.53,
-      "rms_dbfs": -15.85,
+      "file": "bastion/Fighter/move_0.ogg",
+      "seconds": 2.32,
+      "peak_dbfs": -3.32,
+      "rms_dbfs": -16.43,
       "lufs": -15.99
     },
     {
-      "file": "bastion/EvacTransport/move_0.ogg",
-      "seconds": 1.392,
-      "peak_dbfs": -1.72,
-      "rms_dbfs": -17.05,
+      "file": "bastion/Fighter/move_1.ogg",
+      "seconds": 2.331,
+      "peak_dbfs": -2.99,
+      "rms_dbfs": -17.7,
       "lufs": -16.0
     },
     {
-      "file": "bastion/EvacTransport/move_1.ogg",
-      "seconds": 2.757,
-      "peak_dbfs": -4.26,
-      "rms_dbfs": -16.81,
-      "lufs": -15.99
+      "file": "bastion/Fighter/attack_0.ogg",
+      "seconds": 2.464,
+      "peak_dbfs": -3.04,
+      "rms_dbfs": -16.63,
+      "lufs": -16.0
     },
     {
-      "file": "bastion/EvacTransport/attack_0.ogg",
-      "seconds": 2.219,
-      "peak_dbfs": -2.54,
-      "rms_dbfs": -16.8,
-      "lufs": -15.99
-    },
-    {
-      "file": "bastion/EvacTransport/attack_1.ogg",
-      "seconds": 1.109,
-      "peak_dbfs": -3.56,
-      "rms_dbfs": -16.84,
-      "lufs": -15.99
-    },
-    {
-      "file": "bastion/EvacTransport/ready_0.ogg",
-      "seconds": 2.843,
-      "peak_dbfs": -1.63,
+      "file": "bastion/Fighter/attack_1.ogg",
+      "seconds": 2.117,
+      "peak_dbfs": -2.19,
       "rms_dbfs": -16.95,
+      "lufs": -16.0
+    },
+    {
+      "file": "bastion/Fighter/ready_0.ogg",
+      "seconds": 2.608,
+      "peak_dbfs": -1.52,
+      "rms_dbfs": -16.73,
+      "lufs": -16.0
+    },
+    {
+      "file": "bastion/Fighter/stop_0.ogg",
+      "seconds": 2.288,
+      "peak_dbfs": -3.5,
+      "rms_dbfs": -17.13,
+      "lufs": -16.0
+    },
+    {
+      "file": "bastion/Bomber/select_0.ogg",
+      "seconds": 1.936,
+      "peak_dbfs": -1.9,
+      "rms_dbfs": -16.43,
+      "lufs": -16.0
+    },
+    {
+      "file": "bastion/Bomber/select_1.ogg",
+      "seconds": 1.504,
+      "peak_dbfs": -1.77,
+      "rms_dbfs": -16.67,
+      "lufs": -16.0
+    },
+    {
+      "file": "bastion/Bomber/move_0.ogg",
+      "seconds": 2.448,
+      "peak_dbfs": -3.47,
+      "rms_dbfs": -16.52,
+      "lufs": -16.0
+    },
+    {
+      "file": "bastion/Bomber/move_1.ogg",
+      "seconds": 1.883,
+      "peak_dbfs": -1.39,
+      "rms_dbfs": -16.83,
+      "lufs": -16.0
+    },
+    {
+      "file": "bastion/Bomber/attack_0.ogg",
+      "seconds": 1.701,
+      "peak_dbfs": -2.68,
+      "rms_dbfs": -16.11,
+      "lufs": -16.0
+    },
+    {
+      "file": "bastion/Bomber/attack_1.ogg",
+      "seconds": 1.344,
+      "peak_dbfs": -4.24,
+      "rms_dbfs": -16.04,
+      "lufs": -16.0
+    },
+    {
+      "file": "bastion/Bomber/ready_0.ogg",
+      "seconds": 2.267,
+      "peak_dbfs": -1.34,
+      "rms_dbfs": -16.3,
+      "lufs": -16.0
+    },
+    {
+      "file": "bastion/Bomber/stop_0.ogg",
+      "seconds": 1.915,
+      "peak_dbfs": -1.37,
+      "rms_dbfs": -16.79,
+      "lufs": -16.01
+    },
+    {
+      "file": "bastion/AntiAirVehicle/select_0.ogg",
+      "seconds": 2.437,
+      "peak_dbfs": -1.54,
+      "rms_dbfs": -17.63,
       "lufs": -15.99
     },
     {
-      "file": "bastion/EvacTransport/stop_0.ogg",
-      "seconds": 1.963,
-      "peak_dbfs": -1.46,
-      "rms_dbfs": -16.36,
+      "file": "bastion/AntiAirVehicle/select_1.ogg",
+      "seconds": 2.64,
+      "peak_dbfs": -3.29,
+      "rms_dbfs": -16.38,
+      "lufs": -16.0
+    },
+    {
+      "file": "bastion/AntiAirVehicle/move_0.ogg",
+      "seconds": 1.76,
+      "peak_dbfs": -2.26,
+      "rms_dbfs": -16.05,
+      "lufs": -16.0
+    },
+    {
+      "file": "bastion/AntiAirVehicle/move_1.ogg",
+      "seconds": 2.037,
+      "peak_dbfs": -3.69,
+      "rms_dbfs": -16.95,
+      "lufs": -16.0
+    },
+    {
+      "file": "bastion/AntiAirVehicle/attack_0.ogg",
+      "seconds": 1.904,
+      "peak_dbfs": -1.37,
+      "rms_dbfs": -16.73,
+      "lufs": -16.02
+    },
+    {
+      "file": "bastion/AntiAirVehicle/attack_1.ogg",
+      "seconds": 1.733,
+      "peak_dbfs": -4.45,
+      "rms_dbfs": -16.91,
+      "lufs": -15.99
+    },
+    {
+      "file": "bastion/AntiAirVehicle/ready_0.ogg",
+      "seconds": 3.381,
+      "peak_dbfs": -2.53,
+      "rms_dbfs": -16.98,
+      "lufs": -16.0
+    },
+    {
+      "file": "bastion/AntiAirVehicle/stop_0.ogg",
+      "seconds": 2.155,
+      "peak_dbfs": -1.45,
+      "rms_dbfs": -16.41,
       "lufs": -16.0
     },
     {
@@ -2116,60 +2228,172 @@
       "lufs": -16.01
     },
     {
-      "file": "helix/EvacTransport/select_0.ogg",
-      "seconds": 1.691,
-      "peak_dbfs": -1.98,
-      "rms_dbfs": -16.12,
-      "lufs": -16.0
-    },
-    {
-      "file": "helix/EvacTransport/select_1.ogg",
-      "seconds": 1.68,
-      "peak_dbfs": -1.4,
-      "rms_dbfs": -17.58,
-      "lufs": -16.0
-    },
-    {
-      "file": "helix/EvacTransport/move_0.ogg",
-      "seconds": 1.253,
-      "peak_dbfs": -1.43,
-      "rms_dbfs": -16.94,
-      "lufs": -16.03
-    },
-    {
-      "file": "helix/EvacTransport/move_1.ogg",
-      "seconds": 1.691,
+      "file": "helix/Fighter/select_0.ogg",
+      "seconds": 2.32,
       "peak_dbfs": -1.34,
-      "rms_dbfs": -17.43,
-      "lufs": -16.1
-    },
-    {
-      "file": "helix/EvacTransport/attack_0.ogg",
-      "seconds": 1.797,
-      "peak_dbfs": -1.35,
-      "rms_dbfs": -16.59,
+      "rms_dbfs": -16.94,
       "lufs": -16.0
     },
     {
-      "file": "helix/EvacTransport/attack_1.ogg",
-      "seconds": 1.733,
-      "peak_dbfs": -1.26,
-      "rms_dbfs": -17.13,
+      "file": "helix/Fighter/select_1.ogg",
+      "seconds": 1.387,
+      "peak_dbfs": -1.32,
+      "rms_dbfs": -16.57,
+      "lufs": -16.0
+    },
+    {
+      "file": "helix/Fighter/move_0.ogg",
+      "seconds": 1.413,
+      "peak_dbfs": -1.38,
+      "rms_dbfs": -17.19,
+      "lufs": -16.35
+    },
+    {
+      "file": "helix/Fighter/move_1.ogg",
+      "seconds": 1.867,
+      "peak_dbfs": -1.36,
+      "rms_dbfs": -16.78,
+      "lufs": -16.01
+    },
+    {
+      "file": "helix/Fighter/attack_0.ogg",
+      "seconds": 1.797,
+      "peak_dbfs": -1.58,
+      "rms_dbfs": -17.03,
+      "lufs": -16.01
+    },
+    {
+      "file": "helix/Fighter/attack_1.ogg",
+      "seconds": 1.781,
+      "peak_dbfs": -2.45,
+      "rms_dbfs": -17.0,
+      "lufs": -16.0
+    },
+    {
+      "file": "helix/Fighter/ready_0.ogg",
+      "seconds": 2.347,
+      "peak_dbfs": -1.36,
+      "rms_dbfs": -16.15,
+      "lufs": -16.09
+    },
+    {
+      "file": "helix/Fighter/stop_0.ogg",
+      "seconds": 1.808,
+      "peak_dbfs": -1.32,
+      "rms_dbfs": -16.38,
+      "lufs": -16.01
+    },
+    {
+      "file": "helix/Bomber/select_0.ogg",
+      "seconds": 2.203,
+      "peak_dbfs": -1.41,
+      "rms_dbfs": -16.52,
       "lufs": -15.99
     },
     {
-      "file": "helix/EvacTransport/ready_0.ogg",
-      "seconds": 2.224,
-      "peak_dbfs": -1.34,
-      "rms_dbfs": -16.42,
-      "lufs": -16.03
+      "file": "helix/Bomber/select_1.ogg",
+      "seconds": 2.325,
+      "peak_dbfs": -1.39,
+      "rms_dbfs": -16.97,
+      "lufs": -15.99
     },
     {
-      "file": "helix/EvacTransport/stop_0.ogg",
-      "seconds": 1.579,
-      "peak_dbfs": -1.38,
-      "rms_dbfs": -16.93,
+      "file": "helix/Bomber/move_0.ogg",
+      "seconds": 2.603,
+      "peak_dbfs": -1.32,
+      "rms_dbfs": -16.62,
+      "lufs": -16.05
+    },
+    {
+      "file": "helix/Bomber/move_1.ogg",
+      "seconds": 2.117,
+      "peak_dbfs": -1.36,
+      "rms_dbfs": -17.38,
       "lufs": -16.0
+    },
+    {
+      "file": "helix/Bomber/attack_0.ogg",
+      "seconds": 1.824,
+      "peak_dbfs": -1.61,
+      "rms_dbfs": -17.23,
+      "lufs": -16.0
+    },
+    {
+      "file": "helix/Bomber/attack_1.ogg",
+      "seconds": 1.84,
+      "peak_dbfs": -1.37,
+      "rms_dbfs": -17.77,
+      "lufs": -16.01
+    },
+    {
+      "file": "helix/Bomber/ready_0.ogg",
+      "seconds": 2.555,
+      "peak_dbfs": -1.41,
+      "rms_dbfs": -16.15,
+      "lufs": -16.0
+    },
+    {
+      "file": "helix/Bomber/stop_0.ogg",
+      "seconds": 2.133,
+      "peak_dbfs": -1.3,
+      "rms_dbfs": -16.42,
+      "lufs": -16.0
+    },
+    {
+      "file": "helix/AntiAirVehicle/select_0.ogg",
+      "seconds": 2.987,
+      "peak_dbfs": -1.38,
+      "rms_dbfs": -16.89,
+      "lufs": -16.0
+    },
+    {
+      "file": "helix/AntiAirVehicle/select_1.ogg",
+      "seconds": 2.347,
+      "peak_dbfs": -1.27,
+      "rms_dbfs": -17.07,
+      "lufs": -16.0
+    },
+    {
+      "file": "helix/AntiAirVehicle/move_0.ogg",
+      "seconds": 1.979,
+      "peak_dbfs": -1.26,
+      "rms_dbfs": -18.05,
+      "lufs": -16.0
+    },
+    {
+      "file": "helix/AntiAirVehicle/move_1.ogg",
+      "seconds": 2.405,
+      "peak_dbfs": -1.43,
+      "rms_dbfs": -17.02,
+      "lufs": -16.0
+    },
+    {
+      "file": "helix/AntiAirVehicle/attack_0.ogg",
+      "seconds": 3.056,
+      "peak_dbfs": -1.33,
+      "rms_dbfs": -16.49,
+      "lufs": -16.01
+    },
+    {
+      "file": "helix/AntiAirVehicle/attack_1.ogg",
+      "seconds": 1.371,
+      "peak_dbfs": -1.43,
+      "rms_dbfs": -16.38,
+      "lufs": -16.0
+    },
+    {
+      "file": "helix/AntiAirVehicle/ready_0.ogg",
+      "seconds": 2.955,
+      "peak_dbfs": -1.29,
+      "rms_dbfs": -16.35,
+      "lufs": -16.0
+    },
+    {
+      "file": "helix/AntiAirVehicle/stop_0.ogg",
+      "seconds": 2.005,
+      "peak_dbfs": -1.32,
+      "rms_dbfs": -16.38,
+      "lufs": -16.17
     },
     {
       "file": "helix/Worker/select_0.ogg",
@@ -3697,60 +3921,172 @@
       "lufs": -15.99
     },
     {
-      "file": "frontier/EvacTransport/select_0.ogg",
-      "seconds": 1.984,
-      "peak_dbfs": -1.61,
-      "rms_dbfs": -16.82,
+      "file": "frontier/Fighter/select_0.ogg",
+      "seconds": 2.272,
+      "peak_dbfs": -1.99,
+      "rms_dbfs": -16.55,
       "lufs": -16.0
     },
     {
-      "file": "frontier/EvacTransport/select_1.ogg",
-      "seconds": 1.717,
-      "peak_dbfs": -1.42,
-      "rms_dbfs": -17.21,
-      "lufs": -16.0
-    },
-    {
-      "file": "frontier/EvacTransport/move_0.ogg",
-      "seconds": 1.195,
-      "peak_dbfs": -2.8,
-      "rms_dbfs": -16.86,
+      "file": "frontier/Fighter/select_1.ogg",
+      "seconds": 1.136,
+      "peak_dbfs": -1.56,
+      "rms_dbfs": -17.05,
       "lufs": -15.99
     },
     {
-      "file": "frontier/EvacTransport/move_1.ogg",
+      "file": "frontier/Fighter/move_0.ogg",
+      "seconds": 2.624,
+      "peak_dbfs": -4.74,
+      "rms_dbfs": -17.01,
+      "lufs": -16.0
+    },
+    {
+      "file": "frontier/Fighter/move_1.ogg",
+      "seconds": 1.792,
+      "peak_dbfs": -2.46,
+      "rms_dbfs": -16.66,
+      "lufs": -16.0
+    },
+    {
+      "file": "frontier/Fighter/attack_0.ogg",
+      "seconds": 2.117,
+      "peak_dbfs": -1.64,
+      "rms_dbfs": -17.78,
+      "lufs": -16.0
+    },
+    {
+      "file": "frontier/Fighter/attack_1.ogg",
+      "seconds": 2.091,
+      "peak_dbfs": -3.84,
+      "rms_dbfs": -17.24,
+      "lufs": -16.0
+    },
+    {
+      "file": "frontier/Fighter/ready_0.ogg",
+      "seconds": 2.197,
+      "peak_dbfs": -2.42,
+      "rms_dbfs": -16.07,
+      "lufs": -15.99
+    },
+    {
+      "file": "frontier/Fighter/stop_0.ogg",
+      "seconds": 1.744,
+      "peak_dbfs": -2.94,
+      "rms_dbfs": -17.6,
+      "lufs": -16.0
+    },
+    {
+      "file": "frontier/Bomber/select_0.ogg",
       "seconds": 1.781,
-      "peak_dbfs": -2.5,
-      "rms_dbfs": -17.11,
+      "peak_dbfs": -1.4,
+      "rms_dbfs": -16.36,
       "lufs": -16.0
     },
     {
-      "file": "frontier/EvacTransport/attack_0.ogg",
-      "seconds": 1.211,
-      "peak_dbfs": -1.53,
-      "rms_dbfs": -16.94,
+      "file": "frontier/Bomber/select_1.ogg",
+      "seconds": 1.616,
+      "peak_dbfs": -2.72,
+      "rms_dbfs": -16.39,
+      "lufs": -15.99
+    },
+    {
+      "file": "frontier/Bomber/move_0.ogg",
+      "seconds": 1.787,
+      "peak_dbfs": -3.13,
+      "rms_dbfs": -16.69,
       "lufs": -16.0
     },
     {
-      "file": "frontier/EvacTransport/attack_1.ogg",
-      "seconds": 2.048,
-      "peak_dbfs": -3.78,
-      "rms_dbfs": -16.32,
+      "file": "frontier/Bomber/move_1.ogg",
+      "seconds": 1.424,
+      "peak_dbfs": -5.7,
+      "rms_dbfs": -16.89,
       "lufs": -16.0
     },
     {
-      "file": "frontier/EvacTransport/ready_0.ogg",
-      "seconds": 2.4,
-      "peak_dbfs": -2.98,
-      "rms_dbfs": -16.75,
+      "file": "frontier/Bomber/attack_0.ogg",
+      "seconds": 1.104,
+      "peak_dbfs": -4.49,
+      "rms_dbfs": -15.99,
+      "lufs": -15.99
+    },
+    {
+      "file": "frontier/Bomber/attack_1.ogg",
+      "seconds": 1.136,
+      "peak_dbfs": -2.1,
+      "rms_dbfs": -15.81,
+      "lufs": -15.99
+    },
+    {
+      "file": "frontier/Bomber/ready_0.ogg",
+      "seconds": 2.181,
+      "peak_dbfs": -1.32,
+      "rms_dbfs": -16.57,
+      "lufs": -16.02
+    },
+    {
+      "file": "frontier/Bomber/stop_0.ogg",
+      "seconds": 1.803,
+      "peak_dbfs": -5.92,
+      "rms_dbfs": -17.28,
       "lufs": -16.0
     },
     {
-      "file": "frontier/EvacTransport/stop_0.ogg",
-      "seconds": 1.611,
-      "peak_dbfs": -3.91,
-      "rms_dbfs": -17.3,
+      "file": "frontier/AntiAirVehicle/select_0.ogg",
+      "seconds": 2.347,
+      "peak_dbfs": -1.35,
+      "rms_dbfs": -16.64,
+      "lufs": -16.04
+    },
+    {
+      "file": "frontier/AntiAirVehicle/select_1.ogg",
+      "seconds": 1.643,
+      "peak_dbfs": -1.38,
+      "rms_dbfs": -16.72,
       "lufs": -16.0
+    },
+    {
+      "file": "frontier/AntiAirVehicle/move_0.ogg",
+      "seconds": 1.6,
+      "peak_dbfs": -1.69,
+      "rms_dbfs": -16.85,
+      "lufs": -16.01
+    },
+    {
+      "file": "frontier/AntiAirVehicle/move_1.ogg",
+      "seconds": 1.744,
+      "peak_dbfs": -4.42,
+      "rms_dbfs": -16.39,
+      "lufs": -15.99
+    },
+    {
+      "file": "frontier/AntiAirVehicle/attack_0.ogg",
+      "seconds": 1.36,
+      "peak_dbfs": -1.36,
+      "rms_dbfs": -16.91,
+      "lufs": -16.07
+    },
+    {
+      "file": "frontier/AntiAirVehicle/attack_1.ogg",
+      "seconds": 1.563,
+      "peak_dbfs": -2.81,
+      "rms_dbfs": -16.48,
+      "lufs": -16.0
+    },
+    {
+      "file": "frontier/AntiAirVehicle/ready_0.ogg",
+      "seconds": 2.059,
+      "peak_dbfs": -3.14,
+      "rms_dbfs": -16.13,
+      "lufs": -16.0
+    },
+    {
+      "file": "frontier/AntiAirVehicle/stop_0.ogg",
+      "seconds": 1.147,
+      "peak_dbfs": -2.97,
+      "rms_dbfs": -16.38,
+      "lufs": -15.99
     },
     {
       "file": "frontier/RepairRobot/select_0.ogg",
@@ -4520,6 +4856,174 @@
       "seconds": 0.557,
       "peak_dbfs": -8.42,
       "rms_dbfs": -20.51
+    },
+    {
+      "file": "mercenary/MercenaryWarden/select_0.ogg",
+      "seconds": 2.789,
+      "peak_dbfs": -4.37,
+      "rms_dbfs": -16.36,
+      "lufs": -16.0
+    },
+    {
+      "file": "mercenary/MercenaryWarden/select_1.ogg",
+      "seconds": 2.053,
+      "peak_dbfs": -2.85,
+      "rms_dbfs": -16.66,
+      "lufs": -15.99
+    },
+    {
+      "file": "mercenary/MercenaryWarden/move_0.ogg",
+      "seconds": 1.451,
+      "peak_dbfs": -3.93,
+      "rms_dbfs": -16.81,
+      "lufs": -16.0
+    },
+    {
+      "file": "mercenary/MercenaryWarden/move_1.ogg",
+      "seconds": 2.16,
+      "peak_dbfs": -4.33,
+      "rms_dbfs": -16.74,
+      "lufs": -15.99
+    },
+    {
+      "file": "mercenary/MercenaryWarden/attack_0.ogg",
+      "seconds": 2.04,
+      "peak_dbfs": -4.66,
+      "rms_dbfs": -17.37,
+      "lufs": -16.0
+    },
+    {
+      "file": "mercenary/MercenaryWarden/attack_1.ogg",
+      "seconds": 1.461,
+      "peak_dbfs": -3.61,
+      "rms_dbfs": -17.52,
+      "lufs": -15.99
+    },
+    {
+      "file": "mercenary/MercenaryWarden/ready_0.ogg",
+      "seconds": 2.544,
+      "peak_dbfs": -4.2,
+      "rms_dbfs": -16.54,
+      "lufs": -16.0
+    },
+    {
+      "file": "mercenary/MercenaryWarden/stop_0.ogg",
+      "seconds": 2.203,
+      "peak_dbfs": -4.81,
+      "rms_dbfs": -16.24,
+      "lufs": -16.0
+    },
+    {
+      "file": "mercenary/MercenaryRanger/select_0.ogg",
+      "seconds": 1.792,
+      "peak_dbfs": -2.1,
+      "rms_dbfs": -16.33,
+      "lufs": -16.0
+    },
+    {
+      "file": "mercenary/MercenaryRanger/select_1.ogg",
+      "seconds": 1.328,
+      "peak_dbfs": -1.68,
+      "rms_dbfs": -16.96,
+      "lufs": -16.0
+    },
+    {
+      "file": "mercenary/MercenaryRanger/move_0.ogg",
+      "seconds": 1.691,
+      "peak_dbfs": -1.35,
+      "rms_dbfs": -16.29,
+      "lufs": -16.1
+    },
+    {
+      "file": "mercenary/MercenaryRanger/move_1.ogg",
+      "seconds": 1.813,
+      "peak_dbfs": -1.51,
+      "rms_dbfs": -17.15,
+      "lufs": -16.0
+    },
+    {
+      "file": "mercenary/MercenaryRanger/attack_0.ogg",
+      "seconds": 1.989,
+      "peak_dbfs": -3.83,
+      "rms_dbfs": -17.68,
+      "lufs": -16.0
+    },
+    {
+      "file": "mercenary/MercenaryRanger/attack_1.ogg",
+      "seconds": 1.28,
+      "peak_dbfs": -1.44,
+      "rms_dbfs": -16.28,
+      "lufs": -15.99
+    },
+    {
+      "file": "mercenary/MercenaryRanger/ready_0.ogg",
+      "seconds": 2.613,
+      "peak_dbfs": -1.65,
+      "rms_dbfs": -16.45,
+      "lufs": -16.01
+    },
+    {
+      "file": "mercenary/MercenaryRanger/stop_0.ogg",
+      "seconds": 2.245,
+      "peak_dbfs": -1.41,
+      "rms_dbfs": -15.84,
+      "lufs": -16.01
+    },
+    {
+      "file": "mercenary/MercenaryLancer/select_0.ogg",
+      "seconds": 2.192,
+      "peak_dbfs": -2.58,
+      "rms_dbfs": -16.76,
+      "lufs": -16.0
+    },
+    {
+      "file": "mercenary/MercenaryLancer/select_1.ogg",
+      "seconds": 1.909,
+      "peak_dbfs": -1.36,
+      "rms_dbfs": -16.51,
+      "lufs": -16.01
+    },
+    {
+      "file": "mercenary/MercenaryLancer/move_0.ogg",
+      "seconds": 1.84,
+      "peak_dbfs": -2.16,
+      "rms_dbfs": -17.08,
+      "lufs": -16.0
+    },
+    {
+      "file": "mercenary/MercenaryLancer/move_1.ogg",
+      "seconds": 1.195,
+      "peak_dbfs": -1.4,
+      "rms_dbfs": -16.31,
+      "lufs": -16.0
+    },
+    {
+      "file": "mercenary/MercenaryLancer/attack_0.ogg",
+      "seconds": 1.696,
+      "peak_dbfs": -1.36,
+      "rms_dbfs": -16.09,
+      "lufs": -16.03
+    },
+    {
+      "file": "mercenary/MercenaryLancer/attack_1.ogg",
+      "seconds": 1.264,
+      "peak_dbfs": -4.21,
+      "rms_dbfs": -15.41,
+      "lufs": -15.99
+    },
+    {
+      "file": "mercenary/MercenaryLancer/ready_0.ogg",
+      "seconds": 2.459,
+      "peak_dbfs": -3.1,
+      "rms_dbfs": -16.68,
+      "lufs": -16.0
+    },
+    {
+      "file": "mercenary/MercenaryLancer/stop_0.ogg",
+      "seconds": 1.877,
+      "peak_dbfs": -4.47,
+      "rms_dbfs": -16.02,
+      "lufs": -16.01
     }
   ]
 }

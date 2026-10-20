@@ -24,7 +24,6 @@ func _run():
 	_check(await _play_horizon() == true, "Commander stopped before completing assertions")
 	await _close()
 	DirAccess.remove_absolute(path)
-	DirAccess.remove_absolute(path + ".programs")
 	options.restore(original)
 	for message in errors:
 		push_error(message)

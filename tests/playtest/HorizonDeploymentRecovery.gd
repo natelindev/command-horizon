@@ -49,11 +49,6 @@ func _run():
 		game.command_destroyed and not game.zone_held(),
 		"Recovery source is not the lost-deployment scenario"
 	)
-	var library = load("res://source/match/programs/ProgramLibrary.gd").new()
-	var config = library.defaults("hold_service")
-	config.radius = 12.0
-	service = library.save_version("Deployment recovery", config, path + ".programs")
-	_check(service != null, "Recovery service doctrine was not saved")
 	await _review_restored()
 	game.hud._toggle_pause()
 	var start = game.simulation_time
@@ -71,7 +66,6 @@ func _run():
 	await _review_finished()
 	await _close()
 	DirAccess.remove_absolute(path)
-	DirAccess.remove_absolute(path + ".programs")
 	for message in errors:
 		push_error(message)
 	print("Horizon deployment recovery: %d failures" % errors.size())
@@ -79,7 +73,7 @@ func _run():
 
 
 func _retake():
-	deployment_recovery.step(game, service)
+	deployment_recovery.step(game)
 
 
 func _review_restored():

@@ -2,15 +2,17 @@ extends "res://tests/headless/SaveRestoreEdges.gd"
 
 var factions
 var catalog
+var _checked = 0
 
 
 func _run():
 	factions = load("res://source/match/FactionCatalog.gd")
 	catalog = load("res://source/match/BastionCatalog.gd")
 	root.get_node("SaveManager").autosaves_enabled = false
-	for faction in ["bastion", "helix"]:
+	for faction in ["bastion", "helix", "frontier"]:
 		await _roster(faction)
 		await _archive_roster(faction)
+	_check(_checked == 6, "Not every roster and archive case completed")
 	for message in errors:
 		push_error(message)
 	print("Roster information: %d failures" % errors.size())
@@ -24,10 +26,11 @@ func _roster(faction):
 		side.set_process(false)
 	game.hud._toggle_pause()
 	var factory = _units(player, "VehicleFactory")[0]
-	var menus = _select(factory)
+	var menus = await _select(factory)
 	var tank = _entry(menus, "Tank")
 	var heavy = _entry(menus, "AdvancedTank")
-	_check(heavy.button.disabled, "Unresearched heavy unit can be ordered")
+	var needs_research = factions.requires_coordination(player, "AdvancedTank")
+	_check(heavy.button.disabled == needs_research, "Heavy unit ignores its faction research path")
 	_check(
 		heavy.button.tooltip_text.contains(factions.title(faction, "AdvancedTank")),
 		faction + ": locked unit lost its identity"
@@ -36,7 +39,10 @@ func _roster(faction):
 		heavy.button.tooltip_text.contains(factions.description(faction, "AdvancedTank")),
 		faction + ": locked unit lost its role description"
 	)
-	_check(heavy.button.tooltip_text.contains("Coordination"), "Missing research requirement")
+	_check(
+		heavy.button.tooltip_text.contains("Coordination") == needs_research,
+		"Incorrect faction research requirement"
+	)
 	for role in catalog.NAMES:
 		_check(
 			not factions.description(faction, role).contains("Helix specialist"),
@@ -44,11 +50,9 @@ func _roster(faction):
 		)
 	player.resource_a = 5
 	player.resource_b = 1
-	factory.production_queue.fit_chips = true
 	menus._refresh_buttons()
 	var price = factions.cost(player, "Tank")
-	price.resource_b += 4
-	_check(tank.button.disabled, "Unaffordable fitted armor is enabled")
+	_check(tank.button.disabled, "Unaffordable armor is enabled")
 	_check(
 		tank.button.accessibility_description == tank.button.tooltip_text,
 		"Accessible roster details are stale"
@@ -79,14 +83,14 @@ func _roster(faction):
 	player.resource_a = 1000
 	player.resource_b = 1000
 	menus._refresh_buttons()
-	_check(not tank.button.disabled, "Affordable fitted armor remains disabled")
+	_check(not tank.button.disabled, "Affordable armor remains disabled")
 	var before = Vector2i(player.resource_a, player.resource_b)
 	menus._activate("Tank", false)
 	var jobs = factory.production_queue.get_elements()
 	_check(jobs.size() == 1, "Available roster choice did not buy one job")
 	if not jobs.is_empty():
 		var job = jobs[0]
-		_check(job.paid_cost == price, "Displayed fitted price differs from paid price")
+		_check(job.paid_cost == price, "Displayed price differs from paid price")
 		_check(
 			(
 				Vector2i(player.resource_a, player.resource_b)
@@ -111,6 +115,7 @@ func _roster(faction):
 	game.queue_free()
 	await _frames(5)
 	game = null
+	_checked += 1
 
 
 func _blocked_roster(player, menus, factory):
@@ -147,20 +152,19 @@ func _blocked_roster(player, menus, factory):
 	lab.queue_free()
 	await _frames(3)
 	menus._refresh_buttons()
-	_check(tank.button.disabled, "Fitted production ignores missing lab")
-	_check(
-		tank.button.tooltip_text.contains(factions.title(player.faction, "CommandLab")),
-		"Missing lab is not named"
-	)
-	factory.production_queue.fit_chips = false
-	menus._refresh_buttons()
 	_check(not tank.button.disabled, "Conventional tank incorrectly requires a lab")
 	await _review_roster(player, "missing-lab")
 	var worker = _units(player, "Worker")[0]
-	menus = _select(worker)
+	menus = await _select(worker)
 	var generator = _entry(menus, "PowerPlant")
-	_check(generator.button.tooltip_text.contains("25 power"), "Generator purpose is missing")
-	_check(generator.button.tooltip_text.contains("20 s"), "Construction time missing")
+	_check(
+		generator.button.tooltip_text.contains("%d power" % catalog.POWER_SUPPLY.PowerPlant),
+		"Generator purpose is missing"
+	)
+	_check(
+		generator.button.tooltip_text.contains("%d s" % ceili(factions.BUILD_TIMES.PowerPlant)),
+		"Construction time missing"
+	)
 	await _review_roster(player, "construction")
 	await _limits(player, menus, factory)
 
@@ -182,7 +186,7 @@ func _limits(player, menus, factory):
 		unit.queue_free()
 	extra.clear()
 	await _frames(3)
-	menus = _select(factory)
+	menus = await _select(factory)
 	while player.population(true) < catalog.POPULATION_LIMIT:
 		var unit = load(catalog.scene_path("Drone")).instantiate()
 		game._setup_and_spawn_unit(unit, Transform3D(Basis(), Vector3(60, 2, 40)), player, false)
@@ -216,12 +220,11 @@ func _archive_roster(faction):
 		side.set_process(false)
 	game.hud._toggle_pause()
 	var factory = _units(player, "VehicleFactory")[0]
-	factory.production_queue.fit_chips = true
 	var job = factory.production_queue.produce(load(catalog.scene_path("Tank")))
 	_check(job != null, "Roster archive could not pay for its job")
 	player.resource_a = 5
 	player.resource_b = 1
-	var menus = _select(factory)
+	var menus = await _select(factory)
 	var expected = _entry(menus, "Tank").button.tooltip_text
 	var time = game.simulation_time
 	var capture = Snapshot.new()
@@ -238,7 +241,7 @@ func _archive_roster(faction):
 			game = loaded.game
 			player = game._get_human_player()
 			factory = _units(player, "VehicleFactory")[0]
-			menus = _select(factory)
+			menus = await _select(factory)
 			_check(
 				_entry(menus, "Tank").button.tooltip_text == expected,
 				"Archive changed displayed costs or shortages"
@@ -246,23 +249,20 @@ func _archive_roster(faction):
 			_check(
 				_entry(menus, "Tank").button.disabled, "Archive enabled an unaffordable purchase"
 			)
-			_check(
-				(
-					factory.production_queue.size() == 1
-					and factory.production_queue.get_elements()[0].fitted_chip
-				),
-				"Archive lost the actual paid fitted job"
-			)
+			_check(factory.production_queue.size() == 1, "Archive lost the actual paid job")
 			_check(paused and game.simulation_time == time, "Roster archive advanced time")
 	paused = false
 	game.queue_free()
 	await _frames(5)
 	game = null
+	_checked += 1
 
 
 func _select(unit):
 	root.get_node("MatchSignals").deselect_all_units.emit()
 	unit.get_node("Selection").select()
+	# Selection changes coalesce before the command deck is rebuilt.
+	await _frames(2)
 	var menus = game.find_child("UnitMenus")
 	menus._refresh_buttons()
 	return menus

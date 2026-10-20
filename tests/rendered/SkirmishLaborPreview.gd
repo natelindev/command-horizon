@@ -51,9 +51,6 @@ func _review_labor(player, label):
 	game.hud._toggle_pause()
 	_check(game.battlefield.is_observed(human, hq), "AI economy base hidden in preview")
 	var clock = game.simulation_time
-	var panel = game.hud.battle_plan
-	if panel._body.visible:
-		panel._toggle_body()
 	var camera = game.get_node("IsometricCamera3D")
 	camera.set_physics_process(false)
 	camera.set_size_safely(30)

@@ -2,7 +2,10 @@ extends "res://tests/headless/SpeechRegression.gd"
 
 const Bank = preload("res://source/match/audio/UnitVoiceBank.gd")
 const Roster = preload("res://source/match/BastionCatalog.gd")
+const Mercenaries = preload("res://source/match/world/MercenaryCatalog.gd")
 var announcer_paths = []
+# A hired mercenary is the same person in every army.
+var mercenary_identities = {}
 
 
 func _run():
@@ -56,14 +59,28 @@ func _catalog_coverage():
 			)
 		var roles = Roster.NAMES.keys() + Roster.MISSION_NAMES.keys()
 		for role in roles:
-			var voice_role = Bank.voice_role(role)
-			_check(catalog.units.has(voice_role), faction + " missing voice role " + role)
-			if not catalog.units.has(voice_role):
+			var lines = bank.role_lines(faction, role)
+			_check(not lines.is_empty(), faction + " missing voice role " + role)
+			if lines.is_empty():
 				continue
 			for kind in ["select", "move", "attack", "ready", "stop"]:
-				_check(
-					catalog.units[voice_role].has(kind), faction + ":" + role + " missing " + kind
-				)
+				_check(lines.has(kind), faction + ":" + role + " missing " + kind)
+			if role in Roster.STRUCTURES:
+				continue
+			# Every unit speaks with its own cast voice, never another role's recordings.
+			var own = ("mercenary/" if role in Mercenaries.ROLES else faction + "/") + role
+			for variants in lines.values():
+				for line in variants:
+					_check(
+						line.speaker_id == own,
+						"%s:%s speaks as %s" % [faction, role, line.speaker_id]
+					)
+					_check(
+						line.stream.contains("/%s/" % own),
+						"%s:%s borrows %s" % [faction, role, line.stream]
+					)
+		for role in Mercenaries.ROLES:
+			_check(not catalog.units.has(role), faction + " recasts mercenary " + role)
 		for line in catalog.announcer.values():
 			_check_clip(line)
 			count += 1
@@ -72,6 +89,11 @@ func _catalog_coverage():
 				for line in variants:
 					_check_clip(line)
 					count += 1
+	for role in bank._mercenaries.values():
+		for variants in role.values():
+			for line in variants:
+				_check_clip(line)
+				count += 1
 	print(
 		(
 			"PASS %d playable clips, every faction, unit, structure, mission transport and announcer event"
@@ -94,7 +116,7 @@ func _all_unit_speakers(faction):
 	var human = game._get_human_player()
 	var bank = voice._bank._catalog[faction]
 	var identities = []
-	for role in bank.units:
+	for role in bank.units.keys() + Mercenaries.ROLES:
 		var unit
 		if role in Roster.MISSION_NAMES:
 			# Mission transports retain their authored geometry, outside skirmish models.
@@ -104,7 +126,7 @@ func _all_unit_speakers(faction):
 		else:
 			unit = _spawn_weapon(role, human, Vector3(50, 0, 50))
 		var identity = ""
-		for kind in bank.units[role]:
+		for kind in voice._bank.role_lines(faction, role):
 			_reset_speech()
 			_check(voice.say_unit(unit, kind), role + ":" + kind + " rejected")
 			var line = voice.current
@@ -116,21 +138,17 @@ func _all_unit_speakers(faction):
 		_check(not identity in identities, "Two unit types share a cast identity")
 		_check(identity != bank.announcer.MATCH_STARTED.speaker_id, "Unit uses announcer")
 		identities.append(identity)
-		_reset_speech()
-		unit.free()
-	for role in Bank.VOICE_ALIASES:
-		# Uncast roles borrow the closest role's recordings but keep their own caption title.
-		var unit = _spawn_weapon(role, human, Vector3(50, 0, 50))
-		_reset_speech()
-		_check(voice.say_unit(unit, "select"), role + " voice rejected")
-		_check(
-			voice.current.get("speaker_id") == "%s/%s" % [faction, Bank.VOICE_ALIASES[role]],
-			role + " did not use its alias voice"
-		)
-		_check(
-			voice.current.get("speaker") == _unit_title(faction, role),
-			role + " caption lost its unit title"
-		)
+		if role in Mercenaries.ROLES:
+			_check(identity == "mercenary/" + role, role + " lacks its own mercenary voice")
+			_check(
+				mercenary_identities.get(role, identity) == identity,
+				role + " changed voice between armies"
+			)
+			mercenary_identities[role] = identity
+			_check(
+				voice.current.get("speaker") == _unit_title(faction, role),
+				role + " caption lost its unit title"
+			)
 		_reset_speech()
 		unit.free()
 	for event in Lines.UNIT_EVENTS:

@@ -36,6 +36,11 @@ const PASSIVE_MOVEMENT_TRACKING_ENABLED = true
 
 # Rotorcraft settle onto a helipad deck at this height, then climb back out.
 var settle_height = INF
+# A harvest run passes through other ground units in both directions. Terrain,
+# structures and deposits still constrain it through the navmesh and obstacles.
+var ghosted = false:
+	set = set_ghosted
+
 var _exit_clearance_target = Vector3.INF
 var _exit_clearance_until = 0.0
 var _physics_delta: float = 0.0
@@ -56,6 +61,7 @@ var _previously_set_global_transform_of_unit = null
 var _passive_movement_detected = false
 var _air_velocity = Vector3.ZERO
 var _climbing_out = false
+var _ground_alignment_height = INF
 
 @onready var _match = find_parent("Match")
 @onready var _unit: Unit = get_parent()
@@ -119,8 +125,8 @@ func _physics_process(delta):
 		_recovery_left -= delta
 		if domain == Constants.Match.Navigation.Domain.TERRAIN and not has_occupied_endpoint(false):
 			# A restored sidestep may point into a rebuilt boundary. Give its new
-			# direction one local recovery window; program no-progress timers
-			# still depend only on actual movement.
+			# direction one local recovery window; no-progress timers still
+			# depend only on actual movement.
 			if not _recovery_checked:
 				if _recovery_clearance(_recovery_direction) < GROUND_RECOVERY_DISTANCE:
 					_recovery_direction = _ground_recovery_direction(direction)
@@ -150,6 +156,11 @@ func _changing_height():
 	return (
 		(is_finite(settle_height) and absf(_unit.global_position.y - settle_height) > 0.005)
 		or _climbing_out
+		or (
+			domain == Constants.Match.Navigation.Domain.TERRAIN
+			and is_finite(_ground_alignment_height)
+			and absf(_unit.global_position.y - _ground_alignment_height) > 0.005
+		)
 	)
 
 
@@ -163,7 +174,7 @@ func _air_inertia(desired, delta):
 
 
 func request_exit_clearance(point):
-	if not _synchronized or _unit.has_meta("garrison_host"):
+	if not _synchronized or ghosted or _unit.has_meta("garrison_host"):
 		return
 	# An actively travelling manual order already clears its current position.
 	# Production must not steer it away from the player's destination.
@@ -188,7 +199,7 @@ func _advance_exit_clearance(delta):
 		_exit_clearance_target = Vector3.INF
 		return false
 	# This is a short avoidance maneuver, not a new order. Keep the navigation
-	# destination, action, queued orders and program assignments intact.
+	# destination, action and queued orders intact.
 	velocity = offset.normalized() * minf(speed, offset.length() / delta)
 	return true
 
@@ -229,6 +240,7 @@ func has_occupied_endpoint(require_short_route = true):
 		var movement = other.get_node_or_null("Movement")
 		if (
 			movement == null
+			or movement.ghosted
 			or movement._has_destination
 			or movement.velocity.length_squared() >= 0.01
 		):
@@ -249,7 +261,7 @@ func _ground_recovery_direction(path_direction):
 	var free_distance = -1.0
 	var origin = _unit.global_position
 	var neighbors = []
-	if _match.battlefield != null:
+	if _match.battlefield != null and not ghosted:
 		neighbors = _match.battlefield.nearby_units(
 			origin,
 			(
@@ -260,20 +272,18 @@ func _ground_recovery_direction(path_direction):
 			)
 		)
 	for angle in [PI / 2.0, -PI / 2.0, PI / 4.0, -PI / 4.0, 3 * PI / 4.0, -3 * PI / 4.0, PI]:
-		# Prefer a side route when terrain permits one. A clear backward ray
-		# can simply return the unit to the same blocked approach afterward.
-		if (
-			absf(angle) > PI / 2.0
-			and clearance >= GROUND_RECOVERY_DISTANCE
-			and free_distance >= GROUND_CONTACT_MARGIN
-		):
+		# Prefer a side route when the whole escape is clear. A terrain-clear
+		# ray with only centimetres before body contact must not hide a usable
+		# backward escape.
+		if absf(angle) > PI / 2.0 and free_distance >= GROUND_RECOVERY_DISTANCE:
 			break
 		var candidate = path_direction.rotated(Vector3.UP, angle)
 		var distance = _recovery_clearance(candidate)
 		var contact = _ground_step_contact(origin, origin + candidate * distance, neighbors)
 		var free = distance * contact.fraction
-		# Preserve a navigable sideways slide when the first step is clear.
-		# A fully body-blocked side must not exclude a backward escape.
+		# Rank actual body-clear travel, not the unobstructed terrain ray.
+		# Otherwise a two-metre ray stopped by a neighbor after two centimetres
+		# defeats a shorter route the unit could actually traverse.
 		var usable = free >= GROUND_CONTACT_MARGIN
 		var previous_usable = free_distance >= GROUND_CONTACT_MARGIN
 		if (
@@ -281,8 +291,8 @@ func _ground_recovery_direction(path_direction):
 			or (
 				usable == previous_usable
 				and (
-					distance > clearance
-					or (is_equal_approx(distance, clearance) and free > free_distance)
+					free > free_distance
+					or (is_equal_approx(free, free_distance) and distance > clearance)
 				)
 			)
 		):
@@ -326,10 +336,27 @@ func _ready():
 	set_physics_process(true)
 
 
+func set_ghosted(value):
+	ghosted = value
+	avoidance_layers = (
+		Constants.Match.Navigation.AVOIDANCE_GHOSTS
+		if value
+		else Constants.Match.Navigation.AVOIDANCE_UNITS
+	)
+	avoidance_mask = (
+		Constants.Match.Navigation.AVOIDANCE_STATIC
+		if value
+		else Constants.Match.Navigation.AVOIDANCE_UNITS
+	)
+
+
 func move(movement_target: Vector3):
 	if not movement_target.is_finite():
 		stop()
 		return
+	if domain == Constants.Match.Navigation.Domain.TERRAIN and _match.map.is_elevated():
+		# Orders often carry flattened points; aim at the ground of their own tier.
+		movement_target.y = _match.map.height_at(Vector2(movement_target.x, movement_target.z))
 	if _has_destination and target_position.distance_to(movement_target) < 0.1:
 		return
 	_command_revision += 1
@@ -451,6 +478,10 @@ func _on_velocity_computed(safe_velocity: Vector3):
 	# Local avoidance can push agents off the mesh; constrain the resulting step.
 	var navigable := _closest_navigation_point(candidate)
 	navigable.y -= path_height_offset
+	if domain == Constants.Match.Navigation.Domain.TERRAIN:
+		# A teleport or restored position can need several vertical steps. Zero
+		# planar velocity must not freeze it above the first path waypoint.
+		_ground_alignment_height = navigable.y
 	var next := _unit.global_position.move_toward(
 		Vector3(navigable.x, _unit.global_position.y, navigable.z), current_speed * _physics_delta
 	)
@@ -514,7 +545,8 @@ func _clip_ground_step(next: Vector3) -> Vector3:
 	# The contact solver accepts a negligible planar step unchanged. Avoid
 	# building a neighbor list for that same no-op (including elevation only).
 	if (
-		_match.battlefield == null
+		ghosted
+		or _match.battlefield == null
 		or ((next - origin) * Vector3(1, 0, 1)).length_squared() < 0.00000001
 	):
 		return next
@@ -555,7 +587,12 @@ func _ground_step_contact(origin: Vector3, next: Vector3, neighbors: Array) -> D
 		# Read the neighbor's trait once instead of resolving radius, speed and
 		# domain through three separate unit property getters for every contact.
 		var movement = other._get_navigation_trait()
-		if not movement is NavigationAgent3D or movement.domain != domain or movement.speed <= 0:
+		if (
+			not movement is NavigationAgent3D
+			or movement.domain != domain
+			or movement.speed <= 0
+			or movement.ghosted
+		):
 			continue
 		var offset: Vector3 = (origin - other.global_position) * Vector3(1, 0, 1)
 		var separation: float = own_radius + movement.radius - GROUND_CONTACT_MARGIN

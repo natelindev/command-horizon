@@ -3,38 +3,6 @@ const ADVERSARY_PLAYER_CIRCLE_COLOR = Color("ee6b5e")
 const RESOURCE_CIRCLE_COLOR = Color("e8c56a")
 const DEFAULT_CIRCLE_COLOR = Color("eef1f1")
 const MAPS = {
-	"res://source/match/maps/RedrockDivide.tscn":
-	{"name": "Redrock Divide", "players": 2, "size": Vector2i(192, 160)},
-	"res://source/match/maps/SaltwindBasin.tscn":
-	{"name": "Saltwind Basin", "players": 2, "size": Vector2i(192, 160)},
-	"res://source/match/maps/PinebreakValley.tscn":
-	{"name": "Pinebreak Valley", "players": 2, "size": Vector2i(192, 160)},
-	"res://source/match/maps/GlacierNarrows.tscn":
-	{"name": "Glacier Narrows", "players": 2, "size": Vector2i(192, 160)},
-	"res://source/match/maps/Emberworks.tscn":
-	{"name": "Emberworks", "players": 2, "size": Vector2i(192, 160)},
-	"res://source/match/maps/CinderRing.tscn":
-	{"name": "Cinder Ring", "players": 4, "size": Vector2i(224, 224)},
-	"res://source/match/maps/FourRivers.tscn":
-	{"name": "Four Rivers", "players": 4, "size": Vector2i(224, 224)},
-	"res://source/match/maps/SunkenExchange.tscn":
-	{"name": "Sunken Exchange", "players": 4, "size": Vector2i(224, 224)},
-	"res://source/match/maps/FrostboundCrown.tscn":
-	{"name": "Frostbound Crown", "players": 4, "size": Vector2i(224, 224)},
-	"res://source/match/maps/CopperBadlands.tscn":
-	{"name": "Copper Badlands", "players": 4, "size": Vector2i(224, 224)},
-	"res://source/match/maps/VerdantCommons.tscn":
-	{"name": "Verdant Commons", "players": 4, "size": Vector2i(224, 224)},
-	"res://source/match/maps/RailspireJunction.tscn":
-	{"name": "Railspire Junction", "players": 4, "size": Vector2i(224, 224)},
-	"res://source/match/maps/ShatteredOasis.tscn":
-	{"name": "Shattered Oasis", "players": 4, "size": Vector2i(224, 224)},
-	"res://source/match/maps/ExpandedDesertFrontier.tscn":
-	{"name": "Desert Frontier", "players": 2, "size": Vector2i(192, 144)},
-	"res://source/match/maps/ExpandedAlpineRelay.tscn":
-	{"name": "Alpine Relay", "players": 2, "size": Vector2i(192, 156)},
-	"res://source/match/maps/ExpandedCoastalFoundry.tscn":
-	{"name": "Coastal Foundry", "players": 2, "size": Vector2i(192, 156)},
 	"res://source/match/maps/BastionDesert.tscn":
 	{"name": "Desert Frontier (original)", "players": 2, "size": Vector2i(64, 64)},
 	"res://source/match/maps/DesertFrontier.tscn":
@@ -57,11 +25,52 @@ const MAPS = {
 	{"name": "Industrial Crossroads", "players": 2, "size": Vector2i(128, 104)},
 	"res://source/match/maps/CoastalFoundry.tscn":
 	{"name": "Coastal Foundry", "players": 2, "size": Vector2i(128, 104)},
+	"res://source/match/maps/battlefields/RedrockDivideMap.tscn":
+	{"name": "Redrock Divide", "players": 2, "size": Vector2i(192, 160)},
+	"res://source/match/maps/battlefields/SaltwindBasinMap.tscn":
+	{"name": "Saltwind Basin", "players": 2, "size": Vector2i(192, 160)},
+	"res://source/match/maps/battlefields/CopperBadlandsMap.tscn":
+	{"name": "Copper Badlands", "players": 4, "size": Vector2i(224, 224)},
+	"res://source/match/maps/battlefields/ShatteredOasisMap.tscn":
+	{"name": "Shattered Oasis", "players": 4, "size": Vector2i(224, 224)},
+	"res://source/match/maps/battlefields/DesertFrontierMap.tscn":
+	{"name": "Desert Frontier", "players": 2, "size": Vector2i(192, 144)},
+	"res://source/match/maps/battlefields/PinebreakValleyMap.tscn":
+	{"name": "Pinebreak Valley", "players": 2, "size": Vector2i(192, 160)},
+	"res://source/match/maps/battlefields/FourRiversMap.tscn":
+	{"name": "Four Rivers", "players": 4, "size": Vector2i(224, 224)},
+	"res://source/match/maps/battlefields/VerdantCommonsMap.tscn":
+	{"name": "Verdant Commons", "players": 4, "size": Vector2i(224, 224)},
+	"res://source/match/maps/battlefields/GlacierNarrowsMap.tscn":
+	{"name": "Glacier Narrows", "players": 2, "size": Vector2i(192, 160)},
+	"res://source/match/maps/battlefields/FrostboundCrownMap.tscn":
+	{"name": "Frostbound Crown", "players": 4, "size": Vector2i(224, 224)},
+	"res://source/match/maps/battlefields/AlpineRelayMap.tscn":
+	{"name": "Alpine Relay", "players": 2, "size": Vector2i(192, 160)},
+	"res://source/match/maps/battlefields/EmberworksMap.tscn":
+	{"name": "Emberworks", "players": 2, "size": Vector2i(192, 160)},
+	"res://source/match/maps/battlefields/RailspireJunctionMap.tscn":
+	{"name": "Railspire Junction", "players": 4, "size": Vector2i(224, 224)},
+	"res://source/match/maps/battlefields/CoastalFoundryMap.tscn":
+	{"name": "Coastal Foundry", "players": 2, "size": Vector2i(192, 160)},
+	"res://source/match/maps/battlefields/SunkenExchangeMap.tscn":
+	{"name": "Sunken Exchange", "players": 4, "size": Vector2i(224, 224)},
+	"res://source/match/maps/battlefields/CinderRingMap.tscn":
+	{"name": "Cinder Ring", "players": 4, "size": Vector2i(224, 224)},
+	# Engine verification only; never offered in the skirmish picker.
+	"res://source/match/maps/battlefields/TerrainTestMap.tscn":
+	{"name": "Terrain Test", "players": 2, "size": Vector2i(192, 160)},
 }
 
 
 class Navigation:
 	enum Domain { AIR, TERRAIN }
+
+	# Avoidance layers. Static obstacles carry their own bit as well, so a
+	# ghosted harvester keeps avoiding structures while passing through units.
+	const AVOIDANCE_UNITS = 1
+	const AVOIDANCE_GHOSTS = 2
+	const AVOIDANCE_STATIC = 4
 
 	const DOMAIN_TO_GROUP_MAPPING = {
 		Domain.AIR: "air_navigation_input",
@@ -286,8 +295,6 @@ class Units:
 			"sight_range": 11.0,
 			"attack_domains": [Navigation.Domain.TERRAIN, Navigation.Domain.AIR]
 		},
-		"res://source/match/units/EvacTransport.tscn":
-		{"hp": 150, "hp_max": 150, "sight_range": 8.0},
 		"res://source/match/units/SupplyTruck.tscn": {"hp": 180, "hp_max": 180, "sight_range": 7.0},
 		"res://source/match/units/Infantry.tscn":
 		{

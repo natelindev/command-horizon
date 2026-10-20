@@ -30,11 +30,10 @@ func _process(_delta):
 
 func _run():
 	repair_order = load("res://source/match/units/actions/Repairing.gd")
-	plan_rules = load("res://source/match/SkirmishPlan.gd")
+	plan_rules = load("res://tests/UnitQueries.gd")
 	harvest_action = load("res://source/match/units/actions/CollectingResourcesSequentially.gd")
 	construct_action = load("res://source/match/units/actions/Constructing.gd")
 	attack_move_action = load("res://source/match/units/actions/AttackMoving.gd")
-	library = load("res://source/match/programs/ProgramLibrary.gd")
 	factions = load("res://source/match/FactionCatalog.gd")
 	constants = root.get_node("Constants")
 	var selected = -1
@@ -101,8 +100,8 @@ func _play_case(index):
 		"advanced": advanced,
 		"difficulty": "Normal",
 		"first_contact": null,
-		"basic_unlock": null,
-		"first_program": null,
+		"lab_unlock": null,
+		"first_guard": null,
 		"first_assault": null,
 		"expansion_order": null,
 		"expansion_return": null,
@@ -123,10 +122,10 @@ func _play_case(index):
 	var home = game.map.FIELDS[0]
 	var headquarters = _unit(human, "CommandCenter").global_position_yless
 	defense_point = headquarters.lerp(Vector3(home.x + 5, 0, home.y), 0.5)
-	_programmed = false
+	_guarded = false
+	_guard = null
 	_launched = false
 	_spent = Vector2.ZERO
-	_steps.clear()
 	_last_attack = -100.0
 	_last_defense = -100.0
 	expanded = false
@@ -260,33 +259,28 @@ func _command():
 		defend_at = contacts[0].global_position_yless
 	if not _launched and game.simulation_time - _last_defense >= 15:
 		for defender in army:
-			if (
-				contacts.is_empty()
-				and defender.program != null
-				and defender.program.mode != "Manual"
-			):
+			if contacts.is_empty() and defender == _guard:
 				continue
 			defender.issue_manual_order(
 				attack_move_action.new(defend_at + Vector3(defender.get_index() % 3, 0, 0))
 			)
 		_last_defense = game.simulation_time
-	if not _programmed:
+	if not _guarded and human.has_completed_structure("CommandLab"):
+		var behavior = load("res://source/match/orders/UnitBehavior.gd")
 		for unit in army:
-			if unit.program != null and unit.program.ready_to_run():
-				unit.program.configure(library.defaults("guard"), "Opening guard")
-				unit.program.anchor = defense_point
-				unit.program.safe_point = hq.global_position_yless if hq != null else defense_point
-				_check(unit.program.run(), "First built-in program refused to run")
-				_programmed = true
-				_program_at = game.simulation_time
-				metrics.first_program = _program_at
+			if unit.type == "Tank":
+				_check(behavior.guard(unit, defense_point), "Opening guard order rejected")
+				_guarded = true
+				_guard = unit
+				_guard_at = game.simulation_time
+				metrics.first_guard = _guard_at
 				break
 	var support = _unit(human, "RepairRobot")
 	var armor = army.filter(func(unit): return unit.type == "Tank")
 	if support != null and not armor.is_empty():
 		if support.action == null or not is_instance_of(support.action, repair_order):
 			support.issue_manual_order(repair_order.new(armor[0]))
-	if not _programmed or game.simulation_time - _program_at < 5 or army.size() < 9:
+	if not _guarded or game.simulation_time - _guard_at < 5 or army.size() < 9:
 		return
 	if game.simulation_time - _last_attack < 25:
 		return
@@ -295,8 +289,14 @@ func _command():
 		unit.issue_manual_order(
 			attack_move_action.new(destination + Vector3(unit.get_index() % 3, 0, 0))
 		)
-		if unit.program != null:
-			_check(unit.program.mode == "Manual", "Assault order did not override program")
+		if unit == _guard:
+			_check(
+				(
+					unit.manual_orders.current.is_empty()
+					and is_instance_of(unit.action, attack_move_action)
+				),
+				"Assault order did not replace the guard order"
+			)
 	_launched = true
 	_last_attack = game.simulation_time
 	if metrics.first_assault == null:
@@ -342,8 +342,8 @@ func _measure():
 		coordination_probe.sample(game, opponent)
 	if recovery_probe != null:
 		recovery_probe.sample(game, opponent)
-	if metrics.basic_unlock == null and human.basic_programs_unlocked():
-		metrics.basic_unlock = game.simulation_time
+	if metrics.lab_unlock == null and human.lab_research_unlocked():
+		metrics.lab_unlock = game.simulation_time
 	for unit in get_nodes_in_group("units"):
 		if unit.is_queued_for_deletion() or unit.hp <= 0:
 			continue
@@ -394,7 +394,6 @@ func _sample():
 		var allocation = {"materials": 0, "electronics": 0, "construction": 0, "other": 0}
 		var worker_states = {}
 		var army_value = Vector2.ZERO
-		var fitted_tanks = 0
 		for unit in player.get_children():
 			if "type" in unit and not unit.is_queued_for_deletion():
 				types[unit.type] = types.get(unit.type, 0) + 1
@@ -411,16 +410,13 @@ func _sample():
 				elif unit.movement_speed > 0:
 					var price = factions.cost(player, unit.type)
 					army_value += Vector2(price.resource_a, price.resource_b)
-					if unit.type == "Tank" and unit.get_meta("chip_installed", false):
-						fitted_tanks += 1
 		sides.append(
 			{
 				"funds": [player.resource_a, player.resource_b],
 				"units": types,
 				"workers": allocation,
 				"worker_states": worker_states,
-				"army_base_value": [army_value.x, army_value.y],
-				"fitted_tanks": fitted_tanks
+				"army_base_value": [army_value.x, army_value.y]
 			}
 		)
 	return {

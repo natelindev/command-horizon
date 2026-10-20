@@ -1,7 +1,9 @@
-extends "res://tests/headless/EconomySupplyRegression.gd"
+extends "res://tests/headless/SaveRestoreEdges.gd"
 
+var harvest
+var factions
+var catalog
 var assignments
-var supply_rules
 var orders
 var owner
 var workers
@@ -16,12 +18,10 @@ func _run():
 	var manager = root.get_node("SaveManager")
 	var autosaves = manager.autosaves_enabled
 	manager.autosaves_enabled = false
-	plan = load("res://source/match/SkirmishPlan.gd")
 	harvest = load("res://source/match/units/actions/CollectingResourcesSequentially.gd")
 	factions = load("res://source/match/FactionCatalog.gd")
 	catalog = load("res://source/match/BastionCatalog.gd")
 	assignments = load("res://source/match/EconomyAssignments.gd")
-	supply_rules = load("res://source/match/EconomySupply.gd")
 	orders = load("res://source/match/orders/ManualOrders.gd")
 	for faction in faction_ids:
 		await _case(faction)
@@ -61,13 +61,9 @@ func _case(faction):
 	_check(carrier != null, "Assignment fixture never collected real cargo")
 	if carrier != null:
 		owner.resource_b = 0
-		_check(_advice() == "supply_electronics", "Missing stream fixture has no supply advice")
 		await _queued_contracts()
 		carrier.manual_orders.submit(orders.target_order("gather", electronic), true)
-		_check(
-			_advice() != "supply_electronics",
-			faction + ": queued electronics still reported missing"
-		)
+		_check(_count(2) == 1, faction + ": queued electronics job was not counted")
 		await _controls(faction + "-queued")
 		await _delivery(faction)
 	paused = false
@@ -79,10 +75,6 @@ func _bind():
 	workers = _units(owner, "Worker")
 	bar = game.find_child("ResourcesBar")
 	_check(bar.player == owner, "Fixture selected another player's resource bar")
-
-
-func _advice():
-	return supply_rules.next_step(owner, plan.owned_units(owner)).get("id", "")
 
 
 func _count(kind):
@@ -104,10 +96,6 @@ func _queued_contracts():
 	)
 	carrier.manual_orders.submit(orders.target_order("gather", electronic), true)
 	_check(_count(1) == 3 and _count(2) == 0, "Non-immediate gathering job counted as assigned")
-	_check(
-		_advice() == "supply_electronics",
-		"Distant queued gather suppressed missing-income guidance"
-	)
 	carrier.manual_orders.clear_waiting()
 	carrier.manual_orders.submit(
 		orders.target_order("gather", _units(owner, "CommandCenter")[0]), true
@@ -144,9 +132,6 @@ func _queued_contracts():
 	waiting_worker.manual_orders.submit(orders.target_order("gather", material), true)
 	_check(
 		_count(1) == 4 and _count(2) == 0, "Queued materials did not replace electronics assignment"
-	)
-	_check(
-		_advice() == "supply_electronics", "Departing electronics engineer masked a missing stream"
 	)
 	waiting_worker.issue_manual_order(harvest.new(material))
 
@@ -262,15 +247,10 @@ func _delivery(faction):
 		game.simulation_time == clock and carrier.resource_a == cargo,
 		"Paused restore changed queued cargo"
 	)
-	_check(
-		_count(1) == 0 and _count(2) == 1 and _advice() != "supply_electronics",
-		"Reloaded allocation counts or guidance ignored the queued job"
-	)
+	_check(_count(1) == 0 and _count(2) == 1, "Reloaded allocation counts ignored the queued job")
 	await _controls(faction + "-restored")
 	var factory = _units(owner, "VehicleFactory")[0]
-	factory.production_queue.fit_chips = true
-	var price = factions.cost(owner, "Tank").duplicate()
-	price.resource_b += factions.chip_cost(faction)
+	var price = factions.cost(owner, "Tank")
 	game.hud._toggle_pause()
 	for frame in 7200:
 		await _frames(1)
@@ -287,26 +267,20 @@ func _delivery(faction):
 	_check(_count(2) == 1, "Completed handoff disappeared from assignment count")
 	var before = Vector2i(owner.resource_a, owner.resource_b)
 	var job = factory.production_queue.produce(load(catalog.scene_path("Tank")))
-	_check(job != null, "Queued gathering income could not pay for fitted armor")
+	_check(job != null, "Queued gathering income could not pay for armor")
 	if job != null:
 		_check(
 			(
 				Vector2i(owner.resource_a, owner.resource_b)
 				== before - Vector2i(price.resource_a, price.resource_b)
 			),
-			"Fitted armor payment changed"
+			"Armor payment changed"
 		)
 		var count = _units(owner, "Tank").size()
 		game.hud._toggle_pause()
 		await _frames(1800)
 		game.hud.pause_after_load()
-		_check(
-			(
-				_units(owner, "Tank").size() == count + 1
-				and _units(owner, "Tank")[-1].program.installed
-			),
-			"Paid fitted reinforcement did not finish"
-		)
+		_check(_units(owner, "Tank").size() == count + 1, "Paid reinforcement did not finish")
 	print(
 		"ASSIGNMENT DELIVERY ",
 		faction,
@@ -333,3 +307,17 @@ func _delivery(faction):
 		_check(
 			bar._assignment_buttons[2].disabled, "Dead engineer left allocation shortcut enabled"
 		)
+
+
+func _deposit(worker, property):
+	var choices = get_nodes_in_group("resource_units").filter(
+		func(d): return property in d and d.get(property) > 0
+	)
+	choices.sort_custom(
+		func(a, b):
+			return (
+				worker.position.distance_squared_to(a.position)
+				< worker.position.distance_squared_to(b.position)
+			)
+	)
+	return choices[0]

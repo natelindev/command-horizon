@@ -9,7 +9,7 @@ func _run():
 	options.restore({"screen": 1, "language": "zh_CN", "edge_scrolling": false})
 	root.size = Vector2i(1440, 900)
 	root.content_scale_size = root.size
-	await _skirmish("helix", "res://source/match/maps/ExpandedDesertFrontier.tscn")
+	await _skirmish("helix", "res://source/match/maps/battlefields/DesertFrontierMap.tscn")
 	for side in get_nodes_in_group("players"):
 		side.set_process(false)
 	game.settings.visibility = game.settings.Visibility.FULL

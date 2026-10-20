@@ -12,7 +12,16 @@ func _run():
 	root.size = Vector2i(1440, 900)
 	root.content_scale_size = root.size
 	RenderingServer.viewport_set_measure_render_time(root.get_viewport_rid(), true)
-	await _skirmish("helix", "res://source/match/maps/ExpandedDesertFrontier.tscn")
+	# Optional: -- --map=res://path.tscn --center=x,z (defaults: Expanded Desert Frontier).
+	var map_path = "res://source/match/maps/battlefields/DesertFrontierMap.tscn"
+	var center = Vector3(96, 0, 72)
+	for argument in OS.get_cmdline_user_args():
+		if argument.begins_with("--map="):
+			map_path = argument.trim_prefix("--map=")
+		elif argument.begins_with("--center="):
+			var parts = argument.trim_prefix("--center=").split(",")
+			center = Vector3(float(parts[0]), 0, float(parts[1]))
+	await _skirmish("helix", map_path)
 	for player in get_nodes_in_group("players"):
 		player.set_process(false)
 	var camera = game.get_node("IsometricCamera3D")
@@ -21,7 +30,6 @@ func _run():
 	await _measure_frames("base")
 	game.settings.visibility = game.settings.Visibility.FULL
 	game.fog_of_war.reveal()
-	var center = Vector3(96, 0, 72)
 	for player in get_nodes_in_group("players"):
 		for index in 20:
 			var role = ["Tank", "Infantry", "CombatRobot", "Helicopter"][index % 4]
@@ -108,5 +116,11 @@ func _measure_frames(label):
 		" physics_ticks=",
 		Engine.get_physics_frames() - physics_started,
 		" paused=",
-		paused
+		paused,
+		" draw_calls=",
+		RenderingServer.get_rendering_info(
+			RenderingServer.RENDERING_INFO_TOTAL_DRAW_CALLS_IN_FRAME
+		),
+		" primitives=",
+		RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_PRIMITIVES_IN_FRAME)
 	)

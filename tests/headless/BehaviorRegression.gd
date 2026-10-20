@@ -38,8 +38,6 @@ func _behaviors():
 	var initial_health = target.hp
 	Behavior.set_stance(target, "hold_fire")
 	game.battlefield.invalidate()
-	_check(not tank.program.configure_lua(HOLD).ok, "Lua still activates on battle units")
-	_check(not tank.program.is_physics_processing(), "Idle controller still ticks")
 	var temporary = load("res://source/match/units/Infantry.tscn").instantiate()
 	game._setup_and_spawn_unit(
 		temporary, Transform3D(Basis.IDENTITY, Vector3(39.04, 0, 40)), player, false
@@ -62,16 +60,11 @@ func _behaviors():
 	tank.get_node("Selection").select()
 	await _frames(3)
 	var menus = game.find_child("UnitMenus")
-	_check(
-		menus._program_panel == null and menus._factory_program_panel == null,
-		"Script editors remain in the deck"
-	)
 	_check(is_instance_valid(menus._behavior_panel), "Behavior controls missing")
 	_check(
 		menus._orders_panel.find_children("*", "CheckBox", true, false).is_empty(),
 		"Retired auto-resume control remains"
 	)
-	_check(game.hud.battle_plan == null, "Retired Battle plan panel remains")
 	_check(
 		menus._behavior_panel.find_child("HoldFire", true, false) != null,
 		"Hold Fire control missing"
@@ -117,10 +110,6 @@ func _behaviors():
 		tank.position.distance_to(ally.position) < 3.5,
 		"Follower did not follow a changed destination"
 	)
-	_check(
-		tank.program.lua_runtime == null and tank.program.lua_source == "",
-		"Simple behavior allocated a VM"
-	)
 
 
 func _save_behaviors():
@@ -135,14 +124,8 @@ func _save_behaviors():
 	invalid.units[0].stance = -1
 	_check(not Restore.new().prepare(invalid), "Archive accepted an invalid stance")
 	var older = saved.duplicate(true)
-	older.snapshot_version = 13
-	older.erase("rounds")
-	for legacy_unit in older.units:
-		legacy_unit.projectiles = []
-		legacy_unit.erase("air")
-	for unit in older.units:
-		unit.erase("stance")
-	_check(Restore.new().prepare(older), "Previous save format was rejected")
+	older.snapshot_version = Snapshot.VERSION - 1
+	_check(not Restore.new().prepare(older), "Retired save format was accepted")
 	var id = capture._reference(tank)
 	var loader = Restore.new()
 	var loaded = await loader.restore(self, saved)
@@ -155,59 +138,3 @@ func _save_behaviors():
 		tank.stance == tank.Stance.DEFENSIVE and tank.action.get_script() == Following,
 		"Follow/stance failed to restore"
 	)
-	_check(
-		tank.program.lua_runtime == null and not tank.program.is_physics_processing(),
-		"Load reactivated a script loop"
-	)
-
-	await _legacy_archive(saved)
-
-
-func _legacy_archive(original):
-	var saved = original.duplicate(true)
-	var legacy = saved.units.filter(func(entry): return entry.role == "Tank")[0]
-	var record = Record.lua("Legacy hold", 1, HOLD, ["Tank"], ["movement"])
-	legacy.program.config = record.config.duplicate(true)
-	legacy.program.lua_source = HOLD
-	legacy.program.saved_record = record
-	legacy.program.mode = "Running"
-	legacy.program.runtime = {
-		"api_version": 1,
-		"source_hash": HOLD.sha256_text(),
-		"state": {"ticks": 42},
-		"suspended": false,
-		"error": ""
-	}
-	legacy.action = {
-		"kind": "LuaAction",
-		"state":
-		{
-			"_faulted": false,
-			"_next_handle": 1,
-			"_guarding_area": false,
-			"_retreating": false,
-			"_returning": false,
-			"_elapsed": 0.0,
-			"_waypoint": 0,
-			"_last_progress": Vector3.ZERO,
-			"_stalled": 0.0,
-			"_destination": null
-		},
-		"references": {"_target": "", "_repair": ""},
-		"children": {},
-		"timers": {},
-		"contacts": []
-	}
-	var loader = Restore.new()
-	var loaded = await loader.restore(self, saved)
-	_check(loaded.ok, "Legacy archive failed: " + loaded.get("error", ""))
-	if loaded.ok:
-		game = loaded.game
-		for unit in get_nodes_in_group("units"):
-			if unit.program != null:
-				_check(
-					unit.program.lua_runtime == null and unit.program.lua_source == "",
-					"Archive revived legacy scripts"
-				)
-		paused = false
-		await _frames(60)

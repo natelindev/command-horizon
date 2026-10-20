@@ -49,10 +49,14 @@ func _run():
 	await _test_gravity_arc()
 	await _test_lead_and_dodge()
 	await _test_blocker()
+	await _test_capture_site_blocker()
 	await _test_splash()
 	await _test_guidance()
 	await _test_rail_and_determinism()
-	await _test_infantry_anti_air()
+	for faction in ["bastion", "helix", "frontier"]:
+		_human.faction = faction
+		await _test_infantry_anti_air()
+		await _test_mobile_anti_air()
 	_game.queue_free()
 	await _ticks(5)
 	for message in _errors:
@@ -61,7 +65,7 @@ func _run():
 		print(
 			(
 				"PASS: gravity arcs, led hits, dodged rounds, blockers, splash falloff, "
-				+ "guided turn limits, rail lines, deterministic dispersion, infantry anti-air"
+				+ "guided turn limits, rail lines, deterministic dispersion, all-faction anti-air"
 			)
 		)
 	quit(0 if _errors.is_empty() else 1)
@@ -231,6 +235,55 @@ func _test_infantry_anti_air():
 	_check(_system.rounds_fired > fired, "Rocket infantry never launched at the aircraft")
 	_check(craft.hp < before, "Infantry missile did not damage the aircraft")
 	soldier.process_mode = Node.PROCESS_MODE_DISABLED
+	await _clear()
+
+
+func _test_mobile_anti_air():
+	var rules = load("res://source/match/combat/CombatRules.gd")
+	var vehicle = _spawn("AntiAirVehicle", _human, Vector3(31, 0, 20))
+	var craft = _spawn("Helicopter", _enemy, Vector3(37, 0, 20))
+	var tank = _spawn("Tank", _enemy, Vector3(37, 0, 24))
+	await _ticks(10)
+	craft.global_position.y = 2.5
+	var faction = _human.faction
+	_check(rules.can_target(vehicle, craft), faction + " AA vehicle cannot target aircraft")
+	_check(not rules.can_target(vehicle, tank), faction + " AA vehicle can target ground armor")
+	var before = craft.hp
+	var fired = _system.rounds_fired
+	vehicle.process_mode = Node.PROCESS_MODE_PAUSABLE
+	vehicle.action = load("res://source/match/units/actions/AttackingWhileInRange.gd").new(craft)
+	for _tick in range(120):
+		await _ticks(1)
+		if not is_instance_valid(craft) or craft.hp < before:
+			break
+	_check(_system.rounds_fired > fired, faction + " AA vehicle never fired at aircraft")
+	_check(
+		not is_instance_valid(craft) or craft.hp < before,
+		faction + " AA vehicle's physical projectiles never damaged aircraft"
+	)
+	vehicle.process_mode = Node.PROCESS_MODE_DISABLED
+	await _clear()
+
+
+func _test_capture_site_blocker():
+	var shooter = _spawn("Tank", _human, Vector3(30, 0, 20))
+	var target = _spawn("Tank", _enemy, Vector3(38, 0, 20))
+	var relay = load("res://source/match/objectives/CaptureRelay.gd").new()
+	_game.add_child(relay)
+	relay.global_position = Vector3(34, 0, 20)
+	relay.process_mode = Node.PROCESS_MODE_DISABLED
+	await _ticks(5)
+	_game.battlefield.invalidate()
+	var rules = load("res://source/match/combat/CombatRules.gd")
+	_check(not rules.can_target(shooter, relay), "Capture relay became a damageable target")
+	var before = target.hp
+	_face(shooter, target)
+	_system.launch(shooter, target)
+	await _ticks(30)
+	_check(target.hp == before, "Shell passed through the capture relay")
+	_check(relay.hp == 1.0, "Shell damaged the indestructible capture relay")
+	_check(_system.round_count() == 0, "Shell did not stop on the capture relay")
+	relay.queue_free()
 	await _clear()
 
 

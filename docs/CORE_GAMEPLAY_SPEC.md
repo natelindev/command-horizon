@@ -1,6 +1,6 @@
 # Core gameplay specification — two-faction prototype
 
-Current unit-control decision (2026-10-17): [five built-in behaviors](UNIT_BEHAVIORS.md) replace the programmable-unit/chip/authoring requirements below. The older sections retain design history.
+Current unit-control decision (2026-10-17): [five built-in behaviors](UNIT_BEHAVIORS.md) replace the programmable-unit/chip/authoring requirements below. The older sections retain design history; the programmable-unit implementation, the unreachable Air Corridor operation (04) and the retired Battle plan advisor were removed from the codebase on 2026-10-20.
 
 Version 0.4 · 2026-10-01 · Design defaults for the next playable milestone
 
@@ -40,7 +40,7 @@ Workers carry four units of one resource. Preserve the initial collection seeds 
 
 Implemented field boundary: same-type deposits within 10 metres of the originally clicked deposit, fixed for the lifetime of that assignment. It never moves with the worker, HQ or replacement node. A work slot is reserved while approaching/collecting and released while returning cargo. Full nodes make extra workers wait in place and retry every 0.5 simulation seconds. A new resource order first delivers any carried cargo. Completed deliveries hand off queued orders; depleted or missing-HQ waits also accept later Shift orders. Human terminal waits appear in the idle-engineer shortcut; AI commanders may explicitly reassign their own workers. This local-radius definition is the current map contract, rather than separately authored field IDs.
 
-Map stockpile seeds: each home field totals 600 M / 240 E; each expansion 900 M / 400 E. They are finite and their remaining amounts are visible when inspected. Starting placements must sustain the full basic-chip build path without forcing a contested capture. Electronics-rich expansions provide Helix a reason to leave its base. No passive infinite income or new harvestable currency.
+Map stockpile seeds: each home field totals 2,000 M / 1,440 E; each expansion 3,000 M / 2,400 E, and each rich field 4,500 M / 3,600 E (see Maps that change decisions). They are finite and their remaining amounts are visible when inspected. Starting placements must sustain the full basic-chip build path without forcing a contested capture. Electronics-rich expansions provide Helix a reason to leave its base. No passive infinite income or new harvestable currency.
 
 ### Power and production
 
@@ -300,22 +300,39 @@ Operation 06 is now playable: Command Horizon requires infantry deployment contr
 
 ### Maps that change decisions
 
-| Map contract | Required layout | What it tests |
-| --- | --- | --- |
-| Desert Frontier revision | Two viable routes between bases, exposed outer electronics, one central staging area; avoid a single mandatory choke. | Scouting, armored commitment, raids and retreat paths. |
-| Alpine Relay | Two separated ground passes joined by a slower rear route; air can cross the ridge; relay objectives sit outside base-defense range. | Split forces, air shortcuts, escorts and independent assignments. |
-| Industrial Crossroads | Three street approaches with opaque structures and open junctions; infantry captures reachable without garrisons. | Line of sight, short-range screens and artillery firing positions. |
-| Coastal Foundry | Continuous ground access around a harbor plus exposed air routes; ships are scenery/mission set pieces only. | Different geometry without making naval navigation a prerequisite. |
+Skirmish maps are authored battlefields (`source/match/maps/battlefields/`). Each definition describes one start's share of the map (gameplay tiers, ramps, water, fords and bridges, forests, roads and rail, landmarks, resource fields, capturable sites, relays and garrisonable buildings), and the layout builder copies it to every start by rotation or reflection, so all starts receive identical terrain, routes and resources. `MapMetricsRegression` holds every map in the picker to this contract:
 
-Alpine's first playable layout is now implemented at 128×104: two passes, outer bypass, optional infantry-captured vision relays, paired home fields (600 M / 240 E) and expansions (900 M / 400 E). Its measured base route is approximately 40.8 seconds at 2.6 m/s; the tested ridge crossing is 38 m for ground units versus 24 m for aircraft. Relays occupy staging areas beside the passages, with public ownership, AI assignments and exact objective save/restore. Command destruction remains the win condition. An editable ten-model alpine kit now supplies fractured shelves, snowy mountain/conifer surroundings and communications landmarks, with continuous plowed routes and weathered snow/ice/gravel. Tall scenery remains outside playable space, and relay labels have stronger snow contrast. Both factions pass imported bounds, actual air/ground routes, economy, capture/contest/archive continuity and ordinary-fog rendered combat. See [alpine environment verification](playtests/2026-10-03/ALPINE_ENVIRONMENT.md). Subjective final art and repeated full-match pacing remain open.
+| Measure | Target |
+| --- | --- |
+| Basic tank (2.6 m/s) to the nearest rival base, along real paths | 75–110 s on 2-player maps; 65–100 s on 4-player maps |
+| Start to its natural expansion | 25 s or less |
+| Home field to its HQ | 7–11 m, on the side away from the attack lane |
+| Ramps | 6 m wide or more |
+| Level build sites within 30 m of each start | 40 or more |
+| Resource fields | 12 or more on 2-player maps, 16 or more on 4-player maps; per-player stock equal within 5 % |
 
-Desert Frontier's revision is now 128×96, with rotationally paired starting positions, two low sandstone islands dividing a broad central freight apron from open north/south flanks, safe home fields (600 M / 240 E each) and exposed outer fields (900 M / 400 E each). Its tested base route is 36.7 seconds at 2.6 m/s. All three approaches support actual 16-tank advance and retreat, and both starting locations return materials/electronics. Outer electronics can be hauled back without a forward HQ. The menu selects `DesertFrontier.tscn`; original `BastionDesert.tscn` remains unchanged for old saves and demos. The first substantial desert environment pass now adds an editable ten-model sandstone/freight kit, varied ground materials, low ruins, scrub and canyon surroundings. Interior scenery fits the original four shelf envelopes; tall landmarks sit outside the playable rectangle. Public exterior scenery retains ordinary interior fog. See [environment verification](playtests/2026-10-03/DESERT_ENVIRONMENT.md). Broader final art and complete-match acceptance remain open.
+Field stock: a home field holds 2,000 M / 1,440 E (five material piles, two electronics nodes), an expansion 3,000 M / 2,400 E, and a rich field 4,500 M / 3,600 E on exposed ground. Gameplay ground steps in 3 m tiers (sunken −3 m tiers for gorges, wadis, canals and quays) joined by ramps; ground units cannot see or shoot onto a higher tier beyond 4 m unless it is spotted. Forests hide the units inside them; water stops ground units except at fords and bridges; lava cannot be crossed. Each map has one recognisable real-world place and one signature mechanic:
 
-Industrial Crossroads is implemented at 128×104 with three streets, connecting spines, six opaque buildings, two infantry-accessible vision relays and 14 moving neutral actors. Paired home/outer fields use the same 600 M / 240 E and 900 M / 400 E budgets. After the shared resource-navigation correction, basic-tank path estimates are 45.1 seconds base-to-base and 20.5 seconds to the first expansion. Both factions pass actual 16-tank advance/retreat, starting-side income, outer electronics return, paid construction, relay capture and archives. Six-minute AI production/attack runs and native selection/launch also pass. The editable industrial kit additionally replaces Broken Foundry's placeholder buildings while retaining its gameplay footprints. See [verification and remaining acceptance work](playtests/2026-10-03/INDUSTRIAL_CROSSROADS.md).
+| Map | Players | Place | Signature |
+| --- | --- | --- | --- |
+| Redrock Divide | 2 | Utah canyon country | A mesa splits the canyon; crossings by the wash, slot canyons and a rail trestle under mesa overlooks |
+| Saltwind Basin | 2 | Salt flats and potash works | Rim terraces over an exposed pan; dike causeways through brine ponds |
+| Desert Frontier | 2 | Mojave rail outpost | Three routes past sandstone escarpments |
+| Pinebreak Valley | 2 | Pacific Northwest logging valley | Fir concealment; a river crossed by a log bridge and gravel fords |
+| Glacier Narrows | 2 | Norwegian fjord head | Moraine crest, lakeshore, dam crest and outwash ford crossings |
+| Alpine Relay | 2 | Swiss alpine pass | Two relay cols through a massif; bypasses at its ends |
+| Emberworks | 2 | Ruhr steelworks | A works canal crossed by two bridges under slag heaps; garrisoned works offices |
+| Coastal Foundry | 2 | Harbour town and ship foundry | Over the fort hill, by the swing bridge or along the mole |
+| Copper Badlands | 4 | Open-pit copper mine | Terraced benches and haul ramps down to a contested pit floor |
+| Shattered Oasis | 4 | Desert oasis and wadis | Palm-grove concealment and sunken wadis |
+| Four Rivers | 4 | River-confluence farmland | Bridges and fords; hedgerows that block sight |
+| Verdant Commons | 4 | English village | Village green, walled fields and hedgerow concealment |
+| Frostbound Crown | 4 | Polar research plateau | Crevasse fields around a raised radar crown |
+| Railspire Junction | 4 | Rail junction | Open track fields, overpass high ground, a garrisoned signal box |
+| Sunken Exchange | 4 | Drowned port city | Canal ring, flooded quay and the raised exchange piazza |
+| Cinder Ring | 4 | Volcanic caldera | A breached crater rim around a lava lake |
 
-Coastal Foundry is implemented at 128×104 with a harbor inlet separating opposite bases, continuous land access along quay/inland roads, two opaque foundries, shore cranes/beacons, a moored freighter and coastal pines. Ground navigation and construction exclude actual water; aircraft cross it directly and climb over authored landmarks. The same paired field budgets apply. Basic-tank path estimates are 51.1 seconds base-to-base and 22.5 seconds to the first western expansion. Thirteen neutral actors include road traffic, residents, gulls and a tug. Both factions pass tank routes/retreat, field income, paid construction, aircraft clearance and archives; six-minute AI economy/attacks and native selection/launch pass. See [verification and limits](playtests/2026-10-03/COASTAL_FOUNDRY.md). The [coastal environment follow-up](playtests/2026-10-04/COASTAL_ENVIRONMENT.md) adds continuous exterior sea/relief, headlands/breakwaters, working-port infrastructure, wind-shaped pines and weathered surfaces while retaining those route, sight and clearance contracts. Public scenery stays outside the playable rectangle; unseen interior forces remain hidden.
-
-The four-map table now has playable implementations; repeated complete-match balance and final environment acceptance remain open. The old template maps remain legacy sandboxes. Size maps by traversal time, not just tile count: aim for 35–55 seconds base-to-base for basic tanks, 15–25 seconds to a first expansion. The original 64 m desert is retained only for compatibility and demos; the revised map is measured against this traversal target. Standard spawns must be validated for both faction footprints and harvesting access. No central objective should be covered by starting-base defense.
+The earlier template, catalog and Expanded maps have left the picker; saved preferences that name them open their successors. Campaign operations keep their own maps. No central objective should be covered by starting-base defense.
 
 ### Enemy fairness and difficulty
 

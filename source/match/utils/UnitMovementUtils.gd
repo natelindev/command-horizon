@@ -2,6 +2,8 @@
 const Footprint = preload("res://source/match/utils/Footprint.gd")
 const DISTANCE_REDUCTION_BY_DIVISION_ITERATIONS_MAX = 10
 const DISTANCE_REDUCTION_BY_SUBTRACTION_ITERATIONS_MAX = 10
+# Exact formation slot assignment is O(n^3); larger formations use a greedy pass.
+const ASSIGNMENT_EXACT_LIMIT = 40
 
 # crowd - group of units
 # pivot - pivot point, central point of crowd
@@ -67,6 +69,103 @@ static func _resolve_group_destinations(unit_positions, pivot):
 			chosen = fallback if fallback.is_finite() else pair[1]
 		result.append([unit, chosen])
 		discs.append([chosen, unit.radius])
+	return result
+
+
+static func _assignment(origins, points):
+	# Minimum total straight-line distance; such paths never cross.
+	var cost = []
+	for origin_point in origins:
+		var origin = origin_point * Vector3(1, 0, 1)
+		var distances = PackedFloat64Array()
+		for point in points:
+			distances.append(origin.distance_to(point * Vector3(1, 0, 1)))
+		cost.append(distances)
+	return (
+		_min_cost_assignment(cost)
+		if origins.size() <= ASSIGNMENT_EXACT_LIMIT
+		else _greedy_assignment(cost)
+	)
+
+
+static func _min_cost_assignment(cost):
+	# Hungarian algorithm with potentials, O(n^3). Returns a column per row.
+	var n = cost.size()
+	var u = PackedFloat64Array()
+	var v = PackedFloat64Array()
+	var row_of = PackedInt32Array()
+	var way = PackedInt32Array()
+	u.resize(n + 1)
+	v.resize(n + 1)
+	row_of.resize(n + 1)
+	way.resize(n + 1)
+	for row in range(1, n + 1):
+		row_of[0] = row
+		var column = 0
+		var minimum = PackedFloat64Array()
+		var used = PackedByteArray()
+		minimum.resize(n + 1)
+		minimum.fill(INF)
+		used.resize(n + 1)
+		while true:
+			used[column] = 1
+			var current_row = row_of[column]
+			var delta = INF
+			var next_column = 0
+			for candidate in range(1, n + 1):
+				if used[candidate] == 0:
+					var reduced = (
+						cost[current_row - 1][candidate - 1] - u[current_row] - v[candidate]
+					)
+					if reduced < minimum[candidate]:
+						minimum[candidate] = reduced
+						way[candidate] = column
+					if minimum[candidate] < delta:
+						delta = minimum[candidate]
+						next_column = candidate
+			for candidate in range(n + 1):
+				if used[candidate] == 1:
+					u[row_of[candidate]] += delta
+					v[candidate] -= delta
+				else:
+					minimum[candidate] -= delta
+			column = next_column
+			if row_of[column] == 0:
+				break
+		while column != 0:
+			var previous = way[column]
+			row_of[column] = row_of[previous]
+			column = previous
+	var result = PackedInt32Array()
+	result.resize(n)
+	for column in range(1, n + 1):
+		result[row_of[column] - 1] = column - 1
+	return result
+
+
+static func _greedy_assignment(cost):
+	# Large selections: shortest pairs first. Not exact, but bounded at O(n^2 log n).
+	var n = cost.size()
+	var candidates = []
+	for row in n:
+		for column in n:
+			candidates.append(Vector3(cost[row][column], row, column))
+	candidates.sort_custom(func(a, b): return a.x < b.x)
+	var result = PackedInt32Array()
+	result.resize(n)
+	result.fill(-1)
+	var taken = PackedByteArray()
+	taken.resize(n)
+	var assigned = 0
+	for candidate in candidates:
+		var row = int(candidate.y)
+		var column = int(candidate.z)
+		if result[row] == -1 and taken[column] == 0:
+			result[row] = column
+			taken[column] = 1
+			assigned += 1
+			if assigned == n:
+				break
 	return result
 
 
@@ -172,22 +271,13 @@ static func calculate_formation_slots(
 			var z_off = -rank * base_spacing * 1.2
 			raw_slots.append(pivot_yless + right * x_off + forward * z_off)
 
-	# Greedy slot assignment: assign units to nearest available slot
-	var remaining_slots = raw_slots.duplicate()
+	# A formation is a new shape: give units the slots with the minimum total
+	# travel, so their straight paths into the formation never cross.
+	var columns = _assignment(units.map(func(unit): return unit.global_position), raw_slots)
 	var assignments = []
-	for unit in units:
-		var u_pos = unit.global_position * Vector3(1, 0, 1)
-		var best_idx = 0
-		var best_dist = INF
-		for s_idx in range(remaining_slots.size()):
-			var d = u_pos.distance_squared_to(remaining_slots[s_idx])
-			if d < best_dist:
-				best_dist = d
-				best_idx = s_idx
-		var chosen_slot = remaining_slots[best_idx]
-		remaining_slots.remove_at(best_idx)
-		assignments.append([unit, Vector3(chosen_slot.x, new_pivot.y, chosen_slot.z)])
-
+	for index in units.size():
+		var slot = raw_slots[columns[index]]
+		assignments.append([units[index], Vector3(slot.x, new_pivot.y, slot.z)])
 	return assignments
 
 

@@ -3,12 +3,14 @@ extends "res://source/match/Skirmish.gd"
 const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
 
 const Progress = preload("res://source/match/campaign/CampaignProgress.gd")
-const Library = preload("res://source/match/programs/ProgramLibrary.gd")
+const Posts = preload("res://source/match/campaign/CampaignPosts.gd")
 const ProductionFactions = preload("res://source/match/FactionCatalog.gd")
 const AttackMove = preload("res://source/match/units/actions/AttackMoving.gd")
 ## Mission pacing: a foundry admits another batch only while it holds at most five
 ## jobs, independent of the longer queue the player's producers accept.
 const BATCH_QUEUE_CAPACITY = 5
+## Foundry armor assembles slower than ordinary production; this paces the finite batches.
+const ASSEMBLY_SECONDS = 5.0
 var nodes = []
 var alarm = false
 var hold_seconds = 0.0
@@ -48,17 +50,16 @@ func _spawn_player_units(side, _spawn_transform):
 		for index in 2:
 			var point = map.NODES[index]
 			var factory = _spawn("VehicleFactory", side, point)
-			factory.get_node("ProductionQueue").fit_chips = true
 			nodes.append({"unit": factory, "disabled": false, "batches": 0, "left": 10.0})
 			for member in [3, 4, 5][side.difficulty]:
 				_spawn("Infantry", side, point + Vector3(-8 + member * 1.8, 0, 5))
 			var tank = _spawn("Tank", side, point + Vector3(-5, 0, -4))
-			_guard(tank, point + Vector3(-4, 0, 0))
+			Posts.guard(tank, point + Vector3(-4, 0, 0))
 			var support = _spawn("RepairRobot", side, point + Vector3(7, 0, 3))
-			_guard(support, point + Vector3(5, 0, 2), "hold_service")
+			Posts.guard(support, point + Vector3(5, 0, 2))
 		for offset in [-5, 5]:
 			var gun = _spawn("AdvancedTank", side, map.CONTROL + Vector3(4, 0, offset))
-			_guard(gun, gun.position, "fire_support")
+			Posts.guard(gun, gun.position)
 		for index in [4, 6, 8][side.difficulty]:
 			_spawn(
 				"Infantry", side, map.CONTROL + Vector3(-5 + index % 3 * 2, 0, -3 + index / 3 * 2)
@@ -95,22 +96,8 @@ func _spawn_player_units(side, _spawn_transform):
 
 func _spawn(role, side, point):
 	var unit = load(Catalog.scene_path(role)).instantiate()
-	if role == "Tank":
-		unit.set_meta("chip_installed", true)
 	_setup_and_spawn_unit(unit, Transform3D(Basis(), point), side, false)
 	return unit
-
-
-func _guard(unit, point, preset = "guard"):
-	if unit.program == null:
-		return
-	var config = Library.defaults(preset)
-	if preset == "fire_support":
-		config.radius = 12.0
-	unit.program.configure(config)
-	unit.program.anchor = point
-	unit.program.safe_point = point + Vector3(4, 0, 0)
-	unit.program.run()
 
 
 func _produced(unit, factory):
@@ -118,7 +105,7 @@ func _produced(unit, factory):
 		if nodes[index].unit == factory:
 			# Assemble west of the node, leaving room for the entire finite
 			# output. A tight group beside the portal traps its own last tank.
-			_guard(unit, map.NODES[index] + Vector3(-9, 0, 0))
+			Posts.guard(unit, map.NODES[index] + Vector3(-9, 0, 0))
 			return
 
 
@@ -133,6 +120,7 @@ func production_disabled():
 func _check_outcome(delta):
 	if _enemy == null or nodes.size() != 2:
 		return
+	Posts.service(_enemy)
 	var human = _get_human_player()
 	command_left = 60.0 if human.has_completed_structure("CommandCenter") else command_left - delta
 	if (
@@ -197,11 +185,10 @@ func batch_wait_reason(entry):
 		return "Queue space needed"
 	if _enemy.population(true) + count > Catalog.POPULATION_LIMIT:
 		return "Unit limit"
-	if queue.fit_chips and not _enemy.has_completed_structure("CommandLab"):
+	# Foundry armor depends on the lab; destroying it halts further batches.
+	if not _enemy.has_completed_structure("CommandLab"):
 		return "Lab required"
 	var cost = ProductionFactions.cost(_enemy, "Tank").duplicate()
-	if queue.fit_chips:
-		cost.resource_b += ProductionFactions.chip_cost(_enemy.faction)
 	cost.resource_a *= count
 	cost.resource_b *= count
 	if not _enemy.has_resources(cost):
@@ -222,6 +209,8 @@ func _start_batch(entry):
 			for admitted in jobs:
 				queue.cancel(admitted)
 			return
+		job.time_total += ASSEMBLY_SECONDS
+		job.time_left = job.time_total
 		jobs.append(job)
 	entry.batches += 1
 	entry.left = 45.0 if entry.batches < 3 else 0.0

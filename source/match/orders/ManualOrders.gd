@@ -5,7 +5,6 @@ const LIMIT = 16
 const ACTIONS = "res://source/match/units/actions/"
 var pending = []
 var current = {}
-var auto_resume = false
 var status = "Hold the queue key and right-click to queue orders."
 var _active = null
 var _engaged = false
@@ -31,9 +30,6 @@ func submit(order, append = false, audible = true, feedback_kind = ""):
 		status = "Queue full · maximum 16 waiting orders."
 		_feedback(order, false, append, audible, status, feedback_kind)
 		return false
-	var programmed = unit.program != null and unit.program.mode != "Manual"
-	if unit.program != null:
-		unit.program.manual_override()
 	# A direct shot uses the shelter's firing ports. Movement and Leave building
 	# still replace the garrison action and evacuate normally.
 	if not append and order.kind == "attack" and unit.has_meta("garrison_host"):
@@ -54,7 +50,7 @@ func submit(order, append = false, audible = true, feedback_kind = ""):
 			MatchSignals.unit_order_issued.emit(unit, order.kind)
 		_feedback(order, true, append, audible, "", feedback_kind)
 		return true
-	if not append or programmed:
+	if not append:
 		cancel()
 		unit.action = null
 	elif not _engaged and is_instance_valid(unit.action):
@@ -70,6 +66,11 @@ func submit(order, append = false, audible = true, feedback_kind = ""):
 	if audible:
 		MatchSignals.unit_order_issued.emit(unit, order.kind)
 	_feedback(order, true, append, audible, "", feedback_kind)
+	# Start an order the moment it reaches the head of an idle queue instead of
+	# on the next physics tick. Tactical pause keeps orders waiting, and a locked
+	# action swap retries on that tick.
+	if not is_instance_valid(_active) and not unit._action_locked and not get_tree().paused:
+		_start_next()
 	return true
 
 
@@ -97,15 +98,16 @@ func _physics_process(delta):
 	if is_instance_valid(_active) and _active.is_inside_tree():
 		_track_progress(delta)
 		return
+	_start_next()
+
+
+func _start_next():
 	_active = null
 	current = {}
 	if pending.is_empty():
 		_engaged = false
 		set_physics_process(false)
 		status = "Orders complete · holding position."
-		if auto_resume and unit.program != null and unit.program.ready_to_run():
-			unit.program.run()
-			status = "Orders complete · resuming program."
 		return
 	# One start/skip per tick bounds work even if a whole queue lost its targets.
 	var order = pending.pop_front()
@@ -167,6 +169,25 @@ func _make_action(order):
 		"approach":
 			return load(ACTIONS + "MovingToUnit.gd").new(target)
 	return null
+
+
+func revise(token, point):
+	# A right-click drag sets formation and facing after the press already issued
+	# the order. Update that same order in place: no second queue entry or voice.
+	if current.get("token") == token:
+		current.point = point
+		if current.kind in ["move", "attack_move"] and is_instance_valid(_active):
+			var action = _make_action(current)
+			_still = 0.0
+			_progress = unit.global_position
+			unit.action = action
+			_active = unit.action
+		return true
+	for order in pending:
+		if order.get("token") == token:
+			order.point = point
+			return true
+	return false
 
 
 func skip():

@@ -5,7 +5,7 @@ func _run():
 	save_path = "user://save-load-scale-%d.json" % OS.get_process_id()
 	path = "user://save-load-scale-progress-%d.json" % OS.get_process_id()
 	await _make_match()
-	await _scale_capture()
+	var queued = await _scale_capture()
 	var service = root.get_node("SaveManager")
 	service.slots.directory = "user://save-load-scale-slots-%d" % OS.get_process_id()
 	DirAccess.make_dir_recursive_absolute(service.slots.directory)
@@ -23,15 +23,14 @@ func _run():
 		game._get_human_player().population() == 100 and game._enemy.population() == 100,
 		"200-unit load changed population"
 	)
-	var programmable = 0
-	for unit in get_nodes_in_group("units"):
-		if unit.type == "Tank":
-			_check(
-				unit.program.lua_runtime.state_snapshot().get("data", []).size() == 2000,
-				"Large program memory lost"
-			)
-			programmable += 1
-	_check(programmable == 188, "Large embedded programs lost")
+	var tanks = get_nodes_in_group("units").filter(func(unit): return unit.type == "Tank")
+	_check(tanks.size() == queued, "200-unit load changed the tank roster")
+	var intact = 0
+	for unit in tanks:
+		var orders = unit.manual_orders
+		if orders.pending.size() + (0 if orders.current.is_empty() else 1) == SCALE_ORDERS:
+			intact += 1
+	_check(intact == queued, "Large order queues lost")
 	await _frames(20)
 	before = Time.get_ticks_msec()
 	_check(await service.save_slot("manual-2"), "Loaded 200-unit army could not save")

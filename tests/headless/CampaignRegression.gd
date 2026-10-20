@@ -152,7 +152,7 @@ func _capture_rules():
 func _full_mission():
 	var human = game._get_human_player()
 	_check(
-		game.phase == 0 and not human.basic_programs_unlocked(), "Mission started after lab lesson"
+		game.phase == 0 and not human.lab_research_unlocked(), "Mission started after lab lesson"
 	)
 	await _frames(120)
 	_check(game.waves_sent == 0, "Learning phase spawned timed attacks")

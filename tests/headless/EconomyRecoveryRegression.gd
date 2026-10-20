@@ -1,6 +1,5 @@
 extends "res://tests/headless/Skirmish.gd"
 
-var advice
 var plan
 var harvest
 var game
@@ -10,12 +9,11 @@ var human
 func _run():
 	factions = load("res://source/match/FactionCatalog.gd")
 	constants = root.get_node("Constants")
-	advice = load("res://source/match/EconomyAdvice.gd")
-	plan = load("res://source/match/SkirmishPlan.gd")
+	plan = load("res://tests/UnitQueries.gd")
 	harvest = load("res://source/match/units/actions/CollectingResourcesSequentially.gd")
 	for faction in ["bastion", "helix"]:
 		await _open(faction)
-		await _assignments()
+		await _remove_workers()
 		await _replacement()
 		await _close()
 		await _open(faction)
@@ -40,58 +38,12 @@ func _close():
 	await _frames(5)
 
 
-func _wait_state(worker, reason):
-	var action = harvest.new(null)
-	action.restoring = true
-	action._kind = 1
-	action._field_origin = worker.global_position_yless
-	action._state = harvest.State.WAITING
-	action._waiting_reason = reason
-	action._retry_left = 0.5
-	worker.issue_manual_order(action)
+func _workers():
+	return plan.owned_units(human).filter(func(unit): return unit.type == "Worker")
 
 
-func _assignments():
-	var workers = advice.role(plan.owned_units(human), "Worker")
-	var deposit = get_nodes_in_group("resource_units")[0]
-	workers[0].issue_manual_order(harvest.new(deposit))
-	var cost_before = Vector2(human.resource_a, human.resource_b)
-	var active = workers[0].action
-	var build = plan.next_step(human)
-	_check(
-		build.id == "Barracks" and build.units[0] != workers[0],
-		"Guide stole active gatherer while idle builders existed"
-	)
-	_wait_state(workers[1], harvest.Wait.DEPLETED)
-	var expansion = plan.next_step(human)
-	_check(
-		expansion.id == "expand" and expansion.units == [workers[1]],
-		"Partial depletion was masked by active economy"
-	)
-	_wait_state(workers[2], harvest.Wait.HQ)
-	_check(plan.next_step(human).id == "drop_off", "Stranded cargo was not prioritized")
-	workers[2].issue_manual_order(null)
-	_wait_state(workers[1], harvest.Wait.DELIVERED)
-	_check(plan.next_step(human).id == "reassign", "Delivered workers lacked field guidance")
-	_wait_state(workers[1], harvest.Wait.SLOT)
-	_wait_state(workers[2], harvest.Wait.SLOT)
-	_check(
-		plan.next_step(human).id == "distribute",
-		"Oversubscribed field lacked redistribution guidance"
-	)
-	for index in range(10):
-		plan.next_step(human)
-	_check(
-		Vector2(human.resource_a, human.resource_b) == cost_before and workers[0].action == active,
-		"Advice spent funds or replaced an order"
-	)
-	workers[1].issue_manual_order(null)
-	workers[2].issue_manual_order(null)
-	human.resource_a = 0
-	_check(
-		plan.next_step(human).id == "fund_Barracks", "Unaffordable building lacked funding guidance"
-	)
-	for worker in workers:
+func _remove_workers():
+	for worker in _workers():
 		worker.issue_manual_order(null)
 		worker.queue_free()
 	await _frames(4)
@@ -106,7 +58,7 @@ func _replacement():
 	human.resource_a = 20
 	human.resource_b = 20
 	_check(human.start_coordination(_unit(human, "CommandLab")), "Research refund fixture failed")
-	_check(plan.next_step(human).id == "workers_research", "Paid research recovery was overlooked")
+	_check(human.resource_a < 20 or human.resource_b < 20, "Research did not charge its cost")
 	human.cancel_coordination()
 	_check(human.resource_a == 20 and human.resource_b == 20, "Research refund lost paid resources")
 	var barracks = load(Catalog.scene_path("Barracks")).instantiate()
@@ -118,31 +70,21 @@ func _replacement():
 	var queue = barracks.production_queue
 	var job = queue.produce(load(Catalog.scene_path("Infantry")))
 	_check(job != null and human.resource_a == 0, "Paid refund fixture failed")
-	var step = plan.next_step(human)
-	_check(
-		step.id == "workers_refund" and step.units == [barracks],
-		"Bankrupt worker loss did not identify paid queue"
-	)
 	queue.cancel(job)
-	_check(
-		human.resource_a == 6 and plan.next_step(human).id == "workers",
-		"Refund did not enable replacement"
-	)
+	_check(human.resource_a == 6, "Queue refund did not return the paid cost")
 	var hq = _unit(human, "CommandCenter")
 	_check(
 		hq.production_queue.produce(load(Catalog.scene_path("Worker"))) != null,
 		"Replacement engineer could not be purchased"
 	)
-	_check(
-		plan.next_step(human).id == "workers_pending", "Guide requested duplicate paid replacement"
-	)
 	await _restore()
-	_check(plan.next_step(human).id == "workers_pending", "Loaded advice lost pending replacement")
+	hq = _unit(human, "CommandCenter")
+	_check(hq.production_queue.size() == 1, "Loaded HQ lost the paid replacement engineer")
 	var clock_before = game.simulation_time
 	await _frames(20)
 	_check(
 		game.simulation_time == clock_before and _unit(human, "Worker") == null,
-		"Paused advice advanced production"
+		"Paused restore advanced production"
 	)
 	game.hud._toggle_pause()
 	await _until(func(): return _unit(human, "Worker") != null)
@@ -157,14 +99,6 @@ func _replacement():
 	worker.issue_manual_order(harvest.new(deposits[0]))
 	await _until(func(): return human.resource_a > 0)
 	_check(human.resource_a >= 4, "Refund → worker → harvest never restored income")
-	worker.issue_manual_order(null)
-	worker.queue_free()
-	await _frames(3)
-	human.resource_a = 0
-	_check(
-		plan.next_step(human).id == "last_stand",
-		"Irrecoverable economy still recommended an unaffordable worker"
-	)
 
 
 func _headquarters():
@@ -174,13 +108,11 @@ func _headquarters():
 	human.resource_b = 20
 	hq.queue_free()
 	await _frames(6)
-	var step = plan.next_step(human)
-	var build_time = "%d s" % factions.BUILD_TIMES.CommandCenter
-	_check(
-		step.id == "CommandCenter" and build_time in step.description,
-		"HQ rebuild guidance omitted budget or build time"
+	var builders = _workers()
+	builders.sort_custom(
+		func(a, b): return a.position.distance_to(point) < b.position.distance_to(point)
 	)
-	var builder = step.units[0]
+	var builder = builders[0]
 	var handler = human.get_node("StructurePlacementHandler")
 	handler._start_structure_placement(load(Catalog.scene_path("CommandCenter")))
 	var valid = false
@@ -207,67 +139,29 @@ func _headquarters():
 	handler._finish_structure_placement()
 	_check(human.resource_a == 0 and human.resource_b == 0, "HQ rebuild did not reserve full cost")
 	await _frames(60)
-	step = plan.next_step(human)
 	_check(
 		(
-			step.id == "CommandCenter"
-			and "already paid" in step.description
-			and step.units == [builder]
+			builder.manual_orders.current.get("kind") == "construct"
+			or builder.manual_orders.pending.any(func(order): return order.kind == "construct")
 		),
-		"Paid foundation prompted duplicate spending or wrong builder"
+		"HQ placement did not assign the selected builder"
 	)
 	await _restore()
 	var left = game._defeat_timers[human]
 	_check(
-		"already paid" in plan.next_step(human).description, "Loaded HQ recovery lost foundation"
+		plan.owned_units(human).any(
+			func(unit): return unit.type == "CommandCenter" and not unit.is_constructed()
+		),
+		"Loaded HQ recovery lost foundation"
 	)
 	await _frames(30)
-	_check(game._defeat_timers[human] == left, "Paused advice advanced defeat countdown")
+	_check(game._defeat_timers[human] == left, "Paused restore advanced defeat countdown")
 	game.hud._toggle_pause()
 	await _until(func(): return human.has_completed_structure("CommandCenter"), 3300)
 	await _frames(3)
 	_check(
 		not game.finished and game._defeat_timers[human] == 60.0,
 		"Paid HQ rebuild did not reset recovery countdown"
-	)
-	_unit(human, "CommandCenter").queue_free()
-	await _frames(3)
-	human.resource_a = 0
-	human.resource_b = 0
-	_check(
-		plan.next_step(human).id == "hq_funds",
-		"HQ budget shortfall recommended cargo delivery without HQ"
-	)
-	var producer = load(Catalog.scene_path("Barracks")).instantiate()
-	game._setup_and_spawn_unit(producer, Transform3D(Basis(), Vector3(25, 0, 12)), human, false)
-	await _frames(3)
-	paused = true
-	human.resource_a = 12
-	var first = producer.production_queue.produce(load(Catalog.scene_path("Infantry")))
-	producer.production_queue.produce(load(Catalog.scene_path("Infantry")))
-	_check(
-		plan.next_step(human).id == "hq_funds", "Insufficient combined refunds promised HQ recovery"
-	)
-	human.resource_a = 74
-	human.resource_b = 20
-	_check(
-		plan.next_step(human).id == "hq_refund", "Available paid jobs were ignored for HQ recovery"
-	)
-	producer.production_queue.cancel(first)
-	_check(
-		plan.next_step(human).id == "CommandCenter",
-		"HQ refund failed to restore an actionable rebuild"
-	)
-	producer.production_queue.cancel_all()
-	human.resource_a = 0
-	human.resource_b = 0
-	paused = false
-	for worker in advice.role(plan.owned_units(human), "Worker"):
-		worker.queue_free()
-	await _frames(3)
-	_check(
-		plan.next_step(human).id == "last_stand",
-		"No-HQ/no-worker recovery offered an impossible build"
 	)
 
 

@@ -2,14 +2,17 @@
 
 ## Battle voices and interface sounds
 
-The offline battle bank contains 687 clips: 293 crew/command lines, 97 robot lines and
-297 structure console cues. Three male Kokoro voices are reserved for faction
-announcements. The 31 speaking faction/unit roles and the 11 robots each clone their own
-reference voice with Chatterbox. Crew are native English speakers with one accent family
-per army — Bastion North American, Helix English, Frontier mostly Irish/Australian — cast
-from VCTK speakers (self-reported accents) and confidently native CC0 donations. Casting is
-chosen for distinctness: across all 42 references the closest pair scores 0.39 ECAPA
-cosine (same-person pairs score above roughly 0.5), and none is close to an announcer.
+The offline battle bank contains 759 clips: 365 crew/command lines (24 of them camp
+mercenaries), 97 robot lines and 297 structure console cues. Three male Kokoro voices are
+reserved for faction announcements. The 37 speaking faction/unit roles, the three camp
+mercenaries and the 11 robots each clone their own reference voice with Chatterbox. Crew are
+native English speakers with one accent family per army — Bastion North American, Helix
+English, Frontier mostly Irish/Australian — cast from VCTK speakers (self-reported accents)
+and CC0 donations whose accent classification is confidently native or wavers only between
+native varieties. Mercenaries are neutral hires: each keeps one Scottish voice, an accent no
+army uses, whichever army pays for the contract. Casting is chosen for distinctness: across
+all 51 references the closest pair scores 0.39 ECAPA cosine (same-person pairs score above
+roughly 0.5), and none is close to an announcer.
 Selection, movement, attack, ready and stop responses stay with the same voice. Soldiers are
 spoiling for a fight: the script is battle-hungry, delivery runs hot (Chatterbox
 exaggeration 0.65–1.0, most intense on attack) and Frontier's scrapper also speaks for
@@ -20,7 +23,8 @@ written words, the take must still sound like its cast voice (ECAPA similarity) 
 leap into a screech; among those, the most fired-up take wins (vocal effort plus raised
 pitch). Crew lines get light, baked field-radio colouring by unit class and faction
 (`radio_voice.py`: handset, throat mic, command net, helmet intercom, pilot headset or CB
-radio; Bastion analog, Helix digital, Frontier rough), blended in parallel with the dry
+radio; Bastion analog, Helix digital, Frontier rough, mercenaries on cheap commercial
+handsets), blended in parallel with the dry
 voice so consonants stay clear. Speech is trimmed, equalized and normalized to −16 LUFS per
 clip with a −1.5 dBFS peak limit. The game's Voice bus plays it full-band (low cut, gentle
 compression, limiter); a runtime radio band-pass previously muffled words and made
@@ -36,11 +40,12 @@ sourceless unit events are rejected; only a real unit can supply a unit reply.
 
 `voice_cast.py` contains explicit casting, delivery and original dialogue.
 `analyze_voice_pool.py` profiles the reference voices (language, accent, pitch, quality)
-into `voice-pool.json`, and `select_voice_cast.py` proposes a native, maximally distinct cast. `build_battle_audio.py` uses
-Kokoro ONNX, Chatterbox, Whisper, SpeechBrain, soundfile, NumPy and ffmpeg. Build
-inputs stay under `tmp`; the game requires no TTS installation or network. The catalog
-and manifest pin inputs, output hashes and each accepted take's transcription. The
-per-clip cache includes only its own voice/model, so recasting one unit leaves other
+into `voice-pool.json`, and `select_voice_cast.py` proposes native, maximally distinct voices
+for uncast roles while keeping every existing assignment and the campaign's voices.
+`build_battle_audio.py` uses Kokoro ONNX, Chatterbox, Whisper, SpeechBrain, soundfile, NumPy
+and ffmpeg. Build inputs stay under `tmp`; the game requires no TTS installation or network.
+The catalog and manifest pin inputs, output hashes and each accepted take's transcription.
+The per-clip cache includes only its own voice/model, so recasting one unit leaves other
 speech and mechanical clips untouched.
 
 ```sh
@@ -71,6 +76,11 @@ See [voice attribution](../../assets/audio/voices/LICENSES.md) and the
 Run `verify_battle_audio.py` to decode every clip, check its peak and hash, and
 rebuild the listening reel. These measurements verify asset integrity; listening
 quality and performance direction remain subjective.
+`verify_voice_identity.py` retains completed transcripts under `tmp/voice-work`, keyed by
+the encoded clip hash and recognizer configuration, so interrupted audits resume safely.
+Contractions, exact compound-word spacing and a known joined-word transcription are
+normalized before scoring; raw recognized text is cached, and the report retains
+inexact text while still counting changed or missing words.
 
 The shared battle channel coalesces simultaneous production, groups selection/order
 chatter behind a 1.5-second cooldown, never queues acknowledgements, and limits
@@ -115,8 +125,8 @@ intro/outro pacing; these are not beat-spliced seamless loops.
 
 `source/audio/MusicDirector.gd` selects the human faction's music in battle and
 the menu track elsewhere. Two players crossfade over 2.5 seconds, including during
-tactical pause. Music has a separate persisted volume slider. Program test arenas
-do not start music. `tests/headless/MusicRegression.gd` covers decode, full-length
+tactical pause. Music has a separate persisted volume slider.
+`tests/headless/MusicRegression.gd` covers decode, full-length
 assets, looping, crossfades, rapid switching, pause, mute and gain.
 
 ## Retired sources
@@ -150,6 +160,5 @@ catalog. It verifies the shipped hashes against that audit. Import with Godot's
 headless editor before running the campaign dialogue regressions.
 
 Portraits are original SVGs produced by `tools/ui/generate_campaign_portraits.py`.
-The campaign distribution credits are `assets/audio/campaign/LICENSES.md`. Legacy
-narration remains for save compatibility. Listening and rendered review remain
-separate from these automated checks.
+The campaign distribution credits are `assets/audio/campaign/LICENSES.md`. Listening
+and rendered review remain separate from these automated checks.

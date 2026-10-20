@@ -54,7 +54,7 @@ func _run():
 	)
 	await _click(_named_button(game.hud, "Select trucks"))
 	_check(get_nodes_in_group("selected_units").size() == 3, "Select trucks selected escorts")
-	_check(game.find_child("UnitMenus")._program_panel == null, "Convoy exposes programming")
+	_check(game.find_child("UnitMenus")._signature_panel == null, "Convoy exposes faction ability")
 	await _capture("supply-line-convoy-720p")
 	var menu_panel = game.find_child("UnitMenus")
 	_check(
@@ -97,10 +97,8 @@ func _run():
 	)
 	await _click(_named_button(game.hud, "Select escorts"))
 	_check(get_nodes_in_group("selected_units").size() == 18, "Escort selection included convoy")
-	_check(game.find_child("UnitMenus")._squad_panel == null, "Escort exposes locked coordination")
 	_check(
-		not game.find_child("UnitMenus")._orders_panel._resume.visible,
-		"Conventional escorts expose program auto-resume"
+		game.find_child("UnitMenus")._signature_panel == null, "Escort exposes locked coordination"
 	)
 	for index in 3:
 		await _click(game.hud._view_buttons[index])

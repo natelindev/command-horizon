@@ -18,18 +18,42 @@ var _combat_left = 0.0
 var _scan_left = 0.0
 
 
-static func region_for(map_path):
-	var battlefield = preload("res://source/match/maps/BattlefieldCatalog.gd").profile(map_path)
-	if not battlefield.is_empty():
-		return {"temperate": "alpine", "urban": "industrial"}.get(
-			battlefield.biome, battlefield.biome
+static func region_for(map_path, mission_id = ""):
+	if map_path == "res://source/match/maps/HeroTheater.tscn":
+		# One scene hosts several authored environments; its filename cannot select a bed.
+		var story = load("res://source/match/campaign/CampaignCatalog.gd").STORIES.get(
+			mission_id, {}
+		)
+		return (
+			{
+				"city": "industrial",
+				"spire": "industrial",
+				"tunnels": "industrial",
+				"ford": "coastal",
+				"desert": "desert"
+			}
+			. get(story.get("biome", ""), "")
+		)
+	var authored = preload("res://source/match/maps/terrain/BattlefieldRegistry.gd").layout(
+		map_path
+	)
+	if not authored.is_empty():
+		return (
+			{
+				"desert": "desert",
+				"alpine": "alpine",
+				"temperate": "alpine",
+				"urban": "industrial",
+				"coastal": "coastal"
+			}
+			. get(authored.biome, "")
 		)
 	match load("res://source/match/ambient/AmbientCatalog.gd").authored_name(map_path):
 		"BastionDesert", "DesertFrontier", "SupplyLineMap", "FirstOrdersMap":
 			return "desert"
 		"AlpineRelay", "SplitSignalMap":
 			return "alpine"
-		"IndustrialCrossroads", "BrokenFoundryMap", "CommandHorizonMap", "AirCorridorMap":
+		"IndustrialCrossroads", "BrokenFoundryMap", "CommandHorizonMap":
 			return "industrial"
 		"CoastalFoundry":
 			return "coastal"
@@ -48,7 +72,7 @@ func _ready():
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_game = get_parent()
 	_camera = _game.get_node("IsometricCamera3D")
-	region = region_for(_game.settings.map_path)
+	region = region_for(_game.settings.map_path, _game.settings.mission_id)
 	if region.is_empty():
 		set_process(false)
 		return

@@ -714,71 +714,207 @@
             }
           ]
         },
-        "EvacTransport": {
+        "Fighter": {
           "select": [
             {
-              "stream": "res://assets/audio/voices/bastion/EvacTransport/select_0.ogg",
-              "text": "Rescue flight! Nobody dies on my watch!",
+              "stream": "res://assets/audio/voices/bastion/Fighter/select_0.ogg",
+              "text": "Interceptor up! Give me bandits!",
               "mechanical": false,
               "robotic": false,
-              "speaker_id": "bastion/EvacTransport"
+              "speaker_id": "bastion/Fighter"
             },
             {
-              "stream": "res://assets/audio/voices/bastion/EvacTransport/select_1.ogg",
-              "text": "Room for more! Move it!",
+              "stream": "res://assets/audio/voices/bastion/Fighter/select_1.ogg",
+              "text": "Nothing flies in my sky!",
               "mechanical": false,
               "robotic": false,
-              "speaker_id": "bastion/EvacTransport"
+              "speaker_id": "bastion/Fighter"
             }
           ],
           "move": [
             {
-              "stream": "res://assets/audio/voices/bastion/EvacTransport/move_0.ogg",
-              "text": "Inbound! Hang on!",
+              "stream": "res://assets/audio/voices/bastion/Fighter/move_0.ogg",
+              "text": "Afterburners! Go, go!",
               "mechanical": false,
               "robotic": false,
-              "speaker_id": "bastion/EvacTransport"
+              "speaker_id": "bastion/Fighter"
             },
             {
-              "stream": "res://assets/audio/voices/bastion/EvacTransport/move_1.ogg",
-              "text": "Full speed! Go, go!",
+              "stream": "res://assets/audio/voices/bastion/Fighter/move_1.ogg",
+              "text": "Climbing! Full thrust!",
               "mechanical": false,
               "robotic": false,
-              "speaker_id": "bastion/EvacTransport"
+              "speaker_id": "bastion/Fighter"
             }
           ],
           "attack": [
             {
-              "stream": "res://assets/audio/voices/bastion/EvacTransport/attack_0.ogg",
-              "text": "Evasive! Hold on to something!",
+              "stream": "res://assets/audio/voices/bastion/Fighter/attack_0.ogg",
+              "text": "Firing missiles! Bring them down!",
               "mechanical": false,
               "robotic": false,
-              "speaker_id": "bastion/EvacTransport"
+              "speaker_id": "bastion/Fighter"
             },
             {
-              "stream": "res://assets/audio/voices/bastion/EvacTransport/attack_1.ogg",
-              "text": "Get them out of the fire!",
+              "stream": "res://assets/audio/voices/bastion/Fighter/attack_1.ogg",
+              "text": "Knock them out of the sky!",
               "mechanical": false,
               "robotic": false,
-              "speaker_id": "bastion/EvacTransport"
+              "speaker_id": "bastion/Fighter"
             }
           ],
           "ready": [
             {
-              "stream": "res://assets/audio/voices/bastion/EvacTransport/ready_0.ogg",
-              "text": "Rescue bird! Ready to fly through hell!",
+              "stream": "res://assets/audio/voices/bastion/Fighter/ready_0.ogg",
+              "text": "Interceptor jet! Hungry for bandits!",
               "mechanical": false,
               "robotic": false,
-              "speaker_id": "bastion/EvacTransport"
+              "speaker_id": "bastion/Fighter"
             }
           ],
           "stop": [
             {
-              "stream": "res://assets/audio/voices/bastion/EvacTransport/stop_0.ogg",
+              "stream": "res://assets/audio/voices/bastion/Fighter/stop_0.ogg",
               "text": "Holding! Let them come!",
               "mechanical": false,
               "robotic": false,
-              "speaker_id": "bastion/EvacTransport"
+              "speaker_id": "bastion/Fighter"
+            }
+          ]
+        },
+        "Bomber": {
+          "select": [
+            {
+              "stream": "res://assets/audio/voices/bastion/Bomber/select_0.ogg",
+              "text": "Heavy bomber! Bomb bays full!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/Bomber"
+            },
+            {
+              "stream": "res://assets/audio/voices/bastion/Bomber/select_1.ogg",
+              "text": "Who gets flattened today?",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/Bomber"
+            }
+          ],
+          "move": [
+            {
+              "stream": "res://assets/audio/voices/bastion/Bomber/move_0.ogg",
+              "text": "Heavy bird inbound! Hold course!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/Bomber"
+            },
+            {
+              "stream": "res://assets/audio/voices/bastion/Bomber/move_1.ogg",
+              "text": "Steady! Big payload aboard!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/Bomber"
+            }
+          ],
+          "attack": [
+            {
+              "stream": "res://assets/audio/voices/bastion/Bomber/attack_0.ogg",
+              "text": "Bombs away! Level it!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/Bomber"
+            },
+            {
+              "stream": "res://assets/audio/voices/bastion/Bomber/attack_1.ogg",
+              "text": "Turn it all to rubble!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/Bomber"
+            }
+          ],
+          "ready": [
+            {
+              "stream": "res://assets/audio/voices/bastion/Bomber/ready_0.ogg",
+              "text": "Heavy bomber! Loaded for a firestorm!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/Bomber"
+            }
+          ],
+          "stop": [
+            {
+              "stream": "res://assets/audio/voices/bastion/Bomber/stop_0.ogg",
+              "text": "Holding! Let them come!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/Bomber"
+            }
+          ]
+        },
+        "AntiAirVehicle": {
+          "select": [
+            {
+              "stream": "res://assets/audio/voices/bastion/AntiAirVehicle/select_0.ogg",
+              "text": "Flak tank! Radar is hungry!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/AntiAirVehicle"
+            },
+            {
+              "stream": "res://assets/audio/voices/bastion/AntiAirVehicle/select_1.ogg",
+              "text": "Let them fly! My guns are waiting!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/AntiAirVehicle"
+            }
+          ],
+          "move": [
+            {
+              "stream": "res://assets/audio/voices/bastion/AntiAirVehicle/move_0.ogg",
+              "text": "Flak tracks rolling! Move!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/AntiAirVehicle"
+            },
+            {
+              "stream": "res://assets/audio/voices/bastion/AntiAirVehicle/move_1.ogg",
+              "text": "Moving the guns! Eyes up!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/AntiAirVehicle"
+            }
+          ],
+          "attack": [
+            {
+              "stream": "res://assets/audio/voices/bastion/AntiAirVehicle/attack_0.ogg",
+              "text": "Flak up! Shred them!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/AntiAirVehicle"
+            },
+            {
+              "stream": "res://assets/audio/voices/bastion/AntiAirVehicle/attack_1.ogg",
+              "text": "Bring those birds down!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/AntiAirVehicle"
+            }
+          ],
+          "ready": [
+            {
+              "stream": "res://assets/audio/voices/bastion/AntiAirVehicle/ready_0.ogg",
+              "text": "Flak tank! Radar up, guns hot!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/AntiAirVehicle"
+            }
+          ],
+          "stop": [
+            {
+              "stream": "res://assets/audio/voices/bastion/AntiAirVehicle/stop_0.ogg",
+              "text": "Holding! Let them come!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/AntiAirVehicle"
             }
           ]
         },
@@ -2661,71 +2797,207 @@
             }
           ]
         },
-        "EvacTransport": {
+        "Fighter": {
           "select": [
             {
-              "stream": "res://assets/audio/voices/helix/EvacTransport/select_0.ogg",
-              "text": "Recovery flight! Let's go!",
+              "stream": "res://assets/audio/voices/helix/Fighter/select_0.ogg",
+              "text": "Talon online! Something to chase?",
               "mechanical": false,
               "robotic": false,
-              "speaker_id": "helix/EvacTransport"
+              "speaker_id": "helix/Fighter"
             },
             {
-              "stream": "res://assets/audio/voices/helix/EvacTransport/select_1.ogg",
-              "text": "Cabin open! Get in!",
+              "stream": "res://assets/audio/voices/helix/Fighter/select_1.ogg",
+              "text": "Their pilots are prey!",
               "mechanical": false,
               "robotic": false,
-              "speaker_id": "helix/EvacTransport"
+              "speaker_id": "helix/Fighter"
             }
           ],
           "move": [
             {
-              "stream": "res://assets/audio/voices/helix/EvacTransport/move_0.ogg",
-              "text": "Inbound fast!",
+              "stream": "res://assets/audio/voices/helix/Fighter/move_0.ogg",
+              "text": "Vector set! Fast!",
               "mechanical": false,
               "robotic": false,
-              "speaker_id": "helix/EvacTransport"
+              "speaker_id": "helix/Fighter"
             },
             {
-              "stream": "res://assets/audio/voices/helix/EvacTransport/move_1.ogg",
-              "text": "Extraction route! Punch it!",
+              "stream": "res://assets/audio/voices/helix/Fighter/move_1.ogg",
+              "text": "Burners lit! Climbing!",
               "mechanical": false,
               "robotic": false,
-              "speaker_id": "helix/EvacTransport"
+              "speaker_id": "helix/Fighter"
             }
           ],
           "attack": [
             {
-              "stream": "res://assets/audio/voices/helix/EvacTransport/attack_0.ogg",
-              "text": "Evasive! Hold on!",
+              "stream": "res://assets/audio/voices/helix/Fighter/attack_0.ogg",
+              "text": "Locked! Missile away!",
               "mechanical": false,
               "robotic": false,
-              "speaker_id": "helix/EvacTransport"
+              "speaker_id": "helix/Fighter"
             },
             {
-              "stream": "res://assets/audio/voices/helix/EvacTransport/attack_1.ogg",
-              "text": "Out of the fire! Now!",
+              "stream": "res://assets/audio/voices/helix/Fighter/attack_1.ogg",
+              "text": "Clip their wings! Kill!",
               "mechanical": false,
               "robotic": false,
-              "speaker_id": "helix/EvacTransport"
+              "speaker_id": "helix/Fighter"
             }
           ],
           "ready": [
             {
-              "stream": "res://assets/audio/voices/helix/EvacTransport/ready_0.ogg",
-              "text": "Recovery transport! Ready to fly!",
+              "stream": "res://assets/audio/voices/helix/Fighter/ready_0.ogg",
+              "text": "Talon interceptor! Let's hunt the sky!",
               "mechanical": false,
               "robotic": false,
-              "speaker_id": "helix/EvacTransport"
+              "speaker_id": "helix/Fighter"
             }
           ],
           "stop": [
             {
-              "stream": "res://assets/audio/voices/helix/EvacTransport/stop_0.ogg",
+              "stream": "res://assets/audio/voices/helix/Fighter/stop_0.ogg",
               "text": "Holding! Waiting for prey!",
               "mechanical": false,
               "robotic": false,
-              "speaker_id": "helix/EvacTransport"
+              "speaker_id": "helix/Fighter"
+            }
+          ]
+        },
+        "Bomber": {
+          "select": [
+            {
+              "stream": "res://assets/audio/voices/helix/Bomber/select_0.ogg",
+              "text": "Shrike bomber! Payload armed!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/Bomber"
+            },
+            {
+              "stream": "res://assets/audio/voices/helix/Bomber/select_1.ogg",
+              "text": "Show me what should burn!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/Bomber"
+            }
+          ],
+          "move": [
+            {
+              "stream": "res://assets/audio/voices/helix/Bomber/move_0.ogg",
+              "text": "Inbound! Steady and silent!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/Bomber"
+            },
+            {
+              "stream": "res://assets/audio/voices/helix/Bomber/move_1.ogg",
+              "text": "Holding altitude! Swift!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/Bomber"
+            }
+          ],
+          "attack": [
+            {
+              "stream": "res://assets/audio/voices/helix/Bomber/attack_0.ogg",
+              "text": "Payload released! Burn!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/Bomber"
+            },
+            {
+              "stream": "res://assets/audio/voices/helix/Bomber/attack_1.ogg",
+              "text": "Erase that position!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/Bomber"
+            }
+          ],
+          "ready": [
+            {
+              "stream": "res://assets/audio/voices/helix/Bomber/ready_0.ogg",
+              "text": "Shrike bomber! Bays full of fire!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/Bomber"
+            }
+          ],
+          "stop": [
+            {
+              "stream": "res://assets/audio/voices/helix/Bomber/stop_0.ogg",
+              "text": "Holding! Waiting for prey!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/Bomber"
+            }
+          ]
+        },
+        "AntiAirVehicle": {
+          "select": [
+            {
+              "stream": "res://assets/audio/voices/helix/AntiAirVehicle/select_0.ogg",
+              "text": "Halo skimmer! The sky is my hunting ground!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/AntiAirVehicle"
+            },
+            {
+              "stream": "res://assets/audio/voices/helix/AntiAirVehicle/select_1.ogg",
+              "text": "Interceptors armed! Bring me aircraft!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/AntiAirVehicle"
+            }
+          ],
+          "move": [
+            {
+              "stream": "res://assets/audio/voices/helix/AntiAirVehicle/move_0.ogg",
+              "text": "Skimming! Repositioning!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/AntiAirVehicle"
+            },
+            {
+              "stream": "res://assets/audio/voices/helix/AntiAirVehicle/move_1.ogg",
+              "text": "Gliding in! Covering the sky!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/AntiAirVehicle"
+            }
+          ],
+          "attack": [
+            {
+              "stream": "res://assets/audio/voices/helix/AntiAirVehicle/attack_0.ogg",
+              "text": "Interceptors away! Track and kill!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/AntiAirVehicle"
+            },
+            {
+              "stream": "res://assets/audio/voices/helix/AntiAirVehicle/attack_1.ogg",
+              "text": "Pluck them out of the air!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/AntiAirVehicle"
+            }
+          ],
+          "ready": [
+            {
+              "stream": "res://assets/audio/voices/helix/AntiAirVehicle/ready_0.ogg",
+              "text": "Halo skimmer! Nothing flies past me!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/AntiAirVehicle"
+            }
+          ],
+          "stop": [
+            {
+              "stream": "res://assets/audio/voices/helix/AntiAirVehicle/stop_0.ogg",
+              "text": "Holding! Waiting for prey!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/AntiAirVehicle"
             }
           ]
         },
@@ -4703,71 +4975,207 @@
             }
           ]
         },
-        "EvacTransport": {
+        "Fighter": {
           "select": [
             {
-              "stream": "res://assets/audio/voices/frontier/EvacTransport/select_0.ogg",
-              "text": "Rescue pilot! Who needs a lift?",
+              "stream": "res://assets/audio/voices/frontier/Fighter/select_0.ogg",
+              "text": "Hornet! Let's stir up some trouble!",
               "mechanical": false,
               "robotic": false,
-              "speaker_id": "frontier/EvacTransport"
+              "speaker_id": "frontier/Fighter"
             },
             {
-              "stream": "res://assets/audio/voices/frontier/EvacTransport/select_1.ogg",
-              "text": "Nobody gets left out here!",
+              "stream": "res://assets/audio/voices/frontier/Fighter/select_1.ogg",
+              "text": "Point me at a pilot!",
               "mechanical": false,
               "robotic": false,
-              "speaker_id": "frontier/EvacTransport"
+              "speaker_id": "frontier/Fighter"
             }
           ],
           "move": [
             {
-              "stream": "res://assets/audio/voices/frontier/EvacTransport/move_0.ogg",
-              "text": "Coming in hot!",
+              "stream": "res://assets/audio/voices/frontier/Fighter/move_0.ogg",
+              "text": "Throttle wide open! Go!",
               "mechanical": false,
               "robotic": false,
-              "speaker_id": "frontier/EvacTransport"
+              "speaker_id": "frontier/Fighter"
             },
             {
-              "stream": "res://assets/audio/voices/frontier/EvacTransport/move_1.ogg",
-              "text": "Clear the landing zone! Move!",
+              "stream": "res://assets/audio/voices/frontier/Fighter/move_1.ogg",
+              "text": "Over the hills! Hang on!",
               "mechanical": false,
               "robotic": false,
-              "speaker_id": "frontier/EvacTransport"
+              "speaker_id": "frontier/Fighter"
             }
           ],
           "attack": [
             {
-              "stream": "res://assets/audio/voices/frontier/EvacTransport/attack_0.ogg",
-              "text": "Hold tight back there!",
+              "stream": "res://assets/audio/voices/frontier/Fighter/attack_0.ogg",
+              "text": "Sting them! Shoot them down!",
               "mechanical": false,
               "robotic": false,
-              "speaker_id": "frontier/EvacTransport"
+              "speaker_id": "frontier/Fighter"
             },
             {
-              "stream": "res://assets/audio/voices/frontier/EvacTransport/attack_1.ogg",
-              "text": "Out of the crossfire! Go!",
+              "stream": "res://assets/audio/voices/frontier/Fighter/attack_1.ogg",
+              "text": "Chase them down! Fire!",
               "mechanical": false,
               "robotic": false,
-              "speaker_id": "frontier/EvacTransport"
+              "speaker_id": "frontier/Fighter"
             }
           ],
           "ready": [
             {
-              "stream": "res://assets/audio/voices/frontier/EvacTransport/ready_0.ogg",
-              "text": "Rescue bird! Ready to fly!",
+              "stream": "res://assets/audio/voices/frontier/Fighter/ready_0.ogg",
+              "text": "Hornet fighter! Fueled and spoiling for it!",
               "mechanical": false,
               "robotic": false,
-              "speaker_id": "frontier/EvacTransport"
+              "speaker_id": "frontier/Fighter"
             }
           ],
           "stop": [
             {
-              "stream": "res://assets/audio/voices/frontier/EvacTransport/stop_0.ogg",
+              "stream": "res://assets/audio/voices/frontier/Fighter/stop_0.ogg",
               "text": "Fine! We'll wait!",
               "mechanical": false,
               "robotic": false,
-              "speaker_id": "frontier/EvacTransport"
+              "speaker_id": "frontier/Fighter"
+            }
+          ]
+        },
+        "Bomber": {
+          "select": [
+            {
+              "stream": "res://assets/audio/voices/frontier/Bomber/select_0.ogg",
+              "text": "Buzzard! Loaded with trouble!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/Bomber"
+            },
+            {
+              "stream": "res://assets/audio/voices/frontier/Bomber/select_1.ogg",
+              "text": "Bombs loaded! Give us a target!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/Bomber"
+            }
+          ],
+          "move": [
+            {
+              "stream": "res://assets/audio/voices/frontier/Bomber/move_0.ogg",
+              "text": "Big bird flying! Hold tight!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/Bomber"
+            },
+            {
+              "stream": "res://assets/audio/voices/frontier/Bomber/move_1.ogg",
+              "text": "Low and loud! Go!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/Bomber"
+            }
+          ],
+          "attack": [
+            {
+              "stream": "res://assets/audio/voices/frontier/Bomber/attack_0.ogg",
+              "text": "Drop the lot! Boom!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/Bomber"
+            },
+            {
+              "stream": "res://assets/audio/voices/frontier/Bomber/attack_1.ogg",
+              "text": "Bury them in the dirt!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/Bomber"
+            }
+          ],
+          "ready": [
+            {
+              "stream": "res://assets/audio/voices/frontier/Bomber/ready_0.ogg",
+              "text": "Buzzard bomber! Let's wreck something!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/Bomber"
+            }
+          ],
+          "stop": [
+            {
+              "stream": "res://assets/audio/voices/frontier/Bomber/stop_0.ogg",
+              "text": "Fine! We'll wait!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/Bomber"
+            }
+          ]
+        },
+        "AntiAirVehicle": {
+          "select": [
+            {
+              "stream": "res://assets/audio/voices/frontier/AntiAirVehicle/select_0.ogg",
+              "text": "Ripsaw truck! Sky is full of targets!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/AntiAirVehicle"
+            },
+            {
+              "stream": "res://assets/audio/voices/frontier/AntiAirVehicle/select_1.ogg",
+              "text": "Let them fly! I dare them!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/AntiAirVehicle"
+            }
+          ],
+          "move": [
+            {
+              "stream": "res://assets/audio/voices/frontier/AntiAirVehicle/move_0.ogg",
+              "text": "Truck rolling! Hang on!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/AntiAirVehicle"
+            },
+            {
+              "stream": "res://assets/audio/voices/frontier/AntiAirVehicle/move_1.ogg",
+              "text": "Bumpy road! Guns up!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/AntiAirVehicle"
+            }
+          ],
+          "attack": [
+            {
+              "stream": "res://assets/audio/voices/frontier/AntiAirVehicle/attack_0.ogg",
+              "text": "Tear them out of the sky!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/AntiAirVehicle"
+            },
+            {
+              "stream": "res://assets/audio/voices/frontier/AntiAirVehicle/attack_1.ogg",
+              "text": "Shred that bird! Fire!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/AntiAirVehicle"
+            }
+          ],
+          "ready": [
+            {
+              "stream": "res://assets/audio/voices/frontier/AntiAirVehicle/ready_0.ogg",
+              "text": "Ripsaw truck! Loaded and looking up!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/AntiAirVehicle"
+            }
+          ],
+          "stop": [
+            {
+              "stream": "res://assets/audio/voices/frontier/AntiAirVehicle/stop_0.ogg",
+              "text": "Fine! We'll wait!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/AntiAirVehicle"
             }
           ]
         },
@@ -5842,6 +6250,212 @@
       }
     }
   },
+  "mercenaries": {
+    "MercenaryWarden": {
+      "select": [
+        {
+          "stream": "res://assets/audio/voices/mercenary/MercenaryWarden/select_0.ogg",
+          "text": "Iron Warden! Paid up and ready to brawl!",
+          "mechanical": false,
+          "robotic": false,
+          "speaker_id": "mercenary/MercenaryWarden"
+        },
+        {
+          "stream": "res://assets/audio/voices/mercenary/MercenaryWarden/select_1.ogg",
+          "text": "Shield up! Let them try me!",
+          "mechanical": false,
+          "robotic": false,
+          "speaker_id": "mercenary/MercenaryWarden"
+        }
+      ],
+      "move": [
+        {
+          "stream": "res://assets/audio/voices/mercenary/MercenaryWarden/move_0.ogg",
+          "text": "Marching! Shield first!",
+          "mechanical": false,
+          "robotic": false,
+          "speaker_id": "mercenary/MercenaryWarden"
+        },
+        {
+          "stream": "res://assets/audio/voices/mercenary/MercenaryWarden/move_1.ogg",
+          "text": "Heavy boots! Coming through!",
+          "mechanical": false,
+          "robotic": false,
+          "speaker_id": "mercenary/MercenaryWarden"
+        }
+      ],
+      "attack": [
+        {
+          "stream": "res://assets/audio/voices/mercenary/MercenaryWarden/attack_0.ogg",
+          "text": "Up close! Grind them down!",
+          "mechanical": false,
+          "robotic": false,
+          "speaker_id": "mercenary/MercenaryWarden"
+        },
+        {
+          "stream": "res://assets/audio/voices/mercenary/MercenaryWarden/attack_1.ogg",
+          "text": "Behind the shield! Fire!",
+          "mechanical": false,
+          "robotic": false,
+          "speaker_id": "mercenary/MercenaryWarden"
+        }
+      ],
+      "ready": [
+        {
+          "stream": "res://assets/audio/voices/mercenary/MercenaryWarden/ready_0.ogg",
+          "text": "Iron Warden! You've bought yourself a wall!",
+          "mechanical": false,
+          "robotic": false,
+          "speaker_id": "mercenary/MercenaryWarden"
+        }
+      ],
+      "stop": [
+        {
+          "stream": "res://assets/audio/voices/mercenary/MercenaryWarden/stop_0.ogg",
+          "text": "Holding! Your coin, your call!",
+          "mechanical": false,
+          "robotic": false,
+          "speaker_id": "mercenary/MercenaryWarden"
+        }
+      ]
+    },
+    "MercenaryRanger": {
+      "select": [
+        {
+          "stream": "res://assets/audio/voices/mercenary/MercenaryRanger/select_0.ogg",
+          "text": "Ranger here! I see them all!",
+          "mechanical": false,
+          "robotic": false,
+          "speaker_id": "mercenary/MercenaryRanger"
+        },
+        {
+          "stream": "res://assets/audio/voices/mercenary/MercenaryRanger/select_1.ogg",
+          "text": "Good coin, better hunting!",
+          "mechanical": false,
+          "robotic": false,
+          "speaker_id": "mercenary/MercenaryRanger"
+        }
+      ],
+      "move": [
+        {
+          "stream": "res://assets/audio/voices/mercenary/MercenaryRanger/move_0.ogg",
+          "text": "Fast and quiet! Moving!",
+          "mechanical": false,
+          "robotic": false,
+          "speaker_id": "mercenary/MercenaryRanger"
+        },
+        {
+          "stream": "res://assets/audio/voices/mercenary/MercenaryRanger/move_1.ogg",
+          "text": "Scouting ahead! Keep up!",
+          "mechanical": false,
+          "robotic": false,
+          "speaker_id": "mercenary/MercenaryRanger"
+        }
+      ],
+      "attack": [
+        {
+          "stream": "res://assets/audio/voices/mercenary/MercenaryRanger/attack_0.ogg",
+          "text": "In my sights! Drop!",
+          "mechanical": false,
+          "robotic": false,
+          "speaker_id": "mercenary/MercenaryRanger"
+        },
+        {
+          "stream": "res://assets/audio/voices/mercenary/MercenaryRanger/attack_1.ogg",
+          "text": "Clean shot! Next!",
+          "mechanical": false,
+          "robotic": false,
+          "speaker_id": "mercenary/MercenaryRanger"
+        }
+      ],
+      "ready": [
+        {
+          "stream": "res://assets/audio/voices/mercenary/MercenaryRanger/ready_0.ogg",
+          "text": "Ranger! Contract signed! Who dies first?",
+          "mechanical": false,
+          "robotic": false,
+          "speaker_id": "mercenary/MercenaryRanger"
+        }
+      ],
+      "stop": [
+        {
+          "stream": "res://assets/audio/voices/mercenary/MercenaryRanger/stop_0.ogg",
+          "text": "Holding! Your coin, your call!",
+          "mechanical": false,
+          "robotic": false,
+          "speaker_id": "mercenary/MercenaryRanger"
+        }
+      ]
+    },
+    "MercenaryLancer": {
+      "select": [
+        {
+          "stream": "res://assets/audio/voices/mercenary/MercenaryLancer/select_0.ogg",
+          "text": "Breach Lancer! Show me a wall!",
+          "mechanical": false,
+          "robotic": false,
+          "speaker_id": "mercenary/MercenaryLancer"
+        },
+        {
+          "stream": "res://assets/audio/voices/mercenary/MercenaryLancer/select_1.ogg",
+          "text": "Pay me and point me at armor!",
+          "mechanical": false,
+          "robotic": false,
+          "speaker_id": "mercenary/MercenaryLancer"
+        }
+      ],
+      "move": [
+        {
+          "stream": "res://assets/audio/voices/mercenary/MercenaryLancer/move_0.ogg",
+          "text": "Hauling the lance! Move!",
+          "mechanical": false,
+          "robotic": false,
+          "speaker_id": "mercenary/MercenaryLancer"
+        },
+        {
+          "stream": "res://assets/audio/voices/mercenary/MercenaryLancer/move_1.ogg",
+          "text": "Finding a firing line!",
+          "mechanical": false,
+          "robotic": false,
+          "speaker_id": "mercenary/MercenaryLancer"
+        }
+      ],
+      "attack": [
+        {
+          "stream": "res://assets/audio/voices/mercenary/MercenaryLancer/attack_0.ogg",
+          "text": "Lance away! Crack it open!",
+          "mechanical": false,
+          "robotic": false,
+          "speaker_id": "mercenary/MercenaryLancer"
+        },
+        {
+          "stream": "res://assets/audio/voices/mercenary/MercenaryLancer/attack_1.ogg",
+          "text": "Blow a hole straight through!",
+          "mechanical": false,
+          "robotic": false,
+          "speaker_id": "mercenary/MercenaryLancer"
+        }
+      ],
+      "ready": [
+        {
+          "stream": "res://assets/audio/voices/mercenary/MercenaryLancer/ready_0.ogg",
+          "text": "Breach Lancer! Heavy rockets for hire!",
+          "mechanical": false,
+          "robotic": false,
+          "speaker_id": "mercenary/MercenaryLancer"
+        }
+      ],
+      "stop": [
+        {
+          "stream": "res://assets/audio/voices/mercenary/MercenaryLancer/stop_0.ogg",
+          "text": "Holding! Your coin, your call!",
+          "mechanical": false,
+          "robotic": false,
+          "speaker_id": "mercenary/MercenaryLancer"
+        }
+      ]
+    }
+  },
   "provenance": {
     "profiles": {
       "bastion/Command": {
@@ -5915,10 +6529,24 @@
         "reference_license": "CC0-1.0",
         "max_word_error": 0.25
       },
-      "bastion/EvacTransport": {
+      "bastion/Fighter": {
         "engine": "chatterbox",
-        "reference": "donations/efeb_enhanced.wav",
-        "reference_sha256": "9bda0745f320e5484645042f94d1a9a709b7ffb02fe4f60c4167d0908e001cf9",
+        "reference": "donations/Gonzalo-1_enhanced.wav",
+        "reference_sha256": "5624c4c0a0b808794282b4084a30d7d1d46cbde890542691eebd9d4905b0a5e5",
+        "reference_license": "CC0-1.0",
+        "max_word_error": 0.25
+      },
+      "bastion/Bomber": {
+        "engine": "chatterbox",
+        "reference": "donations/Antoni_enhanced.wav",
+        "reference_sha256": "0277b25537120d3d8e66500785b19c099441c038c138d4b19f6af307fef310ad",
+        "reference_license": "CC0-1.0",
+        "max_word_error": 0.25
+      },
+      "bastion/AntiAirVehicle": {
+        "engine": "chatterbox",
+        "reference": "donations/MrHat_enhanced.wav",
+        "reference_sha256": "4e9ae0d0c761e5e840d7d2eb6bc130967de89ffe3cd5911402fefdd5b32d4e02",
         "reference_license": "CC0-1.0",
         "max_word_error": 0.25
       },
@@ -6029,11 +6657,25 @@
         "reference_license": "CC-BY-4.0",
         "max_word_error": 0.25
       },
-      "helix/EvacTransport": {
+      "helix/Fighter": {
         "engine": "chatterbox",
         "reference": "vctk/p286_023_enhanced.wav",
         "reference_sha256": "2fbb5e240330d7639cd2fc3c6cd2f1030968b3286f4fab9614bf741a6abde9b4",
         "reference_license": "CC-BY-4.0",
+        "max_word_error": 0.25
+      },
+      "helix/Bomber": {
+        "engine": "chatterbox",
+        "reference": "donations/Midlands_Bedfordshire_Dialect_enhanced.wav",
+        "reference_sha256": "12ef20b3d2dd9d2a6d357621d42d894f2de19ed806d954d264d0e1c8dd653e29",
+        "reference_license": "CC0-1.0",
+        "max_word_error": 0.25
+      },
+      "helix/AntiAirVehicle": {
+        "engine": "chatterbox",
+        "reference": "donations/29da_enhanced.wav",
+        "reference_sha256": "7fbab2a51ad85bb3146cfa4531178c5a27a9cc3b02fd6dc75cb868784b43f5cd",
+        "reference_license": "CC0-1.0",
         "max_word_error": 0.25
       },
       "helix/Worker": {
@@ -6150,11 +6792,25 @@
         "reference_license": "CC-BY-4.0",
         "max_word_error": 0.25
       },
-      "frontier/EvacTransport": {
+      "frontier/Fighter": {
         "engine": "chatterbox",
         "reference": "vctk/p374_023_enhanced.wav",
         "reference_sha256": "eb4f0471dec5b6c835fb562a19af6c7d72fd534a351e544d851e7e4cb6ef76a7",
         "reference_license": "CC-BY-4.0",
+        "max_word_error": 0.25
+      },
+      "frontier/Bomber": {
+        "engine": "chatterbox",
+        "reference": "donations/Roscoe_enhanced.wav",
+        "reference_sha256": "a49a2c1fae5c05112fa1b575789e24d62cab6eaa270f6f07c35fcafa1e771a14",
+        "reference_license": "CC0-1.0",
+        "max_word_error": 0.25
+      },
+      "frontier/AntiAirVehicle": {
+        "engine": "chatterbox",
+        "reference": "donations/Jeremy_Q_enhanced.wav",
+        "reference_sha256": "1692de33cf586b4d18fb9134a5e0c8cd49423c37294bebe4f6bf551f7deead73",
+        "reference_license": "CC0-1.0",
         "max_word_error": 0.25
       },
       "frontier/RepairRobot": {
@@ -6183,6 +6839,27 @@
         "robot": true,
         "max_word_error": 0.4,
         "min_similarity": 0.0
+      },
+      "mercenary/MercenaryWarden": {
+        "engine": "chatterbox",
+        "reference": "vctk/p281_023_enhanced.wav",
+        "reference_sha256": "225dc8f5d7cab905bff232b1003609312b569a42a97461bdd90a3b56c934c657",
+        "reference_license": "CC-BY-4.0",
+        "max_word_error": 0.25
+      },
+      "mercenary/MercenaryRanger": {
+        "engine": "chatterbox",
+        "reference": "vctk/p255_023_enhanced.wav",
+        "reference_sha256": "456b106ec940aa31875b7541c1dc8e7cdb3acc66e8f37d77efa77305211dba77",
+        "reference_license": "CC-BY-4.0",
+        "max_word_error": 0.25
+      },
+      "mercenary/MercenaryLancer": {
+        "engine": "chatterbox",
+        "reference": "vctk/p275_023_enhanced.wav",
+        "reference_sha256": "6cb81cc452e0885268a4005c517067c135b4ea90f0edbc14e175c3c5dc46c325",
+        "reference_license": "CC-BY-4.0",
+        "max_word_error": 0.25
       }
     },
     "robot_voices": {

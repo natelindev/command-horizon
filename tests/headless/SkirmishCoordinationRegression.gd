@@ -42,8 +42,6 @@ func _run():
 				"Unchanged objectives churned orders"
 			)
 			await _archive()
-			if difficulty == 2:
-				await _archive(true)
 			_budget_contract()
 			paused = false
 			game.queue_free()
@@ -129,7 +127,7 @@ func _budget_contract():
 			)
 
 
-func _archive(legacy_restore = false):
+func _archive():
 	paused = true
 	var snapshot = Snapshot.new()
 	var data = snapshot.capture(game)
@@ -152,16 +150,13 @@ func _archive(legacy_restore = false):
 	broken = data.duplicate(true)
 	broken.players[1].ai.groups[0].members[0] = snapshot._reference(_units(human, "Worker")[0])
 	_check(not schema.validate(broken), "Enemy task member accepted")
-	var legacy = data.duplicate(true)
-	legacy.players[1].ai.erase("groups")
-	legacy.players[1].ai.erase("cursor")
-	_check(schema.validate(legacy), "Previous battle schema lost compatibility")
+	broken = data.duplicate(true)
+	broken.players[1].ai.erase("groups")
+	broken.players[1].ai.erase("cursor")
+	_check(not schema.validate(broken), "AI record without task groups accepted")
 	var file = FileStore.new()
 	var destination = "user://coordination-%d.json" % OS.get_process_id()
-	_check(
-		file.write_file(destination, legacy if legacy_restore else data),
-		"Task roster disk write failed"
-	)
+	_check(file.write_file(destination, data), "Task roster disk write failed")
 	var restore = Restore.new()
 	var loaded = await restore.restore(self, file.read_file(destination))
 	_check(loaded.ok, "Task roster restore failed: " + loaded.get("error", ""))
@@ -174,20 +169,10 @@ func _archive(legacy_restore = false):
 	actors = refs.map(func(id): return restore.entities[id])
 	raider = restore.entities.get(raid_ref)
 	var again = Snapshot.new().capture(game)
-	if legacy_restore:
-		_check(
-			opponent._army_groups.is_empty() and opponent._army_cursor == 0,
-			"Legacy archive invented strategic tasks"
-		)
-	else:
-		_check(
-			again.players[1].ai == expected, "Paused restore changed task members, age or cursor"
-		)
+	_check(again.players[1].ai == expected, "Paused restore changed task members, age or cursor")
 	for unit in get_nodes_in_group("units"):
 		unit.process_mode = Node.PROCESS_MODE_DISABLED
 	paused = false
-	if legacy_restore:
-		opponent._command_army(actors)
 
 
 func _rotation_and_guard(faction):

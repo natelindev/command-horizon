@@ -1,6 +1,8 @@
 extends "res://tests/headless/BrokenFoundryRegression.gd"
 
 const EVIDENCE = "res://docs/playtests/2026-10-07/foundry-environment/"
+# Current navigation contract; the dated playtest evidence remains historical.
+const GEOMETRY_FIXTURE = "res://tests/fixtures/foundry-environment-geometry.json"
 
 
 func _run():
@@ -10,7 +12,7 @@ func _run():
 	var report = _geometry()
 	var baseline = "--baseline" in OS.get_cmdline_user_args()
 	if not baseline:
-		var original = JSON.parse_string(FileAccess.get_file_as_string(EVIDENCE + "baseline.json"))
+		var original = JSON.parse_string(FileAccess.get_file_as_string(GEOMETRY_FIXTURE))
 		_check(report.blockers.size() == original.blockers.size(), "Foundry blocker count changed")
 		for index in report.blockers.size():
 			var item = report.blockers[index]
@@ -68,7 +70,7 @@ func _run():
 		)
 	(
 		FileAccess
-		. open(EVIDENCE + ("baseline.json" if baseline else "geometry.json"), FileAccess.WRITE)
+		. open(GEOMETRY_FIXTURE if baseline else EVIDENCE + "geometry.json", FileAccess.WRITE)
 		. store_string(JSON.stringify(report, "\t"))
 	)
 	if not baseline:
@@ -102,7 +104,10 @@ func _geometry():
 		)
 		var radius = 0.0
 		var height = 0.0
-		for point in _vertices(body):
+		# NeutralBuilding adds selection rings beside the authored model.
+		var model = body.get_child(0)
+		_check(model.scene_file_path.ends_with(".glb"), "Landmark model missing")
+		for point in _vertices(model):
 			var offset = point - body.global_position
 			radius = maxf(radius, Vector2(offset.x, offset.z).length())
 			height = maxf(height, offset.y)

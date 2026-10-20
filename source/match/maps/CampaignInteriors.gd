@@ -44,7 +44,7 @@ static func populate(map, mission_id):
 	# Cinder Ford is the same place across all three accounts.
 	random.seed = hash("cinder_ford" if biome == "ford" else mission_id)
 	var urban = biome in ["city", "spire", "tunnels"]
-	var compact = map.size.x < 120 or mission_id == "air_corridor"
+	var compact = map.size.x < 120
 	var spacing = 8.0 if compact else (11.0 if urban else 18.0)
 	var serial = 0
 	for row in range(1, int(map.size.y / spacing)):
@@ -197,12 +197,7 @@ static func protection(map, id):
 			Vector4(42, 40, 65, 40)
 		]:
 			roads.append(road)
-	elif id == "air_corridor":
-		for z in [18, 52, 87]:
-			roads.append(Vector4(18, z, 132, z))
-		for point in [Vector2(84, 42), Vector2(100, 62)]:
-			circles.append([point, 12.0])
-	# Objective nodes in the legacy missions retain wide capture and combat space.
+	# Objective nodes in the authored Bastion missions retain wide capture and combat space.
 	for node in map.get_children():
 		if node is Node3D and ("captured_by" in node or "capture_progress" in node):
 			circles.append([Vector2(node.position.x, node.position.z), 12.0])

@@ -128,6 +128,16 @@ static func plan(game, player, units):
 		)
 		if workers.size() > 1 and demand.x > 0 and demand.y > 0:
 			target = clampi(target, 1, workers.size() - 1)
+	elif demand == Vector2i.ZERO and workers.size() > 1:
+		# Capped armies still bank both resources for replacements. Do not retain
+		# the last purchase's worker split indefinitely once demand disappears.
+		var material_stock = player.resource_a * Constants.Match.Resources.A.COLLECTING_TIME_S
+		var electronics_stock = player.resource_b * Constants.Match.Resources.B.COLLECTING_TIME_S
+		target = clampi(
+			roundi(workers.size() * material_stock / maxf(1.0, material_stock + electronics_stock)),
+			1,
+			workers.size() - 1
+		)
 	elif workers.any(func(worker): return result[worker] == 0):
 		target = maxi(electronics, floori(workers.size() / 3.0))
 	var candidates = workers.filter(func(worker): return worker not in locked)

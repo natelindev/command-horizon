@@ -7,6 +7,7 @@ const PINCH = (
 var checkpoints = [-1, -1, -1, 1, 12, 36]
 var restored_elapsed = 0.0
 var pinch_started = 0.0
+var pinch_casualties = {}
 
 
 func _run():
@@ -44,6 +45,10 @@ func _open_pinch():
 			)
 	)
 	watched = [workers[0], restore.entities["unit-14"]]
+	pinch_casualties.clear()
+	var hit_signal = root.get_node("MatchSignals").unit_weapon_hit
+	if not hit_signal.is_connected(_record_pinch_casualty):
+		hit_signal.connect(_record_pinch_casualty)
 	starting = watched.map(func(unit): return unit.position)
 	pinch_started = game.simulation_time
 	restored_elapsed = 0.0
@@ -57,6 +62,19 @@ func _open_pinch():
 	_check(watched.map(func(unit): return unit.position) == starting, "Paused pinch moved")
 	_check(watched.map(func(unit): return unit.action) == actions, "Paused pinch changed orders")
 	await _review_traffic("before")
+
+
+func _record_pinch_casualty(target, source):
+	var index = watched.find(target)
+	if index < 0 or target.hp > 0:
+		return
+	pinch_casualties[index] = {
+		"role": target.type,
+		"time": game.simulation_time - pinch_started,
+		"attacker": source.type,
+		"faction": source.player.faction,
+		"enemy": source.player != target.player,
+	}
 
 
 func _pinch_reload(frames):
@@ -114,13 +132,23 @@ func _complete_pinch():
 		var deposit = worker.action.get_resource_unit()
 		var stock = deposit.resource_a if is_instance_valid(deposit) else -1
 		var funds = worker.player.resource_a
-		await _frames(1)
+		# Process frames can contain more than one physics step under load.
+		# Sample each physics boundary for the per-tick speed/clearance checks.
+		await physics_frame
 		var elapsed = game.simulation_time - pinch_started
-		if watched.any(func(unit): return not is_instance_valid(unit) or unit.hp <= 0):
-			_check(false, "Captured traffic unit died before completing its work")
+		if not is_instance_valid(worker) or worker.hp <= 0:
+			_check(false, "Captured engineer died before completing its work")
 			break
+		if not is_instance_valid(infantry) or infantry.hp <= 0:
+			# Its original guard arrival is complete before later combat begins.
+			# A later casualty must not prevent the living engineer's delivery.
+			if infantry_arrived < 0 or not pinch_casualties.get(1, {}).get("enemy", false):
+				_check(false, "Captured infantry died before completing its guard arrival")
+				break
 		for index in watched.size():
 			var unit = watched[index]
+			if not is_instance_valid(unit) or unit.hp <= 0:
+				continue
 			maximum_speed_ratio = maxf(
 				maximum_speed_ratio,
 				(
@@ -190,6 +218,7 @@ func _complete_pinch():
 				"infantry_arrival": infantry_arrived,
 				"collection": collection,
 				"delivery": delivery,
+				"casualties": pinch_casualties.values(),
 				"maximum_speed_ratio": maximum_speed_ratio,
 				"minimum_clearance": minimum_clearance,
 				"maximum_off_mesh": maximum_off_mesh

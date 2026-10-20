@@ -1,7 +1,7 @@
 # gdlint: disable=max-returns
 extends RefCounted
 
-# Every value is tagged, including records: user Lua keys can never masquerade as types.
+# Every value is tagged, including records: saved keys can never masquerade as types.
 const MAX_DEPTH = 32
 const MAX_NODES = 750000
 const MAX_STRING_BYTES = 2 * 1024 * 1024

@@ -7,7 +7,7 @@ from build_battle_audio import clip_source_hash, mechanical, transcript_error
 from radio_voice import UNIT_CLASS, radio
 from robot_voice import ROBOT_VOICES, robot_voice
 from verify_voice_cast import validate_cast
-from voice_cast import PROFILES
+from voice_cast import CAST, MERCENARY_CAST, PROFILES
 
 RATE = 24000
 
@@ -71,6 +71,18 @@ class CastRegression(unittest.TestCase):
         finally:
             ROBOT_VOICES['bastion/Drone'] = original
 
+    def test_every_crew_role_has_radio_and_mercenaries_one_voice(self):
+        # Every crewed role is colored by its own class; a hired mercenary is one person in
+        # every army rather than a per-faction recast.
+        for faction, roles in CAST.items():
+            for role in roles:
+                self.assertIn(role, UNIT_CLASS, role)
+                self.assertNotIn(role, MERCENARY_CAST, faction)
+        for role, (speaker, _) in MERCENARY_CAST.items():
+            self.assertIn(role, UNIT_CLASS)
+            self.assertEqual(speaker, 'mercenary/' + role)
+            self.assertFalse(any(key.endswith('/' + role) and key != speaker for key in PROFILES))
+
     def test_transcript_error_is_word_level(self):
         self.assertEqual(transcript_error('Rifles up. Engage!', 'rifles up, engage'), 0)
         self.assertGreater(transcript_error('Rocket away!', 'Rocket away. Over and out.'), .3)
@@ -78,6 +90,15 @@ class CastRegression(unittest.TestCase):
         self.assertEqual(transcript_error("Outrider! Engine's screaming!", 'Outrider, engine screaming.'), 0)
         self.assertGreater(transcript_error("Fine! We'll wait!", 'Fine, we wait.'), .3)
         self.assertEqual(transcript_error('Make them run!', "Make 'em run."), 0)
+
+    def test_transcript_join_does_not_hide_word_errors(self):
+        self.assertEqual(transcript_error('Dust storm! Eat it!', 'Duststorm. Eat it!'), 0)
+        self.assertGreater(transcript_error('Dust storm! Eat it!', 'Duststorm. Eat!'), .25)
+        self.assertGreater(transcript_error('Dust storm! Eat it!', 'Hailstorm. Eat it!'), .25)
+        self.assertEqual(transcript_error('Route set! Full speed!', 'Rootset, Full Speed.'), .25)
+        self.assertGreater(transcript_error('Route set! Full speed!', 'Root, full speed.'), .25)
+        self.assertGreater(transcript_error('Route set! Full speed!', 'Rootset, full.'), .25)
+        self.assertGreater(transcript_error('Route set! Full speed!', 'Wrong path! Full speed!'), .25)
 
     def test_robot_designs_sound_different(self):
         # One voice through every design: each robot must be its own machine, not a
@@ -109,7 +130,7 @@ class CastRegression(unittest.TestCase):
             spectrum = np.abs(np.fft.rfft(audio)) ** 2
             freqs = np.fft.rfftfreq(len(audio), 1 / RATE)
             return spectrum[freqs > 4000].sum() / spectrum.sum()
-        for faction in ['bastion', 'helix', 'frontier']:
+        for faction in ['bastion', 'helix', 'frontier', 'mercenary']:
             for role in UNIT_CLASS:
                 out = radio(voice, RATE, faction, role)
                 self.assertTrue(np.isfinite(out).all())
