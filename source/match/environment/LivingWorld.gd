@@ -37,13 +37,6 @@ func _ready():
 		map_name
 		in ["IndustrialCrossroads", "BrokenFoundryMap", "CommandHorizonMap", "CoastalFoundry"]
 	)
-	var battlefield = preload("res://source/match/maps/BattlefieldCatalog.gd").profile(
-		_game.settings.map_path
-	)
-	if not battlefield.is_empty():
-		_alpine = battlefield.biome == "alpine"
-		_desert = battlefield.biome == "desert"
-		_urban = battlefield.biome in ["urban", "coastal"]
 	windows = _material(Color("f4ca87"))
 	windows.emission_enabled = true
 	windows.emission = Color("ffb55e")

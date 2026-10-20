@@ -10,7 +10,7 @@ func _run():
 	root.size = Vector2i(1280, 720)
 	root.content_scale_size = root.size
 	path = "user://ownership-preview-%d.json" % OS.get_process_id()
-	await _create("ExpandedDesertFrontier")
+	await _create("battlefields/EmberworksMap")
 	game.settings.visibility = game.settings.Visibility.FULL
 	game.fog_of_war.reveal()
 	var building = game.get_node("NeutralWorld").buildings.filter(func(item): return item.habitable)[0]

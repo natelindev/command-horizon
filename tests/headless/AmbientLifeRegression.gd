@@ -12,9 +12,6 @@ func _run():
 		"DesertFrontier",
 		"IndustrialCrossroads",
 		"CoastalFoundry",
-		"ExpandedDesertFrontier",
-		"ExpandedAlpineRelay",
-		"ExpandedCoastalFoundry",
 		"PlainAndSimple",
 		"BigArena"
 	]:

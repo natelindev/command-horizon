@@ -3,38 +3,6 @@ const ADVERSARY_PLAYER_CIRCLE_COLOR = Color("ee6b5e")
 const RESOURCE_CIRCLE_COLOR = Color("e8c56a")
 const DEFAULT_CIRCLE_COLOR = Color("eef1f1")
 const MAPS = {
-	"res://source/match/maps/RedrockDivide.tscn":
-	{"name": "Redrock Divide", "players": 2, "size": Vector2i(192, 160)},
-	"res://source/match/maps/SaltwindBasin.tscn":
-	{"name": "Saltwind Basin", "players": 2, "size": Vector2i(192, 160)},
-	"res://source/match/maps/PinebreakValley.tscn":
-	{"name": "Pinebreak Valley", "players": 2, "size": Vector2i(192, 160)},
-	"res://source/match/maps/GlacierNarrows.tscn":
-	{"name": "Glacier Narrows", "players": 2, "size": Vector2i(192, 160)},
-	"res://source/match/maps/Emberworks.tscn":
-	{"name": "Emberworks", "players": 2, "size": Vector2i(192, 160)},
-	"res://source/match/maps/CinderRing.tscn":
-	{"name": "Cinder Ring", "players": 4, "size": Vector2i(224, 224)},
-	"res://source/match/maps/FourRivers.tscn":
-	{"name": "Four Rivers", "players": 4, "size": Vector2i(224, 224)},
-	"res://source/match/maps/SunkenExchange.tscn":
-	{"name": "Sunken Exchange", "players": 4, "size": Vector2i(224, 224)},
-	"res://source/match/maps/FrostboundCrown.tscn":
-	{"name": "Frostbound Crown", "players": 4, "size": Vector2i(224, 224)},
-	"res://source/match/maps/CopperBadlands.tscn":
-	{"name": "Copper Badlands", "players": 4, "size": Vector2i(224, 224)},
-	"res://source/match/maps/VerdantCommons.tscn":
-	{"name": "Verdant Commons", "players": 4, "size": Vector2i(224, 224)},
-	"res://source/match/maps/RailspireJunction.tscn":
-	{"name": "Railspire Junction", "players": 4, "size": Vector2i(224, 224)},
-	"res://source/match/maps/ShatteredOasis.tscn":
-	{"name": "Shattered Oasis", "players": 4, "size": Vector2i(224, 224)},
-	"res://source/match/maps/ExpandedDesertFrontier.tscn":
-	{"name": "Desert Frontier", "players": 2, "size": Vector2i(192, 144)},
-	"res://source/match/maps/ExpandedAlpineRelay.tscn":
-	{"name": "Alpine Relay", "players": 2, "size": Vector2i(192, 156)},
-	"res://source/match/maps/ExpandedCoastalFoundry.tscn":
-	{"name": "Coastal Foundry", "players": 2, "size": Vector2i(192, 156)},
 	"res://source/match/maps/BastionDesert.tscn":
 	{"name": "Desert Frontier (original)", "players": 2, "size": Vector2i(64, 64)},
 	"res://source/match/maps/DesertFrontier.tscn":

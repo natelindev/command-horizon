@@ -37,6 +37,7 @@
  - The skirmish AI now actually hires mercenaries at captured camps; it previously requested a unit camps do not sell
  - `build_catalog.py` reproduces the shipped translation catalog again; strings that existed only in `ui.csv` moved to `art/localization/interface.tsv`
  - Infantry could not capture relays or neutral facilities standing on raised ground
+ - Hired mercenaries could not leave a camp standing on raised ground
 
 ## [0.14.1]
 

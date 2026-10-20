@@ -11,7 +11,6 @@ const STATS = {
 # Match 1.15 m player infantry; a fox is knee-high and a car smaller than armor.
 const MODEL_SCALES = {"resident": .75, "fox": .36, "car": .52, "gull": .36, "tug": 1.0}
 
-const EXPANDED_MAPS = ["ExpandedDesertFrontier", "ExpandedAlpineRelay", "ExpandedCoastalFoundry"]
 const BUILDING_HEALTH = 420.0
 const HABITABLE = [
 	"SawtoothWorkshop",
@@ -57,8 +56,7 @@ const STRUCTURES = {
 
 
 static func authored_name(map_path):
-	var name = map_path.get_file().get_basename()
-	return name.trim_prefix("Expanded") if name in EXPANDED_MAPS else name
+	return map_path.get_file().get_basename()
 
 
 # Compact settlements flank the central routes, clear of resource fields and passes.
@@ -162,13 +160,6 @@ static func entries(map_path):
 		"AlpineRelay":
 			_add(result, "fox", [[43, 60], [49, 60], [49, 66], [43, 66]], 2)
 			_add(result, "car", [[40, 34], [84, 34], [84, 38], [40, 38]], 2)
-	if map_path.get_file().get_basename() in EXPANDED_MAPS:
-		for entry in result:
-			entry.path = entry.path.duplicate()
-			for index in entry.path.size():
-				entry.path[index] *= Vector3(1.5, 1, 1.5)
-			entry.length *= 1.5
-			entry.start *= 1.5
 	return result
 
 

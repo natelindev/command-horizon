@@ -33,11 +33,6 @@ static func region_for(map_path):
 			}
 			. get(authored.biome, "")
 		)
-	var battlefield = preload("res://source/match/maps/BattlefieldCatalog.gd").profile(map_path)
-	if not battlefield.is_empty():
-		return {"temperate": "alpine", "urban": "industrial"}.get(
-			battlefield.biome, battlefield.biome
-		)
 	match load("res://source/match/ambient/AmbientCatalog.gd").authored_name(map_path):
 		"BastionDesert", "DesertFrontier", "SupplyLineMap", "FirstOrdersMap":
 			return "desert"

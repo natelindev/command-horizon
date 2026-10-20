@@ -15,7 +15,7 @@ func _run():
 
 
 func _roundtrip(faction, advanced):
-	var game = await _create_map("ExpandedDesertFrontier", faction, advanced)
+	var game = await _create_map("battlefields/DesertFrontierMap", faction, advanced)
 	var human = game._get_human_player()
 	var hq = _unit(human, "CommandCenter")
 	var frozen = human.get_children().filter(
@@ -107,7 +107,11 @@ func _roundtrip(faction, advanced):
 		_check(
 			(
 				worker.action._sub_action._target_position == waypoint
-				and worker.get_node("Movement").target_position == waypoint
+				# Movement lifts its target onto raised ground; compare on the plane.
+				and (
+					worker.get_node("Movement").target_position * Vector3(1, 0, 1)
+					== waypoint * Vector3(1, 0, 1)
+				)
 			),
 			"Loading discarded the return destination: " + label
 		)

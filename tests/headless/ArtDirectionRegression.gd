@@ -6,16 +6,14 @@ const AtmosphereProfiles = preload("res://source/match/environment/AtmospherePro
 func _run():
 	_check_palette()
 	_check_biomes()
-	await _skirmish("bastion", "res://source/match/maps/ExpandedDesertFrontier.tscn")
+	await _skirmish("bastion", "res://source/match/maps/battlefields/DesertFrontierMap.tscn")
 	_check_atmosphere("desert")
-	_check_layout_scale(1.5)
 	_check_team_readability()
 	_check_command_card()
 	game.queue_free()
 	await _frames(5)
 	await _skirmish("helix", "res://source/match/maps/AlpineRelay.tscn")
 	_check_atmosphere("alpine")
-	_check_layout_scale(1.0)
 	game.queue_free()
 	await _frames(5)
 	for error in errors:
@@ -41,10 +39,10 @@ func _check_palette():
 
 func _check_biomes():
 	var expected = {
-		"ExpandedDesertFrontier": "desert",
+		"battlefields/DesertFrontierMap": "desert",
 		"AlpineRelay": "alpine",
 		"SplitSignalMap": "alpine",
-		"ExpandedCoastalFoundry": "coastal",
+		"battlefields/CoastalFoundryMap": "coastal",
 		"BrokenFoundryMap": "urban",
 		"PlainAndSimple": "temperate",
 	}
@@ -88,15 +86,6 @@ func _check_atmosphere(biome):
 		-atmosphere.sun.rotation_degrees.x < 50.0, "Midday sun too high for readable cast shadows"
 	)
 	preferences.restore(original)
-
-
-func _check_layout_scale(expected):
-	var ground = game.map.get_node("Geometry/Terrain").get_active_material(0)
-	var value = ground.get_shader_parameter("layout_scale")
-	_check(
-		is_equal_approx(1.0 if value == null else value, expected),
-		"Shader landmark pads do not follow layout scale %s" % expected
-	)
 
 
 func _check_team_readability():

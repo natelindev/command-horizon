@@ -22,6 +22,8 @@ const MINIMUMS = {
 	"BigArena": {"sites": 4, "landmarks": 4},
 }
 
+const Authored = preload("res://source/match/maps/terrain/BattlefieldRegistry.gd")
+
 var landmarks
 var sites_catalog
 
@@ -36,10 +38,13 @@ func _run():
 	for map_path in constants.Match.MAPS:
 		if not only.is_empty() and map_path.get_file().get_basename() not in only:
 			continue
-		await _create(map_path)
-		_inspect(map_path)
-		game.queue_free()
-		await _frames(5)
+		# Authored battlefields dress themselves (TerrainDressing); their sites,
+		# fields and routes are held by MapMetricsRegression and playability.
+		if not Authored.is_authored(map_path):
+			await _create(map_path)
+			_inspect(map_path)
+			game.queue_free()
+			await _frames(5)
 		await _archive_skirmish(map_path)
 	for message in _errors:
 		if report_only:
@@ -180,11 +185,10 @@ func _symmetric(map_name, map_path):
 	if not landmarks.LAYOUTS.has(landmarks.layout_name(map_path)):
 		_check(false, map_name + " has no landmark layout")
 		return
-	var scale = landmarks.layout_scale(game.map)
-	var placed = landmarks.placements(map_path, scale)
+	var placed = landmarks.placements(map_path)
 	var items = placed.landmarks + placed.caches
 	for item in items:
-		for image in landmarks.images(map_path, item.position, scale):
+		for image in landmarks.images(map_path, item.position):
 			_check(
 				items.any(func(other): return _twin(other, item, image)),
 				(
@@ -195,7 +199,7 @@ func _symmetric(map_name, map_path):
 	# Facilities pair with the same kind at the opposed start's image.
 	var definitions = sites_catalog.definitions(map_path)
 	for site in definitions:
-		var image = landmarks.images(map_path, site.position, scale)[-1]
+		var image = landmarks.images(map_path, site.position)[-1]
 		_check(
 			definitions.any(func(other): return _twin(other, site, image)),
 			"%s %s at %s lacks its opposed twin" % [map_name, site.kind, site.position]

@@ -32,7 +32,7 @@ func _run():
 		scene.queue_free()
 		await _frames(3)
 	var factions = ["bastion", "helix", "frontier"]
-	var maps = ["AlpineRelay", "IndustrialCrossroads", "ExpandedAlpineRelay"]
+	var maps = ["AlpineRelay", "IndustrialCrossroads", "battlefields/AlpineRelayMap"]
 	for index in factions.size():
 		await _skirmish(factions[index], "res://source/match/maps/%s.tscn" % maps[index])
 		for side in get_nodes_in_group("players"):

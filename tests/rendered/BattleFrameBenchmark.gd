@@ -13,7 +13,7 @@ func _run():
 	root.content_scale_size = root.size
 	RenderingServer.viewport_set_measure_render_time(root.get_viewport_rid(), true)
 	# Optional: -- --map=res://path.tscn --center=x,z (defaults: Expanded Desert Frontier).
-	var map_path = "res://source/match/maps/ExpandedDesertFrontier.tscn"
+	var map_path = "res://source/match/maps/battlefields/DesertFrontierMap.tscn"
 	var center = Vector3(96, 0, 72)
 	for argument in OS.get_cmdline_user_args():
 		if argument.begins_with("--map="):

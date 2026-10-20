@@ -1,5 +1,8 @@
 extends "res://tests/headless/MechanicsRegression.gd"
 
+# Glacier Narrows holds a refinery, a mercenary camp and repair shops.
+var sites_map = "res://source/match/maps/battlefields/GlacierNarrowsMap.tscn"
+
 
 func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
@@ -21,7 +24,7 @@ func _open_sites(faction):
 	var settings = load("res://source/data-model/MatchSettings.gd").new()
 	settings.skirmish = true
 	settings.advanced_start = true
-	settings.map_path = "res://source/match/maps/ExpandedDesertFrontier.tscn"
+	settings.map_path = sites_map
 	for index in 2:
 		var side = load("res://source/data-model/PlayerSettings.gd").new()
 		side.controller = index + 1
@@ -62,7 +65,10 @@ func _claim(site, soldier, side):
 func _exercise_sites():
 	var catalog = load("res://source/match/world/PointOfInterestCatalog.gd")
 	var sites = _game.map.points_of_interest
-	_check(sites.size() == 6, "Expanded map lacks six points of interest")
+	_check(
+		sites.size() == catalog.definitions(_game.settings.map_path).size() and sites.size() >= 5,
+		"Battlefield lacks its points of interest"
+	)
 	var refinery = sites.filter(func(site): return site.kind == "refinery")[0]
 	var camp = sites.filter(func(site): return site.kind == "mercenary")[0]
 	var shop = sites.filter(func(site): return site.kind == "repair")[0]

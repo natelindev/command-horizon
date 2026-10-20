@@ -249,8 +249,10 @@ func _archive_garrison():
 	var schema = load("res://source/match/saves/SnapshotSchema.gd").new()
 	_check(schema.validate(data), "Neutral snapshot invalid: " + schema.error)
 	var malformed = data.duplicate(true)
-	malformed.ambient[0].combat.hp = -1
-	_check(not schema.validate(malformed), "Negative neutral health accepted")
+	# Authored battlefields carry no ambient life.
+	if not malformed.ambient.is_empty():
+		malformed.ambient[0].combat.hp = -1
+		_check(not schema.validate(malformed), "Negative neutral health accepted")
 	malformed = data.duplicate(true)
 	malformed.neutral_buildings[0].occupants.append("unit-missing")
 	_check(not schema.validate(malformed), "Missing garrison occupant accepted")

@@ -5,7 +5,7 @@ var errors = []
 
 
 func _initialize():
-	for map in ["DesertFrontier", "ExpandedAlpineRelay", "CoastalFoundry", "CommandHorizonMap"]:
+	for map in ["DesertFrontier", "AlpineRelay", "CoastalFoundry", "CommandHorizonMap"]:
 		for entry in Catalog.entries("res://source/match/maps/%s.tscn" % map):
 			var distances = [-entry.length * 1.7, 0.0, entry.length, entry.length * 3.2]
 			var cumulative = 0.0

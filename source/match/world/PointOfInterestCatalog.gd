@@ -12,33 +12,6 @@ const SITES = {
 		{"kind": "refinery", "position": Vector2(21, 53), "name": "South Refinery"},
 		{"kind": "refinery", "position": Vector2(43, 11), "name": "North Refinery"},
 	],
-	"ExpandedDesertFrontier":
-	[
-		{"kind": "refinery", "position": Vector2(66, 20), "name": "North Refinery"},
-		{"kind": "refinery", "position": Vector2(126, 124), "name": "South Refinery"},
-		{"kind": "mercenary", "position": Vector2(44, 82), "name": "West Mercenary Camp"},
-		{"kind": "mercenary", "position": Vector2(148, 62), "name": "East Mercenary Camp"},
-		{"kind": "repair", "position": Vector2(84, 68), "name": "West Repair Shop"},
-		{"kind": "repair", "position": Vector2(108, 76), "name": "East Repair Shop"},
-	],
-	"ExpandedAlpineRelay":
-	[
-		{"kind": "refinery", "position": Vector2(50, 45), "name": "West Refinery"},
-		{"kind": "refinery", "position": Vector2(142, 111), "name": "East Refinery"},
-		{"kind": "mercenary", "position": Vector2(56, 114), "name": "South Mercenary Camp"},
-		{"kind": "mercenary", "position": Vector2(136, 42), "name": "North Mercenary Camp"},
-		{"kind": "repair", "position": Vector2(72, 78), "name": "West Repair Shop"},
-		{"kind": "repair", "position": Vector2(120, 78), "name": "East Repair Shop"},
-	],
-	"ExpandedCoastalFoundry":
-	[
-		{"kind": "refinery", "position": Vector2(56, 78), "name": "West Refinery"},
-		{"kind": "refinery", "position": Vector2(136, 78), "name": "East Refinery"},
-		{"kind": "mercenary", "position": Vector2(78, 149), "name": "West Mercenary Camp"},
-		{"kind": "mercenary", "position": Vector2(114, 149), "name": "East Mercenary Camp"},
-		{"kind": "repair", "position": Vector2(62, 104), "name": "West Repair Shop"},
-		{"kind": "repair", "position": Vector2(130, 104), "name": "East Repair Shop"},
-	],
 	"DesertFrontier":
 	[
 		{"kind": "refinery", "position": Vector2(30, 72), "name": "West Refinery"},
@@ -76,12 +49,7 @@ const SITES = {
 static func definitions(map_path):
 	if Authored.is_authored(map_path):
 		return Authored.layout(map_path).sites
-	var battlefield = preload("res://source/match/maps/BattlefieldCatalog.gd").profile(map_path)
-	return (
-		battlefield.sites
-		if not battlefield.is_empty()
-		else SITES.get(map_path.get_file().get_basename(), [])
-	)
+	return SITES.get(map_path.get_file().get_basename(), [])
 
 
 static func accepts_population(map_path, count):

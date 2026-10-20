@@ -276,8 +276,10 @@ func _spawn_point(unit_radius):
 		for index in 12:
 			var angle = index * TAU / 12
 			var requested = global_position + Vector3(sin(angle), 0, cos(angle)) * ring
-			var point = NavigationServer3D.map_get_closest_point(nav, requested) * Vector3(1, 0, 1)
-			if point.distance_to(requested) > .2:
+			# Compare on the ground plane: camps on raised tiers stand above y = 0.
+			var surface = NavigationServer3D.map_get_closest_point(nav, requested)
+			var point = surface * Vector3(1, 0, 1)
+			if point.distance_to(requested * Vector3(1, 0, 1)) > .2:
 				continue
 			var occupied = false
 			for unit in (
@@ -294,7 +296,7 @@ func _spawn_point(unit_radius):
 					occupied = true
 					break
 			if not occupied:
-				return point
+				return surface
 	return Vector3.INF
 
 

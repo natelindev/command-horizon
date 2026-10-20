@@ -16,11 +16,11 @@ func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT))
 	for setup in [
-		["bastion", "ExpandedDesertFrontier", Vector2i(1280, 720), 1.5, "720p", "en"],
-		["helix", "ExpandedAlpineRelay", Vector2i(1920, 1080), 1.0, "1080p", "en"],
+		["bastion", "battlefields/DesertFrontierMap", Vector2i(1280, 720), 1.5, "720p", "en"],
+		["helix", "battlefields/AlpineRelayMap", Vector2i(1920, 1080), 1.0, "1080p", "en"],
 		["frontier", "CoastalFoundry", Vector2i(1280, 720), 1.5, "720p", "en"],
-		["bastion", "ExpandedDesertFrontier", Vector2i(1280, 720), 1.5, "720p-zh", "zh_CN"],
-		["helix", "ExpandedAlpineRelay", Vector2i(1920, 1080), 1.0, "1080p-zh", "zh_CN"],
+		["bastion", "battlefields/DesertFrontierMap", Vector2i(1280, 720), 1.5, "720p-zh", "zh_CN"],
+		["helix", "battlefields/AlpineRelayMap", Vector2i(1920, 1080), 1.0, "1080p-zh", "zh_CN"],
 		["frontier", "CoastalFoundry", Vector2i(1280, 720), 1.5, "720p-zh", "zh_CN"],
 	]:
 		if not OS.get_cmdline_user_args().is_empty() and setup[0] not in OS.get_cmdline_user_args():

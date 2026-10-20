@@ -7,7 +7,9 @@ func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
 	harvest = load("res://source/match/units/actions/CollectingResourcesSequentially.gd")
 	for faction in ["bastion", "helix", "frontier"]:
-		await _skirmish(faction, "res://source/match/maps/RedrockDivide.tscn", false)
+		await _skirmish(
+			faction, "res://source/match/maps/battlefields/RedrockDivideMap.tscn", false
+		)
 		for player in get_nodes_in_group("players"):
 			player.set_process(false)
 		await _two_workers(faction)
@@ -21,27 +23,10 @@ func _run():
 
 
 func _two_workers(faction):
+	# Field layout (spacing, distance from the HQ) is held by MapMetricsRegression.
 	var deposits = game.map.get_node("Resources").get_children()
-	var starts = game.map.get_node("SpawnPoints").get_children()
-	for start in range(0, deposits.size(), 7):
-		var field = deposits.slice(start, start + 7)
-		for index in 7:
-			_check(field[index].harvest_origin.is_finite(), "Arc lost field origin")
-			for other in range(index + 1, 7):
-				_check(
-					field[index].position.distance_to(field[other].position) >= 2.99,
-					"Arc crowded neighboring resource nodes"
-				)
-		_check(
-			field[5].position.distance_to(field[6].position) < 18,
-			"Resource arc is still excessively spread out"
-		)
-		if start / 7 < starts.size():
-			for deposit in field:
-				_check(
-					absf(deposit.position.distance_to(starts[start / 7].position) - 18) < .01,
-					"Opening resources are not equidistant from HQ"
-				)
+	for deposit in deposits:
+		_check(deposit.harvest_origin.is_finite(), "Deposit lost its field origin")
 	# Both electronics ends still belong to the same field assignment.
 	var candidates = get_nodes_in_group("units").filter(
 		func(unit): return unit.type == "Worker" and unit.player == game._get_human_player()
@@ -106,7 +91,7 @@ func _two_workers(faction):
 
 
 func _relay_vision():
-	await _skirmish("bastion", "res://source/match/maps/ExpandedAlpineRelay.tscn", false)
+	await _skirmish("bastion", "res://source/match/maps/battlefields/AlpineRelayMap.tscn", false)
 	var relay = game.map.relays[0]
 	_check(relay.sight_range == 27.0, "Relay does not provide expanded surveillance")
 	_check(

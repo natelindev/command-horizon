@@ -255,8 +255,8 @@ const DEFINITION = {
 	],
 	"garrisons":
 	[
-		{"asset": "ServiceOffice", "position": Vector2(82, 84), "scale": 0.75, "radius": 6.0},
 		{"asset": "DamagedWarehouse", "position": Vector2(20, 142), "scale": 0.7, "radius": 5.6},
+		{"asset": "ServiceOffice", "position": Vector2(82, 84), "scale": 0.75, "radius": 6.0},
 	],
 	"bases": [{"start": Vector2(20, 80), "field": Vector2(11, 77)}],
 	"expansions":

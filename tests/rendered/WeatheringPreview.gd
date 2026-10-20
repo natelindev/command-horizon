@@ -57,7 +57,7 @@ func _run():
 		if not OS.get_cmdline_user_args().is_empty() and faction not in OS.get_cmdline_user_args():
 			continue
 		paused = false
-		await _skirmish(faction, "res://source/match/maps/PinebreakValley.tscn")
+		await _skirmish(faction, "res://source/match/maps/battlefields/PinebreakValleyMap.tscn")
 		for player in get_nodes_in_group("players"):
 			player.set_process(false)
 		game.settings.visibility = game.settings.Visibility.FULL

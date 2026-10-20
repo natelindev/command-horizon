@@ -15,7 +15,7 @@ func _run():
 	var options = root.get_node("Globals").options
 	var original = options.capture()
 	root.get_node("SaveManager").autosaves_enabled = false
-	for combo in [["bastion", "DesertFrontier"], ["helix", "ExpandedDesertFrontier"]]:
+	for combo in [["bastion", "DesertFrontier"], ["helix", "battlefields/DesertFrontierMap"]]:
 		await _skirmish(combo[0], "res://source/match/maps/%s.tscn" % combo[1])
 		game.hud._toggle_pause()
 		_check_kit()

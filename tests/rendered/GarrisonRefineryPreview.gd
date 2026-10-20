@@ -16,7 +16,7 @@ func _run():
 	root.content_scale_size = root.size
 	root.content_scale_mode = Window.CONTENT_SCALE_MODE_VIEWPORT
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT))
-	await _create("ExpandedDesertFrontier")
+	await _create("battlefields/EmberworksMap")
 	game.settings.visibility = game.settings.Visibility.FULL
 	game.fog_of_war.reveal()
 	var human = game._get_human_player()

@@ -6,8 +6,10 @@ extends "res://tests/headless/SaveRestoreEdges.gd"
 const TerrainTextures = preload("res://source/match/TerrainTextures.gd")
 const GroundDecals = preload("res://source/match/effects/GroundDecals.gd")
 const MAPS = [
-	"PinebreakValley",
-	"GlacierNarrows",
+	"battlefields/PinebreakValleyMap",
+	"battlefields/GlacierNarrowsMap",
+	"battlefields/FrostboundCrownMap",
+	"battlefields/EmberworksMap",
 	"PlainAndSimple",
 	"BastionDesert",
 	"DesertFrontier",
@@ -101,7 +103,10 @@ func _ground_materials():
 		for material in materials:
 			if material is ShaderMaterial and material.shader != null:
 				var file = material.shader.resource_path.get_file()
-				if file == "battlefield.gdshader" or TerrainTextures.SHADERS.has(file):
+				if (
+					file in ["battlefield.gdshader", "authored_terrain.gdshader"]
+					or TerrainTextures.SHADERS.has(file)
+				):
 					found.append(material)
 	return found
 

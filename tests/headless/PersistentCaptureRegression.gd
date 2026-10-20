@@ -8,7 +8,7 @@ func _run():
 	Manual = load("res://source/match/orders/ManualOrders.gd")
 	root.get_node("SaveManager").autosaves_enabled = false
 	path = "user://persistent-capture-%d.json" % OS.get_process_id()
-	await _create("ExpandedDesertFrontier")
+	await _create("battlefields/EmberworksMap")
 	game.settings.visibility = game.settings.Visibility.FULL
 	var building = _building()
 	var human = game._get_human_player()

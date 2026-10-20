@@ -6,19 +6,22 @@ extends "res://tests/headless/SaveRestoreEdges.gd"
 # Optional arguments after `--` filter maps by name (for example `-- Glacier`).
 const OUTPUT = "res://art/terrain-layers/"
 const MAPS = [
-	"RedrockDivide",
-	"SaltwindBasin",
-	"PinebreakValley",
-	"GlacierNarrows",
-	"Emberworks",
-	"CinderRing",
-	"FourRivers",
-	"SunkenExchange",
-	"FrostboundCrown",
-	"CopperBadlands",
-	"VerdantCommons",
-	"RailspireJunction",
-	"ShatteredOasis",
+	"battlefields/RedrockDivideMap",
+	"battlefields/SaltwindBasinMap",
+	"battlefields/DesertFrontierMap",
+	"battlefields/PinebreakValleyMap",
+	"battlefields/GlacierNarrowsMap",
+	"battlefields/AlpineRelayMap",
+	"battlefields/EmberworksMap",
+	"battlefields/CoastalFoundryMap",
+	"battlefields/CopperBadlandsMap",
+	"battlefields/ShatteredOasisMap",
+	"battlefields/FourRiversMap",
+	"battlefields/VerdantCommonsMap",
+	"battlefields/FrostboundCrownMap",
+	"battlefields/RailspireJunctionMap",
+	"battlefields/SunkenExchangeMap",
+	"battlefields/CinderRingMap",
 	"BastionDesert",
 	"DesertFrontier",
 	"SupplyLineMap",
@@ -102,7 +105,7 @@ func _run():
 		var hq = _units(game._get_human_player(), "CommandCenter")[0]
 		var size = game.map.size
 		var center = Vector3(size.x / 2.0, 0, size.y / 2.0)
-		var label = map_name.to_snake_case().replace("_", "-")
+		var label = map_name.get_file().to_snake_case().replace("_", "-")
 		await _pair(label + "-battle", hq.global_position + Vector3(8, 0, 6), 28)
 		# Campaign briefings pan the camera between captures, so pixels cannot match.
 		if not CAMPAIGN.has(map_name):

@@ -12,6 +12,8 @@ func _run():
 	_composition = load("res://source/match/players/skirmish-ai/SkirmishComposition.gd")
 	_production = load("res://source/match/players/skirmish-ai/SkirmishProduction.gd")
 	root.get_node("SaveManager").autosaves_enabled = false
+	# Pinebreak Valley keeps a mercenary camp on each side.
+	sites_map = "res://source/match/maps/battlefields/PinebreakValleyMap.tscn"
 	for faction in ["bastion", "helix", "frontier"]:
 		await _open_sites(faction)
 		_enemy.difficulty = _difficulty.EASY

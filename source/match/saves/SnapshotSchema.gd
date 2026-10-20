@@ -975,7 +975,6 @@ func _skirmish_relays(map_path) -> int:
 		map_path
 		in [
 			"res://source/match/maps/AlpineRelay.tscn",
-			"res://source/match/maps/ExpandedAlpineRelay.tscn",
 			"res://source/match/maps/IndustrialCrossroads.tscn"
 		]
 	):
