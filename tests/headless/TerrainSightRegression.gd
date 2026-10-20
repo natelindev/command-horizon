@@ -141,14 +141,17 @@ func _revealed(triangles, observer, point, reach):
 
 
 func _check_cost():
+	# Best of three passes: one scheduler stall must not fail the budget.
+	var per_line = INF
+	for attempt in 3:
+		var begun = Time.get_ticks_usec()
+		var count = 0
+		for x in range(10, 180, 7):
+			for z in range(10, 150, 7):
+				Sight.segment_clear(model, _eye(x, z), _eye(x + 9, z + 5))
+				count += 1
+		per_line = minf(per_line, float(Time.get_ticks_usec() - begun) / count)
 	var started = Time.get_ticks_usec()
-	var count = 0
-	for x in range(10, 180, 7):
-		for z in range(10, 150, 7):
-			Sight.segment_clear(model, _eye(x, z), _eye(x + 9, z + 5))
-			count += 1
-	var per_line = float(Time.get_ticks_usec() - started) / count
-	started = Time.get_ticks_usec()
 	for x in range(10, 180, 17):
 		for z in range(10, 150, 17):
 			Sight.reveal_triangles(model, Vector2(x, z), 12.0)

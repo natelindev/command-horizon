@@ -19,10 +19,11 @@ ENGINE_SUFFIX = {"linux": "linux.x86_64", "windows": "win64.exe", "macos": "maco
 TESTS = [
     "BehaviorRegression", "UnitAnimationRegression",
     "PersistentCaptureRegression",
-    "CampaignInteriorRegression", "HeroCampaignRegression", "MapRosterRegression",
+    "CampaignInteriorRegression", "HeroCampaignRegression", "SkirmishPickerRegression",
     "WorkerDistributionRegression", "CargoReturnRegression", "ResourceFieldRegression",
     "GarrisonCombatExitRegression", "PointOfInterestRegression",
-    "BattlefieldExpansionRegression", "BattlefieldOpeningRegression",
+    "MapMetricsRegression", "CliffMeshRegression", "AuthoredRelayRegression",
+    "AuthoredGarrisonRegression",
     "SaveNavigationTimingRegression",
     "ContactApproachRegression", "NavigationRegression", "MapPlayabilityRegression",
     "MapPreviewRegression", "MusicRegression",
