@@ -3,7 +3,7 @@ extends "res://tests/headless/Skirmish.gd"
 var moving
 var attack_move
 var recover
-var library
+var behavior
 var game
 var human
 var opponent
@@ -14,7 +14,7 @@ func _run():
 	moving = load("res://source/match/units/actions/Moving.gd")
 	attack_move = load("res://source/match/units/actions/AttackMoving.gd")
 	recover = load("res://source/match/units/actions/RecoveringAtService.gd")
-	library = load("res://source/match/programs/ProgramLibrary.gd")
+	behavior = load("res://source/match/orders/UnitBehavior.gd")
 	factions = load("res://source/match/FactionCatalog.gd")
 	constants = root.get_node("Constants")
 	root.get_node("SaveManager").autosaves_enabled = false
@@ -80,15 +80,12 @@ func _stationary_fire():
 	print("MANEUVER stationary actual shot; cooldown=", unit.signature.cooldown)
 
 
-func _moving_authority(programmed):
+func _moving_authority(guarded):
 	var unit = _spawn("CombatRobot", Vector3(22, 0, 25), opponent)
 	var target = _spawn("Tank", Vector3(3, 0, 45), human)
 	target.process_mode = Node.PROCESS_MODE_DISABLED
-	if programmed:
-		_check(unit.program.configure(library.defaults("guard")), "Guard configuration failed")
-		unit.program.anchor = Vector3(34, 0, 25)
-		unit.program.safe_point = Vector3(22, 0, 25)
-		_check(unit.program.run(), "Moving guard refused to run")
+	if guarded:
+		_check(behavior.guard(unit, Vector3(34, 0, 25)), "Moving guard order was rejected")
 	else:
 		unit.issue_manual_order(moving.new(Vector3(34, 0, 25)))
 	var start = unit.position
@@ -104,17 +101,13 @@ func _moving_authority(programmed):
 	game.battlefield.invalidate()
 	_check(game.battlefield.is_observed(opponent, target), "Moving contact fixture is hidden")
 	var order = unit.action
-	var mode = unit.program.mode
-	var anchor = unit.program.anchor
+	var stance = unit.stance
 	var destination = unit.get_node("Movement").target_position
 	var base_speed = unit.movement_speed
 	opponent._use_signatures([unit])
 	_check(unit.signature.kind == "maneuver", "Visible movement did not trigger Maneuver")
 	_check(unit.action == order, "Maneuver replaced moving action")
-	_check(
-		unit.program.mode == mode and unit.program.anchor == anchor,
-		"Maneuver changed program authority or anchor"
-	)
+	_check(unit.stance == stance, "Maneuver changed the unit's stance")
 	_check(unit.get_node("Movement").target_position == destination, "Maneuver changed route")
 	_check(is_equal_approx(unit.movement_speed, base_speed * 1.35), "Maneuver speed not applied")
 	var group = unit.signature.group_id
@@ -126,7 +119,7 @@ func _moving_authority(programmed):
 	paused = false
 	await _frames(30)
 	_check(unit.position.distance_to(start) > .2, "Maneuver unit failed actual continued travel")
-	print("MANEUVER moving ", "program" if programmed else "manual", " authority preserved")
+	print("MANEUVER moving ", "guard" if guarded else "manual", " authority preserved")
 
 
 func _recovery():
@@ -148,7 +141,6 @@ func _recovery():
 	_check(unit.position.distance_to(start) > .1, "Recovery fixture never travelled")
 	_check(unit.get_node("Movement")._has_destination, "Recovery fixture has no route")
 	_check(game.battlefield.is_observed(opponent, target), "Recovery contact fixture is hidden")
-	var mode = unit.program.mode
 	var destination = unit.get_node("Movement").target_position
 	opponent._command_army([unit, service])
 	_check(unit.signature.kind == "maneuver", "AI excluded moving recovery from Maneuver")
@@ -156,7 +148,6 @@ func _recovery():
 		unit.action == order and is_instance_of(unit.action, recover),
 		"Maneuver stole recovery order"
 	)
-	_check(unit.program.mode == mode, "Maneuver changed recovery program authority")
 	_check(unit.get_node("Movement").target_position == destination, "Maneuver rerouted recovery")
 	if is_instance_of(unit.action, recover):
 		_check(unit.action._target == service, "Maneuver changed recovery facility")

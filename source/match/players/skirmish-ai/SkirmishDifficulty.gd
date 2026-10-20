@@ -10,7 +10,7 @@ const NAMES = ["Easy", "Normal", "Hard"]
 const TAGS = ["Easy AI", "Normal AI", "Hard AI"]
 const DESCRIPTIONS = [
 	"Builds slowly, attacks late with small groups and seldom retreats or uses abilities.",
-	"Steady economy, regular attack waves, field repairs and unit programs.",
+	"Steady economy, regular attack waves, field repairs and faction abilities.",
 	"More engineers, a second factory, early coordinated waves and disciplined retreats.",
 ]
 const FULL_RESEARCH = ["weapons_1", "armor_1", "service", "doctrine", "weapons_2", "armor_2"]
@@ -43,8 +43,7 @@ const PROFILES = [
 		"retreat_health": 0.0,
 		# Defenders sent against each observed raid.
 		"defense_responders": 4,
-		# Unit programs and faction signature abilities.
-		"programs": false,
+		# Faction signature abilities.
 		"signatures": false,
 	},
 	{
@@ -63,7 +62,6 @@ const PROFILES = [
 		"research_guards": 6,
 		"retreat_health": 0.3,
 		"defense_responders": 6,
-		"programs": true,
 		"signatures": true,
 	},
 	{
@@ -82,7 +80,6 @@ const PROFILES = [
 		"research_guards": 4,
 		"retreat_health": 0.4,
 		"defense_responders": 8,
-		"programs": true,
 		"signatures": true,
 	},
 ]

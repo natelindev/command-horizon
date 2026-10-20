@@ -1,8 +1,7 @@
 extends RefCounted
 
-# Camp-exclusive contracts. Legacy paid contracts remain valid on load.
+# Camp-exclusive contracts.
 const ROLES = ["MercenaryWarden", "MercenaryRanger", "MercenaryLancer"]
-const LEGACY_ROLES = ["Infantry", "RocketInfantry", "SniperInfantry"]
 const UNITS = {
 	"MercenaryWarden":
 	{

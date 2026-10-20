@@ -63,9 +63,6 @@ func _review_task_state(label):
 	camera.set_physics_process(false)
 	camera.set_size_safely(36 if label.ends_with("advance") else 48)
 	camera.set_position_safely(point)
-	var panel = game.hud.battle_plan
-	if panel._body.visible:
-		panel._toggle_body()
 	paused = false
 	await _frames(30)
 	paused = true

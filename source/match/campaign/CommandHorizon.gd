@@ -3,7 +3,7 @@ extends "res://source/match/Skirmish.gd"
 const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
 
 const Progress = preload("res://source/match/campaign/CampaignProgress.gd")
-const Library = preload("res://source/match/programs/ProgramLibrary.gd")
+const Posts = preload("res://source/match/campaign/CampaignPosts.gd")
 const AttackMove = preload("res://source/match/units/actions/AttackMoving.gd")
 const WAVE_TIMES = [20.0, 50.0, 80.0, 110.0]
 const CHALLENGES = ["", "lean", "reinforced"]
@@ -72,41 +72,39 @@ func _spawn_player_units(side, _spawn_transform):
 				map.DEPLOYMENT + Vector3(-3 + index % 4 * 2, 0, -3 + index / 4 * 5)
 			)
 		for z in [-7, 7]:
-			_guard(
+			Posts.guard(
 				_spawn("Tank", side, map.DEPLOYMENT + Vector3(7, 0, z)),
 				map.DEPLOYMENT + Vector3(4, 0, z)
 			)
-		_guard(
+		Posts.guard(
 			_spawn("RepairRobot", side, map.DEPLOYMENT + Vector3(11, 0, 0)),
-			map.DEPLOYMENT + Vector3(8, 0, 0),
-			"hold_service"
+			map.DEPLOYMENT + Vector3(8, 0, 0)
 		)
 		for index in 4:
 			_spawn("Infantry", side, Vector3(137 + index * 1.7, 0, 108))
 		for z in [101, 115]:
-			_guard(_spawn("Tank", side, Vector3(141, 0, z)), Vector3(138, 0, z))
+			Posts.guard(_spawn("Tank", side, Vector3(141, 0, z)), Vector3(138, 0, z))
 		var extra = 4 if settings.campaign_challenge == "reinforced" else 0
 		for index in [6, 8, 10][side.difficulty] + extra:
 			_spawn(
 				"Infantry", side, map.TARGET + Vector3(-10 + index % 4 * 1.8, 0, -5 + index / 4 * 3)
 			)
 		for z in [-9, 9]:
-			_guard(
+			Posts.guard(
 				_spawn("CombatRobot", side, map.TARGET + Vector3(-5, 0, z)),
 				map.TARGET + Vector3(-6, 0, z)
 			)
 			var artillery = _spawn("AdvancedTank", side, map.TARGET + Vector3(0, 0, z))
-			_guard(artillery, map.TARGET + Vector3(0, 0, z), "fire_support")
+			Posts.guard(artillery, map.TARGET + Vector3(0, 0, z))
 			if z == 9:
 				siege_commander = artillery
-			_guard(
+			Posts.guard(
 				_spawn("Helicopter", side, map.TARGET + Vector3(8, 0, z)),
 				map.TARGET + Vector3(2, 0, z)
 			)
-			_guard(
+			Posts.guard(
 				_spawn("RepairRobot", side, map.TARGET + Vector3(5, 0, z)),
-				map.TARGET + Vector3(4, 0, z),
-				"hold_service"
+				map.TARGET + Vector3(4, 0, z)
 			)
 		for index in 4:
 			_spawn("Worker", side, Vector3(165 + index * 2, 0, 34))
@@ -146,21 +144,8 @@ func _spawn_player_units(side, _spawn_transform):
 
 func _spawn(role, side, point):
 	var unit = load(Catalog.scene_path(role)).instantiate()
-	if role == "Tank":
-		unit.set_meta("chip_installed", true)
 	_setup_and_spawn_unit(unit, Transform3D(Basis(), point), side, false)
 	return unit
-
-
-func _guard(unit, point, preset = "guard"):
-	if unit.program == null:
-		return
-	var config = Library.defaults(preset)
-	config.radius = 10.0 if preset == "fire_support" else 8.0
-	unit.program.configure(config)
-	unit.program.anchor = point
-	unit.program.safe_point = point + Vector3(4, 0, 0)
-	unit.program.run()
 
 
 func _alive(unit):
@@ -217,6 +202,7 @@ func deployment_help():
 func _check_outcome(delta):
 	if _enemy == null:
 		return
+	Posts.service(_enemy)
 	var human = _get_human_player()
 	command_left = 60.0 if human.has_completed_structure("CommandCenter") else command_left - delta
 	if (

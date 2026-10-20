@@ -166,14 +166,12 @@ func _recruitment_budget():
 		building.x > 0 and urgent.x > 0, "Recruitment fixture has no real building/urgent reserve"
 	)
 	var reserve = building + urgent
-	var price = _site_catalog.price(_enemy.faction, "RocketInfantry")
-	var normal = load("res://source/match/FactionCatalog.gd").cost(_enemy, "RocketInfantry")
+	# The commander hires the camp's anti-armor Breach Lancer at its fixed contract price.
+	var price = _site_catalog.price("MercenaryLancer")
+	var contract = load("res://source/match/world/MercenaryCatalog.gd").UNITS.MercenaryLancer.cost
 	_check(
-		(
-			price.resource_a == ceili(normal.resource_a * 1.25)
-			and price.resource_b == ceili(normal.resource_b * 1.25)
-		),
-		"Camp price does not include the faction's 25% recruitment premium"
+		price.resource_a == contract[0] and price.resource_b == contract[1],
+		"Camp price differs from the Breach Lancer contract"
 	)
 	var cost = Vector2i(price.resource_a, price.resource_b)
 	_enemy.resource_a = reserve.x + cost.x - 1
@@ -199,11 +197,11 @@ func _recruitment_budget():
 	_check(_contracts() == 1, "Recruitment tick queued zero or multiple camp contracts")
 	_check(
 		Vector2i(_enemy.resource_a, _enemy.resource_b) == reserve,
-		"Camp did not debit its premium price exactly once"
+		"Camp did not debit its contract price exactly once"
 	)
 	var busy = camps.filter(func(site): return not site.jobs.is_empty())
 	_check(
-		busy.size() == 1 and busy[0].jobs[0].role == "RocketInfantry",
+		busy.size() == 1 and busy[0].jobs[0].role == "MercenaryLancer",
 		"AI camp queued the wrong paid role"
 	)
 	_site_orders.recruit(_game, _enemy, units, desired)

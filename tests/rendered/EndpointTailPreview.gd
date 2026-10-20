@@ -43,10 +43,10 @@ func _run():
 	quit(0 if errors.is_empty() else 1)
 
 
-func _arrival(label):
+func _arrival(label, require_path_bend = false):
 	if game.hud._pause_owned:
 		game.hud._toggle_pause()
-	await super(label)
+	await super(label, require_path_bend)
 
 
 func _review(label):

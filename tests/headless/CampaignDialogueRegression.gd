@@ -18,7 +18,7 @@ func _run():
 				"埃吉斯元帅",
 				"We hold here.",
 				"我们坚守这里。",
-				"first_orders_intro_en.wav",
+				"common_enemy_base_en.wav",
 				"bastion"
 			),
 			_line(
@@ -27,7 +27,7 @@ func _run():
 				"幽影·尼克斯",
 				"Then listen.",
 				"那就听着。",
-				"first_orders_lab_en.wav",
+				"common_boss_arrives_en.wav",
 				"helix"
 			)
 		]
@@ -87,8 +87,8 @@ func _run():
 	_check(story._audio.stream == briefing_stream, "Caption toggle restarted briefing audio")
 	options.subtitles = false
 	story._refresh_language()
-	var intro_length = load("res://assets/audio/campaign/first_orders_intro_en.wav").get_length()
-	var reply_length = load("res://assets/audio/campaign/first_orders_lab_en.wav").get_length()
+	var intro_length = load("res://assets/audio/campaign/common_enemy_base_en.wav").get_length()
+	var reply_length = load("res://assets/audio/campaign/common_boss_arrives_en.wav").get_length()
 	_check(
 		absf(story._scene_length - intro_length - reply_length - .8) < .001,
 		"Briefing camera duration ignored the different reply length"
@@ -99,9 +99,7 @@ func _run():
 	_check(story._subtitle._portrait.texture != null, "Briefing lost speaker portrait")
 	story.skip_briefing()
 	_check(not story.cinematic and not paused, "Cinematic skip left the game paused")
-	story.restore({"seen": ["first_orders.intro"]})
-	_check(story.current.is_empty() and story._pending.is_empty(), "Legacy save replayed dialogue")
-	await _legacy_active_resume()
+	_retired_story_states()
 	Narration.lines()["first_orders.intro"] = original
 	game.queue_free()
 	await _frames(5)
@@ -112,9 +110,14 @@ func _run():
 	quit(0 if errors.is_empty() else 1)
 
 
-func _legacy_active_resume():
-	# A saved single-narrator line remains valid after its cue gains a conversation.
-	var legacy = {
+func _retired_story_states():
+	# Old-save shapes are no longer accepted: a history-only record and a single-narrator
+	# line for a cue that is now a recorded conversation.
+	_check(
+		not Narration.valid_state({"seen": ["first_orders.intro"]}, "first_orders"),
+		"History-only story record accepted"
+	)
+	var narrated = {
 		"seen": ["first_orders.intro"],
 		"pending": [],
 		"active":
@@ -125,19 +128,10 @@ func _legacy_active_resume():
 			"position": 1.0
 		}
 	}
-	_check(Narration.valid_state(legacy, "first_orders"), "Legacy active narrator was rejected")
-	game.campaign_story.restore(legacy)
-	paused = true
-	await _resume_from_disk()
-	paused = false
-	await _frames(2)
-	var story = game.campaign_story
-	_check(story.current.id == "first_orders.intro", "Old active line restarted new conversation")
-	_check(story._line_index == -1, "Old active line lost its legacy identity")
-	_check(story._remaining < 2.0 and story._remaining > 1.8, "Old active line lost its duration")
-	story._remaining = 0
-	await _frames(1)
-	_check(story.current.is_empty(), "Old active line continued into an unrelated new reply")
+	_check(
+		not Narration.valid_state(narrated, "first_orders"),
+		"Retired single-narrator line accepted for a conversation cue"
+	)
 
 
 func _resume_from_disk():

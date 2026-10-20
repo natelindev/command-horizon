@@ -87,8 +87,6 @@ func _spawn_player_units(player, spawn_transform):
 	for entry in roster:
 		var point = origin + entry[1] * direction
 		var unit = load(Catalog.scene_path(entry[0])).instantiate()
-		if settings.advanced_start and entry[0] == "Tank":
-			unit.set_meta("chip_installed", true)
 		_setup_and_spawn_unit(unit, Transform3D(Basis(), point), player, false)
 
 
@@ -96,7 +94,6 @@ func _physics_process(delta):
 	super(delta)
 	if finished or hud == null:
 		return
-	battle_record.observe()
 	if campaign_hero != null:
 		campaign_hero.step(delta)
 		if finished:

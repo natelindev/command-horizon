@@ -19,7 +19,6 @@ const ROLES = [
 	"Drone",
 	"Helicopter",
 	"SupplyTruck",
-	"EvacTransport",
 	"Squad",
 ]
 const FACTIONS = ["bastion", "helix", "frontier"]
@@ -170,7 +169,7 @@ func _focus(point, extent):
 
 
 func _record(role):
-	var airborne = role in ["Drone", "Helicopter", "EvacTransport"]
+	var airborne = role in ["Drone", "Helicopter"]
 	var infantry = Catalog.is_infantry(role)
 	var extent = 4.5 if infantry else (8.0 if not airborne else 6.5)
 	var unit = _spawn(role, _human, BASE)

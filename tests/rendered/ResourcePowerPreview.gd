@@ -1,4 +1,4 @@
-extends "res://tests/rendered/ProgramPreview.gd"
+extends "res://tests/rendered/PreviewFixture.gd"
 
 
 func _run():

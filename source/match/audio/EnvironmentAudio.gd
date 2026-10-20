@@ -29,7 +29,7 @@ static func region_for(map_path):
 			return "desert"
 		"AlpineRelay", "SplitSignalMap":
 			return "alpine"
-		"IndustrialCrossroads", "BrokenFoundryMap", "CommandHorizonMap", "AirCorridorMap":
+		"IndustrialCrossroads", "BrokenFoundryMap", "CommandHorizonMap":
 			return "industrial"
 		"CoastalFoundry":
 			return "coastal"

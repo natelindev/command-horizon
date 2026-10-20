@@ -99,7 +99,7 @@ func _notice_priority():
 	var tank = _units(human, "Tank")[0]
 	var action = tank.action
 	var remaining = human.coordination_left
-	hud.arm_program_assignment("anchor", [tank])
+	hud.arm_signature_sector([tank])
 	var instruction = hud._assignment_hint.text
 	hud.show_notice("Research feedback priority check")
 	await _frames(5)

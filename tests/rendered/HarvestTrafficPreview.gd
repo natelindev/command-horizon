@@ -44,8 +44,6 @@ func _review_traffic(label, watched, blocker):
 	camera.set_position_safely(blocker.position + Vector3(0, 0, -2))
 	root.get_node("MatchSignals").deselect_all_units.emit()
 	watched.get_node("Selection").select()
-	if game.hud.battle_plan._body.visible:
-		game.hud.battle_plan._toggle_body()
 	await _frames(12)
 	await RenderingServer.frame_post_draw
 	var frame = root.get_texture().get_image()

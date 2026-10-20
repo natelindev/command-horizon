@@ -108,7 +108,7 @@ func _check_outcome(delta):
 					"Behavior assigned. Move infantry to the relay; armor screens the approach."
 				)
 				break
-	if phase == 0 and human.basic_programs_unlocked():
+	if phase == 0 and human.lab_research_unlocked():
 		phase = 1
 		_checkpoint("Command lab complete")
 		hud.show_notice(

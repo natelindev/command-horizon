@@ -232,10 +232,10 @@ func _eligibility_contracts(player):
 		unit.hp = unit.hp_max
 	var lab = _units(player, "CommandLab")[0]
 	var point = lab.position
-	_check(player.basic_programs_unlocked(), "Research prerequisite was not previously unlocked")
+	_check(player.lab_research_unlocked(), "Research prerequisite was not previously unlocked")
 	lab.queue_free()
 	await _frames(2)
-	_check(player.basic_programs_unlocked(), "Fixture did not preserve sticky program unlock")
+	_check(player.lab_research_unlocked(), "Fixture did not preserve sticky research unlock")
 	_check_demand(player, Vector2i.ZERO, "Destroyed lab retained unstartable research demand")
 	lab = _spawn("CommandLab", player, point)
 	lab.mark_as_under_construction()

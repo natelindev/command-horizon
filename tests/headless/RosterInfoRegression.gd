@@ -44,11 +44,9 @@ func _roster(faction):
 		)
 	player.resource_a = 5
 	player.resource_b = 1
-	factory.production_queue.fit_chips = true
 	menus._refresh_buttons()
 	var price = factions.cost(player, "Tank")
-	price.resource_b += 4
-	_check(tank.button.disabled, "Unaffordable fitted armor is enabled")
+	_check(tank.button.disabled, "Unaffordable armor is enabled")
 	_check(
 		tank.button.accessibility_description == tank.button.tooltip_text,
 		"Accessible roster details are stale"
@@ -79,14 +77,14 @@ func _roster(faction):
 	player.resource_a = 1000
 	player.resource_b = 1000
 	menus._refresh_buttons()
-	_check(not tank.button.disabled, "Affordable fitted armor remains disabled")
+	_check(not tank.button.disabled, "Affordable armor remains disabled")
 	var before = Vector2i(player.resource_a, player.resource_b)
 	menus._activate("Tank", false)
 	var jobs = factory.production_queue.get_elements()
 	_check(jobs.size() == 1, "Available roster choice did not buy one job")
 	if not jobs.is_empty():
 		var job = jobs[0]
-		_check(job.paid_cost == price, "Displayed fitted price differs from paid price")
+		_check(job.paid_cost == price, "Displayed price differs from paid price")
 		_check(
 			(
 				Vector2i(player.resource_a, player.resource_b)
@@ -146,13 +144,6 @@ func _blocked_roster(player, menus, factory):
 	var lab = _units(player, "CommandLab")[0]
 	lab.queue_free()
 	await _frames(3)
-	menus._refresh_buttons()
-	_check(tank.button.disabled, "Fitted production ignores missing lab")
-	_check(
-		tank.button.tooltip_text.contains(factions.title(player.faction, "CommandLab")),
-		"Missing lab is not named"
-	)
-	factory.production_queue.fit_chips = false
 	menus._refresh_buttons()
 	_check(not tank.button.disabled, "Conventional tank incorrectly requires a lab")
 	await _review_roster(player, "missing-lab")
@@ -216,7 +207,6 @@ func _archive_roster(faction):
 		side.set_process(false)
 	game.hud._toggle_pause()
 	var factory = _units(player, "VehicleFactory")[0]
-	factory.production_queue.fit_chips = true
 	var job = factory.production_queue.produce(load(catalog.scene_path("Tank")))
 	_check(job != null, "Roster archive could not pay for its job")
 	player.resource_a = 5
@@ -246,13 +236,7 @@ func _archive_roster(faction):
 			_check(
 				_entry(menus, "Tank").button.disabled, "Archive enabled an unaffordable purchase"
 			)
-			_check(
-				(
-					factory.production_queue.size() == 1
-					and factory.production_queue.get_elements()[0].fitted_chip
-				),
-				"Archive lost the actual paid fitted job"
-			)
+			_check(factory.production_queue.size() == 1, "Archive lost the actual paid job")
 			_check(paused and game.simulation_time == time, "Roster archive advanced time")
 	paused = false
 	game.queue_free()

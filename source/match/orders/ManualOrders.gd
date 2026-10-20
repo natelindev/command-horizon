@@ -5,7 +5,6 @@ const LIMIT = 16
 const ACTIONS = "res://source/match/units/actions/"
 var pending = []
 var current = {}
-var auto_resume = false
 var status = "Hold the queue key and right-click to queue orders."
 var _active = null
 var _engaged = false
@@ -31,9 +30,6 @@ func submit(order, append = false, audible = true, feedback_kind = ""):
 		status = "Queue full · maximum 16 waiting orders."
 		_feedback(order, false, append, audible, status, feedback_kind)
 		return false
-	var programmed = unit.program != null and unit.program.mode != "Manual"
-	if unit.program != null:
-		unit.program.manual_override()
 	# A direct shot uses the shelter's firing ports. Movement and Leave building
 	# still replace the garrison action and evacuate normally.
 	if not append and order.kind == "attack" and unit.has_meta("garrison_host"):
@@ -54,7 +50,7 @@ func submit(order, append = false, audible = true, feedback_kind = ""):
 			MatchSignals.unit_order_issued.emit(unit, order.kind)
 		_feedback(order, true, append, audible, "", feedback_kind)
 		return true
-	if not append or programmed:
+	if not append:
 		cancel()
 		unit.action = null
 	elif not _engaged and is_instance_valid(unit.action):
@@ -103,9 +99,6 @@ func _physics_process(delta):
 		_engaged = false
 		set_physics_process(false)
 		status = "Orders complete · holding position."
-		if auto_resume and unit.program != null and unit.program.ready_to_run():
-			unit.program.run()
-			status = "Orders complete · resuming program."
 		return
 	# One start/skip per tick bounds work even if a whole queue lost its targets.
 	var order = pending.pop_front()

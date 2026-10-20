@@ -52,11 +52,9 @@ func _run():
 		await _frames(45)
 		_check("field depleted" in menu._status.text, "Depletion instruction is invisible")
 		await _capture("fields-%s-depleted-720p" % faction)
-		var plan = _game.hud.battle_plan
-		await _click(plan._idle)
 		_check(
-			get_nodes_in_group("selected_units").has(workers[2]),
-			"Idle shortcut missed depleted engineer"
+			get_nodes_in_group("selected_units") == [workers[2]],
+			"Depleted engineer lost its selection"
 		)
 		var materials = get_nodes_in_group("resource_units").filter(
 			func(deposit): return "resource_a" in deposit

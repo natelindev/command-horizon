@@ -19,7 +19,7 @@ WORK = ROOT / 'tmp/voice-work'
 SAME_PERSON = .4
 # Lower first: commanders and heavy armour get the deepest voices, pilots and scouts lighter.
 ROLE_REGISTER = ['Hero', 'AdvancedTank', 'Tank', 'AssaultInfantry', 'SniperInfantry',
-                 'RocketInfantry', 'Infantry', 'SupplyTruck', 'EvacTransport', 'Helicopter']
+                 'RocketInfantry', 'Infantry', 'SupplyTruck', 'Helicopter']
 FACTION_ROLES = {
     'bastion': ROLE_REGISTER,
     'helix': ROLE_REGISTER,

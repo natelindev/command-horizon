@@ -247,7 +247,6 @@ func _campaign_regions():
 		"supply_line": "desert",
 		"first_orders": "desert",
 		"split_signal": "alpine",
-		"air_corridor": "industrial",
 		"broken_foundry": "industrial",
 		"command_horizon": "industrial"
 	}

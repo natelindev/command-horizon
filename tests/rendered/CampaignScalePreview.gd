@@ -142,8 +142,6 @@ func _navigate(mission):
 			button = _named_button(game.hud.lesson_panel, "View relay")
 		"split_signal":
 			button = game.hud._relay_buttons[1]
-		"air_corridor":
-			button = game.hud._site_buttons[1]
 		"broken_foundry":
 			button = _named_button(game.hud.objective_panel, "Foundry")
 		"command_horizon":

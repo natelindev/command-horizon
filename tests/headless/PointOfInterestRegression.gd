@@ -162,7 +162,7 @@ func _exercise_sites():
 	menu._queue._queue_elements.get_child(0).pressed.emit()
 	_check(camp.jobs.is_empty(), "Shared queue did not cancel recruitment")
 
-	var cost = catalog.price(_human.faction, "MercenaryLancer")
+	var cost = catalog.price("MercenaryLancer")
 	funds = Vector2i(_human.resource_a, _human.resource_b)
 	_check(camp.hire(_human, "MercenaryLancer"), "Owned camp rejected affordable recruitment")
 	_check(
@@ -262,15 +262,12 @@ func _exercise_sites():
 		not schema._site_records(1, "res://source/match/maps/DesertFrontier.tscn"),
 		"Legacy map accepted malformed facility records"
 	)
-	var legacy = data.duplicate(true)
-	for site in legacy.mission.points_of_interest:
-		if not site.jobs.is_empty():
-			site.jobs[0] = {
-				"role": "Infantry",
-				"left": 8.0,
-				"paid_cost": catalog.price(_human.faction, "Infantry")
-			}
-	_check(schema.validate(legacy), "Legacy paid mercenary contract was rejected: " + schema.error)
+	var retired = data.duplicate(true)
+	var hired = retired.mission.points_of_interest.filter(func(site): return not site.jobs.is_empty())
+	_check(not hired.is_empty(), "Facility archive fixture has no paid contract")
+	for site in hired:
+		site.jobs[0].role = "Infantry"
+	_check(not schema.validate(retired), "Archive accepted a non-mercenary camp contract")
 	var bad = data.duplicate(true)
 	bad.mission.points_of_interest = 1
 	_check(not schema.validate(bad), "Archive accepted malformed facility records")

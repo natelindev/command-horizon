@@ -170,7 +170,6 @@ func _manual_replacement():
 	paused = false
 	await _frames(600)
 	_check(watched.position.distance_to(point) < .6, "Replacement did not reach new point")
-	_check(watched.program.mode == "Manual", "Old program overrode replacement")
 	watched.issue_manual_order(null)
 	_check(not watched.get_node("Movement")._has_destination, "Stop retained route")
 	await _close()
@@ -309,11 +308,12 @@ func _check_archive_validation(data, id):
 	var missing_position = data.duplicate(true)
 	missing_position.units[index].action.state._arrival_progress = null
 	_check(not schema.validate(missing_position), "Active arrival timer lacks origin")
-	var legacy = data.duplicate(true)
-	legacy.units[index].action.state.erase("_arrival_elapsed")
-	legacy.units[index].action.state.erase("_arrival_progress")
-	_check(schema.validate(legacy), "Legacy Move archive rejected")
-	print("ENDPOINT ARCHIVE legacy and corrupt-state checks")
+	# Version 15 archives always carry the arrival observation.
+	var incomplete = data.duplicate(true)
+	incomplete.units[index].action.state.erase("_arrival_elapsed")
+	incomplete.units[index].action.state.erase("_arrival_progress")
+	_check(not schema.validate(incomplete), "Move archive without arrival state accepted")
+	print("ENDPOINT ARCHIVE missing and corrupt-state checks")
 
 
 func _assign_move(point):

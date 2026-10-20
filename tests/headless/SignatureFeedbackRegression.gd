@@ -92,18 +92,10 @@ func _run():
 			not panel._activate.disabled and "1 ready" in panel._summary.text,
 			faction + ": partial ready selection disabled"
 		)
-		actor.program.installed = false
 		actor.signature.cooldown = 0
 		actor.signature.group_id = 0
 		human.signatures.groups.clear()
 		await _select([actor])
-		_check(
-			"chip" in panel._summary.text.to_lower(), faction + ": missing chip has no instruction"
-		)
-		_check(
-			"headquarters" in panel._summary.tooltip_text,
-			faction + ": chip installation location missing"
-		)
 		_check(
 			panel._summary.tooltip_text == panel._activate.tooltip_text,
 			faction + ": summary hover differs"
@@ -116,7 +108,7 @@ func _run():
 			panel._summary.mouse_filter == Control.MOUSE_FILTER_STOP,
 			faction + ": summary cannot receive hover"
 		)
-		await _review(faction + "-missing-chip")
+		await _review(faction + "-summary-hover")
 		await _edge_feedback(faction)
 		await _cleanup()
 	await _display_restore()
@@ -142,11 +134,6 @@ func _run():
 
 
 func _edge_feedback(faction):
-	actor.program.installed = true
-	actor.program.install_left = 1.5
-	panel.refresh()
-	_check("Installing chip" in panel._summary.text, faction + ": installation progress hidden")
-	actor.program.install_left = 0
 	actor.signature.cooldown = 2
 	human.signatures.groups = [{"id": 1, "left": 4.0, "members": [actor]}]
 	panel.refresh()

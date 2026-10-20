@@ -48,8 +48,8 @@ func _input(event):
 		or (
 			"hud" in _match
 			and is_instance_valid(_match.hud)
-			and "program_editor" in _match.hud
-			and (is_instance_valid(_match.hud.program_editor) or _match.hud._overlay != null)
+			and "_overlay" in _match.hud
+			and _match.hud._overlay != null
 		)
 	):
 		return

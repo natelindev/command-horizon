@@ -237,19 +237,6 @@ func _archive_and_pause():
 	var data = builder.capture(game)
 	var id = builder._reference(building)
 	var obstruction_id = builder._reference(obstruction)
-	var legacy = data.duplicate(true)
-	legacy.snapshot_version = 11
-	for stance_unit in legacy.units:
-		stance_unit.erase("stance")
-	for saved in legacy.neutral_buildings:
-		saved.erase("owner")
-	for saved in legacy.units:
-		for old_job in saved.production.get("jobs", []):
-			old_job.erase("departure_endpoint")
-	_check(
-		load("res://source/match/saves/SnapshotSchema.gd").new().validate(legacy),
-		"Legacy queue rejected"
-	)
 	var restore = Restore.new()
 	var loaded = await restore.restore(self, data)
 	_check(loaded.ok, "Mid-departure restore failed: " + loaded.get("error", ""))

@@ -46,7 +46,7 @@ def validate_cast(profiles):
 
 
 def verify_catalog():
-    assert validate_cast(PROFILES) == len(ANNOUNCERS) + UNIT_ROLES + ROBOT_ROLES == 45
+    assert validate_cast(PROFILES) == len(ANNOUNCERS) + UNIT_ROLES + ROBOT_ROLES == 42
     catalog = json.loads((ROOT / 'assets/audio/voices/catalog.json').read_text())
     assert catalog['provenance']['profiles'] == PROFILES
     assert catalog['provenance']['robot_voices'] == json.loads(json.dumps(ROBOT_VOICES))

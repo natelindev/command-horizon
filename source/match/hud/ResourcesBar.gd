@@ -170,7 +170,7 @@ func _selection_panel():
 		match_node == null
 		or not "hud" in match_node
 		or not is_instance_valid(match_node.hud)
-		or not "battle_plan" in match_node.hud
+		or not match_node.hud.has_method("select_units")
 		or player != match_node._get_human_player()
 	):
 		return null

@@ -33,9 +33,7 @@ func _review_match_end():
 				"id": id,
 				"role": unit.type,
 				"hp": unit.hp / unit.hp_max,
-				"action": str(unit.action),
-				"program_mode": unit.program.mode if unit.program != null else "",
-				"program_reason": unit.program.reason if unit.program != null else ""
+				"action": str(unit.action)
 			}
 		)
 	var file = FileAccess.open(

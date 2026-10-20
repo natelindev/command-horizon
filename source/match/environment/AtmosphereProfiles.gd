@@ -71,7 +71,6 @@ const BIOMES = {
 	"BastionDesert": "desert",
 	"FirstOrdersMap": "desert",
 	"SupplyLineMap": "desert",
-	"AirCorridorMap": "desert",
 	"AlpineRelay": "alpine",
 	"SplitSignalMap": "alpine",
 	"CoastalFoundry": "coastal",

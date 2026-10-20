@@ -51,9 +51,6 @@ func _review_expansion(player, field, label):
 	var clock = game.simulation_time
 	root.get_node("MatchSignals").deselect_all_units.emit()
 	scout.get_node("Selection").select()
-	var panel = game.hud.battle_plan
-	if panel._body.visible:
-		panel._toggle_body()
 	var camera = game.get_node("IsometricCamera3D")
 	camera.set_physics_process(false)
 	camera.set_size_safely(30)

@@ -26,13 +26,13 @@ All cases use Coastal Foundry and Normal AI. The inherited reference scenario re
 
 `--research none` preserves the previous reference commander's production/research behavior: it never orders technology or manually activates signatures. It still uses the current shipping AI, so reproducing the old AI requires the separately retained before sources.
 
-`--research combined` adds paid research once the reference owns a completed lab, basic programs and six healthy ground combatants. It requests Coordination, Weapon systems I, Combat armor I, Field service, faction doctrine, Weapon systems II and Combat armor II, in order, while respecting the shared research slot. Future aircraft construction and requested workers, infantry, repair support, scouts and initial wings retain their budgets. Routine armor protects the next unpaid research purchase. Actual research and production payments contribute to the income accounting. Active research is not charged or reserved twice.
+`--research combined` adds paid research once the reference owns a completed lab (with lab research unlocked) and six healthy ground combatants. It requests Coordination, Weapon systems I, Combat armor I, Field service, faction doctrine, Weapon systems II and Combat armor II, in order, while respecting the shared research slot. Future aircraft construction and requested workers, infantry, repair support, scouts and initial wings retain their budgets. Routine armor protects the next unpaid research purchase. Actual research and production payments contribute to the income accounting. Active research is not charged or reserved twice.
 
 The combined policy retains the old commander's producer order (HQ, barracks, airfield, vehicle factory). Its priority numbers distinguish essential requests from optional armor/research; they do not reorder aircraft behind repair support. The shipping AI uses its own sorted production policy. Neither is a claim of optimal strategy.
 
-`--strategy ground-first` delays the airfield and aircraft until twelve ground combatants exist. `--strategy air-first` permits the airfield after the lab. Both retain the same ordinary construction, finite-field harvesting, authored guard/recovery programs, proactive assault and observed-target aircraft raids. Combined references activate available faction signatures using owned units and currently observed contacts, preserving unit orders. Full observations may inspect both sides for diagnostics; command decisions do not consume hidden enemy telemetry.
+`--strategy ground-first` delays the airfield and aircraft until twelve ground combatants exist. `--strategy air-first` permits the airfield after the lab. Both retain the same ordinary construction, finite-field harvesting, native Guard posts and recovery orders, proactive assault and observed-target aircraft raids. Combined references activate available faction signatures using owned units and currently observed contacts, preserving unit orders. Full observations may inspect both sides for diagnostics; command decisions do not consume hidden enemy telemetry.
 
-`--strategy screened-air` targets six infantry and requires eight healthy ground combatants before starting the airfield. Once that investment is paid, losses do not disable aircraft production. The first strike aircraft takes precedence over optional research; replacing a lost last wing also precedes the next research project. All construction, fitting, production and research still use normal prices and timers. The screen and wing-first budget apply without granting resources or ordering the shipping AI. `army_policy` is the authoritative strategy field in older retained records; newer decisions and samples also record the same policy in `allocation_policy`.
+`--strategy screened-air` targets six infantry and requires eight healthy ground combatants before starting the airfield. Once that investment is paid, losses do not disable aircraft production. The first strike aircraft takes precedence over optional research; replacing a lost last wing also precedes the next research project. All construction, production and research still use normal prices and timers. The screen and wing-first budget apply without granting resources or ordering the shipping AI. `army_policy` is the authoritative strategy field in older retained records; newer decisions and samples also record the same policy in `allocation_policy`.
 
 The `reference/` scripts preserve the established commander used in earlier playtests. They were promoted from the identically named `tmp/*.gd` chain, changing only their inheritance/helper paths. The chain ends in maintained headless policies; no `res://tmp/` script dependency remains. The leaf `PaidProgressionMatches.gd` contains the explicit new strategies and research telemetry.
 
@@ -40,7 +40,7 @@ The `reference/` scripts preserve the established commander used in earlier play
 
 An optional `--archive-prefix PATH` retains the first paid Coordination, paid unit technology and active signature states per case/repetition. It pauses synchronously at a simulation boundary for the normal archive API and immediately restores the previous pause state. Archives use the normal checked save format; they do not alter income or grant upgrades. Use a new prefix for each invocation. Filenames include case, recorded repetition and progression kind.
 
-`PaidProgressionPreview.gd` loads an earned Frontier Weapon systems I archive, checks the research overview and normal-clock timers, and checks signature activation without replacing the existing program. Its `--interactive` mode waits for native clicks/keys (Tech, Escape, Maneuver burst); otherwise it runs rendered input regression events. Captures are 1280×720 at 150% interface scale with normal fog. Supply a new capture prefix.
+`PaidProgressionPreview.gd` loads an earned Frontier Weapon systems I archive, checks the research overview and normal-clock timers, and checks signature activation without replacing existing orders. Its `--interactive` mode waits for native clicks/keys (Tech, Escape, Maneuver burst); otherwise it runs rendered input regression events. Captures are 1280×720 at 150% interface scale with normal fog. Supply a new capture prefix.
 
 ```sh
 tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot --path . --script tests/rendered/PaidProgressionPreview.gd -- --archive=res://tmp/paid-progression/earned-case0-10-technology.json --captures=res://tmp/paid-progression/native --interactive
@@ -48,17 +48,6 @@ python3 -m unittest discover -s tests/playtest -p 'test_*.py' -v
 ```
 
 The Python checks cover empty/invalid input, retained successful records, path quoting, zero-exit script errors, missing records, timeouts and preservation of existing evidence. Gameplay, economy and research regressions remain under `tests/headless/`.
-
-## Native air-defense guidance review
-
-`AirDefenseAdvicePreview.gd` runs the all-faction defense regression and waits for native clicks on Select engineer (Bastion), Select Lancers and Interception (Helix), then Select air defense (Frontier). It uses a controlled paused fixture, captures at 1280×720 / 150%, checks order/resource/pause authority and restores in-memory options. Supply a new capture prefix in an existing directory; the complete run has a five-minute wall limit.
-
-```sh
-tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot --path . --script tests/rendered/AirDefenseAdvicePreview.gd -- --captures=res://tmp/paid-progression/air-defense-native
-python3 tests/playtest/run_progression.py run --case 0 --research combined --strategy screened-air --output tmp/paid-progression/screened-frontier-bastion.json
-```
-
-See [air-defense verification](../../docs/playtests/2026-10-05/AIR_DEFENSE.md) for the original failure, native captures, accepted and rejected matches, and remaining strategy limits.
 
 ## Native live-research feedback review
 
@@ -69,20 +58,6 @@ tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot --path . --script tests/ren
 ```
 
 Use a fresh capture prefix in an existing directory. See [research feedback verification](../../docs/playtests/2026-10-05/RESEARCH_FEEDBACK.md) for exact assertions, native captures and retained fixture corrections.
-
-## Native engineer response review
-
-`EngineerResponsePreview.gd` uses controlled paused raids for all three factions. Click Engineers at risk, press M and Escape for each faction; for Frontier, press M again, choose the indicated world destination, then resume with Space. The runner verifies selection/order/cargo authority and actual retreat movement. Use a new prefix in an existing directory.
-
-```sh
-tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot --path . --script tests/rendered/EngineerResponsePreview.gd -- --captures=res://tmp/engineer-response/native
-```
-
-See [engineer response verification](../../docs/playtests/2026-10-05/ENGINEER_RESPONSE.md) for the fixture boundaries, original failures and accepted native evidence.
-
-`RosterLayoutPreview.gd` audits all three factions' construction and production tiles at 720p/150%, including expanded squad controls and paid vehicle queues. It runs automatically and optionally takes a fresh `--captures=res://.../prefix` in an existing directory. See [the layout audit](../../docs/playtests/2026-10-06/ROSTER_LAYOUT.md) for geometry checks, reviewed captures and the correction to the earlier clipping diagnosis.
-
-`CargoReturnPreview.gd` uses controlled loaded-engineer fixtures at 720p/150%. Click Return cargo for Bastion; use Tab/Enter for Helix and Tab/Shift+Enter for Frontier, then Space to resume each delivery. It verifies exact deposits and Frontier's preserved queued retreat. Supply a fresh `--captures=res://.../prefix` in an existing directory. See [cargo delivery verification](../../docs/playtests/2026-10-06/CARGO_RETURN.md) for accepted runs, keyboard corrections and fixture limits.
 
 ## Experimental engineer withdrawal policy
 
@@ -127,26 +102,17 @@ Use new paths. The earned-army regression runs the actual defense command loop a
 
 ### Explicit full-health recovery orders (2026-10-06)
 
-`tests/headless/RecoveryOrdersRegression.gd` verifies all-faction player service commands, queue/program authority, pause, active disk and pending in-memory restoration, live infantry/ground/air healing, handoff, target loss and blocked Skip. It also regresses the restored idle-defense action preventing a pending armed-unit queue from starting. `tests/rendered/RecoveryOrdersPreview.gd -- --captures=<fresh-existing-directory>/recovery` requires native mouse/Enter/Shift+Enter and Space, captures all factions at 1280×720/150%, and checks full healing. These are controlled command fixtures, not paid full-match balance evidence. See `docs/playtests/2026-10-06/RECOVERY_ORDERS.md`.
+`tests/headless/RecoveryOrdersRegression.gd` verifies all-faction player service commands, queue authority, pause, active disk and pending in-memory restoration, live infantry/ground/air healing, handoff, target loss and blocked Skip. It also regresses the restored idle-defense action preventing a pending armed-unit queue from starting. `tests/rendered/RecoveryOrdersPreview.gd -- --captures=<fresh-existing-directory>/recovery` requires native mouse/Enter/Shift+Enter and Space, captures all factions at 1280×720/150%, and checks full healing. These are controlled command fixtures, not paid full-match balance evidence. See `docs/playtests/2026-10-06/RECOVERY_ORDERS.md`.
 
 ### First-contact defense experiments (2026-10-06)
 
 `tests/headless/EarnedOpeningProbe.gd` traces the retained Helix first-contact army; `--responsive` tests observed-contact AttackMove response and `--service-line` tests a Barracks-side anchor. Both alternatives lose the controlled fight and are not accepted improvements. `tests/playtest/ScreenedOpeningMatches.gd` explicitly tests two paid tanks before the lab, retaining the other reference policies; the four retained matches yield one victory and three defeats. Existing commander defaults remain unchanged. `tests/rendered/DefensiveOpeningPreview.gd` restores retained paid first-contact states for two native Space continuations. See `docs/playtests/2026-10-06/DEFENSIVE_OPENING.md` for the evidence and reconstruction limits.
 
-### Paid conventional-armor retrofit (2026-10-06)
-
-`tests/headless/PaidRetrofitRegression.gd` exercises all-faction paid installation through actual reference defense/assault/regroup loops, followed by a Running program. It checks pause, fees, refunds/loss, threat observation, single-unit withdrawal and retry. `tests/playtest/PaidRetrofitMatches.gd` explicitly adds this policy to the two-tank opening experiment; existing reference defaults are unchanged. `tests/rendered/PaidRetrofitPreview.gd -- --captures=<fresh-prefix>` restores the retained paid Frontier installation and requires native Space, Apply & run, then Space. Five completed retrofits in four full matches validate the transition but not a generally winning strategy. See `docs/playtests/2026-10-06/PAID_RETROFIT.md`.
-
-
 ## Regional recovery audit
 
 `RegionalRecoveryMatches.gd` retains the experimental armor-preservation strategy while selecting Alpine Relay for cases 0/1/4/5 and Industrial Crossroads for 2/3/6/7. Existing faction/start arguments remain unchanged. It additionally records public relay transitions and the shipping own-force battle record. Use fresh `--output`, `--archive` and `--archive-prefix` paths with the same direct Godot invocation shown above.
 
-Four Standard/Normal observations all end in defeat; three reach programming and one assaults. `RegionalRecoveryContinuation.gd` and `RegionalRecoveryPreview.gd` replay the two retained Frontier recovery archives with live enemy AI and no reference commander, verifying actual healing. The preview accepts a fresh `--captures` prefix. Its geometry checks pass; a follow-up pixel comparison corrected the initially reported rendering anomaly. See [regional sustained gameplay](../../docs/playtests/2026-10-06/REGIONAL_RECOVERY.md) for exact evidence and limits.
-
-## Earned guard endpoint regression
-
-`tests/headless/GuardEndpointRegression.gd` replays the earned Alpine blockage and isolates its completed navigation endpoint in preset, Lua and visual forms. It checks bounded arrival, disk restoration, combat and manual authority. `tests/rendered/GuardEndpointPreview.gd` adds seven 720p/150% captures; pass a fresh `--captures=PATH_PREFIX`. See [guard endpoint verification](../../docs/playtests/2026-10-06/GUARD_ENDPOINT.md).
+Four Standard/Normal observations all end in defeat; three reach the lab and one assaults. `RegionalRecoveryContinuation.gd` and `RegionalRecoveryPreview.gd` replay the two retained Frontier recovery archives with live enemy AI and no reference commander, verifying actual healing. The preview accepts a fresh `--captures` prefix. Its geometry checks pass; a follow-up pixel comparison corrected the initially reported rendering anomaly. See [regional sustained gameplay](../../docs/playtests/2026-10-06/REGIONAL_RECOVERY.md) for exact evidence and limits.
 
 ## Optional regional relay expeditions
 

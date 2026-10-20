@@ -17,7 +17,7 @@ func _case(faction):
 		player.set_process(false)
 	game.hud._toggle_pause()
 	var owner = game._get_human_player()
-	var plan = load("res://source/match/SkirmishPlan.gd")
+	var plan = load("res://tests/UnitQueries.gd")
 	var policy = load("res://tests/playtest/reference/ConventionalRecoveryPolicy.gd").new()
 	var barracks = _units(owner, "Barracks")[0]
 	var infantry = _units(owner, "Infantry").slice(0, 2)

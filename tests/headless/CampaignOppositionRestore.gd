@@ -76,18 +76,9 @@ func _archive(data):
 		game.opposition.warning_left < 0 and game.opposition.salvo_left == 14.0,
 		"Restored warning failed to resolve exactly once"
 	)
-	var legacy = saved.duplicate(true)
-	legacy.mission.erase("opposition")
-	_check(schema.validate(legacy), "Older mission archive without opponent state rejected")
-	restore = await restore_script.new().restore(self, legacy)
-	_check(restore.ok, "Older mission archive restore failed")
-	if restore.ok:
-		game = restore.game
-		game.progress_path = path
-		_check(
-			game.opposition.boss_defeated,
-			"Older archive acquired an unfinishable new boss objective"
-		)
+	var missing = saved.duplicate(true)
+	missing.mission.erase("opposition")
+	_check(not schema.validate(missing), "Mission archive without opponent state accepted")
 
 
 func capture_state(match_game):

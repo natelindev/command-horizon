@@ -59,8 +59,9 @@ func _run():
 		_check(peak.max() <= 5, "Campaign bypassed producer capacity")
 		_check(game.nodes.all(func(entry): return entry.batches == 3), "Batch schedule incomplete")
 		var funds = [game._enemy.resource_a, game._enemy.resource_b]
+		# Each Helix tank costs 22 M / 10 E; foundry tanks no longer pay a chip fee.
 		_check(
-			funds == [600 - expected * 2 * 22, 300 - expected * 2 * 14],
+			funds == [600 - expected * 2 * 22, 300 - expected * 2 * 10],
 			"Production spending differs from all promised jobs"
 		)
 		reports.append(

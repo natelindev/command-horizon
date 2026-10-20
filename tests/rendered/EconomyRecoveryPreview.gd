@@ -30,7 +30,6 @@ func _run():
 
 func _refund_flow(faction):
 	var human = _game._get_human_player()
-	var plan = _game.hud.battle_plan
 	var catalog = load("res://source/match/BastionCatalog.gd")
 	var barracks = load(catalog.scene_path("Barracks")).instantiate()
 	_game._setup_and_spawn_unit(barracks, Transform3D(Basis(), Vector3(18, 0, 18)), human, false)
@@ -41,19 +40,13 @@ func _refund_flow(faction):
 	human.resource_a = 6
 	human.resource_b = 0
 	barracks.production_queue.produce(load(catalog.scene_path("Infantry")))
-	plan.refresh()
+	_select([barracks])
 	await _frames(5)
-	_check("Recover funds" in plan._title.text, "Worker-loss refund guide missing")
-	await _click(plan._action)
 	_check(
-		get_nodes_in_group("selected_units") == [barracks],
-		"Refund shortcut selected wrong producer"
-	)
-	_check(
-		human.resource_a == 0 and barracks.production_queue.size() == 1, "Guide cancelled paid work"
+		human.resource_a == 0 and barracks.production_queue.size() == 1,
+		"Barracks did not take payment for queued work"
 	)
 	await _capture("recovery-%s-refund-720p" % faction)
-	_layout(plan)
 	var queue = _game.get_node("HUD/MarginContainer3/VBoxContainer/ProductionQueue")
 	var icons = queue._queue_elements.get_children().filter(
 		func(child): return not child.is_queued_for_deletion()
@@ -71,25 +64,20 @@ func _refund_flow(faction):
 		human.resource_a == 6 and barracks.production_queue.size() == 0,
 		"Actual queue click did not refund"
 	)
-	plan.refresh()
-	await _frames(5)
-	await _click(plan._action)
 	var hq = _own_role("CommandCenter")[0]
-	_check(get_nodes_in_group("selected_units") == [hq], "Recovery guide did not select HQ")
+	_select([hq])
+	await _frames(5)
 	var menu = _game.find_child("UnitMenus")
 	var choices = menu._buttons.filter(func(entry): return entry.type == "Worker")
 	_check(not choices.is_empty(), "HQ engineer button unavailable")
 	if choices.is_empty():
 		return
 	await _click(choices[0].button)
-	plan.refresh()
 	await _frames(5)
 	_check(
 		human.resource_a == 0 and hq.production_queue.size() == 1,
 		"Replacement button failed to spend refunded funds"
 	)
-	_check("already paid" in plan._description.text, "Pending replacement advice missing")
-	_layout(plan)
 	await _capture("recovery-%s-replacement-720p" % faction)
 	_game.hud._toggle_pause()
 
@@ -106,16 +94,9 @@ func _field_and_hq(faction):
 	waiting._waiting_reason = harvest.Wait.DEPLETED
 	workers[0].issue_manual_order(waiting)
 	_game.hud.show_notice("Engineer · Materials field depleted · choose a new field")
-	var plan = _game.hud.battle_plan
-	plan.refresh()
+	_select([workers[0]])
 	await _frames(5)
-	await _click(plan._action)
-	_check(
-		get_nodes_in_group("selected_units") == [workers[0]],
-		"Expansion guide selected unaffected engineers"
-	)
-	_check(workers[0].action == waiting, "Expansion shortcut issued a resource order")
-	_layout(plan)
+	_check(workers[0].action == waiting, "Selecting a displaced engineer issued a resource order")
 	await _capture("recovery-%s-expansion-720p" % faction)
 	# Real manual reassignment clears the recovery step.
 	var deposit = get_nodes_in_group("resource_units")[0]
@@ -129,16 +110,8 @@ func _field_and_hq(faction):
 	_own_role("CommandCenter")[0].queue_free()
 	await _frames(5)
 	_game.hud._toggle_pause()
-	plan.refresh()
 	await _frames(5)
-	_check("45 s" in plan._description.text, "HQ recovery omitted timing")
-	_layout(plan)
 	await _capture("recovery-%s-hq-720p" % faction)
-	var before = Vector2(human.resource_a, human.resource_b)
-	await _click(plan._action)
-	_check(get_nodes_in_group("selected_units").size() == 1, "HQ rebuild shortcut failed")
-	_check(Vector2(human.resource_a, human.resource_b) == before, "HQ guide spent funds")
-	_check(_game.hud._pause_owned and paused, "Guide broke tactical pause")
 	_game.hud._toggle_pause()
 
 
@@ -148,6 +121,7 @@ func _own_role(role):
 	)
 
 
-func _layout(plan):
-	_check(plan.get_global_rect().end.y < 500, "Recovery guide overlaps minimap at 720p")
-	_check(plan.get_global_rect().end.x < 765, "Recovery guide covers unit commands")
+func _select(units):
+	root.get_node("MatchSignals").deselect_all_units.emit()
+	for unit in units:
+		unit.get_node("Selection").select()

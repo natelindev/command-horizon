@@ -65,16 +65,6 @@ static func instructions(game):
 					)
 				)
 			)
-		"air_corridor":
-			return (
-				game
-				. tr(
-					(
-						"Destroy both AA batteries, then launch and escort at least two flights to the exit. "
-						+ "Use Continue flight if a transport stops. Keep your hero alive."
-					)
-				)
-			)
 		"broken_foundry":
 			return (
 				game
@@ -119,11 +109,6 @@ static func point(game):
 				if relay.captured_by != game._get_human_player() or relay.contested:
 					return relay.global_position
 			return game.map.relays[1].global_position
-		"air_corridor":
-			for index in game.sites.size():
-				if not game.sites[index].cleared:
-					return game.map.SITES[index]
-			return game.map.EXIT
 		"broken_foundry":
 			for index in game.nodes.size():
 				if not game.nodes[index].disabled:

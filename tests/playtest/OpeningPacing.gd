@@ -2,7 +2,7 @@ extends "res://tests/headless/SkirmishLoop.gd"
 
 
 func _run():
-	plan_rules = load("res://source/match/SkirmishPlan.gd")
+	plan_rules = load("res://tests/UnitQueries.gd")
 	harvest_action = load("res://source/match/units/actions/CollectingResourcesSequentially.gd")
 	construct_action = load("res://source/match/units/actions/Constructing.gd")
 	factions = load("res://source/match/FactionCatalog.gd")

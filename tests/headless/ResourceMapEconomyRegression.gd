@@ -26,7 +26,7 @@ func _run():
 			_check(await _fields() == true, "Map field check aborted: " + map_name)
 			await _close()
 	for mission in [
-		"first_orders", "split_signal", "air_corridor", "broken_foundry", "command_horizon"
+		"first_orders", "split_signal", "broken_foundry", "command_horizon"
 	]:
 		if "--coastal-only" in OS.get_cmdline_user_args():
 			continue

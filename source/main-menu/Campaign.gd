@@ -202,16 +202,12 @@ func _select_operation(index):
 		_start_button.text = tr("Start %s") % tr(operation.title)
 		return
 	var split = _ids[index] == "split_signal"
-	var air = _ids[index] == "air_corridor"
 	var supply = _ids[index] == "supply_line"
 	if _mission_id == "command_horizon":
 		_horizon_briefing()
 		return
 	if _mission_id == "broken_foundry":
 		_foundry_briefing()
-		return
-	if air:
-		_air_briefing()
 		return
 	_completion.text = (
 		tr("Completed")
@@ -284,53 +280,22 @@ func _select_operation(index):
 	else:
 		_briefing.text = (
 			"Helix has cut access to a logistics relay. Restore your command "
-			+ "network,\nteach a support unit its assignment, and take the relay "
-			+ "back.\n\n1. Build a command lab.\n2. Assign a retreat or repair "
-			+ "Guard order.\n3. Capture the relay with infantry and hold for 60 "
+			+ "network,\nposition your defenders, and take the relay back.\n\n"
+			+ "1. Build a command lab.\n2. Order a tank to Guard a defensive "
+			+ "position.\n3. Capture the relay with infantry and hold for 60 "
 			+ "uncontested seconds.\n\nDefeat: lose all forces and HQ, or fail to "
 			+ "rebuild HQ within 60 seconds.\nReinforcements begin after you "
-			+ "secure the relay. No code or network required."
+			+ "secure the relay."
 		)
 		_note.text = (
-			"Optional: save and reuse a changed retreat threshold to earn Adaptive doctrine.\n"
+			"Optional: use Guard and Follow together to earn Adaptive doctrine.\n"
 			+ (
 				"Adaptive doctrine · earned"
 				if _progress.doctrine_badge
-				else "The badge is cosmetic. Presets alone can complete the operation."
+				else "The badge is cosmetic and not required to complete the operation."
 			)
 		)
 		_response.text = "Three objective-directed responses. Unit health and damage stay the same."
-
-
-func _air_briefing():
-	_completion.text = tr("Completed") if _progress.air_complete else tr("Available")
-	_briefing.text = (
-		"Open an evacuation corridor across the industrial quarry.\n\n"
-		+ "1. Ground troops destroy both anti-air batteries. Use the north or south bypass.\n"
-		+ "2. Position a ground screen east of the quarry; aircraft can fly directly across.\n"
-		+ "3. Launch and escort one evacuation flight at a time. Two flights must escape.\n\n"
-		+ "Helix Lancers threaten aircraft; your ground troops counter them. "
-		+ "Walkers provide mobile anti-air. Stationary aircraft repair at the flight hangar.\n"
-		+ "Two flight losses or unrecovered HQ loss mean defeat. Presets or direct orders both work."
-	)
-	_note.text = (
-		"Optional: save all three flights to record +20 electronics for operation 05.\n"
-		+ (
-			"Split Signal support: initial Wraith patrol removed."
-			if _progress.network_badge
-			else "Split Signal's network badge removes the initial Wraith patrol."
-		)
-	)
-	_response.text = "Each launch warns one finite ground/air response. Flights wait for your command."
-	_difficulty.clear()
-	for title in [
-		"Story · 2 units per response",
-		"Standard · 3 units per response",
-		"Veteran · 5 units per response"
-	]:
-		_difficulty.add_item(tr(title))
-	_difficulty.select(1)
-	_start_button.text = tr("Start %s") % tr("Air Corridor")
 
 
 func _foundry_briefing():
@@ -345,7 +310,7 @@ func _foundry_briefing():
 		+ "2. Scout around warehouses; infantry and armor take separate street approaches.\n"
 		+ "3. Infantry capture in 10 seconds, then secure 30 cumulative, uncontested seconds.\n\n"
 		+ "Protect repair robots. Repair channels do not stack; Guard areas bound pursuit.\n"
-		+ "Direct orders and presets both work. Rebuild a lost HQ within 60 seconds."
+		+ "Rebuild a lost HQ within 60 seconds."
 	)
 	_note.text = tr("Completion unlocks an alternate approach in the finale.") + "\n"
 	_note.text += (
@@ -376,7 +341,7 @@ func _horizon_briefing():
 		"Secure the forward deployment zone, then break Helix command.\n\n"
 		+ "1. Infantry capture the zone in 10s, then hold for 30 cumulative uncontested seconds.\n"
 		+ "2. Leave a guard and infantry at deployment while your mixed strike force destroys the HQ.\n\n"
-		+ "Reuse saved doctrines. Recapture lost deployment to finish; rebuild your HQ within 60s."
+		+ "Recapture lost deployment to finish; rebuild your HQ within 60s."
 	)
 	_note.text = (
 		(

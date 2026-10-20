@@ -50,9 +50,7 @@ var global_position_yless:
 var type:
 	get = _get_type
 
-var program_squad = null
 var manual_orders = null
-var program = null
 var _action_locked = false
 var _cached_type = ""
 var _navigation_trait = null
@@ -86,17 +84,10 @@ func _ready():
 		manual_orders = load("res://source/match/orders/ManualOrders.gd").new()
 		manual_orders.name = "ManualOrders"
 		add_child(manual_orders)
-	if (
-		player.get_meta("skirmish", false)
-		and type in ["Tank", "AdvancedTank", "CombatRobot", "RepairRobot", "Drone", "Helicopter"]
-	):
-		program = load("res://source/match/programs/UnitProgram.gd").new()
-		program.name = "UnitProgram"
-		add_child(program)
-		if type in ["Tank", "AdvancedTank", "CombatRobot"]:
-			signature = load("res://source/match/combat/SignatureState.gd").new()
-			signature.name = "SignatureState"
-			add_child(signature)
+	if player.get_meta("skirmish", false) and type in ["Tank", "AdvancedTank", "CombatRobot"]:
+		signature = load("res://source/match/combat/SignatureState.gd").new()
+		signature.name = "SignatureState"
+		add_child(signature)
 
 
 func receive_weapon_hit(source):
@@ -258,8 +249,6 @@ func _on_action_node_tree_exited(action_node):
 func issue_manual_order(order):
 	if manual_orders != null:
 		manual_orders.cancel()
-	if program != null:
-		program.manual_override()
 	action = order
 
 

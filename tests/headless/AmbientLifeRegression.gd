@@ -248,33 +248,5 @@ func _archives():
 		game.map.get_node("AmbientLife").capture() != data.ambient,
 		"Restored neutrals failed to resume"
 	)
-	paused = true
-	var legacy = data.duplicate(true)
-	legacy.snapshot_version = 5
-	for stance_unit in legacy.units:
-		stance_unit.erase("stance")
-	legacy.erase("battle_record")
-	for resource in legacy.resources:
-		resource.erase("wreck")
-	legacy.erase("ambient")
-	legacy.erase("neutral_buildings")
-	for side in legacy.players:
-		side.erase("technology")
-	_check(schema.validate(legacy), "Version 5 migration rejected: " + schema.error)
-	result = await loader.restore(self, legacy)
-	_check(result.ok, "Legacy restore failed")
-	if not result.ok:
-		return false
-	game = result.game
-	if "progress_path" in game:
-		game.progress_path = path
-	_check(
-		game.map.get_node("AmbientLife").actors.size() == data.ambient.size(),
-		"Legacy save lacks default neutrals"
-	)
-	print(
-		"PASS exact neutral archive, hostile data rejection and v5 migration: ",
-		game.settings.map_path
-	)
-	paused = false
+	print("PASS exact neutral archive and hostile data rejection: ", game.settings.map_path)
 	return true

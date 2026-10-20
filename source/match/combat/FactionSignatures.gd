@@ -26,9 +26,7 @@ func _physics_process(delta):
 func eligible(unit):
 	if not is_instance_valid(unit) or unit.is_queued_for_deletion() or unit.player != player:
 		return false
-	if unit.signature == null or unit.hp <= 0 or unit.program == null:
-		return false
-	if not unit.program.ready_to_run() or not player.coordination_unlocked:
+	if unit.signature == null or unit.hp <= 0 or not player.coordination_unlocked:
 		return false
 	var state = unit.signature
 	state.damage_factor()
@@ -80,7 +78,7 @@ func activate(selection, point = Vector3.ZERO):
 	participants = participants.slice(0, 6)
 	if participants.is_empty():
 		error = (
-			"No ready chipped ground combatants."
+			"No ready ground combatants."
 			if player.faction in ["bastion", "frontier"]
 			else "No ready precision shot with a visible target."
 		)

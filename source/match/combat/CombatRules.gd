@@ -40,18 +40,7 @@ static func armor_for(role):
 		return 0
 	if role in ["Tank", "AdvancedTank"]:
 		return 2
-	if (
-		role
-		in [
-			"EvacTransport",
-			"SupplyTruck",
-			"Worker",
-			"RepairRobot",
-			"CombatRobot",
-			"Drone",
-			"Helicopter"
-		]
-	):
+	if role in ["SupplyTruck", "Worker", "RepairRobot", "CombatRobot", "Drone", "Helicopter"]:
 		return 1
 	return 3
 

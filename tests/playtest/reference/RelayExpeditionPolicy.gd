@@ -46,7 +46,6 @@ func update(game, player, units, phase, unavailable, home):
 				unit.type == "Infantry"
 				and unit.hp >= unit.hp_max * .8
 				and unit not in unavailable
-				and (unit.program == null or not unit.program.installed)
 			)
 	)
 	# Keep at least one healthy conventional infantry at home. Expeditions do

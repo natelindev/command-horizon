@@ -2,8 +2,6 @@ extends RefCounted
 
 const Mercenaries = preload("res://source/match/world/MercenaryCatalog.gd")
 const ROLES = Mercenaries.ROLES
-const ARCHIVE_ROLES = ROLES + Mercenaries.LEGACY_ROLES
-const Factions = preload("res://source/match/FactionRules.gd")
 # Capturable facilities per skirmish map, in save order. Every list pairs its
 # sites with the map's start symmetry so no start owns a uniquely close one.
 # Append new sites after existing ones: saves identify sites by their index.
@@ -72,10 +70,6 @@ const SITES = {
 		{"kind": "refinery", "position": Vector2(75, 37), "name": "East Refinery"},
 	],
 }
-# Site counts of saves written before a map gained further facilities.
-const LEGACY_COUNTS = {
-	"ExpandedDesertFrontier": 6, "ExpandedAlpineRelay": 6, "ExpandedCoastalFoundry": 6
-}
 
 
 static func definitions(map_path):
@@ -88,8 +82,7 @@ static func definitions(map_path):
 
 
 static func accepts_population(map_path, count):
-	var name = map_path.get_file().get_basename()
-	return count == definitions(map_path).size() or count == LEGACY_COUNTS.get(name, 0)
+	return count == definitions(map_path).size()
 
 
 static func populate(map):
@@ -123,12 +116,9 @@ static func services(player):
 	)
 
 
-static func price(faction, role):
-	if role in ROLES:
-		var cost = Mercenaries.UNITS[role].cost
-		return {"resource_a": cost[0], "resource_b": cost[1]}
-	var normal = Factions.unit_costs(faction)[role]
-	return {"resource_a": ceili(normal[0] * 1.25), "resource_b": ceili(normal[1] * 1.25)}
+static func price(role):
+	var cost = Mercenaries.UNITS[role].cost
+	return {"resource_a": cost[0], "resource_b": cost[1]}
 
 
 static func reserved(player):

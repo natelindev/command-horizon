@@ -1,6 +1,5 @@
 extends "res://tests/headless/HeroCampaignRegression.gd"
 
-const Programs = preload("res://source/match/programs/ProgramLibrary.gd")
 var attack_order
 var move_order
 
@@ -30,11 +29,10 @@ func _run():
 		for index in workers.size():
 			workers[index].issue_manual_order(gather.new(deposits[index % deposits.size()]))
 		var tanks = _units(human, "Tank")
+		var behavior = load("res://source/match/orders/UnitBehavior.gd")
 		for index in _units(human, "RepairRobot").size():
 			var repair = _units(human, "RepairRobot")[index]
-			repair.program.configure(Programs.defaults("escort_repair"))
-			repair.program.escort = tanks[index]
-			repair.program.run()
+			_check(behavior.follow(repair, tanks[index]), "Repair robot rejected escort follow")
 		var issued_stage = -1
 		var elapsed = 0.0
 		print("CAMPAIGN BATTLE BEGIN ", id)

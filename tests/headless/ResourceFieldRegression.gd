@@ -184,10 +184,10 @@ func _hq_and_queue():
 		worker.action._state == harvest.State.MOVING_TO_CC,
 		"New field order discarded carried cargo"
 	)
-	await _roundtrip(human.faction != "frontier")
+	await _roundtrip()
 	worker = workers[0]
 	hq = _unit(human, "CommandCenter")
-	_check(worker.action._kind == 2, "Legacy archive did not infer surviving field type")
+	_check(worker.action._kind == 2, "Archive lost the new field type of returning cargo")
 	await _until(func(): return human.resource_a == before + 2)
 	_check(worker.action._kind == 2, "Returning old cargo lost new electronics assignment")
 	worker.issue_manual_order(null)
@@ -223,7 +223,7 @@ func _hq_and_queue():
 	)
 
 
-func _roundtrip(legacy = false):
+func _roundtrip():
 	paused = true
 	var capture = load("res://source/match/saves/MatchSnapshot.gd").new()
 	var data = capture.capture(game)
@@ -231,21 +231,6 @@ func _roundtrip(legacy = false):
 	if data == null:
 		paused = false
 		return
-	if legacy:
-		data.snapshot_version = 4
-		for stance_unit in data.units:
-			stance_unit.erase("stance")
-		data.erase("neutral_buildings")
-		for ambient in data.get("ambient", []):
-			ambient.erase("combat")
-		data.erase("battle_record")
-		for resource in data.resources:
-			resource.erase("wreck")
-		data.erase("ambient")
-		for side in data.players:
-			side.erase("technology")
-		for unit in data.units:
-			_legacy_action(unit.action)
 	var schema = load("res://source/match/saves/SnapshotSchema.gd").new()
 	_check(schema.validate(data), "Field schema rejected live state: " + schema.error)
 	var ids = workers.map(func(worker): return capture._reference(worker))
@@ -255,13 +240,12 @@ func _roundtrip(legacy = false):
 			unit.action.state._kind = 9
 			break
 	_check(not schema.validate(bad), "Invalid resource kind accepted")
-	if not legacy:
-		bad = data.duplicate(true)
-		for unit in bad.units:
-			if unit.action.get("kind") == "CollectingResourcesSequentially":
-				unit.action.state._waiting_reason = 0 if unit.action.state._state == 4 else 2
-				break
-		_check(not schema.validate(bad), "Inconsistent harvest wait state accepted")
+	bad = data.duplicate(true)
+	for unit in bad.units:
+		if unit.action.get("kind") == "CollectingResourcesSequentially":
+			unit.action.state._waiting_reason = 0 if unit.action.state._state == 4 else 2
+			break
+	_check(not schema.validate(bad), "Inconsistent harvest wait state accepted")
 	var restore = load("res://source/match/saves/MatchRestore.gd").new()
 	var loaded = await restore.restore(self, data)
 	_check(loaded.ok, "Field restore failed")
@@ -282,12 +266,3 @@ func _until(predicate, limit = 1800):
 		print("TIMEOUT: ", worker.action, worker.position, worker.resource_a, worker.resource_b)
 	_check(false, "Timed out waiting for field operation")
 
-
-func _legacy_action(action):
-	if action.is_empty():
-		return
-	if action.kind == "CollectingResourcesSequentially":
-		for field in ["_kind", "_field_origin", "_waiting_reason", "_retry_left"]:
-			action.state.erase(field)
-	for child in action.children.values():
-		_legacy_action(child)

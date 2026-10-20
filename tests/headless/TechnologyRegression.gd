@@ -8,7 +8,6 @@ var lab
 var tank
 var enemy
 var base_health
-var legacy
 
 
 func _initialize():
@@ -54,7 +53,6 @@ func _fixture(faction):
 	human.resource_a = 1000
 	human.resource_b = 1000
 	game.hud._toggle_pause()
-	legacy = Snapshot.new().capture(game)
 
 
 func _research(faction):
@@ -103,7 +101,6 @@ func _research(faction):
 	var worker_hp = worker.hp_max
 	_check(research.start("armor_1", lab), "Combat armor I refused")
 	var factory = _units(human, "VehicleFactory")[0]
-	factory.production_queue.fit_chips = false
 	var queued = factory.production_queue.produce(load("res://source/match/units/Tank.tscn"))
 	_check(queued != null, "Future upgraded tank could not be paid")
 	await _complete()
@@ -146,7 +143,7 @@ func _research(faction):
 	_check(is_equal_approx(tank.hp_max, base_health * 1.2), "Restored armor II did not complete")
 	await _service()
 	await _doctrine(faction)
-	await _invalid_and_legacy()
+	_invalid_archives()
 	print(
 		"TECHNOLOGY VERIFIED ",
 		faction,
@@ -313,7 +310,7 @@ func _doctrine(faction):
 		)
 
 
-func _invalid_and_legacy():
+func _invalid_archives():
 	var saved = Snapshot.new().capture(game)
 	var schema = load("res://source/match/saves/SnapshotSchema.gd").new()
 	_check(schema.validate(saved), "Completed technology snapshot is invalid: " + schema.error)
@@ -335,30 +332,6 @@ func _invalid_and_legacy():
 					bad.players[0].coordination_left = 10
 		bad.players[0].technology = state
 		_check(not schema.validate(bad), "Malformed technology accepted: " + change)
-	if human.faction == "frontier":
-		return true  # Frontier did not exist in legacy versions; old factions cover migration.
-	legacy.snapshot_version = 6
-	for stance_unit in legacy.units:
-		stance_unit.erase("stance")
-	legacy.erase("neutral_buildings")
-	for ambient in legacy.get("ambient", []):
-		ambient.erase("combat")
-	legacy.erase("battle_record")
-	for resource in legacy.resources:
-		resource.erase("wreck")
-	for side in legacy.players:
-		side.erase("technology")
-	var loaded = await Restore.new().restore(self, legacy)
-	_check(loaded.ok, "Pre-technology archive no longer loads")
-	if not loaded.ok:
-		return false
-	game = loaded.game
-	human = game._get_human_player()
-	_check(
-		human.technology.completed.is_empty() and human.technology.active == "",
-		"Legacy archive invented research"
-	)
-	_check(_units(human, "Tank")[0].hp_max == base_health, "Legacy archive received free armor")
 
 
 func plan_units():

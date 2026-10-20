@@ -28,15 +28,6 @@ func _start(_settings):
 		var unit = restore.entities[row.id]
 		initial_army[unit.get_instance_id()] = true
 		_check(unit.type == row.role, "Earned recovery army reference mismatch")
-		if unit.program != null and unit.program.mode == "Running":
-			# Restore test-only authoring ownership without reapplying a live program.
-			_check(
-				unit.program.program_title.begins_with("Authored field guard"),
-				"Unexpected saved guard"
-			)
-			unit.set_meta("policy_programmed", true)
-			unit.set_meta("authored_policy_attempted", true)
-			unit.set_meta("authored_policy", true)
 	for record in data.units:
 		var unit = restore.entities[record.id]
 		_check(
@@ -68,7 +59,6 @@ func _economy():
 		saw_home_attack = restored_policy.saw_home_attack
 		vehicle_sequence = int(restored_policy.vehicle_sequence)
 		last_infantry_order = game.simulation_time
-		_programmed = true
 		metrics.continuation = {
 			"archive": EARNED + ".json",
 			"restored_at": restored_at,

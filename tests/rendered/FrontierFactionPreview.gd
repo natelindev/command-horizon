@@ -99,40 +99,11 @@ func _battle_flow():
 	camera.set_size_safely(23)
 	camera.set_position_safely(hq.global_position_yless + Vector3(5, 0, 3))
 	tank.global_position = hq.global_position + Vector3(0, 0, 3.5)
-	tank.program.installed = false
 	for worker in _units(human, "Worker"):
 		worker.issue_manual_order(null)
-	human.resource_b = 2
-	game.hud._toggle_pause()
-	tank.get_node("Selection").select()
-	await _frames(20)
-	var menu = game.find_child("UnitMenus")
-	var panel = menu._program_panel
-	_check(panel._install.text == "Fit chip · 2 E", "Program UI shows the wrong Frontier fee")
-	menu._scroll.ensure_control_visible(panel._install)
-	await _frames(5)
-	await _click(panel._install)
-	_check(game.hud._assignment_kind == "install", "Fit chip button did not arm assignment")
-	await _capture("retrofit-target")
-	await _mouse(camera.unproject_position(hq.global_position + Vector3.UP))
-	_check(
-		(
-			game.hud._assignment_kind == ""
-			and human.resource_b == 0
-			and tank.program.install_left == 3
-		),
-		"Actual HQ click rejected a funded 2 E retrofit"
-	)
-	await _capture("retrofit-paid")
-	game.hud._toggle_pause()
-	await _frames(240)
-	_check(tank.program.installed, "UI-started retrofit never completed")
 	game.hud._toggle_pause()
 	human.coordination_unlocked = true
-	panel = menu._program_panel
-	menu._reset_menus()
-	# Refresh from real selection signals after completing Coordination.
-	tank.get_node("Selection").deselect()
+	var menu = game.find_child("UnitMenus")
 	tank.get_node("Selection").select()
 	await _frames(15)
 	var signature = menu._signature_panel

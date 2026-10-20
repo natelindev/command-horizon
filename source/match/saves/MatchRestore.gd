@@ -3,8 +3,6 @@ extends RefCounted
 
 const Campaigns = preload("res://source/match/campaign/CampaignCatalog.gd")
 
-const FactionRules = preload("res://source/match/FactionRules.gd")
-
 const Schema = preload("res://source/match/saves/SnapshotSchema.gd")
 const Values = preload("res://source/match/saves/SaveValue.gd")
 const Actions = preload("res://source/match/saves/ActionRestore.gd")
@@ -32,23 +30,6 @@ func prepare(snapshot):
 		return _fail(
 			_schema.error if not _schema.error.is_empty() else "Invalid saved match state."
 		)
-	for unit in data.units:
-		if (
-			data.snapshot_version == 1
-			and unit.role == "CombatRobot"
-			and _schema.sides[unit.player].faction == "helix"
-			and not warnings.has(
-				"Legacy Lancers start in Precision; select Interception for air defense."
-			)
-		):
-			warnings.append(
-				"Legacy Lancers start in Precision; select Interception for air defense."
-			)
-		if unit.program.is_empty() or unit.program.lua_source.is_empty():
-			continue
-		if not warnings.has("Legacy scripted orders were replaced with Defensive behavior."):
-			warnings.append("Legacy scripted orders were replaced with Defensive behavior.")
-
 	_data = data
 	return true
 
@@ -102,11 +83,10 @@ func restore(tree, snapshot):
 				"resource_b",
 				"coordination_unlocked",
 				"coordination_left",
-				"_basic_programs"
+				"_lab_research"
 			]
 		)
-		if _data.snapshot_version >= 7:
-			player.technology.restore(side.technology)
+		player.technology.restore(side.technology)
 		game._defeat_timers[player] = side.command_left
 		if side.command_left <= 0:
 			player.set_physics_process(false)
@@ -125,24 +105,20 @@ func restore(tree, snapshot):
 			"res://source/match/units/non-player/%s.tscn"
 			% ("ResourceA" if saved.kind == "resource_a" else "ResourceB")
 		)
-		var salvage = saved.get("wreck", {})
+		var salvage = saved.wreck
 		if not salvage.is_empty():
 			path = "res://source/match/units/non-player/Wreck.tscn"
 		var deposit = load(path).instantiate()
 		for key in salvage:
 			deposit.set(key, salvage[key])
 		deposit.position = saved.position
-		deposit.harvest_origin = (
-			saved.field_origin if saved.get("field_origin") != null else Vector3.INF
-		)
+		deposit.harvest_origin = (saved.field_origin if saved.field_origin != null else Vector3.INF)
 		deposit.set(saved.kind, saved.amount)
 		game.map.get_node("Resources").add_child(deposit)
 		entities[saved.id] = deposit
 	for saved in _data.units:
 		var unit = load(Catalog.scene_path(saved.role)).instantiate()
 		unit.set_meta("visual_seed", saved.visual_seed)
-		if not saved.program.is_empty():
-			unit.set_meta("chip_installed", saved.program.installed)
 		game._setup_and_spawn_unit(
 			unit,
 			Transform3D(Basis.from_euler(saved.rotation), saved.position),
@@ -151,30 +127,20 @@ func restore(tree, snapshot):
 		)
 		entities[saved.id] = unit
 		unit.hp = saved.hp
-		unit.stance = saved.get("stance", unit.Stance.AGGRESSIVE)
-		if not saved.get("signature", {}).is_empty():
+		unit.stance = saved.stance
+		if not saved.signature.is_empty():
 			unit.signature.restore(saved.signature)
-		var deployment = saved.get("deployment", {})
-		if not deployment.is_empty():
-			_copy(unit, deployment, deployment.keys())
+		if not saved.deployment.is_empty():
+			_copy(unit, saved.deployment, saved.deployment.keys())
 			unit.get_node("WeaponPreparationVisual").refresh()
-		var mode = saved.get("weapon_mode", {})
-		if not mode.is_empty():
-			_copy(unit, mode, mode.keys())
+		if not saved.weapon_mode.is_empty():
+			_copy(unit, saved.weapon_mode, saved.weapon_mode.keys())
 			unit.configure_weapon()
 		if saved.construction != null:
 			unit._construction_progress = saved.construction
 			var construction_visual = unit.get_node_or_null("ConstructionVisual")
 			if construction_visual != null:
 				construction_visual.refresh()
-			if _data.snapshot_version < 10 and unit.is_under_construction():
-				# Upgrade the old 1-HP foundation curve once, retaining actual damage.
-				var old_earned = 1.0 + floorf(saved.construction * (unit.hp_max - 1.0))
-				var foundation_hp = unit._foundation_hp()
-				var new_earned = (
-					foundation_hp + floorf(saved.construction * (unit.hp_max - foundation_hp))
-				)
-				unit.hp = minf(unit.hp_max, saved.hp + new_earned - old_earned)
 		_copy(unit, saved.cargo, saved.cargo.keys())
 		unit.last_enemy_damage_time = (
 			game.simulation_time - saved.damage_age if saved.damage_age != null else -INF
@@ -183,7 +149,6 @@ func restore(tree, snapshot):
 			"next_attack_availability_time",
 			roundi((game.simulation_time + saved.weapon_left) * 1000.0)
 		)
-		_program(unit, saved)
 		_production(unit, saved.production)
 	game._visual_serial = _data.visual_serial
 	if not await _synchronize(tree, game):
@@ -198,41 +163,20 @@ func restore(tree, snapshot):
 		entities[site.site_id] = site
 	for saved in _data.mission.get("points_of_interest", []):
 		entities[saved.id].restore_state(saved, entities)
-	if _data.snapshot_version >= 11:
-		for saved in _data.neutral_buildings:
-			entities[saved.id].restore(saved, entities)
+	for saved in _data.neutral_buildings:
+		entities[saved.id].restore(saved, entities)
 	var actions = Actions.new()
 	for side in _data.players:
-		if side.has("signatures"):
-			entities[side.id].signatures.restore(side.signatures, entities)
+		entities[side.id].signatures.restore(side.signatures, entities)
 	actions.entities = entities
 	for saved in _data.units:
 		var unit = entities[saved.id]
 		# Navigation initialization aligns agents; the authoritative save position wins.
 		unit.position = saved.position
 		unit.rotation = saved.rotation
-		if unit.program != null:
-			unit.program._changing = true
-		var legacy_behavior = (
-			saved.action.get("kind") in ["LuaAction", "PresetAction", "SpecialistAction"]
-		)
-		if legacy_behavior:
-			unit.stance = unit.Stance.DEFENSIVE
-		var action = actions.restore({} if legacy_behavior else saved.action, unit, unit)
+		var action = actions.restore(saved.action, unit, unit)
 		if action == null:
 			unit.action = null
-			if saved.action.get("kind") == "ChipInstalling":
-				unit.program.install_left = 0
-				if saved.action.state._paid:
-					unit.player.add_resources(
-						{"resource_b": FactionRules.chip_cost(unit.player.faction)}
-					)
-				unit.program.set_status("Manual", "Service unavailable; chip fee refunded.")
-		if unit.program != null:
-			unit.program._changing = false
-			if saved.action.get("kind") in ["PresetAction", "SpecialistAction", "LuaAction"]:
-				unit.program._owned_action = action
-
 		_orders(unit, saved.orders)
 		if not saved.movement.is_empty():
 			_copy(unit.get_node("Movement"), saved.movement, saved.movement.keys())
@@ -272,7 +216,6 @@ func restore(tree, snapshot):
 			activity.refresh(0.0)
 	warnings.append_array(actions.warnings)
 	_army_groups(game)
-	_squads()
 	if Campaigns.is_story(game.settings.mission_id):
 		game.restore_operation(_data.mission, entities)
 	elif game.settings.mission_id == "" and game.map.has_method("restore_state"):
@@ -310,15 +253,6 @@ func restore(tree, snapshot):
 		game.map.relay.progress = saved_relay.progress
 		game.map.relay.contested = saved_relay.contested
 		game.map.relay._update_presentation()
-	elif game.settings.mission_id == "air_corridor":
-		game.command_left = _data.mission.command_left
-		game.sites.clear()
-		game.flights.clear()
-		for kind in ["sites", "flights"]:
-			for saved in _data.mission[kind]:
-				var entry = saved.duplicate()
-				entry.unit = entities.get(saved.unit)
-				game.get(kind).append(entry)
 	elif game.settings.mission_id == "supply_line":
 		game.responses = _data.mission.responses.duplicate()
 		game.resolved = _data.mission.resolved.duplicate()
@@ -344,26 +278,19 @@ func restore(tree, snapshot):
 		game.relay._update_presentation()
 	game.repair_service._elapsed = _data.repair_elapsed
 	if game.settings.mission_id != "":
-		game.campaign_hero.restore(_data.mission.get("hero", {}), entities)
+		game.campaign_hero.restore(_data.mission.hero, entities)
 		game._attach_campaign_story()
 		if is_instance_valid(game.campaign_story):
-			game.campaign_story.restore(_data.mission.get("story", {}))
+			game.campaign_story.restore(_data.mission.story)
 		if "opposition" in game and is_instance_valid(game.opposition):
-			var state = _data.mission.get("opposition", {})
-			if not state.is_empty():
-				game.opposition.restore_state(state, entities)
-			elif game.settings.mission_id == "command_horizon":
-				game.opposition.boss_defeated = true
+			game.opposition.restore_state(_data.mission.opposition, entities)
 	game.battlefield.invalidate()
 	# Wrecks entered the tree before their observers; refresh while the load stays paused.
 	for saved in _data.resources:
-		if not saved.get("wreck", {}).is_empty():
+		if not saved.wreck.is_empty():
 			entities[saved.id]._refresh()
 	if game.map.has_node("AmbientLife"):
-		if _data.snapshot_version >= 6:
-			game.map.get_node("AmbientLife").restore(_data.ambient)
-		else:
-			game.map.get_node("AmbientLife").refresh_visibility()
+		game.map.get_node("AmbientLife").restore(_data.ambient)
 	var visibility = game.get_node("Handlers/UnitVisibilityHandler")
 	for saved in _data.units:
 		visibility._recalculate_unit_visibility(entities[saved.id])
@@ -374,7 +301,7 @@ func restore(tree, snapshot):
 	camera.set_size_safely(_data.camera.size)
 	camera.position = _data.camera.position
 	camera.rotation = _data.camera.rotation
-	game.battle_record.restore(_data.get("battle_record", {}))
+	game.battle_record.restore(_data.battle_record)
 	game.restoring = false
 	for player in players:
 		player.emit_changed()
@@ -383,52 +310,15 @@ func restore(tree, snapshot):
 	return {"ok": true, "game": game, "warnings": warnings.duplicate()}
 
 
-func _program(unit, saved):
-	if saved.program.is_empty():
-		return
-	var program = unit.program
-	_copy(
-		program,
-		saved.program,
-		[
-			"installed",
-			"config",
-			"program_title",
-			"anchor",
-			"safe_point",
-			"route",
-			"mode",
-			"reason",
-			"install_left",
-			"saved_record",
-			"lua_source",
-			"_pending"
-		]
-	)
-	program.installed = true
-	program.lua_runtime = null
-	program.lua_source = ""
-	program.saved_record = {}
-	program._pending = false
-	program.set_physics_process(false)
-	program.set_status("Manual", "Choose a unit behavior.")
-	# Escort references are linked after all units exist in _orders.
-
-
 func _production(unit, saved):
 	if saved.is_empty():
 		return
 	var queue = unit.production_queue
-	queue.fit_chips = false
-	queue.program_pin = {}
 	for item in saved.jobs:
 		var job = (
 			load("res://source/match/units/traits/ProductionQueue.gd").ProductionQueueElement.new()
 		)
-		_copy(
-			job, item, ["time_total", "time_left", "paid_cost", "fitted_chip", "program_snapshot"]
-		)
-		job.departure_endpoint = item.get("departure_endpoint")
+		_copy(job, item, ["time_total", "time_left", "paid_cost", "departure_endpoint"])
 		job.unit_prototype = load(Catalog.scene_path(item.role))
 		queue._enqueue_element(job)
 
@@ -437,16 +327,17 @@ func _orders(unit, saved):
 	if saved.is_empty():
 		return
 	var orders = unit.manual_orders
-	_copy(orders, saved, ["auto_resume", "status", "_engaged", "_still"])
+	_copy(orders, saved, ["status", "_engaged", "_still"])
 	orders._progress = saved.progress if saved.progress != null else Vector3.INF
 	orders.current = _order(saved.current)
+	if orders.current.has("target") and orders.current.target.get_ref() == null:
+		# Its action already fell back to Hold; do not present an order without a target.
+		orders.current = {}
 	orders.pending = saved.pending.map(_order)
 	# A queue saved before its first tick still has the unit's idle defense.
 	# Only a persisted current order owns that action; otherwise start pending work.
 	orders._active = unit.action if orders._engaged and not orders.current.is_empty() else null
 	orders.set_physics_process(orders._engaged)
-
-	unit.manual_orders.auto_resume = false
 
 
 func _order(saved):
@@ -461,9 +352,9 @@ func _army_groups(game):
 	for index in range(1, _data.players.size()):
 		var saved = _data.players[index].ai
 		var player = entities["player-%d" % index]
-		player._army_cursor = saved.get("cursor", 0)
+		player._army_cursor = saved.cursor
 		player._army_groups = []
-		for group in saved.get("groups", []):
+		for group in saved.groups:
 			player._army_groups.append(
 				{
 					"kind": group.kind,
@@ -474,38 +365,6 @@ func _army_groups(game):
 					"workers": group.workers.map(func(id): return entities[id])
 				}
 			)
-
-
-func _squads():
-	for side in _data.players:
-		var roster = entities[side.id].squad_roster
-		roster._next_id = side.next_squad_id
-		for saved in side.squads:
-			var squad = load("res://source/match/programs/ProgramSquad.gd").new()
-			_copy(squad, saved, ["id", "title", "policy", "_state"])
-			if not _valid_squad_state(squad, squad._state):
-				squad._state = {}
-				warnings.append("Invalid squad memory was reset.")
-			roster.add_child(squad)
-			for id in saved.members:
-				var unit = entities[id]
-				squad.members.append(unit)
-				unit.program_squad = squad
-				unit.tree_exiting.connect(roster._on_member_exit.bind(unit))
-			for claim in saved.claims:
-				var owner = entities.get(claim.owner)
-				var target = entities.get(claim.target)
-				if owner != null and target != null:
-					squad._claims[owner.get_instance_id()] = {
-						"unit": weakref(owner),
-						"target": weakref(target),
-						"channel": claim.channel,
-						"expires": owner._match.simulation_time + claim.left,
-						"damage": claim.damage
-					}
-	for saved in _data.units:
-		if not saved.program.is_empty():
-			entities[saved.id].program.escort = entities.get(saved.program.escort)
 
 
 func _synchronize(tree, game):
@@ -581,14 +440,3 @@ func _copy(object, data, keys):
 func _fail(message):
 	error = message
 	return false
-
-
-func _valid_squad_state(squad, state):
-	if state.size() > 64 or JSON.stringify(state).to_utf8_buffer().size() > squad.STATE_BYTES:
-		return false
-	for key in state:
-		if not key is String or key.is_empty() or key.length() > 48:
-			return false
-		if not squad._valid_value(state[key], 0, [squad.STATE_BYTES]):
-			return false
-	return true

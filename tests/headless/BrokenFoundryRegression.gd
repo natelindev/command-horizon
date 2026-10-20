@@ -78,7 +78,7 @@ func _geometry_support():
 	var infantry_hp = infantry.hp
 	await _frames(360)
 	_check(not is_instance_valid(infantry) or infantry.hp < infantry_hp, "Foundry artillery does not threaten control yard")
-	_check(artillery.program.anchor.distance_to(game.map.CONTROL) <= artillery.program.config.radius, "Artillery sector excludes its defended objective")
+	_check(artillery.stance == artillery.Stance.HOLD_POSITION and artillery.global_position_yless.distance_to(game.map.CONTROL) <= 12, "Artillery post excludes its defended objective")
 	if is_instance_valid(infantry):
 		infantry.position = original_point
 		infantry.process_mode = Node.PROCESS_MODE_INHERIT
@@ -108,7 +108,7 @@ func _geometry_support():
 	tank.position = Vector3(68, 0, 58)
 	var target = _units(game._enemy, "Tank")[0]
 	target.position = Vector3(73, 0, 58)
-	game._guard(tank, Vector3(68, 0, 58))
+	load("res://source/match/campaign/CampaignPosts.gd").guard(tank, Vector3(68, 0, 58))
 	game.battlefield.invalidate()
 	var hp = target.hp
 	await _frames(180)
@@ -219,7 +219,7 @@ func _production_archive():
 	_check(count == _units(game._enemy, "Tank").size(), "Production continued beyond three batches")
 	_check(count == tanks + 6, "Standard node did not finish six actual tanks")
 	for unit in _units(game._enemy, "Tank"):
-		_check(unit.program.installed and unit.program.mode != "Manual", "Factory output lacks bounded guard program")
+		_check(unit.stance == unit.Stance.HOLD_POSITION, "Factory output lacks a guard post")
 
 
 func _capture_rules_foundry():
@@ -339,9 +339,7 @@ func _order_army(point):
 		if not unit.is_in_group("units") or unit.movement_speed <= 0 or unit.type in ["Worker", "Drone"] or unit in reserve:
 			continue
 		if unit.type == "RepairRobot":
-			unit.program.configure(load("res://source/match/programs/ProgramLibrary.gd").defaults("hold_service"))
-			unit.program.anchor = point + Vector3(-5, 0, 0)
-			unit.program.run()
+			load("res://source/match/orders/UnitBehavior.gd").guard(unit, point + Vector3(-5, 0, 0))
 		else:
 			unit.issue_manual_order(attack_move.new(point + Vector3(unit.get_index() % 3, 0, 0)))
 
@@ -349,9 +347,13 @@ func _order_army(point):
 func _rewards():
 	var progress = Progress.new()
 	_check(progress.read_progress(path) and progress.foundry_complete, "Foundry completion not saved")
-	_check(progress.record_air_victory(true, path), "Air reward could not be written")
+	_check(
+		progress.record_operation("bastion_cinder_ford", path), "Cinder Ford result could not be written"
+	)
 	await _make_match()
-	_check(game._get_human_player().resource_b == 100, "Air rescue did not grant +20 electronics")
+	_check(
+		game._get_human_player().resource_b == 100, "Cinder Ford support did not grant +20 electronics"
+	)
 	await _close()
 	for version in [1, 2, 3, 4]:
 		var data = {"schema": version, "first_orders": true, "doctrine_badge": true}

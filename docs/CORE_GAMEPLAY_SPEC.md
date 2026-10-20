@@ -1,6 +1,6 @@
 # Core gameplay specification — two-faction prototype
 
-Current unit-control decision (2026-10-17): [five built-in behaviors](UNIT_BEHAVIORS.md) replace the programmable-unit/chip/authoring requirements below. The older sections retain design history.
+Current unit-control decision (2026-10-17): [five built-in behaviors](UNIT_BEHAVIORS.md) replace the programmable-unit/chip/authoring requirements below. The older sections retain design history; the programmable-unit implementation, the unreachable Air Corridor operation (04) and the retired Battle plan advisor were removed from the codebase on 2026-10-20.
 
 Version 0.4 · 2026-10-01 · Design defaults for the next playable milestone
 

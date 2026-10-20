@@ -57,23 +57,18 @@ func _controls():
 		patient.manual_orders.pending.map(func(order): return order.kind) == ["move", "recover"],
 		"Recovery replaced queued move"
 	)
-	var programmable = _units(owner, "Tank")[0]
-	programmable.hp = programmable.hp_max * .3
-	await _select_units([programmable])
-	programmable.program.installed = true
-	programmable.program.configure(
-		load("res://source/match/programs/ProgramLibrary.gd").defaults("guard")
-	)
-	programmable.program.run()
+	var armored = _units(owner, "Tank")[0]
+	armored.hp = armored.hp_max * .3
+	await _select_units([armored])
 	menus = game.find_child("UnitMenus")
 	commands.arm("move")
 	menus._recover_health.pressed.emit()
 	_check(
-		programmable.program.mode == "Manual" and programmable.manual_orders.pending.size() == 1,
-		"Recovery did not override program"
+		armored.manual_orders.pending.map(func(order): return order.kind) == ["recover"],
+		"Recovery button did not order the selected unit"
 	)
 	_check(commands.kind == "", "Recovery left map targeting armed")
-	programmable.issue_manual_order(null)
+	armored.issue_manual_order(null)
 	await _select_units([patient])
 	menus = game.find_child("UnitMenus")
 	commands.recover_health()
@@ -218,9 +213,6 @@ func _archive_and_heal(faction):
 	var corrupt = data.duplicate(true)
 	corrupt.units[index].action.state._full_recovery = 2
 	_check(not schema.validate(corrupt), "Invalid recovery completion flag accepted")
-	var legacy = data.duplicate(true)
-	legacy.units[index].action.state.erase("_full_recovery")
-	_check(schema.validate(legacy), "Legacy recovery rejected")
 	var disk = "user://recovery-orders-%s-%d.json" % [faction, OS.get_process_id()]
 	var file = FileStore.new()
 	_check(file.write_file(disk, data), "Recovery disk write failed")
@@ -332,8 +324,6 @@ func _service_domains():
 	for unit in get_nodes_in_group("units"):
 		if unit not in members:
 			unit.issue_manual_order(null)
-	var programmable = members[0]
-	programmable.manual_orders.auto_resume = true
 	game.hud._toggle_pause()
 	for frame in 2700:
 		await _frames(1)
@@ -346,5 +336,4 @@ func _service_domains():
 			unit.hp == unit.hp_max and not unit.manual_orders._engaged,
 			"Domain healing failed: " + unit.type
 		)
-	_check(programmable.program.mode != "Manual", "Recovery did not auto-resume configured program")
 	game.hud._toggle_pause()

@@ -329,7 +329,6 @@ func _train(units, desired):
 			# producers, instead of spending its next delivery on cheaper armor.
 			reserve += price
 			continue
-		job.producer.production_queue.fit_chips = job.fit_chips
 		if job.producer.production_queue.produce(load(Catalog.scene_path(job.role))) != null:
 			if job.producer.type == "VehicleFactory":
 				_production_index += 1
@@ -492,7 +491,7 @@ func _research_candidate(units):
 		coordination_left > 0
 		or technology.active != ""
 		or not has_completed_structure("CommandLab")
-		or not basic_programs_unlocked()
+		or not lab_research_unlocked()
 	):
 		return {}
 	var id = "coordination"
@@ -562,7 +561,7 @@ func _choose_weapon_modes(units):
 	for unit in _of_type(units, "CombatRobot"):
 		if unit.weapon_switch_left > 0:
 			continue
-		# Mode choice belongs to the opponent commander, not the player's Lua API.
+		# Mode choice belongs to the opponent commander.
 		# Keep the current stance when no contact is observed; never inspect hidden forces.
 		var contacts = _match.battlefield.nearby_units(unit.global_position_yless, unit.sight_range)
 		contacts = contacts.filter(
@@ -579,21 +578,3 @@ func _choose_weapon_modes(units):
 			func(other): return other.movement_domain == Constants.Match.Navigation.Domain.AIR
 		)
 		unit.request_weapon_mode("interception" if air else "precision")
-
-
-func _arm_units_with_programs(units):
-	if not profile().programs:
-		return
-	var Library = load("res://source/match/programs/ProgramLibrary.gd")
-	for unit in units:
-		if "type" in unit and unit.type in ["CombatRobot", "AdvancedTank", "Drone"]:
-			var prog = unit.get_node_or_null("UnitProgram")
-			if prog != null and prog.mode == "Manual":
-				prog.installed = true
-				if unit.type == "CombatRobot":
-					prog.configure(Library.defaults("fire_support"), "AI Fire Support")
-				elif unit.type == "AdvancedTank":
-					prog.configure(Library.defaults("standoff"), "AI Standoff")
-				elif unit.type == "Drone":
-					prog.configure(Library.defaults("scout_patrol"), "AI Scout")
-				prog.run()

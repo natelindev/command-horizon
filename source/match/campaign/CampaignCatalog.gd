@@ -30,14 +30,6 @@ const LEGACY = {
 		"map": "res://source/match/maps/BrokenFoundryMap.tscn",
 		"size": Vector2(160, 116)
 	},
-	"air_corridor":
-	{
-		"title": "Air Corridor",
-		"number": "04",
-		"scene": "res://source/match/campaign/AirCorridor.tscn",
-		"map": "res://source/match/maps/AirCorridorMap.tscn",
-		"size": Vector2(144, 104)
-	},
 	"supply_line":
 	{
 		"summary":

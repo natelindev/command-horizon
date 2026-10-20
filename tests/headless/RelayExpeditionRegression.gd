@@ -38,7 +38,6 @@ func _capture_case(faction, map_name):
 		var objective = policy.relay.get_ref()
 		var other = _units(player, "Infantry").filter(func(item): return item != unit)[0]
 		_check(not other.get_node("Movement")._has_destination, "Home infantry was also dispatched")
-		_check(unit.program == null or not unit.program.installed, "Expedition granted a chip")
 		var order = unit.action
 		paused = true
 		var point = unit.position

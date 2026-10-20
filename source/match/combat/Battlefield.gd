@@ -238,7 +238,7 @@ func target_score(source, target, incoming_damage = 0.0):
 	if damage <= 0:
 		return INF
 	# Armed opposition, effective counters and finishing comparable wounded
-	# targets. Explicit attacks and saved/programmed priorities retain authority.
+	# targets. Explicit attacks retain authority.
 	var effectiveness = damage / maxf(0.01, source.attack_damage)
 	var shots = maxf(1, ceilf(target.hp / damage))
 	var distance = source.global_position_yless.distance_to(target.global_position_yless)
@@ -357,7 +357,6 @@ static func segment_hits_cylinder(
 
 
 func observed_enemies_near(source, radius):
-	# Broad-phase culling belongs to perception, not to a program's world view.
 	# Only currently observed enemies leave this query.
 	var result = []
 	for candidate in nearby_combat_targets(source.global_position_yless, radius, source.player):

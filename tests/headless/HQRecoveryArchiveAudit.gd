@@ -6,7 +6,7 @@ var records = []
 func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
 	var policy = load("res://tests/playtest/reference/HQRecoveryPolicy.gd").new()
-	var plan = load("res://source/match/SkirmishPlan.gd")
+	var plan = load("res://tests/UnitQueries.gd")
 	var prefix = "res://docs/playtests/2026-10-07/hq-recovery-policy/"
 	var output = prefix + "archive-audit.json"
 	if FileAccess.file_exists(output):
@@ -75,7 +75,6 @@ func _run():
 				"production_refunds": [production.x, production.y],
 				"construction_refunds": [construction.x, construction.y],
 				"research_active": owner.coordination_left > 0 or owner.technology.active != "",
-				"guidance": plan.next_step(owner).id,
 				"workers": workers.size(),
 				"safe_workers": available.size(),
 				"timely_clear_sites": sites

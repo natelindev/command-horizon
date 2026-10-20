@@ -714,74 +714,6 @@
             }
           ]
         },
-        "EvacTransport": {
-          "select": [
-            {
-              "stream": "res://assets/audio/voices/bastion/EvacTransport/select_0.ogg",
-              "text": "Rescue flight! Nobody dies on my watch!",
-              "mechanical": false,
-              "robotic": false,
-              "speaker_id": "bastion/EvacTransport"
-            },
-            {
-              "stream": "res://assets/audio/voices/bastion/EvacTransport/select_1.ogg",
-              "text": "Room for more! Move it!",
-              "mechanical": false,
-              "robotic": false,
-              "speaker_id": "bastion/EvacTransport"
-            }
-          ],
-          "move": [
-            {
-              "stream": "res://assets/audio/voices/bastion/EvacTransport/move_0.ogg",
-              "text": "Inbound! Hang on!",
-              "mechanical": false,
-              "robotic": false,
-              "speaker_id": "bastion/EvacTransport"
-            },
-            {
-              "stream": "res://assets/audio/voices/bastion/EvacTransport/move_1.ogg",
-              "text": "Full speed! Go, go!",
-              "mechanical": false,
-              "robotic": false,
-              "speaker_id": "bastion/EvacTransport"
-            }
-          ],
-          "attack": [
-            {
-              "stream": "res://assets/audio/voices/bastion/EvacTransport/attack_0.ogg",
-              "text": "Evasive! Hold on to something!",
-              "mechanical": false,
-              "robotic": false,
-              "speaker_id": "bastion/EvacTransport"
-            },
-            {
-              "stream": "res://assets/audio/voices/bastion/EvacTransport/attack_1.ogg",
-              "text": "Get them out of the fire!",
-              "mechanical": false,
-              "robotic": false,
-              "speaker_id": "bastion/EvacTransport"
-            }
-          ],
-          "ready": [
-            {
-              "stream": "res://assets/audio/voices/bastion/EvacTransport/ready_0.ogg",
-              "text": "Rescue bird! Ready to fly through hell!",
-              "mechanical": false,
-              "robotic": false,
-              "speaker_id": "bastion/EvacTransport"
-            }
-          ],
-          "stop": [
-            {
-              "stream": "res://assets/audio/voices/bastion/EvacTransport/stop_0.ogg",
-              "text": "Holding! Let them come!",
-              "mechanical": false,
-              "robotic": false,
-              "speaker_id": "bastion/EvacTransport"
-            }
-          ]
-        },
         "Worker": {
           "select": [
             {
@@ -2658,74 +2590,6 @@
               "mechanical": false,
               "robotic": false,
               "speaker_id": "helix/SupplyTruck"
-            }
-          ]
-        },
-        "EvacTransport": {
-          "select": [
-            {
-              "stream": "res://assets/audio/voices/helix/EvacTransport/select_0.ogg",
-              "text": "Recovery flight! Let's go!",
-              "mechanical": false,
-              "robotic": false,
-              "speaker_id": "helix/EvacTransport"
-            },
-            {
-              "stream": "res://assets/audio/voices/helix/EvacTransport/select_1.ogg",
-              "text": "Cabin open! Get in!",
-              "mechanical": false,
-              "robotic": false,
-              "speaker_id": "helix/EvacTransport"
-            }
-          ],
-          "move": [
-            {
-              "stream": "res://assets/audio/voices/helix/EvacTransport/move_0.ogg",
-              "text": "Inbound fast!",
-              "mechanical": false,
-              "robotic": false,
-              "speaker_id": "helix/EvacTransport"
-            },
-            {
-              "stream": "res://assets/audio/voices/helix/EvacTransport/move_1.ogg",
-              "text": "Extraction route! Punch it!",
-              "mechanical": false,
-              "robotic": false,
-              "speaker_id": "helix/EvacTransport"
-            }
-          ],
-          "attack": [
-            {
-              "stream": "res://assets/audio/voices/helix/EvacTransport/attack_0.ogg",
-              "text": "Evasive! Hold on!",
-              "mechanical": false,
-              "robotic": false,
-              "speaker_id": "helix/EvacTransport"
-            },
-            {
-              "stream": "res://assets/audio/voices/helix/EvacTransport/attack_1.ogg",
-              "text": "Out of the fire! Now!",
-              "mechanical": false,
-              "robotic": false,
-              "speaker_id": "helix/EvacTransport"
-            }
-          ],
-          "ready": [
-            {
-              "stream": "res://assets/audio/voices/helix/EvacTransport/ready_0.ogg",
-              "text": "Recovery transport! Ready to fly!",
-              "mechanical": false,
-              "robotic": false,
-              "speaker_id": "helix/EvacTransport"
-            }
-          ],
-          "stop": [
-            {
-              "stream": "res://assets/audio/voices/helix/EvacTransport/stop_0.ogg",
-              "text": "Holding! Waiting for prey!",
-              "mechanical": false,
-              "robotic": false,
-              "speaker_id": "helix/EvacTransport"
             }
           ]
         },
@@ -4703,74 +4567,6 @@
             }
           ]
         },
-        "EvacTransport": {
-          "select": [
-            {
-              "stream": "res://assets/audio/voices/frontier/EvacTransport/select_0.ogg",
-              "text": "Rescue pilot! Who needs a lift?",
-              "mechanical": false,
-              "robotic": false,
-              "speaker_id": "frontier/EvacTransport"
-            },
-            {
-              "stream": "res://assets/audio/voices/frontier/EvacTransport/select_1.ogg",
-              "text": "Nobody gets left out here!",
-              "mechanical": false,
-              "robotic": false,
-              "speaker_id": "frontier/EvacTransport"
-            }
-          ],
-          "move": [
-            {
-              "stream": "res://assets/audio/voices/frontier/EvacTransport/move_0.ogg",
-              "text": "Coming in hot!",
-              "mechanical": false,
-              "robotic": false,
-              "speaker_id": "frontier/EvacTransport"
-            },
-            {
-              "stream": "res://assets/audio/voices/frontier/EvacTransport/move_1.ogg",
-              "text": "Clear the landing zone! Move!",
-              "mechanical": false,
-              "robotic": false,
-              "speaker_id": "frontier/EvacTransport"
-            }
-          ],
-          "attack": [
-            {
-              "stream": "res://assets/audio/voices/frontier/EvacTransport/attack_0.ogg",
-              "text": "Hold tight back there!",
-              "mechanical": false,
-              "robotic": false,
-              "speaker_id": "frontier/EvacTransport"
-            },
-            {
-              "stream": "res://assets/audio/voices/frontier/EvacTransport/attack_1.ogg",
-              "text": "Out of the crossfire! Go!",
-              "mechanical": false,
-              "robotic": false,
-              "speaker_id": "frontier/EvacTransport"
-            }
-          ],
-          "ready": [
-            {
-              "stream": "res://assets/audio/voices/frontier/EvacTransport/ready_0.ogg",
-              "text": "Rescue bird! Ready to fly!",
-              "mechanical": false,
-              "robotic": false,
-              "speaker_id": "frontier/EvacTransport"
-            }
-          ],
-          "stop": [
-            {
-              "stream": "res://assets/audio/voices/frontier/EvacTransport/stop_0.ogg",
-              "text": "Fine! We'll wait!",
-              "mechanical": false,
-              "robotic": false,
-              "speaker_id": "frontier/EvacTransport"
-            }
-          ]
-        },
         "RepairRobot": {
           "select": [
             {
@@ -5915,13 +5711,6 @@
         "reference_license": "CC0-1.0",
         "max_word_error": 0.25
       },
-      "bastion/EvacTransport": {
-        "engine": "chatterbox",
-        "reference": "donations/efeb_enhanced.wav",
-        "reference_sha256": "9bda0745f320e5484645042f94d1a9a709b7ffb02fe4f60c4167d0908e001cf9",
-        "reference_license": "CC0-1.0",
-        "max_word_error": 0.25
-      },
       "bastion/Worker": {
         "engine": "chatterbox",
         "reference": "donations/7020_enhanced.wav",
@@ -6026,13 +5815,6 @@
         "engine": "chatterbox",
         "reference": "vctk/p227_023_enhanced.wav",
         "reference_sha256": "d1731d079f91210b30600554b38b2a8d122ab3692362ea750d71a6333157c500",
-        "reference_license": "CC-BY-4.0",
-        "max_word_error": 0.25
-      },
-      "helix/EvacTransport": {
-        "engine": "chatterbox",
-        "reference": "vctk/p286_023_enhanced.wav",
-        "reference_sha256": "2fbb5e240330d7639cd2fc3c6cd2f1030968b3286f4fab9614bf741a6abde9b4",
         "reference_license": "CC-BY-4.0",
         "max_word_error": 0.25
       },
@@ -6147,13 +5929,6 @@
         "engine": "chatterbox",
         "reference": "vctk/p315_023_enhanced.wav",
         "reference_sha256": "29a41f93bf5236e5b21501091d7774c255d5f3d4e62fa4f9fdf0a92a793c84ae",
-        "reference_license": "CC-BY-4.0",
-        "max_word_error": 0.25
-      },
-      "frontier/EvacTransport": {
-        "engine": "chatterbox",
-        "reference": "vctk/p374_023_enhanced.wav",
-        "reference_sha256": "eb4f0471dec5b6c835fb562a19af6c7d72fd534a351e544d851e7e4cb6ef76a7",
         "reference_license": "CC-BY-4.0",
         "max_word_error": 0.25
       },

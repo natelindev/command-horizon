@@ -58,15 +58,12 @@ static func requests(game, player, units, include_busy = false):
 		var choice = _choice(player, producer, counts, threats, sequence)
 		if choice.is_empty() or not Factions.available(player, choice.role):
 			continue
-		var price = Factions.cost(player, choice.role).duplicate()
-		var fit_chips = false
 		result.append(
 			{
 				"producer": producer,
 				"role": choice.role,
 				"priority": choice.priority,
-				"cost": price,
-				"fit_chips": fit_chips
+				"cost": Factions.cost(player, choice.role).duplicate()
 			}
 		)
 		counts[choice.role] = counts.get(choice.role, 0) + 1

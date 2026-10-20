@@ -1,7 +1,6 @@
 extends "res://tests/headless/HQCountdownRegression.gd"
 
 var factions = ["bastion", "helix", "frontier"]
-var plan
 var catalog
 var harvesting
 var owner
@@ -22,7 +21,6 @@ func _initialize():
 
 
 func _run():
-	plan = load("res://source/match/SkirmishPlan.gd")
 	catalog = load("res://source/match/FactionCatalog.gd")
 	harvesting = load("res://source/match/units/actions/CollectingResourcesSequentially.gd")
 	root.get_node("SaveManager").autosaves_enabled = false
@@ -32,86 +30,60 @@ func _run():
 		owner = game._get_human_player()
 		original_hq = _units(owner, "CommandCenter")[0]
 		origin = original_hq.position
-		if "--advice-only" in OS.get_cmdline_user_args():
-			owner.resource_a = 120
-			owner.resource_b = 32
-		else:
-			await _earn_budget()
+		await _earn_budget()
 		var barracks = await _place("Barracks", _nearest_worker(original_hq))
-		if "--advice-only" in OS.get_cmdline_user_args():
-			barracks.construct(1.0)
-		else:
-			game.hud._toggle_pause()
-			for frame in 3600:
-				await _frames(1)
-				if barracks.is_constructed():
-					break
-			game.hud.pause_after_load()
-			_check(barracks.is_constructed(), "Paid barracks prerequisite did not complete")
+		game.hud._toggle_pause()
+		for frame in 3600:
+			await _frames(1)
+			if barracks.is_constructed():
+				break
+		game.hud.pause_after_load()
+		_check(barracks.is_constructed(), "Paid barracks prerequisite did not complete")
 		foundation = await _place("VehicleFactory", null)
-		if "--advice-only" in OS.get_cmdline_user_args():
-			foundation.construct(.25)
-		else:
-			var worker = _nearest_worker(foundation)
-			worker.issue_manual_order(
-				load("res://source/match/units/actions/Constructing.gd").new(foundation)
-			)
-			game.hud._toggle_pause()
-			for frame in 3600:
-				await _frames(1)
-				if foundation._construction_progress >= .2:
-					break
-			game.hud.pause_after_load()
-			_check(foundation._construction_progress >= .2, "Paid factory construction never began")
+		_nearest_worker(foundation).issue_manual_order(
+			load("res://source/match/units/actions/Constructing.gd").new(foundation)
+		)
+		game.hud._toggle_pause()
+		for frame in 3600:
+			await _frames(1)
+			if foundation._construction_progress >= .2:
+				break
+		game.hud.pause_after_load()
+		_check(foundation._construction_progress >= .2, "Paid factory construction never began")
 		original_hq.hp = 0
 		await _frames(5)
 		var funds = Vector2i(owner.resource_a, owner.resource_b)
-		var step = plan.next_step(owner)
-		_check(
-			step.id == "hq_foundation" and step.units == [foundation],
-			label + ": recoverable foundation budget overlooked"
-		)
-		for index in 10:
-			plan.next_step(owner)
-		_check(
-			Vector2i(owner.resource_a, owner.resource_b) == funds,
-			"Advice spent or refunded resources"
-		)
 		await _review("refund")
-		if not "--advice-only" in OS.get_cmdline_user_args():
-			await _disk()
-			_check(
-				plan.next_step(owner).id == "hq_foundation",
-				"Loaded recovery lost foundation refund"
-			)
-			await _review("restored")
-			var refund = foundation.construction_refund()
-			await _cancel_foundation()
-			await _frames(5)
-			_check(
-				(
-					Vector2i(owner.resource_a, owner.resource_b)
-					== funds + Vector2i(refund.resource_a, refund.resource_b)
-				),
-				"Recovery cancellation refunded wrong amount"
-			)
-			_check(plan.next_step(owner).id == "CommandCenter", "Refund did not enable HQ rebuild")
-			foundation = await _place("CommandCenter", plan.next_step(owner).units[0])
-			await _review("rebuilding")
-			game.hud._toggle_pause()
-			for frame in 3600:
-				await _frames(1)
-				if foundation.is_constructed() or game.finished:
-					break
-			await _frames(3)
-			game.hud.pause_after_load()
-			_check(
-				foundation.is_constructed() and not game.finished,
-				"Earned refund did not finish HQ before defeat"
-			)
-			_check(game._defeat_timers[owner] == 60.0, "Rebuild did not reset defeat countdown")
-			await _review("recovered")
-		await _funding_boundaries()
+		await _disk()
+		await _review("restored")
+		var builder = _nearest_worker(foundation)
+		var refund = foundation.construction_refund()
+		await _cancel_foundation()
+		await _frames(5)
+		_check(
+			(
+				Vector2i(owner.resource_a, owner.resource_b)
+				== funds + Vector2i(refund.resource_a, refund.resource_b)
+			),
+			"Recovery cancellation refunded wrong amount"
+		)
+		var cost = catalog.cost(owner, "CommandCenter", true)
+		_check(owner.has_resources(cost), label + ": refund did not fund the HQ rebuild")
+		foundation = await _place("CommandCenter", builder)
+		await _review("rebuilding")
+		game.hud._toggle_pause()
+		for frame in 3600:
+			await _frames(1)
+			if foundation.is_constructed() or game.finished:
+				break
+		await _frames(3)
+		game.hud.pause_after_load()
+		_check(
+			foundation.is_constructed() and not game.finished,
+			"Earned refund did not finish HQ before defeat"
+		)
+		_check(game._defeat_timers[owner] == 60.0, "Rebuild did not reset defeat countdown")
+		await _review("recovered")
 		paused = false
 		game.queue_free()
 		await _frames(5)
@@ -241,32 +213,6 @@ func _disk():
 		),
 		"Paused recovery changed during load"
 	)
-
-
-func _funding_boundaries():
-	# Isolated affordability boundaries; distinct from the earned path above.
-	for unit in _units(owner, "CommandCenter"):
-		unit.queue_free()
-	await _frames(3)
-	if not is_instance_valid(foundation) or foundation.is_constructed():
-		owner.resource_a = 100
-		owner.resource_b = 32
-		foundation = await _place("VehicleFactory", null)
-		foundation.construct(.25)
-	owner.resource_a = 46
-	owner.resource_b = 20
-	_check(plan.next_step(owner).id == "hq_funds", "Insufficient partial refund promised HQ")
-	owner.resource_a = 80
-	owner.resource_b = 10
-	_check(plan.next_step(owner).id == "hq_funds", "Materials refund hid electronics shortfall")
-	owner.resource_a = 47
-	owner.resource_b = 11
-	_check(
-		plan.next_step(owner).id == "hq_foundation", "Exact floor-rounded combined budget rejected"
-	)
-	foundation.hp = 0
-	_check(plan.next_step(owner).id == "hq_funds", "Destroyed foundation promised refund")
-	await _frames(3)
 
 
 func _cancel_foundation():

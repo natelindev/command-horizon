@@ -111,27 +111,13 @@ func _contracts(player, air, factory):
 		producer.production_queue.cancel_all()
 	second_air.queue_free()
 	await _frames(2)
-	for existing_lab in _units(player, "CommandLab"):
-		existing_lab.queue_free()
-	await _frames(2)
-	factory.production_queue.fit_chips = true
 	player._production_index = 0
 	requests = production.requests(game, player, player._units())
+	var armor_jobs = requests.filter(func(job): return job.producer == factory)
 	_check(
-		not requests.any(func(job): return job.producer == factory),
-		"Unavailable fitted tank reserved resources before a lab"
+		armor_jobs.size() == 1 and armor_jobs[0].cost == factions.cost(player, armor_jobs[0].role),
+		"Factory forecast differs from its purchase price"
 	)
-	_spawn("CommandLab", player, Vector3(82, 0, 70))
-	requests = production.requests(game, player, player._units())
-	var tank_jobs = requests.filter(func(job): return job.producer == factory)
-	_check(
-		(
-			tank_jobs.size() == 1
-			and tank_jobs[0].cost.resource_b == factions.cost(player, "Tank").resource_b + 4
-		),
-		"Fitted tank forecast omitted hardware cost"
-	)
-	factory.production_queue.fit_chips = false
 	var wing = factions.cost(player, "Helicopter")
 	player.resource_a = wing.resource_a
 	player.resource_b = wing.resource_b

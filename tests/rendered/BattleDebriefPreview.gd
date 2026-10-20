@@ -35,7 +35,7 @@ func _review_result(label):
 	var file = capture_prefix + "-" + label + ".png"
 	_check(not FileAccess.file_exists(file), "Debrief capture exists")
 	root.get_texture().get_image().save_png(file)
-	if label == "frontier-legacy":
+	if label == "frontier-complete":
 		print("NATIVE DEBRIEF: Play again focused; Tab twice then Enter to Skirmish setup")
 		if automated:
 			buttons[2].pressed.emit()

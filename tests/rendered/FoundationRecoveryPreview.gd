@@ -24,26 +24,14 @@ func _review(stage):
 	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
 	root.content_scale_size = Vector2i(1920, 1080)
 	var camera = game.get_node("IsometricCamera3D")
-	game.hud.battle_plan.refresh()
-	if stage in ["refund", "restored"]:
-		await _click(game.hud.battle_plan._action)
-		_check(
-			foundation.is_in_group("selected_units"), "Review foundation click selected wrong unit"
-		)
-	else:
-		root.get_node("MatchSignals").deselect_all_units.emit()
-		foundation.get_node("Selection").select()
+	root.get_node("MatchSignals").deselect_all_units.emit()
+	foundation.get_node("Selection").select()
 	camera.set_size_safely(26)
 	camera.set_position_safely(foundation.global_position_yless + Vector3(3, 0, 0))
 	for unit in get_nodes_in_group("units"):
 		game.get_node("Handlers/UnitVisibilityHandler")._recalculate_unit_visibility(unit)
 	game.fog_of_war._physics_process(0.0)
 	await _frames(5)
-	var panel = game.hud.battle_plan
-	_check(
-		panel.get_global_rect().encloses(panel._description.get_global_rect()),
-		"Recovery description clipped"
-	)
 	var menus = game.find_child("UnitMenus")
 	_check(
 		menus.get_global_rect().encloses(menus._stop_button.get_global_rect()),

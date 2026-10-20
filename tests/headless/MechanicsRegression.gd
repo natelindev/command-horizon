@@ -1,4 +1,4 @@
-extends "res://tests/headless/ProgramRegression.gd"
+extends "res://tests/headless/MatchFixture.gd"
 
 var orders = null
 var waiting = null
@@ -20,15 +20,11 @@ func _run():
 		await _clear()
 		await _automatic_counters()
 		await _clear()
-		await _programmed_counters()
-		await _clear()
 		await _incoming_fire()
 		await _clear()
 		await _garrison_range()
 		await _clear()
 		await _repair_ownership()
-		await _clear()
-		await _pending_program_authority()
 		await _clear()
 		await _drop_off_ownership()
 		await _clear()
@@ -172,40 +168,6 @@ func _garrison_range():
 	source.remove_meta("garrison_host")
 
 
-func _programmed_counters():
-	var unit = _spawn("AdvancedTank", _human, Vector3(40, 0, 40), true)
-	var infantry = _spawn("Infantry", _enemy, Vector3(42, 0, 40))
-	var armor = _spawn("Tank", _enemy, Vector3(44, 0, 40))
-	unit.set_meta("next_attack_availability_time", 1000000)
-	await _frames(5)
-	_game.battlefield.invalidate()
-	var library = load("res://source/match/programs/ProgramLibrary.gd")
-	var config = library.defaults("hold")
-	_check(config.priority == "effective", "Fresh preset does not offer role-aware targeting")
-	_check(unit.program.configure(config) and unit.program.run(), "Counter preset could not start")
-	unit.process_mode = Node.PROCESS_MODE_INHERIT
-	await _frames(35)
-	_check(unit.action._target == armor, "Programmed artillery prefers the nearer rifleman")
-	config.priority = "nearest"
-	_check(library.validate(config), "Legacy nearest priority became invalid")
-	unit.program.configure(config)
-	unit.program.run()
-	await _frames(35)
-	_check(unit.action._target == infantry, "Explicit nearest priority changed its meaning")
-	var record = load("res://source/match/programs/ProgramRecord.gd")
-	var source = "return function(s,m) return {intent={kind='hold'},state=m} end"
-	var scripted = record.lua("Envelope check", 1, source, ["Tank"], ["movement"])
-	_check(scripted.config.priority == "nearest", "Preset default rewrites script metadata")
-	_check(record.validate(scripted), "Canonical script envelope became invalid")
-	var transitional = scripted.duplicate(true)
-	transitional.config.priority = "effective"
-	record.seal(transitional)
-	_check(record.validate(transitional), "New-default script envelope lost compatibility")
-	transitional.config.retreat = 35
-	record.seal(transitional)
-	_check(not record.validate(transitional), "Script envelope accepts altered preset parameters")
-
-
 func _incoming_fire():
 	var first = _spawn("RocketInfantry", _human, Vector3(35, 0, 35))
 	var second = _spawn("RocketInfantry", _human, Vector3(35, 0, 37))
@@ -265,30 +227,6 @@ func _drop_off_ownership():
 	worker.action = action
 	_check(action._cc_unit != hq, "Engineer still uses a captured HQ as its drop-off")
 	_check(worker.resource_a == 3, "Lost drop-off discarded cargo")
-
-
-func _pending_program_authority():
-	var unit = _spawn("Tank", _human, Vector3(40, 0, 50), true)
-	var ally = _spawn("Worker", _human, Vector3(42, 0, 50))
-	var attacker = _spawn("Infantry", _enemy, Vector3(44, 0, 50))
-	await _frames(5)
-	_game.battlefield.invalidate()
-	unit.action = auto_attack.new(attacker)
-	var previous = unit.action
-	_check(unit.program.run(), "Resume fixture has no unlocked program")
-	_check(not previous.is_inside_tree(), "Resume leaves the old attack active until the next tick")
-	unit.issue_manual_order(null)
-	_check(unit.program.run(), "Idle Resume fixture was rejected")
-	# The accepted program is Ready while paused or before its first tick.
-	# An ally's hit must not turn that explicit request into another attack.
-	ally.receive_weapon_hit(attacker)
-	_check(
-		unit.program.mode == "Ready" and unit.program._pending,
-		"Defensive assistance overrides a program awaiting its first tick"
-	)
-	unit.process_mode = Node.PROCESS_MODE_INHERIT
-	await _frames(35)
-	_check(unit.program.mode == "Running", "Accepted Resume never starts its program")
 
 
 func _defense_budget():

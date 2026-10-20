@@ -20,7 +20,7 @@ func _run():
 
 func _safety_case(faction):
 	safety = load(safety_policy_path).new()
-	var plan = load("res://source/match/SkirmishPlan.gd")
+	var plan = load("res://tests/UnitQueries.gd")
 	for unit in plan.owned_units(owner):
 		unit.process_mode = Node.PROCESS_MODE_INHERIT
 	var hq = _units(owner, "CommandCenter")[0]

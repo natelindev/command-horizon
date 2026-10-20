@@ -12,11 +12,10 @@ func _initialize():
 
 func _run():
 	repair_order = load("res://source/match/units/actions/Repairing.gd")
-	plan_rules = load("res://source/match/SkirmishPlan.gd")
+	plan_rules = load("res://tests/UnitQueries.gd")
 	harvest_action = load("res://source/match/units/actions/CollectingResourcesSequentially.gd")
 	construct_action = load("res://source/match/units/actions/Constructing.gd")
 	attack_move_action = load("res://source/match/units/actions/AttackMoving.gd")
-	library = load("res://source/match/programs/ProgramLibrary.gd")
 	factions = load("res://source/match/FactionCatalog.gd")
 	constants = root.get_node("Constants")
 	var options = root.get_node("Globals").options
@@ -54,7 +53,7 @@ func _measure():
 				point = army[0].global_position_yless
 		camera.set_position_safely(point + Vector3(-4, 0, 0))
 		next_camera = game.simulation_time + 4
-	for event in ["first_contact", "first_program", "first_assault", "expansion_return"]:
+	for event in ["first_contact", "first_guard", "first_assault", "expansion_return"]:
 		if metrics[event] != null and not captured.has(event):
 			captured[event] = true
 			RenderingServer.frame_post_draw.connect(_capture.bind(event), CONNECT_ONE_SHOT)

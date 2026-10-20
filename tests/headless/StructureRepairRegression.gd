@@ -1,18 +1,9 @@
 extends "res://tests/headless/SkirmishSupportRegression.gd"
 
-const REPAIR_SOURCE = """return function(s,m)
-    for _,ally in ipairs(s.allies) do
-        if ally.can_repair and ally.hp < ally.hp_max then
-            return {intent={kind='repair',target=ally.id},state=m}
-        end
-    end
-    return {intent={kind='move',assignment='anchor'},state=m}
-end"""
-
 
 func _run():
 	support_orders = load("res://source/match/units/actions/Repairing.gd")
-	var library = load("res://source/match/programs/ProgramLibrary.gd")
+	var behavior = load("res://source/match/orders/UnitBehavior.gd")
 	for faction in ["bastion", "helix"]:
 		var errors_before = errors.size()
 		await _skirmish(faction, "res://source/match/maps/DesertFrontier.tscn")
@@ -25,25 +16,18 @@ func _run():
 			building.construct(1.0)
 			await _frames(60)
 			await _range_boundary(building, human)
-			for mode in ["manual", "preset", "lua"]:
+			for mode in ["manual", "guard"]:
 				var robot = _support_unit("RepairRobot", human, Vector3(54, 0, 48))
 				building.hp = building.hp_max * 0.5
 				await _frames(5)
 				if mode == "manual":
 					robot.issue_manual_order(support_orders.new(building))
 				else:
-					if mode == "preset":
-						_check(
-							robot.program.configure(library.defaults("hold_service")),
-							"Service preset configuration failed"
-						)
-					else:
-						_check(
-							robot.program.configure_lua(REPAIR_SOURCE).ok,
-							"Repair Lua configuration failed"
-						)
-					robot.program.anchor = Vector3(60, 0, 48)
-					_check(robot.program.run(), "Structure repair program refused to run")
+					# A robot posted beside the structure services it in place.
+					_check(
+						behavior.guard(robot, Vector3(60, 0, 48)),
+						"Structure repair guard order rejected"
+					)
 				var before = building.hp
 				await _frames(600)
 				_check(
@@ -54,10 +38,6 @@ func _run():
 					not robot.get_node("Movement")._has_destination,
 					"Structure repair kept travelling during service"
 				)
-				if mode != "manual":
-					_check(
-						robot.program.mode != "Blocked", "Structure repair falsely reported blocked"
-					)
 				paused = true
 				before = building.hp
 				await _frames(20)
@@ -70,7 +50,7 @@ func _run():
 		print(
 			"PASS: " if errors.size() == errors_before else "FAIL: ",
 			faction,
-			" actual HQ/airfield repair by direct order, preset and Lua; pause"
+			" actual HQ/airfield repair by direct order and posted guard; pause"
 		)
 		paused = false
 		game.queue_free()

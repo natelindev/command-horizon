@@ -52,7 +52,7 @@ func _reference_research():
 		or human.coordination_left > 0
 		or human.technology.active != ""
 		or not human.has_completed_structure("CommandLab")
-		or not human.basic_programs_unlocked()
+		or not human.lab_research_unlocked()
 		or economy_policy.guards(plan_rules.owned_units(human)).size() < 6
 	):
 		return {}
@@ -121,12 +121,7 @@ func _reference_requests():
 		if product == "" or not factions.available(human, product):
 			continue
 		var price = factions.cost(human, product)
-		var fit = role == "VehicleFactory" and human.has_completed_structure("CommandLab")
-		if product == "Tank" and fit:
-			price.resource_b += factions.chip_cost(human.faction)
-		result.append(
-			{"producer": producer, "role": product, "priority": priority, "cost": price, "fit": fit}
-		)
+		result.append({"producer": producer, "role": product, "priority": priority, "cost": price})
 	return result
 
 
@@ -193,7 +188,6 @@ func _produce():
 			if request.priority < 6:
 				reserve += Vector2i(price.resource_a, price.resource_b)
 			continue
-		request.producer.production_queue.fit_chips = request.fit
 		var job = request.producer.production_queue.produce(load(Catalog.scene_path(request.role)))
 		_decision(request.role, "paid" if job != null else "refused", price, budget)
 		if job != null:
@@ -335,7 +329,7 @@ func _research_snapshot():
 				"funds": [side.resource_a, side.resource_b],
 				"ready_army": economy_policy.guards(units).size(),
 				"lab": side.has_completed_structure("CommandLab"),
-				"basic": side.basic_programs_unlocked(),
+				"lab_research": side.lab_research_unlocked(),
 				"coordination_left": side.coordination_left,
 				"coordination": side.coordination_unlocked,
 				"active": side.technology.active,

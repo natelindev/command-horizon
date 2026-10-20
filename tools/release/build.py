@@ -17,7 +17,7 @@ VERSION = "4.6.3-stable"
 PRESETS = {"linux": "Linux/X11", "windows": "Windows Desktop", "macos": "macOS"}
 ENGINE_SUFFIX = {"linux": "linux.x86_64", "windows": "win64.exe", "macos": "macos.universal"}
 TESTS = [
-    "NoLuaRuntimeRegression", "BehaviorRegression", "UnitAnimationRegression",
+    "BehaviorRegression", "UnitAnimationRegression",
     "PersistentCaptureRegression",
     "CampaignInteriorRegression", "HeroCampaignRegression", "MapRosterRegression",
     "WorkerDistributionRegression", "CargoReturnRegression", "ResourceFieldRegression",
@@ -96,9 +96,6 @@ def main():
         run([executable, "--headless", "--quit-after", "120"], cwd=output)
         isolated = work / "isolated"
         isolated.mkdir(parents=True)
-        libraries = [p for p in output.rglob("*rts_lua*") if p.suffix in (".dll", ".so", ".dylib")]
-        if libraries:
-            raise RuntimeError("Export still contains the retired native Lua runtime")
         for test in TESTS:
             run([engine, "--headless", "--main-pack", pack, "--fixed-fps", "60",
                  "--script", f"res://tests/headless/{test}.gd"], cwd=isolated, timeout=300)

@@ -75,11 +75,10 @@ static func settlements(map_path):
 	return []
 
 
-static func structures(map_path, include_settlements = true):
+static func structures(map_path):
 	var result = STRUCTURES.get(authored_name(map_path), []).duplicate()
-	if include_settlements:
-		for point in settlements(map_path):
-			result.append("ServiceOffice")
+	for point in settlements(map_path):
+		result.append("ServiceOffice")
 	return result
 
 
@@ -91,7 +90,7 @@ static func populate_settlements(map):
 
 
 # Authored loops are map content, never executable or editable archive data.
-static func entries(map_path, include_settlements = true):
+static func entries(map_path):
 	var result = []
 	match authored_name(map_path):
 		"CommandHorizonMap":
@@ -135,32 +134,31 @@ static func entries(map_path, include_settlements = true):
 		"DesertFrontier":
 			_add(result, "fox", [[29, 8], [41, 9], [40, 15], [27, 16]], 2)
 			_add(result, "fox", [[87, 80], [99, 81], [98, 87], [85, 88]], 2)
-	if include_settlements:
-		for point in settlements(map_path):
-			_add(
-				result,
-				"resident",
-				[
-					[point.x - 4, point.y - 4],
-					[point.x + 4, point.y - 4],
-					[point.x + 4, point.y + 4],
-					[point.x - 4, point.y + 4]
-				],
-				3
-			)
-		match authored_name(map_path):
-			"PlainAndSimple":
-				_add(result, "fox", [[22, 32], [28, 32], [28, 36], [22, 36]], 2)
-				_add(result, "car", [[22, 18], [28, 18], [28, 20], [22, 20]], 1)
-			"BigArena":
-				_add(result, "fox", [[46, 56], [52, 56], [52, 62], [46, 62]], 2)
-				_add(result, "car", [[40, 49], [60, 49], [60, 51], [40, 51]], 2)
-			"DesertFrontier":
-				_add(result, "fox", [[53, 42], [61, 42], [61, 52], [53, 52]], 2)
-				_add(result, "car", [[44, 47.5], [84, 47.5], [84, 48], [44, 48]], 2)
-			"AlpineRelay":
-				_add(result, "fox", [[43, 60], [49, 60], [49, 66], [43, 66]], 2)
-				_add(result, "car", [[40, 34], [84, 34], [84, 38], [40, 38]], 2)
+	for point in settlements(map_path):
+		_add(
+			result,
+			"resident",
+			[
+				[point.x - 4, point.y - 4],
+				[point.x + 4, point.y - 4],
+				[point.x + 4, point.y + 4],
+				[point.x - 4, point.y + 4]
+			],
+			3
+		)
+	match authored_name(map_path):
+		"PlainAndSimple":
+			_add(result, "fox", [[22, 32], [28, 32], [28, 36], [22, 36]], 2)
+			_add(result, "car", [[22, 18], [28, 18], [28, 20], [22, 20]], 1)
+		"BigArena":
+			_add(result, "fox", [[46, 56], [52, 56], [52, 62], [46, 62]], 2)
+			_add(result, "car", [[40, 49], [60, 49], [60, 51], [40, 51]], 2)
+		"DesertFrontier":
+			_add(result, "fox", [[53, 42], [61, 42], [61, 52], [53, 52]], 2)
+			_add(result, "car", [[44, 47.5], [84, 47.5], [84, 48], [44, 48]], 2)
+		"AlpineRelay":
+			_add(result, "fox", [[43, 60], [49, 60], [49, 66], [43, 66]], 2)
+			_add(result, "car", [[40, 34], [84, 34], [84, 38], [40, 38]], 2)
 	if map_path.get_file().get_basename() in EXPANDED_MAPS:
 		for entry in result:
 			entry.path = entry.path.duplicate()

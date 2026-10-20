@@ -231,30 +231,26 @@ func _budget_and_technology():
 	)
 	factory.production_queue.cancel_all()
 	await _replace_contact("Drone")
-	factory.production_queue.fit_chips = true
 	cost = factions.cost(opponent, "Tank")
 	opponent.resource_a = cost.resource_a + reserve.resource_a
-	opponent.resource_b = cost.resource_b + 4 + reserve.resource_b - 1
+	opponent.resource_b = cost.resource_b + reserve.resource_b - 1
 	opponent._production_index = 0
 	opponent._train(_training_units([factory]), "AntiAirTurret")
-	_check(
-		factory.production_queue.size() == 0, "Fitted chip consumed reserved building electronics"
-	)
+	_check(factory.production_queue.size() == 0, "Armor consumed reserved building electronics")
 	opponent.resource_b += 1
 	opponent._train(_training_units([factory]), "AntiAirTurret")
-	_check(_queued(factory) == "Tank", "Exact fitted-chip budget failed")
+	_check(_queued(factory) == "Tank", "Exact armor budget failed")
 	_check(
 		(
 			Vector2(opponent.resource_a, opponent.resource_b)
 			== Vector2(reserve.resource_a, reserve.resource_b)
 		),
-		"Fitted-chip cost escaped reserve accounting"
+		"Armor cost escaped reserve accounting"
 	)
 	factory.production_queue.cancel_all()
-	factory.production_queue.fit_chips = false
 	opponent.resource_a = 500
 	opponent.resource_b = 300
-	print("PASS: prerequisites, exact counter/build reserve and fitted-chip accounting")
+	print("PASS: prerequisites, exact counter/build reserve and armor accounting")
 
 
 func _counter_building():

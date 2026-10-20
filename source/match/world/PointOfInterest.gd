@@ -212,7 +212,7 @@ func hire(requester, role):
 		or requester.population(true) >= Factions.Bastion.POPULATION_LIMIT
 	):
 		return false
-	var cost = Sites.price(requester.faction, role)
+	var cost = Sites.price(role)
 	if not requester.has_resources(cost):
 		return false
 	requester.subtract_resources(cost)

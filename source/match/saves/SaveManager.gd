@@ -31,7 +31,6 @@ func can_open():
 		not busy
 		and not is_instance_valid(Globals.settings_dialog)
 		and not is_instance_valid(dialog)
-		and (game == null or not is_instance_valid(game.hud.program_editor))
 		and (
 			game == null
 			or not "campaign_story" in game
@@ -81,7 +80,7 @@ func _input(event):
 	if is_instance_valid(dialog):
 		return
 	var game = active_game()
-	if game == null or game.finished or is_instance_valid(game.hud.program_editor):
+	if game == null or game.finished:
 		return
 	if (
 		"campaign_story" in game
@@ -185,7 +184,7 @@ func _process(_delta):
 	if not is_instance_valid(game) or game != active_game() or game.finished:
 		_checkpoint.clear()
 		return
-	if is_instance_valid(game.hud.program_editor) or not _ready_to_save(game):
+	if not _ready_to_save(game):
 		return
 	var reason = _checkpoint.reason
 	_checkpoint.clear()

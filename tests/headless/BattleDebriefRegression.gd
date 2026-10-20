@@ -36,7 +36,6 @@ func _exercise(faction):
 		record.data.forces_trained == 0 and record.data.engineers_trained == 0,
 		"Starting roster counted as trained"
 	)
-	_check(record.data.basic_at == 0, "Advanced unlock was not recorded at start")
 	var barracks = _units(owner, "Barracks")[0]
 	var infantry_scene = load("res://source/match/units/Infantry.tscn")
 	var cancelled = barracks.production_queue.produce(infantry_scene)
@@ -47,8 +46,6 @@ func _exercise(faction):
 		load("res://source/match/units/Worker.tscn")
 	)
 	_units(enemy, "Barracks")[0].production_queue.produce(infantry_scene)
-	var tank = _units(owner, "Tank")[0]
-	_check(tank.program.run(), "Program fixture refused to start")
 	var before_pause = record.capture()
 	await _frames(30)
 	_check(record.capture() == before_pause, "Paused record advanced")
@@ -62,7 +59,6 @@ func _exercise(faction):
 		record.data.forces_trained == 1 and record.data.engineers_trained == 1,
 		"Paid completed production was not counted exactly"
 	)
-	_check(record.data.program_at > 0, "Actual program activation was not recorded")
 	_units(enemy, "Infantry")[0].hp = 0
 	_units(owner, "Infantry")[0].hp = 0
 	_units(owner, "Worker")[0].hp = 0
@@ -93,7 +89,7 @@ func _exercise(faction):
 	for missing in [true, false]:
 		var corrupt = snapshot.duplicate(true)
 		if missing:
-			corrupt.battle_record.erase("program_at")
+			corrupt.battle_record.erase("forces_lost")
 		else:
 			corrupt.battle_record.unexpected = 0
 		_check(not schema.validate(corrupt), "Malformed record fields accepted")
@@ -101,10 +97,9 @@ func _exercise(faction):
 		var corrupt = snapshot.duplicate(true)
 		corrupt.battle_record.forces_lost = invalid
 		_check(not schema.validate(corrupt), "Malformed loss count accepted")
-	for invalid in [NAN, INF, game.simulation_time + 1, -3]:
-		var corrupt = snapshot.duplicate(true)
-		corrupt.battle_record.program_at = invalid
-		_check(not schema.validate(corrupt), "Malformed milestone accepted")
+	var stale = snapshot.duplicate(true)
+	stale.snapshot_version = Snapshot.VERSION - 1
+	_check(not schema.validate(stale), "Snapshot from another version accepted")
 	var store = FileStore.new()
 	var file = "user://debrief-%s-%d.json" % [faction, OS.get_process_id()]
 	_check(store.write_file(file, snapshot), "Debrief disk write failed")
@@ -127,53 +122,6 @@ func _exercise(faction):
 	game.hud.show_result(game.result)
 	_check("1 trained / 1 lost" in game.result_summary(), "Result omitted recorded force outcomes")
 	await _review_result(faction + "-complete")
-	var legacy = snapshot.duplicate(true)
-	legacy.snapshot_version = 8
-	for stance_unit in legacy.units:
-		stance_unit.erase("stance")
-	legacy.erase("neutral_buildings")
-	for ambient in legacy.get("ambient", []):
-		ambient.erase("combat")
-	legacy.erase("battle_record")
-	_check(schema.validate(legacy), "Legacy snapshot rejected")
-	loaded = await Restore.new().restore(self, legacy)
-	_check(loaded.ok, "Legacy restore failed")
-	if not loaded.ok:
-		return
-	game = loaded.game
-	record = game.battle_record
-	_check(not record.data.complete_history, "Legacy record was marked complete")
-	_check(
-		record.data.started_at == snapshot.simulation_time and record.data.forces_lost == 0,
-		"Legacy history was invented"
-	)
-	_check(
-		record.data.basic_at == -2 and record.data.program_at == -2,
-		"Legacy milestone reported a false first event"
-	)
-	var partial = record.capture()
-	var upgraded = Snapshot.new().capture(game)
-	_check(store.write_file(file, upgraded), "Legacy record upgrade write failed")
-	loaded = await Restore.new().restore(self, store.read_file(file))
-	_check(loaded.ok, "Upgraded partial record restore failed")
-	if not loaded.ok:
-		return
-	game = loaded.game
-	_check(
-		game.battle_record.capture() == partial,
-		"Resaving partial history marked it complete or changed counts"
-	)
-	game.finished = true
-	game.result = "Defeat"
-	game.hud.show_result(game.result)
-	_check(
-		(
-			"Battle record begins at" in game.result_summary()
-			and "Not recorded" in game.result_summary()
-		),
-		"Partial history was not disclosed"
-	)
-	await _review_result(faction + "-legacy")
 	print("DEBRIEF ", faction, " ", expected)
 	DirAccess.remove_absolute(file)
 

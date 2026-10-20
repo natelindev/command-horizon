@@ -1,32 +1,9 @@
 extends SceneTree
 
 const Catalog = preload("res://source/match/BastionCatalog.gd")
-const LUA_GUARD = """return function(s,m)
-    m.ticks=(m.ticks or 0)+1
-    local p=s.assignments.anchor
-    if p then
-        local dx,dz=p.x-s.self.position.x,p.z-s.self.position.z
-        if dx*dx+dz*dz>1 then
-            return {intent={kind='move',assignment='anchor'},state=m}
-        end
-    end
-    for _,e in ipairs(s.enemies) do
-        if e.can_attack then return {intent={kind='attack',target=e.id},state=m} end
-    end
-    for _,a in ipairs(s.allies) do
-        if a.can_repair and a.hp<a.hp_max then
-            return {intent={kind='repair',target=a.id},state=m}
-        end
-    end
-    return {intent={kind='hold'},state=m}
-end"""
+
 var _behaviors = "--behaviors" in OS.get_cmdline_user_args()
 var _no_capture = "--no-capture" in OS.get_cmdline_user_args()
-var _visual = "--visual" in OS.get_cmdline_user_args()
-var _lua = "--lua" in OS.get_cmdline_user_args() or _visual
-var _specialists = "--specialists" in OS.get_cmdline_user_args()
-var _squads = "--squads" in OS.get_cmdline_user_args()
-var _programs = "--programs" in OS.get_cmdline_user_args() or _squads or _specialists or _lua
 var _no_motion = "--diagnostic-no-motion" in OS.get_cmdline_user_args()
 var _no_queues = "--diagnostic-no-queues" in OS.get_cmdline_user_args()
 var _baseline_field = "--baseline-field" in OS.get_cmdline_user_args()
@@ -38,7 +15,6 @@ var _armies = []
 var _frame_times = []
 var _peak_projectiles = 0
 var _peak_tracers = 0
-var _peak_claims = 0
 var _start_positions = {}
 var _travel = {}
 var _last_positions = {}
@@ -99,7 +75,7 @@ func _run():
 		var army = []
 		for index in range(40):
 			var roles = ["PowerPlant", "VehicleFactory", "Barracks", "RepairDepot"]
-			if _programs or _behaviors:
+			if _behaviors:
 				roles.append("CommandLab")
 			var role = "CommandCenter" if index == 0 else roles[index % roles.size()]
 			_spawn(
@@ -109,7 +85,7 @@ func _run():
 			)
 		for index in range(100):
 			var roles = ["Tank", "Infantry", "CombatRobot", "Helicopter", "RepairRobot"]
-			if _programs or _behaviors:
+			if _behaviors:
 				roles[1] = "Drone"
 			var point = Vector3(
 				(30 + (index % 5) * 2) if side == 0 else (70 - (index % 5) * 2),
@@ -135,14 +111,6 @@ func _run():
 				if queue != null:
 					assert(queue.size() == 0)
 					queue.set_process(false)
-	if _squads:
-		for side in range(2):
-			players[side].coordination_unlocked = true
-			for start in range(0, 100, 24):
-				var squad = players[side].squad_roster.create(
-					"Squad %d" % start, _armies[side].slice(start, mini(start + 24, 100))
-				)
-				assert(squad != null)
 	await _frames(180)
 	assert(players[0].population() == 100 and players[1].population() == 100)
 	var factions = load("res://source/match/FactionCatalog.gd")
@@ -167,8 +135,6 @@ func _run():
 			var point = Vector3(46 if side == 0 else 54, 0, 6 + (index / 5) * 4.5)
 			if _behaviors:
 				load("res://source/match/orders/UnitBehavior.gd").guard(unit, point)
-			elif _programs:
-				_program_guard(unit, point)
 			else:
 				unit.action = load("res://source/match/units/actions/Moving.gd").new(point)
 	await _measure("movement", 600)
@@ -185,8 +151,6 @@ func _run():
 				load("res://source/match/orders/UnitBehavior.gd").guard(
 					unit, Vector3(50, 0, unit.global_position.z)
 				)
-			elif _programs:
-				_program_guard(unit, Vector3(50, 0, unit.global_position.z))
 			elif unit.attack_range != null:
 				unit.action = load("res://source/match/units/actions/AttackMoving.gd").new(
 					Vector3(55 if side == 0 else 45, 0, unit.global_position.z)
@@ -197,37 +161,8 @@ func _run():
 		if unit.has_meta("next_attack_availability_time"):
 			fired += 1
 	assert(fired >= 80, "Benchmark did not exercise enough weapons")
-	if _lua:
-		var peak_vm = 0
-		var evaluations = 0
-		for unit in _start_positions:
-			assert(unit.program.mode != "Error", unit.program.reason)
-			var runtime = unit.program.lua_runtime
-			if _visual:
-				assert(runtime.state_snapshot().has("mode"), "Visual program never evaluated")
-				evaluations += 1
-			else:
-				assert(runtime.state_snapshot().get("ticks", 0) > 0, "Lua never evaluated")
-				evaluations += runtime.state_snapshot().ticks
-			peak_vm = maxi(peak_vm, runtime.metrics.get("peak_memory_bytes", 0))
-		print(
-			"SCALE Lua VMs=200 peak_VM_bytes=",
-			peak_vm,
-			" evaluated_visual_VMs=" if _visual else " combat_evaluations=",
-			evaluations
-		)
-	if _squads:
-		assert(_peak_claims >= 20, "Squad benchmark did not exercise target sharing")
-	var vm_count = 0
-	for unit in get_nodes_in_group("units"):
-		if unit.program != null and unit.program.lua_runtime != null:
-			vm_count += 1
-	if _behaviors:
-		assert(vm_count == 0, "Built-in behaviors allocated script VMs")
 	print(
-		"SCALE lua_vm_count=",
-		vm_count,
-		" behaviors=",
+		"SCALE behaviors=",
 		_behaviors,
 		" moved=",
 		moved,
@@ -241,88 +176,22 @@ func _run():
 		get_nodes_in_group("resource_units").size(),
 		" sampled_peak_tracers=",
 		_peak_tracers,
-		" sampled_peak_claims=",
-		_peak_claims,
 		" viewport_pixels=",
 		root.get_texture().get_size()
 	)
 	if DisplayServer.get_name() != "headless" and not (_no_motion or _no_queues or _no_capture):
 		await RenderingServer.frame_post_draw
-		var title = (
-			"scale-visual"
-			if _visual
-			else ("scale-lua" if _lua else ("scale-specialists" if _specialists else "scale-200"))
-		)
-		root.get_texture().get_image().save_png("res://art/skirmish/%s.png" % title)
+		root.get_texture().get_image().save_png("res://art/skirmish/scale-200.png")
 	_game.queue_free()
 	await _frames(8)
-	print(
-		"PASS: 200 mobile units + 80 structures; programs=",
-		_programs,
-		" squads=",
-		_squads,
-		" specialists=",
-		_specialists,
-		" lua=",
-		_lua,
-		" visual=",
-		_visual
-	)
+	print("PASS: 200 mobile units + 80 structures; behaviors=", _behaviors)
 	quit()
 
 
 func _spawn(role, player, point):
 	var unit = load(Catalog.scene_path(role)).instantiate()
-	if _programs and role == "Tank":
-		unit.set_meta("chip_installed", true)
 	_game._setup_and_spawn_unit(unit, Transform3D(Basis(), point), player, false)
 	return unit
-
-
-func _program_guard(unit, point):
-	assert(unit.program != null and unit.program.ready_to_run())
-	if _visual:
-		var rules = load("res://source/match/programs/VisualRules.gd")
-		var document = rules.starter(1)
-		if unit.type in ["RepairRobot", "Drone"]:
-			document.rules = [
-				rules.rule("retreating", "move_safe"), rules.rule("away_anchor", "move_anchor", 1)
-			]
-			if unit.type == "RepairRobot":
-				document.rules.append(rules.rule("ally_damaged", "repair_weakest"))
-		var record = load("res://source/match/programs/ProgramRecord.gd").visual(
-			"Visual scale guard", 1, document, [unit.type]
-		)
-		unit.program.anchor = point
-		unit.program.safe_point = _start_positions[unit] * Vector3(1, 0, 1)
-		assert(
-			(
-				load("res://source/match/programs/ProgramApplication.gd")
-				. apply(record, [unit], unit.player)
-				. ok
-			)
-		)
-		return
-	if _lua:
-		assert(unit.program.configure_lua(LUA_GUARD, "Lua scale guard").ok)
-		unit.program.anchor = point
-		assert(unit.program.run())
-		return
-	var preset = "guard"
-	if _specialists:
-		preset = {
-			"Tank": "standoff",
-			"Drone": "scout_patrol",
-			"CombatRobot": "fire_support",
-			"Helicopter": "strike_return",
-			"RepairRobot": "hold_service"
-		}[unit.type]
-	unit.program.configure(load("res://source/match/programs/ProgramLibrary.gd").defaults(preset))
-	if _specialists:
-		unit.program.safe_point = _start_positions[unit] * Vector3(1, 0, 1)
-		unit.program.route = [point - Vector3(0, 0, 2), point + Vector3(0, 0, 2)]
-	unit.program.anchor = point
-	assert(unit.program.run())
 
 
 func _measure(label, frames):
@@ -362,12 +231,6 @@ func _measure(label, frames):
 						effects += 1
 			_peak_projectiles = maxi(_peak_projectiles, effects)
 			_peak_tracers = maxi(_peak_tracers, _game.combat_effects._tracers.size())
-			if _squads:
-				var claims = 0
-				for player in get_nodes_in_group("players"):
-					for squad in player.squad_roster.squads():
-						claims += squad._claims.size()
-				_peak_claims = maxi(_peak_claims, claims)
 		index += 1
 		if (Time.get_ticks_usec() - started) > 60000000:
 			push_error(

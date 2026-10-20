@@ -144,7 +144,7 @@ func _check_console(selected):
 		is_equal_approx(rail.end.y, viewport.y) and caption.end.y <= rail.position.y,
 		label + ": caption does not sit on the bottom rail"
 	)
-	for panel in [game.hud.get_child(0), game.hud.battle_plan]:
+	for panel in [game.hud.get_child(0)]:
 		if is_instance_valid(panel) and panel.is_visible_in_tree():
 			var rect = panel.get_global_rect()
 			_check(rect.position.x == 0, label + ": %s is not docked left" % panel.name)

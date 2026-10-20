@@ -32,8 +32,7 @@ const DEFAULTS = {
 	"weather": 0,
 	"weather_particles": true,
 	"living_world": true,
-	"menu_motion": true,
-	"show_battle_plan": true
+	"menu_motion": true
 }
 @export var screen: Screen = Screen.FULL
 @export var mouse_restricted = false
@@ -64,7 +63,6 @@ const DEFAULTS = {
 @export var weather_particles = true
 @export var living_world = true
 @export var menu_motion = true
-@export var show_battle_plan = true
 var _display_target = DisplayServer.WINDOW_MODE_WINDOWED
 var _display_until = 0
 var _display_next = 0

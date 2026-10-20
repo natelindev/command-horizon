@@ -4,14 +4,9 @@ extends "res://source/match/hud/BastionDemoHUD.gd"
 const CampaignCatalog = preload("res://source/match/campaign/CampaignCatalog.gd")
 const CampaignObjectives = preload("res://source/match/campaign/CampaignObjectives.gd")
 const Factions = preload("res://source/match/FactionCatalog.gd")
-const Repairs = preload("res://source/match/combat/RepairService.gd")
 const HudLayout = preload("res://source/match/hud/HudLayout.gd")
 const HudKey = preload("res://source/match/hud/HudKey.gd")
 const Difficulty = preload("res://source/match/players/skirmish-ai/SkirmishDifficulty.gd")
-var program_editor = null
-var lua_draft = {}
-var visual_draft = {}
-var battle_plan = null
 var alert_panel = null
 ## Every building producing or under construction, docked under the system plate.
 var production_overview = null
@@ -43,7 +38,6 @@ var _attack_armed: bool:
 var _menu_was_paused = false
 var _assignment_kind = ""
 var _assignment_units = []
-var _assignment_points = []
 var _assignment_hint
 var _notice_slot: ScrollContainer
 var _assignment_release = false
@@ -318,8 +312,6 @@ func _unhandled_input(event):
 	var focus = get_viewport().gui_get_focus_owner()
 	if event is InputEventKey and (focus is LineEdit or focus is TextEdit):
 		return
-	if is_instance_valid(program_editor):
-		return
 	if get_parent().finished:
 		return
 	if (
@@ -364,7 +356,6 @@ func map_assignment_active():
 func cancel_map_assignment():
 	_assignment_kind = ""
 	_assignment_units.clear()
-	_assignment_points.clear()
 	_assignment_hint.hide()
 	if is_instance_valid(direct_orders):
 		direct_orders.cancel()
@@ -373,7 +364,7 @@ func cancel_map_assignment():
 ## Replaces the selection and centres the camera, as HUD shortcuts do. Pending map
 ## assignments, direct orders and structure placement end; unit orders are kept.
 func select_units(units, focus = null):
-	if _overlay != null or is_instance_valid(program_editor) or get_parent().finished:
+	if _overlay != null or get_parent().finished:
 		return false
 	if units.is_empty():
 		return false
@@ -401,8 +392,6 @@ func pause_after_load():
 
 
 func _toggle_pause():
-	if is_instance_valid(program_editor):
-		return
 	if _overlay != null or get_parent().finished:
 		return
 	super()
@@ -446,8 +435,6 @@ func _make_overlay(title_text, cinematic = false):
 
 
 func _open_menu():
-	if is_instance_valid(program_editor):
-		return
 	if _overlay != null or get_parent().finished:
 		return
 	_menu_was_paused = get_tree().paused
@@ -523,7 +510,8 @@ func _back_to_menu():
 	get_tree().change_scene_to_file("res://source/main-menu/Main.tscn")
 
 
-func arm_program_assignment(kind, units):
+## Arms the Bastion Anchor sector: the next map click places the ability.
+func arm_signature_sector(units):
 	direct_orders.cancel()
 	(
 		get_parent()
@@ -531,27 +519,15 @@ func arm_program_assignment(kind, units):
 		. get_node("StructurePlacementHandler")
 		. _cancel_structure_placement()
 	)
-	_assignment_kind = kind
+	_assignment_kind = "signature"
 	_hint_left = 0.0
 	_assignment_units = units
-	_assignment_points.clear()
 	_assignment_hint.show()
 	_notice_slot.scroll_vertical = 0
-	_assignment_hint.text = {
-		"signature":
-		"Choose an Anchor sector (6 m). Units keep their orders. %s / right-click cancels.",
-		"anchor": "Click a guard point. %s / right-click cancels.",
-		"safe": "Click a safe point for retreat. %s / right-click cancels.",
-		"escort": "Click a friendly unit to escort. %s / right-click cancels.",
-		"patrol": "Click the first patrol waypoint. %s / right-click cancels.",
-		"install":
-		(
-			"Click your HQ or service building to fit chips (%d E each)."
-			% Factions.chip_cost(units[0].player.faction)
-		)
-	}[kind]
-	if "%s" in _assignment_hint.text:
-		_assignment_hint.text = _assignment_hint.text % Bindings.label("toggle_match_menu")
+	_assignment_hint.text = (
+		"Choose an Anchor sector (6 m). Units keep their orders. %s / right-click cancels."
+		% Bindings.label("toggle_match_menu")
+	)
 
 
 func _handle_assignment_input(event):
@@ -581,124 +557,35 @@ func _handle_assignment_input(event):
 		return false
 	_assignment_release = true
 	get_viewport().set_input_as_handled()
-	var point = get_viewport().get_camera_3d().get_ray_intersection(event.position)
-	var target = _pick_unit(event.position)
-	accept_program_assignment(point, target)
+	accept_signature_sector(get_viewport().get_camera_3d().get_ray_intersection(event.position))
 	return true
 
 
-func accept_program_assignment(point, target):
-	var kind = _assignment_kind
+func accept_signature_sector(point):
 	var units = _assignment_units.filter(
 		func(unit): return is_instance_valid(unit) and not unit.is_queued_for_deletion()
 	)
-	if units.is_empty() or kind == "":
+	if units.is_empty() or _assignment_kind == "":
 		_assignment_kind = ""
 		_assignment_hint.hide()
 		return false
-	if kind in ["anchor", "safe", "patrol", "signature"]:
-		if point == null or not point.is_finite():
-			return false
-		var map_size = get_parent().map.size
-		if point.x < 0 or point.z < 0 or point.x > map_size.x or point.z > map_size.y:
-			_assignment_hint.text = "Choose a point inside the battlefield."
-			return false
-	if kind in ["anchor", "safe", "patrol"]:
-		# Validate every selected ground unit before changing any program. Only
-		# owned footprints are known here; hidden enemy geometry stays private.
-		if (
-			kind == "patrol"
-			and not _assignment_points.is_empty()
-			and _assignment_point_in_structure(units, _assignment_points[0])
-		):
-			_assignment_points.clear()
-			_assignment_hint.text = ("First waypoint is blocked by your building. Choose it again.")
-			return false
-		if _assignment_point_in_structure(units, point * Vector3(1, 0, 1), kind == "safe"):
-			_assignment_hint.text = (
-				"Choose open ground or a completed repair facility for these units."
-				if kind == "safe"
-				else "Choose a point outside your buildings for ground units."
-			)
-			return false
-	if kind == "signature":
-		var abilities = units[0].player.signatures
-		var count = abilities.activate(units, point)
-		_assignment_kind = ""
-		show_notice(
-			(
-				"Anchor assigned · %d units. Hold still inside the sector for 2 s." % count
-				if count > 0
-				else abilities.error
-			)
-		)
-		return count > 0
-	if kind == "escort":
-		if (
-			not is_instance_valid(target)
-			or not "player" in target
-			or target.player != units[0].player
-		):
-			_assignment_hint.text = "Choose a friendly unit."
-			return false
-		if target in units:
-			_assignment_hint.text = "Choose an ally outside the selected escort group."
-			return false
-	if kind == "install":
-		var eligible = units.filter(
-			func(unit): return not unit.program.installed and unit.program.install_left <= 0
-		)
-		if eligible.is_empty() or not units[0].program.valid_service(target):
-			_assignment_hint.text = "Choose a completed friendly HQ or service building."
-			return false
-		var fee = Factions.chip_cost(units[0].player.faction)
-		if not units[0].player.has_resources({"resource_b": eligible.size() * fee}):
-			_assignment_hint.text = (
-				"Need %d electronics for %d chips." % [eligible.size() * fee, eligible.size()]
-			)
-			return false
-		for unit in eligible:
-			unit.program.install_at(target)
-	elif kind == "patrol":
-		_assignment_points.append(point * Vector3(1, 0, 1))
-		if _assignment_points.size() == 1:
-			_assignment_hint.text = "Click the second patrol waypoint."
-			return false
-		for unit in units:
-			unit.program.disable()
-			unit.program.route = _assignment_points.duplicate()
-	else:
-		for unit in units:
-			unit.program.disable()
-			if kind == "anchor":
-				unit.program.anchor = point * Vector3(1, 0, 1)
-			elif kind == "safe":
-				unit.program.safe_point = point * Vector3(1, 0, 1)
-			elif kind == "escort":
-				unit.program.escort = target
+	if point == null or not point.is_finite():
+		return false
+	var map_size = get_parent().map.size
+	if point.x < 0 or point.z < 0 or point.x > map_size.x or point.z > map_size.y:
+		_assignment_hint.text = "Choose a point inside the battlefield."
+		return false
+	var abilities = units[0].player.signatures
+	var count = abilities.activate(units, point)
 	_assignment_kind = ""
-	_hint_left = 4.0
-	_assignment_hint.text = (
-		"Installation ordered."
-		if kind == "install"
-		else "Assignment set. Resume your program, or apply a preset draft."
+	show_notice(
+		(
+			"Anchor assigned · %d units. Hold still inside the sector for 2 s." % count
+			if count > 0
+			else abilities.error
+		)
 	)
-	return true
-
-
-func _assignment_point_in_structure(units, point, allow_service = false):
-	return units.any(
-		func(unit):
-			if unit.movement_domain != Constants.Match.Navigation.Domain.TERRAIN:
-				return false
-			var structure = Utils.Match.Unit.Placement.owned_structure_at(unit.player, point)
-			# Retreat uses a matching facility's service area, not its center.
-			# Share the runtime eligibility rule, including ownership/completion.
-			return (
-				structure != null
-				and (not allow_service or not Repairs.facility_eligible(structure, unit))
-			)
-	)
+	return count > 0
 
 
 func show_notice(message):
@@ -710,34 +597,6 @@ func show_notice(message):
 	_notice_slot.scroll_vertical = 0
 	_assignment_hint.show()
 	_hint_left = 6.0
-
-
-func open_lua_editor(units, path, entry = {}):
-	_open_program_editor(units, path, "lua", entry)
-
-
-func open_visual_editor(units, path, entry = {}):
-	_open_program_editor(units, path, "visual", entry)
-
-
-func _open_program_editor(_units, _path, _mode, _entry):
-	show_notice(
-		"Choose Auto-engage, Defensive, Follow, Guard or Hold Fire in the unit's Orders panel."
-	)
-
-
-func open_lua_copy(units, path, draft, was_paused):
-	open_lua_editor(units, path, draft)
-	if is_instance_valid(program_editor):
-		program_editor._was_paused = was_paused
-
-
-func _refresh_program_library():
-	var menus = get_parent().find_child("UnitMenus")
-	if menus != null:
-		for panel in [menus._program_panel, menus._factory_program_panel]:
-			if is_instance_valid(panel):
-				panel.reload_library()
 
 
 func _refresh_shortcuts():
@@ -787,7 +646,7 @@ func _controls_help():
 
 
 func open_technology():
-	if _overlay != null or is_instance_valid(program_editor) or get_parent().finished:
+	if _overlay != null or get_parent().finished:
 		return
 	cancel_map_assignment()
 	(
@@ -817,7 +676,7 @@ func open_technology():
 
 
 func open_relays():
-	if _overlay != null or is_instance_valid(program_editor) or get_parent().finished:
+	if _overlay != null or get_parent().finished:
 		return
 	cancel_map_assignment()
 	(
@@ -837,7 +696,7 @@ func open_relays():
 
 
 func open_camp(site):
-	if _overlay != null or is_instance_valid(program_editor) or get_parent().finished:
+	if _overlay != null or get_parent().finished:
 		return
 	cancel_map_assignment()
 	(
@@ -851,7 +710,7 @@ func open_camp(site):
 
 
 func open_sites(site = null):
-	if _overlay != null or is_instance_valid(program_editor) or get_parent().finished:
+	if _overlay != null or get_parent().finished:
 		return
 	cancel_map_assignment()
 	(

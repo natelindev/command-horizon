@@ -3,7 +3,8 @@ extends "res://source/match/units/actions/Action.gd"
 enum State { NULL, MOVING_TO_RESOURCE, COLLECTING, MOVING_TO_CC, WAITING }
 enum Wait { NONE, SLOT, DEPLETED, HQ, DELIVERED }
 const FIELD_RADIUS = 13.0
-const LEGACY_FIELD_RADIUS = 10.0
+# Deposits without an authored field origin group around the engineer's first deposit.
+const UNANCHORED_FIELD_RADIUS = 10.0
 const WORK_SLOTS = 2
 const ASSIGNMENTS = &"harvest_assignments"
 const CommandCenter = preload("res://source/match/units/CommandCenter.gd")
@@ -124,7 +125,7 @@ func holds_harvest_slot(deposit):
 func can_work(deposit):
 	if not deposit.can_harvest(_unit):
 		return false
-	# Scene order also reconciles overbooked legacy saves without granting extra work.
+	# Scene order decides which assignments hold a deposit's limited work slots.
 	var index = 0
 	for action in get_tree().get_nodes_in_group(ASSIGNMENTS):
 		if action.holds_harvest_slot(deposit):
@@ -159,7 +160,7 @@ func _field_deposits():
 					if deposit.harvest_origin.is_finite()
 					else (
 						deposit.global_position_yless.distance_squared_to(_field_origin)
-						<= LEGACY_FIELD_RADIUS * LEGACY_FIELD_RADIUS
+						<= UNANCHORED_FIELD_RADIUS * UNANCHORED_FIELD_RADIUS
 					)
 				)
 			)

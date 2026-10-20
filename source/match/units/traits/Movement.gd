@@ -110,8 +110,8 @@ func _physics_process(delta):
 		_recovery_left -= delta
 		if domain == Constants.Match.Navigation.Domain.TERRAIN and not has_occupied_endpoint(false):
 			# A restored sidestep may point into a rebuilt boundary. Give its new
-			# direction one local recovery window; program no-progress timers
-			# still depend only on actual movement.
+			# direction one local recovery window; no-progress timers still
+			# depend only on actual movement.
 			if not _recovery_checked:
 				if _recovery_clearance(_recovery_direction) < GROUND_RECOVERY_DISTANCE:
 					_recovery_direction = _ground_recovery_direction(direction)
@@ -158,7 +158,7 @@ func _advance_exit_clearance(delta):
 		_exit_clearance_target = Vector3.INF
 		return false
 	# This is a short avoidance maneuver, not a new order. Keep the navigation
-	# destination, action, queued orders and program assignments intact.
+	# destination, action and queued orders intact.
 	velocity = offset.normalized() * minf(speed, offset.length() / delta)
 	return true
 

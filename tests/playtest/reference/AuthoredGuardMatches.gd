@@ -1,4 +1,4 @@
-extends "res://tests/playtest/reference/AuthoredRecoveryMatches.gd"
+extends "res://tests/playtest/reference/PresetRecoveryMatches.gd"
 
 
 func _sample():

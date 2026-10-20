@@ -80,10 +80,10 @@ static func recruit(game, player, units, desired):
 			and Production.army_size(Composition.inventory(units)) + Sites.reserved(player) >= cap
 		):
 			return
-		var cost = Sites.price(player.faction, "RocketInfantry")
+		var cost = Sites.price("MercenaryLancer")
 		if (
 			player.resource_a >= reserve.x + cost.resource_a
 			and player.resource_b >= reserve.y + cost.resource_b
 		):
-			site.hire(player, "RocketInfantry")
+			site.hire(player, "MercenaryLancer")
 			return

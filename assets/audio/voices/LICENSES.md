@@ -14,7 +14,7 @@ These voices are reserved for announcements; no unit uses them or their blends.
 
 ## Unit and robot speech — Chatterbox / VCTK / Unmute voice donations
 
-Each of the 31 speaking faction/unit roles and each of the 11 robots has its own voice,
+Each of the 28 speaking faction/unit roles and each of the 11 robots has its own voice,
 cloned from a separate reference recording. Crew are native English speakers, one accent
 family per army (Bastion North American, Helix English, Frontier Australian/Irish). No
 reference is reused, none resembles an announcer, and delivery settings do not count as a

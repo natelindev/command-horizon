@@ -6,8 +6,7 @@ const ARCHIVE = "res://docs/playtests/2026-10-06/engineer-reassignment/reassigne
 func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
 	constants = root.get_node("Constants")
-	plan_rules = load("res://source/match/SkirmishPlan.gd")
-	library = load("res://source/match/programs/ProgramLibrary.gd")
+	plan_rules = load("res://tests/UnitQueries.gd")
 	moving_order = load("res://source/match/units/actions/Moving.gd")
 	attack_move_action = load("res://source/match/units/actions/AttackMoving.gd")
 	repair_order = load("res://source/match/units/actions/Repairing.gd")
@@ -32,10 +31,7 @@ func _run():
 	last_home_pressure = 1792.7499999987
 	saw_home_attack = true
 	defense_point = Vector3(18.5, 0, 40)
-	metrics = {"first_assault": null, "first_program": null}
-	for unit in _policy_army():
-		if unit.program != null and unit.program.mode == "Running":
-			unit.set_meta("policy_programmed", true)
+	metrics = {"first_assault": null}
 	var wounded = _policy_army().filter(
 		func(unit): return unit.type == "Infantry" and unit.hp < unit.hp_max * .8
 	)

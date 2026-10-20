@@ -9,7 +9,7 @@ func _reinforce_guard():
 		if recovery == null:
 			recovery = load("res://tests/playtest/reference/HorizonRecovery.gd").new()
 			print("HORIZON RECALL time=", game.simulation_time)
-		recovery.step(game, service)
+		recovery.step(game)
 		return
 	super()
 

@@ -268,8 +268,6 @@ class Units:
 			"sight_range": 11.0,
 			"attack_domains": [Navigation.Domain.TERRAIN]
 		},
-		"res://source/match/units/EvacTransport.tscn":
-		{"hp": 150, "hp_max": 150, "sight_range": 8.0},
 		"res://source/match/units/SupplyTruck.tscn": {"hp": 180, "hp_max": 180, "sight_range": 7.0},
 		"res://source/match/units/Infantry.tscn":
 		{

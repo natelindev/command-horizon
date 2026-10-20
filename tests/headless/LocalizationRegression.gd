@@ -76,13 +76,13 @@ func _run():
 	_units(game._get_human_player(), "Tank")[0].get_node("Selection").select()
 	await _frames(3)
 	var panel = game.find_child("UnitMenus")._behavior_panel
-	_check(panel._status.text == "行为 · 攻击", "Behavior status not translated")
+	_check(panel._status.text == "行为 · 自动接敌", "Behavior status not translated")
 	_check(
 		TranslationServer.translate(panel._buttons.guard.text) == "警戒", "Guard key not translated"
 	)
 	TranslationServer.set_locale("en")
 	await _frames(3)
-	_check(panel._status.text == "Behavior · Attack", "Behavior status did not switch to English")
+	_check(panel._status.text == "Behavior · Auto-engage", "Behavior status did not switch to English")
 
 	preferences.apply()
 	var archive = "user://locale-regression-%d.tres" % OS.get_process_id()

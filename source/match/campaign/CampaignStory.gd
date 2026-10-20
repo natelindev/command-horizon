@@ -71,15 +71,10 @@ func restore(data):
 	if cinematic:
 		_end_cinematic()
 	_clear()
-	seen = data.get("seen", []).duplicate()
-	_pending = data.get("pending", []).duplicate()
-	_resume = data.get("active", {}).duplicate()
+	seen = data.seen.duplicate()
+	_pending = data.pending.duplicate()
+	_resume = data.active.duplicate()
 	_started = true
-	# A legacy save resumes its battle, rather than replaying an opening briefing.
-	if data.is_empty():
-		_mark_seen(_game.settings.mission_id + ".intro")
-		for id in _milestones():
-			_mark_seen(id)
 
 
 func cue(id):
@@ -214,11 +209,6 @@ func _milestones():
 			var human = _game._get_human_player()
 			if _game.map.relays.filter(func(relay): return relay.captured_by == human).size() >= 2:
 				result.append("split_signal.network")
-		"air_corridor":
-			if _game.sites.size() == 2 and _game.sites.all(func(site): return site.cleared):
-				result.append("air_corridor.batteries")
-			if _game.rescued() > 0:
-				result.append("air_corridor.flight")
 		"broken_foundry":
 			var disabled = _game.nodes.filter(func(entry): return entry.disabled).size()
 			if disabled > 0:
@@ -244,12 +234,12 @@ func _milestones():
 
 func _play(id, index = 0, position = 0.0, remaining = -1.0):
 	var sequence = Narration.scene(id, Globals.options.language)
-	if (index < 0 and not Narration.legacy(id)) or index >= sequence.size():
+	if (index < 0 and not Narration.single_narrator(id)) or index >= sequence.size():
 		return
 	_active_cue = id
 	_line_index = index
 	current = (
-		Narration._legacy_record(id, Globals.options.language)
+		Narration._narrator_record(id, Globals.options.language)
 		if index < 0
 		else sequence[index].duplicate()
 	)
@@ -428,8 +418,6 @@ func _objective_point():
 			return _game.relay.global_position
 		"split_signal":
 			return _game.map.relays[1].global_position
-		"air_corridor":
-			return _game.map.SITES[0]
 		"broken_foundry":
 			return _game.map.NODES[0]
 		"command_horizon":

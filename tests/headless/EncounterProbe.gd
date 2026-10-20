@@ -31,14 +31,14 @@ func _run():
 			"name": "prepared_lancers",
 			"left": ["Tank", "Tank", "Tank"],
 			"right": ["CombatRobot", "CombatRobot", "CombatRobot"],
-			"right_orders": "fire_support",
+			"right_guard": true,
 			"gap": 16.0
 		},
 		{
 			"name": "prepared_prisms",
 			"left": ["Tank", "Tank", "Tank"],
 			"right": ["AdvancedTank", "AdvancedTank"],
-			"right_orders": "fire_support",
+			"right_guard": true,
 			"gap": 16.0
 		},
 		{"name": "lancer_close_duel", "left": ["Tank"], "right": ["CombatRobot"], "gap": 5.0},
@@ -99,7 +99,7 @@ func _run():
 		var report = {
 			"method":
 			(
-				"Actual attack-move or named defender/support programs; mirrored placements; "
+				"Actual attack-move, native guard or repair orders; mirrored placements; "
 				+ "no production or signatures; fixed 60 Hz; costs kept as separate currencies"
 			),
 			"observations": observations
@@ -154,18 +154,15 @@ func _encounter(scenario, reverse):
 		for unit in teams[team]:
 			unit.process_mode = Node.PROCESS_MODE_PAUSABLE
 			if unit.type == "RepairRobot":
-				_check(
-					unit.program.configure(unit.program.Library.defaults("escort_repair")),
-					"Invalid support program"
+				unit.issue_manual_order(
+					load("res://source/match/units/actions/Repairing.gd").new(teams[team][0])
 				)
-				unit.program.escort = teams[team][0]
-				unit.program.run()
-			elif team == 1 and scenario.has("right_orders"):
-				var config = unit.program.Library.defaults(scenario.right_orders)
-				config.radius = 12.0
-				_check(unit.program.configure(config), "Invalid defensive probe program")
-				unit.program.anchor = unit.global_position_yless
-				_check(unit.program.run(), "Defensive probe program could not run")
+			elif team == 1 and scenario.get("right_guard", false):
+				var behavior = load("res://source/match/orders/UnitBehavior.gd")
+				_check(
+					behavior.guard(unit, unit.global_position_yless),
+					"Defensive probe guard order was rejected"
+				)
 			else:
 				unit.issue_manual_order(
 					load("res://source/match/units/actions/AttackMoving.gd").new(

@@ -83,14 +83,10 @@ func _run():
 	game._spawn("CommandLab", human, Vector3(28, 0, 8))
 	await _frames(100)
 	_check(manager.slots.describe("auto-2").valid, "Lab checkpoint missing")
-	var repair = _units(human, "RepairRobot")[0]
-	repair.program.configure(
-		load("res://source/match/programs/ProgramLibrary.gd").defaults("hold_service")
-	)
-	repair.program.anchor = repair.position
-	repair.program.run()
+	var tank = _units(human, "Tank")[0]
+	load("res://source/match/orders/UnitBehavior.gd").guard(tank, tank.position)
 	await _frames(100)
-	_check(manager.slots.describe("auto-3").valid, "Program checkpoint missing")
+	_check(manager.slots.describe("auto-3").valid, "Behavior checkpoint missing")
 	game.relay.captured_by = human
 	game.relay._update_presentation()
 	game.relay.captured.emit(human)

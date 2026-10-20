@@ -4,7 +4,7 @@ var issued = {}
 var replacements = 0
 
 
-func step(game, service):
+func step(game, _service = null):
 	var human = game._get_human_player()
 	for unit in human.get_children():
 		if not unit.is_in_group("units") or not game._alive(unit) or unit.movement_speed <= 0:
@@ -13,9 +13,9 @@ func step(game, service):
 			continue
 		issued[unit.get_instance_id()] = true
 		if unit.type == "RepairRobot":
-			unit.program.anchor = game.map.DEPLOYMENT + Vector3(-7, 0, 0)
-			unit.program.safe_point = game.map.DEPLOYMENT + Vector3(-12, 0, 0)
-			unit.program.apply_prepared(service, null)
+			# Hold behind the deployment zone; a stationary robot services nearby allies.
+			var behavior = load("res://source/match/orders/UnitBehavior.gd")
+			behavior.guard(unit, game.map.DEPLOYMENT + Vector3(-7, 0, 0))
 		else:
 			unit.issue_manual_order(
 				load("res://source/match/units/actions/AttackMoving.gd").new(game.map.DEPLOYMENT)

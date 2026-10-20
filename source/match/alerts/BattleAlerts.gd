@@ -107,7 +107,6 @@ func _draft(kind, key, point):
 		"delay": 0.0,
 		"active": true,
 		"condition": true,
-		"group": "",
 		"expires": 0.0
 	}
 
@@ -159,21 +158,13 @@ func _notify():
 
 
 func _event(unit, kind):
-	var squad = unit.program_squad
-	var group = ""
-	if is_instance_valid(squad):
-		group = "squad:%d" % squad.id
 	var now = _game.simulation_time
 	var window = 6.0 if kind == "loss" else 8.0
 	var existing = null
 	for entry in entries:
-		if entry.kind != kind or now - entry.last > window:
-			continue
-		if group != "" and entry.group == group:
-			existing = entry
-		elif (
-			group == ""
-			and entry.group == ""
+		if (
+			entry.kind == kind
+			and now - entry.last <= window
 			and entry.point.distance_to(unit.global_position) <= 10
 		):
 			existing = entry
@@ -181,27 +172,20 @@ func _event(unit, kind):
 	var draft = (
 		existing.duplicate() if existing != null else _draft(kind, key, unit.global_position)
 	)
-	draft.group = group
 	draft.condition = false
 	draft.point = unit.global_position
 	draft.active = kind != "loss"
 	draft.expires = now + window
 	draft.priority = 100 if kind != "loss" else 90
-	var members = squad.active_members() if is_instance_valid(squad) else [unit]
-	for member in members:
-		var present = draft.units.any(func(reference): return reference.get_ref() == member)
-		if not present:
-			draft.units.append(weakref(member))
-	var prefix = squad.title + " · " if is_instance_valid(squad) else ""
+	if not draft.units.any(func(reference): return reference.get_ref() == unit):
+		draft.units.append(weakref(unit))
 	if kind == "loss":
 		draft.count += 1
 		draft.unread = true
-		draft.title = prefix + ("Unit lost" if draft.count == 1 else "%d units lost" % draft.count)
+		draft.title = "Unit lost" if draft.count == 1 else "%d units lost" % draft.count
 		draft.detail = "Latest loss · %s" % Factions.title(_human.faction, unit.type)
 	else:
-		draft.title = (
-			prefix + ("Base under attack" if kind == "base_attack" else "Units under attack")
-		)
+		draft.title = "Base under attack" if kind == "base_attack" else "Units under attack"
 		draft.detail = "Incoming fire · inspect your units"
 	_publish(draft)
 	_notify()

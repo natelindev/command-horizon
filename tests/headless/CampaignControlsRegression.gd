@@ -59,13 +59,14 @@ func _run():
 	hud._notice_slot.scroll_vertical = 100
 	hud.show_notice("New notice")
 	_check(hud._notice_slot.scroll_vertical == 0, "New notice starts scrolled out of view")
-	hud.arm_program_assignment("anchor", [_units(game._get_human_player(), "Tank")[0]])
+	_units(game._get_human_player(), "Tank")[0].get_node("Selection").select()
+	hud.direct_orders.arm("guard")
 	await _frames(5)
 	_check(hud._relay_buttons[1].get_global_rect() == baseline, "Assignment moved relay controls")
 	_check(hud._assignment_hint.visible, "Assignment instructions missing")
 	hud.show_notice("Queued notice")
 	_check(
-		hud._assignment_hint.text.contains("guard point"),
+		hud._assignment_hint.text.begins_with("Guard: choose a destination."),
 		"Notice displaced assignment instructions"
 	)
 	hud.cancel_map_assignment()

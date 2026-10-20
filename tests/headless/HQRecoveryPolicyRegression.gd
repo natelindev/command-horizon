@@ -6,7 +6,7 @@ var plan
 
 func _run():
 	recovery_policy = load("res://tests/playtest/reference/HQRecoveryPolicy.gd").new()
-	plan = load("res://source/match/SkirmishPlan.gd")
+	plan = load("res://tests/UnitQueries.gd")
 	await super()
 
 

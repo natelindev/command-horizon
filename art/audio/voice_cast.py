@@ -41,10 +41,6 @@ CAST = {
         'SupplyTruck': ('SupplyTruck', ["Supply run! Let's move it!", 'Ammo for the killers!', 'Pedal down! Go!',
                                         'Clear the road! Coming through!', 'You want me in there? Fine!',
                                         "Run them over if we must!", 'Supply truck loaded! Bullets for everyone!']),
-        'EvacTransport': ('EvacTransport', ['Rescue flight! Nobody dies on my watch!', 'Room for more! Move it!',
-                                            'Inbound! Hang on!', 'Full speed! Go, go!',
-                                            'Evasive! Hold on to something!', 'Get them out of the fire!',
-                                            'Rescue bird! Ready to fly through hell!']),
     },
     'helix': {
         'Infantry': ('Infantry', ['Vector operator! I want blood!', 'Signal clean! Let me hunt!',
@@ -80,9 +76,6 @@ CAST = {
                                         'Route set! Full speed!', 'Rolling! Out of my way!',
                                         'Not my fight! Moving!', 'Protect the shipment!',
                                         'Logistics transport! Rolling hot!']),
-        'EvacTransport': ('EvacTransport', ["Recovery flight! Let's go!", 'Cabin open! Get in!',
-                                            'Inbound fast!', 'Extraction route! Punch it!', 'Evasive! Hold on!',
-                                            'Out of the fire! Now!', 'Recovery transport! Ready to fly!']),
     },
     'frontier': {
         'Worker': ('Worker', ['Scrapper! What needs smashing?', 'This rig is itching for a fight!',
@@ -121,10 +114,6 @@ CAST = {
                                         'Convoy rolling! Go!', 'Found a road! Floor it!',
                                         "This cargo's getting through!", 'Heads down! Punch it!',
                                         "Supply rig loaded! Let's ride!"]),
-        'EvacTransport': ('EvacTransport', ['Rescue pilot! Who needs a lift?', 'Nobody gets left out here!',
-                                            'Coming in hot!', 'Clear the landing zone! Move!',
-                                            'Hold tight back there!', 'Out of the crossfire! Go!',
-                                            'Rescue bird! Ready to fly!']),
     },
 }
 STOP_TEXT = {'bastion': 'Holding! Let them come!', 'helix': 'Holding! Waiting for prey!',
@@ -143,20 +132,20 @@ UNIT_VOICES = {
     'bastion': {
         'Hero': 'vctk/p360', 'AdvancedTank': 'Bobby_McFern', 'Tank': 'vctk/p311',
         'AssaultInfantry': 'vctk/p345', 'SniperInfantry': 'Greggy', 'RocketInfantry': 'vctk/p334',
-        'Infantry': 'vctk/p363', 'SupplyTruck': 'oldNerd3', 'EvacTransport': 'efeb',
+        'Infantry': 'vctk/p363', 'SupplyTruck': 'oldNerd3',
         'Helicopter': 'BrokenHypocrite',
     },
     'helix': {
         'Hero': 'vctk/p254', 'AdvancedTank': 'vctk/p274', 'Tank': 'vctk/p287',
         'AssaultInfantry': 'vctk/p232', 'SniperInfantry': 'vctk/p258', 'RocketInfantry': 'vctk/p243',
-        'Infantry': 'vctk/p279', 'SupplyTruck': 'vctk/p227', 'EvacTransport': 'vctk/p286',
+        'Infantry': 'vctk/p279', 'SupplyTruck': 'vctk/p227',
         'Helicopter': 'vctk/p273',
     },
     'frontier': {
         'Hero': 'vctk/p326', 'AdvancedTank': 'vctk/p245', 'Tank': 'Mystery_Sir',
         'AssaultInfantry': 'vctk/p304', 'SniperInfantry': 'vctk/p364', 'RocketInfantry': 'vctk/p292',
         'Infantry': 'vctk/p226', 'Worker': 'vctk/p298', 'SupplyTruck': 'vctk/p315',
-        'EvacTransport': 'vctk/p374', 'Helicopter': 'Lake',
+        'Helicopter': 'Lake',
     },
 }
 ROBOT_VOICE_REFERENCES = {

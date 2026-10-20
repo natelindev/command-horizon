@@ -311,13 +311,11 @@ func _archive_skirmish(map_path):
 	if data != null:
 		var schema = load("res://source/match/saves/SnapshotSchema.gd").new()
 		_check(schema.validate(data.duplicate(true)), map_name + " save rejected: " + schema.error)
-		var legacy = data.duplicate(true)
-		var count = sites_catalog.LEGACY_COUNTS.get(map_name, 0)
-		if count == 0:
-			legacy.mission.erase("points_of_interest")
-		else:
-			legacy.mission.points_of_interest = legacy.mission.points_of_interest.slice(0, count)
-		_check(schema.validate(legacy), map_name + " legacy save rejected: " + schema.error)
+		var sites = data.mission.get("points_of_interest", [])
+		if not sites.is_empty():
+			var partial = data.duplicate(true)
+			partial.mission.points_of_interest = sites.slice(0, sites.size() - 1)
+			_check(not schema.validate(partial), map_name + " save missing a facility accepted")
 	paused = false
 	game.queue_free()
 	await _frames(5)

@@ -2,13 +2,13 @@
 
 ## Battle voices and interface sounds
 
-The offline battle bank contains 687 clips: 293 crew/command lines, 97 robot lines and
+The offline battle bank contains 663 clips: 269 crew/command lines, 97 robot lines and
 297 structure console cues. Three male Kokoro voices are reserved for faction
-announcements. The 31 speaking faction/unit roles and the 11 robots each clone their own
+announcements. The 28 speaking faction/unit roles and the 11 robots each clone their own
 reference voice with Chatterbox. Crew are native English speakers with one accent family
 per army — Bastion North American, Helix English, Frontier mostly Irish/Australian — cast
 from VCTK speakers (self-reported accents) and confidently native CC0 donations. Casting is
-chosen for distinctness: across all 42 references the closest pair scores 0.39 ECAPA
+chosen for distinctness: across all 39 references the closest pair scores 0.39 ECAPA
 cosine (same-person pairs score above roughly 0.5), and none is close to an announcer.
 Selection, movement, attack, ready and stop responses stay with the same voice. Soldiers are
 spoiling for a fight: the script is battle-hungry, delivery runs hot (Chatterbox

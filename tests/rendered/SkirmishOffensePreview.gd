@@ -45,9 +45,6 @@ func _review_wave(region, departures):
 	var clock_before = game.simulation_time
 	root.get_node("MatchSignals").deselect_all_units.emit()
 	scout.get_node("Selection").select()
-	var plan = game.hud.battle_plan
-	if plan._body.visible:
-		plan._toggle_body()
 	var camera = game.get_node("IsometricCamera3D")
 	camera.set_physics_process(false)
 	camera.set_size_safely(30)

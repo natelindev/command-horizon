@@ -74,7 +74,8 @@ func _run():
 		var queue_size = entry.unit.get_node("ProductionQueue").size()
 		_check(entry.batches == 2 and queue_size == 5, "Space release missed full batch")
 
-	_check(_funds() == [336, 132], "Resumed full batches charged wrong amounts")
+	# Twelve paid Helix tanks at 22 M / 10 E each; foundry tanks pay no chip fee.
+	_check(_funds() == [336, 180], "Resumed full batches charged wrong amounts")
 	print("FOUNDRY BATCH RESUME elapsed=", game.simulation_time - start)
 	game.hud._toggle_pause()
 	await _review("resumed")
@@ -155,7 +156,7 @@ func _denial(reason):
 		(
 			entry.batches == 1
 			and entry.unit.get_node("ProductionQueue").size() == 3
-			and _funds() == [534, 258]
+			and _funds() == [534, 270]
 		),
 		"Cleared constraint did not admit exactly one paid batch"
 	)

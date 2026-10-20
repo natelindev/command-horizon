@@ -6,7 +6,7 @@ func _process(_delta):
 
 
 func _load_policy():
-	plan_rules = load("res://source/match/SkirmishPlan.gd")
+	plan_rules = load("res://tests/UnitQueries.gd")
 	factions = load("res://source/match/FactionCatalog.gd")
 	constants = root.get_node("Constants")
 	economy_policy = load("res://source/match/players/skirmish-ai/SkirmishEconomy.gd")

@@ -55,7 +55,7 @@ func _profiles():
 		"Normal research path changed"
 	)
 	_check(normal.defense_responders == 6, "Normal raid response changed")
-	_check(normal.programs and normal.signatures, "Normal lost programs or abilities")
+	_check(normal.signatures, "Normal lost faction abilities")
 	for index in 3:
 		_check(Difficulty.of(index) == Difficulty.PROFILES[index], "Profile lookup mismatch")
 	_check(Difficulty.of(-1) == Difficulty.PROFILES[0], "Negative difficulty not clamped")

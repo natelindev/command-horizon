@@ -20,7 +20,7 @@ CHANNELS = {
 UNIT_CLASS = {
     'Infantry': 'infantry', 'RocketInfantry': 'infantry', 'AssaultInfantry': 'infantry',
     'SniperInfantry': 'sniper', 'Hero': 'commander', 'Tank': 'armor', 'AdvancedTank': 'armor',
-    'Helicopter': 'air', 'EvacTransport': 'air', 'SupplyTruck': 'logistics', 'Worker': 'logistics',
+    'Helicopter': 'air', 'SupplyTruck': 'logistics', 'Worker': 'logistics',
 }
 # Faction gear: Bastion analog military, Helix digital codec, Frontier older and rougher.
 GEAR = {

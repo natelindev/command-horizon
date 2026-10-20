@@ -45,9 +45,6 @@ func _review_recovery(label):
 	await _frames(30)
 	game.hud._toggle_pause()
 	var clock = game.simulation_time
-	var panel = game.hud.battle_plan
-	if panel._body.visible:
-		panel._toggle_body()
 	var camera = game.get_node("IsometricCamera3D")
 	camera.set_physics_process(false)
 	camera.set_size_safely(30)

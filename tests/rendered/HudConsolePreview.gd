@@ -2,8 +2,8 @@ extends "res://tests/headless/SaveRestoreEdges.gd"
 
 # Rendered review captures for the faction battle consoles in English and Chinese:
 # closed deck, worker, tank, producer with a full paid queue while other buildings
-# produce, the production overview with nothing selected, a hidden battle plan,
-# multi-selection, lit alerts beacon, pause menu and technology.
+# produce, the production overview with nothing selected, multi-selection, lit
+# alerts beacon, pause menu and technology.
 # Run without --headless: Godot --path . --script tests/rendered/HudConsolePreview.gd
 
 const OUTPUT = "res://art/hud-console/"
@@ -56,9 +56,6 @@ func _battle(faction, map_name, suffix):
 	for player in get_nodes_in_group("players"):
 		if player != game._get_human_player():
 			player.set_process(false)
-	# Hiding the plan for a capture must not touch the reviewer's settings file.
-	var preference_path = "user://hud-preview-options-%d.tres" % OS.get_process_id()
-	_check(game.hud.battle_plan == null, "Skirmish still has a battle-plan panel")
 	var human = game._get_human_player()
 	var camera = game.get_node("IsometricCamera3D")
 	var tank = _units(human, "Tank")[0]
@@ -106,11 +103,6 @@ func _battle(faction, map_name, suffix):
 	root.get_node("MatchSignals").deselect_all_units.emit()
 	await _frames(20)
 	await _shot(label + "-production")
-
-	await _frames(10)
-	await _shot(label + "-plan-hidden")
-
-	DirAccess.remove_absolute(ProjectSettings.globalize_path(preference_path))
 	await _select(_units(human, "Tank") + _units(human, "Worker"))
 	await _shot(label + "-multi")
 	root.get_node("MatchSignals").deselect_all_units.emit()

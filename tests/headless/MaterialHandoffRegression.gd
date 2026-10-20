@@ -5,7 +5,7 @@ var demand = Vector2i.ZERO
 
 func _run():
 	policy = load("res://tests/playtest/reference/MaterialHandoffPolicy.gd").new()
-	plan = load("res://source/match/SkirmishPlan.gd")
+	plan = load("res://tests/UnitQueries.gd")
 	harvest = load("res://source/match/units/actions/CollectingResourcesSequentially.gd")
 	orders = load("res://source/match/orders/ManualOrders.gd")
 	labor = load("res://source/match/players/skirmish-ai/SkirmishLabor.gd")

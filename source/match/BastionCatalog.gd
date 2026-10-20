@@ -6,7 +6,7 @@ const STRUCTURE_LIMIT = 40
 const INFANTRY_ROLES = ["Infantry", "RocketInfantry", "SniperInfantry", "AssaultInfantry", "Hero"]
 const GARRISON_CAPACITY = 8
 
-const MISSION_NAMES = {"SupplyTruck": "Supply truck", "EvacTransport": "Rescue VTOL"}
+const MISSION_NAMES = {"SupplyTruck": "Supply truck"}
 
 const NAMES = {
 	"MercenaryWarden": "Iron Warden",

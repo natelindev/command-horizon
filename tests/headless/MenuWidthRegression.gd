@@ -1,6 +1,5 @@
 extends "res://tests/headless/RosterLayoutRegression.gd"
 
-const EARNED = "res://docs/playtests/2026-10-06/program-recovery/pressure-helix-unsupported.json"
 var capture_prefix = ""
 
 
@@ -9,52 +8,7 @@ func _run():
 	var options = root.get_node("Globals").options
 	var original = options.capture()
 	options.restore({"screen": 1, "interface_scale": 1.5, "edge_scrolling": false})
-	var loaded = await Restore.new().restore(self, FileStore.new().read_file(EARNED))
-	_check(loaded.ok, "Earned recovery state could not restore")
-	if loaded.ok:
-		game = loaded.game
-		_set_size()
-		var human = game._get_human_player()
-		var tank = _units(human, "Tank")[0]
-		root.get_node("MatchSignals").deselect_all_units.emit()
-		tank.get_node("Selection").select()
-		var menus = game.find_child("UnitMenus")
-		await _frames(20)
-		_check_width(menus, "earned")
-		await _review_width(menus, "earned")
-		var bindings = load("res://source/input/KeyBindings.gd")
-		var profile = bindings.defaults()
-		profile.keys.move_order = KEY_PAGEUP | KEY_MASK_CTRL | KEY_MASK_ALT
-		profile.keys.attack_target = KEY_PAGEDOWN | KEY_MASK_CTRL | KEY_MASK_ALT
-		profile.keys.attack_move = KEY_END | KEY_MASK_CTRL | KEY_MASK_ALT
-		options.restore(
-			{"screen": 1, "interface_scale": 1.5, "edge_scrolling": false, "key_bindings": profile}
-		)
-		_set_size()
-		menus._refresh_buttons()
-		await _frames(20)
-		_check_width(menus, "remapped")
-		await _review_width(menus, "remapped")
-		options.restore(
-			{
-				"screen": 1,
-				"interface_scale": 1.5,
-				"edge_scrolling": false,
-				"key_bindings": original.key_bindings
-			}
-		)
-		_set_size()
-		for scale_value in [1.0, 1.25, 1.5]:
-			var resized = options.capture()
-			resized.interface_scale = scale_value
-			options.restore(resized)
-			_set_size()
-			await _frames(20)
-			_check_width(menus, "scale-" + str(scale_value))
-			await _review_width(menus, "scale-" + str(scale_value))
-		paused = false
-		game.queue_free()
-		await _frames(5)
+	await _bindings_and_scales(options, original)
 	for faction in ["bastion", "helix", "frontier"]:
 		await _layout_fixture(faction)
 		_set_size()
@@ -87,6 +41,51 @@ func _run():
 		push_error(error)
 	print("Menu width: %d failures" % errors.size())
 	quit(0 if errors.is_empty() else 1)
+
+
+func _bindings_and_scales(options, original):
+	await _layout_fixture("helix")
+	_set_size()
+	var human = game._get_human_player()
+	var tank = load("res://source/match/units/Tank.tscn").instantiate()
+	game._setup_and_spawn_unit(tank, Transform3D(Basis(), Vector3(40, 0, 25)), human, false)
+	var menus = _select(tank)
+	await _frames(20)
+	_check_width(menus, "tank")
+	await _review_width(menus, "tank")
+	var bindings = load("res://source/input/KeyBindings.gd")
+	var profile = bindings.defaults()
+	profile.keys.move_order = KEY_PAGEUP | KEY_MASK_CTRL | KEY_MASK_ALT
+	profile.keys.attack_target = KEY_PAGEDOWN | KEY_MASK_CTRL | KEY_MASK_ALT
+	profile.keys.attack_move = KEY_END | KEY_MASK_CTRL | KEY_MASK_ALT
+	options.restore(
+		{"screen": 1, "interface_scale": 1.5, "edge_scrolling": false, "key_bindings": profile}
+	)
+	_set_size()
+	menus._refresh_buttons()
+	await _frames(20)
+	_check_width(menus, "remapped")
+	await _review_width(menus, "remapped")
+	options.restore(
+		{
+			"screen": 1,
+			"interface_scale": 1.5,
+			"edge_scrolling": false,
+			"key_bindings": original.key_bindings
+		}
+	)
+	_set_size()
+	for scale_value in [1.0, 1.25, 1.5]:
+		var resized = options.capture()
+		resized.interface_scale = scale_value
+		options.restore(resized)
+		_set_size()
+		await _frames(20)
+		_check_width(menus, "scale-" + str(scale_value))
+		await _review_width(menus, "scale-" + str(scale_value))
+	paused = false
+	game.queue_free()
+	await _frames(5)
 
 
 func _set_size():
@@ -134,7 +133,7 @@ func _check_width(menus, label):
 
 
 func _review_width(menus, label):
-	if menus._program_panel != null:
-		menus._scroll.ensure_control_visible(menus._program_panel._reason)
+	# Scroll to the end so the last row is checked in its scrolled position too.
+	menus._scroll.scroll_vertical = int(menus._scroll.get_v_scroll_bar().max_value)
 	await _frames(8)
 	_check_width(menus, label + "-scrolled")

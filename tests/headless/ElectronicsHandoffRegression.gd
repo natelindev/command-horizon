@@ -13,7 +13,7 @@ var original_policy = false
 
 func _run():
 	policy = load("res://tests/playtest/reference/ElectronicsHandoffPolicy.gd").new()
-	plan = load("res://source/match/SkirmishPlan.gd")
+	plan = load("res://tests/UnitQueries.gd")
 	harvest = load("res://source/match/units/actions/CollectingResourcesSequentially.gd")
 	orders = load("res://source/match/orders/ManualOrders.gd")
 	labor = load("res://source/match/players/skirmish-ai/SkirmishLabor.gd")

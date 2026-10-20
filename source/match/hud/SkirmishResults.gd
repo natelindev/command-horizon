@@ -266,17 +266,6 @@ static func build(hud, result):
 		advice.add_theme_color_override("font_color", BattleTheme.IVORY)
 		details_box.add_child(advice)
 
-	if game.battle_record.data.statistics.recorded_from > 0:
-		var note = Label.new()
-		note.text = (
-			hud.tr("Economy and destruction recorded since %s")
-			% game.battle_record._clock(game.battle_record.data.statistics.recorded_from)
-		)
-		note.add_theme_font_size_override("font_size", 11)
-		note.add_theme_color_override("font_color", Color("798481"))
-		note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		details_box.add_child(note)
-
 	# Right Pane: Tactical Telemetry
 	var right_pane = VBoxContainer.new()
 	right_pane.size_flags_horizontal = Control.SIZE_EXPAND_FILL

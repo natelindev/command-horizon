@@ -48,7 +48,6 @@ func _idle_and_navigation():
 	)
 	var workers = _units(game._get_human_player(), "Worker")
 	var action = workers[0].action
-	var program = workers[0].program
 	var camera = game.get_node("IsometricCamera3D")
 	camera.set_position_safely(Vector3(42, 0, 42))
 	paused = true
@@ -60,10 +59,7 @@ func _idle_and_navigation():
 		get_nodes_in_group("selected_units").size() == 4,
 		"Paused alert navigation did not select engineers"
 	)
-	_check(
-		workers[0].action == action and workers[0].program == program,
-		"Inspection changed engineer authority"
-	)
+	_check(workers[0].action == action, "Inspection changed engineer orders")
 	_check(
 		(
 			camera.unproject_position(workers[0].global_position_yless).distance_to(
@@ -110,14 +106,12 @@ func _combat_events():
 	var victims = []
 	for index in range(6):
 		victims.append(_spawn_weapon("Infantry", human, Vector3(35 + index * 0.5, 0, 25)))
-	var squad = human.squad_roster.create("Eastern screen", victims)
-	_check(squad != null, "Casualty squad could not be created")
 	var attacker = _spawn_weapon("Tank", sides[1], Vector3(40, 0, 25))
 	await _frames(5)
 	victims[0].receive_weapon_hit(attacker)
 	_check(_kind("attack", true).size() == 1, "Actual damage did not create a location alert")
 	var incoming = _kind("attack", true)[0]
-	_check(incoming.title.begins_with("Eastern screen"), "Incoming fire lost squad name")
+	_check(incoming.title == "Units under attack", "Incoming fire has the wrong title")
 	for victim in victims:
 		victim.hp = 1
 		victim.receive_weapon_hit(attacker)
@@ -127,10 +121,8 @@ func _combat_events():
 	if losses.is_empty():
 		return
 	var loss = losses[0]
-	_check(alerts.live_units(loss).is_empty(), "Destroyed squad retained selectable units")
-	_check(
-		loss.title == "Eastern screen · 6 units lost", "Destroyed squad history lost its identity"
-	)
+	_check(alerts.live_units(loss).is_empty(), "Destroyed group retained selectable units")
+	_check(loss.title == "6 units lost", "Grouped loss history has the wrong title")
 	panel.navigate(loss.id)
 	_check(
 		(
@@ -139,7 +131,7 @@ func _combat_events():
 			)
 			< 1
 		),
-		"Destroyed squad location is not navigable"
+		"Destroyed group location is not navigable"
 	)
 	var count = alerts.entries.size()
 	attacker.hp = 1
@@ -262,17 +254,16 @@ func _economy_conditions():
 		"Explicit HQ reassignment did not resolve/deliver cargo"
 	)
 	courier.process_mode = Node.PROCESS_MODE_DISABLED
-	# A real paid chip job stalls when its lab is destroyed, then resumes unchanged.
+	# A real paid lab-gated job stalls when its lab is destroyed, then resumes unchanged.
 	var factory = _units(human, "VehicleFactory")[0]
 	var queue = factory.get_node("ProductionQueue")
 	human.resource_a = 500
 	human.resource_b = 500
-	queue.fit_chips = true
-	var tank_scene = load("res://source/match/units/Tank.tscn")
-	var job = queue.produce(tank_scene)
-	_check(job != null, "Paid chip job could not start")
-	var extra = queue.produce(tank_scene)
-	_check(extra != null, "Second paid chip job could not start")
+	var armor_scene = load("res://source/match/units/AdvancedTank.tscn")
+	var job = queue.produce(armor_scene)
+	_check(job != null, "Paid lab-gated job could not start")
+	var extra = queue.produce(armor_scene)
+	_check(extra != null, "Second paid lab-gated job could not start")
 	var lab = _units(human, "CommandLab")[0]
 	lab.hp = 0
 	await _frames(4)
@@ -350,18 +341,20 @@ func _history_and_restore():
 	for entry in alerts.entries:
 		_check(not ids.has(entry.id), "Alert row IDs collided")
 		ids[entry.id] = true
-	# Distinct active squads saturate the history without lower-priority condition churn.
+	# Distinct active attack sites saturate the history without lower-priority condition churn.
 	var weak_attacker = _units(_sides()[1], "Infantry")[0]
 	for index in range(26):
 		var member = _spawn_weapon("Infantry", own, Vector3(36, 0, 30))
-		own.squad_roster.create("Screen %d" % index, [member])
+		# Attack alerts group within 10 m; place each victim on its own site.
+		member.global_position = Vector3(4 + index % 6 * 11, 0, 4 + index / 6 * 11)
 		member.receive_weapon_hit(weak_attacker)
+	var urgent = alerts.entries.filter(func(entry): return entry.active and entry.priority == 100)
 	_check(
+		alerts.entries.size() == alerts.LIMIT and urgent.size() == alerts.LIMIT,
 		(
-			alerts.entries.size() == alerts.LIMIT
-			and alerts.entries.all(func(entry): return entry.active and entry.priority == 100)
-		),
-		"Active squad burst did not honor alert cap/priority"
+			"Active attack burst did not honor alert cap/priority: %d entries, %d urgent"
+			% [alerts.entries.size(), urgent.size()]
+		)
 	)
 	var retained = alerts.entries.map(func(entry): return entry.id)
 	for _index in range(4):

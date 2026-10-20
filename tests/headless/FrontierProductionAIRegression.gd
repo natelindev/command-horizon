@@ -47,56 +47,39 @@ func _procurement(faction):
 	var factory = _units(player, "VehicleFactory")[0]
 	var lab = _units(player, "CommandLab")[0]
 	factory.production_queue.cancel_all()
-	factory.production_queue.fit_chips = false
 	player._production_index = 0
 	# This exact-price fixture isolates hardware procurement. Research saving
 	# has its own live-income and priority checks in ResearchEconomyRegression.
 	player.coordination_unlocked = true
 	var cost = factions.cost(player, "Tank")
-	var fitted = faction == "frontier"
-	var fee = factions.chip_cost(faction) if fitted else 0
 	var units = [factory, lab]
 	_check(player._research_candidate(units).is_empty(), "Procurement fixture reserves research")
 	var requests = production.requests(game, player, units)
 	_check(requests.size() == 1 and requests[0].role == "Tank", "Expected one tank request")
 	if requests.size() != 1:
 		return false
-	_check(
-		requests[0].cost.resource_b == cost.resource_b + fee,
-		faction + ": AI forecast missed chip policy"
-	)
-	_check(not factory.production_queue.fit_chips, "Read-only forecast changed the queue")
-	if fitted:
-		player.resource_a = cost.resource_a
-		player.resource_b = cost.resource_b
-		player._train(units, "")
-		_check(
-			factory.production_queue.size() == 0,
-			"AI bought a fitted tank before its chip was funded"
-		)
-		_check(
-			player.resource_a == cost.resource_a and player.resource_b == cost.resource_b,
-			"Unfunded fitting partially spent resources"
-		)
+	_check(requests[0].cost == cost, faction + ": AI forecast differs from the factory price")
+	_check(factory.production_queue.size() == 0, "Read-only forecast changed the queue")
 	player.resource_a = cost.resource_a
-	player.resource_b = cost.resource_b + fee
+	player.resource_b = cost.resource_b - 1
+	player._train(units, "")
+	_check(factory.production_queue.size() == 0, "AI bought a tank it could not afford")
+	_check(
+		player.resource_a == cost.resource_a and player.resource_b == cost.resource_b - 1,
+		"Unfunded purchase partially spent resources"
+	)
+	player.resource_b = cost.resource_b
 	player._train(units, "")
 	var queue = factory.production_queue.get_elements()
 	_check(queue.size() == 1, "Funded AI job was not purchased")
 	if queue.size() != 1:
 		return false
 	var job = queue[0]
-	_check(job.fitted_chip == fitted, faction + ": AI bought wrong chip state")
-	_check(
-		job.paid_cost.resource_b == cost.resource_b + fee, "Actual AI charge differs from forecast"
-	)
+	_check(job.paid_cost == cost, "Actual AI charge differs from forecast")
 	_check(player.resource_a == 0 and player.resource_b == 0, "AI purchase did not use exact funds")
 	_check(
-		(
-			job.time_total
-			== factions.duration(player, "Tank") + (factions.chip_seconds(faction) if fitted else 0)
-		),
-		"AI fitting did not use actual factory duration"
+		job.time_total == factions.duration(player, "Tank"),
+		"AI purchase did not use actual factory duration"
 	)
 	var previous = _units(player, "Tank")
 	paused = false
@@ -119,8 +102,6 @@ func _procurement(faction):
 			player.production_factor()
 		)
 	_check(built.size() == 1, "Paid factory job did not deliver one tank")
-	if built.size() == 1:
-		_check(built[0].program.installed == fitted, "Delivered AI tank lost its paid hardware")
 	if faction == "frontier":
 		lab.hp = 0
 		await _frames(3)
@@ -129,12 +110,9 @@ func _procurement(faction):
 		player.resource_b = cost.resource_b
 		player._train([factory], "")
 		queue = factory.production_queue.get_elements()
+		_check(queue.size() == 1, "Lost lab blocked tank production")
 		_check(
-			queue.size() == 1 and not queue[0].fitted_chip, "Lost lab blocked conventional fallback"
-		)
-		_check(
-			player.resource_a == 0 and player.resource_b == 0,
-			"Lab-loss fallback charged unavailable chip"
+			player.resource_a == 0 and player.resource_b == 0, "Lab-loss purchase charged extra"
 		)
 		factory.production_queue.cancel_all()
 		_check(

@@ -3,14 +3,12 @@ extends "res://tests/headless/SaveRestoreEdges.gd"
 var shooting
 var moving
 var rules
-var lua_action_type
 
 
 func _run():
 	shooting = load("res://source/match/units/actions/AttackingWhileInRange.gd")
 	moving = load("res://source/match/units/actions/Moving.gd")
 	rules = load("res://source/match/combat/CombatRules.gd")
-	lua_action_type = load("res://source/match/programs/LuaAction.gd")
 	await _setup("bastion")
 	_check(await _bastion() == true, "Bastion suite did not finish")
 	await _clean_match()
@@ -74,12 +72,6 @@ func _bastion():
 	_check(air.hp == hp, "Changing target domain reset the shared reload")
 	await _frames(30)
 	_check(is_equal_approx(hp - air.hp, 5.0), "Walker AA profile did not fire after shared reload")
-	# Lua contact legality must agree with actual short-range AA.
-	air.global_position.x = 47
-	var lua_action = lua_action_type.new(walker.program)
-	lua_action._unit = walker
-	_check(not lua_action._record(air, 1).can_attack, "Lua advertises out-of-range walker AA")
-	lua_action.free()
 	print("PASS: Bastion ground/AA range, armor and shared reload")
 	return true
 
@@ -143,10 +135,7 @@ func _helix():
 	_check(is_equal_approx(air.hp_max - air.hp, 5), "Lancer did not actually intercept aircraft")
 	# Preserve a longer existing cooldown across a switch and a real archive reload.
 	_check(walker.request_weapon_mode("precision"), "Return to Precision rejected")
-	var contact_reader = lua_action_type.new(walker.program)
-	contact_reader._unit = walker
-	_check(not contact_reader._record(air, 1).can_attack, "Lua ignores the switching lock")
-	contact_reader.free()
+	_check(walker.weapon_delay() > 0, "Mode switch does not lock firing")
 	walker.issue_manual_order(shooting.new(air))
 	var hp = air.hp
 	await _frames(60)
@@ -166,10 +155,10 @@ func _helix():
 	var broken_mode = broken.units.filter(func(entry): return entry.id == saved.id)[0].weapon_mode
 	broken_mode.pending_weapon_mode = "interception"
 	_check(not Restore.new().prepare(broken), "Same-mode transition accepted")
-	var legacy = _legacy_snapshot(snapshot, 1)
-	var legacy_reader = Restore.new()
-	_check(legacy_reader.prepare(legacy), "Version-one archive rejected")
-	_check(not legacy_reader.warnings.is_empty(), "Legacy Lancer mode migration is not disclosed")
+	_check(
+		not Restore.new().prepare(_legacy_snapshot(snapshot, 1)),
+		"Retired version-one archive was accepted"
+	)
 	var archive = "user://weapon-mode-%d.json" % OS.get_process_id()
 	var file = FileStore.new()
 	_check(file.write_file(archive, snapshot), "Weapon archive write failed")
@@ -203,17 +192,7 @@ func _helix():
 	# The new Precision shot prepares for 0.75 s after the preserved reload.
 	await _frames(220)
 	_check(ground.hp < ground_hp, "Precision never resumed firing after the restored cooldown")
-	paused = true
-	var old = await Restore.new().restore(self, legacy)
-	_check(old.ok, "Version-one archive cannot reconstruct")
-	if not old.ok:
-		return false
-	game = old.game
-	walker = _units(game._get_human_player(), "CombatRobot")[0]
-	_check(
-		walker.weapon_mode == "precision" and walker.weapon_switch_left == 0, "Legacy mode default"
-	)
-	print("PASS: Helix domains, switch firing lock, movement/pause, cooldown and v1/v2 archives")
+	print("PASS: Helix domains, switch firing lock, movement/pause, cooldown and archives")
 	return true
 
 

@@ -1,6 +1,6 @@
 # Campaign narration
 
-The 26 authored lines in `narration.json` connect the six existing Bastion campaign operations. Every line has an English and Simplified Chinese recording, including four shared defeat/base/siege commander cues. There are 52 actual shipped WAVs (approximately 590.6 seconds). The game has no speech synthesis, network, Python, or Hugging Face dependencies at runtime.
+`narration.json` holds the four shared Bastion Command cues (defeat, enemy base, siege commander arrival and defeat). Operation-specific lines are recorded dialogue in `conversations.json`, which replaced the earlier single-narrator lines. Every cue has an English and Simplified Chinese recording (8 WAVs). The game has no speech synthesis, network, Python, or Hugging Face dependencies at runtime.
 
 These recordings use neural speech models downloaded from Hugging Face, replacing the initial macOS system voice draft:
 
@@ -13,7 +13,7 @@ Both model cards identify the weights as Apache-2.0 licensed. The Mandarin model
 
 English uses speed 0.98. Mandarin is split at sentence boundaries and uses the model author's token-length speed curve with a 1.05 multiplier to avoid rushing long phrases. Sentence boundaries have 160 ms of silence. FFmpeg normalizes clips to `I=-18:TP=-3:LRA=7`, then stores mono 16-bit PCM WAV at 24,000 Hz. The existing Voice audio bus controls volume and radio processing. No image, model, texture, or character artwork is replaced.
 
-`CampaignNarration.gd` selects the recording and subtitle in the chosen UI language. A locale change updates captions immediately and lets the current recording finish; subsequent cues use the new language. Critical battlefield warnings pause narration, then it resumes; routine unit replies are suppressed during narration and work again afterward.
+`CampaignNarration.gd` plays the English recording in both locales and shows the subtitle in the chosen UI language; a locale change updates captions immediately. Critical battlefield warnings pause narration, then it resumes; routine unit replies are suppressed during narration and work again afterward.
 
 ## Regeneration
 

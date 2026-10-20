@@ -20,8 +20,6 @@ func _review_width(menus, label):
 		await _native_controls(menus)
 	if label not in ["earned", "remapped", "bastion-Worker", "helix-Tank", "frontier-RepairRobot"]:
 		return
-	if menus._program_panel != null:
-		menus._scroll.ensure_control_visible(menus._program_panel._reason)
 	await _frames(8)
 	await RenderingServer.frame_post_draw
 	if capture_prefix != "":
@@ -34,7 +32,6 @@ func _review_width(menus, label):
 func _native_controls(menus):
 	var unit = menus._selection[0]
 	var action = unit.action
-	var safe = unit.program.safe_point
 	var before_time = game.simulation_time
 	var funds = Vector2i(unit.player.resource_a, unit.player.resource_b)
 	var direct = menus._direct_orders
@@ -48,25 +45,7 @@ func _native_controls(menus):
 	while direct.kind != "" and Time.get_ticks_msec() < deadline:
 		await _frames(1)
 	_check(direct.kind == "", "Native Escape did not cancel Attack move")
-	var button = menus._program_panel._safe_button
-	button.grab_focus()
-	menus._scroll.ensure_control_visible(button)
-	await _frames(8)
-	_check(
-		menus._scroll.get_global_rect().encloses(button.get_global_rect()),
-		"Focused safe button hidden"
-	)
-	print("NATIVE WIDTH: Enter to arm focused Set safe point")
-	while game.hud._assignment_kind != "safe" and Time.get_ticks_msec() < deadline:
-		await _frames(1)
-	_check(game.hud._assignment_kind == "safe", "Native Enter did not arm safe point")
-	print("NATIVE WIDTH: Escape to cancel safe point")
-	while game.hud._assignment_kind != "" and Time.get_ticks_msec() < deadline:
-		await _frames(1)
-	_check(game.hud._assignment_kind == "", "Native Escape did not cancel safe point")
-	_check(
-		unit.action == action and unit.program.safe_point == safe, "Cancelled input changed orders"
-	)
+	_check(unit.action == action, "Cancelled input changed orders")
 	_check(game.simulation_time == before_time, "Native review advanced paused time")
 	_check(
 		Vector2i(unit.player.resource_a, unit.player.resource_b) == funds,

@@ -1,5 +1,7 @@
 # Playable game development roadmap
 
+2026-10-20: the Lua runtime and programmable-unit system described in the stages below were removed from the codebase after [built-in behaviors](UNIT_BEHAVIORS.md) replaced them, together with the unreachable Air Corridor operation and the retired Battle plan advisor. Those stages remain as delivery history.
+
 The user authorized sequential implementation of the remaining game design on 2026-10-01. This plan tracks delivery; the core gameplay specification remains the behavior contract. Complete and verify each playable stage before expanding it. Existing art demos remain available.
 
 ## Current priority — complete the playable skirmish loop

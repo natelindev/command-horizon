@@ -14,12 +14,11 @@ func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
 	tank_scene = load("res://source/match/units/Tank.tscn")
 	harvest = load("res://source/match/units/actions/CollectingResourcesSequentially.gd")
-	plan = load("res://source/match/SkirmishPlan.gd")
 	factions = load("res://source/match/FactionCatalog.gd")
 	for faction in ["bastion", "helix"]:
 		await _fixture(faction)
 		await _conventional(faction)
-		await _retrofit(faction)
+		await _lab(faction)
 		paused = false
 		game.queue_free()
 		await _frames(5)
@@ -35,48 +34,10 @@ func _review(label):
 	root.mode = Window.MODE_WINDOWED
 	root.size = Vector2i(1280, 720)
 	await _frames(5)
-	var panel = game.hud.battle_plan
-	panel.refresh()
-	await _frames(5)
-	var step = plan.next_step(human)
-	var clock = game.simulation_time
-	var actions = step.units.map(func(unit): return unit.action)
-	await _click(panel._action)
-	var selected = get_nodes_in_group("selected_units")
-	_check(selected.size() == step.units.size(), "Recovery selection count differs")
-	for index in step.units.size():
-		_check(step.units[index] in selected, "Recovery selection missed an intended unit")
-		_check(step.units[index].action == actions[index], "Recovery selection issued an order")
-	_check(game.simulation_time == clock, "Recovery selection advanced paused time")
-	_check(
-		not panel.get_global_rect().intersects(game.find_child("Minimap").get_global_rect()),
-		"Recovery guidance overlaps minimap"
-	)
-	_check(
-		not panel.get_global_rect().intersects(game.find_child("UnitMenus").get_global_rect()),
-		"Recovery guidance overlaps controls"
-	)
 	await RenderingServer.frame_post_draw
 	var frame = root.get_texture().get_image()
-	_check(frame.get_size() == Vector2i(1280, 720), "Recovery review resolution changed")
+	_check(frame.get_size() == Vector2i(1280, 720), "Opening armor review resolution changed")
 	frame.save_png("res://art/skirmish/opening-armor-%s.png" % label)
 	print("OPENING CAPTURE ", label)
 	return true
 
-
-func _click(control):
-	var point = root.get_final_transform() * control.get_global_rect().get_center()
-	var motion = InputEventMouseMotion.new()
-	motion.position = point
-	motion.global_position = point
-	root.push_input(motion, false)
-	await _frames(2)
-	for pressed in [true, false]:
-		var event = InputEventMouseButton.new()
-		event.position = point
-		event.global_position = point
-		event.button_index = MOUSE_BUTTON_LEFT
-		event.button_mask = MOUSE_BUTTON_MASK_LEFT if pressed else 0
-		event.pressed = pressed
-		root.push_input(event, false)
-		await _frames(3)

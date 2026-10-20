@@ -1,6 +1,6 @@
 # Programmable Combat RTS — Living Game Design
 
-2026-10-17 decision: [Attack, Defensive, Follow, Guard and Hold Fire](UNIT_BEHAVIORS.md) replace player-authored unit programs. Economy, combat counters, research and campaign objectives continue; First Orders now teaches Guard. Earlier programming sections below are historical.
+2026-10-17 decision: [Attack, Defensive, Follow, Guard and Hold Fire](UNIT_BEHAVIORS.md) replace player-authored unit programs. Economy, combat counters, research and campaign objectives continue; First Orders now teaches Guard. Earlier programming sections below are historical: on 2026-10-20 the Lua runtime, presets, chips, squads, rule/code editors, LLM assistant and program arena were removed from the codebase, together with the unreachable Air Corridor operation (04) and the retired Battle plan advisor.
 
 Status: playable two-faction skirmish, programmable units and six Bastion campaign prototypes, version 0.7  
 Last updated: 2026-10-04  

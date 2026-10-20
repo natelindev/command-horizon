@@ -50,7 +50,7 @@ func _run():
 			intact.queue_free()
 			await _frames(2)
 		await _real_attack_and_reload(owner, tank)
-		await _legacy_foundations()
+		await _foundation_archives()
 		paused = false
 		game.queue_free()
 		await _frames(5)
@@ -133,9 +133,8 @@ func _real_attack_and_reload(owner, tank):
 	)
 
 
-func _legacy_foundations():
+func _foundation_archives():
 	var owner = game._get_human_player()
-	var builder = Snapshot.new()
 	var fixtures = []
 	for index in 3:
 		var site = _site_spawn("CommandCenter", owner, Vector3(18 + index * 7, 0, 65), true)
@@ -143,51 +142,38 @@ func _legacy_foundations():
 		var progress = [0.0, .43, .81][index]
 		if progress > 0:
 			site.construct(progress)
-		fixtures.append(site)
-	var data = builder.capture(game)
-	data.snapshot_version = 9
-	for stance_unit in data.units:
-		stance_unit.erase("stance")
-	data.erase("neutral_buildings")
-	for ambient in data.get("ambient", []):
-		ambient.erase("combat")
-	var ids = fixtures.map(func(site): return builder._reference(site))
-	for index in fixtures.size():
-		var saved = data.units.filter(func(unit): return unit.id == ids[index])[0]
 		# A pristine new foundation, an undamaged partial build, and a damaged one.
-		saved.hp = 1 + floorf(saved.construction * 499) - (13 if index == 2 else 0)
+		if index == 2:
+			site.hp -= 13
+		fixtures.append(site)
+	var health = fixtures.map(func(site): return site.hp)
+	var progress = fixtures.map(func(site): return site._construction_progress)
 	var restore = Restore.new()
-	var loaded = await restore.restore(self, data)
-	_check(loaded.ok, "Legacy foundation archive was rejected")
-	if not loaded.ok:
-		return
-	game = loaded.game
-	for side in get_nodes_in_group("players"):
-		side.set_process(false)
-	for index in ids.size():
-		var site = restore.entities[ids[index]]
+	for reload in 2:
+		var builder = Snapshot.new()
+		var data = builder.capture(game)
+		var ids = fixtures.map(func(site): return builder._reference(site))
+		var loaded = await restore.restore(self, data)
+		_check(loaded.ok, "Foundation archive was rejected")
+		if not loaded.ok:
+			return
+		game = loaded.game
+		for side in get_nodes_in_group("players"):
+			side.set_process(false)
+		fixtures = ids.map(func(id): return restore.entities[id])
+		for index in fixtures.size():
+			_check(
+				(
+					fixtures[index].hp == health[index]
+					and is_equal_approx(fixtures[index]._construction_progress, progress[index])
+				),
+				"Foundation reload changed health or construction progress"
+			)
+	for index in fixtures.size():
 		var damage = 13 if index == 2 else 0
+		fixtures[index].construct(1.0)
 		_check(
-			site.hp == 125 + floorf(site._construction_progress * 375) - damage,
-			"Legacy foundation migration changed damage"
+			fixtures[index].hp == fixtures[index].hp_max - damage,
+			"Reloaded construction finished with incorrect HP"
 		)
-	var current = Snapshot.new()
-	var upgraded = current.capture(game)
-	var upgraded_ids = ids.map(func(id): return current._reference(restore.entities[id]))
-	loaded = await restore.restore(self, upgraded)
-	_check(loaded.ok, "Upgraded foundation cannot be saved again")
-	if not loaded.ok:
-		return
-	game = loaded.game
-	for side in get_nodes_in_group("players"):
-		side.set_process(false)
-	for index in upgraded_ids.size():
-		var site = restore.entities[upgraded_ids[index]]
-		var damage = 13 if index == 2 else 0
-		_check(
-			site.hp == 125 + floorf(site._construction_progress * 375) - damage,
-			"Repeated reload applied foundation upgrade twice"
-		)
-		site.construct(1.0)
-		_check(site.hp == 500 - damage, "Legacy construction finished with incorrect HP")
-	print("PASS legacy foundation upgrade: zero/partial/damaged, one-time migration, completion")
+	print("PASS foundation archives: zero/partial/damaged, repeated reload, completion")

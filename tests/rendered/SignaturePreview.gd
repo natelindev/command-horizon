@@ -20,12 +20,11 @@ func _ui(faction):
 	human.coordination_unlocked = true
 	var first = _spawn_weapon("CombatRobot", human, Vector3(40, 0, 10))
 	var second = _spawn_weapon("CombatRobot", human, Vector3(42.5, 0, 10))
-	var tank = _spawn_weapon("Tank", human, Vector3(40, 0, 13))
+	var support = _spawn_weapon("RepairRobot", human, Vector3(40, 0, 13))
 	_spawn_weapon("Tank", sides[1], Vector3(45, 0, 12))
 	await _frames(40)
 	first.process_mode = Node.PROCESS_MODE_PAUSABLE
 	second.process_mode = Node.PROCESS_MODE_PAUSABLE
-	first.program.run()
 	await _frames(20)
 	var action = first.action
 	game.fog_of_war.reveal()
@@ -33,7 +32,7 @@ func _ui(faction):
 	camera.set_size_safely(18)
 	camera.set_position_safely(Vector3(42, 0, 12))
 	game.hud._toggle_pause()
-	for unit in [first, second, tank]:
+	for unit in [first, second, support]:
 		unit.get_node("Selection").select()
 	await _frames(20)
 	var menu = game.find_child("UnitMenus")
@@ -65,11 +64,8 @@ func _ui(faction):
 			first.signature.kind == "precision" and second.signature.kind == "precision",
 			"Keyboard Precision activation failed"
 		)
-	_check(tank.signature.kind == "", "Ability affected an unchipped selected tank")
-	_check(
-		first.action == action and first.program.mode == "Running",
-		"Ability interrupted the running program"
-	)
+	_check(support.signature == null, "Ability affected a selected support unit")
+	_check(first.action == action, "Ability interrupted the current action")
 	var cooldown = first.signature.cooldown
 	await _frames(30)
 	_check(first.signature.cooldown == cooldown, "Paused UI activation advanced cooldown")

@@ -155,12 +155,6 @@ func _gallery():
 	await _shot("gallery-technology")
 	_inside(game.hud._technology_scroll.get_parent().get_parent(), "Gallery technology")
 	await _key(KEY_ESCAPE)
-	var tank = _units(human, "Tank")[0]
-	game.hud.open_visual_editor([tank], "user://battle-art-gallery.json")
-	await _frames(8)
-	await _shot("gallery-rules")
-	game.hud.program_editor.close_editor()
-	await _frames(4)
 	root.size = Vector2i(1280, 720)
 	expected_pixels = root.size
 	preferences.interface_scale = 1.5
@@ -170,12 +164,6 @@ func _gallery():
 	await _frames(10)
 	var menus = game.find_child("UnitMenus")
 	_inside(menus, "720p construction panel")
-	_check(
-		not game.hud.battle_plan.get_global_rect().intersects(
-			game.find_child("Minimap").get_global_rect()
-		),
-		"720p battle plan overlaps the minimap"
-	)
 	for entry in menus._buttons:
 		menus._scroll.ensure_control_visible(entry.button)
 		await _frames(3)

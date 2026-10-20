@@ -122,8 +122,9 @@ func _record(mission, badge, path, challenge = ""):
 		"reinforced_complete":
 		reinforced_complete or (mission == "command_horizon" and challenge == "reinforced"),
 		"broken_foundry": foundry_complete or mission == "broken_foundry",
-		"air_corridor": air_complete or mission == "air_corridor",
-		"air_support": air_support or (mission == "air_corridor" and badge),
+		# Retired Air Corridor results stay in the file; they count toward Cinder Ford.
+		"air_corridor": air_complete,
+		"air_support": air_support,
 		"supply_line": supply_complete or mission == "supply_line",
 		"first_orders": complete or mission == "first_orders",
 		"doctrine_badge": doctrine_badge or (mission == "first_orders" and badge),
@@ -159,10 +160,6 @@ func _record(mission, badge, path, challenge = ""):
 
 func record_supply_victory(path = PATH):
 	return _record("supply_line", false, path)
-
-
-func record_air_victory(badge, path = PATH):
-	return _record("air_corridor", badge, path)
 
 
 func record_foundry_victory(path = PATH):
@@ -216,7 +213,6 @@ func completed(id):
 			"supply_line": supply_complete,
 			"first_orders": complete,
 			"split_signal": split_complete,
-			"air_corridor": air_complete,
 			"bastion_cinder_ford": air_complete,
 			"broken_foundry": foundry_complete,
 			"command_horizon": horizon_complete

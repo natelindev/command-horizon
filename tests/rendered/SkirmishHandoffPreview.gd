@@ -54,8 +54,6 @@ func _review_handoff(unit):
 	camera.set_physics_process(false)
 	camera.set_size_safely(30)
 	camera.set_position_safely(unit.position + Vector3(3, 0, 0))
-	if game.hud.battle_plan._body.visible:
-		game.hud.battle_plan._toggle_body()
 	paused = false
 	await _frames(30)
 	paused = true

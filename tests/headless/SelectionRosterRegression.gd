@@ -82,21 +82,16 @@ func _exercise(player, members, roster):
 	_check(not injured.is_empty() and injured[0].label.text == "25%", "Individual health is stale")
 	var tanks = members.filter(func(unit): return unit.type == "Tank")
 	player.coordination_unlocked = true
-	var squad = player.squad_roster.create("Selection test", tanks)
-	_check(squad != null, "Squad fixture failed")
 	tanks[0].manual_orders.submit({"kind": "move", "point": Vector3(35, 0, 35)})
 	tanks[0].manual_orders.submit({"kind": "move", "point": Vector3(40, 0, 35)}, true)
-	tanks[1].program.installed = true
-	tanks[1].program.configure(
-		load("res://source/match/programs/ProgramLibrary.gd").defaults("guard")
-	)
-	tanks[1].program.run()
+	var behavior = load("res://source/match/orders/UnitBehavior.gd")
+	_check(behavior.guard(tanks[1], tanks[1].global_position_yless), "Guard fixture failed")
 	var factory = _units(player, "VehicleFactory")[0]
 	var job = factory.production_queue.produce(load("res://source/match/units/Tank.tscn"))
 	_check(job != null, "Paid queue fixture failed")
 	var funds = Vector2i(player.resource_a, player.resource_b)
 	var queue = tanks[0].manual_orders.pending.duplicate(true)
-	var program_mode = tanks[1].program.mode
+	var guard_orders = tanks[1].manual_orders.pending.duplicate(true)
 	var actions = members.map(func(unit): return unit.action)
 	var camera = game.get_node("IsometricCamera3D").transform
 	await _inspect_layout(player, roster, "mixed")
@@ -128,11 +123,16 @@ func _exercise(player, members, roster):
 	root.get_node("Globals").options.restore(original)
 	_check(_own_selected() == tanks, "Remapped modifier failed to remove workers")
 	_check(tanks[0].manual_orders.pending == queue, "Filtering changed queued movement")
-	_check(tanks[1].program.mode == program_mode, "Filtering stopped a running program")
+	_check(
+		(
+			tanks[1].stance == tanks[1].Stance.HOLD_POSITION
+			and tanks[1].manual_orders.pending == guard_orders
+		),
+		"Filtering cancelled a guard order"
+	)
 	_check(
 		members.map(func(unit): return unit.action) == actions, "Filtering changed active orders"
 	)
-	_check(squad.active_members() == tanks, "Filtering changed squad membership")
 	_check(factory.production_queue.get_elements() == [job], "Filtering changed paid production")
 	_check(Vector2i(player.resource_a, player.resource_b) == funds, "Filtering spent resources")
 	_check(paused and game.simulation_time == clock, "Filtering advanced tactical pause")
@@ -238,14 +238,14 @@ func _large_roster(player):
 		unit.queue_free()
 	await _frames(5)
 	var truck = _spawn_member(player, "SupplyTruck")
-	var transport = _spawn_member(player, "EvacTransport")
-	roster = await _choose([truck, transport])
+	var tank = _spawn_member(player, "Tank")
+	roster = await _choose([truck, tank])
 	_check(
 		roster._types.size() == 2 and roster._tiles.size() == 2, "Mission selection is incomplete"
 	)
 	await _inspect_layout(player, roster, "mission")
 	await _activate_control(roster._tiles[1].button, true)
-	_check(_own_selected() == [transport], "Mission tile selected the wrong unit")
+	_check(_own_selected() == [truck], "Mission tile selected the wrong unit")
 
 
 func _destroy_target(roster, victim):

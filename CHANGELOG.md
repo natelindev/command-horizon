@@ -2,6 +2,26 @@
 
 ## [main]
 
+### Removed
+ - The Lua script engine: the native `rts_lua` extension, sandbox, Lua runtime and actions, Lua/visual-rule editors, LLM program assistant and the program test arena
+ - The programmable-unit system: unit programs and presets, specialist programs, chips and retrofit installation, factory program pins, squads, program panels and badges
+ - Battle-save backward compatibility: saves now use snapshot version 15 only, and saves from other versions are rejected instead of migrated
+ - The Air Corridor operation, which no campaign order reached any more, with its map, HUD, rescue VTOL, voice lines and narration; earlier progress that recorded it still counts toward Cinder Ford
+ - The skirmish battle-plan advisor and its hidden settings option, retired from the HUD in 0.12.0
+ - Single-narrator campaign lines replaced by recorded dialogue, and remaining old-save handling for heroes, conversations, facility counts and mercenary contracts
+
+### Changed
+ - Broken Foundry and Command Horizon enemy posts use the native Guard behavior; posted repair robots service damaged allies within 8 m, and foundry tanks keep their previous assembly time
+ - Lab research and Coordination unlock when a vehicle factory and lab have both been completed, as before, without any program terminology
+ - Battle debriefs no longer list program milestones. Campaign briefings, the First Orders badge objective, the Frontier Outrider description, Air Corridor, difficulty and weapon-mode text no longer mention presets, programs or retrofits
+ - Retained playtest archives were converted to snapshot version 15
+ - Command Horizon and Air Corridor saves must include their opposition state
+
+### Fixed
+ - A restored order whose target no longer exists no longer shows as the unit's current order while paused
+ - The skirmish AI now actually hires mercenaries at captured camps; it previously requested a unit camps do not sell
+ - `build_catalog.py` reproduces the shipped translation catalog again; strings that existed only in `ui.csv` moved to `art/localization/interface.tsv`
+
 ## [0.14.1]
 
 ### Fixed

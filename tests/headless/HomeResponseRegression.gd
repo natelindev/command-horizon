@@ -1,7 +1,11 @@
-extends "res://tests/headless/AuthoredGuardRegression.gd"
+extends "res://tests/headless/SaveRestoreEdges.gd"
 
 var response
 var air
+var guard
+var raider
+var observer
+var anchor = Vector3(40, 0, 10)
 
 
 func _run():
@@ -10,7 +14,6 @@ func _run():
 		await _setup(faction)
 		game.hud.pause_after_load()
 		response = load("res://tests/playtest/reference/HomeDefensePolicy.gd").new()
-		guard.program.installed = false
 		raider.position = anchor + Vector3(10, 0, 0)
 		observer.position = anchor + Vector3(9, 0, 3)
 		air = _actor("Helicopter", raider.player, anchor + Vector3(3, 1.5, 0))
@@ -77,21 +80,6 @@ func _run():
 			not response.command(guard, [raider], game.simulation_time) and guard.action == action,
 			"Response overrode protected recovery"
 		)
-		guard.issue_manual_order(null)
-		guard.program.installed = true
-		active_mode = "visual"
-		_start_guard()
-		game.hud._toggle_pause()
-		await _frames(2)
-		game.hud.pause_after_load()
-		_check(
-			guard.program.mode == "Running", "Response authority fixture failed to start program"
-		)
-		action = guard.action
-		_check(
-			not response.command(guard, [raider], game.simulation_time) and guard.action == action,
-			"Response overrode active program"
-		)
 		print("HOME RESPONSE ", faction, " firing/archive/authority checked")
 		paused = false
 		game.queue_free()
@@ -100,6 +88,28 @@ func _run():
 		push_error(error)
 	print("Home response: %d failures" % errors.size())
 	quit(0 if errors.is_empty() else 1)
+
+
+func _setup(faction):
+	await _skirmish(faction, "res://source/match/maps/DesertFrontier.tscn")
+	var human = game._get_human_player()
+	var enemy = get_nodes_in_group("players").filter(func(player): return player != human)[0]
+	enemy.set_process(false)
+	for unit in get_nodes_in_group("units"):
+		unit.process_mode = Node.PROCESS_MODE_DISABLED
+	guard = _actor("Tank", human, anchor + Vector3(0, 0, 3))
+	raider = _actor("Tank", enemy, anchor + Vector3(4, 0, 0))
+	observer = _actor("Worker", human, anchor + Vector3(5, 0, 3))
+	raider.process_mode = Node.PROCESS_MODE_DISABLED
+	observer.process_mode = Node.PROCESS_MODE_DISABLED
+	await _frames(20)
+	game.battlefield.invalidate()
+
+
+func _actor(role, player, point):
+	var unit = load("res://source/match/units/%s.tscn" % role).instantiate()
+	game._setup_and_spawn_unit(unit, Transform3D(Basis(), point), player, false)
+	return unit
 
 
 func _disk_approach():

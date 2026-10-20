@@ -12,9 +12,6 @@ const Difficulty = preload("res://source/match/players/skirmish-ai/SkirmishDiffi
 const Campaigns = preload("res://source/match/campaign/CampaignCatalog.gd")
 const Snapshot = preload("res://source/match/saves/MatchSnapshot.gd")
 const Rules = preload("res://source/match/MatchConstants.gd")
-const Record = preload("res://source/match/programs/ProgramRecord.gd")
-const Library = preload("res://source/match/programs/ProgramLibrary.gd")
-const PROGRAM_ROLES = ["Tank", "AdvancedTank", "CombatRobot", "RepairRobot", "Drone", "Helicopter"]
 const LINKS = {
 	"Garrisoning": [["_target_unit"], ["_shot"], []],
 	"Moving": [[], [], []],
@@ -31,10 +28,6 @@ const LINKS = {
 	"ConstructingWhileInRange": [["_target_unit"], [], []],
 	"Repairing": [["_target"], [], []],
 	"RecoveringAtService": [["_target"], [], []],
-	"ChipInstalling": [["service"], [], []],
-	"PresetAction": [["_target", "_repair"], ["_shot", "_defense"], []],
-	"SpecialistAction": [["_target", "_repair"], ["_shot", "_defense"], []],
-	"LuaAction": [["_target", "_repair"], ["_shot", "_defense"], []],
 }
 var error = ""
 var entities = {}
@@ -42,7 +35,6 @@ var sides = {}
 var map_size = Vector2.ZERO
 var fog_image = null
 var _nodes_left = 20000
-var _version = 1
 var _neutral_ids = {}
 var _poi_ids = {}
 
@@ -55,49 +47,23 @@ func validate(data):
 	sides.clear()
 	fog_image = null
 	_nodes_left = 20000
+	if data is Dictionary and data.get("snapshot_version") != Snapshot.VERSION:
+		return _fail("This save was made by a different game version.")
 	if not _shape(
 		data,
 		(
 			"snapshot_version:int map_revision:int settings:dict simulation_time:num "
 			+ "visual_serial:int units_produced:int repair_elapsed:num camera:dict "
 			+ "players:list units:list resources:list mission:dict fog:dict "
-			+ "structure_memory:list"
-			+ (
-				" neutral_buildings:list"
-				if data is Dictionary and data.get("snapshot_version") in [11, 12, 13, 14]
-				else ""
-			)
-			+ (
-				" battle_record:dict"
-				if data is Dictionary and data.get("snapshot_version") in [9, 10, 11, 12, 13, 14]
-				else ""
-			)
-			+ (
-				" ambient:list"
-				if (
-					data is Dictionary
-					and data.get("snapshot_version") in [6, 7, 8, 9, 10, 11, 12, 13, 14]
-				)
-				else ""
-			)
+			+ "structure_memory:list neutral_buildings:list battle_record:dict ambient:list"
 		)
 	):
 		return false
-	_version = data.snapshot_version
-	if (
-		_version >= 9
-		and not load("res://source/match/BattleRecord.gd").valid(
-			data.battle_record, data.simulation_time
-		)
-	):
+	if not load("res://source/match/BattleRecord.gd").valid(data.battle_record):
 		return _fail("Invalid battle record.")
-	if (
-		data.snapshot_version not in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
-		or data.map_revision != 1
-		or not _settings(data.settings)
-	):
+	if data.map_revision != 1 or not _settings(data.settings):
 		return _fail("Unsupported snapshot, map or settings version.")
-	if _version >= 6 and not _ambient(data.ambient, data.settings.map_path):
+	if not _ambient(data.ambient, data.settings.map_path):
 		return false
 	if (
 		data.players.size() != data.settings.players.size()
@@ -117,10 +83,8 @@ func validate(data):
 			side,
 			(
 				"id:text resource_a:int resource_b:int coordination_unlocked:bool "
-				+ "coordination_left:signed _basic_programs:bool command_left:num ai:dict "
-				+ "squads:list next_squad_id:int"
-				+ (" signatures:dict" if _version >= 4 else "")
-				+ (" technology:dict" if _version >= 7 else "")
+				+ "coordination_left:signed _lab_research:bool command_left:num ai:dict "
+				+ "signatures:dict technology:dict"
 			)
 		):
 			return false
@@ -129,20 +93,18 @@ func validate(data):
 			or side.coordination_left < -1
 			or side.coordination_left > 30
 			or side.command_left > 60
-			or side.squads.size() > 100
 		):
 			return _fail("Invalid player progression.")
-		if _version >= 7:
-			if not Technology.valid_state(side.technology, side.coordination_unlocked):
-				return _fail("Invalid technology research.")
-			if side.technology.active != "" and side.coordination_left > 0:
-				return _fail("Multiple active research projects.")
+		if not Technology.valid_state(side.technology, side.coordination_unlocked):
+			return _fail("Invalid technology research.")
+		if side.technology.active != "" and side.coordination_left > 0:
+			return _fail("Multiple active research projects.")
 		sides[side.id] = {
 			"faction": data.settings.players[index].faction,
 			"mobile": 0,
 			"heroes": 0,
 			"structures": 0,
-			"technology": side.technology.completed if _version >= 7 else [],
+			"technology": side.technology.completed,
 			"coordination": side.coordination_unlocked
 		}
 		if index > 0:
@@ -150,8 +112,7 @@ func validate(data):
 				side.ai,
 				(
 					"structures_built:int attacks_launched:int _elapsed:num "
-					+ "_production_index:int wave_age:num enabled:bool"
-					+ (" cursor:int groups:list" if side.ai.has("groups") else "")
+					+ "_production_index:int wave_age:num enabled:bool cursor:int groups:list"
 				)
 			):
 				return false
@@ -161,16 +122,7 @@ func validate(data):
 	for entry in data.resources:
 		if (
 			not _shape(
-				entry,
-				(
-					"id:text kind:text amount:int position:vec"
-					+ (" wreck:dict" if _version >= 8 else "")
-					+ (
-						" field_origin:maybevec"
-						if entry is Dictionary and entry.has("field_origin")
-						else ""
-					)
-				)
+				entry, "id:text kind:text amount:int position:vec wreck:dict field_origin:maybevec"
 			)
 			or not _identify(entry, "resource-")
 		):
@@ -181,9 +133,9 @@ func validate(data):
 			or not _position(entry.position)
 		):
 			return _fail("Invalid resource deposit.")
-		if entry.get("field_origin") != null and not _position(entry.field_origin):
+		if entry.field_origin != null and not _position(entry.field_origin):
 			return _fail("Invalid resource field origin.")
-		if _version >= 8 and not entry.wreck.is_empty():
+		if not entry.wreck.is_empty():
 			var wreck = entry.wreck
 			wreck_count += 1
 			if not _shape(wreck, "wreck_role:text wreck_faction:text salvage_left:num"):
@@ -206,12 +158,9 @@ func validate(data):
 				(
 					"id:text player:text role:text position:vec rotation:vec hp:num "
 					+ "visual_seed:int weapon_left:num damage_age:maybenum construction:maybenum "
-					+ "cargo:dict action:dict program:dict orders:dict production:dict rally:dict "
-					+ "movement:dict groups:list selected:bool projectiles:list"
-					+ (" weapon_mode:dict" if data.snapshot_version >= 2 else "")
-					+ (" deployment:dict" if data.snapshot_version >= 3 else "")
-					+ (" signature:dict" if _version >= 4 else "")
-					+ (" stance:int" if _version >= 14 else "")
+					+ "cargo:dict action:dict orders:dict production:dict rally:dict "
+					+ "movement:dict groups:list selected:bool projectiles:list "
+					+ "weapon_mode:dict deployment:dict signature:dict stance:int"
 				)
 			)
 			or not _identify(unit, "unit-")
@@ -223,18 +172,10 @@ func validate(data):
 				unit.role not in Catalog.NAMES
 				and not (
 					unit.player == "player-0"
+					and unit.role == "SupplyTruck"
 					and (
-						(
-							(
-								data.settings.mission_id == "supply_line"
-								or Campaigns.is_story(data.settings.mission_id)
-							)
-							and unit.role == "SupplyTruck"
-						)
-						or (
-							data.settings.mission_id == "air_corridor"
-							and unit.role == "EvacTransport"
-						)
+						data.settings.mission_id == "supply_line"
+						or Campaigns.is_story(data.settings.mission_id)
 					)
 				)
 			)
@@ -246,13 +187,9 @@ func validate(data):
 			if sides[unit.player].heroes > 1:
 				return _fail("Duplicate hero reservation.")
 		var building = unit.role in Catalog.STRUCTURES
-		if _version >= 14 and unit.stance not in [0, 1, 2, 3]:
+		if unit.stance not in [0, 1, 2, 3]:
 			return _fail("Invalid unit stance.")
-		if data.snapshot_version >= 2 and not _weapon_mode(unit):
-			return false
-		if data.snapshot_version >= 3 and not _deployment(unit):
-			return false
-		if _version >= 4 and not _signature_unit(unit):
+		if not _weapon_mode(unit) or not _deployment(unit) or not _signature_unit(unit):
 			return false
 		sides[unit.player]["structures" if building else "mobile"] += 1
 		var maximum = Rules.Units.DEFAULT_PROPERTIES[Catalog.scene_path(unit.role)].hp_max
@@ -263,7 +200,7 @@ func validate(data):
 			return _fail("Invalid unit health or cooldown.")
 		if building != (unit.construction != null) or (building and unit.construction > 1):
 			return _fail("Invalid construction state.")
-	if _version >= 11 and not _neutral_buildings(data.neutral_buildings, data.settings.map_path):
+	if not _neutral_buildings(data.neutral_buildings, data.settings.map_path):
 		return false
 	if not _site_records(data.mission.get("points_of_interest", []), data.settings.map_path):
 		return false
@@ -273,10 +210,10 @@ func validate(data):
 	if not _army_groups(data):
 		return false
 	for side in data.players:
-		if _version >= 4 and not _signature_groups(side, data.units):
+		if not _signature_groups(side, data.units):
 			return false
-		if sides[side.id].mobile > 100 or sides[side.id].structures > 40 or not _squads(side):
-			return _fail("Invalid squad membership or reserved population.")
+		if sides[side.id].mobile > 100 or sides[side.id].structures > 40:
+			return _fail("Invalid reserved population.")
 	if (
 		not _mission(data.mission, data.settings.mission_id, data.settings.map_path)
 		or not _fog(data.fog)
@@ -292,7 +229,7 @@ func validate(data):
 			return false
 		if (
 			memory.role not in Catalog.STRUCTURES
-			or memory.faction not in (Factions.IDS if _version >= 8 else ["bastion", "helix"])
+			or memory.faction not in Factions.IDS
 			or not _unit_reference(memory.entity)
 			or (
 				entities.has(memory.entity)
@@ -312,8 +249,6 @@ func _army_groups(data):
 
 func _side_army_groups(data, index):
 	var ai = data.players[index].ai
-	if not ai.has("groups"):
-		return true
 	var budget = Difficulty.of(data.settings.players[index].difficulty).task_groups
 	if ai.cursor > 3 or ai.groups.size() > budget:
 		return _fail("Invalid AI coordination budget or cursor.")
@@ -403,13 +338,8 @@ func _signature_unit(unit):
 		or state.window_left > 0 and state.kind not in ["precision", "maneuver"]
 	):
 		return _fail("Inconsistent faction ability state.")
-	if (
-		(state.cooldown > 0 or state.kind != "")
-		and (
-			state.group_id == 0 or not side.coordination or not unit.program.get("installed", false)
-		)
-	):
-		return _fail("Faction ability lacks its group, chip or research.")
+	if (state.cooldown > 0 or state.kind != "") and (state.group_id == 0 or not side.coordination):
+		return _fail("Faction ability lacks its group or research.")
 	return true
 
 
@@ -527,7 +457,7 @@ func _settings(settings):
 		spawn_index += side.spawn_index_offset + (1 if index > 0 else 0)
 		if (
 			side.controller != (1 if index == 0 else 2)
-			or side.faction not in (Factions.IDS if _version >= 8 else ["bastion", "helix"])
+			or side.faction not in Factions.IDS
 			or side.difficulty < Difficulty.EASY
 			or side.difficulty > Difficulty.HARD
 			or spawn_index >= spawn_count
@@ -575,7 +505,7 @@ func _unit(unit):
 			not _shape(
 				unit.orders,
 				(
-					"auto_resume:bool status:text _engaged:bool _still:num progress:maybevec "
+					"status:text _engaged:bool _still:num progress:maybevec "
 					+ "current:dict pending:list"
 				)
 			)
@@ -589,26 +519,19 @@ func _unit(unit):
 				return false
 	elif not unit.movement.is_empty() or not unit.orders.is_empty():
 		return _fail("Structures cannot have movement queues.")
-	if (
-		not _program(unit.program, unit.role, sides[unit.player].faction)
-		or not _action(unit.action, unit, 0)
-	):
+	if not _action(unit.action, unit, 0):
 		return false
 	if not unit.production.is_empty():
 		if (
 			unit.role not in Catalog.PRODUCES
-			or not _shape(unit.production, "fit_chips:bool pin:dict jobs:list")
+			or not _shape(unit.production, "jobs:list")
 			or unit.production.jobs.size() > 100
-			or not _pin(unit.production.pin)
 		):
 			return _fail("Invalid producer queue.")
 		for job in unit.production.jobs:
 			if not _shape(
 				job,
-				(
-					"time_total:num time_left:num paid_cost:dict fitted_chip:bool program_snapshot:dict role:text"
-					+ (" departure_endpoint:maybevec" if _version >= 12 else "")
-				)
+				"time_total:num time_left:num paid_cost:dict role:text departure_endpoint:maybevec"
 			):
 				return false
 			if (
@@ -619,16 +542,12 @@ func _unit(unit):
 				or not _shape(job.paid_cost, "resource_a:int resource_b:int")
 			):
 				return _fail("Invalid paid production job.")
-			if _version >= 12 and job.departure_endpoint != null:
+			if job.departure_endpoint != null:
 				if (
 					not _position(job.departure_endpoint)
 					or job.departure_endpoint.distance_to(unit.position) > 12
 				):
 					return _fail("Invalid production exit.")
-			if job.fitted_chip and job.role != "Tank":
-				return _fail("Invalid fitted chip job.")
-			if not _factory_program(job.program_snapshot, job.role):
-				return false
 			sides[unit.player].mobile += 1
 			if job.role == "Hero":
 				sides[unit.player].heroes += 1
@@ -654,65 +573,6 @@ func _unit(unit):
 	return true
 
 
-func _program(program, role, faction):
-	if role not in PROGRAM_ROLES:
-		return program.is_empty() or _fail("Unexpected unit program.")
-	if not _shape(
-		program,
-		(
-			"installed:bool config:dict program_title:text anchor:maybevec "
-			+ "safe_point:maybevec route:list mode:text reason:text install_left:num "
-			+ "saved_record:dict lua_source:text _pending:bool escort:text runtime:dict"
-		)
-	):
-		return false
-	if (
-		not Library.validate(program.config)
-		or not Library.compatible(program.config.preset, role)
-		or program.install_left > Factions.chip_seconds(faction)
-		or program.route.size() not in [0, 2]
-	):
-		return _fail("Invalid program assignment/configuration.")
-	if (
-		not program.route.all(func(point): return point is Vector3 and point.is_finite())
-		or not _unit_reference(program.escort)
-	):
-		return false
-	if (
-		(
-			program.mode
-			not in ["Manual", "Ready", "Running", "Waiting", "Blocked", "Installing", "Error"]
-		)
-		or program.lua_source.to_utf8_buffer().size() > 32768
-	):
-		return _fail("Invalid program source or mode.")
-	if not program.saved_record.is_empty():
-		if (
-			not Record.validate(program.saved_record)
-			or not Record.compatible(program.saved_record, role)
-			or program.saved_record.source != program.lua_source
-			or Record._canonical(program.config) != Record._canonical(program.saved_record.config)
-		):
-			return _fail("Embedded program version changed or is incompatible.")
-	return true
-
-
-func _factory_program(value, role):
-	if value.is_empty():
-		return true
-	var keys = (
-		"title:text config:dict notice:text" + (" record:dict" if value.has("record") else "")
-	)
-	if not _shape(value, keys) or not Library.validate(value.config):
-		return false
-	if (
-		value.has("record")
-		and (not Record.validate(value.record) or not Record.compatible(value.record, role))
-	):
-		return _fail("Invalid embedded factory program.")
-	return true
-
-
 func _action(action, unit, depth):
 	if action.is_empty():
 		return true
@@ -720,13 +580,7 @@ func _action(action, unit, depth):
 	if depth > 12 or _nodes_left < 0 or action.get("kind") not in Snapshot.ACTION_FIELDS:
 		return _fail("Unsupported saved action.")
 	var kind = action.kind
-	if not _shape(
-		action,
-		(
-			"kind:text state:dict references:dict children:dict timers:dict"
-			+ (" contacts:list" if kind == "LuaAction" else "")
-		)
-	):
+	if not _shape(action, "kind:text state:dict references:dict children:dict timers:dict"):
 		return false
 	if (
 		kind in ["AttackMoving", "AutoAttacking", "AttackingWhileInRange", "WaitingForTargets"]
@@ -748,59 +602,19 @@ func _action(action, unit, depth):
 		return _fail("Only engineers can gather or construct.")
 	if kind == "Repairing" and unit.role != "RepairRobot":
 		return _fail("Invalid repair action owner.")
-	if kind == "ChipInstalling" and unit.role not in PROGRAM_ROLES:
-		return _fail("Invalid chip installation owner.")
 	if (
 		unit.role in Catalog.STRUCTURES
 		and kind not in ["WaitingForTargets", "AttackingWhileInRange", "AutoAttacking"]
 	):
 		return _fail("Immobile structure has a mobile action.")
-	var fields = Snapshot.ACTION_FIELDS[kind].duplicate()
-	if kind == "AutoAttacking" and not action.state.has("_defense_origin"):
-		fields.erase("_defense_origin")
-		fields.erase("_defense_radius")
-	if kind == "RecoveringAtService" and not action.state.has("_full_recovery"):
-		fields.erase("_full_recovery")
-	# Earlier point orders did not persist their crowded-arrival observation.
-	# Require both fields together when present; absent legacy state starts a
-	# new observation only after the battle resumes.
-	if kind in ["Moving", "AttackMoving"] and not action.state.has("_arrival_elapsed"):
-		fields.erase("_arrival_elapsed")
-		fields.erase("_arrival_progress")
-	# Older archives did not retain the last Lua guard intent. Its absent flag
-	# defaults to false until the program evaluates again; do not execute Lua on load.
-	if kind == "LuaAction" and not action.state.has("_guarding_area"):
-		fields.erase("_guarding_area")
-	if kind == "CollectingResourcesSequentially" and _version < 5:
-		fields = ["_state"]
-	if kind == "AttackingWhileInRange" and _version < 3:
-		fields = ["_shot_limit", "_shots"]
-	if kind in ["PresetAction", "SpecialistAction", "LuaAction"]:
-		fields.append_array(Snapshot.PROGRAM_ACTION_FIELDS)
-		if unit.role not in PROGRAM_ROLES:
-			return _fail("Program action on an incompatible unit.")
+	var fields = Snapshot.ACTION_FIELDS[kind]
 	if action.state.size() != fields.size():
 		return _fail("Action state does not match this game version.")
 	for key in fields:
 		if not action.state.has(key):
 			return _fail("Missing action state.")
 		var value = action.state[key]
-		var flag = (
-			key
-			in [
-				"_lost_contact",
-				"_finish_when_repaired",
-				"_full_recovery",
-				"_paid",
-				"_retreating",
-				"_returning",
-				"_backing_off",
-				"_strike_returning",
-				"_faulted",
-				"_guarding_area",
-				"_blocked"
-			]
-		)
+		var flag = key in ["_lost_contact", "_finish_when_repaired", "_full_recovery", "_blocked"]
 		var point = (
 			key
 			in [
@@ -810,9 +624,7 @@ func _action(action, unit, depth):
 				"_last_known_position",
 				"_progress_position",
 				"_last_known_target_unit_position",
-				"_last_position",
 				"_last_progress",
-				"_destination",
 				"_charge_origin",
 				"_field_origin",
 				"_arrival_progress"
@@ -820,7 +632,7 @@ func _action(action, unit, depth):
 		)
 		if not _type(value, "bool" if flag else ("maybevec" if point else "signed")):
 			return _fail("Invalid action state value.")
-	if kind == "AutoAttacking" and action.state.has("_defense_origin"):
+	if kind == "AutoAttacking":
 		if (
 			not action.state._defense_origin is Vector3
 			or action.state._defense_radius < 0
@@ -829,7 +641,7 @@ func _action(action, unit, depth):
 			return _fail("Invalid defensive response bounds.")
 	if not _action_state(kind, action.state):
 		return false
-	if kind == "AttackingWhileInRange" and _version >= 3 and action.state._charge_left >= 0:
+	if kind == "AttackingWhileInRange" and action.state._charge_left >= 0:
 		var precision = (
 			(unit.role == "AdvancedTank" and sides[unit.player].faction != "frontier")
 			or (
@@ -867,15 +679,7 @@ func _action(action, unit, depth):
 			_neutral_ids.has(id)
 			and (
 				kind
-				not in [
-					"AutoAttacking",
-					"AttackingWhileInRange",
-					"MovingToUnit",
-					"Garrisoning",
-					"PresetAction",
-					"SpecialistAction",
-					"LuaAction"
-				]
+				not in ["AutoAttacking", "AttackingWhileInRange", "MovingToUnit", "Garrisoning"]
 			)
 		):
 			return _fail("Unsupported action on a neutral target.")
@@ -892,7 +696,7 @@ func _action(action, unit, depth):
 			return _fail("Only Frontier engineers may harvest wrecks.")
 		if key == "_resource_unit" and not target.has("amount"):
 			return _fail("Gather target is not a resource.")
-		if kind == "CollectingResourcesSequentially" and _version >= 5 and key == "_resource_unit":
+		if kind == "CollectingResourcesSequentially" and key == "_resource_unit":
 			var expected_kind = "resource_a" if action.state._kind == 1 else "resource_b"
 			if action.state._kind == 0 or target.kind != expected_kind:
 				return _fail("Resource target does not match its field assignment.")
@@ -912,17 +716,8 @@ func _action(action, unit, depth):
 			and (target.get("role") != "CommandCenter" or target.get("player") != unit.player)
 		):
 			return _fail("Invalid resource delivery target.")
-		if key in ["service", "_repair"] or kind == "Repairing":
-			if target.get("player") != unit.player:
-				return _fail("Service/repair target is not allied.")
-		if (
-			key == "service"
-			and (
-				target.get("role") not in ["CommandCenter", "RepairDepot"]
-				or target.construction != 1.0
-			)
-		):
-			return _fail("Invalid chip service.")
+		if kind == "Repairing" and target.get("player") != unit.player:
+			return _fail("Repair target is not allied.")
 		if (
 			kind == "RecoveringAtService"
 			and (
@@ -962,9 +757,7 @@ func _action(action, unit, depth):
 		if child.is_empty():
 			continue
 		var allowed = ["AttackingWhileInRange"]
-		if slot == "_defense":
-			allowed = ["WaitingForTargets"]
-		elif slot == "_sub_action":
+		if slot == "_sub_action":
 			allowed = (
 				{
 					"WaitingForTargets": ["AttackingWhileInRange", "AutoAttacking"],
@@ -985,25 +778,11 @@ func _action(action, unit, depth):
 			or action.timers[key].left > action.timers[key].wait
 		):
 			return _fail("Invalid action timer.")
-	if kind == "LuaAction":
-		var handles = []
-		if action.contacts.size() > 32:
-			return _fail("Too many Lua contact handles.")
-		for contact in action.contacts:
-			if (
-				not _shape(contact, "handle:int entity:text")
-				or contact.handle < 1
-				or contact.handle >= action.state._next_handle
-				or contact.handle in handles
-				or not _unit_reference(contact.entity)
-			):
-				return _fail("Invalid Lua contact handle.")
-			handles.append(contact.handle)
 	return true
 
 
 func _action_state(kind, state):
-	if kind == "AttackingWhileInRange" and _version >= 3:
+	if kind == "AttackingWhileInRange":
 		if not _type(state._charge_origin, "vec") or state._charge_left < -1:
 			return _fail("Invalid weapon preparation origin or duration.")
 		if state._charge_left == -1:
@@ -1016,33 +795,28 @@ func _action_state(kind, state):
 			or state._charge_left > state._charge_total
 		):
 			return _fail("Invalid weapon preparation duration.")
-	for field in ["_shot_limit", "_shots", "_waypoint", "_next_handle", "_state"]:
+	for field in ["_shot_limit", "_shots", "_state"]:
 		if state.has(field) and not _type(state[field], "int"):
 			return _fail("Invalid action counter.")
-	if state.has("_waypoint") and state._waypoint > 1:
-		return _fail("Invalid route waypoint.")
-	if state.has("_next_handle") and state._next_handle < 1:
-		return _fail("Invalid next contact handle.")
 	if kind == "CollectingResourcesSequentially":
-		if state._state < 0 or state._state > (4 if _version >= 5 else 3):
+		if state._state < 0 or state._state > 4:
 			return _fail("Invalid harvesting state.")
-		if _version >= 5:
-			if (
-				not _type(state._kind, "int")
-				or state._kind < 0
-				or state._kind > 2
-				or not _type(state._waiting_reason, "int")
-				or state._waiting_reason < 0
-				or state._waiting_reason > 4
-				or not _type(state._field_origin, "vec")
-				or not _position(state._field_origin)
-				or state._retry_left < 0
-				or state._retry_left > 0.5
-				or (state._state == 4 and state._waiting_reason == 0)
-				or (state._state != 4 and state._waiting_reason != 0)
-				or (state._waiting_reason in [1, 2] and state._kind == 0)
-			):
-				return _fail("Invalid resource field assignment.")
+		if (
+			not _type(state._kind, "int")
+			or state._kind < 0
+			or state._kind > 2
+			or not _type(state._waiting_reason, "int")
+			or state._waiting_reason < 0
+			or state._waiting_reason > 4
+			or not _type(state._field_origin, "vec")
+			or not _position(state._field_origin)
+			or state._retry_left < 0
+			or state._retry_left > 0.5
+			or (state._state == 4 and state._waiting_reason == 0)
+			or (state._state != 4 and state._waiting_reason != 0)
+			or (state._waiting_reason in [1, 2] and state._kind == 0)
+		):
+			return _fail("Invalid resource field assignment.")
 	if (
 		kind == "RecoveringAtService"
 		and (
@@ -1057,7 +831,7 @@ func _action_state(kind, state):
 	):
 		return _fail("Invalid recovery progress.")
 
-	if kind in ["Moving", "AttackMoving"] and state.has("_arrival_elapsed"):
+	if kind in ["Moving", "AttackMoving"]:
 		if (
 			state._arrival_elapsed < 0
 			or state._arrival_elapsed > 2.0
@@ -1072,24 +846,6 @@ func _action_state(kind, state):
 	if kind == "FollowingToReachDistance" and state._distance_to_reach <= 0:
 		return _fail("Invalid following distance.")
 	return true
-
-
-func _pin(pin):
-	if pin.is_empty():
-		return true
-	var fields = "name:text version:int"
-	for optional in ["id", "content_hash"]:
-		if pin.has(optional):
-			fields += " " + optional + ":text"
-	return (
-		(
-			_shape(pin, fields)
-			and not pin.name.is_empty()
-			and pin.name.length() <= 80
-			and pin.version > 0
-		)
-		or _fail("Invalid factory program pin.")
-	)
 
 
 func _order(order, unit):
@@ -1168,44 +924,11 @@ func _order(order, unit):
 	return true
 
 
-func _squads(side):
-	var used = []
-	var ids = []
-	for squad in side.squads:
-		if (
-			not _shape(squad, "id:int title:text policy:text _state:dict members:list claims:list")
-			or squad.id in ids
-			or squad.id >= side.next_squad_id
-			or squad.members.size() > 24
-			or squad.claims.size() > 24
-			or squad.policy not in ["spread", "focus", "independent"]
-		):
-			return false
-		ids.append(squad.id)
-		for member in squad.members:
-			var unit = entities.get(member, {})
-			if (
-				member in used
-				or unit.get("player") != side.id
-				or unit.get("role") in Catalog.STRUCTURES
-			):
-				return false
-			used.append(member)
-		for claim in squad.claims:
-			if (
-				not _shape(claim, "owner:text target:text left:num channel:text damage:num")
-				or claim.owner not in squad.members
-				or claim.channel not in ["fire", "repair"]
-				or claim.left > 0.8
-				or not _unit_reference(claim.target)
-			):
-				return false
-	return true
-
-
 func _mission(value, id, map_path):
 	var core = value.duplicate()
-	if core.has("hero"):
+	if id != "":
+		if not core.has("hero"):
+			return _fail("Missing campaign hero state.")
 		var hero = core.hero
 		if (
 			not _shape(hero, "unit:text tier:int cooldown:num")
@@ -1215,19 +938,26 @@ func _mission(value, id, map_path):
 		):
 			return _fail("Invalid campaign hero state.")
 		var record = entities.get(hero.unit, {})
-		if id == "" or record.get("role") != "Hero" or record.get("player") != "player-0":
+		if record.get("role") != "Hero" or record.get("player") != "player-0":
 			return _fail("Campaign hero does not belong to the commander.")
 		core.erase("hero")
-	if core.has("story"):
-		var story = core.story
-		var narration = load("res://source/match/campaign/CampaignNarration.gd")
-		if id == "" or not narration.valid_state(story, id):
-			return _fail("Invalid campaign conversation state.")
+	elif core.has("hero"):
+		return _fail("Unexpected campaign hero state.")
+	var narration = load("res://source/match/campaign/CampaignNarration.gd")
+	if id in narration.missions():
+		if not core.has("story") or not narration.valid_state(core.story, id):
+			return _fail("Missing or invalid campaign conversation state.")
 		core.erase("story")
-	if core.has("opposition"):
-		if id not in ["command_horizon", "air_corridor"] or not _opposition(core.opposition, id):
+	elif core.has("story"):
+		return _fail("Unexpected campaign conversation state.")
+	if id == "command_horizon":
+		if not core.has("opposition"):
+			return _fail("Missing campaign opposition state.")
+		if not _opposition(core.opposition, id):
 			return false
 		core.erase("opposition")
+	elif core.has("opposition"):
+		return _fail("Unexpected campaign opposition state.")
 	if core.has("points_of_interest"):
 		if Sites.definitions(map_path).is_empty():
 			return _fail("Facilities do not belong to this map.")
@@ -1282,12 +1012,12 @@ func _site_records(records, map_path):
 			if (
 				site.owner == ""
 				or not _shape(job, "role:text left:num paid_cost:dict")
-				or job.role not in sites.ARCHIVE_ROLES
+				or job.role not in sites.ROLES
 			):
 				return _fail("Invalid mercenary contract.")
 			if (
-				job.paid_cost != sites.price(sides[site.owner].faction, job.role)
-				or job.left > Factions.ARCHIVE_PRODUCTION_LIMITS[job.role]
+				job.paid_cost != sites.price(job.role)
+				or job.left > sites.Mercenaries.UNITS[job.role].seconds
 			):
 				return _fail("Invalid mercenary payment or duration.")
 			sides[site.owner].mobile += 1
@@ -1351,8 +1081,6 @@ func _mission_rules(value, id, map_path):
 		return _horizon_mission(value)
 	if id == "broken_foundry":
 		return _foundry_mission(value)
-	if id == "air_corridor":
-		return _air_mission(value)
 	if id == "supply_line":
 		return _convoy_mission(value)
 	if id == "split_signal":
@@ -1586,70 +1314,6 @@ func _convoy_mission(value):
 	return true
 
 
-func _air_mission(value):
-	if not _shape(value, "command_left:num sites:list flights:list"):
-		return false
-	if (
-		value.command_left <= 0
-		or value.command_left > 60
-		or value.sites.size() != 2
-		or value.flights.size() != 3
-	):
-		return _fail("Invalid Air Corridor progression.")
-	var seen = []
-	var clear = 0
-	for site in value.sites:
-		if not _shape(site, "unit:text cleared:bool") or site.cleared != (site.unit == ""):
-			return _fail("Invalid anti-air site state.")
-		if site.cleared:
-			clear += 1
-		else:
-			var unit = entities.get(site.unit, {})
-			if (
-				site.unit in seen
-				or unit.get("role") != "AntiAirTurret"
-				or unit.get("player") != "player-1"
-			):
-				return _fail("Invalid anti-air site reference.")
-			seen.append(site.unit)
-	var active = 0
-	var ready = 0
-	var losses = 0
-	for flight in value.flights:
-		if not _shape(flight, "unit:text state:text response_left:signed response_done:bool"):
-			return false
-		if flight.state not in ["ready", "flying", "extracted", "lost"]:
-			return _fail("Invalid evacuation flight state.")
-		if flight.state == "ready":
-			ready += 1
-			if flight.response_left != -1 or flight.response_done:
-				return _fail("Unlaunched evacuation has a response.")
-		elif clear != 2 or flight.response_left < 0 or flight.response_left > 10:
-			return _fail("Invalid evacuation launch or response time.")
-		if flight.response_done and flight.response_left != 0:
-			return _fail("Resolved evacuation response has a timer.")
-		if flight.state == "flying":
-			active += 1
-			var unit = entities.get(flight.unit, {})
-			if (
-				flight.unit in seen
-				or unit.get("role") != "EvacTransport"
-				or unit.get("player") != "player-0"
-			):
-				return _fail("Invalid evacuation transport reference.")
-			seen.append(flight.unit)
-		elif flight.unit != "":
-			return _fail("Inactive flight has a transport.")
-		if flight.state == "lost":
-			losses += 1
-	if active > 1 or losses >= 2 or active + ready == 0:
-		return _fail("Finished or overlapping evacuation flights.")
-	for unit in entities.values():
-		if unit.get("role") == "EvacTransport" and unit.id not in seen:
-			return _fail("Untracked evacuation transport.")
-	return true
-
-
 func _foundry_mission(value):
 	if not _shape(
 		value,
@@ -1769,29 +1433,20 @@ func _horizon_mission(value):
 func _ambient(saved, map_path):
 	var entries = AmbientCatalog.entries(map_path)
 	if saved.size() != entries.size():
-		# Accept the complete pre-settlement population; new residents start at their authored pose.
-		entries = AmbientCatalog.entries(map_path, false)
-		if saved.size() != entries.size():
-			return _fail("Invalid neutral population.")
+		return _fail("Invalid neutral population.")
 	var seen = {}
 	for record in saved:
 		if not _shape(
-			record,
-			(
-				"id:text travel:num stop_left:num phase:num walking:bool"
-				+ (" combat:dict" if _version >= 11 else "")
-			)
+			record, "id:text travel:num stop_left:num phase:num walking:bool combat:dict"
 		):
 			return false
 		var matches = entries.filter(func(entry): return entry.id == record.id)
 		if matches.size() != 1 or seen.has(record.id):
 			return _fail("Invalid neutral identity.")
 		seen[record.id] = true
-		if _version >= 11:
-			var maximum = AmbientCatalog.STATS[matches[0].kind].health
-			if not _neutral_combat(record.combat, maximum):
-				return false
-			_neutral_ids["neutral-" + record.id] = false
+		if not _neutral_combat(record.combat, AmbientCatalog.STATS[matches[0].kind].health):
+			return false
+		_neutral_ids["neutral-" + record.id] = false
 		if record.travel >= matches[0].length or record.stop_left > 2.5 or record.phase >= TAU:
 			return _fail("Invalid neutral motion.")
 	return true
@@ -1812,19 +1467,11 @@ func _neutral_buildings(saved, map_path):
 	var catalog = AmbientCatalog
 	var assets = catalog.structures(map_path)
 	if saved.size() != assets.size():
-		assets = catalog.structures(map_path, false)
-		if saved.size() != assets.size():
-			return _fail("Invalid neutral building population.")
+		return _fail("Invalid neutral building population.")
 	var assigned = []
 	for index in saved.size():
 		var record = saved[index]
-		if not _shape(
-			record,
-			(
-				"id:text combat:dict occupants:list slots:list"
-				+ (" owner:text" if _version >= 13 else "")
-			)
-		):
+		if not _shape(record, "id:text combat:dict occupants:list slots:list owner:text"):
 			return false
 		if (
 			record.id != "neutral-building-%d" % index
@@ -1851,13 +1498,13 @@ func _neutral_buildings(saved, map_path):
 			):
 				return _fail("Invalid garrison slot.")
 			slots.append(slot)
-		var owner = record.get("owner", "")
+		var owner = record.owner
 		if (
 			owner != ""
 			and (not sides.has(owner) or record.combat.hp == 0 or not _neutral_ids[record.id])
 		):
 			return _fail("Invalid neutral building owner.")
-		if _version >= 13 and owner == "" and not record.occupants.is_empty():
+		if owner == "" and not record.occupants.is_empty():
 			return _fail("Garrison has no owner.")
 		for id in record.occupants:
 			if not id is String or not entities.has(id) or id in assigned:

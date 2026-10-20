@@ -27,15 +27,6 @@ __pycache__/
 art/skirmish/combat-frames/
 art/skirmish/motion-frames/
 
-# Reproducible native dependency downloads and object files.
-native/rts_lua/vendor/
-native/rts_lua/.sconsign.dblite
-native/rts_lua/src/*.o
-native/rts_lua/src/*.os
-# Register the extension only after its library has been built successfully.
-source/native/rts_lua.gdextension
-source/native/rts_lua.gdextension.uid
-
 # Generated review media belongs in artifacts, not Git history.
 # Keep authoring scripts, Blender projects, written reports and JSON test fixtures.
 /art/**/*.png

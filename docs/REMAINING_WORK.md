@@ -21,10 +21,10 @@ Novice and subjective acceptance require actual participants/user review; do not
 ## Broader acceptance still open
 
 - Repeated campaign and skirmish balance across factions, maps, starts, difficulties, rewards and strategies; Free Frontier balance/usability; intended pacing. Scripted victories do not establish general win rates or 20–30 minute match pacing. Retained unsuccessful cohorts still require review.
-- Five real novice trials, including preset assignment, when to edit programs, and understanding Manual override.
+- Five real novice trials, including choosing unit behaviors and understanding direct-order authority.
 - Final subjective art, animation, audio and interface review, accessibility, physical-device checks and supported interface scales. Individual visual passes do not close these gates.
-- Live LLM provider/model acceptance, platform credentials, exports and release checks.
-- Maximum-load performance remains below a smooth target: 200 mobile units + 80 structures + 200 Lua VMs average 7.0/4.7 FPS on this M1 Pro debug runtime. Ordinary 30/70-unit scenes average 105.2/73.0 FPS; these results do not establish all-platform acceptance.
+- Platform exports and release checks.
+- Maximum-load performance remains below a smooth target; see the [performance results](performance/RESULTS.md) for current maximum-population measurements. Ordinary 30/70-unit scenes average 105.2/73.0 FPS; these results do not establish all-platform acceptance.
 
 Naval content, faction variants, elaborate logistics and PvP remain later scope decisions. The [development roadmap](DEVELOPMENT_ROADMAP.md) and individual playtest reports retain the detailed implementation history and evidence limits.
 
