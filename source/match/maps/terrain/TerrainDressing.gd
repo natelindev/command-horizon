@@ -118,6 +118,7 @@ static func _scatter(
 					| TerrainModel.SOLID
 					| TerrainModel.FOREST
 					| TerrainModel.FORD
+					| TerrainModel.BRIDGE
 				)
 			):
 				continue
@@ -174,6 +175,8 @@ static func _shores(map, layout: Dictionary, kit: Dictionary, rng, batches):
 				continue
 			var normal = CliffMesh.vertex_normal(points, index, outward)
 			var bank = points[index] + normal * rng.randf_range(0.2, 0.9)
+			if map.terrain.flag_at(bank) & TerrainModel.BRIDGE:
+				continue
 			_add(
 				batches,
 				kit.talus[rng.randi() % kit.talus.size()],

@@ -68,7 +68,7 @@ const DEFINITION = {
 			"polygon": [Vector2(25, 98), Vector2(35, 98), Vector2(35, 119), Vector2(25, 119)]
 		},
 	],
-	"bridges": [{"level": 0.3, "line": [Vector2(78.4, 100.2), Vector2(81.2, 118.4)], "width": 5.0}],
+	"bridges": [{"level": 0.3, "line": [Vector2(78.4, 100.2), Vector2(81.2, 118.4)], "width": 8.0}],
 	"forests":
 	[
 		{
@@ -172,7 +172,8 @@ const DEFINITION = {
 			"name": "Stone bridge",
 			"asset": "temperate/StoneBridge",
 			"position": Vector2(79.8, 109.3),
-			"heading": 81.3
+			"heading": 81.3,
+			"scale": Vector3(1, 1, 1.6)
 		},
 		{
 			"name": "Pool mill",

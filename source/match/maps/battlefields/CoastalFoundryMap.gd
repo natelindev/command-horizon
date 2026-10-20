@@ -8,7 +8,7 @@ extends RefCounted
 # swing bridge across the basin under the quay cranes, or out along the mole
 # and over the harbour entrance. Each side keeps a foundry hall and a ship in
 # dry dock. Authored for the north start; the south start is its mirror image.
-const LONG_SHED = [[Vector2(-18, -7), Vector2(18, -7), Vector2(18, 7), Vector2(-18, 7)]]
+const LONG_SHED = [[Vector2(-15, -7), Vector2(15, -7), Vector2(15, 7), Vector2(-15, 7)]]
 # Portal cranes straddle the quay on four legs; units pass beneath them.
 const CRANE_LEGS = [
 	[Vector2(-3.7, -3.7), Vector2(-2.3, -3.7), Vector2(-2.3, -2.3), Vector2(-3.7, -2.3)],
@@ -112,7 +112,10 @@ const DEFINITION = {
 		{
 			"name": "Foundry hall",
 			"asset": "works/MillShedLong",
-			"position": Vector2(78, 44),
+			# Shorten the west end to open the cliff approach without moving the
+			# east wall into the shipyard deposits. Match the solid footprint.
+			"position": Vector2(81, 44),
+			"scale": Vector3(5.0 / 6.0, 1, 1),
 			"heading": 0.0,
 			"footprints": LONG_SHED,
 			"sight_height": 13.0

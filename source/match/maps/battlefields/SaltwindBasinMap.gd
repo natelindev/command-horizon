@@ -5,8 +5,8 @@ extends RefCounted
 # continues north through a neck (narrowed by a gypsum dome) to a ledge with
 # the natural expansion and its own ramp. The pan's centre is open and
 # exposed around a contested camp; each side's back flank is a potash works
-# whose brine ponds are crossed only on narrow dikes. Authored for the
-# south-west start; the north-east start receives the 180-degree rotation.
+# whose brine ponds have dikes wide enough for passing vehicles. Authored for
+# the south-west start; the north-east start receives the 180-degree rotation.
 const DEFINITION = {
 	"id": "SaltwindBasinMap",
 	"name": "Saltwind Basin",
@@ -60,27 +60,28 @@ const DEFINITION = {
 			"to_height": 3.0
 		},
 	],
+	# Eight-metre dikes retain passing room after shoreline and agent clearance.
 	"water":
 	[
 		{
 			"name": "Brine pond",
 			"level": 0.0,
-			"polygon": [Vector2(36, 116), Vector2(50, 116), Vector2(50, 128), Vector2(36, 128)]
+			"polygon": [Vector2(36, 116), Vector2(48, 116), Vector2(48, 126), Vector2(36, 126)]
 		},
 		{
 			"name": "Brine pond",
 			"level": 0.0,
-			"polygon": [Vector2(54, 116), Vector2(68, 116), Vector2(68, 128), Vector2(54, 128)]
+			"polygon": [Vector2(56, 116), Vector2(68, 116), Vector2(68, 126), Vector2(56, 126)]
 		},
 		{
 			"name": "Brine pond",
 			"level": 0.0,
-			"polygon": [Vector2(36, 132), Vector2(50, 132), Vector2(50, 146), Vector2(36, 146)]
+			"polygon": [Vector2(36, 134), Vector2(48, 134), Vector2(48, 146), Vector2(36, 146)]
 		},
 		{
 			"name": "Brine pond",
 			"level": 0.0,
-			"polygon": [Vector2(54, 132), Vector2(68, 132), Vector2(68, 146), Vector2(54, 146)]
+			"polygon": [Vector2(56, 134), Vector2(68, 134), Vector2(68, 146), Vector2(56, 146)]
 		},
 	],
 	"blockers":
