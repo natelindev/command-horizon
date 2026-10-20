@@ -560,6 +560,29 @@ func _add_roster_button(grid, unit_type, construction):
 	var info = RosterInfo.inspect(producer, unit_type, construction)
 	var cost = info.cost
 	var button = RosterButton.new()
+	button.set_meta(
+		"armed",
+		(
+			unit_type
+			in [
+				"Infantry",
+				"RocketInfantry",
+				"SniperInfantry",
+				"AssaultInfantry",
+				"Hero",
+				"Tank",
+				"AdvancedTank",
+				"AntiAirVehicle",
+				"CombatRobot",
+				"Drone",
+				"Helicopter",
+				"Fighter",
+				"Bomber",
+				"AntiGroundTurret",
+				"AntiAirTurret"
+			]
+		)
+	)
 	button.name = "Build" + unit_type if construction else "Produce" + unit_type
 	# Console tiles: the role's portrait on the left, name and price glyphs on the right.
 	button.custom_minimum_size = Vector2(112, 60)
@@ -749,7 +772,10 @@ func _refresh_buttons():
 		entry.button.show_role(
 			entry.button.portrait(), Factions.title(unit.player.faction, entry.type), entry.cost
 		)
+		var became_available = entry.button.disabled and info.allowed
 		entry.button.disabled = not info.allowed
+		if became_available:
+			load("res://source/match/hud/HudMotion.gd").play(entry.button)
 		entry.button.tooltip_text = info.text
 		entry.button.accessibility_description = info.text
 
@@ -896,6 +922,7 @@ func _build_camp():
 	var Sites = preload("res://source/match/world/PointOfInterestCatalog.gd")
 	for role in Sites.ROLES:
 		var button = RosterButton.new()
+		button.set_meta("armed", role not in ["Worker", "RepairRobot"])
 		button.name = "Produce" + role
 		button.custom_minimum_size = Vector2(112, 60)
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL

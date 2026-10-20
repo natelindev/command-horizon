@@ -11,7 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_RESULTS = ROOT / "tmp/paid-progression"
-DEFAULT_GODOT = ROOT / "tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot"
+DEFAULT_GODOT = ROOT / "tmp/tooling/godot-4.7.2/Godot.app/Contents/MacOS/Godot"
 FIELDS = ("file", "factions", "result", "seconds")
 
 
@@ -42,7 +42,7 @@ def help_view(command):
             {"flag": "--repeats", "default": "1", "meaning": "Number of matches with successive recorded seeds"},
             {"flag": "--archive-prefix", "default": "none", "meaning": "Optional new path prefix for earned research and signature archives"},
             {"flag": "--strategy", "default": "ground-first", "meaning": "ground-first, air-first or screened-air"},
-            {"flag": "--godot", "default": str(DEFAULT_GODOT), "meaning": "Godot 4.6 executable"},
+            {"flag": "--godot", "default": str(DEFAULT_GODOT), "meaning": "Godot 4.7.2 executable"},
             {"flag": "--wall-timeout", "default": "1800", "meaning": "Maximum real seconds; records remain bounded to 30 simulation minutes"},
         ], ("flag", "default", "meaning"))
         table("examples", [{"command": "python3 tests/playtest/run_progression.py run --case 4 --output tmp/paid-progression/bastion-frontier.json"},
@@ -147,7 +147,7 @@ def run_match(args):
     if args.repeats <= 0:
         raise UsageError("--repeats must be positive")
     if not args.godot.is_file():
-        raise UsageError("Executable missing; supply --godot with the Godot 4.6 executable")
+        raise UsageError("Executable missing; supply --godot with the Godot 4.7.2 executable")
     output = args.output.resolve()
     if output.suffix != ".json":
         raise UsageError("--output must name a new .json file")

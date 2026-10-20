@@ -28,6 +28,12 @@ const DEFAULTS = {
 	"graphics_dof": false,
 	"graphics_msaa": 1,
 	"graphics_ground_detail": true,
+	"battlefield_wear": true,
+	"area_lighting": false,
+	"hud_motion": true,
+	"hdr_output": false,
+	"hdr_peak_nits": 0.0,
+	"hdr_paper_white": 0.0,
 	"time_of_day": 0,
 	"day_cycle": true,
 	"weather": 0,
@@ -59,6 +65,12 @@ const DEFAULTS = {
 @export var graphics_dof = false
 @export var graphics_msaa = 1
 @export var graphics_ground_detail = true
+@export var battlefield_wear = true
+@export var area_lighting = false
+@export var hud_motion = true
+@export var hdr_output = false
+@export var hdr_peak_nits = 0.0
+@export var hdr_paper_white = 0.0
 @export var time_of_day = 0
 @export var day_cycle = true
 @export var weather = 0
@@ -92,6 +104,9 @@ func apply():
 		language = "en"
 	if TranslationServer.get_locale() != language:
 		TranslationServer.set_locale(language)
+	hdr_peak_nits = _bounded(hdr_peak_nits, 0, 2000, 0)
+	hdr_paper_white = _bounded(hdr_paper_white, 0, 400, 0)
+	apply_hdr()
 	graphics_msaa = clampi(graphics_msaa, 0, 2)
 	time_of_day = clampi(time_of_day, 0, 3)
 	weather = clampi(weather, 0, 4)
@@ -236,3 +251,27 @@ func _speech_clarity(bus):
 	var limiter = AudioEffectHardLimiter.new()
 	limiter.ceiling_db = -1.0
 	AudioServer.add_bus_effect(bus, limiter)
+
+
+func hdr_supported():
+	return (
+		DisplayServer.get_name() != "headless"
+		and DisplayServer.has_feature(DisplayServer.FEATURE_HDR_OUTPUT)
+		and DisplayServer.window_is_hdr_output_supported()
+	)
+
+
+func apply_hdr():
+	if DisplayServer.get_name() == "headless":
+		return
+	# Request persists when moving between SDR/HDR displays; the engine handles fallback.
+	if DisplayServer.has_feature(DisplayServer.FEATURE_HDR_OUTPUT):
+		DisplayServer.window_request_hdr_output(hdr_output)
+		if OS.get_name() in ["Windows", "macOS"]:
+			DisplayServer.window_set_hdr_output_max_luminance(
+				hdr_peak_nits if hdr_peak_nits > 0 else -1
+			)
+		if OS.get_name() == "Windows":
+			DisplayServer.window_set_hdr_output_reference_luminance(
+				hdr_paper_white if hdr_paper_white > 0 else -1
+			)

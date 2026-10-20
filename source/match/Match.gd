@@ -19,6 +19,8 @@ var battlefield = null
 var repair_service = null
 var wreck_salvage = null
 var combat_effects = null
+var battlefield_wear = null
+var base_area_lighting = null
 var projectile_system = null
 var combat_audio = null
 var environment_audio = null
@@ -105,6 +107,10 @@ func _ready():
 	var neutral_world = load("res://source/match/ambient/NeutralWorld.gd").new()
 	neutral_world.name = "NeutralWorld"
 	add_child(neutral_world)
+	battlefield_wear = load("res://source/match/effects/BattlefieldWear.gd").new()
+	add_child(battlefield_wear)
+	base_area_lighting = load("res://source/match/environment/BaseAreaLighting.gd").new()
+	add_child(base_area_lighting)
 	var atmosphere = load("res://source/match/environment/WorldAtmosphere.gd").new()
 	add_child(atmosphere)
 	if DisplayServer.get_name() != "headless":

@@ -10,6 +10,7 @@ const ELECTRONICS_ICON = preload("res://assets/ui/economy/electronics.svg")
 const FALLBACK_ICON = preload("res://assets/ui/economy/units.svg")
 const MATERIALS_TINT = Color("e3c48a")
 const ELECTRONICS_TINT = Color("8fd3c6")
+const InlineIcons = preload("res://source/match/hud/InlineIcons.gd")
 const PORTRAIT_SIZE = 44.0
 
 var _body: HBoxContainer
@@ -139,6 +140,24 @@ func _make_custom_tooltip(for_text):
 	panel.add_child(box)
 	var lines = for_text.split("\n")
 	for index in 3:
+		if index == 2:
+			var details = InlineIcons.label(14)
+			details.custom_minimum_size.x = minf(370, get_viewport_rect().size.x - 48)
+			details.text = InlineIcons.price(int(_materials.text), int(_electronics.text))
+			for line in lines.slice(3):
+				details.text += "\n" + InlineIcons.escape(tr(line))
+			details.accessibility_description = for_text
+			box.add_child(details)
+			continue
+		if index == 1 and get_meta("armed", false):
+			var description = InlineIcons.label(14)
+			description.custom_minimum_size.x = minf(370, get_viewport_rect().size.x - 48)
+			description.text = (
+				InlineIcons.icon(InlineIcons.WEAPONS) + " " + InlineIcons.escape(tr(lines[1]))
+			)
+			description.accessibility_description = tr(lines[1])
+			box.add_child(description)
+			continue
 		var label = Label.new()
 		label.custom_minimum_size.x = minf(370, get_viewport_rect().size.x - 48)
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART

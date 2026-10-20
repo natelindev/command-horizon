@@ -100,9 +100,9 @@ func _run():
 	assert(effects.deaths_emitted > 0, "No destruction animation exercised")
 	assert(effects._tracers.size() <= effects.MAX_TRACERS)
 	assert(effects._wrecks.size() <= effects.MAX_WRECKS)
-	assert(effects.aftermath.scars.size() > 0, "Actual battle left no ground scars")
+	assert(_game.battlefield_wear.marks.size() > 0, "Actual battle left no ground scars")
 	assert(effects.aftermath.debris.size() <= 32, "Debris exceeded visual clutter budget")
-	var scar_ages = effects.aftermath.scars.map(func(entry): return entry.age)
+	var scar_history = _game.battlefield_wear.capture()
 	# Effects must remain frozen during tactical pause, including server particles.
 	paused = true
 	await process_frame
@@ -115,7 +115,7 @@ func _run():
 	assert(effects._tracers.map(func(entry): return entry.age) == ages)
 	for emitter in effects._emitters.values():
 		assert(emitter.speed_scale == 0.0)
-	assert(effects.aftermath.scars.map(func(entry): return entry.age) == scar_ages)
+	assert(_game.battlefield_wear.capture() == scar_history)
 	paused = false
 	await process_frame
 	# Controlled impact in an open patch verifies all layers at known ages.

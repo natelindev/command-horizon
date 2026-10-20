@@ -609,6 +609,7 @@ func show_notice(message):
 	_assignment_hint.text = message
 	_notice_slot.scroll_vertical = 0
 	_assignment_hint.show()
+	load("res://source/match/hud/HudMotion.gd").play(_assignment_hint, true)
 	_hint_left = 6.0
 
 

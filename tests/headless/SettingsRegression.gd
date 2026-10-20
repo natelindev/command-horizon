@@ -31,6 +31,12 @@ func _storage():
 	preferences.zoom_speed = 2.0
 	preferences.edge_scrolling = false
 	preferences.reduced_flashes = true
+	preferences.battlefield_wear = false
+	preferences.area_lighting = true
+	preferences.hud_motion = false
+	preferences.hdr_output = true
+	preferences.hdr_peak_nits = 1200.0
+	preferences.hdr_paper_white = 200.0
 	preferences.apply()
 	_check(root.content_scale_factor == 1.25, "Interface size was not applied")
 	_check(AudioServer.is_bus_mute(0), "Master zero does not mute")
@@ -51,6 +57,8 @@ func _storage():
 	broken.master_volume = -5.0
 	broken.zoom_speed = 999.0
 	broken.edge_scrolling = "invalid"
+	broken.hdr_peak_nits = INF
+	broken.hdr_paper_white = -10.0
 	preferences.restore(broken)
 	_check(
 		(
@@ -59,6 +67,8 @@ func _storage():
 			and preferences.master_volume == 0
 			and preferences.zoom_speed == 3
 			and preferences.edge_scrolling
+			and preferences.hdr_peak_nits == 0
+			and preferences.hdr_paper_white == 0
 		),
 		"Invalid settings were not bounded"
 	)
@@ -92,6 +102,12 @@ func _battle_dialog():
 		dialog.save_path = archive
 		await _frames(5)
 		_check(not saves.can_open(), "Archive can open over settings")
+		dialog._preview("battlefield_wear", false)
+		dialog._preview("area_lighting", true)
+		dialog._preview("hud_motion", false)
+		dialog._preview("hdr_output", true)
+		dialog._preview("hdr_peak_nits", 1000.0)
+		dialog._preview("hdr_paper_white", 150.0)
 		dialog._preview("master_volume", 0.25)
 		dialog._preview("camera_speed", 1.8)
 		dialog._preview("interface_scale", 1.5)

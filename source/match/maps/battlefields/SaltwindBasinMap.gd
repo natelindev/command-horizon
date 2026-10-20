@@ -91,7 +91,14 @@ const DEFINITION = {
 			"natural": true,
 			"roughness": 0.8,
 			"polygon":
-			[Vector2(0, 56), Vector2(7, 55), Vector2(11, 60), Vector2(10, 66), Vector2(4, 68), Vector2(0, 67)]
+			[
+				Vector2(0, 56),
+				Vector2(7, 55),
+				Vector2(11, 60),
+				Vector2(10, 66),
+				Vector2(4, 68),
+				Vector2(0, 67)
+			]
 		},
 	],
 	"forests":
@@ -192,7 +199,12 @@ const DEFINITION = {
 	[
 		{"name": "West ledge", "site": Vector2(12, 82), "field": Vector2(3.5, 80)},
 		{"name": "South flat", "site": Vector2(92, 14), "field": Vector2(100, 9)},
-		{"name": "Pond works", "site": Vector2(52, 106), "field": Vector2(43.5, 103.5), "rich": true},
+		{
+			"name": "Pond works",
+			"site": Vector2(52, 106),
+			"field": Vector2(43.5, 103.5),
+			"rich": true
+		},
 		{"name": "Open flat", "site": Vector2(68, 88), "field": Vector2(61, 93)},
 		{"name": "Plant yard", "site": Vector2(28, 154), "field": Vector2(19.5, 155)},
 	],

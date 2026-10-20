@@ -26,6 +26,7 @@ var _sample_left = 0.0
 var _save
 var _cancel
 var _tabs
+var _hdr_status_clock = 0.0
 
 
 func _ready():
@@ -298,12 +299,22 @@ func _refresh():
 		"graphics_fog",
 		"graphics_dof",
 		"graphics_ground_detail",
+		"battlefield_wear",
+		"area_lighting",
+		"hud_motion",
+		"hdr_output",
 		"day_cycle",
 		"weather_particles",
 		"living_world",
 		"menu_motion"
 	]:
 		controls[key].set_pressed_no_signal(options.get(key))
+	_refresh_hdr_status()
+	for key in ["hdr_peak_nits", "hdr_paper_white"]:
+		controls[key].set_value_no_signal(options.get(key))
+		controls[key + "_value"].text = (
+			tr("Auto") if options.get(key) == 0 else tr("%d nit") % options.get(key)
+		)
 	controls.screen.select(options.screen)
 	controls.interface_scale.select([1.0, 1.25, 1.5].find(options.interface_scale))
 	controls.subtitle_size.select([18, 22, 26].find(options.subtitle_size))
@@ -393,10 +404,35 @@ func _test_voice():
 
 
 func _process(delta):
+	_hdr_status_clock += delta
+	if _hdr_status_clock >= .5:
+		_hdr_status_clock = 0.0
+		_refresh_hdr_status()
 	if _sample_left > 0:
 		_sample_left = maxf(0, _sample_left - delta / maxf(Engine.time_scale, 0.001))
 		if _sample_left == 0:
 			_sample_caption.hide()
+
+
+func _refresh_hdr_status():
+	var available = options.hdr_supported()
+	controls.hdr_output.disabled = not available and not options.hdr_output
+	for key in ["hdr_peak_nits", "hdr_paper_white"]:
+		controls[key].editable = (
+			options.hdr_output
+			and available
+			and (
+				OS.get_name() == "Windows" or (key == "hdr_peak_nits" and OS.get_name() == "macOS")
+			)
+		)
+	var status = "SDR active · HDR requires a supported display and system settings."
+	if available:
+		status = (
+			"HDR active"
+			if DisplayServer.window_is_hdr_output_enabled()
+			else "SDR active · enable HDR output to use this display's HDR range."
+		)
+	controls.hdr_status.text = tr(status)
 
 
 func _build_graphics():
@@ -421,6 +457,14 @@ func _build_graphics():
 	_check(column, "Ambient occlusion (contact shading)", "graphics_ao")
 	_check(column, "Bloom / light glow", "graphics_glow")
 	_check(column, "Ground detail", "graphics_ground_detail")
+	_check(column, "Persistent tracks and blast marks", "battlefield_wear")
+	controls.battlefield_wear.tooltip_text = tr(
+		"Visible vehicles and combat leave ground marks. Saved with the battle; requires Ground detail."
+	)
+	_check(column, "High-quality building lights", "area_lighting")
+	controls.area_lighting.tooltip_text = tr(
+		"Soft rectangular lights around visible bases. Uses extra GPU time."
+	)
 	controls.graphics_ground_detail.tooltip_text = tr(
 		"High-resolution ground textures and wear marks. Turn off to improve performance."
 	)
@@ -430,11 +474,41 @@ func _build_graphics():
 	)
 	_choice(column, "Anti-aliasing", "graphics_msaa", ["Off", "2× MSAA", "4× MSAA"])
 	var forward = RenderingServer.get_current_rendering_method() == "forward_plus"
-	for key in ["graphics_ao", "graphics_dof"]:
+	for key in ["graphics_ao", "graphics_dof", "area_lighting"]:
 		controls[key].disabled = not forward
 		if not forward:
 			controls[key].tooltip_text = tr("Available with the Forward+ renderer.")
+	_heading(column, "HDR display")
+	_check(column, "HDR output", "hdr_output")
+	controls.hdr_status = _label(column, "", 12)
+	controls.hdr_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_slider(column, "Peak brightness", "hdr_peak_nits", 0, 2000, 100)
+	_slider(column, "Paper white brightness", "hdr_paper_white", 0, 400, 25)
+	controls.hdr_peak_nits.tooltip_text = tr(
+		(
+			"Auto uses the display rating. Override only if bright details disappear. "
+			+ "Available on Windows and macOS."
+		)
+	)
+	controls.hdr_paper_white.tooltip_text = tr(
+		(
+			"Auto follows system brightness. Manual adjustment is available on Windows; "
+			+ "other platforms use system brightness."
+		)
+	)
+	var calibration = load("res://source/main-menu/HDRCalibration.gd").new()
+	column.add_child(calibration)
+	var guide = _label(
+		column,
+		(
+			"Keep the dark patches distinct and bright patches separated. "
+			+ "Use Auto first; adjust your display brightness on macOS."
+		),
+		12
+	)
+	guide.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_heading(column, "World & interface")
+	_check(column, "HUD event animations", "hud_motion")
 	_check(column, "Scenic districts and background population", "living_world")
 	_check(column, "Animated menu backgrounds and entrances", "menu_motion")
 

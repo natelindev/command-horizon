@@ -4,6 +4,12 @@
 
 Open Source real-time strategy game made with Godot 4.
 
+Godot **4.7.2** presentation updates add event animations, text-scaled tooltip icons,
+directional exhaust and dust, rotating debris, and saved vehicle tracks and blast marks.
+In **Settings → Graphics**, enable **High-quality building lights** for soft base lighting
+or **HDR output** for a supported display. Both are off by default. HUD animations
+respect **Reduce bright combat flashes** and can also be disabled separately.
+
 ## Game design
 
 The evolving RTS design is recorded in
@@ -31,7 +37,7 @@ sounds follow **Effects volume**.
 
 ## Play skirmish
 
-Run `project.godot` in **Godot 4.6** and choose **SKIRMISH**, or double-click [`play-skirmish.command`](play-skirmish.command) on this Mac.
+Run `project.godot` in **Godot 4.7.2** and choose **SKIRMISH**, or double-click [`play-skirmish.command`](play-skirmish.command) on this Mac.
 
 - Play **Bastion**, **Helix**, or **Free Frontier**, against any faction or **Random** (mirror matches supported).
 - Choose the expanded **Desert Frontier**, **Alpine Relay**, or **Coastal Foundry**, plus **Easy / Normal / Hard** AI. Sparse legacy maps are retired from new-game selection.
@@ -91,7 +97,7 @@ godot --path . --fixed-fps 60 --script tests/rendered/CampaignPreview.gd
 
 ## Bastion playable demo
 
-Open `project.godot` in **Godot 4.6**, run the project, and choose **BASTION DEMO**. On this Mac, double-click [`play-bastion.command`](play-bastion.command) to launch directly. A Godot executable is required; the launcher checks the local tool download, cache, application folder, and PATH.
+Open `project.godot` in **Godot 4.7.2**, run the project, and choose **BASTION DEMO**. On this Mac, double-click [`play-bastion.command`](play-bastion.command) to launch directly. A Godot executable is required; the launcher checks the local tool download, cache, application folder, and PATH.
 
 The desert scenario starts with the full faction available for review: **8 mobile unit types, 9 structures, materials/electronics harvesting, power capacity, construction, production, repairs, fog of war, and an AI opponent**. Reinforcements cost resources; the command lab unlocks walkers and railgun tanks. Destroy all enemy units and structures to win. Use **SKIRMISH** for the two-faction mode described above.
 
@@ -165,8 +171,15 @@ This game is not going to be a very advanced RTS that would compete with other g
 
 ## Godot compatibility
 
-This project is compatible with Godot `4.6`.
+This project targets **Godot `4.7.2-stable`** (standard edition), including matching
+export templates. Download it from the [official release page](https://godotengine.org/download/archive/4.7.2-stable/).
+The desktop release pipeline uses this exact version.
 
+On macOS, the launchers look for `tmp/tooling/godot-4.7.2/Godot.app`,
+`~/.cache/godot/4.7.2/Godot.app`, `/Applications/Godot.app`, then `godot` on PATH.
+The launchers check the executable version and skip anything other than 4.7.2 stable.
+
+ - support for Godot `4.6` is available in project history before the Godot `4.7.2` upgrade.
  - support for Godot `4.3` is available in project history before the Godot `4.6` upgrade.
  - support for Godot `4.2` is available on `godot-4.2-support` branch.
  - support for Godot `4.1` is available on `godot-4.1-support` branch.
