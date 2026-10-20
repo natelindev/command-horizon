@@ -34,36 +34,29 @@ func _unforce_highlight(units_not_to_highlight_anymore):
 func _get_controlled_units_from_navigation_domain_within_topdown_polygon_2d(
 	navigation_domain, topdown_polygon_2d
 ):
-	if topdown_polygon_2d == null:
-		return Utils.Set.new()
 	var units_within_polygon = Utils.Set.new()
-	# On elevated terrain ground units stand on their tier, not the y = 0 plane.
-	var map = get_tree().get_first_node_in_group("battle_map")
-	var elevated = map != null and map.is_elevated()
+	if topdown_polygon_2d == null or topdown_polygon_2d.size() < 3:
+		return units_within_polygon
+	var camera = get_viewport().get_camera_3d()
+	if camera == null:
+		return units_within_polygon
+	# Compare displayed positions at every altitude. Rebasing onto a unit's
+	# plane fails when that plane lies behind a selection corner's ray origin.
+	var screen_polygon = PackedVector2Array()
+	for point in topdown_polygon_2d:
+		screen_polygon.append(
+			camera.unproject_position(Vector3(point.x, Constants.Match.Terrain.PLANE.d, point.y))
+		)
 	for unit in get_tree().get_nodes_in_group("controlled_units"):
 		if not unit.visible or unit.movement_domain != navigation_domain:
 			continue
-		var polygon = topdown_polygon_2d
-		if navigation_domain == Constants.Match.Navigation.Domain.AIR or elevated:
-			polygon = _rebase_topdown_polygon_2d_to_different_plane(
-				topdown_polygon_2d, Plane(Vector3.UP, unit.global_position.y)
-			)
-		var unit_position_2d = Vector2(unit.global_position.x, unit.global_position.z)
-		if Geometry2D.is_point_in_polygon(unit_position_2d, polygon):
+		if camera.is_position_behind(unit.global_position):
+			continue
+		if Geometry2D.is_point_in_polygon(
+			camera.unproject_position(unit.global_position), screen_polygon
+		):
 			units_within_polygon.add(unit)
 	return units_within_polygon
-
-
-func _rebase_topdown_polygon_2d_to_different_plane(topdown_polygon_2d, plane):
-	var rebased_topdown_polygon_2d = []
-	var camera = get_viewport().get_camera_3d()
-	for polygon_point_2d in topdown_polygon_2d:
-		var screen_point_2d = camera.unproject_position(
-			Vector3(polygon_point_2d.x, Constants.Match.Terrain.PLANE.d, polygon_point_2d.y)
-		)
-		var rebased_point_3d = camera.get_ray_intersection_with_plane(screen_point_2d, plane)
-		rebased_topdown_polygon_2d.append(Vector2(rebased_point_3d.x, rebased_point_3d.z))
-	return rebased_topdown_polygon_2d
 
 
 func _on_selection_started():

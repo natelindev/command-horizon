@@ -94,6 +94,9 @@ func _update():
 func _screen_rect_2d_to_topdown_polygon_2d(rect_2d):
 	if rect_2d == null:
 		return null
+	var camera = get_viewport().get_camera_3d()
+	if camera == null:
+		return null
 	var rect_points_2d = [
 		rect_2d.position,
 		Vector2(rect_2d.position.x, rect_2d.end.y),
@@ -102,8 +105,8 @@ func _screen_rect_2d_to_topdown_polygon_2d(rect_2d):
 	]
 	var polygon_points_2d = []
 	for rect_point_2d in rect_points_2d:
-		var polygon_point_3d = get_viewport().get_camera_3d().get_ray_intersection_with_plane(
-			rect_point_2d, polygon_plane
-		)
+		var polygon_point_3d = camera.get_ray_intersection_with_plane(rect_point_2d, polygon_plane)
+		if polygon_point_3d == null:
+			return null
 		polygon_points_2d.append(Vector2(polygon_point_3d.x, polygon_point_3d.z))
 	return polygon_points_2d
