@@ -70,6 +70,11 @@ func submit(order, append = false, audible = true, feedback_kind = ""):
 	if audible:
 		MatchSignals.unit_order_issued.emit(unit, order.kind)
 	_feedback(order, true, append, audible, "", feedback_kind)
+	# Start an order the moment it reaches the head of an idle queue instead of
+	# on the next physics tick. Tactical pause keeps orders waiting, and a locked
+	# action swap retries on that tick.
+	if not is_instance_valid(_active) and not unit._action_locked and not get_tree().paused:
+		_start_next()
 	return true
 
 
@@ -97,6 +102,10 @@ func _physics_process(delta):
 	if is_instance_valid(_active) and _active.is_inside_tree():
 		_track_progress(delta)
 		return
+	_start_next()
+
+
+func _start_next():
 	_active = null
 	current = {}
 	if pending.is_empty():
@@ -163,6 +172,25 @@ func _make_action(order):
 		"approach":
 			return load(ACTIONS + "MovingToUnit.gd").new(target)
 	return null
+
+
+func revise(token, point):
+	# A right-click drag sets formation and facing after the press already issued
+	# the order. Update that same order in place: no second queue entry or voice.
+	if current.get("token") == token:
+		current.point = point
+		if current.kind in ["move", "attack_move"] and is_instance_valid(_active):
+			var action = _make_action(current)
+			_still = 0.0
+			_progress = unit.global_position
+			_active = action
+			unit.action = action
+		return true
+	for order in pending:
+		if order.get("token") == token:
+			order.point = point
+			return true
+	return false
 
 
 func skip():

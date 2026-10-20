@@ -2,7 +2,7 @@ extends "res://tests/headless/SaveRestoreEdges.gd"
 
 const CONTACT_ARCHIVE = "res://tests/fixtures/contact-approach.json"
 var contact_deadline = 0
-var detour_frames = 150
+var detour_frames = 1
 
 
 func _initialize():
@@ -48,9 +48,10 @@ func _captured_approach(repetition):
 	var maximum_step = 0.0
 	var previous = start
 	var excursion = 0.0
-	var progress_at_four = 0.0
 	var collected = -1.0
 	var clearance = INF
+	var gaps = {}
+	var deepened = 0
 	var started = game.simulation_time
 	_check(cargo == 3, "Captured engineer cargo changed")
 	paused = false
@@ -58,32 +59,37 @@ func _captured_approach(repetition):
 		await physics_frame
 		maximum_step = maxf(maximum_step, worker.position.distance_to(previous))
 		previous = worker.position
+		# A harvest run ghosts through units. Once solid again (here: no HQ to
+		# return to), a leftover overlap may only shrink; it must never deepen.
+		var ghosted = worker.get_node("Movement").ghosted
 		for other in get_nodes_in_group("units"):
 			if (
 				other != worker
 				and other.movement_speed > 0
 				and other.movement_domain == worker.movement_domain
 			):
-				clearance = minf(
-					clearance,
-					(
-						worker.global_position_yless.distance_to(other.global_position_yless)
-						- worker.radius
-						- other.radius
-					)
+				var gap = (
+					worker.global_position_yless.distance_to(other.global_position_yless)
+					- worker.radius
+					- other.radius
 				)
+				if not ghosted and gap < -0.08 and gap < gaps.get(other, INF) - 0.001:
+					deepened += 1
+				gaps[other] = gap
+				if not ghosted:
+					clearance = minf(clearance, gap)
 		excursion = maxf(excursion, worker.position.distance_to(start))
-		if frame == 239:
-			progress_at_four = excursion
 		if worker.resource_a > cargo and collected < 0:
 			collected = game.simulation_time - started
 			_check(
 				root.get_node("Utils").Match.Unit.Movement.units_adhere(worker, deposit),
 				"Collected outside contact range"
 			)
+	# The captured settled row used to force a 4 m detour and ~10 s of searching.
+	# Harvest runs pass through it and start loading almost at once.
 	_check(
-		progress_at_four > 0.3,
-		"Captured engineer failed to leave the blocked approach within four seconds"
+		collected >= 0 and collected <= 3.0,
+		"Captured engineer was held up by settled units for over three seconds"
 	)
 	_check(
 		collected >= 0 and worker.resource_a == 4, "Captured engineer never completed its real work"
@@ -96,12 +102,12 @@ func _captured_approach(repetition):
 		maximum_step <= worker.movement_speed / Engine.physics_ticks_per_second + 0.002,
 		"Contact recovery teleported the engineer"
 	)
-	_check(clearance >= -0.08, "Contact recovery crossed another unit's footprint")
+	_check(deepened == 0, "Solid engineer pushed deeper into another unit's footprint")
 	print(
 		"CAPTURED CONTACT ",
 		repetition,
-		" excursion_at_four=",
-		progress_at_four,
+		" excursion=",
+		excursion,
 		" collected=",
 		collected,
 		" max_step=",
@@ -138,8 +144,9 @@ func _detour_archive():
 	var cargo = worker.resource_a
 	_check(
 		cargo == 3 and action.get_script().resource_path.ends_with("MovingToUnit.gd"),
-		"Archive missed active detour"
+		"Archive missed active approach"
 	)
+	_check(worker.get_node("Movement").ghosted, "Approaching harvester was not ghosted")
 	var snapshotter = Snapshot.new()
 	var snapshot = snapshotter.capture(game)
 	var id = snapshotter._reference(worker)
@@ -164,6 +171,7 @@ func _detour_archive():
 		worker.action._sub_action._target_position.is_equal_approx(destination),
 		"Detour destination lost in archive"
 	)
+	_check(worker.get_node("Movement").ghosted, "Restored harvest run lost its ghosting")
 	paused = false
 	await _frames(600)
 	_check(worker.resource_a == 4, "Restored detour did not complete harvesting")
@@ -184,6 +192,7 @@ func _manual_replacement():
 	await _frames(300)
 	_check(worker.position.distance_to(goal) < 0.4, "Detour overrode replacement move")
 	_check(worker.resource_a == 3, "Cancelled detour kept collecting")
+	_check(not worker.get_node("Movement").ghosted, "Manual move kept harvest ghosting")
 	print("CHECKED: manual replacement ends recovery and retains cargo")
 	game.queue_free()
 	await _frames(5)

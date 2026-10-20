@@ -63,6 +63,12 @@ const MAPS = {
 class Navigation:
 	enum Domain { AIR, TERRAIN }
 
+	# Avoidance layers. Static obstacles carry their own bit as well, so a
+	# ghosted harvester keeps avoiding structures while passing through units.
+	const AVOIDANCE_UNITS = 1
+	const AVOIDANCE_GHOSTS = 2
+	const AVOIDANCE_STATIC = 4
+
 	const DOMAIN_TO_GROUP_MAPPING = {
 		Domain.AIR: "air_navigation_input",
 		Domain.TERRAIN: "terrain_navigation_input",

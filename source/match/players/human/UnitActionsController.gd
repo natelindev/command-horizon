@@ -18,30 +18,40 @@ class Actions:
 	const Repairing = preload("res://source/match/units/actions/Repairing.gd")
 
 
+# The press that issued the latest ground order: units and their order tokens,
+# so a drag release can revise those same orders with formation and facing.
+var _ground_dispatch = {}
+var _next_token = 0
+
+
 func _ready():
 	MatchSignals.terrain_targeted.connect(_on_terrain_targeted)
-	MatchSignals.terrain_targeted_with_heading.connect(_on_terrain_targeted_with_heading)
+	MatchSignals.terrain_target_heading_set.connect(_on_terrain_target_heading_set)
 	MatchSignals.unit_targeted.connect(_on_unit_targeted)
 	MatchSignals.unit_spawned.connect(_on_unit_spawned)
 	MatchSignals.navigate_unit_to_rally_point.connect(_on_navigate_unit_to_rally_point)
 
 
-func _try_navigating_selected_units_towards_position(target_point, heading = null):
-	var terrain_units_to_move = get_tree().get_nodes_in_group("selected_units").filter(
+func _try_navigating_selected_units_towards_position(target_point):
+	_ground_dispatch = {"point": target_point, "tokens": {}}
+	var units = get_tree().get_nodes_in_group("selected_units").filter(
 		func(unit):
-			return (
-				unit.is_in_group("controlled_units")
-				and unit.movement_domain == Constants.Match.Navigation.Domain.TERRAIN
-				and Actions.Moving.is_applicable(unit)
-			)
+			return unit.is_in_group("controlled_units") and Actions.Moving.is_applicable(unit)
 	)
-	var air_units_to_move = get_tree().get_nodes_in_group("selected_units").filter(
-		func(unit):
-			return (
-				unit.is_in_group("controlled_units")
-				and unit.movement_domain == Constants.Match.Navigation.Domain.AIR
-				and Actions.Moving.is_applicable(unit)
-			)
+	for tuple in _group_destinations(units, target_point):
+		var order = Orders.point_order("move", tuple[1])
+		_next_token += 1
+		order.token = _next_token
+		if _submit(tuple[0], order):
+			_ground_dispatch.tokens[tuple[0]] = order.token
+
+
+func _group_destinations(units, target_point, heading = null):
+	var terrain_units_to_move = units.filter(
+		func(unit): return unit.movement_domain == Constants.Match.Navigation.Domain.TERRAIN
+	)
+	var air_units_to_move = units.filter(
+		func(unit): return unit.movement_domain == Constants.Match.Navigation.Domain.AIR
 	)
 	var new_unit_targets = Utils.Match.Unit.Movement.crowd_moved_to_new_pivot(
 		terrain_units_to_move, target_point, heading
@@ -49,10 +59,7 @@ func _try_navigating_selected_units_towards_position(target_point, heading = nul
 	new_unit_targets += Utils.Match.Unit.Movement.crowd_moved_to_new_pivot(
 		air_units_to_move, target_point, heading
 	)
-	for tuple in new_unit_targets:
-		var unit = tuple[0]
-		var new_target = tuple[1]
-		_submit(unit, Orders.point_order("move", new_target))
+	return new_unit_targets
 
 
 func _try_setting_rally_points(target_point: Vector3):
@@ -154,9 +161,18 @@ func _on_terrain_targeted(position):
 	_try_setting_rally_points(position)
 
 
-func _on_terrain_targeted_with_heading(position, heading):
-	_try_navigating_selected_units_towards_position(position, heading)
-	_try_setting_rally_points(position)
+func _on_terrain_target_heading_set(position, heading):
+	# The press already issued these orders (and set any rally point). Revise the
+	# same orders with formation slots and facing; nothing is queued twice.
+	if _ground_dispatch.get("point") != position:
+		return
+	var tokens = _ground_dispatch.tokens
+	_ground_dispatch = {}
+	var units = tokens.keys().filter(
+		func(unit): return is_instance_valid(unit) and not unit.is_queued_for_deletion()
+	)
+	for tuple in _group_destinations(units, position, heading):
+		tuple[0].manual_orders.revise(tokens[tuple[0]], tuple[1])
 
 
 func _on_unit_targeted(unit):

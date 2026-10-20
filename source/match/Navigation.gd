@@ -65,4 +65,8 @@ func _setup_static_obstacles():
 		]
 		NavigationServer3D.obstacle_set_vertices(obstacle, obstacle_vertices)
 		NavigationServer3D.obstacle_set_avoidance_enabled(obstacle, true)
+		NavigationServer3D.obstacle_set_avoidance_layers(
+			obstacle,
+			Constants.Match.Navigation.AVOIDANCE_UNITS | Constants.Match.Navigation.AVOIDANCE_STATIC
+		)
 		_static_obstacles.append(obstacle)
