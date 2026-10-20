@@ -22,10 +22,13 @@ const MAPS = [
 		"192 × 160"
 	],
 	[
-		"res://source/match/maps/ExpandedCoastalFoundry.tscn",
+		"res://source/match/maps/battlefields/CoastalFoundryMap.tscn",
 		"Coastal Foundry",
-		"Wide harbor routes · eight resource fields · six capturable facilities",
-		"192 × 156"
+		(
+			"A harbour town with a ship foundry · over the fort hill, the swing bridge"
+			+ " or the mole · 12 resource fields"
+		),
+		"192 × 160"
 	],
 	[
 		"res://source/match/maps/battlefields/RedrockDivideMap.tscn",
@@ -61,15 +64,15 @@ const MAPS = [
 		"192 × 160"
 	],
 	[
-		"res://source/match/maps/Emberworks.tscn",
+		"res://source/match/maps/battlefields/EmberworksMap.tscn",
 		"Emberworks",
-		"Abandoned furnaces and service alleys around a central works.",
+		"A steelworks split by its canal · two bridges under the slag heaps · 14 resource fields",
 		"192 × 160"
 	],
 	[
-		"res://source/match/maps/CinderRing.tscn",
+		"res://source/match/maps/battlefields/CinderRingMap.tscn",
 		"Cinder Ring",
-		"A black volcanic caldera with an open outer circuit.",
+		"A caldera around a lava lake · climb the crater rim or pass its breaches · 24 resource fields",
 		"224 × 224"
 	],
 	[
@@ -79,9 +82,9 @@ const MAPS = [
 		"224 × 224"
 	],
 	[
-		"res://source/match/maps/SunkenExchange.tscn",
+		"res://source/match/maps/battlefields/SunkenExchangeMap.tscn",
 		"Sunken Exchange",
-		"Flooded port basins leave a cross of cargo roads.",
+		"A drowned port city · canals and bridges round the flooded exchange · 24 resource fields",
 		"224 × 224"
 	],
 	[
@@ -103,9 +106,9 @@ const MAPS = [
 		"224 × 224"
 	],
 	[
-		"res://source/match/maps/RailspireJunction.tscn",
+		"res://source/match/maps/battlefields/RailspireJunctionMap.tscn",
 		"Railspire Junction",
-		"Rail depots divide a grid of long industrial sightlines.",
+		"Four track fields meet at a signal box · overpasses over long sightlines · 24 resource fields",
 		"224 × 224"
 	],
 	[
@@ -144,7 +147,12 @@ const SUCCESSORS = {
 	"ExpandedAlpineRelay": "res://source/match/maps/battlefields/AlpineRelayMap.tscn",
 	"GlacierNarrows": "res://source/match/maps/battlefields/GlacierNarrowsMap.tscn",
 	"FrostboundCrown": "res://source/match/maps/battlefields/FrostboundCrownMap.tscn",
-	"CoastalFoundry": "res://source/match/maps/ExpandedCoastalFoundry.tscn",
+	"CoastalFoundry": "res://source/match/maps/battlefields/CoastalFoundryMap.tscn",
+	"ExpandedCoastalFoundry": "res://source/match/maps/battlefields/CoastalFoundryMap.tscn",
+	"Emberworks": "res://source/match/maps/battlefields/EmberworksMap.tscn",
+	"CinderRing": "res://source/match/maps/battlefields/CinderRingMap.tscn",
+	"SunkenExchange": "res://source/match/maps/battlefields/SunkenExchangeMap.tscn",
+	"RailspireJunction": "res://source/match/maps/battlefields/RailspireJunctionMap.tscn",
 }
 
 const FACTION_DESCRIPTIONS = [

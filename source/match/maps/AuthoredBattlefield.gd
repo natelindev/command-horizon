@@ -13,10 +13,12 @@ const RESOURCE_A = preload("res://source/match/units/non-player/ResourceA.tscn")
 const RESOURCE_B = preload("res://source/match/units/non-player/ResourceB.tscn")
 const GROUND_SHADER = preload("res://source/shaders/3d/authored_terrain.gdshader")
 const WATER_SHADER = preload("res://source/shaders/3d/authored_water.gdshader")
+const LAVA_SHADER = preload("res://source/shaders/3d/authored_lava.gdshader")
 const ROCK_SHADER = preload("res://source/shaders/3d/canyon_rock.gdshader")
 const CliffMesh = preload("res://source/match/maps/terrain/CliffMesh.gd")
 const TerrainDressing = preload("res://source/match/maps/terrain/TerrainDressing.gd")
 const TerrainBackdrop = preload("res://source/match/maps/terrain/TerrainBackdrop.gd")
+const IndustrialLandmarks = preload("res://source/match/maps/IndustrialLandmarks.gd")
 # Materials and electronics stock per deposit for each kind of field.
 const STOCKS = {"home": [400, 720], "expansion": [600, 1200], "rich": [900, 1800]}
 # Five material piles then two electronics nodes on an arc around the site
@@ -45,6 +47,7 @@ func _ready():
 		return
 	_place_fields()
 	_place_relays()
+	_place_garrisons()
 	for water in layout.water:
 		_place_water(water)
 	_place_rock()
@@ -57,8 +60,25 @@ func _place_relays():
 		relay.name = entry.name.to_pascal_case()
 		relay.label_title = entry.name.to_upper()
 		relay.position = ground_point(entry.position)
+		relay.path_height_offset = TerrainDressing.GROUND_OFFSET
 		add_child(relay)
 		relays.append(relay)
+
+
+# Neutral buildings infantry can garrison. NeutralWorld adopts them in the
+# order AmbientCatalog.structures() lists them; aircraft climb over them.
+func _place_garrisons():
+	for entry in layout.get("garrisons", []):
+		var body = IndustrialLandmarks.place(
+			$Decorations,
+			ground_point(entry.position),
+			entry.asset,
+			entry.get("radius", 6.0),
+			entry.get("scale", 1.0)
+		)
+		body.rotation.y = -deg_to_rad(TerrainDressing.heading(layout, entry))
+		body.get_node("MovementObstacle").path_height_offset = TerrainDressing.GROUND_OFFSET
+		interior_obstacles.append(body)
 
 
 # Relay state is the map's skirmish mission; maps without relays have none.
@@ -281,10 +301,13 @@ func _place_water(water: Dictionary):
 		vertices.append(Vector3(polygon[index].x, level, polygon[index].y))
 	var surface = _flat_mesh(vertices)
 	var material = ShaderMaterial.new()
-	material.shader = WATER_SHADER
-	Palettes.configure_water(material, _ground_palette())
+	if water.get("lava", false):
+		material.shader = LAVA_SHADER
+	else:
+		material.shader = WATER_SHADER
+		Palettes.configure_water(material, _ground_palette())
 	surface.material_override = material
-	surface.name = "Ford" if ford else "Water"
+	surface.name = "Lava" if water.get("lava", false) else ("Ford" if ford else "Water")
 	surface.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	$Decorations.add_child(surface)
 

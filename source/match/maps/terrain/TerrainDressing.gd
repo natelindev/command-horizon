@@ -15,6 +15,11 @@ const FIELD_CLEARANCE = 12.0
 const SITE_CLEARANCE = 8.0
 const ROAD_CLEARANCE = 1.5
 const TALUS_SPACING = 3.5
+const RAIL = ["works/RailTrack", 0.52]
+# Static bodies settle onto the navigation surface, which rides above the
+# authored ground; this offset sets them back on the ground.
+const GROUND_OFFSET = 0.6
+const RAIL_PANEL = 6.0
 
 
 static func populate(map):
@@ -33,6 +38,8 @@ static func populate(map):
 	_scatter(map, model, kit.lone_trees, kit.tree_density, rng, batches, clear, true, low)
 	_talus(map, layout, model, kit, rng, batches)
 	_shores(map, layout, kit, rng, batches)
+	for rail in layout.get("rails", []):
+		_rail(map, rail.line, batches)
 	var parent = Node3D.new()
 	parent.name = "Dressing"
 	map.add_child(parent)
@@ -174,22 +181,44 @@ static func _shores(map, layout: Dictionary, kit: Dictionary, rng, batches):
 			)
 
 
+# Track in 6 m panels laid end to end along each segment of the line; panels
+# stretch slightly so every segment is filled exactly.
+static func _rail(map, line: PackedVector2Array, batches):
+	for index in line.size() - 1:
+		var a = line[index]
+		var b = line[index + 1]
+		var length = a.distance_to(b)
+		var count = maxi(1, ceili(length / RAIL_PANEL))
+		var step = length / count
+		var basis = (
+			Basis(Vector3.UP, -(b - a).angle()) * Basis.from_scale(Vector3(step / RAIL_PANEL, 1, 1))
+		)
+		for panel in count:
+			var centre = a.lerp(b, (panel + 0.5) / count)
+			_add(batches, RAIL, Transform3D(basis, map.ground_point(centre)))
+
+
+# Heading is the direction of the model's +X in the ground plane, in degrees;
+# rotated and reflected copies face the transformed direction.
+static func heading(layout: Dictionary, entry: Dictionary) -> float:
+	var value = entry.get("heading", 0.0)
+	var reflected = entry.get("player", 0) % 2 == 1
+	match layout.get("symmetry", "rotate"):
+		"mirror_x":
+			return 180.0 - value if reflected else value
+		"mirror_y":
+			return -value if reflected else value
+	return value + entry.get("player", 0) * 360.0 / layout.players
+
+
 static func _landmark(map, layout: Dictionary, landmark: Dictionary):
 	var body = Node3D.new()
 	body.name = landmark.get("name", landmark.asset.get_file()).to_pascal_case()
 	body.position = map.ground_point(landmark.position)
-	# Heading is the direction of the model's +X in the ground plane; reflected
-	# copies face the reflected direction.
-	var heading = landmark.get("heading", 0.0)
-	var reflected = landmark.get("player", 0) % 2 == 1
-	match layout.get("symmetry", "rotate"):
-		"mirror_x":
-			heading = 180.0 - heading if reflected else heading
-		"mirror_y":
-			heading = -heading if reflected else heading
-		_:
-			heading += landmark.get("player", 0) * 360.0 / layout.players
-	body.rotation.y = -deg_to_rad(heading)
+	# Afloat: ships and boats ride at an absolute height (the water surface).
+	if landmark.has("level"):
+		body.position.y = landmark.level
+	body.rotation.y = -deg_to_rad(heading(layout, landmark))
 	body.set_meta("landmark", landmark.asset)
 	map.get_node("Decorations").add_child(body)
 	var model = load("res://assets/models/environment/%s.glb" % landmark.asset).instantiate()
@@ -210,7 +239,7 @@ static func _obstacle(
 	obstacle.radius = radius
 	obstacle.footprint = footprint
 	obstacle.sight_height = sight_height
-	obstacle.path_height_offset = .6
+	obstacle.path_height_offset = GROUND_OFFSET
 	obstacle.affect_navigation_mesh = true
 	body.add_child(obstacle)
 
@@ -236,6 +265,9 @@ static func _clearances(map, layout: Dictionary) -> Dictionary:
 	for road in layout.roads:
 		for index in road.line.size() - 1:
 			segments.append([road.line[index], road.line[index + 1], road.width / 2.0])
+	for rail in layout.get("rails", []):
+		for index in rail.line.size() - 1:
+			segments.append([rail.line[index], rail.line[index + 1], 2.0])
 	return {"circles": circles, "roads": segments, "size": map.size}
 
 

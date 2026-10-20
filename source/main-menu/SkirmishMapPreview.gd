@@ -141,6 +141,8 @@ func _generate_authored(path):
 		list.clear()
 	water_radius = 0.0
 	ridge_radius = 0.0
+	road_width = 4.0
+	water_color = Color("315e68")
 	_biome = layout.biome
 	# The map's own ground colours, never those left by the previous preview.
 	var palette = AuthoredPreview.Palettes.PALETTES.get(layout.get("ground", layout.biome), {})

@@ -11,6 +11,8 @@ const TerrainMesh = preload("res://source/match/maps/terrain/TerrainMesh.gd")
 const Palettes = preload("res://source/match/maps/terrain/BiomePalettes.gd")
 const PIXELS = 384
 const LIGHT = Vector2(-0.6, -0.8)
+const LAVA_CRUST = Color("3a1a10")
+const LAVA_GLOW = Color("e8641a")
 
 
 static func image(map_path: String) -> Image:
@@ -24,6 +26,7 @@ static func image(map_path: String) -> Image:
 	noise.seed = layout.id.hash()
 	noise.frequency = 0.06
 	var size: Vector2 = layout.size
+	var lava = layout.water.filter(func(water): return water.get("lava", false))
 	var scale = maxf(size.x, size.y) / PIXELS
 	var width = int(size.x / scale)
 	var depth = int(size.y / scale)
@@ -70,5 +73,8 @@ static func image(map_path: String) -> Image:
 			color = color.lightened(shade) if shade > 0.0 else color.darkened(-shade)
 			if model.flag_at(point) & TerrainModel.SOLID:
 				color = palette.rock.lightened(0.1 + macro * 0.1)
+			for flow in lava:
+				if Geometry2D.is_point_in_polygon(point, flow.polygon):
+					color = LAVA_CRUST.lerp(LAVA_GLOW, smoothstep(-0.2, 0.6, macro * 2.0 - 1.0))
 			result.set_pixel(x, y, color)
 	return result

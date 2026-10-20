@@ -109,6 +109,8 @@ func _battle(map_id, pairing, match_seed, minutes):
 		"minutes": game.simulation_time / 60.0,
 		"finished": game.finished,
 		"result": game.result,
+		"first_elimination":
+		game.eliminated_at.values().min() / 60.0 if not game.eliminated_at.is_empty() else null,
 		"sides": []
 	}
 	for index in sides.size():

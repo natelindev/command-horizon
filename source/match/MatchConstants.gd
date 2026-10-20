@@ -79,6 +79,16 @@ const MAPS = {
 	{"name": "Frostbound Crown", "players": 4, "size": Vector2i(224, 224)},
 	"res://source/match/maps/battlefields/AlpineRelayMap.tscn":
 	{"name": "Alpine Relay", "players": 2, "size": Vector2i(192, 160)},
+	"res://source/match/maps/battlefields/EmberworksMap.tscn":
+	{"name": "Emberworks", "players": 2, "size": Vector2i(192, 160)},
+	"res://source/match/maps/battlefields/RailspireJunctionMap.tscn":
+	{"name": "Railspire Junction", "players": 4, "size": Vector2i(224, 224)},
+	"res://source/match/maps/battlefields/CoastalFoundryMap.tscn":
+	{"name": "Coastal Foundry", "players": 2, "size": Vector2i(192, 160)},
+	"res://source/match/maps/battlefields/SunkenExchangeMap.tscn":
+	{"name": "Sunken Exchange", "players": 4, "size": Vector2i(224, 224)},
+	"res://source/match/maps/battlefields/CinderRingMap.tscn":
+	{"name": "Cinder Ring", "players": 4, "size": Vector2i(224, 224)},
 	# Engine verification only; never offered in the skirmish picker.
 	"res://source/match/maps/battlefields/TerrainTestMap.tscn":
 	{"name": "Terrain Test", "players": 2, "size": Vector2i(192, 160)},

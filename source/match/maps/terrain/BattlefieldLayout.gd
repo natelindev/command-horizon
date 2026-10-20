@@ -7,9 +7,20 @@ extends RefCounted
 # under "shared" (a central lake, a crater) appear once.
 
 const FEATURES = [
-	"tiers", "ramps", "water", "bridges", "blockers", "forests", "roads", "landmarks", "sands"
+	"tiers",
+	"ramps",
+	"water",
+	"bridges",
+	"blockers",
+	"forests",
+	"roads",
+	"landmarks",
+	"sands",
+	"rails"
 ]
-const ORDERED = ["bases", "expansions", "sites", "relays"]
+# Order is save identity: sites, relays and garrisoned buildings are matched
+# to their records by position in these lists.
+const ORDERED = ["bases", "expansions", "sites", "relays", "garrisons"]
 const NATURAL_STEP = 2.5
 
 

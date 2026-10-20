@@ -76,6 +76,9 @@ static func settlements(map_path):
 
 
 static func structures(map_path):
+	var layout = preload("res://source/match/maps/terrain/BattlefieldRegistry.gd").layout(map_path)
+	if not layout.is_empty():
+		return layout.garrisons.map(func(entry): return entry.asset)
 	var result = STRUCTURES.get(authored_name(map_path), []).duplicate()
 	for point in settlements(map_path):
 		result.append("ServiceOffice")

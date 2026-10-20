@@ -3,6 +3,11 @@
 ## [main]
 
 ### Added
+ - Sixteen rebuilt skirmish battlefields, each a recognisable real place with its own signature: Redrock Divide, Saltwind Basin, Desert Frontier, Pinebreak Valley, Glacier Narrows, Alpine Relay, Emberworks and Coastal Foundry for two players; Copper Badlands, Shattered Oasis, Four Rivers, Verdant Commons, Frostbound Crown, Railspire Junction, Sunken Exchange and Cinder Ring for four
+ - Real elevation on battlefields: raised tiers and sunken gorges, canals and quays joined by ramps, with high ground that blocks sight and fire from below unless spotted
+ - Forests that hide units, fords, bridges, flooded quays and lava; capture relays and garrisonable buildings on the maps that use them
+ - A new neutral oil refinery model with a working pump
+ - Skirmish commanders expand to authored expansion sites and vary their attack routes across each map's crossings
  - Scanned CC0 ground layers (grass, rock, sand, dirt, asphalt, snow, concrete) on every battlefield, backdrop and campaign theater, blended around each map's authored colors, roads and biome features
  - Baked crevice shading, chipped edges and lower-hull dust on all Bastion, Helix and Frontier models, including team trim and construction sites
  - Ground decals: oil stains, skid marks, cracks and repairs along roads, plus tracks, scuffs and debris across open ground; identical after loading a save
@@ -15,6 +20,9 @@
  - Battle debriefs no longer list program milestones. Campaign briefings, the First Orders badge objective, the Frontier Outrider description, difficulty and weapon-mode text no longer mention presets, programs or retrofits
  - Retained playtest archives were converted to snapshot version 15
  - Command Horizon saves must include their opposition state
+ - The skirmish picker offers only the rebuilt battlefields; a saved choice of a retired map opens its successor
+ - Larger, richer resource fields: home fields sit beside the HQ, and rich fields hold half again an expansion's stock on exposed ground
+ - Bases are farther apart along real paths (about 75–110 seconds for a basic tank), with naturals within 25 seconds
 
 ### Removed
  - The Lua script engine: the native `rts_lua` extension, sandbox, Lua runtime and actions, Lua/visual-rule editors, LLM program assistant and the program test arena
@@ -28,6 +36,7 @@
  - A restored order whose target no longer exists no longer shows as the unit's current order while paused
  - The skirmish AI now actually hires mercenaries at captured camps; it previously requested a unit camps do not sell
  - `build_catalog.py` reproduces the shipped translation catalog again; strings that existed only in `ui.csv` moved to `art/localization/interface.tsv`
+ - Infantry could not capture relays or neutral facilities standing on raised ground
 
 ## [0.14.1]
 

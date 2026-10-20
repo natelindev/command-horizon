@@ -43,6 +43,15 @@ const PRESETS = {
 		"path_strength": .4,
 		"accent_strength": .3,
 	},
+	# Authored works: cinder ground, asphalt roads, bare earth patches.
+	"works":
+	{
+		"base": "ground_rock",
+		"path": "asphalt",
+		"accent": "dirt",
+		"chroma": .3,
+		"base_strength": .6,
+	},
 	# Catalog urban and coastal maps are paved throughout (4 m joints). Concrete
 	# fills the whole view there, so its repeating stains stay faint.
 	"urban":

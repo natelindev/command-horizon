@@ -196,6 +196,18 @@ func _build_space(id, starts):
 		)
 
 
+# A deposit is reachable only if the path ends beside it on its own tier, not
+# snapped to the nearest ground at the foot of a mound or cliff.
+func _reaches(from: Vector3, to: Vector3) -> bool:
+	var path = NavigationServer3D.map_get_path(nav, from, to, true)
+	if path.is_empty():
+		return false
+	var end = path[-1]
+	return (
+		Vector2(end.x, end.z).distance_to(Vector2(to.x, to.z)) <= 4.0 and absf(end.y - to.y) <= 1.5
+	)
+
+
 func _resources(id, layout, starts):
 	var totals = []
 	for _player in starts.size():
@@ -213,7 +225,7 @@ func _resources(id, layout, starts):
 			deposit.get("resource_a") if "resource_a" in deposit else 0,
 			deposit.get("resource_b") if "resource_b" in deposit else 0
 		)
-		if _path_length(starts[nearest], deposit.global_position) == INF:
+		if not _reaches(starts[nearest], deposit.global_position):
 			unreachable += 1
 	_metric(unreachable == 0, "%s has %d unreachable deposits" % [id, unreachable])
 	var fields = layout.bases.size() + layout.expansions.size()

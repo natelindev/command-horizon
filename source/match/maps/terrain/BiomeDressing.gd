@@ -194,6 +194,63 @@ const POLAR = {
 	"tree_density": 0.0,
 }
 
+# Idle works: birch scrub, buddleia and weeds on cinder, slag and scrap.
+const WORKS = {
+	"trees": [["works/ScrubBirch", 6.4], ["works/ScrubBirch", 5.2], ["works/Buddleia", 2.0]],
+	"riparian": [["works/ScrubBirch", 5.6]],
+	"shrubs": [["works/Buddleia", 1.8], ["works/Ruderal", 0.6], ["works/Ruderal", 0.5]],
+	"rocks": [["works/SlagRockA", 1.2], ["works/SlagRockB", 0.8], ["works/ScrapPile", 1.6]],
+	"talus": [["works/SlagRockA", 1.0], ["works/SlagRockB", 0.7]],
+	"lone_trees": [["works/ScrubBirch", 5.8]],
+	"shrub_density": 0.012,
+	"rock_density": 0.004,
+	"tree_density": 0.0008,
+}
+
+# Harbour verges: shore pines, bramble and weeds; riprap at the quay feet.
+const HARBOUR = {
+	"trees": [["coastal/ShorePines", 5.2], ["coastal/CoastalPineStand", 4.8]],
+	"riparian": [["coastal/ShorePines", 5.0]],
+	"shrubs": [["works/Ruderal", 0.5], ["temperate/Bramble", 0.9], ["works/Buddleia", 1.6]],
+	"rocks": [["temperate/GraniteBoulderB", 0.8], ["works/ScrapPile", 1.4]],
+	"talus": [["temperate/GraniteBoulderA", 0.9], ["temperate/GraniteBoulderB", 0.7]],
+	"lone_trees": [["coastal/ShorePines", 4.8]],
+	"shrub_density": 0.006,
+	"rock_density": 0.002,
+	"tree_density": 0.0005,
+}
+# Canal city: plane trees on the squares, willows by the water.
+const CANALCITY = {
+	"trees": [["temperate/MapleTree", 8.0], ["temperate/OakTree", 8.6]],
+	"riparian": [["temperate/RiverWillow", 6.2]],
+	"shrubs": [["works/Ruderal", 0.45], ["temperate/Wildflowers", 0.4]],
+	"rocks": [],
+	"talus": [["temperate/GraniteBoulderB", 0.5]],
+	"lone_trees": [["temperate/MapleTree", 7.4]],
+	"shrub_density": 0.003,
+	"rock_density": 0.0,
+	"tree_density": 0.0004,
+}
+
+# Lava fields: moss on old flows, ohia in sheltered hollows, basalt and scoria.
+const VOLCANIC = {
+	"trees": [["volcanic/Ohia", 3.8], ["volcanic/Ohia", 3.0]],
+	"riparian": [["volcanic/Ohia", 3.4]],
+	"shrubs":
+	[["volcanic/MossHummocks", 0.7], ["volcanic/ScoriaHeap", 0.8], ["volcanic/LavaSlab", 0.6]],
+	"rocks":
+	[
+		["volcanic/BasaltBoulderA", 1.4],
+		["volcanic/BasaltBoulderB", 1.0],
+		["volcanic/ObsidianShards", 1.2]
+	],
+	"talus": [["volcanic/BasaltBoulderB", 0.9], ["volcanic/ScoriaHeap", 0.8]],
+	"lone_trees": [["volcanic/Ohia", 3.4]],
+	"shrub_density": 0.014,
+	"rock_density": 0.005,
+	"tree_density": 0.0006,
+}
+
 
 static func kit(ground: String) -> Dictionary:
 	match ground:
@@ -215,4 +272,12 @@ static func kit(ground: String) -> Dictionary:
 			return ALPINE
 		"polar":
 			return POLAR
+		"works":
+			return WORKS
+		"harbour":
+			return HARBOUR
+		"canalcity":
+			return CANALCITY
+		"volcanic":
+			return VOLCANIC
 	return KITS.get(ground, KITS.canyon)

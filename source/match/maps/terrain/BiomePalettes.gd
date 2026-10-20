@@ -154,6 +154,79 @@ const PALETTES = {
 		"water_shallow": Color("4d6658"),
 		"water_foam": Color("e0e3da"),
 	},
+	# Steelworks and rail yards: sooty grass on cinder, coal-black yards.
+	"works":
+	{
+		"ground_low": Color("4b4a3f"),
+		"ground_high": Color("6b6852"),
+		"accent": Color("6e5236"),
+		"road": Color("45443f"),
+		"rock": Color("4c4642"),
+		"bed": Color("3b3b36"),
+		"forest_floor": Color("3e4129"),
+		"slickrock": Color("5f5a52"),
+		"sand": Color("302d2a"),
+		"accent_amount": 0.3,
+		"strata": 0.5,
+		"water_deep": Color("2a3530"),
+		"water_shallow": Color("4f5a4c"),
+		"water_foam": Color("b5b0a0"),
+	},
+	# Working harbour: concrete quays and yards, sea-grass verges.
+	"harbour":
+	{
+		"ground_low": Color("5c5d55"),
+		"ground_high": Color("777669"),
+		"accent": Color("62674a"),
+		"road": Color("4a4a46"),
+		"rock": Color("6e6e69"),
+		"bed": Color("3a4a4c"),
+		"forest_floor": Color("3e4a2c"),
+		"slickrock": Color("7d7c74"),
+		"sand": Color("a39a84"),
+		"accent_amount": 0.3,
+		"strata": 0.4,
+		"water_deep": Color("18394a"),
+		"water_shallow": Color("3b6c78"),
+		"water_foam": Color("e3eaea"),
+	},
+	# Canal city: worn stone paving, brick squares, green canal water.
+	"canalcity":
+	{
+		"ground_low": Color("6a645a"),
+		"ground_high": Color("857d70"),
+		"accent": Color("7a6a52"),
+		"road": Color("5a544c"),
+		"rock": Color("7a6f62"),
+		"bed": Color("2e3b36"),
+		"forest_floor": Color("40482c"),
+		"slickrock": Color("8a8070"),
+		"sand": Color("7a5a44"),
+		"accent_amount": 0.25,
+		"strata": 0.3,
+		"water_deep": Color("21403a"),
+		"water_shallow": Color("4a6a5c"),
+		"water_foam": Color("dfe4dc"),
+	},
+	# Caldera: black tephra and basalt, red scoria, woolly moss on old flows.
+	"volcanic":
+	{
+		"ground_low": Color("2f2c2a"),
+		"ground_high": Color("4a4440"),
+		"accent": Color("56653c"),
+		"road": Color("3c3835"),
+		"rock": Color("3a3634"),
+		"bed": Color("1f1c1b"),
+		"forest_floor": Color("3d4a2a"),
+		"slickrock": Color("5a4036"),
+		"sand": Color("6a3a2a"),
+		"accent_amount": 0.4,
+		"slickrock_amount": 0.25,
+		"strata": 0.8,
+		"water_deep": Color("1c3a40"),
+		"water_shallow": Color("4a8a8a"),
+		"water_foam": Color("e2e8e4"),
+	},
 	"desert":
 	{
 		"ground_low": Color("b08a5c"),
@@ -328,6 +401,34 @@ const ROCK = {
 		"cap": Color("e9eef1"),
 		"varnish": Color("2a2d31"),
 		"strata_scale": 0.7,
+	},
+	"works":
+	{
+		"band_dark": Color("34302d"),
+		"band_mid": Color("4a4440"),
+		"band_light": Color("625a52"),
+		"cap": Color("514c40"),
+		"varnish": Color("2a1f18"),
+		"strata_scale": 1.5,
+	},
+	# Concrete retaining walls of embankments, quays and canal sides.
+	"retaining":
+	{
+		"band_dark": Color("5a5a56"),
+		"band_mid": Color("6e6e69"),
+		"band_light": Color("85847e"),
+		"cap": Color("74726b"),
+		"varnish": Color("3c3a36"),
+		"strata_scale": 3.0,
+	},
+	"volcanic":
+	{
+		"band_dark": Color("1f1d1c"),
+		"band_mid": Color("2e2b2a"),
+		"band_light": Color("46403c"),
+		"cap": Color("3e4430"),
+		"varnish": Color("5a2e1e"),
+		"strata_scale": 0.6,
 	},
 	# Glacier fronts, seracs and crevasse walls.
 	"ice":

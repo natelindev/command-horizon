@@ -12,6 +12,8 @@ var progress = 0.0
 var contested = false
 var sight_range = 27.0
 var hp = 1.0
+# Set by elevated maps so the relay settles on the ground, not the nav surface.
+var path_height_offset = 0.0
 var player:
 	get:
 		return captured_by
@@ -25,6 +27,7 @@ func _ready():
 	_build_model()
 	var obstacle = load("res://source/match/units/traits/MovementObstacle.tscn").instantiate()
 	obstacle.radius = 0.85
+	obstacle.path_height_offset = path_height_offset
 	obstacle.affect_navigation_mesh = true
 	add_child(obstacle)
 

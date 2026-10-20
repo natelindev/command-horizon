@@ -35,7 +35,7 @@ static func build(model, layout: Dictionary, seed_text: String, variant := "") -
 		# Smooth mounds (falloff) have no rock faces.
 		if not tier.has("falloff") and tier.get("rock", "") == variant:
 			faces += 1
-			_outline_faces(tool, model, tier.polygon, noise, INF)
+			_outline_faces(tool, model, tier.polygon, noise, INF, layout.get("base_height", 0.0))
 	for blocker in layout.get("blockers", []):
 		if blocker.get("rock", "") != variant:
 			continue
@@ -58,7 +58,11 @@ static func build(model, layout: Dictionary, seed_text: String, variant := "") -
 
 # Walls along an outline wherever the inside stands at least MIN_DROP above
 # the outside. `fixed_top` (formations) overrides the sampled inside height.
-static func _outline_faces(tool, model, polygon: PackedVector2Array, noise, fixed_top: float):
+# A sunken tier (gorge, wadi, quay basin) gets inward-facing walls where the
+# ground around it is base ground; a raised neighbour builds its own wall.
+static func _outline_faces(
+	tool, model, polygon: PackedVector2Array, noise, fixed_top: float, base := INF
+):
 	var outward_sign = -1.0 if Geometry2D.is_polygon_clockwise(polygon) else 1.0
 	var points = densified(polygon)
 	var count = points.size()
@@ -73,9 +77,21 @@ static func _outline_faces(tool, model, polygon: PackedVector2Array, noise, fixe
 		var top_b = fixed_top if fixed_top < INF else model.height_at(b - normal_b * 1.0)
 		var bottom_a = model.height_at(a + normal_a * 1.2)
 		var bottom_b = model.height_at(b + normal_b * 1.2)
-		if top_a - bottom_a < MIN_DROP or top_b - bottom_b < MIN_DROP:
+		if top_a - bottom_a >= MIN_DROP and top_b - bottom_b >= MIN_DROP:
+			_face(tool, [a, b], [normal_a, normal_b], [top_a, top_b], [bottom_a, bottom_b], noise)
 			continue
-		_face(tool, [a, b], [normal_a, normal_b], [top_a, top_b], [bottom_a, bottom_b], noise)
+		if fixed_top < INF:
+			continue
+		var rim_a = model.height_at(a + normal_a * 1.0)
+		var rim_b = model.height_at(b + normal_b * 1.0)
+		var floor_a = model.height_at(a - normal_a * 1.2)
+		var floor_b = model.height_at(b - normal_b * 1.2)
+		if (
+			rim_a - floor_a >= MIN_DROP
+			and rim_b - floor_b >= MIN_DROP
+			and maxf(rim_a, rim_b) <= base + 0.25
+		):
+			_face(tool, [b, a], [-normal_b, -normal_a], [rim_b, rim_a], [floor_b, floor_a], noise)
 
 
 static func _ramp_cuts(tool, model, ramp: Dictionary, noise):
@@ -135,12 +151,14 @@ static func _face(tool, ends: Array, normals: Array, tops: Array, bottoms: Array
 			var flat = point + normal * entry[0]
 			column.append(Vector3(flat.x, entry[1], flat.y))
 		columns.append(column)
+	# Clockwise seen from the face's outer side (Godot's front face), so
+	# generated normals point out of the rock and level lips face up.
 	for row in columns[0].size() - 1:
 		var a: Vector3 = columns[0][row]
 		var b: Vector3 = columns[1][row]
 		var c: Vector3 = columns[1][row + 1]
 		var d: Vector3 = columns[0][row + 1]
-		for vertex in [a, b, c, a, c, d]:
+		for vertex in [a, c, b, a, d, c]:
 			tool.set_uv(Vector2(vertex.x + vertex.z, vertex.y))
 			tool.add_vertex(vertex)
 
