@@ -169,5 +169,5 @@ frame-time comparison, Windows run or Linux run is claimed.
 
 - Implementation, archive conversion, audio/model audits and available
   headless verification are complete.
-- The integration is ready for the authorized commit and local main merge.
+- Integration commit `ebb398ea` was fast-forwarded into local `main`.
 - Rendered/platform verification limits are recorded above.

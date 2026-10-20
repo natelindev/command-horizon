@@ -438,7 +438,7 @@ Headless command:
   errors. A late crowded-movement failure led to a controlled reproduction
   and a minimal escape-choice fix; the new regression and five related
   movement checks pass without weakening the original arrival thresholds.
-- Implementation and available verification are complete. The integration is
-  ready for the authorized commit and fast-forward of local `main`; detailed
-  results and remaining rendered/platform limits are recorded in
+- Implementation and available verification are complete. Integration commit
+  `ebb398ea` was fast-forwarded into local `main`; detailed results and remaining
+  rendered/platform limits are recorded in
   `docs/playtests/2026-10-20/AIR_COMBAT.md`.
