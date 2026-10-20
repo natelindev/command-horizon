@@ -62,9 +62,10 @@ const DEFINITION = {
 		},
 		{
 			"name": "Overpass approach",
-			"from": Vector2(50, 40),
+			# Start clear of the goods-terrace cliff so the full ramp mouth is usable.
+			"from": Vector2(50, 48),
 			"to": Vector2(66, 40),
-			"width": 7.0,
+			"width": 8.0,
 			"from_height": 0.0,
 			"to_height": 3.0
 		},
@@ -108,7 +109,7 @@ const DEFINITION = {
 				Vector2(28, 72),
 				Vector2(52, 68),
 				Vector2(56, 52),
-				Vector2(50, 40),
+				Vector2(50, 48),
 				Vector2(66, 40),
 				Vector2(80, 40)
 			]

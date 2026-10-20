@@ -120,9 +120,10 @@ const DEFINITION = {
 			"sight_height": 8.4
 		},
 		{
+			# Park heavy equipment in the haul yard, clear of the bench ramp mouths.
 			"name": "Rope shovel",
 			"asset": "drylands/ElectricShovel",
-			"position": Vector2(89.07, 78.01),
+			"position": Vector2(80, 40),
 			"heading": 236.0,
 			"solid": 4.0,
 			"sight_height": 9.0
@@ -130,7 +131,7 @@ const DEFINITION = {
 		{
 			"name": "Haul truck",
 			"asset": "drylands/HaulTruck",
-			"position": Vector2(78.14, 68.66),
+			"position": Vector2(90, 35),
 			"heading": 140.0,
 			"solid": 3.2,
 			"sight_height": 4.0
@@ -138,7 +139,7 @@ const DEFINITION = {
 		{
 			"name": "Haul truck",
 			"asset": "drylands/HaulTruck",
-			"position": Vector2(107.31, 85.41),
+			"position": Vector2(110, 36),
 			"heading": 170.0,
 			"solid": 3.2,
 			"sight_height": 4.0
