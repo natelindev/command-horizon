@@ -17,6 +17,8 @@ func _run():
 			["Barracks", "Infantry"],
 			["CommandCenter", "Worker"],
 			["VehicleFactory", "Tank"],
+			["VehicleFactory", "CombatRobot"],
+			["VehicleFactory", "RepairRobot"],
 			["AircraftFactory", "Helicopter"]
 		]:
 			await _departure(pair[0], pair[1])
@@ -158,6 +160,7 @@ func _departure(producer_role, role):
 	_check(
 		building.get_node("StructureActivity").state == "production", "Producer lacks active state"
 	)
+	var departure_gait = queue.departure._walker
 	queue._process(100)
 	var produced = _units(human, role).filter(func(unit): return unit not in before)
 	_check(produced.size() == 1 and queue.size() == 0, "Completion duplicates or loses unit")
@@ -167,6 +170,19 @@ func _departure(producer_role, role):
 			produced[0].global_position.distance_to(endpoint) < .05,
 			"Unit teleports at departure handoff"
 		)
+		if departure_gait != null:
+			var gait = produced[0].get_node("BastionVisuals")._walker
+			_check(gait != null, "Walker departure lost its gait at handoff")
+			if gait != null:
+				_check(
+					is_equal_approx(gait.phase, departure_gait.phase),
+					"Walker exit restarts its stride"
+				)
+				for index in range(gait.legs.size()):
+					_check(
+						gait.legs[index].foot.is_equal_approx(departure_gait.legs[index].foot),
+						"Walker exit loses foot placement"
+					)
 		produced[0].queue_free()
 	building.queue_free()
 	await _frames(4)

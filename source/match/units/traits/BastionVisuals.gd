@@ -400,7 +400,12 @@ func _apply_geometry(delta, ground_distance):
 	var lift = Vector3.ZERO
 	var tilt = Vector3.ZERO
 	if _walker != null:
-		_walker.advance(delta, ground_distance, 1.0 if _unit.weapon_charge_progress >= 0 else 0.0)
+		_walker.advance(
+			delta,
+			ground_distance,
+			1.0 if _unit.weapon_charge_progress >= 0 else 0.0,
+			_presentation_root
+		)
 		lift.y += _walker.heave
 		# Hydraulic idle and an occasional servo weight shift while standing guard.
 		lift.y += (sin(_clock * 1.7) + sin(_clock * 2.9) * .5) * .004 * _idle_blend
@@ -419,6 +424,9 @@ func _apply_geometry(delta, ground_distance):
 	var rotation = chassis.offset_rotation(kick * (0.04 if _heavy else 0.06)) + tilt
 	rotation.z += kick * motion.recoil_roll
 	_pose_geometry(rotation, chassis.offset_position() + lift)
+	if _walker != null:
+		_geometry_pose = _walker.support_body(_geometry_pose)
+		_walker.pose(_geometry_pose)
 
 
 func _pose_geometry(rotation: Vector3, offset: Vector3):

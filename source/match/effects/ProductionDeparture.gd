@@ -324,7 +324,10 @@ func update_pose(delta):
 	for rotor in _rotors:
 		rotor.rotation.y += delta * 25.0
 	if _walker != null:
-		_walker.advance(delta, distance, 0.0)
+		_walker.advance(delta, distance, 0.0, global_transform)
+		_geometry.position.y = _walker.heave
+		_geometry.transform = _walker.support_body(_geometry.transform)
+		_walker.pose(_geometry.transform)
 
 
 func handoff(unit):

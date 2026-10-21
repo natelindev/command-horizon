@@ -244,31 +244,147 @@ func _test_no_skating():
 
 
 func _test_walker_stance():
-	var unit = _spawn("CombatRobot", 0, Vector3(30, 0, 16))
-	var walker = unit.get_node("BastionVisuals")._walker
-	if _players[0].faction == "frontier":
-		_check(walker == null, "Wheeled jackal treated as a walker")
+	for role in ["CombatRobot", "RepairRobot"]:
+		var unit = _spawn(role, 0, Vector3(30, 0, 16))
+		var walker = unit.get_node("BastionVisuals")._walker
+		var faction = _players[0].faction
+		var legged = faction == "helix" or (faction == "bastion" and role == "CombatRobot")
+		if not legged:
+			_check(walker == null, "%s %s vehicle treated as a walker" % [faction, role])
+			unit.queue_free()
+			continue
+		_check(walker != null and walker.legs.size() == 4, "Articulated walker legs missing")
+		if walker == null:
+			unit.queue_free()
+			continue
+		var worst_slide = 0.0
+		var worst_target = 0.0
+		var lift = 0.0
+		var knees = {}
+		for velocity in [
+			Vector3.FORWARD * .15, Vector3.FORWARD * 1.5, Vector3.FORWARD * unit.movement_speed
+		]:
+			_drive(unit, velocity, 30)
+			for frame in range(120):
+				var before = walker.legs.map(func(leg): return leg.ankle.global_position)
+				var swinging = walker.legs.map(func(leg): return leg.swing)
+				_drive(unit, velocity, 1)
+				var supports = 0
+				for index in range(4):
+					var leg = walker.legs[index]
+					if not leg.swing:
+						supports += 1
+						if not swinging[index]:
+							worst_slide = maxf(
+								worst_slide, before[index].distance_to(leg.ankle.global_position)
+							)
+					worst_target = maxf(
+						worst_target,
+						leg.ankle.global_position.distance_to(unit.global_transform * leg.foot)
+					)
+					lift = maxf(lift, leg.foot.y - leg.home.y)
+					_check(
+						leg.ankle.global_basis.y.normalized().dot(Vector3.UP) > .999,
+						"Walker sole tilts with its shin"
+					)
+					knees[snappedf(leg.knee.rotation.length(), .03)] = true
+				_check(supports >= 2, "Walker lost both support pairs")
+		_check(
+			worst_slide < .001,
+			"%s %s planted ankle skates %.4f m/frame" % [faction, role, worst_slide]
+		)
+		_check(
+			worst_target < .003,
+			"%s %s IK misses foot target by %.4f m" % [faction, role, worst_target]
+		)
+		_check(lift > walker.legs[0].length * .15, "Robot feet never clearly lift")
+		_check(knees.size() >= 5, "Robot knees remain rigid")
+		_drive(unit, Vector3.ZERO, 150)
+		_check(walker.is_at_rest(), "Walker never re-plants its legs after stopping")
+		for leg in walker.legs:
+			_check(
+				leg.ankle.global_position.distance_to(unit.global_transform * leg.home) < .003,
+				"Walker foot does not return home"
+			)
+		_test_walker_turns_and_stops(unit)
+		_test_walker_cadence(unit)
 		unit.queue_free()
-		return
-	_check(walker != null and walker.legs.size() == 4, "Walker legs missing")
-	if walker == null:
-		return
-	_drive(unit, Vector3.FORWARD * 1.5, 30)
-	var worst = 0.0
-	for frame in range(90):
-		var before = walker.legs.map(func(leg): return leg.angle)
-		var lifted = walker.legs.map(func(leg): return leg.abduct)
-		_drive(unit, Vector3.FORWARD * 1.5, 1)
-		for index in range(4):
-			var leg = walker.legs[index]
-			if leg.abduct < .001 and lifted[index] < .001:
-				# Planted leg: foot travel backward must equal body travel forward.
-				var sweep = leg.length * (sin(before[index]) - sin(leg.angle))
-				worst = maxf(worst, absf(sweep - 1.5 * STEP))
-	_check(worst < 1.5 * STEP * .15, "Walker stance leg skates (%.4f m/frame)" % worst)
+
+
+func _test_walker_turns_and_stops(unit):
+	var visual = unit.get_node("BastionVisuals")
+	var walker = visual._walker
+	var worst_target = 0.0
+	var worst_slide = 0.0
+	for speed in [1.5, 0.0, -1.5]:
+		for frame in range(120):
+			var before = walker.legs.map(func(leg): return leg.ankle.global_position)
+			var swinging = walker.legs.map(func(leg): return leg.swing)
+			unit.rotate_y(STEP * .6)
+			_drive(unit, -unit.basis.z * speed, 1)
+			for index in range(4):
+				var leg = walker.legs[index]
+				worst_target = maxf(
+					worst_target,
+					leg.ankle.global_position.distance_to(unit.global_transform * leg.foot)
+				)
+				if not leg.swing and not swinging[index]:
+					worst_slide = maxf(
+						worst_slide, before[index].distance_to(leg.ankle.global_position)
+					)
+		_drive(unit, Vector3.ZERO, 150)
+		_check(walker.is_at_rest(), "Walker cannot settle after turning/reversing")
+	_check(worst_target < .003, "Turning walker exceeds joint reach: %.4f m" % worst_target)
+	_check(worst_slide < .001, "Turning walker slides a planted ankle: %.4f m" % worst_slide)
+	# Stop at several points in the stride, including while either pair is lifted.
+	for frames in [3, 7, 11, 17, 23]:
+		_drive(unit, -unit.basis.z * 1.5, frames)
+		for frame in range(150):
+			_drive(unit, Vector3.ZERO, 1)
+			for leg in walker.legs:
+				var ankle = unit.to_local(leg.ankle.global_position)
+				_check(ankle.y >= leg.home.y - .003, "Stopping robot pushes a sole below ground")
+		_check(walker.is_at_rest(), "Walker stop leaves a foot hanging")
+	# Bracing and body suspension must bend joints without moving planted feet.
+	for frame in range(60):
+		walker.advance(STEP, 0.0, 1.0, unit.global_transform)
+		var body = Transform3D(
+			Basis.from_euler(Vector3(.035, 0, -.025)), Vector3(0, walker.heave, 0)
+		)
+		body = walker.support_body(body)
+		unit.get_node("Geometry").transform = body
+		walker.pose(body)
+		for leg in walker.legs:
+			_check(
+				leg.ankle.global_position.distance_to(unit.global_transform * leg.home) < .003,
+				"Bracing lifts a planted robot foot"
+			)
 	_drive(unit, Vector3.ZERO, 150)
-	_check(walker.is_at_rest(), "Walker never re-plants its legs after stopping")
-	unit.queue_free()
+
+
+func _test_walker_cadence(unit):
+	var visual = unit.get_node("BastionVisuals")
+	var walker = visual._walker
+	for fps in [30, 60, 144, 240, 1000]:
+		var accumulator = 0.0
+		var interruptions = 0
+		for frame in range(fps):
+			accumulator += 1.0 / fps
+			while accumulator >= 1.0 / 30.0 - .000001:
+				unit.position.z -= 1.5 / 30.0
+				accumulator -= 1.0 / 30.0
+			visual._process(1.0 / fps)
+			if frame > fps / 5 and not walker._moving:
+				interruptions += 1
+		_check(
+			interruptions == 0, "Walker gait interrupted %d times at %d FPS" % [interruptions, fps]
+		)
+		for frame in range(fps / 2):
+			unit.position.z -= .025 / fps
+			visual._process(1.0 / fps)
+		_check(walker._moving, "Walker creep gait frozen at %d FPS" % fps)
+	_drive(unit, Vector3.ZERO, 150)
+	_check(walker.is_at_rest(), "Walker cadence grace prevents stopping")
 
 
 func _test_eased_heading():

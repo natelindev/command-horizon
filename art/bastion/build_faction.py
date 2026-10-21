@@ -1,6 +1,7 @@
 """Rebuild the Bastion demo models, editable catalogue, icons and contact renders.
 
 blender --background --factory-startup --python-exit-code 1 --python art/bastion/build_faction.py
+Append -- --walkers-only to export just the articulated walker GLB.
 """
 import json
 import math
@@ -231,9 +232,11 @@ def combat_robot():
             name=("LegLeft" if side<0 else "LegRight")+("Front" if front>0 else "Rear")
             leg=pivot(name,(side*.81,front*.61,1.28))
             rod("UpperLeg",(side*.81,front*.61,1.28),(side*1.18,front*.92,.77),.19,PANEL,leg)
-            cyl("Joint",(side*1.18,front*.92,.77),.24,.27,DARK,leg,axis="X")
-            rod("Shin",(side*1.18,front*.92,.77),(side*1.35,front*1.12,.22),.14,TEAM,leg)
-            box("Foot",(side*1.35,front*1.12,.13),(.47,.66,.24),DARK,leg,.05)
+            knee=pivot("KneePivot"+name.removeprefix("Leg"),(side*1.18,front*.92,.77),leg)
+            cyl("Joint",(side*1.18,front*.92,.77),.24,.27,DARK,knee,axis="X")
+            rod("Shin",(side*1.18,front*.92,.77),(side*1.35,front*1.12,.22),.14,TEAM,knee)
+            ankle=pivot("AnklePivot"+name.removeprefix("Leg"),(side*1.35,front*1.12,.22),knee)
+            box("Foot",(side*1.35,front*1.12,.13),(.47,.66,.24),DARK,ankle,.05)
     lens(0,1.07,1.39,.58)
     turret=pivot("TurretPivot",(0,0,1.69))
     cyl("TurretRing",(0,0,1.65),.61,.12,DARK,turret)
@@ -459,11 +462,16 @@ def cliff():
         attach(obj,"Sandstone",ROCK)
 
 
-infantry(); rover("Worker"); import_tank("Tank"); import_tank("AdvancedTank",True)
-rover("RepairRobot",True); combat_robot(); drone(); aircraft()
-headquarters(); barracks(); factory("VehicleFactory"); factory("AircraftFactory",True)
-generator(); lab(); depot(); defense("AntiGroundTurret"); defense("AntiAirTurret",True)
-resources("ResourceA"); resources("ResourceB",True); cliff()
+# Fast, reproducible rig-only export; full catalogue builds remain the default.
+walkers_only = "--walkers-only" in sys.argv
+if walkers_only:
+    combat_robot()
+else:
+    infantry(); rover("Worker"); import_tank("Tank"); import_tank("AdvancedTank",True)
+    rover("RepairRobot",True); combat_robot(); drone(); aircraft()
+    headquarters(); barracks(); factory("VehicleFactory"); factory("AircraftFactory",True)
+    generator(); lab(); depot(); defense("AntiGroundTurret"); defense("AntiAirTurret",True)
+    resources("ResourceA"); resources("ResourceB",True); cliff()
 
 # Export evaluated copies, joining objects that share a rigid parent.
 manifest=[]
@@ -504,6 +512,10 @@ for name,collection,asset_root in assets:
     for obj in live: bpy.data.objects.remove(obj,do_unlink=True)
     manifest.append({"name":name,"triangles":triangles,"file":name+".glb"})
     collection.hide_render=True
+
+if walkers_only:
+    print("Bastion walker rig exported")
+    raise SystemExit(0)
 
 # Render actual geometry for roster icons.
 world=bpy.data.worlds.new("Bastion studio"); scene.world=world; world.use_nodes=True

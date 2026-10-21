@@ -1,6 +1,7 @@
 """Rebuild the Helix concept-derived models, editable catalogue, icons and contact renders.
 
 blender --background --factory-startup --python-exit-code 1 --python art/helix/build_faction.py
+Append -- --walkers-only to export just the articulated walker GLBs.
 """
 import json
 import math
@@ -234,11 +235,13 @@ def legs(height=2.1,spread=1.6):
             hip=(side*.64,front*.58,height); knee=(side*1.04,front*.93,height*.58); foot=(side*spread,front*1.23,.20)
             cyl("HipJoint",hip,.19,.26,DARK,leg,axis="X")
             beam("UpperLeg",hip,knee,.30,.27,ARMOR,leg)
-            cyl("KneeJoint",knee,.18,.32,DARK,leg,axis="X")
-            beam("LowerLeg",knee,foot,.23,.24,ARMOR,leg)
-            beam("LegInset",Vector(knee)+Vector((side*.13,0,-.10)),Vector(foot)+Vector((side*.13,0,.18)),.035,.13,TEAM,leg)
-            rod("Actuator",Vector(knee)+Vector((0,-.14,0)),Vector(foot)+Vector((0,-.14,.08)),.047,STEEL,leg)
-            box("Foot",(foot[0],foot[1]+.06,.11),(.47,.55,.20),DARK,leg,.04)
+            lower=pivot("KneePivot",knee,leg)
+            cyl("KneeJoint",knee,.18,.32,DARK,lower,axis="X")
+            beam("LowerLeg",knee,foot,.23,.24,ARMOR,lower)
+            beam("LegInset",Vector(knee)+Vector((side*.13,0,-.10)),Vector(foot)+Vector((side*.13,0,.18)),.035,.13,TEAM,lower)
+            rod("Actuator",Vector(knee)+Vector((0,-.14,0)),Vector(foot)+Vector((0,-.14,.08)),.047,STEEL,lower)
+            ankle=pivot("AnklePivot",foot,lower)
+            box("Foot",(foot[0],foot[1]+.06,.11),(.47,.55,.20),DARK,ankle,.04)
 
 
 def operator():
@@ -529,8 +532,13 @@ def skyward():
     pivot("Muzzle",(1.04,.79,2.06),turret)
 
 
-operator(); mule(); needle(); walker(); walker(True); kite(); wraith(); prism_artillery()
-nexus(); operator_hub(); foundry(); flightdeck(); flux(); signal_lab(); service(); lance(); skyward()
+# Fast, reproducible rig-only export; full catalogue builds remain the default.
+walkers_only = "--walkers-only" in sys.argv
+if walkers_only:
+    walker(); walker(True)
+else:
+    operator(); mule(); needle(); walker(); walker(True); kite(); wraith(); prism_artillery()
+    nexus(); operator_hub(); foundry(); flightdeck(); flux(); signal_lab(); service(); lance(); skyward()
 
 # Export evaluated copies, joining objects that share a rigid parent.
 manifest=[]
@@ -571,6 +579,10 @@ for name,collection,asset_root in assets:
     for obj in live: bpy.data.objects.remove(obj,do_unlink=True)
     manifest.append({"name":name,"triangles":triangles,"file":name+".glb"})
     collection.hide_render=True
+
+if walkers_only:
+    print("Helix walker rigs exported")
+    raise SystemExit(0)
 
 # Render actual geometry for roster icons.
 world=bpy.data.worlds.new("Helix studio"); scene.world=world; world.use_nodes=True
