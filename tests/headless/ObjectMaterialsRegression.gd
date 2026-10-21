@@ -13,6 +13,7 @@ func _run():
 	_check_specialized()
 	_check_multimesh()
 	_check_library("res://assets/models")
+	_check(_model_count > 0 and _surface_count > 0, "Object model library was not inspected")
 	_check_generated_roster()
 	await _check_maps()
 	for message in errors:
@@ -62,6 +63,14 @@ func _check_imports():
 			_check(texture is Texture2D, "Missing object texture " + path)
 			var config = ConfigFile.new()
 			_check(config.load(path + ".import") == OK, "Missing import " + path)
+			# Exported imports keep remaps, but strip editor-only import parameters.
+			# Inspect the actual texture in packages as well as source checkouts.
+			if texture is Texture2D:
+				_check(
+					texture.get_width() > 0 and texture.get_height() > 0, "Empty texture " + path
+				)
+			if not config.has_section("params"):
+				continue
 			_check(config.get_value("params", "mipmaps/generate", false), "No mipmaps " + path)
 			_check(config.get_value("params", "compress/mode") == 2, "Uncompressed " + path)
 			if "_normal" in path:
@@ -119,15 +128,17 @@ func _check_specialized():
 
 
 func _check_library(directory):
-	for file in DirAccess.get_files_at(directory):
+	# ResourceLoader preserves original names after export remaps GLBs to scenes.
+	for file in ResourceLoader.list_directory(directory):
+		if file.ends_with("/"):
+			_check_library(directory.path_join(file.trim_suffix("/")))
+			continue
 		if not file.ends_with(".glb"):
 			continue
 		var model = load(directory + "/" + file).instantiate()
 		_check_model(model, file)
 		model.free()
 		_model_count += 1
-	for subdirectory in DirAccess.get_directories_at(directory):
-		_check_library(directory + "/" + subdirectory)
 
 
 func _check_multimesh():

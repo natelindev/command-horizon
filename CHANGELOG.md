@@ -2,7 +2,16 @@
 
 ## [main]
 
-## [0.15.0]
+## [0.15.1]
+
+### Verification
+ - Material regression checks inspect exported model resources and distinguish runtime texture data from editor-only import settings
+ - Desktop packages run 45 regression suites, including object materials, shutdown, battlefield passages, atmosphere and water
+
+All features below are included in 0.15.1. The 0.15.0 candidate was not published
+because its packaged material test expected editor-only import settings.
+
+## [0.15.0 — unpublished candidate]
 
 ### Air combat redesign
  - Physical projectiles: visible bullets, shells, rockets, guided missiles and bombs follow gravity, thrust and turn limits; rounds can miss, are blocked by terrain and buildings, splash nearby enemies and outlive their shooter
