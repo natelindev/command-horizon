@@ -17,10 +17,10 @@ const CARRY_PIVOT = Vector3(0, .25, 0)
 const SETTLE_SECONDS = .2
 # Render frames between simulation ticks are not a stop command.
 const STOP_GRACE_SECONDS = .06
-# Held weapon and both arms move as one carried assembly.
+# Weapon and grip targets move together; the arms solve from fixed shoulders.
 const CARRIED = [
-	"ArmLeft",
-	"ArmRight",
+	"GripLeft",
+	"GripRight",
 	"RifleStock",
 	"RifleReceiver",
 	"RifleMagazine",
@@ -45,21 +45,23 @@ const CARRIED = [
 	"Lance",
 ]
 # role: [low-ready pitch, recoil kick, stride scale, upright, kneels to fire,
-#        carry yaw/roll across the body]
+#        carry yaw/roll across the body, shoulder raise]
 const ROLES = {
-	"Infantry": [-.30, 1.0, 1.0, 0.0, false, Vector2(.14, -.12)],
-	"RocketInfantry": [-.12, 1.9, .97, 0.0, true, Vector2(.03, -.02)],
-	"SniperInfantry": [-.36, 1.5, 1.0, 0.0, true, Vector2(.12, -.1)],
-	"AssaultInfantry": [-.24, .7, .96, 0.0, false, Vector2(.1, -.08)],
-	"Hero": [-.18, 1.1, 1.08, .6, false, Vector2(.1, -.08)],
+	"Infantry": [-.30, 1.0, 1.0, 0.0, false, Vector2(.14, -.12), .18],
+	"RocketInfantry": [-.12, 1.9, .97, 0.0, true, Vector2(.03, -.02), .18],
+	"SniperInfantry": [-.36, 1.5, 1.0, 0.0, true, Vector2(.12, -.1), .27],
+	"AssaultInfantry": [-.24, .7, .96, 0.0, false, Vector2(.1, -.08), .18],
+	"Hero": [-.18, 1.1, 1.08, .6, false, Vector2(.1, -.08), .18],
 }
 
 var rig
 var hips
 var chest
 var head
+var head_rest = Vector3.ZERO
 var weapon
 var legs = []
+var arms = []
 var blend = 0.0
 var phase = 0.0
 var speed = 0.0
@@ -95,6 +97,7 @@ func setup(unit, initial_phase, role = "Infantry"):
 	hips = rig.get_node("Hips")
 	chest = rig.get_node("Chest")
 	head = chest.get_node("Head")
+	head_rest = head.position
 	phase = initial_phase
 	var Mercenaries = preload("res://source/match/world/MercenaryCatalog.gd")
 	_role = ROLES.get(Mercenaries.UNITS.get(role, {}).get("base", role), ROLES["Infantry"])
@@ -106,6 +109,21 @@ func setup(unit, initial_phase, role = "Infantry"):
 		weapon.position = CARRY_PIVOT
 		chest.add_child(weapon)
 		_carry(chest, Transform3D.IDENTITY)
+	for side in ["Left", "Right"]:
+		var arm = chest.get_node("Arm" + side)
+		var elbow = arm.get_node("Elbow" + side)
+		var wrist = elbow.get_node("Wrist" + side)
+		arms.append(
+			{
+				"upper": arm,
+				"lower": elbow,
+				"wrist": wrist,
+				"grip": weapon.get_node("Grip" + side),
+				"upper_rest": elbow.position,
+				"lower_rest": wrist.position,
+				"pole": Vector3(-1 if side == "Left" else 1, -.8, .25)
+			}
+		)
 	for side in ["Left", "Right"]:
 		var hip = hips.get_node("Hip" + side)
 		var knee = hip.get_node("Knee" + side)
@@ -192,9 +210,10 @@ func advance(delta, distance, clock, gesture, recoil, aiming):
 			+ Vector3(0, 0, flinch.x * .08)
 		)
 	)
+	head.position = head_rest + Vector3(.025, -.022, -.018) * aim
 	var look = gesture * .45 * (1.0 - aim) if fidget == 0 else gesture * .1 * (1.0 - aim)
 	head.rotation = Vector3(
-		.035 * blend - torso.x * .55 - (absf(gesture) * .35 if fidget == 2 else 0.0),
+		.035 * blend - torso.x * .55 - aim * .12 - (absf(gesture) * .35 if fidget == 2 else 0.0),
 		clampf(turn_lead, -.6, .6) + look - brace * .08 + flinch.y * 1.5,
 		-torso.z * .6 + flinch.z * 1.4
 	)
@@ -206,10 +225,13 @@ func advance(delta, distance, clock, gesture, recoil, aiming):
 		_role[5].x * (1.0 - aim),
 		_role[5].y * (1.0 - aim) + (gesture * .45 if fidget == 2 else 0.0)
 	)
-	var carried = Transform3D(Basis.from_euler(carry), CARRY_PIVOT + Vector3(0, 0, kick * .035))
+	var carried = Transform3D(
+		Basis.from_euler(carry), CARRY_PIVOT + Vector3(0, aim * _role[6], kick * .035)
+	)
 	if carried != _posed_carry:
 		_posed_carry = carried
 		weapon.transform = carried
+	_pose_arms()
 	# Standing still, the pelvis and boots are often unchanged: skip the leg solve.
 	if pelvis != _posed_pelvis or _feet != _posed_feet:
 		_posed_pelvis = pelvis
@@ -301,8 +323,44 @@ func raise_for_shot():
 	var raised = maxf(aim, .6)
 	if aim < 1.0:
 		weapon.rotation *= (1.0 - raised) / (1.0 - aim)
+		weapon.position.y = CARRY_PIVOT.y + raised * _role[6]
 		_posed_carry = weapon.transform
 	aim = raised
+	_pose_arms()
+
+
+func _pose_arms():
+	for arm in arms:
+		_solve_arm(arm, weapon)
+
+
+static func _solve_arm(arm, carried):
+	# Solve in chest space. Unlike rotating a rigid arm+gun assembly, shoulder
+	# sockets stay attached while both wrists track the moving weapon exactly.
+	var upper = arm.upper
+	var lower = arm.lower
+	var wrist = arm.wrist
+	var target = carried.transform * arm.grip.position
+	var offset = target - upper.position
+	var upper_length = arm.upper_rest.length()
+	var lower_length = arm.lower_rest.length()
+	var distance = clampf(offset.length(), .02, upper_length + lower_length - .0001)
+	var direction = offset.normalized()
+	var along = (
+		(distance * distance + upper_length * upper_length - lower_length * lower_length)
+		/ (2.0 * distance)
+	)
+	var pole = arm.pole
+	var outward = (pole - direction * pole.dot(direction)).normalized()
+	var elbow = (
+		direction * along + outward * sqrt(maxf(0.0, upper_length * upper_length - along * along))
+	)
+	upper.basis = Basis(Quaternion(arm.upper_rest.normalized(), elbow.normalized()))
+	var forearm = direction * distance - elbow
+	lower.basis = (
+		upper.basis.inverse() * Basis(Quaternion(arm.lower_rest.normalized(), forearm.normalized()))
+	)
+	wrist.basis = (upper.basis * lower.basis).inverse() * carried.basis
 
 
 func is_at_rest():
@@ -334,23 +392,51 @@ static func pose_death(geometry, progress, style):
 		return
 	var buckle = smoothstep(0.0, .45, progress)
 	var slump = smoothstep(.15, .8, progress)
+	var relax = smoothstep(.55, 1.0, progress)
 	var hips = rig.get_node("Hips")
 	var chest = rig.get_node("Chest")
-	hips.position.y = lerpf(HIP_HEIGHT, .36 if style != 1 else .45, buckle)
+	hips.position.y = lerpf(lerpf(HIP_HEIGHT, .36 if style != 1 else .45, buckle), .49, relax)
 	chest.position.y = CHEST_REST.y + hips.position.y - HIP_HEIGHT
 	var forward = 1.0 if style == 0 else -1.0
-	chest.rotation.x = -.45 * forward * slump
-	chest.rotation.z = (.25 if style == 2 else .08) * slump
-	chest.get_node("Head").rotation = Vector3(-.5 * forward * slump, .3 * slump, .2 * slump)
+	chest.rotation.x = lerpf(-.45 * forward * slump, .03 * forward, relax)
+	chest.rotation.z = lerpf((.25 if style == 2 else .08) * slump, .04, relax)
+	chest.get_node("Head").rotation = Vector3(
+		lerpf(-.5 * forward * slump, .03 * forward, relax),
+		.3 * slump,
+		lerpf(.2 * slump, .04, relax)
+	)
 	var carried = chest.get_node_or_null("WeaponCarry")
 	if carried != null:
-		carried.rotation = Vector3(-.9 * slump, .4 * slump, -.5 * slump)
+		# After impact the limbs relax and the rifle lies along the body,
+		# instead of propping the corpse up on a barrel pointed into the floor.
+		carried.rotation = Vector3(-.9 * slump, .4 * slump, -.5 * slump).lerp(
+			Vector3(-PI / 2, 0, 0), relax
+		)
+		carried.position.y = lerpf(carried.position.y, CARRY_PIVOT.y, relax)
+		carried.position.z = -.02 * relax
+		for side in ["Left", "Right"]:
+			var arm = chest.get_node("Arm" + side)
+			var elbow = arm.get_node("Elbow" + side)
+			var wrist = elbow.get_node("Wrist" + side)
+			_solve_arm(
+				{
+					"upper": arm,
+					"lower": elbow,
+					"wrist": wrist,
+					"grip": carried.get_node("Grip" + side),
+					"upper_rest": elbow.position,
+					"lower_rest": wrist.position,
+					"pole": Vector3(-1 if side == "Left" else 1, -.8, .25)
+				},
+				carried
+			)
 	for side in ["Left", "Right"]:
 		var hip = hips.get_node("Hip" + side)
 		var knee = hip.get_node("Knee" + side)
 		# Keep the boots on the ground while the hips sink, one knee further forward.
 		var bend = acos(clampf((hips.position.y - FOOT_HEIGHT) / (THIGH + SHIN), 0.0, 1.0))
-		var stagger = (.18 if side == "Left" else -.1) * buckle
+		bend = lerpf(bend, .12 if side == "Left" else .20, relax)
+		var stagger = (.18 if side == "Left" else -.1) * buckle * (1.0 - relax * .6)
 		hip.basis = Basis(Vector3.RIGHT, bend + stagger)
 		knee.basis = Basis(Vector3.RIGHT, -2.0 * bend)
 		knee.get_node("Ankle" + side).basis = Basis(Vector3.RIGHT, bend - stagger)

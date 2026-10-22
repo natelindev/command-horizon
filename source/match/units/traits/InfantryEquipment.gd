@@ -11,9 +11,9 @@ static func equip(unit, faction):
 	chest.add_child(gear)
 	gear.position = -chest.position
 	var dark = _material(Color("243139"), .5)
-	var metal = _material(Color("9da9ad"), .65)
+	var metal = _material(Color("6b736e"), .25)
 	var accent = _material(
-		{"bastion": Color("f1ba58"), "helix": Color("65e5e9"), "frontier": Color("a9d486")}[faction],
+		{"bastion": Color("b7a066"), "helix": Color("72a4af"), "frontier": Color("8d9e79")}[faction],
 		.25
 	)
 	var cloth = _material(
@@ -21,6 +21,7 @@ static func equip(unit, faction):
 		0
 	)
 	if unit.type in ["RocketInfantry", "SniperInfantry", "MercenaryRanger", "MercenaryLancer"]:
+		chest.get_node("RifleReceiver").hide()
 		for mesh in geometry.find_children("*", "MeshInstance3D", true, false):
 			if (
 				"Rifle" in str(mesh.name)
@@ -44,45 +45,47 @@ static func equip(unit, faction):
 	var Mercenaries = preload("res://source/match/world/MercenaryCatalog.gd")
 	if role in Mercenaries.ROLES:
 		role = Mercenaries.UNITS[role].base
-		_box(gear, "ContractMantle", Vector3(0, .78, .17), Vector3(.56, .2, .35), dark)
+		_box(gear, "ContractMantle", Vector3(0, .78, .17), Vector3(.34, .10, .23), dark)
 		_box(gear, "ContractBadge", Vector3(0, .89, .17), Vector3(.18, .025, .14), metal)
 		if unit.type == "MercenaryWarden":
 			_box(gear, "TowerShield", Vector3(-.28, .5, -.2), Vector3(.34, .78, .12), dark)
 		elif unit.type == "MercenaryRanger":
 			_box(gear, "ReconAntenna", Vector3(-.16, 1.03, .22), Vector3(.025, .44, .025), metal)
 		else:
-			_tube(gear, "HeavyWarhead", Vector3(.22, .75, -.54), .16, .28, metal)
+			_tube(gear, "HeavyWarhead", Vector3(.22, .75, -.54), .085, .24, metal)
 	match role:
 		"RocketInfantry":
-			_tube(gear, "Launcher", Vector3(.22, .75, -.15), .14, .86, dark)
-			_tube(gear, "LaunchMouth", Vector3(.22, .75, -.60), .125, .09, metal)
-			_tube(gear, "RocketTip", Vector3(.22, .75, -.65), .075, .05, accent)
-			_box(gear, "Optic", Vector3(.22, .89, -.15), Vector3(.09, .08, .15), accent)
-			_box(gear, "AmmoPack", Vector3(0, .6, .21), Vector3(.38, .45, .22), cloth)
-			for x in [-.1, .1]:
-				_tube(gear, "SpareRocket", Vector3(x, .65, .32), .06, .48, metal).rotation.x = 0
+			_tube(gear, "Launcher", Vector3(.22, .75, -.15), .075, .86, dark)
+			_tube(gear, "LaunchMouth", Vector3(.22, .75, -.60), .082, .065, metal)
+			_tube(gear, "RocketTip", Vector3(.22, .75, -.64), .058, .025, dark)
+			_box(gear, "Optic", Vector3(.22, .89, -.15), Vector3(.055, .045, .09), dark)
+			_box(gear, "AmmoPack", Vector3(0, .72, .16), Vector3(.25, .32, .15), cloth)
+			for x in [-.075, .075]:
+				_tube(gear, "SpareRocket", Vector3(x, .74, .26), .045, .48, metal).rotation.x = 0
 		"SniperInfantry":
-			_box(gear, "PrecisionStock", Vector3(.12, .65, -.26), Vector3(.11, .12, .52), dark)
-			_tube(gear, "LongBarrel", Vector3(.12, .66, -.68), .026, .42, metal)
-			_tube(gear, "Suppressor", Vector3(.12, .66, -.94), .042, .14, dark)
-			_tube(gear, "Scope", Vector3(.12, .76, -.32), .045, .23, accent)
-			_box(gear, "Mantle", Vector3(0, .75, .06), Vector3(.58, .16, .32), cloth)
-			_box(gear, "FieldPack", Vector3(0, .52, .23), Vector3(.29, .4, .10), cloth)
+			_box(gear, "PrecisionStock", Vector3(.12, .65, -.26), Vector3(.055, .065, .43), dark)
+			_tube(gear, "LongBarrel", Vector3(.12, .66, -.68), .016, .42, metal)
+			_tube(gear, "Suppressor", Vector3(.12, .66, -.94), .026, .14, dark)
+			_tube(gear, "Scope", Vector3(.12, .76, -.32), .028, .19, dark)
+			_box(gear, "Mantle", Vector3(0, .75, .06), Vector3(.32, .075, .22), cloth)
+			_tube(gear, "ClothBedroll", Vector3(0, .89, .17), .039, .23, cloth).rotation = Vector3(
+				0, 0, PI / 2
+			)
 		"AssaultInfantry":
 			_armor(gear, dark, accent)
 			_box(gear, "BreachingShield", Vector3(-.28, .53, -.14), Vector3(.28, .64, .09), metal)
-			_box(gear, "ShieldMark", Vector3(-.28, .58, -.19), Vector3(.09, .2, .018), accent)
+			_box(gear, "ShieldMark", Vector3(-.28, .58, -.19), Vector3(.055, .09, .012), accent)
 			_tube(gear, "DrumMagazine", Vector3(.12, .52, -.26), .09, .15, dark)
 		"Hero":
 			geometry.get_child(0).scale *= 1.12
 			_armor(gear, metal, accent)
-			_box(gear, "CommandPack", Vector3(0, .64, .23), Vector3(.3, .44, .14), dark)
+			_box(gear, "CommandPack", Vector3(0, .76, .16), Vector3(.22, .28, .12), dark)
 			_box(gear, "CommandAntenna", Vector3(.17, .99, .25), Vector3(.018, .48, .018), accent)
 			if faction == "helix":
 				_tube(gear, "Lance", Vector3(.10, .73, -.7), .04, .7, accent)
 				chest.get_node("RifleMuzzle").position = Vector3(.10, .11, -1.06)
 			elif faction == "frontier":
-				_box(gear, "ScoutMantle", Vector3(0, .8, .12), Vector3(.57, .15, .35), cloth)
+				_box(gear, "ScoutMantle", Vector3(0, .8, .12), Vector3(.32, .075, .23), cloth)
 			else:
 				_box(gear, "MarshalShield", Vector3(-.29, .57, -.13), Vector3(.22, .59, .13), dark)
 			var aura = load("res://source/match/units/traits/HeroAura.gd").new()
@@ -90,18 +93,21 @@ static func equip(unit, faction):
 			unit.add_child(aura)
 
 
-static func _armor(parent, metal, accent):
-	for x in [-.18, .18]:
-		_box(parent, "Pauldrons", Vector3(x, .82, 0), Vector3(.13, .12, .18), metal)
-		_box(parent, "RankMark", Vector3(x, .88, -.01), Vector3(.07, .018, .12), accent)
-	_box(parent, "ChestPlate", Vector3(0, .64, -.12), Vector3(.25, .23, .045), metal)
+static func _armor(parent, metal, _accent):
+	# Heavy roles reinforce the fitted shoulder shell instead of adding a
+	# second floating cuboid pauldron. Pads keep following their upper arms.
+	for side in ["Left", "Right"]:
+		var shell = parent.get_parent().get_node("Arm" + side + "/ShoulderArmor")
+		shell.scale *= 1.2
+		shell.material_override = metal
+	_box(parent, "ChestPlate", Vector3(0, .78, -.128), Vector3(.24, .20, .035), metal)
 
 
 static func _material(color, metallic):
 	var material = StandardMaterial3D.new()
 	material.albedo_color = color
 	material.metallic = metallic
-	material.roughness = .65
+	material.roughness = .86
 	return material
 
 

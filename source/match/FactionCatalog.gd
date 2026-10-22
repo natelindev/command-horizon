@@ -405,6 +405,10 @@ static func prepare_model(unit, faction):
 		load("res://source/match/units/traits/InfantryEquipment.gd").equip(unit, faction)
 	SurfaceTextures.apply_armor(geometry)
 	ObjectMaterials.apply(geometry)
+	if Bastion.is_infantry(unit.type):
+		load("res://source/match/units/traits/InfantryMeshBatch.gd").apply(
+			geometry.get_node("InfantryRig")
+		)
 
 
 static func helix_geometry(role, radius):

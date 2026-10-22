@@ -16,3 +16,5 @@ godot --path . --fixed-fps 60 --script tests/headless/VisualPolishRegression.gd 
 ```
 
 Captures are written to `tmp/visual-polish`.
+
+The [infantry redesign](redesign/README.md) records the generated target, production model/motion implementation, and repeatable graphical review commands.

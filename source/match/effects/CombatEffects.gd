@@ -744,9 +744,24 @@ func _update_wreck(entry):
 			InfantryMotion.pose_death(entry.node, progress, motion.style)
 			if progress >= 1.0:
 				entry.posed = true
-	entry.node.rotation = entry.rotation + motion.tilt * settle
-	# Stricken aircraft yaw as they fall.
-	entry.node.rotation.y += motion.get("spin", 0.0) * settle
+	if motion.get("infantry", false):
+		if not entry.has("rest_scale"):
+			entry.rest_scale = entry.node.scale
+		# Euler pitch+roll does not produce a horizontal body for diagonal
+		# falls. Rotate around the recipe's horizontal axis through exactly
+		# a quarter turn, keeping the original heading and relaxing live lean.
+		var axis = Vector3(motion.tilt.x, 0, motion.tilt.z).normalized()
+		if axis.is_zero_approx():
+			axis = Vector3.RIGHT
+		var yaw = Basis(Vector3.UP, entry.rotation.y + motion.tilt.y * settle)
+		var lean = Basis.from_euler(Vector3(entry.rotation.x, 0, entry.rotation.z) * (1.0 - settle))
+		entry.node.basis = (
+			yaw * Basis(axis, PI * .5 * settle) * lean * Basis.from_scale(entry.rest_scale)
+		)
+	else:
+		entry.node.rotation = entry.rotation + motion.tilt * settle
+		# Stricken aircraft yaw as they fall.
+		entry.node.rotation.y += motion.get("spin", 0.0) * settle
 	entry.node.position = entry.origin + motion.slide * settle
 	entry.node.position += (
 		entry.get("momentum", Vector3.ZERO)
@@ -755,7 +770,45 @@ func _update_wreck(entry):
 	)
 	var ground = 0.02 if motion.mobile else entry.origin.y - 0.18
 	entry.node.position.y = lerpf(entry.origin.y, ground, settle)
+	if motion.get("infantry", false):
+		# Tilting the rig about its origin puts the chest and helmet through the
+		# ground. Keep its visible geometry above the floor as the knees buckle.
+		# Only moving wrecks need this solve; retain the final offset at rest.
+		if not entry.has("ground_clearance"):
+			var clearance = _infantry_ground_clearance(entry, ground)
+			entry.node.position.y += clearance
+			if progress >= 1.0:
+				entry.ground_clearance = clearance
+		else:
+			entry.node.position.y += entry.ground_clearance
 	entry.node.position.y -= maxf(0.0, entry.age - maxf(16.0, motion.sink_start)) * 0.25
+
+
+func _infantry_ground_clearance(entry, ground):
+	if not entry.has("ground_bounds"):
+		entry.ground_bounds = []
+		for mesh in entry.node.find_children("*", "MeshInstance3D", true, false):
+			if mesh.mesh != null and mesh.is_visible_in_tree():
+				entry.ground_bounds.append({"node": mesh, "bounds": mesh.get_aabb()})
+	var parent_inverse = entry.node.get_parent().global_transform.affine_inverse()
+	var lowest = ground
+	for part in entry.ground_bounds:
+		var transform: Transform3D = parent_inverse * part.node.global_transform
+		var bounds: AABB = transform * part.bounds
+		if bounds.position.y >= lowest:
+			continue
+		# Batched meshes have empty AABB corners: rotating those bounds alone
+		# lifts a corpse off the floor. Resolve only potential contacts against
+		# the actual authored vertices, caching them the first time needed.
+		if not part.has("points"):
+			part.points = PackedVector3Array()
+			for surface in part.node.mesh.get_surface_count():
+				part.points.append_array(
+					part.node.mesh.surface_get_arrays(surface)[Mesh.ARRAY_VERTEX]
+				)
+		for point in part.points:
+			lowest = minf(lowest, (transform * point).y)
+	return ground - lowest
 
 
 func damage_smoke(unit):

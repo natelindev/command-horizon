@@ -698,8 +698,13 @@ func _test_destruction():
 	_check(absf(air_wreck.motion.spin) > 2.0, "Aircraft wreck falls without spinning")
 	var hips = infantry_wreck.node.get_node("InfantryRig/Hips")
 	var standing = InfantryMotionScript.HIP_HEIGHT
-	await _frames(int(infantry_wreck.motion.duration * 60) + 10)
-	_check(hips.position.y < standing - .1, "Infantry wreck never buckles at the knees")
+	var lowest_hips = hips.position.y
+	for frame in range(int(infantry_wreck.motion.duration * 60) + 10):
+		await _frames(1)
+		lowest_hips = minf(lowest_hips, hips.position.y)
+	_check(lowest_hips < standing - .1, "Infantry wreck never buckles at the knees")
+	_check(hips.position.y > lowest_hips + .07, "Infantry wreck stays curled after impact")
+	print("Infantry wreck knee heights: buckle=%.3f rest=%.3f" % [lowest_hips, hips.position.y])
 	_check(infantry_wreck.has("posed"), "Infantry wreck keeps re-posing after it landed")
 	var tilted = infantry_wreck.node.rotation - infantry_wreck.rotation
 	_check(Vector2(tilted.x, tilted.z).length() > 1.0, "Infantry wreck never reaches the ground")

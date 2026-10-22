@@ -36,6 +36,8 @@ func _run():
 		for role in ["Infantry", "RocketInfantry", "SniperInfantry", "AssaultInfantry", "Hero"]:
 			var unit = load("res://source/match/units/%s.tscn" % role).instantiate()
 			factions.prepare_model(unit, faction)
+			var motion = load("res://source/match/units/traits/InfantryMotion.gd").new()
+			motion.setup(unit, 0.0, role)
 			var geometry = unit.get_node("Geometry")
 			unit.remove_child(geometry)
 			unit.free()
