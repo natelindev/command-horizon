@@ -10,17 +10,15 @@ var map_path = null
 func _ready():
 	_progress_bar.value = 0.0
 
-	_label.text = tr("LOADING_STEP_PRELOADING")
+	_label.text = tr("Loading battle…")
 	await get_tree().physics_frame
 	_preload_scenes()
 	_progress_bar.value = 0.2
 
-	_label.text = tr("LOADING_STEP_LOADING_MAP")
 	await get_tree().physics_frame
 	var map = load(map_path).instantiate()
 	_progress_bar.value = 0.4
 
-	_label.text = tr("LOADING_STEP_LOADING_MATCH")
 	await get_tree().physics_frame
 	var campaigns = load("res://source/match/campaign/CampaignCatalog.gd").operations()
 	var scene_path = (
@@ -33,14 +31,12 @@ func _ready():
 	var match_prototype = load(scene_path)
 	_progress_bar.value = 0.7
 
-	_label.text = tr("LOADING_STEP_INSTANTIATING_MATCH")
 	await get_tree().physics_frame
 	var a_match = match_prototype.instantiate()
 	a_match.settings = match_settings
 	a_match.map = map
 	_progress_bar.value = 0.9
 
-	_label.text = tr("LOADING_STEP_STARTING_MATCH")
 	await get_tree().physics_frame
 	get_parent().add_child(a_match)
 	get_tree().current_scene = a_match

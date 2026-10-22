@@ -66,18 +66,7 @@ func _ready():
 	column.add_theme_constant_override("separation", 6)
 	_panel.add_child(column)
 
-	var header_box = VBoxContainer.new()
-	header_box.add_theme_constant_override("separation", 2)
-	column.add_child(header_box)
-	var tag = Label.new()
-	tag.text = tr("// SYSTEM CONFIGURATION // TACTICAL SETTINGS")
-	tag.add_theme_font_size_override("font_size", 11)
-	tag.add_theme_color_override("font_color", Color("d8a846"))
-	header_box.add_child(tag)
-	_label(header_box, tr("SETTINGS"), 22)
-	_label(
-		header_box, tr("Preview changes · Save to keep them · Esc to cancel"), 13, Color("8ea0a8")
-	)
+	_label(column, tr("SETTINGS"), 22)
 
 	_tabs = TabContainer.new()
 	_tabs.custom_minimum_size = Vector2(680, 480)

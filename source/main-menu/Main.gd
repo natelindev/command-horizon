@@ -42,11 +42,6 @@ func _ready():
 	actions.name = "MenuActions"
 	actions.add_theme_constant_override("separation", 10)
 	panel.add_child(actions)
-	var heading = Label.new()
-	heading.text = "Command the battlefield"
-	heading.theme_type_variation = "HudHeading"
-	heading.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	actions.add_child(heading)
 	var skirmish = _action(actions, "Skirmish", "SKIRMISH", _on_play_button_pressed)
 	skirmish.theme_type_variation = "BattlePrimaryButton"
 	_action(actions, "Campaign", "CAMPAIGN", func(): _open("res://source/main-menu/Campaign.tscn"))

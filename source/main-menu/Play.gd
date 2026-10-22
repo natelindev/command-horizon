@@ -169,11 +169,9 @@ var _map_details = null
 var _player_faction = null
 var _enemy_faction = null
 var _difficulty = null
-var _difficulty_note = null
 var _start_mode = null
 var _doctrine_selector = null
 var _start_button = null
-var _summary = null
 var _cards = []
 var _starting = false
 var _body_grid: GridContainer
@@ -270,14 +268,6 @@ func _build_ui():
 	rules.add_child(grid)
 	_label(grid, "AI difficulty", 14, ArtTheme.MUTED)
 	_difficulty = _option(grid, "Difficulty", Difficulty.NAMES)
-	_difficulty.tooltip_text = tr(
-		"AI levels change decisions only. No health, damage or resource bonuses."
-	)
-	grid.add_child(Control.new())
-	_difficulty_note = _label(grid, "", 12, ArtTheme.MUTED)
-	_difficulty_note.name = "DifficultyNote"
-	_difficulty_note.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_difficulty_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_label(grid, "Starting forces", 14, ArtTheme.MUTED)
 	_start_mode = _option(
 		grid, "StartMode", ["Standard — build your base", "Advanced — armor and technology"]
@@ -288,8 +278,6 @@ func _build_ui():
 		"TacticalDoctrine",
 		["Standard Field Protocol", "Hit & Run Kiting", "Ironclad Defense"]
 	)
-	_summary = _label(rules, "", 12, ArtTheme.MUTED)
-	_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_difficulty.item_selected.connect(func(_index): _update_summary())
 	_start_mode.item_selected.connect(func(_index): _update_summary())
 	var footer = HBoxContainer.new()
@@ -404,11 +392,13 @@ func _update_summary():
 		if _start_mode.selected == 0
 		else "Established base, 2 tanks, repair support · 120 M / 60 E"
 	)
-	_summary.text = (tr(opening))
+	_start_mode.tooltip_text = tr(opening)
+	_start_mode.accessibility_description = _start_mode.tooltip_text
 	_start_button.tooltip_text = tr(
 		"Win by destroying the enemy HQ and preventing a rebuild for 60 seconds."
 	)
-	_difficulty_note.text = tr(Difficulty.DESCRIPTIONS[_difficulty.selected])
+	_difficulty.tooltip_text = tr(Difficulty.DESCRIPTIONS[_difficulty.selected])
+	_difficulty.accessibility_description = _difficulty.tooltip_text
 
 
 func _on_map_list_item_selected(index):

@@ -101,7 +101,7 @@ func _setup_screen():
 		_check(settings.players[0].difficulty == 1, "Human side received an AI difficulty")
 		_check(settings.players[1].difficulty == index, "Setup lost the selected AI level")
 		_check(
-			setup._difficulty_note.text == Difficulty.DESCRIPTIONS[index],
+			setup._difficulty.tooltip_text == Difficulty.DESCRIPTIONS[index],
 			"Setup description does not follow the selected level"
 		)
 	setup._save_preferences()
