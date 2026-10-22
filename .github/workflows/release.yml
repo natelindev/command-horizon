@@ -39,6 +39,7 @@ jobs:
           name: release-${{ matrix.platform }}
           path: build/release-assets/*
           if-no-files-found: error
+          retention-days: 1
 
   publish:
     name: Publish verified desktop packages
