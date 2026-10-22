@@ -175,7 +175,8 @@ This project targets **Godot `4.7.2-stable`** (standard edition), including matc
 export templates. Download it from the [official release page](https://godotengine.org/download/archive/4.7.2-stable/).
 The desktop release pipeline uses this exact version.
 
-On macOS, the launchers look for `tmp/tooling/godot-4.7.2/Godot.app`,
+On macOS, the launchers look for `tmp/tooling/godot-4.7.2/Godot.app` in the current
+checkout and then the main checkout when running from a linked Git worktree,
 `~/.cache/godot/4.7.2/Godot.app`, `/Applications/Godot.app`, then `godot` on PATH.
 The launchers check the executable version and skip anything other than 4.7.2 stable.
 

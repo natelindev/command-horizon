@@ -1,8 +1,15 @@
 #!/bin/zsh
 set -eu
 project_dir="$(cd -- "$(dirname -- "$0")" && pwd)"
+# Linked worktrees share the main checkout's ignored tooling installation.
+tooling_dir="$project_dir/tmp/tooling"
+git_common_dir="$(git -C "$project_dir" rev-parse --path-format=absolute --git-common-dir 2>/dev/null || true)"
+if [[ -n "$git_common_dir" ]]; then
+  tooling_dir="${git_common_dir:h}/tmp/tooling"
+fi
 for godot_bin in \
   "$project_dir/tmp/tooling/godot-4.7.2/Godot.app/Contents/MacOS/Godot" \
+  "$tooling_dir/godot-4.7.2/Godot.app/Contents/MacOS/Godot" \
   "$HOME/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot" \
   "/Applications/Godot.app/Contents/MacOS/Godot"; do
   if [[ -x "$godot_bin" && "$("$godot_bin" --version)" == 4.7.2.stable.* ]]; then
