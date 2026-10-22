@@ -43,18 +43,18 @@ const NAMES = {
 const DESCRIPTIONS = {
 	"AntiAirVehicle":
 	(
-		"Mobile air defense on a tank chassis. Engages aircraft only; escort it with "
-		+ "tanks and infantry against ground attack."
+		"Mobile air defense on a tank chassis. Ground damage: 33% "
+		+ "(100% with Dual-purpose AA). Escort it with tanks and infantry."
 	),
 	"Fighter":
 	(
-		"Air superiority jet. Guided missiles and cannon hit aircraft only; "
-		+ "lands at its airfield to rearm."
+		"Multirole jet. Guided missiles deal full damage to air and ground targets; "
+		+ "close-range cannon support. Lands at its airfield to rearm."
 	),
 	"Bomber":
 	(
-		"Heavy level bomber. One stick of bombs per sortie against ground forces and "
-		+ "structures; needs fighter escort."
+		"Heavy level bomber. High bomb damage, doubled against buildings. "
+		+ "One stick per sortie; needs fighter escort."
 	),
 	"RocketInfantry":
 	(
@@ -127,7 +127,11 @@ const DESCRIPTIONS = {
 	"Two ground repair slots within 5 m. Does not stack with other repairs. Uses 3 power.",
 	"AntiGroundTurret":
 	"Defensive cannon against ground targets; cannot engage aircraft. Uses 2 power.",
-	"AntiAirTurret": "Missile defense against aircraft. Uses 2 power.",
+	"AntiAirTurret":
+	(
+		"Missile air defense that prioritizes aircraft. Ground damage: 33% "
+		+ "(100% with Dual-purpose AA). Uses 2 power."
+	),
 }
 const PRODUCES = {
 	"CommandCenter": ["Worker"],

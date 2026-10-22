@@ -4,8 +4,8 @@ Runway airfield. Builds drones, helicopters, fighters and bombers; jets park, re
 Shoulder-launched rockets break heavy armor and structures; guided missiles lock onto aircraft. Slow reload, weak against infantry.	肩射火箭克制重装甲与建筑，制导导弹可锁定飞机；装填较慢，不擅长对付步兵。
 Interceptor jet	截击战斗机
 Heavy bomber	重型轰炸机
-Air superiority jet. Guided missiles and cannon hit aircraft only; lands at its airfield to rearm.	制空喷气战机。制导导弹与机炮只打击空中目标；返回机场降落补给弹药。
-Heavy level bomber. One stick of bombs per sortie against ground forces and structures; needs fighter escort.	重型水平轰炸机。每次出击向地面部队与建筑投下一串炸弹；需要战斗机护航。
+Multirole jet. Guided missiles deal full damage to air and ground targets; close-range cannon support. Lands at its airfield to rearm.	多用途喷气战机。制导导弹对空中与地面目标造成全额伤害，机炮提供近程支援。返回机场降落补给弹药。
+Heavy level bomber. High bomb damage, doubled against buildings. One stick per sortie; needs fighter escort.	重型水平轰炸机。炸弹伤害高，对建筑造成双倍伤害。每次出击投下一串炸弹；需要战斗机护航。
 No free stand · every jet parks and rearms on its own stand.	没有空闲停机位 · 每架喷气机都需在自己的停机位停放与补给。
 Free an aircraft stand to resume this queue.	腾出一个停机位以继续此生产队列。
 Talon interceptor	利爪截击机
@@ -22,4 +22,9 @@ Attack helicopter. Rockets against ground forces while hovering in place; lands 
 Flak tank	防空坦克
 Halo AA skimmer	光环防空悬浮车
 Ripsaw AA truck	锯齿防空卡车
-Mobile air defense on a tank chassis. Engages aircraft only; escort it with tanks and infantry against ground attack.	坦克底盘的机动防空单位。只攻击空中目标；需要坦克与步兵护卫以防地面进攻。
+Mobile air defense on a tank chassis. Ground damage: 33% (100% with Dual-purpose AA). Escort it with tanks and infantry.	坦克底盘的机动防空单位。对地伤害为 33%，研究两用防空后提升至 100%。需要坦克与步兵护卫。
+Fighter missile	战斗机导弹
+Interception · %d%% ground damage	拦截模式 · 对地 %d%% 伤害
+Dual-purpose AA	两用防空
+AA vehicles, AA turrets and Helix Interception deal 100% ground damage instead of 33%. Applies to existing and new units. Air damage is unchanged; AA turrets always prioritize aircraft.	防空载具、防空炮塔与螺旋拦截模式的对地伤害从 33% 提升至 100%。适用于现有及新造单位，对空伤害不变；防空炮塔始终优先攻击航空器。
+Dual-purpose AA · 100% ground damage	两用防空 · 对地 100% 伤害

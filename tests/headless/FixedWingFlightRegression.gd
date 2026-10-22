@@ -63,6 +63,7 @@ func _run():
 	await _test_return(fighter)
 	await _test_rearm(fighter)
 	await _test_strike(fighter)
+	await _test_ground_strike(fighter)
 	await _test_bombing()
 	_game.queue_free()
 	await _ticks(5)
@@ -278,6 +279,23 @@ func _test_bombing():
 	var tank = _spawn("Tank", _enemy, Vector3(22, 0, 46))
 	await _ticks(10)
 	tank.process_mode = Node.PROCESS_MODE_DISABLED
+	_check(is_equal_approx(bomber.attack_damage, 40.0), "Bomber base damage was not increased")
+	_check(
+		is_equal_approx(_combat_rules.damage(bomber, tank), 36.0),
+		"Bomber heavy-armor damage changed unexpectedly"
+	)
+	var building = _spawn("Barracks", _enemy, Vector3(22, 0, 55))
+	building.process_mode = Node.PROCESS_MODE_DISABLED
+	_check(
+		is_equal_approx(_combat_rules.damage(bomber, building), 80.0),
+		"Bomber lacks its double-damage building bonus"
+	)
+	var shot = load("res://source/match/combat/Shot.gd").from(bomber, bomber.global_position)
+	_check(
+		is_equal_approx(_combat_rules.damage_from(shot, building), 80.0),
+		"Released bomb lost the building bonus"
+	)
+	building.queue_free()
 	var before = tank.hp
 	bomber.action = load(ACTIONS + "AutoAttacking.gd").new(tank)
 	var hit = await _until(func(): return not is_instance_valid(tank) or tank.hp < before, 4200)
@@ -287,6 +305,42 @@ func _test_bombing():
 	_check(bomber.stores.bomb == 0, "Bomber did not release its whole stick")
 	var home = await _until(func(): return flight.is_parked(), 7200)
 	_check(home, "Bomber did not return to rearm after its sortie")
+
+
+func _test_ground_strike(fighter):
+	await _until(func(): return fighter.stores_full(), 600)
+	var target = _spawn("Tank", _enemy, Vector3(37, 0, 20))
+	target.process_mode = Node.PROCESS_MODE_DISABLED
+	var scout = _spawn("Infantry", _human, Vector3(35, 0, 22))
+	scout.process_mode = Node.PROCESS_MODE_DISABLED
+	await _ticks(10)
+	_check(_game.battlefield.is_observed(_human, target), "Ground strike target is not observed")
+	_check(fighter.can_strike(target), "Fighter cannot accept a ground target")
+	_check(
+		is_equal_approx(_combat_rules.damage(fighter, target), fighter.attack_damage),
+		"Fighter ground missile damage is reduced"
+	)
+	# Isolate missiles so cannon fire cannot make the ground-strike test pass.
+	fighter.stores.cannon = 0
+	fighter._cooldowns.cannon = 999.0
+	fighter.stance = fighter.Stance.HOLD_FIRE
+	var before = target.hp
+	var orders = fighter.manual_orders
+	_check(orders.submit(orders.target_order("attack", target)), "Ground attack order rejected")
+	_check(
+		str(fighter.action).begins_with("AirStrike"), "Ground order did not become an air strike"
+	)
+	var hit = await _until(func(): return target.hp < before, 2400)
+	_check(hit, "Fighter missiles never hit the ground target")
+	_check(fighter.stores.missile < 4, "Ground strike did not expend a missile")
+	_check(
+		is_equal_approx(before - target.hp, fighter.attack_damage),
+		"Fighter ground missile did not deal full damage"
+	)
+	target.queue_free()
+	scout.queue_free()
+	fighter.action = load(ACTIONS + "RecoveringAtService.gd").new(_field)
+	await _until(func(): return fighter.get_node("Movement").is_parked(), 3600)
 
 
 func _until(condition, limit):

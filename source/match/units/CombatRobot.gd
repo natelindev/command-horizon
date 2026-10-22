@@ -64,13 +64,9 @@ func configure_weapon():
 		]
 		return
 	var precision = weapon_mode == "precision"
-	attack_domains = [
-		(
-			Constants.Match.Navigation.Domain.TERRAIN
-			if precision
-			else Constants.Match.Navigation.Domain.AIR
-		)
-	]
+	attack_domains = [Constants.Match.Navigation.Domain.TERRAIN]
+	if not precision:
+		attack_domains.append(Constants.Match.Navigation.Domain.AIR)
 	attack_range = PRECISION_RANGE if precision else INTERCEPTION_RANGE
 	sight_range = 13.0
 	attack_damage = 15.0 if precision else 5.0
@@ -85,7 +81,14 @@ func weapon_delay():
 func weapon_status():
 	if weapon_switch_left > 0:
 		return "Switching to %s · %.1f s" % [pending_weapon_mode.capitalize(), weapon_switch_left]
-	return "Precision · anti-armor" if weapon_mode == "precision" else "Interception · air only"
+	return (
+		"Precision · anti-armor"
+		if weapon_mode == "precision"
+		else (
+			tr("Interception · %d%% ground damage")
+			% roundi(_rules().aa_ground_damage_factor(player) * 100)
+		)
+	)
 
 
 func _update_badge():

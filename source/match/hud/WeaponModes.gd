@@ -28,7 +28,7 @@ func _button(title, mode):
 		(
 			"Ground targets · anti-armor lance · 12 m\n30 vs heavy armor · 0.75 s charge · weak vs infantry"
 			if mode == "precision"
-			else "Air targets only · 8 m"
+			else "Full air damage · 33% ground damage · 8 m"
 		)
 		+ "\nTwo seconds without firing to switch. Movement and orders continue."
 	)
@@ -60,6 +60,13 @@ func _choose(mode):
 
 func refresh():
 	var units = _units()
+	if not units.is_empty():
+		var percent = roundi(units[0]._rules().aa_ground_damage_factor(units[0].player) * 100)
+		_interception.tooltip_text = (
+			tr("Full air damage · %d%% ground damage · 8 m") % percent
+			+ "\n"
+			+ tr("Two seconds without firing to switch. Movement and orders continue.")
+		)
 	var switching = units.filter(func(unit): return unit.weapon_switch_left > 0).size()
 	for entry in [[_precision, "precision"], [_interception, "interception"]]:
 		var count = units.filter(func(unit): return unit.weapon_mode == entry[1]).size()

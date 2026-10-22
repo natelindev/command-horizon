@@ -13,7 +13,9 @@ const DESCRIPTIONS = [
 	"Steady economy, regular attack waves, field repairs and faction abilities.",
 	"More engineers, a second factory, early coordinated waves and disciplined retreats.",
 ]
-const FULL_RESEARCH = ["weapons_1", "armor_1", "service", "doctrine", "weapons_2", "armor_2"]
+const FULL_RESEARCH = [
+	"weapons_1", "armor_1", "service", "doctrine", "weapons_2", "armor_2", "dual_purpose_aa"
+]
 const PROFILES = [
 	{
 		# Seconds between commander decisions; slower play also delays reactions.

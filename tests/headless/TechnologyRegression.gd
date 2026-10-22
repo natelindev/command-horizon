@@ -11,8 +11,8 @@ var base_health
 
 
 func _initialize():
-	# Three complete faction research sequences exceed the older two-faction watchdog.
-	create_timer(1000).timeout.connect(
+	# Three full research trees, including the 45 s AA upgrade, exceed 1000 s.
+	create_timer(1200).timeout.connect(
 		func():
 			push_error("Technology regression timed out")
 			quit(1)
@@ -61,6 +61,7 @@ func _research(faction):
 	var funds = Vector2i(human.resource_a, human.resource_b)
 	_check(not research.start("weapons_1", enemy_lab), "Enemy lab accepted friendly research")
 	_check(not research.start("weapons_2", lab), "Tier II bypassed its prerequisites")
+	_check(not research.start("dual_purpose_aa", lab), "Dual-purpose AA bypassed its prerequisite")
 	human.resource_a = 0
 	_check(not research.start("weapons_1", lab), "Research started without payment")
 	human.resource_a = funds.x
@@ -96,6 +97,7 @@ func _research(faction):
 		"Upgraded weapon hit used stale damage"
 	)
 	_check(not research.start("weapons_1", lab), "Completed technology could be bought twice")
+	await _anti_air_upgrade(faction, target)
 	tank.hp = base_health * .4
 	var worker = _units(human, "Worker")[0]
 	var worker_hp = worker.hp_max
@@ -141,6 +143,14 @@ func _research(faction):
 		return
 	research = human.technology
 	_check(is_equal_approx(tank.hp_max, base_health * 1.2), "Restored armor II did not complete")
+	_check("dual_purpose_aa" in research.completed, "Save/restore lost Dual-purpose AA")
+	var restored_aa = _units(human, "AntiAirVehicle")[0]
+	_check(
+		is_equal_approx(
+			rules.damage(restored_aa, _units(enemy, "Tank")[0]), restored_aa.attack_damage
+		),
+		"Restored AA lost full ground damage"
+	)
 	await _service()
 	await _doctrine(faction)
 	_invalid_archives()
@@ -160,6 +170,65 @@ func _complete():
 			break
 	game.hud._toggle_pause()
 	_check(human.technology.active == "", "Paid research never completed")
+
+
+func _anti_air_upgrade(faction, target):
+	var shooters = []
+	for role in ["AntiAirVehicle", "AntiAirTurret", "CombatRobot"]:
+		var shooter = _spawn_tech(role, human, Vector3(30 + shooters.size() * 4, 0, 35))
+		shooter.process_mode = Node.PROCESS_MODE_DISABLED
+		if role == "CombatRobot":
+			if faction != "helix":
+				shooter.queue_free()
+				continue
+			shooter.weapon_mode = "interception"
+			shooter.configure_weapon()
+		shooters.append(shooter)
+	var air = _spawn_tech("Helicopter", enemy, Vector3(80, 3, 60))
+	air.process_mode = Node.PROCESS_MODE_DISABLED
+	var ordinary_damage = rules.damage(tank, target)
+	var air_damage = []
+	for shooter in shooters:
+		var full = shooter.attack_damage * human.technology.damage_factor(shooter.type)
+		_check(is_equal_approx(rules.damage(shooter, target), full * .33), "AA base damage differs")
+		air_damage.append(rules.damage(shooter, air))
+	var funds = Vector2i(human.resource_a, human.resource_b)
+	_check(human.technology.start("dual_purpose_aa", lab), "Dual-purpose AA research refused")
+	_check(
+		Vector2i(human.resource_a, human.resource_b) == funds - Vector2i(40, 30),
+		"Dual-purpose AA price differs"
+	)
+	_check(
+		tech_catalog.valid_state(human.technology.capture(), human.coordination_unlocked),
+		"Active Dual-purpose AA cannot be saved"
+	)
+	await _complete()
+	_check(not human.technology.start("dual_purpose_aa", lab), "Dual-purpose AA bought twice")
+	for index in shooters.size():
+		var shooter = shooters[index]
+		var full = shooter.attack_damage * human.technology.damage_factor(shooter.type)
+		_check(
+			is_equal_approx(rules.damage(shooter, target), full),
+			"AA research did not remove penalty"
+		)
+		_check(rules.damage(shooter, air) == air_damage[index], "AA research changed air damage")
+		var before = target.hp
+		target.receive_weapon_hit(shooter)
+		_check(is_equal_approx(before - target.hp, full), "Upgraded AA hit used stale damage")
+		_check(
+			"100% ground damage" in human.technology.summary(shooter.type),
+			"Unit details omit the AA upgrade"
+		)
+	_check(
+		rules.damage(tank, target) == ordinary_damage, "AA research changed ordinary ground weapons"
+	)
+	var new_aa = _spawn_tech("AntiAirVehicle", human, Vector3(30, 0, 42))
+	new_aa.process_mode = Node.PROCESS_MODE_DISABLED
+	_check(
+		is_equal_approx(rules.damage(new_aa, target), new_aa.attack_damage),
+		"New AA vehicle did not inherit full ground damage"
+	)
+	air.queue_free()
 
 
 func _power_and_archive():

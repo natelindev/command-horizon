@@ -79,6 +79,7 @@ func _bastion():
 func _helix():
 	var sides = _sides()
 	var walker = _spawn_weapon("CombatRobot", sides[0], Vector3(40, 0, 10))
+	walker.stance = walker.Stance.HOLD_FIRE
 	var target = _spawn_weapon("Tank", sides[1], Vector3(45, 0, 10))
 	var air = _spawn_weapon("Drone", sides[1], Vector3(44, 0, 12))
 	await _frames(40)
@@ -125,7 +126,11 @@ func _helix():
 	paused = false
 	await _frames(70)
 	_check(walker.weapon_mode == "interception", "Switch did not finish")
-	_check(rules.damage(walker, target) == 0, "Interception still damages ground")
+	_check(is_equal_approx(rules.damage(walker, target), 1.65), "Interception ground damage")
+	_check(is_equal_approx(rules.damage(walker, infantry), 1.65), "Interception infantry damage")
+	_check(
+		is_equal_approx(rules.damage(walker, support), 1.65), "Interception light-machine damage"
+	)
 	_check(is_equal_approx(rules.damage(walker, air), 5), "Interception damage profile")
 	walker.global_position = Vector3(40, 0.6, 10)
 	walker.get_node("Movement").stop()
@@ -133,6 +138,7 @@ func _helix():
 	walker.issue_manual_order(shooting.new(air, 1))
 	await _frames(15)
 	_check(is_equal_approx(air.hp_max - air.hp, 5), "Lancer did not actually intercept aircraft")
+	walker.stance = walker.Stance.DEFENSIVE
 	# Preserve a longer existing cooldown across a switch and a real archive reload.
 	_check(walker.request_weapon_mode("precision"), "Return to Precision rejected")
 	_check(walker.weapon_delay() > 0, "Mode switch does not lock firing")

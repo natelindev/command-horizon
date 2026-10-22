@@ -43,7 +43,8 @@ func _get_units_to_attack():
 
 
 func _attack_unit(unit):
-	_timer.timeout.disconnect(_on_timer_timeout)
+	if _unit.type != "AntiAirTurret":
+		_timer.timeout.disconnect(_on_timer_timeout)
 	if "stance" in _unit and _unit.stance == _unit.Stance.DEFENSIVE:
 		var auto = preload("res://source/match/units/actions/AutoAttacking.gd").new(unit)
 		auto._defense_origin = _unit.global_position_yless
@@ -60,7 +61,27 @@ func _attack_unit(unit):
 
 
 func _on_timer_timeout():
+	var attacking = is_instance_valid(_sub_action)
+	if (
+		attacking
+		and (
+			_unit.type != "AntiAirTurret"
+			or (
+				is_instance_valid(_unit.aim_target)
+				and _unit.aim_target.combat_domain() == Constants.Match.Navigation.Domain.AIR
+			)
+		)
+	):
+		return
 	var target = _unit._match.battlefield.automatic_target(_unit, _get_units_to_attack())
+	if attacking:
+		if target == null or target.combat_domain() != Constants.Match.Navigation.Domain.AIR:
+			return
+		# Replace the whole attack subtree so save/restore and target-loss handling
+		# agree about the new target. The unit's shared reload remains in effect.
+		_sub_action.tree_exited.disconnect(_on_attack_finished)
+		_sub_action.free()
+		_sub_action = null
 	if target != null:
 		_attack_unit(target)
 
@@ -70,7 +91,8 @@ func _on_attack_finished():
 		return
 	_sub_action = null
 	_unit.action_updated.emit()
-	_timer.timeout.connect(_on_timer_timeout)
+	if not _timer.timeout.is_connected(_on_timer_timeout):
+		_timer.timeout.connect(_on_timer_timeout)
 
 
 static func _pick_closest_unit(units, unit):

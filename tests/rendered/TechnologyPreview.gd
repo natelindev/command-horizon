@@ -15,7 +15,7 @@ func _run():
 	tech_catalog = load("res://source/match/research/TechnologyCatalog.gd")
 	factions = load("res://source/match/FactionCatalog.gd")
 	rules = load("res://source/match/combat/CombatRules.gd")
-	for faction in ["bastion", "helix"]:
+	for faction in ["bastion", "helix", "frontier"]:
 		await _fixture(faction)
 		root.mode = Window.MODE_WINDOWED
 		root.size = Vector2i(1280, 720)
@@ -79,7 +79,7 @@ func _interface(faction):
 	game.hud._toggle_pause()
 	# The timed effects are covered by TechnologyRegression; inspect completed UI here.
 	human.coordination_unlocked = true
-	for id in ["weapons_1", "armor_1", "service", "doctrine"]:
+	for id in ["weapons_1", "armor_1", "service", "doctrine", "dual_purpose_aa"]:
 		_check(human.technology.start(id, lab), "Preview research refused " + id)
 		human.technology._physics_process(1000)
 	await _click(hud._technology_button)

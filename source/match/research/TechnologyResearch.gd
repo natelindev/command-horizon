@@ -101,6 +101,10 @@ func damage_factor(role):
 	return Catalog.damage_factor(role, completed)
 
 
+func aa_ground_damage_factor():
+	return 1.0 if "dual_purpose_aa" in completed else Catalog.AA_GROUND_DAMAGE_FACTOR
+
+
 func service_factor():
 	return 1.25 if "service" in completed else 1.0
 
@@ -135,6 +139,14 @@ func restore(state):
 
 func summary(role):
 	var lines = PackedStringArray()
+	if (
+		"dual_purpose_aa" in completed
+		and (
+			role in ["AntiAirVehicle", "AntiAirTurret"]
+			or (role == "CombatRobot" and player.faction == "helix")
+		)
+	):
+		lines.append("Dual-purpose AA · 100% ground damage")
 	if role in Catalog.COMBAT_ROLES:
 		var weapons = Catalog.rank("weapons", completed)
 		var armor = Catalog.rank("armor", completed)

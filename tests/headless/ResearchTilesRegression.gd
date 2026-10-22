@@ -39,7 +39,16 @@ func _run():
 func _exercise(panel, human):
 	var catalog = load("res://source/match/research/TechnologyCatalog.gd")
 	var weapons = panel._branches.weapons.button
-	_check(panel._grid.get_child_count() == 5, "Not all five research choices are visible")
+	_check(
+		panel._grid.get_child_count() == catalog.BRANCHES.size() + 1,
+		"Not all research choices are visible"
+	)
+	var dual_aa = panel._branches.dual_purpose_aa.button
+	_check(dual_aa.disabled, "Dual-purpose AA bypassed Weapon systems I")
+	_check(
+		dual_aa.tooltip_text.contains(catalog.description("dual_purpose_aa", human.faction)),
+		"Dual-purpose AA tooltip does not explain the affected units and turret priority"
+	)
 	for tile in panel._grid.get_children():
 		_check(tile.visible and tile.portrait() != null, "Research tile lacks visible artwork")
 		_check(tile.get_global_rect().size.y < 100, "Research tile grew into a text row")
@@ -83,6 +92,15 @@ func _exercise(panel, human):
 	panel._cancel.pressed.emit()
 	human.technology.completed = ["weapons_1"]
 	panel.refresh()
+	_check(not dual_aa.disabled, "Weapon systems I did not unlock Dual-purpose AA")
+	dual_aa.pressed.emit()
+	_check(human.technology.active == "dual_purpose_aa", "Dual-purpose AA button failed")
+	_check(
+		Vector2i(human.resource_a, human.resource_b) == funds - Vector2i(40, 30),
+		"Dual-purpose AA tile charged the wrong price"
+	)
+	panel._cancel.pressed.emit()
+	_check(Vector2i(human.resource_a, human.resource_b) == funds, "Dual-purpose AA refund differs")
 	_check(weapons.title() == "Weapon systems II" and weapons.disabled, "Tier II ignores gate")
 	human.coordination_unlocked = true
 	panel.refresh()
@@ -92,6 +110,12 @@ func _exercise(panel, human):
 	_check(
 		weapons.disabled and weapons.visible and weapons._state.text == "Completed",
 		"Completed branch disappeared or can be repurchased"
+	)
+	human.technology.completed.append("dual_purpose_aa")
+	panel.refresh()
+	_check(
+		dual_aa.disabled and dual_aa._state.text == "Completed",
+		"Completed Dual-purpose AA remains purchasable"
 	)
 	human.technology.completed = []
 	human.coordination_unlocked = false

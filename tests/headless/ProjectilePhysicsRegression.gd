@@ -11,6 +11,8 @@ var _game
 var _human
 var _enemy
 var _system
+var _rules
+var _shooting
 var _units = []
 var _driven = {}
 
@@ -20,6 +22,8 @@ func _initialize():
 
 
 func _run():
+	_rules = load("res://source/match/combat/CombatRules.gd")
+	_shooting = load("res://source/match/units/actions/AttackingWhileInRange.gd")
 	var constants = root.get_node("Constants")
 	var settings = load("res://source/data-model/MatchSettings.gd").new()
 	settings.skirmish = true
@@ -57,6 +61,9 @@ func _run():
 		_human.faction = faction
 		await _test_infantry_anti_air()
 		await _test_mobile_anti_air()
+		await _test_anti_air_ground("AntiAirVehicle")
+		await _test_anti_air_ground("AntiAirTurret")
+		await _test_bomb_building_damage()
 	_game.queue_free()
 	await _ticks(5)
 	for message in _errors:
@@ -65,7 +72,8 @@ func _run():
 		print(
 			(
 				"PASS: gravity arcs, led hits, dodged rounds, blockers, splash falloff, "
-				+ "guided turn limits, rail lines, deterministic dispersion, all-faction anti-air"
+				+ "guided turn limits, rail lines, deterministic dispersion, "
+				+ "all-faction anti-air and bomb building damage"
 			)
 		)
 	quit(0 if _errors.is_empty() else 1)
@@ -137,9 +145,8 @@ func _test_splash():
 	var neighbor = _spawn("Infantry", _enemy, Vector3(38.4, 0, 27.8))
 	var distant = _spawn("Infantry", _enemy, Vector3(39, 0, 24.5))
 	await _ticks(5)
-	var rules = load("res://source/match/combat/CombatRules.gd")
-	var direct = rules.damage(shooter, target)
-	var near_full = rules.damage(shooter, neighbor)
+	var direct = _rules.damage(shooter, target)
+	var near_full = _rules.damage(shooter, neighbor)
 	var hp = [target.hp, neighbor.hp, distant.hp]
 	_face(shooter, target)
 	_system.launch(shooter, target)
@@ -215,20 +222,22 @@ func _face(unit, target):
 
 
 func _test_infantry_anti_air():
-	var rules = load("res://source/match/combat/CombatRules.gd")
 	var soldier = _spawn("RocketInfantry", _human, Vector3(31, 0, 20))
 	var craft = _spawn("Helicopter", _enemy, Vector3(37, 0, 20))
 	await _ticks(10)
 	craft.global_position.y = 1.6
-	_check(rules.can_target(soldier, craft), "Rocket infantry cannot target aircraft")
+	_check(_rules.can_target(soldier, craft), "Rocket infantry cannot target aircraft")
 	_check(
-		rules.preparation_for(soldier, craft) > 0.0 and rules.preparation_for(soldier, null) == 0.0,
+		(
+			_rules.preparation_for(soldier, craft) > 0.0
+			and _rules.preparation_for(soldier, null) == 0.0
+		),
 		"Infantry missile lock is not limited to aircraft"
 	)
 	var before = craft.hp
 	var fired = _system.rounds_fired
 	soldier.process_mode = Node.PROCESS_MODE_PAUSABLE
-	soldier.action = load("res://source/match/units/actions/AttackingWhileInRange.gd").new(craft)
+	soldier.action = _shooting.new(craft)
 	await _ticks(12)
 	_check(_system.rounds_fired == fired, "Infantry missile launched before its lock completed")
 	await _ticks(60)
@@ -239,19 +248,18 @@ func _test_infantry_anti_air():
 
 
 func _test_mobile_anti_air():
-	var rules = load("res://source/match/combat/CombatRules.gd")
 	var vehicle = _spawn("AntiAirVehicle", _human, Vector3(31, 0, 20))
 	var craft = _spawn("Helicopter", _enemy, Vector3(37, 0, 20))
 	var tank = _spawn("Tank", _enemy, Vector3(37, 0, 24))
 	await _ticks(10)
 	craft.global_position.y = 2.5
 	var faction = _human.faction
-	_check(rules.can_target(vehicle, craft), faction + " AA vehicle cannot target aircraft")
-	_check(not rules.can_target(vehicle, tank), faction + " AA vehicle can target ground armor")
+	_check(_rules.can_target(vehicle, craft), faction + " AA vehicle cannot target aircraft")
+	_check(_rules.can_target(vehicle, tank), faction + " AA vehicle cannot target ground armor")
 	var before = craft.hp
 	var fired = _system.rounds_fired
 	vehicle.process_mode = Node.PROCESS_MODE_PAUSABLE
-	vehicle.action = load("res://source/match/units/actions/AttackingWhileInRange.gd").new(craft)
+	vehicle.action = _shooting.new(craft)
 	for _tick in range(120):
 		await _ticks(1)
 		if not is_instance_valid(craft) or craft.hp < before:
@@ -265,6 +273,68 @@ func _test_mobile_anti_air():
 	await _clear()
 
 
+func _test_anti_air_ground(role):
+	var shooter = _spawn(role, _human, Vector3(31, 0, 20))
+	var label = _human.faction + " " + role
+	for target_role in ["Infantry", "RepairRobot", "Tank", "Barracks", "Fighter", "Helicopter"]:
+		var target = _spawn(target_role, _enemy, Vector3(37, 0, 20))
+		await _ticks(10)
+		# A parked aircraft has light-machine armor but is a ground target.
+		if target_role == "Fighter":
+			var flight = target.get_node("Movement")
+			flight.phase = flight.Phase.PARKED
+		_check(_rules.can_target(shooter, target), label + " cannot target " + target_role)
+		var expected = shooter.attack_damage * (1.0 if target_role == "Helicopter" else 0.33)
+		_check(
+			is_equal_approx(_rules.damage(shooter, target), expected),
+			label + " damage has the wrong domain multiplier against " + target_role
+		)
+		var shot = load("res://source/match/combat/Shot.gd").from(shooter, shooter.global_position)
+		_check(
+			is_equal_approx(_rules.damage_from(shot, target), expected),
+			label + " projectile damage differs against " + target_role
+		)
+		if target_role == "Tank":
+			_check(_game.battlefield.can_fire(shooter, target), label + " cannot fire at ground")
+			_check(
+				_game.battlefield.fireable_targets(shooter).has(target),
+				label + " ground target missing from automatic acquisition"
+			)
+			var before = target.hp
+			shooter.process_mode = Node.PROCESS_MODE_PAUSABLE
+			shooter.action = _shooting.new(target, 1)
+			for _tick in range(120):
+				await _ticks(1)
+				if target.hp < before:
+					break
+			_check(
+				is_equal_approx(before - target.hp, expected),
+				label + " did not land one reduced-damage ground hit"
+			)
+			shooter.process_mode = Node.PROCESS_MODE_DISABLED
+		target.queue_free()
+		await _ticks(5)
+	await _clear()
+
+
+func _test_bomb_building_damage():
+	var bomber = _spawn("Bomber", _human, Vector3(31, 0, 20))
+	var building = _spawn("Barracks", _enemy, Vector3(37, 0, 20))
+	await _ticks(10)
+	bomber.global_position = building.global_position + Vector3.UP * 5.0
+	var before = building.hp
+	_system.launch(bomber, building, Weapons.GRAVITY_BOMB)
+	for _tick in range(120):
+		await _ticks(1)
+		if building.hp < before:
+			break
+	_check(
+		is_equal_approx(before - building.hp, bomber.attack_damage * 2.0),
+		_human.faction + " bomb did not deal double damage to a building"
+	)
+	await _clear()
+
+
 func _test_capture_site_blocker():
 	var shooter = _spawn("Tank", _human, Vector3(30, 0, 20))
 	var target = _spawn("Tank", _enemy, Vector3(38, 0, 20))
@@ -274,8 +344,7 @@ func _test_capture_site_blocker():
 	relay.process_mode = Node.PROCESS_MODE_DISABLED
 	await _ticks(5)
 	_game.battlefield.invalidate()
-	var rules = load("res://source/match/combat/CombatRules.gd")
-	_check(not rules.can_target(shooter, relay), "Capture relay became a damageable target")
+	_check(not _rules.can_target(shooter, relay), "Capture relay became a damageable target")
 	var before = target.hp
 	_face(shooter, target)
 	_system.launch(shooter, target)

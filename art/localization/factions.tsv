@@ -26,7 +26,7 @@ Produces scrapper rigs, accepts harvested and salvaged materials, and supplies 8
 Trains ridge rangers. Two infantry recovery slots within 5 m. Uses 3 power.	训练山脊游骑兵，在 5 米内提供 2 个步兵恢复位置。消耗 3 电力。
 Supplies 12 power to keep production and research running.	提供 12 电力，维持生产与研究。
 Fixed ground cannon; protect against infantry and aircraft. Uses 2 power.	固定地面火炮，需要防范步兵与航空器。消耗 2 电力。
-Dedicated air defense. Cannot fire at ground targets. Uses 2 power.	专职防空，无法攻击地面目标。消耗 2 电力。
+Dedicated air defense that prioritizes aircraft. Ground damage: 33% (100% with Dual-purpose AA). Uses 2 power.	优先攻击航空器的专职防空阵地。对地伤害为 33%，研究两用防空后提升至 100%。消耗 2 电力。
 Anti-armor lance	反装甲光矛
 Supply truck	补给卡车
 Engineer rover	工程漫游车
@@ -59,7 +59,7 @@ Produces armor and support robots. Uses 6 power.	生产装甲单位与支援机�
 Supplies 12 power. Low power slows production and service buildings.	提供 12 电力。电力不足会降低生产与支援设施效率。
 Two ground repair slots within 5 m. Does not stack with other repairs. Uses 3 power.	在 5 米内提供 2 个地面维修工位，不与其他维修叠加。消耗 3 电力。
 Defensive cannon against ground targets; cannot engage aircraft. Uses 2 power.	攻击地面目标的防御炮台，无法攻击航空器。消耗 2 电力。
-Missile defense against aircraft. Uses 2 power.	用于防空的导弹阵地。消耗 2 电力。
+Missile air defense that prioritizes aircraft. Ground damage: 33% (100% with Dual-purpose AA). Uses 2 power.	优先攻击航空器的导弹防空阵地。对地伤害为 33%，研究两用防空后提升至 100%。消耗 2 电力。
 Mule engineer	骡式工程机
 Operator	操作员
 Needle skimmer	针刺悬浮战车
@@ -80,7 +80,7 @@ Skyward array	天穹防空阵列
 Unarmed engineer: harvest materials and electronics, deliver to HQ and construct your base.	无武装工程师，采集材料与电子元件、交付总部，并建造基地。
 Fast operators against infantry and light machines; weak against heavy armor. Capture relays and recover at an operator hub.	高速操作员，擅长对抗步兵与轻型机械，对重甲较弱。可占领中继站并在操作员中枢恢复。
 Fast frontline skimmer with a ground-only cannon and less hull strength than Bastion armor. Use mobility and repair support.	高速前线悬浮战车，主炮仅攻击地面。车体强度低于堡垒装甲，需要发挥机动性并获得维修支援。
-Precision: 12 m anti-armor lance, 0.75 s charge; weak against infantry. Interception: aircraft only. Switching disables fire for 2 s.	精确模式：12 米反装甲光矛，蓄力 0.75 秒，对步兵较弱。拦截模式：仅攻击航空器。切换时停火 2 秒。
+Precision: 12 m anti-armor lance, 0.75 s charge; weak against infantry. Interception: full air damage, 33% ground damage (100% with Dual-purpose AA). Switching disables fire for 2 s.	精确模式：12 米反装甲光矛，蓄力 0.75 秒，对步兵较弱。拦截模式：对空全额伤害，对地 33% 伤害，研究两用防空后对地提升至 100%。切换时停火 2 秒。
 14 m ground-only precision fire. Deploys while stationary for 1.5 s; each shot charges for 0.75 s. Moving retracts supports.	射程 14 米的精确对地火力。静止 1.5 秒展开，每发蓄力 0.75 秒。移动会收起支架。
 Fast, unarmed scout with extended vision. Reveal routes and defenses before committing your army.	高速无武装侦察机，视野广阔。在大军推进前侦察路线与防御。
 Fast strike aircraft for ground raids and air combat. Avoid dedicated anti-air and return to a flight deck for service.	高速攻击机，用于对地突袭与空战。避开专职防空，返回飞行平台维修。

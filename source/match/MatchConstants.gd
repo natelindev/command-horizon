@@ -357,7 +357,7 @@ class Units:
 			"attack_damage": 6,
 			"attack_interval": 0.3,
 			"attack_range": 11.0,
-			"attack_domains": [Navigation.Domain.AIR],
+			"attack_domains": [Navigation.Domain.TERRAIN, Navigation.Domain.AIR],
 		},
 		"res://source/match/units/Fighter.tscn":
 		{
@@ -367,14 +367,14 @@ class Units:
 			"attack_damage": 13,
 			"attack_interval": 1.1,
 			"attack_range": 11.0,
-			"attack_domains": [Navigation.Domain.AIR],
+			"attack_domains": [Navigation.Domain.TERRAIN, Navigation.Domain.AIR],
 		},
 		"res://source/match/units/Bomber.tscn":
 		{
 			"sight_range": 11.0,
 			"hp": 90,
 			"hp_max": 90,
-			"attack_damage": 30,
+			"attack_damage": 40,
 			"attack_interval": 0.14,
 			"attack_range": 2.5,
 			"attack_domains": [Navigation.Domain.TERRAIN],
@@ -435,7 +435,7 @@ class Units:
 			"attack_damage": 8,
 			"attack_interval": 1.0,
 			"attack_range": 12.0,
-			"attack_domains": [Navigation.Domain.AIR],
+			"attack_domains": [Navigation.Domain.TERRAIN, Navigation.Domain.AIR],
 		},
 	}
 	const ADHERENCE_MARGIN_M = 0.3  # TODO: try lowering while fixing a 'push' problem

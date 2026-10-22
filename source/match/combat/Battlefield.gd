@@ -272,6 +272,12 @@ func automatic_target(source, eligible_targets = null):
 	var best = null
 	var score = INF
 	var targets = fireable_targets(source) if eligible_targets == null else eligible_targets
+	# Air-defense turrets must choose a legal aircraft over every ground target,
+	# even a closer armed target or one that could be finished with a single shot.
+	if source.type == "AntiAirTurret":
+		var aircraft = targets.filter(func(target): return _airborne(target))
+		if not aircraft.is_empty():
+			targets = aircraft
 	if targets.is_empty():
 		return null
 	var incoming = _incoming_damage(source, targets)

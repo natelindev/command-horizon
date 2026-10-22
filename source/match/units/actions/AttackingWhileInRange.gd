@@ -173,6 +173,16 @@ func _refresh_charge_display():
 func _hit_target():
 	if _teardown_if_out_of_range():
 		return
+	if (
+		_unit.type == "AntiAirTurret"
+		and _target_unit.combat_domain() != Constants.Match.Navigation.Domain.AIR
+	):
+		# An aircraft may enter between the idle action's scans and this shot.
+		# Yield before spending the reload on a lower-priority ground target.
+		var preferred = _unit._match.battlefield.automatic_target(_unit)
+		if preferred != null and preferred.combat_domain() == Constants.Match.Navigation.Domain.AIR:
+			queue_free()
+			return
 	_cancel_charge()
 	_unit.set_meta(
 		"next_attack_availability_time",

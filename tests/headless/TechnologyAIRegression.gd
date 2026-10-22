@@ -57,4 +57,18 @@ func _ai(faction):
 		unit.hp = unit.hp_max * .1
 	ai._research(ai._units(), "")
 	_check(ai.technology.active == "", "Research displaced rebuilding a wounded army")
+	for unit in _units(ai, "Infantry"):
+		unit.hp = unit.hp_max
+	ai.technology.completed = tech_catalog.ITEMS.keys().filter(
+		func(id): return id != "dual_purpose_aa"
+	)
+	previous = ai.resource_a
+	var electronics = ai.resource_b
+	ai._research(ai._units(), "")
+	_check(ai.technology.active == "dual_purpose_aa", "AI never researches Dual-purpose AA")
+	_check(
+		ai.resource_a == previous - 40 and ai.resource_b == electronics - 30,
+		"AI Dual-purpose AA payment differs"
+	)
+	ai.technology.cancel()
 	print("TECHNOLOGY AI VERIFIED ", faction)

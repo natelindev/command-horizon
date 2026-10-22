@@ -71,7 +71,8 @@ const HELIX_DESCRIPTIONS = {
 	"CombatRobot":
 	(
 		"Precision: 12 m anti-armor lance, 0.75 s charge; weak against infantry. "
-		+ "Interception: aircraft only. Switching disables fire for 2 s."
+		+ "Interception: full air damage, 33% ground damage (100% with Dual-purpose AA). "
+		+ "Switching disables fire for 2 s."
 	),
 	"AdvancedTank":
 	(

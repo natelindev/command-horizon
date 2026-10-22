@@ -2,12 +2,14 @@ extends VBoxContainer
 
 const Technologies = preload("res://source/match/research/TechnologyCatalog.gd")
 const ResearchButton = preload("res://source/match/hud/ResearchButton.gd")
+const WEAPONS_ICON = preload("res://assets/ui/research/weapons.svg")
 const ICONS = {
-	"weapons": preload("res://assets/ui/research/weapons.svg"),
+	"weapons": WEAPONS_ICON,
 	"armor": preload("res://assets/ui/research/armor.svg"),
 	"service": preload("res://assets/ui/research/service.svg"),
 	"doctrine": preload("res://assets/ui/research/doctrine.svg"),
 	"coordination": preload("res://assets/ui/research/coordination.svg"),
+	"dual_purpose_aa": WEAPONS_ICON,
 }
 var lab
 var player
@@ -73,7 +75,7 @@ func _tile(branch):
 
 func _fit_grid():
 	# Use the actual panel width: the selected lab and the Tech overlay differ.
-	_grid.columns = clampi(floori((size.x + 6) / 160), 1, 5)
+	_grid.columns = clampi(floori((size.x + 6) / 160), 1, _grid.get_child_count())
 
 
 func _cancel_active():

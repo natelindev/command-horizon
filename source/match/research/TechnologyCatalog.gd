@@ -15,7 +15,8 @@ const COMBAT_ROLES = [
 	"Helicopter"
 ]
 
-const BRANCHES = ["weapons", "armor", "service", "doctrine"]
+const AA_GROUND_DAMAGE_FACTOR = 0.33
+const BRANCHES = ["weapons", "armor", "service", "doctrine", "dual_purpose_aa"]
 const ITEMS = {
 	"weapons_1":
 	{"title": "Weapon systems I", "cost": Vector2i(30, 20), "seconds": 35.0, "requires": []},
@@ -44,6 +45,13 @@ const ITEMS = {
 		"seconds": 50.0,
 		"requires": ["coordination"]
 	},
+	"dual_purpose_aa":
+	{
+		"title": "Dual-purpose AA",
+		"cost": Vector2i(40, 30),
+		"seconds": 45.0,
+		"requires": ["weapons_1"]
+	},
 }
 
 
@@ -62,6 +70,12 @@ static func description(id, faction):
 			+ "s duration and 25 s cooldown stay the same; all orders continue."
 		)
 	match id:
+		"dual_purpose_aa":
+			return (
+				"AA vehicles, AA turrets and Helix Interception deal 100% ground damage "
+				+ "instead of 33%. Applies to existing and new units. Air damage is unchanged; "
+				+ "AA turrets always prioritize aircraft."
+			)
 		"weapons_1", "weapons_2":
 			return (
 				(

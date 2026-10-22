@@ -1,8 +1,9 @@
 extends RefCounted
 
 const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
+const Technologies = preload("res://source/match/research/TechnologyCatalog.gd")
 
-# One multiplier only; damage remains floating point all the way to HP.
+# Armor profiles; damage remains floating point all the way to HP.
 const MULTIPLIERS = {
 	"Infantry rocket": [.3, 1.1, 1.7, 1.1],
 	"Sniper rifle": [1.5, .4, .1, .1],
@@ -14,12 +15,12 @@ const MULTIPLIERS = {
 	"Precision rail": [0.4, 1.0, 1.4, 0.8],
 	"Anti-armor lance": [0.3, 0.8, 2.0, 0.5],
 	"Strike missile": [0.75, 1.0, 1.0, 0.6],
-	"Anti-air": [0.0, 1.0, 0.0, 0.0],
+	"Anti-air": [1.0, 1.0, 1.0, 1.0],
 	"Infantry SAM": [0.0, 0.85, 0.0, 0.0],
-	"Air-to-air missile": [0.0, 1.0, 0.0, 0.0],
-	"Heavy bomb": [1.1, 1.0, 0.9, 1.5],
+	"Fighter missile": [1.0, 1.0, 1.0, 1.0],
+	"Heavy bomb": [1.1, 1.0, 0.9, 2.0],
 	"Loitering munition": [0.6, 1.3, 1.5, 1.2],
-	"Flak": [0.0, 1.0, 0.0, 0.0],
+	"Flak": [1.0, 1.0, 1.0, 1.0],
 }
 # Shoulder-launched missiles need a short lock before launching at aircraft.
 const INFANTRY_SAM_RANGE = 9.0
@@ -38,7 +39,7 @@ const PROFILES = {
 	"Tank": "Tank cannon",
 	"AdvancedTank": "Precision rail",
 	"Helicopter": "Strike missile",
-	"Fighter": "Air-to-air missile",
+	"Fighter": "Fighter missile",
 	"Bomber": "Heavy bomb",
 	"Drone": "Loitering munition",
 	"AntiAirVehicle": "Flak",
@@ -109,7 +110,10 @@ static func _damage(source, target):
 	var profile = profile_for(source)
 	if (
 		source.type == "CombatRobot"
-		and target.combat_domain() == Constants.Match.Navigation.Domain.AIR
+		and (
+			_airborne(target)
+			or (source.player.faction == "helix" and source.weapon_mode == "interception")
+		)
 	):
 		profile = "Anti-air"
 	elif source.type == "CombatRobot" and source.player.faction == "helix":
@@ -122,6 +126,10 @@ static func _damage(source, target):
 	if not MULTIPLIERS.has(profile):
 		return 0.0
 	var factor = target.signature.damage_factor() if target.signature != null else 1.0
+	# AA weapons retain full air damage; research upgrades ground damage,
+	# including parked aircraft whose armor class is still Light machine.
+	if profile in ["Anti-air", "Flak"] and not _airborne(target):
+		factor *= aa_ground_damage_factor(source.player)
 	if source.player.technology != null:
 		factor *= source.player.technology.damage_factor(source.type)
 	var armor = armor_for(target.type)
@@ -131,6 +139,14 @@ static func _damage(source, target):
 	):
 		armor = 1
 	return float(source.attack_damage) * MULTIPLIERS[profile][armor] * factor
+
+
+static func aa_ground_damage_factor(player):
+	return (
+		player.technology.aa_ground_damage_factor()
+		if player.technology != null
+		else Technologies.AA_GROUND_DAMAGE_FACTOR
+	)
 
 
 static func range_for(source, target):

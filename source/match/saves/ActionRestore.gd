@@ -45,7 +45,8 @@ func restore(saved, unit, parent):
 				"Following", "Constructing":
 					child.tree_exited.connect(action._on_sub_action_finished)
 				"WaitingForTargets":
-					action._timer.timeout.disconnect(action._on_timer_timeout)
+					if unit.type != "AntiAirTurret":
+						action._timer.timeout.disconnect(action._on_timer_timeout)
 					child.tree_exited.connect(action._on_attack_finished)
 	for slot in saved.timers:
 		var timer = action.get(slot)

@@ -1,6 +1,6 @@
 extends "res://source/match/units/FixedWingAircraft.gd"
 
-# Air superiority: guided air-to-air missiles at range, cannon bursts up close.
+# Multirole fighter: guided missiles at range, cannon bursts up close.
 # Both need the target inside the nose cone; fire control never turns the jet.
 
 const Weapons = preload("res://source/match/combat/WeaponCatalog.gd")

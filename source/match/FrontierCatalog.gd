@@ -116,5 +116,9 @@ const DESCRIPTIONS = {
 	"PowerPlant": "Supplies 12 power to keep production and research running.",
 	"RepairDepot": "Unlocks Ironbacks without Coordination. Repairs ground machines. Uses 3 power.",
 	"AntiGroundTurret": "Fixed ground cannon; protect against infantry and aircraft. Uses 2 power.",
-	"AntiAirTurret": "Dedicated air defense. Cannot fire at ground targets. Uses 2 power.",
+	"AntiAirTurret":
+	(
+		"Dedicated air defense that prioritizes aircraft. Ground damage: 33% "
+		+ "(100% with Dual-purpose AA). Uses 2 power."
+	),
 }
