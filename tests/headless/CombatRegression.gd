@@ -42,6 +42,8 @@ func _run():
 	_game.repair_service.set_physics_process(false)
 	await _test_observation_and_fire()
 	await _clear()
+	await _test_firing_orientation()
+	await _clear()
 	await _test_dynamic_spotters()
 	await _clear()
 	await _test_target_candidates()
@@ -72,6 +74,41 @@ func _spawn(role, player, point):
 	unit.process_mode = Node.PROCESS_MODE_DISABLED
 	_test_units.append(unit)
 	return unit
+
+
+func _test_firing_orientation():
+	var shooter = _spawn("Infantry", _human, Vector3(18, 0, 10))
+	var target = _spawn("Infantry", _enemy, Vector3(22, 0, 10))
+	await _frames(4)
+	var attack = _shooting.new(target)
+	shooter.action = attack
+	var movement = shooter.get_node("Movement")
+	movement._has_destination = false
+	var facing = shooter.global_basis
+	# Alternating crowd nudges must not turn a planted shooter away from its target.
+	for index in 24:
+		movement._rotate_in_direction(Vector3(0, 0, .2 if index % 2 == 0 else -.2))
+		_check(
+			shooter.global_basis.is_equal_approx(facing), "Crowd nudge turned a firing infantryman"
+		)
+	# A moving enemy must still be tracked between shots.
+	target.global_position = Vector3(21, 0, 13)
+	attack._physics_process(1.0 / 60.0)
+	var desired = (target.global_position - shooter.global_position).normalized()
+	_check(
+		(-shooter.global_basis.z).dot(desired) > .999,
+		"Stationary shooter stopped tracking its target"
+	)
+	# An explicit move takes facing back, even while an aim target is still present.
+	movement._has_destination = true
+	movement._rotate_in_direction(Vector3(0, 0, 2))
+	_check(
+		(-shooter.global_basis.z).dot(Vector3.BACK) > .999, "Attack facing blocked an explicit move"
+	)
+	shooter.aim_target = null
+	facing = shooter.global_basis
+	movement._rotate_in_direction(Vector3(.0001, 0, 0))
+	_check(shooter.global_basis.is_equal_approx(facing), "Settling motion changed unit heading")
 
 
 func _test_observation_and_fire():

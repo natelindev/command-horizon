@@ -41,8 +41,8 @@ func _ready():
 
 
 func _physics_process(delta):
-	if _unit_movement_trait == null:
-		_rotate_unit_towards_target()  # stationary units can rotate every frame
+	if _unit_movement_trait == null or not _unit_movement_trait._has_destination:
+		_rotate_unit_towards_target()
 	if _charge_left < 0:
 		return
 	if _teardown_if_out_of_range():

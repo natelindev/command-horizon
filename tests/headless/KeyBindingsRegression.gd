@@ -324,8 +324,10 @@ func _commands():
 	await _press(KEY_M)
 	_check(game.hud._overlay != null and paused, "Remapped menu failed")
 	_check(
-		"Ctrl+K" in game.hud._menu_help.text and "Ctrl+B" in game.hud._menu_help.text,
-		"Battle help has stale bindings"
+		game.hud._overlay.find_children("*", "Button", true, false).all(
+			func(button): return button.text != "Controls"
+		),
+		"Pause menu still includes the redundant Controls item"
 	)
 	await _press(KEY_B | KEY_MASK_CTRL)
 	_check(tank.is_in_group("unit_group_1"), "Menu input changed group assignment")

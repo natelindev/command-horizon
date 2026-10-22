@@ -182,9 +182,8 @@ func _on_bake_finished():
 # Most moving ground units are below a horizontal navmesh surface by their
 # path-height offset. Inside the lowest surface, vertical projection is
 # provably the nearest point: every other polygon is at least as high. On
-# elevated maps a higher level qualifies while the point is closer to it than
-# half the gap to any other level. Ramps, boundary points and in-flight
-# rebakes use the server query.
+# elevated maps, indexed slope triangles also allow vertical projection.
+# Boundary points and in-flight rebakes use the server query.
 func closest_point(point: Vector3) -> Vector3:
 	if _elevated:
 		return _closest_point_on_terrain(point)
@@ -223,11 +222,18 @@ func _closest_point_on_terrain(point: Vector3) -> Vector3:
 		if _projection_iteration == iteration:
 			var cell := Vector2i(floori(point.x / 6.0), floori(point.z / 6.0))
 			for entry in _projection_cells.get(cell, []):
+				var height: float = entry[1]
+				if entry.size() == 3:
+					var plane: Plane = entry[2]
+					height = (
+						(plane.d - plane.normal.x * point.x - plane.normal.z * point.z)
+						/ plane.normal.y
+					)
 				if (
-					absf(entry[1] - surface) <= SURFACE_MATCH
+					absf(height - surface) <= SURFACE_MATCH
 					and Geometry2D.is_point_in_polygon(flat, entry[0])
 				):
-					return Vector3(point.x, entry[1], point.z)
+					return Vector3(point.x, height, point.z)
 	return NavigationServer3D.map_get_closest_point(
 		navigation_map_rid, Vector3(point.x, surface, point.z)
 	)
@@ -260,6 +266,13 @@ func _index_projection_surface(iteration: int):
 			low = low.min(flat)
 			high = high.max(flat)
 		if polygon.size() < 3 or (not _elevated and height != _projection_height):
+			if _elevated:
+				for triangle in range(1, indices.size() - 1):
+					_index_slope(
+						vertices[indices[0]],
+						vertices[indices[triangle]],
+						vertices[indices[triangle + 1]]
+					)
 			continue
 		levels[height] = true
 		for x in range(floori(low.x / 6.0), floori(high.x / 6.0) + 1):
@@ -274,3 +287,18 @@ func _index_projection_surface(iteration: int):
 		var gap: float = heights[index] - heights[index - 1]
 		_projection_tolerance = minf(_projection_tolerance, gap / 2.0)
 	_projection_iteration = iteration
+
+
+func _index_slope(a: Vector3, b: Vector3, c: Vector3):
+	var plane := Plane(a, b, c)
+	if absf(plane.normal.y) < .001:
+		return
+	var polygon := PackedVector2Array([Vector2(a.x, a.z), Vector2(b.x, b.z), Vector2(c.x, c.z)])
+	var low := polygon[0].min(polygon[1]).min(polygon[2])
+	var high := polygon[0].max(polygon[1]).max(polygon[2])
+	for x in range(floori(low.x / 6.0), floori(high.x / 6.0) + 1):
+		for y in range(floori(low.y / 6.0), floori(high.y / 6.0) + 1):
+			var cell := Vector2i(x, y)
+			if not _projection_cells.has(cell):
+				_projection_cells[cell] = []
+			_projection_cells[cell].append([polygon, a.y, plane])

@@ -378,12 +378,10 @@ func stop():
 
 
 func _align_unit_position_to_navigation():
-	var aligned = (
-		NavigationServer3D.map_get_closest_point(get_navigation_map(), _unit.global_position)
-		- Vector3(0, path_height_offset, 0)
-	)
+	var aligned = _navigation_position(_unit.global_position)
 	aligned.y = _flight_height(aligned)
 	_unit.global_position = aligned
+	_sync_ground_navigation_height()
 	_unit.reset_physics_interpolation()
 
 
@@ -434,6 +432,13 @@ func _get_filtered_rotation_direction(safe_velocity: Vector3):
 
 
 func _rotate_in_direction(direction: Vector3):
+	# Crowd avoidance may nudge a firing unit sideways. Aiming owns its facing
+	# until it receives a movement order; tiny settling steps have no heading.
+	if (
+		direction.length() < ROTATION_LOW_PASS_FILTER_VELOCITY_THRESHOLD
+		or (not _has_destination and is_instance_valid(_unit.aim_target))
+	):
+		return
 	if ROTATION_LOW_PASS_FILTER_ENABLED:
 		direction = _get_filtered_rotation_direction(direction)
 	var rotation_target = _unit.global_transform.origin + direction
@@ -476,8 +481,7 @@ func _on_velocity_computed(safe_velocity: Vector3):
 	var displacement := safe_velocity.limit_length(current_speed) * _physics_delta
 	var candidate := _unit.global_position + displacement
 	# Local avoidance can push agents off the mesh; constrain the resulting step.
-	var navigable := _closest_navigation_point(candidate)
-	navigable.y -= path_height_offset
+	var navigable := _navigation_position(candidate)
 	if domain == Constants.Match.Navigation.Domain.TERRAIN:
 		# A teleport or restored position can need several vertical steps. Zero
 		# planar velocity must not freeze it above the first path waypoint.
@@ -515,8 +519,7 @@ func _on_velocity_computed(safe_velocity: Vector3):
 			var recovery_point = (
 				_unit.global_position + velocity.limit_length(current_speed) * _physics_delta
 			)
-			var recovery_nav = _closest_navigation_point(recovery_point)
-			recovery_nav.y -= path_height_offset
+			var recovery_nav = _navigation_position(recovery_point)
 			var recovery_step = _clip_ground_step(
 				_unit.global_position.move_toward(recovery_nav, current_speed * _physics_delta)
 			)
@@ -525,6 +528,11 @@ func _on_velocity_computed(safe_velocity: Vector3):
 				> next.distance_squared_to(_unit.global_position)
 			):
 				next = recovery_step
+		# Clipping and sliding can change XZ after projection. Ground the final
+		# position on the authored surface, not the voxelized navigation mesh.
+		if _match.map.is_elevated():
+			next.y = _match.map.height_at(Vector2(next.x, next.z))
+			_ground_alignment_height = next.y
 	var actual_velocity := (next - _unit.global_position) / maxf(_physics_delta, 0.001)
 	if (
 		domain == Constants.Match.Navigation.Domain.TERRAIN
@@ -535,6 +543,7 @@ func _on_velocity_computed(safe_velocity: Vector3):
 		# they keep yielding toward a gap that the constrained unit cannot enter.
 		set_velocity_forced(actual_velocity)
 	_unit.global_position = next
+	_sync_ground_navigation_height()
 	_rotate_in_direction(actual_velocity * Vector3(1, 0, 1))
 	_previously_set_global_transform_of_unit = _unit.global_transform
 	_update_passive_movement_tracking(actual_velocity)
@@ -563,8 +572,7 @@ func _clip_ground_step(next: Vector3) -> Vector3:
 	var step := (next - origin) * Vector3(1, 0, 1)
 	var normal: Vector3 = contact.normal
 	var slide := step - normal * minf(0.0, step.dot(normal))
-	var navigable := _closest_navigation_point(origin + slide)
-	navigable.y -= path_height_offset
+	var navigable := _navigation_position(origin + slide)
 	var alternative := origin.move_toward(navigable, speed * _physics_delta)
 	var slide_contact = _ground_step_contact(origin, alternative, neighbors)
 	alternative = origin.lerp(alternative, slide_contact.fraction)
@@ -610,6 +618,23 @@ func _ground_step_contact(origin: Vector3, next: Vector3, neighbors: Array) -> D
 			result.fraction = fraction
 			result.normal = offset.normalized()
 	return result
+
+
+func _sync_ground_navigation_height():
+	if domain == Constants.Match.Navigation.Domain.TERRAIN and _match.map.is_elevated():
+		# Offset path waypoints by the local bake lift. A fixed offset can leave
+		# a grounded body outside the waypoint's vertical arrival tolerance.
+		path_height_offset = (
+			_closest_navigation_point(_unit.global_position).y - _unit.global_position.y
+		)
+
+
+func _navigation_position(point: Vector3) -> Vector3:
+	var position := _closest_navigation_point(point)
+	position.y -= path_height_offset
+	if domain == Constants.Match.Navigation.Domain.TERRAIN and _match.map.is_elevated():
+		position.y = _match.map.height_at(Vector2(position.x, position.z))
+	return position
 
 
 func _closest_navigation_point(point: Vector3) -> Vector3:

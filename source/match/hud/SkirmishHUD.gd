@@ -31,7 +31,6 @@ var _clock_state = null
 var _overlay = null
 var _attack_button = null
 var _menu_button
-var _menu_help
 var _attack_armed: bool:
 	get:
 		return is_instance_valid(direct_orders) and direct_orders.kind == "attack_move"
@@ -453,14 +452,6 @@ func _open_menu():
 	_menu_was_paused = get_tree().paused
 	get_tree().paused = true
 	var box = _make_overlay("Battle paused", true)
-	var help_text = Label.new()
-	_menu_help = help_text
-	help_text.text = _controls_help()
-	help_text.custom_minimum_size.x = 430
-	help_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	help_text.add_theme_font_size_override("font_size", 14)
-	box.add_child(help_text)
-	help_text.hide()
 	var resume = _button(box, "Resume battle", _close_menu)
 	resume.theme_type_variation = "BattlePrimaryButton"
 	resume.grab_focus()
@@ -469,9 +460,6 @@ func _open_menu():
 	_button(box, "Restart match", func(): get_parent().restart())
 	_button(box, _setup_title(), _back_to_setup)
 	_button(box, "Main menu", _back_to_menu)
-	var controls = _button(box, "Controls", func(): help_text.visible = not help_text.visible)
-	controls.toggle_mode = true
-	box.move_child(help_text, box.get_child_count() - 1)
 	for child in box.get_children():
 		if child is Button:
 			child.custom_minimum_size.y = 40
@@ -626,37 +614,6 @@ func _refresh_shortcuts():
 		_attack_button.set_pressed_no_signal(_attack_armed)
 	if is_instance_valid(_menu_button):
 		_sync_key(_menu_button, "Menu", "toggle_match_menu")
-	if is_instance_valid(_menu_help):
-		_menu_help.text = _controls_help()
-
-
-func _controls_help():
-	return (
-		(
-			"Drag: select · Hold %s: add selection / queue orders\n"
-			+ "Right-click: contextual order\n"
-			+ "%s: move · %s: attack target · %s: attack move; then click\n"
-			+ "%s: tactical pause · Wheel: zoom\n"
-			+ "%s / %s / %s / %s: pan · %s / %s: rotate\n"
-			+ "%s: assign group 1 · %s: select group 1\n"
-			+ "All group bindings: Settings → Controls"
-		)
-		% [
-			Bindings.label("shift_selecting"),
-			Bindings.label("move_order"),
-			Bindings.label("attack_target"),
-			Bindings.label("attack_move"),
-			Bindings.label("pause_battle"),
-			Bindings.label("move_map_up"),
-			Bindings.label("move_map_left"),
-			Bindings.label("move_map_down"),
-			Bindings.label("move_map_right"),
-			Bindings.label("rotate_map_clockwise"),
-			Bindings.label("rotate_map_counterclockwise"),
-			Bindings.label("unit_groups_set_1"),
-			Bindings.label("unit_groups_access_1")
-		]
-	)
 
 
 func open_technology():
