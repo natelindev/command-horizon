@@ -2,6 +2,16 @@
 
 ## [main]
 
+## [0.16.0]
+
+Copperfin v0.16.0 improves infantry and robot animation and expands air combat targeting.
+
+- Rebuilt infantry across all three factions with shaped silhouettes, layered uniforms and equipment, articulated weapon handling, and refreshed unit portraits. Material-aware mesh batching reduces draw overhead.
+- Combat and repair walkers use articulated knees and ankles, planted feet, and continuous strides through turns, stops, and factory departures.
+- Fighters can engage ground targets, bombers hit structures harder, and anti-air units gain limited ground fire. Dual-purpose AA research upgrades ground damage from 33% to 100%; AA turrets prioritize aircraft.
+- Improved terrain grounding, combat facing, infantry collapse poses, and construction placement previews.
+- Simplified menu and loading text and fixed Godot discovery from linked macOS worktrees.
+
 ## [0.15.1]
 
 ### Verification

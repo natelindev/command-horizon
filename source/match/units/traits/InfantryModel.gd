@@ -146,9 +146,10 @@ static func build(faction, role):
 	)
 	_box(chest, "CeramicPlate", Vector3(0, .18, -.112), Vector3(.183, .135, .019), armor)
 	for side in [-1, 1]:
-		_box(chest, "Webbing", Vector3(side * .097, .224, -.088), Vector3(.024, .13, .027), canvas).rotation.z = (
-			side * -.12
+		var webbing = _box(
+			chest, "Webbing", Vector3(side * .097, .224, -.088), Vector3(.024, .13, .027), canvas
 		)
+		webbing.rotation.z = side * -.12
 		_box(chest, "StrapBuckle", Vector3(side * .10, .24, -.106), Vector3(.028, .026, .012), dark)
 		_box(
 			chest, "UtilityPouch", Vector3(side * .13, .071, -.013), Vector3(.055, .10, .105), cloth
@@ -252,12 +253,18 @@ static func build(faction, role):
 	)
 	_box(head, "HelmetBrow", Vector3(0, .109, -.062), Vector3(.13, .015, .034), dark)
 	for side in [-1, 1]:
-		_box(head, "GoggleFrame", Vector3(side * .028, .084, -.052), Vector3(.054, .028, .016), dark).rotation.y = (
-			side * -.14
+		var goggle = _box(
+			head, "GoggleFrame", Vector3(side * .028, .084, -.052), Vector3(.054, .028, .016), dark
 		)
-		_box(head, "BallisticLens", Vector3(side * .027, .084, -.062), Vector3(.044, .018, .004), _material("394440", "Ballistic glass", .24, .25)).rotation.y = (
-			side * -.14
+		goggle.rotation.y = side * -.14
+		var lens = _box(
+			head,
+			"BallisticLens",
+			Vector3(side * .027, .084, -.062),
+			Vector3(.044, .018, .004),
+			_material("394440", "Ballistic glass", .24, .25)
 		)
+		lens.rotation.y = side * -.14
 		_box(head, "Headset", Vector3(side * .066, .07, .006), Vector3(.025, .061, .046), dark)
 		_box(head, "HelmetRail", Vector3(side * .075, .123, .007), Vector3(.012, .021, .066), steel)
 		_segment(
@@ -342,8 +349,12 @@ static func build(faction, role):
 	_box(rifle, "EjectionPort", Vector3(.025, .009, .014), Vector3(.004, .014, .052), dark)
 	_box(rifle, "RifleStock", Vector3(0, .003, .175), Vector3(.039, .064, .17), dark)
 	_box(rifle, "ButtPad", Vector3(0, .003, .252), Vector3(.047, .075, .015), dark)
-	_box(rifle, "PistolGrip", Vector3(0, -.05, .069), Vector3(.035, .068, .037), dark).rotation.x = -.22
-	_box(rifle, "RifleMagazine", Vector3(0, -.06, -.015), Vector3(.035, .095, .056), dark).rotation.x = .10
+	var grip = _box(rifle, "PistolGrip", Vector3(0, -.05, .069), Vector3(.035, .068, .037), dark)
+	grip.rotation.x = -.22
+	var magazine = _box(
+		rifle, "RifleMagazine", Vector3(0, -.06, -.015), Vector3(.035, .095, .056), dark
+	)
+	magazine.rotation.x = .10
 	_box(rifle, "Handguard", Vector3(0, .004, -.135), Vector3(.052, .055, .12), armor)
 	for index in range(5):
 		_box(

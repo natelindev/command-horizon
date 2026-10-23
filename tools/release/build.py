@@ -18,6 +18,11 @@ PRESETS = {"linux": "Linux/X11", "windows": "Windows Desktop", "macos": "macOS"}
 ENGINE_SUFFIX = {"linux": "linux.x86_64", "windows": "win64.exe", "macos": "macos.universal"}
 TESTS = [
     "BehaviorRegression", "UnitAnimationRegression",
+    "InfantryRedesignRegression", "InfantryMeshBatchRegression",
+    "InfantryDeathGroundRegression", "InfantryMotionRegression",
+    "TerrainGroundingRegression", "CombatRegression", "AntiAirPriorityRegression",
+    "TechnologyRegression", "TechnologyAIRegression", "WeaponModeRegression",
+    "ResearchTilesRegression", "StructureActivityRegression",
     "PersistentCaptureRegression",
     "CampaignInteriorRegression", "HeroCampaignRegression", "SkirmishPickerRegression",
     "WorkerDistributionRegression", "CargoReturnRegression", "ResourceFieldRegression",

@@ -3,7 +3,6 @@ extends RefCounted
 # Run after equipment and ObjectMaterials.apply, before posing the rig. Only
 # decorative siblings are baked: articulated parents and gameplay markers stay
 # intact. Cache keys retain immutable source resources, avoiding instance-ID reuse.
-static var _meshes = {}
 const MAX_CACHED_MESHES = 256
 const CHANNELS = [
 	Mesh.ARRAY_VERTEX,
@@ -13,6 +12,7 @@ const CHANNELS = [
 	Mesh.ARRAY_TEX_UV,
 	Mesh.ARRAY_TEX_UV2
 ]
+static var _meshes = {}
 
 
 static func apply(rig):
