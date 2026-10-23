@@ -1,0 +1,193 @@
+{
+  "version": "0.16.2",
+  "release_commit": "c95850273df2c6870e132c0e45c4289b1a864d17",
+  "release_url": "https://github.com/natelindev/copperfin/releases/tag/v0.16.2",
+  "published_at": "2026-10-23T11:23:22Z",
+  "workflow_url": "https://github.com/natelindev/copperfin/actions/runs/39942121766",
+  "workflow_conclusion": "success",
+  "engine": "Godot 4.7.2 stable",
+  "snapshot_version": 17,
+  "packaged_checks": [
+    "BehaviorRegression",
+    "UnitAnimationRegression",
+    "InfantryRedesignRegression",
+    "InfantryMeshBatchRegression",
+    "InfantryDeathGroundRegression",
+    "InfantryMotionRegression",
+    "TerrainGroundingRegression",
+    "CombatRegression",
+    "AntiAirPriorityRegression",
+    "TechnologyRegression",
+    "TechnologyAIRegression",
+    "WeaponModeRegression",
+    "ResearchTilesRegression",
+    "StructureActivityRegression",
+    "PersistentCaptureRegression",
+    "CampaignInteriorRegression",
+    "HeroCampaignRegression",
+    "SkirmishPickerRegression",
+    "WorkerDistributionRegression",
+    "CargoReturnRegression",
+    "ResourceFieldRegression",
+    "GarrisonCombatExitRegression",
+    "PointOfInterestRegression",
+    "MapMetricsRegression",
+    "GlacierHarvestRegression",
+    "TerrainSightRegression",
+    "CliffMeshRegression",
+    "AuthoredRelayRegression",
+    "AuthoredGarrisonRegression",
+    "SaveNavigationTimingRegression",
+    "ContactApproachRegression",
+    "NavigationRegression",
+    "MapPlayabilityRegression",
+    "MapPreviewRegression",
+    "MusicRegression",
+    "SelectionBatchRegression",
+    "ProjectileSystemRegression",
+    "ProjectilePhysicsRegression",
+    "FixedWingFlightRegression",
+    "FixedWingSaveRegression",
+    "AirSaveContinuityRegression",
+    "RotorcraftCombatRegression",
+    "FrontierCombatRegression",
+    "AirfieldOperationsRegression",
+    "GroundHeightAlignmentRegression",
+    "GroundCrowdRecoveryRegression",
+    "SkirmishBuildReadinessRegression",
+    "PresentationFeaturesRegression",
+    "SettingsRegression",
+    "BattleHudProductionRegression",
+    "BattleAftermathRegression",
+    "MapPassageRegression",
+    "ObjectMaterialsRegression",
+    "RuntimeShutdownRegression",
+    "EnvironmentEffectsRegression",
+    "WaterFlowRegression",
+    "WaterHybridRegression"
+  ],
+  "platforms": [
+    {
+      "platform": "linux",
+      "conclusion": "success",
+      "job_url": "https://github.com/natelindev/copperfin/actions/runs/39942121766/job/120375849419",
+      "packaged_check_count": 57
+    },
+    {
+      "platform": "windows",
+      "conclusion": "success",
+      "job_url": "https://github.com/natelindev/copperfin/actions/runs/39942121766/job/120375849763",
+      "packaged_check_count": 57
+    },
+    {
+      "platform": "macos",
+      "conclusion": "success",
+      "job_url": "https://github.com/natelindev/copperfin/actions/runs/39942121766/job/120375849788",
+      "packaged_check_count": 57
+    }
+  ],
+  "local_packaged_checks": [
+    "MapPreviewRegression",
+    "MusicRegression",
+    "SelectionBatchRegression",
+    "ProjectileSystemRegression",
+    "ProjectilePhysicsRegression",
+    "FixedWingFlightRegression",
+    "FixedWingSaveRegression",
+    "AirSaveContinuityRegression",
+    "RotorcraftCombatRegression",
+    "FrontierCombatRegression",
+    "AirfieldOperationsRegression",
+    "GroundHeightAlignmentRegression",
+    "GroundCrowdRecoveryRegression",
+    "SkirmishBuildReadinessRegression",
+    "PresentationFeaturesRegression",
+    "SettingsRegression",
+    "BattleHudProductionRegression",
+    "BattleAftermathRegression",
+    "MapPassageRegression",
+    "ObjectMaterialsRegression",
+    "RuntimeShutdownRegression",
+    "EnvironmentEffectsRegression",
+    "WaterFlowRegression",
+    "WaterHybridRegression"
+  ],
+  "local_checks": {
+    "format_and_lint": "passed",
+    "macos_launcher_tests": 5,
+    "godot_regressions": [
+      "InfantryRedesignRegression",
+      "InfantryMeshBatchRegression",
+      "InfantryDeathGroundRegression",
+      "UnitAnimationRegression",
+      "TerrainGroundingRegression",
+      "AntiAirPriorityRegression",
+      "TechnologyRegression",
+      "TechnologyAIRegression",
+      "WeaponModeRegression",
+      "ResearchTilesRegression",
+      "CombatRegression",
+      "InfantryMotionRegression",
+      "StructureActivityRegression",
+      "MapPassageRegression",
+      "MapPreviewRegression"
+    ],
+    "isolated_packaged_infantry_motion": "passed",
+    "railspire_traffic": "Traced false failures to simultaneous-arrival checks after all six tanks had crossed. Original ramp layout retained; crossings are recorded independently with bounded time, detour checks, and three trials per approach.",
+    "passage_negative_control": "A frozen tank that never crossed was correctly rejected; the other five completed crossings were recorded.",
+    "railspire_rendered": "TerrainLayersPreview and focused ramp captures passed; inspected overview and detail views.",
+    "spacing_negative_control": "Reintroduced the previous stationary-shooter avoidance bug twice; revised spacing checks rejected both runs."
+  },
+  "assets": [
+    {
+      "name": "Open_RTS_Linux.tar.gz",
+      "bytes": 171870430,
+      "sha256": "3ef4e9817ee36352035d0de97892b031a051fc443e20e7a55a3c21238d723d03",
+      "archive_integrity": "passed",
+      "download_url": "https://github.com/natelindev/copperfin/releases/download/v0.16.2/Open_RTS_Linux.tar.gz",
+      "published_digest_verified": true
+    },
+    {
+      "name": "Open_RTS_macOS.zip",
+      "bytes": 204614522,
+      "sha256": "9c480a80bf73df8249f22e550e7e808508a330fafa01e7ec0f4fbef7b6e48cc8",
+      "archive_integrity": "passed",
+      "download_url": "https://github.com/natelindev/copperfin/releases/download/v0.16.2/Open_RTS_macOS.zip",
+      "published_digest_verified": true
+    },
+    {
+      "name": "Open_RTS_Windows.zip",
+      "bytes": 181686323,
+      "sha256": "e259449bbacf6788c319cb3a7c97d2200006bf5e20dc9b7b9fb7af1fc55e4a0f",
+      "archive_integrity": "passed",
+      "download_url": "https://github.com/natelindev/copperfin/releases/download/v0.16.2/Open_RTS_Windows.zip",
+      "published_digest_verified": true
+    }
+  ],
+  "checksum_manifest": {
+    "name": "SHA256SUMS.txt",
+    "sha256": "0647faf3beb931a8662d7a2a60225b2e78f3570fe1624b6dd7ffc28280140cc0",
+    "published_digest_verified": true
+  },
+  "limits": [
+    "Native CI uses headless gameplay checks; it does not replace a rendered hardware playtest.",
+    "Some existing headless fixtures report shutdown resource warnings despite passing assertions."
+  ],
+  "unpublished_candidates": [
+    {
+      "tag": "v0.16.0",
+      "workflow_url": "https://github.com/natelindev/copperfin/actions/runs/39934344216",
+      "reason": "An overly strict infantry-spacing test failed for a 5.949 m outlier; corrected checks preserve detection of the earlier firing-line crowding regression."
+    },
+    {
+      "tag": "v0.16.1",
+      "workflow_url": "https://github.com/natelindev/copperfin/actions/runs/39935196435",
+      "reason": "Stopped publication after a Linux passage assertion failed. Instrumentation showed all tanks had crossed, but some were displaced after arrival; corrected the test to record individual completed crossings while retaining original geometry and strict time/detour bounds."
+    }
+  ],
+  "redundant_tag_workflow": {
+    "workflow_url": "https://github.com/natelindev/copperfin/actions/runs/39945726646",
+    "conclusion": "cancelled",
+    "reason": "The identical commit had already passed native verification. Stopped the automatic tag rebuild to preserve the verified release archives and their published checksum manifest."
+  }
+}

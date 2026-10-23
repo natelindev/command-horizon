@@ -63,3 +63,11 @@ published archives, package version, and checksums.
   pass; final rendered ramp review passes. The previous native macOS and
   Windows jobs completed all 57 suites; Linux's false simultaneous-arrival
   assertion is the remaining correction for the new verification build.
+- All stages complete: v0.16.2 published from c9585027 after native Linux,
+  Windows, and macOS startup and all 57 packaged suites passed per platform.
+  Downloaded the verified workflow archives, checked integrity and macOS version,
+  and matched all published asset digests to their SHA-256 checksums. Release notes are live;
+  final evidence is in docs/campaign/release-v0.16.2.json.
+- Creating the release also triggered a redundant tag build. Canceled run
+  39945726646 so it cannot replace the verified archives and invalidate their
+  checksum manifest; the successful dispatch build used the identical tag commit.
