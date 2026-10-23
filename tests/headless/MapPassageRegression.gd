@@ -59,9 +59,12 @@ func _run():
 				_check_width("Foundry hall approach", a, b, 12.0, 8.0)
 				await _traffic(a, b)
 		elif id == "RailspireJunctionMap":
-			for ramp in layout.ramps:
-				if ramp.get("player", -1) == 0 and ramp.name == "Overpass approach":
-					await _traffic(ramp.from, ramp.to)
+			# Narrow approaches can deadlock only for some avoidance schedules.
+			# Repeat both directions before accepting the crossing as usable.
+			for trial in 3:
+				for ramp in layout.ramps:
+					if ramp.get("player", -1) == 0 and ramp.name == "Overpass approach":
+						await _traffic(ramp.from, ramp.to)
 		print("PASSAGES ", id)
 		game.queue_free()
 		await _frames(5)

@@ -2,7 +2,16 @@
 
 ## [main]
 
-## [0.16.1]
+## [0.16.2]
+
+### Fixed
+ - Wider Railspire Junction overpass approaches prevent intermittent opposing-tank deadlocks; packaged passage checks repeat both crossings
+
+The v0.16.1 candidate was stopped after the earlier Linux run exposed the
+Railspire crossing blockage. All features and verification improvements below
+are included in v0.16.2.
+
+## [0.16.1 — unpublished candidate]
 
 ### Verification
  - Desktop packages include 57 regression suites, including infantry presentation, grounding, air targeting, and research

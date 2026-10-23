@@ -1,4 +1,4 @@
-# Release v0.16.1
+# Release v0.16.2
 
 ## Stage 1 — Prepare
 Inspect the changes since v0.15.1, correct static-check failures, update desktop
@@ -6,11 +6,12 @@ versions and changelog, and include the new gameplay regressions in packaging.
 
 ## Stage 2 — Verify and push
 Run formatting, lint, launcher tests, and focused Godot regressions. Commit all
-release changes and push main and the new release tag.
+release changes and push main for a native verification build.
 
 ## Stage 3 — Publish
-Monitor native Linux, Windows, and macOS exports and packaged regressions. Verify
-the published assets and update the release with focused notes.
+Monitor native Linux, Windows, and macOS exports and packaged regressions.
+After all pass, publish those verified artifacts as v0.16.2 and verify the
+published archives, package version, and checksums.
 
 ## Agent progress
 - The user authorized committing and pushing everything local and creating a release.
@@ -35,3 +36,14 @@ the published assets and update the release with focused notes.
   PCK passes; disabling stationary-shooter priority reproduces the old 5.0–5.45 m
   collapse and is rejected by the revised spacing checks. No gameplay change.
 - Selected v0.16.1 for publication, retaining the failed v0.16.0 candidate tag.
+- The earlier candidate Linux run later exposed intermittent Railspire ramp
+  deadlocks. Reproduced locally on the third repeated run, affecting both
+  overpass approaches. Widened both ramps to 12 m; all eight repeated runs then
+  passed. Added three passage trials for Railspire in the packaged regression.
+  TerrainLayersPreview ran without headless mode and reported zero failures.
+- Stopped v0.16.1 publication while investigating the crossing bug. Selected
+  v0.16.2 and will verify a main-branch dispatch build before creating its tag.
+- The full map-passage suite passes with three traffic trials per Railspire ramp.
+  The standard terrain preview and a focused ramp view both pass without
+  headless mode; inspected both widened approaches. Formatting, lint, and diff
+  whitespace checks pass. Preparing the verified-build dispatch from main.

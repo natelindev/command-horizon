@@ -65,7 +65,7 @@ const DEFINITION = {
 			# Start clear of the goods-terrace cliff so the full ramp mouth is usable.
 			"from": Vector2(50, 48),
 			"to": Vector2(66, 40),
-			"width": 8.0,
+			"width": 12.0,
 			"from_height": 0.0,
 			"to_height": 3.0
 		},
@@ -73,7 +73,7 @@ const DEFINITION = {
 			"name": "Overpass approach",
 			"from": Vector2(100, 56),
 			"to": Vector2(100, 40),
-			"width": 7.0,
+			"width": 12.0,
 			"from_height": 0.0,
 			"to_height": 3.0
 		},
