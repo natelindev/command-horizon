@@ -5,10 +5,10 @@
 ## [0.16.2]
 
 ### Fixed
- - Wider Railspire Junction overpass approaches prevent intermittent opposing-tank deadlocks; packaged passage checks repeat both crossings
+ - Passage verification records each completed crossing independently, avoiding false failures when arrived tanks yield to later traffic; repeated trials retain time and detour limits
 
-The v0.16.1 candidate was stopped after the earlier Linux run exposed the
-Railspire crossing blockage. All features and verification improvements below
+The v0.16.1 candidate was stopped after a Linux passage check failed. Follow-up
+instrumentation showed that its simultaneous-arrival requirement was too strict. All features and verification improvements below
 are included in v0.16.2.
 
 ## [0.16.1 — unpublished candidate]

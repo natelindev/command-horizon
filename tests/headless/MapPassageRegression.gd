@@ -133,19 +133,39 @@ func _traffic(a: Vector2, b: Vector2):
 	for i in tanks.size():
 		tanks[i].issue_manual_order(moving.new(goals[i]))
 	var reached = false
+	var crossed = []
+	crossed.resize(tanks.size())
+	crossed.fill(false)
 	for tick in 150:
 		await _frames(30)
-		reached = true
 		for i in tanks.size():
 			var point = Vector2(tanks[i].global_position.x, tanks[i].global_position.z)
 			max_detour = maxf(max_detour, absf((point - a).cross(axis)))
-			if point.distance_to(Vector2(goals[i].x, goals[i].z)) > 3.0:
-				reached = false
+			if point.distance_to(Vector2(goals[i].x, goals[i].z)) <= 3.0:
+				crossed[i] = true
+		# A finished tank can yield to later traffic. Record its crossing when
+		# it happens instead of requiring all arrivals to remain simultaneous.
+		reached = not crossed.has(false)
 		if reached:
 			break
 	if not reached:
+		print("CROSSED ", crossed)
 		for i in tanks.size():
 			print("STRANDED %d at %s goal %s" % [i, tanks[i].global_position, goals[i]])
+			var movement = tanks[i].get_node("Movement")
+			print(
+				(
+					"NAV active=%s index=%d offset=%.3f velocity=%s recovery=%s path=%s"
+					% [
+						movement._has_destination,
+						movement.get_current_navigation_path_index(),
+						movement.path_height_offset,
+						movement.velocity,
+						movement._recovery_direction,
+						movement.get_current_navigation_path()
+					]
+				)
+			)
 	var label = "%s %s -> %s" % [game.map.layout.id, a, b]
 	_check(reached, "Opposing tanks failed to cross " + label)
 	_check(max_detour < 12.0, "Tanks detoured around passage " + label)

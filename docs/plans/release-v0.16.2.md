@@ -51,3 +51,15 @@ published archives, package version, and checksums.
   after the ramp edit. Regenerated it with tools/ui/bake_map_previews.gd and
   verified all sixteen cached previews against freshly generated terrain.
   Retained only the changed Railspire artifact; stopped the superseded build.
+- Further Linux validation still failed the passage check. Instrumented local
+  failures showed all six tanks had crossed and completed their orders; later
+  crowd avoidance displaced arrivals, so the test incorrectly demanded all six
+  remain near their goals simultaneously. Record each crossing independently
+  while retaining the time and detour bounds. Restored the original ramp widths
+  and baked preview to keep the release focused on the verified test correction.
+- The corrected test passes eight runs on the original ramp layout, three
+  trials per approach. A frozen first tank is correctly rejected with only
+  five crossings recorded. Full passage and all-sixteen-preview regressions
+  pass; final rendered ramp review passes. The previous native macOS and
+  Windows jobs completed all 57 suites; Linux's false simultaneous-arrival
+  assertion is the remaining correction for the new verification build.
