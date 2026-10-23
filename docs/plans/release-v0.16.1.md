@@ -1,4 +1,4 @@
-# Release v0.16.0
+# Release v0.16.1
 
 ## Stage 1 — Prepare
 Inspect the changes since v0.15.1, correct static-check failures, update desktop
@@ -24,3 +24,14 @@ the published assets and update the release with focused notes.
   tests pass. Godot 4.7.2 imports the project without script errors. Focused
   infantry, animation, terrain, and AA-priority regressions pass. Research and
   combat regressions are running before the release tag is pushed.
+- All eleven focused local Godot suites pass, including research, weapon modes,
+  research tiles, and combat. Release preparation is committed as 6aef5819 and
+  pushed to main; GitHub static checks pass. Tag v0.16.0 is pushed and native
+  packaging is running in GitHub Actions run 39934344216.
+- v0.16.0 macOS packaging caught an existing nondeterministic spacing assertion:
+  one Helix soldier at 5.949 m failed the 6 m cutoff while all eight fired. Five
+  local repeats showed runner-dependent spacing. The test now requires at least
+  six soldiers beyond 6 m and every soldier beyond 5.5 m. An isolated exported
+  PCK passes; disabling stationary-shooter priority reproduces the old 5.0–5.45 m
+  collapse and is rejected by the revised spacing checks. No gameplay change.
+- Selected v0.16.1 for publication, retaining the failed v0.16.0 candidate tag.

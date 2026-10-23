@@ -2,7 +2,17 @@
 
 ## [main]
 
-## [0.16.0]
+## [0.16.1]
+
+### Verification
+ - Desktop packages include 57 regression suites, including infantry presentation, grounding, air targeting, and research
+ - Infantry squad checks tolerate individual avoidance nudges while still rejecting firing-line collapse; verified against the earlier crowding bug
+
+The v0.16.0 candidate was not published because its new packaged infantry-motion
+check used an overly strict per-soldier spacing cutoff. All features below are
+included in v0.16.1.
+
+## [0.16.0 — unpublished candidate]
 
 Copperfin v0.16.0 improves infantry and robot animation and expands air combat targeting.
 
