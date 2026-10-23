@@ -47,3 +47,7 @@ published archives, package version, and checksums.
   The standard terrain preview and a focused ramp view both pass without
   headless mode; inspected both widened approaches. Formatting, lint, and diff
   whitespace checks pass. Preparing the verified-build dispatch from main.
+- The first v0.16.2 dispatch caught a stale baked Railspire map-picker preview
+  after the ramp edit. Regenerated it with tools/ui/bake_map_previews.gd and
+  verified all sixteen cached previews against freshly generated terrain.
+  Retained only the changed Railspire artifact; stopped the superseded build.
