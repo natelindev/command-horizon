@@ -1,0 +1,45 @@
+2026-10-24T11:00:34.9530325Z 
+2026-10-24T11:00:37.8544866Z Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+2026-10-24T11:00:37.8545470Z 
+2026-10-24T11:00:37.8545885Z Localization regression: 0 failures
+2026-10-24T11:00:37.8546231Z 
+2026-10-24T11:00:52.8493942Z ##[group]Run actions/upload-artifact@v4
+2026-10-24T11:00:52.8494237Z with:
+2026-10-24T11:00:52.8494436Z   name: release-linux
+2026-10-24T11:00:52.8494663Z   path: build/release-assets/*
+2026-10-24T11:00:52.8494906Z   if-no-files-found: error
+2026-10-24T11:00:52.8495124Z   retention-days: 1
+2026-10-24T11:00:52.8495324Z   compression-level: 6
+2026-10-24T11:00:52.8495527Z   overwrite: false
+2026-10-24T11:00:52.8495735Z   include-hidden-files: false
+2026-10-24T11:00:52.8495953Z env:
+2026-10-24T11:00:52.8496207Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-24T11:00:52.8496848Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-10-24T11:00:52.8497230Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-24T11:00:52.8497576Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-24T11:00:52.8497916Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-10-24T11:00:52.8498318Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-10-24T11:00:52.8498748Z ##[endgroup]
+2026-10-24T11:00:53.2071104Z (node:2996) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-24T11:00:53.2072306Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-24T11:00:53.2190139Z With the provided path, there will be 1 file uploaded
+2026-10-24T11:00:53.2209874Z Artifact name is valid!
+2026-10-24T11:00:53.2210402Z Root directory input is valid!
+2026-10-24T11:00:53.3543696Z ##[error]Failed to CreateArtifact: Artifact storage quota has been hit. Unable to upload any new artifacts. Usage is recalculated every 6-12 hours.
+More info on storage limits: https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-actions#calculating-minute-and-storage-spending
+2026-10-24T11:00:53.3707106Z Post job cleanup.
+2026-10-24T11:00:53.4830330Z [command]/usr/bin/git version
+2026-10-24T11:00:53.4894633Z git version 2.55.0
+2026-10-24T11:00:53.7290433Z Temporarily overriding HOME='/home/runner/work/_temp/5e98069d-93d7-47f5-a05a-de79bc1b5604' before making global git config changes
+2026-10-24T11:00:53.7291498Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-24T11:00:53.7292255Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/copperfin/copperfin
+2026-10-24T11:00:53.7293112Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-24T11:00:53.7294144Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-24T11:00:53.7295538Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-24T11:00:53.7296063Z http.https://github.com/.extraheader
+2026-10-24T11:00:53.7297287Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-24T11:00:53.7298600Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-24T11:00:53.7299907Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-24T11:00:53.7300938Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-24T11:00:53.7365399Z Cleaning up orphan processes
+2026-10-24T11:00:53.7739843Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

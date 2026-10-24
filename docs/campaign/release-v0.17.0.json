@@ -1,0 +1,35 @@
+{
+  "version": "0.17.0",
+  "status": "draft",
+  "release_commit": "e98a0aaac30fd38c10d88fe9d92d776160c6e108",
+  "release_url": "https://github.com/natelindev/copperfin/releases/tag/untagged-f14ecb461048a09b0dc5",
+  "published": false,
+  "desktop_assets": [],
+  "engine": "Godot 4.7.2 stable",
+  "snapshot_version": 19,
+  "initial_native_workflow": "https://github.com/natelindev/copperfin/actions/runs/40086867951",
+  "initial_native_results": {
+    "linux": "startup and 78 suites passed; artifact upload rejected by storage quota",
+    "macos": "mixed-army retreat stall; locally reproduced and corrected afterward",
+    "windows": "access violation 0xC0000005 after 72 passing infantry-grounding scenarios; unresolved"
+  },
+  "diagnostic_workflow": "https://github.com/natelindev/copperfin/actions/runs/40088121317",
+  "diagnostic_result": "No jobs started: Actions budget is preventing further use.",
+  "final_static_workflow": "https://github.com/natelindev/copperfin/actions/runs/40089128986",
+  "final_static_result": "No job started: Actions budget is preventing further use.",
+  "local_checks": {
+    "formatting": "406 source files pass",
+    "lint": "all source files and changed tests pass",
+    "whitespace": "pass",
+    "recovery_source_checks": 9,
+    "recovery_exported_pack_checks": 7,
+    "original_corner_layout": "fails before fix; passes after fix without widening speed/collision/arrival bounds"
+  },
+  "verification_report": "docs/playtests/2026-10-24/release-v0.17.0/README.md",
+  "remaining": [
+    "Restore GitHub Actions budget and artifact storage allowance, or user chooses source-only publication.",
+    "Complete final native desktop package verification, including Windows exit-crash investigation.",
+    "Publish verified desktop packages and checksums; draft currently has no downloads.",
+    "Rendered Windows and overall four-player performance acceptance remain open."
+  ]
+}
