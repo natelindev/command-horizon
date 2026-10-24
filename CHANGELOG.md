@@ -2,6 +2,28 @@
 
 ## [main]
 
+### Added
+ - Combat damage chunks, brief material hit flashes, faction selection shapes, heavy-explosion shockwaves and burning wrecks, with fog and reduced-flash support
+ - Tab cycles selected unit classes; P issues looping patrols; resource and friendly-unit factory rallies dispatch contextual orders
+ - Saved Bronze, Silver and Gold veterancy with modest movement/reload bonuses, plus vision and range advantages on authored plateaus
+ - Adaptive music layers, a cancellable enemy-HQ collapse cinematic and post-match battlefield inspection
+ - Clearer opening-mission recovery guidance and scalable construction-placement feedback
+ - Prepaid technology and Coordination queues with ordered jobs, cancellation/refunds and saved progress
+ - Persistent commander status and an announcement when a player is eliminated after the HQ rebuild grace
+
+### Changed
+ - Unit status captions appear only with F1 diagnostics; ordinary play retains health, rank and objective information
+ - HQ communications hardware and repair/research symbols use neutral mechanical shapes
+ - Save format 19 stores veterancy, patrol state and queued research; 810 supported archived fixtures were converted with IDs preserved, and obsolete saves and temporary conversion backups were removed
+ - Profiled movement, service, spatial queries and procedural posing reuse unchanged or same-call data; final macOS release combat p95 is 14.95 / 16.53 ms at 70 units and 28.57 / 30.70 ms in the 200-mobile/80-structure fixture
+
+### Fixed
+ - Particle resources, runtime caches and remembered-building materials release correctly through normal game shutdown
+ - Opening instructions stay visible at enlarged interface scales and armor-loss recovery follows available production
+ - First-use hit-flash, ground-scar and shockwave variants prepare during loading; four final Mac benchmark runs have no sampled gameplay frame over 50 ms
+ - Cancelled restoration releases its provisional battle while preserving the replacement scene
+
+
 ## [0.16.2]
 
 ### Fixed

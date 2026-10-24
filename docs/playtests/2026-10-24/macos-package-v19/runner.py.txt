@@ -1,0 +1,324 @@
+"""Export the frozen game and verify its packaged release suites offline."""
+
+import argparse
+import ast
+import datetime as dt
+import hashlib
+import json
+from pathlib import Path
+import re
+import shutil
+import stat
+import subprocess
+import sys
+import tempfile
+import time
+import zipfile
+
+ROOT = Path(__file__).resolve().parents[1]
+ENGINE = ROOT / "tmp/tooling/godot-4.7.2/Godot.app/Contents/MacOS/Godot"
+TEMPLATE = Path.home() / "Library/Application Support/Godot/export_templates/4.7.2.stable/macos.zip"
+OUTPUT = ROOT / "build/polish-2026-10-24"
+ARCHIVE = OUTPUT / "Open_RTS_macOS.zip"
+APP = OUTPUT / "Open RTS.app"
+PACK = APP / "Contents/Resources/Open RTS.pck"
+EXECUTABLE = APP / "Contents/MacOS/Open RTS"
+LOGS = ROOT / "docs/playtests/2026-10-24/macos-package-v19"
+SUMMARY = ROOT / "docs/playtests/2026-10-24/final-macos-packaged.json"
+ANSI = re.compile(r"\x1b\[[0-9;]*[A-Za-z]")
+KNOWN_TEARDOWN = re.compile(
+    r"^(?:WARNING: \d+ ObjectDB instances were leaked at exit.*|"
+    r"ERROR: \d+ resources still in use at exit.*|"
+    r"ERROR: Pages in use exist at exit in PagedAllocator: N\d+VariantPools.*|"
+    r"ERROR: \d+ RID allocations of type '[^']*RendererDummy[^']*' were leaked at exit\.)$"
+)
+
+
+def suite_names():
+    tree = ast.parse((ROOT / "tools/release/build.py").read_text())
+    return next(
+        ast.literal_eval(node.value)
+        for node in tree.body
+        if isinstance(node, ast.Assign)
+        and any(isinstance(target, ast.Name) and target.id == "TESTS" for target in node.targets)
+    )
+
+
+def digest(path):
+    result = hashlib.sha256()
+    with path.open("rb") as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            result.update(block)
+    return result.hexdigest()
+
+
+def source_fingerprint():
+    # Detect gameplay/test changes during the release gate without relying on mtime.
+    files = [ROOT / "project.godot", ROOT / "export_presets.cfg", ROOT / "tools/release/build.py"]
+    files.append(ROOT / "icon.svg")
+    for directory in ["source", "tests", "assets"]:
+        files.extend(path for path in (ROOT / directory).rglob("*") if path.is_file())
+    result = hashlib.sha256()
+    for path in sorted(files):
+        result.update(str(path.relative_to(ROOT)).encode())
+        result.update(path.read_bytes())
+    return result.hexdigest()
+
+
+def source_manifest():
+    files = [ROOT / name for name in ("project.godot", "export_presets.cfg", "tools/release/build.py", "icon.svg")]
+    for directory in ("source", "tests", "assets"):
+        files.extend(path for path in (ROOT / directory).rglob("*") if path.is_file())
+    return {str(path.relative_to(ROOT)): digest(path) for path in sorted(files)}
+
+
+def preserve_previous_release():
+    if not SUMMARY.is_file():
+        return None
+    previous = json.loads(SUMMARY.read_text())
+    recorded = previous.get("artifacts", {})
+    if not ARCHIVE.is_file() or not PACK.is_file():
+        raise RuntimeError("Previous report exists without its package; preserve or repair that evidence before export")
+    for path, key in ((ARCHIVE, "archive_sha256"), (PACK, "pack_sha256")):
+        if digest(path) != recorded.get(key):
+            raise RuntimeError("Previous artifact no longer matches its report: " + str(path.relative_to(ROOT)))
+    stamp = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    historical = OUTPUT / ("before-v19-" + stamp)
+    historical.mkdir(exist_ok=False)
+    report = LOGS / "previous-final-macos-packaged.json"
+    shutil.copy2(SUMMARY, report)
+    shutil.copy2(ARCHIVE, historical / ARCHIVE.name)
+    shutil.copytree(APP, historical / APP.name, symlinks=True)
+    artifacts = []
+    for original in (ARCHIVE, PACK, EXECUTABLE):
+        destination = historical / original.relative_to(OUTPUT)
+        if digest(destination) != digest(original):
+            raise RuntimeError("Historical artifact copy failed verification: " + str(destination))
+        artifacts.append({"original_path": str(original.relative_to(ROOT)),
+                          "preserved_path": str(destination.relative_to(ROOT)),
+                          "sha256": digest(destination)})
+    manifest = {"report": str(report.relative_to(ROOT)), "report_sha256": digest(report),
+                "note": "The previous report is retained byte for byte; its original artifact paths map to these preserved copies.",
+                "artifacts": artifacts}
+    path = LOGS / "previous-release-preservation.json"
+    path.write_text(json.dumps(manifest, indent=2) + "\n")
+    return {"manifest": str(path.relative_to(ROOT)), "sha256": digest(path), **manifest}
+
+
+def save_summary(data):
+    SUMMARY.parent.mkdir(parents=True, exist_ok=True)
+    temporary = SUMMARY.with_suffix(".json.partial")
+    temporary.write_text(json.dumps(data, indent=2) + "\n")
+    temporary.replace(SUMMARY)
+
+
+def execute(name, arguments, cwd, timeout, allow_teardown=False):
+    log = LOGS / (name + ".log.txt")
+    started = time.monotonic()
+    timed_out = False
+    try:
+        completed = subprocess.run(
+            [str(value) for value in arguments], cwd=cwd,
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
+            timeout=timeout, stdin=subprocess.DEVNULL,
+        )
+        output, returncode = completed.stdout, completed.returncode
+    except subprocess.TimeoutExpired as failure:
+        timed_out = True
+        output = failure.stdout or ""
+        if isinstance(output, bytes):
+            output = output.decode(errors="replace")
+        returncode = -1
+    output = ANSI.sub("", output)
+    log.write_text(output)
+    errors, teardown, warnings, expected = [], [], [], []
+    for line in output.splitlines():
+        # Verbose threaded resource messages can interleave a diagnostic after
+        # an unfinished loading line. Preserve the complete diagnostic itself.
+        diagnostic = re.search(r"(?:SCRIPT ERROR|Parse Error|Compile Error|ERROR|WARNING):.*", line)
+        if diagnostic:
+            line = diagnostic.group()
+        if (
+            name == "SettingsRegression"
+            and returncode == 0
+            and "Settings regression: 0 failures" in output
+            and re.fullmatch(r"ERROR: Cannot save file 'user://settings-missing-\d+/options\.tres\.pending\.tres'\.", line)
+        ):
+            expected.append(line)
+            continue
+        if KNOWN_TEARDOWN.fullmatch(line):
+            teardown.append(line)
+            if not allow_teardown:
+                errors.append(line)
+        elif re.search(r"SCRIPT ERROR:|Parse Error:|Compile Error:|^ERROR:|FATAL|CRASH", line):
+            errors.append(line)
+        elif line.startswith("WARNING:"):
+            warnings.append(line)
+    result = {
+        "name": name, "passed": returncode == 0 and not errors and not warnings and not timed_out,
+        "returncode": returncode, "timed_out": timed_out,
+        "seconds": round(time.monotonic() - started, 3),
+        "log": str(log.relative_to(ROOT)), "log_sha256": digest(log), "errors": errors,
+        "known_teardown": teardown, "warnings": warnings,
+        "expected_negative_case_errors": expected,
+    }
+    print(f"{name}: {'PASS' if result['passed'] else 'FAIL'} ({result['seconds']}s)", file=sys.stderr, flush=True)
+    return result
+
+
+def unpack():
+    with tempfile.TemporaryDirectory(prefix="polish-macos-extract-", dir=OUTPUT) as folder:
+        destination = Path(folder)
+        with zipfile.ZipFile(ARCHIVE) as archive:
+            archive.extractall(destination)
+            for entry in archive.infolist():
+                mode = entry.external_attr >> 16
+                if stat.S_ISREG(mode):
+                    (destination / entry.filename).chmod(mode & 0o777)
+        extracted = destination / "Open RTS.app"
+        if not (extracted / "Contents/Resources/Open RTS.pck").is_file():
+            raise RuntimeError("Export archive did not contain the expected game application")
+        if APP.exists():
+            shutil.rmtree(APP)
+        shutil.move(str(extracted), APP)
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        epilog="Examples: python3 tmp/final-macos-release.py; "
+        "python3 tmp/final-macos-release.py --run; "
+        "python3 tmp/final-macos-release.py --run --tests-only --only RuntimeShutdownRegression",
+    )
+    parser.add_argument("--run", action="store_true", help="Run after the agreed source freeze and engine-slot handoff")
+    parser.add_argument("--tests-only", action="store_true", help="Verify the existing exported PCK without importing or exporting")
+    parser.add_argument("--only", nargs="+", default=[], help="Names from tools/release/build.py TESTS; requires --tests-only")
+    args = parser.parse_args()
+    names = suite_names()
+    unknown = sorted(set(args.only) - set(names))
+    if unknown or (args.only and not args.tests_only):
+        print("error: --only must name registered suites and requires --tests-only")
+        return 2
+    if not args.run:
+        print("bin: ~/godot-open-rts/tmp/final-macos-release.py")
+        print("description: Export and test the final macOS game using installed tools")
+        print(f"suites: {len(names)}")
+        print(f"engine_ready: {str(ENGINE.is_file()).lower()}")
+        print(f"template_ready: {str(TEMPLATE.is_file()).lower()}")
+        print(f"pack_exists: {str(PACK.is_file()).lower()}")
+        print("help: After source freeze and engine handoff run python3 tmp/final-macos-release.py --run")
+        return 0
+    if not ENGINE.is_file() or (not args.tests_only and not TEMPLATE.is_file()):
+        print("error: Installed Godot engine or macOS export template is missing")
+        return 1
+    project = (ROOT / "project.godot").read_text()
+    if 'run/main_scene="res://source/Main.tscn"' not in project or "main_loop_type=" in project:
+        print("error: Final export requires the normal game main scene and SceneTree")
+        return 1
+    LOGS.mkdir(parents=True, exist_ok=True)
+    OUTPUT.mkdir(parents=True, exist_ok=True)
+    selected = args.only or names
+    data = {
+        "schema": "macos-full-release-validation-v19",
+        "started_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
+        "engine": "Godot 4.7.2 stable", "registered_suite_count": len(names),
+        "selected_suites": selected, "source_sha256": source_fingerprint(),
+        "steps": [], "suites": [], "complete": False,
+    }
+    data["snapshot_version"] = int(re.search(r"^const VERSION = (\d+)$", (ROOT / "source/match/saves/MatchSnapshot.gd").read_text(), re.MULTILINE).group(1))
+    data["initial_source_sha256"] = data["source_sha256"]
+    if args.tests_only:
+        prior = json.loads(SUMMARY.read_text()) if SUMMARY.exists() else {}
+        if prior.get("artifacts", {}).get("pack_sha256") != digest(PACK):
+            print("error: Existing PCK has no matching captured source digest; run the full export gate")
+            return 1
+        data["source_sha256"] = prior["source_sha256"]
+    else:
+        data["previous_release"] = preserve_previous_release()
+    save_summary(data)
+    if not args.tests_only:
+        for name, arguments in [
+            ("import", [ENGINE, "--headless", "--path", ROOT, "--editor", "--quit"]),
+            ("export", [ENGINE, "--headless", "--path", ROOT, "--export-release", "macOS", ARCHIVE]),
+        ]:
+            result = execute(name, arguments, ROOT, 900)
+            data["steps"].append(result)
+            save_summary(data)
+            if not result["passed"]:
+                print(f"error: {name} failed; inspect {result['log']}")
+                return 1
+            if name == "import":
+                data["source_sha256"] = source_fingerprint()
+            elif source_fingerprint() != data["source_sha256"]:
+                print("error: Source changed during export; repeat after the next source freeze")
+                data["source_changed_during_export"] = True
+                save_summary(data)
+                return 1
+        unpack()
+        signature = execute("codesign-strict-deep", ["codesign", "--verify", "--deep", "--strict", APP], ROOT, 60)
+        data["steps"].append(signature)
+        save_summary(data)
+        if not signature["passed"]:
+            return 1
+    if not PACK.is_file():
+        print("error: Final exported game PCK is missing")
+        return 1
+    data["artifacts"] = {
+        "archive": str(ARCHIVE.relative_to(ROOT)), "archive_sha256": digest(ARCHIVE),
+        "pack": str(PACK.relative_to(ROOT)), "pack_sha256": digest(PACK),
+        "pack_bytes": PACK.stat().st_size,
+        "executable": str(EXECUTABLE.relative_to(ROOT)), "executable_sha256": digest(EXECUTABLE),
+    }
+    manifest_path = LOGS / "source-manifest.json"
+    manifest_path.write_text(json.dumps(source_manifest(), indent=2) + "\n")
+    data["source_manifest"] = {"path": str(manifest_path.relative_to(ROOT)), "sha256": digest(manifest_path)}
+    with tempfile.TemporaryDirectory(prefix="polish-isolated-pack-") as isolated:
+        if not args.tests_only:
+            smoke = execute(
+                "release-main-menu", [EXECUTABLE, "--headless", "--verbose", "--max-fps", "60", "--quit-after", "120"],
+                isolated, 90,
+            )
+            # This engine flag ends the loop directly; it does not deliver the
+            # window-close notification that runs the game's audio drain.
+            smoke["diagnostic_only"] = True
+            smoke["acceptance"] = "Native normal-app Cmd-Q is the required shutdown gate."
+            data["steps"].append(smoke)
+            save_summary(data)
+        for name in selected:
+            result = execute(
+                name, [ENGINE, "--headless", "--main-pack", PACK, "--fixed-fps", "60",
+                       "--script", f"res://tests/headless/{name}.gd"],
+                isolated, 300, allow_teardown=True,
+            )
+            data["suites"].append(result)
+            save_summary(data)
+    data["final_source_sha256"] = source_fingerprint()
+    data["source_unchanged"] = data["source_sha256"] == data["final_source_sha256"]
+    data["artifacts_unchanged_after_suites"] = all(digest(path) == data["artifacts"][key] for path, key in (
+        (ARCHIVE, "archive_sha256"), (PACK, "pack_sha256"), (EXECUTABLE, "executable_sha256")))
+    data["finished_utc"] = dt.datetime.now(dt.timezone.utc).isoformat()
+    data["complete"] = True
+    data["passed_count"] = sum(result["passed"] for result in data["suites"])
+    # Once exported, tests validate this immutable PCK. Later workspace edits are
+    # recorded separately and require a new export before that source is shipped.
+    data["packaged_checks_passed"] = all(
+        result["passed"] for result in data["steps"] + data["suites"]
+        if not result.get("diagnostic_only", False)
+    ) and data["source_unchanged"] and data["artifacts_unchanged_after_suites"]
+    data["passed"] = data["packaged_checks_passed"]
+    data["native_shutdown_pending"] = True
+    save_summary(data)
+    print(f"passed: {str(data['passed']).lower()}")
+    print(f"suites_passed: {data['passed_count']}")
+    print(f"suites_total: {len(selected)}")
+    print(f"source_unchanged: {str(data['source_unchanged']).lower()}")
+    print(f"summary: {SUMMARY.relative_to(ROOT)}")
+    return 0 if data["passed"] else 1
+
+
+if __name__ == "__main__":
+    try:
+        raise SystemExit(main())
+    except (OSError, RuntimeError, zipfile.BadZipFile) as error:
+        print("error: " + json.dumps(str(error)))
+        raise SystemExit(1)

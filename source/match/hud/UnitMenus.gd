@@ -300,6 +300,7 @@ func _reset_menus():
 	_commands.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_commands.add_theme_constant_override("separation", 6)
 	columns.add_child(_commands)
+	columns.add_child(VSeparator.new())
 	_support = VBoxContainer.new()
 	_support.name = "UnitBehaviorAndOrders"
 	_support.custom_minimum_size.x = 210

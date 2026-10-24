@@ -7,6 +7,7 @@ extends RefCounted
 ## Selected and active states use fills, insets and glow, never coloured borders.
 
 const HudStyle = preload("res://source/match/hud/HudStyle.gd")
+const Cache = preload("res://source/utils/RuntimeCache.gd")
 const PANORAMA = preload("res://assets/ui/art/battle/frontier-pause-v2.png")
 const KIT = "res://assets/ui/hud/"
 const BODY_FONT = preload("res://assets/fonts/NotoSansSC.ttf")
@@ -14,7 +15,7 @@ const DISPLAY_FACE = preload("res://assets/fonts/BarlowCondensed-SemiBold.ttf")
 const NUMERAL_FACE = preload("res://assets/fonts/BarlowCondensed-Bold.ttf")
 
 const IVORY = Color("f1eee4")
-const MUTED = Color("9aa5a6")
+const MUTED = Color("b0b9ba")
 const COPPER = Color("d8bc80")
 ## Accent and ink (text on accent fills) per faction kit.
 const PALETTES = {
@@ -27,24 +28,24 @@ const SIGNAL_WARN = Color("e7c578")
 const SIGNAL_BAD = Color("ff9a66")
 const HEALTH_OK = Color("9fd27a")
 
-## The kit in use: the human player's faction, set when a battle starts.
-static var faction := "bastion"
-static var _themes = {}
-static var _display: FontVariation
-static var _heading: FontVariation
-static var _numeral: FontVariation
+## Shared themes and fonts follow the autoload's lifetime. Static resource fields
+## keep their scripts and GPU resources alive past renderer shutdown.
+
+
+static func _state() -> Dictionary:
+	return Cache.bucket("battle_theme")
 
 
 static func use_faction(name: String):
-	faction = name if PALETTES.has(name) else "bastion"
+	_state().faction = name if PALETTES.has(name) else "bastion"
 
 
 static func accent() -> Color:
-	return PALETTES[faction].accent
+	return PALETTES[_state().get("faction", "bastion")].accent
 
 
 static func ink() -> Color:
-	return PALETTES[faction].ink
+	return PALETTES[_state().get("faction", "bastion")].ink
 
 
 # --- fonts ---------------------------------------------------------------------
@@ -52,31 +53,37 @@ static func ink() -> Color:
 
 static func display_font() -> Font:
 	# Condensed industrial face for keys, tabs and labels; CJK falls back to Noto.
-	if _display == null:
-		_display = FontVariation.new()
-		_display.base_font = DISPLAY_FACE
-		_display.fallbacks = [BODY_FONT]
-	return _display
+	var state = _state()
+	if not state.has("display_font"):
+		var font = FontVariation.new()
+		font.base_font = DISPLAY_FACE
+		font.fallbacks = [BODY_FONT]
+		state.display_font = font
+	return state.display_font
 
 
 static func heading_font() -> Font:
 	# Tracked-out capitals for engraved nameplates.
-	if _heading == null:
-		_heading = FontVariation.new()
-		_heading.base_font = DISPLAY_FACE
-		_heading.fallbacks = [BODY_FONT]
-		_heading.spacing_glyph = 1
-	return _heading
+	var state = _state()
+	if not state.has("heading_font"):
+		var font = FontVariation.new()
+		font.base_font = DISPLAY_FACE
+		font.fallbacks = [BODY_FONT]
+		font.spacing_glyph = 1
+		state.heading_font = font
+	return state.heading_font
 
 
 static func numeral_font() -> Font:
-	if _numeral == null:
-		_numeral = FontVariation.new()
-		_numeral.base_font = NUMERAL_FACE
-		_numeral.fallbacks = [BODY_FONT]
+	var state = _state()
+	if not state.has("numeral_font"):
+		var font = FontVariation.new()
+		font.base_font = NUMERAL_FACE
+		font.fallbacks = [BODY_FONT]
 		# Tabular figures keep counters from jittering as values change.
-		_numeral.opentype_features = {"tnum": 1}
-	return _numeral
+		font.opentype_features = {"tnum": 1}
+		state.numeral_font = font
+	return state.numeral_font
 
 
 # --- styles --------------------------------------------------------------------
@@ -84,6 +91,7 @@ static func numeral_font() -> Font:
 
 static func kit(name: String, slice, horizontal = 0.0, vertical = 0.0) -> StyleBox:
 	var style = HudStyle.new()
+	var faction = _state().get("faction", "bastion")
 	var own = KIT + faction + "/" + name + ".png"
 	# State overlays (glow, focus, bar cells) are shared and tinted by the accent.
 	style.texture = load(own if ResourceLoader.exists(own) else KIT + name + ".png")
@@ -220,8 +228,11 @@ static func apply_housing(control: Control, horizontal = 24, vertical = 22):
 
 
 static func create() -> Theme:
-	if _themes.has(faction):
-		return _themes[faction]
+	var state = _state()
+	var faction = state.get("faction", "bastion")
+	var themes = state.get_or_add("themes", {})
+	if themes.has(faction):
+		return themes[faction]
 	var theme = Theme.new()
 	theme.default_font = BODY_FONT
 	theme.default_font_size = 16
@@ -253,7 +264,7 @@ static func create() -> Theme:
 	_fields(theme)
 	_tabs(theme)
 	_chrome(theme)
-	_themes[faction] = theme
+	themes[faction] = theme
 	return theme
 
 

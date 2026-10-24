@@ -1,0 +1,14 @@
+extends SceneTree
+
+func _initialize():
+	var args = OS.get_cmdline_user_args()
+	var actual = OS.get_user_data_dir().replace("\\", "/")
+	var expected = args[0].replace("\\", "/") if not args.is_empty() else ""
+	print("ISOLATION_PROOF actual=%s expected=%s" % [actual, expected])
+	print("ISOLATION_SETTINGS custom=%s name=%s" % [ProjectSettings.get_setting("application/config/use_custom_user_dir"), ProjectSettings.get_setting("application/config/custom_user_dir_name")])
+	if actual != expected or expected.is_empty():
+		push_error("Isolated user directory does not match expected path")
+		quit(2)
+		return
+	print("ISOLATION_PROOF_PASS")
+	quit(0)

@@ -16,6 +16,8 @@ const COMBAT_ROLES = [
 ]
 
 const AA_GROUND_DAMAGE_FACTOR = 0.33
+const COORDINATION_COST = {"resource_a": 20, "resource_b": 20}
+const COORDINATION_DURATION = 30.0
 const BRANCHES = ["weapons", "armor", "service", "doctrine", "dual_purpose_aa"]
 const ITEMS = {
 	"weapons_1":
@@ -61,6 +63,16 @@ static func title(id, faction):
 			return "Rapid redeployment"
 		return "Fortified Anchor" if faction == "bastion" else "Accelerated Precision"
 	return ITEMS[id].title if ITEMS.has(id) else "Coordination"
+
+
+static func cost(id):
+	if id == "coordination":
+		return Vector2i(COORDINATION_COST.resource_a, COORDINATION_COST.resource_b)
+	return ITEMS[id].cost
+
+
+static func requirements(id):
+	return [] if id == "coordination" else ITEMS[id].requires
 
 
 static func description(id, faction):
@@ -133,17 +145,19 @@ static func health_factor(role, completed):
 
 
 static func empty_state():
-	return {"completed": [], "active": "", "left": -1.0, "paid": {}}
+	return {"completed": [], "active": "", "left": -1.0, "paid": {}, "queued": []}
 
 
-static func valid_state(state, coordination):
-	if not state is Dictionary or state.size() != 4:
+static func valid_state(state, coordination, coordination_active = false):
+	if not state is Dictionary or state.size() != 5:
 		return false
 	if not state.get("completed") is Array or not state.get("active") is String:
 		return false
 	if not state.get("left") is float and not state.get("left") is int:
 		return false
 	if not state.get("paid") is Dictionary or not is_finite(float(state.left)):
+		return false
+	if not state.get("queued") is Array or state.queued.size() > ITEMS.size() + 1:
 		return false
 	if state.completed.size() > ITEMS.size():
 		return false
@@ -156,19 +170,45 @@ static func valid_state(state, coordination):
 		if not _prerequisites(id, seen, coordination):
 			return false
 	if state.active == "":
-		return state.left == -1.0 and state.paid.is_empty()
-	if not ITEMS.has(state.active) or state.active in seen:
-		return false
-	var item = ITEMS[state.active]
+		if state.left != -1.0 or not state.paid.is_empty():
+			return false
+	else:
+		if not ITEMS.has(state.active) or state.active in seen or coordination_active:
+			return false
+		var item = ITEMS[state.active]
+		if not (
+			_prerequisites(state.active, seen, coordination)
+			and state.left > 0
+			and state.left <= item.seconds
+			and _valid_payment(state.active, state.paid)
+		):
+			return false
+		seen.append(state.active)
+	if coordination or coordination_active:
+		seen.append("coordination")
+	for entry in state.queued:
+		if not entry is Dictionary or entry.size() != 2:
+			return false
+		var id = entry.get("id")
+		if not id is String or (id != "coordination" and not ITEMS.has(id)) or id in seen:
+			return false
+		if not _valid_payment(id, entry.get("paid")):
+			return false
+		if not requirements(id).all(func(required): return required in seen):
+			return false
+		seen.append(id)
+	return true
+
+
+static func _valid_payment(id, payment):
+	var price = cost(id)
 	return (
-		_prerequisites(state.active, seen, coordination)
-		and state.left > 0
-		and state.left <= item.seconds
-		and state.paid.size() == 2
-		and state.paid.get("resource_a") is int
-		and state.paid.get("resource_b") is int
-		and state.paid.resource_a == item.cost.x
-		and state.paid.resource_b == item.cost.y
+		payment is Dictionary
+		and payment.size() == 2
+		and payment.get("resource_a") is int
+		and payment.get("resource_b") is int
+		and payment.resource_a == price.x
+		and payment.resource_b == price.y
 	)
 
 

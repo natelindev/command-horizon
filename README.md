@@ -10,6 +10,14 @@ In **Settings → Graphics**, enable **High-quality building lights** for soft b
 or **HDR output** for a supported display. Both are off by default. HUD animations
 respect **Reduce bright combat flashes** and can also be disabled separately.
 
+The latest [battlefield polish](docs/playtests/2026-10-23/POLISH.md) adds combat
+impact feedback, faction selection shapes, patrols, smart rallies, adaptive music,
+veterancy and plateau advantages. **Tab** cycles unit classes in a mixed selection;
+**P** sets a looping patrol. Unit status captions appear only with **F1** diagnostics.
+Technology and Coordination upgrades share an ordered queue with cancellation
+and refunds. A commander list and announcement make player elimination visible
+while preserving the HQ rebuild grace period.
+
 ## Game design
 
 The evolving RTS design is recorded in
@@ -40,23 +48,21 @@ sounds follow **Effects volume**.
 Run `project.godot` in **Godot 4.7.2** and choose **SKIRMISH**, or double-click [`play-skirmish.command`](play-skirmish.command) on this Mac.
 
 - Play **Bastion**, **Helix**, or **Free Frontier**, against any faction or **Random** (mirror matches supported).
-- Choose the expanded **Desert Frontier**, **Alpine Relay**, or **Coastal Foundry**, plus **Easy / Normal / Hard** AI. Sparse legacy maps are retired from new-game selection.
+- Choose among 16 battlefields for two or four players, including **Desert Frontier**, **Alpine Relay**, **Coastal Foundry** and **Copper Badlands**, with **Easy / Normal / Hard** AI. Sparse legacy maps are retired from new-game selection.
 - **Standard:** HQ, four engineers, two infantry, 60 materials / 12 electronics. **Advanced:** established base, tanks and repair support, 120 / 60.
-- **Economy:** each resource field has five material piles and two electronics piles. All three current skirmish maps place the home field center 18 m from each starting HQ, with matching individual pile distances. Home piles contain 400 materials / 720 electronics; expansion piles contain 600 / 1,200. Full heaps change into opened bundles, scattered parts, and scraps at 300, 150, and 60 remaining; empty piles disappear. Electronics take 1.5 seconds per item to collect. Repair units, walkers, heavy armor and gunships have lower electronics costs across all factions. HQs supply 8 power and generators supply 12: a full production/technology/defense base needs two generators, with more required as production expands.
+- **Economy:** each resource field has five material piles and two electronics piles. **Desert Frontier**, **Alpine Relay** and **Coastal Foundry** place the home field center 18 m from each starting HQ, with matching individual pile distances. Home piles contain 400 materials / 720 electronics; expansion piles contain 600 / 1,200. Full heaps change into opened bundles, scattered parts, and scraps at 300, 150, and 60 remaining; empty piles disappear. Electronics take 1.5 seconds per item to collect. Repair units, walkers, heavy armor and gunships have lower electronics costs across all factions. HQs supply 8 power and generators supply 12: a full production/technology/defense base needs two generators, with more required as production expands.
 - **Battle controls:** direct orders, unit behaviors, production queues and engineer assignment shortcuts.
 - Harvest, construct, produce, repair and fight with all three faction rosters. Each side has a **100 mobile-unit cap**, including queued reinforcements, and a separate **40-structure cap** including foundations.
-- **Default keys:** **M + left-click:** move without engaging. **T + enemy click:** attack a visible target. **F + left-click:** attack move. The selection panel has matching buttons; hold **Shift** when choosing the target to queue. **Esc / right-click** cancels targeting. [Direct command verification](docs/playtests/2026-10-04/DIRECT_ORDERS.md). **Space:** tactical pause with orders, construction and production available. **Esc:** controls, resume, restart, setup or main menu.
-- **Options / Esc → Settings:** preview master/voice/effects volume, speech subtitles (three text sizes), camera speed, edge scrolling, window mode, pointer confinement and reduced flashes. Save keeps changes; Cancel/Esc restores them. **Controls** remaps 33 battle, camera, queue/selection and control-group actions, with conflict feedback and per-action reset. Displayed battle shortcuts follow your bindings. Tab/Enter navigate controls; Esc cancels capture or closes dialogs. See [controls verification](docs/playtests/2026-10-03/KEY_CONTROLS.md). Subtitles remain readable with audio muted. Urgent warnings take priority over routine voice responses; repeated casualties no longer restart a line for each loss. [Speech verification](docs/playtests/2026-10-03/SPEECH_ACCESSIBILITY.md). Attacks, hits and infantry/vehicle/building destruction have distinct combat sounds, with stereo direction and current-fog filtering. **Test combat sound** previews the Effects setting. [Combat audio verification](docs/playtests/2026-10-03/COMBAT_AUDIO.md).
+- **Default keys:** **M + left-click:** move without engaging. **T + enemy click:** attack a visible target. **F + left-click:** attack move. **P + left-click:** patrol. **Tab:** cycle selected unit classes. The selection panel has matching buttons; hold **Shift** when choosing the target to queue. **Esc / right-click** cancels targeting. [Direct command verification](docs/playtests/2026-10-04/DIRECT_ORDERS.md). **Space:** tactical pause with orders, construction and production available. **Esc:** controls, resume, restart, setup or main menu.
+- **Options / Esc → Settings:** preview master/voice/effects volume, speech subtitles (three text sizes), camera speed, edge scrolling, window mode, pointer confinement and reduced flashes. Save keeps changes; Cancel/Esc restores them. **Controls** remaps 35 battle, camera, queue/selection and control-group actions, with conflict feedback and per-action reset. Displayed battle shortcuts follow your bindings. Tab/Enter navigate controls; Esc cancels capture or closes dialogs. See [controls verification](docs/playtests/2026-10-03/KEY_CONTROLS.md). Subtitles remain readable with audio muted. Urgent warnings take priority over routine voice responses; repeated casualties no longer restart a line for each loss. [Speech verification](docs/playtests/2026-10-03/SPEECH_ACCESSIBILITY.md). Attacks, hits and infantry/vehicle/building destruction have distinct combat sounds, with stereo direction and current-fog filtering. **Test combat sound** previews the Effects setting. [Combat audio verification](docs/playtests/2026-10-03/COMBAT_AUDIO.md).
 - **Interface size:** Settings → General → Display offers **100%, 125%, and 150%**, with live preview and Save/Cancel. It scales menus, battle controls and text; subtitle size remains adjustable separately. [Scaling verification](docs/playtests/2026-10-03/INTERFACE_SCALE.md).
 - **Alerts:** open the top-right history to inspect incoming fire, grouped losses, idle engineers, depleted fields, stranded cargo, low power and blocked production. **Show** selects affected friendly units and centers the camera; **Go to field** visits the assignment area. Both work while paused. Close with the displayed Menu key; Clear history retains active problems. [Alert verification](docs/playtests/2026-10-03/BATTLE_ALERTS.md).
 - **Esc → Save / Load battle:** five manual slots and three campaign checkpoints. **F5:** quicksave. **F9:** review quickload. The main menu also has **LOAD BATTLE**. Loaded battles remain paused until Resume.
 - Destroy the enemy HQ and prevent a completed replacement for **60 seconds**. Losing every unit/building also ends the match. Victory, defeat and draw screens support replay and return to setup.
 
-![Skirmish setup](art/skirmish/setup-1280.png)
-
 Helix uses its own models, icons and names: mobile units have 20% less health and 20% faster movement than Bastion counterparts; Prism artillery has longer range and slower movement. Costs and progression are initial tuning. The AI gathers and pays for units, buildings and research, reserving eligible technology costs while prioritizing rebuilding and urgent production. Easy / Normal / Hard skirmish commanders differ in decision speed, attack timing and size, economy, production, research and retreats, without economic or combat bonuses ([difficulty profiles](docs/CORE_GAMEPLAY_SPEC.md#enemy-fairness-and-difficulty)). See [paid progression verification](docs/playtests/2026-10-05/PAID_PROGRESSION.md) and the [reproducible match runner](tests/playtest/README.md).
 
-[Implemented rules and limits](docs/GAME_DESIGN.md#19-playable-two-faction-skirmish--implemented-2026-10-01) · [Helix in battle](art/skirmish/helix-factory.png) · [Verification report](docs/playtests/2026-10-01/SKIRMISH.md)
+[Implemented rules and limits](docs/GAME_DESIGN.md#19-playable-two-faction-skirmish--implemented-2026-10-01) · [Verification report](docs/playtests/2026-10-01/SKIRMISH.md)
 
 ```sh
 godot --headless --path . --fixed-fps 60 --script tests/headless/Skirmish.gd
@@ -64,9 +70,9 @@ godot --headless --path . --fixed-fps 60 --script tests/headless/NavigationRegre
 godot --path . --fixed-fps 60 --script tests/rendered/SkirmishPreview.gd
 ```
 
-Combat now includes armor/weapon counters, blocked sight and fire, non-stacking repair, infantry/aircraft recovery, recoil, tracers, missile trails, impacts and temporary wrecks. [Watch the combat preview](art/skirmish/combat-preview.mp4) · [Rules and measurements](docs/playtests/2026-10-01/COMBAT.md) · [Development roadmap](docs/DEVELOPMENT_ROADMAP.md).
+Combat now includes armor/weapon counters, blocked sight and fire, non-stacking repair, infantry/aircraft recovery, recoil, tracers, missile trails, impacts and temporary wrecks. [Rules and measurements](docs/playtests/2026-10-01/COMBAT.md) · [Development roadmap](docs/DEVELOPMENT_ROADMAP.md).
 
-Both factions now have individual long-idle gestures, gait/hover timing, recoil and death variations. [Watch the idle/combat review](art/skirmish/unit-motion-preview.mp4) · [Motion rules and verification](docs/playtests/2026-10-01/UNIT_MOTION.md).
+Both factions now have individual long-idle gestures, gait/hover timing, recoil and death variations. [Motion rules and verification](docs/playtests/2026-10-01/UNIT_MOTION.md).
 
 Choose **Auto-engage**, **Defensive**, **Follow**, **Guard** or **Hold Fire** in the Orders panel. Behaviors require no setup or network connection. Follow selects a friendly unit; Guard selects a position. Ordinary move, attack, gathering, construction and repair orders remain available.
 
@@ -99,9 +105,7 @@ godot --path . --fixed-fps 60 --script tests/rendered/CampaignPreview.gd
 
 Open `project.godot` in **Godot 4.7.2**, run the project, and choose **BASTION DEMO**. On this Mac, double-click [`play-bastion.command`](play-bastion.command) to launch directly. A Godot executable is required; the launcher checks the local tool download, cache, application folder, and PATH.
 
-The desert scenario starts with the full faction available for review: **8 mobile unit types, 9 structures, materials/electronics harvesting, power capacity, construction, production, repairs, fog of war, and an AI opponent**. Reinforcements cost resources; the command lab unlocks walkers and railgun tanks. Destroy all enemy units and structures to win. Use **SKIRMISH** for the two-faction mode described above.
-
-![Bastion production in the running Godot demo](art/bastion/demo/gameplay/factory.png)
+The desert scenario starts with the full faction available for review: **8 mobile unit types, 9 structures, materials/electronics harvesting, power capacity, construction, production, repairs, fog of war, and an AI opponent**. Reinforcements cost resources; the command lab unlocks walkers and railgun tanks. Destroy all enemy units and structures to win. Use **SKIRMISH** for the three-faction mode described above.
 
 - **Left-click / drag:** select. **Shift:** add to selection. **Right-click:** move, attack, harvest, repair an ally, or set a factory rally point. **Shift + right-click:** append an order (up to 16 waiting). **Shift + attack-move click:** append an attack-move.
 - **Unit behaviors:** Attack, Defensive, Follow, Guard and Hold Fire are available immediately in Orders.
@@ -113,7 +117,7 @@ The desert scenario starts with the full faction available for review: **8 mobil
 
 Assets and implementation:
 
-- [Editable Blender faction catalogue](art/bastion/demo/bastion_faction.blend) · [asset overview](art/bastion/demo/faction-catalogue.png) · [construction UI](art/bastion/demo/gameplay/construction.png)
+- [Editable Blender faction catalogue](art/bastion/demo/bastion_faction.blend) · [asset overview](art/bastion/demo/faction-catalogue.png)
 - [Rebuild script](art/bastion/build_faction.py) · [20 GLB exports](assets/models/bastion/demo) · [unit/building icons](assets/ui/bastion) · [verified mesh counts](art/bastion/demo/verification.json)
 - [Gameplay specification and prototype limitations](docs/GAME_DESIGN.md#16-bastion-asset-and-gameplay-demo--implemented-2026-10-01)
 

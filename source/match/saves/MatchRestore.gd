@@ -127,6 +127,7 @@ func restore(tree, snapshot):
 		)
 		entities[saved.id] = unit
 		unit.hp = saved.hp
+		unit.experience = saved.experience
 		unit.stance = saved.stance
 		if not saved.signature.is_empty():
 			unit.signature.restore(saved.signature)
@@ -295,6 +296,12 @@ func restore(tree, snapshot):
 	camera.position = _data.camera.position
 	camera.rotation = _data.camera.rotation
 	game.battle_record.restore(_data.battle_record)
+	if not await load("res://source/match/effects/CombatPrewarm.gd").prepare(game):
+		# The caller may already own a replacement scene. Dispose only this
+		# provisional battle, leaving the replacement and its pause state intact.
+		if is_instance_valid(game) and not game.is_queued_for_deletion():
+			game.queue_free()
+		return {"ok": false, "cancelled": true, "error": "Battle loading was cancelled."}
 	game.restoring = false
 	game.base_area_lighting.refresh()
 	for player in players:
@@ -405,6 +412,7 @@ func _structure_memory(_game, handler):
 		geometry.set_meta("memory_role", saved.role)
 		geometry.set_meta("memory_faction", saved.faction)
 		geometry.set_meta("memory_color", saved.color)
+		handler.prepare_memory_geometry(geometry)
 		handler.add_child(geometry)
 		var real = entities.get(saved.entity)
 		if real != null:

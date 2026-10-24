@@ -45,7 +45,7 @@ func _exercise_commands(commands):
 	_check(game.battlefield.is_observed(player, target), "Command target fixture is hidden")
 	await _select_units([tank, worker])
 	var menus = game.find_child("UnitMenus")
-	_check(menus._command_buttons.size() == 3, "Distinct command buttons are missing")
+	_check(menus._command_buttons.size() == 4, "Distinct command buttons are missing")
 	var clock = game.simulation_time
 	var destination = Vector3(30, 0, 38)
 	commands.arm("move")
@@ -291,7 +291,7 @@ func _review_controls(_player, _tank, _target):
 func _migration(keys):
 	var legacy = keys.defaults()
 	legacy.version = 1
-	for action in keys.ADDED_IN_V2:
+	for action in keys.ADDED_IN_V2 + keys.ADDED_IN_V3:
 		legacy.keys.erase(action)
 	legacy.keys.toggle_match_menu = KEY_M
 	legacy.keys.rotate_structure = KEY_T
@@ -300,7 +300,10 @@ func _migration(keys):
 	legacy.keys.quickload_battle = KEY_M | KEY_MASK_CTRL
 	var untouched = legacy.duplicate(true)
 	var upgraded = keys.normalize(legacy)
-	_check(upgraded.version == 2 and upgraded.keys.size() == 33, "Legacy controls did not migrate")
+	_check(
+		upgraded.version == keys.VERSION and upgraded.keys.size() == keys.definitions().size(),
+		"Legacy controls did not migrate"
+	)
 	for action in legacy.keys:
 		_check(
 			upgraded.keys[action] == legacy.keys[action], "Migration reset custom key: " + action

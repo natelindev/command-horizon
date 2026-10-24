@@ -1,11 +1,12 @@
 extends RefCounted
 
+const Cache = preload("res://source/utils/RuntimeCache.gd")
 const SURFACE = preload("res://source/shaders/3d/frontier_surface.gdshader")
 const Textures = preload("res://source/match/SurfaceTextures.gd")
-static var _materials = {}
 
 
 static func apply(model):
+	var materials = Cache.bucket("frontier_materials")
 	for mesh in model.find_children("*", "MeshInstance3D", true, false):
 		for index in mesh.mesh.get_surface_count():
 			var original = mesh.get_active_material(index)
@@ -24,7 +25,7 @@ static func apply(model):
 				]
 			):
 				continue
-			if not _materials.has(key):
+			if not materials.has(key):
 				var material = ShaderMaterial.new()
 				material.shader = SURFACE
 				var tint = original.albedo_color
@@ -36,5 +37,5 @@ static func apply(model):
 				Textures.configure_armor(
 					material, key in ["Frontier_Ceramic", "Frontier_Secondary", "Frontier_Titanium"]
 				)
-				_materials[key] = material
-			mesh.set_surface_override_material(index, _materials[key])
+				materials[key] = material
+			mesh.set_surface_override_material(index, materials[key])

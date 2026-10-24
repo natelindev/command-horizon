@@ -82,17 +82,22 @@ func receive_weapon_hit(source):
 	_take_hit(source, Rules.damage(source, self))
 
 
-func receive_shot(shot, point = null, share = 1.0):
+func receive_shot(shot, point = null, share = 1.0, presentation_weapon = {}):
 	if hp <= 0 or not interactive:
 		return
-	_take_hit(shot.feedback_source(), Rules.damage_from(shot, self) * share, point)
+	_take_hit(
+		shot.feedback_source(), Rules.damage_from(shot, self) * share, point, presentation_weapon
+	)
 
 
-func _take_hit(source, damage, point = null):
+func _take_hit(source, damage, point = null, presentation_weapon = {}):
 	if damage <= 0:
 		return
 	_match.combat_effects.impact(
-		self, source, point if point != null else global_position + Vector3.UP * .5
+		self,
+		source,
+		point if point != null else global_position + Vector3.UP * .5,
+		presentation_weapon
 	)
 	hp = maxf(0, hp - damage)
 	hp_changed.emit()

@@ -7,12 +7,16 @@ extends "res://tests/headless/SaveRestoreEdges.gd"
 # resource rosters at 720p with large UI, including both scroll endpoints.
 # Run without --headless: Godot --path . --script tests/rendered/HudConsolePreview.gd
 # Use -- --rosters [bastion helix frontier] for only the eight-player matrix.
+# Use -- --elimination [bastion helix frontier] for commander status and announcement review.
 
 const HudLayout = preload("res://source/match/hud/HudLayout.gd")
 const OUTPUT = "res://art/hud-console/"
 var _full_visibility_only = false
 var _research_only = false
 var _roster_cases = 0
+var _elimination_cases = 0
+var _match_settings_script
+var _player_settings_script
 
 
 class RenderErrorLog:
@@ -33,6 +37,8 @@ func _run():
 		quit(1)
 		return
 	Engine.max_fps = 60
+	_match_settings_script = load("res://source/data-model/MatchSettings.gd")
+	_player_settings_script = load("res://source/data-model/PlayerSettings.gd")
 	var factions = Array(OS.get_cmdline_user_args())
 	_full_visibility_only = factions.has("--full-visibility")
 	factions.erase("--full-visibility")
@@ -40,6 +46,8 @@ func _run():
 	factions.erase("--research")
 	var rosters_only = factions.has("--rosters")
 	factions.erase("--rosters")
+	var elimination_only = factions.has("--elimination")
+	factions.erase("--elimination")
 	var preferences = root.get_node("Globals").options
 	var original = preferences.capture()
 	root.get_node("SaveManager").autosaves_enabled = false
@@ -56,10 +64,18 @@ func _run():
 	]:
 		if rosters_only or (not factions.is_empty() and setup[0] not in factions):
 			continue
-		await _configure(preferences, setup[2], setup[3], setup[5])
-		await _battle(setup[0], setup[1], setup[4])
+		if elimination_only:
+			await _configure(preferences, Vector2i(1280, 720), 1.5, setup[5])
+			var review_options = preferences.capture()
+			review_options.reduced_motion = true
+			review_options.reduced_flashes = true
+			preferences.restore(review_options)
+			await _elimination_review(setup[0], setup[5])
+		else:
+			await _configure(preferences, setup[2], setup[3], setup[5])
+			await _battle(setup[0], setup[1], setup[4])
 	var expected_rosters = 0
-	if rosters_only or (not _full_visibility_only and not _research_only):
+	if rosters_only or (not elimination_only and not _full_visibility_only and not _research_only):
 		for faction in ["bastion", "helix", "frontier"]:
 			if not factions.is_empty() and faction not in factions:
 				continue
@@ -72,6 +88,9 @@ func _run():
 		_roster_cases == expected_rosters,
 		"Only %d of %d resource roster cases completed" % [_roster_cases, expected_rosters]
 	)
+	if elimination_only:
+		var expected = 12 if factions.is_empty() else factions.size() * 4
+		_check(_elimination_cases == expected, "Commander elimination preview cases did not finish")
 	OS.remove_logger(logger)
 	for message in logger.messages:
 		_check(false, message)
@@ -80,6 +99,95 @@ func _run():
 		push_error(message)
 	print("HUD console preview: %d failures" % errors.size())
 	quit(0 if errors.is_empty() else 1)
+
+
+func _elimination_review(faction, language):
+	for count in [4, 8]:
+		var settings = _match_settings_script.new()
+		settings.skirmish = true
+		settings.map_path = "res://source/match/maps/BigArena.tscn"
+		settings.visibility = (
+			settings.Visibility.FULL if count == 8 else settings.Visibility.PER_PLAYER
+		)
+		var constants = root.get_node("Constants")
+		for index in count:
+			var side = _player_settings_script.new()
+			side.controller = (
+				constants.PlayerType.HUMAN
+				if index == 0
+				else constants.PlayerType.SIMPLE_CLAIRVOYANT_AI
+			)
+			side.faction = faction
+			side.color = constants.Player.COLORS[index]
+			settings.players.append(side)
+		game = load("res://source/match/Skirmish.tscn").instantiate()
+		game.settings = settings
+		game.map = load(settings.map_path).instantiate()
+		root.add_child(game)
+		current_scene = game
+		var players = get_nodes_in_group("players")
+		for player in players:
+			player.set_process(false)
+			if count == 8:
+				player.resource_a = 10000 + player.get_index() * 750
+				player.resource_b = 5000 + player.get_index() * 125
+		var camera = game.get_node("IsometricCamera3D")
+		camera.set_physics_process(false)
+		camera.set_position_safely(_units(players[0], "CommandCenter")[0].global_position)
+		await _frames(12)
+		paused = true
+		var roster = game.hud.commander_roster
+		_check(root.size == Vector2i(1280, 720), "Elimination review lost 720p resolution")
+		_check(
+			root.get_node("Globals").options.interface_scale == 1.5,
+			"Elimination review lost 150% interface scale"
+		)
+		_check(
+			TranslationServer.get_locale() == language, "Elimination review has the wrong language"
+		)
+		var rival = players[-1]
+		_units(rival, "CommandCenter")[0].hp = 0
+		await _frames(3)
+		game._check_outcome(59.5)
+		roster.refresh()
+		await _frames(3)
+		var label = "%s-720p-%s-%d-commanders" % [faction, language, count]
+		if count == 4:
+			_check(not roster._announcement.visible, "HQ grace announced elimination: " + label)
+			await _shot(label + "-hq-grace")
+		game._check_outcome(0.5)
+		if count == 8:
+			roster.scroll_vertical = 10000
+		await _frames(3)
+		_check(not game.finished, "Early elimination ended free-for-all: " + label)
+		_check(roster._announcement.visible, "Elimination has no announcement: " + label)
+		_check(
+			roster.rows[rival].status.text == tr("Eliminated"),
+			"Elimination has no persistent status: " + label
+		)
+		_check(
+			roster.get_global_rect().encloses(roster.rows[rival].row.get_global_rect()),
+			"Eliminated commander is clipped: " + label
+		)
+		_check(
+			root.get_visible_rect().encloses(roster._announcement.get_global_rect()),
+			"Elimination announcement exceeds viewport: " + label
+		)
+		_check(
+			not roster._announcement.get_global_rect().intersects(
+				game.hud._resources.get_global_rect()
+			),
+			"Elimination announcement covers the resource roster: " + label
+		)
+		await _shot(label + "-eliminated")
+		roster._process(7.0)
+		await _frames(3)
+		_check(not roster._announcement.visible, "Elimination toast never clears: " + label)
+		await _shot(label + "-persistent")
+		_elimination_cases += 1
+		paused = false
+		game.queue_free()
+		await _frames(5)
 
 
 func _configure(preferences, resolution, scale_value, language):
@@ -259,7 +367,7 @@ func _select(units):
 
 
 func _many_players(faction, language, spectator):
-	var settings = load("res://source/data-model/MatchSettings.gd").new()
+	var settings = _match_settings_script.new()
 	settings.skirmish = not spectator
 	settings.map_path = "res://source/match/maps/BigArena.tscn"
 	# PER_PLAYER with no human exercises the real spectator roster path.
@@ -267,7 +375,7 @@ func _many_players(faction, language, spectator):
 	var constants = root.get_node("Constants")
 	var controllers = constants.PlayerType
 	for index in range(8):
-		var side = load("res://source/data-model/PlayerSettings.gd").new()
+		var side = _player_settings_script.new()
 		side.controller = (
 			controllers.HUMAN if index == 0 and not spectator else controllers.SIMPLE_CLAIRVOYANT_AI
 		)

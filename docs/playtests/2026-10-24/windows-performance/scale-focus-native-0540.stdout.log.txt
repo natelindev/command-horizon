@@ -1,0 +1,25 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Vulkan 1.4.357 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4090
+
+FOCUS_GATE_READY pid=28096 title=Open RTS Benchmark godot_focused=true native_token_ready=false
+FOCUS_GATE_START pid=28096 focused=true native_token_ready=true
+BENCHMARK avoidance_threads=false
+FOCUS_EVENT phase=setup focused=false ticks_us=879088777
+FOCUS_EVENT phase=setup focused=true ticks_us=879343263
+FOCUS_PHASE_BEGIN phase=movement focused=true
+SCALE BEGIN movement paused=false simulation_time=2.56666666666667
+FOCUS_EVENT phase=movement focused=false ticks_us=880744364
+FOCUS_EVENT phase=movement focused=true ticks_us=880977428
+SCALE movement renderer=Windows mean_frame_ms=26.06 p95_frame_ms=37.5 p99_frame_ms=48.4 frames_over_33ms=40 samples=385 simulation_seconds=10.03 wall_seconds=10.03 realtime=true baseline_field=false baseline_targets=false avg_sampled_1s_process_max_ms=26.5 avg_sampled_1s_physics_max_ms=19.72 physics_ticks=301 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false
+RENDER movement gpu_ms=3.64 render_cpu_ms=5.97 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=NVIDIA GeForce RTX 4090 rendered_frames=385
+TAIL movement max_frame_ms=75.21 frames_over_100ms=0
+FOCUS_PHASE_END phase=movement focused=true lost_focus_events=1 focus_valid=false
+FOCUS_PHASE_BEGIN phase=combat focused=true
+SCALE BEGIN combat paused=false simulation_time=12.6
+SCALE combat renderer=Windows mean_frame_ms=32.1 p95_frame_ms=38.15 p99_frame_ms=42.85 frames_over_33ms=109 samples=311 simulation_seconds=10.0 wall_seconds=9.98 realtime=true baseline_field=false baseline_targets=false avg_sampled_1s_process_max_ms=26.04 avg_sampled_1s_physics_max_ms=16.67 physics_ticks=300 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false
+RENDER combat gpu_ms=5.54 render_cpu_ms=6.76 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=NVIDIA GeForce RTX 4090 rendered_frames=311
+TAIL combat max_frame_ms=49.72 frames_over_100ms=0
+INPUT selected=24 samples=10 event_to_feedback_submit_mean_ms=32.28 p95_ms=44.74 maximum_population=true
+FOCUS_PHASE_END phase=combat focused=true lost_focus_events=0 focus_valid=true
+SCALE behaviors=true air_combat=false moved=200/200 travelled=200/200 fired=110 peak_live_projectiles=29 resources=62 sampled_peak_tracers=0 viewport_pixels=(1920.0, 1080.0)
+FAIL: 200 mobile units + 80 structures; behaviors=true release=true failures=1

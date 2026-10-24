@@ -18,6 +18,7 @@ var _unit_to_circles_mapping = {}
 var _terrain = null
 var _outline_origins = {}
 var _outline_airborne = {}
+var _outline_reach = {}
 var _outline_deadline = 0
 
 @onready var _revealer = find_child("Revealer")
@@ -86,7 +87,11 @@ func _map_unit_to_new_circles(unit):
 
 
 func _sync_circles_to_unit(unit):
-	var reach = unit.sight_range
+	var reach = (
+		unit.effective_sight_range()
+		if unit.has_method("effective_sight_range")
+		else unit.sight_range
+	)
 	if unit.has_meta("garrison_host"):
 		reach += unit.get_meta("garrison_host").radius + 2.0
 	for circle in _unit_to_circles_mapping[unit]:
@@ -116,6 +121,7 @@ func _sync_outline(unit, centre: Vector2, reach: float):
 		previous != null
 		and previous.distance_to(centre) < OUTLINE_REFRESH
 		and _outline_airborne.get(unit) == airborne
+		and is_equal_approx(_outline_reach.get(unit, -1.0), reach)
 	):
 		return
 	# Spread terrain occlusion work across frames; a reveal lags at most briefly.
@@ -123,6 +129,7 @@ func _sync_outline(unit, centre: Vector2, reach: float):
 		return
 	_outline_origins[unit] = centre
 	_outline_airborne[unit] = airborne
+	_outline_reach[unit] = reach
 	var local = PackedVector2Array()
 	if not airborne:
 		for point in TerrainSight.reveal_triangles(_terrain, centre, reach):
@@ -137,3 +144,4 @@ func _cleanup_mapping(unit):
 	_unit_to_circles_mapping.erase(unit)
 	_outline_origins.erase(unit)
 	_outline_airborne.erase(unit)
+	_outline_reach.erase(unit)

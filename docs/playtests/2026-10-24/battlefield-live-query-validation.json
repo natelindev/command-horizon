@@ -1,0 +1,75 @@
+{
+  "passed": true,
+  "complete": true,
+  "checks": [
+    {
+      "name": "SpatialQueryRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.977,
+      "log": "tmp/polish-battlefield-locals/SpatialQueryRegression.log",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "BehaviorRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 8.135,
+      "log": "tmp/polish-battlefield-locals/BehaviorRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "CombatRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 2.298,
+      "log": "tmp/polish-battlefield-locals/CombatRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 18 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 7 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "TerrainSightRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 2.771,
+      "log": "tmp/polish-battlefield-locals/TerrainSightRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 16 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 6 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "ResourceInspectionRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 15.855,
+      "log": "tmp/polish-battlefield-locals/ResourceInspectionRegression.log",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    }
+  ]
+}

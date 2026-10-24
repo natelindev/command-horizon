@@ -1,0 +1,44 @@
+{
+  "status": "Deferred by user; draft only, never engine-validated or exported",
+  "recorded_utc": "2026-10-24T06:45:03.827526+00:00",
+  "stage": "/tmp/godot-open-rts-polish-windows-ffa-0638",
+  "baseline_stage": "/tmp/godot-open-rts-polish-windows-cpu-0618",
+  "baseline_source_digest": "fc81e61b3b0a7dfa5677e28a9954d72d6e4bf8e775c051458e45ed2f7df2dbf1",
+  "staged_source_tests_count": 2245,
+  "staged_source_tests_digest": "ebdaa4276c5ac1eb6cc0ea52067b4c2591f2c5b2c5eff1e05f7dfea57c178195",
+  "source_digest_definition": "SHA256 of compact canonical sorted JSON mapping source/tests paths to SHA256",
+  "frozen_translation_sha256": "ae8706b8238e61cdd95ebdf53e01a1fe2900f5f32b2bbccbf1bba0591699ede0",
+  "stage_caveat": "source/tests from v18 CPU stage, new unvalidated fixture, private assets/imported copied at 06:34 UTC. ReleaseBenchmark wrapper and project are still old two-player configuration; build script was prepared but never run. art remains a shared symlink.",
+  "draft_sha256": "e5046b39e7344586c34f8d6301650edd15d2afd0a91d03c5273a00b4c9d524f6",
+  "validation": {
+    "gdformat": true,
+    "gdlint": true,
+    "engine_parse": false,
+    "headless_workload": false,
+    "native_foreground_timing": false,
+    "export": false
+  },
+  "known_issue": "_snapshot_cap writes raw MatchSnapshot.capture output with JSON.stringify; use SaveFile.write_file plus schema/read validation before relying on the snapshot. Do not resume automatically.",
+  "artifacts": {
+    "FourPlayerFfaBenchmark.gd.txt": {
+      "sha256": "e5046b39e7344586c34f8d6301650edd15d2afd0a91d03c5273a00b4c9d524f6",
+      "bytes": 21964
+    },
+    "build_windows_ffa.py.txt": {
+      "sha256": "83f57b3b1c4047427e3a55deb4c0eedd28e4a5d562ad2c0bc75067fdd3ee688c",
+      "bytes": 3516
+    },
+    "run-scale-native-focus.ps1.txt": {
+      "sha256": "53df70bb92ecc65381b805d82d83cfd98a4a39d2eb6e262a966d07c9d777d007",
+      "bytes": 4631
+    },
+    "run_ffa_local_validation.py.txt": {
+      "sha256": "6fca7c625ee272de2eea0ddf6cf2ed1998848a95d3f48c39a99ad6a1ef5e2d4f",
+      "bytes": 2045
+    },
+    "run_windows_ffa_validate.py.txt": {
+      "sha256": "3272dddf4c91b44eebe956453930818947cc44d06b269896b57488d640609108",
+      "bytes": 4561
+    }
+  }
+}

@@ -1,0 +1,227 @@
+{
+  "status": "passed",
+  "feature": "Persistent commander elimination status and a one-time nonmodal announcement",
+  "headless": {
+    "result": "headless-attempt2-result.json",
+    "cases": 2,
+    "failures": 0,
+    "seconds": 2.885
+  },
+  "rendered": {
+    "result": "rendered-attempt2-result.json",
+    "cases": 12,
+    "captures": 30,
+    "failures": 0,
+    "seconds": 40.495,
+    "renderer": "Metal 4.0 Forward+ on Apple M1 Pro",
+    "resolution": [
+      1280,
+      720
+    ],
+    "interface_scale": 1.5,
+    "factions": [
+      "bastion",
+      "helix",
+      "frontier"
+    ],
+    "languages": [
+      "en",
+      "zh_CN"
+    ],
+    "commanders": [
+      4,
+      8
+    ],
+    "reduced_motion": true,
+    "reduced_flashes": true,
+    "wide_resource_balances": true
+  },
+  "coverage": [
+    "Headquarters loss retains the full 60-second rebuilding grace; completed rebuilding resets it without elimination.",
+    "Timer expiry and empty-army elimination emit exactly one event and retain a visible Eliminated status.",
+    "A paused v19 save restore preserves commander identity and eliminated state without replaying the announcement.",
+    "Pause-menu hiding preserves announcement lifetime and does not intercept battlefield commands.",
+    "Chinese status/announcement/accessibility labels and eight-player keyboard scrolling are verified.",
+    "All faction/locale captures keep the roster above the minimap and the announcement clear of the resource roster, including five-digit balances."
+  ],
+  "visual_review": {
+    "reviewed_files": [
+      "helix-720p-en-4-commanders-hq-grace.png",
+      "bastion-720p-en-8-commanders-eliminated.png",
+      "frontier-720p-en-4-commanders-eliminated.png",
+      "frontier-720p-en-8-commanders-eliminated.png",
+      "bastion-720p-zh_CN-4-commanders-eliminated.png",
+      "helix-720p-zh_CN-4-commanders-eliminated.png",
+      "helix-720p-zh_CN-8-commanders-eliminated.png",
+      "frontier-720p-zh_CN-4-commanders-persistent.png"
+    ],
+    "findings": "Clear text status and commander identity in all three faction styles; readable English and Chinese; announcement fits without obscuring the expanded resource plates; no clipping in reviewed states. Automated layout assertions passed across all 30 captures."
+  },
+  "limitations": [
+    "Headless shutdown reports 14 ObjectDB instances and 6 resources still in use; no script/runtime errors occurred before teardown. The rendered preview exited cleanly.",
+    "This is native macOS UI verification. Windows work is deferred at the user's request."
+  ],
+  "source_files": {
+    "source/match/Skirmish.gd": "641c0d82b66bd37b64dd6e7b1ddfc806607fb84dd5049dd18d180e55d88fa86a",
+    "source/match/hud/SkirmishHUD.gd": "a972db1113021949103ae4782fc4bae20bf0bd68cecab711fd30c569ff0ad0e1",
+    "source/match/hud/CommanderRoster.gd": "091477c86d1cae550d2e8a8d05abfc3f0823ac85bb4917ac35457441dd749fc0",
+    "source/match/saves/MatchSnapshot.gd": "a3485d99019d726ea3e09a7ae70bb2f2bc07f9bf7cf3990476842bf3f123b11d",
+    "source/match/saves/MatchRestore.gd": "a52b2d95f48003cf0f7a3db69257d26ecf50f05e1098811ed41dcdf9f6c8f39a",
+    "tests/headless/CommanderEliminationRegression.gd": "c33413796a31f37d46577ce8e02b356b6848c677967147aca0fd36173e9a0b65",
+    "tests/rendered/HudConsolePreview.gd": "f50b5d8ecfbf7a28aa1af8797bb878ff6a9d00da533188feffd1a9532ab4162f",
+    "art/localization/elimination-status.tsv": "d9ee95139d0fd7dfc06a4a25aafe1f9dfa92563554b275417fb246c1b6062ac2",
+    "assets/translations/ui.csv": "81bb22813b2b44b9192bfd1575a00c1b43158dc16f44be1be13da8c545ca67ad"
+  },
+  "captures": [
+    {
+      "path": "docs/playtests/2026-10-24/commander-elimination/captures/bastion-720p-en-4-commanders-eliminated.png",
+      "sha256": "614152658f27466ed74669ff74f2858b3258b5288c297a7de7c944706cbfb0b9",
+      "bytes": 638679
+    },
+    {
+      "path": "docs/playtests/2026-10-24/commander-elimination/captures/bastion-720p-en-4-commanders-hq-grace.png",
+      "sha256": "7ecb58d059336ef59f046837387f6f128e7ab5fb9546c52d29533d5fe7946faa",
+      "bytes": 625834
+    },
+    {
+      "path": "docs/playtests/2026-10-24/commander-elimination/captures/bastion-720p-en-4-commanders-persistent.png",
+      "sha256": "30cd4034af160d8a45b77c62a65c632781366eb06804ed61e68352812a7293ea",
+      "bytes": 626137
+    },
+    {
+      "path": "docs/playtests/2026-10-24/commander-elimination/captures/bastion-720p-en-8-commanders-eliminated.png",
+      "sha256": "724a1715af2714cb7aa798310e1b99a2d8e2e8b0e3ea80e375d310500e17fb41",
+      "bytes": 1130934
+    },
+    {
+      "path": "docs/playtests/2026-10-24/commander-elimination/captures/bastion-720p-en-8-commanders-persistent.png",
+      "sha256": "349e60871b2d6f28edbe6a039d6cc05adc5df180b106be3440febc102f5c7ce5",
+      "bytes": 1157822
+    },
+    {
+      "path": "docs/playtests/2026-10-24/commander-elimination/captures/bastion-720p-zh_CN-4-commanders-eliminated.png",
+      "sha256": "9c8a01dbf7dae8b16aae23dbbafb709913cd7f37feddf96b056f5511aa8cd121",
+      "bytes": 644250
+    },
+    {
+      "path": "docs/playtests/2026-10-24/commander-elimination/captures/bastion-720p-zh_CN-4-commanders-hq-grace.png",
+      "sha256": "3c02916cdedb7e43968f5971b449132e1d7de54d6561ab9e9dedf77e17ec541d",
+      "bytes": 629298
+    },
+    {
+      "path": "docs/playtests/2026-10-24/commander-elimination/captures/bastion-720p-zh_CN-4-commanders-persistent.png",
+      "sha256": "804be6ce88251647f684901043c4c3cfae8a1d0b227c5c031b4979eb131cb1d9",
+      "bytes": 631485
+    },
+    {
+      "path": "docs/playtests/2026-10-24/commander-elimination/captures/bastion-720p-zh_CN-8-commanders-eliminated.png",
+      "sha256": "2065b627578c4f4ce4171af138eab0b9e258dad301abd1d7291e5d26a95169c1",
+      "bytes": 1131737
+    },
+    {
+      "path": "docs/playtests/2026-10-24/commander-elimination/captures/bastion-720p-zh_CN-8-commanders-persistent.png",
+      "sha256": "a47971c65729b172aec5cbbb66f6adf0955329d8b7b20fa7e6e2ffa5a47f32c6",
+      "bytes": 1159275
+    },
+    {
+      "path": "docs/playtests/2026-10-24/commander-elimination/captures/frontier-720p-en-4-commanders-eliminated.png",
+      "sha256": "f2be008cf7411f960c8f4fd667e99249c7fc87268819f488760bec3ea5692cd0",
+      "bytes": 652172
+    },
+    {
+      "path": "docs/playtests/2026-10-24/commander-elimination/captures/frontier-720p-en-4-commanders-hq-grace.png",
+      "sha256": "2de07afb720232c08850d223e14d8082f5959b4127024033f2f5644e097db8a2",
+      "bytes": 635719
+    },
+    {
+      "path": "docs/playtests/2026-10-24/commander-elimination/captures/frontier-720p-en-4-commanders-persistent.png",
+      "sha256": "55115fc2359527b35714ba475e117a676a4138865c850b91876a9bd3a34e1b97",
+      "bytes": 636384
+    },
+    {
+      "path": "docs/playtests/2026-10-24/commander-elimination/captures/frontier-720p-en-8-commanders-eliminated.png",
+      "sha256": "9a0affd273cfbd9af3ed5e6ef47e092e2039d04a580178f3b737cc9992d2e0a7",
+      "bytes": 1148012
+    },
+    {
+      "path": "docs/playtests/2026-10-24/commander-elimination/captures/frontier-720p-en-8-commanders-persistent.png",
+      "sha256": "52948b301c3c83cadbe5dd2a6ddb3fc1e5f15190f1937a01fdd8d6e0d7bfda47",
+      "bytes": 1177506
+    },
+    {
+      "path": "docs/playtests/2026-10-24/commander-elimination/captures/frontier-720p-zh_CN-4-commanders-eliminated.png",
+      "sha256": "f77fe1155f8b54e53fc76c702189204736129501f396fc36b93830eafd876ff5",
+      "bytes": 656878
+    },
+    {
+      "path": "docs/playtests/2026-10-24/commander-elimination/captures/frontier-720p-zh_CN-4-commanders-hq-grace.png",
+      "sha256": "2667c6167a19bc9a4d0a1f42c6fe4a0597671ef7f59fa83f68d189cb26de8407",
+      "bytes": 639934
+    },
+    {
+      "path": "docs/playtests/2026-10-24/commander-elimination/captures/frontier-720p-zh_CN-4-commanders-persistent.png",
+      "sha256": "2e74d8b1df2c0a6548a0c674220fb1787d64d2ad0517b07757bb9f4d15c0a3ca",
+      "bytes": 642629
+    },
+    {
+      "path": "docs/playtests/2026-10-24/commander-elimination/captures/frontier-720p-zh_CN-8-commanders-eliminated.png",
+      "sha256": "92383b8f7c0ace7dd77b7940c601b6c65f345c68c64965fe9b1cebfd86b59092",
+      "bytes": 1149242
+    },
+    {
+      "path": "docs/playtests/2026-10-24/commander-elimination/captures/frontier-720p-zh_CN-8-commanders-persistent.png",
+      "sha256": "71257e72dfb29b3bc79dec15308ffc58969f84b04e98f86149d0dca7adf0b4ed",
+      "bytes": 1179983
+    },
+    {
+      "path": "docs/playtests/2026-10-24/commander-elimination/captures/helix-720p-en-4-commanders-eliminated.png",
+      "sha256": "bfaa8c467de9dacfb13c7fed1a3f800881fee17054a0bb15eedf52ea0797deda",
+      "bytes": 636859
+    },
+    {
+      "path": "docs/playtests/2026-10-24/commander-elimination/captures/helix-720p-en-4-commanders-hq-grace.png",
+      "sha256": "c8dd286bc686c4af83367ecc82ad3f8dae6f8aaf52cff009b02d78a50d6c1882",
+      "bytes": 624099
+    },
+    {
+      "path": "docs/playtests/2026-10-24/commander-elimination/captures/helix-720p-en-4-commanders-persistent.png",
+      "sha256": "c118111c6c863f135fa4806d2028b0da08b0fcc309926ec479007758901a139a",
+      "bytes": 624884
+    },
+    {
+      "path": "docs/playtests/2026-10-24/commander-elimination/captures/helix-720p-en-8-commanders-eliminated.png",
+      "sha256": "1c10e8044cc26d20348e70939f3545d11231119b6ce87bb993e1629a6e2fa4d9",
+      "bytes": 1120674
+    },
+    {
+      "path": "docs/playtests/2026-10-24/commander-elimination/captures/helix-720p-en-8-commanders-persistent.png",
+      "sha256": "31a8a6cedbd6ba9fca82d4332b7b7e1ce953886426b56f85fccb0c044c9230cc",
+      "bytes": 1142361
+    },
+    {
+      "path": "docs/playtests/2026-10-24/commander-elimination/captures/helix-720p-zh_CN-4-commanders-eliminated.png",
+      "sha256": "76196b66a2989769965f1620446a047631f0cb558e403e8eac3aff7c39861021",
+      "bytes": 642772
+    },
+    {
+      "path": "docs/playtests/2026-10-24/commander-elimination/captures/helix-720p-zh_CN-4-commanders-hq-grace.png",
+      "sha256": "d757b9881254387e8545b730aa9cfd27556648224d02da40080ae78d72a953b4",
+      "bytes": 628579
+    },
+    {
+      "path": "docs/playtests/2026-10-24/commander-elimination/captures/helix-720p-zh_CN-4-commanders-persistent.png",
+      "sha256": "3d9d04b4e5ba46ad5c0208fc0a26a52c2c0bedb2e47e283637ee1e50276f0dc3",
+      "bytes": 630872
+    },
+    {
+      "path": "docs/playtests/2026-10-24/commander-elimination/captures/helix-720p-zh_CN-8-commanders-eliminated.png",
+      "sha256": "63051a98ed1d1a769a0f20da56a83eb9335dc02d4730cd6fcc92e084beb8f61d",
+      "bytes": 1121032
+    },
+    {
+      "path": "docs/playtests/2026-10-24/commander-elimination/captures/helix-720p-zh_CN-8-commanders-persistent.png",
+      "sha256": "2649434c6a71e83fda7fdf1f6110257125486359261451865d665b5428be8074",
+      "bytes": 1143028
+    }
+  ]
+}

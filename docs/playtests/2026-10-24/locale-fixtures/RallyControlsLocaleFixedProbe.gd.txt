@@ -1,0 +1,26 @@
+extends "/Users/linlilu/godot-open-rts/tmp/polish-locale-diagnosis/RallyControlsRegression.fixed.gd"
+
+func _run():
+	var requested = "zh_CN"
+	var args = OS.get_cmdline_user_args()
+	if not args.is_empty():
+		requested = args[0]
+	root.get_node("Globals").options.language = requested
+	TranslationServer.set_locale(requested)
+	print("LOCALE PROBE locale=%s options=%s" % [TranslationServer.get_locale(), root.get_node("Globals").options.language])
+	await super._run()
+
+func _check(condition, message):
+	if not condition:
+		print("LOCALE FAILURE locale=%s faction=%s message=%s" % [TranslationServer.get_locale(), case_label, message])
+		if is_instance_valid(menus) and is_instance_valid(menus._stop_button):
+			print("ACTUAL TOOLTIP: ", menus._stop_button.tooltip_text)
+	super._check(condition, message)
+
+func _check_localized_rally(destination, message):
+	var incoming_locale = TranslationServer.get_locale()
+	var incoming_tooltip = menus._stop_button.tooltip_text
+	super._check_localized_rally(destination, message)
+	_check(TranslationServer.get_locale() == incoming_locale, "Localized rally check did not restore incoming locale")
+	_check(menus._stop_button.tooltip_text == incoming_tooltip, "Localized rally check did not restore incoming tooltip")
+	print("LOCALE AND TOOLTIP RESTORED ", TranslationServer.get_locale(), " faction=", case_label, " for ", message)

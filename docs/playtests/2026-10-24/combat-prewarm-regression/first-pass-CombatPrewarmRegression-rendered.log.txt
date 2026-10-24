@@ -1,0 +1,12 @@
+sandbox_extension_issue_file_to_process failed for /tmp/open-rts-ui-godot/Godot.app: 1 (Operation not permitted)
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Metal 4.0 - Forward+ - Using Device #0: Apple - Apple M1 Pro (Apple7)
+
+PASS prewarm state and resource preservation: default
+PASS prewarm state and resource preservation: { "reduced_flashes": true }
+PASS prewarm state and resource preservation: { "reduced_flashes": false, "battlefield_wear": false }
+PASS prewarm state and resource preservation: { "battlefield_wear": true, "graphics_ground_detail": false }
+PASS restore retains caller pause and simulation boundary
+PASS current-scene replacement cancels and restores the original match modes
+PASS deleted-game cancellation leaves the replacement and pause owner intact
+Combat prewarm regression: 0 failures

@@ -2,15 +2,19 @@ extends Control
 
 var match_settings = null
 var map_path = null
+var presentation_only = false
+var _pending_match
+var _pause_owned = false
 
 @onready var _label = find_child("Label")
 @onready var _progress_bar = find_child("ProgressBar")
 
 
 func _ready():
-	_progress_bar.value = 0.0
-
 	_label.text = tr("Loading battle…")
+	_progress_bar.value = .9 if presentation_only else 0.0
+	if presentation_only:
+		return
 	await get_tree().physics_frame
 	_preload_scenes()
 	_progress_bar.value = 0.2
@@ -38,9 +42,32 @@ func _ready():
 	_progress_bar.value = 0.9
 
 	await get_tree().physics_frame
+	var tree = get_tree()
+	_pending_match = a_match
+	_pause_owned = not tree.paused
+	tree.paused = true
 	get_parent().add_child(a_match)
-	get_tree().current_scene = a_match
+	if not await load("res://source/match/effects/CombatPrewarm.gd").prepare(a_match):
+		if is_instance_valid(a_match):
+			a_match.queue_free()
+		_restore_pause()
+		return
+	_restore_pause()
+	_pending_match = null
+	tree.current_scene = a_match
 	queue_free()
+
+
+func _restore_pause():
+	if _pause_owned and get_tree().current_scene == self and not Globals._quitting:
+		get_tree().paused = false
+	_pause_owned = false
+
+
+func _exit_tree():
+	if is_instance_valid(_pending_match):
+		_pending_match.queue_free()
+	_restore_pause()
 
 
 func _preload_scenes():

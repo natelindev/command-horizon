@@ -1,0 +1,183 @@
+class_name ReleaseBenchmark
+extends "res://tests/rendered/ScaleFrameBenchmark.gd"
+
+var _focus_phase = "waiting"
+var _focus_exit_count = 0
+var _native_focus_token = ""
+var _trace_rows = []
+var _trace_previous_at = 0
+var _trace_started_at = 0
+var _trace_previous_pipelines = {}
+
+
+func _run():
+	if is_instance_valid(current_scene):
+		current_scene.free()
+		current_scene = null
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--native-focus-token="):
+			_native_focus_token = arg.trim_prefix("--native-focus-token=")
+	root.title = "Open RTS Mac Benchmark"
+	root.mode = Window.MODE_WINDOWED
+	root.size = Vector2i(1920, 1080)
+	root.focus_entered.connect(_record_focus.bind(true))
+	root.focus_exited.connect(_record_focus.bind(false))
+	if "--await-focus" in OS.get_cmdline_user_args():
+		var label = Label.new()
+		label.text = "Click this window to start the performance check"
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		label.add_theme_font_size_override("font_size", 32)
+		root.add_child(label)
+		label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		print("FOCUS_GATE_READY pid=", OS.get_process_id(), " title=", root.title, " focused=", root.has_focus())
+		while not root.has_focus() or (_native_focus_token != "" and not _native_token_matches()):
+			await process_frame
+		label.free()
+	_focus_phase = "setup"
+	print("FOCUS_GATE_START pid=", OS.get_process_id(), " focused=", root.has_focus())
+	await super()
+
+
+func _record_focus(focused):
+	if not focused:
+		_focus_exit_count += 1
+	print("FOCUS_EVENT phase=", _focus_phase, " focused=", focused, " ticks_us=", Time.get_ticks_usec())
+
+
+func _measure(label, frames):
+	_focus_phase = label
+	var exits_before = _focus_exit_count
+	var began_focused = root.has_focus()
+	print("FOCUS_PHASE_BEGIN phase=", label, " focused=", began_focused, " unix_ms=", int(Time.get_unix_time_from_system() * 1000))
+	_check(began_focused, "Benchmark phase began without window focus")
+	_trace_rows.clear()
+	_trace_started_at = Time.get_ticks_usec()
+	_trace_previous_at = _trace_started_at
+	_trace_previous_pipelines = _pipeline_counts()
+	print("TRACE_PHASE_BEGIN ", JSON.stringify({"phase": label, "unix_ms": int(Time.get_unix_time_from_system() * 1000), "pipelines": _trace_previous_pipelines, "sampling": "process_frame", "warmup_split_seconds": 3.0}))
+	await super(label, frames)
+	print("TRACE_PHASE_END ", JSON.stringify({"phase": label, "unix_ms": int(Time.get_unix_time_from_system() * 1000), "pipelines": _pipeline_counts(), "frames": _trace_rows, "sampling": "process_frame", "warmup_split_seconds": 3.0}))
+	var ended_focused = root.has_focus()
+	var exits_during = _focus_exit_count - exits_before
+	var valid = began_focused and ended_focused and exits_during == 0
+	print("FOCUS_PHASE_END phase=", label, " focused=", ended_focused, " lost_focus_events=", exits_during, " focus_valid=", valid, " unix_ms=", int(Time.get_unix_time_from_system() * 1000))
+	_check(valid, "Benchmark phase lost window focus")
+	_focus_phase = "between"
+	if label == "combat":
+		# Unmeasured final hold for the native 250 ms monitor's end bracket.
+		await create_timer(0.5).timeout
+
+
+func _current_benchmark_prewarm():
+	# The snapshot's fog image needs one completed draw after scene creation.
+	# Keep simulation paused; this setup draw is outside the helper-only timer.
+	var paused_before = paused
+	paused = true
+	await RenderingServer.frame_post_draw
+	print("PREWARM_BASELINE_SETTLE rendered_frames=1 paused=", paused)
+	await _prepare_current_benchmark(_game)
+	paused = paused_before
+
+
+func _sample_render():
+	super()
+	var now = Time.get_ticks_usec()
+	var counts = _pipeline_counts()
+	_trace_rows.append({"ticks_us": now, "unix_ms": int(Time.get_unix_time_from_system() * 1000), "elapsed_s": (now - _trace_started_at) / 1000000.0, "frame_ms": (now - _trace_previous_at) / 1000.0, "pipeline_before": _trace_previous_pipelines, "pipeline_after": counts, "render_cpu_ms": _render_cpu_samples[-1], "gpu_ms": _gpu_samples[-1], "sampled_1s_physics_max_ms": Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0, "simulation_time": _game.simulation_time})
+	_trace_previous_at = now
+	_trace_previous_pipelines = counts
+
+
+func _prepare_current_benchmark(target):
+	var paused_before = paused
+	paused = true
+	var snapshot = load("res://source/match/saves/MatchSnapshot.gd").new()
+	var saved_before = snapshot.capture(target)
+	var cosmetics_before = _cosmetic_state(target)
+	var modes_before = _process_modes(target)
+	var nodes_before = get_node_count()
+	_focus_phase = "loading-helper"
+	var exits_before = _focus_exit_count
+	var began_focused = root.has_focus()
+	print("FOCUS_PHASE_BEGIN phase=loading-helper focused=", began_focused, " unix_ms=", int(Time.get_unix_time_from_system() * 1000))
+	_check(began_focused, "Prewarm began without focus")
+	print("PREWARM_BEGIN ", JSON.stringify({"unix_ms": int(Time.get_unix_time_from_system() * 1000), "pipelines": _pipeline_counts(), "helper_only": true}))
+	var started = Time.get_ticks_usec()
+	var prepared = await load("res://source/match/effects/CombatPrewarm.gd").prepare(target)
+	var elapsed_ms = (Time.get_ticks_usec() - started) / 1000.0
+	var snapshot_equal = saved_before != null and snapshot.capture(target) == saved_before
+	var cosmetic_equal = _cosmetic_state(target) == cosmetics_before
+	var modes_equal = _process_modes(target) == modes_before
+	_check(prepared, "Production prewarm did not complete")
+	_check(snapshot_equal, "Production prewarm changed paused snapshot")
+	_check(cosmetic_equal, "Production prewarm changed live cosmetic RNG or effects")
+	_check(modes_equal, "Production prewarm changed live process modes")
+	_check(get_node_count() == nodes_before, "Production prewarm retained nodes")
+	_check(paused, "Production prewarm resumed caller")
+	print("PREWARM_END ", JSON.stringify({"unix_ms": int(Time.get_unix_time_from_system() * 1000), "elapsed_ms": elapsed_ms, "pipelines": _pipeline_counts(), "snapshot_equal": snapshot_equal, "cosmetic_equal": cosmetic_equal, "process_modes_equal": modes_equal, "nodes_before": nodes_before, "nodes_after": get_node_count(), "completed": prepared, "helper_only": true, "caller_paused": paused}))
+	var ended_focused = root.has_focus()
+	var exits_during = _focus_exit_count - exits_before
+	var valid = began_focused and ended_focused and exits_during == 0
+	print("FOCUS_PHASE_END phase=loading-helper focused=", ended_focused, " lost_focus_events=", exits_during, " focus_valid=", valid, " unix_ms=", int(Time.get_unix_time_from_system() * 1000))
+	_check(valid, "Prewarm lost focus")
+	_focus_phase = "setup"
+	paused = paused_before
+
+
+func _native_token_matches():
+	return FileAccess.file_exists(_native_focus_token) and FileAccess.get_file_as_string(_native_focus_token) == str(OS.get_process_id())
+
+
+func _cosmetic_state(target):
+	var fx = target.combat_effects
+	var result = {
+		"simulation_time": target.simulation_time,
+		"combat_rng": fx._random.state,
+		"aftermath_rng": fx.aftermath._random.state,
+		"projectile_rng": target.projectile_system._random.state,
+		"shots": fx.shots_emitted,
+		"impacts": fx.impacts_emitted,
+		"deaths": fx.deaths_emitted,
+		"rounds_fired": target.projectile_system.rounds_fired,
+		"unit_rng": {},
+		"pools": {},
+		"projectile_pools": {},
+	}
+	for key in ["_tracers", "_free_tracers", "_wrecks", "_cook_offs", "_hit_flashes", "_free_hit_flashes", "_shockwaves", "_materials"]:
+		result.pools[key] = _value_state(fx.get(key))
+	for key in ["scars", "debris", "lights"]:
+		result.pools[key] = _value_state(fx.aftermath.get(key))
+	for unit in get_nodes_in_group("units"):
+		var visuals = unit.get_node_or_null("BastionVisuals")
+		if visuals != null:
+			result.unit_rng[str(unit.get_instance_id())] = visuals.motion.random.state
+	for kind in target.projectile_system.renderer._pools:
+		var pool = target.projectile_system.renderer._pools[kind]
+		var instances = []
+		for slot in pool.used:
+			instances.append([pool.node.multimesh.get_instance_transform(slot), pool.node.multimesh.get_instance_color(slot)])
+		result.projectile_pools[kind] = {"node": pool.node.get_instance_id(), "multimesh": pool.node.multimesh.get_instance_id(), "used": pool.used, "free": pool.free.duplicate(), "visible": pool.node.multimesh.visible_instance_count, "instances": instances}
+	return result
+
+
+func _value_state(value):
+	if value is Dictionary:
+		var result = {}
+		for key in value:
+			result[str(key)] = _value_state(value[key])
+		return result
+	if value is Array:
+		return value.map(_value_state)
+	if value is WeakRef:
+		return _value_state(value.get_ref())
+	if value is Object:
+		return value.get_instance_id() if is_instance_valid(value) else 0
+	return value
+
+
+func _process_modes(node):
+	var modes = {str(node.get_instance_id()): node.process_mode}
+	for child in node.get_children():
+		modes.merge(_process_modes(child))
+	return modes

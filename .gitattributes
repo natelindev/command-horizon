@@ -1,0 +1,5 @@
+# Captured evidence is hashed byte-for-byte, including native Windows CRLF.
+docs/playtests/2026-10-24/**/*.json -text whitespace=cr-at-eol
+docs/playtests/2026-10-24/**/*.log -text -whitespace
+docs/playtests/2026-10-24/**/*.log.txt -text -whitespace
+docs/playtests/2026-10-24/**/*.patch.txt -text -whitespace

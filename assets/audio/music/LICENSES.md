@@ -24,3 +24,14 @@ License legal texts:
 - https://creativecommons.org/licenses/by-sa/3.0/legalcode
 
 Source download URLs and verified hashes: `art/audio/licensed-score.json`.
+
+## Adaptive faction stems
+
+`tools/audio/build_music_stems.py` derives each faction's `*-calm.ogg` and
+`*-combat.ogg` from the corresponding recording listed above. Median-filter
+harmonic/percussive separation retains 45% of transient percussion in the calm
+bed; the combat layer restores the remaining 55%. Both preserve stereo timing,
+sample count, tempo and original arrangement, and sum to the source before
+Ogg encoding. They are adaptations under the same respective licenses and
+attributions as their source recordings (CC BY-SA 3.0 for both Rock of War
+stems; CC BY 3.0 for the other four stems). No additional recordings are used.

@@ -1,0 +1,42 @@
+import base64,subprocess,sys,json
+from pathlib import Path
+repo=Path('/Users/linlilu/godot-open-rts');base=repo/'tmp/windows-polish-20261024';name=sys.argv[1] if len(sys.argv)>1 else 'ffa-validate-0645';local=base/name;local.mkdir(exist_ok=True)
+ssh=['ssh','-i','/Users/linlilu/.ssh/mykey','-o','IdentitiesOnly=yes','-o','BatchMode=yes','-o','StrictHostKeyChecking=yes','-o','HostKeyAlias=192.168.88.206','root@192.168.88.205']
+subprocess.run(['rsync','-a','-e',' '.join(ssh[:-1]),str(repo/'tests/rendered/FourPlayerFfaBenchmark.gd'),'root@192.168.88.205:/mnt/c/Users/Administrator/AppData/Local/Temp/OpenRTSPolish-20261024/FourPlayerFfaBenchmark.gd'],check=True)
+ps=r'''$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue'
+$base='C:\Users\Administrator\AppData\Local\Temp\OpenRTSPolish-20261024'
+$run='__RUN__';$work=Join-Path $base $run
+if(Test-Path -LiteralPath $work){throw 'FFA validation run directory already exists'}
+$null=New-Item -ItemType Directory -Path $work
+$editor=Join-Path $base 'godot-4.7.2/Godot_v4.7.2-stable_win64.exe'
+$sourcePack=Join-Path $base 'OpenRTSScale-cpu-0618.exe';$pack=Join-Path $work 'OpenRTSScale-cpu-0618.exe'
+$sourceSha=(Get-FileHash -Algorithm SHA256 -LiteralPath $sourcePack).Hash.ToLowerInvariant()
+if($sourceSha -ne 'f0529985dfd22377f6468bb13ce3edb6e4a11c52099fc42494b3fb188c49a421'){throw 'Frozen CPU pack hash mismatch'}
+Copy-Item -LiteralPath $sourcePack -Destination $pack
+if((Get-FileHash -Algorithm SHA256 -LiteralPath $pack).Hash.ToLowerInvariant() -ne $sourceSha){throw 'CPU pack copy identity mismatch'}
+$userDir='C:/Users/Administrator/AppData/Roaming/OpenRTSPolishFfaProbe-20261024'
+[System.IO.File]::WriteAllText((Join-Path $work 'override.cfg'),"[application]`nconfig/use_custom_user_dir=true`nconfig/custom_user_dir_name=`"OpenRTSPolishFfaProbe-20261024`"`n")
+$fixture=Join-Path $base 'FourPlayerFfaBenchmark.gd'
+$options=Join-Path $base 'user-ffa-after-exit-0628/options.tres'
+$arguments='--headless --main-pack "'+$pack+'" --fixed-fps 60 --log-file "'+(Join-Path $work 'engine.log')+'" --script "'+$fixture+'" -- --fixture-user-dir="'+$userDir+'" --fixture-options="'+$options+'" --fixture-output="'+$work+'/output"'
+$info=New-Object System.Diagnostics.ProcessStartInfo;$info.FileName=$editor;$info.Arguments=$arguments;$info.WorkingDirectory=$work;$info.UseShellExecute=$false;$info.CreateNoWindow=$true;$info.RedirectStandardOutput=$true;$info.RedirectStandardError=$true
+$p=New-Object System.Diagnostics.Process;$p.StartInfo=$info;$started=Get-Date;$null=$p.Start();$ownedId=$p.Id
+$outTask=$p.StandardOutput.ReadToEndAsync();$errTask=$p.StandardError.ReadToEndAsync()
+$meta=@{StartedUtc=$started.ToUniversalTime().ToString('o');ProcessId=$ownedId;Editor=$editor;EditorSha256=(Get-FileHash -Algorithm SHA256 -LiteralPath $editor).Hash.ToLowerInvariant();PackSha256=$sourceSha;FixtureSha256=(Get-FileHash -Algorithm SHA256 -LiteralPath $fixture).Hash.ToLowerInvariant();OptionsSha256=(Get-FileHash -Algorithm SHA256 -LiteralPath $options).Hash.ToLowerInvariant();ExpectedUserDir=$userDir;Arguments=$arguments;AcceptanceTiming=$false}
+$meta|ConvertTo-Json -Depth 6|Set-Content -Encoding UTF8 (Join-Path $work 'metadata.json')
+Write-Output ('FFA_VALIDATE_STARTED pid='+$ownedId+' run='+$run)
+$timedOut=-not $p.WaitForExit(300000)
+if($timedOut){$p.Kill();$p.WaitForExit()}
+$p.WaitForExit();$out=$outTask.Result;$err=$errTask.Result
+[System.IO.File]::WriteAllText((Join-Path $work 'stdout.log'),$out);[System.IO.File]::WriteAllText((Join-Path $work 'stderr.log'),$err)
+$meta.ExitCode=$p.ExitCode;$meta.TimedOut=$timedOut;$meta.FinishedUtc=(Get-Date).ToUniversalTime().ToString('o');$meta|ConvertTo-Json -Depth 6|Set-Content -Encoding UTF8 (Join-Path $work 'metadata.json')
+Write-Output $out;if($err){Write-Output $err};Write-Output ('FFA_VALIDATE_FINISHED exit='+$p.ExitCode+' timeout='+$timedOut)
+exit $p.ExitCode
+'''.replace('__RUN__',name)
+with (local/'runner.log').open('w') as log:
+ p=subprocess.Popen(ssh+['/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe','-NoProfile','-NonInteractive','-EncodedCommand',base64.b64encode(ps.encode('utf-16le')).decode()],stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+ for raw in p.stdout:
+  line=raw.decode(errors='replace');log.write(line);log.flush();print(line,end='',flush=True)
+ p.wait();code=p.returncode
+subprocess.run(['rsync','-a','--exclude=*.exe','-e',' '.join(ssh[:-1]),'root@192.168.88.205:/mnt/c/Users/Administrator/AppData/Local/Temp/OpenRTSPolish-20261024/'+name+'/',str(local)+'/'],check=True)
+raise SystemExit(code)

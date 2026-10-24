@@ -1,12 +1,22 @@
+# gdlint: disable=max-file-lines
 extends Node3D
 
 const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
 const InfantryMotion = preload("res://source/match/units/traits/InfantryMotion.gd")
+const ObjectMaterials = preload("res://source/match/ObjectMaterials.gd")
+const SHOCKWAVE_SHADER = preload("res://source/shaders/3d/explosion_shockwave.gdshader")
+const SHOCKWAVE_FALLBACK = preload("res://source/shaders/3d/explosion_shockwave_fallback.gdshader")
 
 # Shared GPU particle buffers and bounded tracer/wreck pools, independent of combat authority.
 const MAX_TRACERS = 96
 const MAX_WRECKS = 24
 const MAX_COOK_OFFS = 6
+const MAX_HIT_FLASHES = 32
+const MAX_SHOCKWAVES = 6
+const MAX_WRECK_LIGHTS = 4
+const HIT_DURATION = .14
+const SHOCKWAVE_DURATION = .65
+const WRECK_BURN_DURATION = 12.0
 # Faction-tinted fire so a crossfire reads by owner; rail shots keep a cold charge color.
 const FACTION_FIRE = {
 	"bastion": Color("ffd9a0"),
@@ -23,6 +33,9 @@ var _tracers = []
 var _free_tracers = []
 var _wrecks = []
 var _cook_offs = []
+var _hit_flashes = []
+var _free_hit_flashes = []
+var _shockwaves = []
 var _materials = {}
 var _tracer_mesh = BoxMesh.new()
 var _random = RandomNumberGenerator.new()
@@ -157,8 +170,17 @@ func _ground_height(point):
 
 # Muzzle presentation and sound for one shot. Physical rounds draw themselves
 # (ProjectileRenderer), so only instant rail beams still use a pooled tracer.
-func shot(unit, origin, target_point, duration, missile = false, target_unit = null, tracer = true):
-	get_parent().combat_audio.shot(unit, origin)
+func shot(
+	unit,
+	origin,
+	target_point,
+	duration,
+	missile = false,
+	target_unit = null,
+	tracer = true,
+	weapon = {}
+):
+	get_parent().combat_audio.shot(unit, origin, weapon)
 	shots_emitted += 1
 	if not _can_show(unit):
 		return
@@ -200,33 +222,18 @@ func shot(unit, origin, target_point, duration, missile = false, target_unit = n
 	_tracers.append(entry)
 
 
-func impact(unit, source, point):
-	get_parent().combat_audio.impact(unit, source, point)
+func impact(unit, source, point, weapon = {}):
+	get_parent().combat_audio.impact(unit, source, point, weapon)
 	impacts_emitted += 1
 	if not _can_show(unit):
 		return
-	var heavy = (
-		source.type
-		in [
-			"Tank",
-			"AdvancedTank",
-			"Helicopter",
-			"AntiGroundTurret",
-			"AntiAirTurret",
-			"RocketInfantry",
-			"MercenaryLancer",
-			"Fighter",
-			"Bomber"
-		]
-	)
+	_material_hit(unit)
+	var heavy = get_parent().combat_audio.heavy_impact(source, weapon)
 	_water_impact(point, 1.0 if heavy else .3)
 	var ground_hit = point.y - _ground_height(point) < 1.6
 	var direction = source.global_position.direction_to(point)
 	if heavy:
-		if (
-			source.type
-			in ["RocketInfantry", "MercenaryLancer", "Helicopter", "AntiAirTurret", "Fighter"]
-		):
+		if explosive_impact(source, weapon):
 			_explosion(point, .95, ground_hit)
 		else:
 			_armor_impact(
@@ -251,6 +258,15 @@ func impact(unit, source, point):
 				Color(0.49, 0.43, 0.34, 0.5),
 				0.6
 			)
+
+
+static func explosive_impact(source, weapon = {}):
+	if not weapon.is_empty():
+		return weapon.get("kind", "") in ["rocket", "missile", "bomb", "warhead"]
+	return (
+		source.type
+		in ["RocketInfantry", "MercenaryLancer", "Helicopter", "AntiAirTurret", "Fighter"]
+	)
 
 
 func can_show_point(point):
@@ -377,6 +393,8 @@ func _armor_impact(point, direction, ground_hit, color):
 
 
 func _explosion(point, strength, ground_hit, destructive = false):
+	if destructive and strength >= 1.5 and ground_hit:
+		_shockwave(point, strength)
 	if destructive:
 		for index in 10:
 			_puff(
@@ -474,12 +492,14 @@ func _wreck(unit, infantry):
 	var material = StandardMaterial3D.new()
 	material.albedo_color = Color("36383a")
 	material.roughness = 0.95
-	for mesh in wreck.find_children("*", "MeshInstance3D", true, false):
+	for mesh in wreck.find_children("*", "GeometryInstance3D", true, false):
 		# The wreck replaces every surface, including an unfinished building's shaders.
 		# Hidden surface overrides can leave stale renderer RIDs when the wreck expires.
-		for surface in mesh.get_surface_override_material_count():
-			mesh.set_surface_override_material(surface, null)
+		if mesh is MeshInstance3D:
+			for surface in mesh.get_surface_override_material_count():
+				mesh.set_surface_override_material(surface, null)
 		mesh.material_override = material
+		mesh.material_overlay = null
 	if (
 		not infantry
 		and unit.type in ["Tank", "AdvancedTank"]
@@ -495,6 +515,9 @@ func _wreck(unit, infantry):
 				"node": wreck,
 				"age": 0.0,
 				"smoke_clock": 0.0,
+				"fire_clock": 0.0,
+				"fire_height": clampf(unit.radius * .8, .6, 1.8),
+				"light": _wreck_light(wreck, unit.radius) if not infantry else null,
 				"secondary": false,
 				"size": clampf(unit.radius, 0.5, 2.0),
 				"infantry": infantry,
@@ -505,6 +528,136 @@ func _wreck(unit, infantry):
 			}
 		)
 	)
+
+
+func _material_hit(unit):
+	if (
+		Globals.options.reduced_flashes
+		or not unit.is_visible_in_tree()
+		or not _camera_sees(unit.global_position)
+	):
+		return
+	var geometry = unit.get_node_or_null("Geometry")
+	if geometry == null:
+		return
+	for entry in _hit_flashes:
+		if entry.unit.get_ref() == unit:
+			# Sustained automatic fire does not pin the target at full brightness.
+			return
+	var recycled = {}
+	if _hit_flashes.size() >= MAX_HIT_FLASHES:
+		recycled = _hit_flashes.pop_front()
+		ObjectMaterials.clear_hit_flash(recycled)
+	elif not _free_hit_flashes.is_empty():
+		recycled = _free_hit_flashes.pop_back()
+	var entry = ObjectMaterials.hit_flash(geometry, Color("ffd6a1"), recycled)
+	entry.unit = weakref(unit)
+	_hit_flashes.append(entry)
+
+
+func _shockwave(point, strength):
+	if _headless or Globals.options.reduced_flashes or not _camera_sees(point):
+		return
+	while _shockwaves.size() >= MAX_SHOCKWAVES:
+		var old = _shockwaves.pop_front().node
+		old.hide()
+		old.queue_free()
+	var ring = create_shockwave(strength)
+	add_child(ring)
+	ring.position = Vector3(point.x, _ground_height(point) + .08, point.z)
+	_shockwaves.append({"node": ring, "age": 0.0})
+
+
+static func create_shockwave(strength):
+	var ring = MeshInstance3D.new()
+	ring.name = "ExplosionShockwave"
+	ring.mesh = PlaneMesh.new()
+	ring.mesh.size = Vector2.ONE * clampf(strength * 5.0, 4.0, 15.0)
+	ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var material = ShaderMaterial.new()
+	material.shader = (
+		SHOCKWAVE_FALLBACK
+		if RenderingServer.get_current_rendering_method() == "gl_compatibility"
+		else SHOCKWAVE_SHADER
+	)
+	ring.material_override = material
+	return ring
+
+
+func _wreck_light(wreck, size):
+	if _headless or Globals.options.reduced_flashes or not _camera_sees(wreck.global_position):
+		return null
+	var count = 0
+	for entry in _wrecks:
+		if is_instance_valid(entry.get("light")):
+			count += 1
+	if count >= MAX_WRECK_LIGHTS:
+		return null
+	var light = OmniLight3D.new()
+	light.name = "WreckFireLight"
+	light.light_color = Color("ff9d4f")
+	light.light_energy = .5
+	light.omni_range = clampf(size * 2.0, 1.5, 4.0)
+	light.shadow_enabled = false
+	wreck.add_child(light)
+	light.position.y = .65
+	return light
+
+
+func _advance_hit_flashes(delta):
+	for index in range(_hit_flashes.size() - 1, -1, -1):
+		var entry = _hit_flashes[index]
+		entry.age += delta
+		var target = entry.unit.get_ref()
+		if (
+			entry.age >= HIT_DURATION
+			or Globals.options.reduced_flashes
+			or target == null
+			or target.is_queued_for_deletion()
+			or not target.is_visible_in_tree()
+		):
+			ObjectMaterials.clear_hit_flash(entry)
+			_hit_flashes.remove_at(index)
+			_free_hit_flashes.append(entry)
+		else:
+			entry.material.set_shader_parameter(
+				"hit_strength", .7 * (1.0 - entry.age / HIT_DURATION)
+			)
+	for index in range(_shockwaves.size() - 1, -1, -1):
+		var entry = _shockwaves[index]
+		entry.age += delta
+		if entry.age >= SHOCKWAVE_DURATION or Globals.options.reduced_flashes:
+			entry.node.queue_free()
+			_shockwaves.remove_at(index)
+		else:
+			entry.node.material_override.set_shader_parameter(
+				"progress", entry.age / SHOCKWAVE_DURATION
+			)
+
+
+func _advance_wreck_fire(entry, delta):
+	var burn = 1.0 - smoothstep(7.0, WRECK_BURN_DURATION, entry.age)
+	if is_instance_valid(entry.light):
+		if burn <= 0.0 or Globals.options.reduced_flashes:
+			entry.light.queue_free()
+			entry.light = null
+		else:
+			entry.light.visible = _camera_sees(entry.node.global_position)
+			entry.light.light_energy = (
+				burn * (.38 + .09 * sin(entry.age * 7.3) + .04 * sin(entry.age * 13.1))
+			)
+	if entry.infantry or burn <= 0.0 or not _camera_sees(entry.node.global_position):
+		return
+	entry.fire_clock += delta
+	if entry.fire_clock >= .22:
+		entry.fire_clock = 0.0
+		_puff(
+			"fire",
+			entry.node.position + Vector3.UP * entry.get("fire_height", .6) + _jitter(.18),
+			Vector3.UP * .5,
+			Color(1, .4, .1, .6 * burn),
+			entry.size * .65 * burn
+		)
 
 
 # A stricken aircraft keeps its horizontal velocity and slows as it falls, so a
@@ -611,6 +764,13 @@ func _glowing_material(color):
 
 
 func _process(_delta):
+	# Settings can change while the battle is paused; remove frozen flashes then too.
+	if Globals.options.reduced_flashes:
+		_advance_hit_flashes(0.0)
+		for entry in _wrecks:
+			if is_instance_valid(entry.light):
+				entry.light.queue_free()
+				entry.light = null
 	if _paused != get_tree().paused:
 		_paused = get_tree().paused
 		for emitter in _emitters.values():
@@ -623,6 +783,7 @@ func _process(_delta):
 func _physics_process(delta):
 	if get_tree().paused:
 		return
+	_advance_hit_flashes(delta)
 	for index in range(_tracers.size() - 1, -1, -1):
 		var entry = _tracers[index]
 		entry.age += delta
@@ -682,8 +843,14 @@ func _physics_process(delta):
 			_wrecks.remove_at(index)
 			continue
 		_update_wreck(entry)
+		_advance_wreck_fire(entry, delta)
 		entry.smoke_clock += delta
-		if not entry.infantry and entry.age < 4.0 and entry.smoke_clock > 0.65:
+		if (
+			not entry.infantry
+			and entry.age < WRECK_BURN_DURATION
+			and entry.smoke_clock > 0.8
+			and _camera_sees(entry.node.global_position)
+		):
 			entry.smoke_clock = 0.0
 			var point = entry.node.position + Vector3.UP * 0.45
 			_puff(
@@ -693,14 +860,6 @@ func _physics_process(delta):
 				Color(0.16, 0.16, 0.15, 0.32),
 				entry.size * 0.9
 			)
-			if entry.age < 4.0:
-				_puff(
-					"fire",
-					point + _jitter(0.25),
-					Vector3.UP * 0.5,
-					Color(1, 0.4, 0.1, 0.7),
-					entry.size * 0.7
-				)
 		if not entry.infantry and not entry.secondary and entry.age > 0.7:
 			entry.secondary = true
 			_explosion(
@@ -832,6 +991,10 @@ func damage_smoke(unit):
 
 
 func _exit_tree():
+	for entry in _hit_flashes:
+		ObjectMaterials.clear_hit_flash(entry)
+	_hit_flashes.clear()
+	_free_hit_flashes.clear()
 	for entry in _cook_offs:
 		if is_instance_valid(entry.node):
 			entry.node.queue_free()

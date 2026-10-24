@@ -15,6 +15,7 @@ from mathutils import Vector
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "common"))
 import weathering  # noqa: E402
+import markings  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "assets/models/bastion/structures-v2"
@@ -215,8 +216,11 @@ def hq():
         box("BlastDoor", (x, 2.21, .97), (.59, .08, 1.12), STEEL)
     box("GateLintel", (0, 2.27, 1.64), (1.55, .22, .18), TEAM)
     box("EntranceRamp", (0, 2.43, .29), (1.45, .75, .17), CONCRETE)
-    rod("Aerial", (-.55, -.6, 4.38), (-.55, -.6, 5.5), .035)
-    rod("AerialCross", (-1, -.6, 5.1), (-.1, -.6, 5.1), .025)
+    box("CommsPedestal", (-.55, -.6, 4.53), (.24, .24, .30), STEEL)
+    box("CommsPanelHousing", (-.55, -.6, 4.93), (.64, .22, .62), PANEL)
+    box("CommsPanelFace", (-.55, -.476, 4.93), (.50, .025, .48), DARK, bevel=.015)
+    for x in [-.70, -.55, -.40]:
+        box("CommsArrayElement", (x, -.454, 4.93), (.055, .02, .32), STEEL, bevel=.008)
     cyl("Beacon", (.65, -.45, 4.53), .11, .2, GLASS)
     stencil("01", (0, 2.281, 1.9), .43, (math.pi/2, 0, math.pi))
 
@@ -369,8 +373,8 @@ def depot():
         rod("ServiceForearm", (side*1.22, .50, 2.25), (side*.70, .8, 1.65), .10, TEAM, arm)
         rod("ToolTip", (side*.70, .8, 1.65), (side*.5, .82, 1.43), .045, STEEL, arm)
     box("ServiceLintel", (0, -.25, 3.15), (4.5, .75, .36), ARMOR)
-    box("RepairMarkA", (0, .15, 3.15), (.9, .04, .17), WHITE)
-    box("RepairMarkB", (0, .16, 3.15), (.17, .04, .45), WHITE)
+    vertices, faces = markings.service_gear(0, .15, 3.15, size=.8)
+    shape("ServiceGear", vertices, faces, WHITE)
     for x in [-1.55, 1.55]:
         box("WorkLight", (x, .17, 3.17), (.32, .04, .11), GLASS)
     stencil("07", (0, 1.15, .352), .47)

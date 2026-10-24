@@ -1,0 +1,128 @@
+{
+	"bastion": {
+		"buses": {
+			"Ambience": {
+				"file": "bastion-ambience.wav",
+				"sample_rate": 44100,
+				"seconds": 26.4243083900227
+			},
+			"Effects": {
+				"file": "bastion-effects.wav",
+				"sample_rate": 44100,
+				"seconds": 26.3314285714286
+			},
+			"Master": {
+				"file": "bastion-master.wav",
+				"sample_rate": 44100,
+				"seconds": 26.0063492063492
+			},
+			"Music": {
+				"file": "bastion-music.wav",
+				"sample_rate": 44100,
+				"seconds": 26.1224489795918
+			},
+			"Voice": {
+				"file": "bastion-voice.wav",
+				"sample_rate": 44100,
+				"seconds": 26.2269387755102
+			}
+		},
+		"driver": "CoreAudio",
+		"scenario": "0–4 s calm; 4–16 s routine fire; 8–16 s heavy fire; 12 s warning; 12.5 s destruction; 16–26 s quiet recovery",
+		"timeline": [
+			{
+				"event": "warning",
+				"seconds": 12.009,
+				"text": "Your base is under attack."
+			},
+			{
+				"event": "vehicle destruction",
+				"seconds": 12.508
+			}
+		]
+	},
+	"frontier": {
+		"buses": {
+			"Ambience": {
+				"file": "frontier-ambience.wav",
+				"sample_rate": 44100,
+				"seconds": 26.4243083900227
+			},
+			"Effects": {
+				"file": "frontier-effects.wav",
+				"sample_rate": 44100,
+				"seconds": 26.3198185941043
+			},
+			"Master": {
+				"file": "frontier-master.wav",
+				"sample_rate": 44100,
+				"seconds": 25.9947392290249
+			},
+			"Music": {
+				"file": "frontier-music.wav",
+				"sample_rate": 44100,
+				"seconds": 26.0992290249433
+			},
+			"Voice": {
+				"file": "frontier-voice.wav",
+				"sample_rate": 44100,
+				"seconds": 26.2037188208617
+			}
+		},
+		"driver": "CoreAudio",
+		"scenario": "0–4 s calm; 4–16 s routine fire; 8–16 s heavy fire; 12 s warning; 12.5 s destruction; 16–26 s quiet recovery",
+		"timeline": [
+			{
+				"event": "warning",
+				"seconds": 12.009,
+				"text": "Your base is under attack."
+			},
+			{
+				"event": "vehicle destruction",
+				"seconds": 12.509
+			}
+		]
+	},
+	"helix": {
+		"buses": {
+			"Ambience": {
+				"file": "helix-ambience.wav",
+				"sample_rate": 44100,
+				"seconds": 26.4126984126984
+			},
+			"Effects": {
+				"file": "helix-effects.wav",
+				"sample_rate": 44100,
+				"seconds": 26.2965986394558
+			},
+			"Master": {
+				"file": "helix-master.wav",
+				"sample_rate": 44100,
+				"seconds": 26.0063492063492
+			},
+			"Music": {
+				"file": "helix-music.wav",
+				"sample_rate": 44100,
+				"seconds": 26.1108390022676
+			},
+			"Voice": {
+				"file": "helix-voice.wav",
+				"sample_rate": 44100,
+				"seconds": 26.2037188208617
+			}
+		},
+		"driver": "CoreAudio",
+		"scenario": "0–4 s calm; 4–16 s routine fire; 8–16 s heavy fire; 12 s warning; 12.5 s destruction; 16–26 s quiet recovery",
+		"timeline": [
+			{
+				"event": "warning",
+				"seconds": 12.013,
+				"text": "Your base is under attack."
+			},
+			{
+				"event": "vehicle destruction",
+				"seconds": 12.513
+			}
+		]
+	}
+}

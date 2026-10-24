@@ -1,0 +1,49 @@
+{
+  "status": "first_focused_pass_before_followup_loading_cases",
+  "recorded_utc": "2026-10-24T06:32:56.947082+00:00",
+  "headless": {
+    "exit_code": 0,
+    "seconds": 4.899,
+    "coverage": "Immediate renderer skip, paused and unpaused callers, node count and process modes.",
+    "limitation": "This headless run preceded final synchronous cleanup and quit-guard additions; those do not execute in the headless skip branch."
+  },
+  "rendered": {
+    "exit_code": 0,
+    "seconds": 9.662,
+    "backend": "Godot 4.7.2 Metal Forward+, Apple M1 Pro",
+    "coverage": [
+      "Default, reduced-flashes, wear-disabled and ground-detail-disabled settings",
+      "Paused save snapshot and live RNG preservation",
+      "Existing tracer/hit/shockwave/projectile pools and material/terrain-overlay identities",
+      "Process-mode restoration and node cleanup",
+      "Actual restore remains paused without advancing simulation",
+      "Current-scene replacement and queued game deletion cancellation"
+    ],
+    "source_files_unchanged_during_run": true,
+    "functional_errors": [],
+    "host_launch_diagnostic": "sandbox_extension_issue_file_to_process failed for /tmp/open-rts-ui-godot/Godot.app: 1 (Operation not permitted)"
+  },
+  "followup": "Additional actual Loading success/cancel/shutdown-pause cases will run against the frozen version-18 stage after the engine slot is released.",
+  "artifacts": [
+    {
+      "path": "docs/playtests/2026-10-24/combat-prewarm-regression/first-pass-CombatPrewarmRegression-headless.log.txt",
+      "sha256": "ea3c3b6a5615ded3604c65b344432714365b5aede7c4c1c0e4c8e70d78c01ca7",
+      "bytes": 190
+    },
+    {
+      "path": "docs/playtests/2026-10-24/combat-prewarm-regression/first-pass-CombatPrewarmRegression-rendered.log.txt",
+      "sha256": "09d45b2608c83656734da78667be930df007cc1396bf79b3bcd12207b160692b",
+      "bytes": 844
+    },
+    {
+      "path": "docs/playtests/2026-10-24/combat-prewarm-regression/first-pass-rendered-result.json",
+      "sha256": "3d078b71d8d8cea14768618763913eda9f9b1d71efc886efad4bb5c716b757d7",
+      "bytes": 839
+    },
+    {
+      "path": "docs/playtests/2026-10-24/combat-prewarm-regression/first-pass-CombatPrewarmRegression.gd.txt",
+      "sha256": "4e13a2e63f0eb9132165c76fd574e41fa698220d6b2f8391a1a95ee393024b29",
+      "bytes": 11903
+    }
+  ]
+}

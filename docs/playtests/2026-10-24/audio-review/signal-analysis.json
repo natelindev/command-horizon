@@ -1,0 +1,627 @@
+{
+  "scope": "Three 26-second native CoreAudio runtime scenarios at the recorded default volume settings. Recorder captures each bus after effects and before that bus volume. Master therefore precedes master 0.8 gain. Objective signal analysis, not a subjective listening test.",
+  "bus_gains": {
+    "Master": 0.8,
+    "Music": 0.5,
+    "Voice": 0.8,
+    "Effects": 0.75,
+    "Ambience": 0.55
+  },
+  "files": {
+    "bastion-ambience.wav": {
+      "seconds": 26.424,
+      "sample_rate": 44100,
+      "channels": 2,
+      "peak": 0.060577,
+      "peak_dbfs": -24.35,
+      "rms_dbfs": -42.06,
+      "clipped_samples": 0,
+      "segments": {
+        "calm": {
+          "peak": 0.059601,
+          "peak_dbfs": -24.49,
+          "rms_dbfs": -38.8,
+          "clipped_samples": 0
+        },
+        "routine_fire": {
+          "peak": 0.024689,
+          "peak_dbfs": -32.15,
+          "rms_dbfs": -47.88,
+          "clipped_samples": 0
+        },
+        "heavy_fire": {
+          "peak": 0.034271,
+          "peak_dbfs": -29.3,
+          "rms_dbfs": -44.42,
+          "clipped_samples": 0
+        },
+        "warning_and_destruction": {
+          "peak": 0.035095,
+          "peak_dbfs": -29.1,
+          "rms_dbfs": -43.35,
+          "clipped_samples": 0
+        },
+        "quiet_recovery": {
+          "peak": 0.060577,
+          "peak_dbfs": -24.35,
+          "rms_dbfs": -41.87,
+          "clipped_samples": 0
+        }
+      }
+    },
+    "bastion-effects.wav": {
+      "seconds": 26.331,
+      "sample_rate": 44100,
+      "channels": 2,
+      "peak": 0.202179,
+      "peak_dbfs": -13.89,
+      "rms_dbfs": -37.56,
+      "clipped_samples": 0,
+      "segments": {
+        "calm": {
+          "peak": 0.0,
+          "peak_dbfs": -240.0,
+          "rms_dbfs": -240.0,
+          "clipped_samples": 0
+        },
+        "routine_fire": {
+          "peak": 0.081055,
+          "peak_dbfs": -21.82,
+          "rms_dbfs": -43.76,
+          "clipped_samples": 0
+        },
+        "heavy_fire": {
+          "peak": 0.202179,
+          "peak_dbfs": -13.89,
+          "rms_dbfs": -31.76,
+          "clipped_samples": 0
+        },
+        "warning_and_destruction": {
+          "peak": 0.195374,
+          "peak_dbfs": -14.18,
+          "rms_dbfs": -32.4,
+          "clipped_samples": 0
+        },
+        "quiet_recovery": {
+          "peak": 0.0,
+          "peak_dbfs": -240.0,
+          "rms_dbfs": -240.0,
+          "clipped_samples": 0
+        }
+      }
+    },
+    "bastion-master.wav": {
+      "seconds": 26.006,
+      "sample_rate": 44100,
+      "channels": 2,
+      "peak": 0.362793,
+      "peak_dbfs": -8.81,
+      "rms_dbfs": -27.6,
+      "clipped_samples": 0,
+      "segments": {
+        "calm": {
+          "peak": 0.106293,
+          "peak_dbfs": -19.47,
+          "rms_dbfs": -28.21,
+          "clipped_samples": 0
+        },
+        "routine_fire": {
+          "peak": 0.119812,
+          "peak_dbfs": -18.43,
+          "rms_dbfs": -28.16,
+          "clipped_samples": 0
+        },
+        "heavy_fire": {
+          "peak": 0.19632,
+          "peak_dbfs": -14.14,
+          "rms_dbfs": -26.8,
+          "clipped_samples": 0
+        },
+        "warning_and_destruction": {
+          "peak": 0.362793,
+          "peak_dbfs": -8.81,
+          "rms_dbfs": -24.84,
+          "clipped_samples": 0
+        },
+        "quiet_recovery": {
+          "peak": 0.114471,
+          "peak_dbfs": -18.83,
+          "rms_dbfs": -28.6,
+          "clipped_samples": 0
+        }
+      }
+    },
+    "bastion-music.wav": {
+      "seconds": 26.122,
+      "sample_rate": 44100,
+      "channels": 2,
+      "peak": 0.244965,
+      "peak_dbfs": -12.22,
+      "rms_dbfs": -22.53,
+      "clipped_samples": 0,
+      "segments": {
+        "calm": {
+          "peak": 0.199249,
+          "peak_dbfs": -14.01,
+          "rms_dbfs": -22.29,
+          "clipped_samples": 0
+        },
+        "routine_fire": {
+          "peak": 0.223389,
+          "peak_dbfs": -13.02,
+          "rms_dbfs": -22.21,
+          "clipped_samples": 0
+        },
+        "heavy_fire": {
+          "peak": 0.244965,
+          "peak_dbfs": -12.22,
+          "rms_dbfs": -21.73,
+          "clipped_samples": 0
+        },
+        "warning_and_destruction": {
+          "peak": 0.171387,
+          "peak_dbfs": -15.32,
+          "rms_dbfs": -23.72,
+          "clipped_samples": 0
+        },
+        "quiet_recovery": {
+          "peak": 0.228638,
+          "peak_dbfs": -12.82,
+          "rms_dbfs": -22.64,
+          "clipped_samples": 0
+        }
+      }
+    },
+    "bastion-voice.wav": {
+      "seconds": 26.227,
+      "sample_rate": 44100,
+      "channels": 2,
+      "peak": 0.433807,
+      "peak_dbfs": -7.25,
+      "rms_dbfs": -34.68,
+      "clipped_samples": 0,
+      "segments": {
+        "calm": {
+          "peak": 0.0,
+          "peak_dbfs": -240.0,
+          "rms_dbfs": -240.0,
+          "clipped_samples": 0
+        },
+        "routine_fire": {
+          "peak": 0.0,
+          "peak_dbfs": -240.0,
+          "rms_dbfs": -240.0,
+          "clipped_samples": 0
+        },
+        "heavy_fire": {
+          "peak": 0.0,
+          "peak_dbfs": -240.0,
+          "rms_dbfs": -240.0,
+          "clipped_samples": 0
+        },
+        "warning_and_destruction": {
+          "peak": 0.433807,
+          "peak_dbfs": -7.25,
+          "rms_dbfs": -25.27,
+          "clipped_samples": 0
+        },
+        "quiet_recovery": {
+          "peak": 0.0,
+          "peak_dbfs": -240.0,
+          "rms_dbfs": -240.0,
+          "clipped_samples": 0
+        }
+      }
+    },
+    "frontier-ambience.wav": {
+      "seconds": 26.424,
+      "sample_rate": 44100,
+      "channels": 2,
+      "peak": 0.060577,
+      "peak_dbfs": -24.35,
+      "rms_dbfs": -42.01,
+      "clipped_samples": 0,
+      "segments": {
+        "calm": {
+          "peak": 0.059601,
+          "peak_dbfs": -24.49,
+          "rms_dbfs": -38.49,
+          "clipped_samples": 0
+        },
+        "routine_fire": {
+          "peak": 0.024689,
+          "peak_dbfs": -32.15,
+          "rms_dbfs": -48.42,
+          "clipped_samples": 0
+        },
+        "heavy_fire": {
+          "peak": 0.030853,
+          "peak_dbfs": -30.21,
+          "rms_dbfs": -44.72,
+          "clipped_samples": 0
+        },
+        "warning_and_destruction": {
+          "peak": 0.042786,
+          "peak_dbfs": -27.37,
+          "rms_dbfs": -42.45,
+          "clipped_samples": 0
+        },
+        "quiet_recovery": {
+          "peak": 0.049255,
+          "peak_dbfs": -26.15,
+          "rms_dbfs": -42.49,
+          "clipped_samples": 0
+        }
+      }
+    },
+    "frontier-effects.wav": {
+      "seconds": 26.32,
+      "sample_rate": 44100,
+      "channels": 2,
+      "peak": 0.202606,
+      "peak_dbfs": -13.87,
+      "rms_dbfs": -37.53,
+      "clipped_samples": 0,
+      "segments": {
+        "calm": {
+          "peak": 0.0,
+          "peak_dbfs": -240.0,
+          "rms_dbfs": -240.0,
+          "clipped_samples": 0
+        },
+        "routine_fire": {
+          "peak": 0.081055,
+          "peak_dbfs": -21.82,
+          "rms_dbfs": -43.76,
+          "clipped_samples": 0
+        },
+        "heavy_fire": {
+          "peak": 0.202606,
+          "peak_dbfs": -13.87,
+          "rms_dbfs": -31.76,
+          "clipped_samples": 0
+        },
+        "warning_and_destruction": {
+          "peak": 0.195374,
+          "peak_dbfs": -14.18,
+          "rms_dbfs": -32.31,
+          "clipped_samples": 0
+        },
+        "quiet_recovery": {
+          "peak": 0.0,
+          "peak_dbfs": -240.0,
+          "rms_dbfs": -240.0,
+          "clipped_samples": 0
+        }
+      }
+    },
+    "frontier-master.wav": {
+      "seconds": 25.995,
+      "sample_rate": 44100,
+      "channels": 2,
+      "peak": 0.396851,
+      "peak_dbfs": -8.03,
+      "rms_dbfs": -30.59,
+      "clipped_samples": 0,
+      "segments": {
+        "calm": {
+          "peak": 0.10495,
+          "peak_dbfs": -19.58,
+          "rms_dbfs": -32.95,
+          "clipped_samples": 0
+        },
+        "routine_fire": {
+          "peak": 0.139465,
+          "peak_dbfs": -17.11,
+          "rms_dbfs": -31.33,
+          "clipped_samples": 0
+        },
+        "heavy_fire": {
+          "peak": 0.177612,
+          "peak_dbfs": -15.01,
+          "rms_dbfs": -29.53,
+          "clipped_samples": 0
+        },
+        "warning_and_destruction": {
+          "peak": 0.396851,
+          "peak_dbfs": -8.03,
+          "rms_dbfs": -26.36,
+          "clipped_samples": 0
+        },
+        "quiet_recovery": {
+          "peak": 0.092926,
+          "peak_dbfs": -20.64,
+          "rms_dbfs": -33.5,
+          "clipped_samples": 0
+        }
+      }
+    },
+    "frontier-music.wav": {
+      "seconds": 26.099,
+      "sample_rate": 44100,
+      "channels": 2,
+      "peak": 0.219452,
+      "peak_dbfs": -13.17,
+      "rms_dbfs": -26.32,
+      "clipped_samples": 0,
+      "segments": {
+        "calm": {
+          "peak": 0.190948,
+          "peak_dbfs": -14.38,
+          "rms_dbfs": -27.31,
+          "clipped_samples": 0
+        },
+        "routine_fire": {
+          "peak": 0.216919,
+          "peak_dbfs": -13.27,
+          "rms_dbfs": -25.49,
+          "clipped_samples": 0
+        },
+        "heavy_fire": {
+          "peak": 0.219452,
+          "peak_dbfs": -13.17,
+          "rms_dbfs": -25.46,
+          "clipped_samples": 0
+        },
+        "warning_and_destruction": {
+          "peak": 0.205017,
+          "peak_dbfs": -13.76,
+          "rms_dbfs": -26.91,
+          "clipped_samples": 0
+        },
+        "quiet_recovery": {
+          "peak": 0.191528,
+          "peak_dbfs": -14.36,
+          "rms_dbfs": -27.63,
+          "clipped_samples": 0
+        }
+      }
+    },
+    "frontier-voice.wav": {
+      "seconds": 26.204,
+      "sample_rate": 44100,
+      "channels": 2,
+      "peak": 0.47641,
+      "peak_dbfs": -6.44,
+      "rms_dbfs": -35.75,
+      "clipped_samples": 0,
+      "segments": {
+        "calm": {
+          "peak": 0.0,
+          "peak_dbfs": -240.0,
+          "rms_dbfs": -240.0,
+          "clipped_samples": 0
+        },
+        "routine_fire": {
+          "peak": 0.0,
+          "peak_dbfs": -240.0,
+          "rms_dbfs": -240.0,
+          "clipped_samples": 0
+        },
+        "heavy_fire": {
+          "peak": 0.0,
+          "peak_dbfs": -240.0,
+          "rms_dbfs": -240.0,
+          "clipped_samples": 0
+        },
+        "warning_and_destruction": {
+          "peak": 0.47641,
+          "peak_dbfs": -6.44,
+          "rms_dbfs": -26.34,
+          "clipped_samples": 0
+        },
+        "quiet_recovery": {
+          "peak": 0.0,
+          "peak_dbfs": -240.0,
+          "rms_dbfs": -240.0,
+          "clipped_samples": 0
+        }
+      }
+    },
+    "helix-ambience.wav": {
+      "seconds": 26.413,
+      "sample_rate": 44100,
+      "channels": 2,
+      "peak": 0.060577,
+      "peak_dbfs": -24.35,
+      "rms_dbfs": -42.15,
+      "clipped_samples": 0,
+      "segments": {
+        "calm": {
+          "peak": 0.059601,
+          "peak_dbfs": -24.49,
+          "rms_dbfs": -38.46,
+          "clipped_samples": 0
+        },
+        "routine_fire": {
+          "peak": 0.024689,
+          "peak_dbfs": -32.15,
+          "rms_dbfs": -48.45,
+          "clipped_samples": 0
+        },
+        "heavy_fire": {
+          "peak": 0.030853,
+          "peak_dbfs": -30.21,
+          "rms_dbfs": -44.75,
+          "clipped_samples": 0
+        },
+        "warning_and_destruction": {
+          "peak": 0.033081,
+          "peak_dbfs": -29.61,
+          "rms_dbfs": -43.92,
+          "clipped_samples": 0
+        },
+        "quiet_recovery": {
+          "peak": 0.049255,
+          "peak_dbfs": -26.15,
+          "rms_dbfs": -42.53,
+          "clipped_samples": 0
+        }
+      }
+    },
+    "helix-effects.wav": {
+      "seconds": 26.297,
+      "sample_rate": 44100,
+      "channels": 2,
+      "peak": 0.155121,
+      "peak_dbfs": -16.19,
+      "rms_dbfs": -40.68,
+      "clipped_samples": 0,
+      "segments": {
+        "calm": {
+          "peak": 0.0,
+          "peak_dbfs": -240.0,
+          "rms_dbfs": -240.0,
+          "clipped_samples": 0
+        },
+        "routine_fire": {
+          "peak": 0.082977,
+          "peak_dbfs": -21.62,
+          "rms_dbfs": -44.97,
+          "clipped_samples": 0
+        },
+        "heavy_fire": {
+          "peak": 0.155121,
+          "peak_dbfs": -16.19,
+          "rms_dbfs": -34.8,
+          "clipped_samples": 0
+        },
+        "warning_and_destruction": {
+          "peak": 0.091766,
+          "peak_dbfs": -20.75,
+          "rms_dbfs": -35.96,
+          "clipped_samples": 0
+        },
+        "quiet_recovery": {
+          "peak": 0.0,
+          "peak_dbfs": -240.0,
+          "rms_dbfs": -240.0,
+          "clipped_samples": 0
+        }
+      }
+    },
+    "helix-master.wav": {
+      "seconds": 26.006,
+      "sample_rate": 44100,
+      "channels": 2,
+      "peak": 0.337891,
+      "peak_dbfs": -9.42,
+      "rms_dbfs": -26.97,
+      "clipped_samples": 0,
+      "segments": {
+        "calm": {
+          "peak": 0.163544,
+          "peak_dbfs": -15.73,
+          "rms_dbfs": -28.12,
+          "clipped_samples": 0
+        },
+        "routine_fire": {
+          "peak": 0.208191,
+          "peak_dbfs": -13.63,
+          "rms_dbfs": -27.06,
+          "clipped_samples": 0
+        },
+        "heavy_fire": {
+          "peak": 0.186523,
+          "peak_dbfs": -14.59,
+          "rms_dbfs": -26.53,
+          "clipped_samples": 0
+        },
+        "warning_and_destruction": {
+          "peak": 0.337891,
+          "peak_dbfs": -9.42,
+          "rms_dbfs": -23.78,
+          "clipped_samples": 0
+        },
+        "quiet_recovery": {
+          "peak": 0.151917,
+          "peak_dbfs": -16.37,
+          "rms_dbfs": -28.37,
+          "clipped_samples": 0
+        }
+      }
+    },
+    "helix-music.wav": {
+      "seconds": 26.111,
+      "sample_rate": 44100,
+      "channels": 2,
+      "peak": 0.414886,
+      "peak_dbfs": -7.64,
+      "rms_dbfs": -21.91,
+      "clipped_samples": 0,
+      "segments": {
+        "calm": {
+          "peak": 0.298615,
+          "peak_dbfs": -10.5,
+          "rms_dbfs": -22.21,
+          "clipped_samples": 0
+        },
+        "routine_fire": {
+          "peak": 0.414886,
+          "peak_dbfs": -7.64,
+          "rms_dbfs": -21.09,
+          "clipped_samples": 0
+        },
+        "heavy_fire": {
+          "peak": 0.345154,
+          "peak_dbfs": -9.24,
+          "rms_dbfs": -20.78,
+          "clipped_samples": 0
+        },
+        "warning_and_destruction": {
+          "peak": 0.286255,
+          "peak_dbfs": -10.86,
+          "rms_dbfs": -23.68,
+          "clipped_samples": 0
+        },
+        "quiet_recovery": {
+          "peak": 0.297699,
+          "peak_dbfs": -10.52,
+          "rms_dbfs": -22.4,
+          "clipped_samples": 0
+        }
+      }
+    },
+    "helix-voice.wav": {
+      "seconds": 26.204,
+      "sample_rate": 44100,
+      "channels": 2,
+      "peak": 0.391754,
+      "peak_dbfs": -8.14,
+      "rms_dbfs": -32.7,
+      "clipped_samples": 0,
+      "segments": {
+        "calm": {
+          "peak": 0.0,
+          "peak_dbfs": -240.0,
+          "rms_dbfs": -240.0,
+          "clipped_samples": 0
+        },
+        "routine_fire": {
+          "peak": 0.0,
+          "peak_dbfs": -240.0,
+          "rms_dbfs": -240.0,
+          "clipped_samples": 0
+        },
+        "heavy_fire": {
+          "peak": 0.0,
+          "peak_dbfs": -240.0,
+          "rms_dbfs": -240.0,
+          "clipped_samples": 0
+        },
+        "warning_and_destruction": {
+          "peak": 0.391754,
+          "peak_dbfs": -8.14,
+          "rms_dbfs": -23.29,
+          "clipped_samples": 0
+        },
+        "quiet_recovery": {
+          "peak": 0.0,
+          "peak_dbfs": -240.0,
+          "rms_dbfs": -240.0,
+          "clipped_samples": 0
+        }
+      }
+    }
+  }
+}

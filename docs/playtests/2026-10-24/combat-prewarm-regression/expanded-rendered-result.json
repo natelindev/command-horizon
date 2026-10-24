@@ -1,0 +1,25 @@
+{
+  "stage": "/tmp/godot-open-rts-polish-combat-prewarm-production",
+  "command": [
+    "/tmp/open-rts-ui-godot/Godot.app/Contents/MacOS/Godot",
+    "--path",
+    "/tmp/godot-open-rts-polish-combat-prewarm-production",
+    "--script",
+    "res://tests/rendered/CombatPrewarmRegression.gd"
+  ],
+  "exit_code": 0,
+  "timed_out": false,
+  "seconds": 9.933,
+  "log": "docs/playtests/2026-10-24/combat-prewarm-regression/expanded-rendered.log.txt",
+  "log_sha256": "b85f8bd7f0293a3314178ee5b8f91aad6fc4951ec2f7db4a846ed2d514097c3f",
+  "source_files": {
+    "source/match/effects/CombatPrewarm.gd": "2818c3f53052ba1028113afb8b121de9f5a9c17a5cdb1aac772814c56eccbfae",
+    "source/match/effects/CombatEffects.gd": "524d1db7c4fc786a0d02c02114d8b7ca96466342593ef3e2c7d6b6545e7888db",
+    "source/main-menu/Loading.gd": "8aa3cf24962aa8227c5323049e9b80dcc79791e4d08c98f5ec4f14d6cfdc01a1",
+    "source/match/saves/MatchRestore.gd": "0905aae57bfb3470fd83526479d7ad130a80b175768dbc331660c9503648c353",
+    "source/match/saves/SaveManager.gd": "24c10d189bdae7defbdea35f08deaa403155e1ceae08b3e26691f27a4f068296",
+    "source/match/saves/MatchSnapshot.gd": "f47d49f04d04b1f340649178e48f7da9f96bb3cf953f588a436d603e39ae0a44",
+    "tests/rendered/CombatPrewarmRegression.gd": "e773a30872de1130e20ec7643f8d90f3ad64b19f740d532676d75c317d37c5cd"
+  },
+  "source_files_unchanged": true
+}

@@ -1,0 +1,23 @@
+Temporary copy: before
+Command: codesign --remove-signature <temporary executable copy>
+Exit code: 0
+
+Temporary copy: after
+Command: codesign --remove-signature <temporary executable copy>
+Exit code: 0
+
+{
+  "copies": [
+    {
+      "copy": "before",
+      "unsigned_sha256": "6815b29a255f3b1bb749e0dd8b3cc844318ccacdb87b403c836460751a7d30fe",
+      "unsigned_bytes": 168784576
+    },
+    {
+      "copy": "after",
+      "unsigned_sha256": "6815b29a255f3b1bb749e0dd8b3cc844318ccacdb87b403c836460751a7d30fe",
+      "unsigned_bytes": 168784576
+    }
+  ],
+  "unsigned_engine_binary_identical": true
+}

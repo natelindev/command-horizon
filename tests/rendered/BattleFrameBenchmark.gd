@@ -17,8 +17,12 @@ func _run():
 	preferences.restore({"screen": 1, "edge_scrolling": false})
 	Engine.max_fps = 0
 	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
-	root.size = Vector2i(1440, 900)
-	root.content_scale_size = root.size
+	# Native window/DPI changes must not alter the measured raster workload.
+	root.content_scale_mode = Window.CONTENT_SCALE_MODE_VIEWPORT
+	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+	root.size = Vector2i(1920, 1080)
+	root.content_scale_size = Vector2i(1920, 1080)
+	root.scaling_3d_scale = 1.0
 	RenderingServer.viewport_set_measure_render_time(root.get_viewport_rid(), true)
 	# Optional: -- --map=res://path.tscn --center=x,z (defaults: Expanded Desert Frontier).
 	var map_path = "res://source/match/maps/battlefields/DesertFrontierMap.tscn"
@@ -32,6 +36,12 @@ func _run():
 	await _skirmish("helix", map_path)
 	for player in get_nodes_in_group("players"):
 		player.set_process(false)
+	# The AI can queue production during the shared setup fixture. Cancel those
+	# jobs so frame speed cannot change this workload from 70 to 72+ units.
+	for unit in get_nodes_in_group("units"):
+		var queue = unit.get_node_or_null("ProductionQueue")
+		if queue != null:
+			queue.cancel_all()
 	var camera = game.get_node("IsometricCamera3D")
 	camera.set_position_safely(_units(game._get_human_player(), "CommandCenter")[0].position)
 	camera.set_size_safely(28)
@@ -56,23 +66,64 @@ func _run():
 			unit.hp = unit.hp_max
 	camera.set_position_safely(center)
 	camera.set_size_safely(34)
+	_check(get_nodes_in_group("units").size() == 70, "Ordinary fixture is not exactly 70 units")
 	await _measure_frames("midfield-combat")
+	if "--destruction-burst" in OS.get_cmdline_user_args():
+		await _measure_frames("destruction-burst", _destroy_armor.bind(center))
 	game.queue_free()
 	await _frames(5)
 	preferences.restore(original)
 	for message in errors:
 		push_error(message)
+	print("Battle benchmark: release=", not OS.has_feature("debug"), " failures=", errors.size())
 	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
 
 
-func _measure_frames(label):
+func _destroy_armor(center):
+	var tanks = get_nodes_in_group("units").filter(
+		func(unit): return unit.type == "Tank" and unit.position.distance_to(center) < 14.0
+	)
+	_check(tanks.size() >= 8, "Destruction burst lacks eight visible tanks")
+	for unit in tanks.slice(0, 8):
+		unit.hp = 0
+	print("BURST destroyed=", mini(8, tanks.size()), " wrecks=", game.combat_effects._wrecks.size())
+
+
+func _measure_frames(label, before_sample = Callable()):
 	# Update ticks can run without a draw (e.g. native window transitions).
 	# Warm both the renderer and real-time simulation before sampling draws.
 	var warm_until = Time.get_ticks_msec() + 3000
+	var warm_samples = []
+	var warm_last = Time.get_ticks_usec()
+	if before_sample.is_valid():
+		before_sample.call()
 	for frame in 120:
 		await RenderingServer.frame_post_draw
+		var now = Time.get_ticks_usec()
+		warm_samples.append((now - warm_last) / 1000.0)
+		warm_last = now
 	while Time.get_ticks_msec() < warm_until:
 		await RenderingServer.frame_post_draw
+		var now = Time.get_ticks_usec()
+		warm_samples.append((now - warm_last) / 1000.0)
+		warm_last = now
+	warm_samples.sort()
+	_check(
+		root.get_texture().get_size() == Vector2(1920, 1080),
+		"Ordinary benchmark raster must remain 1920x1080"
+	)
+	print(
+		"WARMUP ",
+		label,
+		" frames=",
+		warm_samples.size(),
+		" p95_ms=",
+		snappedf(warm_samples[int(warm_samples.size() * .95)], .01),
+		" max_ms=",
+		snappedf(warm_samples[-1], .01),
+		" frames_over_100ms=",
+		warm_samples.filter(func(ms): return ms > 100.0).size()
+	)
 	var times = []
 	var gpu_ms = 0.0
 	var render_cpu_ms = 0.0

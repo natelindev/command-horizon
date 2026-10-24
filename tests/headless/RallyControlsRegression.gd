@@ -4,6 +4,31 @@ var menus
 var _checked = 0
 
 
+func _check_localized_rally(destination, message):
+	var previous_locale = TranslationServer.get_locale()
+	for locale in ["en", "zh_CN"]:
+		TranslationServer.set_locale(locale)
+		menus._refresh_buttons()
+		var expected = (
+			TranslationServer.translate("Rally ·")
+			+ " "
+			+ TranslationServer.translate(destination)
+			+ "\n"
+			+ (
+				TranslationServer
+				. translate(
+					(
+						"Removes the destination for new units. Paid production and existing unit orders continue.\n"
+						+ "Right-click ground, resources or a friendly unit to set a new rally."
+					)
+				)
+			)
+		)
+		_check(menus._stop_button.tooltip_text == expected, "%s (%s)" % [message, locale])
+	TranslationServer.set_locale(previous_locale)
+	menus._refresh_buttons()
+
+
 func _run():
 	var manager = root.get_node("SaveManager")
 	var autosaves = manager.autosaves_enabled
@@ -32,9 +57,7 @@ func _controls_case():
 		menus._stop_button.text == "Clear rally" and menus._stop_button.disabled,
 		"Unassigned producer has no disabled Clear rally"
 	)
-	_check(
-		"Rally · At producer" in menus._stop_button.tooltip_text, "Unassigned rally status missing"
-	)
+	_check_localized_rally("At producer", "Unassigned rally status missing")
 	_check(not menus._stop_button.visible, "Unassigned rally shows an unusable Clear rally")
 	var field = get_nodes_in_group("resource_units").filter(func(node): return "resource_b" in node)
 	field.sort_custom(
@@ -43,7 +66,7 @@ func _controls_case():
 	current_target = field[0]
 	await _target(current_target)
 	menus._refresh_buttons()
-	_check("Rally · Electronics" in menus._stop_button.tooltip_text, "Resource rally not described")
+	_check_localized_rally("Electronics", "Resource rally not described")
 	_check(not menus._stop_button.disabled, "Assigned rally cannot be cleared")
 	_check(menus._stop_button.visible, "Assigned rally hides Clear rally")
 	await _review("assigned")
@@ -78,9 +101,7 @@ func _controls_case():
 	worker.issue_manual_order(null)
 	await _point(hq.position + Vector3(6, 0, 5))
 	menus._refresh_buttons()
-	_check(
-		"Rally · Map destination" in menus._stop_button.tooltip_text, "Point rally not described"
-	)
+	_check_localized_rally("Map destination", "Point rally not described")
 	await _clear()
 	_check(
 		rally.position == Vector3.ZERO and rally.target_unit == null,
@@ -89,9 +110,7 @@ func _controls_case():
 	await _target(worker)
 	menus._refresh_buttons()
 	var title = load("res://source/match/FactionCatalog.gd").title(owner.faction, "Worker")
-	_check(
-		("Rally · " + title) in menus._stop_button.tooltip_text, "Friendly rally lost faction name"
-	)
+	_check_localized_rally(title, "Friendly rally lost faction name")
 	await _clear()
 	worker.hp = 0
 	await _frames(5)
@@ -201,7 +220,5 @@ func _cleared_archive():
 		),
 		"Cleared archive changed paid production"
 	)
-	_check(
-		menus._stop_button.disabled and "Rally · At producer" in menus._stop_button.tooltip_text,
-		"Loaded producer shows stale rally controls"
-	)
+	_check(menus._stop_button.disabled, "Loaded producer shows an enabled Clear rally")
+	_check_localized_rally("At producer", "Loaded producer shows stale rally controls")

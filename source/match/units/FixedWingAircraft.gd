@@ -79,7 +79,7 @@ func _adapt_action(action_node):
 	match kind:
 		"Moving":
 			replacement = AirStation.new(action_node._target_position)
-		"AttackMoving":
+		"AttackMoving", "Patrolling":
 			replacement = AirStation.new(action_node.destination, true)
 		"AutoAttacking", "AttackingWhileInRange":
 			if can_strike(action_node._target_unit):
@@ -206,7 +206,7 @@ func _solution(_spec, _target):
 func _release(store, spec, target):
 	if not unlimited_stores:
 		stores[store] -= 1
-	_cooldowns[store] = spec.interval
+	_cooldowns[store] = spec.interval * veterancy_reload_factor
 	_match.projectile_system.launch(self, target, spec.weapon, _flight.flight_velocity())
 
 

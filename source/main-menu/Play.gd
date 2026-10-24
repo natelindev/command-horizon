@@ -247,7 +247,7 @@ func _build_ui():
 		+ "\n"
 		+ tr("Blocks: buildings · Lines: roads · Blue: water")
 		+ "\n"
-		+ tr("R: refinery · M: mercenary camp · +: repair shop")
+		+ tr("R: refinery · M: mercenary camp · S: repair shop")
 	)
 	legend.hide()
 	legend_toggle.toggled.connect(func(shown): legend.visible = shown)

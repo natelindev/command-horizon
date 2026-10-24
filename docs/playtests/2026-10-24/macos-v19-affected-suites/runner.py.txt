@@ -1,0 +1,63 @@
+"""Verify the five affected legacy scenarios from the completed v19 release PCK."""
+import argparse
+import datetime as dt
+import importlib.util
+import json
+from pathlib import Path
+import shutil
+import tempfile
+
+ROOT=Path(__file__).resolve().parents[1]
+spec=importlib.util.spec_from_file_location('macos_gate',ROOT/'tmp/final-macos-release.py')
+gate=importlib.util.module_from_spec(spec);spec.loader.exec_module(gate)
+LOGS=ROOT/'docs/playtests/2026-10-24/macos-v19-affected-suites'
+SUMMARY=LOGS/'result.json'
+NAMES=['CoordinationRegression','ResearchEconomyRegression','ResearchFeedbackRegression','SaveRestoreRegression','SaveRestoreEdges']
+
+def main():
+    parser=argparse.ArgumentParser(description=__doc__,epilog='Examples: python3 tmp/final-macos-v19-affected.py; python3 tmp/final-macos-v19-affected.py --run')
+    parser.add_argument('--run',action='store_true',help='Run the five same-package scenarios after the registered75 gate')
+    args=parser.parse_args()
+    baseline=json.loads(gate.SUMMARY.read_text())
+    if not args.run:
+        print('bin: ~/godot-open-rts/tmp/final-macos-v19-affected.py')
+        print('description: Verify five affected scenarios against the completed v19 release package')
+        print('registered_suites_completed: '+str(baseline.get('passed_count',len(baseline.get('suites',[])))))
+        print('affected_suites: '+str(len(NAMES)))
+        print('help: After the registered75 gate run python3 tmp/final-macos-v19-affected.py --run')
+        return 0
+    if not baseline.get('complete') or not baseline.get('packaged_checks_passed') or baseline.get('passed_count')!=75 or baseline.get('snapshot_version')!=19:
+        print('error: Complete passing v19 registered75 packaged gate is required first')
+        return 1
+    artifacts=baseline['artifacts']
+    def artifacts_match():
+        return all(gate.digest(ROOT/artifacts[path_key])==artifacts[sha_key] for path_key,sha_key in [('archive','archive_sha256'),('pack','pack_sha256'),('executable','executable_sha256')])
+    if gate.source_fingerprint()!=baseline['source_sha256'] or not artifacts_match():
+        print('error: Frozen v19 source or artifact bytes changed before affected-suite verification')
+        return 1
+    LOGS.mkdir(parents=True,exist_ok=True)
+    report_copy=LOGS/'registered75-baseline.json'
+    shutil.copy2(gate.SUMMARY,report_copy)
+    shutil.copy2(Path(__file__),LOGS/'runner.py.txt')
+    gate.LOGS=LOGS
+    data={'schema':'macos-v19-affected-suites-v1','started_utc':dt.datetime.now(dt.timezone.utc).isoformat(),'snapshot_version':19,'registered75_report':str(report_copy.relative_to(ROOT)),'registered75_report_sha256':gate.digest(report_copy),'source_sha256':baseline['source_sha256'],'artifacts':artifacts,'selected_suites':NAMES,'suites':[],'complete':False,'passed':False}
+    def save():SUMMARY.write_text(json.dumps(data,indent=2)+'\n')
+    save()
+    with tempfile.TemporaryDirectory(prefix='polish-v19-affected-pack-') as isolated:
+        for name in NAMES:
+            result=gate.execute(name,[gate.ENGINE,'--headless','--main-pack',gate.PACK,'--fixed-fps','60','--script',f'res://tests/headless/{name}.gd'],isolated,600 if name=='ResearchEconomyRegression' else 300,allow_teardown=True)
+            data['suites'].append(result);save()
+    data['complete']=True
+    data['finished_utc']=dt.datetime.now(dt.timezone.utc).isoformat()
+    data['source_unchanged']=gate.source_fingerprint()==data['source_sha256']
+    data['artifacts_unchanged']=artifacts_match()
+    data['passed_count']=sum(r['passed'] for r in data['suites'])
+    data['passed']=data['passed_count']==len(NAMES) and data['source_unchanged'] and data['artifacts_unchanged']
+    save()
+    print('passed: '+str(data['passed']).lower())
+    print('affected_suites_passed: '+str(data['passed_count']))
+    print('affected_suites_total: '+str(len(NAMES)))
+    print('summary: '+str(SUMMARY.relative_to(ROOT)))
+    return 0 if data['passed'] else 1
+
+if __name__=='__main__':raise SystemExit(main())

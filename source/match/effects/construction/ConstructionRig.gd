@@ -1,5 +1,7 @@
 extends Node3D
 
+const Cache = preload("res://source/utils/RuntimeCache.gd")
+
 # Shared helpers for faction construction rigs. Static props are batched into one
 # MultiMesh per mesh and finish, with per-instance colours, so a site costs a few
 # draw calls. Each instance carries a key (usually its height) and a batch shows
@@ -7,9 +9,6 @@ extends Node3D
 
 const BOX = "box"
 const ROD = "rod"
-
-static var _meshes = {}
-static var _finishes = {}
 
 var bounds = AABB()  # Structure-local footprint and height.
 var progress = 0.0
@@ -22,9 +21,10 @@ var _batches = {}
 
 
 static func mesh(kind):
-	if not _meshes.has(kind):
+	var meshes = Cache.bucket("construction_meshes")
+	if not meshes.has(kind):
 		if kind == BOX:
-			_meshes[kind] = BoxMesh.new()
+			meshes[kind] = BoxMesh.new()
 		else:
 			var cylinder = CylinderMesh.new()
 			cylinder.top_radius = .5
@@ -32,15 +32,16 @@ static func mesh(kind):
 			cylinder.height = 1.0
 			cylinder.radial_segments = 8
 			cylinder.rings = 0
-			_meshes[kind] = cylinder
-	return _meshes[kind]
+			meshes[kind] = cylinder
+	return meshes[kind]
 
 
 static func finish(label, color = Color.WHITE, metallic = 0.0, roughness = .8, glow = 0.0):
+	var finishes = Cache.bucket("construction_finishes")
 	# Shared by every site. Batched parts pass white and tint per instance colour;
 	# primitive meshes without vertex colours keep the albedo unchanged.
 	var key = "%s/%s" % [label, color.to_html()]
-	if not _finishes.has(key):
+	if not finishes.has(key):
 		var material = StandardMaterial3D.new()
 		material.albedo_color = color
 		material.metallic = metallic
@@ -51,8 +52,8 @@ static func finish(label, color = Color.WHITE, metallic = 0.0, roughness = .8, g
 			material.emission_enabled = true
 			material.emission = color
 			material.emission_energy_multiplier = glow
-		_finishes[key] = material
-	return _finishes[key]
+		finishes[key] = material
+	return finishes[key]
 
 
 static func rod(from, to, thickness):

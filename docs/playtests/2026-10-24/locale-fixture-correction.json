@@ -1,0 +1,191 @@
+{
+  "completed_utc": "2026-10-24T05:33:45.127633+00:00",
+  "cause": "Two fixtures asserted English substrings against correctly translated guidance/tooltips. The Windows Chinese user locale exposed the assumptions. Exact four/fifteen original failures reproduced against the frozen macOS package only when incoming locale was zh_CN.",
+  "correction": "Only the two regression fixtures changed. Each now verifies full expected localized strings in both en and zh_CN; guidance includes currently bound hotkey labels. The incoming locale is restored; rally tooltips are refreshed after restoration.",
+  "production_changed": false,
+  "source_comparison": {
+    "current_source_sha256": "2d1828f0142d3e1771b92ba33509335eed41928e3708459c63371453bb2103f5",
+    "baseline_reconstructed_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+    "baseline_source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+    "only_two_fixtures_changed": true,
+    "files": {
+      "tests/headless/OpeningGuidanceRegression.gd": {
+        "before_sha256": "3cf7f65a1c183b88f3d9f62bd67fe1cc90b54e1e4a124e6bffc87f10d9146b91",
+        "after_sha256": "476737582e451e9c19c7379678a849eafaae4aadfa8d751dab624f76061a4ee9"
+      },
+      "tests/headless/RallyControlsRegression.gd": {
+        "before_sha256": "73ecef30f1cba7674a6a5957f60e4d3185012823566788b231f5ae9797750e2c",
+        "after_sha256": "8e02544c451cb3d7ed447db32541a3b5d4d145114d0f4c23ef64f35e44093c7a"
+      }
+    }
+  },
+  "runtime_pack": "build/polish-2026-10-24/Open RTS.app/Contents/Resources/Open RTS.pck",
+  "runtime_pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+  "method": "Official Godot 4.7.2 editor, --headless --main-pack the unchanged exported runtime PCK --fixed-fps 60, external locale wrapper and exact corrected fixture copy. All gameplay/base-fixture resources load from the same immutable PCK.",
+  "original_windows_failures": [
+    {
+      "fixture": "OpeningGuidanceRegression",
+      "returncode": 1,
+      "log": "docs/playtests/2026-10-24/locale-fixtures/windows-original-OpeningGuidanceRegression.log.txt",
+      "log_sha256": "53e4714ac483a8467052dc6a7b378755a958ce161429ed50394e4da94e494807"
+    },
+    {
+      "fixture": "RallyControlsRegression",
+      "returncode": 1,
+      "log": "docs/playtests/2026-10-24/locale-fixtures/windows-original-RallyControlsRegression.log.txt",
+      "log_sha256": "76cc4b053c74e6c3d396550d48991452d96f6eea5bf25247c68af987c3e1e31c"
+    }
+  ],
+  "local_runs": [
+    {
+      "fixture": "OpeningGuidanceRegression",
+      "incoming_locale": "en",
+      "corrected_fixture": false,
+      "returncode": 0,
+      "failures": 0,
+      "known_direct_quit_teardown": [],
+      "other_errors_or_warnings": [],
+      "log": "docs/playtests/2026-10-24/locale-fixtures/en.log.txt",
+      "log_sha256": "71483d1fe0c27507acc364c4bbcc719995f4c08b1068d541d35273c5d3b699bd"
+    },
+    {
+      "fixture": "OpeningGuidanceRegression",
+      "incoming_locale": "en",
+      "corrected_fixture": true,
+      "returncode": 0,
+      "failures": 0,
+      "known_direct_quit_teardown": [],
+      "other_errors_or_warnings": [],
+      "log": "docs/playtests/2026-10-24/locale-fixtures/en-fixed.log.txt",
+      "log_sha256": "d59c49f1228b9e8728841d1b2d3103c4499f84519a6a7e845eddeb25626b3830",
+      "tested_fixture_sha256": "476737582e451e9c19c7379678a849eafaae4aadfa8d751dab624f76061a4ee9"
+    },
+    {
+      "fixture": "OpeningGuidanceRegression",
+      "incoming_locale": "zh_CN",
+      "corrected_fixture": false,
+      "returncode": 1,
+      "failures": 4,
+      "known_direct_quit_teardown": [],
+      "other_errors_or_warnings": [
+        "ERROR: Damaged convoy lacks repair guidance",
+        "ERROR: Behavior lesson omits manual-order authority",
+        "ERROR: Capture approach lacks attack-move guidance",
+        "ERROR: Wounded troops lack contextual recovery guidance"
+      ],
+      "log": "docs/playtests/2026-10-24/locale-fixtures/zh_CN.log.txt",
+      "log_sha256": "feb07c257c01b786922000d3f46c579bd56d16dd28a691e977bd568c96cbef3c"
+    },
+    {
+      "fixture": "OpeningGuidanceRegression",
+      "incoming_locale": "zh_CN",
+      "corrected_fixture": true,
+      "returncode": 0,
+      "failures": 0,
+      "known_direct_quit_teardown": [],
+      "other_errors_or_warnings": [],
+      "log": "docs/playtests/2026-10-24/locale-fixtures/zh_CN-fixed.log.txt",
+      "log_sha256": "ddc20ba3cff5c575e084ddaa8ae5f19f22a4fdf9615d9c31059be097cafb0896",
+      "tested_fixture_sha256": "476737582e451e9c19c7379678a849eafaae4aadfa8d751dab624f76061a4ee9"
+    },
+    {
+      "fixture": "RallyControlsRegression",
+      "incoming_locale": "en",
+      "corrected_fixture": false,
+      "returncode": 0,
+      "failures": 0,
+      "known_direct_quit_teardown": [
+        "WARNING: 18 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 7 resources still in use at exit (run with --verbose for details)."
+      ],
+      "other_errors_or_warnings": [],
+      "log": "docs/playtests/2026-10-24/locale-fixtures/rally-en.log.txt",
+      "log_sha256": "38fcaa7cd24b633d8eaf289d5be91a42b2f1935e2880c2477972f8d1901525bb"
+    },
+    {
+      "fixture": "RallyControlsRegression",
+      "incoming_locale": "en",
+      "corrected_fixture": true,
+      "returncode": 0,
+      "failures": 0,
+      "known_direct_quit_teardown": [
+        "WARNING: 18 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 7 resources still in use at exit (run with --verbose for details)."
+      ],
+      "other_errors_or_warnings": [],
+      "log": "docs/playtests/2026-10-24/locale-fixtures/rally-en-fixed.log.txt",
+      "log_sha256": "6f48c8075962583f9c9b411db7946bb5f04787abc5d575fa6e26b4d5a4b5f01a",
+      "tested_fixture_sha256": "8ea0ea04a560679b5b175e2c3e97d45c2cd8e1444787cefa4a71af0e3c8fede0"
+    },
+    {
+      "fixture": "RallyControlsRegression",
+      "incoming_locale": "zh_CN",
+      "corrected_fixture": false,
+      "returncode": 1,
+      "failures": 15,
+      "known_direct_quit_teardown": [
+        "WARNING: 18 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 7 resources still in use at exit (run with --verbose for details)."
+      ],
+      "other_errors_or_warnings": [
+        "ERROR: Unassigned rally status missing",
+        "ERROR: Resource rally not described",
+        "ERROR: Point rally not described",
+        "ERROR: Friendly rally lost faction name",
+        "ERROR: Loaded producer shows stale rally controls",
+        "ERROR: Unassigned rally status missing",
+        "ERROR: Resource rally not described",
+        "ERROR: Point rally not described",
+        "ERROR: Friendly rally lost faction name",
+        "ERROR: Loaded producer shows stale rally controls",
+        "ERROR: Unassigned rally status missing",
+        "ERROR: Resource rally not described",
+        "ERROR: Point rally not described",
+        "ERROR: Friendly rally lost faction name",
+        "ERROR: Loaded producer shows stale rally controls"
+      ],
+      "log": "docs/playtests/2026-10-24/locale-fixtures/rally-zh_CN.log.txt",
+      "log_sha256": "943819a4f34b6352ceee25d6832982de398c19e05dbed6a5e2c2c616cbff0433"
+    },
+    {
+      "fixture": "RallyControlsRegression",
+      "incoming_locale": "zh_CN",
+      "corrected_fixture": true,
+      "returncode": 0,
+      "failures": 0,
+      "known_direct_quit_teardown": [],
+      "other_errors_or_warnings": [],
+      "log": "docs/playtests/2026-10-24/locale-fixtures/rally-zh_CN-fixed.log.txt",
+      "log_sha256": "2e06ba40cecd78852e4ce468d697b89c19bb883738c558cb7474faa5e9685690",
+      "tested_fixture_sha256": "8ea0ea04a560679b5b175e2c3e97d45c2cd8e1444787cefa4a71af0e3c8fede0"
+    }
+  ],
+  "verification": {
+    "post_fix_runs_passed": 4,
+    "original_english_controls_passed": 2,
+    "original_chinese_failure_sets_reproduced": 2,
+    "incoming_locale_restoration_verified": true,
+    "incoming_rally_tooltip_restoration_verified": true,
+    "post_fix_functional_errors_or_unclassified_warnings": 0,
+    "known_teardown_note": "The corrected RallyControls English run retains the same 18 ObjectDB / 7 resources direct-quit fixture diagnostics as the original passing macOS package run; preserved verbatim and not attributed to a gameplay change."
+  },
+  "windows_corrected_rerun_pending": true,
+  "formatting_followup": {
+    "file": "tests/headless/RallyControlsRegression.gd",
+    "change": "gdformat-only expression wrapping; no semantic change. The final package refresh will rerun this exact formatted file.",
+    "before_sha256": "8ea0ea04a560679b5b175e2c3e97d45c2cd8e1444787cefa4a71af0e3c8fede0",
+    "after_sha256": "8e02544c451cb3d7ed447db32541a3b5d4d145114d0f4c23ef64f35e44093c7a",
+    "gdformat_check": "2 files would be left unchanged",
+    "gdlint": "Success: no problems found"
+  },
+  "macos_refreshed_packaged_validation": {
+    "report": "docs/playtests/2026-10-24/final-macos-packaged.json",
+    "pack_sha256": "9263681dbdd57075535bfffd17b4248020439880387880d50cfff4277f9adc53",
+    "formatted_fixture_bytes_verified": true,
+    "focused_runs_passed": 4,
+    "incoming_locales": [
+      "en",
+      "zh_CN"
+    ]
+  }
+}

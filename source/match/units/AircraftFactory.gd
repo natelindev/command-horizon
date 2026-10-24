@@ -30,6 +30,8 @@ var _runway_user = null
 
 func _init():
 	_stands.resize(STAND_Z.size())
+	# Aircraft query this small live set instead of scanning entire armies.
+	add_to_group("airfields")
 	# Range, sight and contact measure this structure from its outline.
 	add_to_group("footprinted_structures")
 

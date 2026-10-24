@@ -6,6 +6,9 @@ const Difficulty = preload("res://source/match/players/skirmish-ai/SkirmishDiffi
 
 
 static func build(hud, result):
+	var presentation = hud.get_parent().get_node_or_null("BattlePresentation")
+	if presentation != null:
+		presentation.end_collapse()
 	hud.get_parent()._get_human_player().get_node("BattleVoice").finish(hud.get_parent().result)
 	if hud._overlay != null:
 		hud._overlay.queue_free()
@@ -337,7 +340,19 @@ static func build(hud, result):
 			value.add_theme_color_override("font_color", BattleTheme.IVORY)
 		row.add_child(value)
 
-	# Bottom Actions: Exactly 4 Buttons
+	# Inspection occupies a full-width row, keeping the existing exit choices.
+	var inspect = TacticalButton.new()
+	inspect.name = "InspectBattlefieldButton"
+	inspect.index_code = "05 //"
+	inspect.text = "Inspect battlefield"
+	inspect.subtitle_text = "Explore the final battlefield"
+	inspect.button_height = 42
+	inspect.disabled = presentation == null or not game.finished
+	if presentation != null:
+		inspect.pressed.connect(presentation.inspect_battlefield)
+	root_vbox.add_child(inspect)
+
+	# Bottom Actions
 	var actions = GridContainer.new()
 	actions.columns = 2
 	actions.add_theme_constant_override("h_separation", 10)

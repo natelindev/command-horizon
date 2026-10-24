@@ -143,6 +143,53 @@ const WORDS = {
 	"asphalt": ["asphalt", "street", "road"],
 }
 const Cache = preload("res://source/utils/RuntimeCache.gd")
+const HIT_SHADER = preload("res://source/shaders/3d/material_hit.gdshader")
+
+
+# One transient overlay per damaged model; imported and cached materials remain
+# immutable. Weak references allow a dying unit to disappear during the pulse.
+static func hit_flash(geometry, color: Color, recycled = {}) -> Dictionary:
+	var entry = recycled
+	if entry.is_empty():
+		var fresh = ShaderMaterial.new()
+		fresh.shader = HIT_SHADER
+		entry = {"material": fresh, "surfaces": [], "color": Color.TRANSPARENT}
+	var material = entry.material
+	if entry.color != color:
+		material.set_shader_parameter("hit_color", color)
+		entry.color = color
+	material.set_shader_parameter("hit_strength", .7)
+	entry.age = 0.0
+	entry.surfaces.clear()
+	var surfaces = geometry.get_meta("hit_flash_surfaces", [])
+	# Unit geometry is assembled before entering combat. Replaced/freed meshes
+	# invalidate its weak cache; no source mesh or shared material is retained.
+	if surfaces.is_empty() or surfaces.any(func(reference): return reference.get_ref() == null):
+		surfaces = []
+		_collect_hit_surfaces(geometry, surfaces)
+		geometry.set_meta("hit_flash_surfaces", surfaces)
+	for reference in surfaces:
+		var surface = reference.get_ref()
+		if surface != null and surface.material_overlay == null:
+			surface.material_overlay = material
+			entry.surfaces.append(reference)
+	return entry
+
+
+static func _collect_hit_surfaces(node, surfaces):
+	if node is MeshInstance3D or node is MultiMeshInstance3D:
+		surfaces.append(weakref(node))
+	for child in node.get_children():
+		_collect_hit_surfaces(child, surfaces)
+
+
+static func clear_hit_flash(entry):
+	for reference in entry.surfaces:
+		var surface = reference.get_ref()
+		if surface != null and surface.material_overlay == entry.material:
+			surface.material_overlay = null
+	entry.surfaces.clear()
+	entry.unit = null
 
 
 static func materials() -> Dictionary:

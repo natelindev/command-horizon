@@ -27,14 +27,18 @@ var _pending_structure_navmap_rid = null
 var _pending_structure_prototype = null
 var _blueprint_rotating = false
 var _placement_range = null
+var _feedback
 
 @onready var _player = get_parent()
 @onready var _match = find_parent("Match")
-@onready var _feedback_label = find_child("FeedbackLabel3D")
 
 
 func _ready():
-	_feedback_label.hide()
+	var feedback_layer = CanvasLayer.new()
+	feedback_layer.layer = 4
+	add_child(feedback_layer)
+	_feedback = load("res://source/match/hud/PlacementFeedback.gd").new()
+	feedback_layer.add_child(_feedback)
 	MatchSignals.place_structure.connect(_on_structure_placement_request)
 
 
@@ -197,18 +201,22 @@ func _active_bluprint_out_of_map():
 
 
 func _update_feedback_label(blueprint_position_validity):
-	_feedback_label.visible = (blueprint_position_validity != BlueprintPositionValidity.VALID)
+	var reason = ""
 	match blueprint_position_validity:
 		BlueprintPositionValidity.STRUCTURE_LIMIT:
-			_feedback_label.text = tr("Structure limit reached (%d).") % 40
+			reason = tr("Structure limit reached (%d).") % 40
 		BlueprintPositionValidity.COLLIDES_WITH_OBJECT:
-			_feedback_label.text = tr("BLUEPRINT_COLLIDES_WITH_OBJECT")
+			reason = tr("Something already occupies that spot.")
 		BlueprintPositionValidity.NOT_NAVIGABLE:
-			_feedback_label.text = tr("BLUEPRINT_NOT_NAVIGABLE")
+			reason = tr("Choose clear, level ground.")
 		BlueprintPositionValidity.NOT_ENOUGH_RESOURCES:
-			_feedback_label.text = tr("BLUEPRINT_NOT_ENOUGH_RESOURCES")
+			reason = tr("Not enough resources.")
 		BlueprintPositionValidity.OUT_OF_MAP:
-			_feedback_label.text = tr("BLUEPRINT_OUT_OF_MAP")
+			reason = tr("Outside the battlefield.")
+	if reason.is_empty():
+		_feedback.clear()
+	else:
+		_feedback.show_reason(reason, _active_blueprint_node.global_position)
 
 
 func _start_structure_placement(structure_prototype):
@@ -266,7 +274,7 @@ func _set_blueprint_position(mouse_pos_2d):
 	if mouse_pos_3d == null:
 		return
 	_active_blueprint_node.global_transform.origin = mouse_pos_3d
-	_feedback_label.global_transform.origin = mouse_pos_3d
+	_feedback.world_position = mouse_pos_3d
 	if is_instance_valid(_placement_range):
 		_placement_range.global_position = mouse_pos_3d + Vector3.UP * .065
 
@@ -284,7 +292,7 @@ func _update_blueprint_color(blueprint_position_is_valid):
 
 func _cancel_structure_placement():
 	if _structure_placement_started():
-		_feedback_label.hide()
+		_feedback.clear()
 		_active_blueprint_node.queue_free()
 		_active_blueprint_node = null
 		if is_instance_valid(_placement_range):

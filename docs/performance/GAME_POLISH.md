@@ -1,5 +1,8 @@
 # Game polish performance — 2026-10-19
 
+This is the dated Godot 4.6 record. The later Godot 4.7.2 polish work and release
+measurements are tracked in the [23–24 October report](../playtests/2026-10-23/PERFORMANCE.md).
+
 The matched Mac workload improved modestly while adding the new HUD feedback and
 base surfaces. Maximum-population combat mean frame time fell from 28.40 ms to
 27.18 / 26.85 ms in two repeats, a 4.3–5.5% reduction. This is evidence for the

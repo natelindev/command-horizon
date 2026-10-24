@@ -83,7 +83,27 @@ func _exercise(panel, human):
 		"Research tile charged the wrong price"
 	)
 	_check(panel._progress.visible and panel._cancel.visible, "Active research lacks controls")
-	_check(panel._start.disabled and weapons.disabled, "Busy research tiles remain actionable")
+	_check(not panel._start.disabled and weapons.disabled, "Queue choices ignore prerequisites")
+	panel._start.pressed.emit()
+	_check(
+		human.technology.queued.size() == 1 and human.technology.queued[0].id == "coordination",
+		"Busy Coordination tile did not queue its project"
+	)
+	_check(not weapons.disabled, "Queued Coordination did not unlock the next weapon purchase")
+	weapons.pressed.emit()
+	_check(
+		human.technology.queued.size() == 2 and human.technology.queued[1].id == "weapons_2",
+		"Dependent upgrade did not queue behind its prerequisites"
+	)
+	_check(panel._queue_rows.size() == 2, "Queued research lacks visible cancellation controls")
+	panel._queue_rows[0].cancel.pressed.emit()
+	_check(
+		human.technology.queued.is_empty(), "Cancelling a prerequisite retained a blocked upgrade"
+	)
+	_check(
+		Vector2i(human.resource_a, human.resource_b) == funds - Vector2i(30, 20),
+		"Queued cancellation did not refund both projects"
+	)
 	panel._cancel.pressed.emit()
 	_check(human.technology.active == "", "Research cancel failed")
 	_check(Vector2i(human.resource_a, human.resource_b) == funds, "Research refund differs")

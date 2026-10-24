@@ -17,8 +17,18 @@ class Leg:
 	var knee_rest: Basis
 	var ankle_rest: Basis
 	var parent_rest: Transform3D
+	var parent_inverse: Transform3D
 	var upper: Vector3
 	var lower: Vector3
+	var rest_upper: Vector3
+	var rest_lower: Vector3
+	var support_upper: Vector3
+	var support_lower: Vector3
+	var upper_direction: Vector3
+	var lower_direction: Vector3
+	var upper_length: float
+	var lower_length: float
+	var rest_knee: Basis
 	var pole: Vector3
 	var home: Vector3
 	var foot: Vector3
@@ -70,8 +80,19 @@ func setup(unit, nodes, initial_phase):
 		leg.knee_rest = knee.basis
 		leg.ankle_rest = ankle.basis
 		leg.parent_rest = _relative(node.get_parent(), geometry)
+		leg.parent_inverse = leg.parent_rest.affine_inverse()
 		leg.upper = knee.position
 		leg.lower = knee.basis * ankle.position
+		# Authored segment geometry is constant; only the body and joint poses move.
+		leg.rest_upper = leg.rest * leg.upper
+		leg.rest_lower = leg.rest * leg.lower
+		leg.support_upper = leg.parent_rest.basis * leg.rest_upper
+		leg.support_lower = leg.parent_rest.basis * leg.rest_lower
+		leg.upper_direction = leg.rest_upper.normalized()
+		leg.lower_direction = leg.rest_lower.normalized()
+		leg.upper_length = leg.rest_upper.length()
+		leg.lower_length = leg.rest_lower.length()
+		leg.rest_knee = leg.rest * leg.knee_rest
 		var side = -1.0 if "Left" in str(node.name) else 1.0
 		var rear = "Rear" in str(node.name)
 		# Outward knee bend is stable even when the leg is nearly straight.
@@ -194,8 +215,8 @@ func support_body(body: Transform3D) -> Transform3D:
 		var parent := body * leg.parent_rest
 		var hip := parent * leg.node.position
 		var reach := (
-			(parent.basis * leg.rest * leg.upper).length()
-			+ (parent.basis * leg.rest * leg.lower).length()
+			(body.basis * leg.support_upper).length()
+			+ (body.basis * leg.support_lower).length()
 			- .001
 		)
 		var horizontal := Vector2(leg.foot.x - hip.x, leg.foot.z - hip.z).length_squared()
@@ -206,25 +227,24 @@ func support_body(body: Transform3D) -> Transform3D:
 
 
 func pose(body: Transform3D):
+	var body_inverse := body.affine_inverse()
 	for leg in legs:
 		var parent := body * leg.parent_rest
-		var target := parent.affine_inverse() * leg.foot - leg.node.position
-		var upper := leg.rest * leg.upper
-		var lower := leg.rest * leg.lower
-		var a := upper.length()
-		var b := lower.length()
+		var target := leg.parent_inverse * (body_inverse * leg.foot) - leg.node.position
+		var a := leg.upper_length
+		var b := leg.lower_length
 		var reach := clampf(target.length(), absf(a - b) + .0001, a + b - .0001)
 		var direction := target.normalized()
 		var pole := leg.pole - direction * leg.pole.dot(direction)
 		pole = pole.normalized()
 		var along := (a * a - b * b + reach * reach) / (2.0 * reach)
 		var knee := direction * along + pole * sqrt(maxf(0.0, a * a - along * along))
-		var hip_basis := Basis(Quaternion(upper.normalized(), knee.normalized())) * leg.rest
+		var hip_basis := Basis(Quaternion(leg.upper_direction, knee.normalized())) * leg.rest
 		var shin_basis := Basis(
-			Quaternion(lower.normalized(), (direction * reach - knee).normalized())
+			Quaternion(leg.lower_direction, (direction * reach - knee).normalized())
 		)
 		leg.node.basis = hip_basis
-		leg.knee.basis = hip_basis.inverse() * shin_basis * leg.rest * leg.knee_rest
+		leg.knee.basis = hip_basis.inverse() * shin_basis * leg.rest_knee
 		# Cancel both joint rotation and chassis pitch/roll at the sole.
 		leg.ankle.basis = (parent.basis * hip_basis * leg.knee.basis).inverse() * leg.foot_basis
 

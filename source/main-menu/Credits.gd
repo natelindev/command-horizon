@@ -85,7 +85,7 @@ func _music_credits():
 		+ "Zander Noriega · CC BY 3.0\n\n"
 		+ "[url=https://creativecommons.org/licenses/by/3.0/]CC BY 3.0[/url] · "
 		+ "[url=https://creativecommons.org/licenses/by-sa/3.0/]CC BY-SA 3.0[/url]\n"
-		+ tr("Music edits: volume, fades and Ogg encoding.")
+		+ tr("Music edits: adaptive stems, volume, fades and Ogg encoding.")
 	)
 
 

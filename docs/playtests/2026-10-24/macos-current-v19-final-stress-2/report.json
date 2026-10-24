@@ -1,0 +1,1065 @@
+{
+  "schema": "current-macos-release-timings-v1",
+  "run_id": "macos-current-v19-final-stress-2",
+  "classification": "frozen-v19-production-prewarm-release-without-cpu-sampler",
+  "complete": true,
+  "valid": true,
+  "started_utc": "2026-10-24T07:28:46.230514+00:00",
+  "steps": [
+    {
+      "name": "stress-import",
+      "command": [
+        "/Users/linlilu/godot-open-rts/tmp/tooling/godot-4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/tmp/godot-open-rts-macos-current-v19-final-stress-2-stress",
+        "--editor",
+        "--quit"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 5.134484458947554,
+      "log": {
+        "path": "docs/playtests/2026-10-24/macos-current-v19-final-stress-2/stress-import.log.txt",
+        "sha256": "83712f8e641e8aedae546b862b255fdbfce8edffc63e9eb200ad15c2a05a3952",
+        "bytes": 174548
+      }
+    },
+    {
+      "name": "stress-export",
+      "command": [
+        "/Users/linlilu/godot-open-rts/tmp/tooling/godot-4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/tmp/godot-open-rts-macos-current-v19-final-stress-2-stress",
+        "--export-release",
+        "macOS",
+        "/Users/linlilu/godot-open-rts/build/polish-2026-10-24/macos-current-v19-final-stress-2/Open_RTS_stress.app"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 9.910813582944684,
+      "log": {
+        "path": "docs/playtests/2026-10-24/macos-current-v19-final-stress-2/stress-export.log.txt",
+        "sha256": "cde35333eb9658fa363403ddf3134cc4eb25fdc8390fda997c97263a295d90c4",
+        "bytes": 678935
+      }
+    },
+    {
+      "name": "stress-codesign",
+      "command": [
+        "codesign",
+        "--verify",
+        "--deep",
+        "--strict",
+        "/Users/linlilu/godot-open-rts/build/polish-2026-10-24/macos-current-v19-final-stress-2/Open_RTS_stress.app"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.250867291004397,
+      "log": {
+        "path": "docs/playtests/2026-10-24/macos-current-v19-final-stress-2/stress-codesign.log.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    }
+  ],
+  "builds": {
+    "stress": {
+      "stage": "/tmp/godot-open-rts-macos-current-v19-final-stress-2-stress",
+      "cache": "/Users/linlilu/Library/Application Support/OpenRTS-macos-current-v19-final-stress-2-stress",
+      "cache_existed_before_import": false,
+      "stage_uses_symlinks": false,
+      "preimport": {
+        "path": "docs/playtests/2026-10-24/macos-current-v19-final-stress-2/stress-preimport-manifest.json",
+        "sha256": "7082167408f5540c0b47711c53ca4e1e8e0de8099be47e8d6b70b607667df12a",
+        "bytes": 1908382,
+        "aggregate_sha256": "1f16a9a7d7dc46bf7b946ba8516cc712778dedfcc3e0ac3e57a2cb0ae4d89df0",
+        "files": 13820
+      },
+      "postimport": {
+        "path": "docs/playtests/2026-10-24/macos-current-v19-final-stress-2/stress-postimport-manifest.json",
+        "sha256": "7990c5db2cdef62661cbb06632f12ce9353a9c58a973992e12fd291e5ac851c4",
+        "bytes": 1908683,
+        "aggregate_sha256": "6458aabc710f9d25c8c8695b49dec0b43ffba1adcc4d8f5ab13dbec0321d0992",
+        "files": 13823
+      },
+      "import_changed_paths": [
+        ".godot/global_script_class_cache.cfg",
+        ".godot/uid_cache.bin",
+        "ReleaseBenchmark.gd.uid"
+      ],
+      "postexport": {
+        "path": "docs/playtests/2026-10-24/macos-current-v19-final-stress-2/stress-postexport-manifest.json",
+        "sha256": "abc1490fe344cd8cc4332a72587f60a68009c3537810ef8f291d702a79502184",
+        "bytes": 1908683,
+        "aggregate_sha256": "5b7064befeaf9e34bb734d4a4d9ad7649ea1ea09c84760055d49cb7b80eab910",
+        "files": 13823
+      },
+      "export_changed_paths": [
+        ".godot/uid_cache.bin"
+      ],
+      "executable": {
+        "path": "build/polish-2026-10-24/macos-current-v19-final-stress-2/Open_RTS_stress.app/Contents/MacOS/Open RTS",
+        "sha256": "ceaee1f38b9c5b297929b41c1c16d276ef79d21e4e1407e3afdb88493610b173",
+        "bytes": 170963648
+      },
+      "pack": {
+        "path": "build/polish-2026-10-24/macos-current-v19-final-stress-2/Open_RTS_stress.app/Contents/Resources/Open RTS.pck",
+        "sha256": "dffa6846609761354ffd82d1081ce0c106fc6ccba937fb0c73f655c9ccbeadb6",
+        "bytes": 181937584
+      },
+      "production_source_assets_match_v19": true
+    }
+  },
+  "runs": [
+    {
+      "kind": "stress",
+      "repeat": 1,
+      "fresh_process": true,
+      "fresh_game_cache": true,
+      "cache_files_before": [],
+      "started_utc": "2026-10-24T07:29:14.216771+00:00",
+      "process_snapshot_before": {
+        "path": "docs/playtests/2026-10-24/macos-current-v19-final-stress-2/stress-1-processes.txt",
+        "sha256": "96f0a28f5f340c76e1d756c7ad7f5bbfa195d52600ac17bbd2194484d379d215",
+        "bytes": 72190
+      },
+      "command": [
+        "/Users/linlilu/godot-open-rts/build/polish-2026-10-24/macos-current-v19-final-stress-2/Open_RTS_stress.app/Contents/MacOS/Open RTS",
+        "--",
+        "--await-focus",
+        "--native-focus-token=/Users/linlilu/godot-open-rts/docs/playtests/2026-10-24/macos-current-v19-final-stress-2/stress-1.start",
+        "--behaviors",
+        "--realtime",
+        "--no-capture",
+        "--input-latency"
+      ],
+      "pid": 21497,
+      "valid": true,
+      "focus_phases": [
+        {
+          "phase": "loading-helper",
+          "begin_unix_ms": 1792826987137,
+          "end_unix_ms": 1792826988861,
+          "inside_native_samples": 5,
+          "bracketed_native_samples": 7,
+          "native_coverage_valid": true,
+          "all_native_samples_owned": true,
+          "maximum_sample_gap_ms": 404,
+          "wrapper_focus_valid": true
+        },
+        {
+          "phase": "movement",
+          "begin_unix_ms": 1792826991773,
+          "end_unix_ms": 1792827001810,
+          "inside_native_samples": 39,
+          "bracketed_native_samples": 41,
+          "native_coverage_valid": true,
+          "all_native_samples_owned": true,
+          "maximum_sample_gap_ms": 260,
+          "wrapper_focus_valid": true
+        },
+        {
+          "phase": "combat",
+          "begin_unix_ms": 1792827001817,
+          "end_unix_ms": 1792827013077,
+          "inside_native_samples": 43,
+          "bracketed_native_samples": 45,
+          "native_coverage_valid": true,
+          "all_native_samples_owned": true,
+          "maximum_sample_gap_ms": 261,
+          "wrapper_focus_valid": true
+        }
+      ],
+      "frame_summaries": [
+        {
+          "phase": "movement",
+          "frames": 515,
+          "mean_ms": 19.477188349514563,
+          "p95_ms": 27.512,
+          "p99_ms": 29.414,
+          "max_ms": 32.054,
+          "frames_over_33ms": 0,
+          "frames_over_50ms": 0,
+          "frames_over_100ms": 0,
+          "spikes_over_50ms": [],
+          "first_pipeline_counts": {
+            "canvas": 7,
+            "draw": 78,
+            "mesh": 35,
+            "specialization": 97,
+            "surface": 129
+          },
+          "last_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "fps": 51.342112734917585
+        },
+        {
+          "phase": "movement/first-3s",
+          "frames": 190,
+          "mean_ms": 15.714984210526318,
+          "p95_ms": 23.342,
+          "p99_ms": 29.974,
+          "max_ms": 32.054,
+          "frames_over_33ms": 0,
+          "frames_over_50ms": 0,
+          "frames_over_100ms": 0,
+          "spikes_over_50ms": [],
+          "first_pipeline_counts": {
+            "canvas": 7,
+            "draw": 78,
+            "mesh": 35,
+            "specialization": 97,
+            "surface": 129
+          },
+          "last_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "fps": 63.633535140949945
+        },
+        {
+          "phase": "movement/after-3s",
+          "frames": 325,
+          "mean_ms": 21.67663076923077,
+          "p95_ms": 27.846,
+          "p99_ms": 29.414,
+          "max_ms": 31.977,
+          "frames_over_33ms": 0,
+          "frames_over_50ms": 0,
+          "frames_over_100ms": 0,
+          "spikes_over_50ms": [],
+          "first_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "last_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "fps": 46.13263060325157
+        },
+        {
+          "phase": "combat",
+          "frames": 434,
+          "mean_ms": 22.99080184331797,
+          "p95_ms": 28.566,
+          "p99_ms": 30.0,
+          "max_ms": 33.483,
+          "frames_over_33ms": 1,
+          "frames_over_50ms": 0,
+          "frames_over_100ms": 0,
+          "spikes_over_50ms": [],
+          "first_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "last_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "fps": 43.495655645896456
+        },
+        {
+          "phase": "combat/first-3s",
+          "frames": 133,
+          "mean_ms": 22.410593984962407,
+          "p95_ms": 28.278,
+          "p99_ms": 29.987,
+          "max_ms": 33.483,
+          "frames_over_33ms": 1,
+          "frames_over_50ms": 0,
+          "frames_over_100ms": 0,
+          "spikes_over_50ms": [],
+          "first_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "last_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "fps": 44.621753473870605
+        },
+        {
+          "phase": "combat/after-3s",
+          "frames": 301,
+          "mean_ms": 23.247172757475084,
+          "p95_ms": 28.761,
+          "p99_ms": 30.0,
+          "max_ms": 31.33,
+          "frames_over_33ms": 0,
+          "frames_over_50ms": 0,
+          "frames_over_100ms": 0,
+          "spikes_over_50ms": [],
+          "first_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "last_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "fps": 43.01598351044438
+        }
+      ],
+      "prewarm": [
+        {
+          "caller_paused": true,
+          "completed": true,
+          "cosmetic_equal": true,
+          "elapsed_ms": 1702.39,
+          "helper_only": true,
+          "nodes_after": 6602,
+          "nodes_before": 6602,
+          "pipelines": {
+            "canvas": 7,
+            "draw": 50,
+            "mesh": 33,
+            "specialization": 67,
+            "surface": 128
+          },
+          "process_modes_equal": true,
+          "snapshot_equal": true,
+          "unix_ms": 1792826988861
+        }
+      ],
+      "setup": [
+        {
+          "cycles": 6,
+          "helper_timing_includes_setup": false,
+          "paused": true,
+          "readiness": {
+            "construction_rigs": 0,
+            "minimap_captured": true,
+            "pending_navigation": [],
+            "ready": true,
+            "terrain_synchronized": true
+          },
+          "simulation_after": 0.0,
+          "simulation_before": 0.0,
+          "stable_snapshot_nodes_modes": true
+        }
+      ],
+      "measurements": [
+        {
+          "label": "SCALE movement",
+          "values": {
+            "renderer": "macOS",
+            "mean_frame_ms": 19.48,
+            "p95_frame_ms": 27.51,
+            "p99_frame_ms": 29.41,
+            "frames_over_33ms": 0,
+            "samples": 515,
+            "simulation_seconds": 10.03,
+            "wall_seconds": 10.03,
+            "realtime": true,
+            "baseline_field": false,
+            "baseline_targets": false,
+            "avg_sampled_1s_process_max_ms": 19.15,
+            "avg_sampled_1s_physics_max_ms": 11.81,
+            "physics_ticks": 301,
+            "physics_hz": 30,
+            "interpolation": true,
+            "diagnostic_no_motion": false,
+            "diagnostic_no_queues": false
+          }
+        },
+        {
+          "label": "RENDER movement",
+          "values": {
+            "gpu_ms": 0.0,
+            "render_cpu_ms": 3.96,
+            "pixels": "(1920.0, 1080.0)",
+            "scale_3d": 1.0,
+            "adapter": "Apple M1 Pro (Apple7)",
+            "rendered_frames": 515
+          }
+        },
+        {
+          "label": "TAIL movement",
+          "values": {
+            "max_frame_ms": 32.05,
+            "frames_over_100ms": 0
+          }
+        },
+        {
+          "label": "SCALE combat",
+          "values": {
+            "renderer": "macOS",
+            "mean_frame_ms": 22.99,
+            "p95_frame_ms": 28.57,
+            "p99_frame_ms": 30.0,
+            "frames_over_33ms": 1,
+            "samples": 434,
+            "simulation_seconds": 10.0,
+            "wall_seconds": 9.98,
+            "realtime": true,
+            "baseline_field": false,
+            "baseline_targets": false,
+            "avg_sampled_1s_process_max_ms": 20.6,
+            "avg_sampled_1s_physics_max_ms": 12.44,
+            "physics_ticks": 300,
+            "physics_hz": 30,
+            "interpolation": true,
+            "diagnostic_no_motion": false,
+            "diagnostic_no_queues": false
+          }
+        },
+        {
+          "label": "RENDER combat",
+          "values": {
+            "gpu_ms": 0.0,
+            "render_cpu_ms": 4.56,
+            "pixels": "(1920.0, 1080.0)",
+            "scale_3d": 1.0,
+            "adapter": "Apple M1 Pro (Apple7)",
+            "rendered_frames": 434
+          }
+        },
+        {
+          "label": "TAIL combat",
+          "values": {
+            "max_frame_ms": 33.45,
+            "frames_over_100ms": 0
+          }
+        },
+        {
+          "label": "INPUT",
+          "values": {
+            "selected": 24,
+            "samples": 10,
+            "event_to_feedback_submit_mean_ms": 23.68,
+            "p95_ms": 30.62,
+            "maximum_population": true
+          }
+        },
+        {
+          "label": "SCALE",
+          "values": {
+            "behaviors": true,
+            "air_combat": false,
+            "moved": "200/200",
+            "travelled": "200/200",
+            "fired": 114,
+            "peak_live_projectiles": 25,
+            "resources": 62,
+            "sampled_peak_tracers": 0,
+            "viewport_pixels": "(1920.0, 1080.0)"
+          }
+        }
+      ],
+      "errors": [],
+      "warnings": [],
+      "exit_code": 0,
+      "log": {
+        "path": "docs/playtests/2026-10-24/macos-current-v19-final-stress-2/stress-1.log.txt",
+        "sha256": "f6c91ebcbdf8e0562678426b8084809edc4292c7e42561c2ea760be1c5164778",
+        "bytes": 352707
+      },
+      "native_focus_log": {
+        "path": "docs/playtests/2026-10-24/macos-current-v19-final-stress-2/stress-1-native-focus.jsonl",
+        "sha256": "51b849d8d4654aee28175ee9dddf9f12c5a671c0545fa5acaf46301e47dd5ba5",
+        "bytes": 24645
+      },
+      "ended_utc": "2026-10-24T07:30:14.215519+00:00",
+      "native_pid_matches": true,
+      "focus_token_matches": true,
+      "stage_unchanged": true,
+      "executable_unchanged": true,
+      "pack_unchanged": true
+    },
+    {
+      "kind": "stress",
+      "repeat": 2,
+      "fresh_process": true,
+      "fresh_game_cache": false,
+      "cache_files_before": [
+        "logs/godot.log",
+        "shader_cache/BestFitNormalShaderRD/c4b1d2e5a1d6f84559f49734aae94706b402e2be89eae7753b8b413800d96d42/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/BlitShaderRD/ae4daaa7a60bb17ebd7e9de5db9422fb448b52ad89776ae7aa53fee442f7cc60/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/BokehDofShaderRD/8c692c9cd2f46f54f2c82d9a4a12be5f889d873a3c9698546a6eb5ec0c263647/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/CanvasOcclusionShaderRD/606df5c981910bc4bc719cf497719273e80d1f314f65e68820bf8e2111368cdb/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/CanvasSdfShaderRD/a4f6d732dba9a4cc0c37a1ca52936369e2ee148e9d03efe1b81bfed822adb1eb/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/CanvasShaderRD/5454ca85157b6953b76bf324ebe90594c466e36301bf1b3e6adcce117d705c79/010a6fa5c2141a831cb928e86acc192bcd3e21a9.metal.cache",
+        "shader_cache/CanvasShaderRD/5454ca85157b6953b76bf324ebe90594c466e36301bf1b3e6adcce117d705c79/767d65ccadbd7675c0bb530304e5d5c6e9415edc.metal.cache",
+        "shader_cache/CanvasShaderRD/5454ca85157b6953b76bf324ebe90594c466e36301bf1b3e6adcce117d705c79/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/CanvasShaderRD/5454ca85157b6953b76bf324ebe90594c466e36301bf1b3e6adcce117d705c79/89e0c5a264d1558e7bc2ca0dc3d0afd834fbe7b6.metal.cache",
+        "shader_cache/CanvasShaderRD/5454ca85157b6953b76bf324ebe90594c466e36301bf1b3e6adcce117d705c79/8f9335de72e837eeead40640cc01fddc5baf5a7c.metal.cache",
+        "shader_cache/CanvasShaderRD/5454ca85157b6953b76bf324ebe90594c466e36301bf1b3e6adcce117d705c79/a2b60e0bbff54eb4f6249a10c713c0700a580dda.metal.cache",
+        "shader_cache/ClusterDebugShaderRD/25eb5280da03a5dfefcf122ab21c9f6184c2a0d8edfb398d0b9e784c99ede8d6/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/ClusterRenderShaderRD/092c9f39b8c42523662d45db394a8d4f7f068d617876866d55d9fd69e5afb357/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/ClusterStoreShaderRD/77e74456f71eccced2f4bd06086f33d4ae56a013ce717690f960759226272eb4/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/CopyShaderRD/c374588e7ae9bf64919d0186bea3104b4f721cc0691d284a9998e1e7d06c5eb8/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/CopyToFbShaderRD/72456b3a82af4da12c412275d4c8ffa4a6a5447d9daffeeef86bc16965803813/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/CubeToDpShaderRD/da14e2c9b701a4bd7336b87667bf4f3b4f645de09781824763d2bbceead56c83/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/CubeToOctmapShaderRD/7a5a6871c4fae131d3fef2e125ac23cbe81a1a042028f8c294461282de463c9a/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/FsrUpscaleShaderRD/a8da3dfed3e309742ca78c4162d15f2ab08af4f694a51407089ecec1d1be54be/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/GiShaderRD/3fa2391092c717dea4bdf7f4f65ccf42ffd4018c158c431a4e234d9fa17737a6/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/IntegrateDfgShaderRD/4d699e26d43b88b86cb33c2b829767ea8e935055bb48dea880f66eb29760577a/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/LuminanceReduceShaderRD/c759f2761a12e9ff1fa625818963f94aa0ff511eb314a313ea89c615c37dd078/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/MotionVectorsShaderRD/4d3ba0c01e8b64c74a0f2f0fd20ddc8099d56cfbb3ee9e7dbe6dc3c54c174725/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/MotionVectorsStoreShaderRD/f9575a30d9fd7eed47522e12f8a7860cc9417f478037c138895aeb3bbd4c585f/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/OctmapDownsamplerShaderRD/17404978f453a0a0388dfb81b2d08f173476d2c3b680e2e6aa35bcf438e24f11/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/OctmapFilterShaderRD/cd03c4ea34362e2724f4d4536156039ee5ca21c31167b8840dfc65dad2d6bb11/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/OctmapRoughnessShaderRD/8470960c68b74292e24251e3b7e41d28e9a5054dce0cd1d77c2a2a865a10af43/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/ParticlesCopyShaderRD/ce2b95c8a6b9e21f14c989c3ca095de77d9bb5e86213ae4180fb97cbd2c02a10/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/ParticlesShaderRD/f645828ab356b17f1478c77373935ecd2417e1c227a96b62417396293d13970e/07b5904b662900d90454c39c46885098de79aa4c.metal.cache",
+        "shader_cache/ParticlesShaderRD/f645828ab356b17f1478c77373935ecd2417e1c227a96b62417396293d13970e/6eab25544c3f6abb842bc0e71f2bba2e1f8f5f42.metal.cache",
+        "shader_cache/ParticlesShaderRD/f645828ab356b17f1478c77373935ecd2417e1c227a96b62417396293d13970e/7a1ef34e8e9abc614b452bd533608150fc686a27.metal.cache",
+        "shader_cache/ParticlesShaderRD/f645828ab356b17f1478c77373935ecd2417e1c227a96b62417396293d13970e/fc00b7dbc86f70f4167b90ea17d699fe91b51169.metal.cache",
+        "shader_cache/ResolveShaderRD/58e536c56eaff31a31ef93f224579af7b242a06469b7b0a7736cdeb7e16898b6/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/08e8a7c72fb3214807c15a2657ab6c7d88724516.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/0af75f1fe804642d6b7b7d5aac0b02c0e39f207e.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/0b36e8cefbbe1f57d8f4fc5b273e03980a22109a.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/10d6bd78f699ee5c66d98bcae1af3dc8f600ba10.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/137891017d8cd29cef192f3f7a249d32945f3b12.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/2437e70d0170ff8bb5719e2240323dedae7447ec.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/24d1457b4a01f6e00871869a0d4bf455be906f7b.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/347259af253e6bbec7ad5c69332af5ca731015aa.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/3c54f287ffa22e99f2f8eca86171cf8cf154903c.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/4200e33f83fe7f208aa8bdc86e2520e71cd8e6df.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/4834c4ba39a8a36e980eed6e8b13653dfb548da7.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/520cf65275efef88d1f9c2339a28c14ad3f21134.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/567463cbbe6c0cb238fb37eaa4dadb844faa6710.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/5d45d5845e94a435d79d0ae35389d89c2e1352a7.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/5fb5b37a7978356eeb276d4e8312efeab32da647.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/63f61b4e446b4503278aac4c800bab48386602ef.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/69a4e35a936de3b05c626ea76fee133b7c3cd2aa.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/70c6f347241ed80d86ab8b84b465fd48daac28e0.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/72686a94b9a321e2b089d28de64e9f062b9c4cbc.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/7290193133c3c1cfc84cb2e0d449470775346c6d.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/77e28fea868f1d640cf581ded2e966295b75d2d8.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/78b31081755b0001d799a1fd48ccc54e3d9c8331.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/8b9b7eae7f5a93fad834eda4b9dc0dfa1da73bd4.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/9ae935cd107ff04dc4904f4d9a48208144d11fe5.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/a06f0e119ce30b774128072e79152f305134ac22.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/a673ea84238ba38abac60e1b4bd922b3d48d8a57.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/a784797763b72ce058effad41b273eb697df9814.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/ae3c8e31f908e0df600cc24ef1a7ea00e2995926.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/b07e1a1cb8fbb2f4e7001c90360e03af72d705f0.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/b08a85911c834be51e4c1f31d2a73fe1a84a90b3.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/b269a6cee353f8374cb21a490600271a8beaef4d.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/b42d53085d0cbb31872a94b6948688c281f53f98.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/b5af13828eca10df48997f2b9de1a9791532fd85.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/b600e18e20b53d8932999d48838b29553c586934.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/b95c72e6aae7e6f70d0fe445c9b8560591beb024.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/ba01708c18227dbfb024bf9172b7ea4cddb559fa.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/ba34ce20311ef12250c87675a4ae8f2783fc403c.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/bbe9f1888b996937c8ebb7cc52be3c69cde8ada0.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/c31d00021df505ae64f6baec0c28abe58521a0ac.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/e144bfa06ddda7ccd52cc67cdb3e43759b35751d.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/e332745cc7932365dd6473c49360ddb86645b382.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/e4b86fcbba75bb6600806d9a150545f692dd726f.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/eaaad886ebd058536b2b019165cba78474939ae2.metal.cache",
+        "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/f73fbb34d0e80e800df5b11dbdb80da16c28b6f4.metal.cache",
+        "shader_cache/ScreenSpaceReflectionDownsampleShaderRD/f6b46656954490c0153a8a5200455cc0834ec5881821ec7bf328b4c688fc4f6f/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/ScreenSpaceReflectionFilterShaderRD/fda60a18cb83e7ff26ce7ee2f43dce1d37326b2767d06922b0e5f9356abd1a1e/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/ScreenSpaceReflectionHizShaderRD/4c407c9b5cd4f954c012a0de78629e18a5e9268536eb1d78853c8a247ef0a772/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/ScreenSpaceReflectionResolveShaderRD/b29422945b4d1600883d0fcf89124633e34efb678505e5bcb9fdb6623fbfb8d4/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/ScreenSpaceReflectionShaderRD/a2d0cb08973e8562ed3b82d74b6f0f1ecf1dbd2ac788049eaa06925ad6c28bed/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/SdfgiDebugProbesShaderRD/05e9a03efe957bf14f0a60730a97ab25e037f5a3f347b3427feb9723fd82fb1c/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/SdfgiDebugShaderRD/365142e07e83cbbda433d4ed971a1c8413d3a400e8646e2ed2a0f7dda127068a/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/SdfgiDirectLightShaderRD/59245d18d90efd79551ef5eda25bbda9867cb893341a1d23b0f75db5d4490716/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/SdfgiIntegrateShaderRD/f20a6d93247c8e2db82979d4e6477fa070ed91e03db2b1320e32dffabdb4ff23/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/SdfgiPreprocessShaderRD/548b5bca0563ad9662e1e9577ac4921dfc156154487ba331733b0283ce26fcb9/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/ShadowFrustumShaderRD/248bc9deb54d10af912f2da1bd4b006bc43cfe08659a206fa573baf48e4050e0/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/SkeletonShaderRD/e6bc641e2a094416c99b1294ac5e453c55d24e0b62c1da47c8f7f93ae7877bfa/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/SkyShaderRD/25c4162ba5ed1f15e722f73bf07201837a6ae7b301288dd32ff9f71634118d9c/0fa1946a11e1cca806ebfe4b3b4ac7f723d8b701.metal.cache",
+        "shader_cache/SkyShaderRD/25c4162ba5ed1f15e722f73bf07201837a6ae7b301288dd32ff9f71634118d9c/9247dd7bf98483a15ebb05f8c580a398614a07d8.metal.cache",
+        "shader_cache/SkyShaderRD/25c4162ba5ed1f15e722f73bf07201837a6ae7b301288dd32ff9f71634118d9c/ff1961ca0c4c55a79eb12f819a7b6345801bbbaf.metal.cache",
+        "shader_cache/SmaaBlendingShaderRD/d7b7c8cec00f24f9aa8db356b4df88c5fe032d38ce38673bd520c280c936fb80/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/SmaaEdgeDetectionShaderRD/8879d099a2601bd01d4582b1e86a091c5f89a7bc46aecc9e805410f75bcda245/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/SmaaWeightCalculationShaderRD/de1d49d5ff947e8b8382f43a79f57c4cceb02eed6f86d5175093ca63e94052bf/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/SortShaderRD/d8d77897b86870d358bf870233e14233981c2db9ff06641cd8f405379ac8872f/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/SpecularMergeShaderRD/70920fc883de48dd253fbc2503dd8f4e65941df0da07e074541df12df090de98/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/SsEffectsDownsampleShaderRD/d2ccd37f99a0b00eca4ba6f53cddf8d03f02119a69a0b02dc777026129561703/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/SsaoBlurShaderRD/379e714dbee2f412e6657f0557a56dd9f4a00c93ed1aef7af78b047b59ef4bcb/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/SsaoImportanceMapShaderRD/72382d26e5b22e99ee9ed29670565e78ff7ee01c960072119a5be86db2ee0fc8/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/SsaoInterleaveShaderRD/cb27e637ffea15e2c6c4ae1b2c90deac962dae9481ef866601d8ecb863d6a9b6/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/SsaoShaderRD/40091d5cef6924b0632dfb92dbf5a6c61f97edd6dd653d20e2c7662009912eed/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/SsilBlurShaderRD/4f0d60ba5581090f5efc9941b040e46832bf6864d77d52e8631cea227b5d8279/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/SsilImportanceMapShaderRD/bf370911d6b5be81e5fbf6014d236deb74697ee1b3e2eeb870f5140913d9bee6/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/SsilInterleaveShaderRD/0f78dde6bc33a0264706f9a466ae77f41b24641381aa171c2b1ee40923f6547c/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/SsilShaderRD/17c51ec55574b54c0834b41688f478d19599eb3f90a1230981e06d74d89473e1/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/SubsurfaceScatteringShaderRD/4870fb4fc36514a7031473d566046fc2841628db992f9421056a8dfbc0830d97/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/TaaResolveShaderRD/a1ca2d745847530de0720910ad5bfa2466e0ab33647b7a631f2900d7b4617a60/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/TexBlitShaderRD/fd9c885eab1da0d330a04ebfd7796019cde57f82208202f3bfc96cae74155212/1e8995c9eb0e9b0b053035999de68595c521a33e.metal.cache",
+        "shader_cache/TexBlitShaderRD/fd9c885eab1da0d330a04ebfd7796019cde57f82208202f3bfc96cae74155212/2faa5b2930530eb034c42639beb01bd720adc086.metal.cache",
+        "shader_cache/TonemapShaderRD/1b9049fef136690ef56085339cc9ad699de6d63e5d3afa1677201c6dedd6f2a8/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/VolumetricFogProcessShaderRD/7ac17802c709a8ec8fb2d47fade023ddd95a3c675451c8e53ce81469b4ce8b5d/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/VolumetricFogShaderRD/8454dc7c2a5c9574b6123e01388a4c83969bb236ab7422fd0eb06b91dd9f7449/3377d4ca9d0fc2e16f62596ee37d619e8e7e3f54.metal.cache",
+        "shader_cache/VoxelGiDebugShaderRD/e7afc074bea566006e261dd7312ae8e5c1a6a22e1eab6aa29b590ca925df679b/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache",
+        "shader_cache/VoxelGiShaderRD/cf478b2dd85c8c4b0519274ac94659b26ee34e27a1714122915056a7010b4b7c/8305c75c1294a9f00656f0f14344bb8bedcfe4e7.metal.cache"
+      ],
+      "started_utc": "2026-10-24T07:30:17.461290+00:00",
+      "process_snapshot_before": {
+        "path": "docs/playtests/2026-10-24/macos-current-v19-final-stress-2/stress-2-processes.txt",
+        "sha256": "ed35c138d81b9521329beeeca1d1e9a301c0bc5505a24ad12997dbc3368a5404",
+        "bytes": 72743
+      },
+      "command": [
+        "/Users/linlilu/godot-open-rts/build/polish-2026-10-24/macos-current-v19-final-stress-2/Open_RTS_stress.app/Contents/MacOS/Open RTS",
+        "--",
+        "--await-focus",
+        "--native-focus-token=/Users/linlilu/godot-open-rts/docs/playtests/2026-10-24/macos-current-v19-final-stress-2/stress-2.start",
+        "--behaviors",
+        "--realtime",
+        "--no-capture",
+        "--input-latency"
+      ],
+      "pid": 21817,
+      "valid": true,
+      "focus_phases": [
+        {
+          "phase": "loading-helper",
+          "begin_unix_ms": 1792827019876,
+          "end_unix_ms": 1792827020462,
+          "inside_native_samples": 2,
+          "bracketed_native_samples": 4,
+          "native_coverage_valid": true,
+          "all_native_samples_owned": true,
+          "maximum_sample_gap_ms": 261,
+          "wrapper_focus_valid": true
+        },
+        {
+          "phase": "movement",
+          "begin_unix_ms": 1792827023428,
+          "end_unix_ms": 1792827033475,
+          "inside_native_samples": 38,
+          "bracketed_native_samples": 40,
+          "native_coverage_valid": true,
+          "all_native_samples_owned": true,
+          "maximum_sample_gap_ms": 259,
+          "wrapper_focus_valid": true
+        },
+        {
+          "phase": "combat",
+          "begin_unix_ms": 1792827033482,
+          "end_unix_ms": 1792827044874,
+          "inside_native_samples": 45,
+          "bracketed_native_samples": 47,
+          "native_coverage_valid": true,
+          "all_native_samples_owned": true,
+          "maximum_sample_gap_ms": 260,
+          "wrapper_focus_valid": true
+        }
+      ],
+      "frame_summaries": [
+        {
+          "phase": "movement",
+          "frames": 484,
+          "mean_ms": 20.747082644628097,
+          "p95_ms": 28.462,
+          "p99_ms": 31.551,
+          "max_ms": 34.13,
+          "frames_over_33ms": 1,
+          "frames_over_50ms": 0,
+          "frames_over_100ms": 0,
+          "spikes_over_50ms": [],
+          "first_pipeline_counts": {
+            "canvas": 7,
+            "draw": 78,
+            "mesh": 35,
+            "specialization": 97,
+            "surface": 129
+          },
+          "last_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "fps": 48.19954772093816
+        },
+        {
+          "phase": "movement/first-3s",
+          "frames": 181,
+          "mean_ms": 16.557723756906075,
+          "p95_ms": 23.497,
+          "p99_ms": 30.771,
+          "max_ms": 32.061,
+          "frames_over_33ms": 0,
+          "frames_over_50ms": 0,
+          "frames_over_100ms": 0,
+          "spikes_over_50ms": [],
+          "first_pipeline_counts": {
+            "canvas": 7,
+            "draw": 78,
+            "mesh": 35,
+            "specialization": 97,
+            "surface": 129
+          },
+          "last_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "fps": 60.39477495105021
+        },
+        {
+          "phase": "movement/after-3s",
+          "frames": 303,
+          "mean_ms": 23.24963696369637,
+          "p95_ms": 28.851,
+          "p99_ms": 31.551,
+          "max_ms": 34.13,
+          "frames_over_33ms": 1,
+          "frames_over_50ms": 0,
+          "frames_over_100ms": 0,
+          "spikes_over_50ms": [],
+          "first_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "last_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "fps": 43.0114242885371
+        },
+        {
+          "phase": "combat",
+          "frames": 398,
+          "mean_ms": 25.09693216080402,
+          "p95_ms": 30.698,
+          "p99_ms": 33.69,
+          "max_ms": 37.249,
+          "frames_over_33ms": 4,
+          "frames_over_50ms": 0,
+          "frames_over_100ms": 0,
+          "spikes_over_50ms": [],
+          "first_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "last_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "fps": 39.84550755417763
+        },
+        {
+          "phase": "combat/first-3s",
+          "frames": 122,
+          "mean_ms": 24.44443442622951,
+          "p95_ms": 29.939,
+          "p99_ms": 33.69,
+          "max_ms": 35.748,
+          "frames_over_33ms": 2,
+          "frames_over_50ms": 0,
+          "frames_over_100ms": 0,
+          "spikes_over_50ms": [],
+          "first_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "last_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "fps": 40.90910767511864
+        },
+        {
+          "phase": "combat/after-3s",
+          "frames": 276,
+          "mean_ms": 25.385355072463767,
+          "p95_ms": 30.836,
+          "p99_ms": 33.178,
+          "max_ms": 37.249,
+          "frames_over_33ms": 2,
+          "frames_over_50ms": 0,
+          "frames_over_100ms": 0,
+          "spikes_over_50ms": [],
+          "first_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "last_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "fps": 39.39279151878908
+        }
+      ],
+      "prewarm": [
+        {
+          "caller_paused": true,
+          "completed": true,
+          "cosmetic_equal": true,
+          "elapsed_ms": 564.209,
+          "helper_only": true,
+          "nodes_after": 6602,
+          "nodes_before": 6602,
+          "pipelines": {
+            "canvas": 7,
+            "draw": 50,
+            "mesh": 33,
+            "specialization": 67,
+            "surface": 128
+          },
+          "process_modes_equal": true,
+          "snapshot_equal": true,
+          "unix_ms": 1792827020462
+        }
+      ],
+      "setup": [
+        {
+          "cycles": 6,
+          "helper_timing_includes_setup": false,
+          "paused": true,
+          "readiness": {
+            "construction_rigs": 0,
+            "minimap_captured": true,
+            "pending_navigation": [],
+            "ready": true,
+            "terrain_synchronized": true
+          },
+          "simulation_after": 0.0,
+          "simulation_before": 0.0,
+          "stable_snapshot_nodes_modes": true
+        }
+      ],
+      "measurements": [
+        {
+          "label": "SCALE movement",
+          "values": {
+            "renderer": "macOS",
+            "mean_frame_ms": 20.75,
+            "p95_frame_ms": 28.47,
+            "p99_frame_ms": 31.54,
+            "frames_over_33ms": 1,
+            "samples": 484,
+            "simulation_seconds": 10.03,
+            "wall_seconds": 10.04,
+            "realtime": true,
+            "baseline_field": false,
+            "baseline_targets": false,
+            "avg_sampled_1s_process_max_ms": 18.74,
+            "avg_sampled_1s_physics_max_ms": 12.46,
+            "physics_ticks": 301,
+            "physics_hz": 30,
+            "interpolation": true,
+            "diagnostic_no_motion": false,
+            "diagnostic_no_queues": false
+          }
+        },
+        {
+          "label": "RENDER movement",
+          "values": {
+            "gpu_ms": 0.0,
+            "render_cpu_ms": 4.15,
+            "pixels": "(1920.0, 1080.0)",
+            "scale_3d": 1.0,
+            "adapter": "Apple M1 Pro (Apple7)",
+            "rendered_frames": 484
+          }
+        },
+        {
+          "label": "TAIL movement",
+          "values": {
+            "max_frame_ms": 34.13,
+            "frames_over_100ms": 0
+          }
+        },
+        {
+          "label": "SCALE combat",
+          "values": {
+            "renderer": "macOS",
+            "mean_frame_ms": 25.1,
+            "p95_frame_ms": 30.68,
+            "p99_frame_ms": 33.7,
+            "frames_over_33ms": 4,
+            "samples": 398,
+            "simulation_seconds": 10.0,
+            "wall_seconds": 9.99,
+            "realtime": true,
+            "baseline_field": false,
+            "baseline_targets": false,
+            "avg_sampled_1s_process_max_ms": 22.33,
+            "avg_sampled_1s_physics_max_ms": 13.36,
+            "physics_ticks": 300,
+            "physics_hz": 30,
+            "interpolation": true,
+            "diagnostic_no_motion": false,
+            "diagnostic_no_queues": false
+          }
+        },
+        {
+          "label": "RENDER combat",
+          "values": {
+            "gpu_ms": 0.0,
+            "render_cpu_ms": 4.99,
+            "pixels": "(1920.0, 1080.0)",
+            "scale_3d": 1.0,
+            "adapter": "Apple M1 Pro (Apple7)",
+            "rendered_frames": 398
+          }
+        },
+        {
+          "label": "TAIL combat",
+          "values": {
+            "max_frame_ms": 37.24,
+            "frames_over_100ms": 0
+          }
+        },
+        {
+          "label": "INPUT",
+          "values": {
+            "selected": 24,
+            "samples": 10,
+            "event_to_feedback_submit_mean_ms": 25.16,
+            "p95_ms": 32.86,
+            "maximum_population": true
+          }
+        },
+        {
+          "label": "SCALE",
+          "values": {
+            "behaviors": true,
+            "air_combat": false,
+            "moved": "200/200",
+            "travelled": "200/200",
+            "fired": 109,
+            "peak_live_projectiles": 12,
+            "resources": 62,
+            "sampled_peak_tracers": 0,
+            "viewport_pixels": "(1920.0, 1080.0)"
+          }
+        }
+      ],
+      "errors": [],
+      "warnings": [],
+      "exit_code": 0,
+      "log": {
+        "path": "docs/playtests/2026-10-24/macos-current-v19-final-stress-2/stress-2.log.txt",
+        "sha256": "c118d7a0ad8c1bb7b0753be8875c4bfdc7048f8870fa865771987ed664ee2724",
+        "bytes": 327793
+      },
+      "native_focus_log": {
+        "path": "docs/playtests/2026-10-24/macos-current-v19-final-stress-2/stress-2-native-focus.jsonl",
+        "sha256": "124f008990c217cb98e38462655f04d3a1634e5d64dc589106932e344dfb010e",
+        "bytes": 12320
+      },
+      "ended_utc": "2026-10-24T07:30:45.926104+00:00",
+      "native_pid_matches": true,
+      "focus_token_matches": true,
+      "stage_unchanged": true,
+      "executable_unchanged": true,
+      "pack_unchanged": true
+    }
+  ],
+  "workloads": [
+    "stress"
+  ],
+  "sampling_enabled": false,
+  "os_driver_cache_reset": false,
+  "scope": "Ordinary fixed 70-unit combat and synthetic 200-mobile/80-structure stress; both disable AI after fixture setup. Warm-up and helper-only Loading prewarm costs are retained separately. This is not end-to-end Loading timing.",
+  "harness_peer_review": {
+    "read_only": true,
+    "scope": "Trace overrides, source freeze, stage boundaries, native focus brackets and stress setup readiness",
+    "result": "No further consequential issue after readiness correction",
+    "resolved_findings": [
+      "Wait for paused navigation synchronization, minimap capture and construction rig teardown; verify full snapshot and node paths/modes over another physics/process/draw cycle before helper timing",
+      "Label held physics monitor as sampled_1s_physics_max_ms"
+    ]
+  },
+  "focus_protocol": "Native NSWorkspace foreground PID at 250 ms plus in-engine focus events and phase boundaries; native samples bracket each complete phase.",
+  "stress_split": "Original full 10-s simulation phases are retained. First 3 wall seconds and remaining frames are a post-processing split, not an added warm-up.",
+  "production_package_manifest": {
+    "path": "docs/playtests/2026-10-24/macos-package-v19/source-manifest.json",
+    "sha256": "45dc9f612609a21d20c282f798e66342f4769f3a3cf404210174e5a00f88c1cd",
+    "bytes": 674350
+  },
+  "production_v19_manifest": {
+    "path": "docs/playtests/2026-10-24/macos-current-v19-final-stress-2/production-v19-manifest.json",
+    "sha256": "5578f169463f0c2e179ac8823afb5213f08da31e8b84dcb1017993d39dad9ac9",
+    "bytes": 674350,
+    "aggregate_sha256": "ef02d6ed2faf11144f5048de09ee5a4969844ccf6ef01a8bb7f9ea8abdf9a360",
+    "files": 5539
+  },
+  "stress_baseline_correction": {
+    "rejected_run": {
+      "path": "docs/playtests/2026-10-24/macos-current-v19-final-1/report.json",
+      "sha256": "f7e38ed54f15178aecf2a89696d1dcacbe2afeef08b4db21ccafcaecb6b00a28",
+      "bytes": 63750
+    },
+    "diagnostic": {
+      "path": "docs/playtests/2026-10-24/macos-current-v19-prewarm-diagnostic-1/result.json",
+      "sha256": "35fc9cbcb646c7e47d5d4037a769976104951a2f03fa5adcb9000cebb68e57a5",
+      "bytes": 29737
+    },
+    "cause": "The initial stress baseline overlapped deferred ConstructionPrewarm teardown (34 nodes) and 12 mobile navigation assignments (24 snapshot fields). Simulation remained at 0; no production change was needed.",
+    "diagnostic_only_not_release_timing": true
+  },
+  "package_compatible_source_sha256": "389e463243ee23726d2e2da6e7e411d851b6a561aae2abffcfc1bf5574542a62",
+  "monitor_executable": {
+    "path": "tmp/polish-mac-focus-monitor",
+    "sha256": "fe74483929c78bcc5cd7424999efd90d10308ca74c4fa84a647d1a640a23fe90",
+    "bytes": 88344
+  },
+  "engine": {
+    "path": "tmp/tooling/godot-4.7.2/Godot.app/Contents/MacOS/Godot",
+    "sha256": "c7cccbf8fb143e34e02fd6521e09be2c2b974f0d5db080b19071c9c570718ccf",
+    "bytes": 351312912
+  },
+  "production_source_unchanged": true,
+  "ended_utc": "2026-10-24T07:30:51.371655+00:00"
+}

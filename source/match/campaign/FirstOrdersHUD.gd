@@ -12,6 +12,7 @@ var _find_button: Button
 var _command_panel: PanelContainer
 var _relay_marker: Label
 var _lesson_scroll: ScrollContainer
+var _lesson_elapsed = 0.2
 
 
 func _ready():
@@ -92,19 +93,33 @@ func _process(delta):
 	var available = (
 		get_viewport().get_visible_rect().size.y - HudLayout.CONSOLE_HEIGHT - HudLayout.GAP - top
 	)
+	# The lesson's minimum size must fit above the console at large UI scales.
+	# Reserve its title/status/actions first, then let the instructional body scroll.
+	var fixed_height = (
+		lesson_panel.get_combined_minimum_size().y - _lesson_scroll.get_combined_minimum_size().y
+	)
+	_lesson_scroll.custom_minimum_size.y = clampf(
+		_lesson_text.get_minimum_size().y, 32, clampf(available - fixed_height, 32, 108)
+	)
 	lesson_panel.size = Vector2(
 		325, clampf(lesson_panel.get_combined_minimum_size().y, 200, maxf(200, available))
 	)
+	_lesson_elapsed += delta
+	if _lesson_elapsed < 0.2:
+		return
+	_lesson_elapsed = 0.0
 	var step = OpeningGuidance.first_orders(mission)
+	if _lesson_title.text != step.title:
+		_lesson_scroll.scroll_vertical = 0
 	_lesson_title.text = step.title
-	_lesson_text.text = step.text
-	_lesson_scroll.custom_minimum_size.y = clampf(_lesson_text.get_minimum_size().y, 54, 108)
+	_lesson_text.text = tr(step.text) + "\n\n" + OpeningGuidance.practical_tip(mission)
 	_find_button.text = {
 		"Worker": "Find engineer",
 		"Tank": "Find tank",
 		"Infantry": "Find infantry",
 		"CommandCenter": "Select HQ",
-		"Barracks": "Select barracks"
+		"Barracks": "Select barracks",
+		"VehicleFactory": "Select vehicle factory"
 	}[step.role]
 	_find_button.tooltip_text = tr(step.text)
 	_relay_status.visible = mission.phase == 2
@@ -131,7 +146,13 @@ func _find_unit():
 	var role = OpeningGuidance.first_orders(mission).role
 	var units = mission._get_human_player().get_children().filter(
 		func(unit):
-			return "type" in unit and unit.type == role and not unit.is_queued_for_deletion()
+			return (
+				"type" in unit
+				and unit.type == role
+				and not unit.is_queued_for_deletion()
+				and unit.hp > 0
+				and (role != "VehicleFactory" or not unit.is_under_construction())
+			)
 	)
 	if units.is_empty():
 		show_notice(
@@ -140,7 +161,7 @@ func _find_unit():
 				+ (
 					"HQ."
 					if role == "Worker"
-					else ("vehicle factory." if role == "RepairRobot" else "barracks.")
+					else ("vehicle factory." if role in ["Tank", "RepairRobot"] else "barracks.")
 				)
 			)
 		)

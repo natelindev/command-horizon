@@ -4,6 +4,7 @@ const MAP_FONT = preload("res://assets/fonts/NotoSansSC.ttf")
 const PreviewData = preload("res://source/main-menu/MapPreviewData.gd")
 const Registry = preload("res://source/match/maps/terrain/BattlefieldRegistry.gd")
 const AuthoredPreview = preload("res://source/main-menu/AuthoredMapPreview.gd")
+const Cache = preload("res://source/utils/RuntimeCache.gd")
 const PREVIEW_FIELDS = [
 	"map_size",
 	"starts",
@@ -23,7 +24,6 @@ const PREVIEW_FIELDS = [
 	"terrain_high",
 	"_biome"
 ]
-static var _baked_previews = {}
 
 var map_size = Vector2(64, 64)
 var starts = []
@@ -57,13 +57,14 @@ func _notification(what):
 
 
 func set_map(path):
+	var baked_previews = Cache.bucket("map_previews")
 	var baked_path = "res://assets/ui/map-previews/%s.res" % path.get_file().get_basename()
-	if not _baked_previews.has(path) and ResourceLoader.exists(baked_path):
+	if not baked_previews.has(path) and ResourceLoader.exists(baked_path):
 		var baked = load(baked_path)
 		if baked is PreviewData and baked.source_path == path:
-			_baked_previews[path] = baked
-	if _baked_previews.has(path):
-		var baked = _baked_previews[path]
+			baked_previews[path] = baked
+	if baked_previews.has(path):
+		var baked = baked_previews[path]
 		for key in PREVIEW_FIELDS:
 			set(key, baked.data[key])
 		_terrain = baked.terrain
@@ -271,9 +272,9 @@ func _draw():
 			{
 				"refinery": tr("R", "map_refinery"),
 				"mercenary": tr("M", "map_mercenary"),
-				"repair": "+"
+				"repair": tr("S", "map_repair")
 			}
-			. get(site.kind, "+")
+			. get(site.kind, "·")
 		)
 		draw_string(
 			MAP_FONT,

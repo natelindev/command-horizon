@@ -1,0 +1,259 @@
+{
+  "status": "focused_correctness_checks_passed_release_measurement_pending",
+  "updated_utc": "2026-10-24T06:17:42.598803+00:00",
+  "started_utc": "2026-10-24T06:13:21.856633+00:00",
+  "finished_utc": "2026-10-24T06:15:09.005960+00:00",
+  "scope": [
+    "Bound settled mobile endpoint queries by the maximum navigation-agent radius and reuse the navigation trait within each predicate call.",
+    "Avoid duplicate ground callback movement math and defer endpoint scanning until cheap recovery conditions pass.",
+    "Return the first containing lowest-height polygon in the existing flat-map projection index; preserve native fallback."
+  ],
+  "regression_coverage": "Expanded CrowdedDestinationRegression covers maximum-radius allies, same-tick positions/radii, static structures, ghosting, speed, domain, destinations, velocity and queued deletion; existing archived crowd cases remain.",
+  "engine": "/tmp/open-rts-ui-godot/Godot.app/Contents/MacOS/Godot",
+  "engine_version": "4.7.2.stable.official.ed1daf0bf",
+  "invocation": "Godot --headless --path . --fixed-fps 60 --script res://tests/headless/NAME.gd",
+  "check_count": 10,
+  "passed_count": 10,
+  "checks": [
+    {
+      "name": "CrowdedDestinationRegression",
+      "exit_code": 0,
+      "seconds": 35.958,
+      "log": "docs/playtests/2026-10-24/cpu-hotpath/CrowdedDestinationRegression.log.txt",
+      "sha256": "5a82472ecef419935b4c96b18cf724577b3039c0f66213cfef300bd387b8544e",
+      "artifact": {
+        "path": "docs/playtests/2026-10-24/cpu-hotpath/CrowdedDestinationRegression.log.txt",
+        "bytes": 912,
+        "sha256": "5a82472ecef419935b4c96b18cf724577b3039c0f66213cfef300bd387b8544e"
+      },
+      "functional_errors": [],
+      "known_direct_quit_diagnostics": [
+        "WARNING: 16 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 6 resources still in use at exit (run with --verbose for details)."
+      ],
+      "passed": true
+    },
+    {
+      "name": "NavigationProjectionRegression",
+      "exit_code": 0,
+      "seconds": 5.624,
+      "timed_out": false,
+      "log": "docs/playtests/2026-10-24/cpu-hotpath/NavigationProjectionRegression.log.txt",
+      "sha256": "ac04a88bdcdd60a842b7dc56ddbd503110d7347d30c8b13ddbaa58b2092406ed",
+      "functional_errors": [],
+      "known_direct_quit_diagnostics": [],
+      "passed": true,
+      "artifact": {
+        "path": "docs/playtests/2026-10-24/cpu-hotpath/NavigationProjectionRegression.log.txt",
+        "bytes": 107,
+        "sha256": "ac04a88bdcdd60a842b7dc56ddbd503110d7347d30c8b13ddbaa58b2092406ed"
+      }
+    },
+    {
+      "name": "TerrainNavRegression",
+      "exit_code": 0,
+      "seconds": 9.135,
+      "timed_out": false,
+      "log": "docs/playtests/2026-10-24/cpu-hotpath/TerrainNavRegression.log.txt",
+      "sha256": "b255c010a1b5babf5851cd4782a3094746f29a20f9424f76bc23f6e002855b1f",
+      "functional_errors": [],
+      "known_direct_quit_diagnostics": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "passed": true,
+      "artifact": {
+        "path": "docs/playtests/2026-10-24/cpu-hotpath/TerrainNavRegression.log.txt",
+        "bytes": 579,
+        "sha256": "b255c010a1b5babf5851cd4782a3094746f29a20f9424f76bc23f6e002855b1f"
+      }
+    },
+    {
+      "name": "AttackCrowdedArrivalRegression",
+      "exit_code": 0,
+      "seconds": 21.379,
+      "timed_out": false,
+      "log": "docs/playtests/2026-10-24/cpu-hotpath/AttackCrowdedArrivalRegression.log.txt",
+      "sha256": "023bf43fee69dd353ba7c2f899651cce2de7c5116cc9b286897d616d0ab51dd5",
+      "functional_errors": [],
+      "known_direct_quit_diagnostics": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "passed": true,
+      "artifact": {
+        "path": "docs/playtests/2026-10-24/cpu-hotpath/AttackCrowdedArrivalRegression.log.txt",
+        "bytes": 702,
+        "sha256": "023bf43fee69dd353ba7c2f899651cce2de7c5116cc9b286897d616d0ab51dd5"
+      }
+    },
+    {
+      "name": "GroundCrowdRecoveryRegression",
+      "exit_code": 0,
+      "seconds": 24.724,
+      "timed_out": false,
+      "log": "docs/playtests/2026-10-24/cpu-hotpath/GroundCrowdRecoveryRegression.log.txt",
+      "sha256": "8abe7dc765f113282f2444573ea810e63c60c3fa85026b0f01134544c012b3c3",
+      "functional_errors": [],
+      "known_direct_quit_diagnostics": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "passed": true,
+      "artifact": {
+        "path": "docs/playtests/2026-10-24/cpu-hotpath/GroundCrowdRecoveryRegression.log.txt",
+        "bytes": 736,
+        "sha256": "8abe7dc765f113282f2444573ea810e63c60c3fa85026b0f01134544c012b3c3"
+      }
+    },
+    {
+      "name": "NavigationRegression",
+      "exit_code": 0,
+      "seconds": 26.716,
+      "timed_out": false,
+      "log": "docs/playtests/2026-10-24/cpu-hotpath/NavigationRegression.log.txt",
+      "sha256": "81dace1443cd68734e68d2a90121c797cfca35212891483260c8f837484e1f80",
+      "functional_errors": [],
+      "known_direct_quit_diagnostics": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "passed": true,
+      "artifact": {
+        "path": "docs/playtests/2026-10-24/cpu-hotpath/NavigationRegression.log.txt",
+        "bytes": 618,
+        "sha256": "81dace1443cd68734e68d2a90121c797cfca35212891483260c8f837484e1f80"
+      }
+    },
+    {
+      "name": "GroundVehicleMotionRegression",
+      "exit_code": 0,
+      "seconds": 7.445,
+      "timed_out": false,
+      "log": "docs/playtests/2026-10-24/cpu-hotpath/GroundVehicleMotionRegression.log.txt",
+      "sha256": "bedc8268f3269913cc3873071e5ba1869f10e06a422f72b3009539f9a5059a1b",
+      "functional_errors": [],
+      "known_direct_quit_diagnostics": [
+        "WARNING: 18 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 7 resources still in use at exit (run with --verbose for details)."
+      ],
+      "passed": true,
+      "artifact": {
+        "path": "docs/playtests/2026-10-24/cpu-hotpath/GroundVehicleMotionRegression.log.txt",
+        "bytes": 559,
+        "sha256": "bedc8268f3269913cc3873071e5ba1869f10e06a422f72b3009539f9a5059a1b"
+      }
+    },
+    {
+      "name": "TerrainGroundingRegression",
+      "exit_code": 0,
+      "seconds": 3.994,
+      "timed_out": false,
+      "log": "docs/playtests/2026-10-24/cpu-hotpath/TerrainGroundingRegression.log.txt",
+      "sha256": "87ab737cf0dc6d281e82dffc85834f65f4e1c1d1a452a3e16896426122becfa6",
+      "functional_errors": [],
+      "known_direct_quit_diagnostics": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "passed": true,
+      "artifact": {
+        "path": "docs/playtests/2026-10-24/cpu-hotpath/TerrainGroundingRegression.log.txt",
+        "bytes": 585,
+        "sha256": "87ab737cf0dc6d281e82dffc85834f65f4e1c1d1a452a3e16896426122becfa6"
+      }
+    },
+    {
+      "name": "GroundHeightAlignmentRegression",
+      "exit_code": 0,
+      "seconds": 4.623,
+      "timed_out": false,
+      "log": "docs/playtests/2026-10-24/cpu-hotpath/GroundHeightAlignmentRegression.log.txt",
+      "sha256": "611fc438e97ad792a947cbd47b7dceb95d2354eacb703f3f810b88bd97d5993c",
+      "functional_errors": [],
+      "known_direct_quit_diagnostics": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "passed": true,
+      "artifact": {
+        "path": "docs/playtests/2026-10-24/cpu-hotpath/GroundHeightAlignmentRegression.log.txt",
+        "bytes": 508,
+        "sha256": "611fc438e97ad792a947cbd47b7dceb95d2354eacb703f3f810b88bd97d5993c"
+      }
+    },
+    {
+      "name": "RotorcraftCombatRegression",
+      "exit_code": 0,
+      "seconds": 3.505,
+      "timed_out": false,
+      "log": "docs/playtests/2026-10-24/cpu-hotpath/RotorcraftCombatRegression.log.txt",
+      "sha256": "4aaa7a3fe332f273ad463d09306b79e847de3df251172ed890cd2770c7bff651",
+      "functional_errors": [],
+      "known_direct_quit_diagnostics": [],
+      "passed": true,
+      "artifact": {
+        "path": "docs/playtests/2026-10-24/cpu-hotpath/RotorcraftCombatRegression.log.txt",
+        "bytes": 162,
+        "sha256": "4aaa7a3fe332f273ad463d09306b79e847de3df251172ed890cd2770c7bff651"
+      }
+    }
+  ],
+  "source_files": [
+    {
+      "production_path": "source/match/units/traits/Movement.gd",
+      "before": {
+        "path": "docs/playtests/2026-10-24/cpu-hotpath/before-Movement.gd.txt",
+        "bytes": 26371,
+        "sha256": "0e935ed8518b0cc02cbf605c0cfc19abbe51cfbd465f97b2fa9b9f2e890c3849"
+      },
+      "verified": {
+        "path": "docs/playtests/2026-10-24/cpu-hotpath/verified-Movement.gd.txt",
+        "bytes": 26416,
+        "sha256": "2935b988381d78d5b5c9036acfddb8690845607f552552bf1c4bd6204a094469"
+      }
+    },
+    {
+      "production_path": "source/match/TerrainNavigation.gd",
+      "before": {
+        "path": "docs/playtests/2026-10-24/cpu-hotpath/before-TerrainNavigation.gd.txt",
+        "bytes": 12536,
+        "sha256": "7d23a3ac198eb73ce130a2de6139e3ece26191ae4e021893b56b51374db8a64d"
+      },
+      "verified": {
+        "path": "docs/playtests/2026-10-24/cpu-hotpath/verified-TerrainNavigation.gd.txt",
+        "bytes": 12524,
+        "sha256": "7f4364551f85367c8f177b6524a8ed60616b4020d1bbd3eea4cc47820bcf74f9"
+      }
+    },
+    {
+      "production_path": "tests/headless/CrowdedDestinationRegression.gd",
+      "before": {
+        "path": "docs/playtests/2026-10-24/cpu-hotpath/before-CrowdedDestinationRegression.gd.txt",
+        "bytes": 6272,
+        "sha256": "e1013b8f9508a65ee0b2540ac2895a9c0fa6680688a54ea0c547423c0af68f5e"
+      },
+      "verified": {
+        "path": "docs/playtests/2026-10-24/cpu-hotpath/verified-CrowdedDestinationRegression.gd.txt",
+        "bytes": 9785,
+        "sha256": "25e705641cf526928290218bae08c664ed01ffa1669f06a85f65dceba60fda17"
+      }
+    }
+  ],
+  "scoped_change": {
+    "path": "docs/playtests/2026-10-24/cpu-hotpath/scoped-change.patch.txt",
+    "bytes": 11823,
+    "sha256": "508adaf3288dc013e23746b8676cd51c9da2ecd9f0044111bcf38e33688dd7cf"
+  },
+  "source_files_unchanged_during_checks": true,
+  "static_validation": {
+    "gdformat": "passed for all three changed files",
+    "gdlint": "passed for all three changed files",
+    "git_diff_check": "passed for all three changed files"
+  },
+  "limitations": [
+    "Focused headless correctness checks do not establish a release-performance gain. Matched native foreground release measurement is pending.",
+    "Legacy direct-quit ObjectDB/resource diagnostics are retained separately from functional failures.",
+    "The earlier isolated NavigationRegression 11/12 failure has no demonstrated root cause; this pass does not claim to fix it. See navigation-intermittent-audit.json."
+  ]
+}

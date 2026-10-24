@@ -160,6 +160,7 @@ static func range_for(source, target):
 		return minf(INFANTRY_SAM_RANGE, source.attack_range)
 	return (
 		source.attack_range
+		+ high_ground_range_bonus(source, target)
 		+ (target.radius if target.is_in_group("neutral_buildings") else 0.0)
 		+ (
 			source.get_meta("garrison_host").radius + 2.0
@@ -167,6 +168,18 @@ static func range_for(source, target):
 			else 0.0
 		)
 	)
+
+
+static func high_ground_range_bonus(source, target = null) -> float:
+	if not source.has_method("terrain_advantage") or not source.terrain_advantage():
+		return 0.0
+	if target != null:
+		if (
+			target.combat_domain() == Constants.Match.Navigation.Domain.AIR
+			or source.global_position.y - target.global_position.y < 1.5
+		):
+			return 0.0
+	return minf(1.5, float(source.attack_range) * 0.1) if source.attack_range != null else 0.0
 
 
 static func preparation_for(unit, target = null):

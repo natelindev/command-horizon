@@ -1,0 +1,15 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Vulkan 1.4.357 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4090
+
+BENCHMARK avoidance_threads=false
+SCALE BEGIN movement paused=false simulation_time=2.6
+SCALE movement renderer=Windows mean_frame_ms=26.19 p95_frame_ms=37.33 p99_frame_ms=42.78 frames_over_33ms=57 samples=383 simulation_seconds=10.03 wall_seconds=10.03 realtime=true baseline_field=false baseline_targets=false avg_sampled_1s_process_max_ms=24.14 avg_sampled_1s_physics_max_ms=17.15 physics_ticks=301 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false
+RENDER movement gpu_ms=6.86 render_cpu_ms=6.74 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=NVIDIA GeForce RTX 4090 rendered_frames=383
+TAIL movement max_frame_ms=47.17 frames_over_100ms=0
+SCALE BEGIN combat paused=false simulation_time=12.6333333333333
+SCALE combat renderer=Windows mean_frame_ms=34.38 p95_frame_ms=40.77 p99_frame_ms=48.21 frames_over_33ms=166 samples=291 simulation_seconds=10.0 wall_seconds=10.0 realtime=true baseline_field=false baseline_targets=false avg_sampled_1s_process_max_ms=27.38 avg_sampled_1s_physics_max_ms=17.53 physics_ticks=300 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false
+RENDER combat gpu_ms=8.99 render_cpu_ms=8.08 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=NVIDIA GeForce RTX 4090 rendered_frames=291
+TAIL combat max_frame_ms=51.34 frames_over_100ms=0
+INPUT selected=24 samples=10 event_to_feedback_submit_mean_ms=33.21 p95_ms=44.35 maximum_population=true
+SCALE behaviors=true air_combat=false moved=200/200 travelled=200/200 fired=111 peak_live_projectiles=34 resources=62 sampled_peak_tracers=0 viewport_pixels=(1920.0, 1080.0)
+PASS: 200 mobile units + 80 structures; behaviors=true release=true failures=0

@@ -1,11 +1,13 @@
 extends RefCounted
 
-const VERSION = 2
+const VERSION = 3
 const ADDED_IN_V2 = ["move_order", "attack_target"]
+const ADDED_IN_V3 = ["patrol_order", "cycle_subgroup"]
 const MODIFIERS = KEY_MASK_SHIFT | KEY_MASK_CTRL | KEY_MASK_ALT | KEY_MASK_META
 const MODIFIER_KEYS = [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META]
-const RESERVED = [KEY_TAB, KEY_BACKTAB, KEY_ENTER, KEY_KP_ENTER]
+const RESERVED = [KEY_BACKTAB, KEY_ENTER, KEY_KP_ENTER]
 const SPECIAL = [
+	KEY_TAB,
 	KEY_ESCAPE,
 	KEY_SPACE,
 	KEY_BACKSPACE,
@@ -40,6 +42,8 @@ const CORE = {
 	"attack_move": ["Battle", "Attack move", KEY_F],
 	"move_order": ["Battle", "Move to point", KEY_M],
 	"attack_target": ["Battle", "Attack target", KEY_T],
+	"patrol_order": ["Battle", "Patrol", KEY_P],
+	"cycle_subgroup": ["Groups", "Cycle selected unit classes", KEY_TAB],
 	"toggle_match_menu": ["Battle", "Battle menu / cancel assignment", KEY_ESCAPE],
 	"rotate_structure": ["Battle", "Rotate building", KEY_R],
 	"quicksave_battle": ["Battle", "Quicksave", KEY_F5],
@@ -79,25 +83,26 @@ static func normalize(record):
 	if (
 		not record is Dictionary
 		or typeof(record.get("version")) != TYPE_INT
-		or record.get("version") not in [1, VERSION]
+		or record.get("version") not in [1, 2, VERSION]
 		or not record.get("keys") is Dictionary
 	):
 		return fallback
 	# Treat a corrupt or internally conflicting profile atomically. Mixing partial
 	# defaults with user keys can silently assign the same key to two commands.
 	var keys = record.keys.duplicate(true)
-	var legacy = record.version == 1
-	var expected = fallback.keys.keys().filter(
-		func(action): return not legacy or action not in ADDED_IN_V2
-	)
+	var added = []
+	if record.version < 2:
+		added.append_array(ADDED_IN_V2)
+	if record.version < 3:
+		added.append_array(ADDED_IN_V3)
+	var expected = fallback.keys.keys().filter(func(action): return action not in added)
 	if keys.size() != expected.size():
 		return fallback
 	for action in expected:
 		if not keys.has(action) or not problem(action, keys[action], keys).is_empty():
 			return fallback
-	if legacy:
-		for action in ADDED_IN_V2:
-			keys[action] = _unused_default(action, keys)
+	for action in added:
+		keys[action] = _unused_default(action, keys)
 	return {"version": VERSION, "keys": keys.duplicate(true)}
 
 
@@ -131,7 +136,11 @@ static func problem(action, code, keys):
 		return "Choose a letter, number, function key or navigation key."
 	if key in MODIFIER_KEYS and (action != "shift_selecting" or code != key):
 		return "Use a key with the modifier, such as Ctrl+K."
-	if key in RESERVED or (key == KEY_ESCAPE and action != "toggle_match_menu"):
+	if (
+		key in RESERVED
+		or (key == KEY_TAB and action != "cycle_subgroup")
+		or (key == KEY_ESCAPE and action != "toggle_match_menu")
+	):
 		return "This key is reserved for navigating or closing dialogs."
 	if (
 		(code & KEY_MASK_META and key in [KEY_Q, KEY_W, KEY_M, KEY_H])

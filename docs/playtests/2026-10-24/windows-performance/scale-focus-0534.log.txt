@@ -1,0 +1,21 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Vulkan 1.4.357 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4090
+
+FOCUS_GATE_READY pid=33152 title=Open RTS Benchmark focused=true
+FOCUS_GATE_START pid=33152 focused=true
+BENCHMARK avoidance_threads=false
+FOCUS_PHASE_BEGIN phase=movement focused=true
+SCALE BEGIN movement paused=false simulation_time=2.6
+SCALE movement renderer=Windows mean_frame_ms=27.08 p95_frame_ms=39.37 p99_frame_ms=48.3 frames_over_33ms=86 samples=370 simulation_seconds=10.03 wall_seconds=10.02 realtime=true baseline_field=false baseline_targets=false avg_sampled_1s_process_max_ms=25.67 avg_sampled_1s_physics_max_ms=17.54 physics_ticks=301 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false
+RENDER movement gpu_ms=6.82 render_cpu_ms=6.85 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=NVIDIA GeForce RTX 4090 rendered_frames=370
+TAIL movement max_frame_ms=60.76 frames_over_100ms=0
+FOCUS_PHASE_END phase=movement focused=true lost_focus_events=0 focus_valid=true
+FOCUS_PHASE_BEGIN phase=combat focused=true
+SCALE BEGIN combat paused=false simulation_time=12.6333333333333
+SCALE combat renderer=Windows mean_frame_ms=34.81 p95_frame_ms=43.92 p99_frame_ms=50.68 frames_over_33ms=164 samples=287 simulation_seconds=10.0 wall_seconds=9.99 realtime=true baseline_field=false baseline_targets=false avg_sampled_1s_process_max_ms=28.38 avg_sampled_1s_physics_max_ms=17.62 physics_ticks=300 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false
+RENDER combat gpu_ms=8.98 render_cpu_ms=8.07 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=NVIDIA GeForce RTX 4090 rendered_frames=287
+TAIL combat max_frame_ms=59.03 frames_over_100ms=0
+INPUT selected=24 samples=10 event_to_feedback_submit_mean_ms=36.59 p95_ms=47.53 maximum_population=true
+FOCUS_PHASE_END phase=combat focused=true lost_focus_events=0 focus_valid=true
+SCALE behaviors=true air_combat=false moved=200/200 travelled=200/200 fired=116 peak_live_projectiles=25 resources=62 sampled_peak_tracers=0 viewport_pixels=(1920.0, 1080.0)
+PASS: 200 mobile units + 80 structures; behaviors=true release=true failures=0

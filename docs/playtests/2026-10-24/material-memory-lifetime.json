@@ -1,0 +1,62 @@
+{
+  "finding": "RendererDummy queried a freed material RID when a restored fog-memory mesh was removed as the aircraft returned.",
+  "scope": "The original full landing scenario was clean in native Metal; the headless failure predates the current cache migration.",
+  "initial_pack_sha256": "8282e0c53cc07cee544fc1713334d46830af2874a3dce6a43af3748c364ad0ab",
+  "fix": [
+    "source/match/handlers/UnitVisibilityHandler.gd",
+    "source/match/saves/MatchRestore.gd"
+  ],
+  "behavior": "Both live and restored structure memories detach surface overrides during tree exit, before mesh deletion; no additional material retention.",
+  "before": [
+    "tmp/polish-initial-packaged/FixedWingSaveRegression.log",
+    "tmp/polish-fixed-wing-packed-repeat-1.log",
+    "tmp/polish-fixed-wing-packed-repeat-2.log",
+    "tmp/polish-fixed-wing-packed-repeat-3.log"
+  ],
+  "controls": [
+    "tmp/polish-fixed-wing-memory-headless-release.log",
+    "tmp/polish-fixed-wing-memory-headless-disabled.log",
+    "tmp/polish-fixed-wing-memory-native-original.log"
+  ],
+  "checks": [
+    {
+      "name": "FixedWingSaveRegression",
+      "repeat_count": 3,
+      "passed": true,
+      "logs": [
+        "tmp/polish-memory-fix/fixed-wing-1.log",
+        "tmp/polish-memory-fix/fixed-wing-2.log",
+        "tmp/polish-memory-fix/fixed-wing-3.log"
+      ]
+    },
+    {
+      "name": "SaveRestoreEdges",
+      "passed": true,
+      "log": "tmp/polish-memory-fix/save-restore-edges.log"
+    },
+    {
+      "name": "ConstructionStyleRegression",
+      "passed": true,
+      "log": "tmp/polish-memory-fix/construction-memory.log"
+    },
+    {
+      "name": "Native Metal full landing",
+      "passed": true,
+      "seconds": 60.11,
+      "log": "tmp/polish-memory-fix/native-fixed-wing.log",
+      "passed_scope": "Landing, memory removal, and material/render/script error checks; this direct-quit fixture retains known audio shutdown objects.",
+      "shutdown_warnings": {
+        "objectdb_objects": 10,
+        "resources": 4,
+        "classification": "Known direct-quit fixture audio teardown; native production Cmd-Q checked separately."
+      }
+    }
+  ],
+  "production_menu_shutdown": {
+    "passed": true,
+    "warnings": 0,
+    "errors": 0,
+    "log": "tmp/polish-final-native-menu-quit.log",
+    "artifact": "Initial normal release pack; repeat after final rebuild."
+  }
+}

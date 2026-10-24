@@ -10,6 +10,17 @@ const Repairs = preload("res://source/match/combat/RepairService.gd")
 const Recover = preload("res://source/match/units/actions/RecoveringAtService.gd")
 const Behavior = preload("res://source/match/orders/UnitBehavior.gd")
 const COMMANDS = {
+	"patrol":
+	{
+		"title": "Patrol",
+		"action": "patrol_order",
+		"description":
+		(
+			"Patrol between the starting point and a destination, engaging enemies en route. "
+			+ "Fixed-wing aircraft patrol the destination. Continues until stopped or replaced; "
+			+ "Skip advances queued orders."
+		)
+	},
 	"follow": {"title": "Follow", "action": "", "description": "Follow a friendly unit."},
 	"guard": {"title": "Guard", "action": "", "description": "Move to a position and defend it."},
 	"move":
@@ -54,7 +65,7 @@ func eligible(command):
 				and unit.movement_speed > 0
 			)
 	)
-	if command in ["move", "guard", "follow"]:
+	if command in ["move", "guard", "follow", "patrol"]:
 		return mobile
 	var armed = mobile.filter(func(unit): return unit.attack_range != null)
 	# A mixed army advances its selected scouts, engineers and repair support
@@ -72,7 +83,7 @@ func arm(command):
 		hud.show_notice(
 			(
 				"Select mobile units."
-				if command in ["move", "guard", "follow"]
+				if command in ["move", "guard", "follow", "patrol"]
 				else "Select armed mobile units."
 			)
 		)
@@ -358,7 +369,9 @@ func commit(point, target, append):
 		]:
 			var members = units.filter(func(unit): return unit.movement_domain == domain)
 			for pair in Utils.Match.Unit.Movement.crowd_moved_to_new_pivot(members, point):
-				var order_kind = "move" if pair[0].attack_range == null or kind == "guard" else kind
+				var order_kind = kind
+				if kind == "guard" or (kind == "attack_move" and pair[0].attack_range == null):
+					order_kind = "move"
 				orders.append([pair[0], Orders.point_order(order_kind, pair[1])])
 	var accepted = 0
 	for pair in orders:

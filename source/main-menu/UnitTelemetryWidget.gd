@@ -304,7 +304,9 @@ func _draw_viewport_hud(overlay: Control):
 	overlay.draw_line(Vector2(s.x - 2, s.y - 2), Vector2(s.x - 2 - bl, s.y - 2), line_col, 1.0)
 	overlay.draw_line(Vector2(s.x - 2, s.y - 2), Vector2(s.x - 2, s.y - 2 - bl), line_col, 1.0)
 
-	# Center crosshair tick
+	# Open target brackets keep the model visible at the center.
 	var c = s * 0.5
-	overlay.draw_line(Vector2(c.x - 6, c.y), Vector2(c.x + 6, c.y), Color("d8a84644"), 1.0)
-	overlay.draw_line(Vector2(c.x, c.y - 6), Vector2(c.x, c.y + 6), Color("d8a84644"), 1.0)
+	for corner in [Vector2(-1, -1), Vector2(1, -1), Vector2(1, 1), Vector2(-1, 1)]:
+		var point = c + corner * 7
+		overlay.draw_line(point, point - Vector2(corner.x * 4, 0), Color("d8a84644"), 1.0)
+		overlay.draw_line(point, point - Vector2(0, corner.y * 4), Color("d8a84644"), 1.0)

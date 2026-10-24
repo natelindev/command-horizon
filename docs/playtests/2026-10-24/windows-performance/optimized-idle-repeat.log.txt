@@ -1,0 +1,36 @@
+{
+    "SessionId":  1,
+    "FinishedUtc":  "2026-10-24T04:29:36.0254677Z",
+    "ExitCode":  0,
+    "Arguments":  [
+                      "--log-file",
+                      "C:\\Users\\Administrator\\AppData\\Local\\Temp\\OpenRTSPolish-20261024\\scale-optimized-idle-repeat.log",
+                      "--",
+                      "--behaviors",
+                      "--realtime",
+                      "--no-capture",
+                      "--input-latency"
+                  ],
+    "WindowHandle":  526516,
+    "StartedUtc":  "2026-10-24T04:29:05.9966439Z",
+    "Executable":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\OpenRTSPolish-20261024\\OpenRTSScale-optimized.exe",
+    "ProcessId":  27624,
+    "WindowTitle":  "Open RTS",
+    "Sha256":  "F290B00EB40EFA3BE15A30B9DF246D328E6E0D358A81AFE161865AD13AB613AD"
+}
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Vulkan 1.4.357 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4090
+
+BENCHMARK avoidance_threads=false
+SCALE BEGIN movement paused=false simulation_time=2.6
+SCALE movement renderer=Windows mean_frame_ms=26.7 p95_frame_ms=40.3 p99_frame_ms=52.39 frames_over_33ms=80 samples=375 simulation_seconds=10.03 wall_seconds=10.01 realtime=true baseline_field=false baseline_targets=false avg_sampled_1s_process_max_ms=23.98 avg_sampled_1s_physics_max_ms=18.94 physics_ticks=301 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false
+RENDER movement gpu_ms=3.61 render_cpu_ms=5.95 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=NVIDIA GeForce RTX 4090 rendered_frames=375
+TAIL movement max_frame_ms=66.59 frames_over_100ms=0
+SCALE BEGIN combat paused=false simulation_time=12.6333333333333
+SCALE combat renderer=Windows mean_frame_ms=34.73 p95_frame_ms=44.36 p99_frame_ms=50.63 frames_over_33ms=170 samples=288 simulation_seconds=10.0 wall_seconds=10.0 realtime=true baseline_field=false baseline_targets=false avg_sampled_1s_process_max_ms=26.85 avg_sampled_1s_physics_max_ms=17.33 physics_ticks=300 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false
+RENDER combat gpu_ms=6.08 render_cpu_ms=7.03 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=NVIDIA GeForce RTX 4090 rendered_frames=288
+TAIL combat max_frame_ms=58.44 frames_over_100ms=0
+INPUT selected=24 samples=10 event_to_feedback_submit_mean_ms=34.96 p95_ms=46.9 maximum_population=true
+SCALE behaviors=true air_combat=false moved=200/200 travelled=200/200 fired=113 peak_live_projectiles=21 resources=62 sampled_peak_tracers=0 viewport_pixels=(1920.0, 1080.0)
+PASS: 200 mobile units + 80 structures; behaviors=true release=true failures=0
+

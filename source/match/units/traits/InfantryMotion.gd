@@ -231,7 +231,8 @@ func advance(delta, distance, clock, gesture, recoil, aiming):
 	if carried != _posed_carry:
 		_posed_carry = carried
 		weapon.transform = carried
-	_pose_arms()
+		# Arms and grips share chest space; torso motion preserves this local solve.
+		_pose_arms()
 	# Standing still, the pelvis and boots are often unchanged: skip the leg solve.
 	if pelvis != _posed_pelvis or _feet != _posed_feet:
 		_posed_pelvis = pelvis

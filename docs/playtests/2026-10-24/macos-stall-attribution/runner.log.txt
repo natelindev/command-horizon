@@ -1,0 +1,233 @@
+import 0
+export 0
+codesign 0
+NATIVE_PID 68248 waiting gate
+SAMPLER_READY 68248 native focus must remain foreground
+FOCUS_GATE_READY pid=68248 title=Open RTS Mac Benchmark focused=false
+FOCUS_EVENT phase=waiting focused=true ticks_us=10551829
+FOCUS_GATE_START pid=68248 focused=true
+FOCUS_PHASE_BEGIN phase=base focused=true unix_ms=1792821709897
+WARMUP base frames=222 p95_ms=14.66 max_ms=15.84 frames_over_100ms=0
+GAMEPLAY base units=30 mean_ms=13.44 p95_ms=14.5 fps=74.4 simulation_seconds=3.19999999999999 wall_seconds=3.225003 viewport=(1920.0, 1080.0) pixels=(1920.0, 1080.0) gpu_ms=unavailable render_cpu_ms=1.06 adapter=Apple M1 Pro (Apple7) rendered_frames=240 physics_ticks=96 paused=false draw_calls=1536 primitives=1069020
+FOCUS_PHASE_END phase=base focused=true lost_focus_events=0 focus_valid=true unix_ms=1792821716137
+FOCUS_PHASE_BEGIN phase=midfield-combat focused=true unix_ms=1792821716477
+WARMUP midfield-combat frames=120 p95_ms=33.46 max_ms=1498.74 frames_over_100ms=1
+GAMEPLAY midfield-combat units=70 mean_ms=23.86 p95_ms=30.01 fps=41.9 simulation_seconds=5.73333333333331 wall_seconds=5.726291 viewport=(1920.0, 1080.0) pixels=(1920.0, 1080.0) gpu_ms=unavailable render_cpu_ms=4.09 adapter=Apple M1 Pro (Apple7) rendered_frames=240 physics_ticks=172 paused=false draw_calls=2328 primitives=1821479
+FOCUS_PHASE_END phase=midfield-combat focused=true lost_focus_events=0 focus_valid=true unix_ms=1792821726000
+FOCUS_PHASE_BEGIN phase=destruction-burst focused=true unix_ms=1792821726000
+BURST destroyed=8 wrecks=8
+WARMUP destruction-burst frames=120 p95_ms=39.12 max_ms=1048.34 frames_over_100ms=2
+GAMEPLAY destruction-burst units=62 mean_ms=28.61 p95_ms=36.62 fps=35.0 simulation_seconds=6.86666666666701 wall_seconds=6.865215 viewport=(1920.0, 1080.0) pixels=(1920.0, 1080.0) gpu_ms=unavailable render_cpu_ms=5.08 adapter=Apple M1 Pro (Apple7) rendered_frames=240 physics_ticks=206 paused=false draw_calls=2580 primitives=1815553
+FOCUS_PHASE_END phase=destruction-burst focused=true lost_focus_events=0 focus_valid=true unix_ms=1792821737782
+Battle benchmark: release=true failures=0
+DIAGNOSTIC_VALID True SOURCE_UNCHANGED True
+[
+  {
+    "phase": "base/warmup",
+    "pipelines": {
+      "canvas": 6,
+      "draw": 70,
+      "mesh": 30,
+      "specialization": 84,
+      "surface": 130
+    },
+    "ticks_us": 38493894,
+    "unix_ms": 1792821712907,
+    "frame_count": 222,
+    "max_frame_ms": 15.835,
+    "spikes_over_50ms": [],
+    "frames_over_100ms": 0
+  },
+  {
+    "phase": "base/steady",
+    "pipelines": {
+      "canvas": 6,
+      "draw": 70,
+      "mesh": 30,
+      "specialization": 84,
+      "surface": 130
+    },
+    "ticks_us": 41721301,
+    "unix_ms": 1792821716135,
+    "frame_count": 240,
+    "max_frame_ms": 15.559,
+    "spikes_over_50ms": [],
+    "frames_over_100ms": 0
+  },
+  {
+    "phase": "midfield-combat/warmup",
+    "pipelines": {
+      "canvas": 6,
+      "draw": 82,
+      "mesh": 32,
+      "specialization": 97,
+      "surface": 134
+    },
+    "ticks_us": 45851251,
+    "unix_ms": 1792821720265,
+    "frame_count": 120,
+    "max_frame_ms": 1498.735,
+    "spikes_over_50ms": [
+      {
+        "frame_ms": 1498.735,
+        "physics_ms": 7.744,
+        "pipeline_after": {
+          "canvas": 6,
+          "draw": 82,
+          "mesh": 32,
+          "specialization": 97,
+          "surface": 134
+        },
+        "pipeline_before": {
+          "canvas": 6,
+          "draw": 79,
+          "mesh": 32,
+          "specialization": 94,
+          "surface": 131
+        },
+        "render_cpu_ms": 1.69000005722046,
+        "simulation_time": 7.89999999999998,
+        "ticks_us": 43921992,
+        "unix_ms": 1792821718335
+      }
+    ],
+    "frames_over_100ms": 1
+  },
+  {
+    "phase": "midfield-combat/steady",
+    "pipelines": {
+      "canvas": 6,
+      "draw": 82,
+      "mesh": 32,
+      "specialization": 97,
+      "surface": 134
+    },
+    "ticks_us": 51580892,
+    "unix_ms": 1792821725994,
+    "frame_count": 240,
+    "max_frame_ms": 38.283,
+    "spikes_over_50ms": [],
+    "frames_over_100ms": 0
+  },
+  {
+    "phase": "destruction-burst/warmup",
+    "pipelines": {
+      "canvas": 6,
+      "draw": 89,
+      "mesh": 32,
+      "specialization": 106,
+      "surface": 139
+    },
+    "ticks_us": 56492501,
+    "unix_ms": 1792821730906,
+    "frame_count": 120,
+    "max_frame_ms": 1049.266,
+    "spikes_over_50ms": [
+      {
+        "frame_ms": 1049.266,
+        "physics_ms": 13.348,
+        "pipeline_after": {
+          "canvas": 6,
+          "draw": 89,
+          "mesh": 32,
+          "specialization": 106,
+          "surface": 139
+        },
+        "pipeline_before": {
+          "canvas": 6,
+          "draw": 82,
+          "mesh": 32,
+          "specialization": 97,
+          "surface": 134
+        },
+        "render_cpu_ms": 5.42899990081787,
+        "simulation_time": 15.9,
+        "ticks_us": 52635469,
+        "unix_ms": 1792821727049
+      },
+      {
+        "frame_ms": 128.68,
+        "physics_ms": 13.348,
+        "pipeline_after": {
+          "canvas": 6,
+          "draw": 89,
+          "mesh": 32,
+          "specialization": 106,
+          "surface": 139
+        },
+        "pipeline_before": {
+          "canvas": 6,
+          "draw": 89,
+          "mesh": 32,
+          "specialization": 106,
+          "surface": 139
+        },
+        "render_cpu_ms": 1.63699996471405,
+        "simulation_time": 16.1666666666666,
+        "ticks_us": 52764149,
+        "unix_ms": 1792821727178
+      },
+      {
+        "frame_ms": 61.724,
+        "physics_ms": 26.119,
+        "pipeline_after": {
+          "canvas": 6,
+          "draw": 89,
+          "mesh": 32,
+          "specialization": 106,
+          "surface": 139
+        },
+        "pipeline_before": {
+          "canvas": 6,
+          "draw": 89,
+          "mesh": 32,
+          "specialization": 106,
+          "surface": 139
+        },
+        "render_cpu_ms": 896.718994140625,
+        "simulation_time": 16.3,
+        "ticks_us": 52825873,
+        "unix_ms": 1792821727239
+      },
+      {
+        "frame_ms": 57.082,
+        "physics_ms": 26.119,
+        "pipeline_after": {
+          "canvas": 6,
+          "draw": 89,
+          "mesh": 32,
+          "specialization": 106,
+          "surface": 139
+        },
+        "pipeline_before": {
+          "canvas": 6,
+          "draw": 89,
+          "mesh": 32,
+          "specialization": 106,
+          "surface": 139
+        },
+        "render_cpu_ms": 6.68599987030029,
+        "simulation_time": 16.5333333333333,
+        "ticks_us": 53040695,
+        "unix_ms": 1792821727454
+      }
+    ],
+    "frames_over_100ms": 2
+  },
+  {
+    "phase": "destruction-burst/steady",
+    "pipelines": {
+      "canvas": 6,
+      "draw": 89,
+      "mesh": 32,
+      "specialization": 106,
+      "surface": 139
+    },
+    "ticks_us": 63361698,
+    "unix_ms": 1792821737775,
+    "frame_count": 240,
+    "max_frame_ms": 40.118,
+    "spikes_over_50ms": [],
+    "frames_over_100ms": 0
+  }
+]

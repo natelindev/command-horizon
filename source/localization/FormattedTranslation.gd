@@ -87,6 +87,8 @@ func _get_message(src_message: StringName, _context: StringName) -> StringName:
 		return "油"
 	if _context == "map_mercenary":
 		return "兵"
+	if _context == "map_repair":
+		return "修"
 	var direct = catalog.get_message(src_message)
 	if not direct.is_empty():
 		return direct

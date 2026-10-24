@@ -3,6 +3,12 @@ extends "res://tests/headless/ScaleBenchmark.gd"
 # Run without --fixed-fps, with -- --behaviors --realtime --no-capture.
 var _gpu_samples = []
 var _render_cpu_samples = []
+var _spike_diagnostics = "--diagnostic-frame-spikes" in OS.get_cmdline_user_args()
+var _sample_label = ""
+var _sample_started_at = 0
+var _previous_sample_at = 0
+var _previous_pipelines = {}
+var _spikes = []
 
 
 func _run():
@@ -30,9 +36,20 @@ func _measure(label, frames):
 	var drawn = Engine.get_frames_drawn()
 	_gpu_samples.clear()
 	_render_cpu_samples.clear()
+	if _spike_diagnostics:
+		_sample_label = label
+		_sample_started_at = Time.get_ticks_usec()
+		_previous_sample_at = _sample_started_at
+		_previous_pipelines = _pipeline_counts()
+		_spikes.clear()
+		print("PIPELINES BEGIN ", label, " ", JSON.stringify(_previous_pipelines))
 	process_frame.connect(_sample_render)
 	await super(label, frames)
 	process_frame.disconnect(_sample_render)
+	if _spike_diagnostics:
+		for spike in _spikes:
+			print("FRAME_SPIKE ", JSON.stringify(spike))
+		print("PIPELINES END ", label, " ", JSON.stringify(_pipeline_counts()))
 	if Engine.get_frames_drawn() - drawn < _gpu_samples.size() - 10:
 		push_error("Scale benchmark window did not render its samples")
 		quit(1)
@@ -119,6 +136,63 @@ func _sample_render():
 	_render_cpu_samples.append(
 		RenderingServer.viewport_get_measured_render_time_cpu(root.get_viewport_rid())
 	)
+	if _spike_diagnostics:
+		_record_spike()
+
+
+func _record_spike():
+	var now = Time.get_ticks_usec()
+	var frame_ms = (now - _previous_sample_at) / 1000.0
+	var pipelines = _pipeline_counts()
+	if frame_ms > 50.0:
+		# Buffer diagnostics until the sample ends, so stdout cannot extend its next frame.
+		(
+			_spikes
+			. append(
+				{
+					"phase": _sample_label,
+					"elapsed_s": (now - _sample_started_at) / 1000000.0,
+					"frame_ms": frame_ms,
+					"simulation_s": _game.simulation_time,
+					"pipelines_before": _previous_pipelines,
+					"pipelines_after": pipelines,
+					"render_cpu_ms": _render_cpu_samples[-1],
+					"gpu_ms": _gpu_samples[-1],
+					"sampled_1s_physics_max_ms":
+					Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0,
+					"sampled_1s_navigation_max_ms":
+					Performance.get_monitor(Performance.TIME_NAVIGATION_PROCESS) * 1000.0,
+					"live_projectiles": _game.projectile_system.round_count(),
+				}
+			)
+		)
+	_previous_sample_at = now
+	_previous_pipelines = pipelines
+
+
+func _pipeline_counts():
+	return {
+		"canvas":
+		RenderingServer.get_rendering_info(
+			RenderingServer.RENDERING_INFO_PIPELINE_COMPILATIONS_CANVAS
+		),
+		"mesh":
+		RenderingServer.get_rendering_info(
+			RenderingServer.RENDERING_INFO_PIPELINE_COMPILATIONS_MESH
+		),
+		"surface":
+		RenderingServer.get_rendering_info(
+			RenderingServer.RENDERING_INFO_PIPELINE_COMPILATIONS_SURFACE
+		),
+		"draw":
+		RenderingServer.get_rendering_info(
+			RenderingServer.RENDERING_INFO_PIPELINE_COMPILATIONS_DRAW
+		),
+		"specialization":
+		RenderingServer.get_rendering_info(
+			RenderingServer.RENDERING_INFO_PIPELINE_COMPILATIONS_SPECIALIZATION
+		),
+	}
 
 
 func _mean(samples):

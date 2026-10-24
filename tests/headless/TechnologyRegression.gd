@@ -311,6 +311,35 @@ func _service():
 		is_equal_approx(tank.hp - health, ordinary * 1.25),
 		"Field service did not change actual healing"
 	)
+	var upgraded = tank.hp - health
+	var normal_power = human.production_factor()
+	_check(normal_power == 1.0, "Service recovery fixture needs full power initially")
+	var supplies = plan_units().filter(
+		func(unit): return unit.type in ["CommandCenter", "PowerPlant"] and unit.is_constructed()
+	)
+	for unit in supplies:
+		unit._construction_progress = .99
+	_check(human.production_factor() == .35, "Service low-power fixture still has full supply")
+	tank.hp = tank.hp_max * .3
+	health = tank.hp
+	paused = false
+	game.repair_service.service(1.0)
+	paused = true
+	_check(
+		is_equal_approx(tank.hp - health, upgraded * .35 / normal_power),
+		"Service retained a previous call's power supply"
+	)
+	for unit in supplies:
+		unit._construction_progress = 1.0
+	tank.hp = tank.hp_max * .3
+	health = tank.hp
+	paused = false
+	game.repair_service.service(1.0)
+	paused = true
+	_check(
+		is_equal_approx(tank.hp - health, upgraded),
+		"Service did not immediately recover when power returned"
+	)
 
 
 func _doctrine(faction):

@@ -1,0 +1,20 @@
+import AppKit
+import Foundation
+import Darwin
+
+let expected = pid_t(CommandLine.arguments[1])!
+let token = CommandLine.arguments[2]
+while kill(expected, 0) == 0 {
+    let front = NSWorkspace.shared.frontmostApplication
+    let owned = front?.processIdentifier == expected
+    let row: [String: Any] = ["unix_ms": Int64(Date().timeIntervalSince1970 * 1000),
+        "expected_pid": expected, "foreground_pid": front?.processIdentifier ?? -1,
+        "foreground_name": front?.localizedName ?? "", "owned": owned]
+    let data = try! JSONSerialization.data(withJSONObject: row, options: [.sortedKeys])
+    print(String(data: data, encoding: .utf8)!)
+    fflush(stdout)
+    if owned && !FileManager.default.fileExists(atPath: token) {
+        _ = FileManager.default.createFile(atPath: token, contents: Data(String(expected).utf8))
+    }
+    RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.25))
+}

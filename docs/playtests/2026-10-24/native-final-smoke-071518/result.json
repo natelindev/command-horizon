@@ -1,0 +1,153 @@
+{
+  "schema": "native-final-macos-smoke-v1",
+  "finished_utc": "2026-10-24T07:37:51.236003+00:00",
+  "complete": true,
+  "passed": true,
+  "method": "Native macOS app interactions through fresh full-path binding; screenshots inspected after each transition. The final production PCK was used byte-for-byte in a separate locally signed app copy with only the user-directory override.",
+  "app": "/Users/linlilu/godot-open-rts/build/polish-2026-10-24/native-final-smoke-071518/Open_RTS_Final_Smoke.app",
+  "process_id": 22257,
+  "original_release_artifacts": {
+    "pack": {
+      "path": "build/polish-2026-10-24/Open RTS.app/Contents/Resources/Open RTS.pck",
+      "sha256": "ef15fc2450e338191736d256723505e0b93712faaa1da37974317cfcb08a7b67",
+      "bytes": 181918208
+    },
+    "executable": {
+      "path": "build/polish-2026-10-24/Open RTS.app/Contents/MacOS/Open RTS",
+      "sha256": "d62caacfb01ca83733e3c1f49e34771b4c078debb6abea47a0cef78daffc4b1e",
+      "bytes": 170963648
+    },
+    "archive": {
+      "path": "build/polish-2026-10-24/Open_RTS_macOS.zip",
+      "sha256": "16961ddbe76125f8acc9cf103594dcefcb2a6e579874264cea307d355cd24147",
+      "bytes": 225931796
+    }
+  },
+  "isolated_pack": {
+    "path": "build/polish-2026-10-24/native-final-smoke-071518/Open_RTS_Final_Smoke.app/Contents/Resources/Open RTS.pck",
+    "sha256": "ef15fc2450e338191736d256723505e0b93712faaa1da37974317cfcb08a7b67",
+    "bytes": 181918208
+  },
+  "isolated_executable": {
+    "path": "build/polish-2026-10-24/native-final-smoke-071518/Open_RTS_Final_Smoke.app/Contents/MacOS/Open RTS",
+    "sha256": "9963d503b7fb7f48cf035910adea4ce2c2207da377036ac98de5b09ba55024be",
+    "bytes": 169617280
+  },
+  "isolation_preparation": {
+    "path": "docs/playtests/2026-10-24/native-final-smoke-071518/preparation.json",
+    "sha256": "04b9d44d6571493430f6bcc94bc065457e4db52b61ff14dd690865a5536adbd0",
+    "bytes": 17057
+  },
+  "isolation_proof_clean": true,
+  "user_data_directory": "/Users/linlilu/Library/Application Support/OpenRTSFinalSmoke-20261024-071518",
+  "preserved_real_user_files": 56,
+  "real_user_data_unchanged": true,
+  "original_artifacts_unchanged": true,
+  "copy_signature_valid": true,
+  "native_runtime_log": {
+    "path": "docs/playtests/2026-10-24/native-final-smoke-071518/native-game.log.txt",
+    "sha256": "8197055a997cbbcee8e1fbc3fdc96307d1c7634094183e00e220a186fb26a453",
+    "bytes": 143
+  },
+  "native_errors": [],
+  "native_warnings": [],
+  "checks": {
+    "main_to_skirmish_to_battle": true,
+    "f1_running_toggle": true,
+    "f1_paused_toggle": true,
+    "f5_quicksave": true,
+    "archive_selected_quicksave": true,
+    "confirm_load_restored_saved_time": true,
+    "restore_paused": true,
+    "resume_clock_advanced": true,
+    "command_q_closed_app": true,
+    "owned_process_absent": true
+  },
+  "save": {
+    "file": {
+      "path": "docs/playtests/2026-10-24/native-final-smoke-071518/native-quicksave.json.txt",
+      "sha256": "e4a1ce2700f2a457e296941637410484682ec04d89d8aec52885345ab2c42923",
+      "bytes": 71998
+    },
+    "envelope_schema": 1,
+    "snapshot_version": 19,
+    "payload_checksum_valid": true,
+    "simulation_time": 29.73333333333397,
+    "map": "res://source/match/maps/battlefields/DesertFrontierMap.tscn",
+    "unit_count": 19,
+    "resource_count": 84
+  },
+  "observations": [
+    {
+      "step": "main-menu",
+      "observed": "Open RTS main menu; Skirmish button visible."
+    },
+    {
+      "step": "skirmish-setup",
+      "observed": "Desert Frontier, 2 players; human Bastion, random AI faction, Normal difficulty, Standard starting forces."
+    },
+    {
+      "step": "start-battle",
+      "observed": "Start Battle completed the transition to a rendered native battle at 00:01; the Loading screen itself was too brief for the post-action capture."
+    },
+    {
+      "step": "f1-running",
+      "observed": "F1 showed diagnostics during active play at 00:10; F1 again hid it."
+    },
+    {
+      "step": "pause",
+      "observed": "Space changed the HUD to PAUSED at 00:29."
+    },
+    {
+      "step": "f1-paused",
+      "observed": "F1 showed diagnostics while the clock remained 00:29 PAUSED; another F1 hid it."
+    },
+    {
+      "step": "quicksave",
+      "observed": "Space resumed; F5 showed Battle saved \u00b7 Quicksave. The saved payload records 29.73333333333397 seconds."
+    },
+    {
+      "step": "battle-menu",
+      "observed": "Escape opened Battle Paused at 00:53."
+    },
+    {
+      "step": "archive",
+      "observed": "Save / Load battle opened Battle Archive; Load battle tab and Quicksave row showed Desert Frontier \u00b7 Bastion vs Bastion \u00b7 Normal AI \u00b7 00:29."
+    },
+    {
+      "step": "load-confirmation",
+      "observed": "Load selected showed Replace the current battle? Unsaved progress will be lost. Confirm load was used only for this newly created isolated test battle."
+    },
+    {
+      "step": "paused-restore",
+      "observed": "Confirm load returned to the battle with Battle loaded., 00:29 PAUSED, and the Resume control focused. This directly verifies rollback from the observed 00:53 state."
+    },
+    {
+      "step": "resume",
+      "observed": "Clicking Resume removed PAUSED and advanced the clock to 00:31."
+    },
+    {
+      "step": "native-quit",
+      "observed": "Command-Q returned the native App quit response; fresh app inventory marked Open_RTS_Final_Smoke isRunning=false; owned PID 22257 was absent."
+    }
+  ],
+  "limitations": [
+    {
+      "kind": "existing-diagnostic-layout",
+      "detail": "F1 toggles correctly in running and paused play, but the top FPS/CPU lines are occluded by the battle HUD rail. Lower diagnostic lines remain visible. Normal gameplay and archive controls passed. Source stayed frozen."
+    },
+    {
+      "kind": "exit-status",
+      "detail": "App launch was managed by the native application service, so no child-process exit status is claimed. Command-Q closure is verified by the App quit response, fresh inventory, absent owned PID, and clean native log."
+    },
+    {
+      "kind": "loading-capture",
+      "detail": "Start Battle completed successfully; the transient Loading screen was not separately captured by the post-action screenshot."
+    }
+  ],
+  "probe_harness_note": "Initial minimal proof pack omitted the empty global script class cache. Its directory assertion passed but it logged that packaging error. Added the empty cache and reran the same release proof cleanly; normal-game log is separate and clean.",
+  "gate_context": {
+    "packaged_suites_passed": 75,
+    "affected_suites_passed": 5
+  }
+}

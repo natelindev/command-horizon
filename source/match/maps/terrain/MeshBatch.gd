@@ -1,18 +1,20 @@
 extends RefCounted
 
+const Cache = preload("res://source/utils/RuntimeCache.gd")
+
 # Shared batching for repeated environment models: one merged mesh per model
 # (a surface per material) drawn through a MultiMesh keeps each cover type to
 # a few draw calls however many instances or source pieces it has.
 
 const ROOT = "res://assets/models/environment/%s.glb"
 const Vegetation = preload("res://source/match/maps/Vegetation.gd")
-static var _meshes = {}
 
 
 static func merged_mesh(asset: String, height: float) -> ArrayMesh:
+	var meshes = Cache.bucket("terrain_meshes")
 	var key = "%s@%.3f" % [asset, height]
-	if _meshes.has(key):
-		return _meshes[key]
+	if meshes.has(key):
+		return meshes[key]
 	var source = load(ROOT % asset).instantiate()
 	Vegetation.fit_height(source, height)
 	load("res://source/match/ObjectMaterials.gd").apply(source)
@@ -35,7 +37,7 @@ static func merged_mesh(asset: String, height: float) -> ArrayMesh:
 	for material in tools:
 		tools[material].commit(merged)
 	source.free()
-	_meshes[key] = merged
+	meshes[key] = merged
 	return merged
 
 

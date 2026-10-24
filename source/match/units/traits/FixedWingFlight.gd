@@ -26,7 +26,13 @@ const AIRSPACE_MARGIN = 6.0
 const OUTER_FIX = 7.0
 const NO_AIRFIELD_RETRY = 2.0
 
-@export var cruise_speed = 9.0
+@export var cruise_speed = 9.0:
+	get:
+		return (
+			cruise_speed * _unit.veterancy_speed_factor
+			if is_instance_valid(_unit)
+			else cruise_speed
+		)
 @export var stall_speed = 4.5
 @export var rotate_speed = 5.5
 @export var takeoff_acceleration = 3.2
@@ -632,10 +638,9 @@ func _valid_target(target):
 func _nearest_airfield(point, reach = INF):
 	var best = null
 	var best_distance = reach
-	for field in _unit.player.get_children():
+	for field in get_tree().get_nodes_in_group("airfields"):
 		if (
-			not field.is_in_group("units")
-			or field.type != "AircraftFactory"
+			field.player != _unit.player
 			or field.is_queued_for_deletion()
 			or not field.is_constructed()
 		):

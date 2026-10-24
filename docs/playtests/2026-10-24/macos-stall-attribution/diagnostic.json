@@ -1,0 +1,513 @@
+{
+  "schema": "macos-native-stall-attribution-v1",
+  "classification": "diagnostic_only_sampling_overhead",
+  "source_sha256": "2d1828f0142d3e1771b92ba33509335eed41928e3708459c63371453bb2103f5",
+  "cache_path": "/Users/linlilu/Library/Application Support/OpenRTSPolishMacStallAttribution-20261024-1",
+  "cache_existed_before_import": false,
+  "os_driver_cache_reset": false,
+  "production_edits": false,
+  "steps": [
+    {
+      "name": "import",
+      "command": [
+        "/Users/linlilu/godot-open-rts/tmp/tooling/godot-4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/tmp/godot-open-rts-polish-stall-attribution",
+        "--editor",
+        "--quit"
+      ],
+      "started_utc": "2026-10-24T06:00:54.392912+00:00",
+      "elapsed_seconds": 6.30842549999943,
+      "exit_code": 0,
+      "log": {
+        "path": "docs/playtests/2026-10-24/macos-stall-attribution/import.log.txt",
+        "sha256": "e940dd68da36d7e6840ff71ad489f8beb3a53153edfc40dce0350700a14bc67b"
+      }
+    },
+    {
+      "name": "export",
+      "command": [
+        "/Users/linlilu/godot-open-rts/tmp/tooling/godot-4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/tmp/godot-open-rts-polish-stall-attribution",
+        "--export-release",
+        "macOS",
+        "/Users/linlilu/godot-open-rts/build/polish-2026-10-24/stall-attribution/Open_RTS_Stall_Attribution.app"
+      ],
+      "started_utc": "2026-10-24T06:01:00.702467+00:00",
+      "elapsed_seconds": 10.7779512500274,
+      "exit_code": 0,
+      "log": {
+        "path": "docs/playtests/2026-10-24/macos-stall-attribution/export.log.txt",
+        "sha256": "b93a3f6b4838bdc6e6a5b9f9d1015dbac5c732ebc45fc5f2b1950e4b86076942"
+      }
+    },
+    {
+      "name": "codesign",
+      "command": [
+        "codesign",
+        "--verify",
+        "--deep",
+        "--strict",
+        "/Users/linlilu/godot-open-rts/build/polish-2026-10-24/stall-attribution/Open_RTS_Stall_Attribution.app"
+      ],
+      "started_utc": "2026-10-24T06:01:11.481753+00:00",
+      "elapsed_seconds": 0.24151795799843967,
+      "exit_code": 0,
+      "log": {
+        "path": "docs/playtests/2026-10-24/macos-stall-attribution/codesign.log.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "complete": true,
+  "project.godot": {
+    "path": "docs/playtests/2026-10-24/macos-stall-attribution/project.godot.txt",
+    "sha256": "272d434e044be927bd4fc5780bb3c8560817f817d4b1032d448328af75e081d3"
+  },
+  "ReleaseBattleBenchmark.gd": {
+    "path": "docs/playtests/2026-10-24/macos-stall-attribution/ReleaseBattleBenchmark.gd.txt",
+    "sha256": "c7d9342b6c44af61b1c892f3d18b3243d1f9b0ecb2b0d06676088c18c5d310da"
+  },
+  "BenchmarkBootstrap.tscn": {
+    "path": "docs/playtests/2026-10-24/macos-stall-attribution/BenchmarkBootstrap.tscn.txt",
+    "sha256": "a00e2490b6e2415936c8dfbdc87b2fe83334d90156dfd28b0a380d105a7459e9"
+  },
+  "native_focus_monitor": {
+    "path": "docs/playtests/2026-10-24/macos-stall-attribution/native-focus-monitor.swift.txt",
+    "sha256": "1b6669635d73dfba98ae593437838b0adab8865607b0144fb53316e4584bf2f7"
+  },
+  "artifact": {
+    "executable": "build/polish-2026-10-24/stall-attribution/Open_RTS_Stall_Attribution.app/Contents/MacOS/Open RTS",
+    "executable_sha256": "a1a38b611b0d2210cc3d3fb525c8cf7642f57bb8a40cc39712d4b9e28b131e95",
+    "pack": "build/polish-2026-10-24/stall-attribution/Open_RTS_Stall_Attribution.app/Contents/Resources/Open RTS.pck",
+    "pack_sha256": "02463d62fd23e193d8b0571d2b5583de288703ee72e00f328a44c8fec5e4dd01"
+  },
+  "source_unchanged_after_export": true,
+  "shader_cache_files_before_native": [],
+  "native_started_utc": "2026-10-24T06:01:12.497731+00:00",
+  "pid": 68248,
+  "sample_command": [
+    "/usr/bin/sample",
+    "68248",
+    "55",
+    "2",
+    "-mayDie",
+    "-file",
+    "/Users/linlilu/godot-open-rts/docs/playtests/2026-10-24/macos-stall-attribution/sample.txt"
+  ],
+  "sampling_started_utc": "2026-10-24T06:01:23.528098+00:00",
+  "sample_ready_utc": "2026-10-24T06:01:24.740772+00:00",
+  "native_exit_code": 0,
+  "sample_exit_code": 0,
+  "native_ended_utc": "2026-10-24T06:02:19.170007+00:00",
+  "native_log": {
+    "path": "docs/playtests/2026-10-24/macos-stall-attribution/native-run.log.txt",
+    "sha256": "36995bac4e2a8fa2eb3eb3bd004c147ad4ac0825ace6b7358d35b5f3ecf86fb7"
+  },
+  "native_focus_log": {
+    "path": "docs/playtests/2026-10-24/macos-stall-attribution/native-focus.jsonl",
+    "sha256": "cc2672c6086d20c0c8e2bc18fa9210e5c84a57c3dfca17295e9fcb9956baa5e2"
+  },
+  "sample_log": {
+    "path": "docs/playtests/2026-10-24/macos-stall-attribution/sample-command.log.txt",
+    "sha256": "fe3e308987432c2f285fe3c2cc6808cec245ed6b78e385f8667453b10a420fc2"
+  },
+  "sample": {
+    "path": "docs/playtests/2026-10-24/macos-stall-attribution/sample.txt",
+    "sha256": "2e89a7e3beffa0dcb06ebc11e29a51883a6b97d0ba6703a1b008087fc1688898"
+  },
+  "native_focus_phases": [
+    {
+      "phase": "base",
+      "begin_unix_ms": 1792821709897,
+      "end_unix_ms": 1792821716137,
+      "native_sample_count": 24,
+      "all_native_samples_owned": true,
+      "wrapper_focus_valid": true
+    },
+    {
+      "phase": "midfield-combat",
+      "begin_unix_ms": 1792821716477,
+      "end_unix_ms": 1792821726000,
+      "native_sample_count": 35,
+      "all_native_samples_owned": true,
+      "wrapper_focus_valid": true
+    },
+    {
+      "phase": "destruction-burst",
+      "begin_unix_ms": 1792821726000,
+      "end_unix_ms": 1792821737782,
+      "native_sample_count": 46,
+      "all_native_samples_owned": true,
+      "wrapper_focus_valid": true
+    }
+  ],
+  "phase_summaries": [
+    {
+      "phase": "base/warmup",
+      "pipelines": {
+        "canvas": 6,
+        "draw": 70,
+        "mesh": 30,
+        "specialization": 84,
+        "surface": 130
+      },
+      "ticks_us": 38493894,
+      "unix_ms": 1792821712907,
+      "frame_count": 222,
+      "max_frame_ms": 15.835,
+      "spikes_over_50ms": [],
+      "frames_over_100ms": 0
+    },
+    {
+      "phase": "base/steady",
+      "pipelines": {
+        "canvas": 6,
+        "draw": 70,
+        "mesh": 30,
+        "specialization": 84,
+        "surface": 130
+      },
+      "ticks_us": 41721301,
+      "unix_ms": 1792821716135,
+      "frame_count": 240,
+      "max_frame_ms": 15.559,
+      "spikes_over_50ms": [],
+      "frames_over_100ms": 0
+    },
+    {
+      "phase": "midfield-combat/warmup",
+      "pipelines": {
+        "canvas": 6,
+        "draw": 82,
+        "mesh": 32,
+        "specialization": 97,
+        "surface": 134
+      },
+      "ticks_us": 45851251,
+      "unix_ms": 1792821720265,
+      "frame_count": 120,
+      "max_frame_ms": 1498.735,
+      "spikes_over_50ms": [
+        {
+          "frame_ms": 1498.735,
+          "physics_ms": 7.744,
+          "pipeline_after": {
+            "canvas": 6,
+            "draw": 82,
+            "mesh": 32,
+            "specialization": 97,
+            "surface": 134
+          },
+          "pipeline_before": {
+            "canvas": 6,
+            "draw": 79,
+            "mesh": 32,
+            "specialization": 94,
+            "surface": 131
+          },
+          "render_cpu_ms": 1.69000005722046,
+          "simulation_time": 7.89999999999998,
+          "ticks_us": 43921992,
+          "unix_ms": 1792821718335
+        }
+      ],
+      "frames_over_100ms": 1
+    },
+    {
+      "phase": "midfield-combat/steady",
+      "pipelines": {
+        "canvas": 6,
+        "draw": 82,
+        "mesh": 32,
+        "specialization": 97,
+        "surface": 134
+      },
+      "ticks_us": 51580892,
+      "unix_ms": 1792821725994,
+      "frame_count": 240,
+      "max_frame_ms": 38.283,
+      "spikes_over_50ms": [],
+      "frames_over_100ms": 0
+    },
+    {
+      "phase": "destruction-burst/warmup",
+      "pipelines": {
+        "canvas": 6,
+        "draw": 89,
+        "mesh": 32,
+        "specialization": 106,
+        "surface": 139
+      },
+      "ticks_us": 56492501,
+      "unix_ms": 1792821730906,
+      "frame_count": 120,
+      "max_frame_ms": 1049.266,
+      "spikes_over_50ms": [
+        {
+          "frame_ms": 1049.266,
+          "physics_ms": 13.348,
+          "pipeline_after": {
+            "canvas": 6,
+            "draw": 89,
+            "mesh": 32,
+            "specialization": 106,
+            "surface": 139
+          },
+          "pipeline_before": {
+            "canvas": 6,
+            "draw": 82,
+            "mesh": 32,
+            "specialization": 97,
+            "surface": 134
+          },
+          "render_cpu_ms": 5.42899990081787,
+          "simulation_time": 15.9,
+          "ticks_us": 52635469,
+          "unix_ms": 1792821727049
+        },
+        {
+          "frame_ms": 128.68,
+          "physics_ms": 13.348,
+          "pipeline_after": {
+            "canvas": 6,
+            "draw": 89,
+            "mesh": 32,
+            "specialization": 106,
+            "surface": 139
+          },
+          "pipeline_before": {
+            "canvas": 6,
+            "draw": 89,
+            "mesh": 32,
+            "specialization": 106,
+            "surface": 139
+          },
+          "render_cpu_ms": 1.63699996471405,
+          "simulation_time": 16.1666666666666,
+          "ticks_us": 52764149,
+          "unix_ms": 1792821727178
+        },
+        {
+          "frame_ms": 61.724,
+          "physics_ms": 26.119,
+          "pipeline_after": {
+            "canvas": 6,
+            "draw": 89,
+            "mesh": 32,
+            "specialization": 106,
+            "surface": 139
+          },
+          "pipeline_before": {
+            "canvas": 6,
+            "draw": 89,
+            "mesh": 32,
+            "specialization": 106,
+            "surface": 139
+          },
+          "render_cpu_ms": 896.718994140625,
+          "simulation_time": 16.3,
+          "ticks_us": 52825873,
+          "unix_ms": 1792821727239
+        },
+        {
+          "frame_ms": 57.082,
+          "physics_ms": 26.119,
+          "pipeline_after": {
+            "canvas": 6,
+            "draw": 89,
+            "mesh": 32,
+            "specialization": 106,
+            "surface": 139
+          },
+          "pipeline_before": {
+            "canvas": 6,
+            "draw": 89,
+            "mesh": 32,
+            "specialization": 106,
+            "surface": 139
+          },
+          "render_cpu_ms": 6.68599987030029,
+          "simulation_time": 16.5333333333333,
+          "ticks_us": 53040695,
+          "unix_ms": 1792821727454
+        }
+      ],
+      "frames_over_100ms": 2
+    },
+    {
+      "phase": "destruction-burst/steady",
+      "pipelines": {
+        "canvas": 6,
+        "draw": 89,
+        "mesh": 32,
+        "specialization": 106,
+        "surface": 139
+      },
+      "ticks_us": 63361698,
+      "unix_ms": 1792821737775,
+      "frame_count": 240,
+      "max_frame_ms": 40.118,
+      "spikes_over_50ms": [],
+      "frames_over_100ms": 0
+    }
+  ],
+  "source_unchanged": true,
+  "diagnostic_run_valid": true,
+  "warnings_errors": [],
+  "retained_helpers": [
+    {
+      "path": "docs/playtests/2026-10-24/macos-stall-attribution/runner.py.txt",
+      "sha256": "b214416f82312850f505c8163585154b032ad27f9bc174ac71d06b85dc6f4d53"
+    },
+    {
+      "path": "docs/playtests/2026-10-24/macos-stall-attribution/prepare-wrapper.py.txt",
+      "sha256": "731a437d9ebaaa06d4e5595aecbb845c110a987368de0bb554044e1075a20baf"
+    },
+    {
+      "path": "docs/playtests/2026-10-24/macos-stall-attribution/runner.log.txt",
+      "sha256": "4d764f6cd11890a280092cf8de20e99bf750d144ae50e1b2b788308169a5f2b7"
+    }
+  ],
+  "shader_cache_after": {
+    "file_count": 117,
+    "bytes": 9753068,
+    "manifest": "docs/playtests/2026-10-24/macos-stall-attribution/shader-cache-manifest.json",
+    "manifest_sha256": "953758d679524a602da832bb9f2389f0adb9c13820ffdf0ae22870591d9f0151"
+  },
+  "sample_excerpt": {
+    "path": "docs/playtests/2026-10-24/macos-stall-attribution/sample-evidence.txt",
+    "sha256": "ade1742eab5b544b9ab8ca6edd82e1fa28cccf27064921d2ed806b2c5747eee2"
+  },
+  "assessment": {
+    "finding": "The diagnostic reproduced first-use stalls with native foreground ownership. Each long frame coincides new draw/surface pipelines and new shader-cache files. Decompressed MSL identifies the first-hit material overlay and battlefield-wear overlay/stamp during midfield, and explosion-shockwave shader during destruction. Together with Metal compiler-service activity this strongly supports first-use shader/pipeline preparation for those variants. Aggregate stripped-engine stacks cannot isolate the exact blocking call or divide GLSL/MSL/driver compilation time.",
+    "pipeline_spikes": [
+      {
+        "phase": "base/warmup",
+        "frames_over_100ms": 0,
+        "max_frame_ms": 15.835
+      },
+      {
+        "phase": "base/steady",
+        "frames_over_100ms": 0,
+        "max_frame_ms": 15.559
+      },
+      {
+        "phase": "midfield-combat/warmup",
+        "frames_over_100ms": 1,
+        "max_frame_ms": 1498.735
+      },
+      {
+        "phase": "midfield-combat/steady",
+        "frames_over_100ms": 0,
+        "max_frame_ms": 38.283
+      },
+      {
+        "phase": "destruction-burst/warmup",
+        "frames_over_100ms": 2,
+        "max_frame_ms": 1049.266
+      },
+      {
+        "phase": "destruction-burst/steady",
+        "frames_over_100ms": 0,
+        "max_frame_ms": 40.118
+      }
+    ],
+    "cache_creation_during_first_use": [
+      {
+        "relative_path": "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/24d1457b4a01f6e00871869a0d4bf455be906f7b.metal.cache",
+        "bytes": 152140,
+        "sha256": "561889683baf7aa05a75398285fc50bc1fd948de6cd62c7c271bed9754dbf33c",
+        "birth_unix_ms": 1792821716186.9836,
+        "birth_utc": "2026-10-24T06:01:56.186984+00:00"
+      },
+      {
+        "relative_path": "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/4834c4ba39a8a36e980eed6e8b13653dfb548da7.metal.cache",
+        "bytes": 152372,
+        "sha256": "c9e74c079cb35ad1003341937c176b2045897e33fd26b58681c4b2186d7a07be",
+        "birth_unix_ms": 1792821716903.4993,
+        "birth_utc": "2026-10-24T06:01:56.903499+00:00"
+      },
+      {
+        "relative_path": "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/520cf65275efef88d1f9c2339a28c14ad3f21134.metal.cache",
+        "bytes": 150452,
+        "sha256": "bb4700c0f19019d90ffcdfe89fb2bdfe80344c7bf9d2b1828068eb80689b495f",
+        "birth_unix_ms": 1792821716873.6323,
+        "birth_utc": "2026-10-24T06:01:56.873632+00:00"
+      },
+      {
+        "relative_path": "shader_cache/SceneForwardClusteredShaderRD/cdfe2a8d86deff48154b1cd0d6e857301f5e37f0d8930754f63ff9c2c85045a6/b95c72e6aae7e6f70d0fe445c9b8560591beb024.metal.cache",
+        "bytes": 153972,
+        "sha256": "a045b006e2622666d66a7773d9c4c7abe520c4ee7b62c35e2da31415dd1ebb88",
+        "birth_unix_ms": 1792821726069.6934,
+        "birth_utc": "2026-10-24T06:02:06.069693+00:00"
+      },
+      {
+        "relative_path": "shader_cache/TexBlitShaderRD/fd9c885eab1da0d330a04ebfd7796019cde57f82208202f3bfc96cae74155212/2faa5b2930530eb034c42639beb01bd720adc086.metal.cache",
+        "bytes": 14896,
+        "sha256": "cd78d9c0c113cd542267439804195f0d896aabec45f524d50b9a15ae2d2cbe70",
+        "birth_unix_ms": 1792821716861.8403,
+        "birth_utc": "2026-10-24T06:01:56.861840+00:00"
+      }
+    ],
+    "limitations": [
+      "Diagnostic only: all-thread sampling requests a nominal 2 ms interval and adds overhead; these are not acceptance frame times.",
+      "sample aggregates the full recording rather than preserving per-frame stacks; stripped engine frames cannot establish exact blocking ownership.",
+      "Godot user shader cache was empty before this native launch; operating-system/driver caches were left intact. No claim of universally cold GPU state.",
+      "The second destruction frame over 100 ms has unchanged pipeline counters; simulation catch-up is plausible but unproved.",
+      "Per-viewport render CPU measurements are delayed: a later 61.724 ms frame reports 896.719 ms render CPU. Do not align that value directly to the same wall interval.",
+      "No production fix or speculative prewarm was applied. No additional graphical rerun was performed after this bounded trace."
+    ],
+    "native_evidence": {
+      "all_phase_samples_owned": true,
+      "phase_native_sample_counts": [
+        24,
+        35,
+        46
+      ],
+      "sampled_main_thread_condition_wait_samples": 340,
+      "metal_compiler_connection_queues_observed": 10,
+      "sample_clock_nominal_ms": 2
+    },
+    "runtime_creation_candidates": [
+      {
+        "path": "source/match/ObjectMaterials.gd:151",
+        "behavior": "Hit overlay ShaderMaterial is first created/applied when damage is shown."
+      },
+      {
+        "path": "source/match/effects/CombatEffects.gd:558",
+        "behavior": "Shockwave mesh plus screen/depth-reading shader are first instantiated by an explosion."
+      },
+      {
+        "path": "source/match/effects/CombatEffects.gd:484",
+        "behavior": "Wreck geometry is duplicated with a new standard-material override on death."
+      },
+      {
+        "path": "source/match/effects/BattleAftermath.gd:62",
+        "behavior": "Debris mesh instances use the shared metallic standard-material override on explosion."
+      }
+    ],
+    "primary_references": [
+      {
+        "url": "https://github.com/godotengine/godot-docs/blob/4.7/tutorials/performance/pipeline_compilations.rst",
+        "supports": "Draw and surface compilation during gameplay can cause first-use stalls. Hidden instancing can prepare dynamic effects; shader baking addresses initial shader translation rather than all pipeline stalls."
+      },
+      {
+        "url": "https://github.com/godotengine/godot/blob/4.7.2-stable/drivers/metal/rendering_device_driver_metal.cpp#L1558",
+        "supports": "Godot Metal pipeline_cache_create returns false in this pinned release; the user shader files are not a persistent Godot Metal pipeline archive."
+      },
+      {
+        "url": "https://github.com/godotengine/godot/blob/4.7.2-stable/drivers/metal/metal_objects_shared.cpp#L747",
+        "supports": "The immediate Metal library path uses asynchronous compilation and waits for completion when the library is requested."
+      }
+    ],
+    "recommended_next_action": "Retain the uncured first-use limitation and the complete evidence. Any later targeted prewarm change should identify and exercise actual effect/material/mesh variants, then validate first-use pipeline counts and wall-frame tails with a fresh isolated app cache. Avoid threshold relaxation or timing-only warm-up masking."
+  },
+  "decoded_cache_attribution": {
+    "path": "docs/playtests/2026-10-24/macos-stall-attribution/decoded-cache-attribution.json",
+    "sha256": "1511602edb3e044d33c2c7802124633b0e3459c329bc8b0ce5a7125f972835ac"
+  }
+}

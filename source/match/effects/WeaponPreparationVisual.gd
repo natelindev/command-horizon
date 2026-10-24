@@ -26,11 +26,12 @@ func _ready():
 	glow.emission_energy_multiplier = 2.0
 	_orb.material_override = glow
 	add_child(_orb)
-	_label = Label3D.new()
+	_label = load("res://source/match/debug/UnitInfoLabel.gd").new()
 	_label.position = Vector3(0, 2.45, 0)
 	_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	_label.font_size = 26
 	_label.pixel_size = 0.012
+	_label.refresh_requested.connect(refresh)
 	add_child(_label)
 	_unit.selected.connect(refresh)
 	_unit.deselected.connect(refresh)
@@ -56,13 +57,19 @@ func refresh():
 	_orb.visible = progress >= 0
 	_orb.global_position = _marker.global_position
 	_orb.scale = Vector3.ONE * (0.35 + maxf(0, progress) * 1.2) * (0.45 if _lock else 1.0)
-	# Squads of soldiers would crowd the view with labels; show theirs on selection.
-	_label.visible = progress >= 0 and (not _lock or _unit.is_in_group("selected_units"))
-	_label.text = ("LOCK %d%%" if _lock else "CHARGE %d%%") % roundi(maxf(progress, 0) * 100)
+	var show_info = _label.diagnostics_enabled()
+	if show_info:
+		# Keep selected-soldier filtering inside diagnostic mode as well.
+		_label.content_visible = (
+			progress >= 0 and (not _lock or _unit.is_in_group("selected_units"))
+		)
+		_label.text = ("LOCK %d%%" if _lock else "CHARGE %d%%") % roundi(maxf(progress, 0) * 100)
 	if not _feet.is_empty():
 		var setup = 1.0 - _unit.deployment_left / _unit.DEPLOY_SECONDS
 		for foot in _feet:
 			foot.scale.x = 0.1 + setup * 0.9
-		if progress < 0:
-			_label.visible = _unit.is_in_group("selected_units") or _unit.deployment_left > 0
+		if show_info and progress < 0:
+			_label.content_visible = (
+				_unit.is_in_group("selected_units") or _unit.deployment_left > 0
+			)
 			_label.text = "DEPLOY %.1f" % _unit.deployment_left if setup < 1 else "DEPLOYED"

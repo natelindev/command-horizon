@@ -18,6 +18,7 @@ const LINKS = {
 	"Moving": [[], [], []],
 	"MovingToUnit": [["_target_unit"], [], []],
 	"AttackMoving": [[], ["_shot"], []],
+	"Patrolling": [[], ["_shot"], []],
 	"AutoAttacking": [["_target_unit"], ["_shot"], []],
 	"AttackingWhileInRange": [["_target_unit"], [], ["_one_shot_timer", "_range_check_timer"]],
 	"WaitingForTargets": [[], ["_sub_action"], ["_timer"]],
@@ -108,7 +109,9 @@ func validate(data):
 			or side.command_left > 60
 		):
 			return _fail("Invalid player progression.")
-		if not Technology.valid_state(side.technology, side.coordination_unlocked):
+		if not Technology.valid_state(
+			side.technology, side.coordination_unlocked, side.coordination_left > 0
+		):
 			return _fail("Invalid technology research.")
 		if side.technology.active != "" and side.coordination_left > 0:
 			return _fail("Multiple active research projects.")
@@ -169,7 +172,7 @@ func validate(data):
 			not _shape(
 				unit,
 				(
-					"id:text player:text role:text position:vec rotation:vec hp:num "
+					"id:text player:text role:text position:vec rotation:vec hp:num experience:num "
 					+ "visual_seed:int weapon_left:num damage_age:maybenum construction:maybenum "
 					+ "cargo:dict action:dict orders:dict production:dict rally:dict "
 					+ "movement:dict groups:list selected:bool air:dict "
@@ -204,6 +207,19 @@ func validate(data):
 			if sides[unit.player].heroes > 1:
 				return _fail("Duplicate hero reservation.")
 		var building = unit.role in Catalog.STRUCTURES
+		if (
+			unit.experience > 600.0
+			or (
+				unit.experience > 0
+				and (
+					building
+					or not Rules.Units.DEFAULT_PROPERTIES[Catalog.scene_path(unit.role)].has(
+						"attack_damage"
+					)
+				)
+			)
+		):
+			return _fail("Invalid unit veterancy.")
 		if unit.stance not in [0, 1, 2, 3]:
 			return _fail("Invalid unit stance.")
 		if (
@@ -797,6 +813,8 @@ func _action(action, unit, depth):
 				"_defense_origin",
 				"_target_position",
 				"destination",
+				"origin",
+				"endpoint",
 				"_last_known_position",
 				"_progress_position",
 				"_last_known_target_unit_position",
@@ -959,6 +977,16 @@ func _action(action, unit, depth):
 
 
 func _action_state(kind, state):
+	if kind == "Patrolling":
+		if (
+			not _type(state.origin, "vec")
+			or not _position(state.origin)
+			or not _type(state.endpoint, "vec")
+			or not _position(state.endpoint)
+			or not _type(state.destination, "vec")
+			or state.destination not in [state.origin, state.endpoint]
+		):
+			return _fail("Invalid patrol route.")
 	if kind == "AirStation" and (not _type(state._point, "vec") or not state.sweep is bool):
 		return _fail("Invalid air station.")
 	if kind == "AirIdle" and (not _type(state._scan_left, "signed") or absf(state._scan_left) > 1):
@@ -1012,7 +1040,7 @@ func _action_state(kind, state):
 	):
 		return _fail("Invalid recovery progress.")
 
-	if kind in ["Moving", "AttackMoving"]:
+	if kind in ["Moving", "AttackMoving", "Patrolling"]:
 		if (
 			state._arrival_elapsed < 0
 			or state._arrival_elapsed > 2.0
@@ -1034,7 +1062,7 @@ func _order(order, unit):
 		return true
 	if order.get("kind") == "current":
 		return _shape(order, "kind:text")
-	if order.get("kind") in ["move", "attack_move"]:
+	if order.get("kind") in ["move", "attack_move", "patrol"]:
 		return _shape(order, "kind:text point:vec")
 	if (
 		order.get("kind")

@@ -1,0 +1,18 @@
+{
+  "problem": "IconRenderBooth referenced a ProjectileOrigin under the removed Kenney turret hierarchy.",
+  "fix": "Remove the unused orphan marker and the two stale turret editable paths; preserve the current model instances.",
+  "file": "source/utils/IconRenderBooth.tscn",
+  "verification": {
+    "original_warning_reproduced": true,
+    "current_scene_instantiated": true,
+    "anti_ground_model_present": true,
+    "anti_air_model_present": true,
+    "nodes_freed": true,
+    "post_fix_diagnostics": [],
+    "icons_rendered_or_written": false
+  },
+  "logs": {
+    "before": "tmp/polish-icon-booth-before.log",
+    "after": "tmp/polish-icon-booth-after.log"
+  }
+}

@@ -1,0 +1,527 @@
+{
+  "schema": "macos-isolated-prewarm-prototype-v1",
+  "classification": "diagnostic_only_sampling_overhead",
+  "source_sha256": "2d1828f0142d3e1771b92ba33509335eed41928e3708459c63371453bb2103f5",
+  "cache_path": "/Users/linlilu/Library/Application Support/OpenRTSPolishMacPrewarmPrototype-20261024-1",
+  "cache_existed_before_import": false,
+  "os_driver_cache_reset": false,
+  "production_edits": false,
+  "frozen_baseline_source": true,
+  "live_source_changes_excluded": true,
+  "assets_sha256": "2f7ce3be2639c0a816638d2f5a3a2b29f7895e324f0259e15a325672d0601336",
+  "steps": [
+    {
+      "name": "import",
+      "command": [
+        "/Users/linlilu/godot-open-rts/tmp/tooling/godot-4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/tmp/godot-open-rts-polish-stall-prewarm-prototype",
+        "--editor",
+        "--quit"
+      ],
+      "started_utc": "2026-10-24T06:15:53.226712+00:00",
+      "elapsed_seconds": 6.46580800000811,
+      "exit_code": 0,
+      "log": {
+        "path": "docs/playtests/2026-10-24/macos-prewarm-prototype/import.log.txt",
+        "sha256": "e940dd68da36d7e6840ff71ad489f8beb3a53153edfc40dce0350700a14bc67b"
+      }
+    },
+    {
+      "name": "export",
+      "command": [
+        "/Users/linlilu/godot-open-rts/tmp/tooling/godot-4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/tmp/godot-open-rts-polish-stall-prewarm-prototype",
+        "--export-release",
+        "macOS",
+        "/Users/linlilu/godot-open-rts/build/polish-2026-10-24/prewarm-prototype/Open_RTS_Prewarm_Prototype.app"
+      ],
+      "started_utc": "2026-10-24T06:15:59.693455+00:00",
+      "elapsed_seconds": 10.138427875004709,
+      "exit_code": 0,
+      "log": {
+        "path": "docs/playtests/2026-10-24/macos-prewarm-prototype/export.log.txt",
+        "sha256": "b93a3f6b4838bdc6e6a5b9f9d1015dbac5c732ebc45fc5f2b1950e4b86076942"
+      }
+    },
+    {
+      "name": "codesign",
+      "command": [
+        "codesign",
+        "--verify",
+        "--deep",
+        "--strict",
+        "/Users/linlilu/godot-open-rts/build/polish-2026-10-24/prewarm-prototype/Open_RTS_Prewarm_Prototype.app"
+      ],
+      "started_utc": "2026-10-24T06:16:09.833105+00:00",
+      "elapsed_seconds": 0.20531275001121685,
+      "exit_code": 0,
+      "log": {
+        "path": "docs/playtests/2026-10-24/macos-prewarm-prototype/codesign.log.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "complete": true,
+  "project.godot": {
+    "path": "docs/playtests/2026-10-24/macos-prewarm-prototype/project.godot.txt",
+    "sha256": "32045e8a1ce9cbe94df9411e0316604aa6876732b76b56bb2bf2e60eb24ea52a"
+  },
+  "ReleaseBattleBenchmark.gd": {
+    "path": "docs/playtests/2026-10-24/macos-prewarm-prototype/ReleaseBattleBenchmark.gd.txt",
+    "sha256": "75bc1a8f4576a7702ca68e5f8988ec3d5feec985a1c1a7bd9e886a69020236cc"
+  },
+  "BenchmarkBootstrap.tscn": {
+    "path": "docs/playtests/2026-10-24/macos-prewarm-prototype/BenchmarkBootstrap.tscn.txt",
+    "sha256": "a00e2490b6e2415936c8dfbdc87b2fe83334d90156dfd28b0a380d105a7459e9"
+  },
+  "native_focus_monitor": {
+    "path": "docs/playtests/2026-10-24/macos-prewarm-prototype/native-focus-monitor.swift.txt",
+    "sha256": "1b6669635d73dfba98ae593437838b0adab8865607b0144fb53316e4584bf2f7"
+  },
+  "artifact": {
+    "executable": "build/polish-2026-10-24/prewarm-prototype/Open_RTS_Prewarm_Prototype.app/Contents/MacOS/Open RTS",
+    "executable_sha256": "3bad40aa8181a2f30af23ad31fffcd859d80c5ebdeecf6b894441ba68cd69580",
+    "pack": "build/polish-2026-10-24/prewarm-prototype/Open_RTS_Prewarm_Prototype.app/Contents/Resources/Open RTS.pck",
+    "pack_sha256": "aa9ad31e12edabe8a26d23e5bc9f465005e4a26292dd09ff6d7f04063b7d886a"
+  },
+  "source_unchanged_after_export": true,
+  "shader_cache_files_before_native": [],
+  "native_started_utc": "2026-10-24T06:16:10.374958+00:00",
+  "pid": 80206,
+  "sample_command": [
+    "/usr/bin/sample",
+    "80206",
+    "65",
+    "2",
+    "-mayDie",
+    "-file",
+    "/Users/linlilu/godot-open-rts/docs/playtests/2026-10-24/macos-prewarm-prototype/sample.txt"
+  ],
+  "sampling_started_utc": "2026-10-24T06:16:14.337251+00:00",
+  "sample_ready_utc": "2026-10-24T06:16:14.505598+00:00",
+  "native_exit_code": 0,
+  "sample_exit_code": 0,
+  "native_ended_utc": "2026-10-24T06:16:46.718415+00:00",
+  "native_log": {
+    "path": "docs/playtests/2026-10-24/macos-prewarm-prototype/native-run.log.txt",
+    "sha256": "4ac599522a28e2e279b63a74a0e57db5a50bdd9fd6a56842b73da490b5cf624e"
+  },
+  "native_focus_log": {
+    "path": "docs/playtests/2026-10-24/macos-prewarm-prototype/native-focus.jsonl",
+    "sha256": "8e90a16659408cbac770947ab954e0b23a3810a8baff0c7307f5dbae66c71627"
+  },
+  "sample_log": {
+    "path": "docs/playtests/2026-10-24/macos-prewarm-prototype/sample-command.log.txt",
+    "sha256": "b4eb1822f867ffcbab147873f57127aec21f78c356f12f867efc325fdaaff105"
+  },
+  "sample": {
+    "path": "docs/playtests/2026-10-24/macos-prewarm-prototype/sample.txt",
+    "sha256": "553f86dbd637771adcc37c8653163f8d02cd1a66d55164333c3a0e6570dce03a"
+  },
+  "native_focus_phases": [
+    {
+      "phase": "base",
+      "begin_unix_ms": 1792822579939,
+      "end_unix_ms": 1792822586484,
+      "native_sample_count": 26,
+      "all_native_samples_owned": true,
+      "wrapper_focus_valid": true
+    },
+    {
+      "phase": "midfield-combat",
+      "begin_unix_ms": 1792822587120,
+      "end_unix_ms": 1792822595730,
+      "native_sample_count": 33,
+      "all_native_samples_owned": true,
+      "wrapper_focus_valid": true
+    },
+    {
+      "phase": "destruction-burst",
+      "begin_unix_ms": 1792822595730,
+      "end_unix_ms": 1792822605267,
+      "native_sample_count": 37,
+      "all_native_samples_owned": true,
+      "wrapper_focus_valid": true
+    }
+  ],
+  "phase_summaries": [
+    {
+      "phase": "base/warmup",
+      "pipelines": {
+        "canvas": 6,
+        "draw": 101,
+        "mesh": 30,
+        "specialization": 122,
+        "surface": 146
+      },
+      "ticks_us": 10369717,
+      "unix_ms": 1792822582951,
+      "frame_count": 208,
+      "max_frame_ms": 28.837,
+      "spikes_over_50ms": [],
+      "frames_over_100ms": 0
+    },
+    {
+      "phase": "base/steady",
+      "pipelines": {
+        "canvas": 6,
+        "draw": 101,
+        "mesh": 30,
+        "specialization": 122,
+        "surface": 146
+      },
+      "ticks_us": 13900300,
+      "unix_ms": 1792822586481,
+      "frame_count": 240,
+      "max_frame_ms": 21.157,
+      "spikes_over_50ms": [],
+      "frames_over_100ms": 0
+    },
+    {
+      "phase": "midfield-combat/warmup",
+      "pipelines": {
+        "canvas": 6,
+        "draw": 104,
+        "mesh": 30,
+        "specialization": 125,
+        "surface": 147
+      },
+      "ticks_us": 17550737,
+      "unix_ms": 1792822590132,
+      "frame_count": 132,
+      "max_frame_ms": 79.659,
+      "spikes_over_50ms": [
+        {
+          "frame_ms": 79.659,
+          "physics_ms": 6.525,
+          "pipeline_after": {
+            "canvas": 6,
+            "draw": 104,
+            "mesh": 30,
+            "specialization": 125,
+            "surface": 147
+          },
+          "pipeline_before": {
+            "canvas": 6,
+            "draw": 101,
+            "mesh": 30,
+            "specialization": 122,
+            "surface": 146
+          },
+          "render_cpu_ms": 0.995999991893768,
+          "simulation_time": 8.23333333333331,
+          "ticks_us": 14618699,
+          "unix_ms": 1792822587200
+        }
+      ],
+      "frames_over_100ms": 0
+    },
+    {
+      "phase": "midfield-combat/steady",
+      "pipelines": {
+        "canvas": 6,
+        "draw": 104,
+        "mesh": 30,
+        "specialization": 125,
+        "surface": 147
+      },
+      "ticks_us": 23144130,
+      "unix_ms": 1792822595726,
+      "frame_count": 240,
+      "max_frame_ms": 31.731,
+      "spikes_over_50ms": [],
+      "frames_over_100ms": 0
+    },
+    {
+      "phase": "destruction-burst/warmup",
+      "pipelines": {
+        "canvas": 6,
+        "draw": 104,
+        "mesh": 30,
+        "specialization": 125,
+        "surface": 147
+      },
+      "ticks_us": 26692839,
+      "unix_ms": 1792822599275,
+      "frame_count": 120,
+      "max_frame_ms": 46.581,
+      "spikes_over_50ms": [],
+      "frames_over_100ms": 0
+    },
+    {
+      "phase": "destruction-burst/steady",
+      "pipelines": {
+        "canvas": 6,
+        "draw": 104,
+        "mesh": 30,
+        "specialization": 125,
+        "surface": 147
+      },
+      "ticks_us": 32680718,
+      "unix_ms": 1792822605263,
+      "frame_count": 240,
+      "max_frame_ms": 40.16,
+      "spikes_over_50ms": [],
+      "frames_over_100ms": 0
+    }
+  ],
+  "source_unchanged": true,
+  "assets_unchanged": true,
+  "prewarm_results": [
+    {
+      "cosmetic_equal": true,
+      "draws": 4,
+      "elapsed_ms": 902.497,
+      "events": [
+        {
+          "draw": 1,
+          "pipelines": {
+            "canvas": 6,
+            "draw": 96,
+            "mesh": 30,
+            "specialization": 117,
+            "surface": 146
+          },
+          "ticks_us": 7247007
+        },
+        {
+          "draw": 2,
+          "pipelines": {
+            "canvas": 6,
+            "draw": 96,
+            "mesh": 30,
+            "specialization": 117,
+            "surface": 146
+          },
+          "ticks_us": 7271770
+        },
+        {
+          "draw": 3,
+          "pipelines": {
+            "canvas": 6,
+            "draw": 96,
+            "mesh": 30,
+            "specialization": 117,
+            "surface": 146
+          },
+          "ticks_us": 7285575
+        },
+        {
+          "draw": 4,
+          "pipelines": {
+            "canvas": 6,
+            "draw": 96,
+            "mesh": 30,
+            "specialization": 117,
+            "surface": 146
+          },
+          "ticks_us": 7303191
+        }
+      ],
+      "live_state": {
+        "aftermath_rng": 1637669732580359353,
+        "combat_rng": 2609997143016025745,
+        "cook_offs": 0,
+        "deaths": 0,
+        "free_hit_flashes": 0,
+        "free_tracers": 0,
+        "hit_flashes": 0,
+        "impacts": 0,
+        "projectile_rng": 4969522754228835404,
+        "rounds": 0,
+        "rounds_fired": 0,
+        "shockwaves": 0,
+        "shots": 0,
+        "simulation_time": 1.4,
+        "tracers": 0,
+        "unit_rng": {
+          "401998880524": 1586314740327801521,
+          "407115931499": -7841424699810808894,
+          "411545116616": 1177579933760132307,
+          "413373833226": -8250159506378478108,
+          "414917337164": 768845127192463093,
+          "418960646286": -8658894312946147322,
+          "427751907687": 360110320624793879,
+          "433758151159": -9067629119513816536,
+          "436845158928": -48624485942875335,
+          "440016052826": 8970380147628065866,
+          "445569311391": -457359292510544549,
+          "448824091352": 8561645341060396652,
+          "451776881432": -866094099078213763,
+          "453572043605": 8152910534492727438,
+          "455518200709": -1274828905645882977,
+          "457732793265": 7744175727925058224,
+          "460584920113": -1683563712213552191,
+          "461826434151": 7335440921357389010,
+          "462849844373": -2092298518781221405,
+          "463873254595": 6926706114789719796,
+          "465467090161": -2501033325348890619,
+          "469896275340": 6517971308222050582,
+          "474040247813": -2909768131916559833,
+          "476774934046": 6109236501654381368,
+          "479610283615": -3318502938484229047,
+          "482848286356": 5700501695086712154,
+          "485683635917": -3727237745051898261,
+          "488183441153": 5291766888519042940,
+          "489357846328": -4135972551619567475,
+          "491002013545": 4883032081951373726
+        },
+        "wrecks": 0
+      },
+      "mesh_layout_count": 28,
+      "node_count_after": 6691,
+      "node_count_before": 6691,
+      "pipelines_after": {
+        "canvas": 6,
+        "draw": 96,
+        "mesh": 30,
+        "specialization": 117,
+        "surface": 146
+      },
+      "pipelines_before": {
+        "canvas": 6,
+        "draw": 65,
+        "mesh": 30,
+        "specialization": 79,
+        "surface": 130
+      },
+      "snapshot_equal": true,
+      "stable_draws": 3,
+      "unix_ms": 1792822579937
+    }
+  ],
+  "diagnostic_run_valid": true,
+  "warnings_errors": [],
+  "retained_helpers": [
+    {
+      "path": "docs/playtests/2026-10-24/macos-prewarm-prototype/runner.py.txt",
+      "sha256": "d70f403455f521fb598858f9a650e9c39cbbcd39f132ab4bfabab5916e1170cf"
+    },
+    {
+      "path": "docs/playtests/2026-10-24/macos-prewarm-prototype/prepare-wrapper.py.txt",
+      "sha256": "e8b1882984922d1baab2c860072a611af0b8fa5f4a8489b03e121137b010e973"
+    },
+    {
+      "path": "docs/playtests/2026-10-24/macos-prewarm-prototype/runner.log.txt",
+      "sha256": "dfcecb3a0573bf623473743554ca21a646d8119f98c18210462532e9592a801b"
+    },
+    {
+      "path": "docs/playtests/2026-10-24/macos-prewarm-prototype/frozen-source-manifest.json",
+      "sha256": "80e373f202be299df294b29cb1c47dbb1eb3ecea42655fa25588bbfd9ed45315"
+    }
+  ],
+  "shader_cache_after": {
+    "file_count": 118,
+    "bytes": 9910080,
+    "manifest": "docs/playtests/2026-10-24/macos-prewarm-prototype/shader-cache-manifest.json",
+    "manifest_sha256": "7a9fdeba803b611bdd6046e56fe7b8dd938dddbe99434e008c09b1f617fce561"
+  },
+  "comparison_to_traced_baseline": {
+    "report": "docs/playtests/2026-10-24/macos-stall-attribution/diagnostic.json",
+    "sha256": "64ea3ad2f29d512898c9afbfef42155cc46fd321e30ebd831d2d7d0c484a6a84",
+    "same_frozen_runtime_source_sha256": true,
+    "same_sampler_nominal_interval_ms": 2,
+    "ordinary_fixture": "30 base, 70 combat, 62 after eight tank deaths; unchanged benchmark warm and steady sample counts",
+    "phases": [
+      {
+        "phase": "base/warmup",
+        "baseline_max_ms": 15.835,
+        "prototype_max_ms": 28.837,
+        "baseline_frames_over_100ms": 0,
+        "prototype_frames_over_100ms": 0
+      },
+      {
+        "phase": "base/steady",
+        "baseline_max_ms": 15.559,
+        "prototype_max_ms": 21.157,
+        "baseline_frames_over_100ms": 0,
+        "prototype_frames_over_100ms": 0
+      },
+      {
+        "phase": "midfield-combat/warmup",
+        "baseline_max_ms": 1498.735,
+        "prototype_max_ms": 79.659,
+        "baseline_frames_over_100ms": 1,
+        "prototype_frames_over_100ms": 0
+      },
+      {
+        "phase": "midfield-combat/steady",
+        "baseline_max_ms": 38.283,
+        "prototype_max_ms": 31.731,
+        "baseline_frames_over_100ms": 0,
+        "prototype_frames_over_100ms": 0
+      },
+      {
+        "phase": "destruction-burst/warmup",
+        "baseline_max_ms": 1049.266,
+        "prototype_max_ms": 46.581,
+        "baseline_frames_over_100ms": 2,
+        "prototype_frames_over_100ms": 0
+      },
+      {
+        "phase": "destruction-burst/steady",
+        "baseline_max_ms": 40.118,
+        "prototype_max_ms": 40.16,
+        "baseline_frames_over_100ms": 0,
+        "prototype_frames_over_100ms": 0
+      }
+    ]
+  },
+  "prewarm_native_focus": {
+    "sample_count": 3,
+    "all_owned": true
+  },
+  "prewarm_node_count_equal": true,
+  "known_first_use_variants": [
+    {
+      "shader": "source/shaders/3d/wear_stamp.gdshader",
+      "cache_sha256_identical": true,
+      "baseline_created_unix_ms": 1792821716861.8403,
+      "prototype_created_unix_ms": 1792822579163.5645,
+      "created_during_covered_prewarm": true
+    },
+    {
+      "shader": "source/shaders/3d/material_hit.gdshader",
+      "cache_sha256_identical": true,
+      "baseline_created_unix_ms": 1792821716873.6323,
+      "prototype_created_unix_ms": 1792822579217.6252,
+      "created_during_covered_prewarm": true
+    },
+    {
+      "shader": "source/shaders/3d/battlefield_wear.gdshader",
+      "cache_sha256_identical": true,
+      "baseline_created_unix_ms": 1792821716903.4993,
+      "prototype_created_unix_ms": 1792822579247.5415,
+      "created_during_covered_prewarm": true
+    },
+    {
+      "shader": "source/shaders/3d/explosion_shockwave.gdshader",
+      "cache_sha256_identical": true,
+      "baseline_created_unix_ms": 1792821726069.6934,
+      "prototype_created_unix_ms": 1792822579165.2913,
+      "created_during_covered_prewarm": true
+    }
+  ],
+  "assessment": {
+    "finding": "The isolated prototype shifts the identified hit-flash, battlefield-wear/stamp and shockwave variants into covered, paused setup. The traced ordinary fixture has no warm/steady frame above 100 ms; destruction has no new pipeline counts. Live save state, effect counters, random states and node count were unchanged after proxy cleanup.",
+    "production_integration_authorized": false,
+    "production_edits": false,
+    "setup_elapsed_ms": 902.497,
+    "setup_rendered_draws": 4,
+    "setup_stable_pipeline_draws": 3,
+    "shared_existing_mesh_layouts": 28,
+    "new_gameplay_units": 0,
+    "limitations": [
+      "This is a single isolated prototype, with nominal2ms sampling overhead. Results are attribution evidence, not final untraced acceptance timing.",
+      "Godot user shader cache was empty before native run; OS/driver caches were not reset, so before/after wall-time improvement is not a universally cold GPU comparison.",
+      "The prototype covers 28 already-loaded mesh layouts and may prepare more variants than a minimal production fix needs.",
+      "Live terrain material-overlay identity was protected by code isolation but not recorded directly in this first prototype; full paused snapshot including wear history and node counts match. Add direct identity and all aftermath/projectile-pool assertions in an eventual production regression.",
+      "The new movement/terrain CPU fixes were excluded via frozen source copies. Final integrated runtime requires separate verification."
+    ],
+    "recommended_production_scope": "After review, implement only the identified visual material preparation during a real covered/pause-safe match startup, retaining actual shader/effect fidelity and explicit cleanup; avoid using gameplay damage/death APIs or changing benchmark warm-up thresholds."
+  }
+}

@@ -1,4 +1,23 @@
+extends RefCounted
+
+const SCRIPT_PATH = "res://source/utils/Set.gd"
+
 var _data = {}
+
+
+static func from_array(array):
+	# Runtime lookup avoids a strong self-script reference in factory bytecode.
+	var a_set = load(SCRIPT_PATH).new()
+	a_set.merge(array)
+	return a_set
+
+
+static func subtracted(minuend, subtrahend):
+	var difference = load(SCRIPT_PATH).new()
+	for item in minuend.iterate():
+		if not subtrahend.has(item):
+			difference.add(item)
+	return difference
 
 
 func add(item):

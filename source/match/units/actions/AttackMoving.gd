@@ -31,7 +31,7 @@ func _process(delta):
 		return
 	if PointMovement.occupied_arrival(self, _movement, _unit, delta):
 		_movement.stop()
-		queue_free()
+		_arrived()
 
 
 func _physics_process(delta):
@@ -44,13 +44,15 @@ func _physics_process(delta):
 	if is_instance_valid(_shot) and not _shot.is_queued_for_deletion():
 		return
 	_shot = null
-	var target = _unit._match.battlefield.automatic_target(_unit)
+	var target = (
+		_unit._match.battlefield.automatic_target(_unit) if _unit.attack_range != null else null
+	)
 	if target != null:
 		_movement.stop()
 		_shot = Shooting.new(target)
 		add_child(_shot)
 	elif _unit.global_position_yless.distance_to(destination * Vector3(1, 0, 1)) < 1.0:
-		queue_free()
+		_arrived()
 	else:
 		_movement.move(destination)
 
@@ -59,7 +61,11 @@ func _on_movement_finished():
 	# Navigation may end at the reachable edge of an occupied destination.
 	# Stop retrying that same point and allow queued orders to continue.
 	if not is_instance_valid(_shot) or _shot.is_queued_for_deletion():
-		queue_free()
+		_arrived()
+
+
+func _arrived():
+	queue_free()
 
 
 func _exit_tree():

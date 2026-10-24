@@ -16,13 +16,14 @@ func _ready():
 	if not can_switch_weapon():
 		set_physics_process(false)
 		return
-	_mode_badge = Label3D.new()
+	_mode_badge = load("res://source/match/debug/UnitInfoLabel.gd").new()
 	_mode_badge.position = Vector3(0, 1.85, 0)
 	_mode_badge.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	_mode_badge.font = load("res://assets/fonts/NotoSansSC.ttf")
 	_mode_badge.font_size = 32
 	_mode_badge.pixel_size = 0.012
 	_mode_badge.no_depth_test = false
+	_mode_badge.refresh_requested.connect(_update_badge)
 	add_child(_mode_badge)
 	_update_badge()
 
@@ -51,6 +52,9 @@ func _physics_process(delta):
 			weapon_mode = pending_weapon_mode
 			pending_weapon_mode = ""
 			configure_weapon()
+	if not is_instance_valid(_mode_badge) or not _mode_badge.diagnostics_enabled():
+		_badge_elapsed = 0.0
+		return
 	_badge_elapsed += delta
 	if _badge_elapsed >= 0.1:
 		_badge_elapsed = 0
@@ -92,7 +96,7 @@ func weapon_status():
 
 
 func _update_badge():
-	if not is_instance_valid(_mode_badge):
+	if not is_instance_valid(_mode_badge) or not _mode_badge.diagnostics_enabled():
 		return
 	_mode_badge.text = (
 		(

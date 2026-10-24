@@ -1,8 +1,9 @@
 extends RefCounted
 
+const Cache = preload("res://source/utils/RuntimeCache.gd")
+
 const Factions = preload("res://source/match/FactionCatalog.gd")
 const LEGEND = "● Your forces   ▲ Opponent   ◆ Resources"
-static var _symbols = {}
 
 
 static func legend(game):
@@ -49,7 +50,8 @@ static func caption(unit, game):
 
 
 static func _symbol(shape):
-	if not _symbols.has(shape):
+	var symbols = Cache.bucket("ownership_symbols")
+	if not symbols.has(shape):
 		var geometry = {
 			"own": '<circle cx="0" cy="0" r="1" fill="white"/>',
 			"opponent": '<path d="M0,-1.15 L1,.8 L-1,.8 Z" fill="white"/>',
@@ -66,8 +68,8 @@ static func _symbol(shape):
 				)
 			)
 		)
-		_symbols[shape] = ImageTexture.create_from_image(image)
-	return _symbols[shape]
+		symbols[shape] = ImageTexture.create_from_image(image)
+	return symbols[shape]
 
 
 static func paint(canvas, point, shape, radius, tint):

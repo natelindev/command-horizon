@@ -22,7 +22,7 @@ TESTS = [
     "InfantryDeathGroundRegression", "InfantryMotionRegression",
     "TerrainGroundingRegression", "CombatRegression", "AntiAirPriorityRegression",
     "TechnologyRegression", "TechnologyAIRegression", "WeaponModeRegression",
-    "ResearchTilesRegression", "StructureActivityRegression",
+    "ResearchTilesRegression", "ResearchQueueRegression", "StructureActivityRegression",
     "PersistentCaptureRegression",
     "CampaignInteriorRegression", "HeroCampaignRegression", "SkirmishPickerRegression",
     "WorkerDistributionRegression", "CargoReturnRegression", "ResourceFieldRegression",
@@ -39,10 +39,17 @@ TESTS = [
     "AirSaveContinuityRegression", "RotorcraftCombatRegression", "FrontierCombatRegression",
     "AirfieldOperationsRegression", "GroundHeightAlignmentRegression", "GroundCrowdRecoveryRegression",
     "SkirmishBuildReadinessRegression",
-    "PresentationFeaturesRegression", "SettingsRegression",
+    "PresentationFeaturesRegression", "SettingsRegression", "UnitInfoTextRegression",
     "BattleHudProductionRegression", "BattleAftermathRegression",
     "MapPassageRegression", "ObjectMaterialsRegression", "RuntimeShutdownRegression",
     "EnvironmentEffectsRegression", "WaterFlowRegression", "WaterHybridRegression",
+    "StrategicPolishRegression", "MicroControlsRegression",
+    "GroundVehicleMotionRegression", "MixedArmyMovementRegression",
+    "CombatPresentationRegression", "CombatAudioRegression",
+    "EndgamePresentationRegression", "CommanderEliminationRegression",
+    "OpeningGuidanceRegression", "PlacementFeedbackRegression",
+    "DirectOrdersRegression", "KeyBindingsRegression", "SelectionRosterRegression",
+    "RallyRetargetRegression", "RallyControlsRegression", "LocalizationRegression",
 ]
 
 

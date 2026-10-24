@@ -1,0 +1,102 @@
+{
+  "status": "diagnostic_prototype_reviewed_production_guards_and_coverage_checks_required",
+  "reviewed_utc": "2026-10-24T06:19:42.730372+00:00",
+  "scope": "Independent read-only source review. No engine runs or production edits.",
+  "wrapper": {
+    "path": "/tmp/godot-open-rts-polish-stall-prewarm-prototype/ReleaseBattleBenchmark.gd",
+    "sha256": "75bc1a8f4576a7702ca68e5f8988ec3d5feec985a1c1a7bd9e886a69020236cc",
+    "archived_path": "docs/playtests/2026-10-24/macos-prewarm-prototype/ReleaseBattleBenchmark.gd.txt"
+  },
+  "source_files": [
+    {
+      "path": "source/match/effects/CombatEffects.gd",
+      "prototype_sha256": "e6af32a4aa11bd4ee5f05cdd939c26755335990c6b52af14bdd63360467e2eb4",
+      "matches_live_source_at_review": true
+    },
+    {
+      "path": "source/match/effects/BattleAftermath.gd",
+      "prototype_sha256": "d27faac8b78fbbb7b467af69d420203bb3ccde82b38781ac3547316f903da4c0",
+      "matches_live_source_at_review": true
+    },
+    {
+      "path": "source/match/effects/ProjectileRenderer.gd",
+      "prototype_sha256": "0668b3ab1f5ae4ed5c995ded1afa1a6f5a9f7770916b134ef8e1b599e37d5e82",
+      "matches_live_source_at_review": true
+    },
+    {
+      "path": "source/match/effects/BattlefieldWear.gd",
+      "prototype_sha256": "3dcee233198c3b02fd9366a5fa4ad8cb42908c901a474e04d87b1d7eccf4473e",
+      "matches_live_source_at_review": true
+    },
+    {
+      "path": "source/match/ObjectMaterials.gd",
+      "prototype_sha256": "c7b4799c12ec940403d5c6b2ef9631bd2e801fb42d0425bf0fe7cb3011176bbf",
+      "matches_live_source_at_review": true
+    },
+    {
+      "path": "tests/rendered/BattleFrameBenchmark.gd",
+      "prototype_sha256": "b0cf672f9d25be54aaaf75b163ef2cb6cba28d8a0a767a27e87c9234a03da54a",
+      "matches_live_source_at_review": true
+    }
+  ],
+  "state_and_resource_findings": [
+    {
+      "topic": "RNG",
+      "finding": "Invoked random draws are in the newly constructed disposable BattleAftermath instance. CombatEffects and BattleAftermath initialize instance-owned RandomNumberGenerator seeds. The wrapper does not invoke live shot/impact/death/death_motion entry points or global rand functions."
+    },
+    {
+      "topic": "Gameplay state",
+      "finding": "The scene tree is paused before construction. Disposable renderers do not allocate live projectile rounds. burst(point, strength, false) avoids the scar route to game.battlefield_wear; created rigid bodies are frozen before the next await and collide only with terrain."
+    },
+    {
+      "topic": "Shared meshes/materials",
+      "finding": "Proxy mesh and base material references are read/shared without setters on those resources. Wreck StandardMaterial3D, hit ShaderMaterial, effect materials and projectile pools are newly allocated; hit overlay writes affect proxy instances only."
+    },
+    {
+      "topic": "Terrain wear",
+      "finding": "The disposable wear _create_texture method initially binds the live terrain but does not assign its material_overlay. The synchronous wrapper redirects _terrain to terrain_proxy before _paint; resulting overlay and texture marks belong to the proxy/disposable wear."
+    },
+    {
+      "topic": "Existing runtime evidence",
+      "finding": "The archived prototype run reports equal save snapshots, equal captured live counters/RNG states and identical node count 6691 before/after. These checks support the exercised fresh-start scenario, not every options or restore state."
+    }
+  ],
+  "concrete_required_guard": {
+    "wrapper_lines": [
+      378,
+      379
+    ],
+    "condition": "Globals.options.reduced_flashes == true",
+    "issue": "CombatEffects._shockwave returns without adding a node, but the wrapper unconditionally indexes spare._shockwaves[0].",
+    "recommendation": "Skip this optional variant or check that the pool is nonempty before setting progress; do not alter the user preference to force it."
+  },
+  "variant_coverage": [
+    {
+      "target": "Particle emitters",
+      "assessment": "Uses the same CombatEffects factory for all eight emitters, including GPU debris. Emits with each factory mesh/shader/process material and enables processing while paused."
+    },
+    {
+      "target": "Instant tracer, shockwave, debris/light",
+      "assessment": "Uses the same factories and same shader/material flags. Shockwave coverage is renderer/settings conditional; debris uses the disposable aftermath and ground_hit=false."
+    },
+    {
+      "target": "Projectile variants",
+      "assessment": "Creates the actual ProjectileRenderer pools and draws one instance from all six visual kinds; exact MultiMesh color/interpolation and lit/unshaded factory variants are retained without a gameplay round."
+    },
+    {
+      "target": "Wear blit and overlay",
+      "assessment": "Creates the same two stamp kinds and terrain-overlay shader; actual overlay drawing still respects battlefield_wear and graphics_ground_detail options."
+    },
+    {
+      "target": "Hit flash and wreck geometry",
+      "assessment": "Uses exact hit-flash shader and wreck StandardMaterial3D flags on representatives of currently loaded MeshInstance3D classes/surface-format lists. This is bounded coverage: the dedup key does not include primitive topology, shadow state, winding, skin/blend flags, per-surface overrides or MultiMesh instance mode. Only the initial 30-unit fixture is present before the later 40 combat units spawn."
+    }
+  ],
+  "remaining_validation": [
+    "For production promotion, assert live terrain overlay identity and live material resource/property fingerprints before and after, in addition to snapshot/counter equality.",
+    "Exercise reduced flashes and disabled wear/ground detail; verify no invalid indexing and restore the original paused state.",
+    "Define the intended vertex/instance/shadow variants and ensure dedup keys cover the properties that select those pipelines; do not claim all-faction or all-later-unit coverage from this fixture.",
+    "The recorded later combat warm-up still compiled 3 draw, 1 surface and 3 specialization pipelines in a 79.659 ms frame. The prototype substantially reduced observed long tails but did not eliminate every first-use compilation."
+  ],
+  "performance_limit": "One isolated native foreground diagnostic with OS/driver caches unreset supports further controlled implementation and measurement; it is not a production acceptance result."
+}

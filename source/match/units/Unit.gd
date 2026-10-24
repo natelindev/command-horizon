@@ -6,11 +6,32 @@ signal hp_changed
 signal action_changed(new_action)
 signal action_updated
 signal stance_changed(new_stance)
+signal veterancy_changed
 
 enum Stance { AGGRESSIVE, DEFENSIVE, HOLD_POSITION, HOLD_FIRE }
 
 const MATERIAL_ALBEDO_TO_REPLACE = Color(0.99, 0.81, 0.48)
 const MATERIAL_ALBEDO_TO_REPLACE_EPSILON = 0.05
+const Veterancy = preload("res://source/match/combat/Veterancy.gd")
+
+var experience = 0.0:
+	set(value):
+		var previous_rank = veterancy_rank
+		experience = clampf(value, 0.0, Veterancy.MAX_EXPERIENCE) if is_finite(value) else 0.0
+		_veterancy_rank = Veterancy.rank_for(experience)
+		if veterancy_rank != previous_rank:
+			veterancy_speed_factor = Veterancy.speed_factor(_veterancy_rank)
+			veterancy_reload_factor = Veterancy.reload_factor(_veterancy_rank)
+			var badge = get_node_or_null("VeteranBadge")
+			if badge != null:
+				badge.refresh()
+			veterancy_changed.emit()
+var veterancy_rank:
+	get:
+		return _veterancy_rank
+# Derived only from experience; movement and weapon queries read them directly.
+var veterancy_speed_factor: float = 1.0
+var veterancy_reload_factor: float = 1.0
 
 var stance = Stance.AGGRESSIVE:
 	set = _set_stance
@@ -22,7 +43,9 @@ var hp_max = null:
 	set = _set_hp_max
 var last_enemy_damage_time = -INF
 var attack_damage = null
-var attack_interval = null
+var attack_interval = null:
+	get:
+		return attack_interval * veterancy_reload_factor if attack_interval != null else null
 var attack_range = null
 var attack_domains = []
 var aim_target = null
@@ -54,6 +77,11 @@ var manual_orders = null
 var _action_locked = false
 var _cached_type = ""
 var _navigation_trait = null
+var _veterancy_rank = 0
+var _terrain_navigation = null
+var _has_elevated_terrain = false
+var _terrain_position = Vector2.INF
+var _plateau_advantage = false
 
 @onready var _match = find_parent("Match")
 
@@ -84,6 +112,8 @@ func _ready():
 	if _match != null:
 		assert(_safety_checks())
 	if movement_speed > 0:
+		if attack_damage != null and attack_damage > 0:
+			add_child(load("res://source/match/units/traits/VeteranBadge.gd").new(self))
 		manual_orders = load("res://source/match/orders/ManualOrders.gd").new()
 		manual_orders.name = "ManualOrders"
 		add_child(manual_orders)
@@ -99,21 +129,54 @@ func receive_weapon_hit(source):
 
 # A projectile arrival. Damage uses the round's frozen weapon facts; splash
 # passes the share of full damage that reached this body.
-func receive_shot(shot, point = null, share = 1.0):
-	receive_damage(shot.feedback_source(), _rules().damage_from(shot, self) * share, point)
+func receive_shot(shot, point = null, share = 1.0, presentation_weapon = {}):
+	receive_damage(
+		shot.feedback_source(), _rules().damage_from(shot, self) * share, point, presentation_weapon
+	)
 
 
-func receive_damage(source, amount, point = null):
-	if amount > 0:
+func receive_damage(source, amount, point = null, presentation_weapon = {}):
+	if amount > 0 and hp > 0:
+		var actual_damage = minf(amount, hp)
+		Veterancy.award(source, self, actual_damage, amount >= hp)
 		last_enemy_damage_time = _match.simulation_time
 		_match.combat_effects.impact(
-			self, source, point if point != null else global_position + Vector3.UP * 0.5
+			self,
+			source,
+			point if point != null else global_position + Vector3.UP * 0.5,
+			presentation_weapon
 		)
 		var visuals = get_node_or_null("BastionVisuals")
 		if visuals != null:
 			visuals.hit_reaction(source.global_position)
 		hp -= amount
 		MatchSignals.unit_weapon_hit.emit(self, source)
+
+
+func terrain_advantage() -> bool:
+	if _terrain_navigation == null:
+		if _match == null or not _match.is_node_ready():
+			return false
+		_terrain_navigation = _match.navigation.terrain
+		_has_elevated_terrain = _match.map.is_elevated()
+	# Match terrain is immutable. Flat maps need no per-unit trait/position query.
+	if not _has_elevated_terrain:
+		return false
+	if movement_domain != Constants.Match.Navigation.Domain.TERRAIN or has_meta("garrison_host"):
+		return false
+	var point = Vector2(global_position.x, global_position.z)
+	# Authored terrain is immutable during a battle. Reuse the exact-position
+	# result across sight, target acquisition and HUD queries; moving invalidates it.
+	if point != _terrain_position:
+		_terrain_position = point
+		_plateau_advantage = _terrain_navigation.has_plateau_advantage(global_position)
+	return _plateau_advantage
+
+
+func effective_sight_range():
+	if sight_range == null:
+		return 0.0
+	return sight_range + (minf(3.0, sight_range * 0.2) if terrain_advantage() else 0.0)
 
 
 # Loaded at runtime: preloading combat rules here compiles autoload-dependent

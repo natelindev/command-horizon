@@ -1,0 +1,22 @@
+{
+  "schema": "source-digest-method-correction-v1",
+  "reports": [
+    {
+      "path": "docs/playtests/2026-10-24/macos-current-v19-final-1/report.json",
+      "sha256": "f7e38ed54f15178aecf2a89696d1dcacbe2afeef08b4db21ccafcaecb6b00a28"
+    },
+    {
+      "path": "docs/playtests/2026-10-24/macos-current-v19-final-stress-2/report.json",
+      "sha256": "2b5e40ba46ea1a6fe831735454cda309ae4b1fc959bdfe9665a1aec02d3e8caf"
+    }
+  ],
+  "recorded_flat_string_order_sha256": "389e463243ee23726d2e2da6e7e411d851b6a561aae2abffcfc1bf5574542a62",
+  "release_gate_path_component_order_sha256": "bf0fd8adafd2dc57cf4ef055ab49bab028c40da87d380959654a74b167b38283",
+  "reason": "Both hashes cover the same unchanged file bytes. The timing runner used sorted path strings; the release gate uses pathlib.Path component ordering. The timing reports mislabeled the former as package-compatible. Reports and captured runtime artifacts are preserved unchanged; this record supplies the correct release-gate digest.",
+  "per_file_manifest_matches_release_v19": true,
+  "production_manifest": {
+    "path": "docs/playtests/2026-10-24/macos-package-v19/source-manifest.json",
+    "sha256": "45dc9f612609a21d20c282f798e66342f4769f3a3cf404210174e5a00f88c1cd"
+  },
+  "runner_corrected_for_future_runs": true
+}

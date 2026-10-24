@@ -1,0 +1,44 @@
+{
+  "created_utc": "2026-10-24T06:18:49.197168+00:00",
+  "stage": "/tmp/godot-open-rts-polish-windows-cpu-0618",
+  "baseline_stage": "/tmp/godot-open-rts-polish-windows-focus-native-0540",
+  "baseline_benchmark_sha256": "d88ab44164110ab0f029101b96be82f9e3fe1355c9cac5120c906aacc25331a3",
+  "source_files": 2244,
+  "source_digest": "fc81e61b3b0a7dfa5677e28a9954d72d6e4bf8e775c051458e45ed2f7df2dbf1",
+  "source_digest_definition": "SHA256 of compact canonical sorted JSON mapping current copied source/tests paths to SHA256",
+  "changed_files": [
+    {
+      "path": "source/match/TerrainNavigation.gd",
+      "before_sha256": "7d23a3ac198eb73ce130a2de6139e3ece26191ae4e021893b56b51374db8a64d",
+      "after_sha256": "7f4364551f85367c8f177b6524a8ed60616b4020d1bbd3eea4cc47820bcf74f9"
+    },
+    {
+      "path": "source/match/units/traits/Movement.gd",
+      "before_sha256": "0e935ed8518b0cc02cbf605c0cfc19abbe51cfbd465f97b2fa9b9f2e890c3849",
+      "after_sha256": "2935b988381d78d5b5c9036acfddb8690845607f552552bf1c4bd6204a094469"
+    },
+    {
+      "path": "tests/headless/CrowdedDestinationRegression.gd",
+      "before_sha256": "e1013b8f9508a65ee0b2540ac2895a9c0fa6680688a54ea0c547423c0af68f5e",
+      "after_sha256": "25e705641cf526928290218bae08c664ed01ffa1669f06a85f65dceba60fda17"
+    },
+    {
+      "path": "tests/headless/OpeningGuidanceRegression.gd",
+      "before_sha256": "3cf7f65a1c183b88f3d9f62bd67fe1cc90b54e1e4a124e6bffc87f10d9146b91",
+      "after_sha256": "476737582e451e9c19c7379678a849eafaae4aadfa8d751dab624f76061a4ee9"
+    },
+    {
+      "path": "tests/headless/RallyControlsRegression.gd",
+      "before_sha256": "73ecef30f1cba7674a6a5957f60e4d3185012823566788b231f5ae9797750e2c",
+      "after_sha256": "8e02544c451cb3d7ed447db32541a3b5d4d145114d0f4c23ef64f35e44093c7a"
+    }
+  ],
+  "project_production_sha256": "20ab5711fcee23d752c45511b123403bb5c67b55da5cc9a4ac9805ed50f3b636",
+  "project_benchmark_sha256": "20a7cb5f027c762f4daff325da5664a0973e2a837209eef257eb4b3285ae1775",
+  "wrapper_sha256": "7b1641982473143ef54e655e76345e126cb0f182227da61804c17a36fe54d32c",
+  "note": "CPU-only optimization candidate. Same immutable native-token benchmark wrapper/config/assets as d88 baseline; two production scripts and three tests changed. No production prewarm integration.",
+  "finished_utc": "2026-10-24T06:18:57.718014+00:00",
+  "executable": "OpenRTSScale-cpu-0618.exe",
+  "sha256": "f0529985dfd22377f6468bb13ce3edb6e4a11c52099fc42494b3fb188c49a421",
+  "bytes": 291037104
+}

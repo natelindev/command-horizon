@@ -1,0 +1,101 @@
+﻿{
+    "CopiedPackSha256":  "c07c4c1b79f291d501245378f6e98bbc3d62b7a269eb658719faeca5a50bb958",
+    "Editor":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\OpenRTSPolish-20261024\\godot-4.7.2\\Godot_v4.7.2-stable_win64.exe",
+    "PackSha256":  "c07c4c1b79f291d501245378f6e98bbc3d62b7a269eb658719faeca5a50bb958",
+    "Results":  [
+                    {
+                        "StartedUtc":  "2026-10-24T06:27:08.1680917Z",
+                        "Seconds":  0.224,
+                        "StderrSha256":  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                        "StdoutSha256":  "a59f2edbc946888d7788a77a73921580c02408384e172be0b308822ab2317d8a",
+                        "ProcessId":  24800,
+                        "MarkerFound":  true,
+                        "Name":  "isolation-build",
+                        "TimedOut":  false,
+                        "ExitCode":  0,
+                        "Arguments":  "--headless --path \"C:\\Users\\Administrator\\AppData\\Local\\Temp\\OpenRTSPolish-20261024\\locale-isolated-0626\\probe\" --script \"C:\\Users\\Administrator\\AppData\\Local\\Temp\\OpenRTSPolish-20261024\\locale-isolated-0626\\probe\\build.gd\" -- \"C:\\Users\\Administrator\\AppData\\Local\\Temp\\OpenRTSPolish-20261024\\locale-isolated-0626\\probe.pck\"",
+                        "RequiredMarker":  "ISOLATION_BUILD result=0"
+                    },
+                    {
+                        "StartedUtc":  "2026-10-24T06:27:08.4453220Z",
+                        "Seconds":  0.28,
+                        "StderrSha256":  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                        "StdoutSha256":  "e7b70c81767c9ca595390388b6c9cd8a4dacac559c7267ee99a7158e5834874e",
+                        "ProcessId":  23812,
+                        "MarkerFound":  true,
+                        "Name":  "isolation-main-pack",
+                        "TimedOut":  false,
+                        "ExitCode":  0,
+                        "Arguments":  "--headless --main-pack \"C:\\Users\\Administrator\\AppData\\Local\\Temp\\OpenRTSPolish-20261024\\locale-isolated-0626\\probe.pck\" --script res://probe.gd -- \"C:/Users/Administrator/AppData/Roaming/OpenRTSPolishLocale-20261024-0626\"",
+                        "RequiredMarker":  "ISOLATION_PROOF_PASS"
+                    },
+                    {
+                        "StartedUtc":  "2026-10-24T06:27:09.2563321Z",
+                        "Seconds":  7.643,
+                        "StderrSha256":  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                        "StdoutSha256":  "ee2e773919dbb29e03893314fd79c32ae5c43997697d8cf025e94f26639935eb",
+                        "ProcessId":  28580,
+                        "MarkerFound":  true,
+                        "Name":  "OpeningGuidance-en",
+                        "TimedOut":  false,
+                        "ExitCode":  0,
+                        "Arguments":  "--headless --main-pack \"C:\\Users\\Administrator\\AppData\\Local\\Temp\\OpenRTSPolish-20261024\\locale-isolated-0626\\OpenRTS-game-final-0548.exe\" --fixed-fps 60 --script \"C:\\Users\\Administrator\\AppData\\Local\\Temp\\OpenRTSPolish-20261024\\locale-isolated-0626\\OpeningGuidanceLocaleFixedProbe.gd\" -- en \"C:/Users/Administrator/AppData/Roaming/OpenRTSPolishLocale-20261024-0626\"",
+                        "RequiredMarker":  "LOCALE_ISOLATION_PASS"
+                    },
+                    {
+                        "StartedUtc":  "2026-10-24T06:27:16.9063403Z",
+                        "Seconds":  7.641,
+                        "StderrSha256":  "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                        "StdoutSha256":  "5ae28636a46d7e678bb199867de83d14878a07155a30116b44674a279a49bc4f",
+                        "ProcessId":  2780,
+                        "MarkerFound":  true,
+                        "Name":  "OpeningGuidance-zh_CN",
+                        "TimedOut":  false,
+                        "ExitCode":  0,
+                        "Arguments":  "--headless --main-pack \"C:\\Users\\Administrator\\AppData\\Local\\Temp\\OpenRTSPolish-20261024\\locale-isolated-0626\\OpenRTS-game-final-0548.exe\" --fixed-fps 60 --script \"C:\\Users\\Administrator\\AppData\\Local\\Temp\\OpenRTSPolish-20261024\\locale-isolated-0626\\OpeningGuidanceLocaleFixedProbe.gd\" -- zh_CN \"C:/Users/Administrator/AppData/Roaming/OpenRTSPolishLocale-20261024-0626\"",
+                        "RequiredMarker":  "LOCALE_ISOLATION_PASS"
+                    },
+                    {
+                        "StartedUtc":  "2026-10-24T06:27:24.5536877Z",
+                        "Seconds":  23.647,
+                        "StderrSha256":  "88b58c2d26d195cf676eb936b695e2ce91749292e2593633f7f8b0f11170248b",
+                        "StdoutSha256":  "2b187ffcb1bfc4141be9a3b1b52c8c4a0c2bdd9d376fd0b9646968974ab04840",
+                        "ProcessId":  15088,
+                        "MarkerFound":  true,
+                        "Name":  "RallyControls-en",
+                        "TimedOut":  false,
+                        "ExitCode":  0,
+                        "Arguments":  "--headless --main-pack \"C:\\Users\\Administrator\\AppData\\Local\\Temp\\OpenRTSPolish-20261024\\locale-isolated-0626\\OpenRTS-game-final-0548.exe\" --fixed-fps 60 --script \"C:\\Users\\Administrator\\AppData\\Local\\Temp\\OpenRTSPolish-20261024\\locale-isolated-0626\\RallyControlsLocaleFixedProbe.gd\" -- en \"C:/Users/Administrator/AppData/Roaming/OpenRTSPolishLocale-20261024-0626\"",
+                        "RequiredMarker":  "LOCALE_ISOLATION_PASS"
+                    },
+                    {
+                        "StartedUtc":  "2026-10-24T06:27:48.2079686Z",
+                        "Seconds":  23.819,
+                        "StderrSha256":  "353ce5989fb0143544e2584186c6d981d83d3c91a7b9c8c7e0b38ba57ed7359e",
+                        "StdoutSha256":  "95097729eb9233d84930a0622f0d23dd1f4b86cfd3766ba00e52080e2aa1536b",
+                        "ProcessId":  14036,
+                        "MarkerFound":  true,
+                        "Name":  "RallyControls-zh_CN",
+                        "TimedOut":  false,
+                        "ExitCode":  0,
+                        "Arguments":  "--headless --main-pack \"C:\\Users\\Administrator\\AppData\\Local\\Temp\\OpenRTSPolish-20261024\\locale-isolated-0626\\OpenRTS-game-final-0548.exe\" --fixed-fps 60 --script \"C:\\Users\\Administrator\\AppData\\Local\\Temp\\OpenRTSPolish-20261024\\locale-isolated-0626\\RallyControlsLocaleFixedProbe.gd\" -- zh_CN \"C:/Users/Administrator/AppData/Roaming/OpenRTSPolishLocale-20261024-0626\"",
+                        "RequiredMarker":  "LOCALE_ISOLATION_PASS"
+                    }
+                ],
+    "ProbePackSha256":  "71c3d28bdbf13054c9cf02c36d82758a6ff7ded5144a3410590bc3fd5117b5e7",
+    "ExpectedUserDataDir":  "C:/Users/Administrator/AppData/Roaming/OpenRTSPolishLocale-20261024-0626",
+    "ConfigDelta":  {
+                        "application/config/custom_user_dir_name":  "OpenRTSPolishLocale-20261024-0626",
+                        "application/config/use_custom_user_dir":  true
+                    },
+    "FinishedUtc":  "2026-10-24T06:28:12.0337577Z",
+    "SourcePack":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\OpenRTSPolish-20261024\\OpenRTS-game-final-0548.exe",
+    "StartedUtc":  "2026-10-24T06:27:07.8417887Z",
+    "EditorSha256":  "ab1824f85bfd8e0e4128182c000c4003a3e042245b2967848d089b2a04b22424",
+    "Platform":  "Native Windows 11 headless through WSL SSH",
+    "OverrideSource":  "https://github.com/godotengine/godot/blob/ed1daf0bf/core/config/project_settings.cpp#L640-L654",
+    "PinnedEngineCommit":  "ed1daf0bf",
+    "OverrideSha256":  "df6c2f6a5ff67e217a8420a8c0783fe77f98163455358b98f6af531315c31ac6",
+    "Pack":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\OpenRTSPolish-20261024\\locale-isolated-0626\\OpenRTS-game-final-0548.exe",
+    "Success":  true
+}

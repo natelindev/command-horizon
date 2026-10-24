@@ -6,6 +6,10 @@ func _run():
 	var original = preferences.capture()
 	preferences.restore({"screen": 1, "language": "zh_CN"})
 	_check(TranslationServer.get_locale() == "zh_CN", "Chinese locale not applied")
+	_check(
+		TranslationServer.translate("S", "map_repair") == "修",
+		"Repair-site map marker is not localized"
+	)
 	await _loading_translations()
 	for pair in [
 		["Settings", "设置"],
@@ -22,6 +26,12 @@ func _run():
 			"建造 通量发电机（15 材料 / 0 电子元件）。 供电不足会降低生产与维修速度。"
 		],
 		["Stop", "停止"],
+		["Patrol [P]", "巡逻 [P]"],
+		["Patrol: choose a destination.", "巡逻：请选择目的地。"],
+		["High ground · vision and range bonus", "高地 · 视野和射程加成"],
+		["Bronze · Reload 4% faster · Movement +3%", "铜级 · 装填时间缩短4% · 移动速度+3%"],
+		["Return to results", "返回战果"],
+		["R: refinery · M: mercenary camp · S: repair shop", "油：炼油厂 · 兵：佣兵营地 · 修：维修站"],
 		["Free an aircraft stand to resume this queue.", "腾出一个停机位以继续此生产队列。"],
 		[
 			(
@@ -102,21 +112,11 @@ func _run():
 	for message in errors:
 		push_error(message)
 	print("Localization regression: %d failures" % errors.size())
-	quit(0 if errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
 
 
 func _loading_translations():
-	var messages = {
-		"en":
-		[
-			"Taking ammunition out of depot...",
-			"Creating map...",
-			"Preparing a ground for combat...",
-			"Setting up a camera...",
-			"Placing units in the field..."
-		],
-		"zh_CN": ["正在从仓库搬运弹药…", "正在创建地图…", "正在准备战场…", "正在设置镜头…", "正在部署单位…"]
-	}
+	var messages = {"en": "Loading battle…", "zh_CN": "正在加载战斗…"}
 	var previous_locale = TranslationServer.get_locale()
 	for locale in messages:
 		TranslationServer.set_locale(locale)
@@ -132,13 +132,40 @@ func _loading_translations():
 		loading.match_settings = settings
 		loading.map_path = settings.map_path
 		root.add_child(loading)
-		for expected in messages[locale]:
+		# The loading screen keeps one translated status while its real pipeline
+		# advances the progress bar and hands control to the configured match.
+		var progress = -1.0
+		var advances = 0
+		for frame in 20:
+			if not is_instance_valid(loading) or loading.is_queued_for_deletion():
+				break
 			_check(
-				loading._label.text == expected,
+				loading._label.text == messages[locale],
 				"Loading translation mismatch (%s): %s" % [locale, loading._label.text]
 			)
+			var next_progress = loading._progress_bar.value
+			_check(
+				next_progress >= maxf(0.0, progress) and next_progress <= 1.0,
+				"Loading progress reversed or exceeded its range (%s)" % locale
+			)
+			if next_progress > progress:
+				advances += 1
+			progress = next_progress
 			await physics_frame
 		await _frames(3)
-		current_scene.queue_free()
+		_check(not is_instance_valid(loading), "Loading screen did not finish (%s)" % locale)
+		_check(advances >= 2 and progress >= 0.9, "Loading stages did not advance (%s)" % locale)
+		var loaded_match = current_scene
+		_check(
+			is_instance_valid(loaded_match) and "settings" in loaded_match,
+			"Loading did not hand control to a match (%s)" % locale
+		)
+		if is_instance_valid(loaded_match) and "settings" in loaded_match:
+			_check(loaded_match.settings == settings, "Loading lost match settings (%s)" % locale)
+			_check(
+				loaded_match._get_human_player().faction == "helix",
+				"Loading launched the wrong faction (%s)" % locale
+			)
+			loaded_match.queue_free()
 		await _frames(3)
 	TranslationServer.set_locale(previous_locale)

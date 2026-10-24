@@ -1,0 +1,13 @@
+extends SceneTree
+
+func _initialize():
+    var project = "/Users/linlilu/godot-open-rts/build/polish-2026-10-24/native-final-smoke-071518/proof-project"
+    var pack = PCKPacker.new()
+    if pack.pck_start("/Users/linlilu/godot-open-rts/build/polish-2026-10-24/native-final-smoke-071518/Isolation_Proof.app/Contents/Resources/Open RTS.pck") != OK:
+        quit(2)
+        return
+    for name in ["project.godot", "Proof.gd", "Proof.tscn", ".godot/global_script_class_cache.cfg"]:
+        if pack.add_file("res://" + name, project.path_join(name)) != OK:
+            quit(3)
+            return
+    quit(0 if pack.flush() == OK else 4)

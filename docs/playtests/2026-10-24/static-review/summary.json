@@ -1,0 +1,35 @@
+{
+  "gdscript_count": 115,
+  "python_count": 6,
+  "checks": [
+    {
+      "name": "gdformat",
+      "returncode": 0,
+      "log": "docs/playtests/2026-10-24/static-review/gdformat.log.txt"
+    },
+    {
+      "name": "gdlint",
+      "returncode": 0,
+      "log": "docs/playtests/2026-10-24/static-review/gdlint.log.txt"
+    },
+    {
+      "name": "py_compile",
+      "returncode": 0,
+      "log": "docs/playtests/2026-10-24/static-review/py_compile.log.txt"
+    },
+    {
+      "name": "diff-check",
+      "returncode": 0,
+      "log": "docs/playtests/2026-10-24/static-review/diff-check.log.txt"
+    }
+  ],
+  "locale_fixture_followup": {
+    "files": [
+      "tests/headless/OpeningGuidanceRegression.gd",
+      "tests/headless/RallyControlsRegression.gd"
+    ],
+    "gdformat": "passed after formatting RallyControlsRegression.gd",
+    "gdlint": "passed",
+    "runtime_changes": false
+  }
+}

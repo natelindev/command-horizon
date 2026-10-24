@@ -1,0 +1,1330 @@
+{
+  "schema": "macos-full-release-validation-v19",
+  "started_utc": "2026-10-24T07:00:08.926646+00:00",
+  "engine": "Godot 4.7.2 stable",
+  "registered_suite_count": 75,
+  "selected_suites": [
+    "BehaviorRegression",
+    "UnitAnimationRegression",
+    "InfantryRedesignRegression",
+    "InfantryMeshBatchRegression",
+    "InfantryDeathGroundRegression",
+    "InfantryMotionRegression",
+    "TerrainGroundingRegression",
+    "CombatRegression",
+    "AntiAirPriorityRegression",
+    "TechnologyRegression",
+    "TechnologyAIRegression",
+    "WeaponModeRegression",
+    "ResearchTilesRegression",
+    "ResearchQueueRegression",
+    "StructureActivityRegression",
+    "PersistentCaptureRegression",
+    "CampaignInteriorRegression",
+    "HeroCampaignRegression",
+    "SkirmishPickerRegression",
+    "WorkerDistributionRegression",
+    "CargoReturnRegression",
+    "ResourceFieldRegression",
+    "GarrisonCombatExitRegression",
+    "PointOfInterestRegression",
+    "MapMetricsRegression",
+    "GlacierHarvestRegression",
+    "TerrainSightRegression",
+    "CliffMeshRegression",
+    "AuthoredRelayRegression",
+    "AuthoredGarrisonRegression",
+    "SaveNavigationTimingRegression",
+    "ContactApproachRegression",
+    "NavigationRegression",
+    "MapPlayabilityRegression",
+    "MapPreviewRegression",
+    "MusicRegression",
+    "SelectionBatchRegression",
+    "ProjectileSystemRegression",
+    "ProjectilePhysicsRegression",
+    "FixedWingFlightRegression",
+    "FixedWingSaveRegression",
+    "AirSaveContinuityRegression",
+    "RotorcraftCombatRegression",
+    "FrontierCombatRegression",
+    "AirfieldOperationsRegression",
+    "GroundHeightAlignmentRegression",
+    "GroundCrowdRecoveryRegression",
+    "SkirmishBuildReadinessRegression",
+    "PresentationFeaturesRegression",
+    "SettingsRegression",
+    "UnitInfoTextRegression",
+    "BattleHudProductionRegression",
+    "BattleAftermathRegression",
+    "MapPassageRegression",
+    "ObjectMaterialsRegression",
+    "RuntimeShutdownRegression",
+    "EnvironmentEffectsRegression",
+    "WaterFlowRegression",
+    "WaterHybridRegression",
+    "StrategicPolishRegression",
+    "MicroControlsRegression",
+    "GroundVehicleMotionRegression",
+    "MixedArmyMovementRegression",
+    "CombatPresentationRegression",
+    "CombatAudioRegression",
+    "EndgamePresentationRegression",
+    "CommanderEliminationRegression",
+    "OpeningGuidanceRegression",
+    "PlacementFeedbackRegression",
+    "DirectOrdersRegression",
+    "KeyBindingsRegression",
+    "SelectionRosterRegression",
+    "RallyRetargetRegression",
+    "RallyControlsRegression",
+    "LocalizationRegression"
+  ],
+  "source_sha256": "bf0fd8adafd2dc57cf4ef055ab49bab028c40da87d380959654a74b167b38283",
+  "steps": [
+    {
+      "name": "import",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 3.237,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/import.log.txt",
+      "log_sha256": "32038998d1c52075f003fe1c0b7aaf29596648e9711049c5c4d9e681674a58a5",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "export",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 19.931,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/export.log.txt",
+      "log_sha256": "66b4f8368599e657e45c1acbeb5042db45c300aa80e2580aea0950979dc301bb",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "codesign-strict-deep",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.2,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/codesign-strict-deep.log.txt",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "release-main-menu",
+      "passed": false,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 4.272,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/release-main-menu.log.txt",
+      "log_sha256": "e7fbbed1428cf375533f275ebb413f1cc81bb9054e852e58d7815c7dbc519f66",
+      "errors": [
+        "WARNING: 4 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 2 resources still in use at exit."
+      ],
+      "known_teardown": [
+        "WARNING: 4 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 2 resources still in use at exit."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "diagnostic_only": true,
+      "acceptance": "Native normal-app Cmd-Q is the required shutdown gate."
+    }
+  ],
+  "suites": [
+    {
+      "name": "BehaviorRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 7.67,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/BehaviorRegression.log.txt",
+      "log_sha256": "c68dc8cd93d45d08ff3c5d75713c8d483b65e8c631af7a66bfb022aa2e9cce17",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "UnitAnimationRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 5.824,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/UnitAnimationRegression.log.txt",
+      "log_sha256": "aa044026fac3519d527cb3cb179cf75ab404ef8a90e56e9f4bb34e010f291a52",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 18 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 7 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "InfantryRedesignRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.954,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/InfantryRedesignRegression.log.txt",
+      "log_sha256": "24e4e7a428a5fde32cd1fc43ff86e6aa0068874fc3b1270810c7d1c2167f1e01",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "InfantryMeshBatchRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.879,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/InfantryMeshBatchRegression.log.txt",
+      "log_sha256": "674307127efbb2b7a26f8d25314ae0ec7bf4bb35be27602de255db73b81733f6",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "InfantryDeathGroundRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 2.991,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/InfantryDeathGroundRegression.log.txt",
+      "log_sha256": "065220bc72e7ca32537896f2c59fd9272a053159e040aa35740614a639cbc656",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "InfantryMotionRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 7.562,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/InfantryMotionRegression.log.txt",
+      "log_sha256": "cde16fb37937f6f409fcd437cc8f3f8837f72fb7951846db3603e6858f624e79",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "TerrainGroundingRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 4.06,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/TerrainGroundingRegression.log.txt",
+      "log_sha256": "7b4a004ffa8fdfb385d00b2d39745f592fb01fc994b8fb1e98505dc8090dbe91",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "CombatRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 2.214,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/CombatRegression.log.txt",
+      "log_sha256": "00e49830acd4e9ad53d943d96f518224a8cf3284db627fad3e222a2ab702f647",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 18 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 7 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "AntiAirPriorityRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 3.78,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/AntiAirPriorityRegression.log.txt",
+      "log_sha256": "8dd087cb0e53a50b5c6d045f0ca7b9349796b2b65f3b8aed487f57b9d15129e3",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "TechnologyRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 96.636,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/TechnologyRegression.log.txt",
+      "log_sha256": "d7f3d476bcea47a86d45ccf4a9055eb2058335cd087932c2da0acbb08db42273",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 14 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 6 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "TechnologyAIRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 10.495,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/TechnologyAIRegression.log.txt",
+      "log_sha256": "3eaee95c590db6ecf6799a882fb141e58eb9385bfb52532de7f524d618f3a2b4",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "WeaponModeRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 3.111,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/WeaponModeRegression.log.txt",
+      "log_sha256": "7b6122875f7d6e6b138d70db601d4bccb6a5ca85e69c9173eb66204e27b6a79d",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 22 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 8 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "ResearchTilesRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 9.22,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/ResearchTilesRegression.log.txt",
+      "log_sha256": "ad31abd8e290e9441d944d34e36e77292bb2f8513c5bf55f89aced5474082680",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 24 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 10 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "ResearchQueueRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 6.677,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/ResearchQueueRegression.log.txt",
+      "log_sha256": "181658e08087c1f5c445c8b379d4a5aded60ac84d46d4cc200936d05b515737c",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "StructureActivityRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 4.275,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/StructureActivityRegression.log.txt",
+      "log_sha256": "39f5716e748c28550600c5e614699b5f0c892f7901da16164084252f204294ae",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 18 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 7 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "PersistentCaptureRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 7.073,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/PersistentCaptureRegression.log.txt",
+      "log_sha256": "7ff83977844fae8ef00885c8ee2d8e375835724086ff94aededfac6de7d4f392",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "CampaignInteriorRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 18.478,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/CampaignInteriorRegression.log.txt",
+      "log_sha256": "58d12140545621154b4c8a96e6166b9ceab8a708de32b88d540147ebcf351337",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "HeroCampaignRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 38.396,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/HeroCampaignRegression.log.txt",
+      "log_sha256": "bd4dc572622ee259d98f3892a2919f5679be703abd4cf7a0b1c81fe6170147b8",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "SkirmishPickerRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.869,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/SkirmishPickerRegression.log.txt",
+      "log_sha256": "ed75e0c0e6c2b44695780fd45a2e4989546d1af0c32a22e1ec04965f51038558",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "WorkerDistributionRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 8.042,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/WorkerDistributionRegression.log.txt",
+      "log_sha256": "9e4ec156ec1c8fdc3f6f22083b0c5cfa3c95c9c4f89017850b5d33ba75d92815",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "CargoReturnRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 20.006,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/CargoReturnRegression.log.txt",
+      "log_sha256": "fc26a8608789828eec32c8a1e318c8913dc00285580821df61d6981a2a8fd2e4",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "ResourceFieldRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 6.691,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/ResourceFieldRegression.log.txt",
+      "log_sha256": "21c6369b00fe8ef00da8f645fa0bf96874ea881b78d6e4190f92856564891f89",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "GarrisonCombatExitRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 29.05,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/GarrisonCombatExitRegression.log.txt",
+      "log_sha256": "ca266876090f01b0bc3380fff697ec98c2ea6404623971e2968d0c713da0ad4e",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "PointOfInterestRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 13.105,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/PointOfInterestRegression.log.txt",
+      "log_sha256": "048a966d666819d32901dbf5f2629d71883ce8e3c68a5f7ac811c1477664e4e2",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "MapMetricsRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.579,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/MapMetricsRegression.log.txt",
+      "log_sha256": "ff41112b11c824831727e7fbf71527a227ac307478d7cc7c214b6c79bc707cf8",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "GlacierHarvestRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 3.775,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/GlacierHarvestRegression.log.txt",
+      "log_sha256": "9b9db350db1d4ef631c4ccc0eff23327c022d44710351675f94883b48c4c2224",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "TerrainSightRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 2.577,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/TerrainSightRegression.log.txt",
+      "log_sha256": "6346297bfca0823ef3705387f9d029a83216cfd720963e39a37c6af6bd2dede0",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "CliffMeshRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.674,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/CliffMeshRegression.log.txt",
+      "log_sha256": "cd8b597707d0644dd12b6c4514572053af17fe03253f1f6e58c5deab8a06e8cd",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "AuthoredRelayRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 6.318,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/AuthoredRelayRegression.log.txt",
+      "log_sha256": "3c229b1733c977626442cb0447a01948fc9f4e318af8c3abd55417d51ec83add",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 26 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 10 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "AuthoredGarrisonRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 4.376,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/AuthoredGarrisonRegression.log.txt",
+      "log_sha256": "e2693b57822ac3246231c11d77e0e1b117cf8d824fd49e4b4a4f6853de31961e",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "SaveNavigationTimingRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.78,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/SaveNavigationTimingRegression.log.txt",
+      "log_sha256": "59d619a813749ba634fd173431da53b9da86ebb80ee4a3d0c33eb930c21590e8",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "ContactApproachRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 19.508,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/ContactApproachRegression.log.txt",
+      "log_sha256": "8a724126d16ec15786b426ecb325de8534ca20f3174ee340458d26ac8f7c7640",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "NavigationRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 26.685,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/NavigationRegression.log.txt",
+      "log_sha256": "690d350d01bd8905ad25d74cedb6d8820807bca8a24b46ccfea1229588ccb768",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "MapPlayabilityRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 27.492,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/MapPlayabilityRegression.log.txt",
+      "log_sha256": "7e8de7ef8f184891a6b1730f5f74ff2c51f452c27b4dee5a7d995d5f2ed5b172",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details).",
+        "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "MapPreviewRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 19.212,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/MapPreviewRegression.log.txt",
+      "log_sha256": "009d17ac747aac7d368866e2d26dadca33a040df4f76af01685a616de96f3558",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "MusicRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.78,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/MusicRegression.log.txt",
+      "log_sha256": "ac747fd0c66fed2a1213a2b3e74f021f22519ac6c0734dca2b5718b5d5255d3a",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "SelectionBatchRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 2.583,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/SelectionBatchRegression.log.txt",
+      "log_sha256": "1e9718d2a0cc0802c34129e890bd4d33476e0ce86080e4a7baf83a1b818e92aa",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "ProjectileSystemRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 1.893,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/ProjectileSystemRegression.log.txt",
+      "log_sha256": "0aa0783d3f393654db6b7a30abc040e9470532994a613137669640dfa0ec3f9d",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "ProjectilePhysicsRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 3.09,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/ProjectilePhysicsRegression.log.txt",
+      "log_sha256": "7953ef6ca208f371ec8c06fce3836253591b0724cd6cfe3d88647d2a451b47d6",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "FixedWingFlightRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 5.809,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/FixedWingFlightRegression.log.txt",
+      "log_sha256": "282334ed46a8434eac08149687e843b71c0054be462590bdcb1d5c1632ffad11",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "FixedWingSaveRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 2.709,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/FixedWingSaveRegression.log.txt",
+      "log_sha256": "38fa0eff6cb6cb06504eb0e999a64bdc87d2e73bb87e882300dcdb943f5eb8e0",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "AirSaveContinuityRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 1.887,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/AirSaveContinuityRegression.log.txt",
+      "log_sha256": "133c874f1a940b3908d2b2589994ec1eebc74a5af50a5badf2a5b98aaf7b5501",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "RotorcraftCombatRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 3.297,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/RotorcraftCombatRegression.log.txt",
+      "log_sha256": "4aaa7a3fe332f273ad463d09306b79e847de3df251172ed890cd2770c7bff651",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "FrontierCombatRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 1.683,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/FrontierCombatRegression.log.txt",
+      "log_sha256": "ee41c9ddb5d8a335daefcc7421e5d51cba42be45250975adb4809b26a4f2f3a7",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 16 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 7 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "AirfieldOperationsRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 9.213,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/AirfieldOperationsRegression.log.txt",
+      "log_sha256": "e909f788ca8095b28db1dcdacdd47a2b32c7514ea2cda4187ae0523764991c3c",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "GroundHeightAlignmentRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 4.303,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/GroundHeightAlignmentRegression.log.txt",
+      "log_sha256": "c6bd1ff8f5cfa7efaa1f23951d9a7a3612870250a3852e7abfd3b71da1a1555b",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "GroundCrowdRecoveryRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 24.775,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/GroundCrowdRecoveryRegression.log.txt",
+      "log_sha256": "f2417073b961db29ebcbebaa4d4aa660c9fb91965c286c42491289bd5145fc05",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "SkirmishBuildReadinessRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 8.951,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/SkirmishBuildReadinessRegression.log.txt",
+      "log_sha256": "bcdb7e059b827850acdf97e056dff763623d854acc8f018ae68280557815d405",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 16 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 6 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "PresentationFeaturesRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 1.783,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/PresentationFeaturesRegression.log.txt",
+      "log_sha256": "a010c3f579316c9f34269275460c6fc880615ac4af2aa7d2d1612ba98f12e68a",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "SettingsRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 1.699,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/SettingsRegression.log.txt",
+      "log_sha256": "baa6e78ee0a929f1206988e5f31e78ff753cb51257dc1511ff793ac9f9c1db6d",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 16 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 6 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [
+        "ERROR: Cannot save file 'user://settings-missing-12967/options.tres.pending.tres'."
+      ]
+    },
+    {
+      "name": "UnitInfoTextRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 2.997,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/UnitInfoTextRegression.log.txt",
+      "log_sha256": "546469148d7419f1c844264ee2daad6bef230f706159c7f62f59baa5cefcee65",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "BattleHudProductionRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 13.956,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/BattleHudProductionRegression.log.txt",
+      "log_sha256": "a4682aa05987cfe298a3b534b6ab9365a93e5afdeac06fa2149d311a07984d6c",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 20 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 8 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "BattleAftermathRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.68,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/BattleAftermathRegression.log.txt",
+      "log_sha256": "f7260439c7c6615c85917c5edd568ca1bdee626fba71b10d5ae77defe9981d69",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "MapPassageRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 43.323,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/MapPassageRegression.log.txt",
+      "log_sha256": "35fc55760acac7c541ae040ebc77710b0f145045527e8f15d95c299bcf6f99cd",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details).",
+        "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "ObjectMaterialsRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 7.611,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/ObjectMaterialsRegression.log.txt",
+      "log_sha256": "5850283e5a4f118fc95abd18a70a301dabc70096cb182599e47aa9d80d2f49a0",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "RuntimeShutdownRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.89,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/RuntimeShutdownRegression.log.txt",
+      "log_sha256": "86aac595b981000543b8f6279428e10f4dc23b55fd0123f435a78331bf8824a1",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "EnvironmentEffectsRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 5.792,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/EnvironmentEffectsRegression.log.txt",
+      "log_sha256": "605adf123814e2c3ba9a41b38a310c856491f08a2ddd357480064a5299a4c366",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details).",
+        "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "WaterFlowRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.576,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/WaterFlowRegression.log.txt",
+      "log_sha256": "1b794d3dee6a49a83f5da6730e2179a5e83769f77a19846f0e1161c6e54894f8",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "WaterHybridRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.981,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/WaterHybridRegression.log.txt",
+      "log_sha256": "b8045b15f73253bd188dc530b8d3192fb0ea063d9e5ce7664bc1d5db6c2ffaf4",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "StrategicPolishRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 3.569,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/StrategicPolishRegression.log.txt",
+      "log_sha256": "45454c2d3fda863c386eb9861c92a3356d7f5cd9d99960e22a4a392f57a70a32",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "MicroControlsRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 7.215,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/MicroControlsRegression.log.txt",
+      "log_sha256": "1ebfd032b9d493a92d0e47af4ae3a29eafcd121a1f5622ef29e989c1278cae53",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "GroundVehicleMotionRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 7.145,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/GroundVehicleMotionRegression.log.txt",
+      "log_sha256": "e3cd1d46e4c65ea42d1474f703ce3ada3702d43c0cde76086cd35ade5b5c4112",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 16 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 7 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "MixedArmyMovementRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 28.633,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/MixedArmyMovementRegression.log.txt",
+      "log_sha256": "fa8fe9586528ce1c213aeb53ea619af5d2531ae4f817f564284094b3b7867db7",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "CombatPresentationRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.79,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/CombatPresentationRegression.log.txt",
+      "log_sha256": "c9d1b7fbf312a1c72d4e0250f6eb3bf2a7811f337687c720ec3d20bb5814de24",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "CombatAudioRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 3.079,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/CombatAudioRegression.log.txt",
+      "log_sha256": "4abd53252460f373f198fca81749c3e3e8ff600e42cb2e87f5e34487f8bae885",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "EndgamePresentationRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 2.199,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/EndgamePresentationRegression.log.txt",
+      "log_sha256": "b7afb7bdc553ba2e5f07ce78d1da8d11452699a8675970f453e6ac2f12fe5219",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "CommanderEliminationRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 2.595,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/CommanderEliminationRegression.log.txt",
+      "log_sha256": "5e9c6932593c99af66f17d5ef01e53a90c67d1ee7f8b9885b934f87a6d985430",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "OpeningGuidanceRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 4.416,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/OpeningGuidanceRegression.log.txt",
+      "log_sha256": "113e7da29326b048e94a814bdd6c3709c4351c3227ecb87a89e3000bb03485cd",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "PlacementFeedbackRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 3.988,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/PlacementFeedbackRegression.log.txt",
+      "log_sha256": "0db7dd6492c119b9eb0454c5c0b45808dc6ce85be1bc6a81a4d72ec64dc528ed",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "DirectOrdersRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 12.384,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/DirectOrdersRegression.log.txt",
+      "log_sha256": "d4a82692977d086fda0ea3a2f9b8cbd54486b62d58a8133d5f71721922ec5b6a",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 20 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 8 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "KeyBindingsRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 2.818,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/KeyBindingsRegression.log.txt",
+      "log_sha256": "d8705eec4132aab58b9016b79c1f7ad41663207dc9544f56dac9ee27a9de6d9c",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 18 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 7 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "SelectionRosterRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 20.439,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/SelectionRosterRegression.log.txt",
+      "log_sha256": "cd8d2d4dc116d5139b5e4a4927ab1a9425bc3df22e7a157a0a13ca4425b48c77",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 14 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 6 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "RallyRetargetRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 23.175,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/RallyRetargetRegression.log.txt",
+      "log_sha256": "afc07847450db2345a9c7cb324d0c7474fb0ced82bb1690da182527282bc9cb9",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "RallyControlsRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 13.918,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/RallyControlsRegression.log.txt",
+      "log_sha256": "f00deaf5c81f42fa6daf266c164e04a7289d1537505eef0557567a4ac1c676ca",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 18 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 7 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "LocalizationRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 2.314,
+      "log": "docs/playtests/2026-10-24/macos-package-v19/LocalizationRegression.log.txt",
+      "log_sha256": "581cd79fa7de9a8b415ccbd4297d700cf53688c91205e3fa44a5b25e36dd1633",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    }
+  ],
+  "complete": true,
+  "snapshot_version": 19,
+  "initial_source_sha256": "bf0fd8adafd2dc57cf4ef055ab49bab028c40da87d380959654a74b167b38283",
+  "previous_release": {
+    "manifest": "docs/playtests/2026-10-24/macos-package-v19/previous-release-preservation.json",
+    "sha256": "d1c0e2c8515f6dd041265b7fbeeef1dd7bed3a4116ec6a7bae81e59849f442a1",
+    "report": "docs/playtests/2026-10-24/macos-package-v19/previous-final-macos-packaged.json",
+    "report_sha256": "b5f2772b2c90c54449ce9e55a5e9fdada32cb60f83b5ff2104d65fad5a3ce1c5",
+    "note": "The previous report is retained byte for byte; its original artifact paths map to these preserved copies.",
+    "artifacts": [
+      {
+        "original_path": "build/polish-2026-10-24/Open_RTS_macOS.zip",
+        "preserved_path": "build/polish-2026-10-24/before-v19-20261024T070010Z/Open_RTS_macOS.zip",
+        "sha256": "d0d302e3e667da22c2aee612bccd31f0883bdd386771208a082025d643dadaa6"
+      },
+      {
+        "original_path": "build/polish-2026-10-24/Open RTS.app/Contents/Resources/Open RTS.pck",
+        "preserved_path": "build/polish-2026-10-24/before-v19-20261024T070010Z/Open RTS.app/Contents/Resources/Open RTS.pck",
+        "sha256": "9263681dbdd57075535bfffd17b4248020439880387880d50cfff4277f9adc53"
+      },
+      {
+        "original_path": "build/polish-2026-10-24/Open RTS.app/Contents/MacOS/Open RTS",
+        "preserved_path": "build/polish-2026-10-24/before-v19-20261024T070010Z/Open RTS.app/Contents/MacOS/Open RTS",
+        "sha256": "ae684f6da9c3ba37dbbebec70928413b74f2be208055219dffdbb1ef0bb26254"
+      }
+    ]
+  },
+  "artifacts": {
+    "archive": "build/polish-2026-10-24/Open_RTS_macOS.zip",
+    "archive_sha256": "16961ddbe76125f8acc9cf103594dcefcb2a6e579874264cea307d355cd24147",
+    "pack": "build/polish-2026-10-24/Open RTS.app/Contents/Resources/Open RTS.pck",
+    "pack_sha256": "ef15fc2450e338191736d256723505e0b93712faaa1da37974317cfcb08a7b67",
+    "pack_bytes": 181918208,
+    "executable": "build/polish-2026-10-24/Open RTS.app/Contents/MacOS/Open RTS",
+    "executable_sha256": "d62caacfb01ca83733e3c1f49e34771b4c078debb6abea47a0cef78daffc4b1e"
+  },
+  "source_manifest": {
+    "path": "docs/playtests/2026-10-24/macos-package-v19/source-manifest.json",
+    "sha256": "45dc9f612609a21d20c282f798e66342f4769f3a3cf404210174e5a00f88c1cd"
+  },
+  "final_source_sha256": "bf0fd8adafd2dc57cf4ef055ab49bab028c40da87d380959654a74b167b38283",
+  "source_unchanged": true,
+  "artifacts_unchanged_after_suites": true,
+  "finished_utc": "2026-10-24T07:12:32.616820+00:00",
+  "passed_count": 75,
+  "packaged_checks_passed": true,
+  "passed": true,
+  "native_shutdown_pending": false,
+  "runner": {
+    "source": "docs/playtests/2026-10-24/macos-package-v19/runner.py.txt",
+    "source_sha256": "621cb088663560c6d9d83514985a34b8b1f9bb9fc5e528dada3d04b7a04a513d",
+    "log": "docs/playtests/2026-10-24/macos-package-v19/runner.log.txt",
+    "log_sha256": "cc80bfcae2cc9b84b9d2d69128774632777fcc8183c5ffef49f8b36383486720"
+  },
+  "affected_legacy_suites": {
+    "report": "docs/playtests/2026-10-24/macos-v19-affected-suites/result.json",
+    "report_sha256": "77c9b47efdbaccd621aebce9eb5aadfcfa4ee597b3bddf24c9d98b665830f730",
+    "passed": true,
+    "passed_count": 5,
+    "source_unchanged": true,
+    "artifacts_unchanged": true
+  },
+  "native_smoke": {
+    "passed": true,
+    "report": "docs/playtests/2026-10-24/native-final-smoke-071518/result.json",
+    "report_sha256": "ce8af992fe8fe14c9b3e2e470cd886fcdb13897aba7ca63e4795f9a4084fc4ac",
+    "native_runtime_log": "docs/playtests/2026-10-24/native-final-smoke-071518/native-game.log.txt",
+    "native_runtime_log_sha256": "8197055a997cbbcee8e1fbc3fdc96307d1c7634094183e00e220a186fb26a453",
+    "original_artifacts_unchanged": true,
+    "real_user_data_unchanged": true,
+    "command_q_closed_app": true,
+    "diagnostic_layout_limitation": "Top F1 FPS/CPU lines overlap the HUD rail; toggle functionality passed."
+  }
+}

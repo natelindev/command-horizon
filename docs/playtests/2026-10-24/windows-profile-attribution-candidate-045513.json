@@ -1,0 +1,605 @@
+{
+  "status": "diagnostic_only_background_debug_profile",
+  "candidate": "candidate-045513; latest production source with service/spatial/callback reuse",
+  "raw_log": "tmp/polish-windows-scale-profile-candidate-045513-remote.log",
+  "raw_sha256": "a2b5210e90e9a87df3269313cefd466236fa698e861a82c0509408184ab8e3ea",
+  "runtime": {
+    "exit_code": 0,
+    "editor_executable": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\OpenRTSPolish-20261024\\godot-4.7.2\\Godot_v4.7.2-stable_win64.exe",
+    "editor_sha256": "AB1824F85BFD8E0E4128182C000C4003A3E042245B2967848D089B2A04B22424",
+    "main_pack": "OpenRTSScale-candidate-045513.exe",
+    "owned_window_foreground_samples": 0,
+    "focus_samples": 7,
+    "foreground_processes": [
+      "Battle.net"
+    ]
+  },
+  "normalization": {
+    "method": "For each sampled combat frame, divide self/inclusive milliseconds and call counts by Movement._physics_process calls / 200. This tick estimate equals ProjectileSystem._physics_process and FogOfWar._physics_process call counts in every current and prior sampled combat frame. Report the arithmetic mean of these per-frame ratios, with absent functions contributing zero.",
+    "current_snapshots": 10,
+    "current_tick_counts": [
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0,
+      2.0
+    ],
+    "prior_snapshots": 10,
+    "prior_tick_counts": [
+      2.0,
+      2.0,
+      3.0,
+      3.0,
+      2.0,
+      3.0,
+      3.0,
+      3.0,
+      3.0,
+      2.0
+    ],
+    "timing_units": "Profiler seconds converted to milliseconds; self_us_per_call uses total self / total calls."
+  },
+  "caveats": [
+    "All seven native focus samples show Battle.net, not the game. No native foreground frame budget or p95 acceptance conclusion is supported.",
+    "This is an editor --debug --profiling run using the candidate EXE as --main-pack; profiler overhead changes cadence.",
+    "Inclusive costs overlap through call trees and must not be summed. Ten sampled frames are not every simulation tick.",
+    "Per-render-frame functions must also be compared per frame/call: the prior samples contain more physics ticks per rendered frame.",
+    "Different sampled battle states and focus conditions prevent causal speedup claims; call-count shifts provide stronger attribution evidence than timing ratios."
+  ],
+  "current_top_self_order": [
+    "res://source/match/combat/Battlefield.gd::nearby_units",
+    "res://source/match/combat/Battlefield.gd::_refresh",
+    "res://source/match/units/traits/Movement.gd::_on_velocity_computed",
+    "res://source/match/TerrainNavigation.gd::closest_point",
+    "res://source/match/units/traits/Movement.gd::_ground_step_contact",
+    "res://source/match/units/traits/ChassisMotion.gd::_integrate",
+    "res://source/match/units/traits/BastionVisuals.gd::_advance_pose",
+    "res://source/match/maps/AuthoredSceneMap.gd::overview",
+    "res://source/match/units/traits/WalkerGait.gd::pose",
+    "res://source/match/combat/Battlefield.gd::is_observed",
+    "res://source/match/hud/Minimap.gd::_sync_unit",
+    "res://source/match/units/traits/ChassisMotion.gd::advance"
+  ],
+  "current_top_inclusive_order": [
+    "res://source/match/units/traits/Movement.gd::_on_velocity_computed",
+    "res://source/match/units/traits/BastionVisuals.gd::_process",
+    "res://source/match/units/traits/BastionVisuals.gd::_advance_pose",
+    "res://source/match/units/traits/Movement.gd::_physics_process",
+    "res://source/match/units/traits/Movement.gd::has_occupied_endpoint",
+    "res://source/match/combat/Battlefield.gd::nearby_bodies",
+    "res://source/match/combat/Battlefield.gd::is_observed",
+    "res://source/match/units/traits/Movement.gd::_clip_ground_step",
+    "res://source/match/combat/Battlefield.gd::nearby_units",
+    "res://source/match/combat/Battlefield.gd::_refresh"
+  ],
+  "current_top_metrics": [
+    {
+      "function": "res://source/match/combat/Battlefield.gd::nearby_units",
+      "self_ms_per_frame": 2.5218,
+      "inclusive_ms_per_frame": 3.9729,
+      "calls_per_frame": 242.2,
+      "self_ms_per_tick": 1.2609,
+      "inclusive_ms_per_tick": 1.9865,
+      "calls_per_tick": 121.1,
+      "self_us_per_call": 10.4121
+    },
+    {
+      "function": "res://source/match/combat/Battlefield.gd::_refresh",
+      "self_ms_per_frame": 2.1697,
+      "inclusive_ms_per_frame": 3.9562,
+      "calls_per_frame": 812.6,
+      "self_ms_per_tick": 1.0849,
+      "inclusive_ms_per_tick": 1.9781,
+      "calls_per_tick": 406.3,
+      "self_us_per_call": 2.6701
+    },
+    {
+      "function": "res://source/match/units/traits/Movement.gd::_on_velocity_computed",
+      "self_ms_per_frame": 1.8538,
+      "inclusive_ms_per_frame": 11.7704,
+      "calls_per_frame": 400.0,
+      "self_ms_per_tick": 0.9269,
+      "inclusive_ms_per_tick": 5.8852,
+      "calls_per_tick": 200.0,
+      "self_us_per_call": 4.6345
+    },
+    {
+      "function": "res://source/match/TerrainNavigation.gd::closest_point",
+      "self_ms_per_frame": 1.2271,
+      "inclusive_ms_per_frame": 1.2678,
+      "calls_per_frame": 172.3,
+      "self_ms_per_tick": 0.6136,
+      "inclusive_ms_per_tick": 0.6339,
+      "calls_per_tick": 86.15,
+      "self_us_per_call": 7.1219
+    },
+    {
+      "function": "res://source/match/units/traits/Movement.gd::_ground_step_contact",
+      "self_ms_per_frame": 1.023,
+      "inclusive_ms_per_frame": 1.197,
+      "calls_per_frame": 168.3,
+      "self_ms_per_tick": 0.5115,
+      "inclusive_ms_per_tick": 0.5985,
+      "calls_per_tick": 84.15,
+      "self_us_per_call": 6.0784
+    },
+    {
+      "function": "res://source/match/units/traits/ChassisMotion.gd::_integrate",
+      "self_ms_per_frame": 0.9786,
+      "inclusive_ms_per_frame": 1.3306,
+      "calls_per_frame": 930.5,
+      "self_ms_per_tick": 0.4893,
+      "inclusive_ms_per_tick": 0.6653,
+      "calls_per_tick": 465.25,
+      "self_us_per_call": 1.0517
+    },
+    {
+      "function": "res://source/match/units/traits/BastionVisuals.gd::_advance_pose",
+      "self_ms_per_frame": 0.9629,
+      "inclusive_ms_per_frame": 9.4069,
+      "calls_per_frame": 280.0,
+      "self_ms_per_tick": 0.4814,
+      "inclusive_ms_per_tick": 4.7035,
+      "calls_per_tick": 140.0,
+      "self_us_per_call": 3.4389
+    },
+    {
+      "function": "res://source/match/maps/AuthoredSceneMap.gd::overview",
+      "self_ms_per_frame": 0.8569,
+      "inclusive_ms_per_frame": 0.8787,
+      "calls_per_frame": 0.5,
+      "self_ms_per_tick": 0.4285,
+      "inclusive_ms_per_tick": 0.4394,
+      "calls_per_tick": 0.25,
+      "self_us_per_call": 1713.8
+    },
+    {
+      "function": "res://source/match/units/traits/WalkerGait.gd::pose",
+      "self_ms_per_frame": 0.8525,
+      "inclusive_ms_per_frame": 0.8525,
+      "calls_per_frame": 59.8,
+      "self_ms_per_tick": 0.4262,
+      "inclusive_ms_per_tick": 0.4262,
+      "calls_per_tick": 29.9,
+      "self_us_per_call": 14.2559
+    },
+    {
+      "function": "res://source/match/combat/Battlefield.gd::is_observed",
+      "self_ms_per_frame": 0.8519,
+      "inclusive_ms_per_frame": 4.342,
+      "calls_per_frame": 423.6,
+      "self_ms_per_tick": 0.4259,
+      "inclusive_ms_per_tick": 2.171,
+      "calls_per_tick": 211.8,
+      "self_us_per_call": 2.0111
+    },
+    {
+      "function": "res://source/match/hud/Minimap.gd::_sync_unit",
+      "self_ms_per_frame": 0.7745,
+      "inclusive_ms_per_frame": 0.8514,
+      "calls_per_frame": 302.0,
+      "self_ms_per_tick": 0.3872,
+      "inclusive_ms_per_tick": 0.4257,
+      "calls_per_tick": 151.0,
+      "self_us_per_call": 2.5646
+    },
+    {
+      "function": "res://source/match/units/traits/ChassisMotion.gd::advance",
+      "self_ms_per_frame": 0.6701,
+      "inclusive_ms_per_frame": 2.5368,
+      "calls_per_frame": 198.1,
+      "self_ms_per_tick": 0.335,
+      "inclusive_ms_per_tick": 1.2684,
+      "calls_per_tick": 99.05,
+      "self_us_per_call": 3.3826
+    },
+    {
+      "function": "res://source/match/units/traits/BastionVisuals.gd::_process",
+      "self_ms_per_frame": 0.3631,
+      "inclusive_ms_per_frame": 10.3007,
+      "calls_per_frame": 280.0,
+      "self_ms_per_tick": 0.1816,
+      "inclusive_ms_per_tick": 5.1504,
+      "calls_per_tick": 140.0,
+      "self_us_per_call": 1.2968
+    },
+    {
+      "function": "res://source/match/units/traits/Movement.gd::_physics_process",
+      "self_ms_per_frame": 0.6624,
+      "inclusive_ms_per_frame": 5.5901,
+      "calls_per_frame": 400.0,
+      "self_ms_per_tick": 0.3312,
+      "inclusive_ms_per_tick": 2.795,
+      "calls_per_tick": 200.0,
+      "self_us_per_call": 1.656
+    },
+    {
+      "function": "res://source/match/units/traits/Movement.gd::has_occupied_endpoint",
+      "self_ms_per_frame": 0.5466,
+      "inclusive_ms_per_frame": 4.4417,
+      "calls_per_frame": 55.4,
+      "self_ms_per_tick": 0.2733,
+      "inclusive_ms_per_tick": 2.2208,
+      "calls_per_tick": 27.7,
+      "self_us_per_call": 9.8664
+    },
+    {
+      "function": "res://source/match/combat/Battlefield.gd::nearby_bodies",
+      "self_ms_per_frame": 0.0153,
+      "inclusive_ms_per_frame": 4.3826,
+      "calls_per_frame": 54.3,
+      "self_ms_per_tick": 0.0077,
+      "inclusive_ms_per_tick": 2.1913,
+      "calls_per_tick": 27.15,
+      "self_us_per_call": 0.2818
+    },
+    {
+      "function": "res://source/match/units/traits/Movement.gd::_clip_ground_step",
+      "self_ms_per_frame": 0.1869,
+      "inclusive_ms_per_frame": 4.2978,
+      "calls_per_frame": 168.0,
+      "self_ms_per_tick": 0.0934,
+      "inclusive_ms_per_tick": 2.1489,
+      "calls_per_tick": 84.0,
+      "self_us_per_call": 1.1125
+    }
+  ],
+  "comparison": [
+    {
+      "function": "res://source/match/players/Player.gd::power_totals",
+      "prior": {
+        "self_ms_per_frame": 1.3756,
+        "inclusive_ms_per_frame": 1.8448,
+        "calls_per_frame": 19.8,
+        "self_ms_per_tick": 0.5573,
+        "inclusive_ms_per_tick": 0.749,
+        "calls_per_tick": 7.7167,
+        "self_us_per_call": 69.4747
+      },
+      "current": {
+        "self_ms_per_frame": 0.1409,
+        "inclusive_ms_per_frame": 0.1871,
+        "calls_per_frame": 2.1,
+        "self_ms_per_tick": 0.0704,
+        "inclusive_ms_per_tick": 0.0936,
+        "calls_per_tick": 1.05,
+        "self_us_per_call": 67.0952
+      },
+      "absence_means": null
+    },
+    {
+      "function": "res://source/match/combat/RepairService.gd::_physics_process",
+      "prior": {
+        "self_ms_per_frame": 0.0005,
+        "inclusive_ms_per_frame": 3.7883,
+        "calls_per_frame": 2.6,
+        "self_ms_per_tick": 0.0002,
+        "inclusive_ms_per_tick": 1.5062,
+        "calls_per_tick": 1.0,
+        "self_us_per_call": 0.1923
+      },
+      "current": {
+        "self_ms_per_frame": 0.0007,
+        "inclusive_ms_per_frame": 0.7678,
+        "calls_per_frame": 2.0,
+        "self_ms_per_tick": 0.0003,
+        "inclusive_ms_per_tick": 0.3839,
+        "calls_per_tick": 1.0,
+        "self_us_per_call": 0.35
+      },
+      "absence_means": null
+    },
+    {
+      "function": "res://source/match/units/Unit.gd::_get_movement_speed",
+      "prior": {
+        "self_ms_per_frame": 0.7171,
+        "inclusive_ms_per_frame": 1.0421,
+        "calls_per_frame": 861.6,
+        "self_ms_per_tick": 0.2784,
+        "inclusive_ms_per_tick": 0.4043,
+        "calls_per_tick": 333.1333,
+        "self_us_per_call": 0.8323
+      },
+      "current": {
+        "self_ms_per_frame": 0.1586,
+        "inclusive_ms_per_frame": 0.2191,
+        "calls_per_frame": 136.6,
+        "self_ms_per_tick": 0.0793,
+        "inclusive_ms_per_tick": 0.1095,
+        "calls_per_tick": 68.3,
+        "self_us_per_call": 1.1611
+      },
+      "absence_means": null
+    },
+    {
+      "function": "res://source/match/units/traits/Movement.gd::@speed_getter",
+      "prior": {
+        "self_ms_per_frame": 1.0492,
+        "inclusive_ms_per_frame": 1.5942,
+        "calls_per_frame": 2537.4,
+        "self_ms_per_tick": 0.4009,
+        "inclusive_ms_per_tick": 0.6082,
+        "calls_per_tick": 969.75,
+        "self_us_per_call": 0.4135
+      },
+      "current": {
+        "self_ms_per_frame": 0.6215,
+        "inclusive_ms_per_frame": 0.9057,
+        "calls_per_frame": 1442.7,
+        "self_ms_per_tick": 0.3107,
+        "inclusive_ms_per_tick": 0.4529,
+        "calls_per_tick": 721.35,
+        "self_us_per_call": 0.4308
+      },
+      "absence_means": null
+    },
+    {
+      "function": "res://source/match/units/traits/Movement.gd::_physics_process",
+      "prior": {
+        "self_ms_per_frame": 1.3506,
+        "inclusive_ms_per_frame": 8.1272,
+        "calls_per_frame": 520.0,
+        "self_ms_per_tick": 0.5352,
+        "inclusive_ms_per_tick": 3.0732,
+        "calls_per_tick": 200.0,
+        "self_us_per_call": 2.5973
+      },
+      "current": {
+        "self_ms_per_frame": 0.6624,
+        "inclusive_ms_per_frame": 5.5901,
+        "calls_per_frame": 400.0,
+        "self_ms_per_tick": 0.3312,
+        "inclusive_ms_per_tick": 2.795,
+        "calls_per_tick": 200.0,
+        "self_us_per_call": 1.656
+      },
+      "absence_means": null
+    },
+    {
+      "function": "res://source/match/units/traits/Movement.gd::_on_velocity_computed",
+      "prior": {
+        "self_ms_per_frame": 2.3346,
+        "inclusive_ms_per_frame": 14.7964,
+        "calls_per_frame": 520.0,
+        "self_ms_per_tick": 0.89,
+        "inclusive_ms_per_tick": 5.6263,
+        "calls_per_tick": 200.0,
+        "self_us_per_call": 4.4896
+      },
+      "current": {
+        "self_ms_per_frame": 1.8538,
+        "inclusive_ms_per_frame": 11.7704,
+        "calls_per_frame": 400.0,
+        "self_ms_per_tick": 0.9269,
+        "inclusive_ms_per_tick": 5.8852,
+        "calls_per_tick": 200.0,
+        "self_us_per_call": 4.6345
+      },
+      "absence_means": null
+    },
+    {
+      "function": "res://source/match/combat/Battlefield.gd::_refresh",
+      "prior": {
+        "self_ms_per_frame": 3.7869,
+        "inclusive_ms_per_frame": 5.8216,
+        "calls_per_frame": 985.7,
+        "self_ms_per_tick": 1.4552,
+        "inclusive_ms_per_tick": 2.2377,
+        "calls_per_tick": 377.2167,
+        "self_us_per_call": 3.8418
+      },
+      "current": {
+        "self_ms_per_frame": 2.1697,
+        "inclusive_ms_per_frame": 3.9562,
+        "calls_per_frame": 812.6,
+        "self_ms_per_tick": 1.0849,
+        "inclusive_ms_per_tick": 1.9781,
+        "calls_per_tick": 406.3,
+        "self_us_per_call": 2.6701
+      },
+      "absence_means": null
+    },
+    {
+      "function": "res://source/match/combat/Battlefield.gd::nearby_units",
+      "prior": {
+        "self_ms_per_frame": 3.3676,
+        "inclusive_ms_per_frame": 5.9468,
+        "calls_per_frame": 308.0,
+        "self_ms_per_tick": 1.2864,
+        "inclusive_ms_per_tick": 2.2785,
+        "calls_per_tick": 118.3167,
+        "self_us_per_call": 10.9338
+      },
+      "current": {
+        "self_ms_per_frame": 2.5218,
+        "inclusive_ms_per_frame": 3.9729,
+        "calls_per_frame": 242.2,
+        "self_ms_per_tick": 1.2609,
+        "inclusive_ms_per_tick": 1.9865,
+        "calls_per_tick": 121.1,
+        "self_us_per_call": 10.4121
+      },
+      "absence_means": null
+    },
+    {
+      "function": "res://source/match/units/traits/BastionVisuals.gd::_advance_pose",
+      "prior": {
+        "self_ms_per_frame": 0.9685,
+        "inclusive_ms_per_frame": 9.7491,
+        "calls_per_frame": 280.0,
+        "self_ms_per_tick": 0.3852,
+        "inclusive_ms_per_tick": 3.8644,
+        "calls_per_tick": 112.0,
+        "self_us_per_call": 3.4589
+      },
+      "current": {
+        "self_ms_per_frame": 0.9629,
+        "inclusive_ms_per_frame": 9.4069,
+        "calls_per_frame": 280.0,
+        "self_ms_per_tick": 0.4814,
+        "inclusive_ms_per_tick": 4.7035,
+        "calls_per_tick": 140.0,
+        "self_us_per_call": 3.4389
+      },
+      "absence_means": null
+    },
+    {
+      "function": "res://source/match/units/CombatRobot.gd::_update_badge",
+      "prior": {
+        "self_ms_per_frame": 0.052,
+        "inclusive_ms_per_frame": 0.052,
+        "calls_per_frame": 16.0,
+        "self_ms_per_tick": 0.0195,
+        "inclusive_ms_per_tick": 0.0195,
+        "calls_per_tick": 6.0,
+        "self_us_per_call": 3.25
+      },
+      "current": null,
+      "absence_means": "Not reported in these sampled combat frames, not proof of zero cost elsewhere."
+    },
+    {
+      "function": "res://source/match/debug/DiagnosticHud.gd::_physics_process",
+      "prior": {
+        "self_ms_per_frame": 0.1028,
+        "inclusive_ms_per_frame": 0.1064,
+        "calls_per_frame": 2.6,
+        "self_ms_per_tick": 0.0394,
+        "inclusive_ms_per_tick": 0.0407,
+        "calls_per_tick": 1.0,
+        "self_us_per_call": 39.5385
+      },
+      "current": null,
+      "absence_means": "Not reported in these sampled combat frames, not proof of zero cost elsewhere."
+    }
+  ],
+  "findings": [
+    "Spatial queries and movement remain the dominant recurring script work: nearby_units and Battlefield._refresh lead self cost; _on_velocity_computed leads inclusive cost.",
+    "Service reuse is visible in calls: power_totals falls from 7.7167 to 1.05 calls/tick. RepairService inclusive time falls from 1.5062 to 0.3839 ms/tick in these samples.",
+    "Unit._get_movement_speed calls fall from 333.1333 to 68.3/tick; Movement.speed from 969.75 to 721.35/tick. Movement._physics_process self time falls from 0.5352 to 0.3312 ms/tick, while its callback is still about 0.927 self / 5.885 inclusive ms/tick.",
+    "Battlefield._refresh self per call is 3.8418 us prior versus 2.6701 current; nearby_units remains around 1.261 self ms/tick, so query enumeration is still a concrete investigation target.",
+    "BastionVisuals._advance_pose runs 280 times per sampled rendered frame in both profiles, with 0.9685 versus 0.9629 self ms/frame. Its larger current per-tick figure is a cadence artifact, not evidence of an animation regression.",
+    "CombatRobot._update_badge and DiagnosticHud._physics_process are absent from current sampled combat rows, consistent with normal-play diagnostic gating.",
+    "AuthoredSceneMap.overview appears in the top self list from only five calls across ten snapshots; treat it as periodic map/UI work, not a per-tick cost."
+  ],
+  "frame_provenance": {
+    "diagnostic-0433": {
+      "parsed_file": "tmp/polish-windows-profile-diagnostic-0433-frames.json",
+      "parsed_sha256": "e63d10ffc1ce5c1f2593379326afe5881535fadb47cace02215195273398c300",
+      "frames": [
+        {
+          "raw_line": null,
+          "physics_ticks": 2.0,
+          "frame_header": "FRAME: total: 0.10206 script: 0.066397/65 %"
+        },
+        {
+          "raw_line": null,
+          "physics_ticks": 2.0,
+          "frame_header": "FRAME: total: 0.072935 script: 0.042965/58 %"
+        },
+        {
+          "raw_line": null,
+          "physics_ticks": 3.0,
+          "frame_header": "FRAME: total: 0.088888 script: 0.050078/56 %"
+        },
+        {
+          "raw_line": null,
+          "physics_ticks": 3.0,
+          "frame_header": "FRAME: total: 0.099201 script: 0.055195/55 %"
+        },
+        {
+          "raw_line": null,
+          "physics_ticks": 2.0,
+          "frame_header": "FRAME: total: 0.068561 script: 0.037317/54 %"
+        },
+        {
+          "raw_line": null,
+          "physics_ticks": 3.0,
+          "frame_header": "FRAME: total: 0.091296 script: 0.052866/57 %"
+        },
+        {
+          "raw_line": null,
+          "physics_ticks": 3.0,
+          "frame_header": "FRAME: total: 0.1003 script: 0.057999/57 %"
+        },
+        {
+          "raw_line": null,
+          "physics_ticks": 3.0,
+          "frame_header": "FRAME: total: 0.092506 script: 0.052724/56 %"
+        },
+        {
+          "raw_line": null,
+          "physics_ticks": 3.0,
+          "frame_header": "FRAME: total: 0.097231 script: 0.059411/61 %"
+        },
+        {
+          "raw_line": null,
+          "physics_ticks": 2.0,
+          "frame_header": "FRAME: total: 0.080544 script: 0.046614/57 %"
+        }
+      ]
+    },
+    "candidate-045513": {
+      "parsed_file": "tmp/polish-windows-profile-candidate-045513-frames.json",
+      "parsed_sha256": "f03dfc361a2d15a153bbe57833dbd95e79c6770314bd1a5b959875b83da83390",
+      "frames": [
+        {
+          "raw_line": 8865,
+          "physics_ticks": 2.0,
+          "frame_header": "FRAME: total: 0.064154 script: 0.036079/56 %"
+        },
+        {
+          "raw_line": 9380,
+          "physics_ticks": 2.0,
+          "frame_header": "FRAME: total: 0.071917 script: 0.040519/56 %"
+        },
+        {
+          "raw_line": 10225,
+          "physics_ticks": 2.0,
+          "frame_header": "FRAME: total: 0.070408 script: 0.040109/56 %"
+        },
+        {
+          "raw_line": 10966,
+          "physics_ticks": 2.0,
+          "frame_header": "FRAME: total: 0.07521 script: 0.042056/55 %"
+        },
+        {
+          "raw_line": 11807,
+          "physics_ticks": 2.0,
+          "frame_header": "FRAME: total: 0.078271 script: 0.043698/55 %"
+        },
+        {
+          "raw_line": 12652,
+          "physics_ticks": 2.0,
+          "frame_header": "FRAME: total: 0.060653 script: 0.031044/51 %"
+        },
+        {
+          "raw_line": 13367,
+          "physics_ticks": 2.0,
+          "frame_header": "FRAME: total: 0.068982 script: 0.034091/49 %"
+        },
+        {
+          "raw_line": 14150,
+          "physics_ticks": 2.0,
+          "frame_header": "FRAME: total: 0.075464 script: 0.039208/51 %"
+        },
+        {
+          "raw_line": 14955,
+          "physics_ticks": 2.0,
+          "frame_header": "FRAME: total: 0.066977 script: 0.033877/50 %"
+        },
+        {
+          "raw_line": 15728,
+          "physics_ticks": 2.0,
+          "frame_header": "FRAME: total: 0.067093 script: 0.034397/51 %"
+        }
+      ]
+    }
+  },
+  "production_edits": false,
+  "engine_or_remote_runs_by_this_analysis": false
+}

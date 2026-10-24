@@ -2,10 +2,10 @@
 
 Status on 2026-10-03: **capture, reconstruction and player save/load flows implemented and verified for desktop skirmish and all six Bastion operation prototypes.** Campaign completion/badge persistence remains independent. Cross-platform/export and interruption-during-write acceptance remain open.
 
-## Single snapshot version — 2026-10-20
+## Single snapshot version — 2026-10-24
 
 The Lua runtime and programmable units were removed, together with battle-save backward
-compatibility. Gameplay snapshots write and accept only version 16
+compatibility. Gameplay snapshots write and accept only version 19
 (`MatchSnapshot.VERSION`); any other version is rejected before scene replacement with
 "This save was made by a different game version." There is no migration code. Version 15
 has no program, Lua, chip, squad or factory-pin records, and players store the latched
@@ -27,14 +27,22 @@ no saved trajectory to reproduce with the physical projectile model. This is a o
 historical-fixture adjustment; new version-16 saves preserve their in-flight physical
 rounds. The earlier version-15 conversion made units that were mid chip retrofit idle.
 
-Eight version-9 archives remain unchanged as historical evidence for the removed
-`air_corridor` mission and `AirCorridorMap`; they cannot load in the current game:
+Version 18 added saved veterancy experience and looping patrol state. Version 19 adds
+the ordered, prepaid research queue, including Coordination. Each queued record stores
+its known technology ID and exact reserved price. Validation rejects duplicates,
+incorrect prices and prerequisites that are neither completed nor earlier in the
+active/queued sequence. Restoration preserves order and payment without charging again.
+All 810 supported archives are now version 19; their existing values and unit/resource
+IDs remain unchanged apart from the version and new empty queue field. The one-off
+[conversion record](playtests/2026-10-24/research-queue-archive-conversion.json) also
+records removal of the 810 temporary version-18 backups after validation.
+`ArchivedSnapshotRegression.gd` validates every archive without legacy exemptions.
 
-- `docs/playtests/2026-10-07/air-environment/`: `rendered-flight.json`,
-  `legacy-flight.json`, `raised-flight.json`, and `veteran-preview-held-archive.json`.
-- `docs/playtests/2026-10-07/air-difficulties/`: `preview-held-archive.json`,
-  `accepted-preview-held-archive.json`, `final-preview-held-archive.json`, and
-  `verified-preview-held-archive.json`.
+On 2026-10-24, the user's requested cleanup removed the eight obsolete version-9
+Air Corridor archives, 818 obsolete temporary backup snapshots, and 98 old local
+battle/test saves (including the three checkpoint slots). No current fixture,
+campaign-progress record or preference file was removed. The cleanup manifest is
+[`obsolete-saves-cleanup.json`](playtests/2026-10-23/obsolete-saves-cleanup.json).
 
 Sections below record how each part of the contract was introduced; their references to
 older snapshot versions are history, not supported inputs.
@@ -145,7 +153,7 @@ Verification caught two user-visible defects: the initial paused loader could no
 
 Additional tests:
 
-- `SaveRestoreRegression.gd`: actual campaign disk save → scene reconstruction → real resume, movement/queued authority, Guard post and Follow target, harvesting cargo, construction, paid production, mission durations, cooldown/damage suppression, pending projectile, malformed and other-version input rejection and paused HUD values. Its Metal run uses real mouse input on Resume at 1280 × 720. [Review image](../art/skirmish/save-restored-paused-720p.png).
+- `SaveRestoreRegression.gd`: actual campaign disk save → scene reconstruction → real resume, movement/queued authority, Guard post and Follow target, harvesting cargo, construction, paid production, mission durations, cooldown/damage suppression, pending projectile, malformed and other-version input rejection and paused HUD values. Its Metal run uses real mouse input on Resume at 1280 × 720. The original restored-battle review image is no longer retained locally.
 - `SaveRestoreEdges.gd`: both factions, repeated load/save capture, Hold Fire and Follow persistence, dead gather and follow targets, manual control after fallback, remembered structures and all three skirmish map reloads.
 - `SaveRestoreCombat.gd`: an actively firing Helix tank retains its shot count and timer, does no damage while paused and resumes repeating fire on schedule.
 - Shared combat, manual orders, navigation, campaign and skirmish regressions pass. Editor import, changed-code lint/format and whitespace checks pass. Navigation was rerun after the obstacle restoration correction. Existing navigation GPU-readback and shutdown-only shader/RID/ObjectDB/resource warnings remain.
@@ -166,7 +174,7 @@ Preflight rejection preserves the current battle; rollback after replacement sta
 
 `SaveSlotsRegression.gd` checks quick/manual capture, world-input isolation, pause/focus restoration, malformed and gameplay-invalid sources, retained files, usable rejection feedback and the four real mission checkpoint triggers/three-slot rotation. It deliberately postpones the real navigation rebake beyond the loader's bounded wait, verifies post-replacement recovery restrictions and source preservation, then retries successfully and separately returns to Main menu before loading again.
 
-`SaveSlotsPreview.gd` drives real buttons/keys at 720p: menu entry, Save, overwrite confirmation/cancel, F5/F9, active-battle load confirmation, Resume, arrow-key selection, corruption feedback and main-menu loading. [Manual save](../art/skirmish/save-manual-720p.png), [load confirmation](../art/skirmish/save-load-confirm-720p.png), [corrupt slot](../art/skirmish/save-corrupt-720p.png), [loaded battle](../art/skirmish/save-loaded-720p.png). Initial visual review found concatenated ItemList newlines; rows now use clear separators with full details below. Rendered skirmish saving also exposed `Vector2` versus `Vector2i` map dimensions in fog validation; the schema normalizes map dimensions and the actual F5/F9 flow passes.
+`SaveSlotsPreview.gd` drives real buttons/keys at 720p: menu entry, Save, overwrite confirmation/cancel, F5/F9, active-battle load confirmation, Resume, arrow-key selection, corruption feedback and main-menu loading. The original manual-save, load-confirmation, corrupt-slot and loaded-battle captures are no longer retained locally. Initial visual review found concatenated ItemList newlines; rows now use clear separators with full details below. Rendered skirmish saving also exposed `Vector2` versus `Vector2i` map dimensions in fog validation; the schema normalizes map dimensions and the actual F5/F9 flow passes.
 
 `SaveLoadScale.gd` loads a real 200-mobile snapshot with 187 eight-order tank queues (699,285 bytes), checks every queue, then saves the loaded army again. Timings are local M1 Pro headless storage/reconstruction measurements, not combat frame-rate or lower-end-device guarantees. See the current measured timings in the development roadmap. Inspection and serialization remain synchronous within each file; opening many large slots can take several seconds, with progress between slots.
 

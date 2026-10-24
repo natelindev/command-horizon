@@ -13,7 +13,7 @@ func _run():
 	_storage_keys()
 	for faction in ["bastion", "helix"]:
 		preferences.restore({"screen": 1, "edge_scrolling": false})
-		_bind("pause_battle", KEY_P)
+		_bind("pause_battle", KEY_U)
 		_bind("attack_move", KEY_K | KEY_MASK_CTRL)
 		await _setup(faction)
 		await _capture_and_rollback()
@@ -66,19 +66,19 @@ func _storage_keys():
 	var duplicate = expected.duplicate(true)
 	duplicate.keys.attack_move = KEY_SPACE
 	_check(Keys.normalize(duplicate) == expected, "Duplicate binding was partially applied")
-	_bind("pause_battle", KEY_P)
+	_bind("pause_battle", KEY_U)
 	_bind("attack_move", KEY_K | KEY_MASK_CTRL)
 	var before = preferences.capture()
 	before.key_bindings.keys.pause_battle = KEY_Z
 	_check(
-		preferences.key_bindings.keys.pause_battle == KEY_P, "Capture aliases live key dictionary"
+		preferences.key_bindings.keys.pause_battle == KEY_U, "Capture aliases live key dictionary"
 	)
 	_check(preferences.persist(archive) == OK, "Key profile failed to persist")
 	var stored = ResourceLoader.load(archive, "", ResourceLoader.CACHE_MODE_IGNORE)
 	_check(stored.key_bindings == preferences.key_bindings, "Disk lost key profile")
 	preferences.restore({"screen": 1, "edge_scrolling": false})
 	preferences.restore(stored.capture())
-	_check(Keys.label("pause_battle") == "P", "Stored profile failed to apply")
+	_check(Keys.label("pause_battle") == "U", "Stored profile failed to apply")
 	print("PASS versioned key persistence, legacy defaults, corrupt/conflicting/reserved rejection")
 
 
@@ -131,7 +131,7 @@ func _capture_and_rollback():
 		preferences.capture() == before and not paused,
 		"Cancel did not restore nested bindings/pause"
 	)
-	_check("[P]" in game.hud._pause_button.tooltip_text, "Cancel left stale pause hint")
+	_check("[U]" in game.hud._pause_button.tooltip_text, "Cancel left stale pause hint")
 	# Rebinding a held camera action cannot leave its old press latched.
 	Input.action_press("move_map_up")
 	_bind("move_map_up", KEY_I)
@@ -191,7 +191,7 @@ func _queue_shortcuts():
 	_check(paused and not game.hud._attack_armed, "Explicit Shift+F lost to queue fallback")
 	await _press(KEY_F | KEY_MASK_SHIFT)
 	await _up(KEY_SHIFT)
-	_bind("pause_battle", KEY_P)
+	_bind("pause_battle", KEY_U)
 	_bind("shift_selecting", KEY_ALT)
 	_bind("attack_move", KEY_K | KEY_MASK_CTRL)
 	await _down(KEY_ALT)
@@ -205,7 +205,7 @@ func _queue_shortcuts():
 func _commands():
 	_bind("move_order", KEY_M | KEY_MASK_ALT)
 	_bind("attack_target", KEY_T | KEY_MASK_ALT)
-	_bind("pause_battle", KEY_P)
+	_bind("pause_battle", KEY_U)
 	_bind("attack_move", KEY_K | KEY_MASK_CTRL)
 	_bind("toggle_match_menu", KEY_M)
 	_bind("rotate_structure", KEY_T)
@@ -229,13 +229,13 @@ func _commands():
 	_check(game.hud._attack_armed, "Focused HUD button stole arrow attack")
 	game.hud._arm_attack()
 	_bind("attack_move", KEY_K | KEY_MASK_CTRL)
-	_bind("pause_battle", KEY_P)
+	_bind("pause_battle", KEY_U)
 	_release_focus()
 	await _press(KEY_SPACE)
 	_check(not paused, "Old pause key still active")
-	await _press(KEY_P)
-	_check(paused and "[P]" in game.hud._pause_button.tooltip_text, "Remapped pause failed")
-	await _press(KEY_P)
+	await _press(KEY_U)
+	_check(paused and "[U]" in game.hud._pause_button.tooltip_text, "Remapped pause failed")
+	await _press(KEY_U)
 	_check(not paused, "Remapped resume failed")
 	await _press(KEY_F)
 	_check(not game.hud._attack_armed, "Old attack key still active")
@@ -272,7 +272,7 @@ func _commands():
 	var tank = _units(human, "Tank")[0]
 	root.get_node("MatchSignals").deselect_all_units.emit()
 	tank.get_node("Selection").select()
-	await _press(KEY_P)
+	await _press(KEY_U)
 	game.hud._attack_button.grab_focus()
 	await _press(KEY_B | KEY_MASK_CTRL)
 	_check(tank.is_in_group("unit_group_1"), "Remapped group assignment failed")
@@ -289,7 +289,7 @@ func _commands():
 		),
 		"Double group recall did not center the camera"
 	)
-	await _press(KEY_P)
+	await _press(KEY_U)
 	_release_focus()
 	# Queue attack-move with a non-Shift hold binding through the actual HUD handler.
 	await _down(KEY_G)

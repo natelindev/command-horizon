@@ -4,7 +4,10 @@ extends CanvasLayer
 
 
 func _ready():
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	visibility_changed.connect(func(): set_physics_process(visible))
 	hide()
+	set_physics_process(false)
 
 
 func _unhandled_input(event):

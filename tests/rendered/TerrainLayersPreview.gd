@@ -106,10 +106,10 @@ func _run():
 		var size = game.map.size
 		var center = Vector3(size.x / 2.0, 0, size.y / 2.0)
 		var label = map_name.get_file().to_snake_case().replace("_", "-")
-		await _pair(label + "-battle", hq.global_position + Vector3(8, 0, 6), 28)
+		await _pair(label + "-battle", hq.global_position + Vector3(8, 0, 6), 24)
 		# Campaign briefings pan the camera between captures, so pixels cannot match.
 		if not CAMPAIGN.has(map_name):
-			await _check_setting(label + "-battle", hq.global_position + Vector3(8, 0, 6), 28)
+			await _check_setting(label + "-battle", hq.global_position + Vector3(8, 0, 6), 24)
 		await _pair(label + "-field", center, 28)
 		await _capture(label + "-overview", center, 45)
 		await _pair(label + "-detail", center + Vector3(6, 0, 4), 12)

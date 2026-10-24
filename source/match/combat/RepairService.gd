@@ -6,6 +6,7 @@ const Footprint = preload("res://source/match/utils/Footprint.gd")
 const Rules = preload("res://source/match/combat/CombatRules.gd")
 const INTERVAL = 0.25
 const FACILITY_RANGE = 5.0
+const PROVIDER_ROLES = ["RepairRobot", "AircraftFactory", "RepairDepot", "Barracks"]
 var _elapsed = 0.0
 @onready var _match = get_parent()
 
@@ -76,6 +77,10 @@ func _physics_process(delta):
 
 func service(delta):
 	var providers = []
+	# Provider collection is synchronous. Read each player's current modifiers
+	# once for this pass; the next service call observes power/research changes.
+	var service_factors = {}
+	var production_factors = {}
 	var units = get_tree().get_nodes_in_group("units")
 	for unit in units:
 		if (
@@ -85,32 +90,31 @@ func service(delta):
 			or unit.hp <= 0
 		):
 			continue
-		var upgrade = (
-			unit.player.technology.service_factor() if unit.player.technology != null else 1.0
-		)
-		if unit.type == "RepairRobot":
+		var role = unit.type
+		if role not in PROVIDER_ROLES:
+			continue
+		var player = unit.player
+		if not service_factors.has(player):
+			service_factors[player] = (
+				player.technology.service_factor() if player.technology != null else 1.0
+			)
+		var upgrade: float = service_factors[player]
+		if role == "RepairRobot":
 			if (
 				stationary(unit)
 				and (unit.action == null or unit.action.has_method("repair_target"))
 			):
 				providers.append({"unit": unit, "rate": 0.025 * upgrade, "slots": 1, "range": 3.0})
-		elif unit.type == "AircraftFactory" and unit.is_constructed():
+		elif unit.is_constructed():
+			if not production_factors.has(player):
+				production_factors[player] = player.production_factor()
 			# Aircraft are serviced on the airfield's stands and helipads.
 			providers.append(
 				{
 					"unit": unit,
-					"rate": 0.04 * unit.player.production_factor() * upgrade,
-					"slots": unit.service_slots(),
-					"range": unit.SERVICE_REACH
-				}
-			)
-		elif unit.type in ["RepairDepot", "Barracks"] and unit.is_constructed():
-			providers.append(
-				{
-					"unit": unit,
-					"rate": 0.04 * unit.player.production_factor() * upgrade,
-					"slots": 2,
-					"range": FACILITY_RANGE
+					"rate": 0.04 * production_factors[player] * upgrade,
+					"slots": unit.service_slots() if role == "AircraftFactory" else 2,
+					"range": unit.SERVICE_REACH if role == "AircraftFactory" else FACILITY_RANGE
 				}
 			)
 	for site in load("res://source/match/world/PointOfInterestCatalog.gd").sites(_match):

@@ -19,6 +19,9 @@ var _start
 var _cancel
 var _grid
 var _branches = {}
+var _queue_list
+var _queue_title
+var _queue_rows = []
 
 
 func _ready():
@@ -35,7 +38,7 @@ func _ready():
 	_start.name = "ResearchCoordination"
 	_start.pressed.connect(
 		func():
-			player.start_coordination(lab)
+			player.technology.enqueue("coordination", lab)
 			refresh()
 	)
 	for branch in Technologies.BRANCHES:
@@ -54,12 +57,20 @@ func _ready():
 	_cancel = Button.new()
 	_cancel.name = "CancelResearch"
 	_cancel.text = "Cancel & refund"
+	_cancel.tooltip_text = "Cancel and refund. Dependent queued upgrades are refunded too."
 	_cancel.pressed.connect(_cancel_active)
 	row.add_child(_cancel)
 	_progress = ProgressBar.new()
 	_progress.custom_minimum_size.y = 5
 	_progress.show_percentage = false
 	add_child(_progress)
+	_queue_list = VBoxContainer.new()
+	_queue_list.name = "ResearchQueue"
+	_queue_list.add_theme_constant_override("separation", 4)
+	add_child(_queue_list)
+	_queue_title = Label.new()
+	_queue_title.add_theme_font_size_override("font_size", 13)
+	_queue_list.add_child(_queue_title)
 	resized.connect(_fit_grid)
 	_fit_grid()
 	refresh()
@@ -92,10 +103,16 @@ func _research_branch(branch):
 	if not is_instance_valid(player):
 		return
 	var research = player.technology
-	var id = Technologies.next_in_branch(branch, research.completed)
+	var id = Technologies.next_in_branch(branch, research.planned_technologies())
 	if id != "":
-		research.start(id, lab)
+		research.enqueue(id, lab)
 	refresh()
+
+
+func _cancel_queued(index):
+	if is_instance_valid(player):
+		player.technology.cancel_queued(index)
+		refresh()
 
 
 func refresh():
@@ -125,31 +142,16 @@ func refresh():
 	)
 	var remaining = research.left if technology_running else player.coordination_left
 	_progress.value = 100.0 * (1.0 - maxf(0.0, remaining) / duration)
-	_refresh_coordination(running)
+	_refresh_coordination()
 	for branch in _branches:
 		_refresh_branch(branch)
+	_refresh_queue()
 
 
-func _refresh_coordination(busy):
-	var reason = ""
-	if player.coordination_unlocked:
-		reason = tr("Research complete.")
-	elif busy:
-		reason = tr("Finish or cancel the current research first.")
-	elif not is_instance_valid(lab) or not lab.is_constructed():
-		reason = tr("Requires a completed friendly lab.")
-	elif not player.lab_research_unlocked():
-		reason = tr("Requires a completed vehicle factory and lab.")
-	elif not player.has_resources(player.COORDINATION_COST):
-		reason = (
-			tr("Need %d M / %d E more.")
-			% [
-				maxi(0, player.COORDINATION_COST.resource_a - player.resource_a),
-				maxi(0, player.COORDINATION_COST.resource_b - player.resource_b)
-			]
-		)
+func _refresh_coordination():
+	var reason = tr(player.technology.queue_reason("coordination", lab))
 	var description = (
-		tr("Coordination unlocks long-range armor and %s. One research project at a time.")
+		tr("Coordination unlocks long-range armor and %s. Queued projects run in order.")
 		% tr(load("res://source/match/FactionCatalog.gd").signature_title(player.faction))
 	)
 	_update_tile(
@@ -160,18 +162,23 @@ func _refresh_coordination(busy):
 		description,
 		player.COORDINATION_DURATION,
 		reason,
-		player.coordination_unlocked,
-		player.coordination_left > 0,
-		player.coordination_left
+		{
+			"complete": player.coordination_unlocked,
+			"active": player.coordination_left > 0,
+			"left": player.coordination_left,
+			"queued": player.technology.queued.any(func(entry): return entry.id == "coordination")
+		}
 	)
 
 
 func _refresh_branch(branch):
 	var research = player.technology
-	var id = Technologies.next_in_branch(branch, research.completed)
-	var complete = id == ""
-	if complete:
+	var id = Technologies.next_in_branch(branch, research.planned_technologies())
+	# A branch with no further purchase keeps its latest active/queued/completed
+	# card visible. The ordered list below holds every already purchased project.
+	if id == "":
 		id = branch + "_2" if branch in ["weapons", "armor"] else branch
+	var complete = id in research.completed
 	var item = Technologies.ITEMS[id]
 	_update_tile(
 		_branches[branch].button,
@@ -180,28 +187,38 @@ func _refresh_branch(branch):
 		{"resource_a": item.cost.x, "resource_b": item.cost.y},
 		tr(Technologies.description(id, player.faction)),
 		item.seconds,
-		tr(research.reason(id, lab)),
-		complete,
-		research.active == id,
-		research.left
+		tr(research.queue_reason(id, lab)),
+		{
+			"complete": complete,
+			"active": research.active == id,
+			"left": research.left,
+			"queued": research.queued.any(func(entry): return entry.id == id)
+		}
 	)
 
 
-func _update_tile(
-	button, branch, title, cost, description, seconds, reason, complete, active, left
-):
+func _update_tile(button, branch, title, cost, description, seconds, reason, progress):
 	button.show_role(ICONS[branch], title, cost)
-	button.disabled = complete or reason != ""
-	var state = tr("Completed") if complete else ""
-	if active:
-		state = tr("%d s remaining") % ceili(left / player.production_factor())
+	button.disabled = progress.complete or reason != ""
+	var state = tr("Completed") if progress.complete else ""
+	if progress.queued:
+		state = tr("Queued")
+	if progress.active:
+		state = tr("%d s remaining") % ceili(progress.left / player.production_factor())
 	button.show_state(state)
 	var timing = tr("%d s research at current power.") % ceili(seconds / player.production_factor())
-	if active:
-		timing = tr("Researching · %d s remaining") % ceili(left / player.production_factor())
+	if progress.active:
+		timing = (
+			tr("Researching · %d s remaining") % ceili(progress.left / player.production_factor())
+		)
 		reason = ""
-	elif complete:
+	elif progress.complete:
 		timing = tr("Research complete.")
+	elif progress.queued:
+		timing = tr("Queued · paid in advance")
+		reason = ""
+	elif reason == "" and (player.technology.active != "" or player.coordination_left > 0):
+		timing += "\n" + tr("Click to queue. Resources are reserved now.")
 	# Match production tooltips: title, description, price, then timing/status.
 	var price = tr("%d M / %d E") % [cost.resource_a, cost.resource_b]
 	button.tooltip_text = title + "\n" + description + "\n" + price + "\n" + timing
@@ -209,3 +226,51 @@ func _update_tile(
 		button.tooltip_text += "\n" + reason
 	button.accessibility_name = title
 	button.accessibility_description = button.tooltip_text
+
+
+func _refresh_queue():
+	var entries = player.technology.queued
+	_queue_list.visible = not entries.is_empty()
+	_queue_title.text = tr("Queued research · %d") % entries.size()
+	# Keep controls alive across ordinary status refreshes so keyboard focus
+	# survives research countdown updates and queue shifts.
+	while _queue_rows.size() < entries.size():
+		var index = _queue_rows.size()
+		var row = HBoxContainer.new()
+		row.name = "QueuedResearch%d" % index
+		row.add_theme_constant_override("separation", 8)
+		_queue_list.add_child(row)
+		var title = Label.new()
+		title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		title.add_theme_font_size_override("font_size", 13)
+		row.add_child(title)
+		var cancel = Button.new()
+		cancel.theme_type_variation = "BattleQuietButton"
+		cancel.text = tr("Cancel")
+		cancel.pressed.connect(_cancel_queued.bind(index))
+		row.add_child(cancel)
+		_queue_rows.append({"row": row, "title": title, "cancel": cancel})
+	while _queue_rows.size() > entries.size():
+		var removed = _queue_rows.pop_back()
+		if removed.cancel.has_focus():
+			if _cancel.is_visible_in_tree():
+				_cancel.grab_focus()
+			else:
+				_start.grab_focus()
+		# A pressed button can have later listeners (including UI audio).
+		# Hide the removed row now, then free it after signal delivery completes.
+		removed.row.hide()
+		removed.row.queue_free()
+	for index in entries.size():
+		var entry = entries[index]
+		var row = _queue_rows[index]
+		var title = tr(Technologies.title(entry.id, player.faction))
+		row.title.text = "%d. %s" % [index + 1, title]
+		row.cancel.text = tr("Cancel")
+		row.cancel.accessibility_name = tr("Cancel queued %s") % title
+		row.cancel.tooltip_text = (
+			tr("Refund %d M / %d E. Dependent queued upgrades are refunded too.")
+			% [entry.paid.resource_a, entry.paid.resource_b]
+		)
+		row.cancel.accessibility_description = row.cancel.tooltip_text

@@ -110,7 +110,14 @@ func launch(unit, target, weapon = null, carrier_velocity = Vector3.ZERO):
 	round.life = Weapons.lifetime(weapon, muzzle.distance_to(aim))
 	var rail = round.kind == "rail"
 	_match.combat_effects.shot(
-		unit, muzzle, aim, 0.16, round.kind in ["rocket", "missile"], target, rail and _shown(round)
+		unit,
+		muzzle,
+		aim,
+		0.16,
+		round.kind in ["rocket", "missile"],
+		target,
+		rail and _shown(round),
+		weapon
 	)
 	if rail:
 		_fly_rail(round, unit)
@@ -352,7 +359,7 @@ static func _body_entry(start, end, base, box):
 func _detonate(round, point, body, ground):
 	var hit = body if body != null and Rules.can_receive(round.shot, body) else null
 	if hit != null:
-		hit.receive_shot(round.shot, point)
+		hit.receive_shot(round.shot, point, 1.0, round.weapon)
 	var splash = round.weapon.get("splash", 0.0)
 	if splash > 0.0:
 		var flat = Vector3(point.x, 0, point.z)
@@ -361,7 +368,9 @@ func _detonate(round, point, body, ground):
 				continue
 			var gap = _gap(point, unit)
 			if gap < splash:
-				unit.receive_shot(round.shot, point, SPLASH_SHARE * (1.0 - gap / splash))
+				unit.receive_shot(
+					round.shot, point, SPLASH_SHARE * (1.0 - gap / splash), round.weapon
+				)
 	if not round.shown or not _match.combat_effects.can_show_point(point):
 		return
 	# Heavy warheads explode whatever they strike; a direct hit by lighter rounds

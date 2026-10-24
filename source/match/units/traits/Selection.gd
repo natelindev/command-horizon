@@ -1,6 +1,9 @@
 @tool
 extends Node3D
 
+const FACTION_STYLES = {"bastion": 0, "helix": 1, "frontier": 2}
+const FACTION_SHADER = preload("res://source/shaders/3d/faction_selection.gdshader")
+
 @export_range(0.001, 50.0) var radius = 1.0:
 	set = _set_radius
 # Rectangular structures (the runway airfield) outline their footprint instead.
@@ -10,6 +13,8 @@ extends Node3D
 
 var _selected = false
 var _range_ring = null
+var _animation_time = 0.0
+var _faction_style = -1
 
 @onready var _unit = get_parent()
 @onready var _circle = find_child("FadedCircle3D")
@@ -19,6 +24,8 @@ func _ready():
 	_update_circle_params()
 	if Engine.is_editor_hint():
 		return
+	set_process(false)
+	_setup_faction_ring()
 	var signals = get_node_or_null("/root/MatchSignals")
 	if signals != null:
 		signals.deselect_all_units.connect(deselect)
@@ -32,9 +39,12 @@ func select():
 	if _selected:
 		return
 	_selected = true
+	_animation_time = 0.0
+	set_process(true)
 	if not _unit.is_in_group("selected_units"):
 		_unit.add_to_group("selected_units")
 	_update_circle_color()
+	_set_team_footprint_visible(false)
 	if _circle != null:
 		_circle.show()
 	_refresh_selected_ranges()
@@ -49,10 +59,12 @@ func deselect():
 	if not _selected:
 		return
 	_selected = false
+	set_process(false)
 	if _unit.is_in_group("selected_units"):
 		_unit.remove_from_group("selected_units")
 	if _circle != null:
 		_circle.hide()
+	_set_team_footprint_visible(true)
 	if _range_ring != null:
 		_range_ring.hide()
 	_refresh_selected_ranges()
@@ -100,6 +112,38 @@ func _set_radius(a_radius):
 	_update_circle_params()
 
 
+func _setup_faction_ring():
+	if _circle == null or _circle._plane == null:
+		return
+	# Resources retain their neutral circle. Faction units use distinct silhouettes
+	# while preserving ownership color and rectangular building footprints.
+	if not "player" in _unit or not is_instance_valid(_unit.player):
+		return
+	var material = _circle._plane.material_override
+	material.shader = FACTION_SHADER
+	_faction_style = FACTION_STYLES.get(_unit.player.faction, 0)
+	material.set_shader_parameter("faction_style", _faction_style)
+	material.set_shader_parameter("animation_time", 0.0)
+	_circle._plane.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_update_circle_params()
+
+
+func _set_team_footprint_visible(value):
+	var footprint = _unit.get_node_or_null("TeamFootprint")
+	if footprint != null:
+		footprint.visible = value
+
+
+func _process(delta):
+	if _circle == null or _circle._plane == null:
+		return
+	if not Globals.options.reduced_flashes:
+		_animation_time += delta
+	_circle._plane.material_override.set_shader_parameter(
+		"animation_time", 0.0 if Globals.options.reduced_flashes else _animation_time
+	)
+
+
 func _set_width(a_width):
 	width = a_width
 	_update_circle_params()
@@ -119,7 +163,8 @@ func _update_circle_color():
 func _update_circle_params():
 	if _circle == null:
 		return
-	_circle.radius = radius
+	# Collision radii fit dense formations; projected marks must clear the hull.
+	_circle.radius = radius * (1.4 if _faction_style == 0 else (1.1 if _faction_style > 0 else 1.0))
 	_circle.half_extents = half_extents
 	_circle.width = width
 	_circle.inner_edge_width = 1.5

@@ -1,0 +1,118 @@
+{
+  "schema": "macos-v19-affected-suites-v1",
+  "started_utc": "2026-10-24T07:13:12.531502+00:00",
+  "snapshot_version": 19,
+  "registered75_report": "docs/playtests/2026-10-24/macos-v19-affected-suites/registered75-baseline.json",
+  "registered75_report_sha256": "0d47ecf523b51fad9d2a67916d5d1fcf89f5c71ec1192385de6423691e17e8a4",
+  "source_sha256": "bf0fd8adafd2dc57cf4ef055ab49bab028c40da87d380959654a74b167b38283",
+  "artifacts": {
+    "archive": "build/polish-2026-10-24/Open_RTS_macOS.zip",
+    "archive_sha256": "16961ddbe76125f8acc9cf103594dcefcb2a6e579874264cea307d355cd24147",
+    "pack": "build/polish-2026-10-24/Open RTS.app/Contents/Resources/Open RTS.pck",
+    "pack_sha256": "ef15fc2450e338191736d256723505e0b93712faaa1da37974317cfcb08a7b67",
+    "pack_bytes": 181918208,
+    "executable": "build/polish-2026-10-24/Open RTS.app/Contents/MacOS/Open RTS",
+    "executable_sha256": "d62caacfb01ca83733e3c1f49e34771b4c078debb6abea47a0cef78daffc4b1e"
+  },
+  "selected_suites": [
+    "CoordinationRegression",
+    "ResearchEconomyRegression",
+    "ResearchFeedbackRegression",
+    "SaveRestoreRegression",
+    "SaveRestoreEdges"
+  ],
+  "suites": [
+    {
+      "name": "CoordinationRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 1.685,
+      "log": "docs/playtests/2026-10-24/macos-v19-affected-suites/CoordinationRegression.log.txt",
+      "log_sha256": "4008e8043dc2b0ac7283a8f88761a85bc98d4515fdc94971ca62e93c79807534",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 22 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 10 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "ResearchEconomyRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 27.314,
+      "log": "docs/playtests/2026-10-24/macos-v19-affected-suites/ResearchEconomyRegression.log.txt",
+      "log_sha256": "ef6ef6cb2924b9d89f965d74ce8ab4517bbd4fa5e3b0d925fd0428a37988602b",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "ResearchFeedbackRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 28.936,
+      "log": "docs/playtests/2026-10-24/macos-v19-affected-suites/ResearchFeedbackRegression.log.txt",
+      "log_sha256": "d23edb8288e5bed16a1877d58280413133b002b4a7d90c77ee1526af5fdfe6cc",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 18 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 7 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "SaveRestoreRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 2.777,
+      "log": "docs/playtests/2026-10-24/macos-v19-affected-suites/SaveRestoreRegression.log.txt",
+      "log_sha256": "bd9c3326bf40eda2d3a525eff08afb949b68e06f774c7b97e707a7ef3aba2e63",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "SaveRestoreEdges",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 6.205,
+      "log": "docs/playtests/2026-10-24/macos-v19-affected-suites/SaveRestoreEdges.log.txt",
+      "log_sha256": "cc4485e3f62a2ec0713873f1bab33752b944a6e7de9b3800526160a239cfaf2a",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    }
+  ],
+  "complete": true,
+  "passed": true,
+  "finished_utc": "2026-10-24T07:14:19.452190+00:00",
+  "source_unchanged": true,
+  "artifacts_unchanged": true,
+  "passed_count": 5,
+  "runner": {
+    "source": "docs/playtests/2026-10-24/macos-v19-affected-suites/runner.py.txt",
+    "source_sha256": "91ac47b044017982673d8ffe10efb191289dbd14a6f42584a1839d8cbb9ab752",
+    "log": "docs/playtests/2026-10-24/macos-v19-affected-suites/runner.log.txt",
+    "log_sha256": "55bd156b8d7218b7c40eb71b24a2da72747b6ea0f0cc3bc7debcef711827e9fc"
+  }
+}

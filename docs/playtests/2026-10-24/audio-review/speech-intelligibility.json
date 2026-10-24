@@ -1,0 +1,58 @@
+{
+  "method": "Unprompted local Whisper medium.en, CPU FP32, temperature 0, English, no prior-text conditioning. Source mix excerpt 11.5\u201316.0 s. The expected line is used only after inference for word-error comparison; never supplied as a model prompt. This measures automated recognition, not subjective intelligibility or sound quality.",
+  "whisper_version": "20250625",
+  "model": "medium.en",
+  "device": "cpu",
+  "threads": 4,
+  "elapsed_seconds": 21.403,
+  "results": [
+    {
+      "file": "bastion-master-warning-excerpt.wav",
+      "sha256": "fe05bb134042c86da0a3dc5d7d34c16e2e8ae020554c0fd92bb9241e0c826fe9",
+      "transcript": "Your base is under attack.",
+      "expected_words": "your base is under attack",
+      "word_errors": 0,
+      "word_error_rate": 0.0
+    },
+    {
+      "file": "bastion-voice-warning-excerpt.wav",
+      "sha256": "1e83fc3543d0952600c8f870113f3e50f02f6b7912c074239eb9eb6250d2867a",
+      "transcript": "Your base is under attack.",
+      "expected_words": "your base is under attack",
+      "word_errors": 0,
+      "word_error_rate": 0.0
+    },
+    {
+      "file": "frontier-master-warning-excerpt.wav",
+      "sha256": "1c735a8dc43f57f339bc9386b1b66d0541c46dd75d744f7403f8bfefd6c22d07",
+      "transcript": "Your base is under attack.",
+      "expected_words": "your base is under attack",
+      "word_errors": 0,
+      "word_error_rate": 0.0
+    },
+    {
+      "file": "frontier-voice-warning-excerpt.wav",
+      "sha256": "46721e2f413de2e10fbb4c0dcd378f1a3e7b1113ce56806c975ce07680f4abd4",
+      "transcript": "Your base is under attack.",
+      "expected_words": "your base is under attack",
+      "word_errors": 0,
+      "word_error_rate": 0.0
+    },
+    {
+      "file": "helix-master-warning-excerpt.wav",
+      "sha256": "dbce972e253fbfe1a3b05ea74635ba3653895b2455c9e6fbfc9dcf8a6344c1e7",
+      "transcript": "Your base is under attack.",
+      "expected_words": "your base is under attack",
+      "word_errors": 0,
+      "word_error_rate": 0.0
+    },
+    {
+      "file": "helix-voice-warning-excerpt.wav",
+      "sha256": "5e3943696b3d1c99c3826c8a17232b4c95fd71e4937bfeaf6af44034da1c6b36",
+      "transcript": "Your base is under attack.",
+      "expected_words": "your base is under attack",
+      "word_errors": 0,
+      "word_error_rate": 0.0
+    }
+  ]
+}

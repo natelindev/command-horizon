@@ -1,5 +1,6 @@
 extends RefCounted
 
+const Cache = preload("res://source/utils/RuntimeCache.gd")
 const Mercenaries = preload("res://source/match/world/MercenaryCatalog.gd")
 const Bastion = preload("res://source/match/BastionCatalog.gd")
 const Frontier = preload("res://source/match/FrontierCatalog.gd")
@@ -182,8 +183,6 @@ const BUILD_REQUIRES = {
 	"AntiAirTurret": "VehicleFactory",
 }
 
-static var _selection_portraits = {}
-
 
 static func title(faction, role):
 	if role in Mercenaries.ROLES:
@@ -219,9 +218,10 @@ static func icon(faction, role):
 static func selection_portrait(faction, role) -> Texture2D:
 	# Selection cards are tall and narrow. Trim the transparent square canvas so
 	# a standing soldier can use their height, without changing shared art files.
+	var selection_portraits = Cache.bucket("selection_portraits")
 	var key = faction + ":" + role
-	if _selection_portraits.has(key):
-		return _selection_portraits[key]
+	if selection_portraits.has(key):
+		return selection_portraits[key]
 	var texture = portrait(faction, role)
 	if texture == null:
 		return null
@@ -232,7 +232,7 @@ static func selection_portrait(faction, role) -> Texture2D:
 	var framed = AtlasTexture.new()
 	framed.atlas = texture
 	framed.region = region
-	_selection_portraits[key] = framed
+	selection_portraits[key] = framed
 	return framed
 
 

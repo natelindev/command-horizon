@@ -17,6 +17,7 @@ func _run():
 		combat_audio.cue_started.connect(func(kind, _point): cues.append(kind))
 		await _actual_combat(faction)
 		await _variants_and_rockets()
+		await _weapon_profile_audio()
 		_impact_hierarchy()
 		await _audibility()
 		await _audio_lifecycle()
@@ -26,7 +27,7 @@ func _run():
 	DirAccess.remove_absolute(archive)
 	DirAccess.remove_absolute(save_path)
 	print("Combat audio regression: %d failures" % errors.size())
-	quit(0 if errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
 
 
 func _audio_settings():
@@ -295,3 +296,52 @@ func _variants_and_rockets():
 	rocket.queue_free()
 	await _frames(2)
 	print("PASS nonrepeating sample variants and rocket explosive impact")
+
+
+func _weapon_profile_audio():
+	var weapons = load("res://source/match/combat/WeaponCatalog.gd")
+	var sides = _sides()
+	var visibility = game.settings.visibility
+	game.settings.visibility = game.settings.Visibility.FULL
+	var camera = game.get_node("IsometricCamera3D")
+	camera.set_position_safely(Vector3(42, 0, 10))
+	for spec in [
+		["Fighter", weapons.JET_CANNON, "autocannon_fire", "impact_light"],
+		["Fighter", weapons.AIR_TO_AIR, "missile_launch", "impact_heavy"],
+		["Bomber", weapons.GRAVITY_BOMB, "", "impact_heavy"],
+		["AntiAirVehicle", weapons.FLAK, "autocannon_fire", "impact_heavy"],
+		["AntiAirVehicle", weapons.INTERCEPTOR, "missile_launch", "impact_heavy"],
+		["AntiAirVehicle", weapons.AA_AUTOCANNON, "autocannon_fire", "impact_light"],
+	]:
+		var shooter = _spawn_weapon(spec[0], sides[0], Vector3(40, 0, 10))
+		var target = _spawn_weapon("Tank", sides[1], Vector3(43, 0, 10))
+		await _frames(3)
+		combat_audio._recent.clear()
+		cues.clear()
+		var round = game.projectile_system.launch(shooter, target, spec[1])
+		_check(round != null, "Profile fixture failed to launch " + spec[1].id)
+		if round != null:
+			_check(
+				cues == ([] if spec[2].is_empty() else [spec[2]]),
+				"Incorrect store release cue: " + spec[1].id + " " + str(cues)
+			)
+			game.projectile_system._remove(round)
+			combat_audio._recent.clear()
+			cues.clear()
+			var before = target.hp
+			var damage = load("res://source/match/combat/CombatRules.gd").damage_from(
+				round.shot, target
+			)
+			game.projectile_system._detonate(
+				round, target.global_position + Vector3.UP * .5, target, false
+			)
+			_check(cues.has(spec[3]), "Incorrect store impact cue: " + spec[1].id + " " + str(cues))
+			_check(
+				damage > 0 and is_equal_approx(before - target.hp, damage),
+				"Audio metadata changed projectile damage: " + spec[1].id
+			)
+		shooter.queue_free()
+		target.queue_free()
+		await _frames(2)
+	game.settings.visibility = visibility
+	print("PASS actual cannon/missile/bomb/AA release and hit cues preserve damage")

@@ -35,7 +35,7 @@ func _draw():
 			var glyph = {
 				"refinery": tr("R", "map_refinery"),
 				"mercenary": tr("M", "map_mercenary"),
-				"repair": "+"
+				"repair": tr("S", "map_repair")
 			}[site.kind]
 			draw_string(
 				load("res://assets/fonts/NotoSansSC.ttf"),

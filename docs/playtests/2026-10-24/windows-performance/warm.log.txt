@@ -1,0 +1,39 @@
+{
+    "SessionId":  1,
+    "FinishedUtc":  "2026-10-24T03:20:36.8258972Z",
+    "ExitCode":  0,
+    "Arguments":  [
+                      "--log-file",
+                      "C:\\Users\\Administrator\\AppData\\Local\\Temp\\OpenRTSPolish-20261024\\scale-warm.log",
+                      "--",
+                      "--behaviors",
+                      "--realtime",
+                      "--no-capture",
+                      "--input-latency"
+                  ],
+    "WindowHandle":  12257822,
+    "StartedUtc":  "2026-10-24T03:20:06.5778959Z",
+    "Executable":  "C:\\Users\\Administrator\\AppData\\Local\\Temp\\OpenRTSPolish-20261024\\OpenRTSScale-initial.exe",
+    "ProcessId":  10360,
+    "WindowTitle":  "Open RTS",
+    "Sha256":  "3D646EFD53201EBB3FA92AA0F7C9790D1815171A0B3AB353E4D4B8DF6FD8CAF7"
+}
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Vulkan 1.4.357 - Forward+ - Using Device #0: NVIDIA - NVIDIA GeForce RTX 4090
+
+BENCHMARK avoidance_threads=false
+SCALE BEGIN movement paused=false simulation_time=2.63333333333333
+SCALE movement renderer=Windows mean_frame_ms=29.91 p95_frame_ms=47.89 p99_frame_ms=57.45 frames_over_33ms=125 samples=336 simulation_seconds=10.03 wall_seconds=10.05 realtime=true baseline_field=false baseline_targets=false avg_sampled_1s_process_max_ms=25.3 avg_sampled_1s_physics_max_ms=20.61 physics_ticks=301 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false
+RENDER movement gpu_ms=3.62 render_cpu_ms=6.14 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=NVIDIA GeForce RTX 4090 rendered_frames=336
+TAIL movement max_frame_ms=59.86 frames_over_100ms=0
+SCALE BEGIN combat paused=false simulation_time=12.6666666666666
+SCALE combat renderer=Windows mean_frame_ms=38.18 p95_frame_ms=52.56 p99_frame_ms=59.08 frames_over_33ms=225 samples=262 simulation_seconds=10.03 wall_seconds=10.0 realtime=true baseline_field=false baseline_targets=false avg_sampled_1s_process_max_ms=28.09 avg_sampled_1s_physics_max_ms=19.78 physics_ticks=301 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false
+RENDER combat gpu_ms=5.7 render_cpu_ms=7.15 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=NVIDIA GeForce RTX 4090 rendered_frames=262
+TAIL combat max_frame_ms=65.54 frames_over_100ms=0
+INPUT selected=24 samples=10 event_to_feedback_submit_mean_ms=32.79 p95_ms=42.83 maximum_population=true
+SCALE behaviors=true air_combat=false moved=200/200 travelled=200/200 fired=115 peak_live_projectiles=26 resources=62 sampled_peak_tracers=0 viewport_pixels=(1920.0, 1080.0)
+PASS: 200 mobile units + 80 structures; behaviors=true release=true failures=0
+WARNING: 3 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)
+ERROR: 1 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:822)

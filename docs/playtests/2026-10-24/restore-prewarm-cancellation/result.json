@@ -1,0 +1,77 @@
+{
+  "schema": "actual-restore-prewarm-cancellation-v1",
+  "snapshot_version": 19,
+  "started_utc": "2026-10-24T06:58:11.776537+00:00",
+  "stage": "/tmp/godot-open-rts-restore-cancellation-v19",
+  "runs": [
+    {
+      "name": "before-fix-rendered",
+      "command": [
+        "/tmp/open-rts-ui-godot/Godot.app/Contents/MacOS/Godot",
+        "--path",
+        "/tmp/godot-open-rts-restore-cancellation-v19",
+        "--script",
+        "res://tests/rendered/CombatPrewarmRegression.gd"
+      ],
+      "returncode": 1,
+      "timed_out": false,
+      "seconds": 14.097,
+      "log": "docs/playtests/2026-10-24/restore-prewarm-cancellation/before-fix-rendered.log.txt",
+      "log_sha256": "a7140e872eab53a52d55a5abbff850cf3740bef8d630230b0c79e0c9e392a3f6",
+      "restore_sha256": "0905aae57bfb3470fd83526479d7ad130a80b175768dbc331660c9503648c353",
+      "test_sha256": "2896ccb8922f16d9e4f33a9c374dceca877f9a3a119fb1051cb9b55c48f1863e",
+      "source_and_assets_unchanged": true,
+      "changed_files": [],
+      "failure_summary": [
+        "Combat prewarm regression: 3 failures"
+      ],
+      "diagnostics": [
+        "ERROR: Cancelled restore retained its provisional match",
+        "ERROR: Cancelled restore retained unit group members",
+        "ERROR: Cancelled restore retained player group members"
+      ],
+      "native_os_launch_notices": [
+        "sandbox_extension_issue_file_to_process failed for /tmp/open-rts-ui-godot/Godot.app: 1 (Operation not permitted)"
+      ]
+    },
+    {
+      "name": "fixed-rendered",
+      "command": [
+        "/tmp/open-rts-ui-godot/Godot.app/Contents/MacOS/Godot",
+        "--path",
+        "/tmp/godot-open-rts-restore-cancellation-v19",
+        "--script",
+        "res://tests/rendered/CombatPrewarmRegression.gd"
+      ],
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 12.803,
+      "log": "docs/playtests/2026-10-24/restore-prewarm-cancellation/fixed-rendered.log.txt",
+      "log_sha256": "606a3131047e5cafe5fdb205f9dfbed71b6433379d7d72b84eb20d1de5ced339",
+      "restore_sha256": "a52b2d95f48003cf0f7a3db69257d26ecf50f05e1098811ed41dcdf9f6c8f39a",
+      "test_sha256": "2896ccb8922f16d9e4f33a9c374dceca877f9a3a119fb1051cb9b55c48f1863e",
+      "source_and_assets_unchanged": true,
+      "changed_files": [],
+      "failure_summary": [
+        "Combat prewarm regression: 0 failures"
+      ],
+      "diagnostics": [],
+      "native_os_launch_notices": [
+        "sandbox_extension_issue_file_to_process failed for /tmp/open-rts-ui-godot/Godot.app: 1 (Operation not permitted)"
+      ]
+    }
+  ],
+  "complete": true,
+  "original_failure_reproduced": true,
+  "fixed_regression_passed": true,
+  "passed": true,
+  "finished_utc": "2026-10-24T06:58:40.036381+00:00",
+  "production_restore_matches_tested_file": true,
+  "regression_matches_tested_file": true,
+  "source_evidence": {
+    "docs/playtests/2026-10-24/restore-prewarm-cancellation/MatchRestore.before.gd.txt": "0905aae57bfb3470fd83526479d7ad130a80b175768dbc331660c9503648c353",
+    "docs/playtests/2026-10-24/restore-prewarm-cancellation/MatchRestore.fixed.gd.txt": "a52b2d95f48003cf0f7a3db69257d26ecf50f05e1098811ed41dcdf9f6c8f39a",
+    "docs/playtests/2026-10-24/restore-prewarm-cancellation/CombatPrewarmRegression.gd.txt": "2896ccb8922f16d9e4f33a9c374dceca877f9a3a119fb1051cb9b55c48f1863e"
+  },
+  "native_os_launch_notice_assessment": "macOS emitted a sandbox-extension notice for the copied test engine application. Both launches completed and rendered the scenarios; the fixed run had no Godot script errors, ERROR/WARNING diagnostics, or regression failures. The notice is retained in both raw logs."
+}

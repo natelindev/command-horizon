@@ -1,0 +1,1074 @@
+{
+  "started_utc": "2026-10-24T03:39:58.760629+00:00",
+  "engine": "Godot 4.7.2 stable",
+  "registered_suite_count": 72,
+  "selected_suites": [
+    "BehaviorRegression",
+    "UnitAnimationRegression",
+    "InfantryRedesignRegression",
+    "InfantryMeshBatchRegression",
+    "InfantryDeathGroundRegression",
+    "InfantryMotionRegression",
+    "TerrainGroundingRegression",
+    "CombatRegression",
+    "AntiAirPriorityRegression",
+    "TechnologyRegression",
+    "TechnologyAIRegression",
+    "WeaponModeRegression",
+    "ResearchTilesRegression",
+    "StructureActivityRegression",
+    "PersistentCaptureRegression",
+    "CampaignInteriorRegression",
+    "HeroCampaignRegression",
+    "SkirmishPickerRegression",
+    "WorkerDistributionRegression",
+    "CargoReturnRegression",
+    "ResourceFieldRegression",
+    "GarrisonCombatExitRegression",
+    "PointOfInterestRegression",
+    "MapMetricsRegression",
+    "GlacierHarvestRegression",
+    "TerrainSightRegression",
+    "CliffMeshRegression",
+    "AuthoredRelayRegression",
+    "AuthoredGarrisonRegression",
+    "SaveNavigationTimingRegression",
+    "ContactApproachRegression",
+    "NavigationRegression",
+    "MapPlayabilityRegression",
+    "MapPreviewRegression",
+    "MusicRegression",
+    "SelectionBatchRegression",
+    "ProjectileSystemRegression",
+    "ProjectilePhysicsRegression",
+    "FixedWingFlightRegression",
+    "FixedWingSaveRegression",
+    "AirSaveContinuityRegression",
+    "RotorcraftCombatRegression",
+    "FrontierCombatRegression",
+    "AirfieldOperationsRegression",
+    "GroundHeightAlignmentRegression",
+    "GroundCrowdRecoveryRegression",
+    "SkirmishBuildReadinessRegression",
+    "PresentationFeaturesRegression",
+    "SettingsRegression",
+    "BattleHudProductionRegression",
+    "BattleAftermathRegression",
+    "MapPassageRegression",
+    "ObjectMaterialsRegression",
+    "RuntimeShutdownRegression",
+    "EnvironmentEffectsRegression",
+    "WaterFlowRegression",
+    "WaterHybridRegression",
+    "StrategicPolishRegression",
+    "MicroControlsRegression",
+    "GroundVehicleMotionRegression",
+    "MixedArmyMovementRegression",
+    "CombatPresentationRegression",
+    "CombatAudioRegression",
+    "EndgamePresentationRegression",
+    "OpeningGuidanceRegression",
+    "PlacementFeedbackRegression",
+    "DirectOrdersRegression",
+    "KeyBindingsRegression",
+    "SelectionRosterRegression",
+    "RallyRetargetRegression",
+    "RallyControlsRegression",
+    "LocalizationRegression"
+  ],
+  "source_sha256": "36e08b41f61194a6a5f98d4a7261c080e0bb3cfbadbde393e0e0513ba476ff94",
+  "steps": [
+    {
+      "name": "import",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 3.42,
+      "log": "tmp/polish-initial-packaged/import.log",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": []
+    },
+    {
+      "name": "export",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 19.797,
+      "log": "tmp/polish-initial-packaged/export.log",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": []
+    },
+    {
+      "name": "release-main-menu",
+      "passed": false,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 4.748,
+      "log": "tmp/polish-initial-packaged/release-main-menu.log",
+      "errors": [
+        "ERROR: 2 resources still in use at exit."
+      ],
+      "known_teardown": [
+        "ERROR: 2 resources still in use at exit."
+      ],
+      "warnings": []
+    }
+  ],
+  "suites": [
+    {
+      "name": "BehaviorRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 8.643,
+      "log": "tmp/polish-initial-packaged/BehaviorRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "UnitAnimationRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 6.313,
+      "log": "tmp/polish-initial-packaged/UnitAnimationRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 16 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 6 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "InfantryRedesignRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 1.021,
+      "log": "tmp/polish-initial-packaged/InfantryRedesignRegression.log",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": []
+    },
+    {
+      "name": "InfantryMeshBatchRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.928,
+      "log": "tmp/polish-initial-packaged/InfantryMeshBatchRegression.log",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": []
+    },
+    {
+      "name": "InfantryDeathGroundRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 3.118,
+      "log": "tmp/polish-initial-packaged/InfantryDeathGroundRegression.log",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": []
+    },
+    {
+      "name": "InfantryMotionRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 7.648,
+      "log": "tmp/polish-initial-packaged/InfantryMotionRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "TerrainGroundingRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 3.993,
+      "log": "tmp/polish-initial-packaged/TerrainGroundingRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "CombatRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 2.27,
+      "log": "tmp/polish-initial-packaged/CombatRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 16 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 6 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "AntiAirPriorityRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 3.713,
+      "log": "tmp/polish-initial-packaged/AntiAirPriorityRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "TechnologyRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 97.93,
+      "log": "tmp/polish-initial-packaged/TechnologyRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "TechnologyAIRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 10.77,
+      "log": "tmp/polish-initial-packaged/TechnologyAIRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "WeaponModeRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 3.082,
+      "log": "tmp/polish-initial-packaged/WeaponModeRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 22 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 8 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "ResearchTilesRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 9.136,
+      "log": "tmp/polish-initial-packaged/ResearchTilesRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 28 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 11 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "StructureActivityRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 4.177,
+      "log": "tmp/polish-initial-packaged/StructureActivityRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 18 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 7 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "PersistentCaptureRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 7.082,
+      "log": "tmp/polish-initial-packaged/PersistentCaptureRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "CampaignInteriorRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 18.693,
+      "log": "tmp/polish-initial-packaged/CampaignInteriorRegression.log",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": []
+    },
+    {
+      "name": "HeroCampaignRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 39.47,
+      "log": "tmp/polish-initial-packaged/HeroCampaignRegression.log",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": []
+    },
+    {
+      "name": "SkirmishPickerRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.862,
+      "log": "tmp/polish-initial-packaged/SkirmishPickerRegression.log",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": []
+    },
+    {
+      "name": "WorkerDistributionRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 8.339,
+      "log": "tmp/polish-initial-packaged/WorkerDistributionRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "CargoReturnRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 20.26,
+      "log": "tmp/polish-initial-packaged/CargoReturnRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "ResourceFieldRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 6.59,
+      "log": "tmp/polish-initial-packaged/ResourceFieldRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "GarrisonCombatExitRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 29.344,
+      "log": "tmp/polish-initial-packaged/GarrisonCombatExitRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "PointOfInterestRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 13.147,
+      "log": "tmp/polish-initial-packaged/PointOfInterestRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "MapMetricsRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.658,
+      "log": "tmp/polish-initial-packaged/MapMetricsRegression.log",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": []
+    },
+    {
+      "name": "GlacierHarvestRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 3.771,
+      "log": "tmp/polish-initial-packaged/GlacierHarvestRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "TerrainSightRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 2.5,
+      "log": "tmp/polish-initial-packaged/TerrainSightRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 16 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 6 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "CliffMeshRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.659,
+      "log": "tmp/polish-initial-packaged/CliffMeshRegression.log",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": []
+    },
+    {
+      "name": "AuthoredRelayRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 6.371,
+      "log": "tmp/polish-initial-packaged/AuthoredRelayRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 26 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 10 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "AuthoredGarrisonRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 4.442,
+      "log": "tmp/polish-initial-packaged/AuthoredGarrisonRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "SaveNavigationTimingRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.665,
+      "log": "tmp/polish-initial-packaged/SaveNavigationTimingRegression.log",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": []
+    },
+    {
+      "name": "ContactApproachRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 20.075,
+      "log": "tmp/polish-initial-packaged/ContactApproachRegression.log",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": []
+    },
+    {
+      "name": "NavigationRegression",
+      "passed": false,
+      "returncode": 1,
+      "timed_out": false,
+      "seconds": 27.76,
+      "log": "tmp/polish-initial-packaged/NavigationRegression.log",
+      "errors": [
+        "ERROR: Crowded tank group failed to reach destinations"
+      ],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "MapPlayabilityRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 27.863,
+      "log": "tmp/polish-initial-packaged/MapPlayabilityRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details).",
+        "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "MapPreviewRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 19.127,
+      "log": "tmp/polish-initial-packaged/MapPreviewRegression.log",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": []
+    },
+    {
+      "name": "MusicRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.847,
+      "log": "tmp/polish-initial-packaged/MusicRegression.log",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": []
+    },
+    {
+      "name": "SelectionBatchRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 2.608,
+      "log": "tmp/polish-initial-packaged/SelectionBatchRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 16 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 6 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "ProjectileSystemRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 1.921,
+      "log": "tmp/polish-initial-packaged/ProjectileSystemRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "ProjectilePhysicsRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 3.364,
+      "log": "tmp/polish-initial-packaged/ProjectilePhysicsRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "FixedWingFlightRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 5.914,
+      "log": "tmp/polish-initial-packaged/FixedWingFlightRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "FixedWingSaveRegression",
+      "passed": false,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 2.7,
+      "log": "tmp/polish-initial-packaged/FixedWingSaveRegression.log",
+      "errors": [
+        "ERROR: Parameter \"material\" is null."
+      ],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "AirSaveContinuityRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 1.927,
+      "log": "tmp/polish-initial-packaged/AirSaveContinuityRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "RotorcraftCombatRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 3.302,
+      "log": "tmp/polish-initial-packaged/RotorcraftCombatRegression.log",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": []
+    },
+    {
+      "name": "FrontierCombatRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 1.729,
+      "log": "tmp/polish-initial-packaged/FrontierCombatRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 16 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 7 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "AirfieldOperationsRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 9.37,
+      "log": "tmp/polish-initial-packaged/AirfieldOperationsRegression.log",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": []
+    },
+    {
+      "name": "GroundHeightAlignmentRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 4.352,
+      "log": "tmp/polish-initial-packaged/GroundHeightAlignmentRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "GroundCrowdRecoveryRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 25.72,
+      "log": "tmp/polish-initial-packaged/GroundCrowdRecoveryRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "SkirmishBuildReadinessRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 9.293,
+      "log": "tmp/polish-initial-packaged/SkirmishBuildReadinessRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "PresentationFeaturesRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 1.907,
+      "log": "tmp/polish-initial-packaged/PresentationFeaturesRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "SettingsRegression",
+      "passed": false,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 1.822,
+      "log": "tmp/polish-initial-packaged/SettingsRegression.log",
+      "errors": [
+        "ERROR: Cannot save file 'user://settings-missing-79458/options.tres.pending.tres'."
+      ],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "BattleHudProductionRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 14.15,
+      "log": "tmp/polish-initial-packaged/BattleHudProductionRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 20 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 8 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "BattleAftermathRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.662,
+      "log": "tmp/polish-initial-packaged/BattleAftermathRegression.log",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": []
+    },
+    {
+      "name": "MapPassageRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 42.779,
+      "log": "tmp/polish-initial-packaged/MapPassageRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details).",
+        "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "ObjectMaterialsRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 7.648,
+      "log": "tmp/polish-initial-packaged/ObjectMaterialsRegression.log",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": []
+    },
+    {
+      "name": "RuntimeShutdownRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.946,
+      "log": "tmp/polish-initial-packaged/RuntimeShutdownRegression.log",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": []
+    },
+    {
+      "name": "EnvironmentEffectsRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 5.708,
+      "log": "tmp/polish-initial-packaged/EnvironmentEffectsRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 16 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 6 resources still in use at exit (run with --verbose for details).",
+        "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "WaterFlowRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.66,
+      "log": "tmp/polish-initial-packaged/WaterFlowRegression.log",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": []
+    },
+    {
+      "name": "WaterHybridRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.947,
+      "log": "tmp/polish-initial-packaged/WaterHybridRegression.log",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": []
+    },
+    {
+      "name": "StrategicPolishRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 3.567,
+      "log": "tmp/polish-initial-packaged/StrategicPolishRegression.log",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": []
+    },
+    {
+      "name": "MicroControlsRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 7.271,
+      "log": "tmp/polish-initial-packaged/MicroControlsRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "GroundVehicleMotionRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 7.245,
+      "log": "tmp/polish-initial-packaged/GroundVehicleMotionRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 18 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 7 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "MixedArmyMovementRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 28.578,
+      "log": "tmp/polish-initial-packaged/MixedArmyMovementRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "CombatPresentationRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.75,
+      "log": "tmp/polish-initial-packaged/CombatPresentationRegression.log",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": []
+    },
+    {
+      "name": "CombatAudioRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 3.097,
+      "log": "tmp/polish-initial-packaged/CombatAudioRegression.log",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": []
+    },
+    {
+      "name": "EndgamePresentationRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 2.216,
+      "log": "tmp/polish-initial-packaged/EndgamePresentationRegression.log",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": []
+    },
+    {
+      "name": "OpeningGuidanceRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 4.357,
+      "log": "tmp/polish-initial-packaged/OpeningGuidanceRegression.log",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": []
+    },
+    {
+      "name": "PlacementFeedbackRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 4.068,
+      "log": "tmp/polish-initial-packaged/PlacementFeedbackRegression.log",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": []
+    },
+    {
+      "name": "DirectOrdersRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 12.454,
+      "log": "tmp/polish-initial-packaged/DirectOrdersRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 14 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 5 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "KeyBindingsRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 2.782,
+      "log": "tmp/polish-initial-packaged/KeyBindingsRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 16 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 6 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "SelectionRosterRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 20.452,
+      "log": "tmp/polish-initial-packaged/SelectionRosterRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "RallyRetargetRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 23.178,
+      "log": "tmp/polish-initial-packaged/RallyRetargetRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "RallyControlsRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 13.705,
+      "log": "tmp/polish-initial-packaged/RallyControlsRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 18 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 7 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": []
+    },
+    {
+      "name": "LocalizationRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 2.325,
+      "log": "tmp/polish-initial-packaged/LocalizationRegression.log",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": []
+    }
+  ],
+  "complete": true,
+  "initial_source_sha256": "36e08b41f61194a6a5f98d4a7261c080e0bb3cfbadbde393e0e0513ba476ff94",
+  "artifacts": {
+    "archive": "build/polish-2026-10-24/Open_RTS_macOS.zip",
+    "archive_sha256": "7c72bb0acc215168c58ca1faaefb12a539804fa42759f8ce4c61772da1a1c2c8",
+    "pack": "build/polish-2026-10-24/Open RTS.app/Contents/Resources/Open RTS.pck",
+    "pack_sha256": "8282e0c53cc07cee544fc1713334d46830af2874a3dce6a43af3748c364ad0ab",
+    "pack_bytes": 181793132
+  },
+  "final_source_sha256": "36e08b41f61194a6a5f98d4a7261c080e0bb3cfbadbde393e0e0513ba476ff94",
+  "source_unchanged": true,
+  "finished_utc": "2026-10-24T03:52:17.104846+00:00",
+  "passed_count": 69,
+  "passed": false
+}

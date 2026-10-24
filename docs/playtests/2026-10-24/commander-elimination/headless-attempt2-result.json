@@ -1,0 +1,27 @@
+{
+  "command": [
+    "/tmp/open-rts-ui-godot/Godot.app/Contents/MacOS/Godot",
+    "--path",
+    "/Users/linlilu/godot-open-rts",
+    "--headless",
+    "--fixed-fps",
+    "60",
+    "--script",
+    "res://tests/headless/CommanderEliminationRegression.gd"
+  ],
+  "exit_code": 0,
+  "seconds": 2.885,
+  "source_files": {
+    "source/match/Skirmish.gd": "641c0d82b66bd37b64dd6e7b1ddfc806607fb84dd5049dd18d180e55d88fa86a",
+    "source/match/hud/SkirmishHUD.gd": "a972db1113021949103ae4782fc4bae20bf0bd68cecab711fd30c569ff0ad0e1",
+    "source/match/hud/CommanderRoster.gd": "091477c86d1cae550d2e8a8d05abfc3f0823ac85bb4917ac35457441dd749fc0",
+    "source/match/saves/MatchSnapshot.gd": "a3485d99019d726ea3e09a7ae70bb2f2bc07f9bf7cf3990476842bf3f123b11d",
+    "source/match/saves/MatchRestore.gd": "a52b2d95f48003cf0f7a3db69257d26ecf50f05e1098811ed41dcdf9f6c8f39a",
+    "tests/headless/CommanderEliminationRegression.gd": "c33413796a31f37d46577ce8e02b356b6848c677967147aca0fd36173e9a0b65",
+    "tests/rendered/HudConsolePreview.gd": "f50b5d8ecfbf7a28aa1af8797bb878ff6a9d00da533188feffd1a9532ab4162f",
+    "art/localization/elimination-status.tsv": "d9ee95139d0fd7dfc06a4a25aafe1f9dfa92563554b275417fb246c1b6062ac2",
+    "assets/translations/ui.csv": "81bb22813b2b44b9192bfd1575a00c1b43158dc16f44be1be13da8c545ca67ad"
+  },
+  "source_files_unchanged": true,
+  "log_sha256": "2bbe045a65a060b0d4bf40aba352f8d4ea8700706d35cc59966a581818b4f1a2"
+}

@@ -1,5 +1,7 @@
 extends MeshInstance3D
 
+const Cache = preload("res://source/utils/RuntimeCache.gd")
+
 ## One static terrain-conforming surface per structure. No collision, navigation,
 ## scripts per frame, team markers or simulation state. Visibility follows the unit.
 const Profiles = preload("res://source/match/environment/AtmosphereProfiles.gd")
@@ -12,11 +14,11 @@ const SOIL = {
 	"urban": Color("565955"),
 	"temperate": Color("6b7052"),
 }
-static var _materials = {}
 var footprint = Vector2.ZERO
 
 
 func _ready():
+	var materials = Cache.bucket("base_apron_materials")
 	name = "BaseApron"
 	cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	var unit = get_parent()
@@ -28,7 +30,7 @@ func _ready():
 	var faction = unit.player.faction
 	var biome = Profiles.biome(unit._match.map)
 	var key = [faction, biome, footprint]
-	if not _materials.has(key):
+	if not materials.has(key):
 		var material = ShaderMaterial.new()
 		material.shader = SHADER
 		material.set_shader_parameter("span", span)
@@ -42,8 +44,8 @@ func _ready():
 				{"bastion": Color("72756c"), "helix": Color("839397"), "frontier": Color("81775e")}[faction]
 			)
 		)
-		_materials[key] = material
-	material_override = _materials[key]
+		materials[key] = material
+	material_override = materials[key]
 	# The rendered terrain is authoritative for this cosmetic surface; navmesh
 	# heights intentionally include clearance and must not lift the apron.
 	var surface = SurfaceTool.new()

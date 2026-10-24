@@ -2,8 +2,9 @@ extends Node3D
 
 signal changed
 
-const COORDINATION_COST = {"resource_a": 20, "resource_b": 20}
-const COORDINATION_DURATION = 30.0
+const ResearchCatalog = preload("res://source/match/research/TechnologyCatalog.gd")
+const COORDINATION_COST = ResearchCatalog.COORDINATION_COST
+const COORDINATION_DURATION = ResearchCatalog.COORDINATION_DURATION
 
 const BastionCatalog = preload("res://source/match/BastionCatalog.gd")
 
@@ -149,6 +150,8 @@ func _physics_process(delta):
 		coordination_left = maxf(0.0, coordination_left - delta * production_factor())
 		if coordination_left == 0.0:
 			coordination_unlocked = true
+			if technology != null:
+				technology.advance_queue()
 			MatchSignals.research_completed.emit(self, "coordination")
 			emit_changed()
 			var game = find_parent("Match")
@@ -157,7 +160,7 @@ func _physics_process(delta):
 
 
 func start_coordination(lab):
-	if technology != null and technology.active != "":
+	if technology != null and (technology.active != "" or not technology.queued.is_empty()):
 		return false
 	if coordination_unlocked or coordination_left >= 0.0 or not lab_research_unlocked():
 		return false
@@ -177,6 +180,8 @@ func cancel_coordination():
 	if coordination_left <= 0.0 or coordination_unlocked:
 		return false
 	coordination_left = -1.0
+	if technology != null:
+		technology.coordination_cancelled()
 	add_resources(COORDINATION_COST)
 	return true
 

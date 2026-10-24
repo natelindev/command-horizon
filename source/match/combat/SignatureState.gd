@@ -16,11 +16,12 @@ var _badge
 
 func _ready():
 	last_position = unit.global_position
-	_badge = Label3D.new()
+	_badge = load("res://source/match/debug/UnitInfoLabel.gd").new()
 	_badge.position = Vector3(0, 2.95, 0)
 	_badge.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	_badge.font_size = 25
 	_badge.pixel_size = 0.012
+	_badge.refresh_requested.connect(refresh)
 	add_child(_badge)
 	refresh()
 	set_physics_process(false)
@@ -101,9 +102,11 @@ func preparation_time(base):
 
 
 func refresh():
-	if not is_instance_valid(_badge):
+	if not is_instance_valid(_badge) or not _badge.diagnostics_enabled():
 		return
-	_badge.visible = kind != ""
+	_badge.content_visible = kind != ""
+	if kind == "":
+		return
 	if kind == "anchor":
 		_badge.text = (
 			("ANCHORED −%d%%" % (25 if _upgraded() else 15))

@@ -74,6 +74,7 @@ func _create_dummy_structure(unit):
 	dummy.global_transform = unit.find_child("Geometry").global_transform
 	if unit.is_under_construction():
 		_freeze_construction(dummy)
+	prepare_memory_geometry(dummy)
 	add_child(dummy)
 	_structure_to_dummy_mapping[unit] = dummy
 
@@ -86,12 +87,17 @@ func _freeze_construction(dummy):
 			var material = mesh.get_surface_override_material(surface)
 			if material is ShaderMaterial:
 				mesh.set_surface_override_material(surface, material.duplicate(true))
-	# Release the copies while their meshes still exist; a material freed together with
-	# its mesh leaves the renderer referencing it.
-	dummy.tree_exiting.connect(_release_frozen_materials.bind(meshes), CONNECT_ONE_SHOT)
 
 
-func _release_frozen_materials(meshes):
+func prepare_memory_geometry(geometry):
+	# Restored memories own fresh team-color materials as well as construction
+	# copies. Detach overrides while their meshes still exist so the renderer
+	# cannot inspect a freed material during the same visibility refresh.
+	var meshes = geometry.find_children("*", "MeshInstance3D", true, false)
+	geometry.tree_exiting.connect(_release_memory_materials.bind(meshes), CONNECT_ONE_SHOT)
+
+
+func _release_memory_materials(meshes):
 	for mesh in meshes:
 		if is_instance_valid(mesh):
 			for surface in mesh.get_surface_override_material_count():

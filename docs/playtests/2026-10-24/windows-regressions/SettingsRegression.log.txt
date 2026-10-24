@@ -1,0 +1,13 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS: actual settings round trip, legacy defaults, bounds and audio gain/mute
+PASS: battle modal pause/order authority, cancel/save/write failure, camera and voice routing
+Settings regression: 0 failures
+
+ERROR: Cannot save file 'user://settings-missing-32060/options.tres.pending.tres'.
+   at: save (scene/resources/resource_format_text.cpp:1768)
+   GDScript backtrace (most recent call first):
+       [0] persist (res://source/data-model/Options.gd:196)
+       [1] _finish (res://source/main-menu/SettingsDialog.gd:335)
+       [2] _battle_dialog (res://tests/headless/SettingsRegression.gd:171)
+       [3] _frames (res://tests/headless/CampaignRegression.gd:254)

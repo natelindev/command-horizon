@@ -1,0 +1,702 @@
+extends SceneTree
+
+# A recovered four-player setup, followed by a labelled synthetic cap workload.
+# Run headlessly only to validate setup; acceptance timing requires a focused,
+# rendered release export with the native foreground gate.
+const MAP_PATH = "res://source/match/maps/battlefields/CopperBadlandsMap.tscn"
+const MATCH_SEED = 20261024
+const SAMPLE_SECONDS = 10.0
+const STRUCTURES = {
+	"AircraftFactory": 2,
+	"CommandCenter": 3,
+	"PowerPlant": 16,
+	"Barracks": 4,
+	"VehicleFactory": 4,
+	"RepairDepot": 4,
+	"CommandLab": 1,
+	"AntiAirTurret": 3,
+	"AntiGroundTurret": 3,
+}
+const MOBILE = {
+	"Worker": 6,
+	"Tank": 22,
+	"Infantry": 20,
+	"CombatRobot": 16,
+	"Helicopter": 16,
+	"RepairRobot": 8,
+	"AntiAirVehicle": 8,
+	"Fighter": 2,
+	"Bomber": 2,
+}
+
+var _game
+var _players = []
+var _armies = []
+var _base_origins = []
+var _occupied = []
+var _catalog
+var _placement
+var _footprint
+var _airfield_layout
+var _checks_failed = 0
+var _cap_active = false
+var _sampling = false
+var _phase = ""
+var _frame_times = []
+var _gpu_times = []
+var _render_cpu_times = []
+var _ai_elapsed = []
+var _ai_decisions = []
+var _population_samples = []
+var _start_positions = {}
+var _last_positions = {}
+var _travel = {}
+var _shot_sources = {}
+var _hit_count = 0
+var _mined_count = 0
+var _orders = 0
+var _peak_projectiles = 0
+var _sample_frames = 0
+var _results = []
+var _camera_target = Vector3.ZERO
+var _rendered = false
+var _output = "user://ffa-benchmark"
+
+
+func _initialize():
+	call_deferred("_run")
+
+
+func _run():
+	_rendered = DisplayServer.get_name() != "headless"
+	_check(
+		not _rendered or "--fixed-fps" not in OS.get_cmdline_args(),
+		"Rendered FFA timing cannot use fixed FPS"
+	)
+	_catalog = load("res://source/match/BastionCatalog.gd")
+	_placement = load("res://source/match/utils/UnitPlacementUtils.gd")
+	_footprint = load("res://source/match/utils/Footprint.gd")
+	_airfield_layout = load("res://source/match/units/AirfieldLayout.gd")
+	var expected_user_dir = ""
+	var options_path = ""
+	for argument in OS.get_cmdline_user_args():
+		if argument.begins_with("--fixture-user-dir="):
+			expected_user_dir = argument.trim_prefix("--fixture-user-dir=")
+		elif argument.begins_with("--fixture-options="):
+			options_path = argument.trim_prefix("--fixture-options=")
+		elif argument.begins_with("--fixture-output="):
+			_output = argument.trim_prefix("--fixture-output=")
+	var actual_user_dir = OS.get_user_data_dir().replace("\\", "/")
+	_check(
+		(
+			not expected_user_dir.is_empty()
+			and actual_user_dir == expected_user_dir.replace("\\", "/")
+		),
+		"FFA fixture requires a verified isolated user directory"
+	)
+	_check(FileAccess.file_exists(options_path), "Copied user options are required")
+	if _checks_failed > 0:
+		await _finish()
+		return
+	var copied_options = load(options_path)
+	_check(copied_options != null, "Cannot load copied user options")
+	if copied_options == null:
+		await _finish()
+		return
+	root.get_node("Globals").options.restore(copied_options.capture())
+	root.get_node("SaveManager").autosaves_enabled = false
+	Engine.max_fps = 0
+	if _rendered:
+		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
+		RenderingServer.viewport_set_measure_render_time(root.get_viewport_rid(), true)
+	DirAccess.make_dir_recursive_absolute(_output)
+	var signals = root.get_node("MatchSignals")
+	signals.unit_weapon_hit.connect(_on_weapon_hit)
+	signals.resources_mined.connect(_on_mined)
+	signals.unit_order_issued.connect(_on_order)
+	await _create_opening()
+	print(
+		"FFA CONFIG ",
+		JSON.stringify(
+			{
+				"map": MAP_PATH,
+				"match_seed": MATCH_SEED,
+				"players": 4,
+				"normal_ai_players": 3,
+				"factions": _players.map(func(player): return player.faction),
+				"options": root.get_node("Globals").options.capture(),
+				"user_data_dir": actual_user_dir,
+				"rendered": _rendered,
+				"release": not OS.has_feature("debug"),
+				"vsync_disabled_for_measurement": _rendered,
+				"synthetic_cap_mobile_per_player": 100,
+				"synthetic_cap_structures_per_player": 40,
+				"synthetic_cap_hp": 100000.0,
+			}
+		)
+	)
+	_set_camera(_base_origins[0])
+	await _frames(30)
+	await _capture("opening-home")
+	await _measure("opening_home", 600)
+	_set_camera(_ground(Vector2(112, 112)))
+	await _frames(3)
+	await _measure("opening_center", 600)
+	await _build_cap()
+	if _checks_failed > 0:
+		await _finish()
+		return
+	_set_camera(_ground(Vector2(112, 112)))
+	await _capture("synthetic-cap")
+	await _snapshot_cap()
+	await _measure("cap_combat", 600)
+	if _rendered and "--input-latency" in OS.get_cmdline_user_args():
+		await _input_probe()
+	await _finish()
+
+
+func _create_opening():
+	var constants = root.get_node("Constants")
+	var factions = load("res://source/match/FactionCatalog.gd")
+	var settings = load("res://source/data-model/MatchSettings.gd").new()
+	settings.skirmish = true
+	settings.advanced_start = false
+	settings.map_path = MAP_PATH
+	settings.match_seed = MATCH_SEED
+	settings.tactical_doctrine = "balanced"
+	var rng = RandomNumberGenerator.new()
+	rng.seed = MATCH_SEED
+	for index in 4:
+		var player = load("res://source/data-model/PlayerSettings.gd").new()
+		player.controller = (
+			constants.PlayerType.HUMAN if index == 0 else constants.PlayerType.SIMPLE_CLAIRVOYANT_AI
+		)
+		player.faction = (
+			"helix" if index == 0 else factions.IDS[rng.randi_range(0, factions.IDS.size() - 1)]
+		)
+		player.color = constants.Player.COLORS[index]
+		player.difficulty = 1
+		settings.players.append(player)
+	_game = load("res://source/match/Skirmish.tscn").instantiate()
+	_game.settings = settings
+	_game.map = load(MAP_PATH).instantiate()
+	root.add_child(_game)
+	current_scene = _game
+	_players = get_nodes_in_group("players")
+	_check(_players.size() == 4, "FFA did not create four players")
+	for player in _players:
+		var headquarters = player.get_children().filter(
+			func(unit): return "type" in unit and unit.type == "CommandCenter"
+		)
+		_check(headquarters.size() == 1, "Standard opening has unexpected headquarters")
+		_base_origins.append(headquarters[0].global_position)
+	await _wait_navigation()
+	await _frames(30)
+
+
+func _build_cap():
+	# Only setup suspends commanders/outcome checks. Every measured phase keeps
+	# all three production AI scripts active and verifies their decision cadence.
+	_game.set_physics_process(false)
+	for player in _players.slice(1):
+		player.set_process(false)
+	for unit in get_nodes_in_group("units"):
+		unit.queue_free()
+	await _frames(3)
+	await _wait_navigation()
+	_occupied = get_nodes_in_group("resource_units")
+	for side in 4:
+		var candidates = _structure_candidates(side)
+		for role in STRUCTURES:
+			for _index in STRUCTURES[role]:
+				var unit = load(_catalog.scene_path(role)).instantiate()
+				var site = _structure_site(unit, side, candidates)
+				if not site.origin.is_finite():
+					unit.free()
+					_check(false, "No legal FFA structure site for side %d %s" % [side, role])
+					return
+				_add_unit(unit, side, site)
+	await _wait_navigation()
+	var combat_destination = _game.navigation.terrain.closest_point(_ground(Vector2(112, 108)))
+	for side in 4:
+		var candidates = _mobile_candidates(side)
+		var army = []
+		for role in MOBILE:
+			for index in MOBILE[role]:
+				var unit = load(_catalog.scene_path(role)).instantiate()
+				var choices = _worker_candidates(side) if role == "Worker" else candidates
+				var point = _mobile_site(unit, choices, combat_destination)
+				if not point.is_finite():
+					unit.free()
+					_check(false, "No reachable FFA mobile site for side %d %s" % [side, role])
+					return
+				_add_unit(unit, side, Transform3D(Basis(), point))
+				army.append(unit)
+		_armies.append(army)
+	for side in 4:
+		var player = _players[side]
+		player.resource_a = 1000
+		player.resource_b = 1000
+		if side > 0:
+			player._elapsed = 0.0
+			player._last_wave = 0.0
+			player._army_groups.clear()
+			player._army_cursor = 0
+	_game.simulation_time = 900.0
+	_game.set_physics_process(true)
+	for player in _players.slice(1):
+		player.set_process(true)
+	_cap_active = true
+	await _frames(3)
+	var harvest = load("res://source/match/units/actions/CollectingResourcesSequentially.gd")
+	var attack_move = load("res://source/match/units/actions/AttackMoving.gd")
+	for unit in _armies[0]:
+		if unit.type == "Worker":
+			var deposits = get_nodes_in_group("resource_units").filter(
+				func(deposit): return "resource_a" in deposit
+			)
+			deposits.sort_custom(
+				func(first, second):
+					return (
+						unit.global_position.distance_squared_to(first.global_position)
+						< unit.global_position.distance_squared_to(second.global_position)
+					)
+			)
+			unit.action = harvest.new(deposits[0])
+		else:
+			unit.action = attack_move.new(combat_destination)
+	for player in _players:
+		_check(player.population() == 100, "Synthetic FFA mobile cap is not 100")
+		_check(player.structure_count() == 40, "Synthetic FFA structure cap is not 40")
+	for army in _armies:
+		for unit in army:
+			_start_positions[unit] = unit.global_position
+	print("FFA SYNTHETIC_CAP_READY ", JSON.stringify(_population_state()))
+
+
+func _structure_candidates(side):
+	var result = []
+	for x in range(12, 101, 4):
+		for z in range(12, 101, 4):
+			var local = Vector2(x, z)
+			if local.distance_to(Vector2(112, 112)) < 68.0:
+				continue
+			# Keep the authored home-to-pit haul road clear.
+			if (
+				local.distance_to(
+					Geometry2D.get_closest_point_to_segment(local, Vector2(24, 24), Vector2(68, 60))
+				)
+				< 6.0
+			):
+				continue
+			result.append(_rotate_point(local, side))
+	result.sort_custom(
+		func(first, second):
+			return (
+				first.distance_squared_to(_base_origins[side])
+				< second.distance_squared_to(_base_origins[side])
+			)
+	)
+	return result
+
+
+func _structure_site(unit, side, candidates):
+	var navmap = _game.navigation.terrain.navigation_map_rid
+	var outline = _footprint.local_outline(unit)
+	var lane_margin = (
+		2.0
+		* (
+			root.get_node("Constants").Match.Terrain.Navmesh.MAX_AGENT_RADIUS
+			+ root.get_node("Constants").Match.Terrain.Navmesh.CELL_SIZE
+		)
+	)
+	for point in candidates:
+		if not outline.is_empty():
+			for heading in [0.0, PI * .5]:
+				var site = Transform3D(Basis(Vector3.UP, heading + _side_angle(side)), point)
+				var polygon = _footprint.outline_at(outline, site)
+				var expanded = Geometry2D.offset_polygon(polygon, lane_margin)
+				if expanded.is_empty() or not _airfield_layout.approach_fits(site, _game.map.size):
+					continue
+				if (
+					_placement.validate_footprint_placement(
+						expanded[0], _occupied, navmap, _game.map
+					)
+					== _placement.VALID
+				):
+					return site
+		else:
+			if not _structure_leaves_lanes(point, unit.radius, lane_margin):
+				continue
+			if (
+				_placement.validate_agent_placement_position(
+					point, unit.radius, _occupied, navmap, _game.map
+				)
+				== _placement.VALID
+			):
+				return Transform3D(Basis(), point)
+	return Transform3D(Basis(), Vector3.INF)
+
+
+func _structure_leaves_lanes(point, radius, margin):
+	for other in _occupied:
+		if not other.has_method("is_constructed"):
+			continue
+		if _footprint.reach_distance(other, point) < radius + other.radius + margin:
+			return false
+	return true
+
+
+func _mobile_candidates(side):
+	var result = []
+	for x in range(76, 111, 2):
+		for z in range(76, 111, 2):
+			result.append(_rotate_point(Vector2(x, z), side))
+	return result
+
+
+func _worker_candidates(side):
+	var result = []
+	for x in range(14, 61, 2):
+		for z in range(14, 61, 2):
+			result.append(_rotate_point(Vector2(x, z), side))
+	result.sort_custom(
+		func(first, second):
+			return (
+				first.distance_squared_to(_base_origins[side])
+				< second.distance_squared_to(_base_origins[side])
+			)
+	)
+	return result
+
+
+func _mobile_site(unit, candidates, destination):
+	var navmap = _game.navigation.get_navigation_map_rid_by_domain(unit.movement_domain)
+	for point in candidates:
+		if (
+			_placement.validate_agent_placement_position(
+				point,
+				unit.radius,
+				_occupied,
+				navmap,
+				_game.map if unit.movement_domain == 1 else null
+			)
+			!= _placement.VALID
+		):
+			continue
+		if unit.movement_domain == 1:
+			var from = _game.navigation.terrain.closest_point(point)
+			var path = NavigationServer3D.map_get_path(navmap, from, destination, true)
+			if path.is_empty() or path[-1].distance_to(destination) > 1.0:
+				continue
+		return point
+	return Vector3.INF
+
+
+func _add_unit(unit, side, transform):
+	_game._setup_and_spawn_unit(unit, transform, _players[side], false)
+	unit.hp_max = 100000.0
+	unit.hp = unit.hp_max
+	_occupied.append(unit)
+
+
+func _side_angle(side):
+	var origin = Vector2(_base_origins[side].x, _base_origins[side].z) - Vector2(112, 112)
+	return origin.angle() - Vector2(-88, -88).angle()
+
+
+func _rotate_point(point, side):
+	return _ground((point - Vector2(112, 112)).rotated(_side_angle(side)) + Vector2(112, 112))
+
+
+func _ground(point):
+	return _game.map.ground_point(point)
+
+
+func _wait_navigation():
+	var started = Time.get_ticks_msec()
+	await _frames(3)
+	while not _game.navigation.terrain.is_synchronized():
+		await process_frame
+		if Time.get_ticks_msec() - started > 60000:
+			_check(false, "FFA navigation did not synchronize within 60 seconds")
+			return
+
+
+func _set_camera(point):
+	_camera_target = point
+	var camera = _game.get_node("IsometricCamera3D")
+	# Stable representative view; all world/army processing remains active.
+	camera.set_physics_process(false)
+	camera.set_size_safely(24)
+	camera.set_position_safely(point)
+
+
+func _measure(label, _frames_requested):
+	_phase = label
+	_frame_times.clear()
+	_gpu_times.clear()
+	_render_cpu_times.clear()
+	_population_samples.clear()
+	_ai_elapsed = _players.slice(1).map(func(player): return player._elapsed)
+	_ai_decisions = [0, 0, 0]
+	_shot_sources.clear()
+	_hit_count = 0
+	_mined_count = 0
+	_orders = 0
+	_peak_projectiles = 0
+	_sample_frames = 0
+	_last_positions = _start_positions.duplicate()
+	_travel.clear()
+	for unit in _start_positions:
+		_travel[unit] = 0.0
+	var simulation_started = _game.simulation_time
+	var physics_started = Engine.get_physics_frames()
+	var drawn_started = Engine.get_frames_drawn()
+	var last = Time.get_ticks_usec()
+	var started = last
+	_sampling = true
+	_population_samples.append(_population_state())
+	while _game.simulation_time - simulation_started < SAMPLE_SECONDS:
+		await process_frame
+		var now = Time.get_ticks_usec()
+		_frame_times.append((now - last) / 1000.0)
+		last = now
+		_sample_workload()
+		if _rendered:
+			_gpu_times.append(
+				RenderingServer.viewport_get_measured_render_time_gpu(root.get_viewport_rid())
+			)
+			_render_cpu_times.append(
+				RenderingServer.viewport_get_measured_render_time_cpu(root.get_viewport_rid())
+			)
+		if now - started > 90000000:
+			_check(false, "FFA phase exceeded 90 wall seconds")
+			break
+	_sampling = false
+	_population_samples.append(_population_state())
+	_frame_times.sort()
+	for index in 3:
+		_check(_players[index + 1].is_processing(), "FFA AI was disabled during measurement")
+		_check(_ai_decisions[index] >= 3, "FFA AI decision cadence was not exercised")
+	if _cap_active:
+		for sample in _population_samples:
+			_check(sample.population == [100, 100, 100, 100], "FFA cap changed during measurement")
+			_check(
+				sample.structures == [40, 40, 40, 40], "FFA structures changed during measurement"
+			)
+		_check(_shot_sources.size() >= 40, "FFA cap did not exercise enough attacking units")
+	var moved = 0
+	for unit in _start_positions:
+		if (
+			is_instance_valid(unit)
+			and unit.global_position.distance_to(_start_positions[unit]) > 2.0
+		):
+			moved += 1
+	var result = {
+		"phase": label,
+		"synthetic_cap": _cap_active,
+		"rendered": _rendered,
+		"release": not OS.has_feature("debug"),
+		"mean_frame_ms": snappedf(_mean(_frame_times), .01),
+		"p95_frame_ms": snappedf(_percentile(_frame_times, .95), .01),
+		"p99_frame_ms": snappedf(_percentile(_frame_times, .99), .01),
+		"max_frame_ms": snappedf(_frame_times[-1], .01),
+		"frames_over_33ms": _frame_times.filter(func(ms): return ms > 1000.0 / 30.0).size(),
+		"frames_over_100ms": _frame_times.filter(func(ms): return ms > 100.0).size(),
+		"samples": _frame_times.size(),
+		"simulation_seconds": _game.simulation_time - simulation_started,
+		"wall_seconds": (Time.get_ticks_usec() - started) / 1000000.0,
+		"physics_ticks": Engine.get_physics_frames() - physics_started,
+		"rendered_frames": Engine.get_frames_drawn() - drawn_started,
+		"gpu_ms": snappedf(_mean(_gpu_times), .01),
+		"render_cpu_ms": snappedf(_mean(_render_cpu_times), .01),
+		"pixels": [root.get_texture().get_width(), root.get_texture().get_height()],
+		"window_size": [root.size.x, root.size.y],
+		"content_scale_mode": root.content_scale_mode,
+		"content_scale_size": [root.content_scale_size.x, root.content_scale_size.y],
+		"scale_3d": root.scaling_3d_scale,
+		"camera_size": _game.get_node("IsometricCamera3D").size,
+		"camera_target": [_camera_target.x, _camera_target.y, _camera_target.z],
+		"ai_decision_resets": _ai_decisions.duplicate(),
+		"ai_attacks_launched": _players.slice(1).map(func(player): return player.attacks_launched),
+		"population_samples": _population_samples.duplicate(true),
+		"mobile_moved_over_2m": moved,
+		"mobile_travelled_over_2m":
+		_travel.values().filter(func(distance): return distance > 2.0).size(),
+		"unique_attacking_sources": _shot_sources.size(),
+		"weapon_hits": _hit_count,
+		"resource_units_mined": _mined_count,
+		"orders_issued": _orders,
+		"peak_projectiles": _peak_projectiles,
+	}
+	_results.append(result)
+	print("FFA PHASE ", JSON.stringify(result))
+	_write_json("results.json", _results)
+
+
+func _sample_workload():
+	for index in 3:
+		var elapsed = _players[index + 1]._elapsed
+		if elapsed < _ai_elapsed[index]:
+			_ai_decisions[index] += 1
+		_ai_elapsed[index] = elapsed
+	for unit in _last_positions:
+		if not is_instance_valid(unit):
+			continue
+		_travel[unit] += unit.global_position.distance_to(_last_positions[unit])
+		_last_positions[unit] = unit.global_position
+	if _sample_frames % 30 == 0:
+		_peak_projectiles = maxi(_peak_projectiles, _game.projectile_system.round_count())
+		_population_samples.append(_population_state())
+	_sample_frames += 1
+
+
+func _population_state():
+	return {
+		"simulation_s": snappedf(_game.simulation_time, .01),
+		"population": _players.map(func(player): return player.population()),
+		"structures": _players.map(func(player): return player.structure_count()),
+		"ai_processing": _players.slice(1).map(func(player): return player.is_processing()),
+	}
+
+
+func _on_weapon_hit(_target, source):
+	if not _sampling:
+		return
+	_hit_count += 1
+	if is_instance_valid(source):
+		_shot_sources[source.get_instance_id()] = true
+
+
+func _on_mined(_worker, _kind, amount):
+	if _sampling:
+		_mined_count += amount
+
+
+func _on_order(_unit, _kind):
+	if _sampling:
+		_orders += 1
+
+
+func _snapshot_cap():
+	paused = true
+	await process_frame
+	_game.fog_of_war._physics_process(0.0)
+	var snapshot = load("res://source/match/saves/MatchSnapshot.gd").new()
+	var data = snapshot.capture(_game)
+	_check(data != null, "Cannot freeze synthetic cap: " + snapshot.error)
+	if data != null:
+		_write_json("synthetic-cap-save.json", data)
+	paused = false
+
+
+func _capture(label):
+	if not _rendered:
+		return
+	await RenderingServer.frame_post_draw
+	root.get_texture().get_image().save_png(_output.path_join(label + ".png"))
+
+
+func _input_probe():
+	var hud = _game.hud
+	var feedback = hud.command_feedback
+	var camera = _game.get_node("IsometricCamera3D")
+	var selected = (
+		_armies[0]
+		. filter(func(unit): return unit.movement_domain == 1 and unit.type != "Worker")
+		. slice(0, 24)
+	)
+	hud.select_units(selected)
+	await _frames(3)
+	var samples = []
+	for index in 10:
+		feedback.markers.clear()
+		hud.direct_orders.arm("move")
+		var point = camera.unproject_position(_ground(Vector2(110 + index % 2, 111)))
+		point = root.get_final_transform() * point
+		var motion = InputEventMouseMotion.new()
+		motion.position = point
+		motion.global_position = point
+		root.push_input(motion, false)
+		await process_frame
+		var started = Time.get_ticks_usec()
+		for pressed in [true, false]:
+			var click = InputEventMouseButton.new()
+			click.button_index = MOUSE_BUTTON_LEFT
+			click.pressed = pressed
+			click.position = point
+			click.global_position = point
+			click.button_mask = MOUSE_BUTTON_MASK_LEFT if pressed else 0
+			root.push_input(click, false)
+		await RenderingServer.frame_post_draw
+		if feedback.markers.is_empty():
+			await RenderingServer.frame_post_draw
+		_check(
+			not feedback.markers.is_empty() and feedback.markers[-1].accepted,
+			"Four-player input probe did not acknowledge the move"
+		)
+		samples.append((Time.get_ticks_usec() - started) / 1000.0)
+		await _frames(3)
+	samples.sort()
+	print(
+		"FFA INPUT ",
+		(
+			JSON
+			. stringify(
+				{
+					"selected": selected.size(),
+					"samples": samples.size(),
+					"event_to_feedback_submit_mean_ms": snappedf(_mean(samples), .01),
+					"p95_ms": snappedf(_percentile(samples, .95), .01),
+					"synthetic_mobile_count": 400,
+					"synthetic_structure_count": 160,
+					"hardware_or_display_latency": false,
+				}
+			)
+		)
+	)
+
+
+func _write_json(name, value):
+	var file = FileAccess.open(_output.path_join(name), FileAccess.WRITE)
+	_check(file != null, "Cannot write FFA diagnostic output")
+	if file != null:
+		file.store_string(JSON.stringify(value))
+
+
+func _mean(samples):
+	return samples.reduce(func(total, value): return total + value, 0.0) / maxi(1, samples.size())
+
+
+func _percentile(samples, fraction):
+	return samples[mini(samples.size() - 1, int(samples.size() * fraction))]
+
+
+func _frames(count):
+	for _index in count:
+		await process_frame
+
+
+func _check(condition, message):
+	if not condition:
+		_checks_failed += 1
+		push_error(message)
+
+
+func _finish():
+	paused = false
+	if is_instance_valid(_game):
+		_game.queue_free()
+		await _frames(8)
+	print(
+		"PASS" if _checks_failed == 0 else "FAIL",
+		": FFA four players, three active normal AIs, ordinary opening and synthetic 400+160 cap; ",
+		"release=",
+		not OS.has_feature("debug"),
+		" rendered=",
+		_rendered,
+		" failures=",
+		_checks_failed
+	)
+	await root.get_node("Globals").quit_game(0 if _checks_failed == 0 else 1)

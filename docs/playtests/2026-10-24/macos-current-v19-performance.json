@@ -1,0 +1,2001 @@
+{
+  "schema": "accepted-current-v19-macos-performance-v1",
+  "complete": true,
+  "valid": true,
+  "created_utc": "2026-10-24T07:32:47.906608+00:00",
+  "production_source_sha256": "bf0fd8adafd2dc57cf4ef055ab49bab028c40da87d380959654a74b167b38283",
+  "production_manifest": {
+    "path": "docs/playtests/2026-10-24/macos-package-v19/source-manifest.json",
+    "sha256": "45dc9f612609a21d20c282f798e66342f4769f3a3cf404210174e5a00f88c1cd"
+  },
+  "hash_method_correction": {
+    "path": "docs/playtests/2026-10-24/macos-current-v19-hash-correction.json",
+    "sha256": "4b84170d6dd95317495971041f5cf15f22113cf20dac93b17c8864c62cc4b9ca"
+  },
+  "sampling_enabled": false,
+  "renderer": "Godot 4.7.2 release, Forward Plus, Apple M1 Pro (Apple7)",
+  "raster_pixels": [
+    1920,
+    1080
+  ],
+  "gpu_timing": "Unavailable on this renderer; zero monitor values are not GPU cost measurements.",
+  "method": {
+    "native_focus": "NSWorkspace expected/foreground PID sampled every 250 ms, with owned samples bracketing every helper and gameplay phase plus zero in-engine focus-exit events.",
+    "ordinary": "Base: 30 units. Midfield combat: fixed 70 units. Destruction burst: eight tanks removed, leaving 62 units. Each phase retains at least 120 frames and at least 3 seconds of warm-up, followed by 240 drawn steady frames.",
+    "stress": "Synthetic 200 mobile units plus 80 structures, with AI disabled; original 10-simulation-second movement and combat phases preserved. The first 3 wall seconds and remaining frames are post-processing subdivisions, not additional warm-up.",
+    "cache": "Each workload starts with its own fresh game user cache, then repeats in a new process using that cache. OS/driver caches were not reset.",
+    "helper": "Production CombatPrewarm helper-only costs are separate from gameplay timing and exclude fixture preparation. Stress settles navigation, construction rigs and minimap while paused, confirms state stable across another physics/process/draw cycle, then invokes the helper. These values are not end-to-end Loading times.",
+    "input": "Stress input probe measures engine event dispatch to accepted move-feedback frame submission for 24 selected units; excludes mouse hardware and display scan-out."
+  },
+  "accepted_run_count": 4,
+  "unique_sampled_frame_count": 4557,
+  "max_observed_frame_ms": 40.504,
+  "frames_over_50ms": 0,
+  "frames_over_100ms": 0,
+  "all_prewarm_preservation_checks_passed": true,
+  "all_source_artifact_and_native_focus_checks_passed": true,
+  "warnings_or_errors_in_accepted_runs": 0,
+  "builds": [
+    {
+      "kind": "ordinary",
+      "report": {
+        "path": "docs/playtests/2026-10-24/macos-current-v19-final-1/report.json",
+        "sha256": "f7e38ed54f15178aecf2a89696d1dcacbe2afeef08b4db21ccafcaecb6b00a28"
+      },
+      "executable": {
+        "path": "build/polish-2026-10-24/macos-current-v19-final-1/Open_RTS_ordinary.app/Contents/MacOS/Open RTS",
+        "sha256": "529da4d63c5e2340cf5f45e730794a976b91a7e7e1d0c3689ecd7aee99985966",
+        "bytes": 170963648
+      },
+      "pack": {
+        "path": "build/polish-2026-10-24/macos-current-v19-final-1/Open_RTS_ordinary.app/Contents/Resources/Open RTS.pck",
+        "sha256": "74cd013818f09c18e83bc637c8aae964545cfa234b1b301b662302084fbf7d20",
+        "bytes": 181939692
+      },
+      "postimport": {
+        "path": "docs/playtests/2026-10-24/macos-current-v19-final-1/ordinary-postimport-manifest.json",
+        "sha256": "51e8e91922b55d23640ac4209c954a8caed9e699ad9d4df2b0100139ccf59519",
+        "bytes": 1908695,
+        "aggregate_sha256": "dbf5cc258085c4eb96ae06c081cf391260e04bac65d598c68567d51904c8cf89",
+        "files": 13823
+      },
+      "postexport": {
+        "path": "docs/playtests/2026-10-24/macos-current-v19-final-1/ordinary-postexport-manifest.json",
+        "sha256": "f7f38484f666b20ecd17bcb461f758f75bfb99c6d9d5c5fb7a381e98e73707f7",
+        "bytes": 1908695,
+        "aggregate_sha256": "e52efec1c4f10f5d985e16b4a303ceaeba9ca4eef69af74439145ce8deab587e",
+        "files": 13823
+      },
+      "import_changed_paths": [
+        ".godot/global_script_class_cache.cfg",
+        ".godot/uid_cache.bin",
+        "ReleaseBattleBenchmark.gd.uid"
+      ],
+      "export_changed_paths": [
+        ".godot/uid_cache.bin"
+      ],
+      "production_source_assets_match_v19": true
+    },
+    {
+      "kind": "stress",
+      "report": {
+        "path": "docs/playtests/2026-10-24/macos-current-v19-final-stress-2/report.json",
+        "sha256": "2b5e40ba46ea1a6fe831735454cda309ae4b1fc959bdfe9665a1aec02d3e8caf"
+      },
+      "executable": {
+        "path": "build/polish-2026-10-24/macos-current-v19-final-stress-2/Open_RTS_stress.app/Contents/MacOS/Open RTS",
+        "sha256": "ceaee1f38b9c5b297929b41c1c16d276ef79d21e4e1407e3afdb88493610b173",
+        "bytes": 170963648
+      },
+      "pack": {
+        "path": "build/polish-2026-10-24/macos-current-v19-final-stress-2/Open_RTS_stress.app/Contents/Resources/Open RTS.pck",
+        "sha256": "dffa6846609761354ffd82d1081ce0c106fc6ccba937fb0c73f655c9ccbeadb6",
+        "bytes": 181937584
+      },
+      "postimport": {
+        "path": "docs/playtests/2026-10-24/macos-current-v19-final-stress-2/stress-postimport-manifest.json",
+        "sha256": "7990c5db2cdef62661cbb06632f12ce9353a9c58a973992e12fd291e5ac851c4",
+        "bytes": 1908683,
+        "aggregate_sha256": "6458aabc710f9d25c8c8695b49dec0b43ffba1adcc4d8f5ab13dbec0321d0992",
+        "files": 13823
+      },
+      "postexport": {
+        "path": "docs/playtests/2026-10-24/macos-current-v19-final-stress-2/stress-postexport-manifest.json",
+        "sha256": "abc1490fe344cd8cc4332a72587f60a68009c3537810ef8f291d702a79502184",
+        "bytes": 1908683,
+        "aggregate_sha256": "5b7064befeaf9e34bb734d4a4d9ad7649ea1ea09c84760055d49cb7b80eab910",
+        "files": 13823
+      },
+      "import_changed_paths": [
+        ".godot/global_script_class_cache.cfg",
+        ".godot/uid_cache.bin",
+        "ReleaseBenchmark.gd.uid"
+      ],
+      "export_changed_paths": [
+        ".godot/uid_cache.bin"
+      ],
+      "production_source_assets_match_v19": true
+    }
+  ],
+  "accepted_runs": [
+    {
+      "kind": "ordinary",
+      "repeat": 1,
+      "fresh_process": true,
+      "fresh_game_cache": true,
+      "pid": 17013,
+      "valid": true,
+      "prewarm": [
+        {
+          "caller_paused": true,
+          "completed": true,
+          "cosmetic_equal": true,
+          "elapsed_ms": 1653.543,
+          "helper_only": true,
+          "nodes_after": 6705,
+          "nodes_before": 6705,
+          "pipelines": {
+            "canvas": 8,
+            "draw": 81,
+            "mesh": 30,
+            "specialization": 100,
+            "surface": 138
+          },
+          "process_modes_equal": true,
+          "snapshot_equal": true,
+          "unix_ms": 1792826286078
+        }
+      ],
+      "measurements": [
+        {
+          "label": "WARMUP base",
+          "values": {
+            "frames": 227,
+            "p95_ms": 13.77,
+            "max_ms": 28.47,
+            "frames_over_100ms": 0
+          }
+        },
+        {
+          "label": "GAMEPLAY base",
+          "values": {
+            "units": 30,
+            "mean_ms": 12.8,
+            "p95_ms": 13.15,
+            "fps": 78.1,
+            "simulation_seconds": 3.06666666666666,
+            "wall_seconds": 3.072306,
+            "viewport": "(1920.0, 1080.0)",
+            "pixels": "(1920.0, 1080.0)",
+            "gpu_ms": "unavailable",
+            "render_cpu_ms": 0.92,
+            "adapter": "Apple M1 Pro (Apple7)",
+            "rendered_frames": 240,
+            "physics_ticks": 92,
+            "paused": false,
+            "draw_calls": 1537,
+            "primitives": 1069128
+          }
+        },
+        {
+          "label": "WARMUP midfield-combat",
+          "values": {
+            "frames": 214,
+            "p95_ms": 14.82,
+            "max_ms": 39.71,
+            "frames_over_100ms": 0
+          }
+        },
+        {
+          "label": "GAMEPLAY midfield-combat",
+          "values": {
+            "units": 70,
+            "mean_ms": 14.25,
+            "p95_ms": 14.95,
+            "fps": 70.2,
+            "simulation_seconds": 3.43333333333332,
+            "wall_seconds": 3.42001,
+            "viewport": "(1920.0, 1080.0)",
+            "pixels": "(1920.0, 1080.0)",
+            "gpu_ms": "unavailable",
+            "render_cpu_ms": 1.34,
+            "adapter": "Apple M1 Pro (Apple7)",
+            "rendered_frames": 240,
+            "physics_ticks": 103,
+            "paused": false,
+            "draw_calls": 2320,
+            "primitives": 1822796
+          }
+        },
+        {
+          "label": "BURST",
+          "values": {
+            "destroyed": 8,
+            "wrecks": 8
+          }
+        },
+        {
+          "label": "WARMUP destruction-burst",
+          "values": {
+            "frames": 212,
+            "p95_ms": 15.17,
+            "max_ms": 16.96,
+            "frames_over_100ms": 0
+          }
+        },
+        {
+          "label": "GAMEPLAY destruction-burst",
+          "values": {
+            "units": 62,
+            "mean_ms": 14.52,
+            "p95_ms": 16.19,
+            "fps": 68.9,
+            "simulation_seconds": 3.50000000000017,
+            "wall_seconds": 3.483858,
+            "viewport": "(1920.0, 1080.0)",
+            "pixels": "(1920.0, 1080.0)",
+            "gpu_ms": "unavailable",
+            "render_cpu_ms": 1.41,
+            "adapter": "Apple M1 Pro (Apple7)",
+            "rendered_frames": 240,
+            "physics_ticks": 105,
+            "paused": false,
+            "draw_calls": 2688,
+            "primitives": 1870337
+          }
+        }
+      ],
+      "frame_summaries": [
+        {
+          "phase": "base/warmup",
+          "frames": 227,
+          "mean_ms": 13.224374449339207,
+          "p95_ms": 13.77,
+          "p99_ms": 15.482,
+          "max_ms": 28.495,
+          "frames_over_33ms": 0,
+          "frames_over_50ms": 0,
+          "frames_over_100ms": 0,
+          "spikes_over_50ms": [],
+          "first_pipeline_counts": {
+            "canvas": 8,
+            "draw": 81,
+            "mesh": 30,
+            "specialization": 100,
+            "surface": 138
+          },
+          "last_pipeline_counts": {
+            "canvas": 8,
+            "draw": 86,
+            "mesh": 30,
+            "specialization": 105,
+            "surface": 138
+          },
+          "fps": 75.61794350506824
+        },
+        {
+          "phase": "base/steady",
+          "frames": 240,
+          "mean_ms": 12.801358333333333,
+          "p95_ms": 13.145,
+          "p99_ms": 13.493,
+          "max_ms": 14.129,
+          "frames_over_33ms": 0,
+          "frames_over_50ms": 0,
+          "frames_over_100ms": 0,
+          "spikes_over_50ms": [],
+          "first_pipeline_counts": {
+            "canvas": 8,
+            "draw": 86,
+            "mesh": 30,
+            "specialization": 105,
+            "surface": 138
+          },
+          "last_pipeline_counts": {
+            "canvas": 8,
+            "draw": 86,
+            "mesh": 30,
+            "specialization": 105,
+            "surface": 138
+          },
+          "fps": 78.11671027098036
+        },
+        {
+          "phase": "midfield-combat/warmup",
+          "frames": 214,
+          "mean_ms": 14.07290186915888,
+          "p95_ms": 14.817,
+          "p99_ms": 22.214,
+          "max_ms": 39.738,
+          "frames_over_33ms": 1,
+          "frames_over_50ms": 0,
+          "frames_over_100ms": 0,
+          "spikes_over_50ms": [],
+          "first_pipeline_counts": {
+            "canvas": 8,
+            "draw": 86,
+            "mesh": 30,
+            "specialization": 105,
+            "surface": 138
+          },
+          "last_pipeline_counts": {
+            "canvas": 8,
+            "draw": 92,
+            "mesh": 30,
+            "specialization": 111,
+            "surface": 139
+          },
+          "fps": 71.05854992078963
+        },
+        {
+          "phase": "midfield-combat/steady",
+          "frames": 240,
+          "mean_ms": 14.250120833333334,
+          "p95_ms": 14.952,
+          "p99_ms": 15.236,
+          "max_ms": 15.909,
+          "frames_over_33ms": 0,
+          "frames_over_50ms": 0,
+          "frames_over_100ms": 0,
+          "spikes_over_50ms": [],
+          "first_pipeline_counts": {
+            "canvas": 8,
+            "draw": 92,
+            "mesh": 30,
+            "specialization": 111,
+            "surface": 139
+          },
+          "last_pipeline_counts": {
+            "canvas": 8,
+            "draw": 92,
+            "mesh": 30,
+            "specialization": 111,
+            "surface": 139
+          },
+          "fps": 70.17484354664829
+        },
+        {
+          "phase": "destruction-burst/warmup",
+          "frames": 212,
+          "mean_ms": 14.21129716981132,
+          "p95_ms": 15.167,
+          "p99_ms": 15.533,
+          "max_ms": 16.957,
+          "frames_over_33ms": 0,
+          "frames_over_50ms": 0,
+          "frames_over_100ms": 0,
+          "spikes_over_50ms": [],
+          "first_pipeline_counts": {
+            "canvas": 8,
+            "draw": 92,
+            "mesh": 30,
+            "specialization": 111,
+            "surface": 139
+          },
+          "last_pipeline_counts": {
+            "canvas": 8,
+            "draw": 98,
+            "mesh": 30,
+            "specialization": 119,
+            "surface": 143
+          },
+          "fps": 70.36655331677063
+        },
+        {
+          "phase": "destruction-burst/steady",
+          "frames": 240,
+          "mean_ms": 14.516154166666666,
+          "p95_ms": 16.187,
+          "p99_ms": 16.664,
+          "max_ms": 17.448,
+          "frames_over_33ms": 0,
+          "frames_over_50ms": 0,
+          "frames_over_100ms": 0,
+          "spikes_over_50ms": [],
+          "first_pipeline_counts": {
+            "canvas": 8,
+            "draw": 98,
+            "mesh": 30,
+            "specialization": 119,
+            "surface": 143
+          },
+          "last_pipeline_counts": {
+            "canvas": 8,
+            "draw": 98,
+            "mesh": 30,
+            "specialization": 119,
+            "surface": 143
+          },
+          "fps": 68.88876960926002
+        }
+      ],
+      "focus_phases": [
+        {
+          "phase": "loading-helper",
+          "begin_unix_ms": 1792826284397,
+          "end_unix_ms": 1792826286078,
+          "inside_native_samples": 6,
+          "bracketed_native_samples": 8,
+          "native_coverage_valid": true,
+          "all_native_samples_owned": true,
+          "maximum_sample_gap_ms": 314,
+          "wrapper_focus_valid": true
+        },
+        {
+          "phase": "base",
+          "begin_unix_ms": 1792826286079,
+          "end_unix_ms": 1792826292159,
+          "inside_native_samples": 24,
+          "bracketed_native_samples": 26,
+          "native_coverage_valid": true,
+          "all_native_samples_owned": true,
+          "maximum_sample_gap_ms": 275,
+          "wrapper_focus_valid": true
+        },
+        {
+          "phase": "midfield-combat",
+          "begin_unix_ms": 1792826292510,
+          "end_unix_ms": 1792826298946,
+          "inside_native_samples": 25,
+          "bracketed_native_samples": 27,
+          "native_coverage_valid": true,
+          "all_native_samples_owned": true,
+          "maximum_sample_gap_ms": 261,
+          "wrapper_focus_valid": true
+        },
+        {
+          "phase": "destruction-burst",
+          "begin_unix_ms": 1792826298946,
+          "end_unix_ms": 1792826305448,
+          "inside_native_samples": 25,
+          "bracketed_native_samples": 27,
+          "native_coverage_valid": true,
+          "all_native_samples_owned": true,
+          "maximum_sample_gap_ms": 261,
+          "wrapper_focus_valid": true
+        }
+      ],
+      "log": {
+        "path": "docs/playtests/2026-10-24/macos-current-v19-final-1/ordinary-1.log.txt",
+        "sha256": "05bbad4bc233b484691a6581cb736cfbc4381737bffcd248bc0f0ca5cb9d7abe",
+        "bytes": 464314
+      },
+      "native_focus_log": {
+        "path": "docs/playtests/2026-10-24/macos-current-v19-final-1/ordinary-1-native-focus.jsonl",
+        "sha256": "bedd43c46665c196d586cd73ddd0658bd2c3259793c5ada99ef3dbfb7514b97d",
+        "bytes": 23749
+      },
+      "report": {
+        "path": "docs/playtests/2026-10-24/macos-current-v19-final-1/report.json",
+        "sha256": "f7e38ed54f15178aecf2a89696d1dcacbe2afeef08b4db21ccafcaecb6b00a28"
+      },
+      "setup": []
+    },
+    {
+      "kind": "ordinary",
+      "repeat": 2,
+      "fresh_process": true,
+      "fresh_game_cache": false,
+      "pid": 17316,
+      "valid": true,
+      "prewarm": [
+        {
+          "caller_paused": true,
+          "completed": true,
+          "cosmetic_equal": true,
+          "elapsed_ms": 154.027,
+          "helper_only": true,
+          "nodes_after": 6705,
+          "nodes_before": 6705,
+          "pipelines": {
+            "canvas": 8,
+            "draw": 81,
+            "mesh": 30,
+            "specialization": 100,
+            "surface": 138
+          },
+          "process_modes_equal": true,
+          "snapshot_equal": true,
+          "unix_ms": 1792826314167
+        }
+      ],
+      "measurements": [
+        {
+          "label": "WARMUP base",
+          "values": {
+            "frames": 222,
+            "p95_ms": 14.21,
+            "max_ms": 15.12,
+            "frames_over_100ms": 0
+          }
+        },
+        {
+          "label": "GAMEPLAY base",
+          "values": {
+            "units": 30,
+            "mean_ms": 13.48,
+            "p95_ms": 14.39,
+            "fps": 74.2,
+            "simulation_seconds": 3.23333333333332,
+            "wall_seconds": 3.234359,
+            "viewport": "(1920.0, 1080.0)",
+            "pixels": "(1920.0, 1080.0)",
+            "gpu_ms": "unavailable",
+            "render_cpu_ms": 0.97,
+            "adapter": "Apple M1 Pro (Apple7)",
+            "rendered_frames": 240,
+            "physics_ticks": 97,
+            "paused": false,
+            "draw_calls": 1537,
+            "primitives": 1069128
+          }
+        },
+        {
+          "label": "WARMUP midfield-combat",
+          "values": {
+            "frames": 203,
+            "p95_ms": 16.28,
+            "max_ms": 40.47,
+            "frames_over_100ms": 0
+          }
+        },
+        {
+          "label": "GAMEPLAY midfield-combat",
+          "values": {
+            "units": 70,
+            "mean_ms": 15.07,
+            "p95_ms": 16.53,
+            "fps": 66.4,
+            "simulation_seconds": 3.63333333333332,
+            "wall_seconds": 3.616002,
+            "viewport": "(1920.0, 1080.0)",
+            "pixels": "(1920.0, 1080.0)",
+            "gpu_ms": "unavailable",
+            "render_cpu_ms": 1.43,
+            "adapter": "Apple M1 Pro (Apple7)",
+            "rendered_frames": 240,
+            "physics_ticks": 109,
+            "paused": false,
+            "draw_calls": 2355,
+            "primitives": 1849748
+          }
+        },
+        {
+          "label": "BURST",
+          "values": {
+            "destroyed": 8,
+            "wrecks": 8
+          }
+        },
+        {
+          "label": "WARMUP destruction-burst",
+          "values": {
+            "frames": 208,
+            "p95_ms": 15.87,
+            "max_ms": 17.05,
+            "frames_over_100ms": 0
+          }
+        },
+        {
+          "label": "GAMEPLAY destruction-burst",
+          "values": {
+            "units": 62,
+            "mean_ms": 14.05,
+            "p95_ms": 15.84,
+            "fps": 71.2,
+            "simulation_seconds": 3.40000000000017,
+            "wall_seconds": 3.372109,
+            "viewport": "(1920.0, 1080.0)",
+            "pixels": "(1920.0, 1080.0)",
+            "gpu_ms": "unavailable",
+            "render_cpu_ms": 1.49,
+            "adapter": "Apple M1 Pro (Apple7)",
+            "rendered_frames": 240,
+            "physics_ticks": 102,
+            "paused": false,
+            "draw_calls": 2617,
+            "primitives": 1867586
+          }
+        }
+      ],
+      "frame_summaries": [
+        {
+          "phase": "base/warmup",
+          "frames": 222,
+          "mean_ms": 13.534842342342342,
+          "p95_ms": 14.205,
+          "p99_ms": 15.091,
+          "max_ms": 15.121,
+          "frames_over_33ms": 0,
+          "frames_over_50ms": 0,
+          "frames_over_100ms": 0,
+          "spikes_over_50ms": [],
+          "first_pipeline_counts": {
+            "canvas": 8,
+            "draw": 81,
+            "mesh": 30,
+            "specialization": 100,
+            "surface": 138
+          },
+          "last_pipeline_counts": {
+            "canvas": 8,
+            "draw": 86,
+            "mesh": 30,
+            "specialization": 105,
+            "surface": 138
+          },
+          "fps": 73.88338738690767
+        },
+        {
+          "phase": "base/steady",
+          "frames": 240,
+          "mean_ms": 13.476570833333334,
+          "p95_ms": 14.392,
+          "p99_ms": 14.981,
+          "max_ms": 15.094,
+          "frames_over_33ms": 0,
+          "frames_over_50ms": 0,
+          "frames_over_100ms": 0,
+          "spikes_over_50ms": [],
+          "first_pipeline_counts": {
+            "canvas": 8,
+            "draw": 86,
+            "mesh": 30,
+            "specialization": 105,
+            "surface": 138
+          },
+          "last_pipeline_counts": {
+            "canvas": 8,
+            "draw": 86,
+            "mesh": 30,
+            "specialization": 105,
+            "surface": 138
+          },
+          "fps": 74.20285266683507
+        },
+        {
+          "phase": "midfield-combat/warmup",
+          "frames": 203,
+          "mean_ms": 14.839556650246305,
+          "p95_ms": 16.283,
+          "p99_ms": 19.099,
+          "max_ms": 40.504,
+          "frames_over_33ms": 1,
+          "frames_over_50ms": 0,
+          "frames_over_100ms": 0,
+          "spikes_over_50ms": [],
+          "first_pipeline_counts": {
+            "canvas": 8,
+            "draw": 86,
+            "mesh": 30,
+            "specialization": 105,
+            "surface": 138
+          },
+          "last_pipeline_counts": {
+            "canvas": 8,
+            "draw": 92,
+            "mesh": 30,
+            "specialization": 111,
+            "surface": 139
+          },
+          "fps": 67.38745796582826
+        },
+        {
+          "phase": "midfield-combat/steady",
+          "frames": 240,
+          "mean_ms": 15.066741666666667,
+          "p95_ms": 16.528,
+          "p99_ms": 17.164,
+          "max_ms": 17.395,
+          "frames_over_33ms": 0,
+          "frames_over_50ms": 0,
+          "frames_over_100ms": 0,
+          "spikes_over_50ms": [],
+          "first_pipeline_counts": {
+            "canvas": 8,
+            "draw": 92,
+            "mesh": 30,
+            "specialization": 111,
+            "surface": 139
+          },
+          "last_pipeline_counts": {
+            "canvas": 8,
+            "draw": 92,
+            "mesh": 30,
+            "specialization": 111,
+            "surface": 139
+          },
+          "fps": 66.37135102756679
+        },
+        {
+          "phase": "destruction-burst/warmup",
+          "frames": 208,
+          "mean_ms": 14.486394230769232,
+          "p95_ms": 15.865,
+          "p99_ms": 16.394,
+          "max_ms": 17.052,
+          "frames_over_33ms": 0,
+          "frames_over_50ms": 0,
+          "frames_over_100ms": 0,
+          "spikes_over_50ms": [],
+          "first_pipeline_counts": {
+            "canvas": 8,
+            "draw": 92,
+            "mesh": 30,
+            "specialization": 111,
+            "surface": 139
+          },
+          "last_pipeline_counts": {
+            "canvas": 8,
+            "draw": 98,
+            "mesh": 30,
+            "specialization": 119,
+            "surface": 143
+          },
+          "fps": 69.03029035865882
+        },
+        {
+          "phase": "destruction-burst/steady",
+          "frames": 240,
+          "mean_ms": 14.050529166666667,
+          "p95_ms": 15.836,
+          "p99_ms": 16.621,
+          "max_ms": 16.806,
+          "frames_over_33ms": 0,
+          "frames_over_50ms": 0,
+          "frames_over_100ms": 0,
+          "spikes_over_50ms": [],
+          "first_pipeline_counts": {
+            "canvas": 8,
+            "draw": 98,
+            "mesh": 30,
+            "specialization": 119,
+            "surface": 143
+          },
+          "last_pipeline_counts": {
+            "canvas": 8,
+            "draw": 98,
+            "mesh": 30,
+            "specialization": 119,
+            "surface": 143
+          },
+          "fps": 71.17169667690452
+        }
+      ],
+      "focus_phases": [
+        {
+          "phase": "loading-helper",
+          "begin_unix_ms": 1792826313983,
+          "end_unix_ms": 1792826314167,
+          "inside_native_samples": 0,
+          "bracketed_native_samples": 2,
+          "native_coverage_valid": true,
+          "all_native_samples_owned": true,
+          "maximum_sample_gap_ms": 257,
+          "wrapper_focus_valid": true
+        },
+        {
+          "phase": "base",
+          "begin_unix_ms": 1792826314167,
+          "end_unix_ms": 1792826320412,
+          "inside_native_samples": 24,
+          "bracketed_native_samples": 26,
+          "native_coverage_valid": true,
+          "all_native_samples_owned": true,
+          "maximum_sample_gap_ms": 261,
+          "wrapper_focus_valid": true
+        },
+        {
+          "phase": "midfield-combat",
+          "begin_unix_ms": 1792826320846,
+          "end_unix_ms": 1792826327479,
+          "inside_native_samples": 26,
+          "bracketed_native_samples": 28,
+          "native_coverage_valid": true,
+          "all_native_samples_owned": true,
+          "maximum_sample_gap_ms": 261,
+          "wrapper_focus_valid": true
+        },
+        {
+          "phase": "destruction-burst",
+          "begin_unix_ms": 1792826327479,
+          "end_unix_ms": 1792826333869,
+          "inside_native_samples": 24,
+          "bracketed_native_samples": 26,
+          "native_coverage_valid": true,
+          "all_native_samples_owned": true,
+          "maximum_sample_gap_ms": 260,
+          "wrapper_focus_valid": true
+        }
+      ],
+      "log": {
+        "path": "docs/playtests/2026-10-24/macos-current-v19-final-1/ordinary-2.log.txt",
+        "sha256": "0d3f770ff08ac9e6cea7a6ea153a0080c64b8a5192cde36364679d5a4a7f1dd2",
+        "bytes": 457158
+      },
+      "native_focus_log": {
+        "path": "docs/playtests/2026-10-24/macos-current-v19-final-1/ordinary-2-native-focus.jsonl",
+        "sha256": "f9317c344e2abc1f268aaa1d45b7f48359bf894cd0ed66c32654daea333f7b7f",
+        "bytes": 10645
+      },
+      "report": {
+        "path": "docs/playtests/2026-10-24/macos-current-v19-final-1/report.json",
+        "sha256": "f7e38ed54f15178aecf2a89696d1dcacbe2afeef08b4db21ccafcaecb6b00a28"
+      },
+      "setup": []
+    },
+    {
+      "kind": "stress",
+      "repeat": 1,
+      "fresh_process": true,
+      "fresh_game_cache": true,
+      "pid": 21497,
+      "valid": true,
+      "prewarm": [
+        {
+          "caller_paused": true,
+          "completed": true,
+          "cosmetic_equal": true,
+          "elapsed_ms": 1702.39,
+          "helper_only": true,
+          "nodes_after": 6602,
+          "nodes_before": 6602,
+          "pipelines": {
+            "canvas": 7,
+            "draw": 50,
+            "mesh": 33,
+            "specialization": 67,
+            "surface": 128
+          },
+          "process_modes_equal": true,
+          "snapshot_equal": true,
+          "unix_ms": 1792826988861
+        }
+      ],
+      "measurements": [
+        {
+          "label": "SCALE movement",
+          "values": {
+            "renderer": "macOS",
+            "mean_frame_ms": 19.48,
+            "p95_frame_ms": 27.51,
+            "p99_frame_ms": 29.41,
+            "frames_over_33ms": 0,
+            "samples": 515,
+            "simulation_seconds": 10.03,
+            "wall_seconds": 10.03,
+            "realtime": true,
+            "baseline_field": false,
+            "baseline_targets": false,
+            "avg_sampled_1s_process_max_ms": 19.15,
+            "avg_sampled_1s_physics_max_ms": 11.81,
+            "physics_ticks": 301,
+            "physics_hz": 30,
+            "interpolation": true,
+            "diagnostic_no_motion": false,
+            "diagnostic_no_queues": false
+          }
+        },
+        {
+          "label": "RENDER movement",
+          "values": {
+            "gpu_ms": 0.0,
+            "render_cpu_ms": 3.96,
+            "pixels": "(1920.0, 1080.0)",
+            "scale_3d": 1.0,
+            "adapter": "Apple M1 Pro (Apple7)",
+            "rendered_frames": 515
+          }
+        },
+        {
+          "label": "TAIL movement",
+          "values": {
+            "max_frame_ms": 32.05,
+            "frames_over_100ms": 0
+          }
+        },
+        {
+          "label": "SCALE combat",
+          "values": {
+            "renderer": "macOS",
+            "mean_frame_ms": 22.99,
+            "p95_frame_ms": 28.57,
+            "p99_frame_ms": 30.0,
+            "frames_over_33ms": 1,
+            "samples": 434,
+            "simulation_seconds": 10.0,
+            "wall_seconds": 9.98,
+            "realtime": true,
+            "baseline_field": false,
+            "baseline_targets": false,
+            "avg_sampled_1s_process_max_ms": 20.6,
+            "avg_sampled_1s_physics_max_ms": 12.44,
+            "physics_ticks": 300,
+            "physics_hz": 30,
+            "interpolation": true,
+            "diagnostic_no_motion": false,
+            "diagnostic_no_queues": false
+          }
+        },
+        {
+          "label": "RENDER combat",
+          "values": {
+            "gpu_ms": 0.0,
+            "render_cpu_ms": 4.56,
+            "pixels": "(1920.0, 1080.0)",
+            "scale_3d": 1.0,
+            "adapter": "Apple M1 Pro (Apple7)",
+            "rendered_frames": 434
+          }
+        },
+        {
+          "label": "TAIL combat",
+          "values": {
+            "max_frame_ms": 33.45,
+            "frames_over_100ms": 0
+          }
+        },
+        {
+          "label": "INPUT",
+          "values": {
+            "selected": 24,
+            "samples": 10,
+            "event_to_feedback_submit_mean_ms": 23.68,
+            "p95_ms": 30.62,
+            "maximum_population": true
+          }
+        },
+        {
+          "label": "SCALE",
+          "values": {
+            "behaviors": true,
+            "air_combat": false,
+            "moved": "200/200",
+            "travelled": "200/200",
+            "fired": 114,
+            "peak_live_projectiles": 25,
+            "resources": 62,
+            "sampled_peak_tracers": 0,
+            "viewport_pixels": "(1920.0, 1080.0)"
+          }
+        }
+      ],
+      "frame_summaries": [
+        {
+          "phase": "movement",
+          "frames": 515,
+          "mean_ms": 19.477188349514563,
+          "p95_ms": 27.512,
+          "p99_ms": 29.414,
+          "max_ms": 32.054,
+          "frames_over_33ms": 0,
+          "frames_over_50ms": 0,
+          "frames_over_100ms": 0,
+          "spikes_over_50ms": [],
+          "first_pipeline_counts": {
+            "canvas": 7,
+            "draw": 78,
+            "mesh": 35,
+            "specialization": 97,
+            "surface": 129
+          },
+          "last_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "fps": 51.342112734917585
+        },
+        {
+          "phase": "movement/first-3s",
+          "frames": 190,
+          "mean_ms": 15.714984210526318,
+          "p95_ms": 23.342,
+          "p99_ms": 29.974,
+          "max_ms": 32.054,
+          "frames_over_33ms": 0,
+          "frames_over_50ms": 0,
+          "frames_over_100ms": 0,
+          "spikes_over_50ms": [],
+          "first_pipeline_counts": {
+            "canvas": 7,
+            "draw": 78,
+            "mesh": 35,
+            "specialization": 97,
+            "surface": 129
+          },
+          "last_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "fps": 63.633535140949945
+        },
+        {
+          "phase": "movement/after-3s",
+          "frames": 325,
+          "mean_ms": 21.67663076923077,
+          "p95_ms": 27.846,
+          "p99_ms": 29.414,
+          "max_ms": 31.977,
+          "frames_over_33ms": 0,
+          "frames_over_50ms": 0,
+          "frames_over_100ms": 0,
+          "spikes_over_50ms": [],
+          "first_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "last_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "fps": 46.13263060325157
+        },
+        {
+          "phase": "combat",
+          "frames": 434,
+          "mean_ms": 22.99080184331797,
+          "p95_ms": 28.566,
+          "p99_ms": 30.0,
+          "max_ms": 33.483,
+          "frames_over_33ms": 1,
+          "frames_over_50ms": 0,
+          "frames_over_100ms": 0,
+          "spikes_over_50ms": [],
+          "first_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "last_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "fps": 43.495655645896456
+        },
+        {
+          "phase": "combat/first-3s",
+          "frames": 133,
+          "mean_ms": 22.410593984962407,
+          "p95_ms": 28.278,
+          "p99_ms": 29.987,
+          "max_ms": 33.483,
+          "frames_over_33ms": 1,
+          "frames_over_50ms": 0,
+          "frames_over_100ms": 0,
+          "spikes_over_50ms": [],
+          "first_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "last_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "fps": 44.621753473870605
+        },
+        {
+          "phase": "combat/after-3s",
+          "frames": 301,
+          "mean_ms": 23.247172757475084,
+          "p95_ms": 28.761,
+          "p99_ms": 30.0,
+          "max_ms": 31.33,
+          "frames_over_33ms": 0,
+          "frames_over_50ms": 0,
+          "frames_over_100ms": 0,
+          "spikes_over_50ms": [],
+          "first_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "last_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "fps": 43.01598351044438
+        }
+      ],
+      "focus_phases": [
+        {
+          "phase": "loading-helper",
+          "begin_unix_ms": 1792826987137,
+          "end_unix_ms": 1792826988861,
+          "inside_native_samples": 5,
+          "bracketed_native_samples": 7,
+          "native_coverage_valid": true,
+          "all_native_samples_owned": true,
+          "maximum_sample_gap_ms": 404,
+          "wrapper_focus_valid": true
+        },
+        {
+          "phase": "movement",
+          "begin_unix_ms": 1792826991773,
+          "end_unix_ms": 1792827001810,
+          "inside_native_samples": 39,
+          "bracketed_native_samples": 41,
+          "native_coverage_valid": true,
+          "all_native_samples_owned": true,
+          "maximum_sample_gap_ms": 260,
+          "wrapper_focus_valid": true
+        },
+        {
+          "phase": "combat",
+          "begin_unix_ms": 1792827001817,
+          "end_unix_ms": 1792827013077,
+          "inside_native_samples": 43,
+          "bracketed_native_samples": 45,
+          "native_coverage_valid": true,
+          "all_native_samples_owned": true,
+          "maximum_sample_gap_ms": 261,
+          "wrapper_focus_valid": true
+        }
+      ],
+      "log": {
+        "path": "docs/playtests/2026-10-24/macos-current-v19-final-stress-2/stress-1.log.txt",
+        "sha256": "f6c91ebcbdf8e0562678426b8084809edc4292c7e42561c2ea760be1c5164778",
+        "bytes": 352707
+      },
+      "native_focus_log": {
+        "path": "docs/playtests/2026-10-24/macos-current-v19-final-stress-2/stress-1-native-focus.jsonl",
+        "sha256": "51b849d8d4654aee28175ee9dddf9f12c5a671c0545fa5acaf46301e47dd5ba5",
+        "bytes": 24645
+      },
+      "report": {
+        "path": "docs/playtests/2026-10-24/macos-current-v19-final-stress-2/report.json",
+        "sha256": "2b5e40ba46ea1a6fe831735454cda309ae4b1fc959bdfe9665a1aec02d3e8caf"
+      },
+      "setup": [
+        {
+          "cycles": 6,
+          "helper_timing_includes_setup": false,
+          "paused": true,
+          "readiness": {
+            "construction_rigs": 0,
+            "minimap_captured": true,
+            "pending_navigation": [],
+            "ready": true,
+            "terrain_synchronized": true
+          },
+          "simulation_after": 0.0,
+          "simulation_before": 0.0,
+          "stable_snapshot_nodes_modes": true
+        }
+      ]
+    },
+    {
+      "kind": "stress",
+      "repeat": 2,
+      "fresh_process": true,
+      "fresh_game_cache": false,
+      "pid": 21817,
+      "valid": true,
+      "prewarm": [
+        {
+          "caller_paused": true,
+          "completed": true,
+          "cosmetic_equal": true,
+          "elapsed_ms": 564.209,
+          "helper_only": true,
+          "nodes_after": 6602,
+          "nodes_before": 6602,
+          "pipelines": {
+            "canvas": 7,
+            "draw": 50,
+            "mesh": 33,
+            "specialization": 67,
+            "surface": 128
+          },
+          "process_modes_equal": true,
+          "snapshot_equal": true,
+          "unix_ms": 1792827020462
+        }
+      ],
+      "measurements": [
+        {
+          "label": "SCALE movement",
+          "values": {
+            "renderer": "macOS",
+            "mean_frame_ms": 20.75,
+            "p95_frame_ms": 28.47,
+            "p99_frame_ms": 31.54,
+            "frames_over_33ms": 1,
+            "samples": 484,
+            "simulation_seconds": 10.03,
+            "wall_seconds": 10.04,
+            "realtime": true,
+            "baseline_field": false,
+            "baseline_targets": false,
+            "avg_sampled_1s_process_max_ms": 18.74,
+            "avg_sampled_1s_physics_max_ms": 12.46,
+            "physics_ticks": 301,
+            "physics_hz": 30,
+            "interpolation": true,
+            "diagnostic_no_motion": false,
+            "diagnostic_no_queues": false
+          }
+        },
+        {
+          "label": "RENDER movement",
+          "values": {
+            "gpu_ms": 0.0,
+            "render_cpu_ms": 4.15,
+            "pixels": "(1920.0, 1080.0)",
+            "scale_3d": 1.0,
+            "adapter": "Apple M1 Pro (Apple7)",
+            "rendered_frames": 484
+          }
+        },
+        {
+          "label": "TAIL movement",
+          "values": {
+            "max_frame_ms": 34.13,
+            "frames_over_100ms": 0
+          }
+        },
+        {
+          "label": "SCALE combat",
+          "values": {
+            "renderer": "macOS",
+            "mean_frame_ms": 25.1,
+            "p95_frame_ms": 30.68,
+            "p99_frame_ms": 33.7,
+            "frames_over_33ms": 4,
+            "samples": 398,
+            "simulation_seconds": 10.0,
+            "wall_seconds": 9.99,
+            "realtime": true,
+            "baseline_field": false,
+            "baseline_targets": false,
+            "avg_sampled_1s_process_max_ms": 22.33,
+            "avg_sampled_1s_physics_max_ms": 13.36,
+            "physics_ticks": 300,
+            "physics_hz": 30,
+            "interpolation": true,
+            "diagnostic_no_motion": false,
+            "diagnostic_no_queues": false
+          }
+        },
+        {
+          "label": "RENDER combat",
+          "values": {
+            "gpu_ms": 0.0,
+            "render_cpu_ms": 4.99,
+            "pixels": "(1920.0, 1080.0)",
+            "scale_3d": 1.0,
+            "adapter": "Apple M1 Pro (Apple7)",
+            "rendered_frames": 398
+          }
+        },
+        {
+          "label": "TAIL combat",
+          "values": {
+            "max_frame_ms": 37.24,
+            "frames_over_100ms": 0
+          }
+        },
+        {
+          "label": "INPUT",
+          "values": {
+            "selected": 24,
+            "samples": 10,
+            "event_to_feedback_submit_mean_ms": 25.16,
+            "p95_ms": 32.86,
+            "maximum_population": true
+          }
+        },
+        {
+          "label": "SCALE",
+          "values": {
+            "behaviors": true,
+            "air_combat": false,
+            "moved": "200/200",
+            "travelled": "200/200",
+            "fired": 109,
+            "peak_live_projectiles": 12,
+            "resources": 62,
+            "sampled_peak_tracers": 0,
+            "viewport_pixels": "(1920.0, 1080.0)"
+          }
+        }
+      ],
+      "frame_summaries": [
+        {
+          "phase": "movement",
+          "frames": 484,
+          "mean_ms": 20.747082644628097,
+          "p95_ms": 28.462,
+          "p99_ms": 31.551,
+          "max_ms": 34.13,
+          "frames_over_33ms": 1,
+          "frames_over_50ms": 0,
+          "frames_over_100ms": 0,
+          "spikes_over_50ms": [],
+          "first_pipeline_counts": {
+            "canvas": 7,
+            "draw": 78,
+            "mesh": 35,
+            "specialization": 97,
+            "surface": 129
+          },
+          "last_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "fps": 48.19954772093816
+        },
+        {
+          "phase": "movement/first-3s",
+          "frames": 181,
+          "mean_ms": 16.557723756906075,
+          "p95_ms": 23.497,
+          "p99_ms": 30.771,
+          "max_ms": 32.061,
+          "frames_over_33ms": 0,
+          "frames_over_50ms": 0,
+          "frames_over_100ms": 0,
+          "spikes_over_50ms": [],
+          "first_pipeline_counts": {
+            "canvas": 7,
+            "draw": 78,
+            "mesh": 35,
+            "specialization": 97,
+            "surface": 129
+          },
+          "last_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "fps": 60.39477495105021
+        },
+        {
+          "phase": "movement/after-3s",
+          "frames": 303,
+          "mean_ms": 23.24963696369637,
+          "p95_ms": 28.851,
+          "p99_ms": 31.551,
+          "max_ms": 34.13,
+          "frames_over_33ms": 1,
+          "frames_over_50ms": 0,
+          "frames_over_100ms": 0,
+          "spikes_over_50ms": [],
+          "first_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "last_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "fps": 43.0114242885371
+        },
+        {
+          "phase": "combat",
+          "frames": 398,
+          "mean_ms": 25.09693216080402,
+          "p95_ms": 30.698,
+          "p99_ms": 33.69,
+          "max_ms": 37.249,
+          "frames_over_33ms": 4,
+          "frames_over_50ms": 0,
+          "frames_over_100ms": 0,
+          "spikes_over_50ms": [],
+          "first_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "last_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "fps": 39.84550755417763
+        },
+        {
+          "phase": "combat/first-3s",
+          "frames": 122,
+          "mean_ms": 24.44443442622951,
+          "p95_ms": 29.939,
+          "p99_ms": 33.69,
+          "max_ms": 35.748,
+          "frames_over_33ms": 2,
+          "frames_over_50ms": 0,
+          "frames_over_100ms": 0,
+          "spikes_over_50ms": [],
+          "first_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "last_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "fps": 40.90910767511864
+        },
+        {
+          "phase": "combat/after-3s",
+          "frames": 276,
+          "mean_ms": 25.385355072463767,
+          "p95_ms": 30.836,
+          "p99_ms": 33.178,
+          "max_ms": 37.249,
+          "frames_over_33ms": 2,
+          "frames_over_50ms": 0,
+          "frames_over_100ms": 0,
+          "spikes_over_50ms": [],
+          "first_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "last_pipeline_counts": {
+            "canvas": 8,
+            "draw": 80,
+            "mesh": 35,
+            "specialization": 99,
+            "surface": 129
+          },
+          "fps": 39.39279151878908
+        }
+      ],
+      "focus_phases": [
+        {
+          "phase": "loading-helper",
+          "begin_unix_ms": 1792827019876,
+          "end_unix_ms": 1792827020462,
+          "inside_native_samples": 2,
+          "bracketed_native_samples": 4,
+          "native_coverage_valid": true,
+          "all_native_samples_owned": true,
+          "maximum_sample_gap_ms": 261,
+          "wrapper_focus_valid": true
+        },
+        {
+          "phase": "movement",
+          "begin_unix_ms": 1792827023428,
+          "end_unix_ms": 1792827033475,
+          "inside_native_samples": 38,
+          "bracketed_native_samples": 40,
+          "native_coverage_valid": true,
+          "all_native_samples_owned": true,
+          "maximum_sample_gap_ms": 259,
+          "wrapper_focus_valid": true
+        },
+        {
+          "phase": "combat",
+          "begin_unix_ms": 1792827033482,
+          "end_unix_ms": 1792827044874,
+          "inside_native_samples": 45,
+          "bracketed_native_samples": 47,
+          "native_coverage_valid": true,
+          "all_native_samples_owned": true,
+          "maximum_sample_gap_ms": 260,
+          "wrapper_focus_valid": true
+        }
+      ],
+      "log": {
+        "path": "docs/playtests/2026-10-24/macos-current-v19-final-stress-2/stress-2.log.txt",
+        "sha256": "c118d7a0ad8c1bb7b0753be8875c4bfdc7048f8870fa865771987ed664ee2724",
+        "bytes": 327793
+      },
+      "native_focus_log": {
+        "path": "docs/playtests/2026-10-24/macos-current-v19-final-stress-2/stress-2-native-focus.jsonl",
+        "sha256": "124f008990c217cb98e38462655f04d3a1634e5d64dc589106932e344dfb010e",
+        "bytes": 12320
+      },
+      "report": {
+        "path": "docs/playtests/2026-10-24/macos-current-v19-final-stress-2/report.json",
+        "sha256": "2b5e40ba46ea1a6fe831735454cda309ae4b1fc959bdfe9665a1aec02d3e8caf"
+      },
+      "setup": [
+        {
+          "cycles": 6,
+          "helper_timing_includes_setup": false,
+          "paused": true,
+          "readiness": {
+            "construction_rigs": 0,
+            "minimap_captured": true,
+            "pending_navigation": [],
+            "ready": true,
+            "terrain_synchronized": true
+          },
+          "simulation_after": 0.0,
+          "simulation_before": 0.0,
+          "stable_snapshot_nodes_modes": true
+        }
+      ]
+    }
+  ],
+  "rejected_stress_run": {
+    "report": {
+      "path": "docs/playtests/2026-10-24/macos-current-v19-final-1/report.json",
+      "sha256": "f7e38ed54f15178aecf2a89696d1dcacbe2afeef08b4db21ccafcaecb6b00a28"
+    },
+    "kind": "stress",
+    "repeat": 1,
+    "accepted": false,
+    "reason": "Baseline captured deferred initialization before it completed; preserve-only diagnostic evidence, excluded from all accepted summaries."
+  },
+  "startup_diagnostic": {
+    "result": {
+      "path": "docs/playtests/2026-10-24/macos-current-v19-prewarm-diagnostic-1/result.json",
+      "sha256": "35fc9cbcb646c7e47d5d4037a769976104951a2f03fa5adcb9000cebb68e57a5"
+    },
+    "log": {
+      "path": "docs/playtests/2026-10-24/macos-current-v19-prewarm-diagnostic-1/native.log.txt",
+      "sha256": "ee404798caf4b702fb47c5ba46fbc04f78d6462b4b9f6afc8df2b7d3d804ea6b"
+    },
+    "script": {
+      "path": "docs/playtests/2026-10-24/macos-current-v19-prewarm-diagnostic-1/CurrentPrewarmDiagnostic.gd.txt",
+      "sha256": "f81bf610a9c0275fa59abdbe6308e2390abcacb2acfd78d7e863052a5da1c63d"
+    },
+    "release_timing": false,
+    "facts": "Exactly 34 ConstructionPrewarm rig nodes removed; zero surviving-node mode changes or additions. Exactly 24 snapshot fields changed: 12 mobile movement target/progress positions initialized from zero to spawn. Simulation remained at 0.0 and paused; no fog or other snapshot differences. The navigation diagnostic list was capped at 100 entries; the snapshot difference list is complete."
+  },
+  "limitations": [
+    "Two runs per workload on one Mac; results are scenario measurements, not a general frame-rate guarantee.",
+    "Fresh game-cache runs still inherit OS/driver caches.",
+    "All Windows work remains paused and no Windows claim is made."
+  ],
+  "phase_metrics": [
+    {
+      "workload": "ordinary",
+      "run": 1,
+      "phase": "base/warmup",
+      "scope": "retained warm-up",
+      "frames": 227,
+      "mean_ms": 13.224374449339207,
+      "p95_ms": 13.77,
+      "max_ms": 28.495,
+      "frames_over_100ms": 0,
+      "p95_working_target_ms": null,
+      "target_met": null
+    },
+    {
+      "workload": "ordinary",
+      "run": 1,
+      "phase": "base/steady",
+      "scope": "240-frame steady sample",
+      "frames": 240,
+      "mean_ms": 12.801358333333333,
+      "p95_ms": 13.145,
+      "max_ms": 14.129,
+      "frames_over_100ms": 0,
+      "p95_working_target_ms": null,
+      "target_met": null
+    },
+    {
+      "workload": "ordinary",
+      "run": 1,
+      "phase": "midfield-combat/warmup",
+      "scope": "retained warm-up",
+      "frames": 214,
+      "mean_ms": 14.07290186915888,
+      "p95_ms": 14.817,
+      "max_ms": 39.738,
+      "frames_over_100ms": 0,
+      "p95_working_target_ms": null,
+      "target_met": null
+    },
+    {
+      "workload": "ordinary",
+      "run": 1,
+      "phase": "midfield-combat/steady",
+      "scope": "240-frame steady sample",
+      "frames": 240,
+      "mean_ms": 14.250120833333334,
+      "p95_ms": 14.952,
+      "max_ms": 15.909,
+      "frames_over_100ms": 0,
+      "p95_working_target_ms": 16.7,
+      "target_met": true
+    },
+    {
+      "workload": "ordinary",
+      "run": 1,
+      "phase": "destruction-burst/warmup",
+      "scope": "retained warm-up",
+      "frames": 212,
+      "mean_ms": 14.21129716981132,
+      "p95_ms": 15.167,
+      "max_ms": 16.957,
+      "frames_over_100ms": 0,
+      "p95_working_target_ms": null,
+      "target_met": null
+    },
+    {
+      "workload": "ordinary",
+      "run": 1,
+      "phase": "destruction-burst/steady",
+      "scope": "240-frame steady sample",
+      "frames": 240,
+      "mean_ms": 14.516154166666666,
+      "p95_ms": 16.187,
+      "max_ms": 17.448,
+      "frames_over_100ms": 0,
+      "p95_working_target_ms": 16.7,
+      "target_met": true
+    },
+    {
+      "workload": "ordinary",
+      "run": 2,
+      "phase": "base/warmup",
+      "scope": "retained warm-up",
+      "frames": 222,
+      "mean_ms": 13.534842342342342,
+      "p95_ms": 14.205,
+      "max_ms": 15.121,
+      "frames_over_100ms": 0,
+      "p95_working_target_ms": null,
+      "target_met": null
+    },
+    {
+      "workload": "ordinary",
+      "run": 2,
+      "phase": "base/steady",
+      "scope": "240-frame steady sample",
+      "frames": 240,
+      "mean_ms": 13.476570833333334,
+      "p95_ms": 14.392,
+      "max_ms": 15.094,
+      "frames_over_100ms": 0,
+      "p95_working_target_ms": null,
+      "target_met": null
+    },
+    {
+      "workload": "ordinary",
+      "run": 2,
+      "phase": "midfield-combat/warmup",
+      "scope": "retained warm-up",
+      "frames": 203,
+      "mean_ms": 14.839556650246305,
+      "p95_ms": 16.283,
+      "max_ms": 40.504,
+      "frames_over_100ms": 0,
+      "p95_working_target_ms": null,
+      "target_met": null
+    },
+    {
+      "workload": "ordinary",
+      "run": 2,
+      "phase": "midfield-combat/steady",
+      "scope": "240-frame steady sample",
+      "frames": 240,
+      "mean_ms": 15.066741666666667,
+      "p95_ms": 16.528,
+      "max_ms": 17.395,
+      "frames_over_100ms": 0,
+      "p95_working_target_ms": 16.7,
+      "target_met": true
+    },
+    {
+      "workload": "ordinary",
+      "run": 2,
+      "phase": "destruction-burst/warmup",
+      "scope": "retained warm-up",
+      "frames": 208,
+      "mean_ms": 14.486394230769232,
+      "p95_ms": 15.865,
+      "max_ms": 17.052,
+      "frames_over_100ms": 0,
+      "p95_working_target_ms": null,
+      "target_met": null
+    },
+    {
+      "workload": "ordinary",
+      "run": 2,
+      "phase": "destruction-burst/steady",
+      "scope": "240-frame steady sample",
+      "frames": 240,
+      "mean_ms": 14.050529166666667,
+      "p95_ms": 15.836,
+      "max_ms": 16.806,
+      "frames_over_100ms": 0,
+      "p95_working_target_ms": 16.7,
+      "target_met": true
+    },
+    {
+      "workload": "stress",
+      "run": 1,
+      "phase": "movement",
+      "scope": "full 10-second simulation phase",
+      "frames": 515,
+      "mean_ms": 19.477188349514563,
+      "p95_ms": 27.512,
+      "max_ms": 32.054,
+      "frames_over_100ms": 0,
+      "p95_working_target_ms": 33.3,
+      "target_met": true
+    },
+    {
+      "workload": "stress",
+      "run": 1,
+      "phase": "movement/first-3s",
+      "scope": "diagnostic subdivision of original full phase",
+      "frames": 190,
+      "mean_ms": 15.714984210526318,
+      "p95_ms": 23.342,
+      "max_ms": 32.054,
+      "frames_over_100ms": 0,
+      "p95_working_target_ms": null,
+      "target_met": null
+    },
+    {
+      "workload": "stress",
+      "run": 1,
+      "phase": "movement/after-3s",
+      "scope": "diagnostic subdivision of original full phase",
+      "frames": 325,
+      "mean_ms": 21.67663076923077,
+      "p95_ms": 27.846,
+      "max_ms": 31.977,
+      "frames_over_100ms": 0,
+      "p95_working_target_ms": null,
+      "target_met": null
+    },
+    {
+      "workload": "stress",
+      "run": 1,
+      "phase": "combat",
+      "scope": "full 10-second simulation phase",
+      "frames": 434,
+      "mean_ms": 22.99080184331797,
+      "p95_ms": 28.566,
+      "max_ms": 33.483,
+      "frames_over_100ms": 0,
+      "p95_working_target_ms": 33.3,
+      "target_met": true
+    },
+    {
+      "workload": "stress",
+      "run": 1,
+      "phase": "combat/first-3s",
+      "scope": "diagnostic subdivision of original full phase",
+      "frames": 133,
+      "mean_ms": 22.410593984962407,
+      "p95_ms": 28.278,
+      "max_ms": 33.483,
+      "frames_over_100ms": 0,
+      "p95_working_target_ms": null,
+      "target_met": null
+    },
+    {
+      "workload": "stress",
+      "run": 1,
+      "phase": "combat/after-3s",
+      "scope": "diagnostic subdivision of original full phase",
+      "frames": 301,
+      "mean_ms": 23.247172757475084,
+      "p95_ms": 28.761,
+      "max_ms": 31.33,
+      "frames_over_100ms": 0,
+      "p95_working_target_ms": null,
+      "target_met": null
+    },
+    {
+      "workload": "stress",
+      "run": 2,
+      "phase": "movement",
+      "scope": "full 10-second simulation phase",
+      "frames": 484,
+      "mean_ms": 20.747082644628097,
+      "p95_ms": 28.462,
+      "max_ms": 34.13,
+      "frames_over_100ms": 0,
+      "p95_working_target_ms": 33.3,
+      "target_met": true
+    },
+    {
+      "workload": "stress",
+      "run": 2,
+      "phase": "movement/first-3s",
+      "scope": "diagnostic subdivision of original full phase",
+      "frames": 181,
+      "mean_ms": 16.557723756906075,
+      "p95_ms": 23.497,
+      "max_ms": 32.061,
+      "frames_over_100ms": 0,
+      "p95_working_target_ms": null,
+      "target_met": null
+    },
+    {
+      "workload": "stress",
+      "run": 2,
+      "phase": "movement/after-3s",
+      "scope": "diagnostic subdivision of original full phase",
+      "frames": 303,
+      "mean_ms": 23.24963696369637,
+      "p95_ms": 28.851,
+      "max_ms": 34.13,
+      "frames_over_100ms": 0,
+      "p95_working_target_ms": null,
+      "target_met": null
+    },
+    {
+      "workload": "stress",
+      "run": 2,
+      "phase": "combat",
+      "scope": "full 10-second simulation phase",
+      "frames": 398,
+      "mean_ms": 25.09693216080402,
+      "p95_ms": 30.698,
+      "max_ms": 37.249,
+      "frames_over_100ms": 0,
+      "p95_working_target_ms": 33.3,
+      "target_met": true
+    },
+    {
+      "workload": "stress",
+      "run": 2,
+      "phase": "combat/first-3s",
+      "scope": "diagnostic subdivision of original full phase",
+      "frames": 122,
+      "mean_ms": 24.44443442622951,
+      "p95_ms": 29.939,
+      "max_ms": 35.748,
+      "frames_over_100ms": 0,
+      "p95_working_target_ms": null,
+      "target_met": null
+    },
+    {
+      "workload": "stress",
+      "run": 2,
+      "phase": "combat/after-3s",
+      "scope": "diagnostic subdivision of original full phase",
+      "frames": 276,
+      "mean_ms": 25.385355072463767,
+      "p95_ms": 30.836,
+      "max_ms": 37.249,
+      "frames_over_100ms": 0,
+      "p95_working_target_ms": null,
+      "target_met": null
+    }
+  ],
+  "working_budget_checks": [
+    {
+      "workload": "ordinary",
+      "run": 1,
+      "phase": "midfield-combat/steady",
+      "scope": "240-frame steady sample",
+      "p95_ms": 14.952,
+      "p95_working_target_ms": 16.7,
+      "target_met": true
+    },
+    {
+      "workload": "ordinary",
+      "run": 1,
+      "phase": "destruction-burst/steady",
+      "scope": "240-frame steady sample",
+      "p95_ms": 16.187,
+      "p95_working_target_ms": 16.7,
+      "target_met": true
+    },
+    {
+      "workload": "ordinary",
+      "run": 2,
+      "phase": "midfield-combat/steady",
+      "scope": "240-frame steady sample",
+      "p95_ms": 16.528,
+      "p95_working_target_ms": 16.7,
+      "target_met": true
+    },
+    {
+      "workload": "ordinary",
+      "run": 2,
+      "phase": "destruction-burst/steady",
+      "scope": "240-frame steady sample",
+      "p95_ms": 15.836,
+      "p95_working_target_ms": 16.7,
+      "target_met": true
+    },
+    {
+      "workload": "stress",
+      "run": 1,
+      "phase": "movement",
+      "scope": "full 10-second simulation phase",
+      "p95_ms": 27.512,
+      "p95_working_target_ms": 33.3,
+      "target_met": true
+    },
+    {
+      "workload": "stress",
+      "run": 1,
+      "phase": "combat",
+      "scope": "full 10-second simulation phase",
+      "p95_ms": 28.566,
+      "p95_working_target_ms": 33.3,
+      "target_met": true
+    },
+    {
+      "workload": "stress",
+      "run": 1,
+      "phase": "input-feedback submission",
+      "scope": "ten commands selecting 24 units; engine event to submitted feedback frame",
+      "p95_ms": 30.62,
+      "p95_working_target_ms": 100.0,
+      "target_met": true
+    },
+    {
+      "workload": "stress",
+      "run": 2,
+      "phase": "movement",
+      "scope": "full 10-second simulation phase",
+      "p95_ms": 28.462,
+      "p95_working_target_ms": 33.3,
+      "target_met": true
+    },
+    {
+      "workload": "stress",
+      "run": 2,
+      "phase": "combat",
+      "scope": "full 10-second simulation phase",
+      "p95_ms": 30.698,
+      "p95_working_target_ms": 33.3,
+      "target_met": true
+    },
+    {
+      "workload": "stress",
+      "run": 2,
+      "phase": "input-feedback submission",
+      "scope": "ten commands selecting 24 units; engine event to submitted feedback frame",
+      "p95_ms": 32.86,
+      "p95_working_target_ms": 100.0,
+      "target_met": true
+    }
+  ],
+  "all_working_budget_checks_met": true,
+  "working_budget_source": "docs/playtests/2026-10-23/PERFORMANCE.md: ordinary combat/destruction steady p95 <=16.7 ms; stress full-phase p95 <=33.3 ms; command-feedback submission p95 <=100 ms. Warm-up tails are reported separately; first-3s/after-3s stress subdivisions do not replace the full-phase target checks."
+}

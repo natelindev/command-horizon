@@ -1,0 +1,56 @@
+{
+  "created_utc": "2026-10-24T05:48:40.267984+00:00",
+  "stage": "/tmp/godot-open-rts-polish-windows-locale-final-0548",
+  "old_stage": "/tmp/godot-open-rts-polish-windows-candidate-045513",
+  "changed_fixtures": {
+    "tests/headless/OpeningGuidanceRegression.gd": {
+      "old_sha256": "3cf7f65a1c183b88f3d9f62bd67fe1cc90b54e1e4a124e6bffc87f10d9146b91",
+      "new_sha256": "476737582e451e9c19c7379678a849eafaae4aadfa8d751dab624f76061a4ee9"
+    },
+    "tests/headless/RallyControlsRegression.gd": {
+      "old_sha256": "73ecef30f1cba7674a6a5957f60e4d3185012823566788b231f5ae9797750e2c",
+      "new_sha256": "8e02544c451cb3d7ed447db32541a3b5d4d145114d0f4c23ef64f35e44093c7a"
+    }
+  },
+  "old_normal_exe": "OpenRTS-game-candidate-045513.exe",
+  "new_normal_exe": "OpenRTS-game-final-0548.exe",
+  "source_comparison": {
+    "baseline_source_digest": "271c80d0a65ed9e3a04ea511b1e6da718678ac49e21199f00e3c22890fa7d7c0",
+    "baseline_source_files": 2244,
+    "current_source_files": 2244,
+    "changed_files": [
+      {
+        "path": "tests/headless/OpeningGuidanceRegression.gd",
+        "before_sha256": "3cf7f65a1c183b88f3d9f62bd67fe1cc90b54e1e4a124e6bffc87f10d9146b91",
+        "after_sha256": "476737582e451e9c19c7379678a849eafaae4aadfa8d751dab624f76061a4ee9"
+      },
+      {
+        "path": "tests/headless/RallyControlsRegression.gd",
+        "before_sha256": "73ecef30f1cba7674a6a5957f60e4d3185012823566788b231f5ae9797750e2c",
+        "after_sha256": "8e02544c451cb3d7ed447db32541a3b5d4d145114d0f4c23ef64f35e44093c7a"
+      }
+    ],
+    "project_normal_unchanged": true,
+    "export_presets_unchanged": true,
+    "reference": "Exact original export stage after its import/export, including generated UnitInfoTextPreview.gd.uid; earlier pre-import manifest omits that generated UID."
+  },
+  "pck_comparison": {
+    "before_resources": 5590,
+    "after_resources": 5590,
+    "changed": [
+      {
+        "path": "res://tests/headless/OpeningGuidanceRegression.gdc",
+        "old": "9dc67550d400e5bf969bba56510e123b41d5445da9de784fc90b63380abd267d",
+        "new": "5aac18307e3eb694a28a8957d2814564bd6928e2a69c6c6d42d46d1c74b5fbdd"
+      },
+      {
+        "path": "res://tests/headless/RallyControlsRegression.gdc",
+        "old": "da9e0e2558e01591bf56aa0442de56192d42f9de5e7dd0d473f50eb00babb871",
+        "new": "46dce591447e8d3ec47cb516e19edc530640845934c7d529247c0b0a3b91679a"
+      }
+    ]
+  },
+  "completed_utc": "2026-10-24T05:54:27.231251+00:00",
+  "sha256": "c07c4c1b79f291d501245378f6e98bbc3d62b7a269eb658719faeca5a50bb958",
+  "bytes": 291030280
+}

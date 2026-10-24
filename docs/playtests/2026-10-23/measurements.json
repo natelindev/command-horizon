@@ -1,0 +1,600 @@
+{
+  "date": "2026-10-23",
+  "engine": "Godot 4.7.2 stable official ed1daf0bf editor/debug",
+  "system": {
+    "os": "macOS 27.0.1 26A434",
+    "chip": "Apple M1 Pro",
+    "memory_gib": 32,
+    "renderer": "Metal Forward+",
+    "gpu_duration_available": false
+  },
+  "baseline_revision": "06d2df35bf89836a3efa3e996935f198d6e73485",
+  "final_runs": [
+    "polish-scale-final",
+    "polish-scale-final-repeat",
+    "polish-battle-final"
+  ],
+  "notes": [
+    "Serial real-time rendered measurements, uncapped with VSync disabled; 30 Hz physics with interpolation.",
+    "Final ordinary fixture cancels queued setup production and asserts 70 units. Earlier variable-count ordinary runs are diagnostic only.",
+    "No physical input/display latency, packaged release, Windows/Linux, cold-install or novice/listening acceptance claims."
+  ],
+  "runs": [
+    {
+      "log": "tmp/polish-scale-baseline.log",
+      "measurements": [
+        {
+          "label": "SCALE movement",
+          "values": {
+            "renderer": "macOS",
+            "mean_frame_ms": 29.5,
+            "p95_frame_ms": 45.58,
+            "p99_frame_ms": 55.84,
+            "frames_over_33ms": 135,
+            "samples": 341,
+            "simulation_seconds": 10.07,
+            "wall_seconds": 10.06,
+            "realtime": true,
+            "baseline_field": false,
+            "baseline_targets": false,
+            "mean_engine_process_ms": 26.13,
+            "mean_engine_physics_ms": 16.61,
+            "physics_ticks": 302,
+            "physics_hz": 30,
+            "interpolation": true,
+            "diagnostic_no_motion": false,
+            "diagnostic_no_queues": false
+          }
+        },
+        {
+          "label": "TAIL movement",
+          "values": {
+            "max_frame_ms": 63.01,
+            "frames_over_100ms": 0
+          }
+        },
+        {
+          "label": "SCALE combat",
+          "values": {
+            "renderer": "macOS",
+            "mean_frame_ms": 37.99,
+            "p95_frame_ms": 51.35,
+            "p99_frame_ms": 56.69,
+            "frames_over_33ms": 233,
+            "samples": 263,
+            "simulation_seconds": 10.0,
+            "wall_seconds": 9.99,
+            "realtime": true,
+            "baseline_field": false,
+            "baseline_targets": false,
+            "mean_engine_process_ms": 26.01,
+            "mean_engine_physics_ms": 19.22,
+            "physics_ticks": 300,
+            "physics_hz": 30,
+            "interpolation": true,
+            "diagnostic_no_motion": false,
+            "diagnostic_no_queues": false
+          }
+        },
+        {
+          "label": "TAIL combat",
+          "values": {
+            "max_frame_ms": 59.18,
+            "frames_over_100ms": 0
+          }
+        },
+        {
+          "label": "INPUT selected=24",
+          "values": {
+            "selected": 24,
+            "samples": 10,
+            "event_to_feedback_submit_mean_ms": 32.47,
+            "p95_ms": 38.47,
+            "maximum_population": true
+          }
+        }
+      ],
+      "raw_log": "Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org\nMetal 4.0 - Forward+ - Using Device #0: Apple - Apple M1 Pro (Apple7)\n\nBENCHMARK avoidance_threads=true\nSCALE BEGIN movement paused=false simulation_time=3.36666666666666\nSCALE movement renderer=macOS mean_frame_ms=29.5 p95_frame_ms=45.58 p99_frame_ms=55.84 frames_over_33ms=135 samples=341 simulation_seconds=10.07 wall_seconds=10.06 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=26.13 mean_engine_physics_ms=16.61 physics_ticks=302 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false\nRENDER movement gpu_ms=0.0 render_cpu_ms=4.61 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=341\nTAIL movement max_frame_ms=63.01 frames_over_100ms=0\nSCALE BEGIN combat paused=false simulation_time=13.4333333333333\nSCALE combat renderer=macOS mean_frame_ms=37.99 p95_frame_ms=51.35 p99_frame_ms=56.69 frames_over_33ms=233 samples=263 simulation_seconds=10.0 wall_seconds=9.99 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=26.01 mean_engine_physics_ms=19.22 physics_ticks=300 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false\nRENDER combat gpu_ms=0.0 render_cpu_ms=5.25 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=263\nTAIL combat max_frame_ms=59.18 frames_over_100ms=0\nINPUT selected=24 samples=10 event_to_feedback_submit_mean_ms=32.47 p95_ms=38.47 maximum_population=true\nSCALE behaviors=true air_combat=false moved=200/200 travelled=200/200 fired=112 peak_live_projectiles=30 resources=62 sampled_peak_tracers=0 viewport_pixels=(1920.0, 1080.0)\nPASS: 200 mobile units + 80 structures; behaviors=true\n"
+    },
+    {
+      "log": "tmp/polish-scale-frame.log",
+      "measurements": [
+        {
+          "label": "SCALE movement",
+          "values": {
+            "renderer": "macOS",
+            "mean_frame_ms": 27.21,
+            "p95_frame_ms": 38.03,
+            "p99_frame_ms": 49.87,
+            "frames_over_33ms": 90,
+            "samples": 369,
+            "simulation_seconds": 10.03,
+            "wall_seconds": 10.04,
+            "realtime": true,
+            "baseline_field": false,
+            "baseline_targets": false,
+            "mean_engine_process_ms": 22.73,
+            "mean_engine_physics_ms": 16.57,
+            "physics_ticks": 301,
+            "physics_hz": 30,
+            "interpolation": true,
+            "diagnostic_no_motion": false,
+            "diagnostic_no_queues": false
+          }
+        },
+        {
+          "label": "TAIL movement",
+          "values": {
+            "max_frame_ms": 58.85,
+            "frames_over_100ms": 0
+          }
+        },
+        {
+          "label": "SCALE combat",
+          "values": {
+            "renderer": "macOS",
+            "mean_frame_ms": 38.49,
+            "p95_frame_ms": 52.07,
+            "p99_frame_ms": 55.16,
+            "frames_over_33ms": 238,
+            "samples": 260,
+            "simulation_seconds": 10.03,
+            "wall_seconds": 10.01,
+            "realtime": true,
+            "baseline_field": false,
+            "baseline_targets": false,
+            "mean_engine_process_ms": 25.84,
+            "mean_engine_physics_ms": 19.61,
+            "physics_ticks": 301,
+            "physics_hz": 30,
+            "interpolation": true,
+            "diagnostic_no_motion": false,
+            "diagnostic_no_queues": false
+          }
+        },
+        {
+          "label": "TAIL combat",
+          "values": {
+            "max_frame_ms": 65.57,
+            "frames_over_100ms": 0
+          }
+        },
+        {
+          "label": "INPUT selected=24",
+          "values": {
+            "selected": 24,
+            "samples": 10,
+            "event_to_feedback_submit_mean_ms": 30.99,
+            "p95_ms": 41.53,
+            "maximum_population": true
+          }
+        }
+      ],
+      "raw_log": "Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org\nMetal 4.0 - Forward+ - Using Device #0: Apple - Apple M1 Pro (Apple7)\n\nBENCHMARK avoidance_threads=true\nSCALE BEGIN movement paused=false simulation_time=3.26666666666666\nSCALE movement renderer=macOS mean_frame_ms=27.21 p95_frame_ms=38.03 p99_frame_ms=49.87 frames_over_33ms=90 samples=369 simulation_seconds=10.03 wall_seconds=10.04 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=22.73 mean_engine_physics_ms=16.57 physics_ticks=301 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false\nRENDER movement gpu_ms=0.0 render_cpu_ms=4.32 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=369\nTAIL movement max_frame_ms=58.85 frames_over_100ms=0\nSCALE BEGIN combat paused=false simulation_time=13.3\nSCALE combat renderer=macOS mean_frame_ms=38.49 p95_frame_ms=52.07 p99_frame_ms=55.16 frames_over_33ms=238 samples=260 simulation_seconds=10.03 wall_seconds=10.01 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=25.84 mean_engine_physics_ms=19.61 physics_ticks=301 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false\nRENDER combat gpu_ms=0.0 render_cpu_ms=5.26 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=260\nTAIL combat max_frame_ms=65.57 frames_over_100ms=0\nINPUT selected=24 samples=10 event_to_feedback_submit_mean_ms=30.99 p95_ms=41.53 maximum_population=true\nSCALE behaviors=true air_combat=false moved=200/200 travelled=200/200 fired=110 peak_live_projectiles=21 resources=62 sampled_peak_tracers=0 viewport_pixels=(1920.0, 1080.0)\nPASS: 200 mobile units + 80 structures; behaviors=true\n"
+    },
+    {
+      "log": "tmp/polish-scale-final.log",
+      "measurements": [
+        {
+          "label": "SCALE movement",
+          "values": {
+            "renderer": "macOS",
+            "mean_frame_ms": 28.34,
+            "p95_frame_ms": 43.29,
+            "p99_frame_ms": 56.63,
+            "frames_over_33ms": 115,
+            "samples": 354,
+            "simulation_seconds": 10.03,
+            "wall_seconds": 10.03,
+            "realtime": true,
+            "baseline_field": false,
+            "baseline_targets": false,
+            "mean_engine_process_ms": 24.14,
+            "mean_engine_physics_ms": 17.61,
+            "physics_ticks": 301,
+            "physics_hz": 30,
+            "interpolation": true,
+            "diagnostic_no_motion": false,
+            "diagnostic_no_queues": false
+          }
+        },
+        {
+          "label": "TAIL movement",
+          "values": {
+            "max_frame_ms": 62.19,
+            "frames_over_100ms": 0
+          }
+        },
+        {
+          "label": "SCALE combat",
+          "values": {
+            "renderer": "macOS",
+            "mean_frame_ms": 36.28,
+            "p95_frame_ms": 49.12,
+            "p99_frame_ms": 52.94,
+            "frames_over_33ms": 196,
+            "samples": 275,
+            "simulation_seconds": 10.0,
+            "wall_seconds": 9.98,
+            "realtime": true,
+            "baseline_field": false,
+            "baseline_targets": false,
+            "mean_engine_process_ms": 25.09,
+            "mean_engine_physics_ms": 19.09,
+            "physics_ticks": 300,
+            "physics_hz": 30,
+            "interpolation": true,
+            "diagnostic_no_motion": false,
+            "diagnostic_no_queues": false
+          }
+        },
+        {
+          "label": "TAIL combat",
+          "values": {
+            "max_frame_ms": 60.61,
+            "frames_over_100ms": 0
+          }
+        },
+        {
+          "label": "INPUT selected=24",
+          "values": {
+            "selected": 24,
+            "samples": 10,
+            "event_to_feedback_submit_mean_ms": 30.84,
+            "p95_ms": 39.55,
+            "maximum_population": true
+          }
+        }
+      ],
+      "raw_log": "Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org\nMetal 4.0 - Forward+ - Using Device #0: Apple - Apple M1 Pro (Apple7)\n\nBENCHMARK avoidance_threads=true\nSCALE BEGIN movement paused=false simulation_time=3.3\nSCALE movement renderer=macOS mean_frame_ms=28.34 p95_frame_ms=43.29 p99_frame_ms=56.63 frames_over_33ms=115 samples=354 simulation_seconds=10.03 wall_seconds=10.03 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=24.14 mean_engine_physics_ms=17.61 physics_ticks=301 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false\nRENDER movement gpu_ms=0.0 render_cpu_ms=4.28 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=354\nTAIL movement max_frame_ms=62.19 frames_over_100ms=0\nSCALE BEGIN combat paused=false simulation_time=13.3333333333333\nSCALE combat renderer=macOS mean_frame_ms=36.28 p95_frame_ms=49.12 p99_frame_ms=52.94 frames_over_33ms=196 samples=275 simulation_seconds=10.0 wall_seconds=9.98 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=25.09 mean_engine_physics_ms=19.09 physics_ticks=300 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false\nRENDER combat gpu_ms=0.0 render_cpu_ms=5.0 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=275\nTAIL combat max_frame_ms=60.61 frames_over_100ms=0\nINPUT selected=24 samples=10 event_to_feedback_submit_mean_ms=30.84 p95_ms=39.55 maximum_population=true\nSCALE behaviors=true air_combat=false moved=200/200 travelled=200/200 fired=111 peak_live_projectiles=19 resources=62 sampled_peak_tracers=0 viewport_pixels=(1920.0, 1080.0)\nPASS: 200 mobile units + 80 structures; behaviors=true\n"
+    },
+    {
+      "log": "tmp/polish-scale-final-repeat.log",
+      "measurements": [
+        {
+          "label": "SCALE movement",
+          "values": {
+            "renderer": "macOS",
+            "mean_frame_ms": 27.96,
+            "p95_frame_ms": 41.01,
+            "p99_frame_ms": 50.83,
+            "frames_over_33ms": 109,
+            "samples": 360,
+            "simulation_seconds": 10.07,
+            "wall_seconds": 10.07,
+            "realtime": true,
+            "baseline_field": false,
+            "baseline_targets": false,
+            "mean_engine_process_ms": 22.08,
+            "mean_engine_physics_ms": 16.69,
+            "physics_ticks": 302,
+            "physics_hz": 30,
+            "interpolation": true,
+            "diagnostic_no_motion": false,
+            "diagnostic_no_queues": false
+          }
+        },
+        {
+          "label": "TAIL movement",
+          "values": {
+            "max_frame_ms": 60.6,
+            "frames_over_100ms": 0
+          }
+        },
+        {
+          "label": "SCALE combat",
+          "values": {
+            "renderer": "macOS",
+            "mean_frame_ms": 36.86,
+            "p95_frame_ms": 50.0,
+            "p99_frame_ms": 55.62,
+            "frames_over_33ms": 212,
+            "samples": 271,
+            "simulation_seconds": 10.0,
+            "wall_seconds": 9.99,
+            "realtime": true,
+            "baseline_field": false,
+            "baseline_targets": false,
+            "mean_engine_process_ms": 24.9,
+            "mean_engine_physics_ms": 19.81,
+            "physics_ticks": 300,
+            "physics_hz": 30,
+            "interpolation": true,
+            "diagnostic_no_motion": false,
+            "diagnostic_no_queues": false
+          }
+        },
+        {
+          "label": "TAIL combat",
+          "values": {
+            "max_frame_ms": 65.15,
+            "frames_over_100ms": 0
+          }
+        },
+        {
+          "label": "INPUT selected=24",
+          "values": {
+            "selected": 24,
+            "samples": 10,
+            "event_to_feedback_submit_mean_ms": 30.28,
+            "p95_ms": 40.17,
+            "maximum_population": true
+          }
+        }
+      ],
+      "raw_log": "Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org\nMetal 4.0 - Forward+ - Using Device #0: Apple - Apple M1 Pro (Apple7)\n\nBENCHMARK avoidance_threads=true\nSCALE BEGIN movement paused=false simulation_time=3.23333333333333\nSCALE movement renderer=macOS mean_frame_ms=27.96 p95_frame_ms=41.01 p99_frame_ms=50.83 frames_over_33ms=109 samples=360 simulation_seconds=10.07 wall_seconds=10.07 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=22.08 mean_engine_physics_ms=16.69 physics_ticks=302 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false\nRENDER movement gpu_ms=0.0 render_cpu_ms=4.37 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=360\nTAIL movement max_frame_ms=60.6 frames_over_100ms=0\nSCALE BEGIN combat paused=false simulation_time=13.3\nSCALE combat renderer=macOS mean_frame_ms=36.86 p95_frame_ms=50.0 p99_frame_ms=55.62 frames_over_33ms=212 samples=271 simulation_seconds=10.0 wall_seconds=9.99 realtime=true baseline_field=false baseline_targets=false mean_engine_process_ms=24.9 mean_engine_physics_ms=19.81 physics_ticks=300 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false\nRENDER combat gpu_ms=0.0 render_cpu_ms=5.07 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=271\nTAIL combat max_frame_ms=65.15 frames_over_100ms=0\nINPUT selected=24 samples=10 event_to_feedback_submit_mean_ms=30.28 p95_ms=40.17 maximum_population=true\nSCALE behaviors=true air_combat=false moved=200/200 travelled=200/200 fired=110 peak_live_projectiles=24 resources=62 sampled_peak_tracers=0 viewport_pixels=(1920.0, 1080.0)\nPASS: 200 mobile units + 80 structures; behaviors=true\n"
+    },
+    {
+      "log": "tmp/polish-battle-frame.log",
+      "measurements": [
+        {
+          "label": "WARMUP base",
+          "values": {
+            "frames": 223,
+            "p95_ms": 14.19,
+            "max_ms": 83.93,
+            "frames_over_100ms": 0
+          }
+        },
+        {
+          "label": "GAMEPLAY base",
+          "values": {
+            "units": 30,
+            "mean_ms": 13.03,
+            "p95_ms": 14.03,
+            "fps": 76.8,
+            "simulation_seconds": 3.13333333333332,
+            "wall_seconds": 3.126136,
+            "viewport": "(1600.0,",
+            "pixels": "(2304.0,",
+            "gpu_ms": "unavailable",
+            "render_cpu_ms": 1.01,
+            "adapter": "Apple",
+            "rendered_frames": 240,
+            "physics_ticks": 94,
+            "paused": false,
+            "draw_calls": 1536,
+            "primitives": 1069020
+          }
+        },
+        {
+          "label": "WARMUP midfield-combat",
+          "values": {
+            "frames": 202,
+            "p95_ms": 16.19,
+            "max_ms": 54.3,
+            "frames_over_100ms": 0
+          }
+        },
+        {
+          "label": "GAMEPLAY midfield-combat",
+          "values": {
+            "units": 70,
+            "mean_ms": 14.65,
+            "p95_ms": 15.82,
+            "fps": 68.2,
+            "simulation_seconds": 3.53333333333332,
+            "wall_seconds": 3.5171,
+            "viewport": "(1600.0,",
+            "pixels": "(2304.0,",
+            "gpu_ms": "unavailable",
+            "render_cpu_ms": 1.6,
+            "adapter": "Apple",
+            "rendered_frames": 240,
+            "physics_ticks": 106,
+            "paused": false,
+            "draw_calls": 2340,
+            "primitives": 1828453
+          }
+        }
+      ],
+      "raw_log": "Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org\nMetal 4.0 - Forward+ - Using Device #0: Apple - Apple M1 Pro (Apple7)\n\nWARMUP base frames=223 p95_ms=14.19 max_ms=83.93 frames_over_100ms=0\nGAMEPLAY base units=30 mean_ms=13.03 p95_ms=14.03 fps=76.8 simulation_seconds=3.13333333333332 wall_seconds=3.126136 viewport=(1600.0, 900.0) pixels=(2304.0, 1296.0) gpu_ms=unavailable render_cpu_ms=1.01 adapter=Apple M1 Pro (Apple7) rendered_frames=240 physics_ticks=94 paused=false draw_calls=1536 primitives=1069020\nWARMUP midfield-combat frames=202 p95_ms=16.19 max_ms=54.3 frames_over_100ms=0\nGAMEPLAY midfield-combat units=70 mean_ms=14.65 p95_ms=15.82 fps=68.2 simulation_seconds=3.53333333333332 wall_seconds=3.5171 viewport=(1600.0, 900.0) pixels=(2304.0, 1296.0) gpu_ms=unavailable render_cpu_ms=1.6 adapter=Apple M1 Pro (Apple7) rendered_frames=240 physics_ticks=106 paused=false draw_calls=2340 primitives=1828453\n"
+    },
+    {
+      "log": "tmp/polish-battle-burst.log",
+      "measurements": [
+        {
+          "label": "WARMUP base",
+          "values": {
+            "frames": 221,
+            "p95_ms": 14.58,
+            "max_ms": 15.09,
+            "frames_over_100ms": 0
+          }
+        },
+        {
+          "label": "GAMEPLAY base",
+          "values": {
+            "units": 32,
+            "mean_ms": 13.48,
+            "p95_ms": 14.34,
+            "fps": 74.2,
+            "simulation_seconds": 3.26666666666666,
+            "wall_seconds": 3.23635,
+            "viewport": "(1600.0,",
+            "pixels": "(2304.0,",
+            "gpu_ms": "unavailable",
+            "render_cpu_ms": 1.01,
+            "adapter": "Apple",
+            "rendered_frames": 240,
+            "physics_ticks": 98,
+            "paused": false,
+            "draw_calls": 1537,
+            "primitives": 1069020
+          }
+        },
+        {
+          "label": "WARMUP midfield-combat",
+          "values": {
+            "frames": 196,
+            "p95_ms": 16.43,
+            "max_ms": 54.47,
+            "frames_over_100ms": 0
+          }
+        },
+        {
+          "label": "GAMEPLAY midfield-combat",
+          "values": {
+            "units": 72,
+            "mean_ms": 15.52,
+            "p95_ms": 18.33,
+            "fps": 64.4,
+            "simulation_seconds": 3.73333333333332,
+            "wall_seconds": 3.72593,
+            "viewport": "(1600.0,",
+            "pixels": "(2304.0,",
+            "gpu_ms": "unavailable",
+            "render_cpu_ms": 1.62,
+            "adapter": "Apple",
+            "rendered_frames": 240,
+            "physics_ticks": 112,
+            "paused": false,
+            "draw_calls": 2325,
+            "primitives": 1821358
+          }
+        },
+        {
+          "label": "BURST destroyed=8",
+          "values": {
+            "destroyed": 8,
+            "wrecks": 8
+          }
+        },
+        {
+          "label": "WARMUP destruction-burst",
+          "values": {
+            "frames": 192,
+            "p95_ms": 18.78,
+            "max_ms": 27.01,
+            "frames_over_100ms": 0
+          }
+        },
+        {
+          "label": "GAMEPLAY destruction-burst",
+          "values": {
+            "units": 65,
+            "mean_ms": 14.98,
+            "p95_ms": 16.1,
+            "fps": 66.8,
+            "simulation_seconds": 3.60000000000018,
+            "wall_seconds": 3.59436,
+            "viewport": "(1600.0,",
+            "pixels": "(2304.0,",
+            "gpu_ms": "unavailable",
+            "render_cpu_ms": 1.64,
+            "adapter": "Apple",
+            "rendered_frames": 240,
+            "physics_ticks": 108,
+            "paused": false,
+            "draw_calls": 2560,
+            "primitives": 1817610
+          }
+        }
+      ],
+      "raw_log": "Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org\nMetal 4.0 - Forward+ - Using Device #0: Apple - Apple M1 Pro (Apple7)\n\nWARMUP base frames=221 p95_ms=14.58 max_ms=15.09 frames_over_100ms=0\nGAMEPLAY base units=32 mean_ms=13.48 p95_ms=14.34 fps=74.2 simulation_seconds=3.26666666666666 wall_seconds=3.23635 viewport=(1600.0, 900.0) pixels=(2304.0, 1296.0) gpu_ms=unavailable render_cpu_ms=1.01 adapter=Apple M1 Pro (Apple7) rendered_frames=240 physics_ticks=98 paused=false draw_calls=1537 primitives=1069020\nWARMUP midfield-combat frames=196 p95_ms=16.43 max_ms=54.47 frames_over_100ms=0\nGAMEPLAY midfield-combat units=72 mean_ms=15.52 p95_ms=18.33 fps=64.4 simulation_seconds=3.73333333333332 wall_seconds=3.72593 viewport=(1600.0, 900.0) pixels=(2304.0, 1296.0) gpu_ms=unavailable render_cpu_ms=1.62 adapter=Apple M1 Pro (Apple7) rendered_frames=240 physics_ticks=112 paused=false draw_calls=2325 primitives=1821358\nBURST destroyed=8 wrecks=8\nWARMUP destruction-burst frames=192 p95_ms=18.78 max_ms=27.01 frames_over_100ms=0\nGAMEPLAY destruction-burst units=65 mean_ms=14.98 p95_ms=16.1 fps=66.8 simulation_seconds=3.60000000000018 wall_seconds=3.59436 viewport=(1600.0, 900.0) pixels=(2304.0, 1296.0) gpu_ms=unavailable render_cpu_ms=1.64 adapter=Apple M1 Pro (Apple7) rendered_frames=240 physics_ticks=108 paused=false draw_calls=2560 primitives=1817610\nERROR: 1 shaders of type ParticlesShaderRD were never freed\n   at: ~ShaderRD (servers/rendering/renderer_rd/shader_rd.cpp:1236)\nERROR: 1 RID allocations of type 'N10RendererRD15MaterialStorage6ShaderE' were leaked at exit.\n"
+    },
+    {
+      "log": "tmp/polish-battle-final.log",
+      "measurements": [
+        {
+          "label": "WARMUP base",
+          "values": {
+            "frames": 222,
+            "p95_ms": 14.54,
+            "max_ms": 15.01,
+            "frames_over_100ms": 0
+          }
+        },
+        {
+          "label": "GAMEPLAY base",
+          "values": {
+            "units": 30,
+            "mean_ms": 13.45,
+            "p95_ms": 14.54,
+            "fps": 74.3,
+            "simulation_seconds": 3.23333333333332,
+            "wall_seconds": 3.228474,
+            "viewport": "(1600.0,",
+            "pixels": "(2304.0,",
+            "gpu_ms": "unavailable",
+            "render_cpu_ms": 1.01,
+            "adapter": "Apple",
+            "rendered_frames": 240,
+            "physics_ticks": 97,
+            "paused": false,
+            "draw_calls": 1537,
+            "primitives": 1069020
+          }
+        },
+        {
+          "label": "WARMUP midfield-combat",
+          "values": {
+            "frames": 199,
+            "p95_ms": 16.15,
+            "max_ms": 53.69,
+            "frames_over_100ms": 0
+          }
+        },
+        {
+          "label": "GAMEPLAY midfield-combat",
+          "values": {
+            "units": 70,
+            "mean_ms": 15.03,
+            "p95_ms": 16.15,
+            "fps": 66.5,
+            "simulation_seconds": 3.59999999999999,
+            "wall_seconds": 3.606937,
+            "viewport": "(1600.0,",
+            "pixels": "(2304.0,",
+            "gpu_ms": "unavailable",
+            "render_cpu_ms": 1.55,
+            "adapter": "Apple",
+            "rendered_frames": 240,
+            "physics_ticks": 108,
+            "paused": false,
+            "draw_calls": 2327,
+            "primitives": 1821346
+          }
+        },
+        {
+          "label": "BURST destroyed=8",
+          "values": {
+            "destroyed": 8,
+            "wrecks": 8
+          }
+        },
+        {
+          "label": "WARMUP destruction-burst",
+          "values": {
+            "frames": 198,
+            "p95_ms": 16.54,
+            "max_ms": 28.38,
+            "frames_over_100ms": 0
+          }
+        },
+        {
+          "label": "GAMEPLAY destruction-burst",
+          "values": {
+            "units": 62,
+            "mean_ms": 14.93,
+            "p95_ms": 16.13,
+            "fps": 67.0,
+            "simulation_seconds": 3.56666666666684,
+            "wall_seconds": 3.583634,
+            "viewport": "(1600.0,",
+            "pixels": "(2304.0,",
+            "gpu_ms": "unavailable",
+            "render_cpu_ms": 1.59,
+            "adapter": "Apple",
+            "rendered_frames": 240,
+            "physics_ticks": 107,
+            "paused": false,
+            "draw_calls": 2541,
+            "primitives": 1818376
+          }
+        }
+      ],
+      "raw_log": "Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org\nMetal 4.0 - Forward+ - Using Device #0: Apple - Apple M1 Pro (Apple7)\n\nWARMUP base frames=222 p95_ms=14.54 max_ms=15.01 frames_over_100ms=0\nGAMEPLAY base units=30 mean_ms=13.45 p95_ms=14.54 fps=74.3 simulation_seconds=3.23333333333332 wall_seconds=3.228474 viewport=(1600.0, 900.0) pixels=(2304.0, 1296.0) gpu_ms=unavailable render_cpu_ms=1.01 adapter=Apple M1 Pro (Apple7) rendered_frames=240 physics_ticks=97 paused=false draw_calls=1537 primitives=1069020\nWARMUP midfield-combat frames=199 p95_ms=16.15 max_ms=53.69 frames_over_100ms=0\nGAMEPLAY midfield-combat units=70 mean_ms=15.03 p95_ms=16.15 fps=66.5 simulation_seconds=3.59999999999999 wall_seconds=3.606937 viewport=(1600.0, 900.0) pixels=(2304.0, 1296.0) gpu_ms=unavailable render_cpu_ms=1.55 adapter=Apple M1 Pro (Apple7) rendered_frames=240 physics_ticks=108 paused=false draw_calls=2327 primitives=1821346\nBURST destroyed=8 wrecks=8\nWARMUP destruction-burst frames=198 p95_ms=16.54 max_ms=28.38 frames_over_100ms=0\nGAMEPLAY destruction-burst units=62 mean_ms=14.93 p95_ms=16.13 fps=67.0 simulation_seconds=3.56666666666684 wall_seconds=3.583634 viewport=(1600.0, 900.0) pixels=(2304.0, 1296.0) gpu_ms=unavailable render_cpu_ms=1.59 adapter=Apple M1 Pro (Apple7) rendered_frames=240 physics_ticks=107 paused=false draw_calls=2541 primitives=1818376\n"
+    }
+  ]
+}

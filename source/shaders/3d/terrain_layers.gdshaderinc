@@ -91,7 +91,11 @@ TerrainLayer terrain_layer(sampler2D color_map, sampler2D normal_map, sampler2D 
 	vec3 ratio = max(color, vec3(0.0)) / mean;
 	float luminance = dot(ratio, vec3(0.2126, 0.7152, 0.0722));
 	vec3 detail = clamp(mix(vec3(luminance), ratio, terrain_chroma), vec3(0.35), vec3(1.9));
-	float amount = strength * terrain_detail * ground_detail;
+	// Preserve close-up scan detail, but compress its contrast at tactical zoom.
+	// A pixel's ground footprint is stable across camera angle and display scale.
+	float footprint = max(length(dpdx), length(dpdy));
+	float readability = mix(1.0, 0.62, smoothstep(0.025, 0.09, footprint));
+	float amount = strength * terrain_detail * ground_detail * readability;
 	TerrainLayer layer;
 	layer.detail = mix(vec3(1.0), detail, amount);
 	layer.slope = slope * amount;

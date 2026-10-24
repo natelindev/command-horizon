@@ -4,12 +4,14 @@ extends RefCounted
 const Campaigns = preload("res://source/match/campaign/CampaignCatalog.gd")
 const Values = preload("res://source/match/saves/SaveValue.gd")
 # Saves from any other version are rejected; there is no migration.
-const VERSION = 17
+const VERSION = 19
 const ACTION_FIELDS = {
 	"Garrisoning": ["_elapsed"],
 	"Moving": ["_target_position", "_arrival_elapsed", "_arrival_progress"],
 	"MovingToUnit": ["_target_position"],
 	"AttackMoving": ["destination", "_elapsed", "_arrival_elapsed", "_arrival_progress"],
+	"Patrolling":
+	["destination", "_elapsed", "_arrival_elapsed", "_arrival_progress", "origin", "endpoint"],
 	"AutoAttacking":
 	[
 		"_elapsed",
@@ -53,6 +55,9 @@ func capture(game):
 	_game = game
 	if not game.get_tree().paused or not game.is_node_ready():
 		return _fail("Pause at a simulation boundary before capturing the match.")
+	var presentation = game.get_node_or_null("BattlePresentation")
+	if presentation != null:
+		presentation.end_collapse()
 	if not game.settings.skirmish or game.settings.players.size() not in [2, 4] or game.finished:
 		return _fail("Only active skirmishes and supported operations can be saved.")
 	var maps = game.get_node("/root/Constants").Match.MAPS.keys()
@@ -283,6 +288,7 @@ func _unit(unit):
 		"rotation": unit.rotation,
 		"stance": int(unit.stance),
 		"hp": unit.hp,
+		"experience": unit.experience,
 		"visual_seed": unit.get_meta("visual_seed", 0),
 		"signature": unit.signature.capture() if unit.signature != null else {},
 		"deployment":

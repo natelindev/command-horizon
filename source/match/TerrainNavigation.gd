@@ -5,6 +5,7 @@ const ELEVATED_MAX_CLIMB = 0.6
 # Baked walkable surfaces sit about one voxel step above the authored ground.
 const SURFACE_LIFT = 0.5
 const SURFACE_MATCH = 0.35
+const TerrainModel = preload("res://source/match/maps/terrain/TerrainModel.gd")
 
 var _earliest_frame_to_perform_next_rebake = null
 var _is_baking = false
@@ -24,6 +25,42 @@ var _map_geometry = NavigationMeshSourceGeometryData3D.new()
 
 @onready var _navigation_region = find_child("NavigationRegion3D")
 @onready var _reference_static_collider_shape = find_child("CollisionShape3D")
+
+
+## Only authored, walkable plateau tops confer an advantage. Ramps, bridges,
+## water beds and scenic mesas do not count, nor does an aircraft's altitude.
+func has_plateau_advantage(point: Vector3) -> bool:
+	if not _elevated or _map == null or not "terrain" in _map:
+		return false
+	return plateau_at(_map.terrain, Vector2(point.x, point.z))
+
+
+static func plateau_at(terrain, point: Vector2) -> bool:
+	if terrain == null or not Rect2(Vector2.ZERO, terrain.size).has_point(point):
+		return false
+	var excluded = (
+		TerrainModel.RAMP
+		| TerrainModel.WATER
+		| TerrainModel.SOLID
+		| TerrainModel.BARRIER
+		| TerrainModel.BRIDGE
+		| TerrainModel.FORD
+	)
+	if terrain.flag_at(point) & excluded != 0:
+		return false
+	# Smooth dunes and slag heaps also have elevated shoulders. Only their level
+	# top cells count, using the same four corners as the navigation surface.
+	var column = mini(int(point.x / TerrainModel.RESOLUTION), terrain.columns - 1)
+	var row = mini(int(point.y / TerrainModel.RESOLUTION), terrain.rows - 1)
+	var stride = terrain.columns + 1
+	var index = row * stride + column
+	var height = terrain.heights[index]
+	return (
+		height >= terrain.tier_step * 0.75
+		and is_equal_approx(height, terrain.heights[index + 1])
+		and is_equal_approx(height, terrain.heights[index + stride])
+		and is_equal_approx(height, terrain.heights[index + stride + 1])
+	)
 
 
 func _ready():
@@ -194,18 +231,15 @@ func closest_point(point: Vector3) -> Vector3:
 		if _projection_iteration == iteration:
 			var flat := Vector2(point.x, point.z)
 			var cell := Vector2i(floori(point.x / 6.0), floori(point.z / 6.0))
-			var best := INF
 			for entry in _projection_cells.get(cell, []):
 				var height: float = entry[1]
 				var gap := height - point.y
-				if gap < 0.0 or gap >= best:
+				if gap < 0.0:
 					continue
-				if height != _projection_height and gap >= _projection_tolerance:
-					continue
+				# Flat-map indexing retains only the lowest horizontal surface.
+				# Every containing polygon therefore gives the same nearest height.
 				if Geometry2D.is_point_in_polygon(flat, entry[0]):
-					best = gap
-			if best < INF:
-				return Vector3(point.x, point.y + best, point.z)
+					return Vector3(point.x, point.y + gap, point.z)
 	return NavigationServer3D.map_get_closest_point(navigation_map_rid, point)
 
 

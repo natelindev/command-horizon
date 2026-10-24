@@ -1,0 +1,46 @@
+{
+  "schema": "research-queue-focused-validation-v1",
+  "records": [
+    {
+      "path": "docs/playtests/2026-10-24/research-queue-validation/ArchivedSnapshotRegression-after.log.txt",
+      "sha256": "55fb9918d41b989800f3c38862d9f95f943b5d76bf3742ba9587cd25c63e73cb"
+    },
+    {
+      "path": "docs/playtests/2026-10-24/research-queue-validation/LocalizationRegression-after.log.txt",
+      "sha256": "581cd79fa7de9a8b415ccbd4297d700cf53688c91205e3fa44a5b25e36dd1633"
+    },
+    {
+      "path": "docs/playtests/2026-10-24/research-queue-validation/ResearchTilesRegression-after.log.txt",
+      "sha256": "fe23f48ddbb288d5177da5babc0cad6303732111ed9e70eaac33af79adf58567"
+    },
+    {
+      "path": "docs/playtests/2026-10-24/research-queue-validation/ResearchTilesRegression.log.txt",
+      "sha256": "9703ab5bb17e34999e70235c724e8303008d9471b4e77961777dc2b43a8791a3"
+    },
+    {
+      "path": "docs/playtests/2026-10-24/research-queue-validation/import-after.log.txt",
+      "sha256": "02715a47fce8b32c4bacbee679056ec56bb095d5cf6b6d24177234d58f893738"
+    },
+    {
+      "path": "docs/playtests/2026-10-24/research-queue-validation/summary-after.json",
+      "sha256": "72ec4a478a7d56dd7f9d18a6aa767acd22f298fad22782142262f28d6606a1a6"
+    },
+    {
+      "path": "docs/playtests/2026-10-24/research-queue-validation/summary.json",
+      "sha256": "192050dd19f88bc3692d472d052dc7a07995fb11449b6f8b0a77cd751ed4569f"
+    },
+    {
+      "path": "docs/playtests/2026-10-24/research-queue-validation/research-queue-regression.log.txt",
+      "sha256": "181658e08087c1f5c445c8b379d4a5aded60ac84d46d4cc200936d05b515737c"
+    }
+  ],
+  "first_tiles_run": "Six UIAudio freed-object errors, despite 0 assertions/exit0; retained. Deferred row deletion fixes the callback lifetime; rerun has no script errors.",
+  "queue_core": "Payment, duplicate, FIFO, lab rebuild, pause, cancellation/refund and disk/schema checks passed.",
+  "current_package_gate_pending": false,
+  "current_package_gate": {
+    "report": "docs/playtests/2026-10-24/final-macos-packaged.json",
+    "registered_suites_passed": 75,
+    "additional_affected_suites_passed": 5,
+    "same_immutable_package": true
+  }
+}

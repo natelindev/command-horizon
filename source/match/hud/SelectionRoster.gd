@@ -196,7 +196,12 @@ func refresh():
 	if _damaged == null or not is_inside_tree() or is_queued_for_deletion():
 		return
 	var hint = (
-		"Select only these units. Hold %s to remove them." % Bindings.label("shift_selecting")
+		("Select only these units. Hold %s to remove them." % Bindings.label("shift_selecting"))
+		+ "\n"
+		+ (
+			tr("%s cycles unit classes and returns to the full selection.")
+			% Bindings.label("cycle_subgroup")
+		)
 	)
 	for entry in _types:
 		entry.button.tooltip_text = "%s × %d\n%s" % [entry.title, entry.members.size(), hint]
@@ -227,6 +232,10 @@ func refresh():
 			"%s · %d / %d HP"
 			% [Factions.title(unit.player.faction, unit.type), ceili(unit.hp), unit.hp_max]
 		)
+		if unit.veterancy_rank > 0:
+			title += "\n" + unit.Veterancy.description(unit.experience)
+		if unit.terrain_advantage():
+			title += "\n" + tr("High ground · vision and range bonus")
 		entry.button.tooltip_text = title + "\n" + hint
 		entry.button.accessibility_name = title
 		entry.button.accessibility_description = hint

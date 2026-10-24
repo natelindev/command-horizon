@@ -9,6 +9,7 @@ const WaitingForTargets = preload("res://source/match/units/actions/WaitingForTa
 const GRID_LABELS = [["Q", "W", "E", "R"], ["A", "S", "D", "F"], ["Z", "X", "C", "V"]]
 const GLYPHS = {
 	"Move": "move",
+	"Patrol": "move",
 	"Stop": "stop",
 	"Hold": "hold",
 	"Return": "return",
@@ -67,8 +68,22 @@ func update_layout(selected_units: Array, direct_orders = null):
 	)
 	_setup_slot(0, 1, "Stop", "", _on_stop, true)
 	_setup_slot(0, 2, "Hold", "", _on_hold, true)
-	# Return Cargo. The command deck carries its own Return cargo key beside direct
-	# orders, with queueing and delivery feedback, so the card leaves R blank there.
+	_slots[0][2].tooltip_text = tr(
+		"Hold position · Stop moving and fire at enemies in range. Cancels current and queued orders."
+	)
+	_slots[0][2].accessibility_name = tr("Hold position")
+	_slots[0][2].accessibility_description = _slots[0][2].tooltip_text
+	if direct_orders != null:
+		_setup_slot(
+			0,
+			3,
+			"Patrol",
+			Bindings.label("patrol_order"),
+			_on_patrol,
+			not direct_orders.eligible("patrol").is_empty()
+		)
+	# The command deck carries its own Return cargo key beside this grid, with
+	# queueing and delivery feedback. Standalone cards keep their Return slot.
 	var has_cargo = _selection.any(func(u): return "type" in u and u.type == "Worker")
 	if direct_orders == null:
 		_setup_slot(0, 3, "Return", "", _on_return_cargo, has_cargo)
@@ -142,8 +157,18 @@ func _set_blank(btn, blank):
 
 ## The slot that issues a direct order kind (move, attack, attack_move), if any.
 func order_slot(kind):
-	var cell = {"move": Vector2i(0, 0), "attack": Vector2i(1, 2), "attack_move": Vector2i(1, 0)}
+	var cell = {
+		"move": Vector2i(0, 0),
+		"attack": Vector2i(1, 2),
+		"attack_move": Vector2i(1, 0),
+		"patrol": Vector2i(0, 3)
+	}
 	return _slots[cell[kind].x][cell[kind].y] if cell.has(kind) else null
+
+
+func _on_patrol():
+	if _direct_orders != null:
+		_direct_orders.arm("patrol")
 
 
 func _on_move():

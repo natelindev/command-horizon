@@ -34,7 +34,7 @@ func setup(body, identity):
 	collider.shape.height = _height
 	collider.position.y = _height / 2
 	_health.position.y = _height + .6
-	_label = Label3D.new()
+	_label = load("res://source/match/debug/UnitInfoLabel.gd").new()
 	_label.position.y = _height + 1
 	_label.font = load("res://assets/fonts/NotoSansSC.ttf")
 	_label.font_size = 32
@@ -43,6 +43,7 @@ func setup(body, identity):
 	_label.outline_modulate = Color("15232c")
 	_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	_label.no_depth_test = true
+	_label.refresh_requested.connect(update_label)
 	add_child(_label)
 	NeutralDetails.dress_building(_model, radius / _model_scale.x, _asset)
 	for mesh in _model.find_children("*", "MeshInstance3D", true, false):
@@ -131,6 +132,8 @@ func select_occupants():
 
 
 func update_label():
+	if not _label.diagnostics_enabled():
+		return
 	_label.text = (
 		tr("Garrison %d / %d") % [occupants.size(), CAPACITY]
 		if player != null
@@ -139,7 +142,7 @@ func update_label():
 		)
 	)
 	_label.modulate = player.color.lightened(.65) if player != null else Color("e1dccb")
-	_label.visible = hp > 0
+	_label.content_visible = hp > 0
 
 
 func begin_death():
@@ -150,7 +153,7 @@ func begin_death():
 		unit.hp -= unit.hp_max * .35
 	player = null
 	_obstacle.sight_height = .65
-	_label.hide()
+	_label.content_visible = false
 	_match.battlefield.invalidate()
 
 

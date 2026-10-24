@@ -45,12 +45,20 @@ var _hit_axis = Vector3.ZERO
 var _hit_push = Vector3.ZERO
 var _hit_clock = -INF
 var _barrel_rest = Vector3.ZERO
-var _geometry_rest := Transform3D.IDENTITY
+var _geometry_rest_rotation := Vector3.ZERO
+var _geometry_rest_scale := Basis.IDENTITY
+var _geometry_rest := Transform3D.IDENTITY:
+	set(value):
+		_geometry_rest = value
+		_geometry_rest_rotation = value.basis.get_rotation_quaternion().get_euler()
+		_geometry_rest_scale = Basis.from_scale(value.basis.get_scale())
+		_rest_is_identity = value.basis.is_equal_approx(Basis.IDENTITY)
 var _geometry_pose := Transform3D.IDENTITY
 var _presentation_root := Transform3D.IDENTITY
 var _dust_elapsed = 0.0
 var _damage_elapsed = 0.0
 var _airborne = false
+var _fixed_wing = false
 var _mobile = false
 var _heavy = false
 var _movement = null
@@ -129,9 +137,9 @@ func _ready():
 	_previous_position = _unit.global_position
 	_geometry_rest = _geometry.transform
 	_geometry_pose = _geometry_rest
-	_rest_is_identity = _geometry_rest.basis.is_equal_approx(Basis.IDENTITY)
 	_movement = _unit.get_node_or_null("Movement")
 	_mobile = _movement != null
+	_fixed_wing = _mobile and _movement.has_method("flight_velocity")
 	_airborne = _unit.movement_domain == Constants.Match.Navigation.Domain.AIR
 	_heavy = _unit.type in ["Tank", "AdvancedTank", "AntiGroundTurret"]
 	_turret_rate = 2.2 if _heavy else 3.4
@@ -378,7 +386,7 @@ func _apply_geometry(delta, ground_distance):
 	# Buildings keep their foundation fixed; their articulated parts still animate.
 	if not _mobile:
 		return
-	if _movement.has_method("flight_velocity"):
+	if _fixed_wing:
 		# Fixed-wing attitude is authoritative flight state, not synthesized sway:
 		# nose follows the flight path, wings bank into coordinated turns.
 		_pose_geometry(Vector3(_movement.pitch + kick * 0.03, 0, -_movement.bank), Vector3.ZERO)
@@ -435,12 +443,7 @@ func _pose_geometry(rotation: Vector3, offset: Vector3):
 		_geometry_pose = Transform3D(Basis.from_euler(rotation), _geometry_rest.origin + offset)
 	else:
 		_geometry_pose = Transform3D(
-			(
-				Basis.from_euler(
-					_geometry_rest.basis.get_rotation_quaternion().get_euler() + rotation
-				)
-				* Basis.from_scale(_geometry_rest.basis.get_scale())
-			),
+			Basis.from_euler(_geometry_rest_rotation + rotation) * _geometry_rest_scale,
 			_geometry_rest.origin + offset
 		)
 

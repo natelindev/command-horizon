@@ -42,6 +42,15 @@ func refresh():
 	var running = active != "" or player.coordination_left > 0
 	if running:
 		_project(active)
+		var queued = player.technology.queued
+		if not queued.is_empty():
+			_button.text += tr(" · %d queued") % queued.size()
+			_button.tooltip_text += "\n" + tr("Queued research · %d") % queued.size()
+			for index in queued.size():
+				_button.tooltip_text += (
+					"\n%d. %s"
+					% [index + 1, tr(Technologies.title(queued[index].id, player.faction))]
+				)
 	else:
 		_choices()
 	_progress.visible = running

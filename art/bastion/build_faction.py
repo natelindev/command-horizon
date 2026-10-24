@@ -15,6 +15,7 @@ from mathutils import Vector
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "common"))
 import weathering  # noqa: E402
+import markings  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "assets/models/bastion/demo"
@@ -212,8 +213,8 @@ def rover(name,repair=False):
             for dx in (-.10,.10):
                 rod("Gripper",(side*.59+dx,.75,1.5),(side*.59+dx,.97,1.32),.035,DARK,arm)
         box("ToolCabinet",(0,-.70,1.43),(1.2,.65,.45),ARMOR)
-        box("RepairMarkA",(0,-1.04,1.45),(.50,.02,.13),WHITE)
-        box("RepairMarkB",(0,-1.05,1.45),(.13,.02,.45),WHITE)
+        vertices, faces = markings.service_gear(0, -1.05, 1.45, size=.8)
+        shape("ServiceGear", vertices, faces, WHITE, bevel=0)
     else:
         box("Cab",(0,.15,1.43),(1.25,.92,.52),PANEL,bevel=.09)
         lens(0,.63,1.48,.91)
@@ -411,8 +412,8 @@ def depot():
     for side in (-1,1):
         box("ServiceTower",(side*2.05,0,1.62),(.75,4.3,2.5),ARMOR)
         rod("CraneLeg",(side*1.55,-.8,.45),(side*1.55,-.8,3.2),.11,STEEL)
-        box("RepairCrossV",(side*2.05,2.18,1.7),(.16,.025,.85),WHITE)
-        box("RepairCrossH",(side*2.05,2.20,1.7),(.55,.025,.16),WHITE)
+        vertices, faces = markings.service_gear(side*2.05, 2.20, 1.7, size=1.2)
+        shape("ServiceGear", vertices, faces, WHITE, bevel=0)
         box("ServiceStrip",(side*1.3,.1,.44),(.17,3.95,.02),TEAM,bevel=0)
     box("OverheadCrane",(0,-.8,3.25),(3.7,.46,.44),TEAM)
     rod("SuspendedTool",(.55,-.8,3.05),(.55,-.8,1.9),.05,DARK)

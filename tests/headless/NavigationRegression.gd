@@ -283,3 +283,53 @@ func _frames(count):
 func _check(condition, message):
 	if not condition:
 		_errors.append(message)
+		if message == "Crowded tank group failed to reach destinations":
+			_capture_crowd_failure()
+
+
+func _capture_crowd_failure():
+	# Capture only after the existing failure, without changing per-tick timing.
+	# user:// also stays writable when this test runs against an exported pack.
+	var was_paused = paused
+	paused = true
+	var builder = load("res://source/match/saves/MatchSnapshot.gd").new()
+	var snapshot = builder.capture(_game)
+	var directory = "user://test-artifacts"
+	var path = (
+		"%s/navigation-failure-%d-%d.json" % [directory, OS.get_process_id(), Time.get_ticks_usec()]
+	)
+	if snapshot == null:
+		print("FAILURE_ARCHIVE_ERROR ", builder.error)
+	elif DirAccess.make_dir_recursive_absolute(directory) != OK:
+		print("FAILURE_ARCHIVE_ERROR could not create ", ProjectSettings.globalize_path(directory))
+	else:
+		var save_file = load("res://source/match/saves/SaveFile.gd").new()
+		if save_file.write_file(path, snapshot):
+			print("FAILURE_ARCHIVE ", ProjectSettings.globalize_path(path))
+		else:
+			print("FAILURE_ARCHIVE_ERROR ", save_file.error)
+	var states = []
+	for unit in get_nodes_in_group("units"):
+		if unit.type != "Tank":
+			continue
+		var movement = unit.get_node("Movement")
+		(
+			states
+			. append(
+				{
+					"id": builder._reference(unit),
+					"point": str(unit.global_position),
+					"target": str(movement.target_position),
+					"velocity": str(movement.velocity),
+					"active": movement._has_destination,
+					"recovery_left": movement._recovery_left,
+					"recovery_direction": str(movement._recovery_direction),
+					"progress_position": str(movement._progress_position),
+					"progress_elapsed": movement._progress_elapsed,
+					"path": str(movement.get_current_navigation_path()),
+					"path_index": movement.get_current_navigation_path_index(),
+				}
+			)
+		)
+	print("FAILURE_STATE seed=", _game.settings.match_seed, " ", JSON.stringify(states))
+	paused = was_paused

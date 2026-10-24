@@ -9,6 +9,7 @@ const TITLES = {
 	"approach": "Move",
 	"attack": "Attack target",
 	"attack_move": "Attack move",
+	"patrol": "Patrol",
 	"gather": "Gather",
 	"repair": "Repair",
 	"recover": "Recover health",
@@ -20,9 +21,10 @@ const TITLES = {
 }
 const PATHS = {
 	"move": "M1 8h14m-5-5 5 5-5 5",
-	"attack": "M8 0v4m0 8v4M0 8h4m8 0h4M4 4h8v8H4z",
+	"attack": "M1 5V1h4m6 0h4v4m0 6v4h-4m-6 0H1v-4",
 	"gather": "M3 2q7-3 12 4M8 3 2 15",
-	"repair": "M6 1h4v5h5v4h-5v5H6v-5H1V6h5z",
+	"repair":
+	"M9.8 4.2l2 2 2.5-2.5a4 4 0 0 1-5.3 5.3l-4.6 4.6a2 2 0 0 1-2.8-2.8L6.2 6.2a4 4 0 0 1 5.3-5.3z",
 	"construct": "M2 5 6 1l9 9-4 4zM7 8l-6 7",
 	"garrison": "M2 15V1h12v14M9 5l4 3-4 3M0 8h12",
 	"follow": "M1 5h9m-3-3 3 3-3 3M5 12h10m-3-3 3 3-3 3",
@@ -136,7 +138,9 @@ func contextual_kind(target):
 
 
 func _glyph_kind(kind):
-	return {"attack_move": "attack", "approach": "move", "recover": "repair"}.get(kind, kind)
+	return {"attack_move": "attack", "approach": "move", "recover": "repair", "patrol": "move"}.get(
+		kind, kind
+	)
 
 
 func _set_cursor(kind):
@@ -219,8 +223,8 @@ func _draw():
 				draw_texture_rect(icon, Rect2(point - Vector2(9, 9), Vector2(18, 18)), false, color)
 			draw_arc(point, 15 + marker.age * 8, 0, TAU, 32, Color(1, 1, 1, alpha * .55), 1.5, true)
 		else:
-			draw_line(point - Vector2(5, 5), point + Vector2(5, 5), color, 2, true)
-			draw_line(point + Vector2(-5, 5), point + Vector2(5, -5), color, 2, true)
+			draw_arc(point, 7, 0, TAU, 24, color, 2, true)
+			draw_line(point - Vector2(3, 0), point + Vector2(3, 0), color, 2, true)
 		_label_at(point + Vector2(18, 20), marker.text, alpha)
 
 

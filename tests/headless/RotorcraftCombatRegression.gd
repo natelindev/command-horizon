@@ -31,6 +31,7 @@ func _run():
 		else:
 			unit.process_mode = Node.PROCESS_MODE_DISABLED
 	await _ticks(5)
+	await _airfield_lookup()
 	for faction in ["bastion", "helix", "frontier"]:
 		_human.faction = faction
 		_field = _spawn("AircraftFactory", _human, FIELD_CENTER)
@@ -47,7 +48,30 @@ func _run():
 		print(
 			"PASS: all-faction helicopter ammo, helipad rearm and resume; drone hold and one-way dive"
 		)
-	quit(0 if _errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if _errors.is_empty() else 1)
+
+
+func _airfield_lookup():
+	var helicopter = _spawn("Helicopter", _human, Vector3(30, 0, 20))
+	helicopter.stance = helicopter.Stance.HOLD_FIRE
+	_check(helicopter._home_airfield() == null, "Helicopter invented an absent airfield")
+	var hostile = _spawn("AircraftFactory", _enemy, Vector3(31, 0, 20))
+	var building = _spawn("AircraftFactory", _human, Vector3(20, 0, 20))
+	building.mark_as_under_construction()
+	_check(helicopter._home_airfield() == null, "Helicopter chose enemy or unfinished airfield")
+	building.construct(1.0)
+	_check(
+		helicopter._home_airfield() == building, "Completed airfield was not available immediately"
+	)
+	var nearer = _spawn("AircraftFactory", _human, Vector3(29, 0, 20))
+	_check(helicopter._home_airfield() == nearer, "Helicopter did not choose nearest airfield")
+	nearer.queue_free()
+	_check(helicopter._home_airfield() == building, "Removed airfield stayed in service lookup")
+	building.queue_free()
+	_check(helicopter._home_airfield() == null, "Helicopter retained its last removed airfield")
+	hostile.queue_free()
+	helicopter.queue_free()
+	await _ticks(5)
 
 
 func _helicopter_sortie(faction):

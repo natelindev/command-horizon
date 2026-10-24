@@ -4,7 +4,10 @@ var target_unit = null:
 	set(a_target_unit):
 		if target_unit == a_target_unit:
 			return
-		if is_instance_valid(target_unit):
+		if (
+			is_instance_valid(target_unit)
+			and target_unit.tree_exited.is_connected(_on_target_unit_tree_exited)
+		):
 			target_unit.tree_exited.disconnect(_on_target_unit_tree_exited)
 		target_unit = a_target_unit
 		if is_instance_valid(target_unit):
@@ -13,8 +16,9 @@ var target_unit = null:
 			visible = is_instance_valid(_unit) and _unit.is_in_group("selected_units")
 		else:
 			target_unit = null
-			_reset_position_to_parent()
-			visible = _unit.is_in_group("selected_units")
+			# Keep the last known rally location if its resource or leader disappears.
+			# Only an explicit Stop clears a factory rally.
+			visible = is_instance_valid(_unit) and _unit.is_in_group("selected_units")
 
 @onready var _unit = get_parent()
 
@@ -26,7 +30,7 @@ func _ready():
 
 
 func _physics_process(_delta):
-	if target_unit != null:
+	if is_instance_valid(target_unit) and not target_unit.is_queued_for_deletion():
 		global_position = target_unit.global_position
 
 

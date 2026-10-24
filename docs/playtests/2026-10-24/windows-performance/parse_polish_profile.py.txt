@@ -1,0 +1,135 @@
+import argparse
+import hashlib
+import json
+import re
+from pathlib import Path
+
+
+def parse(path):
+    raw = Path(path).read_bytes()
+    source = raw.decode('utf-8-sig', errors='replace')
+    start = re.search(r'(?m)^\{\r?$', source).start()
+    metadata, _ = json.JSONDecoder().raw_decode(source[start:])
+    frames, phase, frame, function = [], None, None, None
+    for lineno, line in enumerate(source.splitlines(), 1):
+        marker = re.match(r'SCALE BEGIN (\w+)', line)
+        if marker:
+            phase = marker[1]
+        elif re.match(r'SCALE (movement|combat) renderer=', line):
+            phase = None
+        elif line.startswith('FRAME:'):
+            frame = {'phase': phase, 'header': line, 'line': lineno, 'functions': {}}
+            frames.append(frame)
+            function = None
+        elif frame is not None:
+            name = re.match(r'\d+:(res://.+::\d+::.+)$', line)
+            cost = re.match(r'\s+total: ([\d.eE+-]+)/.*self: ([\d.eE+-]+)/.*tcalls: (\d+)', line)
+            if name:
+                function = name[1]
+            elif cost and function:
+                frame['functions'][function] = {
+                    'total_ms': float(cost[1]) * 1000,
+                    'self_ms': float(cost[2]) * 1000,
+                    'calls': int(cost[3]),
+                }
+                function = None
+    return raw, source, metadata, frames
+
+
+def aggregate(frames):
+    combat = [f for f in frames if f['phase'] == 'combat']
+    ticks, normalized = [], []
+    for frame in combat:
+        functions = {re.sub(r'::\d+::', '::', k): v for k, v in frame['functions'].items()}
+        t = functions['res://source/match/units/traits/Movement.gd::_physics_process']['calls'] / 200
+        assert t > 0 and t.is_integer()
+        for key in ('res://source/match/combat/ProjectileSystem.gd::_physics_process',
+                    'res://source/match/FogOfWar.gd::_physics_process'):
+            assert functions[key]['calls'] == t, (frame['line'], key, t, functions[key])
+        ticks.append(t)
+        normalized.append(functions)
+    metrics = {}
+    missing = {'total_ms': 0, 'self_ms': 0, 'calls': 0}
+    for name in sorted(set().union(*(f.keys() for f in normalized))):
+        values = [f.get(name, missing) for f in normalized]
+        row = {'function': name}
+        for field, label in [('self_ms', 'self_ms'), ('total_ms', 'inclusive_ms'), ('calls', 'calls')]:
+            row[label + '_per_frame'] = sum(v[field] for v in values) / len(values)
+            row[label + '_per_tick'] = sum(v[field] / t for v, t in zip(values, ticks)) / len(values)
+        row['self_us_per_call'] = sum(v['self_ms'] for v in values) * 1000 / max(1, sum(v['calls'] for v in values))
+        metrics[name] = {k: round(v, 4) if isinstance(v, float) else v for k, v in row.items()}
+    return combat, ticks, metrics
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('raw')
+    parser.add_argument('prior_frames')
+    parser.add_argument('output_prefix')
+    args = parser.parse_args()
+    raw, source, metadata, frames = parse(args.raw)
+    combat, ticks, metrics = aggregate(frames)
+    prior_frames = json.loads(Path(args.prior_frames).read_text())
+    prior_combat, prior_ticks, prior = aggregate(prior_frames)
+    self_order = sorted(metrics, key=lambda k: metrics[k]['self_ms_per_tick'], reverse=True)
+    inclusive_order = sorted(metrics, key=lambda k: metrics[k]['inclusive_ms_per_tick'], reverse=True)
+    granted = metadata['NativeFocusGrantedUtc']
+    after_grant = [s for s in metadata['FocusSamples'] if s['Utc'] >= granted]
+    scale_lines = [line for line in source.splitlines() if re.match(r'(SCALE (movement|combat) renderer=|FOCUS_PHASE_|SCALE behaviors=|INPUT selected=|PASS:)', line)]
+    report = {
+        'status': 'diagnostic_only_native_foreground_debug_profile',
+        'candidate': 'focus-native-0540 immutable baseline; before movement/projection hot-path patch',
+        'raw_log': args.raw,
+        'raw_sha256': hashlib.sha256(raw).hexdigest(),
+        'runtime': {
+            'exit_code': metadata['ExitCode'],
+            'editor_executable': metadata['Executable'],
+            'editor_sha256': metadata['Sha256'],
+            'arguments': metadata['Arguments'],
+            'pid': metadata['ProcessId'],
+            'native_focus_granted_utc': granted,
+            'all_focus_samples': len(metadata['FocusSamples']),
+            'post_grant_focus_samples': after_grant,
+            'scale_and_phase_lines': scale_lines,
+        },
+        'normalization': {
+            'method': 'For each sampled combat frame, divide self/inclusive milliseconds and calls by Movement._physics_process calls / 200; this equals ProjectileSystem and FogOfWar physics-process calls in every combat sample. Average per-frame ratios; absent functions contribute zero.',
+            'current_snapshots': len(combat),
+            'current_tick_counts': ticks,
+            'prior_snapshots': len(prior_combat),
+            'prior_tick_counts': prior_ticks,
+            'prior_frames': args.prior_frames,
+            'timing_units': 'Profiler seconds converted to milliseconds; self_us_per_call uses total self / total calls.',
+        },
+        'caveats': [
+            'Editor --debug --profiling overhead changes cadence; these are attribution samples, not release frame-budget acceptance results.',
+            'Current run has native foreground grant and zero Godot phase focus-loss events. The post-grant final Explorer sample is after benchmark completion; waiting samples before grant are excluded from phase focus attribution.',
+            'Prior profile was background in Battle.net. Both use the same production baseline, so timing differences do not measure the new hot-path patch.',
+            'Ten sampled combat frames are not every physics tick. Inclusive costs overlap and must not be summed.',
+            'Per-render-frame functions require frame/call metrics alongside tick normalization.',
+        ],
+        'current_top_self_order': self_order[:15],
+        'current_top_inclusive_order': inclusive_order[:15],
+        'current_top_metrics': [metrics[k] for k in dict.fromkeys(self_order[:20] + inclusive_order[:20])],
+        'comparison': [{'function': name, 'current': metrics.get(name), 'prior_background': prior.get(name)}
+                       for name in dict.fromkeys(self_order[:20] + inclusive_order[:20])],
+        'frame_provenance': [{'line': f['line'], 'header': f['header'], 'physics_ticks': t}
+                             for f, t in zip(combat, ticks)],
+        'all_function_metrics': metrics,
+        'production_edits': False,
+        'engine_or_remote_runs_by_this_analysis': False,
+    }
+    Path(args.output_prefix + '-frames.json').write_text(json.dumps(frames, indent=2) + '\n')
+    Path(args.output_prefix + '-summary.json').write_text(json.dumps(report, indent=2) + '\n')
+    print(json.dumps({
+        'combat_snapshots': len(combat), 'ticks': ticks,
+        'top_self': [metrics[k] for k in self_order[:12]],
+        'top_inclusive': [metrics[k] for k in inclusive_order[:10]],
+        'post_grant_focus_samples': len(after_grant),
+        'post_grant_owned': sum(s['OwnedWindowForeground'] for s in after_grant),
+        'summary': args.output_prefix + '-summary.json',
+    }, indent=2))
+
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,21 @@
+extends SceneTree
+
+func _initialize():
+	var args = OS.get_cmdline_user_args()
+	var expected = "C:/Users/Administrator/AppData/Roaming/OpenRTSPolishLocaleProbeFallback-20261024-0626"
+	var actual = OS.get_user_data_dir().replace("\\", "/")
+	print("ISOLATION_BUILD_FALLBACK actual=%s expected=%s" % [actual, expected])
+	if actual != expected or args.size() != 1:
+		push_error("Probe builder fallback directory invalid")
+		quit(2)
+		return
+	var packer = PCKPacker.new()
+	var result = packer.pck_start(args[0])
+	if result == OK:
+		result = packer.add_file("res://project.godot", "res://project.godot")
+	if result == OK:
+		result = packer.add_file("res://probe.gd", "res://probe.gd")
+	if result == OK:
+		result = packer.flush()
+	print("ISOLATION_BUILD result=%d" % result)
+	quit(0 if result == OK else 1)

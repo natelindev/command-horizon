@@ -1,0 +1,101 @@
+"""Run only after the final native smoke owns the shared engine slot."""
+
+from datetime import datetime, timezone
+import hashlib
+import json
+from pathlib import Path
+import re
+import shutil
+import subprocess
+import time
+
+ROOT = Path('/Users/linlilu/godot-open-rts')
+META_PATH = Path('/tmp/final_native_smoke_preparation.json')
+meta = json.loads(META_PATH.read_text())
+archive = Path(meta['archive'])
+user_dir = Path(meta['expected_user_dir'])
+assert not user_dir.exists(), 'The native smoke directory must still be unused'
+assert not meta['normal_app_launched'], 'Normal app must not already be launched'
+real_user_dir = Path.home() / 'Library/Application Support/Godot/app_userdata/Open RTS'
+
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def preserved_files():
+    result = {}
+    for path in sorted(real_user_dir.rglob('*')):
+        if path.is_file():
+            relative = path.relative_to(real_user_dir)
+            if relative.parts[0] not in ['logs', 'shader_cache'] and path.suffix != '.cache':
+                result[str(relative)] = sha(path)
+    return result
+
+
+def execute(name, arguments, timeout):
+    start = time.monotonic()
+    process = subprocess.run(arguments, cwd=ROOT, stdin=subprocess.DEVNULL, text=True,
+                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=timeout)
+    path = archive / (name + '.log.txt')
+    path.write_text(process.stdout)
+    meta.setdefault('isolation_steps', []).append({
+        'name': name, 'exit_code': process.returncode, 'seconds': time.monotonic() - start,
+        'command': arguments, 'log': str(path), 'sha256': sha(path),
+    })
+    persist()
+    assert process.returncode == 0, name + ' failed: ' + process.stdout[-1200:]
+    assert not re.search(r'^(?:SCRIPT ERROR:|ERROR:)', process.stdout, re.M), name + ' had engine errors'
+    return process.stdout
+
+
+def persist():
+    text = json.dumps(meta, indent=2) + '\n'
+    META_PATH.write_text(text)
+    (archive / 'preparation.json').write_text(text)
+
+
+meta['real_user_directory'] = str(real_user_dir)
+meta['preserved_files_before'] = preserved_files()
+meta['proof_started_utc'] = datetime.now(timezone.utc).isoformat()
+persist()
+engine = str(ROOT / 'tmp/tooling/godot-4.7.2/Godot.app/Contents/MacOS/Godot')
+execute('proof-pack-build', [engine, '--headless', '--path', meta['proof_project'], '--script', meta['builder']], 60)
+execute('proof-app-sign', ['codesign', '--force', '--deep', '--sign', '-', meta['proof_app']], 30)
+execute('proof-app-sign-verify', ['codesign', '--verify', '--deep', '--strict', meta['proof_app']], 30)
+output = execute('release-isolation-proof', [str(Path(meta['proof_app']) / 'Contents/MacOS/Open RTS'), '--headless'], 30)
+assert 'NATIVE_ISOLATION_PROOF_PASS' in output, 'Runtime proof did not pass'
+marker = user_dir / 'isolation-proof.json'
+assert marker.is_file(), 'Exact isolated user directory did not receive runtime marker'
+proof = json.loads(marker.read_text())
+assert proof['actual_user_dir'] == str(user_dir) and proof['release'] and proof['custom']
+assert preserved_files() == meta['preserved_files_before'], 'Proof changed real game data'
+options = user_dir / 'options.tres'
+assert not options.exists(), 'Do not overwrite any existing preferences'
+options.write_text('''[gd_resource type="Resource" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://source/data-model/Options.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+screen = 1
+language = "en"
+edge_scrolling = false
+subtitles = true
+''')
+shutil.copy2(marker, archive / marker.name)
+shutil.copy2(options, archive / 'test-profile-options.tres.txt')
+shutil.copy2(__file__, archive / 'run-isolation-proof.py.txt')
+shutil.copy2('/tmp/prepare_final_native_smoke.py', archive / 'prepare-isolated-app.py.txt')
+for path, name in [(Path(meta['proof_project']) / 'Proof.gd', 'Proof.gd.txt'),
+                   (Path(meta['builder']), 'build-proof-pack.gd.txt')]:
+    shutil.copy2(path, archive / name)
+meta['isolation_proof_complete'] = True
+meta['proof_completed_utc'] = datetime.now(timezone.utc).isoformat()
+meta['isolation_proof'] = proof
+meta['test_profile_options'] = {'path': str(options), 'sha256': sha(options),
+                                'windowed': True, 'language': 'en', 'edge_scrolling': False, 'subtitles': True}
+meta['real_user_data_unchanged_after_proof'] = True
+persist()
+print(json.dumps({'isolation_proof_complete': True, 'app': meta['app'], 'user_dir': str(user_dir),
+                  'preserved_user_files': len(meta['preserved_files_before'])}, indent=2))

@@ -7,6 +7,7 @@ const CROWD_ARCHIVE = (
 
 func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
+	await _endpoint_eligibility()
 	for repetition in 3:
 		await _captured_return(repetition)
 	await _distant_endpoint()
@@ -16,6 +17,91 @@ func _run():
 		push_error(error)
 	print("Crowded destination: %d failures" % errors.size())
 	quit(0 if errors.is_empty() else 1)
+
+
+func _endpoint_eligibility():
+	var unit = await _open_capture()
+	if unit == null:
+		return
+	var movement = unit.get_node("Movement")
+	# Establish the restored path while paused, then exercise only the live
+	# endpoint predicate so avoidance cannot move the eligibility fixtures.
+	movement.get_next_path_position()
+	var path = movement.get_current_navigation_path()
+	_check(not path.is_empty(), "Endpoint eligibility fixture has no restored path")
+	if path.is_empty():
+		game.queue_free()
+		paused = false
+		await _frames(5)
+		return
+	var end: Vector3 = path[-1] * Vector3(1, 0, 1)
+	var blocker
+	var structure
+	for other in unit.player.get_children():
+		if other == unit or not other.is_in_group("units"):
+			continue
+		var navigation = other._get_navigation_trait()
+		if navigation is NavigationAgent3D:
+			navigation.ghosted = true
+			navigation._has_destination = false
+			navigation.velocity = Vector3.ZERO
+			if blocker == null:
+				blocker = other
+		elif structure == null and navigation != null:
+			structure = other
+	_check(blocker != null and structure != null, "Endpoint fixture lacks mobile/structure bodies")
+	if blocker != null and structure != null:
+		var maximum: float = root.get_node("Constants").Match.Terrain.Navmesh.MAX_AGENT_RADIUS
+		var neighbor = blocker.get_node("Movement")
+		movement.radius = maximum
+		neighbor.radius = maximum
+		neighbor.ghosted = false
+		neighbor.speed = 1.0
+		unit.position = end + Vector3(0, 0, -(maximum * 2.0 + .1))
+		blocker.position = end + Vector3(maximum * 2.0 - .01, 0, 0)
+		# A large static body is present at the endpoint throughout these checks.
+		# It must neither satisfy occupancy nor change the mobile-radius policy.
+		structure.position = end
+		structure._get_navigation_trait().radius = 4.0
+		game.battlefield.invalidate()
+		_check(movement.has_occupied_endpoint(false), "Maximum-radius settled ally was missed")
+		blocker.position.x += .02
+		_check(not movement.has_occupied_endpoint(false), "Ally beyond contact radius was accepted")
+		blocker.position.x -= .02
+		_check(movement.has_occupied_endpoint(false), "Same-tick ally position was stale")
+		neighbor.radius = maximum * .5
+		_check(not movement.has_occupied_endpoint(false), "Same-tick smaller ally radius was stale")
+		neighbor.radius = maximum
+		neighbor.ghosted = true
+		_check(
+			not movement.has_occupied_endpoint(false), "Ghost or static structure satisfied arrival"
+		)
+		neighbor.ghosted = false
+		neighbor.speed = 0.0
+		_check(
+			not movement.has_occupied_endpoint(false), "Zero-speed ally satisfied mobile arrival"
+		)
+		neighbor.speed = 1.0
+		neighbor.domain = root.get_node("Constants").Match.Navigation.Domain.AIR
+		_check(not movement.has_occupied_endpoint(false), "Other-domain ally satisfied arrival")
+		neighbor.domain = movement.domain
+		neighbor._has_destination = true
+		_check(
+			not movement.has_occupied_endpoint(false), "Travelling ally satisfied settled arrival"
+		)
+		neighbor._has_destination = false
+		neighbor.velocity = Vector3.RIGHT
+		_check(not movement.has_occupied_endpoint(false), "Moving ally satisfied settled arrival")
+		neighbor.velocity = Vector3.ZERO
+		_check(movement.has_occupied_endpoint(false), "Restored live eligibility was not observed")
+		blocker.queue_free()
+		_check(not movement.has_occupied_endpoint(false), "Queued deletion satisfied arrival")
+		print(
+			"PASS live maximum-radius, position, ghost, speed, domain and settled endpoint filters"
+		)
+	game.queue_free()
+	paused = false
+	await _frames(5)
 
 
 func _captured_return(repetition):

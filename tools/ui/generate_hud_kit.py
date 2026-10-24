@@ -47,7 +47,8 @@ PROFILES = {
         "screen": rgb("0a1013"),
         "accent": rgb("e8b04a"),
         "glass": 0.92,
-        "edge": 0.7,
+        "edge": 0.30,
+        "bevel_light": 0.55,
         "cut": 1.2,
         "frame": 0.9,
         "bolts": "bolt",
@@ -68,7 +69,8 @@ PROFILES = {
         "screen": rgb("06121a"),
         "accent": rgb("54d6e6"),
         "glass": 0.86,
-        "edge": 0.95,
+        "edge": 0.38,
+        "bevel_light": 0.48,
         "cut": 1.45,
         "frame": 0.6,
         "bolts": None,
@@ -89,7 +91,8 @@ PROFILES = {
         "screen": rgb("0b110c"),
         "accent": rgb("ef8a3c"),
         "glass": 0.95,
-        "edge": 0.62,
+        "edge": 0.28,
+        "bevel_light": 0.58,
         "cut": 0.9,
         "frame": 1.1,
         "bolts": "rivet",
@@ -285,10 +288,10 @@ def plate(p, rng, w, h, cut, frame, bevel_width, fastener=0.0, glass=True):
     colour = gradient(h, p["frame_top"], p["frame_bottom"])
     colour = colour + (pattern(p["frame_pattern"], w, h, rng) * 7.0)[..., None]
     light = bevel(body, max(3, bevel_width - 2))
-    colour = colour + np.where(light > 0, light * 58.0, light * 42.0)[..., None]
+    colour = colour + np.where(light > 0, light * 58.0, light * 42.0)[..., None] * p["bevel_light"]
     # A crisp machined hairline where the face meets the top-left bevel.
     hairline = edge_line(w, h, cuts, 2, 1.0) * (light > 0.2)
-    colour = colour + (hairline * 40.0)[..., None]
+    colour = colour + (hairline * 40.0 * p["bevel_light"])[..., None]
     colour = blend(colour, RIM, np.clip(coverage - body, 0, 1))
     alpha = coverage.copy()
     frame_px = frame * p["frame"]

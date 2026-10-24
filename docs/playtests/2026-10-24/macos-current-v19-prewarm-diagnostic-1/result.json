@@ -1,0 +1,864 @@
+{
+  "stage": "/tmp/godot-open-rts-macos-current-v19-prewarm-diagnostic-1",
+  "source_stage": "/tmp/godot-open-rts-macos-current-v19-final-1-stress",
+  "diagnostic_only": true,
+  "release_timing": false,
+  "production_files_changed": false,
+  "purpose": "Capture exact startup differences from the rejected stress prewarm baseline",
+  "command": [
+    "/Users/linlilu/godot-open-rts/tmp/tooling/godot-4.7.2/Godot.app/Contents/MacOS/Godot",
+    "--path",
+    "/tmp/godot-open-rts-macos-current-v19-prewarm-diagnostic-1",
+    "--script",
+    "res://CurrentPrewarmDiagnostic.gd",
+    "--",
+    "--await-focus",
+    "--behaviors",
+    "--realtime",
+    "--no-capture",
+    "--native-focus-token=/Users/linlilu/godot-open-rts/docs/playtests/2026-10-24/macos-current-v19-prewarm-diagnostic-1/native.start"
+  ],
+  "pid": 19590,
+  "exit_code": 0,
+  "diagnostic": [
+    {
+      "added_nodes": [],
+      "changed_modes": [],
+      "minimap_captured_after": true,
+      "minimap_captured_before": false,
+      "navigation_diff": [
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Players/Human/CommandCenter/MovementObstacle/_synchronized"
+        },
+        {
+          "after": true,
+          "before": false,
+          "path": "navigation//root/Match/Players/Human/Worker/Movement/physics_process"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Players/Human/Worker/Movement/_synchronized"
+        },
+        {
+          "after": "(7.0, 0.0, 34.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "navigation//root/Match/Players/Human/Worker/Movement/_progress_position"
+        },
+        {
+          "after": "(7.0, 0.0, 34.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "navigation//root/Match/Players/Human/Worker/Movement/target_position"
+        },
+        {
+          "after": true,
+          "before": false,
+          "path": "navigation//root/Match/Players/Human/@Area3D@597/Movement/physics_process"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Players/Human/@Area3D@597/Movement/_synchronized"
+        },
+        {
+          "after": "(9.0, 0.0, 34.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "navigation//root/Match/Players/Human/@Area3D@597/Movement/_progress_position"
+        },
+        {
+          "after": "(9.0, 0.0, 34.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "navigation//root/Match/Players/Human/@Area3D@597/Movement/target_position"
+        },
+        {
+          "after": true,
+          "before": false,
+          "path": "navigation//root/Match/Players/Human/@Area3D@603/Movement/physics_process"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Players/Human/@Area3D@603/Movement/_synchronized"
+        },
+        {
+          "after": "(11.0, 0.0, 34.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "navigation//root/Match/Players/Human/@Area3D@603/Movement/_progress_position"
+        },
+        {
+          "after": "(11.0, 0.0, 34.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "navigation//root/Match/Players/Human/@Area3D@603/Movement/target_position"
+        },
+        {
+          "after": true,
+          "before": false,
+          "path": "navigation//root/Match/Players/Human/@Area3D@609/Movement/physics_process"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Players/Human/@Area3D@609/Movement/_synchronized"
+        },
+        {
+          "after": "(13.0, 0.0, 34.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "navigation//root/Match/Players/Human/@Area3D@609/Movement/_progress_position"
+        },
+        {
+          "after": "(13.0, 0.0, 34.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "navigation//root/Match/Players/Human/@Area3D@609/Movement/target_position"
+        },
+        {
+          "after": true,
+          "before": false,
+          "path": "navigation//root/Match/Players/Human/Infantry/Movement/physics_process"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Players/Human/Infantry/Movement/_synchronized"
+        },
+        {
+          "after": "(9.0, 0.0, 36.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "navigation//root/Match/Players/Human/Infantry/Movement/_progress_position"
+        },
+        {
+          "after": "(9.0, 0.0, 36.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "navigation//root/Match/Players/Human/Infantry/Movement/target_position"
+        },
+        {
+          "after": true,
+          "before": false,
+          "path": "navigation//root/Match/Players/Human/@Area3D@700/Movement/physics_process"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Players/Human/@Area3D@700/Movement/_synchronized"
+        },
+        {
+          "after": "(11.0, 0.0, 36.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "navigation//root/Match/Players/Human/@Area3D@700/Movement/_progress_position"
+        },
+        {
+          "after": "(11.0, 0.0, 36.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "navigation//root/Match/Players/Human/@Area3D@700/Movement/target_position"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Players/SkirmishAI/CommandCenter/MovementObstacle/_synchronized"
+        },
+        {
+          "after": true,
+          "before": false,
+          "path": "navigation//root/Match/Players/SkirmishAI/Worker/Movement/physics_process"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Players/SkirmishAI/Worker/Movement/_synchronized"
+        },
+        {
+          "after": "(93.0, 0.0, 66.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "navigation//root/Match/Players/SkirmishAI/Worker/Movement/_progress_position"
+        },
+        {
+          "after": "(93.0, 0.0, 66.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "navigation//root/Match/Players/SkirmishAI/Worker/Movement/target_position"
+        },
+        {
+          "after": true,
+          "before": false,
+          "path": "navigation//root/Match/Players/SkirmishAI/@Area3D@718/Movement/physics_process"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Players/SkirmishAI/@Area3D@718/Movement/_synchronized"
+        },
+        {
+          "after": "(91.0, 0.0, 66.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "navigation//root/Match/Players/SkirmishAI/@Area3D@718/Movement/_progress_position"
+        },
+        {
+          "after": "(91.0, 0.0, 66.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "navigation//root/Match/Players/SkirmishAI/@Area3D@718/Movement/target_position"
+        },
+        {
+          "after": true,
+          "before": false,
+          "path": "navigation//root/Match/Players/SkirmishAI/@Area3D@724/Movement/physics_process"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Players/SkirmishAI/@Area3D@724/Movement/_synchronized"
+        },
+        {
+          "after": "(89.0, 0.0, 66.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "navigation//root/Match/Players/SkirmishAI/@Area3D@724/Movement/_progress_position"
+        },
+        {
+          "after": "(89.0, 0.0, 66.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "navigation//root/Match/Players/SkirmishAI/@Area3D@724/Movement/target_position"
+        },
+        {
+          "after": true,
+          "before": false,
+          "path": "navigation//root/Match/Players/SkirmishAI/@Area3D@730/Movement/physics_process"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Players/SkirmishAI/@Area3D@730/Movement/_synchronized"
+        },
+        {
+          "after": "(87.0, 0.0, 66.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "navigation//root/Match/Players/SkirmishAI/@Area3D@730/Movement/_progress_position"
+        },
+        {
+          "after": "(87.0, 0.0, 66.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "navigation//root/Match/Players/SkirmishAI/@Area3D@730/Movement/target_position"
+        },
+        {
+          "after": true,
+          "before": false,
+          "path": "navigation//root/Match/Players/SkirmishAI/Infantry/Movement/physics_process"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Players/SkirmishAI/Infantry/Movement/_synchronized"
+        },
+        {
+          "after": "(91.0, 0.0, 64.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "navigation//root/Match/Players/SkirmishAI/Infantry/Movement/_progress_position"
+        },
+        {
+          "after": "(91.0, 0.0, 64.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "navigation//root/Match/Players/SkirmishAI/Infantry/Movement/target_position"
+        },
+        {
+          "after": true,
+          "before": false,
+          "path": "navigation//root/Match/Players/SkirmishAI/@Area3D@821/Movement/physics_process"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Players/SkirmishAI/@Area3D@821/Movement/_synchronized"
+        },
+        {
+          "after": "(89.0, 0.0, 64.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "navigation//root/Match/Players/SkirmishAI/@Area3D@821/Movement/_progress_position"
+        },
+        {
+          "after": "(89.0, 0.0, 64.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "navigation//root/Match/Players/SkirmishAI/@Area3D@821/Movement/target_position"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot0/ResourceA/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot0/ResourceA2/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot0/ResourceA3/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot0/ResourceB/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot0/ExtraMaterials0_0/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot0/ExtraMaterials0_1/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot0/ExtraElectronics0/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot1/ResourceA/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot1/ResourceA2/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot1/ResourceA3/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot1/ResourceB/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot1/ExtraMaterials1_0/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot1/ExtraMaterials1_1/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot1/ExtraElectronics1/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot2/ResourceA/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot2/ResourceA2/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot2/ResourceA3/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot2/ResourceB/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot2/ExtraMaterials2_0/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot2/ExtraMaterials2_1/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot2/ExtraElectronics2/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot3/ResourceA/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot3/ResourceA2/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot3/ResourceA3/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot3/ResourceB/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot3/ExtraMaterials3_0/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot3/ExtraMaterials3_1/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot3/ExtraElectronics3/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot4/ResourceA/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot4/ResourceA2/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot4/ResourceA3/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot4/ResourceB/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot4/ExtraMaterials4_0/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot4/ExtraMaterials4_1/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot4/ExtraElectronics4/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot5/ResourceA/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot5/ResourceA2/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot5/ResourceA3/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot5/ResourceB/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot5/ExtraMaterials5_0/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot5/ExtraMaterials5_1/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot5/ExtraElectronics5/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot6/ResourceA/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot6/ResourceA2/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot6/ResourceA3/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot6/ResourceB/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot6/ExtraMaterials6_0/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot6/ExtraMaterials6_1/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot6/ExtraElectronics6/MovementObstacle/_synchronized"
+        },
+        {
+          "after": "true",
+          "before": "false",
+          "path": "navigation//root/Match/Map/Resources/Spot7/ResourceA/MovementObstacle/_synchronized"
+        }
+      ],
+      "paused": true,
+      "removed_nodes": [
+        {
+          "class": "Node3D",
+          "mode": 4,
+          "path": "/root/Match/@Node3D@1385",
+          "queued": false
+        },
+        {
+          "class": "Node3D",
+          "mode": 0,
+          "path": "/root/Match/@Node3D@1385/@Node3D@1386",
+          "queued": false
+        },
+        {
+          "class": "Node3D",
+          "mode": 0,
+          "path": "/root/Match/@Node3D@1385/@Node3D@1386/@Node3D@1387",
+          "queued": false
+        },
+        {
+          "class": "Node3D",
+          "mode": 0,
+          "path": "/root/Match/@Node3D@1385/@Node3D@1386/@Node3D@1387/Gantry",
+          "queued": false
+        },
+        {
+          "class": "MeshInstance3D",
+          "mode": 0,
+          "path": "/root/Match/@Node3D@1385/@Node3D@1386/@Node3D@1387/Gantry/Trolley",
+          "queued": false
+        },
+        {
+          "class": "MeshInstance3D",
+          "mode": 0,
+          "path": "/root/Match/@Node3D@1385/@Node3D@1386/@Node3D@1387/Gantry/Cable",
+          "queued": false
+        },
+        {
+          "class": "Node3D",
+          "mode": 0,
+          "path": "/root/Match/@Node3D@1385/@Node3D@1386/@Node3D@1387/Gantry/Load",
+          "queued": false
+        },
+        {
+          "class": "MeshInstance3D",
+          "mode": 0,
+          "path": "/root/Match/@Node3D@1385/@Node3D@1386/@Node3D@1387/Gantry/Load/HookBlock",
+          "queued": false
+        },
+        {
+          "class": "MeshInstance3D",
+          "mode": 0,
+          "path": "/root/Match/@Node3D@1385/@Node3D@1386/@Node3D@1387/Gantry/Load/Girder",
+          "queued": false
+        },
+        {
+          "class": "MultiMeshInstance3D",
+          "mode": 0,
+          "path": "/root/Match/@Node3D@1385/@Node3D@1386/@Node3D@1387/Gantry/CraneFrame",
+          "queued": false
+        },
+        {
+          "class": "MultiMeshInstance3D",
+          "mode": 0,
+          "path": "/root/Match/@Node3D@1385/@Node3D@1386/@Node3D@1387/Gantry/CraneLights",
+          "queued": false
+        },
+        {
+          "class": "MultiMeshInstance3D",
+          "mode": 0,
+          "path": "/root/Match/@Node3D@1385/@Node3D@1386/@Node3D@1387/Steel",
+          "queued": false
+        },
+        {
+          "class": "MultiMeshInstance3D",
+          "mode": 0,
+          "path": "/root/Match/@Node3D@1385/@Node3D@1386/@Node3D@1387/Rails",
+          "queued": false
+        },
+        {
+          "class": "MeshInstance3D",
+          "mode": 0,
+          "path": "/root/Match/@Node3D@1385/@Node3D@1386/@MeshInstance3D@1388",
+          "queued": false
+        },
+        {
+          "class": "Node3D",
+          "mode": 0,
+          "path": "/root/Match/@Node3D@1385/@Node3D@1389",
+          "queued": false
+        },
+        {
+          "class": "Node3D",
+          "mode": 0,
+          "path": "/root/Match/@Node3D@1385/@Node3D@1389/@Node3D@1390",
+          "queued": false
+        },
+        {
+          "class": "Node3D",
+          "mode": 0,
+          "path": "/root/Match/@Node3D@1385/@Node3D@1389/@Node3D@1390/ScanFrame",
+          "queued": false
+        },
+        {
+          "class": "MeshInstance3D",
+          "mode": 0,
+          "path": "/root/Match/@Node3D@1385/@Node3D@1389/@Node3D@1390/ScanFrame/ScanSheet",
+          "queued": false
+        },
+        {
+          "class": "MultiMeshInstance3D",
+          "mode": 0,
+          "path": "/root/Match/@Node3D@1385/@Node3D@1389/@Node3D@1390/ScanFrame/ScanBars",
+          "queued": false
+        },
+        {
+          "class": "MultiMeshInstance3D",
+          "mode": 0,
+          "path": "/root/Match/@Node3D@1385/@Node3D@1389/@Node3D@1390/Pylons",
+          "queued": false
+        },
+        {
+          "class": "MultiMeshInstance3D",
+          "mode": 0,
+          "path": "/root/Match/@Node3D@1385/@Node3D@1389/@Node3D@1390/Glow",
+          "queued": false
+        },
+        {
+          "class": "MeshInstance3D",
+          "mode": 0,
+          "path": "/root/Match/@Node3D@1385/@Node3D@1389/@MeshInstance3D@1391",
+          "queued": false
+        },
+        {
+          "class": "Node3D",
+          "mode": 0,
+          "path": "/root/Match/@Node3D@1385/@Node3D@1392",
+          "queued": false
+        },
+        {
+          "class": "Node3D",
+          "mode": 0,
+          "path": "/root/Match/@Node3D@1385/@Node3D@1392/@Node3D@1393",
+          "queued": false
+        },
+        {
+          "class": "Node3D",
+          "mode": 0,
+          "path": "/root/Match/@Node3D@1385/@Node3D@1392/@Node3D@1393/Derrick",
+          "queued": false
+        },
+        {
+          "class": "Node3D",
+          "mode": 0,
+          "path": "/root/Match/@Node3D@1385/@Node3D@1392/@Node3D@1393/Derrick/Swing",
+          "queued": false
+        },
+        {
+          "class": "MeshInstance3D",
+          "mode": 0,
+          "path": "/root/Match/@Node3D@1385/@Node3D@1392/@Node3D@1393/Derrick/Swing/Rope",
+          "queued": false
+        },
+        {
+          "class": "MeshInstance3D",
+          "mode": 0,
+          "path": "/root/Match/@Node3D@1385/@Node3D@1392/@Node3D@1393/Derrick/Swing/SalvagePlate",
+          "queued": false
+        },
+        {
+          "class": "MultiMeshInstance3D",
+          "mode": 0,
+          "path": "/root/Match/@Node3D@1385/@Node3D@1392/@Node3D@1393/Derrick/DerrickFrame",
+          "queued": false
+        },
+        {
+          "class": "MultiMeshInstance3D",
+          "mode": 0,
+          "path": "/root/Match/@Node3D@1385/@Node3D@1392/@Node3D@1393/Poles",
+          "queued": false
+        },
+        {
+          "class": "MultiMeshInstance3D",
+          "mode": 0,
+          "path": "/root/Match/@Node3D@1385/@Node3D@1392/@Node3D@1393/Timber",
+          "queued": false
+        },
+        {
+          "class": "MultiMeshInstance3D",
+          "mode": 0,
+          "path": "/root/Match/@Node3D@1385/@Node3D@1392/@Node3D@1393/Scrap",
+          "queued": false
+        },
+        {
+          "class": "MultiMeshInstance3D",
+          "mode": 0,
+          "path": "/root/Match/@Node3D@1385/@Node3D@1392/@Node3D@1393/Drums",
+          "queued": false
+        },
+        {
+          "class": "MeshInstance3D",
+          "mode": 0,
+          "path": "/root/Match/@Node3D@1385/@Node3D@1392/@MeshInstance3D@1394",
+          "queued": false
+        }
+      ],
+      "simulation_after": 0.0,
+      "simulation_before": 0.0,
+      "snapshot_diff": [
+        {
+          "after": "(7.0, 0.0, 34.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "snapshot/units/1/movement/target_position"
+        },
+        {
+          "after": "(7.0, 0.0, 34.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "snapshot/units/1/movement/_progress_position"
+        },
+        {
+          "after": "(9.0, 0.0, 34.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "snapshot/units/2/movement/target_position"
+        },
+        {
+          "after": "(9.0, 0.0, 34.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "snapshot/units/2/movement/_progress_position"
+        },
+        {
+          "after": "(11.0, 0.0, 34.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "snapshot/units/3/movement/target_position"
+        },
+        {
+          "after": "(11.0, 0.0, 34.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "snapshot/units/3/movement/_progress_position"
+        },
+        {
+          "after": "(13.0, 0.0, 34.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "snapshot/units/4/movement/target_position"
+        },
+        {
+          "after": "(13.0, 0.0, 34.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "snapshot/units/4/movement/_progress_position"
+        },
+        {
+          "after": "(9.0, 0.0, 36.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "snapshot/units/5/movement/target_position"
+        },
+        {
+          "after": "(9.0, 0.0, 36.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "snapshot/units/5/movement/_progress_position"
+        },
+        {
+          "after": "(11.0, 0.0, 36.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "snapshot/units/6/movement/target_position"
+        },
+        {
+          "after": "(11.0, 0.0, 36.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "snapshot/units/6/movement/_progress_position"
+        },
+        {
+          "after": "(93.0, 0.0, 66.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "snapshot/units/8/movement/target_position"
+        },
+        {
+          "after": "(93.0, 0.0, 66.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "snapshot/units/8/movement/_progress_position"
+        },
+        {
+          "after": "(91.0, 0.0, 66.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "snapshot/units/9/movement/target_position"
+        },
+        {
+          "after": "(91.0, 0.0, 66.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "snapshot/units/9/movement/_progress_position"
+        },
+        {
+          "after": "(89.0, 0.0, 66.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "snapshot/units/10/movement/target_position"
+        },
+        {
+          "after": "(89.0, 0.0, 66.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "snapshot/units/10/movement/_progress_position"
+        },
+        {
+          "after": "(87.0, 0.0, 66.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "snapshot/units/11/movement/target_position"
+        },
+        {
+          "after": "(87.0, 0.0, 66.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "snapshot/units/11/movement/_progress_position"
+        },
+        {
+          "after": "(91.0, 0.0, 64.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "snapshot/units/12/movement/target_position"
+        },
+        {
+          "after": "(91.0, 0.0, 64.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "snapshot/units/12/movement/_progress_position"
+        },
+        {
+          "after": "(89.0, 0.0, 64.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "snapshot/units/13/movement/target_position"
+        },
+        {
+          "after": "(89.0, 0.0, 64.0)",
+          "before": "(0.0, 0.0, 0.0)",
+          "path": "snapshot/units/13/movement/_progress_position"
+        }
+      ]
+    }
+  ]
+}

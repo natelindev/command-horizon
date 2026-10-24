@@ -1,0 +1,11 @@
+{
+  "build_scope": "Prior macOS export, before neutral-symbol changes",
+  "input": "Normal app Cmd-Q",
+  "exit_code": 0,
+  "shutdown_diagnostics": [],
+  "startup_diagnostics": [
+    "Two Metal RGB8-to-RGBA8 texture-format conversion warnings in verbose log"
+  ],
+  "post_symbol_export_recheck": "pending",
+  "log": "normal-app-quit.log"
+}

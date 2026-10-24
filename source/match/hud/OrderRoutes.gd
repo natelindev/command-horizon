@@ -21,10 +21,28 @@ func _draw():
 		var orders = unit.manual_orders
 		var points = []
 		if orders.current.has("point"):
-			points.append(orders.current)
+			var current = orders.current
+			if (
+				current.kind == "patrol"
+				and is_instance_valid(unit.action)
+				and "origin" in unit.action
+			):
+				current = current.duplicate()
+				current.point = unit.action.destination
+			points.append(current)
 		points.append_array(orders.pending)
 		if points.is_empty():
 			continue
+		if (
+			orders.current.get("kind") == "patrol"
+			and is_instance_valid(unit.action)
+			and "origin" in unit.action
+		):
+			var start = camera.unproject_position(unit.action.origin)
+			var end = camera.unproject_position(unit.action.endpoint)
+			draw_dashed_line(start, end, Color(1, 1, 1, 0.65), 2, 7, true)
+			draw_arc(start, 7, 0, TAU, 20, Color.WHITE, 1.5, true)
+			draw_arc(end, 7, 0, TAU, 20, Color.WHITE, 1.5, true)
 		var previous = camera.unproject_position(unit.global_position)
 		for index in range(points.size()):
 			var point = camera.unproject_position(points[index].point)

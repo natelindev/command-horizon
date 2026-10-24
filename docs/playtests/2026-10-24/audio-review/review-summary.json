@@ -1,0 +1,41 @@
+{
+  "capture": "Actual native CoreAudio mixer output, one 26-second scripted battle-audio scenario per faction. Calm score, routine weapons, heavy weapons, base warning plus vehicle destruction, then quiet recovery. Each faction uses a 35-second score seek.",
+  "volume_settings": {
+    "master": 0.8,
+    "music": 0.5,
+    "voice": 0.8,
+    "effects": 0.75,
+    "ambience": 0.55
+  },
+  "signal_results": {
+    "clipped_samples_all_15_buses": 0,
+    "master_peak_dbfs_before_master_gain": {
+      "bastion": -8.81,
+      "helix": -9.42,
+      "frontier": -8.03
+    }
+  },
+  "speech_recognition": {
+    "model": "OpenAI Whisper medium.en, local CPU FP32, temperature 0, English, no initial prompt or previous-text conditioning",
+    "expected_line_used_only_for_post_inference_comparison": "Your base is under attack.",
+    "mixed_bus_matches": 3,
+    "isolated_voice_control_matches": 3,
+    "word_errors": 0,
+    "reference_words_per_sample": 5
+  },
+  "limits": [
+    "No human listening or subjective sound-quality acceptance was possible through available tools.",
+    "This is one moderate observed-combat scenario per faction, not maximum-population mixer stress.",
+    "AudioEffectRecord captures after bus effects and before that bus volume; Master recording is before the master 0.8 gain.",
+    "Bus recorders were stopped sequentially, so their trailing quiet lengths differ by up to 0.43 seconds. Warning excerpts share the same recording start and are cropped to 11.5\u201316 seconds.",
+    "Automatic speech recognition is evidence about this warning and scenario; it does not establish human intelligibility for all lines or mixes."
+  ],
+  "artifacts": [
+    "runtime-mixes.json",
+    "signal-analysis.json",
+    "speech-intelligibility.json",
+    "*-master.wav",
+    "*-master-warning-excerpt.wav",
+    "*-voice-warning-excerpt.wav"
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "status": "User played the observed four-player battle and exited normally. Current user data preserved; no assistant input, restoration or deletion. Native F1/menu smoke remains unperformed.",
+  "platform": "Native Windows 11 release",
+  "artifact_sha256": "c07c4c1b79f291d501245378f6e98bbc3d62b7a269eb658719faeca5a50bb958",
+  "run_name": "final-0548-ui",
+  "process_id": 36040,
+  "native_foreground_observed_utc": "2026-10-24T06:10:27.2527096Z",
+  "capture_utc": "2026-10-24T06:12:03.7748358Z",
+  "captured_client_pixels": [
+    3840,
+    2162
+  ],
+  "capture_description": "Unpaused Chinese skirmish with timer02:11 and rally targeting visible. No assistant input had occurred.",
+  "assistant_input_count": 0,
+  "native_f1_smoke_complete": false,
+  "normal_menu_quit_smoke_complete": false,
+  "user_data_restored": false,
+  "user_data_backup_files": 4,
+  "user_data_backup_note": "Backup retained only as evidence. User deliberately played the current battle; current settings and saves are preserved and will not be restored from the earlier four-file backup.",
+  "game_exit_code": 0,
+  "evidence": {
+    "game-final-0548-ui.metadata.json": {
+      "path": "windows-ui-baseline/game-final-0548-ui.metadata.json",
+      "sha256": "4b05a241c9971d7b2c1b4360bc98f4c9fdce6c1ddba402306f2e6b8cf28b2aca",
+      "bytes": 602
+    },
+    "game-final-0548-ui-watchdog-disabled.json": {
+      "path": "windows-ui-baseline/game-final-0548-ui-watchdog-disabled.json",
+      "sha256": "960f346ee6c63ba90218b93deb79852b70dade92c096b8fd67f295c15fc0b640",
+      "bytes": 684
+    },
+    "user-data-before-final-ui-0610.json": {
+      "path": "windows-ui-baseline/user-data-before-final-ui-0610.json",
+      "sha256": "a50acfe99beda07d27f9c60eaed87e0eeb784e60791e1f5dddb0f806ed9ebb38",
+      "bytes": 1555
+    },
+    "observed_battle": {
+      "path": "windows-ui-baseline/observed-battle.png",
+      "sha256": "2e6d8fd7874759d59ed66e0d0083e51d123fe549e8af9889f0d0d132d1740485",
+      "bytes": 12299675
+    },
+    "watchdog_runner_log": {
+      "path": "windows-ui-baseline/watchdog-disabled.log.txt",
+      "sha256": "3ecee93ab1d26c644e902b8bb0f62bfc2ee9c03e10f05e9b5b047bc52b95c849",
+      "bytes": 1558
+    },
+    "game-final-0548-ui.observed-exit.json": {
+      "path": "windows-ui-baseline/game-final-0548-ui.observed-exit.json",
+      "sha256": "aa15b02f22e07bbe8d5581203e5cf621db1ec55bbd33dbd566170eb6f466b62f",
+      "bytes": 390
+    },
+    "user-ffa-after-exit-0628.json": {
+      "path": "windows-ui-baseline/user-ffa-after-exit-0628.json",
+      "sha256": "65f5bd77e269e199c396490a089cf553bd5c53a9fda223afe745dae77458d5f5",
+      "bytes": 2544
+    }
+  },
+  "updated_utc": "2026-10-24T06:28:58.557076+00:00",
+  "game_finished_utc": "2026-10-24T06:24:27.4692631Z",
+  "user_ffa_diagnostic": {
+    "private_snapshot_captured_utc": "2026-10-24T06:26:12.3622068Z",
+    "current_battle_save_present": false,
+    "map": "res://source/match/maps/battlefields/CopperBadlandsMap.tscn",
+    "players": 4,
+    "mode": "free_for_all",
+    "human_faction": "helix",
+    "enemy_faction_selection": "random",
+    "difficulty": "normal",
+    "start": "standard",
+    "doctrine": "balanced",
+    "setup_last_write_utc": "2026-10-24T06:09:43.7179732Z",
+    "match_seed_known": false,
+    "actual_unit_counts_known": false,
+    "saved_camera_available": false,
+    "options": {
+      "language": "zh_CN",
+      "graphics_shadows": true,
+      "graphics_ao": true,
+      "graphics_glow": true,
+      "graphics_fog": true,
+      "graphics_dof": false,
+      "graphics_msaa": 1,
+      "day_cycle": true,
+      "weather_particles": true,
+      "living_world": true
+    },
+    "snapshot_note": "Payload kept privately under tmp and the owned remote diagnostic folder; report includes only hashes and relevant non-sensitive workload settings. No fresh autosave/quick/manual battle file was present."
+  }
+}

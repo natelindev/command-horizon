@@ -1,0 +1,27 @@
+extends Node
+
+func _ready():
+    var actual = OS.get_user_data_dir()
+    var expected = "/Users/linlilu/Library/Application Support/OpenRTSFinalSmoke-20261024-071518"
+    var result = {
+        "actual_user_dir": actual,
+        "expected_user_dir": expected,
+        "release": OS.has_feature("release"),
+        "custom": ProjectSettings.get_setting("application/config/use_custom_user_dir"),
+        "custom_name": ProjectSettings.get_setting("application/config/custom_user_dir_name"),
+        "executable": OS.get_executable_path()
+    }
+    print("NATIVE_ISOLATION_PROOF ", JSON.stringify(result))
+    if actual != expected or not result.release or not result.custom:
+        push_error("Release executable did not use the exact isolated user directory")
+        get_tree().quit(2)
+        return
+    var file = FileAccess.open("user://isolation-proof.json", FileAccess.WRITE)
+    if file == null:
+        push_error("Isolation proof marker could not be written")
+        get_tree().quit(3)
+        return
+    file.store_string(JSON.stringify(result))
+    file.close()
+    print("NATIVE_ISOLATION_PROOF_PASS")
+    get_tree().quit(0)

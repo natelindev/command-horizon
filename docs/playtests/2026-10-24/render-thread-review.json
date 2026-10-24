@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-24",
+  "engine": "Godot 4.7.2.stable.official.ed1daf0bf",
+  "decision": "Keep production Safe rendering. No Separate-mode Windows ablation or configuration change was performed.",
+  "local_release_evidence": {
+    "binary": "build/polish-2026-10-24/Open RTS.app/Contents/MacOS/Open RTS",
+    "sha256": "c061c23e9d9f3e41c53248b866ec96e6b735bd142c76d4064c11f712c063d3d0",
+    "command": "--help",
+    "build_kind": "release export template",
+    "option": "--render-thread <mode>",
+    "availability": "R: editor, debug export templates and release export templates",
+    "modes": [
+      "safe",
+      "separate",
+      "unsafe (deprecated)"
+    ],
+    "execution_scope": "Help only; no scene or benchmark launched. Windows was not accessed."
+  },
+  "current_configuration": {
+    "setting": "rendering/driver/threads/thread_model",
+    "pinned_default": 1,
+    "default_name": "Safe",
+    "checked_files": [
+      "project.godot",
+      "tmp/windows-polish-20261024/candidate-project-normal-045513.godot",
+      "tmp/windows-polish-20261024/candidate-project-benchmark-045513.godot",
+      "tmp/windows-polish-20261024/run-scale.ps1"
+    ],
+    "finding": "No rendering thread-model override or --render-thread option in these files. Safe follows from the pinned default; the actual Windows runtime mode was not independently queried during this review."
+  },
+  "constraints": [
+    "The CLI is parsed before project startup and can select Separate without rebuilding. It must precede the -- user-argument separator.",
+    "The pinned engine forces Safe for the editor/project manager and for builds without thread support.",
+    "The pinned documentation marks Separate experimental and unsuitable for production, with known crash risks especially around particles and window resizing; synchronization can add jitter.",
+    "The game uses particles and window-size changes. Its GPU water operations already use call_on_render_thread, but this source inspection is not a certification of Separate-mode stability."
+  ],
+  "measurement_limits": [
+    "ScaleFrameBenchmark.gd:132-137 queries viewport CPU and GPU timing on every process_frame. Both getters use FUNC1RC; from a separate main thread this calls command_queue.push_and_ret and waits for completion. A Separate run would include this synchronization imposed by the benchmark.",
+    "The viewport render_cpu_ms readout excludes scripts and other engine systems, and is not total rendering CPU time: the documentation also includes frame setup and other drawn viewports in that total.",
+    "Approximately 8 ms of reported viewport rendering CPU work motivates an overlap hypothesis only. It does not establish a frame-time improvement or justify the documented production stability tradeoff."
+  ],
+  "pinned_sources": {
+    "cli_parser": "https://github.com/godotengine/godot/blob/ed1daf0bf/main/main.cpp#L1470-L1494",
+    "default_and_editor_constraints": "https://github.com/godotengine/godot/blob/ed1daf0bf/main/main.cpp#L2601-L2611",
+    "enum_values": "https://github.com/godotengine/godot/blob/ed1daf0bf/core/os/os.h#L48-L52",
+    "experimental_warning": "https://github.com/godotengine/godot/blob/ed1daf0bf/doc/classes/ProjectSettings.xml#L2922-L2925",
+    "startup_warning": "https://github.com/godotengine/godot/blob/ed1daf0bf/main/main.cpp#L3281-L3285",
+    "render_thread_verbose_marker": "https://github.com/godotengine/godot/blob/ed1daf0bf/servers/rendering/rendering_server_default.cpp#L257-L269",
+    "timing_getter_wrappers": "https://github.com/godotengine/godot/blob/ed1daf0bf/servers/rendering/rendering_server_default.h#L725-L727",
+    "getter_synchronization": "https://github.com/godotengine/godot/blob/ed1daf0bf/servers/server_wrap_mt_common.h#L143-L155",
+    "return_value_wait": "https://github.com/godotengine/godot/blob/ed1daf0bf/core/templates/command_queue_mt.h#L226-L232",
+    "render_cpu_definition": "https://github.com/godotengine/godot/blob/ed1daf0bf/doc/classes/RenderingServer.xml#L4097-L4104",
+    "render_thread_calls": "https://github.com/godotengine/godot/blob/ed1daf0bf/doc/classes/RenderingServer.xml#L38-L44"
+  }
+}

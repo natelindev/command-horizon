@@ -14,6 +14,7 @@ var direct_orders
 var command_feedback
 var technology_panel = null
 var research_status
+var commander_roster
 ## Top-right console plate: mission clock, system keys and the alerts beacon slot.
 var system_plate: PanelContainer
 var alert_slot: Control
@@ -86,6 +87,10 @@ func _ready():
 		_objective.tooltip_text = title.text
 		_objective.mouse_filter = Control.MOUSE_FILTER_PASS
 	content.add_child(_objective)
+	if not _is_campaign():
+		commander_roster = load("res://source/match/hud/CommanderRoster.gd").new()
+		commander_roster.hud = self
+		content.add_child(commander_roster)
 	if _is_campaign() and CampaignCatalog.is_story(get_parent().settings.mission_id):
 		_objective_hint = Label.new()
 		_objective_hint.name = "ObjectiveInstructions"

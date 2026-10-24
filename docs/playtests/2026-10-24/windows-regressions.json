@@ -1,0 +1,1710 @@
+{
+  "platform": "Native Windows 11; official Godot4.7.2 editor runs scripts from exact normal release EXE embedded PCK",
+  "pack_sha256": "e09060aa69d3c870b63ab7c934f57a5b5e8612f87f38b3d4338c8ff764cf6161",
+  "editor_sha256": "ab1824f85bfd8e0e4128182c000c4003a3e042245b2967848d089b2a04b22424",
+  "source_digest": "271c80d0a65ed9e3a04ea511b1e6da718678ac49e21199f00e3c22890fa7d7c0",
+  "started_utc": "2026-10-24T05:01:03.7863778Z",
+  "finished_utc": "2026-10-24T05:24:55.3198243Z",
+  "expected_suites": 73,
+  "completed_suites": 73,
+  "passed_suites": 71,
+  "failed_suites": [
+    "OpeningGuidanceRegression",
+    "RallyControlsRegression"
+  ],
+  "suites_with_known_teardown": [
+    "UnitAnimationRegression",
+    "InfantryMotionRegression",
+    "TerrainGroundingRegression",
+    "CombatRegression",
+    "TechnologyRegression",
+    "TechnologyAIRegression",
+    "WeaponModeRegression",
+    "ResearchTilesRegression",
+    "StructureActivityRegression",
+    "WorkerDistributionRegression",
+    "CargoReturnRegression",
+    "ResourceFieldRegression",
+    "GarrisonCombatExitRegression",
+    "PointOfInterestRegression",
+    "GlacierHarvestRegression",
+    "TerrainSightRegression",
+    "AuthoredRelayRegression",
+    "ContactApproachRegression",
+    "NavigationRegression",
+    "MapPlayabilityRegression",
+    "ProjectilePhysicsRegression",
+    "FixedWingFlightRegression",
+    "FixedWingSaveRegression",
+    "AirSaveContinuityRegression",
+    "FrontierCombatRegression",
+    "GroundHeightAlignmentRegression",
+    "SkirmishBuildReadinessRegression",
+    "PresentationFeaturesRegression",
+    "BattleHudProductionRegression",
+    "MapPassageRegression",
+    "EnvironmentEffectsRegression",
+    "MixedArmyMovementRegression",
+    "DirectOrdersRegression",
+    "KeyBindingsRegression",
+    "SelectionRosterRegression",
+    "RallyRetargetRegression"
+  ],
+  "suites_with_other_warnings": [],
+  "results": [
+    {
+      "name": "BehaviorRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 15.726,
+      "completion_banners": [
+        "Unit behaviors: 0 failures"
+      ],
+      "log": "windows-regressions/BehaviorRegression.log.txt",
+      "log_sha256": "9679be71696d4a1322a8c529d3ccf79fb7c46b1dd4f315848dd45e1799a1c88d",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "UnitAnimationRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 12.315,
+      "completion_banners": [
+        "Unit animation regression: 0 failures"
+      ],
+      "log": "windows-regressions/UnitAnimationRegression.log.txt",
+      "log_sha256": "01e44423e4f30c88042804455a68aad96f3591425cdbe3f75b3d7a6ea570ed8b",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 16 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 6 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "InfantryRedesignRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 1.991,
+      "completion_banners": [
+        "Infantry redesign: 24 models, 9908 maximum triangles, 0 failures"
+      ],
+      "log": "windows-regressions/InfantryRedesignRegression.log.txt",
+      "log_sha256": "a06a275e3daa948dfd513bba6d11a52cb32f298e797a28b8649539773ecfdabe",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "InfantryMeshBatchRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 1.709,
+      "completion_banners": [
+        "Infantry batching: 109 -> 58 mesh instances, 0 failures"
+      ],
+      "log": "windows-regressions/InfantryMeshBatchRegression.log.txt",
+      "log_sha256": "3ae2d625c22233ae5db7aa02afd664808aaea34edd95e131ca5fcd213b702d62",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "InfantryDeathGroundRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 5.227,
+      "completion_banners": [
+        "Infantry death ground: 72 faction/role/fall scenarios, 0 failures"
+      ],
+      "log": "windows-regressions/InfantryDeathGroundRegression.log.txt",
+      "log_sha256": "7d15ea4624537d91bd91435ae3184e3a169046a55ea59c78da15b1f54197de19",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "InfantryMotionRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 14.341,
+      "completion_banners": [
+        "Infantry motion and ranges: 0 failures"
+      ],
+      "log": "windows-regressions/InfantryMotionRegression.log.txt",
+      "log_sha256": "ef65f0b9900d49fe8aafd3fcf2fba127d4efad9293f8f7f15a1beab7672234d5",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "TerrainGroundingRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 7.108,
+      "completion_banners": [
+        "Terrain grounding: 0 failures"
+      ],
+      "log": "windows-regressions/TerrainGroundingRegression.log.txt",
+      "log_sha256": "6e9eea7d155ce4d12f67058b4e4ff2746bd0bb8c5ce492e75953f3410056c8ba",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "CombatRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 4.517,
+      "completion_banners": [
+        "PASS: occluded/allied/elevated vision, legal firing, hidden-target loss, armor counters, fractional damage, repair cap/service slots/power/combat suppression/pause"
+      ],
+      "log": "windows-regressions/CombatRegression.log.txt",
+      "log_sha256": "d525a8d0f57dce1e65fc89b3d220b3b3b6f8f154a440fc87a29dc593aba2e559",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 16 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 6 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "AntiAirPriorityRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 7.224,
+      "completion_banners": [
+        "AA turret air priority, ground fallback and restore: 0 failures"
+      ],
+      "log": "windows-regressions/AntiAirPriorityRegression.log.txt",
+      "log_sha256": "4d0b8f7ef3318d794f5c45e4c28fb732f499fb426e09ac1cea7b96dc9e0c0d9e",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "TechnologyRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 178.287,
+      "completion_banners": [
+        "Classic RTS technology: 0 failures"
+      ],
+      "log": "windows-regressions/TechnologyRegression.log.txt",
+      "log_sha256": "87998511495506beb68372be8f6f8de0bb24260cd3cf6cf16687ff2dd566c0bb",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 14 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 6 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "TechnologyAIRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 19.975,
+      "completion_banners": [
+        "Technology AI: 0 failures"
+      ],
+      "log": "windows-regressions/TechnologyAIRegression.log.txt",
+      "log_sha256": "d14909fbc30f025aeaed9a95ce18ee8a26db0854ca36713b88ab03f442580d22",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "WeaponModeRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 6.569,
+      "completion_banners": [
+        "PASS: Bastion ground/AA range, armor and shared reload",
+        "PASS: Helix domains, switch firing lock, movement/pause, cooldown and archives",
+        "PASS: AI chooses modes from observed contacts and retains stance without contacts",
+        "Weapon modes: 0 failures"
+      ],
+      "log": "windows-regressions/WeaponModeRegression.log.txt",
+      "log_sha256": "ec3e59724f8ae6fe8b4eba7b7268880ff252fbbe804fd2cd3e2f7281965aa941",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "ResearchTilesRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 16.897,
+      "completion_banners": [
+        "Research tiles: 0 failures over 6 cases"
+      ],
+      "log": "windows-regressions/ResearchTilesRegression.log.txt",
+      "log_sha256": "84e88b3b2b073cf87e1a7e4af2093cb33a2f1b166c14720cd9580c679d5d7e9f",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 20 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 8 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "StructureActivityRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 8.738,
+      "completion_banners": [
+        "Structure activity and departures: 0 failures"
+      ],
+      "log": "windows-regressions/StructureActivityRegression.log.txt",
+      "log_sha256": "e4ed9678a4554cb0729812b860a5ff0fa1c5c4032449711881e66687a90c60ec",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 14 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 6 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "PersistentCaptureRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 13.178,
+      "completion_banners": [
+        "Persistent neutral ownership: 0 failures"
+      ],
+      "log": "windows-regressions/PersistentCaptureRegression.log.txt",
+      "log_sha256": "3114af263bfa7c18ad6d7bb2b1c03972edbd74e6126d5792c7767649bd2ce5f2",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "CampaignInteriorRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 35.539,
+      "completion_banners": [
+        "Campaign interiors: 0 failures"
+      ],
+      "log": "windows-regressions/CampaignInteriorRegression.log.txt",
+      "log_sha256": "952f077a587daccecd312ca5bcf8a0eda0e638109023a198a1be754334a55d56",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "HeroCampaignRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 72.321,
+      "completion_banners": [
+        "Hero campaigns: 0 failures"
+      ],
+      "log": "windows-regressions/HeroCampaignRegression.log.txt",
+      "log_sha256": "5f7a0b7fd03496fb2d7f1fa37ebc83f6b801c68d92aa8105d87685e87c6c9d9d",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "SkirmishPickerRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 1.805,
+      "completion_banners": [
+        "Skirmish picker: 0 failures"
+      ],
+      "log": "windows-regressions/SkirmishPickerRegression.log.txt",
+      "log_sha256": "bba9c7890064c18cb0517da2aacd26a3bc5eb1f2e82ecb566f3c09d5c6078257",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "WorkerDistributionRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 16.188,
+      "completion_banners": [
+        "Worker distribution: 0 failures"
+      ],
+      "log": "windows-regressions/WorkerDistributionRegression.log.txt",
+      "log_sha256": "fd77a1e248d59435dfecfe8779a054922460057a8f02fded69fed212341b2f59",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "CargoReturnRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 36.653,
+      "completion_banners": [
+        "Cargo return: 0 failures"
+      ],
+      "log": "windows-regressions/CargoReturnRegression.log.txt",
+      "log_sha256": "4179afdecd425e4c515db29c7b97aa2a9b1d98d68139215bd7b42909b324ee29",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "ResourceFieldRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 13.528,
+      "completion_banners": [
+        "Resource fields: 0 failures"
+      ],
+      "log": "windows-regressions/ResourceFieldRegression.log.txt",
+      "log_sha256": "584d51b8e04bc6457925d8b2b5057ed673ef1a8d90d3d9e05d76db82eb64d6ce",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "GarrisonCombatExitRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 54.666,
+      "completion_banners": [
+        "Garrison EmberworksMap.tscn / DamagedWarehouse: 0 failures",
+        "Garrison EmberworksMap.tscn / DamagedWarehouse: 0 failures",
+        "Garrison EmberworksMap.tscn / ServiceOffice: 0 failures",
+        "Garrison EmberworksMap.tscn / ServiceOffice: 0 failures",
+        "Garrison IndustrialCrossroads.tscn / SawtoothWorkshop: 0 failures",
+        "Garrison IndustrialCrossroads.tscn / CoolingHall: 0 failures",
+        "Garrison IndustrialCrossroads.tscn / ServiceOffice: 0 failures",
+        "Garrison IndustrialCrossroads.tscn / DamagedWarehouse: 0 failures",
+        "Garrison IndustrialCrossroads.tscn / SawtoothWorkshop: 0 failures",
+        "Garrison IndustrialCrossroads.tscn / ServiceOffice: 0 failures",
+        "Garrison CoastalFoundry.tscn / SawtoothWorkshop: 0 failures",
+        "Garrison CoastalFoundry.tscn / CoolingHall: 0 failures",
+        "Garrison combat and exits: 0 failures"
+      ],
+      "log": "windows-regressions/GarrisonCombatExitRegression.log.txt",
+      "log_sha256": "798e50344d6b98fd1207dcefd098f9f5e9dbf441d4eb659cddfa34a5e3041647",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "PointOfInterestRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 24.548,
+      "completion_banners": [
+        "Capturable facilities: 0 failures"
+      ],
+      "log": "windows-regressions/PointOfInterestRegression.log.txt",
+      "log_sha256": "11f00d136d4d9a3f9561b90b8aa30e2c8e6b39b52dd6fb24220b5a70e3e14b05",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "MapMetricsRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 1.144,
+      "completion_banners": [
+        "Map metrics: 0 failures"
+      ],
+      "log": "windows-regressions/MapMetricsRegression.log.txt",
+      "log_sha256": "dec0eceb23c638299ff6a7dd33e81af44019238af3eef034c17377a869c3c56f",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "GlacierHarvestRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 7.304,
+      "completion_banners": [
+        "Glacier harvest: 0 failures"
+      ],
+      "log": "windows-regressions/GlacierHarvestRegression.log.txt",
+      "log_sha256": "1ae47b024cb53d92f4acae6efd8b4ae1ecb58e3cf2e35db4ee62f79d8473360a",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "TerrainSightRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 4.967,
+      "completion_banners": [
+        "Terrain sight: 0 failures"
+      ],
+      "log": "windows-regressions/TerrainSightRegression.log.txt",
+      "log_sha256": "e33728ce330bcd0f75463e800bc615fc9c96cfa28913cbc8df51eededcbb43e1",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "CliffMeshRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 1.332,
+      "completion_banners": [
+        "Cliff mesh regression: 0 failures"
+      ],
+      "log": "windows-regressions/CliffMeshRegression.log.txt",
+      "log_sha256": "c4a639b4af0780c9376939bcffdc49e7b65e06d308bb7b10ee259ab6b358d5a5",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "AuthoredRelayRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 12.054,
+      "completion_banners": [
+        "Authored relay regression: 0 failures"
+      ],
+      "log": "windows-regressions/AuthoredRelayRegression.log.txt",
+      "log_sha256": "b79591479e7751e1f1ebfa9fe4f45b04d1e6377562167595055b2ee8cfcd3f93",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 20 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 8 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "AuthoredGarrisonRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 8.522,
+      "completion_banners": [
+        "Authored garrison regression: 0 failures"
+      ],
+      "log": "windows-regressions/AuthoredGarrisonRegression.log.txt",
+      "log_sha256": "3a330f1e5896d5ae7122987087e74a4ba5f0f444a44d6667258a13c2d05022f8",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "SaveNavigationTimingRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 1.255,
+      "completion_banners": [
+        "Save navigation timing: 0 failures"
+      ],
+      "log": "windows-regressions/SaveNavigationTimingRegression.log.txt",
+      "log_sha256": "5f75bb5b27bcbc59329b22eecec1e04c8724b4847e4a744c9623b79fc4a2d5d7",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "ContactApproachRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 38.629,
+      "completion_banners": [
+        "Contact approach: 0 failures"
+      ],
+      "log": "windows-regressions/ContactApproachRegression.log.txt",
+      "log_sha256": "912de2cc7022272514f9d904e3125c7b43ae868eba9b99c78a8ac49e1f8fbd89",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "NavigationRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 55.601,
+      "completion_banners": [
+        "PASS: obstacle routing, crowded movement, harvesting and factory egress"
+      ],
+      "log": "windows-regressions/NavigationRegression.log.txt",
+      "log_sha256": "eb632a49a8f54ad64e35430f7d7b0f66cffb7cf4630ba20603656a69a18d687c",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "MapPlayabilityRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 48.796,
+      "completion_banners": [
+        "Map playability: 0 failures"
+      ],
+      "log": "windows-regressions/MapPlayabilityRegression.log.txt",
+      "log_sha256": "67fa0d2880c3923c9b6b4835b71cda6b828a15ea2c7ea52009238260d5c96a24",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "MapPreviewRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 31.13,
+      "completion_banners": [
+        "Map preview regression: 0 failures"
+      ],
+      "log": "windows-regressions/MapPreviewRegression.log.txt",
+      "log_sha256": "3020eee70daae578e0fee58a3f644dcdc8923812c732307cc5671fcdd203aebd",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "MusicRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 1.433,
+      "completion_banners": [
+        "Music regression: 0 failures"
+      ],
+      "log": "windows-regressions/MusicRegression.log.txt",
+      "log_sha256": "70643532667280861139727311ca8ee092652a45fe1f96abac20167ce27fc767",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "SelectionBatchRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 5.428,
+      "completion_banners": [
+        "Selection batch: 0 failures; burst allocated 0 nodes"
+      ],
+      "log": "windows-regressions/SelectionBatchRegression.log.txt",
+      "log_sha256": "457b48d232b165c88939187df8e18f995d874cc95402ddec2d6f78138dfd491e",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "ProjectileSystemRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 4.151,
+      "completion_banners": [
+        "PASS: rounds save centrally, keep exact collision state and outlive shooters/targets"
+      ],
+      "log": "windows-regressions/ProjectileSystemRegression.log.txt",
+      "log_sha256": "1e0f6c2f39c961bedc965010cfec388770442fc3390493c1e3d21d4561518697",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "ProjectilePhysicsRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 6.383,
+      "completion_banners": [
+        "PASS: gravity arcs, led hits, dodged rounds, blockers, splash falloff, guided turn limits, rail lines, deterministic dispersion, all-faction anti-air and bomb building damage"
+      ],
+      "log": "windows-regressions/ProjectilePhysicsRegression.log.txt",
+      "log_sha256": "1e33b7badeab42f88b9c56966e59d0ef78855496bd147c569d930cf74c09c115",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "FixedWingFlightRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 11.902,
+      "completion_banners": [
+        "PASS: stands, taxi, runway take-off, bounded turns, station orbit, glide approach, rollout and taxi back, rearm, parked ground target, missile strike, level bombing"
+      ],
+      "log": "windows-regressions/FixedWingFlightRegression.log.txt",
+      "log_sha256": "2f52e2fdb3aa71cdcf550a958710b1c5a522f47333e878b832a0b4beb3dd8ed5",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "FixedWingSaveRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 5.709,
+      "completion_banners": [
+        "PASS: flight phase, kinematics, stand, stores and air orders restore exactly"
+      ],
+      "log": "windows-regressions/FixedWingSaveRegression.log.txt",
+      "log_sha256": "4f30bd8100b42a65290f8e2c4be2ce593b4bdec13edc07bf2a53c534f97f9ac1",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "AirSaveContinuityRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 4.141,
+      "completion_banners": [
+        "PASS: edge flight, weapon cooldowns, rearm timers and committed bomb stick restore",
+        "PASS: actual reload preserves jobs, actions, guard/follow orders, cargo, cooldowns and mission; resume works"
+      ],
+      "log": "windows-regressions/AirSaveContinuityRegression.log.txt",
+      "log_sha256": "933f0c86a6e70345ea5f41c33faef483b756a7e0bf5ddb2c642ebfeba9c4323e",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "RotorcraftCombatRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 6.569,
+      "completion_banners": [
+        "PASS: all-faction helicopter ammo, helipad rearm and resume; drone hold and one-way dive"
+      ],
+      "log": "windows-regressions/RotorcraftCombatRegression.log.txt",
+      "log_sha256": "712c4427878187afe7d83260716df186c408cc2759a798a1b986f5bbde3f1bda",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "FrontierCombatRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 3.565,
+      "completion_banners": [
+        "Frontier combat: 0 failures"
+      ],
+      "log": "windows-regressions/FrontierCombatRegression.log.txt",
+      "log_sha256": "8e73d88247266cd82a73eedc304caa1883dbc55a551a426d3b2f812a1dcd3fe6",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 16 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 7 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "AirfieldOperationsRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 18.367,
+      "completion_banners": [
+        "Airfield operations: 0 failures"
+      ],
+      "log": "windows-regressions/AirfieldOperationsRegression.log.txt",
+      "log_sha256": "2b57a4aa458e29699409e082598ebab745e4ea1b9019876f15ca4d4344e7c0da",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "GroundHeightAlignmentRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 8.039,
+      "completion_banners": [
+        "PASS: stationary height alignment, elevated restore and first-waypoint movement",
+        "PASS: actual reload preserves jobs, actions, guard/follow orders, cargo, cooldowns and mission; resume works"
+      ],
+      "log": "windows-regressions/GroundHeightAlignmentRegression.log.txt",
+      "log_sha256": "5fcee2b4133f2c5c276de4d5852501fa32707606e006908a4196b5fcc68768f5",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "GroundCrowdRecoveryRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 50.657,
+      "completion_banners": [
+        "PASS: obstacle routing, crowded movement, harvesting and factory egress"
+      ],
+      "log": "windows-regressions/GroundCrowdRecoveryRegression.log.txt",
+      "log_sha256": "7afa8ebada02cf9d0126d0c28ee7dad05bef64c55815fb0fe02ce9e4642faaed",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "SkirmishBuildReadinessRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 16.974,
+      "completion_banners": [
+        "Skirmish build readiness: 0 failures"
+      ],
+      "log": "windows-regressions/SkirmishBuildReadinessRegression.log.txt",
+      "log_sha256": "4c19c5ca9d22d0e2074300a73e83b9e2cd5f888552415879290f0feb1a28ae89",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "PresentationFeaturesRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 3.938,
+      "completion_banners": [
+        "Presentation features: 0 failures over 3 sections"
+      ],
+      "log": "windows-regressions/PresentationFeaturesRegression.log.txt",
+      "log_sha256": "8ba2749c8a4ed0e1b1270e8971f095838d705d075941b6122668560d63e5ed0f",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "SettingsRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 3.766,
+      "completion_banners": [
+        "PASS: actual settings round trip, legacy defaults, bounds and audio gain/mute",
+        "PASS: battle modal pause/order authority, cancel/save/write failure, camera and voice routing",
+        "Settings regression: 0 failures"
+      ],
+      "log": "windows-regressions/SettingsRegression.log.txt",
+      "log_sha256": "5a806309714fa9aaf941facdd88084b8cda11f570c5b88a55e4b5e1f3d45f07e",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [
+        "ERROR: Cannot save file 'user://settings-missing-32060/options.tres.pending.tres'."
+      ]
+    },
+    {
+      "name": "UnitInfoTextRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 6.071,
+      "completion_banners": [
+        "Unit info text regression: 0 failures"
+      ],
+      "log": "windows-regressions/UnitInfoTextRegression.log.txt",
+      "log_sha256": "1ac70e510adb6bea372921dd29ee4213d347f5d1da7ab654787840f2c40b676f",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "BattleHudProductionRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 25.855,
+      "completion_banners": [
+        "Battle HUD production: 0 failures over 6 sections"
+      ],
+      "log": "windows-regressions/BattleHudProductionRegression.log.txt",
+      "log_sha256": "f3d1644cfc6de6b7272e4cbbe92d56d67e82c79a824e28a95316244a4087f804",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 20 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 8 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "BattleAftermathRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 1.34,
+      "completion_banners": [
+        "Battle aftermath regression: 0 failures"
+      ],
+      "log": "windows-regressions/BattleAftermathRegression.log.txt",
+      "log_sha256": "1d2d32cefed994df49deb035d507822bca4f5175e753db0b221f3cc5fd9caf19",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "MapPassageRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 76.748,
+      "completion_banners": [
+        "Map passages: 0 failures"
+      ],
+      "log": "windows-regressions/MapPassageRegression.log.txt",
+      "log_sha256": "1df581e1ffc0d8029f78499d386a7906c94ed27b7244ff4d8736cef9b74fa725",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "ObjectMaterialsRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 14.569,
+      "completion_banners": [
+        "Object materials: 0 failures, 344 models, 7323 textured surfaces, families [\"rubber\", \"metal\", \"concrete\", \"stone\", \"snow\", \"bark\", \"needles\", \"grass\", \"fabric\", \"skin\", \"wood\", \"foliage\"]"
+      ],
+      "log": "windows-regressions/ObjectMaterialsRegression.log.txt",
+      "log_sha256": "33cc02a16352701a53a2bc3b93f95bad54fa0de0e98700b454d4971e9b96058a",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "RuntimeShutdownRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 1.809,
+      "completion_banners": [
+        "Runtime shutdown: 0 failures"
+      ],
+      "log": "windows-regressions/RuntimeShutdownRegression.log.txt",
+      "log_sha256": "865684c8795fc58a2213c5c19d10afa782a2b072e5da04a5fc463206665c1004",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "EnvironmentEffectsRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 10.462,
+      "completion_banners": [
+        "Environment effects regression: 0 failures"
+      ],
+      "log": "windows-regressions/EnvironmentEffectsRegression.log.txt",
+      "log_sha256": "a9ef3766a4277265080b2f4c265188f2c6744a597ef6250b3b65daedd6df0aad",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "WaterFlowRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 1.245,
+      "completion_banners": [
+        "Water flow regression: 0 failures"
+      ],
+      "log": "windows-regressions/WaterFlowRegression.log.txt",
+      "log_sha256": "08c6e75950f92fa711092a93e59f822841de3915b4ba739cec26c46765b16cfd",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "WaterHybridRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 1.891,
+      "completion_banners": [
+        "Hybrid water regression: 0 failures"
+      ],
+      "log": "windows-regressions/WaterHybridRegression.log.txt",
+      "log_sha256": "620cebc68496547088e98249504f40365aebc5d8763bada1304a03ae7abfab24",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "StrategicPolishRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 6.838,
+      "completion_banners": [
+        "Strategic polish: 0 failures"
+      ],
+      "log": "windows-regressions/StrategicPolishRegression.log.txt",
+      "log_sha256": "f5f847bc4b38d5795c448352341556141e385d76dcb759fc19d1568729ad0c6b",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "MicroControlsRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 13.718,
+      "completion_banners": [
+        "PASS Tab classes/full selection, pause, menu/text focus and deaths",
+        "PASS gather/follow rallies, incompatible class fallback, target loss and clear",
+        "PASS patrol shortcut, mixed units, loops, disk restore, queue/skip and override",
+        "Micro controls: 0 failures"
+      ],
+      "log": "windows-regressions/MicroControlsRegression.log.txt",
+      "log_sha256": "af2a23e4cbe9745bb5cb671846115dcaec0b549f9e9bed718e62fd0d6d733def",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "GroundVehicleMotionRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 13.338,
+      "completion_banners": [
+        "PASS actual launch ramp, braking, settling, queued reversal, pause/load, rank and Stop; early=[0.0, 0.0, 0.29994964599609, 0.60001373291016]",
+        "PASS infantry, engineers and ghosted units retain their movement",
+        "Ground vehicle motion: 0 failures"
+      ],
+      "log": "windows-regressions/GroundVehicleMotionRegression.log.txt",
+      "log_sha256": "660b3f1a23151f18f50ca9febbc3eb1ca0d426786e6c1c2363f697e54934ebcc",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "MixedArmyMovementRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 57.589,
+      "completion_banners": [
+        "PASS: obstacle routing, crowded movement, harvesting and factory egress"
+      ],
+      "log": "windows-regressions/MixedArmyMovementRegression.log.txt",
+      "log_sha256": "c304c75dd42895251e5eb747c9756ba8155b5c7d19a3e0154bf00e81f97d4f0b",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "CombatPresentationRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 1.247,
+      "completion_banners": [
+        "Combat presentation: 0 failures"
+      ],
+      "log": "windows-regressions/CombatPresentationRegression.log.txt",
+      "log_sha256": "975db84f1346f1c5c11033ad5e9fa1df1ad7aaad18cc34b110a3432dbc7b7675",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "CombatAudioRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 6.028,
+      "completion_banners": [
+        "PASS playable effects assets, persistent/bounded gain, legacy defaults and unique limiters",
+        "PASS actual bastion projectile, hit, infantry/vehicle/structure destruction",
+        "PASS nonrepeating sample variants and rocket explosive impact",
+        "PASS actual cannon/missile/bomb/AA release and hit cues preserve damage",
+        "PASS destruction focus preserves infantry cues and restores weapon gain",
+        "PASS current observation/offscreen filters, merge, restoration suppression and pause/mute",
+        "PASS Settings sample/Cancel, saturated 24-voice cap, destruction priority and finished gate",
+        "PASS damaged battle disk save/load omits active sounds and resumes without reconstruction audio",
+        "PASS actual helix projectile, hit, infantry/vehicle/structure destruction",
+        "PASS nonrepeating sample variants and rocket explosive impact",
+        "PASS actual cannon/missile/bomb/AA release and hit cues preserve damage",
+        "PASS destruction focus preserves infantry cues and restores weapon gain",
+        "PASS current observation/offscreen filters, merge, restoration suppression and pause/mute",
+        "PASS Settings sample/Cancel, saturated 24-voice cap, destruction priority and finished gate",
+        "PASS damaged battle disk save/load omits active sounds and resumes without reconstruction audio",
+        "Combat audio regression: 0 failures"
+      ],
+      "log": "windows-regressions/CombatAudioRegression.log.txt",
+      "log_sha256": "5e9f49d8c8669b79f9c86ebb97e896b75573d56e1da8858be31541a81f4e52ab",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "EndgamePresentationRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 4.212,
+      "completion_banners": [
+        "PASS smooth music speech duck, pause/mute recovery, Effects exclusion and scene cleanup",
+        "Endgame presentation regression: 0 failures"
+      ],
+      "log": "windows-regressions/EndgamePresentationRegression.log.txt",
+      "log_sha256": "a5c7f619a0924aaf8e34bb7b8784b26b422f5ff8dd55e87e99c00b6c7dd907eb",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "OpeningGuidanceRegression",
+      "passed": false,
+      "returncode": 1,
+      "timed_out": false,
+      "seconds": 7.904,
+      "completion_banners": [],
+      "log": "windows-regressions/OpeningGuidanceRegression.log.txt",
+      "log_sha256": "53e4714ac483a8467052dc6a7b378755a958ce161429ed50394e4da94e494807",
+      "errors": [
+        "ERROR: Damaged convoy lacks repair guidance",
+        "ERROR: Behavior lesson omits manual-order authority",
+        "ERROR: Capture approach lacks attack-move guidance",
+        "ERROR: Wounded troops lack contextual recovery guidance",
+        "Missing explicit test completion banner"
+      ],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "PlacementFeedbackRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 6.98,
+      "completion_banners": [
+        "Placement feedback: 0 failures"
+      ],
+      "log": "windows-regressions/PlacementFeedbackRegression.log.txt",
+      "log_sha256": "4f889f6ed50972ffdf39dffa20c0fe9762e5429e30a91f3de1c8c5218b6f0f23",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "DirectOrdersRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 21.743,
+      "completion_banners": [
+        "Direct orders: 0 failures"
+      ],
+      "log": "windows-regressions/DirectOrdersRegression.log.txt",
+      "log_sha256": "7c6bba6ea57409c4c1f1e21cd7e3f8684040354f87ccf119b852fcf411fb55a8",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 14 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 5 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "KeyBindingsRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 5.159,
+      "completion_banners": [
+        "PASS versioned key persistence, legacy defaults, corrupt/conflicting/reserved rejection",
+        "PASS live capture, conflict, modifier hold, Esc/per-action reset, rollback and held-key release",
+        "PASS real Shift+F queue, Shift+group, explicit chord priority and Alt+Ctrl+K",
+        "PASS bastion remapped pause/attack/camera/rotation/groups/queue/menu/quicksave/load",
+        "PASS live capture, conflict, modifier hold, Esc/per-action reset, rollback and held-key release",
+        "PASS real Shift+F queue, Shift+group, explicit chord priority and Alt+Ctrl+K",
+        "PASS helix remapped pause/attack/camera/rotation/groups/queue/menu/quicksave/load",
+        "Key bindings: 0 failures"
+      ],
+      "log": "windows-regressions/KeyBindingsRegression.log.txt",
+      "log_sha256": "acc59796d2bc7ae41246c41d6eecbdfddea959a7378ecbcfac0bdaba364dbce3",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 16 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 6 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "SelectionRosterRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 35.477,
+      "completion_banners": [
+        "Selection roster: 0 failures"
+      ],
+      "log": "windows-regressions/SelectionRosterRegression.log.txt",
+      "log_sha256": "bdc1077139051d69773af2d8463fcd06b8ede7b53b3ee92d4e66677d993cd6a4",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "RallyRetargetRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 152.093,
+      "completion_banners": [
+        "Rally retarget: 0 failures"
+      ],
+      "log": "windows-regressions/RallyRetargetRegression.log.txt",
+      "log_sha256": "f0d359ceadb96a4a6b30cc2d047bf7279ac3bcfb38bf771f4a2744b094a8cc63",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "RallyControlsRegression",
+      "passed": false,
+      "returncode": 1,
+      "timed_out": false,
+      "seconds": 23.306,
+      "completion_banners": [],
+      "log": "windows-regressions/RallyControlsRegression.log.txt",
+      "log_sha256": "76cc4b053c74e6c3d396550d48991452d96f6eea5bf25247c68af987c3e1e31c",
+      "errors": [
+        "ERROR: Unassigned rally status missing",
+        "ERROR: Resource rally not described",
+        "ERROR: Point rally not described",
+        "ERROR: Friendly rally lost faction name",
+        "ERROR: Loaded producer shows stale rally controls",
+        "ERROR: Unassigned rally status missing",
+        "ERROR: Resource rally not described",
+        "ERROR: Point rally not described",
+        "ERROR: Friendly rally lost faction name",
+        "ERROR: Loaded producer shows stale rally controls",
+        "ERROR: Unassigned rally status missing",
+        "ERROR: Resource rally not described",
+        "ERROR: Point rally not described",
+        "ERROR: Friendly rally lost faction name",
+        "ERROR: Loaded producer shows stale rally controls",
+        "Missing explicit test completion banner"
+      ],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "LocalizationRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 4.025,
+      "completion_banners": [
+        "Localization regression: 0 failures"
+      ],
+      "log": "windows-regressions/LocalizationRegression.log.txt",
+      "log_sha256": "997e0da5e3c6ca2c36bfc4ef9cae9cda67ba3c221d1df1704db2000fdab49080",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    }
+  ],
+  "original_native_summary": {
+    "path": "windows-regressions/original-native-summary.json",
+    "sha256": "74688cda85a05ebee6fdac5d6e4f9c15b1127a241a9d6168b4bd59fac71e78c9"
+  },
+  "status": "All 73 effective Windows regression suites passed. Corrected OpeningGuidance and RallyControls fixtures each passed English and Chinese in isolated user directories. Existing teardown diagnostics are retained.",
+  "corrected_fixture_reruns_pending": false,
+  "final_artifact_refresh": {
+    "metadata": {
+      "path": "windows-regressions/final-locale-build-0548.json",
+      "sha256": "e6328da3b9f29c44a6ad4f218773655beec2b2fa2c95baa12bf230414f563e1f",
+      "bytes": 2566
+    },
+    "baseline_pck_manifest": {
+      "path": "windows-regressions/baseline-normal-pck-manifest.json",
+      "sha256": "5758b32cff0b385dd0a0f4d6b20830b3940ce0f8d0c2ca9ef40fcb451576525f",
+      "bytes": 759909
+    },
+    "refreshed_pck_manifest": {
+      "path": "windows-regressions/refreshed-normal-pck-manifest.json",
+      "sha256": "fba208935b173ab4e9c99c22a326a652dbc0575fdf729b0a8c5fdae012cef994",
+      "bytes": 759909
+    },
+    "steps": [
+      {
+        "name": "import",
+        "returncode": 0,
+        "log": {
+          "path": "windows-regressions/polish-windows-final-locale-0548-import.log.txt",
+          "sha256": "1f6afb48483d4997cd847c536fbb5ab3c08008392a93a71193c35c4da347bca3",
+          "bytes": 1294
+        },
+        "diagnostics": []
+      },
+      {
+        "name": "export",
+        "returncode": 0,
+        "log": {
+          "path": "windows-regressions/polish-windows-final-locale-0548-export.log.txt",
+          "sha256": "1fc88067fdc5ccd8a37dd06b32f06cf4655fde97bbb95de88e2ebe831fe94ee7",
+          "bytes": 676934
+        },
+        "diagnostics": []
+      },
+      {
+        "name": "baseline-manifest",
+        "returncode": 0,
+        "log": {
+          "path": "windows-regressions/polish-windows-final-locale-0548-baseline-manifest.log.txt",
+          "sha256": "bbcfb1a2a0dc1e852547364b1c0c5de62fcd94465e2287190a271138e4caf2ae",
+          "bytes": 99
+        },
+        "diagnostics": []
+      },
+      {
+        "name": "refreshed-manifest",
+        "returncode": 0,
+        "log": {
+          "path": "windows-regressions/polish-windows-final-locale-0548-refreshed-manifest.log.txt",
+          "sha256": "bbcfb1a2a0dc1e852547364b1c0c5de62fcd94465e2287190a271138e4caf2ae",
+          "bytes": 99
+        },
+        "diagnostics": []
+      }
+    ]
+  },
+  "queued_input_probe": {
+    "platform": "macOS official editor headless; loads exact refreshed Windows EXE embedded PCK",
+    "pack_sha256": "c07c4c1b79f291d501245378f6e98bbc3d62b7a269eb658719faeca5a50bb958",
+    "native_windows_ui_evidence": false,
+    "passed": true,
+    "returncode": 0,
+    "unpaused_f1_on_off": true,
+    "paused_f1_on_off": true,
+    "idle_worker_handler_present": false,
+    "idle_worker_badge_present": false,
+    "log": {
+      "path": "windows-regressions/unit-info-live-input-probe.log.txt",
+      "sha256": "93e53462d0713df69d7645974732987132da3a48043a8c0121bf84cbdd9615fb",
+      "bytes": 288
+    },
+    "external_probe": {
+      "path": "windows-regressions/UnitInfoLiveInputProbe.gd.txt",
+      "sha256": "3ab4d66984dbffe4bad8931fdf74b914080c7b126023dd6bafe5d7590613e371",
+      "bytes": 1437
+    },
+    "runtime_edit_needed": false
+  },
+  "corrected_fixture_reruns": {
+    "passed": true,
+    "platform": "Native Windows 11; official Godot 4.7.2 editor headless, unchanged normal release EXE embedded PCK",
+    "pack_sha256": "c07c4c1b79f291d501245378f6e98bbc3d62b7a269eb658719faeca5a50bb958",
+    "copied_pack_sha256": "c07c4c1b79f291d501245378f6e98bbc3d62b7a269eb658719faeca5a50bb958",
+    "editor_sha256": "ab1824f85bfd8e0e4128182c000c4003a3e042245b2967848d089b2a04b22424",
+    "config_delta": {
+      "application/config/custom_user_dir_name": "OpenRTSPolishLocale-20261024-0626",
+      "application/config/use_custom_user_dir": true
+    },
+    "expected_user_data_dir": "C:/Users/Administrator/AppData/Roaming/OpenRTSPolishLocale-20261024-0626",
+    "pinned_engine_commit": "ed1daf0bf",
+    "override_source": "https://github.com/godotengine/godot/blob/ed1daf0bf/core/config/project_settings.cpp#L640-L654",
+    "main_pack_isolation_proven_before_locale_tests": true,
+    "user_data_restored_or_deleted": false,
+    "started_utc": "2026-10-24T06:27:07.8417887Z",
+    "finished_utc": "2026-10-24T06:28:12.0337577Z",
+    "results": [
+      {
+        "name": "isolation-build",
+        "passed": true,
+        "returncode": 0,
+        "seconds": 0.224,
+        "expected_user_data_dir": "C:/Users/Administrator/AppData/Roaming/OpenRTSPolishLocale-20261024-0626",
+        "isolation_marker_passed": true,
+        "known_teardown": [],
+        "unexpected_errors": [],
+        "log": {
+          "path": "windows-regressions/locale-isolated-0626/isolation-build.log",
+          "sha256": "420054dd2a77537353c13e0b81b58ad80fff923f1458a74525decec8ab63b2e0",
+          "bytes": 317
+        },
+        "stdout": {
+          "path": "windows-regressions/locale-isolated-0626/isolation-build.stdout.log",
+          "sha256": "a59f2edbc946888d7788a77a73921580c02408384e172be0b308822ab2317d8a",
+          "bytes": 315
+        },
+        "stderr": {
+          "path": "windows-regressions/locale-isolated-0626/isolation-build.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      {
+        "name": "isolation-main-pack",
+        "passed": true,
+        "returncode": 0,
+        "seconds": 0.28,
+        "expected_user_data_dir": "C:/Users/Administrator/AppData/Roaming/OpenRTSPolishLocale-20261024-0626",
+        "isolation_marker_passed": true,
+        "known_teardown": [],
+        "unexpected_errors": [],
+        "log": {
+          "path": "windows-regressions/locale-isolated-0626/isolation-main-pack.log",
+          "sha256": "7f61d1f419ddded19b942db6d5a4a8295f809677ddc0db8e8f631709d211c840",
+          "bytes": 349
+        },
+        "stdout": {
+          "path": "windows-regressions/locale-isolated-0626/isolation-main-pack.stdout.log",
+          "sha256": "e7b70c81767c9ca595390388b6c9cd8a4dacac559c7267ee99a7158e5834874e",
+          "bytes": 347
+        },
+        "stderr": {
+          "path": "windows-regressions/locale-isolated-0626/isolation-main-pack.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      {
+        "name": "OpeningGuidance-en",
+        "passed": true,
+        "returncode": 0,
+        "seconds": 7.643,
+        "expected_user_data_dir": "C:/Users/Administrator/AppData/Roaming/OpenRTSPolishLocale-20261024-0626",
+        "isolation_marker_passed": true,
+        "known_teardown": [],
+        "unexpected_errors": [],
+        "log": {
+          "path": "windows-regressions/locale-isolated-0626/OpeningGuidance-en.log",
+          "sha256": "0c317d1569dccd5b65b3f78c7da6562dbb344d0b5491da85c4b733f0ecdc7d49",
+          "bytes": 616
+        },
+        "stdout": {
+          "path": "windows-regressions/locale-isolated-0626/OpeningGuidance-en.stdout.log",
+          "sha256": "ee2e773919dbb29e03893314fd79c32ae5c43997697d8cf025e94f26639935eb",
+          "bytes": 614
+        },
+        "stderr": {
+          "path": "windows-regressions/locale-isolated-0626/OpeningGuidance-en.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      {
+        "name": "OpeningGuidance-zh_CN",
+        "passed": true,
+        "returncode": 0,
+        "seconds": 7.641,
+        "expected_user_data_dir": "C:/Users/Administrator/AppData/Roaming/OpenRTSPolishLocale-20261024-0626",
+        "isolation_marker_passed": true,
+        "known_teardown": [],
+        "unexpected_errors": [],
+        "log": {
+          "path": "windows-regressions/locale-isolated-0626/OpeningGuidance-zh_CN.log",
+          "sha256": "d56a9872ba05c892c8b58bfaab593c74d3a78aeeb7625d95c3997c7f4dcc761f",
+          "bytes": 634
+        },
+        "stdout": {
+          "path": "windows-regressions/locale-isolated-0626/OpeningGuidance-zh_CN.stdout.log",
+          "sha256": "5ae28636a46d7e678bb199867de83d14878a07155a30116b44674a279a49bc4f",
+          "bytes": 632
+        },
+        "stderr": {
+          "path": "windows-regressions/locale-isolated-0626/OpeningGuidance-zh_CN.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      {
+        "name": "RallyControls-en",
+        "passed": true,
+        "returncode": 0,
+        "seconds": 23.647,
+        "expected_user_data_dir": "C:/Users/Administrator/AppData/Roaming/OpenRTSPolishLocale-20261024-0626",
+        "isolation_marker_passed": true,
+        "known_teardown": [
+          "WARNING: 16 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+          "ERROR: 7 resources still in use at exit (run with --verbose for details)."
+        ],
+        "unexpected_errors": [],
+        "log": {
+          "path": "windows-regressions/locale-isolated-0626/RallyControls-en.log",
+          "sha256": "5270abfc39980f6c5e81ba44636d4ea6d21a961f62c842c9bfe6d976b6d3ce37",
+          "bytes": 1991
+        },
+        "stdout": {
+          "path": "windows-regressions/locale-isolated-0626/RallyControls-en.stdout.log",
+          "sha256": "2b187ffcb1bfc4141be9a3b1b52c8c4a0c2bdd9d376fd0b9646968974ab04840",
+          "bytes": 1739
+        },
+        "stderr": {
+          "path": "windows-regressions/locale-isolated-0626/RallyControls-en.stderr.log",
+          "sha256": "88b58c2d26d195cf676eb936b695e2ce91749292e2593633f7f8b0f11170248b",
+          "bytes": 250
+        }
+      },
+      {
+        "name": "RallyControls-zh_CN",
+        "passed": true,
+        "returncode": 0,
+        "seconds": 23.819,
+        "expected_user_data_dir": "C:/Users/Administrator/AppData/Roaming/OpenRTSPolishLocale-20261024-0626",
+        "isolation_marker_passed": true,
+        "known_teardown": [
+          "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+          "ERROR: 5 resources still in use at exit (run with --verbose for details)."
+        ],
+        "unexpected_errors": [],
+        "log": {
+          "path": "windows-regressions/locale-isolated-0626/RallyControls-zh_CN.log",
+          "sha256": "d4a49561366a5d1de255529bd487a4dc4acedb904f5258bc13cfb6b3b0f17ce1",
+          "bytes": 2042
+        },
+        "stdout": {
+          "path": "windows-regressions/locale-isolated-0626/RallyControls-zh_CN.stdout.log",
+          "sha256": "95097729eb9233d84930a0622f0d23dd1f4b86cfd3766ba00e52080e2aa1536b",
+          "bytes": 1790
+        },
+        "stderr": {
+          "path": "windows-regressions/locale-isolated-0626/RallyControls-zh_CN.stderr.log",
+          "sha256": "353ce5989fb0143544e2584186c6d981d83d3c91a7b9c8c7e0b38ba57ed7359e",
+          "bytes": 250
+        }
+      }
+    ],
+    "summary": {
+      "path": "windows-regressions/locale-isolated-0626/summary.json",
+      "sha256": "8195deec85ef2a7a7389ad71fc01e9d7720ace3c3c9e1be356d45a3858a09aa7",
+      "bytes": 8104
+    },
+    "override": {
+      "path": "windows-regressions/locale-isolated-0626/override.cfg.txt",
+      "sha256": "df6c2f6a5ff67e217a8420a8c0783fe77f98163455358b98f6af531315c31ac6",
+      "bytes": 110
+    },
+    "runner": {
+      "path": "windows-regressions/locale-isolated-0626/runner.py.txt",
+      "sha256": "e56eba0652b1caad44294767892f8097cbb44f385d23518b7241e76bfbbe266e",
+      "bytes": 6291
+    },
+    "proof_project": {
+      "path": "windows-regressions/locale-isolated-0626/proof-project.godot.txt",
+      "sha256": "7f3d45b7378290fde06121059a39b805c28f977af4c3372217b94123ac8c62c9",
+      "bytes": 180
+    },
+    "proof_builder": {
+      "path": "windows-regressions/locale-isolated-0626/proof-build.gd.txt",
+      "sha256": "59b951bd35461b650805f42da271339b3401502c1ba38f331bfb6b039597482d",
+      "bytes": 799
+    },
+    "proof_script": {
+      "path": "windows-regressions/locale-isolated-0626/proof-script.gd.txt",
+      "sha256": "1519f4daab46e3fa5b1afcaf99946217302eaf81e300cc1a1550af2c93cfde5c",
+      "bytes": 645
+    },
+    "proof_pack_sha256": "71c3d28bdbf13054c9cf02c36d82758a6ff7ded5144a3410590bc3fd5117b5e7",
+    "locale_wrappers": [
+      {
+        "path": "windows-regressions/locale-isolated-0626/OpeningGuidanceLocaleFixedProbe.gd.txt",
+        "sha256": "b68978d08f52a4eeb63212d43d33693a1b60211ce7aee148f47e8dea74e496eb",
+        "bytes": 1659
+      },
+      {
+        "path": "windows-regressions/locale-isolated-0626/RallyControlsLocaleFixedProbe.gd.txt",
+        "sha256": "6e8e216c6ae8a3aea2bc8ab2586fe9549c6d88e300d9ffa7f4db6f41009b934b",
+        "bytes": 1806
+      }
+    ]
+  },
+  "effective_passed_suites": 73,
+  "effective_failed_suites": [],
+  "effective_result_note": "Original batch remains preserved as 71 passing plus 2 locale-dependent fixture failures. Both corrected fixtures passed in English and Chinese against c07\u2026; PCK manifests prove only those fixture bytecodes changed from the original 73-suite runtime. Original aggregate fields describe that original batch; effective aggregate includes corrected reruns.",
+  "updated_utc": "2026-10-24T06:29:54.666959+00:00"
+}

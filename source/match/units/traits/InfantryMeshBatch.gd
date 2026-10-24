@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Cache = preload("res://source/utils/RuntimeCache.gd")
+
 # Run after equipment and ObjectMaterials.apply, before posing the rig. Only
 # decorative siblings are baked: articulated parents and gameplay markers stay
 # intact. Cache keys retain immutable source resources, avoiding instance-ID reuse.
@@ -12,7 +14,6 @@ const CHANNELS = [
 	Mesh.ARRAY_TEX_UV,
 	Mesh.ARRAY_TEX_UV2
 ]
-static var _meshes = {}
 
 
 static func apply(rig):
@@ -21,6 +22,7 @@ static func apply(rig):
 
 
 static func _batch(parent, carried):
+	var meshes = Cache.bucket("infantry_batch_meshes")
 	var groups = {}
 	for child in parent.get_children():
 		_batch(child, carried)
@@ -45,14 +47,14 @@ static func _batch(parent, carried):
 		var source_key = []
 		for piece in pieces:
 			source_key.append([piece.mesh, piece.transform])
-		if not _meshes.has(source_key):
+		if not meshes.has(source_key):
 			# Equipment may use fresh primitives; cap retained resources across saves.
-			if _meshes.size() >= MAX_CACHED_MESHES:
-				_meshes.erase(_meshes.keys()[0])
-			_meshes[source_key] = _merge(pieces)
+			if meshes.size() >= MAX_CACHED_MESHES:
+				meshes.erase(meshes.keys()[0])
+			meshes[source_key] = _merge(pieces)
 		var batch = MeshInstance3D.new()
 		batch.name = "InfantryDetailBatch"
-		batch.mesh = _meshes[source_key]
+		batch.mesh = meshes[source_key]
 		batch.material_override = key[0]
 		batch.visible = key[2]
 		batch.cast_shadow = key[3]

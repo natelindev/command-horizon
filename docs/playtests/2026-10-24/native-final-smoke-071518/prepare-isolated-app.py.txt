@@ -1,0 +1,177 @@
+"""Prepare an isolated copy of the completed macOS release; do not launch engines."""
+
+from datetime import datetime, timezone
+import hashlib
+import json
+from pathlib import Path
+import shutil
+import struct
+import subprocess
+
+ROOT = Path('/Users/linlilu/godot-open-rts')
+report_path = ROOT / 'docs/playtests/2026-10-24/final-macos-packaged.json'
+report = json.loads(report_path.read_text())
+assert report.get('complete') and report.get('packaged_checks_passed'), 'Final package gate is not complete'
+assert report.get('passed_count') == 75, 'Final package did not pass all 75 suites'
+stamp = datetime.now(timezone.utc).strftime('%H%M%S')
+stage = ROOT / 'build/polish-2026-10-24' / ('native-final-smoke-' + stamp)
+stage.mkdir(exist_ok=False)
+archive = ROOT / 'docs/playtests/2026-10-24' / ('native-final-smoke-' + stamp)
+archive.mkdir(exist_ok=False)
+original_app = ROOT / 'build/polish-2026-10-24/Open RTS.app'
+app = stage / 'Open_RTS_Final_Smoke.app'
+proof_app = stage / 'Isolation_Proof.app'
+proof_project = stage / 'proof-project'
+proof_project.mkdir()
+(proof_project / '.godot').mkdir()
+(proof_project / '.godot/global_script_class_cache.cfg').write_text('list=[]\n')
+name = 'OpenRTSFinalSmoke-20261024-' + stamp
+expected_dir = Path.home() / 'Library/Application Support' / name
+assert not expected_dir.exists(), 'Isolation directory must be fresh'
+
+
+def digest(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def file_record(path):
+    return {'path': str(path), 'bytes': path.stat().st_size, 'sha256': digest(path)}
+
+
+def normalized_unsigned_engine(path):
+    # codesign changes __LINKEDIT reservation sizes even after removing signatures.
+    # Normalize only that load-command field; every other byte must still match.
+    content = bytearray(path.read_bytes())
+    assert content[:4] == bytes.fromhex('cafebabe'), 'Expected universal Mach-O'
+    count = struct.unpack_from('>I', content, 4)[0]
+    fields = []
+    for index in range(count):
+        _, _, offset, _, _ = struct.unpack_from('>IIIII', content, 8 + index * 20)
+        assert content[offset:offset + 4] == bytes.fromhex('cffaedfe'), 'Expected little-endian Mach-O64'
+        commands = struct.unpack_from('<I', content, offset + 16)[0]
+        cursor = offset + 32
+        found = False
+        for _ in range(commands):
+            command, size = struct.unpack_from('<II', content, cursor)
+            assert size >= 8
+            if command == 0x19 and content[cursor + 8:cursor + 24].rstrip(b'\0') == b'__LINKEDIT':
+                position = cursor + 32
+                fields.append({'offset': position, 'original_value': struct.unpack_from('<Q', content, position)[0]})
+                struct.pack_into('<Q', content, position, 0)
+                found = True
+            cursor += size
+        assert found, 'Missing __LINKEDIT load command'
+    return {'sha256': hashlib.sha256(content).hexdigest(), 'normalized_linkedit_vmsize_fields': fields}
+
+
+original_files = {
+    'pack': ROOT / report['artifacts']['pack'],
+    'executable': ROOT / report['artifacts']['executable'],
+    'archive': ROOT / report['artifacts']['archive'],
+}
+for key, path in original_files.items():
+    assert digest(path) == report['artifacts'][key + '_sha256'], 'Final artifact changed: ' + key
+
+shutil.copytree(original_app, app, symlinks=True)
+override = '[application]\nconfig/use_custom_user_dir=true\nconfig/custom_user_dir_name=' + json.dumps(name) + '\n'
+(app / 'Contents/MacOS/override.cfg').write_text(override)
+for relative in ['Contents/MacOS', 'Contents/Resources']:
+    (proof_app / relative).mkdir(parents=True)
+shutil.copy2(original_app / 'Contents/Info.plist', proof_app / 'Contents/Info.plist')
+shutil.copy2(original_files['executable'], proof_app / 'Contents/MacOS/Open RTS')
+(proof_app / 'Contents/MacOS/override.cfg').write_text(override)
+
+# The proof fallback is already isolated if override loading is unavailable.
+(proof_project / 'project.godot').write_text(
+    'config_version=5\n[application]\nconfig/name="Isolation Proof"\n'
+    'config/use_custom_user_dir=true\nconfig/custom_user_dir_name="OpenRTSFinalSmokeProofFallback-20261024-' + stamp + '"\n'
+    'run/main_scene="res://Proof.tscn"\n'
+)
+(proof_project / 'Proof.tscn').write_text(
+    '[gd_scene load_steps=2 format=3]\n'
+    '[ext_resource type="Script" path="res://Proof.gd" id="1"]\n'
+    '[node name="IsolationProof" type="Node"]\nscript = ExtResource("1")\n'
+)
+(proof_project / 'Proof.gd').write_text('''extends Node
+
+func _ready():
+    var actual = OS.get_user_data_dir()
+    var expected = EXPECTED_DIRECTORY
+    var result = {
+        "actual_user_dir": actual,
+        "expected_user_dir": expected,
+        "release": OS.has_feature("release"),
+        "custom": ProjectSettings.get_setting("application/config/use_custom_user_dir"),
+        "custom_name": ProjectSettings.get_setting("application/config/custom_user_dir_name"),
+        "executable": OS.get_executable_path()
+    }
+    print("NATIVE_ISOLATION_PROOF ", JSON.stringify(result))
+    if actual != expected or not result.release or not result.custom:
+        push_error("Release executable did not use the exact isolated user directory")
+        get_tree().quit(2)
+        return
+    var file = FileAccess.open("user://isolation-proof.json", FileAccess.WRITE)
+    if file == null:
+        push_error("Isolation proof marker could not be written")
+        get_tree().quit(3)
+        return
+    file.store_string(JSON.stringify(result))
+    file.close()
+    print("NATIVE_ISOLATION_PROOF_PASS")
+    get_tree().quit(0)
+'''.replace('EXPECTED_DIRECTORY', json.dumps(str(expected_dir))))
+builder = stage / 'build-proof-pack.gd'
+builder.write_text('''extends SceneTree
+
+func _initialize():
+    var project = PROOF_PROJECT
+    var pack = PCKPacker.new()
+    if pack.pck_start(PROOF_PACK) != OK:
+        quit(2)
+        return
+    for name in ["project.godot", "Proof.gd", "Proof.tscn", ".godot/global_script_class_cache.cfg"]:
+        if pack.add_file("res://" + name, project.path_join(name)) != OK:
+            quit(3)
+            return
+    quit(0 if pack.flush() == OK else 4)
+'''.replace('PROOF_PROJECT', json.dumps(str(proof_project))).replace('PROOF_PACK', json.dumps(str(proof_app / 'Contents/Resources/Open RTS.pck'))))
+
+# Adding the isolated-data override is confined to this disposable app copy.
+sign = subprocess.run(['codesign', '--force', '--deep', '--sign', '-', str(app)], text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+(archive / 'copy-codesign.log.txt').write_text(sign.stdout)
+assert sign.returncode == 0, 'Cannot sign isolated app copy'
+verify = subprocess.run(['codesign', '--verify', '--deep', '--strict', str(app)], text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+(archive / 'copy-codesign-verify.log.txt').write_text(verify.stdout)
+assert verify.returncode == 0, 'Isolated app copy signature is invalid'
+assert digest(app / 'Contents/Resources/Open RTS.pck') == digest(original_files['pack'])
+
+unsigned = []
+for label, executable in [('original', original_files['executable']), ('isolated', app / 'Contents/MacOS/Open RTS')]:
+    copy = stage / (label + '-unsigned-engine')
+    shutil.copy2(executable, copy)
+    result = subprocess.run(['codesign', '--remove-signature', str(copy)], text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    assert result.returncode == 0, 'Cannot compare unsigned engine code'
+    unsigned.append({**file_record(copy), 'normalized': normalized_unsigned_engine(copy)})
+assert unsigned[0]['normalized']['sha256'] == unsigned[1]['normalized']['sha256'], 'Isolation changed executable bytes beyond signatures and __LINKEDIT reservation metadata'
+
+metadata = {
+    'prepared_utc': datetime.now(timezone.utc).isoformat(),
+    'source_gate': file_record(report_path),
+    'source_artifacts': {key: file_record(path) for key, path in original_files.items()},
+    'app': str(app), 'proof_app': str(proof_app), 'proof_project': str(proof_project),
+    'builder': str(builder), 'stage': str(stage), 'archive': str(archive),
+    'expected_user_dir': str(expected_dir), 'custom_name': name,
+    'override': file_record(app / 'Contents/MacOS/override.cfg'),
+    'isolated_pack': file_record(app / 'Contents/Resources/Open RTS.pck'),
+    'isolated_executable': file_record(app / 'Contents/MacOS/Open RTS'),
+    'unsigned_engine_comparison': unsigned,
+    'unsigned_engine_identical_except_linkedit_vmsize': True,
+    'original_app_untouched': all(digest(path) == report['artifacts'][key + '_sha256'] for key, path in original_files.items()),
+    'isolation_proof_complete': False,
+    'normal_app_launched': False,
+    'override_source': 'https://github.com/godotengine/godot/blob/ed1daf0bf/core/config/project_settings.cpp#L689-L703',
+    'config_delta': {'application/config/use_custom_user_dir': True, 'application/config/custom_user_dir_name': name},
+}
+(archive / 'preparation.json').write_text(json.dumps(metadata, indent=2) + '\n')
+Path('/tmp/final_native_smoke_preparation.json').write_text(json.dumps(metadata, indent=2) + '\n')
+print(json.dumps({key: metadata[key] for key in ['app', 'proof_app', 'builder', 'expected_user_dir', 'archive', 'normal_app_launched']}, indent=2))

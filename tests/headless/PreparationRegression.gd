@@ -171,10 +171,14 @@ func _reload_preparation(unit, target):
 	_check(unit.deployment_left == setup_left, "Loaded setup duration changed while paused")
 	_check(unit.action._charge_left == charge_left, "Loaded charge duration changed while paused")
 	if charge_left < 0:
+		var caption = unit.get_node("WeaponPreparationVisual")._label
+		_check(not caption.visible, "Restoring preparation exposed diagnostic text")
+		game.get_node("Debug/DiagnosticHUD").show()
 		_check(
-			unit.get_node("WeaponPreparationVisual")._label.text == "DEPLOY %.1f" % setup_left,
+			caption.visible and caption.text == "DEPLOY %.1f" % setup_left,
 			"Paused deployment display lost the restored duration"
 		)
+		game.get_node("Debug/DiagnosticHUD").hide()
 	_check(target.hp == hp, "Loading dealt weapon damage")
 	return true
 
@@ -202,8 +206,23 @@ func _lancer():
 	_check(lancer.weapon_charge_progress < 0, "Interception retained Precision charge")
 	var air = _spawn_weapon("Drone", sides[1], Vector3(44, 0, 10))
 	await _frames(5)
-	lancer.issue_manual_order(shooting.new(air, 1))
+	# Interception can fire on the prior ground target during Drone setup. Retargeting
+	# must preserve that shared reload; preparation begins only once it is ready.
+	var reload_ready = lancer.get_meta("next_attack_availability_time", 0)
+	var shots = []
+	var order = shooting.new(air, 1)
+	order.shot_fired.connect(func(): shots.append(game.simulation_time))
+	lancer.issue_manual_order(order)
+	var waited = 0
+	while int(game.simulation_time * 1000) < reload_ready and waited < 120:
+		_check(shots.is_empty(), "Interception retarget bypassed the shared reload")
+		_check(lancer.weapon_charge_progress < 0, "Interception started Precision charge")
+		await _frames(1)
+		waited += 1
+	_check(int(game.simulation_time * 1000) >= reload_ready, "Shared reload did not finish")
+	await _frames(2)
+	_check(shots.size() == 1, "Ready Interception did not fire immediately without preparation")
 	await _frames(15)
-	_check(air.hp < air.hp_max, "Interception incorrectly gained precision preparation")
+	_check(air.hp < air.hp_max, "Ready Interception shot did not damage the aircraft")
 	print("PASS: Lancer Precision charge, mode-switch cancellation and immediate Interception")
 	return true

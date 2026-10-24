@@ -11,7 +11,8 @@ func _ready():
 	name = "BehaviorPanel"
 	add_theme_constant_override("separation", 6)
 	_status = Label.new()
-	_status.add_theme_font_size_override("font_size", 12)
+	_status.add_theme_font_size_override("font_size", 13)
+	_status.tooltip_text = "Standing behavior · Applies between explicit orders until changed."
 	add_child(_status)
 	var grid = GridContainer.new()
 	grid.columns = 2

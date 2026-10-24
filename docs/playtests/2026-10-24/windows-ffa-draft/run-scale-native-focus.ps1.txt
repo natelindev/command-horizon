@@ -1,0 +1,96 @@
+param(
+    [string]$RunName = "initial",
+    [string]$Executable = "OpenRTSScale-initial.exe",
+    [string]$MainPack = "",
+    [switch]$Profile,
+    [switch]$Diagnostics,
+    [switch]$AwaitFocus
+)
+$ErrorActionPreference = "Stop"
+$base = Split-Path -Parent $MyInvocation.MyCommand.Path
+$exe = Join-Path $base $Executable
+$log = Join-Path $base ("scale-" + $RunName + ".log")
+$stdout = Join-Path $base ("scale-" + $RunName + ".stdout.log")
+$stderr = Join-Path $base ("scale-" + $RunName + ".stderr.log")
+$nativeToken = Join-Path $base ("native-focus-"+$RunName+"-"+[Guid]::NewGuid().ToString("N")+".token")
+$argsList = @("--log-file", $log)
+if ($MainPack) { $argsList += @("--main-pack", $MainPack) }
+if ($Profile) { $argsList += @("--debug", "--profiling") }
+$argsList += @("--", "--behaviors", "--realtime", "--no-capture", "--input-latency")
+if ($Diagnostics) { $argsList += "--diagnostic-frame-spikes" }
+if ($AwaitFocus) { $argsList += @("--await-focus",("--focus-start-token="+$nativeToken)) }
+Add-Type @'
+using System;using System.Runtime.InteropServices;
+public static class BenchmarkFocusProbe {
+ [DllImport("user32.dll")] public static extern IntPtr GetForegroundWindow();
+ [DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(IntPtr h,out uint p);
+}
+'@
+function Get-OwnedFocusSample {
+ $h=[BenchmarkFocusProbe]::GetForegroundWindow()
+ $foregroundId=[uint32]0
+ $null=[BenchmarkFocusProbe]::GetWindowThreadProcessId($h,[ref]$foregroundId)
+ $fg=Get-Process -Id $foregroundId -ErrorAction SilentlyContinue
+ return @{Utc=(Get-Date).ToUniversalTime().ToString('o');ForegroundHandle=$h.ToInt64();ForegroundProcessId=$foregroundId;ForegroundProcess=$fg.ProcessName;OwnedWindowForeground=($h -eq $p.MainWindowHandle -and $foregroundId -eq $p.Id)}
+}
+$sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $exe).Hash
+$started = Get-Date
+$startInfo = New-Object System.Diagnostics.ProcessStartInfo
+$startInfo.FileName = $exe
+$startInfo.Arguments = $argsList -join " "
+$startInfo.WorkingDirectory = $base
+$startInfo.UseShellExecute = $false
+$startInfo.RedirectStandardOutput = $true
+$startInfo.RedirectStandardError = $true
+$p = New-Object System.Diagnostics.Process
+$p.StartInfo = $startInfo
+$null = $p.Start()
+$stdoutTask = $p.StandardOutput.ReadToEndAsync()
+$stderrTask = $p.StandardError.ReadToEndAsync()
+Start-Sleep -Seconds 3
+$p.Refresh()
+$metadata = @{
+    Executable = $exe
+    Sha256 = $sha256
+    StartedUtc = $started.ToUniversalTime().ToString("o")
+    ProcessId = $p.Id
+    SessionId = $p.SessionId
+    WindowTitle = $p.MainWindowTitle
+    WindowHandle = $p.MainWindowHandle.ToInt64()
+    Arguments = $argsList
+}
+$focusSamples=@(Get-OwnedFocusSample)
+$nativeGranted=$false
+$metadata.FocusSamples=$focusSamples
+$metadata.NativeFocusGranted=$false
+$metadata.NativeTokenPath=$nativeToken
+$metadata | ConvertTo-Json -Depth 6 | Set-Content -Encoding UTF8 (Join-Path $base ("scale-"+$RunName+".metadata.json"))
+Write-Output ("FOCUS_RUNNER_READY pid="+$p.Id+" title="+$p.MainWindowTitle+" handle="+$p.MainWindowHandle.ToInt64()+" native_granted=false")
+if (Test-Path $log) {Get-Content -LiteralPath $log -Tail 5}
+$deadline=(Get-Date).AddSeconds(900)
+$lastSample=Get-Date
+while (-not $p.WaitForExit($(if ($nativeGranted) {1000} else {200}))) {
+ $sample=Get-OwnedFocusSample
+ if (-not $nativeGranted -and $sample.OwnedWindowForeground) {
+  [System.IO.File]::WriteAllText(($nativeToken+'.pending'),$p.Id.ToString())
+  Move-Item -LiteralPath ($nativeToken+'.pending') -Destination $nativeToken
+  $nativeGranted=$true
+  $metadata.NativeFocusGranted=$true
+  $metadata.NativeFocusGrantedUtc=(Get-Date).ToUniversalTime().ToString('o')
+  Write-Output ("NATIVE_FOCUS_GRANTED pid="+$p.Id+" hwnd="+$p.MainWindowHandle.ToInt64()+" utc="+$metadata.NativeFocusGrantedUtc)
+ }
+ if (((Get-Date)-$lastSample).TotalSeconds -ge 1) {$focusSamples+=,$sample;$lastSample=Get-Date}
+ if ((Get-Date) -gt $deadline) {Stop-Process -Id $p.Id;throw 'Owned focus check exceeded900seconds'}
+}
+$metadata.FocusSamples=$focusSamples
+if (Test-Path -LiteralPath $nativeToken) {Remove-Item -LiteralPath $nativeToken}
+$p.WaitForExit()
+[System.IO.File]::WriteAllText($stdout, $stdoutTask.Result)
+[System.IO.File]::WriteAllText($stderr, $stderrTask.Result)
+$metadata.ExitCode = $p.ExitCode
+$metadata.FinishedUtc = (Get-Date).ToUniversalTime().ToString("o")
+$metadata | ConvertTo-Json -Depth 5 | Set-Content -Encoding UTF8 (Join-Path $base ("scale-" + $RunName + ".metadata.json"))
+$metadata | ConvertTo-Json -Depth 5
+if (Test-Path $log) { Get-Content -LiteralPath $log }
+if (Test-Path $stderr) { Get-Content -LiteralPath $stderr }
+exit $p.ExitCode

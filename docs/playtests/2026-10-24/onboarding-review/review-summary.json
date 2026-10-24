@@ -1,0 +1,107 @@
+{
+  "method": "Expert scripted UI review in native Godot 4.7.2 Metal Forward+ rendering. Pointer events pass through normal viewport input routing and actual menu controls. This is not a human novice playtest.",
+  "flow": [
+    "Main menu → Campaign → First Orders briefing → Start → skip cinematic briefing",
+    "Find engineer → Command lab build button → occupied placement feedback → right-click cancellation without resource spending",
+    "Valid lab placement and actual construction → Find tank → Guard button and destination → capture lesson",
+    "Tactical pause freezes simulation; Find infantry still selects and pans during pause",
+    "Controlled loss of all tanks during Guard lesson → training guidance → shortcut selects a completed vehicle factory",
+    "Chinese language and 150% UI scale show the recovery lesson and controls without overlap"
+  ],
+  "failures": 0,
+  "fixes": [
+    "Required lesson instruction now precedes optional practical advice; each new lesson resets body scrolling.",
+    "Missing armor leads to completed vehicle-factory production, missing factory to engineer rebuilding, unfinished foundation to resuming construction, and missing engineers to HQ training.",
+    "Training shortcut skips unfinished factories and dead/deleting units; tank fallback names the vehicle factory.",
+    "Invalid structure placement now explains the reason in a compact localized screen-space panel, with readable 16-pixel base type, interface scaling, and viewport clamping. Valid placement and cancellation clear it; placement/resource rules are unchanged."
+  ],
+  "focused_regressions": {
+    "OpeningGuidanceRegression": "0 failures, clean exit",
+    "LocalizationRegression": "0 failures, clean exit",
+    "OnboardingFlowPreview": "0 failures, 11 captures, clean exit",
+    "PlacementFeedbackRegression": "0 failures, clean exit",
+    "PlacementFeedbackPreview": "0 failures, 3 captures, clean exit"
+  },
+  "limits": [
+    "Five real novice players and human comprehension/timing observations were not available.",
+    "The loss-of-armor recovery state is deliberately induced by the test; UI response and shortcut use normal input.",
+    "Only idle lab construction wait is accelerated to 4×; input interactions run at 1×.",
+    "New Chinese factory terminology was normalized from 载具工厂 to existing 车辆工厂 after the final capture, with identical character count; catalog regenerated."
+  ],
+  "captures": {
+    "01-main-menu.png": {
+      "width": 1280,
+      "height": 720
+    },
+    "02-first-orders-briefing.png": {
+      "width": 1920,
+      "height": 1080
+    },
+    "03-cinematic-briefing.png": {
+      "width": 1920,
+      "height": 1080
+    },
+    "04-engineer-build-controls.png": {
+      "width": 1920,
+      "height": 1080
+    },
+    "05-invalid-placement-feedback.png": {
+      "width": 1920,
+      "height": 1080
+    },
+    "06-lab-under-construction.png": {
+      "width": 1920,
+      "height": 1080
+    },
+    "07-capture-lesson.png": {
+      "width": 1920,
+      "height": 1080
+    },
+    "08-paused-planning.png": {
+      "width": 1920,
+      "height": 1080
+    },
+    "09-missing-armor-guidance.png": {
+      "width": 1920,
+      "height": 1080
+    },
+    "10-missing-armor-shortcut.png": {
+      "width": 1920,
+      "height": 1080
+    },
+    "11-chinese-large-ui-recovery.png": {
+      "width": 3456,
+      "height": 2168
+    }
+  },
+  "minimum_viewport_check": {
+    "script": "tests/rendered/StrategicPolishPreview.gd",
+    "failures": 0,
+    "total_captures": 8,
+    "lesson_captures": 6,
+    "pixels": "1280×720, asserted in test",
+    "interface_scale": 1.5,
+    "languages": [
+      "en",
+      "zh_CN"
+    ],
+    "observed": "All required economy, Guard and capture instructions are visible above the fold. Lesson controls do not overlap minimap or unit menus.",
+    "log": "minimum-viewport-preview.log",
+    "screenshots": "minimum-viewport/"
+  },
+  "placement_feedback_check": {
+    "headless_script": "tests/headless/PlacementFeedbackRegression.gd",
+    "native_script": "tests/rendered/PlacementFeedbackPreview.gd",
+    "failures": 0,
+    "capture_configurations": [
+      "1920×1080 / 100% / English",
+      "1280×720 / 150% / English",
+      "1280×720 / 150% / Chinese"
+    ],
+    "observed": "All three panels are compact and clearly readable beside the invalid blueprint. Text stays inside the viewport and does not intercept pointer input. Normal right-click cancellation hides it.",
+    "regression_scope": "Invalid placement retains the blueprint without spending resources; valid placement hides the warning; Chinese occupied-ground feedback is localized; right-click cancellation clears the panel without spending resources.",
+    "evidence": "placement/",
+    "log": "placement/native-preview.log",
+    "regression_log": "placement/regression.log"
+  }
+}

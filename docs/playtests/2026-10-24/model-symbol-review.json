@@ -1,0 +1,58 @@
+{
+  "passed": true,
+  "renderer": "Godot 4.7.2 Metal Forward+ / Apple M1 Pro",
+  "scope": "Native required weathering preview plus close, front, and rear views of all three active changed models.",
+  "models": [
+    {
+      "path": "assets/models/bastion/structures-v2/CommandCenter.glb",
+      "sha256": "e0ab3ed26502c9e540ca2d951bb5607a6970d179b69f6666dd7bf43f4aee7813"
+    },
+    {
+      "path": "assets/models/bastion/structures-v2/RepairDepot.glb",
+      "sha256": "04f36e45245cebc454532414f744017eecd84d881e6aebdfe490abe4460e376a"
+    },
+    {
+      "path": "assets/models/bastion/demo/RepairRobot.glb",
+      "sha256": "62b7ef7f875490ec6584414e9945dbc47310dcef12e4c3a6f87dadf6a7266420"
+    }
+  ],
+  "checks": [
+    {
+      "name": "WeatheringPreview bastion",
+      "failures": 0,
+      "captures": 12
+    },
+    {
+      "name": "RichTexturesRegression",
+      "failures": 0
+    },
+    {
+      "name": "Model symbol views",
+      "failures": 0,
+      "captures": 9
+    }
+  ],
+  "visual_findings": [
+    "CommandCenter roof fixture is a compact rectangular communication panel with three vertical strips.",
+    "RepairDepot and RepairRobot use toothed service gear symbols.",
+    "No cross-shaped decorative symbol remains in the inspected model views; baked weathering and production materials remain visible.",
+    "Full model views stay inside the frame without clipping."
+  ],
+  "captures": [
+    "art/weathering/bastion-symbols-command_center-detail.png",
+    "art/weathering/bastion-symbols-command_center-front.png",
+    "art/weathering/bastion-symbols-command_center-rear.png",
+    "art/weathering/bastion-symbols-repair_depot-detail.png",
+    "art/weathering/bastion-symbols-repair_depot-front.png",
+    "art/weathering/bastion-symbols-repair_depot-rear.png",
+    "art/weathering/bastion-symbols-repair_robot-detail.png",
+    "art/weathering/bastion-symbols-repair_robot-front.png",
+    "art/weathering/bastion-symbols-repair_robot-rear.png"
+  ],
+  "logs": [
+    "tmp/polish-symbols-weathering.log",
+    "tmp/polish-symbols-rich-textures.log",
+    "tmp/polish-symbols-model-symbols.log"
+  ],
+  "diagnostics": []
+}

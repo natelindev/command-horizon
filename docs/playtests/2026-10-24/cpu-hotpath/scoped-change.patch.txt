@@ -1,0 +1,269 @@
+--- before/source/match/units/traits/Movement.gd
++++ source/match/units/traits/Movement.gd
+@@ -234,46 +234,51 @@
+ 	if path.is_empty():
+ 		return false
+ 	var end: Vector3 = path[-1] * Vector3(1, 0, 1)
++	var own_radius: float = radius
++	var origin: Vector3 = _unit.global_position_yless
++	var mobile_reach: float = own_radius + Constants.Match.Terrain.Navmesh.MAX_AGENT_RADIUS
+ 	# A settled mobile body can only finish this order within contact range.
+ 	# Most recovering units are farther away; avoid scanning their destination
+ 	# neighbors (and the remaining path) until arrival is actually possible.
+-	var contact_bound: float = radius + Constants.Match.Terrain.Navmesh.MAX_AGENT_RADIUS + .2
+-	if _unit.global_position_yless.distance_squared_to(end) > contact_bound * contact_bound:
++	var contact_bound: float = mobile_reach + .2
++	if origin.distance_squared_to(end) > contact_bound * contact_bound:
+ 		return false
+ 	var remaining = 0.0
+ 	if require_short_route:
+ 		# A nearby endpoint can sit just beyond a tiny polygon bend. Bound
+ 		# actual remaining travel instead of requiring a particular path index;
+ 		# an endpoint across a wall still requires its full remaining route.
+-		var previous = _unit.global_position_yless
++		var previous = origin
+ 		for index in range(get_current_navigation_path_index(), path.size()):
+ 			var point = path[index] * Vector3(1, 0, 1)
+ 			remaining += previous.distance_to(point)
+ 			previous = point
+ 	# A plain point order can finish beside a settled ally occupying its final
+ 	# reachable position. MovingToUnit owns its own process/contact checks.
+-	for other in _match.battlefield.nearby_bodies(end, _unit.radius, _unit.player):
++	# Only mobile agents qualify; structure radii must not widen this query.
++	# The terrain agent limit also covers the smaller air-agent radius limit.
++	for other in _match.battlefield.nearby_units(end, mobile_reach, _unit.player):
+ 		if (
+ 			other == _unit
+ 			or not other.is_in_group("units")
+ 			or other.is_queued_for_deletion()
+ 			or other.hp <= 0
+-			or other.movement_speed <= 0
+-			or other.movement_domain != _unit.movement_domain
+ 		):
+ 			continue
+-		var movement = other.get_node_or_null("Movement")
++		var movement = other._get_navigation_trait()
+ 		if (
+-			movement == null
++			not movement is NavigationAgent3D
++			or movement.domain != domain
++			or movement.speed <= 0
+ 			or movement.ghosted
+ 			or movement._has_destination
+ 			or movement.velocity.length_squared() >= 0.01
+ 		):
+ 			continue
+-		var spacing = _unit.radius + other.radius
++		var spacing: float = own_radius + movement.radius
+ 		if (
+ 			other.global_position_yless.distance_to(end) < spacing
+-			and _unit.global_position_yless.distance_to(end) <= spacing + 0.2
++			and origin.distance_to(end) <= spacing + 0.2
+ 			and (not require_short_route or remaining <= spacing + 0.2)
+ 		):
+ 			return true
+@@ -503,31 +508,30 @@
+ 		return
+ 	_last_navigation_iteration = navigation_iteration
+ 	var current_speed: float = speed
++	var origin: Vector3 = _unit.global_position
++	var maximum_step: float = current_speed * _physics_delta
+ 	var displacement := safe_velocity.limit_length(current_speed) * _physics_delta
+-	var candidate := _unit.global_position + displacement
++	var candidate := origin + displacement
+ 	# Local avoidance can push agents off the mesh; constrain the resulting step.
+ 	var navigable := _navigation_position(candidate)
+ 	if domain == Constants.Match.Navigation.Domain.TERRAIN:
+ 		# A teleport or restored position can need several vertical steps. Zero
+ 		# planar velocity must not freeze it above the first path waypoint.
+ 		_ground_alignment_height = navigable.y
+-	var next := _unit.global_position.move_toward(
+-		Vector3(navigable.x, _unit.global_position.y, navigable.z), current_speed * _physics_delta
+-	)
++	var next: Vector3
+ 	# Flight clearance follows the map without consuming horizontal movement speed.
+ 	# Ground agents retain the existing navmesh-constrained elevation step.
+ 	if _uses_flight_clearance():
++		next = origin.move_toward(Vector3(navigable.x, origin.y, navigable.z), maximum_step)
+ 		next.y = _flight_height(Vector3(next.x, navigable.y, next.z))
+ 		if is_finite(settle_height):
+-			next.y = move_toward(
+-				_unit.global_position.y, settle_height, SETTLE_RATE * _physics_delta
+-			)
++			next.y = move_toward(origin.y, settle_height, SETTLE_RATE * _physics_delta)
+ 			_climbing_out = true
+ 		elif _climbing_out:
+-			next.y = move_toward(_unit.global_position.y, next.y, SETTLE_RATE * _physics_delta)
++			next.y = move_toward(origin.y, next.y, SETTLE_RATE * _physics_delta)
+ 			_climbing_out = next.y < _flight_height(next) - 0.01
+ 	else:
+-		next = _unit.global_position.move_toward(navigable, current_speed * _physics_delta)
++		next = origin.move_toward(navigable, maximum_step)
+ 	if domain == Constants.Match.Navigation.Domain.TERRAIN:
+ 		next = _clip_ground_step(next, current_speed)
+ 		# Only retry when mesh projection displaced avoidance and the final
+@@ -535,31 +539,25 @@
+ 		if (
+ 			_has_destination
+ 			and _recovery_left > 0
++			and ((navigable - candidate) * Vector3(1, 0, 1)).length_squared() > 0.000001
++			and next.distance_squared_to(origin) < 0.000001
+ 			and not has_occupied_endpoint(false)
+-			and ((navigable - candidate) * Vector3(1, 0, 1)).length_squared() > 0.000001
+-			and next.distance_squared_to(_unit.global_position) < 0.000001
+ 		):
+ 			# Avoidance can steer an escape back into a boundary contact. Try
+ 			# the committed recovery step with the same mesh/body constraints.
+-			var recovery_point = (
+-				_unit.global_position + velocity.limit_length(current_speed) * _physics_delta
+-			)
++			var recovery_point = origin + velocity.limit_length(current_speed) * _physics_delta
+ 			var recovery_nav = _navigation_position(recovery_point)
+ 			var recovery_step = _clip_ground_step(
+-				_unit.global_position.move_toward(recovery_nav, current_speed * _physics_delta),
+-				current_speed
++				origin.move_toward(recovery_nav, maximum_step), current_speed
+ 			)
+-			if (
+-				recovery_step.distance_squared_to(_unit.global_position)
+-				> next.distance_squared_to(_unit.global_position)
+-			):
++			if recovery_step.distance_squared_to(origin) > next.distance_squared_to(origin):
+ 				next = recovery_step
+ 		# Clipping and sliding can change XZ after projection. Ground the final
+ 		# position on the authored surface, not the voxelized navigation mesh.
+ 		if _match.map.is_elevated():
+ 			next.y = _match.map.height_at(Vector2(next.x, next.z))
+ 			_ground_alignment_height = next.y
+-	var actual_velocity := (next - _unit.global_position) / maxf(_physics_delta, 0.001)
++	var actual_velocity := (next - origin) / maxf(_physics_delta, 0.001)
+ 	if (
+ 		domain == Constants.Match.Navigation.Domain.TERRAIN
+ 		and actual_velocity.distance_to(safe_velocity) > 0.1
+--- before/source/match/TerrainNavigation.gd
++++ source/match/TerrainNavigation.gd
+@@ -231,18 +231,15 @@
+ 		if _projection_iteration == iteration:
+ 			var flat := Vector2(point.x, point.z)
+ 			var cell := Vector2i(floori(point.x / 6.0), floori(point.z / 6.0))
+-			var best := INF
+ 			for entry in _projection_cells.get(cell, []):
+ 				var height: float = entry[1]
+ 				var gap := height - point.y
+-				if gap < 0.0 or gap >= best:
++				if gap < 0.0:
+ 					continue
+-				if height != _projection_height and gap >= _projection_tolerance:
+-					continue
++				# Flat-map indexing retains only the lowest horizontal surface.
++				# Every containing polygon therefore gives the same nearest height.
+ 				if Geometry2D.is_point_in_polygon(flat, entry[0]):
+-					best = gap
+-			if best < INF:
+-				return Vector3(point.x, point.y + best, point.z)
++					return Vector3(point.x, point.y + gap, point.z)
+ 	return NavigationServer3D.map_get_closest_point(navigation_map_rid, point)
+ 
+ 
+--- before/tests/headless/CrowdedDestinationRegression.gd
++++ tests/headless/CrowdedDestinationRegression.gd
+@@ -7,6 +7,7 @@
+ 
+ func _run():
+ 	root.get_node("SaveManager").autosaves_enabled = false
++	await _endpoint_eligibility()
+ 	for repetition in 3:
+ 		await _captured_return(repetition)
+ 	await _distant_endpoint()
+@@ -16,6 +17,91 @@
+ 		push_error(error)
+ 	print("Crowded destination: %d failures" % errors.size())
+ 	quit(0 if errors.is_empty() else 1)
++
++
++func _endpoint_eligibility():
++	var unit = await _open_capture()
++	if unit == null:
++		return
++	var movement = unit.get_node("Movement")
++	# Establish the restored path while paused, then exercise only the live
++	# endpoint predicate so avoidance cannot move the eligibility fixtures.
++	movement.get_next_path_position()
++	var path = movement.get_current_navigation_path()
++	_check(not path.is_empty(), "Endpoint eligibility fixture has no restored path")
++	if path.is_empty():
++		game.queue_free()
++		paused = false
++		await _frames(5)
++		return
++	var end: Vector3 = path[-1] * Vector3(1, 0, 1)
++	var blocker
++	var structure
++	for other in unit.player.get_children():
++		if other == unit or not other.is_in_group("units"):
++			continue
++		var navigation = other._get_navigation_trait()
++		if navigation is NavigationAgent3D:
++			navigation.ghosted = true
++			navigation._has_destination = false
++			navigation.velocity = Vector3.ZERO
++			if blocker == null:
++				blocker = other
++		elif structure == null and navigation != null:
++			structure = other
++	_check(blocker != null and structure != null, "Endpoint fixture lacks mobile/structure bodies")
++	if blocker != null and structure != null:
++		var maximum: float = root.get_node("Constants").Match.Terrain.Navmesh.MAX_AGENT_RADIUS
++		var neighbor = blocker.get_node("Movement")
++		movement.radius = maximum
++		neighbor.radius = maximum
++		neighbor.ghosted = false
++		neighbor.speed = 1.0
++		unit.position = end + Vector3(0, 0, -(maximum * 2.0 + .1))
++		blocker.position = end + Vector3(maximum * 2.0 - .01, 0, 0)
++		# A large static body is present at the endpoint throughout these checks.
++		# It must neither satisfy occupancy nor change the mobile-radius policy.
++		structure.position = end
++		structure._get_navigation_trait().radius = 4.0
++		game.battlefield.invalidate()
++		_check(movement.has_occupied_endpoint(false), "Maximum-radius settled ally was missed")
++		blocker.position.x += .02
++		_check(not movement.has_occupied_endpoint(false), "Ally beyond contact radius was accepted")
++		blocker.position.x -= .02
++		_check(movement.has_occupied_endpoint(false), "Same-tick ally position was stale")
++		neighbor.radius = maximum * .5
++		_check(not movement.has_occupied_endpoint(false), "Same-tick smaller ally radius was stale")
++		neighbor.radius = maximum
++		neighbor.ghosted = true
++		_check(
++			not movement.has_occupied_endpoint(false), "Ghost or static structure satisfied arrival"
++		)
++		neighbor.ghosted = false
++		neighbor.speed = 0.0
++		_check(
++			not movement.has_occupied_endpoint(false), "Zero-speed ally satisfied mobile arrival"
++		)
++		neighbor.speed = 1.0
++		neighbor.domain = root.get_node("Constants").Match.Navigation.Domain.AIR
++		_check(not movement.has_occupied_endpoint(false), "Other-domain ally satisfied arrival")
++		neighbor.domain = movement.domain
++		neighbor._has_destination = true
++		_check(
++			not movement.has_occupied_endpoint(false), "Travelling ally satisfied settled arrival"
++		)
++		neighbor._has_destination = false
++		neighbor.velocity = Vector3.RIGHT
++		_check(not movement.has_occupied_endpoint(false), "Moving ally satisfied settled arrival")
++		neighbor.velocity = Vector3.ZERO
++		_check(movement.has_occupied_endpoint(false), "Restored live eligibility was not observed")
++		blocker.queue_free()
++		_check(not movement.has_occupied_endpoint(false), "Queued deletion satisfied arrival")
++		print(
++			"PASS live maximum-radius, position, ghost, speed, domain and settled endpoint filters"
++		)
++	game.queue_free()
++	paused = false
++	await _frames(5)
+ 
+ 
+ func _captured_return(repetition):

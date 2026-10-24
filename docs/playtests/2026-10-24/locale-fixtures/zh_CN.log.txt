@@ -1,0 +1,32 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+LOCALE PROBE locale=zh_CN options=zh_CN
+LOCALE FAILURE locale=zh_CN message=Damaged convoy lacks repair guidance
+ACTUAL CONVOY: 卡车严重受损。选择维修支援，右键点击卡车，修复后再前进。
+LOCALE FAILURE locale=zh_CN message=Behavior lesson omits manual-order authority
+ACTUAL TIP: 直接命令会立即接管单位。选择目的地时按住Shift，可将下一条命令加入队列。
+LOCALE FAILURE locale=zh_CN message=Capture approach lacks attack-move guidance
+ACTUAL TIP: 接近敌人时使用攻击移动（F），部队会停下交战。撤退时使用移动（M），优先执行撤离。
+LOCALE FAILURE locale=zh_CN message=Wounded troops lack contextual recovery guidance
+ACTUAL TIP: 保护老兵：将受伤部队撤到战线后方，再选择恢复生命。维修支援可在战斗间隙修复载具。
+ERROR: Damaged convoy lacks repair guidance
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/OpeningGuidanceRegression.gd:170)
+       [1] _frames (res://tests/headless/SupplyLineRegression.gd:323)
+ERROR: Behavior lesson omits manual-order authority
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/OpeningGuidanceRegression.gd:170)
+       [1] _frames (res://tests/headless/SupplyLineRegression.gd:323)
+ERROR: Capture approach lacks attack-move guidance
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/OpeningGuidanceRegression.gd:170)
+       [1] _frames (res://tests/headless/SupplyLineRegression.gd:323)
+ERROR: Wounded troops lack contextual recovery guidance
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/OpeningGuidanceRegression.gd:170)
+       [1] _frames (res://tests/headless/SupplyLineRegression.gd:323)
+Opening guidance: 4 failures

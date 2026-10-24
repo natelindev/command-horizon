@@ -1,0 +1,118 @@
+{
+  "engine": "Godot 4.7.2 stable official ed1daf0bf",
+  "scope": "Hide unit-attached status text during ordinary play; show it only through the existing F1 diagnostic overlay.",
+  "trigger": "Repeated Precision labels over a Helix group near Water Stop Camp in the user screenshot.",
+  "production_behavior": {
+    "default": "diagnostics off at match start in all builds",
+    "toggle": "F1, including while paused",
+    "caption_families": [
+      "weapon mode",
+      "signature state",
+      "charge/lock/deployment",
+      "action debug caption",
+      "neutral-building/garrison status",
+      "campaign commander name"
+    ],
+    "preserved": [
+      "health bars",
+      "rank chevrons",
+      "selection indicators",
+      "weapon preparation visuals",
+      "command/HUD controls",
+      "map-site and objective labels"
+    ],
+    "updates": "Hidden captions skip text formatting; enabling diagnostics refreshes live state."
+  },
+  "checks": {
+    "UnitInfoTextRegression": {
+      "failures": 0,
+      "exit_code": 0,
+      "engine_diagnostics": false
+    },
+    "UnitInfoTextPreview": {
+      "failures": 0,
+      "captures": 6,
+      "exit_code": 0,
+      "engine_diagnostics": false,
+      "launch_diagnostic": "macOS sandbox_extension_issue_file_to_process message; native Metal rendering and all captures completed"
+    },
+    "WeaponModeRegression": {
+      "failures": 0,
+      "exit_code": 0,
+      "teardown_diagnostics": "Legacy direct quit reports 12 ObjectDB instances and 4 resources"
+    },
+    "PreparationRegression": {
+      "failures": 0,
+      "exit_code": 0,
+      "teardown_diagnostics": "Legacy direct quit reports 10 ObjectDB instances and 4 resources"
+    },
+    "static": "gdformat --check and gdlint pass for all 11 touched GDScript files; git diff --check clean"
+  },
+  "preparation_fixture": {
+    "diagnosis": "Old assertion sampled after retargeting with 300 ms shared reload remaining. Mode was interception, switch was 0, charge was -1, and target was observed and fireable.",
+    "correction": "Capture actual reload deadline; assert no early shot/no Precision charge; require one shot within two frames after readiness and aircraft damage afterward. Also test restored deployment text hidden by default and accurate when diagnostics is enabled.",
+    "production_gameplay_changed": false
+  },
+  "captures": [
+    {
+      "path": "diagnostics-en.png",
+      "size": [
+        1280,
+        720
+      ],
+      "interface_scale": 1.5,
+      "visually_reviewed": true,
+      "sha256": "38be0e077160e49e56d9ab973c6b56c7d88f4e33c94dff327122c3f3584c8422"
+    },
+    {
+      "path": "diagnostics-zh_CN.png",
+      "size": [
+        1280,
+        720
+      ],
+      "interface_scale": 1.5,
+      "visually_reviewed": true,
+      "sha256": "3bfb073eef26141aed2de4cb50aba79fc4d3e2d8b28589f6d34265d61301191e"
+    },
+    {
+      "path": "ordinary-en.png",
+      "size": [
+        1280,
+        720
+      ],
+      "interface_scale": 1.5,
+      "visually_reviewed": true,
+      "sha256": "784fa2564a30120f1ec5f4dccd0251aef2fb777cb5ef7f6e5b7d15b57b12b33f"
+    },
+    {
+      "path": "ordinary-restored-en.png",
+      "size": [
+        1280,
+        720
+      ],
+      "interface_scale": 1.5,
+      "visually_reviewed": true,
+      "sha256": "784fa2564a30120f1ec5f4dccd0251aef2fb777cb5ef7f6e5b7d15b57b12b33f"
+    },
+    {
+      "path": "ordinary-restored-zh_CN.png",
+      "size": [
+        1280,
+        720
+      ],
+      "interface_scale": 1.5,
+      "visually_reviewed": true,
+      "sha256": "efedadfa455e08a171ef1605fc6f7fb4c203288927d675d94a224a37764a6288"
+    },
+    {
+      "path": "ordinary-zh_CN.png",
+      "size": [
+        1280,
+        720
+      ],
+      "interface_scale": 1.5,
+      "visually_reviewed": true,
+      "sha256": "0f92ca49a701e33d5ebbeecedd23c08d62d21ab37acef0d9a5bc05a2b56a2a6f"
+    }
+  ]
+}

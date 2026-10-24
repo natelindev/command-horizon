@@ -1,0 +1,379 @@
+#!/usr/bin/env python3
+"""Private, serial macOS release timings from a frozen production source tree."""
+import argparse
+import datetime as dt
+import hashlib
+import json
+from pathlib import Path
+import re
+import shutil
+import subprocess
+import sys
+import time
+
+ROOT = Path(__file__).resolve().parents[1]
+ENGINE = ROOT / "tmp/tooling/godot-4.7.2/Godot.app/Contents/MacOS/Godot"
+TEMPLATES = ROOT / "tmp/current-macos-v19-templates"
+PARENT_MANIFEST = ROOT / "docs/playtests/2026-10-24/macos-package-v19/source-manifest.json"
+LATEST = ROOT / "tmp/current-macos-v19-latest.json"
+
+
+def emit(**values):
+    for key, value in values.items():
+        print(f"{key}: {json.dumps(value, ensure_ascii=False)}")
+
+
+class Parser(argparse.ArgumentParser):
+    def error(self, message):
+        emit(error=message, help="python3 tmp/current-macos-v19.py --help")
+        raise SystemExit(2)
+
+
+def sha(path):
+    result = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            result.update(chunk)
+    return result.hexdigest()
+
+
+def aggregate(manifest):
+    return hashlib.sha256(json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+def file_manifest(base, names):
+    result = {}
+    for name in names:
+        start = base / name
+        items = [start] if start.is_file() else sorted(start.rglob("*"))
+        for item in items:
+            if item.is_symlink():
+                raise RuntimeError(f"Frozen stage contains a symbolic link: {item}")
+            if item.is_file():
+                result[str(item.relative_to(base))] = sha(item)
+    return dict(sorted(result.items()))
+
+
+def manifest_delta(before, after):
+    return [key for key in sorted(before.keys() | after.keys()) if before.get(key) != after.get(key)]
+
+
+def ensure_parent_current(expected):
+    current = file_manifest(ROOT, ["source", "tests", "assets", "project.godot", "export_presets.cfg", "icon.svg", "tools/release/build.py"])
+    changed = manifest_delta(expected, current)
+    if changed:
+        raise RuntimeError("Production source changed from the v19 package: " + ", ".join(changed[:8]))
+
+
+def parse_values(line):
+    result = {}
+    matches = list(re.finditer(r"\b([A-Za-z0-9_]+)=", line))
+    for index, match in enumerate(matches):
+        value = line[match.end():matches[index+1].start() if index+1 < len(matches) else len(line)].strip()
+        if value in ("true", "false"):
+            value = value == "true"
+        else:
+            try:
+                value = float(value) if "." in value else int(value)
+            except ValueError:
+                pass
+        result[match.group(1)] = value
+    return result
+
+
+def summarize_frames(label, rows):
+    if not rows:
+        raise RuntimeError(f"Missing frame samples for {label}")
+    times = sorted(row["frame_ms"] for row in rows)
+    result = {"phase": label, "frames": len(rows), "mean_ms": sum(times)/len(times),
+              "p95_ms": times[min(len(times)-1, int(len(times)*.95))],
+              "p99_ms": times[min(len(times)-1, int(len(times)*.99))], "max_ms": times[-1],
+              "frames_over_33ms": sum(x > 1000/30 for x in times),
+              "frames_over_50ms": sum(x > 50 for x in times),
+              "frames_over_100ms": sum(x > 100 for x in times),
+              "spikes_over_50ms": [x for x in rows if x["frame_ms"] > 50],
+              "first_pipeline_counts": rows[0]["pipeline_before"],
+              "last_pipeline_counts": rows[-1]["pipeline_after"]}
+    result["fps"] = 1000/result["mean_ms"]
+    return result
+
+
+def analyze_run(raw, focus_rows, kind):
+    phases = []
+    begin = None
+    for line in raw.splitlines():
+        if line.startswith("FOCUS_PHASE_BEGIN "):
+            if begin is not None:
+                raise RuntimeError("Overlapping focus phase markers")
+            begin = parse_values(line)
+        elif line.startswith("FOCUS_PHASE_END "):
+            end = parse_values(line)
+            if begin is None or begin["phase"] != end["phase"]:
+                raise RuntimeError("Unmatched focus phase markers")
+            start_ms, end_ms = begin["unix_ms"], end["unix_ms"]
+            inside = [row for row in focus_rows if start_ms <= row["unix_ms"] <= end_ms]
+            preceding = [row for row in focus_rows if row["unix_ms"] <= start_ms]
+            following = [row for row in focus_rows if row["unix_ms"] >= end_ms]
+            coverage = bool(preceding and following)
+            selected = ([preceding[-1]] if preceding else []) + inside + ([following[0]] if following else [])
+            coverage = coverage and start_ms - preceding[-1]["unix_ms"] <= 750 and following[0]["unix_ms"] - end_ms <= 750
+            gaps = [b["unix_ms"]-a["unix_ms"] for a,b in zip(selected, selected[1:])]
+            coverage = coverage and (not gaps or max(gaps) <= 750)
+            native_valid = coverage and all(row["owned"] for row in selected)
+            phases.append({"phase": begin["phase"], "begin_unix_ms": start_ms, "end_unix_ms": end_ms,
+                           "inside_native_samples": len(inside), "bracketed_native_samples": len(selected),
+                           "native_coverage_valid": coverage, "all_native_samples_owned": native_valid,
+                           "maximum_sample_gap_ms": max(gaps, default=0),
+                           "wrapper_focus_valid": begin["focused"] and end["focus_valid"]})
+            begin = None
+    expected_phases = ["loading-helper", "base", "midfield-combat", "destruction-burst"] if kind == "ordinary" else ["loading-helper", "movement", "combat"]
+    if begin is not None or [p["phase"] for p in phases] != expected_phases:
+        raise RuntimeError("Incomplete native focus phase evidence")
+    traces = [json.loads(line.removeprefix("TRACE_PHASE_END ")) for line in raw.splitlines() if line.startswith("TRACE_PHASE_END ")]
+    summaries = []
+    for trace in traces:
+        frames = trace["frames"]
+        summaries.append(summarize_frames(trace["phase"], frames))
+        if kind == "stress":
+            summaries.append(summarize_frames(trace["phase"] + "/first-3s", [row for row in frames if row["elapsed_s"] <= 3.0]))
+            summaries.append(summarize_frames(trace["phase"] + "/after-3s", [row for row in frames if row["elapsed_s"] > 3.0]))
+    prewarm = [json.loads(line.removeprefix("PREWARM_END ")) for line in raw.splitlines() if line.startswith("PREWARM_END ")]
+    setup = [json.loads(line.removeprefix("PREWARM_BASELINE_SETTLE ")) for line in raw.splitlines() if line.startswith("PREWARM_BASELINE_SETTLE {")]
+    measurements = [{"label": line.split("=",1)[0].rsplit(" ",1)[0], "values": parse_values(line)}
+                    for line in raw.splitlines() if line.startswith(("SCALE movement ", "SCALE combat ", "SCALE behaviors=", "RENDER ", "TAIL ", "INPUT ", "GAMEPLAY ", "WARMUP ", "BURST "))]
+    errors = [line for line in raw.splitlines() if re.search(r"(?:SCRIPT ERROR|ERROR):", line)]
+    warnings = [line for line in raw.splitlines() if "WARNING:" in line]
+    good_prewarm = len(prewarm) == 1 and all(prewarm[0].get(key) for key in ["completed", "snapshot_equal", "cosmetic_equal", "process_modes_equal", "caller_paused", "helper_only"]) and prewarm[0]["nodes_before"] == prewarm[0]["nodes_after"]
+    good_setup = kind != "stress" or (len(setup) == 1 and setup[0]["stable_snapshot_nodes_modes"] and setup[0]["readiness"]["ready"] and setup[0]["paused"] and setup[0]["simulation_before"] == setup[0]["simulation_after"] and not setup[0]["helper_timing_includes_setup"])
+    valid = ("release=true failures=0" in raw and not errors and good_prewarm
+             and good_setup
+             and len(traces) == (6 if kind == "ordinary" else 2)
+             and all(p["all_native_samples_owned"] and p["wrapper_focus_valid"] for p in phases))
+    return {"valid": valid, "focus_phases": phases, "frame_summaries": summaries,
+            "prewarm": prewarm, "setup": setup, "measurements": measurements, "errors": errors, "warnings": warnings}
+
+
+class Runner:
+    def __init__(self, run_id, workloads=("ordinary", "stress")):
+        self.run_id = run_id
+        self.workloads = workloads
+        self.out = ROOT / "docs/playtests/2026-10-24" / run_id
+        self.out.mkdir(exist_ok=False)
+        self.report = self.out / "report.json"
+        self.data = {"schema": "current-macos-release-timings-v1", "run_id": run_id,
+                     "classification": "frozen-v19-production-prewarm-release-without-cpu-sampler",
+                     "complete": False, "valid": False, "started_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
+                     "steps": [], "builds": {}, "runs": [], "workloads": list(workloads), "sampling_enabled": False,
+                     "os_driver_cache_reset": False,
+                     "scope": "Ordinary fixed 70-unit combat and synthetic 200-mobile/80-structure stress; both disable AI after fixture setup. Warm-up and helper-only Loading prewarm costs are retained separately. This is not end-to-end Loading timing.",
+                     "harness_peer_review": {"read_only": True, "scope": "Trace overrides, source freeze, stage boundaries, native focus brackets and stress setup readiness", "result": "No further consequential issue after readiness correction", "resolved_findings": ["Wait for paused navigation synchronization, minimap capture and construction rig teardown; verify full snapshot and node paths/modes over another physics/process/draw cycle before helper timing", "Label held physics monitor as sampled_1s_physics_max_ms"]},
+                     "focus_protocol": "Native NSWorkspace foreground PID at 250 ms plus in-engine focus events and phase boundaries; native samples bracket each complete phase.",
+                     "stress_split": "Original full 10-s simulation phases are retained. First 3 wall seconds and remaining frames are a post-processing split, not an added warm-up."}
+        self.expected = json.loads(PARENT_MANIFEST.read_text())
+        self.save()
+
+    def retained(self, path):
+        return {"path": str(path.relative_to(ROOT)) if path.is_relative_to(ROOT) else str(path), "sha256": sha(path), "bytes": path.stat().st_size}
+
+    def save(self):
+        self.report.write_text(json.dumps(self.data, indent=2) + "\n")
+        LATEST.write_text(json.dumps({"report": str(self.report), "complete": self.data["complete"], "valid": self.data["valid"]}) + "\n")
+
+    def save_manifest(self, label, manifest):
+        path = self.out / (label + ".json")
+        path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
+        return {**self.retained(path), "aggregate_sha256": aggregate(manifest), "files": len(manifest)}
+
+    def step(self, name, args, timeout=300):
+        print(name, file=sys.stderr, flush=True)
+        log = self.out / (name + ".log.txt")
+        tick = time.monotonic()
+        with log.open("w") as stream:
+            done = subprocess.run([str(x) for x in args], cwd=ROOT, stdin=subprocess.DEVNULL,
+                                  stdout=stream, stderr=subprocess.STDOUT, timeout=timeout)
+        raw = log.read_text()
+        self.data["steps"].append({"name": name, "command": [str(x) for x in args], "exit_code": done.returncode,
+                                   "elapsed_seconds": time.monotonic()-tick, "log": self.retained(log)})
+        self.save()
+        if done.returncode or re.search(r"^(?:SCRIPT ERROR:|ERROR:)", raw, re.M):
+            raise RuntimeError(f"{name} failed; inspect {log}")
+
+    def prepare(self, kind):
+        ensure_parent_current(self.expected)
+        stage = Path("/tmp") / ("godot-open-rts-" + self.run_id + "-" + kind)
+        stage.mkdir(exist_ok=False)
+        for name in ["source", "tests", "assets"]:
+            shutil.copytree(ROOT / name, stage / name)
+        (stage / ".godot").mkdir()
+        shutil.copytree(ROOT / ".godot/imported", stage / ".godot/imported")
+        for name in ["export_presets.cfg", "icon.svg"]:
+            shutil.copy2(ROOT / name, stage / name)
+        cache_name = "OpenRTS-" + self.run_id + "-" + kind
+        cache = Path.home() / "Library/Application Support" / cache_name
+        if cache.exists():
+            raise RuntimeError(f"Fresh-run cache already exists: {cache}")
+        wrapper_name = "ReleaseBattleBenchmark.gd" if kind == "ordinary" else "ReleaseBenchmark.gd"
+        main_loop = wrapper_name.removesuffix(".gd")
+        project = (ROOT / "project.godot").read_text()
+        project = re.sub(r'^run/main_scene=.*$', 'run/main_scene="res://BenchmarkBootstrap.tscn"', project, flags=re.M)
+        project = project.replace("[application]\n", '[application]\nconfig/use_custom_user_dir=true\nconfig/custom_user_dir_name="' + cache_name + '"\nrun/main_loop_type="' + main_loop + '"\nrun/flush_stdout_on_print=true\n')
+        (stage / "project.godot").write_text(project)
+        (stage / "BenchmarkBootstrap.tscn").write_text('[gd_scene format=3]\n\n[node name="BenchmarkBootstrap" type="Node"]\n')
+        shutil.copy2(TEMPLATES / wrapper_name, stage / wrapper_name)
+        if kind == "stress":
+            path = stage / "tests/headless/ScaleBenchmark.gd"
+            source = path.read_text()
+            needle = "\tcurrent_scene = _game\n"
+            if source.count(needle) != 1:
+                raise RuntimeError("Stress fixture setup hook is ambiguous")
+            source = source.replace(needle, needle + "\tawait _current_benchmark_prewarm()\n")
+            source += "\n\nfunc _current_benchmark_prewarm():\n\tpass\n"
+            path.write_text(source)
+        names = ["source", "tests", "assets", ".godot/imported", ".godot/global_script_class_cache.cfg", ".godot/uid_cache.bin", "project.godot", "export_presets.cfg", "icon.svg", wrapper_name, wrapper_name + ".uid", "BenchmarkBootstrap.tscn"]
+        preimport = file_manifest(stage, names)
+        app = ROOT / "build/polish-2026-10-24" / self.run_id / ("Open_RTS_" + kind + ".app")
+        app.parent.mkdir(exist_ok=True)
+        entry = {"stage": str(stage), "cache": str(cache), "cache_existed_before_import": False,
+                 "stage_uses_symlinks": False, "preimport": self.save_manifest(kind + "-preimport-manifest", preimport)}
+        self.data["builds"][kind] = entry
+        self.save()
+        self.step(kind + "-import", [ENGINE, "--headless", "--path", stage, "--editor", "--quit"])
+        postimport = file_manifest(stage, names)
+        entry["postimport"] = self.save_manifest(kind + "-postimport-manifest", postimport)
+        entry["import_changed_paths"] = manifest_delta(preimport, postimport)
+        for name in [wrapper_name, "project.godot", "BenchmarkBootstrap.tscn"]:
+            shutil.copy2(stage / name, self.out / (kind + "-" + name + ".txt"))
+        if kind == "stress":
+            shutil.copy2(stage / "tests/headless/ScaleBenchmark.gd", self.out / "stress-ScaleBenchmark.gd.txt")
+        self.step(kind + "-export", [ENGINE, "--headless", "--path", stage, "--export-release", "macOS", app])
+        self.step(kind + "-codesign", ["codesign", "--verify", "--deep", "--strict", app])
+        postexport = file_manifest(stage, names)
+        entry["postexport"] = self.save_manifest(kind + "-postexport-manifest", postexport)
+        entry["export_changed_paths"] = manifest_delta(postimport, postexport)
+        binary = app / "Contents/MacOS/Open RTS"
+        pack = app / "Contents/Resources/Open RTS.pck"
+        entry["executable"] = self.retained(binary)
+        entry["pack"] = self.retained(pack)
+        source_assets = {name: digest for name,digest in postexport.items() if name.startswith(("source/", "assets/"))}
+        production = {name: digest for name,digest in self.expected.items() if name.startswith(("source/", "assets/"))}
+        entry["production_source_assets_match_v19"] = source_assets == production
+        if not entry["production_source_assets_match_v19"]:
+            raise RuntimeError("Imported source/assets differ from the final v19 package")
+        ensure_parent_current(self.expected)
+        self.save()
+        return {"stage": stage, "cache": cache, "binary": binary, "pack": pack, "names": names, "manifest": postexport, "entry": entry}
+
+    def native(self, kind, repeat, build):
+        label = f"{kind}-{repeat}"
+        log, focus = self.out / (label + ".log.txt"), self.out / (label + "-native-focus.jsonl")
+        token = self.out / (label + ".start")
+        if token.exists():
+            raise RuntimeError("Focus token already exists")
+        cache_files = sorted(str(path.relative_to(build["cache"])) for path in build["cache"].rglob("*") if path.is_file()) if build["cache"].exists() else []
+        if repeat == 1 and any("shader" in path.lower() or path.endswith(".cache") for path in cache_files):
+            raise RuntimeError("First native run contains an existing shader cache")
+        args = [str(build["binary"]), "--", "--await-focus", "--native-focus-token=" + str(token)]
+        args += ["--destruction-burst"] if kind == "ordinary" else ["--behaviors", "--realtime", "--no-capture", "--input-latency"]
+        process_snapshot = self.out / (label + "-processes.txt")
+        process_snapshot.write_text(subprocess.run(["ps", "-axo", "pid,pcpu,comm"], capture_output=True, text=True, check=True).stdout)
+        entry = {"kind": kind, "repeat": repeat, "fresh_process": True, "fresh_game_cache": repeat == 1,
+                 "cache_files_before": cache_files, "started_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
+                 "process_snapshot_before": self.retained(process_snapshot), "command": args}
+        self.data["runs"].append(entry)
+        self.save()
+        with log.open("w") as output, focus.open("w") as native_output:
+            game = subprocess.Popen(args, cwd=ROOT, stdin=subprocess.DEVNULL, stdout=output, stderr=subprocess.STDOUT)
+            entry["pid"] = game.pid
+            self.data["active"] = {"label": label, "pid": game.pid, "app": str(build["binary"].parents[2]), "log": str(log)}
+            self.save()
+            print(f"{label}: native PID {game.pid}, awaiting foreground focus", file=sys.stderr, flush=True)
+            watcher = subprocess.Popen([str(ROOT / "tmp/polish-mac-focus-monitor"), str(game.pid), str(token)], cwd=ROOT, stdin=subprocess.DEVNULL, stdout=native_output, stderr=subprocess.STDOUT)
+            try:
+                code = game.wait(timeout=240)
+            except subprocess.TimeoutExpired:
+                game.terminate()
+                game.wait(timeout=15)
+                raise RuntimeError(f"{label} timed out; inspect {log}")
+            finally:
+                try:
+                    watcher.wait(timeout=5)
+                except subprocess.TimeoutExpired:
+                    watcher.terminate()
+                    watcher.wait(timeout=5)
+        raw = log.read_text()
+        focus_rows = [json.loads(line) for line in focus.read_text().splitlines()]
+        entry.update(analyze_run(raw, focus_rows, kind))
+        entry.update({"exit_code": code, "log": self.retained(log), "native_focus_log": self.retained(focus),
+                      "ended_utc": dt.datetime.now(dt.timezone.utc).isoformat()})
+        entry["native_pid_matches"] = bool(focus_rows) and all(row["expected_pid"] == game.pid for row in focus_rows)
+        entry["focus_token_matches"] = token.is_file() and token.read_text() == str(game.pid)
+        entry["stage_unchanged"] = file_manifest(build["stage"], build["names"]) == build["manifest"]
+        entry["executable_unchanged"] = sha(build["binary"]) == build["entry"]["executable"]["sha256"]
+        entry["pack_unchanged"] = sha(build["pack"]) == build["entry"]["pack"]["sha256"]
+        entry["valid"] = entry["valid"] and code == 0 and all(entry[key] for key in ["native_pid_matches", "focus_token_matches", "stage_unchanged", "executable_unchanged", "pack_unchanged"])
+        self.data.pop("active", None)
+        self.save()
+        ensure_parent_current(self.expected)
+        print(f"{label}: valid={entry['valid']}", file=sys.stderr, flush=True)
+        if not entry["valid"]:
+            raise RuntimeError(f"{label} did not satisfy timing validity checks; inspect {self.report}")
+
+    def run(self):
+        ensure_parent_current(self.expected)
+        self.data["production_package_manifest"] = self.retained(PARENT_MANIFEST)
+        self.data["production_v19_manifest"] = self.save_manifest("production-v19-manifest", self.expected)
+        rejected = ROOT / "docs/playtests/2026-10-24/macos-current-v19-final-1/report.json"
+        diagnosis = ROOT / "docs/playtests/2026-10-24/macos-current-v19-prewarm-diagnostic-1/result.json"
+        if rejected.is_file() and rejected != self.report and diagnosis.is_file():
+            self.data["stress_baseline_correction"] = {"rejected_run": self.retained(rejected), "diagnostic": self.retained(diagnosis), "cause": "The initial stress baseline overlapped deferred ConstructionPrewarm teardown (34 nodes) and 12 mobile navigation assignments (24 snapshot fields). Simulation remained at 0; no production change was needed.", "diagnostic_only_not_release_timing": True}
+        package_digest = hashlib.sha256()
+        for name in sorted(self.expected):
+            package_digest.update(name.encode())
+            package_digest.update((ROOT / name).read_bytes())
+        self.data["package_compatible_source_sha256"] = package_digest.hexdigest()
+        for name in ["current-macos-v19.py", "polish-mac-focus-monitor.swift"]:
+            shutil.copy2(ROOT / "tmp" / name, self.out / (name + ".txt"))
+        self.data["monitor_executable"] = self.retained(ROOT / "tmp/polish-mac-focus-monitor")
+        self.data["engine"] = self.retained(ENGINE)
+        builds = {kind: self.prepare(kind) for kind in self.workloads}
+        for kind in self.workloads:
+            for repeat in [1, 2]:
+                self.native(kind, repeat, builds[kind])
+        ensure_parent_current(self.expected)
+        self.data["production_source_unchanged"] = True
+        self.data["complete"] = True
+        self.data["valid"] = all(row["valid"] for row in self.data["runs"])
+        self.data["ended_utc"] = dt.datetime.now(dt.timezone.utc).isoformat()
+        self.save()
+        emit(status="complete", valid=self.data["valid"], runs=len(self.data["runs"]), report=str(self.report))
+
+
+def main():
+    parser = Parser(description="Inspect or collect isolated macOS v19 release frame timings.", epilog="Examples: python3 tmp/current-macos-v19.py; python3 tmp/current-macos-v19.py --run --run-id macos-current-v19-001")
+    parser.add_argument("--run", action="store_true", help="Freeze source, import, export, then run four native timing processes serially")
+    parser.add_argument("--run-id", help="Unique archive/cache identifier, required with --run")
+    parser.add_argument("--workload", choices=["both", "ordinary", "stress"], default="both", help="Collect both workloads (default), or repeat only one workload in a new archive/cache")
+    args = parser.parse_args()
+    if not args.run:
+        latest = json.loads(LATEST.read_text()) if LATEST.exists() else {}
+        emit(bin=str(Path(__file__).resolve()).replace(str(Path.home()), "~"), description="Collect frozen current-production macOS release timings", status="read-only", latest=latest.get("report", "No current-v19 timing run collected"), complete=latest.get("complete", False), valid=latest.get("valid", False), help="python3 tmp/current-macos-v19.py --run --run-id <unique-id>")
+        return 0
+    if not args.run_id or not re.fullmatch(r"macos-current-v19-[a-z0-9-]+", args.run_id):
+        emit(error="--run requires a unique --run-id beginning macos-current-v19-", help="python3 tmp/current-macos-v19.py --run --run-id macos-current-v19-001")
+        return 2
+    runner = None
+    try:
+        runner = Runner(args.run_id, ("ordinary", "stress") if args.workload == "both" else (args.workload,))
+        runner.run()
+    except Exception as error:
+        if runner is not None:
+            runner.data["error"] = str(error)
+            runner.data["valid"] = False
+            runner.save()
+        emit(error=str(error), help="Inspect the archived report and logs; use a new --run-id for another attempt")
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

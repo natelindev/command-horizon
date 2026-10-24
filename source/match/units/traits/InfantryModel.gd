@@ -1,11 +1,11 @@
 extends RefCounted
 
+const Cache = preload("res://source/utils/RuntimeCache.gd")
+
 # Production model, authored against art/infantry/redesign/target-v1.png.
 # Contoured cross sections model tailoring, anatomy and helmet shells rather
 # than scaling capsules. Shared mesh resources keep squad construction cheap.
 const Kit = preload("res://source/match/units/traits/InfantryEquipment.gd")
-static var _meshes = {}
-static var _materials = {}
 
 
 static func build(faction, role):
@@ -454,8 +454,9 @@ static func _pivot(parent, label, point):
 
 
 static func _material(color, label, roughness, metallic = 0.0):
+	var materials = Cache.bucket("infantry_materials")
 	var key = color + label
-	if not _materials.has(key):
+	if not materials.has(key):
 		var material = StandardMaterial3D.new()
 		material.resource_name = label
 		material.albedo_color = Color(color)
@@ -472,16 +473,17 @@ static func _material(color, label, roughness, metallic = 0.0):
 			material.set_shader_parameter("base_color", Color(color))
 			material.set_shader_parameter("base_roughness", roughness)
 			material.set_shader_parameter("vertex_tint", true)
-		_materials[key] = material
-	return _materials[key]
+		materials[key] = material
+	return materials[key]
 
 
 static func _profile(parent, label, point, rings, material, folds = 0.0, roundness = .8):
+	var meshes = Cache.bucket("infantry_meshes")
 	# Each ring is (height, half width, half depth, depth offset). Slightly
 	# squared cross sections give cloth seams and anatomical planes. Geometry
 	# folds and deterministic vertex shading survive every graphics preset.
 	var key = "profile" + str(rings) + str(folds) + str(roundness)
-	if not _meshes.has(key):
+	if not meshes.has(key):
 		var surface = SurfaceTool.new()
 		surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 		var vertices = []
@@ -519,23 +521,25 @@ static func _profile(parent, label, point, rings, material, folds = 0.0, roundne
 		# Index before smoothing to share normals along authored contours.
 		surface.index()
 		surface.generate_normals()
-		_meshes[key] = surface.commit()
-	return Kit._mesh(parent, label, point, _meshes[key], material)
+		meshes[key] = surface.commit()
+	return Kit._mesh(parent, label, point, meshes[key], material)
 
 
 static func _box(parent, label, point, size, material):
+	var meshes = Cache.bucket("infantry_meshes")
 	var key = "box" + str(size)
-	if not _meshes.has(key):
-		_meshes[key] = Kit._beveled_box(size)
-	return Kit._mesh(parent, label, point, _meshes[key], material)
+	if not meshes.has(key):
+		meshes[key] = Kit._beveled_box(size)
+	return Kit._mesh(parent, label, point, meshes[key], material)
 
 
 static func _team_box(parent, label, point, size, material):
+	var meshes = Cache.bucket("infantry_meshes")
 	var key = "team" + str(size) + str(material.albedo_color)
-	if not _meshes.has(key):
+	if not meshes.has(key):
 		var team = material.duplicate()
 		team.resource_name = "TeamColor_Infantry"
 		var mesh = Kit._beveled_box(size)
 		mesh.surface_set_material(0, team)
-		_meshes[key] = mesh
-	return Kit._mesh(parent, label, point, _meshes[key], null)
+		meshes[key] = mesh
+	return Kit._mesh(parent, label, point, meshes[key], null)

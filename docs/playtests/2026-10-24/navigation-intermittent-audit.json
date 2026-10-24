@@ -1,0 +1,289 @@
+{
+  "reviewed_utc": "2026-10-24T05:43:22.971844+00:00",
+  "status": "Original intermittent failure remains unexplained; no new movement defect or fixture deadline correction established.",
+  "method": "Read existing source and retained logs only. No engine runs, new reruns, production edits, or fixture edits during this audit.",
+  "original_failure": {
+    "path": [
+      [
+        29.89214,
+        0.6,
+        28.46127
+      ],
+      [
+        33.3,
+        0.6,
+        28.2
+      ],
+      [
+        35.1,
+        0.6,
+        26.4
+      ],
+      [
+        35.4,
+        0.6,
+        24.6
+      ],
+      [
+        35.14706,
+        0.6,
+        23.58824
+      ]
+    ],
+    "sha256": "ea9ae14e581841cbb02a785c6472972409f9f2bf66be4470055810baa557dad2",
+    "engine": "Godot 4.7.2.stable.official.ed1daf0bf",
+    "reached": 11,
+    "expected": 12,
+    "position": [
+      31.72881,
+      0,
+      28.32115
+    ],
+    "goal": [
+      35.14706,
+      0,
+      23.58824
+    ],
+    "straight_line_remaining_m": 5.838225,
+    "active_destination": true,
+    "path_index": 1,
+    "diagnostic_limits": "Only final mover position/path were recorded. Neighbor positions, requested/safe/actual velocity history, recovery state and progress history are absent. This is not an exact replayable failure snapshot."
+  },
+  "fixture": {
+    "source": {
+      "path": "tests/headless/NavigationRegression.gd",
+      "sha256": "3b9f1dfa09871feda37ca750d66b4bd65f0622e7ee020c44c706016a453724df"
+    },
+    "project": {
+      "path": "project.godot",
+      "sha256": "20ab5711fcee23d752c45511b123403bb5c67b55da5cc9a4ac9805ed50f3b636"
+    },
+    "group_deadline_physics_ticks": 1500,
+    "current_physics_hz": 30,
+    "current_deadline_simulation_seconds": 50,
+    "arrival_distance_m": 0.6,
+    "arrival_policy": "Records whether each tank arrived at any sampled tick. Also accepts the existing occupied-endpoint policy only after movement has stopped beside a settled ally; active stuck movers remain failures.",
+    "interpretation": "A frame-count wait is not directly shortened by slow wall-clock execution. The original 5.84 m active miss is not explained by marginal arrival tolerance or one callback at the deadline. Logs alone cannot establish whether a longer run would eventually arrive."
+  },
+  "retained_rerun_corpus": {
+    "glob": "tmp/polish-navigation*.log",
+    "files": [
+      "tmp/polish-navigation-failure-only-1.log",
+      "tmp/polish-navigation-failure-only-10.log",
+      "tmp/polish-navigation-failure-only-11.log",
+      "tmp/polish-navigation-failure-only-12.log",
+      "tmp/polish-navigation-failure-only-13.log",
+      "tmp/polish-navigation-failure-only-14.log",
+      "tmp/polish-navigation-failure-only-15.log",
+      "tmp/polish-navigation-failure-only-16.log",
+      "tmp/polish-navigation-failure-only-17.log",
+      "tmp/polish-navigation-failure-only-18.log",
+      "tmp/polish-navigation-failure-only-19.log",
+      "tmp/polish-navigation-failure-only-2.log",
+      "tmp/polish-navigation-failure-only-20.log",
+      "tmp/polish-navigation-failure-only-21.log",
+      "tmp/polish-navigation-failure-only-22.log",
+      "tmp/polish-navigation-failure-only-3.log",
+      "tmp/polish-navigation-failure-only-4.log",
+      "tmp/polish-navigation-failure-only-5.log",
+      "tmp/polish-navigation-failure-only-6.log",
+      "tmp/polish-navigation-failure-only-7.log",
+      "tmp/polish-navigation-failure-only-8.log",
+      "tmp/polish-navigation-failure-only-9.log",
+      "tmp/polish-navigation-final-canonical.log",
+      "tmp/polish-navigation-original-capture-1.log",
+      "tmp/polish-navigation-original-capture-2.log",
+      "tmp/polish-navigation-original-capture-3.log",
+      "tmp/polish-navigation-original-capture-4.log",
+      "tmp/polish-navigation-original-capture-5.log",
+      "tmp/polish-navigation-original-capture-6.log",
+      "tmp/polish-navigation-packaged-repro.log",
+      "tmp/polish-navigation-probe-1.log",
+      "tmp/polish-navigation-probe-2.log",
+      "tmp/polish-navigation-probe-3.log",
+      "tmp/polish-navigation-probe-4.log",
+      "tmp/polish-navigation-probe-5.log",
+      "tmp/polish-navigation-probe-6.log",
+      "tmp/polish-navigation-repeated-probe.log"
+    ],
+    "group_checks": 42,
+    "passed_group_checks": 42,
+    "failed_group_checks": 0,
+    "inventory_sha256": "2cbed4d0c994f155399eb1ee1c7eede6b899a7cc1f424511be3810c569adcb0e",
+    "scope": "These 37 files contain 42 crowd checks, including six group attempts within one repeated-probe process. They are not 42 independent identical-build experiments. The nested original failure and latest CPU/package suites are outside this glob.",
+    "file_count": 37
+  },
+  "sampled_arrival_timing": {
+    "trajectory_count": 12,
+    "sample_period_ticks": 15,
+    "minimum_first_all_arrived_frame": 420,
+    "maximum_first_all_arrived_frame": 1110,
+    "conservative_minimum_deadline_margin_ticks": 390,
+    "conservative_minimum_deadline_margin_seconds": 13,
+    "note": "Sampled traces record only units not yet counted as arrived. Frame labels are zero-based and sampled every 15 ticks; these are conservative sampled margins, not exact arrival timestamps.",
+    "instrumented_logs": [
+      {
+        "path": "tmp/polish-navigation-probe-1.log",
+        "sha256": "68c20491b05be0564995d7d5d893fda9e3f43a38ab9dd3b8fd16f968640c86d6",
+        "timings": [
+          {
+            "last_pending_sample_frame": 1095,
+            "first_all_arrived_sample_frame": 1110,
+            "remaining_deadline_ticks": 390
+          }
+        ]
+      },
+      {
+        "path": "tmp/polish-navigation-probe-2.log",
+        "sha256": "9c69c7ff6b9a5f54aa048de99b6b9442e75c91bef2a4b18ee242e5e294e83c0d",
+        "timings": [
+          {
+            "last_pending_sample_frame": 1020,
+            "first_all_arrived_sample_frame": 1035,
+            "remaining_deadline_ticks": 465
+          }
+        ]
+      },
+      {
+        "path": "tmp/polish-navigation-probe-3.log",
+        "sha256": "d06b782b8d0acd75dbc5f7194a2c9ca456a5f9ba35faa0cdf357252831c941e3",
+        "timings": [
+          {
+            "last_pending_sample_frame": 525,
+            "first_all_arrived_sample_frame": 540,
+            "remaining_deadline_ticks": 960
+          }
+        ]
+      },
+      {
+        "path": "tmp/polish-navigation-probe-4.log",
+        "sha256": "f95149cab541a9f3b254bff49d8faa110df3799274f5dd4416d4b6ccfb58f73c",
+        "timings": [
+          {
+            "last_pending_sample_frame": 660,
+            "first_all_arrived_sample_frame": 675,
+            "remaining_deadline_ticks": 825
+          }
+        ]
+      },
+      {
+        "path": "tmp/polish-navigation-probe-5.log",
+        "sha256": "ec6c09350d8fb8fecdc67d704a52846fb3b4e690ecc02f25d1e2841773035d0f",
+        "timings": [
+          {
+            "last_pending_sample_frame": 495,
+            "first_all_arrived_sample_frame": 510,
+            "remaining_deadline_ticks": 990
+          }
+        ]
+      },
+      {
+        "path": "tmp/polish-navigation-probe-6.log",
+        "sha256": "22fe7b53b2b98d6554e6b688272dc685c37a72c3a0a2aed6530c41db543fda15",
+        "timings": [
+          {
+            "last_pending_sample_frame": 405,
+            "first_all_arrived_sample_frame": 420,
+            "remaining_deadline_ticks": 1080
+          }
+        ]
+      },
+      {
+        "path": "tmp/polish-navigation-repeated-probe.log",
+        "sha256": "24e7a05a94a51b73055134ecb7e4bf4f8033026804fac1791af267ffe6e518b8",
+        "timings": [
+          {
+            "last_pending_sample_frame": 840,
+            "first_all_arrived_sample_frame": 855,
+            "remaining_deadline_ticks": 645
+          },
+          {
+            "last_pending_sample_frame": 495,
+            "first_all_arrived_sample_frame": 510,
+            "remaining_deadline_ticks": 990
+          },
+          {
+            "last_pending_sample_frame": 540,
+            "first_all_arrived_sample_frame": 555,
+            "remaining_deadline_ticks": 945
+          },
+          {
+            "last_pending_sample_frame": 495,
+            "first_all_arrived_sample_frame": 510,
+            "remaining_deadline_ticks": 990
+          },
+          {
+            "last_pending_sample_frame": 960,
+            "first_all_arrived_sample_frame": 975,
+            "remaining_deadline_ticks": 525
+          },
+          {
+            "last_pending_sample_frame": 645,
+            "first_all_arrived_sample_frame": 660,
+            "remaining_deadline_ticks": 840
+          }
+        ]
+      }
+    ]
+  },
+  "reconstructed_geometry": {
+    "fixture": {
+      "path": "tmp/GroundCrowdGeometryProbe.gd",
+      "sha256": "2d3fce706e93c833db8aab7a0d89da99686f1484bc6bee32e96c1ac991d05089"
+    },
+    "log": {
+      "path": "tmp/polish-crowd-geometry-probe.log",
+      "sha256": "84a6832ab83e4ec89b2b5fe938168dedce787801631e64b39d9dae1c1a27e3c9"
+    },
+    "passed_cases": 4,
+    "arrival_simulation_seconds": [
+      7.2,
+      10.833333,
+      5.333333,
+      5.266667
+    ],
+    "maximum_recorded_step_m": 0.10400036722422,
+    "minimum_recorded_separation_m": 1.78070044517517,
+    "limitation": "The original neighbors were unrecorded. These substituted settled-neighbor layouts test related geometry and normal speed/separation constraints, not the exact failed state."
+  },
+  "current_additional_evidence": [
+    {
+      "path": "tmp/polish-latest-cpu-checks/NavigationRegression.log",
+      "sha256": "81dace1443cd68734e68d2a90121c797cfca35212891483260c8f837484e1f80"
+    },
+    {
+      "path": "docs/playtests/2026-10-24/macos-package/NavigationRegression.log.txt",
+      "sha256": "690d350d01bd8905ad25d74cedb6d8820807bca8a24b46ccfea1229588ccb768"
+    },
+    {
+      "path": "tests/headless/GroundCrowdRecoveryRegression.gd",
+      "sha256": "69bfd31742b8fdfc989d514bce051049f55ac3a92ee1fca0cc204e4b2223e4d2"
+    },
+    {
+      "path": "source/match/units/traits/Movement.gd",
+      "sha256": "0e935ed8518b0cc02cbf605c0cfc19abbe51cfbd465f97b2fa9b9f2e890c3849"
+    }
+  ],
+  "conclusions": [
+    "Retain the original failure as unresolved; subsequent passes do not prove a specific fix or quantify its probability.",
+    "No evidence currently justifies increasing the deadline, broadening arrival tolerance, or making a speculative movement change.",
+    "Passing geometry and timing-margin checks narrow the investigation but do not identify the original cause.",
+    "Existing direct-quit ObjectDB/resource diagnostics are retained separately; they do not explain a crowd failure recorded before teardown."
+  ],
+  "next_capture": {
+    "existing_failure_only_harness": {
+      "path": "tmp/NavigationFailureCapture.gd",
+      "sha256": "41a30becbccd987a012fb928f49c169adff542ba08f68a14335cdb864729e4c1"
+    },
+    "recommendation": "Keep the canonical deadline and failure condition. On the next scheduled gate recurrence, capture the live failure before cleanup. Prefer bounded diagnostics over additional blind repeats.",
+    "required_state": [
+      "build and source hashes, engine version, physics rate, locale, match seed",
+      "all nearby unit positions, radii, live movement domains and destinations",
+      "requested velocity, avoidance safe velocity and actual displacement over a short bounded history",
+      "path points/index and navigation-map iteration",
+      "progress position/timer and recovery direction/timer",
+      "save snapshot with stable unit/resource IDs"
+    ],
+    "followup": "Reconstruct the captured neighbor state, establish a deterministic failing regression, then change movement only against the demonstrated cause."
+  }
+}

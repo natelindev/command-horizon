@@ -1,0 +1,1940 @@
+{
+  "schema": "macos-selective-release-validation-v1",
+  "started_utc": "2026-10-24T05:43:23.982674+00:00",
+  "engine": "Godot 4.7.2 stable",
+  "validation_mode": "selective_revalidation_after_fixture_only_change",
+  "full_suite_rerun": false,
+  "registered_suite_count": 73,
+  "revalidated_suite_count": 2,
+  "focused_run_count": 4,
+  "carried_forward_suite_count": 71,
+  "affected_suites": [
+    "OpeningGuidanceRegression",
+    "RallyControlsRegression"
+  ],
+  "baseline_report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+  "baseline_report_sha256": "526ea32fbb9afbd56fcc2ed88d1526b775376fb4a008a6113b3905660ae2b2ea",
+  "source_sha256": "2d1828f0142d3e1771b92ba33509335eed41928e3708459c63371453bb2103f5",
+  "source_comparison": {
+    "current_source_sha256": "2d1828f0142d3e1771b92ba33509335eed41928e3708459c63371453bb2103f5",
+    "baseline_reconstructed_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+    "baseline_source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+    "only_two_fixtures_changed": true,
+    "files": {
+      "tests/headless/OpeningGuidanceRegression.gd": {
+        "before_sha256": "3cf7f65a1c183b88f3d9f62bd67fe1cc90b54e1e4a124e6bffc87f10d9146b91",
+        "after_sha256": "476737582e451e9c19c7379678a849eafaae4aadfa8d751dab624f76061a4ee9"
+      },
+      "tests/headless/RallyControlsRegression.gd": {
+        "before_sha256": "73ecef30f1cba7674a6a5957f60e4d3185012823566788b231f5ae9797750e2c",
+        "after_sha256": "8e02544c451cb3d7ed447db32541a3b5d4d145114d0f4c23ef64f35e44093c7a"
+      }
+    },
+    "method": "Substitute only the two recorded pre-fix fixture byte streams while hashing the complete original source/project/assets/test file set; reconstructed hash exactly equals the prior verified export source."
+  },
+  "steps": [
+    {
+      "name": "baseline-pack-manifest",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 1.495,
+      "log": "docs/playtests/2026-10-24/macos-package-refresh/baseline-pack-manifest.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "command": [
+        "/Users/linlilu/godot-open-rts/tmp/tooling/godot-4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--main-pack",
+        "/Users/linlilu/godot-open-rts/build/polish-2026-10-24/before-locale-fixture/Open RTS.pck",
+        "--script",
+        "/Users/linlilu/godot-open-rts/tmp/PackContentManifest.gd",
+        "--",
+        "/Users/linlilu/godot-open-rts/docs/playtests/2026-10-24/macos-package-refresh/baseline-pack-manifest.json"
+      ],
+      "log_sha256": "d7d577e6d216756a0c2d9ae917af4c898c5d4b08204ba6c5fc8886b1010d72c0"
+    },
+    {
+      "name": "import",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 3.068,
+      "log": "docs/playtests/2026-10-24/macos-package-refresh/import.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "command": [
+        "/Users/linlilu/godot-open-rts/tmp/tooling/godot-4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--editor",
+        "--quit"
+      ],
+      "log_sha256": "5c256644581c6d3133e23a8c3a0a509ab48da0c814bde7178cfe12b7fe662c48"
+    },
+    {
+      "name": "export",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 18.714,
+      "log": "docs/playtests/2026-10-24/macos-package-refresh/export.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "command": [
+        "/Users/linlilu/godot-open-rts/tmp/tooling/godot-4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--export-release",
+        "macOS",
+        "/Users/linlilu/godot-open-rts/build/polish-2026-10-24/Open_RTS_macOS.zip"
+      ],
+      "log_sha256": "c7cf8bdb31646193ae1f066d9651da9bcd880546ff8483ea70047d6583bfd175"
+    },
+    {
+      "name": "refreshed-pack-manifest",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 1.521,
+      "log": "docs/playtests/2026-10-24/macos-package-refresh/refreshed-pack-manifest.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "command": [
+        "/Users/linlilu/godot-open-rts/tmp/tooling/godot-4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--main-pack",
+        "/Users/linlilu/godot-open-rts/build/polish-2026-10-24/Open RTS.app/Contents/Resources/Open RTS.pck",
+        "--script",
+        "/Users/linlilu/godot-open-rts/tmp/PackContentManifest.gd",
+        "--",
+        "/Users/linlilu/godot-open-rts/docs/playtests/2026-10-24/macos-package-refresh/refreshed-pack-manifest.json"
+      ],
+      "log_sha256": "d7d577e6d216756a0c2d9ae917af4c898c5d4b08204ba6c5fc8886b1010d72c0"
+    },
+    {
+      "name": "codesign-verify",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.203,
+      "log": "docs/playtests/2026-10-24/macos-package-refresh/codesign-verify.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "command": [
+        "codesign",
+        "--verify",
+        "--deep",
+        "--strict",
+        "/Users/linlilu/godot-open-rts/build/polish-2026-10-24/Open RTS.app"
+      ],
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "executable-code-comparison",
+      "passed": true,
+      "returncode": 0,
+      "log": "docs/playtests/2026-10-24/macos-package-refresh/executable-code-comparison.log.txt",
+      "log_sha256": "554027282a106639077a76ae56da17d3c2752a0adf6d37d55618cae91daaf544",
+      "unsigned_engine_binary_identical": true,
+      "copies": [
+        {
+          "copy": "before",
+          "unsigned_sha256": "6815b29a255f3b1bb749e0dd8b3cc844318ccacdb87b403c836460751a7d30fe",
+          "unsigned_bytes": 168784576
+        },
+        {
+          "copy": "after",
+          "unsigned_sha256": "6815b29a255f3b1bb749e0dd8b3cc844318ccacdb87b403c836460751a7d30fe",
+          "unsigned_bytes": 168784576
+        }
+      ],
+      "assessment": "The bundle was re-signed after its PCK changed. Raw signed executable hashes differ; removing signatures from temporary copies produces byte-identical engine binaries. Original signed artifacts were not modified."
+    },
+    {
+      "name": "native-main-menu-cmd-q",
+      "passed": true,
+      "returncode": 0,
+      "started_utc": "2026-10-24T05:45:38.986399+00:00",
+      "finished_utc": "2026-10-24T05:46:06.929701+00:00",
+      "seconds": 27.943,
+      "command": [
+        "build/polish-2026-10-24/Open RTS.app/Contents/MacOS/Open RTS",
+        "--verbose"
+      ],
+      "log": "docs/playtests/2026-10-24/macos-package-refresh/native-main-menu-cmd-q.log.txt",
+      "log_sha256": "642db72aeae46e0deec910783cdf4425ba761ae32f424f5e4b67fe75be2a944b",
+      "errors": [],
+      "warnings": [
+        "WARNING: Image format RGB8 not supported by hardware, converting to RGBA8.",
+        "WARNING: Image format RGB8 not supported by hardware, converting to RGBA8."
+      ],
+      "shutdown_diagnostics": [],
+      "interaction": "Actual refreshed release app opened the native main menu; screenshot visually reviewed. Cmd+Q closed the application; computer-use reported App quit and the process exited 0.",
+      "warning_assessment": "Two retained Metal RGB8-to-RGBA8 hardware format fallback warnings; no script, ObjectDB, resource, RID, or shutdown errors.",
+      "skirmish_provenance": "The prior full-suite baseline includes native skirmish and Cmd+Q verification. All gameplay/project/assets packed resource hashes are identical in this refresh; the new native smoke verifies startup and quit of the rebuilt artifact."
+    }
+  ],
+  "focused_runs": [
+    {
+      "name": "OpeningGuidanceRegression-en",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 4.338,
+      "log": "docs/playtests/2026-10-24/macos-package-refresh/OpeningGuidanceRegression-en.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "command": [
+        "/Users/linlilu/godot-open-rts/tmp/tooling/godot-4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--main-pack",
+        "/Users/linlilu/godot-open-rts/build/polish-2026-10-24/Open RTS.app/Contents/Resources/Open RTS.pck",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "/Users/linlilu/godot-open-rts/tmp/polish-macos-locale-refresh/OpeningGuidancePackagedLocaleProbe.gd",
+        "--",
+        "en"
+      ],
+      "log_sha256": "d59c49f1228b9e8728841d1b2d3103c4499f84519a6a7e845eddeb25626b3830",
+      "suite": "OpeningGuidanceRegression",
+      "incoming_locale": "en",
+      "execution_mode": "packaged_fixture_via_external_locale_wrapper",
+      "fixture_sha256": "476737582e451e9c19c7379678a849eafaae4aadfa8d751dab624f76061a4ee9",
+      "pack_sha256": "9263681dbdd57075535bfffd17b4248020439880387880d50cfff4277f9adc53"
+    },
+    {
+      "name": "OpeningGuidanceRegression-zh_CN",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 4.342,
+      "log": "docs/playtests/2026-10-24/macos-package-refresh/OpeningGuidanceRegression-zh_CN.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "command": [
+        "/Users/linlilu/godot-open-rts/tmp/tooling/godot-4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--main-pack",
+        "/Users/linlilu/godot-open-rts/build/polish-2026-10-24/Open RTS.app/Contents/Resources/Open RTS.pck",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "/Users/linlilu/godot-open-rts/tmp/polish-macos-locale-refresh/OpeningGuidancePackagedLocaleProbe.gd",
+        "--",
+        "zh_CN"
+      ],
+      "log_sha256": "ddc20ba3cff5c575e084ddaa8ae5f19f22a4fdf9615d9c31059be097cafb0896",
+      "suite": "OpeningGuidanceRegression",
+      "incoming_locale": "zh_CN",
+      "execution_mode": "packaged_fixture_via_external_locale_wrapper",
+      "fixture_sha256": "476737582e451e9c19c7379678a849eafaae4aadfa8d751dab624f76061a4ee9",
+      "pack_sha256": "9263681dbdd57075535bfffd17b4248020439880387880d50cfff4277f9adc53"
+    },
+    {
+      "name": "RallyControlsRegression-en",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 13.723,
+      "log": "docs/playtests/2026-10-24/macos-package-refresh/RallyControlsRegression-en.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "command": [
+        "/Users/linlilu/godot-open-rts/tmp/tooling/godot-4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--main-pack",
+        "/Users/linlilu/godot-open-rts/build/polish-2026-10-24/Open RTS.app/Contents/Resources/Open RTS.pck",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "/Users/linlilu/godot-open-rts/tmp/polish-macos-locale-refresh/RallyControlsPackagedLocaleProbe.gd",
+        "--",
+        "en"
+      ],
+      "log_sha256": "7ad14467d9f73a861259558631336587d5c84b063c2e328cc4e05afbf5d6e9f2",
+      "suite": "RallyControlsRegression",
+      "incoming_locale": "en",
+      "execution_mode": "packaged_fixture_via_external_locale_wrapper",
+      "fixture_sha256": "8e02544c451cb3d7ed447db32541a3b5d4d145114d0f4c23ef64f35e44093c7a",
+      "pack_sha256": "9263681dbdd57075535bfffd17b4248020439880387880d50cfff4277f9adc53"
+    },
+    {
+      "name": "RallyControlsRegression-zh_CN",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 13.758,
+      "log": "docs/playtests/2026-10-24/macos-package-refresh/RallyControlsRegression-zh_CN.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 5 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "command": [
+        "/Users/linlilu/godot-open-rts/tmp/tooling/godot-4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--main-pack",
+        "/Users/linlilu/godot-open-rts/build/polish-2026-10-24/Open RTS.app/Contents/Resources/Open RTS.pck",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "/Users/linlilu/godot-open-rts/tmp/polish-macos-locale-refresh/RallyControlsPackagedLocaleProbe.gd",
+        "--",
+        "zh_CN"
+      ],
+      "log_sha256": "a65f4ffcfd926b30dddc092748b207cb195d8d58ddeb275bbfd1ba6a02b2c8cc",
+      "suite": "RallyControlsRegression",
+      "incoming_locale": "zh_CN",
+      "execution_mode": "packaged_fixture_via_external_locale_wrapper",
+      "fixture_sha256": "8e02544c451cb3d7ed447db32541a3b5d4d145114d0f4c23ef64f35e44093c7a",
+      "pack_sha256": "9263681dbdd57075535bfffd17b4248020439880387880d50cfff4277f9adc53"
+    }
+  ],
+  "carried_forward_suites": [
+    {
+      "name": "BehaviorRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 7.492,
+      "log": "docs/playtests/2026-10-24/macos-package/BehaviorRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "c68dc8cd93d45d08ff3c5d75713c8d483b65e8c631af7a66bfb022aa2e9cce17",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "UnitAnimationRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 5.734,
+      "log": "docs/playtests/2026-10-24/macos-package/UnitAnimationRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 18 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 7 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "aa044026fac3519d527cb3cb179cf75ab404ef8a90e56e9f4bb34e010f291a52",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "InfantryRedesignRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.988,
+      "log": "docs/playtests/2026-10-24/macos-package/InfantryRedesignRegression.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "24e4e7a428a5fde32cd1fc43ff86e6aa0068874fc3b1270810c7d1c2167f1e01",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "InfantryMeshBatchRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.849,
+      "log": "docs/playtests/2026-10-24/macos-package/InfantryMeshBatchRegression.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "674307127efbb2b7a26f8d25314ae0ec7bf4bb35be27602de255db73b81733f6",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "InfantryDeathGroundRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 2.958,
+      "log": "docs/playtests/2026-10-24/macos-package/InfantryDeathGroundRegression.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "065220bc72e7ca32537896f2c59fd9272a053159e040aa35740614a639cbc656",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "InfantryMotionRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 7.046,
+      "log": "docs/playtests/2026-10-24/macos-package/InfantryMotionRegression.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "acad7351ddc18239125043da527dbae86bd2dcf0ec21f6564c0d674b1d23e19a",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "TerrainGroundingRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 3.686,
+      "log": "docs/playtests/2026-10-24/macos-package/TerrainGroundingRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "7b4a004ffa8fdfb385d00b2d39745f592fb01fc994b8fb1e98505dc8090dbe91",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "CombatRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 2.093,
+      "log": "docs/playtests/2026-10-24/macos-package/CombatRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 16 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 6 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "c4229e4f8847006303eeb6583d02dc87891ccdc9790556339344c9e43743596f",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "AntiAirPriorityRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 3.436,
+      "log": "docs/playtests/2026-10-24/macos-package/AntiAirPriorityRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "347fc26ec6021d41f3fac11d6fc1f1ecc116ed84b70d9d8d13bfa6fc093cf6dc",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "TechnologyRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 93.628,
+      "log": "docs/playtests/2026-10-24/macos-package/TechnologyRegression.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "29cf72eab32dcc910e5922ca821a346a45cfa3c1a011b2788cbeb0958dfe4ea9",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "TechnologyAIRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 10.691,
+      "log": "docs/playtests/2026-10-24/macos-package/TechnologyAIRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "3eaee95c590db6ecf6799a882fb141e58eb9385bfb52532de7f524d618f3a2b4",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "WeaponModeRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 3.079,
+      "log": "docs/playtests/2026-10-24/macos-package/WeaponModeRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "baf14ac7b1e6428ef48713c4f2412cbeb241f1b85a51d80f6d91415a774ba053",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "ResearchTilesRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 9.057,
+      "log": "docs/playtests/2026-10-24/macos-package/ResearchTilesRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 28 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 11 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "95d3fa212c2aba138cbd4366418a50209d349570a9de62c21c16c335f2402335",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "StructureActivityRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 4.275,
+      "log": "docs/playtests/2026-10-24/macos-package/StructureActivityRegression.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "e086418f0b9366d513853f1a692b68d4235f248c7904e94909cfedf36092703e",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "PersistentCaptureRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 7.089,
+      "log": "docs/playtests/2026-10-24/macos-package/PersistentCaptureRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "7ff83977844fae8ef00885c8ee2d8e375835724086ff94aededfac6de7d4f392",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "CampaignInteriorRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 18.279,
+      "log": "docs/playtests/2026-10-24/macos-package/CampaignInteriorRegression.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "58d12140545621154b4c8a96e6166b9ceab8a708de32b88d540147ebcf351337",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "HeroCampaignRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 37.859,
+      "log": "docs/playtests/2026-10-24/macos-package/HeroCampaignRegression.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "bd4dc572622ee259d98f3892a2919f5679be703abd4cf7a0b1c81fe6170147b8",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "SkirmishPickerRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.771,
+      "log": "docs/playtests/2026-10-24/macos-package/SkirmishPickerRegression.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "ed75e0c0e6c2b44695780fd45a2e4989546d1af0c32a22e1ec04965f51038558",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "WorkerDistributionRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 7.774,
+      "log": "docs/playtests/2026-10-24/macos-package/WorkerDistributionRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "9e4ec156ec1c8fdc3f6f22083b0c5cfa3c95c9c4f89017850b5d33ba75d92815",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "CargoReturnRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 19.914,
+      "log": "docs/playtests/2026-10-24/macos-package/CargoReturnRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "fc26a8608789828eec32c8a1e318c8913dc00285580821df61d6981a2a8fd2e4",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "ResourceFieldRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 6.444,
+      "log": "docs/playtests/2026-10-24/macos-package/ResourceFieldRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "603898245d8d5d99a6903bfa4a90faf60633319d0ba1544365a69c580f0b3d69",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "GarrisonCombatExitRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 28.184,
+      "log": "docs/playtests/2026-10-24/macos-package/GarrisonCombatExitRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "f04f51f2a40fd1df11621bf6d9a94d5b9a8fb3524c4fc7a5aa2dbad6d5feff30",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "PointOfInterestRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 13.028,
+      "log": "docs/playtests/2026-10-24/macos-package/PointOfInterestRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "e440f52357243b06dfb3aeeb8dc2146dfa16dbfd9bf333768b6ab57c561ffed5",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "MapMetricsRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.657,
+      "log": "docs/playtests/2026-10-24/macos-package/MapMetricsRegression.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "ff41112b11c824831727e7fbf71527a227ac307478d7cc7c214b6c79bc707cf8",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "GlacierHarvestRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 3.685,
+      "log": "docs/playtests/2026-10-24/macos-package/GlacierHarvestRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "9b9db350db1d4ef631c4ccc0eff23327c022d44710351675f94883b48c4c2224",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "TerrainSightRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 2.514,
+      "log": "docs/playtests/2026-10-24/macos-package/TerrainSightRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "e7801c71cfcc32943b833d9a82b3b91dfc37cb6e82be318daaf129ea7161ca1b",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "CliffMeshRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.66,
+      "log": "docs/playtests/2026-10-24/macos-package/CliffMeshRegression.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "cd8b597707d0644dd12b6c4514572053af17fe03253f1f6e58c5deab8a06e8cd",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "AuthoredRelayRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 6.397,
+      "log": "docs/playtests/2026-10-24/macos-package/AuthoredRelayRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 20 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 8 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "169cc3f0a728166ba605781be301b318199cae74d7aa863c29889b1de984436d",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "AuthoredGarrisonRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 4.357,
+      "log": "docs/playtests/2026-10-24/macos-package/AuthoredGarrisonRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "e2693b57822ac3246231c11d77e0e1b117cf8d824fd49e4b4a4f6853de31961e",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "SaveNavigationTimingRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.659,
+      "log": "docs/playtests/2026-10-24/macos-package/SaveNavigationTimingRegression.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "59d619a813749ba634fd173431da53b9da86ebb80ee4a3d0c33eb930c21590e8",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "ContactApproachRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 19.049,
+      "log": "docs/playtests/2026-10-24/macos-package/ContactApproachRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "8a724126d16ec15786b426ecb325de8534ca20f3174ee340458d26ac8f7c7640",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "NavigationRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 25.969,
+      "log": "docs/playtests/2026-10-24/macos-package/NavigationRegression.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "690d350d01bd8905ad25d74cedb6d8820807bca8a24b46ccfea1229588ccb768",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "MapPlayabilityRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 27.435,
+      "log": "docs/playtests/2026-10-24/macos-package/MapPlayabilityRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "b0e86daecd171070a24827970567cca41cb8cf28c0712ffb2daf52f115fa7e42",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "MapPreviewRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 18.99,
+      "log": "docs/playtests/2026-10-24/macos-package/MapPreviewRegression.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "0ed3a96760561530f9ef7e7bec04c4083bf27da45ea5b27bcc76ba19fc302b96",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "MusicRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.857,
+      "log": "docs/playtests/2026-10-24/macos-package/MusicRegression.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "ac747fd0c66fed2a1213a2b3e74f021f22519ac6c0734dca2b5718b5d5255d3a",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "SelectionBatchRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 2.625,
+      "log": "docs/playtests/2026-10-24/macos-package/SelectionBatchRegression.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "715d11d2c3d4decabedabaa11ad51fbec309b490823092ad770abeaf2eba7f1d",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "ProjectileSystemRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 1.924,
+      "log": "docs/playtests/2026-10-24/macos-package/ProjectileSystemRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "0aa0783d3f393654db6b7a30abc040e9470532994a613137669640dfa0ec3f9d",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "ProjectilePhysicsRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 3.096,
+      "log": "docs/playtests/2026-10-24/macos-package/ProjectilePhysicsRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "7953ef6ca208f371ec8c06fce3836253591b0724cd6cfe3d88647d2a451b47d6",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "FixedWingFlightRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 5.631,
+      "log": "docs/playtests/2026-10-24/macos-package/FixedWingFlightRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "282334ed46a8434eac08149687e843b71c0054be462590bdcb1d5c1632ffad11",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "FixedWingSaveRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 2.574,
+      "log": "docs/playtests/2026-10-24/macos-package/FixedWingSaveRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "38fa0eff6cb6cb06504eb0e999a64bdc87d2e73bb87e882300dcdb943f5eb8e0",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "AirSaveContinuityRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 1.899,
+      "log": "docs/playtests/2026-10-24/macos-package/AirSaveContinuityRegression.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "a9ca06aab7cf16817250a78b69bfe3732f365bbe54067b848c208b031fb9a91d",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "RotorcraftCombatRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 3.107,
+      "log": "docs/playtests/2026-10-24/macos-package/RotorcraftCombatRegression.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "4aaa7a3fe332f273ad463d09306b79e847de3df251172ed890cd2770c7bff651",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "FrontierCombatRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 1.691,
+      "log": "docs/playtests/2026-10-24/macos-package/FrontierCombatRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 16 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 7 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "ee41c9ddb5d8a335daefcc7421e5d51cba42be45250975adb4809b26a4f2f3a7",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "AirfieldOperationsRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 8.827,
+      "log": "docs/playtests/2026-10-24/macos-package/AirfieldOperationsRegression.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "e909f788ca8095b28db1dcdacdd47a2b32c7514ea2cda4187ae0523764991c3c",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "GroundHeightAlignmentRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 4.225,
+      "log": "docs/playtests/2026-10-24/macos-package/GroundHeightAlignmentRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "c6bd1ff8f5cfa7efaa1f23951d9a7a3612870250a3852e7abfd3b71da1a1555b",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "GroundCrowdRecoveryRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 24.053,
+      "log": "docs/playtests/2026-10-24/macos-package/GroundCrowdRecoveryRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "1fc00d023204c453078b6631b46b83984663f9e6d4c87a1c98927238b8c81b33",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "SkirmishBuildReadinessRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 9.094,
+      "log": "docs/playtests/2026-10-24/macos-package/SkirmishBuildReadinessRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 16 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 6 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "bcdb7e059b827850acdf97e056dff763623d854acc8f018ae68280557815d405",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "PresentationFeaturesRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 1.829,
+      "log": "docs/playtests/2026-10-24/macos-package/PresentationFeaturesRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "a010c3f579316c9f34269275460c6fc880615ac4af2aa7d2d1612ba98f12e68a",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "SettingsRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 1.662,
+      "log": "docs/playtests/2026-10-24/macos-package/SettingsRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 16 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 6 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [
+        "ERROR: Cannot save file 'user://settings-missing-26369/options.tres.pending.tres'."
+      ],
+      "log_sha256": "b48b9ea1687ee31339e2313cf28c80542d3d9189c2652e6777cd928c5c4779a6",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "UnitInfoTextRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 2.978,
+      "log": "docs/playtests/2026-10-24/macos-package/UnitInfoTextRegression.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "546469148d7419f1c844264ee2daad6bef230f706159c7f62f59baa5cefcee65",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "BattleHudProductionRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 13.779,
+      "log": "docs/playtests/2026-10-24/macos-package/BattleHudProductionRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "465216466277a0dafb8960ff15d8815b33af594609aa4b37e13b0f3d9eb0db31",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "BattleAftermathRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.695,
+      "log": "docs/playtests/2026-10-24/macos-package/BattleAftermathRegression.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "f7260439c7c6615c85917c5edd568ca1bdee626fba71b10d5ae77defe9981d69",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "MapPassageRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 41.947,
+      "log": "docs/playtests/2026-10-24/macos-package/MapPassageRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details).",
+        "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "7ac3553f97dc2e8b55123f1c0bbd6cebac2745b6610ae1aa0e55ac5a66358a16",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "ObjectMaterialsRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 7.586,
+      "log": "docs/playtests/2026-10-24/macos-package/ObjectMaterialsRegression.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "5850283e5a4f118fc95abd18a70a301dabc70096cb182599e47aa9d80d2f49a0",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "RuntimeShutdownRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.979,
+      "log": "docs/playtests/2026-10-24/macos-package/RuntimeShutdownRegression.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "86aac595b981000543b8f6279428e10f4dc23b55fd0123f435a78331bf8824a1",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "EnvironmentEffectsRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 5.749,
+      "log": "docs/playtests/2026-10-24/macos-package/EnvironmentEffectsRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 16 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 6 resources still in use at exit (run with --verbose for details).",
+        "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "fbc14a70348d36cbd7984f9ddddf08713e65015a9268e3b37b4f4b0e2a52fba9",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "WaterFlowRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.673,
+      "log": "docs/playtests/2026-10-24/macos-package/WaterFlowRegression.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "1b794d3dee6a49a83f5da6730e2179a5e83769f77a19846f0e1161c6e54894f8",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "WaterHybridRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.985,
+      "log": "docs/playtests/2026-10-24/macos-package/WaterHybridRegression.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "5ac9c2742f0d84ecd17557bafb6d026b806a4c3ffb7f16b569add11368576c4c",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "StrategicPolishRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 3.597,
+      "log": "docs/playtests/2026-10-24/macos-package/StrategicPolishRegression.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "45454c2d3fda863c386eb9861c92a3356d7f5cd9d99960e22a4a392f57a70a32",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "MicroControlsRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 7.166,
+      "log": "docs/playtests/2026-10-24/macos-package/MicroControlsRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "cd617d4e80f329a03f6458e043567dd483ee9589347a906cd22a10bd2366ea64",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "GroundVehicleMotionRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 6.981,
+      "log": "docs/playtests/2026-10-24/macos-package/GroundVehicleMotionRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 18 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 7 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "bedc8268f3269913cc3873071e5ba1869f10e06a422f72b3009539f9a5059a1b",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "MixedArmyMovementRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 27.435,
+      "log": "docs/playtests/2026-10-24/macos-package/MixedArmyMovementRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "250430c9142f0aadc0b9d2a48f441754040556b33f4196128fe4a0fe8fe3b1cd",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "CombatPresentationRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 0.785,
+      "log": "docs/playtests/2026-10-24/macos-package/CombatPresentationRegression.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "c9d1b7fbf312a1c72d4e0250f6eb3bf2a7811f337687c720ec3d20bb5814de24",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "CombatAudioRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 3.011,
+      "log": "docs/playtests/2026-10-24/macos-package/CombatAudioRegression.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "4abd53252460f373f198fca81749c3e3e8ff600e42cb2e87f5e34487f8bae885",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "EndgamePresentationRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 2.205,
+      "log": "docs/playtests/2026-10-24/macos-package/EndgamePresentationRegression.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "b7afb7bdc553ba2e5f07ce78d1da8d11452699a8675970f453e6ac2f12fe5219",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "PlacementFeedbackRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 4.025,
+      "log": "docs/playtests/2026-10-24/macos-package/PlacementFeedbackRegression.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "0db7dd6492c119b9eb0454c5c0b45808dc6ce85be1bc6a81a4d72ec64dc528ed",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "DirectOrdersRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 12.388,
+      "log": "docs/playtests/2026-10-24/macos-package/DirectOrdersRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 14 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 5 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "0e2b67ee3bf1feebd12f73ac880ea10b2181718e1d897ea16168c834a83428f9",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "KeyBindingsRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 2.735,
+      "log": "docs/playtests/2026-10-24/macos-package/KeyBindingsRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 16 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 6 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "a4508d4db2ea09970a883a74da0654528fbcc65c76b659bb2c86df6dc38d3c14",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "SelectionRosterRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 20.194,
+      "log": "docs/playtests/2026-10-24/macos-package/SelectionRosterRegression.log.txt",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "c4d5ced633436d50f6874cb0cd4a38c77417498c4e4616a5e29f14becbf16e4e",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "RallyRetargetRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 22.91,
+      "log": "docs/playtests/2026-10-24/macos-package/RallyRetargetRegression.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "1f940c5e26db1c12ddbde5a86a10e5e824ad5b24451985e4b83bd91d95399677",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    },
+    {
+      "name": "LocalizationRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 2.207,
+      "log": "docs/playtests/2026-10-24/macos-package/LocalizationRegression.log.txt",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": [],
+      "log_sha256": "581cd79fa7de9a8b415ccbd4297d700cf53688c91205e3fa44a5b25e36dd1633",
+      "provenance": {
+        "mode": "carried_forward",
+        "report": "docs/playtests/2026-10-24/macos-full-suite-baseline.json",
+        "pack_sha256": "bcb5f95c287ab51046b65b651cdc530ae4e63854ab13ca8c2e0a497d4a94eebe",
+        "source_sha256": "03aaeb2f7c88b693d288821ca145cdfd78c3298449061ef3e8ae34117f91e756",
+        "reason": "Identical runtime, assets, project settings and unchanged fixture; only two unrelated locale assertion fixtures changed."
+      }
+    }
+  ],
+  "complete": true,
+  "native_shutdown_pending": false,
+  "passed": true,
+  "artifacts": {
+    "archive": "build/polish-2026-10-24/Open_RTS_macOS.zip",
+    "archive_sha256": "d0d302e3e667da22c2aee612bccd31f0883bdd386771208a082025d643dadaa6",
+    "pack": "build/polish-2026-10-24/Open RTS.app/Contents/Resources/Open RTS.pck",
+    "pack_sha256": "9263681dbdd57075535bfffd17b4248020439880387880d50cfff4277f9adc53",
+    "pack_bytes": 181852628,
+    "executable": "build/polish-2026-10-24/Open RTS.app/Contents/MacOS/Open RTS",
+    "executable_sha256": "ae684f6da9c3ba37dbbebec70928413b74f2be208055219dffdbb1ef0bb26254"
+  },
+  "baseline_executable_sha256": "c061c23e9d9f3e41c53248b866ec96e6b735bd142c76d4064c11f712c063d3d0",
+  "packed_resource_comparison": {
+    "baseline_manifest": "docs/playtests/2026-10-24/macos-package-refresh/baseline-pack-manifest.json",
+    "baseline_manifest_sha256": "af1e094cc2477fa7cecde99b68422c1972977ced0770732f0f45bd7cd9016cda",
+    "refreshed_manifest": "docs/playtests/2026-10-24/macos-package-refresh/refreshed-pack-manifest.json",
+    "refreshed_manifest_sha256": "948d2625fe2a1d40fec695009e75e21a4d134e81fd7fa87ee6ca4bef5da423bd",
+    "baseline_file_count": 5594,
+    "refreshed_file_count": 5594,
+    "changed_entries": [
+      {
+        "path": "res://tests/headless/OpeningGuidanceRegression.gdc",
+        "before_sha256": "9dc67550d400e5bf969bba56510e123b41d5445da9de784fc90b63380abd267d",
+        "after_sha256": "5aac18307e3eb694a28a8957d2814564bd6928e2a69c6c6d42d46d1c74b5fbdd"
+      },
+      {
+        "path": "res://tests/headless/RallyControlsRegression.gdc",
+        "before_sha256": "da9e0e2558e01591bf56aa0442de56192d42f9de5e7dd0d473f50eb00babb871",
+        "after_sha256": "46dce591447e8d3ec47cb516e19edc530640845934c7d529247c0b0a3b91679a"
+      }
+    ],
+    "unexpected_changed_entries": [],
+    "runtime_project_assets_identical": true
+  },
+  "final_source_sha256": "2d1828f0142d3e1771b92ba33509335eed41928e3708459c63371453bb2103f5",
+  "source_unchanged": true,
+  "passed_count": 73,
+  "package_and_focused_checks_passed": true,
+  "focused_finished_utc": "2026-10-24T05:44:27.727180+00:00",
+  "acceptance_notes": [
+    "This refresh did not rerun all 73 suites. Two changed fixtures ran in both incoming locales (four focused runs); 71 unchanged suite results carry forward from the preserved full-suite baseline.",
+    "Complete source fingerprint reconstruction and raw packed resource comparison prove gameplay code, project settings, assets and the 71 unchanged fixtures are identical.",
+    "Known direct-quit fixture teardown diagnostics remain explicit in their original or focused logs. Actual native application Cmd+Q is validated separately."
+  ],
+  "unsigned_executable_unchanged": true,
+  "runner_log": "docs/playtests/2026-10-24/macos-package-refresh/refresh-runner.log.txt",
+  "runner_log_sha256": "6b17f43e4bf2fa0b16285608d7fccd8fea72b1c95034607f846d471510cd5756",
+  "runner_diagnostic_note": "The initial runner conservatively held completion because full signed Mach-O bytes changed during bundle re-signing. Subsequent signature removal on temporary copies proved byte-identical engine binaries; the executable-code-comparison step resolves that diagnostic without changing the original signed artifacts.",
+  "source_sha256_after_native": "2d1828f0142d3e1771b92ba33509335eed41928e3708459c63371453bb2103f5",
+  "artifacts_unchanged_after_native": true,
+  "signed_executable_unchanged": false,
+  "revalidated_suites": [
+    {
+      "name": "OpeningGuidanceRegression",
+      "passed": true,
+      "incoming_locales": [
+        "en",
+        "zh_CN"
+      ],
+      "fixture_sha256": "476737582e451e9c19c7379678a849eafaae4aadfa8d751dab624f76061a4ee9",
+      "provenance": {
+        "mode": "freshly_executed",
+        "pack_sha256": "9263681dbdd57075535bfffd17b4248020439880387880d50cfff4277f9adc53",
+        "source_sha256": "2d1828f0142d3e1771b92ba33509335eed41928e3708459c63371453bb2103f5"
+      }
+    },
+    {
+      "name": "RallyControlsRegression",
+      "passed": true,
+      "incoming_locales": [
+        "en",
+        "zh_CN"
+      ],
+      "fixture_sha256": "8e02544c451cb3d7ed447db32541a3b5d4d145114d0f4c23ef64f35e44093c7a",
+      "provenance": {
+        "mode": "freshly_executed",
+        "pack_sha256": "9263681dbdd57075535bfffd17b4248020439880387880d50cfff4277f9adc53",
+        "source_sha256": "2d1828f0142d3e1771b92ba33509335eed41928e3708459c63371453bb2103f5"
+      }
+    }
+  ],
+  "finished_utc": "2026-10-24T05:47:23.474209+00:00"
+}

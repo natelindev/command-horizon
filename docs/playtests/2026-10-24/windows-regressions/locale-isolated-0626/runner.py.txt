@@ -1,0 +1,70 @@
+import base64, subprocess
+from pathlib import Path
+base=Path('/Users/linlilu/godot-open-rts/tmp/windows-polish-20261024')
+local=base/'locale-isolated-0626'
+ssh=['ssh','-i','/Users/linlilu/.ssh/mykey','-o','IdentitiesOnly=yes','-o','BatchMode=yes','-o','StrictHostKeyChecking=yes','-o','HostKeyAlias=192.168.88.206','root@192.168.88.205']
+r=subprocess.run(['rsync','-a','-e',' '.join(ssh[:-1]),str(local)+'/','root@192.168.88.205:/mnt/c/Users/Administrator/AppData/Local/Temp/OpenRTSPolish-20261024/locale-isolated-0626/'],capture_output=True)
+if r.returncode: print(r.stderr.decode(errors='replace'));raise SystemExit(r.returncode)
+ps=r'''$ErrorActionPreference='Stop';$ProgressPreference='SilentlyContinue'
+$base='C:\Users\Administrator\AppData\Local\Temp\OpenRTSPolish-20261024'
+$work=Join-Path $base 'locale-isolated-0626'
+$editor=Join-Path $base 'godot-4.7.2/Godot_v4.7.2-stable_win64.exe'
+$sourcePack=Join-Path $base 'OpenRTS-game-final-0548.exe'
+$pack=Join-Path $work 'OpenRTS-game-final-0548.exe'
+$expectedSha='c07c4c1b79f291d501245378f6e98bbc3d62b7a269eb658719faeca5a50bb958'
+$expectedDir='C:/Users/Administrator/AppData/Roaming/OpenRTSPolishLocale-20261024-0626'
+$probeDir=Join-Path $work 'probe'
+$probePack=Join-Path $work 'probe.pck'
+$override=Join-Path $work 'override.cfg'
+$summaryPath=Join-Path $work 'summary.json'
+if(Test-Path -LiteralPath $summaryPath){throw 'Locale isolated run already exists; do not overwrite'}
+$sourceSha=(Get-FileHash -Algorithm SHA256 -LiteralPath $sourcePack).Hash.ToLowerInvariant()
+if($sourceSha -ne $expectedSha){throw 'Source pack hash mismatch'}
+$summary=@{StartedUtc=(Get-Date).ToUniversalTime().ToString('o');SourcePack=$sourcePack;Pack=$pack;PackSha256=$sourceSha;Editor=$editor;EditorSha256=(Get-FileHash -Algorithm SHA256 -LiteralPath $editor).Hash.ToLowerInvariant();ExpectedUserDataDir=$expectedDir;ConfigDelta=@{'application/config/use_custom_user_dir'=$true;'application/config/custom_user_dir_name'='OpenRTSPolishLocale-20261024-0626'};OverrideSha256=(Get-FileHash -Algorithm SHA256 -LiteralPath $override).Hash.ToLowerInvariant();PinnedEngineCommit='ed1daf0bf';OverrideSource='https://github.com/godotengine/godot/blob/ed1daf0bf/core/config/project_settings.cpp#L640-L654';Platform='Native Windows 11 headless through WSL SSH';Results=@()}
+function Save-Summary {$summary|ConvertTo-Json -Depth 10|Set-Content -Encoding UTF8 $summaryPath}
+function Run-Probe($name,$arguments,$working,$marker){
+ $started=Get-Date
+ $info=New-Object System.Diagnostics.ProcessStartInfo
+ $info.FileName=$editor;$info.Arguments=$arguments;$info.WorkingDirectory=$working
+ $info.UseShellExecute=$false;$info.CreateNoWindow=$true;$info.RedirectStandardOutput=$true;$info.RedirectStandardError=$true
+ $p=New-Object System.Diagnostics.Process;$p.StartInfo=$info
+ $null=$p.Start();$ownedId=$p.Id
+ try {$p.PriorityClass=[System.Diagnostics.ProcessPriorityClass]::BelowNormal} catch {}
+ $outTask=$p.StandardOutput.ReadToEndAsync();$errTask=$p.StandardError.ReadToEndAsync()
+ $timeout=-not $p.WaitForExit(300000)
+ if($timeout){$p.Kill();$p.WaitForExit()}
+ $p.WaitForExit();$out=$outTask.Result;$err=$errTask.Result
+ [System.IO.File]::WriteAllText((Join-Path $work ($name+'.stdout.log')),$out)
+ [System.IO.File]::WriteAllText((Join-Path $work ($name+'.stderr.log')),$err)
+ [System.IO.File]::WriteAllText((Join-Path $work ($name+'.log')),$out+[Environment]::NewLine+$err)
+ $result=@{Name=$name;ExitCode=$p.ExitCode;TimedOut=$timeout;Seconds=[math]::Round(((Get-Date)-$started).TotalSeconds,3);ProcessId=$ownedId;StartedUtc=$started.ToUniversalTime().ToString('o');Arguments=$arguments;RequiredMarker=$marker;MarkerFound=$out.Contains($marker);StdoutSha256=(Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $work ($name+'.stdout.log'))).Hash.ToLowerInvariant();StderrSha256=(Get-FileHash -Algorithm SHA256 -LiteralPath (Join-Path $work ($name+'.stderr.log'))).Hash.ToLowerInvariant()}
+ $summary.Results+=,$result;Save-Summary
+ Write-Output ($name+': exit='+$p.ExitCode+' seconds='+$result.Seconds+' timeout='+$timeout+' marker='+$result.MarkerFound)
+ Write-Output $out;if($err){Write-Output $err}
+ if($p.ExitCode -ne 0 -or $timeout -or -not $result.MarkerFound){throw ('Probe failed: '+$name)}
+}
+Save-Summary
+Run-Probe 'isolation-build' ('--headless --path "'+$probeDir+'" --script "'+(Join-Path $probeDir 'build.gd')+'" -- "'+$probePack+'"') $probeDir 'ISOLATION_BUILD result=0'
+$summary.ProbePackSha256=(Get-FileHash -Algorithm SHA256 -LiteralPath $probePack).Hash.ToLowerInvariant();Save-Summary
+Run-Probe 'isolation-main-pack' ('--headless --main-pack "'+$probePack+'" --script res://probe.gd -- "'+$expectedDir+'"') $work 'ISOLATION_PROOF_PASS'
+Copy-Item -LiteralPath $sourcePack -Destination $pack
+$copySha=(Get-FileHash -Algorithm SHA256 -LiteralPath $pack).Hash.ToLowerInvariant()
+if($copySha -ne $sourceSha){throw 'Isolated EXE copy hash mismatch'}
+$summary.CopiedPackSha256=$copySha;Save-Summary
+foreach($name in @('OpeningGuidance','RallyControls')){foreach($locale in @('en','zh_CN')){
+ $probe=Join-Path $work ($name+'LocaleFixedProbe.gd')
+ Run-Probe ($name+'-'+$locale) ('--headless --main-pack "'+$pack+'" --fixed-fps 60 --script "'+$probe+'" -- '+$locale+' "'+$expectedDir+'"') $work 'LOCALE_ISOLATION_PASS'
+}}
+$summary.FinishedUtc=(Get-Date).ToUniversalTime().ToString('o');$summary.Success=$true;Save-Summary
+Write-Output 'ISOLATED_LOCALE_RERUNS_FINISHED'
+'''
+with (local/'runner.log').open('w') as log:
+ p=subprocess.Popen(ssh+['/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe','-NoProfile','-NonInteractive','-EncodedCommand',base64.b64encode(ps.encode('utf-16le')).decode()],stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+ for raw in p.stdout:
+  line=raw.decode(errors='replace');log.write(line);log.flush();print(line,end='',flush=True)
+ p.wait();code=p.returncode
+# Collect logs/config/probe artifacts only; the 291 MB pack remains byte-identical remotely.
+r=subprocess.run(['rsync','-a','--exclude=*.exe','-e',' '.join(ssh[:-1]),'root@192.168.88.205:/mnt/c/Users/Administrator/AppData/Local/Temp/OpenRTSPolish-20261024/locale-isolated-0626/',str(local)+'/'],capture_output=True)
+if r.returncode: print(r.stderr.decode(errors='replace'))
+print('ISOLATED_LOCALE_EXIT',code,flush=True)
+raise SystemExit(code or r.returncode)

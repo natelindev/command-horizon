@@ -1,0 +1,305 @@
+{
+  "schema": "macos-production-combat-prewarm-v1",
+  "classification": "production_helper_timing_without_sampler",
+  "source_sha256": "6572bca4b1ab895eadb4ef0eb700cc1962b774348e55f0459b0c63f502f85c44",
+  "cache_path": "/Users/linlilu/Library/Application Support/OpenRTSPolishCombatPrewarmProduction-20261024-1",
+  "cache_existed_before_import": false,
+  "os_driver_cache_reset": false,
+  "production_edits": true,
+  "frozen_source_before_tech_queue": true,
+  "live_source_changes_excluded": true,
+  "assets_sha256": "ab4e348dcb7d35d60b5555c1853e55f32b59e051c6bc09550cdb5fb8fa1c1e87",
+  "steps": [
+    {
+      "name": "import",
+      "command": [
+        "/Users/linlilu/godot-open-rts/tmp/tooling/godot-4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/tmp/godot-open-rts-polish-combat-prewarm-production",
+        "--editor",
+        "--quit"
+      ],
+      "started_utc": "2026-10-24T06:30:55.635891+00:00",
+      "elapsed_seconds": 9.15567445900524,
+      "exit_code": 0,
+      "log": {
+        "path": "docs/playtests/2026-10-24/macos-prewarm-production/import.log.txt",
+        "sha256": "8eb09e081ea2e471dcca22e1a4e76c2a2afc9bcfa178d9a6d5bafca2395bcaf1"
+      }
+    },
+    {
+      "name": "export",
+      "command": [
+        "/Users/linlilu/godot-open-rts/tmp/tooling/godot-4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/tmp/godot-open-rts-polish-combat-prewarm-production",
+        "--export-release",
+        "macOS",
+        "/Users/linlilu/godot-open-rts/build/polish-2026-10-24/prewarm-production/Open_RTS_Prewarm_Production.app"
+      ],
+      "started_utc": "2026-10-24T06:31:04.792732+00:00",
+      "elapsed_seconds": 10.171454374969471,
+      "exit_code": 0,
+      "log": {
+        "path": "docs/playtests/2026-10-24/macos-prewarm-production/export.log.txt",
+        "sha256": "832c32571e97b30a1c232ea7d4070efb97c59a439ea23b3a36aab59281acc242"
+      }
+    },
+    {
+      "name": "codesign",
+      "command": [
+        "codesign",
+        "--verify",
+        "--deep",
+        "--strict",
+        "/Users/linlilu/godot-open-rts/build/polish-2026-10-24/prewarm-production/Open_RTS_Prewarm_Production.app"
+      ],
+      "started_utc": "2026-10-24T06:31:14.965453+00:00",
+      "elapsed_seconds": 0.23887879098765552,
+      "exit_code": 0,
+      "log": {
+        "path": "docs/playtests/2026-10-24/macos-prewarm-production/codesign.log.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "complete": true,
+  "project.godot": {
+    "path": "docs/playtests/2026-10-24/macos-prewarm-production/project.godot.txt",
+    "sha256": "5b9d0057cb7aa7fdc75363247a4de7cfd20bbfdc4a0dcad2a1b45fc9be37db0b"
+  },
+  "ReleaseBattleBenchmark.gd": {
+    "path": "docs/playtests/2026-10-24/macos-prewarm-production/ReleaseBattleBenchmark.gd.txt",
+    "sha256": "f35ad113ea53e91b25dfc019351e0163a540733a6c4a781f5d90ca010615f771"
+  },
+  "BenchmarkBootstrap.tscn": {
+    "path": "docs/playtests/2026-10-24/macos-prewarm-production/BenchmarkBootstrap.tscn.txt",
+    "sha256": "a00e2490b6e2415936c8dfbdc87b2fe83334d90156dfd28b0a380d105a7459e9"
+  },
+  "native_focus_monitor": {
+    "path": "docs/playtests/2026-10-24/macos-prewarm-production/native-focus-monitor.swift.txt",
+    "sha256": "1b6669635d73dfba98ae593437838b0adab8865607b0144fb53316e4584bf2f7"
+  },
+  "artifact": {
+    "executable": "build/polish-2026-10-24/prewarm-production/Open_RTS_Prewarm_Production.app/Contents/MacOS/Open RTS",
+    "executable_sha256": "dcea9b1d0d8f3764a77f02b24b5a437499187608ac19ec23fc72ca35bbea5139",
+    "pack": "build/polish-2026-10-24/prewarm-production/Open_RTS_Prewarm_Production.app/Contents/Resources/Open RTS.pck",
+    "pack_sha256": "7b0f19a4ca137e5ade833910d60c0abd8eb15b93bdc898d6c5880e969da3bb3b"
+  },
+  "source_unchanged_after_export": true,
+  "shader_cache_files_before_native": [],
+  "native_started_utc": "2026-10-24T06:31:15.537716+00:00",
+  "pid": 89581,
+  "native_exit_code": 0,
+  "sampling_enabled": false,
+  "native_ended_utc": "2026-10-24T06:32:13.481933+00:00",
+  "native_log": {
+    "path": "docs/playtests/2026-10-24/macos-prewarm-production/native-run.log.txt",
+    "sha256": "b66f21e410edee99bb3e5c582d7b01171e5c93ebeae98e34701741c30ce81712"
+  },
+  "native_focus_log": {
+    "path": "docs/playtests/2026-10-24/macos-prewarm-production/native-focus.jsonl",
+    "sha256": "95fa1b2043c005d00fd9e7a4e64a9869d70f400908d81e65aacf615babba6a1a"
+  },
+  "native_focus_phases": [
+    {
+      "phase": "base",
+      "begin_unix_ms": 1792823513748,
+      "end_unix_ms": 1792823519909,
+      "native_sample_count": 24,
+      "all_native_samples_owned": true,
+      "wrapper_focus_valid": true
+    },
+    {
+      "phase": "midfield-combat",
+      "begin_unix_ms": 1792823520265,
+      "end_unix_ms": 1792823526628,
+      "native_sample_count": 25,
+      "all_native_samples_owned": true,
+      "wrapper_focus_valid": true
+    },
+    {
+      "phase": "destruction-burst",
+      "begin_unix_ms": 1792823526628,
+      "end_unix_ms": 1792823533131,
+      "native_sample_count": 25,
+      "all_native_samples_owned": true,
+      "wrapper_focus_valid": true
+    }
+  ],
+  "phase_summaries": [
+    {
+      "phase": "base/warmup",
+      "pipelines": {
+        "canvas": 8,
+        "draw": 86,
+        "mesh": 30,
+        "specialization": 105,
+        "surface": 138
+      },
+      "ticks_us": 38851965,
+      "unix_ms": 1792823516756,
+      "frame_count": 227,
+      "max_frame_ms": 15.63,
+      "spikes_over_50ms": [],
+      "frames_over_100ms": 0
+    },
+    {
+      "phase": "base/steady",
+      "pipelines": {
+        "canvas": 8,
+        "draw": 86,
+        "mesh": 30,
+        "specialization": 105,
+        "surface": 138
+      },
+      "ticks_us": 42001955,
+      "unix_ms": 1792823519906,
+      "frame_count": 240,
+      "max_frame_ms": 15.237,
+      "spikes_over_50ms": [],
+      "frames_over_100ms": 0
+    },
+    {
+      "phase": "midfield-combat/warmup",
+      "pipelines": {
+        "canvas": 8,
+        "draw": 92,
+        "mesh": 30,
+        "specialization": 111,
+        "surface": 139
+      },
+      "ticks_us": 45373367,
+      "unix_ms": 1792823523278,
+      "frame_count": 213,
+      "max_frame_ms": 38.484,
+      "spikes_over_50ms": [],
+      "frames_over_100ms": 0
+    },
+    {
+      "phase": "midfield-combat/steady",
+      "pipelines": {
+        "canvas": 8,
+        "draw": 92,
+        "mesh": 30,
+        "specialization": 111,
+        "surface": 139
+      },
+      "ticks_us": 48721067,
+      "unix_ms": 1792823526626,
+      "frame_count": 240,
+      "max_frame_ms": 15.926,
+      "spikes_over_50ms": [],
+      "frames_over_100ms": 0
+    },
+    {
+      "phase": "destruction-burst/warmup",
+      "pipelines": {
+        "canvas": 8,
+        "draw": 98,
+        "mesh": 30,
+        "specialization": 119,
+        "surface": 143
+      },
+      "ticks_us": 51726346,
+      "unix_ms": 1792823529631,
+      "frame_count": 209,
+      "max_frame_ms": 17.263,
+      "spikes_over_50ms": [],
+      "frames_over_100ms": 0
+    },
+    {
+      "phase": "destruction-burst/steady",
+      "pipelines": {
+        "canvas": 8,
+        "draw": 98,
+        "mesh": 30,
+        "specialization": 119,
+        "surface": 143
+      },
+      "ticks_us": 55222801,
+      "unix_ms": 1792823533129,
+      "frame_count": 240,
+      "max_frame_ms": 16.627,
+      "spikes_over_50ms": [],
+      "frames_over_100ms": 0
+    }
+  ],
+  "source_unchanged": false,
+  "assets_unchanged": false,
+  "prewarm_results": [
+    {
+      "completed": true,
+      "elapsed_ms": 2166.658,
+      "helper_only": true,
+      "nodes_after": 6688,
+      "nodes_before": 6688,
+      "pipelines": {
+        "canvas": 8,
+        "draw": 81,
+        "mesh": 30,
+        "specialization": 100,
+        "surface": 138
+      },
+      "snapshot_equal": true,
+      "unix_ms": 1792823513747
+    }
+  ],
+  "diagnostic_run_valid": false,
+  "warnings_errors": [],
+  "post_export_review": {
+    "source_manifest_changed_paths": [
+      "tests/rendered/CombatPrewarmRegression.gd"
+    ],
+    "source_change_reason": "Expanded independent regression copied after export; packaged runtime/test workload unchanged.",
+    "assets_change_reason": "Import recompiled the just-updated ui.csv cancellation translation into ui.en.translation and ui.zh_CN.translation; import log records only ui.csv and staged icon.svg reimports. Pre-import asset hash is not an invariant across import.",
+    "artifact_hashes_unchanged_after_native": true,
+    "production_source_unchanged": true,
+    "assets_copied_after_native_for_followup_ui": true,
+    "assets_comparison_limitation": "Only aggregate pre-import asset fingerprint was retained, so no exhaustive per-file pre-import identity assertion is made. Editor import records ui.csv and icon.svg rebuilds; the exported executable and PCK remained byte-identical for the complete measured run."
+  },
+  "production_runtime_validated": true,
+  "gate_note": "Original broad pre-import/post-native hash flags retained false. Acceptance uses the immutable exported artifacts plus reviewed production-source identity; later unexecuted test edit and generated translation rebuild are recorded explicitly.",
+  "retained_runner_and_manifest": [
+    {
+      "path": "docs/playtests/2026-10-24/macos-prewarm-production/runner.py.txt",
+      "sha256": "c04faf25a6036131048d49a9eb2e24b7e6eb390f7e42d0c5dba9fc8c704d61cf"
+    },
+    {
+      "path": "docs/playtests/2026-10-24/macos-prewarm-production/source-manifest.json",
+      "sha256": "7e30411120969b6944f55fddea020e5a5dcaa18dfc95d31a58905e1d9d6fad53"
+    },
+    {
+      "path": "docs/playtests/2026-10-24/macos-prewarm-production/runner.log.txt",
+      "sha256": "51f1f2bda972eb47e227d1f351d7d57581e0328785783db576dcf75e60369337"
+    }
+  ],
+  "identified_shader_creation": [
+    {
+      "shader": "source/shaders/3d/wear_stamp.gdshader",
+      "created_unix_ms": 1792823511631.433,
+      "during_production_prewarm": true
+    },
+    {
+      "shader": "source/shaders/3d/material_hit.gdshader",
+      "created_unix_ms": 1792823511632.4807,
+      "during_production_prewarm": true
+    },
+    {
+      "shader": "source/shaders/3d/explosion_shockwave.gdshader",
+      "created_unix_ms": 1792823511661.3145,
+      "during_production_prewarm": true
+    },
+    {
+      "shader": "source/shaders/3d/battlefield_wear.gdshader",
+      "created_unix_ms": 1792823511681.9016,
+      "during_production_prewarm": true
+    }
+  ],
+  "decoded_cache_attribution": {
+    "path": "docs/playtests/2026-10-24/macos-prewarm-production/decoded-cache-attribution.json",
+    "sha256": "ced75402abf7b29aac4b522c13f6984ede72a79b38122311b4285e59f249bf96"
+  }
+}

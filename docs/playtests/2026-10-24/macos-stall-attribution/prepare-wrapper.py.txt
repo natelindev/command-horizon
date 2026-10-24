@@ -1,0 +1,60 @@
+import pathlib, shutil, re
+ROOT=pathlib.Path.cwd(); STAGE=pathlib.Path('/tmp/godot-open-rts-polish-stall-attribution'); PREV=pathlib.Path('/tmp/godot-open-rts-polish-battle-harness')
+assert not STAGE.exists(), STAGE
+STAGE.mkdir()
+for name in ['source','tests','assets','art']:(STAGE/name).symlink_to(ROOT/name,target_is_directory=True)
+for name in ['export_presets.cfg','icon.svg','icon.svg.import','BenchmarkBootstrap.tscn']:shutil.copy2(PREV/name,STAGE/name)
+(STAGE/'.godot').mkdir(); (STAGE/'.godot/imported').symlink_to(ROOT/'.godot/imported',target_is_directory=True)
+project=(PREV/'project.godot').read_text().replace('OpenRTSPolishMacBattleFinal-20261024-b-focus','OpenRTSPolishMacStallAttribution-20261024-1')
+(STAGE/'project.godot').write_text(project)
+wrapper=(PREV/'ReleaseBattleBenchmark.gd').read_text()
+wrapper=wrapper.replace('var _native_focus_token = ""','var _native_focus_token = ""\nvar _sample_ready_token = ""\nvar _trace_rows = []\nvar _trace_previous_at = 0\nvar _trace_previous_pipelines = {}')
+wrapper=wrapper.replace('\troot.title = ', '\t\telif arg.begins_with("--sample-ready-token="):\n\t\t\t_sample_ready_token = arg.trim_prefix("--sample-ready-token=")\n\troot.title = ',1)
+wrapper=wrapper.replace('while not root.has_focus() or (_native_focus_token != "" and not FileAccess.file_exists(_native_focus_token)):','while not root.has_focus() or (_native_focus_token != "" and not FileAccess.file_exists(_native_focus_token)) or not FileAccess.file_exists(_sample_ready_token):')
+wrapper=wrapper[:wrapper.index('func _measure_frames(')]
+measure=(ROOT/'tests/rendered/BattleFrameBenchmark.gd').read_text().split('func _measure_frames(',1)[1]
+measure='func _measure_frames('+measure
+measure=measure.replace('\t# Update ticks', '\t_focus_phase = label\n\tvar exits_before = _focus_exit_count\n\tvar began_focused = root.has_focus()\n\tprint("FOCUS_PHASE_BEGIN phase=", label, " focused=", began_focused, " unix_ms=", int(Time.get_unix_time_from_system() * 1000))\n\t_check(began_focused, "Benchmark phase began without window focus")\n\t_trace_begin(label + "/warmup")\n\t# Update ticks',1)
+measure=measure.replace('warm_samples.append((now - warm_last) / 1000.0)','warm_samples.append((now - warm_last) / 1000.0)\n\t\t_trace_frame(now)')
+measure=measure.replace('\twarm_samples.sort()', '\t_trace_end(label + "/warmup")\n\twarm_samples.sort()',1)
+measure=measure.replace('\tvar times = []','\t_trace_begin(label + "/steady")\n\tvar times = []',1)
+measure=measure.replace('times.append((now - last) / 1000.0)','times.append((now - last) / 1000.0)\n\t\t_trace_frame(now)',1)
+measure=measure.replace('\ttimes.sort()','\t_trace_end(label + "/steady")\n\ttimes.sort()',1)
+measure+='''
+	var ended_focused = root.has_focus()
+	var exits_during = _focus_exit_count - exits_before
+	var valid = began_focused and ended_focused and exits_during == 0
+	print("FOCUS_PHASE_END phase=", label, " focused=", ended_focused, " lost_focus_events=", exits_during, " focus_valid=", valid, " unix_ms=", int(Time.get_unix_time_from_system() * 1000))
+	_check(valid, "Benchmark phase lost window focus")
+	_focus_phase = "between"
+
+
+func _pipeline_counts():
+	return {
+		"canvas": RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_PIPELINE_COMPILATIONS_CANVAS),
+		"mesh": RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_PIPELINE_COMPILATIONS_MESH),
+		"surface": RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_PIPELINE_COMPILATIONS_SURFACE),
+		"draw": RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_PIPELINE_COMPILATIONS_DRAW),
+		"specialization": RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_PIPELINE_COMPILATIONS_SPECIALIZATION),
+	}
+
+
+func _trace_begin(label):
+	_trace_rows.clear()
+	_trace_previous_at = Time.get_ticks_usec()
+	_trace_previous_pipelines = _pipeline_counts()
+	print("TRACE_PHASE_BEGIN ", JSON.stringify({"phase": label, "ticks_us": _trace_previous_at, "unix_ms": int(Time.get_unix_time_from_system() * 1000), "pipelines": _trace_previous_pipelines}))
+
+
+func _trace_frame(now):
+	var counts = _pipeline_counts()
+	_trace_rows.append({"ticks_us": now, "unix_ms": int(Time.get_unix_time_from_system() * 1000), "frame_ms": (now - _trace_previous_at) / 1000.0, "pipeline_before": _trace_previous_pipelines, "pipeline_after": counts, "render_cpu_ms": RenderingServer.viewport_get_measured_render_time_cpu(root.get_viewport_rid()), "physics_ms": Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0, "simulation_time": game.simulation_time})
+	_trace_previous_at = now
+	_trace_previous_pipelines = counts
+
+
+func _trace_end(label):
+	print("TRACE_PHASE_END ", JSON.stringify({"phase": label, "ticks_us": Time.get_ticks_usec(), "unix_ms": int(Time.get_unix_time_from_system() * 1000), "pipelines": _pipeline_counts(), "frames": _trace_rows}))
+'''
+(STAGE/'ReleaseBattleBenchmark.gd').write_text(wrapper+measure)
+print(STAGE)

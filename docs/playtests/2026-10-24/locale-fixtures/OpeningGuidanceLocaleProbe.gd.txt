@@ -1,0 +1,21 @@
+extends "res://tests/headless/OpeningGuidanceRegression.gd"
+
+func _run():
+	var requested = "zh_CN"
+	var args = OS.get_cmdline_user_args()
+	if not args.is_empty():
+		requested = args[0]
+	root.get_node("Globals").options.language = requested
+	TranslationServer.set_locale(requested)
+	print("LOCALE PROBE locale=%s options=%s" % [TranslationServer.get_locale(), root.get_node("Globals").options.language])
+	await super._run()
+
+func _check(condition, message):
+	if not condition:
+		print("LOCALE FAILURE locale=%s message=%s" % [TranslationServer.get_locale(), message])
+		if is_instance_valid(game):
+			if game.has_method("convoy_guidance"):
+				print("ACTUAL CONVOY: ", game.convoy_guidance())
+			else:
+				print("ACTUAL TIP: ", guidance.practical_tip(game))
+	super._check(condition, message)

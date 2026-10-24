@@ -1,0 +1,53 @@
+{
+  "scope": "UI cross/religious-looking emblem audit; authored SVGs and runtime glyphs only. Ordinary structural braces, arithmetic and names are outside scope.",
+  "ui_svg_count": 45,
+  "native_capture_count": 14,
+  "native_config": {
+    "viewport": "1280x720",
+    "interface_scale": 1.5,
+    "languages": [
+      "en",
+      "zh_CN"
+    ],
+    "factions": [
+      "bastion",
+      "helix",
+      "frontier"
+    ]
+  },
+  "native_capture_failures": 0,
+  "localization_failures": 0,
+  "catalog_entries": 2248,
+  "native_captures": [
+    "bastion-orders-en.png",
+    "bastion-orders-zh_CN.png",
+    "bastion-research-en.png",
+    "bastion-research-zh_CN.png",
+    "frontier-orders-en.png",
+    "frontier-orders-zh_CN.png",
+    "frontier-research-en.png",
+    "frontier-research-zh_CN.png",
+    "helix-orders-en.png",
+    "helix-orders-zh_CN.png",
+    "helix-research-en.png",
+    "helix-research-zh_CN.png",
+    "map-legend-en.png",
+    "map-legend-zh_CN.png"
+  ],
+  "runtime_cursor_exports": [
+    "command-attack.png",
+    "command-repair.png",
+    "cursor-attack.png",
+    "cursor-repair.png"
+  ],
+  "replacements": {
+    "recovery": "wrench",
+    "repair_command_cursor": "wrench",
+    "targeting": "open brackets",
+    "research_service": "wrench with separate bars",
+    "research_doctrine": "chevrons in hexagonal shield",
+    "repair_map_marker": "S in English / 修 in Chinese",
+    "rejected_command": "circle with minus"
+  },
+  "visual_review": "All 45 SVGs, all 14 native UI captures, and both runtime cursor/icon pairs visually inspected."
+}

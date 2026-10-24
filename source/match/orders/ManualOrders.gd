@@ -133,6 +133,8 @@ func _make_action(order):
 			return load(ACTIONS + "Moving.gd").new(order.point)
 		"attack_move":
 			return load(ACTIONS + "AttackMoving.gd").new(order.point)
+		"patrol":
+			return load(ACTIONS + "Patrolling.gd").new(order.point)
 	var target = order.target.get_ref()
 	if not is_instance_valid(target) or target.is_queued_for_deletion():
 		return null
@@ -214,7 +216,7 @@ func _track_progress(delta):
 		else:
 			status = tr("%s · %d waiting") % [str(_active), pending.size()]
 		return
-	if current.get("kind") not in ["move", "attack_move"]:
+	if current.get("kind") not in ["move", "attack_move", "patrol"]:
 		return
 	if "_shot" in _active and is_instance_valid(_active._shot):
 		_still = 0.0

@@ -187,9 +187,29 @@ func _on_unit_spawned(unit):
 
 
 func _on_navigate_unit_to_rally_point(unit, rally_point):
-	if rally_point.target_unit != null:
-		_navigate_unit_towards_unit(unit, rally_point.target_unit, true)
-	elif rally_point.global_position != rally_point.get_parent().global_position:
+	var target = rally_point.target_unit
+	if is_instance_valid(target) and not target.is_queued_for_deletion():
+		# Production rallies express a standing destination. They must not send
+		# fresh infantry into a garrison or make engineers construct their leader.
+		if (
+			target is ResourceUnit
+			and Actions.CollectingResourcesSequentially.is_applicable(unit, target)
+		):
+			if _submit(unit, Orders.target_order("gather", target), true):
+				return
+		elif (
+			"player" in target
+			and target.player == unit.player
+			and target != unit
+			and target.hp > 0
+			and Actions.Following.is_applicable(unit)
+		):
+			if _submit(unit, Orders.target_order("follow", target), true):
+				unit.stance = unit.Stance.DEFENSIVE
+				return
+	# Depleted deposits, lost leaders and unit classes that cannot harvest still
+	# receive the saved point. Never read a vanished target or silently drop it.
+	if rally_point.global_position != rally_point.get_parent().global_position:
 		_submit(unit, Orders.point_order("move", rally_point.global_position), true)
 
 

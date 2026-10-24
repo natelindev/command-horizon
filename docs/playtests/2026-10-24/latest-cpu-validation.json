@@ -1,0 +1,124 @@
+{
+  "started_utc": "2026-10-24T04:52:39.715236+00:00",
+  "scope": "Per-call movement speed reuse, per-service player modifiers, and live spatial queries.",
+  "source_sha256": "7d68d012998c8e8429cc3821dacd050deb264d7e2d36b643c16047d591ec4d1c",
+  "complete": true,
+  "checks": [
+    {
+      "name": "TechnologyRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 102.211,
+      "log": "tmp/polish-latest-cpu-checks/TechnologyRegression.log",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "GroundVehicleMotionRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 7.565,
+      "log": "tmp/polish-latest-cpu-checks/GroundVehicleMotionRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 18 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 7 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "GroundCrowdRecoveryRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 24.786,
+      "log": "tmp/polish-latest-cpu-checks/GroundCrowdRecoveryRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "NavigationRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 27.314,
+      "log": "tmp/polish-latest-cpu-checks/NavigationRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "StrategicPolishRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 3.962,
+      "log": "tmp/polish-latest-cpu-checks/StrategicPolishRegression.log",
+      "errors": [],
+      "known_teardown": [],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "SkirmishSupportRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 14.903,
+      "log": "tmp/polish-latest-cpu-checks/SkirmishSupportRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 12 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "StructureRepairRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 12.866,
+      "log": "tmp/polish-latest-cpu-checks/StructureRepairRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    },
+    {
+      "name": "GroundHeightAlignmentRegression",
+      "passed": true,
+      "returncode": 0,
+      "timed_out": false,
+      "seconds": 4.806,
+      "log": "tmp/polish-latest-cpu-checks/GroundHeightAlignmentRegression.log",
+      "errors": [],
+      "known_teardown": [
+        "WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 4 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [],
+      "expected_negative_case_errors": []
+    }
+  ],
+  "passed": true,
+  "finished_utc": "2026-10-24T04:55:59.401410+00:00"
+}

@@ -89,15 +89,16 @@ func _build():
 
 
 static func _sheet_material():
+	var finishes = Cache.bucket("construction_finishes")
 	var key = "helix-sheet"
-	if not _finishes.has(key):
+	if not finishes.has(key):
 		var material = StandardMaterial3D.new()
 		material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 		material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 		material.cull_mode = BaseMaterial3D.CULL_DISABLED
 		material.albedo_color = Color(.45, .9, 1.0, .07)
-		_finishes[key] = material
-	return _finishes[key]
+		finishes[key] = material
+	return finishes[key]
 
 
 func update(_delta):

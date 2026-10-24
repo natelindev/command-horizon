@@ -14,6 +14,11 @@ const GROUND_RECOVERY_DISTANCE = 2.0
 const GROUND_CONTACT_MARGIN = .02
 # Vertical speed of rotorcraft settling onto or lifting off a helipad.
 const SETTLE_RATE = 1.2
+# Tracked vehicles and convoy trucks reach cruise speed in roughly a third of
+# a second. Steering, crowd clipping and explicit Stop retain immediate control.
+const VEHICLE_ACCELERATION = 9.0
+const VEHICLE_BRAKING = 13.0
+const VEHICLE_ROLES = ["Tank", "AdvancedTank", "SupplyTruck"]
 
 const ROTATION_LOW_PASS_FILTER_ENABLED = true
 const ROTATION_LOW_PASS_FILTER_WINDOW_SIZE = 10  # number of frames for accumulating directions
@@ -27,12 +32,10 @@ const PASSIVE_MOVEMENT_TRACKING_ENABLED = true
 @export var air_acceleration = 7.0
 @export var speed: float = 4.0:
 	get:
-		var factor = (
-			_unit.signature.speed_factor()
-			if is_instance_valid(_unit) and _unit.signature != null
-			else 1.0
-		)
-		return speed * factor
+		if not is_instance_valid(_unit):
+			return speed
+		var factor: float = _unit.signature.speed_factor() if _unit.signature != null else 1.0
+		return speed * factor * _unit.veterancy_speed_factor
 
 # Rotorcraft settle onto a helipad deck at this height, then climb back out.
 var settle_height = INF
@@ -77,7 +80,7 @@ func _physics_process(delta):
 	var priority := 0.8 if not _has_destination and is_instance_valid(_unit.aim_target) else 0.5
 	if avoidance_priority != priority:
 		avoidance_priority = priority
-	if _advance_exit_clearance(delta):
+	if _advance_exit_clearance(delta, current_speed):
 		return
 	if not _has_destination:
 		velocity = _air_inertia(Vector3.ZERO, delta)
@@ -147,9 +150,31 @@ func _physics_process(delta):
 	if domain == Constants.Match.Navigation.Domain.AIR:
 		# Brake in time to stop at the destination instead of arriving at speed.
 		var braking = sqrt(2.0 * air_acceleration * offset.length())
-		velocity = _air_inertia(direction * minf(speed, braking), delta)
+		velocity = _air_inertia(direction * minf(current_speed, braking), delta)
 	else:
-		velocity = direction * min(speed, offset.length() / delta)
+		velocity = _ground_velocity(direction, offset.length(), delta, current_speed)
+
+
+func _ground_velocity(
+	direction: Vector3, waypoint_distance: float, delta: float, current_speed: float
+) -> Vector3:
+	var desired: float = minf(current_speed, waypoint_distance / maxf(delta, 0.001))
+	if ghosted or _unit.type not in VEHICLE_ROLES or _recovery_left > 0:
+		return direction * desired
+	# Only brake for the final waypoint. Slowing at every intermediate corner
+	# would make narrow passages and production routes needlessly hesitant.
+	var remaining := ((_unit.global_position - get_final_position()) * Vector3(1, 0, 1)).length()
+	var braking_distance := current_speed * current_speed / (2.0 * VEHICLE_BRAKING)
+	if remaining < braking_distance + target_desired_distance + 0.1:
+		var path = get_current_navigation_path()
+		if not path.is_empty() and get_current_navigation_path_index() >= path.size() - 1:
+			var stopping_distance := maxf(0.0, remaining - target_desired_distance + 0.02)
+			desired = minf(desired, sqrt(2.0 * VEHICLE_BRAKING * stopping_distance))
+	# The requested velocity is already archived, so an interrupted acceleration
+	# resumes without a new unsaved throttle or a full-speed jump after loading.
+	var current := maxf(0.0, velocity.dot(direction))
+	var rate := VEHICLE_ACCELERATION if desired > current else VEHICLE_BRAKING
+	return direction * move_toward(current, desired, rate * delta)
 
 
 func _changing_height():
@@ -191,7 +216,7 @@ func cancel_exit_clearance():
 	_exit_clearance_until = 0.0
 
 
-func _advance_exit_clearance(delta):
+func _advance_exit_clearance(delta, current_speed: float):
 	if not _exit_clearance_target.is_finite():
 		return false
 	var offset = (_exit_clearance_target - _unit.global_position) * Vector3(1, 0, 1)
@@ -200,7 +225,7 @@ func _advance_exit_clearance(delta):
 		return false
 	# This is a short avoidance maneuver, not a new order. Keep the navigation
 	# destination, action and queued orders intact.
-	velocity = offset.normalized() * minf(speed, offset.length() / delta)
+	velocity = offset.normalized() * minf(current_speed, offset.length() / delta)
 	return true
 
 
@@ -209,46 +234,51 @@ func has_occupied_endpoint(require_short_route = true):
 	if path.is_empty():
 		return false
 	var end: Vector3 = path[-1] * Vector3(1, 0, 1)
+	var own_radius: float = radius
+	var origin: Vector3 = _unit.global_position_yless
+	var mobile_reach: float = own_radius + Constants.Match.Terrain.Navmesh.MAX_AGENT_RADIUS
 	# A settled mobile body can only finish this order within contact range.
 	# Most recovering units are farther away; avoid scanning their destination
 	# neighbors (and the remaining path) until arrival is actually possible.
-	var contact_bound: float = radius + Constants.Match.Terrain.Navmesh.MAX_AGENT_RADIUS + .2
-	if _unit.global_position_yless.distance_squared_to(end) > contact_bound * contact_bound:
+	var contact_bound: float = mobile_reach + .2
+	if origin.distance_squared_to(end) > contact_bound * contact_bound:
 		return false
 	var remaining = 0.0
 	if require_short_route:
 		# A nearby endpoint can sit just beyond a tiny polygon bend. Bound
 		# actual remaining travel instead of requiring a particular path index;
 		# an endpoint across a wall still requires its full remaining route.
-		var previous = _unit.global_position_yless
+		var previous = origin
 		for index in range(get_current_navigation_path_index(), path.size()):
 			var point = path[index] * Vector3(1, 0, 1)
 			remaining += previous.distance_to(point)
 			previous = point
 	# A plain point order can finish beside a settled ally occupying its final
 	# reachable position. MovingToUnit owns its own process/contact checks.
-	for other in _match.battlefield.nearby_bodies(end, _unit.radius, _unit.player):
+	# Only mobile agents qualify; structure radii must not widen this query.
+	# The terrain agent limit also covers the smaller air-agent radius limit.
+	for other in _match.battlefield.nearby_units(end, mobile_reach, _unit.player):
 		if (
 			other == _unit
 			or not other.is_in_group("units")
 			or other.is_queued_for_deletion()
 			or other.hp <= 0
-			or other.movement_speed <= 0
-			or other.movement_domain != _unit.movement_domain
 		):
 			continue
-		var movement = other.get_node_or_null("Movement")
+		var movement = other._get_navigation_trait()
 		if (
-			movement == null
+			not movement is NavigationAgent3D
+			or movement.domain != domain
+			or movement.speed <= 0
 			or movement.ghosted
 			or movement._has_destination
 			or movement.velocity.length_squared() >= 0.01
 		):
 			continue
-		var spacing = _unit.radius + other.radius
+		var spacing: float = own_radius + movement.radius
 		if (
 			other.global_position_yless.distance_to(end) < spacing
-			and _unit.global_position_yless.distance_to(end) <= spacing + 0.2
+			and origin.distance_to(end) <= spacing + 0.2
 			and (not require_short_route or remaining <= spacing + 0.2)
 		):
 			return true
@@ -478,62 +508,56 @@ func _on_velocity_computed(safe_velocity: Vector3):
 		return
 	_last_navigation_iteration = navigation_iteration
 	var current_speed: float = speed
+	var origin: Vector3 = _unit.global_position
+	var maximum_step: float = current_speed * _physics_delta
 	var displacement := safe_velocity.limit_length(current_speed) * _physics_delta
-	var candidate := _unit.global_position + displacement
+	var candidate := origin + displacement
 	# Local avoidance can push agents off the mesh; constrain the resulting step.
 	var navigable := _navigation_position(candidate)
 	if domain == Constants.Match.Navigation.Domain.TERRAIN:
 		# A teleport or restored position can need several vertical steps. Zero
 		# planar velocity must not freeze it above the first path waypoint.
 		_ground_alignment_height = navigable.y
-	var next := _unit.global_position.move_toward(
-		Vector3(navigable.x, _unit.global_position.y, navigable.z), current_speed * _physics_delta
-	)
+	var next: Vector3
 	# Flight clearance follows the map without consuming horizontal movement speed.
 	# Ground agents retain the existing navmesh-constrained elevation step.
 	if _uses_flight_clearance():
+		next = origin.move_toward(Vector3(navigable.x, origin.y, navigable.z), maximum_step)
 		next.y = _flight_height(Vector3(next.x, navigable.y, next.z))
 		if is_finite(settle_height):
-			next.y = move_toward(
-				_unit.global_position.y, settle_height, SETTLE_RATE * _physics_delta
-			)
+			next.y = move_toward(origin.y, settle_height, SETTLE_RATE * _physics_delta)
 			_climbing_out = true
 		elif _climbing_out:
-			next.y = move_toward(_unit.global_position.y, next.y, SETTLE_RATE * _physics_delta)
+			next.y = move_toward(origin.y, next.y, SETTLE_RATE * _physics_delta)
 			_climbing_out = next.y < _flight_height(next) - 0.01
 	else:
-		next = _unit.global_position.move_toward(navigable, current_speed * _physics_delta)
+		next = origin.move_toward(navigable, maximum_step)
 	if domain == Constants.Match.Navigation.Domain.TERRAIN:
-		next = _clip_ground_step(next)
+		next = _clip_ground_step(next, current_speed)
 		# Only retry when mesh projection displaced avoidance and the final
 		# step was under one millimetre; ordinary body yielding stays intact.
 		if (
 			_has_destination
 			and _recovery_left > 0
-			and not has_occupied_endpoint(false)
 			and ((navigable - candidate) * Vector3(1, 0, 1)).length_squared() > 0.000001
-			and next.distance_squared_to(_unit.global_position) < 0.000001
+			and next.distance_squared_to(origin) < 0.000001
+			and not has_occupied_endpoint(false)
 		):
 			# Avoidance can steer an escape back into a boundary contact. Try
 			# the committed recovery step with the same mesh/body constraints.
-			var recovery_point = (
-				_unit.global_position + velocity.limit_length(current_speed) * _physics_delta
-			)
+			var recovery_point = origin + velocity.limit_length(current_speed) * _physics_delta
 			var recovery_nav = _navigation_position(recovery_point)
 			var recovery_step = _clip_ground_step(
-				_unit.global_position.move_toward(recovery_nav, current_speed * _physics_delta)
+				origin.move_toward(recovery_nav, maximum_step), current_speed
 			)
-			if (
-				recovery_step.distance_squared_to(_unit.global_position)
-				> next.distance_squared_to(_unit.global_position)
-			):
+			if recovery_step.distance_squared_to(origin) > next.distance_squared_to(origin):
 				next = recovery_step
 		# Clipping and sliding can change XZ after projection. Ground the final
 		# position on the authored surface, not the voxelized navigation mesh.
 		if _match.map.is_elevated():
 			next.y = _match.map.height_at(Vector2(next.x, next.z))
 			_ground_alignment_height = next.y
-	var actual_velocity := (next - _unit.global_position) / maxf(_physics_delta, 0.001)
+	var actual_velocity := (next - origin) / maxf(_physics_delta, 0.001)
 	if (
 		domain == Constants.Match.Navigation.Domain.TERRAIN
 		and actual_velocity.distance_to(safe_velocity) > 0.1
@@ -549,7 +573,7 @@ func _on_velocity_computed(safe_velocity: Vector3):
 	_update_passive_movement_tracking(actual_velocity)
 
 
-func _clip_ground_step(next: Vector3) -> Vector3:
+func _clip_ground_step(next: Vector3, current_speed: float) -> Vector3:
 	var origin: Vector3 = _unit.global_position
 	# The contact solver accepts a negligible planar step unchanged. Avoid
 	# building a neighbor list for that same no-op (including elevation only).
@@ -560,7 +584,10 @@ func _clip_ground_step(next: Vector3) -> Vector3:
 	):
 		return next
 	var reach: float = (
-		radius + Constants.Match.Terrain.Navmesh.MAX_AGENT_RADIUS + speed * _physics_delta + .25
+		radius
+		+ Constants.Match.Terrain.Navmesh.MAX_AGENT_RADIUS
+		+ current_speed * _physics_delta
+		+ .25
 	)
 	var neighbors = _match.battlefield.nearby_units(origin, reach)
 	var contact = _ground_step_contact(origin, next, neighbors)
@@ -573,7 +600,7 @@ func _clip_ground_step(next: Vector3) -> Vector3:
 	var normal: Vector3 = contact.normal
 	var slide := step - normal * minf(0.0, step.dot(normal))
 	var navigable := _navigation_position(origin + slide)
-	var alternative := origin.move_toward(navigable, speed * _physics_delta)
+	var alternative := origin.move_toward(navigable, current_speed * _physics_delta)
 	var slide_contact = _ground_step_contact(origin, alternative, neighbors)
 	alternative = origin.lerp(alternative, slide_contact.fraction)
 	if alternative.distance_squared_to(origin) > clipped.distance_squared_to(origin):
@@ -592,6 +619,12 @@ func _ground_step_contact(origin: Vector3, next: Vector3, neighbors: Array) -> D
 		var other: Unit = candidate
 		if other == _unit:
 			continue
+		var offset: Vector3 = (origin - other.global_position) * Vector3(1, 0, 1)
+		var toward := offset.dot(step)
+		# Receding or tangential motion cannot make a new contact, regardless
+		# of the neighbor's live domain, radius, ghost state or speed modifiers.
+		if toward >= 0:
+			continue
 		# Read the neighbor's trait once instead of resolving radius, speed and
 		# domain through three separate unit property getters for every contact.
 		var movement = other._get_navigation_trait()
@@ -602,12 +635,8 @@ func _ground_step_contact(origin: Vector3, next: Vector3, neighbors: Array) -> D
 			or movement.ghosted
 		):
 			continue
-		var offset: Vector3 = (origin - other.global_position) * Vector3(1, 0, 1)
 		var separation: float = own_radius + movement.radius - GROUND_CONTACT_MARGIN
 		var outside := offset.length_squared() - separation * separation
-		var toward := offset.dot(step)
-		if toward >= 0:
-			continue
 		var fraction := 0.0
 		if outside > 0:
 			var discriminant := toward * toward - length_squared * outside

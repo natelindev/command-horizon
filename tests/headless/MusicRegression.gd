@@ -27,13 +27,32 @@ func _run():
 		if director.current_track != track:
 			continue
 		var player = director.players[director._target]
-		_check(player.stream is AudioStreamOggVorbis, "Music is not decoded Ogg")
+		var bed = player.stream if track == "menu" else player.stream.get_sync_stream(0)
+		_check(bed is AudioStreamOggVorbis, "Music is not decoded Ogg")
 		_check(player.stream.get_length() >= 150, "Music is unexpectedly short")
-		_check(player.stream.loop and player.playing, "Music does not play and loop")
+		_check(bed.loop and player.playing, "Music does not play and loop")
+		if track == "menu":
+			_check(not player.stream is AudioStreamSynchronized, "Menu retained combat percussion")
+		else:
+			_check(
+				player.stream is AudioStreamSynchronized,
+				"Faction stems are not sample-synchronized"
+			)
+			var percussion = player.stream.get_sync_stream(1)
+			_check(percussion.loop, "Percussion stem is not looping")
+			_check(
+				absf(percussion.get_length() - bed.get_length()) < .01,
+				"Stem durations drift across the loop: " + track
+			)
 		for index in 30:
 			director._check_left = 1
 			director._process(.1)
 		_check(absf(player.volume_db) < .1, "Music did not fade in")
+		if track != "menu":
+			_check(
+				absf(player.stream.get_sync_stream_volume(0) - linear_to_db(.8)) < .1,
+				"Calm bed did not settle"
+			)
 		_check(not director.players[1 - director._target].playing, "Old track still playing")
 	director.play_track("menu")
 	director.play_track("bastion")

@@ -254,7 +254,7 @@ func _label_boss():
 	_boss_label = null
 	if not _alive(boss):
 		return
-	_boss_label = Label3D.new()
+	_boss_label = load("res://source/match/debug/UnitInfoLabel.gd").new()
 	_boss_label.text = tr("Siege commander")
 	_boss_label.font_size = 64
 	_boss_label.outline_size = 2

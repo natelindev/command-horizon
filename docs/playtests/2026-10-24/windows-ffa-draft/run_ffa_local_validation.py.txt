@@ -1,0 +1,20 @@
+import subprocess,shutil,json,time,hashlib,sys
+from pathlib import Path
+repo=Path('/Users/linlilu/godot-open-rts');base=repo/'tmp/windows-polish-20261024';name=sys.argv[1] if len(sys.argv)>1 else 'ffa-local-validation-0643';out=base/name;out.mkdir(exist_ok=True)
+pack=out/'OpenRTSScale-cpu-0618.exe'
+if not pack.exists():shutil.copy2(base/'OpenRTSScale-cpu-0618.exe',pack)
+assert hashlib.sha256(pack.read_bytes()).hexdigest()=='f0529985dfd22377f6468bb13ce3edb6e4a11c52099fc42494b3fb188c49a421'
+(out/'override.cfg').write_text('[application]\nconfig/use_custom_user_dir=true\nconfig/custom_user_dir_name="OpenRTSPolishFfaLocalValidation-20261024"\n')
+engine=repo/'tmp/tooling/godot-4.7.2/Godot.app/Contents/MacOS/Godot';fixture=repo/'tests/rendered/FourPlayerFfaBenchmark.gd';options=base/'user-ffa-after-exit-0628/options.tres'
+args=[str(engine),'--headless','--main-pack',str(pack),'--fixed-fps','60','--script',str(fixture),'--','--fixture-user-dir=/Users/linlilu/Library/Application Support/OpenRTSPolishFfaLocalValidation-20261024','--fixture-options='+str(options),'--fixture-output='+str(out/'output')]
+meta={'args':args,'fixture_sha256':hashlib.sha256(fixture.read_bytes()).hexdigest(),'runtime_pack_sha256':hashlib.sha256(pack.read_bytes()).hexdigest(),'options_sha256':hashlib.sha256(options.read_bytes()).hexdigest(),'acceptance_timing':False,'purpose':'Headless scenario validity only; frozen CPU-only Windows embedded pack on matching macOS editor'}
+start=time.monotonic()
+with (out/'engine.log').open('w') as log:
+ p=subprocess.Popen(args,cwd=out,stdout=log,stderr=subprocess.STDOUT)
+ print('FFA_LOCAL_VALIDATION_STARTED',p.pid,flush=True)
+ try:code=p.wait(timeout=300)
+ except subprocess.TimeoutExpired:p.kill();code=p.wait();meta['timed_out']=True
+meta.update({'returncode':code,'wall_seconds':time.monotonic()-start});(out/'metadata.json').write_text(json.dumps(meta,indent=2)+'\n')
+print('FFA_LOCAL_VALIDATION_RESULT',json.dumps(meta),flush=True)
+print((out/'engine.log').read_text()[-14000:],flush=True)
+raise SystemExit(code)

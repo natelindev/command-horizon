@@ -75,13 +75,8 @@ func _rearm(delta):
 func _home_airfield():
 	var best = null
 	var best_distance = INF
-	for field in player.get_children():
-		if (
-			not field.is_in_group("units")
-			or field.type != "AircraftFactory"
-			or field.is_queued_for_deletion()
-			or not field.is_constructed()
-		):
+	for field in get_tree().get_nodes_in_group("airfields"):
+		if field.player != player or field.is_queued_for_deletion() or not field.is_constructed():
 			continue
 		var distance = field.global_position.distance_to(global_position)
 		if distance < best_distance:

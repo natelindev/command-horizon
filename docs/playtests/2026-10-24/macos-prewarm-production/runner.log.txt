@@ -1,0 +1,121 @@
+import 0
+export 0
+codesign 0
+NATIVE_PID 89581 waiting gate
+FOCUS_GATE_READY pid=89581 title=Open RTS Mac Benchmark focused=true
+FOCUS_GATE_START pid=89581 focused=true
+PREWARM_BEGIN {"pipelines":{"canvas":6,"draw":65,"mesh":30,"specialization":79,"surface":130},"unix_ms":1792823511561}
+PREWARM_END {"completed":true,"elapsed_ms":2166.658,"helper_only":true,"nodes_after":6688,"nodes_before":6688,"pipelines":{"canvas":8,"draw":81,"mesh":30,"specialization":100,"surface":138},"snapshot_equal":true,"unix_ms":1792823513747}
+FOCUS_PHASE_BEGIN phase=base focused=true unix_ms=1792823513748
+WARMUP base frames=227 p95_ms=14.06 max_ms=15.63 frames_over_100ms=0
+GAMEPLAY base units=30 mean_ms=13.12 p95_ms=13.49 fps=76.2 simulation_seconds=3.13333333333332 wall_seconds=3.147622 viewport=(1920.0, 1080.0) pixels=(1920.0, 1080.0) gpu_ms=unavailable render_cpu_ms=0.97 adapter=Apple M1 Pro (Apple7) rendered_frames=240 physics_ticks=94 paused=false draw_calls=1537 primitives=1069020
+FOCUS_PHASE_END phase=base focused=true lost_focus_events=0 focus_valid=true unix_ms=1792823519909
+FOCUS_PHASE_BEGIN phase=midfield-combat focused=true unix_ms=1792823520265
+WARMUP midfield-combat frames=213 p95_ms=14.97 max_ms=38.46 frames_over_100ms=0
+GAMEPLAY midfield-combat units=70 mean_ms=13.94 p95_ms=14.62 fps=71.7 simulation_seconds=3.36666666666665 wall_seconds=3.345522 viewport=(1920.0, 1080.0) pixels=(1920.0, 1080.0) gpu_ms=unavailable render_cpu_ms=1.32 adapter=Apple M1 Pro (Apple7) rendered_frames=240 physics_ticks=101 paused=false draw_calls=2305 primitives=1828516
+FOCUS_PHASE_END phase=midfield-combat focused=true lost_focus_events=0 focus_valid=true unix_ms=1792823526628
+FOCUS_PHASE_BEGIN phase=destruction-burst focused=true unix_ms=1792823526628
+BURST destroyed=8 wrecks=8
+WARMUP destruction-burst frames=209 p95_ms=15.29 max_ms=17.26 frames_over_100ms=0
+GAMEPLAY destruction-burst units=62 mean_ms=14.56 p95_ms=16.16 fps=68.7 simulation_seconds=3.50000000000017 wall_seconds=3.494273 viewport=(1920.0, 1080.0) pixels=(1920.0, 1080.0) gpu_ms=unavailable render_cpu_ms=1.45 adapter=Apple M1 Pro (Apple7) rendered_frames=240 physics_ticks=105 paused=false draw_calls=2591 primitives=1838378
+FOCUS_PHASE_END phase=destruction-burst focused=true lost_focus_events=0 focus_valid=true unix_ms=1792823533131
+Battle benchmark: release=true failures=0
+DIAGNOSTIC_VALID False SOURCE_UNCHANGED False
+[
+  {
+    "phase": "base/warmup",
+    "pipelines": {
+      "canvas": 8,
+      "draw": 86,
+      "mesh": 30,
+      "specialization": 105,
+      "surface": 138
+    },
+    "ticks_us": 38851965,
+    "unix_ms": 1792823516756,
+    "frame_count": 227,
+    "max_frame_ms": 15.63,
+    "spikes_over_50ms": [],
+    "frames_over_100ms": 0
+  },
+  {
+    "phase": "base/steady",
+    "pipelines": {
+      "canvas": 8,
+      "draw": 86,
+      "mesh": 30,
+      "specialization": 105,
+      "surface": 138
+    },
+    "ticks_us": 42001955,
+    "unix_ms": 1792823519906,
+    "frame_count": 240,
+    "max_frame_ms": 15.237,
+    "spikes_over_50ms": [],
+    "frames_over_100ms": 0
+  },
+  {
+    "phase": "midfield-combat/warmup",
+    "pipelines": {
+      "canvas": 8,
+      "draw": 92,
+      "mesh": 30,
+      "specialization": 111,
+      "surface": 139
+    },
+    "ticks_us": 45373367,
+    "unix_ms": 1792823523278,
+    "frame_count": 213,
+    "max_frame_ms": 38.484,
+    "spikes_over_50ms": [],
+    "frames_over_100ms": 0
+  },
+  {
+    "phase": "midfield-combat/steady",
+    "pipelines": {
+      "canvas": 8,
+      "draw": 92,
+      "mesh": 30,
+      "specialization": 111,
+      "surface": 139
+    },
+    "ticks_us": 48721067,
+    "unix_ms": 1792823526626,
+    "frame_count": 240,
+    "max_frame_ms": 15.926,
+    "spikes_over_50ms": [],
+    "frames_over_100ms": 0
+  },
+  {
+    "phase": "destruction-burst/warmup",
+    "pipelines": {
+      "canvas": 8,
+      "draw": 98,
+      "mesh": 30,
+      "specialization": 119,
+      "surface": 143
+    },
+    "ticks_us": 51726346,
+    "unix_ms": 1792823529631,
+    "frame_count": 209,
+    "max_frame_ms": 17.263,
+    "spikes_over_50ms": [],
+    "frames_over_100ms": 0
+  },
+  {
+    "phase": "destruction-burst/steady",
+    "pipelines": {
+      "canvas": 8,
+      "draw": 98,
+      "mesh": 30,
+      "specialization": 119,
+      "surface": 143
+    },
+    "ticks_us": 55222801,
+    "unix_ms": 1792823533129,
+    "frame_count": 240,
+    "max_frame_ms": 16.627,
+    "spikes_over_50ms": [],
+    "frames_over_100ms": 0
+  }
+]

@@ -1,0 +1,70 @@
+import datetime as dt, hashlib, importlib.util, json, pathlib, re, subprocess, time
+ROOT=pathlib.Path.cwd(); STAGE=pathlib.Path('/tmp/godot-open-rts-polish-combat-prewarm-production')
+ENGINE=ROOT/'tmp/tooling/godot-4.7.2/Godot.app/Contents/MacOS/Godot'
+OUT=ROOT/'docs/playtests/2026-10-24/macos-prewarm-production'; OUT.mkdir(exist_ok=True)
+REPORT=OUT/'diagnostic.json'
+APP=ROOT/'build/polish-2026-10-24/prewarm-production/Open_RTS_Prewarm_Production.app'; APP.parent.mkdir(exist_ok=True)
+spec=importlib.util.spec_from_file_location('gate',ROOT/'tmp/final-macos-release.py'); gate=importlib.util.module_from_spec(spec); spec.loader.exec_module(gate)
+sha=gate.digest
+frozen=json.loads((ROOT/'tmp/production-prewarm-frozen-source.json').read_text())
+def frozen_matches():
+ return all(sha(STAGE/x['path'])==x['sha256'] for x in frozen)
+assert frozen_matches()
+source=hashlib.sha256(json.dumps(frozen,sort_keys=True).encode()).hexdigest()
+assets_before=hashlib.sha256(''.join(str(p.relative_to(ROOT))+' '+sha(p)+'\n' for p in sorted((ROOT/'assets').rglob('*')) if p.is_file()).encode()).hexdigest()
+cache=pathlib.Path.home()/'Library/Application Support/OpenRTSPolishCombatPrewarmProduction-20261024-1'
+data={'schema':'macos-production-combat-prewarm-v1','classification':'production_helper_timing_without_sampler','source_sha256':source,'cache_path':str(cache),'cache_existed_before_import':cache.exists(),'os_driver_cache_reset':False,'production_edits':True,'frozen_source_before_tech_queue':True,'live_source_changes_excluded':True,'assets_sha256':assets_before,'steps':[],'complete':False}
+def save():REPORT.write_text(json.dumps(data,indent=2)+'\n')
+def retained(path):return {'path':str(path.relative_to(ROOT)),'sha256':sha(path)}
+def step(name,args,timeout=240):
+ log=OUT/(name+'.log.txt');started=dt.datetime.now(dt.timezone.utc).isoformat();tick=time.monotonic()
+ with log.open('w') as f:r=subprocess.run([str(x) for x in args],stdout=f,stderr=subprocess.STDOUT,cwd=ROOT,stdin=subprocess.DEVNULL,timeout=timeout)
+ data['steps'].append({'name':name,'command':[str(x) for x in args],'started_utc':started,'elapsed_seconds':time.monotonic()-tick,'exit_code':r.returncode,'log':retained(log)});save(); print(name,r.returncode,flush=True)
+ if r.returncode:raise RuntimeError(name)
+step('import',[ENGINE,'--headless','--path',STAGE,'--editor','--quit'])
+step('export',[ENGINE,'--headless','--path',STAGE,'--export-release','macOS',APP])
+step('codesign',['codesign','--verify','--deep','--strict',APP])
+for name in ['project.godot','ReleaseBattleBenchmark.gd','BenchmarkBootstrap.tscn']:
+ p=OUT/(name+'.txt');p.write_text((STAGE/name).read_text());data[name]=retained(p)
+monitor_source=OUT/'native-focus-monitor.swift.txt';monitor_source.write_text((ROOT/'tmp/polish-mac-focus-monitor.swift').read_text());data['native_focus_monitor']=retained(monitor_source)
+binary=APP/'Contents/MacOS/Open RTS';pack=APP/'Contents/Resources/Open RTS.pck'
+data['artifact']={'executable':str(binary.relative_to(ROOT)),'executable_sha256':sha(binary),'pack':str(pack.relative_to(ROOT)),'pack_sha256':sha(pack)}
+data['source_unchanged_after_export']=frozen_matches();assert data['source_unchanged_after_export']
+data['shader_cache_files_before_native']=[str(x.relative_to(cache)) for x in cache.rglob('*') if x.is_file() and ('.cache' in x.name or 'shader' in str(x))] if cache.exists() else []
+assert not data['shader_cache_files_before_native']
+focus=OUT/'native-focus.jsonl';log=OUT/'native-run.log.txt';token=ROOT/'tmp/prewarm-production-focus.start'
+assert not token.exists()
+started=dt.datetime.now(dt.timezone.utc).isoformat();data['native_started_utc']=started;save()
+with log.open('w') as output, focus.open('w') as native:
+ game=subprocess.Popen([str(binary),'--','--await-focus','--destruction-burst','--native-focus-token='+str(token)],cwd=ROOT,stdout=output,stderr=subprocess.STDOUT,stdin=subprocess.DEVNULL)
+ data['pid']=game.pid;save();print('NATIVE_PID',game.pid,'waiting gate',flush=True)
+ watcher=subprocess.Popen([str(ROOT/'tmp/polish-mac-focus-monitor'),str(game.pid),str(token)],stdout=native,stderr=subprocess.STDOUT,stdin=subprocess.DEVNULL)
+ try:r=game.wait(timeout=90)
+ except subprocess.TimeoutExpired:
+  game.terminate();game.wait(timeout=15);raise
+ watcher.wait(timeout=5)
+ data['native_exit_code']=r;data['sampling_enabled']=False
+raw=log.read_text();data['native_ended_utc']=dt.datetime.now(dt.timezone.utc).isoformat()
+data['native_log']=retained(log);data['native_focus_log']=retained(focus)
+rows=[json.loads(x) for x in focus.read_text().splitlines()];phases=[];begin=None
+for line in raw.splitlines():
+ if line.startswith('FOCUS_PHASE_BEGIN '):
+  begin=dict(re.findall(r'(\w+)=([^ ]+)',line))
+ elif line.startswith('FOCUS_PHASE_END '):
+  end=dict(re.findall(r'(\w+)=([^ ]+)',line));matches=[x for x in rows if int(begin['unix_ms'])<=x['unix_ms']<=int(end['unix_ms'])];phases.append({'phase':begin['phase'],'begin_unix_ms':int(begin['unix_ms']),'end_unix_ms':int(end['unix_ms']),'native_sample_count':len(matches),'all_native_samples_owned':bool(matches) and all(x['owned'] for x in matches),'wrapper_focus_valid':end['focus_valid']=='true'});begin=None
+traces=[json.loads(x.removeprefix('TRACE_PHASE_END ')) for x in raw.splitlines() if x.startswith('TRACE_PHASE_END ')]
+data['native_focus_phases']=phases;data['phase_summaries']=[]
+for phase in traces:
+ frames=phase.pop('frames');phase['frame_count']=len(frames);phase['max_frame_ms']=max(x['frame_ms'] for x in frames);phase['spikes_over_50ms']=[x for x in frames if x['frame_ms']>50];phase['frames_over_100ms']=sum(x['frame_ms']>100 for x in frames);data['phase_summaries'].append(phase)
+data['source_unchanged']=frozen_matches()
+assets_after=hashlib.sha256(''.join(str(p.relative_to(ROOT))+' '+sha(p)+'\n' for p in sorted((ROOT/'assets').rglob('*')) if p.is_file()).encode()).hexdigest()
+data['assets_unchanged']=assets_after==assets_before
+data['prewarm_results']=[json.loads(line.removeprefix('PREWARM_END ')) for line in raw.splitlines() if line.startswith('PREWARM_END ')]
+data['complete']=True
+data['diagnostic_run_valid']=r==0 and 'release=true failures=0' in raw and len(phases)==3 and len(traces)==6 and all(x['all_native_samples_owned'] and x['wrapper_focus_valid'] for x in phases) and data['source_unchanged'] and data['assets_unchanged'] and len(data['prewarm_results'])==1 and data['prewarm_results'][0]['snapshot_equal'] and data['prewarm_results'][0]['completed'] and data['prewarm_results'][0]['nodes_before']==data['prewarm_results'][0]['nodes_after']
+data['warnings_errors']=[x for x in raw.splitlines() if re.search(r'(?:SCRIPT ERROR|ERROR|WARNING):',x)]
+save()
+for line in raw.splitlines():
+ if line.startswith(('PREWARM_','FOCUS_','WARMUP ','GAMEPLAY ','BURST ','Battle benchmark:')):print(line,flush=True)
+print('DIAGNOSTIC_VALID',data['diagnostic_run_valid'],'SOURCE_UNCHANGED',data['source_unchanged'],flush=True)
+print(json.dumps(data['phase_summaries'],indent=2),flush=True)

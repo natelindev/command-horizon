@@ -1,0 +1,491 @@
+class_name ReleaseBattleBenchmark
+extends "res://tests/rendered/BattleFrameBenchmark.gd"
+
+var _focus_phase = "waiting"
+var _focus_exit_count = 0
+var _native_focus_token = ""
+var _sample_ready_token = ""
+var _trace_rows = []
+var _trace_previous_at = 0
+var _trace_previous_pipelines = {}
+
+
+func _run():
+	if is_instance_valid(current_scene):
+		current_scene.free()
+		current_scene = null
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--native-focus-token="):
+			_native_focus_token = arg.trim_prefix("--native-focus-token=")
+		elif arg.begins_with("--sample-ready-token="):
+			_sample_ready_token = arg.trim_prefix("--sample-ready-token=")
+	root.title = "Open RTS Mac Benchmark"
+	root.mode = Window.MODE_WINDOWED
+	root.size = Vector2i(1920, 1080)
+	root.focus_entered.connect(_record_focus.bind(true))
+	root.focus_exited.connect(_record_focus.bind(false))
+	if "--await-focus" in OS.get_cmdline_user_args():
+		var label = Label.new()
+		label.text = "Click this window to start the performance check"
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		label.add_theme_font_size_override("font_size", 32)
+		root.add_child(label)
+		label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		print(
+			"FOCUS_GATE_READY pid=",
+			OS.get_process_id(),
+			" title=",
+			root.title,
+			" focused=",
+			root.has_focus()
+		)
+		while (
+			not root.has_focus()
+			or (_native_focus_token != "" and not FileAccess.file_exists(_native_focus_token))
+			or not FileAccess.file_exists(_sample_ready_token)
+		):
+			await process_frame
+		label.free()
+	_focus_phase = "setup"
+	print("FOCUS_GATE_START pid=", OS.get_process_id(), " focused=", root.has_focus())
+	await super()
+
+
+func _record_focus(focused):
+	if not focused:
+		_focus_exit_count += 1
+	print(
+		"FOCUS_EVENT phase=",
+		_focus_phase,
+		" focused=",
+		focused,
+		" ticks_us=",
+		Time.get_ticks_usec()
+	)
+
+
+func _measure_frames(label, before_sample = Callable()):
+	_focus_phase = label
+	var exits_before = _focus_exit_count
+	var began_focused = root.has_focus()
+	print(
+		"FOCUS_PHASE_BEGIN phase=",
+		label,
+		" focused=",
+		began_focused,
+		" unix_ms=",
+		int(Time.get_unix_time_from_system() * 1000)
+	)
+	_check(began_focused, "Benchmark phase began without window focus")
+	_trace_begin(label + "/warmup")
+	# Update ticks can run without a draw (e.g. native window transitions).
+	# Warm both the renderer and real-time simulation before sampling draws.
+	var warm_until = Time.get_ticks_msec() + 3000
+	var warm_samples = []
+	var warm_last = Time.get_ticks_usec()
+	if before_sample.is_valid():
+		before_sample.call()
+	for frame in 120:
+		await RenderingServer.frame_post_draw
+		var now = Time.get_ticks_usec()
+		warm_samples.append((now - warm_last) / 1000.0)
+		_trace_frame(now)
+		warm_last = now
+	while Time.get_ticks_msec() < warm_until:
+		await RenderingServer.frame_post_draw
+		var now = Time.get_ticks_usec()
+		warm_samples.append((now - warm_last) / 1000.0)
+		_trace_frame(now)
+		warm_last = now
+	_trace_end(label + "/warmup")
+	warm_samples.sort()
+	_check(
+		root.get_texture().get_size() == Vector2(1920, 1080),
+		"Ordinary benchmark raster must remain 1920x1080"
+	)
+	print(
+		"WARMUP ",
+		label,
+		" frames=",
+		warm_samples.size(),
+		" p95_ms=",
+		snappedf(warm_samples[int(warm_samples.size() * .95)], .01),
+		" max_ms=",
+		snappedf(warm_samples[-1], .01),
+		" frames_over_100ms=",
+		warm_samples.filter(func(ms): return ms > 100.0).size()
+	)
+	_trace_begin(label + "/steady")
+	var times = []
+	var gpu_ms = 0.0
+	var render_cpu_ms = 0.0
+	var last = Time.get_ticks_usec()
+	var started = game.simulation_time
+	var drawn = Engine.get_frames_drawn()
+	var physics_started = Engine.get_physics_frames()
+	for frame in 240:
+		await RenderingServer.frame_post_draw
+		var now = Time.get_ticks_usec()
+		times.append((now - last) / 1000.0)
+		_trace_frame(now)
+		gpu_ms += RenderingServer.viewport_get_measured_render_time_gpu(root.get_viewport_rid())
+		render_cpu_ms += RenderingServer.viewport_get_measured_render_time_cpu(
+			root.get_viewport_rid()
+		)
+		last = now
+	_trace_end(label + "/steady")
+	times.sort()
+	var mean = times.reduce(func(total, sample): return total + sample, 0.0) / times.size()
+	_check(
+		Engine.get_frames_drawn() - drawn == times.size(),
+		"Benchmark window did not render every sample"
+	)
+	# A fast machine can render all samples in under a second.
+	_check(
+		(
+			absf((game.simulation_time - started) - mean * times.size() / 1000.0) < 0.15
+			and Engine.get_physics_frames() > physics_started
+		),
+		"Benchmark simulation did not advance in real time"
+	)
+	print(
+		"GAMEPLAY ",
+		label,
+		" units=",
+		get_nodes_in_group("units").size(),
+		" mean_ms=",
+		snappedf(mean, .01),
+		" p95_ms=",
+		snappedf(times[int(times.size() * .95)], .01),
+		" fps=",
+		snappedf(1000.0 / mean, .1),
+		" simulation_seconds=",
+		game.simulation_time - started,
+		" wall_seconds=",
+		mean * times.size() / 1000.0,
+		" viewport=",
+		root.get_visible_rect().size,
+		" pixels=",
+		root.get_texture().get_size(),
+		" gpu_ms=",
+		snappedf(gpu_ms / times.size(), .01) if gpu_ms > 0.0 else "unavailable",
+		" render_cpu_ms=",
+		snappedf(render_cpu_ms / times.size(), .01),
+		" adapter=",
+		RenderingServer.get_video_adapter_name(),
+		" rendered_frames=",
+		Engine.get_frames_drawn() - drawn,
+		" physics_ticks=",
+		Engine.get_physics_frames() - physics_started,
+		" paused=",
+		paused,
+		" draw_calls=",
+		RenderingServer.get_rendering_info(
+			RenderingServer.RENDERING_INFO_TOTAL_DRAW_CALLS_IN_FRAME
+		),
+		" primitives=",
+		RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_PRIMITIVES_IN_FRAME)
+	)
+
+	var ended_focused = root.has_focus()
+	var exits_during = _focus_exit_count - exits_before
+	var valid = began_focused and ended_focused and exits_during == 0
+	print(
+		"FOCUS_PHASE_END phase=",
+		label,
+		" focused=",
+		ended_focused,
+		" lost_focus_events=",
+		exits_during,
+		" focus_valid=",
+		valid,
+		" unix_ms=",
+		int(Time.get_unix_time_from_system() * 1000)
+	)
+	_check(valid, "Benchmark phase lost window focus")
+	_focus_phase = "between"
+
+
+func _pipeline_counts():
+	return {
+		"canvas":
+		RenderingServer.get_rendering_info(
+			RenderingServer.RENDERING_INFO_PIPELINE_COMPILATIONS_CANVAS
+		),
+		"mesh":
+		RenderingServer.get_rendering_info(
+			RenderingServer.RENDERING_INFO_PIPELINE_COMPILATIONS_MESH
+		),
+		"surface":
+		RenderingServer.get_rendering_info(
+			RenderingServer.RENDERING_INFO_PIPELINE_COMPILATIONS_SURFACE
+		),
+		"draw":
+		RenderingServer.get_rendering_info(
+			RenderingServer.RENDERING_INFO_PIPELINE_COMPILATIONS_DRAW
+		),
+		"specialization":
+		RenderingServer.get_rendering_info(
+			RenderingServer.RENDERING_INFO_PIPELINE_COMPILATIONS_SPECIALIZATION
+		),
+	}
+
+
+func _trace_begin(label):
+	_trace_rows.clear()
+	_trace_previous_at = Time.get_ticks_usec()
+	_trace_previous_pipelines = _pipeline_counts()
+	print(
+		"TRACE_PHASE_BEGIN ",
+		JSON.stringify(
+			{
+				"phase": label,
+				"ticks_us": _trace_previous_at,
+				"unix_ms": int(Time.get_unix_time_from_system() * 1000),
+				"pipelines": _trace_previous_pipelines
+			}
+		)
+	)
+
+
+func _trace_frame(now):
+	var counts = _pipeline_counts()
+	_trace_rows.append(
+		{
+			"ticks_us": now,
+			"unix_ms": int(Time.get_unix_time_from_system() * 1000),
+			"frame_ms": (now - _trace_previous_at) / 1000.0,
+			"pipeline_before": _trace_previous_pipelines,
+			"pipeline_after": counts,
+			"render_cpu_ms":
+			RenderingServer.viewport_get_measured_render_time_cpu(root.get_viewport_rid()),
+			"physics_ms": Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0,
+			"simulation_time": game.simulation_time
+		}
+	)
+	_trace_previous_at = now
+	_trace_previous_pipelines = counts
+
+
+func _trace_end(label):
+	print(
+		"TRACE_PHASE_END ",
+		JSON.stringify(
+			{
+				"phase": label,
+				"ticks_us": Time.get_ticks_usec(),
+				"unix_ms": int(Time.get_unix_time_from_system() * 1000),
+				"pipelines": _pipeline_counts(),
+				"frames": _trace_rows
+			}
+		)
+	)
+
+
+func _skirmish(faction, map_path = "res://source/match/maps/BastionDesert.tscn", advanced = true):
+	var cover = CanvasLayer.new()
+	cover.layer = 128
+	cover.process_mode = Node.PROCESS_MODE_ALWAYS
+	root.add_child(cover)
+	var panel = ColorRect.new()
+	panel.color = Color("10151b")
+	panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	cover.add_child(panel)
+	var label = Label.new()
+	label.text = "Preparing battlefield"
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 24)
+	label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	cover.add_child(label)
+	await super(faction, map_path, advanced)
+	await _prewarm_combat_variants()
+	cover.queue_free()
+
+
+func _live_cosmetic_state():
+	var fx = game.combat_effects
+	var states = {
+		"simulation_time": game.simulation_time,
+		"combat_rng": fx._random.state,
+		"aftermath_rng": fx.aftermath._random.state,
+		"projectile_rng": game.projectile_system._random.state,
+		"shots": fx.shots_emitted,
+		"impacts": fx.impacts_emitted,
+		"deaths": fx.deaths_emitted,
+		"tracers": fx._tracers.size(),
+		"free_tracers": fx._free_tracers.size(),
+		"wrecks": fx._wrecks.size(),
+		"cook_offs": fx._cook_offs.size(),
+		"hit_flashes": fx._hit_flashes.size(),
+		"free_hit_flashes": fx._free_hit_flashes.size(),
+		"shockwaves": fx._shockwaves.size(),
+		"rounds": game.projectile_system._rounds.size(),
+		"rounds_fired": game.projectile_system.rounds_fired,
+		"unit_rng": {},
+	}
+	for unit in get_nodes_in_group("units"):
+		var visuals = unit.get_node_or_null("BastionVisuals")
+		if visuals != null:
+			states.unit_rng[str(unit.get_instance_id())] = visuals.motion.random.state
+	return states
+
+
+func _prewarm_combat_variants():
+	var paused_before = paused
+	paused = true
+	await RenderingServer.frame_post_draw
+	await RenderingServer.frame_post_draw
+	var snapshot_before = Snapshot.new().capture(game)
+	var cosmetic_before = _live_cosmetic_state()
+	var before_nodes = get_node_count()
+	var before_pipelines = _pipeline_counts()
+	var started = Time.get_ticks_usec()
+	print(
+		"PREWARM_BEGIN ",
+		JSON.stringify(
+			{"unix_ms": int(Time.get_unix_time_from_system() * 1000), "pipelines": before_pipelines}
+		)
+	)
+	var holders = []
+	var camera = game.get_node("IsometricCamera3D")
+	var point = camera._calculate_pivot_point()
+	point.y = game.map.height_at(Vector2(point.x, point.z)) + 1.0
+
+	# Existing factories create only cosmetic resources. No gameplay shot, impact,
+	# death, scar history or live unit motion RNG is invoked.
+	var spare = load("res://source/match/effects/CombatEffects.gd").new()
+	game.add_child(spare)
+	spare.set_process(false)
+	spare.set_physics_process(false)
+	spare._camera = null
+	holders.append(spare)
+	for kind in spare._emitters:
+		var emitter = spare._emitters[kind]
+		emitter.process_mode = Node.PROCESS_MODE_ALWAYS
+		emitter.speed_scale = .01
+		emitter.emit_particle(
+			Transform3D(Basis.IDENTITY, point),
+			Vector3.UP,
+			Color.WHITE,
+			Color(point.y, 0, 0, 0),
+			1 | 2 | 4 | 8 | 16
+		)
+	var tracer = spare._take_tracer()
+	tracer.node.material_override = spare._glowing_material(Color("b6d9e1"))
+	tracer.node.global_position = point
+	spare._shockwave(point, 2.0)
+	spare._shockwaves[0].node.material_override.set_shader_parameter("progress", .35)
+	spare.aftermath.burst(point, 2.0, false)
+	for entry in spare.aftermath.debris:
+		entry.node.freeze = true
+
+	# Reuse already-loaded visual meshes, deduplicated by their vertex layouts.
+	# A new standard override has precisely the flags used by _wreck().
+	var geometry = Node3D.new()
+	game.add_child(geometry)
+	holders.append(geometry)
+	var formats = {}
+	var wreck_material = StandardMaterial3D.new()
+	wreck_material.albedo_color = Color("36383a")
+	wreck_material.roughness = .95
+	for unit in get_nodes_in_group("units"):
+		for source in unit.get_node("Geometry").find_children("*", "MeshInstance3D", true, false):
+			if source.mesh == null:
+				continue
+			var layout = source.mesh.get_class()
+			if source.mesh is ArrayMesh:
+				for surface in source.mesh.get_surface_count():
+					layout += "/" + str(source.mesh.surface_get_format(surface))
+			if formats.has(layout):
+				continue
+			formats[layout] = true
+			for wreck in [false, true]:
+				var proxy = MeshInstance3D.new()
+				proxy.mesh = source.mesh
+				proxy.material_override = wreck_material if wreck else source.material_override
+				proxy.cast_shadow = source.cast_shadow
+				geometry.add_child(proxy)
+				proxy.global_transform = Transform3D(
+					source.global_basis,
+					point + Vector3(formats.size() % 3 - 1, 0, formats.size() / 3 - 1)
+				)
+	var hit = load("res://source/match/ObjectMaterials.gd").hit_flash(geometry, Color("ffd6a1"))
+
+	# Exercise the exact pooled projectile draw variants without allocating a round.
+	var renderer = load("res://source/match/effects/ProjectileRenderer.gd").new()
+	game.add_child(renderer)
+	holders.append(renderer)
+	for pool in renderer._pools.values():
+		pool.node.multimesh.visible_instance_count = 1
+		pool.node.multimesh.set_instance_transform(
+			0, Transform3D(Basis.IDENTITY.scaled(Vector3(.1, .1, .5)), point)
+		)
+		pool.node.multimesh.set_instance_color(0, Color.WHITE)
+
+	# First scar lazily creates both texture-blit and terrain-overlay variants.
+	# Redirect the disposable wear instance to a shared-mesh proxy before painting.
+	var terrain = game.map.get_node("Geometry/Terrain")
+	var terrain_proxy = MeshInstance3D.new()
+	terrain_proxy.mesh = terrain.mesh
+	terrain_proxy.material_override = terrain.material_override
+	game.add_child(terrain_proxy)
+	terrain_proxy.global_transform = terrain.global_transform
+	holders.append(terrain_proxy)
+	var wear = load("res://source/match/effects/BattlefieldWear.gd").new()
+	game.add_child(wear)
+	wear.set_process(false)
+	wear._create_texture()
+	wear._terrain = terrain_proxy
+	wear.add_mark(Vector2(point.x, point.z), 1.0, 0.0, 0)
+	wear.add_mark(Vector2(point.x, point.z), 1.0, 0.0, 1)
+	wear._paint()
+	holders.append(wear)
+
+	var previous = _pipeline_counts()
+	var stable = 0
+	var draws = 0
+	var events = []
+	while draws < 12 and stable < 3:
+		await RenderingServer.frame_post_draw
+		draws += 1
+		var counts = _pipeline_counts()
+		stable = stable + 1 if counts == previous else 0
+		events.append({"draw": draws, "ticks_us": Time.get_ticks_usec(), "pipelines": counts})
+		previous = counts
+	load("res://source/match/ObjectMaterials.gd").clear_hit_flash(hit)
+	for node in holders:
+		node.queue_free()
+	await process_frame
+	await process_frame
+	await RenderingServer.frame_post_draw
+	var snapshot_after = Snapshot.new().capture(game)
+	var cosmetic_after = _live_cosmetic_state()
+	var snapshot_equal = snapshot_before != null and snapshot_before == snapshot_after
+	var cosmetic_equal = cosmetic_before == cosmetic_after
+	_check(snapshot_equal, "Prewarm changed paused save snapshot")
+	_check(cosmetic_equal, "Prewarm changed live effect counters or RNG")
+	_check(stable >= 3, "Prewarm pipelines did not stabilize within twelve draws")
+	print(
+		"PREWARM_END ",
+		JSON.stringify(
+			{
+				"unix_ms": int(Time.get_unix_time_from_system() * 1000),
+				"elapsed_ms": (Time.get_ticks_usec() - started) / 1000.0,
+				"draws": draws,
+				"stable_draws": stable,
+				"mesh_layout_count": formats.size(),
+				"pipelines_before": before_pipelines,
+				"pipelines_after": _pipeline_counts(),
+				"events": events,
+				"snapshot_equal": snapshot_equal,
+				"cosmetic_equal": cosmetic_equal,
+				"live_state": cosmetic_after,
+				"node_count_before": before_nodes,
+				"node_count_after": get_node_count()
+			}
+		)
+	)
+	paused = paused_before
+	_check(paused == paused_before, "Prewarm did not restore pause state")

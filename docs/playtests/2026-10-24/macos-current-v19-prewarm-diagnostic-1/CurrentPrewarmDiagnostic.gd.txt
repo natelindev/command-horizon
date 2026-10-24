@@ -1,0 +1,81 @@
+extends "res://ReleaseBenchmark.gd"
+
+
+func _prepare_current_benchmark(target):
+	var snapshot = load("res://source/match/saves/MatchSnapshot.gd").new()
+	var saved_before = snapshot.capture(target)
+	var nodes_before = _diagnostic_nodes(root)
+	var navigation_before = _diagnostic_navigation(target)
+	var minimap = target.find_child("MinimapTerrain", true, false)
+	var minimap_before = minimap.is_captured if minimap != null else null
+	var simulation_before = target.simulation_time
+	await super(target)
+	var saved_after = snapshot.capture(target)
+	var nodes_after = _diagnostic_nodes(root)
+	var navigation_after = _diagnostic_navigation(target)
+	var removed = []
+	var added = []
+	var mode_changes = []
+	for id in nodes_before:
+		if not nodes_after.has(id):
+			removed.append(nodes_before[id])
+		elif nodes_before[id].mode != nodes_after[id].mode:
+			mode_changes.append({"before": nodes_before[id], "after": nodes_after[id]})
+	for id in nodes_after:
+		if not nodes_before.has(id):
+			added.append(nodes_after[id])
+	var snapshot_diff = []
+	_diagnostic_diff(saved_before, saved_after, "snapshot", snapshot_diff)
+	var navigation_diff = []
+	_diagnostic_diff(navigation_before, navigation_after, "navigation", navigation_diff)
+	print("PREWARM_DIAGNOSTIC ", JSON.stringify({"removed_nodes": removed, "added_nodes": added, "changed_modes": mode_changes, "snapshot_diff": snapshot_diff, "navigation_diff": navigation_diff, "minimap_captured_before": minimap_before, "minimap_captured_after": minimap.is_captured if minimap != null else null, "simulation_before": simulation_before, "simulation_after": target.simulation_time, "paused": paused}))
+	await root.get_node("Globals").quit_game(0)
+	await process_frame
+
+
+func _diagnostic_nodes(node):
+	var result = {str(node.get_instance_id()): {"path": str(node.get_path()), "class": node.get_class(), "mode": node.process_mode, "queued": node.is_queued_for_deletion()}}
+	for child in node.get_children():
+		result.merge(_diagnostic_nodes(child))
+	return result
+
+
+func _diagnostic_navigation(target):
+	var result = {}
+	for node in target.find_children("*", "Node", true, false):
+		var script = node.get_script()
+		if script == null or not (script.resource_path.ends_with("/Movement.gd") or script.resource_path.ends_with("/MovementObstacle.gd")):
+			continue
+		var entry = {"parent_position": str(node.get_parent().global_position), "physics_process": node.is_physics_processing()}
+		for key in ["_synchronized", "_progress_position", "target_position", "_has_destination"]:
+			if key in node:
+				entry[key] = str(node.get(key))
+		result[str(node.get_path())] = entry
+	return result
+
+
+func _diagnostic_diff(before, after, path, result):
+	if result.size() >= 100:
+		return
+	if typeof(before) != typeof(after):
+		result.append({"path": path, "before": _diagnostic_value(before), "after": _diagnostic_value(after)})
+	elif before is Dictionary:
+		var keys = before.keys()
+		for key in after:
+			if not keys.has(key):
+				keys.append(key)
+		for key in keys:
+			_diagnostic_diff(before.get(key), after.get(key), path + "/" + str(key), result)
+	elif before is Array:
+		if before.size() != after.size():
+			result.append({"path": path + "/length", "before": before.size(), "after": after.size()})
+		for index in mini(before.size(), after.size()):
+			_diagnostic_diff(before[index], after[index], path + "/" + str(index), result)
+	elif before != after:
+		result.append({"path": path, "before": _diagnostic_value(before), "after": _diagnostic_value(after)})
+
+
+func _diagnostic_value(value):
+	if value is String and value.length() > 300:
+		return {"length": value.length(), "sha256": value.sha256_text()}
+	return value

@@ -63,10 +63,11 @@ func _current_target_loss():
 		rally.global_position.distance_to(latest.global_position) < 0.1,
 		"Rally did not follow replacement"
 	)
+	var fallback = rally.global_position
 	latest.hp = 0
 	await _frames(5)
 	_check(typeof(rally.target_unit) == TYPE_NIL, "Destroyed replacement left a stale rally target")
-	_check(rally.global_position == hq.global_position, "Lost rally did not return to producer")
+	_check(rally.global_position == fallback, "Lost rally did not preserve its last known point")
 	if typeof(rally.target_unit) != TYPE_NIL:
 		return
 	_check(rally.visible, "Selected producer lost its cleared rally marker")
@@ -179,10 +180,11 @@ func _paid_route():
 	)
 	await _review("delivery")
 	# A new target lost after restoration must clear its reference as well.
+	var fallback = rally.global_position
 	current_target.resource_b = 0
 	await _frames(5)
 	_check(rally.target_unit == null, "Restored target depletion left a stale rally")
-	_check(rally.global_position == hq.global_position, "Restored rally did not reset")
+	_check(rally.global_position == fallback, "Restored rally lost its fallback point")
 
 
 func _archive():

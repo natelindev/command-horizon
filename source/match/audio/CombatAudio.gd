@@ -58,7 +58,13 @@ func _ready():
 	Globals.options.changed.connect(_options_changed)
 
 
-static func weapon_cue(unit):
+static func weapon_cue(unit, weapon = {}):
+	if weapon.get("kind", "") == "bomb":
+		return ""  # Gravity stores have no muzzle report; their impact carries the weight.
+	if weapon.get("kind", "") in ["rocket", "missile"]:
+		return "missile_launch"
+	if weapon.get("id", "") in ["jet_cannon", "flak", "aa_autocannon"]:
+		return "autocannon_fire"
 	var helix = unit.player.faction == "helix"
 	match unit.type:
 		"RocketInfantry", "MercenaryLancer":
@@ -82,13 +88,15 @@ static func weapon_cue(unit):
 	return "rifle_fire"
 
 
-func shot(unit, point):
+func shot(unit, point, weapon = {}):
 	var pitch = (
 		0.76
 		if unit.type in ["Tank", "AntiGroundTurret"] and unit.player.faction == "helix"
 		else 1.0
 	)
-	var cue = weapon_cue(unit)
+	var cue = weapon_cue(unit, weapon)
+	if cue.is_empty():
+		return false
 	var light = (
 		unit.type in ["Infantry", "AssaultInfantry", "MercenaryWarden"]
 		or cue in ["rifle_fire", "autocannon_fire"]
@@ -96,8 +104,13 @@ func shot(unit, point):
 	return _play(cue, unit, point, 1 if light else 2, pitch)
 
 
-func impact(unit, source, point):
-	var heavy = (
+static func heavy_impact(source, weapon = {}):
+	if not weapon.is_empty():
+		return (
+			weapon.get("kind", "") in ["shell", "rail", "rocket", "missile", "bomb", "warhead"]
+			or weapon.get("fuse", 0.0) > 0.0
+		)
+	return (
 		source.type
 		in [
 			"Tank",
@@ -111,6 +124,10 @@ func impact(unit, source, point):
 			"Bomber"
 		]
 	)
+
+
+func impact(unit, source, point, weapon = {}):
+	var heavy = heavy_impact(source, weapon)
 	return _play("impact_heavy" if heavy else "impact_light", unit, point, 2 if heavy else 1)
 
 

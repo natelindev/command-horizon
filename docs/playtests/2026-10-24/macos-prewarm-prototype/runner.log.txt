@@ -1,0 +1,146 @@
+import 0
+export 0
+codesign 0
+NATIVE_PID 80206 waiting gate
+SAMPLER_READY 80206 native focus must remain foreground
+FOCUS_GATE_READY pid=80206 title=Open RTS Mac Benchmark focused=false
+FOCUS_EVENT phase=waiting focused=true ticks_us=1803813
+FOCUS_GATE_START pid=80206 focused=true
+PREWARM_BEGIN {"pipelines":{"canvas":6,"draw":65,"mesh":30,"specialization":79,"surface":130},"unix_ms":1792822579035}
+PREWARM_END {"cosmetic_equal":true,"draws":4,"elapsed_ms":902.497,"events":[{"draw":1,"pipelines":{"canvas":6,"draw":96,"mesh":30,"specialization":117,"surface":146},"ticks_us":7247007},{"draw":2,"pipelines":{"canvas":6,"draw":96,"mesh":30,"specialization":117,"surface":146},"ticks_us":7271770},{"draw":3,"pipelines":{"canvas":6,"draw":96,"mesh":30,"specialization":117,"surface":146},"ticks_us":7285575},{"draw":4,"pipelines":{"canvas":6,"draw":96,"mesh":30,"specialization":117,"surface":146},"ticks_us":7303191}],"live_state":{"aftermath_rng":1637669732580359353,"combat_rng":2609997143016025745,"cook_offs":0,"deaths":0,"free_hit_flashes":0,"free_tracers":0,"hit_flashes":0,"impacts":0,"projectile_rng":4969522754228835404,"rounds":0,"rounds_fired":0,"shockwaves":0,"shots":0,"simulation_time":1.4,"tracers":0,"unit_rng":{"401998880524":1586314740327801521,"407115931499":-7841424699810808894,"411545116616":1177579933760132307,"413373833226":-8250159506378478108,"414917337164":768845127192463093,"418960646286":-8658894312946147322,"427751907687":360110320624793879,"433758151159":-9067629119513816536,"436845158928":-48624485942875335,"440016052826":8970380147628065866,"445569311391":-457359292510544549,"448824091352":8561645341060396652,"451776881432":-866094099078213763,"453572043605":8152910534492727438,"455518200709":-1274828905645882977,"457732793265":7744175727925058224,"460584920113":-1683563712213552191,"461826434151":7335440921357389010,"462849844373":-2092298518781221405,"463873254595":6926706114789719796,"465467090161":-2501033325348890619,"469896275340":6517971308222050582,"474040247813":-2909768131916559833,"476774934046":6109236501654381368,"479610283615":-3318502938484229047,"482848286356":5700501695086712154,"485683635917":-3727237745051898261,"488183441153":5291766888519042940,"489357846328":-4135972551619567475,"491002013545":4883032081951373726},"wrecks":0},"mesh_layout_count":28,"node_count_after":6691,"node_count_before":6691,"pipelines_after":{"canvas":6,"draw":96,"mesh":30,"specialization":117,"surface":146},"pipelines_before":{"canvas":6,"draw":65,"mesh":30,"specialization":79,"surface":130},"snapshot_equal":true,"stable_draws":3,"unix_ms":1792822579937}
+FOCUS_PHASE_BEGIN phase=base focused=true unix_ms=1792822579939
+WARMUP base frames=208 p95_ms=17.1 max_ms=28.81 frames_over_100ms=0
+GAMEPLAY base units=30 mean_ms=14.69 p95_ms=17.89 fps=68.1 simulation_seconds=3.53333333333332 wall_seconds=3.526313 viewport=(1920.0, 1080.0) pixels=(1920.0, 1080.0) gpu_ms=unavailable render_cpu_ms=2.97 adapter=Apple M1 Pro (Apple7) rendered_frames=240 physics_ticks=106 paused=false draw_calls=1537 primitives=1068996
+FOCUS_PHASE_END phase=base focused=true lost_focus_events=0 focus_valid=true unix_ms=1792822586484
+FOCUS_PHASE_BEGIN phase=midfield-combat focused=true unix_ms=1792822587120
+WARMUP midfield-combat frames=132 p95_ms=30.14 max_ms=79.63 frames_over_100ms=0
+GAMEPLAY midfield-combat units=70 mean_ms=23.3 p95_ms=29.57 fps=42.9 simulation_seconds=5.60000000000002 wall_seconds=5.591785 viewport=(1920.0, 1080.0) pixels=(1920.0, 1080.0) gpu_ms=unavailable render_cpu_ms=4.02 adapter=Apple M1 Pro (Apple7) rendered_frames=240 physics_ticks=168 paused=false draw_calls=2328 primitives=1823580
+FOCUS_PHASE_END phase=midfield-combat focused=true lost_focus_events=0 focus_valid=true unix_ms=1792822595730
+FOCUS_PHASE_BEGIN phase=destruction-burst focused=true unix_ms=1792822595730
+BURST destroyed=8 wrecks=8
+WARMUP destruction-burst frames=120 p95_ms=37.76 max_ms=46.58 frames_over_100ms=0
+GAMEPLAY destruction-burst units=62 mean_ms=24.93 p95_ms=32.39 fps=40.1 simulation_seconds=6.0000000000003 wall_seconds=5.98384 viewport=(1920.0, 1080.0) pixels=(1920.0, 1080.0) gpu_ms=unavailable render_cpu_ms=4.47 adapter=Apple M1 Pro (Apple7) rendered_frames=240 physics_ticks=180 paused=false draw_calls=2748 primitives=1876213
+FOCUS_PHASE_END phase=destruction-burst focused=true lost_focus_events=0 focus_valid=true unix_ms=1792822605267
+Battle benchmark: release=true failures=0
+DIAGNOSTIC_VALID True SOURCE_UNCHANGED True
+[
+  {
+    "phase": "base/warmup",
+    "pipelines": {
+      "canvas": 6,
+      "draw": 101,
+      "mesh": 30,
+      "specialization": 122,
+      "surface": 146
+    },
+    "ticks_us": 10369717,
+    "unix_ms": 1792822582951,
+    "frame_count": 208,
+    "max_frame_ms": 28.837,
+    "spikes_over_50ms": [],
+    "frames_over_100ms": 0
+  },
+  {
+    "phase": "base/steady",
+    "pipelines": {
+      "canvas": 6,
+      "draw": 101,
+      "mesh": 30,
+      "specialization": 122,
+      "surface": 146
+    },
+    "ticks_us": 13900300,
+    "unix_ms": 1792822586481,
+    "frame_count": 240,
+    "max_frame_ms": 21.157,
+    "spikes_over_50ms": [],
+    "frames_over_100ms": 0
+  },
+  {
+    "phase": "midfield-combat/warmup",
+    "pipelines": {
+      "canvas": 6,
+      "draw": 104,
+      "mesh": 30,
+      "specialization": 125,
+      "surface": 147
+    },
+    "ticks_us": 17550737,
+    "unix_ms": 1792822590132,
+    "frame_count": 132,
+    "max_frame_ms": 79.659,
+    "spikes_over_50ms": [
+      {
+        "frame_ms": 79.659,
+        "physics_ms": 6.525,
+        "pipeline_after": {
+          "canvas": 6,
+          "draw": 104,
+          "mesh": 30,
+          "specialization": 125,
+          "surface": 147
+        },
+        "pipeline_before": {
+          "canvas": 6,
+          "draw": 101,
+          "mesh": 30,
+          "specialization": 122,
+          "surface": 146
+        },
+        "render_cpu_ms": 0.995999991893768,
+        "simulation_time": 8.23333333333331,
+        "ticks_us": 14618699,
+        "unix_ms": 1792822587200
+      }
+    ],
+    "frames_over_100ms": 0
+  },
+  {
+    "phase": "midfield-combat/steady",
+    "pipelines": {
+      "canvas": 6,
+      "draw": 104,
+      "mesh": 30,
+      "specialization": 125,
+      "surface": 147
+    },
+    "ticks_us": 23144130,
+    "unix_ms": 1792822595726,
+    "frame_count": 240,
+    "max_frame_ms": 31.731,
+    "spikes_over_50ms": [],
+    "frames_over_100ms": 0
+  },
+  {
+    "phase": "destruction-burst/warmup",
+    "pipelines": {
+      "canvas": 6,
+      "draw": 104,
+      "mesh": 30,
+      "specialization": 125,
+      "surface": 147
+    },
+    "ticks_us": 26692839,
+    "unix_ms": 1792822599275,
+    "frame_count": 120,
+    "max_frame_ms": 46.581,
+    "spikes_over_50ms": [],
+    "frames_over_100ms": 0
+  },
+  {
+    "phase": "destruction-burst/steady",
+    "pipelines": {
+      "canvas": 6,
+      "draw": 104,
+      "mesh": 30,
+      "specialization": 125,
+      "surface": 147
+    },
+    "ticks_us": 32680718,
+    "unix_ms": 1792822605263,
+    "frame_count": 240,
+    "max_frame_ms": 40.16,
+    "spikes_over_50ms": [],
+    "frames_over_100ms": 0
+  }
+]

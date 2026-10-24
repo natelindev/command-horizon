@@ -316,9 +316,6 @@ fov = 20.0
 
 [node name="Geometry" parent="RenderBooth/AntiGroundTurret" instance=ExtResource("5_0vjy6")]
 
-[node name="ProjectileOrigin" type="Marker3D" parent="RenderBooth/AntiGroundTurret/Geometry/turret_single/tmpParent/turret_single2/turret" index="2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.13715, -0.412822)
-
 [node name="AntiAirTurret" type="Node3D" parent="RenderBooth"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0, 0)
 
@@ -428,9 +425,7 @@ transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, -4, 0, -3)
 
 [editable path="RenderBooth/CommandCenter/Geometry"]
 [editable path="RenderBooth/AntiGroundTurret/Geometry"]
-[editable path="RenderBooth/AntiGroundTurret/Geometry/turret_single"]
 [editable path="RenderBooth/AntiAirTurret/Geometry"]
-[editable path="RenderBooth/AntiAirTurret/Geometry/turret_double"]
 [editable path="RenderBooth/AircraftFactory/Geometry"]
 [editable path="RenderBooth/VehicleFactory/Geometry"]
 [editable path="RenderBooth/Worker/Geometry/rover"]

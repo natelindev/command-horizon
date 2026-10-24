@@ -156,6 +156,9 @@ func load_slot(id):
 	var restorer = load("res://source/match/saves/MatchRestore.gd").new()
 	var result = await restorer.restore(get_tree(), data)
 	busy = false
+	if result.get("cancelled", false) or not is_instance_valid(dialog):
+		close_dialog()
+		return false
 	if not result.ok:
 		if result.has("game"):
 			# Replacement started: only a fresh load or menu exit is safe.

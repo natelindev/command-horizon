@@ -1,5 +1,7 @@
 extends "res://source/match/Match.gd"
 
+signal player_eliminated(player)
+
 const Catalog = preload("res://source/match/BastionCatalog.gd")
 var finished = false
 var result = ""
@@ -24,7 +26,7 @@ func _ready():
 	get_node("Menu").queue_free()
 	_camera.process_mode = Node.PROCESS_MODE_ALWAYS
 	_camera.size_max = 45
-	_camera.set_size_safely(28)
+	_camera.set_size_safely(24)
 	_get_human_player().get_node("StructurePlacementHandler").process_mode = (
 		Node.PROCESS_MODE_ALWAYS
 	)
@@ -34,6 +36,7 @@ func _ready():
 	add_child(alerts)
 	hud = _create_hud()
 	add_child(hud)
+	add_child(load("res://source/match/effects/BattlePresentation.gd").new())
 	for player in get_tree().get_nodes_in_group("players"):
 		_defeat_timers[player] = 60.0
 	MatchSignals.unit_production_finished.connect(func(_unit, _producer): units_produced += 1)
@@ -148,6 +151,7 @@ func _eliminate(player, units):
 			site.candidate = null
 			site.progress = 0.0
 	battlefield.invalidate()
+	player_eliminated.emit(player)
 
 
 func result_summary():

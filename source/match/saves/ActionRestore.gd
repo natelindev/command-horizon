@@ -74,6 +74,8 @@ func _instantiate(kind, state, refs):
 			return script.new(state._target_position)
 		"AttackMoving":
 			return script.new(state.destination)
+		"Patrolling":
+			return script.new(state.endpoint)
 		"AutoAttacking", "Garrisoning":
 			return script.new(target)
 		"WaitingForTargets", "AirReturn", "AirIdle":
