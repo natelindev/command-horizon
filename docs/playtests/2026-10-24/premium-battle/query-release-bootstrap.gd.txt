@@ -1,0 +1,68 @@
+extends Node
+
+
+class Body:
+	extends Node3D
+	var player
+	var hp = 100.0
+	var radius = 1.0
+	var sight_range = 20.0
+	var movement_speed = 8.0
+
+
+@onready var root = get_tree().root
+
+
+func _ready():
+	_run.call_deferred()
+
+
+func _run():
+	var script = load("res://source/match/combat/Battlefield.gd")
+
+	var field = script.new()
+	root.add_child(field)
+	var sides = []
+	for index in 4:
+		var side = Node.new()
+		root.add_child(side)
+		sides.append(side)
+	var bodies = []
+	var random = RandomNumberGenerator.new()
+	random.seed = 19482
+	for index in 200:
+		var unit = Body.new()
+		unit.player = sides[index % 4]
+		root.add_child(unit)
+		unit.add_to_group("units")
+		var scale = .3 if "--clustered" in OS.get_cmdline_user_args() else 1.0
+		unit.position = Vector3(random.randf_range(0, 160), 0, random.randf_range(0, 120)) * scale
+		bodies.append(unit)
+	field._refresh()
+	var runs = []
+	var checksum = 0
+	for repeat in 101:
+		var start = Time.get_ticks_usec()
+		for body in bodies:
+			checksum += field.nearby_units(body.position, 3.0).size()
+		var elapsed = Time.get_ticks_usec() - start
+		if repeat > 0:
+			runs.append(elapsed)
+	runs.sort()
+	print(
+		(
+			"Four-player query batch: 200 local queries, median=%d us p95=%d us checksum=%d"
+			% [runs[50], runs[95], checksum]
+		)
+	)
+	var refresh = Time.get_ticks_usec()
+	for repeat in 100:
+		field._frame = -1
+		field._refresh()
+	print("Four-player grid rebuild: mean=%d us" % ((Time.get_ticks_usec() - refresh) / 100))
+	for body in bodies:
+		body.free()
+	for side in sides:
+		side.free()
+	field.free()
+	get_tree().quit()

@@ -19,9 +19,11 @@ const BIOME_GROUND = {
 const GROUND_LEVEL_PLANE = Plane(Vector3.UP, 0)
 const MINIMAP_PIXELS_PER_WORLD_METER = 2
 
+const MARKER_PHASES = 3
+
 var _unit_to_corresponding_node_mapping = {}
 var _camera_movement_active = false
-var _marker_elapsed = .05
+var _marker_phase = 0
 
 @onready var _match = find_parent("Match")
 @onready var _camera_indicator = find_child("CameraIndicator")
@@ -79,13 +81,11 @@ func _ready():
 	MatchSignals.tactical_ping.connect(_on_tactical_ping)
 
 
-func _physics_process(delta):
-	# Twenty marker updates per second keep motion smooth at minimap scale.
-	# Camera input/outline still updates every tick; combat uses live visibility.
-	_marker_elapsed += delta
-	if _marker_elapsed >= .05:
-		_marker_elapsed = 0.0
-		_sync_real_units_with_minimap_representations()
+func _physics_process(_delta):
+	# Each marker refreshes at 10 Hz at the 30 Hz simulation cadence. Spread
+	# visibility queries and marker uploads over three ticks instead of a burst.
+	_sync_real_units_with_minimap_representations(_marker_phase)
+	_marker_phase = (_marker_phase + 1) % MARKER_PHASES
 	_update_camera_indicator()
 
 
@@ -94,7 +94,7 @@ func _remove_dummy_nodes():
 		dummy_node.queue_free()
 
 
-func _sync_real_units_with_minimap_representations():
+func _sync_real_units_with_minimap_representations(phase = -1):
 	var units_synced = {}
 	var observer = _match._get_human_player()
 	if observer == null:
@@ -103,6 +103,13 @@ func _sync_real_units_with_minimap_representations():
 		get_tree().get_nodes_in_group("units") + get_tree().get_nodes_in_group("resource_units")
 	)
 	for unit in units_to_sync:
+		if phase >= 0 and unit.get_instance_id() % MARKER_PHASES != phase:
+			units_synced[unit] = 1
+			# Never retain a marker after its visible body was hidden or removed.
+			if _unit_is_mapped(unit):
+				var alive = not unit.is_queued_for_deletion() and unit.is_visible_in_tree()
+				_unit_to_corresponding_node_mapping[unit].visible = alive and not _match.restoring
+			continue
 		if not Ownership.known_now(unit, _match):
 			continue
 		units_synced[unit] = 1
@@ -128,6 +135,7 @@ func _sync_unit(unit, observer):
 	var unit_pos_3d = unit.global_transform.origin
 	var unit_pos_2d = Vector2(unit_pos_3d.x, unit_pos_3d.z) * MINIMAP_PIXELS_PER_WORLD_METER
 	var marker = _unit_to_corresponding_node_mapping[unit]
+	marker.show()
 	marker.position = unit_pos_2d
 	marker.kind = (
 		"resource"

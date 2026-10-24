@@ -161,7 +161,7 @@ func _cosmetic_state():
 		"_materials"
 	]:
 		result.pools[key] = _value_state(fx.get(key))
-	for key in ["scars", "debris", "lights"]:
+	for key in ["scars", "debris", "lights", "_free_lights"]:
 		result.pools[key] = _value_state(fx.aftermath.get(key))
 	for unit in get_nodes_in_group("units"):
 		var visuals = unit.get_node_or_null("BastionVisuals")
@@ -441,9 +441,11 @@ func _loading_success():
 	_check(
 		root.get_node("SaveManager").active_game() == null, "Incomplete new match became saveable"
 	)
-	for frame in 300:
-		if not is_instance_valid(loading):
-			break
+	# Native window transitions can run update ticks without submitting draws.
+	# Preparation owns a draw budget; allow wall time for those draws instead
+	# of failing after a small number of update-only ticks.
+	var deadline = Time.get_ticks_msec() + 30000
+	while is_instance_valid(loading) and Time.get_ticks_msec() < deadline:
 		await process_frame
 	_check(not is_instance_valid(loading), "Completed loading screen was retained")
 	_check(

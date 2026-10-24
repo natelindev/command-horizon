@@ -215,10 +215,27 @@ static func calculate_formation_slots(
 	formation: String = "line",
 	custom_spacing: float = 0.0
 ):
+	var raw_slots = formation_positions(units, new_pivot, heading, formation, custom_spacing)
+	var columns = _assignment(units.map(func(unit): return unit.global_position), raw_slots)
+	var assignments = []
+	for index in units.size():
+		var slot = raw_slots[columns[index]]
+		assignments.append([units[index], Vector3(slot.x, new_pivot.y, slot.z)])
+	return assignments
+
+
+# Preview geometry shares the order layout without running the slot assignment solver.
+static func formation_positions(
+	units,
+	new_pivot: Vector3,
+	heading: Vector3,
+	formation: String = "line",
+	custom_spacing: float = 0.0
+):
 	if units.is_empty():
 		return []
 	if units.size() == 1:
-		return [[units[0], new_pivot]]
+		return [new_pivot]
 
 	var base_spacing = custom_spacing
 	if base_spacing <= 0.0:
@@ -271,14 +288,7 @@ static func calculate_formation_slots(
 			var z_off = -rank * base_spacing * 1.2
 			raw_slots.append(pivot_yless + right * x_off + forward * z_off)
 
-	# A formation is a new shape: give units the slots with the minimum total
-	# travel, so their straight paths into the formation never cross.
-	var columns = _assignment(units.map(func(unit): return unit.global_position), raw_slots)
-	var assignments = []
-	for index in units.size():
-		var slot = raw_slots[columns[index]]
-		assignments.append([units[index], Vector3(slot.x, new_pivot.y, slot.z)])
-	return assignments
+	return raw_slots
 
 
 static func calculate_aabb_crowd_pivot_yless(units):

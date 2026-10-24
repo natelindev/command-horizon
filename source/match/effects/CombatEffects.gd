@@ -1,6 +1,7 @@
 # gdlint: disable=max-file-lines
 extends Node3D
 
+const CombatRules = preload("res://source/match/combat/CombatRules.gd")
 const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
 const InfantryMotion = preload("res://source/match/units/traits/InfantryMotion.gd")
 const ObjectMaterials = preload("res://source/match/ObjectMaterials.gd")
@@ -131,7 +132,7 @@ func _emitter(kind, amount, lifetime, gravity, glow, roughness):
 	)
 	material.set_shader_parameter("damping", 1.1 if kind == "dust" else 0.45)
 	material.set_shader_parameter("grounded", kind in ["dust", "spark"])
-	material.set_shader_parameter("directional", kind in ["dust", "exhaust"])
+	material.set_shader_parameter("directional", kind in ["dust", "exhaust", "spark"])
 	particles.process_material = material
 	var mesh = QuadMesh.new()
 	mesh.size = Vector2.ONE
@@ -142,7 +143,8 @@ func _emitter(kind, amount, lifetime, gravity, glow, roughness):
 	shader.set_shader_parameter("glow", glow)
 	shader.set_shader_parameter("rough_edge", roughness)
 	shader.set_shader_parameter(
-		"elongation", 3.5 if kind == "exhaust" else (1.7 if kind == "dust" else 1.0)
+		"elongation",
+		3.5 if kind == "exhaust" else (2.5 if kind == "spark" else (1.7 if kind == "dust" else 1.0))
 	)
 	mesh.material = shader
 	particles.draw_pass_1 = mesh
@@ -190,7 +192,8 @@ func shot(
 	var heavy = unit.type in ["Tank", "AdvancedTank", "AntiGroundTurret"]
 	if heavy:
 		_shake_camera(origin, 0.08)
-		aftermath.flash(origin, 0.3, color, true)
+	if _camera_sees(origin):
+		aftermath.flash(origin, .5 if heavy else .18, color, true)
 	var direction = origin.direction_to(target_point)
 	_puff("flash", origin, direction * 0.2, color, 0.65 if heavy else 0.3)
 	for _index in range(5 if heavy else 2):
@@ -232,6 +235,9 @@ func impact(unit, source, point, weapon = {}):
 	_water_impact(point, 1.0 if heavy else .3)
 	var ground_hit = point.y - _ground_height(point) < 1.6
 	var direction = source.global_position.direction_to(point)
+	var armor = CombatRules.armor_for(unit.type)
+	if armor in [1, 2] and not explosive_impact(source, weapon):
+		_ricochet(unit, point, direction)
 	if heavy:
 		if explosive_impact(source, weapon):
 			_explosion(point, .95, ground_hit)
@@ -365,6 +371,23 @@ func _shake_camera(point, amount):
 	var dist = point.distance_to(_camera.global_position)
 	var factor = clampf(1.0 - (dist / 70.0), 0.25, 1.0)
 	_camera.add_trauma(amount * factor)
+
+
+static func ricochet_direction(incoming: Vector3, normal: Vector3) -> Vector3:
+	if normal.is_zero_approx():
+		return -incoming.normalized()
+	return incoming.normalized().bounce(normal.normalized()).normalized()
+
+
+func _ricochet(unit, point: Vector3, incoming: Vector3):
+	# Cosmetic glancing fragments; damage and projectile authority stay unchanged.
+	var normal = (point - unit.global_position) * Vector3(1, 0, 1)
+	if normal.length_squared() < .01:
+		normal = -incoming * Vector3(1, 0, 1)
+	var reflected = ricochet_direction(incoming, normal)
+	for index in 6:
+		var velocity = reflected * _random.randf_range(3.5, 6.5) + _jitter(.7) + Vector3.UP * .9
+		_puff("spark", point, velocity, Color("ffe4b0"), _random.randf_range(.035, .065))
 
 
 func _armor_impact(point, direction, ground_hit, color):
@@ -767,6 +790,8 @@ func _process(_delta):
 	# Settings can change while the battle is paused; remove frozen flashes then too.
 	if Globals.options.reduced_flashes:
 		_advance_hit_flashes(0.0)
+		if is_instance_valid(aftermath):
+			aftermath.clear_flashes()
 		for entry in _wrecks:
 			if is_instance_valid(entry.light):
 				entry.light.queue_free()

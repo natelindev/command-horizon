@@ -206,6 +206,7 @@ func _battle_dialog():
 	camera._try_handling_movement(0.1)
 	var slow = camera.position.distance_to(start)
 	camera.position = start
+	camera._cancel_pan()  # Compare both speed settings from rest.
 	preferences.camera_speed = 1.5
 	camera._try_handling_movement(0.1)
 	_check(

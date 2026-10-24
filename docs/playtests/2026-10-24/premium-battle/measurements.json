@@ -1,0 +1,95 @@
+{
+  "date": "2026-10-24",
+  "baseline_commit": "66f59b0f92ec19177d427a404cd90bbebe7ed010",
+  "godot": "4.7.2.stable.official.ed1daf0bf",
+  "hardware": "Apple M1 Pro (Apple7)",
+  "query": {
+    "owners": 4,
+    "bodies": 200,
+    "queries_per_sample": 200,
+    "samples": 100,
+    "radius_m": 3,
+    "seed": 19482,
+    "dispersed_area_m": [
+      160,
+      120
+    ],
+    "clustered_area_m": [
+      48,
+      36
+    ],
+    "baseline_disperse_median_us": 1269,
+    "baseline_disperse_p95_us": 1355,
+    "current_disperse_median_us": [
+      431,
+      426
+    ],
+    "current_disperse_p95_us": [
+      461,
+      452
+    ],
+    "current_grid_rebuild_mean_us": [
+      294,
+      295
+    ],
+    "baseline_cluster_median_us": 1672,
+    "baseline_cluster_p95_us": 1823,
+    "current_cluster_median_us": 783,
+    "current_cluster_p95_us": 857,
+    "current_cluster_grid_rebuild_mean_us": 256,
+    "checksums": {
+      "dispersed": 26260,
+      "clustered": 80194
+    },
+    "query_budget_excludes_grid_rebuild": true,
+    "battlefield_sha256": "e8c46b19049765d3c6e3533d22ad8cccc1c8fbefe22f8112e0d3d1bd5e76138c"
+  },
+  "rendered": {
+    "owners": 4,
+    "mobile": 200,
+    "structures": 80,
+    "viewport": [
+      1920,
+      1080
+    ],
+    "physics_hz": 30,
+    "sample_simulation_seconds": 8,
+    "baseline_combat_mean_ms": 31.17,
+    "baseline_combat_p95_ms": 41.6,
+    "baseline_fired": 157,
+    "current_combat_mean_ms": [
+      31.89,
+      32.08
+    ],
+    "current_combat_p95_ms": [
+      41.88,
+      42.19
+    ],
+    "current_fired": [
+      157,
+      159
+    ],
+    "gpu_timing_available": false,
+    "is_release_export": false,
+    "end_to_end_speedup_established": false,
+    "final_combat_mean_ms": 32.96,
+    "final_combat_p95_ms": 43.52,
+    "final_fired": 157,
+    "final_movement_mean_ms": 36.18,
+    "final_movement_p95_ms": 48.34,
+    "final_movement_max_ms": 55.84,
+    "final_combat_max_ms": 53.49
+  },
+  "headless_final": {
+    "suites": 20,
+    "passed": 20
+  },
+  "limitations": [
+    "Dense clustered query batch exceeds 0.5 ms.",
+    "Grid rebuild is measured separately.",
+    "M1 Pro four-player workload remains below 60 FPS.",
+    "Windows native four-player acceptance is unverified.",
+    "Existing shutdown resource warnings persist.",
+    "Mixed-army navigation exhibited a baseline intermittent failure; final current run passed."
+  ]
+}

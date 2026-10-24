@@ -15,6 +15,7 @@ const AIR = Constants.Match.Navigation.Domain.AIR
 var _frame = -1
 var _observers = {}
 var _bodies = {}
+var _units = {}
 var _max_sight = 0.0
 var _max_unit_radius = 0.0
 var _max_body_step: float = 0.0
@@ -38,6 +39,7 @@ func _ready():
 
 
 func _on_unit_topology_changed(_arg = null):
+	_frame = -1
 	_blockers_dirty = true
 	_observer_hints.clear()
 
@@ -55,6 +57,7 @@ func _refresh():
 	_frame = frame
 	_observers.clear()
 	_bodies.clear()
+	_units.clear()
 	_max_sight = 0.0
 	_max_unit_radius = 0.0
 	_max_body_step = 0.0
@@ -93,13 +96,16 @@ func _refresh():
 				body_speed = unit.movement_speed
 			_max_unit_radius = maxf(_max_unit_radius, body_radius)
 			_max_body_step = maxf(_max_body_step, body_speed * physics_delta)
-			if not _bodies.has(player):
-				_bodies[player] = {}
-			var body_cells: Dictionary = _bodies[player]
+			# Body searches share one grid across all owners. Querying empty cells
+			# once per player was the dominant FFA cost; filter live ownership only
+			# after finding a body, also handling captures within the current tick.
 			var body_cell := _body_cell(position)
-			if not body_cells.has(body_cell):
-				body_cells[body_cell] = []
-			body_cells[body_cell].append(unit)
+			if not _bodies.has(body_cell):
+				_bodies[body_cell] = []
+			_bodies[body_cell].append(unit)
+			if not _units.has(cell):
+				_units[cell] = []
+			_units[cell].append(unit)
 	if _blockers_dirty:
 		_blockers_dirty = false
 		_blockers.clear()
@@ -510,7 +516,7 @@ func nearby_units(point: Vector3, radius: float, player_filter = null, excluded_
 	var result = []
 	var coarse := radius >= CELL_SIZE * 0.5
 	var cell_size := CELL_SIZE if coarse else BODY_CELL_SIZE
-	var index: Dictionary = _observers if coarse else _bodies
+	var cells: Dictionary = _units if coarse else _bodies
 	# Avoidance callbacks move bodies sequentially after this tick's index is
 	# built. Include one speed-bounded step so crossing a cell cannot hide a body.
 	var indexed_reach := radius + _max_body_step
@@ -523,21 +529,25 @@ func nearby_units(point: Vector3, radius: float, player_filter = null, excluded_
 	var radius_squared := radius * radius
 	# Ground-plane distance: on elevated maps the query point stands on its tier.
 	var flat := Vector3(point.x, 0.0, point.z)
-	for player in index:
-		if player == excluded_player or (player_filter != null and player != player_filter):
-			continue
-		var cells: Dictionary = index.get(player, EMPTY_CELLS)
-		for x in range(low.x, high.x + 1):
-			for y in range(low.y, high.y + 1):
-				for unit in cells.get(Vector2i(x, y), EMPTY_UNITS):
-					if not is_instance_valid(unit) or unit.is_queued_for_deletion():
+	for x in range(low.x, high.x + 1):
+		for y in range(low.y, high.y + 1):
+			for unit in cells.get(Vector2i(x, y), EMPTY_UNITS):
+				if not is_instance_valid(unit):
+					continue
+				var body: Node3D = unit
+				if body.is_queued_for_deletion():
+					continue
+				if player_filter != null or excluded_player != null:
+					var owner = unit.player
+					if (
+						owner == excluded_player
+						or (player_filter != null and owner != player_filter)
+					):
 						continue
-					if coarse and not unit.is_in_group("units"):
-						continue
-					var position: Vector3 = unit.global_position
-					position.y = 0.0
-					if position.distance_squared_to(flat) <= radius_squared:
-						result.append(unit)
+				var position := body.global_position
+				position.y = 0.0
+				if position.distance_squared_to(flat) <= radius_squared:
+					result.append(unit)
 	return result
 
 

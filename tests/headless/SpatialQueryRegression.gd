@@ -19,15 +19,15 @@ func _initialize():
 func _run():
 	var field = load("res://source/match/combat/Battlefield.gd").new()
 	root.add_child(field)
-	var sides = [Node.new(), Node.new()]
+	var sides = [Node.new(), Node.new(), Node.new(), Node.new()]
 	for side in sides:
 		root.add_child(side)
 	var random = RandomNumberGenerator.new()
 	random.seed = 74119
 	var bodies = []
-	for index in 128:
+	for index in 200:
 		var body = Body.new()
-		body.player = sides[index % 2]
+		body.player = sides[index % sides.size()]
 		body.sight_range = random.randf_range(1.0, 15.0)
 		root.add_child(body)
 		body.add_to_group("units")
@@ -72,6 +72,37 @@ func _run():
 			_check(allies.all(func(body): return body.player == sides[0]), "Ally filter leaked")
 			_check(enemies.all(func(body): return body.player != sides[0]), "Enemy filter leaked")
 			_check(allies.size() + enemies.size() == actual.size(), "Player filters lost bodies")
+	# Ownership is authoritative even after the frame's grid was built.
+	var captured = bodies[1]
+	captured.player = sides[0]
+	_check(
+		captured in field.nearby_units(captured.position, 2.0, sides[0]),
+		"Same-tick capture lost new ally"
+	)
+	_check(
+		captured not in field.nearby_units(captured.position, 2.0, sides[1]),
+		"Same-tick capture retained old owner"
+	)
+	var spawned = Body.new()
+	spawned.player = sides[2]
+	root.add_child(spawned)
+	spawned.add_to_group("units")
+	spawned.position = Vector3(300, 0, -300)
+	root.get_node("MatchSignals").unit_spawned.emit(spawned)
+	_check(
+		spawned in field.nearby_units(spawned.position, 1.0),
+		"Spawn signal left the current grid stale"
+	)
+	spawned.free()
+	var vision = Body.new()
+	vision.player = sides[0]
+	root.add_child(vision)
+	vision.add_to_group("vision_sources")
+	field.invalidate()
+	_check(
+		vision not in field.nearby_units(Vector3.ZERO, 20), "Vision proxy leaked into body queries"
+	)
+	vision.free()
 	# Empty cells and removed bodies must remain safe after prior populated queries.
 	bodies[0].free()
 	field.nearby_units(Vector3.ZERO, 100.0)

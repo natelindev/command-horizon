@@ -44,6 +44,7 @@ TESTS = [
     "MapPassageRegression", "ObjectMaterialsRegression", "RuntimeShutdownRegression",
     "EnvironmentEffectsRegression", "WaterFlowRegression", "WaterHybridRegression",
     "StrategicPolishRegression", "MicroControlsRegression",
+    "CameraFeelRegression", "BattleFeedbackRegression", "SpatialQueryRegression",
     "GroundVehicleMotionRegression", "MixedArmyMovementRegression",
     "CombatPresentationRegression", "CombatAudioRegression",
     "EndgamePresentationRegression", "CommanderEliminationRegression",

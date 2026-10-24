@@ -15,6 +15,8 @@ const RAY_MARCH_STEP = 0.25  # horizontal metres per terrain sample
 @export_group("Movement")
 @export var screen_margin_for_movement = 2  # px
 @export var movement_speed = 1.1
+@export var pan_acceleration = 14.0
+@export var pan_damping = 18.0
 @export var bounding_planes: Array[Plane] = []
 @export_group("Rotation")
 @export var mouse_rotation_speed = 0.005  # [rad/px]
@@ -32,6 +34,8 @@ var _camera_global_pos_when_rotation_started = null
 var _zoom_target = NAN
 var _zoom_anchor = Vector2.ZERO
 var _map = null
+var _pan_velocity = Vector3.ZERO
+var _grab_anchor = null
 
 
 func _ready():
@@ -65,20 +69,52 @@ func _update_trauma(delta: float):
 func _process(delta: float):
 	# Preserve the existing camera-disable API used by previews and scripted scenes.
 	if not is_physics_processing():
+		_cancel_pan()
+		_stop_rotation()
 		return
-	var realtime_delta = delta / Engine.time_scale
+	var realtime_delta = delta / maxf(Engine.time_scale, .001)
 	_update_trauma(realtime_delta)
 	var focus = get_viewport().gui_get_focus_owner()
 	if focus is LineEdit or focus is TextEdit:
+		_cancel_pan()
 		return
 	_advance_zoom(realtime_delta)
-	if _try_handling_movement(realtime_delta):
-		return
+	if (
+		(_grab_anchor != null or _is_rotating())
+		and not Input.is_mouse_button_pressed(MOUSE_BUTTON_MIDDLE)
+	):
+		_cancel_pan()
+		_stop_rotation()
+	_try_handling_movement(realtime_delta)
 	_try_handling_arrowkey_rotation(realtime_delta)
 
 
 func _physics_process(_delta: float):
 	pass
+
+
+func _input(event: InputEvent):
+	# A release over HUD controls must still end a drag started on the map.
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_MIDDLE:
+		if not event.pressed:
+			_stop_rotation()
+			_grab_anchor = null
+
+	elif event is InputEventMouseMotion and (_grab_anchor != null or _is_rotating()):
+		# Keep a map gesture attached when the pointer crosses HUD controls.
+		_try_handling_mouse_rotation(event)
+		get_viewport().set_input_as_handled()
+
+
+func _notification(what):
+	if what in [NOTIFICATION_APPLICATION_FOCUS_OUT, NOTIFICATION_PAUSED]:
+		_cancel_pan()
+		_stop_rotation()
+
+
+func _cancel_pan():
+	_pan_velocity = Vector3.ZERO
+	_grab_anchor = null
 
 
 func _unhandled_input(event: InputEvent):
@@ -96,6 +132,8 @@ func set_size_safely(a_size: float):
 
 
 func set_position_safely(target_position: Vector3):
+	_cancel_pan()
+	_stop_rotation()
 	_zoom_target = NAN
 	global_transform.origin = _target_position_to_camera_position(target_position)
 	reset_physics_interpolation()
@@ -143,27 +181,31 @@ func _terrain_intersection(origin: Vector3, direction: Vector3, map) -> Variant:
 
 
 func _try_handling_movement(delta: float) -> bool:
-	if _is_rotating():
+	if _is_rotating() or _grab_anchor != null:
+		_pan_velocity = Vector3.ZERO
 		return false
-
-	var screen_move_vector = _calculate_screen_move_vector()
-	if screen_move_vector.is_zero_approx():
-		return false
-
-	var scaled_screen_move_vector = (
-		screen_move_vector.normalized()
-		* delta
-		* Vector2(movement_speed, movement_speed * 2.0)
+	var screen = _calculate_screen_move_vector()
+	var target = (
+		Vector3(screen.normalized().x, 0, screen.normalized().y * 2.0).rotated(
+			Vector3.UP, rotation.y
+		)
+		* movement_speed
 		* Globals.options.camera_speed
 		* size
 	)
-	var camera_move_vector = (
-		Vector3(scaled_screen_move_vector.x, 0, scaled_screen_move_vector.y)
-		. rotated(Vector3(0, 1, 0), rotation.y)
-	)
-	global_translate(camera_move_vector)
+	_advance_pan(target, delta)
+	return not _pan_velocity.is_zero_approx()
+
+
+func _advance_pan(target: Vector3, delta: float):
+	# Integrate the exponential response exactly so travel/coast match at 30–240 Hz.
+	var rate = maxf(.01, pan_damping if target.is_zero_approx() else pan_acceleration)
+	var decay = exp(-rate * delta)
+	global_position += target * delta + (_pan_velocity - target) * (1.0 - decay) / rate
+	_pan_velocity = target + (_pan_velocity - target) * decay
+	if _pan_velocity.length_squared() < .000001:
+		_pan_velocity = Vector3.ZERO
 	_align_position_to_bounding_planes()
-	return true
 
 
 func _calculate_screen_move_vector() -> Vector2:
@@ -232,7 +274,7 @@ func _advance_zoom(delta: float):
 
 
 func _try_handling_arrowkey_rotation(delta: float):
-	if _is_rotating():
+	if _is_rotating() or _grab_anchor != null:
 		return
 	var angle_radians = (
 		delta
@@ -244,19 +286,37 @@ func _try_handling_arrowkey_rotation(delta: float):
 
 
 func _try_handling_mouse_rotation(event: InputEvent):
-	if event is InputEventMouseButton:
-		if event.is_pressed() and event.button_index == MOUSE_BUTTON_MIDDLE and event.double_click:
-			_reset_rotation()
-		elif event.is_pressed() and event.button_index == MOUSE_BUTTON_MIDDLE:
-			_start_rotation(event)
-		elif not event.is_pressed() and event.button_index == MOUSE_BUTTON_MIDDLE:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_MIDDLE:
+		if not event.pressed:
 			_stop_rotation()
-	elif event is InputEventMouseMotion and _is_rotating():
-		var mouse_pos = event.position
-		var angle_radians = (
-			(mouse_pos.x - _mouse_pos_when_rotation_started.x) * mouse_rotation_speed
-		)
-		_rotate_from_reference_position_by(_camera_global_pos_when_rotation_started, angle_radians)
+			_grab_anchor = null
+		elif event.alt_pressed:
+			_cancel_pan()
+			if event.double_click:
+				_reset_rotation()
+			else:
+				_start_rotation(event)
+		else:
+			_stop_rotation()
+			_pan_velocity = Vector3.ZERO
+			_grab_anchor = get_ray_intersection(event.position)
+	elif event is InputEventMouseMotion:
+		if _is_rotating():
+			var angle = (
+				(event.position.x - _mouse_pos_when_rotation_started.x) * mouse_rotation_speed
+			)
+			_rotate_from_reference_position_by(_camera_global_pos_when_rotation_started, angle)
+		elif _grab_anchor != null:
+			_grab_map(event.position)
+
+
+func _grab_map(pointer: Vector2):
+	# Intersect a plane at the grabbed ground height: no slipping on slopes or
+	# jumping when the pointer crosses a cliff into another terrain tier.
+	var point = get_ray_intersection_with_plane(pointer, Plane(Vector3.UP, _grab_anchor.y))
+	if point is Vector3:
+		global_position += (_grab_anchor - point) * Vector3(1, 0, 1)
+		_align_position_to_bounding_planes()
 
 
 func _reset_rotation():
@@ -357,6 +417,9 @@ func _align_position_to_bounding_planes():
 	var aligned_pivot_point = _clamp_position_to_bounding_planes(pivot_point)
 	var diff = aligned_pivot_point - pivot_point
 	global_transform.origin += diff
+	for plane in bounding_planes:
+		if plane.distance_to(aligned_pivot_point) <= .0001 and _pan_velocity.dot(plane.normal) < 0:
+			_pan_velocity -= plane.normal * _pan_velocity.dot(plane.normal)
 
 
 func _clamp_position_to_bounding_planes(a_position: Vector3) -> Vector3:

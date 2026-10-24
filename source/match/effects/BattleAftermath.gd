@@ -8,6 +8,7 @@ const SCAR_LIFETIME = 100.0
 var scars = []
 var debris = []
 var lights = []
+var _free_lights = []
 var _random = RandomNumberGenerator.new()
 var _chunk = BoxMesh.new()
 var _ground = PlaneMesh.new()
@@ -103,15 +104,36 @@ func flash(point, strength, color, optional = false):
 		return
 	if optional and lights.size() >= MAX_LIGHTS / 2:
 		return
-	_evict(lights, MAX_LIGHTS)
-	var light = OmniLight3D.new()
+	var light
+	if not _free_lights.is_empty():
+		light = _free_lights.pop_back()
+	elif lights.size() >= MAX_LIGHTS:
+		light = lights.pop_front().node
+	else:
+		light = OmniLight3D.new()
+		light.shadow_enabled = false
+		add_child(light)
+	light.name = "MuzzleLight" if optional else "BlastLight"
 	light.light_color = color
 	light.omni_range = strength * 3.0 + 2.0
-	light.light_energy = strength * 1.5
-	light.shadow_enabled = false
-	add_child(light)
+	light.light_energy = strength * (2.5 if optional else 1.5)
 	light.position = point
-	lights.append({"node": light, "age": 0.0, "energy": light.light_energy})
+	light.show()
+	lights.append(
+		{
+			"node": light,
+			"age": 0.0,
+			"energy": light.light_energy,
+			"duration": .085 if optional else .18
+		}
+	)
+
+
+func clear_flashes():
+	for entry in lights:
+		entry.node.hide()
+		_free_lights.append(entry.node)
+	lights.clear()
 
 
 func _evict(pool, limit):
@@ -146,7 +168,8 @@ func advance(delta):
 	for index in range(lights.size() - 1, -1, -1):
 		var entry = lights[index]
 		entry.age += delta
-		entry.node.light_energy = entry.energy * pow(maxf(0, 1.0 - entry.age / 0.18), 2)
-		if entry.age >= 0.18 or Globals.options.reduced_flashes:
-			entry.node.queue_free()
+		entry.node.light_energy = entry.energy * pow(maxf(0, 1.0 - entry.age / entry.duration), 2)
+		if entry.age >= entry.duration or Globals.options.reduced_flashes:
+			entry.node.hide()
+			_free_lights.append(entry.node)
 			lights.remove_at(index)

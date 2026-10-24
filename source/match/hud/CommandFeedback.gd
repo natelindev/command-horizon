@@ -31,6 +31,7 @@ const PATHS = {
 	"guard": "M8 1 14 4v5l-6 6-6-6V4z",
 	"rally": "M3 16V1h11l-3 4 3 4H3",
 }
+const GroundFeedback = preload("res://source/match/effects/TerrainFeedback.gd")
 const MAX_MARKERS = 6
 var hud
 var context = ""
@@ -39,7 +40,6 @@ var _selection = []
 var _batch = {}
 var _elapsed = 0.0
 var _cursors = {}
-var _icons = {}
 var _cursor_kind = ""
 var _pointer = Vector2.ZERO
 var _panel: StyleBoxFlat
@@ -66,11 +66,7 @@ func _ready():
 		var cursor_image = Image.new()
 		cursor_image.load_svg_from_string(svg)
 		_cursors[kind] = ImageTexture.create_from_image(cursor_image)
-		var icon_image = Image.new()
-		icon_image.load_svg_from_string(
-			'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16">%s</svg>' % glyph
-		)
-		_icons[kind] = ImageTexture.create_from_image(icon_image)
+
 	MatchSignals.unit_selected.connect(_selection_changed)
 	MatchSignals.unit_deselected.connect(_selection_changed)
 	MatchSignals.deselect_all_units.connect(_selection_changed)
@@ -86,7 +82,7 @@ func _selection_changed(_unit = null):
 
 
 func _process(delta):
-	var had_content = not context.is_empty() or not markers.is_empty()
+	var had_content = not markers.is_empty()
 	_pointer = get_viewport().get_mouse_position()
 	_elapsed += delta
 	if _elapsed >= .08:
@@ -95,9 +91,13 @@ func _process(delta):
 		_set_cursor(_glyph_kind(context))
 	for index in range(markers.size() - 1, -1, -1):
 		markers[index].age += delta
-		if markers[index].age >= markers[index].lifetime:
+		var marker = markers[index]
+		marker.node.visible = not hud.direct_orders._blocked()
+		marker.node.fade(minf(1.0, (marker.lifetime - marker.age) * 4.0))
+		if marker.age >= marker.lifetime:
+			marker.node.queue_free()
 			markers.remove_at(index)
-	if had_content or not context.is_empty() or not markers.is_empty():
+	if had_content or not markers.is_empty():
 		queue_redraw()
 
 
@@ -152,6 +152,9 @@ func _set_cursor(kind):
 
 
 func _exit_tree():
+	for marker in markers:
+		if is_instance_valid(marker.node):
+			marker.node.queue_free()
 	if not _cursor_kind.is_empty() and DisplayServer.get_name() != "headless":
 		Input.set_custom_mouse_cursor(null)
 
@@ -191,10 +194,27 @@ func reject(message):
 
 func _add_marker(point, kind, label, accepted):
 	while markers.size() >= MAX_MARKERS:
-		markers.pop_front()
+		markers.pop_front().node.queue_free()
+	var node = GroundFeedback.new()
+	node.name = "CommandRing"
+	node.map = hud.get_parent().map
+	hud.get_parent().add_child(node)
+	node.begin()
+	var color = Color("e3eff1") if accepted else Color("e5c38c")
+	node.ring(point, .85 if accepted else .5, .09, color)
+	if kind in ["attack", "attack_move"]:
+		for index in 4:
+			var direction = Vector3.RIGHT.rotated(Vector3.UP, index * PI * .5)
+			node.line(point + direction * .3, point + direction * 1.2, .1, color)
+	elif not accepted:
+		node.line(point + Vector3.LEFT * .25, point + Vector3.RIGHT * .25, .1, color)
+	node.finish()
+	# Preserve spoken command/rejection feedback after removing accepted cards.
+	accessibility_name = label
 	markers.append(
 		{
 			"point": point,
+			"node": node,
 			"kind": kind,
 			"text": label,
 			"accepted": accepted,
@@ -208,24 +228,14 @@ func _add_marker(point, kind, label, accepted):
 func _draw():
 	if not is_instance_valid(hud) or hud.direct_orders._blocked():
 		return
-	if not context.is_empty():
-		_label_at(_pointer + Vector2(22, 38), tr(TITLES.get(context, "Move")), 1.0)
 	var camera = get_viewport().get_camera_3d()
 	for marker in markers:
 		if camera.is_position_behind(marker.point):
 			continue
 		var point = camera.unproject_position(marker.point)
 		var alpha = minf(1.0, (marker.lifetime - marker.age) * 4)
-		var color = Color(1, 1, 1, alpha)
-		if marker.accepted:
-			var icon = _icons.get(_glyph_kind(marker.kind))
-			if icon != null:
-				draw_texture_rect(icon, Rect2(point - Vector2(9, 9), Vector2(18, 18)), false, color)
-			draw_arc(point, 15 + marker.age * 8, 0, TAU, 32, Color(1, 1, 1, alpha * .55), 1.5, true)
-		else:
-			draw_arc(point, 7, 0, TAU, 24, color, 2, true)
-			draw_line(point - Vector2(3, 0), point + Vector2(3, 0), color, 2, true)
-		_label_at(point + Vector2(18, 20), marker.text, alpha)
+		if not marker.accepted:
+			_label_at(point + Vector2(18, 20), marker.text, alpha)
 
 
 func _label_at(point, text_value, alpha):

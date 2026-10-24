@@ -1,6 +1,14 @@
 # Remaining work — updated 2026-10-24
 
-The 23–24 October work implements the requested battlefield polish, queued
+The latest 24 October follow-up adds inertial camera panning, MMB map grabbing,
+Alt + MMB rotation, terrain formation/facing feedback, command rings, shared
+four-owner body grids, staggered minimap updates and pooled muzzle/ricochet effects.
+Research/commander checks and loading/restore prewarm integration pass. The native
+release dispersed-query batch reaches 0.43 ms; dense queries and full four-player
+frame pacing remain open performance limits. See the [follow-up report](playtests/2026-10-24/premium-battle/README.md).
+These source changes have not replaced the accepted production packages below.
+
+The earlier 23–24 October release work implements the requested battlefield polish, queued
 technology research and clear elimination status. The current v19 macOS package
 passes all 75 registered suites and strict/deep signature verification, with
 unchanged source and package hashes. The bilingual queue/elimination rendered
@@ -17,8 +25,8 @@ prior values and IDs. Cleanup removed the original 927 obsolete snapshots,
 810 temporary conversion backups and the owned isolated prewarm UI's v18 quicksave.
 Campaign progress and preferences are preserved.
 
-Windows work, including the reported four-player FFA low frame rate, is explicitly
-deferred at the user's request. Its accepted two-player baseline remains above
+Four-player optimization has resumed locally under the latest request. Native
+Windows four-player verification remains outstanding; its accepted two-player baseline remains above
 target at 36.80 ms p95; it does not measure the reported four-player scenario.
 [WINDOWS_HANDOFF.md](playtests/2026-10-24/WINDOWS_HANDOFF.md) records the artifacts,
 preserved player state and exact outstanding work.

@@ -2,7 +2,12 @@
 
 ## [main]
 
+## [0.17.0]
+
 ### Added
+ - Damped camera panning, middle-button map grabbing and Alt + middle-button rotation
+ - Terrain-following formation ribbons, facing indicators and accepted-order rings
+ - Pooled muzzle lights and directional armor ricochet sparks with existing visibility and reduced-flash controls
  - Combat damage chunks, brief material hit flashes, faction selection shapes, heavy-explosion shockwaves and burning wrecks, with fog and reduced-flash support
  - Tab cycles selected unit classes; P issues looping patrols; resource and friendly-unit factory rallies dispatch contextual orders
  - Saved Bronze, Silver and Gold veterancy with modest movement/reload bonuses, plus vision and range advantages on authored plateaus
@@ -12,15 +17,16 @@
  - Persistent commander status and an announcement when a player is eliminated after the HQ rebuild grace
 
 ### Changed
+ - Shared spatial body grids reduce four-owner local query overhead; minimap markers update across three phases
  - Unit status captions appear only with F1 diagnostics; ordinary play retains health, rank and objective information
  - HQ communications hardware and repair/research symbols use neutral mechanical shapes
  - Save format 19 stores veterancy, patrol state and queued research; 810 supported archived fixtures were converted with IDs preserved, and obsolete saves and temporary conversion backups were removed
- - Profiled movement, service, spatial queries and procedural posing reuse unchanged or same-call data; final macOS release combat p95 is 14.95 / 16.53 ms at 70 units and 28.57 / 30.70 ms in the 200-mobile/80-structure fixture
+ - Profiled movement, service, spatial queries and procedural posing reuse unchanged or same-call data; the final 200-query release benchmark improves from 1.269 to 0.426–0.431 ms for dispersed units on M1 Pro (grid rebuild excluded); dense clusters remain at 0.783 ms and no overall rendered four-player FPS gain is established
 
 ### Fixed
  - Particle resources, runtime caches and remembered-building materials release correctly through normal game shutdown
  - Opening instructions stay visible at enlarged interface scales and armor-loss recovery follows available production
- - First-use hit-flash, ground-scar and shockwave variants prepare during loading; four final Mac benchmark runs have no sampled gameplay frame over 50 ms
+ - First-use hit-flash, ground-scar, shockwave, terrain-feedback and local-light variants prepare during loading; cancellation remains responsive when the native window is idle
  - Cancelled restoration releases its provisional battle while preserving the replacement scene
 
 

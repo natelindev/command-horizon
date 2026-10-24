@@ -54,9 +54,11 @@ func _run():
 func _write_cursor_assets():
 	var feedback = game.find_child("CommandFeedback", true, false)
 	for kind in ["attack", "repair"]:
-		for entry in [["command", feedback._icons[kind]], ["cursor", feedback._cursors[kind]]]:
-			var destination = SYMBOL_OUTPUT + "%s-%s.png" % [entry[0], kind]
-			_check(entry[1].get_image().save_png(destination) == OK, "Cannot save " + destination)
+		var destination = SYMBOL_OUTPUT + "cursor-%s.png" % kind
+		_check(
+			feedback._cursors[kind].get_image().save_png(destination) == OK,
+			"Cannot save " + destination
+		)
 
 
 func _map_legend(language):

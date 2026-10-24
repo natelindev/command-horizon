@@ -1,6 +1,6 @@
 extends RefCounted
 
-# Draw the three lazy combat shader paths behind the loading screen, in the
+# Draw lazy combat and command-feedback shader paths behind the loading screen, in the
 # battle's real viewport. Every mesh, overlay and wear texture belongs to this
 # disposable holder; live effect pools, unit materials and RNG stay untouched.
 const MAX_DRAWS = 12
@@ -38,11 +38,24 @@ static func prepare(game) -> bool:
 		ring.material_override.set_shader_parameter("progress", .35)
 	if Globals.options.battlefield_wear and Globals.options.graphics_ground_detail:
 		_wear(game, holder, point)
+	# Command rings/ribbons and local muzzle lighting must compile behind the
+	# same cover as combat shaders, using disposable resources only.
+	var feedback = load("res://source/match/effects/TerrainFeedback.gd").new()
+	feedback.map = game.map
+	holder.add_child(feedback)
+	feedback.begin()
+	feedback.ring(point, 1.0, .1, Color.WHITE)
+	feedback.finish()
+	if not Globals.options.reduced_flashes:
+		var light = OmniLight3D.new()
+		light.shadow_enabled = false
+		light.omni_range = 5.0
+		holder.add_child(light)
+		light.global_position = point + Vector3.UP
 	var previous = _pipelines()
 	var stable = 0
 	for draw in MAX_DRAWS:
-		await RenderingServer.frame_post_draw
-		if not _active(game, tree, scene_id):
+		if not await _draw(game, tree, scene_id):
 			_cleanup(holder, cover, frozen)
 			return false
 		var counts = _pipelines()
@@ -58,10 +71,26 @@ static func prepare(game) -> bool:
 		if not _active(game, tree, scene_id):
 			_cleanup(holder, cover, frozen)
 			return false
-	await RenderingServer.frame_post_draw
-	var completed = _active(game, tree, scene_id)
+	var completed = await _draw(game, tree, scene_id)
 	_cleanup(holder, cover, frozen)
 	return completed
+
+
+static func _draw(game, tree, scene_id) -> bool:
+	# A covered/idle or unfocused native window may skip automatic draws.
+	# Request the preparation draw explicitly and watch scene ownership on
+	# update ticks too, so cancellation never waits for a future window redraw.
+	var state = {"drawn": false}
+	var drawn = func(): state.drawn = true
+	RenderingServer.frame_post_draw.connect(drawn, CONNECT_ONE_SHOT)
+	await tree.process_frame
+	if _active(game, tree, scene_id):
+		RenderingServer.force_draw()
+	while not state.drawn and _active(game, tree, scene_id):
+		await tree.process_frame
+	if RenderingServer.frame_post_draw.is_connected(drawn):
+		RenderingServer.frame_post_draw.disconnect(drawn)
+	return state.drawn and _active(game, tree, scene_id)
 
 
 static func _cover(game):

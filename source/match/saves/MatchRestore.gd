@@ -303,6 +303,11 @@ func restore(tree, snapshot):
 			game.queue_free()
 		return {"ok": false, "cancelled": true, "error": "Battle loading was cancelled."}
 	game.restoring = false
+	# Seed every marker before exposing the restored battlefield. Ordinary live
+	# updates stay staggered; load completion must not reveal partial phases.
+	var minimap = game.find_child("Minimap")
+	if is_instance_valid(minimap):
+		minimap._sync_real_units_with_minimap_representations()
 	game.base_area_lighting.refresh()
 	for player in players:
 		player.emit_changed()

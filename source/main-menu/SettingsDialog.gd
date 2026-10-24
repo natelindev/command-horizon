@@ -130,6 +130,8 @@ func _ready():
 	_sample_caption.hide()
 	_heading(general, "Camera")
 	_slider(general, "Pan speed", "camera_speed", 0.5, 2.0, 0.1)
+	controls.camera_speed.tooltip_text = tr("Middle-drag to pan · Alt + middle-drag to rotate")
+	controls.camera_speed.accessibility_description = controls.camera_speed.tooltip_text
 	_slider(general, "Zoom speed", "zoom_speed", 0.5, 3.0, 0.1)
 	_check(general, "Scroll at screen edges", "edge_scrolling")
 	_check(general, "Keep pointer inside the game window", "mouse_restricted")
