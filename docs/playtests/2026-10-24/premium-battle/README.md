@@ -54,7 +54,7 @@ The requested 0.5 ms query budget is met for the dispersed batch. **It is not me
 
 **An end-to-end frame-rate gain has not been established.** The new presentation and query/minimap changes together remain below 60 FPS on this M1 Pro workload. The current combat samples had no frame above 100 ms, but earlier movement samples retained a first-use tail (115–154 ms maximum). The final source run had 55.84 ms movement and 53.49 ms combat maxima; this single warm repeat does not close cold-start acceptance. Metal reported zero GPU time, so those unavailable counters are not treated as measurements. Native Windows four-player timing, longer matches and broader devices remain open acceptance work.
 
-The mixed-army regression failed in an early run and also failed on pristine HEAD. The final current mixed-army and navigation runs pass; this timing-sensitive crowd behavior remains a pre-existing intermittent concern. Existing shutdown resource warnings are retained in the logs rather than classified as clean shutdowns.
+The mixed-army regression also failed on pristine HEAD. Native release verification later captured a worker returning to a navigation corner covered by a settled tank. Ground recovery now rebuilds its path after the detour. The recorded layout fails before the fix and passes afterward; nine follow-up source checks and six exported mixed-army repeats pass. See the [release verification report](../release-v0.17.0/README.md). Final native-platform verification is blocked by GitHub Actions allowance/storage. Existing shutdown resource warnings remain in the logs.
 
 ## Reproduction
 

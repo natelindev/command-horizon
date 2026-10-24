@@ -7,6 +7,7 @@ Research/commander checks and loading/restore prewarm integration pass. The nati
 release dispersed-query batch reaches 0.43 ms; dense queries and full four-player
 frame pacing remain open performance limits. See the [follow-up report](playtests/2026-10-24/premium-battle/README.md).
 These source changes have not replaced the accepted production packages below.
+The v0.17.0 release follow-up fixes a recorded ground-recovery corner stall; nine source checks and seven exported-pack checks pass. Final native package verification/publication is blocked by GitHub Actions budget/storage limits; see the [release report](playtests/2026-10-24/release-v0.17.0/README.md).
 
 The earlier 23–24 October release work implements the requested battlefield polish, queued
 technology research and clear elimination status. The current v19 macOS package

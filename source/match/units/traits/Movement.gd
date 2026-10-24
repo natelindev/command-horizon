@@ -137,6 +137,10 @@ func _physics_process(delta):
 				_recovery_checked = true
 			if _unit.global_position.distance_to(_progress_position) >= GROUND_RECOVERY_DISTANCE:
 				_recovery_left = 0.0
+			if _recovery_left <= 0:
+				# The escape can bypass a corner covered by a settled body. Rebuild
+				# from here instead of returning to that unreachable old waypoint.
+				target_position = target_position
 			else:
 				# Commit briefly to clear the obstruction before following the same
 				# path again. Navigation and body clipping still constrain every step.

@@ -1,0 +1,21 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ROUTE: remaining=0.15641158819199 minimum building distance=3.20011568069458
+MIXED mixed advance arrived=20/20 seconds=18.7666666666668 max_step=0.14000155031681
+MIXED STALL mixed retreat through allies Worker at=(12.4856, 0.0, 19.38254) goal=(8.08073, 0.0, 22.67416)
+MIXED_STALL_STATE {"active":true,"goal":"(8.08073, 0.0, 22.67416)","index":1,"neighbors":[{"active":false,"position":"(12.12364, 0.0, 20.88976)","radius":0.899999976158142,"role":"Tank","velocity":"(0.0, 0.0, 0.0)"},{"active":false,"position":"(9.187503, 0.0, 20.11208)","radius":0.899999976158142,"role":"Tank","velocity":"(0.0, 0.0, 0.0)"}],"occupied":false,"path":"[(12.46139, 0.6, 19.377), (12.3, 0.6, 20.1), (11.4, 0.6, 21.0), (8.08073, 0.6, 22.67416)]","position":"(12.4856, 0.0, 19.38254)","radius":0.649999976158142,"recovery_direction":"(0.975988, 0.0, 0.217824)","recovery_left":0.0,"role":"Worker","target":"(8.08073, 0.0, 22.67416)","velocity":"(-0.987764, 0.0, 3.710785)"}
+FAILURE_ARCHIVE /Users/linlilu/Library/Application Support/OpenRTS-premium-polish/test-artifacts/navigation-failure-38734-12343299.json
+FAILURE_STATE seed=0 [{"active":false,"id":"unit-4","path":"[]","path_index":6,"point":"(12.12364, 0.0, 20.88976)","progress_elapsed":0.766666666666667,"progress_position":"(13.09056, 0.0, 20.83831)","recovery_direction":"(0.0, 0.0, 0.0)","recovery_left":0.0,"target":"(12.01905, 0.0, 20.65085)","velocity":"(0.0, 0.0, 0.0)"},{"active":false,"id":"unit-9","path":"[]","path_index":1,"point":"(6.056548, 0.0, 25.70167)","progress_elapsed":0.0,"progress_position":"(6.295185, 0.0, 24.99189)","recovery_direction":"(-0.883346, 0.0, -0.468722)","recovery_left":0.0,"target":"(6.362058, 0.0, 25.00498)","velocity":"(0.0, 0.0, 0.0)"},{"active":false,"id":"unit-14","path":"[]","path_index":3,"point":"(9.187503, 0.0, 20.11208)","progress_elapsed":0.0666666666666667,"progress_position":"(9.276701, 0.0, 20.07857)","recovery_direction":"(0.0, 0.0, 0.0)","recovery_left":0.0,"target":"(9.187503, 0.0, 20.11208)","velocity":"(0.0, 0.0, 0.0)"},{"active":false,"id":"unit-19","path":"[]","path_index":6,"point":"(4.205286, 0.0, 22.5422)","progress_elapsed":0.766666666666667,"progress_position":"(6.662883, 0.0, 22.35308)","recovery_direction":"(0.0, 0.0, 0.0)","recovery_left":0.0,"target":"(4.24524, 0.0, 22.53884)","velocity":"(0.0, 0.0, 0.0)"},{"active":false,"id":"unit-22","path":"[]","path_index":0,"point":"(21.5827, 0.0, 17.73799)","progress_elapsed":0.0,"progress_position":"(25.0, 0.0, 21.0)","recovery_direction":"(0.0, 0.0, 0.0)","recovery_left":0.0,"target":"(25.0, 0.0, 21.0)","velocity":"(0.0, 0.0, 0.0)"},{"active":false,"id":"unit-23","path":"[]","path_index":0,"point":"(25.62274, 0.0, 23.2271)","progress_elapsed":0.0,"progress_position":"(25.0, 0.0, 24.0)","recovery_direction":"(0.0, 0.0, 0.0)","recovery_left":0.0,"target":"(25.0, 0.0, 24.0)","velocity":"(0.0, 0.0, 0.0)"},{"active":false,"id":"unit-24","path":"[]","path_index":0,"point":"(24.94434, 0.0, 26.96729)","progress_elapsed":0.0,"progress_position":"(25.0, 0.0, 27.0)","recovery_direction":"(0.0, 0.0, 0.0)","recovery_left":0.0,"target":"(25.0, 0.0, 27.0)","velocity":"(0.0, 0.0, 0.0)"}]
+MIXED mixed retreat through allies arrived=19/20 seconds=89.9999999999975 max_step=0.14000159502029
+HARVEST: 6 workers / 90s income=652
+CONSTRUCTION: progress=1.0 worker=(22.11324, 0.0, 26.96448)
+ROCK: remaining=0.19686974585056
+ERROR: mixed retreat through allies: stranded mixed-army units
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/NavigationRegression.gd:52)
+       [1] _frames (res://tests/headless/NavigationRegression.gd:280)
+WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)
+ERROR: 4 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:822)

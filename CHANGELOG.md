@@ -24,6 +24,7 @@
  - Profiled movement, service, spatial queries and procedural posing reuse unchanged or same-call data; the final 200-query release benchmark improves from 1.269 to 0.426–0.431 ms for dispersed units on M1 Pro (grid rebuild excluded); dense clusters remain at 0.783 ms and no overall rendered four-player FPS gain is established
 
 ### Fixed
+ - Ground recovery rebuilds its path after a lateral detour so units do not return to a navigation corner covered by a settled ally
  - Particle resources, runtime caches and remembered-building materials release correctly through normal game shutdown
  - Opening instructions stay visible at enlarged interface scales and armor-loss recovery follows available production
  - First-use hit-flash, ground-scar, shockwave, terrain-feedback and local-light variants prepare during loading; cancellation remains responsive when the native window is idle

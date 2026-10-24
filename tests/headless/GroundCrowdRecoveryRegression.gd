@@ -96,3 +96,67 @@ func _test_group_route():
 	for unit in units:
 		unit.queue_free()
 	await _frames(6)
+	await _test_blocked_corner()
+
+
+func _test_blocked_corner():
+	# Recorded from the exported mixed-army stall. A settled tank covers a
+	# navigation corner; the worker must repath after its lateral escape.
+	var points = [
+		Vector3(12.12364, 0, 20.88976),
+		Vector3(9.187503, 0, 20.11208),
+		Vector3(12.4856, 0, 19.38254)
+	]
+	var units = []
+	for index in points.size():
+		var unit = _spawn("Worker" if index == 2 else "Tank", points[index])
+		unit.stance = unit.Stance.HOLD_FIRE
+		units.append(unit)
+	await _frames(60)
+	for index in units.size():
+		units[index].global_position = points[index]
+		var movement = units[index].get_node("Movement")
+		movement.stop()
+		movement.set_velocity_forced(Vector3.ZERO)
+	_game.battlefield.invalidate()
+	var mover = units[2]
+	var goal = Vector3(8.08073, 0, 22.67416)
+	mover.action = _moving.new(goal)
+	var arrived = false
+	var max_step = 0.0
+	var minimum_gap = INF
+	for frame in range(Engine.physics_ticks_per_second * 30):
+		var previous = mover.global_position
+		await physics_frame
+		max_step = maxf(max_step, mover.global_position.distance_to(previous))
+		for other in units.slice(0, 2):
+			minimum_gap = minf(
+				minimum_gap,
+				(
+					mover.global_position.distance_to(other.global_position)
+					- mover.radius
+					- other.radius
+				)
+			)
+		if mover.global_position_yless.distance_to(goal) < .6:
+			arrived = true
+			break
+	_check(arrived, "Worker kept returning to a corner inside a settled tank")
+	_check(
+		max_step <= mover.movement_speed / Engine.physics_ticks_per_second + .003,
+		"Corner recovery exceeded movement speed"
+	)
+	_check(minimum_gap >= -.03, "Corner recovery passed through a tank")
+	print(
+		"CORNER RECOVERY: arrived=",
+		arrived,
+		" remaining=",
+		mover.global_position.distance_to(goal),
+		" min_gap=",
+		minimum_gap,
+		" max_step=",
+		max_step
+	)
+	for unit in units:
+		unit.queue_free()
+	await _frames(6)
