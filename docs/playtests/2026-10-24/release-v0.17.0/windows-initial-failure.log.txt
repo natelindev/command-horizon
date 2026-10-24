@@ -1,0 +1,63 @@
+2026-10-24T10:43:52.3948339Z [  98% ] savepack | Storing File: res://.godot/uid_cache.bin
+2026-10-24T10:43:52.3948414Z Using text server data from export templates.
+2026-10-24T10:43:52.3948552Z [  98% ] savepack | Storing File: res://icudt_godot.dat
+2026-10-24T10:43:52.3948691Z [  98% ] savepack | Storing File: res://project.binary
+2026-10-24T10:43:52.3948776Z [ DONE ] savepack
+2026-10-24T10:43:52.3948831Z 
+2026-10-24T10:43:52.3948891Z 
+2026-10-24T10:43:54.4758659Z Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+2026-10-24T10:43:54.4759195Z 
+2026-10-24T10:43:54.4759587Z WARNING: 4 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+2026-10-24T10:43:54.4760084Z    at: cleanup (core/object/object.cpp:2536)
+2026-10-24T10:43:54.4760496Z ERROR: 2 resources still in use at exit (run with --verbose for details).
+2026-10-24T10:43:54.4760934Z    at: clear (core/io/resource.cpp:822)
+2026-10-24T10:43:54.4761151Z 
+2026-10-24T10:44:06.6795133Z Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+2026-10-24T10:44:06.6795655Z 
+2026-10-24T10:44:06.6795821Z Unit behaviors: 0 failures
+2026-10-24T10:44:06.6796026Z 
+2026-10-24T10:44:15.5215001Z Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+2026-10-24T10:44:15.5215495Z 
+2026-10-24T10:44:15.5215679Z Infantry wreck knee heights: buckle=0.360 rest=0.490
+2026-10-24T10:44:15.5216094Z Infantry wreck knee heights: buckle=0.360 rest=0.490
+2026-10-24T10:44:15.5216454Z Infantry wreck knee heights: buckle=0.360 rest=0.490
+2026-10-24T10:44:15.5216744Z Unit animation regression: 0 failures
+2026-10-24T10:44:15.5216922Z 
+2026-10-24T10:44:16.8430795Z Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+2026-10-24T10:44:16.8432825Z 
+2026-10-24T10:44:16.8433324Z Infantry redesign: 24 models, 9908 maximum triangles, 0 failures
+2026-10-24T10:44:16.8434766Z 
+2026-10-24T10:44:18.0883443Z Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+2026-10-24T10:44:18.0883931Z 
+2026-10-24T10:44:18.0884112Z Infantry batching: 109 -> 58 mesh instances, 0 failures
+2026-10-24T10:44:18.0884420Z 
+2026-10-24T10:44:21.6252450Z Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+2026-10-24T10:44:21.6252891Z 
+2026-10-24T10:44:21.6253050Z Rocket corpse support: torso=0.053 optic=0.108
+2026-10-24T10:44:21.6253508Z Infantry death ground: 72 faction/role/fall scenarios, 0 failures
+2026-10-24T10:44:21.6253860Z 
+2026-10-24T10:44:21.7964652Z Traceback (most recent call last):
+2026-10-24T10:44:21.8051879Z   File "D:\a\copperfin\copperfin\tools\release\build.py", line 137, in <module>
+2026-10-24T10:44:21.8052605Z     main()
+2026-10-24T10:44:21.8117959Z   File "D:\a\copperfin\copperfin\tools\release\build.py", line 124, in main
+2026-10-24T10:44:21.8121126Z     run([engine, "--headless", "--main-pack", pack, "--fixed-fps", "60",
+2026-10-24T10:44:21.8121674Z   File "D:\a\copperfin\copperfin\tools\release\build.py", line 65, in run
+2026-10-24T10:44:21.8122471Z     raise RuntimeError(f"Command failed ({result.returncode}): {args}")
+2026-10-24T10:44:21.8124095Z RuntimeError: Command failed (3221225477): [WindowsPath('C:/Users/RUNNER~1/AppData/Local/Temp/rts-release-38y3jd38/Godot_v4.7.2-stable_win64.exe'), '--headless', '--main-pack', WindowsPath('D:/a/copperfin/copperfin/build/windows/Open_RTS_Windows.exe'), '--fixed-fps', '60', '--script', 'res://tests/headless/InfantryDeathGroundRegression.gd']
+2026-10-24T10:44:22.3312298Z ##[error]Process completed with exit code 1.
+2026-10-24T10:44:22.3828031Z Post job cleanup.
+2026-10-24T10:44:22.8444687Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-10-24T10:44:22.9177238Z git version 2.56.0.windows.3
+2026-10-24T10:44:22.9268472Z Temporarily overriding HOME='D:\a\_temp\c6f23572-0e73-41ef-a2b4-1b1dfd6e414e' before making global git config changes
+2026-10-24T10:44:22.9286046Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-24T10:44:22.9301318Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\copperfin\copperfin
+2026-10-24T10:44:22.9699338Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-10-24T10:44:23.0032235Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-10-24T10:44:23.6374668Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-24T10:44:23.6593698Z http.https://github.com/.extraheader
+2026-10-24T10:44:23.6630221Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all http.https://github.com/.extraheader
+2026-10-24T10:44:23.7022351Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-10-24T10:44:24.2746459Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-24T10:44:24.3002770Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-10-24T10:44:24.8084602Z Cleaning up orphan processes
+2026-10-24T10:44:24.8231969Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

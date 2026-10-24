@@ -64,6 +64,8 @@ func _traverse(units, destination, label):
 				" goal=",
 				pair[1]
 			)
+	if arrived.size() != units.size():
+		_capture_mixed_failure(pairs, arrived)
 	_check(arrived.size() == units.size(), label + ": stranded mixed-army units")
 	_check(excess_steps == 0, label + ": unit exceeded its movement speed")
 	print(
@@ -78,3 +80,47 @@ func _traverse(units, destination, label):
 		" max_step=",
 		max_step
 	)
+
+
+func _capture_mixed_failure(pairs, arrived):
+	# Capture only after the measured failure, preserving the workload timing.
+	for pair in pairs:
+		var unit = pair[0]
+		if arrived.has(unit):
+			continue
+		var movement = unit.get_node("Movement")
+		var neighbors = []
+		for other in get_nodes_in_group("units"):
+			if other == unit or other.global_position.distance_to(unit.global_position) > 5:
+				continue
+			var navigation = other._get_navigation_trait()
+			neighbors.append(
+				{
+					"role": other.type,
+					"position": str(other.global_position),
+					"radius": other.radius,
+					"active": navigation._has_destination if navigation != null else false,
+					"velocity": str(navigation.velocity) if navigation != null else "none"
+				}
+			)
+		print(
+			"MIXED_STALL_STATE ",
+			JSON.stringify(
+				{
+					"role": unit.type,
+					"position": str(unit.global_position),
+					"radius": unit.radius,
+					"goal": str(pair[1]),
+					"target": str(movement.target_position),
+					"active": movement._has_destination,
+					"velocity": str(movement.velocity),
+					"path": str(movement.get_current_navigation_path()),
+					"index": movement.get_current_navigation_path_index(),
+					"occupied": movement.has_occupied_endpoint(),
+					"recovery_left": movement._recovery_left,
+					"recovery_direction": str(movement._recovery_direction),
+					"neighbors": neighbors
+				}
+			)
+		)
+	_capture_crowd_failure()

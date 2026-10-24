@@ -1,0 +1,44 @@
+2026-10-24T10:53:23.2442890Z 
+2026-10-24T10:53:23.2443100Z ROUTE: remaining=0.15641158819199 minimum building distance=3.20011568069458
+2026-10-24T10:53:23.2443590Z MIXED mixed advance arrived=20/20 seconds=27.1666666666672 max_step=0.14000190794468
+2026-10-24T10:53:23.2444240Z MIXED STALL mixed retreat through allies Worker at=(9.506282, 0.0, 29.08063) goal=(9.0, 0.0, 27.45)
+2026-10-24T10:53:23.2444900Z MIXED mixed retreat through allies arrived=19/20 seconds=89.9999999999975 max_step=0.14000162482262
+2026-10-24T10:53:23.2445270Z HARVEST: 6 workers / 90s income=652
+2026-10-24T10:53:23.2445590Z CONSTRUCTION: progress=1.0 worker=(22.11324, 0.0, 26.96448)
+2026-10-24T10:53:23.2445940Z ROCK: remaining=0.19686974585056
+2026-10-24T10:53:23.2446210Z ERROR: mixed retreat through allies: stranded mixed-army units
+2026-10-24T10:53:23.2446570Z    at: push_error (core/variant/variant_utility.cpp:1023)
+2026-10-24T10:53:23.2446920Z    GDScript backtrace (most recent call first):
+2026-10-24T10:53:23.2447270Z        [0] _run (res://tests/headless/NavigationRegression.gd:52)
+2026-10-24T10:53:23.2447660Z        [1] _frames (res://tests/headless/NavigationRegression.gd:280)
+2026-10-24T10:53:23.2448110Z WARNING: 10 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+2026-10-24T10:53:23.2448470Z    at: cleanup (core/object/object.cpp:2536)
+2026-10-24T10:53:23.2449680Z ERROR: 4 resources still in use at exit (run with --verbose for details).
+2026-10-24T10:53:23.2450010Z    at: clear (core/io/resource.cpp:822)
+2026-10-24T10:53:23.2450210Z 
+2026-10-24T10:53:23.3905680Z Traceback (most recent call last):
+2026-10-24T10:53:23.3921020Z   File "/Users/runner/work/copperfin/copperfin/tools/release/build.py", line 137, in <module>
+2026-10-24T10:53:23.3921550Z     main()
+2026-10-24T10:53:23.3921950Z   File "/Users/runner/work/copperfin/copperfin/tools/release/build.py", line 124, in main
+2026-10-24T10:53:23.3922930Z     run([engine, "--headless", "--main-pack", pack, "--fixed-fps", "60",
+2026-10-24T10:53:23.3923540Z   File "/Users/runner/work/copperfin/copperfin/tools/release/build.py", line 65, in run
+2026-10-24T10:53:23.3924130Z     raise RuntimeError(f"Command failed ({result.returncode}): {args}")
+2026-10-24T10:53:23.3925400Z RuntimeError: Command failed (1): [PosixPath('/var/folders/s6/5hzmn6lx4dz5nxs7k_0slzph0000gn/T/rts-release-s2khx1o0/Godot.app/Contents/MacOS/Godot'), '--headless', '--main-pack', PosixPath('/Users/runner/work/copperfin/copperfin/build/macos/Open RTS.app/Contents/Resources/Open RTS.pck'), '--fixed-fps', '60', '--script', 'res://tests/headless/MixedArmyMovementRegression.gd']
+2026-10-24T10:53:23.4056060Z ##[error]Process completed with exit code 1.
+2026-10-24T10:53:23.4220710Z Post job cleanup.
+2026-10-24T10:53:23.6474240Z [command]/opt/homebrew/bin/git version
+2026-10-24T10:53:23.6605690Z git version 2.55.0
+2026-10-24T10:53:23.6627550Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/d4c1ad59-0337-40c3-a224-3cee1a04d26f/.gitconfig'
+2026-10-24T10:53:23.6635740Z Temporarily overriding HOME='/Users/runner/work/_temp/d4c1ad59-0337-40c3-a224-3cee1a04d26f' before making global git config changes
+2026-10-24T10:53:23.6636590Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-24T10:53:23.6640360Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/copperfin/copperfin
+2026-10-24T10:53:23.6702620Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-24T10:53:23.6746490Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-24T10:53:23.7670650Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-24T10:53:23.7713040Z http.https://github.com/.extraheader
+2026-10-24T10:53:23.7720990Z [command]/opt/homebrew/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-24T10:53:23.7771060Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-24T10:53:23.8823450Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-24T10:53:23.8866160Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-24T10:53:23.9515850Z Cleaning up orphan processes
+2026-10-24T10:53:25.4221750Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
