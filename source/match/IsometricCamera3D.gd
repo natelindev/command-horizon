@@ -276,10 +276,16 @@ func _advance_zoom(delta: float):
 func _try_handling_arrowkey_rotation(delta: float):
 	if _is_rotating() or _grab_anchor != null:
 		return
+	var hud = get_parent().get("hud")
+	var clockwise = Bindings.held("rotate_map_clockwise")
+	var counterclockwise = Bindings.held("rotate_map_counterclockwise")
+	if is_instance_valid(hud) and hud.has_method("ability_owns_camera_binding"):
+		clockwise = clockwise and not hud.ability_owns_camera_binding("rotate_map_clockwise")
+		counterclockwise = (
+			counterclockwise and not hud.ability_owns_camera_binding("rotate_map_counterclockwise")
+		)
 	var angle_radians = (
-		delta
-		* Bindings.axis("rotate_map_counterclockwise", "rotate_map_clockwise")
-		* arrowkey_rotation_speed
+		delta * (float(clockwise) - float(counterclockwise)) * arrowkey_rotation_speed
 	)
 	if not is_zero_approx(angle_radians):
 		_rotate_from_reference_position_by(global_position, angle_radians)

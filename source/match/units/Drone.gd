@@ -29,6 +29,7 @@ func _adapt_action(action_node):
 
 
 func _physics_process(delta):
+	super(delta)
 	if _match == null or stance not in [Stance.AGGRESSIVE, Stance.DEFENSIVE]:
 		return
 	if action != null and not action.has_method("is_idle"):

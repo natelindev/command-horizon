@@ -135,6 +135,12 @@ static func damage_from(shot, target):
 
 
 static func _damage(source, target):
+	if "raw_damage" in source and source.raw_damage:
+		return (
+			float(source.attack_damage)
+			* smoke_damage_factor(target)
+			* high_ground_damage_factor(source, target)
+		)
 	var profile = profile_for(source)
 	if (
 		source.type == "CombatRobot"
@@ -154,6 +160,8 @@ static func _damage(source, target):
 	if not MULTIPLIERS.has(profile):
 		return 0.0
 	var factor = target.signature.damage_factor() if target.signature != null else 1.0
+	factor *= smoke_damage_factor(target)
+	factor *= high_ground_damage_factor(source, target)
 	# AA weapons retain full air damage; research upgrades ground damage,
 	# including parked aircraft whose armor class is still Light machine.
 	if profile in ["Anti-air", "Flak"] and not _airborne(target):
@@ -167,6 +175,23 @@ static func _damage(source, target):
 	):
 		armor = 1
 	return float(source.attack_damage) * MULTIPLIERS[profile][armor] * factor
+
+
+## Smoke protects allied ground targets at its fixed deployment point. Multiple
+## screens do not stack, and in-flight rounds use the same rule as live weapons.
+static func smoke_damage_factor(target) -> float:
+	if not target is Node3D or not target.is_inside_tree() or _airborne(target):
+		return 1.0
+	for manager in target.get_tree().get_nodes_in_group("active_smoke_screens"):
+		if not manager.is_active("smoke_screen"):
+			continue
+		if not Players.allied(manager.unit.player, target.player):
+			continue
+		var smoke = manager.get_ability("smoke_screen")
+		var offset = (target.global_position - smoke.effect_position) * Vector3(1, 0, 1)
+		if smoke.active_left > 0.0 and offset.length_squared() <= smoke.radius * smoke.radius:
+			return 0.5
+	return 1.0
 
 
 static func aa_ground_damage_factor(player):
@@ -198,16 +223,34 @@ static func range_for(source, target):
 	)
 
 
+# Aircraft altitude never confers a terrain advantage. In-flight shots use
+# their frozen launch position, even after their shooter moves or dies.
+static func elevation_difference(source, target) -> float:
+	if _airborne(target):
+		return 0.0
+	if source.has_method("combat_domain") and _airborne(source):
+		return 0.0
+	if not source.has_method("combat_domain") and InfantryRoster.is_aircraft(source.type):
+		return 0.0
+	var origin = source.origin if "origin" in source else source.global_position
+	return origin.y - target.global_position.y
+
+
+static func high_ground_damage_factor(source, target) -> float:
+	return 1.15 if elevation_difference(source, target) >= 1.5 else 1.0
+
+
 static func high_ground_range_bonus(source, target = null) -> float:
-	if not source.has_method("terrain_advantage") or not source.terrain_advantage():
+	if source.attack_range == null:
 		return 0.0
 	if target != null:
-		if (
-			target.combat_domain() == Constants.Match.Navigation.Domain.AIR
-			or source.global_position.y - target.global_position.y < 1.5
-		):
-			return 0.0
-	return minf(1.5, float(source.attack_range) * 0.1) if source.attack_range != null else 0.0
+		var difference = elevation_difference(source, target)
+		if difference <= -1.5:
+			return -float(source.attack_range) * 0.2
+		return float(source.attack_range) * 0.25 if difference >= 1.5 else 0.0
+	# Broad-phase acquisition must cover every possible downhill target,
+	# including when the shooter stands on a ramp rather than a plateau top.
+	return 0.0 if _airborne(source) else float(source.attack_range) * 0.25
 
 
 static func preparation_for(unit, target = null):

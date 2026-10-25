@@ -60,6 +60,16 @@ const INFANTRY_ROCKET = {
 	"visual": "rocket",
 	"splash": 1.0,
 }
+const GUIDED_SALVO = {
+	"id": "guided_salvo",
+	"kind": "missile",
+	"speed": 24.0,
+	"turn": 8.0,
+	"gravity": 0.0,
+	"spread": 0.0,
+	"visual": "rocket",
+	"ability_damage": 60.0,
+}
 const STRIKE_ROCKET = {
 	"id": "strike_rocket",
 	"kind": "rocket",
@@ -188,6 +198,7 @@ const ALL = [
 	HEAVY_SHELL,
 	RAIL,
 	INFANTRY_ROCKET,
+	GUIDED_SALVO,
 	STRIKE_ROCKET,
 	SAM,
 	INFANTRY_SAM,

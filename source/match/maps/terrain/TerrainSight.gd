@@ -11,7 +11,7 @@ const TerrainModel = preload("res://source/match/maps/terrain/TerrainModel.gd")
 const EYE = 0.8
 const FOREST_SEE = 3.0
 const HIGH_GROUND = 1.5
-const HIGH_GROUND_REVEAL = 4.0
+const HIGH_GROUND_REVEAL = 1.5
 # Samples this close to either end belong to the observer's or target's own
 # footing (ramps, relief) and never occlude.
 const END_CLEARANCE = 0.75
@@ -23,7 +23,7 @@ const LEVEL = 0.4
 
 static func high_ground_hidden(model, observer: Vector2, target: Vector2) -> bool:
 	return (
-		model.height_at(target) - model.height_at(observer) > HIGH_GROUND
+		model.height_at(target) - model.height_at(observer) >= HIGH_GROUND
 		and observer.distance_to(target) > HIGH_GROUND_REVEAL
 	)
 
@@ -60,17 +60,22 @@ static func segment_clear(model, origin: Vector3, end: Vector3, forest_blocks :=
 # be hidden while ground beyond it shows. Consistent with segment_clear and
 # the high-ground rule. Empty when nothing within reach can occlude (draw a
 # plain circle). Aircraft always reveal their full circle.
-static func reveal_triangles(model, centre: Vector2, reach: float) -> PackedVector2Array:
+# Optional level_reach limits the extended ring to lower ground.
+static func reveal_triangles(
+	model, centre: Vector2, reach: float, level_reach := -1.0
+) -> PackedVector2Array:
 	var ground = model.height_at(centre)
 	var triangles = PackedVector2Array()
-	if _open_circle(model, centre, reach, ground):
+	if level_reach < 0.0 and _open_circle(model, centre, reach, ground):
 		return triangles
 	var half = PI / REVEAL_RAYS
 	for ray in REVEAL_RAYS:
 		var angle = ray * TAU / REVEAL_RAYS
 		var left = Vector2.from_angle(angle - half)
 		var right = Vector2.from_angle(angle + half)
-		var intervals = _visible_intervals(model, centre, Vector2.from_angle(angle), ground, reach)
+		var intervals = _visible_intervals(
+			model, centre, Vector2.from_angle(angle), ground, reach, level_reach
+		)
 		for index in range(0, intervals.size(), 2):
 			var near = intervals[index]
 			var far = intervals[index + 1]
@@ -89,7 +94,9 @@ static func reveal_triangles(model, centre: Vector2, reach: float) -> PackedVect
 # mirror segment_clear: a target is seen when its eye clears the steepest
 # occluder before it, it is not inside forest beyond FOREST_SEE, and it is not
 # on markedly higher ground beyond close range.
-static func _visible_intervals(model, centre, direction, ground, reach) -> PackedFloat32Array:
+static func _visible_intervals(
+	model, centre, direction, ground, reach, level_reach := -1.0
+) -> PackedFloat32Array:
 	var intervals = PackedFloat32Array()
 	var eye: float = ground + EYE
 	var horizon := -INF
@@ -118,8 +125,11 @@ static func _visible_intervals(model, centre, direction, ground, reach) -> Packe
 			forest_from = minf(forest_from, distance)
 		var visible: bool = (
 			(distance <= END_CLEARANCE or (floor_height + EYE - eye) / distance >= horizon)
+			and (
+				level_reach < 0.0 or distance <= level_reach or ground - floor_height >= HIGH_GROUND
+			)
 			and distance < forest_from + FOREST_SEE
-			and not (floor_height - ground > HIGH_GROUND and distance > HIGH_GROUND_REVEAL)
+			and not (floor_height - ground >= HIGH_GROUND and distance > HIGH_GROUND_REVEAL)
 			and not (flag & TerrainModel.SOLID and cover_tops[cell] > eye)
 		)
 		if visible and not is_open:

@@ -346,7 +346,53 @@ func _review_research(human, label):
 	await _shot(label + "-research-active")
 	research._cancel.pressed.emit()
 	_check(Vector2i(human.resource_a, human.resource_b) == funds, "Research refund differs")
+	if human.faction == "helix":
+		await _review_plasma_shields(human, label)
 	paused = was_paused
+
+
+func _review_plasma_shields(human, label):
+	human.coordination_unlocked = true
+	var lab = _units(human, "CommandLab")[0]
+	_check(human.technology.start("plasma_shields", lab), "Plasma shield research refused")
+	human.technology._physics_process(1000.0)
+	var tank = _units(human, "Tank")[0]
+	await _select([tank])
+	var menus = game.find_child("UnitMenus")
+	_check(menus._shields.is_visible_in_tree(), "Shield gauge is missing")
+	_check(menus._shields.value == 30.0, "Full shield gauge differs")
+	await _shot(label + "-shields-full")
+	# Damage changes the gauge while the selection stays in place.
+	tank.shields = 18.0
+	tank.shields_changed.emit()
+	await _frames(8)
+	_check(menus._shields.value == 18.0, "Shield gauge did not refresh")
+	await _shot(label + "-shields-partial")
+	var enemy = get_nodes_in_group("players").filter(func(side): return side != human)[0]
+	var impacts = game.combat_effects.shield_impacts_emitted
+	var options = root.get_node("Globals").options
+	var reduced_flashes = options.reduced_flashes
+	options.reduced_flashes = false
+	paused = false
+	tank.receive_damage(_units(enemy, "Tank")[0], 6.0)
+	paused = true
+	_check(
+		game.combat_effects._hit_flashes.any(
+			func(entry): return entry.unit.get_ref() == tank and entry.color == Color("68cee8")
+		),
+		"Shield impact omitted its blue material shimmer"
+	)
+	await _shot(label + "-shields-impact")
+	options.reduced_flashes = reduced_flashes
+	_check(game.combat_effects.shield_impacts_emitted == impacts + 1, "Shield impact missing")
+	tank.shields = 0.0
+	tank.shields_changed.emit()
+	await _frames(8)
+	_check(menus._shields.is_visible_in_tree(), "Depleted shield gauge disappeared")
+	await _shot(label + "-shields-depleted")
+	await _select([_units(human, "Worker")[0]])
+	_check(not menus._shields.is_visible_in_tree(), "Worker shows a shield gauge")
+	await _shot(label + "-shields-worker")
 
 
 func _research_tooltip(node, content):

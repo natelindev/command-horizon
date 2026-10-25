@@ -35,7 +35,11 @@ const PASSIVE_MOVEMENT_TRACKING_ENABLED = true
 		if not is_instance_valid(_unit):
 			return speed
 		var factor: float = _unit.signature.speed_factor() if _unit.signature != null else 1.0
-		return speed * factor * _unit.veterancy_speed_factor
+		if _unit.abilities != null:
+			factor *= _unit.abilities.speed_factor()
+		return (
+			speed * factor * _unit.veterancy_speed_factor * (1.0 + 0.1 * _unit.scrap_hardened_tiers)
+		)
 
 # Rotorcraft settle onto a helipad deck at this height, then climb back out.
 var settle_height = INF
@@ -73,6 +77,9 @@ var _uses_platform_height = false
 
 func _physics_process(delta):
 	_physics_delta = delta
+	if _abilities_prevent_movement():
+		velocity = Vector3.ZERO
+		return
 	var current_speed: float = speed
 	if max_speed != current_speed:
 		max_speed = current_speed
@@ -385,7 +392,17 @@ func set_ghosted(value):
 	)
 
 
+func _abilities_prevent_movement() -> bool:
+	return (
+		is_instance_valid(_unit)
+		and _unit.abilities != null
+		and _unit.abilities.is_active("siege_anchor")
+	)
+
+
 func move(movement_target: Vector3):
+	if _abilities_prevent_movement():
+		return
 	if not movement_target.is_finite():
 		stop()
 		return
@@ -507,6 +524,10 @@ func _update_passive_movement_tracking(safe_velocity):
 
 func _on_velocity_computed(safe_velocity: Vector3):
 	if not _synchronized or get_tree().paused or _unit.has_meta("garrison_host"):
+		return
+	if _abilities_prevent_movement():
+		velocity = Vector3.ZERO
+		_update_passive_movement_tracking(Vector3.ZERO)
 		return
 	var navigation_iteration = NavigationServer3D.map_get_iteration_id(get_navigation_map())
 	if (

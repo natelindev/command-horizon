@@ -172,7 +172,7 @@ func can_observe_point(observer, point: Vector3, ignored_target = null) -> bool:
 	if observer.has_method("is_constructed") and not observer.is_constructed():
 		return false
 	var origin: Vector3 = observer.global_position + Vector3.UP * 0.8
-	var reach = _sight_reach(observer)
+	var reach = _sight_reach(observer, point - Vector3.UP * 0.8)
 	if observer.has_meta("garrison_host"):
 		reach += observer.get_meta("garrison_host").radius + 2.0
 	if is_instance_valid(ignored_target) and ignored_target.is_in_group("neutral_buildings"):
@@ -201,9 +201,9 @@ func _terrain_visible(observer, origin: Vector3, point: Vector3, target) -> bool
 	)
 
 
-func _sight_reach(unit):
+func _sight_reach(unit, point = null):
 	return (
-		unit.effective_sight_range()
+		unit.effective_sight_range(point)
 		if unit.has_method("effective_sight_range")
 		else unit.sight_range
 	)
@@ -606,4 +606,17 @@ func nearby_combat_targets(point, radius, excluded_player = null):
 				<= (radius + building.radius) * (radius + building.radius)
 			):
 				result.append(building)
+	return result
+
+
+func nearby_obstacles(point: Vector3, reach: float) -> Array:
+	var result = []
+	for obstacle in get_tree().get_nodes_in_group("destructible_obstacles"):
+		if obstacle.hp <= 0.0 or obstacle.is_queued_for_deletion():
+			continue
+		if (
+			obstacle.global_position_yless.distance_to(point * Vector3(1, 0, 1))
+			<= reach + obstacle.radius
+		):
+			result.append(obstacle)
 	return result

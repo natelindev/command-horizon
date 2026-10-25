@@ -223,16 +223,17 @@ func _opportunity():
 			initial_delivery = true
 			_check(ai.resource_a == funds + 4, "Initial load was not delivered exactly once")
 			_check(engineer.resource_a == 0, "Initial cargo was retained after HQ delivery")
-		if is_instance_valid(wreck) and wreck.resource_a < 4:
+		if not is_instance_valid(wreck) or wreck.resource_a < 4:
 			salvaged = true
 		if salvaged and ai.resource_a >= funds + 8:
 			break
 		await physics_frame
 	_check(
-		initial_delivery and salvaged, "Engineer never delivered old cargo then collected salvage"
+		initial_delivery and salvaged, "Engineer never delivered old cargo then dismantled salvage"
 	)
 	_check(
-		ai.resource_a == funds + 8, "Two real HQ deliveries did not award exactly eight materials"
+		ai.resource_a == funds + 8,
+		"HQ delivery plus on-site dismantle did not award exactly eight materials"
 	)
 	_check(engineer.resource_a == 0, "Delivered salvage remained in cargo")
 	_check(not is_instance_valid(wreck), "Depleted wreck remained collectible")

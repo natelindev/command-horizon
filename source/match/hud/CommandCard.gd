@@ -18,12 +18,21 @@ const GLYPHS = {
 	"Force": "attack",
 	"Reverse": "reverse",
 }
+const ABILITY_GLYPHS = {
+	"frag_grenade": "attack",
+	"combat_sprint": "move",
+	"smoke_screen": "hide",
+	"siege_anchor": "hold",
+	"guided_salvo": "attack_move",
+}
 
 ## The command deck routes Stop through its own handler (order feedback, rally, refunds).
 var stop_override = Callable()
 var _slots = []
 var _selection = []
 var _direct_orders = null
+var _ability_slots = []
+var _ability_refresh = 0.0
 
 
 func _ready():
@@ -43,9 +52,8 @@ func _ready():
 		_slots.append(row_slots)
 
 
-# Battle shortcuts are dispatched by the HUD through KeyBindings. The card
-# must not add Q/W/E/A/D/F aliases: those collide with camera controls and
-# player remappings, including when this card sits on a hidden tab.
+# Ordinary orders follow KeyBindings; selected unit abilities own their QWER
+# keys. All keyboard dispatch stays in DirectOrders, even on a hidden HUD tab.
 func update_layout(selected_units: Array, direct_orders = null):
 	_selection = selected_units.filter(
 		func(u):
@@ -58,7 +66,7 @@ func update_layout(selected_units: Array, direct_orders = null):
 	if _selection.is_empty():
 		return
 
-	# Configured direct-order keys are the only keyboard shortcuts shown here.
+	# Ordinary orders show the player's configured keys.
 	_setup_slot(
 		0,
 		0,
@@ -88,6 +96,7 @@ func update_layout(selected_units: Array, direct_orders = null):
 	var has_cargo = _selection.any(func(u): return "type" in u and u.type == "Worker")
 	if direct_orders == null:
 		_setup_slot(0, 3, "Return", "", _on_return_cargo, has_cargo)
+	_setup_abilities()
 
 	var has_attack = _selection.any(func(u): return "attack_range" in u and u.attack_range != null)
 	var is_armored = _selection.any(
@@ -132,6 +141,7 @@ func update_layout(selected_units: Array, direct_orders = null):
 
 
 func _clear_slots():
+	_ability_slots.clear()
 	# Rows without any assigned command are hidden. In a shown row, an unassigned slot
 	# keeps its place in the grid but stays blank and out of the focus order.
 	for r in range(3):
@@ -143,9 +153,131 @@ func _clear_slots():
 			btn.glyph = null
 			btn.tooltip_text = ""
 			btn.disabled = true
+			btn.set_pressed_no_signal(false)
+			if r == 2:
+				btn.toggle_mode = false
+				btn.remove_theme_stylebox_override("disabled")
+			var cooldown = btn.get_node_or_null("AbilityCooldown")
+			if cooldown != null:
+				cooldown.hide()
 			btn.visible = false
 			for conn in btn.pressed.get_connections():
 				btn.pressed.disconnect(conn.callable)
+
+
+func _setup_abilities():
+	var assigned = []
+	for unit in _selection:
+		if (
+			not unit.is_in_group("controlled_units")
+			or not "abilities" in unit
+			or unit.abilities == null
+			or not unit.abilities.unit_available()
+		):
+			continue
+		for ability in unit.abilities.abilities:
+			var column = ["Q", "W", "E", "R"].find(ability.key)
+			if column < 0 or column in assigned:
+				continue
+			assigned.append(column)
+			_setup_slot(
+				2,
+				column,
+				ability.name,
+				ability.key,
+				_activate_ability.bind(ability.id),
+				ability.is_ready()
+			)
+			var button = _slots[2][column]
+			button.glyph = BattleTheme.icon(ABILITY_GLYPHS.get(ability.id, "stance"))
+			button.toggle_mode = true
+			var cooldown = button.get_node_or_null("AbilityCooldown")
+			if cooldown == null:
+				cooldown = Label.new()
+				cooldown.name = "AbilityCooldown"
+				cooldown.add_theme_font_size_override("font_size", 11)
+				cooldown.mouse_filter = Control.MOUSE_FILTER_IGNORE
+				cooldown.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+				button.add_child(cooldown)
+				cooldown.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
+				cooldown.offset_left = 16
+				cooldown.offset_right = -4
+			_ability_slots.append({"button": button, "id": ability.id, "cooldown": cooldown})
+	_refresh_abilities()
+
+
+func _refresh_abilities():
+	for slot in _ability_slots:
+		var abilities = []
+		for unit in _selection:
+			if (
+				is_instance_valid(unit)
+				and not unit.is_queued_for_deletion()
+				and "abilities" in unit
+				and unit.abilities != null
+			):
+				var ability = unit.abilities.get_ability(slot.id)
+				if ability != null and unit.abilities.unit_available():
+					abilities.append(ability)
+		var ready = abilities.any(func(ability): return ability.is_ready())
+		var active = abilities.any(func(ability): return ability.is_active)
+		var remaining = INF
+		for ability in abilities:
+			remaining = minf(remaining, ability.cooldown_left)
+		slot.button.disabled = not ready
+		slot.cooldown.visible = not ready and is_finite(remaining) and remaining > 0.0
+		slot.cooldown.text = "%.1fs" % remaining if is_finite(remaining) else ""
+		var armed = is_instance_valid(_direct_orders) and _direct_orders.ability_id == slot.id
+		slot.button.set_pressed_no_signal(active or armed)
+		if active:
+			# Keep the active face visible during a toggle's cooldown too.
+			slot.button.add_theme_stylebox_override(
+				"disabled", slot.button.get_theme_stylebox("pressed")
+			)
+		else:
+			slot.button.remove_theme_stylebox_override("disabled")
+		if abilities.is_empty():
+			continue
+		var ability = abilities[0]
+		slot.button.tooltip_text = (
+			"%s [%s]\n%s\nRange: %.1f m · Radius: %.1f m · Cooldown: %.1f s"
+			% [
+				tr(ability.name),
+				ability.key,
+				tr(ability.description),
+				ability.range,
+				ability.radius,
+				ability.cooldown
+			]
+		)
+		if active:
+			slot.button.tooltip_text += "\n" + tr("Active")
+		slot.button.accessibility_name = tr(ability.name) + " [" + ability.key + "]"
+		slot.button.accessibility_description = slot.button.tooltip_text
+
+
+func _process(delta):
+	_ability_refresh += delta
+	if _ability_refresh >= .1:
+		_ability_refresh = 0.0
+		_refresh_abilities()
+
+
+func _activate_ability(id):
+	if is_instance_valid(_direct_orders):
+		_direct_orders.activate_ability(id)
+	else:
+		for unit in _selection:
+			if (
+				is_instance_valid(unit)
+				and unit.is_in_group("controlled_units")
+				and "abilities" in unit
+				and unit.abilities != null
+			):
+				var ability = unit.abilities.get_ability(id)
+				if ability != null and ability.target_type in ["instant", "toggle"]:
+					ability.trigger()
+	_refresh_abilities()
 
 
 func _setup_slot(r: int, c: int, label: String, key: String, callable: Callable, enabled: bool):

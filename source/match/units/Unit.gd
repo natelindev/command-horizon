@@ -3,6 +3,7 @@ extends Area3D
 signal selected
 signal deselected
 signal hp_changed
+signal shields_changed
 signal action_changed(new_action)
 signal action_updated
 signal stance_changed(new_stance)
@@ -42,16 +43,33 @@ var base_hp_max = null
 var hp_max = null:
 	set = _set_hp_max
 var last_enemy_damage_time = -INF
-var attack_damage = null
+var shields: float = 0.0
+var shields_max: float = 0.0
+var last_shield_damage_time: float = -INF
+var scrap_hardened_tiers: int = 0
+var scrap_hardened_left: float = 0.0
+var attack_damage = null:
+	get:
+		if attack_damage == null:
+			return null
+		var factor = abilities.damage_factor() if abilities != null else 1.0
+		return attack_damage * factor * (1.0 + 0.15 * scrap_hardened_tiers)
 var attack_interval = null:
 	get:
 		return attack_interval * veterancy_reload_factor if attack_interval != null else null
-var attack_range = null
+var attack_range = null:
+	get:
+		return (
+			attack_range * abilities.range_factor()
+			if attack_range != null and abilities != null
+			else attack_range
+		)
 var attack_domains = []
 var aim_target = null
 var weapon_charge_progress = -1.0
 var weapon_charge_owner = null
 var signature = null
+var abilities = null
 var radius:
 	get = _get_radius
 var movement_domain:
@@ -113,6 +131,12 @@ func _ready():
 	# Completed armor research scales the final base stats, so apply it last.
 	if player != null and player.technology != null:
 		player.technology.apply_unit(self)
+	var definitions = ability_definitions()
+	if not definitions.is_empty():
+		abilities = load("res://source/match/units/traits/UnitAbilities.gd").new()
+		abilities.name = "UnitAbilities"
+		add_child(abilities)
+		abilities.setup(definitions)
 	if (
 		player != null
 		and (
@@ -137,6 +161,34 @@ func _ready():
 		add_child(signature)
 
 
+func ability_definitions() -> Array:
+	return []
+
+
+func update_shields():
+	var maximum = load("res://source/match/research/TechnologyCatalog.gd").shield_capacity(
+		type, player.faction, player.technology.completed
+	)
+	if is_equal_approx(maximum, shields_max):
+		return
+	# Research equips a full shield once. Other upgrades must not refill it.
+	shields = maximum if shields_max == 0.0 else minf(shields, maximum)
+	shields_max = maximum
+	shields_changed.emit()
+
+
+func _physics_process(delta):
+	if scrap_hardened_left > 0.0:
+		scrap_hardened_left = maxf(0.0, scrap_hardened_left - delta)
+		if scrap_hardened_left == 0.0:
+			scrap_hardened_tiers = 0
+	if _match == null or hp == null or hp <= 0 or shields_max <= 0 or shields >= shields_max:
+		return
+	if _match.simulation_time - last_shield_damage_time >= 5.0:
+		shields = minf(shields_max, shields + 6.0 * delta)
+		shields_changed.emit()
+
+
 func receive_weapon_hit(source):
 	receive_damage(source, _rules().damage(source, self))
 
@@ -151,19 +203,30 @@ func receive_shot(shot, point = null, share = 1.0, presentation_weapon = {}):
 
 func receive_damage(source, amount, point = null, presentation_weapon = {}):
 	if amount > 0 and hp > 0:
+		last_enemy_damage_time = _match.simulation_time
+		var impact_point = point if point != null else global_position + Vector3.UP * 0.5
+		if shields_max > 0:
+			# Hull hits also delay recharge while the shield is depleted.
+			last_shield_damage_time = _match.simulation_time
+		if shields > 0:
+			var absorbed = minf(amount, shields)
+			shields -= absorbed
+			amount -= absorbed
+			shields_changed.emit()
+			if absorbed > 0 and _match.combat_effects != null:
+				_match.combat_effects.shield_impact(self, impact_point)
+			if amount == 0:
+				# Damage-sensitive actions still react when the hull is protected.
+				MatchSignals.unit_damaged.emit(self)
 		var actual_damage = minf(amount, hp)
 		Veterancy.award(source, self, actual_damage, amount >= hp)
-		last_enemy_damage_time = _match.simulation_time
-		_match.combat_effects.impact(
-			self,
-			source,
-			point if point != null else global_position + Vector3.UP * 0.5,
-			presentation_weapon
-		)
-		var visuals = get_node_or_null("BastionVisuals")
-		if visuals != null:
-			visuals.hit_reaction(source.global_position)
-		hp -= amount
+		if amount > 0:
+			if _match.combat_effects != null:
+				_match.combat_effects.impact(self, source, impact_point, presentation_weapon)
+			var visuals = get_node_or_null("BastionVisuals")
+			if visuals != null:
+				visuals.hit_reaction(source.global_position)
+			hp -= amount
 		MatchSignals.unit_weapon_hit.emit(self, source)
 
 
@@ -187,10 +250,34 @@ func terrain_advantage() -> bool:
 	return _plateau_advantage
 
 
-func effective_sight_range():
+func effective_sight_range(target_point = null):
 	if sight_range == null:
 		return 0.0
-	return sight_range + (minf(3.0, sight_range * 0.2) if terrain_advantage() else 0.0)
+	var downhill = target_point == null or global_position.y - target_point.y >= 1.5
+	return sight_range * (1.3 if downhill and terrain_advantage() else 1.0)
+
+
+func can_scavenge() -> bool:
+	return (
+		player != null
+		and player.faction == "frontier"
+		and type in ["Tank", "AntiAirVehicle", "AdvancedTank"]
+		and hp != null
+		and hp > 0
+		and not is_queued_for_deletion()
+	)
+
+
+func scavenge(wreck) -> bool:
+	if not can_scavenge() or not is_instance_valid(wreck) or not wreck.has_method("consume_by"):
+		return false
+	if not wreck.consume_by(self):
+		return false
+	hp = minf(hp_max, hp + hp_max * 0.35)
+	scrap_hardened_tiers = mini(2, scrap_hardened_tiers + 1)
+	scrap_hardened_left = 60.0
+	action_updated.emit()
+	return true
 
 
 # Loaded at runtime: preloading combat rules here compiles autoload-dependent

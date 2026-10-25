@@ -20,6 +20,8 @@ const HIT_DURATION = .14
 const BEAM_DURATION = .24
 const SHOCKWAVE_DURATION = .65
 const WRECK_BURN_DURATION = 12.0
+const MAX_ABILITY_EFFECTS = 64
+const MAX_GRENADES = 32
 # Faction-tinted fire so a crossfire reads by owner; rail shots keep a cold charge color.
 const FACTION_FIRE = {
 	"bastion": Color("ffd9a0"),
@@ -30,6 +32,7 @@ const RAIL_FIRE = Color("b6d9e1")
 const PRISM_FIRE = Color("8870ff")
 var shots_emitted = 0
 var impacts_emitted = 0
+var shield_impacts_emitted = 0
 var deaths_emitted = 0
 var aftermath
 var _emitters = {}
@@ -47,6 +50,173 @@ var _random = RandomNumberGenerator.new()
 var _headless = false
 var _paused = false
 var _camera = null
+var _ability_effects = []
+var _grenades = []
+
+
+func watch_abilities(unit):
+	var callback = _ability_triggered.bind(unit)
+	if not unit.abilities.ability_triggered.is_connected(callback):
+		unit.abilities.ability_triggered.connect(callback)
+
+
+func _ability_triggered(ability, point, _target, unit):
+	if _headless:
+		return
+	if ability.id == "frag_grenade":
+		if not _can_show(unit):
+			return
+		while _grenades.size() >= MAX_GRENADES:
+			_grenades.pop_front().node.queue_free()
+		var grenade = MeshInstance3D.new()
+		grenade.name = "FragGrenade"
+		var mesh = SphereMesh.new()
+		mesh.radius = .09
+		mesh.height = .18
+		mesh.radial_segments = 8
+		mesh.rings = 4
+		grenade.mesh = mesh
+		grenade.material_override = _glowing_material(Color("e6c58a"))
+		grenade.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		add_child(grenade)
+		var origin = unit.global_position + Vector3.UP * .9
+		grenade.position = origin
+		_grenades.append(
+			{
+				"node": grenade,
+				"unit": weakref(unit),
+				"origin": origin,
+				"point": point,
+				"age": 0.0,
+				"duration": .65
+			}
+		)
+		return
+	if ability.id not in ["smoke_screen", "combat_sprint", "siege_anchor"]:
+		return
+	for index in range(_ability_effects.size() - 1, -1, -1):
+		if _ability_effects[index].ability == ability:
+			_discard_ability_effect(_ability_effects[index])
+			_ability_effects.remove_at(index)
+	if ability.id == "siege_anchor" and _can_show(unit):
+		# A low metallic clack reuses the spatial combat mixer and its voice budget.
+		get_parent().combat_audio.ability(unit, "siege_anchor", point)
+		for index in 8:
+			var direction = Vector3.RIGHT.rotated(Vector3.UP, index * TAU / 8)
+			_puff(
+				"dust",
+				point + direction * unit.radius,
+				direction * .8,
+				Color(.55, .49, .39, .45),
+				.6
+			)
+	if not ability.is_active:
+		return
+	while _ability_effects.size() >= MAX_ABILITY_EFFECTS:
+		_discard_ability_effect(_ability_effects.pop_front())
+	var lock_visual = _siege_lock(unit) if ability.id == "siege_anchor" else null
+	_ability_effects.append(
+		{"unit": weakref(unit), "ability": ability, "clock": 1.0, "node": lock_visual}
+	)
+
+
+func _siege_lock(unit):
+	var lock_visual = Node3D.new()
+	lock_visual.name = "SiegeAnchorLock"
+	add_child(lock_visual)
+	var steel = StandardMaterial3D.new()
+	steel.albedo_color = Color("65747b")
+	steel.metallic = .7
+	for x in [-1, 1]:
+		for z in [-1, 1]:
+			var foot = MeshInstance3D.new()
+			var mesh = BoxMesh.new()
+			mesh.size = Vector3(.45, .14, .35)
+			foot.mesh = mesh
+			foot.material_override = steel
+			foot.position = Vector3(x * unit.radius * .9, .1, z * unit.radius * .7)
+			lock_visual.add_child(foot)
+	var charge = MeshInstance3D.new()
+	charge.name = "AnchorCharge"
+	var orb = SphereMesh.new()
+	orb.radius = .12
+	orb.height = .24
+	charge.mesh = orb
+	charge.material_override = _glowing_material(RAIL_FIRE)
+	lock_visual.add_child(charge)
+	return lock_visual
+
+
+func _discard_ability_effect(entry):
+	if is_instance_valid(entry.node):
+		entry.node.queue_free()
+
+
+func _advance_abilities(delta):
+	for index in range(_grenades.size() - 1, -1, -1):
+		var entry = _grenades[index]
+		entry.age += delta
+		var unit = entry.unit.get_ref()
+		var shown = unit != null and _can_show(unit)
+		entry.node.visible = shown
+		var progress = minf(1.0, entry.age / entry.duration)
+		entry.node.position = entry.origin.lerp(entry.point, progress)
+		entry.node.position.y += sin(progress * PI) * 2.2
+		if progress >= 1.0:
+			if shown and can_show_point(entry.point):
+				_shockwave(entry.point, 1.3)
+				_explosion(entry.point, 1.3, true)
+				get_parent().combat_audio.ability(unit, "frag_grenade", entry.point)
+			entry.node.queue_free()
+			_grenades.remove_at(index)
+	for index in range(_ability_effects.size() - 1, -1, -1):
+		var entry = _ability_effects[index]
+		var unit = entry.unit.get_ref()
+		var ability = entry.ability
+		if unit == null or unit.is_queued_for_deletion() or unit.hp <= 0 or not ability.is_active:
+			_discard_ability_effect(entry)
+			_ability_effects.remove_at(index)
+			continue
+		var shown = _can_show(unit)
+		if is_instance_valid(entry.node):
+			entry.node.visible = shown
+			entry.node.global_transform = unit.global_transform
+			var marker = unit.get_node_or_null("ProjectileOrigin")
+			var charge = entry.node.get_node("AnchorCharge")
+			charge.visible = not Globals.options.reduced_flashes
+			if marker != null:
+				charge.global_position = marker.global_position
+		entry.clock += delta
+		if entry.clock < .10 or not shown:
+			continue
+		entry.clock = 0.0
+		if ability.id == "smoke_screen" and _camera_sees(ability.effect_position):
+			# Stop replenishing during the shared particles' final 1.8-second
+			# lifetime, so the stationary canopy clears with the seven-second timer.
+			var fade = clampf((ability.active_left - 1.8) / .6, 0.0, 1.0)
+			if fade <= 0.0:
+				continue
+			for puff in 14:
+				var angle = _random.randf() * TAU
+				var radius = sqrt(_random.randf()) * ability.radius * .85
+				var offset = Vector3(cos(angle) * radius, .7, sin(angle) * radius)
+				_puff(
+					"smoke",
+					ability.effect_position + offset,
+					Vector3.UP * .18,
+					Color(.58, .60, .59, .72 * fade),
+					3.6
+				)
+		elif ability.id == "combat_sprint":
+			var movement = unit.get_node_or_null("Movement")
+			if movement != null and movement.velocity.length_squared() > .1:
+				_puff(
+					"dust",
+					unit.global_position + Vector3.UP * .08,
+					-movement.velocity * .2 + Vector3.UP * .2,
+					Color(.62, .53, .40, .45),
+					.65
+				)
 
 
 func _ready():
@@ -272,6 +442,20 @@ func _beam_burst(point, direction, color, prism):
 		_puff("spark", point, velocity, ion_color, .07)
 		if index < 3:
 			_puff("mote", point, velocity * .25, ion_color, .12)
+
+
+func shield_impact(unit, point):
+	shield_impacts_emitted += 1
+	if not _can_show(unit) or Globals.options.reduced_flashes:
+		return
+	# Reuse the bounded GPU particle pools for a brief, cool shimmer.
+	var cyan = Color(.35, .78, 1.0, .65)
+	_material_hit(unit, Color("68cee8"))
+	_puff("flash", point, Vector3.ZERO, cyan, .45)
+	for index in 6:
+		var angle = index * TAU / 6
+		var outward = Vector3(cos(angle), .3, sin(angle))
+		_puff("mote", point + outward * .15, outward * .65, cyan, .07)
 
 
 func impact(unit, source, point, weapon = {}):
@@ -544,6 +728,22 @@ func destruction(unit):
 	_wreck(unit, infantry)
 
 
+func obstacle_destruction(obstacle):
+	deaths_emitted += 1
+	if not _can_show(obstacle):
+		return
+	var point = obstacle.global_position + Vector3.UP * 0.35
+	var size = clampf(obstacle.radius, 0.5, 2.0)
+	_shake_camera(point, size * 0.12)
+	for index in 16:
+		var angle = index * TAU / 16.0 + _random.randf_range(-0.15, 0.15)
+		var velocity = Vector3(cos(angle), _random.randf_range(0.6, 2.0), sin(angle))
+		_puff("dust", point, velocity * size * 2.0, Color("9d927d"), size * 0.5)
+		if index % 2 == 0:
+			_puff("spark", point, velocity * size * 3.0, Color("ded2ae"), size * 0.3)
+	aftermath.burst(point, size, true)
+
+
 func movement_dust(unit):
 	if _can_show(unit):
 		_puff(
@@ -606,7 +806,7 @@ func _wreck(unit, infantry):
 	)
 
 
-func _material_hit(unit):
+func _material_hit(unit, color = Color("ffd6a1")):
 	if (
 		Globals.options.reduced_flashes
 		or not unit.is_visible_in_tree()
@@ -626,7 +826,7 @@ func _material_hit(unit):
 		ObjectMaterials.clear_hit_flash(recycled)
 	elif not _free_hit_flashes.is_empty():
 		recycled = _free_hit_flashes.pop_back()
-	var entry = ObjectMaterials.hit_flash(geometry, Color("ffd6a1"), recycled)
+	var entry = ObjectMaterials.hit_flash(geometry, color, recycled)
 	entry.unit = weakref(unit)
 	_hit_flashes.append(entry)
 
@@ -900,6 +1100,7 @@ func _process(_delta):
 func _physics_process(delta):
 	if get_tree().paused:
 		return
+	_advance_abilities(delta)
 	_advance_hit_flashes(delta)
 	_advance_tracers(delta)
 	_advance_aftermath(delta)

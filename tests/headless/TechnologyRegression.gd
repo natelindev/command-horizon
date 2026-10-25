@@ -289,9 +289,10 @@ func _service():
 	for robot in _units(human, "RepairRobot"):
 		robot.queue_free()
 	await _frames(3)
-	tank.position = depot.position + Vector3(3.5, 0, 0)
+	# Depot recovery requires the vehicle on its platform, not just within range.
+	tank.global_position = depot.service_point(tank)
 	tank.issue_manual_order(null)
-	tank.get_node("Movement").velocity = Vector3.ZERO
+	tank.get_node("Movement").stop()
 	tank.last_enemy_damage_time = -INF
 	tank.hp = tank.hp_max * .3
 	var health = tank.hp

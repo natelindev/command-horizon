@@ -215,6 +215,9 @@ func _salvage():
 	var point = hq.global_position_yless + Vector3(5, 0, 2)
 	var victim = _spawn_frontier("Tank", enemy, point)
 	await _frames(3)
+	var expected = load("res://source/match/economy/SalvageRules.gd").amount(
+		victim.player.faction, victim.type
+	)
 	var funds = human.resource_a
 	victim.hp = 0
 	# Capture before the deferred spawn to prove that a death cannot lose its wreck.
@@ -230,7 +233,7 @@ func _salvage():
 		return
 	var wreck = wrecks[0]
 	_check(
-		wreck.resource_a == 4 and human.resource_a == funds,
+		wreck.resource_a == expected and human.resource_a == funds,
 		"Destruction awarded funds or wrong salvage value"
 	)
 	_check(
@@ -253,7 +256,7 @@ func _salvage():
 	_check(
 		(
 			get_nodes_in_group("salvage_wrecks").size() == 1
-			and wreck.resource_a == 4
+			and wreck.resource_a == expected
 			and wreck.salvage_left == 180
 		),
 		"Wreck duplicated or advanced on load"
@@ -272,7 +275,10 @@ func _salvage():
 	var saved_amount = data.resources.reduce(func(total, entry): return total + entry.amount, 0)
 	var saved_cargo = worker.resource_a
 	var delivered = human.resource_a - funds
-	_check(saved_amount + saved_cargo + delivered == 4, "Salvage conservation failed before reload")
+	_check(
+		saved_amount + saved_cargo + delivered == expected,
+		"Salvage conservation failed before reload"
+	)
 	loaded = await restore.restore(self, data)
 	_check(loaded.ok, "Active salvage restore failed: " + loaded.get("error", ""))
 	if not loaded.ok:
@@ -281,10 +287,15 @@ func _salvage():
 	human = game._get_human_player()
 	game.hud._toggle_pause()
 	await _frames(1000)
-	_check(human.resource_a == funds + 4, "Finite salvage failed to deliver exactly four materials")
+	_check(
+		human.resource_a == funds + expected, "Finite salvage failed to deposit its exact materials"
+	)
 	_check(get_nodes_in_group("salvage_wrecks").is_empty(), "Depleted wreck remained collectible")
 	print(
-		"PASS: finite observed salvage, deferred-death archive, partial cargo reload and exact delivery"
+		(
+			"PASS: finite observed salvage, deferred-death archive, "
+			+ "on-site dismantling reload and exact deposit"
+		)
 	)
 
 	return true

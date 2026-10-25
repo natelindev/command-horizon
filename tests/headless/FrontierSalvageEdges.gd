@@ -33,10 +33,15 @@ func _edges():
 	await _frames(15)
 	_check(wreck.visible and wreck.can_harvest(worker), "Scouting did not reveal salvage")
 	var funds = human.resource_a
+	worker.resource_a = 2
+	worker.global_position = wreck.global_position + Vector3(0, 0, 6)
 	worker.issue_manual_order(harvest.new(wreck))
-	await _frames(85)
+	await _frames(2)
 	var cargo = worker.resource_a
-	_check(cargo > 0 and is_instance_valid(wreck), "Expiry fixture failed to collect partial cargo")
+	_check(
+		cargo > 0 and is_instance_valid(wreck),
+		"Expiry fixture lost existing cargo or distant wreck"
+	)
 	if not is_instance_valid(wreck):
 		return false
 	wreck.salvage_left = .05
@@ -84,7 +89,7 @@ func _edges():
 		return false
 	var bad = data.duplicate(true)
 	var saved = bad.resources.filter(func(entry): return not entry.wreck.is_empty())[0]
-	saved.amount = 2
+	saved.amount = 3
 	_check(
 		not Restore.new().prepare(bad),
 		"Worker wreck can invent more material than its original price"

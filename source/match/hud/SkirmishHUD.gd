@@ -363,6 +363,28 @@ func _arm_attack():
 	direct_orders.arm("attack_move")
 
 
+## Camera rotation polls held keys, so consuming the key event alone cannot
+## give a selected ability exclusive ownership of Q/E (including on cooldown).
+func ability_owns_camera_binding(action: String) -> bool:
+	if not is_instance_valid(direct_orders) or direct_orders._blocked():
+		return false
+	var placement = get_parent()._get_human_player().get_node("StructurePlacementHandler")
+	if placement._structure_placement_started():
+		return false
+	for event in InputMap.action_get_events(action):
+		if (
+			event is InputEventKey
+			and not event.ctrl_pressed
+			and not event.alt_pressed
+			and not event.meta_pressed
+		):
+			var code = event.physical_keycode if event.physical_keycode != 0 else event.keycode
+			var key = {KEY_Q: "Q", KEY_W: "W", KEY_E: "E", KEY_R: "R"}.get(code, "")
+			if not key.is_empty() and not direct_orders.ability_for_key(key).is_empty():
+				return true
+	return false
+
+
 func map_assignment_active():
 	return (
 		_assignment_kind != ""

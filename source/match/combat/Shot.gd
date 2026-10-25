@@ -7,6 +7,9 @@ extends RefCounted
 var player = null
 var type = ""
 var attack_damage = 0.0
+# Ability warheads use a fixed payload instead of the normal armor profile.
+# Restored rounds recover this fact from their immutable weapon profile.
+var raw_damage = false
 var attack_domains = []
 var weapon_mode = ""
 var origin = Vector3.ZERO

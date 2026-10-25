@@ -5,6 +5,19 @@ var deployment_left = DEPLOY_SECONDS
 var deployment_position = Vector3.ZERO
 
 
+func ability_definitions() -> Array:
+	return [
+		{
+			"id": "siege_anchor",
+			"name": "Siege Anchor",
+			"description": "Anchor in place for 35% more attack range and 30% more damage.",
+			"key": "E",
+			"target_type": "toggle",
+			"cooldown": 4.0,
+		}
+	]
+
+
 func _ready():
 	await super()
 	deployment_position = global_position
@@ -15,6 +28,7 @@ func _ready():
 
 
 func _physics_process(delta):
+	super(delta)
 	var movement = get_node("Movement")
 	if (
 		movement._has_destination

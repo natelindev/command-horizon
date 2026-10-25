@@ -17,6 +17,7 @@ const LINKS = {
 	"Garrisoning": [["_target_unit"], ["_shot"], []],
 	"Moving": [[], [], []],
 	"MovingToUnit": [["_target_unit"], [], []],
+	"Scavenging": [["_target_unit"], [], []],
 	"AttackMoving": [[], ["_shot"], []],
 	"Patrolling": [[], ["_shot"], []],
 	"AutoAttacking": [["_target_unit"], ["_shot"], []],
@@ -70,6 +71,7 @@ func validate(data):
 			+ "players:list units:list resources:list mission:dict fog:dict "
 			+ "structure_memory:list neutral_buildings:list battle_record:dict ambient:list "
 			+ "rounds:dict battlefield_wear:list"
+			+ (" obstacles:list" if data is Dictionary and data.has("obstacles") else "")
 		)
 	):
 		return false
@@ -115,6 +117,13 @@ func validate(data):
 			return _fail("Invalid technology research.")
 		if side.technology.active != "" and side.coordination_left > 0:
 			return _fail("Multiple active research projects.")
+		var projects = side.technology.completed + [side.technology.active]
+		for entry in side.technology.queued:
+			projects.append(entry.id)
+		if not projects.all(
+			func(id): return Technology.available(id, data.settings.players[index].faction)
+		):
+			return _fail("Technology is unavailable to this faction.")
 		sides[side.id] = {
 			"faction": data.settings.players[index].faction,
 			"mobile": 0,
@@ -134,6 +143,8 @@ func validate(data):
 				return false
 		elif not side.ai.is_empty():
 			return _fail("Human player cannot restore an AI controller.")
+	if not _obstacles(data.get("obstacles", [])):
+		return false
 	var wreck_count = 0
 	for entry in data.resources:
 		if (
@@ -177,6 +188,16 @@ func validate(data):
 					+ "cargo:dict action:dict orders:dict production:dict rally:dict "
 					+ "movement:dict groups:list selected:bool air:dict "
 					+ "weapon_mode:dict deployment:dict signature:dict stance:int"
+					+ (
+						" plasma_shield:dict"
+						if unit is Dictionary and unit.has("plasma_shield")
+						else ""
+					)
+					+ (
+						" scrap_hardened:dict"
+						if unit is Dictionary and unit.has("scrap_hardened")
+						else ""
+					)
 				)
 			)
 			or not _identify(unit, "unit-")
@@ -222,6 +243,27 @@ func validate(data):
 			return _fail("Invalid unit veterancy.")
 		if unit.stance not in [0, 1, 2, 3]:
 			return _fail("Invalid unit stance.")
+		if unit.has("scrap_hardened"):
+			var scrap = unit.scrap_hardened
+			if (
+				not _shape(scrap, "tiers:int left:num")
+				or sides[unit.player].faction != "frontier"
+				or unit.role not in ["Tank", "AntiAirVehicle", "AdvancedTank"]
+				or scrap.tiers not in [1, 2]
+				or scrap.left <= 0.0
+				or scrap.left > 60.0
+			):
+				return _fail("Invalid Scrap Hardened buff.")
+		var shield_max = Technology.shield_capacity(
+			unit.role, sides[unit.player].faction, sides[unit.player].technology
+		)
+		if (shield_max > 0) != unit.has("plasma_shield"):
+			return _fail("Plasma shield does not match unit research.")
+		if unit.has("plasma_shield"):
+			if not _shape(unit.plasma_shield, "charge:num damage_age:maybenum"):
+				return false
+			if unit.plasma_shield.charge > shield_max:
+				return _fail("Invalid plasma shield charge.")
 		if (
 			not _air(unit)
 			or not _weapon_mode(unit)
@@ -875,10 +917,15 @@ func _action(action, unit, depth):
 		var id = action.references[key]
 		if not _entity_reference(id):
 			return false
+		if (
+			id.begins_with("obstacle-")
+			and kind not in ["AutoAttacking", "AttackingWhileInRange", "MovingToUnit"]
+		):
+			return _fail("Unsupported action on a destructible obstacle.")
 		if key == "_resource_unit":
 			if id != "" and not id.begins_with("resource-"):
 				return _fail("Expected a resource reference.")
-		elif kind != "MovingToUnit" and not _unit_reference(id):
+		elif kind not in ["MovingToUnit", "Scavenging"] and not _unit_reference(id):
 			return false
 		if (
 			kind == "Garrisoning"
@@ -929,7 +976,20 @@ func _action(action, unit, depth):
 			var expected_kind = "resource_a" if action.state._kind == 1 else "resource_b"
 			if action.state._kind == 0 or target.kind != expected_kind:
 				return _fail("Resource target does not match its field assignment.")
-		if key != "_resource_unit" and not target.has("role") and kind != "MovingToUnit":
+		if (
+			kind == "Scavenging"
+			and (
+				sides[unit.player].faction != "frontier"
+				or unit.role not in ["Tank", "AntiAirVehicle", "AdvancedTank"]
+				or target.get("wreck", {}).is_empty()
+			)
+		):
+			return _fail("Invalid wreck scavenge action.")
+		if (
+			key != "_resource_unit"
+			and not target.has("role")
+			and kind not in ["MovingToUnit", "Scavenging"]
+		):
 			return _fail("Action target is not a unit.")
 		if (
 			kind in ["Constructing", "ConstructingWhileInRange"]
@@ -1103,6 +1163,7 @@ func _order(order, unit):
 			"force_attack",
 			"repair",
 			"gather",
+			"scavenge",
 			"construct",
 			"follow",
 			"approach",
@@ -1113,7 +1174,12 @@ func _order(order, unit):
 		return _fail("Unsupported queued order.")
 	if not _shape(order, "kind:text point:vec target:text") or not _entity_reference(order.target):
 		return false
-	if order.kind not in ["gather", "approach"] and not _unit_reference(order.target):
+	if (
+		order.target.begins_with("obstacle-")
+		and order.kind not in ["attack", "force_attack", "approach"]
+	):
+		return _fail("Unsupported order on a destructible obstacle.")
+	if order.kind not in ["gather", "approach", "scavenge"] and not _unit_reference(order.target):
 		return false
 	if (
 		order.kind == "garrison"
@@ -1136,6 +1202,15 @@ func _order(order, unit):
 	var target = entities.get(order.target, {})
 	if target.is_empty():
 		return true
+	if (
+		order.kind == "scavenge"
+		and (
+			sides[unit.player].faction != "frontier"
+			or unit.role not in ["Tank", "AntiAirVehicle", "AdvancedTank"]
+			or target.get("wreck", {}).is_empty()
+		)
+	):
+		return _fail("Invalid queued wreck scavenging.")
 	if order.kind == "recover":
 		var expected = (
 			"Barracks"
@@ -1455,7 +1530,14 @@ func _entity_reference(id):
 				id == ""
 				or _neutral_ids.has(id)
 				or _poi_ids.has(id)
-				or ((id.begins_with("unit-") or id.begins_with("resource-")) and id.length() <= 32)
+				or (
+					(
+						id.begins_with("unit-")
+						or id.begins_with("resource-")
+						or id.begins_with("obstacle-")
+					)
+					and id.length() <= 32
+				)
 			)
 		)
 		or _fail("Invalid entity reference domain.")
@@ -1466,7 +1548,13 @@ func _unit_reference(id):
 	return (
 		(
 			_entity_reference(id)
-			and (id == "" or id.begins_with("unit-") or _neutral_ids.has(id) or _poi_ids.has(id))
+			and (
+				id == ""
+				or id.begins_with("unit-")
+				or id.begins_with("obstacle-")
+				or _neutral_ids.has(id)
+				or _poi_ids.has(id)
+			)
 			and (not entities.has(id) or entities[id].has("role"))
 		)
 		or _fail("Expected a unit reference.")
@@ -1842,3 +1930,30 @@ func _hero_operation(value, id):
 # Authored battlefields version their layouts; every other map is revision 1.
 static func _map_revision(map_path):
 	return Registry.revision(map_path)
+
+
+func _obstacles(records):
+	if records.size() > 256:
+		return _fail("Too many destructible obstacles.")
+	for record in records:
+		if (
+			not _shape(
+				record,
+				(
+					"id:text role:text position:vec rotation:vec hp:num hp_max:num "
+					+ "radius:num obstacle_height:num light_barricade:bool"
+				)
+			)
+			or not _identify(record, "obstacle-")
+			or record.role != "DestructibleObstacle"
+			or not _position(record.position)
+			or record.hp_max <= 0.0
+			or record.hp_max > 10000.0
+			or record.hp > record.hp_max
+			or record.radius <= 0.0
+			or record.radius > 20.0
+			or record.obstacle_height <= 0.0
+			or record.obstacle_height > 20.0
+		):
+			return _fail("Invalid destructible obstacle.")
+	return true

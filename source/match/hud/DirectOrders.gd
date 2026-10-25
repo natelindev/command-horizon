@@ -51,12 +51,171 @@ const COMMANDS = {
 }
 
 var kind = ""
+var ability_id = ""
+var _ability_range = null
+var _ability_selection = []
 var _release_button = 0
 @onready var hud = get_parent()
 
 
 func _ready():
 	MatchSignals.place_structure.connect(func(_scene): hud.cancel_map_assignment())
+	set_process(false)
+
+
+func ability_units(id = "") -> Array:
+	return get_tree().get_nodes_in_group("selected_units").filter(
+		func(unit):
+			return (
+				is_instance_valid(unit)
+				and not unit.is_queued_for_deletion()
+				and unit.is_in_group("controlled_units")
+				and "abilities" in unit
+				and unit.abilities != null
+				and unit.abilities.unit_available()
+				and (id.is_empty() or unit.abilities.get_ability(id) != null)
+			)
+	)
+
+
+## The first selected ability on a key also owns its command-card column.
+func ability_for_key(key: String) -> String:
+	for unit in ability_units():
+		for ability in unit.abilities.abilities:
+			if ability.key == key:
+				return ability.id
+	return ""
+
+
+func activate_ability(id: String) -> bool:
+	if _blocked():
+		return false
+	var units = ability_units(id)
+	if units.is_empty():
+		return false
+	var ability = units[0].abilities.get_ability(id)
+	if ability.target_type in ["target_point", "target_unit"]:
+		return arm_ability(id)
+	if get_tree().paused:
+		hud.show_notice("Resume the battle to use abilities.")
+		return false
+	var accepted = 0
+	for unit in units:
+		if unit.abilities.trigger(id):
+			accepted += 1
+	if accepted > 0:
+		hud.cancel_map_assignment()
+		(
+			hud
+			. get_parent()
+			. _get_human_player()
+			. get_node("StructurePlacementHandler")
+			. _cancel_structure_placement()
+		)
+		hud.show_notice("%s · %d units" % [tr(ability.name), accepted])
+	else:
+		hud.show_notice("Ability is cooling down.")
+	return accepted > 0
+
+
+func arm_ability(id: String) -> bool:
+	if _blocked():
+		return false
+	if kind == "ability" and ability_id == id:
+		cancel()
+		return true
+	var units = ability_units(id).filter(
+		func(unit): return unit.abilities.get_ability(id).is_ready()
+	)
+	if units.is_empty():
+		hud.show_notice("No selected unit has that ability ready.")
+		return false
+	var ability = units[0].abilities.get_ability(id)
+	if ability.target_type not in ["target_point", "target_unit"]:
+		return false
+	hud.cancel_map_assignment()
+	(
+		hud
+		. get_parent()
+		. _get_human_player()
+		. get_node("StructurePlacementHandler")
+		. _cancel_structure_placement()
+	)
+	kind = "ability"
+	ability_id = id
+	_ability_selection = get_tree().get_nodes_in_group("selected_units")
+	_ability_range = load("res://source/match/effects/TacticalRangeRing.gd").create(ability.range)
+	if _ability_range != null:
+		hud.get_parent().add_child(_ability_range)
+		_ability_range.global_position = units[0].global_position + Vector3.UP * .08
+	set_process(true)
+	prompt()
+	hud._refresh_shortcuts()
+	return true
+
+
+func _process(_delta):
+	if kind != "ability":
+		return
+	var units = ability_units(ability_id).filter(
+		func(unit): return unit.abilities.get_ability(ability_id).is_ready()
+	)
+	if (
+		_blocked()
+		or units.is_empty()
+		or get_tree().get_nodes_in_group("selected_units") != _ability_selection
+	):
+		cancel()
+	elif is_instance_valid(_ability_range):
+		_ability_range.global_position = units[0].global_position + Vector3.UP * .08
+
+
+func _commit_ability(point, target) -> bool:
+	if get_tree().paused:
+		prompt("Resume the battle to use abilities.")
+		return false
+	var units = ability_units(ability_id).filter(
+		func(unit): return unit.abilities.get_ability(ability_id).is_ready()
+	)
+	if units.is_empty() or get_tree().get_nodes_in_group("selected_units") != _ability_selection:
+		cancel()
+		return false
+	var unit = units[0]
+	var ability = unit.abilities.get_ability(ability_id)
+	if ability.target_type == "target_unit" and target != null:
+		if (
+			not is_instance_valid(target)
+			or not target is Node3D
+			or not "player" in target
+			or not "hp" in target
+			or not hud.get_parent().battlefield.is_observed(unit.player, target)
+		):
+			prompt("Choose a visible enemy target.")
+			return false
+		point = target.global_position
+	elif ability.target_type == "target_unit" and not ability.accepts_target_point:
+		prompt("Choose a visible enemy target.")
+		return false
+	else:
+		target = null
+	var extent = hud.get_parent().map.size
+	if (
+		not point is Vector3
+		or not point.is_finite()
+		or point.x < 0
+		or point.z < 0
+		or point.x > extent.x
+		or point.z > extent.y
+	):
+		prompt("Choose a point inside the battlefield.")
+		return false
+	if not unit.abilities.trigger(ability_id, point, target):
+		prompt("Choose a legal target within %.1f m." % ability.range)
+		return false
+	var title = ability.name
+	cancel()
+	hud.show_notice(tr(title))
+	return true
 
 
 func eligible(command):
@@ -256,6 +415,13 @@ func cancel():
 	if kind.is_empty():
 		return
 	kind = ""
+	ability_id = ""
+	_ability_selection.clear()
+	if is_instance_valid(_ability_range):
+		_ability_range.hide()
+		_ability_range.queue_free()
+	_ability_range = null
+	set_process(false)
 	hud._assignment_hint.hide()
 	hud._refresh_shortcuts()
 
@@ -268,6 +434,18 @@ func prompt(message = ""):
 	hud._hint_left = 0.0
 	hud._notice_slot.scroll_vertical = 0
 	hud._assignment_hint.show()
+	if kind == "ability":
+		var units = ability_units(ability_id)
+		var title = (
+			tr(units[0].abilities.get_ability(ability_id).name)
+			if not units.is_empty()
+			else tr("Ability")
+		)
+		hud._assignment_hint.text = (
+			(title + ": " + tr("choose a target in range.") if message.is_empty() else tr(message))
+			+ " %s / right-click cancels." % Bindings.label("toggle_match_menu")
+		)
+		return
 	hud._assignment_hint.text = (
 		(
 			(
@@ -293,6 +471,31 @@ func prompt(message = ""):
 func handle_input(event):
 	if _blocked():
 		return false
+	if event is InputEventKey:
+		var focus = get_viewport().gui_get_focus_owner()
+		if focus is LineEdit or focus is TextEdit:
+			return false
+		if not kind.is_empty() and Bindings.pressed(event, "toggle_match_menu"):
+			cancel()
+			get_viewport().set_input_as_handled()
+			return true
+		if (
+			event.pressed
+			and not event.echo
+			and not event.ctrl_pressed
+			and not event.alt_pressed
+			and not event.meta_pressed
+		):
+			var code = event.physical_keycode if event.physical_keycode != 0 else event.keycode
+			var key = {KEY_Q: "Q", KEY_W: "W", KEY_E: "E", KEY_R: "R"}.get(code, "")
+			var id = ability_for_key(key) if not key.is_empty() else ""
+			var placement = hud.get_parent()._get_human_player().get_node(
+				"StructurePlacementHandler"
+			)
+			if not id.is_empty() and not placement._structure_placement_started():
+				activate_ability(id)
+				get_viewport().set_input_as_handled()
+				return true
 	for command in COMMANDS:
 		if COMMANDS[command].action != "" and Bindings.pressed(event, COMMANDS[command].action):
 			arm(command)
@@ -317,7 +520,9 @@ func handle_input(event):
 	else:
 		var point = get_viewport().get_camera_3d().get_ray_intersection(event.position)
 		var target = (
-			hud._pick_unit(event.position) if kind in ["attack", "force_attack", "follow"] else null
+			hud._pick_unit(event.position)
+			if kind in ["attack", "force_attack", "follow", "ability"]
+			else null
 		)
 		commit(point, target, Bindings.held("shift_selecting"))
 	return true
@@ -326,6 +531,8 @@ func handle_input(event):
 func commit(point, target, append):
 	if kind.is_empty() or _blocked():
 		return false
+	if kind == "ability":
+		return _commit_ability(point, target)
 	if kind == "attack" and target == null:
 		kind = "attack_move"
 	var units = eligible(kind)

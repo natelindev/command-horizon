@@ -22,6 +22,8 @@ func reason(id, lab):
 func queue_reason(id, lab):
 	if id != "coordination" and not Catalog.ITEMS.has(id):
 		return "Unknown technology."
+	if not Catalog.available(id, player.faction):
+		return "Requires the Helix faction."
 	if id in completed or (id == "coordination" and player.coordination_unlocked):
 		return "Research complete."
 	if id == active or (id == "coordination" and player.coordination_left > 0):
@@ -188,6 +190,7 @@ func _physics_process(delta):
 func apply_unit(unit):
 	if unit.is_queued_for_deletion() or unit.hp == null or unit.hp <= 0:
 		return
+	unit.update_shields()
 	var maximum = unit.base_hp_max * Catalog.health_factor(unit.type, completed)
 	if is_equal_approx(maximum, unit.hp_max):
 		return
@@ -244,6 +247,9 @@ func restore(state):
 
 func summary(role):
 	var lines = PackedStringArray()
+	var capacity = Catalog.shield_capacity(role, player.faction, completed)
+	if capacity > 0:
+		lines.append("Plasma Shields · %d shield HP" % int(capacity))
 	if (
 		"dual_purpose_aa" in completed
 		and (

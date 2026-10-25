@@ -71,9 +71,15 @@ func fire(unit, target):
 # Fires one round from the unit's weapon regardless of its processing state.
 # Aircraft name the store they release and add their own velocity to it.
 # A bomb needs no target: a started stick keeps falling across the area.
-func launch(unit, target, weapon = null, carrier_velocity = Vector3.ZERO):
+func launch(
+	unit,
+	target,
+	weapon = null,
+	carrier_velocity = Vector3.ZERO,
+	target_point: Vector3 = Vector3.INF
+):
 	var aimed = is_instance_valid(target)
-	if not aimed and (weapon == null or weapon.kind != "bomb"):
+	if not aimed and not target_point.is_finite() and (weapon == null or weapon.kind != "bomb"):
 		return null
 	var visuals = unit.get_node_or_null("BastionVisuals")
 	if visuals != null:
@@ -81,6 +87,8 @@ func launch(unit, target, weapon = null, carrier_velocity = Vector3.ZERO):
 	if weapon == null:
 		weapon = Weapons.profile(unit, target)
 	var aim = center_of(target) if aimed else unit.global_position + Vector3.DOWN
+	if not aimed and target_point.is_finite():
+		aim = target_point
 	var muzzle = muzzle_of(unit, aim)
 	# A low muzzle can sit behind a small obstacle that the firing check's sight
 	# line clears; launch along that line instead of into the obstacle.
@@ -95,6 +103,9 @@ func launch(unit, target, weapon = null, carrier_velocity = Vector3.ZERO):
 	round.kind = weapon.kind
 	round.shot = Shot.from(unit, unit.global_position)
 	round.shot.attack_damage *= weapon.get("damage_scale", 1.0)
+	if weapon.has("ability_damage"):
+		round.shot.attack_damage = weapon.ability_damage
+		round.shot.raw_damage = true
 	if unit.has_method("expend_round"):
 		unit.expend_round()
 	round.target = target if aimed else null
@@ -346,7 +357,7 @@ func _sweep(round, start, end):
 						start.distance_to(closest) / maxf(start.distance_to(relative_end), 0.0001)
 					)
 					best = {"body": target}
-	if round.kind != "missile":
+	if round.kind != "missile" or (not _live(target) and round.shot.raw_damage):
 		var middle = (start + end) * 0.5
 		var reach = start.distance_to(end) * 0.5 + 1.5
 		var flat = Vector3(middle.x, 0, middle.z)
@@ -385,7 +396,10 @@ func _detonate(round, point, body, ground):
 	var splash = round.weapon.get("splash", 0.0)
 	if splash > 0.0:
 		var flat = Vector3(point.x, 0, point.z)
-		for unit in _match.battlefield.nearby_units(flat, splash + 2.0, null, round.shot.player):
+		for unit in (
+			_match.battlefield.nearby_units(flat, splash + 2.0, null, round.shot.player)
+			+ _match.battlefield.nearby_obstacles(flat, splash)
+		):
 			if unit == hit or not Rules.can_receive(round.shot, unit):
 				continue
 			var gap = _gap(point, unit)
@@ -579,6 +593,7 @@ func restore(saved, entities):
 		var round = Round.new()
 		round.kind = record.kind
 		round.weapon = Weapons.by_id(record.weapon)
+		shot.raw_damage = round.weapon.has("ability_damage")
 		round.shot = shot
 		round.target = target
 		round.target_id = target.get_instance_id() if target != null else 0

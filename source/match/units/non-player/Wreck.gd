@@ -47,7 +47,12 @@ func _physics_process(delta):
 
 func can_harvest(worker):
 	return (
-		worker.player.faction == "frontier"
+		worker.type == "Worker"
+		and worker.hp > 0
+		and not worker.is_queued_for_deletion()
+		and worker.player.faction == "frontier"
+		and resource_a > 0
+		and salvage_left > 0.0
 		and known_to(worker.player)
 		and not is_queued_for_deletion()
 	)
@@ -62,3 +67,28 @@ func _refresh():
 		game.settings.visibility == game.settings.Visibility.FULL
 		or game.visible_players.any(known_to)
 	)
+
+
+# Check and debit synchronously so two orders in one frame cannot reuse scrap.
+func consume_by(unit) -> bool:
+	if (
+		is_queued_for_deletion()
+		or salvage_left <= 0.0
+		or resource_a <= 0
+		or not known_to(unit.player)
+		or not Utils.Match.Unit.Movement.units_adhere(unit, self)
+	):
+		return false
+	resource_a = 0
+	return true
+
+
+func dismantle(worker) -> bool:
+	if not can_harvest(worker) or not Utils.Match.Unit.Movement.units_adhere(worker, self):
+		return false
+	var amount = resource_a
+	if not consume_by(worker):
+		return false
+	worker.player.resource_a += amount
+	MatchSignals.resources_mined.emit(worker, "materials", amount)
+	return true

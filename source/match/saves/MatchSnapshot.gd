@@ -9,6 +9,7 @@ const ACTION_FIELDS = {
 	"Garrisoning": ["_elapsed", "_capture_elapsed"],
 	"Moving": ["_target_position", "_arrival_elapsed", "_arrival_progress"],
 	"MovingToUnit": ["_target_position"],
+	"Scavenging": ["_target_position"],
 	"AttackMoving": ["destination", "_elapsed", "_arrival_elapsed", "_arrival_progress"],
 	"Patrolling":
 	["destination", "_elapsed", "_arrival_elapsed", "_arrival_progress", "origin", "endpoint"],
@@ -81,6 +82,9 @@ func capture(game):
 		_ids[units[index]] = "unit-%d" % index
 	for index in range(deposits.size()):
 		_ids[deposits[index]] = "resource-%d" % index
+	var obstacles = game.get_tree().get_nodes_in_group("destructible_obstacles").filter(_live)
+	for index in obstacles.size():
+		_ids[obstacles[index]] = "obstacle-%d" % index
 	for target in game.get_tree().get_nodes_in_group("neutral_targets"):
 		_ids[target] = target.neutral_id
 	for site in load("res://source/match/world/PointOfInterestCatalog.gd").sites(game):
@@ -140,6 +144,24 @@ func capture(game):
 		"rounds": game.projectile_system.capture(_reference),
 		"battlefield_wear": game.battlefield_wear.capture(),
 	}
+	if not obstacles.is_empty():
+		result.obstacles = []
+		for obstacle in obstacles:
+			var saved = _properties(
+				obstacle,
+				[
+					"position",
+					"rotation",
+					"hp",
+					"hp_max",
+					"radius",
+					"obstacle_height",
+					"light_barricade"
+				]
+			)
+			saved.id = _reference(obstacle)
+			saved.role = "DestructibleObstacle"
+			result.obstacles.append(saved)
 	for player in players:
 		result.players.append(_player(player))
 	for unit in units:
@@ -335,6 +357,20 @@ func _unit(unit):
 		"groups": [],
 		"selected": unit.is_in_group("selected_units"),
 	}
+	if unit.scrap_hardened_tiers > 0:
+		result.scrap_hardened = {
+			"tiers": unit.scrap_hardened_tiers, "left": unit.scrap_hardened_left
+		}
+	if unit.shields_max > 0:
+		result.plasma_shield = {
+			"charge": unit.shields,
+			"damage_age":
+			(
+				_game.simulation_time - unit.last_shield_damage_time
+				if is_finite(unit.last_shield_damage_time)
+				else null
+			),
+		}
 	for index in range(1, 10):
 		if unit.is_in_group("unit_group_%d" % index):
 			result.groups.append(index)

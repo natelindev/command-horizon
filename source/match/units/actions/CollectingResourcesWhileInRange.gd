@@ -64,6 +64,10 @@ func _transfer_single_resource_unit_from_resource_to_worker():
 	):
 		queue_free()
 		return
+	if _resource_unit.is_in_group("salvage_wrecks"):
+		_resource_unit.dismantle(_unit)
+		queue_free()
+		return
 	if "resource_a" in _resource_unit:
 		_resource_unit.resource_a -= 1
 		_unit.resource_a += 1

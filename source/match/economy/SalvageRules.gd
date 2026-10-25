@@ -8,4 +8,4 @@ const LIMIT = 128
 
 
 static func amount(faction, role):
-	return floori(Factions.unit_costs(faction)[role][0] * .2) if role in ROLES else 0
+	return floori(Factions.unit_costs(faction)[role][0] * .35) if role in ROLES else 0

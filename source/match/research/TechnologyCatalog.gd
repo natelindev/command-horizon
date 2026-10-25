@@ -18,8 +18,30 @@ const COMBAT_ROLES = [
 const AA_GROUND_DAMAGE_FACTOR = 0.33
 const COORDINATION_COST = {"resource_a": 20, "resource_b": 20}
 const COORDINATION_DURATION = 30.0
-const BRANCHES = ["weapons", "armor", "service", "doctrine", "dual_purpose_aa"]
+const BRANCHES = ["weapons", "armor", "service", "doctrine", "dual_purpose_aa", "plasma_shields"]
+const PLASMA_SHIELDS = {
+	"Infantry": 15.0,
+	"RocketInfantry": 15.0,
+	"SniperInfantry": 15.0,
+	"AssaultInfantry": 15.0,
+	"Hero": 15.0,
+	"Tank": 30.0,
+	"CombatRobot": 35.0,
+	"AdvancedTank": 40.0,
+	"Helicopter": 25.0,
+	"Fighter": 25.0,
+	"Bomber": 25.0,
+	"AntiAirVehicle": 25.0,
+	"Drone": 15.0,
+}
 const ITEMS = {
+	"plasma_shields":
+	{
+		"title": "Plasma Shields",
+		"cost": Vector2i(40, 25),
+		"seconds": 40.0,
+		"requires": ["coordination"]
+	},
 	"weapons_1":
 	{"title": "Weapon systems I", "cost": Vector2i(30, 20), "seconds": 35.0, "requires": []},
 	"weapons_2":
@@ -82,6 +104,12 @@ static func description(id, faction):
 			+ "s duration and 25 s cooldown stay the same; all orders continue."
 		)
 	match id:
+		"plasma_shields":
+			return (
+				"Helix combat units gain regenerating plasma shields (15–40 HP by role). "
+				+ "Shields absorb damage before hull and recharge at 6 HP/s after 5 seconds "
+				+ "without taking damage. Applies to existing and new units."
+			)
 		"dual_purpose_aa":
 			return (
 				"AA vehicles, AA turrets and Helix Interception deal 100% ground damage "
@@ -142,6 +170,16 @@ static func damage_factor(role, completed):
 
 static func health_factor(role, completed):
 	return 1.0 + .1 * rank("armor", completed) if role in COMBAT_ROLES else 1.0
+
+
+static func available(id, faction):
+	return id != "plasma_shields" or faction == "helix"
+
+
+static func shield_capacity(role, faction, completed) -> float:
+	if faction != "helix" or "plasma_shields" not in completed:
+		return 0.0
+	return PLASMA_SHIELDS.get(role, 0.0)
 
 
 static func empty_state():

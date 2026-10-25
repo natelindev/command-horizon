@@ -124,9 +124,9 @@ func _resource_lines(resource):
 			"Wreck · " + Factions.title(resource.wreck_faction, resource.wreck_role),
 			"%d M · expires in %d:%02d" % [resource.resource_a, seconds / 60, seconds % 60],
 			(
-				"Right-click with engineers to recover materials."
+				"Engineers dismantle on-site. Combat vehicles scavenge to repair and harden."
 				if human != null and human.faction == "frontier"
-				else "Only Frontier engineers can salvage wrecks."
+				else "Only Frontier engineers and combat vehicles can salvage wrecks."
 			)
 		]
 	var materials = "resource_a" in resource

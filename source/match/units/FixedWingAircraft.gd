@@ -135,6 +135,7 @@ func became_airborne():
 
 
 func _physics_process(delta):
+	super(delta)
 	if _flight == null:
 		return
 	for store in _cooldowns:

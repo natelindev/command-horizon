@@ -12,6 +12,7 @@ const TITLES = {
 	"attack_move": "Attack move",
 	"patrol": "Patrol",
 	"gather": "Gather",
+	"scavenge": "Scavenge",
 	"repair": "Repair",
 	"recover": "Recover health",
 	"construct": "Build",
@@ -131,7 +132,10 @@ func contextual_kind(target):
 			kind = "move"
 		elif unit.find_child("RallyPoint") != null:
 			kind = "rally"
-		if kind in ["gather", "repair", "construct", "garrison", "attack"]:
+		if (
+			kind
+			in ["gather", "scavenge", "repair", "construct", "garrison", "attack", "force_attack"]
+		):
 			return kind
 		if result.is_empty():
 			result = kind
@@ -141,10 +145,12 @@ func contextual_kind(target):
 func _glyph_kind(kind):
 	return (
 		{
+			"ability": "attack",
 			"attack_move": "attack",
 			"force_attack": "attack",
 			"approach": "move",
 			"recover": "repair",
+			"scavenge": "gather",
 			"patrol": "move"
 		}
 		. get(kind, kind)

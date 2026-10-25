@@ -66,8 +66,8 @@ const DESCRIPTIONS = {
 	"Worker":
 	(
 		"Unarmed engineer. Harvest fields, construct buildings and recover "
-		+ "20% of a ground machine’s material cost from its wreck within 3 "
-		+ "minutes. Deliver cargo to HQ."
+		+ "35% of a ground machine’s material cost from its wreck within 3 "
+		+ "minutes. Dismantle wrecks into materials on-site."
 	),
 	"Infantry":
 	(

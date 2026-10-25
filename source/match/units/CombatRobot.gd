@@ -46,6 +46,7 @@ func request_weapon_mode(mode):
 
 
 func _physics_process(delta):
+	super(delta)
 	if weapon_switch_left > 0:
 		weapon_switch_left = maxf(0, weapon_switch_left - delta)
 		if weapon_switch_left == 0:

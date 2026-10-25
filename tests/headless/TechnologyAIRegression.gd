@@ -60,7 +60,7 @@ func _ai(faction):
 	for unit in _units(ai, "Infantry"):
 		unit.hp = unit.hp_max
 	ai.technology.completed = tech_catalog.ITEMS.keys().filter(
-		func(id): return id != "dual_purpose_aa"
+		func(id): return id != "dual_purpose_aa" and tech_catalog.available(id, ai.faction)
 	)
 	previous = ai.resource_a
 	var electronics = ai.resource_b

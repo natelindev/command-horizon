@@ -10,6 +10,7 @@ const ICONS = {
 	"doctrine": preload("res://assets/ui/research/doctrine.svg"),
 	"coordination": preload("res://assets/ui/research/coordination.svg"),
 	"dual_purpose_aa": WEAPONS_ICON,
+	"plasma_shields": preload("res://assets/ui/research/armor.svg"),
 }
 var lab
 var player
@@ -42,6 +43,8 @@ func _ready():
 			refresh()
 	)
 	for branch in Technologies.BRANCHES:
+		if not Technologies.available(branch, player.faction):
+			continue
 		var button = _tile(branch)
 		button.pressed.connect(_research_branch.bind(branch))
 		_branches[branch] = {"button": button}

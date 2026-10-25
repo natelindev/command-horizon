@@ -132,7 +132,16 @@ func _sync_outline(unit, centre: Vector2, reach: float):
 	_outline_reach[unit] = reach
 	var local = PackedVector2Array()
 	if not airborne:
-		for point in TerrainSight.reveal_triangles(_terrain, centre, reach):
+		for point in TerrainSight.reveal_triangles(
+			_terrain,
+			centre,
+			reach,
+			(
+				unit.sight_range
+				if unit.has_method("terrain_advantage") and unit.terrain_advantage()
+				else -1.0
+			)
+		):
 			local.append((point - centre) * texture_units_per_world_unit)
 	for circle in _unit_to_circles_mapping[unit]:
 		circle.triangles = local

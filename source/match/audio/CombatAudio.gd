@@ -196,6 +196,15 @@ func impact(unit, source, point, weapon = {}):
 	return _play("impact_heavy" if heavy else "impact_light", unit, point, 2 if heavy else 1)
 
 
+func ability(unit, id, point):
+	match id:
+		"siege_anchor":
+			return _play("impact_light", unit, point, 1, .65)
+		"frag_grenade":
+			return _play("impact_heavy", unit, point, 2)
+	return false
+
+
 func destruction(unit):
 	var cue = "vehicle_destroy"
 	if InfantryRoster.is_infantry(unit.type):

@@ -65,7 +65,7 @@ func _check_high_ground():
 	var players = get_nodes_in_group("players")
 	var human = game._get_human_player()
 	var enemy = players.filter(func(player): return player != human)[0]
-	var low = _spawn_unit("Tank", human, Vector3(62, 0, 20))
+	var low = _spawn_unit("Tank", human, Vector3(60.5, 0, 20))
 	var high = _spawn_unit("Tank", enemy, Vector3(54.5, 3, 20))
 	await _frames(20)
 	var battlefield = game.battlefield

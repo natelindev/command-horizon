@@ -1,3 +1,4 @@
+# gdlint: disable=max-file-lines
 extends PanelContainer
 
 const BattleTheme = preload("res://source/match/hud/BattleTheme.gd")
@@ -47,6 +48,7 @@ var _info: VBoxContainer
 var _info_scroll: ScrollContainer
 var _health: ProgressBar
 var _health_fill: StyleBox
+var _shields: ProgressBar
 
 
 func _ready():
@@ -204,6 +206,7 @@ func _reset_menus():
 			container.remove_child(child)
 			child.queue_free()
 	_health = null
+	_shields = null
 	_buttons.clear()
 	_command_buttons.clear()
 	_return_cargo = null
@@ -423,6 +426,14 @@ func _build_info(portrait):
 	_title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	_title.mouse_filter = Control.MOUSE_FILTER_PASS
 	names.add_child(_title)
+	_shields = ProgressBar.new()
+	_shields.name = "Shields"
+	_shields.custom_minimum_size.y = 5
+	_shields.show_percentage = false
+	_shields.add_theme_stylebox_override("fill", BattleTheme.bar_fill(Color("68cee8")))
+	_shields.mouse_filter = Control.MOUSE_FILTER_PASS
+	_shields.hide()
+	names.add_child(_shields)
 	_health = ProgressBar.new()
 	_health.name = "Health"
 	_health.custom_minimum_size.y = 8
@@ -444,10 +455,20 @@ func _refresh_health():
 		return
 	var hp = 0.0
 	var hp_max = 0.0
+	var shields = 0.0
+	var shields_max = 0.0
 	for member in _selection:
 		if is_instance_valid(member) and member.hp != null:
 			hp += member.hp
 			hp_max += member.hp_max
+			shields += member.shields
+			shields_max += member.shields_max
+	_shields.visible = shields_max > 0
+	_shields.max_value = maxf(1.0, shields_max)
+	_shields.value = shields
+	_shields.tooltip_text = tr("%d / %d shields") % [ceili(shields), ceili(shields_max)]
+	_shields.accessibility_name = tr("Plasma Shields")
+	_shields.accessibility_description = _shields.tooltip_text
 	_health.visible = hp_max > 0
 	_health.max_value = maxf(1.0, hp_max)
 	_health.value = hp
@@ -725,6 +746,15 @@ func _refresh_buttons():
 		# The title counts the selection and the roster counts damaged units.
 		lines.clear()
 	if _selection.size() == 1:
+		if "scrap_hardened_tiers" in unit and unit.scrap_hardened_tiers > 0:
+			lines.append(
+				(
+					tr("Scrap Hardened %d · %ds")
+					% [unit.scrap_hardened_tiers, ceili(unit.scrap_hardened_left)]
+				)
+			)
+		if unit.has_method("can_scavenge") and unit.can_scavenge():
+			facts.append("Right-click wrecks to repair and gain Scrap Hardened.")
 		facts.push_front(load("res://source/match/combat/CombatRules.gd").describe(unit))
 		if unit.player.technology != null:
 			var upgrades = unit.player.technology.summary(unit.type)

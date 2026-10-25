@@ -51,6 +51,7 @@ func needs_rearm():
 
 
 func _physics_process(delta):
+	super(delta)
 	if _match == null:
 		return
 	if not armed() and not action is Recovering:

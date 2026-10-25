@@ -165,6 +165,9 @@ func _make_action(order):
 		"repair":
 			var script = load(ACTIONS + "Repairing.gd")
 			return script.new(target, true) if script.is_applicable(unit, target) else null
+		"scavenge":
+			var script = load(ACTIONS + "Scavenging.gd")
+			return script.new(target) if script.eligible(unit, target) else null
 		"gather":
 			var script = load(ACTIONS + "CollectingResourcesSequentially.gd")
 			return script.new(target) if script.is_applicable(unit, target) else null

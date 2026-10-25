@@ -87,7 +87,7 @@ func _instantiate(kind, state, refs):
 		"DroneDive":
 			# A committed dive continues even if its target is gone.
 			return script.new(target) if target != null or state.diving else null
-		"MovingToUnit", "Following", "Constructing", "ConstructingWhileInRange":
+		"MovingToUnit", "Scavenging", "Following", "Constructing", "ConstructingWhileInRange":
 			return script.new(target) if target != null else null
 		"AttackingWhileInRange":
 			return script.new(target, state._shot_limit) if target != null else null
@@ -114,9 +114,9 @@ func _bind(action, kind, target, unit):
 		"Garrisoning":
 			if action._capture_elapsed > 0 and not unit.has_meta("garrison_host"):
 				target.show_capture(unit, action._capture_elapsed)
-		"Moving", "MovingToUnit":
+		"Moving", "MovingToUnit", "Scavenging":
 			movement.movement_finished.connect(action._on_movement_finished)
-			if kind == "MovingToUnit":
+			if kind in ["MovingToUnit", "Scavenging"]:
 				target.tree_exited.connect(action.queue_free)
 		"AttackingWhileInRange":
 			target.tree_exited.connect(action._on_target_unit_removed)
@@ -165,6 +165,7 @@ func _targets_available(saved):
 		return true
 	var required = {
 		"MovingToUnit": "_target_unit",
+		"Scavenging": "_target_unit",
 		"Garrisoning": "_target_unit",
 		"Following": "_target_unit",
 		"FollowingToReachDistance": "_target_unit",

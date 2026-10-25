@@ -57,7 +57,12 @@ func _ready():
 	if restoring:
 		return
 	if _kind != 0:
-		if _unit.resource_a + _unit.resource_b > 0:
+		if (
+			_unit.resource_a + _unit.resource_b > 0
+			and not (
+				is_instance_valid(_resource_unit) and _resource_unit.is_in_group("salvage_wrecks")
+			)
+		):
 			_start_return()
 		else:
 			_start_resource_leg()
@@ -338,6 +343,11 @@ func _on_sub_action_finished():
 				or not can_work(_resource_unit)
 			):
 				_start_resource_leg()
+			elif _resource_unit.is_in_group("salvage_wrecks") and _resource_unit.dismantle(_unit):
+				if _has_pending_orders():
+					queue_free()
+				else:
+					_start_resource_leg()
 			elif _unit.is_full():
 				_start_return()
 			else:

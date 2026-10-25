@@ -39,9 +39,14 @@ func _run():
 func _exercise(panel, human):
 	var catalog = load("res://source/match/research/TechnologyCatalog.gd")
 	var weapons = panel._branches.weapons.button
+	var available = catalog.BRANCHES.filter(func(id): return catalog.available(id, human.faction))
 	_check(
-		panel._grid.get_child_count() == catalog.BRANCHES.size() + 1,
+		panel._grid.get_child_count() == available.size() + 1,
 		"Not all research choices are visible"
+	)
+	_check(
+		panel._branches.has("plasma_shields") == (human.faction == "helix"),
+		"Plasma shield research ignores faction availability"
 	)
 	var dual_aa = panel._branches.dual_purpose_aa.button
 	_check(dual_aa.disabled, "Dual-purpose AA bypassed Weapon systems I")

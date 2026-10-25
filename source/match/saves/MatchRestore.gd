@@ -116,6 +116,17 @@ func restore(tree, snapshot):
 		deposit.set(saved.kind, saved.amount)
 		game.map.get_node("Resources").add_child(deposit)
 		entities[saved.id] = deposit
+	for obstacle in tree.get_nodes_in_group("destructible_obstacles"):
+		obstacle.free()
+	for saved in _data.get("obstacles", []):
+		var obstacle = load("res://source/match/environment/DestructibleObstacle.gd").new()
+		_copy(
+			obstacle,
+			saved,
+			["position", "rotation", "hp", "hp_max", "radius", "obstacle_height", "light_barricade"]
+		)
+		game.map.add_child(obstacle)
+		entities[saved.id] = obstacle
 	for saved in _data.units:
 		var unit = load(Catalog.scene_path(saved.role)).instantiate()
 		unit.set_meta("visual_seed", saved.visual_seed)
@@ -127,6 +138,17 @@ func restore(tree, snapshot):
 		)
 		entities[saved.id] = unit
 		unit.hp = saved.hp
+		if saved.has("plasma_shield"):
+			unit.shields = saved.plasma_shield.charge
+			unit.last_shield_damage_time = (
+				game.simulation_time - saved.plasma_shield.damage_age
+				if saved.plasma_shield.damage_age != null
+				else -INF
+			)
+			unit.shields_changed.emit()
+		if saved.has("scrap_hardened"):
+			unit.scrap_hardened_tiers = saved.scrap_hardened.tiers
+			unit.scrap_hardened_left = saved.scrap_hardened.left
 		unit.experience = saved.experience
 		unit.stance = saved.stance
 		if not saved.signature.is_empty():

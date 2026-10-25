@@ -113,15 +113,24 @@ func _navigate_unit_towards_unit(unit, target_unit, rally = false):
 static func context_kind(unit, target_unit):
 	var repairs = load("res://source/match/combat/RepairService.gd")
 	if (
-		target_unit.type in ["RepairDepot", "Barracks", "AircraftFactory"]
+		"type" in target_unit
+		and target_unit.type in ["RepairDepot", "Barracks", "AircraftFactory"]
 		and repairs.facility_eligible(target_unit, unit)
 	):
 		return "recover"
 	if "player" in target_unit and target_unit.player != unit.player:
 		if not unit._match.battlefield.is_observed(unit.player, target_unit):
 			return ""
+	if target_unit.is_in_group("destructible_obstacles"):
+		return (
+			"force_attack"
+			if load("res://source/match/combat/CombatRules.gd").can_force_target(unit, target_unit)
+			else ""
+		)
 	if target_unit.has_method("can_garrison") and target_unit.can_garrison(unit):
 		return "garrison"
+	if load("res://source/match/units/actions/Scavenging.gd").eligible(unit, target_unit):
+		return "scavenge"
 	if Actions.Repairing.is_applicable(unit, target_unit):
 		return "repair"
 	if Actions.CollectingResourcesSequentially.is_applicable(unit, target_unit):
