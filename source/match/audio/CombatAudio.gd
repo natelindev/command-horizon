@@ -31,6 +31,7 @@ const LEVELS = {
 	"infantry_fall": -14.0,
 	"vehicle_destroy": -9.0,
 	"structure_destroy": -7.0,
+	"weapon_charge": -22.0,
 }
 var played_count = 0
 var dropped_count = 0
@@ -44,6 +45,7 @@ var _game
 var _camera
 var _human
 var _impact_focus_until = 0.0
+var _charge_stream
 
 
 func _ready():
@@ -104,6 +106,69 @@ func shot(unit, point, weapon = {}):
 	return _play(cue, unit, point, 1 if light else 2, pitch)
 
 
+func update_charge(unit):
+	var voice = null
+	for entry in _players:
+		if entry.active and entry.kind == "weapon_charge" and entry.unit.get_ref() == unit:
+			voice = entry
+			break
+	var point = unit.get_node("ProjectileOrigin").global_position
+	if unit.weapon_charge_progress < 0 or not _audible(unit, point):
+		if voice != null:
+			voice.node.stop()
+			voice.active = false
+		return
+	if voice == null:
+		voice = _take_player(0)
+		if voice == null:
+			return
+		if _charge_stream == null:
+			_charge_stream = _make_charge_stream()
+		voice.node.stop()
+		voice.active = true
+		voice.unit = weakref(unit)
+		voice.kind = "weapon_charge"
+		voice.priority = 0
+		voice.started = _clock
+		voice.left = INF
+		voice.node.stream = _charge_stream
+		_update_charge_voice(voice, unit, point)
+		voice.node.stream_paused = false
+		voice.node.play()
+		played_count += 1
+		cue_started.emit("weapon_charge", point)
+	else:
+		_update_charge_voice(voice, unit, point)
+
+
+func _update_charge_voice(entry, unit, point):
+	entry.point = point
+	entry.node.pitch_scale = lerpf(0.75, 1.6, clampf(unit.weapon_charge_progress, 0.0, 1.0))
+	_position(entry)
+
+
+static func _make_charge_stream():
+	# A seamless 200 ms capacitor tone: all carriers and modulation complete
+	# whole cycles. Pitch follows authoritative preparation, never wall time/RNG.
+	var rate = 22050
+	var samples = rate / 5
+	var pcm = PackedByteArray()
+	pcm.resize(samples * 2)
+	for index in samples:
+		var time = float(index) / rate
+		var carrier = sin(TAU * 440.0 * time + 0.35 * sin(TAU * 30.0 * time))
+		var harmonics = 0.25 * sin(TAU * 880.0 * time) + 0.1 * sin(TAU * 1320.0 * time)
+		var tremolo = 0.85 + 0.15 * cos(TAU * 20.0 * time)
+		pcm.encode_s16(index * 2, roundi((carrier + harmonics) * tremolo * 15000.0))
+	var stream = AudioStreamWAV.new()
+	stream.format = AudioStreamWAV.FORMAT_16_BITS
+	stream.mix_rate = rate
+	stream.data = pcm
+	stream.loop_mode = AudioStreamWAV.LOOP_FORWARD
+	stream.loop_end = samples
+	return stream
+
+
 static func heavy_impact(source, weapon = {}):
 	if not weapon.is_empty():
 		return (
@@ -148,7 +213,7 @@ func _observed(unit):
 	return _human != null and _game.battlefield.is_observed(_human, unit)
 
 
-func _play(kind, unit, point, priority, pitch = 1.0):
+func _audible(unit, point):
 	if (
 		_game.restoring
 		or _game.is_queued_for_deletion()
@@ -161,8 +226,11 @@ func _play(kind, unit, point, priority, pitch = 1.0):
 		or _camera.is_position_behind(point)
 	):
 		return false
-	var screen = _camera.unproject_position(point)
-	if not get_viewport().get_visible_rect().grow(96).has_point(screen):
+	return get_viewport().get_visible_rect().grow(96).has_point(_camera.unproject_position(point))
+
+
+func _play(kind, unit, point, priority, pitch = 1.0):
+	if not _audible(unit, point):
 		return false
 	# Merge rapid identical events in one six-metre battle area; opposite sides
 	# still retain separate stereo cues. Destruction has a shorter merge window.
@@ -221,7 +289,7 @@ func _take_player(priority):
 		if (
 			(
 				entry.priority < priority
-				or (entry.priority == priority and _clock - entry.started > 0.22)
+				or (priority > 0 and entry.priority == priority and _clock - entry.started > 0.22)
 			)
 			and (
 				candidate == null
@@ -253,8 +321,16 @@ func _process(delta):
 	for entry in _players:
 		if not entry.active:
 			continue
-		entry.left -= elapsed
 		var unit = entry.unit.get_ref()
+		if entry.kind == "weapon_charge":
+			if not is_instance_valid(unit) or unit.is_queued_for_deletion():
+				entry.node.stop()
+				entry.active = false
+			else:
+				# Also recheck fog, camera, restoration and battle end while sustaining.
+				update_charge(unit)
+			continue
+		entry.left -= elapsed
 		if (
 			entry.left <= 0
 			or (
@@ -283,7 +359,11 @@ func _position(entry):
 	)
 	# Briefly make room for a major loss without interrupting weapons or speech.
 	var impact_duck = -3.5 if _clock < _impact_focus_until and entry.priority < 3 else 0.0
-	entry.node.volume_db = LEVELS[entry.kind] + duck + impact_duck
+	var charge_gain = 0.0
+	if entry.kind == "weapon_charge":
+		var unit = entry.unit.get_ref()
+		charge_gain = lerpf(-5.0, 3.0, clampf(unit.weapon_charge_progress, 0.0, 1.0))
+	entry.node.volume_db = LEVELS[entry.kind] + charge_gain + duck + impact_duck
 
 
 func _options_changed():
@@ -303,4 +383,5 @@ func _exit_tree():
 			entry.node.stream = null
 	_players.clear()
 	_streams.clear()
+	_charge_stream = null
 	_recent.clear()

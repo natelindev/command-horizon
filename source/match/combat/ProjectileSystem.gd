@@ -20,6 +20,7 @@ const SIGHT_HEIGHT = 0.8
 const SPLASH_SHARE = 0.5
 const HEAVY_VISUALS = ["slug", "rocket", "missile", "bomb"]
 const VISIBILITY_TICKS = 6
+const TRAIL_SPACING = 0.4
 
 var rounds_fired = 0
 var renderer = null
@@ -48,7 +49,7 @@ class Round:
 	var burn = 0.0
 	var serial = 0
 	var shown = false
-	var trail_clock = 0.0
+	var trail_distance = 0.0
 	var slot = -1
 
 
@@ -243,10 +244,24 @@ func _physics_process(delta):
 
 func _step(round, delta):
 	var start = round.position
+	var burn = round.burn
 	_integrate(round, delta)
 	round.age += delta
 	var end = round.position
 	var contact = _sweep(round, start, end)
+	if _tick % VISIBILITY_TICKS == round.serial % VISIBILITY_TICKS:
+		round.shown = _shown(round)
+	if round.shown and round.kind in ["rocket", "missile"] and burn > 0.0:
+		# Preserve the final burning fraction and stop at the actual collision.
+		var trail_end = start.lerp(end, minf(1.0, burn / maxf(delta, .0001)))
+		if (
+			not contact.is_empty()
+			and start.distance_to(contact.point) < start.distance_to(trail_end)
+		):
+			trail_end = contact.point
+		_trail_segment(round, start, trail_end)
+	else:
+		round.trail_distance = 0.0
 	if not contact.is_empty():
 		_remove(round)
 		_detonate(round, contact.point, contact.get("body"), contact.get("ground", false))
@@ -256,15 +271,22 @@ func _step(round, delta):
 		if round.kind == "missile" or round.weapon.get("fuse", 0.0) > 0.0:
 			_detonate(round, end, null, false)
 		return
-	if _tick % VISIBILITY_TICKS == round.serial % VISIBILITY_TICKS:
-		round.shown = _shown(round)
-	if round.shown and round.kind in ["rocket", "missile"] and round.burn > 0.0:
-		round.trail_clock += delta
-		if round.trail_clock >= 0.05:
-			round.trail_clock = 0.0
-			_match.combat_effects.trail(end, round.velocity.normalized())
 	if renderer != null:
 		renderer.update(round)
+
+
+func _trail_segment(round, start, end):
+	var distance = start.distance_to(end)
+	if distance < .0001:
+		return
+	var direction = round.velocity.normalized()
+	var nozzle = direction * (.44 if round.kind == "missile" else .38)
+	var sample = round.trail_distance
+	while sample <= distance:
+		_match.combat_effects.trail(start.lerp(end, sample / distance) - nozzle, direction)
+		sample += TRAIL_SPACING
+	# Carry spatial remainder across ticks, including slow flight and turns.
+	round.trail_distance = maxf(0.0, sample - distance)
 
 
 func _integrate(round, delta):

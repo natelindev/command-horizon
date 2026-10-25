@@ -7,6 +7,7 @@ const InfantryMotion = preload("res://source/match/units/traits/InfantryMotion.g
 const ObjectMaterials = preload("res://source/match/ObjectMaterials.gd")
 const SHOCKWAVE_SHADER = preload("res://source/shaders/3d/explosion_shockwave.gdshader")
 const SHOCKWAVE_FALLBACK = preload("res://source/shaders/3d/explosion_shockwave_fallback.gdshader")
+const RAY_BEAM_SHADER = preload("res://source/shaders/3d/ray_beam.gdshader")
 
 # Shared GPU particle buffers and bounded tracer/wreck pools, independent of combat authority.
 const MAX_TRACERS = 96
@@ -16,6 +17,7 @@ const MAX_HIT_FLASHES = 32
 const MAX_SHOCKWAVES = 6
 const MAX_WRECK_LIGHTS = 4
 const HIT_DURATION = .14
+const BEAM_DURATION = .24
 const SHOCKWAVE_DURATION = .65
 const WRECK_BURN_DURATION = 12.0
 # Faction-tinted fire so a crossfire reads by owner; rail shots keep a cold charge color.
@@ -25,6 +27,7 @@ const FACTION_FIRE = {
 	"frontier": Color("e3f0a6"),
 }
 const RAIL_FIRE = Color("b6d9e1")
+const PRISM_FIRE = Color("8870ff")
 var shots_emitted = 0
 var impacts_emitted = 0
 var deaths_emitted = 0
@@ -39,6 +42,7 @@ var _free_hit_flashes = []
 var _shockwaves = []
 var _materials = {}
 var _tracer_mesh = BoxMesh.new()
+var _beam_mesh: ArrayMesh
 var _random = RandomNumberGenerator.new()
 var _headless = false
 var _paused = false
@@ -66,7 +70,9 @@ func _ready():
 	_emitter("dust", 512, 2.1, Vector3(0, -0.15, 0), 0.0, 0.95)
 	_emitter("fire", 256, 0.65, Vector3(0, 0.8, 0), 2.0, 0.85)
 	_emitter("mote", 192, 1.2, Vector3(0, 0.25, 0), 2.2, 0.2)
-	_emitter("exhaust", 192, .32, Vector3.ZERO, .6, .5)
+	# Separate bounded buffers keep dense missile trails from starving impact smoke.
+	_emitter("trail_smoke", 2048, 1.25, Vector3(.06, .22, .025), 0.0, .72)
+	_emitter("exhaust", 768, .1, Vector3.ZERO, 2.8, .38)
 	_debris_emitter()
 
 
@@ -126,10 +132,13 @@ func _emitter(kind, amount, lifetime, gravity, glow, roughness):
 	var material = ShaderMaterial.new()
 	material.shader = load("res://source/shaders/3d/combat_particle_process.gdshader")
 	material.set_shader_parameter("gravity", gravity)
-	material.set_shader_parameter("growth_start", 0.35 if kind in ["smoke", "dust"] else 1.0)
-	material.set_shader_parameter(
-		"growth_end", 1.15 if kind == "smoke" else (1.65 if kind in ["dust", "flash"] else 0.35)
-	)
+	var growth_start = .35 if kind in ["smoke", "dust"] else 1.0
+	var growth_end = 1.15 if kind == "smoke" else (1.65 if kind in ["dust", "flash"] else .35)
+	if kind == "trail_smoke":
+		growth_start = .85
+		growth_end = 2.8
+	material.set_shader_parameter("growth_start", growth_start)
+	material.set_shader_parameter("growth_end", growth_end)
 	material.set_shader_parameter("damping", 1.1 if kind == "dust" else 0.45)
 	material.set_shader_parameter("grounded", kind in ["dust", "spark"])
 	material.set_shader_parameter("directional", kind in ["dust", "exhaust", "spark"])
@@ -140,11 +149,12 @@ func _emitter(kind, amount, lifetime, gravity, glow, roughness):
 	shader.shader = load("res://source/shaders/3d/combat_particle.gdshader")
 
 	shader.set_shader_parameter("flame", kind == "fire")
+	shader.set_shader_parameter("exhaust", kind == "exhaust")
 	shader.set_shader_parameter("glow", glow)
 	shader.set_shader_parameter("rough_edge", roughness)
 	shader.set_shader_parameter(
 		"elongation",
-		3.5 if kind == "exhaust" else (2.5 if kind == "spark" else (1.7 if kind == "dust" else 1.0))
+		4.0 if kind == "exhaust" else (2.5 if kind == "spark" else (1.7 if kind == "dust" else 1.0))
 	)
 	mesh.material = shader
 	particles.draw_pass_1 = mesh
@@ -156,7 +166,7 @@ func _puff(kind, point, velocity, color, size):
 	if (
 		_headless
 		or get_tree().paused
-		or (Globals.options.reduced_flashes and kind in ["flash", "spark", "fire"])
+		or (Globals.options.reduced_flashes and kind in ["flash", "spark", "fire", "exhaust"])
 	):
 		return
 	var transform_here = Transform3D(Basis.IDENTITY.scaled(Vector3.ONE * size), point)
@@ -187,12 +197,17 @@ func shot(
 	if not _can_show(unit):
 		return
 	var color = FACTION_FIRE.get(unit.player.faction, FACTION_FIRE.bastion)
-	if unit.type == "AdvancedTank" and unit.player.faction != "frontier":
-		color = RAIL_FIRE
+	var rail = (
+		weapon.get("kind", "") == "rail"
+		or (weapon.is_empty() and unit.type == "AdvancedTank" and unit.player.faction != "frontier")
+	)
+	var prism = rail and unit.player.faction == "helix"
+	if rail:
+		color = PRISM_FIRE if prism else RAIL_FIRE
 	var heavy = unit.type in ["Tank", "AdvancedTank", "AntiGroundTurret"]
 	if heavy:
 		_shake_camera(origin, 0.08)
-	if _camera_sees(origin):
+	if not rail and _camera_sees(origin):
 		aftermath.flash(origin, .5 if heavy else .18, color, true)
 	var direction = origin.direction_to(target_point)
 	_puff("flash", origin, direction * 0.2, color, 0.65 if heavy else 0.3)
@@ -209,20 +224,54 @@ func shot(
 	var entry = _take_tracer()
 	if entry == null:
 		return
-	entry.node.material_override = _glowing_material(color)
 	entry.origin = origin
 	entry.target = target_point
-	entry.target_ref = weakref(target_unit) if target_unit != null else null
-	entry.duration = maxf(0.05, duration)
+	# Instant hits leave an afterimage along the original firing line.
+	entry.target_ref = weakref(target_unit) if target_unit != null and not rail else null
+	entry.duration = BEAM_DURATION if rail else maxf(0.05, duration)
 	entry.age = 0.0
 	entry.missile = missile
-	entry.rail = unit.type == "AdvancedTank" and unit.player.faction != "frontier"
-	entry.width = 0.045 if heavy or missile else 0.018
+	entry.rail = rail
+	entry.prism = prism
+	entry.width = (.62 if prism else .38) if rail else (.045 if heavy or missile else .018)
 	entry.trail_clock = 0.0
-	entry.node.position = origin
+	if rail:
+		if _beam_mesh == null:
+			_beam_mesh = create_beam_mesh()
+		entry.node.mesh = _beam_mesh
+		if not entry.has("beam_material"):
+			entry.beam_material = ShaderMaterial.new()
+			entry.beam_material.shader = RAY_BEAM_SHADER
+		entry.node.material_override = entry.beam_material
+		entry.beam_material.set_shader_parameter("beam_color", color)
+		entry.beam_material.set_shader_parameter(
+			"core_color", Color("f1eaff") if prism else Color("edfcff")
+		)
+		entry.beam_material.set_shader_parameter("is_prism", prism)
+		entry.beam_material.set_shader_parameter("scroll_speed", 4.0 if prism else 9.0)
+		_beam_burst(origin, direction, color, prism)
+		_beam_burst(target_point, -direction, color, prism)
+	else:
+		entry.node.mesh = _tracer_mesh
+		entry.node.material_override = _glowing_material(color)
+	_update_tracer(entry)
 	entry.node.reset_physics_interpolation()
-	entry.node.show()
 	_tracers.append(entry)
+
+
+func _beam_burst(point, direction, color, prism):
+	if Globals.options.reduced_flashes or not _camera_sees(point):
+		return
+	aftermath.flash(point, .85 if prism else .7, color, true)
+	_puff("flash", point, Vector3.ZERO, color.lerp(Color.WHITE, .65), 1.05 if prism else .8)
+	for index in 8:
+		var ion_color = color
+		if prism:
+			ion_color = [Color("72eaff"), PRISM_FIRE, Color("ff72d8")][index % 3]
+		var velocity = direction * _random.randf_range(1.0, 4.0) + _jitter(1.8)
+		_puff("spark", point, velocity, ion_color, .07)
+		if index < 3:
+			_puff("mote", point, velocity * .25, ion_color, .12)
 
 
 func impact(unit, source, point, weapon = {}):
@@ -284,15 +333,17 @@ func can_show_point(point):
 	)
 
 
-# Exhaust smoke behind a motor-driven round.
+# A compact white-hot jet cools into an overlapping, slowly rising smoke wake.
 func trail(point, direction):
-	_puff("exhaust", point, -direction * 1.8, Color(.9, .72, .45, .28), .14)
+	if not can_show_point(point):
+		return
+	_puff("exhaust", point, -direction * 2.4, Color(1, .68, .3, .8), .22)
 	_puff(
-		"smoke",
-		point,
-		-direction * 0.4 + Vector3.UP * 0.1,
-		Color(0.6, 0.58, 0.54, 0.32),
-		_random.randf_range(0.16, 0.3)
+		"trail_smoke",
+		point - direction * .12 + _jitter(.025),
+		-direction * .22 + Vector3.UP * .12 + _jitter(.06),
+		Color(.56, .55, .52, .46),
+		_random.randf_range(.56, .66)
 	)
 
 
@@ -776,6 +827,42 @@ func _take_tracer():
 	return {"node": node}
 
 
+static func create_beam_mesh() -> ArrayMesh:
+	# Two perpendicular ribbons share the firing axis (-Z). UV.x runs muzzle to
+	# impact; UV.y always crosses the core, so the Gaussian works on both planes.
+	var vertices = PackedVector3Array(
+		[
+			Vector3(-.5, 0, .5),
+			Vector3(.5, 0, .5),
+			Vector3(-.5, 0, -.5),
+			Vector3(.5, 0, -.5),
+			Vector3(0, -.5, .5),
+			Vector3(0, .5, .5),
+			Vector3(0, -.5, -.5),
+			Vector3(0, .5, -.5),
+		]
+	)
+	var arrays = []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = vertices
+	arrays[Mesh.ARRAY_TEX_UV] = PackedVector2Array(
+		[
+			Vector2(0, 0),
+			Vector2(0, 1),
+			Vector2(1, 0),
+			Vector2(1, 1),
+			Vector2(0, 0),
+			Vector2(0, 1),
+			Vector2(1, 0),
+			Vector2(1, 1),
+		]
+	)
+	arrays[Mesh.ARRAY_INDEX] = PackedInt32Array([0, 1, 2, 1, 3, 2, 4, 5, 6, 5, 7, 6])
+	var mesh = ArrayMesh.new()
+	mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	return mesh
+
+
 func _glowing_material(color):
 	if not _materials.has(color):
 		var material = StandardMaterial3D.new()
@@ -792,6 +879,9 @@ func _process(_delta):
 	# Settings can change while the battle is paused; remove frozen flashes then too.
 	if Globals.options.reduced_flashes:
 		_advance_hit_flashes(0.0)
+		for entry in _tracers:
+			if entry.rail:
+				entry.beam_material.set_shader_parameter("intensity", .65)
 		if is_instance_valid(aftermath):
 			aftermath.clear_flashes()
 		for entry in _wrecks:
@@ -811,11 +901,19 @@ func _physics_process(delta):
 	if get_tree().paused:
 		return
 	_advance_hit_flashes(delta)
+	_advance_tracers(delta)
+	_advance_aftermath(delta)
+
+
+func _advance_tracers(delta):
 	for index in range(_tracers.size() - 1, -1, -1):
 		var entry = _tracers[index]
 		entry.age += delta
-		if entry.age >= (minf(entry.duration, 0.075) if entry.rail else entry.duration):
+		if entry.age >= entry.duration:
+			if entry.rail:
+				entry.beam_material.set_shader_parameter("progress", 1.0)
 			entry.node.hide()
+			entry.target_ref = null
 			_free_tracers.append(entry)
 			_tracers.remove_at(index)
 			continue
@@ -823,35 +921,9 @@ func _physics_process(delta):
 			var target = entry.target_ref.get_ref()
 			if target != null and not target.is_queued_for_deletion() and target.visible:
 				entry.target = target.global_position + Vector3.UP * 0.5
-		var direction = entry.origin.direction_to(entry.target)
-		if direction.is_zero_approx():
-			entry.node.hide()
+		var tail = _update_tracer(entry)
+		if not entry.node.visible:
 			continue
-		var progress = entry.age / entry.duration
-		var head = entry.origin.lerp(entry.target, progress)
-		if entry.missile:
-			var arc = minf(0.8, entry.origin.distance_to(entry.target) * 0.08)
-			head.y += sin(progress * PI) * arc
-			direction = (
-				(entry.target - entry.origin + Vector3.UP * cos(progress * PI) * PI * arc)
-				. normalized()
-			)
-		var tail = (
-			entry.origin
-			if entry.rail
-			else (
-				head
-				- direction * minf(head.distance_to(entry.origin), 0.28 if entry.missile else 0.55)
-			)
-		)
-		if entry.rail:
-			head = entry.target
-		var length = maxf(0.01, head.distance_to(tail))
-		var up = Vector3.RIGHT if absf(direction.dot(Vector3.UP)) > 0.98 else Vector3.UP
-		entry.node.transform = Transform3D(
-			Basis.looking_at(direction, up).scaled(Vector3(entry.width, entry.width, length)),
-			(head + tail) * 0.5
-		)
 		entry.trail_clock += delta
 		if entry.missile and entry.trail_clock >= 0.04:
 			entry.trail_clock = 0.0
@@ -862,6 +934,48 @@ func _physics_process(delta):
 				Color(0.58, 0.56, 0.52, 0.3),
 				_random.randf_range(0.18, 0.32)
 			)
+
+
+func _update_tracer(entry):
+	var progress = clampf(entry.age / entry.duration, 0.0, 1.0)
+	if entry.rail:
+		entry.beam_material.set_shader_parameter("progress", progress)
+		entry.beam_material.set_shader_parameter(
+			"intensity", .65 if Globals.options.reduced_flashes else (3.0 if entry.prism else 2.5)
+		)
+	var direction = entry.origin.direction_to(entry.target)
+	entry.node.visible = not direction.is_zero_approx()
+	if not entry.node.visible:
+		return entry.origin
+	var head = entry.origin.lerp(entry.target, progress)
+	if entry.rail:
+		head = entry.target
+	elif entry.missile:
+		var arc = minf(.8, entry.origin.distance_to(entry.target) * .08)
+		head.y += sin(progress * PI) * arc
+		direction = (
+			(entry.target - entry.origin + Vector3.UP * cos(progress * PI) * PI * arc).normalized()
+		)
+	var tail = (
+		entry.origin
+		if entry.rail
+		else (
+			head - direction * minf(head.distance_to(entry.origin), .28 if entry.missile else .55)
+		)
+	)
+	var length = maxf(.01, head.distance_to(tail))
+	var up = Vector3.RIGHT if absf(direction.dot(Vector3.UP)) > .98 else Vector3.UP
+	entry.node.transform = Transform3D(
+		(
+			Basis.looking_at(direction, up)
+			* Basis.from_scale(Vector3(entry.width, entry.width, length))
+		),
+		(head + tail) * .5
+	)
+	return tail
+
+
+func _advance_aftermath(delta):
 	for index in range(_wrecks.size() - 1, -1, -1):
 		var entry = _wrecks[index]
 		entry.age += delta

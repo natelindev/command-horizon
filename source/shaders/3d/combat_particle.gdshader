@@ -3,6 +3,7 @@ render_mode unshaded, cull_disabled, depth_draw_never;
 uniform float glow = 0.0;
 uniform float rough_edge = 0.45;
 uniform bool flame = false;
+uniform bool exhaust = false;
 uniform float elongation = 1.0;
 varying vec2 life_seed;
 
@@ -41,7 +42,12 @@ void fragment() {
 	if (flame) {
 		tint = mix(vec3(1.0, 0.75, 0.3), vec3(0.3, 0.065, 0.018), clamp(life_seed.x * 1.3 + (1.0 - cloud) * 0.4, 0.0, 1.0));
 	}
+	if (exhaust) {
+		float cooling = smoothstep(0.0, 0.8, life_seed.x);
+		vec3 hot = mix(vec3(2.4, 1.8, 0.95), vec3(1.2, 0.28, 0.035), cooling);
+		tint = mix(hot, vec3(0.25, 0.24, 0.22), smoothstep(0.45, 1.0, life_seed.x));
+	}
 	ALBEDO = tint;
-	EMISSION = tint * glow * density * (flame ? pow(1.0 - life_seed.x, 2.0) : 1.0);
+	EMISSION = tint * glow * density * ((flame || exhaust) ? pow(1.0 - life_seed.x, 2.0) : 1.0);
 	ALPHA = COLOR.a * density;
 }

@@ -30,9 +30,12 @@ static func prepare(game) -> bool:
 	var cover = _cover(game)
 	var point = camera._calculate_pivot_point()
 	point.y = game.map.height_at(Vector2(point.x, point.z)) + 1.0
+	var effects = load("res://source/match/effects/CombatEffects.gd")
+	_beams(holder, point, effects)
+	_projectiles(holder, point)
 	if not Globals.options.reduced_flashes:
 		_hit_meshes(game, holder, point)
-		var ring = load("res://source/match/effects/CombatEffects.gd").create_shockwave(2.0)
+		var ring = effects.create_shockwave(2.0)
 		holder.add_child(ring)
 		ring.global_position = point
 		ring.material_override.set_shader_parameter("progress", .35)
@@ -102,6 +105,41 @@ static func _cover(game):
 	loading.presentation_only = true
 	layer.add_child(loading)
 	return layer
+
+
+static func _projectiles(holder, point):
+	# Compile the vertex-colored MultiMesh path using a disposable flight pool.
+	var renderer = load("res://source/match/effects/ProjectileRenderer.gd").new()
+	holder.add_child(renderer)
+	(
+		renderer
+		. add(
+			{
+				"weapon": {"visual": "missile"},
+				"shot": {"player": {"faction": "bastion"}},
+				"position": point,
+				"velocity": Vector3.FORWARD * 35,
+				"shown": true,
+				"slot": -1,
+			}
+		)
+	)
+
+
+static func _beams(holder, point, effects):
+	var mesh = effects.create_beam_mesh()
+	for prism in [false, true]:
+		var beam = MeshInstance3D.new()
+		beam.mesh = mesh
+		beam.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		var material = ShaderMaterial.new()
+		material.shader = effects.RAY_BEAM_SHADER
+		material.set_shader_parameter("is_prism", prism)
+		material.set_shader_parameter("progress", .2)
+		beam.material_override = material
+		holder.add_child(beam)
+		beam.global_position = point
+		beam.scale = Vector3(.5, .5, 2.0)
 
 
 static func _hit_meshes(game, holder, point):

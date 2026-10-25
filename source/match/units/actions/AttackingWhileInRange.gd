@@ -168,6 +168,9 @@ func apply_precision_window():
 
 
 func _refresh_charge_display():
+	var audio = _unit._match.combat_audio
+	if is_instance_valid(audio):
+		audio.update_charge(_unit)
 	var display = _unit.get_node_or_null("WeaponPreparationVisual")
 	if display != null and display.is_node_ready():
 		display.refresh()

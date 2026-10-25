@@ -21,6 +21,7 @@ class Subject:
 	var hp_max = 100.0
 	var attack_range = null
 	var type = "Fighter"
+	var aim_target = null
 	var player:
 		get:
 			return get_parent()
@@ -36,6 +37,18 @@ class Ground:
 class Stage:
 	extends Node3D
 	var map = Ground.new()
+	var restoring = false
+	var combat_audio = SilentAudio.new()
+
+
+class SilentAudio:
+	extends RefCounted
+
+	func shot(_unit, _origin, _weapon):
+		pass
+
+	func _observed(_unit):
+		return true
 
 
 class TrackedHealthBar:
@@ -60,6 +73,7 @@ func _run():
 	_subpixel_health()
 	_selection_designs()
 	_effect_budgets()
+	_beam_lifecycle()
 	_impact_families()
 	await _particle_material_lifetime()
 	options.reduced_flashes = original_reduced
@@ -418,3 +432,148 @@ func _effect_budgets():
 	)
 	options.reduced_flashes = false
 	stage.free()
+
+
+func _beam_lifecycle():
+	var stage = Stage.new()
+	root.add_child(stage)
+	var effects = effects_script.new()
+	stage.add_child(effects)
+	effects.set_physics_process(false)
+	effects.set_process(false)
+	# Exercise the real shot path with dummy rendering and bounded GPU emitters.
+	effects.aftermath = load("res://source/match/effects/BattleAftermath.gd").new()
+	effects.add_child(effects.aftermath)
+	for kind in ["flash", "spark", "smoke", "mote"]:
+		effects._emitter(kind, 32, .3, Vector3.ZERO, 1.0, .2)
+	effects._headless = false
+	var side = Side.new()
+	stage.add_child(side)
+	var unit = _subject(side)
+	unit.type = "AdvancedTank"
+	var target = _subject(side)
+	var origin = Vector3(2, 1, 3)
+	var endpoint = Vector3(9, 2, -5)
+	effects.shot(unit, origin, endpoint, .16, false, target, true, {"kind": "rail"})
+	var rail = effects._tracers[0]
+	var material = rail.node.material_override
+	_check(rail.node.visible and rail.duration == .24, "Rail did not start a full-duration beam")
+	_check(rail.node.mesh is ArrayMesh, "Rail retained box geometry")
+	_check(
+		(
+			(rail.node.transform * Vector3(0, 0, .5)).is_equal_approx(origin)
+			and (rail.node.transform * Vector3(0, 0, -.5)).is_equal_approx(endpoint)
+		),
+		"Rotated beam does not span its muzzle and impact"
+	)
+	_check(effects.aftermath.lights.size() == 2, "Rail did not flash at both endpoints")
+	_check(not material.get_shader_parameter("is_prism"), "Bastion rail acquired Prism dispersion")
+	effects._material_hit(target)
+	target.position += Vector3(4, 0, 0)
+	effects._physics_process(.1)
+	_check(effects._tracers.size() == 1 and rail.node.visible, "Rail died at the old 0.075s cutoff")
+	_check(
+		rail.target == endpoint and rail.target_ref == null, "Instant beam followed a moving target"
+	)
+	_check(
+		is_equal_approx(material.get_shader_parameter("progress"), .1 / .24),
+		"Beam dissipation did not follow its age"
+	)
+	side.faction = "helix"
+	effects.shot(unit, origin, endpoint, .16, false, target, true, {"kind": "rail"})
+	var prism = effects._tracers[1]
+	_check(
+		(
+			prism.node.material_override != material
+			and prism.beam_material.get_shader_parameter("is_prism")
+			and prism.width > rail.width
+		),
+		"Simultaneous Prism and rail beams share lifecycle or styling"
+	)
+	_check(
+		prism.beam_material.get_shader_parameter("progress") == 0.0,
+		"New Prism inherited another beam's age"
+	)
+	paused = true
+	options.reduced_flashes = true
+	effects._process(0.0)
+	_check(material.get_shader_parameter("intensity") == .65, "Paused beam ignored reduced flashes")
+	effects._physics_process(.1)
+	_check(rail.age == .1 and prism.age == 0.0, "Beam advanced during tactical pause")
+	paused = false
+	effects._physics_process(.05)
+	_check(effects._hit_flashes.is_empty(), "Beam activity prevented hit-flash cleanup")
+	_check(
+		material.get_shader_parameter("intensity") == .65, "Reduced flashes left a full-power beam"
+	)
+	options.reduced_flashes = false
+	effects._advance_tracers(.2)
+	_check(
+		(
+			effects._tracers.is_empty()
+			and effects._free_tracers.size() == 2
+			and not rail.node.visible
+			and material.get_shader_parameter("progress") == 1.0
+		),
+		"Expired beams did not finish and return to the pool"
+	)
+	# Reverse iteration makes the original rail the next free entry.
+	effects.shot(unit, origin, endpoint, .16, false, null, true, {"kind": "shell"})
+	_check(
+		(
+			effects._tracers[0].node == rail.node
+			and rail.node.mesh is BoxMesh
+			and rail.node.material_override is StandardMaterial3D
+		),
+		"Beam reuse corrupted an ordinary tracer"
+	)
+	effects._advance_tracers(.2)
+	effects.shot(unit, origin, origin + Vector3.UP * 4, .16, false, null, true, {"kind": "rail"})
+	_check(
+		(
+			rail.node.material_override == material
+			and material.get_shader_parameter("is_prism")
+			and material.get_shader_parameter("progress") == 0.0
+		),
+		"Recycled beam allocated a material or retained its previous style/age"
+	)
+	_check(
+		(rail.node.transform * Vector3(0, 0, -.5)).is_equal_approx(origin + Vector3.UP * 4),
+		"Vertical beam produced an invalid transform"
+	)
+	for index in effects.MAX_TRACERS + 4:
+		effects.shot(unit, origin, endpoint, .16, false, null, true, {"kind": "rail"})
+	_check(effects._tracers.size() == effects.MAX_TRACERS, "Beam pool exceeded MAX_TRACERS")
+	var nodes = effects.get_children().filter(func(node): return node is MeshInstance3D)
+	_check(nodes.size() == effects.MAX_TRACERS, "Beam saturation leaked tracer nodes")
+	effects._advance_tracers(1.0)
+	_check(
+		(
+			effects._free_tracers.size() == effects.MAX_TRACERS
+			and nodes.all(func(node): return not node.visible)
+		),
+		"Saturated beam pool did not retire cleanly"
+	)
+	effects.shot(unit, origin, origin, .16, false, null, true, {"kind": "rail"})
+	_check(not effects._tracers[0].node.visible, "Zero-length beam drew invalid geometry")
+	effects._advance_tracers(1.0)
+	unit.aim_target = target
+	target.hide()
+	effects.shot(unit, origin, endpoint, .16, false, target, true, {"kind": "rail"})
+	_check(effects._tracers.is_empty(), "Fog-hidden aim target spawned a beam")
+	unit.aim_target = null
+	var pooled_materials = effects._free_tracers.map(
+		func(entry): return weakref(entry.beam_material)
+	)
+	var beam_mesh = weakref(effects._beam_mesh)
+	rail = null
+	prism = null
+	material = null
+	stage.free()
+	_check(
+		(
+			pooled_materials.all(func(reference): return reference.get_ref() == null)
+			and beam_mesh.get_ref() == null
+		),
+		"Destroyed combat effects retained pooled beam materials or geometry"
+	)
