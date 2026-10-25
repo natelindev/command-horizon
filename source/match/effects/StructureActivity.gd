@@ -23,6 +23,9 @@ var _glow
 var _metal
 var _light_level = 0.0
 var _settled_idle = false
+var _vented := false
+var _beacon: MeshInstance3D
+var _beacon_material: StandardMaterial3D
 
 
 func _ready():
@@ -77,10 +80,37 @@ func refresh(delta = 0.0):
 		_sensor.rotation = _sensor_rest + Vector3(0, phase * .65, 0)
 	var queue = _unit.production_queue
 	var departing = queue != null and is_instance_valid(queue.departure)
+	var preparing = false
+	if state == "production" and queue != null and queue.size() > 0:
+		var next = queue.get_elements()[0]
+		preparing = (
+			next.time_left
+			<= load("res://source/match/effects/ProductionDeparture.gd").seconds(next) + 1.0
+		)
+	if _beacon != null:
+		_beacon.visible = preparing or departing
+		_beacon.rotation.y = phase * 3.5
+		_beacon_material.emission_energy_multiplier = (
+			.8 if Globals.options.reduced_flashes else 1.2 + .5 * sin(phase * 5.0)
+		)
+	if not departing:
+		_vented = false
+	elif not _vented:
+		_vented = true
+		var effects = _unit._match.combat_effects
+		if effects.can_show_construction(_unit):
+			for side in [-1, 1]:
+				effects.construction_puff(
+					"smoke",
+					to_global(portal + Vector3(side * .7, .3, 0)),
+					global_basis.x * side * .7 + Vector3.UP * .3,
+					Color(.75, .81, .83, .22),
+					.45
+				)
 	_door_open = (
-		(1.0 if departing else 0.0)
+		(1.0 if departing or preparing else 0.0)
 		if delta == 0.0
-		else move_toward(_door_open, 1.0 if departing else 0.0, delta * 4.0)
+		else move_toward(_door_open, 1.0 if departing or preparing else 0.0, delta * 4.0)
 	)
 	for door in _doors:
 		door.position.x = (
@@ -175,6 +205,17 @@ func _build_portal():
 		Vector3(width + .3, .045, .85),
 		_metal
 	)
+	_beacon_material = Kit._material(Color("d3a45e"), .2)
+	_beacon_material.emission_enabled = true
+	_beacon_material.emission = Color("e6ac50")
+	_beacon = Kit._box(
+		_portal_root,
+		"DepartureBeacon",
+		portal + Vector3(0, height + .22, 0),
+		Vector3(.23, .12, .1),
+		_beacon_material
+	)
+	_beacon.hide()
 	if _unit.type == "VehicleFactory":
 		return  # Authored factories already have open assembly bays.
 	Kit._box(

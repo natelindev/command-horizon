@@ -1,6 +1,7 @@
 """Rebuild the Free Frontier models, editable catalogue, icons and contact renders.
 
 blender --background --factory-startup --python-exit-code 1 --python art/frontier/build_faction.py
+Append -- --motion-only to export the four mobile antenna rigs without studio renders.
 """
 import json
 import math
@@ -180,7 +181,8 @@ def vent(x,y,z,width=.8,length=.6):
 
 def antenna(x,y,z,parent=None):
     cyl("AntennaBase",(x,y,z+.06),.09,.12,DARK,parent)
-    rod("Antenna",(x,y,z),(x,y,z+.72),.018,STEEL,parent)
+    mast = pivot("AntennaPivot",(x,y,z),parent) if current.name in {"ScrapperRig", "Outrider", "Ironback", "JackalRig"} else parent
+    rod("Antenna",(x,y,z),(x,y,z+.72),.018,STEEL,mast)
 
 
 def warning(x,y,z,parent=None):
@@ -500,8 +502,12 @@ def sentry(aa=False):
         crate(-.9,-1.34,.51)
 
 
-engineer(); ranger(); armor(); crawler(True); crawler(); armor(True); scout(); aircraft()
-command(); barracks(); garage(); airfield(); power(); signals(); garage(True); sentry(); sentry(True)
+motion_only = "--motion-only" in sys.argv
+if motion_only:
+    engineer(); armor(); crawler(); armor(True)
+else:
+    engineer(); ranger(); armor(); crawler(True); crawler(); armor(True); scout(); aircraft()
+    command(); barracks(); garage(); airfield(); power(); signals(); garage(True); sentry(); sentry(True)
 
 # Export evaluated copies, joining objects that share a rigid parent.
 manifest=[]
@@ -542,6 +548,10 @@ for name,collection,asset_root in assets:
     for obj in live: bpy.data.objects.remove(obj,do_unlink=True)
     manifest.append({"name":name,"triangles":triangles,"file":name+".glb"})
     collection.hide_render=True
+
+if motion_only:
+    print("Frontier motion rigs exported")
+    raise SystemExit(0)
 
 # Render actual geometry for roster icons.
 world=bpy.data.worlds.new("Frontier studio"); scene.world=world; world.use_nodes=True

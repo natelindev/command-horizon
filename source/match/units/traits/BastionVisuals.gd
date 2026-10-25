@@ -22,6 +22,10 @@ static var _crowded := false
 
 var motion: MotionProfile
 var chassis: Chassis
+var _track_motion = null
+var _antennas := []
+var _antenna_lean := Vector2.ZERO
+var _antenna_velocity := Vector2.ZERO
 var _wheel_motion = null
 var _infantry_motion = null
 var _walker = null
@@ -47,6 +51,7 @@ var _hit_kick := 0.0
 var _hit_axis := Vector3.ZERO
 var _hit_push := Vector3.ZERO
 var _hit_clock := -INF
+var _hit_blast := false
 var _barrel_rest := Vector3.ZERO
 var _geometry_rest_rotation := Vector3.ZERO
 var _geometry_rest_scale := Basis.IDENTITY
@@ -135,8 +140,9 @@ func _ready():
 	_rotors += _unit.find_children("*Rotor?", "Node3D", true, false)
 	for pattern in ["*ToolArm*", "*ServiceArm*", "*RepairArm*", "*SensorPivot"]:
 		_tools += _unit.find_children(pattern, "Node3D", true, false).filter(_is_pivot)
+	_antennas = _unit.find_children("*AntennaPivot*", "Node3D", true, false).filter(_is_pivot)
 	_stabilizers = _unit.find_children("*Stabilizer_*", "Node3D", true, false).filter(_is_pivot)
-	for part in _legs + _rotors + _tools + _stabilizers + [_turret, _barrel]:
+	for part in _legs + _rotors + _tools + _stabilizers + _antennas + [_turret, _barrel]:
 		if part != null:
 			_rests[part] = part.rotation
 	for rotor in _rotors:
@@ -164,6 +170,10 @@ func _ready():
 		_sparkling = _unit.get_node_or_null("Sparkling")
 	var infantry = InfantryRoster.is_infantry(_unit.type)
 	if _mobile and not _airborne and not infantry:
+		_track_motion = load("res://source/match/units/traits/TrackMotion.gd").new()
+		_track_motion.setup(_unit)
+		if _track_motion.belts.is_empty():
+			_track_motion = null
 		_wheel_motion = load("res://source/match/units/traits/WheelMotion.gd").new()
 		_wheel_motion.setup(_unit)
 		if _wheel_motion.wheels.is_empty():
@@ -266,7 +276,8 @@ func fire_recoil():
 		_suspension_velocity = -0.16
 
 
-func hit_reaction(source_position = Vector3.INF):
+func hit_reaction(source_position = Vector3.INF, explosive := false):
+	_hit_blast = explosive
 	_flush_pending_pose()
 	_reaction_remaining = .12
 	_quiet_time = 0.0
@@ -289,9 +300,15 @@ func hit_reaction(source_position = Vector3.INF):
 
 func death_motion():
 	var away = _hit_push if _clock - _hit_clock < 1.5 else Vector3.ZERO
-	return motion.death_motion(
+	var recipe = motion.death_motion(
 		InfantryRoster.is_infantry(_unit.type), _airborne, _mobile, away, _unit.global_basis
 	)
+	if recipe.infantry and _hit_blast and _clock - _hit_clock < 1.5:
+		recipe.duration = .8
+		recipe.lift = .55
+		recipe.slide += (_unit.global_basis * away) * .65
+		recipe.style = 0
+	return recipe
 
 
 # Pose once per rendered frame. Simulation can catch up with several physics
@@ -432,6 +449,10 @@ func _publish_simulation_pose():
 	var pose: Transform3D = _unit.global_transform * _geometry_pose
 	if _pose_hierarchy != null:
 		_pose_hierarchy.root.transform = pose
+		# Deforming tracks render natively beside the batched rigid hull. Their
+		# scene ancestor must follow the same pose even when rigid leaves are parked.
+		if _track_motion != null and _geometry.global_transform != pose:
+			_geometry.global_transform = pose
 	elif _geometry.global_transform != pose:
 		_geometry.global_transform = pose
 
@@ -496,6 +517,9 @@ func _finish_pose(delta: float):
 	# Wheels also roll through pivot turns, which have no root translation.
 	if _wheel_motion != null:
 		_wheel_motion.advance(delta)
+	if _track_motion != null:
+		_track_motion.advance(delta)
+	_advance_antennas(delta)
 
 	if (
 		_settled
@@ -512,6 +536,11 @@ func _finish_pose(delta: float):
 	_gesture_value = _idle_gesture()
 	_update_parts(delta)
 	_apply_geometry(delta, (travel * Vector3(1, 0, 1)).length())
+	if _airborne and not _fixed_wing and not _rotors.is_empty():
+		_dust_elapsed += delta
+		if _dust_elapsed > .45:
+			_dust_elapsed = 0.0
+			_unit._match.combat_effects.rotor_downwash(_unit)
 	if moving and not _airborne and _mobile:
 		_dust_elapsed += delta
 		if _dust_elapsed > 0.22 * motion.cadence:
@@ -542,10 +571,16 @@ func _settle_pose(moving: bool):
 
 
 func _apply_geometry(delta: float, ground_distance: float):
-	var kick = _recoil * _recoil * motion.recoil_strength
+	var kick = recoil_envelope(1.0 - _recoil) * motion.recoil_strength
 	if _barrel != null and (kick > 0.0 or _barrel.position != _barrel_rest):
 		_barrel.position = (
-			_barrel_rest + Vector3.BACK * kick * (0.28 if _heavy else 0.12) / _barrel_scale
+			_barrel_rest
+			+ (
+				Vector3(0, -sin(_barrel_pitch), cos(_barrel_pitch))
+				* kick
+				* (0.28 if _heavy else 0.12)
+				/ _barrel_scale
+			)
 		)
 	# Buildings keep their foundation fixed; their articulated parts still animate.
 	if not _mobile:
@@ -730,6 +765,8 @@ func _update_parts(delta: float):
 	if not _stabilizers.is_empty():
 		var deploy = move_toward(_deploy, _deploy_target(), delta * 1.6)
 		if deploy != _deploy:
+			if _deploy < .98 and deploy >= .98 and _deploys:
+				_unit._match.combat_effects.deployment_dust(_unit)
 			_deploy = deploy
 			for stabilizer in _stabilizers:
 				var side = signf(stabilizer.position.x)
@@ -830,3 +867,33 @@ func _sync_muzzle():
 		_pose_worker.publish()
 	if _muzzle != null and _projectile_origin != null:
 		_projectile_origin.global_transform = _muzzle.global_transform.orthonormalized()
+
+
+static func recoil_envelope(progress: float) -> float:
+	# Explosive kick, short mechanical hold, then a soft hydraulic return.
+	if progress >= 1.0:
+		return 0.0
+	if progress < .1:
+		return smoothstep(0.0, .1, progress)
+	if progress < .24:
+		return 1.0
+	return 1.0 - smoothstep(.24, 1.0, progress)
+
+
+func _advance_antennas(delta: float):
+	if _antennas.is_empty():
+		return
+	# Exact underdamped oscillator; stable even when pose updates are throttled.
+	var target := Vector2(chassis.accel.x, chassis.accel.y).limit_length(16.0) * .009
+	var error := _antenna_lean - target
+	var damping := 4.0
+	var frequency := 16.0
+	var decay := exp(-damping * delta)
+	var c := cos(frequency * delta)
+	var s := sin(frequency * delta) / frequency
+	_antenna_lean = target + decay * (error * c + (_antenna_velocity + damping * error) * s)
+	_antenna_velocity = (
+		decay * (_antenna_velocity * c - (damping * _antenna_velocity + 272.0 * error) * s)
+	)
+	for antenna in _antennas:
+		antenna.rotation = _rests[antenna] + Vector3(_antenna_lean.x, 0, _antenna_lean.y)

@@ -157,7 +157,10 @@ func _integrate(step: float):
 	_visual_rate = (_visual_rate - omega * coefficient * step) * decay
 	clamp_lag(_tuning[1])
 	var limit: float = _tuning[6]
-	var pitch_target := clampf(accel.x * _tuning[4], -limit, limit)
+	# Braking loads the front suspension more than steady acceleration.
+	var braking := forward_speed * accel.x < 0.0
+	var brake_gain := 1.55 if kind == Kind.TRACKED and braking else 1.0
+	var pitch_target := clampf(accel.x * _tuning[4] * brake_gain, -limit * brake_gain, limit)
 	var roll_target := clampf(accel.y * _tuning[5], -limit, limit)
 	if kind == Kind.AIR:
 		# Rotorcraft tip the nose down to cruise and flare when braking.

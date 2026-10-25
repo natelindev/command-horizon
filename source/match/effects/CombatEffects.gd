@@ -35,6 +35,9 @@ var impacts_emitted = 0
 var shield_impacts_emitted = 0
 var deaths_emitted = 0
 var aftermath
+var foliage
+var _weapon_heat
+var _dust_biome := "desert"
 var _emitters = {}
 var _tracers = []
 var _free_tracers = []
@@ -224,6 +227,10 @@ func _ready():
 	_headless = DisplayServer.get_name() == "headless"
 	_random.seed = 73819  # Cosmetic randomness never changes the gameplay RNG.
 	_tracer_mesh.size = Vector3.ONE
+	if get_parent() != null and "map" in get_parent():
+		_dust_biome = load("res://source/match/environment/AtmosphereProfiles.gd").biome(
+			get_parent().map
+		)
 	var signals = get_node_or_null("/root/MatchSignals")
 	if signals != null and not signals.tactical_ping.is_connected(_on_tactical_ping):
 		signals.tactical_ping.connect(_on_tactical_ping)
@@ -231,6 +238,11 @@ func _ready():
 		return
 	if get_parent() != null:
 		_camera = get_parent().get_node_or_null("IsometricCamera3D")
+	foliage = load("res://source/match/effects/FoliageResponse.gd").new()
+	add_child(foliage)
+	_weapon_heat = load("res://source/match/effects/WeaponHeat.gd").new()
+	_weapon_heat.process_mode = Node.PROCESS_MODE_PAUSABLE
+	add_child(_weapon_heat)
 	aftermath = preload("res://source/match/effects/BattleAftermath.gd").new()
 	aftermath.name = "BattleAftermath"
 	add_child(aftermath)
@@ -244,14 +256,15 @@ func _ready():
 	_emitter("trail_smoke", 2048, 1.25, Vector3(.06, .22, .025), 0.0, .72)
 	_emitter("exhaust", 768, .1, Vector3.ZERO, 2.8, .38)
 	_debris_emitter()
+	_debris_emitter("clod", 0.0)
 
 
-func _debris_emitter():
+func _debris_emitter(kind = "debris", metalness = .45):
 	var particles = GPUParticles3D.new()
-	particles.name = "Shards"
+	particles.name = "Shards" if kind == "debris" else "SoilClods"
 	particles.emitting = false
-	particles.amount = 192
-	particles.lifetime = 1.1
+	particles.amount = 192 if kind == "debris" else 128
+	particles.lifetime = 1.1 if kind == "debris" else .55
 	particles.local_coords = false
 	particles.fixed_fps = 30
 	particles.visibility_aabb = AABB(Vector3(-64, -16, -64), Vector3(384, 80, 384))
@@ -280,12 +293,13 @@ func _debris_emitter():
 	var mesh = BoxMesh.new()
 	var surface = StandardMaterial3D.new()
 	surface.albedo_color = Color("67594a")
-	surface.metallic = .45
+	surface.metallic = metalness
+	surface.vertex_color_use_as_albedo = kind == "clod"
 	surface.roughness = .7
 	mesh.material = surface
 	particles.draw_pass_1 = mesh
 	add_child(particles)
-	_emitters.debris = particles
+	_emitters[kind] = particles
 
 
 func _emitter(kind, amount, lifetime, gravity, glow, roughness):
@@ -347,7 +361,8 @@ func _puff(kind, point, velocity, color, size):
 
 
 func _ground_height(point):
-	return get_parent().map.height_at(Vector2(point.x, point.z))
+	var game = get_parent()
+	return game.map.height_at(Vector2(point.x, point.z)) if game != null and "map" in game else 0.0
 
 
 # Muzzle presentation and sound for one shot. Physical rounds draw themselves
@@ -377,6 +392,22 @@ func shot(
 	var heavy = unit.type in ["Tank", "AdvancedTank", "AntiGroundTurret"]
 	if heavy:
 		_shake_camera(origin, 0.08)
+		if foliage != null and _camera_sees(origin):
+			foliage.impulse(origin, 6.0)
+		if _weapon_heat != null and not missile and _camera_sees(origin):
+			_weapon_heat.shot(unit)
+		if aftermath != null and not rail and not missile and _camera_sees(origin):
+			aftermath.casing(origin + unit.global_basis.z * .55, unit.global_basis.x)
+		var ground = Vector3(origin.x, _ground_height(origin) + .1, origin.z)
+		if origin.y - ground.y < 3.0:
+			for side in [-1, 1]:
+				_puff(
+					"dust",
+					ground + unit.global_basis.x * side * .45,
+					unit.global_basis.x * side * 1.3 + Vector3.UP * .15,
+					dust_color(_dust_biome),
+					unit.radius * .65
+				)
 	if not rail and _camera_sees(origin):
 		aftermath.flash(origin, .5 if heavy else .18, color, true)
 	var direction = origin.direction_to(target_point)
@@ -744,15 +775,44 @@ func obstacle_destruction(obstacle):
 	aftermath.burst(point, size, true)
 
 
+static func dust_color(biome: String) -> Color:
+	match biome:
+		"alpine":
+			return Color(.82, .88, .93, .24)
+		"desert":
+			return Color(.6, .49, .33, .2)
+		"urban":
+			return Color(.42, .43, .43, .15)
+		_:
+			return Color(.28, .25, .18, .22)
+
+
 func movement_dust(unit):
-	if _can_show(unit):
-		_puff(
-			"dust",
-			unit.global_position + Vector3.UP * 0.12,
-			unit.global_basis.z * -.35 + Vector3.UP * 0.12,
-			Color(0.6, 0.49, 0.33, 0.17),
-			unit.radius * 0.9
+	if not _can_show(unit):
+		return
+	var map = get_parent().map
+	var point: Vector3 = unit.global_position
+	# Existing water simulation owns wakes and splashes; never blow dry dust over it.
+	if "water_flow" in map and map.water_flow != null:
+		if map.water_flow.sample(Vector2(point.x, point.z)).a > .1:
+			return
+	var movement = unit.get_node_or_null("Movement")
+	var velocity: Vector3 = movement.velocity if movement != null else -unit.global_basis.z
+	var backward := -velocity.normalized()
+	var size = unit.radius * (.7 if _dust_biome == "alpine" else .9)
+	var color = dust_color(_dust_biome)
+	for side in [-1, 1]:
+		var contact = (
+			point + backward * unit.radius * .65 + unit.global_basis.x * side * unit.radius * .55
 		)
+		contact.y = _ground_height(contact) + .1
+		_puff("dust", contact, backward * .55 + Vector3.UP * .16, color, size)
+		if (
+			_dust_biome in ["temperate", "coastal"]
+			and unit.radius > .65
+			and velocity.length_squared() > 2.0
+		):
+			_puff("clod", contact, backward * 1.2 + Vector3.UP * .8, Color(.4, .32, .22), .65)
 
 
 func _wreck(unit, infantry):
@@ -776,14 +836,16 @@ func _wreck(unit, infantry):
 				mesh.set_surface_override_material(surface, null)
 		mesh.material_override = material
 		mesh.material_overlay = null
-	if (
-		not infantry
-		and unit.type in ["Tank", "AdvancedTank"]
-		and not Globals.options.reduced_flashes
-	):
-		var turret_node = wreck.find_child("*TurretPivot*", true, false)
-		if turret_node != null:
-			_launch_turret_cook_off(turret_node, unit.radius)
+	var death = unit.get_node("BastionVisuals").death_motion()
+	if infantry and death.get("lift", 0.0) > 0.0 and aftermath != null:
+		var weapon = wreck.find_child("WeaponCarry", true, false)
+		if weapon != null:
+			aftermath.detach_weapon(weapon, death.slide.normalized() * 1.3 + Vector3.UP * 2.2)
+	var turret_node = (
+		wreck.find_child("*TurretPivot*", true, false)
+		if not infantry and unit.type in ["Tank", "AdvancedTank"]
+		else null
+	)
 	(
 		_wrecks
 		. append(
@@ -795,11 +857,14 @@ func _wreck(unit, infantry):
 				"fire_height": clampf(unit.radius * .8, .6, 1.8),
 				"light": _wreck_light(wreck, unit.radius) if not infantry else null,
 				"secondary": false,
+				"secondary_time": _random.randf_range(1.2, 2.6),
+				"turret": turret_node,
 				"size": clampf(unit.radius, 0.5, 2.0),
 				"infantry": infantry,
 				"origin": wreck.position,
 				"rotation": wreck.rotation,
-				"motion": unit.get_node("BastionVisuals").death_motion(),
+				"motion": death,
+				"failure_part": _failure_part(wreck) if not infantry else {},
 				"momentum": _crash_momentum(unit),
 			}
 		)
@@ -940,8 +1005,10 @@ func _advance_wreck_fire(entry, delta):
 # jet arcs forward into the ground instead of dropping in place.
 func _crash_momentum(unit):
 	var movement = unit.get_node_or_null("Movement")
-	if movement == null or unit.movement_domain != 0:
+	if movement == null:
 		return Vector3.ZERO
+	if unit.movement_domain != 0:
+		return movement.velocity * Vector3(1, 0, 1) * .18
 	var velocity = (
 		movement.flight_velocity() if movement.has_method("flight_velocity") else movement.velocity
 	)
@@ -1078,6 +1145,8 @@ func _glowing_material(color):
 func _process(_delta):
 	# Settings can change while the battle is paused; remove frozen flashes then too.
 	if Globals.options.reduced_flashes:
+		if _weapon_heat != null:
+			_weapon_heat._process(0.0)
 		_advance_hit_flashes(0.0)
 		for entry in _tracers:
 			if entry.rail:
@@ -1202,8 +1271,24 @@ func _advance_aftermath(delta):
 				Color(0.16, 0.16, 0.15, 0.32),
 				entry.size * 0.9
 			)
-		if not entry.infantry and not entry.secondary and entry.age > 0.7:
+		if (
+			not entry.infantry
+			and not entry.secondary
+			and entry.age > entry.get("secondary_time", 1.6)
+		):
 			entry.secondary = true
+			if not can_show_point(entry.node.global_position):
+				continue
+			if is_instance_valid(entry.get("turret")) and not Globals.options.reduced_flashes:
+				_launch_turret_cook_off(entry.turret, entry.size)
+			for side in [-1, 1]:
+				_puff(
+					"fire",
+					entry.node.position + Vector3.UP * .6,
+					Vector3(side * 1.8, 2.2, 0),
+					Color(1, .45, .1, .6),
+					entry.size * .45
+				)
 			_explosion(
 				entry.node.position + Vector3.UP * 0.35,
 				entry.size * 0.65,
@@ -1269,8 +1354,31 @@ func _update_wreck(entry):
 		* motion.duration
 		* (progress - progress * progress * .5)
 	)
-	var ground = 0.02 if motion.mobile else entry.origin.y - 0.18
+	var ground = (
+		_ground_height(entry.node.position) + .02 if motion.mobile else entry.origin.y - .18
+	)
 	entry.node.position.y = lerpf(entry.origin.y, ground, settle)
+	entry.node.position.y += sin(progress * PI) * motion.get("lift", 0.0)
+	var failure = entry.get("failure_part", {})
+	if not failure.is_empty() and is_instance_valid(failure.node):
+		var collapse = smoothstep(.12, .7, progress)
+		failure.node.transform = failure.rest
+		if failure.track:
+			failure.node.position += Vector3(failure.side * .14, -.06, .05) * collapse
+			failure.node.rotation.z += failure.side * .12 * collapse
+		else:
+			failure.node.rotation.x += .65 * collapse
+	if progress >= 1.0 and not entry.has("gouged"):
+		entry.gouged = true
+		var slide: Vector3 = entry.node.position - entry.origin
+		if (
+			not motion.get("infantry", false)
+			and motion.mobile
+			and slide.length() > .25
+			and aftermath != null
+		):
+			for fraction in [.25, .6, 1.0]:
+				aftermath.scar(entry.origin.lerp(entry.node.position, fraction), entry.size * .55)
 	if motion.get("infantry", false):
 		# Tilting the rig about its origin puts the chest and helmet through the
 		# ground. Keep its visible geometry above the floor as the knees buckle.
@@ -1383,3 +1491,50 @@ func _water_impact(point: Vector3, strength: float):
 	var atmosphere = get_parent().get_node_or_null("WorldAtmosphere")
 	if atmosphere != null and atmosphere.effects != null:
 		atmosphere.effects.water_interactions.impact(point, strength)
+
+
+func rotor_downwash(unit):
+	if foliage == null or not _can_show(unit) or not _camera_sees(unit.global_position):
+		return
+	var point: Vector3 = unit.global_position
+	var ground = _ground_height(point)
+	if point.y - ground > 5.0:
+		return
+	point.y = ground
+	foliage.impulse(point, 4.0)
+	_puff(
+		"dust",
+		point + unit.global_basis.x * unit.radius,
+		unit.global_basis.x * 1.2,
+		dust_color(_dust_biome),
+		unit.radius
+	)
+
+
+func _failure_part(wreck) -> Dictionary:
+	var parts = wreck.find_children("*TrackPivot*", "Node3D", true, false)
+	var track = not parts.is_empty()
+	if parts.is_empty():
+		parts = wreck.find_children("*KneePivot*", "Node3D", true, false)
+	if parts.is_empty():
+		return {}
+	var node = parts[_random.randi_range(0, parts.size() - 1)]
+	return {
+		"node": node,
+		"rest": node.transform,
+		"track": track,
+		"side": -1.0 if "Left" in node.name else 1.0
+	}
+
+
+func deployment_dust(unit):
+	if not _can_show(unit):
+		return
+	for x in [-1, 1]:
+		for z in [-1, 1]:
+			var point = (
+				unit.global_position
+				+ unit.global_basis * Vector3(x * unit.radius * .65, 0, z * unit.radius * .55)
+			)
+			point.y = _ground_height(point) + .08
+			_puff("dust", point, Vector3(x * .2, .1, z * .2), dust_color(_dust_biome), .35)

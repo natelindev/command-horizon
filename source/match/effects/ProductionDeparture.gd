@@ -16,6 +16,8 @@ var _control = Vector3.ZERO
 var _navigation_map = RID()
 var _motion
 var _wheels
+var _tracks
+var _exhaust_started := false
 var _rotors = []
 var _walker = null
 var _clock = 0.0
@@ -72,6 +74,8 @@ func prepare(building, element):
 		_motion.setup(self, float(producer.get_meta("visual_seed", 0) % 17) * .37)
 	_wheels = WheelMotion.new()
 	_wheels.setup(self)
+	_tracks = load("res://source/match/units/traits/TrackMotion.gd").new()
+	_tracks.setup(self)
 	for pattern in ["*RotorLeft", "*RotorRight", "*Rotor?"]:
 		_rotors += find_children(pattern, "Node3D", true, false)
 	var legs = []
@@ -301,6 +305,8 @@ func route_point(progress):
 		if progress < .55:
 			return _origin.lerp(lift, smoothstep(0.0, .55, progress))
 		return lift.lerp(endpoint, smoothstep(.55, 1.0, progress))
+	# Ease away from the bay, reaching cruising speed without a start-up snap.
+	progress = progress * progress * (2.0 - progress)
 	var a = _origin.lerp(_control, progress)
 	var b = _control.lerp(endpoint, progress)
 	return a.lerp(b, progress)
@@ -321,6 +327,23 @@ func update_pose(delta):
 	if _motion != null:
 		_motion.advance(delta, distance, _clock, 0.0, 0.0, 0.0)
 	_wheels.advance(delta)
+	_tracks.advance(delta)
+	if not _exhaust_started and progress > .02:
+		_exhaust_started = true
+		var effects = producer._match.combat_effects
+		if _motion == null and effects.can_show_construction(producer):
+			var color = (
+				Color(.22, .24, .25, .28)
+				if producer.player.faction != "helix"
+				else Color(.6, .8, .85, .16)
+			)
+			effects.construction_puff(
+				"smoke",
+				global_position + global_basis.z * radius + Vector3.UP * .3,
+				global_basis.z * .5 + Vector3.UP * .5,
+				color,
+				radius * .7
+			)
 	for rotor in _rotors:
 		rotor.rotation.y += delta * 25.0
 	if _walker != null:
@@ -333,6 +356,8 @@ func update_pose(delta):
 func handoff(unit):
 	# Continue the exit stride on the real unit instead of restarting its gait.
 	var visual = unit.get_node("BastionVisuals")
+	if visual._track_motion != null:
+		visual._track_motion.copy_from(_tracks)
 	if _motion != null and visual._infantry_motion != null:
 		visual._infantry_motion.copy_from(_motion)
 	if _walker != null and visual._walker != null:

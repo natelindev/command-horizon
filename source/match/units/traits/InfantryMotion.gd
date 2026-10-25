@@ -443,6 +443,13 @@ static func pose_death(geometry, progress, style):
 				},
 				carried
 			)
+	else:
+		# A blast can separate the weapon; empty hands relax instead of gripping air.
+		for side in ["Left", "Right"]:
+			var arm = chest.get_node("Arm" + side)
+			var elbow = arm.get_node("Elbow" + side)
+			arm.rotation = Vector3(.2, 0, (-.25 if side == "Left" else .25) * slump)
+			elbow.rotation.x = .3 * slump
 	for side in ["Left", "Right"]:
 		var hip = hips.get_node("Hip" + side)
 		var knee = hip.get_node("Knee" + side)

@@ -16,6 +16,22 @@ uniform bool vertex_tint = false;
 uniform float leaf_transmission = 0.0;
 // A per-material control for rendered comparisons, independent of ground detail.
 uniform float object_detail = 1.0;
+// Four camera-local impulses shared by native meshes and rigid GPU batches.
+global uniform vec4 foliage_strengths;
+global uniform vec4 foliage_impulse_0;
+global uniform vec4 foliage_impulse_1;
+global uniform vec4 foliage_impulse_2;
+global uniform vec4 foliage_impulse_3;
+
+vec3 foliage_push(vec3 world, vec4 impulse, float strength) {
+	vec2 offset = world.xz - impulse.xz;
+	float distance = length(offset);
+	float reach = max(impulse.w, .001);
+	float weight = pow(max(0.0, 1.0 - distance / reach), 2.0);
+	vec2 direction = offset / max(distance, .1);
+	return vec3(direction.x, -.12, direction.y) * strength * weight * min(reach * .09, .6);
+}
+
 varying vec3 surface_position;
 varying vec3 surface_geometric_normal;
 varying mat3 surface_to_view;
@@ -25,6 +41,14 @@ void vertex() {
 		length(MODEL_MATRIX[1].xyz), length(MODEL_MATRIX[2].xyz)), vec3(0.0001));
 	surface_position = VERTEX * scale * texture_scale;
 	surface_geometric_normal = normalize(NORMAL / scale);
+	if (leaf_transmission > 0.0) {
+		vec3 world = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+		vec3 push = foliage_push(world, foliage_impulse_0, foliage_strengths.x)
+			+ foliage_push(world, foliage_impulse_1, foliage_strengths.y)
+			+ foliage_push(world, foliage_impulse_2, foliage_strengths.z)
+			+ foliage_push(world, foliage_impulse_3, foliage_strengths.w);
+		VERTEX += inverse(mat3(MODEL_MATRIX)) * push;
+	}
 	surface_to_view = mat3(MODELVIEW_MATRIX[0].xyz / scale.x,
 		MODELVIEW_MATRIX[1].xyz / scale.y, MODELVIEW_MATRIX[2].xyz / scale.z);
 }

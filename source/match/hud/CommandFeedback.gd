@@ -95,6 +95,9 @@ func _process(delta):
 		markers[index].age += delta
 		var marker = markers[index]
 		marker.node.visible = not hud.direct_orders._blocked()
+		if marker.accepted and not marker.get("posed", false):
+			_pose_marker(marker)
+			marker.posed = marker.age >= .35 or Globals.options.reduced_flashes
 		marker.node.fade(minf(1.0, (marker.lifetime - marker.age) * 4.0))
 		if marker.age >= marker.lifetime:
 			marker.node.queue_free()
@@ -209,25 +212,21 @@ func reject(message):
 func _add_marker(point, kind, label, accepted):
 	while markers.size() >= MAX_MARKERS:
 		markers.pop_front().node.queue_free()
+	var heading := Vector3.FORWARD
+	if not _selection.is_empty() and is_instance_valid(_selection[0]):
+		heading = ((point - _selection[0].global_position) * Vector3(1, 0, 1)).normalized()
+	if heading.is_zero_approx():
+		heading = Vector3.FORWARD
 	var node = GroundFeedback.new()
 	node.name = "CommandRing"
 	node.map = hud.get_parent().map
 	hud.get_parent().add_child(node)
-	node.begin()
-	var color = Color("e3eff1") if accepted else Color("e5c38c")
-	node.ring(point, .85 if accepted else .5, .09, color)
-	if kind in ["attack", "attack_move"]:
-		for index in 4:
-			var direction = Vector3.RIGHT.rotated(Vector3.UP, index * PI * .5)
-			node.line(point + direction * .3, point + direction * 1.2, .1, color)
-	elif not accepted:
-		node.line(point + Vector3.LEFT * .25, point + Vector3.RIGHT * .25, .1, color)
-	node.finish()
 	# Preserve spoken command/rejection feedback after removing accepted cards.
 	accessibility_name = label
 	markers.append(
 		{
 			"point": point,
+			"heading": heading,
 			"node": node,
 			"kind": kind,
 			"text": label,
@@ -236,7 +235,40 @@ func _add_marker(point, kind, label, accepted):
 			"lifetime": .9 if accepted else 2.4
 		}
 	)
+	_pose_marker(markers.back())
 	queue_redraw()
+
+
+func _pose_marker(marker):
+	var node = marker.node
+	var point: Vector3 = marker.point
+	var reduced = Globals.options.reduced_flashes
+	var progress = 1.0 if reduced else clampf(marker.age / .35, 0.0, 1.0)
+	var ease = 1.0 - pow(1.0 - progress, 3)
+	var attack = marker.kind in ["attack", "attack_move", "force_attack"]
+	var color = (
+		(Color("e68d7c") if attack else Color("e3eff1")) if marker.accepted else Color("e5c38c")
+	)
+	node.begin()
+	if not marker.accepted:
+		node.ring(point, .5, .09, color)
+		node.line(point + Vector3.LEFT * .25, point + Vector3.RIGHT * .25, .1, color)
+	elif attack:
+		for index in 4:
+			var direction = Vector3.RIGHT.rotated(Vector3.UP, index * PI * .5)
+			var side = direction.rotated(Vector3.UP, PI * .5)
+			var corner = point + direction * lerpf(1.25, .72, ease)
+			node.line(corner - side * .2, corner, .085, color)
+			node.line(corner, corner - direction * .3, .085, color)
+	else:
+		node.ring(point, lerpf(.5, .85, ease), .075, color)
+		var heading: Vector3 = marker.heading
+		node.arrow(point - heading * .25, heading, .5, color)
+	if marker.accepted and not reduced and progress < 1.0:
+		var ripple = color
+		ripple.a = .4 * (1.0 - progress)
+		node.ring(point, .7 + progress * .75, .045, ripple)
+	node.finish()
 
 
 func _draw():

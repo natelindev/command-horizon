@@ -332,7 +332,7 @@ func _palette_code(code: String, original: Material, values: ShaderMaterial) -> 
 	var row := rows.size()
 	rows[original] = row
 	var declarations := RegEx.new()
-	declarations.compile("uniform (float|bool|vec3|vec4) (\\w+)([^;]*);")
+	declarations.compile("(?<!global )uniform (float|bool|vec3|vec4) (\\w+)([^;]*);")
 	var column := 0
 	for found in declarations.search_all(code):
 		var kind := found.get_string(1)

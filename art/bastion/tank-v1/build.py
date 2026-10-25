@@ -6,10 +6,12 @@ Run from any directory:
 Outputs are deliberately scoped to this asset's versioned source directory and
 assets/models/bastion/tank-v1. Re-running rebuilds this generated version.
 The editable .blend retains individual components; the GLB joins rigid parts.
+Append -- --export-only to rebuild the articulated source GLB without studio renders.
 """
 
 import json
 import math
+import sys
 from pathlib import Path
 
 import bpy
@@ -19,6 +21,9 @@ from mathutils import Matrix, Vector
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
+sys.path.insert(0, str(ROOT / "art/common"))
+import track_rig
+
 EXPORT = ROOT / "assets/models/bastion/tank-v1"
 EXPORT.mkdir(parents=True, exist_ok=True)
 RENDERS = HERE / "renders"
@@ -36,7 +41,7 @@ source = bpy.data.collections.new("SOURCE — editable components")
 scene.collection.children.link(source)
 studio = bpy.data.collections.new("STUDIO — excluded from export")
 scene.collection.children.link(studio)
-parts = {"Hull": [], "Turret": [], "Barrel": []}
+parts = {"Hull": [], "Turret": [], "Barrel": [], "TrackLeft": [], "TrackRight": [], "AntennaLeft": [], "AntennaRight": []}
 
 
 def material(name, color, metallic=0.25, roughness=0.48, emission=0.0):
@@ -186,6 +191,7 @@ def capsule(distance, radius=0.64, half=2.02, center_z=0.73):
 
 def track_belt(side):
     x = side * 1.66
+    group = "TrackLeft" if side < 0 else "TrackRight"
     steps = 64
     perimeter = 8.08 + 2*math.pi*.64
     verts = []
@@ -207,12 +213,14 @@ def track_belt(side):
         y,z,ty,tz=capsule(perimeter*i/count)
         angle=math.atan2(tz,ty)
         # Local Z is outward when following the loop clockwise in Y/Z.
-        box(f"Track {side} / shoe {i:02}", (x,y,z), (.9,.205,.11), dark,
-            bevel=0, rotation=(angle,0,0))
+        shoe = box(f"Track {side} / shoe {i:02}", (x,y,z), (.9,.205,.11), dark,
+            group=group, bevel=0, rotation=(angle,0,0))
+        track_rig.encode(shoe, perimeter*i/count, 2.02, .64, .73)
         normal=Vector((0,-tz,ty))
         pos=Vector((x,y,z))+normal*.065
-        box(f"Track {side} / traction pad {i:02}", pos, (.62,.145,.035), rubber,
-            bevel=0, rotation=(angle,0,0))
+        pad = box(f"Track {side} / traction pad {i:02}", pos, (.62,.145,.035), rubber,
+            group=group, bevel=0, rotation=(angle,0,0))
+        track_rig.encode(pad, perimeter*i/count, 2.02, .64, .73)
     for i,y in enumerate((-2.02,-1.34,-.67,0,.67,1.34,2.02)):
         radius=.47 if i in (0,6) else .43
         cylinder(f"Track {side} / road wheel {i}",(x,y,.73),radius,.7,rubber,axis="X",vertices=16,bevel=0)
@@ -296,7 +304,7 @@ for side in (-1,1):
         obj=cylinder(f"Turret {side} / smoke tube {j}",(side*1.32,.08-j*.17,2.24),.065,.27,dark,"Turret",vertices=8,bevel=.01)
         obj.rotation_euler=(0,side*math.radians(34),0)
     cylinder(f"Antenna {side} / mount",(side*.92,-.98,2.31),.08,.13,dark,"Turret",vertices=8)
-    rod(f"Antenna {side} / mast",(side*.92,-.98,2.36),(side*.92,-1.025,3.21 if side==1 else 2.93),.012,dark,"Turret",6)
+    rod(f"Antenna {side} / mast",(side*.92,-.98,2.36),(side*.92,-1.025,3.21 if side==1 else 2.93),.012,dark,"AntennaLeft" if side < 0 else "AntennaRight",6)
 
 cylinder("Commander / cupola",(-.51,-.33,2.35),.39,.15,dark,"Turret",vertices=16)
 cylinder("Commander / hatch",(-.51,-.33,2.445),.33,.055,edge,"Turret",vertices=16)
@@ -370,7 +378,15 @@ bpy.context.view_layer.update()
 parent_keep_world(turret,root)
 parent_keep_world(barrel,turret)
 parent_keep_world(muzzle,barrel)
-for group,parent in (("Hull",root),("Turret",turret),("Barrel",barrel)):
+source_groups = [("Hull",root),("Turret",turret),("Barrel",barrel)]
+for side, label in [(-1,"Left"),(1,"Right")]:
+    track = empty("SourceTrackPivot"+label,(0,0,0),source)
+    parent_keep_world(track,root)
+    source_groups.append(("Track"+label,track))
+    antenna = empty("SourceAntennaPivot"+label,(side*.92,-.98,2.36),source)
+    parent_keep_world(antenna,turret)
+    source_groups.append(("Antenna"+label,antenna))
+for group,parent in source_groups:
     for obj in parts[group]:
         parent_keep_world(obj,parent)
 
@@ -389,7 +405,15 @@ parent_keep_world(eb,et)
 parent_keep_world(em,eb)
 depsgraph=bpy.context.evaluated_depsgraph_get()
 stats={}
-for group,pivot in (("Hull",eroot),("Turret",et),("Barrel",eb)):
+export_groups = [("Hull",eroot),("Turret",et),("Barrel",eb)]
+for side, label in [(-1,"Left"),(1,"Right")]:
+    track = empty("TrackPivot"+label,(0,0,0),export_collection)
+    parent_keep_world(track,eroot)
+    export_groups.append(("Track"+label,track))
+    antenna = empty("AntennaPivot"+label,(side*.92,-.98,2.36),export_collection)
+    parent_keep_world(antenna,et)
+    export_groups.append(("Antenna"+label,antenna))
+for group,pivot in export_groups:
     duplicates=[]
     for obj in parts[group]:
         data=bpy.data.meshes.new_from_object(obj.evaluated_get(depsgraph),depsgraph=depsgraph)
@@ -439,6 +463,9 @@ glb=EXPORT/"bastion_tank_v1.glb"
 bpy.ops.export_scene.gltf(filepath=str(glb),export_format="GLB",use_selection=True,
                          export_yup=True,export_extras=True,export_animations=False,
                          export_cameras=False,export_lights=False,export_apply=True)
+
+if "--export-only" in sys.argv:
+    raise SystemExit(0)
 
 export_collection.hide_render=True
 export_collection.hide_viewport=True
