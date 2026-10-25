@@ -17,7 +17,7 @@ func _ready():
 
 func _physics_process(delta):
 	_orphan_elapsed += delta
-	var all_units = get_tree().get_nodes_in_group("units")
+	var all_units = _match.get_units()
 	if all_units.is_empty():
 		return
 	var observers = _match.visible_players
@@ -124,8 +124,7 @@ func _try_removing_dummy_structure(unit):
 func _recalcuate_orphaned_dummy_existence(orphaned_dummy, revealed_units = null):
 	var should_exist = true
 	if revealed_units == null:
-		var candidates = get_tree().get_nodes_in_group("units")
-		candidates += get_tree().get_nodes_in_group("vision_sources")
+		var candidates = _match.get_observers()
 		revealed_units = candidates.filter(func(unit): return unit.is_in_group("revealed_units"))
 	for revealed_unit in revealed_units:
 		if (

@@ -1,10 +1,12 @@
-"""Build the optional Windows pose uploader; no system compiler installation.
+"""Build the optional native pose and simulation kernels.
 
 Pass --zig PATH to use a local Zig compiler, or --download-toolchain to fetch
 the pinned official archive and verify its SHA-256 before extraction.
 """
 import argparse
 import hashlib
+import platform
+import sys
 from pathlib import Path
 import shutil
 import subprocess
@@ -41,24 +43,58 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--zig", type=Path)
     parser.add_argument("--download-toolchain", action="store_true")
+    parser.add_argument("--cc", help="Host C compiler (default: cc on macOS/Linux)")
     parser.add_argument("--output", type=Path, default=ROOT / "native/bin")
     args = parser.parse_args()
-    zig = args.zig or shutil.which("zig")
-    if zig is None and args.download_toolchain:
-        zig = toolchain()
-    if zig is None:
-        parser.error("Supply --zig PATH or --download-toolchain")
+    host = platform.system()
+    architecture = {"aarch64": "arm64", "AMD64": "x86_64"}.get(platform.machine(), platform.machine())
+    if host not in ("Windows", "Darwin", "Linux") or architecture not in ("arm64", "x86_64"):
+        parser.error("Supported hosts: Windows x86-64, macOS/Linux arm64 or x86-64")
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
     source = ROOT / "native/pose_packer"
-    library = output / "copperfin.windows.x86_64.dll"
-    subprocess.run([str(zig), "cc", "-shared", "-O3", "-target", "x86_64-windows-gnu",
-                    "-I", str(source), str(source / "pose_packer.c"), "-o", str(library)], check=True)
-    (output / "copperfin.gdextension").write_text(
+    if host == "Windows":
+        if architecture != "x86_64":
+            parser.error("Windows requires x86-64")
+        zig = args.zig or shutil.which("zig")
+        if zig is None and args.download_toolchain:
+            zig = toolchain()
+        if zig is None:
+            parser.error("Supply --zig PATH or --download-toolchain")
+        compiler = [str(zig), "cc", "-shared", "-target", "x86_64-windows-gnu"]
+        feature, extension = "windows.x86_64", "dll"
+    else:
+        if args.zig or args.download_toolchain:
+            parser.error("Use --cc PATH for host builds on macOS/Linux")
+        cc = args.cc or shutil.which("cc")
+        if cc is None:
+            parser.error("No host compiler found; supply --cc PATH")
+        compiler = [str(cc), "-dynamiclib" if host == "Darwin" else "-shared", "-fPIC"]
+        feature = ("macos" if host == "Darwin" else "linux") + "." + architecture
+        extension = "dylib" if host == "Darwin" else "so"
+    library = output / f"copperfin.{feature}.{extension}"
+    result = subprocess.run(compiler + ["-O3", "-ffp-contract=off", "-I", str(source),
+                            str(source / "pose_packer.c"), "-o", str(library), "-lm"],
+                            stdout=sys.stderr, stderr=sys.stderr)
+    if result.returncode:
+        print("error: Native compilation failed")
+        print("help: Check compiler diagnostics on stderr and rerun with --cc or --zig")
+        raise SystemExit(1)
+    config = output / "copperfin.gdextension"
+    entries = {}
+    if config.exists():
+        section = config.read_text(encoding="utf-8").split("[libraries]", 1)
+        if len(section) == 2:
+            for line in section[1].splitlines():
+                if "=" in line:
+                    key, value = line.split("=", 1)
+                    entries[key.strip()] = value.strip()
+    entries[feature] = f'"{library.name}"'
+    config.write_text(
         '[configuration]\nentry_symbol = "copperfin_library_init"\n'
-        'compatibility_minimum = "4.4"\n\n[libraries]\n'
-        'windows.x86_64 = "copperfin.windows.x86_64.dll"\n', encoding="utf-8")
-    print(library)
+        'compatibility_minimum = "4.4"\n\n[libraries]\n' +
+        "".join(f"{key} = {value}\n" for key, value in sorted(entries.items())), encoding="utf-8")
+    print(f"library: {library}")
 
 
 if __name__ == "__main__":

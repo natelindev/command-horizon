@@ -56,8 +56,11 @@ const ARM_PARTS = ["upper", "lower", "wrist", "grip"]
 var job := Job.new()
 var _bindings := {}
 
+var _hierarchy: RefCounted
 
-func _init(motion):
+
+func _init(motion, hierarchy = null):
+	_hierarchy = hierarchy
 	job.motion = motion
 	for part in PARTS:
 		motion.set(part, _proxy(motion.get(part)))
@@ -71,7 +74,7 @@ func _init(motion):
 
 func _proxy(node: Node3D):
 	if not _bindings.has(node):
-		var pose := PoseTransform.new()
+		var pose = _hierarchy.bind_node(node) if _hierarchy != null else PoseTransform.new()
 		pose.transform = node.transform
 		_bindings[node] = pose
 	return _bindings[node]
@@ -94,6 +97,7 @@ func publish():
 
 func release():
 	end()
+	publish()
 	var originals := {}
 	for node in _bindings:
 		originals[_bindings[node]] = node

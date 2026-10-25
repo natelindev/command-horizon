@@ -99,9 +99,7 @@ func _sync_real_units_with_minimap_representations(phase = -1):
 	var observer = _match._get_human_player()
 	if observer == null:
 		observer = _match.visible_player
-	var units_to_sync = (
-		get_tree().get_nodes_in_group("units") + get_tree().get_nodes_in_group("resource_units")
-	)
+	var units_to_sync = _match.get_units() + _match.get_cached_group("resource_units")
 	for unit in units_to_sync:
 		if phase >= 0 and unit.get_instance_id() % MARKER_PHASES != phase:
 			units_synced[unit] = 1

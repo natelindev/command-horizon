@@ -10,9 +10,9 @@ const SETTLE_SECONDS = .22
 
 
 class Leg:
-	var node: Node3D
-	var knee: Node3D
-	var ankle: Node3D
+	var node
+	var knee
+	var ankle
 	var rest: Basis
 	var knee_rest: Basis
 	var ankle_rest: Basis
@@ -213,7 +213,7 @@ func support_body(body: Transform3D) -> Transform3D:
 	var drop := 0.0
 	for leg in legs:
 		var parent := body * leg.parent_rest
-		var hip := parent * leg.node.position
+		var hip: Vector3 = parent * leg.node.position
 		var reach := (
 			(body.basis * leg.support_upper).length()
 			+ (body.basis * leg.support_lower).length()
@@ -230,7 +230,7 @@ func pose(body: Transform3D):
 	var body_inverse := body.affine_inverse()
 	for leg in legs:
 		var parent := body * leg.parent_rest
-		var target := leg.parent_inverse * (body_inverse * leg.foot) - leg.node.position
+		var target: Vector3 = leg.parent_inverse * (body_inverse * leg.foot) - leg.node.position
 		var a := leg.upper_length
 		var b := leg.lower_length
 		var reach := clampf(target.length(), absf(a - b) + .0001, a + b - .0001)

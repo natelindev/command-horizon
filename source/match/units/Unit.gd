@@ -86,6 +86,20 @@ var _plateau_advantage = false
 @onready var _match = find_parent("Match")
 
 
+func _enter_tree():
+	var game = find_parent("Match")
+	if game != null and game.has_method("invalidate_unit_registry"):
+		game.invalidate_unit_registry()
+		# Exit callbacks can rebuild a snapshot before group membership is removed.
+		tree_exited.connect(game.invalidate_unit_registry, CONNECT_ONE_SHOT)
+
+
+func _exit_tree():
+	var game = find_parent("Match")
+	if game != null and game.has_method("invalidate_unit_registry"):
+		game.invalidate_unit_registry()
+
+
 func _ready():
 	if _match != null and not _match.is_node_ready():
 		await _match.ready

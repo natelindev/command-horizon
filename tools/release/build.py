@@ -19,7 +19,8 @@ ENGINE_SUFFIX = {"linux": "linux.x86_64", "windows": "win64.exe", "macos": "maco
 TESTS = [
     "BehaviorRegression", "UnitAnimationRegression",
     "ChassisSpringRegression", "ParallelPoseRegression",
-    "InfantryPoseWorkerRegression", "VisibilityRefreshRegression",
+    "InfantryPoseWorkerRegression", "DecoupledPoseRegression",
+    "UnitRegistryRegression", "VisibilityRefreshRegression",
     "InfantryRedesignRegression", "InfantryMeshBatchRegression",
     "InfantryDeathGroundRegression", "InfantryMotionRegression",
     "TerrainGroundingRegression", "CombatRegression", "AntiAirPriorityRegression",
@@ -110,8 +111,9 @@ def main():
         if PLATFORM == "windows":
             run([sys.executable, ROOT / "tools/build_native.py", "--download-toolchain"])
             shutil.copytree(ROOT / "native/bin", output / "native/bin", dirs_exist_ok=True)
-            run([engine, "--headless", "--path", ROOT,
-                 "--script", "res://tests/headless/NativePoseRegression.gd"])
+            for test in ("NativePoseRegression", "NativeContactRegression", "SpatialQueryRegression"):
+                run([engine, "--headless", "--path", ROOT, "--fixed-fps", "60",
+                     "--script", f"res://tests/headless/{test}.gd"])
         run([engine, "--headless", "--path", ROOT, "--editor", "--quit"])
         filename = {"linux": "Open_RTS_Linux.x86_64", "windows": "Open_RTS_Windows.exe",
                     "macos": "Open_RTS_macOS.zip"}[PLATFORM]

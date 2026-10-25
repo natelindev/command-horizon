@@ -50,7 +50,7 @@ func refresh():
 		return
 	var camera = _game.get_node("IsometricCamera3D")
 	var candidates = []
-	for unit in get_tree().get_nodes_in_group("units"):
+	for unit in _game.get_units():
 		if (
 			unit.type in ROLES
 			and unit.is_constructed()

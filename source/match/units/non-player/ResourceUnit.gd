@@ -59,7 +59,21 @@ var _salvage_key = 0
 var _salvage_stage = -1
 
 
+func _exit_tree():
+	_invalidate_registry()
+
+
+func _invalidate_registry():
+	var game = find_parent("Match")
+	if game != null and game.has_method("invalidate_group_registry"):
+		game.invalidate_group_registry("resource_units")
+
+
 func _enter_tree():
+	_invalidate_registry()
+	var game = find_parent("Match")
+	if game != null and game.has_method("invalidate_group_registry"):
+		tree_exited.connect(game.invalidate_group_registry.bind("resource_units"), CONNECT_ONE_SHOT)
 	tree_exiting.connect(_animate_decay)
 
 

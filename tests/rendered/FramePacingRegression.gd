@@ -10,6 +10,10 @@ func _run():
 	Engine.max_fps = 120
 	for faction in ["bastion", "helix", "frontier"]:
 		await _skirmish(faction, "res://source/match/maps/DesertFrontier.tscn")
+		root.mode = Window.MODE_WINDOWED
+		root.size = Vector2i(1280, 720)
+		root.content_scale_mode = Window.CONTENT_SCALE_MODE_VIEWPORT
+		root.content_scale_size = Vector2i(1280, 720)
 		for player in get_nodes_in_group("players"):
 			player.set_process(false)
 		var unit = _units(game._get_human_player(), "Infantry")[0]
@@ -48,7 +52,7 @@ func _run():
 			var presented_position: Vector3 = geometry.global_position
 			if visual.gpu_interpolated:
 				# Read the transform actually consumed by the draw shader. CPU pivots
-				# deliberately remain at simulation time on the batched path.
+				# stay frozen on the batched path; the palette is authoritative.
 				var entry = renderer._units[unit]
 				var pixels: Image = renderer._compute.texture.get_image()
 				presented_position = Vector3(
@@ -57,8 +61,13 @@ func _run():
 					pixels.get_pixel(2, entry.offset).a
 				)
 				_check(presented_position.is_finite(), "Invalid GPU pose: " + faction)
+				var simulation_position: Vector3 = (
+					entry.poses[0].origin
+					if entry.has("poses")
+					else entry.anchors[0].global_position
+				)
 				_check(
-					presented_position.distance_to(entry.anchors[0].global_position) < .3,
+					presented_position.distance_to(simulation_position) < .3,
 					"GPU pose fell behind simulation: " + faction
 				)
 			else:
@@ -79,13 +88,27 @@ func _run():
 		visual.fire_recoil()
 		_check(unit.global_transform == authority, "Recoil changed simulation position")
 		_check(
-			geometry.global_transform.is_equal_approx(authority * visual._geometry_pose),
+			(
+				(
+					visual._pose_hierarchy.root.transform
+					if visual._pose_hierarchy != null
+					else geometry.global_transform
+				)
+				. is_equal_approx(authority * visual._geometry_pose)
+			),
 			"Shot sampled an interpolated muzzle"
 		)
 		paused = true
 		await _frames(3)
 		_check(
-			geometry.global_transform.is_equal_approx(authority * visual._geometry_pose),
+			(
+				(
+					visual._pose_hierarchy.root.transform
+					if visual._pose_hierarchy != null
+					else geometry.global_transform
+				)
+				. is_equal_approx(authority * visual._geometry_pose)
+			),
 			"Pause retained render offset"
 		)
 		paused = false

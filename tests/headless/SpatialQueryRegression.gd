@@ -73,6 +73,20 @@ func _run():
 				_check(body in actual, "Spatial query lost a body crossing a cell boundary")
 			var allies = field.nearby_units(point, reach, sides[0])
 			var enemies = field.nearby_units(point, reach, null, sides[0])
+			field._native_queries = null
+			_check(
+				allies == field.nearby_units(point, reach, sides[0]),
+				"Native ally query changed ordered results"
+			)
+			_check(
+				enemies == field.nearby_units(point, reach, null, sides[0]),
+				"Native enemy query changed ordered results"
+			)
+			field._native_queries = native
+			_check(
+				field.nearby_units(point, reach, sides[0], sides[0]).is_empty(),
+				"Conflicting owner filters returned bodies"
+			)
 			_check(allies.all(func(body): return body.player == sides[0]), "Ally filter leaked")
 			_check(enemies.all(func(body): return body.player != sides[0]), "Enemy filter leaked")
 			_check(allies.size() + enemies.size() == actual.size(), "Player filters lost bodies")
@@ -87,6 +101,19 @@ func _run():
 		captured not in field.nearby_units(captured.position, 2.0, sides[1]),
 		"Same-tick capture retained old owner"
 	)
+	var new_owner = Node.new()
+	root.add_child(new_owner)
+	captured.player = new_owner
+	_check(
+		captured in field.nearby_units(captured.position, 2.0, null, sides[0]),
+		"Unassigned owner bit excluded a new owner"
+	)
+	_check(
+		captured in field.nearby_units(captured.position, 2.0, new_owner),
+		"Same-tick new owner filter lost capture"
+	)
+	captured.player = sides[0]
+	new_owner.free()
 	var spawned = Body.new()
 	spawned.player = sides[2]
 	root.add_child(spawned)

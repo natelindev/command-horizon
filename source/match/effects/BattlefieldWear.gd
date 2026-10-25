@@ -86,7 +86,7 @@ func _process(delta):
 
 
 func _sample_vehicles():
-	var units = get_tree().get_nodes_in_group("units")
+	var units = _game.get_units()
 	if units.is_empty():
 		return
 	var live = {}
@@ -138,9 +138,7 @@ func _observed_point(point):
 	if human == null:
 		return false
 	point.y = _game.map.height_at(Vector2(point.x, point.z)) + .8
-	var observers = (
-		get_tree().get_nodes_in_group("units") + get_tree().get_nodes_in_group("vision_sources")
-	)
+	var observers = _game.get_observers()
 	for observer in observers:
 		if (
 			"player" in observer

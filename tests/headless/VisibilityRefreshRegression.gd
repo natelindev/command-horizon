@@ -23,6 +23,12 @@ class TestMatch:
 			observer_reads += 1
 			return observers
 
+	func get_units():
+		return get_tree().get_nodes_in_group("units")
+
+	func get_observers():
+		return get_units() + get_tree().get_nodes_in_group("vision_sources")
+
 
 class TestUnit:
 	extends Node3D

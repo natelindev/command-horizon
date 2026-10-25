@@ -654,6 +654,19 @@ func _ground_step_contact(origin: Vector3, next: Vector3, neighbors: Array) -> D
 
 
 func _ground_contact(origin: Vector3, next: Vector3, neighbors: Array) -> Vector4:
+	var native = (
+		_match.battlefield._native_queries
+		if _match != null and _match.battlefield != null
+		else null
+	)
+	if native != null:
+		return native.ground_contact(
+			origin, next, neighbors, _unit, domain, float(radius), GROUND_CONTACT_MARGIN
+		)
+	return _ground_contact_script(origin, next, neighbors)
+
+
+func _ground_contact_script(origin: Vector3, next: Vector3, neighbors: Array) -> Vector4:
 	# The hot path returns a value (normal.xyz, fraction.w), avoiding a heap
 	# dictionary and string-key lookups for every step and candidate collision.
 	var step := (next - origin) * Vector3(1, 0, 1)

@@ -9,6 +9,10 @@ func _run():
 	root.content_scale_size = root.size
 	for faction in ["bastion", "helix", "frontier"]:
 		await _skirmish(faction, "res://source/match/maps/BigArena.tscn")
+		root.mode = Window.MODE_WINDOWED
+		root.size = Vector2i(1280, 720)
+		root.content_scale_mode = Window.CONTENT_SCALE_MODE_VIEWPORT
+		root.content_scale_size = Vector2i(1280, 720)
 		paused = true
 		var renderer = game.get_node("UnitBatchRenderer")
 		_check(renderer._native != null, "Native pose module is required for this test")

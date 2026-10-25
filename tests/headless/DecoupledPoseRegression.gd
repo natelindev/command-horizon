@@ -1,0 +1,122 @@
+extends "res://tests/headless/UnitAnimationRegression.gd"
+
+
+func _run():
+	root.get_node("SaveManager").autosaves_enabled = false
+	var batch = load("res://source/match/rendering/ParallelPoseBatch.gd").new()
+	var native = load("res://source/match/rendering/NativePosePacker.gd").create()
+	for faction in ["bastion", "helix", "frontier"]:
+		await _fixture(faction)
+		var target = _spawn("Tank", 1, Vector3(45, 0, 35))
+		var pairs := []
+		for role in MOBILE_ROLES + ["AntiGroundTurret", "AntiAirTurret", "CommandLab"]:
+			var seed = _game._visual_serial
+			var reference = _spawn(role, 0, Vector3(30, 0, 30))
+			_game._visual_serial = seed
+			var candidate = _spawn(role, 0, Vector3(30, 0, 30))
+			var direct = reference.get_node("BastionVisuals")
+			var visual = candidate.get_node("BastionVisuals")
+			var anchors: Array[Node3D] = [candidate.get_node("Geometry")]
+			for node in candidate.get_node("Geometry").find_children("*", "Node3D", true, false):
+				anchors.append(node)
+			direct.gpu_interpolated = true
+			visual.set_gpu_interpolation(true, anchors, native)
+			var original := []
+			for anchor in anchors:
+				original.append(anchor.transform)
+			var references: Array[Node3D] = [reference.get_node("Geometry")]
+			for node in reference.get_node("Geometry").find_children("*", "Node3D", true, false):
+				references.append(node)
+			_check(references.size() == anchors.size(), "Reference model topology differs")
+			pairs.append([reference, candidate, direct, visual, anchors, original, references])
+		for step in 75:
+			var jobs := []
+			var world_jobs := []
+			for pair in pairs:
+				for unit in pair.slice(0, 2):
+					if step < 30:
+						unit.position += Vector3(.02, 0, -.04)
+						unit.rotation.y += .01
+					if step == 12:
+						unit.aim_target = target
+					if step == 50:
+						unit.aim_target = null
+					if step == 60:
+						unit.position += Vector3(10, 0, 5)
+				var direct = pair[2]
+				var visual = pair[3]
+				direct.prepare_gpu_pose(STEP).solve()
+				direct.finish_gpu_pose(STEP)
+				visual.prepare_gpu_pose(STEP).solve()
+				if visual._pose_worker != null:
+					visual._pose_worker.begin()
+				visual.finish_gpu_pose(STEP, false)
+				if visual._pose_worker != null:
+					jobs.append(visual._pose_worker.job)
+			batch.solve(jobs, true, 1)
+			for pair in pairs:
+				var visual = pair[3]
+				if visual._pose_worker != null:
+					visual._pose_worker.end()
+				visual.publish_gpu_pose(STEP)
+				if step in [18, 35]:
+					pair[2].fire_recoil()
+					visual.fire_recoil()
+				for unit in pair.slice(0, 2):
+					if unit.type == "CommandLab":
+						unit.player.coordination_left = 10.0
+						unit.get_node("StructureActivity").refresh(STEP)
+				world_jobs.append(visual._pose_hierarchy.job)
+			batch.solve(world_jobs, true, 1)
+			for pair in pairs:
+				var visual = pair[3]
+				var hierarchy = visual._pose_hierarchy
+				for index in pair[4].size():
+					var anchor = pair[4][index]
+					var path = pair[1].get_path_to(anchor)
+					var expected: Transform3D = pair[6][index].global_transform
+					_check(
+						hierarchy.job.palette[index].is_equal_approx(expected),
+						"World pose differs: %s %s %s step=%d" % [faction, pair[1].type, path, step]
+					)
+					_check(
+						anchor.transform == pair[5][index],
+						"Pose wrote back to SceneTree: " + str(path)
+					)
+				if visual._projectile_origin != null and (step in [18, 35] or visual._aiming):
+					_check(
+						visual._projectile_origin.global_transform.is_equal_approx(
+							pair[2]._projectile_origin.global_transform
+						),
+						"Weapon socket differs: " + pair[1].type
+					)
+				if native != null and step == 35:
+					var entries = [
+						{
+							"anchors": pair[4],
+							"poses": hierarchy.job.palette,
+							"offset": 0,
+							"shown": true,
+							"pulse": Color(0, 0, 0, 0)
+						}
+					]
+					var packed: PackedByteArray = native.pack_poses(entries, pair[4].size())
+					_check(
+						is_equal_approx(packed.decode_float(12), hierarchy.job.palette[0].origin.x),
+						"Native packing used stale node pose"
+					)
+		for pair in pairs:
+			var expected = pair[3]._pose_hierarchy.job.palette.duplicate()
+			pair[3].set_gpu_interpolation(false)
+			for index in pair[4].size():
+				_check(
+					pair[4][index].global_transform.is_equal_approx(expected[index]),
+					"Fallback lost current pose"
+				)
+			pair[0].queue_free()
+			pair[1].queue_free()
+		await _close()
+	for message in _errors:
+		push_error(message)
+	print("Decoupled pose regression: %d failures across 3 factions and 15 roles" % _errors.size())
+	await root.get_node("Globals").quit_game(0 if _errors.is_empty() else 1)

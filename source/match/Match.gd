@@ -36,6 +36,11 @@ var visible_players = null:
 	set = _ignore,
 	get = _get_visible_players
 
+# Membership snapshots are shared, read-only arrays. Invalidate on lifecycle changes;
+# replacing arrays rather than mutating them keeps callback-driven iteration safe.
+var _group_registry := {}
+var _observer_registry: Array[Node] = []
+var _observers_dirty := true
 var _visual_serial = 0
 
 @onready var navigation = $Navigation
@@ -85,7 +90,7 @@ func _ready():
 	_setup_subsystems_dependent_on_map()
 	_setup_players()
 	_setup_player_units()
-	visible_player = get_tree().get_nodes_in_group("players")[settings.visible_player]
+	visible_player = get_cached_group("players")[settings.visible_player]
 	_move_camera_to_initial_position()
 	if settings.visibility == settings.Visibility.FULL:
 		fog_of_war.reveal()
@@ -122,6 +127,45 @@ func _ready():
 	if DisplayServer.get_name() != "headless":
 		add_child(load("res://source/match/effects/ConstructionPrewarm.gd").new())
 	MatchSignals.match_started.emit()
+
+
+func invalidate_unit_registry():
+	_group_registry.erase("units")
+	_group_registry.erase("revealed_units")
+	_observers_dirty = true
+
+
+func invalidate_vision_registry():
+	_group_registry.erase("vision_sources")
+	_group_registry.erase("revealed_units")
+	_observers_dirty = true
+
+
+func invalidate_group_registry(group: StringName):
+	_group_registry.erase(group)
+
+
+func get_cached_group(group: StringName) -> Array[Node]:
+	# Callers must not mutate the shared array. Replacement on invalidation
+	# preserves existing iteration snapshots when callbacks spawn/remove units.
+	assert(group in ["units", "players", "vision_sources", "revealed_units", "resource_units"])
+	if not _group_registry.has(group):
+		var members = get_tree().get_nodes_in_group(group)
+		members.make_read_only()
+		_group_registry[group] = members
+	return _group_registry[group]
+
+
+func get_units() -> Array[Node]:
+	return get_cached_group("units")
+
+
+func get_observers() -> Array[Node]:
+	if _observers_dirty:
+		_observer_registry = get_units() + get_cached_group("vision_sources")
+		_observer_registry.make_read_only()
+		_observers_dirty = false
+	return _observer_registry
 
 
 func allocate_visual_seed():
@@ -163,10 +207,10 @@ func _set_visible_player(player):
 
 func _get_visible_players():
 	if settings.visibility == settings.Visibility.PER_PLAYER:
-		return get_tree().get_nodes_in_group("players").filter(
+		return get_cached_group("players").filter(
 			func(side): return Players.allied(side, visible_player)
 		)
-	return get_tree().get_nodes_in_group("players")
+	return get_cached_group("players")
 
 
 func _setup_subsystems_dependent_on_map():
@@ -199,6 +243,8 @@ func _setup_players():
 	for node in _players.get_children():
 		if node is Player:
 			node.add_to_group("players")
+			node.tree_exited.connect(invalidate_group_registry.bind("players"))
+	invalidate_group_registry("players")
 
 
 func _create_players_from_settings():
@@ -268,6 +314,7 @@ func _setup_and_spawn_unit(unit, a_transform, player, mark_structure_under_const
 
 
 func _setup_unit_groups(unit, player):
+	invalidate_unit_registry()
 	unit.add_to_group("units")
 	if player == _get_human_player():
 		unit.add_to_group("controlled_units")
@@ -278,9 +325,7 @@ func _setup_unit_groups(unit, player):
 
 
 func _get_human_player():
-	var human_players = get_tree().get_nodes_in_group("players").filter(
-		func(player): return player is Human
-	)
+	var human_players = get_cached_group("players").filter(func(player): return player is Human)
 	assert(human_players.size() <= 1, "more than one human player is not allowed")
 	if not human_players.is_empty():
 		return human_players[0]
@@ -294,31 +339,27 @@ func _move_camera_to_initial_position():
 	if human_player != null:
 		_move_camera_to_player_units_crowd_pivot(human_player)
 	else:
-		_move_camera_to_player_units_crowd_pivot(get_tree().get_nodes_in_group("players")[0])
+		_move_camera_to_player_units_crowd_pivot(get_cached_group("players")[0])
 
 
 func _move_camera_to_player_units_crowd_pivot(player):
-	var player_units = get_tree().get_nodes_in_group("units").filter(
-		func(unit): return unit.player == player
-	)
+	var player_units = get_units().filter(func(unit): return unit.player == player)
 	assert(not player_units.is_empty(), "player must have at least one initial unit")
 	var crowd_pivot = Utils.Match.Unit.Movement.calculate_aabb_crowd_pivot_yless(player_units)
 	_camera.set_position_safely(crowd_pivot)
 
 
 func _reveal_player_units(player):
+	invalidate_group_registry("revealed_units")
 	if player == null:
 		return
-	for unit in get_tree().get_nodes_in_group("units").filter(
-		func(a_unit): return Players.allied(a_unit.player, player)
-	):
+	for unit in get_units().filter(func(a_unit): return Players.allied(a_unit.player, player)):
 		unit.add_to_group("revealed_units")
 
 
 func _conceal_player_units(player):
+	invalidate_group_registry("revealed_units")
 	if player == null:
 		return
-	for unit in get_tree().get_nodes_in_group("units").filter(
-		func(a_unit): return Players.allied(a_unit.player, player)
-	):
+	for unit in get_units().filter(func(a_unit): return Players.allied(a_unit.player, player)):
 		unit.remove_from_group("revealed_units")

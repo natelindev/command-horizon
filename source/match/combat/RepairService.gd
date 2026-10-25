@@ -81,7 +81,7 @@ func service(delta):
 	# once for this pass; the next service call observes power/research changes.
 	var service_factors = {}
 	var production_factors = {}
-	var units = get_tree().get_nodes_in_group("units")
+	var units = _match.get_units()
 	for unit in units:
 		if (
 			unit.is_queued_for_deletion()

@@ -27,11 +27,15 @@ var _observer_hints = {}
 # and high-ground occlusion to every sight and fire check.
 var _terrain = null
 var _native_queries: RefCounted
+var _match_registry: Node
+var _owner_bits := {}
 
 
 func _ready():
+	if get_parent().has_method("get_units"):
+		_match_registry = get_parent()
 	_native_queries = load("res://source/match/rendering/NativePosePacker.gd").create()
-	if _native_queries != null and not _native_queries.has_method("nearby_units"):
+	if _native_queries != null and not _native_queries.has_method("nearby_units_filtered"):
 		_native_queries = null
 	var map = get_parent().get("map")
 	if map != null and map.is_elevated() and "terrain" in map:
@@ -44,6 +48,7 @@ func _ready():
 
 
 func _on_unit_topology_changed(_arg = null):
+	_owner_bits.clear()
 	_frame = -1
 	_blockers_dirty = true
 	_observer_hints.clear()
@@ -67,9 +72,14 @@ func _refresh():
 	_max_unit_radius = 0.0
 	_max_body_step = 0.0
 	var physics_delta := get_physics_process_delta_time()
-	for unit in (
-		get_tree().get_nodes_in_group("units") + get_tree().get_nodes_in_group("vision_sources")
-	):
+	var observers = (
+		_match_registry.get_observers()
+		if _match_registry != null
+		else (
+			get_tree().get_nodes_in_group("units") + get_tree().get_nodes_in_group("vision_sources")
+		)
+	)
+	for unit in observers:
 		if unit.is_queued_for_deletion() or unit.sight_range == null:
 			continue
 		var player = unit.player
@@ -522,6 +532,16 @@ func _body_cell(point: Vector3) -> Vector2i:
 	return Vector2i(floori(point.x / BODY_CELL_SIZE), floori(point.z / BODY_CELL_SIZE))
 
 
+func _owner_bit(player) -> int:
+	if player == null:
+		return -1
+	if not _owner_bits.has(player):
+		if _owner_bits.size() >= 63:
+			return 0  # Unbounded/editor fixtures retain the script path.
+		_owner_bits[player] = 1 << _owner_bits.size()
+	return _owner_bits[player]
+
+
 func nearby_units(point: Vector3, radius: float, player_filter = null, excluded_player = null):
 	_refresh()
 	var result = []
@@ -531,8 +551,20 @@ func nearby_units(point: Vector3, radius: float, player_filter = null, excluded_
 	# Avoidance callbacks move bodies sequentially after this tick's index is
 	# built. Include one speed-bounded step so crossing a cell cannot hide a body.
 	var indexed_reach := radius + _max_body_step
-	if _native_queries != null and player_filter == null and excluded_player == null:
-		return _native_queries.nearby_units(cells, point, radius, cell_size, indexed_reach)
+	if _native_queries != null:
+		if player_filter == null and excluded_player == null:
+			return _native_queries.nearby_units(cells, point, radius, cell_size, indexed_reach)
+		var included := _owner_bit(player_filter)
+		var excluded := _owner_bit(excluded_player)
+		# Reserve the sign bit for owners absent from this dictionary. Excluding
+		# one player must still include a newly captured, previously unseen owner.
+		if included != 0 and excluded != 0:
+			var allowed := included if player_filter != null else -1
+			if excluded_player != null:
+				allowed &= ~excluded
+			return _native_queries.nearby_units_filtered(
+				cells, point, radius, cell_size, indexed_reach, _owner_bits, allowed
+			)
 	var low := Vector2i(
 		floori((point.x - indexed_reach) / cell_size), floori((point.z - indexed_reach) / cell_size)
 	)

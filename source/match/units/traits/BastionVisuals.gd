@@ -25,8 +25,8 @@ var chassis: Chassis
 var _wheel_motion = null
 var _infantry_motion = null
 var _walker = null
-var _turret: Node3D
-var _barrel: Node3D
+var _turret
+var _barrel
 var _muzzle: Node3D
 var _legs := []
 var _rotors := []
@@ -93,6 +93,7 @@ var _pose_job = preload("res://source/match/rendering/ParallelPoseBatch.gd").Job
 var _pose_travel := Vector3.ZERO
 var _pose_moving := false
 var _pose_worker: RefCounted
+var _pose_hierarchy: RefCounted
 # Suspension pitch lives in the chassis spring; these aliases keep the impulse API.
 var _suspension_pitch:
 	get:
@@ -329,7 +330,7 @@ func _physics_process(delta: float):
 	if not gpu_interpolated:
 		return
 	# The GPU interpolates the articulated world poses between simulation ticks.
-	# Muzzle/IK state remains in the scene tree, sampled at authoritative time.
+	# Weapon sockets always sample authoritative simulation time.
 	prepare_gpu_pose(delta).solve()
 	finish_gpu_pose(delta)
 
@@ -353,24 +354,33 @@ func publish_gpu_pose(delta: float):
 	_aim(delta)
 	if _aiming or _recoil > 0.0:
 		_sync_muzzle()
-	elif _pose_worker != null:
+	elif _pose_worker != null and _pose_hierarchy == null:
 		_pose_worker.publish()
 
 
-func set_gpu_interpolation(enabled: bool):
+func set_gpu_interpolation(enabled: bool, anchors: Array = [], native = null):
+	if enabled and _pose_hierarchy == null and not anchors.is_empty():
+		_pose_hierarchy = load("res://source/match/rendering/RigidPoseHierarchy.gd").new(
+			_geometry, anchors, native
+		)
+		_pose_hierarchy.remap(self, true)
 	gpu_interpolated = enabled
 	if (
 		enabled
 		and _infantry_motion != null
 		and _pose_worker == null
-		and not "--no-infantry-workers" in OS.get_cmdline_user_args()
+		and (_pose_hierarchy != null or not "--no-infantry-workers" in OS.get_cmdline_user_args())
 	):
 		_pose_worker = load("res://source/match/rendering/InfantryPoseWorker.gd").new(
-			_infantry_motion
+			_infantry_motion, _pose_hierarchy
 		)
 	elif not enabled and _pose_worker != null:
 		_pose_worker.release()
 		_pose_worker = null
+	if not enabled and _pose_hierarchy != null:
+		_pose_hierarchy.publish()
+		_pose_hierarchy.remap(self, false)
+		_pose_hierarchy = null
 	_pose_elapsed = 0.0
 	set_process(not enabled)
 	# The renderer coordinates snapshot / worker solve / publication as one batch.
@@ -402,7 +412,7 @@ func _pose_interval() -> float:
 	var frame := Engine.get_process_frames()
 	if frame != _budget_frame:
 		_budget_frame = frame
-		_crowded = get_tree().get_nodes_in_group("units").size() >= 100
+		_crowded = _unit._match.get_units().size() >= 100
 		_pixels_per_metre = INF
 		var camera := get_viewport().get_camera_3d()
 		if camera != null and camera.projection == Camera3D.PROJECTION_ORTHOGONAL:
@@ -420,7 +430,9 @@ func _notification(what):
 
 func _publish_simulation_pose():
 	var pose: Transform3D = _unit.global_transform * _geometry_pose
-	if _geometry.global_transform != pose:
+	if _pose_hierarchy != null:
+		_pose_hierarchy.root.transform = pose
+	elif _geometry.global_transform != pose:
 		_geometry.global_transform = pose
 
 
@@ -706,7 +718,7 @@ func _update_parts(delta: float):
 	if not _tools.is_empty() and (_tools_posed or gesture != 0.0 or _work > 0.0):
 		_tools_posed = gesture != 0.0 or _work > 0.0
 		for index in range(_tools.size()):
-			var tool: Node3D = _tools[index]
+			var tool = _tools[index]
 			var side = -1 if index % 2 == 0 else 1
 			var target = _rests[tool] + Vector3(0, 0, gesture * 0.10 * side)
 			if _work > 0.0:
@@ -780,7 +792,7 @@ func _aim(delta: float):
 	if not is_instance_valid(_unit.aim_target) or _turret == null:
 		return
 	var target_position: Vector3 = _unit.aim_target.global_position + Vector3.UP * 0.45
-	var target_local: Vector3 = _turret.get_parent().to_local(target_position) - _turret.position
+	var target_local: Vector3 = _parent_local(_turret, target_position) - _turret.position
 	var bearing: float = atan2(-target_local.x, -target_local.z)
 	if delta >= 1.0:
 		_turret_velocity = 0.0
@@ -788,7 +800,7 @@ func _aim(delta: float):
 	else:
 		_traverse(bearing, delta, 11.0, _turret_rate)
 	if _barrel != null:
-		var direction: Vector3 = _barrel.get_parent().to_local(target_position) - _barrel.position
+		var direction: Vector3 = _parent_local(_barrel, target_position) - _barrel.position
 		var elevation: float = clampf(
 			atan2(direction.y, Vector2(direction.x, direction.z).length()), -0.15, 0.65
 		)
@@ -801,7 +813,19 @@ func _aim(delta: float):
 		)
 
 
+func _parent_local(part, point: Vector3) -> Vector3:
+	if _pose_hierarchy != null:
+		return _pose_hierarchy.world_for_pose(part.get_parent()).affine_inverse() * point
+	return part.get_parent().to_local(point)
+
+
 func _sync_muzzle():
+	if _pose_hierarchy != null:
+		if _muzzle != null and _projectile_origin != null:
+			_projectile_origin.global_transform = (
+				_pose_hierarchy.world_for(_muzzle).orthonormalized()
+			)
+		return
 	if _pose_worker != null:
 		_pose_worker.publish()
 	if _muzzle != null and _projectile_origin != null:

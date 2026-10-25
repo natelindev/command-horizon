@@ -41,6 +41,7 @@ func _ready():
 	hp = hp_max
 	sight_range = 9.0
 	add_to_group("vision_sources")
+	_invalidate_registry()
 	add_to_group("points_of_interest")
 	_build_model()
 	var obstacle = load("res://source/match/units/traits/MovementObstacle.tscn").instantiate()

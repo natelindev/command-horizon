@@ -27,8 +27,26 @@ func _init():
 	collision_mask = 0
 
 
+func _enter_tree():
+	_invalidate_registry()
+	var game = find_parent("Match")
+	if game != null and game.has_method("invalidate_vision_registry"):
+		tree_exited.connect(game.invalidate_vision_registry, CONNECT_ONE_SHOT)
+
+
+func _exit_tree():
+	_invalidate_registry()
+
+
+func _invalidate_registry():
+	var game = find_parent("Match")
+	if game != null and game.has_method("invalidate_vision_registry"):
+		game.invalidate_vision_registry()
+
+
 func _ready():
 	add_to_group("vision_sources")
+	_invalidate_registry()
 	_build_model()
 	var obstacle = load("res://source/match/units/traits/MovementObstacle.tscn").instantiate()
 	obstacle.radius = 0.85
@@ -163,10 +181,13 @@ func is_revealing():
 
 
 func _update_presentation():
+	var was_revealed = is_in_group("revealed_units")
 	if is_revealing():
 		add_to_group("revealed_units")
 	else:
 		remove_from_group("revealed_units")
+	if was_revealed != is_in_group("revealed_units"):
+		_match.invalidate_group_registry("revealed_units")
 	_lamp.albedo_color = captured_by.color if captured_by != null else Color("d0baa0")
 	_lamp.emission = _lamp.albedo_color * 0.7
 	_label.text = tr(label_title) + " · " + capture_status(_match._get_human_player()).to_upper()

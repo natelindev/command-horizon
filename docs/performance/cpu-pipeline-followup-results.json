@@ -1,0 +1,69 @@
+{
+  "date": "2026-10-25",
+  "baseline_revision": "6e41c35f",
+  "engine": "4.7.2.stable.official.ed1daf0bf",
+  "platform": "macOS Apple M1 Pro Metal Forward+",
+  "build": "official editor/debug",
+  "raw_output": {
+    "original": [
+      "Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org",
+      "Metal 4.0 - Forward+ - Using Device #0: Apple - Apple M1 Pro (Apple7)",
+      "",
+      "FFA_ENV {\"avoidance_threads\":true,\"focused\":true,\"phase\":\"movement\",\"release\":false,\"vsync\":0}",
+      "SCALE BEGIN movement paused=false simulation_time=0.0",
+      "SCALE movement renderer=macOS mean_frame_ms=21.9 p95_frame_ms=33.87 p99_frame_ms=34.88 frames_over_33ms=24 samples=366 simulation_seconds=8.03 wall_seconds=8.01 realtime=true baseline_field=false baseline_targets=false avg_sampled_1s_process_max_ms=22.17 avg_sampled_1s_physics_max_ms=17.27 physics_ticks=241 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false",
+      "RENDER movement gpu_ms=0.0 render_cpu_ms=2.2 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=366",
+      "TAIL movement max_frame_ms=41.2 frames_over_100ms=0",
+      "FFA_BUDGET {\"focused_samples\":366,\"frames_over_16_67ms\":241,\"frames_over_8_33ms\":303,\"mean_fps\":45.6697810296215,\"minimum_fps\":60,\"phase\":\"movement\",\"samples\":366,\"target_fps\":120}",
+      "FFA_ENV {\"avoidance_threads\":true,\"focused\":true,\"phase\":\"combat\",\"release\":false,\"vsync\":0}",
+      "SCALE BEGIN combat paused=false simulation_time=10.2333333333333",
+      "SCALE combat renderer=macOS mean_frame_ms=20.88 p95_frame_ms=34.52 p99_frame_ms=39.29 frames_over_33ms=29 samples=383 simulation_seconds=8.0 wall_seconds=8.0 realtime=true baseline_field=false baseline_targets=false avg_sampled_1s_process_max_ms=19.35 avg_sampled_1s_physics_max_ms=21.53 physics_ticks=240 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false",
+      "RENDER combat gpu_ms=0.0 render_cpu_ms=2.53 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=383",
+      "TAIL combat max_frame_ms=45.02 frames_over_100ms=0",
+      "FFA_BUDGET {\"focused_samples\":383,\"frames_over_16_67ms\":240,\"frames_over_8_33ms\":349,\"mean_fps\":47.8990093784509,\"minimum_fps\":60,\"phase\":\"combat\",\"samples\":383,\"target_fps\":120}",
+      "FFA owners=4 mobile=200 structures=80 fired=157 failures=0"
+    ],
+    "default": [
+      "Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org",
+      "Metal 4.0 - Forward+ - Using Device #0: Apple - Apple M1 Pro (Apple7)",
+      "",
+      "FFA_ENV {\"avoidance_threads\":true,\"focused\":true,\"phase\":\"movement\",\"release\":false,\"vsync\":0}",
+      "SCALE BEGIN movement paused=false simulation_time=0.0",
+      "SCALE movement renderer=macOS mean_frame_ms=21.65 p95_frame_ms=33.39 p99_frame_ms=34.33 frames_over_33ms=19 samples=370 simulation_seconds=8.03 wall_seconds=8.01 realtime=true baseline_field=false baseline_targets=false avg_sampled_1s_process_max_ms=96.29 avg_sampled_1s_physics_max_ms=18.59 physics_ticks=241 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false",
+      "RENDER movement gpu_ms=0.0 render_cpu_ms=2.23 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=370",
+      "TAIL movement max_frame_ms=41.44 frames_over_100ms=0",
+      "FFA_BUDGET {\"focused_samples\":370,\"frames_over_16_67ms\":241,\"frames_over_8_33ms\":319,\"mean_fps\":46.1878138820845,\"minimum_fps\":60,\"phase\":\"movement\",\"samples\":370,\"target_fps\":120}",
+      "FFA_ENV {\"avoidance_threads\":true,\"focused\":true,\"phase\":\"combat\",\"release\":false,\"vsync\":0}",
+      "SCALE BEGIN combat paused=false simulation_time=10.0666666666666",
+      "SCALE combat renderer=macOS mean_frame_ms=21.04 p95_frame_ms=34.84 p99_frame_ms=39.88 frames_over_33ms=25 samples=380 simulation_seconds=8.0 wall_seconds=8.0 realtime=true baseline_field=false baseline_targets=false avg_sampled_1s_process_max_ms=19.55 avg_sampled_1s_physics_max_ms=20.14 physics_ticks=240 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false",
+      "RENDER combat gpu_ms=0.0 render_cpu_ms=2.56 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=380",
+      "TAIL combat max_frame_ms=42.0 frames_over_100ms=0",
+      "FFA_BUDGET {\"focused_samples\":380,\"frames_over_16_67ms\":240,\"frames_over_8_33ms\":355,\"mean_fps\":47.5270547759312,\"minimum_fps\":60,\"phase\":\"combat\",\"samples\":380,\"target_fps\":120}",
+      "FFA owners=4 mobile=200 structures=80 fired=157 failures=0"
+    ],
+    "decoupled": [
+      "Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org",
+      "Metal 4.0 - Forward+ - Using Device #0: Apple - Apple M1 Pro (Apple7)",
+      "",
+      "FFA_ENV {\"avoidance_threads\":true,\"focused\":true,\"phase\":\"movement\",\"release\":false,\"vsync\":0}",
+      "SCALE BEGIN movement paused=false simulation_time=0.0",
+      "SCALE movement renderer=macOS mean_frame_ms=22.22 p95_frame_ms=34.18 p99_frame_ms=36.04 frames_over_33ms=42 samples=361 simulation_seconds=8.03 wall_seconds=8.02 realtime=true baseline_field=false baseline_targets=false avg_sampled_1s_process_max_ms=22.61 avg_sampled_1s_physics_max_ms=17.84 physics_ticks=241 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false",
+      "RENDER movement gpu_ms=0.0 render_cpu_ms=2.2 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=361",
+      "TAIL movement max_frame_ms=41.73 frames_over_100ms=0",
+      "FFA_BUDGET {\"focused_samples\":361,\"frames_over_16_67ms\":241,\"frames_over_8_33ms\":287,\"mean_fps\":45.0034232520844,\"minimum_fps\":60,\"phase\":\"movement\",\"samples\":361,\"target_fps\":120}",
+      "FFA_ENV {\"avoidance_threads\":true,\"focused\":true,\"phase\":\"combat\",\"release\":false,\"vsync\":0}",
+      "SCALE BEGIN combat paused=false simulation_time=10.3",
+      "SCALE combat renderer=macOS mean_frame_ms=21.26 p95_frame_ms=35.87 p99_frame_ms=38.15 frames_over_33ms=31 samples=376 simulation_seconds=8.0 wall_seconds=8.0 realtime=true baseline_field=false baseline_targets=false avg_sampled_1s_process_max_ms=18.65 avg_sampled_1s_physics_max_ms=21.88 physics_ticks=240 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false",
+      "RENDER combat gpu_ms=0.0 render_cpu_ms=2.5 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=376",
+      "TAIL combat max_frame_ms=40.64 frames_over_100ms=0",
+      "FFA_BUDGET {\"focused_samples\":376,\"frames_over_16_67ms\":240,\"frames_over_8_33ms\":290,\"mean_fps\":47.0294816062819,\"minimum_fps\":60,\"phase\":\"combat\",\"samples\":376,\"target_fps\":120}",
+      "FFA owners=4 mobile=200 structures=80 fired=158 failures=0"
+    ],
+    "contact_microbenchmark": [
+      "Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org",
+      "",
+      "CONTACT_BENCH script_us=2.379 native_us=1.1877 checksum=20172.680914402",
+      "Native contact regression: 0 failures, 2500 live-state comparisons"
+    ]
+  }
+}

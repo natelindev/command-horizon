@@ -1,7 +1,8 @@
 extends Node3D
 
 ## Render articulated models through shared meshes and a GPU pose palette.
-## Animation pivots and muzzle queries stay authoritative on the main thread.
+## The opt-in decoupled path keeps articulated transforms in worker memory;
+## weapon sockets publish on demand. Enable after measuring on target hardware.
 ## Decorative leaves are parked under a stationary hidden root, avoiding unit
 ## transform propagation while retaining Godot's visibility-change notifications;
 ## duplicate_geometry restores them temporarily for wrecks and fog memories.
@@ -15,7 +16,10 @@ var _compute: RefCounted
 var _native: RefCounted
 var _texture: ImageTexture
 var _previous_texture: ImageTexture
-var _last_pixels := PackedFloat32Array()
+var _last_pixels := PackedByteArray()
+var _world_jobs := []
+var _chassis_jobs := []
+var _infantry_jobs := []
 var _models := {}
 var _mesh_hashes := {}
 var _groups := {}
@@ -29,6 +33,8 @@ var _flush_queued := false
 var _orphans: Node3D
 var _pose_workers = preload("res://source/match/rendering/ParallelPoseBatch.gd").new()
 var _parallel_poses := not "--serial-pose-jobs" in OS.get_cmdline_user_args()
+var _infantry_jobs_enabled := not "--no-infantry-workers" in OS.get_cmdline_user_args()
+var _decoupled_poses := "--enable-decoupled-poses" in OS.get_cmdline_user_args()
 
 
 func _ready():
@@ -51,7 +57,9 @@ func _ready():
 	var image := Image.create(4, POSE_CAPACITY, false, Image.FORMAT_RGBAF)
 	_texture = ImageTexture.create_from_image(image)
 	_previous_texture = ImageTexture.create_from_image(image)
-	_last_pixels.resize(POSE_CAPACITY * 16)
+	_last_pixels.resize(POSE_CAPACITY * 64)
+	for diagonal in [0, 5, 10]:
+		_last_pixels.encode_float(diagonal * 4, 1.0)
 	_builder = Builder.new()
 	_compute = load("res://source/match/rendering/ComputePosePalette.gd").new()
 	_compute.setup(_previous_texture, _texture, POSE_CAPACITY)
@@ -229,7 +237,10 @@ func _add_unit(unit):
 	unit.tree_exiting.connect(_unit_exiting.bind(unit), CONNECT_ONE_SHOT)
 	geometry.set_meta("gpu_batch_renderer", weakref(self))
 	_detach_sources(entry)
-	visuals.set_gpu_interpolation(true)
+	visuals.set_gpu_interpolation(true, anchors if _decoupled_poses else [], _native)
+	if _decoupled_poses:
+		entry.poses = visuals._pose_hierarchy.job.palette
+		_world_jobs.append(visuals._pose_hierarchy.job)
 	_join_group(entry)
 
 
@@ -261,6 +272,8 @@ static func duplicate_geometry(geometry: Node3D, flags: int = 15) -> Node3D:
 		return geometry.duplicate(flags)
 	var entry = renderer._units[geometry.get_parent()]
 	renderer._restore_sources(entry)
+	if entry.visuals._pose_hierarchy != null:
+		entry.visuals._pose_hierarchy.publish()
 	# Reparented leaves cannot be reconstructed from the imported scene's owner
 	# table. Copy the current posed tree, including runtime-generated meshes.
 	var copy = geometry.duplicate(flags & ~Node.DUPLICATE_USE_INSTANTIATION)
@@ -381,6 +394,8 @@ func _invalidate(unit, exiting := false):
 		return
 	var entry: Dictionary = _units[unit]
 	_entries.erase(entry)
+	if entry.visuals._pose_hierarchy != null:
+		_world_jobs.erase(entry.visuals._pose_hierarchy.job)
 	_units.erase(unit)
 	for source in entry.sources:
 		if is_instance_valid(source):
@@ -421,19 +436,19 @@ func _process(_delta: float):
 
 func _physics_process(delta: float):
 	if not get_tree().paused:
-		var jobs := []
+		_chassis_jobs.clear()
 		for entry in _entries:
-			jobs.append(entry.visuals.prepare_gpu_pose(delta))
-		_pose_workers.solve(jobs, _parallel_poses)
-		var infantry_jobs := []
+			_chassis_jobs.append(entry.visuals.prepare_gpu_pose(delta))
+		_pose_workers.solve(_chassis_jobs, _parallel_poses)
+		_infantry_jobs.clear()
 		for entry in _entries:
 			var worker = entry.visuals._pose_worker
-			if worker != null:
+			if worker != null and _infantry_jobs_enabled:
 				worker.begin()
 			entry.visuals.finish_gpu_pose(delta, false)
-			if worker != null and worker.job.pending:
-				infantry_jobs.append(worker.job)
-		_pose_workers.solve(infantry_jobs, _parallel_poses, 16)
+			if worker != null and _infantry_jobs_enabled and worker.job.pending:
+				_infantry_jobs.append(worker.job)
+		_pose_workers.solve(_infantry_jobs, _parallel_poses, 16)
 		for entry in _entries:
 			var worker = entry.visuals._pose_worker
 			if worker != null:
@@ -443,7 +458,9 @@ func _physics_process(delta: float):
 
 
 func _upload_poses():
-	for entry in _entries.duplicate():
+	var cursor := 0
+	while cursor < _entries.size():
+		var entry = _entries[cursor]
 		if not is_instance_valid(entry.unit) or not is_instance_valid(entry.geometry):
 			_invalidate(entry.unit)
 			continue
@@ -451,6 +468,9 @@ func _upload_poses():
 			_invalidate(entry.unit)
 			continue
 		_join_group(entry)
+		if not _units.has(entry.unit):
+			continue
+		cursor += 1
 		var position: Vector3 = entry.unit.global_position
 		var reset: bool = position.distance_to(entry.previous_position) > 4.0
 		entry.previous_position = position
@@ -466,25 +486,22 @@ func _upload_poses():
 		entry.shown = shown
 		entry.pulse = pulse
 		entry.reset = reset
+		entry.visuals._publish_simulation_pose()
+	_pose_workers.solve(_world_jobs, _parallel_poses, 16)
 	# Activation requires the native uploader; otherwise the ordinary renderer
 	# stays active. Avoid allocating a second, unused CPU packing buffer here.
-	var pixels: PackedFloat32Array = _native.pack_poses(_entries, POSE_CAPACITY).to_float32_array()
+	var pixels: PackedByteArray = _native.pack_poses(_entries, POSE_CAPACITY)
 	for diagonal in [0, 5, 10]:
-		pixels[diagonal] = 1.0
-		_last_pixels[diagonal] = 1.0
+		pixels.encode_float(diagonal * 4, 1.0)
 	for entry in _entries:
 		if entry.reset:
-			for index in range(entry.offset * 16, (entry.offset + entry.anchors.size()) * 16):
-				_last_pixels[index] = pixels[index]
+			for index in range(entry.offset * 64, (entry.offset + entry.anchors.size()) * 64, 4):
+				_last_pixels.encode_float(index, pixels.decode_float(index))
 	_previous_texture.update(
-		Image.create_from_data(
-			4, POSE_CAPACITY, false, Image.FORMAT_RGBAF, _last_pixels.to_byte_array()
-		)
+		Image.create_from_data(4, POSE_CAPACITY, false, Image.FORMAT_RGBAF, _last_pixels)
 	)
 	_last_pixels = pixels
-	_texture.update(
-		Image.create_from_data(4, POSE_CAPACITY, false, Image.FORMAT_RGBAF, pixels.to_byte_array())
-	)
+	_texture.update(Image.create_from_data(4, POSE_CAPACITY, false, Image.FORMAT_RGBAF, pixels))
 
 
 func _exit_tree():

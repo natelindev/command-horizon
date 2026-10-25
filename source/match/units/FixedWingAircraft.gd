@@ -52,6 +52,7 @@ func _on_action_changed(new_action):
 
 
 func _exit_tree():
+	super._exit_tree()
 	if _flight == null:
 		return
 	var field = _flight.airfield

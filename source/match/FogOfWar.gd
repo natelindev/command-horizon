@@ -44,7 +44,7 @@ func _ready():
 func _physics_process(_delta):
 	_outline_deadline = Time.get_ticks_usec() + OUTLINE_BUDGET_USEC
 	var units_synced = {}
-	var units_to_sync = get_tree().get_nodes_in_group("revealed_units")
+	var units_to_sync = find_parent("Match").get_cached_group("revealed_units")
 	for unit in units_to_sync:
 		if not unit.is_revealing():
 			continue
