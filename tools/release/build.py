@@ -18,6 +18,8 @@ PRESETS = {"linux": "Linux/X11", "windows": "Windows Desktop", "macos": "macOS"}
 ENGINE_SUFFIX = {"linux": "linux.x86_64", "windows": "win64.exe", "macos": "macos.universal"}
 TESTS = [
     "BehaviorRegression", "UnitAnimationRegression",
+    "ChassisSpringRegression", "ParallelPoseRegression",
+    "InfantryPoseWorkerRegression", "VisibilityRefreshRegression",
     "InfantryRedesignRegression", "InfantryMeshBatchRegression",
     "InfantryDeathGroundRegression", "InfantryMotionRegression",
     "TerrainGroundingRegression", "CombatRegression", "AntiAirPriorityRegression",
@@ -105,6 +107,11 @@ def main():
             "windows": Path(os.environ.get("APPDATA", str(Path.home()))) / "Godot",
         }[PLATFORM] / "export_templates" / VERSION.replace("-", ".")
         shutil.copytree(work / "templates", template_root, dirs_exist_ok=True)
+        if PLATFORM == "windows":
+            run([sys.executable, ROOT / "tools/build_native.py", "--download-toolchain"])
+            shutil.copytree(ROOT / "native/bin", output / "native/bin", dirs_exist_ok=True)
+            run([engine, "--headless", "--path", ROOT,
+                 "--script", "res://tests/headless/NativePoseRegression.gd"])
         run([engine, "--headless", "--path", ROOT, "--editor", "--quit"])
         filename = {"linux": "Open_RTS_Linux.x86_64", "windows": "Open_RTS_Windows.exe",
                     "macos": "Open_RTS_macOS.zip"}[PLATFORM]

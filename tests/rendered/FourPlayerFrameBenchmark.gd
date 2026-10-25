@@ -1,4 +1,8 @@
+class_name FourPlayerPerformanceMainLoop
 extends "res://tests/rendered/ScaleFrameBenchmark.gd"
+
+var _focused_samples := 0
+var _focus_samples := 0
 
 
 ## Same 200 mobile + 80 structure workload as ScaleFrameBenchmark, owned by
@@ -41,6 +45,10 @@ func _run():
 	camera.size_max = 110
 	camera.set_size_safely(100)
 	camera.set_position_safely(Vector3(50, 0, 50))
+	# Fixture replacement spans process frames so queued starter units can leave
+	# the tree. Pause outcome checks during that empty interval; otherwise every
+	# side is eliminated and a results dialog covers all later measurements.
+	paused = true
 	for player in get_nodes_in_group("players"):
 		player.set_process(false)
 	for unit in get_nodes_in_group("units"):
@@ -76,6 +84,7 @@ func _run():
 			_start_positions[unit] = unit.global_position
 		_armies.append(army)
 	_check(get_nodes_in_group("units").size() == 280, "Four-player fixture lost its population")
+	_check(not _game.finished, "Fixture setup ended the match")
 	_game.settings.visibility = settings.Visibility.FULL
 	_game.fog_of_war.reveal()
 	if _profile_field:
@@ -123,3 +132,55 @@ func _run():
 	_game.queue_free()
 	await _frames(8)
 	await root.get_node("Globals").quit_game(0 if _checks_failed == 0 else 1)
+
+
+func _measure(label, frames):
+	_check(not _game.finished, "Cannot benchmark an ended match")
+	_focused_samples = 0
+	_focus_samples = 0
+	print(
+		"FFA_ENV ",
+		(
+			JSON
+			. stringify(
+				{
+					"phase": label,
+					"focused": root.has_focus(),
+					"avoidance_threads":
+					ProjectSettings.get_setting_with_override(
+						"navigation/avoidance/thread_model/avoidance_use_multiple_threads"
+					),
+					"vsync": DisplayServer.window_get_vsync_mode(),
+					"release": not OS.has_feature("debug"),
+				}
+			)
+		)
+	)
+	await super(label, frames)
+	_check(not _game.finished, "Match ended during the benchmark")
+	var mean = (
+		_frame_times.reduce(func(total, sample): return total + sample, 0.0) / _frame_times.size()
+	)
+	print(
+		"FFA_BUDGET ",
+		JSON.stringify(
+			{
+				"phase": label,
+				"mean_fps": 1000.0 / mean,
+				"target_fps": 120,
+				"minimum_fps": 60,
+				"frames_over_8_33ms":
+				_frame_times.filter(func(ms): return ms > 1000.0 / 120.0).size(),
+				"frames_over_16_67ms":
+				_frame_times.filter(func(ms): return ms > 1000.0 / 60.0).size(),
+				"focused_samples": _focused_samples,
+				"samples": _focus_samples,
+			}
+		)
+	)
+
+
+func _sample_render():
+	_focus_samples += 1
+	_focused_samples += 1 if root.has_focus() else 0
+	super()

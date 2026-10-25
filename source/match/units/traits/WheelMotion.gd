@@ -3,9 +3,9 @@ extends RefCounted
 # Articulation only: use the rigid unit root so recoil, idle sway and suspension
 # bob never create wheel travel. Forward is -Z; each wheel spins about its axle,
 # the pivot axis parallel to the unit's local X (authored wheels may be rotated).
-var wheels = []
+var wheels := []
 var _unit
-var _previous = Transform3D.IDENTITY
+var _previous := Transform3D.IDENTITY
 
 
 func setup(unit):
@@ -53,24 +53,24 @@ static func _transform_to(node, ancestor):
 	return result
 
 
-func advance(delta):
-	var current = _unit.global_transform
-	var previous = _previous
+func advance(delta: float):
+	var current: Transform3D = _unit.global_transform
+	var previous: Transform3D = _previous
 	_previous = current
 	# Spawns, restores and editor/test relocations must not spin through a jump.
 	if current.origin.distance_to(previous.origin) > maxf(1.0, _unit.movement_speed * delta * 4.0):
 		return
-	var old_facing = previous.basis.z.normalized()
-	var new_facing = current.basis.z.normalized()
-	var forward = -(old_facing + new_facing).normalized()
+	var old_facing: Vector3 = previous.basis.z.normalized()
+	var new_facing: Vector3 = current.basis.z.normalized()
+	var forward: Vector3 = -(old_facing + new_facing).normalized()
 	if forward.is_zero_approx():
 		forward = -new_facing
-	var turn = atan2(old_facing.cross(new_facing).y, old_facing.dot(new_facing))
-	var translation = (current.origin - previous.origin).dot(forward)
+	var turn: float = atan2(old_facing.cross(new_facing).y, old_facing.dot(new_facing))
+	var translation: float = (current.origin - previous.origin).dot(forward)
 	if absf(translation) < 0.0001 and absf(turn) < 0.0001:
 		return
 	for wheel in wheels:
 		# Signed arc length also handles a pivot turn with no root translation.
-		var travel = translation + turn * wheel.offset.x
+		var travel: float = translation + turn * wheel.offset.x
 		wheel.angle = wrapf(wheel.angle - travel / wheel.radius, -PI, PI)
 		wheel.pivot.basis = wheel.rest * Basis(wheel.axle, wheel.angle)

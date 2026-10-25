@@ -58,38 +58,39 @@ var rig
 var hips
 var chest
 var head
-var head_rest = Vector3.ZERO
+var head_rest := Vector3.ZERO
 var weapon
-var legs = []
-var arms = []
-var blend = 0.0
-var phase = 0.0
-var speed = 0.0
-var aim = 0.0
-var brace = 0.0
+var legs := []
+var arms := []
+var blend := 0.0
+var phase := 0.0
+var speed := 0.0
+var aim := 0.0
+var brace := 0.0
 # Set by the owner before advance(): eased body lean (x forward, y into turns),
 # hit flinch (pitch, yaw, roll), head lead toward a new heading and idle fidget.
-var lean = Vector2.ZERO
-var flinch = Vector3.ZERO
-var turn_lead = 0.0
-var fidget = 0
-var stride_scale = 1.0
-var lead_foot = 0
+var lean := Vector2.ZERO
+var flinch := Vector3.ZERO
+var turn_lead := 0.0
+var fidget := 0
+var stride_scale := 1.0
+var lead_foot := 0
 var _role = ROLES["Infantry"]
-var _feet = []
-var _stance = []
-var _start_feet = []
-var _start_mix = 1.0
-var _settle_foot = -1
-var _settle_from = Vector3.ZERO
-var _settle_time = 0.0
+var _feet: Array[Vector3] = []
+var _stance: Array[Vector3] = []
+var _start_feet: Array[Vector3] = []
+var _start_mix := 1.0
+var _settle_foot := -1
+var _settle_from := Vector3.ZERO
+var _settle_time := 0.0
 var _hip_height = HIP_HEIGHT
-var _moving = false
-var _travel_idle = INF
+var _moving := false
+var _travel_idle := INF
 # Last written poses; unchanged parts are not rewritten (each write dirties a subtree).
 var _posed_pelvis = Transform3D()
-var _posed_feet = []
+var _posed_feet: Array[Vector3] = []
 var _posed_carry = Transform3D()
+var deferred_job = null
 
 
 func setup(unit, initial_phase, role = "Infantry"):
@@ -150,40 +151,51 @@ func _carry(parent, relative):
 			_carry(child, local)
 
 
-func advance(delta, distance, clock, gesture, recoil, aiming):
+func advance(
+	delta: float, distance: float, clock: float, gesture: float, recoil: float, aiming: float
+):
+	if deferred_job != null:
+		deferred_job.configure(delta, distance, clock, gesture, recoil, aiming)
+		return
+	advance_pose(delta, distance, clock, gesture, recoil, aiming)
+
+
+func advance_pose(
+	delta: float, distance: float, clock: float, gesture: float, recoil: float, aiming: float
+):
 	# Gait runs in rig units; a scaled rig (heroes) must not out-stride its body.
 	distance /= rig.scale.z
 	# Detect speed, not a fixed distance per rendered frame. Preserve the stride
 	# through brief zero-distance samples when rendering outpaces physics.
-	var traveling = distance > maxf(.0000001, delta * .02)
+	var traveling: bool = distance > maxf(.0000001, delta * .02)
 	_travel_idle = 0.0 if traveling else _travel_idle + delta
-	var moving = traveling or (_moving and _travel_idle < STOP_GRACE_SECONDS)
+	var moving: bool = traveling or (_moving and _travel_idle < STOP_GRACE_SECONDS)
 	if delta > 0.0:
 		speed = lerpf(speed, distance / delta, 1.0 - exp(-delta * 10.0))
 	if not moving:
 		speed = move_toward(speed, 0.0, delta * 6.0)
 	blend = move_toward(blend, clampf(speed / 1.4, 0.0, 1.0) if moving else 0.0, delta * 6.0)
 	aim = move_toward(aim, aiming, delta * (6.0 if aiming > aim else 2.5))
-	var stationary_aim = aiming if not moving else 0.0
+	var stationary_aim: float = aiming if not moving else 0.0
 	brace = move_toward(brace, stationary_aim, delta * (4.0 if stationary_aim > brace else 2.0))
-	var kneeling = brace if _role[4] else 0.0
+	var kneeling: float = brace if _role[4] else 0.0
 	_hip_height = lerpf(HIP_HEIGHT - .02 * brace, KNEEL_HEIGHT, kneeling)
 	_update_feet(delta, distance, moving, kneeling)
 
-	var breath = sin(clock * 2.2)
-	var stride_wave = cos(phase * 2.0)
-	var dip = (.04 + .012 * stride_wave) * blend * clampf(speed / 2.5, .5, 1.0)
-	var shift = -sin(phase) * .018 * blend
+	var breath: float = sin(clock * 2.2)
+	var stride_wave: float = cos(phase * 2.0)
+	var dip: float = (.04 + .012 * stride_wave) * blend * clampf(speed / 2.5, .5, 1.0)
+	var shift: float = -sin(phase) * .018 * blend
 	if fidget == 1:
 		shift += gesture * .03
 	# Each part is written once per frame as a whole transform.
-	var pelvis = Transform3D(
+	var pelvis: Transform3D = Transform3D(
 		Basis.from_euler(Vector3(0, sin(phase) * .035 * blend, -shift * .5)),
 		Vector3(shift, _hip_height - dip, 0)
 	)
-	var upright = 1.0 - _role[3] * .5
-	var kick = recoil * _role[1]
-	var torso = Vector3(
+	var upright: float = 1.0 - _role[3] * .5
+	var kick: float = recoil * _role[1]
+	var torso: Vector3 = Vector3(
 		(
 			(-.035 - .03 * clampf(speed / 3.5, 0.0, 1.0)) * blend * upright
 			- lean.x
@@ -211,21 +223,21 @@ func advance(delta, distance, clock, gesture, recoil, aiming):
 		)
 	)
 	head.position = head_rest + Vector3(.025, -.022, -.018) * aim
-	var look = gesture * .45 * (1.0 - aim) if fidget == 0 else gesture * .1 * (1.0 - aim)
+	var look: float = gesture * .45 * (1.0 - aim) if fidget == 0 else gesture * .1 * (1.0 - aim)
 	head.rotation = Vector3(
 		.035 * blend - torso.x * .55 - aim * .12 - (absf(gesture) * .35 if fidget == 2 else 0.0),
 		clampf(turn_lead, -.6, .6) + look - brace * .08 + flinch.y * 1.5,
 		-torso.z * .6 + flinch.z * 1.4
 	)
 	# Low ready while relaxed or moving; raised to the shoulder when aiming.
-	var low = _role[0] * (1.0 if moving else .7)
-	var carry_bob = sin(phase * 2.0 + .6) * .035 * blend * (1.0 - aim)
-	var carry = Vector3(
+	var low: float = _role[0] * (1.0 if moving else .7)
+	var carry_bob: float = sin(phase * 2.0 + .6) * .035 * blend * (1.0 - aim)
+	var carry: Vector3 = Vector3(
 		low * (1.0 - aim) + carry_bob + kick * .09 + (absf(gesture) * .25 if fidget == 2 else 0.0),
 		_role[5].x * (1.0 - aim),
 		_role[5].y * (1.0 - aim) + (gesture * .45 if fidget == 2 else 0.0)
 	)
-	var carried = Transform3D(
+	var carried: Transform3D = Transform3D(
 		Basis.from_euler(carry), CARRY_PIVOT + Vector3(0, aim * _role[6], kick * .035)
 	)
 	if carried != _posed_carry:
@@ -238,42 +250,42 @@ func advance(delta, distance, clock, gesture, recoil, aiming):
 		_posed_pelvis = pelvis
 		_posed_feet = _feet.duplicate()
 		hips.transform = pelvis
-		var to_pelvis = pelvis.affine_inverse()
+		var to_pelvis: Transform3D = pelvis.affine_inverse()
 		for index in range(2):
 			_pose_leg(legs[index], to_pelvis * _feet[index], -shift * .5)
 
 
-func _stance_foot(index, kneeling):
+func _stance_foot(index: int, kneeling: float) -> Vector3:
 	# Relaxed stance is shoulder width; braced shooters blade their feet and
 	# kneeling shooters drop the rear knee to the ground.
-	var side = -1.0 if index == 0 else 1.0
-	var relaxed = Vector3(side * .1, FOOT_HEIGHT, side * .04)
-	var braced = Vector3(side * .12, FOOT_HEIGHT, side * .13)
-	var kneel = Vector3(side * .1, FOOT_HEIGHT, -.2 if index == 0 else .31)
+	var side: float = -1.0 if index == 0 else 1.0
+	var relaxed: Vector3 = Vector3(side * .1, FOOT_HEIGHT, side * .04)
+	var braced: Vector3 = Vector3(side * .12, FOOT_HEIGHT, side * .13)
+	var kneel: Vector3 = Vector3(side * .1, FOOT_HEIGHT, -.2 if index == 0 else .31)
 	return relaxed.lerp(braced, brace).lerp(kneel, kneeling)
 
 
-func _gait_foot(index):
-	var stride = stride_length()
-	var reach = stride * .25
-	var cycle = fposmod(phase / TAU + index * .5, 1.0)
-	var z = 0.0
-	var lift = 0.0
+func _gait_foot(index: int) -> Vector3:
+	var stride: float = stride_length()
+	var reach: float = stride * .25
+	var cycle: float = fposmod(phase / TAU + index * .5, 1.0)
+	var z: float = 0.0
+	var lift: float = 0.0
 	if cycle < .5:
 		z = lerpf(-reach, reach, cycle * 2.0)
 	else:
-		var swing = (cycle - .5) * 2.0
+		var swing: float = (cycle - .5) * 2.0
 		z = lerpf(reach, -reach, smoothstep(0.0, 1.0, swing))
 		lift = sin(swing * PI) * clampf(.05 + .018 * speed, .05, .12)
 	return Vector3((-1.0 if index == 0 else 1.0) * .09, FOOT_HEIGHT + lift, z)
 
 
-func stride_length():
+func stride_length() -> float:
 	# Short steps when creeping, full strides at a run.
 	return clampf(.5 + .13 * speed, .55, 1.0) * stride_scale
 
 
-func _update_feet(delta, distance, moving, kneeling):
+func _update_feet(delta: float, distance: float, moving: bool, kneeling: float):
 	if moving:
 		if not _moving:
 			# Step off from a near-neutral pose with the unit's lead foot.
@@ -285,7 +297,7 @@ func _update_feet(delta, distance, moving, kneeling):
 				_start_feet[index] = _feet[index]
 		phase = fposmod(phase + distance * TAU / stride_length(), TAU)
 		_start_mix = minf(1.0, _start_mix + delta / .14)
-		var mix = smoothstep(0.0, 1.0, _start_mix)
+		var mix: float = smoothstep(0.0, 1.0, _start_mix)
 		for index in range(2):
 			_feet[index] = _start_feet[index].lerp(_gait_foot(index), mix)
 		return
@@ -294,19 +306,19 @@ func _update_feet(delta, distance, moving, kneeling):
 		_stance[index] = _stance_foot(index, kneeling)
 	if _settle_foot >= 0:
 		_settle_time += delta / SETTLE_SECONDS
-		var progress = minf(1.0, _settle_time)
-		var target = _stance[_settle_foot]
-		var foot = _settle_from.lerp(target, smoothstep(0.0, 1.0, progress))
+		var progress: float = minf(1.0, _settle_time)
+		var target: Vector3 = _stance[_settle_foot]
+		var foot: Vector3 = _settle_from.lerp(target, smoothstep(0.0, 1.0, progress))
 		foot.y += sin(progress * PI) * minf(.07, .02 + _settle_from.distance_to(target) * .3)
 		_feet[_settle_foot] = foot
 		if progress >= 1.0:
 			_settle_foot = -1
 		return
 	# Recovery steps: move the foot farthest from its stance target, one at a time.
-	var farthest = -1
-	var gap = .015
+	var farthest: int = -1
+	var gap: float = .015
 	for index in range(2):
-		var offset = _feet[index].distance_to(_stance[index])
+		var offset: float = _feet[index].distance_to(_stance[index])
 		if offset > gap:
 			gap = offset
 			farthest = index
@@ -321,7 +333,7 @@ func _update_feet(delta, distance, moving, kneeling):
 
 func raise_for_shot():
 	# Snap most of the way to the shoulder at the shot; the rest eases in.
-	var raised = maxf(aim, .6)
+	var raised: float = maxf(aim, .6)
 	if aim < 1.0:
 		weapon.rotation *= (1.0 - raised) / (1.0 - aim)
 		weapon.position.y = CARRY_PIVOT.y + raised * _role[6]
@@ -335,49 +347,49 @@ func _pose_arms():
 		_solve_arm(arm, weapon)
 
 
-static func _solve_arm(arm, carried):
+static func _solve_arm(arm: Dictionary, carried):
 	# Solve in chest space. Unlike rotating a rigid arm+gun assembly, shoulder
 	# sockets stay attached while both wrists track the moving weapon exactly.
 	var upper = arm.upper
 	var lower = arm.lower
 	var wrist = arm.wrist
-	var target = carried.transform * arm.grip.position
-	var offset = target - upper.position
-	var upper_length = arm.upper_rest.length()
-	var lower_length = arm.lower_rest.length()
-	var distance = clampf(offset.length(), .02, upper_length + lower_length - .0001)
-	var direction = offset.normalized()
-	var along = (
+	var target: Vector3 = carried.transform * arm.grip.position
+	var offset: Vector3 = target - upper.position
+	var upper_length: float = arm.upper_rest.length()
+	var lower_length: float = arm.lower_rest.length()
+	var distance: float = clampf(offset.length(), .02, upper_length + lower_length - .0001)
+	var direction: Vector3 = offset.normalized()
+	var along: float = (
 		(distance * distance + upper_length * upper_length - lower_length * lower_length)
 		/ (2.0 * distance)
 	)
-	var pole = arm.pole
-	var outward = (pole - direction * pole.dot(direction)).normalized()
-	var elbow = (
+	var pole: Vector3 = arm.pole
+	var outward: Vector3 = (pole - direction * pole.dot(direction)).normalized()
+	var elbow: Vector3 = (
 		direction * along + outward * sqrt(maxf(0.0, upper_length * upper_length - along * along))
 	)
 	upper.basis = Basis(Quaternion(arm.upper_rest.normalized(), elbow.normalized()))
-	var forearm = direction * distance - elbow
+	var forearm: Vector3 = direction * distance - elbow
 	lower.basis = (
 		upper.basis.inverse() * Basis(Quaternion(arm.lower_rest.normalized(), forearm.normalized()))
 	)
 	wrist.basis = (upper.basis * lower.basis).inverse() * carried.basis
 
 
-func is_at_rest():
+func is_at_rest() -> bool:
 	return blend <= .001 and brace <= .001 and aim <= .001 and _settle_foot < 0 and not _moving
 
 
-func _pose_leg(parts, target, pelvis_roll):
+func _pose_leg(parts: Array, target: Vector3, pelvis_roll: float):
 	# Two-bone solve in the leg plane (target is in pelvis space). The hip rolls
 	# so a foot can stay planted while the pelvis shifts; knees bend forward and
 	# soles stay level: the ankle cancels hip, knee and pelvis roll, leaving yaw.
-	var offset = target - parts[0].position
-	var roll = atan2(offset.x, -offset.y)
-	var height = -Vector2(offset.x, offset.y).length()
-	var reach = minf(Vector2(height, offset.z).length(), REACH)
-	var bend = acos(clampf(reach / (THIGH + SHIN), 0.0, 1.0))
-	var pitch = atan2(-offset.z, -height) + bend
+	var offset: Vector3 = target - parts[0].position
+	var roll: float = atan2(offset.x, -offset.y)
+	var height: float = -Vector2(offset.x, offset.y).length()
+	var reach: float = minf(Vector2(height, offset.z).length(), REACH)
+	var bend: float = acos(clampf(reach / (THIGH + SHIN), 0.0, 1.0))
+	var pitch: float = atan2(-offset.z, -height) + bend
 	parts[0].basis = Basis(Vector3.BACK, roll) * Basis(Vector3.RIGHT, pitch)
 	parts[1].basis = Basis(Vector3.RIGHT, -2.0 * bend)
 	parts[2].basis = (

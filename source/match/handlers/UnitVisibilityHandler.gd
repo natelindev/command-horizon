@@ -20,11 +20,12 @@ func _physics_process(delta):
 	var all_units = get_tree().get_nodes_in_group("units")
 	if all_units.is_empty():
 		return
+	var observers = _match.visible_players
 	# Spread presentation updates over six frames. Weapon legality always queries
 	# current positions independently, so this never grants stale firing authority.
 	for _index in range(ceili(all_units.size() / 6.0)):
 		_refresh_cursor %= all_units.size()
-		_recalculate_unit_visibility(all_units[_refresh_cursor])
+		_recalculate_unit_visibility(all_units[_refresh_cursor], null, observers)
 		_refresh_cursor += 1
 	if _orphan_elapsed >= 0.1:
 		_orphan_elapsed = 0.0
@@ -36,13 +37,20 @@ func _is_disabled():
 	return not visible
 
 
-func _recalculate_unit_visibility(unit, _revealed_units = null):
+func _recalculate_unit_visibility(unit, _revealed_units = null, observers = null):
 	if unit.is_in_group("revealed_units") or _is_disabled():
+		_update_unit_visibility(unit, true)
+		return
+	if observers == null:
+		observers = _match.visible_players
+	# An owner always observes its own units. In shared/full viewing modes,
+	# searching earlier players' sight grids cannot change this result.
+	if unit.player in observers:
 		_update_unit_visibility(unit, true)
 		return
 
 	var should_be_visible = false
-	for player in _match.visible_players:
+	for player in observers:
 		if _match.battlefield.is_observed(player, unit):
 			should_be_visible = true
 			break
@@ -59,14 +67,17 @@ func _update_unit_visibility(unit, should_be_visible):
 			_create_dummy_structure(unit)
 		else:
 			_try_removing_dummy_structure(unit)
-	unit.visible = should_be_visible
+	if unit.visible != should_be_visible:
+		unit.visible = should_be_visible
 	_units_processed_at_least_once[unit] = true
 
 
 func _create_dummy_structure(unit):
 	if unit in _structure_to_dummy_mapping:
 		return
-	var dummy = unit.find_child("Geometry").duplicate()
+	var dummy = load("res://source/match/rendering/UnitBatchRenderer.gd").duplicate_geometry(
+		unit.get_node("Geometry")
+	)
 	# Keep inert visual identity after the real structure dies outside observation.
 	dummy.set_meta("memory_role", unit.type)
 	dummy.set_meta("memory_faction", unit.player.faction)

@@ -5,6 +5,8 @@ const ELEVATED_MAX_CLIMB = 0.6
 # Baked walkable surfaces sit about one voxel step above the authored ground.
 const SURFACE_LIFT = 0.5
 const SURFACE_MATCH = 0.35
+const PROJECTION_CELL_SIZE = 6.0
+const EMPTY_PROJECTIONS = []
 const TerrainModel = preload("res://source/match/maps/terrain/TerrainModel.gd")
 
 var _earliest_frame_to_perform_next_rebake = null
@@ -12,6 +14,7 @@ var _is_baking = false
 var _iteration_before_publication = -1
 var _region_before_publication = -1
 var _projection_cells = {}
+var _projection_interiors: Dictionary[Vector2i, float] = {}
 var _projection_height = INF
 var _projection_tolerance = INF
 var _elevated = false
@@ -230,8 +233,16 @@ func closest_point(point: Vector3) -> Vector3:
 			_index_projection_surface(iteration)
 		if _projection_iteration == iteration:
 			var flat := Vector2(point.x, point.z)
-			var cell := Vector2i(floori(point.x / 6.0), floori(point.z / 6.0))
-			for entry in _projection_cells.get(cell, []):
+			var cell := Vector2i(
+				floori(point.x / PROJECTION_CELL_SIZE), floori(point.z / PROJECTION_CELL_SIZE)
+			)
+			# A convex navmesh polygon containing all four cell corners contains
+			# every point in the cell. Reuse that proof for interior movement;
+			# boundaries still use the exact polygon/server queries below.
+			var interior: float = _projection_interiors.get(cell, -INF)
+			if point.y <= interior:
+				return Vector3(point.x, interior, point.z)
+			for entry in _projection_cells.get(cell, EMPTY_PROJECTIONS):
 				var height: float = entry[1]
 				var gap := height - point.y
 				if gap < 0.0:
@@ -254,8 +265,10 @@ func _closest_point_on_terrain(point: Vector3) -> Vector3:
 		if _projection_iteration != iteration and is_synchronized():
 			_index_projection_surface(iteration)
 		if _projection_iteration == iteration:
-			var cell := Vector2i(floori(point.x / 6.0), floori(point.z / 6.0))
-			for entry in _projection_cells.get(cell, []):
+			var cell := Vector2i(
+				floori(point.x / PROJECTION_CELL_SIZE), floori(point.z / PROJECTION_CELL_SIZE)
+			)
+			for entry in _projection_cells.get(cell, EMPTY_PROJECTIONS):
 				var height: float = entry[1]
 				if entry.size() == 3:
 					var plane: Plane = entry[2]
@@ -275,6 +288,7 @@ func _closest_point_on_terrain(point: Vector3) -> Vector3:
 
 func _index_projection_surface(iteration: int):
 	_projection_cells.clear()
+	_projection_interiors.clear()
 	_projection_height = INF
 	_projection_tolerance = INF
 	var mesh: NavigationMesh = _navigation_region.navigation_mesh
@@ -309,12 +323,31 @@ func _index_projection_surface(iteration: int):
 					)
 			continue
 		levels[height] = true
-		for x in range(floori(low.x / 6.0), floori(high.x / 6.0) + 1):
-			for y in range(floori(low.y / 6.0), floori(high.y / 6.0) + 1):
+		for x in range(
+			floori(low.x / PROJECTION_CELL_SIZE), floori(high.x / PROJECTION_CELL_SIZE) + 1
+		):
+			for y in range(
+				floori(low.y / PROJECTION_CELL_SIZE), floori(high.y / PROJECTION_CELL_SIZE) + 1
+			):
 				var cell := Vector2i(x, y)
 				if not _projection_cells.has(cell):
 					_projection_cells[cell] = []
 				_projection_cells[cell].append([polygon, height])
+				if not _elevated and not _projection_interiors.has(cell):
+					var corner := Vector2(cell) * PROJECTION_CELL_SIZE
+					if (
+						Geometry2D.is_point_in_polygon(corner, polygon)
+						and Geometry2D.is_point_in_polygon(
+							corner + Vector2(PROJECTION_CELL_SIZE, 0), polygon
+						)
+						and Geometry2D.is_point_in_polygon(
+							corner + Vector2(0, PROJECTION_CELL_SIZE), polygon
+						)
+						and Geometry2D.is_point_in_polygon(
+							corner + Vector2.ONE * PROJECTION_CELL_SIZE, polygon
+						)
+					):
+						_projection_interiors[cell] = height
 	var heights := levels.keys()
 	heights.sort()
 	for index in range(1, heights.size()):
@@ -330,8 +363,10 @@ func _index_slope(a: Vector3, b: Vector3, c: Vector3):
 	var polygon := PackedVector2Array([Vector2(a.x, a.z), Vector2(b.x, b.z), Vector2(c.x, c.z)])
 	var low := polygon[0].min(polygon[1]).min(polygon[2])
 	var high := polygon[0].max(polygon[1]).max(polygon[2])
-	for x in range(floori(low.x / 6.0), floori(high.x / 6.0) + 1):
-		for y in range(floori(low.y / 6.0), floori(high.y / 6.0) + 1):
+	for x in range(floori(low.x / PROJECTION_CELL_SIZE), floori(high.x / PROJECTION_CELL_SIZE) + 1):
+		for y in range(
+			floori(low.y / PROJECTION_CELL_SIZE), floori(high.y / PROJECTION_CELL_SIZE) + 1
+		):
 			var cell := Vector2i(x, y)
 			if not _projection_cells.has(cell):
 				_projection_cells[cell] = []

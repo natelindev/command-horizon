@@ -359,7 +359,7 @@ func _test_walker_turns_and_stops(unit):
 			Basis.from_euler(Vector3(.035, 0, -.025)), Vector3(0, walker.heave, 0)
 		)
 		body = walker.support_body(body)
-		unit.get_node("Geometry").transform = body
+		unit.get_node("Geometry").global_transform = unit.global_transform * body
 		walker.pose(body)
 		for leg in walker.legs:
 			_check(
@@ -542,12 +542,15 @@ func _test_hidden_and_settled():
 	var poses = _part_poses(unit)
 	var clock = visual._infantry_motion.phase
 	_drive(unit, Vector3.FORWARD * 3.0, 30)
-	_check(_part_poses(unit) == poses, "Hidden unit kept posing its rig")
+	_check(_same_part_poses(unit, poses), "Hidden unit kept posing its rig")
 	_check(visual._infantry_motion.phase == clock, "Hidden unit advanced its gait")
 	unit.show()
 	_drive(unit, Vector3.ZERO, 120)
 	_check(visual._settled, "Stopped infantry never settles")
-	_check(geometry.transform.is_equal_approx(visual._geometry_rest), "Settled pose drifted")
+	_check(
+		geometry.global_transform.is_equal_approx(unit.global_transform * visual._geometry_rest),
+		"Settled pose drifted"
+	)
 	# Off-screen culling (rendered runs only): a unit outside the camera frustum
 	# skips posing, and resumes as soon as the camera looks at it.
 	var script = visual.get_script()
@@ -564,12 +567,12 @@ func _test_hidden_and_settled():
 	_drive(unit, Vector3.FORWARD * 3.0, 20)
 	poses = _part_poses(unit)
 	_drive(unit, Vector3.FORWARD * 3.0, 20)
-	_check(_part_poses(unit) == poses, "Off-screen unit kept posing its rig")
+	_check(_same_part_poses(unit, poses), "Off-screen unit kept posing its rig")
 	camera.global_position = unit.global_position + Vector3(0, 12, 12)
 	camera.look_at(unit.global_position)
 	await physics_frame
 	_drive(unit, Vector3.FORWARD * 3.0, 4)
-	_check(_part_poses(unit) != poses, "On-screen unit never resumed animating")
+	_check(not _same_part_poses(unit, poses), "On-screen unit never resumed animating")
 	script._headless = true
 	camera.queue_free()
 	unit.queue_free()
@@ -592,8 +595,22 @@ func _part_poses(unit):
 	for node in unit.get_node("Geometry").find_children("*", "Node3D", true, false):
 		if not node is MeshInstance3D:
 			poses.append(node.transform)
-	poses.append(unit.get_node("Geometry").transform)
+	# The presentation root does not inherit physics transforms. Compare its pose
+	# in unit space so moving the authority is not mistaken for animating a limb.
+	poses.append(
+		unit.global_transform.affine_inverse() * unit.get_node("Geometry").global_transform
+	)
 	return poses
+
+
+func _same_part_poses(unit, expected):
+	var actual = _part_poses(unit)
+	if actual.size() != expected.size():
+		return false
+	for index in actual.size():
+		if not actual[index].is_equal_approx(expected[index]):
+			return false
+	return true
 
 
 func _test_gameplay_invariance():

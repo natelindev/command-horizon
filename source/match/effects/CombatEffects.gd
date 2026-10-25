@@ -509,7 +509,9 @@ func _wreck(unit, infantry):
 		_wrecks.pop_front().node.queue_free()
 	# Copy the posed meshes only: scripted model builders (convoy, VTOL) must not
 	# run again on the wreck and stack a second hull inside it.
-	var wreck = unit.get_node("Geometry").duplicate(0)
+	var wreck = load("res://source/match/rendering/UnitBatchRenderer.gd").duplicate_geometry(
+		unit.get_node("Geometry"), 0
+	)
 	add_child(wreck)
 	wreck.global_transform = unit.get_node("Geometry").global_transform
 	var material = StandardMaterial3D.new()

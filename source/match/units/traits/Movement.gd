@@ -313,8 +313,8 @@ func _ground_recovery_direction(path_direction):
 			break
 		var candidate = path_direction.rotated(Vector3.UP, angle)
 		var distance = _recovery_clearance(candidate)
-		var contact = _ground_step_contact(origin, origin + candidate * distance, neighbors)
-		var free = distance * contact.fraction
+		var contact := _ground_contact(origin, origin + candidate * distance, neighbors)
+		var free = distance * contact.w
 		# Rank actual body-clear travel, not the unobstructed terrain ray.
 		# Otherwise a two-metre ray stopped by a neighbor after two centimetres
 		# defeats a shorter route the unit could actually traverse.
@@ -441,11 +441,11 @@ func _finish_command(revision):
 		movement_finished.emit()
 
 
-func _get_filtered_rotation_direction(safe_velocity: Vector3):
-	var direction = safe_velocity.normalized()
+func _get_filtered_rotation_direction(safe_velocity: Vector3, current: Transform3D) -> Vector3:
+	var direction := safe_velocity.normalized()
 	if (
 		_previously_set_global_transform_of_unit != null
-		and not _previously_set_global_transform_of_unit.is_equal_approx(_unit.global_transform)
+		and not _previously_set_global_transform_of_unit.is_equal_approx(current)
 	):
 		# reset filter if a global_transform of unit was altered from the outside
 		_rotation_low_pass_filter_window = []
@@ -466,21 +466,29 @@ func _get_filtered_rotation_direction(safe_velocity: Vector3):
 
 
 func _rotate_in_direction(direction: Vector3):
+	var current := _unit.global_transform
+	var facing := _oriented_transform(current, direction)
+	if facing != current:
+		_unit.global_transform = facing
+
+
+func _oriented_transform(current: Transform3D, direction: Vector3) -> Transform3D:
 	# Crowd avoidance may nudge a firing unit sideways. Aiming owns its facing
 	# until it receives a movement order; tiny settling steps have no heading.
 	if (
 		direction.length() < ROTATION_LOW_PASS_FILTER_VELOCITY_THRESHOLD
 		or (not _has_destination and is_instance_valid(_unit.aim_target))
 	):
-		return
+		return current
 	if ROTATION_LOW_PASS_FILTER_ENABLED:
-		direction = _get_filtered_rotation_direction(direction)
-	var rotation_target = _unit.global_transform.origin + direction
+		direction = _get_filtered_rotation_direction(direction, current)
+	var rotation_target := current.origin + direction
 	if (
 		not is_zero_approx(direction.length())
-		and not rotation_target.is_equal_approx(_unit.global_transform.origin)
+		and not rotation_target.is_equal_approx(current.origin)
 	):
-		_unit.global_transform = _unit.global_transform.looking_at(rotation_target)
+		return current.looking_at(rotation_target)
+	return current
 
 
 func _update_passive_movement_tracking(safe_velocity):
@@ -570,10 +578,16 @@ func _on_velocity_computed(safe_velocity: Vector3):
 		# Neighbors must predict the movement that actually happened, otherwise
 		# they keep yielding toward a gap that the constrained unit cannot enter.
 		set_velocity_forced(actual_velocity)
-	_unit.global_position = next
+	# Publish position and facing together. Two writes propagate two transform
+	# changes through the unit's descendants and its server instances.
+	var current := _unit.global_transform
+	var advanced := current
+	advanced.origin = next
+	advanced = _oriented_transform(advanced, actual_velocity * Vector3(1, 0, 1))
+	if advanced != current:
+		_unit.global_transform = advanced
 	_sync_ground_navigation_height()
-	_rotate_in_direction(actual_velocity * Vector3(1, 0, 1))
-	_previously_set_global_transform_of_unit = _unit.global_transform
+	_previously_set_global_transform_of_unit = advanced
 	_update_passive_movement_tracking(actual_velocity)
 
 
@@ -594,30 +608,38 @@ func _clip_ground_step(next: Vector3, current_speed: float) -> Vector3:
 		+ .25
 	)
 	var neighbors = _match.battlefield.nearby_units(origin, reach)
-	var contact = _ground_step_contact(origin, next, neighbors)
-	if contact.fraction >= 1.0:
+	var contact := _ground_contact(origin, next, neighbors)
+	if contact.w >= 1.0:
 		return next
-	var clipped := origin.lerp(next, contact.fraction)
+	var clipped := origin.lerp(next, contact.w)
 	# Preserve the tangential part of a blocked step. Clamping alone can pin
 	# two agents together at a mesh boundary even when there is room to pass.
 	var step := (next - origin) * Vector3(1, 0, 1)
-	var normal: Vector3 = contact.normal
+	var normal := Vector3(contact.x, contact.y, contact.z)
 	var slide := step - normal * minf(0.0, step.dot(normal))
 	var navigable := _navigation_position(origin + slide)
 	var alternative := origin.move_toward(navigable, current_speed * _physics_delta)
-	var slide_contact = _ground_step_contact(origin, alternative, neighbors)
-	alternative = origin.lerp(alternative, slide_contact.fraction)
+	var slide_contact := _ground_contact(origin, alternative, neighbors)
+	alternative = origin.lerp(alternative, slide_contact.w)
 	if alternative.distance_squared_to(origin) > clipped.distance_squared_to(origin):
 		return alternative
 	return clipped
 
 
 func _ground_step_contact(origin: Vector3, next: Vector3, neighbors: Array) -> Dictionary:
+	var contact := _ground_contact(origin, next, neighbors)
+	return {"fraction": contact.w, "normal": Vector3(contact.x, contact.y, contact.z)}
+
+
+func _ground_contact(origin: Vector3, next: Vector3, neighbors: Array) -> Vector4:
+	# The hot path returns a value (normal.xyz, fraction.w), avoiding a heap
+	# dictionary and string-key lookups for every step and candidate collision.
 	var step := (next - origin) * Vector3(1, 0, 1)
 	var length_squared := step.length_squared()
-	var result = {"fraction": 1.0, "normal": Vector3.ZERO}
+	var best_fraction := 1.0
+	var best_normal := Vector3.ZERO
 	if length_squared < 0.00000001:
-		return result
+		return Vector4(0, 0, 0, 1)
 	var own_radius: float = radius
 	for candidate in neighbors:
 		var other: Unit = candidate
@@ -647,10 +669,10 @@ func _ground_step_contact(origin: Vector3, next: Vector3, neighbors: Array) -> D
 			if discriminant < 0:
 				continue
 			fraction = (-toward - sqrt(discriminant)) / length_squared
-		if fraction >= 0 and fraction < result.fraction:
-			result.fraction = fraction
-			result.normal = offset.normalized()
-	return result
+		if fraction >= 0 and fraction < best_fraction:
+			best_fraction = fraction
+			best_normal = offset.normalized()
+	return Vector4(best_normal.x, best_normal.y, best_normal.z, best_fraction)
 
 
 func _sync_ground_navigation_height():

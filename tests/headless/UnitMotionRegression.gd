@@ -133,7 +133,12 @@ func _test_idle(unit):
 		visual._process(1.0 / 60)
 		if frame % 60 == 0:
 			_check(
-				geometry.position.distance_to(visual._geometry_rest.origin) < 0.08,
+				(
+					unit.to_local(geometry.global_position).distance_to(
+						visual._geometry_rest.origin
+					)
+					< 0.08
+				),
 				"Idle translation drift"
 			)
 	_check(unit.transform == root_before and unit.hp == hp, "Animation altered unit authority")

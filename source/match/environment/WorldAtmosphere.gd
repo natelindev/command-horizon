@@ -51,7 +51,14 @@ func _ready():
 	sun.shadow_bias = .025
 	sun.shadow_normal_bias = .35
 	sun.shadow_blur = 1.0
-	sun.directional_shadow_mode = DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
+	# Orthographic projection has no perspective size falloff. Use the complete
+	# shadow atlas for one map instead of submitting the scene to four cascades.
+	# Perspective cameras retain their cascade distribution.
+	sun.directional_shadow_mode = (
+		DirectionalLight3D.SHADOW_ORTHOGONAL
+		if camera.projection == Camera3D.PROJECTION_ORTHOGONAL
+		else DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
+	)
 	sun.directional_shadow_split_1 = .15
 	sun.directional_shadow_split_2 = .35
 	sun.directional_shadow_split_3 = .65

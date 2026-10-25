@@ -16,6 +16,10 @@ var _charge_origin = Vector3.ZERO
 
 @onready var _unit = Utils.NodeEx.find_parent_with_group(self, "units")
 @onready var _unit_movement_trait = _unit.find_child("Movement")
+# Models and their articulation are fixed before an action enters the tree.
+# Searching the entire model for every shooter on every physics tick scales
+# with decorative mesh count, even though turret ownership never changes.
+@onready var _has_turret = _unit.find_child("*TurretPivot", true, false) != null
 
 
 func _init(target_unit, shot_limit = 0):
@@ -76,18 +80,17 @@ func _setup_range_check_timer():
 
 
 func _rotate_unit_towards_target():
-	if not is_instance_valid(_target_unit):
+	if _has_turret or not is_instance_valid(_target_unit):
 		return
-	if _unit.global_position_yless.distance_squared_to(_target_unit.global_position_yless) < 0.0001:
+	var current: Transform3D = _unit.global_transform
+	var target: Vector3 = _target_unit.global_position
+	target.y = current.origin.y
+	if current.origin.distance_squared_to(target) < 0.0001:
 		return
-	if _unit.find_child("*TurretPivot", true, false) != null:
-		return
-	_unit.global_transform = _unit.global_transform.looking_at(
-		Vector3(
-			_target_unit.global_position.x, _unit.global_position.y, _target_unit.global_position.z
-		),
-		Vector3(0, 1, 0)
-	)
+	var facing := current.looking_at(target, Vector3.UP)
+	# An unchanged write still dirties collision and every model descendant.
+	if facing != current:
+		_unit.global_transform = facing
 
 
 func _schedule_hit():

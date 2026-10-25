@@ -61,6 +61,10 @@ func _run():
 			)
 		for reach in [1.0, 5.9, 6.0, 20.0]:
 			var actual = field.nearby_units(point, reach)
+			var native = field._native_queries
+			field._native_queries = null
+			_check(actual == field.nearby_units(point, reach), "Native query changed body ordering")
+			field._native_queries = native
 			var expected = bodies.filter(
 				func(body): return body.position.distance_squared_to(point) <= reach * reach
 			)
@@ -94,6 +98,14 @@ func _run():
 		"Spawn signal left the current grid stale"
 	)
 	spawned.free()
+	var queued = Body.new()
+	queued.player = sides[0]
+	root.add_child(queued)
+	queued.add_to_group("units")
+	field.invalidate()
+	field._refresh()
+	queued.queue_free()
+	_check(queued not in field.nearby_units(Vector3.ZERO, 5.0), "Queued deletion leaked into query")
 	var vision = Body.new()
 	vision.player = sides[0]
 	root.add_child(vision)

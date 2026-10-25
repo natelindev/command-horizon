@@ -38,36 +38,54 @@ func _run():
 		physics_frame.connect(advance)
 		var geometry = unit.get_node("Geometry")
 		var visual = unit.get_node("BastionVisuals")
+		var renderer = game.get_node("UnitBatchRenderer")
 		var previous_root = unit.global_position
 		var previous_model = geometry.global_position
 		var between_ticks = 0
 		for index in 100:
 			await RenderingServer.frame_post_draw
 			var expected = unit.get_global_transform_interpolated() * visual._geometry_pose
-			_check(
-				geometry.global_transform.is_equal_approx(expected),
-				"Visual root did not interpolate: " + faction
-			)
+			var presented_position: Vector3 = geometry.global_position
+			if visual.gpu_interpolated:
+				# Read the transform actually consumed by the draw shader. CPU pivots
+				# deliberately remain at simulation time on the batched path.
+				var entry = renderer._units[unit]
+				var pixels: Image = renderer._compute.texture.get_image()
+				presented_position = Vector3(
+					pixels.get_pixel(0, entry.offset).a,
+					pixels.get_pixel(1, entry.offset).a,
+					pixels.get_pixel(2, entry.offset).a
+				)
+				_check(presented_position.is_finite(), "Invalid GPU pose: " + faction)
+				_check(
+					presented_position.distance_to(entry.anchors[0].global_position) < .3,
+					"GPU pose fell behind simulation: " + faction
+				)
+			else:
+				_check(
+					geometry.global_transform.is_equal_approx(expected),
+					"Visual root did not interpolate: " + faction
+				)
 			if (
 				unit.global_position == previous_root
-				and geometry.global_position.distance_to(previous_model) > 0.0001
+				and presented_position.distance_to(previous_model) > 0.0001
 			):
 				between_ticks += 1
 			previous_root = unit.global_position
-			previous_model = geometry.global_position
+			previous_model = presented_position
 		physics_frame.disconnect(advance)
 		_check(between_ticks >= 10, "Model still moves only on physics ticks: " + faction)
 		var authority = unit.global_transform
 		visual.fire_recoil()
 		_check(unit.global_transform == authority, "Recoil changed simulation position")
 		_check(
-			geometry.transform.is_equal_approx(visual._geometry_pose),
+			geometry.global_transform.is_equal_approx(authority * visual._geometry_pose),
 			"Shot sampled an interpolated muzzle"
 		)
 		paused = true
 		await _frames(3)
 		_check(
-			geometry.transform.is_equal_approx(visual._geometry_pose),
+			geometry.global_transform.is_equal_approx(authority * visual._geometry_pose),
 			"Pause retained render offset"
 		)
 		paused = false

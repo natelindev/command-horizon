@@ -115,6 +115,10 @@ func _ready():
 	var atmosphere = load("res://source/match/environment/WorldAtmosphere.gd").new()
 	add_child(atmosphere)
 	if DisplayServer.get_name() != "headless":
+		var batches = load("res://source/match/rendering/UnitBatchRenderer.gd").new()
+		batches.name = "UnitBatchRenderer"
+		add_child(batches)
+	if DisplayServer.get_name() != "headless":
 		add_child(load("res://source/match/effects/ConstructionPrewarm.gd").new())
 	MatchSignals.match_started.emit()
 

@@ -16,35 +16,38 @@ const FIDGETS = 4
 static var _frustum_frame = -1
 static var _frustum = []
 static var _headless = DisplayServer.get_name() == "headless"
+static var _budget_frame := -1
+static var _pixels_per_metre := INF
+static var _crowded := false
 
 var motion: MotionProfile
 var chassis: Chassis
 var _wheel_motion = null
 var _infantry_motion = null
 var _walker = null
-var _turret = null
-var _barrel = null
-var _muzzle = null
-var _legs = []
-var _rotors = []
-var _rotor_angles = []
-var _tools = []
-var _stabilizers = []
-var _rests = {}
+var _turret: Node3D
+var _barrel: Node3D
+var _muzzle: Node3D
+var _legs := []
+var _rotors := []
+var _rotor_angles := []
+var _tools := []
+var _stabilizers := []
+var _rests := {}
 var _previous_position := Vector3.ZERO
-var _clock = 0.0
-var _quiet_time = 0.0
-var _idle_blend = 0.0
-var _gesture = 0.0
-var _gesture_strength = 1.0
-var _gesture_value = 0.0
-var _fidget = 0
-var _recoil = 0.0
-var _hit_kick = 0.0
-var _hit_axis = Vector3.ZERO
-var _hit_push = Vector3.ZERO
-var _hit_clock = -INF
-var _barrel_rest = Vector3.ZERO
+var _clock := 0.0
+var _quiet_time := 0.0
+var _idle_blend := 0.0
+var _gesture := 0.0
+var _gesture_strength := 1.0
+var _gesture_value := 0.0
+var _fidget := 0
+var _recoil := 0.0
+var _hit_kick := 0.0
+var _hit_axis := Vector3.ZERO
+var _hit_push := Vector3.ZERO
+var _hit_clock := -INF
+var _barrel_rest := Vector3.ZERO
 var _geometry_rest_rotation := Vector3.ZERO
 var _geometry_rest_scale := Basis.IDENTITY
 var _geometry_rest := Transform3D.IDENTITY:
@@ -55,33 +58,41 @@ var _geometry_rest := Transform3D.IDENTITY:
 		_rest_is_identity = value.basis.is_equal_approx(Basis.IDENTITY)
 var _geometry_pose := Transform3D.IDENTITY
 var _presentation_root := Transform3D.IDENTITY
-var _dust_elapsed = 0.0
-var _damage_elapsed = 0.0
-var _airborne = false
-var _fixed_wing = false
-var _mobile = false
-var _heavy = false
+var _dust_elapsed := 0.0
+var _damage_elapsed := 0.0
+var _airborne := false
+var _fixed_wing := false
+var _mobile := false
+var _heavy := false
 var _movement = null
-var _settled = false
-var _aiming = false
-var _turret_yaw = 0.0
-var _turret_velocity = 0.0
-var _turret_rate = 3.0
-var _barrel_pitch = 0.0
+var _settled := false
+var _aiming := false
+var _turret_yaw := 0.0
+var _turret_velocity := 0.0
+var _turret_rate := 3.0
+var _barrel_pitch := 0.0
 var _rotor_speed = ROTOR_SPEED
-var _tools_posed = false
-var _work = 0.0
-var _work_clock = 0.0
-var _deploys = false
-var _deploy = 1.0
-var _cull_radius = 3.0
-var _rest_is_identity = true
-var _barrel_scale = 1.0
-var _constructible = false
-var _action_reports_idle = false
-var _repairs = false
-var _sparkling = null
-var _culled = false
+var _tools_posed := false
+var _work := 0.0
+var _work_clock := 0.0
+var _deploys := false
+var _deploy := 1.0
+var _cull_radius := 3.0
+var _rest_is_identity := true
+var _barrel_scale := 1.0
+var _constructible := false
+var _action_reports_idle := false
+var _repairs := false
+var _sparkling: Node3D
+var _culled := false
+var _pose_elapsed := 0.0
+var _pose_remaining := 0.0
+var _reaction_remaining := 0.0
+var gpu_interpolated := false
+var _pose_job = preload("res://source/match/rendering/ParallelPoseBatch.gd").Job.new()
+var _pose_travel := Vector3.ZERO
+var _pose_moving := false
+var _pose_worker: RefCounted
 # Suspension pitch lives in the chassis spring; these aliases keep the impulse API.
 var _suspension_pitch:
 	get:
@@ -103,12 +114,14 @@ func _init():
 
 
 func _ready():
+	set_physics_process(false)
 	# Disabling interpolation also disables inherited root interpolation.
 	# Compose the interpolated root with the local pose explicitly in _process.
 	_geometry.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	if not _unit.has_meta("visual_seed"):
 		_unit.set_meta("visual_seed", _unit.find_parent("Match").allocate_visual_seed())
 	motion = MotionProfile.new(_unit.get_meta("visual_seed"))
+	_pose_remaining = fposmod(motion.phase, 1.0) / 15.0
 	_clock = motion.phase
 	_gesture = motion.idle_period
 	_turret = _unit.find_child("*TurretPivot", true, false)
@@ -170,6 +183,11 @@ func _ready():
 	_unit.action_changed.connect(_on_order)
 	_on_order(_unit.action)
 	_sync_muzzle()
+	# Mobile presentation already composes the interpolated simulation transform
+	# explicitly. Detach its transform inheritance so each physics translation and
+	# turn does not dirty the entire articulated model before the rendered pose.
+	if _mobile:
+		_geometry.top_level = true
 
 
 static func _is_pivot(node):
@@ -222,8 +240,9 @@ func _on_order(action):
 
 
 func fire_recoil():
+	_flush_pending_pose()
+	_reaction_remaining = .12
 	# Weapon authority samples the current simulation root, never the render offset.
-	_geometry.transform = _geometry_pose
 	# Remove any idle scan before the weapon samples its actual muzzle transform,
 	# and bring a lagging body onto the firing line.
 	_quiet_time = 0.0
@@ -232,12 +251,12 @@ func fire_recoil():
 	var before = chassis.yaw_lag
 	chassis.clamp_lag(.2)
 	if _mobile:
-		_geometry.rotate_y(chassis.yaw_lag - before)
+		_geometry_pose.basis = Basis(Vector3.UP, chassis.yaw_lag - before) * _geometry_pose.basis
+	_publish_simulation_pose()
 	if _infantry_motion != null:
 		_infantry_motion.raise_for_shot()
 	_aim(1.0)
 	_sync_muzzle()
-	_geometry_pose = _geometry.transform
 	motion.next_shot()
 	_recoil = 1.0
 	if _heavy:
@@ -247,6 +266,8 @@ func fire_recoil():
 
 
 func hit_reaction(source_position = Vector3.INF):
+	_flush_pending_pose()
+	_reaction_remaining = .12
 	_quiet_time = 0.0
 	_hit_kick = 1.0
 	_settled = false
@@ -276,12 +297,25 @@ func death_motion():
 # steps without repeatedly dirtying the same model hierarchy. fire_recoil()
 # synchronizes the muzzle immediately when gameplay actually fires a shot.
 func _process(delta: float):
-	_advance_pose(delta)
+	var interval := _pose_interval()
+	_pose_elapsed += delta
+	_pose_remaining -= delta
+	_reaction_remaining = maxf(0.0, _reaction_remaining - delta)
+	if interval == 0.0 or _reaction_remaining > 0.0 or _pose_remaining <= 0.0:
+		_flush_pending_pose()
+		# Retain the phase when a frame crosses the deadline. Resetting to one
+		# whole interval here silently reduces a 30 Hz budget to 20 Hz at 60 FPS.
+		if interval > 0.0:
+			_pose_remaining += interval * (floorf(-_pose_remaining / interval) + 1.0)
+		else:
+			_pose_remaining = 0.0
+	else:
+		_presentation_root = _unit.get_global_transform_interpolated()
+	_advance_rotors(delta)
 	if _culled:
-		if _geometry.transform != _geometry_pose:
-			_geometry.transform = _geometry_pose
+		_publish_simulation_pose()
 		return
-	var presented = _presentation_root * _geometry_pose
+	var presented: Transform3D = _presentation_root * _geometry_pose
 	# Build the local pose in memory, then publish it once. Restoring the previous
 	# pose before animating dirties every mesh in the hierarchy several times.
 	if _geometry.global_transform != presented:
@@ -291,27 +325,133 @@ func _process(delta: float):
 		_sync_muzzle()
 
 
+func _physics_process(delta: float):
+	if not gpu_interpolated:
+		return
+	# The GPU interpolates the articulated world poses between simulation ticks.
+	# Muzzle/IK state remains in the scene tree, sampled at authoritative time.
+	prepare_gpu_pose(delta).solve()
+	finish_gpu_pose(delta)
+
+
+func prepare_gpu_pose(delta: float):
+	_prepare_pose(delta)
+	return _pose_job
+
+
+func finish_gpu_pose(delta: float, finalize := true):
+	_finish_pose(delta)
+	_advance_rotors(delta)
+	if finalize:
+		publish_gpu_pose(delta)
+
+
+func publish_gpu_pose(delta: float):
+	if _pose_worker != null:
+		_settle_pose(_pose_moving)
+	_publish_simulation_pose()
+	_aim(delta)
+	if _aiming or _recoil > 0.0:
+		_sync_muzzle()
+	elif _pose_worker != null:
+		_pose_worker.publish()
+
+
+func set_gpu_interpolation(enabled: bool):
+	gpu_interpolated = enabled
+	if (
+		enabled
+		and _infantry_motion != null
+		and _pose_worker == null
+		and not "--no-infantry-workers" in OS.get_cmdline_user_args()
+	):
+		_pose_worker = load("res://source/match/rendering/InfantryPoseWorker.gd").new(
+			_infantry_motion
+		)
+	elif not enabled and _pose_worker != null:
+		_pose_worker.release()
+		_pose_worker = null
+	_pose_elapsed = 0.0
+	set_process(not enabled)
+	# The renderer coordinates snapshot / worker solve / publication as one batch.
+	set_physics_process(false)
+	process_physics_priority = 9000
+	_geometry.physics_interpolation_mode = (
+		Node.PHYSICS_INTERPOLATION_MODE_ON if enabled else Node.PHYSICS_INTERPOLATION_MODE_OFF
+	)
+	_geometry.reset_physics_interpolation()
+
+
+func _exit_tree():
+	if _pose_worker != null:
+		_pose_worker.release()
+		_pose_worker = null
+
+
+func _flush_pending_pose():
+	if _pose_elapsed > 0.0:
+		_advance_pose(_pose_elapsed)
+		_pose_elapsed = 0.0
+
+
+func _pose_interval() -> float:
+	# Spend animation work where it is visible. Simulation, interpolated root
+	# motion, turret aiming, rotors and immediate weapon authority remain live.
+	if _headless or not _mobile or _unit.is_in_group("selected_units"):
+		return 0.0
+	var frame := Engine.get_process_frames()
+	if frame != _budget_frame:
+		_budget_frame = frame
+		_crowded = get_tree().get_nodes_in_group("units").size() >= 100
+		_pixels_per_metre = INF
+		var camera := get_viewport().get_camera_3d()
+		if camera != null and camera.projection == Camera3D.PROJECTION_ORTHOGONAL:
+			_pixels_per_metre = get_viewport().get_visible_rect().size.y / camera.size
+	if not _crowded:
+		return 0.0
+	var pixels := maxf(1.5, chassis.length) * _pixels_per_metre
+	return 1.0 / 15.0 if pixels < 32.0 else (1.0 / 30.0 if pixels < 64.0 else 0.0)
+
+
 func _notification(what):
 	if what == NOTIFICATION_PAUSED and is_instance_valid(_geometry):
-		_geometry.transform = _geometry_pose
+		_publish_simulation_pose()
+
+
+func _publish_simulation_pose():
+	var pose: Transform3D = _unit.global_transform * _geometry_pose
+	if _geometry.global_transform != pose:
+		_geometry.global_transform = pose
 
 
 func _advance_pose(delta: float):
+	_prepare_pose(delta)
+	_pose_job.solve()
+	_finish_pose(delta)
+
+
+func _prepare_pose(delta: float):
 	var root: Transform3D = (
 		_unit.get_global_transform_interpolated()
-		if get_tree().physics_interpolation and _unit.can_process()
+		if not gpu_interpolated and get_tree().physics_interpolation and _unit.can_process()
 		else _unit.global_transform
 	)
 	_presentation_root = root
+	_pose_job.chassis = chassis
+	_pose_job.root = root
+	_pose_job.delta = delta
+	_pose_job.mode = 0
 	_damage_elapsed += delta
 	if _damage_elapsed > 0.8:
 		_damage_elapsed = 0.0
 		if _unit.hp != null and _unit.hp_max != null and _unit.hp <= _unit.hp_max * 0.3:
 			_unit._match.combat_effects.damage_smoke(_unit)
 	var travel: Vector3 = root.origin - _previous_position
+	_pose_travel = travel
 	var distance := travel.length()
 	_previous_position = root.origin
 	var moving: bool = distance > maxf(.000001, delta * .02)
+	_pose_moving = moving
 	if moving:
 		_settled = false
 	_recoil = maxf(0.0, _recoil - delta / motion.recoil_duration)
@@ -329,11 +469,18 @@ func _advance_pose(delta: float):
 		return
 	if _culled:
 		_culled = false
-		chassis.reset(root)
+		_pose_job.mode = 1
 	elif _settled and chassis.is_settled() and chassis._previous == root:
-		chassis.clock += delta
+		_pose_job.mode = 2
 	else:
-		chassis.advance(delta, root)
+		_pose_job.mode = 3
+
+
+func _finish_pose(delta: float):
+	if _pose_job.mode == 0:
+		return
+	var moving := _pose_moving
+	var travel := _pose_travel
 	# Wheels also roll through pivot turns, which have no root translation.
 	if _wheel_motion != null:
 		_wheel_motion.advance(delta)
@@ -359,6 +506,11 @@ func _advance_pose(delta: float):
 			_dust_elapsed = 0.0
 			_unit._match.combat_effects.movement_dust(_unit)
 
+	if _infantry_motion == null or _infantry_motion.deferred_job == null:
+		_settle_pose(moving)
+
+
+func _settle_pose(moving: bool):
 	if (
 		not moving
 		and not _aiming
@@ -377,7 +529,7 @@ func _advance_pose(delta: float):
 			_barrel.position = _barrel_rest
 
 
-func _apply_geometry(delta, ground_distance):
+func _apply_geometry(delta: float, ground_distance: float):
 	var kick = _recoil * _recoil * motion.recoil_strength
 	if _barrel != null and (kick > 0.0 or _barrel.position != _barrel_rest):
 		_barrel.position = (
@@ -448,7 +600,7 @@ func _pose_geometry(rotation: Vector3, offset: Vector3):
 		)
 
 
-func _pose_at_rest():
+func _pose_at_rest() -> bool:
 	# Settling stops part easing, so every eased part must already be at rest.
 	var turret_moving = (
 		_turret != null
@@ -471,7 +623,7 @@ func _pose_at_rest():
 	)
 
 
-func _update_idle(delta, moving):
+func _update_idle(delta: float, moving: bool):
 	var busy = moving or _aiming or _recoil > 0 or _hit_kick > 0
 	busy = busy or (_movement != null and _movement._has_destination)
 	var action = _unit.action
@@ -492,7 +644,7 @@ func _update_idle(delta, moving):
 				_fidget = motion.next_fidget(FIDGETS)
 
 
-func _update_work(delta, moving):
+func _update_work(delta: float, moving: bool):
 	# Harvesting, building and field repairs get a purposeful tool rhythm.
 	var working = not moving and _is_working()
 	_work = move_toward(_work, 1.0 if working else 0.0, delta * 3.0)
@@ -503,7 +655,7 @@ func _update_work(delta, moving):
 		_work_clock = 0.0
 
 
-func _is_working():
+func _is_working() -> bool:
 	if _sparkling != null:
 		return _sparkling._animation != null
 	if _repairs and _unit.action != null:
@@ -515,7 +667,7 @@ func _is_working():
 	return false
 
 
-static func _strike(cycle):
+static func _strike(cycle: float) -> float:
 	# Quick downward stroke, slower recovery.
 	var progress = fposmod(cycle, 1.0)
 	if progress < .25:
@@ -523,7 +675,7 @@ static func _strike(cycle):
 	return 1.0 - smoothstep(.25, 1.0, progress)
 
 
-func _idle_gesture():
+func _idle_gesture() -> float:
 	# A short smooth weight shift / scan followed by several seconds of rest.
 	if _idle_blend <= 0.0:
 		return 0.0
@@ -531,8 +683,9 @@ func _idle_gesture():
 	return wave * wave * _gesture_strength * _idle_blend
 
 
-func _update_parts(delta):
-	var gesture = _gesture_value
+func _advance_rotors(delta: float):
+	if _culled:
+		return
 	if not _rotors.is_empty():
 		# Rotors spool up under load: speed and acceleration.
 		var strain = clampf(
@@ -546,10 +699,14 @@ func _update_parts(delta):
 				_rotor_angles[index] + delta * _rotor_speed * motion.cadence, -PI, PI
 			)
 			_rotors[index].basis = _rests[_rotors[index]] * Basis(Vector3.UP, _rotor_angles[index])
+
+
+func _update_parts(delta: float):
+	var gesture = _gesture_value
 	if not _tools.is_empty() and (_tools_posed or gesture != 0.0 or _work > 0.0):
 		_tools_posed = gesture != 0.0 or _work > 0.0
 		for index in range(_tools.size()):
-			var tool = _tools[index]
+			var tool: Node3D = _tools[index]
 			var side = -1 if index % 2 == 0 else 1
 			var target = _rests[tool] + Vector3(0, 0, gesture * 0.10 * side)
 			if _work > 0.0:
@@ -586,7 +743,7 @@ func _deploy_target():
 	return 1.0 - clampf(_unit.deployment_left / _unit.DEPLOY_SECONDS, 0.0, 1.0)
 
 
-func _traverse(target, delta, omega, max_rate):
+func _traverse(target: float, delta: float, omega: float, max_rate: float):
 	# Critically damped traverse with rate and acceleration limits: the turret
 	# spools up, slews and settles onto the target instead of snapping.
 	var error = angle_difference(_turret_yaw, target)
@@ -602,37 +759,37 @@ func _traverse(target, delta, omega, max_rate):
 	_set_turret_yaw(_turret_yaw + _turret_velocity * delta)
 
 
-func _set_turret_yaw(yaw):
+func _set_turret_yaw(yaw: float):
 	# Only this node animates the turret, so the cached yaw is authoritative.
 	if yaw == _turret_yaw:
 		return
 	_turret_yaw = yaw
-	var rest = _rests[_turret]
+	var rest: Vector3 = _rests[_turret]
 	_turret.rotation = Vector3(rest.x, yaw, rest.z)
 
 
-func _set_barrel_pitch(pitch):
+func _set_barrel_pitch(pitch: float):
 	if pitch == _barrel_pitch:
 		return
 	_barrel_pitch = pitch
-	var rest = _rests[_barrel]
+	var rest: Vector3 = _rests[_barrel]
 	_barrel.rotation = Vector3(pitch, rest.y, rest.z)
 
 
-func _aim(delta):
+func _aim(delta: float):
 	if not is_instance_valid(_unit.aim_target) or _turret == null:
 		return
-	var target_position = _unit.aim_target.global_position + Vector3.UP * 0.45
-	var target_local = _turret.get_parent().to_local(target_position) - _turret.position
-	var bearing = atan2(-target_local.x, -target_local.z)
+	var target_position: Vector3 = _unit.aim_target.global_position + Vector3.UP * 0.45
+	var target_local: Vector3 = _turret.get_parent().to_local(target_position) - _turret.position
+	var bearing: float = atan2(-target_local.x, -target_local.z)
 	if delta >= 1.0:
 		_turret_velocity = 0.0
 		_set_turret_yaw(bearing)
 	else:
 		_traverse(bearing, delta, 11.0, _turret_rate)
 	if _barrel != null:
-		var direction = _barrel.get_parent().to_local(target_position) - _barrel.position
-		var elevation = clamp(
+		var direction: Vector3 = _barrel.get_parent().to_local(target_position) - _barrel.position
+		var elevation: float = clampf(
 			atan2(direction.y, Vector2(direction.x, direction.z).length()), -0.15, 0.65
 		)
 		_set_barrel_pitch(
@@ -645,5 +802,7 @@ func _aim(delta):
 
 
 func _sync_muzzle():
+	if _pose_worker != null:
+		_pose_worker.publish()
 	if _muzzle != null and _projectile_origin != null:
 		_projectile_origin.global_transform = _muzzle.global_transform.orthonormalized()

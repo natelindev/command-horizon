@@ -12,9 +12,9 @@ var stride_scale: float
 var lead_foot: int
 var yaw_response: float
 var drift_rates: Vector3
-var recoil_duration = 0.24
-var recoil_strength = 1.0
-var recoil_roll = 0.0
+var recoil_duration := 0.24
+var recoil_strength := 1.0
+var recoil_roll := 0.0
 
 
 func _init(identity: int):

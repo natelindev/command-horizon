@@ -161,6 +161,13 @@ static func hit_flash(geometry, color: Color, recycled = {}) -> Dictionary:
 	material.set_shader_parameter("hit_strength", .7)
 	entry.age = 0.0
 	entry.surfaces.clear()
+	var batch_reference = (
+		geometry.get_meta("gpu_batch_renderer") if geometry.has_meta("gpu_batch_renderer") else null
+	)
+	var renderer = batch_reference.get_ref() if batch_reference != null else null
+	if renderer != null:
+		renderer.set_hit_pulse(geometry, material)
+		entry.batch_geometry = weakref(geometry)
 	var surfaces = geometry.get_meta("hit_flash_surfaces", [])
 	# Unit geometry is assembled before entering combat. Replaced/freed meshes
 	# invalidate its weak cache; no source mesh or shared material is retained.
@@ -184,6 +191,18 @@ static func _collect_hit_surfaces(node, surfaces):
 
 
 static func clear_hit_flash(entry):
+	var geometry = entry.get("batch_geometry")
+	geometry = geometry.get_ref() if geometry != null else null
+	if geometry != null:
+		var batch_reference = (
+			geometry.get_meta("gpu_batch_renderer")
+			if geometry.has_meta("gpu_batch_renderer")
+			else null
+		)
+		var renderer = batch_reference.get_ref() if batch_reference != null else null
+		if renderer != null:
+			renderer.clear_hit_pulse(geometry, entry.material)
+	entry.erase("batch_geometry")
 	for reference in entry.surfaces:
 		var surface = reference.get_ref()
 		if surface != null and surface.material_overlay == entry.material:

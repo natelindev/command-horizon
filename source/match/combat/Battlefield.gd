@@ -25,9 +25,13 @@ var _observer_hints = {}
 # Authored elevated maps: their TerrainModel adds ground, formation, forest
 # and high-ground occlusion to every sight and fire check.
 var _terrain = null
+var _native_queries: RefCounted
 
 
 func _ready():
+	_native_queries = load("res://source/match/rendering/NativePosePacker.gd").create()
+	if _native_queries != null and not _native_queries.has_method("nearby_units"):
+		_native_queries = null
 	var map = get_parent().get("map")
 	if map != null and map.is_elevated() and "terrain" in map:
 		_terrain = map.terrain
@@ -520,6 +524,8 @@ func nearby_units(point: Vector3, radius: float, player_filter = null, excluded_
 	# Avoidance callbacks move bodies sequentially after this tick's index is
 	# built. Include one speed-bounded step so crossing a cell cannot hide a body.
 	var indexed_reach := radius + _max_body_step
+	if _native_queries != null and player_filter == null and excluded_player == null:
+		return _native_queries.nearby_units(cells, point, radius, cell_size, indexed_reach)
 	var low := Vector2i(
 		floori((point.x - indexed_reach) / cell_size), floori((point.z - indexed_reach) / cell_size)
 	)

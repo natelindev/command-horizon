@@ -169,13 +169,14 @@ func _update_camera_indicator():
 			)
 			* MINIMAP_PIXELS_PER_WORLD_METER
 		)
-		_camera_indicator.set_point_position(
-			index,
-			Vector2(
-				corner_mapped_to_3d_position_on_ground_level.x,
-				corner_mapped_to_3d_position_on_ground_level.z
-			)
+		var point = Vector2(
+			corner_mapped_to_3d_position_on_ground_level.x,
+			corner_mapped_to_3d_position_on_ground_level.z
 		)
+		# A stationary camera must not rebuild the line's canvas geometry at
+		# simulation cadence. Camera motion still updates every affected point.
+		if _camera_indicator.get_point_position(index) != point:
+			_camera_indicator.set_point_position(index, point)
 
 
 func _texture_rect_position_to_world_position(position_2d_within_texture_rect):
