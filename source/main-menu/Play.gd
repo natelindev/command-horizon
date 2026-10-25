@@ -234,6 +234,7 @@ func _build_ui():
 	map_column.add_child(preview_frame)
 	_preview = load("res://source/main-menu/SkirmishMapPreview.gd").new()
 	_preview.custom_minimum_size.y = 280
+	_preview.start_selected.connect(_on_preview_start_selected)
 	preview_frame.add_child(_preview)
 	_map_details = _label(map_column, "", 13, ArtTheme.MUTED)
 	_map_details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -511,6 +512,14 @@ func _select_start(index, selected):
 	_refresh_slots()
 
 
+func _on_preview_start_selected(start_index):
+	if _slots.is_empty() or start_index < 0 or start_index >= _slots.size():
+		return
+	if _random_starts.button_pressed:
+		_random_starts.button_pressed = false
+	_select_start(0, start_index)
+
+
 func _apply_teams(mode):
 	for index in _slots.size():
 		if mode != 3:
@@ -534,6 +543,28 @@ func _refresh_slots():
 		if not valid
 		else tr("Start numbers match the map preview. Choosing an occupied start swaps players.")
 	)
+	_sync_preview_slots()
+
+
+func _sync_preview_slots():
+	if _preview == null or not is_instance_valid(_preview):
+		return
+	var assignments = []
+	for slot_index in _slots.size():
+		var slot = _slots[slot_index]
+		assignments.append(
+			{
+				"slot": slot_index,
+				"location": slot.location,
+				"name": tr("You") if slot_index == 0 else tr("AI %d") % slot_index,
+				"color": (
+					[Color("e2c180"), Color("dd8d81"), Color("88bad4"), Color("b5a1d4")][
+						slot_index % 4
+					]
+				)
+			}
+		)
+	_preview.set_slot_assignments(assignments)
 
 
 func _create_match_settings():

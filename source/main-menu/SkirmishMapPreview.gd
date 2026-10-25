@@ -1,5 +1,7 @@
 extends Control
 
+signal start_selected(start_index)
+
 const MAP_FONT = preload("res://assets/fonts/NotoSansSC.ttf")
 const PreviewData = preload("res://source/main-menu/MapPreviewData.gd")
 const Registry = preload("res://source/match/maps/terrain/BattlefieldRegistry.gd")
@@ -44,16 +46,94 @@ var terrain_high = Color("89816a")
 var _terrain: ImageTexture
 var _biome = "desert"
 var _terrain_cache = {}
+var _slot_assignments = []
+var _hovered_start = -1
 
 
 func _ready():
-	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	mouse_filter = Control.MOUSE_FILTER_STOP
 	resized.connect(queue_redraw)
 
 
 func _notification(what):
 	if what == NOTIFICATION_TRANSLATION_CHANGED:
 		queue_redraw()
+	elif what == NOTIFICATION_MOUSE_EXIT:
+		if _hovered_start >= 0:
+			_hovered_start = -1
+			mouse_default_cursor_shape = Control.CURSOR_ARROW
+			queue_redraw()
+
+
+func set_slot_assignments(assignments):
+	_slot_assignments = assignments
+	queue_redraw()
+
+
+func _map_transform():
+	var available = size - Vector2(48, 48)
+	var scale_factor = 1.0
+	if map_size.x > 0 and map_size.y > 0:
+		scale_factor = minf(available.x / map_size.x, available.y / map_size.y)
+	var extent = map_size * scale_factor
+	var origin = (size - extent) / 2
+	return {"scale": scale_factor, "origin": origin, "extent": extent}
+
+
+func get_start_at_position(local_position, hit_radius = 26.0):
+	if starts.is_empty():
+		return -1
+	var xform = _map_transform()
+	var origin = xform.origin
+	var scale_factor = xform.scale
+	var closest_index = -1
+	var closest_distance = hit_radius
+	for index in starts.size():
+		var start = starts[index]
+		var map_pos = (
+			Vector2(start.x, start.z)
+			if start is Vector3
+			else Vector2(start.x, start.y if "y" in start else 0.0)
+		)
+		var center = origin + map_pos * scale_factor
+		var distance = local_position.distance_to(center)
+		if distance <= closest_distance:
+			closest_distance = distance
+			closest_index = index
+	return closest_index
+
+
+func _gui_input(event):
+	if event is InputEventMouseButton:
+		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+			var index = get_start_at_position(event.position)
+			if index >= 0:
+				start_selected.emit(index)
+				accept_event()
+	elif event is InputEventScreenTouch:
+		if event.pressed:
+			var index = get_start_at_position(event.position)
+			if index >= 0:
+				start_selected.emit(index)
+				accept_event()
+	elif event is InputEventMouseMotion:
+		var hovered = get_start_at_position(event.position)
+		if hovered != _hovered_start:
+			_hovered_start = hovered
+			mouse_default_cursor_shape = (
+				Control.CURSOR_POINTING_HAND if _hovered_start >= 0 else Control.CURSOR_ARROW
+			)
+			queue_redraw()
+
+
+func _get_tooltip(at_position):
+	var index = get_start_at_position(at_position)
+	if index >= 0:
+		for assignment in _slot_assignments:
+			if assignment.get("location") == index:
+				return tr("Start %d · %s") % [index + 1, assignment.get("name", "")]
+		return tr("Start %d") % (index + 1)
+	return ""
 
 
 func set_map(path):
@@ -293,7 +373,14 @@ func _draw():
 	for index in starts.size():
 		var point = origin + Vector2(starts[index].x, starts[index].z) * scale_factor
 		var color = [Color("e2c180"), Color("dd8d81"), Color("88bad4"), Color("b5a1d4")][index % 4]
-		draw_circle(point, 24, Color(color, .12), true, -1, true)
+		for assignment in _slot_assignments:
+			if assignment.get("location") == index:
+				color = assignment.get("color", color)
+				break
+		var is_hovered = index == _hovered_start
+		var halo_radius = 27.0 if is_hovered else 24.0
+		var halo_alpha = 0.28 if is_hovered else 0.12
+		draw_circle(point, halo_radius, Color(color, halo_alpha), true, -1, true)
 		draw_circle(point + Vector2(0, 2), 15, Color("0d191ecc"), true, -1, true)
 		draw_circle(point, 13, color, true, -1, true)
 		draw_string(

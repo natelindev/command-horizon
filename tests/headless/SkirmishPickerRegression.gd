@@ -63,6 +63,63 @@ func _menu():
 		setup._get_selected_map_path() == setup.SUCCESSORS.CoastalFoundry,
 		"Legacy numeric preference did not select its replacement"
 	)
+	# Position selection via preview circle clicks
+	setup._on_map_list_item_selected(0)
+	_check(setup._slots[0].location == 0, "Default player position should be 0")
+	_check(setup._slots[1].location == 1, "Default AI position should be 1")
+
+	# Click circle 2 on preview
+	setup._preview.start_selected.emit(1)
+	_check(setup._slots[0].location == 1, "Player did not move to start 2 after preview click")
+	_check(setup._slots[1].location == 0, "AI did not swap to start 1 after preview click")
+	_check(setup._slots[0].start.selected == 1, "Player start option did not update")
+	_check(setup._slots[1].start.selected == 0, "AI start option did not update")
+
+	# Click circle 1 on preview
+	setup._preview.start_selected.emit(0)
+	_check(setup._slots[0].location == 0, "Player did not move back to start 1")
+	_check(setup._slots[1].location == 1, "AI did not swap back to start 2")
+
+	# Random starts disabled when picking a circle
+	setup._random_starts.button_pressed = true
+	setup._preview.start_selected.emit(1)
+	_check(not setup._random_starts.button_pressed, "Random starts was not unselected on circle pick")
+	_check(setup._slots[0].location == 1, "Player position not applied when random starts was on")
+
+	# Test GUI mouse click event on the start circle coordinates
+	setup._preview.size = Vector2(400, 300)
+	var xform = setup._preview._map_transform()
+	var start0 = setup._preview.starts[0]
+	var map_pos0 = (
+		Vector2(start0.x, start0.z)
+		if start0 is Vector3
+		else Vector2(start0.x, start0.y)
+	)
+	var screen_pos0 = xform.origin + map_pos0 * xform.scale
+	var click_event = InputEventMouseButton.new()
+	click_event.button_index = MOUSE_BUTTON_LEFT
+	click_event.pressed = true
+	click_event.position = screen_pos0
+	setup._preview._gui_input(click_event)
+	_check(setup._slots[0].location == 0, "GUI input click on circle 1 failed to select position 0")
+
+	# Test 4-player map circle clicks
+	var four_player_index = -1
+	for idx in setup.MAPS.size():
+		if constants.Match.MAPS[setup.MAPS[idx][0]].players == 4:
+			four_player_index = idx
+			break
+	if four_player_index >= 0:
+		setup._map_list.select(four_player_index)
+		setup._on_map_list_item_selected(four_player_index)
+		_check(setup._slots.size() == 4, "Expected 4 slots for 4-player map")
+		setup._preview.start_selected.emit(2)
+		_check(setup._slots[0].location == 2, "Player did not move to start 3 on 4-player map")
+		_check(setup._slots[2].location == 0, "AI 2 did not swap to start 1 on 4-player map")
+		setup._preview.start_selected.emit(3)
+		_check(setup._slots[0].location == 3, "Player did not move to start 4 on 4-player map")
+		_check(setup._slots[3].location == 2, "AI 3 did not swap to start 3 on 4-player map")
+
 	setup.queue_free()
 	await _frames(3)
 	DirAccess.remove_absolute(preferences)
