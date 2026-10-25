@@ -318,6 +318,15 @@ func _process(_delta):
 	)
 
 
+func _input(event):
+	# A targeting cancellation belongs to the battle even over a HUD control.
+	# Consume its release too so the same gesture cannot issue a terrain order.
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT:
+		if is_instance_valid(direct_orders) and direct_orders.handle_input(event):
+			return
+	super(event)
+
+
 func _unhandled_input(event):
 	var focus = get_viewport().gui_get_focus_owner()
 	if event is InputEventKey and (focus is LineEdit or focus is TextEdit):
@@ -363,6 +372,7 @@ func _arm_attack():
 func ability_owns_camera_binding(action: String) -> bool:
 	if not is_instance_valid(direct_orders) or direct_orders._blocked():
 		return false
+	var menus = get_parent().find_child("UnitMenus")
 	var placement = get_parent()._get_human_player().get_node("StructurePlacementHandler")
 	if placement._structure_placement_started():
 		return false
@@ -375,6 +385,8 @@ func ability_owns_camera_binding(action: String) -> bool:
 		):
 			var code = event.physical_keycode if event.physical_keycode != 0 else event.keycode
 			var key = {KEY_Q: "Q", KEY_W: "W", KEY_E: "E", KEY_R: "R"}.get(code, "")
+			if is_instance_valid(menus) and menus._commander_open and key == "Q":
+				return true
 			if not key.is_empty() and not direct_orders.ability_for_key(key).is_empty():
 				return true
 	return false

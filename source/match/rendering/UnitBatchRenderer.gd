@@ -332,6 +332,7 @@ func _source_visibility_changed(source, unit):
 func _eligible(source: MeshInstance3D) -> bool:
 	if (
 		source.has_meta("animated_track")
+		or source.has_meta("dynamic_presentation")
 		or source.mesh == null
 		or source.skin != null
 		or not source.visible

@@ -267,3 +267,23 @@ static func lifetime(weapon, reach):
 		return weapon.life
 	var speed = maxf(weapon.speed, weapon.get("max_speed", weapon.speed) * 0.5)
 	return clampf(reach / speed * 2.5 + 0.25, 0.3, 3.0)
+
+
+static func suppression_hit(weapon: Dictionary, player) -> float:
+	match weapon.get("id", ""):
+		"rifle":
+			return 6.0
+		"assault":
+			return 8.0
+		"autocannon":
+			return 16.0
+		"flak", "aa_autocannon":
+			return (
+				8.0
+				* load("res://source/match/combat/CombatRules.gd").aa_ground_damage_factor(player)
+			)
+	return 0.0
+
+
+static func suppresses_nearby(weapon: Dictionary) -> bool:
+	return weapon.get("id", "") in ["autocannon", "flak", "aa_autocannon"]

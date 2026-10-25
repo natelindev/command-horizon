@@ -8,6 +8,15 @@ extends RefCounted
 # the back country. Authored for the south-west start; the north-east start
 # receives the 180-degree rotation.
 const DEFINITION = {
+	"events":
+	[
+		{
+			"kind": "desert",
+			"position": Vector2(76, 63),
+			"candidates": [Vector2(80, 62), Vector2(73, 63), Vector2(84, 64)],
+			"route": [Vector2(0, 60), Vector2(76, 63), Vector2(192, 65)]
+		}
+	],
 	"id": "DesertFrontierMap",
 	"name": "Desert Frontier",
 	"revision": 1,

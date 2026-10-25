@@ -25,7 +25,7 @@ func _run():
 	for message in errors:
 		push_error(message)
 	print("Key bindings: %d failures" % errors.size())
-	quit(0 if errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
 
 
 func _bind(action, code):
@@ -42,6 +42,42 @@ func _storage_keys():
 	var expected = Keys.defaults()
 	_check(preferences.key_bindings == expected, "Legacy options lack default keys")
 	_check(Keys.normalize(expected) == expected, "Default profile invalid")
+	var legacy = expected.duplicate(true)
+	legacy.version = 4
+	legacy.keys.erase("commander_support")
+	legacy.keys.pause_battle = KEY_F6
+	var upgraded = Keys.normalize(legacy)
+	_check(
+		upgraded.keys.pause_battle == KEY_F6 and upgraded.keys.commander_support == KEY_F7,
+		"New commander shortcut erased an existing binding"
+	)
+	var crowded = legacy.duplicate(true)
+	var remaps = {
+		"pause_battle": KEY_F6,
+		"attack_move": KEY_F7,
+		"move_order": KEY_F8,
+		"attack_target": KEY_F10,
+		"force_attack": KEY_F11,
+	}
+	for action in remaps:
+		crowded.keys[action] = remaps[action]
+	var retained = Keys.normalize(crowded)
+	_check(
+		(retained.keys.commander_support & Keys.MODIFIERS) != 0,
+		"Crowded profile did not receive a free commander chord"
+	)
+	for action in crowded.keys:
+		_check(
+			retained.keys[action] == crowded.keys[action], "Occupied function keys reset " + action
+		)
+	_check(
+		(
+			Keys
+			. problem("commander_support", retained.keys.commander_support, retained.keys)
+			. is_empty()
+		),
+		"Commander migration introduced a conflict"
+	)
 	for malformed in [
 		null,
 		{"version": "1", "keys": expected.keys},
@@ -113,9 +149,9 @@ func _capture_and_rollback():
 		"Modifier-only hold capture failed"
 	)
 	panel.begin_capture("quicksave_battle")
-	await _press(KEY_F6)
+	await _press(KEY_F7)
 	_check(
-		preferences.key_bindings.keys.quicksave_battle == KEY_F6,
+		preferences.key_bindings.keys.quicksave_battle == KEY_F7,
 		"Capture triggered save instead of binding"
 	)
 	panel._reset("quicksave_battle")
@@ -214,7 +250,7 @@ func _commands():
 	_bind("rotate_map_clockwise", KEY_O)
 	_bind("unit_groups_set_1", KEY_B | KEY_MASK_CTRL)
 	_bind("unit_groups_access_1", KEY_B)
-	_bind("quicksave_battle", KEY_F6)
+	_bind("quicksave_battle", KEY_F7)
 	_bind("quickload_battle", KEY_F10)
 	var camera = game.get_node("IsometricCamera3D")
 	camera.set_physics_process(false)
@@ -350,7 +386,7 @@ func _save_keys():
 	var target = manager.slots.path_for("quick")
 	await _press(KEY_F5)
 	_check(not FileAccess.file_exists(target), "Old quicksave key still active")
-	await _press(KEY_F6)
+	await _press(KEY_F7)
 	for frame in 180:
 		if not manager.busy:
 			break

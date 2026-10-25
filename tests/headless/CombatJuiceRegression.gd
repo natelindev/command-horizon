@@ -16,7 +16,7 @@ func _run():
 	await _test_cook_off_limits()
 
 	print("Combat juice regression: %d failures" % errors.size())
-	quit(0 if errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
 
 
 func _test_voice_bus_dsp():
@@ -75,33 +75,17 @@ func _test_camera_trauma():
 	camera.projection = camera.EXPECTED_PROJECTION
 	camera.rotation_degrees.x = camera.EXPECTED_X_ROTATION_DEGREES
 	root.add_child(camera)
-	var options = root.get_node("Globals").options
-	var original_reduced = options.reduced_flashes
-
-	options.reduced_flashes = false
-	camera.add_trauma(0.5)
-	_check(is_equal_approx(camera.trauma, 0.5), "Camera trauma not applied")
-	camera._update_trauma(0.1)
-	_check(camera.trauma < 0.5 and camera.trauma > 0.0, "Camera trauma failed to decay")
+	camera.add_trauma(.8)
+	_check(camera.trauma == 0.0, "Ordinary combat can shake camera")
+	camera.trauma = .8
+	camera.h_offset = .25
+	camera._update_trauma(.1)
 	_check(
-		camera.h_offset != 0.0 or camera.v_offset != 0.0, "Camera offsets zero during trauma shake"
+		camera.trauma == 0.0 and camera.h_offset == 0.0 and camera.v_offset == 0.0,
+		"Legacy combat trauma survived guarded camera update"
 	)
-
-	# Decay to completion
-	camera._update_trauma(2.0)
-	_check(camera.trauma == 0.0, "Camera trauma did not fully decay to 0")
-	_check(
-		camera.h_offset == 0.0 and camera.v_offset == 0.0, "Camera offsets not reset on zero trauma"
-	)
-
-	# Reduced flashes suppression
-	options.reduced_flashes = true
-	camera.add_trauma(0.8)
-	_check(camera.trauma == 0.0, "Camera trauma applied when reduced_flashes enabled")
-
-	options.reduced_flashes = original_reduced
 	camera.queue_free()
-	print("PASS Camera trauma shake and reduced-motion suppression")
+	print("PASS Ordinary combat camera impulses rejected and stale offsets cleared")
 
 
 func _test_suspension_recoil():

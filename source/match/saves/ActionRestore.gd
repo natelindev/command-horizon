@@ -70,6 +70,10 @@ func _instantiate(kind, state, refs):
 	var script = load("res://source/match/units/actions/%s.gd" % kind)
 	var target = refs.get("_target_unit")
 	match kind:
+		"EngineeringAction":
+			return script.new(state.operation, state.point, state.angle, state.reservation)
+		"CollectTacticalCargo":
+			return script.new(target) if target != null else null
 		"Moving":
 			return script.new(state._target_position)
 		"AttackMoving":
@@ -114,9 +118,9 @@ func _bind(action, kind, target, unit):
 		"Garrisoning":
 			if action._capture_elapsed > 0 and not unit.has_meta("garrison_host"):
 				target.show_capture(unit, action._capture_elapsed)
-		"Moving", "MovingToUnit", "Scavenging":
+		"Moving", "MovingToUnit", "Scavenging", "CollectTacticalCargo":
 			movement.movement_finished.connect(action._on_movement_finished)
-			if kind in ["MovingToUnit", "Scavenging"]:
+			if kind in ["MovingToUnit", "Scavenging", "CollectTacticalCargo"]:
 				target.tree_exited.connect(action.queue_free)
 		"AttackingWhileInRange":
 			target.tree_exited.connect(action._on_target_unit_removed)
@@ -164,6 +168,7 @@ func _targets_available(saved):
 	if saved.is_empty():
 		return true
 	var required = {
+		"CollectTacticalCargo": "_target_unit",
 		"MovingToUnit": "_target_unit",
 		"Scavenging": "_target_unit",
 		"Garrisoning": "_target_unit",

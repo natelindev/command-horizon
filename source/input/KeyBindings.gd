@@ -1,6 +1,6 @@
 extends RefCounted
 
-const VERSION = 4
+const VERSION = 5
 const MODIFIERS = KEY_MASK_SHIFT | KEY_MASK_CTRL | KEY_MASK_ALT | KEY_MASK_META
 const MODIFIER_KEYS = [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META]
 const RESERVED = [KEY_BACKTAB, KEY_ENTER, KEY_KP_ENTER]
@@ -36,6 +36,7 @@ const SPECIAL = [
 	KEY_KP_PERIOD
 ]
 const CORE = {
+	"commander_support": ["Battle", "Commander support", KEY_F6],
 	"pause_battle": ["Battle", "Tactical pause", KEY_SPACE],
 	"attack_move": ["Battle", "Attack move", KEY_F],
 	"move_order": ["Battle", "Move to point", KEY_M],
@@ -79,6 +80,33 @@ static func defaults():
 
 static func normalize(record):
 	var fallback = defaults()
+	if (
+		record is Dictionary
+		and typeof(record.get("version")) == TYPE_INT
+		and record.get("version") == 4
+		and record.get("keys") is Dictionary
+	):
+		var previous = record.duplicate(true)
+		if (
+			previous.keys.size() == fallback.keys.size() - 1
+			and not previous.keys.has("commander_support")
+		):
+			var candidates = [KEY_F6, KEY_F7, KEY_F8, KEY_F10, KEY_F11, KEY_F12]
+			# Preserve every valid old binding even if all spare function keys are used.
+			for key in range(KEY_F1, KEY_F12 + 1):
+				for modifier in [
+					KEY_MASK_CTRL, KEY_MASK_SHIFT, KEY_MASK_ALT, KEY_MASK_CTRL | KEY_MASK_SHIFT
+				]:
+					candidates.append(key | modifier)
+			for candidate in candidates:
+				if (
+					candidate not in previous.keys.values()
+					and problem("commander_support", candidate, previous.keys).is_empty()
+				):
+					previous.keys.commander_support = candidate
+					previous.version = VERSION
+					record = previous
+					break
 	if (
 		not record is Dictionary
 		or typeof(record.get("version")) != TYPE_INT

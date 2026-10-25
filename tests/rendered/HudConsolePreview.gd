@@ -281,6 +281,7 @@ func _battle(faction, map_name, suffix):
 	tank.hp = int(tank.hp_max * .55)
 	await _select([tank])
 	await _shot(label + "-tank")
+	await _review_commander(human, label)
 	# A full factory queue while the barracks and HQ produce and a generator rises.
 	human.resource_a += 2000
 	human.resource_b += 2000
@@ -317,6 +318,99 @@ func _battle(faction, map_name, suffix):
 	paused = false
 	game.queue_free()
 	await _frames(5)
+
+
+func _review_commander(human, label):
+	var menus = game.find_child("UnitMenus")
+	var before = get_nodes_in_group("selected_units").duplicate()
+	menus.open_commander()
+	await _frames(12)
+	await _shot(label + "-commander")
+	_check(get_nodes_in_group("selected_units") == before, "Commander menu changed selection")
+	menus.close_commander()
+	if human.faction == "helix":
+		var generators = _units(human, "PowerPlant")
+		if not generators.is_empty():
+			var generator = generators[0]
+			await _select([generator])
+			await _shot(label + "-overdrive")
+			var was_paused = paused
+			paused = true
+			var completed = human.technology.completed.duplicate()
+			if "plasma_shields" not in human.technology.completed:
+				human.technology.completed.append("plasma_shields")
+			var support = game.helix_support
+			var ability = generator.abilities.get_ability("power_overdrive")
+			var was_requested = ability.is_active
+			var temporary = []
+			while human.power_totals().x < human.power_totals().y + support.OVERDRIVE_DEMAND:
+				var reserve = load(generator.scene_file_path).instantiate()
+				game._setup_and_spawn_unit(
+					reserve,
+					Transform3D(
+						Basis.IDENTITY,
+						generator.global_position + Vector3(18 + temporary.size() * 6, 0, 12)
+					),
+					human,
+					false
+				)
+				temporary.append(reserve)
+			if not ability.is_active:
+				_check(
+					support.toggle_overdrive(ability, generator), "Overdrive preview cannot enable"
+				)
+			_check(support.operating(generator), "Overdrive preview has no operating field")
+			var camera = game.get_node("IsometricCamera3D")
+			var camera_transform = camera.global_transform
+			camera.set_position_safely(generator.global_position)
+			support._refresh_generator_visuals(generator)
+			menus._refresh_buttons()
+			menus._command_card._refresh_abilities()
+			await _shot(label + "-overdrive-operating")
+			var supply_progress = {}
+			for supplier in _units(human, "PowerPlant"):
+				if supplier != generator:
+					supply_progress[supplier] = supplier._construction_progress
+					supplier._construction_progress = 0.0
+			var consumer = load("res://source/match/units/AntiGroundTurret.tscn").instantiate()
+			game._setup_and_spawn_unit(
+				consumer,
+				Transform3D(Basis.IDENTITY, generator.global_position + Vector3(18, 0, -12)),
+				human,
+				false
+			)
+			consumer.process_mode = Node.PROCESS_MODE_DISABLED
+			temporary.append(consumer)
+			human.emit_changed()
+			_check(
+				support.overdrive_status(generator) == "suspended",
+				"Overdrive low-power preview did not suspend the field"
+			)
+			support._refresh_generator_visuals(generator)
+			menus._refresh_buttons()
+			menus._command_card._refresh_abilities()
+			_check(
+				menus._status.text.contains(tr("Overdrive suspended · low power")),
+				"Overdrive preview omitted its low-power status"
+			)
+			await _shot(label + "-overdrive-suspended")
+			for supplier in supply_progress:
+				supplier._construction_progress = supply_progress[supplier]
+			ability.is_active = was_requested
+			support._refresh_generator_visuals(generator)
+			for reserve in temporary:
+				reserve.queue_free()
+			human.technology.completed.assign(completed)
+			human.emit_changed()
+			camera.global_transform = camera_transform
+			camera.reset_physics_interpolation()
+			paused = was_paused
+	var infantry = _units(human, "Infantry")
+	if not infantry.is_empty():
+		infantry[0].suppression.add_pressure(95)
+		await _select([infantry[0]])
+		await _shot(label + "-suppression")
+	await _select(before)
 
 
 func _review_research(human, label):

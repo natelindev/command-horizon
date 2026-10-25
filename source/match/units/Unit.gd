@@ -48,6 +48,10 @@ var shields_max: float = 0.0
 var last_shield_damage_time: float = -INF
 var scrap_hardened_tiers: int = 0
 var scrap_hardened_left: float = 0.0
+var permanent_scrap_rank: int = 0
+var damage_visual_band: int = 0
+var regarrison_lock_left: float = 0.0
+var suppression = null
 var attack_damage = null:
 	get:
 		if attack_damage == null:
@@ -56,7 +60,15 @@ var attack_damage = null:
 		return attack_damage * factor * (1.0 + 0.15 * scrap_hardened_tiers)
 var attack_interval = null:
 	get:
-		return attack_interval * veterancy_reload_factor if attack_interval != null else null
+		return (
+			(
+				attack_interval
+				* veterancy_reload_factor
+				* (suppression.reload_factor() if suppression != null else 1.0)
+			)
+			if attack_interval != null
+			else null
+		)
 var attack_range = null:
 	get:
 		return (
@@ -131,7 +143,15 @@ func _ready():
 	# Completed armor research scales the final base stats, so apply it last.
 	if player != null and player.technology != null:
 		player.technology.apply_unit(self)
+	var pressure_trait = load("res://source/match/units/traits/InfantrySuppression.gd")
+	if pressure_trait.eligible(self):
+		suppression = pressure_trait.new()
+		suppression.name = "InfantrySuppression"
+		add_child(suppression)
+		add_child(load("res://source/match/units/traits/SuppressionBadge.gd").new(self))
 	var definitions = ability_definitions()
+	if _match != null and "engineering" in _match and _match.engineering != null:
+		definitions.append_array(_match.engineering.ability_definitions(self))
 	if not definitions.is_empty():
 		abilities = load("res://source/match/units/traits/UnitAbilities.gd").new()
 		abilities.name = "UnitAbilities"
@@ -178,6 +198,7 @@ func update_shields():
 
 
 func _physics_process(delta):
+	regarrison_lock_left = maxf(0.0, regarrison_lock_left - delta)
 	if scrap_hardened_left > 0.0:
 		scrap_hardened_left = maxf(0.0, scrap_hardened_left - delta)
 		if scrap_hardened_left == 0.0:
@@ -185,12 +206,34 @@ func _physics_process(delta):
 	if _match == null or hp == null or hp <= 0 or shields_max <= 0 or shields >= shields_max:
 		return
 	if _match.simulation_time - last_shield_damage_time >= 5.0:
-		shields = minf(shields_max, shields + 6.0 * delta)
+		shields = minf(
+			shields_max,
+			(
+				shields
+				+ (
+					6.0
+					* delta
+					* (
+						_match.helix_support.shield_factor(self)
+						if "helix_support" in _match and _match.helix_support != null
+						else 1.0
+					)
+				)
+			)
+		)
 		shields_changed.emit()
 
 
 func receive_weapon_hit(source):
-	receive_damage(source, _rules().damage(source, self))
+	var weapons = load("res://source/match/combat/WeaponCatalog.gd")
+	var weapon = weapons.profile(source, self)
+	if (
+		suppression != null
+		and _rules().can_receive(source, self)
+		and not load("res://source/match/Players.gd").allied(source.player, player)
+	):
+		suppression.add_pressure(weapons.suppression_hit(weapon, source.player))
+	receive_damage(source, _rules().damage(source, self), null, weapon)
 
 
 # A projectile arrival. Damage uses the round's frozen weapon facts; splash
@@ -203,6 +246,9 @@ func receive_shot(shot, point = null, share = 1.0, presentation_weapon = {}):
 
 func receive_damage(source, amount, point = null, presentation_weapon = {}):
 	if amount > 0 and hp > 0:
+		amount *= 1.0 - 0.05 * clampi(permanent_scrap_rank, 0, 2)
+		if suppression != null:
+			amount *= suppression.direct_damage_factor(presentation_weapon)
 		last_enemy_damage_time = _match.simulation_time
 		var impact_point = point if point != null else global_position + Vector3.UP * 0.5
 		if shields_max > 0:
@@ -280,6 +326,7 @@ func scavenge(wreck) -> bool:
 	if not wreck.consume_by(self):
 		return false
 	hp = minf(hp_max, hp + hp_max * 0.35)
+	permanent_scrap_rank = mini(2, permanent_scrap_rank + 1)
 	scrap_hardened_tiers = mini(2, scrap_hardened_tiers + 1)
 	scrap_hardened_left = 60.0
 	action_updated.emit()
@@ -367,6 +414,8 @@ func _set_action(action_node):
 		var action_copy = action  # bind() performs copy itself, but lets force copy just in case
 		action.tree_exited.connect(_on_action_node_tree_exited.bind(action_copy))
 		add_child(action)
+		if has_meta("breach_pending"):
+			action.process_mode = Node.PROCESS_MODE_DISABLED
 	_action_locked = false
 	action_changed.emit(action)
 

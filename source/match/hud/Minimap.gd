@@ -24,6 +24,9 @@ const MARKER_PHASES = 3
 var _unit_to_corresponding_node_mapping = {}
 var _camera_movement_active = false
 var _marker_phase = 0
+var _commander_button: Button
+var _event_button: Button
+var _event_point = null
 
 @onready var _match = find_parent("Match")
 @onready var _camera_indicator = find_child("CameraIndicator")
@@ -49,6 +52,8 @@ func _ready():
 	_texture_rect.add_sibling(bezel)
 	_remove_dummy_nodes()
 	await _match.ready  # make sure Match is ready as it may change map on setup
+	if _match.commander_support != null and "hud" in _match:
+		_build_operations()
 	var map_size = _match.find_child("Map").size
 	find_child("MinimapViewport").size = map_size * MINIMAP_PIXELS_PER_WORLD_METER
 	# A fixed-height screen in the console housing; wide maps letterbox inside it.
@@ -60,7 +65,7 @@ func _ready():
 			screen,
 			screen * HudLayout.MINIMAP_ASPECT_LIMIT
 		),
-		screen
+		screen - (32.0 if is_instance_valid(_commander_button) else 0.0)
 	)
 	_texture_rect.gui_input.connect(_on_gui_input)
 	_texture_rect.tooltip_text = Ownership.legend(_match)
@@ -82,11 +87,71 @@ func _ready():
 
 
 func _physics_process(_delta):
+	_refresh_operations()
 	# Each marker refreshes at 10 Hz at the 30 Hz simulation cadence. Spread
 	# visibility queries and marker uploads over three ticks instead of a burst.
 	_sync_real_units_with_minimap_representations(_marker_phase)
 	_marker_phase = (_marker_phase + 1) % MARKER_PHASES
 	_update_camera_indicator()
+
+
+func _build_operations():
+	get_theme_stylebox("panel").content_margin_top += 32
+	var overlay = Control.new()
+	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(overlay)
+	var row = HBoxContainer.new()
+	# The overlay inherits the housing's content inset. Occupy the reserved
+	# header above the screen, rather than covering the minimap itself.
+	row.position = Vector2(0, -38)
+	row.add_theme_constant_override("separation", 8)
+	overlay.add_child(row)
+	_commander_button = Button.new()
+	_commander_button.name = "OpenCommanderSupport"
+	_commander_button.icon = BattleTheme.icon("attack")
+	_commander_button.add_theme_constant_override("icon_max_width", 17)
+	_commander_button.add_theme_font_size_override("font_size", 11)
+	_commander_button.custom_minimum_size = Vector2(48, 26)
+	_commander_button.pressed.connect(func(): _match.find_child("UnitMenus").open_commander())
+	row.add_child(_commander_button)
+	_event_button = Button.new()
+	_event_button.name = "BattlefieldEvent"
+	_event_button.clip_text = true
+	_event_button.custom_minimum_size = Vector2(130, 26)
+	_event_button.add_theme_font_size_override("font_size", 11)
+	_event_button.pressed.connect(
+		func():
+			if _event_point != null:
+				_match._camera.set_position_safely(_event_point)
+	)
+	row.add_child(_event_button)
+	_refresh_operations()
+
+
+func _refresh_operations():
+	if not is_instance_valid(_commander_button):
+		return
+	var support = _match.commander_support
+	var player = _match._get_human_player()
+	if player == null:
+		return
+	var bindings = load("res://source/input/KeyBindings.gd")
+	_commander_button.text = bindings.label("commander_support")
+	_commander_button.tooltip_text = (
+		tr("Commander support")
+		+ " [%s]\n" % _commander_button.text
+		+ tr(support.disabled_reason(player))
+	)
+	_commander_button.accessibility_name = _commander_button.tooltip_text
+	var events = _match.battlefield_events
+	_event_button.visible = events != null and events.has_method("hud_status")
+	if _event_button.visible:
+		var status = events.hud_status()
+		_event_button.text = tr(status.text)
+		_event_button.visible = not status.text.is_empty()
+		_event_point = status.get("point")
+		_event_button.tooltip_text = _event_button.text
+		_event_button.disabled = _event_point == null
 
 
 func _remove_dummy_nodes():

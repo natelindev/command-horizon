@@ -36,6 +36,7 @@ var _zoom_anchor = Vector2.ZERO
 var _map = null
 var _pan_velocity = Vector3.ZERO
 var _grab_anchor = null
+var _cinematic_active := false
 
 
 func _ready():
@@ -48,13 +49,52 @@ func _ready():
 	_align_camera_properties_to_current_size()
 
 
-func add_trauma(amount: float):
-	if Globals.options.reduced_flashes:
-		return
-	trauma = clampf(trauma + amount, 0.0, 1.0)
+func add_trauma(_amount: float):
+	# Kept as a safe compatibility entry point. Combat has no camera authority.
+	_clear_trauma()
+
+
+func begin_campaign_cinematic() -> bool:
+	_cinematic_active = _campaign_mode() and not Globals.options.reduced_flashes
+	_clear_trauma()
+	return _cinematic_active
+
+
+func cinematic_impulse(amount: float) -> bool:
+	if not _cinematic_allowed() or not is_finite(amount) or get_tree().paused:
+		_clear_trauma()
+		return false
+	trauma = clampf(trauma + maxf(0.0, amount), 0.0, 1.0)
+	return true
+
+
+func end_campaign_cinematic():
+	_cinematic_active = false
+	_clear_trauma()
+
+
+func _campaign_mode() -> bool:
+	var game = get_parent()
+	return game != null and "settings" in game and game.settings.mission_id != ""
+
+
+func _cinematic_allowed() -> bool:
+	return _cinematic_active and _campaign_mode() and not Globals.options.reduced_flashes
+
+
+func _clear_trauma():
+	trauma = 0.0
+	h_offset = 0.0
+	v_offset = 0.0
+	_trauma_clock = 0.0
 
 
 func _update_trauma(delta: float):
+	if not _cinematic_allowed():
+		end_campaign_cinematic()
+		return
+	if get_tree().paused:
+		return
 	if trauma > 0.0:
 		_trauma_clock += delta * 35.0
 		trauma = maxf(0.0, trauma - delta * TRAUMA_DECAY)
@@ -67,6 +107,9 @@ func _update_trauma(delta: float):
 
 
 func _process(delta: float):
+	# Mode switches and restored legacy offsets cannot bypass the guarded API.
+	if not _cinematic_allowed():
+		end_campaign_cinematic()
 	# Preserve the existing camera-disable API used by previews and scripted scenes.
 	if not is_physics_processing():
 		_cancel_pan()

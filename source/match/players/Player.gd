@@ -102,12 +102,15 @@ func has_completed_structure(unit_type):
 func power_totals():
 	var supply = 0
 	var demand = 0
+	var helix_support = load("res://source/match/combat/HelixSupport.gd")
 	for child in get_children():
 		if not child.has_method("is_constructed") or child.is_queued_for_deletion():
 			continue
 		if child.is_constructed():
 			supply += BastionCatalog.POWER_SUPPLY.get(child.type, 0)
 			demand += BastionCatalog.POWER_USAGE.get(child.type, 0)
+			if faction == "helix" and child.type == "PowerPlant" and helix_support.requested(child):
+				demand += helix_support.OVERDRIVE_DEMAND
 	return Vector2i(supply, demand)
 
 
@@ -129,6 +132,9 @@ func population(include_queued = false):
 				count += queue.size()
 	if include_queued:
 		count += load("res://source/match/world/PointOfInterestCatalog.gd").reserved(self)
+		var game = find_parent("Match")
+		if game != null and game.commander_support != null:
+			count += game.commander_support.reserved(self)
 	return count
 
 

@@ -14,6 +14,15 @@ const CANAL_ROW = [[Vector2(-12, -5), Vector2(12, -5), Vector2(12, 5), Vector2(-
 const SHORT_ROW = [[Vector2(-9, -5), Vector2(9, -5), Vector2(9, 5), Vector2(-9, 5)]]
 const EXCHANGE = [[Vector2(-9.5, -6.5), Vector2(9.5, -6.5), Vector2(9.5, 6.5), Vector2(-9.5, 6.5)]]
 const DEFINITION = {
+	"events":
+	[
+		{
+			"kind": "coastal",
+			"position": Vector2(91, 68),
+			"candidates": [Vector2(93, 62), Vector2(89, 65), Vector2(91, 64)],
+			"route": [Vector2(103, 64), Vector2(99, 64), Vector2(94, 64)]
+		}
+	],
 	"id": "SunkenExchangeMap",
 	"name": "Sunken Exchange",
 	"revision": 1,

@@ -9,6 +9,15 @@ extends RefCounted
 # under it, across the dam crest, or through the outwash ford far to the
 # south. Authored for the west start; the east start is its mirror image.
 const DEFINITION = {
+	"events":
+	[
+		{
+			"kind": "alpine",
+			"position": Vector2(72, 74),
+			"candidates": [Vector2(70, 72), Vector2(74, 70), Vector2(70, 76)],
+			"route": []
+		}
+	],
 	"id": "GlacierNarrowsMap",
 	"name": "Glacier Narrows",
 	"revision": 1,

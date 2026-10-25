@@ -1,0 +1,107 @@
+# Gameplay depth: commander support, battlefield events, faction mechanics and tactical status.
+Commander support	指挥官支援
+Heavy artillery barrage	重炮弹幕
+Orbital EMP surge	轨道电磁脉冲
+Smuggler airdrop	走私空投
+Requires a completed command lab.	需要已建成的指挥实验室。
+Commander support recharging · %.0f s	指挥官支援充能中 · %.0f 秒
+Requires adequate power.	需要充足的电力。
+Requires %d Materials and %d Electronics.	需要 %d 材料和 %d 电子元件。
+Requires two free population slots.	需要 2 个空余人口。
+Choose explored ground.	请选择已探索的地面。
+The landing zone needs room for two vehicles.	着陆区需要容纳两辆战车。
+Choose currently visible ground.	请选择当前视野内的地面。
+Six shells after a 3.5 s warning. Enemies only; requires current vision.	预警 3.5 秒后落下 6 发炮弹。仅伤害敌军；需要当前视野。
+Strips shields, slows ground combat vehicles and disables turrets for 6 s. Enemies only.	清空护盾，使地面战斗机械减速并令炮塔停火，持续 6 秒。仅影响敌军。
+Two Outriders and a repair crate. Reserves 2 population; the descending carrier can be intercepted.	空投两辆先驱战车和一个维修箱。预留 2 人口；下降中的运输机可被拦截。
+%d M / %d E	%d 材料 / %d 电子元件
+Ready · choose a target	就绪 · 请选择目标
+Commander support: choose a target.	指挥官支援：请选择目标。
+Resume the battle to use abilities.	请继续战斗后再使用技能。
+Choose a legal target within %.1f m.	请选择 %.1f 米内的有效目标。
+Choose one of your field barricades.	请选择己方野战路障。
+Ability is cooling down.	技能正在冷却。
+No selected unit has that ability ready.	所选单位均未准备好使用该技能。
+Choose a visible enemy target.	请选择视野内的敌方目标。
+choose a target in range.	请选择范围内的目标。
+Follow a friendly unit.	跟随一个友方单位。
+Move to a position and defend it.	移动至指定位置并防守。
+%s · %d units	%s · %d 个单位
+%.1fs	%.1f秒
+%s [%s]\n%s\nRange: %.1f m · Radius: %.1f m · Cooldown: %.1f s	%s [%s]\n%s\n射程：%.1f 米 · 半径：%.1f 米 · 冷却：%.1f 秒
+
+# Engineering abilities, validation and orders.
+Dismantle barricade	拆除路障
+Dismantle an owned barricade in 2 seconds. No resource refund.	用 2 秒拆除己方路障，不返还资源。
+Clear mine area	区域扫雷
+Search a 12 m area and disarm discovered mines. 1 s per mine.	搜索半径 12 米的区域，拆除发现的地雷。每枚耗时 1 秒。
+Field barricade	野战路障
+Deploy a low barrier. 10 M; 15 s deployment cooldown; limit 12.	部署低矮路障。消耗 10 材料；部署冷却 15 秒；上限 12 段。
+Scrap mine	废料地雷
+Deploy a concealed mine. 8 M; 3 s deployment, 2 s arming; limit 12.	部署隐蔽地雷。消耗 8 材料；部署 3 秒，引信准备 2 秒；上限 12 枚。
+This unit cannot deploy field equipment.	该单位无法部署野战设施。
+Bastion workers deploy field barricades.	野战路障由堡垒工程师部署。
+Frontier workers and Outriders deploy scrap mines.	废料地雷由边境工程师和先驱战车部署。
+Complete a Relay workshop to deploy mines.	建成中继工坊后才能部署地雷。
+Choose reachable ground inside the battlefield.	请选择战场内可到达的地面。
+Barricade deployment is cooling down.	路障部署正在冷却。
+Not enough Materials.	材料不足。
+Field equipment limit reached (12).	野战设施已达上限（12）。
+Choose observed ground.	请选择视野内的地面。
+The deployment position is unreachable.	无法到达部署位置。
+Keep unit, production, resource and capture access clear.	请为单位通行、生产出口、资源采集和据点占领保留空间。
+This ground is reserved for another deployment.	该位置已被其他部署预留。
+Keep allied mines at least 3 m apart.	友方地雷之间至少间隔 3 米。
+Keep the event landing area clear.	请保持战场事件的着陆区畅通。
+The barrier needs level, navigable ground.	路障需要平坦且可通行的地面。
+The barrier would close a route or bridge approach.	该路障会封堵通道或桥梁入口。
+The mine needs level, navigable ground.	地雷需要平坦且可通行的地面。
+Deployment cooldown · %.1f s	部署冷却 · %.1f 秒
+Rotate	旋转
+Barricade angle · %d°	路障角度 · %d°
+Deployment position unreachable.	无法到达部署位置。
+Mine clearance complete.	扫雷完成。
+Mine clearance finished; some ground remains unreachable.	扫雷结束；部分区域无法到达。
+Barricade unreachable.	无法到达路障。
+Not enough Materials to repair the barricade.	材料不足，无法维修路障。
+Clearing mine area	正在区域扫雷
+Dismantling barricade	正在拆除路障
+Repairing barricade	正在维修路障
+Deploying field equipment	正在部署野战设施
+Collect supplies	收集补给
+
+# Faction mechanics and unit status.
+Guidance Chaff	箔条干扰
+Interrupt hostile missile guidance around allied units within 10 m for 8 seconds. Requires a Signal lab. Missiles keep flying.	干扰 10 米内瞄准友方单位的敌方导弹制导，持续 8 秒。需要信号实验室。导弹仍会继续飞行。
+Unarmed electronic-warfare scout. Chaff disrupts hostile missile guidance around allied units for 8 s. Requires a Signal lab; 30 s cooldown.	无武装电子战侦察机。箔条可干扰友方单位周围的敌方导弹制导，持续 8 秒。需要信号实验室；冷却 30 秒。
+Grid Overdrive	电网过载
+Requires Plasma Shields research.	需要完成等离子护盾研究。
+Requires 3 spare power.	需要 3 点空余电力。
+Requires a completed Signal lab.	需要已建成的信号实验室。
+Use 3 extra power to increase nearby shield recharge by 50%. Requires Plasma Shields. Suspends during low power.	额外消耗 3 电力，使附近护盾恢复速度提高 50%。需要等离子护盾研究。电力不足时暂停效果。
+Pinned	重度压制
+Suppressed	受压制
+%s · %d/100	%s · %d/100
+Scrap armor %d · −%d%% damage	废料装甲 %d 级 · 伤害降低 %d%%
+Re-garrison · %.1f s	重新驻守 · %.1f 秒
+EMP · %.1f s	电磁脉冲 · %.1f 秒
+⌁ EMP	⌁ 电磁脉冲
+Overdrive · %d shields supported	过载 · 支援 %d 个护盾
+Overdrive suspended · low power	过载暂停 · 电力不足
+Suspended: low power	已暂停：电力不足
+Assembly streak · +%d%%	连续生产 · 速度 +%d%%
+Suppressed · %d units	受压制 · %d 个单位
+
+# Optional, automatically scheduled battlefield events.
+Battlefield events	战场事件
+On	开启
+Automatic events with small optional rewards	自动发生的战场事件，可自愿参与以获取少量奖励
+No events on this battlefield	此战场没有事件
+Supply aircraft	补给飞机
+Freight delivery	货运补给
+Drifting supplies	漂流补给
+Radar terminal	雷达终端
+%s in 45 seconds	%s将在 45 秒后到来
+%s available	%s已就绪
+Delivery cancelled: landing areas blocked	补给取消：着陆区受阻
+Some delivery areas are blocked	部分补给区受阻

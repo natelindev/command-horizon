@@ -1,6 +1,7 @@
 extends Node
 
 const Orders = preload("res://source/match/orders/ManualOrders.gd")
+const CombatRules = preload("res://source/match/combat/CombatRules.gd")
 
 const Structure = preload("res://source/match/units/Structure.gd")
 const ResourceUnit = preload("res://source/match/units/non-player/ResourceUnit.gd")
@@ -111,6 +112,8 @@ func _navigate_unit_towards_unit(unit, target_unit, rally = false):
 
 
 static func context_kind(unit, target_unit):
+	if target_unit.has_method("can_collect") and target_unit.can_collect(unit):
+		return "collect_tactical"
 	var repairs = load("res://source/match/combat/RepairService.gd")
 	if (
 		"type" in target_unit
@@ -122,11 +125,18 @@ static func context_kind(unit, target_unit):
 		if not unit._match.battlefield.is_observed(unit.player, target_unit):
 			return ""
 	if target_unit.is_in_group("destructible_obstacles"):
-		return (
-			"force_attack"
-			if load("res://source/match/combat/CombatRules.gd").can_force_target(unit, target_unit)
-			else ""
-		)
+		if (
+			target_unit.is_in_group("engineering_entities")
+			and target_unit.player == unit.player
+			and unit.type == "Worker"
+		):
+			# Dismantling is an explicit R command; healthy friendly barriers are harmless clicks.
+			return "repair_barrier" if target_unit.hp < target_unit.hp_max else ""
+		return "force_attack" if CombatRules.can_force_target(unit, target_unit) else ""
+	if target_unit.is_in_group("field_mines"):
+		if not target_unit.known_to(unit.player):
+			return ""
+		return "force_attack" if CombatRules.can_force_target(unit, target_unit) else ""
 	if target_unit.has_method("can_garrison") and target_unit.can_garrison(unit):
 		return "garrison"
 	if load("res://source/match/units/actions/Scavenging.gd").eligible(unit, target_unit):

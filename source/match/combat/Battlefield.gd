@@ -224,6 +224,8 @@ func _eye(point: Vector2) -> Vector3:
 func is_observed(player, target):
 	if not is_instance_valid(target) or target.is_queued_for_deletion():
 		return false
+	if target.is_in_group("field_mines") and get_parent().engineering != null:
+		return get_parent().engineering.observed_by(player, target)
 	if "player" in target and Players.allied(target.player, player):
 		return true
 	_refresh()
@@ -599,6 +601,13 @@ func nearby_units(point: Vector3, radius: float, player_filter = null, excluded_
 func nearby_combat_targets(point, radius, excluded_player = null):
 	var result = nearby_units(point, radius, null, excluded_player)
 	var flat = Vector3(point.x, 0.0, point.z)
+	for obstacle in nearby_obstacles(point, radius):
+		if obstacle.player != null and obstacle.player != excluded_player:
+			result.append(obstacle)
+	for cargo in get_tree().get_nodes_in_group("tactical_cargo"):
+		if cargo.can_take_damage() and cargo.hp > 0 and cargo.player != excluded_player:
+			if cargo.global_position_yless.distance_to(flat) <= radius:
+				result.append(cargo)
 	for building in get_tree().get_nodes_in_group("neutral_buildings"):
 		if building.player != null and building.player != excluded_player and building.hp > 0:
 			if (

@@ -26,6 +26,11 @@ var projectile_system = null
 var combat_audio = null
 var environment_audio = null
 var subtitles = null
+var helix_support = null
+var commander_support = null
+var battlefield_events = null
+var engineering = null
+var grenade_system = null
 
 var map:
 	set = _set_map,
@@ -75,6 +80,18 @@ func _ready():
 	add_child(environment_audio)
 	combat_effects = load("res://source/match/effects/CombatEffects.gd").new()
 	add_child(combat_effects)
+	helix_support = load("res://source/match/combat/HelixSupport.gd").new()
+	helix_support.name = "HelixSupport"
+	add_child(helix_support)
+	grenade_system = load("res://source/match/combat/GrenadeSystem.gd").new()
+	grenade_system.name = "GrenadeSystem"
+	add_child(grenade_system)
+	engineering = load("res://source/match/world/FieldEngineering.gd").new()
+	engineering.name = "FieldEngineering"
+	add_child(engineering)
+	commander_support = load("res://source/match/combat/CommanderSupport.gd").new()
+	commander_support.name = "CommanderSupport"
+	add_child(commander_support)
 	projectile_system = load("res://source/match/combat/ProjectileSystem.gd").new()
 	projectile_system.name = "ProjectileSystem"
 	projectile_system.process_mode = Node.PROCESS_MODE_PAUSABLE
@@ -117,6 +134,10 @@ func _ready():
 	add_child(battlefield_wear)
 	base_area_lighting = load("res://source/match/environment/BaseAreaLighting.gd").new()
 	add_child(base_area_lighting)
+	battlefield_events = load("res://source/match/world/BattlefieldEvents.gd").new()
+	battlefield_events.name = "BattlefieldEvents"
+	add_child(battlefield_events)
+	battlefield_events.announced.connect(_event_announced)
 	load("res://source/match/ObjectMaterials.gd").apply(map)
 	var atmosphere = load("res://source/match/environment/WorldAtmosphere.gd").new()
 	add_child(atmosphere)
@@ -133,6 +154,21 @@ func invalidate_unit_registry():
 	_group_registry.erase("units")
 	_group_registry.erase("revealed_units")
 	_observers_dirty = true
+
+
+func _event_announced(text: String, _point: Vector3):
+	if "hud" in self and is_instance_valid(get("hud")):
+		get("hud").show_notice(text)
+
+
+func field_position_reserved(point: Vector3, radius: float) -> bool:
+	if battlefield_events != null and battlefield_events.position_reserved(point, radius):
+		return true
+	if commander_support != null:
+		for record in commander_support.pending:
+			if record.kind == "airdrop" and record.point.distance_to(point) < 2.0 + radius:
+				return true
+	return false
 
 
 func invalidate_vision_registry():

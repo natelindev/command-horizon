@@ -149,6 +149,13 @@ func restore(tree, snapshot):
 		if saved.has("scrap_hardened"):
 			unit.scrap_hardened_tiers = saved.scrap_hardened.tiers
 			unit.scrap_hardened_left = saved.scrap_hardened.left
+		unit.permanent_scrap_rank = saved.permanent_scrap_rank
+		unit.damage_visual_band = saved.damage_visual_band
+		unit.regarrison_lock_left = saved.regarrison_lock_left
+		if unit.suppression != null:
+			unit.suppression.restore(saved.suppression)
+		if unit.abilities != null:
+			unit.abilities.restore(saved.abilities)
 		unit.experience = saved.experience
 		unit.stance = saved.stance
 		if not saved.signature.is_empty():
@@ -173,6 +180,11 @@ func restore(tree, snapshot):
 			roundi((game.simulation_time + saved.weapon_left) * 1000.0)
 		)
 		_production(unit, saved.production)
+	game.engineering.restore_state(_data.engineering, entities)
+	if game.commander_support != null:
+		game.commander_support.restore_state(_data.commander, entities)
+	if "battlefield_events" in game and game.battlefield_events != null:
+		game.battlefield_events.restore_state(_data.events, entities)
 	game._visual_serial = _data.visual_serial
 	if not await _synchronize(tree, game):
 		return {
@@ -220,6 +232,7 @@ func restore(tree, snapshot):
 			unit.get_node("Selection").select()
 		unit.reset_physics_interpolation()
 	game.projectile_system.restore(_data.rounds, entities)
+	game.grenade_system.restore(_data.grenades, entities)
 	game.battlefield_wear.restore(_data.battlefield_wear)
 	# Recreate the visible final production stage while the restored battle is
 	# still paused, after every unit has recovered its authoritative position.
@@ -346,9 +359,21 @@ func _production(unit, saved):
 		var job = (
 			load("res://source/match/units/traits/ProductionQueue.gd").ProductionQueueElement.new()
 		)
-		_copy(job, item, ["time_total", "time_left", "paid_cost", "departure_endpoint"])
+		_copy(
+			job,
+			item,
+			[
+				"time_total",
+				"time_left",
+				"paid_cost",
+				"departure_endpoint",
+				"assembly_started",
+				"assembly_bonus"
+			]
+		)
 		job.unit_prototype = load(Catalog.scene_path(item.role))
 		queue._enqueue_element(job)
+	queue.restore_assembly_state(saved.assembly_state)
 
 
 func _orders(unit, saved):
@@ -364,7 +389,11 @@ func _orders(unit, saved):
 	orders.pending = saved.pending.map(_order)
 	# A queue saved before its first tick still has the unit's idle defense.
 	# Only a persisted current order owns that action; otherwise start pending work.
-	orders._active = unit.action if orders._engaged and not orders.current.is_empty() else null
+	orders._active = (
+		unit.action
+		if orders._engaged and not orders.current.is_empty() and not unit.has_meta("breach_pending")
+		else null
+	)
 	orders.set_physics_process(orders._engaged)
 
 

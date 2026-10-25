@@ -9,6 +9,7 @@ const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
 const MotionProfile = preload("res://source/match/units/traits/UnitMotionProfile.gd")
 const Chassis = preload("res://source/match/units/traits/ChassisMotion.gd")
 const WalkerGait = preload("res://source/match/units/traits/WalkerGait.gd")
+const DamageProfile = preload("res://source/match/units/traits/VehicleDamageProfile.gd")
 const ROTOR_SPEED = 25.0
 const WORK_PERIOD = .9
 const FIDGETS = 4
@@ -22,6 +23,7 @@ static var _crowded := false
 
 var motion: MotionProfile
 var chassis: Chassis
+var gpu_interpolated := false
 var _track_motion = null
 var _antennas := []
 var _antenna_lean := Vector2.ZERO
@@ -65,6 +67,12 @@ var _geometry_pose := Transform3D.IDENTITY
 var _presentation_root := Transform3D.IDENTITY
 var _dust_elapsed := 0.0
 var _damage_elapsed := 0.0
+var _damage_audio_elapsed := 0.0
+var _damage_profile := {}
+var _damage_socket := Vector3.ZERO
+var _ground_machine := false
+var _scrap_plates := []
+var _scrap_rank := -1
 var _airborne := false
 var _fixed_wing := false
 var _mobile := false
@@ -93,7 +101,6 @@ var _culled := false
 var _pose_elapsed := 0.0
 var _pose_remaining := 0.0
 var _reaction_remaining := 0.0
-var gpu_interpolated := false
 var _pose_job = preload("res://source/match/rendering/ParallelPoseBatch.gd").Job.new()
 var _pose_travel := Vector3.ZERO
 var _pose_moving := false
@@ -169,6 +176,23 @@ func _ready():
 	if _unit.type == "Worker":
 		_sparkling = _unit.get_node_or_null("Sparkling")
 	var infantry = InfantryRoster.is_infantry(_unit.type)
+	_ground_machine = _mobile and not _airborne and not infantry
+	_damage_profile = DamageProfile.profile(_unit.player.faction)
+	_damage_socket = _damage_profile.socket * maxf(.65, _unit.radius)
+	var socket = _unit.find_child("*DamageSocket", true, false)
+	if socket != null:
+		_damage_socket = _geometry.to_local(socket.global_position)
+	for rank in [1, 2]:
+		for plate in _geometry.find_children("*ScrapRank%d*" % rank, "Node3D", true, false):
+			if plate is MeshInstance3D:
+				continue
+			var meshes = plate.find_children("*", "MeshInstance3D", true, false)
+			for mesh in meshes:
+				mesh.set_meta("dynamic_presentation", true)
+			_scrap_plates.append(
+				{"node": plate, "rest": plate.rotation, "rank": rank, "meshes": meshes}
+			)
+	_sync_scrap_plates()
 	if _mobile and not _airborne and not infantry:
 		_track_motion = load("res://source/match/units/traits/TrackMotion.gd").new()
 		_track_motion.setup(_unit)
@@ -212,11 +236,69 @@ func _motion_kind(infantry):
 		return Chassis.Kind.AIR
 	if _walker != null:
 		return Chassis.Kind.WALKER
-	if _unit.type == "Tank" and _unit.player != null and _unit.player.faction == "helix":
+	if (
+		_unit.type in ["Tank", "AntiAirVehicle"]
+		and _unit.player != null
+		and _unit.player.faction == "helix"
+	):
 		return Chassis.Kind.HOVER
 	if _wheel_motion != null:
 		return Chassis.Kind.WHEELED
 	return Chassis.Kind.TRACKED
+
+
+func _sync_scrap_plates():
+	var rank = _unit.permanent_scrap_rank
+	if rank == _scrap_rank:
+		return
+	_scrap_rank = rank
+	for plate in _scrap_plates:
+		for mesh in plate.meshes:
+			mesh.visible = rank >= plate.rank
+
+
+func _animate_scrap_plates():
+	for index in _scrap_plates.size():
+		var plate = _scrap_plates[index]
+		var rattle = 0.0
+		if _scrap_rank >= plate.rank and chassis.damage_band > 0:
+			rattle = (
+				sin(chassis.clock * (29.0 + index * 3.0))
+				* (.006 if chassis.damage_band == 1 else .018)
+			)
+		plate.node.rotation = plate.rest + Vector3(rattle, 0, rattle * .4)
+
+
+func damage_emission_point() -> Vector3:
+	return _unit.global_transform * (_geometry_pose * _damage_socket)
+
+
+func _update_damage(delta: float):
+	_sync_scrap_plates()
+	if not _ground_machine:
+		# Aircraft and structures retain their existing smoke behavior.
+		_damage_elapsed += delta
+		if _damage_elapsed > .8:
+			_damage_elapsed = 0.0
+			_unit._match.combat_effects.damage_smoke(_unit)
+		return
+	var previous = _unit.damage_visual_band
+	_unit.damage_visual_band = DamageProfile.band_for(_unit.hp / maxf(1.0, _unit.hp_max), previous)
+	chassis.damage_band = _unit.damage_visual_band
+	chassis.damage_faction = _unit.player.faction
+	if previous != chassis.damage_band:
+		_settled = false
+	_damage_elapsed += delta
+	_damage_audio_elapsed += delta
+	if _damage_audio_elapsed >= .2:
+		_damage_audio_elapsed = 0.0
+		_unit._match.combat_audio.update_damage(_unit, chassis.damage_band)
+	if _damage_elapsed >= _damage_profile.interval:
+		_damage_elapsed = 0.0
+		if chassis.damage_band > 0:
+			_unit._match.combat_effects.vehicle_damage(
+				_unit, chassis.damage_band, damage_emission_point()
+			)
 
 
 func _speed_limit():
@@ -451,7 +533,10 @@ func _publish_simulation_pose():
 		_pose_hierarchy.root.transform = pose
 		# Deforming tracks render natively beside the batched rigid hull. Their
 		# scene ancestor must follow the same pose even when rigid leaves are parked.
-		if _track_motion != null and _geometry.global_transform != pose:
+		if (
+			(_track_motion != null or not _scrap_plates.is_empty())
+			and _geometry.global_transform != pose
+		):
 			_geometry.global_transform = pose
 	elif _geometry.global_transform != pose:
 		_geometry.global_transform = pose
@@ -474,11 +559,7 @@ func _prepare_pose(delta: float):
 	_pose_job.root = root
 	_pose_job.delta = delta
 	_pose_job.mode = 0
-	_damage_elapsed += delta
-	if _damage_elapsed > 0.8:
-		_damage_elapsed = 0.0
-		if _unit.hp != null and _unit.hp_max != null and _unit.hp <= _unit.hp_max * 0.3:
-			_unit._match.combat_effects.damage_smoke(_unit)
+	_update_damage(delta)
 	var travel: Vector3 = root.origin - _previous_position
 	_pose_travel = travel
 	var distance := travel.length()
@@ -520,6 +601,7 @@ func _finish_pose(delta: float):
 	if _track_motion != null:
 		_track_motion.advance(delta)
 	_advance_antennas(delta)
+	_animate_scrap_plates()
 
 	if (
 		_settled

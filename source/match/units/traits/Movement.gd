@@ -37,6 +37,10 @@ const PASSIVE_MOVEMENT_TRACKING_ENABLED = true
 		var factor: float = _unit.signature.speed_factor() if _unit.signature != null else 1.0
 		if _unit.abilities != null:
 			factor *= _unit.abilities.speed_factor()
+		if _unit.suppression != null:
+			factor *= _unit.suppression.speed_factor()
+		if _match != null and "commander_support" in _match and _match.commander_support != null:
+			factor *= _match.commander_support.speed_factor(_unit)
 		return (
 			speed * factor * _unit.veterancy_speed_factor * (1.0 + 0.1 * _unit.scrap_hardened_tiers)
 		)
@@ -77,7 +81,7 @@ var _uses_platform_height = false
 
 func _physics_process(delta):
 	_physics_delta = delta
-	if _abilities_prevent_movement():
+	if _unit.has_meta("breach_pending") or _abilities_prevent_movement():
 		velocity = Vector3.ZERO
 		return
 	var current_speed: float = speed

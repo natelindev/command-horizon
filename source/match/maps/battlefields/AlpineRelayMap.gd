@@ -8,6 +8,15 @@ extends RefCounted
 # approaches, and weather stations on the ridge. Authored for the north-west
 # start; the south-east start receives the 180-degree rotation.
 const DEFINITION = {
+	"events":
+	[
+		{
+			"kind": "alpine",
+			"position": Vector2(60, 65),
+			"candidates": [Vector2(62, 68), Vector2(58, 62), Vector2(60, 61)],
+			"route": []
+		}
+	],
 	"id": "AlpineRelayMap",
 	"name": "Alpine Relay",
 	"revision": 1,

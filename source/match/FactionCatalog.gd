@@ -82,8 +82,8 @@ const HELIX_DESCRIPTIONS = {
 	),
 	"Drone":
 	(
-		"Expendable loitering munition. Scouts while hovering; an attack order sends it "
-		+ "diving into a vehicle or structure as its own warhead. Holds fire by default."
+		"Unarmed electronic-warfare scout. Chaff disrupts hostile missile guidance "
+		+ "around allied units for 8 s. Requires a Signal lab; 30 s cooldown."
 	),
 	"Helicopter":
 	(
@@ -497,6 +497,11 @@ static func apply_stats(unit):
 		unit.get_node("Movement").speed *= 1.2
 		if unit.type in ["Drone", "Tank"]:
 			unit.sight_range += 2.0
+		if unit.type == "Drone":
+			unit.attack_damage = null
+			unit.attack_range = null
+			unit.attack_interval = null
+			unit.attack_domains = []
 		if unit.type == "AdvancedTank":
 			unit.attack_range = 14.0
 			unit.sight_range = 15.0

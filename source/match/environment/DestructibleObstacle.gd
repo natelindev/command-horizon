@@ -17,6 +17,8 @@ signal destroyed
 @export var radius: float = 1.0
 @export var obstacle_height: float = 1.5
 @export var light_barricade: bool = true
+@export var footprint = PackedVector2Array()
+var neutral_id = ""
 var player = null
 var signature = null
 var type = "DestructibleObstacle"
@@ -36,6 +38,7 @@ var _obstacle: Footprint
 class Footprint:
 	extends NavigationObstacle3D
 	var sight_height: float = 1.5
+	var footprint = PackedVector2Array()
 
 
 @onready var _match = find_parent("Match")
@@ -47,9 +50,14 @@ func _ready():
 	collision_mask = 0
 	var collider = CollisionShape3D.new()
 	collider.name = "CollisionShape3D"
-	var shape = CylinderShape3D.new()
-	shape.radius = radius
-	shape.height = obstacle_height
+	var shape
+	if footprint.is_empty():
+		shape = CylinderShape3D.new()
+		shape.radius = radius
+		shape.height = obstacle_height
+	else:
+		shape = BoxShape3D.new()
+		shape.size = Vector3(2.5, obstacle_height, 0.55)
 	collider.shape = shape
 	collider.position.y = obstacle_height * 0.5
 	add_child(collider)
@@ -57,7 +65,11 @@ func _ready():
 		var geometry = MeshInstance3D.new()
 		geometry.name = "Geometry"
 		var mesh = BoxMesh.new()
-		mesh.size = Vector3(radius * 1.4, obstacle_height, radius * 1.4)
+		mesh.size = (
+			Vector3(radius * 1.4, obstacle_height, radius * 1.4)
+			if footprint.is_empty()
+			else Vector3(2.5, obstacle_height, 0.55)
+		)
 		geometry.mesh = mesh
 		geometry.position.y = obstacle_height * 0.5
 		var material = StandardMaterial3D.new()
@@ -80,10 +92,15 @@ func _ready():
 	_obstacle.avoidance_layers = Constants.Match.Navigation.AVOIDANCE_STATIC
 	# Battlefield reads sight_height from all sight blockers.
 	_obstacle.sight_height = obstacle_height
+	_obstacle.footprint = footprint
 	var outline = PackedVector3Array()
-	for index in 16:
-		var angle = index * TAU / 16.0
-		outline.append(Vector3(cos(angle), 0, sin(angle)) * radius)
+	if footprint.is_empty():
+		for index in 16:
+			var angle = index * TAU / 16.0
+			outline.append(Vector3(cos(angle), 0, sin(angle)) * radius)
+	else:
+		for point in footprint:
+			outline.append(Vector3(point.x, 0, point.y))
 	_obstacle.vertices = outline
 	add_child(_obstacle)
 	_obstacle.add_to_group("sight_blockers")
@@ -115,7 +132,7 @@ func combat_domain():
 
 
 func force_attack_only() -> bool:
-	return true
+	return player == null
 
 
 func receive_weapon_hit(source):

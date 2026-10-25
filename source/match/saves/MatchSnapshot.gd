@@ -4,8 +4,24 @@ extends RefCounted
 const Campaigns = preload("res://source/match/campaign/CampaignCatalog.gd")
 const Values = preload("res://source/match/saves/SaveValue.gd")
 # Saves from any other version are rejected; there is no migration.
-const VERSION = 20
+const VERSION = 21
 const ACTION_FIELDS = {
+	"EngineeringAction":
+	[
+		"operation",
+		"point",
+		"angle",
+		"reservation",
+		"phase",
+		"elapsed",
+		"search_index",
+		"unreachable",
+		"search_path",
+		"skipped_mines",
+		"_blocked_elapsed",
+		"_progress_position"
+	],
+	"CollectTacticalCargo": ["elapsed", "_target_position"],
 	"Garrisoning": ["_elapsed", "_capture_elapsed"],
 	"Moving": ["_target_position", "_arrival_elapsed", "_arrival_progress"],
 	"MovingToUnit": ["_target_position"],
@@ -71,6 +87,8 @@ func capture(game):
 	):
 		return _fail("This map or mission does not have a save contract yet.")
 	game.wreck_salvage.flush()
+	if game.battlefield_events != null:
+		game.battlefield_events.flush()
 	var players = game.get_node("Players").get_children().filter(func(p): return "faction" in p)
 	var units = game.get_tree().get_nodes_in_group("units").filter(_live)
 	var deposits = game.get_tree().get_nodes_in_group("resource_units").filter(_live)
@@ -82,7 +100,9 @@ func capture(game):
 		_ids[units[index]] = "unit-%d" % index
 	for index in range(deposits.size()):
 		_ids[deposits[index]] = "resource-%d" % index
-	var obstacles = game.get_tree().get_nodes_in_group("destructible_obstacles").filter(_live)
+	var obstacles = game.get_tree().get_nodes_in_group("destructible_obstacles").filter(
+		func(obstacle): return _live(obstacle) and not obstacle.is_in_group("engineering_entities")
+	)
 	for index in obstacles.size():
 		_ids[obstacles[index]] = "obstacle-%d" % index
 	for target in game.get_tree().get_nodes_in_group("neutral_targets"):
@@ -96,6 +116,7 @@ func capture(game):
 			"visible_player",
 			"skirmish",
 			"advanced_start",
+			"battlefield_events",
 			"starting_resources_multiplier",
 			"map_path",
 			"match_seed",
@@ -143,6 +164,20 @@ func capture(game):
 		"structure_memory": _structure_memory(),
 		"rounds": game.projectile_system.capture(_reference),
 		"battlefield_wear": game.battlefield_wear.capture(),
+		"grenades": game.grenade_system.capture(_reference),
+		"engineering": game.engineering.capture_state(_reference),
+		"commander":
+		(
+			game.commander_support.capture_state(_reference)
+			if game.commander_support != null
+			else load("res://source/match/saves/GameplayDepthSchema.gd").commander_defaults()
+		),
+		"events":
+		(
+			game.battlefield_events.capture_state(_reference)
+			if "battlefield_events" in game and game.battlefield_events != null
+			else {}
+		),
 	}
 	if not obstacles.is_empty():
 		result.obstacles = []
@@ -322,6 +357,11 @@ func _unit(unit):
 		"stance": int(unit.stance),
 		"hp": unit.hp,
 		"experience": unit.experience,
+		"permanent_scrap_rank": unit.permanent_scrap_rank,
+		"damage_visual_band": unit.damage_visual_band,
+		"regarrison_lock_left": unit.regarrison_lock_left,
+		"suppression": unit.suppression.capture() if unit.suppression != null else {},
+		"abilities": unit.abilities.capture() if unit.abilities != null else {},
 		"visual_seed": unit.get_meta("visual_seed", 0),
 		"signature": unit.signature.capture() if unit.signature != null else {},
 		"deployment":
@@ -396,10 +436,18 @@ func _unit(unit):
 		)
 	if "production_queue" in unit and unit.production_queue != null:
 		var queue = unit.production_queue
-		result.production = {"jobs": []}
+		result.production = {"jobs": [], "assembly_state": queue.capture_assembly_state()}
 		for job in queue.get_elements():
 			var item = _properties(
-				job, ["time_total", "time_left", "paid_cost", "departure_endpoint"]
+				job,
+				[
+					"time_total",
+					"time_left",
+					"paid_cost",
+					"departure_endpoint",
+					"assembly_started",
+					"assembly_bonus"
+				]
 			)
 			item.role = job.unit_prototype.resource_path.get_file().get_basename()
 			result.production.jobs.append(item)
@@ -413,6 +461,9 @@ func _order(order):
 	if order.is_empty():
 		return {}
 	var result = {"kind": order.kind}
+	for key in ["engineering_kind", "angle", "reservation"]:
+		if order.has(key):
+			result[key] = order[key]
 	if order.has("point"):
 		result.point = order.point
 	if order.has("target"):

@@ -11,6 +11,15 @@ extends RefCounted
 const ENGINE_SHED = [[Vector2(-13, -9), Vector2(13, -9), Vector2(13, 9), Vector2(-13, 9)]]
 const CONTAINERS = [[Vector2(-6, -4), Vector2(6, -4), Vector2(6, 4), Vector2(-6, 4)]]
 const DEFINITION = {
+	"events":
+	[
+		{
+			"kind": "industrial",
+			"position": Vector2(85, 94),
+			"candidates": [Vector2(84, 90), Vector2(90, 96), Vector2(90, 92)],
+			"route": [Vector2(71, 0), Vector2(71, 68), Vector2(80, 84), Vector2(90, 92)]
+		}
+	],
 	"id": "RailspireJunctionMap",
 	"name": "Railspire Junction",
 	"revision": 1,

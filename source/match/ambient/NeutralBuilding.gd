@@ -7,7 +7,9 @@ const Catalog = preload("res://source/match/ambient/AmbientCatalog.gd")
 const NeutralDetails = preload("res://source/match/ambient/NeutralDetails.gd")
 const CaptureIndicator = preload("res://source/match/objectives/CaptureIndicator.gd")
 var occupants = []
+var pending_evacuations = []
 var habitable = true
+var _evacuation_retry = 0.0
 var _body
 var _obstacle
 var _label
@@ -75,6 +77,8 @@ func can_garrison(unit):
 		and habitable
 		and InfantryRoster.is_infantry(unit.type)
 		and unit.hp > 0
+		and unit.regarrison_lock_left <= 0.0
+		and not unit.has_meta("breach_pending")
 		and occupants.size() < CAPACITY
 		and (occupants.is_empty() or player == unit.player)
 		and (not is_instance_valid(_capturer) or _capturer.player.is_allied_with(unit.player))
@@ -108,6 +112,7 @@ func enter(unit, saved_slot = -1):
 		if slot not in slots and (saved_slot < 0 or saved_slot == slot):
 			unit.set_meta("garrison_slot", slot)
 			break
+	unit.set_meta("garrison_entry", unit.global_position)
 	occupants.append(unit)
 	player = unit.player
 	unit.set_meta("garrison_host", self)
@@ -124,7 +129,9 @@ func enter(unit, saved_slot = -1):
 	return true
 
 
-func leave(unit):
+func leave(unit, reserved_exit = Vector3.INF):
+	if unit in pending_evacuations and not reserved_exit.is_finite():
+		return
 	if unit not in occupants:
 		return
 	if not is_inside_tree() or not unit.is_inside_tree() or _match.is_queued_for_deletion():
@@ -133,6 +140,7 @@ func leave(unit):
 		return
 	var index = unit.get_meta("garrison_slot", occupants.find(unit))
 	unit.remove_meta("garrison_slot")
+	unit.remove_meta("garrison_entry")
 	occupants.erase(unit)
 	unit.remove_meta("garrison_host")
 	var movement = unit.get_node("Movement")
@@ -140,8 +148,12 @@ func leave(unit):
 	var exit = global_position + radial * (radius + 1.4)
 	# Navigation points sit above the feet, just as on ordinary unit spawns.
 	unit.global_position = (
-		NavigationServer3D.map_get_closest_point(movement.get_navigation_map(), exit)
-		- Vector3.UP * movement.path_height_offset
+		reserved_exit
+		if reserved_exit.is_finite()
+		else (
+			NavigationServer3D.map_get_closest_point(movement.get_navigation_map(), exit)
+			- Vector3.UP * movement.path_height_offset
+		)
 	)
 	unit.reset_physics_interpolation()
 	movement.stop()
@@ -187,6 +199,9 @@ func update_label():
 func begin_death():
 	super()
 	for unit in occupants.duplicate():
+		pending_evacuations.erase(unit)
+		if unit.has_meta("breach_pending"):
+			unit.remove_meta("breach_pending")
 		leave(unit)
 		unit.action = null
 		unit.hp -= unit.hp_max * .35
@@ -201,6 +216,10 @@ func begin_death():
 func _physics_process(delta):
 	if not _match.is_node_ready():
 		return
+	_evacuation_retry = maxf(0.0, _evacuation_retry - delta)
+	if not pending_evacuations.is_empty() and _evacuation_retry <= 0.0:
+		_retry_evacuations()
+		_evacuation_retry = 0.2
 	var previous_count = occupants.size()
 	occupants = occupants.filter(func(unit): return is_instance_valid(unit) and unit.hp > 0)
 	if occupants.size() != previous_count:
@@ -220,7 +239,15 @@ func capture(reference):
 		"owner": reference.call(player),
 		"combat": capture_combat(),
 		"occupants": occupants.map(reference),
-		"slots": occupants.map(func(unit): return unit.get_meta("garrison_slot", 0))
+		"slots": occupants.map(func(unit): return unit.get_meta("garrison_slot", 0)),
+		"entry_points":
+		occupants.map(func(unit): return unit.get_meta("garrison_entry", unit.global_position)),
+		"evacuating":
+		(
+			pending_evacuations
+			. filter(func(unit): return is_instance_valid(unit) and unit.hp > 0)
+			. map(reference)
+		)
 	}
 
 
@@ -229,7 +256,16 @@ func restore(saved, entities):
 	# Pre-v13 saves derive ownership from their garrison, as before.
 	player = entities.get(saved.get("owner", ""))
 	for index in saved.occupants.size():
-		enter(entities[saved.occupants[index]], saved.slots[index])
+		var unit = entities[saved.occupants[index]]
+		enter(unit, saved.slots[index])
+		if index < saved.get("entry_points", []).size():
+			unit.set_meta("garrison_entry", saved.entry_points[index])
+	for id in saved.get("evacuating", []):
+		var unit = entities.get(id)
+		if unit in occupants:
+			pending_evacuations.append(unit)
+			unit.set_meta("breach_pending", true)
+			unit.action = null
 	if hp == 0:
 		_obstacle.sight_height = .65
 	_update_debris()
@@ -295,3 +331,97 @@ func apply_death_pose():
 	for mesh in _meshes:
 		if "apron" not in str(mesh.name).to_lower():
 			mesh.transparency = smoothstep(.4, 1.1, death_age)
+
+
+func evacuate_breached(units: Array):
+	for unit in units:
+		if unit not in occupants or unit in pending_evacuations or unit.hp <= 0.0:
+			continue
+		pending_evacuations.append(unit)
+		unit.set_meta("breach_pending", true)
+		# Teardown may request leave; leave waits for a reserved legal position.
+		unit.action = null
+	_retry_evacuations()
+	_evacuation_retry = 0.2
+
+
+func _retry_evacuations():
+	pending_evacuations = pending_evacuations.filter(
+		func(unit): return is_instance_valid(unit) and unit.hp > 0.0 and unit in occupants
+	)
+	var reserved = []
+	# Reserve the whole batch before moving anyone; slots never overlap.
+	for unit in pending_evacuations:
+		var point = _evacuation_position(unit, reserved)
+		if point.is_finite():
+			reserved.append({"unit": unit, "point": point})
+	for exit in reserved:
+		var unit = exit.unit
+		leave(unit, exit.point)
+		pending_evacuations.erase(unit)
+		unit.remove_meta("breach_pending")
+		unit.regarrison_lock_left = 3.0
+		if is_instance_valid(unit.action):
+			unit.action.process_mode = Node.PROCESS_MODE_INHERIT
+		unit.action_updated.emit()
+
+
+func _evacuation_position(unit, reserved: Array) -> Vector3:
+	var movement = unit.get_node("Movement")
+	var nav = movement.get_navigation_map()
+	var origin = unit.get_meta("garrison_entry", global_position + Vector3.RIGHT * (radius + 1.4))
+	var anchor = NavigationServer3D.map_get_closest_point(nav, origin)
+	var placement = load("res://source/match/utils/UnitPlacementUtils.gd")
+	var base_angle = unit.get_meta("garrison_slot", 0) * TAU / CAPACITY
+	for ring in 4:
+		for step in 32:
+			var angle = base_angle + step * TAU / 32.0
+			var desired = (
+				global_position + Vector3(cos(angle), 0, sin(angle)) * (radius + 0.8 + ring * 0.8)
+			)
+			desired.y = _match.map.height_at(Vector2(desired.x, desired.z))
+			var point = (
+				NavigationServer3D.map_get_closest_point(
+					nav, desired + Vector3.UP * movement.path_height_offset
+				)
+				- Vector3.UP * movement.path_height_offset
+			)
+			if Vector2(point.x - desired.x, point.z - desired.z).length() > 0.3:
+				continue
+			var nearby = _match.battlefield.nearby_units(point, unit.radius + 4.0).filter(
+				func(other):
+					return (
+						other != unit
+						and not other.has_meta("garrison_host")
+						and other.movement_domain == unit.movement_domain
+					)
+			)
+			nearby.append_array(_match.battlefield.nearby_obstacles(point, unit.radius + 4.0))
+			if (
+				placement.validate_agent_placement_position(
+					point, unit.radius + 0.05, nearby, nav, _match.map
+				)
+				!= placement.VALID
+			):
+				continue
+			var overlaps = false
+			for exit in reserved:
+				if point.distance_to(exit.point) < unit.radius + exit.unit.radius + 0.1:
+					overlaps = true
+			if overlaps:
+				continue
+			var path = NavigationServer3D.map_get_path(
+				nav, anchor, point + Vector3.UP * movement.path_height_offset, true
+			)
+			if (
+				path.is_empty()
+				or path[-1].distance_to(point + Vector3.UP * movement.path_height_offset) > 0.4
+			):
+				continue
+			var distance = 0.0
+			for index in range(1, path.size()):
+				distance += path[index - 1].distance_to(path[index])
+			if distance > (radius + 4.0) * TAU:
+				continue
+			return point
+	return Vector3.INF

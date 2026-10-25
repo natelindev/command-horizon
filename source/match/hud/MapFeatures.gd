@@ -21,6 +21,7 @@ func _draw():
 	var layout = map.overview()
 	if not (is_instance_valid(terrain) and terrain.is_captured):
 		_draw_ground(layout)
+	_draw_operations()
 	for index in layout.relays.size():
 		var point = layout.relays[index] * pixel_scale
 		var color = Color("dae3e3")
@@ -68,3 +69,39 @@ func _draw_ground(layout):
 		)
 	for point in layout.ridges:
 		draw_circle(point * pixel_scale, layout.radius * pixel_scale, Color("657c89"))
+
+
+func _draw_operations():
+	var game = map.find_parent("Match")
+	if game == null:
+		return
+	if game.commander_support != null:
+		for record in game.commander_support.pending:
+			var point = Vector2(record.point.x, record.point.z) * pixel_scale
+			draw_circle(
+				point,
+				game.commander_support.RADII[record.kind] * pixel_scale,
+				Color(1, .48, .2, .45)
+			)
+	var events = game.battlefield_events
+	if events == null:
+		return
+	var player = game._get_human_player()
+	if events.has_method("minimap_markers"):
+		for marker in events.minimap_markers(player):
+			var point = Vector2(marker.point.x, marker.point.z) * pixel_scale
+			draw_colored_polygon(
+				PackedVector2Array(
+					[
+						point + Vector2(0, -5),
+						point + Vector2(5, 0),
+						point + Vector2(0, 5),
+						point + Vector2(-5, 0)
+					]
+				),
+				Color("e3c48a")
+			)
+	if events.has_method("radar_blips"):
+		for location in events.radar_blips(player):
+			var point = Vector2(location.x, location.z) * pixel_scale
+			draw_rect(Rect2(point - Vector2(2, 2), Vector2(4, 4)), Color("eecf91"))

@@ -14,6 +14,8 @@ const Snapshot = preload("res://source/match/saves/MatchSnapshot.gd")
 const Rules = preload("res://source/match/MatchConstants.gd")
 const Registry = preload("res://source/match/maps/terrain/BattlefieldRegistry.gd")
 const LINKS = {
+	"EngineeringAction": [["_target"], [], []],
+	"CollectTacticalCargo": [["_target_unit"], [], []],
 	"Garrisoning": [["_target_unit"], ["_shot"], []],
 	"Moving": [[], [], []],
 	"MovingToUnit": [["_target_unit"], [], []],
@@ -51,11 +53,15 @@ var fog_image = null
 var _nodes_left = 20000
 var _neutral_ids = {}
 var _poi_ids = {}
+var _tactical_ids = {}
+var _depth = null
 
 
 func validate(data):
 	error = ""
 	entities.clear()
+	_tactical_ids.clear()
+	_depth = load("res://source/match/saves/GameplayDepthSchema.gd").new(self)
 	_neutral_ids.clear()
 	_poi_ids.clear()
 	sides.clear()
@@ -70,7 +76,7 @@ func validate(data):
 			+ "visual_serial:int units_produced:int repair_elapsed:num camera:dict "
 			+ "players:list units:list resources:list mission:dict fog:dict "
 			+ "structure_memory:list neutral_buildings:list battle_record:dict ambient:list "
-			+ "rounds:dict battlefield_wear:list"
+			+ "rounds:dict battlefield_wear:list grenades:dict engineering:dict commander:dict events:dict"
 			+ (" obstacles:list" if data is Dictionary and data.has("obstacles") else "")
 		)
 	):
@@ -187,7 +193,9 @@ func validate(data):
 					+ "visual_seed:int weapon_left:num damage_age:maybenum construction:maybenum "
 					+ "cargo:dict action:dict orders:dict production:dict rally:dict "
 					+ "movement:dict groups:list selected:bool air:dict "
-					+ "weapon_mode:dict deployment:dict signature:dict stance:int"
+					+ "weapon_mode:dict deployment:dict signature:dict stance:int "
+					+ "permanent_scrap_rank:int damage_visual_band:int regarrison_lock_left:num "
+					+ "suppression:dict abilities:dict"
 					+ (
 						" plasma_shield:dict"
 						if unit is Dictionary and unit.has("plasma_shield")
@@ -254,6 +262,8 @@ func validate(data):
 				or scrap.left > 60.0
 			):
 				return _fail("Invalid Scrap Hardened buff.")
+		if not _depth.unit_state(unit):
+			return false
 		var shield_max = Technology.shield_capacity(
 			unit.role, sides[unit.player].faction, sides[unit.player].technology
 		)
@@ -285,6 +295,8 @@ func validate(data):
 	if not _neutral_buildings(data.neutral_buildings, data.settings.map_path):
 		return false
 	if not _site_records(data.mission.get("points_of_interest", []), data.settings.map_path):
+		return false
+	if not _depth.manager_states(data):
 		return false
 	for unit in data.units:
 		if not _unit(unit):
@@ -361,7 +373,7 @@ func _rounds(data):
 					+ "domains:list "
 					+ "mode:text force_attack:bool origin:vec target:text target_base:maybevec "
 					+ "position:vec velocity:vec age:num "
-					+ "life:num burn:num serial:int"
+					+ "life:num burn:num serial:int suppression:list"
 				)
 			)
 			or round.kind not in projectiles.KINDS
@@ -383,6 +395,8 @@ func _rounds(data):
 			or (round.target_base != null and not _airspace_position(round.target_base))
 		):
 			return _fail("Invalid round in flight.")
+		if not _depth.round_state(round):
+			return false
 		if not _unit_reference(round.shooter) or not _unit_reference(round.target):
 			return false
 	return true
@@ -652,7 +666,7 @@ func _settings(settings):
 	if not _shape(
 		settings,
 		(
-			"visibility:int visible_player:int skirmish:bool advanced_start:bool "
+			"visibility:int visible_player:int skirmish:bool advanced_start:bool battlefield_events:bool "
 			+ "starting_resources_multiplier:int "
 			+ "map_path:text match_seed:signedint mission_id:text players:list"
 		)
@@ -772,14 +786,19 @@ func _unit(unit):
 	if not unit.production.is_empty():
 		if (
 			unit.role not in Catalog.PRODUCES
-			or not _shape(unit.production, "jobs:list")
+			or not _shape(unit.production, "jobs:list assembly_state:dict")
 			or unit.production.jobs.size() > 100
 		):
 			return _fail("Invalid producer queue.")
+		if not _depth.assembly_state(unit):
+			return false
 		for job in unit.production.jobs:
 			if not _shape(
 				job,
-				"time_total:num time_left:num paid_cost:dict role:text departure_endpoint:maybevec"
+				(
+					"time_total:num time_left:num paid_cost:dict role:text departure_endpoint:maybevec "
+					+ "assembly_started:bool assembly_bonus:num"
+				)
 			):
 				return false
 			if (
@@ -839,6 +858,21 @@ func _action(action, unit, depth):
 		return _fail("Only engineers can gather or construct.")
 	if (kind in AIR_ACTIONS) != Catalog.is_fixed_wing(unit.role):
 		return _fail("Fixed-wing aircraft and air actions must match.")
+	if (
+		unit.role == "Drone"
+		and sides[unit.player].faction == "helix"
+		and (
+			kind
+			in [
+				"DroneDive",
+				"AutoAttacking",
+				"AttackingWhileInRange",
+				"AttackMoving",
+				"WaitingForTargets"
+			]
+		)
+	):
+		return _fail("Unarmed Helix scout cannot restore weapon orders.")
 	if kind == "DroneDive" and unit.role != "Drone":
 		return _fail("Only drones dive onto targets.")
 	if kind == "Repairing" and unit.role != "RepairRobot":
@@ -855,6 +889,8 @@ func _action(action, unit, depth):
 		if not action.state.has(key):
 			return _fail("Missing action state.")
 		var value = action.state[key]
+		if kind == "EngineeringAction":
+			continue  # Checked by the dedicated command schema below.
 		var flag = (
 			key
 			in [
@@ -889,6 +925,10 @@ func _action(action, unit, depth):
 		)
 		if not _type(value, "bool" if flag else ("maybevec" if point else "signed")):
 			return _fail("Invalid action state value.")
+	if kind == "EngineeringAction" and not _depth.engineering_action(action.state, unit):
+		return false
+	if kind == "CollectTacticalCargo" and (action.state.elapsed < 0 or action.state.elapsed > 2.1):
+		return _fail("Invalid repair-crate interaction timer.")
 	if kind == "AutoAttacking":
 		if (
 			not action.state._defense_origin is Vector3
@@ -1152,6 +1192,11 @@ func _action_state(kind, state):
 func _order(order, unit):
 	if order.is_empty():
 		return true
+	if (
+		order.get("kind")
+		in ["engineering", "sweep", "repair_barrier", "dismantle", "collect_tactical"]
+	):
+		return _depth.order_state(order, unit)
 	if order.get("kind") == "current":
 		return _shape(order, "kind:text")
 	if order.get("kind") in ["move", "attack_move", "patrol"]:
@@ -1530,6 +1575,7 @@ func _entity_reference(id):
 				id == ""
 				or _neutral_ids.has(id)
 				or _poi_ids.has(id)
+				or _tactical_ids.has(id)
 				or (
 					(
 						id.begins_with("unit-")
@@ -1554,6 +1600,7 @@ func _unit_reference(id):
 				or id.begins_with("obstacle-")
 				or _neutral_ids.has(id)
 				or _poi_ids.has(id)
+				or _tactical_ids.has(id)
 			)
 			and (not entities.has(id) or entities[id].has("role"))
 		)
@@ -1832,7 +1879,10 @@ func _neutral_buildings(saved, map_path):
 	var assigned = []
 	for index in saved.size():
 		var record = saved[index]
-		if not _shape(record, "id:text combat:dict occupants:list slots:list owner:text"):
+		if not _shape(
+			record,
+			"id:text combat:dict occupants:list slots:list owner:text entry_points:list evacuating:list"
+		):
 			return false
 		if (
 			record.id != "neutral-building-%d" % index
@@ -1847,6 +1897,8 @@ func _neutral_buildings(saved, map_path):
 			or (record.combat.hp == 0 and not record.occupants.is_empty())
 		):
 			return _fail("Invalid garrison capacity.")
+		if not _depth.evacuation_state(record):
+			return false
 		if record.slots.size() != record.occupants.size():
 			return _fail("Missing garrison slot.")
 		var slots = []
@@ -1874,9 +1926,14 @@ func _neutral_buildings(saved, map_path):
 			if (
 				not Catalog.is_infantry(unit.get("role"))
 				or (owner != "" and owner != unit.player)
-				or unit.action.get("kind") != "Garrisoning"
-				or not unit.action.get("references", {}) is Dictionary
-				or unit.action.get("references", {}).get("_target_unit") != record.id
+				or (
+					id not in record.evacuating
+					and (
+						unit.action.get("kind") != "Garrisoning"
+						or not unit.action.get("references", {}) is Dictionary
+						or unit.action.get("references", {}).get("_target_unit") != record.id
+					)
+				)
 			):
 				return _fail("Invalid garrison ownership or action.")
 			owner = unit.player

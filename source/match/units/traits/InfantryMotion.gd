@@ -75,6 +75,7 @@ var turn_lead := 0.0
 var fidget := 0
 var stride_scale := 1.0
 var lead_foot := 0
+var deferred_job = null
 var _role = ROLES["Infantry"]
 var _feet: Array[Vector3] = []
 var _stance: Array[Vector3] = []
@@ -90,10 +91,15 @@ var _travel_idle := INF
 var _posed_pelvis = Transform3D()
 var _posed_feet: Array[Vector3] = []
 var _posed_carry = Transform3D()
-var deferred_job = null
+var _unit
+var _suppressed_target = 0.0
+var _pinned_target = 0.0
+var _suppressed_pose = 0.0
+var _pinned_pose = 0.0
 
 
 func setup(unit, initial_phase, role = "Infantry"):
+	_unit = unit
 	rig = unit.get_node("Geometry/InfantryRig")
 	hips = rig.get_node("Hips")
 	chest = rig.get_node("Chest")
@@ -154,6 +160,9 @@ func _carry(parent, relative):
 func advance(
 	delta: float, distance: float, clock: float, gesture: float, recoil: float, aiming: float
 ):
+	var band = _unit.suppression.band if "suppression" in _unit and _unit.suppression != null else 0
+	_suppressed_target = 1.0 if band > 0 else 0.0
+	_pinned_target = 1.0 if band == 2 else 0.0
 	if deferred_job != null:
 		deferred_job.configure(delta, distance, clock, gesture, recoil, aiming)
 		return
@@ -163,6 +172,8 @@ func advance(
 func advance_pose(
 	delta: float, distance: float, clock: float, gesture: float, recoil: float, aiming: float
 ):
+	_suppressed_pose = move_toward(_suppressed_pose, _suppressed_target, delta * 4.0)
+	_pinned_pose = move_toward(_pinned_pose, _pinned_target, delta * 3.0)
 	# Gait runs in rig units; a scaled rig (heroes) must not out-stride its body.
 	distance /= rig.scale.z
 	# Detect speed, not a fixed distance per rendered frame. Preserve the stride
@@ -178,9 +189,17 @@ func advance_pose(
 	aim = move_toward(aim, aiming, delta * (6.0 if aiming > aim else 2.5))
 	var stationary_aim: float = aiming if not moving else 0.0
 	brace = move_toward(brace, stationary_aim, delta * (4.0 if stationary_aim > brace else 2.0))
-	var kneeling: float = brace if _role[4] else 0.0
+	var kneeling: float = maxf(brace if _role[4] else 0.0, _suppressed_pose * 0.75)
 	_hip_height = lerpf(HIP_HEIGHT - .02 * brace, KNEEL_HEIGHT, kneeling)
+	_hip_height = lerpf(_hip_height, 0.19, _pinned_pose)
 	_update_feet(delta, distance, moving, kneeling)
+	for index in range(2):
+		var crawl = Vector3(
+			(-1.0 if index == 0 else 1.0) * 0.15,
+			FOOT_HEIGHT,
+			0.55 + sin(phase + index * PI) * blend * 0.12
+		)
+		_feet[index] = _feet[index].lerp(crawl, _pinned_pose)
 
 	var breath: float = sin(clock * 2.2)
 	var stride_wave: float = cos(phase * 2.0)
@@ -214,12 +233,13 @@ func advance_pose(
 		),
 		sin(phase) * .018 * blend + lean.y + flinch.z + (gesture * .018 if fidget != 0 else 0.0)
 	)
+	torso.x = lerpf(torso.x, -1.25, _pinned_pose)
 	chest.transform = Transform3D(
 		Basis.from_euler(torso),
 		(
 			CHEST_REST
 			+ Vector3(shift * .6, _hip_height - HIP_HEIGHT - dip + breath * .003, kick * .014)
-			+ Vector3(0, 0, flinch.x * .08)
+			+ Vector3(0, 0, flinch.x * .08 - _pinned_pose * 0.18)
 		)
 	)
 	head.position = head_rest + Vector3(.025, -.022, -.018) * aim
@@ -229,6 +249,7 @@ func advance_pose(
 		clampf(turn_lead, -.6, .6) + look - brace * .08 + flinch.y * 1.5,
 		-torso.z * .6 + flinch.z * 1.4
 	)
+	head.rotation.x += _pinned_pose * 0.65
 	# Low ready while relaxed or moving; raised to the shoulder when aiming.
 	var low: float = _role[0] * (1.0 if moving else .7)
 	var carry_bob: float = sin(phase * 2.0 + .6) * .035 * blend * (1.0 - aim)
@@ -237,6 +258,8 @@ func advance_pose(
 		_role[5].x * (1.0 - aim),
 		_role[5].y * (1.0 - aim) + (gesture * .45 if fidget == 2 else 0.0)
 	)
+	# Counter-rotate the shoulder assembly so prone rifles stay horizontal.
+	carry.x += _pinned_pose * 1.25
 	var carried: Transform3D = Transform3D(
 		Basis.from_euler(carry), CARRY_PIVOT + Vector3(0, aim * _role[6], kick * .035)
 	)
@@ -377,7 +400,16 @@ static func _solve_arm(arm: Dictionary, carried):
 
 
 func is_at_rest() -> bool:
-	return blend <= .001 and brace <= .001 and aim <= .001 and _settle_foot < 0 and not _moving
+	return (
+		blend <= .001
+		and brace <= .001
+		and aim <= .001
+		and _settle_foot < 0
+		and not _moving
+		and _suppressed_pose <= .001
+		and _suppressed_target <= .001
+		and (not "suppression" in _unit or _unit.suppression == null or _unit.suppression.band == 0)
+	)
 
 
 func _pose_leg(parts: Array, target: Vector3, pelvis_roll: float):

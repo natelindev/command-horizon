@@ -1,6 +1,7 @@
 extends "res://source/match/units/Unit.gd"
 
-# Kamikaze loitering munition. It scouts while hovering and holds fire by
+# Helix fields an unarmed EW scout. Other factions keep the loitering munition.
+# The loitering munition scouts while hovering and holds fire by
 # default; an attack order, or an engaging stance chosen by the player, sends it
 # into a one-way dive (DroneDive). Autonomous dives pick machines and structures,
 # never infantry.
@@ -16,10 +17,45 @@ func _init():
 	stance = Stance.HOLD_FIRE
 
 
+func ability_definitions() -> Array:
+	if player.faction != "helix":
+		return []
+	return [
+		{
+			"id": "drone_chaff",
+			"name": "Guidance Chaff",
+			"key": "E",
+			"description":
+			(
+				"Interrupt hostile missile guidance around allied units within 10 m for 8 seconds. "
+				+ "Requires a Signal lab. Missiles keep flying."
+			),
+			"target_type": "instant",
+			"cooldown": 30.0,
+			"duration": 8.0,
+			"radius": 10.0,
+		}
+	]
+
+
+func armed() -> bool:
+	return player.faction != "helix"
+
+
 func _adapt_action(action_node):
 	if action_node == null:
 		return null
 	var kind = action_node.get_script().resource_path.get_file().get_basename()
+	if player.faction == "helix" and kind == "AttackMoving":
+		var point = action_node.destination
+		action_node.free()
+		return load("res://source/match/units/actions/Moving.gd").new(point)
+	if (
+		player.faction == "helix"
+		and kind in ["DroneDive", "AutoAttacking", "AttackingWhileInRange", "AirStrike"]
+	):
+		action_node.free()
+		return null
 	if kind in ["AutoAttacking", "AttackingWhileInRange"]:
 		var target = action_node._target_unit
 		var forced = action_node.get("force_attack") == true
@@ -30,7 +66,11 @@ func _adapt_action(action_node):
 
 func _physics_process(delta):
 	super(delta)
-	if _match == null or stance not in [Stance.AGGRESSIVE, Stance.DEFENSIVE]:
+	if (
+		_match == null
+		or player.faction == "helix"
+		or stance not in [Stance.AGGRESSIVE, Stance.DEFENSIVE]
+	):
 		return
 	if action != null and not action.has_method("is_idle"):
 		return

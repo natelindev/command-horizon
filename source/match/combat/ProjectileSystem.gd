@@ -8,6 +8,8 @@ extends Node3D
 # enemies, sight blockers and the ground. Rounds can miss. They survive their
 # shooter, and pausing the tree pauses this node.
 
+const Terrain = preload("res://source/match/maps/terrain/TerrainModel.gd")
+const Players = preload("res://source/match/Players.gd")
 const Shot = preload("res://source/match/combat/Shot.gd")
 const Rules = preload("res://source/match/combat/CombatRules.gd")
 const Weapons = preload("res://source/match/combat/WeaponCatalog.gd")
@@ -30,6 +32,8 @@ var _hitboxes = {}
 var _random = RandomNumberGenerator.new()
 var _human = null
 var _tick = 0
+var _mine_index_tick = -1
+var _mine_cells = {}
 
 @onready var _match = get_parent()
 
@@ -51,6 +55,7 @@ class Round:
 	var shown = false
 	var trail_distance = 0.0
 	var slot = -1
+	var suppression = {}
 
 
 func _ready():
@@ -260,6 +265,7 @@ func _step(round, delta):
 	round.age += delta
 	var end = round.position
 	var contact = _sweep(round, start, end)
+	_suppress_nearby(round, start, contact.point if not contact.is_empty() else end)
 	if _tick % VISIBILITY_TICKS == round.serial % VISIBILITY_TICKS:
 		round.shown = _shown(round)
 	if round.shown and round.kind in ["rocket", "missile"] and burn > 0.0:
@@ -305,7 +311,15 @@ func _integrate(round, delta):
 	var velocity = round.velocity
 	var speed = velocity.length()
 	var direction = velocity / maxf(speed, 0.0001)
-	if round.kind == "missile" and _live(round.target):
+	if (
+		round.kind == "missile"
+		and _live(round.target)
+		and not (
+			"helix_support" in _match
+			and _match.helix_support != null
+			and _match.helix_support.missile_jammed(round.shot.player, round.target)
+		)
+	):
 		direction = _steer(round, direction, speed, delta)
 	if round.burn > 0.0:
 		round.burn -= delta
@@ -368,6 +382,13 @@ func _sweep(round, start, end):
 			if t >= 0.0 and t < best_t:
 				best_t = t
 				best = {"body": body}
+	for mine in _nearby_mines((start + end) * 0.5, start.distance_to(end) * 0.5 + 0.4):
+		if mine == target or not _physical_mine_target(round, mine):
+			continue
+		var t = _body_entry(start, end, mine.global_position, hitbox(mine))
+		if t >= 0.0 and t < best_t:
+			best_t = t
+			best = {"body": mine}
 	var blocker = _match.battlefield.first_blocker(start, end, shooter, target)
 	if not blocker.is_empty() and blocker.t < best_t:
 		best_t = blocker.t
@@ -390,8 +411,16 @@ static func _body_entry(start, end, base, box):
 
 
 func _detonate(round, point, body, ground):
-	var hit = body if body != null and Rules.can_receive(round.shot, body) else null
+	var hit = (
+		body
+		if (
+			body != null
+			and (Rules.can_receive(round.shot, body) or _physical_mine_target(round, body))
+		)
+		else null
+	)
 	if hit != null:
+		_suppress_hit(round, hit)
 		hit.receive_shot(round.shot, point, 1.0, round.weapon)
 	var splash = round.weapon.get("splash", 0.0)
 	if splash > 0.0:
@@ -399,8 +428,12 @@ func _detonate(round, point, body, ground):
 		for unit in (
 			_match.battlefield.nearby_units(flat, splash + 2.0, null, round.shot.player)
 			+ _match.battlefield.nearby_obstacles(flat, splash)
+			+ _nearby_mines(flat, splash + 0.4)
 		):
-			if unit == hit or not Rules.can_receive(round.shot, unit):
+			if (
+				unit == hit
+				or not (Rules.can_receive(round.shot, unit) or _physical_mine_target(round, unit))
+			):
 				continue
 			var gap = _gap(point, unit)
 			if gap < splash:
@@ -563,6 +596,7 @@ func capture(reference):
 					"life": round.life,
 					"burn": maxf(0.0, round.burn),
 					"serial": round.serial,
+					"suppression": _capture_suppression(round, reference),
 				}
 			)
 		)
@@ -604,6 +638,12 @@ func restore(saved, entities):
 		round.life = float(record.life)
 		round.burn = float(record.burn)
 		round.serial = record.serial
+		for contribution in record.get("suppression", []):
+			var victim = entities.get(contribution.unit)
+			if is_instance_valid(victim):
+				round.suppression[victim.get_instance_id()] = {
+					"unit": weakref(victim), "amount": contribution.amount
+				}
 		_add(round)
 
 
@@ -612,3 +652,102 @@ func clear():
 		_remove(round)
 	_rounds.clear()
 	_by_target.clear()
+
+
+func _suppress_hit(round, victim):
+	if not "suppression" in victim or victim.suppression == null:
+		return
+	if Players.allied(round.shot.player, victim.player):
+		return
+	var total = Weapons.suppression_hit(round.weapon, round.shot.player)
+	var previous = round.suppression.get(victim.get_instance_id(), {}).get("amount", 0.0)
+	victim.suppression.add_pressure(maxf(0.0, total - previous))
+
+
+func _suppress_nearby(round, start: Vector3, end: Vector3):
+	if not Weapons.suppresses_nearby(round.weapon):
+		return
+	var radius = 1.5
+	var middle = (start + end) * 0.5
+	var reach = start.distance_to(end) * 0.5 + radius
+	for victim in _match.battlefield.nearby_units(middle, reach, null, round.shot.player):
+		if (
+			not "suppression" in victim
+			or victim.suppression == null
+			or victim.has_meta("garrison_host")
+		):
+			continue
+		if round.suppression.has(victim.get_instance_id()):
+			continue
+		var body = center_of(victim)
+		var closest = Geometry3D.get_closest_point_to_segment(body, start, end)
+		if closest.distance_to(body) > radius:
+			continue
+		if not _match.battlefield.line_clear(closest, body, round.shot.shooter(), victim):
+			continue
+		var terrain = _match.map.terrain if "terrain" in _match.map else null
+		if terrain != null and not _pressure_terrain_clear(terrain, closest, body):
+			continue
+		var amount = victim.suppression.add_pressure(
+			Weapons.suppression_hit(round.weapon, round.shot.player) * 0.5, true
+		)
+		round.suppression[victim.get_instance_id()] = {"unit": weakref(victim), "amount": amount}
+
+
+func _capture_suppression(round, reference) -> Array:
+	var records = []
+	for contribution in round.suppression.values():
+		var id = reference.call(contribution.unit.get_ref())
+		if not id.is_empty():
+			records.append({"unit": id, "amount": contribution.amount})
+	return records
+
+
+func _pressure_terrain_clear(terrain, start: Vector3, end: Vector3) -> bool:
+	# Ordinary sight ignores 0.75 m at both ends. Pressure rays are at most
+	# 1.5 m long, so sample their actual ground/solid separation without that
+	# visibility allowance. Forest canopy is not a physical barrier.
+	var steps = maxi(1, ceili(start.distance_to(end) / 0.15))
+	for index in range(steps + 1):
+		var point = start.lerp(end, float(index) / steps)
+		var flat = Vector2(point.x, point.z)
+		var cell = terrain.cell_index(flat)
+		if terrain.height_at(flat) > point.y:
+			return false
+		if terrain.flags[cell] & Terrain.SOLID and terrain.cover_tops[cell] > point.y:
+			return false
+	return true
+
+
+func _physical_mine_target(round, target) -> bool:
+	return (
+		is_instance_valid(target)
+		and target.is_in_group("field_mines")
+		and not Players.allied(round.shot.player, target.player)
+		and Rules.can_receive(round.shot, target, true)
+	)
+
+
+func _nearby_mines(point: Vector3, reach: float) -> Array:
+	# Mines have no navigation/automatic-target body. Build a small separate spatial
+	# index once per simulation tick, never scan the entire minefield per round.
+	var tick = Engine.get_physics_frames()
+	if _mine_index_tick != tick:
+		_mine_index_tick = tick
+		_mine_cells.clear()
+		for mine in get_tree().get_nodes_in_group("field_mines"):
+			if mine.hp <= 0.0 or mine.is_queued_for_deletion():
+				continue
+			var cell = Vector2i(
+				floori(mine.global_position.x / 6.0), floori(mine.global_position.z / 6.0)
+			)
+			if not _mine_cells.has(cell):
+				_mine_cells[cell] = []
+			_mine_cells[cell].append(mine)
+	var result = []
+	for x in range(floori((point.x - reach) / 6.0), floori((point.x + reach) / 6.0) + 1):
+		for z in range(floori((point.z - reach) / 6.0), floori((point.z + reach) / 6.0) + 1):
+			for mine in _mine_cells.get(Vector2i(x, z), []):
+				if is_instance_valid(mine) and mine.hp > 0.0 and not mine.is_queued_for_deletion():
+					result.append(mine)
+	return result

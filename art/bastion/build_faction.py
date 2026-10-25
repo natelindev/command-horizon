@@ -488,6 +488,18 @@ else:
 # Export evaluated copies, joining objects that share a rigid parent.
 manifest=[]
 for name,collection,asset_root in assets:
+    damage_models = ['Worker', 'Tank', 'AdvancedTank', 'RepairRobot', 'CombatRobot']
+    if "--damage-only" in sys.argv and name not in damage_models:
+        continue
+    if name in damage_models:
+        socket = bpy.data.objects.new(name + "_DamageSocket", None)
+        collection.objects.link(socket)
+        socket.parent = asset_root
+        socket.location = {
+            'Worker': (.7, -.85, 1.7), 'Tank': (0, -1.5, 1.6),
+            'AdvancedTank': (0, -2.0, 1.7), 'RepairRobot': (.4, -.7, 1.9),
+            'CombatRobot': (.65, -.75, 1.75),
+        }[name]
     bpy.context.view_layer.update()
     for part in collection.objects:
         # Both UV channels encode tread travel/profile, including imported belts.
@@ -537,7 +549,7 @@ if walkers_only or motion_only:
     print("Bastion motion rigs exported" if motion_only else "Bastion walker rig exported")
     raise SystemExit(0)
 
-if "--models-only" in sys.argv:
+if "--models-only" in sys.argv or "--damage-only" in sys.argv:
     print("Material-ready faction models exported")
     raise SystemExit(0)
 

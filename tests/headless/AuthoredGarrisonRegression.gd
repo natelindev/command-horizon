@@ -10,6 +10,12 @@ const Registry = preload("res://source/match/maps/terrain/BattlefieldRegistry.gd
 
 func _run():
 	await _skirmish("bastion", MAP)
+	# Keep this authored entry/save probe independent of AI attacks while the
+	# neutral capture channel completes. The newly spawned infantry stays live.
+	for side in get_nodes_in_group("players"):
+		side.set_process(false)
+	for unit in get_nodes_in_group("units"):
+		unit.process_mode = Node.PROCESS_MODE_DISABLED
 	await _frames(30)
 	var layout = Registry.layout(MAP)
 	var buildings = game.get_node("NeutralWorld").buildings
@@ -45,7 +51,7 @@ func _run():
 	await _frames(20)
 	# The player's contextual order, as a right-click on the building.
 	human.get_node("UnitActionsController")._navigate_unit_towards_unit(soldier, building)
-	await _frames(240)
+	await _wait_for_garrison(building, soldier)
 	_check(soldier in building.occupants, "Infantry could not garrison an authored building")
 	_check(building.player == human, "Garrison did not take its occupant's side")
 	var builder = Snapshot.new()
@@ -69,6 +75,16 @@ func _run():
 				"Restore lost the garrison or its occupant"
 			)
 	_finish()
+
+
+func _wait_for_garrison(building, soldier):
+	# Capture has a 15 s channel; the former four-second wait inspected it
+	# before entry. Use simulation ticks and stop as soon as entry succeeds.
+	var duration = load("res://source/match/units/actions/Garrisoning.gd").CAPTURE_DURATION
+	for tick in ceili((duration + 5.0) * Engine.physics_ticks_per_second):
+		if soldier in building.occupants:
+			return
+		await physics_frame
 
 
 func _finish():

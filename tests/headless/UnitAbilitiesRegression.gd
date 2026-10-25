@@ -211,13 +211,18 @@ func _test_ability_orders():
 	)
 	var before = enemy.hp
 	_check(commands.commit(enemy.global_position, null, false), "Grenade map point rejected")
-	_check(enemy.hp == before - 35 and commands.kind.is_empty(), "Target cast damage or cleanup")
+	_check(
+		enemy.hp == before and commands.kind.is_empty(), "Accepted grenade resolved before flight"
+	)
+	_game.grenade_system._physics_process(0.6)
+	_check(enemy.hp == before - 35, "Target cast damage or cleanup")
 	_check(
 		second.abilities.get_ability("frag_grenade").is_ready(),
 		"Targeted cast consumed all selected cooldowns"
 	)
 	commands.arm_ability("frag_grenade")
 	_check(commands.commit(enemy.global_position, null, true), "Next ready caster was not selected")
+	_game.grenade_system._physics_process(0.6)
 	_check(enemy.hp == before - 70, "Next ready caster did not execute")
 	first.abilities.restore({})
 	commands.arm_ability("frag_grenade")
@@ -326,7 +331,7 @@ func _test_ability_orders():
 
 func _test_definitions_and_readiness():
 	var expected = {
-		"Infantry": ["frag_grenade", "Q", "target_point", 12.0],
+		"Infantry": ["frag_grenade", "Q", "target_unit", 12.0],
 		"AssaultInfantry": ["combat_sprint", "W", "instant", 15.0],
 		"Tank": ["smoke_screen", "Q", "instant", 20.0],
 		"AdvancedTank": ["siege_anchor", "E", "toggle", 4.0],
@@ -341,7 +346,7 @@ func _test_definitions_and_readiness():
 		_check(ability.target_type == expected[role][2], role + " target type")
 		_check(ability.cooldown == expected[role][3] and ability.is_ready(), role + " readiness")
 		_check(not unit.abilities.trigger("missing"), "Unknown ability activated")
-	for role in ["Worker", "SniperInfantry", "CombatRobot", "Barracks", "Helicopter"]:
+	for role in ["SniperInfantry", "CombatRobot", "Barracks", "Helicopter"]:
 		_check(
 			_spawn(role, _human, Vector3(45, 0, 8)).abilities == null,
 			role + " got an inherited ability"
@@ -376,6 +381,10 @@ func _test_grenade():
 	_check(grenade.cooldown_left == 0, "Rejected cast consumed cooldown")
 	var before = [ally.hp, near.hp, edge.hp, far.hp]
 	_check(grenade.trigger(Vector3(46, 0, 8)), "Grenade did not trigger")
+	_check(near.hp == before[1], "Grenade damaged enemies before arrival")
+	_game.grenade_system._physics_process(0.59)
+	_check(near.hp == before[1], "Grenade damaged enemies before fuse expired")
+	_game.grenade_system._physics_process(0.01)
 	_check(ally.hp == before[0] and far.hp == before[3], "Grenade hit ally or outside radius")
 	_check(before[1] - near.hp == 35 and before[2] - edge.hp == 35, "Grenade AoE damage")
 	_check(
@@ -488,10 +497,9 @@ func _test_salvo():
 	var snapshot = builder.capture(_game)
 	_check(snapshot != null, "Salvo snapshot capture failed: " + builder.error)
 	if snapshot != null:
-		_check(
-			load("res://source/match/saves/MatchRestore.gd").new().prepare(snapshot),
-			"Save schema rejected the ability rocket"
-		)
+		var loader = load("res://source/match/saves/MatchRestore.gd").new()
+		var valid = loader.prepare(snapshot)
+		_check(valid, "Save schema rejected the ability rocket: " + loader.error)
 	var entities = {"owner": _human, "shooter": shooter, "target": target}
 	var reference = func(object):
 		for id in entities:

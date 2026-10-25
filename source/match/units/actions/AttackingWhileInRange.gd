@@ -45,6 +45,8 @@ func _ready():
 
 
 func _physics_process(delta):
+	if Rules.commander_disabled(_unit):
+		return
 	if _unit_movement_trait == null or not _unit_movement_trait._has_destination:
 		_rotate_unit_towards_target()
 	if _charge_left < 0:
@@ -97,6 +99,9 @@ func _schedule_hit():
 	if not is_inside_tree() or is_queued_for_deletion():
 		return
 	if _shot_limit > 0 and _shots >= _shot_limit:
+		return
+	if Rules.commander_disabled(_unit):
+		_one_shot_timer.start(.05)
 		return
 	if get_tree().paused:
 		_one_shot_timer.start(0.01)
@@ -177,6 +182,9 @@ func _refresh_charge_display():
 
 
 func _hit_target():
+	if Rules.commander_disabled(_unit):
+		_one_shot_timer.start(.05)
+		return
 	if _teardown_if_out_of_range():
 		return
 	if (
@@ -207,6 +215,8 @@ func _teardown_if_out_of_range():
 	if not is_instance_valid(_target_unit) or _target_unit.is_queued_for_deletion():
 		queue_free()
 		return true
+	if Rules.commander_disabled(_unit):
+		return false
 	if not _unit._match.battlefield.can_fire(_unit, _target_unit):
 		queue_free()
 		return true

@@ -32,9 +32,15 @@ func _exercise(building):
 		)
 		troops.append(soldier)
 	await _frames(20)
-	for soldier in troops:
-		soldier.manual_orders.submit(Manual.target_order("garrison", building))
-	await _frames(360)
+	# Establish ownership before the other seven approach. Their avoidance
+	# can otherwise push the capturer outside range and restart its channel;
+	# this fixture tests eight firing slots and exits, not contested capture.
+	troops[0].manual_orders.submit(Manual.target_order("garrison", building))
+	await _wait_for_garrison(building, 1)
+	_check(troops[0] in building.occupants, building._asset + ": initial capture failed")
+	for index in range(1, troops.size()):
+		troops[index].manual_orders.submit(Manual.target_order("garrison", building))
+	await _wait_for_garrison(building, 8)
 	_check(building.occupants.size() == 8, building._asset + ": failed to fill shelter")
 	var target = _spawn_infantry(
 		enemy, building.global_position + Vector3(building.radius + 2.5, 0, 0)
@@ -122,7 +128,7 @@ func _restored_shot_and_exit():
 		human, building.global_position + Vector3(building.radius + .8, 0, 0)
 	)
 	soldier.manual_orders.submit(Manual.target_order("garrison", building))
-	await _frames(30)
+	await _wait_for_garrison(building, 1)
 	var target = _units(enemy, "Tank")[0]
 	target.position = building.global_position + Vector3(building.radius + 3, 0, 0)
 	game.battlefield.invalidate()
@@ -166,3 +172,13 @@ func _restored_shot_and_exit():
 		),
 		"Saved direct shooter stuck after unloading"
 	)
+
+
+func _wait_for_garrison(building, count):
+	# Neutral/enemy ownership already requires a 15 s capture channel. Wait for
+	# that contract plus bounded approach time before testing firing and exits.
+	var duration = load("res://source/match/units/actions/Garrisoning.gd").CAPTURE_DURATION
+	for tick in ceili((duration + 5.0) * Engine.physics_ticks_per_second):
+		if building.occupants.size() == count:
+			return
+		await physics_frame

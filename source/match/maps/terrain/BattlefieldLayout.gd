@@ -16,7 +16,8 @@ const FEATURES = [
 	"roads",
 	"landmarks",
 	"sands",
-	"rails"
+	"rails",
+	"events"
 ]
 # Order is save identity: sites, relays and garrisoned buildings are matched
 # to their records by position in these lists.

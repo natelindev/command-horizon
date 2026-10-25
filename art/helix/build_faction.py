@@ -544,6 +544,18 @@ else:
 # Export evaluated copies, joining objects that share a rigid parent.
 manifest=[]
 for name,collection,asset_root in assets:
+    damage_models = ['MuleEngineer', 'NeedleSkimmer', 'MenderRobot', 'LancerWalker', 'PrismArtillery']
+    if "--damage-only" in sys.argv and name not in damage_models:
+        continue
+    if name in damage_models:
+        socket = bpy.data.objects.new(name + "_DamageSocket", None)
+        collection.objects.link(socket)
+        socket.parent = asset_root
+        socket.location = {
+            'MuleEngineer': (.5, -1.13, 1.8), 'NeedleSkimmer': (.95, -1.25, 1.3),
+            'MenderRobot': (.6, -.4, 1.8), 'LancerWalker': (.7, -.3, 2.6),
+            'PrismArtillery': (.95, -1.2, 1.5),
+        }[name]
     bpy.context.view_layer.update()
     for part in collection.objects:
         trim_sheet.prepare(part)
@@ -587,7 +599,7 @@ if walkers_only:
     print("Helix walker rigs exported")
     raise SystemExit(0)
 
-if "--models-only" in sys.argv:
+if "--models-only" in sys.argv or "--damage-only" in sys.argv:
     print("Material-ready faction models exported")
     raise SystemExit(0)
 

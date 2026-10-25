@@ -8,6 +8,7 @@ enum Visibility { PER_PLAYER, ALL_PLAYERS, FULL }
 
 @export var skirmish = false
 @export var advanced_start = false
+@export var battlefield_events = true
 @export var starting_resources_multiplier = 1
 @export var map_path = ""
 @export var match_seed = 0

@@ -1,0 +1,306 @@
+{
+	"adapter": "Apple M1 Pro (Apple7)",
+	"comparison": "Same stationary army at 24% HP. Damage particles/audio disabled/enabled; health, orders, chassis poses and simulation remain unchanged.",
+	"factions": [
+		{
+			"baseline_after": {
+				"active_audio_voices": 0,
+				"active_damage_voices": 0,
+				"allocated_audio_voices": 4,
+				"draw_calls": {
+					"max": 1361.0,
+					"median": 1361.0,
+					"p95": 1361.0
+				},
+				"frame_ms": {
+					"max": 22.604,
+					"median": 12.236,
+					"p95": 15.904
+				},
+				"particle_capacity_by_kind": {
+					"clod": 128,
+					"debris": 192,
+					"dust": 512,
+					"exhaust": 768,
+					"fire": 256,
+					"flash": 128,
+					"mote": 192,
+					"smoke": 384,
+					"spark": 768,
+					"trail_smoke": 2048
+				},
+				"process_ms": {
+					"max": 14.04,
+					"median": 13.669,
+					"p95": 13.813
+				}
+			},
+			"baseline_before": {
+				"active_audio_voices": 0,
+				"active_damage_voices": 0,
+				"allocated_audio_voices": 0,
+				"draw_calls": {
+					"max": 1361.0,
+					"median": 1361.0,
+					"p95": 1361.0
+				},
+				"frame_ms": {
+					"max": 21.988,
+					"median": 12.125,
+					"p95": 16.104
+				},
+				"particle_capacity_by_kind": {
+					"clod": 128,
+					"debris": 192,
+					"dust": 512,
+					"exhaust": 768,
+					"fire": 256,
+					"flash": 128,
+					"mote": 192,
+					"smoke": 384,
+					"spark": 768,
+					"trail_smoke": 2048
+				},
+				"process_ms": {
+					"max": 14.014,
+					"median": 13.769,
+					"p95": 14.014
+				}
+			},
+			"damage_presentation": {
+				"active_audio_voices": 4,
+				"active_damage_voices": 4,
+				"allocated_audio_voices": 4,
+				"draw_calls": {
+					"max": 1364.0,
+					"median": 1364.0,
+					"p95": 1364.0
+				},
+				"frame_ms": {
+					"max": 22.44,
+					"median": 12.214,
+					"p95": 15.812
+				},
+				"particle_capacity_by_kind": {
+					"clod": 128,
+					"debris": 192,
+					"dust": 512,
+					"exhaust": 768,
+					"fire": 256,
+					"flash": 128,
+					"mote": 192,
+					"smoke": 384,
+					"spark": 768,
+					"trail_smoke": 2048
+				},
+				"process_ms": {
+					"max": 14.394,
+					"median": 14.353,
+					"p95": 14.394
+				}
+			},
+			"faction": "bastion"
+		},
+		{
+			"baseline_after": {
+				"active_audio_voices": 0,
+				"active_damage_voices": 0,
+				"allocated_audio_voices": 4,
+				"draw_calls": {
+					"max": 1358.0,
+					"median": 1358.0,
+					"p95": 1358.0
+				},
+				"frame_ms": {
+					"max": 22.779,
+					"median": 11.484,
+					"p95": 14.779
+				},
+				"particle_capacity_by_kind": {
+					"clod": 128,
+					"debris": 192,
+					"dust": 512,
+					"exhaust": 768,
+					"fire": 256,
+					"flash": 128,
+					"mote": 192,
+					"smoke": 384,
+					"spark": 768,
+					"trail_smoke": 2048
+				},
+				"process_ms": {
+					"max": 12.866,
+					"median": 12.721,
+					"p95": 12.791
+				}
+			},
+			"baseline_before": {
+				"active_audio_voices": 0,
+				"active_damage_voices": 0,
+				"allocated_audio_voices": 0,
+				"draw_calls": {
+					"max": 1358.0,
+					"median": 1358.0,
+					"p95": 1358.0
+				},
+				"frame_ms": {
+					"max": 23.158,
+					"median": 11.414,
+					"p95": 14.708
+				},
+				"particle_capacity_by_kind": {
+					"clod": 128,
+					"debris": 192,
+					"dust": 512,
+					"exhaust": 768,
+					"fire": 256,
+					"flash": 128,
+					"mote": 192,
+					"smoke": 384,
+					"spark": 768,
+					"trail_smoke": 2048
+				},
+				"process_ms": {
+					"max": 13.104,
+					"median": 12.614,
+					"p95": 12.679
+				}
+			},
+			"damage_presentation": {
+				"active_audio_voices": 4,
+				"active_damage_voices": 4,
+				"allocated_audio_voices": 4,
+				"draw_calls": {
+					"max": 1360.0,
+					"median": 1360.0,
+					"p95": 1360.0
+				},
+				"frame_ms": {
+					"max": 23.335,
+					"median": 11.393,
+					"p95": 14.853
+				},
+				"particle_capacity_by_kind": {
+					"clod": 128,
+					"debris": 192,
+					"dust": 512,
+					"exhaust": 768,
+					"fire": 256,
+					"flash": 128,
+					"mote": 192,
+					"smoke": 384,
+					"spark": 768,
+					"trail_smoke": 2048
+				},
+				"process_ms": {
+					"max": 13.117,
+					"median": 12.852,
+					"p95": 13.117
+				}
+			},
+			"faction": "helix"
+		},
+		{
+			"baseline_after": {
+				"active_audio_voices": 0,
+				"active_damage_voices": 0,
+				"allocated_audio_voices": 7,
+				"draw_calls": {
+					"max": 1409.0,
+					"median": 1409.0,
+					"p95": 1409.0
+				},
+				"frame_ms": {
+					"max": 22.527,
+					"median": 12.222,
+					"p95": 15.91
+				},
+				"particle_capacity_by_kind": {
+					"clod": 128,
+					"debris": 192,
+					"dust": 512,
+					"exhaust": 768,
+					"fire": 256,
+					"flash": 128,
+					"mote": 192,
+					"smoke": 384,
+					"spark": 768,
+					"trail_smoke": 2048
+				},
+				"process_ms": {
+					"max": 14.286,
+					"median": 13.367,
+					"p95": 14.286
+				}
+			},
+			"baseline_before": {
+				"active_audio_voices": 0,
+				"active_damage_voices": 0,
+				"allocated_audio_voices": 0,
+				"draw_calls": {
+					"max": 1409.0,
+					"median": 1409.0,
+					"p95": 1409.0
+				},
+				"frame_ms": {
+					"max": 22.679,
+					"median": 11.875,
+					"p95": 15.809
+				},
+				"particle_capacity_by_kind": {
+					"clod": 128,
+					"debris": 192,
+					"dust": 512,
+					"exhaust": 768,
+					"fire": 256,
+					"flash": 128,
+					"mote": 192,
+					"smoke": 384,
+					"spark": 768,
+					"trail_smoke": 2048
+				},
+				"process_ms": {
+					"max": 13.847,
+					"median": 13.574,
+					"p95": 13.847
+				}
+			},
+			"damage_presentation": {
+				"active_audio_voices": 4,
+				"active_damage_voices": 4,
+				"allocated_audio_voices": 7,
+				"draw_calls": {
+					"max": 1411.0,
+					"median": 1411.0,
+					"p95": 1411.0
+				},
+				"frame_ms": {
+					"max": 22.313,
+					"median": 12.006,
+					"p95": 15.866
+				},
+				"particle_capacity_by_kind": {
+					"clod": 128,
+					"debris": 192,
+					"dust": 512,
+					"exhaust": 768,
+					"fire": 256,
+					"flash": 128,
+					"mote": 192,
+					"smoke": 384,
+					"spark": 768,
+					"trail_smoke": 2048
+				},
+				"process_ms": {
+					"max": 14.503,
+					"median": 13.688,
+					"p95": 14.114
+				}
+			},
+			"faction": "frontier"
+		}
+	],
+	"samples_per_phase": 240,
+	"units": 96,
+	"warmup_frames": 180
+}

@@ -1,4 +1,4 @@
-# gdlint: disable=max-file-lines
+# gdlint: disable=max-file-lines,max-returns
 extends PanelContainer
 
 const BattleTheme = preload("res://source/match/hud/BattleTheme.gd")
@@ -12,6 +12,7 @@ const Structure = preload("res://source/match/units/Structure.gd")
 const Worker = preload("res://source/match/units/Worker.gd")
 const RosterInfo = preload("res://source/match/hud/RosterInfo.gd")
 const RosterButton = preload("res://source/match/hud/RosterButton.gd")
+const CommandCard = preload("res://source/match/hud/CommandCard.gd")
 
 const BUILD_KEYS = {
 	KEY_C: "CommandCenter",
@@ -26,6 +27,8 @@ const BUILD_KEYS = {
 }
 
 var _camp = null
+var _commander_open = false
+var _commander_panel = null
 var _camp_buttons = []
 var _selection = []
 var _stop_button = null
@@ -52,6 +55,7 @@ var _weapon_modes = null
 var _signature_panel = null
 var _direct_orders = null
 var _command_buttons = {}
+var _engineering_buttons = []
 var _return_cargo = null
 var _recover_health = null
 var _command_mouse_held = false
@@ -215,6 +219,9 @@ func _reset_menus():
 	for previous_unit in previous_selection:
 		if not is_instance_valid(previous_unit):
 			continue
+		for signal_name in ["hp_changed", "shields_changed"]:
+			if previous_unit.is_connected(signal_name, _refresh_health):
+				previous_unit.disconnect(signal_name, _refresh_health)
 		if previous_unit.tree_exited.is_connected(_queue_menu_reset):
 			previous_unit.tree_exited.disconnect(_queue_menu_reset)
 		if previous_unit is Structure and previous_unit.constructed.is_connected(_queue_menu_reset):
@@ -230,6 +237,7 @@ func _reset_menus():
 	_shields = null
 	_buttons.clear()
 	_command_buttons.clear()
+	_engineering_buttons.clear()
 	_return_cargo = null
 	_recover_health = null
 	_direct_orders = null
@@ -245,6 +253,9 @@ func _reset_menus():
 		func(unit):
 			return unit.is_in_group("controlled_units") and not unit.is_queued_for_deletion()
 	)
+	if _commander_open:
+		_build_commander()
+		return
 	if is_instance_valid(_research_player):
 		_build_research()
 		return
@@ -262,6 +273,9 @@ func _reset_menus():
 			self, "modulate:a", 1.0, .14
 		)
 	for selected_unit in _selection:
+		for signal_name in ["hp_changed", "shields_changed"]:
+			if not selected_unit.is_connected(signal_name, _refresh_health):
+				selected_unit.connect(signal_name, _refresh_health)
 		if not selected_unit.tree_exited.is_connected(_queue_menu_reset):
 			selected_unit.tree_exited.connect(_queue_menu_reset)
 		if (
@@ -362,6 +376,10 @@ func _reset_menus():
 	elif unit is Worker:
 		for unit_type in Catalog.STRUCTURES:
 			_add_roster_button(grid, unit_type, true)
+		if unit.player.faction == "bastion":
+			_add_engineering_button(grid, "field_barricade", "Field barricade", "Q", "plan", 10)
+		elif unit.player.faction == "frontier":
+			_add_engineering_button(grid, "scrap_mine", "Scrap mine", "W", "attack", 8)
 	var stop = Button.new()
 	_stop_button = stop
 	stop.theme_type_variation = "BattleQuietButton"
@@ -530,10 +548,18 @@ func _add_direct_buttons(unit):
 	if not is_instance_valid(hud):
 		return
 	_direct_orders = hud.get_node_or_null("DirectOrders")
-	if (
-		_direct_orders == null
-		or not _selection.any(func(member): return member.manual_orders != null)
-	):
+	if _direct_orders == null:
+		return
+	if not _selection.any(func(member): return member.manual_orders != null):
+		if _selection.any(
+			func(member):
+				return member.abilities != null and not member.abilities.abilities.is_empty()
+		):
+			_command_card = CommandCard.new()
+			_command_card.name = "CommandCard"
+			_command_card.abilities_only = true
+			_commands.add_child(_command_card)
+			_command_card.update_layout(_selection, _direct_orders)
 		return
 	var row = HBoxContainer.new()
 	row.add_theme_constant_override("separation", 5)
@@ -562,7 +588,7 @@ func _add_direct_buttons(unit):
 	# Service orders with their own feedback sit above the grid, which holds every other
 	# order once: Move, Attack target and Attack move there arm the direct orders.
 	row.add_child(_recover_health)
-	_command_card = preload("res://source/match/hud/CommandCard.gd").new()
+	_command_card = CommandCard.new()
 	_command_card.name = "CommandCard"
 	_command_card.stop_override = _stop_units
 	_commands.add_child(_command_card)
@@ -664,6 +690,10 @@ func _add_roster_button(grid, unit_type, construction):
 
 
 func _refresh_buttons():
+	if _commander_open:
+		if is_instance_valid(_commander_panel):
+			_commander_panel.refresh()
+		return
 	if is_instance_valid(_research_player):
 		if is_instance_valid(_research_panel):
 			_research_panel.refresh()
@@ -710,6 +740,7 @@ func _refresh_buttons():
 	# The grid resets its keys first; order keys then take their armed state and hints.
 	if is_instance_valid(_command_card):
 		_command_card.update_layout(_selection, _direct_orders)
+	_refresh_engineering_buttons()
 	if is_instance_valid(_direct_orders):
 		for kind in _command_buttons:
 			var button = _command_buttons[kind]
@@ -790,6 +821,41 @@ func _refresh_buttons():
 		# The title counts the selection and the roster counts damaged units.
 		lines.clear()
 	if _selection.size() == 1:
+		if unit.suppression != null and unit.suppression.band > 0:
+			lines.append(
+				(
+					tr("%s · %d/100")
+					% [
+						tr("Pinned" if unit.suppression.band == 2 else "Suppressed"),
+						roundi(unit.suppression.meter)
+					]
+				)
+			)
+		if unit.permanent_scrap_rank > 0:
+			lines.append(
+				(
+					tr("Scrap armor %d · −%d%% damage")
+					% [unit.permanent_scrap_rank, unit.permanent_scrap_rank * 5]
+				)
+			)
+		if unit.regarrison_lock_left > 0:
+			lines.append(tr("Re-garrison · %.1f s") % unit.regarrison_lock_left)
+		if unit._match.commander_support != null and unit._match.commander_support.emp.has(unit):
+			lines.append(tr("EMP · %.1f s") % unit._match.commander_support.emp[unit])
+		if unit.type == "PowerPlant" and unit.player.faction == "helix":
+			var support = unit._match.helix_support
+			if support.overdrive_status(unit) == "suspended":
+				lines.append(tr("Overdrive suspended · low power"))
+			elif support.operating(unit):
+				lines.append(tr("Overdrive · %d shields supported") % support.affected_count(unit))
+		var queue = unit.get_node_or_null("ProductionQueue")
+		if queue != null and queue.has_assembly_line() and queue.completed_streak > 0:
+			lines.append(
+				(
+					tr("Assembly streak · +%d%%")
+					% roundi(queue.next_assembly_bonus(queue.last_completed_role) * 100)
+				)
+			)
 		if "scrap_hardened_tiers" in unit and unit.scrap_hardened_tiers > 0:
 			lines.append(
 				(
@@ -827,9 +893,19 @@ func _refresh_buttons():
 				% [gathering, waiting, _selection.size() - gathering - waiting]
 			)
 		)
+	if _selection.size() > 1:
+		var affected = (
+			_selection
+			. filter(
+				func(member): return member.suppression != null and member.suppression.band > 0
+			)
+			. size()
+		)
+		if affected > 0:
+			lines.append(tr("Suppressed · %d units") % affected)
 	_status.text = "\n".join(lines.map(func(line): return tr(line)))
 	_status.tooltip_text = _status.text
-	_status.visible = not lines.is_empty() and _selection.size() == 1
+	_status.visible = not lines.is_empty()
 	_health.tooltip_text = tr(health)
 	var identity = _info.get_node_or_null("Identity")
 	if identity != null:
@@ -1023,6 +1099,18 @@ func _navigation_key(glyph, key, hint, callback):
 
 
 func handle_menu_input(event):
+	if event is InputEventKey and Bindings.pressed(event, "commander_support"):
+		var game = find_parent("Match")
+		var saves = get_node_or_null("/root/SaveManager")
+		if (
+			is_instance_valid(game.get("hud"))
+			and game.hud._overlay == null
+			and not is_instance_valid(Globals.settings_dialog)
+			and (saves == null or not is_instance_valid(saves.dialog))
+		):
+			open_commander()
+			get_viewport().set_input_as_handled()
+			return true
 	if (
 		not event is InputEventKey
 		or not event.pressed
@@ -1044,7 +1132,15 @@ func handle_menu_input(event):
 	if not is_instance_valid(player):
 		return false
 	var placement = player.get_node("StructurePlacementHandler")
-	if code == KEY_ESCAPE and placement._structure_placement_started():
+	if is_instance_valid(hud.direct_orders) and not hud.direct_orders.kind.is_empty():
+		return false
+	if _commander_open and code == KEY_ESCAPE:
+		close_commander()
+	elif _commander_open and code == KEY_Q:
+		hud.direct_orders.arm_commander()
+	elif _commander_open:
+		return false
+	elif code == KEY_ESCAPE and placement._structure_placement_started():
 		placement._cancel_structure_placement()
 	elif code == KEY_ESCAPE and is_instance_valid(_research_player):
 		close_research()
@@ -1052,6 +1148,9 @@ func handle_menu_input(event):
 		return false
 	elif code == KEY_ESCAPE and _pages.get_current_tab_control().name != _root_page:
 		open_page(_root_page)
+	elif _pages.get_current_tab_control().name == "Build" and code in [KEY_Q, KEY_W]:
+		if is_instance_valid(hud.direct_orders):
+			hud.direct_orders.activate_ability("field_barricade" if code == KEY_Q else "scrap_mine")
 	elif _pages.get_current_tab_control().name == "Build" and BUILD_KEYS.has(code):
 		for entry in _buttons:
 			if entry.construction and entry.type == BUILD_KEYS[code]:
@@ -1072,6 +1171,7 @@ func open_research(player):
 	if _research_player == player:
 		return
 	_camp = null
+	_commander_open = false
 	_research_player = player
 	_reset_menus()
 
@@ -1118,6 +1218,7 @@ func _page(title: String) -> VBoxContainer:
 
 
 func open_camp(site):
+	_commander_open = false
 	_camp = site
 	_reset_menus()
 
@@ -1199,3 +1300,85 @@ func _clear_camp():
 		_camp = null
 		_queue._reset()
 		_queue_menu_reset()
+
+
+func open_commander():
+	var game = find_parent("Match")
+	if game.commander_support == null or not is_instance_valid(game._get_human_player()):
+		return
+	game.hud.cancel_map_assignment()
+	game._get_human_player().get_node("StructurePlacementHandler")._cancel_structure_placement()
+	_commander_open = true
+	_research_player = null
+	_camp = null
+	_reset_menus()
+
+
+func close_commander():
+	_commander_open = false
+	_commander_panel = null
+	find_parent("Match").hud.direct_orders.cancel()
+	_reset_menus()
+	if is_instance_valid(_queue):
+		_queue._reset()
+
+
+func _build_commander():
+	visible = true
+	modulate.a = 1.0
+	_title = Label.new()
+	_title.text = tr("Commander support")
+	_build_info(BattleTheme.icon("attack"))
+	_title.show()
+	_health.hide()
+	_status.hide()
+	var back = Button.new()
+	back.icon = BattleTheme.icon("return")
+	back.add_theme_constant_override("icon_max_width", 18)
+	back.tooltip_text = tr("Back to battle") + " [Esc]"
+	back.accessibility_name = back.tooltip_text
+	back.pressed.connect(close_commander)
+	_info.add_child(back)
+	_commander_panel = load("res://source/match/hud/CommanderPanel.gd").new()
+	_commander_panel.game = find_parent("Match")
+	_content.add_child(_commander_panel)
+	_queue.hide()
+	_fit_menu.call_deferred()
+
+
+func _add_engineering_button(grid, id, title, key, glyph, cost):
+	var button = RosterButton.new()
+	button.compact_layout()
+	button.show_role(BattleTheme.icon(glyph), title, {"resource_a": cost, "resource_b": 0})
+	button.accessibility_name = tr(title) + " [B → %s]" % key
+	button.pressed.connect(func(): find_parent("Match").hud.direct_orders.arm_ability(id))
+	grid.add_child(button)
+	_engineering_buttons.append(
+		{"button": button, "id": id, "title": title, "key": key, "cost": cost}
+	)
+	_refresh_engineering_buttons()
+
+
+func _refresh_engineering_buttons():
+	for entry in _engineering_buttons:
+		var units = _selection.filter(
+			func(unit):
+				return (
+					is_instance_valid(unit)
+					and unit.abilities != null
+					and unit.abilities.get_ability(entry.id) != null
+				)
+		)
+		entry.button.disabled = not units.any(
+			func(unit): return unit.abilities.availability_issue(entry.id).is_empty()
+		)
+		entry.button.tooltip_text = tr(entry.title) + " [B → %s]\n%d M" % [entry.key, entry.cost]
+		if not units.is_empty():
+			entry.button.tooltip_text += (
+				"\n" + tr(units[0].abilities.get_ability(entry.id).description)
+			)
+			if entry.button.disabled:
+				entry.button.tooltip_text += (
+					"\n" + tr(units[0].abilities.availability_issue(entry.id))
+				)
+		entry.button.accessibility_description = entry.button.tooltip_text

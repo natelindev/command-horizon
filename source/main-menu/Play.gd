@@ -178,6 +178,7 @@ var _body_grid: GridContainer
 var _game_mode
 var _resources
 var _visibility
+var _events
 var _random_starts
 var _slots_grid
 var _slots = []
@@ -301,6 +302,8 @@ func _build_ui():
 	_visibility = _option(
 		grid, "Visibility", ["Team vision · fog of war", "All players · fog of war", "Reveal map"]
 	)
+	_label(grid, "Battlefield events", 14, ArtTheme.MUTED)
+	_events = _option(grid, "BattlefieldEvents", ["On", "Off"])
 	var slots_panel = _panel(right)
 	_label(slots_panel, "Player slots", 18).theme_type_variation = "HudHeading"
 	_random_starts = CheckButton.new()
@@ -437,6 +440,14 @@ func _update_summary():
 
 func _on_map_list_item_selected(index):
 	_preview.set_map(MAPS[index][0])
+	_events.disabled = not load("res://source/match/world/BattlefieldEvents.gd").supported(
+		MAPS[index][0]
+	)
+	_events.tooltip_text = (
+		tr("Automatic events with small optional rewards")
+		if not _events.disabled
+		else tr("No events on this battlefield")
+	)
 	_rebuild_slots(Constants.Match.MAPS[MAPS[index][0]].players)
 	_map_details.text = (
 		tr(MAPS[index][2])
@@ -557,11 +568,8 @@ func _sync_preview_slots():
 				"slot": slot_index,
 				"location": slot.location,
 				"name": tr("You") if slot_index == 0 else tr("AI %d") % slot_index,
-				"color": (
-					[Color("e2c180"), Color("dd8d81"), Color("88bad4"), Color("b5a1d4")][
-						slot_index % 4
-					]
-				)
+				"color":
+				[Color("e2c180"), Color("dd8d81"), Color("88bad4"), Color("b5a1d4")][slot_index % 4]
 			}
 		)
 	_preview.set_slot_assignments(assignments)
@@ -575,6 +583,7 @@ func _create_match_settings():
 	result.map_path = _get_selected_map_path()
 	result.match_seed = randi() & 0x7fffffff
 	result.visibility = _visibility.selected
+	result.battlefield_events = not _events.disabled and _events.selected == 0
 	result.starting_resources_multiplier = [1, 2, 4][_resources.selected]
 	var doctrine_keys = ["balanced", "kiting", "ironclad"]
 	result.tactical_doctrine = (
@@ -646,7 +655,8 @@ func _save_preferences():
 		["doctrine", _doctrine_selector],
 		["mode", _game_mode],
 		["resources", _resources],
-		["visibility", _visibility]
+		["visibility", _visibility],
+		["events", _events]
 	]:
 		if pair[1] == null:
 			continue
@@ -678,7 +688,8 @@ func _load_preferences():
 		["doctrine", _doctrine_selector, 0],
 		["mode", _game_mode, 0],
 		["resources", _resources, 0],
-		["visibility", _visibility, 0]
+		["visibility", _visibility, 0],
+		["events", _events, 0]
 	]:
 		if pair[1] == null:
 			continue

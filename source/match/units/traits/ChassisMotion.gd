@@ -38,6 +38,8 @@ var heave_velocity := 0.0
 var engine := 0.0
 # Long-idle weight from the owner: parked engines keep a faint idle shudder.
 var idle := 0.0
+var damage_band := 0
+var damage_faction := ""
 var clock := 0.0
 var max_speed := 4.0
 var length := 2.0
@@ -230,7 +232,7 @@ func impulse(push_local: Vector3, strength: float):
 
 
 func is_settled():
-	if _floating or _running() > 0.0:
+	if _floating or _running() > 0.0 or damage_band > 0:
 		return false
 	return (
 		absf(yaw_lag) <= REST
@@ -275,6 +277,14 @@ func offset_rotation(extra_pitch = 0.0):
 	elif kind == Kind.AIR:
 		nose += sin(clock * _drift.z * 1.3) * .02
 		bank += sin(clock * _drift.x * 1.9 + .4) * .03
+	if damage_faction == "helix" and damage_band == 2:
+		if kind == Kind.HOVER:
+			nose += sin(clock * 5.3) * .018
+			bank += sin(clock * 3.7 + .8) * .025
+		elif kind == Kind.WALKER:
+			bank += sin(clock * 19.0) * .003
+	elif damage_faction == "frontier" and damage_band > 0:
+		rumble += sin(clock * 43.0) * (.0015 if damage_band == 1 else .004)
 	return Vector3(nose + rumble, yaw_lag, bank + rumble * .6)
 
 
@@ -287,7 +297,18 @@ func offset_position():
 		return Vector3(0, lift, 0)
 	if kind == Kind.HOVER:
 		return Vector3(
-			0, lift + sin(clock * _drift.y * 2.1) * .03 + sin(clock * _drift.x * 3.3) * .008, 0
+			0,
+			(
+				lift
+				+ sin(clock * _drift.y * 2.1) * .03
+				+ sin(clock * _drift.x * 3.3) * .008
+				+ (
+					sin(clock * 4.7) * .025
+					if damage_band == 2 and damage_faction == "helix"
+					else 0.0
+				)
+			),
+			0
 		)
 	if kind == Kind.AIR:
 		var calm = 1.0 - clampf(absf(forward_speed) / max_speed, 0.0, 1.0) * .6

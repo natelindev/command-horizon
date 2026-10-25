@@ -223,6 +223,7 @@ def chassis(name, width=2.2,length=3.5,axles=3):
     box("Bumper",(0,length*.53,.74),(width*.94,.14,.18),STEEL)
     for side in (-1,1): lens(side*width*.3,length*.51,1.04,.19)
     vent(0,-length*.3,1.21,.8,.65)
+    pivot("DamageSocket", (0,-length*.3,1.26))
 
 
 def cage(x,y,z,w,l,h,parent=None):
@@ -292,6 +293,21 @@ def ranger():
     pivot("Muzzle",(.1,1.11,1.38)); antenna(.23,-.3,1.6)
 
 
+def scrap_armor(width, length):
+    # Independent rigid groups: two permanent ranks, revealed by gameplay state.
+    for rank in (1, 2):
+        group = pivot(f"ScrapRank{rank}", (0, 0, 1.16))
+        for side in (-1, 1):
+            y = -.45 if rank == 1 else .58
+            box(f"SalvagePlate{rank}", (side * width * .46, y, 1.19),
+                (.09, .76 if rank == 1 else .58, .38), PANEL if rank == 1 else STEEL,
+                group, .025, rot=(0, side * .13, side * .06))
+            for bolt_y in (y-.24, y+.24):
+                cyl("PlateBolt", (side * width * .49, bolt_y, 1.22), .035, .04, DARK, group, axis="X", vertices=6)
+        if rank == 2:
+            box("SalvageBow", (0, length * .44, 1.13), (width * .55, .1, .28), PANEL, group, .025)
+
+
 def armor(heavy=False):
     chassis("Ironback" if heavy else "Outrider",2.55 if heavy else 2.2,4 if heavy else 3.4,4 if heavy else 3)
     cyl("Bearing",(0,-.24,1.25),.65,.2,DARK,vertices=20)
@@ -307,6 +323,7 @@ def armor(heavy=False):
             box("TurretSlat",(side*.91,-.4,1.66),(.06,1.4,.5),STEEL,turret)
         cyl("SpareTire",(0,-2.04,1.2),.38,.21,RUBBER,axis="Y")
     antenna(-.58,-.8,1.96,turret)
+    scrap_armor(2.55 if heavy else 2.2, 4 if heavy else 3.4)
 
 
 def crawler(repair=False):
@@ -503,8 +520,11 @@ def sentry(aa=False):
         crate(-.9,-1.34,.51)
 
 
+damage_only = "--damage-only" in sys.argv
 motion_only = "--motion-only" in sys.argv
-if motion_only:
+if damage_only:
+    engineer(); armor(); crawler(True); crawler(); armor(True)
+elif motion_only:
     engineer(); armor(); crawler(); armor(True)
 else:
     engineer(); ranger(); armor(); crawler(True); crawler(); armor(True); scout(); aircraft()
@@ -552,7 +572,7 @@ for name,collection,asset_root in assets:
     manifest.append({"name":name,"triangles":triangles,"file":name+".glb"})
     collection.hide_render=True
 
-if motion_only or "--models-only" in sys.argv:
+if damage_only or motion_only or "--models-only" in sys.argv:
     print("Frontier motion rigs exported" if motion_only else "Material-ready faction models exported")
     raise SystemExit(0)
 

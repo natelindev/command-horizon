@@ -6,6 +6,8 @@ signal cue_started(kind, point)
 const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
 
 const MAX_PLAYERS = 24
+const MAX_DAMAGE_LOOPS = 4
+const DamageProfile = preload("res://source/match/units/traits/VehicleDamageProfile.gd")
 const CUES = [
 	"rifle_fire",
 	"autocannon_fire",
@@ -32,6 +34,12 @@ const LEVELS = {
 	"vehicle_destroy": -9.0,
 	"structure_destroy": -7.0,
 	"weapon_charge": -22.0,
+	"damage_diesel": -31.0,
+	"damage_plasma": -34.0,
+	"damage_steam": -32.0,
+	"damage_backfire": -29.0,
+	"commander_warning": -18.0,
+	"commander_emp": -15.0,
 }
 var played_count = 0
 var dropped_count = 0
@@ -46,6 +54,10 @@ var _camera
 var _human
 var _impact_focus_until = 0.0
 var _charge_stream
+var _damage_candidates := {}
+var _damage_streams := {}
+var _damage_refresh := 0.0
+var _backfire_next := {}
 
 
 func _ready():
@@ -57,6 +69,10 @@ func _ready():
 		_streams[cue] = [load("res://assets/audio/combat/%s.wav" % cue)]
 		for variant in [2, 3]:
 			_streams[cue].append(load("res://assets/audio/combat/%s_%d.wav" % [cue, variant]))
+	_streams["damage_backfire"] = _streams["impact_light"]
+	var warning = _make_warning_stream()
+	_streams["commander_warning"] = [warning, warning, warning]
+	_streams["commander_emp"] = _streams["energy_fire"]
 	Globals.options.changed.connect(_options_changed)
 
 
@@ -128,6 +144,8 @@ func update_charge(unit):
 		voice.active = true
 		voice.unit = weakref(unit)
 		voice.kind = "weapon_charge"
+		voice.point_only = false
+		voice.public_point = false
 		voice.priority = 0
 		voice.started = _clock
 		voice.left = INF
@@ -191,6 +209,170 @@ static func heavy_impact(source, weapon = {}):
 	)
 
 
+func point_observed(point: Vector3, _owner = null) -> bool:
+	if _game.settings.visibility == _game.settings.Visibility.FULL:
+		return true
+	if not is_instance_valid(_human):
+		_human = _game._get_human_player()
+	if _human == null:
+		return false
+	for observer in _game.battlefield.nearby_units(point, 40.0):
+		if (
+			_human.is_allied_with(observer.player)
+			and _game.battlefield.can_observe_point(observer, point)
+		):
+			return true
+	return false
+
+
+func point_impact(point: Vector3, owner = null) -> bool:
+	if not point_observed(point, owner):
+		return false
+	# The player remains a valid lifecycle anchor when the throwing unit has died.
+	return _play("impact_heavy", _game, point, 2, 1.0, true)
+
+
+func commander_warning(kind: String, point: Vector3) -> bool:
+	return _play(
+		"commander_warning", _game, point, 3, .85 if kind == "bastion" else 1.0, true, true
+	)
+
+
+func commander_emp(point: Vector3) -> bool:
+	return _play("commander_emp", _game, point, 3, .65, true, true)
+
+
+static func _make_warning_stream() -> AudioStreamWAV:
+	var rate = 22050
+	var pcm = PackedByteArray()
+	pcm.resize(int(rate * .6) * 2)
+	for index in int(rate * .6):
+		var t = float(index) / rate
+		var local = fmod(t, .3)
+		var envelope = sin(PI * clampf(local / .22, 0.0, 1.0))
+		var frequency = 740.0 if t < .3 else 980.0
+		pcm.encode_s16(index * 2, roundi(sin(TAU * frequency * t) * envelope * 13000))
+	var stream = AudioStreamWAV.new()
+	stream.format = AudioStreamWAV.FORMAT_16_BITS
+	stream.mix_rate = rate
+	stream.data = pcm
+	return stream
+
+
+func update_damage(unit, band: int):
+	var id = unit.get_instance_id()
+	if band <= 0 or unit.hp <= 0 or not _audible(unit, unit.global_position):
+		_damage_candidates.erase(id)
+		return
+	_damage_candidates[id] = {"unit": weakref(unit), "band": band, "expires": _clock + 1.0}
+
+
+func _refresh_damage_loops():
+	var candidates := []
+	for id in _damage_candidates.keys():
+		var entry = _damage_candidates[id]
+		var unit = entry.unit.get_ref()
+		if (
+			not is_instance_valid(unit)
+			or unit.is_queued_for_deletion()
+			or unit.hp <= 0
+			or entry.expires < _clock
+			or not _audible(unit, unit.global_position)
+		):
+			_damage_candidates.erase(id)
+			_backfire_next.erase(id)
+			continue
+		candidates.append(unit)
+	candidates.sort_custom(
+		func(a, b):
+			var selected_a = a.is_in_group("selected_units")
+			var selected_b = b.is_in_group("selected_units")
+			if selected_a != selected_b:
+				return selected_a
+			return (
+				a.global_position.distance_squared_to(_camera.global_position)
+				< b.global_position.distance_squared_to(_camera.global_position)
+			)
+	)
+	candidates.resize(mini(MAX_DAMAGE_LOOPS, candidates.size()))
+	for voice in _players:
+		if voice.active and voice.kind.begins_with("damage_") and voice.kind != "damage_backfire":
+			if voice.unit.get_ref() not in candidates:
+				voice.node.stop()
+				voice.active = false
+	for unit in candidates:
+		var voice = null
+		for existing in _players:
+			if (
+				existing.active
+				and existing.kind.begins_with("damage_")
+				and existing.kind != "damage_backfire"
+				and existing.unit.get_ref() == unit
+			):
+				voice = existing
+				break
+		if voice == null:
+			voice = _take_player(0)
+			if voice == null:
+				continue
+			var cue = DamageProfile.profile(unit.player.faction).cue
+			if not _damage_streams.has(cue):
+				_damage_streams[cue] = _make_damage_stream(unit.player.faction)
+			voice.node.stop()
+			voice.active = true
+			voice.unit = weakref(unit)
+			voice.kind = cue
+			voice.priority = 0
+			voice.started = _clock
+			voice.left = INF
+			voice.point_only = false
+			voice.public_point = false
+			voice.node.pitch_scale = 1.0
+			voice.node.stream = _damage_streams[cue]
+			voice.point = unit.global_position
+			_position(voice)
+			voice.node.stream_paused = false
+			voice.node.play()
+			played_count += 1
+			cue_started.emit(cue, voice.point)
+		voice.point = unit.global_position
+		var id = unit.get_instance_id()
+		if (
+			unit.player.faction == "frontier"
+			and _damage_candidates[id].band == 2
+			and _clock >= _backfire_next.get(id, 0.0)
+		):
+			_backfire_next[id] = _clock + 4.0
+			_play("damage_backfire", unit, unit.global_position, 0, .65)
+
+
+static func _make_damage_stream(faction: String) -> AudioStreamWAV:
+	var rate = 22050
+	var pcm = PackedByteArray()
+	pcm.resize(rate * 2)
+	for index in rate:
+		var t = float(index) / rate
+		var value = 0.0
+		match faction:
+			"helix":
+				value = sin(TAU * 180 * t + sin(TAU * 7 * t) * 1.2) * .3 + sin(TAU * 720 * t) * .08
+			"frontier":
+				value = (sin(TAU * 1673 * t) + sin(TAU * 2371 * t) + sin(TAU * 3229 * t)) * .1
+				value *= .5 + .5 * sin(TAU * 3 * t)
+				value += sin(TAU * 83 * t) * sin(TAU * 17 * t) * .12
+			_:
+				value = sin(TAU * 53 * t) * .25 + sin(TAU * 107 * t) * .15
+				value *= .7 + .3 * sin(TAU * 13 * t)
+		pcm.encode_s16(index * 2, roundi(value * 24000))
+	var stream = AudioStreamWAV.new()
+	stream.format = AudioStreamWAV.FORMAT_16_BITS
+	stream.mix_rate = rate
+	stream.data = pcm
+	stream.loop_mode = AudioStreamWAV.LOOP_FORWARD
+	stream.loop_end = rate
+	return stream
+
+
 func impact(unit, source, point, weapon = {}):
 	var heavy = heavy_impact(source, weapon)
 	return _play("impact_heavy" if heavy else "impact_light", unit, point, 2 if heavy else 1)
@@ -222,7 +404,7 @@ func _observed(unit):
 	return _human != null and _game.battlefield.is_observed(_human, unit)
 
 
-func _audible(unit, point):
+func _audible(unit, point, point_only := false, public_point := false):
 	if (
 		_game.restoring
 		or _game.is_queued_for_deletion()
@@ -231,15 +413,18 @@ func _audible(unit, point):
 		or Globals.options.effects_volume == 0
 		or Globals.options.master_volume == 0
 		or not is_instance_valid(unit)
-		or not _observed(unit)
-		or _camera.is_position_behind(point)
+		or (not public_point and (not point_observed(point) if point_only else not _observed(unit)))
+		or (not public_point and _camera.is_position_behind(point))
 	):
 		return false
-	return get_viewport().get_visible_rect().grow(96).has_point(_camera.unproject_position(point))
+	return (
+		public_point
+		or get_viewport().get_visible_rect().grow(96).has_point(_camera.unproject_position(point))
+	)
 
 
-func _play(kind, unit, point, priority, pitch = 1.0):
-	if not _audible(unit, point):
+func _play(kind, unit, point, priority, pitch = 1.0, point_only := false, public_point := false):
+	if not _audible(unit, point, point_only, public_point):
 		return false
 	# Merge rapid identical events in one six-metre battle area; opposite sides
 	# still retain separate stereo cues. Destruction has a shorter merge window.
@@ -261,6 +446,8 @@ func _play(kind, unit, point, priority, pitch = 1.0):
 	entry.kind = kind
 	entry.priority = priority
 	entry.started = _clock
+	entry.point_only = point_only
+	entry.public_point = public_point
 	entry.node.stop()
 	var variants = _streams[kind]
 	var choice = (
@@ -324,6 +511,10 @@ func _process(delta):
 		return
 	var elapsed = delta / maxf(Engine.time_scale, 0.001)
 	_clock += elapsed
+	_damage_refresh -= elapsed
+	if _damage_refresh <= 0.0:
+		_damage_refresh = .25
+		_refresh_damage_loops()
 	for key in _recent.keys():
 		if _recent[key] <= _clock:
 			_recent.erase(key)
@@ -331,6 +522,19 @@ func _process(delta):
 		if not entry.active:
 			continue
 		var unit = entry.unit.get_ref()
+		var damage_loop = entry.kind.begins_with("damage_") and entry.kind != "damage_backfire"
+		if damage_loop:
+			if (
+				not is_instance_valid(unit)
+				or unit.is_queued_for_deletion()
+				or unit.hp <= 0
+				or unit.damage_visual_band == 0
+				or not _audible(unit, unit.global_position)
+			):
+				entry.node.stop()
+				entry.active = false
+				continue
+			entry.point = unit.global_position
 		if entry.kind == "weapon_charge":
 			if not is_instance_valid(unit) or unit.is_queued_for_deletion():
 				entry.node.stop()
@@ -345,7 +549,12 @@ func _process(delta):
 			or (
 				is_instance_valid(unit)
 				and not unit.is_queued_for_deletion()
-				and not _observed(unit)
+				and not entry.get("public_point", false)
+				and (
+					not point_observed(entry.point)
+					if entry.get("point_only", false)
+					else not _observed(unit)
+				)
 			)
 		):
 			entry.node.stop()
@@ -357,6 +566,11 @@ func _process(delta):
 func _position(entry):
 	var viewport = get_viewport().get_visible_rect()
 	entry.node.position = _camera.unproject_position(entry.point)
+	if entry.get("public_point", false):
+		entry.node.position = (
+			viewport.get_center()
+			+ Vector2(clampf(entry.node.position.x - viewport.get_center().x, -160, 160), 0)
+		)
 	entry.node.max_distance = viewport.size.length() * 0.9
 	if not is_instance_valid(_human):
 		_human = _game._get_human_player()
@@ -393,4 +607,7 @@ func _exit_tree():
 	_players.clear()
 	_streams.clear()
 	_charge_stream = null
+	_damage_candidates.clear()
+	_damage_streams.clear()
+	_backfire_next.clear()
 	_recent.clear()

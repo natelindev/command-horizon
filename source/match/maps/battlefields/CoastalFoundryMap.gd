@@ -18,6 +18,15 @@ const CRANE_LEGS = [
 ]
 const QUAY_SHED = [[Vector2(-20, -8), Vector2(20, -8), Vector2(20, 8), Vector2(-20, 8)]]
 const DEFINITION = {
+	"events":
+	[
+		{
+			"kind": "coastal",
+			"position": Vector2(146, 58),
+			"candidates": [Vector2(144, 59), Vector2(148, 57), Vector2(145, 54)],
+			"route": [Vector2(154, 68), Vector2(150, 62), Vector2(146, 58)]
+		}
+	],
 	"id": "CoastalFoundryMap",
 	"name": "Coastal Foundry",
 	"revision": 1,

@@ -9,6 +9,7 @@ const Harvest = preload("res://source/match/units/actions/CollectingResourcesSeq
 const Repairs = preload("res://source/match/combat/RepairService.gd")
 const Recover = preload("res://source/match/units/actions/RecoveringAtService.gd")
 const Behavior = preload("res://source/match/orders/UnitBehavior.gd")
+const RangeRing = preload("res://source/match/effects/TacticalRangeRing.gd")
 const COMMANDS = {
 	"force_attack":
 	{
@@ -51,6 +52,7 @@ const COMMANDS = {
 
 var kind = ""
 var ability_id = ""
+var engineering_angle = 0.0
 var _ability_range = null
 var _ability_selection = []
 var _release_button = 0
@@ -113,7 +115,7 @@ func activate_ability(id: String) -> bool:
 		)
 		hud.show_notice("%s · %d units" % [tr(ability.name), accepted])
 	else:
-		hud.show_notice("Ability is cooling down.")
+		hud.show_notice(units[0].abilities.availability_issue(id))
 	return accepted > 0
 
 
@@ -123,11 +125,18 @@ func arm_ability(id: String) -> bool:
 	if kind == "ability" and ability_id == id:
 		cancel()
 		return true
-	var units = ability_units(id).filter(
-		func(unit): return unit.abilities.get_ability(id).is_ready()
+	var candidates = ability_units(id)
+	var units = candidates.filter(
+		func(unit): return unit.abilities.availability_issue(id).is_empty()
 	)
 	if units.is_empty():
-		hud.show_notice("No selected unit has that ability ready.")
+		hud.show_notice(
+			(
+				candidates[0].abilities.availability_issue(id)
+				if not candidates.is_empty()
+				else "No selected unit has that ability ready."
+			)
+		)
 		return false
 	var ability = units[0].abilities.get_ability(id)
 	if ability.target_type not in ["target_point", "target_unit"]:
@@ -142,8 +151,12 @@ func arm_ability(id: String) -> bool:
 	)
 	kind = "ability"
 	ability_id = id
+	engineering_angle = 0.0
 	_ability_selection = get_tree().get_nodes_in_group("selected_units")
-	_ability_range = load("res://source/match/effects/TacticalRangeRing.gd").create(ability.range)
+	_ability_range = RangeRing.create(minf(ability.range, 12.0))
+	if id == "field_barricade":
+		_ability_range.free()
+		_ability_range = load("res://source/match/hud/EngineeringPreview.gd").new()
 	if _ability_range != null:
 		hud.get_parent().add_child(_ability_range)
 		_ability_range.global_position = units[0].global_position + Vector3.UP * .08
@@ -153,7 +166,37 @@ func arm_ability(id: String) -> bool:
 	return true
 
 
+func arm_commander() -> bool:
+	if _blocked():
+		return false
+	var game = hud.get_parent()
+	var issue = game.commander_support.disabled_reason(game._get_human_player())
+	if not issue.is_empty():
+		hud.show_notice(issue)
+		return false
+	hud.cancel_map_assignment()
+	game._get_human_player().get_node("StructurePlacementHandler")._cancel_structure_placement()
+	kind = "commander"
+	_ability_range = RangeRing.create(
+		game.commander_support.RADII[game.commander_support.power_for(game._get_human_player())]
+	)
+	game.add_child(_ability_range)
+	set_process(true)
+	prompt()
+	return true
+
+
 func _process(_delta):
+	if kind == "commander":
+		if _blocked():
+			cancel()
+			return
+		var point = get_viewport().get_camera_3d().get_ray_intersection(
+			get_viewport().get_mouse_position()
+		)
+		if point is Vector3 and point.is_finite() and is_instance_valid(_ability_range):
+			_ability_range.position = point + Vector3.UP * .08
+		return
 	if kind != "ability":
 		return
 	var units = ability_units(ability_id).filter(
@@ -166,7 +209,10 @@ func _process(_delta):
 	):
 		cancel()
 	elif is_instance_valid(_ability_range):
-		_ability_range.global_position = units[0].global_position + Vector3.UP * .08
+		if _ability_range.has_method("update_placement"):
+			_ability_range.update_placement(units[0], engineering_angle)
+		else:
+			_ability_range.global_position = units[0].global_position + Vector3.UP * .08
 
 
 func _commit_ability(point, target) -> bool:
@@ -208,8 +254,34 @@ func _commit_ability(point, target) -> bool:
 	):
 		prompt("Choose a point inside the battlefield.")
 		return false
-	if not unit.abilities.trigger(ability_id, point, target):
-		prompt("Choose a legal target within %.1f m." % ability.range)
+	var accepted = false
+	if ability_id == "dismantle_barrier":
+		accepted = hud.get_parent().engineering.request_dismantle(
+			unit, target, Bindings.held("shift_selecting")
+		)
+	elif ability_id in ["field_barricade", "scrap_mine", "sweep_mines"]:
+		var operation = {
+			"field_barricade": "barricade", "scrap_mine": "mine", "sweep_mines": "sweep"
+		}[ability_id]
+		accepted = hud.get_parent().engineering.request(
+			unit, operation, point, engineering_angle, Bindings.held("shift_selecting")
+		)
+	else:
+		accepted = unit.abilities.trigger(ability_id, point, target)
+	if not accepted:
+		if ability_id == "dismantle_barrier":
+			prompt("Choose one of your field barricades.")
+		elif ability_id in ["field_barricade", "scrap_mine"]:
+			prompt(
+				hud.get_parent().engineering.placement_error(
+					unit,
+					"barricade" if ability_id == "field_barricade" else "mine",
+					point,
+					engineering_angle
+				)
+			)
+		else:
+			prompt(tr("Choose a legal target within %.1f m.") % ability.range)
 		return false
 	var title = ability.name
 	cancel()
@@ -231,7 +303,10 @@ func eligible(command):
 	)
 	if command in ["move", "guard", "follow", "patrol"]:
 		return mobile
-	var armed = mobile.filter(func(unit): return unit.attack_range != null)
+	var armed = mobile.filter(
+		func(unit):
+			return unit.attack_range != null and (not unit.has_method("armed") or unit.armed())
+	)
 	# A mixed army advances its selected scouts, engineers and repair support
 	# along with the combatants. Unarmed-only selections retain ordinary Move.
 	return mobile if command == "attack_move" and not armed.is_empty() else armed
@@ -418,6 +493,7 @@ func cancel():
 	_ability_selection.clear()
 	if is_instance_valid(_ability_range):
 		_ability_range.hide()
+		_ability_range.get_parent().remove_child(_ability_range)
 		_ability_range.queue_free()
 	_ability_range = null
 	set_process(false)
@@ -433,6 +509,12 @@ func prompt(message = ""):
 	hud._hint_left = 0.0
 	hud._notice_slot.scroll_vertical = 0
 	hud._assignment_hint.show()
+	if kind == "commander":
+		hud._assignment_hint.text = (
+			(tr("Commander support: choose a target.") if message.is_empty() else tr(message))
+			+ " [Esc]"
+		)
+		return
 	if kind == "ability":
 		var units = ability_units(ability_id)
 		var title = (
@@ -444,6 +526,10 @@ func prompt(message = ""):
 			(title + ": " + tr("choose a target in range.") if message.is_empty() else tr(message))
 			+ " %s / right-click cancels." % Bindings.label("toggle_match_menu")
 		)
+		if ability_id == "field_barricade":
+			hud._assignment_hint.text += (
+				" " + tr("Rotate") + " [%s]" % Bindings.label("rotate_structure")
+			)
 		return
 	hud._assignment_hint.text = (
 		(
@@ -476,6 +562,15 @@ func handle_input(event):
 			return false
 		if not kind.is_empty() and Bindings.pressed(event, "toggle_match_menu"):
 			cancel()
+			get_viewport().set_input_as_handled()
+			return true
+		if (
+			kind == "ability"
+			and ability_id == "field_barricade"
+			and Bindings.pressed(event, "rotate_structure")
+		):
+			engineering_angle = fmod(engineering_angle + PI / 4.0, TAU)
+			prompt(tr("Barricade angle · %d°") % roundi(rad_to_deg(engineering_angle)))
 			get_viewport().set_input_as_handled()
 			return true
 		if (
@@ -532,6 +627,17 @@ func commit(point, target, append):
 		return false
 	if kind == "ability":
 		return _commit_ability(point, target)
+	if kind == "commander":
+		var game = hud.get_parent()
+		var player = game._get_human_player()
+		if not game.commander_support.activate(player, point):
+			var issue = game.commander_support.disabled_reason(player)
+			if issue.is_empty():
+				issue = game.commander_support.target_error(player, point)
+			prompt(issue if not issue.is_empty() else "Resume the battle to use abilities.")
+			return false
+		cancel()
+		return true
 	if kind == "attack" and target == null:
 		kind = "attack_move"
 	var units = eligible(kind)
@@ -570,8 +676,11 @@ func commit(point, target, append):
 			prompt("Choose a visible enemy or neutral target.")
 			return false
 		for unit in units:
-			if Rules.can_target(unit, target, kind == "force_attack"):
-				orders.append([unit, Orders.target_order(kind, target)])
+			var forced = kind == "force_attack" or target.is_in_group("field_mines")
+			if Rules.can_target(unit, target, forced):
+				orders.append(
+					[unit, Orders.target_order("force_attack" if forced else kind, target)]
+				)
 		if orders.is_empty():
 			prompt("Selected weapons cannot attack that target.")
 			return false

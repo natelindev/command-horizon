@@ -29,6 +29,15 @@ const HEADFRAME = [
 	[Vector2(-16, -4.5), Vector2(-9, -4.5), Vector2(-9, 4.5), Vector2(-16, 4.5)],
 ]
 const DEFINITION = {
+	"events":
+	[
+		{
+			"kind": "industrial",
+			"position": Vector2(85, 46),
+			"candidates": [Vector2(86, 43), Vector2(85, 49), Vector2(86, 51)],
+			"route": [Vector2(86, 18), Vector2(86, 47)]
+		}
+	],
 	"id": "EmberworksMap",
 	"name": "Emberworks",
 	"revision": 1,
@@ -153,6 +162,8 @@ const DEFINITION = {
 	],
 	"rails":
 	[
+		# Dedicated delivery siding avoids the parked locomotives and ladle car.
+		{"line": [Vector2(86, 12), Vector2(86, 48)]},
 		{"line": [Vector2(4, 46), Vector2(36, 45), Vector2(48, 47), Vector2(54, 52)]},
 		{"line": [Vector2(48, 47), Vector2(60, 40), Vector2(88, 40)]},
 	],

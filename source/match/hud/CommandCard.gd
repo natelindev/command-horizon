@@ -19,6 +19,12 @@ const GLYPHS = {
 	"Reverse": "reverse",
 }
 const ABILITY_GLYPHS = {
+	"field_barricade": "plan",
+	"scrap_mine": "attack",
+	"sweep_mines": "recover",
+	"dismantle_barrier": "stop",
+	"power_overdrive": "tech",
+	"drone_chaff": "hide",
 	"frag_grenade": "attack",
 	"combat_sprint": "move",
 	"smoke_screen": "hide",
@@ -28,6 +34,7 @@ const ABILITY_GLYPHS = {
 
 ## The command deck routes Stop through its own handler (order feedback, rally, refunds).
 var stop_override = Callable()
+var abilities_only = false
 var _slots = []
 var _selection = []
 var _direct_orders = null
@@ -45,7 +52,7 @@ func _ready():
 		for c in range(4):
 			var btn = HudKey.new()
 			btn.name = "Slot_%s" % GRID_LABELS[r][c]
-			btn.custom_minimum_size = Vector2(62, 40)
+			btn.custom_minimum_size = Vector2(62, 52 if abilities_only else 40)
 			btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			add_child(btn)
 			row_slots.append(btn)
@@ -64,6 +71,13 @@ func update_layout(selected_units: Array, direct_orders = null):
 	_direct_orders = direct_orders
 	_clear_slots()
 	if _selection.is_empty():
+		return
+	if abilities_only:
+		_setup_abilities()
+		for row in _slots:
+			for button in row:
+				button.visible = button.modulate.a > 0.0
+		size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 		return
 
 	# Ordinary orders show the player's configured keys.
@@ -209,6 +223,7 @@ func _setup_abilities():
 func _refresh_abilities():
 	for slot in _ability_slots:
 		var abilities = []
+		var issues = []
 		for unit in _selection:
 			if (
 				is_instance_valid(unit)
@@ -219,11 +234,17 @@ func _refresh_abilities():
 				var ability = unit.abilities.get_ability(slot.id)
 				if ability != null and unit.abilities.unit_available():
 					abilities.append(ability)
-		var ready = abilities.any(func(ability): return ability.is_ready())
+					issues.append(unit.abilities.availability_issue(slot.id))
+		var ready = issues.any(func(issue): return issue.is_empty())
 		var active = abilities.any(func(ability): return ability.is_active)
 		var remaining = INF
 		for ability in abilities:
 			remaining = minf(remaining, ability.cooldown_left)
+		if slot.id == "field_barricade":
+			remaining = INF
+			for unit in _selection:
+				if unit.type == "Worker" and unit.player.faction == "bastion":
+					remaining = minf(remaining, unit._match.engineering.cooldown_left(unit))
 		slot.button.disabled = not ready
 		slot.cooldown.visible = not ready and is_finite(remaining) and remaining > 0.0
 		slot.cooldown.text = "%.1fs" % remaining if is_finite(remaining) else ""
@@ -240,7 +261,7 @@ func _refresh_abilities():
 			continue
 		var ability = abilities[0]
 		slot.button.tooltip_text = (
-			"%s [%s]\n%s\nRange: %.1f m · Radius: %.1f m · Cooldown: %.1f s"
+			tr("%s [%s]\n%s\nRange: %.1f m · Radius: %.1f m · Cooldown: %.1f s")
 			% [
 				tr(ability.name),
 				ability.key,
@@ -251,7 +272,21 @@ func _refresh_abilities():
 			]
 		)
 		if active:
-			slot.button.tooltip_text += "\n" + tr("Active")
+			var status = tr("Active")
+			if slot.id == "power_overdrive":
+				for member in _selection:
+					if member._match.helix_support.overdrive_status(member) == "suspended":
+						status = tr("Suspended: low power")
+						break
+			slot.button.tooltip_text += "\n" + status
+		if ability.range > 1000:
+			slot.button.tooltip_text = (
+				"%s [%s]\n%s" % [tr(ability.name), ability.key, tr(ability.description)]
+			)
+		if slot.id == "field_barricade" and remaining > 0 and is_finite(remaining):
+			slot.button.tooltip_text += "\n" + tr("Deployment cooldown · %.1f s") % remaining
+		if not ready and not issues.is_empty():
+			slot.button.tooltip_text += "\n" + tr(issues[0])
 		slot.button.accessibility_name = tr(ability.name) + " [" + ability.key + "]"
 		slot.button.accessibility_description = slot.button.tooltip_text
 

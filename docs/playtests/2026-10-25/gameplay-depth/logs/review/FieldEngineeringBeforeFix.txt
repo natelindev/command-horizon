@@ -1,0 +1,13 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Healthy barricade right-click issued a destructive order
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/FieldEngineeringRegression.gd:47)
+       [1] _frames (res://tests/headless/CombatRegression.gd:495)
+ERROR: Healthy owned barricade was destroyed by right-click after two seconds
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/FieldEngineeringRegression.gd:47)
+       [1] _frames (res://tests/headless/CombatRegression.gd:495)
+Field engineering: 2 failures

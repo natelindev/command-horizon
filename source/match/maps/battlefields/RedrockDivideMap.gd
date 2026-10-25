@@ -10,6 +10,15 @@ extends RefCounted
 # overlooks every crossing. Authored for the south-west start; the north-east
 # start receives the 180-degree rotation.
 const DEFINITION = {
+	"events":
+	[
+		{
+			"kind": "desert",
+			"position": Vector2(80, 80),
+			"candidates": [Vector2(78, 78), Vector2(83, 83), Vector2(80, 86)],
+			"route": [Vector2(0, 79), Vector2(80, 80), Vector2(192, 81)]
+		}
+	],
 	"id": "RedrockDivideMap",
 	"name": "Redrock Divide",
 	"revision": 1,

@@ -7,6 +7,8 @@ const Factions = preload("res://source/match/FactionCatalog.gd")
 
 const Departure = preload("res://source/match/effects/ProductionDeparture.gd")
 const BastionCatalog = preload("res://source/match/BastionCatalog.gd")
+const STREAK_GRACE = 5.0
+const STREAK_STEP = .08
 
 
 class ProductionQueueElement:
@@ -15,6 +17,8 @@ class ProductionQueueElement:
 	var time_total = null
 	var paid_cost = {}
 	var departure_endpoint = null
+	var assembly_started := false
+	var assembly_bonus := 0.0
 	var time_left = null:
 		set(value):
 			time_left = value
@@ -26,6 +30,9 @@ class ProductionQueueElement:
 
 var departure = null
 var exit_blocked = false
+var last_completed_role := ""
+var completed_streak := 0
+var idle_grace_left := 0.0
 var _queue = []
 
 @onready var _unit = get_parent()
@@ -36,13 +43,17 @@ func _ready():
 
 
 func _process(delta):
-	if _queue.is_empty() or not _unit.is_constructed():
+	if _queue.is_empty():
+		_advance_idle(delta)
+		return
+	if not _unit.is_constructed():
 		return
 	delta *= _unit.player.production_factor()
 	while _queue.size() > 0 and delta > 0.0:
 		var element = _queue.front()
 		if not blocked_reason(false).is_empty():
 			return
+		_start_assembly(element)
 		if BastionCatalog.is_fixed_wing(
 			BastionCatalog.type_from_path(element.unit_prototype.resource_path)
 		):
@@ -58,9 +69,10 @@ func _process(delta):
 		# The exit animation consumes the final part of the paid production time.
 		var departure_seconds = Departure.seconds(element)
 		if element.time_left > departure_seconds:
-			var assembly = minf(delta, element.time_left - departure_seconds)
+			var rate = 1.0 + element.assembly_bonus
+			var assembly = minf(delta * rate, element.time_left - departure_seconds)
 			element.time_left -= assembly
-			delta -= assembly
+			delta -= assembly / rate
 			if delta <= 0:
 				return
 		if not is_instance_valid(departure):
@@ -82,6 +94,70 @@ func _process(delta):
 			_remove_element(element)
 			_finalize_production(element, launch)
 			launch.queue_free()
+	if _queue.is_empty() and delta > 0.0:
+		_advance_idle(delta / maxf(.001, _unit.player.production_factor()))
+
+
+func has_assembly_line() -> bool:
+	return _unit.player.faction == "bastion" and _unit.type in ["Barracks", "VehicleFactory"]
+
+
+func next_assembly_bonus(role: String) -> float:
+	if not has_assembly_line() or role == "Hero" or role != last_completed_role:
+		return 0.0
+	return mini(completed_streak, 3) * STREAK_STEP
+
+
+func _start_assembly(element):
+	if element.assembly_started:
+		return
+	element.assembly_started = true
+	var role = BastionCatalog.type_from_path(element.unit_prototype.resource_path)
+	element.assembly_bonus = next_assembly_bonus(role)
+	if has_assembly_line() and role != last_completed_role:
+		_reset_streak()
+	idle_grace_left = 0.0
+
+
+func _completed(element):
+	if not has_assembly_line():
+		return
+	var role = BastionCatalog.type_from_path(element.unit_prototype.resource_path)
+	if role == "Hero":
+		_reset_streak()
+		return
+	completed_streak = mini(3, completed_streak + 1) if role == last_completed_role else 1
+	last_completed_role = role
+	idle_grace_left = STREAK_GRACE if _queue.is_empty() else 0.0
+	set_process(true)
+
+
+func _advance_idle(delta: float):
+	idle_grace_left = maxf(0.0, idle_grace_left - delta)
+	if idle_grace_left <= 0.0:
+		_reset_streak()
+		set_process(not _queue.is_empty())
+
+
+func _reset_streak():
+	last_completed_role = ""
+	completed_streak = 0
+	idle_grace_left = 0.0
+
+
+func capture_assembly_state() -> Dictionary:
+	return {
+		"last_completed_role": last_completed_role,
+		"completed_streak": completed_streak,
+		"idle_grace_left": idle_grace_left,
+	}
+
+
+func restore_assembly_state(state: Dictionary):
+	last_completed_role = state.get("last_completed_role", "")
+	completed_streak = state.get("completed_streak", 0)
+	idle_grace_left = state.get("idle_grace_left", 0.0)
+	set_process(not _queue.is_empty() or idle_grace_left > 0.0)
 
 
 func restore_departure():
@@ -172,6 +248,8 @@ func cancel_all():
 func cancel(element):
 	if not element in _queue:
 		return
+	if element == _queue.front():
+		_reset_streak()
 	var production_cost = element.paid_cost
 	_unit.player.add_resources(production_cost)
 	_remove_element(element)
@@ -179,6 +257,7 @@ func cancel(element):
 
 func _enqueue_element(element):
 	_queue.push_back(element)
+	idle_grace_left = 0.0
 	set_process(true)
 	element_enqueued.emit(element)
 
@@ -189,11 +268,12 @@ func _remove_element(element):
 		departure = null
 		exit_blocked = false
 	_queue.erase(element)
-	set_process(not _queue.is_empty())
+	set_process(not _queue.is_empty() or idle_grace_left > 0.0)
 	element_removed.emit(element)
 
 
 func _finalize_parked(former_queue_element):
+	_completed(former_queue_element)
 	var index = _unit.first_free_stand()
 	var produced_unit = former_queue_element.unit_prototype.instantiate()
 	# The new aircraft claims this stand as it settles (FixedWingFlight).
@@ -206,6 +286,7 @@ func _finalize_parked(former_queue_element):
 
 
 func _finalize_production(former_queue_element, launch):
+	_completed(former_queue_element)
 	var produced_unit = former_queue_element.unit_prototype.instantiate()
 	var placement = launch.global_transform
 	MatchSignals.setup_and_spawn_unit.emit(produced_unit, placement, _unit.player)

@@ -23,12 +23,12 @@ func _ready():
 	deployment_position = global_position
 	if weapon_charge_progress < 0:
 		get_node("WeaponPreparationVisual").refresh()
-	if player.faction != "helix":
-		set_physics_process(false)
 
 
 func _physics_process(delta):
 	super(delta)
+	if player.faction != "helix":
+		return
 	var movement = get_node("Movement")
 	if (
 		movement._has_destination

@@ -1,0 +1,51 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Barrage shell 1 missed the HQ footprint
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/CommanderCallInsRegression.gd:235)
+       [1] _close (res://tests/headless/UnitAnimationRegression.gd:128)
+       [2] _frames (res://tests/headless/UnitAnimationRegression.gd:133)
+ERROR: Barrage shell 2 missed the HQ footprint
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/CommanderCallInsRegression.gd:235)
+       [1] _close (res://tests/headless/UnitAnimationRegression.gd:128)
+       [2] _frames (res://tests/headless/UnitAnimationRegression.gd:133)
+ERROR: Barrage shell 3 missed the HQ footprint
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/CommanderCallInsRegression.gd:235)
+       [1] _close (res://tests/headless/UnitAnimationRegression.gd:128)
+       [2] _frames (res://tests/headless/UnitAnimationRegression.gd:133)
+ERROR: Barrage shell 4 missed the HQ footprint
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/CommanderCallInsRegression.gd:235)
+       [1] _close (res://tests/headless/UnitAnimationRegression.gd:128)
+       [2] _frames (res://tests/headless/UnitAnimationRegression.gd:133)
+ERROR: Barrage shell 5 missed the HQ footprint
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/CommanderCallInsRegression.gd:235)
+       [1] _close (res://tests/headless/UnitAnimationRegression.gd:128)
+       [2] _frames (res://tests/headless/UnitAnimationRegression.gd:133)
+ERROR: Centered barrage changed falloff or damaged a headquarters twice per shell
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/CommanderCallInsRegression.gd:235)
+       [1] _close (res://tests/headless/UnitAnimationRegression.gd:128)
+       [2] _frames (res://tests/headless/UnitAnimationRegression.gd:133)
+ERROR: Barrage missed or double-hit a headquarters at the footprint edge
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/CommanderCallInsRegression.gd:235)
+       [1] _close (res://tests/headless/UnitAnimationRegression.gd:128)
+       [2] _frames (res://tests/headless/UnitAnimationRegression.gd:133)
+ERROR: Barrage missed or double-hit the far edge of a rotated runway
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/CommanderCallInsRegression.gd:235)
+       [1] _close (res://tests/headless/UnitAnimationRegression.gd:128)
+       [2] _frames (res://tests/headless/UnitAnimationRegression.gd:133)
+Commander call-ins regression: 8 failures

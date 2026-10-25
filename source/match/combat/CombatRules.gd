@@ -69,9 +69,20 @@ static func can_target(source, target, forced = false):
 		and source.hp != null
 		and source.hp > 0
 		and source.attack_range != null
+		and not source.has_meta("breach_pending")
+		and not commander_disabled(source)
 		and (not source.has_method("is_constructed") or source.is_constructed())
 		and (not source.has_method("armed") or source.armed())
 		and can_receive(source, target, forced)
+	)
+
+
+static func commander_disabled(source) -> bool:
+	return (
+		"_match" in source
+		and source._match != null
+		and source._match.commander_support != null
+		and source._match.commander_support.disabled(source)
 	)
 
 

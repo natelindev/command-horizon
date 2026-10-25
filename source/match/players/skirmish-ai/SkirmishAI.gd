@@ -23,6 +23,7 @@ const Difficulty = preload("res://source/match/players/skirmish-ai/SkirmishDiffi
 const Footprint = preload("res://source/match/utils/Footprint.gd")
 const AirfieldLayout = preload("res://source/match/units/AirfieldLayout.gd")
 const Expansion = preload("res://source/match/players/skirmish-ai/SkirmishExpansion.gd")
+const Tactics = preload("res://source/match/players/skirmish-ai/SkirmishTactics.gd")
 
 # Optional facilities follow a growing army instead of consuming its opening budget.
 const OPTIONAL_ARMY_STEP = 5
@@ -464,8 +465,10 @@ func _command_army(units):
 			continue
 		if _match.battlefield.is_observed(self, enemy):
 			enemies.append(enemy)
-	var recovering = Recovery.command(_match, units, enemies, profile().retreat_health)
-	var available = units.filter(func(unit): return unit not in recovering)
+	var tactical = Tactics.command(_match, self, units, enemies)
+	var free = units.filter(func(unit): return unit not in tactical)
+	var recovering = Recovery.command(_match, free, enemies, profile().retreat_health)
+	var available = free.filter(func(unit): return unit not in recovering)
 	var capturers = Sites.command(_match, self, units, available, enemies)
 	available = available.filter(func(unit): return unit not in capturers)
 	var response = Coordination.command(_match, self, units, available, enemies)

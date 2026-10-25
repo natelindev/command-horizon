@@ -3,6 +3,11 @@ extends SceneTree
 var errors = []
 
 
+class CinematicFixture:
+	extends Node
+	var settings = {"mission_id": ""}
+
+
 func _initialize():
 	_run.call_deferred()
 
@@ -71,6 +76,7 @@ func _run():
 		camera._advance_pan(Vector3(200, 0, 0), 1.0 / 60)
 	_check(camera._calculate_pivot_point().x <= 50.001, "Inertia crossed the map boundary")
 	camera.free()
+	_test_cinematic_authority()
 	for message in errors:
 		push_error(message)
 	print("Camera feel regression: %d failures" % errors.size())
@@ -80,3 +86,55 @@ func _run():
 func _check(ok, message):
 	if not ok:
 		errors.append(message)
+
+
+func _test_cinematic_authority():
+	var game = CinematicFixture.new()
+	root.add_child(game)
+	var camera = _camera()
+	camera.reparent(game)
+	var options = root.get_node("Globals").options
+	var reduced = options.reduced_flashes
+	options.reduced_flashes = false
+	_check(not camera.begin_campaign_cinematic(), "Skirmish opened cinematic impulse authority")
+	_check(not camera.cinematic_impulse(.5), "Skirmish accepted explicit impulse")
+	camera.trauma = .9
+	camera.h_offset = .3
+	camera._update_trauma(.1)
+	_check(camera.trauma == 0 and camera.h_offset == 0, "Skirmish restored stale offsets")
+	game.settings.mission_id = "first_orders"
+	camera.add_trauma(.5)
+	_check(camera.trauma == 0, "Ordinary Campaign combat shook camera")
+	_check(not camera.cinematic_impulse(.5), "Campaign impulse needs explicit cinematic scope")
+	_check(camera.begin_campaign_cinematic(), "Campaign script cannot open cinematic")
+	_check(camera.cinematic_impulse(.5), "Explicit cinematic impulse rejected")
+	camera._update_trauma(.1)
+	_check(
+		camera.trauma > 0 and camera.trauma < .5 and camera.h_offset != 0,
+		"Cinematic impulse absent"
+	)
+	paused = true
+	var before = camera.trauma
+	camera._update_trauma(.1)
+	_check(camera.trauma == before, "Pause advanced cinematic impulse")
+	paused = false
+	camera.end_campaign_cinematic()
+	_check(
+		camera.trauma == 0 and camera.h_offset == 0 and camera.v_offset == 0,
+		"Cinematic end retained offsets"
+	)
+	camera.begin_campaign_cinematic()
+	camera.cinematic_impulse(.5)
+	game.settings.mission_id = ""
+	camera._update_trauma(.01)
+	_check(
+		camera.trauma == 0 and not camera._cinematic_active, "Mode switch retained camera impulse"
+	)
+	game.settings.mission_id = "first_orders"
+	options.reduced_flashes = true
+	_check(
+		not camera.begin_campaign_cinematic() and not camera.cinematic_impulse(.5),
+		"Reduced motion allowed impulse"
+	)
+	options.reduced_flashes = reduced
+	game.free()

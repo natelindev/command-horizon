@@ -69,7 +69,12 @@ func submit(order, append = false, audible = true, feedback_kind = ""):
 	# Start an order the moment it reaches the head of an idle queue instead of
 	# on the next physics tick. Tactical pause keeps orders waiting, and a locked
 	# action swap retries on that tick.
-	if not is_instance_valid(_active) and not unit._action_locked and not get_tree().paused:
+	if (
+		not is_instance_valid(_active)
+		and not unit._action_locked
+		and not get_tree().paused
+		and not unit.has_meta("breach_pending")
+	):
 		_start_next()
 	return true
 
@@ -81,6 +86,8 @@ func _feedback(order, accepted, queued, audible, reason = "", feedback_kind = ""
 
 
 func cancel():
+	if unit._match != null and "engineering" in unit._match and unit._match.engineering != null:
+		unit._match.engineering.cancel_orders(unit)
 	# Replacing or stopping orders also ends an earlier production sidestep.
 	# Appending a queued order keeps the current operation and its clearance.
 	unit.get_node("Movement").cancel_exit_clearance()
@@ -93,7 +100,9 @@ func cancel():
 
 
 func _physics_process(delta):
-	if not _engaged:
+	# Evacuation clears movement only when a legal exit is physically reserved.
+	# Keep later orders queued until then so their paths start from that exit.
+	if not _engaged or unit.has_meta("breach_pending"):
 		return
 	if is_instance_valid(_active) and _active.is_inside_tree():
 		_track_progress(delta)
@@ -129,6 +138,12 @@ func _start_next():
 
 func _make_action(order):
 	match order.kind:
+		"engineering":
+			return load(ACTIONS + "EngineeringAction.gd").new(
+				order.engineering_kind, order.point, order.get("angle", 0.0), order.reservation
+			)
+		"sweep":
+			return load(ACTIONS + "EngineeringAction.gd").new("sweep", order.point)
 		"move":
 			return load(ACTIONS + "Moving.gd").new(order.point)
 		"attack_move":
@@ -144,10 +159,30 @@ func _make_action(order):
 			recovery.new(target, true) if recovery.Repairs.facility_eligible(target, unit) else null
 		)
 	if "player" in target and target.player != unit.player:
-		if not unit._match.battlefield.is_observed(unit.player, target):
+		var public_cargo = (
+			order.kind == "collect_tactical" and "public_marker" in target and target.public_marker
+		)
+		if not public_cargo and not unit._match.battlefield.is_observed(unit.player, target):
 			# Never sample a hidden enemy's live location when a queued order activates.
 			return load(ACTIONS + "Moving.gd").new(order.point)
 	match order.kind:
+		"collect_tactical":
+			return (
+				load(ACTIONS + "CollectTacticalCargo.gd").new(target)
+				if target.has_method("can_collect") and target.can_collect(unit)
+				else null
+			)
+		"repair_barrier", "dismantle":
+			if (
+				unit.type != "Worker"
+				or target.player != unit.player
+				or not target.is_in_group("engineering_entities")
+				or target.is_in_group("field_mines")
+			):
+				return null
+			var action = load(ACTIONS + "EngineeringAction.gd").new(order.kind)
+			action._target = target
+			return action
 		"garrison":
 			return (
 				load(ACTIONS + "Garrisoning.gd").new(target)
@@ -204,7 +239,9 @@ func skip():
 	if not _engaged:
 		return
 	if current.is_empty() and not pending.is_empty():
-		pending.pop_front()
+		var order = pending.pop_front()
+		if order.has("reservation") and unit._match.engineering != null:
+			unit._match.engineering.release(order.reservation)
 	_active = null
 	current = {}
 	unit.action = null
@@ -212,6 +249,10 @@ func skip():
 
 
 func clear_waiting():
+	if unit._match != null and "engineering" in unit._match and unit._match.engineering != null:
+		for order in pending:
+			if order.has("reservation"):
+				unit._match.engineering.release(order.reservation)
 	pending.clear()
 	status = "Waiting orders cleared."
 

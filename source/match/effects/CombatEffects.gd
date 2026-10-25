@@ -67,33 +67,7 @@ func _ability_triggered(ability, point, _target, unit):
 	if _headless:
 		return
 	if ability.id == "frag_grenade":
-		if not _can_show(unit):
-			return
-		while _grenades.size() >= MAX_GRENADES:
-			_grenades.pop_front().node.queue_free()
-		var grenade = MeshInstance3D.new()
-		grenade.name = "FragGrenade"
-		var mesh = SphereMesh.new()
-		mesh.radius = .09
-		mesh.height = .18
-		mesh.radial_segments = 8
-		mesh.rings = 4
-		grenade.mesh = mesh
-		grenade.material_override = _glowing_material(Color("e6c58a"))
-		grenade.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		add_child(grenade)
-		var origin = unit.global_position + Vector3.UP * .9
-		grenade.position = origin
-		_grenades.append(
-			{
-				"node": grenade,
-				"unit": weakref(unit),
-				"origin": origin,
-				"point": point,
-				"age": 0.0,
-				"duration": .65
-			}
-		)
+		grenade_flight(unit.global_position, point, .6, unit.player)
 		return
 	if ability.id not in ["smoke_screen", "combat_sprint", "siege_anchor"]:
 		return
@@ -120,6 +94,45 @@ func _ability_triggered(ability, point, _target, unit):
 	var lock_visual = _siege_lock(unit) if ability.id == "siege_anchor" else null
 	_ability_effects.append(
 		{"unit": weakref(unit), "ability": ability, "clock": 1.0, "node": lock_visual}
+	)
+
+
+func grenade_flight(origin: Vector3, point: Vector3, left: float, owner):
+	if _headless or left <= 0.0:
+		return
+	while _grenades.size() >= MAX_GRENADES:
+		_grenades.pop_front().node.queue_free()
+	var grenade = MeshInstance3D.new()
+	grenade.name = "FragGrenade"
+	var mesh = SphereMesh.new()
+	mesh.radius = .09
+	mesh.height = .18
+	mesh.radial_segments = 8
+	mesh.rings = 4
+	grenade.mesh = mesh
+	grenade.material_override = _glowing_material(Color("e6c58a"))
+	grenade.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(grenade)
+	var entry = {
+		"node": grenade,
+		"owner": owner,
+		"origin": origin + Vector3.UP * .9,
+		"point": point,
+		"age": .6 - clampf(left, 0.0, .6),
+		"duration": .6
+	}
+	_grenades.append(entry)
+	_pose_grenade(entry)
+
+
+func _pose_grenade(entry):
+	var progress = minf(1.0, entry.age / entry.duration)
+	entry.node.position = entry.origin.lerp(entry.point, progress)
+	entry.node.position.y += sin(progress * PI) * 2.2
+	entry.node.visible = (
+		not _headless
+		and _camera_sees(entry.node.position)
+		and get_parent().combat_audio.point_observed(entry.node.position, entry.owner)
 	)
 
 
@@ -159,17 +172,9 @@ func _advance_abilities(delta):
 	for index in range(_grenades.size() - 1, -1, -1):
 		var entry = _grenades[index]
 		entry.age += delta
-		var unit = entry.unit.get_ref()
-		var shown = unit != null and _can_show(unit)
-		entry.node.visible = shown
-		var progress = minf(1.0, entry.age / entry.duration)
-		entry.node.position = entry.origin.lerp(entry.point, progress)
-		entry.node.position.y += sin(progress * PI) * 2.2
-		if progress >= 1.0:
-			if shown and can_show_point(entry.point):
-				_shockwave(entry.point, 1.3)
-				_explosion(entry.point, 1.3, true)
-				get_parent().combat_audio.ability(unit, "frag_grenade", entry.point)
+		_pose_grenade(entry)
+		if entry.age >= entry.duration:
+			# GrenadeSystem owns the fuse and emits its impact even if the thrower dies.
 			entry.node.queue_free()
 			_grenades.remove_at(index)
 	for index in range(_ability_effects.size() - 1, -1, -1):
@@ -391,7 +396,6 @@ func shot(
 		color = PRISM_FIRE if prism else RAIL_FIRE
 	var heavy = unit.type in ["Tank", "AdvancedTank", "AntiGroundTurret"]
 	if heavy:
-		_shake_camera(origin, 0.08)
 		if foliage != null and _camera_sees(origin):
 			foliage.impulse(origin, 6.0)
 		if _weapon_heat != null and not missile and _camera_sees(origin):
@@ -583,13 +587,22 @@ func miss(point, ground, heavy, color):
 
 # A heavy warhead (bomb) detonating: a large blast scaled by its splash radius.
 func warhead(point, radius, ground):
+	if not can_show_point(point):
+		return
 	_water_impact(point, clampf(radius * .4, .5, 2.0))
 	_explosion(point, clampf(radius * 0.7, 1.0, 2.2), ground, true)
 
 
+func grenade_impact(point: Vector3, radius: float, owner):
+	if not can_show_point(point) or not get_parent().combat_audio.point_observed(point, owner):
+		return
+	warhead(point, radius, true)
+	_shockwave(point, 1.3)
+	get_parent().combat_audio.point_impact(point, owner)
+
+
 # Proximity-fused detonation in the air (flak, missiles).
 func airburst(point, strength, color):
-	_shake_camera(point, strength * 0.06)
 	_puff("flash", point, Vector3.ZERO, color, strength * 1.2)
 	for _index in range(6):
 		_puff("spark", point, _jitter(3.0) * strength, Color("ffd9a0"), 0.05)
@@ -626,19 +639,6 @@ func _can_show(unit):
 	)
 
 
-func _shake_camera(point, amount):
-	if _headless or not is_instance_valid(_camera) or not _camera.has_method("add_trauma"):
-		return
-	if Globals.options.reduced_flashes:
-		return
-	var screen = _camera.unproject_position(point)
-	if not get_viewport().get_visible_rect().grow(128).has_point(screen):
-		return
-	var dist = point.distance_to(_camera.global_position)
-	var factor = clampf(1.0 - (dist / 70.0), 0.25, 1.0)
-	_camera.add_trauma(amount * factor)
-
-
 static func ricochet_direction(incoming: Vector3, normal: Vector3) -> Vector3:
 	if normal.is_zero_approx():
 		return -incoming.normalized()
@@ -659,7 +659,6 @@ func _ricochet(unit, point: Vector3, incoming: Vector3):
 func _armor_impact(point, direction, ground_hit, color):
 	# A penetrating shell has a short, directional impact. Fireballs and physical
 	# debris are reserved for destruction so surviving armor stays readable.
-	_shake_camera(point, .08)
 	_puff("flash", point, Vector3.ZERO, color, .65)
 	for index in 7:
 		_puff(
@@ -693,7 +692,6 @@ func _explosion(point, strength, ground_hit, destructive = false):
 				Color.WHITE,
 				1.0
 			)
-	_shake_camera(point, strength * 0.14)
 	_puff("flash", point, Vector3.ZERO, Color("ffe9c0"), strength * 1.7)
 	for _index in range(10 if destructive else 6):
 		var velocity = _jitter(3.8) + Vector3.UP * 2.8
@@ -745,7 +743,6 @@ func destruction(unit):
 	var point = unit.global_position + Vector3.UP * 0.35
 	var infantry = InfantryRoster.is_infantry(unit.type)
 	var size = clampf(unit.radius, 0.5, 2.0)
-	_shake_camera(point, size * 0.18)
 	if not infantry:
 		_explosion(point, size * 2.0, point.y - _ground_height(point) < 1.6, true)
 	else:
@@ -765,7 +762,6 @@ func obstacle_destruction(obstacle):
 		return
 	var point = obstacle.global_position + Vector3.UP * 0.35
 	var size = clampf(obstacle.radius, 0.5, 2.0)
-	_shake_camera(point, size * 0.12)
 	for index in 16:
 		var angle = index * TAU / 16.0 + _random.randf_range(-0.15, 0.15)
 		var velocity = Vector3(cos(angle), _random.randf_range(0.6, 2.0), sin(angle))
@@ -1143,6 +1139,10 @@ func _glowing_material(color):
 
 
 func _process(_delta):
+	# A loaded, paused throw retains its exact warning pose without advancing the fuse.
+	if get_tree().paused:
+		for entry in _grenades:
+			_pose_grenade(entry)
 	# Settings can change while the battle is paused; remove frozen flashes then too.
 	if Globals.options.reduced_flashes:
 		if _weapon_heat != null:
@@ -1438,6 +1438,30 @@ func damage_smoke(unit):
 	)
 	if severity > 0.8:
 		_puff("fire", point, Vector3.UP * 0.3, Color(1, 0.4, 0.1, 0.65), 0.38)
+
+
+func vehicle_damage(unit, band: int, point: Vector3):
+	if band <= 0 or unit.hp <= 0 or not _can_show(unit) or not _camera_sees(point):
+		return
+	var size = clampf(unit.radius * .8, .5, .95)
+	point += Vector3.UP * .2
+	match unit.player.faction:
+		"helix":
+			_puff("smoke", point, Vector3(.08, .45, .06), Color(.1, .8, .95, .6), size * .65)
+			_puff("spark", point, Vector3(.2, .4, .1), Color(.25, .9, 1, .7), .035)
+			if band == 2 and not Globals.options.reduced_flashes:
+				for index in 3:
+					_puff("spark", point + _jitter(.15), _jitter(1.2), Color(.5, .95, 1), .045)
+		"frontier":
+			_puff("smoke", point, Vector3(.07, .65, .05), Color(.83, .87, .84, .65), size)
+			if band == 2 and _random.randf() < .3:
+				_puff("smoke", point, Vector3(.12, .38, .2), Color(.22, .2, .16, .25), size * .65)
+				_puff("fire", point, Vector3(.05, .2, .15), Color(1, .45, .15, .45), .16)
+		_:
+			_puff("smoke", point, Vector3(.12, .65, .04), Color(.09, .1, .09, .7), size)
+			if band == 2:
+				_puff("fire", point, Vector3.UP * .3, Color(1, .4, .1, .6), size * .7)
+				_puff("spark", point, _jitter(.6) + Vector3.UP * .5, Color(1, .65, .2), .035)
 
 
 func _exit_tree():

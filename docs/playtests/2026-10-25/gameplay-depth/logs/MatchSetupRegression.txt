@@ -1,0 +1,13 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+DOCK bastion point=(34.00233, 3.180001, 205.8502) depot=(34.00233, 2.900001, 206.0) hp=37.9733333333333 action=Recovering · 47% / 100% move=false paused=false
+EXIT bastion point=(34.00233, 3.0, 209.3025) action=WaitingForTargets()
+DOCK helix point=(34.00233, 3.100001, 205.9244) depot=(34.00233, 2.900001, 206.0) hp=31.744 action=Recovering · 50% / 100% move=false paused=false
+EXIT helix point=(34.00233, 3.0, 209.4053) action=WaitingForTargets()
+DOCK frontier point=(34.00233, 3.040001, 206.0985) depot=(34.00233, 2.900001, 206.0) hp=33.728 action=Recovering · 50% / 100% move=false paused=false
+EXIT frontier point=(34.00233, 3.0, 209.3752) action=WaitingForTargets()
+Match setup and repair docking: 0 failures
+WARNING: 18 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)
+ERROR: 7 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:822)

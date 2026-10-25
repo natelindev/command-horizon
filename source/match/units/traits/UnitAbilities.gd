@@ -1,9 +1,13 @@
+# gdlint: disable=max-returns
 extends Node
 
 ## Per-unit tactical ability state. Presentation and input can subscribe without
 ## owning cooldowns or changing base unit stats. All timers use simulation time.
 signal ability_triggered(ability, target_point, target_unit)
 signal ability_changed(ability)
+
+const Players = preload("res://source/match/Players.gd")
+const Terrain = preload("res://source/match/maps/terrain/TerrainModel.gd")
 
 var abilities: Array = []
 var _by_id: Dictionary = {}
@@ -85,11 +89,44 @@ func unit_available() -> bool:
 	)
 
 
+func availability_issue(id: String) -> String:
+	var ability = get_ability(id)
+	if ability == null or not unit_available():
+		return "No selected unit has that ability ready."
+	if ability.cooldown_left > 0.0:
+		return "Ability is cooling down."
+	if id in ["power_overdrive", "drone_chaff"]:
+		return unit._match.helix_support.ability_issue(unit, id)
+	if id == "scrap_mine" and not unit.player.has_completed_structure("CommandLab"):
+		return "Complete a Relay workshop to deploy mines."
+	if id == "field_barricade" and unit._match.engineering.cooldown_left(unit) > 0.0:
+		return "Barricade deployment is cooling down."
+	if (
+		id in ["field_barricade", "scrap_mine"]
+		and not unit.player.has_resources({"resource_a": 10 if id == "field_barricade" else 8})
+	):
+		return "Not enough Materials."
+	return ""
+
+
 func trigger(id: String, target_point: Vector3 = Vector3.INF, target_unit: Node = null) -> bool:
 	var ability = get_ability(id)
 	if ability == null or not ability.is_ready() or get_tree().paused:
 		return false
-	if ability.target_type == "target_unit":
+	if ability.id == "dismantle_barrier":
+		if not unit._match.engineering.can_service(unit, target_unit):
+			return false
+		target_point = target_unit.global_position
+	elif (
+		ability.id == "frag_grenade"
+		and target_unit != null
+		and target_unit.has_method("evacuate_breached")
+	):
+		if not _valid_breach(target_unit):
+			return false
+		var radial = (unit.global_position - target_unit.global_position) * Vector3(1, 0, 1)
+		target_point = target_unit.global_position + radial.normalized() * target_unit.radius
+	elif ability.target_type == "target_unit":
 		if target_unit != null:
 			if not _valid_enemy(target_unit):
 				return false
@@ -98,6 +135,8 @@ func trigger(id: String, target_point: Vector3 = Vector3.INF, target_unit: Node 
 			return false
 	if ability.target_type in ["target_unit", "target_point"]:
 		if not target_point.is_finite() or not _in_range(ability, target_point):
+			return false
+		if ability.id == "frag_grenade" and not _throw_clear(target_point, target_unit):
 			return false
 	else:
 		target_point = unit.global_position
@@ -124,7 +163,7 @@ func _valid_enemy(target) -> bool:
 		is_instance_valid(target)
 		and target is Node3D
 		and "player" in target
-		and not load("res://source/match/Players.gd").allied(unit.player, target.player)
+		and not Players.allied(unit.player, target.player)
 		and load("res://source/match/combat/CombatRules.gd").can_receive(
 			unit, target, target.is_in_group("destructible_obstacles")
 		)
@@ -135,14 +174,29 @@ func _execute(ability, point: Vector3, target: Node) -> bool:
 	match ability.id:
 		"frag_grenade":
 			var game = unit.find_parent("Match")
-			if game == null or game.battlefield == null:
+			if game == null or game.grenade_system == null:
 				return false
-			for enemy in (
-				game.battlefield.nearby_units(point, ability.radius)
-				+ game.battlefield.nearby_obstacles(point, ability.radius)
-			):
-				if _valid_enemy(enemy):
-					enemy.receive_damage(unit, 35.0, point, {"kind": "warhead"})
+			return game.grenade_system.launch(
+				unit,
+				point,
+				ability.radius,
+				(
+					target
+					if is_instance_valid(target) and target.has_method("evacuate_breached")
+					else null
+				)
+			)
+		"dismantle_barrier":
+			return unit._match.engineering.request_dismantle(unit, target)
+		"power_overdrive":
+			return unit._match.helix_support.toggle_overdrive(ability, unit)
+		"drone_chaff":
+			return unit._match.helix_support.activate_chaff(ability, unit)
+		"field_barricade", "scrap_mine", "sweep_mines":
+			var kind = {
+				"field_barricade": "barricade", "scrap_mine": "mine", "sweep_mines": "sweep"
+			}[ability.id]
+			return unit._match.engineering.request(unit, kind, point)
 		"combat_sprint", "smoke_screen":
 			ability.is_active = true
 			ability.active_left = ability.duration
@@ -241,3 +295,44 @@ func restore(state: Dictionary):
 		ability_changed.emit(ability)
 	set_physics_process(ticking)
 	_sync_smoke_group()
+
+
+func _valid_breach(target) -> bool:
+	var game = unit.find_parent("Match")
+	return (
+		is_instance_valid(target)
+		and target.has_method("evacuate_breached")
+		and target.hp > 0.0
+		and not target.occupants.is_empty()
+		and target.player != null
+		and not Players.allied(unit.player, target.player)
+		and game != null
+		and game.battlefield.is_observed(unit.player, target)
+	)
+
+
+func _throw_clear(point: Vector3, target) -> bool:
+	var game = unit.find_parent("Match")
+	if game == null or game.battlefield == null:
+		return false
+	var start = unit.global_position + Vector3.UP * 0.8
+	var end = point + Vector3.UP * 0.8
+	if not game.battlefield.line_clear(start, end, unit, target):
+		return false
+	var terrain = game.map.terrain if "terrain" in game.map else null
+	return terrain == null or _throw_terrain_clear(terrain, start, end)
+
+
+func _throw_terrain_clear(terrain, start: Vector3, end: Vector3) -> bool:
+	# Throw clearance is physical: the visibility endpoint allowance must not
+	# permit short throws through an intervening wall or raised ground.
+	var steps = maxi(1, ceili(start.distance_to(end) / 0.15))
+	for index in range(steps + 1):
+		var point = start.lerp(end, float(index) / steps)
+		var flat = Vector2(point.x, point.z)
+		var cell = terrain.cell_index(flat)
+		if terrain.height_at(flat) > point.y:
+			return false
+		if terrain.flags[cell] & Terrain.SOLID and terrain.cover_tops[cell] > point.y:
+			return false
+	return true

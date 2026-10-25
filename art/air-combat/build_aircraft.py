@@ -519,6 +519,15 @@ def frontier_aa():
         cyl("Autocannon", (side * .18, .3, 1.35), .06, 1.5, P["dark"], barrel, "Y", 8)
     box("Receiver", (0, -.55, 1.35), (.55, .6, .32), P["steel"], barrel, .03)
     pivot("Muzzle", (0, 1.1, 1.35), barrel)
+    pivot("DamageSocket", (.65, 1.35, 1.3))
+    for rank in (1, 2):
+        group = pivot(f"ScrapRank{rank}", (0, 0, 1.0))
+        y = -.6 if rank == 1 else 1.1
+        for side in (-1, 1):
+            box(f"SalvagePlate{rank}", (side * .97, y, 1.05), (.08, .7, .36),
+                P["panel"] if rank == 1 else P["steel"], group, .02)
+        if rank == 2:
+            box("SalvageBumper", (0, 1.8, .92), (1.3, .1, .3), P["panel"], group, .02)
 
 
 bastion_fighter(); bastion_bomber(); bastion_helicopter(); bastion_flak()
@@ -531,6 +540,13 @@ manifest = []
 for faction, name, collection, asset_root in assets:
     if BUILD_FACTION is not None and faction != BUILD_FACTION:
         continue
+    if "--damage-only" in sys.argv and name not in {"RipsawTruck", "HaloSkimmer", "AntiAirVehicle"}:
+        continue
+    if name in {"HaloSkimmer", "AntiAirVehicle"}:
+        socket = bpy.data.objects.new(name + "_DamageSocket", None)
+        collection.objects.link(socket)
+        socket.parent = asset_root
+        socket.location = (.45, -.6, 1.0)
     bpy.context.view_layer.update()
     for part in collection.objects:
         trim_sheet.prepare(part)
