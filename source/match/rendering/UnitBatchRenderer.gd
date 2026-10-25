@@ -330,7 +330,12 @@ func _source_visibility_changed(source, unit):
 
 
 func _eligible(source: MeshInstance3D) -> bool:
-	if source.mesh == null or source.skin != null or not source.visible:
+	if (
+		source.has_meta("animated_track")
+		or source.mesh == null
+		or source.skin != null
+		or not source.visible
+	):
 		return false
 	if source.get_script() != null or source.material_overlay != null or source.transparency != 0.0:
 		return false

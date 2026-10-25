@@ -5,8 +5,16 @@ uniform sampler2D leaf_texture : source_color, filter_linear_mipmap_anisotropic,
 uniform vec4 base_color : source_color = vec4(0.2, 0.3, 0.1, 1.0);
 uniform float object_detail = 1.0;
 
+#include "res://source/shaders/3d/foliage_response.gdshaderinc"
+
 // The shared rigid-batch builder injects pose/material setup at this hook.
 void vertex() {
+	vec3 world = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+	vec3 push = foliage_push(world, foliage_impulse_0, foliage_strengths.x)
+		+ foliage_push(world, foliage_impulse_1, foliage_strengths.y)
+		+ foliage_push(world, foliage_impulse_2, foliage_strengths.z)
+		+ foliage_push(world, foliage_impulse_3, foliage_strengths.w);
+	VERTEX += inverse(mat3(MODEL_MATRIX)) * push;
 }
 
 void fragment() {

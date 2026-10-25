@@ -1,12 +1,16 @@
 extends Control
 
+var _phase := 0.0
+
 
 func _ready():
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 
 
-func _process(_delta):
+func _process(delta):
+	if not get_tree().paused and not Globals.options.reduced_flashes:
+		_phase = fposmod(_phase + delta * .65, 1.0)
 	queue_redraw()
 
 
@@ -52,6 +56,7 @@ func _draw():
 				draw_line(previous, point, color, 2, true)
 			else:
 				draw_dashed_line(previous, point, color, 1.5, 6, true)
+			_route_pulse(previous, point, color)
 			draw_circle(point, 9, Color("172330e8"))
 			draw_string(
 				ThemeDB.fallback_font,
@@ -90,6 +95,7 @@ func _draw_rallies(camera):
 		# Screen-space strokes keep the order legible at every gameplay zoom.
 		draw_line(start, end, Color(0.06, 0.09, 0.10, 0.6), 3.5, true)
 		draw_dashed_line(start, end, color, 2.0, 9.0, true)
+		_route_pulse(start, end, color)
 		var forward = (end - start).normalized()
 		var side = forward.orthogonal()
 		if start.distance_to(end) > 40:
@@ -114,3 +120,12 @@ func _draw_rallies(camera):
 			]
 		)
 		draw_colored_polygon(flag, color)
+
+
+func _route_pulse(start: Vector2, end: Vector2, color: Color):
+	if Globals.options.reduced_flashes or start.distance_to(end) < 32.0:
+		return
+	var direction := (end - start).normalized()
+	var tip := start.lerp(end, _phase)
+	color.a *= sin(_phase * PI) * .8
+	draw_line(tip - direction * 9.0, tip, color, 3.0, true)

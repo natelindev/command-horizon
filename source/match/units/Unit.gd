@@ -225,7 +225,13 @@ func receive_damage(source, amount, point = null, presentation_weapon = {}):
 				_match.combat_effects.impact(self, source, impact_point, presentation_weapon)
 			var visuals = get_node_or_null("BastionVisuals")
 			if visuals != null:
-				visuals.hit_reaction(source.global_position)
+				visuals.hit_reaction(
+					source.global_position,
+					(
+						_match.combat_effects != null
+						and _match.combat_effects.explosive_impact(source, presentation_weapon)
+					)
+				)
 			hp -= amount
 		MatchSignals.unit_weapon_hit.emit(self, source)
 

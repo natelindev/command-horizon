@@ -245,7 +245,8 @@ func _capture(label, point, zoom, bounds = AABB()):
 				),
 				"Clipped review model: " + label
 			)
-	await RenderingServer.frame_post_draw
+	# Capture even when another native window occludes this preview.
+	RenderingServer.force_draw(false)
 	var pixels = root.get_texture().get_image()
 	_check(pixels != null and not pixels.is_empty(), "Empty rendered capture: " + label)
 	if pixels != null:

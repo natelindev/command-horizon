@@ -46,6 +46,7 @@ func select():
 	_update_circle_color()
 	_set_team_footprint_visible(false)
 	if _circle != null:
+		_circle.scale = Vector3.ONE * (1.0 if Globals.options.reduced_flashes else 1.15)
 		_circle.show()
 	_refresh_selected_ranges()
 	if "selected" in _unit:
@@ -137,8 +138,13 @@ func _set_team_footprint_visible(value):
 func _process(delta):
 	if _circle == null or _circle._plane == null:
 		return
-	if not Globals.options.reduced_flashes:
-		_animation_time += delta
+	_animation_time += delta
+	var entrance = (
+		1.0
+		if Globals.options.reduced_flashes
+		else 1.0 + .15 * pow(1.0 - clampf(_animation_time / .18, 0.0, 1.0), 3)
+	)
+	_circle.scale = Vector3.ONE * entrance
 	_circle._plane.material_override.set_shader_parameter(
 		"animation_time", 0.0 if Globals.options.reduced_flashes else _animation_time
 	)

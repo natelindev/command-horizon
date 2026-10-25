@@ -2,6 +2,7 @@
 
 blender --background --factory-startup --python-exit-code 1 --python art/bastion/build_faction.py
 Append -- --walkers-only to export just the articulated walker GLB.
+Append -- --motion-only to export the four tracked units without studio renders.
 """
 import json
 import math
@@ -17,6 +18,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "common"))
 import weathering  # noqa: E402
 import trim_sheet  # noqa: E402
 import markings  # noqa: E402
+import track_rig
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "assets/models/bastion/demo"
@@ -158,10 +160,14 @@ def tracks(width=2.0,length=2.8):
             y=-length*.37+i*length*.185
             cyl("Wheel",(x+side*.26,y,.43),.25,.055,PANEL,axis="X")
             cyl("Hub",(x+side*.30,y,.43),.075,.04,STEEL,axis="X",vertices=8)
-        for i in range(12):
-            y=-length*.45+i*length*.9/11
-            for z in (.08,.78):
-                box("Tread",(x,y,z),(.55,.12,.055),DARK,bevel=0)
+        track = pivot("TrackPivot" + ("Left" if side < 0 else "Right"), (0,0,0))
+        half, radius, height = length*.38, .35, .43
+        perimeter = 4*half+2*math.pi*radius
+        for i in range(28):
+            distance = perimeter*i/28
+            y,z,angle = track_rig.capsule(distance,half,radius,height)
+            shoe = box("Tread",(x,y,z),(.55,.12,.055),DARK,track,bevel=0,rot=(angle,0,0))
+            track_rig.encode(shoe,distance,half,radius,height)
         box("Fender",(x,0,.89),(.65,length,.13),ARMOR)
 
 
@@ -223,7 +229,8 @@ def rover(name,repair=False):
         for x in (-.4,0,.4): box("Cargo",(x,-.85,1.44),(.3,.49,.24),ORE)
         rod("CraneMast",(.72,-.85,1.3),(.72,-.85,2.0),.07,TEAM)
         rod("CraneBoom",(.72,-.85,2),(.72,.6,1.78),.07,TEAM)
-    rod("Antenna",(-.6,-.85,1.4),(-.6,-.85,2.35),.012,DARK)
+    antenna=pivot("AntennaPivot",(-.6,-.85,1.4))
+    rod("Antenna",(-.6,-.85,1.4),(-.6,-.85,2.35),.012,DARK,antenna)
 
 
 def combat_robot():
@@ -466,7 +473,10 @@ def cliff():
 
 # Fast, reproducible rig-only export; full catalogue builds remain the default.
 walkers_only = "--walkers-only" in sys.argv
-if walkers_only:
+motion_only = "--motion-only" in sys.argv
+if motion_only:
+    rover("Worker"); rover("RepairRobot",True); import_tank("Tank"); import_tank("AdvancedTank",True)
+elif walkers_only:
     combat_robot()
 else:
     infantry(); rover("Worker"); import_tank("Tank"); import_tank("AdvancedTank",True)
@@ -480,7 +490,9 @@ manifest=[]
 for name,collection,asset_root in assets:
     bpy.context.view_layer.update()
     for part in collection.objects:
-        trim_sheet.prepare(part)
+        # Both UV channels encode tread travel/profile, including imported belts.
+        if not (part.parent and "TrackPivot" in part.parent.name):
+            trim_sheet.prepare(part)
     deps=bpy.context.evaluated_depsgraph_get()
     copies={}
     for obj in collection.objects:
@@ -500,6 +512,10 @@ for name,collection,asset_root in assets:
         bpy.context.view_layer.objects.active=objects[0]
         bpy.ops.object.join()
         joined=bpy.context.object
+        if parent and "TrackPivot" in parent.name:
+            # Runtime capsule coordinates are in model space (+Y becomes -Z).
+            joined.data.transform(joined.matrix_world)
+            joined.matrix_world.identity()
         modifier=joined.modifiers.new("Triangulate","TRIANGULATE")
         bpy.ops.object.modifier_apply(modifier=modifier.name)
         bm=bmesh.new(); bm.from_mesh(joined.data)
@@ -517,8 +533,8 @@ for name,collection,asset_root in assets:
     manifest.append({"name":name,"triangles":triangles,"file":name+".glb"})
     collection.hide_render=True
 
-if walkers_only:
-    print("Bastion walker rig exported")
+if walkers_only or motion_only:
+    print("Bastion motion rigs exported" if motion_only else "Bastion walker rig exported")
     raise SystemExit(0)
 
 if "--models-only" in sys.argv:

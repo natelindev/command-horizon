@@ -19,6 +19,8 @@ uniform bool vertex_tint = false;
 uniform float leaf_transmission = 0.0;
 // A per-material control for rendered comparisons, independent of ground detail.
 uniform float object_detail = 1.0;
+#include "res://source/shaders/3d/foliage_response.gdshaderinc"
+
 varying vec3 surface_position;
 varying vec3 metal_position;
 varying vec3 surface_geometric_normal;
@@ -30,6 +32,14 @@ void vertex() {
 	metal_position = VERTEX * scale;
 	surface_position = metal_position * texture_scale;
 	surface_geometric_normal = normalize(NORMAL / scale);
+	if (leaf_transmission > 0.0) {
+		vec3 world = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+		vec3 push = foliage_push(world, foliage_impulse_0, foliage_strengths.x)
+			+ foliage_push(world, foliage_impulse_1, foliage_strengths.y)
+			+ foliage_push(world, foliage_impulse_2, foliage_strengths.z)
+			+ foliage_push(world, foliage_impulse_3, foliage_strengths.w);
+		VERTEX += inverse(mat3(MODEL_MATRIX)) * push;
+	}
 	surface_to_view = mat3(MODELVIEW_MATRIX[0].xyz / scale.x,
 		MODELVIEW_MATRIX[1].xyz / scale.y, MODELVIEW_MATRIX[2].xyz / scale.z);
 }

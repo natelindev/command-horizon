@@ -225,6 +225,8 @@ func emit_effects(effects, random):
 		. normalized()
 	)
 	effects.construction_puff("flash", point, Vector3.ZERO, Color("cfe4ff"), .3)
+	if effects.aftermath != null:
+		effects.aftermath.flash(point, .12, Color("cfe4ff"), true)
 	for index in 4:
 		effects.construction_puff(
 			"spark",

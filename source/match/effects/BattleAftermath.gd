@@ -14,6 +14,8 @@ var _chunk = BoxMesh.new()
 var _ground = PlaneMesh.new()
 var _metal = StandardMaterial3D.new()
 var _physics_material = PhysicsMaterial.new()
+var _brass = StandardMaterial3D.new()
+var _case = CylinderMesh.new()
 
 
 func _ready():
@@ -26,6 +28,14 @@ func _ready():
 	_metal.albedo_color = Color("38352f")
 	_metal.roughness = 0.88
 	_metal.metallic = 0.35
+	_brass.albedo_color = Color("ad8746")
+	_brass.metallic = .7
+	_brass.roughness = .38
+	_case.top_radius = .5
+	_case.bottom_radius = .5
+	_case.height = 1.0
+	_case.radial_segments = 8
+	_case.rings = 1
 
 
 func scar(point, radius):
@@ -173,3 +183,57 @@ func advance(delta):
 			entry.node.hide()
 			_free_lights.append(entry.node)
 			lights.remove_at(index)
+
+
+func casing(point: Vector3, direction: Vector3):
+	# Share the existing bounded terrain-only debris budget.
+	_evict(debris, MAX_DEBRIS)
+	var body := RigidBody3D.new()
+	body.collision_layer = 0
+	body.collision_mask = 1
+	body.input_ray_pickable = false
+	body.mass = .18
+	body.physics_material_override = _physics_material
+	body.continuous_cd = true
+	var mesh := MeshInstance3D.new()
+	mesh.mesh = _case
+	mesh.material_override = _brass
+	var dimensions := Vector3(.085, .25, .085)
+	mesh.scale = dimensions
+	body.add_child(mesh)
+	var collider := CollisionShape3D.new()
+	var shape := BoxShape3D.new()
+	shape.size = dimensions
+	collider.shape = shape
+	body.add_child(collider)
+	add_child(body)
+	body.global_position = point
+	body.linear_velocity = direction * 1.7 + Vector3.UP * 1.6
+	body.angular_velocity = Vector3(6, 2, 9)
+	debris.append({"node": body, "mesh": mesh, "age": 0.0, "rest": dimensions})
+
+
+func detach_weapon(weapon: Node3D, velocity: Vector3):
+	_evict(debris, MAX_DEBRIS)
+	var world := weapon.global_transform
+	var body := RigidBody3D.new()
+	body.name = "DroppedWeapon"
+	body.collision_layer = 0
+	body.collision_mask = 1
+	body.input_ray_pickable = false
+	body.mass = .25
+	body.continuous_cd = true
+	body.physics_material_override = _physics_material
+	body.angular_damp = .7
+	add_child(body)
+	body.global_transform = world.orthonormalized()
+	weapon.reparent(body)
+	weapon.transform = Transform3D(Basis.from_scale(world.basis.get_scale()), Vector3.ZERO)
+	var collider := CollisionShape3D.new()
+	var shape := BoxShape3D.new()
+	shape.size = Vector3(.12, .12, .6)
+	collider.shape = shape
+	body.add_child(collider)
+	body.linear_velocity = velocity
+	body.angular_velocity = Vector3(3, 5, 7)
+	debris.append({"node": body, "mesh": weapon, "age": 0.0, "rest": weapon.scale})

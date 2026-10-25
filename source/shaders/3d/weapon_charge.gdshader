@@ -43,7 +43,7 @@ void fragment() {
 		float radius = mix(0.67, 0.42, charge);
 		float ring_a = exp(-pow((r - radius) / 0.018, 2.0));
 		float ring_b = exp(-pow((r - radius * 0.69) / 0.013, 2.0));
-		float segments = smoothstep(-0.3, 0.2, sin(angle * 6.0 + phase * 2.8));
+		float segments = smoothstep(-0.3, 0.2, sin(angle * 6.0 + phase * (2.0 + charge * charge * 8.0)));
 		float coil = ring_a * segments + ring_b * (1.0 - segments * 0.65);
 		float arc_radius = radius + sin(angle * 17.0 + floor(phase * 24.0)) * 0.025
 			+ sin(angle * 31.0 - phase * 9.0) * 0.014;

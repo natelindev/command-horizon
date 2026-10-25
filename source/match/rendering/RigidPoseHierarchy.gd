@@ -40,7 +40,7 @@ class Job:
 
 
 const PARTS = ["_turret", "_barrel"]
-const LISTS = ["_legs", "_rotors", "_tools", "_stabilizers"]
+const LISTS = ["_legs", "_rotors", "_tools", "_stabilizers", "_antennas"]
 var job := Job.new()
 var root: Pose
 var _geometry: Node3D
