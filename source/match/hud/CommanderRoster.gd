@@ -69,6 +69,10 @@ func commander_name(player):
 	var identity = "%d · %s" % [player.get_index() + 1, faction]
 	if player == _game._get_human_player():
 		identity += " · " + tr("You")
+	elif _game._get_human_player().is_allied_with(player):
+		identity += " · " + tr("Ally")
+	if player.team >= 0:
+		identity += " · " + (tr("Team %d") % (player.team + 1))
 	return identity
 
 

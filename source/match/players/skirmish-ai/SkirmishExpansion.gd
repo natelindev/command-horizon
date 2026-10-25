@@ -36,7 +36,7 @@ static func next_site(game, player, units, observed):
 		return null
 	if game.simulation_time < FIRST[level] + INTERVAL[level] * extra:
 		return null
-	var start = player.get_index()
+	var start = player.start_index()
 	for name in layout.ai.get("expand_order", []):
 		for expansion in layout.expansions:
 			if expansion.name != name or expansion.get("player", -1) != start:

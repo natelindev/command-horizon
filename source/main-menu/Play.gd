@@ -175,6 +175,13 @@ var _start_button = null
 var _cards = []
 var _starting = false
 var _body_grid: GridContainer
+var _game_mode
+var _resources
+var _visibility
+var _random_starts
+var _slots_grid
+var _slots = []
+var _setup_status
 
 
 func _ready():
@@ -239,9 +246,9 @@ func _build_ui():
 	legend.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	legend.text = (
 		"1  "
-		+ tr("Your base")
+		+ tr("Starting locations")
 		+ "    2  "
-		+ tr("Enemy bases")
+		+ tr("Player slots choose these numbers")
 		+ "\n"
 		+ tr("Dots: resources · Small squares: relays")
 		+ "\n"
@@ -280,6 +287,32 @@ func _build_ui():
 	)
 	_difficulty.item_selected.connect(func(_index): _update_summary())
 	_start_mode.item_selected.connect(func(_index): _update_summary())
+	_label(grid, "Game mode", 14, ArtTheme.MUTED)
+	_game_mode = _option(
+		grid, "GameMode", ["Free-for-all", "Teams · 2 vs 2", "Teams · 1 vs 3", "Custom teams"]
+	)
+	_game_mode.item_selected.connect(_apply_teams)
+	_label(grid, "Starting resources", 14, ArtTheme.MUTED)
+	_resources = _option(
+		grid, "StartingResources", ["Standard resources", "Double resources", "Quadruple resources"]
+	)
+	_label(grid, "Visibility", 14, ArtTheme.MUTED)
+	_visibility = _option(
+		grid, "Visibility", ["Team vision · fog of war", "All players · fog of war", "Reveal map"]
+	)
+	var slots_panel = _panel(right)
+	_label(slots_panel, "Player slots", 18).theme_type_variation = "HudHeading"
+	_random_starts = CheckButton.new()
+	_random_starts.text = tr("Random starting locations")
+	slots_panel.add_child(_random_starts)
+	_random_starts.toggled.connect(func(_enabled): _refresh_slots())
+	_slots_grid = GridContainer.new()
+	_slots_grid.columns = 5
+	_slots_grid.add_theme_constant_override("h_separation", 6)
+	_slots_grid.add_theme_constant_override("v_separation", 6)
+	slots_panel.add_child(_slots_grid)
+	_setup_status = _label(slots_panel, "", 12, ArtTheme.MUTED)
+	_setup_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	var footer = HBoxContainer.new()
 	footer.add_theme_constant_override("separation", 16)
 	page.add_child(footer)
@@ -403,37 +436,136 @@ func _update_summary():
 
 func _on_map_list_item_selected(index):
 	_preview.set_map(MAPS[index][0])
+	_rebuild_slots(Constants.Match.MAPS[MAPS[index][0]].players)
 	_map_details.text = (
 		tr(MAPS[index][2])
 		+ "\n"
 		+ MAPS[index][3]
 		+ " · "
 		+ (
-			tr("4 players · Free-for-all")
+			tr("4 players · Free-for-all or teams")
 			if Constants.Match.MAPS[MAPS[index][0]].players == 4
 			else tr("2 players · Head-to-head")
 		)
 	)
+	_refresh_slots()
+
+
+func _rebuild_slots(count):
+	if _slots.size() == count:
+		return
+	for child in _slots_grid.get_children():
+		_slots_grid.remove_child(child)
+		child.queue_free()
+	_slots.clear()
+	for heading in ["Player", "Faction", "Difficulty", "Starting position", "Team"]:
+		_label(_slots_grid, heading, 12, ArtTheme.MUTED)
+	for index in count:
+		_label(_slots_grid, tr("You") if index == 0 else tr("AI %d") % index, 12)
+		var faction = _option(
+			_slots_grid,
+			"SlotFaction%d" % index,
+			["Use faction above", "Bastion", "Helix", "Frontier", "Random"]
+		)
+		var difficulty = _option(
+			_slots_grid, "SlotDifficulty%d" % index, ["Use AI difficulty"] + Difficulty.NAMES
+		)
+		difficulty.disabled = index == 0
+		var start_items = []
+		for location in count:
+			start_items.append(tr("Start %d") % (location + 1))
+		var start = _option(_slots_grid, "SlotStart%d" % index, start_items)
+		start.select(index)
+		start.item_selected.connect(func(selected): _select_start(index, selected))
+		var team = _option(
+			_slots_grid, "SlotTeam%d" % index, ["Team 1", "Team 2", "Team 3", "Team 4"]
+		)
+		team.select(index)
+		team.item_selected.connect(func(_selected): _refresh_slots())
+		for option in [faction, difficulty, start, team]:
+			option.custom_minimum_size.x = 60
+		_slots.append(
+			{
+				"faction": faction,
+				"difficulty": difficulty,
+				"start": start,
+				"team": team,
+				"location": index
+			}
+		)
+	_game_mode.set_item_disabled(1, count != 4)
+	_game_mode.set_item_disabled(2, count != 4)
+	if count != 4 and _game_mode.selected in [1, 2]:
+		_game_mode.select(0)
+	_apply_teams(_game_mode.selected)
+
+
+func _select_start(index, selected):
+	var previous = _slots[index].location
+	for other in _slots:
+		if other != _slots[index] and other.location == selected:
+			other.location = previous
+			other.start.select(previous)
+	_slots[index].location = selected
+	_slots[index].start.select(selected)
+	_refresh_slots()
+
+
+func _apply_teams(mode):
+	for index in _slots.size():
+		if mode != 3:
+			_slots[index].team.select(
+				index / 2 if mode == 1 else (mini(index, 1) if mode == 2 else index)
+			)
+	_refresh_slots()
+
+
+func _refresh_slots():
+	var teams = []
+	for slot in _slots:
+		slot.start.disabled = _random_starts.button_pressed
+		slot.team.disabled = _game_mode.selected != 3
+		teams.append(slot.team.selected)
+	var valid = _game_mode.selected == 0 or teams.any(func(team): return team != teams[0])
+	if _start_button != null:
+		_start_button.disabled = not valid or _starting
+	_setup_status.text = (
+		tr("Choose at least two opposing teams.")
+		if not valid
+		else tr("Start numbers match the map preview. Choosing an occupied start swaps players.")
+	)
 
 
 func _create_match_settings():
+	_rebuild_slots(Constants.Match.MAPS[_get_selected_map_path()].players)
 	var result = MatchSettings.new()
 	result.skirmish = true
 	result.advanced_start = _start_mode.selected == 1
 	result.map_path = _get_selected_map_path()
 	result.match_seed = randi() & 0x7fffffff
+	result.visibility = _visibility.selected
+	result.starting_resources_multiplier = [1, 2, 4][_resources.selected]
 	var doctrine_keys = ["balanced", "kiting", "ironclad"]
 	result.tactical_doctrine = (
 		doctrine_keys[_doctrine_selector.selected] if _doctrine_selector != null else "balanced"
 	)
 	var rng = RandomNumberGenerator.new()
 	rng.seed = result.match_seed
+	var locations = range(_slots.size())
+	if _random_starts.button_pressed:
+		for index in range(locations.size() - 1, 0, -1):
+			var other = rng.randi_range(0, index)
+			var previous = locations[index]
+			locations[index] = locations[other]
+			locations[other] = previous
 	for index in range(Constants.Match.MAPS[result.map_path].players):
 		var player = PlayerSettings.new()
 		player.controller = (
 			Constants.PlayerType.HUMAN if index == 0 else Constants.PlayerType.SIMPLE_CLAIRVOYANT_AI
 		)
 		var selected = _player_faction.selected if index == 0 else _enemy_faction.selected
+		if _slots[index].faction.selected > 0:
+			selected = _slots[index].faction.selected - 1
 		player.faction = Factions.IDS[
 			rng.randi_range(0, Factions.IDS.size() - 1)
 			if selected == Factions.IDS.size()
@@ -443,7 +575,13 @@ func _create_match_settings():
 		# The level belongs to the computer commander; the human keeps the default.
 		if index > 0:
 			player.difficulty = _difficulty.selected
+			if _slots[index].difficulty.selected > 0:
+				player.difficulty = _slots[index].difficulty.selected - 1
 		player.spawn_index_offset = 0
+		player.spawn_index = (
+			locations[index] if _random_starts.button_pressed else _slots[index].location
+		)
+		player.team = -1 if _game_mode.selected == 0 else _slots[index].team.selected
 		result.players.append(player)
 	return result
 
@@ -474,7 +612,10 @@ func _save_preferences():
 		["enemy", _enemy_faction],
 		["difficulty", _difficulty],
 		["start", _start_mode],
-		["doctrine", _doctrine_selector]
+		["doctrine", _doctrine_selector],
+		["mode", _game_mode],
+		["resources", _resources],
+		["visibility", _visibility]
 	]:
 		if pair[1] == null:
 			continue
@@ -484,6 +625,13 @@ func _save_preferences():
 		if pair[0] in ["player", "enemy"]:
 			value = (Factions.IDS + ["random"])[value]
 		config.set_value("setup", pair[0], value)
+	config.set_value("setup", "random_starts", _random_starts.button_pressed)
+	var slots = []
+	for slot in _slots:
+		slots.append(
+			[slot.faction.selected, slot.difficulty.selected, slot.location, slot.team.selected]
+		)
+	config.set_value("setup", "slots", slots)
 	config.save(preferences_path)
 
 
@@ -496,7 +644,10 @@ func _load_preferences():
 		["enemy", _enemy_faction, "random"],
 		["difficulty", _difficulty, 1],
 		["start", _start_mode, 0],
-		["doctrine", _doctrine_selector, 0]
+		["doctrine", _doctrine_selector, 0],
+		["mode", _game_mode, 0],
+		["resources", _resources, 0],
+		["visibility", _visibility, 0]
 	]:
 		if pair[1] == null:
 			continue
@@ -517,6 +668,33 @@ func _load_preferences():
 			if value < 0:
 				value = 0 if pair[0] == "player" else Factions.IDS.size()
 		pair[1].select(clampi(int(value), 0, pair[1].item_count - 1))
+	_on_map_list_item_selected(_map_list.selected)
+	_random_starts.set_pressed_no_signal(config.get_value("setup", "random_starts", false))
+	_load_slot_preferences(config.get_value("setup", "slots", []))
+	_apply_teams(_game_mode.selected)
+
+
+func _load_slot_preferences(saved_slots):
+	if not saved_slots is Array or saved_slots.size() != _slots.size():
+		return
+	var locations = []
+	for saved in saved_slots:
+		if not saved is Array or saved.size() != 4:
+			return
+		for value in saved:
+			if not value is int:
+				return
+		if saved[2] < 0 or saved[2] >= _slots.size() or saved[2] in locations:
+			return
+		locations.append(saved[2])
+	for index in _slots.size():
+		var slot = _slots[index]
+		var saved = saved_slots[index]
+		slot.faction.select(clampi(saved[0], 0, slot.faction.item_count - 1))
+		slot.difficulty.select(clampi(saved[1], 0, slot.difficulty.item_count - 1))
+		slot.start.select(saved[2])
+		slot.location = saved[2]
+		slot.team.select(clampi(saved[3], 0, 3))
 
 
 func _on_back_button_pressed():

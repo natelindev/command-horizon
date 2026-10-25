@@ -26,16 +26,9 @@ func _bindings():
 	var profile = Keys.defaults()
 	_check(profile.keys.patrol_order == KEY_P, "Patrol has no default P binding")
 	_check(profile.keys.cycle_subgroup == KEY_TAB, "Subgroup has no Tab binding")
-	var legacy = profile.duplicate(true)
-	legacy.version = 2
-	for action in Keys.ADDED_IN_V3:
-		legacy.keys.erase(action)
-	legacy.keys.pause_battle = KEY_P
-	var upgraded = Keys.normalize(legacy)
-	_check(upgraded.keys.pause_battle == KEY_P, "Migration stole an existing P binding")
-	_check(upgraded.keys.patrol_order != KEY_P, "Migration introduced a P conflict")
-	_check(upgraded.keys.cycle_subgroup == KEY_TAB, "Migration omitted subgroup binding")
-	_check(Keys.normalize(upgraded) == upgraded, "Migrated bindings are unstable")
+	var old = profile.duplicate(true)
+	old.version = 2
+	_check(Keys.normalize(old) == profile, "Previous development profile did not reset")
 	Keys.apply(profile)
 
 

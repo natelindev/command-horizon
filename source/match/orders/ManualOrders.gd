@@ -154,9 +154,14 @@ func _make_action(order):
 				if target.has_method("can_garrison") and target.can_garrison(unit)
 				else null
 			)
-		"attack":
+		"attack", "force_attack":
 			var script = load(ACTIONS + "AutoAttacking.gd")
-			return script.new(target) if script.is_applicable(unit, target) else null
+			var forced = order.kind == "force_attack"
+			return (
+				script.new(target, forced)
+				if load("res://source/match/combat/CombatRules.gd").can_target(unit, target, forced)
+				else null
+			)
 		"repair":
 			var script = load(ACTIONS + "Repairing.gd")
 			return script.new(target, true) if script.is_applicable(unit, target) else null

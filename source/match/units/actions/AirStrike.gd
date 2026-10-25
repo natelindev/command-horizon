@@ -4,14 +4,16 @@ extends "res://source/match/units/actions/Action.gd"
 # the target is gone the aircraft resumes its station; with empty stores it
 # returns to its airfield to rearm.
 
+var force_attack = false
 var _target_unit = null
 
 @onready var _unit = Utils.NodeEx.find_parent_with_group(self, "units")
 @onready var _flight = _unit.get_node("Movement")
 
 
-func _init(target_unit):
+func _init(target_unit, forced = false):
 	_target_unit = target_unit
+	force_attack = forced
 
 
 func _ready():

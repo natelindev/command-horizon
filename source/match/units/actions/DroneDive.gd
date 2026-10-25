@@ -13,6 +13,7 @@ const TURN_RATE = 4.0
 const CONTACT_MARGIN = 0.35
 
 var diving = false
+var force_attack = false
 var _target_unit = null
 var _velocity = Vector3.ZERO
 var _aim_point = Vector3.ZERO
@@ -21,8 +22,9 @@ var _aim_point = Vector3.ZERO
 @onready var _movement = _unit.get_node("Movement")
 
 
-func _init(target_unit):
+func _init(target_unit, forced = false):
 	_target_unit = target_unit
+	force_attack = forced
 
 
 func _ready():

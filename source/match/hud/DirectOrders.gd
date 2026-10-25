@@ -10,6 +10,12 @@ const Repairs = preload("res://source/match/combat/RepairService.gd")
 const Recover = preload("res://source/match/units/actions/RecoveringAtService.gd")
 const Behavior = preload("res://source/match/orders/UnitBehavior.gd")
 const COMMANDS = {
+	"force_attack":
+	{
+		"title": "Force attack",
+		"action": "force_attack",
+		"description": "Attack a damageable unit or building, including allied and neutral targets."
+	},
 	"patrol":
 	{
 		"title": "Patrol",
@@ -268,8 +274,12 @@ func prompt(message = ""):
 				"Follow: choose a friendly unit."
 				if kind == "follow"
 				else (
-					"Attack target: choose a visible enemy or neutral target."
-					if kind in ["attack", "follow"]
+					(
+						tr("Force attack: choose a damageable unit or building.")
+						if kind == "force_attack"
+						else tr("Attack: choose an enemy, or empty ground to attack move.")
+					)
+					if kind in ["attack", "force_attack", "follow"]
 					else COMMANDS[kind].title + ": choose a destination."
 				)
 			)
@@ -306,7 +316,9 @@ func handle_input(event):
 		cancel()
 	else:
 		var point = get_viewport().get_camera_3d().get_ray_intersection(event.position)
-		var target = hud._pick_unit(event.position) if kind in ["attack", "follow"] else null
+		var target = (
+			hud._pick_unit(event.position) if kind in ["attack", "force_attack", "follow"] else null
+		)
 		commit(point, target, Bindings.held("shift_selecting"))
 	return true
 
@@ -314,6 +326,8 @@ func handle_input(event):
 func commit(point, target, append):
 	if kind.is_empty() or _blocked():
 		return false
+	if kind == "attack" and target == null:
+		kind = "attack_move"
 	var units = eligible(kind)
 	if units.is_empty():
 		cancel()
@@ -336,18 +350,22 @@ func commit(point, target, append):
 		if orders.is_empty():
 			prompt("Choose another friendly unit to follow.")
 			return false
-	elif kind == "attack":
+	elif kind in ["attack", "force_attack"]:
 		if (
 			not is_instance_valid(target)
 			or target.is_queued_for_deletion()
-			or not (target.is_in_group("adversary_units") or target.is_in_group("neutral_targets"))
+			or not (
+				target.is_in_group("units")
+				or target.is_in_group("neutral_targets")
+				or target.is_in_group("points_of_interest")
+			)
 			or not hud.get_parent().battlefield.is_observed(units[0].player, target)
 		):
 			prompt("Choose a visible enemy or neutral target.")
 			return false
 		for unit in units:
-			if Rules.can_target(unit, target):
-				orders.append([unit, Orders.target_order("attack", target)])
+			if Rules.can_target(unit, target, kind == "force_attack"):
+				orders.append([unit, Orders.target_order(kind, target)])
 		if orders.is_empty():
 			prompt("Selected weapons cannot attack that target.")
 			return false

@@ -19,6 +19,8 @@ const BastionCatalog = preload("res://source/match/BastionCatalog.gd")
 @export var color = Color.WHITE
 @export var faction = "bastion"
 @export var difficulty = 1
+@export var team = -1
+@export var spawn_index = -1
 
 var technology = null
 var signatures = null
@@ -28,6 +30,14 @@ var coordination_left = -1.0
 var _color_material = null
 var _footprint_material = null
 var _lab_research = false
+
+
+func is_allied_with(other):
+	return other == self or (other != null and "team" in other and team >= 0 and team == other.team)
+
+
+func start_index():
+	return spawn_index if spawn_index >= 0 else get_index()
 
 
 func _ready():

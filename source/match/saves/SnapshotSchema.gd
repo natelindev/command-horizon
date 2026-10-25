@@ -317,7 +317,7 @@ func _rounds(data):
 				(
 					"kind:text weapon:text player:text shooter:text type:text damage:num "
 					+ "domains:list "
-					+ "mode:text origin:vec target:text target_base:maybevec "
+					+ "mode:text force_attack:bool origin:vec target:text target_base:maybevec "
 					+ "position:vec velocity:vec age:num "
 					+ "life:num burn:num serial:int"
 				)
@@ -611,6 +611,7 @@ func _settings(settings):
 		settings,
 		(
 			"visibility:int visible_player:int skirmish:bool advanced_start:bool "
+			+ "starting_resources_multiplier:int "
 			+ "map_path:text match_seed:signedint mission_id:text players:list"
 		)
 	):
@@ -618,6 +619,7 @@ func _settings(settings):
 	if (
 		not settings.skirmish
 		or settings.visibility > 2
+		or settings.starting_resources_multiplier not in [1, 2, 4]
 		or settings.visible_player >= settings.players.size()
 		or settings.players.size() not in [2, 4]
 	):
@@ -637,10 +639,15 @@ func _settings(settings):
 	if settings.players.size() > spawn_count:
 		return false
 	var spawn_index = 0
+	var used_spawns = []
 	for index in settings.players.size():
 		var side = settings.players[index]
 		if not _shape(
-			side, "color:color controller:int spawn_index_offset:int faction:text difficulty:int"
+			side,
+			(
+				"color:color controller:int spawn_index_offset:int faction:text difficulty:int "
+				+ "spawn_index:signedint team:signedint"
+			)
 		):
 			return false
 		spawn_index += side.spawn_index_offset + (1 if index > 0 else 0)
@@ -649,9 +656,19 @@ func _settings(settings):
 			or side.faction not in Factions.IDS
 			or side.difficulty < Difficulty.EASY
 			or side.difficulty > Difficulty.HARD
-			or spawn_index >= spawn_count
+			or side.spawn_index < -1
+			or side.spawn_index_offset >= spawn_count
+			or (side.spawn_index >= 0 and side.spawn_index_offset != 0)
+			or side.spawn_index >= spawn_count
+			or side.team < -1
+			or side.team > 3
+			or (side.spawn_index if side.spawn_index >= 0 else spawn_index) >= spawn_count
 		):
 			return false
+		var selected_spawn = side.spawn_index if side.spawn_index >= 0 else spawn_index
+		if selected_spawn in used_spawns:
+			return false
+		used_spawns.append(selected_spawn)
 		if (
 			settings.mission_id != ""
 			and (
@@ -799,6 +816,7 @@ func _action(action, unit, depth):
 		var flag = (
 			key
 			in [
+				"force_attack",
 				"_lost_contact",
 				"_finish_when_repaired",
 				"_full_recovery",
@@ -866,7 +884,9 @@ func _action(action, unit, depth):
 			kind == "Garrisoning"
 			and (
 				not Catalog.is_infantry(unit.role)
-				or not _neutral_ids.get(id, false)
+				or (not _neutral_ids.get(id, false) and not _poi_ids.has(id))
+				or action.state._capture_elapsed < 0
+				or action.state._capture_elapsed > 15.2
 				or action.state._elapsed < 0
 				or action.state._elapsed > .25
 			)
@@ -880,7 +900,19 @@ func _action(action, unit, depth):
 			)
 		):
 			return _fail("Unsupported action on a neutral target.")
-		if _poi_ids.has(id) and kind not in ["RecoveringAtService", "MovingToUnit"]:
+		if (
+			_poi_ids.has(id)
+			and (
+				kind
+				not in [
+					"RecoveringAtService",
+					"MovingToUnit",
+					"Garrisoning",
+					"AutoAttacking",
+					"AttackingWhileInRange"
+				]
+			)
+		):
 			return _fail("Unsupported action on a captured facility.")
 		var target = entities.get(id, {})
 		if target.is_empty():
@@ -1067,7 +1099,15 @@ func _order(order, unit):
 	if (
 		order.get("kind")
 		not in [
-			"attack", "repair", "gather", "construct", "follow", "approach", "recover", "garrison"
+			"attack",
+			"force_attack",
+			"repair",
+			"gather",
+			"construct",
+			"follow",
+			"approach",
+			"recover",
+			"garrison"
 		]
 	):
 		return _fail("Unsupported queued order.")
@@ -1077,12 +1117,21 @@ func _order(order, unit):
 		return false
 	if (
 		order.kind == "garrison"
-		and (not Catalog.is_infantry(unit.role) or not _neutral_ids.get(order.target, false))
+		and (
+			not Catalog.is_infantry(unit.role)
+			or (not _neutral_ids.get(order.target, false) and not _poi_ids.has(order.target))
+		)
 	):
 		return _fail("Invalid garrison order.")
-	if _neutral_ids.has(order.target) and order.kind not in ["attack", "approach", "garrison"]:
+	if (
+		_neutral_ids.has(order.target)
+		and order.kind not in ["attack", "force_attack", "approach", "garrison"]
+	):
 		return _fail("Unsupported order on a neutral target.")
-	if _poi_ids.has(order.target) and order.kind not in ["recover", "approach"]:
+	if (
+		_poi_ids.has(order.target)
+		and order.kind not in ["recover", "approach", "garrison", "attack", "force_attack"]
+	):
 		return _fail("Unsupported facility order.")
 	var target = entities.get(order.target, {})
 	if target.is_empty():
@@ -1201,7 +1250,7 @@ func _site_records(records, map_path):
 		if not _shape(
 			site,
 			(
-				"id:text owner:text candidate:text progress:num contested:bool "
+				"id:text hp:num owner:text candidate:text progress:num contested:bool "
 				+ "income_left:num stock_a:int stock_b:int jobs:list"
 			)
 		):
@@ -1213,7 +1262,8 @@ func _site_records(records, map_path):
 		):
 			return _fail("Invalid facility identity or ownership.")
 		if (
-			site.progress >= 10
+			site.progress >= 15.2
+			or site.hp > 300
 			or site.income_left > 10
 			or site.stock_a > 600
 			or site.stock_b > 300

@@ -15,6 +15,7 @@ const GLYPHS = {
 	"Return": "return",
 	"Atk Move": "attack_move",
 	"Target": "attack",
+	"Force": "attack",
 	"Reverse": "reverse",
 }
 
@@ -116,6 +117,18 @@ func update_layout(selected_units: Array, direct_orders = null):
 		has_attack and direct_orders != null and not direct_orders.eligible("attack").is_empty()
 	)
 	_setup_slot(1, 3, "Reverse", "", _on_reverse_move, is_armored)
+	_setup_slot(
+		1,
+		1,
+		"Force",
+		Bindings.label("force_attack"),
+		_on_force_attack,
+		(
+			has_attack
+			and direct_orders != null
+			and not direct_orders.eligible("force_attack").is_empty()
+		)
+	)
 
 
 func _clear_slots():
@@ -160,6 +173,7 @@ func order_slot(kind):
 	var cell = {
 		"move": Vector2i(0, 0),
 		"attack": Vector2i(1, 2),
+		"force_attack": Vector2i(1, 1),
 		"attack_move": Vector2i(1, 0),
 		"patrol": Vector2i(0, 3)
 	}
@@ -169,6 +183,11 @@ func order_slot(kind):
 func _on_patrol():
 	if _direct_orders != null:
 		_direct_orders.arm("patrol")
+
+
+func _on_force_attack():
+	if _direct_orders != null:
+		_direct_orders.arm("force_attack")
 
 
 func _on_move():

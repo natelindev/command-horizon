@@ -62,6 +62,8 @@ func _attach_campaign_story():
 func _spawn_player_units(player, spawn_transform):
 	player.resource_a = 120 if settings.advanced_start else 60
 	player.resource_b = 60 if settings.advanced_start else 12
+	player.resource_a *= settings.starting_resources_multiplier
+	player.resource_b *= settings.starting_resources_multiplier
 	var roster = [
 		["CommandCenter", Vector3.ZERO],
 		["Worker", Vector3(-3, 0, 4)],
@@ -126,9 +128,13 @@ func _check_outcome(delta):
 		else:
 			survivors.append(player)
 	var human = _get_human_player()
-	if survivors.size() <= 1 or human not in survivors:
+	var allies = survivors.filter(func(side): return human.is_allied_with(side))
+	var enemies = survivors.filter(func(side): return not human.is_allied_with(side))
+	if enemies.is_empty() or allies.is_empty():
 		finished = true
-		result = "Draw" if survivors.is_empty() else ("Victory" if human in survivors else "Defeat")
+		result = (
+			"Draw" if survivors.is_empty() else ("Victory" if not allies.is_empty() else "Defeat")
+		)
 		hud.show_result(result)
 
 
@@ -184,7 +190,11 @@ func objective_text():
 			(
 				"Your HQ · complete a rebuild within %ds." % seconds
 				if player == human
-				else "Enemy HQ · prevent a rebuild for %ds." % seconds
+				else (
+					tr("Ally HQ · rebuild within %ds.") % seconds
+					if human.is_allied_with(player)
+					else "Enemy HQ · prevent a rebuild for %ds." % seconds
+				)
 			)
 		)
 	if not recovery.is_empty():
@@ -197,7 +207,9 @@ func objective_text():
 			% (
 				_defeat_timers
 				. keys()
-				. filter(func(side): return side != human and _defeat_timers[side] > 0)
+				. filter(
+					func(side): return not human.is_allied_with(side) and _defeat_timers[side] > 0
+				)
 				. size()
 			)
 		)

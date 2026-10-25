@@ -517,6 +517,7 @@ func capture(reference):
 					"damage": round.shot.attack_damage,
 					"domains": round.shot.attack_domains.duplicate(),
 					"mode": round.shot.weapon_mode,
+					"force_attack": round.shot.force_attack,
 					"origin": round.shot.origin,
 					"target": target,
 					"target_base": round.target_base if round.target_base.is_finite() else null,
@@ -548,6 +549,7 @@ func restore(saved, entities):
 		shot.attack_damage = float(record.damage)
 		shot.attack_domains = record.domains.duplicate()
 		shot.weapon_mode = record.mode
+		shot.force_attack = record.force_attack
 		shot.origin = record.origin
 		var shooter = entities.get(record.shooter)
 		if shooter != null:

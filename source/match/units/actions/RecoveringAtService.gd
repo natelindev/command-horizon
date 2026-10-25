@@ -1,3 +1,4 @@
+# gdlint: disable=max-returns
 extends "res://source/match/units/actions/Action.gd"
 
 const Repairs = preload("res://source/match/combat/RepairService.gd")
@@ -35,6 +36,13 @@ func _physics_process(delta):
 		_unit.hp >= _unit.hp_max * (1.0 if _full_recovery else RETURN_HEALTH)
 		and not (_unit.has_method("needs_rearm") and _unit.needs_rearm())
 	):
+		if (
+			is_instance_valid(_target)
+			and _target.type == "RepairDepot"
+			and _unit.global_position_yless.distance_to(_target.global_position_yless) < 3.2
+		):
+			_movement.move(_exit_destination())
+			return
 		queue_free()
 		return
 	_elapsed += delta
@@ -46,6 +54,10 @@ func _physics_process(delta):
 		block()
 		return
 	if _blocked:
+		return
+	if _target.has_method("bay_busy") and _target.bay_busy(_unit):
+		_stalled = 0.0
+		_movement.stop()
 		return
 	if _unit.global_position_yless.distance_to(_destination()) <= _arrival_range():
 		_stalled = 0.0
@@ -92,6 +104,29 @@ func _arrival_range():
 	return _target.service_reach() if _target.has_method("service_reach") else ARRIVAL_RANGE
 
 
+func _exit_destination():
+	# A platform may stand beside another building. Find an open, navigable
+	# exit instead of repeatedly aiming into that building's footprint.
+	for offset in [Vector3(0, 0, 4), Vector3(4, 0, 0), Vector3(-4, 0, 0), Vector3(0, 0, -4)]:
+		var requested = _target.to_global(offset)
+		var point = NavigationServer3D.map_get_closest_point(
+			_movement.get_navigation_map(), requested
+		)
+		if ((point - requested) * Vector3(1, 0, 1)).length() > 0.6:
+			continue
+		var occupied = _unit._match.battlefield.nearby_units(point, _unit.radius + 1.0).any(
+			func(other):
+				return (
+					other != _unit
+					and other.movement_speed > 0
+					and other.movement_domain == _unit.movement_domain
+				)
+		)
+		if not occupied:
+			return point
+	return _target.to_global(Vector3(0, 0, 4))
+
+
 func _exit_tree():
 	if is_instance_valid(_movement):
 		_movement.stop()
@@ -107,7 +142,7 @@ func _to_string():
 			else "Recovery blocked · waiting for safe service"
 		)
 	if Repairs.facility_eligible(_target, _unit):
-		if _unit.global_position_yless.distance_to(_target.global_position_yless) <= ARRIVAL_RANGE:
+		if _unit.global_position_yless.distance_to(_destination()) <= _arrival_range():
 			return (
 				"Recovering · %d%% / %d%%"
 				% [roundi(_unit.hp * 100.0 / _unit.hp_max), 100 if _full_recovery else 80]

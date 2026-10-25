@@ -49,14 +49,17 @@ func _open_sites(faction):
 
 func _claim(site, soldier, side):
 	var previous_owner = site.captured_by
-	soldier.position = site.position + Vector3(3.8, 0, 0)
+	soldier.position = site.position + Vector3(3.0, 0, 0)
 	_game.battlefield.invalidate()
-	site._physics_process(5)
+	var capture = load("res://source/match/units/actions/Garrisoning.gd").new(site)
+	soldier.action = capture
+	capture.set_physics_process(false)
+	capture._physics_process(5)
 	_check(
 		site.captured_by == previous_owner and site.progress == 5,
 		"Capture changed ownership before completing"
 	)
-	site._physics_process(5)
+	capture._physics_process(10)
 	_check(
 		site.captured_by == side and site.progress == 0, "Infantry failed to capture the facility"
 	)
@@ -148,11 +151,11 @@ func _exercise_sites():
 	rival.position += Vector3(20, 0, 0)
 	_claim(camp, soldier, _human)
 	# Open recruitment from the captured camp, then buy through the displayed UI.
-	_check(camp.has_node("RecruitmentArea"), "Captured camp cannot be clicked")
+	_check(camp.input_ray_pickable, "Captured camp cannot be clicked")
 	var click = InputEventMouseButton.new()
 	click.button_index = MOUSE_BUTTON_LEFT
 	click.pressed = true
-	camp.get_node("RecruitmentArea").input_event.emit(null, click, Vector3.ZERO, Vector3.UP, 0)
+	camp.input_event.emit(null, click, Vector3.ZERO, Vector3.UP, 0)
 	await _frames(2)
 	var menu = _game.find_child("UnitMenus")
 	_check(menu._camp == camp and menu.visible, "Camp did not open standard production console")
@@ -240,7 +243,7 @@ func _exercise_sites():
 		),
 		"Service discovery included player controllers or omitted a captured repair shop"
 	)
-	armor.position = shop.position + Vector3(3.8, 0, 1)
+	armor.position = shop.service_point(armor)
 	armor.hp = armor.hp_max * .5
 	_game.battlefield.invalidate()
 	var hp = armor.hp

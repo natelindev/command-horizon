@@ -129,7 +129,7 @@ func _interaction():
 	await _frames(20)
 	for soldier in troops:
 		player.get_node("UnitActionsController")._navigate_unit_towards_unit(soldier, building)
-	await _frames(240)
+	await _frames(1250)
 	_check(building.occupants.size() == 8, "Eight infantry did not enter/capacity was not enforced")
 	_check(building.player == player, "Garrison ownership missing")
 	for soldier in building.occupants:

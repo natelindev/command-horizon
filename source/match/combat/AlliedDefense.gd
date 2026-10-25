@@ -2,6 +2,7 @@ extends Node
 
 const Attack = preload("res://source/match/units/actions/AutoAttacking.gd")
 const Waiting = preload("res://source/match/units/actions/WaitingForTargets.gd")
+const Players = preload("res://source/match/Players.gd")
 const RESPONSE_RADIUS = 10.0
 const PURSUIT_RADIUS = 16.0
 @onready var game = get_parent()
@@ -20,13 +21,15 @@ func _on_hit(victim, attacker):
 	if not attacker is Node3D:
 		return
 	if (
-		victim.player == attacker.player
+		Players.allied(victim.player, attacker.player)
 		or not game.battlefield.is_observed(victim.player, attacker)
 	):
 		return
 	var origin = victim.global_position_yless
 	var radius = RESPONSE_RADIUS + victim.radius
-	for unit in game.battlefield.nearby_units(origin, radius, victim.player):
+	for unit in game.battlefield.nearby_units(origin, radius):
+		if not Players.allied(unit.player, victim.player):
+			continue
 		if not _available(unit, attacker):
 			continue
 		var response = Attack.new(attacker)

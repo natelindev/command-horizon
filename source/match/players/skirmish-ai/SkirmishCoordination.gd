@@ -138,7 +138,8 @@ static func _completed(game, player, group, fields):
 		return _relays(game).all(
 			func(relay):
 				return (
-					_relay_point(relay).distance_to(group.point) > 3 or relay.captured_by == player
+					_relay_point(relay).distance_to(group.point) > 3
+					or player.is_allied_with(relay.captured_by)
 				)
 		)
 	if group.kind == "scout":
@@ -195,7 +196,7 @@ static func _candidate(game, player, kind, groups, free, fields):
 		var relays = _relays(game).filter(
 			func(relay):
 				return (
-					relay.captured_by != player
+					not player.is_allied_with(relay.captured_by)
 					and _unassigned(groups, kind, _relay_point(relay), 3.0)
 				)
 		)
@@ -374,20 +375,21 @@ static func _relay_point(relay) -> Vector3:
 
 static func _enemy_start(game, player):
 	var starts = game.map.find_child("SpawnPoints")
-	var origin = starts.get_child(player.get_index()).position
+	var origin = starts.get_child(player.start_index()).position
 	var enemies = game.get_tree().get_nodes_in_group("players").filter(
-		func(other): return other != player and game._defeat_timers.get(other, 60.0) > 0
+		func(other):
+			return not player.is_allied_with(other) and game._defeat_timers.get(other, 60.0) > 0
 	)
 	if enemies.is_empty():
 		return origin
 	enemies.sort_custom(
 		func(a, b):
 			return (
-				origin.distance_squared_to(starts.get_child(a.get_index()).position)
-				< origin.distance_squared_to(starts.get_child(b.get_index()).position)
+				origin.distance_squared_to(starts.get_child(a.start_index()).position)
+				< origin.distance_squared_to(starts.get_child(b.start_index()).position)
 			)
 	)
-	return starts.get_child(enemies[0].get_index()).position * Vector3(1, 0, 1)
+	return starts.get_child(enemies[0].start_index()).position * Vector3(1, 0, 1)
 
 
 static func _nearest(units, point):

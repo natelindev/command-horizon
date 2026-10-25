@@ -82,8 +82,9 @@ func _adapt_action(action_node):
 		"AttackMoving", "Patrolling":
 			replacement = AirStation.new(action_node.destination, true)
 		"AutoAttacking", "AttackingWhileInRange":
-			if can_strike(action_node._target_unit):
-				replacement = AirStrike.new(action_node._target_unit)
+			var forced = action_node.get("force_attack") == true
+			if can_strike(action_node._target_unit, forced):
+				replacement = AirStrike.new(action_node._target_unit, forced)
 		"Following":
 			replacement = AirStation.new(Vector3.ZERO, true, action_node._target_unit)
 		"RecoveringAtService":
@@ -94,11 +95,11 @@ func _adapt_action(action_node):
 	return replacement
 
 
-func can_strike(target):
+func can_strike(target, forced = false):
 	return (
 		is_instance_valid(target)
 		and not target.is_queued_for_deletion()
-		and _rules().can_target(self, target)
+		and _rules().can_target(self, target, forced)
 	)
 
 

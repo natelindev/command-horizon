@@ -2,6 +2,12 @@
 
 ## [main]
 
+- Vehicles board repair platforms, wait for the service bay, and leave it after recovery.
+- Skirmish setup offers numbered or random starts, FFA, team presets and custom teams, individual faction/difficulty overrides, starting resources and visibility.
+- Infantry capture neutral facilities and shelters at the building over 15 seconds, with visible progress; damage interrupts capture.
+- A-click attacks enemies or attack-moves to empty ground. Ctrl+A force-attacks damageable allied and neutral units/buildings. Camera panning defaults to arrow keys.
+- Save format 20 stores teams, start positions, capture progress, destructible facilities and force attacks. Development archives were converted with entity IDs preserved.
+
 ## [0.17.0]
 
 ### Added

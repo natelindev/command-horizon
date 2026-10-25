@@ -65,6 +65,7 @@ var _passive_movement_detected = false
 var _air_velocity = Vector3.ZERO
 var _climbing_out = false
 var _ground_alignment_height = INF
+var _uses_platform_height = false
 
 @onready var _match = find_parent("Match")
 @onready var _unit: Unit = get_parent()
@@ -521,6 +522,14 @@ func _on_velocity_computed(safe_velocity: Vector3):
 	_last_navigation_iteration = navigation_iteration
 	var current_speed: float = speed
 	var origin: Vector3 = _unit.global_position
+	if (
+		domain == Constants.Match.Navigation.Domain.TERRAIN
+		and not _uses_platform_height
+		and not _match.map.is_elevated()
+		and origin.y > 0.01
+	):
+		# A restored vehicle may already be descending off a platform.
+		_uses_platform_height = true
 	var maximum_step: float = current_speed * _physics_delta
 	var displacement := safe_velocity.limit_length(current_speed) * _physics_delta
 	var candidate := origin + displacement
@@ -569,6 +578,19 @@ func _on_velocity_computed(safe_velocity: Vector3):
 		if _match.map.is_elevated():
 			next.y = _match.map.height_at(Vector2(next.x, next.z))
 			_ground_alignment_height = next.y
+		# Repair platforms are drive-on ground surfaces, including while leaving
+		# a completed or cancelled recovery order. Derive height from position so
+		# restored units do not need a separate docking state.
+		for body in get_tree().get_nodes_in_group("repair_platforms"):
+			if (
+				body.global_position_yless.distance_squared_to(next * Vector3(1, 0, 1)) <= 4.0
+				and body.is_constructed()
+			):
+				var deck_height = body.deck_height(next)
+				if deck_height > 0:
+					_uses_platform_height = true
+				next.y = maxf(next.y, body.global_position.y + deck_height)
+		_ground_alignment_height = next.y
 	var actual_velocity := (next - origin) / maxf(_physics_delta, 0.001)
 	if (
 		domain == Constants.Match.Navigation.Domain.TERRAIN
@@ -676,7 +698,10 @@ func _ground_contact(origin: Vector3, next: Vector3, neighbors: Array) -> Vector
 
 
 func _sync_ground_navigation_height():
-	if domain == Constants.Match.Navigation.Domain.TERRAIN and _match.map.is_elevated():
+	if (
+		domain == Constants.Match.Navigation.Domain.TERRAIN
+		and (_match.map.is_elevated() or _uses_platform_height)
+	):
 		# Offset path waypoints by the local bake lift. A fixed offset can leave
 		# a grounded body outside the waypoint's vertical arrival tolerance.
 		path_height_offset = (
@@ -687,7 +712,10 @@ func _sync_ground_navigation_height():
 func _navigation_position(point: Vector3) -> Vector3:
 	var position := _closest_navigation_point(point)
 	position.y -= path_height_offset
-	if domain == Constants.Match.Navigation.Domain.TERRAIN and _match.map.is_elevated():
+	if (
+		domain == Constants.Match.Navigation.Domain.TERRAIN
+		and (_match.map.is_elevated() or _uses_platform_height)
+	):
 		position.y = _match.map.height_at(Vector2(position.x, position.z))
 	return position
 

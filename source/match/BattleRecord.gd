@@ -67,7 +67,11 @@ func _built(unit):
 
 
 func _weapon_hit(victim, attacker):
-	if not _owned(attacker) or victim.player == attacker.player or victim.hp > 0:
+	if (
+		not _owned(attacker)
+		or load("res://source/match/Players.gd").allied(victim.player, attacker.player)
+		or victim.hp > 0
+	):
 		return
 	# Weapon-hit is emitted once per accepted hit, after lethal damage is applied.
 	var key = "structures_destroyed" if victim.has_method("is_constructed") else "units_destroyed"

@@ -460,7 +460,7 @@ func _train(units, desired):
 func _command_army(units):
 	var enemies = []
 	for enemy in get_tree().get_nodes_in_group("units"):
-		if enemy.player == self or enemy.is_queued_for_deletion():
+		if is_allied_with(enemy.player) or enemy.is_queued_for_deletion():
 			continue
 		if _match.battlefield.is_observed(self, enemy):
 			enemies.append(enemy)
@@ -508,7 +508,7 @@ func _offensive_goal(soldiers, contacts, enemy_start):
 		if (
 			target.is_queued_for_deletion()
 			or target.hp <= 0
-			or target.player == self
+			or is_allied_with(target.player)
 			or target.movement_domain != Constants.Match.Navigation.Domain.TERRAIN
 			or (target.type != "Worker" and not target.has_method("is_constructed"))
 			or not _match.battlefield.is_observed(self, target)
@@ -690,7 +690,7 @@ func _choose_weapon_modes(units):
 		contacts = contacts.filter(
 			func(other):
 				return (
-					other.player != self
+					not is_allied_with(other.player)
 					and other.hp > 0
 					and _match.battlefield.is_observed(self, other)
 				)

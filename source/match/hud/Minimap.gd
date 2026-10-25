@@ -140,7 +140,15 @@ func _sync_unit(unit, observer):
 	marker.kind = (
 		"resource"
 		if unit.is_in_group("resource_units")
-		else ("own" if unit.player == observer else "opponent")
+		else (
+			"own"
+			if unit.player == observer
+			else (
+				"ally"
+				if load("res://source/match/Players.gd").allied(unit.player, observer)
+				else "opponent"
+			)
+		)
 	)
 	marker.color = unit.player.color if unit is Unit else unit.color
 

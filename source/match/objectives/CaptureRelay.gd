@@ -1,4 +1,4 @@
-extends Node3D
+extends Area3D
 
 signal captured(player)
 
@@ -20,6 +20,11 @@ var player:
 var _lamp: StandardMaterial3D
 var _label: Label3D
 @onready var _match = find_parent("Match")
+
+
+func _init():
+	collision_layer = 0
+	collision_mask = 0
 
 
 func _ready():
@@ -79,7 +84,20 @@ func _capture_presence():
 			combatants.append(unit.player)
 		if InfantryRoster.is_infantry(unit.type) and unit.player not in infantry:
 			infantry.append(unit.player)
-	return {"infantry": infantry, "combatants": combatants}
+	# Allied armies count as one side. Prefer the owner/candidate so allies
+	# reinforce a held site instead of taking ownership from one another.
+	var sides = []
+	for side in [captured_by, candidate] + infantry + combatants:
+		if side != null and not sides.any(func(other): return other.is_allied_with(side)):
+			sides.append(side)
+	var allied_infantry = []
+	var allied_combatants = []
+	for side in sides:
+		if infantry.any(func(other): return side.is_allied_with(other)):
+			allied_infantry.append(side)
+		if combatants.any(func(other): return side.is_allied_with(other)):
+			allied_combatants.append(side)
+	return {"infantry": allied_infantry, "combatants": allied_combatants}
 
 
 func capture_side():

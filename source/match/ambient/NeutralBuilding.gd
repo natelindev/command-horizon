@@ -5,6 +5,7 @@ const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
 const CAPACITY = InfantryRoster.GARRISON_CAPACITY
 const Catalog = preload("res://source/match/ambient/AmbientCatalog.gd")
 const NeutralDetails = preload("res://source/match/ambient/NeutralDetails.gd")
+const CaptureIndicator = preload("res://source/match/objectives/CaptureIndicator.gd")
 var occupants = []
 var habitable = true
 var _body
@@ -14,6 +15,9 @@ var _height = 6.9
 var _fans = []
 var _debris = []
 var _asset = ""
+var _capturer = null
+var _capture_indicator
+var _owner_flag
 
 
 func setup(body, identity):
@@ -52,6 +56,12 @@ func setup(body, identity):
 	_create_debris()
 	selected.connect(select_occupants)
 	add_to_group("neutral_buildings")
+	_capture_indicator = CaptureIndicator.new()
+	_capture_indicator.position.y = _height + 1.8
+	add_child(_capture_indicator)
+	_owner_flag = CaptureIndicator.new()
+	_owner_flag.position.y = _height + 0.8
+	add_child(_owner_flag)
 	update_label()
 
 
@@ -67,7 +77,27 @@ func can_garrison(unit):
 		and unit.hp > 0
 		and occupants.size() < CAPACITY
 		and (occupants.is_empty() or player == unit.player)
+		and (not is_instance_valid(_capturer) or _capturer.player.is_allied_with(unit.player))
 	)
+
+
+func capture_busy(unit):
+	return is_instance_valid(_capturer) and _capturer != unit
+
+
+func force_attack_only():
+	return occupants.is_empty()
+
+
+func show_capture(unit, elapsed):
+	_capturer = unit
+	_capture_indicator.display(elapsed, 15.0, unit.player.color)
+
+
+func clear_capture(unit):
+	if _capturer == unit:
+		_capturer = null
+		_capture_indicator.hide()
 
 
 func enter(unit, saved_slot = -1):
@@ -132,6 +162,15 @@ func select_occupants():
 
 
 func update_label():
+	if is_instance_valid(_owner_flag):
+		_owner_flag.visible = hp > 0 and player != null
+		if player != null:
+			_owner_flag.text = (
+				(tr("Player %d") % (player.get_index() + 1))
+				+ " · "
+				+ (tr("Garrison %d / %d") % [occupants.size(), CAPACITY])
+			)
+			_owner_flag.modulate = player.color.lightened(0.5)
 	if not _label.diagnostics_enabled():
 		return
 	_label.text = (
@@ -154,6 +193,8 @@ func begin_death():
 	player = null
 	_obstacle.sight_height = .65
 	_label.content_visible = false
+	_owner_flag.hide()
+	_capture_indicator.hide()
 	_match.battlefield.invalidate()
 
 

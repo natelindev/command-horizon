@@ -1,6 +1,8 @@
+# gdlint: disable=max-public-methods
 extends "res://source/match/objectives/CaptureRelay.gd"
 
 signal recruitment_changed
+signal hp_changed
 
 const Sites = preload("res://source/match/world/PointOfInterestCatalog.gd")
 const Factions = preload("res://source/match/FactionCatalog.gd")
@@ -9,6 +11,7 @@ const INCOME_INTERVAL = 10.0
 const QUEUE_LIMIT = 3
 const REFINERY = preload("res://assets/models/environment/neutral/OilRefinery.glb")
 const OWNERSHIP_MATERIAL = "Ownership band"
+const Rules = preload("res://source/match/combat/CombatRules.gd")
 var site_id = ""
 var kind = "refinery"
 var radius = 2.2
@@ -20,6 +23,8 @@ var stock_a = 600
 var stock_b = 300
 var income_left = INCOME_INTERVAL
 var machinery = null
+var hp_max = 300.0
+var signature = null
 var type:
 	get:
 		return "RepairDepot" if kind == "repair" else "PointOfInterest"
@@ -28,9 +33,12 @@ var global_position_yless:
 		return global_position * Vector3(1, 0, 1)
 
 var _payer = null
+var _capturer = null
+var _capture_indicator
 
 
 func _ready():
+	hp = hp_max
 	sight_range = 9.0
 	add_to_group("vision_sources")
 	add_to_group("points_of_interest")
@@ -39,22 +47,27 @@ func _ready():
 	obstacle.radius = radius
 	obstacle.path_height_offset = .6
 	obstacle.affect_navigation_mesh = true
+	if kind == "repair":
+		obstacle.affect_navigation_mesh = false
+		obstacle.avoidance_enabled = false
+		add_to_group("repair_platforms")
 	add_child(obstacle)
 	captured.connect(_ownership_changed)
-	if kind == "mercenary":
-		var area = Area3D.new()
-		area.name = "RecruitmentArea"
-		area.collision_layer = 2
-		area.collision_mask = 0
-		var collider = CollisionShape3D.new()
-		var shape = CylinderShape3D.new()
-		shape.radius = radius
-		shape.height = 4.0
-		collider.shape = shape
-		collider.position.y = 2.0
-		area.add_child(collider)
-		add_child(area)
-		area.input_event.connect(_recruitment_input)
+	collision_layer = 2
+	var collider = CollisionShape3D.new()
+	var shape = CylinderShape3D.new()
+	shape.radius = radius
+	shape.height = 4.0
+	collider.shape = shape
+	collider.position.y = 2.0
+	add_child(collider)
+	var targetability = load("res://source/match/units/traits/Targetability.tscn").instantiate()
+	targetability.radius = radius
+	add_child(targetability)
+	input_event.connect(_recruitment_input)
+	_capture_indicator = load("res://source/match/objectives/CaptureIndicator.gd").new()
+	_capture_indicator.position.y = _label.position.y + 1.4
+	add_child(_capture_indicator)
 
 
 func _build_model():
@@ -63,7 +76,7 @@ func _build_model():
 	else:
 		_build_faction_building()
 	_label = Label3D.new()
-	_label.position = Vector3(0, 5.5, 0)
+	_label.position = Vector3(0, 5.5 if kind == "refinery" else 3.4, 0)
 	_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	_label.font = load("res://assets/fonts/NotoSansSC.ttf")
 	_label.font_size = 28
@@ -141,10 +154,105 @@ func _clear_owners(node):
 func capture_help(_viewer):
 	return tr(
 		(
-			"Infantry within 5 m capture in 10 seconds. "
-			+ "Opposing ground combatants pause capture and services."
+			"Right-click with infantry to capture at the building for 15 seconds. "
+			+ "Any damage to the infantry interrupts capture. "
+			+ "Use Force Attack to destroy the building."
 		)
 	)
+
+
+func can_garrison(unit):
+	return (
+		hp > 0
+		and unit.hp > 0
+		and InfantryRoster.is_infantry(unit.type)
+		and not unit.player.is_allied_with(captured_by)
+		and (not is_instance_valid(_capturer) or _capturer.player.is_allied_with(unit.player))
+	)
+
+
+func capture_busy(unit):
+	return is_instance_valid(_capturer) and _capturer != unit
+
+
+func show_capture(unit, elapsed):
+	_capturer = unit
+	candidate = unit.player
+	progress = elapsed
+	_capture_indicator.display(elapsed, 15.0, unit.player.color)
+	_update_presentation()
+
+
+func clear_capture(unit):
+	if _capturer == unit:
+		_capturer = null
+		candidate = null
+		progress = 0.0
+		_capture_indicator.hide()
+		_update_presentation()
+
+
+func enter(unit):
+	if not can_garrison(unit):
+		return false
+	captured_by = unit.player
+	clear_capture(unit)
+	_match.battlefield.invalidate()
+	captured.emit(captured_by)
+	_update_presentation()
+	return true
+
+
+func leave(_unit):
+	pass
+
+
+func capture_side():
+	return candidate
+
+
+func capture_status(viewer):
+	if hp <= 0:
+		return tr("Destroyed")
+	if candidate != null:
+		return tr("Capturing · %d / %d s") % [floori(progress), 15]
+	if captured_by != null and viewer != null and viewer.is_allied_with(captured_by):
+		return tr("Secured")
+	return tr("Enemy owned") if captured_by != null else tr("Unclaimed")
+
+
+func force_attack_only():
+	return true
+
+
+func combat_domain():
+	return movement_domain
+
+
+func receive_weapon_hit(source):
+	_take_damage(Rules.damage(source, self))
+
+
+func receive_shot(shot, _point = null, share = 1.0, _weapon = {}):
+	_take_damage(Rules.damage_from(shot, self) * share)
+
+
+func _take_damage(amount):
+	if amount <= 0 or hp <= 0:
+		return
+	hp = maxf(0, hp - amount)
+	hp_changed.emit()
+	if hp <= 0:
+		if is_instance_valid(_capturer):
+			clear_capture(_capturer)
+		captured_by = null
+		candidate = null
+		progress = 0.0
+		_ownership_changed(null)
+		get_node("Geometry").scale.y = 0.15
+		collision_layer = 0
+		_match.battlefield.invalidate()
+		_update_presentation()
 
 
 func is_constructed():
@@ -155,8 +263,28 @@ func service_active():
 	return operational()
 
 
+func service_point(_unit):
+	return to_global(Vector3(0, 0, -0.25))
+
+
+func service_reach():
+	return 0.55
+
+
+func services(unit):
+	return (
+		unit.global_position_yless.distance_to(service_point(unit) * Vector3(1, 0, 1))
+		<= service_reach()
+	)
+
+
+func deck_height(point):
+	var local = to_local(point)
+	return 0.28 * clampf((1.0 - maxf(absf(local.x) / 1.15, absf(local.z) / 1.25)) / 0.35, 0.0, 1.0)
+
+
 func operational():
-	return captured_by != null and not contested and capture_side() == null
+	return hp > 0 and captured_by != null and not contested and capture_side() == null
 
 
 func income_payment():
@@ -174,6 +302,8 @@ func income_status():
 
 func _update_presentation():
 	super()
+	if candidate != null:
+		_label.text = tr(label_title)
 	if kind == "refinery" and captured_by != null:
 		_label.text += "\n" + income_status()
 
@@ -187,7 +317,15 @@ func _physics_process(delta):
 	):
 		return
 	var previous_owner = captured_by
-	super(delta)
+	if hp <= 0:
+		return
+	var presence = _capture_presence()
+	var defending = captured_by if captured_by != null else candidate
+	contested = (
+		defending != null
+		and presence.combatants.any(func(side): return not defending.is_allied_with(side))
+	)
+	_update_presentation()
 	if machinery != null:
 		machinery.advance(delta, operational() and income_payment() != Vector2i.ZERO)
 	if previous_owner != captured_by or not operational():
@@ -303,6 +441,7 @@ func _spawn_point(unit_radius):
 func capture_state(reference):
 	return {
 		"id": site_id,
+		"hp": hp,
 		"owner": reference.call(captured_by),
 		"candidate": reference.call(candidate),
 		"progress": progress,
@@ -315,6 +454,7 @@ func capture_state(reference):
 
 
 func restore_state(saved, entities):
+	hp = saved.hp
 	captured_by = entities.get(saved.owner)
 	candidate = entities.get(saved.candidate)
 	progress = saved.progress
@@ -324,6 +464,9 @@ func restore_state(saved, entities):
 	stock_b = saved.stock_b
 	jobs = saved.jobs.duplicate(true)
 	_payer = captured_by if not jobs.is_empty() else null
+	if hp <= 0:
+		get_node("Geometry").scale.y = 0.15
+		collision_layer = 0
 	_update_presentation()
 
 

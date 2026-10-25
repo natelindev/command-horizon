@@ -34,7 +34,7 @@ static func award(source, target, actual_damage: float, killed: bool):
 	if (
 		not eligible(source)
 		or not target.is_in_group("units")
-		or source.player == target.player
+		or load("res://source/match/Players.gd").allied(source.player, target.player)
 		or target.hp_max == null
 		or target.hp_max <= 0
 		or actual_damage <= 0

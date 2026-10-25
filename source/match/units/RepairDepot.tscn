@@ -13,7 +13,7 @@
 radius = 2.0
 height = 1.9
 
-[node name="RepairDepot" type="Area3D"]
+[node name="RepairDepot" type="Area3D" groups=["repair_platforms"]]
 collision_layer = 2
 collision_mask = 0
 script = ExtResource("unit")
@@ -45,7 +45,8 @@ position = Vector3(0, 0.04, 0)
 [node name="MovementObstacle" parent="." instance=ExtResource("MovementObstacle")]
 radius = 2.0
 vertices = PackedVector3Array(-1.4, 0, -1.4, 1.4, 0, -1.4, 1.4, 0, 1.4, -1.4, 0, 1.4)
-affect_navigation_mesh = true
+affect_navigation_mesh = false
+avoidance_enabled = false
 path_height_offset = 0.6
 
 [node name="HealthBar" parent="." instance=ExtResource("HealthBar")]

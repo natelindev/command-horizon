@@ -1,8 +1,6 @@
 extends RefCounted
 
-const VERSION = 3
-const ADDED_IN_V2 = ["move_order", "attack_target"]
-const ADDED_IN_V3 = ["patrol_order", "cycle_subgroup"]
+const VERSION = 4
 const MODIFIERS = KEY_MASK_SHIFT | KEY_MASK_CTRL | KEY_MASK_ALT | KEY_MASK_META
 const MODIFIER_KEYS = [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META]
 const RESERVED = [KEY_BACKTAB, KEY_ENTER, KEY_KP_ENTER]
@@ -41,7 +39,8 @@ const CORE = {
 	"pause_battle": ["Battle", "Tactical pause", KEY_SPACE],
 	"attack_move": ["Battle", "Attack move", KEY_F],
 	"move_order": ["Battle", "Move to point", KEY_M],
-	"attack_target": ["Battle", "Attack target", KEY_T],
+	"attack_target": ["Battle", "Attack target / attack move", KEY_A],
+	"force_attack": ["Battle", "Force attack", KEY_A | KEY_MASK_CTRL],
 	"patrol_order": ["Battle", "Patrol", KEY_P],
 	"cycle_subgroup": ["Groups", "Cycle selected unit classes", KEY_TAB],
 	"toggle_match_menu": ["Battle", "Battle menu / cancel assignment", KEY_ESCAPE],
@@ -49,10 +48,10 @@ const CORE = {
 	"quicksave_battle": ["Battle", "Quicksave", KEY_F5],
 	"quickload_battle": ["Battle", "Open quickload", KEY_F9],
 	"shift_selecting": ["Battle", "Add selection / queue orders (hold)", KEY_SHIFT],
-	"move_map_up": ["Camera", "Pan up", KEY_W],
-	"move_map_down": ["Camera", "Pan down", KEY_S],
-	"move_map_left": ["Camera", "Pan left", KEY_A],
-	"move_map_right": ["Camera", "Pan right", KEY_D],
+	"move_map_up": ["Camera", "Pan up", KEY_UP],
+	"move_map_down": ["Camera", "Pan down", KEY_DOWN],
+	"move_map_left": ["Camera", "Pan left", KEY_LEFT],
+	"move_map_right": ["Camera", "Pan right", KEY_RIGHT],
 	"rotate_map_clockwise": ["Camera", "Rotate clockwise", KEY_Q],
 	"rotate_map_counterclockwise": ["Camera", "Rotate counterclockwise", KEY_E]
 }
@@ -83,41 +82,19 @@ static func normalize(record):
 	if (
 		not record is Dictionary
 		or typeof(record.get("version")) != TYPE_INT
-		or record.get("version") not in [1, 2, VERSION]
+		or record.get("version") != VERSION
 		or not record.get("keys") is Dictionary
 	):
 		return fallback
 	# Treat a corrupt or internally conflicting profile atomically. Mixing partial
 	# defaults with user keys can silently assign the same key to two commands.
 	var keys = record.keys.duplicate(true)
-	var added = []
-	if record.version < 2:
-		added.append_array(ADDED_IN_V2)
-	if record.version < 3:
-		added.append_array(ADDED_IN_V3)
-	var expected = fallback.keys.keys().filter(func(action): return action not in added)
-	if keys.size() != expected.size():
+	if keys.size() != fallback.keys.size():
 		return fallback
-	for action in expected:
+	for action in fallback.keys:
 		if not keys.has(action) or not problem(action, keys[action], keys).is_empty():
 			return fallback
-	for action in added:
-		keys[action] = _unused_default(action, keys)
 	return {"version": VERSION, "keys": keys.duplicate(true)}
-
-
-static func _unused_default(action, keys):
-	var wanted = CORE[action][2]
-	for modifiers in [0, KEY_MASK_ALT, KEY_MASK_CTRL, KEY_MASK_SHIFT]:
-		if problem(action, wanted | modifiers, keys).is_empty():
-			return wanted | modifiers
-	# A complete legacy profile has only 31 entries, so this bounded search always
-	# finds a legal free chord while preserving every existing player binding.
-	for letter in range(KEY_A, KEY_Z + 1):
-		for modifiers in [KEY_MASK_ALT, KEY_MASK_CTRL, KEY_MASK_SHIFT]:
-			if problem(action, letter | modifiers, keys).is_empty():
-				return letter | modifiers
-	return wanted
 
 
 static func problem(action, code, keys):

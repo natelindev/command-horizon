@@ -408,6 +408,9 @@ func _test_repair():
 	_check(is_equal_approx(tank.hp, 22.0), "Ten robots stacked healing instead of one 2.5% channel")
 	var depot = _spawn("RepairDepot", _human, Vector3(40, 0, 11))
 	depot.process_mode = Node.PROCESS_MODE_PAUSABLE
+	tank.global_position = depot.service_point(tank)
+	for robot in robots:
+		robot.global_position = tank.global_position + Vector3(0, 0, 1)
 	service.service(1.0)
 	_check(is_equal_approx(tank.hp, 25.2), "Depot and mobile channel stacked")
 	# Under low power the stronger robot channel must win over a slowed depot.
@@ -445,7 +448,7 @@ func _test_repair():
 	for index in range(tanks.size()):
 		if tanks[index].hp > initial[index]:
 			healed += 1
-	_check(healed == 2, "Depot exceeded two service channels")
+	_check(healed == 1, "Depot must repair only the vehicle on its platform")
 	var infantry = _spawn("Infantry", _human, Vector3(40, 0, 9))
 	infantry.hp = 5.0
 	_check(not service.mobile_eligible(robots[0], infantry), "Robot allowed to repair infantry")

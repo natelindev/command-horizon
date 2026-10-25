@@ -2,6 +2,7 @@ extends RefCounted
 
 const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
 const Technologies = preload("res://source/match/research/TechnologyCatalog.gd")
+const Players = preload("res://source/match/Players.gd")
 
 # Armor profiles; damage remains floating point all the way to HP.
 const MULTIPLIERS = {
@@ -61,7 +62,7 @@ static func armor_for(role):
 	return 3
 
 
-static func can_target(source, target):
+static func can_target(source, target, forced = false):
 	return (
 		is_instance_valid(source)
 		and not source.is_queued_for_deletion()
@@ -70,25 +71,52 @@ static func can_target(source, target):
 		and source.attack_range != null
 		and (not source.has_method("is_constructed") or source.is_constructed())
 		and (not source.has_method("armed") or source.armed())
-		and can_receive(source, target)
+		and can_receive(source, target, forced)
+	)
+
+
+static func can_force_target(source, target):
+	return can_target(source, target, true)
+
+
+static func explicit_attack(source, target):
+	if not is_instance_valid(target):
+		return false
+	if "force_attack" in source:
+		return source.force_attack
+	var action = source.get("action")
+	return (
+		is_instance_valid(action)
+		and "force_attack" in action
+		and action.force_attack
+		and "_target_unit" in action
+		and action._target_unit == target
 	)
 
 
 # Target-side legality shared by live shooters and in-flight rounds (Shot).
-static func can_receive(source, target):
+static func can_receive(source, target, forced = false):
 	return (
 		is_instance_valid(target)
 		and not target.is_queued_for_deletion()
 		and not target.has_meta("garrison_host")
-		# Capturable sites expose HP/ownership for vision but cannot take damage.
 		and target.has_method("combat_domain")
 		and target.has_method("receive_shot")
 		and (not "interactive" in target or target.interactive)
 		and "hp" in target
 		and target.hp != null
 		and target.hp > 0
+		and (not "invulnerable" in target or not target.invulnerable)
+		and (not target.has_method("can_take_damage") or target.can_take_damage())
 		and "player" in target
-		and source.player != target.player
+		and (
+			forced
+			or explicit_attack(source, target)
+			or (
+				not Players.allied(source.player, target.player)
+				and (not target.has_method("force_attack_only") or not target.force_attack_only())
+			)
+		)
 		and target.combat_domain() in source.attack_domains
 	)
 

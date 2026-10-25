@@ -6,6 +6,7 @@ const Production = preload("res://source/match/players/skirmish-ai/SkirmishProdu
 const Composition = preload("res://source/match/players/skirmish-ai/SkirmishComposition.gd")
 const Difficulty = preload("res://source/match/players/skirmish-ai/SkirmishDifficulty.gd")
 const AttackMove = preload("res://source/match/units/actions/AttackMoving.gd")
+const Capturing = preload("res://source/match/units/actions/Garrisoning.gd")
 
 
 static func command(game, player, units, available, observed):
@@ -22,10 +23,16 @@ static func command(game, player, units, available, observed):
 	for unit in soldiers:
 		var reference = unit.get_meta("site_capture") if unit.has_meta("site_capture") else null
 		var target = reference.get_ref() if reference is WeakRef else null
-		if is_instance_valid(target) and target.player != player and _safe(target, observed):
+		if (
+			is_instance_valid(target)
+			and not player.is_allied_with(target.player)
+			and _safe(target, observed)
+		):
 			_order(unit, target)
 			return [unit]
-	var choices = sites.filter(func(site): return site.player != player and _safe(site, observed))
+	var choices = sites.filter(
+		func(site): return not player.is_allied_with(site.player) and _safe(site, observed)
+	)
 	var best = null
 	var chosen = null
 	var score = INF
@@ -52,9 +59,9 @@ static func _safe(site, observed):
 
 
 static func _order(unit, site):
-	if unit.action is AttackMove and unit.action.destination.distance_to(site.position) < 1:
+	if unit.action is Capturing and unit.action._target_unit == site:
 		return
-	unit.issue_manual_order(AttackMove.new(site.position))
+	unit.issue_manual_order(Capturing.new(site))
 
 
 static func recruit(game, player, units, desired):

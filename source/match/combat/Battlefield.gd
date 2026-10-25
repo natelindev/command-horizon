@@ -1,5 +1,6 @@
 extends Node
 
+const Players = preload("res://source/match/Players.gd")
 const Rules = preload("res://source/match/combat/CombatRules.gd")
 const Footprint = preload("res://source/match/utils/Footprint.gd")
 const Unit = preload("res://source/match/units/Unit.gd")
@@ -74,9 +75,10 @@ func _refresh():
 		var player = unit.player
 		if player == null:
 			continue
-		if not _observers.has(player):
-			_observers[player] = {}
-		var observer_cells: Dictionary = _observers[player]
+		var vision_key = player.team if "team" in player and player.team >= 0 else player
+		if not _observers.has(vision_key):
+			_observers[vision_key] = {}
+		var observer_cells: Dictionary = _observers[vision_key]
 		var position: Vector3 = unit.global_position
 		var cell := _cell(position)
 		if not observer_cells.has(cell):
@@ -212,7 +214,7 @@ func _eye(point: Vector2) -> Vector3:
 func is_observed(player, target):
 	if not is_instance_valid(target) or target.is_queued_for_deletion():
 		return false
-	if "player" in target and target.player == player:
+	if "player" in target and Players.allied(target.player, player):
 		return true
 	_refresh()
 	if not _observer_hints.has(player):
@@ -223,7 +225,11 @@ func is_observed(player, target):
 	var witness = reference.get_ref() if reference != null else null
 	# Reuse the last successful observer, never its previous visibility result.
 	# Current ownership, life/construction, range and obstruction are checked on every query.
-	if is_instance_valid(witness) and witness.player == player and can_observe(witness, target):
+	if (
+		is_instance_valid(witness)
+		and Players.allied(witness.player, player)
+		and can_observe(witness, target)
+	):
 		return true
 	hints.erase(target_id)
 	var point = target.global_position * Vector3(1, 0, 1)
@@ -234,13 +240,14 @@ func is_observed(player, target):
 	# instead of scanning an entire extra ring of twelve-metre cells.
 	var low = _cell(point - Vector3.ONE * (reach + _max_body_step))
 	var high = _cell(point + Vector3.ONE * (reach + _max_body_step))
-	var cells: Dictionary = _observers.get(player, EMPTY_CELLS)
+	var vision_key = player.team if "team" in player and player.team >= 0 else player
+	var cells: Dictionary = _observers.get(vision_key, EMPTY_CELLS)
 	for x in range(low.x, high.x + 1):
 		for y in range(low.y, high.y + 1):
 			for ally in cells.get(Vector2i(x, y), EMPTY_UNITS):
 				# Reject distant cells' members before the full visibility query.
 				# Live range, ownership and occlusion are still authoritative below.
-				if not is_instance_valid(ally) or ally.player != player:
+				if not is_instance_valid(ally) or not Players.allied(ally.player, player):
 					continue
 				if (
 					(ally.global_position * Vector3(1, 0, 1)).distance_squared_to(point)

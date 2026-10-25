@@ -22,8 +22,9 @@ func _adapt_action(action_node):
 	var kind = action_node.get_script().resource_path.get_file().get_basename()
 	if kind in ["AutoAttacking", "AttackingWhileInRange"]:
 		var target = action_node._target_unit
+		var forced = action_node.get("force_attack") == true
 		action_node.free()
-		return DroneDive.new(target)
+		return DroneDive.new(target, forced)
 	return action_node
 
 

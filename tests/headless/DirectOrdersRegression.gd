@@ -4,7 +4,7 @@ extends "res://tests/headless/SaveRestoreEdges.gd"
 func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
 	var keys = load("res://source/input/KeyBindings.gd")
-	_migration(keys)
+	_defaults(keys)
 	for action in ["move_order", "attack_target"]:
 		_check(keys.definitions().has(action), "Missing direct command shortcut: " + action)
 	for faction in ["bastion", "helix"]:
@@ -45,7 +45,7 @@ func _exercise_commands(commands):
 	_check(game.battlefield.is_observed(player, target), "Command target fixture is hidden")
 	await _select_units([tank, worker])
 	var menus = game.find_child("UnitMenus")
-	_check(menus._command_buttons.size() == 4, "Distinct command buttons are missing")
+	_check(menus._command_buttons.size() == 5, "Distinct command buttons are missing")
 	var clock = game.simulation_time
 	var destination = Vector3(30, 0, 38)
 	commands.arm("move")
@@ -288,45 +288,16 @@ func _review_controls(_player, _tank, _target):
 	pass
 
 
-func _migration(keys):
-	var legacy = keys.defaults()
-	legacy.version = 1
-	for action in keys.ADDED_IN_V2 + keys.ADDED_IN_V3:
-		legacy.keys.erase(action)
-	legacy.keys.toggle_match_menu = KEY_M
-	legacy.keys.rotate_structure = KEY_T
-	legacy.keys.pause_battle = KEY_M | KEY_MASK_SHIFT
-	legacy.keys.quicksave_battle = KEY_M | KEY_MASK_ALT
-	legacy.keys.quickload_battle = KEY_M | KEY_MASK_CTRL
-	var untouched = legacy.duplicate(true)
-	var upgraded = keys.normalize(legacy)
-	_check(
-		upgraded.version == keys.VERSION and upgraded.keys.size() == keys.definitions().size(),
-		"Legacy controls did not migrate"
-	)
-	for action in legacy.keys:
+func _defaults(keys):
+	var defaults = keys.defaults()
+	_check(defaults.keys.attack_target == KEY_A, "A is not the contextual attack key")
+	_check(defaults.keys.force_attack == (KEY_A | KEY_MASK_CTRL), "Ctrl+A is not Force Attack")
+	_check(defaults.keys.move_map_left == KEY_LEFT, "Camera input conflicts with attack")
+	var old = defaults.duplicate(true)
+	old.version = 3
+	_check(keys.normalize(old) == defaults, "Previous development controls did not reset")
+	for action in defaults.keys:
 		_check(
-			upgraded.keys[action] == legacy.keys[action], "Migration reset custom key: " + action
+			keys.problem(action, defaults.keys[action], defaults.keys).is_empty(),
+			"Default key conflict: " + action
 		)
-	for action in upgraded.keys:
-		_check(
-			keys.problem(action, upgraded.keys[action], upgraded.keys).is_empty(),
-			"Migration introduced a key conflict: " + action
-		)
-	_check(legacy == untouched, "Migration mutated the source key profile")
-	_check(keys.normalize(upgraded) == upgraded, "Migrated key profile is not stable")
-	var preferences = root.get_node("Globals").options
-	var original = preferences.capture()
-	var stored = load("res://source/data-model/Options.gd").new()
-	stored.screen = 1
-	stored.key_bindings = legacy
-	var archive = "user://direct-order-keys-%d.tres" % OS.get_process_id()
-	_check(stored.persist(archive) == OK, "Legacy control fixture did not write")
-	var loaded = ResourceLoader.load(archive, "", ResourceLoader.CACHE_MODE_IGNORE)
-	preferences.restore(loaded.capture())
-	_check(preferences.key_bindings == upgraded, "Loading legacy controls lost custom keys")
-	_check(preferences.persist(archive) == OK, "Migrated controls did not save")
-	loaded = ResourceLoader.load(archive, "", ResourceLoader.CACHE_MODE_IGNORE)
-	_check(loaded.key_bindings == upgraded, "Migrated controls did not survive disk storage")
-	preferences.restore(original)
-	DirAccess.remove_absolute(archive)

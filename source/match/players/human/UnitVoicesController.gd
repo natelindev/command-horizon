@@ -14,7 +14,7 @@ func _on_unit_selected(unit):
 
 func _on_order_issued(unit, kind):
 	var response = "move"
-	if kind in ["attack", "attack_move"]:
+	if kind in ["attack", "force_attack", "attack_move"]:
 		response = "attack"
 	elif kind in ["gather", "construct", "repair", "stop"]:
 		response = kind

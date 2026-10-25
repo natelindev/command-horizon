@@ -1,6 +1,7 @@
 extends Node3D
 
 const Factions = preload("res://source/match/FactionCatalog.gd")
+const Players = preload("res://source/match/Players.gd")
 
 const Unit = preload("res://source/match/units/Unit.gd")
 const Structure = preload("res://source/match/units/Structure.gd")
@@ -162,7 +163,9 @@ func _set_visible_player(player):
 
 func _get_visible_players():
 	if settings.visibility == settings.Visibility.PER_PLAYER:
-		return [visible_player]
+		return get_tree().get_nodes_in_group("players").filter(
+			func(side): return Players.allied(side, visible_player)
+		)
 	return get_tree().get_nodes_in_group("players")
 
 
@@ -207,6 +210,8 @@ func _create_players_from_settings():
 		player.color = player_settings.color
 		player.faction = player_settings.faction
 		player.difficulty = player_settings.difficulty
+		player.team = player_settings.team
+		player.spawn_index = player_settings.spawn_index
 		player.set_meta("skirmish", settings.skirmish)
 		if player_settings.spawn_index_offset > 0:
 			for _i in range(player_settings.spawn_index_offset):
@@ -220,7 +225,7 @@ func _setup_player_units():
 	for player in _players.get_children():
 		if not player is Player:
 			continue
-		var player_index = player.get_index()
+		var player_index = player.start_index()
 		var predefined_units = player.get_children().filter(func(child): return child is Unit)
 		if not predefined_units.is_empty():
 			predefined_units.map(func(unit): _setup_unit_groups(unit, unit.player))
@@ -266,7 +271,7 @@ func _setup_unit_groups(unit, player):
 	unit.add_to_group("units")
 	if player == _get_human_player():
 		unit.add_to_group("controlled_units")
-	else:
+	elif not Players.allied(player, _get_human_player()):
 		unit.add_to_group("adversary_units")
 	if player in visible_players:
 		unit.add_to_group("revealed_units")
@@ -305,7 +310,7 @@ func _reveal_player_units(player):
 	if player == null:
 		return
 	for unit in get_tree().get_nodes_in_group("units").filter(
-		func(a_unit): return a_unit.player == player
+		func(a_unit): return Players.allied(a_unit.player, player)
 	):
 		unit.add_to_group("revealed_units")
 
@@ -314,6 +319,6 @@ func _conceal_player_units(player):
 	if player == null:
 		return
 	for unit in get_tree().get_nodes_in_group("units").filter(
-		func(a_unit): return a_unit.player == player
+		func(a_unit): return Players.allied(a_unit.player, player)
 	):
 		unit.remove_from_group("revealed_units")

@@ -2,6 +2,7 @@ extends "res://source/match/units/actions/Action.gd"
 
 const Shooting = preload("res://source/match/units/actions/AttackingWhileInRange.gd")
 const Rules = preload("res://source/match/combat/CombatRules.gd")
+var force_attack = false
 var _defense_origin = Vector3.ZERO
 var _defense_radius = 0.0
 var _target_unit = null
@@ -19,8 +20,9 @@ static func is_applicable(source_unit, target_unit):
 	return Rules.can_target(source_unit, target_unit)
 
 
-func _init(target_unit):
+func _init(target_unit, forced = false):
 	_target_unit = target_unit
+	force_attack = forced
 
 
 func _ready():

@@ -10,6 +10,7 @@ var attack_damage = 0.0
 var attack_domains = []
 var weapon_mode = ""
 var origin = Vector3.ZERO
+var force_attack = false
 var global_position:
 	get:
 		var unit = shooter()
@@ -26,6 +27,9 @@ static func from(unit, muzzle):
 	shot.weapon_mode = unit.weapon_mode if "weapon_mode" in unit else ""
 	shot.origin = muzzle
 	shot._shooter = weakref(unit)
+	shot.force_attack = load("res://source/match/combat/CombatRules.gd").explicit_attack(
+		unit, unit.aim_target
+	)
 	return shot
 
 

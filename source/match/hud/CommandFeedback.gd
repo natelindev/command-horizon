@@ -8,6 +8,7 @@ const TITLES = {
 	"move": "Move",
 	"approach": "Move",
 	"attack": "Attack target",
+	"force_attack": "Force attack",
 	"attack_move": "Attack move",
 	"patrol": "Patrol",
 	"gather": "Gather",
@@ -138,8 +139,15 @@ func contextual_kind(target):
 
 
 func _glyph_kind(kind):
-	return {"attack_move": "attack", "approach": "move", "recover": "repair", "patrol": "move"}.get(
-		kind, kind
+	return (
+		{
+			"attack_move": "attack",
+			"force_attack": "attack",
+			"approach": "move",
+			"recover": "repair",
+			"patrol": "move"
+		}
+		. get(kind, kind)
 	)
 
 

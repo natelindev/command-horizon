@@ -313,6 +313,7 @@ func _commands():
 	_units(human, "Worker")[0].get_node("Selection").select()
 	handler._on_structure_placement_request(load("res://source/match/units/PowerPlant.tscn"))
 	var previous = handler._active_blueprint_node.rotation.y
+	_bind("move_map_left", KEY_J)
 	_bind("rotate_structure", KEY_LEFT)
 	game.hud._attack_button.grab_focus()
 	await _press(KEY_LEFT)

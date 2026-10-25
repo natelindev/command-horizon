@@ -111,6 +111,9 @@ func _instantiate(kind, state, refs):
 func _bind(action, kind, target, unit):
 	var movement = unit.get_node_or_null("Movement")
 	match kind:
+		"Garrisoning":
+			if action._capture_elapsed > 0 and not unit.has_meta("garrison_host"):
+				target.show_capture(unit, action._capture_elapsed)
 		"Moving", "MovingToUnit":
 			movement.movement_finished.connect(action._on_movement_finished)
 			if kind == "MovingToUnit":

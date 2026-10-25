@@ -113,7 +113,7 @@ func service(delta):
 				{
 					"unit": unit,
 					"rate": 0.04 * production_factors[player] * upgrade,
-					"slots": unit.service_slots() if role == "AircraftFactory" else 2,
+					"slots": unit.service_slots() if unit.has_method("service_slots") else 2,
 					"range": unit.SERVICE_REACH if role == "AircraftFactory" else FACILITY_RANGE
 				}
 			)
@@ -169,7 +169,12 @@ func _eligible(provider, target):
 				return false
 			return mobile_eligible(source, target)
 		"RepairDepot":
-			return mobile_eligible(source, target) and target.movement_speed > 0
+			return (
+				mobile_eligible(source, target)
+				and target.movement_speed > 0
+				and source.services(target)
+				and stationary(target)
+			)
 		"AircraftFactory":
 			return source.services(target) and stationary(target)
 		"Barracks":

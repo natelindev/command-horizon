@@ -4,9 +4,9 @@ extends RefCounted
 const Campaigns = preload("res://source/match/campaign/CampaignCatalog.gd")
 const Values = preload("res://source/match/saves/SaveValue.gd")
 # Saves from any other version are rejected; there is no migration.
-const VERSION = 19
+const VERSION = 20
 const ACTION_FIELDS = {
-	"Garrisoning": ["_elapsed"],
+	"Garrisoning": ["_elapsed", "_capture_elapsed"],
 	"Moving": ["_target_position", "_arrival_elapsed", "_arrival_progress"],
 	"MovingToUnit": ["_target_position"],
 	"AttackMoving": ["destination", "_elapsed", "_arrival_elapsed", "_arrival_progress"],
@@ -14,6 +14,7 @@ const ACTION_FIELDS = {
 	["destination", "_elapsed", "_arrival_elapsed", "_arrival_progress", "origin", "endpoint"],
 	"AutoAttacking":
 	[
+		"force_attack",
 		"_elapsed",
 		"_last_known_position",
 		"_lost_contact",
@@ -36,10 +37,10 @@ const ACTION_FIELDS = {
 	"RecoveringAtService":
 	["_elapsed", "_stalled", "_blocked", "_last_progress", "_retry_left", "_full_recovery"],
 	"AirStation": ["_point", "sweep"],
-	"AirStrike": [],
+	"AirStrike": ["force_attack"],
 	"AirReturn": [],
 	"AirIdle": ["_scan_left"],
-	"DroneDive": ["diving", "_velocity", "_aim_point"],
+	"DroneDive": ["diving", "_velocity", "_aim_point", "force_attack"],
 }
 const ACTION_REFERENCES = ["_target_unit", "_resource_unit", "_cc_unit", "_target", "_escort"]
 const ACTION_CHILDREN = ["_shot", "_sub_action"]
@@ -91,6 +92,7 @@ func capture(game):
 			"visible_player",
 			"skirmish",
 			"advanced_start",
+			"starting_resources_multiplier",
 			"map_path",
 			"match_seed",
 			"mission_id"
@@ -100,7 +102,16 @@ func capture(game):
 	for player in game.settings.players:
 		settings.players.append(
 			_properties(
-				player, ["color", "controller", "spawn_index_offset", "faction", "difficulty"]
+				player,
+				[
+					"color",
+					"controller",
+					"spawn_index_offset",
+					"faction",
+					"difficulty",
+					"spawn_index",
+					"team"
+				]
 			)
 		)
 	var camera = game.get_node("IsometricCamera3D")

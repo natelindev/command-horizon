@@ -3,7 +3,7 @@ extends RefCounted
 const Cache = preload("res://source/utils/RuntimeCache.gd")
 
 const Factions = preload("res://source/match/FactionCatalog.gd")
-const LEGEND = "● Your forces   ▲ Opponent   ◆ Resources"
+const LEGEND = "● Your forces   ■ Ally   ▲ Opponent   ◆ Resources"
 
 
 static func legend(game):
@@ -18,7 +18,13 @@ static func kind(unit, game):
 	var observer = game._get_human_player()
 	if observer == null:
 		observer = game.visible_player
-	return "own" if unit.player == observer else "opponent"
+	if unit.player == observer:
+		return "own"
+	return (
+		"ally"
+		if load("res://source/match/Players.gd").allied(unit.player, observer)
+		else "opponent"
+	)
 
 
 static func known_now(unit, game):
@@ -37,7 +43,9 @@ static func known_now(unit, game):
 
 
 static func caption(unit, game):
-	var owner = "Your forces" if kind(unit, game) == "own" else "Opponent"
+	var owner = {"own": "Your forces", "ally": "Ally", "opponent": "Opponent"}.get(
+		kind(unit, game), ""
+	)
 	if game._get_human_player() == null:
 		owner = "Side %d" % (unit.player.get_index() + 1)
 	elif game.get_node("Players").get_child_count() > 2:
@@ -54,6 +62,7 @@ static func _symbol(shape):
 	if not symbols.has(shape):
 		var geometry = {
 			"own": '<circle cx="0" cy="0" r="1" fill="white"/>',
+			"ally": '<rect x="-.8" y="-.8" width="1.6" height="1.6" fill="white"/>',
 			"opponent": '<path d="M0,-1.15 L1,.8 L-1,.8 Z" fill="white"/>',
 			"resource": '<path d="M0,-1 L1,0 L0,1 L-1,0 Z" fill="white"/>'
 		}[shape]
