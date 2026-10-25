@@ -5,6 +5,7 @@ extends RefCounted
 ## may instantiate the same resources. Value keys bound the shared cache across
 ## reloads, while retaining materials until deferred renderer frees have drained.
 const SURFACE = preload("res://source/shaders/3d/object_surface.gdshader")
+const FOLIAGE_CARDS = preload("res://source/shaders/3d/foliage_cards.gdshader")
 const TWO_SIDED = preload("res://source/shaders/3d/object_surface_twosided.gdshader")
 const ROOT = "res://assets/textures/objects/"
 const MAPS = {
@@ -310,6 +311,23 @@ static func textured(original, mesh_name = ""):
 	material.set_shader_parameter("detail_strength", profile[2])
 	material.set_shader_parameter("normal_strength", profile[3])
 	material.set_shader_parameter("leaf_transmission", profile[4])
+	if kind == "metal":
+		# Only the faction authoring pipeline reserves UV2 for mechanical trims.
+		# Other scenery may use its second UV set for lightmaps or custom effects.
+		var trims = ["Bastion_", "Helix_", "Frontier_", "Armor /", "Mechanisms /", "Hardware /"].any(
+			func(prefix): return original.resource_name.begins_with(prefix)
+		)
+		load("res://source/match/SurfaceTextures.gd").configure_metal(material, trims)
+		material.set_shader_parameter("metal_finish_enabled", true)
+	if "[cards:" in original.resource_name:
+		material.shader = FOLIAGE_CARDS
+		material.set_shader_parameter("base_color", original.albedo_color)
+		var leaf_kind = "needles" if "[cards:needles]" in original.resource_name else "leaves"
+		material.set_shader_parameter(
+			"leaf_texture", load(ROOT + "generated/" + leaf_kind + "_cutout.png")
+		)
+		shared[key] = material
+		return material
 	var maps = MAPS[profile[0]]
 	material.set_shader_parameter("surface_color", load(maps[0]))
 	if not maps[1].is_empty():

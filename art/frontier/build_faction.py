@@ -14,6 +14,7 @@ from mathutils import Vector
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "common"))
 import weathering  # noqa: E402
+import trim_sheet  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "assets/models/frontier/v1"
@@ -507,6 +508,8 @@ command(); barracks(); garage(); airfield(); power(); signals(); garage(True); s
 manifest=[]
 for name,collection,asset_root in assets:
     bpy.context.view_layer.update()
+    for part in collection.objects:
+        trim_sheet.prepare(part)
     deps=bpy.context.evaluated_depsgraph_get()
     copies={}
     for obj in collection.objects:
@@ -542,6 +545,10 @@ for name,collection,asset_root in assets:
     for obj in live: bpy.data.objects.remove(obj,do_unlink=True)
     manifest.append({"name":name,"triangles":triangles,"file":name+".glb"})
     collection.hide_render=True
+
+if "--models-only" in sys.argv:
+    print("Material-ready faction models exported")
+    raise SystemExit(0)
 
 # Render actual geometry for roster icons.
 world=bpy.data.worlds.new("Frontier studio"); scene.world=world; world.use_nodes=True

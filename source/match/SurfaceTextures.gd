@@ -17,6 +17,11 @@ const ASPHALT_NORMAL = preload("res://assets/textures/surfaces/polyhaven/asphalt
 const ASPHALT_ROUGHNESS = preload(
 	"res://assets/textures/surfaces/polyhaven/asphalt_03_rough_1k.jpg"
 )
+const MICRO_NORMAL = preload("res://assets/textures/surfaces/generated/metal_micro_normal.png")
+const MICRO_ORM = preload("res://assets/textures/surfaces/generated/metal_micro_orm.png")
+const TRIM_COLOR = preload("res://assets/textures/surfaces/generated/mechanical_trim_color.png")
+const TRIM_NORMAL = preload("res://assets/textures/surfaces/generated/mechanical_trim_normal.png")
+const TRIM_ORM = preload("res://assets/textures/surfaces/generated/mechanical_trim_orm.png")
 const ARMOR_SHADER = preload("res://source/shaders/3d/armor_surface.gdshader")
 const ARMOR_NAMES = [
 	"Bastion_Armor",
@@ -53,6 +58,16 @@ static func configure_industrial(material, panels):
 static func configure_armor(material, enabled = true):
 	material.set_shader_parameter("armor_texture", ARMOR)
 	material.set_shader_parameter("armor_panels", enabled)
+	configure_metal(material, true)
+
+
+static func configure_metal(material, trims = false):
+	material.set_shader_parameter("trim_enabled", trims)
+	material.set_shader_parameter("metal_micro_normal", MICRO_NORMAL)
+	material.set_shader_parameter("metal_micro_orm", MICRO_ORM)
+	material.set_shader_parameter("trim_color", TRIM_COLOR)
+	material.set_shader_parameter("trim_normal", TRIM_NORMAL)
+	material.set_shader_parameter("trim_orm", TRIM_ORM)
 
 
 static func apply_armor(model):
@@ -78,5 +93,8 @@ static func apply_armor(model):
 				material.set_shader_parameter("metalness", original.metallic)
 				material.set_shader_parameter("base_roughness", original.roughness)
 				configure_armor(material)
+				# Ceramic Helix panels stay smoother than Bastion cast armor.
+				if original.resource_name.begins_with("Helix"):
+					material.set_shader_parameter("micro_normal_strength", 0.07)
 				materials[key] = material
 			mesh.set_surface_override_material(surface, materials[key])

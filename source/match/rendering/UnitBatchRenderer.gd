@@ -136,7 +136,29 @@ func _restore_static(group):
 		group.node.hide()
 	for source in group.sources:
 		if is_instance_valid(source) and source.mesh != null:
-			RenderingServer.instance_set_base(source.get_instance(), source.mesh.get_rid())
+			_restore_mesh(source)
+
+
+func _restore_mesh(source: MeshInstance3D):
+	var instance = source.get_instance()
+	RenderingServer.instance_set_base(instance, source.mesh.get_rid())
+	# Clearing a rendering instance's base also clears its surface overrides in
+	# the server. MeshInstance3D still retains those resources, so rebind them
+	# when leaving a batch (fog, construction, hidden parts and damage effects).
+	for surface in source.mesh.get_surface_count():
+		var material = source.get_surface_override_material(surface)
+		if material != null:
+			RenderingServer.instance_set_surface_override_material(
+				instance, surface, material.get_rid()
+			)
+	if source.material_override != null:
+		RenderingServer.instance_geometry_set_material_override(
+			instance, source.material_override.get_rid()
+		)
+	if source.material_overlay != null:
+		RenderingServer.instance_geometry_set_material_overlay(
+			instance, source.material_overlay.get_rid()
+		)
 
 
 func _queue_unit(unit):
@@ -422,7 +444,7 @@ func _invalidate(unit, exiting := false):
 	_leave_group(entry)
 	for source in entry.sources:
 		if is_instance_valid(source) and source.mesh != null:
-			RenderingServer.instance_set_base(source.get_instance(), source.mesh.get_rid())
+			_restore_mesh(source)
 	_free_poses.get_or_add(entry.anchors.size(), []).append(entry.offset)
 
 

@@ -131,8 +131,8 @@ func _scenery():
 		["temperate/OakTree", Vector3(-4, 0, -2), 6.0],
 		["temperate/DouglasFir", Vector3(3, 0, -3), 7.0],
 		["canyon/BoulderA", Vector3(-2, 0, 2), 1.2],
-		["canyon/Sagebrush", Vector3(1, 0, 2), .8],
-		["drylands/DuneGrass", Vector3(3, 0, 2), .7],
+		["desert/DryScrub", Vector3(1, 0, 2), .8],
+		["temperate/MeadowGrass", Vector3(3, 0, 2), .5],
 	]:
 		var model = batching.merged_mesh(entry[0], entry[2])
 		batching.add(

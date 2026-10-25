@@ -1,3 +1,6 @@
+#include "res://source/shaders/3d/metal_detail.gdshaderinc"
+
+uniform bool metal_finish_enabled = false;
 // Object-space triplanar textures also work on UV-less generated models and
 // merged MultiMeshes. Physical scale is retained without swimming when moving.
 uniform sampler2D surface_color : source_color, filter_linear_mipmap_anisotropic, repeat_enable;
@@ -17,13 +20,15 @@ uniform float leaf_transmission = 0.0;
 // A per-material control for rendered comparisons, independent of ground detail.
 uniform float object_detail = 1.0;
 varying vec3 surface_position;
+varying vec3 metal_position;
 varying vec3 surface_geometric_normal;
 varying mat3 surface_to_view;
 
 void vertex() {
 	vec3 scale = max(vec3(length(MODEL_MATRIX[0].xyz),
 		length(MODEL_MATRIX[1].xyz), length(MODEL_MATRIX[2].xyz)), vec3(0.0001));
-	surface_position = VERTEX * scale * texture_scale;
+	metal_position = VERTEX * scale;
+	surface_position = metal_position * texture_scale;
 	surface_geometric_normal = normalize(NORMAL / scale);
 	surface_to_view = mat3(MODELVIEW_MATRIX[0].xyz / scale.x,
 		MODELVIEW_MATRIX[1].xyz / scale.y, MODELVIEW_MATRIX[2].xyz / scale.z);
@@ -66,6 +71,14 @@ void fragment() {
 		slope -= n * dot(slope, n);
 		vec3 perturbed = normalize(n + slope * normal_strength * object_detail);
 		NORMAL = normalize(surface_to_view * perturbed) * (FRONT_FACING ? 1.0 : -1.0);
+	}
+	if (metal_finish_enabled) {
+		MetalFinish finish = metal_finish(metal_position, surface_geometric_normal,
+			surface_to_view, VERTEX, NORMAL, UV2);
+		NORMAL = normalize(mix(NORMAL, finish.normal, object_detail));
+		ALBEDO *= mix(1.0, finish.color, object_detail);
+		AO = mix(1.0, finish.occlusion, object_detail);
+		ROUGHNESS = clamp(ROUGHNESS + finish.roughness_delta * object_detail, 0.12, 1.0);
 	}
 	// Leaves remain lit and shadowed; a little transmitted light softens backlit crowns.
 	BACKLIGHT = base_color.rgb * leaf_transmission;
