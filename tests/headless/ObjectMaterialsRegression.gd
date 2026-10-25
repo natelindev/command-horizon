@@ -194,7 +194,16 @@ func _check_model(model, label):
 		if not material is ShaderMaterial:
 			continue
 		_check(
-			material.get_shader_parameter("surface_color") is Texture2D,
+			(
+				material.get_shader_parameter(
+					(
+						"leaf_texture"
+						if material.shader == Materials.FOLIAGE_CARDS
+						else "surface_color"
+					)
+				)
+				is Texture2D
+			),
 			label + " has an unbound texture"
 		)
 		_check(

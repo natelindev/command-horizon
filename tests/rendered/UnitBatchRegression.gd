@@ -4,6 +4,8 @@ extends "res://tests/headless/SaveRestoreEdges.gd"
 func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
 	Engine.max_fps = 120
+	# Both paths must use the same geometry for the material comparison.
+	root.mesh_lod_threshold = 0.0
 	root.mode = Window.MODE_WINDOWED
 	root.size = Vector2i(1280, 720)
 	root.content_scale_size = root.size
@@ -66,7 +68,8 @@ func _check_unit(renderer, unit, faction):
 	await _frames(8)
 	DirAccess.make_dir_recursive_absolute("res://tmp/batch-review")
 	await RenderingServer.frame_post_draw
-	root.get_texture().get_image().save_png("res://tmp/batch-review/" + faction + "-gpu.png")
+	var batched = root.get_texture().get_image()
+	batched.save_png("res://tmp/batch-review/" + faction + "-gpu.png")
 	renderer._invalidate(unit)
 	_check(
 		geometry.find_children("*", "MeshInstance3D", true, false).size() == expected,
@@ -74,7 +77,9 @@ func _check_unit(renderer, unit, faction):
 	)
 	await _frames(8)
 	await RenderingServer.frame_post_draw
-	root.get_texture().get_image().save_png("res://tmp/batch-review/" + faction + "-native.png")
+	var ordinary = root.get_texture().get_image()
+	ordinary.save_png("res://tmp/batch-review/" + faction + "-native.png")
+	_check_material_parity(camera, geometry, batched, ordinary, faction)
 	renderer._add_unit(unit)
 	_check(renderer._units.has(unit), "Rebatch failed")
 	var part = renderer._units[unit].sources[0]
@@ -89,4 +94,32 @@ func _check_unit(renderer, unit, faction):
 	_check(
 		renderer._orphans.get_child_count() == orphan_count - detached_count,
 		"Unit destruction leaked detached meshes"
+	)
+
+
+# Compare the unit, not the mostly unchanged ground. This catches dropped
+# surface overrides as well as material-palette/normal errors after unbatching.
+func _check_material_parity(camera, geometry, batched: Image, ordinary: Image, label):
+	var low = Vector2(INF, INF)
+	var high = Vector2(-INF, -INF)
+	for mesh in geometry.find_children("*", "MeshInstance3D", true, false):
+		var box = mesh.mesh.get_aabb()
+		for corner in 8:
+			var point = camera.unproject_position(mesh.to_global(box.get_endpoint(corner)))
+			low = low.min(point)
+			high = high.max(point)
+	var rect = Rect2i(Rect2(low, high - low).grow(3)).intersection(
+		Rect2i(Vector2i.ZERO, batched.get_size())
+	)
+	var different = 0
+	var samples = 0
+	for x in range(rect.position.x, rect.end.x, 2):
+		for y in range(rect.position.y, rect.end.y, 2):
+			var a = batched.get_pixel(x, y)
+			var b = ordinary.get_pixel(x, y)
+			different += int(maxf(absf(a.r - b.r), maxf(absf(a.g - b.g), absf(a.b - b.b))) > .04)
+			samples += 1
+	_check(
+		samples > 0 and different < samples * .015,
+		"Batch/native materials differ on %s: %d/%d pixels" % [label, different, samples]
 	)

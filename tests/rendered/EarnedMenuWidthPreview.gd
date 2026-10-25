@@ -17,9 +17,7 @@ func _review_earned_service(label):
 	await _frames(8)
 	game.fog_of_war._physics_process(0.0)
 	await RenderingServer.frame_post_draw
-	var clip = menus._scroll.get_global_rect()
-	if menus._scroll.get_v_scroll_bar().visible:
-		clip.size.x -= menus._scroll.get_v_scroll_bar().size.x
+	var clip = menus._command_bay.get_global_rect()
 	for kind in menus._command_buttons:
 		var button = menus._command_buttons[kind]
 		if not button.visible:

@@ -140,6 +140,17 @@ func _check_units():
 						active.get_shader_parameter("armor_texture") == Textures.ARMOR,
 						"Armor texture missing"
 					)
+					for binding in [
+						"metal_micro_normal",
+						"metal_micro_orm",
+						"trim_color",
+						"trim_normal",
+						"trim_orm"
+					]:
+						_check(
+							active.get_shader_parameter(binding) is Texture2D,
+							"Missing armor detail: " + binding
+						)
 					_check(
 						original is StandardMaterial3D and original.albedo_texture == null,
 						"Shared source material mutated"

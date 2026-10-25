@@ -118,7 +118,8 @@ func _run():
 	soldier.queue_free()
 	await _frames(35)
 	await _capture("02-collapse")
-	await _frames(140)
+	# Cook-off uses simulation seconds; frame count varies with renderer speed.
+	await create_timer(2.8, false).timeout
 	await _capture("03-cookoff")
 	_check(
 		(

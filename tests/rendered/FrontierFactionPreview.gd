@@ -113,7 +113,6 @@ func _battle_flow():
 	)
 	if signature == null:
 		return false
-	menu._scroll.ensure_control_visible(signature._activate)
 	await _frames(5)
 	var action = tank.action
 	signature._activate.grab_focus()

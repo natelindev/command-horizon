@@ -16,6 +16,7 @@ func _ready():
 	_interception = _button("Interception", "interception")
 	_status = Label.new()
 	_status.add_theme_font_size_override("font_size", 12)
+	_status.hide()
 	add_child(_status)
 	refresh()
 

@@ -2,6 +2,7 @@ shader_type spatial;
 render_mode cull_disabled;
 
 #include "res://source/shaders/3d/surface_detail.gdshaderinc"
+#include "res://source/shaders/3d/metal_detail.gdshaderinc"
 
 uniform vec4 base_color : source_color = vec4(0.3, 0.32, 0.22, 1.0);
 uniform float metalness = 0.0;
@@ -10,6 +11,8 @@ varying vec3 local_position;
 varying vec3 local_normal;
 varying vec4 local_weathering;
 varying float world_height;
+varying mat3 metal_to_view;
+varying vec3 metal_position;
 
 float hash(vec3 p)
 {
@@ -30,6 +33,11 @@ float noise(vec3 p)
 }
 void vertex()
 {
+  vec3 scale = max(vec3(length(MODEL_MATRIX[0].xyz), length(MODEL_MATRIX[1].xyz),
+    length(MODEL_MATRIX[2].xyz)), vec3(0.0001));
+  metal_position = VERTEX * scale;
+  metal_to_view = mat3(MODELVIEW_MATRIX[0].xyz / scale.x,
+    MODELVIEW_MATRIX[1].xyz / scale.y, MODELVIEW_MATRIX[2].xyz / scale.z);
   local_position = VERTEX;
   local_normal = NORMAL;
   local_weathering = COLOR;
@@ -56,7 +64,17 @@ void fragment()
     color = mix(color, vec3(0.12, 0.105, 0.08), chips * 0.25);
     roughness = mix(0.68, 0.91, dust);
   }
-  color *= armor_panels ? armor_detail(local_position, local_normal) : 1.0;
+  bool trimmed = trim_enabled && UV2.x > 0.0001 && UV2.y > 0.0001;
+  float panels = armor_panels && !trimmed ? armor_detail(local_position, local_normal) : 1.0;
+  // A uniform material branch avoids metal sampling on cloth and concrete.
+  if (armor_panels && !fabric) {
+    MetalFinish finish = metal_finish(metal_position, local_normal, metal_to_view, VERTEX, NORMAL, UV2);
+    NORMAL = finish.normal;
+    AO = finish.occlusion;
+    roughness += finish.roughness_delta;
+    if (trimmed) { panels = finish.color; }
+  }
+  color *= panels;
   ALBEDO = weathered(ground_dust(color, world_height), local_weathering, !fabric);
   ROUGHNESS = weathered_roughness(roughness, local_weathering);
   METALLIC = metalness;

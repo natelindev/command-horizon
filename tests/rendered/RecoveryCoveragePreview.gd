@@ -33,13 +33,12 @@ func _review_coverage(label, menus):
 	root.size = Vector2i(1280, 720)
 	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
 	root.content_scale_size = Vector2i(1920, 1080)
-	menus._scroll.ensure_control_visible(menus._recover_health)
 	await _frames(12)
 	_check(
 		root.get_visible_rect().encloses(menus.get_global_rect()), "Coverage panel outside viewport"
 	)
 	_check(
-		menus._scroll.get_global_rect().encloses(menus._recover_health.get_global_rect()),
+		menus._command_bay.get_global_rect().encloses(menus._recover_health.get_global_rect()),
 		"Recovery button clipped"
 	)
 	if not label.begins_with("helix") or capture_prefix == "":

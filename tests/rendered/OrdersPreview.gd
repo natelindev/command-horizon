@@ -73,7 +73,8 @@ func _run():
 	_game.hud._toggle_pause()
 	await _frames(90)
 	await _capture("orders-active-720p")
-	menu._orders_panel._clear.pressed.emit()
+	for unit in tanks:
+		unit.manual_orders.clear_waiting()
 	_check(
 		tanks.all(func(unit): return unit.manual_orders.pending.is_empty()), "Clear waiting failed"
 	)

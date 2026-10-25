@@ -15,6 +15,7 @@ from mathutils import Vector
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "common"))
 import weathering  # noqa: E402
+import trim_sheet  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "assets/models/helix/v1"
@@ -544,6 +545,8 @@ else:
 manifest=[]
 for name,collection,asset_root in assets:
     bpy.context.view_layer.update()
+    for part in collection.objects:
+        trim_sheet.prepare(part)
     deps=bpy.context.evaluated_depsgraph_get()
     copies={}
     for obj in collection.objects:
@@ -582,6 +585,10 @@ for name,collection,asset_root in assets:
 
 if walkers_only:
     print("Helix walker rigs exported")
+    raise SystemExit(0)
+
+if "--models-only" in sys.argv:
+    print("Material-ready faction models exported")
     raise SystemExit(0)
 
 # Render actual geometry for roster icons.

@@ -24,7 +24,7 @@ func _run():
 			var before_time = game.simulation_time
 			var before_funds = Vector2i(human.resource_a, human.resource_b)
 			var action = units[0].action
-			var menus = _select(units[0])
+			var menus = await _select(units[0])
 			await _frames(20)
 			_check_width(menus, faction + "-" + role)
 			await _review_width(menus, faction + "-" + role)
@@ -49,7 +49,7 @@ func _bindings_and_scales(options, original):
 	var human = game._get_human_player()
 	var tank = load("res://source/match/units/Tank.tscn").instantiate()
 	game._setup_and_spawn_unit(tank, Transform3D(Basis(), Vector3(40, 0, 25)), human, false)
-	var menus = _select(tank)
+	var menus = await _select(tank)
 	await _frames(20)
 	_check_width(menus, "tank")
 	await _review_width(menus, "tank")
@@ -96,9 +96,7 @@ func _set_size():
 
 
 func _check_width(menus, label):
-	var clip = menus._scroll.get_global_rect()
-	if menus._scroll.get_v_scroll_bar().visible:
-		clip.size.x -= menus._scroll.get_v_scroll_bar().size.x
+	var clip = menus._command_bay.get_global_rect()
 	_check(
 		root.get_visible_rect().encloses(menus.get_global_rect()),
 		label + ": panel outside viewport"
@@ -133,7 +131,6 @@ func _check_width(menus, label):
 
 
 func _review_width(menus, label):
-	# Scroll to the end so the last row is checked in its scrolled position too.
-	menus._scroll.scroll_vertical = int(menus._scroll.get_v_scroll_bar().max_value)
+	# Recheck after the layout settles. Every row must remain visible.
 	await _frames(8)
-	_check_width(menus, label + "-scrolled")
+	_check_width(menus, label + "-settled")

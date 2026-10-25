@@ -40,6 +40,7 @@ static func populate(map):
 	_shores(map, layout, kit, rng, batches)
 	for rail in layout.get("rails", []):
 		_rail(map, rail.line, batches)
+	_grass(map, batches, clear)
 	var parent = Node3D.new()
 	parent.name = "Dressing"
 	map.add_child(parent)
@@ -54,6 +55,47 @@ static func populate(map):
 		)
 	for landmark in layout.get("landmarks", []):
 		_landmark(map, layout, landmark)
+
+
+# Cosmetic grass uses its own seed, so adding it never changes existing trees,
+# rocks, sight blockers or resource lanes. One shared MultiMesh, no colliders.
+static func _grass(map, batches, clear):
+	if map.layout.get("ground", map.layout.biome) not in ["forest", "farmland", "village"]:
+		return
+	var rng = RandomNumberGenerator.new()
+	rng.seed = ("%s-meadow-grass" % map.layout.id).hash()
+	var placed = 0
+	for x in range(2, int(map.size.x) - 2, 3):
+		for z in range(2, int(map.size.y) - 2, 3):
+			var point = Vector2(x, z) + Vector2(rng.randf(), rng.randf())
+			var flags = map.terrain.flag_at(point)
+			if (
+				flags
+				& (
+					TerrainModel.WATER
+					| TerrainModel.SOLID
+					| TerrainModel.RAMP
+					| TerrainModel.FORD
+					| TerrainModel.BRIDGE
+				)
+			):
+				continue
+			if not _open(point, clear):
+				continue
+			var verge = false
+			for segment in clear.roads:
+				var closest = Geometry2D.get_closest_point_to_segment(point, segment[0], segment[1])
+				if point.distance_to(closest) < segment[2] + 4.5:
+					verge = true
+					break
+			if not verge and not flags & TerrainModel.FOREST:
+				continue
+			if rng.randf() > 0.7:
+				continue
+			_add(batches, ["temperate/MeadowGrass", 0.38], _placement(map, point, rng))
+			placed += 1
+			if placed >= 1800:
+				return
 
 
 static func _add(batches, entry: Array, transform: Transform3D):

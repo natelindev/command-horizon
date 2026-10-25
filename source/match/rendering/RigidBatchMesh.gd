@@ -39,6 +39,12 @@ func _material(material: Material) -> Material:
 		'#include "res://source/shaders/3d/surface_detail.gdshaderinc"',
 		FileAccess.get_file_as_string("res://source/shaders/3d/surface_detail.gdshaderinc")
 	)
+	# Inline detail uniforms before building the material palette and grouping
+	# sampler bindings. Preserve each faction's roughness/normal response.
+	code = code.replace(
+		'#include "res://source/shaders/3d/metal_detail.gdshaderinc"',
+		FileAccess.get_file_as_string("res://source/shaders/3d/metal_detail.gdshaderinc")
+	)
 	code = (
 		code
 		. replace(
@@ -79,6 +85,9 @@ void vertex() {
 	code = code.replace("local_position = VERTEX", "local_position = CUSTOM0.xyz").replace(
 		"local_normal = NORMAL", "local_normal = CUSTOM1.xyz"
 	)
+	# Fine metal grain must follow each articulated source part, not the posed
+	# batch coordinates; otherwise moving vehicles slide through their texture.
+	code = code.replace("metal_position = VERTEX", "metal_position = CUSTOM0.xyz")
 	code = code.replace("fabric_position = VERTEX", "fabric_position = CUSTOM0.xyz").replace(
 		"normalize(NORMAL / mesh_scale)", "normalize(CUSTOM1.xyz / mesh_scale)"
 	)

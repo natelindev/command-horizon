@@ -50,3 +50,11 @@ The optional native path requires a local build with `python3 tools/build_native
 ## Limits
 
 Thermal feedback uses emissive muzzle sleeves; this pass does not add screen-space heat shimmer or rocket-launcher hatch rigs. Existing deployment and charge anticipation are extended without delaying authoritative attacks. Existing construction and water systems are reused. This is functional and visual verification on macOS, not a Windows or maximum-army performance benchmark.
+
+## Integration with main
+
+Merged with main's material-fidelity and bottom-HUD changes. Regenerated the eight overlapping Bastion/Frontier GLBs from the combined generators, retaining both mechanical trim maps and motion pivots. Track UV channels are reserved for animation and excluded from trim generation. Shared foliage impulse code now also drives the new alpha-cutout leaf cards.
+
+The combined tree passed `AnimationPolishRegression`, `MaterialFidelityRegression`, `StructureActivityRegression`, `RichTexturesRegression` and `ObjectMaterialsRegression` (345 models, 7,376 textured surfaces), plus the rendered animation preview with native kernels and decoupled GPU poses. The preview now waits in simulation seconds for delayed cook-off instead of assuming a rendering frame rate.
+
+The regenerated Bastion/Frontier models also passed the rendered weathering review (22 captures). Integration logs use the `merged-` prefix.

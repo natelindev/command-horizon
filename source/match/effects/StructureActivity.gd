@@ -54,9 +54,11 @@ func refresh(delta = 0.0):
 	# so construction, research and queued work wake the animation immediately.
 	if state == "idle" and _settled_idle:
 		return
-	var working = state in ["construction", "production", "research"]
+	var working = state in ["construction", "production", "research", "repair"]
 	var rate = (
-		_unit.player.production_factor() if state in ["production", "research", "blocked"] else 1.0
+		_unit.player.production_factor()
+		if state in ["production", "research", "repair", "blocked"]
+		else 1.0
 	)
 	if working:
 		phase += delta * rate
@@ -72,7 +74,7 @@ func refresh(delta = 0.0):
 	_glow.emission_energy_multiplier = .45 * _light_level
 	if _work_head != null:
 		_work_head.position = _work_rest
-		if state in ["production", "construction"]:
+		if state in ["production", "construction", "repair"]:
 			_work_head.position += Vector3(
 				sin(phase * 1.6) * _unit.radius * .28, sin(phase * 2.3) * .10, 0
 			)
@@ -125,6 +127,9 @@ func _read_activity():
 	if _unit.is_under_construction():
 		state = "construction"
 		progress = _unit._construction_progress
+		return
+	if _unit.get_meta("service_used", 0) > 0:
+		state = "repair"
 		return
 	var queue = _unit.production_queue
 	if queue != null and queue.size() > 0:

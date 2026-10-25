@@ -29,9 +29,7 @@ func _review(label, tank):
 	await _frames(15)
 	var menus = game.find_child("UnitMenus")
 	_check(root.get_visible_rect().encloses(menus.get_global_rect()), "Patient menu overflow")
-	var clip = menus._scroll.get_global_rect()
-	if menus._scroll.get_v_scroll_bar().visible:
-		clip.size.x -= menus._scroll.get_v_scroll_bar().size.x
+	var clip = menus._command_bay.get_global_rect()
 	for kind in menus._command_buttons:
 		var button = menus._command_buttons[kind]
 		_check(button.get_global_rect().end.x <= clip.end.x + 1, label + ": clipped " + kind)

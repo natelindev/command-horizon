@@ -216,6 +216,12 @@ func _large_roster(player):
 	_check(roster._types.size() == catalog.NAMES.size(), "Full roster omitted a role")
 	_check(roster._tiles.size() == 8, "First page is not bounded to eight units")
 	await _inspect_layout(player, roster, "full")
+	_check(not roster._grid.visible, "Large mixed selection should show types only")
+	var infantry = roster._types.filter(func(entry): return entry.members[0].type == "Infantry")[0]
+	await _activate_control(infantry.button, true)
+	roster = game.find_child("SelectionRoster", true, false)
+	await _inspect_layout(player, roster, "individuals")
+	members = roster._members.duplicate()
 	var seen = []
 	while true:
 		seen.append_array(roster._tiles.map(func(entry): return entry.unit))
@@ -223,7 +229,7 @@ func _large_roster(player):
 			break
 		await _activate_control(roster._next, true)
 	_check(seen == roster._members, "Paging duplicated or omitted selected units")
-	_check(roster._tiles.size() == 4, "Last page has wrong remainder")
+	_check(roster._tiles.size() == (members.size() - 1) % 8 + 1, "Last page has wrong remainder")
 	await _inspect_layout(player, roster, "last-page")
 	var victim = roster._tiles[-1].unit
 	var old_count = members.size()

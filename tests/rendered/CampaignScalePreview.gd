@@ -79,7 +79,7 @@ func _run():
 				minimap.get_global_rect()
 			)
 		if mission == "command_horizon":
-			await _selection_scroll()
+			await _selection_fits()
 		if mission == "supply_line":
 			await _caption_order()
 			await _resize_caption()
@@ -203,33 +203,13 @@ func _resize_caption():
 	_caption_clear("return to 720p")
 
 
-func _selection_scroll():
+func _selection_fits():
 	var menu = game.find_child("UnitMenus")
-	var scroll = menu._scroll
-	var bar = scroll.get_v_scroll_bar()
-	_check(bar.visible, "Oversized program controls have no scrollbar")
-	var point = root.get_final_transform() * scroll.get_global_rect().get_center()
-	for pressed in [true, false]:
-		var wheel = InputEventMouseButton.new()
-		wheel.position = point
-		wheel.button_index = MOUSE_BUTTON_WHEEL_DOWN
-		wheel.pressed = pressed
-		root.push_input(wheel, false)
-	await _frames(3)
-	_check(scroll.scroll_vertical > 0, "Wheel cannot reach lower program controls")
-	bar.grab_focus()
-	var before = bar.value
-	await _key(root, KEY_UP)
-	_check(bar.value < before, "Arrow key cannot scroll program controls")
-	var save = _named_button(menu, "Save version")
-	save.grab_focus()
-	await _frames(4)
 	_check(
-		scroll.get_global_rect().encloses(save.get_global_rect()),
-		"Keyboard focus leaves Save version clipped"
+		menu.find_children("*", "ScrollContainer", true, false).is_empty(),
+		"Bottom menu still scrolls"
+	)
+	_check(
+		root.get_visible_rect().encloses(menu.get_global_rect()), "Bottom menu exceeds the screen"
 	)
 	await _scale_capture("campaign-scale-horizon-focused-150-720p")
-	root.get_node("MatchSignals").deselect_all_units.emit()
-	_units(game._get_human_player(), "Infantry")[0].get_node("Selection").select()
-	await _frames(5)
-	_check(scroll.scroll_vertical == 0, "New selection inherits old scroll offset")

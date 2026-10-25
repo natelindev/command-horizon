@@ -3,14 +3,15 @@ extends VBoxContainer
 const Technologies = preload("res://source/match/research/TechnologyCatalog.gd")
 const ResearchButton = preload("res://source/match/hud/ResearchButton.gd")
 const WEAPONS_ICON = preload("res://assets/ui/research/weapons.svg")
+const ARMOR_ICON = preload("res://assets/ui/research/armor.svg")
 const ICONS = {
 	"weapons": WEAPONS_ICON,
-	"armor": preload("res://assets/ui/research/armor.svg"),
+	"armor": ARMOR_ICON,
 	"service": preload("res://assets/ui/research/service.svg"),
 	"doctrine": preload("res://assets/ui/research/doctrine.svg"),
 	"coordination": preload("res://assets/ui/research/coordination.svg"),
 	"dual_purpose_aa": WEAPONS_ICON,
-	"plasma_shields": preload("res://assets/ui/research/armor.svg"),
+	"plasma_shields": ARMOR_ICON,
 }
 var lab
 var player
@@ -52,27 +53,42 @@ func _ready():
 	row.name = "ActiveResearch"
 	row.add_theme_constant_override("separation", 12)
 	add_child(row)
+	var active_icon = TextureRect.new()
+	active_icon.name = "ActiveIcon"
+	active_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	active_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	active_icon.custom_minimum_size = Vector2(32, 32)
+	row.add_child(active_icon)
 	_status = Label.new()
 	_status.add_theme_font_size_override("font_size", 13)
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_status.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_status.hide()
 	row.add_child(_status)
 	_cancel = Button.new()
 	_cancel.name = "CancelResearch"
-	_cancel.text = "Cancel & refund"
+	_cancel.icon = load("res://source/match/hud/BattleTheme.gd").icon("stop")
+	_cancel.add_theme_constant_override("icon_max_width", 16)
+	_cancel.custom_minimum_size = Vector2(36, 32)
+	_cancel.accessibility_name = tr("Cancel & refund")
 	_cancel.tooltip_text = "Cancel and refund. Dependent queued upgrades are refunded too."
 	_cancel.pressed.connect(_cancel_active)
 	row.add_child(_cancel)
 	_progress = ProgressBar.new()
 	_progress.custom_minimum_size.y = 5
 	_progress.show_percentage = false
-	add_child(_progress)
-	_queue_list = VBoxContainer.new()
+	_progress.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_progress.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(_progress)
+	row.move_child(_progress, 1)
+	_queue_list = HBoxContainer.new()
 	_queue_list.name = "ResearchQueue"
 	_queue_list.add_theme_constant_override("separation", 4)
 	add_child(_queue_list)
 	_queue_title = Label.new()
+	_queue_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_queue_title.add_theme_font_size_override("font_size", 13)
+	_queue_title.hide()
 	_queue_list.add_child(_queue_title)
 	resized.connect(_fit_grid)
 	_fit_grid()
@@ -83,13 +99,14 @@ func _tile(branch):
 	var button = ResearchButton.new()
 	button.name = "Research" + branch.capitalize()
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	button.compact_layout()
 	_grid.add_child(button)
 	return button
 
 
 func _fit_grid():
-	# Use the actual panel width: the selected lab and the Tech overlay differ.
-	_grid.columns = clampi(floori((size.x + 6) / 160), 1, _grid.get_child_count())
+	# Every research choice fits the bottom console as a picture key.
+	_grid.columns = clampi(floori((size.x + 6) / 70), 1, _grid.get_child_count())
 
 
 func _cancel_active():
@@ -145,6 +162,12 @@ func refresh():
 	)
 	var remaining = research.left if technology_running else player.coordination_left
 	_progress.value = 100.0 * (1.0 - maxf(0.0, remaining) / duration)
+	var active = research.active if technology_running else "coordination"
+	_status.get_parent().get_node("ActiveIcon").texture = _icon_for(active)
+	_status.get_parent().tooltip_text = _status.text
+	_cancel.tooltip_text = (
+		_status.text + "\n" + tr("Cancel and refund. Dependent queued upgrades are refunded too.")
+	)
 	_refresh_coordination()
 	for branch in _branches:
 		_refresh_branch(branch)
@@ -209,6 +232,13 @@ func _update_tile(button, branch, title, cost, description, seconds, reason, pro
 	if progress.active:
 		state = tr("%d s remaining") % ceili(progress.left / player.production_factor())
 	button.show_state(state)
+	button.show_marker(
+		(
+			"✓"
+			if progress.complete
+			else "…" if progress.queued else str(ceili(progress.left)) if progress.active else ""
+		)
+	)
 	var timing = tr("%d s research at current power.") % ceili(seconds / player.production_factor())
 	if progress.active:
 		timing = (
@@ -239,21 +269,13 @@ func _refresh_queue():
 	# survives research countdown updates and queue shifts.
 	while _queue_rows.size() < entries.size():
 		var index = _queue_rows.size()
-		var row = HBoxContainer.new()
-		row.name = "QueuedResearch%d" % index
-		row.add_theme_constant_override("separation", 8)
-		_queue_list.add_child(row)
-		var title = Label.new()
-		title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		title.add_theme_font_size_override("font_size", 13)
-		row.add_child(title)
-		var cancel = Button.new()
-		cancel.theme_type_variation = "BattleQuietButton"
-		cancel.text = tr("Cancel")
-		cancel.pressed.connect(_cancel_queued.bind(index))
-		row.add_child(cancel)
-		_queue_rows.append({"row": row, "title": title, "cancel": cancel})
+		var button = ResearchButton.new()
+		button.name = "QueuedResearch%d" % index
+		button.compact_layout(44)
+		button.show_hotkey(str(index + 1))
+		button.pressed.connect(_cancel_queued.bind(index))
+		_queue_list.add_child(button)
+		_queue_rows.append({"row": button, "title": button._title, "cancel": button})
 	while _queue_rows.size() > entries.size():
 		var removed = _queue_rows.pop_back()
 		if removed.cancel.has_focus():
@@ -269,11 +291,23 @@ func _refresh_queue():
 		var entry = entries[index]
 		var row = _queue_rows[index]
 		var title = tr(Technologies.title(entry.id, player.faction))
-		row.title.text = "%d. %s" % [index + 1, title]
-		row.cancel.text = tr("Cancel")
+		row.cancel.show_role(_icon_for(entry.id), title, entry.paid)
 		row.cancel.accessibility_name = tr("Cancel queued %s") % title
 		row.cancel.tooltip_text = (
-			tr("Refund %d M / %d E. Dependent queued upgrades are refunded too.")
-			% [entry.paid.resource_a, entry.paid.resource_b]
+			row.cancel.accessibility_name
+			+ "\n"
+			+ tr(Technologies.description(entry.id, player.faction))
+			+ "\n"
+			+ tr("%d M / %d E") % [entry.paid.resource_a, entry.paid.resource_b]
+			+ "\n"
+			+ (
+				tr("Refund %d M / %d E. Dependent queued upgrades are refunded too.")
+				% [entry.paid.resource_a, entry.paid.resource_b]
+			)
 		)
 		row.cancel.accessibility_description = row.cancel.tooltip_text
+
+
+func _icon_for(id):
+	var branch = id.trim_suffix("_1").trim_suffix("_2")
+	return ICONS.get(branch, ICONS.coordination)

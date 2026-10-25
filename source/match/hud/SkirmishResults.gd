@@ -1,400 +1,341 @@
 extends RefCounted
 
 const BattleTheme = preload("res://source/match/hud/BattleTheme.gd")
-const TacticalButton = preload("res://source/main-menu/TacticalButton.gd")
 const Difficulty = preload("res://source/match/players/skirmish-ai/SkirmishDifficulty.gd")
 
 
 static func build(hud, result):
-	var presentation = hud.get_parent().get_node_or_null("BattlePresentation")
+	var game = hud.get_parent()
+	var presentation = game.get_node_or_null("BattlePresentation")
 	if presentation != null:
 		presentation.end_collapse()
-	hud.get_parent()._get_human_player().get_node("BattleVoice").finish(hud.get_parent().result)
+	game._get_human_player().get_node("BattleVoice").finish(game.result)
 	if hud._overlay != null:
 		hud._overlay.queue_free()
 	hud.get_tree().paused = true
-
-	var game = hud.get_parent()
-	var outcome_name = str(result)
-	var is_victory = outcome_name.ends_with("Victory") or outcome_name == "Victory"
-	var is_defeat = outcome_name.ends_with("Defeat") or outcome_name == "Defeat"
-	var is_draw = outcome_name == "Draw"
-
+	BattleTheme.use_faction(game._get_human_player().faction)
 	hud._overlay = Control.new()
 	hud._overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	hud.add_child(hud._overlay)
-
-	var overlay_canvas = CanvasLayer.new()
-	overlay_canvas.layer = 9
-	hud._overlay.add_child(overlay_canvas)
-
+	var canvas = CanvasLayer.new()
+	canvas.layer = 9
+	hud._overlay.add_child(canvas)
 	var shade = ColorRect.new()
-	shade.color = Color(0.02, 0.035, 0.05, 0.88)
+	shade.color = Color(.015, .025, .035, .85)
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	overlay_canvas.add_child(shade)
-
+	canvas.add_child(shade)
 	var center = CenterContainer.new()
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	overlay_canvas.add_child(center)
-
-	# Main debrief frame (The ONLY PanelContainer under hud._overlay)
+	canvas.add_child(center)
 	var panel = PanelContainer.new()
-	BattleTheme.apply(panel, 20, 16)
+	panel.name = "ResultsPanel"
+	BattleTheme.apply(panel, 24, 20)
 	center.add_child(panel)
+	var content = VBoxContainer.new()
+	content.add_theme_constant_override("separation", 16)
+	panel.add_child(content)
+
+	var victory = str(result).ends_with("Victory")
+	var defeat = str(result).ends_with("Defeat")
+	var accent = (
+		BattleTheme.HEALTH_OK
+		if victory
+		else BattleTheme.SIGNAL_BAD if defeat else BattleTheme.COPPER
+	)
+	var header = HBoxContainer.new()
+	header.add_theme_constant_override("separation", 18)
+	content.add_child(header)
+	_icon(header, "stance" if victory else "alerts", 40, accent)
+	var headings = VBoxContainer.new()
+	headings.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	header.add_child(headings)
+	_label(headings, hud.tr("BATTLE REPORT"), 13, BattleTheme.accent())
+	var title = _label(
+		headings, hud.tr("Victory" if victory else "Defeat" if defeat else str(result)), 36, accent
+	)
+	title.theme_type_variation = "HudHeading"
+	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	var context = _label(
+		headings,
+		hud.tr("MISSION DEBRIEF" if hud._is_campaign() else "COMBAT DEBRIEF"),
+		13,
+		BattleTheme.MUTED
+	)
+	if " · " in str(result):
+		context.text = hud.tr(str(result).split(" · ")[0])
+	context.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+
+	var scroll = ScrollContainer.new()
+	scroll.name = "ResultBodyScroll"
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.get_v_scroll_bar().focus_mode = Control.FOCUS_ALL
+	scroll.get_v_scroll_bar().custom_step = 36
+	content.add_child(scroll)
+	var body = VBoxContainer.new()
+	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body.add_theme_constant_override("separation", 16)
+	scroll.add_child(body)
+	var record = game.battle_record
+	var data = record.data
+	var owner = game._get_human_player()
+	var roster = final_roster(game)
+	var overview = GridContainer.new()
+	overview.name = "ResultOverview"
+	overview.columns = 4
+	overview.add_theme_constant_override("h_separation", 12)
+	overview.add_theme_constant_override("v_separation", 12)
+	body.add_child(overview)
+	for entry in [
+		["Battle duration", record._clock(game.simulation_time), "pause"],
+		["Enemy units destroyed", data.statistics.units_destroyed, "attack"],
+		["Units produced", data.forces_trained + data.engineers_trained, "plan"],
+		["Surviving units", roster.forces + roster.engineers, "stance"]
+	]:
+		var box = _card(overview)
+		var row = HBoxContainer.new()
+		row.add_theme_constant_override("separation", 10)
+		box.add_child(row)
+		_icon(row, entry[2], 24, BattleTheme.accent())
+		var value = _label(row, str(entry[1]), 30, BattleTheme.IVORY)
+		value.add_theme_font_override("font", BattleTheme.numeral_font())
+		var caption = _label(box, hud.tr(entry[0]), 13, BattleTheme.MUTED)
+		caption.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+
+	var statistics = GridContainer.new()
+	statistics.name = "Statistics"
+	statistics.columns = 2
+	statistics.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	statistics.add_theme_constant_override("h_separation", 16)
+	statistics.add_theme_constant_override("v_separation", 16)
+	body.add_child(statistics)
+	var difficulty = "—"
+	var opponents = game.get_tree().get_nodes_in_group("players").filter(
+		func(player): return player != owner
+	)
+	if not opponents.is_empty():
+		difficulty = hud.tr(Difficulty.name_of(opponents[0].difficulty))
+	var groups = [
+		[
+			"COMBAT",
+			"attack",
+			[
+				["Enemy units destroyed", data.statistics.units_destroyed, "attack"],
+				["Enemy buildings destroyed", data.statistics.structures_destroyed, "sites"],
+				["Combat units lost", data.forces_lost, "alerts"],
+				["Engineers lost", data.engineers_lost, "recover"],
+				["AI difficulty", difficulty, "stance"]
+			]
+		],
+		[
+			"FORCES",
+			"stance",
+			[
+				["Combat units trained", data.forces_trained, "plan"],
+				["Engineers trained", data.engineers_trained, "recover"],
+				["Combat units surviving", roster.forces, "hold"],
+				["Engineers surviving", roster.engineers, "recover"],
+				["Army capacity used", owner.population(), "stance"]
+			]
+		],
+		[
+			"ECONOMY",
+			"cargo",
+			[
+				["Materials mined", data.statistics.materials, "cargo"],
+				["Electronics mined", data.statistics.electronics, "tech"],
+				["Materials remaining", owner.resource_a, "cargo"],
+				["Electronics remaining", owner.resource_b, "tech"],
+				[
+					"Resources mined / min",
+					roundi(
+						(
+							(data.statistics.materials + data.statistics.electronics)
+							* 60.0
+							/ maxf(1.0, game.simulation_time)
+						)
+					),
+					"return"
+				]
+			]
+		],
+		[
+			"BASE & TECHNOLOGY",
+			"sites",
+			[
+				["Buildings completed", data.statistics.structures_built, "sites"],
+				["Buildings surviving", roster.structures, "hold"],
+				["Completed buildings lost", data.structures_lost, "alerts"],
+				["Unfinished buildings lost", data.foundations_lost, "plan"],
+				[
+					"Research completed",
+					(
+						(owner.technology.completed.size() if owner.technology != null else 0)
+						+ int(owner.coordination_unlocked)
+					),
+					"tech"
+				]
+			]
+		]
+	]
+	for group in groups:
+		var box = _card(statistics)
+		var heading = HBoxContainer.new()
+		heading.add_theme_constant_override("separation", 10)
+		box.add_child(heading)
+		_icon(heading, group[1], 22, BattleTheme.accent())
+		_label(heading, hud.tr(group[0]), 16, BattleTheme.accent())
+		box.add_child(HSeparator.new())
+		for entry in group[2]:
+			_stat(box, hud.tr(entry[0]), entry[1], entry[2])
+	_debrief(body, hud, game)
+
+	var actions = GridContainer.new()
+	actions.columns = 3
+	actions.add_theme_constant_override("h_separation", 10)
+	actions.add_theme_constant_override("v_separation", 10)
+	content.add_child(actions)
+	var replay = _button(
+		actions, "PlayAgainButton", hud.tr("Play again"), "reverse", func(): game.restart()
+	)
+	var inspect = _button(
+		actions,
+		"InspectBattlefieldButton",
+		hud.tr("Inspect battlefield"),
+		"move",
+		func(): presentation.inspect_battlefield()
+	)
+	inspect.disabled = presentation == null or not game.finished
+	_button(
+		actions,
+		"LoadButton",
+		hud.tr("Load saved battle"),
+		"return",
+		func(): hud.get_node("/root/SaveManager").open_dialog()
+	)
+	_button(actions, "SetupButton", hud.tr(hud._setup_title()), "plan", hud._back_to_setup)
+	_button(actions, "MainMenuButton", hud.tr("Main menu"), "menu", hud._back_to_menu)
+	replay.grab_focus()
 	var viewport = hud.get_viewport()
-	var fit_result = func():
-		var available = viewport.get_visible_rect().size - Vector2(48, 48)
-		panel.custom_minimum_size = Vector2(minf(740, available.x), minf(560, available.y))
-	fit_result.call()
-	viewport.size_changed.connect(fit_result)
-	panel.tree_exiting.connect(func(): viewport.size_changed.disconnect(fit_result))
+	var fit = func():
+		var available = viewport.get_visible_rect().size
+		var target = Vector2(minf(1500, available.x - 40), minf(1000, available.y - 40))
+		panel.custom_minimum_size = target
+		# A previous larger minimum must not hold the centered frame off-screen.
+		panel.size = target
+		overview.columns = 2 if target.x < 760 else 4
+		statistics.columns = 1 if target.x < 650 else 2
+		actions.columns = 2 if target.x < 700 else 3
+		title.add_theme_font_size_override("font_size", 26 if target.y < 650 else 36)
+	fit.call()
+	viewport.size_changed.connect(fit)
+	panel.tree_exiting.connect(func(): viewport.size_changed.disconnect(fit))
 
-	var root_vbox = VBoxContainer.new()
-	root_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	root_vbox.add_theme_constant_override("separation", 12)
-	panel.add_child(root_vbox)
 
-	# Top Status Banner
-	var accent_color = (
-		Color("a6d77e") if is_victory else (Color("e8735a") if is_defeat else Color("d8bc80"))
-	)
-	var banner_bg = (
-		Color("0d2118") if is_victory else (Color("210d0d") if is_defeat else Color("1a1811"))
-	)
-	var banner_border = (
-		Color("8fc26a88") if is_victory else (Color("d0604888") if is_defeat else Color("d8bc8066"))
-	)
+static func final_roster(game):
+	var counts = {"forces": 0, "engineers": 0, "structures": 0}
+	for unit in game.get_units():
+		if (
+			unit.player != game._get_human_player()
+			or unit.hp == null
+			or unit.hp <= 0
+			or unit.is_queued_for_deletion()
+		):
+			continue
+		if unit.has_method("is_constructed"):
+			if unit.is_constructed():
+				counts.structures += 1
+		elif unit.movement_speed > 0:
+			counts["engineers" if unit.type == "Worker" else "forces"] += 1
+	return counts
 
-	var banner_code = (
-		"STATUS: OPERATION COMPLETE · TAC-NET SECURED"
-		if is_victory
-		else (
-			"STATUS: FORCES COMPROMISED · RETRY RECOMMENDED"
-			if is_defeat
-			else "STATUS: SIMULTANEOUS NEUTRALIZATION"
-		)
-	)
-	var banner_title = (
-		"VICTORY // MISSION ACCOMPLISHED"
-		if is_victory
-		else (
-			"DEFEAT // COMMAND SIGNAL LOST"
-			if is_defeat
-			else ("DRAW // STALEMATE" if is_draw else outcome_name)
-		)
-	)
 
-	var mission_prefix = ""
-	if " · " in outcome_name:
-		mission_prefix = outcome_name.split(" · ")[0]
+static func _card(parent):
+	var card = MarginContainer.new()
+	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	parent.add_child(card)
+	var backdrop = Panel.new()
+	backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	backdrop.add_theme_stylebox_override("panel", BattleTheme.socket(0, 0))
+	card.add_child(backdrop)
+	var margin = MarginContainer.new()
+	for side in ["left", "right", "top", "bottom"]:
+		margin.add_theme_constant_override("margin_" + side, 12)
+	card.add_child(margin)
+	var box = VBoxContainer.new()
+	box.add_theme_constant_override("separation", 5)
+	margin.add_child(box)
+	return box
 
-	var banner_card = MarginContainer.new()
-	banner_card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	banner_card.add_theme_constant_override("margin_bottom", 6)
-	root_vbox.add_child(banner_card)
 
-	var banner_bg_node = Panel.new()
-	banner_bg_node.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	banner_bg_node.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	# A recessed status screen tinted by the outcome; the title carries the accent.
-	var banner_style = BattleTheme.socket(0, 0)
-	banner_style.modulate = banner_bg.lightened(.55)
-	banner_bg_node.add_theme_stylebox_override("panel", banner_style)
-	var glow = Panel.new()
-	glow.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var glow_style = BattleTheme.glow(.35)
-	glow_style.modulate = Color(banner_border, .4)
-	glow.add_theme_stylebox_override("panel", glow_style)
-	banner_bg_node.add_child(glow)
-	banner_card.add_child(banner_bg_node)
+static func _label(parent, text, size, color):
+	var label = Label.new()
+	label.text = text
+	label.add_theme_font_size_override("font_size", size)
+	label.add_theme_color_override("font_color", color)
+	parent.add_child(label)
+	return label
 
-	var banner_inner = MarginContainer.new()
-	banner_inner.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	banner_inner.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	banner_inner.add_theme_constant_override("margin_left", 24)
-	banner_inner.add_theme_constant_override("margin_right", 24)
-	banner_inner.add_theme_constant_override("margin_top", 18)
-	banner_inner.add_theme_constant_override("margin_bottom", 16)
-	banner_card.add_child(banner_inner)
 
-	var banner_layout = HBoxContainer.new()
-	banner_layout.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	banner_inner.add_child(banner_layout)
+static func _icon(parent, name, size, color):
+	var icon = TextureRect.new()
+	icon.texture = BattleTheme.icon(name)
+	icon.custom_minimum_size = Vector2(size, size)
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	icon.modulate = color
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(icon)
 
-	var banner_titles = VBoxContainer.new()
-	banner_titles.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	banner_titles.add_theme_constant_override("separation", 4)
-	banner_layout.add_child(banner_titles)
 
-	var title_lbl = Label.new()
-	title_lbl.text = hud.tr(banner_title)
-	title_lbl.theme_type_variation = "HudHeading"
-	title_lbl.add_theme_font_size_override("font_size", 24)
-	title_lbl.add_theme_color_override("font_color", accent_color.lerp(BattleTheme.IVORY, .25))
-	banner_titles.add_child(title_lbl)
+static func _stat(parent, text, count, icon):
+	var row = HBoxContainer.new()
+	row.custom_minimum_size.y = 24
+	row.add_theme_constant_override("separation", 10)
+	parent.add_child(row)
+	_icon(row, icon, 18, BattleTheme.MUTED)
+	var label = _label(row, text, 14, BattleTheme.MUTED)
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_label(row, str(count), 18, BattleTheme.IVORY)
 
-	var sub_lbl = Label.new()
-	var sub_text = (
-		(hud.tr(mission_prefix) + "  ·  " if not mission_prefix.is_empty() else "")
-		+ hud.tr(banner_code)
-	)
-	sub_lbl.text = sub_text
-	sub_lbl.add_theme_font_size_override("font_size", 11)
-	sub_lbl.add_theme_color_override("font_color", accent_color)
-	banner_titles.add_child(sub_lbl)
 
-	var clock_box = VBoxContainer.new()
-	clock_box.alignment = BoxContainer.ALIGNMENT_CENTER
-	banner_layout.add_child(clock_box)
+static func _button(parent, name, text, icon, callback):
+	var button = Button.new()
+	button.name = name
+	button.text = text
+	button.icon = BattleTheme.icon(icon)
+	button.add_theme_constant_override("icon_max_width", 20)
+	button.custom_minimum_size.y = 40
+	button.add_theme_font_size_override("font_size", 16)
+	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	button.pressed.connect(callback)
+	parent.add_child(button)
+	return button
 
-	var clock_lbl = Label.new()
-	clock_lbl.text = (
-		hud.tr("Battle duration") + ": " + game.battle_record._clock(game.simulation_time)
-	)
-	clock_lbl.add_theme_font_size_override("font_size", 13)
-	clock_lbl.add_theme_color_override("font_color", Color("d8bc80"))
-	clock_box.add_child(clock_lbl)
 
-	# Dual-Pane Debrief & Telemetry Body
-	var body_scroll = ScrollContainer.new()
-	body_scroll.name = "ResultBodyScroll"
-	body_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	body_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	body_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	body_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
-	body_scroll.get_v_scroll_bar().focus_mode = Control.FOCUS_ALL
-	body_scroll.get_v_scroll_bar().custom_step = 30
-	root_vbox.add_child(body_scroll)
-	var body_layout = HBoxContainer.new()
-	body_layout.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	body_layout.add_theme_constant_override("separation", 14)
-	body_scroll.add_child(body_layout)
-
-	# Left Pane: Mission Debrief
-	var left_pane = VBoxContainer.new()
-	left_pane.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	left_pane.add_theme_constant_override("separation", 6)
-	body_layout.add_child(left_pane)
-
-	var debrief_title = Label.new()
-	debrief_title.text = (
-		hud.tr("MISSION DEBRIEF") if hud._is_campaign() else hud.tr("COMBAT DEBRIEF")
-	)
-	debrief_title.add_theme_font_size_override("font_size", 12)
-	debrief_title.add_theme_color_override("font_color", BattleTheme.MUTED)
-	left_pane.add_child(debrief_title)
-
-	var debrief_card = MarginContainer.new()
-	debrief_card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	debrief_card.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	left_pane.add_child(debrief_card)
-
-	var debrief_bg = Panel.new()
-	debrief_bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	debrief_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	debrief_bg.add_theme_stylebox_override("panel", BattleTheme.socket(0, 0))
-	debrief_card.add_child(debrief_bg)
-
-	var debrief_inner = MarginContainer.new()
-	debrief_inner.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	debrief_inner.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	debrief_inner.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	debrief_inner.add_theme_constant_override("margin_left", 16)
-	debrief_inner.add_theme_constant_override("margin_right", 16)
-	debrief_inner.add_theme_constant_override("margin_top", 14)
-	debrief_inner.add_theme_constant_override("margin_bottom", 14)
-	debrief_card.add_child(debrief_inner)
-
-	var debrief_box = VBoxContainer.new()
-	debrief_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	debrief_box.add_theme_constant_override("separation", 8)
-	debrief_inner.add_child(debrief_box)
-
-	var survivor_row = HBoxContainer.new()
-	debrief_box.add_child(survivor_row)
-
-	var survivor_lbl = Label.new()
-	survivor_lbl.text = hud.tr("Surviving forces")
-	survivor_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	survivor_lbl.add_theme_font_size_override("font_size", 13)
-	survivor_lbl.add_theme_color_override("font_color", BattleTheme.IVORY)
-	survivor_row.add_child(survivor_lbl)
-
-	var survivor_val = Label.new()
-	var pop_count = game._get_human_player().population()
-	survivor_val.text = (
-		"%d / 100" % pop_count
-		if game.settings.skirmish and not hud._is_campaign()
-		else "%d" % pop_count
-	)
-	survivor_val.add_theme_font_size_override("font_size", 14)
-	survivor_val.add_theme_color_override("font_color", Color("d8bc80"))
-	survivor_row.add_child(survivor_val)
-
-	var details_box = VBoxContainer.new()
-	details_box.name = "DebriefScroll"
-	details_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	details_box.add_theme_constant_override("separation", 6)
-	debrief_box.add_child(details_box)
-
-	var details = Label.new()
-	var summary_text = game.result_summary()
+static func _debrief(parent, hud, game):
+	var next_step = preload("res://source/match/campaign/OpeningGuidance.gd").debrief(game)
+	if not hud._is_campaign() and next_step.is_empty():
+		return
+	var box = _card(parent)
+	box.name = "DebriefScroll"
 	if hud._is_campaign():
+		_label(box, hud.tr("MISSION DEBRIEF"), 16, BattleTheme.accent())
+		var summary = game.result_summary()
 		var narration = load("res://source/match/campaign/CampaignNarration.gd")
 		var cue = (
 			game.settings.mission_id + ".victory" if game.result == "Victory" else "common.defeat"
 		)
 		var ending = narration.record(cue, Globals.options.language)
 		if not ending.is_empty():
-			summary_text += "\n\n" + ending.text
-	if not hud._is_campaign() and summary_text.begins_with("Battle time "):
-		var parts = summary_text.split("\n\n", false, 1)
-		if parts.size() > 1:
-			summary_text = parts[1]
-	details.text = hud.tr(summary_text)
-	details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	details.add_theme_font_size_override("font_size", 12)
-	details.add_theme_color_override("font_color", Color("c0ccd2"))
-	details_box.add_child(details)
-	var next_step = preload("res://source/match/campaign/OpeningGuidance.gd").debrief(game)
+			summary += "\n\n" + ending.text
+		var details = _label(box, hud.tr(summary), 14, BattleTheme.MUTED)
+		details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	if not next_step.is_empty():
-		var advice = Label.new()
-		advice.name = "NextStep"
-		advice.text = hud.tr("Try next") + "\n" + hud.tr(next_step)
-		advice.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		advice.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		advice.add_theme_font_size_override("font_size", 12)
-		advice.add_theme_color_override("font_color", BattleTheme.IVORY)
-		details_box.add_child(advice)
-
-	# Right Pane: Tactical Telemetry
-	var right_pane = VBoxContainer.new()
-	right_pane.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	right_pane.add_theme_constant_override("separation", 6)
-	body_layout.add_child(right_pane)
-
-	var telemetry_title = Label.new()
-	telemetry_title.text = hud.tr("TACTICAL TELEMETRY")
-	telemetry_title.add_theme_font_size_override("font_size", 12)
-	telemetry_title.add_theme_color_override("font_color", BattleTheme.MUTED)
-	right_pane.add_child(telemetry_title)
-
-	var telemetry_card = MarginContainer.new()
-	telemetry_card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	telemetry_card.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	right_pane.add_child(telemetry_card)
-
-	var telemetry_bg = Panel.new()
-	telemetry_bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	telemetry_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	telemetry_bg.add_theme_stylebox_override("panel", BattleTheme.socket(0, 0))
-	telemetry_card.add_child(telemetry_bg)
-
-	var telemetry_inner = MarginContainer.new()
-	telemetry_inner.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	telemetry_inner.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	telemetry_inner.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	telemetry_inner.add_theme_constant_override("margin_left", 16)
-	telemetry_inner.add_theme_constant_override("margin_right", 16)
-	telemetry_inner.add_theme_constant_override("margin_top", 14)
-	telemetry_inner.add_theme_constant_override("margin_bottom", 14)
-	telemetry_card.add_child(telemetry_inner)
-
-	var rows = VBoxContainer.new()
-	rows.name = "Statistics"
-	rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	rows.add_theme_constant_override("separation", 2)
-	telemetry_inner.add_child(rows)
-
-	var statistics = game.battle_record.statistics_rows()
-	if not hud._is_campaign():
-		var opponents = game.get_tree().get_nodes_in_group("players").filter(
-			func(player): return player != game._get_human_player()
+		var advice = _label(
+			box, hud.tr("Try next") + "\n" + hud.tr(next_step), 14, BattleTheme.IVORY
 		)
-		if not opponents.is_empty():
-			statistics.push_front(["AI difficulty", Difficulty.name_of(opponents[0].difficulty)])
-
-	for entry in statistics:
-		var row = HBoxContainer.new()
-		row.custom_minimum_size.y = 22
-		rows.add_child(row)
-
-		var label = Label.new()
-		label.text = hud.tr(entry[0])
-		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		label.add_theme_font_size_override("font_size", 12)
-		label.add_theme_color_override("font_color", Color("9ab0ba"))
-		row.add_child(label)
-
-		var value = Label.new()
-		var count = entry[1]
-		value.text = str(count)
-		value.add_theme_font_size_override("font_size", 14)
-		if entry[0] in ["Units lost", "Buildings lost"] and count > 0:
-			value.add_theme_color_override("font_color", BattleTheme.SIGNAL_BAD)
-		elif entry[0] in ["Enemy units destroyed", "Enemy buildings destroyed"] and count > 0:
-			value.add_theme_color_override("font_color", BattleTheme.HEALTH_OK)
-		else:
-			value.add_theme_color_override("font_color", BattleTheme.IVORY)
-		row.add_child(value)
-
-	# Inspection occupies a full-width row, keeping the existing exit choices.
-	var inspect = TacticalButton.new()
-	inspect.name = "InspectBattlefieldButton"
-	inspect.index_code = "05 //"
-	inspect.text = "Inspect battlefield"
-	inspect.subtitle_text = "Explore the final battlefield"
-	inspect.button_height = 42
-	inspect.disabled = presentation == null or not game.finished
-	if presentation != null:
-		inspect.pressed.connect(presentation.inspect_battlefield)
-	root_vbox.add_child(inspect)
-
-	# Bottom Actions
-	var actions = GridContainer.new()
-	actions.columns = 2
-	actions.add_theme_constant_override("h_separation", 10)
-	actions.add_theme_constant_override("v_separation", 8)
-	root_vbox.add_child(actions)
-
-	var replay = TacticalButton.new()
-	replay.name = "PlayAgainButton"
-	replay.index_code = "01 //"
-	replay.text = "Play again"
-	replay.subtitle_text = "Restart match"
-	replay.button_height = 42
-	replay.pressed.connect(func(): game.restart())
-	actions.add_child(replay)
-	replay.grab_focus()
-
-	var load_btn = TacticalButton.new()
-	load_btn.name = "LoadButton"
-	load_btn.index_code = "02 //"
-	load_btn.text = "Load saved battle"
-	load_btn.subtitle_text = "Restore checkpoint"
-	load_btn.button_height = 42
-	load_btn.pressed.connect(func(): hud.get_node("/root/SaveManager").open_dialog())
-	actions.add_child(load_btn)
-
-	var setup_btn = TacticalButton.new()
-	setup_btn.name = "SetupButton"
-	setup_btn.index_code = "03 //"
-	setup_btn.text = hud._setup_title()
-	setup_btn.subtitle_text = "Mission select" if hud._is_campaign() else "Map & rules"
-	setup_btn.button_height = 42
-	setup_btn.pressed.connect(hud._back_to_setup)
-	actions.add_child(setup_btn)
-
-	var menu_btn = TacticalButton.new()
-	menu_btn.name = "MainMenuButton"
-	menu_btn.index_code = "04 //"
-	menu_btn.text = "Main menu"
-	menu_btn.subtitle_text = "Exit to title"
-	menu_btn.button_height = 42
-	menu_btn.pressed.connect(hud._back_to_menu)
-	actions.add_child(menu_btn)
-
-	for button in actions.get_children():
-		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		advice.name = "NextStep"
+		advice.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART

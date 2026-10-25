@@ -29,6 +29,13 @@ func _input(event):
 		return
 	var game = find_parent("Match")
 	if Bindings.pressed(event, "cycle_subgroup"):
+		# Tab traverses the docked research controls while they own keyboard focus.
+		# Otherwise it retains its battlefield subgroup shortcut.
+		var focus = get_viewport().gui_get_focus_owner()
+		var menus = game.find_child("UnitMenus") if is_instance_valid(game) else null
+		if is_instance_valid(menus) and is_instance_valid(menus._research_panel):
+			if focus != null and menus._research_panel.is_ancestor_of(focus):
+				return
 		var message = subgroups.cycle(get_tree())
 		if not message.is_empty():
 			if is_instance_valid(game) and "hud" in game and is_instance_valid(game.hud):

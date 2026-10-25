@@ -5,10 +5,14 @@ Tall mesas and extraction infrastructure are exclusively exterior scenery.
 import json
 import math
 import random
+import sys
 from pathlib import Path
 
 import bpy
 from mathutils import Vector
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "common"))
+import foliage
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "assets/models/environment/desert"
@@ -205,10 +209,13 @@ for index,(x,y,height) in enumerate([(-.6,-.2,.36),(.55,.3,.53),(.2,-.7,.28)]):
         angle = tip*math.tau/4+index
         end=(x+math.cos(angle)*.31,y+math.sin(angle)*.31,height)
         beam("Dry shrub branch",(x,y,height*.42),end,.018,BARK)
-        bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=1,radius=1,location=end)
-        obj=bpy.context.object
-        obj.scale=(.22,.19,.11)
-        attach(obj,"Drought sage crown",LEAF if tip%2 else TIPS)
+        mat = LEAF if tip%2 else TIPS
+        obj = foliage.cluster("Drought sage crown", end, (.22,.19,.11), mat,
+                              random.Random(730+index*4+tip), count=14)
+        # attach handles the collection; the card material already carries its marker.
+        original = obj.data.materials[0]
+        obj.data.materials.clear()
+        attach(obj,"Drought sage crown",original)
 
 begin("FrontierExtractionRig", 6.0, 9.2)
 pad()

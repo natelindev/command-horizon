@@ -13,6 +13,18 @@ const Worker = preload("res://source/match/units/Worker.gd")
 const RosterInfo = preload("res://source/match/hud/RosterInfo.gd")
 const RosterButton = preload("res://source/match/hud/RosterButton.gd")
 
+const BUILD_KEYS = {
+	KEY_C: "CommandCenter",
+	KEY_B: "Barracks",
+	KEY_V: "VehicleFactory",
+	KEY_A: "AircraftFactory",
+	KEY_P: "PowerPlant",
+	KEY_L: "CommandLab",
+	KEY_R: "RepairDepot",
+	KEY_T: "AntiGroundTurret",
+	KEY_M: "AntiAirTurret",
+}
+
 var _camp = null
 var _camp_buttons = []
 var _selection = []
@@ -21,8 +33,12 @@ var _buttons = []
 var _title = null
 var _status = null
 var _content = null
-var _scroll: ScrollContainer
+var _command_bay: MarginContainer
 var _pages: TabContainer
+var _navigation: HBoxContainer
+var _root_page = "Orders"
+var _research_player = null
+var _research_script = load("res://source/match/hud/ResearchPanel.gd")
 var _commands: VBoxContainer
 var _support: VBoxContainer
 var _minimap: Control
@@ -45,7 +61,7 @@ var _command_card = null
 var _menu_reset_queued = false
 ## Left bay of the deck: portrait, name, health and status of the selection.
 var _info: VBoxContainer
-var _info_scroll: ScrollContainer
+var _info_bay: MarginContainer
 var _health: ProgressBar
 var _health_fill: StyleBox
 var _shields: ProgressBar
@@ -60,32 +76,26 @@ func _ready():
 	)
 	var deck = HBoxContainer.new()
 	deck.name = "Deck"
-	deck.add_theme_constant_override("separation", 12)
+	deck.add_theme_constant_override("separation", 8)
 	add_child(deck)
-	_info_scroll = ScrollContainer.new()
-	_info_scroll.name = "InfoBay"
-	_info_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	_info_scroll.custom_minimum_size.x = HudLayout.info_bay(get_viewport_rect().size.x)
-	_info_scroll.get_v_scroll_bar().focus_mode = Control.FOCUS_ALL
-	deck.add_child(_info_scroll)
+	_info_bay = MarginContainer.new()
+	_info_bay.name = "InfoBay"
+	_info_bay.custom_minimum_size.x = HudLayout.info_bay(get_viewport_rect().size.x)
+	deck.add_child(_info_bay)
 	_info = VBoxContainer.new()
 	_info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_info.add_theme_constant_override("separation", 6)
-	_info_scroll.add_child(_info)
+	_info_bay.add_child(_info)
 	_info.minimum_size_changed.connect(_fit_menu)
 	deck.add_child(VSeparator.new())
-	_scroll = ScrollContainer.new()
-	_scroll.name = "CommandBay"
-	_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	_scroll.follow_focus = true
-	_scroll.get_v_scroll_bar().focus_mode = Control.FOCUS_ALL
-	_scroll.get_v_scroll_bar().custom_step = 24
-	deck.add_child(_scroll)
+	_command_bay = MarginContainer.new()
+	_command_bay.name = "CommandBay"
+	_command_bay.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	deck.add_child(_command_bay)
 	_content = VBoxContainer.new()
 	_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_content.add_theme_constant_override("separation", 9)
-	_scroll.add_child(_content)
+	_content.add_theme_constant_override("separation", 6)
+	_command_bay.add_child(_content)
 	_content.minimum_size_changed.connect(_fit_menu)
 	get_viewport().size_changed.connect(_fit_menu)
 	_queue = get_node_or_null("../ProductionQueue")
@@ -107,11 +117,20 @@ func _fit_menu():
 	var width = HudLayout.deck_width(viewport.x)
 	if is_instance_valid(_minimap) and _minimap.is_visible_in_tree():
 		width = viewport.x - _minimap.get_global_rect().end.x
-	_info_scroll.custom_minimum_size.x = (
-		384 if _selection.size() > 1 else HudLayout.info_bay(viewport.x)
+	var showing_orders = (
+		is_instance_valid(_pages)
+		and _pages.get_current_tab_control() != null
+		and _pages.get_current_tab_control().name == "Orders"
 	)
+	if is_instance_valid(_selection_roster):
+		_selection_roster.visible = showing_orders
+	_info_bay.custom_minimum_size.x = (
+		371 if _selection.size() > 1 and showing_orders else HudLayout.info_bay(viewport.x)
+	)
+	for grid in _content.find_children("Roster", "GridContainer", true, false):
+		grid.columns = clampi(floori((width - _info_bay.custom_minimum_size.x - 54) / 70), 1, 10)
 	if is_instance_valid(_status):
-		_status.custom_minimum_size.x = _info_scroll.custom_minimum_size.x - 12
+		_status.custom_minimum_size.x = _info_bay.custom_minimum_size.x - 12
 	var margins = get_theme_stylebox("panel").get_minimum_size().y
 	var content_height = maxf(
 		_content.get_combined_minimum_size().y, _info.get_combined_minimum_size().y
@@ -120,8 +139,8 @@ func _fit_menu():
 		content_height + margins, HudLayout.DECK_MIN_HEIGHT, HudLayout.CONSOLE_HEIGHT
 	)
 	var available = maxf(1, height - margins)
-	_scroll.custom_minimum_size.y = available
-	_info_scroll.custom_minimum_size.y = available
+	_command_bay.custom_minimum_size.y = available
+	_info_bay.custom_minimum_size.y = available
 	custom_minimum_size = Vector2(width, height)
 	# Containers grow automatically; explicitly release height after a smaller selection.
 	reset_size()
@@ -154,6 +173,7 @@ func _on_selected_unit_died(unit):
 
 func _queue_menu_reset():
 	_camp = null
+	_research_player = null
 	if _content == null or not is_inside_tree():
 		return
 	# Preserve the press before removing its control, including when several
@@ -188,6 +208,9 @@ func _reset_menus():
 		or (is_instance_valid(_selection_roster) and _selection_roster.has_active_mouse_press())
 	):
 		_discard_control_release = true
+	var hud = find_parent("Match").get("hud")
+	if is_instance_valid(hud):
+		hud.technology_panel = null
 	var previous_selection = _selection.duplicate()
 	for previous_unit in previous_selection:
 		if not is_instance_valid(previous_unit):
@@ -199,8 +222,6 @@ func _reset_menus():
 	var page_name = "Orders"
 	if is_instance_valid(_pages) and _pages.current_tab >= 0:
 		page_name = _pages.get_current_tab_control().name
-	_scroll.scroll_vertical = 0
-	_info_scroll.scroll_vertical = 0
 	for container in [_content, _info]:
 		for child in container.get_children():
 			container.remove_child(child)
@@ -224,6 +245,9 @@ func _reset_menus():
 		func(unit):
 			return unit.is_in_group("controlled_units") and not unit.is_queued_for_deletion()
 	)
+	if is_instance_valid(_research_player):
+		_build_research()
+		return
 	if is_instance_valid(_camp):
 		_build_camp()
 		return
@@ -264,11 +288,15 @@ func _reset_menus():
 	)
 	_build_info(heading_icon)
 	_content.tooltip_text = tr(Factions.TECH_SUMMARY.get(unit.player.faction, ""))
+	_navigation = HBoxContainer.new()
+	_navigation.name = "MenuNavigation"
+	_navigation.add_theme_constant_override("separation", 6)
+	_content.add_child(_navigation)
 	_pages = TabContainer.new()
 	_pages.name = "CommandPages"
 	_pages.use_hidden_tabs_for_min_size = false
-	_pages.add_theme_stylebox_override("panel", BattleTheme.surface(Color.TRANSPARENT, 0, 12))
-	_pages.tab_changed.connect(func(_index): _fit_menu.call_deferred())
+	_pages.add_theme_stylebox_override("panel", BattleTheme.surface(Color.TRANSPARENT, 0, 4))
+	_pages.tab_changed.connect(func(_index): _sync_navigation.call_deferred())
 	_content.add_child(_pages)
 	var production_roles = []
 	for producer in _selection:
@@ -276,7 +304,7 @@ func _reset_menus():
 			for role in Catalog.PRODUCES.get(producer.type, []):
 				if role not in production_roles:
 					production_roles.append(role)
-	# Rosters lead for pure worker or producer selections; their main job is building.
+	# Producers open their roster; workers reach building choices through the Build key.
 	# Mixed selections lead with orders and the selection roster.
 	var roster_page = null
 	var roster_title = "Produce" if not production_roles.is_empty() else "Build"
@@ -301,7 +329,7 @@ func _reset_menus():
 	_commands.name = "DirectCommands"
 	_commands.custom_minimum_size.x = 266
 	_commands.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_commands.add_theme_constant_override("separation", 6)
+	_commands.add_theme_constant_override("separation", 2)
 	columns.add_child(_commands)
 	columns.add_child(VSeparator.new())
 	_support = VBoxContainer.new()
@@ -328,7 +356,7 @@ func _reset_menus():
 	for role in production_roles:
 		_add_roster_button(grid, role, false)
 	if researches:
-		_research_panel = load("res://source/match/hud/ResearchPanel.gd").new()
+		_research_panel = _research_script.new()
 		_research_panel.lab = unit
 		roster_page.add_child(_research_panel)
 	elif unit is Worker:
@@ -383,11 +411,16 @@ func _reset_menus():
 		):
 			_pages.remove_child(page)
 			page.queue_free()
+	_root_page = (
+		"Orders" if _pages.get_node_or_null("Orders") != null else str(_pages.get_child(0).name)
+	)
+	open_page(_root_page)
 	if previous_selection == _selection:
 		for index in _pages.get_tab_count():
 			if _pages.get_child(index).name == page_name:
 				_pages.current_tab = index
-	_pages.tabs_visible = _pages.get_tab_count() > 1
+	_pages.tabs_visible = false
+	_sync_navigation()
 	_refresh_buttons()
 	# Rebuilding an identical selection can return to the same content minimum.
 	# Refit after layout settles even when no final minimum-size signal is emitted.
@@ -401,7 +434,7 @@ func _build_info(portrait):
 	header.mouse_filter = Control.MOUSE_FILTER_PASS
 	header.add_theme_constant_override("separation", 10)
 	_info.add_child(header)
-	if portrait != null and _selection.size() == 1:
+	if portrait != null and (_selection.size() == 1 or is_instance_valid(_research_player)):
 		var frame = PanelContainer.new()
 		frame.name = "Portrait"
 		frame.custom_minimum_size = Vector2(64, 64)
@@ -425,6 +458,7 @@ func _build_info(portrait):
 	_title.add_theme_color_override("font_color", BattleTheme.IVORY)
 	_title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	_title.mouse_filter = Control.MOUSE_FILTER_PASS
+	_title.visible = _selection.size() != 1 or is_instance_valid(_research_player)
 	names.add_child(_title)
 	_shields = ProgressBar.new()
 	_shields.name = "Shields"
@@ -446,7 +480,9 @@ func _build_info(portrait):
 	_status.add_theme_font_size_override("font_size", 12)
 	_status.add_theme_color_override("font_color", Color("b9bfba"))
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_status.custom_minimum_size.x = _info_scroll.custom_minimum_size.x - 12
+	_status.max_lines_visible = 2
+	_status.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	_status.custom_minimum_size.x = _info_bay.custom_minimum_size.x - 12
 	_info.add_child(_status)
 
 
@@ -606,15 +642,17 @@ func _add_roster_button(grid, unit_type, construction):
 		)
 	)
 	button.name = "Build" + unit_type if construction else "Produce" + unit_type
-	# Console tiles: the role's portrait on the left, name and price glyphs on the right.
-	button.custom_minimum_size = Vector2(112, 60)
+	# Picture keys keep names, prices and availability in their tooltips.
+	button.compact_layout()
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.show_role(
 		Factions.portrait(player.faction, unit_type),
 		Factions.title(player.faction, unit_type),
 		cost
 	)
-	button.tooltip_text = info.text
+	button.tooltip_text = _roster_tooltip(info.text, unit_type, construction)
+	if construction:
+		button.show_hotkey(OS.get_keycode_string(BUILD_KEYS.find_key(unit_type)))
 	button.accessibility_name = tr(Factions.title(player.faction, unit_type))
 	button.accessibility_description = info.text
 	button.disabled = not info.allowed
@@ -626,6 +664,10 @@ func _add_roster_button(grid, unit_type, construction):
 
 
 func _refresh_buttons():
+	if is_instance_valid(_research_player):
+		if is_instance_valid(_research_panel):
+			_research_panel.refresh()
+		return
 	if is_instance_valid(_camp):
 		_refresh_camp()
 		return
@@ -652,11 +694,13 @@ func _refresh_buttons():
 		var unit = _selection[0]
 		if is_instance_valid(unit) and unit is Structure and unit.is_under_construction():
 			var refund = unit.construction_refund()
-			_stop_button.text = (
-				"Cancel construction · %d M / %d E back" % [refund.resource_a, refund.resource_b]
-			)
+			_stop_button.text = "Cancel construction"
 			_stop_button.tooltip_text = (
-				"Refunds unused construction costs, rounded down to whole resources."
+				(
+					tr("%d M / %d E") % [refund.resource_a, refund.resource_b]
+					+ "\n"
+					+ "Refunds unused construction costs, rounded down to whole resources."
+				)
 				if unit.player.get_meta("skirmish", false)
 				else "Refunds the full construction cost."
 			)
@@ -784,7 +828,8 @@ func _refresh_buttons():
 			)
 		)
 	_status.text = "\n".join(lines.map(func(line): return tr(line)))
-	_status.visible = not lines.is_empty()
+	_status.tooltip_text = _status.text
+	_status.visible = not lines.is_empty() and _selection.size() == 1
 	_health.tooltip_text = tr(health)
 	var identity = _info.get_node_or_null("Identity")
 	if identity != null:
@@ -807,7 +852,7 @@ func _refresh_buttons():
 		entry.button.disabled = not info.allowed
 		if became_available:
 			load("res://source/match/hud/HudMotion.gd").play(entry.button)
-		entry.button.tooltip_text = info.text
+		entry.button.tooltip_text = _roster_tooltip(info.text, entry.type, entry.construction)
 		entry.button.accessibility_description = info.text
 
 
@@ -831,6 +876,7 @@ func _activate(unit_type, construction):
 	var scene = load(Catalog.scene_path(unit_type))
 	if construction:
 		MatchSignals.place_structure.emit(scene)
+		open_page(_root_page)
 	else:
 		var producer = _production_target(unit_type)
 		if producer != null:
@@ -916,6 +962,150 @@ func _rally_destination(rally):
 	return Factions.title(target.player.faction, target.type)
 
 
+func _roster_tooltip(details, role, construction):
+	if not construction:
+		return details
+	var lines = details.split("\n")
+	lines[0] += " [B → %s]" % OS.get_keycode_string(BUILD_KEYS.find_key(role))
+	return "\n".join(lines)
+
+
+func open_page(title: String):
+	if not is_instance_valid(_pages):
+		return
+	for index in _pages.get_tab_count():
+		if _pages.get_child(index).name == title:
+			_pages.current_tab = index
+			return
+
+
+func _sync_navigation():
+	if not is_instance_valid(_navigation) or not is_instance_valid(_pages):
+		return
+	for child in _navigation.get_children():
+		_navigation.remove_child(child)
+		child.queue_free()
+	_navigation.visible = _pages.get_tab_count() > 1
+	var current = str(_pages.get_current_tab_control().name)
+	if current != _root_page:
+		_navigation_key("return", "", tr("Back") + " [Esc]", func(): open_page(_root_page))
+		var title = Label.new()
+		title.text = current
+		title.add_theme_font_size_override("font_size", 13)
+		_navigation.add_child(title)
+	else:
+		for page in _pages.get_children():
+			if page.name == _root_page:
+				continue
+			var title = str(page.name)
+			_navigation_key(
+				"plan" if title == "Build" else "tech",
+				"B" if title == "Build" else "",
+				tr(title) + (" [B]" if title == "Build" else ""),
+				open_page.bind(title)
+			)
+	_fit_menu.call_deferred()
+
+
+func _navigation_key(glyph, key, hint, callback):
+	var button = Button.new()
+	button.icon = BattleTheme.icon(glyph)
+	button.add_theme_constant_override("icon_max_width", 18)
+	button.add_theme_font_size_override("font_size", 12)
+	button.custom_minimum_size = Vector2(52, 28)
+	button.text = key
+	button.tooltip_text = hint
+	button.accessibility_name = hint
+	button.gui_input.connect(_remember_command_mouse)
+	button.pressed.connect(callback)
+	_navigation.add_child(button)
+	return button
+
+
+func handle_menu_input(event):
+	if (
+		not event is InputEventKey
+		or not event.pressed
+		or event.echo
+		or event.ctrl_pressed
+		or event.alt_pressed
+		or event.meta_pressed
+	):
+		return false
+	var manager = get_node_or_null("/root/SaveManager")
+	if (
+		is_instance_valid(Globals.settings_dialog)
+		or (manager != null and is_instance_valid(manager.dialog))
+	):
+		return false
+	var code = event.physical_keycode if event.physical_keycode != 0 else event.keycode
+	var hud = find_parent("Match").get("hud")
+	var player = find_parent("Match")._get_human_player()
+	if not is_instance_valid(player):
+		return false
+	var placement = player.get_node("StructurePlacementHandler")
+	if code == KEY_ESCAPE and placement._structure_placement_started():
+		placement._cancel_structure_placement()
+	elif code == KEY_ESCAPE and is_instance_valid(_research_player):
+		close_research()
+	elif not is_visible_in_tree() or not is_instance_valid(_pages):
+		return false
+	elif code == KEY_ESCAPE and _pages.get_current_tab_control().name != _root_page:
+		open_page(_root_page)
+	elif _pages.get_current_tab_control().name == "Build" and BUILD_KEYS.has(code):
+		for entry in _buttons:
+			if entry.construction and entry.type == BUILD_KEYS[code]:
+				if not entry.button.disabled:
+					_activate(entry.type, true)
+				break
+	elif code == KEY_B and _pages.get_node_or_null("Build") != null:
+		hud.cancel_map_assignment()
+		placement._cancel_structure_placement()
+		open_page("Build")
+	else:
+		return false
+	get_viewport().set_input_as_handled()
+	return true
+
+
+func open_research(player):
+	if _research_player == player:
+		return
+	_camp = null
+	_research_player = player
+	_reset_menus()
+
+
+func close_research():
+	_research_player = null
+	_reset_menus()
+	_queue._reset()
+
+
+func _build_research():
+	visible = true
+	modulate.a = 1.0
+	_title = Label.new()
+	_title.text = tr("Technology")
+	_build_info(BattleTheme.icon("tech"))
+	_health.hide()
+	_status.hide()
+	var back = Button.new()
+	back.icon = BattleTheme.icon("return")
+	back.add_theme_constant_override("icon_max_width", 18)
+	back.tooltip_text = tr("Back to battle") + " [Esc]"
+	back.accessibility_name = back.tooltip_text
+	back.pressed.connect(close_research)
+	_info.add_child(back)
+	_research_panel = _research_script.new()
+	_research_panel.player = _research_player
+	_content.add_child(_research_panel)
+	find_parent("Match").hud.technology_panel = _research_panel
+	_queue.hide()
+	back.grab_focus()
+	_fit_menu.call_deferred()
+
+
 func _page(title: String) -> VBoxContainer:
 	for child in _pages.get_children():
 		if child.name == title:
@@ -955,7 +1145,7 @@ func _build_camp():
 		var button = RosterButton.new()
 		button.set_meta("armed", role not in ["Worker", "RepairRobot"])
 		button.name = "Produce" + role
-		button.custom_minimum_size = Vector2(112, 60)
+		button.compact_layout()
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		var cost = Sites.price(role)
 		button.show_role(

@@ -36,7 +36,6 @@ func _native_controls(menus):
 	var funds = Vector2i(unit.player.resource_a, unit.player.resource_b)
 	var direct = menus._direct_orders
 	var deadline = Time.get_ticks_msec() + 180000
-	menus._scroll.scroll_vertical = 0
 	print("NATIVE WIDTH: click Attack move")
 	while direct.kind != "attack_move" and Time.get_ticks_msec() < deadline:
 		await _frames(1)

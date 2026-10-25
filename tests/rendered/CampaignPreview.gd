@@ -149,7 +149,6 @@ func _run():
 
 func _press_behavior(menus, choice):
 	var button = menus._behavior_panel._buttons[choice]
-	menus._scroll.ensure_control_visible(button)
 	await _frames(3)
 	await _click(button)
 

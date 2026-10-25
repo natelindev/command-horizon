@@ -118,11 +118,26 @@ func _sync_tray():
 
 
 func _fit_queue():
-	# Hug the queued jobs. A full queue fits the deck's width; larger combined
-	# queues of several selected producers scroll.
-	var limit = HudLayout.deck_width(get_viewport_rect().size.x) - 24
-	var jobs = _queue_elements.get_combined_minimum_size().x if _queue_elements != null else limit
-	find_child("QueueScroll").custom_minimum_size.x = minf(limit, jobs)
+	# Bound the tray to one row. Later jobs appear as the visible jobs finish.
+	var limit = HudLayout.deck_width(get_viewport_rect().size.x) - 64
+	var used = 0.0
+	var hidden = 0
+	for job in _queue_elements.get_children():
+		if job.is_queued_for_deletion():
+			continue
+		var width = job.get_combined_minimum_size().x + 5
+		var fits = used + width <= limit
+		job.visible = fits
+		if fits:
+			used += width
+		else:
+			hidden += 1
+	var overflow = find_child("Overflow")
+	overflow.visible = hidden > 0
+	overflow.text = "+%d" % hidden
+	overflow.tooltip_text = tr("%d jobs queued") % hidden
+	overflow.accessibility_description = overflow.tooltip_text
+	reset_size()
 
 
 func show_camp(site):

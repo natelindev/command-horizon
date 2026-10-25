@@ -6,6 +6,7 @@ extends "res://tests/headless/SaveRestoreEdges.gd"
 # alerts beacon, pause menu and technology; eight-player and true spectator
 # resource rosters at 720p with large UI, including both scroll endpoints.
 # Run without --headless: Godot --path . --script tests/rendered/HudConsolePreview.gd
+# Use -- --console-only to skip the independent eight-player resource matrix.
 # Use -- --rosters [bastion helix frontier] for only the eight-player matrix.
 # Use -- --elimination [bastion helix frontier] for commander status and announcement review.
 
@@ -44,6 +45,8 @@ func _run():
 	factions.erase("--full-visibility")
 	_research_only = factions.has("--research")
 	factions.erase("--research")
+	var console_only = factions.has("--console-only")
+	factions.erase("--console-only")
 	var rosters_only = factions.has("--rosters")
 	factions.erase("--rosters")
 	var elimination_only = factions.has("--elimination")
@@ -75,7 +78,15 @@ func _run():
 			await _configure(preferences, setup[2], setup[3], setup[5])
 			await _battle(setup[0], setup[1], setup[4])
 	var expected_rosters = 0
-	if rosters_only or (not elimination_only and not _full_visibility_only and not _research_only):
+	if (
+		rosters_only
+		or (
+			not console_only
+			and not elimination_only
+			and not _full_visibility_only
+			and not _research_only
+		)
+	):
 		for faction in ["bastion", "helix", "frontier"]:
 			if not factions.is_empty() and faction not in factions:
 				continue
@@ -264,6 +275,9 @@ func _battle(faction, map_name, suffix):
 		camera.set_position_safely(tank.global_position)
 	await _select([_units(human, "Worker")[0]])
 	await _shot(label + "-worker")
+	game.find_child("UnitMenus").open_page("Build")
+	await _frames(10)
+	await _shot(label + "-build")
 	tank.hp = int(tank.hp_max * .55)
 	await _select([tank])
 	await _shot(label + "-tank")
@@ -329,6 +343,9 @@ func _review_research(human, label):
 	await _frames(20)
 	await _shot(label + "-technology")
 	game.hud._close_menu()
+	await _frames(8)
+	research = game.find_child("UnitMenus")._research_panel
+	research_tile = research._branches.weapons.button
 	var funds = Vector2i(human.resource_a, human.resource_b)
 	research_tile.grab_focus()
 	for pressed in [true, false]:

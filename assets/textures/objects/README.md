@@ -60,3 +60,25 @@ snow, salt stains and colors, adding scanned detail through
 - Run `tests/rendered/ObjectMaterialsPreview.gd` without `--headless` for faction,
   infantry, civilian, foliage and rock captures in `art/object-materials/`.
   Paired `-detail-off` captures use identical geometry, lighting and camera.
+
+## Foliage cutouts and meadow grass
+
+`tools/textures/generate_material_details.py` also generates original 512px
+`leaves_cutout.png` and `needles_cutout.png` branch/leaf silhouettes with alpha,
+veins, antialiased edges and transparent borders. These have no inferred normal
+map. `art/common/foliage.py` builds seeded, bounded card clusters with normals
+following the canopy volume. `build_temperate.py` uses them for broadleaf trees,
+conifer tiers and leafy shrubs; `build_desert.py` uses them for dry sage scrub.
+Existing desert trees already use explicit leaf geometry and are retained.
+
+The `[cards:leaves]` / `[cards:needles]` material suffix selects the shared
+`foliage_cards.gdshader`: two-sided lighting, alpha scissor, shadow/depth writes
+and restrained backlighting. It uses UV0, including through MeshBatch merging.
+Card geometry remains inside its authored ellipsoid and the kit exporters
+validate radius/height limits. Bark keeps its scanned surface material.
+
+The temperate generator also builds `MeadowGrass.glb`. TerrainDressing places
+it on forest ground and roadside verges of forest/farmland/village maps with a
+separate deterministic seed, at most 1800 instances in one shadow-casting
+MultiMesh. Existing road, base, resource, landmark, ramp and water clearances
+are respected. It has no collision or simulation state.

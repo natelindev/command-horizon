@@ -23,8 +23,7 @@ const COMMANDS = {
 		"description":
 		(
 			"Patrol between the starting point and a destination, engaging enemies en route. "
-			+ "Fixed-wing aircraft patrol the destination. Continues until stopped or replaced; "
-			+ "Skip advances queued orders."
+			+ "Fixed-wing aircraft patrol the destination. Continues until stopped or replaced."
 		)
 	},
 	"follow": {"title": "Follow", "action": "", "description": "Follow a friendly unit."},

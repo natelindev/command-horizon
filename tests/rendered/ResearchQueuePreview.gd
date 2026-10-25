@@ -39,6 +39,11 @@ func _run():
 func _queue_interface(faction, language):
 	for side in get_nodes_in_group("players"):
 		side.set_process(false)
+	# Reassert the review size after the native scene/window transition settles.
+	await create_timer(0.5, true).timeout
+	root.mode = Window.MODE_WINDOWED
+	root.size = Vector2i(1280, 720)
+	await _frames(12)
 	var hud = game.hud
 	var human = game._get_human_player()
 	var lab = _units(human, "CommandLab")[0]
@@ -48,7 +53,7 @@ func _queue_interface(faction, language):
 	game.get_node("IsometricCamera3D").set_position_safely(lab.global_position)
 	await _select([tank, worker])
 	await _activate(hud._technology_button)
-	_check(paused and hud.technology_panel != null, "Tech did not pause running battle")
+	_check(not paused and hud.technology_panel != null, "Tech changed running battle state")
 	await _key(KEY_ESCAPE)
 	_check(not paused and hud.technology_panel == null, "Tech did not restore running battle")
 	hud._toggle_pause()
@@ -86,8 +91,8 @@ func _queue_interface(faction, language):
 		return
 	for row in panel._queue_rows:
 		_check(
-			row.cancel.text == ("取消" if language == "zh_CN" else "Cancel"),
-			"Queued cancellation label did not follow the selected language"
+			row.cancel.portrait() != null and not row.cancel._title.is_visible_in_tree(),
+			"Queued cancellation is not an icon"
 		)
 		_check(
 			row.cancel.accessibility_name.begins_with(
@@ -121,17 +126,13 @@ func _queue_interface(faction, language):
 	var lab_panel = menus._research_panel
 	_check(is_instance_valid(lab_panel), "Selected lab omitted research queue")
 	if is_instance_valid(lab_panel):
-		lab_panel._queue_rows[-1].cancel.grab_focus()
-		await _frames(8)
+		_check(lab_panel._queue_rows.size() == 7, "Bottom research queue omits paid projects")
 		_check(
-			menus._scroll.get_global_rect().encloses(
-				lab_panel._queue_rows[-1].cancel.get_global_rect()
-			),
-			"Selected lab queue does not scroll to keyboard focus"
+			menus._command_bay.get_global_rect().encloses(lab_panel.get_global_rect()),
+			"Selected lab research does not fit in the console"
 		)
 		await _shot(label + "-lab")
-	await _activate(hud._technology_button)
-	panel = hud.technology_panel
+	panel = lab_panel
 	await _activate(panel._queue_rows[0].cancel)
 	_check(
 		(
@@ -165,28 +166,22 @@ func _queue_interface(faction, language):
 	_check(
 		Vector2i(human.resource_a, human.resource_b) == funds, "GUI refunds did not conserve funds"
 	)
-	await _key(KEY_ESCAPE)
-	_check(paused, "Final close resumed a tactically paused battle")
+	_check(paused, "Research controls resumed a tactically paused battle")
 	_queue_cases += 1
 	print("PASS ", label, " keyboard FIFO purchases, focus, cascade refunds and pause authority")
 
 
 func _overlay_inside(hud, focused, label):
-	var scroll = hud._technology_scroll
-	var surface = scroll.get_parent()
-	while surface != null and not surface is PanelContainer:
-		surface = surface.get_parent()
-	_check(surface != null, "Technology overlay lacks a panel")
-	if surface != null:
-		_check(
-			root.get_visible_rect().encloses(surface.get_global_rect()),
-			"Research queue overlay exceeds the viewport: " + label
-		)
+	var menus = game.find_child("UnitMenus")
+	_check(hud._overlay == null, "Research created a floating window")
 	_check(
-		scroll.get_global_rect().encloses(focused.get_global_rect()),
+		menus.get_global_rect().grow(1).encloses(focused.get_global_rect()),
 		"Queued keyboard focus is clipped: " + label
 	)
-	_check(root.size == Vector2i(1280, 720), "Research queue review lost 720p resolution")
+	_check(
+		root.size == Vector2i(1280, 720),
+		"Research queue review lost 720p resolution: %s %s" % [label, root.size]
+	)
 	_check(
 		root.get_node("Globals").options.interface_scale == 1.5,
 		"Research queue review lost 150% UI scale"

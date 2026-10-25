@@ -264,6 +264,8 @@ func _select(unit):
 	# Selection changes coalesce before the command deck is rebuilt.
 	await _frames(2)
 	var menus = game.find_child("UnitMenus")
+	menus.open_page("Build")
+	await _frames(2)
 	menus._refresh_buttons()
 	return menus
 

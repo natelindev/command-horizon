@@ -39,13 +39,13 @@ func _ready():
 	_slots.clear()
 	columns = 4
 	add_theme_constant_override("h_separation", 6)
-	add_theme_constant_override("v_separation", 6)
+	add_theme_constant_override("v_separation", 4)
 	for r in range(3):
 		var row_slots = []
 		for c in range(4):
 			var btn = HudKey.new()
 			btn.name = "Slot_%s" % GRID_LABELS[r][c]
-			btn.custom_minimum_size = Vector2(62, 48)
+			btn.custom_minimum_size = Vector2(62, 40)
 			btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			add_child(btn)
 			row_slots.append(btn)

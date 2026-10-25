@@ -9,7 +9,7 @@ func _run():
 		await _layout_fixture(faction)
 		var human = game._get_human_player()
 		for role in ["Worker", "CommandCenter", "Barracks", "VehicleFactory", "AircraftFactory"]:
-			var menus = _select(_units(human, role)[0])
+			var menus = await _select(_units(human, role)[0])
 			await _frames(8)
 			_check_layout(menus, faction + ": " + role)
 			await _review_layout(menus, faction + "-" + role)
@@ -52,10 +52,7 @@ func _layout_fixture(faction):
 
 func _check_layout(menus, label):
 	_check(not menus._buttons.is_empty(), label + ": roster fixture has no purchase buttons")
-	var clip = menus._scroll.get_global_rect()
-	var scrollbar = menus._scroll.get_v_scroll_bar()
-	if scrollbar.visible:
-		clip.size.x -= scrollbar.size.x
+	var clip = menus._command_bay.get_global_rect()
 	for entry in menus._buttons:
 		var button = entry.button
 		var rect = button.get_global_rect()

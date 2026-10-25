@@ -359,6 +359,12 @@ func _recovery_clearance(direction):
 
 func _ready():
 	if domain == Constants.Match.Navigation.Domain.TERRAIN:
+		# Intermediate corners are shared by an entire crowd. Requiring every
+		# large chassis to touch the same 20 cm disc forces single-file turns
+		# even when the passage has room to pass. Allow its footprint around a
+		# corner; final arrival still uses target_desired_distance, and every
+		# step remains constrained by the navigation mesh and body contacts.
+		path_desired_distance = maxf(path_desired_distance, radius)
 		# Near-collinear mesh portals can pin avoidance to an unnecessary point
 		# inside a neighbor. Remove them without broadening arrival tolerances.
 		simplify_path = true

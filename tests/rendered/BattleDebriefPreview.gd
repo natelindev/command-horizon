@@ -30,15 +30,15 @@ func _review_result(label):
 	for panel in panels:
 		_check(root.get_visible_rect().encloses(panel.get_global_rect()), "Debrief leaves viewport")
 	var buttons = game.hud._overlay.find_children("*", "Button", true, false)
-	_check(buttons.size() == 4, "Debrief lost result navigation")
+	_check(buttons.size() == 5, "Debrief lost result navigation")
 	await RenderingServer.frame_post_draw
 	var file = capture_prefix + "-" + label + ".png"
 	_check(not FileAccess.file_exists(file), "Debrief capture exists")
 	root.get_texture().get_image().save_png(file)
 	if label == "frontier-complete":
-		print("NATIVE DEBRIEF: Play again focused; Tab twice then Enter to Skirmish setup")
+		print("NATIVE DEBRIEF: Play again focused; Tab three times then Enter to Skirmish setup")
 		if automated:
-			buttons[2].pressed.emit()
+			game.hud._overlay.find_child("SetupButton", true, false).pressed.emit()
 		var deadline = Time.get_ticks_msec() + 600000
 		while (
 			is_instance_valid(game) and game.is_inside_tree() and Time.get_ticks_msec() < deadline

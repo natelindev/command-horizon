@@ -9,6 +9,7 @@ var _summary
 func _ready():
 	add_theme_constant_override("separation", 8)
 	_activate = Button.new()
+	_activate.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_activate.text = (Factions.signature_title(selection[0].player.faction))
 	_activate.add_theme_font_size_override("font_size", 13)
 	_activate.pressed.connect(_activate_selection)
@@ -18,6 +19,7 @@ func _ready():
 	_summary.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_summary.mouse_filter = Control.MOUSE_FILTER_STOP
+	_summary.hide()
 	add_child(_summary)
 	refresh()
 

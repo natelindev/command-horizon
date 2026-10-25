@@ -42,24 +42,22 @@ func _build():
 	types.columns = 3
 	types.add_theme_constant_override("h_separation", 5)
 	types.add_theme_constant_override("v_separation", 5)
-	var type_scroll = ScrollContainer.new()
-	type_scroll.name = "UnitTypeCounts"
-	type_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	type_scroll.follow_focus = true
-	add_child(type_scroll)
-	type_scroll.add_child(types)
-	types.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	types.name = "UnitTypeCounts"
+	add_child(types)
 	var cohorts = {}
 	for unit in _members:
 		if not cohorts.has(unit.type):
 			cohorts[unit.type] = []
 		cohorts[unit.type].append(unit)
+	var type_only = cohorts.size() > 3
+	types.columns = 6 if type_only else 3
 	for role in cohorts:
 		var members = cohorts[role]
 		var title = Factions.title(members[0].player.faction, role)
 		var button = _button()
 		button.name = "Select" + role
-		button.custom_minimum_size = Vector2(112, 30)
+		button.add_theme_font_size_override("font_size", 12)
+		button.custom_minimum_size = Vector2(56 if type_only else 112, 26)
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		button.pressed.connect(_request.bind(members))
 		types.add_child(button)
@@ -69,20 +67,20 @@ func _build():
 		row.offset_right = -7
 		row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		button.add_child(row)
-		var label = Label.new()
-		label.text = title
-		label.add_theme_font_size_override("font_size", 13)
-		label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		row.add_child(label)
+		var portrait = TextureRect.new()
+		portrait.texture = Factions.selection_portrait(members[0].player.faction, role)
+		portrait.custom_minimum_size = Vector2(22, 22)
+		portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		portrait.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		row.add_child(portrait)
 		var count = Label.new()
 		count.text = str(members.size())
 		count.add_theme_font_size_override("font_size", 13)
 		count.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		row.add_child(count)
 		_types.append({"button": button, "title": title, "members": members})
-	type_scroll.custom_minimum_size.y = minf(65, ceili(cohorts.size() / 3.0) * 35 - 5)
 	_grid = GridContainer.new()
 	_grid.columns = PAGE_SIZE
 	_grid.add_theme_constant_override("h_separation", 5)
@@ -113,6 +111,9 @@ func _build():
 	_damaged.pressed.connect(_select_damaged)
 	controls.add_child(_damaged)
 	_rebuild_tiles()
+	# Large mixed armies show every type; select a type to inspect individuals.
+	_grid.visible = not type_only
+	controls.visible = not type_only
 	refresh()
 
 

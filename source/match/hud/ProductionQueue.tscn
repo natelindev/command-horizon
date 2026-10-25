@@ -6,15 +6,16 @@
 process_mode = 3
 script = ExtResource("1_iis45")
 
-[node name="QueueScroll" type="ScrollContainer" parent="."]
-custom_minimum_size = Vector2(480, 64)
+[node name="QueueRow" type="HBoxContainer" parent="."]
+custom_minimum_size = Vector2(0, 64)
 layout_mode = 2
-horizontal_scroll_mode = 1
-vertical_scroll_mode = 0
-follow_focus = true
+theme_override_constants/separation = 8
 
-[node name="QueueElements" type="HBoxContainer" parent="QueueScroll"]
+[node name="QueueElements" type="HBoxContainer" parent="QueueRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 5
 alignment = 2
+
+[node name="Overflow" type="Label" parent="QueueRow"]
+layout_mode = 2

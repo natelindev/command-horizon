@@ -6,10 +6,14 @@ Run: blender --background --python art/environment/build_temperate.py
 import json
 import math
 import random
+import sys
 from pathlib import Path
 
 import bpy
 from mathutils import Vector
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "common"))
+import foliage
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "assets/models/environment/temperate"
@@ -79,7 +83,8 @@ def attach(obj, name, mat, flat=False):
     for group in list(obj.users_collection):
         group.objects.unlink(obj)
     collection.objects.link(obj)
-    obj.data.materials.append(mat)
+    if not obj.data.materials:
+        obj.data.materials.append(mat)
     if flat:
         for polygon in obj.data.polygons:
             polygon.use_smooth = False
@@ -120,6 +125,8 @@ def cone(name, point, radius, depth, mat, sides=12, top=0.0):
 
 
 def blob(name, center, size, mat, rng, roughness=.22, subdivisions=1):
+    if any(word in mat.name.lower() for word in ("leaves", "salal", "bramble", "hedge")):
+        return attach(foliage.cluster(name, center, size, mat, rng), name, mat)
     bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=subdivisions, radius=1, location=center)
     obj = bpy.context.object
     for vertex in obj.data.vertices:
@@ -155,8 +162,10 @@ def conifer(seed, height, mats, bark, spread=1.0):
         t = tier / tiers
         radius = (1.9 * (1 - t) + .25) * spread
         z = height * (.18 + t * .74)
-        cone("Fir tier", (rng.uniform(-.1, .1), rng.uniform(-.1, .1), z), radius,
-             height * .2, rng.choice(mats), 9, radius * .15)
+        center = (rng.uniform(-.1, .1), rng.uniform(-.1, .1), z)
+        mat = rng.choice(mats)
+        attach(foliage.cluster("Needle tier", center, (radius, radius, height*.1),
+                              mat, rng, "needles", 56), "Needle tier", mat)
 
 
 def broadleaf(seed, height, mats, bark, crown=1.0, trunk=.3):
@@ -394,7 +403,24 @@ def picket_fence():
         box("Rail", (0, 0, z), (6.2, .05, .08), WHITE_TRIM)
 
 
+def grass_tuft():
+    rng = random.Random(913)
+    mat = material("Meadow grass", (.28, .35, .12))
+    for index in range(24):
+        angle = rng.uniform(0, math.tau)
+        base = Vector((rng.uniform(-.24, .24), rng.uniform(-.24, .24), 0))
+        tip = base + Vector((math.cos(angle)*.18, math.sin(angle)*.18, rng.uniform(.22, .48)))
+        across = Vector((-math.sin(angle), math.cos(angle), 0))*.018
+        middle = base.lerp(tip, .58)
+        mesh = bpy.data.meshes.new("Grass blade")
+        mesh.from_pydata([base-across, base+across, middle+across*.7, tip, middle-across*.7], [], [(0,1,2,4),(4,2,3)])
+        obj = bpy.data.objects.new("Grass blade", mesh)
+        bpy.context.collection.objects.link(obj)
+        attach(obj, "Grass blade", mat)
+
+
 builders = [
+    ("MeadowGrass", .6, .5, grass_tuft),
     ("DouglasFir", 2.7, 14.0, lambda: conifer(201, 13.0, FIR, BARK, 1.15)),
     ("WesternRedCedar", 2.6, 10.5, lambda: conifer(202, 9.8, CEDAR, CEDAR_BARK, 1.1)),
     ("YoungSpruce", 1.8, 5.6, lambda: conifer(203, 5.2, FIR, BARK, .75)),
