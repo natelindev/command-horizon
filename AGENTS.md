@@ -21,3 +21,10 @@
 ## Localization
 
 - Edit `art/localization/*.tsv`, then run `python3 art/localization/build_catalog.py`; do not edit `assets/translations/ui.csv` directly.
+
+## Camera and Skirmish Rules
+
+- Never add camera shake, impulse displacement or viewport jarring to Skirmish matches; keep Skirmish camera movement completely smooth and inertial. Restrict dramatic camera shakes to scripted Campaign cinematic events.
+- Super-units and experimental Behemoths belong strictly in Campaign boss scenarios; do not introduce them into Skirmish rosters.
+- Vehicle damage states must reflect faction identities: Bastion uses diesel smoke and hull fires; Helix uses cyan plasma leaks and repulsor wobble; Frontier uses radiator steam, loose rattling plates and engine backfire.
+

@@ -1944,3 +1944,22 @@ Frontier's rough bush airstrip fields weaker aircraft (70% health, 80% damage,
 no speed bonus) and compensates with hardened infantry (110% health, 115%
 damage, still 20% faster). Frontier armies should lean on rocket teams and
 massed riflemen for both anti-armor and anti-air rather than contest the sky.
+
+## Tactical gameplay depth, map events, and immersion — 2026-10-25
+
+Supersedes earlier discussions of directional armor and generic skirmish events.
+The confirmed decisions and roadmap are recorded in
+[the gameplay depth and immersion plan](plans/gameplay-depth-and-immersion.md).
+
+- **Directional armor rejected:** Directional rear/side armor penalties are discarded; uniform armor profiles remain across all mobile vehicles to preserve clean micro and responsive battlefield navigation.
+- **Infantry suppression & garrison eviction:** Sustained heavy weapon fire (autocannons, flak, machine guns) applies suppression, forcing infantry into prone cover with clear overhead yellow/red status badges and HUD readouts. Frag Grenades (`Q`) breaching neutral civilian buildings evict enemy occupants into the open.
+- **Faction macro asymmetry:**
+  - *Bastion:* Assembly Line continuous production speed bonuses (up to 24%) and deployable forward sandbag barricades.
+  - *Helix:* Flux Generator Power Overdrive modes (+50% shield recharge rate) and drone electronic warfare chaff.
+  - *Frontier:* Concealed scrap proximity mines and visual modular scrap plates on scavenged vehicles.
+- **Dynamic map-specific events:** Mid-game events tailored to map biomes (desert supply airdrops, industrial automated freight/power surges, coastal flotsam/fog banks, alpine satellite uplinks).
+- **Commander off-map call-ins:** Tier-2 tech structures unlock strategic off-map strikes (Bastion Artillery Barrage, Helix Orbital EMP Surge, Frontier Smuggler Airdrop) with 3.5s audible and visual telegraph warnings.
+- **Super-units campaign-exclusive:** Experimental Behemoths / Titan super-units are strictly excluded from Skirmish matches and reserved exclusively for Campaign boss encounters.
+- **Faction vehicle damage states:** Vehicles visually express damage by faction: Bastion exhibits dense diesel smoke and hull fires; Helix vents glowing cyan plasma and electrical arcs with hovering altitude instability; Frontier vents radiator steam with rattling loose panels and backfiring exhaust.
+- **Camera stability rule:** Camera shake and impulse displacement are strictly prohibited in Skirmish to guarantee competitive precision and readability; cinematic camera impulse is reserved exclusively for scripted Campaign missions.
+
