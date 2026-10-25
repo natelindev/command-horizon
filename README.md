@@ -111,7 +111,7 @@ The desert scenario starts with the full faction available for review: **8 mobil
 - **Unit behaviors:** Attack, Defensive, Follow, Guard and Hold Fire are available immediately in Orders.
 - **Order queue:** numbered routes show active (solid) and waiting (dashed) orders. Skip advances one order; Clear waiting keeps the active order; Stop clears everything.
 - **Engineer rover:** select a building in its menu, place it with the left mouse button, and rotate with **R** or by dragging before release. Right-click cancels placement.
-- **Production:** select a headquarters, barracks, vehicle factory, or airfield. Click a roster icon to queue; click a queue icon to cancel and refund.
+- **Production:** select a headquarters, barracks, vehicle factory, or airfield. Click a labelled roster tile to queue one unit; **Shift-click** queues up to five within your available resources, unit cap and queue space. Click a queue icon to cancel and refund. Build, Produce, Research and Orders use directly accessible labelled tabs, with names and costs visible on their choices.
 - **Space:** tactical pause in the Bastion demo; select units, give orders, and queue production while paused. **Escape:** match menu.
 - **Arrow keys / screen edges:** pan. **Q/E:** rotate. **Mouse wheel:** zoom. **Ctrl+1–9:** assign control groups; **1–9:** recall.
 

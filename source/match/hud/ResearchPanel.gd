@@ -99,14 +99,13 @@ func _tile(branch):
 	var button = ResearchButton.new()
 	button.name = "Research" + branch.capitalize()
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	button.compact_layout()
 	_grid.add_child(button)
 	return button
 
 
 func _fit_grid():
-	# Every research choice fits the bottom console as a picture key.
-	_grid.columns = clampi(floori((size.x + 6) / 70), 1, _grid.get_child_count())
+	# Research choices retain their visible names, prices and state.
+	_grid.columns = clampi(floori((size.x + 6) / 156), 1, _grid.get_child_count())
 
 
 func _cancel_active():

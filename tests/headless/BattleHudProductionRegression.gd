@@ -2,7 +2,7 @@ extends "res://tests/headless/SaveRestoreEdges.gd"
 
 ## Battle HUD production and guidance:
 ## - every producible unit and structure has a faction portrait, and production and
-##   build tiles show pictures with names and prices in English/Chinese tooltips;
+##   build tiles show pictures, names and prices, with English/Chinese tooltips;
 ## - the retired skirmish Battle plan stays absent, including with old preferences;
 ## - producers accept a twelve-job queue that reserves and refunds exact costs, and
 ##   the selected producer's rack shows every job without scrolling;
@@ -69,6 +69,10 @@ func _portraits():
 				)
 	# Roles without art degrade to an empty portrait instead of failing.
 	_check(factions.portrait("frontier", "SupplyTruck") == null, "Missing art invented a portrait")
+	_check(
+		factions.description("bastion", "SupplyTruck").is_empty(),
+		"Missing description has no fallback"
+	)
 	var tile = roster_button.new()
 	tile.show_role(null, "Supply truck", {"resource_a": 3, "resource_b": 0})
 	_check(tile._portrait.texture != null, "Missing portrait left an empty socket")
@@ -105,7 +109,7 @@ func _tiles(faction):
 				)
 				_check(not tile.title().is_empty(), "%s: %s tile has no name" % [label, entry.type])
 				_check(tile.text.is_empty(), "%s: %s tile draws button text" % [label, entry.type])
-				_check(not tile._title.is_visible_in_tree(), label + ": tile displays a text name")
+				_check(tile._title.is_visible_in_tree(), label + ": tile hides its name")
 				_check(tile.tooltip_text.begins_with(tile.title()), label + ": tooltip has no name")
 				var cost = factions.cost(human, entry.type, entry.construction)
 				var expected_price = "%d M / %d E" % [cost.resource_a, cost.resource_b]

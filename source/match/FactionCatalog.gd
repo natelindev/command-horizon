@@ -289,7 +289,7 @@ static func description(faction, role):
 		)
 	if faction == "helix" and HELIX_DESCRIPTIONS.has(role):
 		return HELIX_DESCRIPTIONS[role]
-	return Bastion.DESCRIPTIONS[role]
+	return Bastion.DESCRIPTIONS.get(role, "")
 
 
 static func cost(player, role, building = false):

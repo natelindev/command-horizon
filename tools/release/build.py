@@ -46,7 +46,7 @@ TESTS = [
     "AirfieldOperationsRegression", "GroundHeightAlignmentRegression", "GroundCrowdRecoveryRegression",
     "SkirmishBuildReadinessRegression",
     "PresentationFeaturesRegression", "SettingsRegression", "UnitInfoTextRegression",
-    "BattleHudProductionRegression", "BattleAftermathRegression",
+    "BattleHudProductionRegression", "ProductionBatchRegression", "BattleAftermathRegression",
     "MapPassageRegression", "ObjectMaterialsRegression", "RuntimeShutdownRegression",
     "EnvironmentEffectsRegression", "WaterFlowRegression", "WaterHybridRegression",
     "StrategicPolishRegression", "MicroControlsRegression",

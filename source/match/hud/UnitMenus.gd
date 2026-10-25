@@ -38,8 +38,6 @@ var _status = null
 var _content = null
 var _command_bay: MarginContainer
 var _pages: TabContainer
-var _navigation: HBoxContainer
-var _root_page = "Orders"
 var _research_player = null
 var _research_script = load("res://source/match/hud/ResearchPanel.gd")
 var _commands: VBoxContainer
@@ -132,7 +130,12 @@ func _fit_menu():
 		371 if _selection.size() > 1 and showing_orders else HudLayout.info_bay(viewport.x)
 	)
 	for grid in _content.find_children("Roster", "GridContainer", true, false):
-		grid.columns = clampi(floori((width - _info_bay.custom_minimum_size.x - 54) / 70), 1, 10)
+		var available_width = width - _info_bay.custom_minimum_size.x - 54
+		grid.columns = clampi(
+			maxi(floori(available_width / 156), ceili(grid.get_child_count() / 3.0)),
+			1,
+			mini(6, maxi(1, floori(available_width / 132)))
+		)
 	if is_instance_valid(_status):
 		_status.custom_minimum_size.x = _info_bay.custom_minimum_size.x - 12
 	var margins = get_theme_stylebox("panel").get_minimum_size().y
@@ -302,15 +305,22 @@ func _reset_menus():
 	)
 	_build_info(heading_icon)
 	_content.tooltip_text = tr(Factions.TECH_SUMMARY.get(unit.player.faction, ""))
-	_navigation = HBoxContainer.new()
-	_navigation.name = "MenuNavigation"
-	_navigation.add_theme_constant_override("separation", 6)
-	_content.add_child(_navigation)
 	_pages = TabContainer.new()
 	_pages.name = "CommandPages"
 	_pages.use_hidden_tabs_for_min_size = false
-	_pages.add_theme_stylebox_override("panel", BattleTheme.surface(Color.TRANSPARENT, 0, 4))
-	_pages.tab_changed.connect(func(_index): _sync_navigation.call_deferred())
+	_pages.add_theme_stylebox_override("panel", BattleTheme.surface(Color.TRANSPARENT, 0, 0))
+	# The housing already supplies padding. Keep the restored tab row shallow
+	# enough for three rows of labelled choices at the largest interface scale.
+	var tab_bar = _pages.get_tab_bar()
+	_pages.add_theme_font_size_override("font_size", 14)
+	tab_bar.add_theme_font_size_override("font_size", 14)
+	for style_name in ["tab_selected", "tab_unselected", "tab_hovered"]:
+		var style = _pages.get_theme_stylebox(style_name).duplicate()
+		style.set_content_margin(SIDE_TOP, 1)
+		style.set_content_margin(SIDE_BOTTOM, 1)
+		_pages.add_theme_stylebox_override(style_name, style)
+		tab_bar.add_theme_stylebox_override(style_name, style)
+	_pages.tab_changed.connect(func(_index): _fit_menu.call_deferred())
 	_content.add_child(_pages)
 	var production_roles = []
 	for producer in _selection:
@@ -318,11 +328,12 @@ func _reset_menus():
 			for role in Catalog.PRODUCES.get(producer.type, []):
 				if role not in production_roles:
 					production_roles.append(role)
-	# Producers open their roster; workers reach building choices through the Build key.
+	# The selection's primary choices open immediately, with direct labelled tabs.
 	# Mixed selections lead with orders and the selection roster.
 	var roster_page = null
 	var roster_title = "Produce" if not production_roles.is_empty() else "Build"
-	var builds = not production_roles.is_empty() or unit is Worker
+	var has_workers = _selection.any(func(member): return member is Worker)
+	var builds = not production_roles.is_empty() or has_workers
 	var researches = (
 		_selection.size() == 1
 		and unit is Structure
@@ -361,19 +372,18 @@ func _reset_menus():
 		_selection_roster.subset_requested.connect(_select_subset)
 		_info.add_child(_selection_roster)
 	_add_direct_buttons(unit)
-	var grid = GridContainer.new()
-	grid.name = "Roster"
-	grid.columns = HudLayout.roster_columns(get_viewport_rect().size.x)
-	grid.add_theme_constant_override("h_separation", 6)
-	grid.add_theme_constant_override("v_separation", 6)
-	(roster_page if roster_page != null else _commands).add_child(grid)
+	var grid = _roster_grid(roster_page if roster_page != null else _commands)
 	for role in production_roles:
 		_add_roster_button(grid, role, false)
 	if researches:
 		_research_panel = _research_script.new()
 		_research_panel.lab = unit
 		roster_page.add_child(_research_panel)
-	elif unit is Worker:
+	if has_workers:
+		# Mixed worker/producer selections keep both rosters one click away;
+		# do not combine two full menus into an over-height Produce grid.
+		if not production_roles.is_empty():
+			grid = _roster_grid(_page("Build"))
 		for unit_type in Catalog.STRUCTURES:
 			_add_roster_button(grid, unit_type, true)
 		if unit.player.faction == "bastion":
@@ -429,16 +439,12 @@ func _reset_menus():
 		):
 			_pages.remove_child(page)
 			page.queue_free()
-	_root_page = (
-		"Orders" if _pages.get_node_or_null("Orders") != null else str(_pages.get_child(0).name)
-	)
-	open_page(_root_page)
+	_pages.current_tab = 0
 	if previous_selection == _selection:
 		for index in _pages.get_tab_count():
 			if _pages.get_child(index).name == page_name:
 				_pages.current_tab = index
-	_pages.tabs_visible = false
-	_sync_navigation()
+	_pages.tabs_visible = _pages.get_tab_count() > 1
 	_refresh_buttons()
 	# Rebuilding an identical selection can return to the same content minimum.
 	# Refit after layout settles even when no final minimum-size signal is emitted.
@@ -476,7 +482,7 @@ func _build_info(portrait):
 	_title.add_theme_color_override("font_color", BattleTheme.IVORY)
 	_title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	_title.mouse_filter = Control.MOUSE_FILTER_PASS
-	_title.visible = _selection.size() != 1 or is_instance_valid(_research_player)
+	_title.show()
 	names.add_child(_title)
 	_shields = ProgressBar.new()
 	_shields.name = "Shields"
@@ -498,7 +504,7 @@ func _build_info(portrait):
 	_status.add_theme_font_size_override("font_size", 12)
 	_status.add_theme_color_override("font_color", Color("b9bfba"))
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_status.max_lines_visible = 2
+	_status.max_lines_visible = 3
 	_status.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	_status.custom_minimum_size.x = _info_bay.custom_minimum_size.x - 12
 	_info.add_child(_status)
@@ -668,8 +674,7 @@ func _add_roster_button(grid, unit_type, construction):
 		)
 	)
 	button.name = "Build" + unit_type if construction else "Produce" + unit_type
-	# Picture keys keep names, prices and availability in their tooltips.
-	button.compact_layout()
+	# Keep the portrait, name and price visible without hovering.
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.show_role(
 		Factions.portrait(player.faction, unit_type),
@@ -682,11 +687,22 @@ func _add_roster_button(grid, unit_type, construction):
 	button.accessibility_name = tr(Factions.title(player.faction, unit_type))
 	button.accessibility_description = info.text
 	button.disabled = not info.allowed
-	button.pressed.connect(_activate.bind(unit_type, construction))
+	button.gui_input.connect(_roster_input.bind(button))
+	button.pressed.connect(_activate_roster.bind(unit_type, construction, button))
 	grid.add_child(button)
 	_buttons.append(
 		{"button": button, "type": unit_type, "construction": construction, "cost": cost}
 	)
+
+
+func _roster_grid(parent):
+	var grid = GridContainer.new()
+	grid.name = "Roster"
+	grid.columns = HudLayout.roster_columns(get_viewport_rect().size.x)
+	grid.add_theme_constant_override("h_separation", 6)
+	grid.add_theme_constant_override("v_separation", 6)
+	parent.add_child(grid)
+	return grid
 
 
 func _refresh_buttons():
@@ -799,8 +815,8 @@ func _refresh_buttons():
 		_reset_menus()
 		return
 	var health = "%d / %d HP" % [ceili(unit.hp), ceili(unit.hp_max)]
-	# The bay lists only what changes or needs action. Stable facts (class, weapons,
-	# upgrades, service rules) live in the identity tooltip over portrait and name.
+	# Show a short role description when there is no urgent status to display.
+	# Detailed weapons, upgrades and service rules remain in the identity tooltip.
 	var lines = []
 	var facts = []
 	if unit is Structure:
@@ -903,6 +919,10 @@ func _refresh_buttons():
 		)
 		if affected > 0:
 			lines.append(tr("Suppressed · %d units") % affected)
+	if lines.is_empty() and _selection.size() == 1:
+		var description = Factions.description(unit.player.faction, unit.type)
+		if not description.is_empty():
+			lines.append(description)
 	_status.text = "\n".join(lines.map(func(line): return tr(line)))
 	_status.tooltip_text = _status.text
 	_status.visible = not lines.is_empty()
@@ -946,17 +966,31 @@ func _select_subset(members, remove):
 			unit.get_node("Selection").deselect()
 
 
-func _activate(unit_type, construction):
+func _roster_input(event, button):
+	_remember_command_mouse(event)
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		button.set_meta("production_batch", 5 if event.shift_pressed else 1)
+
+
+func _activate_roster(unit_type, construction, button):
+	var quantity = button.get_meta("production_batch", 1)
+	button.set_meta("production_batch", 1)
+	_activate(unit_type, construction, quantity)
+
+
+func _activate(unit_type, construction, quantity = 1):
 	if _selection.is_empty() or not is_instance_valid(_selection[0]):
 		return
 	var scene = load(Catalog.scene_path(unit_type))
 	if construction:
 		MatchSignals.place_structure.emit(scene)
-		open_page(_root_page)
 	else:
-		var producer = _production_target(unit_type)
-		if producer != null:
-			producer.production_queue.produce(scene)
+		# Resolve each job again so selected factories share the batch. Existing
+		# affordability, queue, population and unique-hero checks apply to each unit.
+		for index in quantity:
+			var producer = _production_target(unit_type)
+			if producer == null or producer.production_queue.produce(scene) == null:
+				break
 	_refresh_buttons()
 
 
@@ -1040,9 +1074,9 @@ func _rally_destination(rally):
 
 func _roster_tooltip(details, role, construction):
 	if not construction:
-		return details
+		return details + "\n" + tr("Shift-click to queue 5 units.")
 	var lines = details.split("\n")
-	lines[0] += " [B → %s]" % OS.get_keycode_string(BUILD_KEYS.find_key(role))
+	lines[0] += " [%s]" % OS.get_keycode_string(BUILD_KEYS.find_key(role))
 	return "\n".join(lines)
 
 
@@ -1053,49 +1087,6 @@ func open_page(title: String):
 		if _pages.get_child(index).name == title:
 			_pages.current_tab = index
 			return
-
-
-func _sync_navigation():
-	if not is_instance_valid(_navigation) or not is_instance_valid(_pages):
-		return
-	for child in _navigation.get_children():
-		_navigation.remove_child(child)
-		child.queue_free()
-	_navigation.visible = _pages.get_tab_count() > 1
-	var current = str(_pages.get_current_tab_control().name)
-	if current != _root_page:
-		_navigation_key("return", "", tr("Back") + " [Esc]", func(): open_page(_root_page))
-		var title = Label.new()
-		title.text = current
-		title.add_theme_font_size_override("font_size", 13)
-		_navigation.add_child(title)
-	else:
-		for page in _pages.get_children():
-			if page.name == _root_page:
-				continue
-			var title = str(page.name)
-			_navigation_key(
-				"plan" if title == "Build" else "tech",
-				"B" if title == "Build" else "",
-				tr(title) + (" [B]" if title == "Build" else ""),
-				open_page.bind(title)
-			)
-	_fit_menu.call_deferred()
-
-
-func _navigation_key(glyph, key, hint, callback):
-	var button = Button.new()
-	button.icon = BattleTheme.icon(glyph)
-	button.add_theme_constant_override("icon_max_width", 18)
-	button.add_theme_font_size_override("font_size", 12)
-	button.custom_minimum_size = Vector2(52, 28)
-	button.text = key
-	button.tooltip_text = hint
-	button.accessibility_name = hint
-	button.gui_input.connect(_remember_command_mouse)
-	button.pressed.connect(callback)
-	_navigation.add_child(button)
-	return button
 
 
 func handle_menu_input(event):
@@ -1132,6 +1123,13 @@ func handle_menu_input(event):
 	if not is_instance_valid(player):
 		return false
 	var placement = player.get_node("StructurePlacementHandler")
+	# Restoring Build as the initial worker tab must not steal a player's
+	# remapped battle, camera or control-group key for a fixed building shortcut.
+	var defaults = Bindings.definitions()
+	for action in defaults:
+		var binding = InputMap.action_get_events(action)[0]
+		if Bindings.from_event(binding) != defaults[action][2] and Bindings.pressed(event, action):
+			return false
 	if is_instance_valid(hud.direct_orders) and not hud.direct_orders.kind.is_empty():
 		return false
 	if _commander_open and code == KEY_ESCAPE:
@@ -1146,8 +1144,6 @@ func handle_menu_input(event):
 		close_research()
 	elif not is_visible_in_tree() or not is_instance_valid(_pages):
 		return false
-	elif code == KEY_ESCAPE and _pages.get_current_tab_control().name != _root_page:
-		open_page(_root_page)
 	elif _pages.get_current_tab_control().name == "Build" and code in [KEY_Q, KEY_W]:
 		if is_instance_valid(hud.direct_orders):
 			hud.direct_orders.activate_ability("field_barricade" if code == KEY_Q else "scrap_mine")
@@ -1246,7 +1242,6 @@ func _build_camp():
 		var button = RosterButton.new()
 		button.set_meta("armed", role not in ["Worker", "RepairRobot"])
 		button.name = "Produce" + role
-		button.compact_layout()
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		var cost = Sites.price(role)
 		button.show_role(
@@ -1262,19 +1257,27 @@ func _build_camp():
 				% ceili(Factions.duration(_camp.player, role))
 			)
 		)
+		button.tooltip_text += "\n" + tr("Shift-click to queue 5 units.")
 		button.accessibility_name = tr(Factions.title("bastion", role))
 		button.accessibility_description = button.tooltip_text
-		button.pressed.connect(
-			func():
-				if is_instance_valid(_camp):
-					_camp.hire(find_parent("Match")._get_human_player(), role)
-					_refresh_camp()
-		)
+		button.gui_input.connect(_roster_input.bind(button))
+		button.pressed.connect(_hire_camp.bind(role, button))
 		grid.add_child(button)
 		_camp_buttons.append({"button": button, "cost": cost})
 	_queue.show_camp(_camp)
 	_refresh_camp()
 	_fit_menu.call_deferred()
+
+
+func _hire_camp(role, button):
+	var quantity = button.get_meta("production_batch", 1)
+	button.set_meta("production_batch", 1)
+	if not is_instance_valid(_camp):
+		return
+	for index in quantity:
+		if not _camp.hire(find_parent("Match")._get_human_player(), role):
+			break
+	_refresh_camp()
 
 
 func _refresh_camp():
@@ -1348,9 +1351,9 @@ func _build_commander():
 
 func _add_engineering_button(grid, id, title, key, glyph, cost):
 	var button = RosterButton.new()
-	button.compact_layout()
 	button.show_role(BattleTheme.icon(glyph), title, {"resource_a": cost, "resource_b": 0})
-	button.accessibility_name = tr(title) + " [B → %s]" % key
+	button.show_hotkey(key)
+	button.accessibility_name = tr(title) + " [%s]" % key
 	button.pressed.connect(func(): find_parent("Match").hud.direct_orders.arm_ability(id))
 	grid.add_child(button)
 	_engineering_buttons.append(
@@ -1372,7 +1375,7 @@ func _refresh_engineering_buttons():
 		entry.button.disabled = not units.any(
 			func(unit): return unit.abilities.availability_issue(entry.id).is_empty()
 		)
-		entry.button.tooltip_text = tr(entry.title) + " [B → %s]\n%d M" % [entry.key, entry.cost]
+		entry.button.tooltip_text = tr(entry.title) + " [%s]\n%d M" % [entry.key, entry.cost]
 		if not units.is_empty():
 			entry.button.tooltip_text += (
 				"\n" + tr(units[0].abilities.get_ability(entry.id).description)

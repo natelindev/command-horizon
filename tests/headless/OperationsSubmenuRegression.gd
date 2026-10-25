@@ -21,24 +21,22 @@ func _run():
 		await _frames(8)
 		var menus = game.find_child("UnitMenus")
 		_check(
-			menus._pages.get_current_tab_control().name == "Orders", "Worker does not start at root"
+			menus._pages.get_current_tab_control().name == "Build",
+			"Worker build choices require another menu"
 		)
-		_check(not menus._pages.tabs_visible, "Operation tree still uses tabs")
+		_check(menus._pages.tabs_visible, "Direct operation tabs are hidden")
+		_check(menus.find_child("MenuNavigation", true, false) == null, "Nested navigation remains")
 		var placement = player.get_node("StructurePlacementHandler")
-		await _key(KEY_B)
-		_check(menus._pages.get_current_tab_control().name == "Build", "First B did not open Build")
-		_check(not placement._structure_placement_started(), "First B placed a structure")
 		for entry in menus._buttons:
-			_check(
-				not entry.button._title.is_visible_in_tree(), "Building key displays a text label"
-			)
-			_check(entry.button._portrait.is_visible_in_tree(), "Building key has no picture")
+			_check(entry.button._title.is_visible_in_tree(), "Building choice hides its name")
+			_check(entry.button._materials.is_visible_in_tree(), "Building choice hides its price")
+			_check(entry.button._portrait.is_visible_in_tree(), "Building choice has no picture")
 		var funds = Vector2i(player.resource_a, player.resource_b)
 		await _key(KEY_B)
-		_check(placement._structure_placement_started(), "Second B did not start placement")
+		_check(placement._structure_placement_started(), "One B did not start Barracks placement")
 		_check(
 			placement._pending_structure_prototype.resource_path.ends_with("Barracks.tscn"),
-			"B B chose another building"
+			"B chose another building"
 		)
 		_check(
 			Vector2i(player.resource_a, player.resource_b) == funds, "Opening placement spent funds"
@@ -46,12 +44,14 @@ func _run():
 		await _key(KEY_ESCAPE)
 		_check(not placement._structure_placement_started(), "Escape did not cancel placement")
 		_check(game.hud._overlay == null, "Escape opened a floating menu")
-		# Clicks use the same submenu tree as B B, including its Back key.
-		await _click(menus._navigation.get_child(0))
-		_check(menus._pages.get_current_tab_control().name == "Build", "Build click failed")
-		await _click(menus._navigation.get_child(0))
-		_check(menus._pages.get_current_tab_control().name == "Orders", "Back click failed")
-		await _key(KEY_B)
+		_check(
+			menus._pages.get_current_tab_control().name == "Build",
+			"Placement returned to a parent menu"
+		)
+		await _tab(menus, "Orders")
+		_check(menus._pages.get_current_tab_control().name == "Orders", "Orders tab click failed")
+		await _tab(menus, "Build")
+		_check(menus._pages.get_current_tab_control().name == "Build", "Build tab click failed")
 		var echo_key = InputEventKey.new()
 		echo_key.keycode = KEY_B
 		echo_key.physical_keycode = KEY_B
@@ -59,7 +59,7 @@ func _run():
 		echo_key.echo = true
 		root.push_input(echo_key, true)
 		await _frames(3)
-		_check(not placement._structure_placement_started(), "Held B skipped the submenu")
+		_check(not placement._structure_placement_started(), "Held B repeated placement")
 		player.resource_a = 0
 		player.resource_b = 0
 		menus._refresh_buttons()
@@ -133,7 +133,7 @@ func _run():
 	preferences.apply()
 	for message in errors:
 		push_error(message)
-	print("Operations submenus: %d failures" % errors.size())
+	print("Flat operation menus: %d failures" % errors.size())
 	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
 
 
@@ -220,8 +220,8 @@ func _engineering_controls(player, worker, menus):
 	await _frames(5)
 	var funds = Vector2i(player.resource_a, player.resource_b)
 	var commands = game.hud.direct_orders
-	await _key(KEY_B)
-	_check(menus._pages.get_current_tab_control().name == "Build", "B did not reopen Build")
+	menus.open_page("Build")
+	await _frames(3)
 	var button = menus._engineering_buttons[0].button
 	player.resource_a = 9
 	menus._refresh_buttons()
@@ -264,8 +264,6 @@ func _engineering_controls(player, worker, menus):
 		paused and get_nodes_in_group("selected_units") == [worker],
 		"Barricade targeting lost context"
 	)
-	if menus._pages.get_current_tab_control().name == "Build":
-		await _key(KEY_ESCAPE)
 
 
 func _overdrive_controls(player, menus):
@@ -422,6 +420,7 @@ func _key(code):
 
 
 func _click(control):
+	await _frames(2)
 	var point = control.get_global_rect().get_center()
 	for down in [true, false]:
 		var event = InputEventMouseButton.new()
@@ -431,3 +430,20 @@ func _click(control):
 		event.pressed = down
 		root.push_input(event, true)
 		await _frames(4)
+
+
+func _tab(menus, title):
+	var bar = menus._pages.get_tab_bar()
+	for index in menus._pages.get_tab_count():
+		if menus._pages.get_child(index).name != title:
+			continue
+		var point = bar.global_position + bar.get_tab_rect(index).get_center()
+		for down in [true, false]:
+			var event = InputEventMouseButton.new()
+			event.position = point
+			event.global_position = point
+			event.button_index = MOUSE_BUTTON_LEFT
+			event.pressed = down
+			root.push_input(event, true)
+			await _frames(4)
+		return

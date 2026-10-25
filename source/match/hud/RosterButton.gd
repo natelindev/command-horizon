@@ -11,7 +11,7 @@ const FALLBACK_ICON = preload("res://assets/ui/economy/units.svg")
 const MATERIALS_TINT = Color("e3c48a")
 const ELECTRONICS_TINT = Color("8fd3c6")
 const InlineIcons = preload("res://source/match/hud/InlineIcons.gd")
-const PORTRAIT_SIZE = 44.0
+const PORTRAIT_SIZE = 36.0
 
 var _compact = false
 var _icon_size = 64.0
@@ -60,9 +60,10 @@ func _init():
 	_title.add_theme_font_override("font", BattleTheme.display_font())
 	_title.add_theme_font_size_override("font_size", 13)
 	_title.add_theme_constant_override("line_spacing", -3)
-	_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	# Two lines at most. Trimming would also cap the minimum height at one line.
-	_title.max_lines_visible = 2
+	# Stable one-line names keep full mixed rosters inside the console. The full
+	# name and description remain available in the tooltip at narrow UI sizes.
+	_title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	_title.max_lines_visible = 1
 	_title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_child(_title)
 	var price = HBoxContainer.new()
