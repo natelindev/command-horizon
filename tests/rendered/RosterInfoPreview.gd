@@ -49,7 +49,6 @@ func _review_roster(player, label):
 	if label in ["available", "missing-lab"]:
 		role = "AdvancedTank"
 	var button = _entry(menus, role).button
-	menus._scroll.ensure_control_visible(button)
 	await _frames(5)
 	var before = Vector2i(player.resource_a, player.resource_b)
 	var clock = game.simulation_time

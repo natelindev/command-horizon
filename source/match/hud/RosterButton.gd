@@ -13,6 +13,9 @@ const ELECTRONICS_TINT = Color("8fd3c6")
 const InlineIcons = preload("res://source/match/hud/InlineIcons.gd")
 const PORTRAIT_SIZE = 44.0
 
+var _compact = false
+var _icon_size = 64.0
+var _badge: Label
 var _body: HBoxContainer
 var _portrait: TextureRect
 var _title: Label
@@ -72,9 +75,40 @@ func _init():
 
 
 func _fit_contents():
+	if _compact:
+		custom_minimum_size = Vector2.ONE * _icon_size
+		return
 	# Button does not derive its minimum from the internal caption/price controls.
 	# Include their wrapped height so two-line names cannot push prices off the tile.
 	custom_minimum_size = Vector2(112, 56).max(_body.get_combined_minimum_size() + Vector2(12, 12))
+
+
+## Picture-only console key. Names, costs and rules remain in its tooltip.
+func compact_layout(side = 64.0):
+	_compact = true
+	_icon_size = side
+	for edge in ["left", "top", "right", "bottom"]:
+		get_node("Tile").add_theme_constant_override("margin_" + edge, 4)
+	_body.get_node("Portrait").custom_minimum_size = Vector2.ONE * (side - 8)
+	_body.get_node("Portrait").size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_body.get_node("Portrait").size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_title.get_parent().hide()
+	_fit_contents()
+
+
+func show_hotkey(value: String):
+	if not is_instance_valid(_badge):
+		_badge = Label.new()
+		_badge.name = "Hotkey"
+		_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_badge.add_theme_font_size_override("font_size", 11)
+		_badge.add_theme_color_override("font_color", BattleTheme.IVORY)
+		_badge.add_theme_constant_override("outline_size", 3)
+		_badge.add_theme_color_override("font_outline_color", Color("070a0c"))
+		_badge.position = Vector2(5, 1)
+		add_child(_badge)
+	_badge.text = value
+	_badge.visible = not value.is_empty()
 
 
 func _price(parent, texture, tint):

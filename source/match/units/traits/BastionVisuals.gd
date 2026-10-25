@@ -642,7 +642,7 @@ func _update_idle(delta: float, moving: bool):
 	if action != null:
 		busy = busy or not _action_reports_idle or not action.is_idle()
 	if _constructible:
-		busy = busy or _unit.is_under_construction()
+		busy = busy or _unit.is_under_construction() or _is_working()
 	_quiet_time = 0.0 if busy else _quiet_time + delta
 	var resting = _quiet_time >= motion.idle_delay
 	_idle_blend = move_toward(_idle_blend, 1.0 if resting else 0.0, delta * 3.0)
@@ -668,6 +668,8 @@ func _update_work(delta: float, moving: bool):
 
 
 func _is_working() -> bool:
+	if _constructible:
+		return _unit.is_constructed() and _unit.get_meta("service_used", 0) > 0
 	if _sparkling != null:
 		return _sparkling._animation != null
 	if _repairs and _unit.action != null:

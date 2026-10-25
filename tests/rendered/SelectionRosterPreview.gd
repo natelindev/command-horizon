@@ -40,7 +40,6 @@ func _run():
 
 func _activate_control(button, keyboard = false):
 	var menus = game.find_child("UnitMenus")
-	menus._info_scroll.ensure_control_visible(button)
 	await _frames(3)
 	if keyboard:
 		button.grab_focus()
@@ -75,15 +74,13 @@ func _activate_control(button, keyboard = false):
 
 func _inspect_layout(player, roster, label):
 	var menus = game.find_child("UnitMenus")
-	menus._scroll.scroll_vertical = 0
-	menus._info_scroll.scroll_vertical = 0
 	await _frames(5)
 	var viewport = root.get_visible_rect()
 	var minimap = game.find_child("Minimap", true, false).get_global_rect()
 	var deck = menus.get_global_rect()
 	_check(absf(deck.position.x - minimap.end.x) < .5, "Bottom console/minimap mismatch: " + label)
 	_check(
-		absf(deck.position.y - minimap.position.y) < .5,
+		deck.position.y >= minimap.position.y - .5,
 		"Bottom console top is not aligned with the minimap"
 	)
 	_check(
@@ -93,10 +90,12 @@ func _inspect_layout(player, roster, label):
 	_check(viewport.encloses(menus.get_global_rect()), "Selection menu escaped viewport: " + label)
 	_check(menus.position.y >= 0, "Selection menu has negative offset")
 	_check(
-		menus._scroll.get_h_scroll_bar().max_value <= menus._scroll.size.x,
+		menus._command_bay.get_global_rect().encloses(menus._content.get_global_rect()),
 		"Selection roster needs horizontal scrolling: " + label
 	)
 	for entry in roster._tiles:
+		if not entry.button.is_visible_in_tree():
+			continue
 		_check(
 			menus.get_global_rect().encloses(entry.button.get_global_rect()),
 			"Health tile escaped visible selection: " + label
@@ -105,7 +104,7 @@ func _inspect_layout(player, roster, label):
 			entry.button.size.y >= entry.button.get_child(0).get_combined_minimum_size().y,
 			"Health tile contents exceed the button height"
 		)
-	if label == "full":
+	if label == "individuals":
 		roster._next.grab_focus()
 		await _frames(3)
 	await RenderingServer.frame_post_draw
@@ -117,7 +116,6 @@ func _inspect_layout(player, roster, label):
 
 func _destroy_target(roster, victim):
 	var button = roster._tiles[-1].button
-	game.find_child("UnitMenus")._info_scroll.ensure_control_visible(button)
 	await _frames(3)
 	var point = root.get_final_transform() * button.get_global_rect().get_center()
 	var motion = InputEventMouseMotion.new()

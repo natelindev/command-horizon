@@ -83,6 +83,10 @@ func service(delta):
 	var production_factors = {}
 	var units = _match.get_units()
 	for unit in units:
+		# A provider can become unavailable between passes (death, pause or
+		# construction). Never leave its tools showing a stale repair assignment.
+		if unit.has_meta("service_used"):
+			unit.set_meta("service_used", 0)
 		if (
 			unit.is_queued_for_deletion()
 			or not unit.can_process()

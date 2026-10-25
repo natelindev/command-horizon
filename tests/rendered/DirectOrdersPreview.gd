@@ -49,7 +49,6 @@ func _review_controls(player, tank, target):
 	game.get_node("Handlers/UnitVisibilityHandler")._recalculate_unit_visibility(target)
 	await _frames(8)
 	var menus = game.find_child("UnitMenus")
-	menus._scroll.scroll_vertical = 0
 	await _frames(3)
 	for button in menus._command_buttons.values():
 		_check(
@@ -125,7 +124,6 @@ func _review_controls(player, tank, target):
 
 
 func _click_control(button):
-	game.find_child("UnitMenus")._scroll.ensure_control_visible(button)
 	await _frames(3)
 	await _click(
 		root.get_final_transform() * button.get_global_rect().get_center(), MOUSE_BUTTON_LEFT
@@ -134,7 +132,6 @@ func _click_control(button):
 
 func _held_command_death(tank, worker):
 	var button = game.find_child("UnitMenus")._command_buttons.move
-	game.find_child("UnitMenus")._scroll.ensure_control_visible(button)
 	await _frames(3)
 	var point = root.get_final_transform() * button.get_global_rect().get_center()
 	var motion = InputEventMouseMotion.new()

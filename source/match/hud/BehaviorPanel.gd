@@ -13,9 +13,11 @@ func _ready():
 	_status = Label.new()
 	_status.add_theme_font_size_override("font_size", 13)
 	_status.tooltip_text = "Standing behavior · Applies between explicit orders until changed."
+	# The selected toggle already shows the behavior. Keep its detail in tooltips.
+	_status.hide()
 	add_child(_status)
 	var grid = GridContainer.new()
-	grid.columns = 2
+	grid.columns = 3
 	grid.add_theme_constant_override("h_separation", 6)
 	grid.add_theme_constant_override("v_separation", 6)
 	add_child(grid)
@@ -30,10 +32,11 @@ func _ready():
 		var button = Button.new()
 		button.name = Behavior.TITLES[index].replace(" ", "")
 		button.text = Behavior.TITLES[index]
+		button.add_theme_font_size_override("font_size", 13)
 		button.toggle_mode = true
 		_buttons[Behavior.CHOICES[index]] = button
 		button.tooltip_text = descriptions[index]
-		button.custom_minimum_size = Vector2(84, 32)
+		button.custom_minimum_size = Vector2(76, 30)
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		button.pressed.connect(_choose.bind(Behavior.CHOICES[index]))
 		grid.add_child(button)

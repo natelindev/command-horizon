@@ -75,14 +75,14 @@ func _run():
 	await _layout_fixture("bastion")
 	var human = game._get_human_player()
 	var barracks = _units(human, "Barracks")[0]
-	var menus = _select(barracks)
+	var menus = await _select(barracks)
 	await _frames(6)
 	_check_layout(menus, "barracks")
 	for entry in menus._buttons:
 		_check(entry.button.portrait() != null, "Barracks missing " + entry.type)
 	await _capture("barracks")
 	var lab = _units(human, "CommandLab")[0]
-	menus = _select(lab)
+	menus = await _select(lab)
 	await _frames(6)
 	var research = menus._research_panel
 	_check(research != null, "No research panel")
@@ -92,7 +92,7 @@ func _run():
 	)
 	await _capture("research")
 	_check(
-		research.get_global_rect().end.x <= menus._scroll.get_global_rect().end.x,
+		research.get_global_rect().end.x <= menus._command_bay.get_global_rect().end.x,
 		"Research cards clipped horizontally"
 	)
 	research._research_branch("weapons")
@@ -102,7 +102,6 @@ func _run():
 	research.refresh()
 	await _capture("research-active")
 	research._cancel_active()
-	menus._scroll.scroll_vertical = 1000
 	await _capture("research-doctrine")
 	var structure = _units(human, "PowerPlant")[0]
 	var mesh = structure.get_node("Geometry").find_children("*", "MeshInstance3D", true, false)[0]

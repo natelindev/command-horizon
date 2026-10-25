@@ -36,6 +36,7 @@ var _last_progress = 0.0
 var _since_progress = INF
 var _emit_clock = 0.0
 var _random = RandomNumberGenerator.new()
+var _footprint_target: CollisionShape3D
 
 
 func _ready():
@@ -78,10 +79,32 @@ func _ready():
 	add_child(rig)
 	var geometry = _unit.get_node("Geometry")
 	rig.setup(load("res://source/match/FactionCatalog.gd")._bounds(geometry, Transform3D.IDENTITY))
+	_add_footprint_target()
 	_random.seed = rig.site_seed()
 	_emit_clock = _random.randf() * rig.emit_interval
 	_last_progress = _unit._construction_progress
 	refresh()
+
+
+func _add_footprint_target():
+	# The visible construction pad is rectangular and extends past the finished
+	# building's cylinder. Clicking its near corners must target the unfinished
+	# site, not issue a ground move that leaves the replacement builder idle.
+	# This is an input shape on the unit Area3D; navigation/body radii stay intact.
+	var shape = BoxShape3D.new()
+	shape.size = Vector3(
+		rig.bounds.size.x + rig.STANDOFF * 2.0, .25, rig.bounds.size.z + rig.STANDOFF * 2.0
+	)
+	_footprint_target = CollisionShape3D.new()
+	_footprint_target.name = "ConstructionFootprintTarget"
+	_footprint_target.shape = shape
+	_footprint_target.position = Vector3(rig.bounds.get_center().x, .125, rig.bounds.get_center().z)
+	_unit.add_child(_footprint_target)
+
+
+func _exit_tree():
+	if is_instance_valid(_footprint_target):
+		_footprint_target.queue_free()
 
 
 func _configure(material, bounds):

@@ -24,7 +24,7 @@ func _display_restore():
 func _review(label):
 	await super._review(label)
 	var menu = game.find_child("UnitMenus")
-	menu._scroll.ensure_control_visible(panel)
+
 	var camera = game.get_node("IsometricCamera3D")
 	camera.set_size_safely(18)
 	camera.set_position_safely(actor.position)

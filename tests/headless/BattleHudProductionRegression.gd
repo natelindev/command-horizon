@@ -2,7 +2,7 @@ extends "res://tests/headless/SaveRestoreEdges.gd"
 
 ## Battle HUD production and guidance:
 ## - every producible unit and structure has a faction portrait, and production and
-##   build tiles show it with a name and price that fit in English and Chinese;
+##   build tiles show pictures with names and prices in English/Chinese tooltips;
 ## - the retired skirmish Battle plan stays absent, including with old preferences;
 ## - producers accept a twelve-job queue that reserves and refunds exact costs, and
 ##   the selected producer's rack shows every job without scrolling;
@@ -90,6 +90,9 @@ func _tiles(faction):
 		]:
 			_select([_units(human, producer)[0]])
 			await _frames(4)
+			if producer == "Worker":
+				menus.open_page("Build")
+				await _frames(4)
 			var roles = catalog.STRUCTURES if producer == "Worker" else catalog.PRODUCES[producer]
 			var label = "%s %s %s" % [faction, locale, producer]
 			_check(menus._buttons.size() == roles.size(), label + ": roster is incomplete")
@@ -102,22 +105,17 @@ func _tiles(faction):
 				)
 				_check(not tile.title().is_empty(), "%s: %s tile has no name" % [label, entry.type])
 				_check(tile.text.is_empty(), "%s: %s tile draws button text" % [label, entry.type])
-				var column = tile._title.get_parent()
-				var price = column.get_node("Price")
+				_check(not tile._title.is_visible_in_tree(), label + ": tile displays a text name")
+				_check(tile.tooltip_text.begins_with(tile.title()), label + ": tooltip has no name")
+				var cost = factions.cost(human, entry.type, entry.construction)
+				var expected_price = "%d M / %d E" % [cost.resource_a, cost.resource_b]
+				_check(expected_price in tile.tooltip_text, label + ": tooltip omits its price")
 				_check(
-					tile.get_global_rect().encloses(price.get_global_rect()),
-					"%s: %s price extends below its tile" % [label, entry.type]
+					menus._command_bay.get_global_rect().encloses(tile.get_global_rect()),
+					label + ": icon leaves the bottom command bay"
 				)
 				_check(
-					tile._title.get_line_count() <= 2,
-					"%s: %s name needs %d lines" % [label, entry.type, tile._title.get_line_count()]
-				)
-				_check(
-					price.get_combined_minimum_size().x <= column.size.x + 0.5,
-					"%s: %s price is clipped" % [label, entry.type]
-				)
-				_check(
-					tile._portrait.get_global_rect().size.x >= 36,
+					tile._portrait.get_global_rect().size.x >= 28,
 					"%s: %s portrait is squeezed" % [label, entry.type]
 				)
 	TranslationServer.set_locale("en")
@@ -166,7 +164,7 @@ func _queue_and_overview():
 	await _frames(6)
 	var rack = game.find_child("ProductionQueue")
 	var jobs = rack.find_child("QueueElements")
-	var scroll = rack.find_child("QueueScroll")
+	var scroll = rack.find_child("QueueRow")
 	_check(
 		jobs.get_child_count() == limit,
 		"Rack shows %d of %d jobs" % [jobs.get_child_count(), limit]

@@ -75,7 +75,6 @@ func _command_tabs():
 	var menus = game.find_child("UnitMenus")
 	var selection = menus._selection.duplicate()
 	var tabs = menus._pages.get_tab_bar()
-	menus._scroll.ensure_control_visible(tabs)
 	await _frames(3)
 	for index in menus._pages.get_tab_count():
 		await _physical_click(tabs.global_position + tabs.get_tab_rect(index).get_center())
@@ -165,10 +164,8 @@ func _gallery():
 	var menus = game.find_child("UnitMenus")
 	_inside(menus, "720p construction panel")
 	for entry in menus._buttons:
-		menus._scroll.ensure_control_visible(entry.button)
 		await _frames(3)
 		_inside(entry.button, "720p construction card")
-	menus._scroll.scroll_vertical = 0
 	await _frames(4)
 	await _shot("gallery-worker-720p")
 	game.hud._open_menu()

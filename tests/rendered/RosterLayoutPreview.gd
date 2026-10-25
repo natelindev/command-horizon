@@ -36,7 +36,7 @@ func _review_layout(menus, label):
 			" panel=",
 			menus.get_global_rect(),
 			" scroll=",
-			menus._scroll.get_global_rect(),
+			menus._command_bay.get_global_rect(),
 			" minimum=",
 			button.get_combined_minimum_size(),
 			" icon=",

@@ -22,7 +22,6 @@ var _hero_action: Button
 var _hero_select: Button
 var _escort_action: Button
 var _dialogue_skip: Button
-var _technology_scroll = null
 var _technology_button
 var _objective = null
 var _objective_hint: Label
@@ -278,12 +277,6 @@ func _button(parent, text_value, callback):
 
 func _process(_delta):
 	_refresh_hero_controls()
-	if is_instance_valid(technology_panel):
-		technology_panel.refresh()
-		_technology_scroll.custom_minimum_size.y = minf(
-			technology_panel.get_combined_minimum_size().y,
-			maxf(100, get_viewport().get_visible_rect().size.y - 256)
-		)
 	if _hint_left > 0:
 		_hint_left -= _delta
 		if _hint_left <= 0 and not map_assignment_active():
@@ -338,6 +331,8 @@ func _unhandled_input(event):
 	):
 		alert_panel.close()
 		get_viewport().set_input_as_handled()
+		return
+	if _overlay == null and get_parent().find_child("UnitMenus").handle_menu_input(event):
 		return
 	if _handle_assignment_input(event):
 		return
@@ -497,10 +492,12 @@ func _open_menu():
 
 
 func _close_menu():
+	if _overlay == null:
+		if is_instance_valid(technology_panel):
+			get_parent().find_child("UnitMenus").close_research()
+		return
 	_overlay.queue_free()
 	_overlay = null
-	technology_panel = null
-	_technology_scroll = null
 	get_tree().paused = _menu_was_paused
 
 
@@ -653,22 +650,7 @@ func open_technology():
 		. get_node("StructurePlacementHandler")
 		. _cancel_structure_placement()
 	)
-	_menu_was_paused = get_tree().paused
-	get_tree().paused = true
-	var box = _make_overlay("Technology")
-	var close = _button(box, "Back to battle", _close_menu)
-	close.grab_focus()
-	_technology_scroll = ScrollContainer.new()
-	_technology_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	_technology_scroll.follow_focus = true
-	_technology_scroll.custom_minimum_size = Vector2(510, 100)
-	_technology_scroll.get_v_scroll_bar().focus_mode = Control.FOCUS_ALL
-	_technology_scroll.get_v_scroll_bar().custom_step = 28
-	box.add_child(_technology_scroll)
-	technology_panel = load("res://source/match/hud/ResearchPanel.gd").new()
-	technology_panel.player = get_parent()._get_human_player()
-	technology_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_technology_scroll.add_child(technology_panel)
+	get_parent().find_child("UnitMenus").open_research(get_parent()._get_human_player())
 
 
 func open_relays():
