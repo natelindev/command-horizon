@@ -19,7 +19,11 @@ const BastionCatalog = preload("res://source/match/BastionCatalog.gd")
 @export var color = Color.WHITE
 @export var faction = "bastion"
 @export var difficulty = 1
-@export var team = -1
+@export var team = -1:
+	set(value):
+		team = value
+		if _native_team_store != null:
+			_native_team_store.set_team(self, team, _native_alliance_standard)
 @export var spawn_index = -1
 
 var technology = null
@@ -30,6 +34,70 @@ var coordination_left = -1.0
 var _color_material = null
 var _footprint_material = null
 var _lab_research = false
+var indexed_rosters := "--indexed-player-rosters" in OS.get_cmdline_user_args()
+var _roster_dirty := true
+var _roster_units: Array[Node] = []
+var _roster_structures: Array[Node] = []
+var _roster_roles := {}
+var _roster_generic_structures: Array[Node] = []
+var roster_rebuilds := 0
+var roster_queries := 0
+var _native_team_store: RefCounted
+var _native_alliance_standard := false
+
+
+func _init():
+	child_order_changed.connect(_invalidate_roster)
+
+
+func _invalidate_roster():
+	_roster_dirty = true
+
+
+func _ensure_roster():
+	roster_queries += 1
+	if not _roster_dirty:
+		return
+	_roster_units = []
+	_roster_structures = []
+	_roster_roles = {}
+	_roster_generic_structures = []
+	# Unit roles derive from their script and stay fixed. Non-unit extensions
+	# retain live role lookup so a mutable generic object's type is never cached.
+	var unit_script = load("res://source/match/units/Unit.gd")
+	for child in get_children():
+		if "type" in child:
+			_roster_units.append(child)
+		if not child.has_method("is_constructed"):
+			continue
+		_roster_structures.append(child)
+		if is_instance_of(child, unit_script):
+			_roster_roles.get_or_add(child.type, []).append(child)
+		else:
+			_roster_generic_structures.append(child)
+	_roster_units.make_read_only()
+	_roster_structures.make_read_only()
+	_roster_generic_structures.make_read_only()
+	for role in _roster_roles:
+		_roster_roles[role].make_read_only()
+	_roster_dirty = false
+	roster_rebuilds += 1
+
+
+func live_units() -> Array:
+	if not indexed_rosters:
+		return get_children().filter(
+			func(unit): return "type" in unit and not unit.is_queued_for_deletion()
+		)
+	_ensure_roster()
+	return _roster_units.filter(
+		func(unit):
+			return (
+				is_instance_valid(unit)
+				and unit.get_parent() == self
+				and not unit.is_queued_for_deletion()
+			)
+	)
 
 
 func is_allied_with(other):
@@ -41,6 +109,10 @@ func start_index():
 
 
 func _ready():
+	_native_alliance_standard = load("res://source/match/NativeUnitState.gd").uses_base_method(
+		self, "res://source/match/players/Player.gd", &"is_allied_with"
+	)
+	_native_register_team()
 	if get_meta("skirmish", false):
 		technology = load("res://source/match/research/TechnologyResearch.gd").new()
 		technology.name = "TechnologyResearch"
@@ -48,6 +120,13 @@ func _ready():
 		signatures = load("res://source/match/combat/FactionSignatures.gd").new()
 		signatures.name = "FactionSignatures"
 		add_child(signatures)
+
+
+func _native_register_team():
+	var game = find_parent("Match")
+	if game != null and "unit_state_store" in game and game.unit_state_store != null:
+		_native_team_store = game.unit_state_store
+		_native_team_store.set_team(self, team, _native_alliance_standard)
 
 
 func add_resources(resources):
@@ -92,6 +171,24 @@ func get_footprint_material():
 
 
 func has_completed_structure(unit_type):
+	if indexed_rosters:
+		_ensure_roster()
+		for child in _roster_roles.get(unit_type, []):
+			if (
+				not child.is_queued_for_deletion()
+				and child.get_parent() == self
+				and child.is_constructed()
+			):
+				return true
+		for child in _roster_generic_structures:
+			if (
+				child.type == unit_type
+				and not child.is_queued_for_deletion()
+				and child.get_parent() == self
+				and child.is_constructed()
+			):
+				return true
+		return false
 	for child in get_children():
 		if child.has_method("is_constructed") and child.type == unit_type:
 			if child.is_constructed() and not child.is_queued_for_deletion():
@@ -103,8 +200,16 @@ func power_totals():
 	var supply = 0
 	var demand = 0
 	var helix_support = load("res://source/match/combat/HelixSupport.gd")
-	for child in get_children():
-		if not child.has_method("is_constructed") or child.is_queued_for_deletion():
+	if indexed_rosters:
+		_ensure_roster()
+	var structures: Array = _roster_structures if indexed_rosters else get_children()
+	for child in structures:
+		if (
+			(not indexed_rosters and not child.has_method("is_constructed"))
+			or child.is_queued_for_deletion()
+		):
+			continue
+		if indexed_rosters and child.get_parent() != self:
 			continue
 		if child.is_constructed():
 			supply += BastionCatalog.POWER_SUPPLY.get(child.type, 0)
@@ -140,8 +245,15 @@ func population(include_queued = false):
 
 func structure_count():
 	var count = 0
-	for unit in get_children():
-		if unit.has_method("is_constructed") and not unit.is_queued_for_deletion():
+	if indexed_rosters:
+		_ensure_roster()
+	var structures: Array = _roster_structures if indexed_rosters else get_children()
+	for unit in structures:
+		if (
+			(indexed_rosters or unit.has_method("is_constructed"))
+			and not unit.is_queued_for_deletion()
+			and (not indexed_rosters or unit.get_parent() == self)
+		):
 			count += 1
 	return count
 

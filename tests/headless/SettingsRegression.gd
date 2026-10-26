@@ -19,7 +19,7 @@ func _run():
 	preferences.restore(original)
 	DirAccess.remove_absolute(archive)
 	print("Settings regression: %d failures" % errors.size())
-	quit(0 if errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
 
 
 func _storage():

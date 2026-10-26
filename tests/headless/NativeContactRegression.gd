@@ -1,6 +1,30 @@
 extends "res://tests/headless/UnitAnimationRegression.gd"
 
 
+func _check_spatial_index(native):
+	if not native.has_method("index_observers"):
+		return
+	var field = _game.battlefield
+	var enabled = field._native_index
+	field._native_index = false
+	field.invalidate()
+	field._refresh()
+	var expected = [
+		field._observers.duplicate(true),
+		field._bodies.duplicate(true),
+		field._units.duplicate(true),
+		field._max_sight,
+		field._max_unit_radius,
+		field._max_body_step
+	]
+	var actual = native.index_observers(
+		_game.get_observers(), field.get_physics_process_delta_time()
+	)
+	_check(actual == expected, "Native grid differs for live unit stats, positions or garrison")
+	field._native_index = enabled
+	field.invalidate()
+
+
 func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
 	var native = load("res://source/match/rendering/NativePosePacker.gd").create()
@@ -18,6 +42,10 @@ func _run():
 		"Tank", "Worker", "CombatRobot", "Infantry", "Helicopter", "Drone", "CommandCenter"
 	]:
 		neighbors.append(_spawn(role, 0, own.position))
+	_check(native.has_method("index_observers"), "Native spatial builder is missing")
+	neighbors[4].set_meta("garrison_host", neighbors[-1])
+	_check_spatial_index(native)
+	neighbors[4].remove_meta("garrison_host")
 	for iteration in 2500:
 		var origin = Vector3(
 			random.randf_range(-100, 100), random.randf_range(-5, 5), random.randf_range(-100, 100)
@@ -56,6 +84,8 @@ func _run():
 			actual.is_equal_approx(expected),
 			"Native contact differs at sample %d: %s vs %s" % [iteration, actual, expected]
 		)
+		if iteration % 100 == 0:
+			_check_spatial_index(native)
 	# Equal-time contacts must retain the first normal in the existing traversal.
 	neighbors[1].position = Vector3(2.0, 0, -.3)
 	neighbors[2].position = Vector3(2.0, 0, .3)

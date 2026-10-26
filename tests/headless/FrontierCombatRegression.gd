@@ -46,7 +46,7 @@ func _run():
 	for message in errors:
 		push_error(message)
 	print("Frontier combat: %d failures" % errors.size())
-	quit(0 if errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
 
 
 # Frontier fields rough aircraft and hardened infantry: health, damage and speed

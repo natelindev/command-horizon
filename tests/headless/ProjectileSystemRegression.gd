@@ -131,4 +131,4 @@ func _finish():
 		print(
 			"PASS: rounds save centrally, keep exact collision state and outlive shooters/targets"
 		)
-	quit(0 if errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)

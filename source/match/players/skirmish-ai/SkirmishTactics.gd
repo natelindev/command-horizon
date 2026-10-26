@@ -84,6 +84,9 @@ static func _withdraw_suppressed(game, _player, units, observed, claimed):
 
 
 static func _use_grenades(game, player, units, observed):
+	# Cluster membership is independent of the thrower. Build it lazily once,
+	# then reject distant targets before invoking the ability's full validation.
+	var clusters = null
 	for unit in units:
 		if unit.abilities == null:
 			continue
@@ -101,24 +104,27 @@ static func _use_grenades(game, player, units, observed):
 					break
 		if used:
 			continue
-		for contact in observed:
-			if contact.combat_domain() != 1:
+		if clusters == null:
+			clusters = _grenade_clusters(game, observed)
+		for contact in clusters:
+			if not unit.abilities._in_range(grenade, contact.global_position):
 				continue
-			var cluster = observed.filter(
-				func(enemy):
-					return (
-						enemy.combat_domain() == 1
-						and (
-							enemy.global_position_yless.distance_to(contact.global_position_yless)
-							<= 3.0
-						)
-					)
-			)
-			if (
-				cluster.size() >= 2
-				and unit.abilities.trigger("frag_grenade", contact.global_position)
-			):
+			if unit.abilities.trigger("frag_grenade", contact.global_position):
 				break
+
+
+static func _grenade_clusters(game, observed) -> Array:
+	var ground = {}
+	for contact in observed:
+		if contact.combat_domain() == 1:
+			ground[contact] = true
+	var result = []
+	for contact in ground:
+		for neighbor in game.battlefield.nearby_units(contact.global_position, 3.0):
+			if neighbor != contact and ground.has(neighbor):
+				result.append(contact)
+				break
+	return result
 
 
 static func _overdrive(game, player, units):

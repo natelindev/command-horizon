@@ -71,7 +71,7 @@ func _run():
 	for message in _errors:
 		push_error(message)
 	print("Map passages: %d failures" % _errors.size())
-	quit(0 if _errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if _errors.is_empty() else 1)
 
 
 func _check_width(label, a: Vector2, b: Vector2, width: float, required_width := MIN_USABLE_WIDTH):

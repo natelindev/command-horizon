@@ -12,6 +12,10 @@ var errors = []
 
 
 func _initialize():
+	_run_after_ready.call_deferred()
+
+
+func _run_after_ready():
 	_sunken_walls_face_inward()
 	_raised_walls_face_outward()
 	_shared_edge_walled_once()
@@ -19,7 +23,7 @@ func _initialize():
 	for message in errors:
 		push_error(message)
 	print("Cliff mesh regression: %d failures" % errors.size())
-	quit(0 if errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
 
 
 func _layout(tiers: Array) -> Dictionary:

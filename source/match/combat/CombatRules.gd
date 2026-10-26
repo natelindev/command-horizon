@@ -3,6 +3,7 @@ extends RefCounted
 const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
 const Technologies = preload("res://source/match/research/TechnologyCatalog.gd")
 const Players = preload("res://source/match/Players.gd")
+const Unit = preload("res://source/match/units/Unit.gd")
 
 # Armor profiles; damage remains floating point all the way to HP.
 const MULTIPLIERS = {
@@ -49,6 +50,24 @@ const PROFILES = {
 }
 
 
+class DamageFacts:
+	extends RefCounted
+	var role: String
+	var faction: String
+	var mode: String
+	var profile: String
+	var damage: float
+	var technology_factor: float = 1.0
+	var has_technology: bool = false
+	var aa_ground_factor: float
+	var aa_ground_ready: bool = false
+	var player
+	var source
+	var origin: Vector3
+	var has_origin: bool = false
+	var airborne: bool
+
+
 static func armor_for(role):
 	if InfantryRoster.is_infantry(role):
 		return 0
@@ -63,6 +82,30 @@ static func armor_for(role):
 
 
 static func can_target(source, target, forced = false):
+	if source is Unit:
+		return _unit_can_target(source, target, forced)
+	return _generic_can_target(source, target, forced)
+
+
+static func _unit_can_target(source: Unit, target, forced: bool) -> bool:
+	if source._native_state != null:
+		var native: int = source._native_state.can_target(target, forced)
+		if native >= 0:
+			return native != 0
+	return (
+		not source.is_queued_for_deletion()
+		and source.hp != null
+		and source.hp > 0
+		and source.attack_range != null
+		and not source.has_meta("breach_pending")
+		and not _unit_commander_disabled(source)
+		and (not source.has_method("is_constructed") or source.is_constructed())
+		and (not source.has_method("armed") or source.armed())
+		and can_receive(source, target, forced)
+	)
+
+
+static func _generic_can_target(source, target, forced = false):
 	return (
 		is_instance_valid(source)
 		and not source.is_queued_for_deletion()
@@ -78,9 +121,19 @@ static func can_target(source, target, forced = false):
 
 
 static func commander_disabled(source) -> bool:
+	if source is Unit:
+		return _unit_commander_disabled(source)
 	return (
 		"_match" in source
 		and source._match != null
+		and source._match.commander_support != null
+		and source._match.commander_support.disabled(source)
+	)
+
+
+static func _unit_commander_disabled(source: Unit) -> bool:
+	return (
+		source._match != null
 		and source._match.commander_support != null
 		and source._match.commander_support.disabled(source)
 	)
@@ -107,6 +160,37 @@ static func explicit_attack(source, target):
 
 # Target-side legality shared by live shooters and in-flight rounds (Shot).
 static func can_receive(source, target, forced = false):
+	if target is Unit:
+		return _unit_can_receive(source, target, forced)
+	return _generic_can_receive(source, target, forced)
+
+
+static func _unit_can_receive(source, target: Unit, forced: bool) -> bool:
+	if target._native_state != null:
+		var native: int = target._native_state.can_receive(source, forced)
+		if native >= 0:
+			return native != 0
+	return (
+		not target.is_queued_for_deletion()
+		and not target.has_meta("garrison_host")
+		and (not "interactive" in target or target.interactive)
+		and target.hp != null
+		and target.hp > 0
+		and (not "invulnerable" in target or not target.invulnerable)
+		and (not target.has_method("can_take_damage") or target.can_take_damage())
+		and (
+			forced
+			or explicit_attack(source, target)
+			or (
+				not Players.allied(source.player, target.player)
+				and (not target.has_method("force_attack_only") or not target.force_attack_only())
+			)
+		)
+		and target.combat_domain() in source.attack_domains
+	)
+
+
+static func _generic_can_receive(source, target, forced = false):
 	return (
 		is_instance_valid(target)
 		and not target.is_queued_for_deletion()
@@ -152,40 +236,80 @@ static func _damage(source, target):
 			* smoke_damage_factor(target)
 			* high_ground_damage_factor(source, target)
 		)
-	var profile = profile_for(source)
+	var facts = damage_facts(source)
+	return damage_with_facts(facts, target) if facts != null else 0.0
+
+
+# Valid for one synchronous acquisition only. Position, abilities, research and
+# weapon mode are sampled afresh for every query; impact damage remains live.
+static func damage_facts(source) -> DamageFacts:
+	if "raw_damage" in source and source.raw_damage:
+		return null
+	var profile: String = profile_for(source)
+	if not MULTIPLIERS.has(profile):
+		return null
+	var facts = DamageFacts.new()
+	facts.source = source
+	facts.player = source.player
+	facts.role = source.type
+	facts.faction = (
+		source.player.faction if facts.role == "CombatRobot" and "faction" in source.player else ""
+	)
+	facts.mode = (
+		source.weapon_mode
+		if facts.role == "CombatRobot" and facts.faction == "helix" and "weapon_mode" in source
+		else ""
+	)
+	facts.profile = profile
+	facts.damage = float(source.attack_damage)
+	facts.has_technology = source.player.technology != null
+	if facts.has_technology:
+		facts.technology_factor = source.player.technology.damage_factor(facts.role)
+	facts.has_origin = "origin" in source or source is Node3D
+	if facts.has_origin:
+		facts.origin = source.origin if "origin" in source else source.global_position
+	facts.airborne = (
+		_airborne(source)
+		if source.has_method("combat_domain")
+		else InfantryRoster.is_aircraft(facts.role)
+	)
+	return facts
+
+
+static func damage_with_facts(facts: DamageFacts, target) -> float:
+	var profile: String = facts.profile
+	var airborne: bool = _airborne(target)
 	if (
-		source.type == "CombatRobot"
-		and (
-			_airborne(target)
-			or (source.player.faction == "helix" and source.weapon_mode == "interception")
-		)
+		facts.role == "CombatRobot"
+		and (airborne or (facts.faction == "helix" and facts.mode == "interception"))
 	):
 		profile = "Anti-air"
-	elif source.type == "CombatRobot" and source.player.faction == "helix":
+	elif facts.role == "CombatRobot" and facts.faction == "helix":
 		profile = "Anti-armor lance"
-	elif (
-		source.type == "RocketInfantry"
-		and target.combat_domain() == Constants.Match.Navigation.Domain.AIR
-	):
+	elif facts.role == "RocketInfantry" and airborne:
 		profile = "Infantry SAM"
 	if not MULTIPLIERS.has(profile):
 		return 0.0
-	var factor = target.signature.damage_factor() if target.signature != null else 1.0
+	var factor: float = target.signature.damage_factor() if target.signature != null else 1.0
 	factor *= smoke_damage_factor(target)
-	factor *= high_ground_damage_factor(source, target)
+	var elevation: float = 0.0
+	if not facts.airborne and not airborne:
+		var origin: Vector3 = facts.origin if facts.has_origin else facts.source.global_position
+		elevation = origin.y - target.global_position.y
+	factor *= 1.15 if elevation >= 1.5 else 1.0
 	# AA weapons retain full air damage; research upgrades ground damage,
 	# including parked aircraft whose armor class is still Light machine.
-	if profile in ["Anti-air", "Flak"] and not _airborne(target):
-		factor *= aa_ground_damage_factor(source.player)
-	if source.player.technology != null:
-		factor *= source.player.technology.damage_factor(source.type)
+	if profile in ["Anti-air", "Flak"] and not airborne:
+		if not facts.aa_ground_ready:
+			facts.aa_ground_factor = aa_ground_damage_factor(facts.player)
+			facts.aa_ground_ready = true
+		factor *= facts.aa_ground_factor
+	if facts.has_technology:
+		factor *= facts.technology_factor
 	var armor = armor_for(target.type)
-	if (
-		target.is_in_group("neutral_targets")
-		and target.combat_domain() == Constants.Match.Navigation.Domain.AIR
-	):
+	if target.is_in_group("neutral_targets") and airborne:
 		armor = 1
-	return float(source.attack_damage) * MULTIPLIERS[profile][armor] * factor
+	return facts.damage * MULTIPLIERS[profile][armor] * factor
 
 
 ## Smoke protects allied ground targets at its fixed deployment point. Multiple

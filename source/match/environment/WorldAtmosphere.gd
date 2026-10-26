@@ -22,6 +22,7 @@ var _haze: Color
 var _sky: ProceduralSkyMaterial
 var _wet_materials = []
 var _last_wetness = -1.0
+var _lighting_key: Array = []
 
 
 func _ready():
@@ -104,6 +105,7 @@ func apply_options():
 	]
 	effects.apply_options()
 	# Preview edits even while settings pause the scene.
+	_lighting_key.clear()
 	_update(0.0)
 	_game.base_area_lighting.refresh()
 
@@ -138,34 +140,16 @@ func _update(_delta):
 	var daylight = smoothstep(-.12, .35, altitude)
 	_game.base_area_lighting.daylight = daylight
 	var golden = (1.0 - smoothstep(.0, .5, absf(altitude))) * daylight
-	# A lower key keeps cast shadows readable at midday; a cool moon key takes over at night
-	# to retain tactical silhouettes.
-	sun.rotation_degrees = Vector3(-maxf(12.0, absf(altitude) * 54.0), -35.0 + hour * 15.0, 0)
-	sun.light_color = Color("9ebae5").lerp(_base_sun.lerp(Color("ffb56a"), golden), daylight)
-	sun.light_energy = lerpf(.38, 1.35, daylight) * (1.0 - cloud_cover * .58)
-	environment.ambient_light_color = Color("7086ac").lerp(_base_ambient, daylight)
-	environment.ambient_light_energy = lerpf(.36, .48, daylight) + cloud_cover * .08
-	environment.background_energy_multiplier = lerpf(.3, 1.0, daylight)
-	environment.fog_light_color = Color("263955").lerp(_haze, daylight).lerp(
-		Color("d4aa83"), golden * .35
-	)
-	var target_fog = .0015 if weather == 4 else lerpf(.00015, .00065, cloud_levels[weather])
-	var previous_fog = (
-		.0015 if previous_weather == 4 else lerpf(.00015, .00065, cloud_levels[previous_weather])
-	)
-	environment.fog_density = lerpf(previous_fog, target_fog, blend)
+	var lighting_key = [hour, cloud_cover, previous_weather, weather, blend]
+	if lighting_key != _lighting_key:
+		_lighting_key = lighting_key
+		_apply_lighting(altitude, daylight, golden, weather, previous_weather, blend, cloud_levels)
 	var mist = lerpf(
 		.8 if previous_weather == 4 else .08 * cloud_levels[previous_weather],
 		.8 if weather == 4 else .08 * cloud_levels[weather],
 		blend
 	)
 	effects.update(elapsed, cloud_cover, wetness, mist, daylight, environment.fog_light_color)
-	if _sky:
-		_sky.sky_top_color = Color("0a162b").lerp(Color("376585"), daylight).lerp(
-			Color("677984"), cloud_cover * .7
-		)
-		_sky.sky_horizon_color = environment.fog_light_color
-		_sky.ground_horizon_color = environment.fog_light_color
 	var focus_distance = camera.global_position.y / maxf(.1, camera.global_basis.z.y)
 	attributes.dof_blur_far_distance = focus_distance + camera.size * .6
 	attributes.dof_blur_far_transition = maxf(12.0, camera.size * .7)
@@ -181,6 +165,36 @@ func _update(_delta):
 	# Local material parameters avoid coupling concurrently loaded viewports/matches.
 	if _game.map.has_node("LivingWorld"):
 		_game.map.get_node("LivingWorld").set_atmosphere(daylight, wetness)
+
+
+func _apply_lighting(altitude, daylight, golden, weather, previous_weather, blend, cloud_levels):
+	# Reassigning identical sky uniforms still dirties their renderer material.
+	# Keep water, rain and camera work live, but publish lighting only when its
+	# saved-clock/weather inputs change (including between physics ticks).
+	# A lower key keeps cast shadows readable at midday; a cool moon key takes over at night
+	# to retain tactical silhouettes.
+	sun.rotation_degrees = Vector3(-maxf(12.0, absf(altitude) * 54.0), -35.0 + hour * 15.0, 0)
+	sun.light_color = Color("9ebae5").lerp(_base_sun.lerp(Color("ffb56a"), golden), daylight)
+	# Keep the moon key and sky fill readable under overcast skies. Daylight
+	# keeps the existing weather attenuation; tactical visibility is unchanged.
+	sun.light_energy = lerpf(.85, 1.35, daylight) * (1.0 - cloud_cover * lerpf(.18, .58, daylight))
+	environment.ambient_light_color = Color("a5b7d0").lerp(_base_ambient, daylight)
+	environment.ambient_light_energy = lerpf(.72, .48, daylight) + cloud_cover * .08
+	environment.background_energy_multiplier = lerpf(.55, 1.0, daylight)
+	environment.fog_light_color = Color("263955").lerp(_haze, daylight).lerp(
+		Color("d4aa83"), golden * .35
+	)
+	var target_fog = .0015 if weather == 4 else lerpf(.00015, .00065, cloud_levels[weather])
+	var previous_fog = (
+		.0015 if previous_weather == 4 else lerpf(.00015, .00065, cloud_levels[previous_weather])
+	)
+	environment.fog_density = lerpf(previous_fog, target_fog, blend)
+	if _sky:
+		_sky.sky_top_color = Color("0a162b").lerp(Color("376585"), daylight).lerp(
+			Color("677984"), cloud_cover * .7
+		)
+		_sky.sky_horizon_color = environment.fog_light_color
+		_sky.ground_horizon_color = environment.fog_light_color
 
 
 func _create_rain():

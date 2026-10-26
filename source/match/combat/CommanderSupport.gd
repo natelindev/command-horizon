@@ -448,6 +448,14 @@ func _record_exploration():
 		)
 		if observer.has_meta("garrison_host"):
 			reach += observer.get_meta("garrison_host").radius + 2.0
+		if game.battlefield.native_exploration:
+			var cells: Array = game.battlefield._native_visibility.explore_cells(
+				observer, explored[owner], Vector2i(width, height), CELL, reach, game.map
+			)
+			for key in cells:
+				for player in allies[owner]:
+					explored[player][key] = true
+			continue
 		var origin = Vector2(observer.global_position.x, observer.global_position.z)
 		for x in range(
 			maxi(0, floori((origin.x - reach) / CELL)),

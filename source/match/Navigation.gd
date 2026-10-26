@@ -1,6 +1,9 @@
 extends Node3D
 
 var _static_obstacles = []
+# Exact route estimates shared within one simulation tick, owned by this match.
+var distance_frame = -1
+var distance_cache = {}
 
 @onready var air = find_child("Air")
 @onready var terrain = find_child("Terrain")

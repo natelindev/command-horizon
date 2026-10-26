@@ -11,6 +11,8 @@ const Terrain = preload("res://source/match/maps/terrain/TerrainModel.gd")
 
 var abilities: Array = []
 var _by_id: Dictionary = {}
+var _siege_anchor: Ability
+var _combat_sprint: Ability
 @onready var unit = get_parent()
 
 
@@ -67,6 +69,8 @@ func setup(definitions: Array):
 		var ability = Ability.new(self, definition)
 		abilities.append(ability)
 		_by_id[ability.id] = ability
+	_siege_anchor = _by_id.get("siege_anchor")
+	_combat_sprint = _by_id.get("combat_sprint")
 	set_physics_process(false)
 	var game = unit.find_parent("Match")
 	if game != null and game.combat_effects != null:
@@ -252,17 +256,19 @@ func is_active(id: String) -> bool:
 
 
 func speed_factor() -> float:
-	if is_active("siege_anchor"):
+	# Definitions stay fixed between setup calls. Retain the ability objects,
+	# while reading their live state and availability on every modifier query.
+	if _siege_anchor != null and _siege_anchor.is_active and unit_available():
 		return 0.0
-	return 1.5 if is_active("combat_sprint") else 1.0
+	return 1.5 if _combat_sprint != null and _combat_sprint.is_active and unit_available() else 1.0
 
 
 func range_factor() -> float:
-	return 1.35 if is_active("siege_anchor") else 1.0
+	return 1.35 if _siege_anchor != null and _siege_anchor.is_active and unit_available() else 1.0
 
 
 func damage_factor() -> float:
-	return 1.3 if is_active("siege_anchor") else 1.0
+	return 1.3 if _siege_anchor != null and _siege_anchor.is_active and unit_available() else 1.0
 
 
 ## Snapshot-ready state, separate from definitions and scene references. The

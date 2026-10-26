@@ -56,7 +56,7 @@ func _run():
 	for message in _errors:
 		push_error(message)
 	print("Unit abilities: %d failures" % _errors.size())
-	quit(0 if _errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if _errors.is_empty() else 1)
 
 
 func _test_smoke_damage():
@@ -130,14 +130,19 @@ func _test_command_card():
 		var slot = card._slots[2][column]
 		_check(slot.visible and not slot.disabled, "Missing ready ability column %d" % column)
 		_check(slot.badge == ["Q", "W", "E"][column], "Incorrect QWER column badge")
-		_check(
-			(
-				slot.tooltip_text.contains("Range:")
-				and slot.tooltip_text.contains("Radius:")
-				and slot.tooltip_text.contains("Cooldown:")
-			),
-			"Incomplete ability tooltip"
+		var ability = [infantry, assault, tank][column].abilities.abilities[0]
+		var description = (
+			tr("%s [%s]\n%s\nRange: %.1f m · Radius: %.1f m · Cooldown: %.1f s")
+			% [
+				tr(ability.name),
+				ability.key,
+				tr(ability.description),
+				ability.range,
+				ability.radius,
+				ability.cooldown
+			]
 		)
+		_check(slot.tooltip_text.contains(description), "Incomplete ability tooltip")
 	_check(
 		card._slots[2][3].disabled and card._slots[2][3].badge.is_empty(),
 		"Unused ability slot is populated"

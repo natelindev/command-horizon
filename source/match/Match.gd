@@ -31,6 +31,9 @@ var commander_support = null
 var battlefield_events = null
 var engineering = null
 var grenade_system = null
+var crowd_runtime = null
+var runtime_profiler = null
+var unit_state_store: RefCounted
 
 var map:
 	set = _set_map,
@@ -92,6 +95,11 @@ func _ready():
 	commander_support = load("res://source/match/combat/CommanderSupport.gd").new()
 	commander_support.name = "CommanderSupport"
 	add_child(commander_support)
+	if "--native-unit-state" in OS.get_cmdline_user_args():
+		var native = load("res://source/match/rendering/NativePosePacker.gd").create()
+		if native != null and ClassDB.class_exists("CopperfinUnitStore"):
+			unit_state_store = ClassDB.instantiate("CopperfinUnitStore")
+			unit_state_store.configure(self, commander_support)
 	projectile_system = load("res://source/match/combat/ProjectileSystem.gd").new()
 	projectile_system.name = "ProjectileSystem"
 	projectile_system.process_mode = Node.PROCESS_MODE_PAUSABLE
@@ -105,6 +113,14 @@ func _ready():
 	load("res://source/match/world/MapLandmarks.gd").populate(map)
 	load("res://source/match/maps/CampaignInteriors.gd").populate(map, settings.mission_id)
 	_setup_subsystems_dependent_on_map()
+	if "--native-crowd-runtime" in OS.get_cmdline_user_args():
+		crowd_runtime = load("res://source/match/NativeCrowdRuntime.gd").new()
+		crowd_runtime.name = "NativeCrowdRuntime"
+		add_child(crowd_runtime)
+	if "--profile-runtime" in OS.get_cmdline_user_args():
+		runtime_profiler = load("res://source/match/rendering/RuntimePhaseProfiler.gd").new()
+		runtime_profiler.name = "RuntimePhaseProfiler"
+		add_child(runtime_profiler)
 	_setup_players()
 	_setup_player_units()
 	visible_player = get_cached_group("players")[settings.visible_player]
@@ -211,6 +227,8 @@ func allocate_visual_seed():
 
 func _physics_process(delta):
 	simulation_time += delta
+	if crowd_runtime != null:
+		crowd_runtime.step(delta)
 
 
 func _unhandled_input(event):
@@ -278,6 +296,7 @@ func _setup_players():
 		_create_players_from_settings()
 	for node in _players.get_children():
 		if node is Player:
+			node._native_register_team()
 			node.add_to_group("players")
 			node.tree_exited.connect(invalidate_group_registry.bind("players"))
 	invalidate_group_registry("players")

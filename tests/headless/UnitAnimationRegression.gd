@@ -56,7 +56,7 @@ func _run():
 	for message in _errors:
 		push_error(message)
 	print("Unit animation regression: %d failures" % _errors.size())
-	quit(0 if _errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if _errors.is_empty() else 1)
 
 
 func _test_authored_body_transform():

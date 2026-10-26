@@ -1,0 +1,451 @@
+{
+  "adapter": "NVIDIA GeForce RTX 4090",
+  "engine": "4.7.2-stable (official)",
+  "engine_errors": [],
+  "failures": 0,
+  "final_counts": {
+    "batched_units": 560,
+    "mobile": 400,
+    "multimesh_nodes": 601,
+    "pose_rows": 4383,
+    "projectiles": 25,
+    "structures": 160
+  },
+  "fixture_note": "Elevated fixture HP retains population; real weapons and effects remain active.",
+  "graphics": {
+    "ambience_volume": 0.55,
+    "area_lighting": false,
+    "battlefield_wear": true,
+    "camera_speed": 1.0,
+    "day_cycle": false,
+    "edge_scrolling": false,
+    "effects_volume": 0.75,
+    "environment_quality": 0,
+    "graphics_ao": true,
+    "graphics_clouds": true,
+    "graphics_dof": false,
+    "graphics_dust": true,
+    "graphics_fog": true,
+    "graphics_glow": true,
+    "graphics_ground_detail": true,
+    "graphics_liquids": true,
+    "graphics_msaa": 1,
+    "graphics_shadows": true,
+    "hdr_output": false,
+    "hdr_paper_white": 0.0,
+    "hdr_peak_nits": 0.0,
+    "hud_motion": true,
+    "interface_scale": 1.0,
+    "key_bindings": {
+      "keys": {
+        "attack_move": 70,
+        "attack_target": 65,
+        "commander_support": 4194337,
+        "cycle_subgroup": 4194306,
+        "force_attack": 268435521,
+        "move_map_down": 4194322,
+        "move_map_left": 4194319,
+        "move_map_right": 4194321,
+        "move_map_up": 4194320,
+        "move_order": 77,
+        "patrol_order": 80,
+        "pause_battle": 32,
+        "quickload_battle": 4194340,
+        "quicksave_battle": 4194336,
+        "rotate_map_clockwise": 81,
+        "rotate_map_counterclockwise": 69,
+        "rotate_structure": 82,
+        "shift_selecting": 4194325,
+        "toggle_match_menu": 4194305,
+        "unit_groups_access_1": 49,
+        "unit_groups_access_2": 50,
+        "unit_groups_access_3": 51,
+        "unit_groups_access_4": 52,
+        "unit_groups_access_5": 53,
+        "unit_groups_access_6": 54,
+        "unit_groups_access_7": 55,
+        "unit_groups_access_8": 56,
+        "unit_groups_access_9": 57,
+        "unit_groups_set_1": 268435505,
+        "unit_groups_set_2": 268435506,
+        "unit_groups_set_3": 268435507,
+        "unit_groups_set_4": 268435508,
+        "unit_groups_set_5": 268435509,
+        "unit_groups_set_6": 268435510,
+        "unit_groups_set_7": 268435511,
+        "unit_groups_set_8": 268435512,
+        "unit_groups_set_9": 268435513
+      },
+      "version": 5
+    },
+    "language": "en",
+    "living_world": true,
+    "master_volume": 0.8,
+    "menu_motion": true,
+    "mouse_restricted": false,
+    "music_volume": 0.5,
+    "ownership_symbols": true,
+    "reduced_flashes": false,
+    "screen": 1,
+    "subtitle_size": 22,
+    "subtitles": false,
+    "time_of_day": 0,
+    "voice_volume": 0.8,
+    "weather": 2,
+    "weather_particles": true,
+    "zoom_speed": 1.0
+  },
+  "live_commander_ai": true,
+  "mobile_per_player": 100,
+  "phases": [
+    {
+      "counts": {
+        "batched_units": 560,
+        "mobile": 400,
+        "multimesh_nodes": 446,
+        "pose_rows": 4383,
+        "projectiles": 0,
+        "structures": 160
+      },
+      "draw_calls": {
+        "max": 3136.0,
+        "mean": 2955.85714285714,
+        "p50": 3004.0,
+        "p95": 3136.0,
+        "p99": 3136.0
+      },
+      "focused_samples": 14,
+      "frame_ms": {
+        "max": 1061.031,
+        "mean": 607.456928571429,
+        "p50": 572.938,
+        "p95": 1061.031,
+        "p99": 1061.031
+      },
+      "frames_over_budget": 14,
+      "gpu_ms": {
+        "max": 59.7480010986328,
+        "mean": 55.3325715746198,
+        "p50": 55.1199989318848,
+        "p95": 59.7480010986328,
+        "p99": 59.7480010986328
+      },
+      "mean_fps": 1.64620725020245,
+      "phase": "day_movement",
+      "pixels": [
+        3840,
+        2160
+      ],
+      "primitives": {
+        "max": 5998963.0,
+        "mean": 5617371.14285714,
+        "p50": 5553555.0,
+        "p95": 5998963.0,
+        "p99": 5998963.0
+      },
+      "raw_frame_ms": [
+        1061.031,
+        563.293,
+        522.732,
+        534.434,
+        532.001,
+        572.938,
+        619.996,
+        616.294,
+        544.881,
+        553.631,
+        551.401,
+        595.205,
+        627.856,
+        608.704
+      ],
+      "render_cpu_ms": {
+        "max": 5.38000011444092,
+        "mean": 3.93421428544181,
+        "p50": 3.71799993515015,
+        "p95": 5.38000011444092,
+        "p99": 5.38000011444092
+      },
+      "rendered_frames": 14,
+      "sampled_1s_physics_max_ms": {
+        "max": 161.329,
+        "mean": 107.611642857143,
+        "p50": 102.388,
+        "p95": 161.329,
+        "p99": 161.329
+      },
+      "samples": 14,
+      "shots": 0,
+      "simulation_seconds": 3.73333333332994,
+      "wall_seconds": 8.504439
+    },
+    {
+      "counts": {
+        "batched_units": 560,
+        "mobile": 400,
+        "multimesh_nodes": 551,
+        "pose_rows": 4383,
+        "projectiles": 1,
+        "structures": 160
+      },
+      "draw_calls": {
+        "max": 4684.0,
+        "mean": 4611.69230769231,
+        "p50": 4618.0,
+        "p95": 4684.0,
+        "p99": 4684.0
+      },
+      "focused_samples": 13,
+      "frame_ms": {
+        "max": 1526.228,
+        "mean": 646.761692307692,
+        "p50": 505.323,
+        "p95": 1526.228,
+        "p99": 1526.228
+      },
+      "frames_over_budget": 13,
+      "gpu_ms": {
+        "max": 62.2529983520508,
+        "mean": 58.5678467383752,
+        "p50": 57.9220008850098,
+        "p95": 62.2529983520508,
+        "p99": 62.2529983520508
+      },
+      "mean_fps": 1.54616454854017,
+      "phase": "day_combat",
+      "pixels": [
+        3840,
+        2160
+      ],
+      "primitives": {
+        "max": 6055531.0,
+        "mean": 6051487.46153846,
+        "p50": 6051621.0,
+        "p95": 6055531.0,
+        "p99": 6055531.0
+      },
+      "raw_frame_ms": [
+        422.435,
+        577.517,
+        514.547,
+        486.287,
+        481.089,
+        1526.228,
+        528.981,
+        440.094,
+        528.806,
+        485.265,
+        465.187,
+        1446.143,
+        505.323
+      ],
+      "render_cpu_ms": {
+        "max": 5.44899988174438,
+        "mean": 4.44192306811993,
+        "p50": 4.30399990081787,
+        "p95": 5.44899988174438,
+        "p99": 5.44899988174438
+      },
+      "rendered_frames": 13,
+      "sampled_1s_physics_max_ms": {
+        "max": 176.476,
+        "mean": 104.798307692308,
+        "p50": 86.177,
+        "p95": 176.476,
+        "p99": 176.476
+      },
+      "samples": 13,
+      "shots": 284,
+      "simulation_seconds": 3.46666666666351,
+      "wall_seconds": 8.407946
+    },
+    {
+      "counts": {
+        "batched_units": 560,
+        "mobile": 400,
+        "multimesh_nodes": 578,
+        "pose_rows": 4383,
+        "projectiles": 16,
+        "structures": 160
+      },
+      "draw_calls": {
+        "max": 4801.0,
+        "mean": 4712.91666666667,
+        "p50": 4730.0,
+        "p95": 4801.0,
+        "p99": 4801.0
+      },
+      "focused_samples": 12,
+      "frame_ms": {
+        "max": 1457.444,
+        "mean": 680.152166666667,
+        "p50": 552.389,
+        "p95": 1457.444,
+        "p99": 1457.444
+      },
+      "frames_over_budget": 12,
+      "gpu_ms": {
+        "max": 65.822998046875,
+        "mean": 58.6587498982747,
+        "p50": 58.0289993286133,
+        "p95": 65.822998046875,
+        "p99": 65.822998046875
+      },
+      "mean_fps": 1.47025922875592,
+      "phase": "night_combat",
+      "pixels": [
+        3840,
+        2160
+      ],
+      "primitives": {
+        "max": 6074743.0,
+        "mean": 6071383.33333333,
+        "p50": 6071799.0,
+        "p95": 6074743.0,
+        "p99": 6074743.0
+      },
+      "raw_frame_ms": [
+        552.389,
+        578.969,
+        1452.948,
+        493.421,
+        461.358,
+        565.367,
+        521.99,
+        512.857,
+        1457.444,
+        530.709,
+        480.577,
+        553.797
+      ],
+      "render_cpu_ms": {
+        "max": 6.21199989318848,
+        "mean": 4.36325001716614,
+        "p50": 4.22900009155273,
+        "p95": 6.21199989318848,
+        "p99": 6.21199989318848
+      },
+      "rendered_frames": 12,
+      "sampled_1s_physics_max_ms": {
+        "max": 92.356,
+        "mean": 81.8685833333333,
+        "p50": 82.18,
+        "p95": 92.356,
+        "p99": 92.356
+      },
+      "samples": 12,
+      "shots": 262,
+      "simulation_seconds": 3.19999999999709,
+      "wall_seconds": 8.161868
+    },
+    {
+      "counts": {
+        "batched_units": 560,
+        "mobile": 400,
+        "multimesh_nodes": 601,
+        "pose_rows": 4383,
+        "projectiles": 13,
+        "structures": 160
+      },
+      "draw_calls": {
+        "max": 2591.0,
+        "mean": 2566.4,
+        "p50": 2572.0,
+        "p95": 2591.0,
+        "p99": 2591.0
+      },
+      "focused_samples": 15,
+      "frame_ms": {
+        "max": 1356.151,
+        "mean": 552.6746,
+        "p50": 440.488,
+        "p95": 1356.151,
+        "p99": 1356.151
+      },
+      "frames_over_budget": 15,
+      "gpu_ms": {
+        "max": 54.9949989318848,
+        "mean": 50.0823994954427,
+        "p50": 49.1549987792969,
+        "p95": 54.9949989318848,
+        "p99": 54.9949989318848
+      },
+      "mean_fps": 1.80938295336894,
+      "phase": "night_base",
+      "pixels": [
+        3840,
+        2160
+      ],
+      "primitives": {
+        "max": 2437021.0,
+        "mean": 2412349.0,
+        "p50": 2417521.0,
+        "p95": 2437021.0,
+        "p99": 2437021.0
+      },
+      "raw_frame_ms": [
+        450.014,
+        417.105,
+        440.488,
+        425.383,
+        443.278,
+        1356.151,
+        464.606,
+        405.971,
+        460.198,
+        408.415,
+        414.99,
+        1351.135,
+        418.14,
+        391.085,
+        443.16
+      ],
+      "render_cpu_ms": {
+        "max": 2.98799991607666,
+        "mean": 2.71913334528605,
+        "p50": 2.74200010299683,
+        "p95": 2.98799991607666,
+        "p99": 2.98799991607666
+      },
+      "rendered_frames": 15,
+      "sampled_1s_physics_max_ms": {
+        "max": 78.806,
+        "mean": 74.8964,
+        "p50": 75.373,
+        "p95": 78.806,
+        "p99": 78.806
+      },
+      "samples": 15,
+      "shots": 317,
+      "simulation_seconds": 3.99999999999636,
+      "wall_seconds": 8.29016
+    }
+  ],
+  "release": true,
+  "resolution": [
+    3840,
+    2160
+  ],
+  "scale_3d": 1.0,
+  "status": "valid",
+  "structures_per_player": 40,
+  "target_fps": 120,
+  "target_frame_ms": 8.33333333333333,
+  "teams": [
+    0,
+    0,
+    1,
+    1
+  ],
+  "build": {
+    "source_commit": "e7cf33d4283d5873fb48c4dbf55ef12a1e0b2ed4",
+    "source_digest": "656e53314e979811c108aa8f03b02f38b3d56c8c40fbe30f608d64fb4ea34351",
+    "project_sha256": "37d81cffbcd1df2cc509f200e976e76327ffb02198898497ec4e59c132578e45",
+    "executable_sha256": "3e23b0ca35e91842cddc20512ba3c29e194dd3dafc1db750578b4a48b95aa6ed"
+  },
+  "arguments": [
+    "--enable-decoupled-poses"
+  ],
+  "process_exit_code": 0,
+  "target_met": false
+}

@@ -8,14 +8,10 @@ const VEHICLE_ROSTER = ["Tank", "Tank", "CombatRobot", "AdvancedTank", "RepairRo
 
 static func observed(game, player):
 	var threats = {"air": 0, "armor": 0, "infantry": 0, "structures": 0}
-	for unit in player.get_tree().get_nodes_in_group("units"):
-		if (
-			unit.player == player
-			or unit.is_queued_for_deletion()
-			or unit.hp <= 0
-			or not game.battlefield.is_observed(player, unit)
-		):
-			continue
+	# Runtime load avoids the Economy -> Labor -> Production -> Composition cycle.
+	for unit in load("res://source/match/players/skirmish-ai/SkirmishEconomy.gd").contacts(
+		game, player
+	):
 		if unit.has_method("is_constructed"):
 			threats.structures += 1
 			continue

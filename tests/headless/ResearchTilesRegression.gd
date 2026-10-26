@@ -33,7 +33,7 @@ func _run():
 	for message in errors:
 		push_error(message)
 	print("Research tiles: %d failures over %d cases" % [errors.size(), _cases])
-	quit(0 if errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
 
 
 func _exercise(panel, human):

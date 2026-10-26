@@ -21,7 +21,7 @@ const REVEAL_RAYS = 48
 const LEVEL = 0.4
 
 
-static func high_ground_hidden(model, observer: Vector2, target: Vector2) -> bool:
+static func high_ground_hidden(model: TerrainModel, observer: Vector2, target: Vector2) -> bool:
 	return (
 		model.height_at(target) - model.height_at(observer) >= HIGH_GROUND
 		and observer.distance_to(target) > HIGH_GROUND_REVEAL
@@ -29,7 +29,17 @@ static func high_ground_hidden(model, observer: Vector2, target: Vector2) -> boo
 
 
 # `forest_blocks` is false for aircraft and for physical shots.
-static func segment_clear(model, origin: Vector3, end: Vector3, forest_blocks := true) -> bool:
+static func segment_clear(
+	model: TerrainModel, origin: Vector3, end: Vector3, forest_blocks := true
+) -> bool:
+	if model.native_sight != null:
+		return model.native_sight.terrain_segment_clear(model, origin, end, forest_blocks)
+	return segment_clear_script(model, origin, end, forest_blocks)
+
+
+static func segment_clear_script(
+	model: TerrainModel, origin: Vector3, end: Vector3, forest_blocks := true
+) -> bool:
 	var a = Vector2(origin.x, origin.z)
 	var b = Vector2(end.x, end.z)
 	var length = a.distance_to(b)
@@ -62,7 +72,15 @@ static func segment_clear(model, origin: Vector3, end: Vector3, forest_blocks :=
 # plain circle). Aircraft always reveal their full circle.
 # Optional level_reach limits the extended ring to lower ground.
 static func reveal_triangles(
-	model, centre: Vector2, reach: float, level_reach := -1.0
+	model: TerrainModel, centre: Vector2, reach: float, level_reach := -1.0
+) -> PackedVector2Array:
+	if model.native_sight != null and model.native_sight.has_method("terrain_reveal_triangles"):
+		return model.native_sight.terrain_reveal_triangles(model, centre, reach, level_reach)
+	return reveal_triangles_script(model, centre, reach, level_reach)
+
+
+static func reveal_triangles_script(
+	model: TerrainModel, centre: Vector2, reach: float, level_reach := -1.0
 ) -> PackedVector2Array:
 	var ground = model.height_at(centre)
 	var triangles = PackedVector2Array()
@@ -95,7 +113,12 @@ static func reveal_triangles(
 # occluder before it, it is not inside forest beyond FOREST_SEE, and it is not
 # on markedly higher ground beyond close range.
 static func _visible_intervals(
-	model, centre, direction, ground, reach, level_reach := -1.0
+	model: TerrainModel,
+	centre: Vector2,
+	direction: Vector2,
+	ground: float,
+	reach: float,
+	level_reach := -1.0
 ) -> PackedFloat32Array:
 	var intervals = PackedFloat32Array()
 	var eye: float = ground + EYE
@@ -148,7 +171,9 @@ static func _visible_intervals(
 	return intervals
 
 
-static func _coarse_clear(model, a, b, length, lowest, forest_blocks) -> bool:
+static func _coarse_clear(
+	model: TerrainModel, a: Vector2, b: Vector2, length: float, lowest: float, forest_blocks: bool
+) -> bool:
 	var samples = ceili(length / COARSE_STEP)
 	for sample in samples + 1:
 		var block = model.coarse_index(a.lerp(b, float(sample) / samples))
@@ -160,7 +185,7 @@ static func _coarse_clear(model, a, b, length, lowest, forest_blocks) -> bool:
 
 
 # Level ground without cover within reach cannot hide anything.
-static func _open_circle(model, centre: Vector2, reach: float, ground: float) -> bool:
+static func _open_circle(model: TerrainModel, centre: Vector2, reach: float, ground: float) -> bool:
 	var low = model.coarse_index(centre - Vector2.ONE * reach)
 	var high = model.coarse_index(centre + Vector2.ONE * reach)
 	for row in range(low / model.coarse_columns, high / model.coarse_columns + 1):

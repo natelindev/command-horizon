@@ -1,0 +1,839 @@
+{
+  "status": "valid",
+  "release": true,
+  "diagnostic": false,
+  "build": {
+    "source_commit": "e7cf33d4283d5873fb48c4dbf55ef12a1e0b2ed4",
+    "source_digest": "9eda75d6848af63aa9d1b4df70ede1e23ae30afb235fc789587f8daea867f331",
+    "project_sha256": "37d81cffbcd1df2cc509f200e976e76327ffb02198898497ec4e59c132578e45",
+    "executable_sha256": "2c263d2330fdb98fe0a787b65ca7ea2a1a8b9b86920c00ca4f7ee4fc69e95b3d"
+  },
+  "note": "Elapsed main-thread scopes include synchronous waits. Projection is nested in movement; blocker configuration may be nested in visibility. Unattributed wall time includes engine work, uninstrumented scripts, GPU waits and other waits; it is not a CPU utilization measurement.",
+  "phases": [
+    {
+      "phase": "day_movement",
+      "mean_fps": 10.4384107668728,
+      "frames": 84,
+      "wall_ms_per_frame": 95.8000238095238,
+      "timed_nonchild_ms_per_frame": 27.12267857142857,
+      "unattributed_wall_ms_per_frame": 68.67734523809523,
+      "scopes": {
+        "movement.body_index": {
+          "elapsed_ms_per_frame": 0.8555833333333334,
+          "elapsed_us_per_call": 295.75720164609055,
+          "calls": 243,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "movement.steering": {
+          "elapsed_ms_per_frame": 3.1235714285714287,
+          "elapsed_us_per_call": 1079.7530864197531,
+          "calls": 243,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "movement.velocity_callbacks": {
+          "elapsed_ms_per_frame": 5.193261904761904,
+          "elapsed_us_per_call": 4.986671239140375,
+          "calls": 87480,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "movement.server_projection": {
+          "elapsed_ms_per_frame": 0.0,
+          "elapsed_us_per_call": null,
+          "calls": 0,
+          "nested_scope": true,
+          "aggregate_scope": false
+        },
+        "poses.physics_roots": {
+          "elapsed_ms_per_frame": 1.1830595238095238,
+          "elapsed_us_per_call": 408.9588477366255,
+          "calls": 243,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "poses.prepare": {
+          "elapsed_ms_per_frame": 2.9204285714285714,
+          "elapsed_us_per_call": 2920.4285714285716,
+          "calls": 84,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "poses.chassis_solve": {
+          "elapsed_ms_per_frame": 0.30584523809523806,
+          "elapsed_us_per_call": 305.8452380952381,
+          "calls": 84,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "poses.finish": {
+          "elapsed_ms_per_frame": 5.31522619047619,
+          "elapsed_us_per_call": 5315.226190476191,
+          "calls": 84,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "poses.infantry_solve": {
+          "elapsed_ms_per_frame": 0.6167619047619047,
+          "elapsed_us_per_call": 616.7619047619048,
+          "calls": 84,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "poses.publish": {
+          "elapsed_ms_per_frame": 1.4061428571428571,
+          "elapsed_us_per_call": 1406.142857142857,
+          "calls": 84,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "poses.upload": {
+          "elapsed_ms_per_frame": 5.050833333333333,
+          "elapsed_us_per_call": 5050.833333333333,
+          "calls": 84,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "visibility.blocker_configuration": {
+          "elapsed_ms_per_frame": 0.0,
+          "elapsed_us_per_call": null,
+          "calls": 0,
+          "nested_scope": true,
+          "aggregate_scope": false
+        },
+        "visibility.observed": {
+          "elapsed_ms_per_frame": 0.624702380952381,
+          "elapsed_us_per_call": 1.8329316427398792,
+          "calls": 28629,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "visibility.point": {
+          "elapsed_ms_per_frame": 0.512,
+          "elapsed_us_per_call": 1.3497787402316166,
+          "calls": 31863,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "visibility.line": {
+          "elapsed_ms_per_frame": 9.523809523809524e-05,
+          "elapsed_us_per_call": 1.1428571428571428,
+          "calls": 7,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "visibility.fire": {
+          "elapsed_ms_per_frame": 0.015166666666666667,
+          "elapsed_us_per_call": 2.299638989169675,
+          "calls": 554,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "nearest_surface.native_projection": {
+          "elapsed_ms_per_frame": 0.1483809523809524,
+          "elapsed_us_per_call": 1.7879787691866302,
+          "calls": 6971,
+          "nested_scope": true,
+          "aggregate_scope": false
+        },
+        "scene_wall.physics_dispatch": {
+          "elapsed_ms_per_frame": 43.09734523809524,
+          "elapsed_us_per_call": 14897.847736625514,
+          "calls": 243,
+          "nested_scope": false,
+          "aggregate_scope": true
+        },
+        "scene_wall.process_dispatch": {
+          "elapsed_ms_per_frame": 30.98241666666667,
+          "elapsed_us_per_call": 30982.416666666668,
+          "calls": 84,
+          "nested_scope": false,
+          "aggregate_scope": true
+        },
+        "scene_cpu.physics_dispatch": {
+          "elapsed_ms_per_frame": 42.410714285714285,
+          "elapsed_us_per_call": 14660.493827160493,
+          "calls": 243,
+          "nested_scope": false,
+          "aggregate_scope": true
+        },
+        "scene_cpu.process_dispatch": {
+          "elapsed_ms_per_frame": 29.575892857142858,
+          "elapsed_us_per_call": 29575.89285714286,
+          "calls": 84,
+          "nested_scope": false,
+          "aggregate_scope": true
+        }
+      },
+      "cpu_usage": {
+        "available": true,
+        "main_thread_cycles": 28154862360,
+        "main_thread_ms": 7828.125,
+        "main_thread_ms_per_frame": 93.1919642857143,
+        "process_ms": 8718.75,
+        "process_ms_per_frame": 103.794642857143
+      }
+    },
+    {
+      "phase": "day_combat",
+      "mean_fps": 7.8119177873772,
+      "frames": 63,
+      "wall_ms_per_frame": 128.00953968254,
+      "timed_nonchild_ms_per_frame": 40.72709523809524,
+      "unattributed_wall_ms_per_frame": 87.28244444444476,
+      "scopes": {
+        "movement.body_index": {
+          "elapsed_ms_per_frame": 1.1710793650793652,
+          "elapsed_us_per_call": 303.61316872427983,
+          "calls": 243,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "movement.steering": {
+          "elapsed_ms_per_frame": 6.289904761904762,
+          "elapsed_us_per_call": 1630.716049382716,
+          "calls": 243,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "movement.velocity_callbacks": {
+          "elapsed_ms_per_frame": 5.517206349206349,
+          "elapsed_us_per_call": 3.973296753543667,
+          "calls": 87480,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "movement.server_projection": {
+          "elapsed_ms_per_frame": 0.0,
+          "elapsed_us_per_call": null,
+          "calls": 0,
+          "nested_scope": true,
+          "aggregate_scope": false
+        },
+        "poses.physics_roots": {
+          "elapsed_ms_per_frame": 1.5632222222222223,
+          "elapsed_us_per_call": 405.2798353909465,
+          "calls": 243,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "poses.prepare": {
+          "elapsed_ms_per_frame": 3.324873015873016,
+          "elapsed_us_per_call": 3324.873015873016,
+          "calls": 63,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "poses.chassis_solve": {
+          "elapsed_ms_per_frame": 0.4950952380952381,
+          "elapsed_us_per_call": 495.0952380952381,
+          "calls": 63,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "poses.finish": {
+          "elapsed_ms_per_frame": 9.398888888888889,
+          "elapsed_us_per_call": 9398.888888888889,
+          "calls": 63,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "poses.infantry_solve": {
+          "elapsed_ms_per_frame": 0.9375396825396825,
+          "elapsed_us_per_call": 937.5396825396825,
+          "calls": 63,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "poses.publish": {
+          "elapsed_ms_per_frame": 2.048380952380952,
+          "elapsed_us_per_call": 2048.3809523809523,
+          "calls": 63,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "poses.upload": {
+          "elapsed_ms_per_frame": 5.688603174603175,
+          "elapsed_us_per_call": 5688.603174603175,
+          "calls": 63,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "visibility.blocker_configuration": {
+          "elapsed_ms_per_frame": 0.0,
+          "elapsed_us_per_call": null,
+          "calls": 0,
+          "nested_scope": true,
+          "aggregate_scope": false
+        },
+        "visibility.observed": {
+          "elapsed_ms_per_frame": 3.0840158730158733,
+          "elapsed_us_per_call": 4.0966748898306875,
+          "calls": 47427,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "visibility.point": {
+          "elapsed_ms_per_frame": 0.9167777777777777,
+          "elapsed_us_per_call": 1.2033460424609872,
+          "calls": 47997,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "visibility.line": {
+          "elapsed_ms_per_frame": 0.0007301587301587301,
+          "elapsed_us_per_call": 0.8363636363636363,
+          "calls": 55,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "visibility.fire": {
+          "elapsed_ms_per_frame": 0.29077777777777775,
+          "elapsed_us_per_call": 1.901889534883721,
+          "calls": 9632,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "nearest_surface.native_projection": {
+          "elapsed_ms_per_frame": 0.17807936507936506,
+          "elapsed_us_per_call": 1.7138710663000305,
+          "calls": 6546,
+          "nested_scope": true,
+          "aggregate_scope": false
+        },
+        "scene_wall.physics_dispatch": {
+          "elapsed_ms_per_frame": 50.82798412698413,
+          "elapsed_us_per_call": 13177.625514403293,
+          "calls": 243,
+          "nested_scope": false,
+          "aggregate_scope": true
+        },
+        "scene_wall.process_dispatch": {
+          "elapsed_ms_per_frame": 48.29487301587302,
+          "elapsed_us_per_call": 48294.87301587302,
+          "calls": 63,
+          "nested_scope": false,
+          "aggregate_scope": true
+        },
+        "scene_cpu.physics_dispatch": {
+          "elapsed_ms_per_frame": 49.107142857142854,
+          "elapsed_us_per_call": 12731.481481481482,
+          "calls": 243,
+          "nested_scope": false,
+          "aggregate_scope": true
+        },
+        "scene_cpu.process_dispatch": {
+          "elapsed_ms_per_frame": 45.138888888888886,
+          "elapsed_us_per_call": 45138.88888888889,
+          "calls": 63,
+          "nested_scope": false,
+          "aggregate_scope": true
+        }
+      },
+      "cpu_usage": {
+        "available": true,
+        "main_thread_cycles": 28168365600,
+        "main_thread_ms": 7796.875,
+        "main_thread_ms_per_frame": 123.759920634921,
+        "process_ms": 8734.375,
+        "process_ms_per_frame": 138.640873015873
+      }
+    },
+    {
+      "phase": "night_combat",
+      "mean_fps": 7.36866551134179,
+      "frames": 60,
+      "wall_ms_per_frame": 135.709783333333,
+      "timed_nonchild_ms_per_frame": 42.15356666666667,
+      "unattributed_wall_ms_per_frame": 93.55621666666633,
+      "scopes": {
+        "movement.body_index": {
+          "elapsed_ms_per_frame": 1.2321333333333333,
+          "elapsed_us_per_call": 306.7551867219917,
+          "calls": 241,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "movement.steering": {
+          "elapsed_ms_per_frame": 6.8361833333333335,
+          "elapsed_us_per_call": 1701.954356846473,
+          "calls": 241,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "movement.velocity_callbacks": {
+          "elapsed_ms_per_frame": 6.003183333333333,
+          "elapsed_us_per_call": 4.151579068695251,
+          "calls": 86760,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "movement.server_projection": {
+          "elapsed_ms_per_frame": 0.0,
+          "elapsed_us_per_call": null,
+          "calls": 0,
+          "nested_scope": true,
+          "aggregate_scope": false
+        },
+        "poses.physics_roots": {
+          "elapsed_ms_per_frame": 1.7418833333333335,
+          "elapsed_us_per_call": 433.66390041493776,
+          "calls": 241,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "poses.prepare": {
+          "elapsed_ms_per_frame": 3.390233333333333,
+          "elapsed_us_per_call": 3390.233333333333,
+          "calls": 60,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "poses.chassis_solve": {
+          "elapsed_ms_per_frame": 0.48023333333333335,
+          "elapsed_us_per_call": 480.23333333333335,
+          "calls": 60,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "poses.finish": {
+          "elapsed_ms_per_frame": 8.836016666666666,
+          "elapsed_us_per_call": 8836.016666666666,
+          "calls": 60,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "poses.infantry_solve": {
+          "elapsed_ms_per_frame": 0.8814333333333334,
+          "elapsed_us_per_call": 881.4333333333333,
+          "calls": 60,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "poses.publish": {
+          "elapsed_ms_per_frame": 2.0569333333333333,
+          "elapsed_us_per_call": 2056.9333333333334,
+          "calls": 60,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "poses.upload": {
+          "elapsed_ms_per_frame": 5.680516666666667,
+          "elapsed_us_per_call": 5680.516666666666,
+          "calls": 60,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "visibility.blocker_configuration": {
+          "elapsed_ms_per_frame": 0.0,
+          "elapsed_us_per_call": null,
+          "calls": 0,
+          "nested_scope": true,
+          "aggregate_scope": false
+        },
+        "visibility.observed": {
+          "elapsed_ms_per_frame": 3.0761,
+          "elapsed_us_per_call": 4.151095317349647,
+          "calls": 44462,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "visibility.point": {
+          "elapsed_ms_per_frame": 1.64815,
+          "elapsed_us_per_call": 1.0212007930934777,
+          "calls": 96836,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "visibility.line": {
+          "elapsed_ms_per_frame": 0.00135,
+          "elapsed_us_per_call": 0.6328125,
+          "calls": 128,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "visibility.fire": {
+          "elapsed_ms_per_frame": 0.2892166666666667,
+          "elapsed_us_per_call": 1.9897947483086802,
+          "calls": 8721,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "nearest_surface.native_projection": {
+          "elapsed_ms_per_frame": 0.22973333333333334,
+          "elapsed_us_per_call": 1.7430450177035912,
+          "calls": 7908,
+          "nested_scope": true,
+          "aggregate_scope": false
+        },
+        "scene_wall.physics_dispatch": {
+          "elapsed_ms_per_frame": 57.1434,
+          "elapsed_us_per_call": 14226.572614107883,
+          "calls": 241,
+          "nested_scope": false,
+          "aggregate_scope": true
+        },
+        "scene_wall.process_dispatch": {
+          "elapsed_ms_per_frame": 47.935716666666664,
+          "elapsed_us_per_call": 47935.71666666667,
+          "calls": 60,
+          "nested_scope": false,
+          "aggregate_scope": true
+        },
+        "scene_cpu.physics_dispatch": {
+          "elapsed_ms_per_frame": 54.166666666666664,
+          "elapsed_us_per_call": 13485.477178423236,
+          "calls": 241,
+          "nested_scope": false,
+          "aggregate_scope": true
+        },
+        "scene_cpu.process_dispatch": {
+          "elapsed_ms_per_frame": 45.3125,
+          "elapsed_us_per_call": 45312.5,
+          "calls": 60,
+          "nested_scope": false,
+          "aggregate_scope": true
+        }
+      },
+      "cpu_usage": {
+        "available": true,
+        "main_thread_cycles": 28471338360,
+        "main_thread_ms": 7890.625,
+        "main_thread_ms_per_frame": 131.510416666667,
+        "process_ms": 9296.875,
+        "process_ms_per_frame": 154.947916666667
+      }
+    },
+    {
+      "phase": "night_base",
+      "mean_fps": 11.8485555051819,
+      "frames": 95,
+      "wall_ms_per_frame": 84.3984736842105,
+      "timed_nonchild_ms_per_frame": 24.408494736842105,
+      "unattributed_wall_ms_per_frame": 59.9899789473684,
+      "scopes": {
+        "movement.body_index": {
+          "elapsed_ms_per_frame": 0.8123578947368422,
+          "elapsed_us_per_call": 321.55833333333334,
+          "calls": 240,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "movement.steering": {
+          "elapsed_ms_per_frame": 4.482842105263158,
+          "elapsed_us_per_call": 1774.4583333333333,
+          "calls": 240,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "movement.velocity_callbacks": {
+          "elapsed_ms_per_frame": 3.8486421052631576,
+          "elapsed_us_per_call": 4.231724537037037,
+          "calls": 86400,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "movement.server_projection": {
+          "elapsed_ms_per_frame": 0.0,
+          "elapsed_us_per_call": null,
+          "calls": 0,
+          "nested_scope": true,
+          "aggregate_scope": false
+        },
+        "poses.physics_roots": {
+          "elapsed_ms_per_frame": 1.0948736842105264,
+          "elapsed_us_per_call": 433.3875,
+          "calls": 240,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "poses.prepare": {
+          "elapsed_ms_per_frame": 3.2314842105263155,
+          "elapsed_us_per_call": 3231.4842105263156,
+          "calls": 95,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "poses.chassis_solve": {
+          "elapsed_ms_per_frame": 0.12582105263157894,
+          "elapsed_us_per_call": 125.82105263157895,
+          "calls": 95,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "poses.finish": {
+          "elapsed_ms_per_frame": 0.8243368421052631,
+          "elapsed_us_per_call": 824.3368421052631,
+          "calls": 95,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "poses.infantry_solve": {
+          "elapsed_ms_per_frame": 0.0017894736842105265,
+          "elapsed_us_per_call": 1.7894736842105263,
+          "calls": 95,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "poses.publish": {
+          "elapsed_ms_per_frame": 1.9445789473684212,
+          "elapsed_us_per_call": 1944.578947368421,
+          "calls": 95,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "poses.upload": {
+          "elapsed_ms_per_frame": 5.363126315789474,
+          "elapsed_us_per_call": 5363.126315789474,
+          "calls": 95,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "visibility.blocker_configuration": {
+          "elapsed_ms_per_frame": 0.0,
+          "elapsed_us_per_call": null,
+          "calls": 0,
+          "nested_scope": true,
+          "aggregate_scope": false
+        },
+        "visibility.observed": {
+          "elapsed_ms_per_frame": 1.7530315789473685,
+          "elapsed_us_per_call": 3.9172507879757257,
+          "calls": 42514,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "visibility.point": {
+          "elapsed_ms_per_frame": 0.7297368421052632,
+          "elapsed_us_per_call": 1.1650673075307127,
+          "calls": 59503,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "visibility.line": {
+          "elapsed_ms_per_frame": 0.0011368421052631579,
+          "elapsed_us_per_call": 0.907563025210084,
+          "calls": 119,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "visibility.fire": {
+          "elapsed_ms_per_frame": 0.19473684210526315,
+          "elapsed_us_per_call": 2.0760857367298846,
+          "calls": 8911,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "nearest_surface.native_projection": {
+          "elapsed_ms_per_frame": 0.14865263157894737,
+          "elapsed_us_per_call": 1.6363847045191193,
+          "calls": 8630,
+          "nested_scope": true,
+          "aggregate_scope": false
+        },
+        "scene_wall.physics_dispatch": {
+          "elapsed_ms_per_frame": 33.334,
+          "elapsed_us_per_call": 13194.708333333334,
+          "calls": 240,
+          "nested_scope": false,
+          "aggregate_scope": true
+        },
+        "scene_wall.process_dispatch": {
+          "elapsed_ms_per_frame": 31.137894736842103,
+          "elapsed_us_per_call": 31137.894736842107,
+          "calls": 95,
+          "nested_scope": false,
+          "aggregate_scope": true
+        },
+        "scene_cpu.physics_dispatch": {
+          "elapsed_ms_per_frame": 31.907894736842106,
+          "elapsed_us_per_call": 12630.208333333334,
+          "calls": 240,
+          "nested_scope": false,
+          "aggregate_scope": true
+        },
+        "scene_cpu.process_dispatch": {
+          "elapsed_ms_per_frame": 29.769736842105264,
+          "elapsed_us_per_call": 29769.736842105263,
+          "calls": 95,
+          "nested_scope": false,
+          "aggregate_scope": true
+        }
+      },
+      "cpu_usage": {
+        "available": true,
+        "main_thread_cycles": 28276699680,
+        "main_thread_ms": 7750.0,
+        "main_thread_ms_per_frame": 81.5789473684211,
+        "process_ms": 9125.0,
+        "process_ms_per_frame": 96.0526315789474
+      }
+    },
+    {
+      "phase": "cycling_weather_combat",
+      "mean_fps": 8.41242351653406,
+      "frames": 68,
+      "wall_ms_per_frame": 118.871808823529,
+      "timed_nonchild_ms_per_frame": 35.53798529411765,
+      "unattributed_wall_ms_per_frame": 83.33382352941135,
+      "scopes": {
+        "movement.body_index": {
+          "elapsed_ms_per_frame": 1.140955882352941,
+          "elapsed_us_per_call": 317.97131147540983,
+          "calls": 244,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "movement.steering": {
+          "elapsed_ms_per_frame": 5.5798676470588235,
+          "elapsed_us_per_call": 1555.045081967213,
+          "calls": 244,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "movement.velocity_callbacks": {
+          "elapsed_ms_per_frame": 4.971705882352942,
+          "elapsed_us_per_call": 3.8487704918032786,
+          "calls": 87840,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "movement.server_projection": {
+          "elapsed_ms_per_frame": 0.0,
+          "elapsed_us_per_call": null,
+          "calls": 0,
+          "nested_scope": true,
+          "aggregate_scope": false
+        },
+        "poses.physics_roots": {
+          "elapsed_ms_per_frame": 1.4538970588235294,
+          "elapsed_us_per_call": 405.1844262295082,
+          "calls": 244,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "poses.prepare": {
+          "elapsed_ms_per_frame": 3.3329117647058824,
+          "elapsed_us_per_call": 3332.9117647058824,
+          "calls": 68,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "poses.chassis_solve": {
+          "elapsed_ms_per_frame": 0.40816176470588234,
+          "elapsed_us_per_call": 408.1617647058824,
+          "calls": 68,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "poses.finish": {
+          "elapsed_ms_per_frame": 6.678249999999999,
+          "elapsed_us_per_call": 6678.25,
+          "calls": 68,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "poses.infantry_solve": {
+          "elapsed_ms_per_frame": 0.7008235294117647,
+          "elapsed_us_per_call": 700.8235294117648,
+          "calls": 68,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "poses.publish": {
+          "elapsed_ms_per_frame": 1.9253970588235294,
+          "elapsed_us_per_call": 1925.3970588235295,
+          "calls": 68,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "poses.upload": {
+          "elapsed_ms_per_frame": 5.434823529411765,
+          "elapsed_us_per_call": 5434.823529411765,
+          "calls": 68,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "visibility.blocker_configuration": {
+          "elapsed_ms_per_frame": 0.0,
+          "elapsed_us_per_call": null,
+          "calls": 0,
+          "nested_scope": true,
+          "aggregate_scope": false
+        },
+        "visibility.observed": {
+          "elapsed_ms_per_frame": 2.4131911764705882,
+          "elapsed_us_per_call": 3.74505328981902,
+          "calls": 43817,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "visibility.point": {
+          "elapsed_ms_per_frame": 1.2069558823529412,
+          "elapsed_us_per_call": 0.965314859683376,
+          "calls": 85022,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "visibility.line": {
+          "elapsed_ms_per_frame": 0.0013676470588235294,
+          "elapsed_us_per_call": 0.7948717948717948,
+          "calls": 117,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "visibility.fire": {
+          "elapsed_ms_per_frame": 0.2896764705882353,
+          "elapsed_us_per_call": 2.02633473922436,
+          "calls": 9721,
+          "nested_scope": false,
+          "aggregate_scope": false
+        },
+        "nearest_surface.native_projection": {
+          "elapsed_ms_per_frame": 0.19075,
+          "elapsed_us_per_call": 1.6913548050593297,
+          "calls": 7669,
+          "nested_scope": true,
+          "aggregate_scope": false
+        },
+        "scene_wall.physics_dispatch": {
+          "elapsed_ms_per_frame": 47.054205882352946,
+          "elapsed_us_per_call": 13113.467213114754,
+          "calls": 244,
+          "nested_scope": false,
+          "aggregate_scope": true
+        },
+        "scene_wall.process_dispatch": {
+          "elapsed_ms_per_frame": 44.53388235294118,
+          "elapsed_us_per_call": 44533.882352941175,
+          "calls": 68,
+          "nested_scope": false,
+          "aggregate_scope": true
+        },
+        "scene_cpu.physics_dispatch": {
+          "elapsed_ms_per_frame": 45.72610294117647,
+          "elapsed_us_per_call": 12743.340163934427,
+          "calls": 244,
+          "nested_scope": false,
+          "aggregate_scope": true
+        },
+        "scene_cpu.process_dispatch": {
+          "elapsed_ms_per_frame": 42.279411764705884,
+          "elapsed_us_per_call": 42279.41176470588,
+          "calls": 68,
+          "nested_scope": false,
+          "aggregate_scope": true
+        }
+      },
+      "cpu_usage": {
+        "available": true,
+        "main_thread_cycles": 28181328120,
+        "main_thread_ms": 7812.5,
+        "main_thread_ms_per_frame": 114.889705882353,
+        "process_ms": 9312.5,
+        "process_ms_per_frame": 136.948529411765
+      }
+    }
+  ]
+}

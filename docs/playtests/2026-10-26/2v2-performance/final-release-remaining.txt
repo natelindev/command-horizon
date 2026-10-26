@@ -1,0 +1,339 @@
+Running: CombatRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS: occluded/allied/elevated vision, legal firing, hidden-target loss, armor counters, fractional damage, repair cap/service slots/power/combat suppression/pause
+
+Completed: CombatRegression; exit=0; errors=0
+Running: AntiAirPriorityRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+AA turret air priority, ground fallback and restore: 0 failures
+
+Completed: AntiAirPriorityRegression; exit=0; errors=0
+Running: TechnologyRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+TECHNOLOGY VERIFIED bastion weapon, armor, service, doctrine, production, costs and archives
+TECHNOLOGY VERIFIED helix weapon, armor, service, doctrine, production, costs and archives
+TECHNOLOGY VERIFIED frontier weapon, armor, service, doctrine, production, costs and archives
+Classic RTS technology: 0 failures
+
+Completed: TechnologyRegression; exit=0; errors=0
+Running: TechnologyAIRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+TECHNOLOGY AI VERIFIED bastion
+TECHNOLOGY AI VERIFIED helix
+Technology AI: 0 failures
+
+Completed: TechnologyAIRegression; exit=0; errors=0
+Running: WeaponModeRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS: Bastion ground/AA range, armor and shared reload
+PASS: Helix domains, switch firing lock, movement/pause, cooldown and archives
+PASS: AI chooses modes from observed contacts and retains stance without contacts
+Weapon modes: 0 failures
+
+Completed: WeaponModeRegression; exit=0; errors=0
+Running: ResearchTilesRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Research tiles: 0 failures over 6 cases
+
+Completed: ResearchTilesRegression; exit=0; errors=0
+Running: ResearchQueueRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS research queue exact payments, unique projects, pause and cascading refunds
+PASS ordered research completion, lab loss/rebuild and paid disk restore
+PASS research queue schema rejects invalid order, duplicates and unpaid projects
+Research queue: 0 failures
+
+Completed: ResearchQueueRegression; exit=0; errors=0
+Running: StructureActivityRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Structure activity and departures: 0 failures
+
+Completed: StructureActivityRegression; exit=0; errors=0
+Running: PersistentCaptureRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Persistent neutral ownership: 0 failures
+
+Completed: PersistentCaptureRegression; exit=0; errors=0
+Running: CampaignInteriorRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+INTERIOR command_horizon buildings=35 quadrants=4 actors=12 batches=5
+INTERIOR broken_foundry buildings=9 quadrants=3 actors=12 batches=5
+INTERIOR supply_line buildings=30 quadrants=4 actors=12 batches=5
+INTERIOR first_orders buildings=10 quadrants=3 actors=12 batches=5
+INTERIOR split_signal buildings=17 quadrants=4 actors=12 batches=5
+INTERIOR bastion_cinder_ford buildings=14 quadrants=4 actors=12 batches=5
+INTERIOR helix_quiet_streets buildings=18 quadrants=4 actors=12 batches=5
+INTERIOR helix_the_gate buildings=19 quadrants=4 actors=12 batches=5
+INTERIOR helix_cinder_ford buildings=11 quadrants=4 actors=12 batches=5
+INTERIOR helix_pruning buildings=15 quadrants=3 actors=12 batches=5
+INTERIOR helix_severance buildings=17 quadrants=4 actors=12 batches=5
+INTERIOR frontier_drainage buildings=30 quadrants=4 actors=12 batches=5
+INTERIOR frontier_cinder_ford buildings=13 quadrants=4 actors=12 batches=5
+INTERIOR frontier_salvage buildings=14 quadrants=4 actors=12 batches=5
+INTERIOR frontier_wren buildings=18 quadrants=4 actors=12 batches=5
+INTERIOR frontier_the_coalition buildings=17 quadrants=4 actors=12 batches=5
+Campaign interiors: 0 failures
+
+Completed: CampaignInteriorRegression; exit=0; errors=0
+Running: HeroCampaignRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Hero campaigns: 0 failures
+
+Completed: HeroCampaignRegression; exit=0; errors=0
+Running: SkirmishPickerRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Skirmish picker: 0 failures
+
+Completed: SkirmishPickerRegression; exit=0; errors=0
+Running: WorkerDistributionRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+DISTRIBUTION bastion A spread=4/4 delivered=4/4
+DISTRIBUTION bastion B spread=4/4 delivered=4/4
+DISTRIBUTION helix A spread=4/4 delivered=4/4
+DISTRIBUTION helix B spread=4/4 delivered=4/4
+DISTRIBUTION frontier A spread=4/4 delivered=4/4
+DISTRIBUTION frontier B spread=4/4 delivered=4/4
+Worker distribution: 0 failures
+
+Completed: WorkerDistributionRegression; exit=0; errors=0
+Running: CargoReturnRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Cargo return: 0 failures
+
+Completed: CargoReturnRegression; exit=0; errors=0
+Running: ResourceFieldRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Resource field scenarios complete: bastion
+Resource field scenarios complete: helix
+Resource field scenarios complete: frontier
+Resource fields: 0 failures
+
+Completed: ResourceFieldRegression; exit=0; errors=0
+Running: GarrisonCombatExitRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Garrison EmberworksMap.tscn / DamagedWarehouse: 0 failures
+Garrison EmberworksMap.tscn / DamagedWarehouse: 0 failures
+Garrison EmberworksMap.tscn / ServiceOffice: 0 failures
+Garrison EmberworksMap.tscn / ServiceOffice: 0 failures
+Garrison IndustrialCrossroads.tscn / SawtoothWorkshop: 0 failures
+Garrison IndustrialCrossroads.tscn / CoolingHall: 0 failures
+Garrison IndustrialCrossroads.tscn / ServiceOffice: 0 failures
+Garrison IndustrialCrossroads.tscn / DamagedWarehouse: 0 failures
+Garrison IndustrialCrossroads.tscn / SawtoothWorkshop: 0 failures
+Garrison IndustrialCrossroads.tscn / ServiceOffice: 0 failures
+Garrison CoastalFoundry.tscn / SawtoothWorkshop: 0 failures
+Garrison CoastalFoundry.tscn / CoolingHall: 0 failures
+Garrison combat and exits: 0 failures
+
+Completed: GarrisonCombatExitRegression; exit=0; errors=0
+Running: PointOfInterestRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SITES faction=bastion cumulative_failures=0
+SITES faction=helix cumulative_failures=0
+SITES faction=frontier cumulative_failures=0
+Capturable facilities: 0 failures
+
+Completed: PointOfInterestRegression; exit=0; errors=0
+Running: MapMetricsRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Map metrics: 0 failures
+
+Completed: MapMetricsRegression; exit=0; errors=0
+Running: GlacierHarvestRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+GLACIER HARVEST (62.67173, -0.1, 62.20346) mined=4
+GLACIER HARVEST (129.3283, -0.1, 62.20346) mined=4
+Glacier harvest: 0 failures
+
+Completed: GlacierHarvestRegression; exit=0; errors=0
+Running: TerrainSightRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Fog agreement at (50.0, 20.0): 0/420 differ
+Fog agreement at (62.0, 20.0): 0/420 differ
+Fog agreement at (60.0, 110.0): 0/420 differ
+Fog agreement at (105.0, 64.0): 0/420 differ
+Fog agreement at (47.0, 43.0): 0/420 differ
+Fog agreement at (88.0, 72.0): 0/420 differ
+Fog agreement at (140.0, 100.0): 0/420 differ
+Sight line 12.1 us average; fog outlines over the map 57.5 ms
+Terrain sight: 0 failures
+
+Completed: TerrainSightRegression; exit=0; errors=0
+Running: CliffMeshRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Cliff mesh regression: 0 failures
+
+Completed: CliffMeshRegression; exit=0; errors=0
+Running: AuthoredRelayRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Authored relay regression: 0 failures
+
+Completed: AuthoredRelayRegression; exit=0; errors=0
+Running: AuthoredGarrisonRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Authored garrison regression: 0 failures
+
+Completed: AuthoredGarrisonRegression; exit=0; errors=0
+Running: SaveNavigationTimingRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Save navigation timing: 0 failures
+
+Completed: SaveNavigationTimingRegression; exit=0; errors=0
+Running: ContactApproachRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+CAPTURED CONTACT 0 excursion=0.24500702321529 collected=1.06666666666661 max_step=0.12799912691116 clearance=-0.24492251873016
+CAPTURED CONTACT 1 excursion=0.24500702321529 collected=1.06666666666661 max_step=0.12799912691116 clearance=-0.24492251873016
+CAPTURED CONTACT 2 excursion=0.24500702321529 collected=1.06666666666661 max_step=0.12799912691116 clearance=-0.24492251873016
+CHECKED: approach disk archive preserves paused position, cargo and full action; real work resumes
+CHECKED: manual replacement during approach retains cargo
+BUILDING CONTACT bastion CommandCenter first_work=0.16666666666667
+BUILDING CONTACT bastion PowerPlant first_work=6.3666666666663
+CHECKED: bastion occupied work faces retain destination; removed target cancels
+BUILDING CONTACT helix CommandCenter first_work=0.16666666666667
+BUILDING CONTACT helix PowerPlant first_work=5.43333333333302
+CHECKED: helix occupied work faces retain destination; removed target cancels
+Contact approach: 0 failures
+
+Completed: ContactApproachRegression; exit=0; errors=0
+Running: NavigationRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ROUTE: remaining=0.17154432833195 minimum building distance=3.20031189918518
+GROUP: reached=12/12
+HARVEST: 6 workers / 90s income=644
+CONSTRUCTION: progress=1.0 worker=(22.11357, 0.0, 26.9668)
+ROCK: remaining=0.19863153994083
+PASS: obstacle routing, crowded movement, harvesting and factory egress
+
+Completed: NavigationRegression; exit=0; errors=0
+Running: NavigationProjectionRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Navigation projection: 0 failures
+
+Completed: NavigationProjectionRegression; exit=0; errors=0
+Running: MapPlayabilityRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PLAYABILITY DesertFrontierMap land=360 navigable=352 reachable=352
+PLAYABILITY AlpineRelayMap land=373 navigable=367 reachable=367
+PLAYABILITY CoastalFoundryMap land=334 navigable=291 reachable=291
+PLAYABILITY RedrockDivideMap land=400 navigable=396 reachable=396
+PLAYABILITY SaltwindBasinMap land=403 navigable=391 reachable=391
+PLAYABILITY PinebreakValleyMap land=399 navigable=389 reachable=389
+PLAYABILITY GlacierNarrowsMap land=370 navigable=349 reachable=348
+PLAYABILITY EmberworksMap land=418 navigable=380 reachable=380
+PLAYABILITY CinderRingMap land=704 navigable=674 reachable=674
+PLAYABILITY FourRiversMap land=670 navigable=650 reachable=650
+PLAYABILITY SunkenExchangeMap land=663 navigable=600 reachable=600
+PLAYABILITY FrostboundCrownMap land=691 navigable=678 reachable=678
+PLAYABILITY CopperBadlandsMap land=693 navigable=663 reachable=663
+PLAYABILITY VerdantCommonsMap land=713 navigable=688 reachable=688
+PLAYABILITY RailspireJunctionMap land=721 navigable=686 reachable=686
+PLAYABILITY ShatteredOasisMap land=690 navigable=684 reachable=684
+Map playability: 0 failures
+
+Completed: MapPlayabilityRegression; exit=0; errors=0
+Running: MapPreviewRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PREVIEW Desert Frontier ms=1.52
+PREVIEW Alpine Relay ms=1.552
+PREVIEW Coastal Foundry ms=1.523
+PREVIEW Redrock Divide ms=1.77
+PREVIEW Saltwind Basin ms=1.585
+PREVIEW Pinebreak Valley ms=1.554
+PREVIEW Glacier Narrows ms=1.581
+PREVIEW Emberworks ms=2.179
+PREVIEW Cinder Ring ms=1.793
+PREVIEW Four Rivers ms=1.871
+PREVIEW Sunken Exchange ms=1.825
+PREVIEW Frostbound Crown ms=1.349
+PREVIEW Copper Badlands ms=1.982
+PREVIEW Verdant Commons ms=1.79
+PREVIEW Railspire Junction ms=1.848
+PREVIEW Shattered Oasis ms=2.077
+Map preview regression: 0 failures
+
+Completed: MapPreviewRegression; exit=0; errors=0
+Running: MusicRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Music regression: 0 failures
+
+Completed: MusicRegression; exit=0; errors=0
+Running: SelectionBatchRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Selection batch: 0 failures; burst allocated 0 nodes
+
+Completed: SelectionBatchRegression; exit=0; errors=0
+Running: ProjectileSystemRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS: rounds save centrally, keep exact collision state and outlive shooters/targets
+
+Completed: ProjectileSystemRegression; exit=0; errors=0
+Running: ProjectilePhysicsRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS: gravity arcs, led hits, dodged rounds, blockers, splash falloff, guided turn limits, rail lines, deterministic dispersion, all-faction anti-air and bomb building damage
+
+Completed: ProjectilePhysicsRegression; exit=0; errors=0
+Running: FixedWingFlightRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS: stands, taxi, runway take-off, bounded turns, station orbit, glide approach, rollout and taxi back, rearm, parked ground target, missile strike, level bombing
+
+Completed: FixedWingFlightRegression; exit=0; errors=0
+Running: FixedWingSaveRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS: flight phase, kinematics, stand, stores and air orders restore exactly
+
+Completed: FixedWingSaveRegression; exit=0; errors=0
+Running: AirSaveContinuityRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS: edge flight, weapon cooldowns, rearm timers and committed bomb stick restore
+PASS: actual reload preserves jobs, actions, guard/follow orders, cargo, cooldowns and mission; resume works
+
+Completed: AirSaveContinuityRegression; exit=0; errors=0
+Running: RotorcraftCombatRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+PASS: all-faction helicopter sorties; Helix EW scout and Bastion/Frontier drone dives
+
+Completed: RotorcraftCombatRegression; exit=0; errors=0
+Running: FrontierCombatRegression
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+Frontier combat: 0 failures
+
+Completed: FrontierCombatRegression; exit=0; errors=0
+Running: AirfieldOperationsRegression

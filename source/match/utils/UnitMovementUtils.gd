@@ -4,6 +4,7 @@ const DISTANCE_REDUCTION_BY_DIVISION_ITERATIONS_MAX = 10
 const DISTANCE_REDUCTION_BY_SUBTRACTION_ITERATIONS_MAX = 10
 # Exact formation slot assignment is O(n^3); larger formations use a greedy pass.
 const ASSIGNMENT_EXACT_LIMIT = 40
+const DISTANCE_CACHE_LIMIT = 1024
 
 # crowd - group of units
 # pivot - pivot point, central point of crowd
@@ -194,9 +195,27 @@ static func path_distance_to(unit, point, arrival_range):
 	var nav = movement.get_navigation_map()
 	# Before initial synchronization, retain the provisional nearest choice.
 	# Normal movement waits for navigation before starting the trip.
-	if not movement._synchronized or NavigationServer3D.map_get_iteration_id(nav) == 0:
+	var iteration = NavigationServer3D.map_get_iteration_id(nav)
+	if not movement._synchronized or iteration == 0:
 		return unit.global_position_yless.distance_to(point * Vector3(1, 0, 1))
-	var path = NavigationServer3D.map_get_path(nav, unit.global_position, point, true)
+	var frame = Engine.get_physics_frames()
+	var navigation = movement._match.navigation
+	var cache = navigation.distance_cache
+	if navigation.distance_frame != frame or cache.size() >= DISTANCE_CACHE_LIMIT:
+		navigation.distance_frame = frame
+		cache.clear()
+	# Sorting and economic planning repeatedly ask the identical reachability
+	# question. Exact endpoints and map publication keep teleports/rebakes live.
+	var key = [nav, iteration, unit.global_position, point, arrival_range]
+	if cache.has(key):
+		return cache[key]
+	var distance = _path_distance(nav, unit.global_position, point, arrival_range)
+	cache[key] = distance
+	return distance
+
+
+static func _path_distance(nav: RID, origin: Vector3, point: Vector3, arrival_range: float):
+	var path = NavigationServer3D.map_get_path(nav, origin, point, true)
 	if (
 		path.is_empty()
 		or (path[-1] * Vector3(1, 0, 1)).distance_to(point * Vector3(1, 0, 1)) > arrival_range

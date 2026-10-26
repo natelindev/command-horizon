@@ -1,0 +1,53 @@
+{
+  "status": "valid",
+  "diagnostic": true,
+  "production_fps_evidence": false,
+  "note": "Headless functional checks at fixed 60 fps; not performance evidence.",
+  "comparisons": 7299,
+  "successful_shots": 352,
+  "checks": [
+    {
+      "test": "query-parity",
+      "errors": [],
+      "warnings": [],
+      "completion": "Native combat query: 0 failures across 7299 comparisons (352 positive)"
+    },
+    {
+      "test": "NativeVisibilityRegression",
+      "errors": [],
+      "warnings": [],
+      "completion": "Native visibility: 0 failures across 19200 full-query comparisons"
+    },
+    {
+      "test": "TerrainSightRegression",
+      "errors": [],
+      "warnings": [],
+      "completion": "Terrain sight: 0 failures"
+    },
+    {
+      "test": "CombatRegression",
+      "errors": [],
+      "warnings": [],
+      "completion": "PASS: occluded/allied/elevated vision, legal firing, hidden-target loss, armor counters, fractional damage, repair cap/service slots/power/combat suppression/pause"
+    },
+    {
+      "test": "ProjectileSystemRegression",
+      "errors": [],
+      "warnings": [],
+      "completion": "PASS: rounds save centrally, keep exact collision state and outlive shooters/targets"
+    },
+    {
+      "test": "GameplayDepthSaveRegression",
+      "errors": [],
+      "warnings": [],
+      "completion": "Gameplay depth save/restore: 0 failures"
+    }
+  ],
+  "sha256": {
+    "native/pose_packer/combat_query.h": "b458d94f7143e45843423d35a522110964894e46d6b68a24aa1a63c7c7296661",
+    "native/pose_packer/visibility_runtime.h": "825b21910daa65c81cd898e4989fd2a25270389e3ae77265852482f750f3db55",
+    "source/match/combat/Battlefield.gd": "295a33ae8d9723fa740164527a7acf218daa5e1250e76805f4d5461224203fe4",
+    "tests/headless/NativeCombatQueryRegression.gd": "8cb22a40510fca1819b5a15dcbe673baf1b9b0e1ad7278e89fc76d6dfa83b483",
+    "native/bin/copperfin.windows.x86_64.dll": "636ea04ae85dc5d2711e88a0517bf034458b2cc6932713edc7981c2195a31157"
+  }
+}

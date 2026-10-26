@@ -58,6 +58,9 @@ static GDExtensionMethodBindPtr global_transform;
 static GDExtensionMethodBindPtr visible_in_tree;
 static void *node_tag;
 static int class_registered;
+static void *resident_rig_for_entry(const void *entry);
+static int resident_rig_pose(void *rig, int index, float *transform);
+#include "unit_state_api.h"
 
 static void *dictionary_lookup(const void *dictionary, const void *key) {
     const void *args[] = {key};
@@ -71,6 +74,10 @@ static int64_t count_array(void *array) {
     array_size(array, 0, &size, 0);
     return size;
 }
+
+#include "terrain_sight.h"
+#include "terrain_outline.h"
+#include "spatial_index.h"
 
 static void pack_core(const void *entries, int64_t capacity, void *output) {
     get_ctor(TYPE(PACKED_BYTE_ARRAY), 0)(output, 0);
@@ -106,6 +113,7 @@ static void pack_core(const void *entries, int64_t capacity, void *output) {
         to_type(TYPE(BOOL))(&shown, visible_value);
         to_type(TYPE(COLOR))(pulse, pulse_value);
         int64_t count = count_array(&anchors);
+        void *resident_rig = resident_rig_for_entry(&entry);
         void *pose_value = dictionary_lookup(&entry, &keys[4]);
         if (pose_value && get_type(pose_value) == TYPE(ARRAY)) {
             to_type(TYPE(ARRAY))(&poses, pose_value);
@@ -121,7 +129,9 @@ static void pack_core(const void *entries, int64_t capacity, void *output) {
                 ptrcall(visible_in_tree, object, 0, &visible);
                 if (!visible) continue;
                 float transform[12];
-                if (has_poses) {
+                if (resident_rig) {
+                    if (!resident_rig_pose(resident_rig, (int)part, transform)) continue;
+                } else if (has_poses) {
                     if (part >= count_array(&poses)) continue;
                     void *pose = array_index(&poses, part);
                     if (get_type(pose) != TYPE(TRANSFORM3D)) continue;
@@ -370,14 +380,31 @@ static void contact_core(const float *origin, const float *next, const void *nei
             variant_call(value, &trait_method, 0, 0, &movement, &error);
             agent = error.error == GDEXTENSION_CALL_OK && get_type(&movement) == TYPE(OBJECT) ? object_from_id(object_id(&movement)) : 0;
         }
-        if (agent && object_cast(agent, agent_tag) &&
-            number_property(&movement, &domain_name) == domain &&
-            number_property(&movement, &speed_name) > 0 &&
-            !number_property(&movement, &ghost_name)) {
+        if (agent && object_cast(agent, agent_tag)) {
+            double separation = radius + number_property(&movement, &radius_name) - margin;
+            /* Reject geometrically impossible contacts before reading live speed
+             * modifiers. Most nearby bodies are beside or beyond this short step.
+             * Use the same float dot products and double quadratic as the ordered
+             * SIMD reduction below; pending lanes can only lower the current best. */
+            double toward = x * sx + z * sz;
+            double outside = (double)(x * x + z * z) - separation * separation;
+            double fraction = 0;
+            if (outside > 0) {
+                double discriminant = toward * toward - outside * length_squared;
+                if (discriminant < 0) { variant_destroy(&movement); continue; }
+                fraction = (-toward - sqrt(discriminant)) / length_squared;
+            }
+            if (fraction < 0 || fraction >= best ||
+                number_property(&movement, &domain_name) != domain ||
+                !(number_property(&movement, &speed_name) > 0) ||
+                number_property(&movement, &ghost_name)) {
+                variant_destroy(&movement);
+                continue;
+            }
             int lane = batch.count++;
             batch.x[lane] = x;
             batch.z[lane] = z;
-            batch.separation[lane] = radius + number_property(&movement, &radius_name) - margin;
+            batch.separation[lane] = separation;
             if (batch.count == 4) {
                 clip_contacts(&batch, sx, sz, length_squared, &best, result);
                 batch.count = 0;
@@ -428,6 +455,8 @@ static void compose_pose(const float *p, const float *local, float *out) {
 
 /* Called only with worker-owned proxies and arrays. A parent precedes every
  * child, so forward traversal composes the full hierarchy in contiguous memory. */
+#include "pose_rebase.h"
+
 static void hierarchy_core(const void *poses, const void *parents, const void *anchors, void *palette) {
     int64_t count = count_array((void *)poses), parent_count = 0, anchor_count = 0;
     ints_size((void *)parents, 0, &parent_count, 0);
@@ -537,6 +566,17 @@ static void global_pose_ptrcall(void *userdata, void *instance, const GDExtensio
     (void)userdata; (void)instance;
     global_pose_core(args[0], args[1], *(const int64_t *)args[2], ret);
 }
+
+#include "infantry_pose.h"
+#include "runtime_profile.h"
+#include "pose_rig.h"
+#include "navigation_surface.h"
+#include "crowd_runtime.h"
+#include "visibility_runtime.h"
+#include "unit_state.h"
+#include "combat_query.h"
+#include "battlefield_index.h"
+#include "presentation_batch.h"
 
 static GDExtensionObjectPtr create_instance(void *userdata, GDExtensionBool notify) {
     (void)userdata; (void)notify;
@@ -688,11 +728,32 @@ static void initialize(void *userdata, GDExtensionInitializationLevel level) {
     method.argument_count = 3;
     method.arguments_info = global_arguments;
     register_method(library, &class_name, &method);
+    terrain_sight_initialize();
+    terrain_outline_initialize();
+    spatial_index_initialize();
+    rebase_initialize();
+    infantry_initialize();
+    runtime_profile_initialize();
+    pose_rig_initialize();
+    crowd_initialize();
+    visibility_initialize();
+    unit_state_initialize();
+    presentation_initialize();
 }
 
 static void deinitialize(void *userdata, GDExtensionInitializationLevel level) {
     (void)userdata;
     if (level != GDEXTENSION_INITIALIZATION_SCENE) return;
+    presentation_deinitialize();
+    unit_state_deinitialize();
+    visibility_deinitialize();
+    pose_rig_deinitialize();
+    terrain_sight_deinitialize();
+    terrain_outline_deinitialize();
+    spatial_index_deinitialize();
+    rebase_deinitialize();
+    crowd_deinitialize();
+    infantry_deinitialize();
     if (class_registered) unregister_class(library, &class_name);
     Value *names[] = { &class_name, &parent_name, &pack_name, &node_name, &transform_name,
                       &empty_name, &entries_name, &capacity_name, &size_name, &resize_name,
@@ -744,6 +805,15 @@ EXPORT GDExtensionBool copperfin_library_init(GDExtensionInterfaceGetProcAddress
     LOAD(register_class, ClassdbRegisterExtensionClass4, "classdb_register_extension_class4");
     LOAD(register_method, ClassdbRegisterExtensionClassMethod, "classdb_register_extension_class_method");
     LOAD(unregister_class, ClassdbUnregisterExtensionClass, "classdb_unregister_extension_class");
+    if (!terrain_sight_load(proc)) return 0;
+    if (!terrain_outline_load(proc)) return 0;
+    if (!spatial_index_load(proc)) return 0;
+    if (!rebase_load(proc)) return 0;
+    if (!infantry_load(proc)) return 0;
+    if (!runtime_profile_load(proc)) return 0;
+    if (!pose_rig_load(proc)) return 0;
+    if (!crowd_load(proc)) return 0;
+    if (!visibility_load(proc)) return 0;
     init->minimum_initialization_level = GDEXTENSION_INITIALIZATION_SCENE;
     init->userdata = 0;
     init->initialize = initialize;

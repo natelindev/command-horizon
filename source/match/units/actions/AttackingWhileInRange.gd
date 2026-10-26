@@ -4,6 +4,7 @@ signal shot_fired
 
 const RANGE_CHECK_INTERVAL = 1.0 / 60.0 * 10.0
 const Rules = preload("res://source/match/combat/CombatRules.gd")
+const Phase = preload("res://source/match/utils/UpdatePhase.gd")
 
 var _shot_limit = 0
 var _shots = 0
@@ -78,7 +79,8 @@ func _setup_range_check_timer():
 	_range_check_timer = Timer.new()
 	_range_check_timer.timeout.connect(_teardown_if_out_of_range)
 	add_child(_range_check_timer)
-	_range_check_timer.start(RANGE_CHECK_INTERVAL)
+	_range_check_timer.start(Phase.first_delay(_unit, RANGE_CHECK_INTERVAL))
+	_range_check_timer.wait_time = RANGE_CHECK_INTERVAL
 
 
 func _rotate_unit_towards_target():

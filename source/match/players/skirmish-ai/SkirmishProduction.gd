@@ -11,16 +11,11 @@ const OPTIONAL_BUILDINGS = ["CommandLab", "AircraftFactory", "RepairDepot", "Ant
 
 
 static func under_raid(game, player, units):
-	var contacts = game.get_tree().get_nodes_in_group("units").filter(
-		func(unit):
-			return (
-				unit.player != player
-				and not unit.is_queued_for_deletion()
-				and unit.hp > 0
-				and game.battlefield.is_observed(player, unit)
-			)
+	var contacts = load("res://source/match/players/skirmish-ai/SkirmishEconomy.gd").contacts(
+		game, player
 	)
-	return not Defense.plan(game, player, units, contacts).threats.is_empty()
+	# Budget checks need only a threat predicate; do not sort and assign an army.
+	return Defense.under_raid(game, player, units, contacts)
 
 
 static func emergency_budget(game, player, units, desired):

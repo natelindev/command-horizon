@@ -24,6 +24,7 @@ const MARKER_PHASES = 3
 var _unit_to_corresponding_node_mapping = {}
 var _camera_movement_active = false
 var _marker_phase = 0
+var _presented_tick = -1
 var _commander_button: Button
 var _event_button: Button
 var _event_point = null
@@ -86,12 +87,15 @@ func _ready():
 	MatchSignals.tactical_ping.connect(_on_tactical_ping)
 
 
-func _physics_process(_delta):
-	_refresh_operations()
-	# Each marker refreshes at 10 Hz at the 30 Hz simulation cadence. Spread
-	# visibility queries and marker uploads over three ticks instead of a burst.
-	_sync_real_units_with_minimap_representations(_marker_phase)
-	_marker_phase = (_marker_phase + 1) % MARKER_PHASES
+func _process(_delta):
+	var tick = Engine.get_physics_frames()
+	if tick != _presented_tick:
+		_presented_tick = tick
+		_refresh_operations()
+		# At most one presentation update per rendered frame and simulation tick.
+		# Catch-up ticks cannot display their intermediate minimap states.
+		_sync_real_units_with_minimap_representations(_marker_phase)
+		_marker_phase = (_marker_phase + 1) % MARKER_PHASES
 	_update_camera_indicator()
 
 
@@ -224,6 +228,8 @@ func _cleanup_mapping(unit):
 func _update_camera_indicator():
 	var viewport = get_viewport()
 	var camera = viewport.get_camera_3d()
+	if camera == null:
+		return
 	var viewport_size = viewport.get_visible_rect().size
 	var camera_corners = [
 		Vector2.ZERO,
@@ -232,18 +238,18 @@ func _update_camera_indicator():
 		Vector2(viewport_size.x, 0),
 		Vector2.ZERO
 	]
-	for index in range(camera_corners.size()):
-		var corner_mapped_to_3d_position_on_ground_level = (
-			GROUND_LEVEL_PLANE.intersects_ray(
-				camera.project_ray_origin(camera_corners[index]),
-				camera.project_ray_normal(camera_corners[index])
-			)
-			* MINIMAP_PIXELS_PER_WORLD_METER
+	var points = PackedVector2Array()
+	for corner in camera_corners:
+		var intersection = GROUND_LEVEL_PLANE.intersects_ray(
+			camera.project_ray_origin(corner), camera.project_ray_normal(corner)
 		)
-		var point = Vector2(
-			corner_mapped_to_3d_position_on_ground_level.x,
-			corner_mapped_to_3d_position_on_ground_level.z
-		)
+		# Rendering can precede the camera's first physics setup, and preview
+		# cameras can look above the horizon. Publish only a complete ground quad.
+		if intersection == null:
+			return
+		points.append(Vector2(intersection.x, intersection.z) * MINIMAP_PIXELS_PER_WORLD_METER)
+	for index in points.size():
+		var point = points[index]
 		# A stationary camera must not rebuild the line's canvas geometry at
 		# simulation cadence. Camera motion still updates every affected point.
 		if _camera_indicator.get_point_position(index) != point:

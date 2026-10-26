@@ -1,0 +1,51 @@
+{
+  "experimental_flag": "--native-exploration",
+  "other_flags": [
+    "--native-visibility-runtime",
+    "--native-unit-state"
+  ],
+  "engine": "4.7.2.stable.official.ed1daf0bf",
+  "production_fps_evidence": false,
+  "checks": [
+    {
+      "test": "NativeExplorationRegression",
+      "exit_code": 0,
+      "errors": [],
+      "warnings": [],
+      "comparisons": 480,
+      "headless": true,
+      "fixed_fps": 60,
+      "log": "native-exploration-checks/native-exploration-parity.txt"
+    },
+    {
+      "test": "CommanderCallInsRegression",
+      "exit_code": 0,
+      "errors": [],
+      "warnings": [],
+      "comparisons": null,
+      "headless": true,
+      "fixed_fps": 60,
+      "log": "native-exploration-checks/native-exploration-CommanderCallInsRegression.txt"
+    },
+    {
+      "test": "GameplayDepthSaveRegression",
+      "exit_code": 0,
+      "errors": [],
+      "warnings": [],
+      "comparisons": null,
+      "headless": true,
+      "fixed_fps": 60,
+      "log": "native-exploration-checks/native-exploration-GameplayDepthSaveRegression.txt"
+    },
+    {
+      "test": "NativeVisibilityRegression",
+      "exit_code": 0,
+      "errors": [],
+      "warnings": [],
+      "comparisons": 19200,
+      "headless": true,
+      "fixed_fps": 60,
+      "log": "native-exploration-checks/native-exploration-NativeVisibilityRegression.txt"
+    }
+  ]
+}

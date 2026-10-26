@@ -79,10 +79,21 @@ func _run():
 						hierarchy.job.palette[index].is_equal_approx(expected),
 						"World pose differs: %s %s %s step=%d" % [faction, pair[1].type, path, step]
 					)
-					_check(
-						anchor.transform == pair[5][index],
-						"Pose wrote back to SceneTree: " + str(path)
-					)
+					if (
+						index == 0
+						and (visual._track_motion != null or not visual._scrap_plates.is_empty())
+					):
+						# Native deforming tracks/scrap share the model root beside the
+						# rigid batch. That root must follow the published body pose.
+						_check(
+							anchor.global_transform.is_equal_approx(hierarchy.job.palette[0]),
+							"Native detail root lost its pose: " + pair[1].type
+						)
+					else:
+						_check(
+							anchor.transform == pair[5][index],
+							"Pose wrote back to SceneTree: %s %s" % [pair[1].type, path]
+						)
 				if visual._projectile_origin != null and (step in [18, 35] or visual._aiming):
 					_check(
 						visual._projectile_origin.global_transform.is_equal_approx(
@@ -108,6 +119,10 @@ func _run():
 		for pair in pairs:
 			var expected = pair[3]._pose_hierarchy.job.palette.duplicate()
 			pair[3].set_gpu_interpolation(false)
+			_check(
+				pair[1].get_node("Geometry").top_level == pair[0].get_node("Geometry").top_level,
+				"Fallback lost the authored root transform mode"
+			)
 			for index in pair[4].size():
 				_check(
 					pair[4][index].global_transform.is_equal_approx(expected[index]),

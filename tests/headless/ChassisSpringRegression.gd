@@ -46,7 +46,7 @@ func _run():
 	print(
 		"Chassis spring cadence, long-frame and impulse regression: ", failures.size(), " failures"
 	)
-	quit(0 if failures.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if failures.is_empty() else 1)
 
 
 func _motion(kind):

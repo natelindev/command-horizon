@@ -4,16 +4,29 @@ const Rules = preload("res://source/match/combat/CombatRules.gd")
 const Difficulty = preload("res://source/match/players/skirmish-ai/SkirmishDifficulty.gd")
 
 
-static func plan(game, player, units, contacts):
+static func under_raid(game, player, units, contacts) -> bool:
+	return not _find_threats(game, player, units, contacts, true).is_empty()
+
+
+static func _find_threats(game, player, units, contacts, first_only = false) -> Array:
 	var assets = units.filter(
 		func(unit): return unit.type == "Worker" or unit.has_method("is_constructed")
 	)
 	var threats = []
 	for contact in contacts:
+		if contact.attack_range == null:
+			continue
 		if not game.battlefield.is_observed(player, contact):
 			continue
 		var danger = INF
+		# Runtime load avoids Economy -> Labor -> Production -> Defense cycles.
+		var reach = load("res://source/match/players/skirmish-ai/SkirmishEconomy.gd").threat_reach(
+			contact, 6.0
+		)
+		var origin = contact.global_position_yless
 		for asset in assets:
+			if origin.distance_squared_to(asset.global_position_yless) > reach * reach:
+				continue
 			if not Rules.can_target(contact, asset):
 				continue
 			var distance = contact.global_position_yless.distance_to(asset.global_position_yless)
@@ -24,7 +37,14 @@ static func plan(game, player, units, contacts):
 			danger = minf(danger, margin - (6.0 if recent_fire else 0.0))
 		if is_finite(danger):
 			threats.append({"target": contact, "danger": danger})
+			if first_only:
+				return threats
 	threats.sort_custom(func(a, b): return a.danger < b.danger)
+	return threats
+
+
+static func plan(game, player, units, contacts):
+	var threats = _find_threats(game, player, units, contacts)
 	var groups = []
 	for threat in threats:
 		var target = threat.target
@@ -59,7 +79,12 @@ static func plan(game, player, units, contacts):
 		if candidates.is_empty():
 			continue
 		coordinated += 1
-		candidates.sort_custom(func(a, b): return _score(a, target) < _score(b, target))
+		# Compute expensive combat and speed modifiers once per candidate, not
+		# twice per comparison throughout the sort.
+		var scores = {}
+		for candidate in candidates:
+			scores[candidate] = _score(candidate, target)
+		candidates.sort_custom(func(a, b): return scores[a] < scores[b])
 		var members = candidates.slice(0, mini(profile.defense_responders, group.count * 2))
 		assigned_groups.append({"point": group.point, "members": members})
 		for unit in members:

@@ -49,6 +49,9 @@ func _process(delta):
 	var units = _units()
 	if units.is_empty():
 		return
+	# All subsystems in this synchronous decision share one live contact scan.
+	set_meta("decision_contacts", Economy.contacts(_match, self))
+	set_meta("decision_approaches", {})
 	var desired = _next_building(units)
 	_build(units, desired)
 	units = _units()
@@ -57,6 +60,8 @@ func _process(delta):
 	_train(units, desired)
 	Sites.recruit(_match, self, _units(), desired)
 	_command_army(units)
+	remove_meta("decision_contacts")
+	remove_meta("decision_approaches")
 
 
 func profile():
@@ -64,9 +69,7 @@ func profile():
 
 
 func _units():
-	return get_children().filter(
-		func(unit): return "type" in unit and not unit.is_queued_for_deletion()
-	)
+	return live_units()
 
 
 func _of_type(units, role):
@@ -459,12 +462,7 @@ func _train(units, desired):
 
 
 func _command_army(units):
-	var enemies = []
-	for enemy in get_tree().get_nodes_in_group("units"):
-		if is_allied_with(enemy.player) or enemy.is_queued_for_deletion():
-			continue
-		if _match.battlefield.is_observed(self, enemy):
-			enemies.append(enemy)
+	var enemies = Economy.contacts(_match, self)
 	var tactical = Tactics.command(_match, self, units, enemies)
 	var free = units.filter(func(unit): return unit not in tactical)
 	var recovering = Recovery.command(_match, free, enemies, profile().retreat_health)

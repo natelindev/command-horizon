@@ -13,7 +13,7 @@ func _run():
 	for message in _errors:
 		push_error(message)
 	print("Skirmish picker: %d failures" % _errors.size())
-	quit(0 if _errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if _errors.is_empty() else 1)
 
 
 func _menu():
@@ -83,18 +83,16 @@ func _menu():
 	# Random starts disabled when picking a circle
 	setup._random_starts.button_pressed = true
 	setup._preview.start_selected.emit(1)
-	_check(not setup._random_starts.button_pressed, "Random starts was not unselected on circle pick")
+	_check(
+		not setup._random_starts.button_pressed, "Random starts was not unselected on circle pick"
+	)
 	_check(setup._slots[0].location == 1, "Player position not applied when random starts was on")
 
 	# Test GUI mouse click event on the start circle coordinates
 	setup._preview.size = Vector2(400, 300)
 	var xform = setup._preview._map_transform()
 	var start0 = setup._preview.starts[0]
-	var map_pos0 = (
-		Vector2(start0.x, start0.z)
-		if start0 is Vector3
-		else Vector2(start0.x, start0.y)
-	)
+	var map_pos0 = Vector2(start0.x, start0.z) if start0 is Vector3 else Vector2(start0.x, start0.y)
 	var screen_pos0 = xform.origin + map_pos0 * xform.scale
 	var click_event = InputEventMouseButton.new()
 	click_event.button_index = MOUSE_BUTTON_LEFT

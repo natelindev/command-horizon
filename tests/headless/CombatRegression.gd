@@ -48,6 +48,8 @@ func _run():
 	await _clear()
 	await _test_target_candidates()
 	await _clear()
+	await _test_ranked_score_bounds()
+	await _clear()
 	await _test_damage()
 	await _clear()
 	await _test_projectiles()
@@ -65,7 +67,7 @@ func _run():
 				+ "fractional damage, repair cap/service slots/power/combat suppression/pause"
 			)
 		)
-	quit(0 if _errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if _errors.is_empty() else 1)
 
 
 func _spawn(role, player, point):
@@ -285,13 +287,67 @@ func _test_target_candidates():
 	_check(field.fireable_targets(source).is_empty(), "Unarmed source acquired targets")
 
 
-func _check_target_candidates(source, label):
-	var expected = get_nodes_in_group("units").filter(
+func _test_ranked_score_bounds():
+	var source = _spawn("Tank", _human, Vector3(40, 0, 8))
+	var roles = ["Tank", "Infantry", "Worker", "CombatRobot", "AntiAirVehicle", "RepairRobot"]
+	var targets = []
+	for index in 12:
+		targets.append(_spawn(roles[index % roles.size()], _enemy, Vector3(43, 0, 8)))
+	await _frames(4)
+	# Same-frame changes exercise optimistic armed scores, exact ties, source
+	# facts and caller-supplied traversal order against the exhaustive selection.
+	for sample in 24:
+		for index in targets.size():
+			var target = targets[index]
+			target.global_position = Vector3(43 + (index % 3) * .1, 0, 8)
+			target.hp = 15.0 + (index % 4) * 27.0
+			target.attack_range = null if (index + sample) % 3 == 0 else 6.0
+			target.attack_domains = [] if (index + sample) % 4 == 0 else [source.combat_domain()]
+			source.attack_damage = 10.0 + sample
+		_game.battlefield.invalidate()
+		_check_target_candidates(source, "bounded mixed-armament score %d" % sample)
+		targets.reverse()
+		_check_target_candidates(source, "explicit candidate order %d" % sample, targets)
+
+
+func _check_target_candidates(source, label, eligible = null):
+	var rules = load("res://source/match/combat/CombatRules.gd")
+	for target in get_nodes_in_group("units"):
+		for forced in [false, true]:
+			_check(
+				(
+					rules.can_target(source, target, forced)
+					== rules._generic_can_target(source, target, forced)
+				),
+				"Typed shooter eligibility changed: " + label
+			)
+			_check(
+				(
+					rules.can_receive(source, target, forced)
+					== rules._generic_can_receive(source, target, forced)
+				),
+				"Typed target eligibility changed: " + label
+			)
+	var candidates = get_nodes_in_group("units") if eligible == null else eligible
+	var expected = candidates.filter(
 		func(candidate): return _game.battlefield.can_fire(source, candidate)
 	)
+	if eligible == null:
+		_check(
+			_game.battlefield.fireable_targets(source) == expected,
+			"Target candidates changed full-scan legality/order: " + label
+		)
+	var best = null
+	var score = INF
+	var incoming = _game.battlefield._incoming_damage(source, expected)
+	for target in expected:
+		var value = _game.battlefield.target_score(source, target, incoming.get(target, 0.0))
+		if value < score:
+			best = target
+			score = value
 	_check(
-		_game.battlefield.fireable_targets(source) == expected,
-		"Target candidates changed full-scan legality/order: " + label
+		_game.battlefield.automatic_target(source, eligible) == best,
+		"Ranked acquisition changed target: " + label
 	)
 
 

@@ -11,6 +11,21 @@ func _run():
 		paused = true
 		var atmosphere = game.get_node("WorldAtmosphere")
 		var effects = atmosphere.effects
+		options.time_of_day = 0
+		options.weather = 1
+		atmosphere._update(0.0)
+		var daylight_energy = atmosphere.sun.light_energy
+		options.time_of_day = 2
+		for weather in [1, 2, 3, 4]:
+			options.weather = weather
+			atmosphere._update(0.0)
+			_check(atmosphere.sun.light_energy >= .69, "Clouds erased the moon key")
+			_check(atmosphere.environment.ambient_light_energy >= .72, "Night lost sky fill")
+			_check(atmosphere.sun.light_energy < daylight_energy, "Night became brighter than day")
+		options.time_of_day = 0
+		options.weather = 1
+		atmosphere._update(0.0)
+		_check(is_equal_approx(atmosphere.sun.light_energy, daylight_energy), "Day key changed")
 		_check(
 			(
 				effects.weather_material.render_priority
@@ -85,4 +100,4 @@ func _run():
 	for message in errors:
 		push_error(message)
 	print("Environment effects regression: %d failures" % errors.size())
-	quit(0 if errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)

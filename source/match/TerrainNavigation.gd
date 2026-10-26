@@ -224,9 +224,9 @@ func _on_bake_finished():
 # provably the nearest point: every other polygon is at least as high. On
 # elevated maps, indexed slope triangles also allow vertical projection.
 # Boundary points and in-flight rebakes use the server query.
-func closest_point(point: Vector3) -> Vector3:
+func closest_point(point: Vector3, hint = null) -> Vector3:
 	if _elevated:
-		return _closest_point_on_terrain(point)
+		return _closest_point_on_terrain(point, hint)
 	var iteration := NavigationServer3D.map_get_iteration_id(navigation_map_rid)
 	if not _is_baking and _earliest_frame_to_perform_next_rebake == null:
 		if _projection_iteration != iteration and is_synchronized():
@@ -257,7 +257,7 @@ func closest_point(point: Vector3) -> Vector3:
 # Elevated maps know their ground height, so project vertically from the
 # expected surface. A query from below a sloped detail triangle would move the
 # point sideways (downhill on ramps) every tick.
-func _closest_point_on_terrain(point: Vector3) -> Vector3:
+func _closest_point_on_terrain(point: Vector3, hint = null) -> Vector3:
 	var flat := Vector2(point.x, point.z)
 	var surface: float = _map.height_at(flat) + SURFACE_LIFT
 	var iteration := NavigationServer3D.map_get_iteration_id(navigation_map_rid)
@@ -265,25 +265,41 @@ func _closest_point_on_terrain(point: Vector3) -> Vector3:
 		if _projection_iteration != iteration and is_synchronized():
 			_index_projection_surface(iteration)
 		if _projection_iteration == iteration:
-			var cell := Vector2i(
-				floori(point.x / PROJECTION_CELL_SIZE), floori(point.z / PROJECTION_CELL_SIZE)
-			)
-			for entry in _projection_cells.get(cell, EMPTY_PROJECTIONS):
-				var height: float = entry[1]
-				if entry.size() == 3:
-					var plane: Plane = entry[2]
-					height = (
-						(plane.d - plane.normal.x * point.x - plane.normal.z * point.z)
-						/ plane.normal.y
-					)
+			# Consecutive avoidance steps usually remain on one polygon. Retain
+			# that polygon per agent, with exact containment and publication checks.
+			if hint != null and hint.get("iteration", -1) == iteration:
+				var entry = hint.get("entry")
+				var height = _projection_entry_height(entry, point)
 				if (
 					absf(height - surface) <= SURFACE_MATCH
 					and Geometry2D.is_point_in_polygon(flat, entry[0])
 				):
 					return Vector3(point.x, height, point.z)
+			var cell := Vector2i(
+				floori(point.x / PROJECTION_CELL_SIZE), floori(point.z / PROJECTION_CELL_SIZE)
+			)
+			for entry in _projection_cells.get(cell, EMPTY_PROJECTIONS):
+				var height = _projection_entry_height(entry, point)
+				if (
+					absf(height - surface) <= SURFACE_MATCH
+					and Geometry2D.is_point_in_polygon(flat, entry[0])
+				):
+					if hint != null:
+						hint.iteration = iteration
+						hint.entry = entry
+					return Vector3(point.x, height, point.z)
+	if hint != null:
+		hint.clear()
 	return NavigationServer3D.map_get_closest_point(
 		navigation_map_rid, Vector3(point.x, surface, point.z)
 	)
+
+
+func _projection_entry_height(entry: Array, point: Vector3) -> float:
+	if entry.size() == 2:
+		return entry[1]
+	var plane: Plane = entry[2]
+	return (plane.d - plane.normal.x * point.x - plane.normal.z * point.z) / plane.normal.y
 
 
 func _index_projection_surface(iteration: int):

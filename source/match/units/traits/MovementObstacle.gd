@@ -1,6 +1,11 @@
 extends NavigationObstacle3D
 
-@export var domain = Constants.Match.Navigation.Domain.TERRAIN
+@export var domain = Constants.Match.Navigation.Domain.TERRAIN:
+	set(value):
+		domain = value
+		var unit = get_parent()
+		if unit != null and unit.get("_native_state") != null:
+			unit._native_state.domain = value
 @export var path_height_offset = 0.0
 @export var sight_height = 3.0
 # Optional local XZ outline (any polygon); it turns with the body. Empty uses

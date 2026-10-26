@@ -55,4 +55,4 @@ func _run():
 	for message in errors:
 		push_error(message)
 	print("Selection batch: %d failures; burst allocated %d nodes" % [errors.size(), added_nodes])
-	quit(0 if errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)

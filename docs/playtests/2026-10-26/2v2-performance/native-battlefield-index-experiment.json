@@ -1,0 +1,1278 @@
+{
+  "note": "One paired run, not a statistical confidence interval. Changes in catch-up ticks and gameplay trajectories interact; subsystem gains are not independent multipliers.",
+  "build": {
+    "source_commit": "e7cf33d4283d5873fb48c4dbf55ef12a1e0b2ed4",
+    "source_digest": "0d3702552ca196557b6985ffe22c5832107b61c1db6459acbd0a535075fecf3f",
+    "project_sha256": "37d81cffbcd1df2cc509f200e976e76327ffb02198898497ec4e59c132578e45",
+    "executable_sha256": "6a528e2a02536be4dafffba7d29191554eb8bf473560bacad6158b4b938508a0"
+  },
+  "control_arguments": [
+    "--native-crowd-runtime",
+    "--native-visibility-runtime",
+    "--native-nearest-surface",
+    "--native-pose-rigs",
+    "--native-unit-state",
+    "--native-presentation",
+    "--native-exploration",
+    "--native-combat-queries",
+    "--profile-runtime"
+  ],
+  "candidate_arguments": [
+    "--native-crowd-runtime",
+    "--native-visibility-runtime",
+    "--native-nearest-surface",
+    "--native-pose-rigs",
+    "--native-unit-state",
+    "--native-presentation",
+    "--native-exploration",
+    "--native-combat-queries",
+    "--native-battlefield-index",
+    "--profile-runtime"
+  ],
+  "control_target_met": false,
+  "candidate_target_met": false,
+  "phases": [
+    {
+      "phase": "day_movement",
+      "control_fps": 12.7736934340859,
+      "candidate_fps": 15.5197393081102,
+      "fps_change_percent": 21.497665402683207,
+      "control_frame_ms": {
+        "max": 329.496,
+        "mean": 78.2858932038835,
+        "p50": 64.83,
+        "p95": 143.423,
+        "p99": 302.77
+      },
+      "candidate_frame_ms": {
+        "max": 312.556,
+        "mean": 64.434072,
+        "p50": 59.361,
+        "p95": 100.066,
+        "p99": 272.99
+      },
+      "control_cpu_usage": {
+        "available": true,
+        "main_thread_cycles": 28043319960,
+        "main_thread_ms": 7796.875,
+        "main_thread_ms_per_frame": 75.6978155339806,
+        "process_ms": 9000.0,
+        "process_ms_per_frame": 87.378640776699
+      },
+      "candidate_cpu_usage": {
+        "available": true,
+        "main_thread_cycles": 28071255600,
+        "main_thread_ms": 7828.125,
+        "main_thread_ms_per_frame": 62.625,
+        "process_ms": 8906.25,
+        "process_ms_per_frame": 71.25
+      },
+      "control_gpu_ms": {
+        "max": 11.1899995803833,
+        "mean": 10.1253009444302,
+        "p50": 10.8470001220703,
+        "p95": 11.0349998474121,
+        "p99": 11.1219997406006
+      },
+      "candidate_gpu_ms": {
+        "max": 12.2790002822876,
+        "mean": 9.86158401489258,
+        "p50": 10.9799995422363,
+        "p95": 11.2559995651245,
+        "p99": 11.3830003738403
+      },
+      "control_real_time_ratio": 1.02101728954209,
+      "candidate_real_time_ratio": 1.00976216541915,
+      "control_counts": {
+        "active_unit_batch_groups": 236,
+        "batched_units": 560,
+        "indexed_player_rosters": 0,
+        "largest_unit_batch": 16,
+        "mobile": 400,
+        "multimesh_nodes": 479,
+        "native_battlefield_index": false,
+        "native_battlefield_statistics": [],
+        "native_combat_queries": true,
+        "native_combat_statistics": [
+          535,
+          535,
+          0
+        ],
+        "native_crowd_runtime": true,
+        "native_crowd_statistics": [
+          94376,
+          94800,
+          0,
+          360
+        ],
+        "native_exploration": true,
+        "native_exploration_statistics": [
+          10800,
+          1291727,
+          31151
+        ],
+        "native_infantry_fallbacks": 0,
+        "native_infantry_poses": false,
+        "native_infantry_solved": 0,
+        "native_nearest_surface": true,
+        "native_pose_rigs": true,
+        "native_presentation": true,
+        "native_presentation_statistics": [
+          560,
+          315,
+          170800,
+          140,
+          285619,
+          73788,
+          673
+        ],
+        "native_presentation_units": 560,
+        "native_rig_statistics": [
+          6314,
+          258397,
+          825557,
+          285619,
+          6314
+        ],
+        "native_spatial_index": true,
+        "native_surface_statistics": [
+          4976,
+          1811,
+          6938,
+          97956,
+          3,
+          12456
+        ],
+        "native_terrain_outlines": true,
+        "native_terrain_sight": true,
+        "native_unit_records": 560,
+        "native_unit_state": true,
+        "native_unit_statistics": [
+          560,
+          588,
+          8402,
+          48382,
+          642866,
+          1002992,
+          0,
+          758788,
+          599418
+        ],
+        "native_visibility_runtime": true,
+        "native_visibility_statistics": [
+          35681,
+          50126,
+          18092,
+          3178,
+          20903
+        ],
+        "pose_rows": 4383,
+        "projectiles": 9,
+        "render_pose_updates": true,
+        "resident_rigs": 560,
+        "roster_queries": 0,
+        "roster_rebuilds": 0,
+        "shared_unit_batch_groups": 105,
+        "structures": 160,
+        "unit_batch_models": 88
+      },
+      "candidate_counts": {
+        "active_unit_batch_groups": 237,
+        "batched_units": 560,
+        "indexed_player_rosters": 0,
+        "largest_unit_batch": 16,
+        "mobile": 400,
+        "multimesh_nodes": 477,
+        "native_battlefield_index": true,
+        "native_battlefield_statistics": [
+          1,
+          560,
+          560,
+          605,
+          282385,
+          29117,
+          34373,
+          4,
+          276940
+        ],
+        "native_combat_queries": true,
+        "native_combat_statistics": [
+          518,
+          518,
+          0
+        ],
+        "native_crowd_runtime": true,
+        "native_crowd_statistics": [
+          95252,
+          95679,
+          0,
+          360
+        ],
+        "native_exploration": true,
+        "native_exploration_statistics": [
+          11360,
+          1358933,
+          31879
+        ],
+        "native_infantry_fallbacks": 0,
+        "native_infantry_poses": false,
+        "native_infantry_solved": 0,
+        "native_nearest_surface": true,
+        "native_pose_rigs": true,
+        "native_presentation": true,
+        "native_presentation_statistics": [
+          560,
+          323,
+          174480,
+          170,
+          349363,
+          90188,
+          686
+        ],
+        "native_presentation_units": 560,
+        "native_rig_statistics": [
+          6314,
+          311790,
+          1009184,
+          349363,
+          6314
+        ],
+        "native_spatial_index": true,
+        "native_surface_statistics": [
+          4976,
+          1811,
+          6893,
+          101102,
+          3,
+          13120
+        ],
+        "native_terrain_outlines": true,
+        "native_terrain_sight": true,
+        "native_unit_records": 560,
+        "native_unit_state": true,
+        "native_unit_statistics": [
+          560,
+          588,
+          8391,
+          49215,
+          654612,
+          1017577,
+          0,
+          768143,
+          609547
+        ],
+        "native_visibility_runtime": true,
+        "native_visibility_statistics": [
+          36442,
+          50332,
+          18445,
+          3456,
+          21584
+        ],
+        "pose_rows": 4383,
+        "projectiles": 5,
+        "render_pose_updates": true,
+        "resident_rigs": 560,
+        "roster_queries": 0,
+        "roster_rebuilds": 0,
+        "shared_unit_batch_groups": 108,
+        "structures": 160,
+        "unit_batch_models": 88
+      }
+    },
+    {
+      "phase": "day_combat",
+      "control_fps": 9.29082627529908,
+      "candidate_fps": 10.9378919152323,
+      "fps_change_percent": 17.727870386643275,
+      "control_frame_ms": {
+        "max": 383.863,
+        "mean": 107.633053333333,
+        "p50": 96.016,
+        "p95": 222.02,
+        "p99": 383.863
+      },
+      "candidate_frame_ms": {
+        "max": 221.81,
+        "mean": 91.4252954545455,
+        "p50": 82.496,
+        "p95": 175.768,
+        "p99": 221.81
+      },
+      "control_cpu_usage": {
+        "available": true,
+        "main_thread_cycles": 28030190400,
+        "main_thread_ms": 7843.75,
+        "main_thread_ms_per_frame": 104.583333333333,
+        "process_ms": 9046.875,
+        "process_ms_per_frame": 120.625
+      },
+      "candidate_cpu_usage": {
+        "available": true,
+        "main_thread_cycles": 27877917960,
+        "main_thread_ms": 7921.875,
+        "main_thread_ms_per_frame": 90.0213068181818,
+        "process_ms": 8578.125,
+        "process_ms_per_frame": 97.4786931818182
+      },
+      "control_gpu_ms": {
+        "max": 37.7540016174316,
+        "mean": 9.48176001866659,
+        "p50": 11.3269996643066,
+        "p95": 11.6000003814697,
+        "p99": 37.7540016174316
+      },
+      "candidate_gpu_ms": {
+        "max": 38.2179985046387,
+        "mean": 15.6398863954978,
+        "p50": 11.581000328064,
+        "p95": 36.5289993286133,
+        "p99": 38.2179985046387
+      },
+      "control_real_time_ratio": 0.99509044670139,
+      "candidate_real_time_ratio": 1.01916287204479,
+      "control_counts": {
+        "active_unit_batch_groups": 277,
+        "batched_units": 560,
+        "indexed_player_rosters": 0,
+        "largest_unit_batch": 8,
+        "mobile": 400,
+        "multimesh_nodes": 604,
+        "native_battlefield_index": false,
+        "native_battlefield_statistics": [],
+        "native_combat_queries": true,
+        "native_combat_statistics": [
+          13943,
+          13943,
+          0
+        ],
+        "native_crowd_runtime": true,
+        "native_crowd_statistics": [
+          161100,
+          164364,
+          0,
+          360
+        ],
+        "native_exploration": true,
+        "native_exploration_statistics": [
+          22000,
+          2628685,
+          48429
+        ],
+        "native_infantry_fallbacks": 0,
+        "native_infantry_poses": false,
+        "native_infantry_solved": 0,
+        "native_nearest_surface": true,
+        "native_pose_rigs": true,
+        "native_presentation": true,
+        "native_presentation_statistics": [
+          560,
+          627,
+          345520,
+          224,
+          622282,
+          120828,
+          1527
+        ],
+        "native_presentation_units": 560,
+        "native_rig_statistics": [
+          6314,
+          556811,
+          1373712,
+          622282,
+          6314
+        ],
+        "native_spatial_index": true,
+        "native_surface_statistics": [
+          4976,
+          1811,
+          13639,
+          186195,
+          3,
+          23842
+        ],
+        "native_terrain_outlines": true,
+        "native_terrain_sight": true,
+        "native_unit_records": 560,
+        "native_unit_state": true,
+        "native_unit_statistics": [
+          560,
+          588,
+          9943,
+          138139,
+          1248314,
+          2259150,
+          0,
+          1865039,
+          1130020
+        ],
+        "native_visibility_runtime": true,
+        "native_visibility_statistics": [
+          99423,
+          238658,
+          95500,
+          21951,
+          94429
+        ],
+        "pose_rows": 4383,
+        "projectiles": 13,
+        "render_pose_updates": true,
+        "resident_rigs": 560,
+        "roster_queries": 0,
+        "roster_rebuilds": 0,
+        "shared_unit_batch_groups": 137,
+        "structures": 160,
+        "unit_batch_models": 88
+      },
+      "candidate_counts": {
+        "active_unit_batch_groups": 285,
+        "batched_units": 560,
+        "indexed_player_rosters": 0,
+        "largest_unit_batch": 8,
+        "mobile": 400,
+        "multimesh_nodes": 606,
+        "native_battlefield_index": true,
+        "native_battlefield_statistics": [
+          1,
+          560,
+          560,
+          926,
+          465034,
+          48466,
+          52115,
+          4,
+          456700
+        ],
+        "native_combat_queries": true,
+        "native_combat_statistics": [
+          13990,
+          13990,
+          0
+        ],
+        "native_crowd_runtime": true,
+        "native_crowd_statistics": [
+          166584,
+          169479,
+          0,
+          360
+        ],
+        "native_exploration": true,
+        "native_exploration_statistics": [
+          22560,
+          2696579,
+          48732
+        ],
+        "native_infantry_fallbacks": 0,
+        "native_infantry_poses": false,
+        "native_infantry_solved": 0,
+        "native_nearest_surface": true,
+        "native_pose_rigs": true,
+        "native_presentation": true,
+        "native_presentation_statistics": [
+          560,
+          644,
+          354240,
+          268,
+          740873,
+          145068,
+          1548
+        ],
+        "native_presentation_units": 560,
+        "native_rig_statistics": [
+          6314,
+          654647,
+          1645801,
+          740873,
+          6314
+        ],
+        "native_spatial_index": true,
+        "native_surface_statistics": [
+          4976,
+          1811,
+          13778,
+          195531,
+          3,
+          26006
+        ],
+        "native_terrain_outlines": true,
+        "native_terrain_sight": true,
+        "native_unit_records": 560,
+        "native_unit_state": true,
+        "native_unit_statistics": [
+          560,
+          588,
+          9945,
+          137107,
+          1277551,
+          2362536,
+          0,
+          1964407,
+          1155893
+        ],
+        "native_visibility_runtime": true,
+        "native_visibility_statistics": [
+          101793,
+          263508,
+          97155,
+          39732,
+          96399
+        ],
+        "pose_rows": 4383,
+        "projectiles": 19,
+        "render_pose_updates": true,
+        "resident_rigs": 560,
+        "roster_queries": 0,
+        "roster_rebuilds": 0,
+        "shared_unit_batch_groups": 131,
+        "structures": 160,
+        "unit_batch_models": 88
+      }
+    },
+    {
+      "phase": "night_combat",
+      "control_fps": 8.35006670083132,
+      "candidate_fps": 10.2957612474989,
+      "fps_change_percent": 23.301544962196164,
+      "control_frame_ms": {
+        "max": 545.109,
+        "mean": 119.75952238806,
+        "p50": 94.379,
+        "p95": 265.496,
+        "p99": 545.109
+      },
+      "candidate_frame_ms": {
+        "max": 467.452,
+        "mean": 97.1273493975904,
+        "p50": 74.845,
+        "p95": 193.621,
+        "p99": 467.452
+      },
+      "control_cpu_usage": {
+        "available": true,
+        "main_thread_cycles": 27920692800,
+        "main_thread_ms": 7750.0,
+        "main_thread_ms_per_frame": 115.671641791045,
+        "process_ms": 9625.0,
+        "process_ms_per_frame": 143.65671641791
+      },
+      "candidate_cpu_usage": {
+        "available": true,
+        "main_thread_cycles": 28033420320,
+        "main_thread_ms": 7937.5,
+        "main_thread_ms_per_frame": 95.6325301204819,
+        "process_ms": 8625.0,
+        "process_ms_per_frame": 103.915662650602
+      },
+      "control_gpu_ms": {
+        "max": 37.7159996032715,
+        "mean": 13.237343254374,
+        "p50": 11.3020000457764,
+        "p95": 35.1269989013672,
+        "p99": 37.7159996032715
+      },
+      "candidate_gpu_ms": {
+        "max": 35.9939994812012,
+        "mean": 13.6508434536945,
+        "p50": 11.5240001678467,
+        "p95": 35.7830009460449,
+        "p99": 35.9939994812012
+      },
+      "control_real_time_ratio": 0.955436569084568,
+      "candidate_real_time_ratio": 0.946833089326556,
+      "control_counts": {
+        "active_unit_batch_groups": 284,
+        "batched_units": 560,
+        "indexed_player_rosters": 0,
+        "largest_unit_batch": 8,
+        "mobile": 400,
+        "multimesh_nodes": 638,
+        "native_battlefield_index": false,
+        "native_battlefield_statistics": [],
+        "native_combat_queries": true,
+        "native_combat_statistics": [
+          24114,
+          24114,
+          0
+        ],
+        "native_crowd_runtime": true,
+        "native_crowd_statistics": [
+          224810,
+          230569,
+          0,
+          360
+        ],
+        "native_exploration": true,
+        "native_exploration_statistics": [
+          31520,
+          3767505,
+          61027
+        ],
+        "native_infantry_fallbacks": 0,
+        "native_infantry_poses": false,
+        "native_infantry_solved": 0,
+        "native_nearest_surface": true,
+        "native_pose_rigs": true,
+        "native_presentation": true,
+        "native_presentation_statistics": [
+          560,
+          897,
+          496720,
+          301,
+          919295,
+          163948,
+          1916
+        ],
+        "native_presentation_units": 560,
+        "native_rig_statistics": [
+          6314,
+          804731,
+          1871726,
+          919295,
+          6314
+        ],
+        "native_spatial_index": true,
+        "native_surface_statistics": [
+          4976,
+          1811,
+          20826,
+          299450,
+          3,
+          38300
+        ],
+        "native_terrain_outlines": true,
+        "native_terrain_sight": true,
+        "native_unit_records": 560,
+        "native_unit_state": true,
+        "native_unit_statistics": [
+          560,
+          588,
+          11171,
+          195544,
+          1763098,
+          3248950,
+          0,
+          2770090,
+          1585118
+        ],
+        "native_visibility_runtime": true,
+        "native_visibility_statistics": [
+          149320,
+          391228,
+          151449,
+          34064,
+          149838
+        ],
+        "pose_rows": 4383,
+        "projectiles": 9,
+        "render_pose_updates": true,
+        "resident_rigs": 560,
+        "roster_queries": 0,
+        "roster_rebuilds": 0,
+        "shared_unit_batch_groups": 134,
+        "structures": 160,
+        "unit_batch_models": 88
+      },
+      "candidate_counts": {
+        "active_unit_batch_groups": 287,
+        "batched_units": 560,
+        "indexed_player_rosters": 0,
+        "largest_unit_batch": 9,
+        "mobile": 400,
+        "multimesh_nodes": 641,
+        "native_battlefield_index": true,
+        "native_battlefield_statistics": [
+          1,
+          560,
+          560,
+          1192,
+          616388,
+          65036,
+          68742,
+          4,
+          605660
+        ],
+        "native_combat_queries": true,
+        "native_combat_statistics": [
+          24049,
+          24049,
+          0
+        ],
+        "native_crowd_runtime": true,
+        "native_crowd_statistics": [
+          229737,
+          234710,
+          0,
+          360
+        ],
+        "native_exploration": true,
+        "native_exploration_statistics": [
+          31520,
+          3768199,
+          60424
+        ],
+        "native_infantry_fallbacks": 0,
+        "native_infantry_poses": false,
+        "native_infantry_solved": 0,
+        "native_nearest_surface": true,
+        "native_pose_rigs": true,
+        "native_presentation": true,
+        "native_presentation_statistics": [
+          560,
+          910,
+          503200,
+          360,
+          1091917,
+          196588,
+          1966
+        ],
+        "native_presentation_units": 560,
+        "native_rig_statistics": [
+          6314,
+          952023,
+          2237768,
+          1091917,
+          6314
+        ],
+        "native_spatial_index": true,
+        "native_surface_statistics": [
+          4976,
+          1811,
+          19608,
+          287542,
+          3,
+          39196
+        ],
+        "native_terrain_outlines": true,
+        "native_terrain_sight": true,
+        "native_unit_records": 560,
+        "native_unit_state": true,
+        "native_unit_statistics": [
+          560,
+          588,
+          11124,
+          190371,
+          1787557,
+          3378820,
+          0,
+          2888851,
+          1604961
+        ],
+        "native_visibility_runtime": true,
+        "native_visibility_statistics": [
+          152285,
+          423365,
+          152244,
+          63754,
+          150971
+        ],
+        "pose_rows": 4383,
+        "projectiles": 12,
+        "render_pose_updates": true,
+        "resident_rigs": 560,
+        "roster_queries": 0,
+        "roster_rebuilds": 0,
+        "shared_unit_batch_groups": 131,
+        "structures": 160,
+        "unit_batch_models": 88
+      }
+    },
+    {
+      "phase": "night_base",
+      "control_fps": 14.3132223432139,
+      "candidate_fps": 16.6171857683924,
+      "fps_change_percent": 16.096748656118255,
+      "control_frame_ms": {
+        "max": 410.119,
+        "mean": 69.8654695652174,
+        "p50": 50.828,
+        "p95": 193.491,
+        "p99": 244.316
+      },
+      "candidate_frame_ms": {
+        "max": 398.996,
+        "mean": 60.1786616541353,
+        "p50": 44.2,
+        "p95": 162.491,
+        "p99": 302.237
+      },
+      "control_cpu_usage": {
+        "available": true,
+        "main_thread_cycles": 28304013240,
+        "main_thread_ms": 7906.25,
+        "main_thread_ms_per_frame": 68.75,
+        "process_ms": 8875.0,
+        "process_ms_per_frame": 77.1739130434783
+      },
+      "candidate_cpu_usage": {
+        "available": true,
+        "main_thread_cycles": 28230378480,
+        "main_thread_ms": 7750.0,
+        "main_thread_ms_per_frame": 58.2706766917293,
+        "process_ms": 8656.25,
+        "process_ms_per_frame": 65.0845864661654
+      },
+      "control_gpu_ms": {
+        "max": 9.74100017547607,
+        "mean": 8.57226085870162,
+        "p50": 9.44999980926514,
+        "p95": 9.67599964141846,
+        "p99": 9.73200035095215
+      },
+      "candidate_gpu_ms": {
+        "max": 9.85799980163574,
+        "mean": 8.60907518953309,
+        "p50": 9.58199977874756,
+        "p95": 9.79199981689453,
+        "p99": 9.85499954223633
+      },
+      "control_real_time_ratio": 0.983204502428554,
+      "candidate_real_time_ratio": 0.999473402450175,
+      "control_counts": {
+        "active_unit_batch_groups": 290,
+        "batched_units": 560,
+        "indexed_player_rosters": 0,
+        "largest_unit_batch": 8,
+        "mobile": 400,
+        "multimesh_nodes": 681,
+        "native_battlefield_index": false,
+        "native_battlefield_statistics": [],
+        "native_combat_queries": true,
+        "native_combat_statistics": [
+          33828,
+          33828,
+          0
+        ],
+        "native_crowd_runtime": true,
+        "native_crowd_statistics": [
+          288481,
+          296189,
+          0,
+          360
+        ],
+        "native_exploration": true,
+        "native_exploration_statistics": [
+          41040,
+          4906539,
+          73946
+        ],
+        "native_infantry_fallbacks": 0,
+        "native_infantry_poses": false,
+        "native_infantry_solved": 0,
+        "native_nearest_surface": true,
+        "native_pose_rigs": true,
+        "native_presentation": true,
+        "native_presentation_statistics": [
+          560,
+          1172,
+          650720,
+          433,
+          1403244,
+          237868,
+          2350
+        ],
+        "native_presentation_units": 560,
+        "native_rig_statistics": [
+          6314,
+          900241,
+          2717105,
+          1403244,
+          6314
+        ],
+        "native_spatial_index": true,
+        "native_surface_statistics": [
+          4976,
+          1811,
+          30051,
+          441018,
+          3,
+          55327
+        ],
+        "native_terrain_outlines": true,
+        "native_terrain_sight": true,
+        "native_unit_records": 560,
+        "native_unit_state": true,
+        "native_unit_statistics": [
+          560,
+          588,
+          12390,
+          245554,
+          2276946,
+          4084220,
+          0,
+          3521410,
+          2047557
+        ],
+        "native_visibility_runtime": true,
+        "native_visibility_statistics": [
+          197472,
+          493826,
+          201953,
+          45805,
+          201344
+        ],
+        "pose_rows": 4383,
+        "projectiles": 5,
+        "render_pose_updates": true,
+        "resident_rigs": 560,
+        "roster_queries": 0,
+        "roster_rebuilds": 0,
+        "shared_unit_batch_groups": 133,
+        "structures": 160,
+        "unit_batch_models": 88
+      },
+      "candidate_counts": {
+        "active_unit_batch_groups": 277,
+        "batched_units": 560,
+        "indexed_player_rosters": 0,
+        "largest_unit_batch": 8,
+        "mobile": 400,
+        "multimesh_nodes": 678,
+        "native_battlefield_index": true,
+        "native_battlefield_statistics": [
+          1,
+          560,
+          560,
+          1469,
+          774001,
+          81045,
+          87432,
+          4,
+          760780
+        ],
+        "native_combat_queries": true,
+        "native_combat_statistics": [
+          33472,
+          33472,
+          0
+        ],
+        "native_crowd_runtime": true,
+        "native_crowd_statistics": [
+          295649,
+          302618,
+          0,
+          360
+        ],
+        "native_exploration": true,
+        "native_exploration_statistics": [
+          41600,
+          4974378,
+          74306
+        ],
+        "native_infantry_fallbacks": 0,
+        "native_infantry_poses": false,
+        "native_infantry_solved": 0,
+        "native_nearest_surface": true,
+        "native_pose_rigs": true,
+        "native_presentation": true,
+        "native_presentation_statistics": [
+          560,
+          1187,
+          658320,
+          510,
+          1641323,
+          280588,
+          2462
+        ],
+        "native_presentation_units": 560,
+        "native_rig_statistics": [
+          6314,
+          1059645,
+          3196564,
+          1641323,
+          6314
+        ],
+        "native_spatial_index": true,
+        "native_surface_statistics": [
+          4976,
+          1811,
+          27221,
+          396761,
+          3,
+          54766
+        ],
+        "native_terrain_outlines": true,
+        "native_terrain_sight": true,
+        "native_unit_records": 560,
+        "native_unit_state": true,
+        "native_unit_statistics": [
+          560,
+          588,
+          12289,
+          237361,
+          2305086,
+          4240524,
+          0,
+          3661240,
+          2070981
+        ],
+        "native_visibility_runtime": true,
+        "native_visibility_statistics": [
+          201913,
+          530416,
+          203564,
+          83907,
+          204008
+        ],
+        "pose_rows": 4383,
+        "projectiles": 7,
+        "render_pose_updates": true,
+        "resident_rigs": 560,
+        "roster_queries": 0,
+        "roster_rebuilds": 0,
+        "shared_unit_batch_groups": 133,
+        "structures": 160,
+        "unit_batch_models": 88
+      }
+    },
+    {
+      "phase": "cycling_weather_combat",
+      "control_fps": 10.2732562385277,
+      "candidate_fps": 13.1239418821857,
+      "fps_change_percent": 27.748608400977083,
+      "control_frame_ms": {
+        "max": 407.632,
+        "mean": 97.3401204819277,
+        "p50": 76.96,
+        "p95": 214.019,
+        "p99": 407.632
+      },
+      "candidate_frame_ms": {
+        "max": 232.357,
+        "mean": 76.1966190476191,
+        "p50": 64.147,
+        "p95": 170.932,
+        "p99": 193.253
+      },
+      "control_cpu_usage": {
+        "available": true,
+        "main_thread_cycles": 27967417200,
+        "main_thread_ms": 7828.125,
+        "main_thread_ms_per_frame": 94.3147590361446,
+        "process_ms": 8812.5,
+        "process_ms_per_frame": 106.174698795181
+      },
+      "candidate_cpu_usage": {
+        "available": true,
+        "main_thread_cycles": 27440752320,
+        "main_thread_ms": 7640.625,
+        "main_thread_ms_per_frame": 72.7678571428571,
+        "process_ms": 9296.875,
+        "process_ms_per_frame": 88.5416666666667
+      },
+      "control_gpu_ms": {
+        "max": 15.9790000915527,
+        "mean": 11.6801928554673,
+        "p50": 11.1899995803833,
+        "p95": 14.1300001144409,
+        "p99": 15.9790000915527
+      },
+      "candidate_gpu_ms": {
+        "max": 12.46399974823,
+        "mean": 11.3222856703259,
+        "p50": 11.2969999313354,
+        "p95": 11.5129995346069,
+        "p99": 11.5459995269775
+      },
+      "control_real_time_ratio": 1.00252326441782,
+      "candidate_real_time_ratio": 1.01651139455022,
+      "control_counts": {
+        "active_unit_batch_groups": 295,
+        "batched_units": 560,
+        "indexed_player_rosters": 0,
+        "largest_unit_batch": 10,
+        "mobile": 400,
+        "multimesh_nodes": 716,
+        "native_battlefield_index": false,
+        "native_battlefield_statistics": [],
+        "native_combat_queries": true,
+        "native_combat_statistics": [
+          45605,
+          45605,
+          0
+        ],
+        "native_crowd_runtime": true,
+        "native_crowd_statistics": [
+          366422,
+          376455,
+          0,
+          360
+        ],
+        "native_exploration": true,
+        "native_exploration_statistics": [
+          52800,
+          6314091,
+          92020
+        ],
+        "native_infantry_fallbacks": 0,
+        "native_infantry_poses": false,
+        "native_infantry_solved": 0,
+        "native_nearest_surface": true,
+        "native_pose_rigs": true,
+        "native_presentation": true,
+        "native_presentation_statistics": [
+          560,
+          1511,
+          840560,
+          540,
+          1772445,
+          297788,
+          2854
+        ],
+        "native_presentation_units": 560,
+        "native_rig_statistics": [
+          6314,
+          1182537,
+          3407541,
+          1772445,
+          6314
+        ],
+        "native_spatial_index": true,
+        "native_surface_statistics": [
+          4976,
+          1811,
+          40574,
+          602898,
+          3,
+          74997
+        ],
+        "native_terrain_outlines": true,
+        "native_terrain_sight": true,
+        "native_unit_records": 560,
+        "native_unit_state": true,
+        "native_unit_statistics": [
+          560,
+          588,
+          13826,
+          306182,
+          2916185,
+          5216417,
+          0,
+          4540788,
+          2615737
+        ],
+        "native_visibility_runtime": true,
+        "native_visibility_statistics": [
+          258143,
+          651567,
+          263486,
+          56569,
+          264268
+        ],
+        "pose_rows": 4383,
+        "projectiles": 2,
+        "render_pose_updates": true,
+        "resident_rigs": 560,
+        "roster_queries": 0,
+        "roster_rebuilds": 0,
+        "shared_unit_batch_groups": 139,
+        "structures": 160,
+        "unit_batch_models": 88
+      },
+      "candidate_counts": {
+        "active_unit_batch_groups": 284,
+        "batched_units": 560,
+        "indexed_player_rosters": 0,
+        "largest_unit_batch": 10,
+        "mobile": 400,
+        "multimesh_nodes": 720,
+        "native_battlefield_index": true,
+        "native_battlefield_statistics": [
+          1,
+          560,
+          560,
+          1807,
+          966323,
+          100789,
+          112929,
+          4,
+          950060
+        ],
+        "native_combat_queries": true,
+        "native_combat_statistics": [
+          42479,
+          42479,
+          0
+        ],
+        "native_crowd_runtime": true,
+        "native_crowd_statistics": [
+          378027,
+          387872,
+          0,
+          360
+        ],
+        "native_exploration": true,
+        "native_exploration_statistics": [
+          53360,
+          6382564,
+          91494
+        ],
+        "native_infantry_fallbacks": 0,
+        "native_infantry_poses": false,
+        "native_infantry_solved": 0,
+        "native_nearest_surface": true,
+        "native_pose_rigs": true,
+        "native_presentation": true,
+        "native_presentation_statistics": [
+          560,
+          1525,
+          847600,
+          643,
+          2092737,
+          355068,
+          3020
+        ],
+        "native_presentation_units": 560,
+        "native_rig_statistics": [
+          6314,
+          1416727,
+          4047996,
+          2092737,
+          6314
+        ],
+        "native_spatial_index": true,
+        "native_surface_statistics": [
+          4976,
+          1811,
+          36068,
+          516654,
+          3,
+          71854
+        ],
+        "native_terrain_outlines": true,
+        "native_terrain_sight": true,
+        "native_unit_records": 560,
+        "native_unit_state": true,
+        "native_unit_statistics": [
+          560,
+          588,
+          13462,
+          285221,
+          2939995,
+          5338152,
+          0,
+          4649349,
+          2636874
+        ],
+        "native_visibility_runtime": true,
+        "native_visibility_statistics": [
+          261929,
+          682027,
+          260266,
+          103438,
+          262590
+        ],
+        "pose_rows": 4383,
+        "projectiles": 2,
+        "render_pose_updates": true,
+        "resident_rigs": 560,
+        "roster_queries": 0,
+        "roster_rebuilds": 0,
+        "shared_unit_batch_groups": 117,
+        "structures": 160,
+        "unit_batch_models": 88
+      }
+    }
+  ],
+  "control_report": "pass27-control.json",
+  "candidate_report": "pass27-resident-index.json"
+}

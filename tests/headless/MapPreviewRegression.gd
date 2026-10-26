@@ -27,4 +27,4 @@ func _run():
 	preview.free()
 	reference.free()
 	print("Map preview regression: %d failures" % failures)
-	quit(0 if failures == 0 else 1)
+	await root.get_node("Globals").quit_game(0 if failures == 0 else 1)

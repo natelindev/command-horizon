@@ -19,10 +19,24 @@ func _run():
 		_compare_projection(map_name + " rebaked")
 		game.queue_free()
 		await _frames(5)
+	await _create("res://source/match/maps/battlefields/CopperBadlandsMap.tscn")
+	_compare_hinted_projection("Elevated")
+	game.navigation.terrain._on_schedule_navigation_rebake(
+		constants.Match.Navigation.Domain.TERRAIN
+	)
+	_compare_hinted_projection("Elevated pending")
+	await _frames(120)
+	for frame in 600:
+		if game.navigation.terrain.is_synchronized():
+			break
+		await physics_frame
+	_compare_hinted_projection("Elevated rebaked")
+	game.queue_free()
+	await _frames(5)
 	for message in _errors:
 		push_error(message)
 	print("Navigation projection: %d failures" % _errors.size())
-	quit(0 if _errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if _errors.is_empty() else 1)
 
 
 func _compare_projection(label):
@@ -39,4 +53,25 @@ func _compare_projection(label):
 		var actual = terrain.closest_point(point)
 		_check(
 			actual.distance_to(expected) < .001, label + ": projection mismatch at " + str(point)
+		)
+
+
+func _compare_hinted_projection(label):
+	var terrain = game.navigation.terrain
+	var hint = {}
+	var random = RandomNumberGenerator.new()
+	random.seed = 1789
+	var point = Vector3(112, 0, 112)
+	for index in 1500:
+		if index % 50 == 0:
+			point = Vector3(
+				random.randf_range(-2, game.map.size.x + 2),
+				0,
+				random.randf_range(-2, game.map.size.y + 2)
+			)
+		else:
+			point += Vector3(random.randf_range(-.2, .2), 0, random.randf_range(-.2, .2))
+		_check(
+			terrain.closest_point(point, hint).distance_to(terrain.closest_point(point)) < .001,
+			label + ": stale polygon hint at " + str(point)
 		)

@@ -1,6 +1,6 @@
 extends "res://tests/headless/FixedWingFlightRegression.gd"
 
-# Exercise the complete expend/return/rearm/resume and one-way drone flows.
+# Exercise helicopter sorties, Helix EW scouts and the other factions' one-way drones.
 
 
 func _run():
@@ -46,7 +46,7 @@ func _run():
 		push_error(message)
 	if _errors.is_empty():
 		print(
-			"PASS: all-faction helicopter ammo, helipad rearm and resume; drone hold and one-way dive"
+			"PASS: all-faction helicopter sorties; Helix EW scout and Bastion/Frontier drone dives"
 		)
 	await root.get_node("Globals").quit_game(0 if _errors.is_empty() else 1)
 
@@ -122,6 +122,16 @@ func _drone_strike(faction):
 	var hp = target.hp
 	_check(hp == target.hp_max, faction + " idle drone attacked without an order")
 	drone.issue_manual_order(load(ACTIONS + "AutoAttacking.gd").new(target))
+	if faction == "helix":
+		_check(drone.attack_range == null and not drone.armed(), "Helix EW scout gained a weapon")
+		_check(not str(drone.action).begins_with("DroneDive"), "Helix scout accepted a dive order")
+		await _ticks(300)
+		_check(is_instance_valid(drone), "Helix scout expended its unarmed airframe")
+		_check(target.hp == hp, "Helix unarmed scout damaged armor")
+		drone.queue_free()
+		target.queue_free()
+		await _ticks(5)
+		return
 	_check(
 		str(drone.action).begins_with("DroneDive"), faction + " attack did not start a drone dive"
 	)

@@ -1,0 +1,27 @@
+scons: Reading SConscript files ...
+WARNING: The WinRT/OneCore API requires dependencies to be installed.
+You can install them by running `python misc\scripts\install_winrt.py`.
+See the documentation for more information:
+	https://docs.godotengine.org/en/latest/engine_details/development/compiling/compiling_for_windows.html
+Alternatively, disable this driver by compiling with `winrt=no` explicitly.
+WARNING: The screen reader support driver requires dependencies to be installed.
+You can install them by running `python misc\scripts\install_accesskit.py`.
+See the documentation for more information:
+	https://docs.godotengine.org/en/latest/engine_details/development/compiling/compiling_for_windows.html
+Alternatively, disable this driver by compiling with `accesskit=no` explicitly.
+WARNING: The ANGLE rendering driver requires dependencies to be installed.
+You can install them by running `python misc\scripts\install_angle.py`.
+See the documentation for more information:
+	https://docs.godotengine.org/en/latest/engine_details/development/compiling/compiling_for_windows.html
+Alternatively, disable this driver by compiling with `angle=no` explicitly.
+Building for platform "windows", architecture "x86_64", target "template_release".
+Using LTO: thin
+WARNING: Failed to redirect "C:\Users\Administrator\Documents\Codex\2026-10-17\c-l\work\engine-profile\tracy-0.14.1\public\TracyClient.windows.template_release.x86_64.llvm.o"
+scons: done reading SConscript files.
+scons: Building targets ...
+Linking Program bin\godot.windows.template_release.x86_64.llvm.exe ...
+Generating bin\godot.windows.template_release.x86_64.llvm.exe ...
+Linking Program bin\godot.windows.template_release.x86_64.llvm.console.exe ...
+Generating bin\godot.windows.template_release.x86_64.llvm.console.exe ...
+scons: done building targets.
+INFO: Time elapsed: 00:03:01.96

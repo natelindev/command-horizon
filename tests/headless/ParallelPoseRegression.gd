@@ -55,4 +55,4 @@ func _run():
 			% [failures.size(), threads.size()]
 		)
 	)
-	quit(0 if failures.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if failures.is_empty() else 1)

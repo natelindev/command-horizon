@@ -40,6 +40,7 @@ var coarse_columns := 0
 var coarse_tops := PackedFloat32Array()
 var coarse_bottoms := PackedFloat32Array()
 var coarse_forest := PackedByteArray()
+var native_sight: RefCounted
 
 
 func _init(layout: Dictionary):
@@ -89,17 +90,22 @@ func _init(layout: Dictionary):
 	for height in heights:
 		min_height = minf(min_height, height)
 		max_height = maxf(max_height, height)
+	var native = load("res://source/match/rendering/NativePosePacker.gd").create()
+	if native != null and native.has_method("terrain_segment_clear"):
+		native_sight = native
 
 
 func height_at(point: Vector2) -> float:
-	var x = clampf(point.x / RESOLUTION, 0.0, columns)
-	var z = clampf(point.y / RESOLUTION, 0.0, rows)
-	var i = mini(int(x), columns - 1)
-	var j = mini(int(z), rows - 1)
-	var fx = x - i
-	var fz = z - j
-	var top = lerpf(_corner(i, j), _corner(i + 1, j), fx)
-	var bottom = lerpf(_corner(i, j + 1), _corner(i + 1, j + 1), fx)
+	var x: float = clampf(point.x / RESOLUTION, 0.0, columns)
+	var z: float = clampf(point.y / RESOLUTION, 0.0, rows)
+	var i: int = mini(int(x), columns - 1)
+	var j: int = mini(int(z), rows - 1)
+	var fx: float = x - i
+	var fz: float = z - j
+	var stride: int = columns + 1
+	var index: int = j * stride + i
+	var top: float = lerpf(heights[index], heights[index + 1], fx)
+	var bottom: float = lerpf(heights[index + stride], heights[index + stride + 1], fx)
 	return lerpf(top, bottom, fz)
 
 

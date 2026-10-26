@@ -1,0 +1,80 @@
+{
+  "kind": "native_ground_runtime_experiment",
+  "same_executable": true,
+  "executable_sha256": "8744e366dd25c6aa8f8b624cad0705e4eeda8174d921b6a30534422aa346c420",
+  "control_valid": true,
+  "native_valid": true,
+  "rows": [
+    {
+      "phase": "day_movement",
+      "control_fps": 3.09752149958698,
+      "native_fps": 4.69909645031491,
+      "change_percent": 51.70504711400652,
+      "native_p95_ms": 328.647,
+      "native_real_time_ratio": 0.968622364681647,
+      "native_statistics": [
+        89657,
+        90079,
+        6140,
+        360
+      ]
+    },
+    {
+      "phase": "day_combat",
+      "control_fps": 3.06873060485539,
+      "native_fps": 3.42101183022545,
+      "change_percent": 11.479705152764975,
+      "native_p95_ms": 440.938,
+      "native_real_time_ratio": 0.895946011269942,
+      "native_statistics": [
+        144082,
+        147071,
+        11270,
+        360
+      ]
+    },
+    {
+      "phase": "night_combat",
+      "control_fps": 2.81465278871515,
+      "native_fps": 3.23515508649125,
+      "change_percent": 14.939757381870656,
+      "native_p95_ms": 482.668,
+      "native_real_time_ratio": 0.858529515621843,
+      "native_statistics": [
+        201082,
+        206335,
+        17946,
+        360
+      ]
+    },
+    {
+      "phase": "night_base",
+      "control_fps": 3.21937249972388,
+      "native_fps": 4.31613493323001,
+      "change_percent": 34.06758408976274,
+      "native_p95_ms": 391.471,
+      "native_real_time_ratio": 0.970067059995094,
+      "native_statistics": [
+        265893,
+        273653,
+        26292,
+        360
+      ]
+    },
+    {
+      "phase": "cycling_weather_combat",
+      "control_fps": 2.90938607953316,
+      "native_fps": 3.49685719959187,
+      "change_percent": 20.192270946486946,
+      "native_p95_ms": 365.44,
+      "native_real_time_ratio": 0.915809583371995,
+      "native_statistics": [
+        337526,
+        347613,
+        37098,
+        360
+      ]
+    }
+  ],
+  "decision": "Retain experimental native runtime for further optimization. Movement and dense base views improve substantially, while live combat remains far below target. Next priorities: end-to-end native perception and pose/presentation state. Goal remains active."
+}

@@ -43,6 +43,14 @@ func _run():
 		var geometry = unit.get_node("Geometry")
 		var visual = unit.get_node("BastionVisuals")
 		var renderer = game.get_node("UnitBatchRenderer")
+		if "--native-presentation" in OS.get_cmdline_user_args():
+			_check(
+				(
+					renderer._presentation != null
+					and renderer._presentation_entries.size() == renderer._units.size()
+				),
+				"Native presentation did not cover every batched unit: " + faction
+			)
 		var previous_root = unit.global_position
 		var previous_model = geometry.global_position
 		var between_ticks = 0
@@ -61,11 +69,7 @@ func _run():
 					pixels.get_pixel(2, entry.offset).a
 				)
 				_check(presented_position.is_finite(), "Invalid GPU pose: " + faction)
-				var simulation_position: Vector3 = (
-					entry.poses[0].origin
-					if entry.has("poses")
-					else entry.anchors[0].global_position
-				)
+				var simulation_position: Vector3 = _simulation_pose(entry)
 				_check(
 					presented_position.distance_to(simulation_position) < .3,
 					"GPU pose fell behind simulation: " + faction
@@ -84,6 +88,28 @@ func _run():
 			previous_model = presented_position
 		physics_frame.disconnect(advance)
 		_check(between_ticks >= 10, "Model still moves only on physics ticks: " + faction)
+		# Several simulation ticks may precede one render during a hitch. Local
+		# articulation can coalesce, but root interpolation must still use the
+		# last two ticks rather than the last two rendered frames.
+		Engine.max_fps = 8
+		physics_frame.connect(advance)
+		for index in 12:
+			await RenderingServer.frame_post_draw
+			if visual.gpu_interpolated:
+				var entry = renderer._units[unit]
+				var pixels: Image = renderer._compute.texture.get_image()
+				var presented = Vector3(
+					pixels.get_pixel(0, entry.offset).a,
+					pixels.get_pixel(1, entry.offset).a,
+					pixels.get_pixel(2, entry.offset).a
+				)
+				var current = _simulation_pose(entry)
+				_check(
+					((presented - current) * Vector3(1, 0, 1)).length() < .22,
+					"Catch-up pose lagged more than one simulation step: " + faction
+				)
+		physics_frame.disconnect(advance)
+		Engine.max_fps = 120
 		var authority = unit.global_transform
 		visual.fire_recoil()
 		_check(unit.global_transform == authority, "Recoil changed simulation position")
@@ -119,4 +145,11 @@ func _run():
 	for message in errors:
 		push_error(message)
 	print("Frame pacing regression: %d failures" % errors.size())
-	quit(0 if errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
+
+
+func _simulation_pose(entry) -> Vector3:
+	if entry.has("native_rig"):
+		var hierarchy = entry.visuals._pose_hierarchy
+		return hierarchy.world_for(entry.anchors[0]).origin
+	return entry.poses[0].origin if entry.has("poses") else entry.anchors[0].global_position

@@ -1,0 +1,146 @@
+{
+  "experimental_flag": "--native-unit-state",
+  "other_flags": [
+    "--native-crowd-runtime",
+    "--native-visibility-runtime",
+    "--native-nearest-surface"
+  ],
+  "rendered_additional_flag": "--native-pose-rigs",
+  "engine": "4.7.2.stable.official.ed1daf0bf",
+  "note": "Functional and rendered correctness, not production FPS evidence. Tests run serially.",
+  "history": [
+    "The initial movement oracle was disabled by the match-wide native runtime. Detaching its reference actors corrected the harness; 750 full comparisons then passed.",
+    "The first TechnologyRegression helper timed out at 180 wall seconds. A standalone full run completed all three factions without failures.",
+    "Initial save runs passed assertions but leaked 4 music resources on immediate SceneTree.quit; one also had the previously observed post-assertion engine access violation. The save-test base now awaits Globals.quit_game, matching production audio draining. The final save runs below have no warnings/errors. This is not proof that every historical engine shutdown crash is fixed."
+  ],
+  "checks": [
+    {
+      "test": "NativeUnitStateRegression",
+      "exit_code": 0,
+      "errors": [],
+      "warnings": [],
+      "comparisons": 26772,
+      "log": "native-unit-state-checks\\native-unit-state-parity.txt"
+    },
+    {
+      "test": "NativeVisibilityRegression",
+      "exit_code": 0,
+      "errors": [],
+      "warnings": [],
+      "comparisons": 19200,
+      "log": "native-unit-state-checks\\native-unit-state-NativeVisibilityRegression.txt"
+    },
+    {
+      "test": "NativeCrowdMovementRegression",
+      "exit_code": 0,
+      "errors": [],
+      "warnings": [],
+      "comparisons": 750,
+      "log": "native-unit-state-checks\\native-unit-state-tail-NativeCrowdMovementRegression.txt"
+    },
+    {
+      "test": "UnitAbilitiesRegression",
+      "exit_code": 0,
+      "errors": [],
+      "warnings": [],
+      "comparisons": null,
+      "log": "native-unit-state-checks\\native-unit-state-UnitAbilitiesRegression.txt"
+    },
+    {
+      "test": "WeaponModeRegression",
+      "exit_code": 0,
+      "errors": [],
+      "warnings": [],
+      "comparisons": null,
+      "log": "native-unit-state-checks\\native-unit-state-WeaponModeRegression.txt"
+    },
+    {
+      "test": "FixedWingFlightRegression",
+      "exit_code": 0,
+      "errors": [],
+      "warnings": [],
+      "comparisons": null,
+      "log": "native-unit-state-checks\\native-unit-state-FixedWingFlightRegression.txt"
+    },
+    {
+      "test": "GarrisonCombatExitRegression",
+      "exit_code": 0,
+      "errors": [],
+      "warnings": [],
+      "comparisons": null,
+      "log": "native-unit-state-checks\\native-unit-state-GarrisonCombatExitRegression.txt"
+    },
+    {
+      "test": "CombatRegression",
+      "exit_code": 0,
+      "errors": [],
+      "warnings": [],
+      "comparisons": null,
+      "log": "native-unit-state-checks\\native-unit-state-CombatRegression.txt"
+    },
+    {
+      "test": "AntiAirPriorityRegression",
+      "exit_code": 0,
+      "errors": [],
+      "warnings": [],
+      "comparisons": null,
+      "log": "native-unit-state-checks\\native-unit-state-AntiAirPriorityRegression.txt"
+    },
+    {
+      "test": "TechnologyRegression",
+      "exit_code": 0,
+      "errors": [],
+      "warnings": [],
+      "comparisons": null,
+      "log": "native-unit-state-checks\\native-unit-state-TechnologyRegression.txt"
+    },
+    {
+      "test": "HelixSupportRegression",
+      "exit_code": 0,
+      "errors": [],
+      "warnings": [],
+      "comparisons": null,
+      "log": "native-unit-state-checks\\native-unit-state-tail-HelixSupportRegression.txt"
+    },
+    {
+      "test": "InfantrySuppressionRegression",
+      "exit_code": 0,
+      "errors": [],
+      "warnings": [],
+      "comparisons": null,
+      "log": "native-unit-state-checks\\native-unit-state-tail-InfantrySuppressionRegression.txt"
+    },
+    {
+      "test": "SaveRestoreEdges",
+      "exit_code": 0,
+      "errors": [],
+      "warnings": [],
+      "comparisons": null,
+      "log": "native-unit-state-checks\\native-unit-state-save-drained.txt"
+    },
+    {
+      "test": "AirSaveContinuityRegression",
+      "exit_code": 0,
+      "errors": [],
+      "warnings": [],
+      "comparisons": null,
+      "log": "native-unit-state-checks\\native-unit-state-air-save-drained.txt"
+    },
+    {
+      "test": "FramePacingRegression",
+      "exit_code": 0,
+      "errors": [],
+      "warnings": [],
+      "comparisons": null,
+      "log": "native-unit-state-checks\\native-unit-state-frame-pacing.txt"
+    },
+    {
+      "test": "UnitBatchRegression",
+      "exit_code": 0,
+      "errors": [],
+      "warnings": [],
+      "comparisons": null,
+      "log": "native-unit-state-checks\\native-unit-state-unit-batch.txt"
+    }
+  ]
+}

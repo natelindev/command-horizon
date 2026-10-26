@@ -99,7 +99,7 @@ func _run():
 			% [models, largest_triangle_count, failures.size()]
 		)
 	)
-	quit(0 if failures.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if failures.is_empty() else 1)
 
 
 func _check(condition, message):

@@ -116,9 +116,13 @@ func _check_outcome(delta):
 		# Zero is a persistent eliminated state, including after save restoration.
 		if _defeat_timers[player] <= 0:
 			continue
-		var units = player.get_children().filter(
-			func(unit): return "type" in unit and not unit.is_queued_for_deletion()
-		)
+		# An existing, completed headquarters is itself a live unit. In the
+		# indexed path no whole-army scan is needed to establish survival.
+		if player.indexed_rosters and player.has_completed_structure("CommandCenter"):
+			_defeat_timers[player] = 60.0
+			survivors.append(player)
+			continue
+		var units = player.live_units()
 		if player.has_completed_structure("CommandCenter"):
 			_defeat_timers[player] = 60.0
 		else:

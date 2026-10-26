@@ -3,6 +3,7 @@ extends "res://source/match/units/actions/Action.gd"
 const AttackingWhileInRange = preload("res://source/match/units/actions/AttackingWhileInRange.gd")
 
 const REFRESH_INTERVAL = 1.0 / 60.0 * 10.0
+const Phase = preload("res://source/match/utils/UpdatePhase.gd")
 
 var _timer = null
 var _sub_action = null
@@ -16,7 +17,8 @@ func _ready():
 	_timer = Timer.new()
 	_timer.timeout.connect(_on_timer_timeout)
 	add_child(_timer)
-	_timer.start(REFRESH_INTERVAL)
+	_timer.start(Phase.first_delay(_unit, REFRESH_INTERVAL))
+	_timer.wait_time = REFRESH_INTERVAL
 
 
 func _to_string():
@@ -30,7 +32,7 @@ func is_idle():
 func _get_units_to_attack():
 	if "stance" in _unit and _unit.stance == _unit.Stance.HOLD_FIRE:
 		return []
-	var targets = _unit._match.battlefield.fireable_targets(_unit)
+	var targets = _unit._match.battlefield.in_range_targets(_unit)
 	if "stance" in _unit and _unit.stance == _unit.Stance.HOLD_POSITION:
 		return targets.filter(
 			func(target):

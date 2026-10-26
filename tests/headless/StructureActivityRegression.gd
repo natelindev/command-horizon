@@ -29,7 +29,7 @@ func _run():
 	for message in errors:
 		push_error(message)
 	print("Structure activity and departures: %d failures" % errors.size())
-	quit(0 if errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
 
 
 func _fixture(faction):

@@ -18,7 +18,12 @@ class PoseTransform:
 			transform.basis = value
 	var rotation: Vector3:
 		get:
-			return transform.basis.get_euler()
+			# Match Node3D's rotation/scale decomposition. Reading Euler angles
+			# directly from a scaled basis corrupts component writes such as +=.
+			var normalized = transform.basis.orthonormalized()
+			if normalized.determinant() < 0.0:
+				normalized = normalized.scaled(Vector3(-1, -1, -1))
+			return normalized.get_euler()
 		set(value):
 			transform.basis = Basis.from_euler(value).scaled_local(transform.basis.get_scale())
 	var scale: Vector3:
@@ -36,6 +41,9 @@ class Job:
 	var gesture := 0.0
 	var recoil := 0.0
 	var aiming := 0.0
+	var native_solved := false
+	var native_parts: Array = []
+	var native_config := PackedFloat64Array()
 
 	func configure(dt: float, travel: float, time: float, idle: float, kick: float, aim: float):
 		delta = dt
@@ -45,6 +53,7 @@ class Job:
 		recoil = kick
 		aiming = aim
 		pending = true
+		native_solved = false
 
 	func solve():
 		if pending:
@@ -70,6 +79,31 @@ func _init(motion, hierarchy = null):
 	for leg in motion.legs:
 		for index in leg.size():
 			leg[index] = _proxy(leg[index])
+	# Immutable rig/role data is captured once. The native kernel samples only
+	# compact motion state and these node-free local transforms for each batch.
+	job.native_parts = [motion.rig, motion.hips, motion.chest, motion.head, motion.weapon]
+	job.native_config = PackedFloat64Array(
+		[
+			motion.rig.scale.z,
+			motion._role[0],
+			motion._role[1],
+			motion._role[6],
+			motion._role[3],
+			1.0 if motion._role[4] else 0.0,
+			motion._role[5].x,
+			motion._role[5].y,
+			motion.head_rest.x,
+			motion.head_rest.y,
+			motion.head_rest.z,
+		]
+	)
+	for arm in motion.arms:
+		for part in ARM_PARTS:
+			job.native_parts.append(arm[part])
+		for vector in [arm.upper_rest, arm.lower_rest, arm.pole]:
+			job.native_config.append_array(PackedFloat64Array([vector.x, vector.y, vector.z]))
+	for leg in motion.legs:
+		job.native_parts.append_array(leg)
 
 
 func _proxy(node: Node3D):

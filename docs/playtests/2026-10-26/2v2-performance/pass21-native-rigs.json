@@ -1,0 +1,3084 @@
+{
+  "adapter": "NVIDIA GeForce RTX 4090",
+  "engine": "4.7.2-stable (official)",
+  "engine_errors": [],
+  "engine_warnings": [],
+  "failures": 0,
+  "final_counts": {
+    "active_unit_batch_groups": 286,
+    "batched_units": 560,
+    "largest_unit_batch": 9,
+    "mobile": 400,
+    "multimesh_nodes": 721,
+    "native_crowd_runtime": true,
+    "native_crowd_statistics": [
+      371350,
+      381786,
+      0,
+      360
+    ],
+    "native_infantry_fallbacks": 0,
+    "native_infantry_poses": false,
+    "native_infantry_solved": 0,
+    "native_nearest_surface": true,
+    "native_pose_rigs": true,
+    "native_rig_statistics": [
+      6314,
+      1033352,
+      2726971,
+      1217630,
+      6314
+    ],
+    "native_spatial_index": true,
+    "native_surface_statistics": [
+      4976,
+      1811,
+      40526,
+      597679,
+      3,
+      71902
+    ],
+    "native_terrain_outlines": true,
+    "native_terrain_sight": true,
+    "native_visibility_runtime": true,
+    "native_visibility_statistics": [
+      244096,
+      625412,
+      245468,
+      56314,
+      248321
+    ],
+    "pose_rows": 4383,
+    "projectiles": 21,
+    "render_pose_updates": true,
+    "resident_rigs": 560,
+    "shared_unit_batch_groups": 127,
+    "structures": 160,
+    "unit_batch_models": 88
+  },
+  "fixture_note": "Elevated fixture HP retains population; real weapons and effects remain active.",
+  "graphics": {
+    "ambience_volume": 0.55,
+    "area_lighting": false,
+    "battlefield_wear": true,
+    "camera_speed": 1.0,
+    "day_cycle": false,
+    "edge_scrolling": false,
+    "effects_volume": 0.75,
+    "environment_quality": 0,
+    "graphics_ao": true,
+    "graphics_clouds": true,
+    "graphics_dof": false,
+    "graphics_dust": true,
+    "graphics_fog": true,
+    "graphics_glow": true,
+    "graphics_ground_detail": true,
+    "graphics_liquids": true,
+    "graphics_msaa": 1,
+    "graphics_shadows": true,
+    "hdr_output": false,
+    "hdr_paper_white": 0.0,
+    "hdr_peak_nits": 0.0,
+    "hud_motion": true,
+    "interface_scale": 1.0,
+    "key_bindings": {
+      "keys": {
+        "attack_move": 70,
+        "attack_target": 65,
+        "commander_support": 4194337,
+        "cycle_subgroup": 4194306,
+        "force_attack": 268435521,
+        "move_map_down": 4194322,
+        "move_map_left": 4194319,
+        "move_map_right": 4194321,
+        "move_map_up": 4194320,
+        "move_order": 77,
+        "patrol_order": 80,
+        "pause_battle": 32,
+        "quickload_battle": 4194340,
+        "quicksave_battle": 4194336,
+        "rotate_map_clockwise": 81,
+        "rotate_map_counterclockwise": 69,
+        "rotate_structure": 82,
+        "shift_selecting": 4194325,
+        "toggle_match_menu": 4194305,
+        "unit_groups_access_1": 49,
+        "unit_groups_access_2": 50,
+        "unit_groups_access_3": 51,
+        "unit_groups_access_4": 52,
+        "unit_groups_access_5": 53,
+        "unit_groups_access_6": 54,
+        "unit_groups_access_7": 55,
+        "unit_groups_access_8": 56,
+        "unit_groups_access_9": 57,
+        "unit_groups_set_1": 268435505,
+        "unit_groups_set_2": 268435506,
+        "unit_groups_set_3": 268435507,
+        "unit_groups_set_4": 268435508,
+        "unit_groups_set_5": 268435509,
+        "unit_groups_set_6": 268435510,
+        "unit_groups_set_7": 268435511,
+        "unit_groups_set_8": 268435512,
+        "unit_groups_set_9": 268435513
+      },
+      "version": 5
+    },
+    "language": "en",
+    "living_world": true,
+    "master_volume": 0.8,
+    "menu_motion": true,
+    "mouse_restricted": false,
+    "music_volume": 0.5,
+    "ownership_symbols": true,
+    "reduced_flashes": false,
+    "screen": 1,
+    "subtitle_size": 22,
+    "subtitles": false,
+    "time_of_day": 0,
+    "voice_volume": 0.8,
+    "weather": 2,
+    "weather_particles": true,
+    "zoom_speed": 1.0
+  },
+  "live_commander_ai": true,
+  "mobile_per_player": 100,
+  "phases": [
+    {
+      "counts": {
+        "active_unit_batch_groups": 232,
+        "batched_units": 560,
+        "largest_unit_batch": 17,
+        "mobile": 400,
+        "multimesh_nodes": 474,
+        "native_crowd_runtime": true,
+        "native_crowd_statistics": [
+          97519,
+          97956,
+          0,
+          360
+        ],
+        "native_infantry_fallbacks": 0,
+        "native_infantry_poses": false,
+        "native_infantry_solved": 0,
+        "native_nearest_surface": true,
+        "native_pose_rigs": true,
+        "native_rig_statistics": [
+          6314,
+          207088,
+          495171,
+          169474,
+          6314
+        ],
+        "native_spatial_index": true,
+        "native_surface_statistics": [
+          4976,
+          1811,
+          7166,
+          103648,
+          3,
+          13091
+        ],
+        "native_terrain_outlines": true,
+        "native_terrain_sight": true,
+        "native_visibility_runtime": true,
+        "native_visibility_statistics": [
+          35519,
+          49188,
+          17619,
+          3808,
+          20542
+        ],
+        "pose_rows": 4383,
+        "projectiles": 4,
+        "render_pose_updates": true,
+        "resident_rigs": 560,
+        "shared_unit_batch_groups": 102,
+        "structures": 160,
+        "unit_batch_models": 88
+      },
+      "cpu_usage": {
+        "available": true,
+        "main_thread_cycles": 28435772880,
+        "main_thread_ms": 7875.0,
+        "main_thread_ms_per_frame": 121.153846153846,
+        "process_ms": 9265.625,
+        "process_ms_per_frame": 142.548076923077
+      },
+      "day_cycle": false,
+      "draw_calls": {
+        "max": 3048.0,
+        "mean": 2770.06153846154,
+        "p50": 2834.0,
+        "p95": 3037.0,
+        "p99": 3048.0
+      },
+      "end_hour": 14.0,
+      "focused_samples": 65,
+      "frame_ms": {
+        "max": 494.18,
+        "mean": 124.636430769231,
+        "p50": 114.933,
+        "p95": 179.205,
+        "p99": 494.18
+      },
+      "frames_over_budget": 65,
+      "gpu_ms": {
+        "max": 55.015998840332,
+        "mean": 31.0650307581975,
+        "p50": 24.2229995727539,
+        "p95": 52.5929985046387,
+        "p99": 55.015998840332
+      },
+      "mean_fps": 8.02333630567084,
+      "moving_units": 400,
+      "navigation_polygons": 4978.0,
+      "phase": "day_movement",
+      "physics_collision_pairs": 128.0,
+      "pixels": [
+        3840,
+        2160
+      ],
+      "primitives": {
+        "max": 5802427.0,
+        "mean": 5636812.75384615,
+        "p50": 5791575.0,
+        "p95": 5800521.0,
+        "p99": 5802427.0
+      },
+      "raw_frame_ms": [
+        215.674,
+        178.718,
+        132.979,
+        129.011,
+        114.766,
+        94.54,
+        91.415,
+        89.595,
+        133.458,
+        114.933,
+        89.372,
+        93.523,
+        70.895,
+        70.381,
+        109.011,
+        103.953,
+        99.222,
+        109.246,
+        98.468,
+        124.501,
+        133.95,
+        119.093,
+        110.78,
+        179.485,
+        136.392,
+        96.948,
+        96.414,
+        94.233,
+        118.816,
+        121.616,
+        97.099,
+        107.38,
+        106.017,
+        141.57,
+        146.661,
+        120.656,
+        494.18,
+        174.485,
+        173.013,
+        161.49,
+        135.148,
+        115.402,
+        138.736,
+        117.516,
+        101.6,
+        179.205,
+        158.721,
+        115.412,
+        120.556,
+        106.466,
+        109.823,
+        108.765,
+        94.933,
+        95.474,
+        92.651,
+        91.914,
+        94.154,
+        89.91,
+        97.443,
+        161.217,
+        118.444,
+        118.573,
+        117.84,
+        104.504,
+        123.022
+      ],
+      "real_time_ratio": 1.00389994557043,
+      "render_cpu_ms": {
+        "max": 5.11999988555908,
+        "mean": 2.83543076698597,
+        "p50": 2.75099992752075,
+        "p95": 3.7279999256134,
+        "p99": 5.11999988555908
+      },
+      "rendered_frames": 65,
+      "runtime_profile_us": {
+        "movement": [
+          141215,
+          320122,
+          522937,
+          0,
+          244,
+          244,
+          87840,
+          0
+        ],
+        "nearest_surface": [
+          12281,
+          6883
+        ],
+        "poses": [
+          101574,
+          211354,
+          20816,
+          395812,
+          40848,
+          101562,
+          354643,
+          244,
+          65,
+          65,
+          65,
+          65,
+          65,
+          65
+        ],
+        "scene_cpu": [
+          3875000,
+          2156250,
+          244,
+          65
+        ],
+        "scene_wall": [
+          3891342,
+          2286707,
+          244,
+          65
+        ],
+        "visibility": [
+          0,
+          57939,
+          49531,
+          7,
+          1227,
+          0,
+          28475,
+          31301,
+          5,
+          482
+        ]
+      },
+      "sampled_1s_navigation_max_ms": {
+        "max": 6.695,
+        "mean": 5.0190923076923,
+        "p50": 4.973,
+        "p95": 6.695,
+        "p99": 6.695
+      },
+      "sampled_1s_physics_max_ms": {
+        "max": 120.395,
+        "mean": 46.8230307692308,
+        "p50": 42.192,
+        "p95": 120.395,
+        "p99": 120.395
+      },
+      "sampled_1s_process_max_ms": {
+        "max": 458.338,
+        "mean": 111.1174,
+        "p50": 71.982,
+        "p95": 458.338,
+        "p99": 458.338
+      },
+      "samples": 65,
+      "shots": 60,
+      "simulation_seconds": 8.13333333332594,
+      "start_hour": 14.0,
+      "total_displacement_m": 6492.68781226873,
+      "wall_seconds": 8.101737,
+      "weather_option": 2
+    },
+    {
+      "counts": {
+        "active_unit_batch_groups": 282,
+        "batched_units": 560,
+        "largest_unit_batch": 7,
+        "mobile": 400,
+        "multimesh_nodes": 603,
+        "native_crowd_runtime": true,
+        "native_crowd_statistics": [
+          162750,
+          165800,
+          0,
+          360
+        ],
+        "native_infantry_fallbacks": 0,
+        "native_infantry_poses": false,
+        "native_infantry_solved": 0,
+        "native_nearest_surface": true,
+        "native_pose_rigs": true,
+        "native_rig_statistics": [
+          6314,
+          447994,
+          967933,
+          398140,
+          6314
+        ],
+        "native_spatial_index": true,
+        "native_surface_statistics": [
+          4976,
+          1811,
+          13308,
+          189140,
+          3,
+          23985
+        ],
+        "native_terrain_outlines": true,
+        "native_terrain_sight": true,
+        "native_visibility_runtime": true,
+        "native_visibility_statistics": [
+          93205,
+          225824,
+          88071,
+          20825,
+          88111
+        ],
+        "pose_rows": 4383,
+        "projectiles": 5,
+        "render_pose_updates": true,
+        "resident_rigs": 560,
+        "shared_unit_batch_groups": 132,
+        "structures": 160,
+        "unit_batch_models": 88
+      },
+      "cpu_usage": {
+        "available": true,
+        "main_thread_cycles": 28266507720,
+        "main_thread_ms": 7828.125,
+        "main_thread_ms_per_frame": 159.757653061224,
+        "process_ms": 9468.75,
+        "process_ms_per_frame": 193.239795918367
+      },
+      "day_cycle": false,
+      "draw_calls": {
+        "max": 4708.0,
+        "mean": 4530.91836734694,
+        "p50": 4497.0,
+        "p95": 4689.0,
+        "p99": 4708.0
+      },
+      "end_hour": 14.0,
+      "focused_samples": 49,
+      "frame_ms": {
+        "max": 325.741,
+        "mean": 164.726551020408,
+        "p50": 153.559,
+        "p95": 290.348,
+        "p99": 325.741
+      },
+      "frames_over_budget": 49,
+      "gpu_ms": {
+        "max": 60.306999206543,
+        "mean": 33.7280612089196,
+        "p50": 25.7150001525879,
+        "p95": 56.7949981689453,
+        "p99": 60.306999206543
+      },
+      "mean_fps": 6.07066677354344,
+      "moving_units": 310,
+      "navigation_polygons": 4978.0,
+      "phase": "day_combat",
+      "physics_collision_pairs": 142.0,
+      "pixels": [
+        3840,
+        2160
+      ],
+      "primitives": {
+        "max": 5857187.0,
+        "mean": 5846146.14285714,
+        "p50": 5846483.0,
+        "p95": 5851423.0,
+        "p99": 5857187.0
+      },
+      "raw_frame_ms": [
+        126.887,
+        177.543,
+        325.741,
+        225.264,
+        170.626,
+        130.507,
+        140.599,
+        167.119,
+        106.116,
+        120.542,
+        118.611,
+        266.35,
+        159.592,
+        131.833,
+        142.162,
+        109.875,
+        123.283,
+        159.872,
+        154.915,
+        135.497,
+        130.277,
+        313.634,
+        182.323,
+        156.772,
+        123.34,
+        121.302,
+        93.668,
+        142.123,
+        111.448,
+        141.221,
+        125.388,
+        284.139,
+        172.905,
+        168.032,
+        139.919,
+        155.749,
+        129.564,
+        184.212,
+        143.454,
+        139.174,
+        290.348,
+        159.732,
+        153.559,
+        143.407,
+        161.202,
+        165.132,
+        156.669,
+        276.64,
+        213.334
+      ],
+      "real_time_ratio": 0.999345717620992,
+      "render_cpu_ms": {
+        "max": 5.96600008010864,
+        "mean": 3.75397959534003,
+        "p50": 3.66799998283386,
+        "p95": 4.42600011825562,
+        "p99": 5.96600008010864
+      },
+      "rendered_frames": 49,
+      "runtime_profile_us": {
+        "movement": [
+          146347,
+          443995,
+          419202,
+          0,
+          242,
+          242,
+          87120,
+          0
+        ],
+        "nearest_surface": [
+          9822,
+          5669
+        ],
+        "poses": [
+          102285,
+          174202,
+          25390,
+          509517,
+          46917,
+          104846,
+          285162,
+          242,
+          49,
+          49,
+          49,
+          49,
+          49,
+          49
+        ],
+        "scene_cpu": [
+          3296875,
+          2609375,
+          242,
+          49
+        ],
+        "scene_wall": [
+          3518837,
+          2748805,
+          242,
+          49
+        ],
+        "visibility": [
+          0,
+          213798,
+          59669,
+          38,
+          22512,
+          0,
+          44479,
+          45539,
+          54,
+          9388
+        ]
+      },
+      "sampled_1s_navigation_max_ms": {
+        "max": 5.865,
+        "mean": 3.59177551020408,
+        "p50": 3.607,
+        "p95": 3.712,
+        "p99": 5.865
+      },
+      "sampled_1s_physics_max_ms": {
+        "max": 158.503,
+        "mean": 53.0907142857142,
+        "p50": 48.298,
+        "p95": 158.503,
+        "p99": 158.503
+      },
+      "sampled_1s_process_max_ms": {
+        "max": 157.509,
+        "mean": 118.90187755102,
+        "p50": 141.648,
+        "p95": 157.509,
+        "p99": 157.509
+      },
+      "samples": 49,
+      "shots": 700,
+      "simulation_seconds": 8.06666666665933,
+      "start_hour": 14.0,
+      "total_displacement_m": 4156.9930038248,
+      "wall_seconds": 8.071948,
+      "weather_option": 2
+    },
+    {
+      "counts": {
+        "active_unit_batch_groups": 282,
+        "batched_units": 560,
+        "largest_unit_batch": 7,
+        "mobile": 400,
+        "multimesh_nodes": 629,
+        "native_crowd_runtime": true,
+        "native_crowd_statistics": [
+          225176,
+          230674,
+          0,
+          360
+        ],
+        "native_infantry_fallbacks": 0,
+        "native_infantry_poses": false,
+        "native_infantry_solved": 0,
+        "native_nearest_surface": true,
+        "native_pose_rigs": true,
+        "native_rig_statistics": [
+          6314,
+          639401,
+          1352124,
+          583663,
+          6314
+        ],
+        "native_spatial_index": true,
+        "native_surface_statistics": [
+          4976,
+          1811,
+          21690,
+          312859,
+          3,
+          38604
+        ],
+        "native_terrain_outlines": true,
+        "native_terrain_sight": true,
+        "native_visibility_runtime": true,
+        "native_visibility_statistics": [
+          139691,
+          382460,
+          140221,
+          34218,
+          139517
+        ],
+        "pose_rows": 4383,
+        "projectiles": 8,
+        "render_pose_updates": true,
+        "resident_rigs": 560,
+        "shared_unit_batch_groups": 135,
+        "structures": 160,
+        "unit_batch_models": 88
+      },
+      "cpu_usage": {
+        "available": true,
+        "main_thread_cycles": 28415037240,
+        "main_thread_ms": 7859.375,
+        "main_thread_ms_per_frame": 174.652777777778,
+        "process_ms": 8984.375,
+        "process_ms_per_frame": 199.652777777778
+      },
+      "day_cycle": false,
+      "draw_calls": {
+        "max": 4844.0,
+        "mean": 4752.68888888889,
+        "p50": 4778.0,
+        "p95": 4829.0,
+        "p99": 4844.0
+      },
+      "end_hour": 0.0,
+      "focused_samples": 45,
+      "frame_ms": {
+        "max": 472.759,
+        "mean": 179.970822222222,
+        "p50": 152.931,
+        "p95": 345.013,
+        "p99": 472.759
+      },
+      "frames_over_budget": 45,
+      "gpu_ms": {
+        "max": 58.1510009765625,
+        "mean": 38.5091554853651,
+        "p50": 25.3390007019043,
+        "p95": 57.7719993591309,
+        "p99": 58.1510009765625
+      },
+      "mean_fps": 5.5564562502539,
+      "moving_units": 307,
+      "navigation_polygons": 4978.0,
+      "phase": "night_combat",
+      "physics_collision_pairs": 144.0,
+      "pixels": [
+        3840,
+        2160
+      ],
+      "primitives": {
+        "max": 5859946.0,
+        "mean": 5842739.42222222,
+        "p50": 5842306.0,
+        "p95": 5848944.0,
+        "p99": 5859946.0
+      },
+      "raw_frame_ms": [
+        213.817,
+        204.112,
+        170.758,
+        152.931,
+        472.759,
+        253.479,
+        208.055,
+        165.665,
+        139.278,
+        148.374,
+        130.011,
+        127.089,
+        345.013,
+        246.146,
+        355.676,
+        207.845,
+        168.049,
+        196.288,
+        174.487,
+        329.958,
+        166.003,
+        159.433,
+        157.11,
+        131.803,
+        128.377,
+        133.996,
+        152.165,
+        134.922,
+        256.512,
+        173.513,
+        137.473,
+        144.405,
+        142.547,
+        140.799,
+        131.427,
+        120.389,
+        124.407,
+        124.761,
+        258.346,
+        153.043,
+        130.46,
+        117.147,
+        116.193,
+        136.885,
+        116.781
+      ],
+      "real_time_ratio": 0.987772365881839,
+      "render_cpu_ms": {
+        "max": 5.75799989700317,
+        "mean": 3.96286666128371,
+        "p50": 3.86999988555908,
+        "p95": 4.81300020217896,
+        "p99": 5.75799989700317
+      },
+      "rendered_frames": 45,
+      "runtime_profile_us": {
+        "movement": [
+          142451,
+          438440,
+          422542,
+          0,
+          240,
+          240,
+          86400,
+          0
+        ],
+        "nearest_surface": [
+          12876,
+          7576
+        ],
+        "poses": [
+          107524,
+          164572,
+          21177,
+          454664,
+          41240,
+          96620,
+          264385,
+          240,
+          45,
+          45,
+          45,
+          45,
+          45,
+          45
+        ],
+        "scene_cpu": [
+          3906250,
+          2453125,
+          240,
+          45
+        ],
+        "scene_wall": [
+          3748285,
+          2563984,
+          240,
+          45
+        ],
+        "visibility": [
+          0,
+          202738,
+          111290,
+          126,
+          20112,
+          0,
+          41670,
+          97400,
+          194,
+          8528
+        ]
+      },
+      "sampled_1s_navigation_max_ms": {
+        "max": 5.959,
+        "mean": 4.10377777777778,
+        "p50": 3.604,
+        "p95": 5.959,
+        "p99": 5.959
+      },
+      "sampled_1s_physics_max_ms": {
+        "max": 153.414,
+        "mean": 57.1288888888889,
+        "p50": 41.461,
+        "p95": 153.414,
+        "p99": 153.414
+      },
+      "sampled_1s_process_max_ms": {
+        "max": 178.324,
+        "mean": 117.326955555556,
+        "p50": 129.627,
+        "p95": 178.324,
+        "p99": 178.324
+      },
+      "samples": 45,
+      "shots": 704,
+      "simulation_seconds": 7.99999999999272,
+      "start_hour": 0.0,
+      "total_displacement_m": 3522.11602259068,
+      "wall_seconds": 8.099032,
+      "weather_option": 2
+    },
+    {
+      "counts": {
+        "active_unit_batch_groups": 292,
+        "batched_units": 560,
+        "largest_unit_batch": 8,
+        "mobile": 400,
+        "multimesh_nodes": 671,
+        "native_crowd_runtime": true,
+        "native_crowd_statistics": [
+          290660,
+          298814,
+          0,
+          360
+        ],
+        "native_infantry_fallbacks": 0,
+        "native_infantry_poses": false,
+        "native_infantry_solved": 0,
+        "native_nearest_surface": true,
+        "native_pose_rigs": true,
+        "native_rig_statistics": [
+          6314,
+          763372,
+          2097107,
+          937327,
+          6314
+        ],
+        "native_spatial_index": true,
+        "native_surface_statistics": [
+          4976,
+          1811,
+          29790,
+          436235,
+          3,
+          53385
+        ],
+        "native_terrain_outlines": true,
+        "native_terrain_sight": true,
+        "native_visibility_runtime": true,
+        "native_visibility_statistics": [
+          186507,
+          480019,
+          189698,
+          42739,
+          190243
+        ],
+        "pose_rows": 4383,
+        "projectiles": 3,
+        "render_pose_updates": true,
+        "resident_rigs": 560,
+        "shared_unit_batch_groups": 131,
+        "structures": 160,
+        "unit_batch_models": 88
+      },
+      "cpu_usage": {
+        "available": true,
+        "main_thread_cycles": 28361893680,
+        "main_thread_ms": 7906.25,
+        "main_thread_ms_per_frame": 89.84375,
+        "process_ms": 8296.875,
+        "process_ms_per_frame": 94.2826704545455
+      },
+      "day_cycle": false,
+      "draw_calls": {
+        "max": 1781.0,
+        "mean": 1779.04545454545,
+        "p50": 1780.0,
+        "p95": 1780.0,
+        "p99": 1781.0
+      },
+      "end_hour": 0.0,
+      "focused_samples": 88,
+      "frame_ms": {
+        "max": 365.57,
+        "mean": 91.2652727272727,
+        "p50": 80.033,
+        "p95": 201.56,
+        "p99": 365.57
+      },
+      "frames_over_budget": 88,
+      "gpu_ms": {
+        "max": 47.9099998474121,
+        "mean": 24.3064431710677,
+        "p50": 20.423999786377,
+        "p95": 46.3810005187988,
+        "p99": 47.9099998474121
+      },
+      "mean_fps": 10.9570701989605,
+      "moving_units": 304,
+      "navigation_polygons": 4978.0,
+      "phase": "night_base",
+      "physics_collision_pairs": 112.0,
+      "pixels": [
+        3840,
+        2160
+      ],
+      "primitives": {
+        "max": 1350981.0,
+        "mean": 1348202.09090909,
+        "p50": 1349981.0,
+        "p95": 1350953.0,
+        "p99": 1350981.0
+      },
+      "raw_frame_ms": [
+        97.928,
+        107.557,
+        90.696,
+        99.724,
+        86.245,
+        64.279,
+        65.917,
+        71.314,
+        117.985,
+        163.496,
+        365.57,
+        175.578,
+        135.553,
+        110.77,
+        124.922,
+        84.799,
+        88.762,
+        65.578,
+        76.053,
+        81.042,
+        82.023,
+        64.144,
+        71.56,
+        224.072,
+        97.985,
+        105.986,
+        80.674,
+        92.448,
+        83.882,
+        67.077,
+        66.011,
+        61.495,
+        74.005,
+        62.129,
+        67.535,
+        61.392,
+        70.73,
+        58.41,
+        66.845,
+        59.635,
+        65.662,
+        60.044,
+        210.736,
+        103.387,
+        92.265,
+        91.396,
+        85.349,
+        89.158,
+        67.503,
+        84.266,
+        69.145,
+        76.899,
+        72.76,
+        77.304,
+        63.871,
+        65.546,
+        58.621,
+        62.293,
+        45.343,
+        59.409,
+        63.216,
+        201.56,
+        99.589,
+        92.359,
+        73.198,
+        80.033,
+        159.318,
+        115.929,
+        97.558,
+        84.154,
+        103.497,
+        78.753,
+        62.853,
+        61.634,
+        55.184,
+        47.784,
+        59.945,
+        43.645,
+        231.691,
+        109.382,
+        96.7,
+        81.118,
+        105.943,
+        80.933,
+        67.12,
+        60.715,
+        60.907,
+        63.863
+      ],
+      "real_time_ratio": 1.00019925131052,
+      "render_cpu_ms": {
+        "max": 2.97000002861023,
+        "mean": 1.85151136327874,
+        "p50": 1.86099994182587,
+        "p95": 2.36899995803833,
+        "p99": 2.97000002861023
+      },
+      "rendered_frames": 88,
+      "runtime_profile_us": {
+        "movement": [
+          142244,
+          418219,
+          420193,
+          0,
+          241,
+          241,
+          86760,
+          0
+        ],
+        "nearest_surface": [
+          12616,
+          6978
+        ],
+        "poses": [
+          100359,
+          287823,
+          10739,
+          70052,
+          178,
+          167751,
+          461911,
+          241,
+          88,
+          88,
+          88,
+          88,
+          88,
+          88
+        ],
+        "scene_cpu": [
+          3203125,
+          2812500,
+          241,
+          88
+        ],
+        "scene_wall": [
+          3219150,
+          2889628,
+          241,
+          88
+        ],
+        "visibility": [
+          0,
+          179105,
+          63093,
+          150,
+          21323,
+          0,
+          40690,
+          49825,
+          188,
+          8789
+        ]
+      },
+      "sampled_1s_navigation_max_ms": {
+        "max": 6.089,
+        "mean": 4.21823863636364,
+        "p50": 3.884,
+        "p95": 6.089,
+        "p99": 6.089
+      },
+      "sampled_1s_physics_max_ms": {
+        "max": 97.289,
+        "mean": 44.4043068181818,
+        "p50": 34.985,
+        "p95": 97.289,
+        "p99": 97.289
+      },
+      "sampled_1s_process_max_ms": {
+        "max": 183.549,
+        "mean": 101.759056818182,
+        "p50": 120.595,
+        "p95": 183.549,
+        "p99": 183.549
+      },
+      "samples": 88,
+      "shots": 746,
+      "simulation_seconds": 8.03333333332603,
+      "start_hour": 0.0,
+      "total_displacement_m": 4170.91919747653,
+      "wall_seconds": 8.031733,
+      "weather_option": 2
+    },
+    {
+      "counts": {
+        "active_unit_batch_groups": 287,
+        "batched_units": 560,
+        "largest_unit_batch": 9,
+        "mobile": 400,
+        "multimesh_nodes": 720,
+        "native_crowd_runtime": true,
+        "native_crowd_statistics": [
+          371350,
+          381786,
+          0,
+          360
+        ],
+        "native_infantry_fallbacks": 0,
+        "native_infantry_poses": false,
+        "native_infantry_solved": 0,
+        "native_nearest_surface": true,
+        "native_pose_rigs": true,
+        "native_rig_statistics": [
+          6314,
+          1030157,
+          2719467,
+          1214427,
+          6314
+        ],
+        "native_spatial_index": true,
+        "native_surface_statistics": [
+          4976,
+          1811,
+          40526,
+          597679,
+          3,
+          71902
+        ],
+        "native_terrain_outlines": true,
+        "native_terrain_sight": true,
+        "native_visibility_runtime": true,
+        "native_visibility_statistics": [
+          243850,
+          625152,
+          245126,
+          56300,
+          247961
+        ],
+        "pose_rows": 4383,
+        "projectiles": 5,
+        "render_pose_updates": true,
+        "resident_rigs": 560,
+        "shared_unit_batch_groups": 128,
+        "structures": 160,
+        "unit_batch_models": 88
+      },
+      "cpu_usage": {
+        "available": true,
+        "main_thread_cycles": 28373260320,
+        "main_thread_ms": 7796.875,
+        "main_thread_ms_per_frame": 121.826171875,
+        "process_ms": 8765.625,
+        "process_ms_per_frame": 136.962890625
+      },
+      "day_cycle": true,
+      "draw_calls": {
+        "max": 5660.0,
+        "mean": 5520.390625,
+        "p50": 5535.0,
+        "p95": 5642.0,
+        "p99": 5660.0
+      },
+      "end_hour": 12.8216666666659,
+      "focused_samples": 64,
+      "frame_ms": {
+        "max": 282.845,
+        "mean": 126.4518125,
+        "p50": 117.783,
+        "p95": 231.855,
+        "p99": 282.845
+      },
+      "frames_over_budget": 64,
+      "gpu_ms": {
+        "max": 56.0470008850098,
+        "mean": 29.0436875522137,
+        "p50": 24.878999710083,
+        "p95": 55.1650009155273,
+        "p99": 56.0470008850098
+      },
+      "mean_fps": 7.90815078273394,
+      "moving_units": 304,
+      "navigation_polygons": 4978.0,
+      "phase": "cycling_weather_combat",
+      "physics_collision_pairs": 144.0,
+      "pixels": [
+        3840,
+        2160
+      ],
+      "primitives": {
+        "max": 5796773.0,
+        "mean": 5689450.0625,
+        "p50": 5730605.0,
+        "p95": 5793775.0,
+        "p99": 5796773.0
+      },
+      "raw_frame_ms": [
+        141.443,
+        142.905,
+        110.176,
+        100.702,
+        103.607,
+        282.845,
+        154.258,
+        140.9,
+        141.315,
+        121.57,
+        118.464,
+        101.889,
+        93.372,
+        119.777,
+        116.97,
+        99.19,
+        103.235,
+        257.413,
+        146.328,
+        152.318,
+        139.788,
+        129.5,
+        119.896,
+        107.226,
+        97.3,
+        118.181,
+        86.676,
+        90.336,
+        76.936,
+        213.81,
+        156.416,
+        117.783,
+        137.941,
+        104.269,
+        125.878,
+        90.557,
+        96.044,
+        93.927,
+        98.036,
+        128.831,
+        107.719,
+        108.465,
+        231.855,
+        135.461,
+        111.398,
+        118.207,
+        90.941,
+        114.389,
+        85.601,
+        88.935,
+        74.399,
+        80.45,
+        75.154,
+        85.05,
+        102.428,
+        90.336,
+        93.331,
+        225.656,
+        163.583,
+        125.374,
+        248.61,
+        179.442,
+        155.044,
+        123.08
+      ],
+      "real_time_ratio": 1.00494821674731,
+      "render_cpu_ms": {
+        "max": 5.4980001449585,
+        "mean": 3.69985938444734,
+        "p50": 3.68300008773804,
+        "p95": 4.23099994659424,
+        "p99": 5.4980001449585
+      },
+      "rendered_frames": 64,
+      "runtime_profile_us": {
+        "movement": [
+          144548,
+          436902,
+          420919,
+          0,
+          244,
+          244,
+          87840,
+          0
+        ],
+        "nearest_surface": [
+          12933,
+          7677
+        ],
+        "poses": [
+          96326,
+          216173,
+          23866,
+          434321,
+          43976,
+          122476,
+          342142,
+          244,
+          64,
+          64,
+          64,
+          64,
+          64,
+          64
+        ],
+        "scene_cpu": [
+          3218750,
+          2687500,
+          244,
+          64
+        ],
+        "scene_wall": [
+          3318115,
+          2862725,
+          244,
+          64
+        ],
+        "visibility": [
+          0,
+          177025,
+          86285,
+          127,
+          17514,
+          0,
+          41458,
+          80727,
+          181,
+          7143
+        ]
+      },
+      "sampled_1s_navigation_max_ms": {
+        "max": 4.356,
+        "mean": 3.62734375,
+        "p50": 3.559,
+        "p95": 4.356,
+        "p99": 4.356
+      },
+      "sampled_1s_physics_max_ms": {
+        "max": 40.696,
+        "mean": 36.262515625,
+        "p50": 36.406,
+        "p95": 40.696,
+        "p99": 40.696
+      },
+      "sampled_1s_process_max_ms": {
+        "max": 133.481,
+        "mean": 104.485203125,
+        "p50": 126.335,
+        "p95": 133.481,
+        "p99": 133.481
+      },
+      "samples": 64,
+      "shots": 634,
+      "simulation_seconds": 8.13333333332594,
+      "start_hour": 12.6861111111105,
+      "total_displacement_m": 4032.76946588792,
+      "wall_seconds": 8.093286,
+      "weather_option": 3
+    }
+  ],
+  "physics_ticks_per_second": 30,
+  "release": true,
+  "resolution": [
+    3840,
+    2160
+  ],
+  "scale_3d": 1.0,
+  "status": "valid",
+  "structure_layout": [
+    {
+      "player": 0,
+      "position": [
+        24.0,
+        0.0,
+        24.0
+      ],
+      "role": "CommandCenter",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        40.0,
+        0.0,
+        24.0
+      ],
+      "role": "AircraftFactory",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        31.0,
+        0.0,
+        24.0
+      ],
+      "role": "CommandLab",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        26.678783416748,
+        0.0,
+        30.467155456543
+      ],
+      "role": "RepairDepot",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        21.321216583252,
+        0.0,
+        30.467155456543
+      ],
+      "role": "Barracks",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        31.0710678100586,
+        0.0,
+        31.0710678100586
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        31.0710678100586,
+        0.0,
+        16.9289321899414
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        24.0,
+        0.0,
+        38.0
+      ],
+      "role": "VehicleFactory",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        14.1005048751831,
+        0.0,
+        33.8994941711426
+      ],
+      "role": "AntiGroundTurret",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        11.0656871795654,
+        0.0,
+        29.3575668334961
+      ],
+      "role": "AntiAirTurret",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        10.0,
+        0.0,
+        24.0
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        14.1005048751831,
+        0.0,
+        14.1005048751831
+      ],
+      "role": "CommandLab",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        29.3575668334961,
+        0.0,
+        11.0656871795654
+      ],
+      "role": "RepairDepot",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        30.8883018493652,
+        0.0,
+        40.6298294067383
+      ],
+      "role": "Barracks",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        24.0,
+        0.0,
+        10.0
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        7.37016868591309,
+        0.0,
+        17.1116981506348
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        17.1116981506348,
+        0.0,
+        7.37016868591309
+      ],
+      "role": "VehicleFactory",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        30.8883018493652,
+        0.0,
+        7.37016868591309
+      ],
+      "role": "AntiGroundTurret",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        24.0,
+        0.0,
+        46.0
+      ],
+      "role": "AntiAirTurret",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        3.67465019226074,
+        0.0,
+        32.4190368652344
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        8.44365119934082,
+        0.0,
+        8.44365119934082
+      ],
+      "role": "CommandLab",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        51.0,
+        0.0,
+        36.0
+      ],
+      "role": "RepairDepot",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        48.9497489929199,
+        0.0,
+        40.9497489929199
+      ],
+      "role": "Barracks",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        41.321216583252,
+        0.0,
+        42.467155456543
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        51.0710678100586,
+        0.0,
+        28.9289321899414
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        58.0,
+        0.0,
+        36.0
+      ],
+      "role": "VehicleFactory",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        39.5563507080078,
+        0.0,
+        8.44365119934082
+      ],
+      "role": "AntiGroundTurret",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        53.8994941711426,
+        0.0,
+        45.8994941711426
+      ],
+      "role": "AntiAirTurret",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        49.3575668334961,
+        0.0,
+        48.9343109130859
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        38.6424331665039,
+        0.0,
+        48.9343109130859
+      ],
+      "role": "CommandLab",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        60.6298294067383,
+        0.0,
+        42.8883018493652
+      ],
+      "role": "RepairDepot",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        44.0,
+        0.0,
+        54.0
+      ],
+      "role": "Barracks",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        31.2720794677734,
+        0.0,
+        48.7279205322266
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        50.8883018493652,
+        0.0,
+        19.3701686859131
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        56.7279205322266,
+        0.0,
+        23.2720794677734
+      ],
+      "role": "VehicleFactory",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        60.6298294067383,
+        0.0,
+        29.1116981506348
+      ],
+      "role": "AntiGroundTurret",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        66.0,
+        0.0,
+        36.0
+      ],
+      "role": "AntiAirTurret",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        64.3253479003906,
+        0.0,
+        44.4190368652344
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        59.5563507080078,
+        0.0,
+        51.5563507080078
+      ],
+      "role": "CommandLab",
+      "yaw": 0.0
+    },
+    {
+      "player": 0,
+      "position": [
+        52.4190368652344,
+        0.0,
+        56.3253479003906
+      ],
+      "role": "RepairDepot",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        200.0,
+        0.0,
+        24.0000076293945
+      ],
+      "role": "CommandCenter",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        216.0,
+        0.0,
+        24.0000076293945
+      ],
+      "role": "AircraftFactory",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        204.949752807617,
+        0.0,
+        28.9497547149658
+      ],
+      "role": "CommandLab",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        197.321212768555,
+        0.0,
+        30.4671630859375
+      ],
+      "role": "RepairDepot",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        193.532836914063,
+        0.0,
+        26.6787910461426
+      ],
+      "role": "Barracks",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        195.050247192383,
+        0.0,
+        19.0502605438232
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        200.0,
+        0.0,
+        34.0000076293945
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        190.100509643555,
+        0.0,
+        33.8995018005371
+      ],
+      "role": "VehicleFactory",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        205.357574462891,
+        0.0,
+        36.9343185424805
+      ],
+      "role": "AntiGroundTurret",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        186.0,
+        0.0,
+        24.0000076293945
+      ],
+      "role": "AntiAirTurret",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        187.065689086914,
+        0.0,
+        18.6424407958984
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        194.642425537109,
+        0.0,
+        11.06569480896
+      ],
+      "role": "CommandLab",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        205.357574462891,
+        0.0,
+        11.06569480896
+      ],
+      "role": "RepairDepot",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        200.0,
+        0.0,
+        42.0000076293945
+      ],
+      "role": "Barracks",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        193.111694335938,
+        0.0,
+        40.6298370361328
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        183.370162963867,
+        0.0,
+        30.8883094787598
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        200.0,
+        0.0,
+        6.00000762939453
+      ],
+      "role": "VehicleFactory",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        190.100509643555,
+        0.0,
+        14.1005125045776
+      ],
+      "role": "AntiGroundTurret",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        206.888305664063,
+        0.0,
+        7.37017631530762
+      ],
+      "role": "AntiAirTurret",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        208.419036865234,
+        0.0,
+        44.3253555297852
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        184.443649291992,
+        0.0,
+        39.5563583374023
+      ],
+      "role": "CommandLab",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        178.0,
+        0.0,
+        24.0000076293945
+      ],
+      "role": "RepairDepot",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        191.580963134766,
+        0.0,
+        3.67465782165527
+      ],
+      "role": "Barracks",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        177.321212768555,
+        0.0,
+        42.4671630859375
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        173.0,
+        0.0,
+        36.0000076293945
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        172.928924560547,
+        0.0,
+        28.9289398193359
+      ],
+      "role": "VehicleFactory",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        215.556350708008,
+        0.0,
+        8.44365882873535
+      ],
+      "role": "AntiGroundTurret",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        183.82682800293,
+        0.0,
+        45.2388038635254
+      ],
+      "role": "AntiAirTurret",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        189.899490356445,
+        0.0,
+        45.8995018005371
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        180.0,
+        0.0,
+        50.0000076293945
+      ],
+      "role": "CommandLab",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        170.100509643555,
+        0.0,
+        45.8995018005371
+      ],
+      "role": "RepairDepot",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        167.065689086914,
+        0.0,
+        41.3575744628906
+      ],
+      "role": "Barracks",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        186.888305664063,
+        0.0,
+        52.6298370361328
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        173.111694335938,
+        0.0,
+        52.6298370361328
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        162.0,
+        0.0,
+        36.0000076293945
+      ],
+      "role": "VehicleFactory",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        167.065689086914,
+        0.0,
+        30.6424407958984
+      ],
+      "role": "AntiGroundTurret",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        174.642425537109,
+        0.0,
+        23.06569480896
+      ],
+      "role": "AntiAirTurret",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        167.272079467773,
+        0.0,
+        48.7279281616211
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        167.272079467773,
+        0.0,
+        23.272087097168
+      ],
+      "role": "CommandLab",
+      "yaw": 0.0
+    },
+    {
+      "player": 1,
+      "position": [
+        195.556350708008,
+        0.0,
+        51.5563583374023
+      ],
+      "role": "RepairDepot",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        200.0,
+        0.0,
+        200.0
+      ],
+      "role": "CommandCenter",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        216.0,
+        0.0,
+        200.0
+      ],
+      "role": "AircraftFactory",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        195.050247192383,
+        0.0,
+        204.949752807617
+      ],
+      "role": "CommandLab",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        193.532836914063,
+        0.0,
+        197.321212768555
+      ],
+      "role": "RepairDepot",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        197.321212768555,
+        0.0,
+        193.532836914063
+      ],
+      "role": "Barracks",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        204.949752807617,
+        0.0,
+        195.050247192383
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        190.0,
+        0.0,
+        200.0
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        190.100509643555,
+        0.0,
+        209.899490356445
+      ],
+      "role": "VehicleFactory",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        205.357574462891,
+        0.0,
+        212.934310913086
+      ],
+      "role": "AntiGroundTurret",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        200.0,
+        0.0,
+        214.0
+      ],
+      "role": "AntiAirTurret",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        187.065689086914,
+        0.0,
+        194.642425537109
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        194.642425537109,
+        0.0,
+        187.065689086914
+      ],
+      "role": "CommandLab",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        205.357574462891,
+        0.0,
+        187.065689086914
+      ],
+      "role": "RepairDepot",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        193.111694335938,
+        0.0,
+        216.629837036133
+      ],
+      "role": "Barracks",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        183.370162963867,
+        0.0,
+        206.888305664063
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        182.0,
+        0.0,
+        200.0
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        187.272079467773,
+        0.0,
+        187.272079467773
+      ],
+      "role": "VehicleFactory",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        200.0,
+        0.0,
+        186.0
+      ],
+      "role": "AntiGroundTurret",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        208.419036865234,
+        0.0,
+        220.325347900391
+      ],
+      "role": "AntiAirTurret",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        184.443649291992,
+        0.0,
+        215.556350708008
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        179.674652099609,
+        0.0,
+        191.580963134766
+      ],
+      "role": "CommandLab",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        191.580963134766,
+        0.0,
+        179.674652099609
+      ],
+      "role": "RepairDepot",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        200.0,
+        0.0,
+        178.0
+      ],
+      "role": "Barracks",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        173.532836914063,
+        0.0,
+        190.678787231445
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        175.050247192383,
+        0.0,
+        183.050247192383
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        182.678787231445,
+        0.0,
+        181.532836914063
+      ],
+      "role": "VehicleFactory",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        176.17317199707,
+        0.0,
+        197.238800048828
+      ],
+      "role": "AntiGroundTurret",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        170.100509643555,
+        0.0,
+        197.899490356445
+      ],
+      "role": "AntiAirTurret",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        167.065689086914,
+        0.0,
+        193.357574462891
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        167.065689086914,
+        0.0,
+        182.642425537109
+      ],
+      "role": "CommandLab",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        174.642425537109,
+        0.0,
+        175.065689086914
+      ],
+      "role": "RepairDepot",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        180.0,
+        0.0,
+        174.0
+      ],
+      "role": "Barracks",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        173.111694335938,
+        0.0,
+        204.629837036133
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        162.0,
+        0.0,
+        188.0
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        167.272079467773,
+        0.0,
+        175.272079467773
+      ],
+      "role": "VehicleFactory",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        185.357574462891,
+        0.0,
+        175.065689086914
+      ],
+      "role": "AntiGroundTurret",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        173.111694335938,
+        0.0,
+        171.370162963867
+      ],
+      "role": "AntiAirTurret",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        192.727920532227,
+        0.0,
+        175.272079467773
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        164.443649291992,
+        0.0,
+        203.556350708008
+      ],
+      "role": "CommandLab",
+      "yaw": 0.0
+    },
+    {
+      "player": 2,
+      "position": [
+        159.674652099609,
+        0.0,
+        196.419036865234
+      ],
+      "role": "RepairDepot",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        24.0,
+        0.0,
+        200.0
+      ],
+      "role": "CommandCenter",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        40.0,
+        0.0,
+        200.0
+      ],
+      "role": "AircraftFactory",
+      "yaw": 2.35619449615479
+    },
+    {
+      "player": 3,
+      "position": [
+        19.0502529144287,
+        0.0,
+        195.050247192383
+      ],
+      "role": "CommandLab",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        26.678783416748,
+        0.0,
+        193.532836914063
+      ],
+      "role": "RepairDepot",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        24.0,
+        0.0,
+        190.0
+      ],
+      "role": "Barracks",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        31.0710678100586,
+        0.0,
+        192.928924560547
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        29.3575668334961,
+        0.0,
+        212.934310913086
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        14.1005048751831,
+        0.0,
+        190.100509643555
+      ],
+      "role": "VehicleFactory",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        24.0,
+        0.0,
+        214.0
+      ],
+      "role": "AntiGroundTurret",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        18.6424331665039,
+        0.0,
+        212.934310913086
+      ],
+      "role": "AntiAirTurret",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        14.1005048751831,
+        0.0,
+        209.899490356445
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        29.3575668334961,
+        0.0,
+        187.065689086914
+      ],
+      "role": "CommandLab",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        7.37016868591309,
+        0.0,
+        206.888305664063
+      ],
+      "role": "RepairDepot",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        6.0,
+        0.0,
+        200.0
+      ],
+      "role": "Barracks",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        7.37016868591309,
+        0.0,
+        193.111694335938
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        17.1116981506348,
+        0.0,
+        183.370162963867
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        24.0,
+        0.0,
+        182.0
+      ],
+      "role": "VehicleFactory",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        11.0656871795654,
+        0.0,
+        205.357574462891
+      ],
+      "role": "AntiGroundTurret",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        36.7279205322266,
+        0.0,
+        212.727920532227
+      ],
+      "role": "AntiAirTurret",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        36.7279205322266,
+        0.0,
+        187.272079467773
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        32.4190368652344,
+        0.0,
+        220.325347900391
+      ],
+      "role": "CommandLab",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        15.5809650421143,
+        0.0,
+        220.325347900391
+      ],
+      "role": "RepairDepot",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        8.44365119934082,
+        0.0,
+        215.556350708008
+      ],
+      "role": "Barracks",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        3.67465019226074,
+        0.0,
+        208.419036865234
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        8.44365119934082,
+        0.0,
+        184.443649291992
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        32.4190368652344,
+        0.0,
+        179.674652099609
+      ],
+      "role": "VehicleFactory",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        41.321216583252,
+        0.0,
+        181.532836914063
+      ],
+      "role": "AntiGroundTurret",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        46.678783416748,
+        0.0,
+        181.532836914063
+      ],
+      "role": "AntiAirTurret",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        50.467155456543,
+        0.0,
+        185.321212768555
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        58.0,
+        0.0,
+        188.0
+      ],
+      "role": "CommandLab",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        53.8994941711426,
+        0.0,
+        197.899490356445
+      ],
+      "role": "RepairDepot",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        38.6424331665039,
+        0.0,
+        175.065689086914
+      ],
+      "role": "Barracks",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        49.3575668334961,
+        0.0,
+        200.934310913086
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        49.3575668334961,
+        0.0,
+        175.065689086914
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        60.6298294067383,
+        0.0,
+        194.888305664063
+      ],
+      "role": "VehicleFactory",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        44.0,
+        0.0,
+        174.0
+      ],
+      "role": "AntiGroundTurret",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        53.8994941711426,
+        0.0,
+        178.100509643555
+      ],
+      "role": "AntiAirTurret",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        56.7279205322266,
+        0.0,
+        200.727920532227
+      ],
+      "role": "PowerPlant",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        60.6298294067383,
+        0.0,
+        181.111694335938
+      ],
+      "role": "CommandLab",
+      "yaw": 0.0
+    },
+    {
+      "player": 3,
+      "position": [
+        66.0,
+        0.0,
+        188.0
+      ],
+      "role": "RepairDepot",
+      "yaw": 0.0
+    }
+  ],
+  "structures_per_player": 40,
+  "target_fps": 120,
+  "target_frame_ms": 8.33333333333333,
+  "teams": [
+    0,
+    0,
+    1,
+    1
+  ],
+  "visibility": "per player",
+  "build": {
+    "source_commit": "e7cf33d4283d5873fb48c4dbf55ef12a1e0b2ed4",
+    "source_digest": "cea691f8a405d8dd25864de44937d236599fe3c8b5d8f8bd54207efd83cc4022",
+    "project_sha256": "37d81cffbcd1df2cc509f200e976e76327ffb02198898497ec4e59c132578e45",
+    "executable_sha256": "bc434e6f39bfa5ca3d844e9fab0787e13f041305d64056c64f5f705a8b8d0fc4"
+  },
+  "arguments": [
+    "--native-crowd-runtime",
+    "--native-visibility-runtime",
+    "--native-nearest-surface",
+    "--profile-runtime",
+    "--native-pose-rigs"
+  ],
+  "process_exit_code": 0,
+  "goal_workload": true,
+  "target_met": false
+}

@@ -1,0 +1,63 @@
+{
+  "experimental_flag": "--native-presentation",
+  "engine": "4.7.2.stable.official.ed1daf0bf",
+  "palette_comparisons": 1600,
+  "other_rendered_flags": [
+    "--native-unit-state",
+    "--native-crowd-runtime",
+    "--native-visibility-runtime",
+    "--native-nearest-surface"
+  ],
+  "production_fps_evidence": false,
+  "history": [
+    "The initial native shader-parameter ptrcall returned into an uninitialized Variant and crashed. Initializing both return values fixed the error before the passing runs.",
+    "An initial rendered test inspected stale script-only pulse/shown fields. It now inspects the actual uploaded palette for both renderer paths; all final checks below pass."
+  ],
+  "checks": [
+    {
+      "test": "NativePresentationRegression",
+      "exit_code": 0,
+      "rendered": false,
+      "fixed_fps_60": false,
+      "errors": [],
+      "warnings": [],
+      "log": "native-presentation-checks\\native-presentation-parity.txt"
+    },
+    {
+      "test": "UnitBatchRegression",
+      "exit_code": 0,
+      "rendered": true,
+      "fixed_fps_60": false,
+      "errors": [],
+      "warnings": [],
+      "log": "native-presentation-checks\\native-presentation-unit-batch.txt"
+    },
+    {
+      "test": "FramePacingRegression",
+      "exit_code": 0,
+      "rendered": true,
+      "fixed_fps_60": false,
+      "errors": [],
+      "warnings": [],
+      "log": "native-presentation-checks\\native-presentation-frame-pacing.txt"
+    },
+    {
+      "test": "CombatRegression",
+      "exit_code": 0,
+      "rendered": true,
+      "fixed_fps_60": true,
+      "errors": [],
+      "warnings": [],
+      "log": "native-presentation-checks\\native-presentation-live-combat.txt"
+    },
+    {
+      "test": "SaveRestoreEdges",
+      "exit_code": 0,
+      "rendered": true,
+      "fixed_fps_60": true,
+      "errors": [],
+      "warnings": [],
+      "log": "native-presentation-checks\\native-presentation-live-save.txt"
+    }
+  ]
+}

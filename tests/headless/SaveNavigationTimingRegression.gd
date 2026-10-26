@@ -48,4 +48,4 @@ func _run():
 		failures += 1
 	unit.free()
 	print("Save navigation timing: %d failures" % failures)
-	quit(0 if failures == 0 else 1)
+	await root.get_node("Globals").quit_game(0 if failures == 0 else 1)

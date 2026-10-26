@@ -98,7 +98,17 @@ var _action_reports_idle := false
 var _repairs := false
 var _sparkling: Node3D
 var _culled := false
-var _pose_elapsed := 0.0
+var _native_presentation: RefCounted
+var _presentation_handle := -1
+var _pose_elapsed := 0.0:
+	get:
+		if _native_presentation != null:
+			return _native_presentation.elapsed(_presentation_handle)
+		return _pose_elapsed
+	set(value):
+		if _native_presentation != null:
+			_native_presentation.set_elapsed(_presentation_handle, value)
+		_pose_elapsed = value
 var _pose_remaining := 0.0
 var _reaction_remaining := 0.0
 var _pose_job = preload("res://source/match/rendering/ParallelPoseBatch.gd").Job.new()
@@ -495,6 +505,18 @@ func _exit_tree():
 	if _pose_worker != null:
 		_pose_worker.release()
 		_pose_worker = null
+	set_native_presentation(null, -1)
+
+
+func set_native_presentation(batch: RefCounted, handle: int):
+	var elapsed := _pose_elapsed
+	_native_presentation = batch
+	_presentation_handle = handle
+	_pose_elapsed = elapsed
+	if batch != null:
+		batch.set_geometry(
+			handle, _geometry_pose, _track_motion != null or not _scrap_plates.is_empty()
+		)
 
 
 func _flush_pending_pose():
@@ -528,6 +550,12 @@ func _notification(what):
 
 
 func _publish_simulation_pose():
+	if _native_presentation != null:
+		_native_presentation.set_geometry(
+			_presentation_handle,
+			_geometry_pose,
+			_track_motion != null or not _scrap_plates.is_empty()
+		)
 	var pose: Transform3D = _unit.global_transform * _geometry_pose
 	if _pose_hierarchy != null:
 		_pose_hierarchy.root.transform = pose

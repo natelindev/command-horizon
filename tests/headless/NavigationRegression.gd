@@ -46,13 +46,34 @@ func _run():
 	await _test_harvesting()
 	await _test_new_obstacle()
 	await _test_construction_and_rocks()
+	if "--native-crowd-runtime" in OS.get_cmdline_user_args():
+		_check(
+			_game.crowd_runtime != null and _game.crowd_runtime.active,
+			"Native runtime was not active"
+		)
+		var statistics: Array = (
+			_game.crowd_runtime.statistics() if _game.crowd_runtime != null else []
+		)
+		_check(
+			statistics.size() == 4 and statistics[0] > 0 and statistics[1] > 0,
+			"Native steering/callbacks did not execute"
+		)
+	if "--native-nearest-surface" in OS.get_cmdline_user_args():
+		var runtime = _game.crowd_runtime
+		var surface: Array = (
+			runtime.native.surface_statistics() if runtime != null and runtime.active else []
+		)
+		_check(
+			runtime != null and runtime.surface_active and surface.size() == 6 and surface[2] > 0,
+			"Native nearest-surface runtime was not active or did not execute"
+		)
 	_game.queue_free()
 	await _frames(6)
 	for message in _errors:
 		push_error(message)
 	if _errors.is_empty():
 		print("PASS: obstacle routing, crowded movement, harvesting and factory egress")
-	quit(0 if _errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if _errors.is_empty() else 1)
 
 
 func _spawn(role, point):

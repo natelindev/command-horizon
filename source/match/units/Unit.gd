@@ -14,6 +14,9 @@ enum Stance { AGGRESSIVE, DEFENSIVE, HOLD_POSITION, HOLD_FIRE }
 const MATERIAL_ALBEDO_TO_REPLACE = Color(0.99, 0.81, 0.48)
 const MATERIAL_ALBEDO_TO_REPLACE_EPSILON = 0.05
 const Veterancy = preload("res://source/match/combat/Veterancy.gd")
+const SignatureState = preload("res://source/match/combat/SignatureState.gd")
+const UnitAbilities = preload("res://source/match/units/traits/UnitAbilities.gd")
+const InfantrySuppression = preload("res://source/match/units/traits/InfantrySuppression.gd")
 
 var experience = 0.0:
 	set(value):
@@ -31,8 +34,16 @@ var veterancy_rank:
 	get:
 		return _veterancy_rank
 # Derived only from experience; movement and weapon queries read them directly.
-var veterancy_speed_factor: float = 1.0
-var veterancy_reload_factor: float = 1.0
+var veterancy_speed_factor: float = 1.0:
+	set(value):
+		veterancy_speed_factor = value
+		if _native_state != null:
+			_native_state.veterancy_speed = value
+var veterancy_reload_factor: float = 1.0:
+	set(value):
+		veterancy_reload_factor = value
+		if _native_state != null:
+			_native_state.veterancy_reload = value
 
 var stance = Stance.AGGRESSIVE:
 	set = _set_stance
@@ -46,20 +57,42 @@ var last_enemy_damage_time = -INF
 var shields: float = 0.0
 var shields_max: float = 0.0
 var last_shield_damage_time: float = -INF
-var scrap_hardened_tiers: int = 0
+var scrap_hardened_tiers: int = 0:
+	set(value):
+		scrap_hardened_tiers = value
+		if _native_state != null:
+			_native_state.scrap_tiers = value
 var scrap_hardened_left: float = 0.0
 var permanent_scrap_rank: int = 0
 var damage_visual_band: int = 0
 var regarrison_lock_left: float = 0.0
-var suppression = null
+var suppression: InfantrySuppression:
+	set(value):
+		suppression = value
+		if _native_state != null:
+			_native_state.suppression = value
 var attack_damage = null:
+	set(value):
+		attack_damage = value
+		_base_attack_damage = value
+		if _native_state != null:
+			_native_state.base_damage = value
 	get:
+		if _native_state != null:
+			return _native_state.attack_damage
 		if attack_damage == null:
 			return null
 		var factor = abilities.damage_factor() if abilities != null else 1.0
 		return attack_damage * factor * (1.0 + 0.15 * scrap_hardened_tiers)
 var attack_interval = null:
+	set(value):
+		attack_interval = value
+		_base_attack_interval = value
+		if _native_state != null:
+			_native_state.base_interval = value
 	get:
+		if _native_state != null:
+			return _native_state.attack_interval
 		return (
 			(
 				attack_interval
@@ -70,25 +103,48 @@ var attack_interval = null:
 			else null
 		)
 var attack_range = null:
+	set(value):
+		attack_range = value
+		_base_attack_range = value
+		if _native_state != null:
+			_native_state.base_range = value
 	get:
+		if _native_state != null:
+			return _native_state.attack_range
 		return (
 			attack_range * abilities.range_factor()
 			if attack_range != null and abilities != null
 			else attack_range
 		)
-var attack_domains = []
+var attack_domains = []:
+	set(value):
+		attack_domains = value
+		if _native_state != null:
+			_native_state.domains = value
 var aim_target = null
 var weapon_charge_progress = -1.0
 var weapon_charge_owner = null
-var signature = null
-var abilities = null
+var signature: SignatureState:
+	set(value):
+		signature = value
+		if _native_state != null:
+			_native_state.signature = value
+var abilities: UnitAbilities:
+	set(value):
+		abilities = value
+		if _native_state != null:
+			_native_state.abilities = value
 var radius:
 	get = _get_radius
 var movement_domain:
 	get = _get_movement_domain
-var movement_speed:
+var movement_speed: float:
 	get = _get_movement_speed
-var sight_range = null
+var sight_range = null:
+	set(value):
+		sight_range = value
+		if _native_state != null:
+			_native_state.sight_range = value
 var player:
 	get:
 		return get_parent()
@@ -97,21 +153,27 @@ var color:
 		return player.color
 var action = null:
 	set = _set_action
-var global_position_yless:
+var global_position_yless: Vector3:
 	get:
 		return global_position * Vector3(1, 0, 1)
-var type:
+var type: String:
 	get = _get_type
 
 var manual_orders = null
 var _action_locked = false
-var _cached_type = ""
+var _cached_type: String = ""
 var _navigation_trait = null
 var _veterancy_rank = 0
 var _terrain_navigation = null
 var _has_elevated_terrain = false
 var _terrain_position = Vector2.INF
 var _plateau_advantage = false
+var _native_state: RefCounted
+# Preserve unmodified inputs for cold binding/rebinding. Native queries read
+# resident values; setters publish changes before gameplay signals fire.
+var _base_attack_damage = null
+var _base_attack_interval = null
+var _base_attack_range = null
 
 @onready var _match = find_parent("Match")
 
@@ -169,6 +231,10 @@ func _ready():
 		add_child(preparation_visual)
 	if _match != null:
 		assert(_safety_checks())
+		if _match.unit_state_store != null:
+			_native_state = load("res://source/match/NativeUnitState.gd").bind(
+				self, _match.unit_state_store
+			)
 	if movement_speed > 0:
 		if attack_damage != null and attack_damage > 0:
 			add_child(load("res://source/match/units/traits/VeteranBadge.gd").new(self))
@@ -350,6 +416,8 @@ func is_revealing():
 func _set_hp(value):
 	var old_hp = hp
 	hp = max(0, value)
+	if _native_state != null:
+		_native_state.hp = hp
 	if old_hp != null and hp < old_hp:
 		MatchSignals.unit_damaged.emit(self)
 	hp_changed.emit()
@@ -359,6 +427,8 @@ func _set_hp(value):
 
 func _set_hp_max(value):
 	hp_max = value
+	if _native_state != null:
+		_native_state.hp_max = value
 	hp_changed.emit()
 
 
@@ -369,6 +439,9 @@ func _get_navigation_trait():
 		_navigation_trait = get_node_or_null("Movement")
 		if _navigation_trait == null:
 			_navigation_trait = get_node_or_null("MovementObstacle")
+		if _native_state != null:
+			_native_state.trait = _navigation_trait
+			_native_state.domain = _navigation_trait.domain if _navigation_trait != null else null
 	return _navigation_trait
 
 
@@ -382,7 +455,9 @@ func _get_movement_domain():
 	return navigation_trait.domain if navigation_trait != null else null
 
 
-func _get_movement_speed():
+func _get_movement_speed() -> float:
+	if _native_state != null:
+		return _native_state.speed()
 	var navigation_trait = _get_navigation_trait()
 	return navigation_trait.speed if navigation_trait is NavigationAgent3D else 0.0
 
@@ -433,7 +508,7 @@ func combat_domain():
 	return movement_domain
 
 
-func _get_type():
+func _get_type() -> String:
 	if _cached_type != "":
 		return _cached_type
 	var unit_script_path = get_script().resource_path

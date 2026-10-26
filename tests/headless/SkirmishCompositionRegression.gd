@@ -55,6 +55,7 @@ func _run():
 		await _budget_and_technology()
 		await _counter_building()
 		await _counter_completion()
+		_test_allied_contacts(game._get_human_player())
 		print("COMPOSITION ", opponent.faction)
 		paused = false
 		game.queue_free()
@@ -63,7 +64,7 @@ func _run():
 	for message in errors:
 		push_error(message)
 	print("Skirmish composition: %d failures" % errors.size())
-	quit(0 if errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
 
 
 func _actor(role, player, point):
@@ -71,6 +72,37 @@ func _actor(role, player, point):
 	game._setup_and_spawn_unit(unit, Transform3D(Basis(), point), player, false)
 	unit.process_mode = Node.PROCESS_MODE_DISABLED
 	return unit
+
+
+func _test_allied_contacts(human):
+	var economy = load("res://source/match/players/skirmish-ai/SkirmishEconomy.gd")
+	# The preceding combat check may have destroyed its aircraft.
+	contact = _actor("Helicopter", human, Vector3(83, 2, 10))
+	var teams = [human.team, opponent.team]
+	human.team = 0
+	opponent.team = 0
+	game.battlefield.invalidate()
+	_check(economy.contacts(game, opponent).is_empty(), "Allied units became enemy contacts")
+	_check(composition.observed(game, opponent).air == 0, "Allied aircraft requested a counter")
+	human.team = teams[0]
+	opponent.team = teams[1]
+	game.battlefield.invalidate()
+	var contacts = economy.contacts(game, opponent)
+	_check(contact in contacts, "Enemy contact lost after team change")
+	opponent.set_meta("decision_contacts", contacts)
+	_check(economy.contacts(game, opponent) == contacts, "Decision lost its shared observations")
+	opponent.remove_meta("decision_contacts")
+	var tactics = load("res://source/match/players/skirmish-ai/SkirmishTactics.gd")
+	var first = _actor("Infantry", human, Vector3(81, 0, 14))
+	var second = _actor("Infantry", human, Vector3(84, 0, 14))
+	var isolated = _actor("Tank", human, Vector3(95, 0, 14))
+	game.battlefield.invalidate()
+	var clustered = tactics._grenade_clusters(game, [first, second, isolated, contact])
+	_check(first in clustered and second in clustered, "Grenade cluster lost its boundary pair")
+	_check(not isolated in clustered and not contact in clustered, "Invalid grenade cluster")
+	first.queue_free()
+	second.queue_free()
+	isolated.queue_free()
 
 
 func _training_units(producers):
@@ -138,8 +170,15 @@ func _visibility_and_queues():
 	)
 	second.queue_free()
 	await _frames(90)
-	# Drones are armed loitering munitions: an observed drone is an air threat.
+	# Armed loitering munitions need counters; Helix's unarmed EW scout does not.
 	await _replace_contact("Drone")
+	if contact.player.faction == "helix":
+		_check(opponent._next_building(opponent._units()) == "", "Unarmed EW scout requested AA")
+		opponent._production_index = 0
+		opponent._train(_training_units([factory]), "")
+		_check(_queued(factory) == "Tank", "Unarmed EW scout requested mobile AA")
+		factory.production_queue.cancel_all()
+		await _replace_contact("Helicopter")
 	_check(
 		opponent._next_building(opponent._units()) == "AntiAirTurret",
 		"Armed drone did not trigger emergency AA"

@@ -5,6 +5,9 @@ signal passive_movement_started
 signal passive_movement_finished
 
 const Unit = preload("res://source/match/units/Unit.gd")
+const BattleMap = preload("res://source/match/Map.gd")
+const Battlefield = preload("res://source/match/combat/Battlefield.gd")
+const TerrainNavigation = preload("res://source/match/TerrainNavigation.gd")
 
 const PROGRESS_WINDOW = 1.0
 const MINIMUM_PROGRESS = 0.2
@@ -26,21 +29,35 @@ const ROTATION_LOW_PASS_FILTER_VELOCITY_THRESHOLD = 0.01  # velocities below wil
 
 const PASSIVE_MOVEMENT_TRACKING_ENABLED = true
 
-@export var domain = Constants.Match.Navigation.Domain.TERRAIN
+@export var domain = Constants.Match.Navigation.Domain.TERRAIN:
+	set(value):
+		domain = value
+		var unit = get_parent()
+		if unit != null and unit.get("_native_state") != null:
+			unit._native_state.domain = value
 # Rotorcraft and drones accelerate and brake at this rate instead of snapping
 # to full speed (metres per second squared). Ground units are unaffected.
 @export var air_acceleration = 7.0
 @export var speed: float = 4.0:
+	set(value):
+		speed = value
+		_native_base_speed = value
+		var unit = get_parent()
+		if unit != null and unit.get("_native_state") != null:
+			unit._native_state.base_speed = value
+		_native_refresh_facts()
 	get:
 		if not is_instance_valid(_unit):
 			return speed
+		if _unit._native_state != null:
+			return _unit._native_state.speed()
 		var factor: float = _unit.signature.speed_factor() if _unit.signature != null else 1.0
 		if _unit.abilities != null:
 			factor *= _unit.abilities.speed_factor()
 		if _unit.suppression != null:
 			factor *= _unit.suppression.speed_factor()
-		if _match != null and "commander_support" in _match and _match.commander_support != null:
-			factor *= _match.commander_support.speed_factor(_unit)
+		if _commander_support != null:
+			factor *= _commander_support.speed_factor(_unit)
 		return (
 			speed * factor * _unit.veterancy_speed_factor * (1.0 + 0.1 * _unit.scrap_hardened_tiers)
 		)
@@ -53,6 +70,7 @@ var ghosted = false:
 	set = set_ghosted
 
 var _exit_clearance_target = Vector3.INF
+var _native_base_speed: float = 4.0
 var _exit_clearance_until = 0.0
 var _physics_delta: float = 0.0
 var _last_navigation_iteration = 0
@@ -74,12 +92,42 @@ var _air_velocity = Vector3.ZERO
 var _climbing_out = false
 var _ground_alignment_height = INF
 var _uses_platform_height = false
+var _projection_hint = {}
+var _projection_frame = -1
+var _projection_iteration = -1
+var _projection_point = Vector2.INF
+var _projection_result = Vector3.ZERO
+var _native_runtime: RefCounted
+var _native_handle := -1
+var _native_velocity_callback := Callable()
 
 @onready var _match = find_parent("Match")
 @onready var _unit: Unit = get_parent()
+@onready var _map: BattleMap = _match.map
+@onready var _elevated: bool = _map.is_elevated()
+@onready var _battlefield: Battlefield = _match.battlefield
+@onready var _terrain_navigation: TerrainNavigation = _match.navigation.terrain
+@onready var _commander_support = _match.commander_support
+
+
+func _enter_tree():
+	if _native_runtime != null:
+		_rebind_native.call_deferred()
+
+
+func _rebind_native():
+	if (
+		_native_handle < 0
+		and is_inside_tree()
+		and is_instance_valid(_match)
+		and _match.crowd_runtime != null
+	):
+		_match.crowd_runtime.bind_agent(self)
 
 
 func _physics_process(delta):
+	if _native_runtime != null:
+		return
 	_physics_delta = delta
 	if _unit.has_meta("breach_pending") or _abilities_prevent_movement():
 		velocity = Vector3.ZERO
@@ -273,7 +321,7 @@ func has_occupied_endpoint(require_short_route = true):
 	# reachable position. MovingToUnit owns its own process/contact checks.
 	# Only mobile agents qualify; structure radii must not widen this query.
 	# The terrain agent limit also covers the smaller air-agent radius limit.
-	for other in _match.battlefield.nearby_units(end, mobile_reach, _unit.player):
+	for other in _battlefield.nearby_units(end, mobile_reach, _unit.player):
 		if (
 			other == _unit
 			or not other.is_in_group("units")
@@ -307,8 +355,8 @@ func _ground_recovery_direction(path_direction):
 	var free_distance = -1.0
 	var origin = _unit.global_position
 	var neighbors = []
-	if _match.battlefield != null and not ghosted:
-		neighbors = _match.battlefield.nearby_units(
+	if _battlefield != null and not ghosted:
+		neighbors = _battlefield.nearby_units(
 			origin,
 			(
 				_unit.radius
@@ -379,13 +427,42 @@ func _ready():
 	await _match.navigation.wait_until_synchronized(domain)
 	set_navigation_map(_match.navigation.get_navigation_map_rid_by_domain(domain))
 	_align_unit_position_to_navigation()
-	velocity_computed.connect(_on_velocity_computed)
 	_progress_position = _unit.global_position
 	_synchronized = true
 	# Preserve orders received while the navigation server was synchronizing.
 	if not _has_destination:
 		target_position = _unit.global_position
+	if _match.crowd_runtime == null or not _match.crowd_runtime.bind_agent(self):
+		velocity_computed.connect(_on_velocity_computed)
 	set_physics_process(true)
+
+
+func _exit_tree():
+	if _native_runtime != null and _native_handle >= 0:
+		if (
+			_native_velocity_callback.is_valid()
+			and velocity_computed.is_connected(_native_velocity_callback)
+		):
+			velocity_computed.disconnect(_native_velocity_callback)
+		_native_runtime.unbind_agent(_native_handle)
+		_native_handle = -1
+
+
+func _native_refresh_facts(_ability = null):
+	if _native_runtime != null and _native_handle >= 0:
+		_native_runtime.refresh_agent(_native_handle)
+
+
+func _native_connect_facts():
+	if _native_runtime == null or _native_handle < 0 or not is_inside_tree():
+		return
+	var unit = get_parent()
+	if (
+		unit.abilities != null
+		and not unit.abilities.ability_changed.is_connected(_native_refresh_facts)
+	):
+		unit.abilities.ability_changed.connect(_native_refresh_facts)
+	_native_refresh_facts()
 
 
 func set_ghosted(value):
@@ -400,6 +477,7 @@ func set_ghosted(value):
 		if value
 		else Constants.Match.Navigation.AVOIDANCE_UNITS
 	)
+	_native_refresh_facts()
 
 
 func _abilities_prevent_movement() -> bool:
@@ -416,9 +494,9 @@ func move(movement_target: Vector3):
 	if not movement_target.is_finite():
 		stop()
 		return
-	if domain == Constants.Match.Navigation.Domain.TERRAIN and _match.map.is_elevated():
+	if domain == Constants.Match.Navigation.Domain.TERRAIN and _elevated:
 		# Orders often carry flattened points; aim at the ground of their own tier.
-		movement_target.y = _match.map.height_at(Vector2(movement_target.x, movement_target.z))
+		movement_target.y = _map.height_at(Vector2(movement_target.x, movement_target.z))
 	if _has_destination and target_position.distance_to(movement_target) < 0.1:
 		return
 	_command_revision += 1
@@ -437,6 +515,7 @@ func stop():
 	velocity = Vector3.ZERO
 	_recovery_left = 0.0
 	_recovery_checked = false
+	_native_refresh_facts()
 
 
 func _align_unit_position_to_navigation():
@@ -448,15 +527,12 @@ func _align_unit_position_to_navigation():
 
 
 func _uses_flight_clearance():
-	return (
-		domain == Constants.Match.Navigation.Domain.AIR
-		and _match.map.has_method("flight_height_at")
-	)
+	return domain == Constants.Match.Navigation.Domain.AIR and _map.has_method("flight_height_at")
 
 
 func _flight_height(point):
 	if _uses_flight_clearance():
-		return _match.map.flight_height_at(point, point.y)
+		return _map.flight_height_at(point, point.y)
 	return point.y
 
 
@@ -542,12 +618,14 @@ func _on_velocity_computed(safe_velocity: Vector3):
 	var navigation_iteration = NavigationServer3D.map_get_iteration_id(get_navigation_map())
 	if (
 		safe_velocity.is_zero_approx()
-		and _previously_set_global_transform_of_unit == _unit.global_transform
+		and _previously_set_global_transform_of_unit != null
+		and _previously_set_global_transform_of_unit.origin == _unit.global_position
 		and navigation_iteration == _last_navigation_iteration
 		and not _changing_height()
 	):
-		# Already aligned and untouched: a stationary body needs no navmesh or
-		# neighbor query. Preserve the passive-stop notification for work actions.
+		# Aiming can turn a stationary infantry root every tick. Heading alone
+		# does not invalidate its ground position; teleports and rebakes still do.
+		# Preserve the passive-stop notification for work actions.
 		_update_passive_movement_tracking(Vector3.ZERO)
 		return
 	_last_navigation_iteration = navigation_iteration
@@ -556,7 +634,7 @@ func _on_velocity_computed(safe_velocity: Vector3):
 	if (
 		domain == Constants.Match.Navigation.Domain.TERRAIN
 		and not _uses_platform_height
-		and not _match.map.is_elevated()
+		and not _elevated
 		and origin.y > 0.01
 	):
 		# A restored vehicle may already be descending off a platform.
@@ -606,22 +684,21 @@ func _on_velocity_computed(safe_velocity: Vector3):
 				next = recovery_step
 		# Clipping and sliding can change XZ after projection. Ground the final
 		# position on the authored surface, not the voxelized navigation mesh.
-		if _match.map.is_elevated():
-			next.y = _match.map.height_at(Vector2(next.x, next.z))
+		if _elevated:
+			next.y = _map.height_at(Vector2(next.x, next.z))
 			_ground_alignment_height = next.y
 		# Repair platforms are drive-on ground surfaces, including while leaving
 		# a completed or cancelled recovery order. Derive height from position so
 		# restored units do not need a separate docking state.
-		for body in get_tree().get_nodes_in_group("repair_platforms"):
-			if (
-				body.global_position_yless.distance_squared_to(next * Vector3(1, 0, 1)) <= 4.0
-				and body.is_constructed()
-			):
+		for body in _battlefield.nearby_repair_platforms(next):
+			if body.is_constructed():
 				var deck_height = body.deck_height(next)
 				if deck_height > 0:
 					_uses_platform_height = true
 				next.y = maxf(next.y, body.global_position.y + deck_height)
-		_ground_alignment_height = next.y
+				_ground_alignment_height = maxf(
+					_ground_alignment_height, body.global_position.y + deck_height
+				)
 	var actual_velocity := (next - origin) / maxf(_physics_delta, 0.001)
 	if (
 		domain == Constants.Match.Navigation.Domain.TERRAIN
@@ -650,7 +727,7 @@ func _clip_ground_step(next: Vector3, current_speed: float) -> Vector3:
 	# building a neighbor list for that same no-op (including elevation only).
 	if (
 		ghosted
-		or _match.battlefield == null
+		or _battlefield == null
 		or ((next - origin) * Vector3(1, 0, 1)).length_squared() < 0.00000001
 	):
 		return next
@@ -660,7 +737,7 @@ func _clip_ground_step(next: Vector3, current_speed: float) -> Vector3:
 		+ current_speed * _physics_delta
 		+ .25
 	)
-	var neighbors = _match.battlefield.nearby_units(origin, reach)
+	var neighbors = _battlefield.nearby_units(origin, reach)
 	var contact := _ground_contact(origin, next, neighbors)
 	if contact.w >= 1.0:
 		return next
@@ -685,11 +762,7 @@ func _ground_step_contact(origin: Vector3, next: Vector3, neighbors: Array) -> D
 
 
 func _ground_contact(origin: Vector3, next: Vector3, neighbors: Array) -> Vector4:
-	var native = (
-		_match.battlefield._native_queries
-		if _match != null and _match.battlefield != null
-		else null
-	)
+	var native = _battlefield._native_queries if _match != null and _battlefield != null else null
 	if native != null:
 		return native.ground_contact(
 			origin, next, neighbors, _unit, domain, float(radius), GROUND_CONTACT_MARGIN
@@ -742,10 +815,7 @@ func _ground_contact_script(origin: Vector3, next: Vector3, neighbors: Array) ->
 
 
 func _sync_ground_navigation_height():
-	if (
-		domain == Constants.Match.Navigation.Domain.TERRAIN
-		and (_match.map.is_elevated() or _uses_platform_height)
-	):
+	if domain == Constants.Match.Navigation.Domain.TERRAIN and (_elevated or _uses_platform_height):
 		# Offset path waypoints by the local bake lift. A fixed offset can leave
 		# a grounded body outside the waypoint's vertical arrival tolerance.
 		path_height_offset = (
@@ -756,15 +826,30 @@ func _sync_ground_navigation_height():
 func _navigation_position(point: Vector3) -> Vector3:
 	var position := _closest_navigation_point(point)
 	position.y -= path_height_offset
-	if (
-		domain == Constants.Match.Navigation.Domain.TERRAIN
-		and (_match.map.is_elevated() or _uses_platform_height)
-	):
-		position.y = _match.map.height_at(Vector2(position.x, position.z))
+	if domain == Constants.Match.Navigation.Domain.TERRAIN and (_elevated or _uses_platform_height):
+		position.y = _map.height_at(Vector2(position.x, position.z))
 	return position
 
 
 func _closest_navigation_point(point: Vector3) -> Vector3:
 	if domain == Constants.Match.Navigation.Domain.TERRAIN:
-		return _match.navigation.terrain.closest_point(point)
+		var terrain: TerrainNavigation = _terrain_navigation
+		if _elevated:
+			# Projection and final waypoint-height alignment often query the same
+			# XZ twice in one tick. Elevated projection deliberately ignores input Y.
+			var frame = Engine.get_physics_frames()
+			var iteration = NavigationServer3D.map_get_iteration_id(terrain.navigation_map_rid)
+			var flat = Vector2(point.x, point.z)
+			if (
+				_projection_frame == frame
+				and _projection_iteration == iteration
+				and _projection_point == flat
+			):
+				return _projection_result
+			_projection_result = terrain.closest_point(point, _projection_hint)
+			_projection_frame = frame
+			_projection_iteration = iteration
+			_projection_point = flat
+			return _projection_result
+		return terrain.closest_point(point, _projection_hint)
 	return NavigationServer3D.map_get_closest_point(get_navigation_map(), point)

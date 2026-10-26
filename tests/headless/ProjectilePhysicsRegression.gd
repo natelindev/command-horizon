@@ -76,7 +76,7 @@ func _run():
 				+ "all-faction anti-air and bomb building damage"
 			)
 		)
-	quit(0 if _errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if _errors.is_empty() else 1)
 
 
 func _test_gravity_arc():

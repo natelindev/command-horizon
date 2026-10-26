@@ -1,0 +1,55 @@
+{
+  "kind": "native_infantry_experiment",
+  "executable_sha256": "923a17d430ba35420fcad7263acdd1916e1a2ce14eb8879647a0ae9bec8d183e",
+  "same_executable": true,
+  "control_valid": true,
+  "native_valid": true,
+  "rows": [
+    {
+      "phase": "day_movement",
+      "control_fps": 3.09965681839569,
+      "native_fps": 3.03627031355928,
+      "change_percent": -2.0449523463444974,
+      "native_p95_ms": 481.934,
+      "native_solved_jobs": 63,
+      "native_fallbacks": 0
+    },
+    {
+      "phase": "day_combat",
+      "control_fps": 3.06539004206819,
+      "native_fps": 3.17525063108106,
+      "change_percent": 3.583902456300403,
+      "native_p95_ms": 465.464,
+      "native_solved_jobs": 116,
+      "native_fallbacks": 0
+    },
+    {
+      "phase": "night_combat",
+      "control_fps": 2.80915927603324,
+      "native_fps": 2.82065306703098,
+      "change_percent": 0.40915412293638376,
+      "native_p95_ms": 538.266,
+      "native_solved_jobs": 108,
+      "native_fallbacks": 0
+    },
+    {
+      "phase": "night_base",
+      "control_fps": 3.27484341700073,
+      "native_fps": 3.3027337093883,
+      "change_percent": 0.8516527001805052,
+      "native_p95_ms": 423.053,
+      "native_solved_jobs": 0,
+      "native_fallbacks": 0
+    },
+    {
+      "phase": "cycling_weather_combat",
+      "control_fps": 2.85985847928144,
+      "native_fps": 2.9870611711545,
+      "change_percent": 4.447866661745481,
+      "native_p95_ms": 493.75,
+      "native_solved_jobs": 88,
+      "native_fallbacks": 0
+    }
+  ],
+  "decision": "Keep experimental adapter disabled by default. No substantial complete-frame gain demonstrated. Prioritize resident native movement/perception state and direct pose/presentation buffers."
+}

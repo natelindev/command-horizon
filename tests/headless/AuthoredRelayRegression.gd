@@ -20,7 +20,7 @@ func _run():
 	await _frames(5)
 	await _plain_map()
 	print("Authored relay regression: %d failures" % errors.size())
-	quit(0 if errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
 
 
 func _spawn(role, player, point):

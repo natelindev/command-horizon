@@ -22,6 +22,8 @@ class Pose:
 class Job:
 	extends RefCounted
 	var native: RefCounted
+	var native_rig: RefCounted
+	var direct_palette := false
 	var poses: Array = []
 	var parents := PackedInt32Array()
 	var worlds: Array[Transform3D] = []
@@ -29,6 +31,12 @@ class Job:
 	var palette: Array[Transform3D] = []
 
 	func solve():
+		if native_rig != null:
+			if direct_palette:
+				native_rig.solve_worlds()
+			else:
+				native_rig.solve_palette(palette)
+			return
 		if native != null:
 			native.solve_hierarchy(poses, parents, anchors, palette)
 			return
@@ -42,7 +50,7 @@ class Job:
 const PARTS = ["_turret", "_barrel"]
 const LISTS = ["_legs", "_rotors", "_tools", "_stabilizers", "_antennas"]
 var job := Job.new()
-var root: Pose
+var root: RefCounted
 var _geometry: Node3D
 var _bindings := {}
 var _originals := {}
@@ -50,12 +58,24 @@ var _originals := {}
 
 func _init(geometry: Node3D, anchors: Array, native = null):
 	job.native = native
+	if (
+		(
+			"--native-pose-rigs" in OS.get_cmdline_user_args()
+			or "--native-presentation" in OS.get_cmdline_user_args()
+		)
+		and ClassDB.class_exists("CopperfinPoseRig")
+		and geometry.find_children("*", "Node3D", true, false).size() < 4096
+	):
+		job.native_rig = ClassDB.instantiate("CopperfinPoseRig")
 	_geometry = geometry
 	root = bind_node(geometry)
 	root.transform = geometry.global_transform
 	for anchor in anchors:
 		job.anchors.append(bind_node(anchor).index)
 	job.palette.resize(anchors.size())
+	if job.native_rig != null:
+		var configured: bool = job.native_rig.configure_anchors(job.anchors)
+		assert(configured)
 
 
 func bind_node(node):
@@ -64,10 +84,16 @@ func bind_node(node):
 	if _bindings.has(node):
 		return _bindings[node]
 	var parent_pose = bind_node(node.get_parent()) if node != _geometry else null
-	var pose := Pose.new()
-	pose.transform = node.transform
-	pose.parent = parent_pose
-	pose.index = job.poses.size()
+	var pose: RefCounted
+	if job.native_rig != null:
+		pose = job.native_rig.add_part(
+			parent_pose.index if parent_pose != null else -1, node.transform
+		)
+	else:
+		pose = Pose.new()
+		pose.transform = node.transform
+		pose.parent = parent_pose
+		pose.index = job.poses.size()
 	_bindings[node] = pose
 	_originals[pose] = node
 	job.poses.append(pose)
@@ -115,6 +141,8 @@ func world_for(node: Node3D) -> Transform3D:
 
 
 func world_for_pose(pose) -> Transform3D:
+	if job.native_rig != null:
+		return job.native_rig.global_pose(pose.index)
 	if job.native != null:
 		return job.native.global_pose(job.poses, job.parents, pose.index)
 	return pose.global_transform

@@ -1,0 +1,1825 @@
+{
+  "diagnostic": true,
+  "production_fps_evidence": false,
+  "status": "valid",
+  "phase": "day_combat",
+  "seconds_requested": 6,
+  "engine_sha256": "cfaba73e2557cb81605989f55bf878e1163dd8892cd77e028c1bc7e4c1b7a54b",
+  "note": "Instrumented elapsed zones, including waits. Inclusive zones overlap. Self times may run on different threads and are not an additive frame budget. Script file labels also contain native calls made from that source.",
+  "self_by_source": [
+    {
+      "source": "main\\main.cpp",
+      "elapsed_ms": 829.8893709999999,
+      "calls": 2579
+    },
+    {
+      "source": "res://source/match/combat/Battlefield.gd",
+      "elapsed_ms": 639.544228,
+      "calls": 730269
+    },
+    {
+      "source": "res://source/match/units/Unit.gd",
+      "elapsed_ms": 623.0936279999999,
+      "calls": 3796147
+    },
+    {
+      "source": "res://source/match/units/traits/BastionVisuals.gd",
+      "elapsed_ms": 425.338183,
+      "calls": 1290128
+    },
+    {
+      "source": "res://source/match/NativeCrowdRuntime.gd",
+      "elapsed_ms": 352.763615,
+      "calls": 2392
+    },
+    {
+      "source": "res://source/match/players/Player.gd",
+      "elapsed_ms": 251.59971499999997,
+      "calls": 837860
+    },
+    {
+      "source": "res://source/match/combat/CombatRules.gd",
+      "elapsed_ms": 245.31853899999993,
+      "calls": 724886
+    },
+    {
+      "source": "res://source/match/effects/CombatEffects.gd",
+      "elapsed_ms": 184.57203600000003,
+      "calls": 549440
+    },
+    {
+      "source": "servers\\rendering\\renderer_viewport.cpp",
+      "elapsed_ms": 173.17279,
+      "calls": 301
+    },
+    {
+      "source": "res://source/match/units/traits/InfantryMotion.gd",
+      "elapsed_ms": 172.263317,
+      "calls": 193998
+    },
+    {
+      "source": "res://source/match/rendering/UnitBatchRenderer.gd",
+      "elapsed_ms": 139.62950099999998,
+      "calls": 127109
+    },
+    {
+      "source": "res://source/match/units/traits/Movement.gd",
+      "elapsed_ms": 127.56472199999997,
+      "calls": 475221
+    },
+    {
+      "source": "res://source/match/units/traits/ChassisMotion.gd",
+      "elapsed_ms": 105.724467,
+      "calls": 210218
+    },
+    {
+      "source": "res://source/match/combat/ProjectileSystem.gd",
+      "elapsed_ms": 104.57901199999996,
+      "calls": 257488
+    },
+    {
+      "source": "res://source/match/audio/CombatAudio.gd",
+      "elapsed_ms": 97.33939,
+      "calls": 112406
+    },
+    {
+      "source": "res://source/match/rendering/ParallelPoseBatch.gd",
+      "elapsed_ms": 94.314183,
+      "calls": 72707
+    },
+    {
+      "source": "servers\\rendering\\rendering_device.cpp",
+      "elapsed_ms": 93.814693,
+      "calls": 688
+    },
+    {
+      "source": "res://source/match/hud/Minimap.gd",
+      "elapsed_ms": 78.306171,
+      "calls": 167184
+    },
+    {
+      "source": "res://source/match/combat/CommanderSupport.gd",
+      "elapsed_ms": 73.485187,
+      "calls": 95253
+    },
+    {
+      "source": "res://source/match/FogOfWar.gd",
+      "elapsed_ms": 72.63989,
+      "calls": 277619
+    },
+    {
+      "source": "res://source/match/maps/terrain/TerrainModel.gd",
+      "elapsed_ms": 69.18887000000001,
+      "calls": 143825
+    },
+    {
+      "source": "res://source/match/units/actions/AttackingWhileInRange.gd",
+      "elapsed_ms": 67.695096,
+      "calls": 165379
+    },
+    {
+      "source": "res://source/match/effects/WeaponPreparationVisual.gd",
+      "elapsed_ms": 62.97666799999999,
+      "calls": 118248
+    },
+    {
+      "source": "res://source/match/Players.gd",
+      "elapsed_ms": 58.974320000000006,
+      "calls": 326156
+    },
+    {
+      "source": "res://source/match/utils/Footprint.gd",
+      "elapsed_ms": 56.275179,
+      "calls": 199510
+    },
+    {
+      "source": "res://source/match/combat/RepairService.gd",
+      "elapsed_ms": 52.64606499999999,
+      "calls": 149891
+    },
+    {
+      "source": "res://source/match/TerrainNavigation.gd",
+      "elapsed_ms": 49.51542800000001,
+      "calls": 175639
+    },
+    {
+      "source": "res://source/match/players/skirmish-ai/SkirmishDefense.gd",
+      "elapsed_ms": 47.71222799999999,
+      "calls": 175033
+    },
+    {
+      "source": "res://source/match/Match.gd",
+      "elapsed_ms": 47.533818,
+      "calls": 313905
+    },
+    {
+      "source": "res://source/match/units/traits/WheelMotion.gd",
+      "elapsed_ms": 46.102236,
+      "calls": 5163
+    },
+    {
+      "source": "res://source/match/players/skirmish-ai/SkirmishEconomy.gd",
+      "elapsed_ms": 40.879153999999986,
+      "calls": 182130
+    },
+    {
+      "source": "res://source/match/units/Helicopter.gd",
+      "elapsed_ms": 40.631842999999996,
+      "calls": 150134
+    },
+    {
+      "source": "servers\\rendering\\rendering_server_default.cpp",
+      "elapsed_ms": 34.897708,
+      "calls": 602
+    },
+    {
+      "source": "res://source/match/handlers/UnitVisibilityHandler.gd",
+      "elapsed_ms": 34.478786,
+      "calls": 133168
+    },
+    {
+      "source": "res://source/match/units/traits/WalkerGait.gd",
+      "elapsed_ms": 32.786342000000005,
+      "calls": 12630
+    },
+    {
+      "source": "res://source/match/effects/BattlefieldWear.gd",
+      "elapsed_ms": 32.484081999999994,
+      "calls": 47408
+    },
+    {
+      "source": "res://source/match/units/traits/UnitAbilities.gd",
+      "elapsed_ms": 30.966031,
+      "calls": 103644
+    },
+    {
+      "source": "res://source/match/units/traits/InfantrySuppression.gd",
+      "elapsed_ms": 29.032408,
+      "calls": 32019
+    },
+    {
+      "source": "res://source/match/combat/AlliedDefense.gd",
+      "elapsed_ms": 28.879634,
+      "calls": 66611
+    },
+    {
+      "source": "res://source/match/maps/AuthoredBattlefield.gd",
+      "elapsed_ms": 27.521362999999997,
+      "calls": 209988
+    },
+    {
+      "source": "res://source/match/hud/BattleAlertsPanel.gd",
+      "elapsed_ms": 24.68956399999999,
+      "calls": 5461
+    },
+    {
+      "source": "res://source/match/units/AircraftFactory.gd",
+      "elapsed_ms": 24.274746999999998,
+      "calls": 81074
+    },
+    {
+      "source": "res://source/match/players/skirmish-ai/SkirmishAI.gd",
+      "elapsed_ms": 20.96923,
+      "calls": 74942
+    },
+    {
+      "source": "res://source/match/effects/BattleAftermath.gd",
+      "elapsed_ms": 20.667691,
+      "calls": 5374
+    },
+    {
+      "source": "res://source/match/effects/ProjectileRenderer.gd",
+      "elapsed_ms": 20.328085,
+      "calls": 29462
+    },
+    {
+      "source": "res://source/match/ambient/AmbientActor.gd",
+      "elapsed_ms": 20.288627,
+      "calls": 8832
+    },
+    {
+      "source": "res://source/match/effects/StructureActivity.gd",
+      "elapsed_ms": 19.640133,
+      "calls": 51170
+    },
+    {
+      "source": "res://source/match/combat/HelixSupport.gd",
+      "elapsed_ms": 18.734312000000003,
+      "calls": 8564
+    },
+    {
+      "source": "res://source/generic-scenes-and-nodes/2d/RevealShape2D.gd",
+      "elapsed_ms": 17.889571000000004,
+      "calls": 11864
+    },
+    {
+      "source": "res://source/match/Map.gd",
+      "elapsed_ms": 17.207831,
+      "calls": 26650
+    },
+    {
+      "source": "res://source/match/combat/SignatureState.gd",
+      "elapsed_ms": 15.427302000000001,
+      "calls": 53067
+    },
+    {
+      "source": "res://source/match/units/actions/Moving.gd",
+      "elapsed_ms": 15.377466,
+      "calls": 43839
+    },
+    {
+      "source": "res://source/match/rendering/RigidPoseHierarchy.gd",
+      "elapsed_ms": 14.560648,
+      "calls": 32360
+    },
+    {
+      "source": "res://source/match/hud/Ownership.gd",
+      "elapsed_ms": 14.548407000000001,
+      "calls": 43915
+    },
+    {
+      "source": "res://source/match/maps/terrain/WaterFlowField.gd",
+      "elapsed_ms": 13.290493,
+      "calls": 27702
+    },
+    {
+      "source": "res://source/match/ObjectMaterials.gd",
+      "elapsed_ms": 12.921670000000002,
+      "calls": 20572
+    },
+    {
+      "source": "res://source/match/combat/Shot.gd",
+      "elapsed_ms": 12.332043,
+      "calls": 17308
+    },
+    {
+      "source": "res://source/match/world/PointOfInterest.gd",
+      "elapsed_ms": 11.769226000000002,
+      "calls": 29199
+    },
+    {
+      "source": "res://source/match/units/traits/TrackMotion.gd",
+      "elapsed_ms": 11.076065,
+      "calls": 4468
+    },
+    {
+      "source": "res://source/match/rendering/InfantryPoseWorker.gd",
+      "elapsed_ms": 10.314827000000001,
+      "calls": 25560
+    },
+    {
+      "source": "res://source/match/players/skirmish-ai/SkirmishTactics.gd",
+      "elapsed_ms": 9.985928000000003,
+      "calls": 22486
+    },
+    {
+      "source": "res://source/match/units/Structure.gd",
+      "elapsed_ms": 9.50045,
+      "calls": 141709
+    },
+    {
+      "source": "res://source/match/EconomyAssignments.gd",
+      "elapsed_ms": 9.105915000000001,
+      "calls": 40348
+    },
+    {
+      "source": "res://source/match/objectives/CaptureRelay.gd",
+      "elapsed_ms": 9.044746,
+      "calls": 18806
+    },
+    {
+      "source": "res://source/match/environment/LivingWorld.gd",
+      "elapsed_ms": 8.677271,
+      "calls": 5204
+    },
+    {
+      "source": "res://source/match/units/AdvancedTank.gd",
+      "elapsed_ms": 8.394009,
+      "calls": 30424
+    },
+    {
+      "source": "res://source/match/combat/FactionSignatures.gd",
+      "elapsed_ms": 8.346663,
+      "calls": 19150
+    },
+    {
+      "source": "res://source/audio/MusicDirector.gd",
+      "elapsed_ms": 8.168632,
+      "calls": 5855
+    },
+    {
+      "source": "res://source/match/ambient/AmbientCatalog.gd",
+      "elapsed_ms": 8.04439,
+      "calls": 11776
+    },
+    {
+      "source": "res://source/match/units/actions/WaitingForTargets.gd",
+      "elapsed_ms": 7.972883,
+      "calls": 11960
+    },
+    {
+      "source": "res://source/match/alerts/BattleAlerts.gd",
+      "elapsed_ms": 7.1682890000000015,
+      "calls": 13416
+    },
+    {
+      "source": "res://source/match/maps/terrain/TerrainSight.gd",
+      "elapsed_ms": 7.034255,
+      "calls": 1383
+    },
+    {
+      "source": "res://source/match/BastionCatalog.gd",
+      "elapsed_ms": 6.885732000000001,
+      "calls": 39116
+    },
+    {
+      "source": "res://source/match/effects/WeaponHeat.gd",
+      "elapsed_ms": 6.6682950000000005,
+      "calls": 9799
+    },
+    {
+      "source": "res://source/match/hud/SkirmishHUD.gd",
+      "elapsed_ms": 6.472191,
+      "calls": 1587
+    },
+    {
+      "source": "res://source/match/debug/UnitInfoLabel.gd",
+      "elapsed_ms": 6.357609,
+      "calls": 14805
+    },
+    {
+      "source": "res://source/match/hud/ResourcesBar.gd",
+      "elapsed_ms": 5.7865150000000005,
+      "calls": 2082
+    },
+    {
+      "source": "res://source/match/combat/WeaponCatalog.gd",
+      "elapsed_ms": 5.733533999999999,
+      "calls": 9019
+    },
+    {
+      "source": "res://source/match/rendering/RuntimePhaseProfiler.gd",
+      "elapsed_ms": 5.596224,
+      "calls": 3632
+    },
+    {
+      "source": "res://source/match/combat/Veterancy.gd",
+      "elapsed_ms": 5.116935000000001,
+      "calls": 4417
+    },
+    {
+      "source": "res://source/match/Skirmish.gd",
+      "elapsed_ms": 4.905746000000001,
+      "calls": 8787
+    },
+    {
+      "source": "res://source/match/units/actions/Repairing.gd",
+      "elapsed_ms": 4.765629,
+      "calls": 12226
+    },
+    {
+      "source": "res://source/match/players/skirmish-ai/SkirmishComposition.gd",
+      "elapsed_ms": 4.464381,
+      "calls": 11833
+    },
+    {
+      "source": "res://source/match/units/traits/HealthBar.gd",
+      "elapsed_ms": 4.337065000000001,
+      "calls": 7516
+    },
+    {
+      "source": "res://source/match/players/skirmish-ai/SkirmishCoordination.gd",
+      "elapsed_ms": 4.308383000000001,
+      "calls": 10100
+    },
+    {
+      "source": "res://source/match/units/actions/AttackMoving.gd",
+      "elapsed_ms": 4.187792999999999,
+      "calls": 12365
+    },
+    {
+      "source": "res://source/match/hud/CommanderRoster.gd",
+      "elapsed_ms": 4.051327000000001,
+      "calls": 1272
+    },
+    {
+      "source": "res://source/match/players/skirmish-ai/SkirmishExpansion.gd",
+      "elapsed_ms": 3.7310619999999997,
+      "calls": 14715
+    },
+    {
+      "source": "res://source/match/research/TechnologyCatalog.gd",
+      "elapsed_ms": 3.7306939999999997,
+      "calls": 8158
+    },
+    {
+      "source": "res://source/match/hud/ResearchStatus.gd",
+      "elapsed_ms": 3.278767,
+      "calls": 7055
+    },
+    {
+      "source": "res://source/match/BattleRecord.gd",
+      "elapsed_ms": 3.272011,
+      "calls": 2921
+    },
+    {
+      "source": "res://source/match/research/TechnologyResearch.gd",
+      "elapsed_ms": 2.906505,
+      "calls": 10764
+    },
+    {
+      "source": "res://source/match/units/traits/SuppressionBadge.gd",
+      "elapsed_ms": 2.892105,
+      "calls": 2263
+    },
+    {
+      "source": "res://source/match/units/traits/VehicleDamageProfile.gd",
+      "elapsed_ms": 2.769202,
+      "calls": 10804
+    },
+    {
+      "source": "res://source/match/hud/MapFeatures.gd",
+      "elapsed_ms": 2.4899500000000003,
+      "calls": 670
+    },
+    {
+      "source": "res://source/match/units/actions/AutoAttacking.gd",
+      "elapsed_ms": 2.23207,
+      "calls": 25462
+    },
+    {
+      "source": "res://source/match/audio/BattleVoice.gd",
+      "elapsed_ms": 2.1943050000000004,
+      "calls": 997
+    },
+    {
+      "source": "res://source/match/hud/MinimapUnitMarker.gd",
+      "elapsed_ms": 2.1116029999999997,
+      "calls": 16663
+    },
+    {
+      "source": "res://source/match/units/CombatRobot.gd",
+      "elapsed_ms": 1.8644999999999998,
+      "calls": 6309
+    },
+    {
+      "source": "res://source/input/KeyBindings.gd",
+      "elapsed_ms": 1.6544920000000003,
+      "calls": 733
+    },
+    {
+      "source": "res://source/match/effects/FoliageResponse.gd",
+      "elapsed_ms": 1.6334849999999999,
+      "calls": 1360
+    },
+    {
+      "source": "res://source/match/hud/ProductionOverview.gd",
+      "elapsed_ms": 1.6051729999999997,
+      "calls": 3276
+    },
+    {
+      "source": "res://source/match/hud/CommandFeedback.gd",
+      "elapsed_ms": 1.4691450000000001,
+      "calls": 1161
+    },
+    {
+      "source": "res://source/match/units/traits/UnitMotionProfile.gd",
+      "elapsed_ms": 1.393305,
+      "calls": 2690
+    },
+    {
+      "source": "res://source/match/units/traits/RallyPoint.gd",
+      "elapsed_ms": 1.378956,
+      "calls": 7370
+    },
+    {
+      "source": "res://source/match/world/BattlefieldEvents.gd",
+      "elapsed_ms": 1.3609370000000003,
+      "calls": 2089
+    },
+    {
+      "source": "res://source/match/maps/IndustrialLandmarks.gd",
+      "elapsed_ms": 1.20598,
+      "calls": 5227
+    },
+    {
+      "source": "res://source/match/players/skirmish-ai/SkirmishLabor.gd",
+      "elapsed_ms": 1.151879,
+      "calls": 4272
+    },
+    {
+      "source": "res://source/match/units/traits/AirToTerrainMarker.gd",
+      "elapsed_ms": 1.15098,
+      "calls": 1720
+    },
+    {
+      "source": "res://source/match/rendering/ComputePosePalette.gd",
+      "elapsed_ms": 1.1373469999999999,
+      "calls": 903
+    },
+    {
+      "source": "res://source/match/environment/WorldAtmosphere.gd",
+      "elapsed_ms": 1.133912,
+      "calls": 301
+    },
+    {
+      "source": "res://source/match/hud/BastionDemoHUD.gd",
+      "elapsed_ms": 1.111868,
+      "calls": 387
+    },
+    {
+      "source": "res://source/match/units/traits/ProductionQueue.gd",
+      "elapsed_ms": 0.987119,
+      "calls": 4460
+    },
+    {
+      "source": "res://tests/rendered/HeavyTeamFrameBenchmark.gd",
+      "elapsed_ms": 0.936229,
+      "calls": 903
+    },
+    {
+      "source": "res://source/match/players/skirmish-ai/SkirmishRecovery.gd",
+      "elapsed_ms": 0.923072,
+      "calls": 12
+    },
+    {
+      "source": "res://source/match/world/FieldEngineering.gd",
+      "elapsed_ms": 0.844703,
+      "calls": 1502
+    },
+    {
+      "source": "res://source/match/world/RefineryMachinery.gd",
+      "elapsed_ms": 0.820206,
+      "calls": 736
+    },
+    {
+      "source": "res://source/generic-scenes-and-nodes/3d/RectangularSelection3D.gd",
+      "elapsed_ms": 0.7653490000000001,
+      "calls": 2392
+    },
+    {
+      "source": "res://source/match/audio/EnvironmentAudio.gd",
+      "elapsed_ms": 0.748646,
+      "calls": 547
+    },
+    {
+      "source": "res://source/match/players/skirmish-ai/SkirmishProduction.gd",
+      "elapsed_ms": 0.703312,
+      "calls": 1920
+    },
+    {
+      "source": "res://source/match/environment/BattlefieldEffects.gd",
+      "elapsed_ms": 0.698636,
+      "calls": 559
+    },
+    {
+      "source": "res://source/match/hud/ConsoleFrame.gd",
+      "elapsed_ms": 0.6637440000000001,
+      "calls": 344
+    },
+    {
+      "source": "res://source/generic-scenes-and-nodes/control/RectangularSelection2D.gd",
+      "elapsed_ms": 0.654215,
+      "calls": 2208
+    },
+    {
+      "source": "res://source/audio/UIAudio.gd",
+      "elapsed_ms": 0.5804370000000001,
+      "calls": 865
+    },
+    {
+      "source": "res://source/match/environment/WaterInteractions.gd",
+      "elapsed_ms": 0.5718749999999999,
+      "calls": 702
+    },
+    {
+      "source": "res://source/match/hud/OrderRoutes.gd",
+      "elapsed_ms": 0.560129,
+      "calls": 516
+    },
+    {
+      "source": "res://source/match/players/human/VoiceNarratorController.gd",
+      "elapsed_ms": 0.5493239999999999,
+      "calls": 937
+    },
+    {
+      "source": "res://source/match/hud/Resources.gd",
+      "elapsed_ms": 0.487995,
+      "calls": 516
+    },
+    {
+      "source": "res://source/match/utils/UpdatePhase.gd",
+      "elapsed_ms": 0.481132,
+      "calls": 750
+    },
+    {
+      "source": "res://source/match/hud/HudStyle.gd",
+      "elapsed_ms": 0.431883,
+      "calls": 355
+    },
+    {
+      "source": "res://source/match/IsometricCamera3D.gd",
+      "elapsed_ms": 0.429287,
+      "calls": 559
+    },
+    {
+      "source": "platform\\windows\\os_windows.cpp",
+      "elapsed_ms": 0.416657,
+      "calls": 42
+    },
+    {
+      "source": "res://source/Utils.gd",
+      "elapsed_ms": 0.397875,
+      "calls": 861
+    },
+    {
+      "source": "res://source/match/hud/OwnershipOverlay.gd",
+      "elapsed_ms": 0.366102,
+      "calls": 473
+    },
+    {
+      "source": "res://source/match/players/skirmish-ai/SkirmishDifficulty.gd",
+      "elapsed_ms": 0.332957,
+      "calls": 699
+    },
+    {
+      "source": "res://source/match/audio/UnitVoiceBank.gd",
+      "elapsed_ms": 0.290666,
+      "calls": 234
+    },
+    {
+      "source": "res://source/match/combat/GrenadeSystem.gd",
+      "elapsed_ms": 0.278249,
+      "calls": 368
+    },
+    {
+      "source": "res://source/match/orders/ManualOrders.gd",
+      "elapsed_ms": 0.26931700000000003,
+      "calls": 450
+    },
+    {
+      "source": "res://source/match/audio/VoiceLines.gd",
+      "elapsed_ms": 0.24920899999999999,
+      "calls": 213
+    },
+    {
+      "source": "res://source/match/world/PointOfInterestCatalog.gd",
+      "elapsed_ms": 0.238549,
+      "calls": 131
+    },
+    {
+      "source": "res://source/match/hud/SubtitleCard.gd",
+      "elapsed_ms": 0.179937,
+      "calls": 9
+    },
+    {
+      "source": "res://source/match/hud/DirectOrders.gd",
+      "elapsed_ms": 0.176417,
+      "calls": 129
+    },
+    {
+      "source": "res://source/match/hud/UnitMenus.gd",
+      "elapsed_ms": 0.16481700000000002,
+      "calls": 203
+    },
+    {
+      "source": "res://source/data-model/Options.gd",
+      "elapsed_ms": 0.147127,
+      "calls": 129
+    },
+    {
+      "source": "res://source/match/environment/BaseAreaLighting.gd",
+      "elapsed_ms": 0.10201,
+      "calls": 99
+    },
+    {
+      "source": "res://source/utils/RuntimeCache.gd",
+      "elapsed_ms": 0.09217900000000001,
+      "calls": 60
+    },
+    {
+      "source": "res://source/match/FactionCatalog.gd",
+      "elapsed_ms": 0.09068000000000001,
+      "calls": 78
+    },
+    {
+      "source": "res://source/Globals.gd",
+      "elapsed_ms": 0.08582,
+      "calls": 129
+    },
+    {
+      "source": "res://source/match/units/actions/Action.gd",
+      "elapsed_ms": 0.06569,
+      "calls": 236
+    },
+    {
+      "source": "res://source/match/hud/HudMotion.gd",
+      "elapsed_ms": 0.06556899999999999,
+      "calls": 57
+    },
+    {
+      "source": "res://source/match/saves/SaveManager.gd",
+      "elapsed_ms": 0.057698,
+      "calls": 86
+    },
+    {
+      "source": "res://source/match/players/skirmish-ai/SkirmishSites.gd",
+      "elapsed_ms": 0.04084,
+      "calls": 72
+    },
+    {
+      "source": "res://source/match/hud/BattleSubtitles.gd",
+      "elapsed_ms": 0.0366,
+      "calls": 51
+    },
+    {
+      "source": "res://source/match/hud/BattleTheme.gd",
+      "elapsed_ms": 0.03355,
+      "calls": 49
+    },
+    {
+      "source": "res://source/match/effects/BattlePresentation.gd",
+      "elapsed_ms": 0.03194,
+      "calls": 43
+    },
+    {
+      "source": "res://source/match/units/RepairDepot.gd",
+      "elapsed_ms": 0.0301,
+      "calls": 460
+    },
+    {
+      "source": "res://source/match/players/human/StructurePlacementHandler.gd",
+      "elapsed_ms": 0.029679,
+      "calls": 43
+    },
+    {
+      "source": "res://source/match/FactionRules.gd",
+      "elapsed_ms": 0.027638999999999997,
+      "calls": 18
+    },
+    {
+      "source": "res://source/match/Navigation.gd",
+      "elapsed_ms": 0.018049,
+      "calls": 7
+    },
+    {
+      "source": "res://source/match/units/Tank.gd",
+      "elapsed_ms": 0.01392,
+      "calls": 61
+    }
+  ],
+  "top_self_zones": [
+    {
+      "name": "NavigationServer3D::physics_process",
+      "source": "main\\main.cpp",
+      "line": 5022,
+      "calls": 184,
+      "elapsed_ms": 336.63456
+    },
+    {
+      "name": "step",
+      "source": "res://source/match/NativeCrowdRuntime.gd",
+      "line": 100,
+      "calls": 184,
+      "elapsed_ms": 288.915807
+    },
+    {
+      "name": "index_observers",
+      "source": "res://source/match/combat/Battlefield.gd",
+      "line": 89,
+      "calls": 184,
+      "elapsed_ms": 213.885426
+    },
+    {
+      "name": "@player_getter",
+      "source": "res://source/match/units/Unit.gd",
+      "line": 149,
+      "calls": 658036,
+      "elapsed_ms": 212.116054
+    },
+    {
+      "name": "physics_process",
+      "source": "main\\main.cpp",
+      "line": 5000,
+      "calls": 183,
+      "elapsed_ms": 210.939932
+    },
+    {
+      "name": "render viewport",
+      "source": "servers\\rendering\\renderer_viewport.cpp",
+      "line": 864,
+      "calls": 172,
+      "elapsed_ms": 172.138139
+    },
+    {
+      "name": "process",
+      "source": "main\\main.cpp",
+      "line": 5061,
+      "calls": 43,
+      "elapsed_ms": 164.617674
+    },
+    {
+      "name": "observed",
+      "source": "res://source/match/combat/Battlefield.gd",
+      "line": 325,
+      "calls": 34274,
+      "elapsed_ms": 133.721875
+    },
+    {
+      "name": "draw_graph.end",
+      "source": "servers\\rendering\\rendering_device.cpp",
+      "line": 8122,
+      "calls": 43,
+      "elapsed_ms": 82.116023
+    },
+    {
+      "name": "_advance_poses",
+      "source": "res://source/match/rendering/UnitBatchRenderer.gd",
+      "line": 606,
+      "calls": 43,
+      "elapsed_ms": 71.955985
+    },
+    {
+      "name": "wait_for_group_task_completion",
+      "source": "res://source/match/rendering/ParallelPoseBatch.gd",
+      "line": 28,
+      "calls": 86,
+      "elapsed_ms": 67.115534
+    },
+    {
+      "name": "_prepare_pose",
+      "source": "res://source/match/units/traits/BastionVisuals.gd",
+      "line": 579,
+      "calls": 25221,
+      "elapsed_ms": 61.612545
+    },
+    {
+      "name": "begin_frame",
+      "source": "res://source/match/NativeCrowdRuntime.gd",
+      "line": 91,
+      "calls": 184,
+      "elapsed_ms": 61.28681
+    },
+    {
+      "name": "advance_pose",
+      "source": "res://source/match/units/traits/InfantryMotion.gd",
+      "line": 172,
+      "calls": 5641,
+      "elapsed_ms": 58.659517
+    },
+    {
+      "name": "height_at",
+      "source": "res://source/match/maps/terrain/TerrainModel.gd",
+      "line": 98,
+      "calls": 99768,
+      "elapsed_ms": 55.948092
+    },
+    {
+      "name": "_solve_arm",
+      "source": "res://source/match/units/traits/InfantryMotion.gd",
+      "line": 373,
+      "calls": 8622,
+      "elapsed_ms": 51.174002
+    },
+    {
+      "name": "terrain_advantage",
+      "source": "res://source/match/units/Unit.gd",
+      "line": 351,
+      "calls": 122040,
+      "elapsed_ms": 50.650256
+    },
+    {
+      "name": "3D physics",
+      "source": "main\\main.cpp",
+      "line": 5033,
+      "calls": 184,
+      "elapsed_ms": 49.965542
+    },
+    {
+      "name": "explore_cells",
+      "source": "res://source/match/combat/CommanderSupport.gd",
+      "line": 426,
+      "calls": 6160,
+      "elapsed_ms": 49.713674
+    },
+    {
+      "name": "power_totals",
+      "source": "res://source/match/players/Player.gd",
+      "line": 199,
+      "calls": 1347,
+      "elapsed_ms": 49.673493
+    },
+    {
+      "name": "is_allied_with",
+      "source": "res://source/match/players/Player.gd",
+      "line": 103,
+      "calls": 160861,
+      "elapsed_ms": 49.026107
+    },
+    {
+      "name": "_get_type",
+      "source": "res://source/match/units/Unit.gd",
+      "line": 511,
+      "calls": 565277,
+      "elapsed_ms": 48.005148
+    },
+    {
+      "name": "_get_movement_domain",
+      "source": "res://source/match/units/Unit.gd",
+      "line": 453,
+      "calls": 214526,
+      "elapsed_ms": 47.336092
+    },
+    {
+      "name": "main loop iteration end",
+      "source": "main\\main.cpp",
+      "line": 5046,
+      "calls": 184,
+      "elapsed_ms": 47.181164
+    },
+    {
+      "name": "advance",
+      "source": "res://source/match/units/traits/WheelMotion.gd",
+      "line": 56,
+      "calls": 5163,
+      "elapsed_ms": 46.102236
+    },
+    {
+      "name": "_publish_simulation_pose",
+      "source": "res://source/match/units/traits/BastionVisuals.gd",
+      "line": 552,
+      "calls": 24618,
+      "elapsed_ms": 41.963242
+    },
+    {
+      "name": "can_target",
+      "source": "res://source/match/combat/CombatRules.gd",
+      "line": 90,
+      "calls": 34227,
+      "elapsed_ms": 41.000162
+    },
+    {
+      "name": "nearby_units_filtered",
+      "source": "res://source/match/combat/Battlefield.gd",
+      "line": 735,
+      "calls": 5287,
+      "elapsed_ms": 40.050827
+    },
+    {
+      "name": "is_observed",
+      "source": "res://source/match/combat/Battlefield.gd",
+      "line": 325,
+      "calls": 44455,
+      "elapsed_ms": 38.62529
+    },
+    {
+      "name": "_update_focus",
+      "source": "res://source/match/effects/WeaponPreparationVisual.gd",
+      "line": 113,
+      "calls": 3390,
+      "elapsed_ms": 38.296392
+    },
+    {
+      "name": "has_method",
+      "source": "res://source/match/players/Player.gd",
+      "line": 199,
+      "calls": 191514,
+      "elapsed_ms": 38.277201
+    },
+    {
+      "name": "pack",
+      "source": "res://source/match/rendering/UnitBatchRenderer.gd",
+      "line": 645,
+      "calls": 43,
+      "elapsed_ms": 34.468792
+    },
+    {
+      "name": "_physics_process",
+      "source": "res://source/match/units/Unit.gd",
+      "line": 266,
+      "calls": 97584,
+      "elapsed_ms": 34.187441
+    },
+    {
+      "name": "_puff",
+      "source": "res://source/match/effects/CombatEffects.gd",
+      "line": 354,
+      "calls": 26716,
+      "elapsed_ms": 31.617776
+    },
+    {
+      "name": "_find_threats",
+      "source": "res://source/match/players/skirmish-ai/SkirmishDefense.gd",
+      "line": 11,
+      "calls": 48,
+      "elapsed_ms": 31.342478
+    },
+    {
+      "name": "scene->update",
+      "source": "servers\\rendering\\rendering_server_default.cpp",
+      "line": 95,
+      "calls": 43,
+      "elapsed_ms": 31.197885
+    },
+    {
+      "name": "can_observe_point",
+      "source": "res://source/match/combat/Battlefield.gd",
+      "line": 235,
+      "calls": 24444,
+      "elapsed_ms": 31.18811
+    },
+    {
+      "name": "_get_navigation_trait",
+      "source": "res://source/match/units/Unit.gd",
+      "line": 437,
+      "calls": 243621,
+      "elapsed_ms": 30.749428
+    },
+    {
+      "name": "<anonymous lambda>",
+      "source": "res://source/match/players/Player.gd",
+      "line": 90,
+      "calls": 111117,
+      "elapsed_ms": 30.701658
+    },
+    {
+      "name": "allied",
+      "source": "res://source/match/Players.gd",
+      "line": 4,
+      "calls": 123762,
+      "elapsed_ms": 30.055734
+    },
+    {
+      "name": "effective_sight_range",
+      "source": "res://source/match/units/Unit.gd",
+      "line": 371,
+      "calls": 121579,
+      "elapsed_ms": 29.764451
+    },
+    {
+      "name": "_finish_pose",
+      "source": "res://source/match/units/traits/BastionVisuals.gd",
+      "line": 621,
+      "calls": 25221,
+      "elapsed_ms": 29.532586
+    },
+    {
+      "name": "_apply_geometry",
+      "source": "res://source/match/units/traits/BastionVisuals.gd",
+      "line": 683,
+      "calls": 17616,
+      "elapsed_ms": 29.351986
+    },
+    {
+      "name": "_sync_circles_to_unit",
+      "source": "res://source/match/FogOfWar.gd",
+      "line": 100,
+      "calls": 12040,
+      "elapsed_ms": 28.483404
+    },
+    {
+      "name": "advance",
+      "source": "res://source/match/units/traits/ChassisMotion.gd",
+      "line": 117,
+      "calls": 17545,
+      "elapsed_ms": 28.312841
+    },
+    {
+      "name": "plateau_at",
+      "source": "res://source/match/TerrainNavigation.gd",
+      "line": 41,
+      "calls": 43715,
+      "elapsed_ms": 27.554146
+    },
+    {
+      "name": "find_child",
+      "source": "res://source/match/players/Player.gd",
+      "line": 227,
+      "calls": 9711,
+      "elapsed_ms": 27.18459
+    },
+    {
+      "name": "_integrate",
+      "source": "res://source/match/units/traits/ChassisMotion.gd",
+      "line": 150,
+      "calls": 17009,
+      "elapsed_ms": 27.099827
+    },
+    {
+      "name": "_sync_real_units_with_minimap_representations",
+      "source": "res://source/match/hud/Minimap.gd",
+      "line": 166,
+      "calls": 43,
+      "elapsed_ms": 27.068771
+    },
+    {
+      "name": "movement_dust",
+      "source": "res://source/match/effects/CombatEffects.gd",
+      "line": 786,
+      "calls": 4624,
+      "elapsed_ms": 26.519658
+    },
+    {
+      "name": "_physics_process",
+      "source": "res://source/match/units/traits/Movement.gd",
+      "line": 128,
+      "calls": 73624,
+      "elapsed_ms": 25.461743
+    },
+    {
+      "name": "_sync_unit",
+      "source": "res://source/match/hud/Minimap.gd",
+      "line": 201,
+      "calls": 8316,
+      "elapsed_ms": 25.451777
+    },
+    {
+      "name": "<anonymous lambda>",
+      "source": "res://source/match/players/skirmish-ai/SkirmishEconomy.gd",
+      "line": 29,
+      "calls": 147840,
+      "elapsed_ms": 25.299468
+    },
+    {
+      "name": "_ground_height",
+      "source": "res://source/match/effects/CombatEffects.gd",
+      "line": 368,
+      "calls": 38249,
+      "elapsed_ms": 25.071354
+    },
+    {
+      "name": "_take_player",
+      "source": "res://source/match/audio/CombatAudio.gd",
+      "line": 469,
+      "calls": 2698,
+      "elapsed_ms": 23.980002
+    },
+    {
+      "name": "_on_velocity_computed",
+      "source": "res://source/match/units/traits/Movement.gd",
+      "line": 611,
+      "calls": 7360,
+      "elapsed_ms": 23.832085
+    },
+    {
+      "name": "_rotate_unit_towards_target",
+      "source": "res://source/match/units/actions/AttackingWhileInRange.gd",
+      "line": 86,
+      "calls": 20862,
+      "elapsed_ms": 23.786249
+    },
+    {
+      "name": "_physics_process",
+      "source": "res://source/match/units/traits/InfantrySuppression.gd",
+      "line": 43,
+      "calls": 22088,
+      "elapsed_ms": 22.400706
+    },
+    {
+      "name": "get_parent",
+      "source": "res://source/match/units/Unit.gd",
+      "line": 149,
+      "calls": 658036,
+      "elapsed_ms": 21.463161
+    },
+    {
+      "name": "has_method",
+      "source": "res://source/match/Players.gd",
+      "line": 4,
+      "calls": 101197,
+      "elapsed_ms": 21.207974
+    }
+  ],
+  "top_inclusive_zones": [
+    {
+      "name": "OS_Windows::run",
+      "source": "platform\\windows\\os_windows.cpp",
+      "line": 2351,
+      "calls": 42,
+      "elapsed_ms": 6031.11757
+    },
+    {
+      "name": "Main::iteration",
+      "source": "main\\main.cpp",
+      "line": 4922,
+      "calls": 42,
+      "elapsed_ms": 6030.700913
+    },
+    {
+      "name": "Physics Step",
+      "source": "main\\main.cpp",
+      "line": 4971,
+      "calls": 183,
+      "elapsed_ms": 3315.231536
+    },
+    {
+      "name": "physics",
+      "source": "main\\main.cpp",
+      "line": 4969,
+      "calls": 42,
+      "elapsed_ms": 3301.556441
+    },
+    {
+      "name": "physics_process",
+      "source": "main\\main.cpp",
+      "line": 5000,
+      "calls": 183,
+      "elapsed_ms": 2753.153579
+    },
+    {
+      "name": "process",
+      "source": "main\\main.cpp",
+      "line": 5061,
+      "calls": 43,
+      "elapsed_ms": 2478.459059
+    },
+    {
+      "name": "_process",
+      "source": "res://source/match/rendering/UnitBatchRenderer.gd",
+      "line": 563,
+      "calls": 43,
+      "elapsed_ms": 922.595397
+    },
+    {
+      "name": "_advance_poses",
+      "source": "res://source/match/rendering/UnitBatchRenderer.gd",
+      "line": 563,
+      "calls": 43,
+      "elapsed_ms": 921.148263
+    },
+    {
+      "name": "_advance_poses",
+      "source": "res://source/match/rendering/UnitBatchRenderer.gd",
+      "line": 606,
+      "calls": 43,
+      "elapsed_ms": 921.124965
+    },
+    {
+      "name": "is_observed",
+      "source": "res://source/match/combat/Battlefield.gd",
+      "line": 325,
+      "calls": 44455,
+      "elapsed_ms": 766.482586
+    },
+    {
+      "name": "_physics_process",
+      "source": "res://source/match/units/actions/AttackingWhileInRange.gd",
+      "line": 48,
+      "calls": 20674,
+      "elapsed_ms": 732.949087
+    },
+    {
+      "name": "_teardown_if_out_of_range",
+      "source": "res://source/match/units/actions/AttackingWhileInRange.gd",
+      "line": 216,
+      "calls": 7157,
+      "elapsed_ms": 669.44905
+    },
+    {
+      "name": "can_fire",
+      "source": "res://source/match/combat/Battlefield.gd",
+      "line": 384,
+      "calls": 7416,
+      "elapsed_ms": 659.239558
+    },
+    {
+      "name": "can_fire",
+      "source": "res://source/match/units/actions/AttackingWhileInRange.gd",
+      "line": 216,
+      "calls": 7157,
+      "elapsed_ms": 653.535998
+    },
+    {
+      "name": "_physics_process",
+      "source": "res://source/match/combat/ProjectileSystem.gd",
+      "line": 252,
+      "calls": 184,
+      "elapsed_ms": 596.339644
+    },
+    {
+      "name": "_step",
+      "source": "res://source/match/combat/ProjectileSystem.gd",
+      "line": 252,
+      "calls": 2653,
+      "elapsed_ms": 594.658145
+    },
+    {
+      "name": "_step",
+      "source": "res://source/match/combat/ProjectileSystem.gd",
+      "line": 261,
+      "calls": 2653,
+      "elapsed_ms": 594.218571
+    },
+    {
+      "name": "is_observed",
+      "source": "res://source/match/combat/Battlefield.gd",
+      "line": 384,
+      "calls": 7324,
+      "elapsed_ms": 523.914823
+    },
+    {
+      "name": "_teardown_if_out_of_range",
+      "source": "res://source/match/units/actions/AttackingWhileInRange.gd",
+      "line": 48,
+      "calls": 1583,
+      "elapsed_ms": 516.344992
+    },
+    {
+      "name": "_refresh",
+      "source": "res://source/match/combat/Battlefield.gd",
+      "line": 89,
+      "calls": 86878,
+      "elapsed_ms": 494.838393
+    },
+    {
+      "name": "_refresh",
+      "source": "res://source/match/combat/Battlefield.gd",
+      "line": 325,
+      "calls": 34274,
+      "elapsed_ms": 476.268405
+    },
+    {
+      "name": "_finish_pose",
+      "source": "res://source/match/units/traits/BastionVisuals.gd",
+      "line": 621,
+      "calls": 25221,
+      "elapsed_ms": 475.053385
+    },
+    {
+      "name": "finish_gpu_pose",
+      "source": "res://source/match/rendering/UnitBatchRenderer.gd",
+      "line": 606,
+      "calls": 24080,
+      "elapsed_ms": 460.051594
+    },
+    {
+      "name": "finish_gpu_pose",
+      "source": "res://source/match/units/traits/BastionVisuals.gd",
+      "line": 452,
+      "calls": 24080,
+      "elapsed_ms": 457.54552
+    },
+    {
+      "name": "NavigationServer3D::physics_process",
+      "source": "main\\main.cpp",
+      "line": 5022,
+      "calls": 184,
+      "elapsed_ms": 453.014681
+    },
+    {
+      "name": "index_observers",
+      "source": "res://source/match/combat/Battlefield.gd",
+      "line": 89,
+      "calls": 184,
+      "elapsed_ms": 450.661519
+    },
+    {
+      "name": "_finish_pose",
+      "source": "res://source/match/units/traits/BastionVisuals.gd",
+      "line": 452,
+      "calls": 24080,
+      "elapsed_ms": 440.130427
+    },
+    {
+      "name": "_detonate",
+      "source": "res://source/match/combat/ProjectileSystem.gd",
+      "line": 413,
+      "calls": 535,
+      "elapsed_ms": 411.138819
+    },
+    {
+      "name": "_detonate",
+      "source": "res://source/match/combat/ProjectileSystem.gd",
+      "line": 261,
+      "calls": 504,
+      "elapsed_ms": 387.363863
+    },
+    {
+      "name": "receive_shot",
+      "source": "res://source/match/combat/ProjectileSystem.gd",
+      "line": 413,
+      "calls": 631,
+      "elapsed_ms": 383.284037
+    },
+    {
+      "name": "receive_shot",
+      "source": "res://source/match/units/Unit.gd",
+      "line": 307,
+      "calls": 631,
+      "elapsed_ms": 383.150187
+    },
+    {
+      "name": "_process",
+      "source": "res://source/match/players/skirmish-ai/SkirmishAI.gd",
+      "line": 44,
+      "calls": 129,
+      "elapsed_ms": 367.207213
+    },
+    {
+      "name": "receive_damage",
+      "source": "res://source/match/units/Unit.gd",
+      "line": 307,
+      "calls": 631,
+      "elapsed_ms": 360.465867
+    },
+    {
+      "name": "receive_damage",
+      "source": "res://source/match/units/Unit.gd",
+      "line": 313,
+      "calls": 631,
+      "elapsed_ms": 360.32818
+    },
+    {
+      "name": "_physics_process",
+      "source": "res://source/match/Skirmish.gd",
+      "line": 98,
+      "calls": 184,
+      "elapsed_ms": 357.48434
+    },
+    {
+      "name": "RenderingServer::draw",
+      "source": "main\\main.cpp",
+      "line": 5079,
+      "calls": 43,
+      "elapsed_ms": 302.503701
+    },
+    {
+      "name": "_command_army",
+      "source": "res://source/match/players/skirmish-ai/SkirmishAI.gd",
+      "line": 44,
+      "calls": 12,
+      "elapsed_ms": 291.335237
+    },
+    {
+      "name": "_command_army",
+      "source": "res://source/match/players/skirmish-ai/SkirmishAI.gd",
+      "line": 464,
+      "calls": 12,
+      "elapsed_ms": 291.330537
+    },
+    {
+      "name": "_physics_process",
+      "source": "res://source/match/Skirmish.gd",
+      "line": 98,
+      "calls": 184,
+      "elapsed_ms": 289.381349
+    },
+    {
+      "name": "_physics_process",
+      "source": "res://source/match/Match.gd",
+      "line": 228,
+      "calls": 184,
+      "elapsed_ms": 289.323429
+    },
+    {
+      "name": "step",
+      "source": "res://source/match/Match.gd",
+      "line": 228,
+      "calls": 184,
+      "elapsed_ms": 289.162092
+    },
+    {
+      "name": "step",
+      "source": "res://source/match/NativeCrowdRuntime.gd",
+      "line": 100,
+      "calls": 184,
+      "elapsed_ms": 289.050275
+    },
+    {
+      "name": "step",
+      "source": "res://source/match/NativeCrowdRuntime.gd",
+      "line": 100,
+      "calls": 184,
+      "elapsed_ms": 288.915807
+    },
+    {
+      "name": "_solve_lane",
+      "source": "res://source/match/rendering/ParallelPoseBatch.gd",
+      "line": 44,
+      "calls": 344,
+      "elapsed_ms": 246.288534
+    },
+    {
+      "name": "solve",
+      "source": "res://source/match/rendering/ParallelPoseBatch.gd",
+      "line": 44,
+      "calls": 29160,
+      "elapsed_ms": 240.34651
+    },
+    {
+      "name": "@player_getter",
+      "source": "res://source/match/units/Unit.gd",
+      "line": 149,
+      "calls": 658036,
+      "elapsed_ms": 233.579215
+    },
+    {
+      "name": "effective_sight_range",
+      "source": "res://source/match/units/Unit.gd",
+      "line": 371,
+      "calls": 121579,
+      "elapsed_ms": 222.675189
+    },
+    {
+      "name": "command",
+      "source": "res://source/match/players/skirmish-ai/SkirmishAI.gd",
+      "line": 464,
+      "calls": 48,
+      "elapsed_ms": 200.11433
+    },
+    {
+      "name": "_hit_target",
+      "source": "res://source/match/units/actions/AttackingWhileInRange.gd",
+      "line": 186,
+      "calls": 538,
+      "elapsed_ms": 197.950807
+    },
+    {
+      "name": "terrain_advantage",
+      "source": "res://source/match/units/Unit.gd",
+      "line": 371,
+      "calls": 121579,
+      "elapsed_ms": 192.910738
+    },
+    {
+      "name": "terrain_advantage",
+      "source": "res://source/match/units/Unit.gd",
+      "line": 351,
+      "calls": 122040,
+      "elapsed_ms": 183.793129
+    },
+    {
+      "name": "_on_timer_timeout",
+      "source": "res://source/match/units/actions/WaitingForTargets.gd",
+      "line": 65,
+      "calls": 1447,
+      "elapsed_ms": 179.654191
+    },
+    {
+      "name": "fire",
+      "source": "res://source/match/units/actions/AttackingWhileInRange.gd",
+      "line": 186,
+      "calls": 538,
+      "elapsed_ms": 176.971644
+    },
+    {
+      "name": "fire",
+      "source": "res://source/match/combat/ProjectileSystem.gd",
+      "line": 68,
+      "calls": 538,
+      "elapsed_ms": 176.773688
+    },
+    {
+      "name": "launch",
+      "source": "res://source/match/combat/ProjectileSystem.gd",
+      "line": 68,
+      "calls": 538,
+      "elapsed_ms": 176.317993
+    },
+    {
+      "name": "launch",
+      "source": "res://source/match/combat/ProjectileSystem.gd",
+      "line": 79,
+      "calls": 538,
+      "elapsed_ms": 176.107265
+    },
+    {
+      "name": "viewport->draw_viewports",
+      "source": "servers\\rendering\\rendering_server_default.cpp",
+      "line": 108,
+      "calls": 43,
+      "elapsed_ms": 173.471992
+    },
+    {
+      "name": "movement_dust",
+      "source": "res://source/match/units/traits/BastionVisuals.gd",
+      "line": 621,
+      "calls": 4624,
+      "elapsed_ms": 172.684309
+    },
+    {
+      "name": "render viewports",
+      "source": "servers\\rendering\\renderer_viewport.cpp",
+      "line": 810,
+      "calls": 43,
+      "elapsed_ms": 172.414447
+    },
+    {
+      "name": "render viewport",
+      "source": "servers\\rendering\\renderer_viewport.cpp",
+      "line": 864,
+      "calls": 172,
+      "elapsed_ms": 172.138139
+    }
+  ],
+  "engine_main_zones": [
+    {
+      "name": "Main::iteration",
+      "source": "main\\main.cpp",
+      "line": 4922,
+      "calls": 42,
+      "elapsed_ms": 6030.700913
+    },
+    {
+      "name": "Physics Step",
+      "source": "main\\main.cpp",
+      "line": 4971,
+      "calls": 183,
+      "elapsed_ms": 3315.231536
+    },
+    {
+      "name": "physics",
+      "source": "main\\main.cpp",
+      "line": 4969,
+      "calls": 42,
+      "elapsed_ms": 3301.556441
+    },
+    {
+      "name": "physics_process",
+      "source": "main\\main.cpp",
+      "line": 5000,
+      "calls": 183,
+      "elapsed_ms": 2753.153579
+    },
+    {
+      "name": "process",
+      "source": "main\\main.cpp",
+      "line": 5061,
+      "calls": 43,
+      "elapsed_ms": 2478.459059
+    },
+    {
+      "name": "NavigationServer3D::physics_process",
+      "source": "main\\main.cpp",
+      "line": 5022,
+      "calls": 184,
+      "elapsed_ms": 453.014681
+    },
+    {
+      "name": "RenderingServer::draw",
+      "source": "main\\main.cpp",
+      "line": 5079,
+      "calls": 43,
+      "elapsed_ms": 302.503701
+    },
+    {
+      "name": "main loop iteration end",
+      "source": "main\\main.cpp",
+      "line": 5046,
+      "calls": 184,
+      "elapsed_ms": 61.128597
+    },
+    {
+      "name": "3D physics",
+      "source": "main\\main.cpp",
+      "line": 5033,
+      "calls": 184,
+      "elapsed_ms": 49.965542
+    },
+    {
+      "name": "main loop iteration prepare",
+      "source": "main\\main.cpp",
+      "line": 4985,
+      "calls": 184,
+      "elapsed_ms": 8.548359
+    },
+    {
+      "name": "AudioServer::update",
+      "source": "main\\main.cpp",
+      "line": 5111,
+      "calls": 43,
+      "elapsed_ms": 4.165483
+    },
+    {
+      "name": "PhysicsServer3D::sync",
+      "source": "main\\main.cpp",
+      "line": 4989,
+      "calls": 184,
+      "elapsed_ms": 2.825199
+    },
+    {
+      "name": "PhysicsServer2D::sync",
+      "source": "main\\main.cpp",
+      "line": 4995,
+      "calls": 184,
+      "elapsed_ms": 0.148008
+    },
+    {
+      "name": "2D physics",
+      "source": "main\\main.cpp",
+      "line": 5039,
+      "calls": 184,
+      "elapsed_ms": 0.1304
+    },
+    {
+      "name": "NavigationServer2D::physics_process",
+      "source": "main\\main.cpp",
+      "line": 5018,
+      "calls": 184,
+      "elapsed_ms": 0.07172
+    },
+    {
+      "name": "prepare",
+      "source": "main\\main.cpp",
+      "line": 4923,
+      "calls": 43,
+      "elapsed_ms": 0.060978
+    },
+    {
+      "name": "process 2D navigation",
+      "source": "main\\main.cpp",
+      "line": 5068,
+      "calls": 43,
+      "elapsed_ms": 0.04554
+    },
+    {
+      "name": "OS::add_frame_delay",
+      "source": "main\\main.cpp",
+      "line": 5177,
+      "calls": 43,
+      "elapsed_ms": 0.03597
+    },
+    {
+      "name": "process 3D navigation",
+      "source": "main\\main.cpp",
+      "line": 5072,
+      "calls": 43,
+      "elapsed_ms": 0.030589
+    },
+    {
+      "name": "setup",
+      "source": "main\\main.cpp",
+      "line": 4972,
+      "calls": 184,
+      "elapsed_ms": 0.021669
+    },
+    {
+      "name": "ScriptServer::frame",
+      "source": "main\\main.cpp",
+      "line": 5106,
+      "calls": 43,
+      "elapsed_ms": 0.01967
+    },
+    {
+      "name": "GDExtensionManager::frame",
+      "source": "main\\main.cpp",
+      "line": 5103,
+      "calls": 43,
+      "elapsed_ms": 0.017349
+    },
+    {
+      "name": "RenderingServer::sync",
+      "source": "main\\main.cpp",
+      "line": 5076,
+      "calls": 43,
+      "elapsed_ms": 0.00953
+    },
+    {
+      "name": "xr_server->_process",
+      "source": "main\\main.cpp",
+      "line": 4965,
+      "calls": 43,
+      "elapsed_ms": 0.00922
+    }
+  ]
+}

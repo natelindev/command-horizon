@@ -76,7 +76,7 @@ func _run():
 				+ "rollout and taxi back, rearm, parked ground target, missile strike, level bombing"
 			)
 		)
-	quit(0 if _errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if _errors.is_empty() else 1)
 
 
 func _test_parking(fighter):

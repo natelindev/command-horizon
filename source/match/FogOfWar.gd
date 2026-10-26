@@ -20,6 +20,7 @@ var _outline_origins = {}
 var _outline_airborne = {}
 var _outline_reach = {}
 var _outline_deadline = 0
+var _presented_tick = -1
 
 @onready var _revealer = find_child("Revealer")
 @onready var _fog_viewport = find_child("FogViewport")
@@ -39,6 +40,16 @@ func _ready():
 	)
 	_revealer.hide()
 	find_child("EditorOnlyCircle").queue_free()
+	# Fog is presentation. Catch-up ticks need only their final rendered state;
+	# weapon visibility continues to query live simulation positions separately.
+	set_physics_process(false)
+
+
+func _process(delta):
+	var tick = Engine.get_physics_frames()
+	if tick != _presented_tick:
+		_presented_tick = tick
+		_physics_process(delta)
 
 
 func _physics_process(_delta):

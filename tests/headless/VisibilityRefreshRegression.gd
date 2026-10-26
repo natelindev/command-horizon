@@ -92,7 +92,7 @@ func _run():
 	for message in failures:
 		push_error(message)
 	print("Visibility refresh owner, fog and slice regression: ", failures.size(), " failures")
-	quit(0 if failures.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if failures.is_empty() else 1)
 
 
 func _check(condition, message):

@@ -37,6 +37,13 @@ func _run():
 	building = _building()
 	human = game._get_human_player()
 	enemy = get_nodes_in_group("players").filter(func(side): return side != human)[0]
+	_check(not building.occupants.is_empty(), "Occupied building lost its garrison on restore")
+	if building.occupants.is_empty():
+		for message in errors:
+			push_error(message)
+		await _close()
+		await root.get_node("Globals").quit_game(1)
+		return
 	invader = building.occupants[0]
 	invader.hp = 0
 	building._physics_process(.1)
@@ -52,7 +59,7 @@ func _run():
 	for message in errors:
 		push_error(message)
 	print("Persistent neutral ownership: %d failures" % errors.size())
-	quit(0 if errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
 
 
 func _enter_building(building, side):
@@ -63,7 +70,12 @@ func _enter_building(building, side):
 	# Use the same contextual command as right-clicking an empty enemy building.
 	var controller = game._get_human_player().get_node("UnitActionsController")
 	_check(controller._navigate_unit_towards_unit(soldier, building), "Capture command rejected")
-	await _frames(30)
+	# A neutral/enemy building now requires the normal 15-second capture. Wait
+	# for that outcome, with bounded room for navigation and the action cadence.
+	var duration = load("res://source/match/units/actions/Garrisoning.gd").CAPTURE_DURATION
+	var deadline = game.simulation_time + duration + 3.0
+	while not soldier.has_meta("garrison_host") and game.simulation_time < deadline:
+		await _frames(1)
 	_check(
 		soldier.has_meta("garrison_host") and building.player == side, "Infantry failed to enter"
 	)

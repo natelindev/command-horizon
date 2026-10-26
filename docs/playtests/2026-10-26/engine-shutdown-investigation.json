@@ -1,0 +1,71 @@
+{
+  "kind": "engine_shutdown_investigation",
+  "engine": "4.7.2 stable ed1daf0bf",
+  "baseline_pack": "untouched pre-optimization release benchmark pack",
+  "baseline_native_sha256": "BB76501646911913902C20F6733032DC7FF6CC1EFD673EAA1238FEBBF85D49C4",
+  "current_native_sha256_at_entry_mode_test": "4A341463C439E5C92616F2E4E5A7AD1DA2E9486D4ADDED6F521B54E3B75106E1",
+  "baseline_results": [
+    {
+      "test": "CameraFeelRegression",
+      "runs": 6,
+      "assertions_passed": 6,
+      "nonzero_exits": [
+        {
+          "test": "CameraFeelRegression",
+          "attempt": 6,
+          "exit": 3221225477,
+          "assertions_passed": true
+        }
+      ]
+    },
+    {
+      "test": "RuntimeShutdownRegression",
+      "runs": 12,
+      "assertions_passed": 12,
+      "nonzero_exits": []
+    }
+  ],
+  "entry_mode_comparison": [
+    {
+      "mode": "packed",
+      "runs": 30,
+      "nonzero_exits": [
+        {
+          "mode": "packed",
+          "attempt": 15,
+          "exit": 3221225477,
+          "assertions_passed": true,
+          "script_errors": false
+        },
+        {
+          "mode": "packed",
+          "attempt": 17,
+          "exit": 3221225477,
+          "assertions_passed": true,
+          "script_errors": false
+        }
+      ]
+    },
+    {
+      "mode": "source",
+      "runs": 30,
+      "nonzero_exits": [
+        {
+          "mode": "source",
+          "attempt": 6,
+          "exit": 3221225477,
+          "assertions_passed": true,
+          "script_errors": false
+        },
+        {
+          "mode": "source",
+          "attempt": 25,
+          "exit": 3221225477,
+          "assertions_passed": true,
+          "script_errors": false
+        }
+      ]
+    }
+  ],
+  "conclusion": "Intermittent post-assertion 0xC0000005 also occurs on untouched baseline. Source script entry does not fix it. No retry or alternate entry workaround was added to the release builder."
+}

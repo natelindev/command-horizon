@@ -154,12 +154,26 @@ func clear_route(ignore_friendly = false):
 	if ignore_friendly:
 		_exit_blockers.clear()
 	var game = producer._match
-	var units = (
-		get_tree().get_nodes_in_group("units") + get_tree().get_nodes_in_group("resource_units")
-	)
-	var previous = _origin
+	# Bound the sampled route once. Exact domain, ghosting and 3D contact tests
+	# below are unchanged, while distant armies never enter the inner loop.
+	var samples = []
+	var center = (_origin + endpoint) * .5
+	var reach = 0.0
 	for index in range(1, 13):
 		var point = route_point(index / 12.0)
+		samples.append(point)
+		reach = maxf(reach, ((point - center) * Vector3(1, 0, 1)).length())
+	var units = game.battlefield.nearby_bodies(center, reach + radius + .08)
+	for resource in game.get_cached_group("resource_units"):
+		var bound = reach + radius + resource.radius + .08
+		if (
+			resource.global_position_yless.distance_squared_to(center * Vector3(1, 0, 1))
+			<= bound * bound
+		):
+			if resource not in units:
+				units.append(resource)
+	var previous = _origin
+	for point in samples:
 		for unit in units:
 			if (
 				unit == producer

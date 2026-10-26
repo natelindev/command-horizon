@@ -35,6 +35,22 @@ var _pose_workers = preload("res://source/match/rendering/ParallelPoseBatch.gd")
 var _parallel_poses := not "--serial-pose-jobs" in OS.get_cmdline_user_args()
 var _infantry_jobs_enabled := not "--no-infantry-workers" in OS.get_cmdline_user_args()
 var _decoupled_poses := "--enable-decoupled-poses" in OS.get_cmdline_user_args()
+var _render_pose_updates := not "--physics-pose-updates" in OS.get_cmdline_user_args()
+var _pending_pose_delta := 0.0
+var _native_infantry_poses := "--native-infantry-poses" in OS.get_cmdline_user_args()
+var _native_infantry_solved := 0
+var _native_infantry_fallbacks := 0
+var _native_pose_rigs := (
+	"--native-pose-rigs" in OS.get_cmdline_user_args()
+	or "--native-presentation" in OS.get_cmdline_user_args()
+)
+var _presentation: RefCounted
+var _presentation_entries := {}
+var _resident_rigs := 0
+var _profile_runtime := "--profile-runtime" in OS.get_cmdline_user_args()
+# roots, prepare, chassis solve, finish, infantry solve, publish, upload;
+# each stage has total elapsed microseconds followed by its call count.
+var _profile_us := PackedInt64Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 
 
 func _ready():
@@ -44,6 +60,20 @@ func _ready():
 		set_process(false)
 		set_physics_process(false)
 		return
+	_render_pose_updates = _render_pose_updates and _native.has_method("rebase_poses")
+	_native_infantry_poses = (_native_infantry_poses and _native.has_method("solve_infantry_batch"))
+	_native_pose_rigs = _native_pose_rigs and ClassDB.class_exists("CopperfinPoseRig")
+	if (
+		"--native-presentation" in OS.get_cmdline_user_args()
+		and _render_pose_updates
+		and _native_pose_rigs
+		and ClassDB.class_exists("CopperfinPresentationBatch")
+	):
+		_presentation = ClassDB.instantiate("CopperfinPresentationBatch")
+		if not _presentation.configure(POSE_CAPACITY):
+			_presentation = null
+	if _render_pose_updates:
+		get_tree().physics_frame.connect(_capture_physics_roots)
 	_orphans = Node3D.new()
 	_orphans.name = "ParkedMeshSources"
 	_orphans.hide()
@@ -215,6 +245,14 @@ func _add_unit(unit):
 		return
 	if not _models.has(signature):
 		_models[signature] = _builder.merge(pieces)
+	var extent := 0.0
+	var inverse_root: Transform3D = unit.global_transform.affine_inverse()
+	for piece in pieces:
+		var source: MeshInstance3D = piece[0]
+		var bounds := source.mesh.get_aabb()
+		var relative: Transform3D = inverse_root * source.global_transform
+		for corner in 8:
+			extent = maxf(extent, (relative * bounds.get_endpoint(corner)).length())
 	var entry := {
 		"unit": unit,
 		"owner": unit.player,
@@ -222,6 +260,9 @@ func _add_unit(unit):
 		"anchors": anchors,
 		"offset": offset,
 		"mesh": _models[signature],
+		# Twice the rest reach covers articulation around offset pivots; leave
+		# additional room for recoil, suspension and the previous motion sample.
+		"bounds_radius": extent * 2.0 + 2.0,
 		"sources": [],
 		"group": null,
 		"slot": -1,
@@ -232,6 +273,10 @@ func _add_unit(unit):
 		"reset": true,
 		"shown": false,
 		"pulse": Color(0, 0, 0, 0),
+		"step_delta": 0.0,
+		"physics_root": unit.global_transform,
+		"sampled_root": unit.global_transform,
+		"rebase": Transform3D.IDENTITY,
 	}
 	for piece in pieces:
 		var source: MeshInstance3D = piece[0]
@@ -259,11 +304,53 @@ func _add_unit(unit):
 	unit.tree_exiting.connect(_unit_exiting.bind(unit), CONNECT_ONE_SHOT)
 	geometry.set_meta("gpu_batch_renderer", weakref(self))
 	_detach_sources(entry)
-	visuals.set_gpu_interpolation(true, anchors if _decoupled_poses else [], _native)
-	if _decoupled_poses:
+	var decoupled := (
+		_decoupled_poses
+		or _native_pose_rigs
+		or (_native_infantry_poses and visuals._infantry_motion != null)
+	)
+	visuals.set_gpu_interpolation(true, anchors if decoupled else [], _native)
+	if decoupled:
 		entry.poses = visuals._pose_hierarchy.job.palette
+		if visuals._pose_hierarchy.job.native_rig != null:
+			entry.native_rig = visuals._pose_hierarchy.job.native_rig
+			visuals._pose_hierarchy.job.direct_palette = true
+			_resident_rigs += 1
 		_world_jobs.append(visuals._pose_hierarchy.job)
 	_join_group(entry)
+	if _presentation != null:
+		var handle: int = _presentation.bind_unit(
+			unit, geometry, anchors, entry.get("native_rig"), offset, entry.bounds_radius
+		)
+		if handle < 0:
+			_disable_native_presentation()
+		else:
+			entry.presentation_handle = handle
+			_presentation_entries[handle] = entry
+			visuals.set_native_presentation(_presentation, handle)
+			_update_native_pulse(entry)
+
+
+func _disable_native_presentation():
+	for entry in _presentation_entries.values():
+		entry.visuals.set_native_presentation(null, -1)
+		entry.erase("presentation_handle")
+	_presentation_entries.clear()
+	_presentation = null
+
+
+func _update_native_pulse(entry):
+	if _presentation == null or not entry.has("presentation_handle"):
+		return
+	var overlay = entry.pulse_material
+	var material = null
+	if (
+		overlay is ShaderMaterial
+		and overlay.shader != null
+		and overlay.shader.resource_path.ends_with("material_hit.gdshader")
+	):
+		material = overlay
+	_presentation.set_pulse(entry.presentation_handle, material)
 
 
 func _detach_sources(entry):
@@ -310,12 +397,14 @@ func set_hit_pulse(geometry, material):
 	var unit = geometry.get_parent()
 	if _units.has(unit):
 		_units[unit].pulse_material = material
+		_update_native_pulse(_units[unit])
 
 
 func clear_hit_pulse(geometry, material):
 	var unit = geometry.get_parent()
 	if _units.has(unit) and _units[unit].pulse_material == material:
 		_units[unit].pulse_material = null
+		_update_native_pulse(_units[unit])
 
 
 func _unit_exiting(unit):
@@ -372,6 +461,7 @@ func _join_group(entry):
 	var position: Vector3 = entry.unit.global_position
 	var cell := Vector2i(floori(position.x / CELL_SIZE), floori(position.z / CELL_SIZE))
 	if entry.group != null and entry.group.cell == cell:
+		_grow_group_bounds(entry.group, position.y, entry.bounds_radius)
 		return
 	var key := [entry.mesh, cell]
 	_leave_group(entry)
@@ -382,17 +472,14 @@ func _join_group(entry):
 		mm.mesh = entry.mesh
 		mm.instance_count = GROUP_CAPACITY
 		mm.visible_instance_count = 0
-		# Bounds contain every model anchored in this cell, including aircraft and
-		# articulated extremities; cells restore useful MultiMesh culling at close zoom.
-		mm.custom_aabb = AABB(
-			Vector3(cell.x * CELL_SIZE - 24, -100, cell.y * CELL_SIZE - 24),
-			Vector3(CELL_SIZE + 48, 300, CELL_SIZE + 48)
-		)
 		var node := MultiMeshInstance3D.new()
 		node.multimesh = mm
 		add_child(node)
-		_groups[key] = {"cell": cell, "mm": mm, "entries": []}
+		_groups[key] = {
+			"cell": cell, "mm": mm, "entries": [], "padding": 0.0, "low": INF, "high": -INF
+		}
 	var group: Dictionary = _groups[key]
+	_grow_group_bounds(group, position.y, entry.bounds_radius)
 	if group.entries.size() >= GROUP_CAPACITY:
 		_invalidate(entry.unit)
 		return
@@ -402,6 +489,19 @@ func _join_group(entry):
 	group.mm.set_instance_transform(entry.slot, Transform3D.IDENTITY)
 	group.mm.set_instance_custom_data(entry.slot, Color(entry.offset, 0, 0, 0))
 	group.mm.visible_instance_count = group.entries.size()
+
+
+func _grow_group_bounds(group: Dictionary, height: float, radius: float):
+	if radius <= group.padding and height - radius >= group.low and height + radius <= group.high:
+		return
+	group.padding = maxf(group.padding, radius)
+	group.low = minf(group.low, height - radius - 1.0)
+	group.high = maxf(group.high, height + radius + 1.0)
+	var padding: float = group.padding
+	group.mm.custom_aabb = AABB(
+		Vector3(group.cell.x * CELL_SIZE - padding, group.low, group.cell.y * CELL_SIZE - padding),
+		Vector3(CELL_SIZE + padding * 2.0, group.high - group.low, CELL_SIZE + padding * 2.0)
+	)
 
 
 func _leave_group(entry):
@@ -421,6 +521,12 @@ func _invalidate(unit, exiting := false):
 	if not _units.has(unit):
 		return
 	var entry: Dictionary = _units[unit]
+	if entry.has("presentation_handle"):
+		entry.visuals.set_native_presentation(null, -1)
+		_presentation.unbind(entry.presentation_handle)
+		_presentation_entries.erase(entry.presentation_handle)
+	if entry.has("native_rig"):
+		_resident_rigs -= 1
 	_entries.erase(entry)
 	if entry.visuals._pose_hierarchy != null:
 		_world_jobs.erase(entry.visuals._pose_hierarchy.job)
@@ -455,6 +561,9 @@ func _invalidate(unit, exiting := false):
 
 
 func _process(_delta: float):
+	if _render_pose_updates and not get_tree().paused and _pending_pose_delta > 0.0:
+		_advance_poses(_pending_pose_delta)
+		_pending_pose_delta = 0.0
 	_compute.dispatch(
 		1.0 if get_tree().paused else Engine.get_physics_interpolation_fraction(), _pose_count
 	)
@@ -463,29 +572,99 @@ func _process(_delta: float):
 
 
 func _physics_process(delta: float):
+	if _render_pose_updates:
+		return
+	_advance_poses(delta)
+
+
+func _capture_physics_roots():
+	if get_tree().paused:
+		return
+	var profile_start := Time.get_ticks_usec() if _profile_runtime else 0
+	var delta = get_physics_process_delta_time()
+	_pending_pose_delta += delta
+	# This signal runs before movement, including NavigationServer callbacks.
+	# Retain the penultimate simulation root even when several ticks catch up.
+	if _presentation != null:
+		_presentation.capture(delta)
+	else:
+		for entry in _entries:
+			entry.physics_root = entry.unit.global_transform
+			entry.visuals._pose_elapsed += delta
+	_profile_stage(0, profile_start)
+
+
+func _profile_stage(index: int, began: int) -> int:
+	if not _profile_runtime:
+		return 0
+	var now := Time.get_ticks_usec()
+	_profile_us[index] += now - began
+	_profile_us[index + 7] += 1
+	return now
+
+
+func _advance_poses(delta: float):
 	if not get_tree().paused:
+		var profile_start := Time.get_ticks_usec() if _profile_runtime else 0
 		_chassis_jobs.clear()
 		for entry in _entries:
-			_chassis_jobs.append(entry.visuals.prepare_gpu_pose(delta))
+			entry.step_delta = entry.visuals._pose_elapsed if _render_pose_updates else delta
+			if _render_pose_updates:
+				entry.visuals._pose_elapsed = 0.0
+			_chassis_jobs.append(entry.visuals.prepare_gpu_pose(entry.step_delta))
+		profile_start = _profile_stage(1, profile_start)
 		_pose_workers.solve(_chassis_jobs, _parallel_poses)
+		profile_start = _profile_stage(2, profile_start)
 		_infantry_jobs.clear()
 		for entry in _entries:
 			var worker = entry.visuals._pose_worker
 			if worker != null and _infantry_jobs_enabled:
 				worker.begin()
-			entry.visuals.finish_gpu_pose(delta, false)
+			entry.visuals.finish_gpu_pose(entry.step_delta, false)
 			if worker != null and _infantry_jobs_enabled and worker.job.pending:
 				_infantry_jobs.append(worker.job)
-		_pose_workers.solve(_infantry_jobs, _parallel_poses, 16)
+		profile_start = _profile_stage(3, profile_start)
+		if _native_infantry_poses and _native.has_method("solve_infantry_batch"):
+			_native_infantry_solved = _native.solve_infantry_batch(_infantry_jobs)
+			_native_infantry_fallbacks = _infantry_jobs.size() - _native_infantry_solved
+			for job in _infantry_jobs:
+				if not job.native_solved:
+					job.solve()
+		else:
+			_pose_workers.solve(_infantry_jobs, _parallel_poses, 16)
+		profile_start = _profile_stage(4, profile_start)
 		for entry in _entries:
 			var worker = entry.visuals._pose_worker
 			if worker != null:
 				worker.end()
-			entry.visuals.publish_gpu_pose(delta)
+			entry.visuals.publish_gpu_pose(entry.step_delta)
+		_profile_stage(5, profile_start)
 		_upload_poses()
 
 
 func _upload_poses():
+	var profile_start := Time.get_ticks_usec() if _profile_runtime else 0
+	if _presentation != null:
+		for handle in _presentation.changes():
+			var entry: Dictionary = _presentation_entries[handle]
+			if (
+				not is_instance_valid(entry.unit)
+				or not is_instance_valid(entry.geometry)
+				or entry.unit.player != entry.owner
+			):
+				_invalidate(entry.unit)
+				continue
+			_join_group(entry)
+		var palettes: Array = _presentation.pack(get_tree().paused)
+		_previous_texture.update(
+			Image.create_from_data(4, POSE_CAPACITY, false, Image.FORMAT_RGBAF, palettes[1])
+		)
+		_last_pixels = palettes[0]
+		_texture.update(
+			Image.create_from_data(4, POSE_CAPACITY, false, Image.FORMAT_RGBAF, palettes[0])
+		)
+		_profile_stage(6, profile_start)
+		return
 	var cursor := 0
 	while cursor < _entries.size():
 		var entry = _entries[cursor]
@@ -514,6 +693,10 @@ func _upload_poses():
 		entry.shown = shown
 		entry.pulse = pulse
 		entry.reset = reset
+		if _render_pose_updates and not get_tree().paused:
+			entry.rebase = entry.physics_root * entry.sampled_root.affine_inverse()
+		else:
+			entry.rebase = Transform3D.IDENTITY
 		entry.visuals._publish_simulation_pose()
 	_pose_workers.solve(_world_jobs, _parallel_poses, 16)
 	# Activation requires the native uploader; otherwise the ordinary renderer
@@ -521,15 +704,20 @@ func _upload_poses():
 	var pixels: PackedByteArray = _native.pack_poses(_entries, POSE_CAPACITY)
 	for diagonal in [0, 5, 10]:
 		pixels.encode_float(diagonal * 4, 1.0)
+	var previous = (
+		_native.rebase_poses(_last_pixels, _entries) if _render_pose_updates else _last_pixels
+	)
 	for entry in _entries:
 		if entry.reset:
 			for index in range(entry.offset * 64, (entry.offset + entry.anchors.size()) * 64, 4):
-				_last_pixels.encode_float(index, pixels.decode_float(index))
+				previous.encode_float(index, pixels.decode_float(index))
+		entry.sampled_root = entry.unit.global_transform
 	_previous_texture.update(
-		Image.create_from_data(4, POSE_CAPACITY, false, Image.FORMAT_RGBAF, _last_pixels)
+		Image.create_from_data(4, POSE_CAPACITY, false, Image.FORMAT_RGBAF, previous)
 	)
 	_last_pixels = pixels
 	_texture.update(Image.create_from_data(4, POSE_CAPACITY, false, Image.FORMAT_RGBAF, pixels))
+	_profile_stage(6, profile_start)
 
 
 func _exit_tree():

@@ -2,6 +2,7 @@ extends "res://source/match/units/actions/Action.gd"
 
 const PointMovement = preload("res://source/match/units/actions/Moving.gd")
 const Shooting = preload("res://source/match/units/actions/AttackingWhileInRange.gd")
+const Phase = preload("res://source/match/utils/UpdatePhase.gd")
 var destination = Vector3.ZERO
 var _shot = null
 var _elapsed = 0.0
@@ -19,6 +20,7 @@ func _ready():
 	_movement.movement_finished.connect(_on_movement_finished)
 	if restoring:
 		return
+	_elapsed = Phase.fraction(_unit) * .1
 	_movement.move(destination)
 
 

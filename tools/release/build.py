@@ -23,7 +23,7 @@ TESTS = [
     "BehaviorRegression", "UnitAnimationRegression",
     "ChassisSpringRegression", "ParallelPoseRegression",
     "InfantryPoseWorkerRegression", "DecoupledPoseRegression",
-    "UnitRegistryRegression", "VisibilityRefreshRegression",
+    "UnitRegistryRegression", "PlayerRosterRegression", "VisibilityRefreshRegression",
     "InfantryRedesignRegression", "InfantryMeshBatchRegression",
     "InfantryDeathGroundRegression", "InfantryMotionRegression",
     "TerrainGroundingRegression", "CombatRegression", "AntiAirPriorityRegression",
@@ -37,7 +37,7 @@ TESTS = [
     "CliffMeshRegression", "AuthoredRelayRegression",
     "AuthoredGarrisonRegression",
     "SaveNavigationTimingRegression",
-    "ContactApproachRegression", "NavigationRegression", "MapPlayabilityRegression",
+    "ContactApproachRegression", "NavigationRegression", "NavigationProjectionRegression", "MapPlayabilityRegression",
     "MapPreviewRegression", "MusicRegression",
     "SelectionBatchRegression",
     "ProjectileSystemRegression", "ProjectilePhysicsRegression",
@@ -45,6 +45,8 @@ TESTS = [
     "AirSaveContinuityRegression", "RotorcraftCombatRegression", "FrontierCombatRegression",
     "AirfieldOperationsRegression", "GroundHeightAlignmentRegression", "GroundCrowdRecoveryRegression",
     "SkirmishBuildReadinessRegression",
+    "SkirmishCompositionRegression", "SkirmishDepositSelectionRegression",
+    "UnitAbilitiesRegression", "AlliedDefenseStatisticsRegression",
     "PresentationFeaturesRegression", "SettingsRegression", "UnitInfoTextRegression",
     "BattleHudProductionRegression", "ProductionBatchRegression", "BattleAftermathRegression",
     "MapPassageRegression", "ObjectMaterialsRegression", "RuntimeShutdownRegression",
@@ -138,9 +140,33 @@ def main():
             shutil.copytree(ROOT / "native/bin", output / "native/bin", dirs_exist_ok=True)
         run([engine, "--headless", "--path", ROOT, "--editor", "--quit"])
         if PLATFORM == "windows":
-            for test in ("NativePoseRegression", "NativeContactRegression", "SpatialQueryRegression"):
+            for test in ("NativePoseRegression", "NativeContactRegression", "SpatialQueryRegression", "NativeTerrainSightRegression", "NativePoseRebaseRegression", "NativeInfantryPoseRegression", "NativePoseRigRegression", "NativePresentationRegression", "NativeCrowdMovementRegression", "NativeCrowdProjectionRegression", "NativeNavigationSurfaceRegression"):
                 run([engine, "--headless", "--path", ROOT, "--fixed-fps", "60",
                      "--script", f"res://tests/headless/{test}.gd"])
+            for test in ("NativeCrowdMovementRegression", "NativeCrowdProjectionRegression"):
+                run([engine, "--headless", "--path", ROOT, "--fixed-fps", "60",
+                     "--script", f"res://tests/headless/{test}.gd", "--", "--native-nearest-surface"])
+            run([engine, "--headless", "--path", ROOT, "--fixed-fps", "60",
+                 "--script", "res://tests/headless/NativeVisibilityRegression.gd",
+                 "--", "--native-visibility-runtime"])
+            run([engine, "--headless", "--path", ROOT, "--fixed-fps", "60",
+                 "--script", "res://tests/headless/NativeExplorationRegression.gd",
+                 "--", "--native-visibility-runtime", "--native-unit-state", "--native-exploration"])
+            run([engine, "--headless", "--path", ROOT, "--fixed-fps", "60",
+                 "--script", "res://tests/headless/NativeCombatQueryRegression.gd",
+                 "--", "--native-visibility-runtime", "--native-unit-state", "--native-combat-queries"])
+            for test in ("NativeBattlefieldIndexRegression", "SpatialQueryRegression", "NativeCombatQueryRegression"):
+                run([engine, "--headless", "--path", ROOT, "--fixed-fps", "60",
+                     "--script", f"res://tests/headless/{test}.gd", "--",
+                     "--native-visibility-runtime", "--native-unit-state",
+                     "--native-combat-queries", "--native-battlefield-index"])
+            run([engine, "--headless", "--path", ROOT, "--fixed-fps", "60",
+                 "--script", "res://tests/headless/DecoupledPoseRegression.gd",
+                 "--", "--native-pose-rigs"])
+            run([engine, "--headless", "--path", ROOT, "--fixed-fps", "60",
+                 "--script", "res://tests/headless/NativeUnitStateRegression.gd",
+                 "--", "--native-unit-state", "--native-crowd-runtime",
+                 "--native-visibility-runtime", "--native-nearest-surface"])
         filename = {"linux": "Open_RTS_Linux.x86_64", "windows": "Open_RTS_Windows.exe",
                     "macos": "Open_RTS_macOS.zip"}[PLATFORM]
         exported = output / filename

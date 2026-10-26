@@ -1,0 +1,109 @@
+{
+  "experiment": "Native visibility and obstruction runtime on top of native ground movement",
+  "build": {
+    "source_commit": "e7cf33d4283d5873fb48c4dbf55ef12a1e0b2ed4",
+    "source_digest": "4c9f68c12df017696944c812efde98d350e45b610a4e6c7c0ebf9f45e7d734da",
+    "project_sha256": "37d81cffbcd1df2cc509f200e976e76327ffb02198898497ec4e59c132578e45",
+    "executable_sha256": "a988a6b75a2c7ec502fd1a443bccaa8b49fe26bf1042f567a1c945f3a9391f42"
+  },
+  "control_arguments": [
+    "--native-crowd-runtime"
+  ],
+  "candidate_arguments": [
+    "--native-crowd-runtime",
+    "--native-visibility-runtime"
+  ],
+  "control_report": "pass17-control.json",
+  "candidate_report": "pass17-native-visibility.json",
+  "both_valid": true,
+  "same_executable": true,
+  "workload": "3840x2160, scale 1.0, 400 mobile, 160 structures, live 2v2 commanders and normal 30 Hz simulation",
+  "run_order": [
+    "native_visibility",
+    "control"
+  ],
+  "phases": [
+    {
+      "phase": "day_movement",
+      "control_fps": 4.78324832846934,
+      "native_fps": 4.7032630867986,
+      "change_percent": -1.672195047760272,
+      "control_p95_ms": 429.655,
+      "native_p95_ms": 419.109,
+      "native_real_time_ratio": 0.952991880879604,
+      "native_query_counts": [
+        32443,
+        43020,
+        16310,
+        2552,
+        19503
+      ]
+    },
+    {
+      "phase": "day_combat",
+      "control_fps": 3.52000784597611,
+      "native_fps": 4.01844148035,
+      "change_percent": 14.160014868821191,
+      "control_p95_ms": 438.124,
+      "native_p95_ms": 398.259,
+      "native_real_time_ratio": 0.957896627853935,
+      "native_query_counts": [
+        88462,
+        215007,
+        83728,
+        18530,
+        83367
+      ]
+    },
+    {
+      "phase": "night_combat",
+      "control_fps": 3.15330814163544,
+      "native_fps": 3.59827739294132,
+      "change_percent": 14.111188355829384,
+      "control_p95_ms": 475.698,
+      "native_p95_ms": 393.156,
+      "native_real_time_ratio": 0.926415671709868,
+      "native_query_counts": [
+        130767,
+        364922,
+        129911,
+        31767,
+        128722
+      ]
+    },
+    {
+      "phase": "night_base",
+      "control_fps": 4.3996828317532,
+      "native_fps": 4.92223060231982,
+      "change_percent": 11.876941828517973,
+      "control_p95_ms": 372.607,
+      "native_p95_ms": 343.776,
+      "native_real_time_ratio": 0.996712080641714,
+      "native_query_counts": [
+        174134,
+        466680,
+        175134,
+        41504,
+        175226
+      ]
+    },
+    {
+      "phase": "cycling_weather_combat",
+      "control_fps": 3.55157213402213,
+      "native_fps": 3.82029904808007,
+      "change_percent": 7.566421402051282,
+      "control_p95_ms": 410.808,
+      "native_p95_ms": 363.359,
+      "native_real_time_ratio": 0.952985487878616,
+      "native_query_counts": [
+        226554,
+        585336,
+        224131,
+        54898,
+        225617
+      ]
+    }
+  ],
+  "target_met": false,
+  "conclusion": "Single paired experiment: combat improves about 14%, dense base about 12%, movement essentially unchanged. Both remain 3-5 fps. The 120 fps goal is not achieved; the backend remains opt-in."
+}

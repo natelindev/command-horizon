@@ -5,7 +5,11 @@ signal constructed
 const ConstructionVisual = preload("res://source/match/effects/ConstructionVisual.gd")
 const FOUNDATION_HEALTH_FRACTION = 0.25
 
-var _construction_progress = 1.0
+var _construction_progress = 1.0:
+	set(value):
+		_construction_progress = value
+		if _native_state != null:
+			_native_state.construction = value
 
 @onready var production_queue = find_child("ProductionQueue"):
 	set(_value):

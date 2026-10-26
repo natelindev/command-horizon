@@ -125,4 +125,4 @@ func _finish():
 		push_error(message)
 	if errors.is_empty():
 		print("PASS: flight phase, kinematics, stand, stores and air orders restore exactly")
-	quit(0 if errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)

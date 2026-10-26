@@ -15,7 +15,7 @@ func _run():
 	for error in errors:
 		push_error(error)
 	print("Allied defense and statistics: %d failures" % errors.size())
-	quit(0 if errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
 
 
 func _spawn_test(role, owner, point):
@@ -162,6 +162,6 @@ func _statistics():
 	game.result = "Victory"
 	game.hud.show_result(game.result)
 	_check(
-		game.hud._overlay.find_children("Statistics", "VBoxContainer", true, false).size() == 1,
+		game.hud._overlay.find_children("Statistics", "GridContainer", true, false).size() == 1,
 		"Result screen missing statistics table"
 	)

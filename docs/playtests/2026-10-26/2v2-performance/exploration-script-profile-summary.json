@@ -1,0 +1,4976 @@
+{
+  "diagnostic": true,
+  "production_fps_evidence": false,
+  "sampled_profiler_frames": 8,
+  "note": "Editor/debug instrumentation samples only selected frames. Source-function self times rank candidates; they do not account for all engine/native work. Test coroutines and accumulated coroutine timings are excluded. Confirm optimization gains in the rendered production workload.",
+  "source_functions": [
+    {
+      "signature": "res://source/match/Skirmish.gd::99::_physics_process",
+      "sampled_self_seconds": 0.11661700000000001,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 14.577125000000002
+    },
+    {
+      "signature": "res://source/match/players/Player.gd::88::live_units",
+      "sampled_self_seconds": 0.035544,
+      "sampled_calls": 249,
+      "self_ms_per_sampled_frame": 4.443
+    },
+    {
+      "signature": "res://source/match/players/Player.gd::200::power_totals",
+      "sampled_self_seconds": 0.024308,
+      "sampled_calls": 343,
+      "self_ms_per_sampled_frame": 3.0385
+    },
+    {
+      "signature": "res://source/match/maps/terrain/TerrainModel.gd::99::height_at",
+      "sampled_self_seconds": 0.023046999999999998,
+      "sampled_calls": 35709,
+      "self_ms_per_sampled_frame": 2.8808749999999996
+    },
+    {
+      "signature": "res://source/match/units/Unit.gd::352::terrain_advantage",
+      "sampled_self_seconds": 0.022955999999999997,
+      "sampled_calls": 38651,
+      "self_ms_per_sampled_frame": 2.8694999999999995
+    },
+    {
+      "signature": "res://source/match/players/Player.gd::90::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 0.021356,
+      "sampled_calls": 35658,
+      "self_ms_per_sampled_frame": 2.6695
+    },
+    {
+      "signature": "res://source/match/rendering/UnitBatchRenderer.gd::607::_advance_poses",
+      "sampled_self_seconds": 0.019679,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 2.459875
+    },
+    {
+      "signature": "res://source/match/effects/WeaponPreparationVisual.gd::114::_update_focus",
+      "sampled_self_seconds": 0.018373,
+      "sampled_calls": 1044,
+      "self_ms_per_sampled_frame": 2.296625
+    },
+    {
+      "signature": "res://source/match/units/Unit.gd::150::@player_getter",
+      "sampled_self_seconds": 0.018335000000000004,
+      "sampled_calls": 203841,
+      "self_ms_per_sampled_frame": 2.2918750000000006
+    },
+    {
+      "signature": "res://source/match/effects/CombatEffects.gd::787::movement_dust",
+      "sampled_self_seconds": 0.017977,
+      "sampled_calls": 1687,
+      "self_ms_per_sampled_frame": 2.247125
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishDefense.gd::12::_find_threats",
+      "sampled_self_seconds": 0.01789,
+      "sampled_calls": 12,
+      "self_ms_per_sampled_frame": 2.23625
+    },
+    {
+      "signature": "res://source/match/combat/Battlefield.gd::326::is_observed",
+      "sampled_self_seconds": 0.017218,
+      "sampled_calls": 12891,
+      "self_ms_per_sampled_frame": 2.15225
+    },
+    {
+      "signature": "res://source/match/units/Unit.gd::512::_get_type",
+      "sampled_self_seconds": 0.01695,
+      "sampled_calls": 153414,
+      "self_ms_per_sampled_frame": 2.11875
+    },
+    {
+      "signature": "res://source/match/effects/CombatEffects.gd::369::_ground_height",
+      "sampled_self_seconds": 0.016338000000000002,
+      "sampled_calls": 13536,
+      "self_ms_per_sampled_frame": 2.04225
+    },
+    {
+      "signature": "res://source/match/rendering/ParallelPoseBatch.gd::29::solve",
+      "sampled_self_seconds": 0.016259,
+      "sampled_calls": 16,
+      "self_ms_per_sampled_frame": 2.032375
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishEconomy.gd::29::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 0.016016,
+      "sampled_calls": 36960,
+      "self_ms_per_sampled_frame": 2.002
+    },
+    {
+      "signature": "res://source/match/players/Player.gd::104::is_allied_with",
+      "sampled_self_seconds": 0.015912,
+      "sampled_calls": 45533,
+      "self_ms_per_sampled_frame": 1.9889999999999999
+    },
+    {
+      "signature": "res://source/match/units/Unit.gd::454::_get_movement_domain",
+      "sampled_self_seconds": 0.01488,
+      "sampled_calls": 63854,
+      "self_ms_per_sampled_frame": 1.86
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::580::_prepare_pose",
+      "sampled_self_seconds": 0.014345,
+      "sampled_calls": 4879,
+      "self_ms_per_sampled_frame": 1.793125
+    },
+    {
+      "signature": "res://source/match/units/actions/AttackMoving.gd::40::_physics_process",
+      "sampled_self_seconds": 0.014033999999999998,
+      "sampled_calls": 2160,
+      "self_ms_per_sampled_frame": 1.7542499999999996
+    },
+    {
+      "signature": "res://source/match/units/traits/InfantryMotion.gd::175::advance_pose",
+      "sampled_self_seconds": 0.013856,
+      "sampled_calls": 1112,
+      "self_ms_per_sampled_frame": 1.732
+    },
+    {
+      "signature": "res://source/match/hud/Ownership.gd::31::known_now",
+      "sampled_self_seconds": 0.012327000000000001,
+      "sampled_calls": 1811,
+      "self_ms_per_sampled_frame": 1.5408750000000002
+    },
+    {
+      "signature": "res://source/match/units/Unit.gd::267::_physics_process",
+      "sampled_self_seconds": 0.012162,
+      "sampled_calls": 31800,
+      "self_ms_per_sampled_frame": 1.5202499999999999
+    },
+    {
+      "signature": "res://source/match/units/traits/WheelMotion.gd::57::advance",
+      "sampled_self_seconds": 0.0121,
+      "sampled_calls": 1017,
+      "self_ms_per_sampled_frame": 1.5125
+    },
+    {
+      "signature": "res://source/match/units/traits/InfantryMotion.gd::376::_solve_arm",
+      "sampled_self_seconds": 0.011755,
+      "sampled_calls": 1744,
+      "self_ms_per_sampled_frame": 1.4693749999999999
+    },
+    {
+      "signature": "res://source/match/maps/AuthoredBattlefield.gd::142::flight_height_at",
+      "sampled_self_seconds": 0.01139,
+      "sampled_calls": 1723,
+      "self_ms_per_sampled_frame": 1.42375
+    },
+    {
+      "signature": "res://source/match/combat/RepairService.gd::15::mobile_eligible",
+      "sampled_self_seconds": 0.011088,
+      "sampled_calls": 4031,
+      "self_ms_per_sampled_frame": 1.3860000000000001
+    },
+    {
+      "signature": "res://source/match/effects/CombatEffects.gd::355::_puff",
+      "sampled_self_seconds": 0.010813999999999999,
+      "sampled_calls": 9247,
+      "self_ms_per_sampled_frame": 1.3517499999999998
+    },
+    {
+      "signature": "res://source/match/combat/CombatRules.gd::341::range_for",
+      "sampled_self_seconds": 0.010635,
+      "sampled_calls": 5104,
+      "self_ms_per_sampled_frame": 1.329375
+    },
+    {
+      "signature": "res://source/match/units/Helicopter.gd::77::_home_airfield",
+      "sampled_self_seconds": 0.010548,
+      "sampled_calls": 2400,
+      "self_ms_per_sampled_frame": 1.3185
+    },
+    {
+      "signature": "res://source/match/ambient/AmbientActor.gd::115::apply_pose",
+      "sampled_self_seconds": 0.009991,
+      "sampled_calls": 960,
+      "self_ms_per_sampled_frame": 1.248875
+    },
+    {
+      "signature": "res://source/match/TerrainNavigation.gd::42::plateau_at",
+      "sampled_self_seconds": 0.009918,
+      "sampled_calls": 14249,
+      "self_ms_per_sampled_frame": 1.23975
+    },
+    {
+      "signature": "res://source/match/units/Unit.gd::372::effective_sight_range",
+      "sampled_self_seconds": 0.009848,
+      "sampled_calls": 38640,
+      "self_ms_per_sampled_frame": 1.231
+    },
+    {
+      "signature": "res://source/match/units/Unit.gd::438::_get_navigation_trait",
+      "sampled_self_seconds": 0.009783,
+      "sampled_calls": 74205,
+      "self_ms_per_sampled_frame": 1.222875
+    },
+    {
+      "signature": "res://source/match/units/traits/Movement.gd::129::_physics_process",
+      "sampled_self_seconds": 0.009667,
+      "sampled_calls": 24000,
+      "self_ms_per_sampled_frame": 1.208375
+    },
+    {
+      "signature": "res://source/match/effects/BattlefieldWear.gd::135::_observed_point",
+      "sampled_self_seconds": 0.009663999999999999,
+      "sampled_calls": 123,
+      "self_ms_per_sampled_frame": 1.208
+    },
+    {
+      "signature": "res://source/match/combat/AlliedDefense.gd::16::_on_hit",
+      "sampled_self_seconds": 0.009541000000000001,
+      "sampled_calls": 219,
+      "self_ms_per_sampled_frame": 1.192625
+    },
+    {
+      "signature": "res://source/match/units/traits/Movement.gd::612::_on_velocity_computed",
+      "sampled_self_seconds": 0.009423,
+      "sampled_calls": 2400,
+      "self_ms_per_sampled_frame": 1.177875
+    },
+    {
+      "signature": "res://source/match/audio/CombatAudio.gd::470::_take_player",
+      "sampled_self_seconds": 0.009276999999999999,
+      "sampled_calls": 921,
+      "self_ms_per_sampled_frame": 1.159625
+    },
+    {
+      "signature": "res://source/match/units/actions/WaitingForTargets.gd::48::_attack_unit",
+      "sampled_self_seconds": 0.009009000000000001,
+      "sampled_calls": 35,
+      "self_ms_per_sampled_frame": 1.1261250000000003
+    },
+    {
+      "signature": "res://source/match/units/actions/AttackingWhileInRange.gd::87::_rotate_unit_towards_target",
+      "sampled_self_seconds": 0.00899,
+      "sampled_calls": 6568,
+      "self_ms_per_sampled_frame": 1.12375
+    },
+    {
+      "signature": "res://source/match/players/Player.gd::228::population",
+      "sampled_self_seconds": 0.008865000000000001,
+      "sampled_calls": 11,
+      "self_ms_per_sampled_frame": 1.1081250000000002
+    },
+    {
+      "signature": "res://source/match/Match.gd::263::_get_visible_players",
+      "sampled_self_seconds": 0.008823000000000001,
+      "sampled_calls": 1335,
+      "self_ms_per_sampled_frame": 1.102875
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::553::_publish_simulation_pose",
+      "sampled_self_seconds": 0.008792999999999999,
+      "sampled_calls": 4668,
+      "self_ms_per_sampled_frame": 1.099125
+    },
+    {
+      "signature": "res://source/match/Players.gd::5::allied",
+      "sampled_self_seconds": 0.008395,
+      "sampled_calls": 33646,
+      "self_ms_per_sampled_frame": 1.049375
+    },
+    {
+      "signature": "res://source/match/hud/Minimap.gd::202::_sync_unit",
+      "sampled_self_seconds": 0.007786,
+      "sampled_calls": 1566,
+      "self_ms_per_sampled_frame": 0.9732500000000001
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::622::_finish_pose",
+      "sampled_self_seconds": 0.007378000000000001,
+      "sampled_calls": 4879,
+      "self_ms_per_sampled_frame": 0.9222500000000001
+    },
+    {
+      "signature": "res://source/match/units/traits/ChassisMotion.gd::152::_integrate",
+      "sampled_self_seconds": 0.007306,
+      "sampled_calls": 3270,
+      "self_ms_per_sampled_frame": 0.91325
+    },
+    {
+      "signature": "res://source/match/units/traits/InfantrySuppression.gd::44::_physics_process",
+      "sampled_self_seconds": 0.007282,
+      "sampled_calls": 7200,
+      "self_ms_per_sampled_frame": 0.91025
+    },
+    {
+      "signature": "res://source/match/combat/AlliedDefense.gd::42::_available",
+      "sampled_self_seconds": 0.007179,
+      "sampled_calls": 4211,
+      "self_ms_per_sampled_frame": 0.8973749999999999
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::684::_apply_geometry",
+      "sampled_self_seconds": 0.006908000000000001,
+      "sampled_calls": 3454,
+      "self_ms_per_sampled_frame": 0.8635000000000002
+    },
+    {
+      "signature": "res://source/match/combat/RepairService.gd::79::service",
+      "sampled_self_seconds": 0.0068059999999999996,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.8507499999999999
+    },
+    {
+      "signature": "res://source/match/combat/CombatRules.gd::246::damage_facts",
+      "sampled_self_seconds": 0.006653,
+      "sampled_calls": 802,
+      "self_ms_per_sampled_frame": 0.8316250000000001
+    },
+    {
+      "signature": "res://source/match/units/traits/ChassisMotion.gd::118::advance",
+      "sampled_self_seconds": 0.006620999999999999,
+      "sampled_calls": 3441,
+      "self_ms_per_sampled_frame": 0.8276249999999999
+    },
+    {
+      "signature": "res://source/match/units/Unit.gd::158::@global_position_yless_getter",
+      "sampled_self_seconds": 0.006575,
+      "sampled_calls": 38248,
+      "self_ms_per_sampled_frame": 0.821875
+    },
+    {
+      "signature": "res://source/match/FogOfWar.gd::101::_sync_circles_to_unit",
+      "sampled_self_seconds": 0.006546999999999999,
+      "sampled_calls": 2240,
+      "self_ms_per_sampled_frame": 0.8183749999999999
+    },
+    {
+      "signature": "res://source/match/units/AircraftFactory.gd::49::services",
+      "sampled_self_seconds": 0.006436,
+      "sampled_calls": 2400,
+      "self_ms_per_sampled_frame": 0.8045
+    },
+    {
+      "signature": "res://source/match/world/PointOfInterest.gd::305::_update_presentation",
+      "sampled_self_seconds": 0.006173,
+      "sampled_calls": 540,
+      "self_ms_per_sampled_frame": 0.771625
+    },
+    {
+      "signature": "res://source/match/combat/CommanderSupport.gd::428::_record_exploration",
+      "sampled_self_seconds": 0.006151,
+      "sampled_calls": 5,
+      "self_ms_per_sampled_frame": 0.768875
+    },
+    {
+      "signature": "res://source/match/hud/Minimap.gd::167::_sync_real_units_with_minimap_representations",
+      "sampled_self_seconds": 0.006151,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.768875
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::287::_update_damage",
+      "sampled_self_seconds": 0.0061389999999999995,
+      "sampled_calls": 4879,
+      "self_ms_per_sampled_frame": 0.7673749999999999
+    },
+    {
+      "signature": "res://source/match/units/Unit.gd::112::@attack_range_getter",
+      "sampled_self_seconds": 0.005799,
+      "sampled_calls": 19580,
+      "self_ms_per_sampled_frame": 0.724875
+    },
+    {
+      "signature": "res://source/match/combat/ProjectileSystem.gd::349::_sweep",
+      "sampled_self_seconds": 0.005797,
+      "sampled_calls": 880,
+      "self_ms_per_sampled_frame": 0.724625
+    },
+    {
+      "signature": "res://source/match/Map.gd::87::flight_height_at",
+      "sampled_self_seconds": 0.0057940000000000005,
+      "sampled_calls": 1723,
+      "self_ms_per_sampled_frame": 0.7242500000000001
+    },
+    {
+      "signature": "res://source/match/combat/Battlefield.gd::90::_refresh",
+      "sampled_self_seconds": 0.00578,
+      "sampled_calls": 25932,
+      "self_ms_per_sampled_frame": 0.7225
+    },
+    {
+      "signature": "res://source/match/combat/CombatRules.gd::364::elevation_difference",
+      "sampled_self_seconds": 0.005703,
+      "sampled_calls": 5076,
+      "self_ms_per_sampled_frame": 0.7128749999999999
+    },
+    {
+      "signature": "res://source/match/units/traits/UnitAbilities.gd::228::_physics_process",
+      "sampled_self_seconds": 0.005548000000000001,
+      "sampled_calls": 3600,
+      "self_ms_per_sampled_frame": 0.6935000000000001
+    },
+    {
+      "signature": "res://source/match/combat/CombatRules.gd::91::_unit_can_target",
+      "sampled_self_seconds": 0.0055119999999999995,
+      "sampled_calls": 10025,
+      "self_ms_per_sampled_frame": 0.689
+    },
+    {
+      "signature": "res://source/match/TerrainNavigation.gd::36::has_plateau_advantage",
+      "sampled_self_seconds": 0.005506,
+      "sampled_calls": 14249,
+      "self_ms_per_sampled_frame": 0.6882499999999999
+    },
+    {
+      "signature": "res://source/match/combat/CombatRules.gd::379::high_ground_range_bonus",
+      "sampled_self_seconds": 0.00549,
+      "sampled_calls": 5411,
+      "self_ms_per_sampled_frame": 0.68625
+    },
+    {
+      "signature": "res://source/match/combat/CombatRules.gd::280::damage_with_facts",
+      "sampled_self_seconds": 0.005199,
+      "sampled_calls": 1501,
+      "self_ms_per_sampled_frame": 0.649875
+    },
+    {
+      "signature": "res://source/match/Match.gd::253::_get_map",
+      "sampled_self_seconds": 0.0051600000000000005,
+      "sampled_calls": 34576,
+      "self_ms_per_sampled_frame": 0.645
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::784::_update_idle",
+      "sampled_self_seconds": 0.005097999999999999,
+      "sampled_calls": 4879,
+      "self_ms_per_sampled_frame": 0.6372499999999999
+    },
+    {
+      "signature": "res://source/match/combat/HelixSupport.gd::117::_process",
+      "sampled_self_seconds": 0.004816,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.602
+    },
+    {
+      "signature": "res://source/match/audio/CombatAudio.gd::126::update_charge",
+      "sampled_self_seconds": 0.004735,
+      "sampled_calls": 624,
+      "self_ms_per_sampled_frame": 0.5918749999999999
+    },
+    {
+      "signature": "res://source/match/combat/CombatRules.gd::135::_unit_commander_disabled",
+      "sampled_self_seconds": 0.004407,
+      "sampled_calls": 8944,
+      "self_ms_per_sampled_frame": 0.550875
+    },
+    {
+      "signature": "res://source/match/utils/Footprint.gd::49::reach_distance",
+      "sampled_self_seconds": 0.004316,
+      "sampled_calls": 4052,
+      "self_ms_per_sampled_frame": 0.5395000000000001
+    },
+    {
+      "signature": "res://source/match/handlers/UnitVisibilityHandler.gd::61::_update_unit_visibility",
+      "sampled_self_seconds": 0.004261,
+      "sampled_calls": 5640,
+      "self_ms_per_sampled_frame": 0.532625
+    },
+    {
+      "signature": "res://source/match/handlers/UnitVisibilityHandler.gd::41::_recalculate_unit_visibility",
+      "sampled_self_seconds": 0.004224,
+      "sampled_calls": 5640,
+      "self_ms_per_sampled_frame": 0.528
+    },
+    {
+      "signature": "res://source/match/maps/terrain/WaterFlowField.gd::58::sample",
+      "sampled_self_seconds": 0.0041589999999999995,
+      "sampled_calls": 1683,
+      "self_ms_per_sampled_frame": 0.519875
+    },
+    {
+      "signature": "res://source/match/combat/HelixSupport.gd::92::missile_jammed",
+      "sampled_self_seconds": 0.004028,
+      "sampled_calls": 172,
+      "self_ms_per_sampled_frame": 0.5035000000000001
+    },
+    {
+      "signature": "res://source/match/audio/CombatAudio.gd::400::_observed",
+      "sampled_self_seconds": 0.0039889999999999995,
+      "sampled_calls": 3942,
+      "self_ms_per_sampled_frame": 0.49862499999999993
+    },
+    {
+      "signature": "res://source/match/units/actions/Moving.gd::33::occupied_arrival",
+      "sampled_self_seconds": 0.003961,
+      "sampled_calls": 1849,
+      "self_ms_per_sampled_frame": 0.49512500000000004
+    },
+    {
+      "signature": "res://source/match/maps/terrain/TerrainModel.gd::117::flag_at",
+      "sampled_self_seconds": 0.003924,
+      "sampled_calls": 14249,
+      "self_ms_per_sampled_frame": 0.49050000000000005
+    },
+    {
+      "signature": "res://source/match/combat/Battlefield.gd::402::in_range_targets",
+      "sampled_self_seconds": 0.0038450000000000003,
+      "sampled_calls": 335,
+      "self_ms_per_sampled_frame": 0.480625
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::864::_update_parts",
+      "sampled_self_seconds": 0.003725,
+      "sampled_calls": 3454,
+      "self_ms_per_sampled_frame": 0.465625
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::996::_advance_antennas",
+      "sampled_self_seconds": 0.0036490000000000003,
+      "sampled_calls": 3504,
+      "self_ms_per_sampled_frame": 0.45612500000000006
+    },
+    {
+      "signature": "res://source/match/effects/CombatEffects.gd::632::_can_show",
+      "sampled_self_seconds": 0.0034560000000000003,
+      "sampled_calls": 2365,
+      "self_ms_per_sampled_frame": 0.43200000000000005
+    },
+    {
+      "signature": "res://source/match/Match.gd::383::_get_human_player",
+      "sampled_self_seconds": 0.003419,
+      "sampled_calls": 1271,
+      "self_ms_per_sampled_frame": 0.427375
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::326::_on_screen",
+      "sampled_self_seconds": 0.003402,
+      "sampled_calls": 4154,
+      "self_ms_per_sampled_frame": 0.42525
+    },
+    {
+      "signature": "res://source/match/units/AdvancedTank.gd::29::_physics_process",
+      "sampled_self_seconds": 0.003373,
+      "sampled_calls": 2400,
+      "self_ms_per_sampled_frame": 0.421625
+    },
+    {
+      "signature": "res://source/match/audio/CombatAudio.gd::427::_play",
+      "sampled_self_seconds": 0.003334,
+      "sampled_calls": 407,
+      "self_ms_per_sampled_frame": 0.41675
+    },
+    {
+      "signature": "res://source/match/audio/CombatAudio.gd::408::_audible",
+      "sampled_self_seconds": 0.003296,
+      "sampled_calls": 987,
+      "self_ms_per_sampled_frame": 0.412
+    },
+    {
+      "signature": "res://source/match/units/actions/AttackingWhileInRange.gd::49::_physics_process",
+      "sampled_self_seconds": 0.003294,
+      "sampled_calls": 6485,
+      "self_ms_per_sampled_frame": 0.41175
+    },
+    {
+      "signature": "res://source/match/units/traits/WalkerGait.gd::230::pose",
+      "sampled_self_seconds": 0.0032059999999999996,
+      "sampled_calls": 244,
+      "self_ms_per_sampled_frame": 0.40074999999999994
+    },
+    {
+      "signature": "res://source/match/units/Unit.gd::449::_get_radius",
+      "sampled_self_seconds": 0.00314,
+      "sampled_calls": 10351,
+      "self_ms_per_sampled_frame": 0.3925
+    },
+    {
+      "signature": "res://source/match/combat/CombatRules.gd::72::armor_for",
+      "sampled_self_seconds": 0.003139,
+      "sampled_calls": 6106,
+      "self_ms_per_sampled_frame": 0.392375
+    },
+    {
+      "signature": "res://source/match/combat/Battlefield.gd::736::nearby_units",
+      "sampled_self_seconds": 0.0031269999999999996,
+      "sampled_calls": 2607,
+      "self_ms_per_sampled_frame": 0.390875
+    },
+    {
+      "signature": "res://source/match/units/traits/InfantryMotion.gd::419::_pose_leg",
+      "sampled_self_seconds": 0.003125,
+      "sampled_calls": 1376,
+      "self_ms_per_sampled_frame": 0.390625
+    },
+    {
+      "signature": "res://source/match/effects/WeaponPreparationVisual.gd::62::refresh",
+      "sampled_self_seconds": 0.003106,
+      "sampled_calls": 1004,
+      "self_ms_per_sampled_frame": 0.38825
+    },
+    {
+      "signature": "res://source/match/Match.gd::203::get_cached_group",
+      "sampled_self_seconds": 0.0028850000000000004,
+      "sampled_calls": 2842,
+      "self_ms_per_sampled_frame": 0.36062500000000003
+    },
+    {
+      "signature": "res://source/match/effects/ProjectileRenderer.gd::230::_place",
+      "sampled_self_seconds": 0.0028520000000000004,
+      "sampled_calls": 867,
+      "self_ms_per_sampled_frame": 0.35650000000000004
+    },
+    {
+      "signature": "res://source/match/ambient/AmbientCatalog.gd::203::point",
+      "sampled_self_seconds": 0.002837,
+      "sampled_calls": 1920,
+      "self_ms_per_sampled_frame": 0.354625
+    },
+    {
+      "signature": "res://source/match/effects/BattlefieldWear.gd::174::_paint",
+      "sampled_self_seconds": 0.002825,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.35312499999999997
+    },
+    {
+      "signature": "res://source/match/combat/RepairService.gd::151::_eligible",
+      "sampled_self_seconds": 0.002724,
+      "sampled_calls": 2306,
+      "self_ms_per_sampled_frame": 0.34049999999999997
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::271::_animate_scrap_plates",
+      "sampled_self_seconds": 0.0026500000000000004,
+      "sampled_calls": 3504,
+      "self_ms_per_sampled_frame": 0.33125000000000004
+    },
+    {
+      "signature": "res://source/match/combat/ProjectileSystem.gd::262::_step",
+      "sampled_self_seconds": 0.0026209999999999996,
+      "sampled_calls": 866,
+      "self_ms_per_sampled_frame": 0.32762499999999994
+    },
+    {
+      "signature": "res://source/match/combat/ProjectileSystem.gd::86::launch",
+      "sampled_self_seconds": 0.00258,
+      "sampled_calls": 188,
+      "self_ms_per_sampled_frame": 0.32249999999999995
+    },
+    {
+      "signature": "res://source/match/units/Helicopter.gd::54::_physics_process",
+      "sampled_self_seconds": 0.0025689999999999997,
+      "sampled_calls": 2400,
+      "self_ms_per_sampled_frame": 0.32112499999999994
+    },
+    {
+      "signature": "res://source/match/combat/CombatRules.gd::421::_airborne",
+      "sampled_self_seconds": 0.002548,
+      "sampled_calls": 14390,
+      "self_ms_per_sampled_frame": 0.3185
+    },
+    {
+      "signature": "res://source/match/combat/Battlefield.gd::385::can_fire",
+      "sampled_self_seconds": 0.002515,
+      "sampled_calls": 1928,
+      "self_ms_per_sampled_frame": 0.31437499999999996
+    },
+    {
+      "signature": "res://source/match/units/traits/ChassisMotion.gd::82::_smoothing",
+      "sampled_self_seconds": 0.0025050000000000003,
+      "sampled_calls": 1612,
+      "self_ms_per_sampled_frame": 0.31312500000000004
+    },
+    {
+      "signature": "res://source/match/units/traits/ChassisMotion.gd::268::offset_rotation",
+      "sampled_self_seconds": 0.002488,
+      "sampled_calls": 2342,
+      "self_ms_per_sampled_frame": 0.311
+    },
+    {
+      "signature": "res://source/match/hud/BattleAlertsPanel.gd::140::_refresh",
+      "sampled_self_seconds": 0.002417,
+      "sampled_calls": 6,
+      "self_ms_per_sampled_frame": 0.302125
+    },
+    {
+      "signature": "res://source/match/combat/Shot.gd::25::from",
+      "sampled_self_seconds": 0.002376,
+      "sampled_calls": 188,
+      "self_ms_per_sampled_frame": 0.297
+    },
+    {
+      "signature": "res://source/match/environment/LivingWorld.gd::425::_physics_process",
+      "sampled_self_seconds": 0.002328,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.29100000000000004
+    },
+    {
+      "signature": "res://source/match/units/traits/Movement.gd::50::@speed_getter",
+      "sampled_self_seconds": 0.002306,
+      "sampled_calls": 4123,
+      "self_ms_per_sampled_frame": 0.28825
+    },
+    {
+      "signature": "res://source/match/rendering/ParallelPoseBatch.gd::14::Job.solve",
+      "sampled_self_seconds": 0.00229,
+      "sampled_calls": 4879,
+      "self_ms_per_sampled_frame": 0.28625
+    },
+    {
+      "signature": "res://source/match/combat/SignatureState.gd::55::_physics_process",
+      "sampled_self_seconds": 0.002251,
+      "sampled_calls": 2899,
+      "self_ms_per_sampled_frame": 0.281375
+    },
+    {
+      "signature": "res://source/match/combat/CombatRules.gd::85::can_target",
+      "sampled_self_seconds": 0.002227,
+      "sampled_calls": 10025,
+      "self_ms_per_sampled_frame": 0.278375
+    },
+    {
+      "signature": "res://source/match/units/traits/TrackMotion.gd::64::advance",
+      "sampled_self_seconds": 0.002207,
+      "sampled_calls": 321,
+      "self_ms_per_sampled_frame": 0.27587500000000004
+    },
+    {
+      "signature": "res://source/match/objectives/CaptureRelay.gd::184::_update_presentation",
+      "sampled_self_seconds": 0.0021880000000000003,
+      "sampled_calls": 540,
+      "self_ms_per_sampled_frame": 0.2735
+    },
+    {
+      "signature": "res://source/match/players/Player.gd::174::has_completed_structure",
+      "sampled_self_seconds": 0.002143,
+      "sampled_calls": 465,
+      "self_ms_per_sampled_frame": 0.267875
+    },
+    {
+      "signature": "res://source/match/handlers/UnitVisibilityHandler.gd::19::_physics_process",
+      "sampled_self_seconds": 0.0021260000000000003,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.26575000000000004
+    },
+    {
+      "signature": "res://source/match/utils/Footprint.gd::15::local_outline",
+      "sampled_self_seconds": 0.0020740000000000003,
+      "sampled_calls": 4052,
+      "self_ms_per_sampled_frame": 0.25925000000000004
+    },
+    {
+      "signature": "res://source/match/effects/BattleAftermath.gd::159::advance",
+      "sampled_self_seconds": 0.0020540000000000003,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.25675000000000003
+    },
+    {
+      "signature": "res://source/match/combat/Battlefield.gd::625::segment_cylinder_entry",
+      "sampled_self_seconds": 0.0020499999999999997,
+      "sampled_calls": 1754,
+      "self_ms_per_sampled_frame": 0.25625
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::846::_advance_rotors",
+      "sampled_self_seconds": 0.002049,
+      "sampled_calls": 4480,
+      "self_ms_per_sampled_frame": 0.256125
+    },
+    {
+      "signature": "res://source/match/combat/ProjectileSystem.gd::310::_integrate",
+      "sampled_self_seconds": 0.002036,
+      "sampled_calls": 866,
+      "self_ms_per_sampled_frame": 0.2545
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishAI.gd::575::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 0.002004,
+      "sampled_calls": 4150,
+      "self_ms_per_sampled_frame": 0.2505
+    },
+    {
+      "signature": "res://source/match/combat/Battlefield.gd::443::automatic_target",
+      "sampled_self_seconds": 0.001994,
+      "sampled_calls": 335,
+      "self_ms_per_sampled_frame": 0.24925000000000003
+    },
+    {
+      "signature": "res://source/match/combat/CombatRules.gd::124::commander_disabled",
+      "sampled_self_seconds": 0.0019909999999999997,
+      "sampled_calls": 8944,
+      "self_ms_per_sampled_frame": 0.24887499999999996
+    },
+    {
+      "signature": "res://source/match/units/traits/WalkerGait.gd::116::advance",
+      "sampled_self_seconds": 0.0019739999999999996,
+      "sampled_calls": 244,
+      "self_ms_per_sampled_frame": 0.24674999999999994
+    },
+    {
+      "signature": "res://source/match/utils/Footprint.gd::27::outline_at",
+      "sampled_self_seconds": 0.0019709999999999997,
+      "sampled_calls": 4052,
+      "self_ms_per_sampled_frame": 0.24637499999999996
+    },
+    {
+      "signature": "res://source/match/maps/AuthoredBattlefield.gd::117::height_at",
+      "sampled_self_seconds": 0.001957,
+      "sampled_calls": 20020,
+      "self_ms_per_sampled_frame": 0.244625
+    },
+    {
+      "signature": "res://source/match/units/traits/InfantryMotion.gd::312::_update_feet",
+      "sampled_self_seconds": 0.0019399999999999999,
+      "sampled_calls": 1112,
+      "self_ms_per_sampled_frame": 0.2425
+    },
+    {
+      "signature": "res://source/match/combat/CombatRules.gd::169::_unit_can_receive",
+      "sampled_self_seconds": 0.001938,
+      "sampled_calls": 3176,
+      "self_ms_per_sampled_frame": 0.24225
+    },
+    {
+      "signature": "res://source/match/debug/UnitInfoLabel.gd::31::diagnostics_enabled",
+      "sampled_self_seconds": 0.001895,
+      "sampled_calls": 4670,
+      "self_ms_per_sampled_frame": 0.236875
+    },
+    {
+      "signature": "res://source/match/combat/Veterancy.gd::34::award",
+      "sampled_self_seconds": 0.001873,
+      "sampled_calls": 219,
+      "self_ms_per_sampled_frame": 0.234125
+    },
+    {
+      "signature": "res://source/match/utils/Footprint.gd::35::world_outline",
+      "sampled_self_seconds": 0.0018239999999999999,
+      "sampled_calls": 4052,
+      "self_ms_per_sampled_frame": 0.22799999999999998
+    },
+    {
+      "signature": "res://source/match/combat/ProjectileSystem.gd::510::_ground_height",
+      "sampled_self_seconds": 0.0018020000000000002,
+      "sampled_calls": 1760,
+      "self_ms_per_sampled_frame": 0.22525000000000003
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::941::_aim",
+      "sampled_self_seconds": 0.001791,
+      "sampled_calls": 4668,
+      "self_ms_per_sampled_frame": 0.22387500000000002
+    },
+    {
+      "signature": "res://source/match/units/Structure.gd::86::is_constructed",
+      "sampled_self_seconds": 0.0017590000000000001,
+      "sampled_calls": 24630,
+      "self_ms_per_sampled_frame": 0.21987500000000001
+    },
+    {
+      "signature": "res://source/match/combat/Battlefield.gd::592::first_blocker",
+      "sampled_self_seconds": 0.001739,
+      "sampled_calls": 1068,
+      "self_ms_per_sampled_frame": 0.217375
+    },
+    {
+      "signature": "res://source/match/combat/Battlefield.gd::499::target_score",
+      "sampled_self_seconds": 0.001678,
+      "sampled_calls": 760,
+      "self_ms_per_sampled_frame": 0.20975
+    },
+    {
+      "signature": "res://source/match/units/traits/WalkerGait.gd::213::support_body",
+      "sampled_self_seconds": 0.0016640000000000001,
+      "sampled_calls": 244,
+      "self_ms_per_sampled_frame": 0.20800000000000002
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::261::_sync_scrap_plates",
+      "sampled_self_seconds": 0.001658,
+      "sampled_calls": 4879,
+      "self_ms_per_sampled_frame": 0.20725
+    },
+    {
+      "signature": "res://source/match/combat/ProjectileSystem.gd::734::_nearby_mines",
+      "sampled_self_seconds": 0.001652,
+      "sampled_calls": 975,
+      "self_ms_per_sampled_frame": 0.20650000000000002
+    },
+    {
+      "signature": "res://source/match/units/traits/Movement.gd::484::_abilities_prevent_movement",
+      "sampled_self_seconds": 0.001643,
+      "sampled_calls": 4961,
+      "self_ms_per_sampled_frame": 0.205375
+    },
+    {
+      "signature": "res://source/match/utils/Footprint.gd::57::_closest_on_polygon",
+      "sampled_self_seconds": 0.001612,
+      "sampled_calls": 670,
+      "self_ms_per_sampled_frame": 0.20149999999999998
+    },
+    {
+      "signature": "res://source/match/effects/CombatEffects.gd::385::shot",
+      "sampled_self_seconds": 0.001603,
+      "sampled_calls": 188,
+      "self_ms_per_sampled_frame": 0.200375
+    },
+    {
+      "signature": "res://source/match/units/actions/WaitingForTargets.gd::39::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 0.0015959999999999998,
+      "sampled_calls": 404,
+      "self_ms_per_sampled_frame": 0.19949999999999998
+    },
+    {
+      "signature": "res://source/match/EconomyAssignments.gd::9::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 0.001595,
+      "sampled_calls": 2292,
+      "self_ms_per_sampled_frame": 0.199375
+    },
+    {
+      "signature": "res://source/match/units/traits/ChassisMotion.gd::292::offset_position",
+      "sampled_self_seconds": 0.0015940000000000001,
+      "sampled_calls": 2342,
+      "self_ms_per_sampled_frame": 0.19925
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishDefense.gd::113::_score",
+      "sampled_self_seconds": 0.00159,
+      "sampled_calls": 452,
+      "self_ms_per_sampled_frame": 0.19875
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishDefense.gd::47::plan",
+      "sampled_self_seconds": 0.001588,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.1985
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::751::_pose_geometry",
+      "sampled_self_seconds": 0.001582,
+      "sampled_calls": 3454,
+      "self_ms_per_sampled_frame": 0.19775
+    },
+    {
+      "signature": "res://source/match/units/Unit.gd::508::combat_domain",
+      "sampled_self_seconds": 0.001549,
+      "sampled_calls": 16646,
+      "self_ms_per_sampled_frame": 0.193625
+    },
+    {
+      "signature": "res://source/match/world/PointOfInterest.gd::133::_capture_presence",
+      "sampled_self_seconds": 0.001537,
+      "sampled_calls": 540,
+      "self_ms_per_sampled_frame": 0.192125
+    },
+    {
+      "signature": "res://source/match/effects/StructureActivity.gd::126::_read_activity",
+      "sampled_self_seconds": 0.0015249999999999999,
+      "sampled_calls": 1280,
+      "self_ms_per_sampled_frame": 0.190625
+    },
+    {
+      "signature": "res://source/match/effects/BattleAftermath.gd::190::casing",
+      "sampled_self_seconds": 0.00151,
+      "sampled_calls": 30,
+      "self_ms_per_sampled_frame": 0.18875
+    },
+    {
+      "signature": "res://source/match/effects/StructureActivity.gd::50::refresh",
+      "sampled_self_seconds": 0.001508,
+      "sampled_calls": 1280,
+      "self_ms_per_sampled_frame": 0.1885
+    },
+    {
+      "signature": "res://source/match/FogOfWar.gd::56::_physics_process",
+      "sampled_self_seconds": 0.001501,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.187625
+    },
+    {
+      "signature": "res://source/match/BastionCatalog.gd::178::is_infantry",
+      "sampled_self_seconds": 0.00147,
+      "sampled_calls": 7062,
+      "self_ms_per_sampled_frame": 0.18375
+    },
+    {
+      "signature": "res://source/match/effects/CombatEffects.gd::871::_material_hit",
+      "sampled_self_seconds": 0.001455,
+      "sampled_calls": 219,
+      "self_ms_per_sampled_frame": 0.18187499999999998
+    },
+    {
+      "signature": "res://source/match/FogOfWar.gd::122::_sync_outline",
+      "sampled_self_seconds": 0.0014249999999999998,
+      "sampled_calls": 2240,
+      "self_ms_per_sampled_frame": 0.17812499999999998
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::806::_update_work",
+      "sampled_self_seconds": 0.001424,
+      "sampled_calls": 4879,
+      "self_ms_per_sampled_frame": 0.178
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::460::publish_gpu_pose",
+      "sampled_self_seconds": 0.001423,
+      "sampled_calls": 4480,
+      "self_ms_per_sampled_frame": 0.177875
+    },
+    {
+      "signature": "res://source/match/effects/BattlefieldWear.gd::89::_sample_vehicles",
+      "sampled_self_seconds": 0.0014100000000000002,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.17625000000000002
+    },
+    {
+      "signature": "res://source/match/units/traits/Movement.gd::549::_get_filtered_rotation_direction",
+      "sampled_self_seconds": 0.0013880000000000001,
+      "sampled_calls": 1678,
+      "self_ms_per_sampled_frame": 0.17350000000000002
+    },
+    {
+      "signature": "res://source/match/combat/CombatRules.gd::392::preparation_for",
+      "sampled_self_seconds": 0.001382,
+      "sampled_calls": 728,
+      "self_ms_per_sampled_frame": 0.17275
+    },
+    {
+      "signature": "res://source/match/combat/Battlefield.gd::236::can_observe_point",
+      "sampled_self_seconds": 0.001371,
+      "sampled_calls": 9382,
+      "self_ms_per_sampled_frame": 0.171375
+    },
+    {
+      "signature": "res://source/match/units/traits/InfantryMotion.gd::163::advance",
+      "sampled_self_seconds": 0.001318,
+      "sampled_calls": 1112,
+      "self_ms_per_sampled_frame": 0.16474999999999998
+    },
+    {
+      "signature": "res://source/match/units/traits/SuppressionBadge.gd::21::refresh",
+      "sampled_self_seconds": 0.0013080000000000001,
+      "sampled_calls": 866,
+      "self_ms_per_sampled_frame": 0.1635
+    },
+    {
+      "signature": "res://source/audio/MusicDirector.gd::132::_on_weapon_hit",
+      "sampled_self_seconds": 0.0012900000000000001,
+      "sampled_calls": 219,
+      "self_ms_per_sampled_frame": 0.16125
+    },
+    {
+      "signature": "res://source/match/units/AircraftFactory.gd::44::pad_point",
+      "sampled_self_seconds": 0.0012799999999999999,
+      "sampled_calls": 4800,
+      "self_ms_per_sampled_frame": 0.15999999999999998
+    },
+    {
+      "signature": "res://source/match/ObjectMaterials.gd::153::hit_flash",
+      "sampled_self_seconds": 0.0012729999999999998,
+      "sampled_calls": 190,
+      "self_ms_per_sampled_frame": 0.159125
+    },
+    {
+      "signature": "res://source/match/effects/CombatEffects.gd::622::_camera_sees",
+      "sampled_self_seconds": 0.0012660000000000002,
+      "sampled_calls": 1862,
+      "self_ms_per_sampled_frame": 0.15825000000000003
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::105::@_pose_elapsed_getter",
+      "sampled_self_seconds": 0.00126,
+      "sampled_calls": 5286,
+      "self_ms_per_sampled_frame": 0.1575
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishTactics.gd::47::_withdraw_suppressed",
+      "sampled_self_seconds": 0.001255,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.15687500000000001
+    },
+    {
+      "signature": "res://source/match/audio/CombatAudio.gd::567::_position",
+      "sampled_self_seconds": 0.001251,
+      "sampled_calls": 340,
+      "self_ms_per_sampled_frame": 0.156375
+    },
+    {
+      "signature": "res://source/match/units/traits/UnitAbilities.gd::246::_sync_smoke_group",
+      "sampled_self_seconds": 0.001232,
+      "sampled_calls": 3600,
+      "self_ms_per_sampled_frame": 0.154
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishTactics.gd::56::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 0.001227,
+      "sampled_calls": 895,
+      "self_ms_per_sampled_frame": 0.153375
+    },
+    {
+      "signature": "res://source/match/rendering/RigidPoseHierarchy.gd::144::world_for_pose",
+      "sampled_self_seconds": 0.0012140000000000002,
+      "sampled_calls": 2137,
+      "self_ms_per_sampled_frame": 0.15175000000000002
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishEconomy.gd::18::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 0.001213,
+      "sampled_calls": 1680,
+      "self_ms_per_sampled_frame": 0.151625
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::925::_set_turret_yaw",
+      "sampled_self_seconds": 0.0012029999999999999,
+      "sampled_calls": 1414,
+      "self_ms_per_sampled_frame": 0.15037499999999998
+    },
+    {
+      "signature": "res://source/match/combat/CommanderSupport.gd::163::disabled",
+      "sampled_self_seconds": 0.0011949999999999999,
+      "sampled_calls": 8944,
+      "self_ms_per_sampled_frame": 0.14937499999999998
+    },
+    {
+      "signature": "res://source/match/effects/CombatEffects.gd::1074::_jitter",
+      "sampled_self_seconds": 0.001193,
+      "sampled_calls": 4523,
+      "self_ms_per_sampled_frame": 0.149125
+    },
+    {
+      "signature": "res://source/match/units/Unit.gd::405::_rules",
+      "sampled_self_seconds": 0.001172,
+      "sampled_calls": 219,
+      "self_ms_per_sampled_frame": 0.14650000000000002
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishTactics.gd::66::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 0.001153,
+      "sampled_calls": 1450,
+      "self_ms_per_sampled_frame": 0.144125
+    },
+    {
+      "signature": "res://source/match/effects/CombatEffects.gd::945::_advance_hit_flashes",
+      "sampled_self_seconds": 0.001146,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.14325000000000002
+    },
+    {
+      "signature": "res://source/match/units/actions/AttackingWhileInRange.gd::217::_teardown_if_out_of_range",
+      "sampled_self_seconds": 0.001137,
+      "sampled_calls": 1834,
+      "self_ms_per_sampled_frame": 0.142125
+    },
+    {
+      "signature": "res://source/match/effects/BattleAftermath.gd::150::_evict",
+      "sampled_self_seconds": 0.0011350000000000002,
+      "sampled_calls": 30,
+      "self_ms_per_sampled_frame": 0.14187500000000003
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishAI.gd::76::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 0.001115,
+      "sampled_calls": 2515,
+      "self_ms_per_sampled_frame": 0.13937500000000003
+    },
+    {
+      "signature": "res://source/match/units/Unit.gd::459::_get_movement_speed",
+      "sampled_self_seconds": 0.001085,
+      "sampled_calls": 7027,
+      "self_ms_per_sampled_frame": 0.135625
+    },
+    {
+      "signature": "res://source/match/combat/ProjectileSystem.gd::160::hitbox",
+      "sampled_self_seconds": 0.0010840000000000001,
+      "sampled_calls": 2448,
+      "self_ms_per_sampled_frame": 0.1355
+    },
+    {
+      "signature": "res://source/match/effects/CombatEffects.gd::497::impact",
+      "sampled_self_seconds": 0.001066,
+      "sampled_calls": 219,
+      "self_ms_per_sampled_frame": 0.13325
+    },
+    {
+      "signature": "res://source/match/combat/ProjectileSystem.gd::414::_detonate",
+      "sampled_self_seconds": 0.001063,
+      "sampled_calls": 187,
+      "self_ms_per_sampled_frame": 0.132875
+    },
+    {
+      "signature": "res://source/match/combat/ProjectileSystem.gd::517::_inside_map",
+      "sampled_self_seconds": 0.001062,
+      "sampled_calls": 693,
+      "self_ms_per_sampled_frame": 0.13275
+    },
+    {
+      "signature": "res://source/match/units/Unit.gd::481::_set_action",
+      "sampled_self_seconds": 0.001055,
+      "sampled_calls": 96,
+      "self_ms_per_sampled_frame": 0.131875
+    },
+    {
+      "signature": "res://source/match/BattleRecord.gd::70::_weapon_hit",
+      "sampled_self_seconds": 0.001051,
+      "sampled_calls": 219,
+      "self_ms_per_sampled_frame": 0.13137500000000002
+    },
+    {
+      "signature": "res://source/match/hud/Minimap.gd::192::_unit_is_mapped",
+      "sampled_self_seconds": 0.001046,
+      "sampled_calls": 5137,
+      "self_ms_per_sampled_frame": 0.13075
+    },
+    {
+      "signature": "res://source/match/rendering/UnitBatchRenderer.gd::646::_upload_poses",
+      "sampled_self_seconds": 0.0010429999999999999,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.130375
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::816::_is_working",
+      "sampled_self_seconds": 0.0010299999999999999,
+      "sampled_calls": 3904,
+      "self_ms_per_sampled_frame": 0.12874999999999998
+    },
+    {
+      "signature": "res://source/match/rendering/ParallelPoseBatch.gd::45::_solve_lane",
+      "sampled_self_seconds": 0.001025,
+      "sampled_calls": 64,
+      "self_ms_per_sampled_frame": 0.12812500000000002
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::910::_traverse",
+      "sampled_self_seconds": 0.0010179999999999998,
+      "sampled_calls": 1331,
+      "self_ms_per_sampled_frame": 0.12724999999999997
+    },
+    {
+      "signature": "res://source/match/combat/Veterancy.gd::20::eligible",
+      "sampled_self_seconds": 0.001007,
+      "sampled_calls": 219,
+      "self_ms_per_sampled_frame": 0.12587500000000001
+    },
+    {
+      "signature": "res://source/match/effects/CombatEffects.gd::775::dust_color",
+      "sampled_self_seconds": 0.001006,
+      "sampled_calls": 1773,
+      "self_ms_per_sampled_frame": 0.12575
+    },
+    {
+      "signature": "res://source/match/combat/CombatRules.gd::428::profile_for",
+      "sampled_self_seconds": 0.0009910000000000001,
+      "sampled_calls": 802,
+      "self_ms_per_sampled_frame": 0.12387500000000001
+    },
+    {
+      "signature": "res://source/match/units/Unit.gd::314::receive_damage",
+      "sampled_self_seconds": 0.000984,
+      "sampled_calls": 219,
+      "self_ms_per_sampled_frame": 0.12300000000000001
+    },
+    {
+      "signature": "res://source/match/effects/CombatEffects.gd::547::can_show_point",
+      "sampled_self_seconds": 0.000984,
+      "sampled_calls": 1052,
+      "self_ms_per_sampled_frame": 0.12300000000000001
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishAI.gd::598::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 0.00098,
+      "sampled_calls": 1064,
+      "self_ms_per_sampled_frame": 0.1225
+    },
+    {
+      "signature": "res://source/match/units/traits/Movement.gd::530::_uses_flight_clearance",
+      "sampled_self_seconds": 0.000979,
+      "sampled_calls": 5127,
+      "self_ms_per_sampled_frame": 0.12237500000000001
+    },
+    {
+      "signature": "res://source/match/combat/FactionSignatures.gd::14::_physics_process",
+      "sampled_self_seconds": 0.0009629999999999999,
+      "sampled_calls": 240,
+      "self_ms_per_sampled_frame": 0.12037499999999998
+    },
+    {
+      "signature": "res://source/match/units/traits/Movement.gd::582::_oriented_transform",
+      "sampled_self_seconds": 0.000946,
+      "sampled_calls": 1723,
+      "self_ms_per_sampled_frame": 0.11825000000000001
+    },
+    {
+      "signature": "res://source/match/world/PointOfInterest.gd::313::_physics_process",
+      "sampled_self_seconds": 0.0009450000000000001,
+      "sampled_calls": 540,
+      "self_ms_per_sampled_frame": 0.11812500000000001
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishEconomy.gd::289::threat_reach",
+      "sampled_self_seconds": 0.000944,
+      "sampled_calls": 737,
+      "self_ms_per_sampled_frame": 0.118
+    },
+    {
+      "signature": "res://source/match/units/actions/AttackingWhileInRange.gd::101::_schedule_hit",
+      "sampled_self_seconds": 0.000937,
+      "sampled_calls": 437,
+      "self_ms_per_sampled_frame": 0.117125
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishComposition.gd::10::observed",
+      "sampled_self_seconds": 0.00093,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.11625
+    },
+    {
+      "signature": "res://source/match/units/traits/InfantryMotion.gd::292::_gait_foot",
+      "sampled_self_seconds": 0.0009190000000000001,
+      "sampled_calls": 1264,
+      "self_ms_per_sampled_frame": 0.11487500000000002
+    },
+    {
+      "signature": "res://source/match/units/traits/Movement.gd::452::_native_refresh_facts",
+      "sampled_self_seconds": 0.000918,
+      "sampled_calls": 3699,
+      "self_ms_per_sampled_frame": 0.11474999999999999
+    },
+    {
+      "signature": "res://source/match/effects/ProjectileRenderer.gd::190::add",
+      "sampled_self_seconds": 0.0009159999999999999,
+      "sampled_calls": 174,
+      "self_ms_per_sampled_frame": 0.11449999999999999
+    },
+    {
+      "signature": "res://source/match/combat/Shot.gd::40::shooter",
+      "sampled_self_seconds": 0.000915,
+      "sampled_calls": 1523,
+      "self_ms_per_sampled_frame": 0.114375
+    },
+    {
+      "signature": "res://source/match/combat/WeaponCatalog.gd::239::profile",
+      "sampled_self_seconds": 0.000913,
+      "sampled_calls": 188,
+      "self_ms_per_sampled_frame": 0.11412499999999999
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishDefense.gd::13::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 0.000911,
+      "sampled_calls": 1675,
+      "self_ms_per_sampled_frame": 0.113875
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::453::finish_gpu_pose",
+      "sampled_self_seconds": 0.00091,
+      "sampled_calls": 4480,
+      "self_ms_per_sampled_frame": 0.11375
+    },
+    {
+      "signature": "res://source/match/combat/Battlefield.gd::794::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 0.000889,
+      "sampled_calls": 1942,
+      "self_ms_per_sampled_frame": 0.111125
+    },
+    {
+      "signature": "res://source/match/units/traits/Movement.gd::257::_air_inertia",
+      "sampled_self_seconds": 0.0008810000000000001,
+      "sampled_calls": 2400,
+      "self_ms_per_sampled_frame": 0.110125
+    },
+    {
+      "signature": "res://source/match/units/actions/Repairing.gd::34::_physics_process",
+      "sampled_self_seconds": 0.000876,
+      "sampled_calls": 1800,
+      "self_ms_per_sampled_frame": 0.1095
+    },
+    {
+      "signature": "res://source/match/rendering/InfantryPoseWorker.gd::118::begin",
+      "sampled_self_seconds": 0.000876,
+      "sampled_calls": 960,
+      "self_ms_per_sampled_frame": 0.1095
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishTactics.gd::252::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 0.000872,
+      "sampled_calls": 420,
+      "self_ms_per_sampled_frame": 0.10900000000000001
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishCoordination.gd::17::command",
+      "sampled_self_seconds": 0.000867,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.108375
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::972::_sync_muzzle",
+      "sampled_self_seconds": 0.000853,
+      "sampled_calls": 1079,
+      "self_ms_per_sampled_frame": 0.106625
+    },
+    {
+      "signature": "res://source/match/units/Helicopter.gd::67::_rearm",
+      "sampled_self_seconds": 0.0008500000000000001,
+      "sampled_calls": 2400,
+      "self_ms_per_sampled_frame": 0.10625000000000001
+    },
+    {
+      "signature": "res://source/match/units/Unit.gd::413::is_revealing",
+      "sampled_self_seconds": 0.000848,
+      "sampled_calls": 2240,
+      "self_ms_per_sampled_frame": 0.106
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::109::@_pose_elapsed_setter",
+      "sampled_self_seconds": 0.0008350000000000001,
+      "sampled_calls": 4879,
+      "self_ms_per_sampled_frame": 0.10437500000000001
+    },
+    {
+      "signature": "res://source/match/combat/ProjectileSystem.gd::296::_trail_segment",
+      "sampled_self_seconds": 0.0008320000000000001,
+      "sampled_calls": 484,
+      "self_ms_per_sampled_frame": 0.10400000000000001
+    },
+    {
+      "signature": "res://source/match/combat/CombatRules.gd::163::can_receive",
+      "sampled_self_seconds": 0.000824,
+      "sampled_calls": 3176,
+      "self_ms_per_sampled_frame": 0.103
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::372::hit_reaction",
+      "sampled_self_seconds": 0.000807,
+      "sampled_calls": 219,
+      "self_ms_per_sampled_frame": 0.10087499999999999
+    },
+    {
+      "signature": "res://source/match/combat/Battlefield.gd::726::_owner_bit",
+      "sampled_self_seconds": 0.0008000000000000001,
+      "sampled_calls": 3352,
+      "self_ms_per_sampled_frame": 0.10000000000000002
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::665::_settle_pose",
+      "sampled_self_seconds": 0.0007999999999999999,
+      "sampled_calls": 3477,
+      "self_ms_per_sampled_frame": 0.09999999999999999
+    },
+    {
+      "signature": "res://source/match/combat/CombatRules.gd::318::smoke_damage_factor",
+      "sampled_self_seconds": 0.00079,
+      "sampled_calls": 1501,
+      "self_ms_per_sampled_frame": 0.09875
+    },
+    {
+      "signature": "res://source/match/units/actions/AttackingWhileInRange.gd::140::_moving_during_preparation",
+      "sampled_self_seconds": 0.0007839999999999999,
+      "sampled_calls": 565,
+      "self_ms_per_sampled_frame": 0.09799999999999999
+    },
+    {
+      "signature": "res://source/match/combat/ProjectileSystem.gd::228::_gravity_scale",
+      "sampled_self_seconds": 0.000781,
+      "sampled_calls": 1054,
+      "self_ms_per_sampled_frame": 0.097625
+    },
+    {
+      "signature": "res://source/match/combat/SignatureState.gd::105::refresh",
+      "sampled_self_seconds": 0.000757,
+      "sampled_calls": 3066,
+      "self_ms_per_sampled_frame": 0.094625
+    },
+    {
+      "signature": "res://source/match/Match.gd::383::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 0.0007549999999999999,
+      "sampled_calls": 5084,
+      "self_ms_per_sampled_frame": 0.09437499999999999
+    },
+    {
+      "signature": "res://source/match/combat/Battlefield.gd::461::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 0.0007340000000000001,
+      "sampled_calls": 3133,
+      "self_ms_per_sampled_frame": 0.09175000000000001
+    },
+    {
+      "signature": "res://source/match/rendering/UnitBatchRenderer.gd::461::_join_group",
+      "sampled_self_seconds": 0.000727,
+      "sampled_calls": 83,
+      "self_ms_per_sampled_frame": 0.090875
+    },
+    {
+      "signature": "res://source/match/Skirmish.gd::114::_check_outcome",
+      "sampled_self_seconds": 0.000712,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.089
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishRecovery.gd::11::command",
+      "sampled_self_seconds": 0.000701,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.08762500000000001
+    },
+    {
+      "signature": "res://source/match/units/CombatRobot.gd::49::_physics_process",
+      "sampled_self_seconds": 0.0006940000000000001,
+      "sampled_calls": 600,
+      "self_ms_per_sampled_frame": 0.08675000000000001
+    },
+    {
+      "signature": "res://source/match/units/Unit.gd::521::_teardown_current_action",
+      "sampled_self_seconds": 0.000686,
+      "sampled_calls": 48,
+      "self_ms_per_sampled_frame": 0.08574999999999999
+    },
+    {
+      "signature": "res://source/match/world/PointOfInterest.gd::216::capture_status",
+      "sampled_self_seconds": 0.0006819999999999999,
+      "sampled_calls": 540,
+      "self_ms_per_sampled_frame": 0.08524999999999998
+    },
+    {
+      "signature": "res://source/match/audio/CombatAudio.gd::80::weapon_cue",
+      "sampled_self_seconds": 0.0006799999999999999,
+      "sampled_calls": 188,
+      "self_ms_per_sampled_frame": 0.08499999999999999
+    },
+    {
+      "signature": "res://source/match/ObjectMaterials.gd::195::clear_hit_flash",
+      "sampled_self_seconds": 0.000678,
+      "sampled_calls": 190,
+      "self_ms_per_sampled_frame": 0.08475
+    },
+    {
+      "signature": "res://source/match/combat/Battlefield.gd::790::nearby_combat_targets",
+      "sampled_self_seconds": 0.000674,
+      "sampled_calls": 338,
+      "self_ms_per_sampled_frame": 0.08425
+    },
+    {
+      "signature": "res://source/match/combat/ProjectileSystem.gd::668::_suppress_nearby",
+      "sampled_self_seconds": 0.0006720000000000001,
+      "sampled_calls": 866,
+      "self_ms_per_sampled_frame": 0.084
+    },
+    {
+      "signature": "res://source/match/units/actions/AttackingWhileInRange.gd::187::_hit_target",
+      "sampled_self_seconds": 0.000671,
+      "sampled_calls": 188,
+      "self_ms_per_sampled_frame": 0.083875
+    },
+    {
+      "signature": "res://source/match/units/traits/ChassisMotion.gd::220::clamp_lag",
+      "sampled_self_seconds": 0.000665,
+      "sampled_calls": 3458,
+      "self_ms_per_sampled_frame": 0.083125
+    },
+    {
+      "signature": "res://source/match/hud/ResourcesBar.gd::262::_refresh",
+      "sampled_self_seconds": 0.00066,
+      "sampled_calls": 16,
+      "self_ms_per_sampled_frame": 0.0825
+    },
+    {
+      "signature": "res://source/match/units/traits/Movement.gd::835::_closest_navigation_point",
+      "sampled_self_seconds": 0.000658,
+      "sampled_calls": 1723,
+      "self_ms_per_sampled_frame": 0.08224999999999999
+    },
+    {
+      "signature": "res://source/match/units/traits/HealthBar.gd::60::_recalulate_bar_value",
+      "sampled_self_seconds": 0.000655,
+      "sampled_calls": 235,
+      "self_ms_per_sampled_frame": 0.081875
+    },
+    {
+      "signature": "res://source/match/units/traits/ChassisMotion.gd::101::_yaw",
+      "sampled_self_seconds": 0.0006410000000000001,
+      "sampled_calls": 3271,
+      "self_ms_per_sampled_frame": 0.08012500000000002
+    },
+    {
+      "signature": "res://source/match/hud/SkirmishHUD.gd::279::_process",
+      "sampled_self_seconds": 0.0006399999999999999,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.07999999999999999
+    },
+    {
+      "signature": "res://source/match/rendering/RigidPoseHierarchy.gd::140::world_for",
+      "sampled_self_seconds": 0.000639,
+      "sampled_calls": 1079,
+      "self_ms_per_sampled_frame": 0.079875
+    },
+    {
+      "signature": "res://source/match/effects/CombatEffects.gd::1424::damage_smoke",
+      "sampled_self_seconds": 0.0006320000000000001,
+      "sampled_calls": 646,
+      "self_ms_per_sampled_frame": 0.07900000000000001
+    },
+    {
+      "signature": "res://source/match/units/traits/InfantryMotion.gd::369::_pose_arms",
+      "sampled_self_seconds": 0.000617,
+      "sampled_calls": 872,
+      "self_ms_per_sampled_frame": 0.077125
+    },
+    {
+      "signature": "res://source/match/units/traits/Movement.gd::827::_navigation_position",
+      "sampled_self_seconds": 0.0006050000000000001,
+      "sampled_calls": 1723,
+      "self_ms_per_sampled_frame": 0.07562500000000001
+    },
+    {
+      "signature": "res://source/match/units/traits/ChassisMotion.gd::264::_running",
+      "sampled_self_seconds": 0.0006000000000000001,
+      "sampled_calls": 4449,
+      "self_ms_per_sampled_frame": 0.07500000000000001
+    },
+    {
+      "signature": "res://source/match/combat/ProjectileSystem.gd::176::velocity_of",
+      "sampled_self_seconds": 0.000594,
+      "sampled_calls": 360,
+      "self_ms_per_sampled_frame": 0.07425
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishDefense.gd::87::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 0.00059,
+      "sampled_calls": 3462,
+      "self_ms_per_sampled_frame": 0.07375000000000001
+    },
+    {
+      "signature": "res://source/match/units/actions/WaitingForTargets.gd::33::_get_units_to_attack",
+      "sampled_self_seconds": 0.000581,
+      "sampled_calls": 314,
+      "self_ms_per_sampled_frame": 0.07262500000000001
+    },
+    {
+      "signature": "res://source/match/effects/CombatEffects.gd::684::_explosion",
+      "sampled_self_seconds": 0.000581,
+      "sampled_calls": 76,
+      "self_ms_per_sampled_frame": 0.07262500000000001
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishExpansion.gd::65::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 0.000579,
+      "sampled_calls": 536,
+      "self_ms_per_sampled_frame": 0.072375
+    },
+    {
+      "signature": "res://source/match/units/actions/AttackingWhileInRange.gd::178::_refresh_charge_display",
+      "sampled_self_seconds": 0.000577,
+      "sampled_calls": 624,
+      "self_ms_per_sampled_frame": 0.07212500000000001
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishComposition.gd::31::inventory",
+      "sampled_self_seconds": 0.000572,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.07150000000000001
+    },
+    {
+      "signature": "res://source/match/audio/CombatAudio.gd::110::shot",
+      "sampled_self_seconds": 0.000565,
+      "sampled_calls": 188,
+      "self_ms_per_sampled_frame": 0.070625
+    },
+    {
+      "signature": "res://source/generic-scenes-and-nodes/2d/RevealShape2D.gd::20::_draw",
+      "sampled_self_seconds": 0.0005639999999999999,
+      "sampled_calls": 22,
+      "self_ms_per_sampled_frame": 0.0705
+    },
+    {
+      "signature": "res://source/match/units/traits/InfantrySuppression.gd::19::eligible",
+      "sampled_self_seconds": 0.0005580000000000001,
+      "sampled_calls": 82,
+      "self_ms_per_sampled_frame": 0.06975000000000002
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::448::prepare_gpu_pose",
+      "sampled_self_seconds": 0.000558,
+      "sampled_calls": 4480,
+      "self_ms_per_sampled_frame": 0.06975
+    },
+    {
+      "signature": "res://source/match/audio/CombatAudio.gd::501::_process",
+      "sampled_self_seconds": 0.0005570000000000001,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.069625
+    },
+    {
+      "signature": "res://source/match/units/traits/VehicleDamageProfile.gd::12::band_for",
+      "sampled_self_seconds": 0.000556,
+      "sampled_calls": 2120,
+      "self_ms_per_sampled_frame": 0.06949999999999999
+    },
+    {
+      "signature": "res://source/match/combat/SignatureState.gd::77::_update_anchor",
+      "sampled_self_seconds": 0.0005499999999999999,
+      "sampled_calls": 382,
+      "self_ms_per_sampled_frame": 0.06874999999999999
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishDefense.gd::64::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 0.000549,
+      "sampled_calls": 415,
+      "self_ms_per_sampled_frame": 0.068625
+    },
+    {
+      "signature": "res://source/match/rendering/UnitBatchRenderer.gd::343::_update_native_pulse",
+      "sampled_self_seconds": 0.0005459999999999999,
+      "sampled_calls": 380,
+      "self_ms_per_sampled_frame": 0.06824999999999999
+    },
+    {
+      "signature": "res://source/match/effects/CombatEffects.gd::1210::_update_tracer",
+      "sampled_self_seconds": 0.000544,
+      "sampled_calls": 125,
+      "self_ms_per_sampled_frame": 0.068
+    },
+    {
+      "signature": "res://source/match/units/traits/Movement.gd::599::_update_passive_movement_tracking",
+      "sampled_self_seconds": 0.000539,
+      "sampled_calls": 2400,
+      "self_ms_per_sampled_frame": 0.067375
+    },
+    {
+      "signature": "res://source/match/effects/CombatEffects.gd::557::trail",
+      "sampled_self_seconds": 0.0005349999999999999,
+      "sampled_calls": 879,
+      "self_ms_per_sampled_frame": 0.06687499999999999
+    },
+    {
+      "signature": "res://source/match/combat/ProjectileSystem.gd::187::_launch_velocity",
+      "sampled_self_seconds": 0.0005340000000000001,
+      "sampled_calls": 188,
+      "self_ms_per_sampled_frame": 0.06675
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishEconomy.gd::55::_threat_snapshot",
+      "sampled_self_seconds": 0.000532,
+      "sampled_calls": 5,
+      "self_ms_per_sampled_frame": 0.0665
+    },
+    {
+      "signature": "res://source/match/audio/CombatAudio.gd::263::update_damage",
+      "sampled_self_seconds": 0.0005319999999999999,
+      "sampled_calls": 1920,
+      "self_ms_per_sampled_frame": 0.06649999999999999
+    },
+    {
+      "signature": "res://source/match/Match.gd::265::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 0.000526,
+      "sampled_calls": 5340,
+      "self_ms_per_sampled_frame": 0.06575
+    },
+    {
+      "signature": "res://source/match/hud/MapFeatures.gd::19::_draw",
+      "sampled_self_seconds": 0.0005250000000000001,
+      "sampled_calls": 2,
+      "self_ms_per_sampled_frame": 0.065625
+    },
+    {
+      "signature": "res://source/match/effects/BattleAftermath.gd::113::flash",
+      "sampled_self_seconds": 0.0005170000000000001,
+      "sampled_calls": 202,
+      "self_ms_per_sampled_frame": 0.06462500000000002
+    },
+    {
+      "signature": "res://source/match/Map.gd::72::ground_point",
+      "sampled_self_seconds": 0.000506,
+      "sampled_calls": 4449,
+      "self_ms_per_sampled_frame": 0.06325
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishCoordination.gd::353::_regroup",
+      "sampled_self_seconds": 0.000504,
+      "sampled_calls": 199,
+      "self_ms_per_sampled_frame": 0.063
+    },
+    {
+      "signature": "res://source/match/effects/WeaponHeat.gd::22::shot",
+      "sampled_self_seconds": 0.000498,
+      "sampled_calls": 44,
+      "self_ms_per_sampled_frame": 0.06224999999999999
+    },
+    {
+      "signature": "res://source/match/hud/BattleAlertsPanel.gd::105::_layout",
+      "sampled_self_seconds": 0.0004940000000000001,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.06175000000000001
+    },
+    {
+      "signature": "res://source/match/FogOfWar.gd::81::_unit_is_mapped",
+      "sampled_self_seconds": 0.000483,
+      "sampled_calls": 2240,
+      "self_ms_per_sampled_frame": 0.060375
+    },
+    {
+      "signature": "res://source/match/units/traits/Movement.gd::284::_advance_exit_clearance",
+      "sampled_self_seconds": 0.00047799999999999996,
+      "sampled_calls": 2400,
+      "self_ms_per_sampled_frame": 0.05975
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishTactics.gd::31::_working",
+      "sampled_self_seconds": 0.000476,
+      "sampled_calls": 420,
+      "self_ms_per_sampled_frame": 0.059500000000000004
+    },
+    {
+      "signature": "res://source/match/effects/ProjectileRenderer.gd::212::update",
+      "sampled_self_seconds": 0.00046900000000000007,
+      "sampled_calls": 693,
+      "self_ms_per_sampled_frame": 0.05862500000000001
+    },
+    {
+      "signature": "res://source/match/combat/HelixSupport.gd::54::requested",
+      "sampled_self_seconds": 0.00046600000000000005,
+      "sampled_calls": 252,
+      "self_ms_per_sampled_frame": 0.05825
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::839::_idle_gesture",
+      "sampled_self_seconds": 0.000465,
+      "sampled_calls": 3454,
+      "self_ms_per_sampled_frame": 0.058125
+    },
+    {
+      "signature": "res://source/match/combat/ProjectileSystem.gd::410::_body_entry",
+      "sampled_self_seconds": 0.00046100000000000004,
+      "sampled_calls": 1754,
+      "self_ms_per_sampled_frame": 0.057625
+    },
+    {
+      "signature": "res://source/match/units/traits/Movement.gd::297::has_occupied_endpoint",
+      "sampled_self_seconds": 0.00046099999999999993,
+      "sampled_calls": 382,
+      "self_ms_per_sampled_frame": 0.05762499999999999
+    },
+    {
+      "signature": "res://source/match/combat/WeaponCatalog.gd::289::suppresses_nearby",
+      "sampled_self_seconds": 0.00046000000000000007,
+      "sampled_calls": 866,
+      "self_ms_per_sampled_frame": 0.05750000000000001
+    },
+    {
+      "signature": "res://source/match/units/traits/InfantryMotion.gd::284::_stance_foot",
+      "sampled_self_seconds": 0.000458,
+      "sampled_calls": 960,
+      "self_ms_per_sampled_frame": 0.05725
+    },
+    {
+      "signature": "res://source/match/combat/CombatRules.gd::233::_damage",
+      "sampled_self_seconds": 0.00045799999999999997,
+      "sampled_calls": 741,
+      "self_ms_per_sampled_frame": 0.057249999999999995
+    },
+    {
+      "signature": "res://source/match/combat/CombatRules.gd::0::DamageFacts.@implicit_new",
+      "sampled_self_seconds": 0.00045300000000000006,
+      "sampled_calls": 802,
+      "self_ms_per_sampled_frame": 0.05662500000000001
+    },
+    {
+      "signature": "res://source/match/units/Structure.gd::28::is_revealing",
+      "sampled_self_seconds": 0.000453,
+      "sampled_calls": 640,
+      "self_ms_per_sampled_frame": 0.056625
+    },
+    {
+      "signature": "res://source/match/units/Unit.gd::417::_set_hp",
+      "sampled_self_seconds": 0.00045,
+      "sampled_calls": 235,
+      "self_ms_per_sampled_frame": 0.05625
+    },
+    {
+      "signature": "res://source/match/units/Unit.gd::81::@attack_damage_getter",
+      "sampled_self_seconds": 0.00044699999999999997,
+      "sampled_calls": 1139,
+      "self_ms_per_sampled_frame": 0.055874999999999994
+    },
+    {
+      "signature": "res://source/match/ObjectMaterials.gd::188::_collect_hit_surfaces",
+      "sampled_self_seconds": 0.00044400000000000006,
+      "sampled_calls": 906,
+      "self_ms_per_sampled_frame": 0.05550000000000001
+    },
+    {
+      "signature": "res://source/match/effects/ProjectileRenderer.gd::218::remove",
+      "sampled_self_seconds": 0.00043900000000000005,
+      "sampled_calls": 173,
+      "self_ms_per_sampled_frame": 0.05487500000000001
+    },
+    {
+      "signature": "res://source/match/hud/OwnershipOverlay.gd::58::_draw",
+      "sampled_self_seconds": 0.00043599999999999997,
+      "sampled_calls": 6,
+      "self_ms_per_sampled_frame": 0.0545
+    },
+    {
+      "signature": "res://source/match/hud/ResearchStatus.gd::108::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 0.000431,
+      "sampled_calls": 735,
+      "self_ms_per_sampled_frame": 0.053875
+    },
+    {
+      "signature": "res://source/match/combat/Battlefield.gd::822::nearby_obstacles",
+      "sampled_self_seconds": 0.000431,
+      "sampled_calls": 433,
+      "self_ms_per_sampled_frame": 0.053875
+    },
+    {
+      "signature": "res://source/match/units/traits/UnitAbilities.gd::81::get_ability",
+      "sampled_self_seconds": 0.000429,
+      "sampled_calls": 4060,
+      "self_ms_per_sampled_frame": 0.053625
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::986::recoil_envelope",
+      "sampled_self_seconds": 0.0004249999999999999,
+      "sampled_calls": 3454,
+      "self_ms_per_sampled_frame": 0.05312499999999999
+    },
+    {
+      "signature": "res://source/match/combat/Battlefield.gd::381::_cell",
+      "sampled_self_seconds": 0.000422,
+      "sampled_calls": 2136,
+      "self_ms_per_sampled_frame": 0.05275
+    },
+    {
+      "signature": "res://source/match/units/actions/AttackingWhileInRange.gd::148::_update_charge_visual",
+      "sampled_self_seconds": 0.00041900000000000005,
+      "sampled_calls": 580,
+      "self_ms_per_sampled_frame": 0.052375000000000005
+    },
+    {
+      "signature": "res://source/match/alerts/BattleAlerts.gd::161::_event",
+      "sampled_self_seconds": 0.000418,
+      "sampled_calls": 23,
+      "self_ms_per_sampled_frame": 0.052250000000000005
+    },
+    {
+      "signature": "res://source/match/research/TechnologyCatalog.gd::164::rank",
+      "sampled_self_seconds": 0.00041600000000000003,
+      "sampled_calls": 709,
+      "self_ms_per_sampled_frame": 0.052000000000000005
+    },
+    {
+      "signature": "res://source/match/units/traits/InfantrySuppression.gd::58::_update_band",
+      "sampled_self_seconds": 0.000415,
+      "sampled_calls": 866,
+      "self_ms_per_sampled_frame": 0.051875
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishExpansion.gd::52::_claimed",
+      "sampled_self_seconds": 0.000407,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.050875000000000004
+    },
+    {
+      "signature": "res://source/match/effects/BattlefieldWear.gd::153::add_mark",
+      "sampled_self_seconds": 0.00040699999999999997,
+      "sampled_calls": 129,
+      "self_ms_per_sampled_frame": 0.050875
+    },
+    {
+      "signature": "res://source/match/combat/ProjectileSystem.gd::211::ballistic_direction",
+      "sampled_self_seconds": 0.00040699999999999997,
+      "sampled_calls": 188,
+      "self_ms_per_sampled_frame": 0.050875
+    },
+    {
+      "signature": "res://source/match/combat/ProjectileSystem.gd::464::_gap",
+      "sampled_self_seconds": 0.00040100000000000004,
+      "sampled_calls": 247,
+      "self_ms_per_sampled_frame": 0.050125
+    },
+    {
+      "signature": "res://source/match/units/actions/AutoAttacking.gd::20::is_applicable",
+      "sampled_self_seconds": 0.000401,
+      "sampled_calls": 4211,
+      "self_ms_per_sampled_frame": 0.050124999999999996
+    },
+    {
+      "signature": "res://source/match/BastionCatalog.gd::182::is_aircraft",
+      "sampled_self_seconds": 0.000401,
+      "sampled_calls": 3497,
+      "self_ms_per_sampled_frame": 0.050124999999999996
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishAI.gd::566::_command_support",
+      "sampled_self_seconds": 0.000399,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.049875
+    },
+    {
+      "signature": "res://source/match/effects/WeaponHeat.gd::60::_update",
+      "sampled_self_seconds": 0.00039200000000000004,
+      "sampled_calls": 177,
+      "self_ms_per_sampled_frame": 0.049
+    },
+    {
+      "signature": "res://source/match/handlers/UnitVisibilityHandler.gd::37::_is_disabled",
+      "sampled_self_seconds": 0.00038899999999999997,
+      "sampled_calls": 2938,
+      "self_ms_per_sampled_frame": 0.048624999999999995
+    },
+    {
+      "signature": "res://source/match/hud/ProductionOverview.gd::51::entries",
+      "sampled_self_seconds": 0.00038800000000000005,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.04850000000000001
+    },
+    {
+      "signature": "res://source/match/units/traits/RallyPoint.gd::33::_physics_process",
+      "sampled_self_seconds": 0.00038700000000000003,
+      "sampled_calls": 2400,
+      "self_ms_per_sampled_frame": 0.048375
+    },
+    {
+      "signature": "res://source/match/audio/CombatAudio.gd::191::heavy_impact",
+      "sampled_self_seconds": 0.000385,
+      "sampled_calls": 438,
+      "self_ms_per_sampled_frame": 0.048124999999999994
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishLabor.gd::93::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 0.000384,
+      "sampled_calls": 840,
+      "self_ms_per_sampled_frame": 0.048
+    },
+    {
+      "signature": "res://source/match/hud/BattleAlertsPanel.gd::213::_before",
+      "sampled_self_seconds": 0.00038300000000000004,
+      "sampled_calls": 558,
+      "self_ms_per_sampled_frame": 0.04787500000000001
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishTactics.gd::211::_field_engineering",
+      "sampled_self_seconds": 0.000383,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.047875
+    },
+    {
+      "signature": "res://source/match/units/Helicopter.gd::41::armed",
+      "sampled_self_seconds": 0.000381,
+      "sampled_calls": 3157,
+      "self_ms_per_sampled_frame": 0.047625
+    },
+    {
+      "signature": "res://source/match/units/actions/AttackingWhileInRange.gd::72::_setup_one_shot_timer",
+      "sampled_self_seconds": 0.00037300000000000007,
+      "sampled_calls": 56,
+      "self_ms_per_sampled_frame": 0.04662500000000001
+    },
+    {
+      "signature": "res://source/match/units/Helicopter.gd::50::needs_rearm",
+      "sampled_self_seconds": 0.00036800000000000005,
+      "sampled_calls": 2400,
+      "self_ms_per_sampled_frame": 0.046000000000000006
+    },
+    {
+      "signature": "res://source/match/units/traits/Movement.gd::534::_flight_height",
+      "sampled_self_seconds": 0.000366,
+      "sampled_calls": 1723,
+      "self_ms_per_sampled_frame": 0.04575
+    },
+    {
+      "signature": "res://source/match/hud/Minimap.gd::136::_refresh_operations",
+      "sampled_self_seconds": 0.000364,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.0455
+    },
+    {
+      "signature": "res://source/match/combat/ProjectileSystem.gd::553::incoming_damage",
+      "sampled_self_seconds": 0.00036,
+      "sampled_calls": 61,
+      "self_ms_per_sampled_frame": 0.045000000000000005
+    },
+    {
+      "signature": "res://source/match/rendering/InfantryPoseWorker.gd::123::end",
+      "sampled_self_seconds": 0.000352,
+      "sampled_calls": 960,
+      "self_ms_per_sampled_frame": 0.044
+    },
+    {
+      "signature": "res://source/match/combat/ProjectileSystem.gd::232::_add",
+      "sampled_self_seconds": 0.00035,
+      "sampled_calls": 174,
+      "self_ms_per_sampled_frame": 0.04375
+    },
+    {
+      "signature": "res://source/match/NativeCrowdRuntime.gd::92::_begin_frame",
+      "sampled_self_seconds": 0.00034899999999999997,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.043625
+    },
+    {
+      "signature": "res://source/match/units/actions/Moving.gd::27::_process",
+      "sampled_self_seconds": 0.000346,
+      "sampled_calls": 1849,
+      "self_ms_per_sampled_frame": 0.043250000000000004
+    },
+    {
+      "signature": "res://source/match/effects/CombatEffects.gd::1521::rotor_downwash",
+      "sampled_self_seconds": 0.000338,
+      "sampled_calls": 271,
+      "self_ms_per_sampled_frame": 0.042249999999999996
+    },
+    {
+      "signature": "res://source/match/combat/Battlefield.gd::531::has_line_of_fire",
+      "sampled_self_seconds": 0.000335,
+      "sampled_calls": 1958,
+      "self_ms_per_sampled_frame": 0.041875
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::346::fire_recoil",
+      "sampled_self_seconds": 0.00033299999999999996,
+      "sampled_calls": 188,
+      "self_ms_per_sampled_frame": 0.041624999999999995
+    },
+    {
+      "signature": "res://source/match/combat/ProjectileSystem.gd::154::center_of",
+      "sampled_self_seconds": 0.00031899999999999995,
+      "sampled_calls": 447,
+      "self_ms_per_sampled_frame": 0.039874999999999994
+    },
+    {
+      "signature": "res://source/match/units/traits/Movement.gd::492::move",
+      "sampled_self_seconds": 0.000317,
+      "sampled_calls": 161,
+      "self_ms_per_sampled_frame": 0.039625
+    },
+    {
+      "signature": "res://source/match/research/TechnologyCatalog.gd::168::damage_factor",
+      "sampled_self_seconds": 0.000306,
+      "sampled_calls": 802,
+      "self_ms_per_sampled_frame": 0.03825
+    },
+    {
+      "signature": "res://source/match/units/actions/WaitingForTargets.gd::66::_on_timer_timeout",
+      "sampled_self_seconds": 0.000303,
+      "sampled_calls": 314,
+      "self_ms_per_sampled_frame": 0.037875
+    },
+    {
+      "signature": "res://source/match/units/Structure.gd::90::is_under_construction",
+      "sampled_self_seconds": 0.000298,
+      "sampled_calls": 2880,
+      "self_ms_per_sampled_frame": 0.03725
+    },
+    {
+      "signature": "res://source/match/effects/CombatEffects.gd::1515::_water_impact",
+      "sampled_self_seconds": 0.000298,
+      "sampled_calls": 229,
+      "self_ms_per_sampled_frame": 0.03725
+    },
+    {
+      "signature": "res://source/match/hud/MinimapUnitMarker.gd::6::@kind_setter",
+      "sampled_self_seconds": 0.000288,
+      "sampled_calls": 1566,
+      "self_ms_per_sampled_frame": 0.036000000000000004
+    },
+    {
+      "signature": "res://source/match/combat/ProjectileSystem.gd::337::_steer",
+      "sampled_self_seconds": 0.000288,
+      "sampled_calls": 172,
+      "self_ms_per_sampled_frame": 0.036000000000000004
+    },
+    {
+      "signature": "res://source/match/maps/IndustrialLandmarks.gd::25::flight_height",
+      "sampled_self_seconds": 0.00028799999999999995,
+      "sampled_calls": 1723,
+      "self_ms_per_sampled_frame": 0.036
+    },
+    {
+      "signature": "res://source/match/combat/ProjectileSystem.gd::530::_shown",
+      "sampled_self_seconds": 0.00028599999999999996,
+      "sampled_calls": 333,
+      "self_ms_per_sampled_frame": 0.03575
+    },
+    {
+      "signature": "res://source/match/units/traits/InfantrySuppression.gd::73::_adjust_reload",
+      "sampled_self_seconds": 0.000285,
+      "sampled_calls": 15,
+      "self_ms_per_sampled_frame": 0.035625
+    },
+    {
+      "signature": "res://source/audio/MusicDirector.gd::161::_update_intensity",
+      "sampled_self_seconds": 0.000284,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.035500000000000004
+    },
+    {
+      "signature": "res://source/match/combat/CommanderSupport.gd::167::_physics_process",
+      "sampled_self_seconds": 0.00028000000000000003,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.035
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::933::_set_barrel_pitch",
+      "sampled_self_seconds": 0.00028000000000000003,
+      "sampled_calls": 1414,
+      "self_ms_per_sampled_frame": 0.035
+    },
+    {
+      "signature": "res://source/match/effects/CombatEffects.gd::538::explosive_impact",
+      "sampled_self_seconds": 0.00028,
+      "sampled_calls": 490,
+      "self_ms_per_sampled_frame": 0.034999999999999996
+    },
+    {
+      "signature": "res://source/match/combat/CombatRules.gd::147::explicit_attack",
+      "sampled_self_seconds": 0.000276,
+      "sampled_calls": 188,
+      "self_ms_per_sampled_frame": 0.034499999999999996
+    },
+    {
+      "signature": "res://source/match/combat/RepairService.gd::127::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 0.000275,
+      "sampled_calls": 1813,
+      "self_ms_per_sampled_frame": 0.034375
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::966::_parent_local",
+      "sampled_self_seconds": 0.00027499999999999996,
+      "sampled_calls": 1058,
+      "self_ms_per_sampled_frame": 0.034374999999999996
+    },
+    {
+      "signature": "res://source/match/combat/FactionSignatures.gd::16::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 0.00026900000000000003,
+      "sampled_calls": 2899,
+      "self_ms_per_sampled_frame": 0.033625
+    },
+    {
+      "signature": "res://source/audio/UIAudio.gd::35::_watch",
+      "sampled_self_seconds": 0.000268,
+      "sampled_calls": 341,
+      "self_ms_per_sampled_frame": 0.0335
+    },
+    {
+      "signature": "res://source/match/rendering/InfantryPoseWorker.gd::49::Job.configure",
+      "sampled_self_seconds": 0.000268,
+      "sampled_calls": 937,
+      "self_ms_per_sampled_frame": 0.0335
+    },
+    {
+      "signature": "res://source/match/alerts/BattleAlerts.gd::262::scan",
+      "sampled_self_seconds": 0.000265,
+      "sampled_calls": 2,
+      "self_ms_per_sampled_frame": 0.033125
+    },
+    {
+      "signature": "res://source/match/players/Player.gd::247::structure_count",
+      "sampled_self_seconds": 0.000261,
+      "sampled_calls": 11,
+      "self_ms_per_sampled_frame": 0.032625
+    },
+    {
+      "signature": "res://source/match/combat/FactionSignatures.gd::27::eligible",
+      "sampled_self_seconds": 0.000259,
+      "sampled_calls": 294,
+      "self_ms_per_sampled_frame": 0.032375
+    },
+    {
+      "signature": "res://source/match/combat/ProjectileSystem.gd::547::_live",
+      "sampled_self_seconds": 0.000255,
+      "sampled_calls": 1224,
+      "self_ms_per_sampled_frame": 0.031875
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishEconomy.gd::28::headquarters",
+      "sampled_self_seconds": 0.000255,
+      "sampled_calls": 264,
+      "self_ms_per_sampled_frame": 0.031875
+    },
+    {
+      "signature": "res://source/match/combat/ProjectileSystem.gd::253::_physics_process",
+      "sampled_self_seconds": 0.00025299999999999997,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.03162499999999999
+    },
+    {
+      "signature": "res://source/match/units/traits/UnitMotionProfile.gd::37::next_shot",
+      "sampled_self_seconds": 0.000251,
+      "sampled_calls": 188,
+      "self_ms_per_sampled_frame": 0.031375
+    },
+    {
+      "signature": "res://source/match/combat/ProjectileSystem.gd::658::_suppress_hit",
+      "sampled_self_seconds": 0.00025,
+      "sampled_calls": 177,
+      "self_ms_per_sampled_frame": 0.03125
+    },
+    {
+      "signature": "res://source/match/effects/CombatEffects.gd::650::_ricochet",
+      "sampled_self_seconds": 0.000249,
+      "sampled_calls": 89,
+      "self_ms_per_sampled_frame": 0.031124999999999996
+    },
+    {
+      "signature": "res://source/match/units/traits/WalkerGait.gd::186::_settle",
+      "sampled_self_seconds": 0.000249,
+      "sampled_calls": 125,
+      "self_ms_per_sampled_frame": 0.031124999999999996
+    },
+    {
+      "signature": "res://source/match/effects/FoliageResponse.gd::51::_publish",
+      "sampled_self_seconds": 0.000242,
+      "sampled_calls": 106,
+      "self_ms_per_sampled_frame": 0.03025
+    },
+    {
+      "signature": "res://source/match/effects/StructureActivity.gd::46::_process",
+      "sampled_self_seconds": 0.000239,
+      "sampled_calls": 1280,
+      "self_ms_per_sampled_frame": 0.029875000000000002
+    },
+    {
+      "signature": "res://source/match/research/TechnologyResearch.gd::161::_physics_process",
+      "sampled_self_seconds": 0.000235,
+      "sampled_calls": 240,
+      "self_ms_per_sampled_frame": 0.029375
+    },
+    {
+      "signature": "res://source/match/combat/SignatureState.gd::89::damage_factor",
+      "sampled_self_seconds": 0.00023399999999999997,
+      "sampled_calls": 891,
+      "self_ms_per_sampled_frame": 0.029249999999999995
+    },
+    {
+      "signature": "res://source/match/rendering/UnitBatchRenderer.gd::397::set_hit_pulse",
+      "sampled_self_seconds": 0.00023300000000000003,
+      "sampled_calls": 190,
+      "self_ms_per_sampled_frame": 0.029125
+    },
+    {
+      "signature": "res://source/match/world/RefineryMachinery.gd::30::advance",
+      "sampled_self_seconds": 0.000233,
+      "sampled_calls": 240,
+      "self_ms_per_sampled_frame": 0.029124999999999998
+    },
+    {
+      "signature": "res://source/match/hud/ResearchStatus.gd::104::_choices",
+      "sampled_self_seconds": 0.00022999999999999998,
+      "sampled_calls": 5,
+      "self_ms_per_sampled_frame": 0.028749999999999998
+    },
+    {
+      "signature": "res://source/match/units/traits/HealthBar.gd::127::_show_for_a_while",
+      "sampled_self_seconds": 0.00022899999999999998,
+      "sampled_calls": 205,
+      "self_ms_per_sampled_frame": 0.028624999999999998
+    },
+    {
+      "signature": "res://source/match/alerts/BattleAlerts.gd::115::_publish",
+      "sampled_self_seconds": 0.00022899999999999998,
+      "sampled_calls": 28,
+      "self_ms_per_sampled_frame": 0.028624999999999998
+    },
+    {
+      "signature": "res://source/match/units/Unit.gd::94::@attack_interval_getter",
+      "sampled_self_seconds": 0.00022400000000000002,
+      "sampled_calls": 640,
+      "self_ms_per_sampled_frame": 0.028000000000000004
+    },
+    {
+      "signature": "res://source/match/units/traits/InfantryMotion.gd::308::stride_length",
+      "sampled_self_seconds": 0.000224,
+      "sampled_calls": 1896,
+      "self_ms_per_sampled_frame": 0.028
+    },
+    {
+      "signature": "res://source/match/rendering/UnitBatchRenderer.gd::404::clear_hit_pulse",
+      "sampled_self_seconds": 0.00022300000000000003,
+      "sampled_calls": 190,
+      "self_ms_per_sampled_frame": 0.027875000000000004
+    },
+    {
+      "signature": "res://source/match/effects/FoliageResponse.gd::21::impulse",
+      "sampled_self_seconds": 0.000222,
+      "sampled_calls": 46,
+      "self_ms_per_sampled_frame": 0.02775
+    },
+    {
+      "signature": "res://source/match/BattleRecord.gd::42::_owned",
+      "sampled_self_seconds": 0.000221,
+      "sampled_calls": 219,
+      "self_ms_per_sampled_frame": 0.027625
+    },
+    {
+      "signature": "res://source/match/units/traits/AirToTerrainMarker.gd::36::_process",
+      "sampled_self_seconds": 0.000221,
+      "sampled_calls": 320,
+      "self_ms_per_sampled_frame": 0.027625
+    },
+    {
+      "signature": "res://source/match/combat/SignatureState.gd::70::_moving",
+      "sampled_self_seconds": 0.00022,
+      "sampled_calls": 382,
+      "self_ms_per_sampled_frame": 0.0275
+    },
+    {
+      "signature": "res://source/match/effects/WeaponHeat.gd::43::_process",
+      "sampled_self_seconds": 0.000214,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.02675
+    },
+    {
+      "signature": "res://source/match/world/PointOfInterest.gd::260::is_constructed",
+      "sampled_self_seconds": 0.000212,
+      "sampled_calls": 1296,
+      "self_ms_per_sampled_frame": 0.0265
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishEconomy.gd::214::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 0.000209,
+      "sampled_calls": 420,
+      "self_ms_per_sampled_frame": 0.026125000000000002
+    },
+    {
+      "signature": "res://source/match/rendering/RuntimePhaseProfiler.gd::43::mark",
+      "sampled_self_seconds": 0.000207,
+      "sampled_calls": 136,
+      "self_ms_per_sampled_frame": 0.025875
+    },
+    {
+      "signature": "res://source/match/rendering/UnitBatchRenderer.gd::581::_capture_physics_roots",
+      "sampled_self_seconds": 0.000202,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.02525
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishTactics.gd::213::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 0.000202,
+      "sampled_calls": 420,
+      "self_ms_per_sampled_frame": 0.02525
+    },
+    {
+      "signature": "res://source/match/units/actions/AttackingWhileInRange.gd::79::_setup_range_check_timer",
+      "sampled_self_seconds": 0.00019999999999999998,
+      "sampled_calls": 56,
+      "self_ms_per_sampled_frame": 0.024999999999999998
+    },
+    {
+      "signature": "res://source/match/hud/ResourcesBar.gd::219::_refresh_refinery_income",
+      "sampled_self_seconds": 0.000198,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.024749999999999998
+    },
+    {
+      "signature": "res://source/input/KeyBindings.gd::215::describe",
+      "sampled_self_seconds": 0.000197,
+      "sampled_calls": 14,
+      "self_ms_per_sampled_frame": 0.024624999999999998
+    },
+    {
+      "signature": "res://source/match/rendering/ComputePosePalette.gd::43::dispatch",
+      "sampled_self_seconds": 0.000194,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.02425
+    },
+    {
+      "signature": "res://source/match/hud/CommanderRoster.gd::80::refresh",
+      "sampled_self_seconds": 0.00019199999999999998,
+      "sampled_calls": 5,
+      "self_ms_per_sampled_frame": 0.023999999999999997
+    },
+    {
+      "signature": "res://source/match/units/traits/Movement.gd::245::_changing_height",
+      "sampled_self_seconds": 0.000191,
+      "sampled_calls": 677,
+      "self_ms_per_sampled_frame": 0.023875
+    },
+    {
+      "signature": "res://source/match/units/traits/Movement.gd::512::stop",
+      "sampled_self_seconds": 0.00019,
+      "sampled_calls": 99,
+      "self_ms_per_sampled_frame": 0.02375
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishCoordination.gd::287::_move",
+      "sampled_self_seconds": 0.000188,
+      "sampled_calls": 199,
+      "self_ms_per_sampled_frame": 0.0235
+    },
+    {
+      "signature": "res://source/match/NativeCrowdRuntime.gd::53::_sync_projection",
+      "sampled_self_seconds": 0.000187,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.023375
+    },
+    {
+      "signature": "res://source/match/combat/ProjectileSystem.gd::243::_remove",
+      "sampled_self_seconds": 0.000185,
+      "sampled_calls": 173,
+      "self_ms_per_sampled_frame": 0.023125
+    },
+    {
+      "signature": "res://source/match/units/actions/AttackingWhileInRange.gd::155::_cancel_charge",
+      "sampled_self_seconds": 0.000184,
+      "sampled_calls": 264,
+      "self_ms_per_sampled_frame": 0.023
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishTactics.gd::246::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 0.000184,
+      "sampled_calls": 420,
+      "self_ms_per_sampled_frame": 0.023
+    },
+    {
+      "signature": "res://source/match/environment/WorldAtmosphere.gd::118::_update",
+      "sampled_self_seconds": 0.00018399999999999997,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.022999999999999996
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishProduction.gd::83::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 0.000183,
+      "sampled_calls": 420,
+      "self_ms_per_sampled_frame": 0.022875
+    },
+    {
+      "signature": "res://source/match/units/traits/WalkerGait.gd::179::_step",
+      "sampled_self_seconds": 0.000181,
+      "sampled_calls": 270,
+      "self_ms_per_sampled_frame": 0.022625000000000003
+    },
+    {
+      "signature": "res://source/match/hud/CommanderRoster.gd::68::commander_name",
+      "sampled_self_seconds": 0.00018,
+      "sampled_calls": 20,
+      "self_ms_per_sampled_frame": 0.022500000000000003
+    },
+    {
+      "signature": "res://source/match/effects/CombatEffects.gd::1179::_advance_tracers",
+      "sampled_self_seconds": 0.00017900000000000001,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.022375000000000003
+    },
+    {
+      "signature": "res://source/match/combat/Battlefield.gd::722::_body_cell",
+      "sampled_self_seconds": 0.000177,
+      "sampled_calls": 1440,
+      "self_ms_per_sampled_frame": 0.022125
+    },
+    {
+      "signature": "res://source/match/effects/CombatEffects.gd::468::_beam_burst",
+      "sampled_self_seconds": 0.000176,
+      "sampled_calls": 28,
+      "self_ms_per_sampled_frame": 0.022
+    },
+    {
+      "signature": "res://source/match/units/actions/AttackingWhileInRange.gd::32::_ready",
+      "sampled_self_seconds": 0.00017500000000000003,
+      "sampled_calls": 56,
+      "self_ms_per_sampled_frame": 0.021875000000000002
+    },
+    {
+      "signature": "res://source/match/units/traits/ChassisMotion.gd::235::is_settled",
+      "sampled_self_seconds": 0.000173,
+      "sampled_calls": 292,
+      "self_ms_per_sampled_frame": 0.021625000000000002
+    },
+    {
+      "signature": "res://source/match/combat/RepairService.gd::61::mobile_distance",
+      "sampled_self_seconds": 0.00017099999999999998,
+      "sampled_calls": 328,
+      "self_ms_per_sampled_frame": 0.021374999999999998
+    },
+    {
+      "signature": "res://source/match/rendering/InfantryPoseWorker.gd::59::Job.solve",
+      "sampled_self_seconds": 0.00017,
+      "sampled_calls": 937,
+      "self_ms_per_sampled_frame": 0.02125
+    },
+    {
+      "signature": "res://source/match/units/traits/HealthBar.gd::84::_draw_bar",
+      "sampled_self_seconds": 0.00017,
+      "sampled_calls": 205,
+      "self_ms_per_sampled_frame": 0.02125
+    },
+    {
+      "signature": "res://source/match/combat/SignatureState.gd::144::_upgraded",
+      "sampled_self_seconds": 0.000169,
+      "sampled_calls": 156,
+      "self_ms_per_sampled_frame": 0.021124999999999998
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishExpansion.gd::17::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 0.000169,
+      "sampled_calls": 420,
+      "self_ms_per_sampled_frame": 0.021124999999999998
+    },
+    {
+      "signature": "res://source/match/units/traits/HealthBar.gd::168::_on_visibility_timer_timeout",
+      "sampled_self_seconds": 0.00016800000000000002,
+      "sampled_calls": 72,
+      "self_ms_per_sampled_frame": 0.021
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::523::_flush_pending_pose",
+      "sampled_self_seconds": 0.000168,
+      "sampled_calls": 407,
+      "self_ms_per_sampled_frame": 0.020999999999999998
+    },
+    {
+      "signature": "res://source/match/combat/ProjectileSystem.gd::0::Round.@implicit_new",
+      "sampled_self_seconds": 0.000168,
+      "sampled_calls": 188,
+      "self_ms_per_sampled_frame": 0.020999999999999998
+    },
+    {
+      "signature": "res://source/match/units/traits/InfantrySuppression.gd::25::add_pressure",
+      "sampled_self_seconds": 0.00016700000000000002,
+      "sampled_calls": 85,
+      "self_ms_per_sampled_frame": 0.020875
+    },
+    {
+      "signature": "res://source/match/rendering/UnitBatchRenderer.gd::495::_grow_group_bounds",
+      "sampled_self_seconds": 0.000166,
+      "sampled_calls": 83,
+      "self_ms_per_sampled_frame": 0.02075
+    },
+    {
+      "signature": "res://source/match/Skirmish.gd::180::objective_text",
+      "sampled_self_seconds": 0.00016299999999999998,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.020374999999999997
+    },
+    {
+      "signature": "res://source/match/players/Player.gd::223::production_factor",
+      "sampled_self_seconds": 0.00016200000000000003,
+      "sampled_calls": 332,
+      "self_ms_per_sampled_frame": 0.020250000000000004
+    },
+    {
+      "signature": "res://source/match/units/traits/Movement.gd::818::_sync_ground_navigation_height",
+      "sampled_self_seconds": 0.000162,
+      "sampled_calls": 1723,
+      "self_ms_per_sampled_frame": 0.02025
+    },
+    {
+      "signature": "res://source/match/effects/BattlefieldWear.gd::108::sample_vehicle",
+      "sampled_self_seconds": 0.000161,
+      "sampled_calls": 70,
+      "self_ms_per_sampled_frame": 0.020125
+    },
+    {
+      "signature": "res://source/match/combat/WeaponCatalog.gd::266::lifetime",
+      "sampled_self_seconds": 0.00015900000000000002,
+      "sampled_calls": 188,
+      "self_ms_per_sampled_frame": 0.019875
+    },
+    {
+      "signature": "res://source/match/rendering/UnitBatchRenderer.gd::508::_leave_group",
+      "sampled_self_seconds": 0.000157,
+      "sampled_calls": 53,
+      "self_ms_per_sampled_frame": 0.019625
+    },
+    {
+      "signature": "res://source/match/units/traits/Movement.gd::540::_is_moving_actively",
+      "sampled_self_seconds": 0.000154,
+      "sampled_calls": 2400,
+      "self_ms_per_sampled_frame": 0.01925
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishCoordination.gd::309::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 0.000151,
+      "sampled_calls": 379,
+      "self_ms_per_sampled_frame": 0.018875000000000003
+    },
+    {
+      "signature": "res://source/match/effects/CombatEffects.gd::662::_armor_impact",
+      "sampled_self_seconds": 0.00014900000000000002,
+      "sampled_calls": 63,
+      "self_ms_per_sampled_frame": 0.018625000000000003
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishTactics.gd::89::_use_grenades",
+      "sampled_self_seconds": 0.000147,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.018375
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishCoordination.gd::22::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 0.000145,
+      "sampled_calls": 415,
+      "self_ms_per_sampled_frame": 0.018125
+    },
+    {
+      "signature": "res://source/match/units/AdvancedTank.gd::46::weapon_delay",
+      "sampled_self_seconds": 0.00014099999999999996,
+      "sampled_calls": 374,
+      "self_ms_per_sampled_frame": 0.017624999999999995
+    },
+    {
+      "signature": "res://source/match/combat/RepairService.gd::53::stationary",
+      "sampled_self_seconds": 0.00014,
+      "sampled_calls": 320,
+      "self_ms_per_sampled_frame": 0.017499999999999998
+    },
+    {
+      "signature": "res://source/match/hud/ConsoleFrame.gd::75::_layout",
+      "sampled_self_seconds": 0.00013900000000000002,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.017375
+    },
+    {
+      "signature": "res://source/match/units/Unit.gd::23::@experience_setter",
+      "sampled_self_seconds": 0.00013700000000000002,
+      "sampled_calls": 219,
+      "self_ms_per_sampled_frame": 0.017125
+    },
+    {
+      "signature": "res://source/match/rendering/RuntimePhaseProfiler.gd::39::cpu_sample",
+      "sampled_self_seconds": 0.000137,
+      "sampled_calls": 137,
+      "self_ms_per_sampled_frame": 0.017124999999999998
+    },
+    {
+      "signature": "res://source/match/alerts/BattleAlerts.gd::46::_owned",
+      "sampled_self_seconds": 0.000137,
+      "sampled_calls": 219,
+      "self_ms_per_sampled_frame": 0.017124999999999998
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishAI.gd::473::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 0.000136,
+      "sampled_calls": 415,
+      "self_ms_per_sampled_frame": 0.017
+    },
+    {
+      "signature": "res://source/match/world/FieldEngineering.gd::400::_physics_process",
+      "sampled_self_seconds": 0.000135,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.016875
+    },
+    {
+      "signature": "res://source/match/rendering/ComputePosePalette.gd::47::_dispatch",
+      "sampled_self_seconds": 0.000133,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.016625
+    },
+    {
+      "signature": "res://source/match/environment/LivingWorld.gd::441::set_atmosphere",
+      "sampled_self_seconds": 0.00013299999999999998,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.016624999999999997
+    },
+    {
+      "signature": "res://source/match/EconomyAssignments.gd::22::channel",
+      "sampled_self_seconds": 0.00013299999999999998,
+      "sampled_calls": 160,
+      "self_ms_per_sampled_frame": 0.016624999999999997
+    },
+    {
+      "signature": "res://source/match/effects/BattleAftermath.gd::42::scar",
+      "sampled_self_seconds": 0.000132,
+      "sampled_calls": 123,
+      "self_ms_per_sampled_frame": 0.0165
+    },
+    {
+      "signature": "res://source/match/players/human/VoiceNarratorController.gd::79::_on_unit_weapon_hit",
+      "sampled_self_seconds": 0.000132,
+      "sampled_calls": 219,
+      "self_ms_per_sampled_frame": 0.0165
+    },
+    {
+      "signature": "res://source/match/combat/ProjectileSystem.gd::147::muzzle_of",
+      "sampled_self_seconds": 0.000132,
+      "sampled_calls": 188,
+      "self_ms_per_sampled_frame": 0.0165
+    },
+    {
+      "signature": "res://source/match/combat/ProjectileSystem.gd::543::_seed",
+      "sampled_self_seconds": 0.00013099999999999999,
+      "sampled_calls": 188,
+      "self_ms_per_sampled_frame": 0.016374999999999997
+    },
+    {
+      "signature": "res://source/match/combat/CommanderSupport.gd::54::disabled_reason",
+      "sampled_self_seconds": 0.000127,
+      "sampled_calls": 11,
+      "self_ms_per_sampled_frame": 0.015875
+    },
+    {
+      "signature": "res://source/match/research/TechnologyResearch.gd::23::queue_reason",
+      "sampled_self_seconds": 0.000126,
+      "sampled_calls": 30,
+      "self_ms_per_sampled_frame": 0.01575
+    },
+    {
+      "signature": "res://source/match/effects/BattlefieldWear.gd::33::enabled",
+      "sampled_self_seconds": 0.000124,
+      "sampled_calls": 209,
+      "self_ms_per_sampled_frame": 0.0155
+    },
+    {
+      "signature": "res://source/match/world/PointOfInterest.gd::288::operational",
+      "sampled_self_seconds": 0.000124,
+      "sampled_calls": 812,
+      "self_ms_per_sampled_frame": 0.0155
+    },
+    {
+      "signature": "res://source/match/hud/MinimapUnitMarker.gd::11::@color_setter",
+      "sampled_self_seconds": 0.000123,
+      "sampled_calls": 1566,
+      "self_ms_per_sampled_frame": 0.015375000000000002
+    },
+    {
+      "signature": "res://source/match/audio/CombatAudio.gd::377::impact",
+      "sampled_self_seconds": 0.000122,
+      "sampled_calls": 219,
+      "self_ms_per_sampled_frame": 0.01525
+    },
+    {
+      "signature": "res://source/match/units/Unit.gd::308::receive_shot",
+      "sampled_self_seconds": 0.00011999999999999999,
+      "sampled_calls": 219,
+      "self_ms_per_sampled_frame": 0.015
+    },
+    {
+      "signature": "res://source/match/hud/BastionDemoHUD.gd::91::_pick_unit",
+      "sampled_self_seconds": 0.00011899999999999998,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.014874999999999998
+    },
+    {
+      "signature": "res://source/match/effects/BattlefieldWear.gd::128::scar",
+      "sampled_self_seconds": 0.00011800000000000002,
+      "sampled_calls": 123,
+      "self_ms_per_sampled_frame": 0.014750000000000003
+    },
+    {
+      "signature": "res://source/match/combat/Shot.gd::0::@implicit_new",
+      "sampled_self_seconds": 0.000118,
+      "sampled_calls": 188,
+      "self_ms_per_sampled_frame": 0.01475
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishAI.gd::542::_defend_economy",
+      "sampled_self_seconds": 0.000118,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.01475
+    },
+    {
+      "signature": "res://source/match/world/BattlefieldEvents.gd::85::_physics_process",
+      "sampled_self_seconds": 0.00011499999999999998,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.014374999999999997
+    },
+    {
+      "signature": "res://source/match/combat/Veterancy.gd::12::rank_for",
+      "sampled_self_seconds": 0.000113,
+      "sampled_calls": 219,
+      "self_ms_per_sampled_frame": 0.014124999999999999
+    },
+    {
+      "signature": "res://source/match/combat/ProjectileSystem.gd::710::_pressure_terrain_clear",
+      "sampled_self_seconds": 0.000106,
+      "sampled_calls": 21,
+      "self_ms_per_sampled_frame": 0.01325
+    },
+    {
+      "signature": "res://source/match/units/actions/AttackMoving.gd::28::_process",
+      "sampled_self_seconds": 0.00010599999999999999,
+      "sampled_calls": 270,
+      "self_ms_per_sampled_frame": 0.013249999999999998
+    },
+    {
+      "signature": "res://source/match/hud/CommandFeedback.gd::87::_process",
+      "sampled_self_seconds": 0.000105,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.013125000000000001
+    },
+    {
+      "signature": "res://source/match/effects/FoliageResponse.gd::32::_physics_process",
+      "sampled_self_seconds": 0.00010300000000000001,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.012875000000000001
+    },
+    {
+      "signature": "res://source/match/combat/Battlefield.gd::695::nearby_bodies",
+      "sampled_self_seconds": 0.00010299999999999998,
+      "sampled_calls": 448,
+      "self_ms_per_sampled_frame": 0.012874999999999998
+    },
+    {
+      "signature": "res://source/match/hud/OwnershipOverlay.gd::144::caption_rect",
+      "sampled_self_seconds": 0.000102,
+      "sampled_calls": 6,
+      "self_ms_per_sampled_frame": 0.01275
+    },
+    {
+      "signature": "res://source/match/hud/CommanderRoster.gd::103::_process",
+      "sampled_self_seconds": 0.0001,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.0125
+    },
+    {
+      "signature": "res://source/match/audio/EnvironmentAudio.gd::96::_process",
+      "sampled_self_seconds": 0.0001,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.0125
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::574::_advance_pose",
+      "sampled_self_seconds": 9.999999999999999e-05,
+      "sampled_calls": 399,
+      "self_ms_per_sampled_frame": 0.012499999999999999
+    },
+    {
+      "signature": "res://source/match/combat/WeaponCatalog.gd::273::suppression_hit",
+      "sampled_self_seconds": 9.9e-05,
+      "sampled_calls": 85,
+      "self_ms_per_sampled_frame": 0.012374999999999999
+    },
+    {
+      "signature": "res://source/match/hud/ResourcesBar.gd::188::_refresh_assignments",
+      "sampled_self_seconds": 9.9e-05,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.012374999999999999
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishDefense.gd::42::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 9.9e-05,
+      "sampled_calls": 706,
+      "self_ms_per_sampled_frame": 0.012374999999999999
+    },
+    {
+      "signature": "res://source/match/orders/ManualOrders.gd::89::cancel",
+      "sampled_self_seconds": 9.8e-05,
+      "sampled_calls": 41,
+      "self_ms_per_sampled_frame": 0.01225
+    },
+    {
+      "signature": "res://source/match/combat/CombatRules.gd::220::damage",
+      "sampled_self_seconds": 9.5e-05,
+      "sampled_calls": 452,
+      "self_ms_per_sampled_frame": 0.011875
+    },
+    {
+      "signature": "res://source/match/research/TechnologyResearch.gd::203::damage_factor",
+      "sampled_self_seconds": 9.4e-05,
+      "sampled_calls": 802,
+      "self_ms_per_sampled_frame": 0.01175
+    },
+    {
+      "signature": "res://source/match/rendering/UnitBatchRenderer.gd::598::_profile_stage",
+      "sampled_self_seconds": 9.3e-05,
+      "sampled_calls": 108,
+      "self_ms_per_sampled_frame": 0.011625
+    },
+    {
+      "signature": "res://source/match/environment/WaterInteractions.gd::119::impact",
+      "sampled_self_seconds": 9.3e-05,
+      "sampled_calls": 229,
+      "self_ms_per_sampled_frame": 0.011625
+    },
+    {
+      "signature": "res://source/match/units/traits/ProductionQueue.gd::183::size",
+      "sampled_self_seconds": 9.2e-05,
+      "sampled_calls": 430,
+      "self_ms_per_sampled_frame": 0.0115
+    },
+    {
+      "signature": "res://source/match/alerts/BattleAlerts.gd::91::_find",
+      "sampled_self_seconds": 9.2e-05,
+      "sampled_calls": 28,
+      "self_ms_per_sampled_frame": 0.0115
+    },
+    {
+      "signature": "res://source/match/combat/FactionSignatures.gd::19::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 9.1e-05,
+      "sampled_calls": 611,
+      "self_ms_per_sampled_frame": 0.011375
+    },
+    {
+      "signature": "res://source/match/combat/CommanderSupport.gd::489::_refresh_markers",
+      "sampled_self_seconds": 9e-05,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.011250000000000001
+    },
+    {
+      "signature": "res://source/match/effects/CombatEffects.gd::1170::_physics_process",
+      "sampled_self_seconds": 8.8e-05,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.011
+    },
+    {
+      "signature": "res://source/match/world/BattlefieldEvents.gd::244::_resolve_claims",
+      "sampled_self_seconds": 8.8e-05,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.011
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishTactics.gd::237::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 8.8e-05,
+      "sampled_calls": 420,
+      "self_ms_per_sampled_frame": 0.011
+    },
+    {
+      "signature": "res://source/match/units/traits/InfantrySuppression.gd::99::direct_damage_factor",
+      "sampled_self_seconds": 7.800000000000001e-05,
+      "sampled_calls": 77,
+      "self_ms_per_sampled_frame": 0.009750000000000002
+    },
+    {
+      "signature": "res://source/audio/MusicDirector.gd::51::_process",
+      "sampled_self_seconds": 7.8e-05,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.00975
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishAI.gd::45::_process",
+      "sampled_self_seconds": 7.8e-05,
+      "sampled_calls": 24,
+      "self_ms_per_sampled_frame": 0.00975
+    },
+    {
+      "signature": "res://source/match/environment/BattlefieldEffects.gd::77::update",
+      "sampled_self_seconds": 7.7e-05,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.009625
+    },
+    {
+      "signature": "res://source/match/hud/OwnershipOverlay.gd::79::hover_card",
+      "sampled_self_seconds": 7.6e-05,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.0095
+    },
+    {
+      "signature": "res://source/match/alerts/BattleAlerts.gd::206::_area_key",
+      "sampled_self_seconds": 7.6e-05,
+      "sampled_calls": 20,
+      "self_ms_per_sampled_frame": 0.0095
+    },
+    {
+      "signature": "res://source/match/hud/Resources.gd::45::fit_height",
+      "sampled_self_seconds": 7.599999999999999e-05,
+      "sampled_calls": 16,
+      "self_ms_per_sampled_frame": 0.009499999999999998
+    },
+    {
+      "signature": "res://source/match/audio/BattleVoice.gd::82::_accept",
+      "sampled_self_seconds": 7.4e-05,
+      "sampled_calls": 23,
+      "self_ms_per_sampled_frame": 0.00925
+    },
+    {
+      "signature": "res://source/match/hud/BattleAlertsPanel.gd::242::_row",
+      "sampled_self_seconds": 7.1e-05,
+      "sampled_calls": 1,
+      "self_ms_per_sampled_frame": 0.008875000000000001
+    },
+    {
+      "signature": "res://source/match/combat/CombatRules.gd::227::damage_from",
+      "sampled_self_seconds": 6.9e-05,
+      "sampled_calls": 289,
+      "self_ms_per_sampled_frame": 0.008624999999999999
+    },
+    {
+      "signature": "res://source/match/units/actions/WaitingForTargets.gd::92::_on_attack_finished",
+      "sampled_self_seconds": 6.800000000000001e-05,
+      "sampled_calls": 33,
+      "self_ms_per_sampled_frame": 0.008500000000000002
+    },
+    {
+      "signature": "res://source/match/players/Player.gd::275::_physics_process",
+      "sampled_self_seconds": 6.800000000000001e-05,
+      "sampled_calls": 240,
+      "self_ms_per_sampled_frame": 0.008500000000000002
+    },
+    {
+      "signature": "res://source/match/hud/ProductionOverview.gd::120::refresh",
+      "sampled_self_seconds": 6.8e-05,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.0085
+    },
+    {
+      "signature": "res://source/match/audio/BattleVoice.gd::45::say",
+      "sampled_self_seconds": 6.599999999999999e-05,
+      "sampled_calls": 23,
+      "self_ms_per_sampled_frame": 0.008249999999999999
+    },
+    {
+      "signature": "res://source/match/hud/OwnershipOverlay.gd::44::_hovered_unit",
+      "sampled_self_seconds": 6.5e-05,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.008124999999999999
+    },
+    {
+      "signature": "res://source/generic-scenes-and-nodes/3d/RectangularSelection3D.gd::45::_screen_margin_hit",
+      "sampled_self_seconds": 6.400000000000001e-05,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.008000000000000002
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishAI.gd::467::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 6.3e-05,
+      "sampled_calls": 420,
+      "self_ms_per_sampled_frame": 0.007875
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishProduction.gd::14::under_raid",
+      "sampled_self_seconds": 6.2e-05,
+      "sampled_calls": 9,
+      "self_ms_per_sampled_frame": 0.00775
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishDefense.gd::101::_can_respond",
+      "sampled_self_seconds": 6.2e-05,
+      "sampled_calls": 452,
+      "self_ms_per_sampled_frame": 0.00775
+    },
+    {
+      "signature": "res://source/match/alerts/BattleAlerts.gd::200::_hit",
+      "sampled_self_seconds": 6e-05,
+      "sampled_calls": 219,
+      "self_ms_per_sampled_frame": 0.007500000000000001
+    },
+    {
+      "signature": "res://source/match/combat/Battlefield.gd::524::_incoming_damage",
+      "sampled_self_seconds": 5.9000000000000004e-05,
+      "sampled_calls": 61,
+      "self_ms_per_sampled_frame": 0.0073750000000000005
+    },
+    {
+      "signature": "res://source/match/combat/CommanderSupport.gd::48::state",
+      "sampled_self_seconds": 5.9e-05,
+      "sampled_calls": 251,
+      "self_ms_per_sampled_frame": 0.007375
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::902::_deploy_target",
+      "sampled_self_seconds": 5.9e-05,
+      "sampled_calls": 103,
+      "self_ms_per_sampled_frame": 0.007375
+    },
+    {
+      "signature": "res://source/match/alerts/BattleAlerts.gd::220::_worker_condition",
+      "sampled_self_seconds": 5.8e-05,
+      "sampled_calls": 20,
+      "self_ms_per_sampled_frame": 0.00725
+    },
+    {
+      "signature": "res://source/match/units/traits/InfantrySuppression.gd::48::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 5.799999999999999e-05,
+      "sampled_calls": 397,
+      "self_ms_per_sampled_frame": 0.007249999999999999
+    },
+    {
+      "signature": "res://source/input/KeyBindings.gd::208::label",
+      "sampled_self_seconds": 5.7e-05,
+      "sampled_calls": 14,
+      "self_ms_per_sampled_frame": 0.007125
+    },
+    {
+      "signature": "res://source/match/hud/HudStyle.gd::27::_draw",
+      "sampled_self_seconds": 5.7e-05,
+      "sampled_calls": 16,
+      "self_ms_per_sampled_frame": 0.007125
+    },
+    {
+      "signature": "res://source/match/effects/CombatEffects.gd::643::ricochet_direction",
+      "sampled_self_seconds": 5.4999999999999995e-05,
+      "sampled_calls": 89,
+      "self_ms_per_sampled_frame": 0.006874999999999999
+    },
+    {
+      "signature": "res://source/match/audio/VoiceLines.gd::56::record",
+      "sampled_self_seconds": 5.4000000000000005e-05,
+      "sampled_calls": 23,
+      "self_ms_per_sampled_frame": 0.006750000000000001
+    },
+    {
+      "signature": "res://source/match/combat/ProjectileSystem.gd::71::fire",
+      "sampled_self_seconds": 5.4e-05,
+      "sampled_calls": 188,
+      "self_ms_per_sampled_frame": 0.00675
+    },
+    {
+      "signature": "res://source/match/utils/UpdatePhase.gd::7::fraction",
+      "sampled_self_seconds": 5.300000000000001e-05,
+      "sampled_calls": 74,
+      "self_ms_per_sampled_frame": 0.006625000000000001
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishAI.gd::361::_harvest",
+      "sampled_self_seconds": 5.3e-05,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.006625
+    },
+    {
+      "signature": "res://source/match/hud/ResourcesBar.gd::212::_process",
+      "sampled_self_seconds": 5.2999999999999994e-05,
+      "sampled_calls": 64,
+      "self_ms_per_sampled_frame": 0.006624999999999999
+    },
+    {
+      "signature": "res://source/match/units/actions/AttackingWhileInRange.gd::0::@implicit_ready",
+      "sampled_self_seconds": 5.2000000000000004e-05,
+      "sampled_calls": 56,
+      "self_ms_per_sampled_frame": 0.006500000000000001
+    },
+    {
+      "signature": "res://source/match/units/traits/ChassisMotion.gd::229::impulse",
+      "sampled_self_seconds": 5.2000000000000004e-05,
+      "sampled_calls": 142,
+      "self_ms_per_sampled_frame": 0.006500000000000001
+    },
+    {
+      "signature": "res://source/match/combat/ProjectileSystem.gd::497::_line_of_fire",
+      "sampled_self_seconds": 5.2e-05,
+      "sampled_calls": 70,
+      "self_ms_per_sampled_frame": 0.0065
+    },
+    {
+      "signature": "res://source/match/units/traits/InfantryMotion.gd::359::raise_for_shot",
+      "sampled_self_seconds": 5.2e-05,
+      "sampled_calls": 99,
+      "self_ms_per_sampled_frame": 0.0065
+    },
+    {
+      "signature": "res://source/match/world/PointOfInterestCatalog.gd::73::sites",
+      "sampled_self_seconds": 5.1e-05,
+      "sampled_calls": 17,
+      "self_ms_per_sampled_frame": 0.006375
+    },
+    {
+      "signature": "res://source/match/maps/AuthoredBattlefield.gd::254::_fields",
+      "sampled_self_seconds": 4.7e-05,
+      "sampled_calls": 2,
+      "self_ms_per_sampled_frame": 0.005875
+    },
+    {
+      "signature": "res://source/match/combat/Battlefield.gd::687::observed_enemies_near",
+      "sampled_self_seconds": 4.7e-05,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.005875
+    },
+    {
+      "signature": "res://source/match/hud/Minimap.gd::229::_update_camera_indicator",
+      "sampled_self_seconds": 4.6e-05,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.00575
+    },
+    {
+      "signature": "res://source/match/TerrainNavigation.gd::172::is_synchronized",
+      "sampled_self_seconds": 4.6e-05,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.00575
+    },
+    {
+      "signature": "res://source/match/audio/CombatAudio.gd::271::_refresh_damage_loops",
+      "sampled_self_seconds": 4.6e-05,
+      "sampled_calls": 5,
+      "self_ms_per_sampled_frame": 0.00575
+    },
+    {
+      "signature": "res://source/match/alerts/BattleAlerts.gd::267::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 4.6e-05,
+      "sampled_calls": 294,
+      "self_ms_per_sampled_frame": 0.00575
+    },
+    {
+      "signature": "res://source/match/combat/Shot.gd::49::feedback_source",
+      "sampled_self_seconds": 4.599999999999999e-05,
+      "sampled_calls": 219,
+      "self_ms_per_sampled_frame": 0.005749999999999999
+    },
+    {
+      "signature": "res://source/match/hud/Ownership.gd::46::caption",
+      "sampled_self_seconds": 4.599999999999999e-05,
+      "sampled_calls": 6,
+      "self_ms_per_sampled_frame": 0.005749999999999999
+    },
+    {
+      "signature": "res://source/input/KeyBindings.gd::171::from_event",
+      "sampled_self_seconds": 4.599999999999999e-05,
+      "sampled_calls": 14,
+      "self_ms_per_sampled_frame": 0.005749999999999999
+    },
+    {
+      "signature": "res://source/match/hud/Ownership.gd::16::kind",
+      "sampled_self_seconds": 4.5e-05,
+      "sampled_calls": 6,
+      "self_ms_per_sampled_frame": 0.005625000000000001
+    },
+    {
+      "signature": "res://source/match/Match.gd::216::get_observers",
+      "sampled_self_seconds": 4.5e-05,
+      "sampled_calls": 188,
+      "self_ms_per_sampled_frame": 0.005625000000000001
+    },
+    {
+      "signature": "res://source/match/objectives/CaptureRelay.gd::180::is_revealing",
+      "sampled_self_seconds": 4.5e-05,
+      "sampled_calls": 540,
+      "self_ms_per_sampled_frame": 0.005625000000000001
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishEconomy.gd::214::expansion_points",
+      "sampled_self_seconds": 4.5e-05,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.005625000000000001
+    },
+    {
+      "signature": "res://source/match/units/actions/AttackingWhileInRange.gd::233::_exit_tree",
+      "sampled_self_seconds": 4.4999999999999996e-05,
+      "sampled_calls": 54,
+      "self_ms_per_sampled_frame": 0.005625
+    },
+    {
+      "signature": "res://source/match/objectives/CaptureRelay.gd::19::@player_getter",
+      "sampled_self_seconds": 4.4e-05,
+      "sampled_calls": 689,
+      "self_ms_per_sampled_frame": 0.0055
+    },
+    {
+      "signature": "res://source/match/units/actions/WaitingForTargets.gd::29::is_idle",
+      "sampled_self_seconds": 4.4e-05,
+      "sampled_calls": 277,
+      "self_ms_per_sampled_frame": 0.0055
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishAI.gd::664::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 4.4e-05,
+      "sampled_calls": 292,
+      "self_ms_per_sampled_frame": 0.0055
+    },
+    {
+      "signature": "res://source/match/units/traits/Selection.gd::181::_on_input_event",
+      "sampled_self_seconds": 4.2000000000000004e-05,
+      "sampled_calls": 45,
+      "self_ms_per_sampled_frame": 0.00525
+    },
+    {
+      "signature": "res://source/Utils.gd::31::NodeEx.find_parent_with_group",
+      "sampled_self_seconds": 4.2e-05,
+      "sampled_calls": 86,
+      "self_ms_per_sampled_frame": 0.0052499999999999995
+    },
+    {
+      "signature": "res://source/match/hud/ResearchStatus.gd::62::_sync_visibility",
+      "sampled_self_seconds": 4.2e-05,
+      "sampled_calls": 13,
+      "self_ms_per_sampled_frame": 0.0052499999999999995
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishAI.gd::192::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 4.2e-05,
+      "sampled_calls": 420,
+      "self_ms_per_sampled_frame": 0.0052499999999999995
+    },
+    {
+      "signature": "res://source/match/world/PointOfInterestCatalog.gd::96::reserved",
+      "sampled_self_seconds": 4.2e-05,
+      "sampled_calls": 6,
+      "self_ms_per_sampled_frame": 0.0052499999999999995
+    },
+    {
+      "signature": "res://source/match/maps/terrain/TerrainModel.gd::275::cell_index",
+      "sampled_self_seconds": 4.0999999999999994e-05,
+      "sampled_calls": 182,
+      "self_ms_per_sampled_frame": 0.005124999999999999
+    },
+    {
+      "signature": "res://source/match/NativeCrowdRuntime.gd::101::step",
+      "sampled_self_seconds": 4e-05,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.005
+    },
+    {
+      "signature": "res://source/match/units/traits/HealthBar.gd::164::_on_hp_changed",
+      "sampled_self_seconds": 3.9999999999999996e-05,
+      "sampled_calls": 235,
+      "self_ms_per_sampled_frame": 0.004999999999999999
+    },
+    {
+      "signature": "res://source/match/combat/ProjectileSystem.gd::723::_physical_mine_target",
+      "sampled_self_seconds": 3.9999999999999996e-05,
+      "sampled_calls": 102,
+      "self_ms_per_sampled_frame": 0.004999999999999999
+    },
+    {
+      "signature": "res://source/match/effects/CombatEffects.gd::1249::_advance_aftermath",
+      "sampled_self_seconds": 3.8e-05,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.00475
+    },
+    {
+      "signature": "res://source/match/combat/GrenadeSystem.gd::33::_physics_process",
+      "sampled_self_seconds": 3.8e-05,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.00475
+    },
+    {
+      "signature": "res://source/match/hud/BattleAlertsPanel.gd::146::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 3.8e-05,
+      "sampled_calls": 113,
+      "self_ms_per_sampled_frame": 0.00475
+    },
+    {
+      "signature": "res://source/match/rendering/UnitBatchRenderer.gd::564::_process",
+      "sampled_self_seconds": 3.7000000000000005e-05,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.004625000000000001
+    },
+    {
+      "signature": "res://source/match/players/Player.gd::138::has_resources",
+      "sampled_self_seconds": 3.7e-05,
+      "sampled_calls": 25,
+      "self_ms_per_sampled_frame": 0.004625
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishDefense.gd::78::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 3.7e-05,
+      "sampled_calls": 452,
+      "self_ms_per_sampled_frame": 0.004625
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishExpansion.gd::27::next_site",
+      "sampled_self_seconds": 3.6e-05,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.0045000000000000005
+    },
+    {
+      "signature": "res://source/match/effects/CombatEffects.gd::172::_advance_abilities",
+      "sampled_self_seconds": 3.5000000000000004e-05,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.004375
+    },
+    {
+      "signature": "res://source/match/hud/CommandFeedback.gd::110::_context_at",
+      "sampled_self_seconds": 3.5e-05,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.0043749999999999995
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishEconomy.gd::87::_threat_candidates",
+      "sampled_self_seconds": 3.5e-05,
+      "sampled_calls": 5,
+      "self_ms_per_sampled_frame": 0.0043749999999999995
+    },
+    {
+      "signature": "res://source/match/units/CombatRobot.gd::83::weapon_delay",
+      "sampled_self_seconds": 3.4000000000000007e-05,
+      "sampled_calls": 306,
+      "self_ms_per_sampled_frame": 0.004250000000000001
+    },
+    {
+      "signature": "res://source/match/units/traits/HealthBar.gd::121::_health_color",
+      "sampled_self_seconds": 3.4000000000000007e-05,
+      "sampled_calls": 205,
+      "self_ms_per_sampled_frame": 0.004250000000000001
+    },
+    {
+      "signature": "res://source/match/combat/CommanderSupport.gd::532::_refresh_status_markers",
+      "sampled_self_seconds": 3.4e-05,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.00425
+    },
+    {
+      "signature": "res://source/match/hud/OwnershipOverlay.gd::102::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 3.4e-05,
+      "sampled_calls": 6,
+      "self_ms_per_sampled_frame": 0.00425
+    },
+    {
+      "signature": "res://source/match/units/Unit.gd::35::@veterancy_rank_getter",
+      "sampled_self_seconds": 3.4e-05,
+      "sampled_calls": 438,
+      "self_ms_per_sampled_frame": 0.00425
+    },
+    {
+      "signature": "res://source/match/ObjectMaterials.gd::175::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 3.399999999999999e-05,
+      "sampled_calls": 208,
+      "self_ms_per_sampled_frame": 0.0042499999999999994
+    },
+    {
+      "signature": "res://source/match/research/TechnologyCatalog.gd::156::next_in_branch",
+      "sampled_self_seconds": 3.3e-05,
+      "sampled_calls": 30,
+      "self_ms_per_sampled_frame": 0.004125
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishLabor.gd::45::awaiting_construction",
+      "sampled_self_seconds": 3.3e-05,
+      "sampled_calls": 30,
+      "self_ms_per_sampled_frame": 0.004125
+    },
+    {
+      "signature": "res://source/match/maps/AuthoredBattlefield.gd::179::overview",
+      "sampled_self_seconds": 3.2e-05,
+      "sampled_calls": 2,
+      "self_ms_per_sampled_frame": 0.004
+    },
+    {
+      "signature": "res://source/match/combat/Battlefield.gd::445::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 3.1e-05,
+      "sampled_calls": 377,
+      "self_ms_per_sampled_frame": 0.003875
+    },
+    {
+      "signature": "res://source/match/hud/ProductionOverview.gd::40::_process",
+      "sampled_self_seconds": 3.1e-05,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.003875
+    },
+    {
+      "signature": "res://source/match/effects/WeaponPreparationVisual.gd::109::_process",
+      "sampled_self_seconds": 3.1e-05,
+      "sampled_calls": 40,
+      "self_ms_per_sampled_frame": 0.003875
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::340::_on_order",
+      "sampled_self_seconds": 3e-05,
+      "sampled_calls": 48,
+      "self_ms_per_sampled_frame": 0.0037500000000000003
+    },
+    {
+      "signature": "res://source/match/alerts/BattleAlerts.gd::50::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 2.9999999999999997e-05,
+      "sampled_calls": 113,
+      "self_ms_per_sampled_frame": 0.00375
+    },
+    {
+      "signature": "res://source/audio/MusicDirector.gd::88::_speech_audible",
+      "sampled_self_seconds": 2.9e-05,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.003625
+    },
+    {
+      "signature": "res://source/match/research/TechnologyCatalog.gd::97::requirements",
+      "sampled_self_seconds": 2.9e-05,
+      "sampled_calls": 30,
+      "self_ms_per_sampled_frame": 0.003625
+    },
+    {
+      "signature": "res://source/match/combat/CombatRules.gd::333::aa_ground_damage_factor",
+      "sampled_self_seconds": 2.9e-05,
+      "sampled_calls": 79,
+      "self_ms_per_sampled_frame": 0.003625
+    },
+    {
+      "signature": "res://source/match/audio/UnitVoiceBank.gd::18::announcer",
+      "sampled_self_seconds": 2.8e-05,
+      "sampled_calls": 23,
+      "self_ms_per_sampled_frame": 0.0035
+    },
+    {
+      "signature": "res://source/generic-scenes-and-nodes/control/RectangularSelection2D.gd::60::_interrupt",
+      "sampled_self_seconds": 2.8e-05,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.0035
+    },
+    {
+      "signature": "res://source/match/combat/ProjectileSystem.gd::489::_fly_rail",
+      "sampled_self_seconds": 2.8e-05,
+      "sampled_calls": 14,
+      "self_ms_per_sampled_frame": 0.0035
+    },
+    {
+      "signature": "res://source/match/combat/RepairService.gd::70::_physics_process",
+      "sampled_self_seconds": 2.7e-05,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.003375
+    },
+    {
+      "signature": "res://source/match/hud/OrderRoutes.gd::12::_process",
+      "sampled_self_seconds": 2.7e-05,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.003375
+    },
+    {
+      "signature": "res://source/match/hud/DirectOrders.gd::735::_blocked",
+      "sampled_self_seconds": 2.6000000000000002e-05,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.0032500000000000003
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishTactics.gd::421::_move",
+      "sampled_self_seconds": 2.6e-05,
+      "sampled_calls": 5,
+      "self_ms_per_sampled_frame": 0.00325
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishAI.gd::469::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 2.6e-05,
+      "sampled_calls": 415,
+      "self_ms_per_sampled_frame": 0.00325
+    },
+    {
+      "signature": "res://source/match/IsometricCamera3D.gd::86::_clear_trauma",
+      "sampled_self_seconds": 2.5999999999999995e-05,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.0032499999999999994
+    },
+    {
+      "signature": "res://source/match/units/Unit.gd::409::weapon_delay",
+      "sampled_self_seconds": 2.5000000000000005e-05,
+      "sampled_calls": 322,
+      "self_ms_per_sampled_frame": 0.0031250000000000006
+    },
+    {
+      "signature": "res://source/generic-scenes-and-nodes/3d/RectangularSelection3D.gd::19::_physics_process",
+      "sampled_self_seconds": 2.4e-05,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.003
+    },
+    {
+      "signature": "res://source/match/alerts/BattleAlerts.gd::98::_draft",
+      "sampled_self_seconds": 2.4e-05,
+      "sampled_calls": 11,
+      "self_ms_per_sampled_frame": 0.003
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishAI.gd::465::_command_army",
+      "sampled_self_seconds": 2.4e-05,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.003
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishLabor.gd::68::queued_target",
+      "sampled_self_seconds": 2.4e-05,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.003
+    },
+    {
+      "signature": "res://source/generic-scenes-and-nodes/2d/RevealShape2D.gd::15::@triangles_setter",
+      "sampled_self_seconds": 2.3999999999999997e-05,
+      "sampled_calls": 22,
+      "self_ms_per_sampled_frame": 0.0029999999999999996
+    },
+    {
+      "signature": "res://source/match/alerts/BattleAlerts.gd::37::_enabled",
+      "sampled_self_seconds": 2.3999999999999997e-05,
+      "sampled_calls": 33,
+      "self_ms_per_sampled_frame": 0.0029999999999999996
+    },
+    {
+      "signature": "res://source/audio/MusicDirector.gd::105::_audible_voice_player",
+      "sampled_self_seconds": 2.3000000000000003e-05,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.0028750000000000004
+    },
+    {
+      "signature": "res://source/match/Match.gd::229::_physics_process",
+      "sampled_self_seconds": 2.3e-05,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.002875
+    },
+    {
+      "signature": "res://source/match/hud/BattleAlertsPanel.gd::96::_available",
+      "sampled_self_seconds": 2.3e-05,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.002875
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::762::_pose_at_rest",
+      "sampled_self_seconds": 2.3e-05,
+      "sampled_calls": 27,
+      "self_ms_per_sampled_frame": 0.002875
+    },
+    {
+      "signature": "res://source/match/hud/OwnershipOverlay.gd::28::_process",
+      "sampled_self_seconds": 2.2000000000000003e-05,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.0027500000000000003
+    },
+    {
+      "signature": "res://source/match/Skirmish.gd::136::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 2.2000000000000003e-05,
+      "sampled_calls": 240,
+      "self_ms_per_sampled_frame": 0.0027500000000000003
+    },
+    {
+      "signature": "res://source/match/world/BattlefieldEvents.gd::487::_update_actors",
+      "sampled_self_seconds": 2.2e-05,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.00275
+    },
+    {
+      "signature": "res://source/match/Match.gd::212::get_units",
+      "sampled_self_seconds": 2.1000000000000002e-05,
+      "sampled_calls": 155,
+      "self_ms_per_sampled_frame": 0.002625
+    },
+    {
+      "signature": "res://source/match/alerts/BattleAlerts.gd::180::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 2.1000000000000002e-05,
+      "sampled_calls": 164,
+      "self_ms_per_sampled_frame": 0.002625
+    },
+    {
+      "signature": "res://source/generic-scenes-and-nodes/control/RectangularSelection2D.gd::43::_screen_margin_hit",
+      "sampled_self_seconds": 2.1000000000000002e-05,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.002625
+    },
+    {
+      "signature": "res://source/match/hud/ResearchStatus.gd::38::refresh",
+      "sampled_self_seconds": 2.1e-05,
+      "sampled_calls": 5,
+      "self_ms_per_sampled_frame": 0.0026249999999999997
+    },
+    {
+      "signature": "res://source/audio/MusicDirector.gd::115::_sync_scene",
+      "sampled_self_seconds": 2.1e-05,
+      "sampled_calls": 5,
+      "self_ms_per_sampled_frame": 0.0026249999999999997
+    },
+    {
+      "signature": "res://source/match/research/TechnologyCatalog.gd::83::title",
+      "sampled_self_seconds": 2.1e-05,
+      "sampled_calls": 30,
+      "self_ms_per_sampled_frame": 0.0026249999999999997
+    },
+    {
+      "signature": "res://source/match/units/traits/UnitAbilities.gd::51::Ability.is_ready",
+      "sampled_self_seconds": 2.1e-05,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.0026249999999999997
+    },
+    {
+      "signature": "res://source/match/players/human/VoiceNarratorController.gd::115::_process",
+      "sampled_self_seconds": 2.0000000000000005e-05,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.0025000000000000005
+    },
+    {
+      "signature": "res://source/match/rendering/RuntimePhaseProfiler.gd::16::Probe._physics_process",
+      "sampled_self_seconds": 2e-05,
+      "sampled_calls": 120,
+      "self_ms_per_sampled_frame": 0.0025
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishDifficulty.gd::93::clamp_level",
+      "sampled_self_seconds": 2e-05,
+      "sampled_calls": 48,
+      "self_ms_per_sampled_frame": 0.0025
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishAI.gd::471::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 2e-05,
+      "sampled_calls": 415,
+      "self_ms_per_sampled_frame": 0.0025
+    },
+    {
+      "signature": "res://source/match/hud/BattleAlertsPanel.gd::84::_process",
+      "sampled_self_seconds": 1.9999999999999998e-05,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.0024999999999999996
+    },
+    {
+      "signature": "res://source/match/combat/HelixSupport.gd::162::_refresh_generator_visuals",
+      "sampled_self_seconds": 1.9999999999999998e-05,
+      "sampled_calls": 96,
+      "self_ms_per_sampled_frame": 0.0024999999999999996
+    },
+    {
+      "signature": "res://source/match/Skirmish.gd::135::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 1.9999999999999998e-05,
+      "sampled_calls": 240,
+      "self_ms_per_sampled_frame": 0.0024999999999999996
+    },
+    {
+      "signature": "res://source/match/hud/CommandFeedback.gd::149::_glyph_kind",
+      "sampled_self_seconds": 1.9999999999999998e-05,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.0024999999999999996
+    },
+    {
+      "signature": "res://source/match/units/traits/InfantryMotion.gd::403::is_at_rest",
+      "sampled_self_seconds": 1.9999999999999998e-05,
+      "sampled_calls": 18,
+      "self_ms_per_sampled_frame": 0.0024999999999999996
+    },
+    {
+      "signature": "res://source/match/utils/UpdatePhase.gd::15::first_delay",
+      "sampled_self_seconds": 1.9e-05,
+      "sampled_calls": 56,
+      "self_ms_per_sampled_frame": 0.002375
+    },
+    {
+      "signature": "res://source/match/maps/terrain/TerrainSight.gd::77::reveal_triangles",
+      "sampled_self_seconds": 1.9e-05,
+      "sampled_calls": 11,
+      "self_ms_per_sampled_frame": 0.002375
+    },
+    {
+      "signature": "res://source/match/units/actions/Action.gd::0::@implicit_new",
+      "sampled_self_seconds": 1.9e-05,
+      "sampled_calls": 104,
+      "self_ms_per_sampled_frame": 0.002375
+    },
+    {
+      "signature": "res://source/match/combat/FactionSignatures.gd::35::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 1.9e-05,
+      "sampled_calls": 35,
+      "self_ms_per_sampled_frame": 0.002375
+    },
+    {
+      "signature": "res://source/match/units/traits/Targetability.gd::78::_on_input_event",
+      "sampled_self_seconds": 1.8000000000000004e-05,
+      "sampled_calls": 45,
+      "self_ms_per_sampled_frame": 0.0022500000000000003
+    },
+    {
+      "signature": "res://source/match/alerts/BattleAlerts.gd::155::_notify",
+      "sampled_self_seconds": 1.8e-05,
+      "sampled_calls": 25,
+      "self_ms_per_sampled_frame": 0.0022500000000000003
+    },
+    {
+      "signature": "res://source/match/hud/BattleAlertsPanel.gd::201::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 1.8e-05,
+      "sampled_calls": 70,
+      "self_ms_per_sampled_frame": 0.0022500000000000003
+    },
+    {
+      "signature": "res://source/match/combat/HelixSupport.gd::209::_restore_generator_visuals",
+      "sampled_self_seconds": 1.7999999999999997e-05,
+      "sampled_calls": 96,
+      "self_ms_per_sampled_frame": 0.00225
+    },
+    {
+      "signature": "res://source/match/units/actions/AttackingWhileInRange.gd::0::@implicit_new",
+      "sampled_self_seconds": 1.7e-05,
+      "sampled_calls": 56,
+      "self_ms_per_sampled_frame": 0.002125
+    },
+    {
+      "signature": "res://source/match/research/TechnologyResearch.gd::80::planned_technologies",
+      "sampled_self_seconds": 1.7e-05,
+      "sampled_calls": 30,
+      "self_ms_per_sampled_frame": 0.002125
+    },
+    {
+      "signature": "res://source/match/units/actions/AttackingWhileInRange.gd::27::_init",
+      "sampled_self_seconds": 1.7e-05,
+      "sampled_calls": 56,
+      "self_ms_per_sampled_frame": 0.002125
+    },
+    {
+      "signature": "res://source/match/research/TechnologyCatalog.gd::91::cost",
+      "sampled_self_seconds": 1.7e-05,
+      "sampled_calls": 25,
+      "self_ms_per_sampled_frame": 0.002125
+    },
+    {
+      "signature": "res://source/match/hud/SkirmishHUD.gd::396::map_assignment_active",
+      "sampled_self_seconds": 1.7e-05,
+      "sampled_calls": 21,
+      "self_ms_per_sampled_frame": 0.002125
+    },
+    {
+      "signature": "res://source/match/hud/OrderRoutes.gd::76::_draw_rallies",
+      "sampled_self_seconds": 1.7e-05,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.002125
+    },
+    {
+      "signature": "res://source/match/audio/EnvironmentAudio.gd::92::_combat_started",
+      "sampled_self_seconds": 1.7e-05,
+      "sampled_calls": 152,
+      "self_ms_per_sampled_frame": 0.002125
+    },
+    {
+      "signature": "res://source/match/units/RepairDepot.gd::17::service_slots",
+      "sampled_self_seconds": 1.7e-05,
+      "sampled_calls": 160,
+      "self_ms_per_sampled_frame": 0.002125
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishAI.gd::187::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 1.7e-05,
+      "sampled_calls": 30,
+      "self_ms_per_sampled_frame": 0.002125
+    },
+    {
+      "signature": "res://source/match/combat/FactionSignatures.gd::53::activate",
+      "sampled_self_seconds": 1.7e-05,
+      "sampled_calls": 2,
+      "self_ms_per_sampled_frame": 0.002125
+    },
+    {
+      "signature": "res://source/match/handlers/DoubleClickUnitSelectionHandler.gd::30::_on_unit_input",
+      "sampled_self_seconds": 1.6e-05,
+      "sampled_calls": 45,
+      "self_ms_per_sampled_frame": 0.002
+    },
+    {
+      "signature": "res://source/match/world/BattlefieldEvents.gd::316::hud_status",
+      "sampled_self_seconds": 1.6e-05,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.002
+    },
+    {
+      "signature": "res://source/match/hud/ResourcesBar.gd::168::_selection_panel",
+      "sampled_self_seconds": 1.6e-05,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.002
+    },
+    {
+      "signature": "res://source/match/units/actions/Moving.gd::20::_ready",
+      "sampled_self_seconds": 1.6e-05,
+      "sampled_calls": 23,
+      "self_ms_per_sampled_frame": 0.002
+    },
+    {
+      "signature": "res://source/match/units/traits/UnitAbilities.gd::254::is_active",
+      "sampled_self_seconds": 1.6e-05,
+      "sampled_calls": 28,
+      "self_ms_per_sampled_frame": 0.002
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishAI.gd::656::_idle_order",
+      "sampled_self_seconds": 1.6e-05,
+      "sampled_calls": 30,
+      "self_ms_per_sampled_frame": 0.002
+    },
+    {
+      "signature": "res://source/match/hud/HudMotion.gd::41::animate",
+      "sampled_self_seconds": 1.6e-05,
+      "sampled_calls": 1,
+      "self_ms_per_sampled_frame": 0.002
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishDefense.gd::95::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 1.6e-05,
+      "sampled_calls": 120,
+      "self_ms_per_sampled_frame": 0.002
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::129::@_suspension_velocity_setter",
+      "sampled_self_seconds": 1.5000000000000002e-05,
+      "sampled_calls": 89,
+      "self_ms_per_sampled_frame": 0.0018750000000000004
+    },
+    {
+      "signature": "res://source/match/audio/VoiceLines.gd::46::cooldown",
+      "sampled_self_seconds": 1.5000000000000002e-05,
+      "sampled_calls": 19,
+      "self_ms_per_sampled_frame": 0.0018750000000000004
+    },
+    {
+      "signature": "res://source/match/hud/OrderRoutes.gd::18::_draw",
+      "sampled_self_seconds": 1.5e-05,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.0018750000000000001
+    },
+    {
+      "signature": "res://source/match/hud/SkirmishHUD.gd::268::_button",
+      "sampled_self_seconds": 1.5e-05,
+      "sampled_calls": 1,
+      "self_ms_per_sampled_frame": 0.0018750000000000001
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishDifficulty.gd::97::of",
+      "sampled_self_seconds": 1.4999999999999999e-05,
+      "sampled_calls": 48,
+      "self_ms_per_sampled_frame": 0.001875
+    },
+    {
+      "signature": "res://source/data-model/Options.gd::181::settle_display",
+      "sampled_self_seconds": 1.4999999999999999e-05,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.001875
+    },
+    {
+      "signature": "res://source/match/effects/BattlefieldWear.gd::77::_process",
+      "sampled_self_seconds": 1.4000000000000001e-05,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.0017500000000000003
+    },
+    {
+      "signature": "res://source/match/research/TechnologyResearch.gd::15::reason",
+      "sampled_self_seconds": 1.4e-05,
+      "sampled_calls": 30,
+      "self_ms_per_sampled_frame": 0.00175
+    },
+    {
+      "signature": "res://source/generic-scenes-and-nodes/control/RectangularSelection2D.gd::17::_physics_process",
+      "sampled_self_seconds": 1.4e-05,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.00175
+    },
+    {
+      "signature": "res://source/input/KeyBindings.gd::234::hint",
+      "sampled_self_seconds": 1.4e-05,
+      "sampled_calls": 6,
+      "self_ms_per_sampled_frame": 0.00175
+    },
+    {
+      "signature": "res://source/generic-scenes-and-nodes/3d/RectangularSelection3D.gd::78::_throttle_update",
+      "sampled_self_seconds": 1.4e-05,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.00175
+    },
+    {
+      "signature": "res://source/match/units/actions/Moving.gd::0::@implicit_ready",
+      "sampled_self_seconds": 1.4e-05,
+      "sampled_calls": 23,
+      "self_ms_per_sampled_frame": 0.00175
+    },
+    {
+      "signature": "res://source/match/research/TechnologyResearch.gd::207::aa_ground_damage_factor",
+      "sampled_self_seconds": 1.3000000000000001e-05,
+      "sampled_calls": 79,
+      "self_ms_per_sampled_frame": 0.0016250000000000001
+    },
+    {
+      "signature": "res://source/match/effects/CombatEffects.gd::1143::_process",
+      "sampled_self_seconds": 1.3e-05,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.001625
+    },
+    {
+      "signature": "res://source/match/units/traits/BastionVisuals.gd::831::_strike",
+      "sampled_self_seconds": 1.3e-05,
+      "sampled_calls": 45,
+      "self_ms_per_sampled_frame": 0.001625
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishEconomy.gd::42::danger",
+      "sampled_self_seconds": 1.3e-05,
+      "sampled_calls": 5,
+      "self_ms_per_sampled_frame": 0.001625
+    },
+    {
+      "signature": "res://source/match/units/actions/AttackMoving.gd::20::_ready",
+      "sampled_self_seconds": 1.3e-05,
+      "sampled_calls": 18,
+      "self_ms_per_sampled_frame": 0.001625
+    },
+    {
+      "signature": "res://source/match/world/FieldEngineering.gd::270::cancel_orders",
+      "sampled_self_seconds": 1.3e-05,
+      "sampled_calls": 41,
+      "self_ms_per_sampled_frame": 0.001625
+    },
+    {
+      "signature": "res://source/match/units/traits/ProductionQueue.gd::187::get_elements",
+      "sampled_self_seconds": 1.3e-05,
+      "sampled_calls": 30,
+      "self_ms_per_sampled_frame": 0.001625
+    },
+    {
+      "signature": "res://source/match/world/FieldEngineering.gd::332::known_mines",
+      "sampled_self_seconds": 1.3e-05,
+      "sampled_calls": 33,
+      "self_ms_per_sampled_frame": 0.001625
+    },
+    {
+      "signature": "res://source/match/combat/HelixSupport.gd::70::overdrive_status",
+      "sampled_self_seconds": 1.2e-05,
+      "sampled_calls": 96,
+      "self_ms_per_sampled_frame": 0.0015
+    },
+    {
+      "signature": "res://source/generic-scenes-and-nodes/3d/RectangularSelection3D.gd::41::_selecting",
+      "sampled_self_seconds": 1.2e-05,
+      "sampled_calls": 120,
+      "self_ms_per_sampled_frame": 0.0015
+    },
+    {
+      "signature": "res://source/match/EconomyAssignments.gd::7::workers",
+      "sampled_self_seconds": 1.2e-05,
+      "sampled_calls": 16,
+      "self_ms_per_sampled_frame": 0.0015
+    },
+    {
+      "signature": "res://source/match/units/Unit.gd::569::_on_action_node_tree_exited",
+      "sampled_self_seconds": 1.2e-05,
+      "sampled_calls": 48,
+      "self_ms_per_sampled_frame": 0.0015
+    },
+    {
+      "signature": "res://source/match/FactionCatalog.gd::296::cost",
+      "sampled_self_seconds": 1.2e-05,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.0015
+    },
+    {
+      "signature": "res://source/match/Navigation.gd::25::get_navigation_map_rid_by_domain",
+      "sampled_self_seconds": 1.2e-05,
+      "sampled_calls": 5,
+      "self_ms_per_sampled_frame": 0.0015
+    },
+    {
+      "signature": "res://source/match/alerts/BattleAlerts.gd::27::_process",
+      "sampled_self_seconds": 1.1999999999999999e-05,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.0014999999999999998
+    },
+    {
+      "signature": "res://source/match/hud/SkirmishHUD.gd::532::_is_campaign",
+      "sampled_self_seconds": 1.1999999999999999e-05,
+      "sampled_calls": 32,
+      "self_ms_per_sampled_frame": 0.0014999999999999998
+    },
+    {
+      "signature": "res://source/match/hud/BattleAlertsPanel.gd::208::_beacon",
+      "sampled_self_seconds": 1.1999999999999999e-05,
+      "sampled_calls": 6,
+      "self_ms_per_sampled_frame": 0.0014999999999999998
+    },
+    {
+      "signature": "res://source/match/audio/EnvironmentAudio.gd::167::_refresh_sources",
+      "sampled_self_seconds": 1.1000000000000001e-05,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.0013750000000000001
+    },
+    {
+      "signature": "res://source/match/audio/VoiceLines.gd::30::priority",
+      "sampled_self_seconds": 1.1000000000000001e-05,
+      "sampled_calls": 23,
+      "self_ms_per_sampled_frame": 0.0013750000000000001
+    },
+    {
+      "signature": "res://source/match/hud/UnitMenus.gd::709::_refresh_buttons",
+      "sampled_self_seconds": 1.1e-05,
+      "sampled_calls": 5,
+      "self_ms_per_sampled_frame": 0.001375
+    },
+    {
+      "signature": "res://source/audio/MusicDirector.gd::76::_set_stem_gain",
+      "sampled_self_seconds": 1.1e-05,
+      "sampled_calls": 16,
+      "self_ms_per_sampled_frame": 0.001375
+    },
+    {
+      "signature": "res://source/match/units/traits/WalkerGait.gd::253::is_at_rest",
+      "sampled_self_seconds": 1.1e-05,
+      "sampled_calls": 6,
+      "self_ms_per_sampled_frame": 0.001375
+    },
+    {
+      "signature": "res://source/match/audio/CombatAudio.gd::163::_update_charge_voice",
+      "sampled_self_seconds": 1.1e-05,
+      "sampled_calls": 7,
+      "self_ms_per_sampled_frame": 0.001375
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishAI.gd::76::_of_type",
+      "sampled_self_seconds": 1.1e-05,
+      "sampled_calls": 18,
+      "self_ms_per_sampled_frame": 0.001375
+    },
+    {
+      "signature": "res://source/match/hud/Minimap.gd::91::_process",
+      "sampled_self_seconds": 1e-05,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.00125
+    },
+    {
+      "signature": "res://source/generic-scenes-and-nodes/3d/RectangularSelection3D.gd::63::_interrupt",
+      "sampled_self_seconds": 1e-05,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.00125
+    },
+    {
+      "signature": "res://source/match/research/TechnologyResearch.gd::215::has_doctrine",
+      "sampled_self_seconds": 1e-05,
+      "sampled_calls": 156,
+      "self_ms_per_sampled_frame": 0.00125
+    },
+    {
+      "signature": "res://source/match/hud/Minimap.gd::196::_map_unit",
+      "sampled_self_seconds": 1e-05,
+      "sampled_calls": 1,
+      "self_ms_per_sampled_frame": 0.00125
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishTactics.gd::16::command",
+      "sampled_self_seconds": 1e-05,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.00125
+    },
+    {
+      "signature": "res://source/match/units/actions/AttackingWhileInRange.gd::244::_on_passive_movement_finished",
+      "sampled_self_seconds": 9.999999999999999e-06,
+      "sampled_calls": 27,
+      "self_ms_per_sampled_frame": 0.0012499999999999998
+    },
+    {
+      "signature": "res://source/generic-scenes-and-nodes/control/RectangularSelection2D.gd::74::_update",
+      "sampled_self_seconds": 9.999999999999999e-06,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.0012499999999999998
+    },
+    {
+      "signature": "res://source/match/hud/ResourcesBar.gd::240::_count",
+      "sampled_self_seconds": 9.999999999999999e-06,
+      "sampled_calls": 16,
+      "self_ms_per_sampled_frame": 0.0012499999999999998
+    },
+    {
+      "signature": "res://source/match/audio/BattleVoice.gd::183::_process",
+      "sampled_self_seconds": 9e-06,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.0011250000000000001
+    },
+    {
+      "signature": "res://source/match/environment/BaseAreaLighting.gd::21::enabled",
+      "sampled_self_seconds": 9e-06,
+      "sampled_calls": 7,
+      "self_ms_per_sampled_frame": 0.0011250000000000001
+    },
+    {
+      "signature": "res://source/utils/RuntimeCache.gd::7::bucket",
+      "sampled_self_seconds": 9e-06,
+      "sampled_calls": 2,
+      "self_ms_per_sampled_frame": 0.0011250000000000001
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishLabor.gd::91::plan",
+      "sampled_self_seconds": 9e-06,
+      "sampled_calls": 6,
+      "self_ms_per_sampled_frame": 0.0011250000000000001
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishTactics.gd::417::_idle",
+      "sampled_self_seconds": 9e-06,
+      "sampled_calls": 30,
+      "self_ms_per_sampled_frame": 0.0011250000000000001
+    },
+    {
+      "signature": "res://source/match/environment/BaseAreaLighting.gd::30::_process",
+      "sampled_self_seconds": 8.999999999999999e-06,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.001125
+    },
+    {
+      "signature": "res://source/match/research/TechnologyResearch.gd::211::service_factor",
+      "sampled_self_seconds": 8.999999999999999e-06,
+      "sampled_calls": 32,
+      "self_ms_per_sampled_frame": 0.001125
+    },
+    {
+      "signature": "res://source/match/units/AircraftFactory.gd::40::service_slots",
+      "sampled_self_seconds": 8.999999999999999e-06,
+      "sampled_calls": 32,
+      "self_ms_per_sampled_frame": 0.001125
+    },
+    {
+      "signature": "res://source/match/players/human/VoiceNarratorController.gd::75::_handle_event",
+      "sampled_self_seconds": 8e-06,
+      "sampled_calls": 23,
+      "self_ms_per_sampled_frame": 0.001
+    },
+    {
+      "signature": "res://source/audio/MusicDirector.gd::82::_update_speech_duck",
+      "sampled_self_seconds": 8e-06,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.001
+    },
+    {
+      "signature": "res://source/audio/MusicDirector.gd::214::_poll_streams",
+      "sampled_self_seconds": 8e-06,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.001
+    },
+    {
+      "signature": "res://source/match/IsometricCamera3D.gd::153::_notification",
+      "sampled_self_seconds": 8e-06,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.001
+    },
+    {
+      "signature": "res://source/match/hud/MapFeatures.gd::12::_process",
+      "sampled_self_seconds": 8e-06,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.001
+    },
+    {
+      "signature": "res://source/match/units/Unit.gd::574::issue_manual_order",
+      "sampled_self_seconds": 8e-06,
+      "sampled_calls": 41,
+      "self_ms_per_sampled_frame": 0.001
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishLabor.gd::82::handoff_ready",
+      "sampled_self_seconds": 8e-06,
+      "sampled_calls": 30,
+      "self_ms_per_sampled_frame": 0.001
+    },
+    {
+      "signature": "res://source/match/units/traits/Movement.gd::279::cancel_exit_clearance",
+      "sampled_self_seconds": 8e-06,
+      "sampled_calls": 41,
+      "self_ms_per_sampled_frame": 0.001
+    },
+    {
+      "signature": "res://source/match/units/actions/Repairing.gd::19::repair_target",
+      "sampled_self_seconds": 7.000000000000001e-06,
+      "sampled_calls": 66,
+      "self_ms_per_sampled_frame": 0.0008750000000000001
+    },
+    {
+      "signature": "res://source/match/FogOfWar.gd::49::_process",
+      "sampled_self_seconds": 7e-06,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.000875
+    },
+    {
+      "signature": "res://source/match/hud/MapFeatures.gd::75::_draw_operations",
+      "sampled_self_seconds": 7e-06,
+      "sampled_calls": 2,
+      "self_ms_per_sampled_frame": 0.000875
+    },
+    {
+      "signature": "res://source/match/units/traits/ProductionQueue.gd::191::blocked_reason",
+      "sampled_self_seconds": 7e-06,
+      "sampled_calls": 20,
+      "self_ms_per_sampled_frame": 0.000875
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishEconomy.gd::14::contacts",
+      "sampled_self_seconds": 7e-06,
+      "sampled_calls": 24,
+      "self_ms_per_sampled_frame": 0.000875
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishProduction.gd::32::requests",
+      "sampled_self_seconds": 7e-06,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.000875
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishAI.gd::183::_build",
+      "sampled_self_seconds": 7e-06,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.000875
+    },
+    {
+      "signature": "res://source/match/units/actions/Moving.gd::65::_exit_tree",
+      "sampled_self_seconds": 7e-06,
+      "sampled_calls": 23,
+      "self_ms_per_sampled_frame": 0.000875
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishTactics.gd::214::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 7e-06,
+      "sampled_calls": 30,
+      "self_ms_per_sampled_frame": 0.000875
+    },
+    {
+      "signature": "res://source/match/units/actions/Repairing.gd::28::_ready",
+      "sampled_self_seconds": 7e-06,
+      "sampled_calls": 7,
+      "self_ms_per_sampled_frame": 0.000875
+    },
+    {
+      "signature": "res://source/match/combat/SignatureState.gd::31::activate",
+      "sampled_self_seconds": 7e-06,
+      "sampled_calls": 2,
+      "self_ms_per_sampled_frame": 0.000875
+    },
+    {
+      "signature": "res://source/match/rendering/RuntimePhaseProfiler.gd::13::Probe._process",
+      "sampled_self_seconds": 6.999999999999999e-06,
+      "sampled_calls": 16,
+      "self_ms_per_sampled_frame": 0.0008749999999999999
+    },
+    {
+      "signature": "res://source/match/combat/CommanderSupport.gd::433::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 6.999999999999999e-06,
+      "sampled_calls": 80,
+      "self_ms_per_sampled_frame": 0.0008749999999999999
+    },
+    {
+      "signature": "res://source/match/rendering/UnitBatchRenderer.gd::575::_physics_process",
+      "sampled_self_seconds": 6.999999999999999e-06,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.0008749999999999999
+    },
+    {
+      "signature": "res://source/match/hud/OwnershipOverlay.gd::21::_notification",
+      "sampled_self_seconds": 6.999999999999999e-06,
+      "sampled_calls": 14,
+      "self_ms_per_sampled_frame": 0.0008749999999999999
+    },
+    {
+      "signature": "res://source/match/hud/CommandFeedback.gd::127::contextual_kind",
+      "sampled_self_seconds": 6.999999999999999e-06,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.0008749999999999999
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishAI.gd::660::_use_signatures",
+      "sampled_self_seconds": 6e-06,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.00075
+    },
+    {
+      "signature": "res://source/match/units/actions/Repairing.gd::0::@implicit_ready",
+      "sampled_self_seconds": 6e-06,
+      "sampled_calls": 7,
+      "self_ms_per_sampled_frame": 0.00075
+    },
+    {
+      "signature": "res://source/match/units/actions/AttackMoving.gd::0::@implicit_new",
+      "sampled_self_seconds": 6e-06,
+      "sampled_calls": 18,
+      "self_ms_per_sampled_frame": 0.00075
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishCoordination.gd::108::_group",
+      "sampled_self_seconds": 6e-06,
+      "sampled_calls": 6,
+      "self_ms_per_sampled_frame": 0.00075
+    },
+    {
+      "signature": "res://source/match/hud/ResearchStatus.gd::30::_process",
+      "sampled_self_seconds": 5.999999999999999e-06,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.0007499999999999999
+    },
+    {
+      "signature": "res://source/match/combat/Battlefield.gd::559::line_clear",
+      "sampled_self_seconds": 5.999999999999999e-06,
+      "sampled_calls": 21,
+      "self_ms_per_sampled_frame": 0.0007499999999999999
+    },
+    {
+      "signature": "res://source/match/hud/BattleAlertsPanel.gd::25::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 5.999999999999999e-06,
+      "sampled_calls": 23,
+      "self_ms_per_sampled_frame": 0.0007499999999999999
+    },
+    {
+      "signature": "res://source/match/effects/CombatEffects.gd::571::miss",
+      "sampled_self_seconds": 5.999999999999999e-06,
+      "sampled_calls": 10,
+      "self_ms_per_sampled_frame": 0.0007499999999999999
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishAI.gd::434::_train",
+      "sampled_self_seconds": 5e-06,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.000625
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishProduction.gd::78::reserve",
+      "sampled_self_seconds": 5e-06,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.000625
+    },
+    {
+      "signature": "res://source/match/hud/BattleAlertsPanel.gd::232::_label",
+      "sampled_self_seconds": 5e-06,
+      "sampled_calls": 2,
+      "self_ms_per_sampled_frame": 0.000625
+    },
+    {
+      "signature": "res://source/match/units/actions/AttackMoving.gd::0::@implicit_ready",
+      "sampled_self_seconds": 5e-06,
+      "sampled_calls": 18,
+      "self_ms_per_sampled_frame": 0.000625
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishAI.gd::614::_research_candidate",
+      "sampled_self_seconds": 5e-06,
+      "sampled_calls": 6,
+      "self_ms_per_sampled_frame": 0.000625
+    },
+    {
+      "signature": "res://source/match/units/actions/AttackingWhileInRange.gd::239::_on_passive_movement_started",
+      "sampled_self_seconds": 4.9999999999999996e-06,
+      "sampled_calls": 22,
+      "self_ms_per_sampled_frame": 0.0006249999999999999
+    },
+    {
+      "signature": "res://source/match/IsometricCamera3D.gd::111::_process",
+      "sampled_self_seconds": 4.9999999999999996e-06,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.0006249999999999999
+    },
+    {
+      "signature": "res://source/match/environment/BaseAreaLighting.gd::47::refresh",
+      "sampled_self_seconds": 4.9999999999999996e-06,
+      "sampled_calls": 7,
+      "self_ms_per_sampled_frame": 0.0006249999999999999
+    },
+    {
+      "signature": "res://source/match/TerrainNavigation.gd::92::_process",
+      "sampled_self_seconds": 4.9999999999999996e-06,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.0006249999999999999
+    },
+    {
+      "signature": "res://source/match/environment/WaterInteractions.gd::59::update",
+      "sampled_self_seconds": 4.9999999999999996e-06,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.0006249999999999999
+    },
+    {
+      "signature": "res://source/generic-scenes-and-nodes/control/RectangularSelection2D.gd::39::_selecting",
+      "sampled_self_seconds": 4.9999999999999996e-06,
+      "sampled_calls": 60,
+      "self_ms_per_sampled_frame": 0.0006249999999999999
+    },
+    {
+      "signature": "res://source/match/units/traits/ChassisMotion.gd::251::settle",
+      "sampled_self_seconds": 4.9999999999999996e-06,
+      "sampled_calls": 21,
+      "self_ms_per_sampled_frame": 0.0006249999999999999
+    },
+    {
+      "signature": "res://source/match/alerts/BattleAlerts.gd::50::unread_count",
+      "sampled_self_seconds": 4e-06,
+      "sampled_calls": 6,
+      "self_ms_per_sampled_frame": 0.0005
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishAI.gd::68::profile",
+      "sampled_self_seconds": 4e-06,
+      "sampled_calls": 36,
+      "self_ms_per_sampled_frame": 0.0005
+    },
+    {
+      "signature": "res://source/match/IsometricCamera3D.gd::72::end_campaign_cinematic",
+      "sampled_self_seconds": 4e-06,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.0005
+    },
+    {
+      "signature": "res://source/match/IsometricCamera3D.gd::82::_cinematic_allowed",
+      "sampled_self_seconds": 4e-06,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.0005
+    },
+    {
+      "signature": "res://source/match/players/Player.gd::267::lab_research_unlocked",
+      "sampled_self_seconds": 4e-06,
+      "sampled_calls": 35,
+      "self_ms_per_sampled_frame": 0.0005
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishAI.gd::80::_next_building",
+      "sampled_self_seconds": 4e-06,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.0005
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishCoordination.gd::304::_attach_scouts",
+      "sampled_self_seconds": 4e-06,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.0005
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishTactics.gd::340::_commander",
+      "sampled_self_seconds": 4e-06,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.0005
+    },
+    {
+      "signature": "res://source/match/hud/HudMotion.gd::8::play",
+      "sampled_self_seconds": 4e-06,
+      "sampled_calls": 1,
+      "self_ms_per_sampled_frame": 0.0005
+    },
+    {
+      "signature": "res://source/match/world/FieldEngineering.gd::211::count_for",
+      "sampled_self_seconds": 4e-06,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.0005
+    },
+    {
+      "signature": "res://source/match/units/actions/Moving.gd::16::_init",
+      "sampled_self_seconds": 4e-06,
+      "sampled_calls": 23,
+      "self_ms_per_sampled_frame": 0.0005
+    },
+    {
+      "signature": "res://source/match/hud/ConsoleFrame.gd::71::_process",
+      "sampled_self_seconds": 3e-06,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.000375
+    },
+    {
+      "signature": "res://source/match/hud/UnitMenus.gd::157::_process",
+      "sampled_self_seconds": 3e-06,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.000375
+    },
+    {
+      "signature": "res://source/match/hud/Resources.gd::40::_process",
+      "sampled_self_seconds": 3e-06,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.000375
+    },
+    {
+      "signature": "res://source/match/Skirmish.gd::215::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 3e-06,
+      "sampled_calls": 32,
+      "self_ms_per_sampled_frame": 0.000375
+    },
+    {
+      "signature": "res://source/Globals.gd::65::_process",
+      "sampled_self_seconds": 3e-06,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.000375
+    },
+    {
+      "signature": "res://source/match/hud/UnitMenus.gd::1366::_refresh_engineering_buttons",
+      "sampled_self_seconds": 3e-06,
+      "sampled_calls": 5,
+      "self_ms_per_sampled_frame": 0.000375
+    },
+    {
+      "signature": "res://source/match/hud/OwnershipOverlay.gd::170::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 3e-06,
+      "sampled_calls": 24,
+      "self_ms_per_sampled_frame": 0.000375
+    },
+    {
+      "signature": "res://source/match/combat/SignatureState.gd::97::preparation_time",
+      "sampled_self_seconds": 3e-06,
+      "sampled_calls": 14,
+      "self_ms_per_sampled_frame": 0.000375
+    },
+    {
+      "signature": "res://source/match/hud/SkirmishHUD.gd::740::_refresh_hero_controls",
+      "sampled_self_seconds": 3e-06,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.000375
+    },
+    {
+      "signature": "res://source/Globals.gd::28::_notification",
+      "sampled_self_seconds": 3e-06,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.000375
+    },
+    {
+      "signature": "res://source/match/effects/BattlePresentation.gd::82::_process",
+      "sampled_self_seconds": 3e-06,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.000375
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishSites.gd::13::command",
+      "sampled_self_seconds": 3e-06,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.000375
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishExpansion.gd::62::_dangerous",
+      "sampled_self_seconds": 3e-06,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.000375
+    },
+    {
+      "signature": "res://source/match/FactionCatalog.gd::362::available",
+      "sampled_self_seconds": 3e-06,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.000375
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishDifficulty.gd::106::army_cap",
+      "sampled_self_seconds": 3e-06,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.000375
+    },
+    {
+      "signature": "res://source/match/FactionRules.gd::75::signature_cooldown",
+      "sampled_self_seconds": 3e-06,
+      "sampled_calls": 2,
+      "self_ms_per_sampled_frame": 0.000375
+    },
+    {
+      "signature": "res://source/match/alerts/BattleAlerts.gd::86::_new_key",
+      "sampled_self_seconds": 3e-06,
+      "sampled_calls": 1,
+      "self_ms_per_sampled_frame": 0.000375
+    },
+    {
+      "signature": "res://source/match/units/Unit.gd::502::_adapt_action",
+      "sampled_self_seconds": 3e-06,
+      "sampled_calls": 48,
+      "self_ms_per_sampled_frame": 0.000375
+    },
+    {
+      "signature": "res://source/match/hud/HudMotion.gd::21::_allowed",
+      "sampled_self_seconds": 3e-06,
+      "sampled_calls": 1,
+      "self_ms_per_sampled_frame": 0.000375
+    },
+    {
+      "signature": "res://source/match/hud/HudMotion.gd::33::reset",
+      "sampled_self_seconds": 3e-06,
+      "sampled_calls": 1,
+      "self_ms_per_sampled_frame": 0.000375
+    },
+    {
+      "signature": "res://source/match/units/actions/Moving.gd::0::@implicit_new",
+      "sampled_self_seconds": 3e-06,
+      "sampled_calls": 23,
+      "self_ms_per_sampled_frame": 0.000375
+    },
+    {
+      "signature": "res://source/match/units/Tank.gd::30::_on_action_changed",
+      "sampled_self_seconds": 3e-06,
+      "sampled_calls": 32,
+      "self_ms_per_sampled_frame": 0.000375
+    },
+    {
+      "signature": "res://source/match/environment/WorldAtmosphere.gd::114::_process",
+      "sampled_self_seconds": 2e-06,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.00025
+    },
+    {
+      "signature": "res://source/match/hud/Minimap.gd::224::_cleanup_mapping",
+      "sampled_self_seconds": 2e-06,
+      "sampled_calls": 6,
+      "self_ms_per_sampled_frame": 0.00025
+    },
+    {
+      "signature": "res://source/match/saves/SaveManager.gd::184::_process",
+      "sampled_self_seconds": 2e-06,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.00025
+    },
+    {
+      "signature": "res://source/match/IsometricCamera3D.gd::401::_stop_rotation",
+      "sampled_self_seconds": 2e-06,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.00025
+    },
+    {
+      "signature": "res://source/match/research/TechnologyCatalog.gd::176::available",
+      "sampled_self_seconds": 2e-06,
+      "sampled_calls": 30,
+      "self_ms_per_sampled_frame": 0.00025
+    },
+    {
+      "signature": "res://source/match/IsometricCamera3D.gd::159::_cancel_pan",
+      "sampled_self_seconds": 2e-06,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.00025
+    },
+    {
+      "signature": "res://source/match/units/Helicopter.gd::45::expend_round",
+      "sampled_self_seconds": 2e-06,
+      "sampled_calls": 6,
+      "self_ms_per_sampled_frame": 0.00025
+    },
+    {
+      "signature": "res://source/match/hud/CommandFeedback.gd::164::_set_cursor",
+      "sampled_self_seconds": 2e-06,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.00025
+    },
+    {
+      "signature": "res://source/match/effects/CombatEffects.gd::1082::_take_tracer",
+      "sampled_self_seconds": 2e-06,
+      "sampled_calls": 14,
+      "self_ms_per_sampled_frame": 0.00025
+    },
+    {
+      "signature": "res://source/match/hud/Ownership.gd::85::paint",
+      "sampled_self_seconds": 2e-06,
+      "sampled_calls": 1,
+      "self_ms_per_sampled_frame": 0.00025
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishDefense.gd::8::under_raid",
+      "sampled_self_seconds": 2e-06,
+      "sampled_calls": 9,
+      "self_ms_per_sampled_frame": 0.00025
+    },
+    {
+      "signature": "res://source/match/units/actions/AttackMoving.gd::74::_exit_tree",
+      "sampled_self_seconds": 2e-06,
+      "sampled_calls": 18,
+      "self_ms_per_sampled_frame": 0.00025
+    },
+    {
+      "signature": "res://source/match/hud/BattleTheme.gd::231::create",
+      "sampled_self_seconds": 2e-06,
+      "sampled_calls": 1,
+      "self_ms_per_sampled_frame": 0.00025
+    },
+    {
+      "signature": "res://source/match/units/actions/Repairing.gd::0::@implicit_new",
+      "sampled_self_seconds": 2e-06,
+      "sampled_calls": 7,
+      "self_ms_per_sampled_frame": 0.00025
+    },
+    {
+      "signature": "res://source/match/units/actions/AttackMoving.gd::16::_init",
+      "sampled_self_seconds": 2e-06,
+      "sampled_calls": 18,
+      "self_ms_per_sampled_frame": 0.00025
+    },
+    {
+      "signature": "res://source/match/units/Helicopter.gd::30::_on_action_changed",
+      "sampled_self_seconds": 2e-06,
+      "sampled_calls": 9,
+      "self_ms_per_sampled_frame": 0.00025
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishCoordination.gd::224::_apply",
+      "sampled_self_seconds": 2e-06,
+      "sampled_calls": 6,
+      "self_ms_per_sampled_frame": 0.00025
+    },
+    {
+      "signature": "res://source/match/hud/UnitMenus.gd::1049::_selected_rally",
+      "sampled_self_seconds": 1e-06,
+      "sampled_calls": 5,
+      "self_ms_per_sampled_frame": 0.000125
+    },
+    {
+      "signature": "res://source/match/players/human/StructurePlacementHandler.gd::120::_structure_placement_started",
+      "sampled_self_seconds": 1e-06,
+      "sampled_calls": 8,
+      "self_ms_per_sampled_frame": 0.000125
+    },
+    {
+      "signature": "res://source/match/world/BattlefieldEvents.gd::337::minimap_markers",
+      "sampled_self_seconds": 1e-06,
+      "sampled_calls": 2,
+      "self_ms_per_sampled_frame": 0.000125
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishAI.gd::72::_units",
+      "sampled_self_seconds": 1e-06,
+      "sampled_calls": 9,
+      "self_ms_per_sampled_frame": 0.000125
+    },
+    {
+      "signature": "res://source/match/units/actions/Repairing.gd::52::_exit_tree",
+      "sampled_self_seconds": 1e-06,
+      "sampled_calls": 7,
+      "self_ms_per_sampled_frame": 0.000125
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishAI.gd::638::_research",
+      "sampled_self_seconds": 1e-06,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.000125
+    },
+    {
+      "signature": "res://source/audio/UIAudio.gd::50::_connect_once",
+      "sampled_self_seconds": 1e-06,
+      "sampled_calls": 1,
+      "self_ms_per_sampled_frame": 0.000125
+    },
+    {
+      "signature": "res://source/match/combat/CommanderSupport.gd::143::reserved",
+      "sampled_self_seconds": 1e-06,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.000125
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishAI.gd::683::_choose_weapon_modes",
+      "sampled_self_seconds": 1e-06,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.000125
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishCoordination.gd::306::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 1e-06,
+      "sampled_calls": 6,
+      "self_ms_per_sampled_frame": 0.000125
+    },
+    {
+      "signature": "res://source/match/world/BattlefieldEvents.gd::348::radar_blips",
+      "sampled_self_seconds": 0.0,
+      "sampled_calls": 2,
+      "self_ms_per_sampled_frame": 0.0
+    },
+    {
+      "signature": "res://source/match/hud/MinimapUnitMarker.gd::17::_draw",
+      "sampled_self_seconds": 0.0,
+      "sampled_calls": 1,
+      "self_ms_per_sampled_frame": 0.0
+    },
+    {
+      "signature": "res://source/match/hud/Ownership.gd::61::_symbol",
+      "sampled_self_seconds": 0.0,
+      "sampled_calls": 1,
+      "self_ms_per_sampled_frame": 0.0
+    },
+    {
+      "signature": "res://source/match/units/traits/ChassisMotion.gd::105::reset",
+      "sampled_self_seconds": 0.0,
+      "sampled_calls": 1,
+      "self_ms_per_sampled_frame": 0.0
+    },
+    {
+      "signature": "res://source/match/hud/MinimapUnitMarker.gd::0::@implicit_new",
+      "sampled_self_seconds": 0.0,
+      "sampled_calls": 1,
+      "self_ms_per_sampled_frame": 0.0
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishCoordination.gd::124::_fields",
+      "sampled_self_seconds": 0.0,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.0
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishTactics.gd::298::_cargo",
+      "sampled_self_seconds": 0.0,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.0
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishSites.gd::68::recruit",
+      "sampled_self_seconds": 0.0,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.0
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishExpansion.gd::17::headquarters",
+      "sampled_self_seconds": 0.0,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.0
+    },
+    {
+      "signature": "res://source/match/hud/BattleTheme.gd::36::_state",
+      "sampled_self_seconds": 0.0,
+      "sampled_calls": 1,
+      "self_ms_per_sampled_frame": 0.0
+    },
+    {
+      "signature": "res://source/match/FactionCatalog.gd::460::signature_cooldown",
+      "sampled_self_seconds": 0.0,
+      "sampled_calls": 2,
+      "self_ms_per_sampled_frame": 0.0
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishExpansion.gd::35::<anonymous lambda>(lambda)",
+      "sampled_self_seconds": 0.0,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.0
+    },
+    {
+      "signature": "res://source/match/players/Player.gd::108::start_index",
+      "sampled_self_seconds": 0.0,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.0
+    },
+    {
+      "signature": "res://source/match/units/actions/Repairing.gd::23::_init",
+      "sampled_self_seconds": 0.0,
+      "sampled_calls": 7,
+      "self_ms_per_sampled_frame": 0.0
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishTactics.gd::162::_kites",
+      "sampled_self_seconds": 0.0,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.0
+    },
+    {
+      "signature": "res://source/match/players/skirmish-ai/SkirmishTactics.gd::131::_overdrive",
+      "sampled_self_seconds": 0.0,
+      "sampled_calls": 3,
+      "self_ms_per_sampled_frame": 0.0
+    }
+  ]
+}
