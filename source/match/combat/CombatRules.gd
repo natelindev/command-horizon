@@ -82,6 +82,8 @@ static func armor_for(role):
 
 
 static func can_target(source, target, forced = false):
+	if not is_instance_valid(source) or not is_instance_valid(target):
+		return false
 	if source is Unit:
 		return _unit_can_target(source, target, forced)
 	return _generic_can_target(source, target, forced)
@@ -121,6 +123,8 @@ static func _generic_can_target(source, target, forced = false):
 
 
 static func commander_disabled(source) -> bool:
+	if not is_instance_valid(source):
+		return false
 	if source is Unit:
 		return _unit_commander_disabled(source)
 	return (
@@ -144,7 +148,7 @@ static func can_force_target(source, target):
 
 
 static func explicit_attack(source, target):
-	if not is_instance_valid(target):
+	if not is_instance_valid(source) or not is_instance_valid(target):
 		return false
 	if "force_attack" in source:
 		return source.force_attack
@@ -160,6 +164,8 @@ static func explicit_attack(source, target):
 
 # Target-side legality shared by live shooters and in-flight rounds (Shot).
 static func can_receive(source, target, forced = false):
+	if not is_instance_valid(source) or not is_instance_valid(target):
+		return false
 	if target is Unit:
 		return _unit_can_receive(source, target, forced)
 	return _generic_can_receive(source, target, forced)
@@ -243,6 +249,8 @@ static func _damage(source, target):
 # Valid for one synchronous acquisition only. Position, abilities, research and
 # weapon mode are sampled afresh for every query; impact damage remains live.
 static func damage_facts(source) -> DamageFacts:
+	if not is_instance_valid(source):
+		return null
 	if "raw_damage" in source and source.raw_damage:
 		return null
 	var profile: String = profile_for(source)
@@ -277,6 +285,8 @@ static func damage_facts(source) -> DamageFacts:
 
 
 static func damage_with_facts(facts: DamageFacts, target) -> float:
+	if not is_instance_valid(target):
+		return 0.0
 	var profile: String = facts.profile
 	var airborne: bool = _airborne(target)
 	if (
@@ -315,7 +325,7 @@ static func damage_with_facts(facts: DamageFacts, target) -> float:
 ## Smoke protects allied ground targets at its fixed deployment point. Multiple
 ## screens do not stack, and in-flight rounds use the same rule as live weapons.
 static func smoke_damage_factor(target) -> float:
-	if not target is Node3D or not target.is_inside_tree() or _airborne(target):
+	if not is_instance_valid(target) or not target is Node3D or not target.is_inside_tree() or _airborne(target):
 		return 1.0
 	for manager in target.get_tree().get_nodes_in_group("active_smoke_screens"):
 		if not manager.is_active("smoke_screen"):
@@ -338,6 +348,8 @@ static func aa_ground_damage_factor(player):
 
 
 static func range_for(source, target):
+	if not is_instance_valid(source) or not is_instance_valid(target):
+		return 0.0
 	if (
 		source.type == "CombatRobot"
 		and source.player.faction != "helix"
@@ -361,6 +373,8 @@ static func range_for(source, target):
 # Aircraft altitude never confers a terrain advantage. In-flight shots use
 # their frozen launch position, even after their shooter moves or dies.
 static func elevation_difference(source, target) -> float:
+	if not is_instance_valid(source) or not is_instance_valid(target):
+		return 0.0
 	if _airborne(target):
 		return 0.0
 	if source.has_method("combat_domain") and _airborne(source):
@@ -376,9 +390,11 @@ static func high_ground_damage_factor(source, target) -> float:
 
 
 static func high_ground_range_bonus(source, target = null) -> float:
-	if source.attack_range == null:
+	if not is_instance_valid(source) or source.attack_range == null:
 		return 0.0
-	if target != null:
+	if typeof(target) == TYPE_OBJECT and not is_instance_valid(target):
+		return 0.0
+	if is_instance_valid(target):
 		var difference = elevation_difference(source, target)
 		if difference <= -1.5:
 			return -float(source.attack_range) * 0.2
@@ -389,8 +405,12 @@ static func high_ground_range_bonus(source, target = null) -> float:
 
 
 static func preparation_for(unit, target = null):
+	if not is_instance_valid(unit):
+		return 0.0
+	if typeof(target) == TYPE_OBJECT and not is_instance_valid(target):
+		return 0.0
 	if unit.type == "RocketInfantry":
-		return INFANTRY_SAM_LOCK if target != null and _airborne(target) else 0.0
+		return INFANTRY_SAM_LOCK if is_instance_valid(target) and _airborne(target) else 0.0
 	if unit.type == "AdvancedTank":
 		return 0.0 if unit.player.faction == "frontier" else 0.75
 	if (
@@ -403,6 +423,8 @@ static func preparation_for(unit, target = null):
 
 
 static func describe(unit):
+	if not is_instance_valid(unit):
+		return ""
 	var text = ARMOR_NAMES[armor_for(unit.type)]
 	if unit.type == "AdvancedTank" and unit.player.faction == "helix":
 		return text + " · Precision rail · " + unit.deployment_status()
@@ -425,6 +447,8 @@ static func _airborne(target):
 
 
 static func profile_for(unit):
+	if not is_instance_valid(unit):
+		return ""
 	if unit.type == "Hero" and unit.player.faction == "helix":
 		return "Anti-armor lance"
 	if unit.type == "AdvancedTank" and unit.player.faction == "frontier":

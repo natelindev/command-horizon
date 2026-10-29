@@ -147,6 +147,8 @@ func _refresh():
 		_max_body_step = indexed[5]
 	else:
 		for unit in observers:
+			if not is_instance_valid(unit) or unit.is_queued_for_deletion():
+				continue
 			if unit is Unit:
 				_index_unit(unit, physics_delta)
 			else:
@@ -245,7 +247,8 @@ func _store_observer(
 
 func can_observe(observer, target):
 	if (
-		not is_instance_valid(target)
+		not is_instance_valid(observer)
+		or not is_instance_valid(target)
 		or not target.is_inside_tree()
 		or target.is_queued_for_deletion()
 	):
@@ -258,14 +261,14 @@ func can_observe(observer, target):
 
 
 func can_observe_point(observer, point: Vector3, ignored_target = null) -> bool:
-	if _native_visibility != null:
-		return _native_visibility.can_observe_point(observer, point, ignored_target)
 	if (
 		not is_instance_valid(observer)
 		or not observer.is_inside_tree()
 		or observer.is_queued_for_deletion()
 	):
 		return false
+	if _native_visibility != null:
+		return _native_visibility.can_observe_point(observer, point, ignored_target)
 	if observer is Unit:
 		return _unit_can_observe_point(observer, point, ignored_target)
 	if observer.sight_range == null or observer.hp == null or observer.hp <= 0:
@@ -322,6 +325,8 @@ func _terrain_visible(observer, origin: Vector3, point: Vector3, target) -> bool
 
 
 func _sight_reach(unit, point = null):
+	if not is_instance_valid(unit):
+		return 0.0
 	if unit is Unit:
 		var body: Unit = unit
 		return body.effective_sight_range(point)
@@ -407,6 +412,8 @@ func _cell(point: Vector3) -> Vector2i:
 
 
 func can_fire(source, target):
+	if not is_instance_valid(source) or not is_instance_valid(target):
+		return false
 	if native_combat_queries:
 		_refresh()
 		var answer: int = _native_visibility.can_fire(

@@ -11,6 +11,8 @@ var _timer = null
 
 
 static func is_applicable(source_unit, target_unit):
+	if not is_instance_valid(source_unit) or not is_instance_valid(target_unit):
+		return false
 	return (
 		source_unit is Worker
 		and target_unit is ResourceUnit
@@ -26,6 +28,9 @@ func _init(resource_unit):
 
 func _ready():
 	if restoring:
+		return
+	if not is_instance_valid(_resource_unit):
+		queue_free()
 		return
 	_resource_unit.tree_exited.connect(queue_free)
 	_unit_movement_trait.passive_movement_finished.connect(_on_passive_movement_finished)

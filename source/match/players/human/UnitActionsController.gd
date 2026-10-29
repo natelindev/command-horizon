@@ -112,6 +112,8 @@ func _navigate_unit_towards_unit(unit, target_unit, rally = false):
 
 
 static func context_kind(unit, target_unit):
+	if not is_instance_valid(unit) or not is_instance_valid(target_unit):
+		return ""
 	if target_unit.has_method("can_collect") and target_unit.can_collect(unit):
 		return "collect_tactical"
 	var repairs = load("res://source/match/combat/RepairService.gd")

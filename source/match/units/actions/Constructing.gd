@@ -14,6 +14,8 @@ var _sub_action = null
 
 
 static func is_applicable(source_unit, target_unit):
+	if not is_instance_valid(source_unit) or not is_instance_valid(target_unit):
+		return false
 	return (
 		source_unit is Worker
 		and target_unit is Structure
@@ -24,11 +26,15 @@ static func is_applicable(source_unit, target_unit):
 
 func _init(target_unit):
 	_target_unit = target_unit
-	_target_unit.constructed.connect(_on_target_unit_constructed)
+	if is_instance_valid(_target_unit):
+		_target_unit.constructed.connect(_on_target_unit_constructed)
 
 
 func _ready():
 	if restoring:
+		return
+	if not is_instance_valid(_target_unit):
+		queue_free()
 		return
 	_construct_or_move_closer()
 

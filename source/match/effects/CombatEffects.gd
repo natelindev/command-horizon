@@ -356,6 +356,8 @@ func _puff(kind, point, velocity, color, size):
 		_headless
 		or get_tree().paused
 		or (Globals.options.reduced_flashes and kind in ["flash", "spark", "fire", "exhaust"])
+		or not _emitters.has(kind)
+		or not is_instance_valid(_emitters[kind])
 	):
 		return
 	var transform_here = Transform3D(Basis.IDENTITY.scaled(Vector3.ONE * size), point)
@@ -404,13 +406,16 @@ func shot(
 			aftermath.casing(origin + unit.global_basis.z * .55, unit.global_basis.x)
 		var ground = Vector3(origin.x, _ground_height(origin) + .1, origin.z)
 		if origin.y - ground.y < 3.0:
+			var unit_radius: float = (
+				unit.radius if "radius" in unit and unit.radius != null else 1.0
+			)
 			for side in [-1, 1]:
 				_puff(
 					"dust",
 					ground + unit.global_basis.x * side * .45,
 					unit.global_basis.x * side * 1.3 + Vector3.UP * .15,
 					dust_color(_dust_biome),
-					unit.radius * .65
+					unit_radius * .65
 				)
 	if not rail and _camera_sees(origin):
 		aftermath.flash(origin, .5 if heavy else .18, color, true)

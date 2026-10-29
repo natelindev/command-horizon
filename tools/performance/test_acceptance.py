@@ -1,6 +1,10 @@
 """Acceptance boundaries for the user's revised native-4K 60 fps goal."""
 import math
+from pathlib import Path
+import sys
 import unittest
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from run_benchmark import meets_target
 

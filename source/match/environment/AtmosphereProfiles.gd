@@ -81,12 +81,13 @@ const BIOMES = {
 
 
 static func biome(map):
-	var authored = preload("res://source/match/maps/terrain/BattlefieldRegistry.gd").layout(
-		String(map.scene_file_path if map else "")
-	)
+	var path = ""
+	if map != null and "scene_file_path" in map:
+		path = String(map.scene_file_path)
+	var authored = preload("res://source/match/maps/terrain/BattlefieldRegistry.gd").layout(path)
 	if not authored.is_empty():
-		return authored.biome
-	var name = String(map.scene_file_path if map else "").get_file().get_basename()
+		return authored.get("biome", "temperate")
+	var name = path.get_file().get_basename()
 	return BIOMES.get(name, "temperate")
 
 

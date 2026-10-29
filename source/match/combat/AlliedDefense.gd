@@ -47,4 +47,4 @@ func _available(unit, attacker):
 		return false
 	if unit.manual_orders != null and unit.manual_orders._engaged:
 		return false
-	return unit.action == null or (unit.action is Waiting and unit.action.is_idle())
+	return unit.action == null or (is_instance_valid(unit.action) and unit.action is Waiting and unit.action.is_idle())

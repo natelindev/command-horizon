@@ -27,6 +27,8 @@ var _sub_action = null
 
 
 static func is_applicable(source_unit, target_unit):
+	if not is_instance_valid(source_unit) or not is_instance_valid(target_unit):
+		return false
 	return (
 		source_unit is Worker
 		and (
@@ -41,6 +43,8 @@ static func is_applicable(source_unit, target_unit):
 
 
 func _init(unit):
+	if not is_instance_valid(unit):
+		return
 	if unit is ResourceUnit:
 		_kind = 1 if "resource_a" in unit else 2
 		_field_origin = (
@@ -296,7 +300,7 @@ func _set_resource_unit(deposit):
 	):
 		_resource_unit.tree_exited.disconnect(_on_resource_unit_removed)
 	_resource_unit = deposit
-	if deposit != null:
+	if is_instance_valid(deposit):
 		deposit.tree_exited.connect(_on_resource_unit_removed)
 
 
@@ -304,7 +308,7 @@ func _set_cc_unit(cc):
 	if is_instance_valid(_cc_unit) and _cc_unit.tree_exited.is_connected(_on_cc_unit_removed):
 		_cc_unit.tree_exited.disconnect(_on_cc_unit_removed)
 	_cc_unit = cc
-	if cc != null:
+	if is_instance_valid(cc):
 		cc.tree_exited.connect(_on_cc_unit_removed)
 
 

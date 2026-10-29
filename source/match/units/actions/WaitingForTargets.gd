@@ -89,11 +89,11 @@ func _on_timer_timeout():
 
 
 func _on_attack_finished():
-	if not is_inside_tree():
+	if not is_inside_tree() or not is_instance_valid(_unit) or _unit.is_queued_for_deletion():
 		return
 	_sub_action = null
 	_unit.action_updated.emit()
-	if not _timer.timeout.is_connected(_on_timer_timeout):
+	if is_instance_valid(_timer) and not _timer.timeout.is_connected(_on_timer_timeout):
 		_timer.timeout.connect(_on_timer_timeout)
 
 

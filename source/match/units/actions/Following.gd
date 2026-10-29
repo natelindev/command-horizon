@@ -23,6 +23,9 @@ func _init(target_unit):
 func _ready():
 	if restoring:
 		return
+	if not is_instance_valid(_target_unit):
+		queue_free()
+		return
 	_target_unit.tree_exited.connect(queue_free)
 	_setup_refresh_timer()
 	_refresh()

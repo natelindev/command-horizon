@@ -12,6 +12,9 @@ func _init(target_unit):
 func _ready():
 	if restoring:
 		return
+	if not is_instance_valid(_target_unit):
+		queue_free()
+		return
 	_target_unit.tree_exited.connect(queue_free)
 	_target_unit.constructed.connect(queue_free)
 	_unit.get_node("Sparkling").enable()
@@ -22,6 +25,9 @@ func _exit_tree():
 
 
 func _process(delta):
+	if not is_instance_valid(_target_unit):
+		queue_free()
+		return
 	if (
 		not Utils.Match.Unit.Movement.units_adhere(_unit, _target_unit)
 		or _target_unit.is_constructed()

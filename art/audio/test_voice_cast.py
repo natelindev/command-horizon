@@ -1,6 +1,10 @@
 """Regression: renamed/re-delivered speakers must not masquerade as a new cast."""
 import copy
+from pathlib import Path
+import sys
 import unittest
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import numpy as np
 from build_battle_audio import clip_source_hash, mechanical, transcript_error

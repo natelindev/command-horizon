@@ -1,7 +1,11 @@
 """Campaign content and transcript-normalization contracts, without synthesis."""
 import json
-import unittest
 from pathlib import Path
+import sys
+import unittest
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
 from xml.etree import ElementTree
 
 from build_campaign_audio import ROOT, SCRIPT, cast, transcript_error

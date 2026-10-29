@@ -13,13 +13,15 @@ var _elapsed = 0.0
 
 static func mobile_eligible(source, target):
 	return (
-		is_instance_valid(target)
+		is_instance_valid(source)
+		and is_instance_valid(target)
 		and target != source
 		and "hp" in target
 		and target.hp != null
 		and target.hp > 0
 		and not target.is_queued_for_deletion()
 		and "player" in target
+		and "player" in source
 		and target.player == source.player
 		and Rules.armor_for(target.type) != 0
 		and target.movement_domain == Constants.Match.Navigation.Domain.TERRAIN
@@ -40,6 +42,8 @@ static func facility_eligible(service, unit):
 		is_instance_valid(service)
 		and not service.is_queued_for_deletion()
 		and service.hp > 0
+		and is_instance_valid(unit)
+		and not unit.is_queued_for_deletion()
 		and service.player == unit.player
 		and service.type == facility_for_role(unit.type)
 		and service.has_method("is_constructed")

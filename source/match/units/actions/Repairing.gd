@@ -12,6 +12,8 @@ var _finish_when_repaired = false
 
 
 static func is_applicable(source_unit, target_unit):
+	if not is_instance_valid(source_unit) or not is_instance_valid(target_unit):
+		return false
 	return source_unit is RepairRobot and Repairs.mobile_eligible(source_unit, target_unit)
 
 
@@ -26,6 +28,9 @@ func _init(target, finish_when_repaired = false):
 
 func _ready():
 	if restoring:
+		return
+	if not is_instance_valid(_target):
+		queue_free()
 		return
 	_target.tree_exiting.connect(queue_free)
 

@@ -58,7 +58,7 @@ func _refresh():
 	if _lost_contact:
 		_follow_last_known_position()
 		return
-	if not Rules.can_target(_unit, _target_unit):
+	if not is_instance_valid(_target_unit) or not Rules.can_target(_unit, _target_unit):
 		queue_free()
 		return
 	if not field.is_observed(_unit.player, _target_unit):
