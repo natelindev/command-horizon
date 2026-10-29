@@ -2,8 +2,8 @@ extends Node
 
 ## A throw commits its payload independently of the thrower's lifetime.
 const FUSE = 0.6
-const DAMAGE = 35.0
-const BREACH_DAMAGE = 52.5
+const DAMAGE = 28.0
+const BREACH_DAMAGE = 42.0
 const Shot = preload("res://source/match/combat/Shot.gd")
 var serial: int = 0
 var pending: Array = []

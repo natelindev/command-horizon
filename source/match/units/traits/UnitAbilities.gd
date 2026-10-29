@@ -121,12 +121,12 @@ func trigger(id: String, target_point: Vector3 = Vector3.INF, target_unit: Node 
 		if not unit._match.engineering.can_service(unit, target_unit):
 			return false
 		target_point = target_unit.global_position
-	elif (
-		ability.id == "frag_grenade"
-		and target_unit != null
-		and target_unit.has_method("evacuate_breached")
-	):
-		if not _valid_breach(target_unit):
+	elif ability.id == "frag_grenade":
+		if (
+			target_unit == null
+			or not target_unit.has_method("evacuate_breached")
+			or not _valid_breach(target_unit)
+		):
 			return false
 		var radial = (unit.global_position - target_unit.global_position) * Vector3(1, 0, 1)
 		target_point = target_unit.global_position + radial.normalized() * target_unit.radius

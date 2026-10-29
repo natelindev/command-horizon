@@ -83,34 +83,20 @@ static func _withdraw_suppressed(game, _player, units, observed, claimed):
 			_move(unit, candidate)
 
 
-static func _use_grenades(game, player, units, observed):
-	# Cluster membership is independent of the thrower. Build it lazily once,
-	# then reject distant targets before invoking the ability's full validation.
-	var clusters = null
+static func _use_grenades(game, player, units, _observed):
 	for unit in units:
 		if unit.abilities == null:
 			continue
 		var grenade = unit.abilities.get_ability("frag_grenade")
 		if grenade == null or not grenade.is_ready():
 			continue
-		var used = false
 		for building in game.get_tree().get_nodes_in_group("neutral_buildings"):
 			if (
 				game.battlefield.is_observed(player, building)
 				and unit.abilities._valid_breach(building)
 			):
 				if unit.abilities.trigger("frag_grenade", building.global_position, building):
-					used = true
 					break
-		if used:
-			continue
-		if clusters == null:
-			clusters = _grenade_clusters(game, observed)
-		for contact in clusters:
-			if not unit.abilities._in_range(grenade, contact.global_position):
-				continue
-			if unit.abilities.trigger("frag_grenade", contact.global_position):
-				break
 
 
 static func _grenade_clusters(game, observed) -> Array:

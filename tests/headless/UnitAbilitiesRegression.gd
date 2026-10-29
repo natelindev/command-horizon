@@ -214,23 +214,12 @@ func _test_ability_orders():
 		commands.kind == "ability" and first.abilities.get_ability("frag_grenade").is_ready(),
 		"Rejected target consumed ability or targeting"
 	)
-	var before = enemy.hp
-	_check(commands.commit(enemy.global_position, null, false), "Grenade map point rejected")
+	_check(not commands.commit(enemy.global_position, null, false), "Grenade accepted map point")
+	_check(not commands.commit(enemy.global_position, enemy, false), "Grenade accepted non-garrison target")
 	_check(
-		enemy.hp == before and commands.kind.is_empty(), "Accepted grenade resolved before flight"
+		commands.kind == "ability" and first.abilities.get_ability("frag_grenade").is_ready(),
+		"Rejected non-garrison target consumed ability or targeting"
 	)
-	_game.grenade_system._physics_process(0.6)
-	_check(enemy.hp == before - 35, "Target cast damage or cleanup")
-	_check(
-		second.abilities.get_ability("frag_grenade").is_ready(),
-		"Targeted cast consumed all selected cooldowns"
-	)
-	commands.arm_ability("frag_grenade")
-	_check(commands.commit(enemy.global_position, null, true), "Next ready caster was not selected")
-	_game.grenade_system._physics_process(0.6)
-	_check(enemy.hp == before - 70, "Next ready caster did not execute")
-	first.abilities.restore({})
-	commands.arm_ability("frag_grenade")
 	var right = InputEventMouseButton.new()
 	right.button_index = MOUSE_BUTTON_RIGHT
 	right.pressed = true
@@ -246,7 +235,6 @@ func _test_ability_orders():
 		commands.kind.is_empty() and _game.hud._overlay == null,
 		"Escape opened menu instead of cancelling"
 	)
-	first.abilities.restore({})
 	commands.arm_ability("frag_grenade")
 	paused = true
 	_check(
@@ -262,15 +250,38 @@ func _test_ability_orders():
 	click.pressed = true
 	_check(commands.handle_input(click), "Ability map click was not handled")
 	_check(
-		commands.kind.is_empty() and not first.abilities.get_ability("frag_grenade").is_ready(),
-		"Map click did not execute armed ability"
+		commands.kind == "ability" and first.abilities.get_ability("frag_grenade").is_ready(),
+		"Map click executed building-only grenade"
 	)
 	click.pressed = false
 	commands.handle_input(click)
-	first.abilities.restore({})
+	commands.cancel()
 	commands.arm_ability("frag_grenade")
 	await _select_ability_units([second])
 	_check(commands.kind.is_empty(), "Selection change retained armed ability")
+	first.queue_free()
+	second.queue_free()
+	await _frames(2)
+	var r1 = _spawn("RocketInfantry", _human, Vector3(40, 0, 8))
+	var r2 = _spawn("RocketInfantry", _human, Vector3(40, 0, 10))
+	await _select_ability_units([r1, r2])
+	commands.arm_ability("guided_salvo")
+	enemy.hp_max = 250.0
+	enemy.hp = 250.0
+	var before = enemy.hp
+	_check(commands.commit(enemy.global_position, enemy, false), "Salvo target rejected")
+	_check(commands.kind.is_empty(), "Accepted salvo retained targeting")
+	await _frames(25)
+	_check(enemy.hp < before, "Target cast damage")
+	_check(
+		r2.abilities.get_ability("guided_salvo").is_ready(),
+		"Targeted cast consumed all selected cooldowns"
+	)
+	commands.arm_ability("guided_salvo")
+	_check(commands.commit(enemy.global_position, enemy, true), "Next ready caster was not selected")
+	r1.queue_free()
+	r2.queue_free()
+	await _frames(2)
 	var assault = _spawn("AssaultInfantry", _human, Vector3(40, 0, 14))
 	var other_assault = _spawn("AssaultInfantry", _human, Vector3(42, 0, 14))
 	await _select_ability_units([assault, other_assault])
@@ -384,18 +395,23 @@ func _test_grenade():
 	_check(not grenade.trigger(Vector3.INF), "Grenade accepted a nonfinite point")
 	_check(not grenade.trigger(Vector3(51, 0, 8)), "Grenade exceeded 10 m range")
 	_check(grenade.cooldown_left == 0, "Rejected cast consumed cooldown")
+	_check(not grenade.trigger(Vector3(46, 0, 8)), "Grenade accepted open ground")
+	_check(not grenade.trigger(Vector3(46, 0, 8), near), "Grenade accepted enemy tank")
+	_check(not grenade.trigger(Vector3(46, 0, 8), ally), "Grenade accepted ally")
+	_check(grenade.cooldown_left == 0, "Rejected unit target consumed cooldown")
 	var before = [ally.hp, near.hp, edge.hp, far.hp]
-	_check(grenade.trigger(Vector3(46, 0, 8)), "Grenade did not trigger")
+	_check(_game.grenade_system.launch(infantry, Vector3(46, 0, 8), 3.5), "Grenade did not launch")
 	_check(near.hp == before[1], "Grenade damaged enemies before arrival")
 	_game.grenade_system._physics_process(0.59)
 	_check(near.hp == before[1], "Grenade damaged enemies before fuse expired")
 	_game.grenade_system._physics_process(0.01)
 	_check(ally.hp == before[0] and far.hp == before[3], "Grenade hit ally or outside radius")
-	_check(before[1] - near.hp == 35 and before[2] - edge.hp == 35, "Grenade AoE damage")
+	_check(before[1] - near.hp == 28 and before[2] - edge.hp == 28, "Grenade AoE damage")
 	_check(
 		near.last_enemy_damage_time == _game.simulation_time, "Grenade bypassed damage bookkeeping"
 	)
-	_check(not grenade.trigger(Vector3(46, 0, 8)), "Grenade bypassed cooldown")
+	grenade.cooldown_left = 12.0
+	_check(not grenade.is_ready(), "Grenade bypassed cooldown")
 	infantry.abilities._physics_process(12.5)
 	_check(grenade.cooldown_left == 0 and grenade.is_ready(), "Grenade cooldown failed to clamp")
 

@@ -86,7 +86,10 @@ func _preview(faction):
 	camera.set_physics_process(false)
 	await _frames(12)
 	_check(
-		infantry.abilities.trigger("frag_grenade", Vector3(46, 0, 24)), "Preview grenade rejected"
+		_game.grenade_system.launch(infantry, Vector3(46, 0, 24), 3.5), "Preview grenade rejected"
+	)
+	_game.combat_effects.grenade_flight(
+		infantry.global_position, Vector3(46, 0, 24), 0.6, infantry.player
 	)
 	_check(tank.abilities.trigger("smoke_screen"), "Preview smoke rejected")
 	_check(siege.abilities.trigger("siege_anchor"), "Preview anchor rejected")

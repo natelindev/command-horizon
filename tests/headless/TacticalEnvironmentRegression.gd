@@ -203,10 +203,12 @@ func _breaching():
 	var infantry = _held("Infantry", human, Vector3(142, 0, 100))
 	await _frames(5)
 	_check(
-		infantry.abilities.trigger("frag_grenade", grenade_barrier.global_position),
-		"Frag grenade failed"
+		not infantry.abilities.trigger(
+			"frag_grenade", grenade_barrier.global_position, grenade_barrier
+		),
+		"Frag grenade accepted non-garrisoned obstacle"
 	)
-	_near(grenade_barrier.hp, 45.0, "Frag grenade did not damage obstacle")
+	_check(grenade_barrier.hp == 80.0, "Barricade was damaged by rejected grenade")
 	for node in [barrier, light, driving, driver, grenade_barrier, tank, infantry]:
 		node.queue_free()
 	await _frames(5)

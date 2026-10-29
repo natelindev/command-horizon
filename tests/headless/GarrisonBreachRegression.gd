@@ -109,10 +109,10 @@ func _breach(building):
 	game.grenade_system._physics_process(0.01)
 	_check(building.player == enemy, "Breach changed building ownership")
 	_check(
-		troops[1].hp == 67.5 and troops[1].shields == 0.0, "Breach ignored shields or wrong damage"
+		troops[1].hp == 78.0 and troops[1].shields == 0.0, "Breach ignored shields or wrong damage"
 	)
-	_check(troops[2].hp == 47.5, "Breach did not deal52.5 exactly once")
-	_check(exterior.hp == 65 and ally.hp == 100, "Exterior damage/allied immunity")
+	_check(troops[2].hp == 58.0, "Breach did not deal 42.0 exactly once")
+	_check(exterior.hp == 72 and ally.hp == 100, "Exterior damage/allied immunity")
 	_check(troops[2].suppression.meter == 0.0, "Breach added suppression")
 	_check(building.pending_evacuations.is_empty(), "Open exits remained pending")
 	for index in range(1, troops.size()):

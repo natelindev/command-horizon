@@ -228,7 +228,15 @@ func _commit_ability(point, target) -> bool:
 	var unit = units[0]
 	var ability = unit.abilities.get_ability(ability_id)
 	if ability.target_type == "target_unit" and target != null:
-		if (
+		if ability_id == "frag_grenade":
+			if (
+				not is_instance_valid(target)
+				or not target.has_method("evacuate_breached")
+				or not unit.abilities._valid_breach(target)
+			):
+				prompt("Choose an occupied enemy building to breach.")
+				return false
+		elif (
 			not is_instance_valid(target)
 			or not target is Node3D
 			or not "player" in target
@@ -239,7 +247,10 @@ func _commit_ability(point, target) -> bool:
 			return false
 		point = target.global_position
 	elif ability.target_type == "target_unit" and not ability.accepts_target_point:
-		prompt("Choose a visible enemy target.")
+		if ability_id == "frag_grenade":
+			prompt("Choose an occupied enemy building to breach.")
+		else:
+			prompt("Choose a visible enemy target.")
 		return false
 	else:
 		target = null
@@ -271,6 +282,8 @@ func _commit_ability(point, target) -> bool:
 	if not accepted:
 		if ability_id == "dismantle_barrier":
 			prompt("Choose one of your field barricades.")
+		elif ability_id == "frag_grenade":
+			prompt("Choose an occupied enemy building to breach.")
 		elif ability_id in ["field_barricade", "scrap_mine"]:
 			prompt(
 				hud.get_parent().engineering.placement_error(

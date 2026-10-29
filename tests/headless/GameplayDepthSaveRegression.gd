@@ -47,9 +47,10 @@ func _bastion_slice():
 	soldier.regarrison_lock_left = 1.25
 	soldier.damage_visual_band = 1
 	_check(
-		soldier.abilities.trigger("frag_grenade", victim.global_position),
+		_game.grenade_system.launch(soldier, victim.global_position, 3.5),
 		"Save fixture grenade rejected"
 	)
+	soldier.abilities.get_ability("frag_grenade").cooldown_left = 12.0
 	_game.grenade_system._physics_process(0.25)
 	var round = _game.projectile_system.launch(hero, infantry)
 	_game.projectile_system._suppress_nearby(
@@ -143,11 +144,11 @@ func _bastion_slice():
 	_check(victim.hp == hp, "Restored grenade fired early")
 	_game.grenade_system._physics_process(0.02)
 	_check(
-		victim.hp == hp - 35.0 and _game.grenade_system.pending.is_empty(),
+		victim.hp == hp - 28.0 and _game.grenade_system.pending.is_empty(),
 		"Restored grenade did not resolve once"
 	)
 	_game.grenade_system._physics_process(1.0)
-	_check(victim.hp == hp - 35.0, "Restored grenade resolved twice")
+	_check(victim.hp == hp - 28.0, "Restored grenade resolved twice")
 	_game.commander_support._physics_process(10.0)
 	_check(_game.commander_support.pending.is_empty(), "Restored barrage did not complete")
 	await _close_paused()
