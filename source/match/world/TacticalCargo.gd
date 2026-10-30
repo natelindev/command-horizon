@@ -9,7 +9,10 @@ var manager = null
 var kind = "supply"
 var record_id = ""
 var consumed = false
-var public_marker = false
+var public_marker = false:
+	set(value):
+		public_marker = value
+		_sync_beacon()
 
 
 func _ready():
@@ -33,6 +36,7 @@ func _ready():
 		Models.cargo(_model, color, kind == "repair")
 	_model_origin = _model.position
 	_model_scale = _model.scale
+	_sync_beacon()
 	_refresh_visibility()
 
 
@@ -104,6 +108,18 @@ func _refresh_visibility():
 	else:
 		refresh_visibility(_match)
 		visible = visible and not consumed
+
+
+func _sync_beacon():
+	if not is_inside_tree():
+		return
+	if public_marker and kind in ["supply", "radar"]:
+		if not has_node("TacticalBeacon"):
+			var beacon = load("res://source/match/world/TacticalBeacon.gd").new()
+			beacon.name = "TacticalBeacon"
+			add_child(beacon)
+	elif has_node("TacticalBeacon"):
+		get_node("TacticalBeacon").queue_free()
 
 
 func dismiss():

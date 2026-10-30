@@ -16,6 +16,7 @@ var technology_panel = null
 var research_status
 var commander_roster
 var ability_tray = null
+var event_edge_indicators = null
 ## Top-right console plate: mission clock, system keys and the alerts beacon slot.
 var system_plate: PanelContainer
 var alert_slot: Control
@@ -145,6 +146,10 @@ func _ready():
 	ability_tray = load("res://source/match/hud/AbilityTray.gd").new()
 	ability_tray.hud = self
 	add_child(ability_tray)
+	event_edge_indicators = load("res://source/match/hud/EventEdgeIndicators.gd").new()
+	event_edge_indicators.name = "EventEdgeIndicators"
+	event_edge_indicators.hud = self
+	add_child(event_edge_indicators)
 
 
 func _style(panel):
