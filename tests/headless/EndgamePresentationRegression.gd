@@ -90,7 +90,13 @@ func _run():
 		presentation.inspecting and paused and not game.fog_of_war.visible,
 		"Inspection did not freeze/reveal battlefield"
 	)
-	_check(not game.get_node("HUD").visible, "Inspection left interactive battle HUD visible")
+	_check(game.get_node("HUD").visible and presentation._inspection_minimap.visible, "Inspection hid minimap")
+	_check(not presentation._minimap_fog.visible, "Inspection minimap retained fog")
+	var restored_opponent = get_nodes_in_group("players").filter(func(side): return side != game._get_human_player())[0]
+	var inspected_hq = _units(restored_opponent, "CommandCenter")[0]
+	presentation._inspect_unit(inspected_hq)
+	_check(inspected_hq.is_in_group("selected_units"), "Inspection could not select an enemy")
+	_check("HP" in presentation._inspection_stats.text, "Inspection did not show unit stats")
 	_check(
 		not game.hud._overlay.get_child(0).visible,
 		"Results canvas still covers inspected battlefield"

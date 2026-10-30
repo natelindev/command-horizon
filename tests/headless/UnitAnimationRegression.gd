@@ -92,12 +92,12 @@ func _test_authored_body_transform():
 	unit.queue_free()
 
 
-func _fixture(faction):
+func _fixture(faction, map_name = "BastionDesert"):
 	var constants = root.get_node("Constants")
 	var settings = load("res://source/data-model/MatchSettings.gd").new()
 	settings.skirmish = true
 	settings.visibility = settings.Visibility.FULL
-	settings.map_path = "res://source/match/maps/BastionDesert.tscn"
+	settings.map_path = "res://source/match/maps/%s.tscn" % map_name
 	for side in range(2):
 		var player = load("res://source/data-model/PlayerSettings.gd").new()
 		player.controller = (

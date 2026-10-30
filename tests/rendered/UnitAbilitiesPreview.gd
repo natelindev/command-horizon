@@ -85,11 +85,15 @@ func _preview(faction):
 	camera.set_size_safely(26)
 	camera.set_physics_process(false)
 	await _frames(12)
+	var fixture = load("res://tests/headless/GrenadeFixture.gd")
+	var building = fixture.building(_game, Vector3(46, 0, 24))
+	var opponent = get_nodes_in_group("players").filter(func(side): return side != _human)[0]
+	var occupant = _spawn("Infantry", opponent, Vector3(46, 0, 24))
+	_check(fixture.occupy(building, occupant), "Preview garrison rejected")
+	_game.battlefield.invalidate()
 	_check(
-		_game.grenade_system.launch(infantry, Vector3(46, 0, 24), 3.5), "Preview grenade rejected"
-	)
-	_game.combat_effects.grenade_flight(
-		infantry.global_position, Vector3(46, 0, 24), 0.6, infantry.player
+		infantry.abilities.trigger("frag_grenade", building.global_position, building),
+		"Preview grenade rejected"
 	)
 	_check(tank.abilities.trigger("smoke_screen"), "Preview smoke rejected")
 	_check(siege.abilities.trigger("siege_anchor"), "Preview anchor rejected")

@@ -12,9 +12,6 @@ const DAMAGE_HOLD = .24
 const DAMAGE_DECAY = .6
 # Dark frame thickness in bar pixels on every side, for contrast against bright ground.
 const FRAME = 2
-const PIP_WIDTH = 14
-const PIP_GAP = 2
-const UNDERLINE_HEIGHT = 3
 
 @export var size = Vector2(200, 20):
 	set(value):
@@ -38,7 +35,6 @@ var _damage_speed = 0.0
 var _drawn_damage_pixels = -1
 var _drawn_health_pixels = -1
 var _drawn_health_color = Color.TRANSPARENT
-var _drawn_team_color = null
 var _selected = false
 var _image: Image
 var _texture: ImageTexture
@@ -113,17 +109,8 @@ func _update_mode_visibility():
 				hide()
 
 
-func _team_color():
-	if _unit != null and is_instance_valid(_unit) and "player" in _unit:
-		var p = _unit.player
-		if p != null and is_instance_valid(p) and "color" in p:
-			return p.color
-	return null
-
-
 func _track_width() -> int:
-	var width = int(size.x)
-	return width - PIP_WIDTH - PIP_GAP if _team_color() != null else width
+	return int(size.x)
 
 
 func _recalulate_bar_value():
@@ -154,21 +141,12 @@ func _recalulate_bar_value():
 func _draw_bar():
 	var width = int(size.x)
 	var height = int(size.y)
-	var team_color = _team_color()
 	var track_x = FRAME
 	var track_width = width
 	var hp_height = height
-	if team_color != null:
-		track_x = FRAME + PIP_WIDTH + PIP_GAP
-		track_width = width - PIP_WIDTH - PIP_GAP
-		hp_height = height - UNDERLINE_HEIGHT - 1
 	var damage_filled = roundi(track_width * _damage_value)
 	var filled = roundi(track_width * _value)
 	var health_color = _health_color(_value)
-	var team_matches = (
-		(team_color == null and _drawn_team_color == null)
-		or (team_color != null and _drawn_team_color != null and _drawn_team_color == team_color)
-	)
 	# Damage can be smaller than a bar pixel. Preserve real HP and visibility,
 	# without refilling and uploading an identical texture on every bullet hit.
 	if (
@@ -176,7 +154,6 @@ func _draw_bar():
 		and _drawn_damage_pixels == damage_filled
 		and _drawn_health_pixels == filled
 		and _drawn_health_color == health_color
-		and team_matches
 	):
 		return
 	if _image == null:
@@ -185,15 +162,6 @@ func _draw_bar():
 	_drawn_damage_pixels = damage_filled
 	_drawn_health_pixels = filled
 	_drawn_health_color = health_color
-	_drawn_team_color = team_color
-
-	if team_color != null:
-		# Solid team ownership pip on the left
-		_image.fill_rect(Rect2i(FRAME, FRAME, PIP_WIDTH, height), team_color)
-		# Continuous team ownership underline beneath the health track
-		_image.fill_rect(
-			Rect2i(track_x, FRAME + hp_height + 1, track_width, UNDERLINE_HEIGHT), team_color
-		)
 
 	_image.fill_rect(Rect2i(track_x, FRAME, track_width, hp_height), MISSING)
 	if damage_filled > 0:

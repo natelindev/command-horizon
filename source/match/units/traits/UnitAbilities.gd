@@ -122,11 +122,7 @@ func trigger(id: String, target_point: Vector3 = Vector3.INF, target_unit: Node 
 			return false
 		target_point = target_unit.global_position
 	elif ability.id == "frag_grenade":
-		if (
-			target_unit == null
-			or not target_unit.has_method("evacuate_breached")
-			or not _valid_breach(target_unit)
-		):
+		if not _valid_breach(target_unit):
 			return false
 		var radial = (unit.global_position - target_unit.global_position) * Vector3(1, 0, 1)
 		target_point = target_unit.global_position + radial.normalized() * target_unit.radius
@@ -180,16 +176,7 @@ func _execute(ability, point: Vector3, target: Node) -> bool:
 			var game = unit.find_parent("Match")
 			if game == null or game.grenade_system == null:
 				return false
-			return game.grenade_system.launch(
-				unit,
-				point,
-				ability.radius,
-				(
-					target
-					if is_instance_valid(target) and target.has_method("evacuate_breached")
-					else null
-				)
-			)
+			return game.grenade_system.launch(unit, point, ability.radius, target)
 		"dismantle_barrier":
 			return unit._match.engineering.request_dismantle(unit, target)
 		"power_overdrive":
@@ -330,7 +317,9 @@ func _valid_breach(target) -> bool:
 	var game = unit.find_parent("Match")
 	return (
 		is_instance_valid(target)
+		and target.is_in_group("neutral_buildings")
 		and target.has_method("evacuate_breached")
+		and target.habitable
 		and target.hp > 0.0
 		and not target.occupants.is_empty()
 		and target.player != null

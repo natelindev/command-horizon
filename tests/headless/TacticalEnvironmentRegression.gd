@@ -33,7 +33,7 @@ func _run():
 	for message in _errors:
 		push_error(message)
 	print("Tactical environment: %d failures" % _errors.size())
-	quit(0 if _errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if _errors.is_empty() else 1)
 
 
 func _create_match():
@@ -206,9 +206,9 @@ func _breaching():
 		not infantry.abilities.trigger(
 			"frag_grenade", grenade_barrier.global_position, grenade_barrier
 		),
-		"Frag grenade accepted non-garrisoned obstacle"
+		"Frag grenade accepted an ungarrisoned obstacle"
 	)
-	_check(grenade_barrier.hp == 80.0, "Barricade was damaged by rejected grenade")
+	_near(grenade_barrier.hp, 80.0, "Rejected frag grenade damaged obstacle")
 	for node in [barrier, light, driving, driver, grenade_barrier, tank, infantry]:
 		node.queue_free()
 	await _frames(5)

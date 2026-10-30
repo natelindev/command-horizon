@@ -142,6 +142,21 @@ func _test_command_card():
 				ability.cooldown
 			]
 		)
+		if ability.id == "frag_grenade":
+			description = (
+				tr("%s [%s]\n%s\nRange: %.1f m · Cooldown: %.1f s")
+				% [
+					tr(ability.name),
+					ability.key,
+					tr(ability.description),
+					ability.range,
+					ability.cooldown
+				]
+			)
+			_check(
+				not slot.tooltip_text.contains("Radius:"),
+				"Garrison frag advertises exterior radius"
+			)
 		_check(slot.tooltip_text.contains(description), "Incomplete ability tooltip")
 	_check(
 		card._slots[2][3].disabled and card._slots[2][3].badge.is_empty(),
@@ -191,6 +206,10 @@ func _test_ability_orders():
 	var first = _spawn("Infantry", _human, Vector3(40, 0, 8))
 	var second = _spawn("Infantry", _human, Vector3(40, 0, 10))
 	var enemy = _spawn("Tank", _enemy, Vector3(46, 0, 8))
+	var fixture = load("res://tests/headless/GrenadeFixture.gd")
+	var building = fixture.building(_game, Vector3(46, 0, 11))
+	var occupant = _spawn("Infantry", _enemy, Vector3(46, 0, 11))
+	_check(fixture.occupy(building, occupant), "Order fixture garrison rejected")
 	await _select_ability_units([first, second])
 	var commands = _game.hud.direct_orders
 	_check(commands.handle_input(_ability_key(KEY_Q)), "Q hotkey was not handled")
@@ -214,15 +233,26 @@ func _test_ability_orders():
 		commands.kind == "ability" and first.abilities.get_ability("frag_grenade").is_ready(),
 		"Rejected target consumed ability or targeting"
 	)
-	_check(not commands.commit(enemy.global_position, null, false), "Grenade accepted map point")
-	_check(
-		not commands.commit(enemy.global_position, enemy, false),
-		"Grenade accepted non-garrison target"
-	)
+	var enemy_hp_before_grenade = enemy.hp
+	var occupant_hp = occupant.hp
+	_check(not commands.commit(enemy.global_position, null, false), "Grenade accepted ground point")
+	_check(not commands.commit(enemy.global_position, enemy, false), "Grenade accepted tank")
 	_check(
 		commands.kind == "ability" and first.abilities.get_ability("frag_grenade").is_ready(),
 		"Rejected non-garrison target consumed ability or targeting"
 	)
+	_check(commands.commit(building.global_position, building, false), "Garrison target rejected")
+	commands.arm_ability("frag_grenade")
+	_check(
+		commands.commit(building.global_position, building, true),
+		"Next ready caster was not selected"
+	)
+	_check(_game.grenade_system.pending.size() == 2, "Next ready caster did not throw")
+	_game.grenade_system._physics_process(0.6)
+	_check(enemy.hp == enemy_hp_before_grenade, "Garrison grenade damaged exterior tank")
+	_check(occupant.hp == occupant_hp - 15, "Follow-up grenade hit evacuated occupant")
+	first.abilities.restore({})
+	commands.arm_ability("frag_grenade")
 	var right = InputEventMouseButton.new()
 	right.button_index = MOUSE_BUTTON_RIGHT
 	right.pressed = true
@@ -254,11 +284,12 @@ func _test_ability_orders():
 	_check(commands.handle_input(click), "Ability map click was not handled")
 	_check(
 		commands.kind == "ability" and first.abilities.get_ability("frag_grenade").is_ready(),
-		"Map click executed building-only grenade"
+		"Map click executed a garrison-only ability"
 	)
 	click.pressed = false
 	commands.handle_input(click)
 	commands.cancel()
+	first.abilities.restore({})
 	commands.arm_ability("frag_grenade")
 	await _select_ability_units([second])
 	_check(commands.kind.is_empty(), "Selection change retained armed ability")
@@ -342,6 +373,7 @@ func _test_ability_orders():
 	rocket.abilities.restore({})
 	commands.arm_ability("guided_salvo")
 	_check(commands.commit(Vector3(46, 0, 8), null, false), "Salvo ground-point fallback rejected")
+	building.get_parent().queue_free()
 	await _select_ability_units([])
 	_check(
 		not commands.handle_input(_ability_key(KEY_Q)), "Q consumed without an ability selection"
@@ -392,31 +424,39 @@ func _test_grenade():
 	var near = _spawn("Tank", _enemy, Vector3(46, 0, 8))
 	var edge = _spawn("Tank", _enemy, Vector3(49.4, 0, 8))
 	var far = _spawn("Tank", _enemy, Vector3(50, 0, 8))
+	var fixture = load("res://tests/headless/GrenadeFixture.gd")
+	var building = fixture.building(_game, Vector3(46, 0, 10))
+	var occupant = _spawn("Infantry", _enemy, Vector3(46, 0, 10))
 	await _frames(5)
 	var grenade = infantry.abilities.get_ability("frag_grenade")
 	_check(not grenade.trigger(), "Grenade accepted a missing point")
 	_check(not grenade.trigger(Vector3.INF), "Grenade accepted a nonfinite point")
 	_check(not grenade.trigger(Vector3(51, 0, 8)), "Grenade exceeded 10 m range")
+	_check(
+		not grenade.trigger(building.global_position, building), "Grenade accepted empty building"
+	)
+	_check(not grenade.trigger(near.global_position, near), "Grenade accepted armor")
 	_check(grenade.cooldown_left == 0, "Rejected cast consumed cooldown")
-	_check(not grenade.trigger(Vector3(46, 0, 8)), "Grenade accepted open ground")
-	_check(not grenade.trigger(Vector3(46, 0, 8), near), "Grenade accepted enemy tank")
-	_check(not grenade.trigger(Vector3(46, 0, 8), ally), "Grenade accepted ally")
-	_check(grenade.cooldown_left == 0, "Rejected unit target consumed cooldown")
+	_check(fixture.occupy(building, occupant), "Grenade fixture garrison rejected")
+	var occupant_hp = occupant.hp
 	var before = [ally.hp, near.hp, edge.hp, far.hp]
-	_check(_game.grenade_system.launch(infantry, Vector3(46, 0, 8), 3.5), "Grenade did not launch")
+	_check(grenade.trigger(building.global_position, building), "Grenade did not trigger")
 	_check(near.hp == before[1], "Grenade damaged enemies before arrival")
 	_game.grenade_system._physics_process(0.59)
 	_check(near.hp == before[1], "Grenade damaged enemies before fuse expired")
 	_game.grenade_system._physics_process(0.01)
 	_check(ally.hp == before[0] and far.hp == before[3], "Grenade hit ally or outside radius")
-	_check(before[1] - near.hp == 28 and before[2] - edge.hp == 28, "Grenade AoE damage")
+	_check(before[1] == near.hp and before[2] == edge.hp, "Grenade hit exterior armor")
+	_check(occupant_hp - occupant.hp == 15, "Grenade garrison damage")
 	_check(
-		near.last_enemy_damage_time == _game.simulation_time, "Grenade bypassed damage bookkeeping"
+		occupant.last_enemy_damage_time == _game.simulation_time,
+		"Grenade bypassed damage bookkeeping"
 	)
 	grenade.cooldown_left = 12.0
 	_check(not grenade.is_ready(), "Grenade bypassed cooldown")
 	infantry.abilities._physics_process(12.5)
 	_check(grenade.cooldown_left == 0 and grenade.is_ready(), "Grenade cooldown failed to clamp")
+	building.get_parent().queue_free()
 
 
 func _test_timed_effects():

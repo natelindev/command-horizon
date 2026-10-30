@@ -463,20 +463,20 @@ func _test_repair():
 		robot.get_node("Movement").stop()
 		robot.get_node("Movement").set_physics_process(false)
 	service.service(1.0)
-	_check(is_equal_approx(tank.hp, 22.0), "Ten robots stacked healing instead of one 2.5% channel")
+	_check(is_equal_approx(tank.hp, 20.0 + tank.hp_max * 0.025), "Ten robots stacked healing instead of one 2.5% channel")
 	var depot = _spawn("RepairDepot", _human, Vector3(40, 0, 11))
 	depot.process_mode = Node.PROCESS_MODE_PAUSABLE
 	tank.global_position = depot.service_point(tank)
 	for robot in robots:
 		robot.global_position = tank.global_position + Vector3(0, 0, 1)
 	service.service(1.0)
-	_check(is_equal_approx(tank.hp, 25.2), "Depot and mobile channel stacked")
+	_check(is_equal_approx(tank.hp, 20.0 + tank.hp_max * (0.025 + 0.04)), "Depot and mobile channel stacked")
 	# Under low power the stronger robot channel must win over a slowed depot.
 	var power_consumer = _spawn("AircraftFactory", _human, Vector3(30, 0, 10))
 	var power_consumer2 = _spawn("AircraftFactory", _human, Vector3(30, 0, 15))
 	var power_consumer3 = _spawn("AircraftFactory", _human, Vector3(30, 0, 20))
 	service.service(1.0)
-	_check(is_equal_approx(tank.hp, 27.2), "Low-power service beat stronger mobile repair")
+	_check(is_equal_approx(tank.hp, 20.0 + tank.hp_max * (0.025 + 0.04 + 0.025)), "Low-power service beat stronger mobile repair")
 	for building in [power_consumer, power_consumer2, power_consumer3]:
 		building.queue_free()
 	var attacker = _spawn("Infantry", _enemy, Vector3(43, 0, 8))
@@ -484,13 +484,13 @@ func _test_repair():
 	var before = tank.hp
 	service.service(1.0)
 	_check(
-		is_equal_approx(tank.hp - before, 0.8), "Recent enemy damage did not reduce repair to 25%"
+		is_equal_approx(tank.hp - before, tank.hp_max * 0.04 * 0.25), "Recent enemy damage did not reduce repair to 25%"
 	)
 	_game.simulation_time += 3.01
 	before = tank.hp
 	service.service(1.0)
 	_check(
-		is_equal_approx(tank.hp - before, 3.2),
+		is_equal_approx(tank.hp - before, tank.hp_max * 0.04),
 		"Repair suppression failed to expire on simulation time"
 	)
 	for robot in robots:

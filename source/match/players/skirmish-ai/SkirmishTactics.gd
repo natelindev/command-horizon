@@ -84,6 +84,7 @@ static func _withdraw_suppressed(game, _player, units, observed, claimed):
 
 
 static func _use_grenades(game, player, units, _observed):
+	# Frags clear hostile garrisons using the same checks as player commands.
 	for unit in units:
 		if unit.abilities == null:
 			continue
@@ -97,20 +98,6 @@ static func _use_grenades(game, player, units, _observed):
 			):
 				if unit.abilities.trigger("frag_grenade", building.global_position, building):
 					break
-
-
-static func _grenade_clusters(game, observed) -> Array:
-	var ground = {}
-	for contact in observed:
-		if contact.combat_domain() == 1:
-			ground[contact] = true
-	var result = []
-	for contact in ground:
-		for neighbor in game.battlefield.nearby_units(contact.global_position, 3.0):
-			if neighbor != contact and ground.has(neighbor):
-				result.append(contact)
-				break
-	return result
 
 
 static func _overdrive(game, player, units):

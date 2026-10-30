@@ -10,6 +10,7 @@ func _run():
 	game.grenade_system.set_physics_process(false)
 	var building = game.get_node("NeutralWorld").buildings.filter(func(item): return item.habitable)[0]
 	_short_throw_terrain()
+	await _restrictions_and_ai(building)
 	await _breach(building)
 	await _blocked_exit(building)
 	await _close()
@@ -42,6 +43,97 @@ func _short_throw_terrain():
 		"Short grenade throw passed through raised ground"
 	)
 	abilities.free()
+
+
+func _restrictions_and_ai(building):
+	var human = game._get_human_player()
+	var enemy = get_nodes_in_group("players").filter(func(side): return side != human)[0]
+	var thrower = _thrower(building, enemy)
+	_check(thrower != null, "No clear AI throw fixture")
+	if thrower == null:
+		return
+	var occupant = _soldier(human, thrower.global_position + Vector3(0, 0, 0.5), 22.0)
+	var exterior = _soldier(human, thrower.global_position + Vector3(0, 0, -0.5))
+	var tank = load("res://source/match/units/Tank.tscn").instantiate()
+	game._setup_and_spawn_unit(tank, Transform3D(Basis(), thrower.global_position), human, false)
+	tank.process_mode = Node.PROCESS_MODE_DISABLED
+	await _frames(3)
+	game.battlefield.invalidate()
+	var ability = thrower.abilities.get_ability("frag_grenade")
+	_check(not ability.accepts_target_point, "Frag still allows ground targeting")
+	_check(not ability.trigger(building.global_position, building), "Frag accepted empty building")
+	_check(
+		not ability.trigger(exterior.global_position, exterior), "Frag accepted exterior infantry"
+	)
+	_check(not ability.trigger(tank.global_position, tank), "Frag accepted tank")
+	_check(not ability.trigger(building.global_position), "Frag accepted ground point")
+	_check(
+		not game.grenade_system.launch(thrower, exterior.global_position, 3.5),
+		"Direct launch bypassed garrison restriction"
+	)
+	_check(
+		ability.is_ready() and game.grenade_system.pending.is_empty(),
+		"Rejected cast consumed cooldown"
+	)
+	var tactics = load("res://source/match/players/skirmish-ai/SkirmishTactics.gd")
+	tactics._use_grenades(game, enemy, [thrower], [occupant, exterior, tank])
+	_check(game.grenade_system.pending.is_empty(), "AI threw at open-ground cluster")
+	_check(building.enter(occupant), "AI fixture garrison rejected")
+	var teams = [human.team, enemy.team]
+	human.team = 7
+	enemy.team = 7
+	_check(not ability.trigger(building.global_position, building), "Frag accepted allied garrison")
+	human.team = teams[0]
+	enemy.team = teams[1]
+	var position_before = thrower.global_position
+	thrower.global_position += Vector3(30, 0, 0)
+	_check(not ability.trigger(building.global_position, building), "Frag exceeded throw range")
+	thrower.global_position = position_before
+	game.battlefield.invalidate()
+	tactics._use_grenades(game, enemy, [thrower], [])
+	_check(game.grenade_system.pending.size() == 1, "AI did not throw at hostile garrison")
+	_check(not ability.is_ready(), "AI throw bypassed cooldown")
+	var hull = building.hp
+	var tank_hp = tank.hp
+	game.grenade_system._physics_process(0.6)
+	_check(occupant.hp == 7.0, "AI frag did not use reduced 15 damage")
+	_check(not occupant.has_meta("garrison_host"), "AI frag did not evacuate survivor")
+	_check(
+		building.hp == hull and tank.hp == tank_hp and exterior.hp == 100,
+		"AI frag caused exterior damage"
+	)
+	# A committed throw cannot damage soldiers who leave before impact.
+	occupant.regarrison_lock_left = 0.0
+	_check(building.enter(occupant), "Vacated-building fixture garrison rejected")
+	thrower.abilities.restore({})
+	_check(ability.trigger(building.global_position, building), "Vacated-building throw rejected")
+	building.leave(occupant)
+	game.grenade_system._physics_process(0.6)
+	_check(
+		occupant.hp == 7.0 and building.hp == hull, "Frag damaged an evacuated building or troop"
+	)
+	# Current-version archives can contain old ground throws; those are harmless.
+	_check(building.enter(occupant), "Legacy throw fixture garrison rejected")
+	thrower.abilities.restore({})
+	_check(ability.trigger(building.global_position, building), "Legacy fixture throw rejected")
+	var entities = {"player": enemy, "thrower": thrower, "building": building}
+	var reference = func(node):
+		for key in entities:
+			if entities[key] == node:
+				return key
+		return ""
+	var saved = game.grenade_system.capture(reference)
+	saved.pending[0].building = ""
+	game.grenade_system.restore(saved, entities)
+	game.grenade_system._physics_process(0.6)
+	_check(
+		occupant.hp == 7.0 and exterior.hp == 100 and tank.hp == tank_hp,
+		"Old ground throw caused damage"
+	)
+	building.leave(occupant)
+	for unit in [thrower, occupant, exterior, tank]:
+		unit.queue_free()
+	await _frames(4)
 
 
 func _soldier(player, point, health = 100.0):
@@ -84,7 +176,7 @@ func _breach(building):
 	await _frames(20)
 	for soldier in troops:
 		_check(building.enter(soldier), "Breach fixture failed to garrison")
-	troops[0].hp = 40.0
+	troops[0].hp = 10.0
 	troops[1].shields_max = 20.0
 	troops[1].shields = 20.0
 	var exterior = _soldier(enemy, thrower.global_position + Vector3(0, 0, 0.5))
@@ -93,7 +185,7 @@ func _breach(building):
 	game.battlefield.invalidate()
 	var ability = thrower.abilities.get_ability("frag_grenade")
 	_check(ability.trigger(building.global_position, building), "Valid hostile garrison rejected")
-	_check(troops[0].hp == 40 and troops[2].hp == 100, "Grenade damaged occupants before arrival")
+	_check(troops[0].hp == 10 and troops[2].hp == 100, "Grenade damaged occupants before arrival")
 	game.grenade_system._physics_process(0.59)
 	_check(troops[2].hp == 100, "Grenade fuse fired early")
 	var entities = {"p0": human, "p1": enemy, "building": building}
@@ -109,10 +201,10 @@ func _breach(building):
 	game.grenade_system._physics_process(0.01)
 	_check(building.player == enemy, "Breach changed building ownership")
 	_check(
-		troops[1].hp == 78.0 and troops[1].shields == 0.0, "Breach ignored shields or wrong damage"
+		troops[1].hp == 100 and troops[1].shields == 5.0, "Breach ignored shields or wrong damage"
 	)
-	_check(troops[2].hp == 58.0, "Breach did not deal 42.0 exactly once")
-	_check(exterior.hp == 72 and ally.hp == 100, "Exterior damage/allied immunity")
+	_check(troops[2].hp == 85, "Breach did not deal 15 exactly once")
+	_check(exterior.hp == 100 and ally.hp == 100, "Garrison grenade damaged exterior troops")
 	_check(troops[2].suppression.meter == 0.0, "Breach added suppression")
 	_check(building.pending_evacuations.is_empty(), "Open exits remained pending")
 	for index in range(1, troops.size()):

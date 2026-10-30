@@ -133,6 +133,9 @@ func _build_operations():
 
 
 func _refresh_operations():
+	var presentation = _match.get_node_or_null("BattlePresentation")
+	if presentation != null and presentation.inspecting:
+		return
 	if not is_instance_valid(_commander_button):
 		return
 	var support = _match.commander_support
@@ -301,6 +304,15 @@ func _issue_movement_action(position_2d_within_texture_rect):
 
 
 func _on_gui_input(event):
+	var presentation = _match.get_node_or_null("BattlePresentation")
+	if presentation != null and presentation.inspecting:
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+			_camera_movement_active = event.pressed
+			if event.pressed:
+				_try_teleporting_camera_based_on_local_texture_rect_position(event.position)
+		elif event is InputEventMouseMotion and _camera_movement_active:
+			_try_teleporting_camera_based_on_local_texture_rect_position(event.position)
+		return
 	if event is InputEventMouseButton:
 		if event.is_pressed() and event.button_index == MOUSE_BUTTON_LEFT:
 			if event.ctrl_pressed:

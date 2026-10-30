@@ -271,6 +271,17 @@ func _refresh_abilities():
 				ability.cooldown
 			]
 		)
+		if slot.id == "frag_grenade":
+			slot.button.tooltip_text = (
+				tr("%s [%s]\n%s\nRange: %.1f m · Cooldown: %.1f s")
+				% [
+					tr(ability.name),
+					ability.key,
+					tr(ability.description),
+					ability.range,
+					ability.cooldown
+				]
+			)
 		if active:
 			var status = tr("Active")
 			if slot.id == "power_overdrive":

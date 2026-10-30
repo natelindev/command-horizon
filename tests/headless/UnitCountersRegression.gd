@@ -1,12 +1,18 @@
 extends "res://tests/headless/SaveRestoreEdges.gd"
 
-const UnitCounters = preload("res://source/match/combat/UnitCounters.gd")
-const Factions = preload("res://source/match/FactionCatalog.gd")
-const Catalog = preload("res://source/match/BastionCatalog.gd")
-const RosterInfo = preload("res://source/match/hud/RosterInfo.gd")
+var UnitCounters
+var Factions
+var Catalog
+var RosterInfo
 
 
 func _run():
+	var original_locale = TranslationServer.get_locale()
+	TranslationServer.set_locale("en")
+	UnitCounters = load("res://source/match/combat/UnitCounters.gd")
+	Factions = load("res://source/match/FactionCatalog.gd")
+	Catalog = load("res://source/match/BastionCatalog.gd")
+	RosterInfo = load("res://source/match/hud/RosterInfo.gd")
 	root.get_node("SaveManager").autosaves_enabled = false
 	_test_definitions()
 	_test_tooltip_formatting()
@@ -15,7 +21,8 @@ func _run():
 	for message in errors:
 		push_error(message)
 	print("Unit counters regression: %d failures" % errors.size())
-	quit(0 if errors.is_empty() else 1)
+	TranslationServer.set_locale(original_locale)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
 
 
 func _test_definitions():

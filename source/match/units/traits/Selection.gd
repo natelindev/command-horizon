@@ -13,6 +13,7 @@ const FACTION_SHADER = preload("res://source/shaders/3d/faction_selection.gdshad
 
 var _selected = false
 var _range_ring = null
+var _show_range = false
 var _animation_time = 0.0
 var _faction_style = -1
 
@@ -49,6 +50,7 @@ func select():
 		_circle.scale = Vector3.ONE * (1.0 if Globals.options.reduced_flashes else 1.15)
 		_circle.show()
 	_refresh_selected_ranges()
+	_update_ground_indicator_visibility()
 	if "selected" in _unit:
 		_unit.selected.emit()
 	var signals = get_node_or_null("/root/MatchSignals")
@@ -95,8 +97,9 @@ func _refresh_selected_ranges():
 			continue
 		if selected.size() == 1 and selection._range_ring == null:
 			selection._setup_range_ring()
+		selection._show_range = selected.size() == 1
 		if selection._range_ring != null:
-			selection._range_ring.visible = selected.size() == 1
+			selection._range_ring.visible = selection._show_range and not selection._on_elevated_ground()
 
 
 func _setup_range_ring():
@@ -135,7 +138,30 @@ func _set_team_footprint_visible(value):
 		footprint.visible = value
 
 
+func _on_elevated_ground() -> bool:
+	if not ("movement_domain" in _unit and "_match" in _unit):
+		return false
+	if _unit.movement_domain != Constants.Match.Navigation.Domain.TERRAIN:
+		return false
+	var game = _unit._match
+	if not is_instance_valid(game) or not is_instance_valid(game.map):
+		return false
+	if not game.map.is_elevated():
+		return false
+	var point = Vector2(_unit.global_position.x, _unit.global_position.z)
+	return game.map.height_at(point) > 0.1
+
+
+func _update_ground_indicator_visibility():
+	var visible_on_ground = not _on_elevated_ground()
+	if _circle != null:
+		_circle.visible = visible_on_ground
+	if _range_ring != null:
+		_range_ring.visible = visible_on_ground and _show_range
+
+
 func _process(delta):
+	_update_ground_indicator_visibility()
 	if _circle == null or _circle._plane == null:
 		return
 	_animation_time += delta

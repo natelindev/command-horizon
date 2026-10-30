@@ -178,11 +178,11 @@ static func format_tooltip(role: String, faction: String = "") -> String:
 	var weak: Array = entry.get("countered_by", [])
 	var lines = PackedStringArray()
 	if not strong.is_empty():
-		var names = strong.map(func(r): return tr(_title(r, faction)))
-		lines.append(tr("Strong vs: %s") % ", ".join(names))
+		var names = strong.map(func(r): return TranslationServer.translate(_title(r, faction)))
+		lines.append(TranslationServer.translate("Strong vs: %s") % ", ".join(names))
 	if not weak.is_empty():
-		var names = weak.map(func(r): return tr(_title(r, faction)))
-		lines.append(tr("Countered by: %s") % ", ".join(names))
+		var names = weak.map(func(r): return TranslationServer.translate(_title(r, faction)))
+		lines.append(TranslationServer.translate("Countered by: %s") % ", ".join(names))
 	return "\n".join(lines)
 
 
@@ -193,13 +193,13 @@ static func format_facts(role: String, faction: String = "") -> Array:
 	var facts = []
 	var label: String = entry.get("role_label", "")
 	if not label.is_empty():
-		facts.append(tr("Role: %s") % tr(label))
+		facts.append(TranslationServer.translate("Role: %s") % TranslationServer.translate(label))
 	var strong: Array = entry.get("strong_against", [])
 	if not strong.is_empty():
-		var names = strong.map(func(r): return tr(_title(r, faction)))
-		facts.append(tr("Strong vs: %s") % ", ".join(names))
+		var names = strong.map(func(r): return TranslationServer.translate(_title(r, faction)))
+		facts.append(TranslationServer.translate("Strong vs: %s") % ", ".join(names))
 	var weak: Array = entry.get("countered_by", [])
 	if not weak.is_empty():
-		var names = weak.map(func(r): return tr(_title(r, faction)))
-		facts.append(tr("Countered by: %s") % ", ".join(names))
+		var names = weak.map(func(r): return TranslationServer.translate(_title(r, faction)))
+		facts.append(TranslationServer.translate("Countered by: %s") % ", ".join(names))
 	return facts

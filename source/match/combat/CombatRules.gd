@@ -305,7 +305,7 @@ static func damage_with_facts(facts: DamageFacts, target) -> float:
 	var factor: float = target.signature.damage_factor() if target.signature != null else 1.0
 	factor *= smoke_damage_factor(target)
 	factor *= target_flare_damage_factor(target)
-	if target.abilities != null and target.abilities.is_active("shield_wall"):
+	if "abilities" in target and target.abilities != null and target.abilities.is_active("shield_wall"):
 		factor *= 0.6
 	var elevation: float = 0.0
 	if not facts.airborne and not airborne:

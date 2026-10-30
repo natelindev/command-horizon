@@ -20,12 +20,17 @@ func _init(unit):
 	cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	var diameter = maxf(.5, unit.radius * SPREAD)
 	scale = Vector3(diameter, 1.0, diameter)
-	if _unit.has_node("AirToTerrainMarker"):
-		set_process(true)
-	else:
-		set_process(false)
+	set_process(true)
 
 
 func _process(_delta):
-	if _unit != null and is_instance_valid(_unit):
-		position.y = -_unit.position.y
+	if not is_instance_valid(_unit):
+		return
+	var selection = _unit.get_node_or_null("Selection")
+	var elevated = selection != null and selection._on_elevated_ground()
+	visible = not _unit.is_in_group("selected_units") and not elevated
+	if _unit.has_node("AirToTerrainMarker"):
+		var ground = 0.0
+		if "_match" in _unit and is_instance_valid(_unit._match) and is_instance_valid(_unit._match.map):
+			ground = _unit._match.map.height_at(Vector2(_unit.global_position.x, _unit.global_position.z))
+		position.y = ground - _unit.global_position.y

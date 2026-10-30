@@ -51,6 +51,9 @@ func _run():
 	options.apply()
 	presentation.inspect_battlefield()
 	await _capture("inspection-720p")
+	var worker = _units(game._get_human_player(), "Worker")[0]
+	presentation._inspect_unit(worker)
+	await _capture("inspection-selected-720p")
 	root.size = Vector2i(1920, 1080)
 	root.content_scale_size = root.size
 	await _capture("inspection-1080p")

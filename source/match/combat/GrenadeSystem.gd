@@ -2,8 +2,7 @@ extends Node
 
 ## A throw commits its payload independently of the thrower's lifetime.
 const FUSE = 0.6
-const DAMAGE = 28.0
-const BREACH_DAMAGE = 42.0
+const BREACH_DAMAGE = 15.0
 const Shot = preload("res://source/match/combat/Shot.gd")
 var serial: int = 0
 var pending: Array = []
@@ -11,8 +10,10 @@ var pending: Array = []
 
 
 func launch(unit, point: Vector3, radius: float, building = null) -> bool:
+	if unit.abilities == null or not unit.abilities._valid_breach(building):
+		return false
 	var shot = Shot.from(unit, unit.global_position)
-	shot.attack_damage = DAMAGE
+	shot.attack_damage = BREACH_DAMAGE
 	shot.raw_damage = true
 	shot.force_attack = false
 	pending.append(
@@ -51,30 +52,23 @@ func _enemy(shot, target) -> bool:
 
 func _impact(grenade):
 	var building = grenade.building.get_ref() if grenade.building != null else null
-	var hit = {}
-	if is_instance_valid(building) and building.hp > 0.0:
+	if (
+		is_instance_valid(building)
+		and building.is_in_group("neutral_buildings")
+		and building.habitable
+		and building.hp > 0.0
+	):
 		var survivors = []
 		for occupant in building.occupants.duplicate():
 			if not _enemy(grenade.shot, occupant):
 				continue
-			hit[occupant] = true
 			occupant.receive_damage(
 				grenade.shot.feedback_source(), BREACH_DAMAGE, grenade.point, {"kind": "warhead"}
 			)
 			if is_instance_valid(occupant) and occupant.hp > 0.0:
 				survivors.append(occupant)
 		building.evacuate_breached(survivors)
-	for target in (
-		game.battlefield.nearby_units(grenade.point, grenade.radius)
-		+ game.battlefield.nearby_obstacles(grenade.point, grenade.radius)
-	):
-		if hit.has(target) or target == building or not _enemy(grenade.shot, target):
-			continue
-		if target.has_meta("garrison_host"):
-			continue
-		target.receive_damage(
-			grenade.shot.feedback_source(), DAMAGE, grenade.point, {"kind": "warhead"}
-		)
+	# The blast is confined to the garrison; even old ground-throw saves are harmless.
 	if game.combat_effects != null:
 		game.combat_effects.grenade_impact(grenade.point, grenade.radius, grenade.shot.player)
 
@@ -111,7 +105,7 @@ func restore(saved: Dictionary, entities: Dictionary):
 		shot.player = player
 		shot.type = record.type
 		shot.origin = record.origin
-		shot.attack_damage = DAMAGE
+		shot.attack_damage = BREACH_DAMAGE
 		shot.raw_damage = true
 		var shooter = entities.get(record.shooter)
 		shot._shooter = weakref(shooter) if is_instance_valid(shooter) else null

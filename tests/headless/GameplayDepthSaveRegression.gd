@@ -33,10 +33,15 @@ func _prepare():
 
 
 func _bastion_slice():
-	await _fixture("bastion")
+	await _fixture("bastion", "IndustrialCrossroads")
 	_prepare()
 	var soldier = _spawn("Infantry", 0, Vector3(40, 0, 8))
-	var victim = _spawn("Tank", 1, Vector3(46, 0, 8))
+	var victim = _spawn("Infantry", 1, Vector3(46, 0, 8))
+	var building = _game.get_node("NeutralWorld").buildings.filter(func(item): return item.habitable)[0]
+	var fixture = load("res://tests/headless/GrenadeFixture.gd")
+	_check(fixture.position_thrower(building, soldier), "No clear save fixture throw")
+	victim.global_position = soldier.global_position
+	_check(fixture.occupy(building, victim), "Save fixture garrison rejected")
 	var hero = _spawn("Hero", 0, Vector3(40, 0, 12))
 	var infantry = _spawn("Infantry", 1, Vector3(46, 0, 12))
 	var worker = _spawn("Worker", 0, Vector3(35, 0, 42))
@@ -47,7 +52,7 @@ func _bastion_slice():
 	soldier.regarrison_lock_left = 1.25
 	soldier.damage_visual_band = 1
 	_check(
-		_game.grenade_system.launch(soldier, victim.global_position, 3.5),
+		soldier.abilities.trigger("frag_grenade", building.global_position, building),
 		"Save fixture grenade rejected"
 	)
 	soldier.abilities.get_ability("frag_grenade").cooldown_left = 12.0
@@ -144,11 +149,11 @@ func _bastion_slice():
 	_check(victim.hp == hp, "Restored grenade fired early")
 	_game.grenade_system._physics_process(0.02)
 	_check(
-		victim.hp == hp - 28.0 and _game.grenade_system.pending.is_empty(),
+		victim.hp == hp - 15.0 and _game.grenade_system.pending.is_empty(),
 		"Restored grenade did not resolve once"
 	)
 	_game.grenade_system._physics_process(1.0)
-	_check(victim.hp == hp - 28.0, "Restored grenade resolved twice")
+	_check(victim.hp == hp - 15.0, "Restored grenade resolved twice")
 	_game.commander_support._physics_process(10.0)
 	_check(_game.commander_support.pending.is_empty(), "Restored barrage did not complete")
 	await _close_paused()

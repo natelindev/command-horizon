@@ -14,6 +14,11 @@ var _focus = Vector3.ZERO
 var _inspection_layer: CanvasLayer
 var _result_overlay
 var _hud_visibility = []
+var _inspection_minimap
+var _minimap_mode
+var _minimap_fog
+var _visibility_before
+var _inspection_stats: Label
 
 
 func _ready():
@@ -124,6 +129,10 @@ func _input(event):
 		)
 	):
 		end_collapse()
+	if inspecting and event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		if get_viewport().gui_get_hovered_control() == null:
+			_inspect_unit(Utils.Match.find_unit_at_screen_point(get_tree(), _camera, event.position))
+			get_viewport().set_input_as_handled()
 	if inspecting and event.is_action_pressed("toggle_match_menu", false, true):
 		show_results()
 		get_viewport().set_input_as_handled()
@@ -148,6 +157,7 @@ func inspect_battlefield():
 		_hud_visibility.append([panel, panel.visible])
 		panel.hide()
 	_reveal_battlefield()
+	_setup_inspection_minimap()
 	_inspection_layer = CanvasLayer.new()
 	_inspection_layer.layer = 10
 	add_child(_inspection_layer)
@@ -169,7 +179,62 @@ func inspect_battlefield():
 	button.pressed.connect(show_results)
 	margin.add_child(button)
 	button.grab_focus()
+	var panel = PanelContainer.new()
+	panel.name = "InspectionStats"
+	panel.theme = load("res://source/match/hud/BattleTheme.gd").create()
+	panel.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
+	panel.offset_left = 260
+	panel.offset_right = 580
+	panel.offset_top = -160
+	panel.offset_bottom = -16
+	_inspection_layer.add_child(panel)
+	_inspection_stats = Label.new()
+	_inspection_stats.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_inspection_stats.text = tr("Select a unit to inspect its stats.")
+	panel.add_child(_inspection_stats)
 	return true
+
+
+func _setup_inspection_minimap():
+	var hud = _game.get_node("HUD")
+	for child in hud.get_children():
+		if child is CanvasItem:
+			_hud_visibility.append([child, child.visible])
+			child.visible = child.name == "MarginContainer"
+	hud.show()
+	_inspection_minimap = hud.find_child("Minimap", true, false)
+	_minimap_mode = _inspection_minimap.process_mode
+	_inspection_minimap.process_mode = Node.PROCESS_MODE_ALWAYS
+	_minimap_fog = _inspection_minimap.find_child("FogOfWarMask", true, false)
+	_hud_visibility.append([_minimap_fog, _minimap_fog.visible])
+	_minimap_fog.hide()
+	for button in [_inspection_minimap._commander_button, _inspection_minimap._event_button]:
+		if is_instance_valid(button):
+			_hud_visibility.append([button, button.visible])
+			button.hide()
+	_visibility_before = _game.settings.visibility
+	_game.settings.visibility = _game.settings.Visibility.FULL
+	_inspection_minimap._sync_real_units_with_minimap_representations()
+
+
+func _inspect_unit(unit):
+	MatchSignals.deselect_all_units.emit()
+	if not is_instance_valid(unit):
+		_inspection_stats.text = tr("Select a unit to inspect its stats.")
+		return
+	var selection = unit.get_node_or_null("Selection")
+	if selection != null:
+		selection.select()
+	var title = load("res://source/match/FactionCatalog.gd").title(unit.player.faction, unit.type)
+	var facts = [tr(title), "%d / %d HP" % [ceili(unit.hp), ceili(unit.hp_max)]]
+	var combat = load("res://source/match/combat/CombatRules.gd").describe(unit)
+	if not combat.is_empty():
+		facts.append(tr(combat))
+	if unit.attack_damage != null and unit.attack_range != null:
+		facts.append(tr("Damage: %s · Range: %s m") % [unit.attack_damage, unit.attack_range])
+	if unit.movement_speed > 0:
+		facts.append(tr("Speed: %s m/s") % unit.movement_speed)
+	_inspection_stats.text = "\n".join(facts)
 
 
 func _reveal_battlefield():
@@ -198,6 +263,10 @@ func show_results():
 	if not inspecting:
 		return
 	inspecting = false
+	MatchSignals.deselect_all_units.emit()
+	_game.settings.visibility = _visibility_before
+	if is_instance_valid(_inspection_minimap):
+		_inspection_minimap.process_mode = _minimap_mode
 	for entry in _hud_visibility:
 		if is_instance_valid(entry[0]):
 			entry[0].visible = entry[1]

@@ -1500,19 +1500,19 @@ func _spawn_ping_visual(point):
 		return
 	var ring = MeshInstance3D.new()
 	var torus = TorusMesh.new()
-	torus.inner_radius = 0.85
+	torus.inner_radius = 0.94
 	torus.outer_radius = 1.0
 	ring.mesh = torus
 	var mat = StandardMaterial3D.new()
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.albedo_color = Color(1.0, 0.78, 0.15, 0.85)
+	mat.albedo_color = Color(1.0, 0.78, 0.15, 0.5)
 	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	mat.render_priority = 10
 	ring.material_override = mat
 	add_child(ring)
 	ring.global_position = point + Vector3.UP * 0.05
 	var tween = create_tween()
-	tween.tween_property(ring, "scale", Vector3(4.5, 1.0, 4.5), 0.85)
+	tween.tween_property(ring, "scale", Vector3(2.0, 1.0, 2.0), 0.85)
 	tween.parallel().tween_property(mat, "albedo_color:a", 0.0, 0.85)
 	tween.tween_callback(ring.queue_free)
 

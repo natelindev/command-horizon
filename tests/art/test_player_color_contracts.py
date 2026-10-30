@@ -26,49 +26,10 @@ class PlayerColorContractsTests(unittest.TestCase):
             ROOT / "source/shaders/3d/material_hit.gdshader"
         ).read_text(encoding="utf-8")
 
-    def test_health_bar_has_team_ownership_indicators(self):
-        # Verify geometry constants for pip and continuous underline
-        self.assertRegex(
-            self.health_bar_source,
-            r"const\s+PIP_WIDTH\s*=\s*\d+",
-            "HealthBar must define PIP_WIDTH for team ownership badge",
-        )
-        self.assertRegex(
-            self.health_bar_source,
-            r"const\s+UNDERLINE_HEIGHT\s*=\s*\d+",
-            "HealthBar must define UNDERLINE_HEIGHT for continuous ownership accent",
-        )
-
-        # Verify track width calculation adapts to team color presence
-        self.assertIn(
-            "func _track_width()",
-            self.health_bar_source,
-            "HealthBar must provide _track_width()",
-        )
-        self.assertIn(
-            "func _team_color()",
-            self.health_bar_source,
-            "HealthBar must provide _team_color()",
-        )
-
-        # Verify left pip and underline rendering in _draw_bar
-        self.assertIn(
-            "PIP_WIDTH",
-            self.health_bar_source,
-            "HealthBar _draw_bar must render team ownership pip",
-        )
-        self.assertIn(
-            "UNDERLINE_HEIGHT",
-            self.health_bar_source,
-            "HealthBar _draw_bar must render continuous team ownership underline",
-        )
-
-        # Verify team color caching to handle ownership changes (e.g. neutral captures)
-        self.assertIn(
-            "_drawn_team_color",
-            self.health_bar_source,
-            "HealthBar must cache _drawn_team_color to re-render upon ownership transfer",
-        )
+    def test_health_bar_has_one_health_track(self):
+        self.assertIn("func _track_width()", self.health_bar_source)
+        self.assertNotIn("PIP_WIDTH", self.health_bar_source)
+        self.assertNotIn("UNDERLINE_HEIGHT", self.health_bar_source)
 
     def test_team_footprint_visibility_bounds(self):
         # Footprint must maintain elevated ground offset contract

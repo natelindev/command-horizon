@@ -8,7 +8,11 @@ func ability_definitions() -> Array:
 		{
 			"id": "frag_grenade",
 			"name": "Frag Grenade",
-			"description": "Breach a garrisoned hostile building, dealing 42 damage to occupants and 28 to nearby enemies.",
+			"description":
+			(
+				"Target an enemy-garrisoned neutral building. "
+				+ "Deal 15 damage to each occupant and force survivors out. No exterior damage."
+			),
 			"key": "Q",
 			"target_type": "target_unit",
 			"accepts_target_point": false,

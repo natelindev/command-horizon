@@ -227,6 +227,9 @@ func _commit_ability(point, target) -> bool:
 		return false
 	var unit = units[0]
 	var ability = unit.abilities.get_ability(ability_id)
+	if ability_id == "frag_grenade" and not unit.abilities._valid_breach(target):
+		prompt("Choose a visible neutral building garrisoned by enemies.")
+		return false
 	if ability.target_type == "target_unit" and target != null:
 		if ability_id == "frag_grenade":
 			if (

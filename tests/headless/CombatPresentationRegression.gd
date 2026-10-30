@@ -11,6 +11,9 @@ class Side:
 	var faction = "bastion"
 	var color = Color("78c8ee")
 
+	func get_footprint_material():
+		return StandardMaterial3D.new()
+
 
 class Subject:
 	extends Node3D
@@ -20,8 +23,11 @@ class Subject:
 	var hp = 100.0
 	var hp_max = 100.0
 	var attack_range = null
+	var radius = 0.65
 	var type = "Fighter"
 	var aim_target = null
+	var movement_domain = 1
+	var _match = null
 	var player:
 		get:
 			return get_parent()
@@ -32,6 +38,17 @@ class Ground:
 
 	func height_at(_point):
 		return 0.0
+
+
+class ElevatedGround:
+	extends RefCounted
+	var height = 0.0
+
+	func is_elevated():
+		return true
+
+	func height_at(_point):
+		return height
 
 
 class Stage:
@@ -72,6 +89,8 @@ func _run():
 	_health_chunks()
 	_subpixel_health()
 	_selection_designs()
+	_elevated_selection()
+	_single_health_track()
 	_effect_budgets()
 	_beam_lifecycle()
 	_impact_families()
@@ -289,6 +308,59 @@ func _selection_designs():
 			"Deselected marker kept processing"
 		)
 		side.free()
+
+
+func _elevated_selection():
+	var side = Side.new()
+	root.add_child(side)
+	var unit = _subject(side)
+	var stage = Stage.new()
+	stage.map = ElevatedGround.new()
+	unit._match = stage
+	unit.movement_domain = root.get_node("Constants").Match.Navigation.Domain.TERRAIN
+	unit.attack_range = 5.0
+	var selection = load("res://source/match/units/traits/Selection.tscn").instantiate()
+	unit.add_child(selection)
+	var footprint = load("res://source/match/units/traits/TeamFootprint.gd").new(unit)
+	unit.add_child(footprint)
+	footprint._process(0.016)
+	_check(footprint.visible, "Flat ground lost ownership footprint")
+	stage.map.height = 3.0
+	footprint._process(0.016)
+	_check(not footprint.visible, "Elevated ground retained ownership footprint")
+	stage.map.height = 0.0
+	footprint._process(0.016)
+	_check(footprint.visible, "Ownership footprint did not return on flat ground")
+	selection.select()
+	footprint._process(0.016)
+	_check(not footprint.visible, "Selected unit retained ownership footprint")
+	_check(selection._circle.visible and selection._range_ring.visible, "Flat ground lost selection indicators")
+	stage.map.height = 3.0
+	selection._process(0.016)
+	_check(not selection._circle.visible and not selection._range_ring.visible, "Elevated ground retained selection indicators")
+	stage.map.height = 0.0
+	selection._process(0.016)
+	_check(selection._circle.visible and selection._range_ring.visible, "Selection indicators did not return on flat ground")
+	stage.map.height = 3.0
+	unit.movement_domain = root.get_node("Constants").Match.Navigation.Domain.AIR
+	selection._process(0.016)
+	_check(selection._circle.visible, "Aircraft selection was hidden over elevated ground")
+	selection.deselect()
+	stage.free()
+	side.free()
+
+
+func _single_health_track():
+	var side = Side.new()
+	root.add_child(side)
+	var unit = _subject(side)
+	var bar = HEALTH_BAR_SCENE.instantiate()
+	bar.size = Vector2(35, 8)
+	unit.add_child(bar)
+	var track_x = bar.FRAME
+	_check(bar._image.get_pixel(track_x, bar.FRAME).is_equal_approx(bar.HEALTHY), "Health track missing at top or replaced by a team marker")
+	_check(bar._image.get_pixel(track_x, bar.FRAME + 7).is_equal_approx(bar.HEALTHY), "Health track is split into two rows")
+	side.free()
 
 
 func _impact_families():
