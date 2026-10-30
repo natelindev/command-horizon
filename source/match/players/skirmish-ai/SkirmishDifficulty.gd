@@ -14,7 +14,17 @@ const DESCRIPTIONS = [
 	"More engineers, a second factory, early coordinated waves and disciplined retreats.",
 ]
 const FULL_RESEARCH = [
-	"weapons_1", "armor_1", "service", "doctrine", "weapons_2", "armor_2", "dual_purpose_aa"
+	"weapons_1",
+	"armor_1",
+	"service",
+	"doctrine",
+	"weapons_2",
+	"armor_2",
+	"dual_purpose_aa",
+	"tank_stabilizers",
+	"tandem_rockets",
+	"weapons_3",
+	"armor_3",
 ]
 const PROFILES = [
 	{

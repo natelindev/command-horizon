@@ -324,6 +324,29 @@ static func damage_with_facts(facts: DamageFacts, target) -> float:
 	var armor = armor_for(target.type)
 	if target.is_in_group("neutral_targets") and airborne:
 		armor = 1
+	if (
+		facts.role == "Tank"
+		and facts.has_technology
+		and "tank_stabilizers" in facts.player.technology.completed
+		and armor in [0, 3]
+	):
+		factor *= 1.25
+	if (
+		facts.role == "RocketInfantry"
+		and facts.has_technology
+		and "tandem_rockets" in facts.player.technology.completed
+		and armor == 2
+	):
+		factor *= 1.35
+	if (
+		"player" in target
+		and target.player != null
+		and target.player.technology != null
+		and "reactive_armor" in target.player.technology.completed
+		and armor in [1, 2]
+		and profile in ["Rifle", "Assault rifle", "Autocannon"]
+	):
+		factor *= 0.75
 	return facts.damage * MULTIPLIERS[profile][armor] * factor
 
 
@@ -384,8 +407,18 @@ static func range_for(source, target):
 		return minf(6.5, source.attack_range)
 	if source.type == "RocketInfantry" and _airborne(target):
 		return minf(INFANTRY_SAM_RANGE, source.attack_range)
+	var tech_range = 0.0
+	if (
+		source.type == "Tank"
+		and "player" in source
+		and source.player != null
+		and source.player.technology != null
+		and "tank_stabilizers" in source.player.technology.completed
+	):
+		tech_range += 1.5
 	return (
 		source.attack_range
+		+ tech_range
 		+ high_ground_range_bonus(source, target)
 		+ (target.radius if target.is_in_group("neutral_buildings") else 0.0)
 		+ (
@@ -436,15 +469,33 @@ static func preparation_for(unit, target = null):
 	if typeof(target) == TYPE_OBJECT and not is_instance_valid(target):
 		return 0.0
 	if unit.type == "RocketInfantry":
-		return INFANTRY_SAM_LOCK if is_instance_valid(target) and _airborne(target) else 0.0
+		var sam_lock = (
+			0.4
+			if (
+				"player" in unit
+				and unit.player != null
+				and unit.player.technology != null
+				and "tandem_rockets" in unit.player.technology.completed
+			)
+			else INFANTRY_SAM_LOCK
+		)
+		return sam_lock if is_instance_valid(target) and _airborne(target) else 0.0
+	var prep = 0.75
+	if (
+		"player" in unit
+		and unit.player != null
+		and unit.player.technology != null
+		and "flux_capacitors" in unit.player.technology.completed
+	):
+		prep = 0.45
 	if unit.type == "AdvancedTank":
-		return 0.0 if unit.player.faction == "frontier" else 0.75
+		return 0.0 if unit.player.faction == "frontier" else prep
 	if (
 		unit.type == "CombatRobot"
 		and unit.player.faction == "helix"
 		and unit.weapon_mode == "precision"
 	):
-		return 0.75
+		return prep
 	return 0.0
 
 

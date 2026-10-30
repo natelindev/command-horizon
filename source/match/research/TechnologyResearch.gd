@@ -23,7 +23,15 @@ func queue_reason(id, lab):
 	if id != "coordination" and not Catalog.ITEMS.has(id):
 		return "Unknown technology."
 	if not Catalog.available(id, player.faction):
-		return "Requires the Helix faction."
+		match id:
+			"plasma_shields", "flux_capacitors":
+				return "Requires the Helix faction."
+			"reactive_armor", "siege_logistics":
+				return "Requires the Bastion faction."
+			"scrap_cannibalization", "high_octane":
+				return "Requires the Frontier faction."
+			_:
+				return "Technology is not available to this faction."
 	if id in completed or (id == "coordination" and player.coordination_unlocked):
 		return "Research complete."
 	if id == active or (id == "coordination" and player.coordination_left > 0):
@@ -261,14 +269,35 @@ func summary(role):
 	if role in Catalog.COMBAT_ROLES:
 		var weapons = Catalog.rank("weapons", completed)
 		var armor = Catalog.rank("armor", completed)
+		var numerals = ["I", "II", "III"]
 		if weapons > 0:
-			lines.append(
-				"Weapon systems %s · +%d%% damage" % ["II" if weapons == 2 else "I", weapons * 10]
-			)
+			var suffix = numerals[clampi(weapons - 1, 0, 2)]
+			lines.append("Weapon systems %s · +%d%% damage" % [suffix, weapons * 10])
 		if armor > 0:
-			lines.append(
-				"Combat armor %s · +%d%% maximum HP" % ["II" if armor == 2 else "I", armor * 10]
-			)
+			var suffix = numerals[clampi(armor - 1, 0, 2)]
+			lines.append("Combat armor %s · +%d%% maximum HP" % [suffix, armor * 10])
+	if role == "Tank" and "tank_stabilizers" in completed:
+		lines.append("Gyrostabilizers · +1.5 m range, +25% vs structures & infantry")
+	if role == "RocketInfantry" and "tandem_rockets" in completed:
+		lines.append("Tandem warheads · +35% vs heavy armor, 0.4 s SAM lock")
+	if (
+		"reactive_armor" in completed
+		and role in ["Tank", "CombatRobot", "AdvancedTank", "AntiAirVehicle"]
+	):
+		lines.append("Reactive plating · 25% small-arms deflection")
+	if (
+		"flux_capacitors" in completed
+		and (
+			role in ["CombatRobot", "AdvancedTank"]
+			or (role == "Infantry" and player.faction == "helix")
+		)
+	):
+		lines.append("Flux overcharge · 40% faster weapon charge")
+	if (
+		"high_octane" in completed
+		and role in ["Tank", "CombatRobot", "AdvancedTank", "AntiAirVehicle", "Worker"]
+	):
+		lines.append("High-octane overbore · +15% speed")
 	if (
 		"service" in completed
 		and role in ["RepairRobot", "RepairDepot", "Barracks", "AircraftFactory"]

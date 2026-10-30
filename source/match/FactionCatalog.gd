@@ -328,11 +328,19 @@ static func cost(player, role, building = false):
 static func duration(player, role):
 	if role in Mercenaries.ROLES:
 		return Mercenaries.UNITS[role].seconds
-	return (
+	var base = (
 		SPECIALIST_TIMES.get(player.faction, {}).get(role, UNIT_TIMES[role])
 		if player.get_meta("skirmish", false)
 		else Constants.Match.Units.PRODUCTION_TIMES[Bastion.scene_path(role)]
 	)
+	if (
+		"technology" in player
+		and player.technology != null
+		and "siege_logistics" in player.technology.completed
+		and role in ["Tank", "AdvancedTank", "CombatRobot"]
+	):
+		base *= 0.85
+	return base
 
 
 static func requirement(player, role, building = false):

@@ -38,7 +38,16 @@ func request_weapon_mode(mode):
 	if mode not in MODES or mode == weapon_mode or weapon_switch_left > 0:
 		return false
 	pending_weapon_mode = mode
-	weapon_switch_left = SWITCH_SECONDS
+	var switch_time = (
+		0.5
+		if (
+			player != null
+			and player.technology != null
+			and "flux_capacitors" in player.technology.completed
+		)
+		else SWITCH_SECONDS
+	)
+	weapon_switch_left = switch_time
 	if is_instance_valid(weapon_charge_owner):
 		weapon_charge_owner.restart_preparation()
 	_update_badge()

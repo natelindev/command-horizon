@@ -4,14 +4,22 @@ const Technologies = preload("res://source/match/research/TechnologyCatalog.gd")
 const ResearchButton = preload("res://source/match/hud/ResearchButton.gd")
 const WEAPONS_ICON = preload("res://assets/ui/research/weapons.svg")
 const ARMOR_ICON = preload("res://assets/ui/research/armor.svg")
+const SERVICE_ICON = preload("res://assets/ui/research/service.svg")
 const ICONS = {
 	"weapons": WEAPONS_ICON,
 	"armor": ARMOR_ICON,
-	"service": preload("res://assets/ui/research/service.svg"),
+	"service": SERVICE_ICON,
 	"doctrine": preload("res://assets/ui/research/doctrine.svg"),
 	"coordination": preload("res://assets/ui/research/coordination.svg"),
 	"dual_purpose_aa": WEAPONS_ICON,
 	"plasma_shields": ARMOR_ICON,
+	"tank_stabilizers": preload("res://assets/ui/hud/icons/attack.svg"),
+	"tandem_rockets": preload("res://assets/ui/infantry/RocketInfantry.svg"),
+	"reactive_armor": ARMOR_ICON,
+	"siege_logistics": SERVICE_ICON,
+	"flux_capacitors": WEAPONS_ICON,
+	"scrap_cannibalization": preload("res://assets/ui/economy/materials.svg"),
+	"high_octane": preload("res://assets/ui/hud/icons/move.svg"),
 }
 var lab
 var player
@@ -202,7 +210,7 @@ func _refresh_branch(branch):
 	# A branch with no further purchase keeps its latest active/queued/completed
 	# card visible. The ordered list below holds every already purchased project.
 	if id == "":
-		id = branch + "_2" if branch in ["weapons", "armor"] else branch
+		id = branch + "_3" if branch in ["weapons", "armor"] else branch
 	var complete = id in research.completed
 	var item = Technologies.ITEMS[id]
 	_update_tile(
@@ -308,5 +316,5 @@ func _refresh_queue():
 
 
 func _icon_for(id):
-	var branch = id.trim_suffix("_1").trim_suffix("_2")
+	var branch = id.trim_suffix("_1").trim_suffix("_2").trim_suffix("_3")
 	return ICONS.get(branch, ICONS.coordination)

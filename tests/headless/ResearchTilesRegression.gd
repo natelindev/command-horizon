@@ -133,6 +133,12 @@ func _exercise(panel, human):
 	human.technology.completed = ["weapons_1", "weapons_2"]
 	panel.refresh()
 	_check(
+		not weapons.disabled and weapons.title() == "Weapon systems III",
+		"Tier II did not unlock Tier III"
+	)
+	human.technology.completed = ["weapons_1", "weapons_2", "weapons_3"]
+	panel.refresh()
+	_check(
 		weapons.disabled and weapons.visible and weapons._state.text == "Completed",
 		"Completed branch disappeared or can be repurchased"
 	)

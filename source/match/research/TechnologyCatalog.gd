@@ -18,7 +18,21 @@ const COMBAT_ROLES = [
 const AA_GROUND_DAMAGE_FACTOR = 0.33
 const COORDINATION_COST = {"resource_a": 20, "resource_b": 20}
 const COORDINATION_DURATION = 30.0
-const BRANCHES = ["weapons", "armor", "service", "doctrine", "dual_purpose_aa", "plasma_shields"]
+const BRANCHES = [
+	"weapons",
+	"armor",
+	"service",
+	"doctrine",
+	"dual_purpose_aa",
+	"plasma_shields",
+	"tank_stabilizers",
+	"tandem_rockets",
+	"reactive_armor",
+	"siege_logistics",
+	"flux_capacitors",
+	"scrap_cannibalization",
+	"high_octane",
+]
 const PLASMA_SHIELDS = {
 	"Infantry": 15.0,
 	"RocketInfantry": 15.0,
@@ -51,6 +65,13 @@ const ITEMS = {
 		"seconds": 50.0,
 		"requires": ["weapons_1", "coordination"]
 	},
+	"weapons_3":
+	{
+		"title": "Weapon systems III",
+		"cost": Vector2i(90, 60),
+		"seconds": 65.0,
+		"requires": ["weapons_2", "coordination"]
+	},
 	"armor_1":
 	{"title": "Combat armor I", "cost": Vector2i(30, 15), "seconds": 35.0, "requires": []},
 	"armor_2":
@@ -59,6 +80,13 @@ const ITEMS = {
 		"cost": Vector2i(60, 30),
 		"seconds": 50.0,
 		"requires": ["armor_1", "coordination"]
+	},
+	"armor_3":
+	{
+		"title": "Combat armor III",
+		"cost": Vector2i(90, 45),
+		"seconds": 65.0,
+		"requires": ["armor_2", "coordination"]
 	},
 	"service":
 	{"title": "Field service", "cost": Vector2i(35, 25), "seconds": 40.0, "requires": []},
@@ -74,6 +102,55 @@ const ITEMS = {
 		"title": "Dual-purpose AA",
 		"cost": Vector2i(40, 30),
 		"seconds": 45.0,
+		"requires": ["weapons_1"]
+	},
+	"tank_stabilizers":
+	{
+		"title": "Gyrostabilizers",
+		"cost": Vector2i(45, 25),
+		"seconds": 40.0,
+		"requires": ["weapons_1"]
+	},
+	"tandem_rockets":
+	{
+		"title": "Tandem Warheads",
+		"cost": Vector2i(40, 25),
+		"seconds": 35.0,
+		"requires": ["weapons_1"]
+	},
+	"reactive_armor":
+	{
+		"title": "Reactive Plating",
+		"cost": Vector2i(50, 30),
+		"seconds": 45.0,
+		"requires": ["armor_1"]
+	},
+	"siege_logistics":
+	{
+		"title": "Automated Logistics",
+		"cost": Vector2i(45, 25),
+		"seconds": 40.0,
+		"requires": ["coordination"]
+	},
+	"flux_capacitors":
+	{
+		"title": "Flux Overcharge",
+		"cost": Vector2i(45, 35),
+		"seconds": 40.0,
+		"requires": ["weapons_1"]
+	},
+	"scrap_cannibalization":
+	{
+		"title": "Battlefield Salvage",
+		"cost": Vector2i(40, 20),
+		"seconds": 35.0,
+		"requires": ["coordination"]
+	},
+	"high_octane":
+	{
+		"title": "High-Octane Overbore",
+		"cost": Vector2i(40, 25),
+		"seconds": 40.0,
 		"requires": ["weapons_1"]
 	},
 }
@@ -116,22 +193,54 @@ static func description(id, faction):
 				+ "instead of 33%. Applies to existing and new units. Air damage is unchanged; "
 				+ "AA turrets always prioritize aircraft."
 			)
-		"weapons_1", "weapons_2":
+		"weapons_1", "weapons_2", "weapons_3":
 			return (
 				(
 					"Combat units deal +%d%% weapon damage. Applies to existing and new "
 					+ "infantry, armor, walkers and strike aircraft."
 				)
-				% (10 if id == "weapons_1" else 20)
+				% (10 if id == "weapons_1" else (20 if id == "weapons_2" else 30))
 			)
-		"armor_1", "armor_2":
+		"armor_1", "armor_2", "armor_3":
 			return (
 				(
 					"Combat units gain +%d%% maximum HP. Existing units keep their health "
 					+ "percentage; engineers, support and buildings are unchanged."
 				)
-				% (10 if id == "armor_1" else 20)
+				% (10 if id == "armor_1" else (20 if id == "armor_2" else 30))
 			)
+		"tank_stabilizers":
+			return (
+				"Main battle tanks gain gyro-stabilized fire control: +1.5 m attack "
+				+ "range and +25% damage against structures and infantry."
+			)
+		"tandem_rockets":
+			return (
+				"Rocket infantry fire tandem-charge warheads dealing +35% damage to "
+				+ "heavy armor, and shoulder SAM missile lock-on time is halved to 0.4 s."
+			)
+		"reactive_armor":
+			return (
+				"Bastion combat vehicles and walkers deflect small-arms fire: infantry "
+				+ "rifles and light autocannons deal 25% less damage to them."
+			)
+		"siege_logistics":
+			return (
+				"Repair depots gain an additional service slot (repair 2 units at once) "
+				+ "and vehicle factories assemble heavy tanks and walkers 15% faster."
+			)
+		"flux_capacitors":
+			return (
+				"Helix energy weapons charge and spin up 40% faster. Lancer walker "
+				+ "weapon mode switching delay is reduced from 2.0 s to 0.5 s."
+			)
+		"scrap_cannibalization":
+			return (
+				"Scrapper rigs harvest 50% material cost from wrecks (up from 35%) "
+				+ "and salvaging a wreck instantly repairs 25 HP to nearby friendly vehicles."
+			)
+		"high_octane":
+			return "All Frontier wheeled and tracked vehicles gain +15% movement speed."
 		"service":
 			return (
 				"Repair robots, depots, barracks and airfields restore health 25% faster. "
@@ -153,7 +262,11 @@ static func description(id, faction):
 
 
 static func next_in_branch(branch, completed):
-	var choices = [branch + "_1", branch + "_2"] if branch in ["weapons", "armor"] else [branch]
+	var choices = (
+		[branch + "_1", branch + "_2", branch + "_3"]
+		if branch in ["weapons", "armor"]
+		else [branch]
+	)
 	for id in choices:
 		if id not in completed:
 			return id
@@ -161,7 +274,11 @@ static func next_in_branch(branch, completed):
 
 
 static func rank(branch, completed):
-	return int(branch + "_1" in completed) + int(branch + "_2" in completed)
+	return (
+		int(branch + "_1" in completed)
+		+ int(branch + "_2" in completed)
+		+ int(branch + "_3" in completed)
+	)
 
 
 static func damage_factor(role, completed):
@@ -173,7 +290,15 @@ static func health_factor(role, completed):
 
 
 static func available(id, faction):
-	return id != "plasma_shields" or faction == "helix"
+	match id:
+		"plasma_shields", "flux_capacitors":
+			return faction == "helix"
+		"reactive_armor", "siege_logistics":
+			return faction == "bastion"
+		"scrap_cannibalization", "high_octane":
+			return faction == "frontier"
+		_:
+			return true
 
 
 static func shield_capacity(role, faction, completed) -> float:

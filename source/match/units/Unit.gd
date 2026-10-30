@@ -17,6 +17,7 @@ const Veterancy = preload("res://source/match/combat/Veterancy.gd")
 const SignatureState = preload("res://source/match/combat/SignatureState.gd")
 const UnitAbilities = preload("res://source/match/units/traits/UnitAbilities.gd")
 const InfantrySuppression = preload("res://source/match/units/traits/InfantrySuppression.gd")
+const Bastion = preload("res://source/match/BastionCatalog.gd")
 
 var experience = 0.0:
 	set(value):
@@ -205,7 +206,7 @@ func _ready():
 	# Completed armor research scales the final base stats, so apply it last.
 	if player != null and player.technology != null:
 		player.technology.apply_unit(self)
-	var pressure_trait = load("res://source/match/units/traits/InfantrySuppression.gd")
+	var pressure_trait = InfantrySuppression
 	if pressure_trait.eligible(self):
 		suppression = pressure_trait.new()
 		suppression.name = "InfantrySuppression"
@@ -215,7 +216,7 @@ func _ready():
 	if _match != null and "engineering" in _match and _match.engineering != null:
 		definitions.append_array(_match.engineering.ability_definitions(self))
 	if not definitions.is_empty():
-		abilities = load("res://source/match/units/traits/UnitAbilities.gd").new()
+		abilities = UnitAbilities.new()
 		abilities.name = "UnitAbilities"
 		add_child(abilities)
 		abilities.setup(definitions)
@@ -242,7 +243,7 @@ func _ready():
 		manual_orders.name = "ManualOrders"
 		add_child(manual_orders)
 	if player.get_meta("skirmish", false) and type in ["Tank", "AdvancedTank", "CombatRobot"]:
-		signature = load("res://source/match/combat/SignatureState.gd").new()
+		signature = SignatureState.new()
 		signature.name = "SignatureState"
 		add_child(signature)
 
@@ -456,10 +457,23 @@ func _get_movement_domain():
 
 
 func _get_movement_speed() -> float:
+	var base_speed: float
 	if _native_state != null:
-		return _native_state.speed()
-	var navigation_trait = _get_navigation_trait()
-	return navigation_trait.speed if navigation_trait is NavigationAgent3D else 0.0
+		base_speed = _native_state.speed()
+	else:
+		var navigation_trait = _get_navigation_trait()
+		base_speed = navigation_trait.speed if navigation_trait is NavigationAgent3D else 0.0
+	if (
+		base_speed > 0.0
+		and player != null
+		and "technology" in player
+		and player.technology != null
+		and "high_octane" in player.technology.completed
+		and player.faction == "frontier"
+		and not Bastion.is_infantry(type)
+	):
+		base_speed *= 1.15
+	return base_speed
 
 
 func _is_movable():

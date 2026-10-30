@@ -14,7 +14,15 @@ func service_reach():
 
 
 func service_slots():
-	return 1
+	return (
+		2
+		if (
+			player != null
+			and player.technology != null
+			and "siege_logistics" in player.technology.completed
+		)
+		else 1
+	)
 
 
 func services(unit):
