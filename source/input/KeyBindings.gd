@@ -1,6 +1,6 @@
 extends RefCounted
 
-const VERSION = 5
+const VERSION = 6
 const MODIFIERS = KEY_MASK_SHIFT | KEY_MASK_CTRL | KEY_MASK_ALT | KEY_MASK_META
 const MODIFIER_KEYS = [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META]
 const RESERVED = [KEY_BACKTAB, KEY_ENTER, KEY_KP_ENTER]
@@ -43,7 +43,14 @@ const CORE = {
 	"attack_target": ["Battle", "Attack target / attack move", KEY_A],
 	"force_attack": ["Battle", "Force attack", KEY_A | KEY_MASK_CTRL],
 	"patrol_order": ["Battle", "Patrol", KEY_P],
+	"stop_order": ["Battle", "Stop orders", KEY_S],
+	"hold_order": ["Battle", "Hold position", KEY_H],
 	"cycle_subgroup": ["Groups", "Cycle selected unit classes", KEY_TAB],
+	"select_all_combat_units": ["Groups", "Select all combat units", KEY_F3],
+	"cycle_idle_worker": ["Economy", "Cycle idle harvester", KEY_PERIOD],
+	"select_all_idle_workers": ["Economy", "Select all idle harvesters", KEY_PERIOD | KEY_MASK_CTRL],
+	"center_on_headquarters": ["Camera", "Center on Headquarters", KEY_HOME],
+	"jump_to_alert": ["Camera", "Jump to latest alert", KEY_QUOTELEFT],
 	"toggle_match_menu": ["Battle", "Battle menu / cancel assignment", KEY_ESCAPE],
 	"rotate_structure": ["Battle", "Rotate building", KEY_R],
 	"quicksave_battle": ["Battle", "Quicksave", KEY_F5],
@@ -83,30 +90,51 @@ static func normalize(record):
 	if (
 		record is Dictionary
 		and typeof(record.get("version")) == TYPE_INT
-		and record.get("version") == 4
+		and record.get("version") in [4, 5]
 		and record.get("keys") is Dictionary
 	):
 		var previous = record.duplicate(true)
-		if (
-			previous.keys.size() == fallback.keys.size() - 1
-			and not previous.keys.has("commander_support")
-		):
-			var candidates = [KEY_F6, KEY_F7, KEY_F8, KEY_F10, KEY_F11, KEY_F12]
-			# Preserve every valid old binding even if all spare function keys are used.
-			for key in range(KEY_F1, KEY_F12 + 1):
-				for modifier in [
-					KEY_MASK_CTRL, KEY_MASK_SHIFT, KEY_MASK_ALT, KEY_MASK_CTRL | KEY_MASK_SHIFT
-				]:
-					candidates.append(key | modifier)
-			for candidate in candidates:
-				if (
-					candidate not in previous.keys.values()
-					and problem("commander_support", candidate, previous.keys).is_empty()
-				):
-					previous.keys.commander_support = candidate
-					previous.version = VERSION
-					record = previous
-					break
+		if previous.version == 4:
+			if not previous.keys.has("commander_support"):
+				var candidates = [KEY_F6, KEY_F7, KEY_F8, KEY_F10, KEY_F11, KEY_F12]
+				for key in range(KEY_F1, KEY_F12 + 1):
+					for modifier in [
+						KEY_MASK_CTRL, KEY_MASK_SHIFT, KEY_MASK_ALT, KEY_MASK_CTRL | KEY_MASK_SHIFT
+					]:
+						candidates.append(key | modifier)
+				for candidate in candidates:
+					if (
+						candidate not in previous.keys.values()
+						and problem("commander_support", candidate, previous.keys).is_empty()
+					):
+						previous.keys.commander_support = candidate
+						break
+			previous.version = 5
+		if previous.version == 5:
+			for action in fallback.keys:
+				if not previous.keys.has(action):
+					var default_key = fallback.keys[action]
+					if (
+						default_key not in previous.keys.values()
+						and problem(action, default_key, previous.keys).is_empty()
+					):
+						previous.keys[action] = default_key
+					else:
+						for mod in [0, KEY_MASK_ALT, KEY_MASK_CTRL, KEY_MASK_CTRL | KEY_MASK_ALT]:
+							var assigned = false
+							for k in [default_key & ~MODIFIERS, KEY_F10, KEY_F11, KEY_F12]:
+								var candidate = k | mod
+								if (
+									candidate not in previous.keys.values()
+									and problem(action, candidate, previous.keys).is_empty()
+								):
+									previous.keys[action] = candidate
+									assigned = true
+									break
+							if assigned:
+								break
+			previous.version = VERSION
+			record = previous
 	if (
 		not record is Dictionary
 		or typeof(record.get("version")) != TYPE_INT

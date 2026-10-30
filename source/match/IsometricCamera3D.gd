@@ -255,8 +255,36 @@ func _calculate_screen_move_vector() -> Vector2:
 	var viewport_size = get_viewport().get_visible_rect().size
 	var mouse_pos = get_viewport().get_mouse_position()
 
-	var x_axis = Bindings.axis("move_map_left", "move_map_right")
-	var y_axis = Bindings.axis("move_map_up", "move_map_down")
+	var hud = get_parent().get("hud")
+	var left_blocked = (
+		is_instance_valid(hud)
+		and hud.has_method("ability_owns_camera_binding")
+		and hud.ability_owns_camera_binding("move_map_left")
+	)
+	var right_blocked = (
+		is_instance_valid(hud)
+		and hud.has_method("ability_owns_camera_binding")
+		and hud.ability_owns_camera_binding("move_map_right")
+	)
+	var up_blocked = (
+		is_instance_valid(hud)
+		and hud.has_method("ability_owns_camera_binding")
+		and hud.ability_owns_camera_binding("move_map_up")
+	)
+	var down_blocked = (
+		is_instance_valid(hud)
+		and hud.has_method("ability_owns_camera_binding")
+		and hud.ability_owns_camera_binding("move_map_down")
+	)
+
+	var x_axis = (
+		(0.0 if right_blocked else float(Bindings.held("move_map_right")))
+		- (0.0 if left_blocked else float(Bindings.held("move_map_left")))
+	)
+	var y_axis = (
+		(0.0 if down_blocked else float(Bindings.held("move_map_down")))
+		- (0.0 if up_blocked else float(Bindings.held("move_map_up")))
+	)
 	var move_vector = Vector2(x_axis, y_axis)
 
 	if not Globals.options.edge_scrolling:

@@ -141,6 +141,16 @@ func _ready():
 		"Hover a unit for its owner. Player-colored selection outlines and "
 		+ "minimap shapes remain visible."
 	)
+	var health_row = _row(general, "Health bars")
+	var health_bars = OptionButton.new()
+	health_bars.add_item(tr("Selected only"))
+	health_bars.add_item(tr("Always show"))
+	health_bars.add_item(tr("Damaged only"))
+	health_bars.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	health_bars.tooltip_text = tr("Choose when unit health bars appear on the battlefield.")
+	health_bars.item_selected.connect(func(index): _preview("health_bars", index))
+	health_row.add_child(health_bars)
+	controls.health_bars = health_bars
 	var scale_row = _row(general, "Interface size")
 	var interface_scale = OptionButton.new()
 	for title in ["100%", "125%", "150%"]:
@@ -310,6 +320,7 @@ func _refresh():
 			tr("Auto") if options.get(key) == 0 else tr("%d nit") % options.get(key)
 		)
 	controls.screen.select(options.screen)
+	controls.health_bars.select(clampi(options.health_bars, 0, 2))
 	controls.interface_scale.select([1.0, 1.25, 1.5].find(options.interface_scale))
 	controls.subtitle_size.select([18, 22, 26].find(options.subtitle_size))
 	_sample_caption.visible = options.subtitles and _sample_left > 0

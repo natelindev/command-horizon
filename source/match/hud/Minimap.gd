@@ -308,6 +308,20 @@ func _on_gui_input(event):
 				if world_pos_2d != null:
 					MatchSignals.tactical_ping.emit(_match.map.ground_point(world_pos_2d))
 				return
+			var hud = _match.get("hud")
+			if (
+				is_instance_valid(hud)
+				and is_instance_valid(hud.direct_orders)
+				and not hud.direct_orders.kind.is_empty()
+			):
+				var world_pos_2d = _texture_rect_position_to_world_position(event.position)
+				if world_pos_2d != null:
+					var target_point = _match.map.ground_point(world_pos_2d)
+					if hud.direct_orders.commit(
+						target_point, null, Globals.options.selection_modifier_pressed()
+					):
+						get_viewport().set_input_as_handled()
+						return
 			_try_teleporting_camera_based_on_local_texture_rect_position(event.position)
 			_camera_movement_active = true
 		if not event.is_pressed() and event.button_index == MOUSE_BUTTON_LEFT:

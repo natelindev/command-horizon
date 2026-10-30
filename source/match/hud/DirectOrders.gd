@@ -577,6 +577,21 @@ func handle_input(event):
 			cancel()
 			get_viewport().set_input_as_handled()
 			return true
+		if Bindings.pressed(event, "stop_order"):
+			var menus = hud.get_parent().find_child("UnitMenus")
+			if is_instance_valid(menus) and menus.has_method("_stop_orders"):
+				menus._stop_orders()
+			else:
+				cancel()
+			get_viewport().set_input_as_handled()
+			return true
+		if Bindings.pressed(event, "hold_order"):
+			var card = hud.get_parent().find_child("CommandCard")
+			if is_instance_valid(card) and card.has_method("_on_hold"):
+				card._on_hold()
+			cancel()
+			get_viewport().set_input_as_handled()
+			return true
 		if (
 			kind == "ability"
 			and ability_id == "field_barricade"

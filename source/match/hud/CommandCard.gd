@@ -89,8 +89,8 @@ func update_layout(selected_units: Array, direct_orders = null):
 		_on_move,
 		direct_orders != null and not direct_orders.eligible("move").is_empty()
 	)
-	_setup_slot(0, 1, "Stop", "", _on_stop, true)
-	_setup_slot(0, 2, "Hold", "", _on_hold, true)
+	_setup_slot(0, 1, "Stop", Bindings.label("stop_order"), _on_stop, true)
+	_setup_slot(0, 2, "Hold", Bindings.label("hold_order"), _on_hold, true)
 	_slots[0][2].tooltip_text = tr(
 		"Hold position · Stop moving and fire at enemies in range. Cancels current and queued orders."
 	)

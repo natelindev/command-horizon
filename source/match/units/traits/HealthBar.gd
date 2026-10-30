@@ -58,6 +58,59 @@ func _ready():
 	_unit.deselected.connect(_on_unit_deselected)
 	_unit.hp_changed.connect(_on_hp_changed)
 	_visibility_timer.timeout.connect(_on_visibility_timer_timeout)
+	var globals = get_node_or_null("/root/Globals")
+	if globals != null and "options" in globals and globals.options != null:
+		globals.options.changed.connect(_update_mode_visibility)
+	_update_mode_visibility()
+
+
+func _exit_tree():
+	var globals = get_node_or_null("/root/Globals")
+	if globals != null and "options" in globals and globals.options != null:
+		if globals.options.changed.is_connected(_update_mode_visibility):
+			globals.options.changed.disconnect(_update_mode_visibility)
+
+
+func _health_bar_mode() -> int:
+	var globals = get_node_or_null("/root/Globals")
+	if (
+		globals != null
+		and "options" in globals
+		and globals.options != null
+		and "health_bars" in globals.options
+	):
+		return globals.options.health_bars
+	return 0
+
+
+func _update_mode_visibility():
+	if not is_inside_tree() or not is_instance_valid(_unit):
+		return
+	var mode = _health_bar_mode()
+	match mode:
+		1:  # Always show
+			_visibility_timer.stop()
+			_draw_bar()
+			show()
+		2:  # Damaged only
+			var damaged = (
+				_unit.hp != null
+				and _unit.hp_max != null
+				and _unit.hp < _unit.hp_max
+			)
+			if _selected or damaged:
+				_visibility_timer.stop()
+				_draw_bar()
+				show()
+			else:
+				hide()
+		_:  # Selected only
+			if _selected:
+				_visibility_timer.stop()
+				_draw_bar()
+				show()
+			elif _visibility_timer.is_stopped():
+				hide()
 
 
 func _team_color():
@@ -165,6 +218,21 @@ func _health_color(fraction):
 
 
 func _show_for_a_while():
+	var mode = _health_bar_mode()
+	if mode == 1:
+		_draw_bar()
+		show()
+		return
+	if mode == 2:
+		var damaged = (
+			_unit.hp != null
+			and _unit.hp_max != null
+			and _unit.hp < _unit.hp_max
+		)
+		if _selected or damaged:
+			_draw_bar()
+			show()
+		return
 	show()
 	if not _selected:
 		_visibility_timer.start(BAR_AUTO_VISIBILITY_DURATION)
@@ -199,12 +267,13 @@ func _on_unit_selected():
 
 func _on_unit_deselected():
 	_selected = false
-	hide()
+	_update_mode_visibility()
 
 
 func _on_hp_changed():
 	_recalulate_bar_value()
+	_update_mode_visibility()
 
 
 func _on_visibility_timer_timeout():
-	hide()
+	_update_mode_visibility()

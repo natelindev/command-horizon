@@ -396,6 +396,14 @@ func ability_owns_camera_binding(action: String) -> bool:
 			var key = {KEY_Q: "Q", KEY_W: "W", KEY_E: "E", KEY_R: "R"}.get(code, "")
 			if is_instance_valid(menus) and menus._commander_open and key == "Q":
 				return true
+			if (
+				is_instance_valid(menus)
+				and menus._pages != null
+				and is_instance_valid(menus._pages.get_current_tab_control())
+				and menus._pages.get_current_tab_control().name == "Build"
+				and key in ["Q", "W"]
+			):
+				return true
 			if not key.is_empty() and not direct_orders.ability_for_key(key).is_empty():
 				return true
 	return false

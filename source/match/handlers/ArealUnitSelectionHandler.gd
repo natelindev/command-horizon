@@ -80,6 +80,37 @@ func _on_selection_started():
 	_rectangular_selection_3d.changed.connect(_on_selection_changed)
 
 
+func _is_harvesting_worker(unit: Node) -> bool:
+	if not "type" in unit or unit.type != "Worker":
+		return false
+	if ("resource_a" in unit and unit.resource_a > 0) or ("resource_b" in unit and unit.resource_b > 0):
+		return true
+	if "action" in unit and unit.action != null:
+		var script_obj = unit.action.get_script()
+		if script_obj != null and "CollectingResources" in script_obj.resource_path:
+			return true
+	return false
+
+
+func _filter_combat_over_workers(units_set):
+	if Input.is_key_pressed(KEY_ALT):
+		return units_set
+	var has_combat = false
+	var has_harvesting_workers = false
+	for unit in units_set.iterate():
+		if _is_harvesting_worker(unit):
+			has_harvesting_workers = true
+		elif ("attack_range" in unit and unit.attack_range != null) or ("type" in unit and unit.type != "Worker"):
+			has_combat = true
+	if has_combat and has_harvesting_workers:
+		var filtered = Utils.Set.new()
+		for unit in units_set.iterate():
+			if not _is_harvesting_worker(unit):
+				filtered.add(unit)
+		return filtered
+	return units_set
+
+
 func _on_selection_changed(topdown_polygon_2d):
 	var units_to_highlight = _get_controlled_units_from_navigation_domain_within_topdown_polygon_2d(
 		Constants.Match.Navigation.Domain.TERRAIN, topdown_polygon_2d
@@ -89,6 +120,7 @@ func _on_selection_changed(topdown_polygon_2d):
 			Constants.Match.Navigation.Domain.AIR, topdown_polygon_2d
 		)
 	)
+	units_to_highlight = _filter_combat_over_workers(units_to_highlight)
 	var units_not_to_highlight_anymore = Utils.Set.subtracted(
 		_highlighted_units, units_to_highlight
 	)
@@ -115,4 +147,5 @@ func _on_selection_finished(topdown_polygon_2d):
 			Constants.Match.Navigation.Domain.AIR, topdown_polygon_2d
 		)
 	)
+	units_to_select = _filter_combat_over_workers(units_to_select)
 	Utils.Match.select_units(units_to_select)

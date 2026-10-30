@@ -43,10 +43,12 @@ const DEFAULTS = {
 	"weather": 0,
 	"weather_particles": true,
 	"living_world": true,
-	"menu_motion": true
+	"menu_motion": true,
+	"health_bars": 0
 }
 @export var screen: Screen = Screen.FULL
 @export var mouse_restricted = false
+@export var health_bars = 0
 @export var master_volume = 0.8
 @export var voice_volume = 0.8
 @export var effects_volume = 0.75
@@ -119,6 +121,7 @@ func apply():
 	time_of_day = clampi(time_of_day, 0, 3)
 	weather = clampi(weather, 0, 4)
 	environment_quality = clampi(environment_quality, 0, 1)
+	health_bars = clampi(health_bars, 0, 2)
 	key_bindings = Bindings.normalize(key_bindings)
 	Bindings.apply(key_bindings)
 	if screen not in [Screen.FULL, Screen.WINDOW]:

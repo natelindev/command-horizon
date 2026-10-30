@@ -187,6 +187,8 @@ func _event(unit, kind):
 	else:
 		draft.title = "Base under attack" if kind == "base_attack" else "Units under attack"
 		draft.detail = "Incoming fire · inspect your units"
+	if existing == null or now - existing.last >= 3.0:
+		MatchSignals.tactical_ping.emit(unit.global_position)
 	_publish(draft)
 	_notify()
 

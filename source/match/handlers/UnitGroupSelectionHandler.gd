@@ -11,6 +11,8 @@ var _get_action_names = [null]
 var _unit_group_names = [null]
 var _last_access_id = -1
 var _last_access_time = -1
+var _last_combat_select_time = -1
+var _hq_cycle_index = 0
 
 
 func _ready():
@@ -44,6 +46,14 @@ func _input(event):
 				if game.hud.has_method("show_notice"):
 					game.hud.show_notice(message)
 			get_viewport().set_input_as_handled()
+		return
+	if Bindings.pressed(event, "select_all_combat_units"):
+		select_all_combat_units()
+		get_viewport().set_input_as_handled()
+		return
+	if Bindings.pressed(event, "center_on_headquarters"):
+		center_on_headquarters()
+		get_viewport().set_input_as_handled()
 		return
 	for group_id in range(1, 10):
 		if Bindings.pressed(event, _set_action_names[group_id]):
@@ -137,3 +147,49 @@ func append_to_group(group_id: int):
 			if not unit.is_in_group(_unit_group_names[group_id]):
 				unit.add_to_group(_unit_group_names[group_id])
 	groups_changed.emit()
+
+
+func select_all_combat_units():
+	subgroups.changed()
+	var combat_units = get_tree().get_nodes_in_group("controlled_units").filter(
+		func(u):
+			return (
+				is_instance_valid(u)
+				and not u.is_queued_for_deletion()
+				and u.hp != null
+				and u.hp > 0
+				and "type" in u
+				and u.type != "Worker"
+				and not u.is_in_group("structures")
+				and not "is_constructed" in u
+				and ("movement_speed" in u and u.movement_speed > 0)
+			)
+	)
+	if combat_units.is_empty():
+		return
+	Utils.Match.select_units(combat_units)
+	var now = Time.get_ticks_msec()
+	if now - _last_combat_select_time < 400:
+		_snap_camera_to_units(combat_units)
+	_last_combat_select_time = now
+
+
+func center_on_headquarters():
+	var hqs = get_tree().get_nodes_in_group("controlled_units").filter(
+		func(u):
+			return (
+				is_instance_valid(u)
+				and not u.is_queued_for_deletion()
+				and u.hp != null
+				and u.hp > 0
+				and "type" in u
+				and u.type == "CommandCenter"
+			)
+	)
+	if hqs.is_empty():
+		return
+	_hq_cycle_index = (_hq_cycle_index + 1) % hqs.size()
+	var hq = hqs[_hq_cycle_index]
+	var camera = get_viewport().get_camera_3d()
+	if camera != null and camera.has_method("set_position_safely"):
+		camera.set_position_safely(hq.global_position)

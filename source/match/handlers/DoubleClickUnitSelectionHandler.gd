@@ -35,7 +35,7 @@ func _on_unit_input(_camera, event, _click_position, _click_normal, _shape_index
 		event is InputEventMouseButton
 		and event.button_index == MOUSE_BUTTON_LEFT
 		and event.pressed
-		and event.double_click
+		and (event.double_click or event.ctrl_pressed)
 		and unit.is_in_group("controlled_units")
 	):
 		_handle_double_click(unit.type)

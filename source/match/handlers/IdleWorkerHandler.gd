@@ -2,6 +2,8 @@ extends Node
 
 signal idle_workers_updated(count)
 
+const Bindings = preload("res://source/input/KeyBindings.gd")
+
 var _idle_index = 0
 
 
@@ -13,7 +15,10 @@ func _input(event):
 	if focus is LineEdit or focus is TextEdit:
 		return
 	if event is InputEventKey and event.pressed and not event.echo:
-		if event.keycode == KEY_F1 or event.keycode == KEY_PERIOD:
+		if Bindings.pressed(event, "select_all_idle_workers"):
+			select_all_idle_workers()
+			get_viewport().set_input_as_handled()
+		elif Bindings.pressed(event, "cycle_idle_worker"):
 			cycle_idle_worker()
 			get_viewport().set_input_as_handled()
 
@@ -50,3 +55,13 @@ func cycle_idle_worker():
 	var camera = get_viewport().get_camera_3d()
 	if camera != null and camera.has_method("set_position_safely"):
 		camera.set_position_safely(worker.global_position)
+
+
+func select_all_idle_workers():
+	var idle = get_idle_workers()
+	if idle.is_empty():
+		return
+	Utils.Match.select_units(idle)
+	var camera = get_viewport().get_camera_3d()
+	if camera != null and camera.has_method("set_position_safely"):
+		camera.set_position_safely(idle[0].global_position)

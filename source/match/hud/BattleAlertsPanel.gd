@@ -129,6 +129,24 @@ func _toggle():
 		_close.grab_focus()
 
 
+func _unhandled_input(event):
+	if not _available():
+		return
+	var focus = get_viewport().gui_get_focus_owner()
+	if focus is LineEdit or focus is TextEdit:
+		return
+	if Bindings.pressed(event, "jump_to_alert"):
+		jump_to_latest()
+		get_viewport().set_input_as_handled()
+
+
+func jump_to_latest():
+	if model == null or model.entries.is_empty():
+		return
+	var latest = model.entries[0]
+	navigate(latest.id)
+
+
 func close():
 	panel.hide()
 	_open_order.clear()

@@ -968,8 +968,69 @@ func _select_subset(members, remove):
 
 func _roster_input(event, button):
 	_remember_command_mouse(event)
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		button.set_meta("production_batch", 5 if event.shift_pressed else 1)
+	if event is InputEventMouseButton and event.pressed:
+		if event.button_index == MOUSE_BUTTON_LEFT:
+			button.set_meta("production_batch", 5 if event.shift_pressed else 1)
+		elif event.button_index == MOUSE_BUTTON_RIGHT:
+			var quantity = 5 if event.shift_pressed else 1
+			_dequeue_roster(button, quantity)
+			button.accept_event()
+
+
+func _dequeue_roster(button, quantity: int = 1):
+	if is_instance_valid(_camp):
+		var match_node = find_parent("Match")
+		if match_node != null:
+			var human_player = match_node._get_human_player()
+			for item in _camp_buttons:
+				if item.button == button:
+					var role = button.name.trim_prefix("Produce")
+					var canceled = 0
+					for i in range(_camp.jobs.size() - 1, -1, -1):
+						if canceled >= quantity:
+							break
+						if _camp.jobs[i].role == role and _camp.jobs[i].employer == human_player:
+							_camp.cancel_hire(human_player, i)
+							canceled += 1
+					_refresh_camp()
+					return
+
+	var target_entry = null
+	for entry in _buttons:
+		if entry.button == button:
+			target_entry = entry
+			break
+	if target_entry == null or target_entry.construction:
+		return
+	var unit_type = target_entry.type
+
+	for step in quantity:
+		var best_producer = null
+		var best_element = null
+		var best_index = -1
+		for producer in _selection:
+			if (
+				not is_instance_valid(producer)
+				or producer.is_queued_for_deletion()
+				or not producer is Structure
+				or not "production_queue" in producer
+				or producer.production_queue == null
+			):
+				continue
+			var elements = producer.production_queue.get_elements()
+			for i in range(elements.size() - 1, -1, -1):
+				var el = elements[i]
+				if Catalog.type_from_path(el.unit_prototype.resource_path) == unit_type:
+					if i > best_index:
+						best_index = i
+						best_producer = producer
+						best_element = el
+					break
+		if best_producer != null and best_element != null:
+			best_producer.production_queue.cancel(best_element)
+		else:
+			break
+	_refresh_buttons()
 
 
 func _activate_roster(unit_type, construction, button):
@@ -1074,7 +1135,13 @@ func _rally_destination(rally):
 
 func _roster_tooltip(details, role, construction):
 	if not construction:
-		return details + "\n" + tr("Shift-click to queue 5 units.")
+		return (
+			details
+			+ "\n"
+			+ tr("Shift-click to queue 5 units.")
+			+ "\n"
+			+ tr("Right-click to cancel / dequeue (Shift for 5).")
+		)
 	var lines = details.split("\n")
 	lines[0] += " [%s]" % OS.get_keycode_string(BUILD_KEYS.find_key(role))
 	return "\n".join(lines)
@@ -1258,6 +1325,7 @@ func _build_camp():
 			)
 		)
 		button.tooltip_text += "\n" + tr("Shift-click to queue 5 units.")
+		button.tooltip_text += "\n" + tr("Right-click to cancel / dequeue (Shift for 5).")
 		button.accessibility_name = tr(Factions.title("bastion", role))
 		button.accessibility_description = button.tooltip_text
 		button.gui_input.connect(_roster_input.bind(button))
