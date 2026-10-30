@@ -52,10 +52,27 @@ func _get_controlled_units_from_navigation_domain_within_topdown_polygon_2d(
 			continue
 		if camera.is_position_behind(unit.global_position):
 			continue
-		if Geometry2D.is_point_in_polygon(
-			camera.unproject_position(unit.global_position), screen_polygon
-		):
+		var base_screen = camera.unproject_position(unit.global_position)
+		if Geometry2D.is_point_in_polygon(base_screen, screen_polygon):
 			units_within_polygon.add(unit)
+			continue
+		var col = unit.get_node_or_null("CollisionShape3D")
+		var height = 1.2
+		if col != null and col.shape != null:
+			if "height" in col.shape:
+				height = col.shape.height
+			elif "size" in col.shape:
+				height = col.shape.size.y
+		var center_screen = camera.unproject_position(
+			unit.global_position + Vector3(0, height * 0.5, 0)
+		)
+		if Geometry2D.is_point_in_polygon(center_screen, screen_polygon):
+			units_within_polygon.add(unit)
+			continue
+		var top_screen = camera.unproject_position(unit.global_position + Vector3(0, height, 0))
+		if Geometry2D.is_point_in_polygon(top_screen, screen_polygon):
+			units_within_polygon.add(unit)
+			continue
 	return units_within_polygon
 
 

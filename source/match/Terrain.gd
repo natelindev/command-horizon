@@ -29,28 +29,53 @@ func use_shape(shape: Shape3D, shape_transform: Transform3D):
 	_collision_shape.transform = shape_transform
 
 
-func _on_input_event(_camera, event, _click_position, _click_normal, _shape_idx):
+func _on_input_event(a_camera, event, _click_position, _click_normal, _shape_idx):
 	if _commands_blocked():
 		return
+	var camera = a_camera if a_camera != null else get_viewport().get_camera_3d()
 	if (
 		event is InputEventMouseButton
 		and event.button_index == MOUSE_BUTTON_LEFT
 		and event.pressed
 		and event.ctrl_pressed
 	):
-		var camera = get_viewport().get_camera_3d()
 		var target_point = camera.get_ray_intersection(event.position) if camera != null else null
 		if target_point != null:
 			MatchSignals.tactical_ping.emit(target_point)
 			return
+	if (
+		event is InputEventMouseButton
+		and event.button_index == MOUSE_BUTTON_LEFT
+		and event.pressed
+		and not event.ctrl_pressed
+	):
+		var unit = Utils.Match.find_unit_at_screen_point(get_tree(), camera, event.position)
+		if unit != null:
+			var selection = unit.get_node_or_null("Selection")
+			if selection != null:
+				if Globals.options.selection_modifier_pressed():
+					if selection._selected:
+						selection.deselect()
+					else:
+						selection.select()
+				else:
+					MatchSignals.deselect_all_units.emit()
+					selection.select()
+				if event.double_click and unit.is_in_group("controlled_units"):
+					var handler = get_tree().root.find_child(
+						"DoubleClickUnitSelectionHandler", true, false
+					)
+					if handler != null and handler.has_method("handle_double_click"):
+						handler.handle_double_click(unit.type)
+				return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT:
 		if event.pressed:
 			_rmb_drag_start = event.position
 			set_process(true)
-			var camera = get_viewport().get_camera_3d()
 			_rmb_start_world = (
 				camera.get_ray_intersection(event.position) if camera != null else null
 			)
+
 			# Orders go out on press; a drag past the threshold revises them with
 			# formation and facing on release.
 			if _rmb_start_world != null:

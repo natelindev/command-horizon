@@ -177,8 +177,35 @@ func _update_circle_params():
 	_circle.outer_edge_width = 1.0
 
 
-func _on_input_event(_camera, event, _click_position, _click_normal, _shape_idx):
+func _on_input_event(camera, event, _click_position, _click_normal, _shape_idx):
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		if _unit != null and _unit.has_method("_is_movable") and not _unit._is_movable():
+			var target = Utils.Match.find_unit_at_screen_point(
+				get_tree(), camera, event.position, true
+			)
+			if (
+				target != null
+				and target != _unit
+				and target.has_method("_is_movable")
+				and target._is_movable()
+			):
+				var target_selection = target.get_node_or_null("Selection")
+				if target_selection != null:
+					if Globals.options.selection_modifier_pressed():
+						if target_selection._selected:
+							target_selection.deselect()
+						else:
+							target_selection.select()
+					else:
+						MatchSignals.deselect_all_units.emit()
+						target_selection.select()
+					if event.double_click and target.is_in_group("controlled_units"):
+						var handler = get_tree().root.find_child(
+							"DoubleClickUnitSelectionHandler", true, false
+						)
+						if handler != null and handler.has_method("handle_double_click"):
+							handler.handle_double_click(target.type)
+					return
 		if _selected and Globals.options.selection_modifier_pressed():
 			deselect()
 			return

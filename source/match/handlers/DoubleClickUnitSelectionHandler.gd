@@ -13,7 +13,7 @@ func _connect_unit(unit):
 		unit.input_event.connect(callback)
 
 
-func _handle_double_click(unit_type):
+func handle_double_click(unit_type):
 	var units_to_select = Utils.Set.new()
 	var camera = get_viewport().get_camera_3d()
 	for unit in get_tree().get_nodes_in_group("controlled_units"):
@@ -22,6 +22,10 @@ func _handle_double_click(unit_type):
 		if unit.type == unit_type:
 			units_to_select.add(unit)
 	Utils.Match.select_units(units_to_select)
+
+
+func _handle_double_click(unit_type):
+	handle_double_click(unit_type)
 
 
 func _on_unit_input(_camera, event, _click_position, _click_normal, _shape_index, unit):

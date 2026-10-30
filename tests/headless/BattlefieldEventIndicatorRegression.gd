@@ -11,7 +11,7 @@ extends "res://tests/headless/SaveRestoreEdges.gd"
 
 func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
-	await _skirmish("bastion", "res://source/match/maps/DesertFrontier.tscn", true)
+	await _skirmish("bastion", "res://source/match/maps/battlefields/DesertFrontierMap.tscn", true)
 	var hud = game.hud
 	_check(is_instance_valid(hud), "HUD is missing from match")
 	if not is_instance_valid(hud):
