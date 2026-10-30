@@ -37,6 +37,9 @@ const HELIX_MODELS = {
 const HELIX_NAMES = {
 	"Worker": "Mule engineer",
 	"Infantry": "Vector operator",
+	"AssaultInfantry": "Arc shocktrooper",
+	"RocketInfantry": "Ion specialist",
+	"SniperInfantry": "Phase infiltrator",
 	"Tank": "Needle skimmer",
 	"RepairRobot": "Mender robot",
 	"CombatRobot": "Lancer walker",
@@ -61,13 +64,28 @@ const HELIX_DESCRIPTIONS = {
 	"Unarmed engineer: harvest materials and electronics, deliver to HQ and construct your base.",
 	"Infantry":
 	(
-		"Fast operators against infantry and light machines; weak against heavy armor. "
-		+ "Capture relays and recover at an operator hub."
+		"Fast cybernetic operator with rapid plasma carbine. High mobility makes it "
+		+ "ideal for capturing relays and flanking."
+	),
+	"AssaultInfantry":
+	(
+		"High-energy shocktrooper armed with twin pulse repeaters. Relentless "
+		+ "close-quarters energy fire and rapid sprint."
+	),
+	"RocketInfantry":
+	(
+		"Energy disruptor soldier firing guided ion torpedoes to penetrate vehicle "
+		+ "armor and overload electronics."
+	),
+	"SniperInfantry":
+	(
+		"Long-range cybernetic marksman equipped with thermal optics and an instant "
+		+ "thermal beam rifle."
 	),
 	"Tank":
 	(
-		"Fast frontline skimmer with a ground-only cannon and less hull strength than "
-		+ "Bastion armor. Use mobility and repair support."
+		"High-speed repulsor hover skimmer armed with rapid twin pulse lasers. "
+		+ "Uses superior mobility to flank and outrange heavy armor."
 	),
 	"CombatRobot":
 	(
@@ -192,13 +210,13 @@ static func title(faction, role):
 			{"bastion": "Marshal Aegis", "helix": "Spectre Nyx", "frontier": "Pathfinder Rook"}
 			. get(faction, "Marshal Aegis")
 		)
-	if role in Bastion.INFANTRY_ROLES and role != "Infantry":
-		return Bastion.NAMES[role]
 	if role in Bastion.MISSION_NAMES:
 		return Bastion.MISSION_NAMES[role]
-	if faction == "frontier":
+	if faction == "frontier" and Frontier.NAMES.has(role):
 		return Frontier.NAMES[role]
-	return HELIX_NAMES[role] if faction == "helix" else Bastion.NAMES[role]
+	if faction == "helix" and HELIX_NAMES.has(role):
+		return HELIX_NAMES[role]
+	return Bastion.NAMES.get(role, role)
 
 
 static func icon(faction, role):
@@ -463,7 +481,7 @@ static func signature_cooldown(faction):
 static func apply_stats(unit):
 	if unit.type in Mercenaries.ROLES:
 		unit.get_node("Movement").speed *= {
-			"MercenaryWarden": .72, "MercenaryRanger": 1.25, "MercenaryLancer": .8
+			"MercenaryWarden": .78, "MercenaryRanger": 1.16, "MercenaryLancer": .84
 		}[unit.type]
 	if unit.type == "RocketInfantry":
 		unit.get_node("Movement").speed *= .82
@@ -489,8 +507,17 @@ static func apply_stats(unit):
 			unit.get_node("Movement").speed *= 1.2
 		elif not Bastion.is_aircraft(unit.type):
 			unit.get_node("Movement").speed *= 1.1
-		if unit.type == "AdvancedTank":
+		if unit.type == "Tank":
+			unit.attack_interval = 0.85
+		elif unit.type == "AdvancedTank":
 			unit.attack_interval = 2.2
+		elif unit.type == "Infantry":
+			unit.attack_interval = 0.65
+		elif unit.type == "AssaultInfantry":
+			unit.attack_interval = 0.48
+		elif unit.type == "SniperInfantry":
+			unit.attack_interval = 2.0
+			unit.sight_range = 14.5
 	if unit.player.faction == "helix" and unit.movement_speed > 0:
 		unit.hp_max = roundi(unit.hp_max * 0.8)
 		unit.hp = unit.hp_max
@@ -502,10 +529,26 @@ static func apply_stats(unit):
 			unit.attack_range = null
 			unit.attack_interval = null
 			unit.attack_domains = []
+		if unit.type == "Tank":
+			unit.attack_damage = 6
+			unit.attack_interval = 0.65
 		if unit.type == "AdvancedTank":
 			unit.attack_range = 14.0
 			unit.sight_range = 15.0
 			unit.get_node("Movement").speed *= 0.75
+		if unit.type == "Infantry":
+			unit.attack_interval = 0.55
+		elif unit.type == "AssaultInfantry":
+			unit.attack_damage = 3.5
+			unit.attack_interval = 0.38
+		elif unit.type == "RocketInfantry":
+			unit.attack_damage = 13
+			unit.attack_interval = 2.1
+		elif unit.type == "SniperInfantry":
+			unit.attack_damage = 15
+			unit.attack_interval = 2.3
+			unit.attack_range = 13.5
+			unit.sight_range = 15.0
 	if unit.type == "AntiAirVehicle":
 		match unit.player.faction:
 			"helix":

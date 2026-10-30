@@ -13,6 +13,7 @@ const Worker = preload("res://source/match/units/Worker.gd")
 const RosterInfo = preload("res://source/match/hud/RosterInfo.gd")
 const RosterButton = preload("res://source/match/hud/RosterButton.gd")
 const CommandCard = preload("res://source/match/hud/CommandCard.gd")
+const UnitCounters = preload("res://source/match/combat/UnitCounters.gd")
 
 const BUILD_KEYS = {
 	KEY_C: "CommandCenter",
@@ -882,6 +883,8 @@ func _refresh_buttons():
 		if unit.has_method("can_scavenge") and unit.can_scavenge():
 			facts.append("Right-click wrecks to repair and gain Scrap Hardened.")
 		facts.push_front(load("res://source/match/combat/CombatRules.gd").describe(unit))
+		for fact in UnitCounters.format_facts(unit.type, unit.player.faction):
+			facts.append(fact)
 		if unit.player.technology != null:
 			var upgrades = unit.player.technology.summary(unit.type)
 			if upgrades != "":
@@ -1314,10 +1317,12 @@ func _build_camp():
 		button.show_role(
 			Factions.portrait("bastion", role), tr(Factions.title("bastion", role)), cost
 		)
+		var counter_info = UnitCounters.format_tooltip(role, _camp.player.faction)
 		button.tooltip_text = (
 			tr(Factions.title("bastion", role))
 			+ "\n"
 			+ tr(Factions.description("bastion", role))
+			+ ("\n" + counter_info if not counter_info.is_empty() else "")
 			+ "\n"
 			+ (
 				tr("%d s production; queue wait extra.")

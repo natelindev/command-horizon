@@ -215,7 +215,10 @@ func _test_ability_orders():
 		"Rejected target consumed ability or targeting"
 	)
 	_check(not commands.commit(enemy.global_position, null, false), "Grenade accepted map point")
-	_check(not commands.commit(enemy.global_position, enemy, false), "Grenade accepted non-garrison target")
+	_check(
+		not commands.commit(enemy.global_position, enemy, false),
+		"Grenade accepted non-garrison target"
+	)
 	_check(
 		commands.kind == "ability" and first.abilities.get_ability("frag_grenade").is_ready(),
 		"Rejected non-garrison target consumed ability or targeting"
@@ -537,7 +540,7 @@ func _test_salvo():
 	paused = false
 	shooter.queue_free()
 	await _frames(90)
-	_check(before - target.hp == 60, "Heavy rocket damage changed or died with shooter")
+	_check(before - target.hp == 34, "Heavy rocket damage changed or died with shooter")
 	var point_shooter = _spawn("RocketInfantry", _human, Vector3(40, 0, 14))
 	var point_target = _spawn("Tank", _enemy, Vector3(48, 0, 14))
 	await _frames(5)
@@ -547,4 +550,4 @@ func _test_salvo():
 		"Salvo rejected point target"
 	)
 	await _frames(90)
-	_check(before - point_target.hp == 60, "Point salvo failed to hit enemy along flight path")
+	_check(before - point_target.hp == 34, "Point salvo failed to hit enemy along flight path")

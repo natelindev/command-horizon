@@ -2,6 +2,7 @@ extends RefCounted
 
 const Factions = preload("res://source/match/FactionCatalog.gd")
 const Catalog = preload("res://source/match/BastionCatalog.gd")
+const UnitCounters = preload("res://source/match/combat/UnitCounters.gd")
 
 
 static func inspect(producer, role, construction):
@@ -22,6 +23,9 @@ static func inspect(producer, role, construction):
 		)
 		lines.append("%d s construction with one engineer; travel extra." % ceili(seconds))
 	else:
+		var counter_info = UnitCounters.format_tooltip(role, player.faction)
+		if not counter_info.is_empty():
+			lines.append(counter_info)
 		var seconds = Factions.duration(player, role) / player.production_factor()
 		lines.append(
 			(

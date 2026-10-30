@@ -201,24 +201,36 @@ func _execute(ability, point: Vector3, target: Node) -> bool:
 				"field_barricade": "barricade", "scrap_mine": "mine", "sweep_mines": "sweep"
 			}[ability.id]
 			return unit._match.engineering.request(unit, kind, point)
-		"combat_sprint", "smoke_screen":
+		"combat_sprint", "smoke_screen", "shield_wall", "target_flare":
 			ability.is_active = true
 			ability.active_left = ability.duration
-			# Smoke stays at its deployment point when the tank drives away.
-			ability.effect_position = unit.global_position
+			# Smoke stays at its deployment point when the tank drives away;
+			# flare illuminates its designated target area.
+			ability.effect_position = (
+				point if ability.id == "target_flare" else unit.global_position
+			)
 		"siege_anchor":
 			ability.is_active = not ability.is_active
 			if ability.is_active:
 				var movement = unit.get_node_or_null("Movement")
 				if movement != null:
 					movement.stop()
-		"guided_salvo":
+		"guided_salvo", "emp_rocket":
 			var game = unit.find_parent("Match")
 			if game == null or game.projectile_system == null:
 				return false
-			var weapon = load("res://source/match/combat/WeaponCatalog.gd").GUIDED_SALVO
+			var weapon_catalog = load("res://source/match/combat/WeaponCatalog.gd")
+			var weapon = (
+				weapon_catalog.EMP_ROCKET
+				if ability.id == "emp_rocket"
+				else weapon_catalog.GUIDED_SALVO
+			)
 			if game.projectile_system.launch(unit, target, weapon, Vector3.ZERO, point) == null:
 				return false
+			if ability.id == "emp_rocket" and is_instance_valid(target):
+				if "shields" in target and target.shields > 0:
+					target.shields = maxf(0.0, target.shields - 50.0)
+					target.shields_changed.emit()
 		_:
 			return false
 	return true
@@ -248,6 +260,11 @@ func _sync_smoke_group():
 		add_to_group("active_smoke_screens")
 	else:
 		remove_from_group("active_smoke_screens")
+	var flare = get_ability("target_flare")
+	if flare != null and flare.is_active and flare.active_left > 0.0:
+		add_to_group("active_target_flares")
+	else:
+		remove_from_group("active_target_flares")
 
 
 func is_active(id: String) -> bool:
@@ -260,7 +277,13 @@ func speed_factor() -> float:
 	# while reading their live state and availability on every modifier query.
 	if _siege_anchor != null and _siege_anchor.is_active and unit_available():
 		return 0.0
-	return 1.5 if _combat_sprint != null and _combat_sprint.is_active and unit_available() else 1.0
+	var factor = 1.0
+	if _combat_sprint != null and _combat_sprint.is_active and unit_available():
+		factor *= 1.5
+	var wall = get_ability("shield_wall")
+	if wall != null and wall.is_active and unit_available():
+		factor *= 0.7
+	return factor
 
 
 func range_factor() -> float:

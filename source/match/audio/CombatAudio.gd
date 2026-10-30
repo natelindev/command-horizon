@@ -81,7 +81,10 @@ static func weapon_cue(unit, weapon = {}):
 		return ""  # Gravity stores have no muzzle report; their impact carries the weight.
 	if weapon.get("kind", "") in ["rocket", "missile"]:
 		return "missile_launch"
-	if weapon.get("id", "") in ["jet_cannon", "flak", "aa_autocannon"]:
+	if (
+		weapon.get("id", "")
+		in ["jet_cannon", "flak", "aa_autocannon", "twin_autocannon", "shotgun"]
+	):
 		return "autocannon_fire"
 	var helix = unit.player.faction == "helix"
 	match unit.type:

@@ -68,7 +68,7 @@ const GUIDED_SALVO = {
 	"gravity": 0.0,
 	"spread": 0.0,
 	"visual": "rocket",
-	"ability_damage": 60.0,
+	"ability_damage": 34.0,
 }
 const STRIKE_ROCKET = {
 	"id": "strike_rocket",
@@ -181,6 +181,35 @@ const AA_AUTOCANNON = {
 	"spread": 0.025,
 	"visual": "heavy_tracer"
 }
+const PULSE_LASER = {
+	"id": "pulse_laser",
+	"kind": "bullet",
+	"speed": 65.0,
+	"spread": 0.008,
+	"visual": "tracer",
+	"splash": 0.4
+}
+const TWIN_AUTOCANNON = {
+	"id": "twin_autocannon",
+	"kind": "bullet",
+	"speed": 52.0,
+	"spread": 0.015,
+	"visual": "heavy_tracer",
+	"splash": 0.6
+}
+const SHOTGUN = {
+	"id": "shotgun", "kind": "bullet", "speed": 46.0, "spread": 0.045, "visual": "heavy_tracer"
+}
+const EMP_ROCKET = {
+	"id": "emp_rocket",
+	"kind": "missile",
+	"speed": 22.0,
+	"turn": 7.0,
+	"gravity": 0.0,
+	"spread": 0.0,
+	"visual": "rocket",
+	"ability_damage": 35.0
+}
 # A kamikaze drone's own warhead, detonated where the airframe strikes.
 const DRONE_WARHEAD = {
 	"id": "drone_warhead",
@@ -209,6 +238,10 @@ const ALL = [
 	FLAK,
 	INTERCEPTOR,
 	AA_AUTOCANNON,
+	PULSE_LASER,
+	TWIN_AUTOCANNON,
+	SHOTGUN,
+	EMP_ROCKET,
 ]
 
 const BY_ROLE = {
@@ -218,7 +251,7 @@ const BY_ROLE = {
 	"RocketInfantry": INFANTRY_ROCKET,
 	"Hero": AUTOCANNON,
 	"MercenaryRanger": SNIPER,
-	"MercenaryWarden": ASSAULT,
+	"MercenaryWarden": SHOTGUN,
 	"MercenaryLancer": INFANTRY_ROCKET,
 	"CombatRobot": AUTOCANNON,
 	"Tank": TANK_SHELL,
@@ -229,6 +262,8 @@ const BY_ROLE = {
 	"AntiAirVehicle": FLAK,
 }
 const FACTION_ROLE = {
+	"helix:Tank": PULSE_LASER,
+	"frontier:Tank": TWIN_AUTOCANNON,
 	"frontier:AdvancedTank": HEAVY_SHELL,
 	"helix:AntiAirVehicle": INTERCEPTOR,
 	"frontier:AntiAirVehicle": AA_AUTOCANNON,
@@ -271,11 +306,11 @@ static func lifetime(weapon, reach):
 
 static func suppression_hit(weapon: Dictionary, player) -> float:
 	match weapon.get("id", ""):
-		"rifle":
+		"rifle", "pulse_laser":
 			return 6.0
-		"assault":
+		"assault", "shotgun":
 			return 8.0
-		"autocannon":
+		"autocannon", "twin_autocannon":
 			return 16.0
 		"flak", "aa_autocannon":
 			return (
@@ -286,4 +321,4 @@ static func suppression_hit(weapon: Dictionary, player) -> float:
 
 
 static func suppresses_nearby(weapon: Dictionary) -> bool:
-	return weapon.get("id", "") in ["autocannon", "flak", "aa_autocannon"]
+	return weapon.get("id", "") in ["autocannon", "twin_autocannon", "flak", "aa_autocannon"]

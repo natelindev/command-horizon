@@ -81,8 +81,8 @@ const DESCRIPTIONS = {
 	),
 	"Tank":
 	(
-		"Frontline armor with a ground-only cannon. Use infantry screens and repair support; "
-		+ "aircraft require another weapon."
+		"Heavy frontline armor with thick composite plating and a 105 mm cannon. "
+		+ "Serves as the durable anchor of your ground forces."
 	),
 	"AdvancedTank":
 	(

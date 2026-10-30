@@ -11,8 +11,8 @@ const UNITS = {
 		"seconds": 14.0,
 		"description":
 		(
-			"Camp exclusive. Heavy shield infantry with sustained close-range fire; "
-			+ "slow and vulnerable to armor."
+			"Camp exclusive. Heavy ballistic shield breacher with a close-range combat shotgun. "
+			+ "Activate Shield Wall for 40% damage resistance and suppression immunity."
 		)
 	},
 	"MercenaryRanger":
@@ -23,8 +23,9 @@ const UNITS = {
 		"seconds": 15.0,
 		"description":
 		(
-			"Camp exclusive. Fast reconnaissance marksman with 18 m vision; "
-			+ "light armor and a deliberate firing cadence."
+			"Camp exclusive. Reconnaissance marksman with 18 m vision and heavy sniper rifle. "
+			+ "Launch Spotter Flare to illuminate fog and mark targets "
+			+ "for 20% increased damage."
 		)
 	},
 	"MercenaryLancer":
@@ -35,8 +36,8 @@ const UNITS = {
 		"seconds": 18.0,
 		"description":
 		(
-			"Camp exclusive. Long-range heavy rockets against armor and structures; "
-			+ "slow reload and weak against infantry."
+			"Camp exclusive. Long-range heavy breach rockets against armor and structures. "
+			+ "Launch Disruptor Rocket to damage, drain shields, and slow hostile vehicles."
 		)
 	},
 }

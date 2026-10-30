@@ -10,15 +10,19 @@ const Kit = preload("res://source/match/units/traits/InfantryEquipment.gd")
 
 static func build(faction, role):
 	var Mercenaries = preload("res://source/match/world/MercenaryCatalog.gd")
-	if role in Mercenaries.ROLES:
-		faction = "bastion"
+	var is_mercenary = role in Mercenaries.ROLES
+	if is_mercenary:
 		role = Mercenaries.UNITS[role].base
 	var model = _pivot(null, "InfantryRig", Vector3.ZERO)
-	var palette = {
-		"bastion": ["555a43", "807c5e", "93886b", "b7a066"],
-		"helix": ["35414b", "68717a", "778186", "72a4af"],
-		"frontier": ["80775e", "535f47", "8b8065", "8d9e79"]
-	}[faction]
+	var palette = (
+		["333739", "544d42", "7a6e5b", "c49a45"]
+		if is_mercenary
+		else {
+			"bastion": ["555a43", "807c5e", "93886b", "b7a066"],
+			"helix": ["35414b", "68717a", "778186", "72a4af"],
+			"frontier": ["80775e", "535f47", "8b8065", "8d9e79"]
+		}[faction]
+	)
 	var cloth = _material(palette[0], "Infantry cloth", .96)
 	var armor = _material(palette[1], "Infantry armor", .82)
 	var canvas = _material(palette[2], "Infantry canvas", .98)

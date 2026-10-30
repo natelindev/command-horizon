@@ -227,31 +227,31 @@ class Units:
 	const DEFAULT_PROPERTIES = {
 		"res://source/match/units/MercenaryLancer.tscn":
 		{
-			"hp": 44,
-			"hp_max": 44,
-			"attack_damage": 18,
-			"attack_interval": 3,
+			"hp": 50,
+			"hp_max": 50,
+			"attack_damage": 22,
+			"attack_interval": 2.8,
 			"attack_range": 11.0,
 			"sight_range": 12.0,
 			"attack_domains": [Navigation.Domain.TERRAIN]
 		},
 		"res://source/match/units/MercenaryRanger.tscn":
 		{
-			"hp": 28,
-			"hp_max": 28,
-			"attack_damage": 10,
-			"attack_interval": 1.8,
-			"attack_range": 12.0,
+			"hp": 30,
+			"hp_max": 30,
+			"attack_damage": 16,
+			"attack_interval": 2.0,
+			"attack_range": 13.5,
 			"sight_range": 18.0,
 			"attack_domains": [Navigation.Domain.TERRAIN]
 		},
 		"res://source/match/units/MercenaryWarden.tscn":
 		{
-			"hp": 70,
-			"hp_max": 70,
-			"attack_damage": 5,
+			"hp": 85,
+			"hp_max": 85,
+			"attack_damage": 8,
 			"attack_interval": 0.5,
-			"attack_range": 6.0,
+			"attack_range": 5.5,
 			"sight_range": 10.0,
 			"attack_domains": [Navigation.Domain.TERRAIN]
 		},
@@ -267,10 +267,10 @@ class Units:
 		},
 		"res://source/match/units/AssaultInfantry.tscn":
 		{
-			"hp": 42,
-			"hp_max": 42,
+			"hp": 38,
+			"hp_max": 38,
 			"attack_damage": 4,
-			"attack_interval": 0.4,
+			"attack_interval": 0.45,
 			"attack_range": 5.5,
 			"sight_range": 8.0,
 			"attack_domains": [Navigation.Domain.TERRAIN]
@@ -319,8 +319,8 @@ class Units:
 		},
 		"res://source/match/units/AdvancedTank.tscn":
 		{
-			"hp": 105,
-			"hp_max": 105,
+			"hp": 145,
+			"hp_max": 145,
 			"sight_range": 14.0,
 			"attack_damage": 18,
 			"attack_interval": 2.0,
@@ -392,9 +392,9 @@ class Units:
 		"res://source/match/units/Tank.tscn":
 		{
 			"sight_range": 11.0,
-			"hp": 80,
-			"hp_max": 80,
-			"attack_damage": 9,
+			"hp": 115,
+			"hp_max": 115,
+			"attack_damage": 11,
 			"attack_interval": 1.2,
 			"attack_range": 9.0,
 			"attack_domains": [Navigation.Domain.TERRAIN],

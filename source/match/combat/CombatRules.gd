@@ -4,17 +4,19 @@ const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
 const Technologies = preload("res://source/match/research/TechnologyCatalog.gd")
 const Players = preload("res://source/match/Players.gd")
 const Unit = preload("res://source/match/units/Unit.gd")
+const Counters = preload("res://source/match/combat/UnitCounters.gd")
 
 # Armor profiles; damage remains floating point all the way to HP.
 const MULTIPLIERS = {
-	"Infantry rocket": [.3, 1.1, 1.7, 1.1],
+	"Infantry rocket": [.3, 1.0, 1.3, 1.0],
 	"Sniper rifle": [1.5, .4, .1, .1],
 	"Assault rifle": [1.2, .5, .12, .15],
+	"Combat shotgun": [1.3, 0.7, 0.15, 0.15],
 	"Rifle": [1.0, 0.6, 0.15, 0.15],
 	"Autocannon": [1.25, 1.0, 0.45, 0.35],
-	"Tank cannon": [0.5, 1.0, 1.0, 0.7],
+	"Tank cannon": [0.75, 1.0, 1.0, 0.7],
 	"Heavy cannon": [0.35, 0.9, 1.3, 0.8],
-	"Precision rail": [0.4, 1.0, 1.4, 0.8],
+	"Precision rail": [0.6, 1.0, 1.4, 0.8],
 	"Anti-armor lance": [0.3, 0.8, 2.0, 0.5],
 	"Strike missile": [0.75, 1.0, 1.0, 0.6],
 	"Anti-air": [1.0, 1.0, 1.0, 1.0],
@@ -31,7 +33,7 @@ const ARMOR_NAMES = ["Infantry", "Light machine", "Heavy armor", "Structure"]
 const PROFILES = {
 	"MercenaryLancer": "Infantry rocket",
 	"MercenaryRanger": "Sniper rifle",
-	"MercenaryWarden": "Assault rifle",
+	"MercenaryWarden": "Combat shotgun",
 	"RocketInfantry": "Infantry rocket",
 	"SniperInfantry": "Sniper rifle",
 	"AssaultInfantry": "Assault rifle",
@@ -302,6 +304,9 @@ static func damage_with_facts(facts: DamageFacts, target) -> float:
 		return 0.0
 	var factor: float = target.signature.damage_factor() if target.signature != null else 1.0
 	factor *= smoke_damage_factor(target)
+	factor *= target_flare_damage_factor(target)
+	if target.abilities != null and target.abilities.is_active("shield_wall"):
+		factor *= 0.6
 	var elevation: float = 0.0
 	if not facts.airborne and not airborne:
 		var origin: Vector3 = facts.origin if facts.has_origin else facts.source.global_position
@@ -325,7 +330,12 @@ static func damage_with_facts(facts: DamageFacts, target) -> float:
 ## Smoke protects allied ground targets at its fixed deployment point. Multiple
 ## screens do not stack, and in-flight rounds use the same rule as live weapons.
 static func smoke_damage_factor(target) -> float:
-	if not is_instance_valid(target) or not target is Node3D or not target.is_inside_tree() or _airborne(target):
+	if (
+		not is_instance_valid(target)
+		or not target is Node3D
+		or not target.is_inside_tree()
+		or _airborne(target)
+	):
 		return 1.0
 	for manager in target.get_tree().get_nodes_in_group("active_smoke_screens"):
 		if not manager.is_active("smoke_screen"):
@@ -336,6 +346,22 @@ static func smoke_damage_factor(target) -> float:
 		var offset = (target.global_position - smoke.effect_position) * Vector3(1, 0, 1)
 		if smoke.active_left > 0.0 and offset.length_squared() <= smoke.radius * smoke.radius:
 			return 0.5
+	return 1.0
+
+
+## Target flare marks enemy targets in the area, increasing damage taken by 20%.
+static func target_flare_damage_factor(target) -> float:
+	if not is_instance_valid(target) or not target is Node3D or not target.is_inside_tree():
+		return 1.0
+	for manager in target.get_tree().get_nodes_in_group("active_target_flares"):
+		if not manager.is_active("target_flare"):
+			continue
+		if Players.allied(manager.unit.player, target.player):
+			continue
+		var flare = manager.get_ability("target_flare")
+		var offset = (target.global_position - flare.effect_position) * Vector3(1, 0, 1)
+		if flare.active_left > 0.0 and offset.length_squared() <= flare.radius * flare.radius:
+			return 1.2
 	return 1.0
 
 

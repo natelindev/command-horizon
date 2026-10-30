@@ -25,6 +25,9 @@ const MODELS = {
 const NAMES = {
 	"Worker": "Scrapper rig",
 	"Infantry": "Ridge ranger",
+	"AssaultInfantry": "Scrap vanguard",
+	"RocketInfantry": "Tank hunter",
+	"SniperInfantry": "Frontier marksman",
 	"Tank": "Outrider",
 	"RepairRobot": "Patch crawler",
 	"CombatRobot": "Jackal rig",
@@ -71,10 +74,25 @@ const DESCRIPTIONS = {
 	),
 	"Infantry":
 	(
-		"Fast field infantry against infantry and light machines. Capture "
+		"Fast guerrilla infantry against infantry and light machines. Capture "
 		+ "relays; recover at a ranger camp. Weak against armor."
 	),
-	"Tank": "Mobile, lightly protected ground cannon. Use flanks and withdraw for repairs.",
+	"AssaultInfantry":
+	(
+		"Aggressive wasteland raider armed with a trench shotgun. Rapid close-range "
+		+ "shrapnel bursts; uses Adrenaline sprint."
+	),
+	"RocketInfantry":
+	(
+		"Mobile anti-tank hunter armed with scavenged heavy RPGs to break enemy armor. "
+		+ "Fires Guided Salvo rockets."
+	),
+	"SniperInfantry":
+	(
+		"Frontier tracker with a heavy scoped hunting rifle. Long-range precision "
+		+ "fire against infantry."
+	),
+	"Tank": "Fast wheeled technical with twin autocannons. Flank enemy armor and screen lines.",
 	"CombatRobot":
 	(
 		"Shielded autocannon against infantry and light machines. "

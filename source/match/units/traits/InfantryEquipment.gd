@@ -12,12 +12,22 @@ static func equip(unit, faction):
 	gear.position = -chest.position
 	var dark = _material(Color("243139"), .5)
 	var metal = _material(Color("6b736e"), .25)
+	var Mercenaries = preload("res://source/match/world/MercenaryCatalog.gd")
+	var is_mercenary = unit.type in Mercenaries.ROLES
 	var accent = _material(
-		{"bastion": Color("b7a066"), "helix": Color("72a4af"), "frontier": Color("8d9e79")}[faction],
+		(
+			Color("c49a45")
+			if is_mercenary
+			else {"bastion": Color("b7a066"), "helix": Color("72a4af"), "frontier": Color("8d9e79")}[faction]
+		),
 		.25
 	)
 	var cloth = _material(
-		{"bastion": Color("4c555f"), "helix": Color("2e4357"), "frontier": Color("79744d")}[faction],
+		(
+			Color("333739")
+			if is_mercenary
+			else {"bastion": Color("4c555f"), "helix": Color("2e4357"), "frontier": Color("79744d")}[faction]
+		),
 		0
 	)
 	if unit.type in ["RocketInfantry", "SniperInfantry", "MercenaryRanger", "MercenaryLancer"]:
@@ -42,7 +52,6 @@ static func equip(unit, faction):
 		)
 		gear.add_child(muzzle)
 	var role = unit.type
-	var Mercenaries = preload("res://source/match/world/MercenaryCatalog.gd")
 	if role in Mercenaries.ROLES:
 		role = Mercenaries.UNITS[role].base
 		_box(gear, "ContractMantle", Vector3(0, .78, .17), Vector3(.34, .10, .23), dark)
