@@ -24,6 +24,7 @@ const Footprint = preload("res://source/match/utils/Footprint.gd")
 const AirfieldLayout = preload("res://source/match/units/AirfieldLayout.gd")
 const Expansion = preload("res://source/match/players/skirmish-ai/SkirmishExpansion.gd")
 const Tactics = preload("res://source/match/players/skirmish-ai/SkirmishTactics.gd")
+const Surrender = preload("res://source/match/players/skirmish-ai/SkirmishSurrender.gd")
 
 # Optional facilities follow a growing army instead of consuming its opening budget.
 const OPTIONAL_ARMY_STEP = 5
@@ -36,6 +37,7 @@ var _last_wave = 0.0
 var _production_index = 0
 var _army_groups = []
 var _army_cursor = 0
+var _hopeless_seconds = 0.0
 # Authored expansion site chosen for the next headquarters, if any.
 var _expansion_site = null
 @onready var _match = find_parent("Match")
@@ -45,9 +47,12 @@ func _process(delta):
 	_elapsed += delta
 	if _elapsed < profile().decision_interval or not _match.is_node_ready():
 		return
+	var step = _elapsed
 	_elapsed = 0.0
 	var units = _units()
 	if units.is_empty():
+		return
+	if _check_surrender(units, step):
 		return
 	# All subsystems in this synchronous decision share one live contact scan.
 	set_meta("decision_contacts", Economy.contacts(_match, self))
@@ -70,6 +75,24 @@ func profile():
 
 func _units():
 	return live_units()
+
+
+func _check_surrender(units: Array, delta: float) -> bool:
+	if Surrender.evaluates_as_hopeless(_match, self, units):
+		_hopeless_seconds += delta
+		if _hopeless_seconds >= Surrender.PERSISTENCE:
+			_surrender(units)
+			return true
+	else:
+		_hopeless_seconds = 0.0
+	return false
+
+
+func _surrender(units: Array) -> void:
+	if _match != null and _match.has_method("surrender"):
+		_match.surrender(self)
+	elif _match != null and _match.has_method("_eliminate"):
+		_match._eliminate(self, units)
 
 
 func _of_type(units, role):

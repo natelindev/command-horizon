@@ -92,7 +92,11 @@ func refresh():
 			"font_color", Color("e0c38d") if eliminated else BattleTheme.MUTED
 		)
 	if is_instance_valid(_announced_player):
-		_announcement_title.text = tr("Commander eliminated")
+		_announcement_title.text = (
+			tr("Commander surrendered")
+			if _announced_player.get_meta("surrendered", false)
+			else tr("Commander eliminated")
+		)
 		_announcement_detail.text = commander_name(_announced_player)
 		_announcement.accessibility_name = (
 			_announcement_title.text + ": " + _announcement_detail.text

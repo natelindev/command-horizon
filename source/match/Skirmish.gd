@@ -142,6 +142,13 @@ func _check_outcome(delta):
 		hud.show_result(result)
 
 
+func surrender(player):
+	if finished or not _defeat_timers.has(player) or _defeat_timers[player] <= 0.0:
+		return
+	player.set_meta("surrendered", true)
+	_eliminate(player, player.live_units())
+
+
 func _eliminate(player, units):
 	_defeat_timers[player] = 0.0
 	player.set_process(false)
