@@ -177,16 +177,16 @@ func _apply_lighting(altitude, daylight, golden, weather, previous_weather, blen
 	sun.light_color = Color("9ebae5").lerp(_base_sun.lerp(Color("ffb56a"), golden), daylight)
 	# Keep the moon key and sky fill readable under overcast skies. Daylight
 	# keeps the existing weather attenuation; tactical visibility is unchanged.
-	sun.light_energy = lerpf(.85, 1.35, daylight) * (1.0 - cloud_cover * lerpf(.18, .58, daylight))
+	sun.light_energy = lerpf(.85, 1.35, daylight) * (1.0 - cloud_cover * lerpf(.18, .25, daylight))
 	environment.ambient_light_color = Color("a5b7d0").lerp(_base_ambient, daylight)
-	environment.ambient_light_energy = lerpf(.72, .48, daylight) + cloud_cover * .08
+	environment.ambient_light_energy = lerpf(.72, .48, daylight) + cloud_cover * .12
 	environment.background_energy_multiplier = lerpf(.55, 1.0, daylight)
 	environment.fog_light_color = Color("263955").lerp(_haze, daylight).lerp(
 		Color("d4aa83"), golden * .35
 	)
-	var target_fog = .0015 if weather == 4 else lerpf(.00015, .00065, cloud_levels[weather])
+	var target_fog = .0005 if weather == 4 else lerpf(.00008, .00025, cloud_levels[weather])
 	var previous_fog = (
-		.0015 if previous_weather == 4 else lerpf(.00015, .00065, cloud_levels[previous_weather])
+		.0005 if previous_weather == 4 else lerpf(.00008, .00025, cloud_levels[previous_weather])
 	)
 	environment.fog_density = lerpf(previous_fog, target_fog, blend)
 	if _sky:
@@ -200,7 +200,7 @@ func _apply_lighting(altitude, daylight, golden, weather, previous_weather, blen
 func _create_rain():
 	rain = GPUParticles3D.new()
 	rain.name = "Rain"
-	rain.amount = 1800
+	rain.amount = 600
 	rain.lifetime = 1.4
 	rain.preprocess = 1.4
 	rain.visibility_aabb = AABB(Vector3(-55, -25, -55), Vector3(110, 50, 110))
@@ -215,9 +215,9 @@ func _create_rain():
 	process.gravity = Vector3(0, -4, 0)
 	rain.process_material = process
 	var mesh = BoxMesh.new()
-	mesh.size = Vector3(.018, .65, .018)
+	mesh.size = Vector3(.012, .45, .012)
 	var material = StandardMaterial3D.new()
-	material.albedo_color = Color(.65, .76, .84, .35)
+	material.albedo_color = Color(.65, .76, .84, .18)
 	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	mesh.material = material

@@ -1,15 +1,14 @@
 shader_type spatial;
-render_mode unshaded, depth_draw_never, cull_disabled, shadows_disabled, world_vertex_coords;
+render_mode unshaded, depth_draw_never, cull_disabled, shadows_disabled;
 
-// Soft team-colored ground mark under mobile units. Vertices are flattened onto the
-// (flat) battlefield so aircraft also mark their ground position.
+// Soft team-colored ground mark under mobile units.
 uniform vec4 color : source_color = vec4(1.0);
 uniform float ground_height = 0.018;
 uniform float strength = 0.34;
 
 void vertex()
 {
-  VERTEX.y = ground_height;
+  VERTEX.y += ground_height;
 }
 
 void fragment()

@@ -57,14 +57,14 @@ void fragment()
   vec3 premultiplied = vec3(0.0);
   if (clouds > .001)
   {
-    float shadow = banks((world.xz - wind) * .038) * clouds * .22;
+    float shadow = banks((world.xz - wind) * .038) * clouds * .10;
     alpha = shadow;
     // Orthographic rays are parallel. Intersect a cloud deck above the
     // terrain, so cloud wisps drift separately from their ground shadows.
     vec3 ray = normalize(INV_VIEW_MATRIX[2].xyz);
     float rise = max(0.0, ground_height + 20.0 - world.y);
     vec2 deck = world.xz + ray.xz * rise / max(.2, abs(ray.y));
-    float cloud = banks((deck - wind) * .038) * clouds * .16;
+    float cloud = banks((deck - wind) * .038) * clouds * .08;
     premultiplied = haze_color * mix(.4, 1.12, daylight) * cloud;
     alpha = cloud + alpha * (1.0 - cloud);
   }
@@ -72,10 +72,10 @@ void fragment()
   {
     float low = exp(-max(0.0, world.y - ground_height) * .11);
     float wisps = banks((world.xz - wind * .65) * vec2(.065, .14));
-    float fog = mist * low * (.16 + wisps * .38);
-    float grit = dust * low * wisps * .34;
+    float fog = mist * low * (.05 + wisps * .12);
+    float grit = dust * low * wisps * .14;
     vec3 tint = mix(haze_color, dust_color, grit / max(.001, fog + grit));
-    float veil = clamp(fog + grit, 0.0, .48);
+    float veil = clamp(fog + grit, 0.0, .16);
     premultiplied = premultiplied * (1.0 - veil) + tint * mix(.35, 1.0, daylight) * veil;
     alpha = veil + alpha * (1.0 - veil);
   }
