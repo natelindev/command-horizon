@@ -15,6 +15,7 @@ var command_feedback
 var technology_panel = null
 var research_status
 var commander_roster
+var ability_tray = null
 ## Top-right console plate: mission clock, system keys and the alerts beacon slot.
 var system_plate: PanelContainer
 var alert_slot: Control
@@ -141,6 +142,9 @@ func _ready():
 	command_feedback = load("res://source/match/hud/CommandFeedback.gd").new()
 	command_feedback.hud = self
 	add_child(command_feedback)
+	ability_tray = load("res://source/match/hud/AbilityTray.gd").new()
+	ability_tray.hud = self
+	add_child(ability_tray)
 
 
 func _style(panel):
