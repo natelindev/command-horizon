@@ -15,6 +15,7 @@ func _ready():
 	_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	_material.albedo_color = Color(.9, .93, .88, .4)
+	_material.render_priority = 10
 	_mesh.material_override = _material
 	_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(_mesh)

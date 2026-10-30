@@ -418,29 +418,12 @@ def port_warehouse(seed):
 
 
 def arch_bridge():
-    """A humped brick canal bridge along local X: 14 m span, crown 2.2 m."""
-    verts = []
-    faces = []
-    steps = 10
-    for index in range(steps + 1):
-        t = index / steps
-        x = -9.0 + t * 18.0
-        rise = 2.2 * math.sin(math.pi * min(max((x + 7.0) / 14.0, 0.0), 1.0))
-        for y in [-3.4, 3.4]:
-            verts.append((x, y, rise))
-            verts.append((x, y, rise - .7 if abs(x) < 7.0 else -.6))
-    for index in range(steps):
-        a = index * 4
-        b = a + 4
-        faces += [(a, b, b + 2, a + 2), (a + 1, a + 3, b + 3, b + 1), (a, a + 1, b + 1, b), (a + 2, b + 2, b + 3, a + 3)]
-    mesh_object("Bridge deck", verts, faces, BRICK_WARM)
+    """Brick canal arch bridge along local X; the deck top is the origin."""
+    box("Bridge deck", (0, 0, -.25), (18.0, 6.8, .5), BRICK_WARM)
     for y in [-3.5, 3.5]:
-        for index in range(steps):
-            x0 = -9.0 + index * 1.8
-            x1 = x0 + 1.8
-            r0 = 2.2 * math.sin(math.pi * min(max((x0 + 7.0) / 14.0, 0.0), 1.0))
-            r1 = 2.2 * math.sin(math.pi * min(max((x1 + 7.0) / 14.0, 0.0), 1.0))
-            beam((x0, y, r0 + .5), (x1, y, r1 + .5), .3, STONE)
+        box("Parapet", (0, y, .3), (18.0, .3, .7), STONE)
+    for x in [-4.5, 4.5]:
+        cylinder("Arch vault", (x, 0, -.9), 2.2, 7.0, BRICK_DARK, 16, "y")
 
 
 def mooring_poles(seed):

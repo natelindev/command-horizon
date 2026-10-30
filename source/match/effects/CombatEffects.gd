@@ -1507,6 +1507,7 @@ func _spawn_ping_visual(point):
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	mat.albedo_color = Color(1.0, 0.78, 0.15, 0.85)
 	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.render_priority = 10
 	ring.material_override = mat
 	add_child(ring)
 	ring.global_position = point + Vector3.UP * 0.05

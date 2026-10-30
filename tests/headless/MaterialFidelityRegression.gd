@@ -173,7 +173,13 @@ func _foliage(path):
 
 
 func _bridges():
-	for bridge in ["temperate/LogBridge", "temperate/StoneBridge", "works/CanalBridge"]:
+	for bridge in [
+		"temperate/LogBridge",
+		"temperate/StoneBridge",
+		"works/CanalBridge",
+		"works/GirderBridge",
+		"harbour/ArchBridge"
+	]:
 		var model = load("res://assets/models/environment/%s.glb" % bridge).instantiate()
 		var deck_top = -INF
 		for child in model.find_children("*", "MeshInstance3D", true, false):

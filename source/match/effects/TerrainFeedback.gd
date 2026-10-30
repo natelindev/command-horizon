@@ -15,6 +15,7 @@ func _init():
 	_material.vertex_color_use_as_albedo = true
 	_material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	_material.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_DISABLED
+	_material.render_priority = 10
 	material_override = _material
 
 

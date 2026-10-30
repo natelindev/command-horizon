@@ -106,6 +106,33 @@ func _visuals(faction):
 			blueprint_mat != null and blueprint_mat.render_priority > 2,
 			"Blueprint indicator occluded by fog of war overlay"
 		)
+	var eng_preview = load("res://source/match/hud/EngineeringPreview.gd").new()
+	add_child(eng_preview)
+	_check(
+		eng_preview._material.render_priority > 2,
+		"Engineering preview occluded by fog of war overlay"
+	)
+	eng_preview.queue_free()
+	var terrain_feedback = load("res://source/match/effects/TerrainFeedback.gd").new()
+	_check(
+		terrain_feedback.material_override.render_priority > 2,
+		"Terrain feedback occluded by fog of war overlay"
+	)
+	terrain_feedback.free()
+	var controlled_air_mat = load(
+		"res://source/match/resources/materials/controlled_unit_air_to_terrain_marker.material.tres"
+	)
+	_check(
+		controlled_air_mat.render_priority > 2,
+		"Controlled air marker occluded by fog of war overlay"
+	)
+	var adversary_air_mat = load(
+		"res://source/match/resources/materials/adversary_unit_air_to_terrain_marker.material.tres"
+	)
+	_check(
+		adversary_air_mat.render_priority > 2,
+		"Adversary air marker occluded by fog of war overlay"
+	)
 	handler._cancel_structure_placement()
 	_check(handler._placement_range == null, "Canceled placement retained range")
 	var tank = _units(player, "Tank")[0]

@@ -503,6 +503,7 @@ func _refresh_markers():
 			var material = StandardMaterial3D.new()
 			material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 			material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+			material.render_priority = 10
 			material.albedo_color = {
 				"barrage": Color(1, .32, .15, .20),
 				"emp": Color(.15, .8, 1, .20),
@@ -514,6 +515,7 @@ func _refresh_markers():
 			var label = Label3D.new()
 			label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 			label.no_depth_test = true
+			label.render_priority = 10
 			label.position.y = 1.5
 			label.font_size = 38
 			label.pixel_size = .012

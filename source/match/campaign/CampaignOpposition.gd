@@ -194,6 +194,7 @@ func _show_marker():
 	_marker.width = 5.0
 	_marker.color = Color("f5a35b")
 	_marker.position = target_point + Vector3.UP * .06
+	_marker.render_priority = 10
 	_game.add_child(_marker)
 
 

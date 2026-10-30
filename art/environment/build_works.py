@@ -520,13 +520,13 @@ def container_stack(seed):
 
 
 def girder_bridge():
-    """Deck at 3 m over an underpass, along local X."""
-    box("Deck", (0, 0, 3.0), (20.0, 7.0, .5), CONCRETE)
+    """Through-girder bridge along local X; the deck top is the origin."""
+    box("Deck", (0, 0, -.25), (20.0, 7.0, .5), CONCRETE)
     for y in [-3.2, 3.2]:
-        box("Girder", (0, y, 2.2), (20.0, .5, 1.4), RUST)
-        box("Parapet", (0, y, 3.65), (20.0, .25, .8), CONCRETE_DARK)
+        box("Girder", (0, y, -1.05), (20.0, .5, 1.4), RUST)
+        box("Parapet", (0, y, .4), (20.0, .25, .8), CONCRETE_DARK)
     for x in [-10.6, 10.6]:
-        box("Abutment", (x, 0, 1.5), (1.4, 8.0, 3.0), CONCRETE_DARK)
+        box("Abutment", (x, 0, -1.75), (1.4, 8.0, 3.0), CONCRETE_DARK)
 
 
 def overpass_span():
