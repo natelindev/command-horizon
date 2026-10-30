@@ -92,6 +92,20 @@ func _visuals(faction):
 			handler._placement_range.material_override.albedo_color.a < .35,
 			"Range preview is too opaque"
 		)
+		_check(
+			handler._placement_range.material_override.render_priority > 2,
+			"Range preview occluded by fog of war overlay"
+		)
+	var blueprint_meshes = handler._active_blueprint_node.find_children(
+		"*", "MeshInstance3D", true, false
+	)
+	_check(not blueprint_meshes.is_empty(), "Blueprint has no mesh children")
+	if not blueprint_meshes.is_empty():
+		var blueprint_mat = blueprint_meshes[0].material_override
+		_check(
+			blueprint_mat != null and blueprint_mat.render_priority > 2,
+			"Blueprint indicator occluded by fog of war overlay"
+		)
 	handler._cancel_structure_placement()
 	_check(handler._placement_range == null, "Canceled placement retained range")
 	var tank = _units(player, "Tank")[0]

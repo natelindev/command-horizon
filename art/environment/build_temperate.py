@@ -282,26 +282,28 @@ def log_pile(seed):
 
 
 def log_bridge():
+    """Through-log span along local X; the deck top is the origin."""
     for x in [-6, -2, 2, 6]:
         for y in [-2.2, 2.2]:
-            limb((x, y, -1.4), (x, y, .3), .2, TIMBER_DARK, 1, 6)
+            limb((x, y, -2.07), (x, y, -.37), .2, TIMBER_DARK, 1, 6)
     for y in [-2.0, -1.0, 0.0, 1.0, 2.0]:
-        cylinder("Stringer log", (0, y, .35), .3, 15.0, CEDAR_BARK, 10, "x")
-    box("Deck planks", (0, 0, .62), (15.0, 4.6, .1), TIMBER)
+        cylinder("Stringer log", (0, y, -.32), .3, 15.0, CEDAR_BARK, 10, "x")
+    box("Deck planks", (0, 0, -.05), (15.0, 4.6, .1), TIMBER)
     for y in [-2.35, 2.35]:
-        box("Rail", (0, y, 1.3), (15.0, .12, .12), TIMBER_DARK)
+        box("Rail", (0, y, .63), (15.0, .12, .12), TIMBER_DARK)
         for x in range(-7, 8, 2):
-            limb((x, y, .65), (x, y, 1.3), .06, TIMBER_DARK, 1, 5)
+            limb((x, y, -.02), (x, y, .63), .06, TIMBER_DARK, 1, 5)
 
 
 def stone_bridge():
+    """Stone arch bridge along local X; the deck top is the origin."""
     for x in [-5.5, 0, 5.5]:
-        box("Pier", (x, 0, -.5), (1.4, 5.0, 2.0), STONE_DARK)
-    box("Deck", (0, 0, .45), (16.0, 5.0, .5), STONE)
+        box("Pier", (x, 0, -1.2), (1.4, 5.0, 2.0), STONE_DARK)
+    box("Deck", (0, 0, -.25), (16.0, 5.0, .5), STONE)
     for y in [-2.3, 2.3]:
-        box("Parapet", (0, y, 1.0), (16.0, .4, .7), STONE)
+        box("Parapet", (0, y, .3), (16.0, .4, .7), STONE)
     for x in [-2.75, 2.75]:
-        cylinder("Arch shade", (x, 0, -.2), 2.0, 5.02, STONE_DARK, 16, "y")
+        cylinder("Arch shade", (x, 0, -.9), 2.0, 5.02, STONE_DARK, 16, "y")
 
 
 def farmhouse():

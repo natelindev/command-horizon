@@ -16,6 +16,7 @@ static func create(reach):
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	material.albedo_color = Color(.60, .66, .63, .18)
 	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.render_priority = 10
 	ring.material_override = material
 	ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	ring.position.y = .065

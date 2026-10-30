@@ -26,6 +26,7 @@ func _run():
 		"temperate/OakTree", "temperate/DouglasFir", "temperate/BirchCluster", "desert/DryScrub"
 	]:
 		_foliage(path)
+	_bridges()
 	await _skirmish("bastion", "res://source/match/maps/battlefields/PinebreakValleyMap.tscn")
 	for player in get_nodes_in_group("players"):
 		player.set_process(false)
@@ -169,3 +170,19 @@ func _foliage(path):
 				_check(uv is PackedVector2Array and uv.size() > 0, "Leaf cards lost UVs: " + path)
 	_check(cards > 0, "Solid foliage was not replaced: " + path)
 	model.free()
+
+
+func _bridges():
+	for bridge in ["temperate/LogBridge", "temperate/StoneBridge", "works/CanalBridge"]:
+		var model = load("res://assets/models/environment/%s.glb" % bridge).instantiate()
+		var deck_top = -INF
+		for child in model.find_children("*", "MeshInstance3D", true, false):
+			if "deck" in child.name.to_lower() or "lane" in child.name.to_lower():
+				var aabb = child.mesh.get_aabb()
+				var child_top = child.position.y + aabb.position.y + aabb.size.y
+				deck_top = maxf(deck_top, child_top)
+		_check(
+			absf(deck_top) <= 0.05,
+			"Bridge deck top not aligned to origin (height %.2f m): %s" % [deck_top, bridge]
+		)
+		model.free()

@@ -285,6 +285,8 @@ func _update_blueprint_color(blueprint_position_is_valid):
 		if blueprint_position_is_valid
 		else preload(BLUEPRINT_INVALID_PATH)
 	)
+	if "material_override" in _active_blueprint_node:
+		_active_blueprint_node.material_override = material_to_set
 	for child in _active_blueprint_node.find_children("*", "", true, false):
 		if "material_override" in child:
 			child.material_override = material_to_set
