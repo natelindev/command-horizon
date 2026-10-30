@@ -6,7 +6,7 @@ uniform float hit_strength = 0.0;
 
 void fragment() {
 	// A restrained surface emission leaves paint, team color and silhouette visible.
-	ALBEDO = hit_color.rgb * hit_strength * 0.3;
-	EMISSION = hit_color.rgb * hit_strength;
-	ALPHA = hit_strength * 0.42;
+	ALBEDO = hit_color.rgb * hit_strength * 0.25;
+	EMISSION = hit_color.rgb * hit_strength * 0.6;
+	ALPHA = hit_strength * 0.35;
 }

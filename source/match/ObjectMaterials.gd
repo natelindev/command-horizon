@@ -184,8 +184,31 @@ static func hit_flash(geometry, color: Color, recycled = {}) -> Dictionary:
 	return entry
 
 
+static func _is_team_mesh(node) -> bool:
+	if node.name.to_lower().contains("team"):
+		return true
+	if node is MeshInstance3D:
+		if (
+			node.material_override != null
+			and node.material_override.resource_name.begins_with("TeamColor")
+		):
+			return true
+		if node.mesh != null and node.mesh.get_surface_count() > 0:
+			var all_team = true
+			for i in range(node.mesh.get_surface_count()):
+				var mat = node.get("surface_material_override/%d" % i)
+				if mat == null:
+					mat = node.mesh.get("surface_%d/material" % i)
+				if mat == null or not mat.resource_name.begins_with("TeamColor"):
+					all_team = false
+					break
+			if all_team:
+				return true
+	return false
+
+
 static func _collect_hit_surfaces(node, surfaces):
-	if node is MeshInstance3D or node is MultiMeshInstance3D:
+	if (node is MeshInstance3D or node is MultiMeshInstance3D) and not _is_team_mesh(node):
 		surfaces.append(weakref(node))
 	for child in node.get_children():
 		_collect_hit_surfaces(child, surfaces)
