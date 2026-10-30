@@ -339,7 +339,8 @@ func _fly(delta):
 	_steer(goal.heading, delta)
 	airspeed = move_toward(airspeed, maxf(stall_speed, goal.speed), acceleration * delta)
 	var target_height = goal.get("height", _cruise_height_at(_unit.global_position))
-	vertical_speed = clampf((target_height - _unit.global_position.y) * 1.5, -sink_rate, climb_rate)
+	var wanted_vs = clampf((target_height - _unit.global_position.y) * 1.5, -sink_rate, climb_rate)
+	vertical_speed = move_toward(vertical_speed, wanted_vs, climb_rate * 3.0 * delta)
 	_advance(delta)
 
 
@@ -351,6 +352,11 @@ func _airborne_goal(delta):
 		"strike":
 			if _valid_target(strike_target):
 				var point = _unit.strike_point(strike_target)
+				var to_point = _flat(point - position)
+				var dist = to_point.length()
+				var forward = _forward()
+				if dist < 2.5 and to_point.dot(forward) < 0.0:
+					return {"heading": heading, "speed": cruise_speed}
 				return {"heading": _bearing(position, point), "speed": cruise_speed}
 			mode = "station" if station.is_finite() else "return"
 		"return":
@@ -366,7 +372,9 @@ func _airborne_goal(delta):
 func _orbit_heading(center, radius):
 	var offset = (_unit.global_position - center) * Vector3(1, 0, 1)
 	var distance = offset.length()
-	if distance > radius * 2.0 or distance < 0.01:
+	if distance < 0.01:
+		return heading
+	if distance > radius * 2.0:
 		if distance <= radius + 1.0 and not _arrived:
 			_mark_arrived()
 		return _bearing(_unit.global_position, center)
@@ -375,6 +383,11 @@ func _orbit_heading(center, radius):
 	var inward = -offset / distance
 	var tangent = inward.rotated(Vector3.UP, -orbit_sign * PI / 2.0)
 	var correction = inward * clampf((distance - radius) / radius * 1.4, -0.9, 0.9)
+	if distance > radius * 1.5:
+		var direct = _bearing(_unit.global_position, center)
+		var orbit_h = _heading_of(tangent + correction)
+		var blend = (distance - radius * 1.5) / (radius * 0.5)
+		return wrapf(orbit_h + angle_difference(orbit_h, direct) * blend, -PI, PI)
 	return _heading_of(tangent + correction)
 
 
@@ -513,9 +526,13 @@ func _rollout(delta):
 
 func _steer(desired, delta):
 	var error = angle_difference(heading, desired)
-	var wanted = clampf(-error * TURN_GAIN, -max_bank, max_bank)
-	bank = move_toward(bank, wanted, roll_rate * delta)
 	var rate = GRAVITY * tan(bank) / maxf(airspeed, stall_speed)
+	var rollout_time = absf(bank) / maxf(roll_rate, 0.001)
+	var lead_turn = 0.5 * rate * rollout_time
+	var damped_error = angle_difference(wrapf(heading - lead_turn, -PI, PI), desired)
+	var wanted = clampf(-damped_error * TURN_GAIN, -max_bank, max_bank)
+	bank = move_toward(bank, wanted, roll_rate * delta)
+	rate = GRAVITY * tan(bank) / maxf(airspeed, stall_speed)
 	heading = wrapf(heading - rate * delta, -PI, PI)
 
 
@@ -531,14 +548,15 @@ func _turn_toward_heading(desired, delta):
 
 func _advance(delta):
 	_unit.global_position += _forward() * airspeed * delta + Vector3.UP * vertical_speed * delta
-	pitch = atan2(vertical_speed, maxf(airspeed, 1.0))
+	var wanted_pitch = atan2(vertical_speed, maxf(airspeed, 1.0))
+	pitch = move_toward(pitch, wanted_pitch, roll_rate * delta)
 
 
 func _advance_ground(delta):
 	var point = _unit.global_position + _forward() * airspeed * delta
 	point.y = _ground_height(point)
 	_unit.global_position = point
-	pitch = 0.0
+	pitch = move_toward(pitch, 0.0, roll_rate * delta)
 
 
 func _publish():

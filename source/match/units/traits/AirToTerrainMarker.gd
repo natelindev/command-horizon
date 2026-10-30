@@ -35,6 +35,25 @@ func _on_unit_selected():
 func _process(_delta):
 	if not _mesh_instance.visible:
 		return
-	var height = maxf(0.0, _unit.global_position.y)
+	var movement = _unit.get_node_or_null("Movement")
+	if movement != null and movement.has_method("on_ground") and movement.on_ground():
+		_mesh_instance.hide()
+		return
+	var ground = 0.0
+	if (
+		is_instance_valid(_unit)
+		and "_match" in _unit
+		and _unit._match != null
+		and _unit._match.map != null
+		and _unit._match.map.has_method("height_at")
+	):
+		ground = _unit._match.map.height_at(
+			Vector2(_unit.global_position.x, _unit.global_position.z)
+		)
+	var height = maxf(0.0, _unit.global_position.y - ground)
+	if height < 0.25:
+		_mesh_instance.hide()
+		return
+	_mesh_instance.show()
 	_mesh_instance.position.y = -height * 0.5
 	_mesh_instance.scale.y = height / 1.6

@@ -87,8 +87,8 @@ const HELIX_DESCRIPTIONS = {
 	),
 	"Helicopter":
 	(
-		"Attack helicopter. Rockets against ground forces while hovering in place; lands on "
-		+ "an airfield helipad to rearm. Vulnerable to rocket infantry and anti-air."
+		"Attack helicopter. Rockets against ground forces while hovering in place; reloads on "
+		+ "cooldown in the field. Vulnerable to rocket infantry and anti-air."
 	),
 	"CommandCenter": "Produces Mule engineers, receives harvested resources and supplies 8 power.",
 	"Barracks":

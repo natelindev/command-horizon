@@ -1,4 +1,4 @@
-# gdlint: disable=max-file-lines
+# gdlint: disable=max-file-lines,max-public-methods
 extends Node3D
 
 const CombatRules = preload("res://source/match/combat/CombatRules.gd")
@@ -1539,6 +1539,84 @@ func rotor_downwash(unit):
 		dust_color(_dust_biome),
 		unit.radius
 	)
+
+
+# Fixed-wing flight presentation: jet exhaust trails, afterburner flames, wingtip
+# vortex vapor on high-bank turns, takeoff runway dust and landing rollout touchdown smoke.
+func aircraft_flight_effects(unit, flight):
+	if not _can_show(unit) or not _camera_sees(unit.global_position):
+		return
+	var forward = -unit.global_basis.z
+	var basis = unit.global_basis
+	var faction = unit.player.faction if unit.player != null else "bastion"
+	var flame_color = FACTION_FIRE.get(faction, FACTION_FIRE.bastion)
+	var smoke_color = Color(0.55, 0.54, 0.52, 0.42)
+	if faction == "helix":
+		flame_color = Color(0.45, 0.88, 1.0, 0.95)
+		smoke_color = Color(0.68, 0.82, 0.92, 0.35)
+	elif faction == "frontier":
+		flame_color = Color(1.0, 0.52, 0.16, 0.95)
+		smoke_color = Color(0.42, 0.41, 0.40, 0.5)
+
+	var is_airborne = flight.is_airborne()
+	var is_takeoff = flight.phase == flight.Phase.TAKEOFF
+	var is_rollout = flight.phase == flight.Phase.ROLLOUT
+
+	if is_airborne or is_takeoff:
+		var speed_ratio = clampf(flight.airspeed / maxf(flight.cruise_speed, 1.0), 0.5, 1.5)
+		var tail_offset = basis * Vector3(0, 0.12, unit.radius * 0.75)
+		var nozzle_center = unit.global_position + tail_offset
+		_puff(
+			"exhaust",
+			nozzle_center,
+			-forward * (2.8 * speed_ratio),
+			flame_color,
+			0.24 * speed_ratio
+		)
+		_puff(
+			"trail_smoke",
+			nozzle_center - forward * 0.18 + _jitter(0.03),
+			-forward * (0.4 * speed_ratio) + Vector3.UP * 0.08 + _jitter(0.04),
+			smoke_color,
+			_random.randf_range(0.42, 0.56)
+		)
+
+		if is_airborne and absf(flight.bank) > 0.28:
+			var bank_strength = clampf(
+				(absf(flight.bank) - 0.28) / (flight.max_bank - 0.28), 0.2, 1.0
+			)
+			var wing_span = unit.radius * 1.05
+			for side in [-1.0, 1.0]:
+				var wingtip = unit.global_position + basis * Vector3(side * wing_span, 0.05, 0.1)
+				_puff(
+					"trail_smoke",
+					wingtip,
+					-forward * 0.3 + Vector3.UP * 0.05,
+					Color(0.95, 0.97, 1.0, 0.28 * bank_strength),
+					0.22 * bank_strength
+				)
+
+		if is_takeoff and flight.height_above_ground() < 1.0:
+			var ground_point = unit.global_position + tail_offset
+			ground_point.y = _ground_height(ground_point) + 0.06
+			_puff(
+				"dust",
+				ground_point,
+				-forward * 1.6 + Vector3.UP * 0.25 + _jitter(0.15),
+				dust_color(_dust_biome),
+				0.45
+			)
+
+	elif is_rollout:
+		var ground_point = unit.global_position
+		ground_point.y = _ground_height(ground_point) + 0.05
+		_puff(
+			"smoke",
+			ground_point + _jitter(0.05),
+			Vector3.UP * 0.4 + -forward * 0.3,
+			Color(0.82, 0.82, 0.80, 0.55),
+			0.38
+		)
 
 
 func _failure_part(wreck) -> Dictionary:

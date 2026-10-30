@@ -1,3 +1,4 @@
+# gdlint: disable=max-file-lines
 extends Node
 
 # Visual-only animation for every unit and structure. Poses Geometry and its
@@ -66,6 +67,7 @@ var _geometry_rest := Transform3D.IDENTITY:
 var _geometry_pose := Transform3D.IDENTITY
 var _presentation_root := Transform3D.IDENTITY
 var _dust_elapsed := 0.0
+var _aircraft_fx_elapsed := 0.0
 var _damage_elapsed := 0.0
 var _damage_audio_elapsed := 0.0
 var _damage_profile := {}
@@ -651,6 +653,13 @@ func _finish_pose(delta: float):
 		if _dust_elapsed > .45:
 			_dust_elapsed = 0.0
 			_unit._match.combat_effects.rotor_downwash(_unit)
+	elif _fixed_wing and _movement != null and _unit._match != null:
+		_aircraft_fx_elapsed += delta
+		if _aircraft_fx_elapsed >= 0.08:
+			_aircraft_fx_elapsed = 0.0
+			var effects = _unit._match.get("combat_effects")
+			if is_instance_valid(effects):
+				effects.aircraft_flight_effects(_unit, _movement)
 	if moving and not _airborne and _mobile:
 		_dust_elapsed += delta
 		if _dust_elapsed > 0.22 * motion.cadence:

@@ -83,32 +83,28 @@ func _helicopter_sortie(faction):
 	var station = helicopter.global_position * Vector3(1, 0, 1)
 	for _index in 12:
 		_game.projectile_system.launch(helicopter, target)
-	_check(
-		helicopter.rockets == 0 and not helicopter.armed(), faction + " helicopter ammo not spent"
-	)
+	_check(helicopter.rockets == 0, faction + " helicopter ammo not spent")
+	_check(helicopter.reload_cooldown_left > 0.0, faction + " helicopter cooldown not active")
 	_game.projectile_system.clear()
 	target.queue_free()
 	await _ticks(2)
 	_check(
 		(
-			helicopter.action != null
-			and helicopter.action.get_script().resource_path.ends_with("RecoveringAtService.gd")
+			helicopter.action == null
+			or not helicopter.action.get_script().resource_path.ends_with("RecoveringAtService.gd")
 		),
-		faction + " empty helicopter did not return to service"
+		faction + " helicopter should not return to service for ammo"
 	)
-	_check(helicopter.resume_point.distance_to(station) < 0.1, faction + " lost sortie station")
-	var rearmed = await _until(func(): return helicopter.rockets == 12, 1800)
-	_check(rearmed, faction + " helicopter never refilled its rocket load on the helipad")
-	_check(_field.services(helicopter), faction + " helicopter refilled away from its helipad")
-	await _ticks(5)
 	_check(
-		not helicopter.resume_point.is_finite(),
-		faction + " rearmed helicopter did not resume sortie"
+		helicopter.global_position_yless.distance_to(station) < 0.5,
+		faction + " helicopter left its station while cooling down"
 	)
-	var returned = await _until(
-		func(): return helicopter.global_position_yless.distance_to(station) < 2.0, 1200
+	var rearmed = await _until(func(): return helicopter.rockets == 12, 600)
+	_check(rearmed, faction + " helicopter never refilled its rocket load on cooldown")
+	_check(
+		helicopter.reload_cooldown_left == 0.0,
+		faction + " helicopter cooldown remained after reload"
 	)
-	_check(returned, faction + " rearmed helicopter did not return to its station")
 	helicopter.queue_free()
 	await _ticks(5)
 
