@@ -462,21 +462,29 @@ func _test_repair():
 		robot.global_position = Vector3(40, 0, 9)
 		robot.get_node("Movement").stop()
 		robot.get_node("Movement").set_physics_process(false)
+	var mobile_repair = tank.hp_max * 0.025
+	var depot_repair = tank.hp_max * 0.04
+	var expected_hp = 20.0 + mobile_repair
 	service.service(1.0)
-	_check(is_equal_approx(tank.hp, 20.0 + tank.hp_max * 0.025), "Ten robots stacked healing instead of one 2.5% channel")
+	_check(
+		is_equal_approx(tank.hp, expected_hp),
+		"Ten robots stacked healing instead of one 2.5% channel"
+	)
 	var depot = _spawn("RepairDepot", _human, Vector3(40, 0, 11))
 	depot.process_mode = Node.PROCESS_MODE_PAUSABLE
 	tank.global_position = depot.service_point(tank)
 	for robot in robots:
 		robot.global_position = tank.global_position + Vector3(0, 0, 1)
+	expected_hp += depot_repair
 	service.service(1.0)
-	_check(is_equal_approx(tank.hp, 20.0 + tank.hp_max * (0.025 + 0.04)), "Depot and mobile channel stacked")
+	_check(is_equal_approx(tank.hp, expected_hp), "Depot and mobile channel stacked")
 	# Under low power the stronger robot channel must win over a slowed depot.
 	var power_consumer = _spawn("AircraftFactory", _human, Vector3(30, 0, 10))
 	var power_consumer2 = _spawn("AircraftFactory", _human, Vector3(30, 0, 15))
 	var power_consumer3 = _spawn("AircraftFactory", _human, Vector3(30, 0, 20))
+	expected_hp += mobile_repair
 	service.service(1.0)
-	_check(is_equal_approx(tank.hp, 20.0 + tank.hp_max * (0.025 + 0.04 + 0.025)), "Low-power service beat stronger mobile repair")
+	_check(is_equal_approx(tank.hp, expected_hp), "Low-power service beat stronger mobile repair")
 	for building in [power_consumer, power_consumer2, power_consumer3]:
 		building.queue_free()
 	var attacker = _spawn("Infantry", _enemy, Vector3(43, 0, 8))
@@ -484,13 +492,14 @@ func _test_repair():
 	var before = tank.hp
 	service.service(1.0)
 	_check(
-		is_equal_approx(tank.hp - before, tank.hp_max * 0.04 * 0.25), "Recent enemy damage did not reduce repair to 25%"
+		is_equal_approx(tank.hp - before, depot_repair * 0.25),
+		"Recent enemy damage did not reduce repair to 25%"
 	)
 	_game.simulation_time += 3.01
 	before = tank.hp
 	service.service(1.0)
 	_check(
-		is_equal_approx(tank.hp - before, tank.hp_max * 0.04),
+		is_equal_approx(tank.hp - before, depot_repair),
 		"Repair suppression failed to expire on simulation time"
 	)
 	for robot in robots:
@@ -556,40 +565,94 @@ func _test_freed_target_handling():
 	_check(not rules.can_target(target, target), "can_target succeeded with both freed")
 	_check(not rules.commander_disabled(target), "commander_disabled failed on freed target")
 	_check(not rules.explicit_attack(shooter, target), "explicit_attack succeeded on freed target")
-	_check(not rules.explicit_attack(target, shooter), "explicit_attack succeeded with freed source")
+	_check(
+		not rules.explicit_attack(target, shooter), "explicit_attack succeeded with freed source"
+	)
 	_check(rules.damage(shooter, target) == 0.0, "damage non-zero on freed target")
 	_check(rules.damage_facts(target) == null, "damage_facts non-null on freed target")
 	_check(rules.smoke_damage_factor(target) == 1.0, "smoke_damage_factor failed on freed target")
 	_check(rules.range_for(shooter, target) == 0.0, "range_for non-zero on freed target")
 	_check(rules.range_for(target, shooter) == 0.0, "range_for non-zero with freed source")
-	_check(rules.elevation_difference(shooter, target) == 0.0, "elevation_difference non-zero on freed target")
-	_check(rules.high_ground_range_bonus(shooter, target) == 0.0, "high_ground_range_bonus non-zero on freed target")
-	_check(rules.preparation_for(shooter, target) == 0.0, "preparation_for non-zero on freed target")
+	_check(
+		rules.elevation_difference(shooter, target) == 0.0,
+		"elevation_difference non-zero on freed target"
+	)
+	_check(
+		rules.high_ground_range_bonus(shooter, target) == 0.0,
+		"high_ground_range_bonus non-zero on freed target"
+	)
+	_check(
+		rules.preparation_for(shooter, target) == 0.0, "preparation_for non-zero on freed target"
+	)
 	_check(rules.describe(target) == "", "describe non-empty on freed target")
 	_check(rules.profile_for(target) == "", "profile_for non-empty on freed target")
 	auto_attack._refresh()
 	_check(auto_attack.is_queued_for_deletion(), "AutoAttacking did not queue_free on freed target")
 	var constructing = load("res://source/match/units/actions/Constructing.gd")
-	_check(not constructing.is_applicable(shooter, target), "Constructing.is_applicable succeeded on freed target")
-	_check(not constructing.is_applicable(target, shooter), "Constructing.is_applicable succeeded with freed source")
+	_check(
+		not constructing.is_applicable(shooter, target),
+		"Constructing.is_applicable succeeded on freed target"
+	)
+	_check(
+		not constructing.is_applicable(target, shooter),
+		"Constructing.is_applicable succeeded with freed source"
+	)
 	var harvesting = load("res://source/match/units/actions/CollectingResourcesSequentially.gd")
-	_check(not harvesting.is_applicable(shooter, target), "Harvesting.is_applicable succeeded on freed target")
-	_check(not harvesting.is_applicable(target, shooter), "Harvesting.is_applicable succeeded with freed source")
-	var harvesting_range = load("res://source/match/units/actions/CollectingResourcesWhileInRange.gd")
-	_check(not harvesting_range.is_applicable(shooter, target), "HarvestingInRange.is_applicable succeeded on freed target")
+	_check(
+		not harvesting.is_applicable(shooter, target),
+		"Harvesting.is_applicable succeeded on freed target"
+	)
+	_check(
+		not harvesting.is_applicable(target, shooter),
+		"Harvesting.is_applicable succeeded with freed source"
+	)
+	var harvesting_range = load(
+		"res://source/match/units/actions/CollectingResourcesWhileInRange.gd"
+	)
+	_check(
+		not harvesting_range.is_applicable(shooter, target),
+		"HarvestingInRange.is_applicable succeeded on freed target"
+	)
 	var repairing = load("res://source/match/units/actions/Repairing.gd")
-	_check(not repairing.is_applicable(shooter, target), "Repairing.is_applicable succeeded on freed target")
-	_check(not repairing.is_applicable(target, shooter), "Repairing.is_applicable succeeded with freed source")
+	_check(
+		not repairing.is_applicable(shooter, target),
+		"Repairing.is_applicable succeeded on freed target"
+	)
+	_check(
+		not repairing.is_applicable(target, shooter),
+		"Repairing.is_applicable succeeded with freed source"
+	)
 	var repairs = load("res://source/match/combat/RepairService.gd")
-	_check(not repairs.mobile_eligible(shooter, target), "Repairs.mobile_eligible succeeded on freed target")
-	_check(not repairs.mobile_eligible(target, shooter), "Repairs.mobile_eligible succeeded with freed source")
-	_check(not repairs.facility_eligible(shooter, target), "Repairs.facility_eligible succeeded on freed target")
-	_check(not repairs.facility_eligible(target, shooter), "Repairs.facility_eligible succeeded with freed source")
+	_check(
+		not repairs.mobile_eligible(shooter, target),
+		"Repairs.mobile_eligible succeeded on freed target"
+	)
+	_check(
+		not repairs.mobile_eligible(target, shooter),
+		"Repairs.mobile_eligible succeeded with freed source"
+	)
+	_check(
+		not repairs.facility_eligible(shooter, target),
+		"Repairs.facility_eligible succeeded on freed target"
+	)
+	_check(
+		not repairs.facility_eligible(target, shooter),
+		"Repairs.facility_eligible succeeded with freed source"
+	)
 	var actions_ctrl = load("res://source/match/players/human/UnitActionsController.gd")
-	_check(actions_ctrl.context_kind(shooter, target) == "", "context_kind non-empty on freed target")
-	_check(actions_ctrl.context_kind(target, shooter) == "", "context_kind non-empty with freed source")
-	_check(not _game.battlefield.can_observe(shooter, target), "can_observe succeeded on freed target")
-	_check(not _game.battlefield.can_observe(target, shooter), "can_observe succeeded with freed source")
+	_check(
+		actions_ctrl.context_kind(shooter, target) == "", "context_kind non-empty on freed target"
+	)
+	_check(
+		actions_ctrl.context_kind(target, shooter) == "", "context_kind non-empty with freed source"
+	)
+	_check(
+		not _game.battlefield.can_observe(shooter, target), "can_observe succeeded on freed target"
+	)
+	_check(
+		not _game.battlefield.can_observe(target, shooter),
+		"can_observe succeeded with freed source"
+	)
 	_check(not _game.battlefield.can_fire(shooter, target), "can_fire succeeded on freed target")
 	_check(not _game.battlefield.can_fire(target, shooter), "can_fire succeeded with freed source")
 

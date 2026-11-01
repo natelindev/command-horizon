@@ -17,6 +17,7 @@ func _run():
 	_test_definitions()
 	_test_tooltip_formatting()
 	_test_unit_facts()
+	_test_localized_counters()
 	await _test_roster_integration()
 	for message in errors:
 		push_error(message)
@@ -106,6 +107,21 @@ func _test_unit_facts():
 	_check(facts[0].contains("Role:"), "First fact should be tactical role")
 	_check(facts[1].contains("Strong vs:"), "Second fact should be strong against")
 	_check(facts[2].contains("Countered by:"), "Third fact should be countered by")
+
+
+func _test_localized_counters():
+	TranslationServer.set_locale("zh_CN")
+	var tooltip = UnitCounters.format_tooltip("RocketInfantry", "helix")
+	_check(tooltip.begins_with("克制："), "Counter tooltip prefix was not translated")
+	_check(tooltip.contains("针刺悬浮战车"), "Counter tooltip faction names were not translated")
+	_check(tooltip.contains("\n被克制："), "Counter tooltip weakness prefix was not translated")
+	var facts = UnitCounters.format_facts("Tank", "bastion")
+	_check(facts[0] == "定位：主战装甲", "Unit role label or prefix was not translated")
+	_check(facts[1].begins_with("克制："), "Unit strengths were not translated")
+	_check(facts[2].begins_with("被克制："), "Unit weaknesses were not translated")
+	TranslationServer.set_locale("en")
+	_test_tooltip_formatting()
+	_test_unit_facts()
 
 
 func _test_roster_integration():

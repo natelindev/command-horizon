@@ -31,7 +31,7 @@ func _run():
 	else:
 		for message in _errors:
 			push_error(message)
-	quit(0 if _errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if _errors.is_empty() else 1)
 
 
 func _test_setup():
@@ -101,8 +101,9 @@ func _test_roster(faction, opponent):
 	enemy.process_mode = Node.PROCESS_MODE_DISABLED
 	_check(enemy.faction == opponent, "Opponent faction")
 	var tank = _unit(human, "Tank")
+	var base_hp = constants.Match.Units.DEFAULT_PROPERTIES[Catalog.scene_path("Tank")].hp_max
 	_check(
-		tank.hp_max == {"bastion": 80, "helix": 64, "frontier": 68}[faction],
+		tank.hp_max == roundi(base_hp * {"bastion": 1.0, "helix": 0.8, "frontier": 0.85}[faction]),
 		"Faction HP distinction"
 	)
 	if faction in ["helix", "frontier"]:
@@ -253,12 +254,15 @@ func _test_maps_and_combat():
 	await _frames(3)
 	var attack = load("res://source/match/units/actions/AutoAttacking.gd")
 	_check(not attack.is_applicable(walker, aircraft), "Precision can target air")
+	# Prevent warmup shots from landing during the cooldown assertion below.
+	walker.stance = walker.Stance.HOLD_FIRE
 	_check(walker.request_weapon_mode("interception"), "Interception switch rejected")
 	await _frames(125)
 	aircraft.hp = 1000
 	_check(attack.is_applicable(walker, aircraft), "Walker cannot target air")
 	walker.set_meta("next_attack_availability_time", int(game.simulation_time * 1000) + 600)
 	game.hud._toggle_pause()
+	walker.stance = walker.Stance.AGGRESSIVE
 	walker.action = attack.new(aircraft)
 	await _frames(45)
 	_check(aircraft.hp == 1000, "Paused attack dealt damage")

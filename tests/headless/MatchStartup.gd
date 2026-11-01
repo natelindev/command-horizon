@@ -20,7 +20,7 @@ func _run():
 	else:
 		for failure in _failures:
 			push_error(failure)
-	quit(0 if _failures.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if _failures.is_empty() else 1)
 
 
 func _test_map(map_path):
