@@ -88,7 +88,7 @@ Progression unlocks understandable capabilities rather than code length. Core sp
 
 ## 4. Economy
 
-**Confirmed prototype baseline:** materials and electronics as two stockpiled resources, plus electricity supply/demand capacity. This accepts the recommended model for prototyping; economic tuning and detailed acquisition rules remain provisional.
+**Confirmed prototype baseline:** materials and electronics as two stockpiled resources, plus electricity supply/demand capacity. This accepts the recommended model for prototyping; economic tuning and detailed acquisition rules remain provisional. See [the macro economy and harvesting specification](MACRO_ECONOMY.md) for the multi-tiered evolution, active power brownouts, forward refineries, asymmetric harvesters, and neutral economic captures.
 
 | Resource | Acquisition | Main uses |
 | --- | --- | --- |
@@ -1962,4 +1962,55 @@ The confirmed decisions and roadmap are recorded in
 - **Super-units campaign-exclusive:** Experimental Behemoths / Titan super-units are strictly excluded from Skirmish matches and reserved exclusively for Campaign boss encounters.
 - **Faction vehicle damage states:** Vehicles visually express damage by faction: Bastion exhibits dense diesel smoke and hull fires; Helix vents glowing cyan plasma and electrical arcs with hovering altitude instability; Frontier vents radiator steam with rattling loose panels and backfiring exhaust.
 - **Camera stability rule:** Camera shake and impulse displacement are strictly prohibited in Skirmish to guarantee competitive precision and readability; cinematic camera impulse is reserved exclusively for scripted Campaign missions.
+
+## Strategic Faction Asymmetry & RTS Benchmark Evolution — 2026-11-01
+
+Supersedes the symmetrical roster assumption where Bastion, Helix, and Frontier share a 1:1 mapped 15-unit / 9-building roster differentiated only by percentage stat offsets (-20% HP, +20% speed) and cosmetic materials. This evolution is directly synthesized from genre benchmarks: **StarCraft II** (operational & macro asymmetry), **Command & Conquer: Red Alert 2** (high-concept tactical specialization & signature mechanics), and **Age of Empires II** (economic specialization, exclusionary tech trees, and formation counterplay). Detailed faction rosters, shield dynamics, and macro engines are recorded in [the strategic faction asymmetry specification](FACTION_ASYMMETRY.md); the implementation roadmap is maintained in [the strategic asymmetry plan](plans/strategic-asymmetry-and-rts-benchmarks.md).
+
+### 1. The Core Diagnosis: The Symmetrical Trap
+
+In the baseline design, Bastion, Helix, and Frontier all construct identical facilities (`CommandCenter`, `Barracks`, `VehicleFactory`, `AircraftFactory`, `PowerPlant`, `CommandLab`, `RepairDepot`) and train equivalent unit roles with identical weapon interactions. While this simplified early engine prototyping in Godot 4, it eliminates strategic tension:
+- Matchups play identically regardless of faction chosen.
+- Build orders and opening timings mirror each other across all three matchups.
+- Counterplay is purely numerical rather than tactical, positional, or doctrinal.
+
+### 2. The Triad of Asymmetry: Architectural Faction Identities
+
+#### 2.1 Bastion Directorate — The Fortified Juggernaut (Terran / Soviet Archetype)
+- **Macro Engine:** Heavy industrial commitment. Engineers must stay with construction foundations until completion. Buildings have highest base armor and hit points.
+- **Field Entrenchment:** Bastion engineers deploy durable sandbag barricades and concrete tank traps. Bunkers provide sheltered firing positions for infantry.
+- **Siege Colossus:** Replaces the generic Advanced Tank. Operates as heavy deployable artillery: stationary for 2.0s to anchor, then fires crushing long-range kinetic shells with lethal area-of-effect splash.
+- **Sustained Mechanical Maintenance:** Mobile repair units and field depots provide active hull restoration, rewarding grinding deathballs that survive and advance through attrition.
+- **Strategic Weakness:** Sluggish tactical redeployment, high material costs, and vulnerability to long-range harassment and energy kiting.
+
+#### 2.2 Helix Systems — Cybernetic Directed-Energy Swarm (Protoss / Allied Archetype)
+- **Macro Engine:** Autonomous nanite construction. Mule engineers drop a nanite beacon and return to gathering immediately; buildings synthesize themselves automatically.
+- **Plasma Shield Matrix:** Units possess low physical hull HP, but 40–50% of their effective durability is a rapidly recharging Plasma Shield envelope. Shields regenerate at 8 HP/s after 5 seconds out of combat.
+- **Energy Weaponry & Refraction:** Prism Skimmers project continuous focused beam lasers that chain to adjacent hostile units or link through friendly Helix emitter towers to multiply focused damage.
+- **Phase Mobility:** Specialist walkers and skimmers possess tactical short-range Phase Shift (teleporting across terrain gaps, cliffs, and anti-tank barricades on cooldown).
+- **Flux Power Overdrive:** Flux generators can be temporarily overcharged to grant +50% shield recharge rates and faster unit production in a localized radius.
+- **Strategic Weakness:** Fragile physical hulls; vulnerable to sustained kinetic suppressive fire and anti-shield EMP weaponry; steep electronics/energy costs.
+
+#### 2.3 Free Frontier Coalition — Scavenger Swarms & Guerrilla Raiders (Zerg / Yuri / Scrap Raider Archetype)
+- **Macro Engine:** Low-tier decentralized production. Light technicals and militia infantry produce in rapid pairs/batches.
+- **Frontline Salvage & Field Retrofitting:** Battlefield wreckage is not just returned to HQ for cash; Frontier engineers can "cannibalize" destroyed vehicle hulls on the front line to instantly assemble improvised buggies or reinforce surviving armor with permanent scrap plating.
+- **Mobile Garrison Battle Rigs:** Heavy flatbed trucks and technicals feature open garrison mounts; up to 4 infantry units (riflemen, rocket specialists) can fire on the move while embarked.
+- **Ambush & Demolition Traps:** Concealed proximity IEDs and landmines laid along resource choke points, accompanied by high-speed suicide demolition drones.
+- **Strategic Weakness:** Total lack of heavy Tier-3 armor; struggles in direct head-on brawls against entrenched Bastion siege lines; heavily dependent on aggressive map control and economic raiding.
+
+### 3. Asymmetrical Technology & Exclusionary Tech Trees
+
+Supersedes the universal `weapons_1/2/3` and `armor_1/2/3` research paths. Technology trees now reflect hard faction exclusions and branching doctrines:
+- **Bastion Tech Tree:** Focuses on kinetic ballistic velocity, composite hull hardening, automated repair cranes, and concrete fortifications. Lacks high-tier directed energy and airborne stealth.
+- **Helix Tech Tree:** Focuses on shield harmonic resonance, beam refraction arrays, and capacitor cycling. Lacks kinetic projectile penetration and heavy physical armor.
+- **Frontier Tech Tree:** Focuses on engine turbochargers, scrap cannibalization efficiency, concealed trap density, and improvised munitions. Lacks advanced aerospace facilities.
+
+### 4. Long-Term Benchmark Platform Gates
+
+To advance beyond a single-player Godot prototype toward the benchmarks established by SC2, AoE2, and RA2, the following engine milestones are defined:
+1. **Deterministic Lockstep Netcode:** Transitioning simulation math to fixed-point integer calculations or authoritative client-server prediction to enable genuine multiplayer without desync.
+2. **Tactical Formations & Micro-Control:** Native Line, Flank, Staggered, and Box movement profiles, decoupled turret aiming, fluid stutter-step kiting, and smart-casting (see [the tactical micro and formations specification](MICRO_AND_NAVIGATION.md)).
+3. **In-Engine Scenario & Map Editor:** Exposing a user-facing map designer within Godot exports to allow custom community maps and mission creation without Godot Editor dependencies.
+4. **Deterministic Input Replay Engine:** Saving compact sequential command streams (`.rtsreplay`) for frame-by-frame analysis, casting, and competitive balance review.
+5. **Narrative & Audiovisual Immersion:** Interactive between-mission command hubs, motion comic illustrated briefings, charismatic unit personality barks, multi-stem dynamic soundtrack, and multi-stage building collapse (see [the narrative and audiovisual presentation specification](NARRATIVE_AND_PRESENTATION.md)).
 

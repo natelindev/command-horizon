@@ -46,7 +46,7 @@ Historical paused/active entries below describe their state at the time. The cur
 
 ## Next work
 
-Run broader participant and repeated balance cohorts across maps, factions and strategies. The retained mechanics failures were resolved in the 13 October continuation; historical defeats remain evidence rather than being rewritten as victories. Keep distinguishing ordinary live play from fixture reconstruction.
+Advance the [strategic faction asymmetry plan](plans/strategic-asymmetry-and-rts-benchmarks.md), the [macro economy specification](MACRO_ECONOMY.md), the [tactical micro and formations specification](MICRO_AND_NAVIGATION.md), and the [narrative and presentation specification](NARRATIVE_AND_PRESENTATION.md), moving beyond the historical mirrored rosters, static hauling loops, and blob pathfinding toward distinct operational engines, active power brownouts, tactical formations, and immersive campaign command hubs for Bastion, Helix, and Frontier. Run broader participant and repeated balance cohorts across maps, factions and strategies. The retained mechanics failures were resolved in the 13 October continuation; historical defeats remain evidence rather than being rewritten as victories. Keep distinguishing ordinary live play from fixture reconstruction.
 
 Novice and subjective acceptance require actual participants/user review; do not replace them with scripted assertions. The current v19 macOS release passes the measured ordinary and synthetic maximum-load budgets, including the retained warm-up tails; Windows maximum-load acceptance is deferred. Record unavailable participant/platform/device acceptance explicitly.
 

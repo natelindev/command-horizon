@@ -21,7 +21,11 @@ while preserving the HQ rebuild grace period.
 ## Game design
 
 The evolving RTS design is recorded in
-[the living game design document](docs/GAME_DESIGN.md), including confirmed
+[the living game design document](docs/GAME_DESIGN.md),
+[the strategic faction asymmetry specification](docs/FACTION_ASYMMETRY.md),
+[the macro economy and harvesting specification](docs/MACRO_ECONOMY.md),
+[the tactical micro-control and formations specification](docs/MICRO_AND_NAVIGATION.md), and
+[the narrative and audiovisual presentation specification](docs/NARRATIVE_AND_PRESENTATION.md), including confirmed
 decisions, proposed mechanics, and open questions.
 
 Units now use five built-in choices: **Auto-engage, Defensive, Follow, Guard and Hold Fire**. Choose them in the selected unit's Orders panel. Guard positions, follow targets, stances and queued direct orders persist in battle saves. Saves from earlier game versions are not loaded. See [unit behavior rules](docs/UNIT_BEHAVIORS.md) and [performance measurements](docs/performance/RESULTS.md).
