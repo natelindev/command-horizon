@@ -52,6 +52,10 @@ var _hovered_start = -1
 
 func _ready():
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	focus_mode = Control.FOCUS_ALL
+	accessibility_description = tr("Choose a starting location · click or arrow keys")
+	focus_entered.connect(queue_redraw)
+	focus_exited.connect(queue_redraw)
 	resized.connect(queue_redraw)
 
 
@@ -104,10 +108,24 @@ func get_start_at_position(local_position, hit_radius = 26.0):
 
 
 func _gui_input(event):
-	if event is InputEventMouseButton:
+	if event is InputEventKey and event.pressed and not event.echo and not starts.is_empty():
+		var direction = 0
+		if event.is_action_pressed("ui_left") or event.is_action_pressed("ui_up"):
+			direction = -1
+		elif event.is_action_pressed("ui_right") or event.is_action_pressed("ui_down"):
+			direction = 1
+		if direction != 0:
+			var current = 0
+			for assignment in _slot_assignments:
+				if assignment.get("slot") == 0:
+					current = assignment.location
+			start_selected.emit(posmod(current + direction, starts.size()))
+			accept_event()
+	elif event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 			var index = get_start_at_position(event.position)
 			if index >= 0:
+				grab_focus()
 				start_selected.emit(index)
 				accept_event()
 	elif event is InputEventScreenTouch:
@@ -373,9 +391,11 @@ func _draw():
 	for index in starts.size():
 		var point = origin + Vector2(starts[index].x, starts[index].z) * scale_factor
 		var color = [Color("e2c180"), Color("dd8d81"), Color("88bad4"), Color("b5a1d4")][index % 4]
+		var caption = ""
 		for assignment in _slot_assignments:
 			if assignment.get("location") == index:
 				color = assignment.get("color", color)
+				caption = assignment.get("name", "")
 				break
 		var is_hovered = index == _hovered_start
 		var halo_radius = 27.0 if is_hovered else 24.0
@@ -392,6 +412,21 @@ func _draw():
 			14,
 			Color("101b25")
 		)
+		var caption_width = MAP_FONT.get_string_size(caption, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
+		if not caption.is_empty():
+			draw_rect(
+				Rect2(point + Vector2(-caption_width / 2 - 4, 18), Vector2(caption_width + 8, 19)),
+				Color("081016dd")
+			)
+		draw_string(
+			MAP_FONT,
+			point + Vector2(-caption_width / 2, 32),
+			caption,
+			HORIZONTAL_ALIGNMENT_LEFT,
+			-1,
+			12,
+			Color("f1eee4")
+		)
 	draw_string(
 		MAP_FONT,
 		origin + Vector2(0, -9),
@@ -401,6 +436,8 @@ func _draw():
 		11,
 		Color("a7b6bc")
 	)
+	if has_focus():
+		draw_style_box(get_theme_stylebox("focus", "Button"), Rect2(Vector2.ZERO, size))
 	var ruler = origin + Vector2(extent.x - 20 * scale_factor, extent.y + 12)
 	draw_line(ruler, ruler + Vector2(20 * scale_factor, 0), Color("a7b6bc"), 2, true)
 	draw_string(

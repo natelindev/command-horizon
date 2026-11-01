@@ -72,21 +72,20 @@ func _menu():
 	setup._preview.start_selected.emit(1)
 	_check(setup._slots[0].location == 1, "Player did not move to start 2 after preview click")
 	_check(setup._slots[1].location == 0, "AI did not swap to start 1 after preview click")
-	_check(setup._slots[0].start.selected == 1, "Player start option did not update")
-	_check(setup._slots[1].start.selected == 0, "AI start option did not update")
 
 	# Click circle 1 on preview
 	setup._preview.start_selected.emit(0)
 	_check(setup._slots[0].location == 0, "Player did not move back to start 1")
 	_check(setup._slots[1].location == 1, "AI did not swap back to start 2")
 
-	# Random starts disabled when picking a circle
-	setup._random_starts.button_pressed = true
-	setup._preview.start_selected.emit(1)
-	_check(
-		not setup._random_starts.button_pressed, "Random starts was not unselected on circle pick"
-	)
-	_check(setup._slots[0].location == 1, "Player position not applied when random starts was on")
+	# Keyboard selection uses the same occupied-start swap as map clicks.
+	var key = InputEventKey.new()
+	key.keycode = KEY_RIGHT
+	key.physical_keycode = KEY_RIGHT
+	key.pressed = true
+	setup._preview._gui_input(key)
+	_check(setup._slots[0].location == 1, "Arrow key did not select the next start")
+	_check(setup._slots[1].location == 0, "Arrow key duplicated an occupied start")
 
 	# Test GUI mouse click event on the start circle coordinates
 	setup._preview.size = Vector2(400, 300)

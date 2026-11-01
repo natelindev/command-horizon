@@ -12,7 +12,7 @@ func _run():
 	for message in errors:
 		push_error(message)
 	print("Match setup and repair docking: %d failures" % errors.size())
-	quit(0 if errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
 
 
 func _setup_match():
@@ -24,18 +24,13 @@ func _setup_match():
 	menu._select_start(0, 3)
 	menu._select_start(1, 2)
 	_check(
-		menu._slots.all(func(slot): return slot.start.selected == slot.location),
-		"Displayed starts differ from assigned starts"
-	)
-	_check(
 		menu._slots.map(func(slot): return slot.location) == [3, 2, 1, 0],
 		"Start selectors did not swap occupied locations"
 	)
 	menu._game_mode.select(1)
 	menu._apply_teams(1)
-	menu._resources.select(1)
-	menu._slots[2].faction.select(3)
-	menu._slots[2].difficulty.select(3)
+	menu._enemy_faction.select(2)
+	menu._difficulty.select(2)
 	menu._save_preferences()
 	menu._load_preferences()
 	var settings = menu._create_match_settings()
@@ -49,23 +44,43 @@ func _setup_match():
 	)
 	_check(
 		settings.players[2].faction == "frontier" and settings.players[2].difficulty == 2,
-		"Per-player faction/difficulty overrides were lost"
+		"Shared AI faction/difficulty choices were lost"
 	)
-	menu._game_mode.select(3)
-	for slot in menu._slots:
-		slot.team.select(0)
-	menu._refresh_slots()
-	_check(menu._start_button.disabled, "Setup allowed a match with no opponents")
-	menu._game_mode.select(0)
-	menu._apply_teams(0)
-	menu._random_starts.set_pressed_no_signal(true)
-	var random_settings = menu._create_match_settings()
-	var starts = random_settings.players.map(func(side): return side.spawn_index)
-	starts.sort()
-	_check(starts == [0, 1, 2, 3], "Random starts duplicated a location")
+	menu._game_mode.select(2)
+	var outnumbered = menu._create_match_settings()
 	_check(
-		random_settings.players.all(func(side): return side.team == -1), "FFA retained alliances"
+		outnumbered.players.map(func(side): return side.team) == [0, 1, 1, 1], "1v3 teams changed"
 	)
+	menu._game_mode.select(0)
+	var free_for_all = menu._create_match_settings()
+	_check(free_for_all.players.all(func(side): return side.team == -1), "FFA retained alliances")
+	# Retired preferences cannot silently change the rules behind the simplified UI.
+	var legacy = ConfigFile.new()
+	legacy.load(menu.preferences_path)
+	for key in ["resources", "visibility", "doctrine", "events"]:
+		legacy.set_value("setup", key, 2)
+	legacy.set_value("setup", "random_starts", true)
+	legacy.set_value("setup", "mode", 3)
+	legacy.erase_section_key("setup", "locations")
+	legacy.set_value("setup", "slots", [[1, 1, 3, 0], [1, 1, 2, 0], [1, 1, 1, 0], [1, 1, 0, 0]])
+	legacy.save(menu.preferences_path)
+	menu._load_preferences()
+	var standard = menu._create_match_settings()
+	_check(standard.starting_resources_multiplier == 1, "Hidden resource multiplier survived")
+	_check(standard.visibility == 0, "Hidden visibility override survived")
+	_check(standard.tactical_doctrine == "balanced", "Hidden doctrine override survived")
+	_check(standard.battlefield_events, "Hidden event toggle survived")
+	_check(
+		standard.players.slice(1).all(
+			func(side): return side.faction == "frontier" and side.difficulty == 2
+		),
+		"Hidden per-player overrides replaced the visible AI choices"
+	)
+	_check(
+		standard.players.all(func(side): return side.team == -1), "Retired custom teams survived"
+	)
+	var starts = standard.players.map(func(side): return side.spawn_index)
+	_check(starts == [3, 2, 1, 0], "Hidden random starts replaced selected locations")
 	DirAccess.remove_absolute(menu.preferences_path)
 	menu.queue_free()
 	game = load("res://source/match/Skirmish.tscn").instantiate()
@@ -82,7 +97,7 @@ func _setup_match():
 			hq.global_position_yless.distance_to(start * Vector3(1, 0, 1)) < 1.0,
 			"Actual HQ ignored selected start"
 		)
-	_check(game._get_human_player().resource_a == 120, "Starting resource multiplier ignored")
+	_check(game._get_human_player().resource_a == 60, "Starting resource multiplier ignored")
 
 
 func _teams():

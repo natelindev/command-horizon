@@ -170,19 +170,13 @@ var _player_faction = null
 var _enemy_faction = null
 var _difficulty = null
 var _start_mode = null
-var _doctrine_selector = null
 var _start_button = null
 var _cards = []
 var _starting = false
-var _body_grid: GridContainer
+var _body_grid: HBoxContainer
 var _game_mode
-var _resources
-var _visibility
-var _events
-var _random_starts
-var _slots_grid
+var _mode_label
 var _slots = []
-var _setup_status
 
 
 func _ready():
@@ -203,25 +197,22 @@ func _build_ui():
 	var margin = MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	for edge in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + edge, 24)
+		margin.add_theme_constant_override("margin_" + edge, 20)
 	add_child(margin)
 	var page = VBoxContainer.new()
-	page.add_theme_constant_override("separation", 16)
+	page.add_theme_constant_override("separation", 12)
 	margin.add_child(page)
 	var title = _label(page, "SKIRMISH", 28)
 	title.theme_type_variation = "HudHeading"
-	var scroll = ScrollContainer.new()
-	scroll.name = "SetupScroll"
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	scroll.follow_focus = true
-	page.add_child(scroll)
-	_body_grid = GridContainer.new()
+	_body_grid = HBoxContainer.new()
+	_body_grid.name = "SetupBody"
 	_body_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_body_grid.add_theme_constant_override("h_separation", 20)
-	_body_grid.add_theme_constant_override("v_separation", 16)
-	scroll.add_child(_body_grid)
+	_body_grid.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_body_grid.add_theme_constant_override("separation", 16)
+	page.add_child(_body_grid)
 	var map_column = _panel(_body_grid)
+	map_column.get_parent().size_flags_stretch_ratio = 1.4
+	map_column.get_parent().custom_minimum_size.x = 320
 	_label(map_column, "Battlefield", 18).theme_type_variation = "HudHeading"
 	_map_list = _option(map_column, "MapList", [])
 	for entry in MAPS:
@@ -232,48 +223,36 @@ func _build_ui():
 	_map_list.item_selected.connect(_on_map_list_item_selected)
 	var preview_frame = PanelContainer.new()
 	preview_frame.theme_type_variation = "HudSocket"
+	preview_frame.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	map_column.add_child(preview_frame)
 	_preview = load("res://source/main-menu/SkirmishMapPreview.gd").new()
-	_preview.custom_minimum_size.y = 280
+	_preview.custom_minimum_size = Vector2(0, 180)
 	_preview.start_selected.connect(_on_preview_start_selected)
 	preview_frame.add_child(_preview)
 	_map_details = _label(map_column, "", 13, ArtTheme.MUTED)
 	_map_details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	var legend_toggle = Button.new()
-	legend_toggle.text = "Map legend"
-	legend_toggle.theme_type_variation = "BattleQuietButton"
-	legend_toggle.toggle_mode = true
-	map_column.add_child(legend_toggle)
-	var legend = _label(map_column, "", 12, ArtTheme.MUTED)
-	legend.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	legend.text = (
-		"1  "
-		+ tr("Starting locations")
-		+ "    2  "
-		+ tr("Player slots choose these numbers")
-		+ "\n"
-		+ tr("Dots: resources · Small squares: relays")
+	_map_details.tooltip_text = (
+		tr("Dots: resources · Small squares: relays")
 		+ "\n"
 		+ tr("Blocks: buildings · Lines: roads · Blue: water")
 		+ "\n"
 		+ tr("R: refinery · M: mercenary camp · S: repair shop")
 	)
-	legend.hide()
-	legend_toggle.toggled.connect(func(shown): legend.visible = shown)
+	var location_hint = _label(map_column, "", 12, ArtTheme.MUTED)
+	location_hint.text = tr("Choose a starting location · click or arrow keys")
+	location_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	var right = VBoxContainer.new()
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	right.add_theme_constant_override("separation", 16)
+	right.size_flags_stretch_ratio = 1.0
+	right.add_theme_constant_override("separation", 12)
 	_body_grid.add_child(right)
-	var faction_row = HBoxContainer.new()
-	faction_row.add_theme_constant_override("separation", 12)
-	right.add_child(faction_row)
-	_player_faction = _faction_card(faction_row, "Your faction", 0)
-	_enemy_faction = _faction_card(faction_row, "AI factions", 1)
+	_player_faction = _faction_card(right, "Your faction", 0)
+	_enemy_faction = _faction_card(right, "AI factions", 1)
 	var rules = _panel(right)
 	var grid = GridContainer.new()
 	grid.columns = 2
-	grid.add_theme_constant_override("h_separation", 16)
-	grid.add_theme_constant_override("v_separation", 10)
+	grid.add_theme_constant_override("h_separation", 12)
+	grid.add_theme_constant_override("v_separation", 12)
 	rules.add_child(grid)
 	_label(grid, "AI difficulty", 14, ArtTheme.MUTED)
 	_difficulty = _option(grid, "Difficulty", Difficulty.NAMES)
@@ -281,48 +260,17 @@ func _build_ui():
 	_start_mode = _option(
 		grid, "StartMode", ["Standard — build your base", "Advanced — armor and technology"]
 	)
-	_label(grid, "Tactical doctrine", 14, ArtTheme.MUTED)
-	_doctrine_selector = _option(
-		grid,
-		"TacticalDoctrine",
-		["Standard Field Protocol", "Hit & Run Kiting", "Ironclad Defense"]
-	)
 	_difficulty.item_selected.connect(func(_index): _update_summary())
 	_start_mode.item_selected.connect(func(_index): _update_summary())
-	_label(grid, "Game mode", 14, ArtTheme.MUTED)
-	_game_mode = _option(
-		grid, "GameMode", ["Free-for-all", "Teams · 2 vs 2", "Teams · 1 vs 3", "Custom teams"]
-	)
+	_mode_label = _label(grid, "Game mode", 14, ArtTheme.MUTED)
+	_game_mode = _option(grid, "GameMode", ["Free-for-all", "Teams · 2 vs 2", "Teams · 1 vs 3"])
 	_game_mode.item_selected.connect(_apply_teams)
-	_label(grid, "Starting resources", 14, ArtTheme.MUTED)
-	_resources = _option(
-		grid, "StartingResources", ["Standard resources", "Double resources", "Quadruple resources"]
-	)
-	_label(grid, "Visibility", 14, ArtTheme.MUTED)
-	_visibility = _option(
-		grid, "Visibility", ["Team vision · fog of war", "All players · fog of war", "Reveal map"]
-	)
-	_label(grid, "Battlefield events", 14, ArtTheme.MUTED)
-	_events = _option(grid, "BattlefieldEvents", ["On", "Off"])
-	var slots_panel = _panel(right)
-	_label(slots_panel, "Player slots", 18).theme_type_variation = "HudHeading"
-	_random_starts = CheckButton.new()
-	_random_starts.text = tr("Random starting locations")
-	slots_panel.add_child(_random_starts)
-	_random_starts.toggled.connect(func(_enabled): _refresh_slots())
-	_slots_grid = GridContainer.new()
-	_slots_grid.columns = 5
-	_slots_grid.add_theme_constant_override("h_separation", 6)
-	_slots_grid.add_theme_constant_override("v_separation", 6)
-	slots_panel.add_child(_slots_grid)
-	_setup_status = _label(slots_panel, "", 12, ArtTheme.MUTED)
-	_setup_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	var footer = HBoxContainer.new()
 	footer.add_theme_constant_override("separation", 16)
 	page.add_child(footer)
 	var back = Button.new()
 	back.text = "Back"
-	back.custom_minimum_size = Vector2(100, 46)
+	back.custom_minimum_size = Vector2(100, 40)
 	back.pressed.connect(_on_back_button_pressed)
 	footer.add_child(back)
 	var space = Control.new()
@@ -332,25 +280,19 @@ func _build_ui():
 	_start_button.name = "StartButton"
 	_start_button.text = "START BATTLE  →"
 	_start_button.theme_type_variation = "BattlePrimaryButton"
-	_start_button.custom_minimum_size = Vector2(220, 46)
+	_start_button.custom_minimum_size = Vector2(220, 40)
 	_start_button.pressed.connect(_on_start_button_pressed)
 	footer.add_child(_start_button)
-	resized.connect(_layout_setup)
-	_layout_setup()
-
-
-func _layout_setup():
-	_body_grid.columns = 2 if size.x >= 1100 else 1
-	_preview.custom_minimum_size.y = clampf(size.y * .34, 200, 360)
 
 
 func _panel(parent):
 	var panel = PanelContainer.new()
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.theme_type_variation = "HudHousing"
+	panel.add_theme_stylebox_override("panel", ArtTheme.section(14, 12))
 	parent.add_child(panel)
 	var box = VBoxContainer.new()
-	box.add_theme_constant_override("separation", 10)
+	box.add_theme_constant_override("separation", 8)
 	panel.add_child(box)
 	return box
 
@@ -368,7 +310,7 @@ func _option(parent, node_name, items):
 	var choice = OptionButton.new()
 	choice.name = node_name
 	choice.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	choice.custom_minimum_size = Vector2(160, 38)
+	choice.custom_minimum_size = Vector2(148, 32)
 	choice.fit_to_longest_item = false
 	choice.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	choice.add_theme_font_size_override("font_size", 14)
@@ -380,27 +322,25 @@ func _option(parent, node_name, items):
 
 func _faction_card(parent, heading, index):
 	var box = _panel(parent)
-	_label(box, tr(heading), 13, Color("d8a846"))
-
-	var portrait_box = PanelContainer.new()
-	portrait_box.theme_type_variation = "HudSocket"
-	box.add_child(portrait_box)
-
+	var row = HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	box.add_child(row)
 	var portrait = TextureRect.new()
 	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	portrait.custom_minimum_size = Vector2(100, 88)
-	portrait_box.add_child(portrait)
-
+	portrait.custom_minimum_size = Vector2(52, 52)
+	row.add_child(portrait)
+	var details = VBoxContainer.new()
+	details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	details.add_theme_constant_override("separation", 4)
+	row.add_child(details)
+	_label(details, tr(heading), 13, ArtTheme.MUTED)
 	var choice = _option(
-		box,
+		details,
 		"PlayerFaction" if index == 0 else "EnemyFaction",
 		["Bastion", "Helix", "Frontier", "Random"]
 	)
-	var description = _label(box, "", 12, Color("9eb0b8"))
-	description.custom_minimum_size.y = 44
-	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_cards.append({"portrait": portrait, "description": description})
+	_cards.append({"portrait": portrait, "choice": choice})
 	choice.item_selected.connect(func(selected): _update_faction(index, selected))
 	return choice
 
@@ -411,10 +351,15 @@ func _update_faction(index, selected):
 			Factions.IDS[selected] if selected < Factions.IDS.size() else "bastion"
 		)
 		theme = ArtTheme.create()
-	_cards[index].description.text = tr(FACTION_DESCRIPTIONS[selected])
-	_cards[index].description.tooltip_text = (
-		tr(Factions.TECH_SUMMARY[Factions.IDS[selected]]) if selected < Factions.IDS.size() else ""
+	_cards[index].choice.tooltip_text = (
+		tr(FACTION_DESCRIPTIONS[selected])
+		+ (
+			"\n\n" + tr(Factions.TECH_SUMMARY[Factions.IDS[selected]])
+			if selected < Factions.IDS.size()
+			else ""
+		)
 	)
+	_cards[index].choice.accessibility_description = _cards[index].choice.tooltip_text
 	_cards[index].portrait.texture = load(
 		Factions.icon(
 			Factions.IDS[selected] if selected < Factions.IDS.size() else "bastion",
@@ -440,14 +385,6 @@ func _update_summary():
 
 func _on_map_list_item_selected(index):
 	_preview.set_map(MAPS[index][0])
-	_events.disabled = not load("res://source/match/world/BattlefieldEvents.gd").supported(
-		MAPS[index][0]
-	)
-	_events.tooltip_text = (
-		tr("Automatic events with small optional rewards")
-		if not _events.disabled
-		else tr("No events on this battlefield")
-	)
 	_rebuild_slots(Constants.Match.MAPS[MAPS[index][0]].players)
 	_map_details.text = (
 		tr(MAPS[index][2])
@@ -460,56 +397,19 @@ func _on_map_list_item_selected(index):
 			else tr("2 players · Head-to-head")
 		)
 	)
-	_refresh_slots()
+	_sync_preview_slots()
 
 
 func _rebuild_slots(count):
-	if _slots.size() == count:
-		return
-	for child in _slots_grid.get_children():
-		_slots_grid.remove_child(child)
-		child.queue_free()
-	_slots.clear()
-	for heading in ["Player", "Faction", "Difficulty", "Starting position", "Team"]:
-		_label(_slots_grid, heading, 12, ArtTheme.MUTED)
-	for index in count:
-		_label(_slots_grid, tr("You") if index == 0 else tr("AI %d") % index, 12)
-		var faction = _option(
-			_slots_grid,
-			"SlotFaction%d" % index,
-			["Use faction above", "Bastion", "Helix", "Frontier", "Random"]
-		)
-		var difficulty = _option(
-			_slots_grid, "SlotDifficulty%d" % index, ["Use AI difficulty"] + Difficulty.NAMES
-		)
-		difficulty.disabled = index == 0
-		var start_items = []
-		for location in count:
-			start_items.append(tr("Start %d") % (location + 1))
-		var start = _option(_slots_grid, "SlotStart%d" % index, start_items)
-		start.select(index)
-		start.item_selected.connect(func(selected): _select_start(index, selected))
-		var team = _option(
-			_slots_grid, "SlotTeam%d" % index, ["Team 1", "Team 2", "Team 3", "Team 4"]
-		)
-		team.select(index)
-		team.item_selected.connect(func(_selected): _refresh_slots())
-		for option in [faction, difficulty, start, team]:
-			option.custom_minimum_size.x = 60
-		_slots.append(
-			{
-				"faction": faction,
-				"difficulty": difficulty,
-				"start": start,
-				"team": team,
-				"location": index
-			}
-		)
-	_game_mode.set_item_disabled(1, count != 4)
-	_game_mode.set_item_disabled(2, count != 4)
-	if count != 4 and _game_mode.selected in [1, 2]:
+	if _slots.size() != count:
+		_slots.clear()
+		for index in count:
+			_slots.append({"location": index})
+	_game_mode.visible = count == 4
+	_mode_label.visible = count == 4
+	if count != 4:
 		_game_mode.select(0)
-	_apply_teams(_game_mode.selected)
+	_sync_preview_slots()
 
 
 func _select_start(index, selected):
@@ -517,43 +417,17 @@ func _select_start(index, selected):
 	for other in _slots:
 		if other != _slots[index] and other.location == selected:
 			other.location = previous
-			other.start.select(previous)
 	_slots[index].location = selected
-	_slots[index].start.select(selected)
-	_refresh_slots()
+	_sync_preview_slots()
 
 
 func _on_preview_start_selected(start_index):
-	if _slots.is_empty() or start_index < 0 or start_index >= _slots.size():
+	if start_index < 0 or start_index >= _slots.size():
 		return
-	if _random_starts.button_pressed:
-		_random_starts.button_pressed = false
 	_select_start(0, start_index)
 
 
-func _apply_teams(mode):
-	for index in _slots.size():
-		if mode != 3:
-			_slots[index].team.select(
-				index / 2 if mode == 1 else (mini(index, 1) if mode == 2 else index)
-			)
-	_refresh_slots()
-
-
-func _refresh_slots():
-	var teams = []
-	for slot in _slots:
-		slot.start.disabled = _random_starts.button_pressed
-		slot.team.disabled = _game_mode.selected != 3
-		teams.append(slot.team.selected)
-	var valid = _game_mode.selected == 0 or teams.any(func(team): return team != teams[0])
-	if _start_button != null:
-		_start_button.disabled = not valid or _starting
-	_setup_status.text = (
-		tr("Choose at least two opposing teams.")
-		if not valid
-		else tr("Start numbers match the map preview. Choosing an occupied start swaps players.")
-	)
+func _apply_teams(_mode):
 	_sync_preview_slots()
 
 
@@ -563,16 +437,25 @@ func _sync_preview_slots():
 	var assignments = []
 	for slot_index in _slots.size():
 		var slot = _slots[slot_index]
+		var caption = tr("You") if slot_index == 0 else tr("AI %d") % slot_index
+		if _game_mode.selected > 0:
+			caption += " · " + tr("Team %d") % (_team_for_slot(slot_index) + 1)
 		assignments.append(
 			{
 				"slot": slot_index,
 				"location": slot.location,
-				"name": tr("You") if slot_index == 0 else tr("AI %d") % slot_index,
+				"name": caption,
 				"color":
 				[Color("e2c180"), Color("dd8d81"), Color("88bad4"), Color("b5a1d4")][slot_index % 4]
 			}
 		)
 	_preview.set_slot_assignments(assignments)
+
+
+func _team_for_slot(index):
+	if _game_mode.selected == 0:
+		return -1
+	return index / 2 if _game_mode.selected == 1 else mini(index, 1)
 
 
 func _create_match_settings():
@@ -582,30 +465,15 @@ func _create_match_settings():
 	result.advanced_start = _start_mode.selected == 1
 	result.map_path = _get_selected_map_path()
 	result.match_seed = randi() & 0x7fffffff
-	result.visibility = _visibility.selected
-	result.battlefield_events = not _events.disabled and _events.selected == 0
-	result.starting_resources_multiplier = [1, 2, 4][_resources.selected]
-	var doctrine_keys = ["balanced", "kiting", "ironclad"]
-	result.tactical_doctrine = (
-		doctrine_keys[_doctrine_selector.selected] if _doctrine_selector != null else "balanced"
-	)
+	# New matches use the standard rules, regardless of retired setup preferences.
 	var rng = RandomNumberGenerator.new()
 	rng.seed = result.match_seed
-	var locations = range(_slots.size())
-	if _random_starts.button_pressed:
-		for index in range(locations.size() - 1, 0, -1):
-			var other = rng.randi_range(0, index)
-			var previous = locations[index]
-			locations[index] = locations[other]
-			locations[other] = previous
 	for index in range(Constants.Match.MAPS[result.map_path].players):
 		var player = PlayerSettings.new()
 		player.controller = (
 			Constants.PlayerType.HUMAN if index == 0 else Constants.PlayerType.SIMPLE_CLAIRVOYANT_AI
 		)
 		var selected = _player_faction.selected if index == 0 else _enemy_faction.selected
-		if _slots[index].faction.selected > 0:
-			selected = _slots[index].faction.selected - 1
 		player.faction = Factions.IDS[
 			rng.randi_range(0, Factions.IDS.size() - 1)
 			if selected == Factions.IDS.size()
@@ -615,13 +483,9 @@ func _create_match_settings():
 		# The level belongs to the computer commander; the human keeps the default.
 		if index > 0:
 			player.difficulty = _difficulty.selected
-			if _slots[index].difficulty.selected > 0:
-				player.difficulty = _slots[index].difficulty.selected - 1
 		player.spawn_index_offset = 0
-		player.spawn_index = (
-			locations[index] if _random_starts.button_pressed else _slots[index].location
-		)
-		player.team = -1 if _game_mode.selected == 0 else _slots[index].team.selected
+		player.spawn_index = _slots[index].location
+		player.team = _team_for_slot(index)
 		result.players.append(player)
 	return result
 
@@ -652,11 +516,7 @@ func _save_preferences():
 		["enemy", _enemy_faction],
 		["difficulty", _difficulty],
 		["start", _start_mode],
-		["doctrine", _doctrine_selector],
 		["mode", _game_mode],
-		["resources", _resources],
-		["visibility", _visibility],
-		["events", _events]
 	]:
 		if pair[1] == null:
 			continue
@@ -666,13 +526,7 @@ func _save_preferences():
 		if pair[0] in ["player", "enemy"]:
 			value = (Factions.IDS + ["random"])[value]
 		config.set_value("setup", pair[0], value)
-	config.set_value("setup", "random_starts", _random_starts.button_pressed)
-	var slots = []
-	for slot in _slots:
-		slots.append(
-			[slot.faction.selected, slot.difficulty.selected, slot.location, slot.team.selected]
-		)
-	config.set_value("setup", "slots", slots)
+	config.set_value("setup", "locations", _slots.map(func(slot): return slot.location))
 	config.save(preferences_path)
 
 
@@ -685,11 +539,7 @@ func _load_preferences():
 		["enemy", _enemy_faction, "random"],
 		["difficulty", _difficulty, 1],
 		["start", _start_mode, 0],
-		["doctrine", _doctrine_selector, 0],
 		["mode", _game_mode, 0],
-		["resources", _resources, 0],
-		["visibility", _visibility, 0],
-		["events", _events, 0]
 	]:
 		if pair[1] == null:
 			continue
@@ -709,34 +559,33 @@ func _load_preferences():
 			value = (Factions.IDS + ["random"]).find(value)
 			if value < 0:
 				value = 0 if pair[0] == "player" else Factions.IDS.size()
+		if pair[0] == "mode" and int(value) not in [0, 1, 2]:
+			value = 0
 		pair[1].select(clampi(int(value), 0, pair[1].item_count - 1))
 	_on_map_list_item_selected(_map_list.selected)
-	_random_starts.set_pressed_no_signal(config.get_value("setup", "random_starts", false))
-	_load_slot_preferences(config.get_value("setup", "slots", []))
-	_apply_teams(_game_mode.selected)
+	var locations = config.get_value("setup", "locations", [])
+	# Keep previously chosen map positions, but retire hidden per-player overrides.
+	if not config.has_section_key("setup", "locations"):
+		var old_slots = config.get_value("setup", "slots", [])
+		if (
+			old_slots is Array
+			and old_slots.all(func(slot): return slot is Array and slot.size() == 4)
+		):
+			locations = old_slots.map(func(slot): return slot[2])
+	_load_locations(locations)
+	_sync_preview_slots()
 
 
-func _load_slot_preferences(saved_slots):
-	if not saved_slots is Array or saved_slots.size() != _slots.size():
+func _load_locations(locations):
+	if not locations is Array or locations.size() != _slots.size():
 		return
-	var locations = []
-	for saved in saved_slots:
-		if not saved is Array or saved.size() != 4:
+	var seen = []
+	for location in locations:
+		if not location is int or location < 0 or location >= _slots.size() or location in seen:
 			return
-		for value in saved:
-			if not value is int:
-				return
-		if saved[2] < 0 or saved[2] >= _slots.size() or saved[2] in locations:
-			return
-		locations.append(saved[2])
+		seen.append(location)
 	for index in _slots.size():
-		var slot = _slots[index]
-		var saved = saved_slots[index]
-		slot.faction.select(clampi(saved[0], 0, slot.faction.item_count - 1))
-		slot.difficulty.select(clampi(saved[1], 0, slot.difficulty.item_count - 1))
-		slot.start.select(saved[2])
-		slot.location = saved[2]
-		slot.team.select(clampi(saved[3], 0, 3))
+		_slots[index].location = locations[index]
 
 
 func _on_back_button_pressed():

@@ -29,7 +29,6 @@ func _run():
 	root.size = Vector2i(1280, 720)
 	root.content_scale_size = root.size
 	await _frames(5)
-	menu.find_child("SetupScroll", true, false).scroll_vertical = 1000
 	await _frames(12)
 	await _capture("four-player-slots-720p")
 	menu.queue_free()
