@@ -48,7 +48,8 @@ func _growth(faction):
 		faction + ": cancelled army production still unlocked an optional facility"
 	)
 	for role in ["RepairDepot", "CommandLab", "AircraftFactory", "AntiAirTurret"]:
-		_spawn(role, player, Vector3(90, 0, 80))
+		if factions.roster(faction).allows(role, true):
+			_spawn(role, player, Vector3(90, 0, 80))
 	game.simulation_time = 900
 	player.difficulty = 0
 	while production.army_size(composition.inventory(player._units())) < 14:
@@ -90,8 +91,16 @@ func _check_balanced_bank(player, production):
 	var labor = load("res://source/match/players/skirmish-ai/SkirmishLabor.gd")
 	# A capped, fully researched commander has no pending expenses.
 	player.difficulty = 0
+	if player.faction == "frontier":
+		# Frontier's decentralized engine includes a second Motor Pool even
+		# after the Easy army cap; fulfill that remaining infrastructure goal.
+		_spawn("VehicleFactory", player, Vector3(80, 0, 70))
 	player.coordination_unlocked = true
-	player.technology.completed = ["weapons_1", "armor_1"]
+	var technologies = load("res://source/match/research/TechnologyCatalog.gd")
+	player.technology.completed = []
+	for id in technologies.FACTION_TECHNOLOGIES[player.faction]:
+		if technologies.exclusion(id, player.technology.completed) == "":
+			player.technology.completed.append(id)
 	for index in 2:
 		_spawn("PowerPlant", player, Vector3(110, 0, 70 + index * 10))
 	while _units(player, "Worker").size() < 5:

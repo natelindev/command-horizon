@@ -5,6 +5,9 @@ const Technologies = preload("res://source/match/research/TechnologyCatalog.gd")
 const Players = preload("res://source/match/Players.gd")
 const Unit = preload("res://source/match/units/Unit.gd")
 const Counters = preload("res://source/match/combat/UnitCounters.gd")
+const PowerGrid = preload("res://source/match/economy/PowerGrid.gd")
+const Weapons = preload("res://source/match/combat/WeaponCatalog.gd")
+const BASTION_BALLISTIC_FACTOR = 0.85
 
 # Armor profiles; damage remains floating point all the way to HP.
 const MULTIPLIERS = {
@@ -25,12 +28,16 @@ const MULTIPLIERS = {
 	"Heavy bomb": [1.1, 1.0, 0.9, 2.0],
 	"Loitering munition": [0.6, 1.3, 1.5, 1.2],
 	"Flak": [1.0, 1.0, 1.0, 1.0],
+	"Siege cannon": [1.6, 1.3, 1.2, 1.4],
+	"Prism beam": [0.8, 1.0, 1.3, 1.0],
+	"Demolition charge": [1.0, 1.0, 1.0, 1.5],
 }
 # Shoulder-launched missiles need a short lock before launching at aircraft.
 const INFANTRY_SAM_RANGE = 9.0
 const INFANTRY_SAM_LOCK = 0.8
 const ARMOR_NAMES = ["Infantry", "Light machine", "Heavy armor", "Structure"]
 const PROFILES = {
+	"Worker": "Autocannon",
 	"MercenaryLancer": "Infantry rocket",
 	"MercenaryRanger": "Sniper rifle",
 	"MercenaryWarden": "Combat shotgun",
@@ -68,6 +75,7 @@ class DamageFacts:
 	var origin: Vector3
 	var has_origin: bool = false
 	var airborne: bool
+	var ballistic: bool
 
 
 static func armor_for(role):
@@ -85,6 +93,8 @@ static func armor_for(role):
 
 static func can_target(source, target, forced = false):
 	if not is_instance_valid(source) or not is_instance_valid(target):
+		return false
+	if PowerGrid.turret_disabled(source) or not _harvester_target(source, target):
 		return false
 	if source is Unit:
 		return _unit_can_target(source, target, forced)
@@ -127,6 +137,8 @@ static func _generic_can_target(source, target, forced = false):
 static func commander_disabled(source) -> bool:
 	if not is_instance_valid(source):
 		return false
+	if PowerGrid.turret_disabled(source):
+		return true
 	if source is Unit:
 		return _unit_commander_disabled(source)
 	return (
@@ -168,9 +180,27 @@ static func explicit_attack(source, target):
 static func can_receive(source, target, forced = false):
 	if not is_instance_valid(source) or not is_instance_valid(target):
 		return false
+	if not _harvester_target(source, target):
+		return false
 	if target is Unit:
 		return _unit_can_receive(source, target, forced)
 	return _generic_can_receive(source, target, forced)
+
+
+static func _harvester_target(source, target) -> bool:
+	if not "type" in source or source.type != "Worker":
+		return true
+	if source.player == null or source.player.faction != "frontier" or not "type" in target:
+		return false
+	if InfantryRoster.is_infantry(target.type):
+		return true
+	if target.type in ["Worker", "RepairRobot", "CombatRobot", "Drone", "SupplyTruck"]:
+		return true
+	return (
+		target.type in ["Tank", "AntiAirVehicle"]
+		and target.player != null
+		and target.player.faction == "frontier"
+	)
 
 
 static func _unit_can_receive(source, target: Unit, forced: bool) -> bool:
@@ -271,6 +301,7 @@ static func damage_facts(source) -> DamageFacts:
 		else ""
 	)
 	facts.profile = profile
+	facts.ballistic = _ballistic_weapon(source)
 	facts.damage = float(source.attack_damage)
 	facts.has_technology = source.player.technology != null
 	if facts.has_technology:
@@ -303,9 +334,16 @@ static func damage_with_facts(facts: DamageFacts, target) -> float:
 	if not MULTIPLIERS.has(profile):
 		return 0.0
 	var factor: float = target.signature.damage_factor() if target.signature != null else 1.0
+	if facts.has_origin:
+		factor *= ruin_cover_factor(facts.origin, target, profile)
 	factor *= smoke_damage_factor(target)
 	factor *= target_flare_damage_factor(target)
-	if "abilities" in target and target.abilities != null and target.abilities.is_active("shield_wall"):
+
+	if (
+		"abilities" in target
+		and target.abilities != null
+		and target.abilities.is_active("shield_wall")
+	):
 		factor *= 0.6
 	var elevation: float = 0.0
 	if not facts.airborne and not airborne:
@@ -322,6 +360,15 @@ static func damage_with_facts(facts: DamageFacts, target) -> float:
 	if facts.has_technology:
 		factor *= facts.technology_factor
 	var armor = armor_for(target.type)
+	if (
+		armor == 3
+		and facts.ballistic
+		and target is Unit
+		and target.type in InfantryRoster.STRUCTURES
+		and target.player != null
+		and target.player.faction == "bastion"
+	):
+		factor *= BASTION_BALLISTIC_FACTOR
 	if target.is_in_group("neutral_targets") and airborne:
 		armor = 1
 	if (
@@ -348,6 +395,61 @@ static func damage_with_facts(facts: DamageFacts, target) -> float:
 	):
 		factor *= 0.75
 	return facts.damage * MULTIPLIERS[profile][armor] * factor
+
+
+static func _ballistic_weapon(source) -> bool:
+	# Several energy weapons share bullet/missile flight solvers. Classify their
+	# authored weapon identity, rather than treating those trajectories as armor.
+	if (
+		"faction" in source.player
+		and source.player.faction == "helix"
+		and source.type in ["Hero", "CombatRobot"]
+	):
+		return false
+	var weapon = Weapons.profile(source)
+	return (
+		weapon.get("kind", "") in ["bullet", "shell", "rocket", "missile"]
+		and (
+			weapon.get("id", "")
+			not in [
+				"pulse_laser",
+				"prism_beam",
+				"thermal_beam",
+				"ion_disruptor",
+				"interceptor",
+				"emp_rocket"
+			]
+		)
+	)
+
+
+static func ruin_cover_factor(origin: Vector3, target, profile: String) -> float:
+	if (
+		profile not in ["Rifle", "Assault rifle", "Sniper rifle", "Autocannon"]
+		or not InfantryRoster.is_infantry(target.type)
+		or not target.is_inside_tree()
+	):
+		return 1.0
+	var point = target.global_position_yless
+	var start = origin * Vector3(1, 0, 1)
+	for ruin in target.get_tree().get_nodes_in_group("structure_ruins"):
+		if ruin.hp <= 0.0 or ruin.is_queued_for_deletion():
+			continue
+		var center = ruin.global_position_yless
+		if center.distance_to(point) > ruin.radius + 1.5:
+			continue
+		var forward = point - start
+		if forward.length_squared() < .01:
+			continue
+		var ratio = (center - start).dot(forward) / forward.length_squared()
+		if ratio <= 0.0 or ratio >= 1.0:
+			continue
+		if (
+			Geometry3D.get_closest_point_to_segment(center, start, point).distance_to(center)
+			<= ruin.radius
+		):
+			return .8
+	return 1.0
 
 
 ## Smoke protects allied ground targets at its fixed deployment point. Multiple
@@ -468,6 +570,8 @@ static func preparation_for(unit, target = null):
 		return 0.0
 	if typeof(target) == TYPE_OBJECT and not is_instance_valid(target):
 		return 0.0
+	if unit.type == "AdvancedTank":
+		return 0.0
 	if unit.type == "RocketInfantry":
 		var sam_lock = (
 			0.4
@@ -528,6 +632,10 @@ static func profile_for(unit):
 		return ""
 	if unit.type == "Hero" and unit.player.faction == "helix":
 		return "Anti-armor lance"
-	if unit.type == "AdvancedTank" and unit.player.faction == "frontier":
-		return "Heavy cannon"
+	if unit.type == "AdvancedTank":
+		return {"bastion": "Siege cannon", "helix": "Prism beam", "frontier": "Autocannon"}.get(
+			unit.player.faction, "Precision rail"
+		)
+	if unit.type == "CombatRobot" and unit.player.faction == "frontier":
+		return "Demolition charge"
 	return PROFILES.get(unit.type, "")

@@ -5,6 +5,7 @@ the pinned official archive and verify its SHA-256 before extraction.
 """
 import argparse
 import hashlib
+import json
 import platform
 import sys
 from pathlib import Path
@@ -44,12 +45,16 @@ def main():
     parser.add_argument("--zig", type=Path)
     parser.add_argument("--download-toolchain", action="store_true")
     parser.add_argument("--cc", help="Host C compiler (default: cc on macOS/Linux)")
+    parser.add_argument("--universal", action="store_true",
+                        help="Build both macOS arm64 and x86-64 slices into one library")
     parser.add_argument("--output", type=Path, default=ROOT / "native/bin")
     args = parser.parse_args()
     host = platform.system()
     architecture = {"aarch64": "arm64", "AMD64": "x86_64"}.get(platform.machine(), platform.machine())
     if host not in ("Windows", "Darwin", "Linux") or architecture not in ("arm64", "x86_64"):
         parser.error("Supported hosts: Windows x86-64, macOS/Linux arm64 or x86-64")
+    if args.universal and host != "Darwin":
+        parser.error("--universal requires a macOS host with Apple Command Line Tools")
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=True)
     source = ROOT / "native/pose_packer"
@@ -72,14 +77,27 @@ def main():
         compiler = [str(cc), "-dynamiclib" if host == "Darwin" else "-shared", "-fPIC"]
         feature = ("macos" if host == "Darwin" else "linux") + "." + architecture
         extension = "dylib" if host == "Darwin" else "so"
+    features = [feature]
     library = output / f"copperfin.{feature}.{extension}"
-    result = subprocess.run(compiler + ["-O3", "-ffp-contract=off", "-I", str(source),
-                            str(source / "pose_packer.c"), "-o", str(library), "-lm"],
-                            stdout=sys.stderr, stderr=sys.stderr)
-    if result.returncode:
-        print("error: Native compilation failed")
-        print("help: Check compiler diagnostics on stderr and rerun with --cc or --zig")
-        raise SystemExit(1)
+    if args.universal:
+        lipo = shutil.which("lipo")
+        if lipo is None:
+            parser.error("--universal requires Apple's lipo; install the Command Line Tools")
+        library = output / "copperfin.macos.universal.dylib"
+        features = ["macos.arm64", "macos.x86_64"]
+        with tempfile.TemporaryDirectory(prefix="copperfin-universal-") as temporary:
+            slices = []
+            for target, minimum in [("arm64", "11.0"), ("x86_64", "10.13")]:
+                thin = Path(temporary) / f"{target}.dylib"
+                compile_library(compiler + ["-arch", target, f"-mmacosx-version-min={minimum}",
+                                            "-Wl,-install_name,@rpath/" + library.name],
+                                source, thin)
+                slices.append(str(thin))
+            run_native_tool([lipo, "-create", *slices, "-output", str(library)])
+        for target in ["arm64", "x86_64"]:
+            run_native_tool([lipo, str(library), "-verify_arch", target])
+    else:
+        compile_library(compiler, source, library)
     config = output / "copperfin.gdextension"
     entries = {}
     if config.exists():
@@ -89,12 +107,31 @@ def main():
                 if "=" in line:
                     key, value = line.split("=", 1)
                     entries[key.strip()] = value.strip()
-    entries[feature] = f'"{library.name}"'
+    for target in features:
+        entries[target] = f'"{library.name}"'
     config.write_text(
         '[configuration]\nentry_symbol = "copperfin_library_init"\n'
         'compatibility_minimum = "4.4"\n\n[libraries]\n' +
         "".join(f"{key} = {value}\n" for key, value in sorted(entries.items())), encoding="utf-8")
-    print(f"library: {library}")
+    print("library: " + json.dumps(str(library)))
+
+
+def compile_library(compiler, source, library):
+    run_native_tool(compiler + ["-O3", "-ffp-contract=off", "-I", str(source),
+                               str(source / "pose_packer.c"), "-o", str(library), "-lm"])
+
+
+def run_native_tool(command):
+    try:
+        result = subprocess.run(command, stdout=sys.stderr, stderr=sys.stderr)
+    except OSError as error:
+        print(f"error: {error}")
+        print("help: Check the compiler/Command Line Tools path and retry")
+        raise SystemExit(1) from None
+    if result.returncode:
+        print("error: Native build tool failed")
+        print("help: Check compiler diagnostics on stderr and rerun with --cc or --zig")
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

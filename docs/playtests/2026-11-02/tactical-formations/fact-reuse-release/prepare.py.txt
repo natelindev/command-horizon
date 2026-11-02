@@ -1,0 +1,43 @@
+import datetime,hashlib,importlib.util,json,os,re,shutil,sys
+from pathlib import Path
+root=Path('/Users/linlilu/godot-open-rts')
+spec=importlib.util.spec_from_file_location('rts_release_builder',root/'tools/release/build.py');builder=importlib.util.module_from_spec(spec);sys.modules[spec.name]=builder;spec.loader.exec_module(builder)
+stamp=datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%SZ')+'-'+str(os.getpid())
+work=root/'build/verification/macos'/('tactical-refresh-'+stamp);work.mkdir()
+frozen=root/'build/verification/macos/headless-20261102-resume/inputs-retry-4'
+prior=json.loads((root/'docs/playtests/2026-11-02/headless-continuation/final/report.json').read_text())
+changes=[]
+for directory in ('source','tests/headless','tests/rendered'):
+ names={str(p.relative_to(root)) for p in (root/directory).rglob('*') if p.is_file()}|{str(p.relative_to(frozen)) for p in (frozen/directory).rglob('*') if p.is_file()}
+ for name in sorted(names):
+  a=root/name;b=frozen/name
+  if not a.exists() or not b.exists() or a.read_bytes()!=b.read_bytes():changes.append(name)
+expected={'source/match/effects/CombatEffects.gd','source/match/hud/Minimap.gd','source/match/hud/Ownership.gd','source/match/units/traits/Selection.gd','source/match/units/traits/TrackMotion.gd','source/match/units/traits/WheelMotion.gd','tests/headless/OwnershipRegression.gd','tests/headless/TacticalFormationsRegression.gd','tests/headless/UnitAnimationRegression.gd','tests/rendered/CampaignBriefingCatalogPreview.gd'}
+assert set(changes)==expected,changes
+stage=builder.stage_release_project(work,Path(prior['runtime_support']),source_root=frozen)
+overlay={}
+for name in changes:
+ old=hashlib.sha256((stage/name).read_bytes()).hexdigest();shutil.copy2(root/name,stage/name);overlay[name]={'before_sha256':old,'after_sha256':hashlib.sha256((stage/name).read_bytes()).hexdigest()}
+code={}
+for directory in ('source','tests/headless','tests/rendered'):
+ for p in sorted((stage/directory).rglob('*')):
+  if p.is_file():
+   name=str(p.relative_to(stage));digest=hashlib.sha256(p.read_bytes()).hexdigest();assert digest==hashlib.sha256((root/name).read_bytes()).hexdigest();code[name]=digest
+(work/'overlay-manifest.json').write_text(json.dumps({'base':str(frozen),'changes':overlay,'complete_code_sha256':code},indent=2)+'\n')
+config=(stage/'project.godot').read_text();config=re.sub(r'(?m)^run/main_scene=.*$','run/main_scene="res://tests/headless/FormationStartupBootstrap.tscn"\nrun/main_loop_type="TacticalFormationsMainLoop"',config)
+config=re.sub(r'(?m)^config/(?:use_custom_user_dir|custom_user_dir_name)=.*\n','',config)
+config=re.sub(r'(?m)^config/name=.*$','config/name="Open RTS Tactical Review"\nconfig/use_custom_user_dir=true\nconfig/custom_user_dir_name="OpenRTSTacticalReview/'+stamp+'"',config)
+(stage/'project.godot').write_text(config)
+(stage/'tests/headless/FormationStartupBootstrap.tscn').write_text('[gd_scene format=3]\n\n[node name="FormationStartupBootstrap" type="Node"]\n')
+engine='/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot'
+print('Preparing frozen tactical refresh',work,flush=True)
+builder.run([engine,'--headless','--editor','--path',stage,'--import'],cwd=stage,timeout=240)
+archive=work/'TacticalReview.zip';builder.run([engine,'--headless','--path',stage,'--export-release','macOS',archive],cwd=stage,timeout=240)
+package=work/'package';package.mkdir();builder.unpack(archive,package);apps=list(package.glob('*.app'));assert len(apps)==1
+app=apps[0];executable=builder.application_executable(app);builder.install_native_support(executable,Path(prior['runtime_support']),app=app)
+packs=list((app/'Contents/Resources').glob('*.pck'));assert len(packs)==1;pack=packs[0]
+manifest={'purpose':'Current actual-release tactical performance after six narrowly verified CPU fact-reuse changes; no timing run yet','base_source_root':str(frozen),'overlay_manifest':str(work/'overlay-manifest.json'),'overlay_manifest_sha256':hashlib.sha256((work/'overlay-manifest.json').read_bytes()).hexdigest(),'project':str(stage),'app':str(app),'executable':str(executable),'executable_sha256':hashlib.sha256(executable.read_bytes()).hexdigest(),'pack':str(pack),'pack_sha256':hashlib.sha256(pack.read_bytes()).hexdigest(),'profile':str(Path.home()/'Library/Application Support/OpenRTSTacticalReview'/stamp),'installed_native_sha256':{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in (executable.parent/'native/bin').iterdir() if p.is_file()},'test_entry':'TacticalFormationsMainLoop','physical_raster':[1280,720],'ui_scale':1.0,'changes_from_distribution':['dedicated tactical fixture main loop and empty bootstrap','fresh isolated user profile and application name'],'engine':prior['engine']}
+(work/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
+(root/'build/verification/macos/tactical-current-latest.json').write_text(json.dumps({'manifest':str(work/'manifest.json')},indent=2)+'\n')
+shutil.copy2('/tmp/rts-prepare-tactical-refresh.py',work/'prepare.py.txt')
+print('Ready',work/'manifest.json',flush=True)

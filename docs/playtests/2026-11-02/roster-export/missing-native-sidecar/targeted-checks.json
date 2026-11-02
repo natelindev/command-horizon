@@ -1,0 +1,137 @@
+{
+  "pack_sha256": "7303cf81bb5ca264bc527c9e41d6888790f504d8915f5405d20ec3e2ae31e8a4",
+  "base": "private APFS clone of inputs-retry-3",
+  "cleared_cache": ".godot/exported",
+  "overlays": {
+    "source/match/factions/FactionRoster.gd": "820bdeceb70f9c3702cf9f7dbbcc2f5ba0eae69cbd1760f041a7e8d7b5c20448",
+    "tests/headless/BattleHudProductionRegression.gd": "0f7b2b8d6ca8aeebb774da230a4ebe6ee20bdd5bc127b6dd9d9e5fd01275003c"
+  },
+  "checks": [
+    {
+      "mode": "fallback",
+      "test": "BattleHudProductionRegression",
+      "argv": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--main-pack",
+        "/tmp/rts-roster-fixed.pck",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "res://tests/headless/BattleHudProductionRegression.gd"
+      ],
+      "cwd": "/tmp/rts-roster-targeted-project",
+      "exit_code": 0,
+      "errors": false,
+      "seconds": 17.363,
+      "log": "fallback-BattleHudProductionRegression.log"
+    },
+    {
+      "mode": "native",
+      "test": "BattleHudProductionRegression",
+      "argv": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--main-pack",
+        "/tmp/rts-roster-fixed.pck",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "res://tests/headless/BattleHudProductionRegression.gd",
+        "--",
+        "--enable-native-kernels",
+        "--native-unit-state",
+        "--native-crowd-runtime"
+      ],
+      "cwd": "/tmp/rts-roster-targeted-project",
+      "exit_code": 1,
+      "errors": true,
+      "seconds": 17.383,
+      "log": "native-BattleHudProductionRegression.log"
+    },
+    {
+      "mode": "native",
+      "test": "FactionAsymmetryRegression",
+      "argv": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--main-pack",
+        "/tmp/rts-roster-fixed.pck",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "res://tests/headless/FactionAsymmetryRegression.gd",
+        "--",
+        "--enable-native-kernels",
+        "--native-unit-state",
+        "--native-crowd-runtime"
+      ],
+      "cwd": "/tmp/rts-roster-targeted-project",
+      "exit_code": 0,
+      "errors": false,
+      "seconds": 3.961,
+      "log": "native-FactionAsymmetryRegression.log"
+    },
+    {
+      "mode": "fallback",
+      "test": "FactionAsymmetryRegression",
+      "argv": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--main-pack",
+        "/tmp/rts-roster-fixed.pck",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "res://tests/headless/FactionAsymmetryRegression.gd"
+      ],
+      "cwd": "/tmp/rts-roster-targeted-project",
+      "exit_code": 0,
+      "errors": false,
+      "seconds": 3.947,
+      "log": "fallback-FactionAsymmetryRegression.log"
+    },
+    {
+      "mode": "native",
+      "test": "FrontierAirContractsRegression",
+      "argv": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--main-pack",
+        "/tmp/rts-roster-fixed.pck",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "res://tests/headless/FrontierAirContractsRegression.gd",
+        "--",
+        "--enable-native-kernels",
+        "--native-unit-state",
+        "--native-crowd-runtime"
+      ],
+      "cwd": "/tmp/rts-roster-targeted-project",
+      "exit_code": 0,
+      "errors": false,
+      "seconds": 3.447,
+      "log": "native-FrontierAirContractsRegression.log"
+    },
+    {
+      "mode": "fallback",
+      "test": "FrontierAirContractsRegression",
+      "argv": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--main-pack",
+        "/tmp/rts-roster-fixed.pck",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "res://tests/headless/FrontierAirContractsRegression.gd"
+      ],
+      "cwd": "/tmp/rts-roster-targeted-project",
+      "exit_code": 0,
+      "errors": false,
+      "seconds": 3.512,
+      "log": "fallback-FrontierAirContractsRegression.log"
+    }
+  ]
+}

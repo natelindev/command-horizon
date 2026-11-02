@@ -16,6 +16,7 @@ func _run():
 		combat_audio = game.combat_audio
 		combat_audio.cue_started.connect(func(kind, _point): cues.append(kind))
 		await _actual_combat(faction)
+		await _shield_hit_audio()
 		await _variants_and_rockets()
 		await _weapon_profile_audio()
 		_impact_hierarchy()
@@ -76,28 +77,78 @@ func _actual_combat(faction):
 	shooter.global_position = Vector3(40, 0, 10)
 	target.global_position = Vector3(44, 0, 10)
 	game.battlefield.invalidate()
-	var hp = target.hp
+	var durability = target.hp + target.shields
 	shooter.process_mode = Node.PROCESS_MODE_PAUSABLE
 	shooter.issue_manual_order(shooting.new(target, 1))
-	await _frames(80)
+	for frame in 180:
+		await _frames(1)
+		if target.hp + target.shields < durability:
+			break
 	shooter.process_mode = Node.PROCESS_MODE_DISABLED
-	_check(target.hp < hp, "Actual attack did not hit")
+	_check(target.hp + target.shields < durability, "Actual attack did not hit")
 	_check(
 		cues.has("energy_fire" if faction == "helix" else "cannon_fire"),
 		"Actual shot lacks faction cue"
 	)
-	_check(cues.has("impact_heavy"), "Actual hit lacks impact")
+	var weapon = load("res://source/match/combat/WeaponCatalog.gd").profile(shooter, target)
+	var impact = "impact_heavy" if combat_audio.heavy_impact(shooter, weapon) else "impact_light"
+	_check(cues.has(impact), "Actual hit lacks its weapon impact cue")
 	for role in ["Infantry", "Tank", "CommandCenter"]:
 		var victim = _spawn_weapon(role, sides[1], Vector3(44, 0, 10))
 		await _frames(3)
 		victim.global_position = Vector3(44, 0, 10)
 		game.battlefield.invalidate()
 		victim.hp = 1
+		victim.shields = 0
 		victim.receive_weapon_hit(shooter)
 		await _frames(8)
 	for cue in ["infantry_fall", "vehicle_destroy", "structure_destroy"]:
 		_check(cues.has(cue), "Actual death lacks " + cue)
 	print("PASS actual %s projectile, hit, infantry/vehicle/structure destruction" % faction)
+
+
+func _shield_hit_audio():
+	var sides = _sides()
+	var shield_owner = sides[0] if sides[0].faction == "helix" else sides[1]
+	var opponent = sides[1] if shield_owner == sides[0] else sides[0]
+	var target = _spawn_weapon("Tank", shield_owner, Vector3(43, 0, 10))
+	var shooter = _spawn_weapon("Tank", opponent, Vector3(40, 0, 10))
+	await _frames(5)
+	var visibility = game.settings.visibility
+	game.settings.visibility = game.settings.Visibility.FULL
+	for charge in [20.0, 5.0, 0.0]:
+		target.hp = target.hp_max
+		target.shields = charge
+		for entry in combat_audio._players:
+			entry.node.stop()
+			entry.active = false
+		combat_audio._recent.clear()
+		cues.clear()
+		var hp = target.hp
+		target.receive_damage(shooter, 10.0, target.global_position + Vector3.UP)
+		await _frames(1)
+		var impacts = cues.filter(func(cue): return cue in ["impact_light", "impact_heavy"])
+		_check(
+			impacts.size() == 1,
+			(
+				"Shield/overflow/hull hit emitted zero or duplicate impact cues: "
+				+ str(charge)
+				+ " "
+				+ str(cues)
+			)
+		)
+		_check(
+			is_equal_approx(hp - target.hp, maxf(0.0, 10.0 - charge)),
+			"Shield audio changed hull damage"
+		)
+		_check(
+			is_equal_approx(target.shields, maxf(0.0, charge - 10.0)),
+			"Shield audio changed absorption"
+		)
+	game.settings.visibility = visibility
+	for unit in [target, shooter]:
+		unit.queue_free()
+	await _frames(3)
 
 
 func _impact_hierarchy():
@@ -316,6 +367,7 @@ func _weapon_profile_audio():
 		var shooter = _spawn_weapon(spec[0], sides[0], Vector3(40, 0, 10))
 		var target = _spawn_weapon("Tank", sides[1], Vector3(43, 0, 10))
 		await _frames(3)
+		target.shields = 0
 		combat_audio._recent.clear()
 		cues.clear()
 		var round = game.projectile_system.launch(shooter, target, spec[1])

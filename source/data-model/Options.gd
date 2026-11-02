@@ -196,6 +196,9 @@ func settle_display():
 
 func persist(path):
 	var temporary = path + ".pending.tres"
+	var directory = ProjectSettings.globalize_path(temporary).get_base_dir()
+	if not directory.is_empty() and not DirAccess.dir_exists_absolute(directory):
+		return ERR_CANT_CREATE
 	var result = ResourceSaver.save(self, temporary)
 	if result != OK:
 		return result

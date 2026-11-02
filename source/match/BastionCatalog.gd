@@ -19,17 +19,18 @@ const NAMES = {
 	"SniperInfantry": "Sniper",
 	"AssaultInfantry": "Assault infantry",
 	"Hero": "Marshal Aegis",
-	"Worker": "Engineer rover",
+	"Worker": "Mule Hauler",
 	"Infantry": "Rifle infantry",
 	"Tank": "Bastion tank",
-	"AdvancedTank": "Railgun tank",
+	"AdvancedTank": "Siege Colossus",
 	"RepairRobot": "Repair robot",
-	"CombatRobot": "Combat walker",
+	"CombatRobot": "Bulwark Walker",
 	"Drone": "Strike drone",
 	"Helicopter": "Attack helicopter",
 	"Fighter": "Interceptor jet",
 	"Bomber": "Heavy bomber",
-	"AntiAirVehicle": "Flak tank",
+	"AntiAirVehicle": "Flak Halftrack",
+	"ForwardRefinery": "Forward refinery",
 	"CommandCenter": "Headquarters",
 	"Barracks": "Barracks",
 	"VehicleFactory": "Vehicle factory",
@@ -43,8 +44,8 @@ const NAMES = {
 const DESCRIPTIONS = {
 	"AntiAirVehicle":
 	(
-		"Mobile air defense on a tank chassis. Ground damage: 33% "
-		+ "(100% with Dual-purpose AA). Escort it with tanks and infantry."
+		"Proximity flak halftrack. Bursts leave aerial denial clouds that damage clustered "
+		+ "aircraft for 2 seconds. Escort it with tanks and infantry."
 	),
 	"Fighter":
 	(
@@ -73,7 +74,7 @@ const DESCRIPTIONS = {
 		"Unique faction hero. One alive or in training per player; can retrain "
 		+ "after death. Requires a command lab."
 	),
-	"Worker": "Harvest materials and electronics. Construct your base.",
+	"Worker": "Armored bulk hauler. Collect eight materials per load, construct and repair structures; self-repairs when idle.",
 	"Infantry":
 	(
 		"Inexpensive troops against infantry and light machines; weak against heavy armor. "
@@ -86,14 +87,14 @@ const DESCRIPTIONS = {
 	),
 	"AdvancedTank":
 	(
-		"12 m anti-armor railgun with a 0.75 s charge per shot. Ground targets only; protect "
-		+ "it with a frontline screen."
+		"Deploy hydraulic anchors for 2 seconds to fire a 155 mm siege cannon. "
+		+ "16 m range with wide explosive splash. Moving retracts the anchors and disables fire."
 	),
 	"RepairRobot": "Repairs nearby allies while idle. Right-click an ally to follow and repair.",
 	"CombatRobot":
 	(
-		"Autocannon against infantry and light machines; weaker against heavy armor. 8 m "
-		+ "ground / 6.5 m anti-air, shared reload."
+		"Armored walker carrying a frontal kinetic shield. Intercepts direct-fire rounds "
+		+ "in a 60-degree forward arc, sheltering infantry advancing behind it."
 	),
 	"Drone":
 	(
@@ -105,7 +106,8 @@ const DESCRIPTIONS = {
 		"Attack helicopter. Rockets against ground forces while hovering in place; reloads on "
 		+ "cooldown in the field. Vulnerable to rocket infantry and anti-air."
 	),
-	"CommandCenter": "Produces engineer rovers. Receives harvested resources. Supplies 8 power.",
+	"ForwardRefinery": "Forward materials drop-off. Build near ore to shorten Mule Hauler delivery routes.",
+	"CommandCenter": "Produces Mule Haulers. Receives harvested resources. Supplies 8 power.",
 	"Barracks":
 	(
 		"Trains four infantry classes and a unique hero. Two infantry recovery "
@@ -121,7 +123,7 @@ const DESCRIPTIONS = {
 	"CommandLab":
 	(
 		"With a vehicle factory, unlocks combat walkers and strike aircraft. "
-		+ "Research Coordination for railgun tanks. Uses 5 power."
+		+ "Research Coordination for Siege Colossi. Uses 5 power."
 	),
 	"RepairDepot":
 	"Two ground repair slots within 5 m. Does not stack with other repairs. Uses 3 power.",
@@ -130,7 +132,7 @@ const DESCRIPTIONS = {
 	"AntiAirTurret":
 	(
 		"Missile air defense that prioritizes aircraft. Ground damage: 33% "
-		+ "(100% with Dual-purpose AA). Uses 2 power."
+		+ "Uses 2 power."
 	),
 }
 const PRODUCES = {
@@ -140,6 +142,7 @@ const PRODUCES = {
 	"AircraftFactory": ["Drone", "Helicopter", "Fighter", "Bomber"],
 }
 const STRUCTURES = [
+	"ForwardRefinery",
 	"CommandCenter",
 	"Barracks",
 	"VehicleFactory",
@@ -187,6 +190,8 @@ static func is_fixed_wing(role):
 
 
 static func icon_path(unit_type):
+	if unit_type in ["AdvancedTank", "CombatRobot", "AntiAirVehicle"]:
+		return "res://assets/ui/bastion/%s.png" % {"AdvancedTank":"SiegeColossus", "CombatRobot":"BulwarkWalker", "AntiAirVehicle":"FlakHalftrack"}[unit_type]
 	if unit_type in INFANTRY_ROLES:
 		return "res://assets/ui/infantry/bastion/%s.png" % unit_type
 	if unit_type in STRUCTURES:
@@ -195,7 +200,12 @@ static func icon_path(unit_type):
 
 
 static func type_from_path(path):
-	return path.get_file().get_basename()
+	var filename = path.get_file().get_basename()
+	return {
+		"SiegeColossus": "AdvancedTank", "PrismSkimmer": "AdvancedTank", "BattleRig": "AdvancedTank",
+		"BulwarkWalker": "CombatRobot", "PhaseLancer": "CombatRobot", "DemolitionBuggy": "CombatRobot",
+		"FlakHalftrack": "AntiAirVehicle", "SkywardInterceptor": "AntiAirVehicle", "SAMTechnical": "AntiAirVehicle",
+	}.get(filename, filename)
 
 
 static func requirement_met(player, unit_type):

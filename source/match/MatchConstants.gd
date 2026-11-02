@@ -1,4 +1,5 @@
 const OWNED_PLAYER_CIRCLE_COLOR = Color("7fd9a0")
+const SKIRMISH_CAMERA_MAX_SIZE = 70.0
 const ADVERSARY_PLAYER_CIRCLE_COLOR = Color("ee6b5e")
 const RESOURCE_CIRCLE_COLOR = Color("e8c56a")
 const DEFAULT_CIRCLE_COLOR = Color("eef1f1")
@@ -174,6 +175,8 @@ class Units:
 	}
 	const PRODUCTION_QUEUE_LIMIT = 12
 	const STRUCTURE_BLUEPRINTS = {
+		"res://source/match/units/ForwardRefinery.tscn":
+		"res://source/match/units/structure-geometries/ForwardRefinery.tscn",
 		"res://source/match/units/Barracks.tscn":
 		"res://source/match/units/structure-geometries/Barracks.tscn",
 		"res://source/match/units/PowerPlant.tscn":
@@ -194,6 +197,7 @@ class Units:
 		"res://source/match/units/structure-geometries/AntiAirTurret.tscn",
 	}
 	const CONSTRUCTION_COSTS = {
+		"res://source/match/units/ForwardRefinery.tscn": {"resource_a": 35, "resource_b": 10},
 		"res://source/match/units/Barracks.tscn": {"resource_a": 14, "resource_b": 0},
 		"res://source/match/units/PowerPlant.tscn": {"resource_a": 10, "resource_b": 0},
 		"res://source/match/units/CommandLab.tscn": {"resource_a": 18, "resource_b": 12},
@@ -225,6 +229,8 @@ class Units:
 		},
 	}
 	const DEFAULT_PROPERTIES = {
+		"res://source/match/units/ForwardRefinery.tscn":
+		{"hp": 320, "hp_max": 320, "sight_range": 8.0},
 		"res://source/match/units/MercenaryLancer.tscn":
 		{
 			"hp": 50,
@@ -464,6 +470,8 @@ class VoiceNarrator:
 		RESEARCH_COMPLETED,
 		LOW_POWER,
 		POWER_RESTORED,
+		UNIT_LOW_HEALTH,
+		UNIT_KILL_CONFIRMED,
 	}
 
 	const EVENT_TO_ASSET_MAPPING = {

@@ -118,11 +118,11 @@ func _test_map(map_name):
 			materials += cargo.materials
 			electronics += cargo.electronics
 		_check(
-			materials == (10 if event.kind in ["desert", "coastal"] else 0),
+			materials == (0 if event.kind == "alpine" else 100),
 			map_name + " multiplied Materials budget"
 		)
 		_check(
-			electronics == (0 if event.kind == "alpine" else 5),
+			electronics == (0 if event.kind == "alpine" else 50),
 			map_name + " multiplied Electronics budget"
 		)
 	_check(manager.minimap_markers(_players[0]).is_empty(), "Scheduled markers revealed early")
@@ -159,6 +159,10 @@ func _test_lifecycle():
 	_check(_announcements.size() == 1, "Activation notice was not emitted once")
 	var first = manager.occurrences[0].cargos[0]
 	var second = manager.occurrences[0].cargos[1]
+	_check(
+		first.node.pickup_description().has("Supplies · 50 M / 25 E"),
+		"Contested crate hover omits its actual resource windfall"
+	)
 	var worker = _spawn("Worker", 0, first.point + Vector3(0, 0, 1.0))
 	var enemy = _spawn("Tank", 1, first.point + Vector3(1.0, 0, 0))
 	worker.manual_orders.submit(

@@ -26,11 +26,20 @@ func _init(unit):
 func _process(_delta):
 	if not is_instance_valid(_unit):
 		return
+	if _unit.is_in_group("selected_units"):
+		visible = false
+		return
 	var selection = _unit.get_node_or_null("Selection")
 	var elevated = selection != null and selection._on_elevated_ground()
-	visible = not _unit.is_in_group("selected_units") and not elevated
+	visible = not elevated
 	if _unit.has_node("AirToTerrainMarker"):
 		var ground = 0.0
-		if "_match" in _unit and is_instance_valid(_unit._match) and is_instance_valid(_unit._match.map):
-			ground = _unit._match.map.height_at(Vector2(_unit.global_position.x, _unit.global_position.z))
+		if (
+			"_match" in _unit
+			and is_instance_valid(_unit._match)
+			and is_instance_valid(_unit._match.map)
+		):
+			ground = _unit._match.map.height_at(
+				Vector2(_unit.global_position.x, _unit.global_position.z)
+			)
 		position.y = ground - _unit.global_position.y

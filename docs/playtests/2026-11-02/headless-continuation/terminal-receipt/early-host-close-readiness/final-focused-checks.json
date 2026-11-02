@@ -1,0 +1,52 @@
+[
+  {
+    "name": "final-foundation-False",
+    "argv": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/release-project",
+      "--script",
+      "res://tests/headless/NetworkFoundationRegression.gd",
+      "--",
+      "--enable-native-kernels",
+      "--native-unit-state",
+      "--native-crowd-runtime"
+    ],
+    "exit": 0,
+    "log": "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/final-foundation-False.log"
+  },
+  {
+    "name": "final-foundation-True",
+    "argv": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/release-project",
+      "--script",
+      "res://tests/headless/NetworkFoundationRegression.gd",
+      "--"
+    ],
+    "exit": 0,
+    "log": "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/final-foundation-True.log"
+  },
+  {
+    "name": "final-source-0-outcome",
+    "argv": [
+      "python3",
+      "/Users/linlilu/godot-open-rts/tools/tests/run_network_regressions.py",
+      "--engine",
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--project",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/release-project",
+      "--runtime-dir",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/release-project",
+      "--case",
+      "outcome",
+      "--output",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/final-source-network"
+    ],
+    "exit": 1,
+    "log": "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/final-source-0-outcome.log"
+  }
+]

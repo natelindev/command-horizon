@@ -1,0 +1,13 @@
+{
+  "scope": "Headless geometry only; graphical and strict frame-performance qualification remain deferred.",
+  "engine": "Godot4.7.2 official editor, --headless --fixed-fps60",
+  "command": "--headless --fixed-fps 60 --script res://tests/rendered/CampaignBriefingCatalogPreview.gd -- --layout-only --layout-matrix --output-dir=<writable directory>",
+  "source_sha256": {
+    "source/match/campaign/CampaignBriefing.gd": "f1c0d4f2b5dba31736d8bece8b1441c9e4cfdfbfa774de96c09f731b4050f0b1",
+    "tests/rendered/CampaignBriefingCatalogPreview.gd": "a00298becb36c3ffba2842466fc99932bf798ef0bfb9504e285a99be731f7cc5"
+  },
+  "artifacts_sha256": {
+    "briefing-layout-matrix-source.log": "fd9c905d47d1aa04be2196fd5ea7540b5253633ba75303224839f59bfebc6732",
+    "briefing-layout-matrix-source.json": "37039bf529847f47d7e36ffce36cee286bbe6b994a7fadd46434fc9c2c6af0f9"
+  }
+}

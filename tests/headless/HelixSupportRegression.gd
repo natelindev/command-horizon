@@ -46,12 +46,7 @@ func _overdrive():
 	var second = _spawn("PowerPlant", _human, Vector3(43, 0, 8))
 	var target = _spawn("Tank", _human, Vector3(46, 0, 8))
 	await _frames(3)
-	_check(
-		not generator.abilities.trigger("power_overdrive"),
-		"Overdrive bypassed Plasma Shields prerequisite"
-	)
-	_human.technology.completed.append("plasma_shields")
-	target.update_shields()
+	_check(target.shields_max > 0.0, "Helix lost innate shields")
 	target.shields = 0.0
 	target.last_shield_damage_time = _game.simulation_time
 	var power = _human.power_totals()
@@ -62,11 +57,11 @@ func _overdrive():
 	_check(target.shields == 0.0, "Overdrive bypassed 5s shield damage delay")
 	_game.simulation_time += 5.0
 	target._physics_process(1.0)
-	_check(target.shields == 9.0, "Overdrive did not recharge at 9HP/s")
+	_check(target.shields == 16.0, "Overdrive did not recharge at 16HP/s")
 	_check(
 		second.abilities.trigger("power_overdrive"), "Second Overdrive rejected with spare power"
 	)
-	_check(_game.helix_support.shield_factor(target) == 1.5, "Overlapping Overdrive stacked")
+	_check(_game.helix_support.shield_factor(target) == 2.0, "Overlapping Overdrive stacked")
 	var hp = target.hp
 	target.global_position = Vector3(60, 0, 8)
 	_game.battlefield.invalidate()
@@ -78,7 +73,7 @@ func _overdrive():
 		factories.append(_spawn("VehicleFactory", _human, Vector3(70 + index, 0, 25)))
 	await _frames(3)
 	_check(_human.power_totals().x < _human.power_totals().y, "Power-shortage fixture failed")
-	_check(_game.helix_support.shield_factor(target) == 1.0, "Low power did not suspend Overdrive")
+	_check(_game.helix_support.shield_factor(target) == .5, "Low power did not halve recharge")
 	_check(
 		generator.abilities.is_active("power_overdrive"), "Low power discarded Overdrive request"
 	)
@@ -92,13 +87,13 @@ func _overdrive():
 		factory.queue_free()
 	await _frames(3)
 	_check(
-		_game.helix_support.shield_factor(target) == 1.5,
+		_game.helix_support.shield_factor(target) == 2.0,
 		"Restored power did not resume requested field"
 	)
 	var saved = second.abilities.capture()
 	second.abilities.restore(saved)
 	_check(
-		_game.helix_support.shield_factor(target) == 1.5, "Restored Overdrive request lost coverage"
+		_game.helix_support.shield_factor(target) == 2.0, "Restored Overdrive request lost coverage"
 	)
 
 

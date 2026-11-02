@@ -4,8 +4,9 @@ extends RefCounted
 ## Optional native pose serialization and spatial-query kernels. Missing binaries
 ## retain the ordinary renderer and GDScript queries with the same semantics.
 static func create():
-	# Production packages currently ship Windows kernels. Host builds on other
-	# platforms are opt-in for parity/performance validation, not a renderer change.
+	# Windows enables these optional simulation/render kernels by default.
+	# Other hosts require explicit opt-in even when the package includes the
+	# independent numerical formation helper beside the executable.
 	if OS.get_name() != "Windows" and not "--enable-native-kernels" in OS.get_cmdline_user_args():
 		return null
 	if OS.has_feature("double") or (OS.get_name() == "Windows" and not OS.has_feature("x86_64")):

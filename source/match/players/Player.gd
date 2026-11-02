@@ -1,3 +1,4 @@
+# gdlint: disable=max-public-methods
 extends Node3D
 
 signal changed
@@ -7,6 +8,7 @@ const COORDINATION_COST = ResearchCatalog.COORDINATION_COST
 const COORDINATION_DURATION = ResearchCatalog.COORDINATION_DURATION
 
 const BastionCatalog = preload("res://source/match/BastionCatalog.gd")
+const PowerGrid = preload("res://source/match/economy/PowerGrid.gd")
 
 @export var resource_a = 0:
 	set(value):
@@ -30,18 +32,25 @@ var technology = null
 var signatures = null
 var coordination_unlocked = false
 var coordination_left = -1.0
+var logistics: float = 25.0
+var logistics_left: float = 5.0
+var harvesting_boosts: Array = []
+var production_boosts: Array = []
+var market_pressure: float = 0.0
 
+var indexed_rosters := "--indexed-player-rosters" in OS.get_cmdline_user_args()
+var roster_rebuilds := 0
+var roster_queries := 0
+
+var _last_grid_state = ""
 var _color_material = null
 var _footprint_material = null
 var _lab_research = false
-var indexed_rosters := "--indexed-player-rosters" in OS.get_cmdline_user_args()
 var _roster_dirty := true
 var _roster_units: Array[Node] = []
 var _roster_structures: Array[Node] = []
 var _roster_roles := {}
 var _roster_generic_structures: Array[Node] = []
-var roster_rebuilds := 0
-var roster_queries := 0
 var _native_team_store: RefCounted
 var _native_alliance_standard := false
 
@@ -109,6 +118,7 @@ func start_index():
 
 
 func _ready():
+	MatchSignals.unit_production_started.connect(_production_power_warning)
 	_native_alliance_standard = load("res://source/match/NativeUnitState.gd").uses_base_method(
 		self, "res://source/match/players/Player.gd", &"is_allied_with"
 	)
@@ -120,6 +130,20 @@ func _ready():
 		signatures = load("res://source/match/combat/FactionSignatures.gd").new()
 		signatures.name = "FactionSignatures"
 		add_child(signatures)
+
+
+func _production_power_warning(_prototype, producer):
+	if producer.player != self:
+		return
+	warn_if_grid_balanced()
+
+
+func warn_if_grid_balanced():
+	if power_state() != "balanced":
+		return
+	var game = find_parent("Match")
+	if game != null and not game.restoring and game._get_human_player() == self:
+		game.hud.show_notice(tr("Power grid balanced · no reserve for new facilities."))
 
 
 func _native_register_team():
@@ -198,31 +222,108 @@ func has_completed_structure(unit_type):
 
 
 func power_totals():
-	var supply = 0
-	var demand = 0
-	var helix_support = load("res://source/match/combat/HelixSupport.gd")
-	if indexed_rosters:
-		_ensure_roster()
-	var structures: Array = _roster_structures if indexed_rosters else get_children()
-	for child in structures:
-		if (
-			(not indexed_rosters and not child.has_method("is_constructed"))
-			or child.is_queued_for_deletion()
-		):
-			continue
-		if indexed_rosters and child.get_parent() != self:
-			continue
-		if child.is_constructed():
-			supply += BastionCatalog.POWER_SUPPLY.get(child.type, 0)
-			demand += BastionCatalog.POWER_USAGE.get(child.type, 0)
-			if faction == "helix" and child.type == "PowerPlant" and helix_support.requested(child):
-				demand += helix_support.OVERDRIVE_DEMAND
-	return Vector2i(supply, demand)
+	return PowerGrid.totals(self)
 
 
-func production_factor():
+func structure_candidates(role: String = "") -> Array:
+	# Cache membership only. Callers still read completion, HP and abilities live,
+	# so construction, damage and power toggles take effect within the same tick.
+	_ensure_roster()
+	if role.is_empty():
+		return _roster_structures
+	var candidates: Array = _roster_roles.get(role, [])
+	if _roster_generic_structures.is_empty():
+		return candidates
+	return candidates + _roster_generic_structures.filter(func(unit): return unit.type == role)
+
+
+func power_state() -> String:
+	return PowerGrid.state(self)
+
+
+func is_brownout() -> bool:
 	var power = power_totals()
-	return 1.0 if power.x >= power.y else 0.35
+	return power.y > power.x
+
+
+func production_factor(facility = null):
+	var factor = PowerGrid.BROWNOUT_RATE if is_brownout() else 1.0
+	if is_instance_valid(facility):
+		var game = find_parent("Match")
+		if game != null and game.helix_support != null:
+			factor *= game.helix_support.production_factor(facility)
+		for boost in production_boosts:
+			if boost.target.get_ref() == facility and boost.left > 0.0:
+				factor *= 1.5
+				break
+	return factor
+
+
+func research_factor() -> float:
+	# Research is player-wide: use the best completed lab, without stacking labs.
+	var factor = 0.0
+	for facility in live_units():
+		if facility.type == "CommandLab" and facility.hp > 0 and facility.is_constructed():
+			factor = maxf(factor, production_factor(facility))
+	return factor if factor > 0.0 else production_factor()
+
+
+func harvesting_factor(deposit) -> float:
+	if not is_instance_valid(deposit):
+		return 1.0
+	for boost in harvesting_boosts:
+		if boost.left <= 0.0:
+			continue
+		if boost.anchored:
+			if deposit.harvest_origin.is_equal_approx(boost.field):
+				return 1.3
+		elif deposit.global_position_yless.distance_squared_to(boost.field) <= 100.0:
+			return 1.3
+	return 1.0
+
+
+func add_logistics(amount: float):
+	logistics = clampf(logistics + amount, 0.0, 100.0)
+	emit_changed()
+
+
+func spend_logistics(amount: float) -> bool:
+	if amount < 0.0 or logistics < amount:
+		return false
+	add_logistics(-amount)
+	return true
+
+
+func market_quote(direction: String) -> Vector2i:
+	if direction == "buy_electronics":
+		return Vector2i(50, maxi(10, floori(25.0 * exp(-market_pressure * 0.03))))
+	return Vector2i(maxi(20, floori(50.0 * exp(market_pressure * 0.03))), 25)
+
+
+func market_exchange(direction: String) -> bool:
+	if load("res://source/match/network/NetworkGate.gd").intercept(
+		self, {"kind": "exchange", "direction": direction}
+	):
+		return true
+	if faction != "frontier" or not has_completed_structure("CommandLab"):
+		return false
+	if direction not in ["buy_electronics", "buy_materials"] or get_tree().paused:
+		return false
+	var quote = market_quote(direction)
+	if direction == "buy_electronics":
+		if resource_a < quote.x:
+			return false
+		resource_a -= quote.x
+		resource_b += quote.y
+		market_pressure = minf(20.0, market_pressure + 1.0)
+	else:
+		if resource_b < quote.y:
+			return false
+		resource_b -= quote.y
+		resource_a += quote.x
+		market_pressure = maxf(-20.0, market_pressure - 1.0)
+	emit_changed()
+	return true
 
 
 func population(include_queued = false):
@@ -235,7 +336,8 @@ func population(include_queued = false):
 		if include_queued:
 			var queue = child.find_child("ProductionQueue", true, false)
 			if queue != null:
-				count += queue.size()
+				for job in queue._queue:
+					count += job.batch_count if "batch_count" in job else 1
 	if include_queued:
 		count += load("res://source/match/world/PointOfInterestCatalog.gd").reserved(self)
 		var game = find_parent("Match")
@@ -273,10 +375,11 @@ func lab_research_unlocked():
 
 
 func _physics_process(delta):
+	_advance_economy(delta)
 	if not _lab_research:
 		lab_research_unlocked()
 	if coordination_left > 0.0 and has_completed_structure("CommandLab"):
-		coordination_left = maxf(0.0, coordination_left - delta * production_factor())
+		coordination_left = maxf(0.0, coordination_left - delta * research_factor())
 		if coordination_left == 0.0:
 			coordination_unlocked = true
 			if technology != null:
@@ -286,6 +389,47 @@ func _physics_process(delta):
 			var game = find_parent("Match")
 			if game != null and game._get_human_player() == self:
 				game.hud.show_notice("Research complete · Coordination")
+
+
+func _advance_economy(delta):
+	market_pressure = move_toward(market_pressure, 0.0, delta / 60.0)
+	var state = power_state()
+	if state != _last_grid_state:
+		var game = find_parent("Match")
+		if (
+			game != null
+			and game.is_node_ready()
+			and not game.restoring
+			and game._get_human_player() == self
+		):
+			if state == "brownout":
+				game.hud.show_notice(tr("Warning: Power Grid Deficit"))
+			elif _last_grid_state == "brownout":
+				game.hud.show_notice(tr("Power grid restored"))
+		_last_grid_state = state
+	for boosts in [harvesting_boosts, production_boosts]:
+		for boost in boosts.duplicate():
+			boost.left = maxf(0.0, boost.left - delta)
+			if (
+				boost.left == 0.0
+				or (not boost.has("field") and not is_instance_valid(boost.target.get_ref()))
+			):
+				boosts.erase(boost)
+	logistics_left -= delta
+	while logistics_left <= 0.0:
+		logistics_left += 5.0
+		var generators = get_children().filter(
+			func(unit):
+				return (
+					"type" in unit
+					and unit.type == "PowerPlant"
+					and unit.is_constructed()
+					and unit.hp > 0
+					and not unit.is_queued_for_deletion()
+				)
+		)
+		if not generators.is_empty():
+			add_logistics(generators.size())
 
 
 func start_coordination(lab):
@@ -306,6 +450,10 @@ func start_coordination(lab):
 
 
 func cancel_coordination():
+	if load("res://source/match/network/NetworkGate.gd").intercept(
+		self, {"kind": "cancel_research", "index": -1}
+	):
+		return
 	if coordination_left <= 0.0 or coordination_unlocked:
 		return false
 	coordination_left = -1.0
@@ -323,6 +471,13 @@ func coordination_status():
 			return "Coordination paused · rebuild a lab (%.1f s remaining)" % coordination_left
 		return (
 			"Coordination: %.1f s remaining%s"
-			% [coordination_left, " · low power, 35% speed" if production_factor() < 1 else ""]
+			% [
+				coordination_left / research_factor(),
+				(
+					(tr(" · brownout, %d%% speed") % roundi(research_factor() * 100))
+					if is_brownout()
+					else ""
+				)
+			]
 		)
 	return "Coordination · 20 M / 20 E · 30 s"

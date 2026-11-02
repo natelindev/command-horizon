@@ -40,6 +40,8 @@ var _selection = []
 var _direct_orders = null
 var _ability_slots = []
 var _ability_refresh = 0.0
+var _layout_key = []
+var _slot_actions = {}
 
 
 func _ready():
@@ -61,7 +63,7 @@ func _ready():
 
 # Ordinary orders follow KeyBindings; selected unit abilities own their QWER
 # keys. All keyboard dispatch stays in DirectOrders, even on a hidden HUD tab.
-func update_layout(selected_units: Array, direct_orders = null):
+func update_layout(selected_units: Array, direct_orders = null, eligibility: Dictionary = {}):
 	_selection = selected_units.filter(
 		func(u):
 			return (
@@ -69,15 +71,56 @@ func update_layout(selected_units: Array, direct_orders = null):
 			)
 	)
 	_direct_orders = direct_orders
+	if direct_orders != null and eligibility.is_empty():
+		eligibility = direct_orders.eligibility_state()
+	var plan = _ability_layout()
+	var has_attack = _selection.any(func(u): return "attack_range" in u and u.attack_range != null)
+	var is_armored = _selection.any(
+		func(u): return "type" in u and u.type in ["Tank", "AdvancedTank"]
+	)
+	var has_cargo = _selection.any(func(u): return "type" in u and u.type == "Worker")
+	var bindings = {}
+	for action in [
+		"move_order",
+		"stop_order",
+		"hold_order",
+		"patrol_order",
+		"attack_move",
+		"attack_target",
+		"force_attack"
+	]:
+		bindings[action] = Bindings.label(action)
+	# Cache presentation only. Selection references and execution eligibility are
+	# always fresh, including when another unit exposes the same command layout.
+	var key = [
+		abilities_only,
+		_selection.is_empty(),
+		direct_orders != null,
+		has_attack,
+		is_armored,
+		has_cargo,
+		TranslationServer.get_locale(),
+		bindings,
+		plan.map(
+			func(ability): return [] if ability == null else [ability.id, ability.name, ability.key]
+		)
+	]
+	if key == _layout_key:
+		_refresh_orders(eligibility, has_attack, is_armored, has_cargo)
+		_refresh_abilities()
+		return
+	var focused_action = _slot_actions.get(get_viewport().gui_get_focus_owner(), "")
 	_clear_slots()
+	_layout_key = key
 	if _selection.is_empty():
 		return
 	if abilities_only:
-		_setup_abilities()
+		_setup_abilities(plan)
 		for row in _slots:
 			for button in row:
 				button.visible = button.modulate.a > 0.0
 		size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+		_restore_focus(focused_action)
 		return
 
 	# Ordinary orders show the player's configured keys.
@@ -85,12 +128,12 @@ func update_layout(selected_units: Array, direct_orders = null):
 		0,
 		0,
 		"Move",
-		Bindings.label("move_order"),
+		bindings.move_order,
 		_on_move,
-		direct_orders != null and not direct_orders.eligible("move").is_empty()
+		direct_orders != null and not direct_orders.eligible("move", eligibility).is_empty()
 	)
-	_setup_slot(0, 1, "Stop", Bindings.label("stop_order"), _on_stop, true)
-	_setup_slot(0, 2, "Hold", Bindings.label("hold_order"), _on_hold, true)
+	_setup_slot(0, 1, "Stop", bindings.stop_order, _on_stop, true)
+	_setup_slot(0, 2, "Hold", bindings.hold_order, _on_hold, true)
 	_slots[0][2].tooltip_text = tr(
 		"Hold position · Stop moving and fire at enemies in range. Cancels current and queued orders."
 	)
@@ -101,60 +144,89 @@ func update_layout(selected_units: Array, direct_orders = null):
 			0,
 			3,
 			"Patrol",
-			Bindings.label("patrol_order"),
+			bindings.patrol_order,
 			_on_patrol,
-			not direct_orders.eligible("patrol").is_empty()
+			not direct_orders.eligible("patrol", eligibility).is_empty()
 		)
 	# The command deck carries its own Return cargo key beside this grid, with
 	# queueing and delivery feedback. Standalone cards keep their Return slot.
-	var has_cargo = _selection.any(func(u): return "type" in u and u.type == "Worker")
 	if direct_orders == null:
 		_setup_slot(0, 3, "Return", "", _on_return_cargo, has_cargo)
-	_setup_abilities()
+	_setup_abilities(plan)
 
-	var has_attack = _selection.any(func(u): return "attack_range" in u and u.attack_range != null)
-	var is_armored = _selection.any(
-		func(u): return "type" in u and u.type in ["Tank", "AdvancedTank"]
-	)
 	# Combat commands only for selections that can fight; engineers keep one row.
 	if not has_attack and not is_armored:
+		_restore_focus(focused_action)
 		return
 	_setup_slot(
 		1,
 		0,
 		"Atk Move",
-		Bindings.label("attack_move"),
+		bindings.attack_move,
 		_on_attack_move,
 		(
 			has_attack
 			and direct_orders != null
-			and not direct_orders.eligible("attack_move").is_empty()
+			and not direct_orders.eligible("attack_move", eligibility).is_empty()
 		)
 	)
 	_setup_slot(
 		1,
 		2,
 		"Target",
-		Bindings.label("attack_target"),
+		bindings.attack_target,
 		_on_attack_target,
-		has_attack and direct_orders != null and not direct_orders.eligible("attack").is_empty()
+		(
+			has_attack
+			and direct_orders != null
+			and not direct_orders.eligible("attack", eligibility).is_empty()
+		)
 	)
 	_setup_slot(1, 3, "Reverse", "", _on_reverse_move, is_armored)
 	_setup_slot(
 		1,
 		1,
 		"Force",
-		Bindings.label("force_attack"),
+		bindings.force_attack,
 		_on_force_attack,
 		(
 			has_attack
 			and direct_orders != null
-			and not direct_orders.eligible("force_attack").is_empty()
+			and not direct_orders.eligible("force_attack", eligibility).is_empty()
 		)
 	)
+	_restore_focus(focused_action)
+
+
+func _refresh_orders(eligibility: Dictionary, has_attack: bool, is_armored: bool, has_cargo: bool):
+	if abilities_only or _selection.is_empty():
+		return
+	var direct = is_instance_valid(_direct_orders)
+	_slots[0][0].disabled = not direct or _direct_orders.eligible("move", eligibility).is_empty()
+	_slots[0][3].disabled = (
+		_direct_orders.eligible("patrol", eligibility).is_empty() if direct else not has_cargo
+	)
+	if not has_attack and not is_armored:
+		return
+	for command in ["attack_move", "attack", "force_attack"]:
+		order_slot(command).disabled = (
+			not has_attack or not direct or _direct_orders.eligible(command, eligibility).is_empty()
+		)
+	_slots[1][3].disabled = not is_armored
+
+
+func _restore_focus(action: String):
+	if action.is_empty():
+		return
+	for button in _slot_actions:
+		if _slot_actions[button] == action and button.visible and not button.disabled:
+			button.grab_focus()
+			return
 
 
 func _clear_slots():
+	_layout_key = []
+	_slot_actions.clear()
 	_ability_slots.clear()
 	# Rows without any assigned command are hidden. In a shown row, an unassigned slot
 	# keeps its place in the grid but stays blank and out of the focus order.
@@ -179,8 +251,8 @@ func _clear_slots():
 				btn.pressed.disconnect(conn.callable)
 
 
-func _setup_abilities():
-	var assigned = []
+func _ability_layout() -> Array:
+	var plan = [null, null, null, null]
 	for unit in _selection:
 		if (
 			not unit.is_in_group("controlled_units")
@@ -191,9 +263,18 @@ func _setup_abilities():
 			continue
 		for ability in unit.abilities.abilities:
 			var column = ["Q", "W", "E", "R"].find(ability.key)
-			if column < 0 or column in assigned:
+			if column < 0 or plan[column] != null:
 				continue
-			assigned.append(column)
+			plan[column] = ability
+	return plan
+
+
+func _setup_abilities(plan: Array = []):
+	if plan.is_empty():
+		plan = _ability_layout()
+	for column in plan.size():
+		var ability = plan[column]
+		if ability != null:
 			_setup_slot(
 				2,
 				column,
@@ -203,6 +284,7 @@ func _setup_abilities():
 				ability.is_ready()
 			)
 			var button = _slots[2][column]
+			_slot_actions[button] = "ability:" + ability.id
 			button.glyph = BattleTheme.icon(ABILITY_GLYPHS.get(ability.id, "stance"))
 			button.toggle_mode = true
 			var cooldown = button.get_node_or_null("AbilityCooldown")
@@ -222,44 +304,60 @@ func _setup_abilities():
 
 func _refresh_abilities():
 	for slot in _ability_slots:
-		var abilities = []
-		var issues = []
+		var ability = null
+		var ready = false
+		var active = false
+		var remaining = INF
+		var first_issue = ""
 		for unit in _selection:
 			if (
 				is_instance_valid(unit)
 				and not unit.is_queued_for_deletion()
+				and unit.is_in_group("controlled_units")
 				and "abilities" in unit
 				and unit.abilities != null
 			):
-				var ability = unit.abilities.get_ability(slot.id)
-				if ability != null and unit.abilities.unit_available():
-					abilities.append(ability)
-					issues.append(unit.abilities.availability_issue(slot.id))
-		var ready = issues.any(func(issue): return issue.is_empty())
-		var active = abilities.any(func(ability): return ability.is_active)
-		var remaining = INF
-		for ability in abilities:
-			remaining = minf(remaining, ability.cooldown_left)
+				var candidate = unit.abilities.get_ability(slot.id)
+				if candidate != null and unit.abilities.unit_available():
+					if ability == null:
+						ability = candidate
+					active = active or candidate.is_active
+					remaining = minf(remaining, candidate.cooldown_left)
+					# Readiness means any current member can execute. Still inspect
+					# every member's toggle/cooldown, but stop repeating resource and
+					# prerequisite queries once a ready executor has been found.
+					if not ready:
+						var issue = unit.abilities.availability_issue(slot.id)
+						ready = issue.is_empty()
+						if first_issue.is_empty():
+							first_issue = issue
 		if slot.id == "field_barricade":
 			remaining = INF
 			for unit in _selection:
-				if unit.type == "Worker" and unit.player.faction == "bastion":
+				if (
+					is_instance_valid(unit)
+					and not unit.is_queued_for_deletion()
+					and unit.is_in_group("controlled_units")
+					and "type" in unit
+					and unit.type == "Worker"
+					and unit.player.faction == "bastion"
+				):
 					remaining = minf(remaining, unit._match.engineering.cooldown_left(unit))
 		slot.button.disabled = not ready
 		slot.cooldown.visible = not ready and is_finite(remaining) and remaining > 0.0
 		slot.cooldown.text = "%.1fs" % remaining if is_finite(remaining) else ""
 		var armed = is_instance_valid(_direct_orders) and _direct_orders.ability_id == slot.id
 		slot.button.set_pressed_no_signal(active or armed)
-		if active:
+		if active and not slot.get("active_style", false):
 			# Keep the active face visible during a toggle's cooldown too.
 			slot.button.add_theme_stylebox_override(
 				"disabled", slot.button.get_theme_stylebox("pressed")
 			)
-		else:
+		elif not active and slot.get("active_style", false):
 			slot.button.remove_theme_stylebox_override("disabled")
-		if abilities.is_empty():
+		slot.active_style = active
+		if ability == null:
 			continue
-		var ability = abilities[0]
 		slot.button.tooltip_text = (
 			tr("%s [%s]\n%s\nRange: %.1f m · Radius: %.1f m · Cooldown: %.1f s")
 			% [
@@ -286,7 +384,12 @@ func _refresh_abilities():
 			var status = tr("Active")
 			if slot.id == "power_overdrive":
 				for member in _selection:
-					if member._match.helix_support.overdrive_status(member) == "suspended":
+					if (
+						is_instance_valid(member)
+						and not member.is_queued_for_deletion()
+						and member.is_in_group("controlled_units")
+						and member._match.helix_support.overdrive_status(member) == "suspended"
+					):
 						status = tr("Suspended: low power")
 						break
 			slot.button.tooltip_text += "\n" + status
@@ -296,8 +399,8 @@ func _refresh_abilities():
 			)
 		if slot.id == "field_barricade" and remaining > 0 and is_finite(remaining):
 			slot.button.tooltip_text += "\n" + tr("Deployment cooldown · %.1f s") % remaining
-		if not ready and not issues.is_empty():
-			slot.button.tooltip_text += "\n" + tr(issues[0])
+		if not ready and not first_issue.is_empty():
+			slot.button.tooltip_text += "\n" + tr(first_issue)
 		slot.button.accessibility_name = tr(ability.name) + " [" + ability.key + "]"
 		slot.button.accessibility_description = slot.button.tooltip_text
 
@@ -322,12 +425,14 @@ func _activate_ability(id):
 			):
 				var ability = unit.abilities.get_ability(id)
 				if ability != null and ability.target_type in ["instant", "toggle"]:
-					ability.trigger()
+					if ability.trigger():
+						break
 	_refresh_abilities()
 
 
 func _setup_slot(r: int, c: int, label: String, key: String, callable: Callable, enabled: bool):
 	var btn = _slots[r][c]
+	_slot_actions[btn] = label
 	btn.badge = key
 	btn.caption = label
 	btn.glyph = BattleTheme.icon(GLYPHS.get(label, "stance"))
@@ -374,24 +479,24 @@ func _on_move():
 
 
 func _on_stop():
+	if _network_direct("stop"):
+		return
 	if stop_override.is_valid():
 		stop_override.call()
 		return
-	for unit in _selection:
-		if unit.is_in_group("controlled_units"):
-			if unit.manual_orders != null:
-				unit.manual_orders.cancel()
-			unit.action = WaitingForTargets.new()
+	for unit in _manual_order_units():
+		unit.manual_orders.cancel()
+		unit.action = WaitingForTargets.new()
 
 
 func _on_hold():
-	for unit in _selection:
-		if unit.is_in_group("controlled_units"):
-			if "stance" in unit:
-				unit.stance = unit.Stance.HOLD_POSITION
-			if unit.manual_orders != null:
-				unit.manual_orders.cancel()
-			unit.action = WaitingForTargets.new()
+	if _network_direct("hold"):
+		return
+	for unit in _manual_order_units():
+		if "stance" in unit:
+			unit.stance = unit.Stance.HOLD_POSITION
+		unit.manual_orders.cancel()
+		unit.action = WaitingForTargets.new()
 
 
 func _on_return_cargo():
@@ -425,10 +530,42 @@ func _on_attack_target():
 
 func _on_reverse_move():
 	# Step back along the current facing through the ordinary manual queue.
-	for unit in _selection:
-		if unit.is_in_group("controlled_units") and unit.type in ["Tank", "AdvancedTank"]:
+	for unit in _manual_order_units():
+		if unit.type in ["Tank", "AdvancedTank"]:
 			var back_dir = unit.global_transform.basis.z * Vector3(1, 0, 1)
 			var reverse_target = unit.global_position + back_dir * 12.0
 			unit.manual_orders.submit(
 				Orders.point_order("move", reverse_target), Bindings.held("shift_selecting")
 			)
+
+
+func _manual_order_units() -> Array:
+	return _selection.filter(
+		func(unit):
+			return (
+				is_instance_valid(unit)
+				and not unit.is_queued_for_deletion()
+				and unit.hp > 0.0
+				and unit.is_in_group("controlled_units")
+				and not unit.has_meta("garrison_host")
+				and "manual_orders" in unit
+				and unit.manual_orders != null
+			)
+	)
+
+
+func _network_direct(kind: String) -> bool:
+	var gate = load("res://source/match/network/NetworkGate.gd")
+	var units = _manual_order_units()
+	return (
+		not units.is_empty()
+		and gate.intercept(
+			units[0],
+			{
+				"kind": "order",
+				"units": units.map(gate.id_for),
+				"order": kind,
+				"point": gate.Protocol.quantize(units[0].global_position)
+			}
+		)
+	)

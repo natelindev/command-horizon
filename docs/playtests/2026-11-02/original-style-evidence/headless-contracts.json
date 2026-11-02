@@ -1,0 +1,81 @@
+{
+  "scope": "Headless contracts only; no display, GPU appearance, full visual parity or complete-frame performance claim. Camera has no native implementation, so it is executed once.",
+  "profile": "/Users/linlilu/Library/Application Support/OpenRTSHeadlessReview/original-style-contracts-20261101T224930",
+  "checks": [
+    {
+      "suite": "RichTexturesRegression",
+      "mode": "fallback",
+      "argv": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts/build/verification/macos/original-style-contracts-20261101T224930/project",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "res://tests/headless/RichTexturesRegression.gd"
+      ],
+      "exit_code": 0,
+      "timed_out": false,
+      "seconds": 28.252,
+      "problem": "",
+      "log": "RichTexturesRegression-fallback.log",
+      "sha256": "25a84e1b9f107bedc72df4bc618c1cfbbd983055097fc09d716b45a3b0236f56"
+    },
+    {
+      "suite": "RichTexturesRegression",
+      "mode": "native",
+      "argv": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts/build/verification/macos/original-style-contracts-20261101T224930/project",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "res://tests/headless/RichTexturesRegression.gd",
+        "--",
+        "--enable-native-kernels",
+        "--native-unit-state",
+        "--native-crowd-runtime"
+      ],
+      "exit_code": 0,
+      "timed_out": false,
+      "seconds": 28.843,
+      "problem": "",
+      "log": "RichTexturesRegression-native.log",
+      "sha256": "25a84e1b9f107bedc72df4bc618c1cfbbd983055097fc09d716b45a3b0236f56"
+    },
+    {
+      "suite": "CameraFeelRegression",
+      "mode": "script",
+      "argv": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts/build/verification/macos/original-style-contracts-20261101T224930/project",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "res://tests/headless/CameraFeelRegression.gd"
+      ],
+      "exit_code": 0,
+      "timed_out": false,
+      "seconds": 1.165,
+      "problem": "",
+      "log": "CameraFeelRegression-script.log",
+      "sha256": "67fc2c73975c444ca00713f57969d2a765e8f635110010cff147d2c95b94fb0f"
+    }
+  ],
+  "source_hashes": {
+    "source/match/units/traits/TrackMotion.gd": "e3c821f47be64ea25c36fc313a10d5fed4371318d82e91e21a769ff734015b3a",
+    "source/match/units/traits/WheelMotion.gd": "c07940960360821296894776f50a6bfe20a815b0990036a64fac9909c3d91031",
+    "source/match/effects/CombatEffects.gd": "12234119598e322dc091c31748affb2d76a0acd545e3807db2732e4df2090d1a",
+    "source/match/hud/Ownership.gd": "3036ec53036d21576ba6ece5190ea82731c43086c151cb6e27071375054dd995",
+    "source/match/hud/Minimap.gd": "ddd22255e2404de45bc61606e4df5b6e1ec963b6dffdd61f038ff14e9d079893",
+    "source/match/units/traits/Selection.gd": "2b306d66c539fa06bb13e951fed01b1e68faeea3962c1ab807341de69ae04303",
+    "tests/headless/RichTexturesRegression.gd": "3998c46e0dbf87224ed79514c48a8dab82298e6ece4ddeaf2d734d8bf0340feb",
+    "tests/headless/CameraFeelRegression.gd": "b3c960bc0ed0809cb22a0f5ea6a49b07852eb3979392590e3e8ebed1ac8d6af8",
+    "project.godot": "101506d51e90dfbae6020daa53fbf9568fa6a4ef3f04fa4726c00661f36c20d7"
+  }
+}

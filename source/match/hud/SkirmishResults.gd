@@ -328,10 +328,16 @@ static func _debrief(parent, hud, game):
 		var cue = (
 			game.settings.mission_id + ".victory" if game.result == "Victory" else "common.defeat"
 		)
-		var ending = narration.record(cue, Globals.options.language)
-		if not ending.is_empty():
-			summary += "\n\n" + ending.text
+		var ending = narration.scene(cue, Globals.options.language)
+		for line in ending:
+			summary += "\n\n" + line.speaker + ": " + line.text
+		var hub_state = load("res://source/match/campaign/CampaignHubState.gd").new()
+		hub_state.record_debrief(game)
+		hub_state.read_state(hub_state.path_for(game))
+		if game.settings.mission_id in hub_state.commendations:
+			summary += "\n\n" + hud.tr("Preservation commendation earned")
 		var details = _label(box, hud.tr(summary), 14, BattleTheme.MUTED)
+		details.name = "StoryDebrief"
 		details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	if not next_step.is_empty():
 		var advice = _label(

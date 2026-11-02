@@ -184,7 +184,7 @@ When approaching a narrow corridor (bridge, canyon, gate) whose width is narrowe
 
 ### Stage 1 — Formation Slot Geometry & HUD Postures
 * Create `source/match/orders/FormationPlanner.gd`: calculates slot offsets for **Line**, **Box**, **Flank**, and **Staggered** formations based on unit radius and count.
-* Add formation posture icons and hotkeys (`Z, X, C, V`) to the bottom console HUD in `UnitMenus.gd`.
+* Add formation posture icons and hotkeys (`Z, X, Alt+C, V`) to the bottom console HUD in `UnitMenus.gd`.
 * Wire Hungarian slot assignment to eliminate path crossing during group moves.
 
 ### Stage 2 — Group Cohesion & Speed Synchronization
@@ -223,3 +223,5 @@ When approaching a narrow corridor (bridge, canyon, gate) whose width is narrowe
 - **Benchmark Synthesis Completed**: Evaluated micro-control and movement mechanics from StarCraft II (stutter-stepping, smart-casting, local nudging), Age of Empires II (Line/Box/Flank/Staggered formations, speed cohesion, dodging), and Red Alert 2 (turret decoupling, deploy delays, vehicle crushing).
 - **Core Diagnosis Established**: Identified existing limitations in Godot Open RTS (deathball clustering, absence of formations, speed desync, lack of smart-cast, clunky weapon wind-ups).
 - **Comprehensive Specification Authored**: Created `docs/MICRO_AND_NAVIGATION.md` defining the 4 tactical formation geometries, Hungarian slot assignment, decoupled turret aiming, fluid stutter-step cooldowns, smart-cast dispatching, and a 6-stage engineering plan.
+
+- **2026-11-02 — Runtime implementation verified:** All four geometries, projected Hungarian assignment, direct HUD controls, live cohesion (including formation cruise), turret decoupling,0.12s aim/reload preservation, one-unit smartcasting, Tab/Alt focus, mass contacts and actual choke compression/re-expansion pass current native runtime checks. C is reserved for cohesion; Flank uses configurable Alt+C so the specification’s two C commands remain directly accessible. Evidence: [runtime and bilingual review](playtests/2026-11-02/tactical-formations/). The strict200-unit16.6ms command/maximum-frame performance gate remains open and is being optimized; p95 is not substituted for that requirement.

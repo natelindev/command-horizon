@@ -1,0 +1,37 @@
+[
+  {
+    "test": "NavigationRegression",
+    "backend": "native",
+    "scope": "full",
+    "exit_code": 0,
+    "log": "NavigationRegression.tactical-native.log"
+  },
+  {
+    "test": "GroundCrowdRecoveryRegression",
+    "backend": "native",
+    "scope": "full",
+    "exit_code": 0,
+    "log": "GroundCrowdRecoveryRegression.tactical-native.log"
+  },
+  {
+    "test": "MixedArmyMovementRegression",
+    "backend": "native",
+    "scope": "full",
+    "exit_code": 0,
+    "log": "MixedArmyMovementRegression.tactical-native.log"
+  },
+  {
+    "test": "GroundCrowdRecoveryRegression",
+    "backend": "scripted",
+    "scope": "group",
+    "exit_code": 0,
+    "log": "GroundCrowdRecoveryRegression.tactical-scripted.log"
+  },
+  {
+    "test": "MixedArmyMovementRegression",
+    "backend": "scripted",
+    "scope": "group",
+    "exit_code": 0,
+    "log": "MixedArmyMovementRegression.tactical-scripted.log"
+  }
+]

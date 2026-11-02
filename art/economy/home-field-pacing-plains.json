@@ -1,0 +1,142 @@
+{
+	"failures": [
+		"legacy:PlainAndSimple bastion home material field depleted in 410.3s, expected 420–540s",
+		"legacy:PlainAndSimple helix home material field depleted in 581.0s, expected 420–540s"
+	],
+	"native": true,
+	"physics_hz": 60,
+	"records": [
+		{
+			"delivered_electronics": 848,
+			"delivered_materials": 2984,
+			"depletion_seconds": 410.349999999953,
+			"electronics_workers": 4,
+			"expansion_seconds": 231.483333333412,
+			"faction": "bastion",
+			"initial_materials": 3000,
+			"map": "legacy:PlainAndSimple",
+			"material_workers": 10,
+			"samples": [
+				{
+					"materials_left": 2540,
+					"seconds": 60.0166666666644
+				},
+				{
+					"materials_left": 2068,
+					"seconds": 120.016666666661
+				},
+				{
+					"materials_left": 1610,
+					"seconds": 180.000000000037
+				},
+				{
+					"materials_left": 1140,
+					"seconds": 240.000000000085
+				},
+				{
+					"materials_left": 667,
+					"seconds": 300.000000000054
+				},
+				{
+					"materials_left": 219,
+					"seconds": 360.016666666666
+				}
+			]
+		},
+		{
+			"delivered_electronics": 1088,
+			"delivered_materials": 2996,
+			"depletion_seconds": 580.999999999798,
+			"electronics_workers": 4,
+			"expansion_seconds": 327.416666666695,
+			"faction": "helix",
+			"initial_materials": 3000,
+			"map": "legacy:PlainAndSimple",
+			"material_workers": 10,
+			"samples": [
+				{
+					"materials_left": 2672,
+					"seconds": 60.0166666666644
+				},
+				{
+					"materials_left": 2342,
+					"seconds": 120.016666666661
+				},
+				{
+					"materials_left": 2012,
+					"seconds": 180.000000000037
+				},
+				{
+					"materials_left": 1683,
+					"seconds": 240.000000000085
+				},
+				{
+					"materials_left": 1351,
+					"seconds": 300.000000000054
+				},
+				{
+					"materials_left": 1018,
+					"seconds": 360.016666666666
+				},
+				{
+					"materials_left": 690,
+					"seconds": 420.016666666611
+				},
+				{
+					"materials_left": 364,
+					"seconds": 480.016666666557
+				},
+				{
+					"materials_left": 129,
+					"seconds": 540.016666666502
+				}
+			]
+		},
+		{
+			"delivered_electronics": 864,
+			"delivered_materials": 2996,
+			"depletion_seconds": 495.116666666543,
+			"electronics_workers": 4,
+			"expansion_seconds": 274.033333333411,
+			"faction": "frontier",
+			"initial_materials": 3000,
+			"map": "legacy:PlainAndSimple",
+			"material_workers": 10,
+			"samples": [
+				{
+					"materials_left": 2614,
+					"seconds": 60.0166666666644
+				},
+				{
+					"materials_left": 2218,
+					"seconds": 120.016666666661
+				},
+				{
+					"materials_left": 1818,
+					"seconds": 180.000000000037
+				},
+				{
+					"materials_left": 1424,
+					"seconds": 240.000000000085
+				},
+				{
+					"materials_left": 1034,
+					"seconds": 300.000000000054
+				},
+				{
+					"materials_left": 636,
+					"seconds": 360.016666666666
+				},
+				{
+					"materials_left": 275,
+					"seconds": 420.016666666611
+				},
+				{
+					"materials_left": 54,
+					"seconds": 480.016666666557
+				}
+			]
+		}
+	],
+	"workers_per_node": 2
+}

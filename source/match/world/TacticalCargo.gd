@@ -60,6 +60,14 @@ func collect(unit, elapsed: float) -> bool:
 	return can_collect(unit) and manager.collect(self, unit, elapsed)
 
 
+func pickup_description() -> Array:
+	return (
+		manager.pickup_description(self)
+		if manager != null and manager.has_method("pickup_description")
+		else []
+	)
+
+
 func can_take_damage() -> bool:
 	return kind in ["carrier", "repair"] and not consumed
 

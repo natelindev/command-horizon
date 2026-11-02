@@ -50,6 +50,9 @@ func eligible(unit):
 
 
 func activate(selection, point = Vector3.ZERO):
+	var gate = load("res://source/match/network/NetworkGate.gd")
+	if gate.intercept(player, {"kind": "signature", "units": selection.map(gate.id_for), "point": gate.Protocol.quantize(point)}):
+		return 0
 	error = ""
 	if not player.coordination_unlocked:
 		error = "Research Coordination first."
@@ -82,6 +85,9 @@ func activate(selection, point = Vector3.ZERO):
 			if player.faction in ["bastion", "frontier"]
 			else "No ready precision shot with a visible target."
 		)
+		return 0
+	if player.faction == "frontier" and not player.spend_logistics(5.0):
+		error = "Requires 5 Logistics."
 		return 0
 	var group = {
 		"id": next_id, "left": Factions.signature_cooldown(player.faction), "members": participants

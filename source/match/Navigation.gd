@@ -1,9 +1,11 @@
 extends Node3D
 
+var hover = null
 var _static_obstacles = []
 # Exact route estimates shared within one simulation tick, owned by this match.
 var distance_frame = -1
 var distance_cache = {}
+var connectivity_cache = {}
 
 @onready var air = find_child("Air")
 @onready var terrain = find_child("Terrain")
@@ -14,6 +16,18 @@ var distance_cache = {}
 func _ready():
 	await _match.ready
 	_setup_static_obstacles()
+
+
+func _process(_delta):
+	if (
+		terrain._map_geometry == null
+		or terrain._navigation_region.navigation_mesh.get_polygon_count() == 0
+	):
+		return
+	var index = load("res://source/match/orders/NavigationConnectivity.gd")
+	index.warm(self, 1)
+	if hover != null:
+		index.warm(self, 1, true)
 
 
 func _exit_tree():
@@ -41,6 +55,10 @@ func wait_until_synchronized(domain):
 
 
 func setup(map):
+	hover = load("res://source/match/HoverNavigation.gd").new()
+	hover.name = "Hover"
+	add_child(hover)
+	hover.bake(map)
 	assert(_static_obstacles.is_empty())
 	air.bake(map)
 	terrain.bake(map)

@@ -1,6 +1,6 @@
 extends "res://tests/headless/FrontierGameplayRegression.gd"
 
-const EVIDENCE = "res://docs/playtests/2026-10-11/signature-feedback/"
+const EVIDENCE = "user://signature-feedback-regression/"
 var actor
 var other
 var panel
@@ -8,6 +8,7 @@ var stage_records = []
 
 
 func _run():
+	DirAccess.make_dir_recursive_absolute(EVIDENCE)
 	factions = load("res://source/match/FactionCatalog.gd")
 	root.get_node("SaveManager").autosaves_enabled = false
 	await _display_setup()
@@ -58,7 +59,10 @@ func _run():
 				"anchored" in panel._summary.text.to_lower(), "Settled Anchor hidden by cooldown"
 			)
 		else:
-			_check("Recharging" in panel._summary.text, faction + ": expired effect not recharging")
+			_check(
+				"Recharging" in panel._summary.tooltip_text,
+				faction + ": expired effect not recharging"
+			)
 		await _review(faction + "-later")
 		# Distinct real cohorts: the older cooldown must determine first availability.
 		_check(
@@ -78,7 +82,7 @@ func _run():
 		panel.refresh()
 		var soon = minf(actor.signature.cooldown, other.signature.cooldown)
 		_check(
-			("%.1f s" % soon) in panel._summary.text,
+			("%.1f s" % soon) in panel._summary.tooltip_text,
 			faction + ": summary shows latest instead of earliest recharge"
 		)
 		await _review(faction + "-mixed-recharge")
@@ -130,14 +134,14 @@ func _run():
 	for message in errors:
 		push_error(message)
 	print("Signature feedback: %d failures" % errors.size())
-	quit(0 if errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
 
 
 func _edge_feedback(faction):
 	actor.signature.cooldown = 2
 	human.signatures.groups = [{"id": 1, "left": 4.0, "members": [actor]}]
 	panel.refresh()
-	_check("4.0 s" in panel._summary.text, faction + ": cohort cooldown ignored")
+	_check("4.0 s" in panel._summary.tooltip_text, faction + ": cohort cooldown ignored")
 	if faction == "bastion":
 		actor.signature.kind = "anchor"
 		actor.signature.sector = actor.position + Vector3(20, 0, 0)

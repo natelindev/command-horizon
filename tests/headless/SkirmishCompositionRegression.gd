@@ -209,7 +209,9 @@ func _faction_roles():
 	opponent.coordination_unlocked = true
 	opponent._production_index = 0
 	opponent._train(_training_units([factory]), "")
-	var expected = "CombatRobot" if opponent.faction == "helix" else "AdvancedTank"
+	# Helix fields an anti-armor Lancer. Bastion reserves its stationary siege
+	# gun for structures and keeps the mobile tank line against armor.
+	var expected = "CombatRobot" if opponent.faction == "helix" else "Tank"
 	_check(_queued(factory) == expected, "Scouted armor did not select faction-appropriate counter")
 	factory.production_queue.cancel_all()
 	await _replace_contact("Infantry")
@@ -321,6 +323,9 @@ func _counter_building():
 	)
 	for worker in _units(opponent, "Worker"):
 		if worker != observer:
+			# Nanite engineers return to harvesting after beacon placement. Keep
+			# this construction-only fixture's wallet free of incidental income.
+			worker.manual_orders.submit({"kind": "move", "point": worker.global_position}, true)
 			worker.process_mode = Node.PROCESS_MODE_INHERIT
 	await _frames(2400)
 	_check(

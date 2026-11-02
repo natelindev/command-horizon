@@ -1,0 +1,1971 @@
+{
+	"adapter": "Apple M1 Pro (Apple7)",
+	"arguments": [
+		"--profile-runtime",
+		"--enable-native-kernels",
+		"--native-unit-state",
+		"--native-crowd-runtime",
+		"--native-presentation",
+		"--native-pose-rigs",
+		"--native-infantry-poses",
+		"--native-visibility-runtime",
+		"--native-combat-queries",
+		"--native-battlefield-index",
+		"--indexed-player-rosters",
+		"--native-nearest-surface",
+		"--native-exploration",
+		"--trace-combat-first-use",
+		"--av-faction=frontier",
+		"--av-quality=high",
+		"--av-samples=240",
+		"--av-output=/tmp/rts-av200-frontier-first-use"
+	],
+	"combatants": 200,
+	"diagnostic": true,
+	"failures": [
+		"AV simulation did not run in real time"
+	],
+	"physics_ticks_per_second": 30,
+	"quality": [
+		{
+			"batch_groups": 28,
+			"batched_units": 202,
+			"cpu_usage": {
+				"main_thread_ms_per_frame": 25.0081333333333,
+				"process_ms_per_frame": 31.885925
+			},
+			"draw_calls": {
+				"max": 1617.0,
+				"mean": 1557.12916666667,
+				"median": 1563.0,
+				"p95": 1593.0
+			},
+			"faction": "frontier",
+			"first_use_events": [
+				{
+					"draw_frame": 1,
+					"owner": "projectile/tracer",
+					"pipeline_totals": [
+						4,
+						24,
+						174,
+						47,
+						64
+					],
+					"render_cpu_ms": 0.0,
+					"simulation_time": 0.0,
+					"usec": 46662201
+				},
+				{
+					"draw_frame": 1,
+					"owner": "projectile/heavy_tracer",
+					"pipeline_totals": [
+						4,
+						24,
+						174,
+						47,
+						64
+					],
+					"render_cpu_ms": 0.0,
+					"simulation_time": 0.0,
+					"usec": 46667276
+				},
+				{
+					"draw_frame": 1,
+					"owner": "projectile/slug",
+					"pipeline_totals": [
+						4,
+						24,
+						174,
+						47,
+						64
+					],
+					"render_cpu_ms": 0.0,
+					"simulation_time": 0.0,
+					"usec": 46667293
+				},
+				{
+					"draw_frame": 1,
+					"owner": "projectile/rocket",
+					"pipeline_totals": [
+						4,
+						24,
+						174,
+						47,
+						64
+					],
+					"render_cpu_ms": 0.0,
+					"simulation_time": 0.0,
+					"usec": 46667303
+				},
+				{
+					"draw_frame": 1,
+					"owner": "projectile/missile",
+					"pipeline_totals": [
+						4,
+						24,
+						174,
+						47,
+						64
+					],
+					"render_cpu_ms": 0.0,
+					"simulation_time": 0.0,
+					"usec": 46667312
+				},
+				{
+					"draw_frame": 1,
+					"owner": "projectile/bomb",
+					"pipeline_totals": [
+						4,
+						24,
+						174,
+						47,
+						64
+					],
+					"render_cpu_ms": 0.0,
+					"simulation_time": 0.0,
+					"usec": 46667320
+				},
+				{
+					"draw_frame": 74,
+					"owner": "shockwave/CannonMuzzleShockwave",
+					"pipeline_totals": [
+						6,
+						32,
+						189,
+						71,
+						93
+					],
+					"render_cpu_ms": 773.690979003906,
+					"simulation_time": 2.13333333333334,
+					"usec": 57155385
+				},
+				{
+					"draw_frame": 74,
+					"owner": "shockwave/@MeshInstance3D@11956",
+					"pipeline_totals": [
+						6,
+						32,
+						189,
+						71,
+						93
+					],
+					"render_cpu_ms": 773.690979003906,
+					"simulation_time": 2.13333333333334,
+					"usec": 57155584
+				},
+				{
+					"draw_frame": 74,
+					"owner": "local_light",
+					"pipeline_totals": [
+						6,
+						32,
+						189,
+						71,
+						93
+					],
+					"render_cpu_ms": 773.690979003906,
+					"simulation_time": 2.13333333333334,
+					"usec": 57155598
+				},
+				{
+					"draw_frame": 74,
+					"owner": "rigid_debris",
+					"pipeline_totals": [
+						6,
+						32,
+						189,
+						71,
+						93
+					],
+					"render_cpu_ms": 773.690979003906,
+					"simulation_time": 2.13333333333334,
+					"usec": 57155612
+				},
+				{
+					"draw_frame": 75,
+					"owner": "hit/frontier/AssaultInfantry",
+					"pipeline_totals": [
+						6,
+						32,
+						190,
+						73,
+						95
+					],
+					"render_cpu_ms": 384.816986083984,
+					"simulation_time": 2.4,
+					"usec": 58395327
+				},
+				{
+					"draw_frame": 75,
+					"owner": "shockwave/@MeshInstance3D@11975",
+					"pipeline_totals": [
+						6,
+						32,
+						190,
+						73,
+						95
+					],
+					"render_cpu_ms": 384.816986083984,
+					"simulation_time": 2.4,
+					"usec": 58395521
+				},
+				{
+					"draw_frame": 75,
+					"owner": "shockwave/@MeshInstance3D@11980",
+					"pipeline_totals": [
+						6,
+						32,
+						190,
+						73,
+						95
+					],
+					"render_cpu_ms": 384.816986083984,
+					"simulation_time": 2.4,
+					"usec": 58395559
+				},
+				{
+					"draw_frame": 75,
+					"owner": "shockwave/@MeshInstance3D@11986",
+					"pipeline_totals": [
+						6,
+						32,
+						190,
+						73,
+						95
+					],
+					"render_cpu_ms": 384.816986083984,
+					"simulation_time": 2.4,
+					"usec": 58395592
+				},
+				{
+					"draw_frame": 75,
+					"owner": "shockwave/@MeshInstance3D@11998",
+					"pipeline_totals": [
+						6,
+						32,
+						190,
+						73,
+						95
+					],
+					"render_cpu_ms": 384.816986083984,
+					"simulation_time": 2.4,
+					"usec": 58395634
+				},
+				{
+					"draw_frame": 75,
+					"owner": "shockwave/@MeshInstance3D@12003",
+					"pipeline_totals": [
+						6,
+						32,
+						190,
+						73,
+						95
+					],
+					"render_cpu_ms": 384.816986083984,
+					"simulation_time": 2.4,
+					"usec": 58395664
+				},
+				{
+					"draw_frame": 75,
+					"owner": "terrain_wear",
+					"pipeline_totals": [
+						6,
+						32,
+						190,
+						73,
+						95
+					],
+					"render_cpu_ms": 384.816986083984,
+					"simulation_time": 2.4,
+					"usec": 58395700
+				},
+				{
+					"draw_frame": 78,
+					"owner": "hit/bastion/Tank",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						77,
+						99
+					],
+					"render_cpu_ms": 69.6829986572266,
+					"simulation_time": 2.86666666666667,
+					"usec": 58774809
+				},
+				{
+					"draw_frame": 83,
+					"owner": "shockwave/@MeshInstance3D@12304",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						77,
+						99
+					],
+					"render_cpu_ms": 1.66299998760223,
+					"simulation_time": 3.43333333333333,
+					"usec": 59221690
+				},
+				{
+					"draw_frame": 83,
+					"owner": "shockwave/@MeshInstance3D@12308",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						77,
+						99
+					],
+					"render_cpu_ms": 1.66299998760223,
+					"simulation_time": 3.43333333333333,
+					"usec": 59221780
+				},
+				{
+					"draw_frame": 83,
+					"owner": "shockwave/@MeshInstance3D@12312",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						77,
+						99
+					],
+					"render_cpu_ms": 1.66299998760223,
+					"simulation_time": 3.43333333333333,
+					"usec": 59221799
+				},
+				{
+					"draw_frame": 83,
+					"owner": "shockwave/@MeshInstance3D@12316",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						77,
+						99
+					],
+					"render_cpu_ms": 1.66299998760223,
+					"simulation_time": 3.43333333333333,
+					"usec": 59221809
+				},
+				{
+					"draw_frame": 83,
+					"owner": "shockwave/@MeshInstance3D@12320",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						77,
+						99
+					],
+					"render_cpu_ms": 1.66299998760223,
+					"simulation_time": 3.43333333333333,
+					"usec": 59221819
+				},
+				{
+					"draw_frame": 83,
+					"owner": "shockwave/@MeshInstance3D@12324",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						77,
+						99
+					],
+					"render_cpu_ms": 1.66299998760223,
+					"simulation_time": 3.43333333333333,
+					"usec": 59221902
+				},
+				{
+					"draw_frame": 85,
+					"owner": "shockwave/@MeshInstance3D@12337",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						77,
+						99
+					],
+					"render_cpu_ms": 1.23500001430511,
+					"simulation_time": 3.5,
+					"usec": 59274884
+				},
+				{
+					"draw_frame": 85,
+					"owner": "shockwave/@MeshInstance3D@12341",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						77,
+						99
+					],
+					"render_cpu_ms": 1.23500001430511,
+					"simulation_time": 3.5,
+					"usec": 59274946
+				},
+				{
+					"draw_frame": 87,
+					"owner": "hit/frontier/CombatRobot",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						77,
+						99
+					],
+					"render_cpu_ms": 1.01800000667572,
+					"simulation_time": 3.56666666666666,
+					"usec": 59324710
+				},
+				{
+					"draw_frame": 87,
+					"owner": "shockwave/@MeshInstance3D@12351",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						77,
+						99
+					],
+					"render_cpu_ms": 1.01800000667572,
+					"simulation_time": 3.56666666666666,
+					"usec": 59324788
+				},
+				{
+					"draw_frame": 87,
+					"owner": "shockwave/@MeshInstance3D@12355",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						77,
+						99
+					],
+					"render_cpu_ms": 1.01800000667572,
+					"simulation_time": 3.56666666666666,
+					"usec": 59324804
+				},
+				{
+					"draw_frame": 87,
+					"owner": "shockwave/@MeshInstance3D@12359",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						77,
+						99
+					],
+					"render_cpu_ms": 1.01800000667572,
+					"simulation_time": 3.56666666666666,
+					"usec": 59324819
+				},
+				{
+					"draw_frame": 87,
+					"owner": "shockwave/@MeshInstance3D@12363",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						77,
+						99
+					],
+					"render_cpu_ms": 1.01800000667572,
+					"simulation_time": 3.56666666666666,
+					"usec": 59324830
+				},
+				{
+					"draw_frame": 87,
+					"owner": "shockwave/@MeshInstance3D@12367",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						77,
+						99
+					],
+					"render_cpu_ms": 1.01800000667572,
+					"simulation_time": 3.56666666666666,
+					"usec": 59324839
+				},
+				{
+					"draw_frame": 87,
+					"owner": "shockwave/@MeshInstance3D@12371",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						77,
+						99
+					],
+					"render_cpu_ms": 1.01800000667572,
+					"simulation_time": 3.56666666666666,
+					"usec": 59324849
+				},
+				{
+					"draw_frame": 138,
+					"owner": "shockwave/@MeshInstance3D@12686",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						78,
+						100
+					],
+					"render_cpu_ms": 1.21800005435944,
+					"simulation_time": 4.86666666666666,
+					"usec": 60632619
+				},
+				{
+					"draw_frame": 138,
+					"owner": "shockwave/@MeshInstance3D@12690",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						78,
+						100
+					],
+					"render_cpu_ms": 1.21800005435944,
+					"simulation_time": 4.86666666666666,
+					"usec": 60632699
+				},
+				{
+					"draw_frame": 138,
+					"owner": "shockwave/@MeshInstance3D@12694",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						78,
+						100
+					],
+					"render_cpu_ms": 1.21800005435944,
+					"simulation_time": 4.86666666666666,
+					"usec": 60632716
+				},
+				{
+					"draw_frame": 139,
+					"owner": "shockwave/@MeshInstance3D@12707",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						78,
+						100
+					],
+					"render_cpu_ms": 1.15100002288818,
+					"simulation_time": 4.89999999999999,
+					"usec": 60661924
+				},
+				{
+					"draw_frame": 139,
+					"owner": "shockwave/@MeshInstance3D@12711",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						78,
+						100
+					],
+					"render_cpu_ms": 1.15100002288818,
+					"simulation_time": 4.89999999999999,
+					"usec": 60661994
+				},
+				{
+					"draw_frame": 139,
+					"owner": "shockwave/@MeshInstance3D@12715",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						78,
+						100
+					],
+					"render_cpu_ms": 1.15100002288818,
+					"simulation_time": 4.89999999999999,
+					"usec": 60662009
+				},
+				{
+					"draw_frame": 139,
+					"owner": "shockwave/@MeshInstance3D@12719",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						78,
+						100
+					],
+					"render_cpu_ms": 1.15100002288818,
+					"simulation_time": 4.89999999999999,
+					"usec": 60662023
+				},
+				{
+					"draw_frame": 139,
+					"owner": "shockwave/@MeshInstance3D@12723",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						78,
+						100
+					],
+					"render_cpu_ms": 1.15100002288818,
+					"simulation_time": 4.89999999999999,
+					"usec": 60662035
+				},
+				{
+					"draw_frame": 142,
+					"owner": "shockwave/@MeshInstance3D@12736",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						78,
+						100
+					],
+					"render_cpu_ms": 1.14300000667572,
+					"simulation_time": 4.96666666666666,
+					"usec": 60729066
+				},
+				{
+					"draw_frame": 190,
+					"owner": "shockwave/@MeshInstance3D@12940",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						78,
+						100
+					],
+					"render_cpu_ms": 1.182000041008,
+					"simulation_time": 5.96666666666666,
+					"usec": 61735539
+				},
+				{
+					"draw_frame": 200,
+					"owner": "shockwave/@MeshInstance3D@13021",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						78,
+						100
+					],
+					"render_cpu_ms": 1.24899995326996,
+					"simulation_time": 6.19999999999999,
+					"usec": 61964736
+				},
+				{
+					"draw_frame": 200,
+					"owner": "shockwave/@MeshInstance3D@13025",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						78,
+						100
+					],
+					"render_cpu_ms": 1.24899995326996,
+					"simulation_time": 6.19999999999999,
+					"usec": 61964872
+				},
+				{
+					"draw_frame": 201,
+					"owner": "shockwave/@MeshInstance3D@13035",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						78,
+						100
+					],
+					"render_cpu_ms": 1.07599997520447,
+					"simulation_time": 6.23333333333332,
+					"usec": 61995272
+				},
+				{
+					"draw_frame": 201,
+					"owner": "shockwave/@MeshInstance3D@13039",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						78,
+						100
+					],
+					"render_cpu_ms": 1.07599997520447,
+					"simulation_time": 6.23333333333332,
+					"usec": 61995350
+				},
+				{
+					"draw_frame": 201,
+					"owner": "shockwave/@MeshInstance3D@13043",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						78,
+						100
+					],
+					"render_cpu_ms": 1.07599997520447,
+					"simulation_time": 6.23333333333332,
+					"usec": 61995366
+				},
+				{
+					"draw_frame": 201,
+					"owner": "shockwave/@MeshInstance3D@13047",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						78,
+						100
+					],
+					"render_cpu_ms": 1.07599997520447,
+					"simulation_time": 6.23333333333332,
+					"usec": 61995381
+				},
+				{
+					"draw_frame": 201,
+					"owner": "shockwave/@MeshInstance3D@13051",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						78,
+						100
+					],
+					"render_cpu_ms": 1.07599997520447,
+					"simulation_time": 6.23333333333332,
+					"usec": 61995393
+				},
+				{
+					"draw_frame": 201,
+					"owner": "shockwave/@MeshInstance3D@13055",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						78,
+						100
+					],
+					"render_cpu_ms": 1.07599997520447,
+					"simulation_time": 6.23333333333332,
+					"usec": 61995405
+				},
+				{
+					"draw_frame": 210,
+					"owner": "shockwave/@MeshInstance3D@13086",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						78,
+						100
+					],
+					"render_cpu_ms": 1.29299998283386,
+					"simulation_time": 6.43333333333332,
+					"usec": 62205102
+				},
+				{
+					"draw_frame": 210,
+					"owner": "shockwave/@MeshInstance3D@13090",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						78,
+						100
+					],
+					"render_cpu_ms": 1.29299998283386,
+					"simulation_time": 6.43333333333332,
+					"usec": 62205169
+				},
+				{
+					"draw_frame": 212,
+					"owner": "shockwave/@MeshInstance3D@13154",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						78,
+						100
+					],
+					"render_cpu_ms": 1.18900001049042,
+					"simulation_time": 6.49999999999999,
+					"usec": 62262570
+				},
+				{
+					"draw_frame": 212,
+					"owner": "shockwave/@MeshInstance3D@13158",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						78,
+						100
+					],
+					"render_cpu_ms": 1.18900001049042,
+					"simulation_time": 6.49999999999999,
+					"usec": 62262635
+				},
+				{
+					"draw_frame": 227,
+					"owner": "shockwave/@MeshInstance3D@13210",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						78,
+						100
+					],
+					"render_cpu_ms": 1.28799998760223,
+					"simulation_time": 6.79999999999999,
+					"usec": 62564195
+				},
+				{
+					"draw_frame": 227,
+					"owner": "shockwave/@MeshInstance3D@13214",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						78,
+						100
+					],
+					"render_cpu_ms": 1.28799998760223,
+					"simulation_time": 6.79999999999999,
+					"usec": 62564276
+				},
+				{
+					"draw_frame": 233,
+					"owner": "shockwave/@MeshInstance3D@13252",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						78,
+						100
+					],
+					"render_cpu_ms": 1.46099996566772,
+					"simulation_time": 6.93333333333332,
+					"usec": 62701914
+				},
+				{
+					"draw_frame": 233,
+					"owner": "shockwave/@MeshInstance3D@13256",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						78,
+						100
+					],
+					"render_cpu_ms": 1.46099996566772,
+					"simulation_time": 6.93333333333332,
+					"usec": 62701983
+				},
+				{
+					"draw_frame": 233,
+					"owner": "shockwave/@MeshInstance3D@13260",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						78,
+						100
+					],
+					"render_cpu_ms": 1.46099996566772,
+					"simulation_time": 6.93333333333332,
+					"usec": 62702002
+				},
+				{
+					"draw_frame": 233,
+					"owner": "shockwave/@MeshInstance3D@13264",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						78,
+						100
+					],
+					"render_cpu_ms": 1.46099996566772,
+					"simulation_time": 6.93333333333332,
+					"usec": 62702016
+				},
+				{
+					"draw_frame": 233,
+					"owner": "shockwave/@MeshInstance3D@13268",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						78,
+						100
+					],
+					"render_cpu_ms": 1.46099996566772,
+					"simulation_time": 6.93333333333332,
+					"usec": 62702027
+				},
+				{
+					"draw_frame": 233,
+					"owner": "shockwave/@MeshInstance3D@13272",
+					"pipeline_totals": [
+						6,
+						32,
+						191,
+						78,
+						100
+					],
+					"render_cpu_ms": 1.46099996566772,
+					"simulation_time": 6.93333333333332,
+					"usec": 62702037
+				},
+				{
+					"draw_frame": 242,
+					"owner": "hit/frontier/AdvancedTank",
+					"pipeline_totals": [
+						6,
+						32,
+						192,
+						78,
+						102
+					],
+					"render_cpu_ms": 1.09599995613098,
+					"simulation_time": 7.16666666666665,
+					"usec": 62941747
+				},
+				{
+					"draw_frame": 242,
+					"owner": "hit/frontier/Infantry",
+					"pipeline_totals": [
+						6,
+						32,
+						192,
+						78,
+						102
+					],
+					"render_cpu_ms": 1.09599995613098,
+					"simulation_time": 7.16666666666665,
+					"usec": 62941914
+				},
+				{
+					"draw_frame": 242,
+					"owner": "hit/frontier/Tank",
+					"pipeline_totals": [
+						6,
+						32,
+						192,
+						78,
+						102
+					],
+					"render_cpu_ms": 1.09599995613098,
+					"simulation_time": 7.16666666666665,
+					"usec": 62942003
+				},
+				{
+					"draw_frame": 242,
+					"owner": "hit/bastion/AssaultInfantry",
+					"pipeline_totals": [
+						6,
+						32,
+						192,
+						78,
+						102
+					],
+					"render_cpu_ms": 1.09599995613098,
+					"simulation_time": 7.16666666666665,
+					"usec": 62942037
+				},
+				{
+					"draw_frame": 243,
+					"owner": "shockwave/ExplosionShockwave",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.432000041008,
+					"simulation_time": 7.19999999999998,
+					"usec": 63594293
+				},
+				{
+					"draw_frame": 244,
+					"owner": "shockwave/@MeshInstance3D@13442",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.76999998092651,
+					"simulation_time": 7.46666666666665,
+					"usec": 63688529
+				},
+				{
+					"draw_frame": 244,
+					"owner": "shockwave/@MeshInstance3D@13455",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.76999998092651,
+					"simulation_time": 7.46666666666665,
+					"usec": 63688602
+				},
+				{
+					"draw_frame": 244,
+					"owner": "shockwave/@MeshInstance3D@13468",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.76999998092651,
+					"simulation_time": 7.46666666666665,
+					"usec": 63688619
+				},
+				{
+					"draw_frame": 244,
+					"owner": "shockwave/@MeshInstance3D@13496",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.76999998092651,
+					"simulation_time": 7.46666666666665,
+					"usec": 63688633
+				},
+				{
+					"draw_frame": 246,
+					"owner": "shockwave/@MeshInstance3D@13620",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.817999958992,
+					"simulation_time": 7.59999999999998,
+					"usec": 63765984
+				},
+				{
+					"draw_frame": 246,
+					"owner": "shockwave/@MeshInstance3D@13624",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.817999958992,
+					"simulation_time": 7.59999999999998,
+					"usec": 63766052
+				},
+				{
+					"draw_frame": 246,
+					"owner": "shockwave/@MeshInstance3D@13628",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.817999958992,
+					"simulation_time": 7.59999999999998,
+					"usec": 63766078
+				},
+				{
+					"draw_frame": 246,
+					"owner": "shockwave/@MeshInstance3D@13632",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.817999958992,
+					"simulation_time": 7.59999999999998,
+					"usec": 63766089
+				},
+				{
+					"draw_frame": 246,
+					"owner": "shockwave/@MeshInstance3D@13636",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.817999958992,
+					"simulation_time": 7.59999999999998,
+					"usec": 63766099
+				},
+				{
+					"draw_frame": 246,
+					"owner": "shockwave/@MeshInstance3D@13640",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.817999958992,
+					"simulation_time": 7.59999999999998,
+					"usec": 63766109
+				},
+				{
+					"draw_frame": 258,
+					"owner": "shockwave/@MeshInstance3D@13689",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.20799994468689,
+					"simulation_time": 7.93333333333331,
+					"usec": 64061871
+				},
+				{
+					"draw_frame": 292,
+					"owner": "shockwave/@MeshInstance3D@13900",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.32200002670288,
+					"simulation_time": 8.66666666666665,
+					"usec": 64800592
+				},
+				{
+					"draw_frame": 305,
+					"owner": "shockwave/@MeshInstance3D@13981",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.2960000038147,
+					"simulation_time": 8.96666666666665,
+					"usec": 65102361
+				},
+				{
+					"draw_frame": 305,
+					"owner": "shockwave/@MeshInstance3D@13985",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.2960000038147,
+					"simulation_time": 8.96666666666665,
+					"usec": 65102444
+				},
+				{
+					"draw_frame": 305,
+					"owner": "shockwave/@MeshInstance3D@13989",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.2960000038147,
+					"simulation_time": 8.96666666666665,
+					"usec": 65102458
+				},
+				{
+					"draw_frame": 305,
+					"owner": "shockwave/@MeshInstance3D@13993",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.2960000038147,
+					"simulation_time": 8.96666666666665,
+					"usec": 65102473
+				},
+				{
+					"draw_frame": 305,
+					"owner": "shockwave/@MeshInstance3D@13997",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.2960000038147,
+					"simulation_time": 8.96666666666665,
+					"usec": 65102493
+				},
+				{
+					"draw_frame": 305,
+					"owner": "shockwave/@MeshInstance3D@14001",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.2960000038147,
+					"simulation_time": 8.96666666666665,
+					"usec": 65102580
+				},
+				{
+					"draw_frame": 349,
+					"owner": "shockwave/@MeshInstance3D@14251",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.23399996757507,
+					"simulation_time": 9.96666666666664,
+					"usec": 66101976
+				},
+				{
+					"draw_frame": 349,
+					"owner": "shockwave/@MeshInstance3D@14255",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.23399996757507,
+					"simulation_time": 9.96666666666664,
+					"usec": 66102048
+				},
+				{
+					"draw_frame": 352,
+					"owner": "shockwave/@MeshInstance3D@14259",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.33700001239777,
+					"simulation_time": 10.0333333333333,
+					"usec": 66165940
+				},
+				{
+					"draw_frame": 353,
+					"owner": "shockwave/@MeshInstance3D@14266",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.36000001430511,
+					"simulation_time": 10.0666666666666,
+					"usec": 66191529
+				},
+				{
+					"draw_frame": 356,
+					"owner": "shockwave/@MeshInstance3D@14270",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.6360000371933,
+					"simulation_time": 10.1333333333333,
+					"usec": 66265615
+				},
+				{
+					"draw_frame": 360,
+					"owner": "shockwave/@MeshInstance3D@14298",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.44500005245209,
+					"simulation_time": 10.2333333333333,
+					"usec": 66360366
+				},
+				{
+					"draw_frame": 363,
+					"owner": "shockwave/@MeshInstance3D@14398",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.19900000095367,
+					"simulation_time": 10.3,
+					"usec": 66443645
+				},
+				{
+					"draw_frame": 363,
+					"owner": "shockwave/@MeshInstance3D@14402",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.19900000095367,
+					"simulation_time": 10.3,
+					"usec": 66443729
+				},
+				{
+					"draw_frame": 363,
+					"owner": "shockwave/@MeshInstance3D@14406",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.19900000095367,
+					"simulation_time": 10.3,
+					"usec": 66443746
+				},
+				{
+					"draw_frame": 363,
+					"owner": "shockwave/@MeshInstance3D@14410",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.19900000095367,
+					"simulation_time": 10.3,
+					"usec": 66443759
+				},
+				{
+					"draw_frame": 363,
+					"owner": "shockwave/@MeshInstance3D@14414",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.19900000095367,
+					"simulation_time": 10.3,
+					"usec": 66443780
+				},
+				{
+					"draw_frame": 363,
+					"owner": "shockwave/@MeshInstance3D@14418",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.19900000095367,
+					"simulation_time": 10.3,
+					"usec": 66443792
+				},
+				{
+					"draw_frame": 365,
+					"owner": "shockwave/@MeshInstance3D@14452",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.49100005626678,
+					"simulation_time": 10.3666666666666,
+					"usec": 66513543
+				},
+				{
+					"draw_frame": 365,
+					"owner": "shockwave/@MeshInstance3D@14456",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.49100005626678,
+					"simulation_time": 10.3666666666666,
+					"usec": 66513618
+				},
+				{
+					"draw_frame": 367,
+					"owner": "shockwave/@MeshInstance3D@14498",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.33599996566772,
+					"simulation_time": 10.4666666666666,
+					"usec": 66613997
+				},
+				{
+					"draw_frame": 367,
+					"owner": "shockwave/@MeshInstance3D@14502",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.33599996566772,
+					"simulation_time": 10.4666666666666,
+					"usec": 66614086
+				},
+				{
+					"draw_frame": 367,
+					"owner": "shockwave/@MeshInstance3D@14506",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.33599996566772,
+					"simulation_time": 10.4666666666666,
+					"usec": 66614103
+				},
+				{
+					"draw_frame": 367,
+					"owner": "shockwave/@MeshInstance3D@14510",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.33599996566772,
+					"simulation_time": 10.4666666666666,
+					"usec": 66614116
+				},
+				{
+					"draw_frame": 367,
+					"owner": "shockwave/@MeshInstance3D@14514",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.33599996566772,
+					"simulation_time": 10.4666666666666,
+					"usec": 66614129
+				},
+				{
+					"draw_frame": 367,
+					"owner": "shockwave/@MeshInstance3D@14518",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.33599996566772,
+					"simulation_time": 10.4666666666666,
+					"usec": 66614142
+				},
+				{
+					"draw_frame": 375,
+					"owner": "shockwave/@MeshInstance3D@14570",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.567999958992,
+					"simulation_time": 10.7,
+					"usec": 66850988
+				},
+				{
+					"draw_frame": 377,
+					"owner": "shockwave/@MeshInstance3D@14682",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.51800000667572,
+					"simulation_time": 10.7666666666666,
+					"usec": 66931097
+				},
+				{
+					"draw_frame": 377,
+					"owner": "shockwave/@MeshInstance3D@14695",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.51800000667572,
+					"simulation_time": 10.7666666666666,
+					"usec": 66931180
+				},
+				{
+					"draw_frame": 377,
+					"owner": "shockwave/@MeshInstance3D@14708",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.51800000667572,
+					"simulation_time": 10.7666666666666,
+					"usec": 66931195
+				},
+				{
+					"draw_frame": 377,
+					"owner": "shockwave/@MeshInstance3D@14721",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.51800000667572,
+					"simulation_time": 10.7666666666666,
+					"usec": 66931208
+				},
+				{
+					"draw_frame": 377,
+					"owner": "shockwave/@MeshInstance3D@14734",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.51800000667572,
+					"simulation_time": 10.7666666666666,
+					"usec": 66931220
+				},
+				{
+					"draw_frame": 377,
+					"owner": "shockwave/@MeshInstance3D@14747",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.51800000667572,
+					"simulation_time": 10.7666666666666,
+					"usec": 66931233
+				},
+				{
+					"draw_frame": 390,
+					"owner": "shockwave/@MeshInstance3D@14811",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.38199996948242,
+					"simulation_time": 11.1333333333333,
+					"usec": 67266355
+				},
+				{
+					"draw_frame": 399,
+					"owner": "shockwave/@MeshInstance3D@14923",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.29200005531311,
+					"simulation_time": 11.3666666666666,
+					"usec": 67500168
+				},
+				{
+					"draw_frame": 408,
+					"owner": "shockwave/@MeshInstance3D@14945",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.41600000858307,
+					"simulation_time": 11.6,
+					"usec": 67736438
+				},
+				{
+					"draw_frame": 410,
+					"owner": "shockwave/@MeshInstance3D@15021",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.3860000371933,
+					"simulation_time": 11.6666666666666,
+					"usec": 67810121
+				},
+				{
+					"draw_frame": 410,
+					"owner": "shockwave/@MeshInstance3D@15025",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.3860000371933,
+					"simulation_time": 11.6666666666666,
+					"usec": 67810198
+				},
+				{
+					"draw_frame": 410,
+					"owner": "shockwave/@MeshInstance3D@15029",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.3860000371933,
+					"simulation_time": 11.6666666666666,
+					"usec": 67810215
+				},
+				{
+					"draw_frame": 410,
+					"owner": "shockwave/@MeshInstance3D@15033",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.3860000371933,
+					"simulation_time": 11.6666666666666,
+					"usec": 67810229
+				},
+				{
+					"draw_frame": 410,
+					"owner": "shockwave/@MeshInstance3D@15037",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.3860000371933,
+					"simulation_time": 11.6666666666666,
+					"usec": 67810241
+				},
+				{
+					"draw_frame": 410,
+					"owner": "shockwave/@MeshInstance3D@15041",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.3860000371933,
+					"simulation_time": 11.6666666666666,
+					"usec": 67810252
+				},
+				{
+					"draw_frame": 453,
+					"owner": "shockwave/@MeshInstance3D@15300",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.20099997520447,
+					"simulation_time": 12.9333333333333,
+					"usec": 69083891
+				},
+				{
+					"draw_frame": 455,
+					"owner": "shockwave/@MeshInstance3D@15387",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.39999997615814,
+					"simulation_time": 13.0,
+					"usec": 69158285
+				},
+				{
+					"draw_frame": 455,
+					"owner": "shockwave/@MeshInstance3D@15391",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.39999997615814,
+					"simulation_time": 13.0,
+					"usec": 69158362
+				},
+				{
+					"draw_frame": 455,
+					"owner": "shockwave/@MeshInstance3D@15395",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.39999997615814,
+					"simulation_time": 13.0,
+					"usec": 69158378
+				},
+				{
+					"draw_frame": 455,
+					"owner": "shockwave/@MeshInstance3D@15399",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.39999997615814,
+					"simulation_time": 13.0,
+					"usec": 69158391
+				},
+				{
+					"draw_frame": 455,
+					"owner": "shockwave/@MeshInstance3D@15403",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.39999997615814,
+					"simulation_time": 13.0,
+					"usec": 69158540
+				},
+				{
+					"draw_frame": 455,
+					"owner": "shockwave/@MeshInstance3D@15407",
+					"pipeline_totals": [
+						6,
+						32,
+						193,
+						79,
+						103
+					],
+					"render_cpu_ms": 1.39999997615814,
+					"simulation_time": 13.0,
+					"usec": 69158593
+				}
+			],
+			"frame_ms": {
+				"max": 652.315,
+				"mean": 29.5108583333333,
+				"median": 27.042,
+				"p95": 44.497
+			},
+			"frames": 240,
+			"gpu_ms": {
+				"max": 0.0,
+				"mean": 0.0,
+				"median": 0.0,
+				"p95": 0.0
+			},
+			"gpu_timing_available": false,
+			"music_intensity": 0.998894962000102,
+			"native_battlefield_index": true,
+			"native_combat_queries": true,
+			"native_exploration": true,
+			"native_infantry_solves": 80,
+			"native_visibility": true,
+			"particle_capacities": {
+				"clod": 128,
+				"debris": 192,
+				"dust": 512,
+				"exhaust": 768,
+				"fire": 256,
+				"flash": 128,
+				"mote": 192,
+				"smoke": 384,
+				"spark": 768,
+				"trail_smoke": 2048
+			},
+			"pipeline_count_order": [
+				"canvas",
+				"mesh",
+				"surface",
+				"draw",
+				"specialization"
+			],
+			"pipeline_counts_begin": [
+				6,
+				32,
+				191,
+				78,
+				100
+			],
+			"pipeline_counts_end": [
+				6,
+				32,
+				193,
+				79,
+				103
+			],
+			"quality": "high",
+			"raster": [
+				1280.0,
+				720.0
+			],
+			"render_cpu_ms": {
+				"max": 610.872985839844,
+				"mean": 3.92937910656134,
+				"median": 1.36000001430511,
+				"p95": 1.70200002193451
+			},
+			"resident_rigs": 202,
+			"sampled_1s_physics_max_ms": {
+				"max": 30.575,
+				"mean": 20.5395708333333,
+				"median": 19.076,
+				"p95": 30.575
+			},
+			"sampled_1s_process_max_ms": {
+				"max": 631.168,
+				"mean": 56.6401916666666,
+				"median": 23.353,
+				"p95": 631.168
+			},
+			"scene_dispatch_us": [
+				1545446,
+				2278209,
+				1506945,
+				2164334,
+				201,
+				251
+			],
+			"selected_units": 100,
+			"shocks": 0,
+			"shots": 877,
+			"simulation_seconds": 6.69999999999998,
+			"slow_frames_over_100ms": [
+				{
+					"frame": 16,
+					"physics_ticks": 1,
+					"pipeline_compilations": [
+						0,
+						0,
+						1,
+						1,
+						1
+					],
+					"render_cpu_ms": 1.432000041008,
+					"shots": 77,
+					"simulation_seconds": 0.433333333333332,
+					"wall_ms": 652.315
+				}
+			],
+			"visible_end": 200,
+			"visible_start": 200,
+			"wall_seconds": 7.082606
+		}
+	],
+	"raster": [
+		1280,
+		720
+	],
+	"release": true,
+	"samples": 240,
+	"scope": "Real live combat and damage presentation; no fixed-fps, paused simulation, or disabled effects.",
+	"status": "diagnostic"
+}

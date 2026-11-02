@@ -62,6 +62,8 @@ func disabled_reason(player) -> String:
 	var cost = cost_for(player)
 	if not player.has_resources(cost):
 		return tr("Requires %d Materials and %d Electronics.") % [cost.resource_a, cost.resource_b]
+	if player.logistics < 25.0:
+		return "Requires 25 Logistics."
 	if power_for(player) == "airdrop" and player.population(true) + 2 > Catalog.POPULATION_LIMIT:
 		return "Requires two free population slots."
 	return ""
@@ -104,6 +106,9 @@ func target_error(player, point) -> String:
 
 
 func activate(player, point) -> bool:
+	var gate = load("res://source/match/network/NetworkGate.gd")
+	if gate.intercept(player, {"kind": "commander", "point": gate.Protocol.quantize(point)}):
+		return true
 	if (
 		get_tree().paused
 		or not disabled_reason(player).is_empty()
@@ -135,6 +140,7 @@ func activate(player, point) -> bool:
 	pending.append(record)
 	state(player).left = COOLDOWNS[kind]
 	player.subtract_resources(cost_for(player))
+	player.spend_logistics(25.0)
 	_announce(TITLES[kind], point)
 	return true
 
@@ -270,9 +276,7 @@ func _emp_impact(record):
 	for unit in game.battlefield.nearby_units(record.point, 8.0):
 		if not _hostile_ground(record.owner, unit) or unit.attack_range == null:
 			continue
-		unit.shields = 0.0
-		unit.last_shield_damage_time = game.simulation_time
-		unit.shields_changed.emit()
+		unit.shield_component.drain(unit.shields_max, game.simulation_time)
 		if (
 			not Catalog.is_infantry(unit.type)
 			and (unit.movement_speed > 0 or unit.type in ["AntiGroundTurret", "AntiAirTurret"])

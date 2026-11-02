@@ -1,3 +1,4 @@
+# gdlint: disable=max-public-methods
 extends Area3D
 
 signal selected
@@ -18,6 +19,7 @@ const SignatureState = preload("res://source/match/combat/SignatureState.gd")
 const UnitAbilities = preload("res://source/match/units/traits/UnitAbilities.gd")
 const InfantrySuppression = preload("res://source/match/units/traits/InfantrySuppression.gd")
 const Bastion = preload("res://source/match/BastionCatalog.gd")
+const ShieldComponent = preload("res://source/match/units/traits/ShieldComponent.gd")
 
 var experience = 0.0:
 	set(value):
@@ -55,9 +57,29 @@ var base_hp_max = null
 var hp_max = null:
 	set = _set_hp_max
 var last_enemy_damage_time = -INF
-var shields: float = 0.0
-var shields_max: float = 0.0
-var last_shield_damage_time: float = -INF
+var shield_component = ShieldComponent.new()
+# Keep the public unit/save/HUD interface while the trait owns shield state.
+var shields: float:
+	get:
+		return shield_component.charge
+	set(value):
+		shield_component.charge = value
+var shields_max: float:
+	get:
+		return shield_component.capacity
+	set(value):
+		shield_component.capacity = value
+var last_shield_damage_time: float:
+	get:
+		return shield_component.last_damage_time
+	set(value):
+		shield_component.last_damage_time = value
+var battlefield_salvage = null
+var garrison_mount = null
+var optical_cloak = null
+var occupants:
+	get:
+		return garrison_mount.occupants if garrison_mount != null else []
 var scrap_hardened_tiers: int = 0:
 	set(value):
 		scrap_hardened_tiers = value
@@ -194,6 +216,7 @@ func _exit_tree():
 
 
 func _ready():
+	shield_component.changed.connect(func(): shields_changed.emit())
 	if _match != null and not _match.is_node_ready():
 		await _match.ready
 	if player != null:
@@ -203,6 +226,20 @@ func _ready():
 	_setup_default_properties_from_constants()
 	load("res://source/match/FactionCatalog.gd").apply_stats(self)
 	base_hp_max = hp_max
+	var salvage_trait = load("res://source/match/units/traits/BattlefieldSalvage.gd")
+	if salvage_trait.eligible(self):
+		battlefield_salvage = salvage_trait.new(self)
+		battlefield_salvage.name = "BattlefieldSalvage"
+		add_child(battlefield_salvage)
+	var mount_trait = load("res://source/match/units/traits/GarrisonMount.gd")
+	if mount_trait.eligible(self):
+		garrison_mount = mount_trait.new()
+		garrison_mount.name = "GarrisonMount"
+		add_child(garrison_mount)
+	if player.faction == "helix" and type == "SniperInfantry":
+		optical_cloak = load("res://source/match/units/traits/OpticalCloak.gd").new()
+		optical_cloak.name = "OpticalCloak"
+		add_child(optical_cloak)
 	# Completed armor research scales the final base stats, so apply it last.
 	if player != null and player.technology != null:
 		player.technology.apply_unit(self)
@@ -256,39 +293,28 @@ func update_shields():
 	var maximum = load("res://source/match/research/TechnologyCatalog.gd").shield_capacity(
 		type, player.faction, player.technology.completed
 	)
-	if is_equal_approx(maximum, shields_max):
-		return
-	# Research equips a full shield once. Other upgrades must not refill it.
-	shields = maximum if shields_max == 0.0 else minf(shields, maximum)
-	shields_max = maximum
-	shields_changed.emit()
+	shield_component.recharge_delay = (
+		3.0
+		if player.faction == "helix" and "plasma_shields" in player.technology.completed
+		else 5.0
+	)
+	shield_component.set_capacity(maximum)
 
 
 func _physics_process(delta):
 	regarrison_lock_left = maxf(0.0, regarrison_lock_left - delta)
-	if scrap_hardened_left > 0.0:
-		scrap_hardened_left = maxf(0.0, scrap_hardened_left - delta)
-		if scrap_hardened_left == 0.0:
-			scrap_hardened_tiers = 0
+	if battlefield_salvage != null:
+		battlefield_salvage.tick(delta)
 	if _match == null or hp == null or hp <= 0 or shields_max <= 0 or shields >= shields_max:
 		return
-	if _match.simulation_time - last_shield_damage_time >= 5.0:
-		shields = minf(
-			shields_max,
-			(
-				shields
-				+ (
-					6.0
-					* delta
-					* (
-						_match.helix_support.shield_factor(self)
-						if "helix_support" in _match and _match.helix_support != null
-						else 1.0
-					)
-				)
-			)
-		)
-		shields_changed.emit()
+	if _match.simulation_time - shield_component.last_damage_time < shield_component.recharge_delay:
+		return
+	var factor = (
+		_match.helix_support.shield_factor(self)
+		if "helix_support" in _match and _match.helix_support != null
+		else 1.0
+	)
+	shield_component.tick(delta, _match.simulation_time, factor)
 
 
 func receive_weapon_hit(source):
@@ -313,22 +339,22 @@ func receive_shot(shot, point = null, share = 1.0, presentation_weapon = {}):
 
 func receive_damage(source, amount, point = null, presentation_weapon = {}):
 	if amount > 0 and hp > 0:
-		amount *= 1.0 - 0.05 * clampi(permanent_scrap_rank, 0, 2)
+		amount *= battlefield_salvage.damage_factor() if battlefield_salvage != null else 1.0
 		if suppression != null:
 			amount *= suppression.direct_damage_factor(presentation_weapon)
 		last_enemy_damage_time = _match.simulation_time
 		var impact_point = point if point != null else global_position + Vector3.UP * 0.5
-		if shields_max > 0:
-			# Hull hits also delay recharge while the shield is depleted.
-			last_shield_damage_time = _match.simulation_time
-		if shields > 0:
-			var absorbed = minf(amount, shields)
-			shields -= absorbed
-			amount -= absorbed
-			shields_changed.emit()
-			if absorbed > 0 and _match.combat_effects != null:
+		var before_shield = amount
+		if presentation_weapon.get("shield_pierce", false):
+			shield_component.last_damage_time = _match.simulation_time
+		else:
+			amount = shield_component.absorb(amount, _match.simulation_time)
+		if amount < before_shield:
+			if _match.combat_effects != null:
 				_match.combat_effects.shield_impact(self, impact_point)
 			if amount == 0:
+				if _match.combat_audio != null:
+					_match.combat_audio.impact(self, source, impact_point, presentation_weapon)
 				# Damage-sensitive actions still react when the hull is protected.
 				MatchSignals.unit_damaged.emit(self)
 		var actual_damage = minf(amount, hp)
@@ -377,27 +403,32 @@ func effective_sight_range(target_point = null):
 
 
 func can_scavenge() -> bool:
-	return (
-		player != null
-		and player.faction == "frontier"
-		and type in ["Tank", "AntiAirVehicle", "AdvancedTank"]
-		and hp != null
-		and hp > 0
-		and not is_queued_for_deletion()
-	)
+	return battlefield_salvage != null and battlefield_salvage.can_scavenge()
 
 
 func scavenge(wreck) -> bool:
-	if not can_scavenge() or not is_instance_valid(wreck) or not wreck.has_method("consume_by"):
-		return false
-	if not wreck.consume_by(self):
-		return false
-	hp = minf(hp_max, hp + hp_max * 0.35)
-	permanent_scrap_rank = mini(2, permanent_scrap_rank + 1)
-	scrap_hardened_tiers = mini(2, scrap_hardened_tiers + 1)
-	scrap_hardened_left = 60.0
-	action_updated.emit()
-	return true
+	return battlefield_salvage != null and battlefield_salvage.scavenge(wreck)
+
+
+func can_garrison(unit) -> bool:
+	return garrison_mount != null and garrison_mount.can_garrison(unit)
+
+
+func garrison_capacity() -> int:
+	return garrison_mount.CAPACITY if garrison_mount != null else 0
+
+
+func enter(unit, saved_slot = -1) -> bool:
+	return garrison_mount != null and garrison_mount.enter(unit, saved_slot)
+
+
+func leave(unit):
+	if garrison_mount != null:
+		garrison_mount.leave(unit)
+
+
+func firing_origin(target_point) -> Vector3:
+	return garrison_mount.firing_origin(target_point) if garrison_mount != null else global_position
 
 
 # Loaded at runtime: preloading combat rules here compiles autoload-dependent
@@ -411,6 +442,10 @@ func weapon_delay():
 
 
 func is_revealing():
+	if has_meta("garrison_host"):
+		var host = get_meta("garrison_host")
+		if is_instance_valid(host) and "garrison_mount" in host and host.garrison_mount != null:
+			return host.is_revealing()
 	return is_in_group("revealed_units") and visible
 
 
@@ -463,17 +498,23 @@ func _get_movement_speed() -> float:
 	else:
 		var navigation_trait = _get_navigation_trait()
 		base_speed = navigation_trait.speed if navigation_trait is NavigationAgent3D else 0.0
-	if (
-		base_speed > 0.0
-		and player != null
-		and "technology" in player
-		and player.technology != null
-		and "high_octane" in player.technology.completed
-		and player.faction == "frontier"
-		and not Bastion.is_infantry(type)
-	):
-		base_speed *= 1.15
 	return base_speed
+
+
+func movement_technology_factor() -> float:
+	var owner_player = player
+	if owner_player == null or owner_player.technology == null:
+		return 1.0
+	var completed = owner_player.technology.completed
+	if completed.is_empty() or Bastion.is_infantry(type) or Bastion.is_aircraft(type):
+		return 1.0
+	if owner_player.faction == "frontier" and "high_octane" in completed:
+		return 1.18
+	if owner_player.faction == "helix" and "phase_thrusters" in completed:
+		return 1.15
+	if owner_player.faction == "bastion" and type == "Tank" and "iron_blitz" in completed:
+		return 1.2
+	return 1.0
 
 
 func _is_movable():
@@ -585,12 +626,19 @@ func _on_action_node_tree_exited(action_node):
 
 
 func issue_manual_order(order):
+	if load("res://source/match/network/NetworkGate.gd").intercept_action(self, order):
+		return
 	if manual_orders != null:
 		manual_orders.cancel()
 	action = order
 
 
 func _set_stance(new_stance):
+	var gate = load("res://source/match/network/NetworkGate.gd")
+	if gate.intercept(
+		self, {"kind": "stance", "units": [gate.id_for(self)], "value": int(new_stance)}
+	):
+		return
 	if stance != new_stance:
 		stance = new_stance
 		stance_changed.emit(stance)

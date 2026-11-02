@@ -33,11 +33,14 @@ const ROADS = [
 	Vector4(98, 46, 92, 46)
 ]
 var relays = []
+var points_of_interest = []
 var exterior
 
 
 func overview():
 	return {
+		"points_of_interest":
+		load("res://source/match/world/PointOfInterestCatalog.gd").definitions(scene_file_path),
 		"ridges": RIDGES,
 		"radius": RIDGE_RADIUS,
 		"fields": FIELDS,

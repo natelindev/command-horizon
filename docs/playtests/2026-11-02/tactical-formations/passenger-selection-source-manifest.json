@@ -1,0 +1,77 @@
+{
+  "description": "Headless mounted-passenger control-group selection follow-up; no graphical or performance qualification",
+  "source_sha256": {
+    "source/match/units/traits/Selection.gd": "a0315e995932629f2e858ac74b5495f94e2f3162c7180552053f67d74c639711",
+    "source/match/network/AuthoritativeReplica.gd": "a6db63acd8e1218f77cd2b00384cc98c0a2dd344ccf91284f3e9c0b6bd9cad36",
+    "source/match/handlers/UnitGroupSelectionHandler.gd": "34e9a2f839b9ba4bf09a38bca138734c02a21955e56d6c98ce9083c4af3d61b0",
+    "tests/headless/PassengerHudRegression.gd": "a9bed05cd26f6275d9c2adc31cc5a6ba1ca8a23bc46e87f08ea3815d27f6538a"
+  },
+  "native_binary_unchanged_sha256": "b4ad2c825feeb8347267c4ec4b802e5ec2921d8e4c6c69c3507b26f852cadc27",
+  "tests": {
+    "passenger-selection-before.log": {
+      "flags": [],
+      "exit_code": 1,
+      "failures": 5
+    },
+    "passenger-selection-native.log": {
+      "flags": [
+        "--enable-native-kernels",
+        "--native-unit-state",
+        "--native-crowd-runtime",
+        "--native-visibility-runtime",
+        "--native-combat-queries"
+      ],
+      "exit_code": 0
+    },
+    "passenger-selection-fallback.log": {
+      "flags": [],
+      "exit_code": 0
+    },
+    "passenger-selection-micro-native.log": {
+      "flags": [
+        "--enable-native-kernels",
+        "--native-unit-state",
+        "--native-crowd-runtime"
+      ],
+      "exit_code": 0
+    },
+    "passenger-selection-micro-fallback.log": {
+      "flags": [],
+      "exit_code": 0
+    },
+    "passenger-selection-bunker-native.log": {
+      "flags": [
+        "--enable-native-kernels",
+        "--native-unit-state",
+        "--native-crowd-runtime"
+      ],
+      "exit_code": 0
+    },
+    "passenger-selection-replica-before.log": {
+      "flags": [],
+      "exit_code": 1,
+      "failures": 4
+    },
+    "passenger-selection-select-all-before.log": {
+      "flags": [],
+      "exit_code": 1,
+      "failures": 2,
+      "script_error": "Invalid call. Nonexistent function empty in base Array[Node] at MatchUtils.gd:35"
+    }
+  },
+  "static_checks": {
+    "gdformat": "4 files unchanged",
+    "gdlint_clean": [
+      "source/match/units/traits/Selection.gd",
+      "source/match/network/AuthoritativeReplica.gd",
+      "tests/headless/PassengerHudRegression.gd"
+    ],
+    "gdlint_existing_finding": {
+      "file": "source/match/handlers/UnitGroupSelectionHandler.gd",
+      "line": 69,
+      "function": "_input",
+      "rule": "max-returns",
+      "note": "This function was not changed by the one-line Set caller correction."
+    }
+  }
+}

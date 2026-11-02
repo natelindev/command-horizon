@@ -1,6 +1,11 @@
 extends RefCounted
 
 const Cache = preload("res://source/utils/RuntimeCache.gd")
+const ROSTERS = {
+	"bastion": preload("res://source/match/factions/bastion.tres"),
+	"helix": preload("res://source/match/factions/helix.tres"),
+	"frontier": preload("res://source/match/factions/frontier.tres")
+}
 const Mercenaries = preload("res://source/match/world/MercenaryCatalog.gd")
 const Bastion = preload("res://source/match/BastionCatalog.gd")
 const Frontier = preload("res://source/match/FrontierCatalog.gd")
@@ -17,13 +22,13 @@ const HELIX_MODELS = {
 	"Infantry": "VectorOperator",
 	"Tank": "NeedleSkimmer",
 	"RepairRobot": "MenderRobot",
-	"CombatRobot": "LancerWalker",
-	"AdvancedTank": "PrismArtillery",
+	"CombatRobot": "PhaseLancer",
+	"AdvancedTank": "PrismSkimmer",
 	"Drone": "KiteScout",
 	"Helicopter": "WraithTiltrotor",
 	"Fighter": "TalonInterceptor",
 	"Bomber": "ShrikeBomber",
-	"AntiAirVehicle": "HaloSkimmer",
+	"AntiAirVehicle": "SkywardInterceptor",
 	"CommandCenter": "NexusHQ",
 	"Barracks": "OperatorHub",
 	"VehicleFactory": "RoboticsFoundry",
@@ -35,20 +40,20 @@ const HELIX_MODELS = {
 	"AntiAirTurret": "SkywardArray",
 }
 const HELIX_NAMES = {
-	"Worker": "Mule engineer",
+	"Worker": "Flux Skimmer",
 	"Infantry": "Vector operator",
 	"AssaultInfantry": "Arc shocktrooper",
 	"RocketInfantry": "Ion specialist",
 	"SniperInfantry": "Phase infiltrator",
 	"Tank": "Needle skimmer",
 	"RepairRobot": "Mender robot",
-	"CombatRobot": "Lancer walker",
-	"AdvancedTank": "Prism artillery",
+	"CombatRobot": "Phase Lancer",
+	"AdvancedTank": "Prism Skimmer",
 	"Drone": "Kite drone",
 	"Helicopter": "Wraith gunship",
 	"Fighter": "Talon interceptor",
 	"Bomber": "Shrike bomber",
-	"AntiAirVehicle": "Halo AA skimmer",
+	"AntiAirVehicle": "Skyward Interceptor",
 	"CommandCenter": "Nexus HQ",
 	"Barracks": "Operator hub",
 	"VehicleFactory": "Robotics foundry",
@@ -56,12 +61,16 @@ const HELIX_NAMES = {
 	"PowerPlant": "Flux generator",
 	"CommandLab": "Signal lab",
 	"RepairDepot": "Service cradle",
-	"AntiGroundTurret": "Lance sentry",
+	"AntiGroundTurret": "Prism emitter pylon",
 	"AntiAirTurret": "Skyward array",
 }
 const HELIX_DESCRIPTIONS = {
 	"Worker":
-	"Unarmed engineer: harvest materials and electronics, deliver to HQ and construct your base.",
+	(
+		"Unarmed Flux Skimmer: hover across rough ground and gather electronics 25% faster. "
+		+ "Reach a foundation to deploy a nanite beacon, then return to gathering "
+		+ "while the building assembles itself."
+	),
 	"Infantry":
 	(
 		"Fast cybernetic operator with rapid plasma carbine. High mobility makes it "
@@ -79,8 +88,8 @@ const HELIX_DESCRIPTIONS = {
 	),
 	"SniperInfantry":
 	(
-		"Long-range cybernetic marksman equipped with thermal optics and an instant "
-		+ "thermal beam rifle."
+		"Long-range thermal beam infiltrator. Stationary and not firing for 3 s enables "
+		+ "optic camouflage; nearby enemies within 3 m and target flares reveal it."
 	),
 	"Tank":
 	(
@@ -89,14 +98,15 @@ const HELIX_DESCRIPTIONS = {
 	),
 	"CombatRobot":
 	(
-		"Precision: 12 m anti-armor lance, 0.75 s charge; weak against infantry. "
-		+ "Interception: full air damage, 33% ground damage (100% with Dual-purpose AA). "
+		"Phase Shift teleports 8 m in a chosen direction every 15 seconds. "
+		+ "Precision: 12 m anti-armor lance, 0.75 s charge; weak against infantry. "
+		+ "Interception: full air damage, 33% ground damage. "
 		+ "Switching disables fire for 2 s."
 	),
 	"AdvancedTank":
 	(
-		"14 m ground-only precision fire. Deploys while stationary for 1.5 s; each shot "
-		+ "charges for 0.75 s. Moving retracts supports."
+		"Mobile coherent beam skimmer. Its continuous laser refracts through up to two "
+		+ "adjacent enemies; nearby allied prisms link to amplify focused damage."
 	),
 	"Drone":
 	(
@@ -108,7 +118,7 @@ const HELIX_DESCRIPTIONS = {
 		"Attack helicopter. Rockets against ground forces while hovering in place; reloads on "
 		+ "cooldown in the field. Vulnerable to rocket infantry and anti-air."
 	),
-	"CommandCenter": "Produces Mule engineers, receives harvested resources and supplies 8 power.",
+	"CommandCenter": "Produces Flux Skimmers, receives harvested resources and supplies 8 power.",
 	"Barracks":
 	(
 		"Trains four infantry classes and a unique hero. Two infantry recovery "
@@ -117,12 +127,13 @@ const HELIX_DESCRIPTIONS = {
 	"CommandLab":
 	(
 		"With a robotics foundry, unlocks Lancers and Wraiths. Research "
-		+ "Coordination for Prism artillery. Uses 5 power."
+		+ "Coordination for Prism Skimmers. Uses 5 power."
 	),
 }
 const UNIT_COSTS = Rules.UNIT_COSTS
 const HELIX_COSTS = Rules.HELIX_COSTS
 const BUILD_COSTS = {
+	"ForwardRefinery": [35, 10],
 	"CommandCenter": [80, 20],
 	"Barracks": [20, 0],
 	"VehicleFactory": [45, 12],
@@ -136,6 +147,7 @@ const BUILD_COSTS = {
 # Seconds at full power. Keep early reinforcements responsive while preserving
 # the extra commitment for heavy units, heroes and additional technology.
 const BUILD_TIMES = {
+	"ForwardRefinery": 18.0,
 	"CommandCenter": 35.0,
 	"Barracks": 14.0,
 	"VehicleFactory": 24.0,
@@ -145,6 +157,16 @@ const BUILD_TIMES = {
 	"RepairDepot": 18.0,
 	"AntiGroundTurret": 14.0,
 	"AntiAirTurret": 16.0,
+}
+const FRONTIER_BUILD_COSTS = {
+	"CommandCenter": [65, 15],
+	"Barracks": [16, 0],
+	"VehicleFactory": [35, 8],
+	"PowerPlant": [12, 0],
+	"CommandLab": [38, 20],
+	"RepairDepot": [20, 6],
+	"AntiGroundTurret": [16, 5],
+	"AntiAirTurret": [16, 8],
 }
 const UNIT_TIMES = {
 	"Hero": 30.0,
@@ -176,23 +198,25 @@ const UNIT_REQUIRES = {
 const TECH_SUMMARY = {
 	"bastion":
 	(
-		"Repair depots unlock Sentinels; Coordination unlocks siege armor. "
-		+ "Anchor sectors reward holding ground."
+		"Structures have 25% more health and resist 15% of ballistic gun and rocket damage. "
+		+ "Repair depots maintain nearby armor within 5 m for free. Depots unlock Sentinels; "
+		+ "Coordination unlocks siege armor. Anchor sectors reward holding ground."
 	),
 	"helix":
 	(
 		"Build a flight deck after an operator hub. Signal labs unlock "
-		+ "mode-switching Lancers and Wraiths; Coordination unlocks deploying "
-		+ "Prisms."
+		+ "Phase Lancers and Wraiths; Coordination unlocks mobile "
+		+ "Prism Skimmers."
 	),
 	"frontier":
 	(
-		"Motor pools unlock Jackals; field workshops unlock Ironbacks without "
+		"Motor pools unlock demolition buggies; field workshops unlock Battle Rigs without "
 		+ "Coordination. Scrapper rigs recover tank wrecks; Maneuver Burst "
 		+ "enables fast raids."
 	),
 }
 const BUILD_REQUIRES = {
+	"ForwardRefinery": "",
 	"VehicleFactory": "Barracks",
 	"AircraftFactory": "VehicleFactory",
 	"CommandLab": "VehicleFactory",
@@ -200,6 +224,55 @@ const BUILD_REQUIRES = {
 	"AntiGroundTurret": "Barracks",
 	"AntiAirTurret": "VehicleFactory",
 }
+
+
+static func roster(faction: String):
+	return ROSTERS.get(faction, ROSTERS.bastion)
+
+
+static func scene_path(faction: String, role: String) -> String:
+	return roster(faction).scene_for(role)
+
+
+static func batch_size(faction: String, role: String) -> int:
+	return roster(faction).batch_size(role)
+
+
+static func production_options(faction: String, producer_role: String) -> Array:
+	return (
+		roster(faction)
+		. production
+		. get(producer_role, Bastion.PRODUCES.get(producer_role, []))
+		. duplicate()
+	)
+
+
+static func base_health(faction: String, role: String) -> float:
+	var authored = roster(faction).statistics.get(role, {})
+	if authored.has("hp_max"):
+		return authored.hp_max
+	var properties = load("res://source/match/MatchConstants.gd").Units.DEFAULT_PROPERTIES
+	var base = properties.get(Bastion.scene_path(role), {}).get("hp_max", 0.0)
+	if role in Bastion.STRUCTURES:
+		return roundf(base * 1.25) if faction == "bastion" else base
+	return roundf(base * health_factor(faction, role))
+
+
+static func production_cost(player, role: String) -> Dictionary:
+	var price = cost(player, role).duplicate()
+	var count = batch_size(player.faction, role) if player.get_meta("skirmish", false) else 1
+	price.resource_a *= count
+	price.resource_b *= count
+	return price
+
+
+static func power_usage(faction: String, role: String) -> int:
+	var demand = Bastion.POWER_USAGE.get(role, 0)
+	return maxi(1, ceili(demand * 0.5)) if faction == "frontier" and demand > 0 else demand
+
+
+static func power_supply(_faction: String, role: String) -> int:
+	return Bastion.POWER_SUPPLY.get(role, 0)
 
 
 static func title(faction, role):
@@ -273,6 +346,22 @@ static func portrait(faction, role) -> Texture2D:
 
 
 static func description(faction, role):
+	var text = _description(faction, role)
+	if faction == "bastion" and role in Bastion.STRUCTURES:
+		return (
+			TranslationServer.translate(text)
+			+ "\n"
+			+ (
+				TranslationServer
+				. translate(
+					"Bastion bulkheads: +25% structure health and 15% less damage from ballistic guns and rockets. Energy weapons ignore this protection."
+				)
+			)
+		)
+	return text
+
+
+static func _description(faction, role):
 	if role in Mercenaries.ROLES:
 		return Mercenaries.UNITS[role].description
 	if role == "Hero":
@@ -295,6 +384,11 @@ static func description(faction, role):
 		}[faction]
 	if faction == "frontier" and Frontier.DESCRIPTIONS.has(role):
 		return Frontier.DESCRIPTIONS[role]
+	if faction == "bastion" and role == "RepairDepot":
+		return (
+			"Automatically repairs one adjacent ground vehicle within 5 m at no resource cost. "
+			+ "Extra service slot with Siege Logistics. Repairs do not stack. Uses 3 power."
+		)
 	if faction == "bastion" and role == "CommandLab":
 		return (
 			"Unlocks heroes. Research Coordination for siege tanks "
@@ -302,7 +396,7 @@ static func description(faction, role):
 		)
 	if role == "RepairRobot":
 		return (
-			"Repairs one mechanical ground ally or completed building at a time. "
+			"Repairs one mechanical ground ally or completed building at a time, at no resource cost. "
 			+ "3 m reach, measured from a building's edge."
 		)
 	if faction == "helix" and HELIX_DESCRIPTIONS.has(role):
@@ -321,8 +415,20 @@ static func cost(player, role, building = false):
 			else Constants.Match.Units.PRODUCTION_COSTS
 		)
 		return values[Bastion.scene_path(role)]
-	var values = BUILD_COSTS if building else Rules.unit_costs(player.faction)
+	var values = (
+		(
+			FRONTIER_BUILD_COSTS
+			if player.faction == "frontier" and FRONTIER_BUILD_COSTS.has(role)
+			else BUILD_COSTS
+		)
+		if building
+		else Rules.unit_costs(player.faction)
+	)
 	return {"resource_a": values[role][0], "resource_b": values[role][1]}
+
+
+static func air_contract_roles(faction: String) -> Array:
+	return ["Helicopter", "Fighter", "Bomber"] if faction == "frontier" else []
 
 
 static func duration(player, role):
@@ -385,6 +491,10 @@ static func hero_reserved(player, ignore_job = null):
 
 
 static func available(player, role, building = false, ignore_job = null):
+	if not roster(player.faction).allows(role, building):
+		return false
+	if role == "ForwardRefinery" and player.faction != "bastion":
+		return false
 	if role == "Hero" and hero_reserved(player, ignore_job):
 		return false
 	if (
@@ -402,6 +512,23 @@ static func available(player, role, building = false, ignore_job = null):
 
 static func prepare_model(unit, faction):
 	var geometry = unit.get_node("Geometry")
+	if faction == "bastion" and unit.type in ["AdvancedTank", "CombatRobot", "AntiAirVehicle"]:
+		var model_id = {
+			"AdvancedTank": "SiegeColossus",
+			"CombatRobot": "BulwarkWalker",
+			"AntiAirVehicle": "FlakHalftrack"
+		}[unit.type]
+		for child in geometry.get_children():
+			child.free()
+		var model = load("res://assets/models/bastion/demo/%s.glb" % model_id).instantiate()
+		var bounds = _bounds(model, Transform3D.IDENTITY)
+		var factor = unit.radius * 1.85 / maxf(bounds.size.x, bounds.size.z)
+		model.scale = Vector3.ONE * factor
+		model.position = (
+			-Vector3(bounds.get_center().x, bounds.position.y, bounds.get_center().z) * factor
+		)
+		geometry.add_child(model)
+		unit.set_meta("model_faction", faction)
 	if unit.type == "AircraftFactory":
 		# The runway airfield is composed for its faction, not swapped and rescaled.
 		for child in geometry.get_children():
@@ -458,7 +585,7 @@ static func model_geometry(faction, role, radius):
 	elif Bastion.is_aircraft(role):
 		factor *= 1.35
 	if faction == "frontier" and role == "AdvancedTank":
-		factor *= 1.2  # Long cannon overhang must not shrink the refurbished heavy hull.
+		factor *= 1.1
 	model.scale = Vector3.ONE * factor
 	model.position = (
 		-Vector3(bounds.get_center().x, bounds.position.y, bounds.get_center().z) * factor
@@ -527,7 +654,7 @@ static func apply_stats(unit):
 			unit.attack_interval = 2.0
 			unit.sight_range = 14.5
 	if unit.player.faction == "helix" and unit.movement_speed > 0:
-		unit.hp_max = roundi(unit.hp_max * 0.8)
+		unit.hp_max = roundi(unit.hp_max * health_factor("helix", unit.type))
 		unit.hp = unit.hp_max
 		unit.get_node("Movement").speed *= 1.2
 		if unit.type in ["Drone", "Tank"]:
@@ -569,3 +696,16 @@ static func apply_stats(unit):
 				unit.attack_range = 10.0
 	if unit.type == "CombatRobot":
 		unit.configure_weapon()
+	# Authored absolute statistics replace mirrored multiplier identities for
+	# signature roles; canonical role IDs remain stable for orders and saves.
+	var authored = roster(unit.player.faction).statistics.get(unit.type, {})
+	for property in authored:
+		if property == "speed":
+			unit.get_node("Movement").speed = authored[property]
+		else:
+			unit.set(property, authored[property])
+	if authored.has("hp_max"):
+		unit.hp = unit.hp_max
+	if unit.player.faction == "bastion" and unit.movement_speed == 0 and unit.hp_max != null:
+		unit.hp_max = roundi(unit.hp_max * 1.25)
+		unit.hp = unit.hp_max

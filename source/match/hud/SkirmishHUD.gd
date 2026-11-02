@@ -455,6 +455,8 @@ func pause_after_load():
 
 
 func _toggle_pause():
+	if load("res://source/match/network/NetworkGate.gd").intercept(get_parent(), {"kind": "pause", "value": not get_tree().paused}):
+		return
 	if _overlay != null or get_parent().finished:
 		return
 	super()
@@ -498,17 +500,22 @@ func _make_overlay(title_text, cinematic = false):
 
 
 func _open_menu():
+	var network = load("res://source/match/network/NetworkGate.gd").session_for(get_parent())
 	if _overlay != null or get_parent().finished:
 		return
 	_menu_was_paused = get_tree().paused
-	get_tree().paused = true
-	var box = _make_overlay("Battle paused", true)
+	if network == null:
+		get_tree().paused = true
+	elif network.authority:
+		network.submit({"kind": "pause", "value": true})
+	var box = _make_overlay("Battle paused" if get_tree().paused else "Network battle", true)
 	var resume = _button(box, "Resume battle", _close_menu)
 	resume.theme_type_variation = "BattlePrimaryButton"
 	resume.grab_focus()
 	_button(box, "Save / Load battle", func(): get_node("/root/SaveManager").open_dialog("save"))
 	_button(box, "Settings", func(): Globals.open_settings())
-	_button(box, "Restart match", func(): get_parent().restart())
+	var restart = _button(box, "Restart match", func(): get_parent().restart())
+	restart.disabled = network != null
 	_button(box, _setup_title(), _back_to_setup)
 	_button(box, "Main menu", _back_to_menu)
 	for child in box.get_children():
@@ -527,7 +534,11 @@ func _close_menu():
 		return
 	_overlay.queue_free()
 	_overlay = null
-	get_tree().paused = _menu_was_paused
+	var network = load("res://source/match/network/NetworkGate.gd").session_for(get_parent())
+	if network == null:
+		get_tree().paused = _menu_was_paused
+	elif network.authority:
+		network.submit({"kind": "pause", "value": _menu_was_paused})
 
 
 func show_result(result):
@@ -535,14 +546,31 @@ func show_result(result):
 
 
 func _back_to_setup():
+	var network = load("res://source/match/network/NetworkGate.gd").session_for(get_parent())
+	if network != null:
+		var destination = "res://source/main-menu/Replays.tscn" if network.has_method("seek") else "res://source/main-menu/Multiplayer.tscn"
+		network.shutdown()
+		network.queue_free()
+		get_tree().paused = false
+		get_tree().change_scene_to_file(destination)
+		return
 	get_tree().paused = false
-	get_tree().change_scene_to_file(
-		(
-			"res://source/main-menu/Campaign.tscn"
-			if _is_campaign()
-			else "res://source/main-menu/Play.tscn"
-		)
-	)
+	if _is_campaign():
+		var game = get_parent()
+		var state = load("res://source/match/campaign/CampaignHubState.gd").new()
+		var path = state.path_for(game)
+		if state.read_state(path):
+			state.faction = game._get_human_player().faction
+			state.save_state(path)
+		var hub = load("res://source/main-menu/CampaignHub.tscn").instantiate()
+		hub.hub_state_path = path
+		if "progress_path" in game:
+			hub.progress_path = game.progress_path
+		get_tree().root.add_child(hub)
+		get_tree().current_scene = hub
+		game.queue_free()
+	else:
+		get_tree().change_scene_to_file("res://source/main-menu/Play.tscn")
 
 
 func _is_campaign():
@@ -550,7 +578,7 @@ func _is_campaign():
 
 
 func _setup_title():
-	return "Campaign" if _is_campaign() else "Skirmish setup"
+	return "Command hub" if _is_campaign() else "Skirmish setup"
 
 
 func _match_label():
@@ -560,6 +588,10 @@ func _match_label():
 
 
 func _back_to_menu():
+	var network = load("res://source/match/network/NetworkGate.gd").session_for(get_parent())
+	if network != null:
+		network.shutdown()
+		network.queue_free()
 	get_tree().paused = false
 	get_tree().change_scene_to_file("res://source/main-menu/Main.tscn")
 
@@ -693,7 +725,9 @@ func open_relays():
 		. _cancel_structure_placement()
 	)
 	_menu_was_paused = get_tree().paused
-	get_tree().paused = true
+	var network = load("res://source/match/network/NetworkGate.gd").session_for(get_parent())
+	if network == null:
+		get_tree().paused = true
 	var box = _make_overlay("Relay objectives")
 	_button(box, "Back to battle", _close_menu).grab_focus()
 	var overview = load("res://source/match/hud/RelayOverview.gd").new()
@@ -727,7 +761,9 @@ func open_sites(site = null):
 		. _cancel_structure_placement()
 	)
 	_menu_was_paused = get_tree().paused
-	get_tree().paused = true
+	var network = load("res://source/match/network/NetworkGate.gd").session_for(get_parent())
+	if network == null:
+		get_tree().paused = true
 	var box = _make_overlay("Capturable facilities")
 	_button(box, "Back to battle", _close_menu).grab_focus()
 	var overview = load("res://source/match/hud/PointOfInterestOverview.gd").new()

@@ -5,21 +5,36 @@ const ResearchButton = preload("res://source/match/hud/ResearchButton.gd")
 const WEAPONS_ICON = preload("res://assets/ui/research/weapons.svg")
 const ARMOR_ICON = preload("res://assets/ui/research/armor.svg")
 const SERVICE_ICON = preload("res://assets/ui/research/service.svg")
+const DOCTRINE_ICON = preload("res://assets/ui/research/doctrine.svg")
+const COORDINATION_ICON = preload("res://assets/ui/research/coordination.svg")
+const ATTACK_ICON = preload("res://assets/ui/hud/icons/attack.svg")
+const MOVE_ICON = preload("res://assets/ui/hud/icons/move.svg")
+const MATERIALS_ICON = preload("res://assets/ui/economy/materials.svg")
 const ICONS = {
 	"weapons": WEAPONS_ICON,
 	"armor": ARMOR_ICON,
 	"service": SERVICE_ICON,
-	"doctrine": preload("res://assets/ui/research/doctrine.svg"),
-	"coordination": preload("res://assets/ui/research/coordination.svg"),
+	"doctrine": DOCTRINE_ICON,
+	"coordination": COORDINATION_ICON,
 	"dual_purpose_aa": WEAPONS_ICON,
 	"plasma_shields": ARMOR_ICON,
-	"tank_stabilizers": preload("res://assets/ui/hud/icons/attack.svg"),
+	"tank_stabilizers": ATTACK_ICON,
 	"tandem_rockets": preload("res://assets/ui/infantry/RocketInfantry.svg"),
 	"reactive_armor": ARMOR_ICON,
 	"siege_logistics": SERVICE_ICON,
 	"flux_capacitors": WEAPONS_ICON,
-	"scrap_cannibalization": preload("res://assets/ui/economy/materials.svg"),
-	"high_octane": preload("res://assets/ui/hud/icons/move.svg"),
+	"scrap_cannibalization": MATERIALS_ICON,
+	"high_octane": MOVE_ICON,
+	"bunker_reinforcements": ARMOR_ICON,
+	"fortress_doctrine": DOCTRINE_ICON,
+	"iron_blitz": ATTACK_ICON,
+	"beam_amplification": WEAPONS_ICON,
+	"phase_thrusters": MOVE_ICON,
+	"phase_overload": DOCTRINE_ICON,
+	"continuous_coherence": COORDINATION_ICON,
+	"concealed_claymores": WEAPONS_ICON,
+	"guerrilla_insurgency": DOCTRINE_ICON,
+	"salvage_war_machine": MATERIALS_ICON,
 }
 var lab
 var player
@@ -57,10 +72,15 @@ func _ready():
 		var button = _tile(branch)
 		button.pressed.connect(_research_branch.bind(branch))
 		_branches[branch] = {"button": button}
+	var footer = HBoxContainer.new()
+	footer.name = "ResearchState"
+	footer.add_theme_constant_override("separation", 8)
+	add_child(footer)
 	var row = HBoxContainer.new()
 	row.name = "ActiveResearch"
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_theme_constant_override("separation", 12)
-	add_child(row)
+	footer.add_child(row)
 	var active_icon = TextureRect.new()
 	active_icon.name = "ActiveIcon"
 	active_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -92,7 +112,7 @@ func _ready():
 	_queue_list = HBoxContainer.new()
 	_queue_list.name = "ResearchQueue"
 	_queue_list.add_theme_constant_override("separation", 4)
-	add_child(_queue_list)
+	footer.add_child(_queue_list)
 	_queue_title = Label.new()
 	_queue_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_queue_title.add_theme_font_size_override("font_size", 13)
@@ -231,25 +251,30 @@ func _refresh_branch(branch):
 
 
 func _update_tile(button, branch, title, cost, description, seconds, reason, progress):
-	button.show_role(ICONS[branch], title, cost)
+	button.show_role(_icon_for(branch), title, cost)
 	button.disabled = progress.complete or reason != ""
 	var state = tr("Completed") if progress.complete else ""
 	if progress.queued:
 		state = tr("Queued")
 	if progress.active:
-		state = tr("%d s remaining") % ceili(progress.left / player.production_factor())
-	button.show_state(state)
+		state = tr("%d s remaining") % ceili(progress.left / player.research_factor())
+	# The marker and tooltip carry research state; a third text line would grow
+	# two choice rows plus a paid queue beyond the fixed console height.
+	button.show_state(state, true)
 	button.show_marker(
 		(
 			"✓"
 			if progress.complete
-			else "…" if progress.queued else str(ceili(progress.left)) if progress.active else ""
+			else "…" if progress.queued else str(ceili(progress.left / player.research_factor())) if progress.active else ""
 		)
 	)
-	var timing = tr("%d s research at current power.") % ceili(seconds / player.production_factor())
+	var timing = (
+		tr("%d s research at current power.") % ceili(seconds / player.research_factor())
+	)
 	if progress.active:
 		timing = (
-			tr("Researching · %d s remaining") % ceili(progress.left / player.production_factor())
+			tr("Researching · %d s remaining")
+			% ceili(progress.left / player.research_factor())
 		)
 		reason = ""
 	elif progress.complete:

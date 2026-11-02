@@ -7,6 +7,7 @@ signal ability_triggered(ability, target_point, target_unit)
 signal ability_changed(ability)
 
 const Players = preload("res://source/match/Players.gd")
+const Macro = preload("res://source/match/economy/MacroEconomy.gd")
 const Terrain = preload("res://source/match/maps/terrain/TerrainModel.gd")
 
 var abilities: Array = []
@@ -61,7 +62,7 @@ func setup(definitions: Array):
 	_by_id.clear()
 	for definition in definitions:
 		assert(not _by_id.has(definition.id), "Duplicate unit ability")
-		assert(definition.key in ["Q", "W", "E", "R"], "Invalid ability hotkey")
+		assert(definition.key in ["Q", "W", "E", "R", "T", "Y"], "Invalid ability hotkey")
 		assert(
 			definition.target_type in ["instant", "target_point", "target_unit", "toggle"],
 			"Invalid ability target type"
@@ -99,53 +100,100 @@ func availability_issue(id: String) -> String:
 		return "No selected unit has that ability ready."
 	if ability.cooldown_left > 0.0:
 		return "Ability is cooling down."
+	if id == "flux_resonance" and unit.energy < 25.0:
+		return "Requires 25 Energy."
 	if id in ["power_overdrive", "drone_chaff"]:
 		return unit._match.helix_support.ability_issue(unit, id)
 	if id == "scrap_mine" and not unit.player.has_completed_structure("CommandLab"):
 		return "Complete a Relay workshop to deploy mines."
 	if id == "field_barricade" and unit._match.engineering.cooldown_left(unit) > 0.0:
 		return "Barricade deployment is cooling down."
-	if (
-		id in ["field_barricade", "scrap_mine"]
-		and not unit.player.has_resources({"resource_a": 10 if id == "field_barricade" else 8})
-	):
-		return "Not enough Materials."
+	var kind = _engineering_kind(id)
+	if kind != "" and kind != "sweep":
+		if not unit.player.has_resources(
+			unit._match.engineering.deployment_cost(unit.player, kind)
+		):
+			return "Not enough Materials."
 	return ""
 
 
-func trigger(id: String, target_point: Vector3 = Vector3.INF, target_unit: Node = null) -> bool:
+func can_trigger(id: String, target_point: Vector3 = Vector3.INF, target_unit: Node = null) -> bool:
+	return not _target_for(id, target_point, target_unit).is_empty()
+
+
+func _target_for(id: String, point: Vector3, target: Node) -> Dictionary:
 	var ability = get_ability(id)
-	if ability == null or not ability.is_ready() or get_tree().paused:
-		return false
-	if ability.id == "dismantle_barrier":
-		if not unit._match.engineering.can_service(unit, target_unit):
-			return false
-		target_point = target_unit.global_position
-	elif ability.id == "frag_grenade":
-		if not _valid_breach(target_unit):
-			return false
-		var radial = (unit.global_position - target_unit.global_position) * Vector3(1, 0, 1)
-		target_point = target_unit.global_position + radial.normalized() * target_unit.radius
+	if (
+		ability == null
+		or not ability.is_ready()
+		or get_tree().paused
+		or not availability_issue(id).is_empty()
+	):
+		return {}
+	if id == "dismantle_barrier":
+		if not unit._match.engineering.can_service(unit, target):
+			return {}
+		point = target.global_position
+	elif id == "frag_grenade":
+		if not _valid_breach(target):
+			return {}
+		var radial = (unit.global_position - target.global_position) * Vector3(1, 0, 1)
+		point = target.global_position + radial.normalized() * target.radius
 	elif ability.target_type == "target_unit":
-		if target_unit != null:
-			if not _valid_enemy(target_unit):
-				return false
-			target_point = target_unit.global_position
+		if target != null:
+			var valid = (
+				Macro.valid_facility(unit.player, target)
+				if id == "flux_resonance"
+				else _valid_enemy(target)
+			)
+			if not valid:
+				return {}
+			point = target.global_position
 		elif not ability.accepts_target_point:
-			return false
+			return {}
 	if ability.target_type in ["target_unit", "target_point"]:
-		if not target_point.is_finite() or not _in_range(ability, target_point):
-			return false
-		if ability.id == "frag_grenade" and not _throw_clear(target_point, target_unit):
-			return false
+		if not point.is_finite() or not _in_range(ability, point):
+			return {}
+		if id == "frag_grenade" and not _throw_clear(point, target):
+			return {}
+		if id == "phase_shift":
+			var movement = unit.get_node_or_null("Movement")
+			if movement == null or not movement.phase_destination(point, 8.0).is_finite():
+				return {}
 	else:
-		target_point = unit.global_position
-	if not _execute(ability, target_point, target_unit):
+		point = unit.global_position
+	return {"point": point, "target": target}
+
+
+func trigger(id: String, target_point: Vector3 = Vector3.INF, target_unit: Node = null) -> bool:
+	var gate = load("res://source/match/network/NetworkGate.gd")
+	var intent = {"kind": "ability", "unit": gate.id_for(unit), "id": id}
+	if target_point.is_finite():
+		intent.point = gate.Protocol.quantize(target_point)
+	if is_instance_valid(target_unit):
+		intent.target = gate.id_for(target_unit)
+	if gate.intercept(unit, intent):
+		return true
+	var resolved = _target_for(id, target_point, target_unit)
+	if resolved.is_empty():
+		return false
+	var ability = get_ability(id)
+	if not _execute(ability, resolved.point, resolved.target):
 		return false
 	ability.cooldown_left = ability.cooldown
+	if unit.player.technology != null and "flux_capacitors" in unit.player.technology.completed:
+		ability.cooldown_left *= 0.6
+		if id == "grid_surge":
+			ability.cooldown_left = ability.duration + (ability.cooldown - ability.duration) * 0.6
+	if (
+		id == "phase_shift"
+		and unit.player.technology != null
+		and "phase_overload" in unit.player.technology.completed
+	):
+		ability.cooldown_left *= 0.5
 	_sync_smoke_group()
 	set_physics_process(true)
-	ability_triggered.emit(ability, target_point, target_unit)
+	ability_triggered.emit(ability, resolved.point, resolved.target)
 	ability_changed.emit(ability)
 	return true
 
@@ -171,7 +219,19 @@ func _valid_enemy(target) -> bool:
 
 
 func _execute(ability, point: Vector3, target: Node) -> bool:
+	var field_kind = _engineering_kind(ability.id)
+	if field_kind != "":
+		return unit._match.engineering.request(unit, field_kind, point)
 	match ability.id:
+		"phase_shift":
+			return unit.get_node("Movement").phase_shift(point)
+		"industrial_overhaul", "flux_resonance":
+			return Macro.execute(unit, ability, point, target)
+		"grid_surge":
+			ability.is_active = true
+			ability.active_left = ability.duration
+			unit.player.emit_changed()
+			return true
 		"frag_grenade":
 			var game = unit.find_parent("Match")
 			if game == null or game.grenade_system == null:
@@ -183,11 +243,7 @@ func _execute(ability, point: Vector3, target: Node) -> bool:
 			return unit._match.helix_support.toggle_overdrive(ability, unit)
 		"drone_chaff":
 			return unit._match.helix_support.activate_chaff(ability, unit)
-		"field_barricade", "scrap_mine", "sweep_mines":
-			var kind = {
-				"field_barricade": "barricade", "scrap_mine": "mine", "sweep_mines": "sweep"
-			}[ability.id]
-			return unit._match.engineering.request(unit, kind, point)
+
 		"combat_sprint", "smoke_screen", "shield_wall", "target_flare":
 			ability.is_active = true
 			ability.active_left = ability.duration
@@ -216,11 +272,24 @@ func _execute(ability, point: Vector3, target: Node) -> bool:
 				return false
 			if ability.id == "emp_rocket" and is_instance_valid(target):
 				if "shields" in target and target.shields > 0:
-					target.shields = maxf(0.0, target.shields - 50.0)
-					target.shields_changed.emit()
+					target.shield_component.drain(50.0, game.simulation_time)
 		_:
 			return false
 	return true
+
+
+func _engineering_kind(id: String) -> String:
+	return (
+		{
+			"field_barricade": "barricade",
+			"scrap_barricade": "barricade",
+			"field_bunker": "bunker",
+			"field_tank_trap": "tank_trap",
+			"scrap_mine": "mine",
+			"sweep_mines": "sweep"
+		}
+		. get(id, "")
+	)
 
 
 func _physics_process(delta: float):

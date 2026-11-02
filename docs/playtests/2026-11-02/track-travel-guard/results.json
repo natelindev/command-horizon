@@ -1,0 +1,23 @@
+{
+  "source_sha256": {
+    "source/match/units/traits/TrackMotion.gd": "e3c821f47be64ea25c36fc313a10d5fed4371318d82e91e21a769ff734015b3a",
+    "source/match/units/traits/WheelMotion.gd": "c07940960360821296894776f50a6bfe20a815b0990036a64fac9909c3d91031",
+    "tests/headless/UnitAnimationRegression.gd": "c71f04db38bbb18087c63af65ad7d7c179757339d13cfa2b2002d6e63d78bc1c"
+  },
+  "expected_baseline_exit": 1,
+  "baseline_counter_queries": 8000,
+  "updated_counter_queries": 0,
+  "articulation_advances": 8000,
+  "boundary_cases": 14,
+  "passing_checks": [
+    "guard-fallback",
+    "unit-animation-fallback",
+    "decoupled-pose-fallback",
+    "guard-native",
+    "unit-animation-native",
+    "decoupled-pose-native",
+    "native-pose-rig"
+  ],
+  "native_or_compiler_changes": false,
+  "full_frame_gain_measured": false
+}

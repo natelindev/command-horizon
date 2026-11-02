@@ -2,6 +2,7 @@ extends "res://tests/rendered/PreviewFixture.gd"
 
 
 func _run():
+	root.get_node("FeatureFlags").handle_match_end = false
 	root.mode = Window.MODE_WINDOWED
 	root.content_scale_mode = Window.CONTENT_SCALE_MODE_VIEWPORT
 	root.size = Vector2i(1440, 900)
@@ -34,19 +35,25 @@ func _run():
 	var human = _game._get_human_player()
 	var bar = _game.find_child("ResourcesBar")
 	_check(bar.player == human, "Power meter bound to the wrong player")
-	_check("available" in bar._power_status.text, "Healthy power has no available amount")
+	_check("Logistics" in bar._power_status.text, "Surplus grid omits its Logistics reserve")
 	_check(bar._power_meter.max_value == human.power_totals().x, "Wrong power capacity")
 	for resource in get_nodes_in_group("resource_units"):
 		_check(is_equal_approx(resource.radius, 0.6), "Salvage changed navigation footprint")
-		_check(resource.get_node("Geometry").get_child_count() == 1, "Duplicate salvage meshes")
+		var stock = (
+			resource.get("resource_a") if "resource_a" in resource else resource.get("resource_b")
+		)
+		_check(
+			resource.get_node("Geometry").get_child_count() == (5 if stock > 300 else 1),
+			"Resource pile does not match its visible depletion stage"
+		)
 	await _capture("resource-salvage")
 	camera.set_size_safely(16)
 	camera.set_position_safely(Vector3(16, 0, 22))
 	await _capture("resource-power-gameplay")
 	var drains = []
 	var aircraft_factory = load("res://source/match/units/AircraftFactory.tscn")
-	for index in range(3):
-		var unit = aircraft_factory.instantiate()
+	for index in range(1):
+		var unit = load("res://source/match/units/AntiGroundTurret.tscn").instantiate()
 		_game._setup_and_spawn_unit(
 			unit, Transform3D(Basis(), Vector3(45 + index * 2, 0, 15)), human, false
 		)
@@ -54,8 +61,10 @@ func _run():
 	await _frames(40)
 	_check("build power soon" in bar._power_status.text, "No near-capacity advisory")
 	_check(human.production_factor() == 1.0, "Near capacity should not slow production")
-	for index in range(2):
-		var unit = load("res://source/match/units/AntiGroundTurret.tscn").instantiate()
+	var near_drain = drains.pop_back()
+	near_drain.queue_free()
+	for index in range(1):
+		var unit = load("res://source/match/units/Barracks.tscn").instantiate()
 		_game._setup_and_spawn_unit(
 			unit, Transform3D(Basis(), Vector3(45 + index * 2, 0, 19)), human, false
 		)
@@ -68,8 +77,8 @@ func _run():
 	_game._setup_and_spawn_unit(extra, Transform3D(Basis(), Vector3(51, 0, 15)), human, false)
 	drains.append(extra)
 	await _frames(40)
-	_check("LOW POWER" in bar._power_status.text, "No shortage warning")
-	_check("35%" in bar._power_status.text, "Missing slowdown consequence")
+	_check("BROWNOUT" in bar._power_status.text, "No shortage warning")
+	_check("25%" in bar._power_status.text, "Missing slowdown consequence")
 	_check(bar._power_meter.value == bar._power_meter.max_value, "Deficit meter not full")
 	root.size = Vector2i(1280, 720)
 	root.content_scale_size = root.size
@@ -77,12 +86,18 @@ func _run():
 	await _frames(8)
 	await _capture("resource-power-shortage-720p")
 	_check(bar.get_global_rect().end.x < 1000, "Header collides with right-side controls")
-	_check(bar.get_global_rect().end.y <= 62, "Header overlaps objectives")
+	_check(
+		bar.get_global_rect().end.y <= _game.hud._objective.get_global_rect().position.y,
+		"Header overlaps objectives"
+	)
+	_check(
+		_game.find_child("Minimap")._brownout_overlay.visible, "Brownout radar static is missing"
+	)
 	_game.hud._toggle_pause()
 	for unit in drains:
 		unit.queue_free()
 	await _frames(40)
-	_check("available" in bar._power_status.text, "Power warning did not recover")
+	_check("Logistics" in bar._power_status.text, "Power warning did not recover")
 	# No producer/no consumer and no producer/with demand are both bounded states.
 	for unit in human.get_children():
 		if "type" in unit and unit.has_method("is_constructed"):
@@ -95,7 +110,7 @@ func _run():
 	_game._setup_and_spawn_unit(factory, Transform3D(Basis(), Vector3(15, 0, 15)), human, false)
 	await _frames(3)
 	bar._refresh()
-	_check("LOW POWER" in bar._power_status.text, "Zero-supply deficit invisible")
+	_check("BROWNOUT" in bar._power_status.text, "Zero-supply deficit invisible")
 	_check(bar._power_meter.value == 1, "Zero-supply warning meter invisible")
 	# Rebinding follows the second faction and does not leave the first player's signal attached.
 	var enemy = get_nodes_in_group("players")[1]
@@ -115,7 +130,14 @@ func _run():
 				+ "deficit/recovery/zero supply; 720p HUD"
 			)
 		)
-	quit(0 if _errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if _errors.is_empty() else 1)
+
+
+func _capture(title):
+	await _frames(6)
+	RenderingServer.force_draw(false)
+	root.get_texture().get_image().save_png("res://art/skirmish/%s.png" % title)
+	print("Captured ", title)
 
 
 func _asset_gallery(camera):

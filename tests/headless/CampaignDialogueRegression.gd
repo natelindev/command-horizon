@@ -75,7 +75,7 @@ func _run():
 		not game._get_human_player().get_node("BattleVoice")._narration_active,
 		"Skip left unit speech muted"
 	)
-	story.start_briefing(true)
+	story.start_briefing(true, "first_orders.intro")
 	var options = root.get_node("Globals").options
 	options.subtitles = false
 	story._refresh_language()
@@ -90,7 +90,7 @@ func _run():
 	var intro_length = load("res://assets/audio/campaign/common_enemy_base_en.wav").get_length()
 	var reply_length = load("res://assets/audio/campaign/common_boss_arrives_en.wav").get_length()
 	_check(
-		absf(story._scene_length - intro_length - reply_length - .8) < .001,
+		absf(story._scene_length - maxf(45.0, intro_length + reply_length + .8)) < .001,
 		"Briefing camera duration ignored the different reply length"
 	)
 	story._remaining = 0

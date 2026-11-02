@@ -236,7 +236,7 @@ func _build_ui():
 		+ "\n"
 		+ tr("Blocks: buildings · Lines: roads · Blue: water")
 		+ "\n"
-		+ tr("R: refinery · M: mercenary camp · S: repair shop")
+		+ tr("R: refinery · D: data relay · M: mercenary camp · S: repair shop")
 	)
 	var location_hint = _label(map_column, "", 12, ArtTheme.MUTED)
 	location_hint.text = tr("Choose a starting location · click or arrow keys")

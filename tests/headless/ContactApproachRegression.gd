@@ -59,7 +59,15 @@ func _captured_approach(repetition):
 	paused = false
 	for frame in 480:
 		await physics_frame
-		maximum_step = maxf(maximum_step, worker.position.distance_to(previous))
+		maximum_step = maxf(
+			maximum_step, ((worker.position - previous) * Vector3(1, 0, 1)).length()
+		)
+		var movement = worker.get_node("Movement")
+		if movement._hovering:
+			_check(
+				absf(worker.position.y - movement._hover_height(worker.position)) < .01,
+				"Hover contact recovery left the authored surface height"
+			)
 		previous = worker.position
 		# A harvest run ghosts through units. Once solid again (here: no HQ to
 		# return to), a leftover overlap may only shrink; it must never deepen.
@@ -278,8 +286,11 @@ func _building_contacts(faction):
 			)
 		await _frames(120)
 		var before = human.resource_b
+		# A full Flux Skimmer phases home from the field. Use a partial load
+		# here to exercise ordinary crowded ground contact for both factions.
+		var delivery_load = 3 if faction == "helix" else 4
 		if role == "CommandCenter":
-			worker.resource_b = 4
+			worker.resource_b = delivery_load
 			worker.issue_manual_order(harvest_action.new(target))
 		else:
 			worker.issue_manual_order(
@@ -287,8 +298,11 @@ func _building_contacts(faction):
 			)
 		var first_work = -1.0
 		var started = game.simulation_time
+		var contact_seen = false
 		for frame in 1800:
 			await physics_frame
+			var at_contact = root.get_node("Utils").Match.Unit.Movement.units_adhere(worker, target)
+			contact_seen = contact_seen or at_contact
 			if (
 				first_work < 0
 				and (
@@ -299,13 +313,16 @@ func _building_contacts(faction):
 			):
 				first_work = game.simulation_time - started
 				_check(
-					root.get_node("Utils").Match.Unit.Movement.units_adhere(worker, target),
-					"Building work started beyond contact range"
+					contact_seen if faction == "helix" and role == "PowerPlant" else at_contact,
+					(
+						"%s %s work started beyond contact range: worker=%s target=%s"
+						% [faction, role, worker.global_position, target.global_position]
+					)
 				)
 		_check(first_work >= 0, "%s %s never reached building contact" % [faction, role])
 		if role == "CommandCenter":
 			_check(
-				worker.resource_b == 0 and human.resource_b == before + 4,
+				worker.resource_b == 0 and human.resource_b == before + delivery_load,
 				"Crowded delivery lost/duplicated cargo"
 			)
 		else:

@@ -5,6 +5,8 @@ extends Node
 # articulated parts from the unit's authoritative state; the unit root, its
 # collision, orders and weapon timing are never modified here.
 
+const TurretAim = preload("res://source/match/units/traits/TurretAim.gd")
+
 const Unit = preload("res://source/match/units/Unit.gd")
 const InfantryRoster = preload("res://source/match/BastionCatalog.gd")
 const MotionProfile = preload("res://source/match/units/traits/UnitMotionProfile.gd")
@@ -15,12 +17,9 @@ const ROTOR_SPEED = 25.0
 const WORK_PERIOD = .9
 const FIDGETS = 4
 
-static var _frustum_frame = -1
-static var _frustum = []
-static var _headless = DisplayServer.get_name() == "headless"
-static var _budget_frame := -1
-static var _pixels_per_metre := INF
-static var _crowded := false
+const FrameBudget = preload("res://source/match/units/traits/VisualFrameBudget.gd")
+const RuntimeCache = preload("res://source/utils/RuntimeCache.gd")
+var _shared: FrameBudget
 
 var motion: MotionProfile
 var chassis: Chassis
@@ -139,6 +138,11 @@ func _init():
 
 
 func _ready():
+	var cache = RuntimeCache.bucket("unit_visual_frame")
+	var viewport_id = get_viewport().get_instance_id()
+	if not cache.has(viewport_id):
+		cache[viewport_id] = FrameBudget.new()
+	_shared = cache[viewport_id]
 	set_physics_process(false)
 	# Disabling interpolation also disables inherited root interpolation.
 	# Compose the interpolated root with the local pose explicitly in _process.
@@ -249,7 +253,7 @@ func _motion_kind(infantry):
 	if _walker != null:
 		return Chassis.Kind.WALKER
 	if (
-		_unit.type in ["Tank", "AntiAirVehicle"]
+		_unit.type in ["Worker", "Tank", "AdvancedTank", "AntiAirVehicle"]
 		and _unit.player != null
 		and _unit.player.faction == "helix"
 	):
@@ -325,14 +329,14 @@ func _body_length():
 func _on_screen(center: Vector3) -> bool:
 	# Off-screen units keep their timers but skip posing. One frustum per rendered
 	# frame is shared by every unit; headless runs have nothing to cull.
-	if _headless:
+	if _shared.headless:
 		return true
 	var frame = Engine.get_process_frames()
-	if frame != _frustum_frame:
-		_frustum_frame = frame
+	if frame != _shared.frustum_frame:
+		_shared.frustum_frame = frame
 		var camera = get_viewport().get_camera_3d()
-		_frustum = camera.get_frustum() if camera != null else []
-	for plane: Plane in _frustum:
+		_shared.frustum = camera.get_frustum() if camera != null else []
+	for plane: Plane in _shared.frustum:
 		if plane.distance_to(center) > _cull_radius:
 			return false
 	return true
@@ -364,7 +368,12 @@ func fire_recoil():
 	_sync_muzzle()
 	motion.next_shot()
 	_recoil = 1.0
-	if _heavy:
+	if _heavy and _unit.player.faction == "bastion":
+		motion.recoil_duration = chassis.CANNON_RECOVERY
+		var muzzle = _unit.get_node_or_null("ProjectileOrigin")
+		var direction = -muzzle.global_basis.z if muzzle != null else -_unit.global_basis.z
+		chassis.cannon_recoil(_unit.global_basis.inverse() * direction, motion.recoil_strength)
+	elif _heavy:
 		_suspension_velocity = -0.36
 	elif _mobile and _infantry_motion == null:
 		_suspension_velocity = -0.16
@@ -517,7 +526,12 @@ func set_native_presentation(batch: RefCounted, handle: int):
 	_pose_elapsed = elapsed
 	if batch != null:
 		batch.set_geometry(
-			handle, _geometry_pose, _track_motion != null or not _scrap_plates.is_empty()
+			handle,
+			_geometry_pose,
+			(
+				(_track_motion != null and _track_motion.has_unbatched_belts())
+				or not _scrap_plates.is_empty()
+			)
 		)
 
 
@@ -530,19 +544,19 @@ func _flush_pending_pose():
 func _pose_interval() -> float:
 	# Spend animation work where it is visible. Simulation, interpolated root
 	# motion, turret aiming, rotors and immediate weapon authority remain live.
-	if _headless or not _mobile or _unit.is_in_group("selected_units"):
+	if _shared.headless or not _mobile or _unit.is_in_group("selected_units"):
 		return 0.0
 	var frame := Engine.get_process_frames()
-	if frame != _budget_frame:
-		_budget_frame = frame
-		_crowded = _unit._match.get_units().size() >= 100
-		_pixels_per_metre = INF
+	if frame != _shared.budget_frame:
+		_shared.budget_frame = frame
+		_shared.crowded = _unit._match.get_units().size() >= 100
+		_shared.pixels_per_metre = INF
 		var camera := get_viewport().get_camera_3d()
 		if camera != null and camera.projection == Camera3D.PROJECTION_ORTHOGONAL:
-			_pixels_per_metre = get_viewport().get_visible_rect().size.y / camera.size
-	if not _crowded:
+			_shared.pixels_per_metre = get_viewport().get_visible_rect().size.y / camera.size
+	if not _shared.crowded:
 		return 0.0
-	var pixels := maxf(1.5, chassis.length) * _pixels_per_metre
+	var pixels: float = maxf(1.5, chassis.length) * _shared.pixels_per_metre
 	return 1.0 / 15.0 if pixels < 32.0 else (1.0 / 30.0 if pixels < 64.0 else 0.0)
 
 
@@ -556,15 +570,22 @@ func _publish_simulation_pose():
 		_native_presentation.set_geometry(
 			_presentation_handle,
 			_geometry_pose,
-			_track_motion != null or not _scrap_plates.is_empty()
+			(
+				(_track_motion != null and _track_motion.has_unbatched_belts())
+				or not _scrap_plates.is_empty()
+			)
 		)
+		return
 	var pose: Transform3D = _unit.global_transform * _geometry_pose
 	if _pose_hierarchy != null:
 		_pose_hierarchy.root.transform = pose
 		# Deforming tracks render natively beside the batched rigid hull. Their
 		# scene ancestor must follow the same pose even when rigid leaves are parked.
 		if (
-			(_track_motion != null or not _scrap_plates.is_empty())
+			(
+				(_track_motion != null and _track_motion.has_unbatched_belts())
+				or not _scrap_plates.is_empty()
+			)
 			and _geometry.global_transform != pose
 		):
 			_geometry.global_transform = pose
@@ -951,7 +972,7 @@ func _aim(delta: float):
 		return
 	var target_position: Vector3 = _unit.aim_target.global_position + Vector3.UP * 0.45
 	var target_local: Vector3 = _parent_local(_turret, target_position) - _turret.position
-	var bearing: float = atan2(-target_local.x, -target_local.z)
+	var bearing: float = TurretAim.within_arc(TurretAim.bearing(target_local), 0.0, PI)
 	if delta >= 1.0:
 		_turret_velocity = 0.0
 		_set_turret_yaw(bearing)
@@ -959,9 +980,7 @@ func _aim(delta: float):
 		_traverse(bearing, delta, 11.0, _turret_rate)
 	if _barrel != null:
 		var direction: Vector3 = _parent_local(_barrel, target_position) - _barrel.position
-		var elevation: float = clampf(
-			atan2(direction.y, Vector2(direction.x, direction.z).length()), -0.15, 0.65
-		)
+		var elevation: float = TurretAim.elevation(direction)
 		_set_barrel_pitch(
 			(
 				elevation

@@ -13,10 +13,10 @@ func _init():
 	_title.get_parent().add_child(_state)
 
 
-func show_state(value: String):
+func show_state(value: String, marker_only = false):
 	_state.text = value
-	_state.visible = not value.is_empty()
-	_title.get_parent().get_node("Price").visible = value.is_empty()
+	_state.visible = not marker_only and not value.is_empty()
+	_title.get_parent().get_node("Price").show()
 
 
 func show_marker(value: String):

@@ -2,18 +2,41 @@ extends RefCounted
 
 const PATH = "res://assets/audio/campaign/narration.json"
 const Campaigns = preload("res://source/match/campaign/CampaignCatalog.gd")
+const BRIEFINGS = "res://assets/audio/campaign/briefings.json"
 const CONVERSATIONS = "res://assets/audio/campaign/conversations.json"
-static var _narrator_lines = {}
-static var _lines = {}
+const Cache = preload("res://source/utils/RuntimeCache.gd")
 
 
 static func lines():
-	if _lines.is_empty():
-		_narrator_lines = JSON.parse_string(FileAccess.get_file_as_string(PATH))
-		_lines = _narrator_lines.duplicate(true)
+	var cache = Cache.bucket("campaign_narration")
+	if not cache.has("lines"):
+		cache.narrators = JSON.parse_string(FileAccess.get_file_as_string(PATH))
+		cache.lines = cache.narrators.duplicate(true)
 		if FileAccess.file_exists(CONVERSATIONS):
-			_lines.merge(JSON.parse_string(FileAccess.get_file_as_string(CONVERSATIONS)), true)
-	return _lines
+			cache.lines.merge(JSON.parse_string(FileAccess.get_file_as_string(CONVERSATIONS)), true)
+		if FileAccess.file_exists(BRIEFINGS):
+			var briefings = JSON.parse_string(FileAccess.get_file_as_string(BRIEFINGS))
+			for mission in briefings:
+				var faction = Campaigns.operations()[mission].faction
+				var speaker = {
+					"bastion": {"en": "Field Marshal Aegis", "zh_CN": "元帅埃吉斯"},
+					"helix": {"en": "Spectre Nyx", "zh_CN": "幽灵尼克斯"},
+					"frontier": {"en": "Pathfinder Rook", "zh_CN": "探路者鲁克"}
+				}[faction]
+				var dialogue = []
+				for segment in briefings[mission].segments:
+					dialogue.append(
+						{
+							"id": segment.id,
+							"speaker": speaker,
+							"en": segment.en,
+							"zh_CN": segment.zh,
+							"voice": segment.stream,
+							"duration": segment.duration
+						}
+					)
+				cache.lines[mission + ".briefing"] = {"dialogue": dialogue}
+	return cache.lines
 
 
 static func ids(mission):
@@ -30,7 +53,7 @@ static func _narrator_record(id, language = "en"):
 	return {
 		"id": id,
 		"speaker": "堡垒指挥部" if locale == "zh_CN" else "Bastion Command",
-		"text": _narrator_lines[id][locale],
+		"text": Cache.bucket("campaign_narration").narrators[id][locale],
 		"stream": path
 	}
 
@@ -52,7 +75,8 @@ static func scene(id, language = "en"):
 				"speaker": line.speaker[locale],
 				"text": line[locale],
 				"stream": line.voice,
-				"portrait": line.get("portrait", "")
+				"portrait": line.get("portrait", ""),
+				"duration": line.get("duration", -1.0)
 			}
 		)
 	return result
@@ -68,7 +92,7 @@ static func record(id, language = "en"):
 
 static func single_narrator(id):
 	lines()
-	return _narrator_lines.has(id)
+	return Cache.bucket("campaign_narration").narrators.has(id)
 
 
 static func missions():

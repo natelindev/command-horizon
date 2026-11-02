@@ -25,8 +25,8 @@ def main():
             info = sf.info(ROOT / line['stream'].removeprefix('res://'))
             assert info.samplerate == 24000, line
             speech_count += 1
-    # 365 crew/command lines (24 of them camp mercenaries) plus 97 robot lines.
-    assert speech_count == 462
+    # 439 crew/command lines (30 camp mercenaries) plus 103 robot lines.
+    assert speech_count == 542
     for region in ['desert', 'alpine', 'industrial', 'coastal']:
         data, rate = sf.read(ROOT / f'assets/audio/environment/{region}.wav')
         rms_db = 10 * np.log10(np.mean(data * data))
@@ -36,7 +36,7 @@ def main():
         hiss_db = 10 * np.log10(np.mean(hiss * hiss))
         assert rms_db <= -23.9, (region, rms_db)
         assert hiss_db <= -46.5, (region, hiss_db)
-    print('PASS 54 separate voices, 462 speech clips at 24 kHz, four quiet low-hiss beds')
+    print('PASS 54 separate voices, 542 speech clips at 24 kHz, four quiet low-hiss beds')
 
 
 if __name__ == '__main__':

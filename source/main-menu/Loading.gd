@@ -21,6 +21,8 @@ func _ready():
 
 	await get_tree().physics_frame
 	var map = load(map_path).instantiate()
+	if not match_settings.scenario.is_empty():
+		map.scenario = match_settings.scenario.duplicate(true)
 	_progress_bar.value = 0.4
 
 	await get_tree().physics_frame

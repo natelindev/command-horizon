@@ -76,11 +76,35 @@ func _run():
 		camera._advance_pan(Vector3(200, 0, 0), 1.0 / 60)
 	_check(camera._calculate_pivot_point().x <= 50.001, "Inertia crossed the map boundary")
 	camera.free()
+	_test_overview_zoom()
 	_test_cinematic_authority()
 	for message in errors:
 		push_error(message)
 	print("Camera feel regression: %d failures" % errors.size())
 	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
+
+
+func _test_overview_zoom():
+	var limit = root.get_node("Constants").Match.SKIRMISH_CAMERA_MAX_SIZE
+	for fps in [30, 60, 144, 240]:
+		var camera = _camera()
+		camera.size_max = limit
+		camera.set_size_safely(24)
+		camera._request_zoom(limit - 24)
+		var anchor = camera.get_ray_intersection(camera._zoom_anchor)
+		camera._advance_zoom(1.0 / fps)
+		_check(camera.size > 24 and camera.size < limit, "Overview zoom jumped to its final size")
+		for frame in fps:
+			camera._advance_zoom(1.0 / fps)
+		_check(is_equal_approx(camera.size, limit), "Overview zoom differs by display cadence")
+		_check(
+			camera.get_ray_intersection(camera._zoom_anchor).distance_to(anchor) < .001,
+			"Overview zoom lost its pointer anchor"
+		)
+		camera._request_zoom(100)
+		camera._advance_zoom(.1)
+		_check(camera.size <= limit, "Smooth overview zoom exceeded its limit")
+		camera.free()
 
 
 func _check(ok, message):

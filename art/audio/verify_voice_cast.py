@@ -1,6 +1,7 @@
 """Guard real speaker identities, exclusive announcers and robot voice designs."""
 import json
 from pathlib import Path
+from combat_barks import COMBAT_BARKS, combat_text
 
 from robot_voice import ROBOT_VOICES
 from voice_cast import (ANNOUNCERS, ANNOUNCER_TEXT, CAST, MALE_VOICES, MERCENARY, MERCENARY_CAST, POOL,
@@ -97,6 +98,20 @@ def verify_catalog():
                 for event in ['select', 'move', 'attack']:
                     assert len(events[event]) >= 2
     assert used == set(entries)
+    combat_hashes = set()
+    existing_hashes = {entry['sha256'] for path, entry in entries.items()
+                       if Path(path).stem.rsplit('_', 1)[0] not in {'low_health', 'kill'}}
+    for faction, roles in COMBAT_BARKS.items():
+        bank = catalog['mercenaries'] if faction == MERCENARY else catalog['factions'][faction]['units']
+        for role in roles:
+            for event, text in combat_text(faction, role).items():
+                clips = bank[role][event]
+                assert len(clips) == 1 and clips[0]['text'] == text, (faction, role, event)
+                entry = entries[f'{faction}/{role}/{event}_0.ogg']
+                assert entry['sha256'] not in combat_hashes, (faction, role, event)
+                assert entry['sha256'] not in existing_hashes, (faction, role, event, 'borrowed recording')
+                combat_hashes.add(entry['sha256'])
+    assert len(combat_hashes) == 80
     assert len(stop_hashes) == UNIT_ROLES + ROBOT_ROLES and robots == ROBOT_ROLES
     print(f'PASS {UNIT_ROLES} distinct male unit voices ({len(MERCENARY_CAST)} shared mercenaries), '
           f'{ROBOT_ROLES} distinct robot voices, three exclusive announcers, '

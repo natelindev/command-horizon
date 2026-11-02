@@ -111,10 +111,17 @@ func _compare(packer):
 		second.transform = Transform3D(
 			Basis.from_euler(Vector3(.1, random.randf(), .3)), Vector3(-.3, .8, .7)
 		)
-		rig_root.transform = unit.global_transform * geometry.transform
 		parts[0].transform = first.transform
 		parts[1].transform = second.transform
 		batch.set_geometry(handle, geometry.transform, true)
+		_check(
+			rig_root.transform.is_equal_approx(unit.global_transform * geometry.transform),
+			"Same-frame rig root was stale before packing"
+		)
+		_check(
+			rig.global_pose(parts[1].index).is_equal_approx(second.global_transform),
+			"Same-frame weapon/socket chain was stale before packing"
+		)
 		geometry.visible = index % 11 != 0
 		second.visible = index % 7 != 0
 		entry.shown = geometry.is_visible_in_tree()
@@ -144,6 +151,40 @@ func _compare(packer):
 		previous = unit.global_position
 	_check(
 		batch.statistics()[0] == 1 and batch.statistics()[4] > 0, "Native packing never executed"
+	)
+	# Belt state uses a non-root row, without corrupting the unit hit pulse.
+	for travel in [-.25, 7.999, .001]:
+		batch.set_track(handle, 1, travel)
+		var track_pixels: PackedByteArray = batch.pack(true)[0]
+		_check(
+			is_equal_approx(track_pixels.decode_float(2 * 64 + 48), travel),
+			"Current belt travel lost its signed/wrapped state"
+		)
+		_check(
+			is_equal_approx(track_pixels.decode_float(64 + 60), entry.pulse.a),
+			"Belt state corrupted the root hit pulse"
+		)
+	geometry.hide()
+	var hidden_tracks: PackedByteArray = batch.pack(true)[0]
+	for byte in range(64, 192, 4):
+		_check(
+			hidden_tracks.decode_float(byte) == 0.0,
+			"Hidden/garrisoned body retained a pose, pulse or belt state"
+		)
+	geometry.show()
+	_check(
+		is_equal_approx(batch.pack(true)[0].decode_float(2 * 64 + 48), .001),
+		"Revealed belt lost its travel after hiding"
+	)
+	var parked: Transform3D = geometry.global_transform
+	var local := Transform3D(Basis.from_euler(Vector3(.3, -.2, .1)), Vector3(.1, 1, -.3))
+	batch.set_geometry(handle, local, false)
+	_check(
+		geometry.global_transform == parked, "Rigid-only publication moved parked scene geometry"
+	)
+	_check(
+		rig_root.transform.is_equal_approx(unit.global_transform * local),
+		"Rigid-only publication did not update its authoritative root"
 	)
 	var retained: WeakRef = weakref(rig)
 	parts.clear()

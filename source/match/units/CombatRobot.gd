@@ -11,6 +11,16 @@ var _mode_badge
 var _badge_elapsed = 0.0
 
 
+func ability_definitions() -> Array:
+	if player.faction != "helix":
+		return []
+	return [{
+		"id": "phase_shift", "name": "Phase Shift", "key": "E",
+		"description": "Teleport 8 m in the target direction, crossing cliffs and tank traps.",
+		"target_type": "target_point", "cooldown": 15.0, "range": 8.0,
+	}]
+
+
 func _ready():
 	await super()
 	if not can_switch_weapon():
@@ -73,9 +83,9 @@ func _physics_process(delta):
 
 func configure_weapon():
 	if not can_switch_weapon():
-		attack_domains = [
-			Constants.Match.Navigation.Domain.TERRAIN, Constants.Match.Navigation.Domain.AIR
-		]
+		attack_domains = [Constants.Match.Navigation.Domain.TERRAIN]
+		if player.faction == "bastion":
+			attack_domains.append(Constants.Match.Navigation.Domain.AIR)
 		return
 	var precision = weapon_mode == "precision"
 	attack_domains = [Constants.Match.Navigation.Domain.TERRAIN]

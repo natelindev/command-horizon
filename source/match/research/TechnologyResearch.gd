@@ -9,6 +9,13 @@ var paid = {}
 var queued = []
 var _advanced_frame = -1
 @onready var player = get_parent()
+var doctrine_effects = null
+
+
+func _ready():
+	doctrine_effects = load("res://source/match/research/FactionDoctrineEffects.gd").new()
+	doctrine_effects.name = "FactionDoctrineEffects"
+	add_child(doctrine_effects)
 
 
 func reason(id, lab):
@@ -50,6 +57,9 @@ func queue_reason(id, lab):
 	if not player.lab_research_unlocked():
 		return "Requires a completed vehicle factory and lab."
 	var planned = planned_technologies()
+	var excluded = Catalog.exclusion(id, planned)
+	if excluded != "":
+		return "Permanently excluded by %s." % Catalog.title(excluded, player.faction)
 	for required in Catalog.requirements(id):
 		if required not in planned:
 			return "Requires %s." % Catalog.title(required, player.faction)
@@ -69,6 +79,9 @@ func start(id, lab):
 
 
 func enqueue(id, lab):
+	var gate = load("res://source/match/network/NetworkGate.gd")
+	if gate.intercept(player, {"kind": "research", "unit": gate.id_for(lab), "id": id}):
+		return true
 	if queue_reason(id, lab) != "":
 		return false
 	var price = Catalog.cost(id)
@@ -81,6 +94,7 @@ func enqueue(id, lab):
 		queued.append({"id": id, "paid": payment})
 	player.subtract_resources(payment)
 	player.emit_changed()
+	player.warn_if_grid_balanced()
 	return true
 
 
@@ -115,6 +129,8 @@ func advance_queue():
 
 
 func cancel():
+	if load("res://source/match/network/NetworkGate.gd").intercept(player, {"kind": "cancel_research", "index": -1}):
+		return true
 	if active == "":
 		return false
 	var refund = paid.duplicate()
@@ -129,6 +145,8 @@ func cancel():
 
 
 func cancel_queued(index):
+	if load("res://source/match/network/NetworkGate.gd").intercept(player, {"kind": "cancel_research", "index": index}):
+		return true
 	if index < 0 or index >= queued.size():
 		return false
 	var entry = queued[index]
@@ -176,7 +194,7 @@ func _physics_process(delta):
 		or not player.has_completed_structure("CommandLab")
 	):
 		return
-	left = maxf(0.0, left - delta * player.production_factor())
+	left = maxf(0.0, left - delta * player.research_factor())
 	if left > 0:
 		return
 	var finished = active
@@ -198,6 +216,8 @@ func _physics_process(delta):
 func apply_unit(unit):
 	if unit.is_queued_for_deletion() or unit.hp == null or unit.hp <= 0:
 		return
+	if doctrine_effects != null:
+		doctrine_effects.watch(unit)
 	unit.update_shields()
 	var maximum = unit.base_hp_max * Catalog.health_factor(unit.type, completed)
 	if is_equal_approx(maximum, unit.hp_max):
@@ -220,7 +240,7 @@ func service_factor():
 
 
 func has_doctrine():
-	return "doctrine" in completed
+	return "doctrine" in completed or Catalog.EXCLUSIVE_PAIRS.any(func(pair): return pair.any(func(id): return id in completed))
 
 
 func status():
@@ -229,9 +249,9 @@ func status():
 	var suffix = ""
 	if not player.has_completed_structure("CommandLab"):
 		suffix = " · paused, rebuild a lab"
-	elif player.production_factor() < 1:
-		suffix = " · low power, 35% speed"
-	return "%s · %.1f s remaining%s" % [Catalog.title(active, player.faction), left, suffix]
+	elif player.is_brownout():
+		suffix = tr(" · low power, %d%% speed") % roundi(player.research_factor() * 100)
+	return "%s · %.1f s remaining%s" % [Catalog.title(active, player.faction), left / player.research_factor(), suffix]
 
 
 func capture():
@@ -297,7 +317,7 @@ func summary(role):
 		"high_octane" in completed
 		and role in ["Tank", "CombatRobot", "AdvancedTank", "AntiAirVehicle", "Worker"]
 	):
-		lines.append("High-octane overbore · +15% speed")
+		lines.append("High-Octane Superchargers · +18% speed")
 	if (
 		"service" in completed
 		and role in ["RepairRobot", "RepairDepot", "Barracks", "AircraftFactory"]

@@ -13,20 +13,22 @@ const AIR_MODELS = {
 		"Fighter": "Fighter",
 		"Bomber": "Bomber",
 		"Helicopter": "Helicopter",
-		"AntiAirVehicle": "AntiAirVehicle",
+		"AntiAirVehicle": "FlakHalftrack",
 	},
 	"helix":
 	{
 		"Fighter": "TalonInterceptor",
 		"Bomber": "ShrikeBomber",
 		"Helicopter": "WraithTiltrotor",
-		"AntiAirVehicle": "HaloSkimmer",
+		"AntiAirVehicle": "SkywardInterceptor",
+		"Worker": "MuleEngineer",
 	},
 	"frontier":
 	{
 		"Fighter": "HornetFighter",
 		"Bomber": "BuzzardBomber",
-		"AntiAirVehicle": "RipsawTruck",
+		"AntiAirVehicle": "SAMTechnical",
+		"Worker": "ScrapperRig",
 	},
 }
 
@@ -150,7 +152,9 @@ func _air_pairs(faction, player, point):
 		await _frames(12)
 		var geometry = unit.get_node("Geometry")
 		var model_name = AIR_MODELS[faction][role]
-		var directory = "air-v1" if faction == "bastion" else "v1"
+		var directory = (
+			("demo" if role == "AntiAirVehicle" else "air-v1") if faction == "bastion" else "v1"
+		)
 		var expected_path = "res://assets/models/%s/%s/%s.glb" % [faction, directory, model_name]
 		_check(
 			geometry.get_child(0).scene_file_path == expected_path,

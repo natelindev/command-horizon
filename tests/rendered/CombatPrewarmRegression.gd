@@ -105,7 +105,17 @@ func _seed_live_presentation():
 	game.projectile_system.launch(tank, target)
 	game.battlefield_wear.add_mark(Vector2(tank.position.x, tank.position.z), 1.0, 0.0, 1)
 	game.battlefield_wear._paint()
+	var voice = human.get_node("BattleVoice")
+	voice.caption_changed.emit(
+		{"speaker": "Lineholder", "text": "Orders acknowledged.", "portrait": ""}
+	)
 	await _settle_draws()
+	_check(
+		_caption_state().values().any(
+			func(entry): return entry.line.get("text", "") == "Orders acknowledged."
+		),
+		"Prewarm fixture lacks a live caption to preserve"
+	)
 	_check(not fx._free_tracers.is_empty(), "Fixture lacks a retained tracer pool")
 	_check(not fx._free_hit_flashes.is_empty(), "Fixture lacks a retained hit material")
 	_check(not fx._shockwaves.is_empty(), "Fixture lacks a live shockwave")
@@ -122,6 +132,7 @@ func _preserved_state(label):
 	var cosmetics_before = _cosmetic_state()
 	var materials_before = _material_state()
 	var modes_before = _process_modes(game)
+	var captions_before = _caption_state()
 	var nodes_before = get_node_count()
 	var result = await _prewarm.prepare(game)
 	_check(result, label + ": prewarm did not complete")
@@ -130,9 +141,29 @@ func _preserved_state(label):
 	_check(_cosmetic_state() == cosmetics_before, label + ": live RNG, effects or pools changed")
 	_check(_material_state() == materials_before, label + ": live mesh/material state changed")
 	_check(_process_modes(game) == modes_before, label + ": process modes were not restored")
+	_check(_caption_state() == captions_before, label + ": live caption or voice state changed")
 	_check(get_node_count() == nodes_before, label + ": disposable nodes leaked")
 	_check(not game.has_node("CombatPrewarm"), label + ": helper remained in the match")
 	print("PASS prewarm state and resource preservation: ", label)
+
+
+func _caption_state():
+	var result = {}
+	var script = load("res://source/match/hud/BattleSubtitles.gd")
+	for node in game.find_children("*", "CanvasLayer", true, false):
+		if node.get_script() != script:
+			continue
+		var card = node._card
+		result[str(node.get_instance_id())] = {
+			"line": node._line.duplicate(true),
+			"current_voice": node.voice.current.duplicate(true),
+			"visible": card.visible,
+			"speaker": card._speaker.text,
+			"text": card._text.text,
+			"caption_visible": card._text.visible,
+			"portrait": card._portrait.texture,
+		}
+	return result
 
 
 func _cosmetic_state():

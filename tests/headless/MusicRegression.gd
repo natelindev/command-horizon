@@ -39,10 +39,21 @@ func _run():
 				"Faction stems are not sample-synchronized"
 			)
 			var percussion = player.stream.get_sync_stream(1)
+			var lead = player.stream.get_sync_stream(2)
+			_check(player.stream.stream_count == 3, "Faction score lacks three stems")
 			_check(percussion.loop, "Percussion stem is not looping")
+			_check(lead.loop, "Combat lead stem is not looping")
+			_check(
+				lead != percussion and lead != bed and percussion != bed,
+				"Music layers share one stream"
+			)
 			_check(
 				absf(percussion.get_length() - bed.get_length()) < .01,
 				"Stem durations drift across the loop: " + track
+			)
+			_check(
+				absf(lead.get_length() - bed.get_length()) < .01,
+				"Combat lead duration drifts: " + track
 			)
 		for index in 30:
 			director._check_left = 1
@@ -70,8 +81,66 @@ func _run():
 	paused = true
 	_check(director.can_process(), "Music stops during tactical pause")
 	paused = false
+	await _combat_events(director)
 	preferences.restore(original)
 	for message in errors:
 		push_error(message)
 	print("Music regression: %d failures" % errors.size())
 	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
+
+
+func _combat_events(director):
+	await _skirmish("bastion", "res://source/match/maps/PlainAndSimple.tscn", false)
+	game.settings.visibility = game.settings.Visibility.FULL
+	for side in get_nodes_in_group("players"):
+		side.set_process(false)
+	for unit in get_nodes_in_group("units"):
+		unit.issue_manual_order(null)
+		unit.process_mode = Node.PROCESS_MODE_DISABLED
+	var human = game._get_human_player()
+	var enemy = get_nodes_in_group("players").filter(func(side): return side != human)[0]
+	var target = _score_unit(enemy, Vector3(30, 0, 25))
+	director._sync_scene()
+	var deadline = Time.get_ticks_msec() + 10000
+	while director.current_track != "bastion" and Time.get_ticks_msec() < deadline:
+		await process_frame
+		director._poll_streams()
+	var weapon = load("res://source/match/combat/WeaponCatalog.gd").SIEGE_SHELL
+	for index in 6:
+		var source = _score_unit(human, Vector3(15 + index, 0, 20))
+		game.projectile_system.launch(source, target, weapon)
+	_check(director._event_intensity > .8, "Actual weapon fire did not drive the score")
+	for index in 3:
+		director._check_left = 1.0
+		director._process(1.0)
+	var score = director.players[director._target].stream
+	_check(score.get_sync_stream_volume(1) > -10.0, "Combat did not raise the rhythm layer")
+	_check(score.get_sync_stream_volume(2) > -60.0, "Artillery did not introduce the combat lead")
+	var before = director._event_intensity
+	director._on_artillery_impact(Vector3(25, 0, 25), human)
+	_check(director._event_intensity > before, "Artillery impact did not increase intensity")
+	before = director._event_intensity
+	paused = true
+	director._on_artillery_impact(Vector3(25, 0, 25), human)
+	_check(director._event_intensity == before, "Paused effects changed musical combat state")
+	paused = false
+	director._activity.clear()
+	director._proximity = 0.0
+	director._event_intensity = 0.0
+	director._update_intensity(1.0)
+	var first = director.intensity
+	director._update_intensity(1.0)
+	_check(
+		is_equal_approx(director.intensity / first, exp(-1.0 / director.INTENSITY_RELEASE)),
+		"Score release is not exponential"
+	)
+	game.queue_free()
+	await _frames(5)
+	director._sync_scene()
+
+
+func _score_unit(side, point: Vector3):
+	var unit = load("res://source/match/units/Tank.tscn").instantiate()
+	game._setup_and_spawn_unit(unit, Transform3D(Basis(), point), side, false)
+	unit.process_mode = Node.PROCESS_MODE_DISABLED
+	return unit

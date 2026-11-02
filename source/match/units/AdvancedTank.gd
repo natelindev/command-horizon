@@ -1,11 +1,15 @@
 extends "res://source/match/units/Tank.gd"
 
-const DEPLOY_SECONDS = 1.5
+const DEPLOY_SECONDS = 2.0
 var deployment_left = DEPLOY_SECONDS
 var deployment_position = Vector3.ZERO
+var prism_lock_target = null
+var prism_lock_seconds: float = 0.0
 
 
 func ability_definitions() -> Array:
+	if player.faction != "bastion":
+		return []
 	return [
 		{
 			"id": "siege_anchor",
@@ -27,7 +31,13 @@ func _ready():
 
 func _physics_process(delta):
 	super(delta)
-	if player.faction != "helix":
+	if player.faction == "helix":
+		if is_instance_valid(aim_target) and aim_target == prism_lock_target:
+			prism_lock_seconds = minf(4.0, prism_lock_seconds + delta)
+		else:
+			prism_lock_target = aim_target
+			prism_lock_seconds = 0.0
+	if player.faction != "bastion":
 		return
 	var movement = get_node("Movement")
 	if (
@@ -43,8 +53,11 @@ func _physics_process(delta):
 
 
 func weapon_delay():
-	return deployment_left if player.faction == "helix" else 0.0
+	if player.faction != "bastion":
+		return 0.0
+	var movement = get_node("Movement")
+	return DEPLOY_SECONDS if movement._has_destination else deployment_left
 
 
 func deployment_status():
-	return "Deploying · %.1f s" % deployment_left if deployment_left > 0 else "Deployed · 10 m"
+	return "Deploying · %.1f s" % deployment_left if deployment_left > 0 else "Deployed · 16 m"

@@ -1,0 +1,32 @@
+{
+  "purpose": "Current actual-release tactical performance after six narrowly verified CPU fact-reuse changes; no timing run yet",
+  "base_source_root": "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/inputs-retry-4",
+  "overlay_manifest": "/Users/linlilu/godot-open-rts/build/verification/macos/tactical-refresh-20261102T063027Z-1619/overlay-manifest.json",
+  "overlay_manifest_sha256": "034d784b6bf6a06cad69aeda9ff67e662f6e75ccd2bd7cd7772ce6a2dd36d706",
+  "project": "/Users/linlilu/godot-open-rts/build/verification/macos/tactical-refresh-20261102T063027Z-1619/release-project",
+  "app": "/Users/linlilu/godot-open-rts/build/verification/macos/tactical-refresh-20261102T063027Z-1619/package/Open RTS Tactical Review.app",
+  "executable": "/Users/linlilu/godot-open-rts/build/verification/macos/tactical-refresh-20261102T063027Z-1619/package/Open RTS Tactical Review.app/Contents/MacOS/Open RTS Tactical Review",
+  "executable_sha256": "72cee8dcb67eeabde8500abf7bde02ec015a0b682402ffd9ee93aecc77c94d73",
+  "pack": "/Users/linlilu/godot-open-rts/build/verification/macos/tactical-refresh-20261102T063027Z-1619/package/Open RTS Tactical Review.app/Contents/Resources/Open RTS Tactical Review.pck",
+  "pack_sha256": "d252fea790e89b421d488d3f5d4b7d80d1fe9d38a76ece6d57ab138587e19158",
+  "profile": "/Users/linlilu/Library/Application Support/OpenRTSTacticalReview/20261102T063027Z-1619",
+  "installed_native_sha256": {
+    "copperfin.gdextension": "8c372b6efb94587d8f7a5902a77692ac957a2a58fe146ca8e3db75083da82bad",
+    "copperfin.macos.universal.dylib": "114c087b24ddad1959ca440b2c36bde1781160a4a6ef2ca22994929fcc8133df"
+  },
+  "test_entry": "TacticalFormationsMainLoop",
+  "physical_raster": [
+    1280,
+    720
+  ],
+  "ui_scale": 1.0,
+  "changes_from_distribution": [
+    "dedicated tactical fixture main loop and empty bootstrap",
+    "fresh isolated user profile and application name"
+  ],
+  "engine": {
+    "path": "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+    "version": "4.7.2.stable.official.ed1daf0bf",
+    "sha256": "c7cccbf8fb143e34e02fd6521e09be2c2b974f0d5db080b19071c9c570718ccf"
+  }
+}

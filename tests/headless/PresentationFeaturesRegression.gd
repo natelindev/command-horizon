@@ -65,8 +65,10 @@ func _motion(options):
 	var description = load("res://source/match/FactionCatalog.gd").description("bastion", "Tank")
 	var locale = TranslationServer.get_locale()
 	TranslationServer.set_locale("zh_CN")
-	var translated = TranslationServer.translate(description)
-	var tip = tile._make_custom_tooltip("Bastion tank\n" + description + "\n24 M / 6 E")
+	var translated = TranslationServer.translate(
+		load("res://source/match/FactionCatalog.gd").description("bastion", "Tank")
+	)
+	var tip = tile._make_custom_tooltip("Bastion tank\n" + translated + "\n24 M / 6 E")
 	_check(translated != description, "Chinese tooltip fixture has no translation")
 	_check(
 		tip.get_child(0).get_child(1).text.contains(translated),

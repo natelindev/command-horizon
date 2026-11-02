@@ -8,7 +8,9 @@ var _label
 var _sparks
 var _focus_material
 var _phase = 0.0
-var _feet = []
+var _spark_directions = PackedVector3Array()
+var _spark_bases: Array[Basis] = []
+var _spark_offsets: Array[float] = []
 # Rocket infantry lock onto aircraft instead of charging a heavy weapon.
 var _lock = false
 @onready var _unit = get_parent()
@@ -41,20 +43,6 @@ func _ready():
 	add_child(_label)
 	_unit.selected.connect(refresh)
 	_unit.deselected.connect(refresh)
-	if _unit.type == "AdvancedTank" and _unit.player.faction == "helix":
-		var steel = StandardMaterial3D.new()
-		steel.albedo_color = Color("617d8b")
-		steel.metallic = 0.65
-		for x in [-1, 1]:
-			for z in [-1, 1]:
-				var foot = MeshInstance3D.new()
-				var mesh = BoxMesh.new()
-				mesh.size = Vector3(0.45, 0.1, 0.18)
-				foot.mesh = mesh
-				foot.material_override = steel
-				foot.position = Vector3(x * 0.55, 0.05, z * 0.43)
-				add_child(foot)
-				_feet.append(foot)
 	refresh()
 
 
@@ -72,15 +60,13 @@ func refresh():
 			progress >= 0 and (not _lock or _unit.is_in_group("selected_units"))
 		)
 		_label.text = ("LOCK %d%%" if _lock else "CHARGE %d%%") % roundi(maxf(progress, 0) * 100)
-	if not _feet.is_empty():
-		var setup = 1.0 - _unit.deployment_left / _unit.DEPLOY_SECONDS
-		for foot in _feet:
-			foot.scale.x = 0.1 + setup * 0.9
-		if show_info and progress < 0:
+		if progress < 0 and _unit.type == "AdvancedTank" and _unit.player.faction == "bastion":
 			_label.content_visible = (
 				_unit.is_in_group("selected_units") or _unit.deployment_left > 0
 			)
-			_label.text = "DEPLOY %.1f" % _unit.deployment_left if setup < 1 else "DEPLOYED"
+			_label.text = (
+				"DEPLOY %.1f" % _unit.deployment_left if _unit.deployment_left > 0 else "DEPLOYED"
+			)
 
 
 func _setup_sparks(tint):
@@ -103,6 +89,15 @@ func _setup_sparks(tint):
 	batch.instance_count = SPARK_COUNT
 	_sparks.multimesh = batch
 	add_child(_sparks)
+	for index in SPARK_COUNT:
+		# Angular directions and orientation do not depend on charge or time.
+		var angle = index * 2.399963
+		var y = 1.0 - 2.0 * (index + 0.5) / SPARK_COUNT
+		var radial = sqrt(1.0 - y * y)
+		var direction = Vector3(cos(angle) * radial, y, sin(angle) * radial)
+		_spark_directions.append(direction)
+		_spark_bases.append(Basis.looking_at(-direction))
+		_spark_offsets.append(index * 0.618034)
 
 
 func _process(delta):
@@ -129,12 +124,9 @@ func _update_focus(progress):
 	_sparks.multimesh.visible_instance_count = 8 + roundi(progress * (SPARK_COUNT - 8))
 	for index in _sparks.multimesh.visible_instance_count:
 		# Golden-angle distribution and independent cycles avoid a rotating dotted ball.
-		var angle = index * 2.399963
-		var y = 1.0 - 2.0 * (index + 0.5) / SPARK_COUNT
-		var radial = sqrt(1.0 - y * y)
-		var direction = Vector3(cos(angle) * radial, y, sin(angle) * radial)
-		var travel = fposmod(_phase * (1.4 + progress) + index * 0.618034, 1.0)
+		var direction = _spark_directions[index]
+		var travel = fposmod(_phase * (1.4 + progress) + _spark_offsets[index], 1.0)
 		var radius = 0.07 + (1.0 - travel) * (1.0 - travel) * (0.85 + progress * 0.3)
 		var size = sin(travel * PI) * (0.65 + progress * 0.55)
-		var basis = Basis.looking_at(-direction).scaled(Vector3.ONE * size)
+		var basis = _spark_bases[index].scaled(Vector3.ONE * size)
 		_sparks.multimesh.set_instance_transform(index, Transform3D(basis, direction * radius))

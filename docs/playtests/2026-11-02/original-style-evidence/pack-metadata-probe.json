@@ -1,0 +1,28 @@
+{
+  "argv": [
+    "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+    "--headless",
+    "--main-pack",
+    "/Users/linlilu/godot-open-rts/build/verification/macos/tactical-rendered-20261102T054441Z-58184/package/Open RTS Tactical Review.app/Contents/Resources/Open RTS Tactical Review.pck",
+    "--fixed-fps",
+    "60",
+    "--script",
+    "res://tests/headless/RichTexturesRegression.gd"
+  ],
+  "cwd": "/Users/linlilu/godot-open-rts/build/verification/macos/original-style-contracts-20261101T224930/pack-probe",
+  "exit_code": 1,
+  "seconds": 28.632,
+  "pack_sha256": "a91363475889af6abf83baab6fe413cc0aa49b92840029ba9054138bd128f100",
+  "runtime_support_sha256": {
+    "copperfin.gdextension": "8c372b6efb94587d8f7a5902a77692ac957a2a58fe146ca8e3db75083da82bad",
+    "copperfin.macos.universal.dylib": "114c087b24ddad1959ca440b2c36bde1781160a4a6ef2ca22994929fcc8133df"
+  },
+  "log": "RichTexturesRegression-existing-pack-probe.log",
+  "log_sha256": "2d21000b396e3814c4b7b4eda93e3a7d3ee586fa4e004b01290bc91b903f5393",
+  "error_lines": 104,
+  "metadata_error_lines": 104,
+  "unexpected_error_lines": [],
+  "tail": "chTexturesRegression.gd:48)\n       [1] _frames (res://tests/headless/CampaignRegression.gd:254)\nERROR: Not VRAM compressed res://assets/textures/terrain/concrete_normal.jpg\n   at: push_error (core/variant/variant_utility.cpp:1023)\n   GDScript backtrace (most recent call first):\n       [0] _run (res://tests/headless/RichTexturesRegression.gd:48)\n       [1] _frames (res://tests/headless/CampaignRegression.gd:254)\nERROR: No mipmaps res://assets/textures/terrain/concrete_normal.jpg\n   at: push_error (core/variant/variant_utility.cpp:1023)\n   GDScript backtrace (most recent call first):\n       [0] _run (res://tests/headless/RichTexturesRegression.gd:48)\n       [1] _frames (res://tests/headless/CampaignRegression.gd:254)\nERROR: Normal map res://assets/textures/terrain/concrete_normal.jpg\n   at: push_error (core/variant/variant_utility.cpp:1023)\n   GDScript backtrace (most recent call first):\n       [0] _run (res://tests/headless/RichTexturesRegression.gd:48)\n       [1] _frames (res://tests/headless/CampaignRegression.gd:254)\nERROR: Not VRAM compressed res://assets/textures/terrain/concrete_data.webp\n   at: push_error (core/variant/variant_utility.cpp:1023)\n   GDScript backtrace (most recent call first):\n       [0] _run (res://tests/headless/RichTexturesRegression.gd:48)\n       [1] _frames (res://tests/headless/CampaignRegression.gd:254)\nERROR: No mipmaps res://assets/textures/terrain/concrete_data.webp\n   at: push_error (core/variant/variant_utility.cpp:1023)\n   GDScript backtrace (most recent call first):\n       [0] _run (res://tests/headless/RichTexturesRegression.gd:48)\n       [1] _frames (res://tests/headless/CampaignRegression.gd:254)\nERROR: Data packing res://assets/textures/terrain/concrete_data.webp\n   at: push_error (core/variant/variant_utility.cpp:1023)\n   GDScript backtrace (most recent call first):\n       [0] _run (res://tests/headless/RichTexturesRegression.gd:48)\n       [1] _frames (res://tests/headless/CampaignRegression.gd:254)\nRich textures: 64 failures\n",
+  "scope": "Existing coherent inputs4 pack with matching adjacent native runtime used only to probe availability of authoring import metadata; this is not qualification of later CPU source changes.",
+  "prior_environment_attempt": "pack-metadata-probe-without-adjacent-native.json"
+}

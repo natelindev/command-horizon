@@ -1,0 +1,7 @@
+# Invocation-local movement dust facts
+
+`CombatEffects.movement_dust` reads radius and right-facing basis once per synchronous emission, reuses the rear contact origin and evaluates the unchanged clod predicate once. No fact survives the call. Both contacts retain the same ground sampling, puff arguments, particle counts, colors, sizes and velocities; visibility and water rejection still precede the reused reads. Emission cadence, appearance, shader and native code are unchanged.
+
+The [focused observer](MovementDustParity.gd) compares the [original function](movement-dust-before.gd.txt) with the current function in the same process. **675 cases pass with exact emitted arguments in each backend**, covering three factions, actual Tank/Worker/Infantry scenes, four hull headings, stopped/slow/fast movement, six biomes and hidden/paused/restoring rejection. [Native](parity-native.log) and [fallback](parity-fallback.log) logs exit0 without errors or leaks. The observer records calls at the particle-pool boundary; it does not replace the production particle implementation.
+
+Twelve alternating samples of500calls per faction measure caller-thread CPU with puff recording disabled. Native medians fall from3.7375/3.7415/3.7840ms to2.6110/2.5460/2.6090ms (Bastion/Helix/Frontier); these are component diagnostics, without GPU emission or a rendered-frame qualification claim. [Raw samples and source/artifact hashes](verification.json) retain scope and exact values. `gdformat --check` passes both production source and observer.

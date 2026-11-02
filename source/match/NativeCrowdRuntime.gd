@@ -16,7 +16,9 @@ func _ready():
 	if loader == null or not ClassDB.class_exists("CopperfinCrowdRuntime"):
 		return
 	native = ClassDB.instantiate("CopperfinCrowdRuntime")
-	active = native != null
+	# Older optional libraries retain the numerical solver, but cannot share
+	# one ground-travel budget between scripted contacts and native steering.
+	active = native != null and native.has_method("motion_budget")
 	if active:
 		_nearest_surface = _nearest_surface and native.has_method("configure_surface")
 		if "--profile-runtime" in OS.get_cmdline_user_args():

@@ -11,8 +11,8 @@ func _ready():
 	var help = Label.new()
 	help.text = tr(
 		(
-			"Move infantry within 5 m and hold for 10 seconds. "
-			+ "Enemy ground forces suspend capture and services."
+			"Right-click facilities with infantry and channel for 12 seconds. "
+			+ "Enemy infantry contest sites and suspend income."
 		)
 	)
 	help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -71,10 +71,11 @@ func refresh():
 		)
 		var detail = ""
 		if site.kind == "refinery":
-			detail = (
-				tr("Refinery · 2 M / 1 E every 10 s · stock %d M / %d E")
-				% [site.stock_a, site.stock_b]
-			)
+			detail = (tr("Tech refinery · 3 M / 1 E every 4 s · +50 M / 25 E on capture"))
+			if site.player != null:
+				detail += "\n" + site.income_status()
+		elif site.kind == "data_relay":
+			detail = tr("Data relay · 2 E every 5 s · full-map radar sweep")
 			if site.player != null:
 				detail += "\n" + site.income_status()
 		elif site.kind == "repair":

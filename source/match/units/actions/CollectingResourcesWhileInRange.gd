@@ -46,16 +46,32 @@ func _setup_timer():
 	_timer = Timer.new()
 	_timer.timeout.connect(_transfer_single_resource_unit_from_resource_to_worker)
 	add_child(_timer)
-	if "resource_a" in _resource_unit:
-		_timer.start(
-			(
-				.5
-				if _resource_unit.is_in_group("salvage_wrecks")
-				else Constants.Match.Resources.A.COLLECTING_TIME_S
-			)
-		)
-	elif "resource_b" in _resource_unit:
-		_timer.start(Constants.Match.Resources.B.COLLECTING_TIME_S)
+	_timer.start(_collection_interval())
+
+
+func _collection_interval() -> float:
+	var kind = 1 if "resource_a" in _resource_unit else 2
+	var base = (
+		Constants.Match.Resources.A.COLLECTING_TIME_S
+		if kind == 1
+		else Constants.Match.Resources.B.COLLECTING_TIME_S
+	)
+	if _resource_unit.is_in_group("salvage_wrecks"):
+		base = .5
+	var profile = _unit.harvesting_profile
+	if profile == null:
+		profile = load("res://source/match/economy/HarvestingProfile.gd").new(_unit.player.faction)
+	var efficiency = (
+		get_parent().gathering_efficiency(_resource_unit)
+		if get_parent().has_method("gathering_efficiency")
+		else 1.0
+	)
+	var boost = (
+		_unit.player.harvesting_factor(_resource_unit)
+		if _unit.player.has_method("harvesting_factor")
+		else 1.0
+	)
+	return profile.collection_interval(kind, base) / maxf(.01, efficiency * boost)
 
 
 func _transfer_single_resource_unit_from_resource_to_worker():
@@ -83,6 +99,8 @@ func _transfer_single_resource_unit_from_resource_to_worker():
 		MatchSignals.resources_mined.emit(_unit, "electronics", 1)
 	if _unit.is_full():
 		queue_free()
+	else:
+		_timer.wait_time = _collection_interval()
 
 
 func _rotate_unit_towards_resource_unit():

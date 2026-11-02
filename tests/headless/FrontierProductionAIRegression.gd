@@ -18,7 +18,7 @@ func _run():
 	for message in errors:
 		push_error(message)
 	print("Frontier AI production: %d failures" % errors.size())
-	quit(0 if errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
 
 
 func _procurement(faction):
@@ -51,7 +51,7 @@ func _procurement(faction):
 	# This exact-price fixture isolates hardware procurement. Research saving
 	# has its own live-income and priority checks in ResearchEconomyRegression.
 	player.coordination_unlocked = true
-	var cost = factions.cost(player, "Tank")
+	var cost = factions.production_cost(player, "Tank")
 	var units = [factory, lab]
 	_check(player._research_candidate(units).is_empty(), "Procurement fixture reserves research")
 	var requests = production.requests(game, player, units)
@@ -83,10 +83,13 @@ func _procurement(faction):
 	)
 	var previous = _units(player, "Tank")
 	paused = false
-	await _frames(1500)
+	for frame in 3600:
+		await physics_frame
+		if factory.production_queue.size() == 0:
+			break
 	paused = true
 	var built = _units(player, "Tank").filter(func(tank): return tank not in previous)
-	if built.size() != 1:
+	if built.size() != factions.batch_size(faction, "Tank"):
 		print(
 			"AI DELIVERY ",
 			faction,
@@ -101,7 +104,7 @@ func _procurement(faction):
 			" power=",
 			player.production_factor()
 		)
-	_check(built.size() == 1, "Paid factory job did not deliver one tank")
+	_check(built.size() == factions.batch_size(faction, "Tank"), "Paid factory job did not deliver the faction batch")
 	if faction == "frontier":
 		lab.hp = 0
 		await _frames(3)

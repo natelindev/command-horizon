@@ -16,12 +16,12 @@ typedef struct {
     int x, z, order, slot;
 } CrBody;
 typedef struct {
-    uint64_t unit_id, agent_id, owner_id, map;
+    uint64_t unit_id, agent_id, owner_id, map, motion_frame;
     uint32_t generation;
-    int live, vehicle, ghost, has_destination, revision, synchronized, passive;
+    int live, vehicle, ghost, hover, has_destination, revision, synchronized, passive;
     int recovery_checked, previous_valid, window_count, hint;
     int64_t last_iteration;
-    double speed, radius, delta, progress_elapsed, recovery_left, alignment;
+    double speed, radius, delta, progress_elapsed, recovery_left, alignment, motion_distance;
     IpV position, progress_position, recovery_direction, window[10], direction_total;
     IpT previous;
 } CrSlot;
@@ -45,7 +45,7 @@ typedef struct {
     uint64_t profile[8]; /* begin/step/callback/projection us, then their call counts */
     NsSurface surface;
 } CrRuntime;
-static Value cr_class, cr_method[12], cr_args[21], cr_field[22], cr_helpers[7];
+static Value cr_class, cr_method[14], cr_args[25], cr_field[24], cr_helpers[8];
 static Value cr_engine_name, cr_navigation_name, cr_geometry_name, cr_tree_name, cr_scene_name;
 static GDExtensionMethodBindPtr cr_bind[30];
 static GDExtensionPtrBuiltInMethod cr_keys, cr_vectors_size;
@@ -107,6 +107,8 @@ enum {
     CR_AIM_TARGET,
     CR_HP,
     CR_PAUSED,
+    CR_COHESION_LIMIT,
+    CR_HOVER,
     CR_PLACEHOLDER
 };
 enum {
@@ -116,7 +118,8 @@ enum {
     CR_BLOCKED,
     CR_IS_CONSTRUCTED,
     CR_DECK_HEIGHT,
-    CR_TYPE
+    CR_TYPE,
+    CR_HOVER_HEIGHT
 };
 static Value cr_garrison, cr_breach, cr_movement_done, cr_passive_start, cr_passive_stop;
 
@@ -129,7 +132,7 @@ static int cr_zero(IpV a) {
 }
 static int cr_teq(IpT a, IpT b) {
     const float *x = (const float *)&a, *y = (const float *)&b;
-    for (int i = 0; i < 12; i++)
+    for (int i = 0; i < 13; i++)
         if (!cr_eq(x[i], y[i]))
             return 0;
     return 1;
@@ -152,6 +155,15 @@ static IpV cr_limit(IpV v, double maximum) {
                ? ipm(ipv(v.x / length, v.y / length, v.z / length), maximum)
                : v;
 }
+static IpV cr_bounded_ground_step(IpV origin, IpV point, double full, double planar) {
+    IpV result = cr_toward(origin, point, full);
+    if (planar >= full)
+        return result;
+    IpV horizontal = cr_limit(cr_flat(ips(result, origin)), planar);
+    result.x = origin.x + horizontal.x;
+    result.z = origin.z + horizontal.z;
+    return result;
+}
 static IpV cr_yaw(IpV v, double angle) {
     float c = cosf((float)angle), s = sinf((float)angle);
     return ipv(c * v.x + s * v.z, v.y, -s * v.x + c * v.z);
@@ -160,8 +172,13 @@ static void cr_variant(void *object, Value *value) { from_type(TYPE(OBJECT))(val
 static double cr_number(void *object, int field) {
     double resident = 0;
     int present = 0;
-    if (field == CR_SPEED && native_agent_speed(object, &resident))
-        return resident;
+    if (field == CR_SPEED && native_agent_speed(object, &resident)) {
+        Value agent;
+        cr_variant(object, &agent);
+        double cap = number_property(&agent, &cr_field[CR_COHESION_LIMIT]);
+        variant_destroy(&agent);
+        return cap >= 0 ? fmin(resident, cap) : resident;
+    }
     if (field == CR_HP && native_unit_scalar(object, US_HP, &resident, &present))
         return present ? resident : 0;
     Value v;
@@ -239,6 +256,20 @@ static uint64_t cr_frame_number(void) {
     uint64_t n = 0;
     ptrcall(cr_bind[CR_FRAME], cr_engine, 0, &n);
     return n;
+}
+/* Contact nudges and own movement consume one planar travel allowance per
+ * physics frame. This transient accounting is never part of an order/save. */
+static double cr_motion_budget(CrSlot *s, double speed, double delta, double consumed,
+                               int reset) {
+    uint64_t frame = cr_frame_number();
+    if (reset || s->motion_frame != frame) {
+        s->motion_frame = frame;
+        s->motion_distance = 0;
+    }
+    if (reset)
+        return 0;
+    s->motion_distance += consumed;
+    return fmax(0, speed * delta - s->motion_distance);
 }
 static CrSlot *cr_slot(CrRuntime *r, int64_t handle) {
     int index = (int)(handle & 65535);
@@ -330,6 +361,14 @@ static int cr_contains(CrPolygon *polygon, IpV p) {
     return inside;
 }
 static IpV cr_project(CrRuntime *r, CrSlot *s, IpV point) {
+    if (s->hover) {
+        point.y = 0;
+        const void *args[] = {&s->map, &point};
+        IpV projected;
+        ptrcall(cr_bind[CR_CLOSEST], cr_navigation, args, &projected);
+        return projected;
+    }
+
     double surface = r->elevated ? cr_height(r, point) + .5 : 0;
     if (r->projection_valid) {
         if (r->elevated && s->hint >= 0 && s->hint < r->polygon_count) {
@@ -372,10 +411,23 @@ static IpV cr_project(CrRuntime *r, CrSlot *s, IpV point) {
     r->server_projections++;
     return result;
 }
+static double cr_hover_height(void *agent, IpV point) {
+    Value value;
+    from_type(TYPE(VECTOR3))(&value, &point);
+    const void *arguments[] = {&value};
+    Value sampled = cr_call(agent, CR_HOVER_HEIGHT, arguments, 1);
+    double height = .16;
+    index_number(&sampled, &height);
+    variant_destroy(&sampled);
+    variant_destroy(&value);
+    return height;
+}
 static IpV cr_navigation_position(CrRuntime *r, CrSlot *s, void *agent, IpV point, int platform) {
     IpV p = cr_project(r, s, point);
     p.y -= (float)cr_real(agent, CR_GET_HEIGHT);
-    if (r->elevated || platform)
+    if (s->hover)
+        p.y = (float)cr_hover_height(agent, p);
+    else if (r->elevated || platform)
         p.y = (float)cr_height(r, p);
     return p;
 }
@@ -443,6 +495,7 @@ static void cr_begin(CrRuntime *r, const void *units, const void *platforms) {
         s->speed = cr_number(agent, CR_SPEED);
         s->radius = cr_real(agent, CR_GET_RADIUS);
         s->ghost = cr_number(agent, CR_GHOST) != 0;
+        s->hover = cr_number(agent, CR_HOVER) != 0;
         void *owner = 0;
         ptrcall(cr_bind[CR_GET_PARENT], unit, 0, &owner);
         Value owner_value;
@@ -532,7 +585,7 @@ static void cr_contact(CrRuntime *r, CrSlot *s, IpV origin, IpV next, const int 
     result[3] = (float)best;
 }
 static IpV cr_clip(CrRuntime *r, CrSlot *s, void *agent, IpV origin, IpV next, double speed,
-                   int platform) {
+                   double maximum, int platform) {
     IpV step = cr_flat(ips(next, origin));
     if (s->ghost || ipdot(step, step) < .00000001)
         return next;
@@ -547,7 +600,7 @@ static IpV cr_clip(CrRuntime *r, CrSlot *s, void *agent, IpV origin, IpV next, d
         normal = ipv(contact[0], contact[1], contact[2]);
     IpV slide = ips(step, ipm(normal, fmin(0, ipdot(step, normal))));
     IpV navigable = cr_navigation_position(r, s, agent, ipa(origin, slide), platform),
-        alternative = cr_toward(origin, navigable, speed * s->delta);
+        alternative = cr_bounded_ground_step(origin, navigable, speed * s->delta, maximum);
     cr_contact(r, s, origin, alternative, neighbors, count, contact);
     alternative = iplerp(origin, alternative, contact[3]);
     IpV a = ips(alternative, origin), c = ips(clipped, origin);
@@ -791,7 +844,7 @@ static void cr_velocity(CrRuntime *r, CrSlot *s, IpV safe) {
     int64_t iteration = 0;
     const void *map_args[] = {&s->map};
     ptrcall(cr_bind[CR_ITERATION], cr_navigation, map_args, &iteration);
-    if (iteration != r->projection_iteration)
+    if (!s->hover && iteration != r->projection_iteration)
         r->projection_valid = 0;
     IpT root;
     ptrcall(global_transform, unit, 0, &root);
@@ -810,11 +863,13 @@ static void cr_velocity(CrRuntime *r, CrSlot *s, IpV safe) {
         platform = 1;
         cr_write_bool(agent, CR_PLATFORM, 1);
     }
-    double maximum = speed * s->delta;
+    double maximum = cr_motion_budget(s, speed, s->delta, 0, 0);
     IpV candidate = ipa(origin, ipm(cr_limit(safe, speed), s->delta));
     IpV navigable = cr_navigation_position(r, s, agent, candidate, platform);
     s->alignment = navigable.y;
-    IpV next = cr_clip(r, s, agent, origin, cr_toward(origin, navigable, maximum), speed, platform);
+    IpV next = cr_clip(r, s, agent, origin,
+                      cr_bounded_ground_step(origin, navigable, speed * s->delta, maximum),
+                      speed, maximum, platform);
     IpV projection_delta = cr_flat(ips(navigable, candidate)), traveled = ips(next, origin);
     if (s->has_destination && s->recovery_left > 0 &&
         ipdot(projection_delta, projection_delta) > .000001 &&
@@ -822,13 +877,17 @@ static void cr_velocity(CrRuntime *r, CrSlot *s, IpV safe) {
         IpV recovery =
             ipa(origin, ipm(cr_limit(cr_vector(agent, CR_GET_VELOCITY), speed), s->delta));
         IpV recovery_nav = cr_navigation_position(r, s, agent, recovery, platform),
-            step = cr_clip(r, s, agent, origin, cr_toward(origin, recovery_nav, maximum), speed,
-                           platform);
+            step = cr_clip(r, s, agent, origin,
+                           cr_bounded_ground_step(origin, recovery_nav, speed * s->delta, maximum),
+                           speed, maximum, platform);
         IpV d = ips(step, origin);
         if (ipdot(d, d) > ipdot(traveled, traveled))
             next = step;
     }
-    if (r->elevated) {
+    if (s->hover) {
+        next.y = (float)cr_hover_height(agent, next);
+        s->alignment = next.y;
+    } else if (r->elevated) {
         next.y = (float)cr_height(r, next);
         s->alignment = next.y;
     }
@@ -867,6 +926,7 @@ static void cr_velocity(CrRuntime *r, CrSlot *s, IpV safe) {
         next.y = (float)fmax(next.y, (double)transform.p.y + height);
         s->alignment = fmax(s->alignment, (double)transform.p.y + height);
     }
+    cr_motion_budget(s, speed, s->delta, iplen(cr_flat(ips(next, origin))), 0);
     IpV actual = ipm(ips(next, origin), 1.0 / fmax(s->delta, .001));
     if (iplen(ips(actual, safe)) > .1)
         cr_set_vector(agent, CR_FORCE_VELOCITY, actual);
@@ -1047,6 +1107,111 @@ static void cr_free(void *userdata, void *instance) {
     free(r->slots);
     free(r);
 }
+/* Minimum Euclidean assignment. Full Hungarian, including 200-unit selections;
+ * unlike shortest-pair greedy this preserves the no-crossing optimum. */
+static int cr_assignment_finite(const IpV *from, const IpV *to, int64_t count) {
+    for (int64_t i = 0; i < count; i++)
+        if (!isfinite(from[i].x) || !isfinite(from[i].y) || !isfinite(from[i].z) ||
+            !isfinite(to[i].x) || !isfinite(to[i].y) || !isfinite(to[i].z))
+            return 0;
+    return 1;
+}
+static void cr_assignment(const GDExtensionConstVariantPtr *args, GDExtensionVariantPtr ret) {
+    Value origins, points, array;
+    to_type(TYPE(PACKED_VECTOR3_ARRAY))(&origins, (void *)args[0]);
+    to_type(TYPE(PACKED_VECTOR3_ARRAY))(&points, (void *)args[1]);
+    int64_t n = 0, m = 0;
+    cr_vectors_size(&origins, 0, &n, 0);
+    cr_vectors_size(&points, 0, &m, 0);
+    get_ctor(TYPE(ARRAY), 0)(&array, 0);
+    if (n > 0 && n == m && n <= CR_LIMIT) {
+        const IpV *from = cr_vector_read(&origins, 0), *to = cr_vector_read(&points, 0);
+        double *cost = malloc((size_t)n * n * sizeof(double));
+        double *u = calloc(n + 1, sizeof(double)), *v = calloc(n + 1, sizeof(double));
+        double *minimum = malloc((n + 1) * sizeof(double));
+        int *row_of = calloc(n + 1, sizeof(int)), *way = calloc(n + 1, sizeof(int));
+        int *result = calloc(n, sizeof(int));
+        unsigned char *used = calloc(n + 1, 1);
+        if (cost && u && v && minimum && row_of && way && result && used &&
+            cr_assignment_finite(from, to, n)) {
+            for (int row = 0; row < n; row++)
+                for (int col = 0; col < n; col++) {
+                    double x = (double)from[row].x - (double)to[col].x;
+                    double z = (double)from[row].z - (double)to[col].z;
+                    cost[row * n + col] = sqrt(x * x + z * z);
+                }
+            /* Start with feasible duals and a zero-reduced-cost partial
+             * matching. Every augmented edge still satisfies the same exact
+             * Hungarian optimum; translated/tied formations need fewer scans. */
+            for (int row = 0; row < n; row++) {
+                u[row + 1] = INFINITY;
+                result[row] = -1;
+                for (int col = 0; col < n; col++)
+                    u[row + 1] = fmin(u[row + 1], cost[row * n + col]);
+            }
+            for (int col = 0; col < n; col++) {
+                v[col + 1] = INFINITY;
+                for (int row = 0; row < n; row++)
+                    v[col + 1] = fmin(v[col + 1], cost[row * n + col] - u[row + 1]);
+            }
+            for (int row = 0; row < n; row++)
+                for (int col = 0; col < n; col++)
+                    if (!row_of[col + 1] && cost[row * n + col] - u[row + 1] - v[col + 1] == 0.0) {
+                        row_of[col + 1] = row + 1;
+                        result[row] = col;
+                        break;
+                    }
+            for (int row = 1; row <= n; row++) {
+                if (result[row - 1] >= 0)
+                    continue;
+                row_of[0] = row;
+                int col = 0;
+                memset(used, 0, n + 1);
+                for (int j = 0; j <= n; j++) minimum[j] = INFINITY;
+                minimum[0] = 0.0;
+                do {
+                    used[col] = 1;
+                    int current = row_of[col], next = 0;
+                    double distance = minimum[col], nearest = INFINITY;
+                    for (int j = 1; j <= n; j++) if (!used[j]) {
+                        double reduced = distance + cost[(current - 1) * n + j - 1] -
+                                         u[current] - v[j];
+                        if (reduced < minimum[j]) { minimum[j] = reduced; way[j] = col; }
+                        if (minimum[j] < nearest) { nearest = minimum[j]; next = j; }
+                    }
+                    col = next;
+                } while (row_of[col]);
+                /* Absolute shortest-path labels make all intervening dual
+                 * updates lazy. Apply each visited label once, after reaching
+                 * the free column, rather than rescanning every potential for
+                 * each visited column. Matching and Euclidean costs are exact. */
+                double shortest = minimum[col];
+                for (int j = 0; j <= n; j++) if (used[j]) {
+                    double adjustment = shortest - minimum[j];
+                    u[row_of[j]] += adjustment;
+                    v[j] -= adjustment;
+                }
+                do { int previous = way[col]; row_of[col] = row_of[previous]; col = previous; } while (col);
+                result[row - 1] = 0;
+            }
+            for (int col = 1; col <= n; col++) result[row_of[col] - 1] = col - 1;
+            for (int row = 0; row < n; row++) {
+                Value value;
+                int64_t column = result[row];
+                from_type(TYPE(INT))(&value, &column);
+                const void *append[] = {&value};
+                array_append(&array, append, 0, 1);
+                variant_destroy(&value);
+            }
+        }
+        free(cost); free(u); free(v); free(minimum); free(row_of); free(way); free(result); free(used);
+    }
+    variant_destroy(ret);
+    from_type(TYPE(ARRAY))(ret, &array);
+    get_dtor(TYPE(ARRAY))(&array);
+    get_dtor(TYPE(PACKED_VECTOR3_ARRAY))(&origins);
+    get_dtor(TYPE(PACKED_VECTOR3_ARRAY))(&points);
+}
 static void cr_dispatch(void *userdata, void *instance, const GDExtensionConstVariantPtr *args,
                         GDExtensionInt argc, GDExtensionVariantPtr ret,
                         GDExtensionCallError *error) {
@@ -1064,6 +1229,14 @@ static void cr_dispatch(void *userdata, void *instance, const GDExtensionConstVa
         void *agent = object_from_id(object_id(args[0])),
              *unit = object_from_id(object_id(args[1]));
         if (!agent || !unit || !object_cast(agent, agent_tag) || !object_cast(unit, node_tag))
+            return;
+        /* Exported extensions register before NavigationServer3D exists.
+         * Numerical assignment has no navigation dependency. Acquire the
+         * service only when binding the first real scene navigation agent;
+         * every navigation query below requires one of these live slots. */
+        if (!cr_navigation)
+            cr_navigation = cr_singleton(&cr_navigation_name);
+        if (!cr_navigation)
             return;
         int index = 0;
         while (index < r->high_water && r->slots[index].live)
@@ -1214,7 +1387,7 @@ static void cr_dispatch(void *userdata, void *instance, const GDExtensionConstVa
         int64_t iteration = 0;
         const void *map_args[] = {&s->map};
         ptrcall(cr_bind[CR_ITERATION], cr_navigation, map_args, &iteration);
-        if (iteration != r->projection_iteration)
+        if (!s->hover && iteration != r->projection_iteration)
             r->projection_valid = 0;
         IpV result = cr_project(r, s, point);
         variant_destroy(ret);
@@ -1248,6 +1421,7 @@ static void cr_dispatch(void *userdata, void *instance, const GDExtensionConstVa
         if (agent) {
             s->speed = cr_number(agent, CR_SPEED);
             s->ghost = cr_number(agent, CR_GHOST) != 0;
+        s->hover = cr_number(agent, CR_HOVER) != 0;
             s->radius = cr_real(agent, CR_GET_RADIUS);
             r->maximum_step = fmax(r->maximum_step, s->speed * s->delta);
         }
@@ -1287,6 +1461,34 @@ static void cr_dispatch(void *userdata, void *instance, const GDExtensionConstVa
         error->error = GDEXTENSION_CALL_OK;
         return;
     }
+    if (operation == 12 && argc == 2 && get_type(args[0]) == TYPE(PACKED_VECTOR3_ARRAY) &&
+        get_type(args[1]) == TYPE(PACKED_VECTOR3_ARRAY)) {
+        cr_assignment(args, ret);
+        error->error = GDEXTENSION_CALL_OK;
+        return;
+    }
+    if (operation == 13 && argc == 4 && get_type(args[0]) == TYPE(INT) &&
+        get_type(args[1]) == TYPE(FLOAT) && get_type(args[2]) == TYPE(FLOAT) &&
+        get_type(args[3]) == TYPE(BOOL)) {
+        int64_t handle;
+        double delta, consumed, remaining = 0;
+        GDExtensionBool reset;
+        to_type(TYPE(INT))(&handle, (void *)args[0]);
+        to_type(TYPE(FLOAT))(&delta, (void *)args[1]);
+        to_type(TYPE(FLOAT))(&consumed, (void *)args[2]);
+        to_type(TYPE(BOOL))(&reset, (void *)args[3]);
+        CrSlot *s = cr_slot(r, handle);
+        void *agent = s ? object_from_id(s->agent_id) : 0;
+        if (agent && isfinite(delta) && delta >= 0 && isfinite(consumed) && consumed >= 0) {
+            double speed = reset ? 0 : cr_number(agent, CR_SPEED);
+            if (isfinite(speed * delta) && isfinite(s->motion_distance + consumed))
+                remaining = cr_motion_budget(s, speed, delta, consumed, reset);
+        }
+        variant_destroy(ret);
+        from_type(TYPE(FLOAT))(ret, &remaining);
+        error->error = GDEXTENSION_CALL_OK;
+        return;
+    }
     if (operation == 11 && argc == 0) {
         uint64_t values[] = {(uint64_t)r->surface.polygon_count,
                              (uint64_t)r->surface.node_count,
@@ -1316,7 +1518,8 @@ static void crowd_initialize(void) {
     const char *methods[] = {"bind_agent",    "unbind_agent",      "begin_frame",
                              "step",          "receive_velocity",  "configure_projection",
                              "project_point", "statistics",        "refresh_agent",
-                             "profile",       "configure_surface", "surface_statistics"};
+                             "profile",       "configure_surface", "surface_statistics", "assign_formation",
+                             "motion_budget"};
     const char *fields[] = {"speed",
                             "ghosted",
                             "_has_destination",
@@ -1338,22 +1541,24 @@ static void crowd_initialize(void) {
                             "aim_target",
                             "hp",
                             "paused",
+                            "cohesion_limit",
+                            "_hovering",
                             ""};
     const char *helpers[] = {
         "_finish_command", "call_deferred", "emit_signal", "_abilities_prevent_movement",
-        "is_constructed",  "deck_height",   "type"};
+        "is_constructed",  "deck_height",   "type", "_hover_height"};
     const char *arguments[] = {"agent",     "unit",     "vehicle",          "units",    "platforms",
                                "delta",     "time",     "projection_valid", "point",    "handle",
                                "cells",     "heights",  "columns",          "rows",     "elevated",
                                "iteration", "velocity", "enabled",          "vertices", "polygons",
-                               "transform"};
-    for (int i = 0; i < 12; i++)
+                               "transform", "origins", "slots", "consumed", "reset"};
+    for (int i = 0; i < 14; i++)
         name_new(&cr_method[i], methods[i]);
-    for (int i = 0; i < 22; i++)
+    for (int i = 0; i < 24; i++)
         name_new(&cr_field[i], fields[i]);
-    for (int i = 0; i < 7; i++)
+    for (int i = 0; i < 8; i++)
         name_new(&cr_helpers[i], helpers[i]);
-    for (int i = 0; i < 21; i++)
+    for (int i = 0; i < 25; i++)
         name_new(&cr_args[i], arguments[i]);
     name_new(&cr_garrison, "garrison_host");
     name_new(&cr_breach, "breach_pending");
@@ -1416,7 +1621,7 @@ static void crowd_initialize(void) {
         if (!cr_bind[i])
             return;
     }
-    cr_navigation = cr_singleton(&cr_navigation_name);
+    cr_navigation = 0;
     cr_geometry = cr_singleton(&cr_geometry_name);
     cr_engine = cr_singleton(&cr_engine_name);
     Value keys_name;
@@ -1424,7 +1629,7 @@ static void crowd_initialize(void) {
     cr_keys = get_builtin(TYPE(DICTIONARY), &keys_name, 4144163970LL);
     get_dtor(TYPE(STRING_NAME))(&keys_name);
     cr_vectors_size = get_builtin(TYPE(PACKED_VECTOR3_ARRAY), &size_name, 3173160232LL);
-    if (!cr_keys || !cr_vectors_size || !cr_navigation || !cr_geometry || !cr_engine)
+    if (!cr_keys || !cr_vectors_size || !cr_geometry || !cr_engine)
         return;
     GDExtensionClassCreationInfo4 info = {0};
     info.is_exposed = 1;
@@ -1432,8 +1637,8 @@ static void crowd_initialize(void) {
     info.free_instance_func = cr_free;
     register_class(library, &cr_class, &parent_name, &info);
     cr_registered = 1;
-    const int counts[] = {3, 1, 3, 3, 2, 6, 2, 0, 1, 1, 4, 0};
-    const GDExtensionVariantType types[12][6] = {
+    const int counts[] = {3, 1, 3, 3, 2, 6, 2, 0, 1, 1, 4, 0, 2, 4};
+    const GDExtensionVariantType types[14][6] = {
         {TYPE(OBJECT), TYPE(OBJECT), TYPE(BOOL)},
         {TYPE(INT)},
         {TYPE(ARRAY), TYPE(ARRAY), TYPE(BOOL)},
@@ -1445,14 +1650,16 @@ static void crowd_initialize(void) {
         {TYPE(INT)},
         {TYPE(BOOL)},
         {TYPE(PACKED_VECTOR3_ARRAY), TYPE(ARRAY), TYPE(TRANSFORM3D), TYPE(INT)},
-        {}};
+        {}, {TYPE(PACKED_VECTOR3_ARRAY), TYPE(PACKED_VECTOR3_ARRAY)},
+        {TYPE(INT), TYPE(FLOAT), TYPE(FLOAT), TYPE(BOOL)}};
     const GDExtensionVariantType outputs[] = {TYPE(INT), TYPE(NIL),   TYPE(NIL),     TYPE(NIL),
                                               TYPE(NIL), TYPE(BOOL),  TYPE(VECTOR3), TYPE(ARRAY),
-                                              TYPE(NIL), TYPE(ARRAY), TYPE(BOOL),    TYPE(ARRAY)};
-    const int argument_names[12][6] = {
+                                              TYPE(NIL), TYPE(ARRAY), TYPE(BOOL),    TYPE(ARRAY), TYPE(ARRAY),
+                                              TYPE(FLOAT)};
+    const int argument_names[14][6] = {
         {0, 1, 2}, {9}, {3, 4, 7}, {5, 6, 7}, {16, 9},          {10, 11, 12, 13, 14, 15},
-        {8, 9},    {},  {9},       {17},      {18, 19, 20, 15}, {}};
-    for (int i = 0; i < 12; i++) {
+        {8, 9},    {},  {9},       {17},      {18, 19, 20, 15}, {}, {21, 22}, {9, 5, 23, 24}};
+    for (int i = 0; i < 14; i++) {
         GDExtensionPropertyInfo arguments_info[6];
         GDExtensionClassMethodArgumentMetadata metadata[6] = {0};
         for (int j = 0; j < counts[i]; j++)
@@ -1484,13 +1691,13 @@ static void crowd_deinitialize(void) {
                       &cr_movement_done, &cr_passive_start, &cr_passive_stop};
     for (unsigned i = 0; i < sizeof(names) / sizeof(names[0]); i++)
         get_dtor(TYPE(STRING_NAME))(names[i]);
-    for (int i = 0; i < 12; i++)
+    for (int i = 0; i < 14; i++)
         get_dtor(TYPE(STRING_NAME))(&cr_method[i]);
-    for (int i = 0; i < 22; i++)
+    for (int i = 0; i < 24; i++)
         get_dtor(TYPE(STRING_NAME))(&cr_field[i]);
-    for (int i = 0; i < 7; i++)
+    for (int i = 0; i < 8; i++)
         get_dtor(TYPE(STRING_NAME))(&cr_helpers[i]);
-    for (int i = 0; i < 21; i++)
+    for (int i = 0; i < 25; i++)
         get_dtor(TYPE(STRING_NAME))(&cr_args[i]);
     cr_initialized = 0;
 }

@@ -65,7 +65,7 @@ func _bastion_slice():
 	)
 	_game.projectile_system.set_physics_process(false)
 	var barrier = _game.engineering._spawn_barricade(
-		_players[0], Vector3(38, 0, 42), 0.0, _game.engineering._allocate_id("barrier")
+		_players[0], Vector3(38, 0, 42), 0.0, _game.engineering._allocate_id("barricade")
 	)
 	_game.engineering._cooldowns[worker] = 7.0
 	worker.manual_orders.submit(_orders.target_order("repair_barrier", barrier), false, false)

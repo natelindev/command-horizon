@@ -63,7 +63,7 @@ func _check_ground():
 	var start: Vector3 = map.get_node("SpawnPoints").get_child(1).position
 	_check(start.distance_to(Vector3(168, 3, 132)) < 0.1, "Rotated start marker: %s" % start)
 	_check(map.get_node("Resources").get_child_count() == 28, "Four fields of seven deposits")
-	_check(map.points_of_interest.size() == 2, "Rotated refinery pair")
+	_check(map.points_of_interest.size() == 4, "Rotated refinery and data relay pairs")
 
 
 func _check_navigation():

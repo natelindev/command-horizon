@@ -6,6 +6,7 @@ extends NavigationObstacle3D
 		var unit = get_parent()
 		if unit != null and unit.get("_native_state") != null:
 			unit._native_state.domain = value
+@export var align_to_navigation = true
 @export var path_height_offset = 0.0
 @export var sight_height = 3.0
 # Optional local XZ outline (any polygon); it turns with the body. Empty uses
@@ -45,7 +46,8 @@ func _ready():
 		await _match.ready
 	await _match.navigation.wait_until_synchronized(domain)
 	set_navigation_map(_match.navigation.get_navigation_map_rid_by_domain(domain))
-	_align_unit_position_to_navigation()
+	if align_to_navigation:
+		_align_unit_position_to_navigation()
 	_affect_navigation_if_needed()
 	if not footprint.is_empty():
 		_setup_polygon_avoidance()

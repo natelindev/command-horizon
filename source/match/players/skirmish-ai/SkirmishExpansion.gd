@@ -14,7 +14,7 @@ const DANGER_RADIUS = 22.0
 
 
 static func headquarters(units) -> Array:
-	return units.filter(func(unit): return unit.type == "CommandCenter")
+	return units.filter(func(unit): return unit.type in ["CommandCenter", "ForwardRefinery"])
 
 
 static func worker_bonus(units) -> int:
@@ -34,7 +34,10 @@ static func next_site(game, player, units, observed):
 		return null
 	if bases.any(func(unit): return not unit.is_constructed()):
 		return null
-	if game.simulation_time < FIRST[level] + INTERVAL[level] * extra:
+	if (
+		game.simulation_time < FIRST[level] + INTERVAL[level] * extra
+		and not field_depleted(game, bases)
+	):
 		return null
 	var start = player.start_index()
 	for name in layout.ai.get("expand_order", []):
@@ -67,3 +70,46 @@ static func _dangerous(site: Vector3, observed) -> bool:
 				and enemy.global_position_yless.distance_to(flat) < DANGER_RADIUS
 			)
 	)
+
+
+## Expansion deadlines remain a backstop. A depleted newest base may expand
+## earlier, preventing the commander from idling on an exhausted home field.
+static func field_depleted(game, bases) -> bool:
+	if bases.is_empty() or not "layout" in game.map or game.map.layout.is_empty():
+		return false
+	var latest = bases[-1]
+	var fields = []
+	var stocks = game.map.field_stocks()
+	for base in game.map.layout.bases:
+		fields.append({"site": base.start, "field": base.field, "stocks": stocks.home})
+	for expansion in game.map.layout.expansions:
+		fields.append(
+			{
+				"site": expansion.site,
+				"field": expansion.field,
+				"stocks":
+				stocks.rich if expansion.get("rich", false) else stocks.expansion
+			}
+		)
+	var closest = null
+	var distance = INF
+	for field in fields:
+		var value = field.site.distance_squared_to(
+			Vector2(latest.global_position.x, latest.global_position.z)
+		)
+		if value < distance:
+			distance = value
+			closest = field
+	if closest == null or distance > CLEARANCE * CLEARANCE:
+		return false
+	var original: float = (
+		closest.stocks[0] * game.map.MATERIAL_PILES + closest.stocks[1] * game.map.ELECTRONICS_NODES
+	)
+	var remaining = 0.0
+	var origin = game.map.ground_point(closest.field)
+	for deposit in game.get_tree().get_nodes_in_group("resource_units"):
+		if deposit.is_queued_for_deletion() or deposit.is_in_group("salvage_wrecks"):
+			continue
+		if deposit.harvest_origin.is_equal_approx(origin):
+			remaining += deposit.resource_a if "resource_a" in deposit else deposit.resource_b
+	return remaining <= original * .4

@@ -40,7 +40,7 @@ func _run():
 			"A ground shot slipped through before the next air-priority scan"
 		)
 		var ground_hp = ground.hp
-		var air_hp = aircraft.hp
+		var air_hp = aircraft.hp + aircraft.shields
 		_check(await _aims_at(aircraft), "AA turret did not preempt its ground attack")
 		_check(
 			turret.get_meta("next_attack_availability_time") == reload_at,
@@ -48,14 +48,17 @@ func _run():
 		)
 		for _tick in 180:
 			await _frames(1)
-			if aircraft.hp < air_hp:
+			if aircraft.hp + aircraft.shields < air_hp:
 				break
-		_check(aircraft.hp < air_hp, "Retargeted turret did not hit the aircraft")
+		_check(
+			aircraft.hp + aircraft.shields < air_hp, "Retargeted turret did not hit the aircraft"
+		)
 		_check(ground.hp == ground_hp, "Retargeted turret kept firing on the ground unit")
-		owner.technology.completed = ["weapons_1", "dual_purpose_aa"]
+		owner.coordination_unlocked = true
+		owner.technology.completed = []
 		_check(
 			game.battlefield.automatic_target(turret) == aircraft,
-			"Full ground damage removed turret air priority"
+			"Completed Coordination removed turret air priority"
 		)
 		aircraft.global_position = Vector3(60, 3, 20)
 		game.battlefield.invalidate()
@@ -123,8 +126,11 @@ func _archive_and_retarget():
 	)
 	var rules = load("res://source/match/combat/CombatRules.gd")
 	_check(
-		is_equal_approx(rules.damage(turret, ground), turret.attack_damage),
-		"Restored turret lost full ground damage research"
+		is_equal_approx(
+			rules.damage(turret, ground),
+			turret.attack_damage * rules.aa_ground_damage_factor(turret.player)
+		),
+		"Restored turret lost its ground fallback damage"
 	)
 	var reload_at = turret.get_meta("next_attack_availability_time")
 	aircraft.global_position = Vector3(39, 3, 24)

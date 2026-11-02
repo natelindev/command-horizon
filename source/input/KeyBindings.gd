@@ -1,6 +1,6 @@
 extends RefCounted
 
-const VERSION = 6
+const VERSION = 7
 const MODIFIERS = KEY_MASK_SHIFT | KEY_MASK_CTRL | KEY_MASK_ALT | KEY_MASK_META
 const MODIFIER_KEYS = [KEY_SHIFT, KEY_CTRL, KEY_ALT, KEY_META]
 const RESERVED = [KEY_BACKTAB, KEY_ENTER, KEY_KP_ENTER]
@@ -36,6 +36,11 @@ const SPECIAL = [
 	KEY_KP_PERIOD
 ]
 const CORE = {
+	"formation_line": ["Groups", "Line formation", KEY_Z],
+	"formation_box": ["Groups", "Box formation", KEY_X],
+	"formation_flank": ["Groups", "Flank formation", KEY_C | KEY_MASK_ALT],
+	"formation_staggered": ["Groups", "Staggered formation", KEY_V],
+	"cohesion_mode": ["Groups", "Match group march speed", KEY_C],
 	"commander_support": ["Battle", "Commander support", KEY_F6],
 	"pause_battle": ["Battle", "Tactical pause", KEY_SPACE],
 	"attack_move": ["Battle", "Attack move", KEY_F],
@@ -48,7 +53,8 @@ const CORE = {
 	"cycle_subgroup": ["Groups", "Cycle selected unit classes", KEY_TAB],
 	"select_all_combat_units": ["Groups", "Select all combat units", KEY_F3],
 	"cycle_idle_worker": ["Economy", "Cycle idle harvester", KEY_PERIOD],
-	"select_all_idle_workers": ["Economy", "Select all idle harvesters", KEY_PERIOD | KEY_MASK_CTRL],
+	"select_all_idle_workers":
+	["Economy", "Select all idle harvesters", KEY_PERIOD | KEY_MASK_CTRL],
 	"center_on_headquarters": ["Camera", "Center on Headquarters", KEY_HOME],
 	"jump_to_alert": ["Camera", "Jump to latest alert", KEY_QUOTELEFT],
 	"toggle_match_menu": ["Battle", "Battle menu / cancel assignment", KEY_ESCAPE],
@@ -90,7 +96,7 @@ static func normalize(record):
 	if (
 		record is Dictionary
 		and typeof(record.get("version")) == TYPE_INT
-		and record.get("version") in [4, 5]
+		and record.get("version") in [4, 5, 6]
 		and record.get("keys") is Dictionary
 	):
 		var previous = record.duplicate(true)
@@ -110,7 +116,7 @@ static func normalize(record):
 						previous.keys.commander_support = candidate
 						break
 			previous.version = 5
-		if previous.version == 5:
+		if previous.version in [5, 6]:
 			for action in fallback.keys:
 				if not previous.keys.has(action):
 					var default_key = fallback.keys[action]

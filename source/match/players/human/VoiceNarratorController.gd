@@ -6,6 +6,7 @@ const EVENTS = preload("res://source/match/MatchConstants.gd").VoiceNarrator.Eve
 var _power_low = false
 var _power_initialized = false
 var _power_check_left = 5.0
+var _low_health = {}
 
 @onready var _player = get_parent()
 @onready var _voice = get_parent().get_node("BattleVoice")
@@ -18,6 +19,8 @@ func _ready():
 	MatchSignals.match_finished_with_victory.connect(_on_match_victory)
 	MatchSignals.match_finished_with_defeat.connect(_on_match_defeat)
 	MatchSignals.unit_weapon_hit.connect(_on_unit_weapon_hit)
+	MatchSignals.unit_damaged.connect(_on_unit_damaged)
+	MatchSignals.unit_killed.connect(_on_unit_killed)
 	MatchSignals.unit_died.connect(_on_unit_died)
 	MatchSignals.unit_production_started.connect(_on_production_started)
 	MatchSignals.unit_production_finished.connect(_on_production_finished)
@@ -41,6 +44,10 @@ func _exit_tree():
 		MatchSignals.match_finished_with_defeat.disconnect(_on_match_defeat)
 	if MatchSignals.unit_weapon_hit.is_connected(_on_unit_weapon_hit):
 		MatchSignals.unit_weapon_hit.disconnect(_on_unit_weapon_hit)
+	if MatchSignals.unit_damaged.is_connected(_on_unit_damaged):
+		MatchSignals.unit_damaged.disconnect(_on_unit_damaged)
+	if MatchSignals.unit_killed.is_connected(_on_unit_killed):
+		MatchSignals.unit_killed.disconnect(_on_unit_killed)
 	if MatchSignals.unit_died.is_connected(_on_unit_died):
 		MatchSignals.unit_died.disconnect(_on_unit_died)
 	if MatchSignals.unit_production_started.is_connected(_on_production_started):
@@ -78,6 +85,45 @@ func _handle_event(event):
 func _on_unit_weapon_hit(unit, _source):
 	if unit.player == _player:
 		_handle_event(EVENTS.BASE_UNDER_ATTACK if unit is Structure else EVENTS.UNIT_UNDER_ATTACK)
+
+
+func _combat_speaker(unit):
+	return (
+		is_instance_valid(unit)
+		and not unit.is_queued_for_deletion()
+		and unit.player == _player
+		and unit.hp != null
+		and unit.hp > 0
+		and unit.hp_max != null
+		and unit.hp_max > 0
+		and unit.movement_speed > 0
+		and unit.attack_damage != null
+		and unit.attack_damage > 0
+		and not unit.has_meta("garrison_host")
+	)
+
+
+func _on_unit_damaged(unit):
+	if not _combat_speaker(unit):
+		return
+	var id = unit.get_instance_id()
+	if unit.hp >= unit.hp_max * .4:
+		_low_health.erase(id)
+	if (
+		unit.hp < unit.hp_max * .25
+		and not _low_health.has(id)
+		and _voice.say_unit(unit, "low_health")
+	):
+		_low_health[id] = weakref(unit)
+
+
+func _on_unit_killed(source, target):
+	if (
+		_combat_speaker(source)
+		and is_instance_valid(target)
+		and not load("res://source/match/Players.gd").allied(source.player, target.player)
+	):
+		_voice.say_unit(source, "kill")
 
 
 func _on_unit_died(unit):
@@ -119,6 +165,12 @@ func _process(delta):
 	if _power_check_left > 0:
 		return
 	_power_check_left = 2.0
+	# Healing does not emit damage; rearm only after a real recovery, and retain
+	# weak references so casualties do not leave a per-unit history behind.
+	for id in _low_health.keys():
+		var unit = _low_health[id].get_ref()
+		if not is_instance_valid(unit) or unit.hp == null or unit.hp >= unit.hp_max * .4:
+			_low_health.erase(id)
 	var totals = _player.power_totals()
 	var low = totals.y > totals.x
 	if low != _power_low or (low and not _power_initialized):

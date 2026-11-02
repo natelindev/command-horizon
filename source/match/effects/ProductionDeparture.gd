@@ -10,6 +10,7 @@ var duration = 1.8
 var job
 var producer
 var airborne = false
+var hovering = false
 var radius = .5
 var _origin = Vector3.ZERO
 var _control = Vector3.ZERO
@@ -44,9 +45,14 @@ func prepare(building, element):
 	radius = prototype.radius
 	movement_speed = prototype.movement_speed
 	airborne = prototype.movement_domain == Constants.Match.Navigation.Domain.AIR
+	# Preview prototypes have no parent, so Unit.player is unavailable until
+	# the live body is spawned. Match the harvester's faction here explicitly.
+	hovering = prototype.has_method("is_flux_skimmer") and producer.player.faction == "helix"
 	_navigation_map = producer._match.navigation.get_navigation_map_rid_by_domain(
 		prototype.movement_domain
 	)
+	if hovering and producer._match.navigation.hover != null:
+		_navigation_map = producer._match.navigation.hover.navigation_map_rid
 	Factions.prepare_model(prototype, producer.player.faction)
 	_geometry = prototype.get_node("Geometry")
 	_clear_owners(_geometry)
@@ -132,6 +138,10 @@ func find_route():
 			if ((navigable - requested) * Vector3(1, 0, 1)).length() > .1:
 				continue
 			navigable.y -= .8 if airborne else .6
+			if hovering:
+				navigable.y = load("res://source/match/units/traits/Movement.gd").hover_body_height(
+					producer._match.map, navigable
+				)
 			if airborne and producer._match.map.has_method("flight_height_at"):
 				navigable.y = producer._match.map.flight_height_at(navigable, navigable.y)
 			endpoint = navigable

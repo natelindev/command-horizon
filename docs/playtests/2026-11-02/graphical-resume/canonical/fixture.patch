@@ -1,0 +1,53 @@
+--- frozen/CampaignBriefingCatalogPreview.gd
++++ current/CampaignBriefingCatalogPreview.gd
+@@ -38,7 +38,9 @@
+ 		root.mode = Window.MODE_WINDOWED
+ 	root.size = Vector2i(1280, 720)
+ 	root.content_scale_size = root.size
+-	root.content_scale_mode = Window.CONTENT_SCALE_MODE_VIEWPORT
++	# Canvas scaling keeps physical PNG pixels while UI coordinates retain the
++	# requested interface scale; VIEWPORT captures the smaller logical target.
++	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+ 	Engine.max_fps = 120
+ 	await _frames(30)
+ 	root.size = Vector2i(1280, 720)
+@@ -95,6 +97,8 @@
+ 
+ 
+ func _review_mission(id: String, locale: String, factor: float, font_size: int):
++	if _rendered:
++		await _settle_capture_window()
+ 	var briefing = _scene.instantiate()
+ 	root.add_child(briefing)
+ 	briefing.duration = _catalog[id].duration
+@@ -144,7 +148,7 @@
+ 	var bounds: Rect2 = root.get_visible_rect()
+ 	var objective_box: Rect2 = briefing.objectives.get_global_rect()
+ 	var context := "%s/%s/scale%s/font%d" % [paragraph, locale, factor, font_size]
+-	var expected_size := Vector2(Vector2i(Vector2(1280, 720) / factor))
++	var expected_size := Vector2(1280, 720) / factor
+ 	_check(root.size == Vector2i(1280, 720), "Physical viewport changed: " + context)
+ 	_check(bounds.size.is_equal_approx(expected_size), "Interface scale did not apply: " + context)
+ 	_check(
+@@ -192,6 +196,21 @@
+ 	checked += 1
+ 
+ 
++func _settle_capture_window():
++	# A native fullscreen transition can finish after the initial resize.
++	var deadline := Time.get_ticks_msec() + 5000
++	var stable_since := Time.get_ticks_msec()
++	while Time.get_ticks_msec() < deadline:
++		if root.mode != Window.MODE_WINDOWED or root.size != Vector2i(1280, 720):
++			root.mode = Window.MODE_WINDOWED
++			root.size = Vector2i(1280, 720)
++			stable_since = Time.get_ticks_msec()
++		if Time.get_ticks_msec() - stable_since >= 500:
++			return
++		await process_frame
++	_check(false, "Physical briefing window did not stabilize at1280x720")
++
++
+ func _check(condition: bool, message: String):
+ 	if not condition and message not in failures:
+ 		failures.append(message)

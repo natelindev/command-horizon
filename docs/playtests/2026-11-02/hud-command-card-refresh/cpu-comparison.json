@@ -1,0 +1,1404 @@
+{
+  "kind": "repeated synchronous 200-unit HUD caller-thread CPU diagnosis; not an end-to-end frame qualification",
+  "clock": "CLOCK_THREAD_CPUTIME_ID",
+  "samples_per_function": 40,
+  "native_flags": [
+    "--enable-native-kernels",
+    "--native-unit-state",
+    "--native-crowd-runtime"
+  ],
+  "runs": {
+    "before": [
+      {
+        "coordination": false,
+        "milliseconds": {
+          "abilities": {
+            "process": {
+              "max": 1.808,
+              "median": 0.93,
+              "p95": 1.191
+            },
+            "thread": {
+              "max": 1.192,
+              "median": 0.931,
+              "p95": 1.104
+            },
+            "wall": {
+              "max": 1.19,
+              "median": 0.93,
+              "p95": 1.114
+            }
+          },
+          "buttons": {
+            "process": {
+              "max": 4.436,
+              "median": 3.257,
+              "p95": 4.22
+            },
+            "thread": {
+              "max": 4.428,
+              "median": 3.245,
+              "p95": 4.225
+            },
+            "wall": {
+              "max": 4.42,
+              "median": 3.255,
+              "p95": 4.333
+            }
+          },
+          "eligible_move": {
+            "process": {
+              "max": 0.377,
+              "median": 0.252,
+              "p95": 0.282
+            },
+            "thread": {
+              "max": 0.376,
+              "median": 0.252,
+              "p95": 0.282
+            },
+            "wall": {
+              "max": 0.374,
+              "median": 0.251,
+              "p95": 0.282
+            }
+          },
+          "health": {
+            "process": {
+              "max": 0.158,
+              "median": 0.089,
+              "p95": 0.106
+            },
+            "thread": {
+              "max": 0.157,
+              "median": 0.089,
+              "p95": 0.105
+            },
+            "wall": {
+              "max": 0.156,
+              "median": 0.088,
+              "p95": 0.104
+            }
+          },
+          "recovery": {
+            "process": {
+              "max": 0.327,
+              "median": 0.279,
+              "p95": 0.311
+            },
+            "thread": {
+              "max": 0.328,
+              "median": 0.28,
+              "p95": 0.312
+            },
+            "wall": {
+              "max": 0.326,
+              "median": 0.279,
+              "p95": 0.32
+            }
+          }
+        },
+        "samples": 40,
+        "selected": 200,
+        "wounded": 0
+      },
+      {
+        "coordination": true,
+        "milliseconds": {
+          "abilities": {
+            "process": {
+              "max": 2.807,
+              "median": 1.387,
+              "p95": 2.548
+            },
+            "thread": {
+              "max": 2.81,
+              "median": 1.388,
+              "p95": 1.846
+            },
+            "wall": {
+              "max": 2.805,
+              "median": 1.386,
+              "p95": 1.866
+            }
+          },
+          "buttons": {
+            "process": {
+              "max": 4.628,
+              "median": 3.47,
+              "p95": 4.551
+            },
+            "thread": {
+              "max": 4.628,
+              "median": 3.472,
+              "p95": 4.553
+            },
+            "wall": {
+              "max": 4.626,
+              "median": 3.471,
+              "p95": 4.548
+            }
+          },
+          "card_clear": {
+            "process": {
+              "max": 0.364,
+              "median": 0.276,
+              "p95": 0.354
+            },
+            "thread": {
+              "max": 0.359,
+              "median": 0.272,
+              "p95": 0.354
+            },
+            "wall": {
+              "max": 0.355,
+              "median": 0.27,
+              "p95": 0.348
+            }
+          },
+          "card_refresh_abilities": {
+            "process": {
+              "max": 1.474,
+              "median": 0.782,
+              "p95": 0.896
+            },
+            "thread": {
+              "max": 0.897,
+              "median": 0.783,
+              "p95": 0.883
+            },
+            "wall": {
+              "max": 0.9,
+              "median": 0.782,
+              "p95": 0.888
+            }
+          },
+          "card_setup_abilities": {
+            "process": {
+              "max": 1.275,
+              "median": 1.111,
+              "p95": 1.247
+            },
+            "thread": {
+              "max": 1.275,
+              "median": 1.111,
+              "p95": 1.25
+            },
+            "wall": {
+              "max": 1.273,
+              "median": 1.109,
+              "p95": 1.252
+            }
+          },
+          "eligible_move": {
+            "process": {
+              "max": 0.354,
+              "median": 0.25,
+              "p95": 0.273
+            },
+            "thread": {
+              "max": 0.354,
+              "median": 0.25,
+              "p95": 0.274
+            },
+            "wall": {
+              "max": 0.353,
+              "median": 0.249,
+              "p95": 0.272
+            }
+          },
+          "health": {
+            "process": {
+              "max": 0.151,
+              "median": 0.089,
+              "p95": 0.104
+            },
+            "thread": {
+              "max": 0.151,
+              "median": 0.089,
+              "p95": 0.105
+            },
+            "wall": {
+              "max": 0.151,
+              "median": 0.088,
+              "p95": 0.104
+            }
+          },
+          "recovery": {
+            "process": {
+              "max": 0.454,
+              "median": 0.282,
+              "p95": 0.398
+            },
+            "thread": {
+              "max": 0.458,
+              "median": 0.283,
+              "p95": 0.398
+            },
+            "wall": {
+              "max": 0.465,
+              "median": 0.28,
+              "p95": 0.398
+            }
+          }
+        },
+        "samples": 40,
+        "selected": 200,
+        "wounded": 0
+      },
+      {
+        "coordination": false,
+        "milliseconds": {
+          "abilities": {
+            "process": {
+              "max": 2.294,
+              "median": 1.132,
+              "p95": 1.562
+            },
+            "thread": {
+              "max": 2.297,
+              "median": 1.133,
+              "p95": 1.569
+            },
+            "wall": {
+              "max": 4.715,
+              "median": 1.144,
+              "p95": 2.029
+            }
+          },
+          "buttons": {
+            "process": {
+              "max": 10.361,
+              "median": 3.906,
+              "p95": 4.921
+            },
+            "thread": {
+              "max": 10.365,
+              "median": 3.909,
+              "p95": 4.898
+            },
+            "wall": {
+              "max": 10.37,
+              "median": 3.905,
+              "p95": 4.896
+            }
+          },
+          "eligible_move": {
+            "process": {
+              "max": 0.474,
+              "median": 0.263,
+              "p95": 0.391
+            },
+            "thread": {
+              "max": 0.474,
+              "median": 0.263,
+              "p95": 0.392
+            },
+            "wall": {
+              "max": 0.473,
+              "median": 0.262,
+              "p95": 0.39
+            }
+          },
+          "health": {
+            "process": {
+              "max": 0.151,
+              "median": 0.089,
+              "p95": 0.091
+            },
+            "thread": {
+              "max": 0.151,
+              "median": 0.089,
+              "p95": 0.091
+            },
+            "wall": {
+              "max": 0.149,
+              "median": 0.088,
+              "p95": 0.091
+            }
+          },
+          "recovery": {
+            "process": {
+              "max": 1.304,
+              "median": 0.628,
+              "p95": 0.692
+            },
+            "thread": {
+              "max": 0.692,
+              "median": 0.63,
+              "p95": 0.682
+            },
+            "wall": {
+              "max": 0.69,
+              "median": 0.628,
+              "p95": 0.69
+            }
+          }
+        },
+        "samples": 40,
+        "selected": 200,
+        "wounded": 100
+      },
+      {
+        "coordination": true,
+        "milliseconds": {
+          "_behavior_panel": {
+            "process": {
+              "max": 0.176,
+              "median": 0.141,
+              "p95": 0.144
+            },
+            "thread": {
+              "max": 0.177,
+              "median": 0.141,
+              "p95": 0.144
+            },
+            "wall": {
+              "max": 0.175,
+              "median": 0.14,
+              "p95": 0.143
+            }
+          },
+          "_orders_panel": {
+            "process": {
+              "max": 0.202,
+              "median": 0.103,
+              "p95": 0.193
+            },
+            "thread": {
+              "max": 0.202,
+              "median": 0.104,
+              "p95": 0.194
+            },
+            "wall": {
+              "max": 0.203,
+              "median": 0.103,
+              "p95": 0.2
+            }
+          },
+          "_selection_roster": {
+            "process": {
+              "max": 0.271,
+              "median": 0.203,
+              "p95": 0.226
+            },
+            "thread": {
+              "max": 0.271,
+              "median": 0.203,
+              "p95": 0.227
+            },
+            "wall": {
+              "max": 0.269,
+              "median": 0.202,
+              "p95": 0.232
+            }
+          },
+          "_signature_panel": {
+            "process": {
+              "max": 0.494,
+              "median": 0.435,
+              "p95": 0.45
+            },
+            "thread": {
+              "max": 0.494,
+              "median": 0.435,
+              "p95": 0.45
+            },
+            "wall": {
+              "max": 0.493,
+              "median": 0.434,
+              "p95": 0.449
+            }
+          },
+          "abilities": {
+            "process": {
+              "max": 2.279,
+              "median": 1.443,
+              "p95": 2.053
+            },
+            "thread": {
+              "max": 2.281,
+              "median": 1.444,
+              "p95": 1.845
+            },
+            "wall": {
+              "max": 2.279,
+              "median": 1.446,
+              "p95": 1.898
+            }
+          },
+          "buttons": {
+            "process": {
+              "max": 5.863,
+              "median": 4.381,
+              "p95": 5.488
+            },
+            "thread": {
+              "max": 5.497,
+              "median": 4.383,
+              "p95": 5.493
+            },
+            "wall": {
+              "max": 5.518,
+              "median": 4.391,
+              "p95": 5.499
+            }
+          },
+          "command_card": {
+            "process": {
+              "max": 3.119,
+              "median": 2.446,
+              "p95": 3.111
+            },
+            "thread": {
+              "max": 3.113,
+              "median": 2.447,
+              "p95": 3.1
+            },
+            "wall": {
+              "max": 3.124,
+              "median": 2.445,
+              "p95": 3.122
+            }
+          },
+          "eligible_move": {
+            "process": {
+              "max": 0.362,
+              "median": 0.254,
+              "p95": 0.274
+            },
+            "thread": {
+              "max": 0.363,
+              "median": 0.254,
+              "p95": 0.273
+            },
+            "wall": {
+              "max": 0.362,
+              "median": 0.254,
+              "p95": 0.272
+            }
+          },
+          "health": {
+            "process": {
+              "max": 0.171,
+              "median": 0.092,
+              "p95": 0.095
+            },
+            "thread": {
+              "max": 0.171,
+              "median": 0.092,
+              "p95": 0.096
+            },
+            "wall": {
+              "max": 0.171,
+              "median": 0.091,
+              "p95": 0.094
+            }
+          },
+          "recovery": {
+            "process": {
+              "max": 0.837,
+              "median": 0.648,
+              "p95": 0.739
+            },
+            "thread": {
+              "max": 0.837,
+              "median": 0.649,
+              "p95": 0.754
+            },
+            "wall": {
+              "max": 0.836,
+              "median": 0.647,
+              "p95": 0.755
+            }
+          }
+        },
+        "samples": 40,
+        "selected": 200,
+        "wounded": 100
+      },
+      {
+        "coordination": false,
+        "milliseconds": {
+          "abilities": {
+            "process": {
+              "max": 1.534,
+              "median": 0.977,
+              "p95": 1.368
+            },
+            "thread": {
+              "max": 1.536,
+              "median": 0.982,
+              "p95": 1.378
+            },
+            "wall": {
+              "max": 1.533,
+              "median": 0.976,
+              "p95": 1.394
+            }
+          },
+          "buttons": {
+            "process": {
+              "max": 11.174,
+              "median": 4.446,
+              "p95": 5.377
+            },
+            "thread": {
+              "max": 10.456,
+              "median": 4.387,
+              "p95": 5.382
+            },
+            "wall": {
+              "max": 10.45,
+              "median": 4.386,
+              "p95": 5.409
+            }
+          },
+          "eligible_move": {
+            "process": {
+              "max": 0.37,
+              "median": 0.258,
+              "p95": 0.279
+            },
+            "thread": {
+              "max": 0.371,
+              "median": 0.258,
+              "p95": 0.278
+            },
+            "wall": {
+              "max": 0.369,
+              "median": 0.257,
+              "p95": 0.277
+            }
+          },
+          "health": {
+            "process": {
+              "max": 0.154,
+              "median": 0.088,
+              "p95": 0.151
+            },
+            "thread": {
+              "max": 0.153,
+              "median": 0.088,
+              "p95": 0.15
+            },
+            "wall": {
+              "max": 0.156,
+              "median": 0.087,
+              "p95": 0.152
+            }
+          },
+          "recovery": {
+            "process": {
+              "max": 1.708,
+              "median": 1.04,
+              "p95": 1.363
+            },
+            "thread": {
+              "max": 1.367,
+              "median": 1.041,
+              "p95": 1.329
+            },
+            "wall": {
+              "max": 1.403,
+              "median": 1.04,
+              "p95": 1.356
+            }
+          }
+        },
+        "samples": 40,
+        "selected": 200,
+        "wounded": 200
+      },
+      {
+        "coordination": true,
+        "milliseconds": {
+          "abilities": {
+            "process": {
+              "max": 2.5,
+              "median": 1.382,
+              "p95": 1.825
+            },
+            "thread": {
+              "max": 1.829,
+              "median": 1.383,
+              "p95": 1.799
+            },
+            "wall": {
+              "max": 1.824,
+              "median": 1.382,
+              "p95": 1.798
+            }
+          },
+          "buttons": {
+            "process": {
+              "max": 6.103,
+              "median": 4.765,
+              "p95": 5.882
+            },
+            "thread": {
+              "max": 6.109,
+              "median": 4.749,
+              "p95": 5.886
+            },
+            "wall": {
+              "max": 6.114,
+              "median": 4.755,
+              "p95": 5.902
+            }
+          },
+          "eligible_move": {
+            "process": {
+              "max": 0.375,
+              "median": 0.251,
+              "p95": 0.299
+            },
+            "thread": {
+              "max": 0.375,
+              "median": 0.252,
+              "p95": 0.302
+            },
+            "wall": {
+              "max": 0.374,
+              "median": 0.251,
+              "p95": 0.301
+            }
+          },
+          "health": {
+            "process": {
+              "max": 0.108,
+              "median": 0.089,
+              "p95": 0.099
+            },
+            "thread": {
+              "max": 0.108,
+              "median": 0.089,
+              "p95": 0.092
+            },
+            "wall": {
+              "max": 0.106,
+              "median": 0.088,
+              "p95": 0.091
+            }
+          },
+          "recovery": {
+            "process": {
+              "max": 1.421,
+              "median": 0.966,
+              "p95": 1.119
+            },
+            "thread": {
+              "max": 1.424,
+              "median": 0.966,
+              "p95": 1.119
+            },
+            "wall": {
+              "max": 1.442,
+              "median": 0.965,
+              "p95": 1.117
+            }
+          }
+        },
+        "samples": 40,
+        "selected": 200,
+        "wounded": 200
+      }
+    ],
+    "after": [
+      {
+        "coordination": false,
+        "milliseconds": {
+          "abilities": {
+            "process": {
+              "max": 1.162,
+              "median": 0.928,
+              "p95": 0.961
+            },
+            "thread": {
+              "max": 1.163,
+              "median": 0.93,
+              "p95": 0.964
+            },
+            "wall": {
+              "max": 1.161,
+              "median": 0.928,
+              "p95": 0.96
+            }
+          },
+          "buttons": {
+            "process": {
+              "max": 2.701,
+              "median": 1.974,
+              "p95": 2.633
+            },
+            "thread": {
+              "max": 2.696,
+              "median": 1.975,
+              "p95": 2.412
+            },
+            "wall": {
+              "max": 2.692,
+              "median": 1.973,
+              "p95": 2.424
+            }
+          },
+          "eligible_move": {
+            "process": {
+              "max": 0.926,
+              "median": 0.251,
+              "p95": 0.29
+            },
+            "thread": {
+              "max": 0.292,
+              "median": 0.25,
+              "p95": 0.266
+            },
+            "wall": {
+              "max": 0.29,
+              "median": 0.249,
+              "p95": 0.262
+            }
+          },
+          "health": {
+            "process": {
+              "max": 0.134,
+              "median": 0.089,
+              "p95": 0.096
+            },
+            "thread": {
+              "max": 0.135,
+              "median": 0.089,
+              "p95": 0.096
+            },
+            "wall": {
+              "max": 0.134,
+              "median": 0.088,
+              "p95": 0.095
+            }
+          },
+          "recovery": {
+            "process": {
+              "max": 0.323,
+              "median": 0.281,
+              "p95": 0.318
+            },
+            "thread": {
+              "max": 0.325,
+              "median": 0.281,
+              "p95": 0.319
+            },
+            "wall": {
+              "max": 0.34,
+              "median": 0.28,
+              "p95": 0.317
+            }
+          }
+        },
+        "samples": 40,
+        "selected": 200,
+        "wounded": 0
+      },
+      {
+        "coordination": true,
+        "milliseconds": {
+          "abilities": {
+            "process": {
+              "max": 2.402,
+              "median": 1.391,
+              "p95": 1.601
+            },
+            "thread": {
+              "max": 2.406,
+              "median": 1.393,
+              "p95": 1.601
+            },
+            "wall": {
+              "max": 2.401,
+              "median": 1.391,
+              "p95": 1.613
+            }
+          },
+          "buttons": {
+            "process": {
+              "max": 2.58,
+              "median": 2.255,
+              "p95": 2.548
+            },
+            "thread": {
+              "max": 2.585,
+              "median": 2.256,
+              "p95": 2.549
+            },
+            "wall": {
+              "max": 2.596,
+              "median": 2.254,
+              "p95": 2.546
+            }
+          },
+          "card_clear": {
+            "process": {
+              "max": 0.48,
+              "median": 0.27,
+              "p95": 0.324
+            },
+            "thread": {
+              "max": 0.48,
+              "median": 0.269,
+              "p95": 0.317
+            },
+            "wall": {
+              "max": 0.477,
+              "median": 0.267,
+              "p95": 0.315
+            }
+          },
+          "card_refresh_abilities": {
+            "process": {
+              "max": 1.042,
+              "median": 0.354,
+              "p95": 0.408
+            },
+            "thread": {
+              "max": 0.41,
+              "median": 0.355,
+              "p95": 0.389
+            },
+            "wall": {
+              "max": 0.412,
+              "median": 0.354,
+              "p95": 0.387
+            }
+          },
+          "card_setup_abilities": {
+            "process": {
+              "max": 0.74,
+              "median": 0.694,
+              "p95": 0.735
+            },
+            "thread": {
+              "max": 0.74,
+              "median": 0.694,
+              "p95": 0.738
+            },
+            "wall": {
+              "max": 0.737,
+              "median": 0.692,
+              "p95": 0.734
+            }
+          },
+          "eligible_move": {
+            "process": {
+              "max": 0.361,
+              "median": 0.249,
+              "p95": 0.273
+            },
+            "thread": {
+              "max": 0.363,
+              "median": 0.249,
+              "p95": 0.274
+            },
+            "wall": {
+              "max": 0.361,
+              "median": 0.248,
+              "p95": 0.272
+            }
+          },
+          "health": {
+            "process": {
+              "max": 0.115,
+              "median": 0.089,
+              "p95": 0.1
+            },
+            "thread": {
+              "max": 0.116,
+              "median": 0.089,
+              "p95": 0.1
+            },
+            "wall": {
+              "max": 0.116,
+              "median": 0.088,
+              "p95": 0.1
+            }
+          },
+          "recovery": {
+            "process": {
+              "max": 0.985,
+              "median": 0.277,
+              "p95": 0.305
+            },
+            "thread": {
+              "max": 0.305,
+              "median": 0.277,
+              "p95": 0.286
+            },
+            "wall": {
+              "max": 0.304,
+              "median": 0.276,
+              "p95": 0.284
+            }
+          }
+        },
+        "samples": 40,
+        "selected": 200,
+        "wounded": 0
+      },
+      {
+        "coordination": false,
+        "milliseconds": {
+          "abilities": {
+            "process": {
+              "max": 1.378,
+              "median": 0.935,
+              "p95": 1.348
+            },
+            "thread": {
+              "max": 1.384,
+              "median": 0.935,
+              "p95": 1.356
+            },
+            "wall": {
+              "max": 1.386,
+              "median": 0.934,
+              "p95": 1.36
+            }
+          },
+          "buttons": {
+            "process": {
+              "max": 9.841,
+              "median": 2.366,
+              "p95": 3.039
+            },
+            "thread": {
+              "max": 9.845,
+              "median": 2.366,
+              "p95": 3.026
+            },
+            "wall": {
+              "max": 9.843,
+              "median": 2.364,
+              "p95": 3.017
+            }
+          },
+          "eligible_move": {
+            "process": {
+              "max": 0.945,
+              "median": 0.249,
+              "p95": 0.368
+            },
+            "thread": {
+              "max": 0.369,
+              "median": 0.249,
+              "p95": 0.293
+            },
+            "wall": {
+              "max": 0.368,
+              "median": 0.248,
+              "p95": 0.292
+            }
+          },
+          "health": {
+            "process": {
+              "max": 0.098,
+              "median": 0.091,
+              "p95": 0.094
+            },
+            "thread": {
+              "max": 0.098,
+              "median": 0.091,
+              "p95": 0.094
+            },
+            "wall": {
+              "max": 0.096,
+              "median": 0.091,
+              "p95": 0.093
+            }
+          },
+          "recovery": {
+            "process": {
+              "max": 0.649,
+              "median": 0.626,
+              "p95": 0.646
+            },
+            "thread": {
+              "max": 0.648,
+              "median": 0.626,
+              "p95": 0.646
+            },
+            "wall": {
+              "max": 0.647,
+              "median": 0.625,
+              "p95": 0.645
+            }
+          }
+        },
+        "samples": 40,
+        "selected": 200,
+        "wounded": 100
+      },
+      {
+        "coordination": true,
+        "milliseconds": {
+          "_behavior_panel": {
+            "process": {
+              "max": 0.204,
+              "median": 0.146,
+              "p95": 0.176
+            },
+            "thread": {
+              "max": 0.204,
+              "median": 0.146,
+              "p95": 0.177
+            },
+            "wall": {
+              "max": 0.203,
+              "median": 0.145,
+              "p95": 0.178
+            }
+          },
+          "_orders_panel": {
+            "process": {
+              "max": 0.221,
+              "median": 0.096,
+              "p95": 0.114
+            },
+            "thread": {
+              "max": 0.222,
+              "median": 0.097,
+              "p95": 0.114
+            },
+            "wall": {
+              "max": 0.22,
+              "median": 0.096,
+              "p95": 0.113
+            }
+          },
+          "_selection_roster": {
+            "process": {
+              "max": 0.295,
+              "median": 0.196,
+              "p95": 0.222
+            },
+            "thread": {
+              "max": 0.296,
+              "median": 0.195,
+              "p95": 0.221
+            },
+            "wall": {
+              "max": 0.294,
+              "median": 0.194,
+              "p95": 0.22
+            }
+          },
+          "_signature_panel": {
+            "process": {
+              "max": 0.495,
+              "median": 0.428,
+              "p95": 0.481
+            },
+            "thread": {
+              "max": 0.493,
+              "median": 0.428,
+              "p95": 0.482
+            },
+            "wall": {
+              "max": 0.493,
+              "median": 0.427,
+              "p95": 0.485
+            }
+          },
+          "abilities": {
+            "process": {
+              "max": 2.465,
+              "median": 1.388,
+              "p95": 2.029
+            },
+            "thread": {
+              "max": 2.467,
+              "median": 1.389,
+              "p95": 1.621
+            },
+            "wall": {
+              "max": 2.465,
+              "median": 1.388,
+              "p95": 1.62
+            }
+          },
+          "buttons": {
+            "process": {
+              "max": 3.594,
+              "median": 2.663,
+              "p95": 3.553
+            },
+            "thread": {
+              "max": 3.594,
+              "median": 2.65,
+              "p95": 3.557
+            },
+            "wall": {
+              "max": 3.664,
+              "median": 2.649,
+              "p95": 3.558
+            }
+          },
+          "command_card": {
+            "process": {
+              "max": 1.454,
+              "median": 1.137,
+              "p95": 1.278
+            },
+            "thread": {
+              "max": 1.455,
+              "median": 1.137,
+              "p95": 1.284
+            },
+            "wall": {
+              "max": 1.453,
+              "median": 1.136,
+              "p95": 1.283
+            }
+          },
+          "eligible_move": {
+            "process": {
+              "max": 0.383,
+              "median": 0.26,
+              "p95": 0.321
+            },
+            "thread": {
+              "max": 0.384,
+              "median": 0.26,
+              "p95": 0.327
+            },
+            "wall": {
+              "max": 0.382,
+              "median": 0.258,
+              "p95": 0.34
+            }
+          },
+          "health": {
+            "process": {
+              "max": 0.132,
+              "median": 0.089,
+              "p95": 0.097
+            },
+            "thread": {
+              "max": 0.136,
+              "median": 0.089,
+              "p95": 0.097
+            },
+            "wall": {
+              "max": 0.131,
+              "median": 0.088,
+              "p95": 0.096
+            }
+          },
+          "recovery": {
+            "process": {
+              "max": 0.912,
+              "median": 0.629,
+              "p95": 0.799
+            },
+            "thread": {
+              "max": 0.914,
+              "median": 0.63,
+              "p95": 0.799
+            },
+            "wall": {
+              "max": 0.933,
+              "median": 0.629,
+              "p95": 0.798
+            }
+          }
+        },
+        "samples": 40,
+        "selected": 200,
+        "wounded": 100
+      },
+      {
+        "coordination": false,
+        "milliseconds": {
+          "abilities": {
+            "process": {
+              "max": 1.62,
+              "median": 0.935,
+              "p95": 1.365
+            },
+            "thread": {
+              "max": 1.368,
+              "median": 0.936,
+              "p95": 1.053
+            },
+            "wall": {
+              "max": 1.368,
+              "median": 0.935,
+              "p95": 1.059
+            }
+          },
+          "buttons": {
+            "process": {
+              "max": 8.232,
+              "median": 2.696,
+              "p95": 3.507
+            },
+            "thread": {
+              "max": 8.23,
+              "median": 2.697,
+              "p95": 3.262
+            },
+            "wall": {
+              "max": 8.227,
+              "median": 2.695,
+              "p95": 3.267
+            }
+          },
+          "eligible_move": {
+            "process": {
+              "max": 0.388,
+              "median": 0.25,
+              "p95": 0.285
+            },
+            "thread": {
+              "max": 0.388,
+              "median": 0.251,
+              "p95": 0.286
+            },
+            "wall": {
+              "max": 0.387,
+              "median": 0.25,
+              "p95": 0.293
+            }
+          },
+          "health": {
+            "process": {
+              "max": 0.149,
+              "median": 0.089,
+              "p95": 0.096
+            },
+            "thread": {
+              "max": 0.149,
+              "median": 0.089,
+              "p95": 0.097
+            },
+            "wall": {
+              "max": 0.148,
+              "median": 0.088,
+              "p95": 0.096
+            }
+          },
+          "recovery": {
+            "process": {
+              "max": 1.115,
+              "median": 0.972,
+              "p95": 1.098
+            },
+            "thread": {
+              "max": 1.116,
+              "median": 0.973,
+              "p95": 1.099
+            },
+            "wall": {
+              "max": 1.114,
+              "median": 0.971,
+              "p95": 1.105
+            }
+          }
+        },
+        "samples": 40,
+        "selected": 200,
+        "wounded": 200
+      },
+      {
+        "coordination": true,
+        "milliseconds": {
+          "abilities": {
+            "process": {
+              "max": 2.135,
+              "median": 1.4,
+              "p95": 2.049
+            },
+            "thread": {
+              "max": 2.138,
+              "median": 1.401,
+              "p95": 1.579
+            },
+            "wall": {
+              "max": 2.134,
+              "median": 1.398,
+              "p95": 1.588
+            }
+          },
+          "buttons": {
+            "process": {
+              "max": 3.73,
+              "median": 2.956,
+              "p95": 3.713
+            },
+            "thread": {
+              "max": 3.731,
+              "median": 2.956,
+              "p95": 3.455
+            },
+            "wall": {
+              "max": 3.731,
+              "median": 2.954,
+              "p95": 3.458
+            }
+          },
+          "eligible_move": {
+            "process": {
+              "max": 0.338,
+              "median": 0.249,
+              "p95": 0.26
+            },
+            "thread": {
+              "max": 0.339,
+              "median": 0.249,
+              "p95": 0.261
+            },
+            "wall": {
+              "max": 0.337,
+              "median": 0.248,
+              "p95": 0.26
+            }
+          },
+          "health": {
+            "process": {
+              "max": 0.138,
+              "median": 0.092,
+              "p95": 0.099
+            },
+            "thread": {
+              "max": 0.138,
+              "median": 0.092,
+              "p95": 0.1
+            },
+            "wall": {
+              "max": 0.137,
+              "median": 0.091,
+              "p95": 0.098
+            }
+          },
+          "recovery": {
+            "process": {
+              "max": 1.086,
+              "median": 0.968,
+              "p95": 1.025
+            },
+            "thread": {
+              "max": 1.086,
+              "median": 0.968,
+              "p95": 1.025
+            },
+            "wall": {
+              "max": 1.094,
+              "median": 0.967,
+              "p95": 1.023
+            }
+          }
+        },
+        "samples": 40,
+        "selected": 200,
+        "wounded": 200
+      }
+    ]
+  }
+}

@@ -47,6 +47,16 @@ func is_assigned():
 
 
 func clear_assignment():
+	var gate = load("res://source/match/network/NetworkGate.gd")
+	if gate.intercept(
+		_unit,
+		{
+			"kind": "rally",
+			"unit": gate.id_for(_unit),
+			"point": gate.Protocol.quantize(_unit.global_position)
+		}
+	):
+		return
 	target_unit = null
 	_reset_position_to_parent()
 	visible = _unit.is_in_group("selected_units")

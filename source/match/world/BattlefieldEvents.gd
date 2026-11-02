@@ -12,6 +12,10 @@ const TIMES = [300.0, 660.0]
 const WARNING = 45.0
 const REACH = 2.0
 const PERFORMANCE = 12.0
+# One fixed windfall is shared across the map's mirrored collection sites.
+# Capturing both sites is valuable, without multiplying the economy on 4-start maps.
+const SUPPLY_MATERIALS = 100
+const SUPPLY_ELECTRONICS = 50
 const TITLES = {
 	"desert": "Supply aircraft",
 	"industrial": "Freight delivery",
@@ -34,6 +38,10 @@ static func supported(map_path: String) -> bool:
 	return not Registry.definition(map_path).get("events", []).is_empty()
 
 
+static func reward_budget(kind: String) -> Vector2i:
+	return Vector2i.ZERO if kind == "alpine" else Vector2i(SUPPLY_MATERIALS, SUPPLY_ELECTRONICS)
+
+
 func _ready():
 	process_priority = 100
 	if not game.restoring:
@@ -48,6 +56,7 @@ func initialize():
 	if game.settings.mission_id != "" and not game.map.get_meta("battlefield_events", false):
 		return
 	var kind = _sites[0].kind
+	var budget = reward_budget(kind)
 	var rotation = posmod(game.settings.match_seed, _sites.size())
 	for index in TIMES.size():
 		var event = {
@@ -67,8 +76,8 @@ func initialize():
 				{
 					"id": "%s-%d" % [event.id, site_index],
 					"point": point,
-					"materials": _share(10 if kind in ["desert", "coastal"] else 0, share),
-					"electronics": _share(0 if kind == "alpine" else 5, share),
+					"materials": _share(budget.x, share),
+					"electronics": _share(budget.y, share),
 					"status": "pending",
 					"claimant": null,
 					"node": null
@@ -238,6 +247,21 @@ func collect(node, unit, _elapsed: float) -> bool:
 					_claims.append({"event": event, "cargo": cargo, "unit": unit})
 				return true
 	return false
+
+
+func pickup_description(node) -> Array:
+	for event in occurrences:
+		for cargo in event.cargos:
+			if cargo.node != node or cargo.status != "available":
+				continue
+			if event.kind == "alpine":
+				return [tr("Radar terminal"), tr("Collect for a 3-second enemy radar snapshot.")]
+			return [
+				tr("Contested supply crate"),
+				tr("Supplies · %d M / %d E") % [cargo.materials, cargo.electronics],
+				tr("Ground units collect supplies by moving within reach.")
+			]
+	return []
 
 
 func _resolve_claims(flush = false):
@@ -437,15 +461,9 @@ func _make_actors(event):
 		if kind == "desert":
 			Models.aircraft(actor, Color("b9ac7e"))
 		elif kind == "industrial":
-			_actor_box(actor, Vector3.ZERO, Vector3(1.4, .8, 3.2), Color("ac7c42"))
-			_actor_box(actor, Vector3(0, .3, 3.8), Vector3(1.4, 1.2, 3.0), Color("47565e"))
-			_actor_box(actor, Vector3(0, .3, 7.3), Vector3(1.4, 1.2, 3.0), Color("726b4d"))
-			_actor_box(actor, Vector3(0, .65, .8), Vector3(1.35, .6, 1.1), Color("374a53"))
-			for carriage in [0.0, 3.8, 7.3]:
-				_actor_box(actor, Vector3(0, -.4, carriage), Vector3(1.5, .2, 3.0), Color("242c32"))
-				for axle in [-.9, .9]:
-					for side in [-1, 1]:
-						_actor_wheel(actor, Vector3(side * .75, -.48, carriage + axle))
+			_rail_vehicle(actor, "Locomotive", 2.76, 0.0)
+			_rail_vehicle(actor, "Boxcar", 2.58, 7.0)
+			_rail_vehicle(actor, "Boxcar", 2.58, 14.0)
 		else:
 			_actor_box(actor, Vector3.ZERO, Vector3(1.4, .8, 3.2), Color("ac7c42"))
 			_actor_box(actor, Vector3(0, .46, 0), Vector3(1.5, .15, 3.3), Color("475e66"))
@@ -453,20 +471,15 @@ func _make_actors(event):
 		_actors.append({"node": actor, "event": event, "site": index})
 
 
-func _actor_wheel(parent, point):
+func _rail_vehicle(parent, asset: String, height: float, trailing: float):
+	# Reuse the authored steelworks rolling stock, merged once per model.
 	var mesh = MeshInstance3D.new()
-	var shape = CylinderMesh.new()
-	shape.top_radius = .3
-	shape.bottom_radius = .3
-	shape.height = .15
-	shape.radial_segments = 10
-	mesh.mesh = shape
-	var material = StandardMaterial3D.new()
-	material.albedo_color = Color("263139")
-	material.metallic = .7
-	mesh.material_override = material
-	mesh.rotation.z = PI / 2.0
-	mesh.position = point
+	mesh.name = asset
+	mesh.mesh = load("res://source/match/maps/terrain/MeshBatch.gd").merged_mesh(
+		"works/" + asset, height
+	)
+	mesh.rotation.y = PI / 2.0  # Authored +X nose follows the actor's -Z heading.
+	mesh.position.z = trailing
 	parent.add_child(mesh)
 
 
@@ -497,7 +510,11 @@ func _update_actors():
 		var index = int(progress)
 		var flat = route[index].lerp(route[index + 1], fmod(progress, 1.0))
 		var point = _ground_point(flat)
-		point.y += 9.0 if record.event.kind == "desert" else .65
+		point.y += (
+			9.0
+			if record.event.kind == "desert"
+			else .43 if record.event.kind == "industrial" else .65
+		)
 		record.node.position = point
 		var direction = route[index + 1] - route[index]
 		record.node.rotation.y = atan2(-direction.x, -direction.y)

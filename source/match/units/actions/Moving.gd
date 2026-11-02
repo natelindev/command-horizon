@@ -1,5 +1,8 @@
 extends "res://source/match/units/actions/Action.gd"
 
+const Shooting = preload("res://source/match/units/actions/AttackingWhileInRange.gd")
+var _shot = null
+var _scan_left = 0.0
 var _target_position = null
 var _arrival_elapsed = 0.0
 var _arrival_progress = null
@@ -9,7 +12,7 @@ var _arrival_progress = null
 
 
 static func is_applicable(unit):
-	return unit.find_child("Movement") != null
+	return unit.get_node_or_null("Movement") != null
 
 
 func _init(target_position):
@@ -19,14 +22,29 @@ func _init(target_position):
 func _ready():
 	if restoring:
 		return
-	_movement_trait.move(_target_position)
+	_movement_trait.move(travel_target(_unit, _target_position))
 	_movement_trait.movement_finished.connect(_on_movement_finished)
 
 
+func _physics_process(delta):
+	if not Shooting.can_fire_on_move(_unit) or _unit.attack_range == null:
+		return
+	_scan_left -= delta
+	if _scan_left > 0 or (is_instance_valid(_shot) and not _shot.is_queued_for_deletion()):
+		return
+	_scan_left = .1
+	var target = _unit._match.battlefield.automatic_target(_unit)
+	if target != null:
+		_shot = Shooting.new(target)
+		add_child(_shot)
+
+
 func _process(delta):
+	if advance_nearby_funnel(_unit, _target_position):
+		_movement_trait.move(travel_target(_unit, _target_position))
 	if occupied_arrival(self, _movement_trait, _unit, delta):
 		_movement_trait.stop()
-		queue_free()
+		_on_movement_finished()
 
 
 static func occupied_arrival(action, movement, unit, delta):
@@ -66,5 +84,46 @@ func _exit_tree():
 		_movement_trait.stop()
 
 
+static func travel_target(unit, destination: Vector3) -> Vector3:
+	var route = (
+		unit.manual_orders.current.get("waypoints", []) if unit.manual_orders != null else []
+	)
+	return route[0] if not route.is_empty() else destination
+
+
+static func advance_nearby_funnel(unit, destination: Vector3) -> bool:
+	if unit.manual_orders == null:
+		return false
+	var route = unit.manual_orders.current.get("waypoints", [])
+	var advanced = false
+	while not route.is_empty():
+		var gate = route[0]
+		var next = route[1] if route.size() > 1 else destination
+		var forward = ((next - gate) * Vector3(1, 0, 1)).normalized()
+		var offset = (unit.global_position - gate) * Vector3(1, 0, 1)
+		# A portal is a plane to cross, never a shared parking point. Advance
+		# before stopping so the lead vehicle cannot pin the following column.
+		if offset.dot(forward) < -maxf(.3, unit.radius) and offset.length() > unit.radius + .35:
+			break
+		route.pop_front()
+		advanced = true
+	return advanced
+
+
+static func advance_funnel(unit) -> bool:
+	if unit.manual_orders == null:
+		return false
+	var route = unit.manual_orders.current.get("waypoints", [])
+	if route.is_empty():
+		return false
+	route.pop_front()
+	return true
+
+
 func _on_movement_finished():
-	queue_free()
+	if advance_funnel(_unit):
+		_arrival_elapsed = 0.0
+		_arrival_progress = null
+		_movement_trait.move(travel_target(_unit, _target_position))
+	else:
+		queue_free()

@@ -108,14 +108,36 @@ func _test_ranges():
 		"AntiGroundTurret",
 		"AntiAirTurret"
 	]:
-		var unit = _soldier(role, human, Vector3(40, 0, 10))
+		var unit = _soldier(role, human, Vector3(30, 0, 25))
 		var target_role = "Drone" if role == "AntiAirTurret" else "Tank"
-		var target = _soldier(target_role, opponent, Vector3(44, 0, 10))
+		var target = _soldier(target_role, opponent, Vector3(34, 0, 25))
 		await _frames(3)
+		# Spawn projection can move either actor away from incidental scenery.
+		# Measure the actual firing ray from the settled source position.
+		target.global_position.z = unit.global_position.z
 		var reach = Combat.range_for(unit, target)
 		_check(unit.sight_range >= reach, "Sight truncates range: " + role)
 		target.global_position.x = unit.global_position.x + reach - .1
 		game.battlefield.invalidate()
+		if not game.battlefield.can_fire(unit, target):
+			print(
+				"RANGE DIAGNOSTIC ",
+				human.faction,
+				" ",
+				role,
+				" positions=",
+				unit.global_position,
+				"/",
+				target.global_position,
+				" reach=",
+				reach,
+				" targetable=",
+				Combat.can_target(unit, target),
+				" observed=",
+				game.battlefield.is_observed(human, target),
+				" line=",
+				game.battlefield.has_line_of_fire(unit, target)
+			)
 		_check(game.battlefield.can_fire(unit, target), "Cannot fire near new range edge: " + role)
 		_check(
 			game.battlefield.fireable_targets(unit).has(target),
@@ -133,6 +155,7 @@ func _test_squad(attack_move):
 	var target = _soldier("Tank", opponent, Vector3(54, 0, 10))
 	target.hp_max = 10000
 	target.hp = 10000
+	var durability = target.hp + target.shields
 	var spotter = _soldier("Drone", human, Vector3(53, 0, 13))
 	var squad = []
 	for index in range(8):
@@ -160,7 +183,7 @@ func _test_squad(attack_move):
 		_check(distance > 5.5, "Soldier compressed into the old short firing range")
 	_check(holding_range >= 6, "Most of the squad compressed below its firing standoff")
 	_check(firing >= 6, "Most of the squad cannot settle into firing positions")
-	_check(target.hp < 10000, "Squad stopped without firing")
+	_check(target.hp + target.shields < durability, "Squad stopped without firing")
 	measurements.append(
 		{
 			"faction": human.faction,

@@ -1,0 +1,646 @@
+{
+	"adapter": "Apple M1 Pro (Apple7)",
+	"arguments": [
+		"--enable-native-kernels",
+		"--native-unit-state",
+		"--native-crowd-runtime",
+		"--native-presentation",
+		"--native-pose-rigs",
+		"--native-infantry-poses",
+		"--native-visibility-runtime",
+		"--native-combat-queries",
+		"--native-battlefield-index",
+		"--indexed-player-rosters",
+		"--native-nearest-surface",
+		"--native-exploration",
+		"--av-output=/tmp/rts-av200-qualified-current"
+	],
+	"combatants": 200,
+	"diagnostic": false,
+	"failures": [],
+	"fresh_match_per_quality": true,
+	"physics_ticks_per_second": 30,
+	"production_effects_prewarm": true,
+	"quality": [
+		{
+			"batch_groups": 26,
+			"batched_units": 202,
+			"cpu_usage": {},
+			"draw_calls": {
+				"max": 1578.0,
+				"mean": 1507.57083333333,
+				"median": 1514.0,
+				"p95": 1553.0
+			},
+			"faction": "bastion",
+			"first_use_events": [],
+			"focused_frames": 240,
+			"frame_ms": {
+				"max": 36.377,
+				"mean": 18.1872541666667,
+				"median": 20.214,
+				"p95": 32.469
+			},
+			"frames": 240,
+			"gpu_ms": {
+				"max": 0.0,
+				"mean": 0.0,
+				"median": 0.0,
+				"p95": 0.0
+			},
+			"gpu_timing_available": false,
+			"music_intensity": 0.992937184291933,
+			"native_battlefield_index": true,
+			"native_combat_queries": true,
+			"native_exploration": true,
+			"native_infantry_solves": 80,
+			"native_visibility": true,
+			"particle_capacities": {
+				"clod": 128,
+				"debris": 192,
+				"dust": 512,
+				"exhaust": 768,
+				"fire": 256,
+				"flash": 128,
+				"mote": 192,
+				"smoke": 384,
+				"spark": 768,
+				"trail_smoke": 2048
+			},
+			"pipeline_count_order": [
+				"canvas",
+				"mesh",
+				"surface",
+				"draw",
+				"specialization"
+			],
+			"pipeline_counts_begin": [
+				7,
+				32,
+				180,
+				86,
+				112
+			],
+			"pipeline_counts_end": [
+				7,
+				32,
+				180,
+				86,
+				112
+			],
+			"quality": "high",
+			"raster": [
+				1280.0,
+				720.0
+			],
+			"render_cpu_ms": {
+				"max": 1.64100003242493,
+				"mean": 1.16284999772906,
+				"median": 1.13699996471405,
+				"p95": 1.41600000858307
+			},
+			"resident_rigs": 202,
+			"sampled_1s_physics_max_ms": {
+				"max": 22.137,
+				"mean": 19.8630375,
+				"median": 20.736,
+				"p95": 22.137
+			},
+			"sampled_1s_process_max_ms": {
+				"max": 41.191,
+				"mean": 21.4919083333332,
+				"median": 20.564,
+				"p95": 41.191
+			},
+			"scene_dispatch_us": [],
+			"selected_units": 100,
+			"shocks": 2,
+			"shots": 444,
+			"simulation_seconds": 4.36666666666665,
+			"simulation_start": 5.13333333333332,
+			"slow_frames_over_100ms": [],
+			"visible_end": 200,
+			"visible_start": 200,
+			"wall_seconds": 4.364941,
+			"wall_start_usec": 15590068
+		},
+		{
+			"batch_groups": 26,
+			"batched_units": 202,
+			"cpu_usage": {},
+			"draw_calls": {
+				"max": 1207.0,
+				"mean": 1147.77916666667,
+				"median": 1152.0,
+				"p95": 1193.0
+			},
+			"faction": "bastion",
+			"first_use_events": [],
+			"focused_frames": 240,
+			"frame_ms": {
+				"max": 37.256,
+				"mean": 14.1403208333333,
+				"median": 8.524,
+				"p95": 27.125
+			},
+			"frames": 240,
+			"gpu_ms": {
+				"max": 0.0,
+				"mean": 0.0,
+				"median": 0.0,
+				"p95": 0.0
+			},
+			"gpu_timing_available": false,
+			"music_intensity": 0.981220072518166,
+			"native_battlefield_index": true,
+			"native_combat_queries": true,
+			"native_exploration": true,
+			"native_infantry_solves": 80,
+			"native_visibility": true,
+			"particle_capacities": {
+				"clod": 128,
+				"debris": 192,
+				"dust": 512,
+				"exhaust": 768,
+				"fire": 256,
+				"flash": 128,
+				"mote": 192,
+				"smoke": 384,
+				"spark": 768,
+				"trail_smoke": 2048
+			},
+			"pipeline_count_order": [
+				"canvas",
+				"mesh",
+				"surface",
+				"draw",
+				"specialization"
+			],
+			"pipeline_counts_begin": [
+				10,
+				34,
+				288,
+				89,
+				193
+			],
+			"pipeline_counts_end": [
+				10,
+				34,
+				288,
+				89,
+				193
+			],
+			"quality": "low",
+			"raster": [
+				1280.0,
+				720.0
+			],
+			"render_cpu_ms": {
+				"max": 1.27699995040894,
+				"mean": 0.909812499086062,
+				"median": 0.902999997138977,
+				"p95": 1.09899997711182
+			},
+			"resident_rigs": 202,
+			"sampled_1s_physics_max_ms": {
+				"max": 23.942,
+				"mean": 16.1614,
+				"median": 14.315,
+				"p95": 23.942
+			},
+			"sampled_1s_process_max_ms": {
+				"max": 18.835,
+				"mean": 16.5747125,
+				"median": 16.872,
+				"p95": 18.835
+			},
+			"scene_dispatch_us": [],
+			"selected_units": 100,
+			"shocks": 1,
+			"shots": 334,
+			"simulation_seconds": 3.39999999999999,
+			"simulation_start": 4.19999999999999,
+			"slow_frames_over_100ms": [],
+			"visible_end": 200,
+			"visible_start": 200,
+			"wall_seconds": 3.393677,
+			"wall_start_usec": 30123271
+		},
+		{
+			"batch_groups": 28,
+			"batched_units": 202,
+			"cpu_usage": {},
+			"draw_calls": {
+				"max": 1561.0,
+				"mean": 1494.3125,
+				"median": 1517.0,
+				"p95": 1541.0
+			},
+			"faction": "helix",
+			"first_use_events": [],
+			"focused_frames": 240,
+			"frame_ms": {
+				"max": 44.606,
+				"mean": 19.22955,
+				"median": 21.351,
+				"p95": 38.492
+			},
+			"frames": 240,
+			"gpu_ms": {
+				"max": 0.0,
+				"mean": 0.0,
+				"median": 0.0,
+				"p95": 0.0
+			},
+			"gpu_timing_available": false,
+			"music_intensity": 0.992880861218427,
+			"native_battlefield_index": true,
+			"native_combat_queries": true,
+			"native_exploration": true,
+			"native_infantry_solves": 80,
+			"native_visibility": true,
+			"particle_capacities": {
+				"clod": 128,
+				"debris": 192,
+				"dust": 512,
+				"exhaust": 768,
+				"fire": 256,
+				"flash": 128,
+				"mote": 192,
+				"smoke": 384,
+				"spark": 768,
+				"trail_smoke": 2048
+			},
+			"pipeline_count_order": [
+				"canvas",
+				"mesh",
+				"surface",
+				"draw",
+				"specialization"
+			],
+			"pipeline_counts_begin": [
+				13,
+				34,
+				411,
+				142,
+				264
+			],
+			"pipeline_counts_end": [
+				13,
+				34,
+				411,
+				142,
+				264
+			],
+			"quality": "high",
+			"raster": [
+				1280.0,
+				720.0
+			],
+			"render_cpu_ms": {
+				"max": 1.53999996185303,
+				"mean": 1.16705416689316,
+				"median": 1.14900004863739,
+				"p95": 1.40499997138977
+			},
+			"resident_rigs": 202,
+			"sampled_1s_physics_max_ms": {
+				"max": 28.332,
+				"mean": 27.1015500000001,
+				"median": 27.092,
+				"p95": 28.332
+			},
+			"sampled_1s_process_max_ms": {
+				"max": 20.202,
+				"mean": 19.1036833333333,
+				"median": 18.546,
+				"p95": 20.202
+			},
+			"scene_dispatch_us": [],
+			"selected_units": 100,
+			"shocks": 0,
+			"shots": 648,
+			"simulation_seconds": 4.59999999999998,
+			"simulation_start": 4.79999999999999,
+			"slow_frames_over_100ms": [],
+			"visible_end": 200,
+			"visible_start": 200,
+			"wall_seconds": 4.615092,
+			"wall_start_usec": 46091592
+		},
+		{
+			"batch_groups": 28,
+			"batched_units": 202,
+			"cpu_usage": {},
+			"draw_calls": {
+				"max": 1217.0,
+				"mean": 1156.92083333333,
+				"median": 1178.0,
+				"p95": 1205.0
+			},
+			"faction": "helix",
+			"first_use_events": [],
+			"focused_frames": 240,
+			"frame_ms": {
+				"max": 40.013,
+				"mean": 15.2462791666667,
+				"median": 11.761,
+				"p95": 27.225
+			},
+			"frames": 240,
+			"gpu_ms": {
+				"max": 0.0,
+				"mean": 0.0,
+				"median": 0.0,
+				"p95": 0.0
+			},
+			"gpu_timing_available": false,
+			"music_intensity": 0.984536286653479,
+			"native_battlefield_index": true,
+			"native_combat_queries": true,
+			"native_exploration": true,
+			"native_infantry_solves": 80,
+			"native_visibility": true,
+			"particle_capacities": {
+				"clod": 128,
+				"debris": 192,
+				"dust": 512,
+				"exhaust": 768,
+				"fire": 256,
+				"flash": 128,
+				"mote": 192,
+				"smoke": 384,
+				"spark": 768,
+				"trail_smoke": 2048
+			},
+			"pipeline_count_order": [
+				"canvas",
+				"mesh",
+				"surface",
+				"draw",
+				"specialization"
+			],
+			"pipeline_counts_begin": [
+				16,
+				34,
+				524,
+				145,
+				313
+			],
+			"pipeline_counts_end": [
+				16,
+				34,
+				524,
+				145,
+				313
+			],
+			"quality": "low",
+			"raster": [
+				1280.0,
+				720.0
+			],
+			"render_cpu_ms": {
+				"max": 1.3860000371933,
+				"mean": 0.941275002062321,
+				"median": 0.919000029563904,
+				"p95": 1.16299998760223
+			},
+			"resident_rigs": 202,
+			"sampled_1s_physics_max_ms": {
+				"max": 26.753,
+				"mean": 25.0756874999999,
+				"median": 24.718,
+				"p95": 26.753
+			},
+			"sampled_1s_process_max_ms": {
+				"max": 20.327,
+				"mean": 17.4634666666667,
+				"median": 15.866,
+				"p95": 19.983
+			},
+			"scene_dispatch_us": [],
+			"selected_units": 100,
+			"shocks": 0,
+			"shots": 512,
+			"simulation_seconds": 3.66666666666665,
+			"simulation_start": 4.29999999999999,
+			"slow_frames_over_100ms": [],
+			"visible_end": 200,
+			"visible_start": 200,
+			"wall_seconds": 3.659107,
+			"wall_start_usec": 61499283
+		},
+		{
+			"batch_groups": 29,
+			"batched_units": 202,
+			"cpu_usage": {},
+			"draw_calls": {
+				"max": 1563.0,
+				"mean": 1501.27916666667,
+				"median": 1505.0,
+				"p95": 1544.0
+			},
+			"faction": "frontier",
+			"first_use_events": [],
+			"focused_frames": 240,
+			"frame_ms": {
+				"max": 34.592,
+				"mean": 18.2138416666667,
+				"median": 20.416,
+				"p95": 26.682
+			},
+			"frames": 240,
+			"gpu_ms": {
+				"max": 0.0,
+				"mean": 0.0,
+				"median": 0.0,
+				"p95": 0.0
+			},
+			"gpu_timing_available": false,
+			"music_intensity": 0.990194229688211,
+			"native_battlefield_index": true,
+			"native_combat_queries": true,
+			"native_exploration": true,
+			"native_infantry_solves": 80,
+			"native_visibility": true,
+			"particle_capacities": {
+				"clod": 128,
+				"debris": 192,
+				"dust": 512,
+				"exhaust": 768,
+				"fire": 256,
+				"flash": 128,
+				"mote": 192,
+				"smoke": 384,
+				"spark": 768,
+				"trail_smoke": 2048
+			},
+			"pipeline_count_order": [
+				"canvas",
+				"mesh",
+				"surface",
+				"draw",
+				"specialization"
+			],
+			"pipeline_counts_begin": [
+				19,
+				34,
+				637,
+				198,
+				384
+			],
+			"pipeline_counts_end": [
+				19,
+				34,
+				637,
+				198,
+				384
+			],
+			"quality": "high",
+			"raster": [
+				1280.0,
+				720.0
+			],
+			"render_cpu_ms": {
+				"max": 1.93099999427795,
+				"mean": 1.23431666394075,
+				"median": 1.22099995613098,
+				"p95": 1.47500002384186
+			},
+			"resident_rigs": 202,
+			"sampled_1s_physics_max_ms": {
+				"max": 17.737,
+				"mean": 13.6976791666667,
+				"median": 13.154,
+				"p95": 17.737
+			},
+			"sampled_1s_process_max_ms": {
+				"max": 21.516,
+				"mean": 18.8543333333333,
+				"median": 19.419,
+				"p95": 21.516
+			},
+			"scene_dispatch_us": [],
+			"selected_units": 100,
+			"shocks": 1,
+			"shots": 516,
+			"simulation_seconds": 4.36666666666665,
+			"simulation_start": 4.46666666666666,
+			"slow_frames_over_100ms": [],
+			"visible_end": 200,
+			"visible_start": 200,
+			"wall_seconds": 4.371322,
+			"wall_start_usec": 76422294
+		},
+		{
+			"batch_groups": 28,
+			"batched_units": 202,
+			"cpu_usage": {},
+			"draw_calls": {
+				"max": 1137.0,
+				"mean": 1102.09583333333,
+				"median": 1100.0,
+				"p95": 1134.0
+			},
+			"faction": "frontier",
+			"first_use_events": [],
+			"focused_frames": 240,
+			"frame_ms": {
+				"max": 37.493,
+				"mean": 13.589525,
+				"median": 8.291,
+				"p95": 24.803
+			},
+			"frames": 240,
+			"gpu_ms": {
+				"max": 0.0,
+				"mean": 0.0,
+				"median": 0.0,
+				"p95": 0.0
+			},
+			"gpu_timing_available": false,
+			"music_intensity": 0.980635093179554,
+			"native_battlefield_index": true,
+			"native_combat_queries": true,
+			"native_exploration": true,
+			"native_infantry_solves": 80,
+			"native_visibility": true,
+			"particle_capacities": {
+				"clod": 128,
+				"debris": 192,
+				"dust": 512,
+				"exhaust": 768,
+				"fire": 256,
+				"flash": 128,
+				"mote": 192,
+				"smoke": 384,
+				"spark": 768,
+				"trail_smoke": 2048
+			},
+			"pipeline_count_order": [
+				"canvas",
+				"mesh",
+				"surface",
+				"draw",
+				"specialization"
+			],
+			"pipeline_counts_begin": [
+				22,
+				34,
+				750,
+				201,
+				433
+			],
+			"pipeline_counts_end": [
+				22,
+				34,
+				750,
+				201,
+				433
+			],
+			"quality": "low",
+			"raster": [
+				1280.0,
+				720.0
+			],
+			"render_cpu_ms": {
+				"max": 1.35699999332428,
+				"mean": 0.900279165804386,
+				"median": 0.885999977588654,
+				"p95": 1.07400000095367
+			},
+			"resident_rigs": 202,
+			"sampled_1s_physics_max_ms": {
+				"max": 22.631,
+				"mean": 15.6707333333333,
+				"median": 14.479,
+				"p95": 22.631
+			},
+			"sampled_1s_process_max_ms": {
+				"max": 17.528,
+				"mean": 15.9982541666666,
+				"median": 15.601,
+				"p95": 17.528
+			},
+			"scene_dispatch_us": [],
+			"selected_units": 100,
+			"shocks": 0,
+			"shots": 391,
+			"simulation_seconds": 3.26666666666666,
+			"simulation_start": 4.29999999999999,
+			"slow_frames_over_100ms": [],
+			"visible_end": 200,
+			"visible_start": 200,
+			"wall_seconds": 3.261486,
+			"wall_start_usec": 91462092
+		}
+	],
+	"raster": [
+		1280,
+		720
+	],
+	"release": true,
+	"samples": 240,
+	"scope": "Real live combat and damage presentation; no fixed-fps, paused simulation, or disabled effects.",
+	"status": "valid"
+}

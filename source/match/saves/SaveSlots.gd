@@ -88,7 +88,11 @@ static func summary_for(data, modified = 0):
 			. title
 		)
 		if settings.mission_id != ""
-		else Schema.Rules.MAPS[settings.map_path].name
+		else (
+			settings.scenario.title
+			if settings.has("scenario")
+			else Schema.Rules.MAPS[settings.map_path].name
+		)
 	)
 	var seconds = int(data.simulation_time)
 	return (

@@ -26,6 +26,8 @@ func service_slots():
 
 
 func services(unit):
+	if player.faction == "bastion":
+		return global_position_yless.distance_to(unit.global_position_yless) <= 5.0
 	return (
 		unit.global_position_yless.distance_to(service_point(unit) * Vector3(1, 0, 1))
 		<= SERVICE_REACH

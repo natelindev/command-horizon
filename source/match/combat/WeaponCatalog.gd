@@ -47,6 +47,27 @@ const HEAVY_SHELL = {
 	"visual": "slug",
 	"splash": 1.3
 }
+const SIEGE_SHELL = {
+	"id": "siege_shell", "kind": "shell", "speed": 19.0,
+	"spread": 0.004, "visual": "slug", "splash": 3.8, "high_arc": true, "life": 4.0,
+}
+const PRISM_BEAM = {
+	"id": "prism_beam", "kind": "rail", "speed": 400.0,
+	"spread": 0.0, "visual": "rail", "prism": true,
+}
+const THERMAL_BEAM = {
+	"id": "thermal_beam", "kind": "rail", "speed": 400.0,
+	"spread": 0.0, "visual": "rail",
+}
+const ION_DISRUPTOR = {
+	"id": "ion_disruptor", "kind": "missile", "speed": 22.0,
+	"turn": 7.0, "spread": 0.0, "visual": "rocket", "gravity": 0.0,
+	"shield_pierce": true, "ion_stall": 1.0, "life": 2.0,
+}
+const DEMOLITION_CHARGE = {
+	"id": "demolition_charge", "kind": "warhead", "speed": 0.0,
+	"visual": "bomb", "splash": 4.0,
+}
 const RAIL = {"id": "rail", "kind": "rail", "speed": 400.0, "spread": 0.001, "visual": "rail"}
 const INFANTRY_ROCKET = {
 	"id": "infantry_rocket",
@@ -158,6 +179,11 @@ const FLAK = {
 	"splash": 1.3,
 	"visual": "heavy_tracer",
 	"life": 0.4,
+	"cloud_seconds": 2.0,
+}
+const FLAK_CLOUD = {
+	"id": "flak_cloud", "kind": "cloud", "speed": 0.0,
+	"visual": "flak_cloud", "splash": 2.1, "life": 2.0,
 }
 const INTERCEPTOR = {
 	"id": "interceptor",
@@ -173,6 +199,7 @@ const INTERCEPTOR = {
 	"visual": "missile",
 	"splash": 1.2,
 	"life": 2.4,
+	"ion_stall": 2.5,
 }
 const AA_AUTOCANNON = {
 	"id": "aa_autocannon",
@@ -180,6 +207,11 @@ const AA_AUTOCANNON = {
 	"speed": 55.0,
 	"spread": 0.025,
 	"visual": "heavy_tracer"
+}
+const SAM_SWARM = {
+	"id": "sam_swarm", "kind": "rocket", "speed": 40.0,
+	"thrust": 35.0, "burn": 0.35, "max_speed": 52.0, "gravity": 0.0,
+	"spread": 0.012, "visual": "rocket", "splash": 0.8, "life": 1.0,
 }
 const PULSE_LASER = {
 	"id": "pulse_laser",
@@ -195,7 +227,8 @@ const TWIN_AUTOCANNON = {
 	"speed": 52.0,
 	"spread": 0.015,
 	"visual": "heavy_tracer",
-	"splash": 0.6
+	"splash": 0.6,
+	"barrels": 2
 }
 const SHOTGUN = {
 	"id": "shotgun", "kind": "bullet", "speed": 46.0, "spread": 0.045, "visual": "heavy_tracer"
@@ -225,6 +258,12 @@ const ALL = [
 	AUTOCANNON,
 	TANK_SHELL,
 	HEAVY_SHELL,
+	SIEGE_SHELL,
+	PRISM_BEAM,
+	THERMAL_BEAM,
+	ION_DISRUPTOR,
+	DEMOLITION_CHARGE,
+	SAM_SWARM,
 	RAIL,
 	INFANTRY_ROCKET,
 	GUIDED_SALVO,
@@ -236,6 +275,7 @@ const ALL = [
 	GRAVITY_BOMB,
 	DRONE_WARHEAD,
 	FLAK,
+	FLAK_CLOUD,
 	INTERCEPTOR,
 	AA_AUTOCANNON,
 	PULSE_LASER,
@@ -262,11 +302,20 @@ const BY_ROLE = {
 	"AntiAirVehicle": FLAK,
 }
 const FACTION_ROLE = {
+	"bastion:AdvancedTank": SIEGE_SHELL,
+	"helix:AdvancedTank": PRISM_BEAM,
+	"helix:AntiGroundTurret": PRISM_BEAM,
+	"helix:Infantry": PULSE_LASER,
+	"helix:AssaultInfantry": PULSE_LASER,
+	"helix:SniperInfantry": THERMAL_BEAM,
+	"helix:RocketInfantry": ION_DISRUPTOR,
 	"helix:Tank": PULSE_LASER,
 	"frontier:Tank": TWIN_AUTOCANNON,
-	"frontier:AdvancedTank": HEAVY_SHELL,
+	"frontier:AdvancedTank": TWIN_AUTOCANNON,
+	"frontier:CombatRobot": DEMOLITION_CHARGE,
+	"frontier:Worker": AUTOCANNON,
 	"helix:AntiAirVehicle": INTERCEPTOR,
-	"frontier:AntiAirVehicle": AA_AUTOCANNON,
+	"frontier:AntiAirVehicle": SAM_SWARM,
 }
 
 

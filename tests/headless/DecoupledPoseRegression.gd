@@ -9,6 +9,7 @@ func _run():
 		await _fixture(faction)
 		var target = _spawn("Tank", 1, Vector3(45, 0, 35))
 		var pairs := []
+		var presentations := []
 		for role in MOBILE_ROLES + ["AntiGroundTurret", "AntiAirTurret", "CommandLab"]:
 			var seed = _game._visual_serial
 			var reference = _spawn(role, 0, Vector3(30, 0, 30))
@@ -16,11 +17,31 @@ func _run():
 			var candidate = _spawn(role, 0, Vector3(30, 0, 30))
 			var direct = reference.get_node("BastionVisuals")
 			var visual = candidate.get_node("BastionVisuals")
+			if visual._track_motion != null:
+				for belt in visual._track_motion.belts:
+					_check(
+						belt.mesh.get_instance_shader_parameter("track_travel") == 0.0,
+						"Track instance shader path was not prepared before movement"
+					)
 			var anchors: Array[Node3D] = [candidate.get_node("Geometry")]
 			for node in candidate.get_node("Geometry").find_children("*", "Node3D", true, false):
 				anchors.append(node)
 			direct.gpu_interpolated = true
 			visual.set_gpu_interpolation(true, anchors, native)
+			if "--native-presentation" in OS.get_cmdline_user_args():
+				var presentation = ClassDB.instantiate("CopperfinPresentationBatch")
+				_check(presentation.configure(anchors.size() + 1), "Presentation capacity rejected")
+				var handle: int = presentation.bind_unit(
+					candidate,
+					candidate.get_node("Geometry"),
+					anchors,
+					visual._pose_hierarchy.job.native_rig,
+					1,
+					20.0
+				)
+				_check(handle >= 0, "Same-frame presentation candidate did not bind")
+				visual.set_native_presentation(presentation, handle)
+				presentations.append(presentation)
 			var original := []
 			for anchor in anchors:
 				original.append(anchor.transform)
@@ -118,6 +139,7 @@ func _run():
 					)
 		for pair in pairs:
 			var expected = pair[3]._pose_hierarchy.job.palette.duplicate()
+			pair[3].set_native_presentation(null, -1)
 			pair[3].set_gpu_interpolation(false)
 			_check(
 				pair[1].get_node("Geometry").top_level == pair[0].get_node("Geometry").top_level,
@@ -131,6 +153,7 @@ func _run():
 			pair[0].queue_free()
 			pair[1].queue_free()
 		await _close()
+		presentations.clear()
 	for message in _errors:
 		push_error(message)
 	print("Decoupled pose regression: %d failures across 3 factions and 15 roles" % _errors.size())

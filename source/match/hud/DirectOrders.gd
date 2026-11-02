@@ -3,6 +3,8 @@ extends Node
 
 const Bindings = preload("res://source/input/KeyBindings.gd")
 const Factions = preload("res://source/match/FactionCatalog.gd")
+const Planner = preload("res://source/match/orders/FormationPlanner.gd")
+const Cohesion = preload("res://source/match/orders/CohesionGroup.gd")
 const Orders = preload("res://source/match/orders/ManualOrders.gd")
 const Rules = preload("res://source/match/combat/CombatRules.gd")
 const Harvest = preload("res://source/match/units/actions/CollectingResourcesSequentially.gd")
@@ -50,8 +52,21 @@ const COMMANDS = {
 	}
 }
 
+const ENGINEERING_OPERATIONS = {
+	"field_barricade": "barricade",
+	"scrap_barricade": "barricade",
+	"field_bunker": "bunker",
+	"field_tank_trap": "tank_trap",
+	"scrap_mine": "mine",
+	"sweep_mines": "sweep",
+}
+const ENGINEERING_ROTATION = [
+	"field_barricade", "scrap_barricade", "field_bunker", "field_tank_trap"
+]
+
 var kind = ""
 var ability_id = ""
+var last_cast = {}
 var engineering_angle = 0.0
 var _ability_range = null
 var _ability_selection = []
@@ -101,9 +116,12 @@ func activate_ability(id: String) -> bool:
 		hud.show_notice("Resume the battle to use abilities.")
 		return false
 	var accepted = 0
+	# One activation consumes one ready caster, including instant abilities.
 	for unit in units:
 		if unit.abilities.trigger(id):
-			accepted += 1
+			accepted = 1
+			last_cast = {"ability": id, "unit": weakref(unit)}
+			break
 	if accepted > 0:
 		hud.cancel_map_assignment()
 		(
@@ -154,9 +172,10 @@ func arm_ability(id: String) -> bool:
 	engineering_angle = 0.0
 	_ability_selection = get_tree().get_nodes_in_group("selected_units")
 	_ability_range = RangeRing.create(minf(ability.range, 12.0))
-	if id == "field_barricade":
+	if id in ENGINEERING_ROTATION:
 		_ability_range.free()
 		_ability_range = load("res://source/match/hud/EngineeringPreview.gd").new()
+		_ability_range.kind = ENGINEERING_OPERATIONS[id]
 	if _ability_range != null:
 		hud.get_parent().add_child(_ability_range)
 		_ability_range.global_position = units[0].global_position + Vector3.UP * .08
@@ -268,15 +287,32 @@ func _commit_ability(point, target) -> bool:
 	):
 		prompt("Choose a point inside the battlefield.")
 		return false
+	# A farther first-selected unit must never hide a closer ready caster.
+	var candidates = units.filter(
+		func(candidate): return candidate.abilities.can_trigger(ability_id, point, target)
+	)
+	candidates.sort_custom(
+		func(a, b):
+			var left = ((a.global_position - point) * Vector3(1, 0, 1)).length_squared()
+			var right = ((b.global_position - point) * Vector3(1, 0, 1)).length_squared()
+			return (
+				left < right
+				if not is_equal_approx(left, right)
+				else a.get_instance_id() < b.get_instance_id()
+			)
+	)
+	if candidates.is_empty():
+		prompt(tr("Choose a legal target within %.1f m.") % ability.range)
+		return false
+	unit = candidates[0]
+	ability = unit.abilities.get_ability(ability_id)
 	var accepted = false
 	if ability_id == "dismantle_barrier":
 		accepted = hud.get_parent().engineering.request_dismantle(
 			unit, target, Bindings.held("shift_selecting")
 		)
-	elif ability_id in ["field_barricade", "scrap_mine", "sweep_mines"]:
-		var operation = {
-			"field_barricade": "barricade", "scrap_mine": "mine", "sweep_mines": "sweep"
-		}[ability_id]
+	elif ability_id in ENGINEERING_OPERATIONS:
+		var operation = ENGINEERING_OPERATIONS[ability_id]
 		accepted = hud.get_parent().engineering.request(
 			unit, operation, point, engineering_angle, Bindings.held("shift_selecting")
 		)
@@ -287,25 +323,25 @@ func _commit_ability(point, target) -> bool:
 			prompt("Choose one of your field barricades.")
 		elif ability_id == "frag_grenade":
 			prompt("Choose an occupied enemy building to breach.")
-		elif ability_id in ["field_barricade", "scrap_mine"]:
+		elif ability_id in ENGINEERING_OPERATIONS and ability_id != "sweep_mines":
 			prompt(
 				hud.get_parent().engineering.placement_error(
-					unit,
-					"barricade" if ability_id == "field_barricade" else "mine",
-					point,
-					engineering_angle
+					unit, ENGINEERING_OPERATIONS[ability_id], point, engineering_angle
 				)
 			)
 		else:
 			prompt(tr("Choose a legal target within %.1f m.") % ability.range)
 		return false
+	last_cast = {"ability": ability_id, "unit": weakref(unit)}
 	var title = ability.name
 	cancel()
 	hud.show_notice(tr(title))
 	return true
 
 
-func eligible(command):
+## One synchronous HUD refresh may share this state. Action handlers always
+## request a new state so selection, deaths and weapon changes are read live.
+func eligibility_state() -> Dictionary:
 	var mobile = get_tree().get_nodes_in_group("selected_units").filter(
 		func(unit):
 			return (
@@ -317,12 +353,21 @@ func eligible(command):
 				and unit.movement_speed > 0
 			)
 	)
+	return {"mobile": mobile}
+
+
+func eligible(command, state: Dictionary = {}):
+	if state.is_empty():
+		state = eligibility_state()
+	var mobile = state.mobile
 	if command in ["move", "guard", "follow", "patrol"]:
 		return mobile
-	var armed = mobile.filter(
-		func(unit):
-			return unit.attack_range != null and (not unit.has_method("armed") or unit.armed())
-	)
+	if not state.has("armed"):
+		state.armed = mobile.filter(
+			func(unit):
+				return unit.attack_range != null and (not unit.has_method("armed") or unit.armed())
+		)
+	var armed = state.armed
 	# A mixed army advances its selected scouts, engineers and repair support
 	# along with the combatants. Unarmed-only selections retain ordinary Move.
 	return mobile if command == "attack_move" and not armed.is_empty() else armed
@@ -356,8 +401,8 @@ func arm(command):
 	hud._refresh_shortcuts()
 
 
-func cargo_return_state():
-	var workers = eligible("move").filter(func(unit): return unit.type == "Worker")
+func cargo_return_state(eligibility: Dictionary = {}):
+	var workers = eligible("move", eligibility).filter(func(unit): return unit.type == "Worker")
 	var loaded = workers.filter(func(unit): return unit.resource_a + unit.resource_b > 0)
 	var orders = []
 	for worker in loaded:
@@ -411,24 +456,30 @@ func return_cargo(append = false):
 	return accepted > 0
 
 
-func recovery_state():
-	var wounded = eligible("move").filter(func(unit): return unit.hp < unit.hp_max)
+func recovery_state(eligibility: Dictionary = {}):
+	var wounded = eligible("move", eligibility).filter(func(unit): return unit.hp < unit.hp_max)
 	var orders = []
 	var missing = {}
-	var facilities = get_tree().get_nodes_in_group("units").filter(
-		func(unit): return unit.type in ["Barracks", "RepairDepot", "AircraftFactory"]
-	)
-	facilities.append_array(
-		load("res://source/match/world/PointOfInterestCatalog.gd").sites(hud.get_parent()).filter(
-			func(site): return site.kind == "repair"
+	var services = {}
+	var titles = {}
+	var repair_sites = []
+	if not wounded.is_empty():
+		var sites = load("res://source/match/world/PointOfInterestCatalog.gd").sites(
+			hud.get_parent()
 		)
-	)
+		repair_sites = sites.filter(func(site): return site.kind == "repair")
 	for unit in wounded:
+		var role = Repairs.facility_for_role(unit.type)
+		var key = [unit.player, role]
+		if not services.has(key):
+			# Membership is indexed by the owner; completion, HP, capture and
+			# service activation are revalidated for this refresh, never cached.
+			services[key] = (unit.player.structure_candidates(role) + repair_sites).filter(
+				func(facility): return Repairs.facility_eligible(facility, unit)
+			)
 		var nearest = null
 		var distance = INF
-		for facility in facilities:
-			if not Repairs.facility_eligible(facility, unit):
-				continue
+		for facility in services[key]:
 			var candidate = Utils.Match.Unit.Movement.path_distance_to(
 				unit, facility.global_position_yless, Recover.ARRIVAL_RANGE
 			)
@@ -438,7 +489,9 @@ func recovery_state():
 		if nearest != null:
 			orders.append([unit, Orders.target_order("recover", nearest)])
 		else:
-			var title = Factions.title(unit.player.faction, Repairs.facility_for_role(unit.type))
+			if not titles.has(key):
+				titles[key] = Factions.title(unit.player.faction, role)
+			var title = titles[key]
 			missing[title] = missing.get(title, 0) + 1
 	var description = (
 		"Recover to full health at the nearest completed friendly service facility.\n"
@@ -542,7 +595,7 @@ func prompt(message = ""):
 			(title + ": " + tr("choose a target in range.") if message.is_empty() else tr(message))
 			+ " %s / right-click cancels." % Bindings.label("toggle_match_menu")
 		)
-		if ability_id == "field_barricade":
+		if ability_id in ENGINEERING_ROTATION:
 			hud._assignment_hint.text += (
 				" " + tr("Rotate") + " [%s]" % Bindings.label("rotate_structure")
 			)
@@ -597,7 +650,7 @@ func handle_input(event):
 			return true
 		if (
 			kind == "ability"
-			and ability_id == "field_barricade"
+			and ability_id in ENGINEERING_ROTATION
 			and Bindings.pressed(event, "rotate_structure")
 		):
 			engineering_angle = fmod(engineering_angle + PI / 4.0, TAU)
@@ -612,7 +665,9 @@ func handle_input(event):
 			and not event.meta_pressed
 		):
 			var code = event.physical_keycode if event.physical_keycode != 0 else event.keycode
-			var key = {KEY_Q: "Q", KEY_W: "W", KEY_E: "E", KEY_R: "R"}.get(code, "")
+			var key = {KEY_Q: "Q", KEY_W: "W", KEY_E: "E", KEY_R: "R", KEY_T: "T", KEY_Y: "Y"}.get(
+				code, ""
+			)
 			var id = ability_for_key(key) if not key.is_empty() else ""
 			var placement = hud.get_parent()._get_human_player().get_node(
 				"StructurePlacementHandler"
@@ -728,15 +783,25 @@ func commit(point, target, append):
 			prompt("Choose a point inside the battlefield.")
 			return false
 		# Preserve the same separate ground/air spacing used by contextual movement.
+		var cohort = Cohesion.new(units)
+		var heading = (
+			(point - Utils.Match.Unit.Movement.calculate_aabb_crowd_pivot_yless(units)).normalized()
+		)
+		var routes = Planner.funnel_routes(units, point, heading, Planner.posture(units))
 		for domain in [
 			Constants.Match.Navigation.Domain.TERRAIN, Constants.Match.Navigation.Domain.AIR
 		]:
 			var members = units.filter(func(unit): return unit.movement_domain == domain)
-			for pair in Utils.Match.Unit.Movement.crowd_moved_to_new_pivot(members, point):
+			for pair in Utils.Match.Unit.Movement.crowd_moved_to_new_pivot(
+				members, point, null, Planner.posture(units)
+			):
 				var order_kind = kind
 				if kind == "guard" or (kind == "attack_move" and pair[0].attack_range == null):
 					order_kind = "move"
-				orders.append([pair[0], Orders.point_order(order_kind, pair[1])])
+				var order = Orders.point_order(order_kind, pair[1])
+				order.cohort = cohort
+				order.waypoints = routes.get(pair[0], [])
+				orders.append([pair[0], order])
 	var accepted = 0
 	for pair in orders:
 		var accepted_order = (

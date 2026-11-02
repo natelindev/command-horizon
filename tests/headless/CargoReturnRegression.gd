@@ -63,7 +63,10 @@ func _cargo_controls(faction):
 	)
 	if button == null:
 		return
-	_check(not menus._command_buttons.attack.visible, "Worker still shows unusable attack button")
+	_check(
+		menus._command_buttons.attack.visible == (carrier.attack_damage != null),
+		"Worker attack button does not match its faction weapon"
+	)
 	_check(
 		button.accessibility_description == button.tr(commands.cargo_return_state().description),
 		"Missing accessible destination explanation"

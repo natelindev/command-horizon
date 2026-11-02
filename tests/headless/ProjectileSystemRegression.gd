@@ -101,13 +101,19 @@ func _run():
 		"Reload moved or retimed a round"
 	)
 	_check(system.rounds_fired == snapshot.rounds.serial, "Round serial not restored")
-	var hp = target.hp
+	var durability = target.hp + target.shields
 	await _frames(40)
-	_check(target.hp == hp and system.round_count() == 3, "Pause advanced restored rounds")
+	_check(
+		target.hp + target.shields == durability and system.round_count() == 3,
+		"Pause advanced restored rounds"
+	)
 	paused = false
 	game.get_tree().paused = false
 	await _frames(60)
-	_check(is_equal_approx(hp - target.hp, expected), "Restored rounds did not land exactly once")
+	_check(
+		is_equal_approx(durability - target.hp - target.shields, expected),
+		"Restored rounds did not land exactly once"
+	)
 	_check(system.round_count() == 0, "Landed rounds remained in flight")
 	await _finish()
 

@@ -1,13 +1,23 @@
 extends MeshInstance3D
 
 ## Small depth-tested ribbons sampled on the gameplay surface, including ramps.
+const Cache = preload("res://source/utils/RuntimeCache.gd")
 var map
 var _surface = ImmediateMesh.new()
-var _material = StandardMaterial3D.new()
+var _material: StandardMaterial3D
 var _vertices = 0
 
 
 func _init():
+	# Keep the first actually drawn generated shader alive after Loading frees
+	# its disposable ring. Later markers still own independently fading copies.
+	var materials = Cache.bucket("terrain_feedback")
+	if materials.has("prototype"):
+		_material = materials.prototype.duplicate()
+	else:
+		_material = StandardMaterial3D.new()
+		materials.prototype = _material
+	_material.albedo_color = Color.WHITE
 	mesh = _surface
 	cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED

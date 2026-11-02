@@ -16,6 +16,7 @@ from mathutils import Vector
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "common"))
 import weathering  # noqa: E402
 import trim_sheet  # noqa: E402
+import export_manifest  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "assets/models/helix/v1"
@@ -273,7 +274,13 @@ def operator():
 
 
 def mule():
-    begin("MuleEngineer"); wheels(2.2,2.8,.46)
+    begin("MuleEngineer")
+    for side in (-1,1):
+        for y in (-.97,.97):
+            cyl("FluxLiftDuct",(side*1.04,y,.35),.45,.4,DARK,vertices=20)
+            ring("FluxRepulsorBand",(side*1.04,y,.15),.40,.045,GLASS)
+        shell("FluxPontoon",side*1.02,0,.56,.65,2.8,.31,ARMOR)
+        shell("FluxPontoonID",side*1.02,-.05,.89,.43,1.6,.035,TEAM)
     shell("Chassis",0,0,.62,2.15,3.0,.48,DARK)
     shell("Cab",0,.65,1.0,1.7,1.45,.57)
     for side in (-1,1):
@@ -533,13 +540,57 @@ def skyward():
     pivot("Muzzle",(1.04,.79,2.06),turret)
 
 
+
+def prism_skimmer():
+    begin("PrismSkimmer")
+    for side in (-1,1):
+        shell("RepulsorPontoon",side*.94,0,.5,.8,3.65,.62,ARMOR)
+        for y in (-1.1,1.1):
+            cyl("FluxDuct",(side*.94,y,.26),.39,.18,DARK)
+            ring("RepulsorGlow",(side*.94,y,.2),.34,.035,GLASS)
+    shell("Bridge",0,0,.79,1.54,2.54,.39,TEAM)
+    turret=pivot("TurretPivot",(0,0,1.26))
+    cyl("PrismCradle",(0,0,1.27),.62,.20,STEEL,turret,vertices=6)
+    prism("CoherentCrystal",[(-.35,-.35),(.35,-.35),(.35,.35),(-.35,.35)],1.39,1.0,GLASS,turret)
+    for side in (-1,1):
+        rod("EmitterArm",(side*.65,-.38,1.3),(side*.5,.6,1.93),.08,ARMOR,turret)
+    pivot("Muzzle",(0,.45,1.93),turret)
+
+
+def phase_lancer():
+    walker()
+    name,collection,asset_root=assets.pop()
+    collection.name="PhaseLancer";asset_root.name="PhaseLancer"
+    for obj in collection.objects: obj.name=obj.name.replace("LancerWalker","PhaseLancer")
+    assets.append(("PhaseLancer",collection,asset_root))
+    for side in (-1,1):
+        ring("PhaseCoil",(side*.9,0,2.25),.44,.08,GLASS,rotation=(math.pi/2,0,0))
+
+
+def skyward_interceptor():
+    begin("SkywardInterceptor")
+    for side in (-1,1):
+        shell("HoverPontoon",side*.87,0,.43,.78,3.2,.59)
+        for y in (-.9,.9): ring("LiftGlow",(side*.87,y,.19),.31,.04,GLASS)
+    shell("ArrayBody",0,0,.83,1.46,2.0,.59,TEAM)
+    turret=pivot("TurretPivot",(0,0,1.47))
+    for side in (-1,1):
+        shell("IonPod",side*.63,0,1.51,.52,1.44,.55,ARMOR,turret)
+        lens(side*.63,.74,1.78,.27,turret)
+    pivot("Muzzle",(.63,.85,1.78),turret)
+    antenna(0,-.61,1.81,turret)
+
+
 # Fast, reproducible rig-only export; full catalogue builds remain the default.
 walkers_only = "--walkers-only" in sys.argv
-if walkers_only:
+if "--signature-only" in sys.argv:
+    prism_skimmer(); phase_lancer(); skyward_interceptor()
+elif walkers_only:
     walker(); walker(True)
 else:
     operator(); mule(); needle(); walker(); walker(True); kite(); wraith(); prism_artillery()
     nexus(); operator_hub(); foundry(); flightdeck(); flux(); signal_lab(); service(); lance(); skyward()
+    prism_skimmer(); phase_lancer(); skyward_interceptor()
 
 # Export evaluated copies, joining objects that share a rigid parent.
 manifest=[]
@@ -581,7 +632,8 @@ for name,collection,asset_root in assets:
         modifier=joined.modifiers.new("Triangulate","TRIANGULATE")
         bpy.ops.object.modifier_apply(modifier=modifier.name)
         bm=bmesh.new(); bm.from_mesh(joined.data)
-        bmesh.ops.delete(bm,geom=[f for f in bm.faces if f.calc_area()<1e-10],context="FACES_ONLY")
+        # Leave room for glTF float32 rounding at tiny beveled knee joints.
+        bmesh.ops.delete(bm,geom=[f for f in bm.faces if f.calc_area()<1e-8],context="FACES_ONLY")
         bm.to_mesh(joined.data); bm.free()
     live=[obj for obj in scene.collection.objects if obj.name.startswith("export_")]
     bpy.ops.object.select_all(action="DESELECT")
@@ -592,14 +644,22 @@ for name,collection,asset_root in assets:
         export_animations=False,export_yup=True,export_cameras=False,export_lights=False,
         export_vertex_color="ACTIVE")
     for obj in live: bpy.data.objects.remove(obj,do_unlink=True)
-    manifest.append({"name":name,"triangles":triangles,"file":name+".glb"})
+    points=[obj.matrix_world@Vector(p) for obj in collection.objects if obj.type=="MESH" for p in obj.bound_box]
+    lo=[min(point[i] for point in points) for i in range(3)]
+    hi=[max(point[i] for point in points) for i in range(3)]
+    manifest.append({"name":name,"triangles":triangles,"file":name+".glb","bounds":{"min":lo,"max":hi}})
     collection.hide_render=True
+
+if "--damage-only" in sys.argv or "--motion-only" in sys.argv or "--walkers-only" in sys.argv:
+    export_manifest.merge_partial(SOURCE/"manifest.json",manifest)
 
 if walkers_only:
     print("Helix walker rigs exported")
     raise SystemExit(0)
 
 if "--models-only" in sys.argv or "--damage-only" in sys.argv:
+    if "--signature-only" in sys.argv:
+        export_manifest.merge_partial(SOURCE/"signature-manifest.json",manifest)
     print("Material-ready faction models exported")
     raise SystemExit(0)
 
@@ -634,6 +694,10 @@ for name,collection,asset_root in assets:
     scene.render.film_transparent=True
     collection.hide_render=True
     manifest[next(i for i,item in enumerate(manifest) if item["name"]==name)]["bounds"]={"min":list(lo),"max":list(hi)}
+
+if "--signature-only" in sys.argv:
+    (SOURCE/"signature-manifest.json").write_text(json.dumps(manifest,indent=2)+"\n")
+    raise SystemExit(0)
 
 # Catalogue display transforms normalize each subject for readable review.
 # Exported models above retain their native metre scale and upright orientation.

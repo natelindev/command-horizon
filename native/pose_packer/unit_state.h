@@ -53,7 +53,7 @@ typedef struct {
     uint64_t view;
 } UsLink;
 static Value us_classes[2], us_properties[22], us_store_methods[4], us_view_methods[4];
-static Value us_args[11], us_names[21], us_doctrine, us_maneuver;
+static Value us_args[11], us_names[21], us_doctrine, us_maneuver, us_movement_factor;
 static GDExtensionPtrOperatorEvaluator us_equal, us_string_equal;
 static GDExtensionPtrBuiltInMethod us_array_has;
 static GDExtensionMethodBindPtr us_obstacle_radius;
@@ -266,6 +266,16 @@ static double us_speed(UsView *view, UsSlot *slot) {
     factor *= band == 2 ? .4 : (band == 1 ? .7 : 1);
     if (!(slot->flags & US_INFANTRY) && us_emp(view->store, unit))
         factor *= .6;
+    Value owner, multiplier;
+    cr_variant(unit, &owner);
+    GDExtensionCallError factor_error = {0};
+    variant_call(&owner, &us_movement_factor, 0, 0, &multiplier, &factor_error);
+    double technology_factor = 1;
+    if (factor_error.error == GDEXTENSION_CALL_OK)
+        index_number(&multiplier, &technology_factor);
+    variant_destroy(&multiplier);
+    variant_destroy(&owner);
+    factor *= technology_factor;
     return slot->scalar[US_BASE_SPEED] * factor * slot->scalar[US_VETERAN_SPEED] *
            (1 + .1 * slot->scalar[US_SCRAP]);
 }
@@ -831,6 +841,7 @@ static void unit_state_initialize(void) {
     get_dtor(TYPE(STRING_NAME))(&radius);
     us_equal = rp_evaluator(GDEXTENSION_VARIANT_OP_EQUAL, TYPE(STRING_NAME), TYPE(STRING_NAME));
     us_string_equal = rp_evaluator(GDEXTENSION_VARIANT_OP_EQUAL, TYPE(STRING), TYPE(STRING));
+    name_new(&us_movement_factor, "movement_technology_factor");
     us_initialized = 1;
     if (!us_equal || !us_string_equal || !us_array_has || !us_obstacle_radius || !us_obstacle_tag)
         return;
@@ -910,6 +921,7 @@ static void unit_state_deinitialize(void) {
         get_dtor(TYPE(STRING_NAME))(&us_store_methods[i]);
         get_dtor(TYPE(STRING_NAME))(&us_view_methods[i]);
     }
+    get_dtor(TYPE(STRING_NAME))(&us_movement_factor);
     variant_destroy(&us_doctrine);
     get_dtor(TYPE(STRING))(&us_maneuver);
     us_initialized = 0;

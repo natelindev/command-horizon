@@ -52,7 +52,7 @@ static func health_factor(faction, role = ""):
 			return 1.1
 		if Bastion.is_aircraft(role):
 			return 0.7
-	return {"helix": 0.8, "frontier": 0.85}.get(faction, 1.0)
+	return {"helix": 0.45, "frontier": 0.85}.get(faction, 1.0)
 
 
 static func damage_factor(faction, role):

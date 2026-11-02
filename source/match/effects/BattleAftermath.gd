@@ -4,7 +4,7 @@ extends Node3D
 const MAX_SCARS = 96
 const MAX_DEBRIS = 32
 const MAX_LIGHTS = 8
-const SCAR_LIFETIME = 100.0
+const SCAR_LIFETIME = 180.0
 var scars = []
 var debris = []
 var lights = []
@@ -160,7 +160,7 @@ func advance(delta):
 		var entry = scars[index]
 		entry.age += delta
 		entry.node.material_override.set_shader_parameter(
-			"opacity", 1.0 - smoothstep(SCAR_LIFETIME - 15.0, SCAR_LIFETIME, entry.age)
+			"opacity", 1.0 - clampf(entry.age / SCAR_LIFETIME, 0.0, 1.0)
 		)
 		if entry.age >= SCAR_LIFETIME:
 			entry.node.queue_free()

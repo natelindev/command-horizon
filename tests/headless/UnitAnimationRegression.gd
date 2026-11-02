@@ -29,11 +29,37 @@ var _moving
 var _attacking
 
 
+class TravelUnit:
+	extends Node3D
+	var speed_queries = 0
+	var travel_speed = 4.0
+	var movement_speed:
+		get:
+			speed_queries += 1
+			return travel_speed
+
+
+class TravelSink:
+	extends RefCounted
+	var basis = Basis.IDENTITY
+	var last_travel = 0.0
+
+	func set_instance_shader_parameter(_key, value):
+		last_travel = value
+
+
 func _initialize():
 	call_deferred("_run")
 
 
 func _run():
+	_test_travel_guard()
+	if "--travel-guard-only" in OS.get_cmdline_user_args():
+		for message in _errors:
+			push_error(message)
+		print("Track/wheel lazy travel guard: %d failures" % _errors.size())
+		await root.get_node("Globals").quit_game(0 if _errors.is_empty() else 1)
+		return
 	_moving = load("res://source/match/units/actions/Moving.gd")
 	_attacking = load("res://source/match/units/actions/AttackingWhileInRange.gd")
 	root.get_node("SaveManager").autosaves_enabled = false
@@ -45,6 +71,7 @@ func _run():
 		_test_walker_stance()
 		_test_eased_heading()
 		_test_turret_traverse()
+		_test_cannon_recovery()
 		_test_aircraft_banking()
 		_test_shooting_stances()
 		_test_wheels()
@@ -57,6 +84,114 @@ func _run():
 		push_error(message)
 	print("Unit animation regression: %d failures" % _errors.size())
 	await root.get_node("Globals").quit_game(0 if _errors.is_empty() else 1)
+
+
+func _test_travel_guard():
+	var tracks = load("res://source/match/units/traits/TrackMotion.gd")
+	var wheels = load("res://source/match/units/traits/WheelMotion.gd")
+	# Exact and adjacent float32 distances distinguish the strict one-metre
+	# comparison from an approximate or squared-distance substitute.
+	var cases = [
+		[.5, 4.0, STEP, .5, .5, 0],
+		[-.5, 4.0, STEP, -.5, -.5, 0],
+		[.99999994, 0.0, STEP, .99999994, .99999994, 0],
+		[1.0, 0.0, STEP, 1.0, 1.0, 0],
+		[1.00000012, 0.0, STEP, 0.0, 0.0, 1],
+		[2.0, 2.0, .25, 2.0, 2.0, 1],
+		[2.00000024, 2.0, .25, 0.0, 0.0, 1],
+		[2.0, 20.0, .1, 2.0, 2.0, 1],
+		[8.0, 4.0, STEP, 0.0, 0.0, 1],
+		[.5, 4.0, 0.0, 0.0, .5, 0],
+		[.5, 4.0, -.1, 0.0, .5, 0],
+		[Vector3.ZERO, 0.0, STEP, PI / 2.0, PI / 2.0, 0, PI / 2.0],
+		[Vector3(0, 1.0, 0), 0.0, STEP, PI / 2.0, PI / 2.0, 0, PI / 2.0],
+		[Vector3(0, 1.00000012, 0), 0.0, STEP, 0.0, 0.0, 1, PI / 2.0],
+	]
+	for index in cases.size():
+		var test = cases[index]
+		var unit = TravelUnit.new()
+		root.add_child(unit)
+		unit.travel_speed = test[1]
+		var sink = TravelSink.new()
+		var track = tracks.new()
+		track._unit = unit
+		track.belts = [
+			{"mesh": sink, "offset": 1.0, "scale": 1.0, "travel": 0.0, "perimeter": 10.0}
+		]
+		var wheel = wheels.new()
+		wheel._unit = unit
+		wheel.wheels = [
+			{
+				"pivot": sink,
+				"rest": Basis.IDENTITY,
+				"axle": Vector3.RIGHT,
+				"offset": Vector3.RIGHT,
+				"radius": 1.0,
+				"angle": 0.0
+			}
+		]
+		unit.position = test[0] if test[0] is Vector3 else Vector3(0, 0, -test[0])
+		if test.size() > 6:
+			unit.rotation.y = test[6]
+		track.advance(test[2])
+		_check(
+			is_equal_approx(track.belts[0].travel, fposmod(test[3], 10.0)),
+			"Track translation/teleport boundary changed: %d" % index
+		)
+		_check(unit.speed_queries == test[5], "Track queried ordinary-step speed: %d" % index)
+		unit.speed_queries = 0
+		wheel.advance(test[2])
+		_check(
+			is_equal_approx(wheel.wheels[0].angle, wrapf(-test[4], -PI, PI)),
+			"Wheel translation/teleport boundary changed: %d" % index
+		)
+		_check(unit.speed_queries == test[5], "Wheel queried ordinary-step speed: %d" % index)
+		unit.free()
+	var ordinary_queries = 0
+	for index in 200:
+		var unit = TravelUnit.new()
+		root.add_child(unit)
+		var sink = TravelSink.new()
+		var track = tracks.new()
+		track._unit = unit
+		track.belts = [
+			{"mesh": sink, "offset": 1.0, "scale": 1.0, "travel": 0.0, "perimeter": 10.0}
+		]
+		var wheel = wheels.new()
+		wheel._unit = unit
+		wheel.wheels = [
+			{
+				"pivot": sink,
+				"rest": Basis.IDENTITY,
+				"axle": Vector3.RIGHT,
+				"offset": Vector3.RIGHT,
+				"radius": 1.0,
+				"angle": 0.0
+			}
+		]
+		for step in 20:
+			unit.position.z -= .015
+			var position = unit.position
+			track.advance(STEP)
+			wheel.advance(STEP)
+			_check(unit.position == position, "Travel articulation changed gameplay position")
+		_check(
+			(
+				is_equal_approx(track.belts[0].travel, -unit.position.z)
+				and is_equal_approx(wheel.wheels[0].angle, unit.position.z)
+			),
+			"Repeated ordinary travel changed track/wheel phase"
+		)
+		ordinary_queries += unit.speed_queries
+		unit.free()
+	_check(ordinary_queries == 0, "200-body ordinary articulation queried live movement speed")
+	print("Track/wheel guard cohort: 8000 advances, speed queries=", ordinary_queries)
+	print(
+		(
+			"Track/wheel guard: %d boundary cases; ordinary steps require zero speed queries"
+			% cases.size()
+		)
+	)
 
 
 func _test_authored_body_transform():
@@ -111,6 +246,13 @@ func _fixture(faction, map_name = "BastionDesert"):
 	root.add_child(_game)
 	current_scene = _game
 	await _frames(30)
+	if "--native-unit-state" in OS.get_cmdline_user_args():
+		_check(_game.unit_state_store != null, "Native animation fixture has no unit store")
+	if "--native-crowd-runtime" in OS.get_cmdline_user_args():
+		_check(
+			_game.crowd_runtime != null and _game.crowd_runtime.active,
+			"Native animation fixture has no active crowd runtime"
+		)
 	_players = get_nodes_in_group("players")
 	for side in _players:
 		side.set_process(false)
@@ -260,7 +402,11 @@ func _test_walker_stance():
 			_check(walker == null, "%s %s vehicle treated as a walker" % [faction, role])
 			unit.queue_free()
 			continue
-		_check(walker != null and walker.legs.size() == 4, "Articulated walker legs missing")
+		var expected_legs = 2 if faction == "bastion" and role == "CombatRobot" else 4
+		_check(
+			walker != null and walker.legs.size() == expected_legs,
+			"Authored articulated walker legs missing"
+		)
 		if walker == null:
 			unit.queue_free()
 			continue
@@ -277,7 +423,7 @@ func _test_walker_stance():
 				var swinging = walker.legs.map(func(leg): return leg.swing)
 				_drive(unit, velocity, 1)
 				var supports = 0
-				for index in range(4):
+				for index in walker.legs.size():
 					var leg = walker.legs[index]
 					if not leg.swing:
 						supports += 1
@@ -295,7 +441,7 @@ func _test_walker_stance():
 						"Walker sole tilts with its shin"
 					)
 					knees[snappedf(leg.knee.rotation.length(), .03)] = true
-				_check(supports >= 2, "Walker lost both support pairs")
+				_check(supports >= expected_legs / 2, "Walker lost its planted support stance")
 		_check(
 			worst_slide < .001,
 			"%s %s planted ankle skates %.4f m/frame" % [faction, role, worst_slide]
@@ -306,6 +452,20 @@ func _test_walker_stance():
 		)
 		_check(lift > walker.legs[0].length * .15, "Robot feet never clearly lift")
 		_check(knees.size() >= 5, "Robot knees remain rigid")
+		print(
+			"WALKER ",
+			faction,
+			" ",
+			role,
+			" legs=",
+			walker.legs.size(),
+			" slide=",
+			worst_slide,
+			" target=",
+			worst_target,
+			" lift=",
+			lift
+		)
 		_drive(unit, Vector3.ZERO, 150)
 		_check(walker.is_at_rest(), "Walker never re-plants its legs after stopping")
 		for leg in walker.legs:
@@ -329,7 +489,7 @@ func _test_walker_turns_and_stops(unit):
 			var swinging = walker.legs.map(func(leg): return leg.swing)
 			unit.rotate_y(STEP * .6)
 			_drive(unit, -unit.basis.z * speed, 1)
-			for index in range(4):
+			for index in walker.legs.size():
 				var leg = walker.legs[index]
 				worst_target = maxf(
 					worst_target,
@@ -451,6 +611,32 @@ func _test_turret_traverse():
 	target.queue_free()
 
 
+func _test_cannon_recovery():
+	if _players[0].faction != "bastion":
+		return
+	for role in ["Tank", "AdvancedTank"]:
+		var tank = _spawn(role, 0, Vector3(36, 0, 24))
+		var visual = tank.get_node("BastionVisuals")
+		_drive(tank, Vector3.ZERO, 5)
+		var root_transform = tank.transform
+		var health = tank.hp
+		var charge = tank.weapon_charge_progress
+		visual.fire_recoil()
+		_check(is_equal_approx(visual.motion.recoil_duration, .4), "Cannon recovery is not .4s")
+		_drive(tank, Vector3.ZERO, 4)
+		_check(visual.chassis._cannon_spring() > .1, "Cannon did not load the suspension spring")
+		_check(
+			visual.chassis.offset_position().dot(-visual.chassis._recoil_direction) > .03,
+			"Cannon chassis did not recoil away from the firing direction"
+		)
+		_drive(tank, Vector3.ZERO, 21)
+		_check(is_zero_approx(visual.chassis._cannon_spring()), "Cannon suspension did not recover")
+		_check(is_zero_approx(visual._recoil), "Cannon barrel did not recover")
+		_check(tank.transform == root_transform and tank.hp == health, "Recoil changed gameplay")
+		_check(tank.weapon_charge_progress == charge, "Recoil changed weapon charge")
+		tank.queue_free()
+
+
 func _test_aircraft_banking():
 	var craft = _spawn("Helicopter", 0, Vector3(40, 0, 20))
 	var visual = craft.get_node("BastionVisuals")
@@ -505,9 +691,19 @@ func _test_shooting_stances():
 func _test_wheels():
 	var expected = {
 		"bastion": {},
-		"helix": {"Worker": 6, "AdvancedTank": 6},
+		"helix": {},
 		"frontier": {"Worker": 6, "Tank": 6, "RepairRobot": 4, "CombatRobot": 4, "AdvancedTank": 8},
 	}[_players[0].faction]
+	if _players[0].faction == "helix":
+		for role in ["Worker", "AdvancedTank"]:
+			var skimmer = _spawn(role, 0, Vector3(30, 0, 34))
+			var presentation = skimmer.get_node("BastionVisuals")
+			_check(presentation._wheel_motion == null, "Helix skimmer has wheel animation: " + role)
+			_check(
+				presentation.chassis.kind == presentation.chassis.Kind.HOVER,
+				"Helix skimmer does not use repulsor suspension: " + role
+			)
+			skimmer.queue_free()
 	for role in expected:
 		var unit = _spawn(role, 0, Vector3(30, 0, 34))
 		var drive = unit.get_node("BastionVisuals")._wheel_motion
@@ -553,8 +749,8 @@ func _test_hidden_and_settled():
 	)
 	# Off-screen culling (rendered runs only): a unit outside the camera frustum
 	# skips posing, and resumes as soon as the camera looks at it.
-	var script = visual.get_script()
-	script._headless = false
+	var previous_headless: bool = visual._shared.headless
+	visual._shared.headless = false
 	var camera = Camera3D.new()
 	_game.add_child(camera)
 	camera.projection = Camera3D.PROJECTION_ORTHOGONAL
@@ -573,7 +769,7 @@ func _test_hidden_and_settled():
 	await physics_frame
 	_drive(unit, Vector3.FORWARD * 3.0, 4)
 	_check(not _same_part_poses(unit, poses), "On-screen unit never resumed animating")
-	script._headless = true
+	visual._shared.headless = previous_headless
 	camera.queue_free()
 	unit.queue_free()
 	for role in ["Tank", "CombatRobot", "Worker", "RepairRobot", "AdvancedTank"]:
@@ -708,6 +904,10 @@ func _test_destruction():
 		-sin(atan2(recipe.tilt.z, recipe.tilt.x)), 0, cos(atan2(recipe.tilt.z, recipe.tilt.x))
 	)
 	_check(fall.z < 0.0, "Infantry falls toward the shooter")
+	soldier.get_node("BastionVisuals").hit_reaction(source.global_position, true)
+	var blast_recipe = soldier.get_node("BastionVisuals").death_motion()
+	_check(blast_recipe.get("lift", 0.0) >= .5, "Direct high explosive did not throw infantry")
+	_check(blast_recipe.slide.z < -.5, "Explosive infantry impulse points toward the shooter")
 	# Headless matches skip wreck visuals; build them directly as destruction() does.
 	effects._wreck(soldier, true)
 	effects._wreck(craft, false)

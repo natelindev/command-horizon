@@ -17,6 +17,7 @@ const UnitCounters = preload("res://source/match/combat/UnitCounters.gd")
 
 const BUILD_KEYS = {
 	KEY_C: "CommandCenter",
+	KEY_F: "ForwardRefinery",
 	KEY_B: "Barracks",
 	KEY_V: "VehicleFactory",
 	KEY_A: "AircraftFactory",
@@ -46,10 +47,12 @@ var _support: VBoxContainer
 var _minimap: Control
 var _queue: Control
 var _refresh_elapsed = 0.0
+var _health_dirty = false
 var _orders_panel = null
 var _behavior_panel = null
 var _research_panel = null
 var _was_under_construction = false
+var _formation_controls = null
 var _weapon_modes = null
 var _signature_panel = null
 var _direct_orders = null
@@ -159,6 +162,8 @@ func _process(delta):
 	if _refresh_elapsed >= 0.25:
 		_refresh_elapsed = 0.0
 		_refresh_buttons()
+	if _health_dirty:
+		_refresh_health()
 
 
 func _input(event):
@@ -224,8 +229,8 @@ func _reset_menus():
 		if not is_instance_valid(previous_unit):
 			continue
 		for signal_name in ["hp_changed", "shields_changed"]:
-			if previous_unit.is_connected(signal_name, _refresh_health):
-				previous_unit.disconnect(signal_name, _refresh_health)
+			if previous_unit.is_connected(signal_name, _queue_health_refresh):
+				previous_unit.disconnect(signal_name, _queue_health_refresh)
 		if previous_unit.tree_exited.is_connected(_queue_menu_reset):
 			previous_unit.tree_exited.disconnect(_queue_menu_reset)
 		if previous_unit is Structure and previous_unit.constructed.is_connected(_queue_menu_reset):
@@ -249,6 +254,7 @@ func _reset_menus():
 	_behavior_panel = null
 	_research_panel = null
 	_weapon_modes = null
+	_formation_controls = null
 	_signature_panel = null
 	_selection_roster = null
 	_command_card = null
@@ -278,8 +284,8 @@ func _reset_menus():
 		)
 	for selected_unit in _selection:
 		for signal_name in ["hp_changed", "shields_changed"]:
-			if not selected_unit.is_connected(signal_name, _refresh_health):
-				selected_unit.connect(signal_name, _refresh_health)
+			if not selected_unit.is_connected(signal_name, _queue_health_refresh):
+				selected_unit.connect(signal_name, _queue_health_refresh)
 		if not selected_unit.tree_exited.is_connected(_queue_menu_reset):
 			selected_unit.tree_exited.connect(_queue_menu_reset)
 		if (
@@ -326,7 +332,7 @@ func _reset_menus():
 	var production_roles = []
 	for producer in _selection:
 		if producer is Structure and producer.is_constructed():
-			for role in Catalog.PRODUCES.get(producer.type, []):
+			for role in Factions.production_options(producer.player.faction, producer.type):
 				if role not in production_roles:
 					production_roles.append(role)
 	# The selection's primary choices open immediately, with direct labelled tabs.
@@ -380,17 +386,47 @@ func _reset_menus():
 		_research_panel = _research_script.new()
 		_research_panel.lab = unit
 		roster_page.add_child(_research_panel)
+	if (
+		_selection.size() == 1
+		and unit is Structure
+		and unit.is_constructed()
+		and unit.type == "CommandLab"
+		and unit.player.faction == "frontier"
+	):
+		var market = load("res://source/match/hud/MarketPanel.gd").new()
+		market.player = unit.player
+		_page("Black Market").add_child(market)
 	if has_workers:
 		# Mixed worker/producer selections keep both rosters one click away;
 		# do not combine two full menus into an over-height Produce grid.
 		if not production_roles.is_empty():
 			grid = _roster_grid(_page("Build"))
 		for unit_type in Catalog.STRUCTURES:
+			if not Factions.roster(unit.player.faction).allows(unit_type, true):
+				continue
 			_add_roster_button(grid, unit_type, true)
 		if unit.player.faction == "bastion":
 			_add_engineering_button(grid, "field_barricade", "Field barricade", "Q", "plan", 10)
 		elif unit.player.faction == "frontier":
 			_add_engineering_button(grid, "scrap_mine", "Scrap mine", "W", "attack", 8)
+	if (
+		(
+			_selection
+			. filter(
+				func(member): return member.manual_orders != null and member.movement_speed > 0
+			)
+			. size()
+		)
+		> 1
+	):
+		_formation_controls = load("res://source/match/hud/FormationControls.gd").new()
+		_formation_controls.selection = _selection.duplicate()
+		_formation_controls.hud = unit._match.hud
+		_page("Formations").add_child(_formation_controls)
+	if _selection.size() == 1 and unit.garrison_mount != null:
+		var passengers = load("res://source/match/hud/PassengerPanel.gd").new()
+		passengers.host = unit
+		_page("Passengers").add_child(passengers)
 	var stop = Button.new()
 	_stop_button = stop
 	stop.theme_type_variation = "BattleQuietButton"
@@ -511,7 +547,14 @@ func _build_info(portrait):
 	_info.add_child(_status)
 
 
+func _queue_health_refresh():
+	# A shield recharge or burst of impacts can notify every selected body in
+	# one tick. Aggregate once for the next displayed frame, also while paused.
+	_health_dirty = true
+
+
 func _refresh_health():
+	_health_dirty = false
 	if not is_instance_valid(_health):
 		return
 	var hp = 0.0
@@ -754,18 +797,23 @@ func _refresh_buttons():
 			_stop_button.accessibility_description = (
 				_stop_button.text + ". " + _stop_button.tooltip_text
 			)
-	# The grid resets its keys first; order keys then take their armed state and hints.
+	# The grid retains unchanged controls; order keys take fresh state and hints.
+	var eligibility = (
+		_direct_orders.eligibility_state() if is_instance_valid(_direct_orders) else {}
+	)
 	if is_instance_valid(_command_card):
-		_command_card.update_layout(_selection, _direct_orders)
+		_command_card.update_layout(_selection, _direct_orders, eligibility)
 	_refresh_engineering_buttons()
 	if is_instance_valid(_direct_orders):
 		for kind in _command_buttons:
 			var button = _command_buttons[kind]
 			var spec = _direct_orders.COMMANDS[kind]
 			button.set_pressed_no_signal(_direct_orders.kind == kind)
-			button.disabled = _direct_orders.eligible(kind).is_empty()
+			button.disabled = _direct_orders.eligible(kind, eligibility).is_empty()
 			# The badge and tooltip both follow the player's configured binding.
-			button.badge = Bindings.label(spec.action)
+			var badge = Bindings.label(spec.action)
+			if button.badge != badge:
+				button.badge = badge
 			button.tooltip_text = (
 				Bindings.hint(spec.title, spec.action)
 				+ "\n"
@@ -775,12 +823,12 @@ func _refresh_buttons():
 			button.accessibility_name = Bindings.hint(spec.title, spec.action)
 			button.accessibility_description = button.tooltip_text
 		if is_instance_valid(_return_cargo):
-			var state = _direct_orders.cargo_return_state()
+			var state = _direct_orders.cargo_return_state(eligibility)
 			_return_cargo.disabled = state.orders.is_empty()
 			_return_cargo.tooltip_text = state.description
 			_return_cargo.accessibility_description = state.description
 		if is_instance_valid(_recover_health):
-			var state = _direct_orders.recovery_state()
+			var state = _direct_orders.recovery_state(eligibility)
 			_recover_health.text = state.label
 			_recover_health.disabled = state.orders.is_empty()
 			_recover_health.tooltip_text = state.description
@@ -825,7 +873,7 @@ func _refresh_buttons():
 			lines.append("Under construction")
 		else:
 			if unit.player.production_factor() < 1.0:
-				lines.append("Low power — production at 35%")
+				lines.append("Low power — production at 25%")
 			var service = {
 				"CommandLab": "Research and advanced units unlocked",
 				"RepairDepot": "Ground service: 2 slots · 5 m",
@@ -865,6 +913,13 @@ func _refresh_buttons():
 				lines.append(tr("Overdrive suspended · low power"))
 			elif support.operating(unit):
 				lines.append(tr("Overdrive · %d shields supported") % support.affected_count(unit))
+		if unit.type == "CommandCenter" and unit.player.faction == "helix":
+			lines.append(
+				tr("Nexus energy · %d / %d") % [floori(unit.energy), int(unit.ENERGY_CAPACITY)]
+			)
+			facts.append(
+				"Nexus Energy regenerates at 0.5 per second. Flux Resonance costs 25 Energy."
+			)
 		var queue = unit.get_node_or_null("ProductionQueue")
 		if queue != null and queue.has_assembly_line() and queue.completed_streak > 0:
 			lines.append(
@@ -1006,8 +1061,14 @@ func _dequeue_roster(button, quantity: int = 1):
 	if target_entry == null or target_entry.construction:
 		return
 	var unit_type = target_entry.type
+	var batch_size = (
+		Factions.batch_size(_selection[0].player.faction, unit_type)
+		if not _selection.is_empty() and _selection[0].player.get_meta("skirmish", false)
+		else 1
+	)
+	var cycles = floori(float(quantity) / batch_size) if quantity > 1 else 1
 
-	for step in quantity:
+	for step in cycles:
 		var best_producer = null
 		var best_element = null
 		var best_index = -1
@@ -1045,20 +1106,34 @@ func _activate_roster(unit_type, construction, button):
 func _activate(unit_type, construction, quantity = 1):
 	if _selection.is_empty() or not is_instance_valid(_selection[0]):
 		return
-	var scene = load(Catalog.scene_path(unit_type))
+	var scene = load(Factions.scene_path(_selection[0].player.faction, unit_type))
 	if construction:
 		MatchSignals.place_structure.emit(scene)
 	else:
 		# Resolve each job again so selected factories share the batch. Existing
 		# affordability, queue, population and unique-hero checks apply to each unit.
-		for index in quantity:
-			var producer = _production_target(unit_type)
-			if producer == null or producer.production_queue.produce(scene) == null:
+		var batch_size = (
+			Factions.batch_size(_selection[0].player.faction, unit_type)
+			if _selection[0].player.get_meta("skirmish", false)
+			else 1
+		)
+		var cycles = floori(float(quantity) / batch_size) if quantity > 1 else 1
+		var admitted_work = {}
+		for index in cycles:
+			var producer = _production_target(unit_type, admitted_work)
+			if producer == null:
 				break
+			var result = producer.production_queue.produce(scene)
+			if result == null:
+				break
+			if result is Dictionary and result.get("network_pending", false):
+				admitted_work[producer] = (
+					admitted_work.get(producer, 0.0) + Factions.duration(producer.player, unit_type)
+				)
 	_refresh_buttons()
 
 
-func _production_target(role):
+func _production_target(role, admitted_work: Dictionary = {}):
 	var best = null
 	var shortest = INF
 	for producer in _selection:
@@ -1067,11 +1142,11 @@ func _production_target(role):
 			or producer.is_queued_for_deletion()
 			or not producer is Structure
 			or not producer.is_constructed()
-			or role not in Catalog.PRODUCES.get(producer.type, [])
+			or role not in Factions.production_options(producer.player.faction, producer.type)
 		):
 			continue
 		var info = RosterInfo.inspect(producer, role, false)
-		var workload = 0.0
+		var workload = admitted_work.get(producer, 0.0)
 		for job in producer.production_queue.get_elements():
 			workload += job.time_left
 		# Keep a disabled candidate for cost/tooltips when all queues are unavailable.
@@ -1172,6 +1247,25 @@ func handle_menu_input(event):
 			open_commander()
 			get_viewport().set_input_as_handled()
 			return true
+	if event is InputEventKey and is_instance_valid(_formation_controls):
+		var saves = get_node_or_null("/root/SaveManager")
+		var game = find_parent("Match")
+		var focus = get_viewport().gui_get_focus_owner()
+		var building = (
+			is_instance_valid(_pages) and _pages.get_current_tab_control().name == "Build"
+		)
+		if (
+			not building
+			and not focus is LineEdit
+			and not focus is TextEdit
+			and not is_instance_valid(Globals.settings_dialog)
+			and (saves == null or not is_instance_valid(saves.dialog))
+			and game.hud._overlay == null
+			and game.hud.direct_orders.kind.is_empty()
+		):
+			if _formation_controls.handle_input(event):
+				get_viewport().set_input_as_handled()
+				return true
 	if (
 		not event is InputEventKey
 		or not event.pressed

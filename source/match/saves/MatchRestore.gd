@@ -6,6 +6,7 @@ const Campaigns = preload("res://source/match/campaign/CampaignCatalog.gd")
 const Schema = preload("res://source/match/saves/SnapshotSchema.gd")
 const Values = preload("res://source/match/saves/SaveValue.gd")
 const Actions = preload("res://source/match/saves/ActionRestore.gd")
+const Benchmark = preload("res://source/match/saves/BenchmarkState.gd")
 const Catalog = preload("res://source/match/BastionCatalog.gd")
 const NAVIGATION_SYNC_TIMEOUT_MS = 10000
 var error = ""
@@ -13,10 +14,12 @@ var warnings = []
 var entities = {}
 var _schema
 var _data
+var _factions
 
 
 func prepare(snapshot):
 	error = ""
+	_factions = load("res://source/match/FactionCatalog.gd")
 	warnings.clear()
 	entities.clear()
 	_data = null
@@ -58,7 +61,10 @@ func restore(tree, snapshot):
 	game.settings = settings
 	if settings.mission_id == "command_horizon":
 		game.alternate_route = _data.mission.alternate_route
-	game.map = load(settings.map_path).instantiate()
+	var restored_map = load(settings.map_path).instantiate()
+	if not settings.scenario.is_empty():
+		restored_map.scenario = settings.scenario.duplicate(true)
+	game.map = restored_map
 	# There may only be one match's global groups and signal subscribers at a time.
 	tree.paused = true
 	var previous = tree.current_scene
@@ -119,7 +125,13 @@ func restore(tree, snapshot):
 	for obstacle in tree.get_nodes_in_group("destructible_obstacles"):
 		obstacle.free()
 	for saved in _data.get("obstacles", []):
-		var obstacle = load("res://source/match/environment/DestructibleObstacle.gd").new()
+		var obstacle = (
+			load("res://source/match/world/StructureRuin.gd").new()
+			if saved.role == "StructureRuin"
+			else load("res://source/match/environment/DestructibleObstacle.gd").new()
+		)
+		if saved.role == "StructureRuin":
+			obstacle.restore_state(saved.ruin)
 		_copy(
 			obstacle,
 			saved,
@@ -128,7 +140,8 @@ func restore(tree, snapshot):
 		game.map.add_child(obstacle)
 		entities[saved.id] = obstacle
 	for saved in _data.units:
-		var unit = load(Catalog.scene_path(saved.role)).instantiate()
+		var owner = entities[saved.player]
+		var unit = load(_factions.scene_path(owner.faction, saved.role)).instantiate()
 		unit.set_meta("visual_seed", saved.visual_seed)
 		game._setup_and_spawn_unit(
 			unit,
@@ -200,6 +213,9 @@ func restore(tree, snapshot):
 		entities[saved.id].restore_state(saved, entities)
 	for saved in _data.neutral_buildings:
 		entities[saved.id].restore(saved, entities)
+	for saved in _data.units:
+		if saved.has("garrison_mount"):
+			entities[saved.id].garrison_mount.restore(saved.garrison_mount, entities)
 	var actions = Actions.new()
 	for side in _data.players:
 		entities[side.id].signatures.restore(side.signatures, entities)
@@ -231,6 +247,30 @@ func restore(tree, snapshot):
 		if saved.selected:
 			unit.get_node("Selection").select()
 		unit.reset_physics_interpolation()
+	for side in _data.players:
+		Benchmark.restore_player(entities[side.id], side.economy, entities)
+	for saved in _data.units:
+		var unit = entities[saved.id]
+		var state = saved.benchmark
+		if unit.manual_orders != null:
+			unit.manual_orders.restore_tactics(state.tactics, func(id): return entities.get(id))
+		var movement = unit.get_node_or_null("Movement")
+		if movement != null:
+			movement.ion_stall_left = state.ion_stall_left
+		if unit.type == "ForwardRefinery":
+			unit.smelting_remainder = state.refinery_remainder
+		if unit.type == "CommandCenter":
+			unit.energy = state.hq_energy
+		unit.set_meta("shield_withdrawing", state.shield_withdrawing)
+		if unit.optical_cloak != null:
+			unit.optical_cloak.idle_left = state.cloak_left
+			unit.optical_cloak.concealed = state.cloak_left <= 0.0
+		if not state.mercenary.is_empty():
+			load("res://source/match/units/traits/MercenarySortie.gd").attach(unit, state.mercenary)
+		if unit.type == "AdvancedTank" and unit.player.faction == "helix":
+			unit.prism_lock_target = entities.get(state.prism_target)
+			unit.prism_lock_seconds = state.prism_seconds
+
 	game.projectile_system.restore(_data.rounds, entities)
 	game.grenade_system.restore(_data.grenades, entities)
 	game.battlefield_wear.restore(_data.battlefield_wear)
@@ -368,10 +408,11 @@ func _production(unit, saved):
 				"paid_cost",
 				"departure_endpoint",
 				"assembly_started",
-				"assembly_bonus"
+				"assembly_bonus",
+				"batch_count"
 			]
 		)
-		job.unit_prototype = load(Catalog.scene_path(item.role))
+		job.unit_prototype = load(_factions.scene_path(unit.player.faction, item.role))
 		queue._enqueue_element(job)
 	queue.restore_assembly_state(saved.assembly_state)
 
@@ -395,10 +436,24 @@ func _orders(unit, saved):
 		else null
 	)
 	orders.set_physics_process(orders._engaged)
+	orders.resume_waiting_activation()
 
 
 func _order(saved):
 	var result = saved.duplicate(true)
+	if result.has("cohesion_members"):
+		var members = result.cohesion_members.map(func(id): return entities[id])
+		if not members.is_empty():
+			var game = members[0]._match
+			var cache = game.get_meta("restored_cohesion_groups", {})
+			var identities = members.map(func(member): return member.get_instance_id())
+			identities.sort()
+			var key = str(identities)
+			if not cache.has(key):
+				cache[key] = load("res://source/match/orders/CohesionGroup.gd").new(members)
+			game.set_meta("restored_cohesion_groups", cache)
+			result.cohort = cache[key]
+		result.erase("cohesion_members")
 	if result.has("target"):
 		var target = entities.get(result.target)
 		result.target = weakref(target) if target != null else WeakRef.new()
@@ -456,7 +511,7 @@ func _structure_memory(_game, handler):
 		var proxy = load("res://source/match/players/Player.gd").new()
 		proxy.color = saved.color
 		var prototype = load(Catalog.scene_path(saved.role)).instantiate()
-		load("res://source/match/FactionCatalog.gd").prepare_model(prototype, saved.faction)
+		_factions.prepare_model(prototype, saved.faction)
 		proxy.add_child(prototype)
 		prototype._setup_color()
 		var geometry = prototype.get_node("Geometry")

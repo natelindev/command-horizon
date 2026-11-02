@@ -1,0 +1,35 @@
+{
+  "scope": "Only canonical rendered test fixture changed after completed package freeze; runtime/UI/native unchanged by this task",
+  "pck": "None; official Godot4.7.2 editor source-tree runs",
+  "engine_sha256": "c7cccbf8fb143e34e02fd6521e09be2c2b974f0d5db080b19071c9c570718ccf",
+  "native_arm64_sha256": "b4ad2c825feeb8347267c4ec4b802e5ec2921d8e4c6c69c3507b26f852cadc27",
+  "changed_file": "tests/rendered/CampaignBriefingCatalogPreview.gd",
+  "fixture_before_sha256": "a00298becb36c3ffba2842466fc99932bf798ef0bfb9504e285a99be731f7cc5",
+  "fixture_after_sha256": "f73ebf7454cd0d78be49ce34fbf3a33ba397e37b71606ad5e81dcfce0002e3c1",
+  "headless": {
+    "exit_code": 0,
+    "paragraphs": 1152,
+    "failures": 0,
+    "interface_scales": [1.0, 1.25, 1.5],
+    "subtitle_sizes": [18, 22, 26],
+    "args": ["--headless", "--fixed-fps", "60", "--script", "res://tests/rendered/CampaignBriefingCatalogPreview.gd", "--", "--layout-only", "--layout-matrix", "--output-dir=res://docs/playtests/2026-11-02/graphical-resume/canonical/headless-matrix"]
+  },
+  "rendered": {
+    "exit_code": 0,
+    "renderer": "Metal4.0 Forward+ AppleM1Pro",
+    "paragraphs": 128,
+    "failures": 0,
+    "missions": 16,
+    "locales": ["en", "zh_CN"],
+    "captures": 32,
+    "physical_png": [1280, 720],
+    "logical_viewport": [853.3333333333334, 480.0],
+    "interface_scale": 1.5,
+    "subtitle_size": 26,
+    "args": ["--fixed-fps", "60", "--script", "res://tests/rendered/CampaignBriefingCatalogPreview.gd", "--", "--output-dir=res://docs/playtests/2026-11-02/graphical-resume/canonical/rendered"],
+    "temporary_pause": "Stopped producing captures after23, then completed; raw sample and focus attempt retained; no attribution established"
+  },
+  "static_checks": "gdformat and gdlint passed for the changed fixture",
+  "shutdown": "Canonical preview exit0; sampler exit0; unintended AppleScript-activated plainGodot terminated; ps verified0Godot before root isolation",
+  "performance": "No performance qualification"
+}

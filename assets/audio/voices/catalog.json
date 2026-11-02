@@ -168,6 +168,24 @@
               "robotic": false,
               "speaker_id": "bastion/Infantry"
             }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/bastion/Infantry/low_health_0.ogg",
+              "text": "Rifle team hit! Keep the line!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/Infantry"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/bastion/Infantry/kill_0.ogg",
+              "text": "Hostile down! Line holds!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/Infantry"
+            }
           ]
         },
         "RocketInfantry": {
@@ -232,6 +250,24 @@
             {
               "stream": "res://assets/audio/voices/bastion/RocketInfantry/stop_0.ogg",
               "text": "Holding! Let them come!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/RocketInfantry"
+            }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/bastion/RocketInfantry/low_health_0.ogg",
+              "text": "Launcher team hit! Protect the rockets!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/RocketInfantry"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/bastion/RocketInfantry/kill_0.ogg",
+              "text": "Armor cracked! Reload the launcher!",
               "mechanical": false,
               "robotic": false,
               "speaker_id": "bastion/RocketInfantry"
@@ -304,6 +340,24 @@
               "robotic": false,
               "speaker_id": "bastion/SniperInfantry"
             }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/bastion/SniperInfantry/low_health_0.ogg",
+              "text": "Taking hits! Need a new perch!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/SniperInfantry"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/bastion/SniperInfantry/kill_0.ogg",
+              "text": "One less threat to the line.",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/SniperInfantry"
+            }
           ]
         },
         "AssaultInfantry": {
@@ -368,6 +422,24 @@
             {
               "stream": "res://assets/audio/voices/bastion/AssaultInfantry/stop_0.ogg",
               "text": "Holding! Let them come!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/AssaultInfantry"
+            }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/bastion/AssaultInfantry/low_health_0.ogg",
+              "text": "Plate cracked! Still pushing!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/AssaultInfantry"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/bastion/AssaultInfantry/kill_0.ogg",
+              "text": "Breach secure! Push through!",
               "mechanical": false,
               "robotic": false,
               "speaker_id": "bastion/AssaultInfantry"
@@ -440,6 +512,24 @@
               "robotic": false,
               "speaker_id": "bastion/Hero"
             }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/bastion/Hero/low_health_0.ogg",
+              "text": "My armor is failing! The line holds!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/Hero"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/bastion/Hero/kill_0.ogg",
+              "text": "Another threat broken. Hold your ground!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/Hero"
+            }
           ]
         },
         "Tank": {
@@ -504,6 +594,24 @@
             {
               "stream": "res://assets/audio/voices/bastion/Tank/stop_0.ogg",
               "text": "Holding! Let them come!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/Tank"
+            }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/bastion/Tank/low_health_0.ogg",
+              "text": "Armor breach on bulkhead four! Hold this position!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/Tank"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/bastion/Tank/kill_0.ogg",
+              "text": "Target crushed! Load the next shell!",
               "mechanical": false,
               "robotic": false,
               "speaker_id": "bastion/Tank"
@@ -576,6 +684,24 @@
               "robotic": false,
               "speaker_id": "bastion/AdvancedTank"
             }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/bastion/AdvancedTank/low_health_0.ogg",
+              "text": "Siege hull breached! Keep the breech locked!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/AdvancedTank"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/bastion/AdvancedTank/kill_0.ogg",
+              "text": "Direct hit! Nothing left standing!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/AdvancedTank"
+            }
           ]
         },
         "Helicopter": {
@@ -640,6 +766,24 @@
             {
               "stream": "res://assets/audio/voices/bastion/Helicopter/stop_0.ogg",
               "text": "Holding! Let them come!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/Helicopter"
+            }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/bastion/Helicopter/low_health_0.ogg",
+              "text": "Gunship burning! Keep us in the air!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/Helicopter"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/bastion/Helicopter/kill_0.ogg",
+              "text": "Ground target destroyed! Banking clear!",
               "mechanical": false,
               "robotic": false,
               "speaker_id": "bastion/Helicopter"
@@ -780,6 +924,24 @@
               "robotic": false,
               "speaker_id": "bastion/Fighter"
             }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/bastion/Fighter/low_health_0.ogg",
+              "text": "Airframe failing! Stay on my wing!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/Fighter"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/bastion/Fighter/kill_0.ogg",
+              "text": "Bandit destroyed! Our sky!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/Fighter"
+            }
           ]
         },
         "Bomber": {
@@ -848,6 +1010,24 @@
               "robotic": false,
               "speaker_id": "bastion/Bomber"
             }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/bastion/Bomber/low_health_0.ogg",
+              "text": "Hull on fire! Hold her steady!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/Bomber"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/bastion/Bomber/kill_0.ogg",
+              "text": "Target flattened! Bomb run complete!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/Bomber"
+            }
           ]
         },
         "AntiAirVehicle": {
@@ -912,6 +1092,24 @@
             {
               "stream": "res://assets/audio/voices/bastion/AntiAirVehicle/stop_0.ogg",
               "text": "Holding! Let them come!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/AntiAirVehicle"
+            }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/bastion/AntiAirVehicle/low_health_0.ogg",
+              "text": "Flak crew hit! Keep those guns turning!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "bastion/AntiAirVehicle"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/bastion/AntiAirVehicle/kill_0.ogg",
+              "text": "Aircraft down! Clear the barrels!",
               "mechanical": false,
               "robotic": false,
               "speaker_id": "bastion/AntiAirVehicle"
@@ -1152,6 +1350,24 @@
             {
               "stream": "res://assets/audio/voices/bastion/CombatRobot/stop_0.ogg",
               "text": "Halting. Weapons hot.",
+              "mechanical": false,
+              "robotic": true,
+              "speaker_id": "bastion/CombatRobot"
+            }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/bastion/CombatRobot/low_health_0.ogg",
+              "text": "Bulwark hull critical. Defensive fire active.",
+              "mechanical": false,
+              "robotic": true,
+              "speaker_id": "bastion/CombatRobot"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/bastion/CombatRobot/kill_0.ogg",
+              "text": "Threat neutralized. Advance protected.",
               "mechanical": false,
               "robotic": true,
               "speaker_id": "bastion/CombatRobot"
@@ -2080,6 +2296,101 @@
               "speaker_id": "machine:bastion/AntiAirTurret"
             }
           ]
+        },
+        "ForwardRefinery": {
+          "select": [
+            {
+              "stream": "res://assets/audio/voices/bastion/ForwardRefinery/select_0.ogg",
+              "text": "[Telemetry chirp]",
+              "mechanical": true,
+              "robotic": false,
+              "speaker_id": "machine:bastion/ForwardRefinery"
+            },
+            {
+              "stream": "res://assets/audio/voices/bastion/ForwardRefinery/select_1.ogg",
+              "text": "[Telemetry chirp]",
+              "mechanical": true,
+              "robotic": false,
+              "speaker_id": "machine:bastion/ForwardRefinery"
+            }
+          ],
+          "move": [
+            {
+              "stream": "res://assets/audio/voices/bastion/ForwardRefinery/move_0.ogg",
+              "text": "[Drive engaged]",
+              "mechanical": true,
+              "robotic": false,
+              "speaker_id": "machine:bastion/ForwardRefinery"
+            },
+            {
+              "stream": "res://assets/audio/voices/bastion/ForwardRefinery/move_1.ogg",
+              "text": "[Drive engaged]",
+              "mechanical": true,
+              "robotic": false,
+              "speaker_id": "machine:bastion/ForwardRefinery"
+            }
+          ],
+          "attack": [
+            {
+              "stream": "res://assets/audio/voices/bastion/ForwardRefinery/attack_0.ogg",
+              "text": "[Targeting pulse]",
+              "mechanical": true,
+              "robotic": false,
+              "speaker_id": "machine:bastion/ForwardRefinery"
+            },
+            {
+              "stream": "res://assets/audio/voices/bastion/ForwardRefinery/attack_1.ogg",
+              "text": "[Targeting pulse]",
+              "mechanical": true,
+              "robotic": false,
+              "speaker_id": "machine:bastion/ForwardRefinery"
+            }
+          ],
+          "ready": [
+            {
+              "stream": "res://assets/audio/voices/bastion/ForwardRefinery/ready_0.ogg",
+              "text": "[Systems online]",
+              "mechanical": true,
+              "robotic": false,
+              "speaker_id": "machine:bastion/ForwardRefinery"
+            }
+          ],
+          "gather": [
+            {
+              "stream": "res://assets/audio/voices/bastion/ForwardRefinery/gather_0.ogg",
+              "text": "[Extractor engaged]",
+              "mechanical": true,
+              "robotic": false,
+              "speaker_id": "machine:bastion/ForwardRefinery"
+            }
+          ],
+          "construct": [
+            {
+              "stream": "res://assets/audio/voices/bastion/ForwardRefinery/construct_0.ogg",
+              "text": "[Tools engaged]",
+              "mechanical": true,
+              "robotic": false,
+              "speaker_id": "machine:bastion/ForwardRefinery"
+            }
+          ],
+          "repair": [
+            {
+              "stream": "res://assets/audio/voices/bastion/ForwardRefinery/repair_0.ogg",
+              "text": "[Repair servo engaged]",
+              "mechanical": true,
+              "robotic": false,
+              "speaker_id": "machine:bastion/ForwardRefinery"
+            }
+          ],
+          "stop": [
+            {
+              "stream": "res://assets/audio/voices/bastion/ForwardRefinery/stop_0.ogg",
+              "text": "[Drive disengaged]",
+              "mechanical": true,
+              "robotic": false,
+              "speaker_id": "machine:bastion/ForwardRefinery"
+            }
+          ]
         }
       }
     },
@@ -2251,6 +2562,24 @@
               "robotic": false,
               "speaker_id": "helix/Infantry"
             }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/helix/Infantry/low_health_0.ogg",
+              "text": "Shields collapsed! Hull integrity compromised!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/Infantry"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/helix/Infantry/kill_0.ogg",
+              "text": "Hostile signal terminated. Proceeding.",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/Infantry"
+            }
           ]
         },
         "RocketInfantry": {
@@ -2315,6 +2644,24 @@
             {
               "stream": "res://assets/audio/voices/helix/RocketInfantry/stop_0.ogg",
               "text": "Holding! Waiting for prey!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/RocketInfantry"
+            }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/helix/RocketInfantry/low_health_0.ogg",
+              "text": "Missile platform critical. Evasion required.",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/RocketInfantry"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/helix/RocketInfantry/kill_0.ogg",
+              "text": "Armor signature erased. Lock released.",
               "mechanical": false,
               "robotic": false,
               "speaker_id": "helix/RocketInfantry"
@@ -2387,6 +2734,24 @@
               "robotic": false,
               "speaker_id": "helix/SniperInfantry"
             }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/helix/SniperInfantry/low_health_0.ogg",
+              "text": "Optics exposed. Repositioning advised.",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/SniperInfantry"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/helix/SniperInfantry/kill_0.ogg",
+              "text": "Vital signal absent. Solution confirmed.",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/SniperInfantry"
+            }
           ]
         },
         "AssaultInfantry": {
@@ -2451,6 +2816,24 @@
             {
               "stream": "res://assets/audio/voices/helix/AssaultInfantry/stop_0.ogg",
               "text": "Holding! Waiting for prey!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/AssaultInfantry"
+            }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/helix/AssaultInfantry/low_health_0.ogg",
+              "text": "Breach frame critical. Preserve the core.",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/AssaultInfantry"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/helix/AssaultInfantry/kill_0.ogg",
+              "text": "Resistance removed. Breach complete.",
               "mechanical": false,
               "robotic": false,
               "speaker_id": "helix/AssaultInfantry"
@@ -2523,6 +2906,24 @@
               "robotic": false,
               "speaker_id": "helix/Hero"
             }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/helix/Hero/low_health_0.ogg",
+              "text": "Core integrity critical. Adjust the pattern.",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/Hero"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/helix/Hero/kill_0.ogg",
+              "text": "Your defense was an equation. Solved.",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/Hero"
+            }
           ]
         },
         "Tank": {
@@ -2587,6 +2988,24 @@
             {
               "stream": "res://assets/audio/voices/helix/Tank/stop_0.ogg",
               "text": "Holding! Waiting for prey!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/Tank"
+            }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/helix/Tank/low_health_0.ogg",
+              "text": "Repulsor lattice failing. Hull critical.",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/Tank"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/helix/Tank/kill_0.ogg",
+              "text": "Target perforated. Next solution.",
               "mechanical": false,
               "robotic": false,
               "speaker_id": "helix/Tank"
@@ -2659,6 +3078,24 @@
               "robotic": false,
               "speaker_id": "helix/AdvancedTank"
             }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/helix/AdvancedTank/low_health_0.ogg",
+              "text": "Prism housing fractured. Preserve alignment.",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/AdvancedTank"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/helix/AdvancedTank/kill_0.ogg",
+              "text": "Target atomized. Recalibrating.",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/AdvancedTank"
+            }
           ]
         },
         "Helicopter": {
@@ -2723,6 +3160,24 @@
             {
               "stream": "res://assets/audio/voices/helix/Helicopter/stop_0.ogg",
               "text": "Holding! Waiting for prey!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/Helicopter"
+            }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/helix/Helicopter/low_health_0.ogg",
+              "text": "Wraith hull critical. Phase stability lost.",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/Helicopter"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/helix/Helicopter/kill_0.ogg",
+              "text": "Target signature extinguished. Disengaging.",
               "mechanical": false,
               "robotic": false,
               "speaker_id": "helix/Helicopter"
@@ -2863,6 +3318,24 @@
               "robotic": false,
               "speaker_id": "helix/Fighter"
             }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/helix/Fighter/low_health_0.ogg",
+              "text": "Interceptor integrity critical. Recalculate vector.",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/Fighter"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/helix/Fighter/kill_0.ogg",
+              "text": "Airborne threat removed. Orbit secure.",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/Fighter"
+            }
           ]
         },
         "Bomber": {
@@ -2931,6 +3404,24 @@
               "robotic": false,
               "speaker_id": "helix/Bomber"
             }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/helix/Bomber/low_health_0.ogg",
+              "text": "Payload shielding breached. Hull critical.",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/Bomber"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/helix/Bomber/kill_0.ogg",
+              "text": "Impact confirmed. Enemy pattern erased.",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/Bomber"
+            }
           ]
         },
         "AntiAirVehicle": {
@@ -2995,6 +3486,24 @@
             {
               "stream": "res://assets/audio/voices/helix/AntiAirVehicle/stop_0.ogg",
               "text": "Holding! Waiting for prey!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/AntiAirVehicle"
+            }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/helix/AntiAirVehicle/low_health_0.ogg",
+              "text": "Interceptor matrix breached. Hull critical.",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "helix/AntiAirVehicle"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/helix/AntiAirVehicle/kill_0.ogg",
+              "text": "Aerial signature deleted. Tracking next.",
               "mechanical": false,
               "robotic": false,
               "speaker_id": "helix/AntiAirVehicle"
@@ -3235,6 +3744,24 @@
             {
               "stream": "res://assets/audio/voices/helix/CombatRobot/stop_0.ogg",
               "text": "Lancer holding.",
+              "mechanical": false,
+              "robotic": true,
+              "speaker_id": "helix/CombatRobot"
+            }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/helix/CombatRobot/low_health_0.ogg",
+              "text": "Lancer frame critical. Containment failing.",
+              "mechanical": false,
+              "robotic": true,
+              "speaker_id": "helix/CombatRobot"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/helix/CombatRobot/kill_0.ogg",
+              "text": "Hostile structure resolved to debris.",
               "mechanical": false,
               "robotic": true,
               "speaker_id": "helix/CombatRobot"
@@ -4163,6 +4690,101 @@
               "speaker_id": "machine:helix/AntiAirTurret"
             }
           ]
+        },
+        "ForwardRefinery": {
+          "select": [
+            {
+              "stream": "res://assets/audio/voices/helix/ForwardRefinery/select_0.ogg",
+              "text": "[Telemetry chirp]",
+              "mechanical": true,
+              "robotic": false,
+              "speaker_id": "machine:helix/ForwardRefinery"
+            },
+            {
+              "stream": "res://assets/audio/voices/helix/ForwardRefinery/select_1.ogg",
+              "text": "[Telemetry chirp]",
+              "mechanical": true,
+              "robotic": false,
+              "speaker_id": "machine:helix/ForwardRefinery"
+            }
+          ],
+          "move": [
+            {
+              "stream": "res://assets/audio/voices/helix/ForwardRefinery/move_0.ogg",
+              "text": "[Drive engaged]",
+              "mechanical": true,
+              "robotic": false,
+              "speaker_id": "machine:helix/ForwardRefinery"
+            },
+            {
+              "stream": "res://assets/audio/voices/helix/ForwardRefinery/move_1.ogg",
+              "text": "[Drive engaged]",
+              "mechanical": true,
+              "robotic": false,
+              "speaker_id": "machine:helix/ForwardRefinery"
+            }
+          ],
+          "attack": [
+            {
+              "stream": "res://assets/audio/voices/helix/ForwardRefinery/attack_0.ogg",
+              "text": "[Targeting pulse]",
+              "mechanical": true,
+              "robotic": false,
+              "speaker_id": "machine:helix/ForwardRefinery"
+            },
+            {
+              "stream": "res://assets/audio/voices/helix/ForwardRefinery/attack_1.ogg",
+              "text": "[Targeting pulse]",
+              "mechanical": true,
+              "robotic": false,
+              "speaker_id": "machine:helix/ForwardRefinery"
+            }
+          ],
+          "ready": [
+            {
+              "stream": "res://assets/audio/voices/helix/ForwardRefinery/ready_0.ogg",
+              "text": "[Systems online]",
+              "mechanical": true,
+              "robotic": false,
+              "speaker_id": "machine:helix/ForwardRefinery"
+            }
+          ],
+          "gather": [
+            {
+              "stream": "res://assets/audio/voices/helix/ForwardRefinery/gather_0.ogg",
+              "text": "[Extractor engaged]",
+              "mechanical": true,
+              "robotic": false,
+              "speaker_id": "machine:helix/ForwardRefinery"
+            }
+          ],
+          "construct": [
+            {
+              "stream": "res://assets/audio/voices/helix/ForwardRefinery/construct_0.ogg",
+              "text": "[Tools engaged]",
+              "mechanical": true,
+              "robotic": false,
+              "speaker_id": "machine:helix/ForwardRefinery"
+            }
+          ],
+          "repair": [
+            {
+              "stream": "res://assets/audio/voices/helix/ForwardRefinery/repair_0.ogg",
+              "text": "[Repair servo engaged]",
+              "mechanical": true,
+              "robotic": false,
+              "speaker_id": "machine:helix/ForwardRefinery"
+            }
+          ],
+          "stop": [
+            {
+              "stream": "res://assets/audio/voices/helix/ForwardRefinery/stop_0.ogg",
+              "text": "[Drive disengaged]",
+              "mechanical": true,
+              "robotic": false,
+              "speaker_id": "machine:helix/ForwardRefinery"
+            }
+          ]
         }
       }
     },
@@ -4361,6 +4983,24 @@
               "robotic": false,
               "speaker_id": "frontier/Worker"
             }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/frontier/Worker/low_health_0.ogg",
+              "text": "Radiator shot! This rig is boiling!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/Worker"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/frontier/Worker/kill_0.ogg",
+              "text": "Scrapper got one! Save me the parts!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/Worker"
+            }
           ]
         },
         "Infantry": {
@@ -4425,6 +5065,24 @@
             {
               "stream": "res://assets/audio/voices/frontier/Infantry/stop_0.ogg",
               "text": "Fine! We'll wait!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/Infantry"
+            }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/frontier/Infantry/low_health_0.ogg",
+              "text": "They punched through! Keep your heads down!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/Infantry"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/frontier/Infantry/kill_0.ogg",
+              "text": "That one is done! Ridge is ours!",
               "mechanical": false,
               "robotic": false,
               "speaker_id": "frontier/Infantry"
@@ -4497,6 +5155,24 @@
               "robotic": false,
               "speaker_id": "frontier/RocketInfantry"
             }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/frontier/RocketInfantry/low_health_0.ogg",
+              "text": "Launcher took a hit! Do not drop it!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/RocketInfantry"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/frontier/RocketInfantry/kill_0.ogg",
+              "text": "Cracked that tin can! Worth the rocket!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/RocketInfantry"
+            }
           ]
         },
         "SniperInfantry": {
@@ -4561,6 +5237,24 @@
             {
               "stream": "res://assets/audio/voices/frontier/SniperInfantry/stop_0.ogg",
               "text": "Fine! We'll wait!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/SniperInfantry"
+            }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/frontier/SniperInfantry/low_health_0.ogg",
+              "text": "Bad spot! They found my ridge!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/SniperInfantry"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/frontier/SniperInfantry/kill_0.ogg",
+              "text": "Clean hit. That is our ridge now.",
               "mechanical": false,
               "robotic": false,
               "speaker_id": "frontier/SniperInfantry"
@@ -4633,6 +5327,24 @@
               "robotic": false,
               "speaker_id": "frontier/AssaultInfantry"
             }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/frontier/AssaultInfantry/low_health_0.ogg",
+              "text": "Kit is falling apart! Keep swinging!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/AssaultInfantry"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/frontier/AssaultInfantry/kill_0.ogg",
+              "text": "Door is open! They are not getting up!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/AssaultInfantry"
+            }
           ]
         },
         "Hero": {
@@ -4697,6 +5409,24 @@
             {
               "stream": "res://assets/audio/voices/frontier/Hero/stop_0.ogg",
               "text": "Fine! We'll wait!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/Hero"
+            }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/frontier/Hero/low_health_0.ogg",
+              "text": "Taking a beating! We still have a road!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/Hero"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/frontier/Hero/kill_0.ogg",
+              "text": "One less bully on our road!",
               "mechanical": false,
               "robotic": false,
               "speaker_id": "frontier/Hero"
@@ -4769,6 +5499,24 @@
               "robotic": false,
               "speaker_id": "frontier/Tank"
             }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/frontier/Tank/low_health_0.ogg",
+              "text": "Engine smoking! Plates are coming loose!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/Tank"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/frontier/Tank/kill_0.ogg",
+              "text": "Nothing but scrap! Keep the engine running!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/Tank"
+            }
           ]
         },
         "AdvancedTank": {
@@ -4837,6 +5585,24 @@
               "robotic": false,
               "speaker_id": "frontier/AdvancedTank"
             }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/frontier/AdvancedTank/low_health_0.ogg",
+              "text": "Battle rig is boiling! Hold it together!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/AdvancedTank"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/frontier/AdvancedTank/kill_0.ogg",
+              "text": "Big one is scrap! That pays for the fuel!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/AdvancedTank"
+            }
           ]
         },
         "Helicopter": {
@@ -4901,6 +5667,24 @@
             {
               "stream": "res://assets/audio/voices/frontier/Helicopter/stop_0.ogg",
               "text": "Fine! We'll wait!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/Helicopter"
+            }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/frontier/Helicopter/low_health_0.ogg",
+              "text": "Rotor is rattling! Keep this bird flying!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/Helicopter"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/frontier/Helicopter/kill_0.ogg",
+              "text": "Got them! Dust and scrap behind us!",
               "mechanical": false,
               "robotic": false,
               "speaker_id": "frontier/Helicopter"
@@ -5041,6 +5825,24 @@
               "robotic": false,
               "speaker_id": "frontier/Fighter"
             }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/frontier/Fighter/low_health_0.ogg",
+              "text": "Wings are shot! Come on, stay together!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/Fighter"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/frontier/Fighter/kill_0.ogg",
+              "text": "That bird is down! Fuel well spent!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/Fighter"
+            }
           ]
         },
         "Bomber": {
@@ -5109,6 +5911,24 @@
               "robotic": false,
               "speaker_id": "frontier/Bomber"
             }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/frontier/Bomber/low_health_0.ogg",
+              "text": "We are leaking fuel! Hang on back there!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/Bomber"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/frontier/Bomber/kill_0.ogg",
+              "text": "That should settle it! Heading home loud!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/Bomber"
+            }
           ]
         },
         "AntiAirVehicle": {
@@ -5173,6 +5993,24 @@
             {
               "stream": "res://assets/audio/voices/frontier/AntiAirVehicle/stop_0.ogg",
               "text": "Fine! We'll wait!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/AntiAirVehicle"
+            }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/frontier/AntiAirVehicle/low_health_0.ogg",
+              "text": "Truck is boiling! Keep the launcher up!",
+              "mechanical": false,
+              "robotic": false,
+              "speaker_id": "frontier/AntiAirVehicle"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/frontier/AntiAirVehicle/kill_0.ogg",
+              "text": "Bird down! Watch for falling scrap!",
               "mechanical": false,
               "robotic": false,
               "speaker_id": "frontier/AntiAirVehicle"
@@ -5318,6 +6156,24 @@
             {
               "stream": "res://assets/audio/voices/frontier/CombatRobot/stop_0.ogg",
               "text": "Jackal holding.",
+              "mechanical": false,
+              "robotic": true,
+              "speaker_id": "frontier/CombatRobot"
+            }
+          ],
+          "low_health": [
+            {
+              "stream": "res://assets/audio/voices/frontier/CombatRobot/low_health_0.ogg",
+              "text": "Buggy hull critical. Detonation risk rising.",
+              "mechanical": false,
+              "robotic": true,
+              "speaker_id": "frontier/CombatRobot"
+            }
+          ],
+          "kill": [
+            {
+              "stream": "res://assets/audio/voices/frontier/CombatRobot/kill_0.ogg",
+              "text": "Target dismantled. Reusable parts detected.",
               "mechanical": false,
               "robotic": true,
               "speaker_id": "frontier/CombatRobot"
@@ -6246,6 +7102,101 @@
               "speaker_id": "machine:frontier/AntiAirTurret"
             }
           ]
+        },
+        "ForwardRefinery": {
+          "select": [
+            {
+              "stream": "res://assets/audio/voices/frontier/ForwardRefinery/select_0.ogg",
+              "text": "[Telemetry chirp]",
+              "mechanical": true,
+              "robotic": false,
+              "speaker_id": "machine:frontier/ForwardRefinery"
+            },
+            {
+              "stream": "res://assets/audio/voices/frontier/ForwardRefinery/select_1.ogg",
+              "text": "[Telemetry chirp]",
+              "mechanical": true,
+              "robotic": false,
+              "speaker_id": "machine:frontier/ForwardRefinery"
+            }
+          ],
+          "move": [
+            {
+              "stream": "res://assets/audio/voices/frontier/ForwardRefinery/move_0.ogg",
+              "text": "[Drive engaged]",
+              "mechanical": true,
+              "robotic": false,
+              "speaker_id": "machine:frontier/ForwardRefinery"
+            },
+            {
+              "stream": "res://assets/audio/voices/frontier/ForwardRefinery/move_1.ogg",
+              "text": "[Drive engaged]",
+              "mechanical": true,
+              "robotic": false,
+              "speaker_id": "machine:frontier/ForwardRefinery"
+            }
+          ],
+          "attack": [
+            {
+              "stream": "res://assets/audio/voices/frontier/ForwardRefinery/attack_0.ogg",
+              "text": "[Targeting pulse]",
+              "mechanical": true,
+              "robotic": false,
+              "speaker_id": "machine:frontier/ForwardRefinery"
+            },
+            {
+              "stream": "res://assets/audio/voices/frontier/ForwardRefinery/attack_1.ogg",
+              "text": "[Targeting pulse]",
+              "mechanical": true,
+              "robotic": false,
+              "speaker_id": "machine:frontier/ForwardRefinery"
+            }
+          ],
+          "ready": [
+            {
+              "stream": "res://assets/audio/voices/frontier/ForwardRefinery/ready_0.ogg",
+              "text": "[Systems online]",
+              "mechanical": true,
+              "robotic": false,
+              "speaker_id": "machine:frontier/ForwardRefinery"
+            }
+          ],
+          "gather": [
+            {
+              "stream": "res://assets/audio/voices/frontier/ForwardRefinery/gather_0.ogg",
+              "text": "[Extractor engaged]",
+              "mechanical": true,
+              "robotic": false,
+              "speaker_id": "machine:frontier/ForwardRefinery"
+            }
+          ],
+          "construct": [
+            {
+              "stream": "res://assets/audio/voices/frontier/ForwardRefinery/construct_0.ogg",
+              "text": "[Tools engaged]",
+              "mechanical": true,
+              "robotic": false,
+              "speaker_id": "machine:frontier/ForwardRefinery"
+            }
+          ],
+          "repair": [
+            {
+              "stream": "res://assets/audio/voices/frontier/ForwardRefinery/repair_0.ogg",
+              "text": "[Repair servo engaged]",
+              "mechanical": true,
+              "robotic": false,
+              "speaker_id": "machine:frontier/ForwardRefinery"
+            }
+          ],
+          "stop": [
+            {
+              "stream": "res://assets/audio/voices/frontier/ForwardRefinery/stop_0.ogg",
+              "text": "[Drive disengaged]",
+              "mechanical": true,
+              "robotic": false,
+              "speaker_id": "machine:frontier/ForwardRefinery"
+            }
+          ]
         }
       }
     }
@@ -6313,6 +7264,24 @@
         {
           "stream": "res://assets/audio/voices/mercenary/MercenaryWarden/stop_0.ogg",
           "text": "Holding! Your coin, your call!",
+          "mechanical": false,
+          "robotic": false,
+          "speaker_id": "mercenary/MercenaryWarden"
+        }
+      ],
+      "low_health": [
+        {
+          "stream": "res://assets/audio/voices/mercenary/MercenaryWarden/low_health_0.ogg",
+          "text": "Shield is breaking! This costs extra!",
+          "mechanical": false,
+          "robotic": false,
+          "speaker_id": "mercenary/MercenaryWarden"
+        }
+      ],
+      "kill": [
+        {
+          "stream": "res://assets/audio/voices/mercenary/MercenaryWarden/kill_0.ogg",
+          "text": "Threat down! Put that on my bill!",
           "mechanical": false,
           "robotic": false,
           "speaker_id": "mercenary/MercenaryWarden"
@@ -6385,6 +7354,24 @@
           "robotic": false,
           "speaker_id": "mercenary/MercenaryRanger"
         }
+      ],
+      "low_health": [
+        {
+          "stream": "res://assets/audio/voices/mercenary/MercenaryRanger/low_health_0.ogg",
+          "text": "They found me! Moving before payday!",
+          "mechanical": false,
+          "robotic": false,
+          "speaker_id": "mercenary/MercenaryRanger"
+        }
+      ],
+      "kill": [
+        {
+          "stream": "res://assets/audio/voices/mercenary/MercenaryRanger/kill_0.ogg",
+          "text": "Contract fulfilled. One target less.",
+          "mechanical": false,
+          "robotic": false,
+          "speaker_id": "mercenary/MercenaryRanger"
+        }
       ]
     },
     "MercenaryLancer": {
@@ -6449,6 +7436,24 @@
         {
           "stream": "res://assets/audio/voices/mercenary/MercenaryLancer/stop_0.ogg",
           "text": "Holding! Your coin, your call!",
+          "mechanical": false,
+          "robotic": false,
+          "speaker_id": "mercenary/MercenaryLancer"
+        }
+      ],
+      "low_health": [
+        {
+          "stream": "res://assets/audio/voices/mercenary/MercenaryLancer/low_health_0.ogg",
+          "text": "Lance team hit! Hazard pay, remember!",
+          "mechanical": false,
+          "robotic": false,
+          "speaker_id": "mercenary/MercenaryLancer"
+        }
+      ],
+      "kill": [
+        {
+          "stream": "res://assets/audio/voices/mercenary/MercenaryLancer/kill_0.ogg",
+          "text": "Armor broken! That earns a bonus!",
           "mechanical": false,
           "robotic": false,
           "speaker_id": "mercenary/MercenaryLancer"

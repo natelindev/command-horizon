@@ -1,0 +1,339 @@
+{
+  "common_seconds": 25.994739229,
+  "subjective_listening_performed": false,
+  "musical_style_acceptance": "Requires listener review of the retained audition artifacts",
+  "capture_trace_sha256": "a025d3bb711fa65cecc3a18d6c281c6cbe526c4ebc65b44492ca68b34de220db",
+  "factions": {
+    "bastion": {
+      "buses": {
+        "master": {
+          "seconds": 25.9947,
+          "channels": 2,
+          "sample_rate": 44100,
+          "peak_dbfs": -7.92,
+          "rms_dbfs": -26.136,
+          "integrated_lufs": -24.424,
+          "clipped_samples": 0,
+          "sha256": "41f6967b4293a7333f55ea6a5cd0469471108b627699166f27ca43b689e498a1"
+        },
+        "music": {
+          "seconds": 25.9947,
+          "channels": 2,
+          "sample_rate": 44100,
+          "peak_dbfs": -11.695,
+          "rms_dbfs": -22.207,
+          "integrated_lufs": -21.454,
+          "clipped_samples": 0,
+          "sha256": "f681b18bd241699a12ce123540a3f05f7b319c81383c5550ed1ee280bac89452"
+        },
+        "voice": {
+          "seconds": 25.9947,
+          "channels": 2,
+          "sample_rate": 44100,
+          "peak_dbfs": -6.384,
+          "rms_dbfs": -29.137,
+          "integrated_lufs": -19.508,
+          "clipped_samples": 0,
+          "sha256": "b76d3aa2bce2876ff7fc40240e1808f26a76a10819bb2f94d5550c2634382622"
+        },
+        "effects": {
+          "seconds": 25.9947,
+          "channels": 2,
+          "sample_rate": 44100,
+          "peak_dbfs": -16.795,
+          "rms_dbfs": -36.161,
+          "integrated_lufs": -33.522,
+          "clipped_samples": 0,
+          "sha256": "b60219dd899494c7754daf01c6d84e8ffdfb48806067b83c70ad3660bf415db9"
+        },
+        "ambience": {
+          "seconds": 25.9947,
+          "channels": 2,
+          "sample_rate": 44100,
+          "peak_dbfs": -24.354,
+          "rms_dbfs": -42.756,
+          "integrated_lufs": -40.312,
+          "clipped_samples": 0,
+          "sha256": "696da62f1ca29c5413a910ffc0ba7518501c91cfe248362d323be0a53067c342"
+        }
+      },
+      "live_state": {
+        "actual_shots": 31,
+        "peak_intensity": 0.851256434866601,
+        "final_intensity": 0.421802747715821,
+        "minimum_duck_db": -3.0,
+        "final_duck_db": 0.0,
+        "stem_peak_db": [
+          -0.262315452098846,
+          0.0,
+          -3.40538520049449e-07
+        ]
+      },
+      "speech": [
+        {
+          "text": "Rifle team hit! Keep the line!",
+          "heard": "Rifle team hit. Keep the line.",
+          "word_error": 0.0,
+          "seconds": 6.0059,
+          "source": "res://assets/audio/voices/bastion/Infantry/low_health_0.ogg",
+          "source_correlation": 0.9237,
+          "voice_to_background_rms_db": 2.436
+        },
+        {
+          "text": "Your base is under attack.",
+          "heard": "Your base is under attack.",
+          "word_error": 0.0,
+          "seconds": 12.0083,
+          "source": "res://assets/audio/voices/bastion/Command/BASE_UNDER_ATTACK_0.ogg",
+          "source_correlation": 0.7454,
+          "voice_to_background_rms_db": -0.191
+        },
+        {
+          "text": "Target crushed! Load the next shell!",
+          "heard": "Target crushed. Load the next shell.",
+          "word_error": 0.0,
+          "seconds": 17.0006,
+          "source": "res://assets/audio/voices/bastion/Tank/kill_0.ogg",
+          "source_correlation": 0.9361,
+          "voice_to_background_rms_db": 1.515
+        }
+      ],
+      "live_score_streams": [
+        {
+          "path": "res://assets/audio/music/hold-the-line-calm.ogg",
+          "seconds": 204.065673828125
+        },
+        {
+          "path": "res://assets/audio/music/hold-the-line-tension.ogg",
+          "seconds": 204.065673828125
+        },
+        {
+          "path": "res://assets/audio/music/hold-the-line-combat.ogg",
+          "seconds": 204.065673828125
+        }
+      ],
+      "live_score_streams_verified": true
+    },
+    "helix": {
+      "buses": {
+        "master": {
+          "seconds": 25.9947,
+          "channels": 2,
+          "sample_rate": 44100,
+          "peak_dbfs": -6.194,
+          "rms_dbfs": -25.494,
+          "integrated_lufs": -24.28,
+          "clipped_samples": 0,
+          "sha256": "5924d1086719867afadd89d8c5291ccdcb440c972ca892e68297a9ed21ca8f92"
+        },
+        "music": {
+          "seconds": 25.9947,
+          "channels": 2,
+          "sample_rate": 44100,
+          "peak_dbfs": -7.236,
+          "rms_dbfs": -21.374,
+          "integrated_lufs": -21.4,
+          "clipped_samples": 0,
+          "sha256": "d104c96f9d31d6cc590f8c03205c9a958aea5384ee6d06a70b4b28079b0ad066"
+        },
+        "voice": {
+          "seconds": 25.9947,
+          "channels": 2,
+          "sample_rate": 44100,
+          "peak_dbfs": -5.046,
+          "rms_dbfs": -28.351,
+          "integrated_lufs": -19.613,
+          "clipped_samples": 0,
+          "sha256": "4da19070a72274d99d695488e823bbda088de1aacb9b7252f3d87997589ca46c"
+        },
+        "effects": {
+          "seconds": 25.9947,
+          "channels": 2,
+          "sample_rate": 44100,
+          "peak_dbfs": -21.372,
+          "rms_dbfs": -40.66,
+          "integrated_lufs": -37.07,
+          "clipped_samples": 0,
+          "sha256": "be79bbc7a52e60f79cbed2b6bad657f7049e3f2c3b946978592e685a5377b70b"
+        },
+        "ambience": {
+          "seconds": 25.9947,
+          "channels": 2,
+          "sample_rate": 44100,
+          "peak_dbfs": -24.354,
+          "rms_dbfs": -42.884,
+          "integrated_lufs": -40.43,
+          "clipped_samples": 0,
+          "sha256": "81ded48c4fe93f91f7456edabce4ec5d60d5be1ba12b7fa50701b95b954d3948"
+        }
+      },
+      "live_state": {
+        "actual_shots": 31,
+        "peak_intensity": 0.702618738755246,
+        "final_intensity": 0.370545490543677,
+        "minimum_duck_db": -3.0,
+        "final_duck_db": 0.0,
+        "stem_peak_db": [
+          -0.532604694366455,
+          0.0,
+          -2.51656198501587
+        ]
+      },
+      "speech": [
+        {
+          "text": "Shields collapsed! Hull integrity compromised!",
+          "heard": "Shields collapsed. Hull integrity compromised.",
+          "word_error": 0.0,
+          "seconds": 6.0176,
+          "source": "res://assets/audio/voices/helix/Infantry/low_health_0.ogg",
+          "source_correlation": 0.9238,
+          "voice_to_background_rms_db": 1.0
+        },
+        {
+          "text": "Your base is under attack.",
+          "heard": "Your base is under attack.",
+          "word_error": 0.0,
+          "seconds": 12.0076,
+          "source": "res://assets/audio/voices/helix/Command/BASE_UNDER_ATTACK_0.ogg",
+          "source_correlation": 0.7409,
+          "voice_to_background_rms_db": 0.099
+        },
+        {
+          "text": "Target perforated. Next solution.",
+          "heard": "Target perforated. Next solution.",
+          "word_error": 0.0,
+          "seconds": 17.0006,
+          "source": "res://assets/audio/voices/helix/Tank/kill_0.ogg",
+          "source_correlation": 0.8978,
+          "voice_to_background_rms_db": -0.181
+        }
+      ],
+      "live_score_streams": [
+        {
+          "path": "res://assets/audio/music/perfect-compliance-calm.ogg",
+          "seconds": 162.001266479492
+        },
+        {
+          "path": "res://assets/audio/music/perfect-compliance-tension.ogg",
+          "seconds": 162.001266479492
+        },
+        {
+          "path": "res://assets/audio/music/perfect-compliance-combat.ogg",
+          "seconds": 162.001266479492
+        }
+      ],
+      "live_score_streams_verified": true
+    },
+    "frontier": {
+      "buses": {
+        "master": {
+          "seconds": 25.9947,
+          "channels": 2,
+          "sample_rate": 44100,
+          "peak_dbfs": -8.348,
+          "rms_dbfs": -27.988,
+          "integrated_lufs": -24.801,
+          "clipped_samples": 0,
+          "sha256": "b41240fe5994a6fe227234be3407ee5ca14c2d0844b1aebc3f651cf1fd864967"
+        },
+        "music": {
+          "seconds": 25.9947,
+          "channels": 2,
+          "sample_rate": 44100,
+          "peak_dbfs": -9.568,
+          "rms_dbfs": -26.065,
+          "integrated_lufs": -23.101,
+          "clipped_samples": 0,
+          "sha256": "865059f34b1a9351ef6fe55bb78ce4ff9e2d2a09078bcaeb0a0d199b867075fd"
+        },
+        "voice": {
+          "seconds": 25.9947,
+          "channels": 2,
+          "sample_rate": 44100,
+          "peak_dbfs": -6.44,
+          "rms_dbfs": -28.528,
+          "integrated_lufs": -19.489,
+          "clipped_samples": 0,
+          "sha256": "28e559bf62e06495663952df8e9fee144b670c02a8c41efa1a962a76033dfd94"
+        },
+        "effects": {
+          "seconds": 25.9947,
+          "channels": 2,
+          "sample_rate": 44100,
+          "peak_dbfs": -21.65,
+          "rms_dbfs": -40.08,
+          "integrated_lufs": -36.643,
+          "clipped_samples": 0,
+          "sha256": "c04a546df8a1541ac5ca3f0f4a7b4a779608a2509e4fb7b484bc86ba94acec97"
+        },
+        "ambience": {
+          "seconds": 25.9947,
+          "channels": 2,
+          "sample_rate": 44100,
+          "peak_dbfs": -24.354,
+          "rms_dbfs": -42.799,
+          "integrated_lufs": -40.326,
+          "clipped_samples": 0,
+          "sha256": "6f519c6a71b79c578cc6aa829385a0479ce8d91ff49ae4e01342e415ecefb022"
+        }
+      },
+      "live_state": {
+        "actual_shots": 35,
+        "peak_intensity": 0.844720835886728,
+        "final_intensity": 0.412710179920057,
+        "minimum_duck_db": -3.0,
+        "final_duck_db": 0.0,
+        "stem_peak_db": [
+          -0.274024933576584,
+          0.0,
+          -0.00355893350206316
+        ]
+      },
+      "speech": [
+        {
+          "text": "They punched through! Keep your heads down!",
+          "heard": "They punched through. Keep your heads down.",
+          "word_error": 0.0,
+          "seconds": 6.0292,
+          "source": "res://assets/audio/voices/frontier/Infantry/low_health_0.ogg",
+          "source_correlation": 0.9272,
+          "voice_to_background_rms_db": 5.965
+        },
+        {
+          "text": "Your base is under attack.",
+          "heard": "Your base is under attack.",
+          "word_error": 0.0,
+          "seconds": 12.0199,
+          "source": "res://assets/audio/voices/frontier/Command/BASE_UNDER_ATTACK_0.ogg",
+          "source_correlation": 0.8427,
+          "voice_to_background_rms_db": 3.822
+        },
+        {
+          "text": "Nothing but scrap! Keep the engine running!",
+          "heard": "Nothing but scrap. Keep the engine running.",
+          "word_error": 0.0,
+          "seconds": 17.0122,
+          "source": "res://assets/audio/voices/frontier/Tank/kill_0.ogg",
+          "source_correlation": 0.9115,
+          "voice_to_background_rms_db": 4.009
+        }
+      ],
+      "live_score_streams": [
+        {
+          "path": "res://assets/audio/music/no-shutdown-code-calm.ogg",
+          "seconds": 182.800537109375
+        },
+        {
+          "path": "res://assets/audio/music/no-shutdown-code-tension.ogg",
+          "seconds": 182.800537109375
+        },
+        {
+          "path": "res://assets/audio/music/no-shutdown-code-combat.ogg",
+          "seconds": 182.800537109375
+        }
+      ],
+      "live_score_streams_verified": true
+    }
+  },
+  "failures": []
+}

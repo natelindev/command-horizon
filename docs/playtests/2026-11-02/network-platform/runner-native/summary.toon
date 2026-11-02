@@ -1,0 +1,13 @@
+bin: "~/godot-open-rts/tools/tests/run_network_regressions.py"
+description: "Run real localhost multiplayer and binary replay regression processes."
+checks[8]{case,role,status,log}:
+  "session","host","passed","/Users/linlilu/godot-open-rts/tmp/network-runner/run-20261101T211658Z-11826/session-host.log"
+  "session","spectator","passed","/Users/linlilu/godot-open-rts/tmp/network-runner/run-20261101T211658Z-11826/session-spectator.log"
+  "session","guest","passed","/Users/linlilu/godot-open-rts/tmp/network-runner/run-20261101T211658Z-11826/session-guest.log"
+  "replay","verifier","passed","/Users/linlilu/godot-open-rts/tmp/network-runner/run-20261101T211658Z-11826/replay-verifier.log"
+  "outcome","host","passed","/Users/linlilu/godot-open-rts/tmp/network-runner/run-20261101T211658Z-11826/outcome-host.log"
+  "outcome","guest","passed","/Users/linlilu/godot-open-rts/tmp/network-runner/run-20261101T211658Z-11826/outcome-guest.log"
+  "disconnect","host","passed","/Users/linlilu/godot-open-rts/tmp/network-runner/run-20261101T211658Z-11826/disconnect-host.log"
+  "disconnect","guest","passed","/Users/linlilu/godot-open-rts/tmp/network-runner/run-20261101T211658Z-11826/disconnect-guest.log"
+passed: 8/8
+report: "/Users/linlilu/godot-open-rts/tmp/network-runner/run-20261101T211658Z-11826/results.json"

@@ -27,10 +27,10 @@ class Subject:
 	var type = "Fighter"
 	var aim_target = null
 	var movement_domain = 1
-	var _match = null
 	var player:
 		get:
 			return get_parent()
+	var _match = null
 
 
 class Ground:
@@ -49,6 +49,27 @@ class ElevatedGround:
 
 	func height_at(_point):
 		return height
+
+
+class TerrainSample:
+	extends RefCounted
+	var height = 0.0
+	var reads = 0
+
+	func height_at(point):
+		reads += 1
+		return height + (3.0 if point.x >= 5.0 else 0.0)
+
+
+class AuthoredGround:
+	extends RefCounted
+	var terrain = TerrainSample.new()
+
+	func is_elevated():
+		return true
+
+	func height_at(point):
+		return terrain.height_at(point)
 
 
 class Stage:
@@ -90,6 +111,7 @@ func _run():
 	_subpixel_health()
 	_selection_designs()
 	_elevated_selection()
+	_cached_elevated_selection()
 	_single_health_track()
 	_effect_budgets()
 	_beam_lifecycle()
@@ -275,7 +297,7 @@ func _selection_designs():
 		var footprint = Node3D.new()
 		footprint.name = "TeamFootprint"
 		unit.add_child(footprint)
-		var selection = load("res://source/match/units/traits/Selection.tscn").instantiate()
+		var selection = _new_selection()
 		unit.add_child(selection)
 		selection.select()
 		_check(not footprint.visible, "Selected marker overlaps the soft ownership halo")
@@ -319,9 +341,9 @@ func _elevated_selection():
 	unit._match = stage
 	unit.movement_domain = root.get_node("Constants").Match.Navigation.Domain.TERRAIN
 	unit.attack_range = 5.0
-	var selection = load("res://source/match/units/traits/Selection.tscn").instantiate()
+	var selection = _new_selection()
 	unit.add_child(selection)
-	var footprint = load("res://source/match/units/traits/TeamFootprint.gd").new(unit)
+	var footprint = _new_footprint(unit)
 	unit.add_child(footprint)
 	footprint._process(0.016)
 	_check(footprint.visible, "Flat ground lost ownership footprint")
@@ -334,13 +356,22 @@ func _elevated_selection():
 	selection.select()
 	footprint._process(0.016)
 	_check(not footprint.visible, "Selected unit retained ownership footprint")
-	_check(selection._circle.visible and selection._range_ring.visible, "Flat ground lost selection indicators")
+	_check(
+		selection._circle.visible and selection._range_ring.visible,
+		"Flat ground lost selection indicators"
+	)
 	stage.map.height = 3.0
 	selection._process(0.016)
-	_check(not selection._circle.visible and not selection._range_ring.visible, "Elevated ground retained selection indicators")
+	_check(
+		not selection._circle.visible and not selection._range_ring.visible,
+		"Elevated ground retained selection indicators"
+	)
 	stage.map.height = 0.0
 	selection._process(0.016)
-	_check(selection._circle.visible and selection._range_ring.visible, "Selection indicators did not return on flat ground")
+	_check(
+		selection._circle.visible and selection._range_ring.visible,
+		"Selection indicators did not return on flat ground"
+	)
 	stage.map.height = 3.0
 	unit.movement_domain = root.get_node("Constants").Match.Navigation.Domain.AIR
 	selection._process(0.016)
@@ -348,6 +379,51 @@ func _elevated_selection():
 	selection.deselect()
 	stage.free()
 	side.free()
+
+
+func _cached_elevated_selection():
+	var side = Side.new()
+	root.add_child(side)
+	var unit = _subject(side)
+	var stage = Stage.new()
+	stage.map = AuthoredGround.new()
+	unit._match = stage
+	unit.movement_domain = root.get_node("Constants").Match.Navigation.Domain.TERRAIN
+	var selection = _new_selection()
+	unit.add_child(selection)
+	var footprint = _new_footprint(unit)
+	unit.add_child(footprint)
+	for index in 10:
+		_check(not selection._on_elevated_ground(), "Flat sample changed its elevation meaning")
+	_check(stage.map.terrain.reads == 1, "Stationary selection repeated authored height queries")
+	selection.select()
+	for index in 10:
+		footprint._process(0.016)
+	_check(stage.map.terrain.reads == 1, "Hidden ownership footprint queried selected terrain")
+	unit.position.x = 6.0
+	selection._process(0.016)
+	_check(not selection._circle.visible, "Same-tick teleport retained a flat selection mark")
+	_check(stage.map.terrain.reads == 2, "Movement did not invalidate the exact height sample")
+	selection.deselect()
+	_check(not footprint.visible, "Deselect briefly displayed an elevated ownership mark")
+	var replacement = AuthoredGround.new()
+	replacement.terrain.height = -3.0
+	stage.map = replacement
+	_check(not selection._on_elevated_ground(), "Map replacement reused the previous map's height")
+	replacement.terrain = TerrainSample.new()
+	_check(selection._on_elevated_ground(), "Rebuilt terrain reused its previous height model")
+	unit.movement_domain = root.get_node("Constants").Match.Navigation.Domain.AIR
+	_check(not selection._on_elevated_ground(), "Air movement used a cached ground-only result")
+	stage.free()
+	side.free()
+
+
+func _new_selection():
+	return load("res://source/match/units/traits/Selection.tscn").instantiate()
+
+
+func _new_footprint(unit):
+	return load("res://source/match/units/traits/TeamFootprint.gd").new(unit)
 
 
 func _single_health_track():
@@ -358,8 +434,14 @@ func _single_health_track():
 	bar.size = Vector2(35, 8)
 	unit.add_child(bar)
 	var track_x = bar.FRAME
-	_check(bar._image.get_pixel(track_x, bar.FRAME).is_equal_approx(bar.HEALTHY), "Health track missing at top or replaced by a team marker")
-	_check(bar._image.get_pixel(track_x, bar.FRAME + 7).is_equal_approx(bar.HEALTHY), "Health track is split into two rows")
+	_check(
+		bar._image.get_pixel(track_x, bar.FRAME).is_equal_approx(bar.HEALTHY),
+		"Health track missing at top or replaced by a team marker"
+	)
+	_check(
+		bar._image.get_pixel(track_x, bar.FRAME + 7).is_equal_approx(bar.HEALTHY),
+		"Health track is split into two rows"
+	)
 	side.free()
 
 
@@ -616,7 +698,11 @@ func _beam_lifecycle():
 	for index in effects.MAX_TRACERS + 4:
 		effects.shot(unit, origin, endpoint, .16, false, null, true, {"kind": "rail"})
 	_check(effects._tracers.size() == effects.MAX_TRACERS, "Beam pool exceeded MAX_TRACERS")
-	var nodes = effects.get_children().filter(func(node): return node is MeshInstance3D)
+	# The earlier ordinary shell also creates a separately bounded muzzle ring.
+	# Count only tracer nodes when verifying the tracer pool's lifetime.
+	var nodes = effects.get_children().filter(
+		func(node): return node is MeshInstance3D and node.name != "CannonMuzzleShockwave"
+	)
 	_check(nodes.size() == effects.MAX_TRACERS, "Beam saturation leaked tracer nodes")
 	effects._advance_tracers(1.0)
 	_check(

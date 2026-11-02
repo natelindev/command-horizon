@@ -46,6 +46,7 @@ func _exercise_commands(commands):
 	await _select_units([tank, worker])
 	var menus = game.find_child("UnitMenus")
 	_check(menus._command_buttons.size() == 5, "Distinct command buttons are missing")
+	_refresh_scoped_state(commands, menus, tank, worker)
 	var clock = game.simulation_time
 	var destination = Vector3(30, 0, 38)
 	commands.arm("move")
@@ -177,6 +178,57 @@ func _spawn_role(player, role, point):
 	return unit
 
 
+func _refresh_scoped_state(commands, menus, tank, worker):
+	var state = commands.eligibility_state()
+	for command in commands.COMMANDS:
+		_check(
+			commands.eligible(command, state) == commands.eligible(command),
+			"Shared HUD eligibility changed the command's member set"
+		)
+	var attack_range = tank.attack_range
+	tank.attack_range = null
+	menus._refresh_buttons()
+	_check(
+		menus._command_buttons.attack.disabled and commands.eligible("attack").is_empty(),
+		"A refresh retained a weapon removed after the previous display"
+	)
+	commands.arm("attack")
+	_check(commands.kind.is_empty(), "Click reused stale armed selection eligibility")
+	tank.attack_range = attack_range
+	menus._refresh_buttons()
+	_check(not menus._command_buttons.attack.disabled, "Restored weapon did not enable commands")
+	_check(
+		worker not in commands.eligible("attack"), "Shared combat state included an unarmed worker"
+	)
+
+	var health = tank.hp
+	tank.hp = tank.hp_max * .5
+	var previous = []
+	for facility in tank.player.structure_candidates("RepairDepot"):
+		previous.append([facility, facility._construction_progress])
+		facility._construction_progress = .5
+	var depot = _spawn_role(tank.player, "RepairDepot", Vector3(25, 0, 30))
+	depot.process_mode = Node.PROCESS_MODE_DISABLED
+	var recovery = commands.recovery_state()
+	_check(
+		recovery.orders.size() == 1 and recovery.orders[0][1].target.get_ref() == depot,
+		"Indexed recovery omitted the newly completed friendly depot"
+	)
+	depot._construction_progress = .5
+	_check(commands.recovery_state().orders.is_empty(), "Recovery retained an unfinished depot")
+	depot._construction_progress = 1.0
+	_check(
+		commands.recovery_state().orders.size() == 1, "Same-tick completion did not refresh service"
+	)
+	depot.queue_free()
+	_check(
+		commands.recovery_state().orders.is_empty(), "Recovery retained a depot queued for deletion"
+	)
+	for entry in previous:
+		entry[0]._construction_progress = entry[1]
+	tank.hp = health
+
+
 func _archive_commands(tank, target):
 	var commands = game.hud.direct_orders
 	commands.cancel()
@@ -234,8 +286,9 @@ func _live_semantics():
 		tank.position = Vector3(30, 0, 30)
 		target.position = Vector3(33, 0, 30)
 		target.hp = target.hp_max
+		target.shields = target.shields_max
 		game.battlefield.invalidate()
-		var hp = target.hp
+		var hp = target.hp + target.shields
 		game.hud.direct_orders.arm(kind)
 		_check(
 			game.hud.direct_orders.commit(Vector3(30, 0, 38), null, false), "Live command rejected"
@@ -249,15 +302,15 @@ func _live_semantics():
 			" ",
 			kind,
 			" damage=",
-			hp - target.hp,
+			hp - target.hp - target.shields,
 			" travel=",
 			tank.position.distance_to(Vector3(30, 0, 30))
 		)
 		if kind == "move":
-			_check(target.hp == hp, "Move acquired and shot a passing enemy")
+			_check(target.hp + target.shields == hp, "Move acquired and shot a passing enemy")
 			_check(tank.position.distance_to(Vector3(30, 0, 30)) > 1, "Move never advanced")
 		else:
-			_check(target.hp < hp, "Attack-move passed an enemy without firing")
+			_check(target.hp + target.shields < hp, "Attack-move passed an enemy without firing")
 			_check(
 				tank.position.distance_to(Vector3(30, 0, 30)) < 1.5,
 				"Attack-move did not stop to engage"

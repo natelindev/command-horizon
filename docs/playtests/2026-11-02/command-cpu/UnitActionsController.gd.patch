@@ -1,0 +1,49 @@
+--- source/match/players/human/UnitActionsController.gd (before)
++++ source/match/players/human/UnitActionsController.gd (final)
+@@ -48,19 +48,18 @@
+ 	)
+ 	var cohort = Cohesion.new(units)
+ 	var heading = (
+-		(
+-			(target_point - Utils.Match.Unit.Movement.calculate_aabb_crowd_pivot_yless(units))
+-			. normalized()
+-		)
++		(target_point - Utils.Match.Unit.Movement.calculate_aabb_crowd_pivot_yless(units))
+ 		if not units.is_empty()
+ 		else Vector3.FORWARD
+ 	)
+ 	phases.setup_us = Time.get_ticks_usec() - phase_start
+ 	phase_start = Time.get_ticks_usec()
+-	var routes = Planner.funnel_routes(units, target_point, heading, Planner.posture(units))
++	var routes = Planner.funnel_routes(
++		units, target_point, heading.normalized(), Planner.posture(units)
++	)
+ 	phases.funnel_us = Time.get_ticks_usec() - phase_start
+ 	phase_start = Time.get_ticks_usec()
+-	var destinations = _group_destinations(units, target_point)
++	var destinations = _group_destinations(units, target_point, null, heading)
+ 	phases.plan_us = Time.get_ticks_usec() - phase_start
+ 	phase_start = Time.get_ticks_usec()
+ 	for tuple in destinations:
+@@ -78,13 +77,20 @@
+ 		print("FORMATION DISPATCH ", JSON.stringify(phases))
+ 
+ 
+-func _group_destinations(units, target_point, heading = null):
++func _group_destinations(units, target_point, heading = null, automatic_heading = null):
+ 	var terrain_units_to_move = units.filter(
+ 		func(unit): return unit.movement_domain == Constants.Match.Navigation.Domain.TERRAIN
+ 	)
+ 	var air_units_to_move = units.filter(
+ 		func(unit): return unit.movement_domain == Constants.Match.Navigation.Domain.AIR
+ 	)
++	# Automatic headings belong to each domain's own pivot. Only a homogeneous
++	# selection shares the raw heading already captured by the input controller.
++	if (
++		heading == null
++		and maxi(terrain_units_to_move.size(), air_units_to_move.size()) == units.size()
++	):
++		heading = automatic_heading
+ 	var new_unit_targets = Utils.Match.Unit.Movement.crowd_moved_to_new_pivot(
+ 		terrain_units_to_move, target_point, heading, Planner.posture(units)
+ 	)

@@ -21,10 +21,12 @@ func _ready():
 	if restoring:
 		return
 	_elapsed = Phase.fraction(_unit) * .1
-	_movement.move(destination)
+	_movement.move(PointMovement.travel_target(_unit, destination))
 
 
 func _process(delta):
+	if PointMovement.advance_nearby_funnel(_unit, destination) and not is_instance_valid(_shot):
+		_movement.move(PointMovement.travel_target(_unit, destination))
 	if is_instance_valid(_shot) and not _shot.is_queued_for_deletion():
 		# Combat pauses travel. A later trip must observe fresh movement before
 		# deciding that a settled ally occupies its final reachable point.
@@ -33,7 +35,7 @@ func _process(delta):
 		return
 	if PointMovement.occupied_arrival(self, _movement, _unit, delta):
 		_movement.stop()
-		_arrived()
+		_on_movement_finished()
 
 
 func _physics_process(delta):
@@ -53,17 +55,25 @@ func _physics_process(delta):
 		_movement.stop()
 		_shot = Shooting.new(target)
 		add_child(_shot)
-	elif _unit.global_position_yless.distance_to(destination * Vector3(1, 0, 1)) < 1.0:
+	elif (
+		_unit.global_position_yless.distance_to(destination * Vector3(1, 0, 1)) < 1.0
+		and PointMovement.travel_target(_unit, destination) == destination
+	):
 		_arrived()
 	else:
-		_movement.move(destination)
+		_movement.move(PointMovement.travel_target(_unit, destination))
 
 
 func _on_movement_finished():
 	# Navigation may end at the reachable edge of an occupied destination.
 	# Stop retrying that same point and allow queued orders to continue.
 	if not is_instance_valid(_shot) or _shot.is_queued_for_deletion():
-		_arrived()
+		if PointMovement.advance_funnel(_unit):
+			_arrival_elapsed = 0.0
+			_arrival_progress = null
+			_movement.move(PointMovement.travel_target(_unit, destination))
+		else:
+			_arrived()
 
 
 func _arrived():

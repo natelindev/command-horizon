@@ -6,6 +6,7 @@ const MAX_MARKS = 2048
 const RETIRE_BATCH = 128
 const DRAW_BUDGET = 32
 const RESOLUTION = 2048
+const SCAR_LIFETIME = 180.0
 const VEHICLES = ["Tank", "AdvancedTank", "AntiAirVehicle", "CombatRobot"]
 var marks = []
 var texture: DrawableTexture2D
@@ -19,6 +20,8 @@ var _cursor = 0
 var _drawn = 0
 var _elapsed = 0.0
 var _repainting = false
+var _fade_elapsed = 0.0
+var _fade_redraw_left = 3.0
 
 
 func _ready():
@@ -76,6 +79,11 @@ func _create_texture():
 func _process(delta):
 	if _game.restoring:
 		return
+	if not get_tree().paused:
+		_fade_elapsed += delta
+		if _fade_elapsed >= .2:
+			advance_scars(_fade_elapsed)
+			_fade_elapsed = 0.0
 	if enabled():
 		if not get_tree().paused:
 			_elapsed += delta
@@ -155,7 +163,27 @@ func add_mark(point: Vector2, radius: float, angle: float, kind: int):
 	if marks.size() >= MAX_MARKS:
 		marks = marks.slice(RETIRE_BATCH)
 		_reset_texture()
-	marks.append({"x": point.x, "z": point.y, "radius": radius, "angle": angle, "kind": kind})
+	var mark = {"x": point.x, "z": point.y, "radius": radius, "angle": angle, "kind": kind}
+	if kind == 1:
+		mark.left = SCAR_LIFETIME
+	marks.append(mark)
+
+
+func advance_scars(delta: float):
+	var changed = false
+	var expired = false
+	for mark in marks.duplicate():
+		if mark.kind != 1:
+			continue
+		changed = true
+		mark.left = maxf(0.0, mark.left - delta)
+		if mark.left == 0.0:
+			marks.erase(mark)
+			expired = true
+	_fade_redraw_left -= delta
+	if expired or (changed and _fade_redraw_left <= 0.0 and not _repainting):
+		_reset_texture()
+		_fade_redraw_left = 3.0
 
 
 func _reset_texture():
@@ -186,7 +214,10 @@ func _paint():
 			Vector2i(extent * 2).max(Vector2i.ONE)
 		)
 		var direction = posmod(roundi(mark.angle / TAU * 32), 32)
-		texture.blit_rect(rect, _white, Color.WHITE, 0, _stamps[mark.kind * 32 + direction])
+		var opacity = mark.left / SCAR_LIFETIME if mark.kind == 1 else 1.0
+		texture.blit_rect(
+			rect, _white, Color(1, 1, 1, opacity), 0, _stamps[mark.kind * 32 + direction]
+		)
 		_drawn += 1
 	if _repainting and _drawn == marks.size():
 		material.set_shader_parameter("wear_map", texture)

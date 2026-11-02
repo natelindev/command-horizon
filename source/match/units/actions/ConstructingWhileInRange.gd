@@ -34,6 +34,11 @@ func _process(delta):
 	):
 		queue_free()
 		return
+	var assembly = _target_unit.get_node_or_null("AutonomousAssembly")
+	if assembly != null:
+		if assembly.deploy(_unit):
+			queue_free()
+		return
 	var speed = Constants.Match.Units.STRUCTURE_CONSTRUCTING_SPEED
 	if _unit.player.get_meta("skirmish", false):
 		if not _has_construction_slot():

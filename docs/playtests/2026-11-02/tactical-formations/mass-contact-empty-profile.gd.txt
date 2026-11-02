@@ -1,0 +1,25 @@
+extends SceneTree
+
+func _initialize():
+	_run.call_deferred()
+
+func _run():
+	var game = Node.new()
+	root.add_child(game)
+	var index = load("res://source/match/orders/MassContactIndex.gd")
+	var samples = []
+	for sample in 11:
+		var start = Time.get_ticks_usec()
+		var matches = 0
+		for query in 10000:
+			matches += index.nearby(game, Vector3(query % 20 * 4, 0, query / 20 % 10 * 4), 2.2).size()
+		samples.append(Time.get_ticks_usec() - start)
+		if matches != 0:
+			push_error("Expected empty light-body index")
+			quit(1)
+			return
+	samples.sort()
+	print("MASS_CONTACT_EMPTY queries=10000 median_us=", samples[5], " sample_us=", samples)
+	game.queue_free()
+	await process_frame
+	await root.get_node("Globals").quit_game(0)

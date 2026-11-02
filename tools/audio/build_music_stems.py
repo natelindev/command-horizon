@@ -1,12 +1,16 @@
-"""Derive aligned calm / combat stems from the licensed faction recordings.
+"""Derive aligned ambient / tension / combat stems from licensed recordings.
 
-Requires numpy and ffmpeg. No source download or new recordings are involved.
+Requires tools/audio/music-stems-requirements.txt and ffmpeg. Source downloads are
+separate; pinned CC0 instrument recordings support the original faction overlays.
 Run from any directory: python3 tools/audio/build_music_stems.py
-The two stems sum to the source before Ogg encoding. A soft median-filter mask
-retains 45% of percussion in the calm bed so the arrangement remains musical.
+Three complementary masks retain the source arrangement at full intensity:
+ambient carries sustained textures, tension carries transients and rhythm,
+and combat carries the upper harmonic lead. All stems are sample-aligned.
 """
 
 from pathlib import Path
+import argparse
+import importlib.util
 import subprocess
 import tempfile
 
@@ -39,7 +43,7 @@ def percussion_mask(spectrum):
     return result
 
 
-def split(source):
+def split(source, lead_cutoff=500.0):
     window = np.hanning(WINDOW).astype(np.float32)
     padding = WINDOW + (-len(source) % HOP)
     padded = np.pad(source, ((WINDOW, padding), (0, 0)))
@@ -47,18 +51,30 @@ def split(source):
     spectrum = np.fft.rfft(frames * window, axis=-1)
     # One shared stereo mask preserves the source's spatial image.
     mask = percussion_mask(spectrum.mean(axis=1))
-    output = np.zeros_like(padded)
+    percussion = np.zeros_like(padded)
+    lead = np.zeros_like(padded)
+    frequency = np.fft.rfftfreq(WINDOW, 1.0 / RATE)
+    lead_mask = frequency ** 2 / (frequency ** 2 + lead_cutoff ** 2)
     weight = np.zeros(len(padded), dtype=np.float32)
     for start in range(0, len(frames), 128):
         stop = min(start + 128, len(frames))
         samples = np.fft.irfft(spectrum[start:stop] * mask[start:stop, None, :], axis=-1)
-        for index, sample in enumerate(samples, start):
+        leads = np.fft.irfft(
+            spectrum[start:stop] * (1.0 - mask[start:stop, None, :]) * lead_mask,
+            axis=-1,
+        )
+        for index, (sample, harmonic) in enumerate(zip(samples, leads), start):
             at = index * HOP
-            output[at:at + WINDOW] += (sample * window).T
+            percussion[at:at + WINDOW] += (sample * window).T
+            lead[at:at + WINDOW] += (harmonic * window).T
             weight[at:at + WINDOW] += window ** 2
-    output /= np.maximum(weight[:, None], 1e-8)
-    combat = output[WINDOW:WINDOW + len(source)] * .55
-    return source - combat, combat
+    percussion /= np.maximum(weight[:, None], 1e-8)
+    lead /= np.maximum(weight[:, None], 1e-8)
+    percussion = percussion[WINDOW:WINDOW + len(source)]
+    lead = lead[WINDOW:WINDOW + len(source)]
+    tension = percussion * .8 + lead * .1
+    combat = lead * .55
+    return source - tension - combat, tension, combat
 
 
 def write(path, samples):
@@ -74,6 +90,17 @@ def write(path, samples):
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--output', type=Path, default=MUSIC, help='Staged output directory; default installs into game assets')
+    parser.add_argument('--evidence', type=Path, default=ROOT/'tmp/music/arrangements', help='Isolated instrument auditions and event reports')
+    parser.add_argument('--base-only', action='store_true', help='Reconstruct the original source-derived stems without new instrument arrangements')
+    args = parser.parse_args()
+    args.output.mkdir(parents=True,exist_ok=True)
+    arrangement = None
+    if not args.base_only:
+        spec = importlib.util.spec_from_file_location('faction_arrangements', ROOT/'art/audio/arrange_faction_score.py')
+        arrangement = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(arrangement)
     with tempfile.TemporaryDirectory(prefix="music-stems-") as directory:
         staged = Path(directory)
         for track in TRACKS:
@@ -82,13 +109,19 @@ def main():
                 "-f", "f32le", "-ar", str(RATE), "-ac", "2", "pipe:1",
             ])
             source = np.frombuffer(raw, dtype="<f4").reshape(-1, 2)
-            calm, combat = split(source)
-            assert np.max(np.abs(calm + combat - source)) < 1e-6
+            cutoff = {"hold-the-line": 450.0, "perfect-compliance": 650.0,
+                      "no-shutdown-code": 380.0}[track]
+            calm, tension, combat = split(source, cutoff)
+            assert np.max(np.abs(calm + tension + combat - source)) < 1e-6
+            if arrangement is not None:
+                faction = {'hold-the-line':'bastion','perfect-compliance':'helix','no-shutdown-code':'frontier'}[track]
+                calm,tension,combat = arrangement.apply(faction,source,[calm,tension,combat],args.evidence)
             write(staged / f"{track}-calm.ogg", calm)
+            write(staged / f"{track}-tension.ogg", tension)
             write(staged / f"{track}-combat.ogg", combat)
-            print(f"{track}: {len(source) / RATE:.2f}s, aligned stereo pair", flush=True)
+            print(f"{track}: {len(source) / RATE:.2f}s, three aligned stereo stems", flush=True)
         for output in staged.iterdir():
-            output.replace(MUSIC / output.name)
+            output.replace(args.output / output.name)
 
 
 if __name__ == "__main__":

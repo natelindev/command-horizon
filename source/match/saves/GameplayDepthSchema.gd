@@ -3,10 +3,10 @@ extends RefCounted
 
 ## Current-version contracts for tactical state. This validator contains no migration.
 const Catalog = preload("res://source/match/BastionCatalog.gd")
-static var _definitions = {}
+const Cache = preload("res://source/utils/RuntimeCache.gd")
 var schema:
 	get:
-		return _schema.get_ref()
+		return _schema.get_ref() if _schema != null else null
 var _schema: WeakRef
 
 
@@ -25,19 +25,25 @@ static func commander_defaults() -> Dictionary:
 
 func definitions(role: String, faction: String) -> Array:
 	var key = faction + ":" + role
-	if not _definitions.has(key):
+	if schema != null and not schema.ability_definitions.is_empty():
+		return schema.ability_definitions.get(key, [])
+	var definitions_cache = Cache.bucket("gameplay_depth_ability_definitions")
+	if not definitions_cache.has(key):
 		# Read authoritative definitions without entering a scene or running _ready.
 		var owner = AbilityOwner.new()
 		owner.faction = faction
-		var unit = load(Catalog.scene_path(role)).instantiate()
+		var unit = (
+			load(load("res://source/match/FactionCatalog.gd").scene_path(faction, role))
+			. instantiate()
+		)
 		owner.add_child(unit)
 		var result = unit.ability_definitions()
 		result.append_array(
 			load("res://source/match/world/FieldEngineering.gd").ability_definitions(unit)
 		)
-		_definitions[key] = result
+		definitions_cache[key] = result
 		owner.free()
-	return _definitions[key]
+	return definitions_cache[key]
 
 
 func unit_state(unit) -> bool:
@@ -104,12 +110,6 @@ func unit_state(unit) -> bool:
 			return schema._fail("Ability timer exceeds its definition.")
 		if definition.target_type != "toggle" and ability.is_active != (ability.active_left > 0.0):
 			return schema._fail("Ability activation disagrees with its remaining duration.")
-		if (
-			definition.id == "power_overdrive"
-			and ability.is_active
-			and "plasma_shields" not in schema.sides[unit.player].technology
-		):
-			return schema._fail("Overdrive requires plasma-shield research.")
 	return true
 
 
@@ -252,8 +252,8 @@ func _engineering(saved) -> bool:
 	):
 		return schema._fail("Invalid field engineering state.")
 	if (
-		saved.entities.size() > 24 * schema.sides.size()
-		or saved.reservations.size() > 24 * schema.sides.size()
+		saved.entities.size() > 60 * schema.sides.size()
+		or saved.reservations.size() > 60 * schema.sides.size()
 		or saved.cooldowns.size() > 400
 	):
 		return schema._fail("Field engineering exceeds its population limits.")
@@ -263,22 +263,41 @@ func _engineering(saved) -> bool:
 		if not entry is Dictionary:
 			return schema._fail("Invalid field structure.")
 		var mine = entry.get("kind") == "mine"
+		var bunker = entry.get("kind") == "bunker"
 		var spec = (
 			"id:text owner:text kind:text point:vec angle:signed hp:num"
 			+ (" deploy_left:num arm_left:num fuse_left:signed" if mine else "")
+			+ (" garrison:dict" if bunker else "")
 		)
 		if not schema._shape(entry, spec):
 			return false
-		if (
-			entry.kind not in ["mine", "barricade"]
-			or not schema.sides.has(entry.owner)
-			or schema.sides[entry.owner].faction != ("frontier" if mine else "bastion")
-			or not _serial_id(
-				entry.id, "engineering-mine-" if mine else "engineering-barrier-", saved.next_id, 1
+		var faction = schema.sides.get(entry.owner, {}).get("faction", "")
+		var completed = schema.sides.get(entry.owner, {}).get("technology", [])
+		var maximum = (
+			1.0 if mine else (320.0 if bunker else (200.0 if entry.kind == "tank_trap" else 80.0))
+		)
+		if bunker:
+			maximum *= (
+				(1.5 if "bunker_reinforcements" in completed else 1.0)
+				* (1.3 if "fortress_doctrine" in completed else 1.0)
 			)
+		elif entry.kind == "barricade" and "fortress_doctrine" in completed:
+			maximum *= 2.0
+		if (
+			entry.kind not in ["mine", "barricade", "bunker", "tank_trap"]
+			or not schema.sides.has(entry.owner)
+			or (
+				faction != "frontier"
+				if mine
+				else (
+					faction
+					not in (["bastion", "frontier"] if entry.kind == "barricade" else ["bastion"])
+				)
+			)
+			or not _serial_id(entry.id, "engineering-" + entry.kind + "-", saved.next_id, 1)
 			or entry.id in ids
 			or entry.hp <= 0.0
-			or entry.hp > (1.0 if mine else 80.0)
+			or entry.hp > maximum
 			or not schema._position(entry.point)
 			or absf(entry.angle) > TAU
 		):
@@ -297,7 +316,17 @@ func _engineering(saved) -> bool:
 		ids.append(entry.id)
 		var key = entry.owner + ":" + entry.kind
 		counts[key] = counts.get(key, 0) + 1
-		_register(entry.id, "FieldMine" if mine else "FieldBarricade", entry.owner, entry.point)
+		_register(
+			entry.id,
+			{
+				"mine": "FieldMine",
+				"barricade": "FieldBarricade",
+				"bunker": "FieldBunker",
+				"tank_trap": "FieldTankTrap"
+			}[entry.kind],
+			entry.owner,
+			entry.point
+		)
 	for entry in saved.reservations:
 		if not schema._shape(entry, "id:text unit:text kind:text point:vec angle:signed mine:text"):
 			return false
@@ -305,7 +334,7 @@ func _engineering(saved) -> bool:
 			not _serial_id(entry.id, "engineering-reservation-", saved.next_id, 1)
 			or entry.id in ids
 			or not schema.entities.has(entry.unit)
-			or entry.kind not in ["mine", "barricade"]
+			or entry.kind not in ["mine", "barricade", "bunker", "tank_trap"]
 			or not schema._position(entry.point)
 			or absf(entry.angle) > TAU
 		):
@@ -324,8 +353,15 @@ func _engineering(saved) -> bool:
 		else:
 			var key = unit.player + ":" + entry.kind
 			counts[key] = counts.get(key, 0) + 1
-	for count in counts.values():
-		if count > 12:
+	for key in counts:
+		var owner = key.get_slice(":", 0)
+		var kind = key.get_slice(":", 1)
+		var limit = (
+			24
+			if kind == "mine" and "guerrilla_insurgency" in schema.sides[owner].technology
+			else 12
+		)
+		if counts[key] > limit:
 			return schema._fail("Field deployment exceeds the per-player cap.")
 	var cooldown_units = []
 	for entry in saved.cooldowns:
@@ -553,8 +589,9 @@ func _events(saved, settings) -> bool:
 			):
 				return false
 			var share = posmod(cargo_index - rotation - index, sites.size())
-			var materials = 10 if kind in ["desert", "coastal"] else 0
-			var electronics = 0 if kind == "alpine" else 5
+			var budget = load("res://source/match/world/BattlefieldEvents.gd").reward_budget(kind)
+			var materials = budget.x
+			var electronics = budget.y
 			if (
 				cargo.id != "%s-%d" % [event.id, cargo_index]
 				or not schema._position(cargo.point)
@@ -616,11 +653,11 @@ func _serial_id(id: String, prefix: String, next: int, minimum := 0) -> bool:
 
 func _engineer_role(unit, operation: String) -> bool:
 	var faction = schema.sides[unit.player].faction
-	return (
-		(unit.role in ["Worker", "Tank"] and faction == "frontier")
-		if operation == "mine"
-		else (unit.role == "Worker" and faction == "bastion")
-	)
+	if operation == "mine":
+		return unit.role in ["Worker", "Tank"] and faction == "frontier"
+	if operation == "barricade":
+		return unit.role == "Worker" and faction in ["bastion", "frontier"]
+	return operation in ["bunker", "tank_trap"] and unit.role == "Worker" and faction == "bastion"
 
 
 func engineering_action(state, unit) -> bool:
@@ -634,7 +671,12 @@ func engineering_action(state, unit) -> bool:
 	)):
 		return false
 	if (
-		state.operation not in ["barricade", "mine", "sweep", "repair_barrier", "dismantle"]
+		(
+			state.operation
+			not in [
+				"barricade", "bunker", "tank_trap", "mine", "sweep", "repair_barrier", "dismantle"
+			]
+		)
 		or not schema._position(state.point)
 		or absf(state.angle) > TAU
 		or state.phase > 1
@@ -645,7 +687,7 @@ func engineering_action(state, unit) -> bool:
 		or state._blocked_elapsed > 6.1
 	):
 		return schema._fail("Invalid field engineering order progress.")
-	if state.operation in ["barricade", "mine"]:
+	if state.operation in ["barricade", "bunker", "tank_trap", "mine"]:
 		if not _engineer_role(unit, state.operation):
 			return schema._fail("Ineligible field engineer.")
 	elif unit.role != "Worker":
@@ -677,7 +719,7 @@ func order_state(order, unit) -> bool:
 		return (
 			(
 				_engineer_role(unit, order.engineering_kind)
-				and order.engineering_kind in ["barricade", "mine"]
+				and order.engineering_kind in ["barricade", "bunker", "tank_trap", "mine"]
 				and schema._position(order.point)
 				and absf(order.angle) <= TAU
 				and order.reservation.begins_with("engineering-reservation-")

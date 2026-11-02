@@ -111,6 +111,7 @@ func _ready():
 		"Main menu",
 		func(): get_tree().change_scene_to_file("res://source/main-menu/Main.tscn")
 	)
+	_button(actions, "Command hub", func(): get_tree().change_scene_to_file("res://source/main-menu/CampaignHub.tscn"))
 	var spacer = Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	actions.add_child(spacer)
@@ -404,28 +405,6 @@ func _start():
 		return
 	_starting = true
 	_start_button.disabled = true
-	var settings = load("res://source/data-model/MatchSettings.gd").new()
-	settings.skirmish = true
-	settings.mission_id = _mission_id
-	if _mission_id == "command_horizon":
-		settings.campaign_challenge = ["", "lean", "reinforced"][_challenge.selected]
-	settings.map_path = Catalog.operations()[settings.mission_id].map
-	for index in range(2):
-		var player = load("res://source/data-model/PlayerSettings.gd").new()
-		player.controller = (
-			Constants.PlayerType.HUMAN if index == 0 else Constants.PlayerType.SIMPLE_CLAIRVOYANT_AI
-		)
-		player.faction = (
-			Catalog.operations()[_mission_id].faction
-			if index == 0
-			else Catalog.operations()[_mission_id].enemy
-		)
-		player.color = Constants.Player.COLORS[0 if index == 0 else 2]
-		player.difficulty = _difficulty.selected
-		settings.players.append(player)
-	var loading = load("res://source/main-menu/Loading.tscn").instantiate()
-	loading.match_settings = settings
-	loading.map_path = settings.map_path
-	get_tree().root.add_child(loading)
-	get_tree().current_scene = loading
-	queue_free()
+	var launch = load("res://source/main-menu/CampaignLaunch.gd")
+	var challenge = ["", "lean", "reinforced"][_challenge.selected] if _mission_id == "command_horizon" else ""
+	launch.deploy(self, launch.settings_for(_mission_id, _difficulty.selected, challenge))

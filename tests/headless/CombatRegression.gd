@@ -369,7 +369,7 @@ func _test_damage():
 		"Fractional rifle damage rounded away or wrong heavy multiplier"
 	)
 	_check(
-		is_equal_approx(rules.damage(rail, heavy), rail.attack_damage * 1.4), "Rail heavy counter"
+		is_equal_approx(rules.damage(rail, heavy), rail.attack_damage * 1.2), "Siege heavy counter"
 	)
 	_check(
 		is_equal_approx(rules.damage(rifle, light), rifle.attack_damage * 0.6),

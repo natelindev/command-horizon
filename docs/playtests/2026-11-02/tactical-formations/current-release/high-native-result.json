@@ -1,0 +1,131 @@
+{
+  "name": "high-native",
+  "argv": [
+    "/Users/linlilu/godot-open-rts/build/verification/macos/tactical-rendered-20261102T054441Z-58184/package/Open RTS Tactical Review.app/Contents/MacOS/Open RTS Tactical Review",
+    "--",
+    "--performance-only",
+    "--tactical-quality=high",
+    "--tactical-pipeline-trace",
+    "--enable-native-kernels",
+    "--native-unit-state",
+    "--native-crowd-runtime",
+    "--native-visibility-runtime",
+    "--native-pose-rigs",
+    "--native-presentation",
+    "--native-infantry-poses",
+    "--native-combat-queries",
+    "--native-battlefield-index",
+    "--native-nearest-surface",
+    "--native-exploration",
+    "--profile-runtime"
+  ],
+  "cwd": "/Users/linlilu/godot-open-rts/build/verification/macos/tactical-rendered-20261102T054441Z-58184",
+  "started_utc": "2026-11-02T06:05:13.901657+00:00",
+  "manifest_sha256": "7da96adb57f4a896a8cbf0a0a3591abff526c6c53c15b957854093208fb31813",
+  "prelaunch_engine_compiler_processes": "",
+  "exit_code": 1,
+  "elapsed_seconds": 19.704803874948993,
+  "fatal_lines": [
+    "ERROR: Formation benchmark lost foreground focus",
+    "ERROR: 200-unit formation exceeded strict 16.6 ms maximum frame budget"
+  ],
+  "backends": {
+    "batched_units": 230,
+    "native_crowd": true,
+    "native_exploration": true,
+    "native_presentation": true,
+    "native_surface": true,
+    "native_unit_state": true,
+    "native_visibility": true,
+    "physics_hz": 30,
+    "release": true,
+    "resident_rigs": 230
+  },
+  "activation": {
+    "activated_total": 200,
+    "maximum_batch": 96,
+    "maximum_batch_us": 2703,
+    "maximum_wait_ms": 100.0,
+    "maximum_wait_ticks": 3,
+    "queued": 0,
+    "queued_at_dispatch": 200,
+    "queued_total": 200
+  },
+  "coverage": {
+    "battle_rect": "[P: (384.0, 134.0), S: (880.0, 332.0)]",
+    "camera_size": 70.0,
+    "capture": "/Users/linlilu/Library/Application Support/OpenRTSTacticalReview/20261102T054441Z-58184/tactical-performance/high-native.png",
+    "focused_frames": 15,
+    "initial_focus": false,
+    "moving_max": 200,
+    "moving_mean": 105.854166666667,
+    "moving_min": 37,
+    "selected_min": 200,
+    "visible_min": 200
+  },
+  "phase_profile": {
+    "cpu_usage": {
+      "main_thread_ms_per_frame": 18.8844958333333,
+      "process_ms_per_frame": 23.7733833333333
+    },
+    "draw_calls_mean": 3243.22916666667,
+    "frames": 240,
+    "gpu_timing_available": false,
+    "maximum_frame_index": 156,
+    "maximum_frame_physics_ticks": 1,
+    "observer_max_us": 2906,
+    "observer_mean_us": 606.133333333333,
+    "observer_total_us": 145472,
+    "render_cpu_mean_ms": 2.21740415990353,
+    "render_gpu_max_ms": 0.0,
+    "render_gpu_mean_ms": 0.0,
+    "renderer_stage_us": [
+      1511,
+      191067,
+      52221,
+      395450,
+      3377,
+      94933,
+      67268,
+      163,
+      162,
+      162,
+      162,
+      162,
+      162,
+      162
+    ],
+    "scene_dispatch_us": [
+      574298,
+      1639533,
+      572000,
+      1574666,
+      163,
+      240
+    ],
+    "scene_timing": {
+      "physics_cpu_ms_per_tick": 3.50920245398773,
+      "physics_elapsed_ms_per_tick": 3.52330061349693,
+      "process_cpu_ms_per_frame": 6.56110833333333,
+      "process_elapsed_ms_per_frame": 6.8313875
+    }
+  },
+  "pipeline_changes": [
+    [
+      156,
+      51.299,
+      [
+        8,
+        27,
+        195,
+        103,
+        136
+      ]
+    ]
+  ],
+  "performance": [
+    "TACTICAL PERFORMANCE units=200 assignment_ms=1.461 projected_plan_ms=7.099 complete_dispatch_ms=11.218 frame_p50_ms=23.557 frame_p95_ms=30.078 frame_max_ms=51.299"
+  ],
+  "capture": "/Users/linlilu/godot-open-rts/build/verification/macos/tactical-rendered-20261102T054441Z-58184/high-native.png",
+  "capture_sha256": "fc937f4a1ed3553b315f8c72ae3ad80d5d62ee10e53d154dda0920b1993a9a7f"
+}

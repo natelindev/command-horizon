@@ -9,12 +9,13 @@ var _alternate
 
 func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
-	for faction in ["bastion", "helix", "frontier"]:
+	for faction in ["bastion", "helix"]:
 		await _prepare_case(faction)
 		await _paid_stands()
 		await _lost_airfield()
 		game.queue_free()
 		await _frames(5)
+	await _frontier_exclusion()
 	for message in errors:
 		push_error(message)
 	print("Airfield operations: %d failures" % errors.size())
@@ -234,3 +235,24 @@ func _place(role, point):
 	var unit = load("res://source/match/units/%s.tscn" % role).instantiate()
 	game._setup_and_spawn_unit(unit, Transform3D(Basis(), point), _side, false)
 	return unit
+
+
+func _frontier_exclusion():
+	await _skirmish("frontier", "res://source/match/maps/BastionDesert.tscn", false)
+	var catalog = load("res://source/match/FactionCatalog.gd")
+	var player = game._get_human_player()
+	_check(
+		not catalog.available(player, "AircraftFactory", true),
+		"Frontier acquired an excluded aerospace facility"
+	)
+	_check(
+		"Fighter" not in catalog.production_options("frontier", "VehicleFactory"),
+		"Frontier jets leaked into Motor Pool production"
+	)
+	_check(
+		catalog.air_contract_roles("frontier").size() == 3,
+		"Frontier lost its paid mercenary air access"
+	)
+	paused = false
+	game.queue_free()
+	await _frames(5)

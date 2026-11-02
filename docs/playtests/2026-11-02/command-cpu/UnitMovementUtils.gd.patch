@@ -1,0 +1,83 @@
+--- source/match/utils/UnitMovementUtils.gd (before)
++++ source/match/utils/UnitMovementUtils.gd (final)
+@@ -15,14 +15,11 @@
+ 		return []
+ 	if units.size() == 1:
+ 		return [[units[0], new_pivot]]
+-	var old_pivot = calculate_aabb_crowd_pivot_yless(units)
+-	if heading == null or not heading is Vector3 or heading.length_squared() < .001:
+-		heading = new_pivot - old_pivot
+ 	var profiling = "--profile-formation" in OS.get_cmdline_user_args()
+ 	var before = Time.get_ticks_usec()
+-	var points = formation_positions(units, new_pivot, heading.normalized(), formation)
+-	var provisional = []
+ 	var members = {}
++	var origins = PackedVector3Array()
++	var maximum_radius = 0.0
+ 	for index in units.size():
+ 		var unit = units[index]
+ 		var movement = unit.get_node("Movement")
+@@ -30,14 +27,25 @@
+ 		# These facts cannot change during this synchronous, read-only plan.
+ 		# Reuse them in fallback packing and final-owner verification instead
+ 		# of repeatedly resolving derived unit properties and server iteration.
++		var origin = unit.global_position
++		var radius = movement.radius
++		origins.append(origin)
++		maximum_radius = maxf(maximum_radius, radius)
+ 		members[unit] = [
+ 			movement,
+-			movement.radius,
+-			unit.global_position,
++			radius,
++			origin,
+ 			nav,
+ 			movement._synchronized and NavigationServer3D.map_get_iteration_id(nav) != 0
+ 		]
+-		provisional.append([unit, points[index]])
++	if heading == null or not heading is Vector3 or heading.length_squared() < .001:
++		heading = new_pivot - _positions_pivot_yless(origins)
++	var points = Planner.positions(
++		units, new_pivot, heading.normalized(), formation, 0.0, maximum_radius
++	)
++	var provisional = []
++	for index in units.size():
++		provisional.append([units[index], points[index]])
+ 	if profiling:
+ 		print("FORMATION GEOMETRY ms=", (Time.get_ticks_usec() - before) / 1000.0)
+ 	before = Time.get_ticks_usec()
+@@ -47,7 +55,9 @@
+ 		print("FORMATION RESOLVE ms=", (Time.get_ticks_usec() - before) / 1000.0)
+ 	before = Time.get_ticks_usec()
+ 	# Match the actual projected, separated slots, including map-edge fallbacks.
+-	var assigned = Planner.assign(units, resolved.map(func(pair): return pair[1]), formation)
++	var assigned = Planner.assign(
++		units, resolved.map(func(pair): return pair[1]), formation, origins
++	)
+ 	if profiling:
+ 		print("FORMATION ASSIGN ms=", (Time.get_ticks_usec() - before) / 1000.0)
+ 	before = Time.get_ticks_usec()
+@@ -273,11 +283,20 @@
+ 
+ static func calculate_aabb_crowd_pivot_yless(units):
+ 	"""calculates pivot which is a center of crowd AABB"""
+-	var unit_positions = []
++	var unit_positions = PackedVector3Array()
+ 	for unit in units:
+ 		unit_positions.append(unit.global_position)
+-	var begin = Vector3(_calculate_min_x(unit_positions), 0.0, _calculate_min_z(unit_positions))
+-	var end = Vector3(_calculate_max_x(unit_positions), 0.0, _calculate_max_z(unit_positions))
++	return _positions_pivot_yless(unit_positions)
++
++
++static func _positions_pivot_yless(positions: PackedVector3Array) -> Vector3:
++	var begin = Vector3(INF, 0.0, INF)
++	var end = Vector3(-INF, 0.0, -INF)
++	for point in positions:
++		begin.x = minf(begin.x, point.x)
++		begin.z = minf(begin.z, point.z)
++		end.x = maxf(end.x, point.x)
++		end.z = maxf(end.z, point.z)
+ 	return (begin + end) / 2.0 * Vector3(1, 0, 1)
+ 
+ 

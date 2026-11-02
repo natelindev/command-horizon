@@ -27,6 +27,8 @@ func active_game():
 
 func can_open():
 	var game = active_game()
+	if _network_save_blocked(game):
+		return false
 	return (
 		not busy
 		and not is_instance_valid(Globals.settings_dialog)
@@ -99,6 +101,8 @@ func _input(event):
 
 
 func save_slot(id):
+	if _network_save_blocked(active_game()):
+		return false
 	if busy:
 		return false
 	var game = active_game()
@@ -135,6 +139,8 @@ func save_slot(id):
 
 
 func load_slot(id):
+	if _network_save_blocked(active_game()):
+		return false
 	if busy or (not is_instance_valid(dialog) and not can_open()):
 		return false
 	busy = true
@@ -248,3 +254,10 @@ func _notice(message):
 		var game = active_game()
 		if game != null:
 			game.hud.show_notice(message)
+
+
+func _network_save_blocked(game) -> bool:
+	if is_instance_valid(game) and game.has_meta("network_session"):
+		_notice("Network battles are recorded as replays. Leave the session before loading a local save.")
+		return true
+	return false

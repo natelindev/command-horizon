@@ -1,0 +1,48 @@
+extends "res://tests/headless/MechanicsRegression.gd"
+
+func _run():
+	root.get_node("SaveManager").autosaves_enabled = false
+	await _open("bastion")
+	var units = []
+	for index in 200:
+		units.append(_spawn("Tank", _human, Vector3(15 + (index % 20) * 4, 0, 35 + (index / 20) * 4)))
+	await _frames(20)
+	paused = true
+	var baseline = GDScript.new()
+	baseline.source_code = FileAccess.get_file_as_string("/tmp/UnitMovementUtils-before-members.gd")
+	_check(baseline.reload() == OK, "Baseline utility failed to load")
+	var current = load("res://source/match/utils/UnitMovementUtils.gd")
+	var point = Vector3(50, 0, 60)
+	var heading = Vector3.FORWARD
+	var expected = baseline.crowd_moved_to_new_pivot(units, point, heading, "staggered")
+	var actual = current.crowd_moved_to_new_pivot(units, point, heading, "staggered")
+	_check(actual.size() == expected.size(), "Planning member count differs")
+	for index in actual.size():
+		_check(actual[index][0] == expected[index][0] and actual[index][1] == expected[index][1], "Planning endpoint differs")
+	var samples = [[], []]
+	var cpu_samples = [[], []]
+	var clocks = ClassDB.instantiate("CopperfinPosePacker")
+	for sample in 15:
+		for reverse in 2:
+			var slot = (sample + reverse) % 2
+			var source = baseline if slot == 0 else current
+			var before_cpu = clocks.cpu_sample()
+			var start = Time.get_ticks_usec()
+			source.crowd_moved_to_new_pivot(units, point, heading, "staggered")
+			samples[slot].append(Time.get_ticks_usec() - start)
+			var after_cpu = clocks.cpu_sample()
+			_check(before_cpu[0] == 1 and after_cpu[0] == 1, "Caller-thread CPU clock unavailable")
+			cpu_samples[slot].append(after_cpu[2] - before_cpu[2])
+	for slot in 2:
+		samples[slot].sort()
+		cpu_samples[slot].sort()
+	print("FORMATION_MEMBER_CPU baseline_median_us=", samples[0][7], " current_median_us=", samples[1][7], " samples=", samples)
+	print("FORMATION_MEMBER_THREAD_CPU baseline_median_us=", cpu_samples[0][7], " current_median_us=", cpu_samples[1][7], " sample_us=", cpu_samples)
+	_game.queue_free()
+	baseline = null
+	clocks = null
+	await _frames(5)
+	for message in _errors:
+		push_error(message)
+	print("Formation member profile: failures=", _errors.size())
+	await root.get_node("Globals").quit_game(0 if _errors.is_empty() else 1)

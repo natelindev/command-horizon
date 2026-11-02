@@ -28,17 +28,20 @@ static func prepare(game) -> bool:
 	holder.name = "CombatPrewarm"
 	game.add_child(holder)
 	var cover = _cover(game)
+	_captions(game, holder)
 	var point = camera._calculate_pivot_point()
 	point.y = game.map.height_at(Vector2(point.x, point.z)) + 1.0
 	var effects = load("res://source/match/effects/CombatEffects.gd")
 	_beams(holder, point, effects)
 	_projectiles(holder, point)
+	_particle_buffers(holder, point, effects)
 	if not Globals.options.reduced_flashes:
 		_hit_meshes(game, holder, point)
 		var ring = effects.create_shockwave(2.0)
 		holder.add_child(ring)
 		ring.global_position = point
 		ring.material_override.set_shader_parameter("progress", .35)
+		_muzzle(holder, point, effects)
 	if Globals.options.battlefield_wear and Globals.options.graphics_ground_detail:
 		_wear(game, holder, point)
 	# Command rings/ribbons and local muzzle lighting must compile behind the
@@ -46,9 +49,24 @@ static func prepare(game) -> bool:
 	var feedback = load("res://source/match/effects/TerrainFeedback.gd").new()
 	feedback.map = game.map
 	holder.add_child(feedback)
-	feedback.begin()
-	feedback.ring(point, 1.0, .1, Color.WHITE)
-	feedback.finish()
+	var hud = game.get("hud")
+	var commands = hud.get("command_feedback") if is_instance_valid(hud) else null
+	if is_instance_valid(commands):
+		commands._pose_marker(
+			{
+				"node": feedback,
+				"point": point,
+				"heading": Vector3.FORWARD,
+				"kind": "move",
+				"accepted": true,
+				"age": .1
+			}
+		)
+		feedback.fade(.7)
+	else:
+		feedback.begin()
+		feedback.ring(point, 1.0, .1, Color.WHITE)
+		feedback.finish()
 	if not Globals.options.reduced_flashes:
 		var light = OmniLight3D.new()
 		light.shadow_enabled = false
@@ -107,6 +125,24 @@ static func _cover(game):
 	return layer
 
 
+static func _captions(game, holder):
+	# Use the production card without changing a live caption or playing a voice.
+	# Its engraved plate and font paths first appear when a unit acknowledges an
+	# order. All disposable canvas resources remain behind the loading cover.
+	var layer = CanvasLayer.new()
+	layer.layer = 8
+	holder.add_child(layer)
+	var card = load("res://source/match/hud/SubtitleCard.gd").new()
+	layer.add_child(card)
+	var viewport = game.get_viewport().get_visible_rect().size
+	card.custom_minimum_size.x = minf(560, maxf(1, viewport.x - 24))
+	card.position = Vector2(12, 96)
+	card.set_line("Move", TranslationServer.translate("Move"), Globals.options.subtitle_size)
+	var routes = load("res://source/match/hud/OrderRoutes.gd").new()
+	routes.prepare_for_loading()
+	layer.add_child(routes)
+
+
 static func _projectiles(holder, point):
 	# Compile the vertex-colored MultiMesh path using a disposable flight pool.
 	var renderer = load("res://source/match/effects/ProjectileRenderer.gd").new()
@@ -140,6 +176,54 @@ static func _beams(holder, point, effects):
 		holder.add_child(beam)
 		beam.global_position = point
 		beam.scale = Vector3(.5, .5, 2.0)
+
+
+static func _particle_buffers(holder, point, effects):
+	# Build only disposable buffers off-tree; do not run CombatEffects._ready,
+	# attach observers or emit through any live game pool/cosmetic RNG.
+	var temporary = effects.new()
+	for setup in [
+		["flash", 128, .075, Vector3.ZERO, 2.4, .25],
+		["spark", 768, .65, Vector3(0, -9.8, 0), 1.6, .1],
+		["smoke", 384, 1.8, Vector3(.08, .16, .035), 0, .95],
+		["dust", 512, 2.1, Vector3(0, -.15, 0), 0, .95],
+		["fire", 256, .65, Vector3(0, .8, 0), 2.0, .85],
+		["mote", 192, 1.2, Vector3(0, .25, 0), 2.2, .2],
+		["trail_smoke", 2048, 1.25, Vector3(.06, .22, .025), 0, .72],
+		["exhaust", 768, .1, Vector3.ZERO, 2.8, .38],
+	]:
+		temporary.callv("_emitter", setup)
+	temporary._debris_emitter()
+	temporary._debris_emitter("clod", 0.0)
+	for emitter in temporary.get_children():
+		temporary.remove_child(emitter)
+		emitter.process_mode = Node.PROCESS_MODE_ALWAYS
+		holder.add_child(emitter)
+		emitter.emit_particle(
+			Transform3D(Basis.IDENTITY.scaled(Vector3.ONE * .2), point),
+			Vector3.UP,
+			Color(.7, .6, .4, .6),
+			Color(point.y - 1, 0, 0),
+			31
+		)
+	temporary.free()
+
+
+static func _muzzle(holder, point, effects):
+	var ring = MeshInstance3D.new()
+	ring.mesh = QuadMesh.new()
+	ring.mesh.size = Vector2.ONE * 3.2
+	ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var material = ShaderMaterial.new()
+	material.shader = (
+		effects.MUZZLE_FALLBACK
+		if RenderingServer.get_current_rendering_method() == "gl_compatibility"
+		else effects.MUZZLE_SHADER
+	)
+	material.set_shader_parameter("progress", .35)
+	ring.material_override = material
+	holder.add_child(ring)
+	ring.global_transform = Transform3D(Basis.looking_at(Vector3.FORWARD), point)
 
 
 static func _hit_meshes(game, holder, point):

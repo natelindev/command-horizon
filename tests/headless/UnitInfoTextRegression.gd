@@ -113,7 +113,12 @@ func _info_fixture(map_path = "res://source/match/maps/battlefields/EmberworksMa
 	site = camps[0] if not camps.is_empty() else sites[0]
 	review_center = site.global_position + Vector3(-4, 0, 7)
 	walker = _info_unit("CombatRobot", review_center)
-	artillery = _info_unit("AdvancedTank", review_center + Vector3(4, 0, 0))
+	var bastion = get_nodes_in_group("players").filter(func(side): return side.faction == "bastion")[0]
+	artillery = _info_unit("AdvancedTank", review_center + Vector3(4, 0, 0), bastion)
+	_check(
+		artillery.scene_file_path == "res://source/match/units/faction/SiegeColossus.tscn",
+		"Deployment diagnostics did not exercise the actual Bastion siege roster"
+	)
 	rocket = _info_unit("RocketInfantry", review_center + Vector3(-3, 0, 2))
 	soldier = _info_unit("Infantry", review_center + Vector3(-5, 0, 2))
 	await _frames(10)
@@ -162,9 +167,12 @@ func _update_hidden_state():
 		_check(shelter.enter(soldier), "Could not change hidden garrison occupancy")
 
 
-func _info_unit(role, point):
-	var unit = load("res://source/match/units/%s.tscn" % role).instantiate()
-	game._setup_and_spawn_unit(unit, Transform3D(Basis(), point), game._get_human_player(), true)
+func _info_unit(role, point, owner = null):
+	if owner == null:
+		owner = game._get_human_player()
+	var path = load("res://source/match/FactionCatalog.gd").scene_path(owner.faction, role)
+	var unit = load(path).instantiate()
+	game._setup_and_spawn_unit(unit, Transform3D(Basis(), point), owner, true)
 	return unit
 
 

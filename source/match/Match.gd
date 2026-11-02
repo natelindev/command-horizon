@@ -50,6 +50,9 @@ var _group_registry := {}
 var _observer_registry: Array[Node] = []
 var _observers_dirty := true
 var _visual_serial = 0
+# Local scene resources must outlive their instances. In Compatibility, releasing
+# the PackedScene first leaks two local texture allocations during scene teardown.
+var _scene_template: PackedScene
 
 @onready var navigation = $Navigation
 @onready var fog_of_war = $FogOfWar
@@ -57,6 +60,11 @@ var _visual_serial = 0
 @onready var _camera = $IsometricCamera3D
 @onready var _players = $Players
 @onready var _terrain = $Terrain
+
+
+func _notification(what):
+	if what == NOTIFICATION_SCENE_INSTANTIATED and not scene_file_path.is_empty():
+		_scene_template = load(scene_file_path)
 
 
 func _enter_tree():
@@ -74,6 +82,7 @@ func _enter_tree():
 
 
 func _ready():
+	load("res://source/match/orders/FormationPlanner.gd").warm_native_solver()
 	battlefield = load("res://source/match/combat/Battlefield.gd").new()
 	add_child(battlefield)
 	add_child(load("res://source/match/combat/AlliedDefense.gd").new())
@@ -112,6 +121,7 @@ func _ready():
 	# Facilities, landmarks and caches use the map's final (expanded) layout.
 	load("res://source/match/world/MapLandmarks.gd").populate(map)
 	load("res://source/match/maps/CampaignInteriors.gd").populate(map, settings.mission_id)
+	load("res://source/match/economy/LegacyHomeFields.gd").standardize(self)
 	_setup_subsystems_dependent_on_map()
 	if "--native-crowd-runtime" in OS.get_cmdline_user_args():
 		crowd_runtime = load("res://source/match/NativeCrowdRuntime.gd").new()
@@ -135,7 +145,7 @@ func _ready():
 		add_child(subtitles)
 	var ownership_layer = CanvasLayer.new()
 	ownership_layer.name = "OwnershipLayer"
-	ownership_layer.layer = -1
+	ownership_layer.layer = 1
 	add_child(ownership_layer)
 	ownership_layer.add_child(load("res://source/match/hud/OwnershipOverlay.gd").new())
 	var routes = load("res://source/match/hud/OrderRoutes.gd").new()
@@ -303,10 +313,17 @@ func _setup_players():
 
 
 func _create_players_from_settings():
-	for player_settings in settings.players:
+	for side_index in settings.players.size():
+		var player_settings = settings.players[side_index]
 		var player_scene = Constants.Match.Player.CONTROLLER_SCENES[player_settings.controller]
 		if settings.skirmish and player_settings.controller != Constants.PlayerType.HUMAN:
 			player_scene = load("res://source/match/players/skirmish-ai/SkirmishAI.tscn")
+		if has_meta("network_local_slot"):
+			player_scene = load(
+				"res://source/match/players/human/Human.tscn"
+				if side_index == get_meta("network_local_slot")
+				else "res://source/match/players/skirmish-ai/SkirmishAI.tscn"
+			)
 		var player = player_scene.instantiate()
 		player.color = player_settings.color
 		player.faction = player_settings.faction

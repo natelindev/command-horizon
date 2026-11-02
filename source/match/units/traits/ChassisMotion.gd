@@ -9,6 +9,7 @@ enum Kind { TRACKED, WHEELED, HOVER, WALKER, AIR, INFANTRY }
 
 const STEP = 1.0 / 60.0
 const REST = .0001
+const CANNON_RECOVERY = .4
 # Root turns faster than this are order snaps or filter catch-up: ease them out
 # instead of feeding them forward. Slower, steady path turns are followed exactly
 # so the hull never crabs or drifts through a curve.
@@ -43,6 +44,9 @@ var damage_faction := ""
 var clock := 0.0
 var max_speed := 4.0
 var length := 2.0
+var _recoil_age := CANNON_RECOVERY
+var _recoil_strength := 0.0
+var _recoil_direction := Vector3.FORWARD
 var _tuning := PackedFloat64Array(TUNING[Kind.TRACKED])
 var _drift := Vector3.ONE
 var _previous := Transform3D.IDENTITY
@@ -117,6 +121,7 @@ func reset(current: Transform3D):
 func advance(delta: float, current: Transform3D):
 	if delta <= 0.0:
 		return
+	_recoil_age = minf(CANNON_RECOVERY, _recoil_age + delta)
 	if not _started:
 		reset(current)
 	clock += delta
@@ -231,8 +236,21 @@ func impulse(push_local: Vector3, strength: float):
 	heave_velocity -= strength * .25
 
 
+func cannon_recoil(direction_local: Vector3, strength: float):
+	# An independent damped suspension mode, sampled analytically at render cadence.
+	# The smooth end taper returns to the running chassis pose after exactly .4s.
+	_recoil_direction = (direction_local * Vector3(1, 0, 1)).normalized()
+	_recoil_strength = strength
+	_recoil_age = 0.0
+
+
+func _cannon_spring() -> float:
+	var t := _recoil_age / CANNON_RECOVERY
+	return sin(TAU * t) * exp(-5.0 * t) * (1.0 - t) ** 2 * _recoil_strength
+
+
 func is_settled():
-	if _floating or _running() > 0.0 or damage_band > 0:
+	if _floating or _running() > 0.0 or damage_band > 0 or _recoil_age < CANNON_RECOVERY:
 		return false
 	return (
 		absf(yaw_lag) <= REST
@@ -248,6 +266,7 @@ func is_settled():
 
 
 func settle():
+	_recoil_age = CANNON_RECOVERY
 	_visual_yaw = _root_yaw
 	_visual_rate = 0.0
 	_root_rate = 0.0
@@ -285,7 +304,12 @@ func offset_rotation(extra_pitch = 0.0):
 			bank += sin(clock * 19.0) * .003
 	elif damage_faction == "frontier" and damage_band > 0:
 		rumble += sin(clock * 43.0) * (.0015 if damage_band == 1 else .004)
-	return Vector3(nose + rumble, yaw_lag, bank + rumble * .6)
+	var recoil := _cannon_spring()
+	return Vector3(
+		nose + rumble - _recoil_direction.z * recoil * .12,
+		yaw_lag,
+		bank + rumble * .6 + _recoil_direction.x * recoil * .12
+	)
 
 
 func offset_position():
@@ -294,7 +318,8 @@ func offset_position():
 	if not _floating:
 		lift += (absf(pitch) * length + absf(roll) * length * .6) * .32
 		lift += _running() * sin(clock * 39.0) * .0012
-		return Vector3(0, lift, 0)
+		var recoil := _cannon_spring()
+		return -_recoil_direction * recoil * .32 + Vector3(0, lift - absf(recoil) * .06, 0)
 	if kind == Kind.HOVER:
 		return Vector3(
 			0,

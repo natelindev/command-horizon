@@ -1,0 +1,102 @@
+{
+	"electronics_workers": 4,
+	"failures": [
+		"DesertFrontier bastion home material field depleted in 276.1s, expected 420–540s",
+		"DesertFrontier helix home material field depleted in 352.0s, expected 420–540s",
+		"DesertFrontier frontier home material field depleted in 335.0s, expected 420–540s"
+	],
+	"material_workers": 10,
+	"native": true,
+	"physics_hz": 60,
+	"records": [
+		{
+			"delivered_electronics": 544,
+			"delivered_materials": 1968,
+			"depletion_seconds": 276.100000000075,
+			"expansion_seconds": 163.766666666691,
+			"faction": "bastion",
+			"initial_materials": 2000,
+			"map": "DesertFrontier",
+			"samples": [
+				{
+					"materials_left": 1566,
+					"seconds": 60.0166666666644
+				},
+				{
+					"materials_left": 1120,
+					"seconds": 120.016666666661
+				},
+				{
+					"materials_left": 692,
+					"seconds": 180.000000000037
+				},
+				{
+					"materials_left": 252,
+					"seconds": 240.000000000085
+				}
+			]
+		},
+		{
+			"delivered_electronics": 720,
+			"delivered_materials": 1996,
+			"depletion_seconds": 351.966666666673,
+			"expansion_seconds": 199.633333333386,
+			"faction": "helix",
+			"initial_materials": 2000,
+			"map": "DesertFrontier",
+			"samples": [
+				{
+					"materials_left": 1638,
+					"seconds": 60.0166666666644
+				},
+				{
+					"materials_left": 1279,
+					"seconds": 120.016666666661
+				},
+				{
+					"materials_left": 914,
+					"seconds": 180.000000000037
+				},
+				{
+					"materials_left": 558,
+					"seconds": 240.000000000085
+				},
+				{
+					"materials_left": 199,
+					"seconds": 300.000000000054
+				}
+			]
+		},
+		{
+			"delivered_electronics": 584,
+			"delivered_materials": 1992,
+			"depletion_seconds": 335.000000000022,
+			"expansion_seconds": 201.033333333387,
+			"faction": "frontier",
+			"initial_materials": 2000,
+			"map": "DesertFrontier",
+			"samples": [
+				{
+					"materials_left": 1640,
+					"seconds": 60.0166666666644
+				},
+				{
+					"materials_left": 1286,
+					"seconds": 120.016666666661
+				},
+				{
+					"materials_left": 927,
+					"seconds": 180.000000000037
+				},
+				{
+					"materials_left": 563,
+					"seconds": 240.000000000085
+				},
+				{
+					"materials_left": 200,
+					"seconds": 300.000000000054
+				}
+			]
+		}
+	]
+}

@@ -39,6 +39,7 @@ func _on_destroying(unit):
 func can_present_collapse(unit):
 	if (
 		_game.restoring
+		or _game.has_meta("network_session")
 		or _game.finished
 		or cinematic
 		or get_tree().paused

@@ -1,0 +1,446 @@
+{
+  "project": "/tmp/copperfin-integration-project",
+  "user_data_isolated": true,
+  "arguments": [
+    "--disable-native-kernels"
+  ],
+  "briefing_audio_coverage": "current generated catalog; final release requires all16",
+  "total": 40,
+  "completed": 40,
+  "results": [
+    {
+      "suite": "ShieldComponentRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 2.139,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "AutonomousAssemblyRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 8.015,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "MobileGarrisonRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 6.171,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "PassengerHudRegression",
+      "status": "review",
+      "exit_code": 0,
+      "seconds": 4.14,
+      "errors": [
+        "ERROR: 8 resources still in use at exit (run with --verbose for details)."
+      ],
+      "warnings": [
+        "WARNING: 18 ObjectDB instances were leaked at exit (run with `--verbose` for details)."
+      ]
+    },
+    {
+      "suite": "BunkerSaveRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 3.799,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "BattlefieldSalvageRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 3.603,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "OpticalCloakRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 3.273,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "FactionAsymmetryRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 5.582,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "FactionStrategyRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 4.053,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "FactionLocalizationRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 1.184,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "BastionFortificationRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 4.699,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "FrontierAirContractsRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 4.125,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "MacroEconomyRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 5.052,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "PowerGridRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 4.307,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "PowerSupportScalingRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 3.393,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "EconomicSitesRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 14.389,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "EconomicAIRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 7.253,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "EconomyPersistenceRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 5.664,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "FluxResearchRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 3.627,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "HelixPartialCargoRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 4.959,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "HelixPhaseArrivalRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 5.885,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "LegacyHomeFieldsSaveRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 22.712,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "LegacyHomeNavigationRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 25.808,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "HoverNavigationRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 6.163,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "NavigationConnectivityRegression",
+      "status": "review",
+      "exit_code": 0,
+      "seconds": 60.054,
+      "errors": [
+        "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "TacticalFormationsRegression",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 7.336,
+      "errors": [
+        "ERROR: Cohesion disabled native crowd binding"
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "ImmediatePointOrderRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 3.653,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "FormationOverviewSaveRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 3.8,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "SelectionHealthRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 3.376,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "CampaignHubRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 2.159,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "CampaignHubLoopRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 3.483,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "CampaignHubSalvageRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 3.7,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "CampaignBriefingRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 8.876,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "CombatVoiceRegression",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 4.057,
+      "errors": [
+        "ERROR: bastion:Infantry missing low_health",
+        "ERROR: bastion:Infantry missing kill",
+        "ERROR: bastion:RocketInfantry missing low_health",
+        "ERROR: bastion:RocketInfantry missing kill",
+        "ERROR: bastion:SniperInfantry missing low_health",
+        "ERROR: bastion:SniperInfantry missing kill",
+        "ERROR: bastion:AssaultInfantry missing low_health",
+        "ERROR: bastion:AssaultInfantry missing kill",
+        "ERROR: bastion:Hero missing low_health",
+        "ERROR: bastion:Hero missing kill",
+        "ERROR: bastion:Tank missing low_health",
+        "ERROR: bastion:Tank missing kill",
+        "ERROR: bastion:AdvancedTank missing low_health",
+        "ERROR: bastion:AdvancedTank missing kill",
+        "ERROR: bastion:CombatRobot missing low_health",
+        "ERROR: bastion:CombatRobot missing kill",
+        "ERROR: bastion:Helicopter missing low_health",
+        "ERROR: bastion:Helicopter missing kill",
+        "ERROR: bastion:Fighter missing low_health",
+        "ERROR: bastion:Fighter missing kill",
+        "ERROR: bastion:Bomber missing low_health",
+        "ERROR: bastion:Bomber missing kill",
+        "ERROR: bastion:AntiAirVehicle missing low_health",
+        "ERROR: bastion:AntiAirVehicle missing kill",
+        "ERROR: helix:Infantry missing low_health",
+        "ERROR: helix:Infantry missing kill",
+        "ERROR: helix:RocketInfantry missing low_health",
+        "ERROR: helix:RocketInfantry missing kill",
+        "ERROR: helix:SniperInfantry missing low_health",
+        "ERROR: helix:SniperInfantry missing kill",
+        "ERROR: helix:AssaultInfantry missing low_health",
+        "ERROR: helix:AssaultInfantry missing kill",
+        "ERROR: helix:Hero missing low_health",
+        "ERROR: helix:Hero missing kill",
+        "ERROR: helix:Tank missing low_health",
+        "ERROR: helix:Tank missing kill",
+        "ERROR: helix:AdvancedTank missing low_health",
+        "ERROR: helix:AdvancedTank missing kill",
+        "ERROR: helix:CombatRobot missing low_health",
+        "ERROR: helix:CombatRobot missing kill",
+        "ERROR: helix:Helicopter missing low_health",
+        "ERROR: helix:Helicopter missing kill",
+        "ERROR: helix:Fighter missing low_health",
+        "ERROR: helix:Fighter missing kill",
+        "ERROR: helix:Bomber missing low_health",
+        "ERROR: helix:Bomber missing kill",
+        "ERROR: helix:AntiAirVehicle missing low_health",
+        "ERROR: helix:AntiAirVehicle missing kill",
+        "ERROR: frontier:Infantry missing low_health",
+        "ERROR: frontier:Infantry missing kill",
+        "ERROR: frontier:RocketInfantry missing low_health",
+        "ERROR: frontier:RocketInfantry missing kill",
+        "ERROR: frontier:SniperInfantry missing low_health",
+        "ERROR: frontier:SniperInfantry missing kill",
+        "ERROR: frontier:AssaultInfantry missing low_health",
+        "ERROR: frontier:AssaultInfantry missing kill",
+        "ERROR: frontier:Hero missing low_health",
+        "ERROR: frontier:Hero missing kill",
+        "ERROR: frontier:Tank missing low_health",
+        "ERROR: frontier:Tank missing kill",
+        "ERROR: frontier:AdvancedTank missing low_health",
+        "ERROR: frontier:AdvancedTank missing kill",
+        "ERROR: frontier:CombatRobot missing low_health",
+        "ERROR: frontier:CombatRobot missing kill",
+        "ERROR: frontier:Helicopter missing low_health",
+        "ERROR: frontier:Helicopter missing kill",
+        "ERROR: frontier:Fighter missing low_health",
+        "ERROR: frontier:Fighter missing kill",
+        "ERROR: frontier:Bomber missing low_health",
+        "ERROR: frontier:Bomber missing kill",
+        "ERROR: frontier:AntiAirVehicle missing low_health",
+        "ERROR: frontier:AntiAirVehicle missing kill",
+        "ERROR: frontier:Worker missing low_health",
+        "ERROR: frontier:Worker missing kill",
+        "ERROR: mercenary:MercenaryWarden missing low_health",
+        "ERROR: mercenary:MercenaryWarden missing kill",
+        "ERROR: mercenary:MercenaryRanger missing low_health",
+        "ERROR: mercenary:MercenaryRanger missing kill",
+        "ERROR: mercenary:MercenaryLancer missing low_health",
+        "ERROR: mercenary:MercenaryLancer missing kill",
+        "ERROR: Expected 80 distinct authored combat clips",
+        "ERROR: Low hull warning missing",
+        "ERROR: Low hull borrowed an order bark",
+        "ERROR: Sustained critical hull spammed unit warnings",
+        "ERROR: Recovered unit did not rearm its low hull warning",
+        "ERROR: Critical report failed to queue behind base warning",
+        "ERROR: Actual kill lacks confirmation",
+        "SCRIPT ERROR: Invalid access to property or key 'stream' on a base object of type 'Dictionary'.",
+        "ERROR: Low hull warning missing",
+        "ERROR: Low hull borrowed an order bark",
+        "ERROR: Sustained critical hull spammed unit warnings",
+        "ERROR: Recovered unit did not rearm its low hull warning",
+        "ERROR: Critical report failed to queue behind base warning",
+        "ERROR: Actual kill lacks confirmation",
+        "SCRIPT ERROR: Invalid access to property or key 'stream' on a base object of type 'Dictionary'.",
+        "ERROR: Low hull warning missing",
+        "ERROR: Low hull borrowed an order bark",
+        "ERROR: Sustained critical hull spammed unit warnings",
+        "ERROR: Recovered unit did not rearm its low hull warning",
+        "ERROR: Critical report failed to queue behind base warning",
+        "ERROR: Actual kill lacks confirmation",
+        "SCRIPT ERROR: Invalid access to property or key 'stream' on a base object of type 'Dictionary'."
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "StructureCollapseRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 7.115,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "ScorchLifetimeRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 3.441,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "NetworkFoundationRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 1.139,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "AuthoritativeFrameRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 6.532,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "ReplayPlaybackRegression",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 1.385,
+      "errors": [
+        "SCRIPT ERROR: Cannot call method 'get_files' on a null value.",
+        "ERROR: Run NetworkSessionRegression first to create a real transport recording."
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "ScenarioEditorRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 4.658,
+      "errors": [],
+      "warnings": []
+    }
+  ]
+}

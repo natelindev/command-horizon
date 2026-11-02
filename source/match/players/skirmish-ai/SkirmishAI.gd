@@ -24,6 +24,11 @@ const Footprint = preload("res://source/match/utils/Footprint.gd")
 const AirfieldLayout = preload("res://source/match/units/AirfieldLayout.gd")
 const Expansion = preload("res://source/match/players/skirmish-ai/SkirmishExpansion.gd")
 const Tactics = preload("res://source/match/players/skirmish-ai/SkirmishTactics.gd")
+const STRATEGIES = {
+	"bastion": preload("res://source/match/players/skirmish-ai/BastionStrategy.gd"),
+	"helix": preload("res://source/match/players/skirmish-ai/HelixStrategy.gd"),
+	"frontier": preload("res://source/match/players/skirmish-ai/FrontierStrategy.gd"),
+}
 const Surrender = preload("res://source/match/players/skirmish-ai/SkirmishSurrender.gd")
 
 # Optional facilities follow a growing army instead of consuming its opening budget.
@@ -40,6 +45,7 @@ var _army_cursor = 0
 var _hopeless_seconds = 0.0
 # Authored expansion site chosen for the next headquarters, if any.
 var _expansion_site = null
+var _strategy_outpost = {}
 @onready var _match = find_parent("Match")
 
 
@@ -70,7 +76,7 @@ func _process(delta):
 
 
 func profile():
-	return Difficulty.of(difficulty)
+	return STRATEGIES.get(faction, STRATEGIES.bastion).profile(Difficulty.of(difficulty))
 
 
 func _units():
@@ -101,6 +107,7 @@ func _of_type(units, role):
 
 func _next_building(units):
 	_expansion_site = null
+	_strategy_outpost = {}
 	if _of_type(units, "CommandCenter").is_empty():
 		return "CommandCenter"
 	# Once the core base stands, a due expansion comes first: a headquarters
@@ -111,7 +118,7 @@ func _next_building(units):
 	):
 		_expansion_site = Expansion.next_site(_match, self, units, Economy.contacts(_match, self))
 		if _expansion_site != null:
-			return "CommandCenter"
+			return "ForwardRefinery" if faction == "bastion" else "CommandCenter"
 	var power = power_totals()
 	if (
 		power.x < power.y + 6
@@ -123,6 +130,10 @@ func _next_building(units):
 			return _power_ready_building(units, role)
 	if _of_type(units, "AntiAirTurret").is_empty() and Composition.observed(_match, self).air > 0:
 		return _power_ready_building(units, "AntiAirTurret")
+	if faction == "bastion":
+		_strategy_outpost = STRATEGIES.bastion.outpost(units)
+		if not _strategy_outpost.is_empty():
+			return _power_ready_building(units, _strategy_outpost.role)
 	var optional = _expansion_building(units)
 	return _power_ready_building(units, optional) if optional != "" else ""
 
@@ -155,9 +166,8 @@ func _expansion_building(units):
 		expansion = {
 			"RepairDepot": 75.0,
 			"CommandLab": 130.0,
-			"AircraftFactory": 165.0,
-			"AntiAirTurret": 220.0,
-			"AntiGroundTurret": 260.0
+			"AntiAirTurret": 180.0,
+			"AntiGroundTurret": 220.0
 		}
 	var scale = profile().timing_scale
 	var order = 0
@@ -212,7 +222,7 @@ func _build(units, desired):
 	):
 		return
 	var pending = units.filter(
-		func(unit): return unit.has_method("is_constructed") and not unit.is_constructed()
+		func(unit): return unit.has_method("needs_constructor") and unit.needs_constructor()
 	)
 	if not pending.is_empty():
 		var builder = Labor.builder(
@@ -235,12 +245,14 @@ func _build(units, desired):
 	var origin = (
 		reference[0].global_position if not reference.is_empty() else workers[0].global_position
 	)
-	var building = load(Catalog.scene_path(desired)).instantiate()
+	if not _strategy_outpost.is_empty() and _strategy_outpost.role == desired:
+		origin = _strategy_outpost.origin
+	var building = load(Factions.scene_path(faction, desired)).instantiate()
 	var navmap = _match.navigation.get_navigation_map_rid_by_domain(building.movement_domain)
 	var site = Transform3D.IDENTITY
 	if Footprint.has_outline(building):
 		site = _find_footprint_site(origin, Footprint.local_outline(building), navmap)
-	elif desired == "CommandCenter" and _expansion_site != null:
+	elif desired in ["CommandCenter", "ForwardRefinery"] and _expansion_site != null:
 		site.origin = _expansion_position(_expansion_site, building.radius, navmap)
 	else:
 		site.origin = _find_site(origin, building.radius, navmap)
@@ -248,7 +260,7 @@ func _build(units, desired):
 	if not position_to_build.is_finite():
 		building.free()
 		return
-	var builder = Labor.builder(workers, position_to_build, desired == "CommandCenter")
+	var builder = Labor.builder(workers, position_to_build, desired in ["CommandCenter", "ForwardRefinery"])
 	if builder == null:
 		building.free()
 		return
@@ -479,14 +491,15 @@ func _train(units, desired):
 			# producers, instead of spending its next delivery on cheaper armor.
 			reserve += price
 			continue
-		if job.producer.production_queue.produce(load(Catalog.scene_path(job.role))) != null:
+		if job.producer.production_queue.produce(load(Factions.scene_path(faction, job.role))) != null:
 			if job.producer.type == "VehicleFactory":
 				_production_index += 1
 
 
 func _command_army(units):
 	var enemies = Economy.contacts(_match, self)
-	var tactical = Tactics.command(_match, self, units, enemies)
+	var tactical = STRATEGIES.get(faction, STRATEGIES.bastion).command(_match, self, units, enemies)
+	tactical.append_array(Tactics.command(_match, self, units.filter(func(unit): return unit not in tactical), enemies))
 	var free = units.filter(func(unit): return unit not in tactical)
 	var recovering = Recovery.command(_match, free, enemies, profile().retreat_health)
 	var available = free.filter(func(unit): return unit not in recovering)
@@ -648,7 +661,7 @@ func _research_candidate(units):
 			return {}
 		id = ""
 		for option in profile().research:
-			if option not in technology.completed:
+			if option not in technology.completed and Technologies.available(option, faction) and Technologies.exclusion(option, technology.planned_technologies()) == "":
 				id = option
 				cost = Technologies.ITEMS[id].cost
 				break

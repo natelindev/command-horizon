@@ -63,15 +63,25 @@ func _bastion():
 	game.battlefield.invalidate()
 	_check(game.battlefield.can_fire(walker, air), "Walker cannot intercept nearby aircraft")
 	walker.process_mode = Node.PROCESS_MODE_PAUSABLE
+	var durability = target.hp + target.shields
 	walker.issue_manual_order(shooting.new(target, 1))
 	await _frames(16)
-	_check(is_equal_approx(target.hp_max - target.hp, 2.25), "Walker autocannon armor profile")
-	var hp = air.hp
+	_check(
+		is_equal_approx(durability - target.hp - target.shields, 2.25),
+		"Walker autocannon armor profile"
+	)
+	var hp = air.hp + air.shields
 	walker.issue_manual_order(shooting.new(air, 1))
 	await _frames(10)
-	_check(air.hp == hp, "Changing target domain reset the shared reload")
-	await _frames(30)
-	_check(is_equal_approx(hp - air.hp, 5.0), "Walker AA profile did not fire after shared reload")
+	_check(air.hp + air.shields == hp, "Changing target domain reset the shared reload")
+	for tick in 120:
+		await _frames(1)
+		if air.hp + air.shields < hp:
+			break
+	_check(
+		is_equal_approx(hp - air.hp - air.shields, 5.0),
+		"Walker AA profile did not fire after shared reload"
+	)
 	print("PASS: Bastion ground/AA range, armor and shared reload")
 	return true
 
@@ -136,8 +146,15 @@ func _helix():
 	walker.get_node("Movement").stop()
 	game.battlefield.invalidate()
 	walker.issue_manual_order(shooting.new(air, 1))
-	await _frames(15)
-	_check(is_equal_approx(air.hp_max - air.hp, 5), "Lancer did not actually intercept aircraft")
+	var air_durability = air.hp + air.shields
+	for tick in 120:
+		await _frames(1)
+		if air.hp + air.shields < air_durability:
+			break
+	_check(
+		is_equal_approx(air_durability - air.hp - air.shields, 5),
+		"Lancer did not actually intercept aircraft"
+	)
 	walker.stance = walker.Stance.DEFENSIVE
 	# Preserve a longer existing cooldown across a switch and a real archive reload.
 	_check(walker.request_weapon_mode("precision"), "Return to Precision rejected")

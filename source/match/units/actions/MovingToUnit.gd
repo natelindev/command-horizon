@@ -3,9 +3,17 @@ extends "res://source/match/units/actions/Moving.gd"
 
 const SEARCH_USEC_PER_FRAME = 2000
 const SEARCH_QUERIES_PER_FRAME = 24
-static var _budget_frame = -1
-static var _budget_usec = 0
-static var _budget_queries = 0
+const SearchBudget = preload("res://source/match/orders/MovementSearchBudget.gd")
+const RuntimeCache = preload("res://source/utils/RuntimeCache.gd")
+@onready var _search_allowance: SearchBudget = _shared_search_budget()
+
+
+func _shared_search_budget() -> SearchBudget:
+	var cache = RuntimeCache.bucket("movement_search_budget")
+	if not cache.has("state"):
+		cache.state = SearchBudget.new()
+	return cache.state
+
 
 var _target_unit = null
 var _contact_elapsed = 0.0
@@ -151,20 +159,20 @@ func _search_budget():
 	# All workers share a frame budget. A single native path query is atomic;
 	# charge its actual cost before admitting the next one.
 	var now = Time.get_ticks_usec()
-	if _budget_frame == Engine.get_process_frames():
-		_budget_usec += now - _slice_started
+	if _search_allowance.frame == Engine.get_process_frames():
+		_search_allowance.usec += now - _slice_started
 	while _search_valid():
 		var frame = Engine.get_process_frames()
-		if _budget_frame != frame:
-			_budget_frame = frame
-			_budget_usec = 0
-			_budget_queries = 0
+		if _search_allowance.frame != frame:
+			_search_allowance.frame = frame
+			_search_allowance.usec = 0
+			_search_allowance.queries = 0
 		if (
 			can_process()
-			and _budget_usec < SEARCH_USEC_PER_FRAME
-			and _budget_queries < SEARCH_QUERIES_PER_FRAME
+			and _search_allowance.usec < SEARCH_USEC_PER_FRAME
+			and _search_allowance.queries < SEARCH_QUERIES_PER_FRAME
 		):
-			_budget_queries += 1
+			_search_allowance.queries += 1
 			_slice_started = Time.get_ticks_usec()
 			return true
 		await get_tree().process_frame

@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+    "--path",
+    "/Users/linlilu/godot-open-rts/build/verification/macos/tactical-rendered-20261102T054441Z-58184/release-project",
+    "--debug",
+    "--profiling",
+    "--script",
+    "res://tests/headless/TacticalFormationsRegression.gd",
+    "--",
+    "--performance-only",
+    "--tactical-quality=low",
+    "--tactical-script-profile",
+    "--profile-runtime",
+    "--enable-native-kernels",
+    "--native-unit-state",
+    "--native-crowd-runtime",
+    "--native-visibility-runtime",
+    "--native-pose-rigs",
+    "--native-presentation",
+    "--native-infantry-poses",
+    "--native-combat-queries",
+    "--native-battlefield-index",
+    "--native-nearest-surface",
+    "--native-exploration"
+  ],
+  "exit_code": 1,
+  "scope": "Editor diagnostic; debugger and script profiling enabled; no release qualification claim"
+}

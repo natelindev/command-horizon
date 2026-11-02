@@ -1,0 +1,56 @@
+{
+  "reviewed_utc": "2026-11-02T06:54:58.587763+00:00",
+  "frozen_inputs": "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/inputs-retry-4",
+  "scope": "Independent source comparison; no graphical execution, asset edits, or whole-package qualification.",
+  "files": {
+    "source/match/units/traits/TrackMotion.gd": {
+      "inputs4_sha256": "18a7909224826bdc2f7bfe5433eb165734df0629d7062f45ac6ef313877cfcc9",
+      "current_sha256": "e3c821f47be64ea25c36fc313a10d5fed4371318d82e91e21a769ff734015b3a"
+    },
+    "source/match/units/traits/WheelMotion.gd": {
+      "inputs4_sha256": "faa4906dd58a6d613051e73675b8d729fa79f7f0403f7616b86ee4f9d0d95e01",
+      "current_sha256": "c07940960360821296894776f50a6bfe20a815b0990036a64fac9909c3d91031"
+    },
+    "source/match/effects/CombatEffects.gd": {
+      "inputs4_sha256": "b928453694b8c056752c20d3f5bb00d539fab38cc53d8f0631f10b6bad04709d",
+      "current_sha256": "12234119598e322dc091c31748affb2d76a0acd545e3807db2732e4df2090d1a"
+    },
+    "source/match/hud/Ownership.gd": {
+      "inputs4_sha256": "6da0132f5ff9dac51b7bd563d49249068041ce4becce2da33c05126abd22519e",
+      "current_sha256": "3036ec53036d21576ba6ece5190ea82731c43086c151cb6e27071375054dd995"
+    },
+    "source/match/hud/Minimap.gd": {
+      "inputs4_sha256": "6060bcdc1c46c7a9f8eb99e9bfbaec38f57d23a48c2bdade5c59d84c876036c2",
+      "current_sha256": "ddd22255e2404de45bc61606e4df5b6e1ec963b6dffdd61f038ff14e9d079893"
+    },
+    "source/match/units/traits/Selection.gd": {
+      "inputs4_sha256": "a0315e995932629f2e858ac74b5495f94e2f3162c7180552053f67d74c639711",
+      "current_sha256": "2b306d66c539fa06bb13e951fed01b1e68faeea3962c1ab807341de69ae04303"
+    }
+  },
+  "unchanged_material_contract_inputs": {
+    "source/match/ObjectMaterials.gd": {
+      "unchanged": true,
+      "sha256": "d93e013c91f05c315cd3206450eed8c75864e0606a3c8091866332b014e407dc"
+    },
+    "tests/headless/ObjectMaterialsRegression.gd": {
+      "unchanged": true,
+      "sha256": "f78247aa25793883ddb6207d6a99af9111590842a6919bcdcbe328c5f55353c7"
+    },
+    "source/shaders/3d/surface_detail.gdshaderinc": {
+      "unchanged": true,
+      "sha256": "f165dbef420350ab7f626c9585888c4264ea116347fbe7d8f0ee692f79ed2cb6"
+    },
+    "source/shaders/3d/terrain_layers.gdshaderinc": {
+      "unchanged": true,
+      "sha256": "b2c21076987c4b05868dd18ebb504f71c542a4263630be5ce7c8918e9913d06e"
+    }
+  },
+  "next_release_manifest": {
+    "packaged_standalone_count": 140,
+    "source_contracts": [
+      "RichTexturesRegression"
+    ],
+    "new_packaged_check": "OwnershipRegression"
+  }
+}

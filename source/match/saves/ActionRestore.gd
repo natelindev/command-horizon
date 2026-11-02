@@ -184,7 +184,7 @@ func _targets_available(saved):
 		return false
 	if saved.kind in ["CollectingResourcesSequentially", "Constructing", "Following"]:
 		var child = saved.children.get("_sub_action", {})
-		if saved.kind == "CollectingResourcesSequentially" and saved.state._state == 4:
+		if saved.kind == "CollectingResourcesSequentially" and saved.state._state in [4, 5]:
 			return child.is_empty()
 		if (child.is_empty() and saved.kind != "Following") or not _targets_available(child):
 			return false

@@ -45,7 +45,7 @@ func _run():
 				+ "production gate; AI orders"
 			)
 		)
-	quit(0 if _errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if _errors.is_empty() else 1)
 
 
 func _research_tests(player):
@@ -89,9 +89,9 @@ func _research_tests(player):
 	var drains = []
 	for index in range(2):
 		drains.append(_spawn("AircraftFactory", player, Vector3(10 + offset + index * 7, 0, 38)))
-	_check(player.production_factor() == 0.35, "Fixture failed to create low power")
+	_check(player.production_factor() == 0.25, "Fixture failed to create low power")
 	player._physics_process(10.0)
-	_check(is_equal_approx(player.coordination_left, 26.5), "Low power did not slow research")
+	_check(is_equal_approx(player.coordination_left, 27.5), "Low power did not slow research")
 	player.set_physics_process(true)
 	paused = true
 	var before = player.coordination_left

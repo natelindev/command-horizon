@@ -33,6 +33,21 @@ func _resume(role):
 	await _frames(3)
 	var progress = site.construction_progress()
 	await _frames(30)
+	if human.faction == "helix":
+		_check(
+			site.construction_progress() > progress, role + ": nanite beacon stopped with worker"
+		)
+		_check(not site.needs_constructor(), role + ": active beacon requests replacement engineer")
+		for frame in 3000:
+			if site.is_constructed():
+				break
+			await _frames(1)
+		_check(site.is_constructed(), role + ": autonomous site never completed")
+		_check(first.action == null, role + ": nanite site reassigned stopped engineer")
+		for unit in [first, replacement, site]:
+			unit.queue_free()
+		await _frames(5)
+		return
 	_check(site.construction_progress() == progress, role + ": stopped site kept building")
 	root.get_node("MatchSignals").deselect_all_units.emit()
 	replacement.get_node("Selection").select()

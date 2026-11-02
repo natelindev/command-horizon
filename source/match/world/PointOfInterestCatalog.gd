@@ -2,6 +2,7 @@ extends RefCounted
 
 const Mercenaries = preload("res://source/match/world/MercenaryCatalog.gd")
 const ROLES = Mercenaries.ROLES
+const EconomicLayout = preload("res://source/match/world/EconomicSiteLayout.gd")
 const Authored = preload("res://source/match/maps/terrain/BattlefieldRegistry.gd")
 # Capturable facilities per skirmish map, in save order. Every list pairs its
 # sites with the map's start symmetry so no start owns a uniquely close one.
@@ -47,9 +48,12 @@ const SITES = {
 
 
 static func definitions(map_path):
-	if Authored.is_authored(map_path):
-		return Authored.layout(map_path).sites
-	return SITES.get(map_path.get_file().get_basename(), [])
+	var existing = (
+		Authored.layout(map_path).sites
+		if Authored.is_authored(map_path)
+		else SITES.get(map_path.get_file().get_basename(), [])
+	)
+	return existing + EconomicLayout.additional(map_path)
 
 
 static func accepts_population(map_path, count):
@@ -57,10 +61,26 @@ static func accepts_population(map_path, count):
 
 
 static func populate(map):
-	var entries = definitions(map.scene_file_path)
+	var entries = (
+		load("res://source/scenario/ScenarioDocument.gd").site_definitions(map.scenario)
+		if "scenario" in map
+		else definitions(map.scene_file_path)
+	)
 	for index in entries.size():
 		var entry = entries[index]
-		var site = load("res://source/match/world/PointOfInterest.gd").new()
+		var site
+		if entry.kind in ["refinery", "data_relay"]:
+			site = (
+				load(
+					(
+						"res://source/match/world/%s.tscn"
+						% ("TechRefinery" if entry.kind == "refinery" else "DataRelay")
+					)
+				)
+				. instantiate()
+			)
+		else:
+			site = load("res://source/match/world/PointOfInterest.gd").new()
 		site.site_id = "poi-%d" % index
 		site.kind = entry.kind
 		site.label_title = entry.name

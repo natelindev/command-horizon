@@ -1,0 +1,88 @@
+{
+	"adapter": "Apple M1 Pro (Apple7)",
+	"combatants": 200,
+	"diagnostic": false,
+	"quality": [
+		{
+			"batch_groups": 28,
+			"batched_units": 202,
+			"cpu_usage": {},
+			"draw_calls": {
+				"max": 1162.0,
+				"mean": 1087.6,
+				"median": 1104.0,
+				"p95": 1152.0
+			},
+			"faction": "bastion",
+			"frame_ms": {
+				"max": 147.526,
+				"mean": 84.3856833333333,
+				"median": 80.108,
+				"p95": 127.743
+			},
+			"frames": 60,
+			"gpu_ms": {
+				"max": 0.0,
+				"mean": 0.0,
+				"median": 0.0,
+				"p95": 0.0
+			},
+			"music_intensity": 0.999624580357544,
+			"native_visibility": false,
+			"particle_capacities": {
+				"clod": 128,
+				"debris": 192,
+				"dust": 512,
+				"exhaust": 768,
+				"fire": 256,
+				"flash": 128,
+				"mote": 192,
+				"smoke": 384,
+				"spark": 768,
+				"trail_smoke": 2048
+			},
+			"quality": "low",
+			"raster": [
+				1280.0,
+				720.0
+			],
+			"render_cpu_ms": {
+				"max": 1.45700001716614,
+				"mean": 0.918183331688245,
+				"median": 0.907999992370605,
+				"p95": 1.1599999666214
+			},
+			"sampled_1s_physics_max_ms": {
+				"max": 73.672,
+				"mean": 50.0428,
+				"median": 44.065,
+				"p95": 73.672
+			},
+			"sampled_1s_process_max_ms": {
+				"max": 27.131,
+				"mean": 24.6488666666667,
+				"median": 24.191,
+				"p95": 26.342
+			},
+			"scene_dispatch_us": [
+				2789234,
+				951472,
+				0,
+				0,
+				304,
+				60
+			],
+			"shocks": 2,
+			"shots": 572,
+			"simulation_seconds": 5.06666666666692,
+			"wall_seconds": 5.063141
+		}
+	],
+	"raster": [
+		1280,
+		720
+	],
+	"release": false,
+	"samples": 60,
+	"scope": "Real live combat and damage presentation; no fixed-fps, paused simulation, or disabled effects."
+}

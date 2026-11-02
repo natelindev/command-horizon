@@ -41,6 +41,8 @@ static func award(source, target, actual_damage: float, killed: bool):
 	):
 		return
 	source.experience += 100.0 * actual_damage / target.hp_max + (25.0 if killed else 0.0)
+	if killed:
+		source.get_node("/root/MatchSignals").unit_killed.emit(source, target)
 
 
 static func reload_factor(rank: int) -> float:

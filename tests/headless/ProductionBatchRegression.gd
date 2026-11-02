@@ -23,7 +23,9 @@ func _batch(faction):
 	var factory = _units(player, "VehicleFactory")[0]
 	var menus = game.find_child("UnitMenus")
 	var factions = load("res://source/match/FactionCatalog.gd")
-	var cost = factions.cost(player, "Tank")
+	var cost = factions.production_cost(player, "Tank")
+	var batch = factions.batch_size(faction, "Tank")
+	var shift_jobs = floori(5.0 / batch)
 	var tank = load("res://source/match/units/Tank.tscn")
 	factory.production_queue.cancel_all()
 	player.resource_a = 5000
@@ -36,14 +38,18 @@ func _batch(faction):
 	var price = Vector2i(cost.resource_a, cost.resource_b)
 	var clock = game.simulation_time
 	await _click(button, true)
-	_check(factory.production_queue.size() == 5, faction + ": Shift-click did not queue five")
 	_check(
-		Vector2i(player.resource_a, player.resource_b) == funds - price * 5,
+		factory.production_queue.size() == shift_jobs and shift_jobs * batch <= 5,
+		faction + ": Shift-click exceeded the five-unit limit or lost a whole batch"
+	)
+	_check(
+		Vector2i(player.resource_a, player.resource_b) == funds - price * shift_jobs,
 		faction + ": batch charged incorrect costs"
 	)
 	await _click(button, false)
 	_check(
-		factory.production_queue.size() == 6, faction + ": plain click retained the batch modifier"
+		factory.production_queue.size() == shift_jobs + 1,
+		faction + ": plain click retained the batch modifier"
 	)
 	_check(
 		paused and game.simulation_time == clock, faction + ": clicking advanced the paused match"
@@ -84,7 +90,10 @@ func _batch(faction):
 	await _click(button, true)
 	var counts = [factory.production_queue.size(), second.production_queue.size()]
 	counts.sort()
-	_check(counts == [2, 3], faction + ": selected factories did not share the five jobs")
+	_check(
+		counts[0] + counts[1] == shift_jobs and counts[1] - counts[0] <= 1,
+		faction + ": selected factories did not share the allowed jobs"
+	)
 	factory.production_queue.cancel_all()
 	second.production_queue.cancel_all()
 

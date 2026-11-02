@@ -89,29 +89,30 @@ func _exercise_sites():
 	_claim(refinery, soldier, _human)
 	var funds = Vector2i(_human.resource_a, _human.resource_b)
 	var pump_phase = refinery.machinery.phase
-	refinery._physics_process(10)
+	refinery._physics_process(4)
 	_check(refinery.machinery.phase != pump_phase, "Producing refinery pump did not animate")
 	_check(
-		Vector2i(_human.resource_a, _human.resource_b) == funds + Vector2i(2, 1),
-		"Captured refinery failed to pay finite income"
+		Vector2i(_human.resource_a, _human.resource_b) == funds + Vector2i(3, 1),
+		"Captured refinery failed to pay its steady income"
 	)
 	_check(
-		refinery.stock_a == 598 and refinery.stock_b == 299, "Refinery did not consume its stock"
+		refinery.stock_a == 600 and refinery.stock_b == 300,
+		"Steady refinery income must not consume stock"
 	)
 	var resources = _game.find_child("ResourcesBar")
 	resources._refresh()
 	_check(
 		(
 			resources._income_labels[1].visible
-			and resources._income_labels[1].text == resources.tr("+%d / 10s") % 2
+			and resources._income_labels[1].text == resources.tr("+%d / min") % 45
 			and resources._income_labels[2].visible
-			and resources._income_labels[2].text == resources.tr("+%d / 10s") % 1
+			and resources._income_labels[2].text == resources.tr("+%d / min") % 15
 		),
 		"Refinery trickle missing from resource readouts"
 	)
 	_check(
 		(
-			(refinery.tr("+%d M / +%d E every 10 s · next in %ds") % [2, 1, 10])
+			(refinery.tr("+%d M / +%d E every %d s · next in %ds") % [3, 1, 4, 4])
 			in refinery._label.text
 		),
 		"Refinery payout countdown is missing"
@@ -119,12 +120,12 @@ func _exercise_sites():
 	soldier.position += Vector3(20, 0, 0)
 	_game.battlefield.invalidate()
 	funds = Vector2i(_human.resource_a, _human.resource_b)
-	refinery._physics_process(30)
+	refinery._physics_process(12)
 	_check(
 		(
 			refinery.captured_by == _human
 			and refinery.operational()
-			and Vector2i(_human.resource_a, _human.resource_b) == funds + Vector2i(6, 3)
+			and Vector2i(_human.resource_a, _human.resource_b) == funds + Vector2i(9, 3)
 		),
 		"Vacant captured refinery lost ownership or stopped paying"
 	)
@@ -143,7 +144,7 @@ func _exercise_sites():
 	resources._refresh()
 	_check(
 		(
-			resources._income_labels[1].text == resources.tr("+%d / 10s") % 0
+			resources._income_labels[1].text == resources.tr("+%d / min") % 0
 			and refinery.tr("Income paused") in refinery._label.text
 		),
 		"Contested refinery still advertises active income"
@@ -330,11 +331,11 @@ func _service_safeguards(camp, refinery):
 	)
 	paused = false
 	camp.cancel_hire(_human)
-	# Depleted facilities remain visibly stopped even while still owned.
+	# Steady economic facilities continue operating independently of old stock counters.
 	refinery.stock_a = 0
 	refinery.stock_b = 0
 	refinery._physics_process(3)
-	_check(refinery.machinery.phase == pump_phase, "Depleted refinery kept pumping")
+	_check(refinery.machinery.phase != pump_phase, "Steady refinery unexpectedly stopped pumping")
 	refinery.stock_a = stock.x
 	refinery.stock_b = stock.y
 	# An occupied exit keeps the paid contract rather than dropping or overlapping it.
@@ -406,13 +407,13 @@ func _mercenary_combat(camp, sites):
 			_game.find_child("UnitMenus")._title.text == factions.title(_human.faction, role),
 			"Mercenary selection lost its identity"
 		)
-		var hp = target.hp
+		var durability = target.hp + target.shields
 		recruit.issue_manual_order(
 			load("res://source/match/units/actions/AttackingWhileInRange.gd").new(target)
 		)
 		await _frames(210)
 		_check(
-			not is_instance_valid(target) or target.hp < hp,
+			not is_instance_valid(target) or target.hp + target.shields < durability,
 			"Mercenary weapon did not deal damage: " + role
 		)
 		recruit.queue_free()

@@ -282,6 +282,7 @@ ROBOT_CAST = {
 EVENT_DELIVERY = {
     'select': (.75, .35), 'move': (.8, .35), 'attack': (.95, .3), 'ready': (.85, .35),
     'stop': (.75, .35), 'gather': (.8, .35), 'construct': (.8, .35), 'repair': (.8, .35),
+    'low_health': (1., .3), 'kill': (.85, .35),
 }
 TEMPERAMENT = {'Hero': .05, 'AssaultInfantry': .05, 'SniperInfantry': -.1, 'Fighter': .05,
                'MercenaryWarden': .05, 'MercenaryRanger': -.1}
@@ -378,5 +379,6 @@ ANNOUNCER_TEXT = {
 }
 MACHINES = ['Worker', 'RepairRobot', 'CombatRobot', 'Drone']
 STRUCTURES = ['CommandCenter', 'Barracks', 'VehicleFactory', 'AircraftFactory',
-              'PowerPlant', 'CommandLab', 'RepairDepot', 'AntiGroundTurret', 'AntiAirTurret']
+              'PowerPlant', 'CommandLab', 'RepairDepot', 'AntiGroundTurret', 'AntiAirTurret',
+              'ForwardRefinery']
 EVENTS = ['select', 'select', 'move', 'move', 'attack', 'attack', 'ready']

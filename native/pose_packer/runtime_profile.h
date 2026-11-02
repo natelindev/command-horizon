@@ -5,6 +5,8 @@
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <windows.h>
+#elif defined(__APPLE__) || defined(__unix__)
+#include <time.h>
 #endif
 static GDExtensionInterfaceGlobalGetSingleton profile_singleton;
 static GDExtensionMethodBindPtr profile_clock;
@@ -56,6 +58,17 @@ static void profile_cpu_call(void *userdata, void *instance, const GDExtensionCo
         values[1] /= 10;
         values[2] /= 10;
         values[3] = (uint64_t)cycles;
+    }
+#elif defined(__APPLE__) || defined(__unix__)
+    struct timespec process_cpu, thread_cpu;
+    if (clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &process_cpu) == 0 &&
+        clock_gettime(CLOCK_THREAD_CPUTIME_ID, &thread_cpu) == 0) {
+        values[0] = 1;
+        values[1] = (uint64_t)process_cpu.tv_sec * 1000000u +
+                    (uint64_t)process_cpu.tv_nsec / 1000u;
+        values[2] = (uint64_t)thread_cpu.tv_sec * 1000000u +
+                    (uint64_t)thread_cpu.tv_nsec / 1000u;
+        /* Hardware cycle counts are optional; these clocks report CPU time. */
     }
 #endif
     profile_array(values, 4, ret);

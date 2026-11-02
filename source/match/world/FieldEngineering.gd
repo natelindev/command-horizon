@@ -5,6 +5,7 @@ const Players = preload("res://source/match/Players.gd")
 const Placement = preload("res://source/match/utils/UnitPlacementUtils.gd")
 const Footprint = preload("res://source/match/utils/Footprint.gd")
 const CAP = 12
+const KINDS = ["barricade", "bunker", "tank_trap", "mine"]
 const DEPLOY_REACH = 3.0
 const SWEEP_RADIUS = 12.0
 const BARRICADE_FOOTPRINT = [
@@ -55,19 +56,22 @@ static func ability_definitions(unit) -> Array:
 				"radius": 12.0
 			}
 		)
-		if unit.player.faction == "bastion":
+		if unit.player.faction in ["bastion", "frontier"]:
 			result.append(
 				{
-					"id": "field_barricade",
-					"name": "Field barricade",
+					"id": "field_barricade" if unit.player.faction == "bastion" else "scrap_barricade",
+					"name": "Sandbag barricade" if unit.player.faction == "bastion" else "Scrap barricade",
 					"key": "Q",
 					"description":
-					"Deploy a low barrier. 10 M; 15 s deployment cooldown; limit 12.",
+					"Instant forward barrier. Bastion: 10 M; Frontier: 6 M; limit 12.",
 					"target_type": "target_point",
 					"cooldown": 0.0,
 					"range": 100000.0
 				}
 			)
+	if unit.type == "Worker" and unit.player.faction == "bastion":
+		result.append({"id": "field_bunker", "name": "Deploy bunker", "key": "T", "description": "Deploy a concrete pillbox with six protected infantry firing ports. 35 M / 10 E; limit 12.", "target_type": "target_point", "cooldown": 0.0, "range": 100000.0})
+		result.append({"id": "field_tank_trap", "name": "Tank traps", "key": "Y", "description": "Deploy uncrushable steel tank traps. 8 M; limit 12.", "target_type": "target_point", "cooldown": 0.0, "range": 100000.0})
 	if unit.player.faction == "frontier" and unit.type in ["Worker", "Tank"]:
 		result.append(
 			{
@@ -130,10 +134,12 @@ func request(unit, kind, point, angle = 0.0, append = false) -> bool:
 
 
 func placement_error(unit, kind, point, angle = 0.0, ignore = "", replacing = null) -> String:
-	if not _living(unit) or unit.has_meta("garrison_host") or kind not in ["barricade", "mine"]:
+	if not _living(unit) or unit.has_meta("garrison_host") or kind not in KINDS:
 		return "This unit cannot deploy field equipment."
-	if kind == "barricade" and (unit.type != "Worker" or unit.player.faction != "bastion"):
-		return "Bastion workers deploy field barricades."
+	if kind in ["bunker", "tank_trap"] and (unit.type != "Worker" or unit.player.faction != "bastion"):
+		return "Bastion workers deploy defensive emplacements."
+	if kind == "barricade" and (unit.type != "Worker" or unit.player.faction not in ["bastion", "frontier"]):
+		return "Bastion and Frontier workers deploy barricades."
 	if kind == "mine":
 		if unit.player.faction != "frontier" or unit.type not in ["Worker", "Tank"]:
 			return "Frontier workers and Outriders deploy scrap mines."
@@ -141,17 +147,15 @@ func placement_error(unit, kind, point, angle = 0.0, ignore = "", replacing = nu
 			return "Complete a Relay workshop to deploy mines."
 	if not point.is_finite() or not is_finite(angle) or not _point_inside(point):
 		return "Choose reachable ground inside the battlefield."
-	if kind == "barricade" and cooldown_left(unit) > 0.0:
-		return "Barricade deployment is cooling down."
-	if not unit.player.has_resources({"resource_a": 10 if kind == "barricade" else 8}):
+	if not unit.player.has_resources(deployment_cost(unit.player, kind)):
 		return "Not enough Materials."
-	if count_for(unit.player, kind, ignore, replacing) >= CAP:
-		return "Field equipment limit reached (12)."
+	if count_for(unit.player, kind, ignore, replacing) >= limit_for(unit.player, kind):
+		return "Field equipment limit reached (%d)." % limit_for(unit.player, kind)
 	if not _observed_point(unit.player, point):
 		return "Choose observed ground."
 	if not reachable(unit, point):
 		return "The deployment position is unreachable."
-	var radius = 1.3 if kind == "barricade" else 0.3
+	var radius = 2.1 if kind == "bunker" else (1.3 if kind != "mine" else 0.3)
 	var occupants = get_tree().get_nodes_in_group("units")
 	occupants += get_tree().get_nodes_in_group("resource_units")
 	occupants += get_tree().get_nodes_in_group("neutral_buildings")
@@ -188,15 +192,15 @@ func placement_error(unit, kind, point, angle = 0.0, ignore = "", replacing = nu
 		return "Keep the event landing area clear."
 	var nav = _navigation()
 	var terrain = game.map
-	if kind == "barricade":
+	if kind != "mine":
 		var outline = Footprint.outline_at(
-			PackedVector2Array(BARRICADE_FOOTPRINT), Transform3D(Basis(Vector3.UP, angle), point)
+			PackedVector2Array([Vector2(-2,-2),Vector2(2,-2),Vector2(2,2),Vector2(-2,2)] if kind == "bunker" else BARRICADE_FOOTPRINT), Transform3D(Basis(Vector3.UP, angle), point)
 		)
 		if Placement.validate_footprint_placement(outline, [], nav, terrain) != Placement.VALID:
 			return "The barrier needs level, navigable ground."
 		# A conservative clear perimeter preserves a tank-width bypass on both
 		# sides. It rejects narrow bridges/chokes before the dynamic bake occurs.
-		if not _clear_perimeter(point, 3.5):
+		if not _clear_perimeter(point, 5.0 if kind == "bunker" else 3.5):
 			return "The barrier would close a route or bridge approach."
 	else:
 		if (
@@ -211,7 +215,7 @@ func count_for(player, kind, ignore = "", replacing = null) -> int:
 	var count = 0
 	for entity in get_tree().get_nodes_in_group("engineering_entities"):
 		if entity.player == player and entity.hp > 0 and not entity.is_queued_for_deletion():
-			if (kind == "mine") == entity.is_in_group("field_mines"):
+			if kind == entity.get_meta("engineering_kind", "mine" if entity.is_in_group("field_mines") else "barricade"):
 				count += 1
 	for token in _reservations:
 		var pending = _reservations[token]
@@ -223,6 +227,18 @@ func count_for(player, kind, ignore = "", replacing = null) -> int:
 			):
 				count += 1
 	return count
+
+
+static func deployment_cost(player, kind: String) -> Dictionary:
+	if kind == "bunker":
+		return {"resource_a": 35, "resource_b": 10}
+	if kind == "barricade":
+		return {"resource_a": 6 if player.faction == "frontier" else 10}
+	return {"resource_a": 8}
+
+
+static func limit_for(player, kind: String) -> int:
+	return CAP * (2 if kind == "mine" and player.technology != null and "guerrilla_insurgency" in player.technology.completed else 1)
 
 
 func cooldown_left(unit) -> float:
@@ -239,12 +255,9 @@ func begin_deployment(unit, token):
 	if issue != "":
 		_notice(unit, issue)
 		return null
-	if pending.kind == "barricade":
-		var barrier = _spawn_barricade(
-			unit.player, pending.point, pending.angle, _allocate_id("barrier")
-		)
-		unit.player.subtract_resources({"resource_a": 10})
-		_cooldowns[unit] = 15.0
+	if pending.kind != "mine":
+		var barrier = _spawn_emplacement(unit.player, pending.kind, pending.point, pending.angle, _allocate_id(pending.kind))
+		unit.player.subtract_resources(deployment_cost(unit.player, pending.kind))
 		_reservations.erase(token)
 		return barrier
 	var mine = _spawn_mine(unit.player, pending.point, _allocate_id("mine"))
@@ -282,11 +295,59 @@ func _spawn_barricade(player, point, angle, id):
 	barrier.radius = 1.25
 	barrier.obstacle_height = 0.8
 	barrier.footprint = PackedVector2Array(BARRICADE_FOOTPRINT)
+	barrier.set_meta("engineering_kind", "barricade")
 	barrier.add_to_group("engineering_entities")
 	barrier.add_to_group("neutral_targets")
 	add_child(barrier)
 	barrier.destroyed.connect(barrier.queue_free)
+	_refresh_barrier(barrier)
 	return barrier
+
+
+func _spawn_emplacement(player, kind: String, point: Vector3, angle: float, id: String):
+	if kind == "barricade":
+		return _spawn_barricade(player, point, angle, id)
+	var entity = load("res://source/match/world/FieldBunker.gd").new() if kind == "bunker" else load("res://source/match/environment/DestructibleObstacle.gd").new()
+	entity.name = id
+	entity.neutral_id = id
+	entity.player = player
+	entity.position = point
+	entity.rotation.y = angle
+	entity.set_meta("engineering_kind", kind)
+	entity.add_to_group("engineering_entities")
+	entity.add_to_group("neutral_targets")
+	if kind == "tank_trap":
+		entity.radius = 1.25
+		entity.obstacle_height = 1.2
+		entity.hp_max = 200.0
+		entity.hp = 200.0
+		entity.light_barricade = false
+		var geometry = Node3D.new()
+		geometry.name = "Geometry"
+		var steel = StandardMaterial3D.new()
+		steel.albedo_color = Color("424c48")
+		steel.metallic = 0.75
+		steel.roughness = 0.8
+		for angle_z in [PI / 4.0, -PI / 4.0]:
+			var mesh = MeshInstance3D.new()
+			mesh.mesh = BoxMesh.new()
+			mesh.mesh.size = Vector3(2.7, 0.22, 0.26)
+			mesh.rotation.z = angle_z
+			mesh.position.y = 0.65
+			mesh.material_override = steel
+			geometry.add_child(mesh)
+		entity.add_child(geometry)
+	add_child(entity)
+	entity.destroyed.connect(entity.queue_free)
+	return entity
+
+
+func _refresh_barrier(barrier):
+	var maximum = 160.0 if barrier.player.faction == "bastion" and barrier.player.technology != null and "fortress_doctrine" in barrier.player.technology.completed else 80.0
+	if not is_equal_approx(barrier.hp_max, maximum):
+		var ratio = barrier.hp / barrier.hp_max
+		barrier.hp_max = maximum
+		barrier.hp = maximum * ratio
 
 
 func _spawn_mine(player, point, id):
@@ -357,7 +418,10 @@ func detonate(mine):
 	var point = mine.global_position
 	var owner = mine.player
 	mine.clear()
-	for unit in game.battlefield.nearby_units(point, 2.5):
+	var upgraded = owner.technology != null and "concealed_claymores" in owner.technology.completed
+	var blast_radius = 5.0 if upgraded else 2.5
+	var damage = 90.0 if upgraded else 45.0
+	for unit in game.battlefield.nearby_units(point, blast_radius):
 		if not _living(unit) or unit.movement_speed <= 0.0 or unit.has_meta("garrison_host"):
 			continue
 		if (
@@ -366,12 +430,12 @@ func detonate(mine):
 		):
 			continue
 		var distance = _flat_distance(point, unit.global_position)
-		if distance > 2.5 or absf(unit.global_position.y - point.y) > 1.0:
+		if distance > blast_radius or absf(unit.global_position.y - point.y) > 1.0:
 			continue
 		var armor = load("res://source/match/combat/CombatRules.gd").armor_for(unit.type)
 		var factor = [0.75, 1.0, 0.60, 0.0][armor]
 		unit.receive_damage(
-			mine, 45.0 * lerpf(1.0, 0.25, distance / 2.5) * factor, point, {"kind": "warhead"}
+			mine, damage * lerpf(1.0, 0.25, distance / blast_radius) * factor, point, {"kind": "warhead"}
 		)
 	if (
 		game.combat_effects != null
@@ -411,6 +475,9 @@ func _physics_process(delta):
 	var refresh = _detection_tick >= 0.15
 	if refresh:
 		_detection_tick = 0.0
+	for entity in get_tree().get_nodes_in_group("engineering_entities"):
+		if entity.get_meta("engineering_kind", "") == "barricade":
+			_refresh_barrier(entity)
 	for mine in get_tree().get_nodes_in_group("field_mines"):
 		mine.advance(delta)
 		if refresh:
@@ -521,7 +588,7 @@ func capture_state(reference: Callable) -> Dictionary:
 		var saved = {
 			"id": entity.neutral_id,
 			"owner": reference.call(entity.player),
-			"kind": "mine" if entity.is_in_group("field_mines") else "barricade",
+			"kind": entity.get_meta("engineering_kind", "mine" if entity.is_in_group("field_mines") else "barricade"),
 			"point": entity.global_position,
 			"angle": entity.rotation.y,
 			"hp": entity.hp
@@ -534,6 +601,8 @@ func capture_state(reference: Callable) -> Dictionary:
 					"fuse_left": entity.fuse_left
 				}
 			)
+		if saved.kind == "bunker":
+			saved["garrison"] = entity.garrison_mount.capture(reference)
 		result.entities.append(saved)
 	for unit in _cooldowns:
 		if _living(unit):
@@ -570,9 +639,12 @@ func restore_state(saved: Dictionary, entities: Dictionary):
 			entity.fuse_left = record.fuse_left
 			entity.remember_positions()
 		else:
-			entity = _spawn_barricade(owner, record.point, record.angle, record.id)
+			entity = _spawn_emplacement(owner, record.kind, record.point, record.angle, record.id)
 			entity.hp = record.hp
 		entities[record.id] = entity
+	for record in saved.get("entities", []):
+		if record.kind == "bunker" and entities.has(record.id):
+			entities[record.id].garrison_mount.restore(record.get("garrison", {"occupants": [], "slots": [], "evacuating": []}), entities)
 	for record in saved.get("cooldowns", []):
 		if entities.has(record.unit):
 			_cooldowns[entities[record.unit]] = record.left

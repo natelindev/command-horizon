@@ -1,0 +1,154 @@
+{
+  "factions": {
+    "bastion": {
+      "samples": 8999296,
+      "sample_rate": 44100,
+      "channels": 2,
+      "bpm": 99.38401,
+      "stems": [
+        {
+          "file": "hold-the-line-calm.ogg",
+          "sha256": "de6f5cd69294720600ebb4d0821b3fb9cd5f38f840ef557715c5d276f021c094",
+          "samples": 8999296,
+          "peak_dbfs": -9.902
+        },
+        {
+          "file": "hold-the-line-tension.ogg",
+          "sha256": "d47688e3352b3fe952a13e3669052ea76d0973c7b340b7241a0557d2c5f291a3",
+          "samples": 8999296,
+          "peak_dbfs": -16.809
+        },
+        {
+          "file": "hold-the-line-combat.ogg",
+          "sha256": "da5fec95ef23f23e6a1eb74b42d93f100f9877e077b0f1f444e2ee4c1fe58775",
+          "samples": 8999296,
+          "peak_dbfs": -15.998
+        }
+      ],
+      "mix_peak_dbfs": -8.577,
+      "integrated_lufs": -19.755,
+      "encoded_loop_boundary_step": 6.769124843231111e-05,
+      "reconstruction_snr_db": 27.874,
+      "parts": {
+        "dark_brass": {
+          "sha256": "ffe58e345a14debbca39f2fbf22d57a0524f5f8812768b5b86da2aaff27fc59a",
+          "events": 103,
+          "integrated_lufs": -27.0
+        }
+      }
+    },
+    "helix": {
+      "samples": 7144256,
+      "sample_rate": 44100,
+      "channels": 2,
+      "bpm": 95.70312,
+      "stems": [
+        {
+          "file": "perfect-compliance-calm.ogg",
+          "sha256": "0ae531149f41b36842d3b72871ed19cfc69189784a18002b8ba9875071149d29",
+          "samples": 7144256,
+          "peak_dbfs": -7.136
+        },
+        {
+          "file": "perfect-compliance-tension.ogg",
+          "sha256": "9f5021014a2a073347f4fa30ca260b28be30e429629f674b08e681ca03069231",
+          "samples": 7144256,
+          "peak_dbfs": -8.553
+        },
+        {
+          "file": "perfect-compliance-combat.ogg",
+          "sha256": "6c2c701c8727358d29eab531b514b1852dd9848ba07af03946a934cabf99cf81",
+          "samples": 7144256,
+          "peak_dbfs": -15.663
+        }
+      ],
+      "mix_peak_dbfs": -3.9,
+      "integrated_lufs": -18.64,
+      "encoded_loop_boundary_step": 3.84393122512789e-13,
+      "reconstruction_snr_db": 28.39,
+      "parts": {
+        "deep_sub": {
+          "sha256": "ef3c17e525a8dc792a50559af2c603f8d807007bdec82250e7e6319991498db5",
+          "events": 255,
+          "integrated_lufs": -27.0,
+          "energy_25_to_90_hz": 0.99537
+        },
+        "hypnotic_arp": {
+          "sha256": "0615e6ab0dcf505b717af71508893cc9c29fc60ab088b769c21c4138107ae6ab",
+          "events": 1023,
+          "integrated_lufs": -28.0
+        }
+      }
+    },
+    "frontier": {
+      "samples": 8061504,
+      "sample_rate": 44100,
+      "channels": 2,
+      "bpm": 151.99908,
+      "stems": [
+        {
+          "file": "no-shutdown-code-calm.ogg",
+          "sha256": "7c5b1a4b3a5f3e9f8ae2e973b83ce025a67de8de04ac5d9fca23e17d21cc212e",
+          "samples": 8061504,
+          "peak_dbfs": -12.969
+        },
+        {
+          "file": "no-shutdown-code-tension.ogg",
+          "sha256": "db204b34c12e35f7a775aba8ce32150d8382934c062b8269c46d2f31c28c9e68",
+          "samples": 8061504,
+          "peak_dbfs": -12.556
+        },
+        {
+          "file": "no-shutdown-code-combat.ogg",
+          "sha256": "5674333dcba9037676789ade9e98a88b3cf958a946f5f6d6044500387800dc7d",
+          "samples": 8061504,
+          "peak_dbfs": -14.313
+        }
+      ],
+      "mix_peak_dbfs": -8.146,
+      "integrated_lufs": -19.625,
+      "encoded_loop_boundary_step": 0.0,
+      "reconstruction_snr_db": 21.92,
+      "parts": {
+        "slide_guitar": {
+          "sha256": "9b89b6e39b25482a7cb92250a1d0f10265ae2c2860971cceb6bb53a1d85edd41",
+          "events": 114,
+          "integrated_lufs": -27.0,
+          "measured_glides": [
+            {
+              "seconds": 0.226395,
+              "early_midi": 53.1022,
+              "settled_midi": 55.0926,
+              "target_midi": 55
+            },
+            {
+              "seconds": 3.448164,
+              "early_midi": 53.1022,
+              "settled_midi": 55.0923,
+              "target_midi": 55
+            },
+            {
+              "seconds": 6.632199,
+              "early_midi": 53.1014,
+              "settled_midi": 55.0923,
+              "target_midi": 55
+            },
+            {
+              "seconds": 9.836553,
+              "early_midi": 53.1014,
+              "settled_midi": 55.0923,
+              "target_midi": 55
+            }
+          ]
+        },
+        "blues_harp": {
+          "sha256": "cad3ce23151f5b1d176d68dddcd419780915d97e72440584a033a3bcbe4570e6",
+          "events": 112,
+          "integrated_lufs": -28.0
+        }
+      }
+    }
+  },
+  "failures": [],
+  "subjective_listening_performed": false
+}

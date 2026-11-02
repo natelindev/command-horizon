@@ -1,0 +1,38 @@
+{
+  "status": "failed",
+  "standalone_passed": 139,
+  "standalone_total": 139,
+  "network_passed": 11,
+  "network_total": 12,
+  "failed_checks": [
+    {
+      "name": "python3",
+      "argv": [
+        "/Users/linlilu/.pyenv/versions/3.12.12/bin/python3",
+        "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/inputs-retry-3/tools/tests/run_network_regressions.py",
+        "--engine",
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--main-pack",
+        "/Users/linlilu/godot-open-rts/build/headless-review/macos/20261102T043133Z-17655/package/Open RTS Headless Review.app/Contents/Resources/Open RTS Headless Review.pck",
+        "--runtime-dir",
+        "/var/folders/0c/26gks5n97_9_m0hkz10k7y2r0000gn/T/rts-release-kljfvogj/isolated",
+        "--output",
+        "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/qualified-run-3/network-regressions"
+      ],
+      "cwd": "/var/folders/0c/26gks5n97_9_m0hkz10k7y2r0000gn/T/rts-release-kljfvogj/isolated",
+      "status": "failed",
+      "started_utc": "2026-11-02T04:52:34.983340+00:00",
+      "log": "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/qualified-run-3/159-python3.log",
+      "timeout_seconds": 640,
+      "timed_out": false,
+      "output_limit_exceeded": false,
+      "exit_code": 1,
+      "duration_seconds": 202.052,
+      "error": "Process exited with code 1"
+    }
+  ],
+  "original_report": "build/verification/macos/headless-20261102-resume/qualified-run-3/report.json",
+  "report_sha256": "14f0ae8b6bc0fc0c375bc6cf2ecf472cb7f7da0e7a36a472f9ced7f8dbff1e13",
+  "retained_failure_profile": "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/qualified-run-3/failed-user-profile",
+  "reason": "Guest terminal frame verified, but immediate ENet close discarded its queued acknowledgment; production receipt/drain correction pending."
+}

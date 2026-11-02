@@ -1,0 +1,562 @@
+{
+ "manifest": "/Users/linlilu/godot-open-rts/art/audio/battle-audio-manifest.json",
+ "manifest_sha256": "989b8af1b5ce82f1b96c9cc9ec811885e1f2d355664a2311ba08017b2acf7292",
+ "spoken_clips": 80,
+ "speakers": 54,
+ "verified_events": [
+  "kill",
+  "low_health"
+ ],
+ "bank_spoken_clips": 542,
+ "exact_transcripts": 71,
+ "mean_word_error": 0.0199,
+ "max_cross_speaker_similarity": 0.494,
+ "closest_pairs": {
+  "bastion/AdvancedTank": [
+   "bastion/Infantry",
+   0.378
+  ],
+  "bastion/AntiAirVehicle": [
+   "frontier/AdvancedTank",
+   0.37
+  ],
+  "bastion/AssaultInfantry": [
+   "helix/AdvancedTank",
+   0.382
+  ],
+  "bastion/Bomber": [
+   "frontier/RocketInfantry",
+   0.422
+  ],
+  "bastion/CombatRobot": [
+   "helix/CombatRobot",
+   0.364
+  ],
+  "bastion/Command": [
+   "helix/AntiAirVehicle",
+   0.27
+  ],
+  "bastion/Drone": [
+   "helix/RepairRobot",
+   0.442
+  ],
+  "bastion/Fighter": [
+   "bastion/RocketInfantry",
+   0.311
+  ],
+  "bastion/Helicopter": [
+   "helix/SupplyTruck",
+   0.385
+  ],
+  "bastion/Hero": [
+   "mercenary/MercenaryLancer",
+   0.461
+  ],
+  "bastion/Infantry": [
+   "helix/Tank",
+   0.485
+  ],
+  "bastion/RepairRobot": [
+   "helix/Drone",
+   0.408
+  ],
+  "bastion/RocketInfantry": [
+   "mercenary/MercenaryWarden",
+   0.448
+  ],
+  "bastion/SniperInfantry": [
+   "frontier/RocketInfantry",
+   0.359
+  ],
+  "bastion/SupplyTruck": [
+   "bastion/AntiAirVehicle",
+   0.324
+  ],
+  "bastion/Tank": [
+   "frontier/Tank",
+   0.372
+  ],
+  "bastion/Worker": [
+   "helix/RepairRobot",
+   0.39
+  ],
+  "frontier/AdvancedTank": [
+   "helix/Tank",
+   0.42
+  ],
+  "frontier/AntiAirVehicle": [
+   "frontier/Fighter",
+   0.454
+  ],
+  "frontier/AssaultInfantry": [
+   "frontier/Hero",
+   0.489
+  ],
+  "frontier/Bomber": [
+   "helix/Infantry",
+   0.433
+  ],
+  "frontier/CombatRobot": [
+   "helix/CombatRobot",
+   0.424
+  ],
+  "frontier/Command": [
+   "frontier/AdvancedTank",
+   0.382
+  ],
+  "frontier/Drone": [
+   "mercenary/MercenaryRanger",
+   0.301
+  ],
+  "frontier/Fighter": [
+   "frontier/AntiAirVehicle",
+   0.454
+  ],
+  "frontier/Helicopter": [
+   "bastion/Infantry",
+   0.338
+  ],
+  "frontier/Hero": [
+   "frontier/AssaultInfantry",
+   0.489
+  ],
+  "frontier/Infantry": [
+   "helix/SupplyTruck",
+   0.402
+  ],
+  "frontier/RepairRobot": [
+   "mercenary/MercenaryRanger",
+   0.233
+  ],
+  "frontier/RocketInfantry": [
+   "mercenary/MercenaryWarden",
+   0.423
+  ],
+  "frontier/SniperInfantry": [
+   "helix/SniperInfantry",
+   0.386
+  ],
+  "frontier/SupplyTruck": [
+   "helix/AssaultInfantry",
+   0.38
+  ],
+  "frontier/Tank": [
+   "frontier/AssaultInfantry",
+   0.475
+  ],
+  "frontier/Worker": [
+   "mercenary/MercenaryLancer",
+   0.436
+  ],
+  "helix/AdvancedTank": [
+   "bastion/AssaultInfantry",
+   0.382
+  ],
+  "helix/AntiAirVehicle": [
+   "helix/Helicopter",
+   0.494
+  ],
+  "helix/AssaultInfantry": [
+   "frontier/SupplyTruck",
+   0.38
+  ],
+  "helix/Bomber": [
+   "helix/Helicopter",
+   0.318
+  ],
+  "helix/CombatRobot": [
+   "frontier/CombatRobot",
+   0.424
+  ],
+  "helix/Command": [
+   "helix/AntiAirVehicle",
+   0.323
+  ],
+  "helix/Drone": [
+   "bastion/RepairRobot",
+   0.408
+  ],
+  "helix/Fighter": [
+   "helix/AssaultInfantry",
+   0.329
+  ],
+  "helix/Helicopter": [
+   "helix/AntiAirVehicle",
+   0.494
+  ],
+  "helix/Hero": [
+   "frontier/Hero",
+   0.346
+  ],
+  "helix/Infantry": [
+   "helix/RocketInfantry",
+   0.452
+  ],
+  "helix/RepairRobot": [
+   "bastion/Drone",
+   0.442
+  ],
+  "helix/RocketInfantry": [
+   "helix/Infantry",
+   0.452
+  ],
+  "helix/SniperInfantry": [
+   "helix/Helicopter",
+   0.458
+  ],
+  "helix/SupplyTruck": [
+   "frontier/Fighter",
+   0.436
+  ],
+  "helix/Tank": [
+   "bastion/Infantry",
+   0.485
+  ],
+  "helix/Worker": [
+   "bastion/Drone",
+   0.208
+  ],
+  "mercenary/MercenaryLancer": [
+   "bastion/Hero",
+   0.461
+  ],
+  "mercenary/MercenaryRanger": [
+   "frontier/SupplyTruck",
+   0.376
+  ],
+  "mercenary/MercenaryWarden": [
+   "bastion/RocketInfantry",
+   0.448
+  ]
+ },
+ "cast_identity": {
+  "bastion/AdvancedTank": {
+   "own_reference": 0.823,
+   "best_other": [
+    0.3,
+    "bastion/Infantry"
+   ]
+  },
+  "bastion/AntiAirVehicle": {
+   "own_reference": 0.751,
+   "best_other": [
+    0.277,
+    "bastion/SupplyTruck"
+   ]
+  },
+  "bastion/AssaultInfantry": {
+   "own_reference": 0.791,
+   "best_other": [
+    0.311,
+    "helix/AdvancedTank"
+   ]
+  },
+  "bastion/Bomber": {
+   "own_reference": 0.716,
+   "best_other": [
+    0.352,
+    "bastion/RocketInfantry"
+   ]
+  },
+  "bastion/Fighter": {
+   "own_reference": 0.722,
+   "best_other": [
+    0.225,
+    "frontier/SupplyTruck"
+   ]
+  },
+  "bastion/Helicopter": {
+   "own_reference": 0.779,
+   "best_other": [
+    0.28,
+    "bastion/Hero"
+   ]
+  },
+  "bastion/Hero": {
+   "own_reference": 0.742,
+   "best_other": [
+    0.338,
+    "bastion/AntiAirVehicle"
+   ]
+  },
+  "bastion/Infantry": {
+   "own_reference": 0.823,
+   "best_other": [
+    0.331,
+    "helix/Tank"
+   ]
+  },
+  "bastion/RocketInfantry": {
+   "own_reference": 0.77,
+   "best_other": [
+    0.283,
+    "frontier/AssaultInfantry"
+   ]
+  },
+  "bastion/SniperInfantry": {
+   "own_reference": 0.864,
+   "best_other": [
+    0.295,
+    "frontier/RocketInfantry"
+   ]
+  },
+  "bastion/SupplyTruck": {
+   "own_reference": 0.708,
+   "best_other": [
+    0.151,
+    "frontier/AntiAirVehicle"
+   ]
+  },
+  "bastion/Tank": {
+   "own_reference": 0.826,
+   "best_other": [
+    0.306,
+    "frontier/Hero"
+   ]
+  },
+  "frontier/AdvancedTank": {
+   "own_reference": 0.769,
+   "best_other": [
+    0.353,
+    "helix/Tank"
+   ]
+  },
+  "frontier/AntiAirVehicle": {
+   "own_reference": 0.706,
+   "best_other": [
+    0.342,
+    "helix/AdvancedTank"
+   ]
+  },
+  "frontier/AssaultInfantry": {
+   "own_reference": 0.767,
+   "best_other": [
+    0.307,
+    "frontier/Hero"
+   ]
+  },
+  "frontier/Bomber": {
+   "own_reference": 0.649,
+   "best_other": [
+    0.338,
+    "helix/Infantry"
+   ]
+  },
+  "frontier/Fighter": {
+   "own_reference": 0.671,
+   "best_other": [
+    0.282,
+    "helix/SupplyTruck"
+   ]
+  },
+  "frontier/Helicopter": {
+   "own_reference": 0.747,
+   "best_other": [
+    0.297,
+    "bastion/Infantry"
+   ]
+  },
+  "frontier/Hero": {
+   "own_reference": 0.621,
+   "best_other": [
+    0.371,
+    "frontier/AssaultInfantry"
+   ]
+  },
+  "frontier/Infantry": {
+   "own_reference": 0.833,
+   "best_other": [
+    0.324,
+    "helix/SupplyTruck"
+   ]
+  },
+  "frontier/RocketInfantry": {
+   "own_reference": 0.69,
+   "best_other": [
+    0.267,
+    "bastion/SniperInfantry"
+   ]
+  },
+  "frontier/SniperInfantry": {
+   "own_reference": 0.769,
+   "best_other": [
+    0.309,
+    "frontier/Fighter"
+   ]
+  },
+  "frontier/SupplyTruck": {
+   "own_reference": 0.746,
+   "best_other": [
+    0.275,
+    "helix/AssaultInfantry"
+   ]
+  },
+  "frontier/Tank": {
+   "own_reference": 0.732,
+   "best_other": [
+    0.25,
+    "bastion/AdvancedTank"
+   ]
+  },
+  "frontier/Worker": {
+   "own_reference": 0.706,
+   "best_other": [
+    0.339,
+    "helix/Infantry"
+   ]
+  },
+  "helix/AdvancedTank": {
+   "own_reference": 0.763,
+   "best_other": [
+    0.294,
+    "bastion/AssaultInfantry"
+   ]
+  },
+  "helix/AntiAirVehicle": {
+   "own_reference": 0.732,
+   "best_other": [
+    0.385,
+    "helix/Helicopter"
+   ]
+  },
+  "helix/AssaultInfantry": {
+   "own_reference": 0.757,
+   "best_other": [
+    0.263,
+    "frontier/SupplyTruck"
+   ]
+  },
+  "helix/Bomber": {
+   "own_reference": 0.775,
+   "best_other": [
+    0.223,
+    "helix/Helicopter"
+   ]
+  },
+  "helix/Fighter": {
+   "own_reference": 0.812,
+   "best_other": [
+    0.294,
+    "bastion/RocketInfantry"
+   ]
+  },
+  "helix/Helicopter": {
+   "own_reference": 0.811,
+   "best_other": [
+    0.362,
+    "helix/SniperInfantry"
+   ]
+  },
+  "helix/Hero": {
+   "own_reference": 0.758,
+   "best_other": [
+    0.318,
+    "frontier/Hero"
+   ]
+  },
+  "helix/Infantry": {
+   "own_reference": 0.799,
+   "best_other": [
+    0.316,
+    "frontier/Fighter"
+   ]
+  },
+  "helix/RocketInfantry": {
+   "own_reference": 0.814,
+   "best_other": [
+    0.36,
+    "frontier/Fighter"
+   ]
+  },
+  "helix/SniperInfantry": {
+   "own_reference": 0.829,
+   "best_other": [
+    0.391,
+    "helix/Helicopter"
+   ]
+  },
+  "helix/SupplyTruck": {
+   "own_reference": 0.724,
+   "best_other": [
+    0.303,
+    "helix/Tank"
+   ]
+  },
+  "helix/Tank": {
+   "own_reference": 0.829,
+   "best_other": [
+    0.369,
+    "bastion/Infantry"
+   ]
+  },
+  "mercenary/MercenaryLancer": {
+   "own_reference": 0.671,
+   "best_other": [
+    0.473,
+    "frontier/Fighter"
+   ]
+  },
+  "mercenary/MercenaryRanger": {
+   "own_reference": 0.856,
+   "best_other": [
+    0.319,
+    "frontier/SupplyTruck"
+   ]
+  },
+  "mercenary/MercenaryWarden": {
+   "own_reference": 0.687,
+   "best_other": [
+    0.34,
+    "frontier/RocketInfantry"
+   ]
+  }
+ },
+ "inexact_transcripts": {
+  "bastion/Tank/low_health_0.ogg": {
+   "text": "Armor breach on bulkhead four! Hold this position!",
+   "heard": "Armor Breach on Bulkhead 4, hold this position.",
+   "word_error": 0.125
+  },
+  "bastion/AdvancedTank/low_health_0.ogg": {
+   "text": "Siege hull breached! Keep the breech locked!",
+   "heard": "Siege, Hull, Breached. Keep the breach locked.",
+   "word_error": 0.143
+  },
+  "bastion/Helicopter/low_health_0.ogg": {
+   "text": "Gunship burning! Keep us in the air!",
+   "heard": "Go on ship burning, keep us in the air.",
+   "word_error": 0.25
+  },
+  "helix/RocketInfantry/low_health_0.ogg": {
+   "text": "Missile platform critical. Evasion required.",
+   "heard": "Messiah Platform Critical. Evasion Required.",
+   "word_error": 0.2
+  },
+  "frontier/RocketInfantry/kill_0.ogg": {
+   "text": "Cracked that tin can! Worth the rocket!",
+   "heard": "Crack that tin can. Worth the rocket.",
+   "word_error": 0.143
+  },
+  "frontier/AssaultInfantry/low_health_0.ogg": {
+   "text": "Kit is falling apart! Keep swinging!",
+   "heard": "Kitt is falling apart, keep swinging!",
+   "word_error": 0.167
+  },
+  "frontier/AntiAirVehicle/kill_0.ogg": {
+   "text": "Bird down! Watch for falling scrap!",
+   "heard": "Bur down, watch for falling scrap.",
+   "word_error": 0.167
+  },
+  "frontier/CombatRobot/low_health_0.ogg": {
+   "text": "Buggy hull critical. Detonation risk rising.",
+   "heard": "Buggy Hall Critical. Detonation risk rising.",
+   "word_error": 0.167
+  },
+  "mercenary/MercenaryRanger/low_health_0.ogg": {
+   "text": "They found me! Moving before payday!",
+   "heard": "They found me! Move in before payday!",
+   "word_error": 0.231
+  }
+ },
+ "failures": []
+}

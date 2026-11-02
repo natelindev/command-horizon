@@ -1,5 +1,7 @@
 extends Node
 
+const Planner = preload("res://source/match/orders/FormationPlanner.gd")
+const Cohesion = preload("res://source/match/orders/CohesionGroup.gd")
 const Orders = preload("res://source/match/orders/ManualOrders.gd")
 const CombatRules = preload("res://source/match/combat/CombatRules.gd")
 
@@ -34,31 +36,66 @@ func _ready():
 
 
 func _try_navigating_selected_units_towards_position(target_point):
+	var profiling = "--profile-formation" in OS.get_cmdline_user_args()
+	var started = Time.get_ticks_usec()
+	var phase_start = started
+	var phases = {}
+	var append = Globals.options.selection_modifier_pressed()
 	_ground_dispatch = {"point": target_point, "tokens": {}}
 	var units = get_tree().get_nodes_in_group("selected_units").filter(
 		func(unit):
 			return unit.is_in_group("controlled_units") and Actions.Moving.is_applicable(unit)
 	)
-	for tuple in _group_destinations(units, target_point):
+	var cohort = Cohesion.new(units)
+	var heading = (
+		(target_point - Utils.Match.Unit.Movement.calculate_aabb_crowd_pivot_yless(units))
+		if not units.is_empty()
+		else Vector3.FORWARD
+	)
+	phases.setup_us = Time.get_ticks_usec() - phase_start
+	phase_start = Time.get_ticks_usec()
+	var routes = Planner.funnel_routes(
+		units, target_point, heading.normalized(), Planner.posture(units)
+	)
+	phases.funnel_us = Time.get_ticks_usec() - phase_start
+	phase_start = Time.get_ticks_usec()
+	var destinations = _group_destinations(units, target_point, null, heading)
+	phases.plan_us = Time.get_ticks_usec() - phase_start
+	phase_start = Time.get_ticks_usec()
+	for tuple in destinations:
 		var order = Orders.point_order("move", tuple[1])
+		order.cohort = cohort
+		order.waypoints = routes.get(tuple[0], [])
 		_next_token += 1
 		order.token = _next_token
-		if _submit(tuple[0], order):
+		if _submit(tuple[0], order, false, append):
 			_ground_dispatch.tokens[tuple[0]] = order.token
+	if profiling:
+		phases.submit_us = Time.get_ticks_usec() - phase_start
+		phases.total_us = Time.get_ticks_usec() - started
+		phases.units = units.size()
+		print("FORMATION DISPATCH ", JSON.stringify(phases))
 
 
-func _group_destinations(units, target_point, heading = null):
+func _group_destinations(units, target_point, heading = null, automatic_heading = null):
 	var terrain_units_to_move = units.filter(
 		func(unit): return unit.movement_domain == Constants.Match.Navigation.Domain.TERRAIN
 	)
 	var air_units_to_move = units.filter(
 		func(unit): return unit.movement_domain == Constants.Match.Navigation.Domain.AIR
 	)
+	# Automatic headings belong to each domain's own pivot. Only a homogeneous
+	# selection shares the raw heading already captured by the input controller.
+	if (
+		heading == null
+		and maxi(terrain_units_to_move.size(), air_units_to_move.size()) == units.size()
+	):
+		heading = automatic_heading
 	var new_unit_targets = Utils.Match.Unit.Movement.crowd_moved_to_new_pivot(
-		terrain_units_to_move, target_point, heading
+		terrain_units_to_move, target_point, heading, Planner.posture(units)
 	)
 	new_unit_targets += Utils.Match.Unit.Movement.crowd_moved_to_new_pivot(
-		air_units_to_move, target_point, heading
+		air_units_to_move, target_point, heading, Planner.posture(units)
 	)
 	return new_unit_targets
 
@@ -66,10 +103,22 @@ func _group_destinations(units, target_point, heading = null):
 func _try_setting_rally_points(target_point: Vector3):
 	var controlled_structures = get_tree().get_nodes_in_group("selected_units").filter(
 		func(unit):
-			return unit.is_in_group("controlled_units") and unit.find_child("RallyPoint") != null
+			return (
+				unit.is_in_group("controlled_units") and unit.get_node_or_null("RallyPoint") != null
+			)
 	)
 	for structure in controlled_structures:
-		var rally_point = structure.find_child("RallyPoint")
+		var gate = load("res://source/match/network/NetworkGate.gd")
+		if gate.intercept(
+			structure,
+			{
+				"kind": "rally",
+				"unit": gate.id_for(structure),
+				"point": gate.Protocol.quantize(target_point)
+			}
+		):
+			continue
+		var rally_point = structure.get_node_or_null("RallyPoint")
 		if rally_point != null:
 			rally_point.target_unit = null
 			rally_point.global_position = target_point
@@ -177,6 +226,17 @@ func _try_setting_rally_point_to_unit(unit, target_unit):
 	var rally_point = unit.find_child("RallyPoint")
 	if rally_point == null:
 		return false
+	var gate = load("res://source/match/network/NetworkGate.gd")
+	if gate.intercept(
+		unit,
+		{
+			"kind": "rally",
+			"unit": gate.id_for(unit),
+			"point": gate.Protocol.quantize(target_unit.global_position),
+			"target": gate.id_for(target_unit)
+		}
+	):
+		return true
 	rally_point.target_unit = target_unit
 	MatchSignals.unit_order_issued.emit(unit, "move")
 	MatchSignals.order_feedback.emit(unit, "rally", target_unit.global_position, true, false, "")
@@ -198,11 +258,23 @@ func _on_terrain_target_heading_set(position, heading):
 	var units = tokens.keys().filter(
 		func(unit): return is_instance_valid(unit) and not unit.is_queued_for_deletion()
 	)
+	var routes = Planner.funnel_routes(units, position, heading, Planner.posture(units))
 	for tuple in _group_destinations(units, position, heading):
-		tuple[0].manual_orders.revise(tokens[tuple[0]], tuple[1])
+		tuple[0].manual_orders.revise(tokens[tuple[0]], tuple[1], routes.get(tuple[0], []))
 
 
 func _on_unit_targeted(unit):
+	if Input.is_physical_key_pressed(KEY_ALT):
+		var accepted = false
+		for member in get_tree().get_nodes_in_group("selected_units"):
+			if (
+				member.is_in_group("controlled_units")
+				and member.manual_orders != null
+				and CombatRules.can_target(member, unit)
+			):
+				accepted = _submit(member, Orders.target_order("attack", unit)) or accepted
+		if accepted:
+			return
 	if _navigate_selected_units_towards_unit(unit):
 		var targetability = unit.find_child("Targetability")
 		if targetability != null:
@@ -214,6 +286,17 @@ func _on_unit_spawned(unit):
 
 
 func _on_navigate_unit_to_rally_point(unit, rally_point):
+	var network = load("res://source/match/network/NetworkGate.gd").session_for(unit)
+	if network != null and network.authority:
+		var previous = network.applying
+		network.applying = true
+		_apply_rally(unit, rally_point)
+		network.applying = previous
+		return
+	_apply_rally(unit, rally_point)
+
+
+func _apply_rally(unit, rally_point):
 	var target = rally_point.target_unit
 	if is_instance_valid(target) and not target.is_queued_for_deletion():
 		# Production rallies express a standing destination. They must not send
@@ -240,10 +323,22 @@ func _on_navigate_unit_to_rally_point(unit, rally_point):
 		_submit(unit, Orders.point_order("move", rally_point.global_position), true)
 
 
-func _submit(unit, order, rally = false):
+func _submit(unit, order, rally = false, append_override = null):
 	if unit.manual_orders == null:
 		return false
-	var append = not rally and Globals.options.selection_modifier_pressed()
+	if order.kind == "construct":
+		var target = order.target.get_ref()
+		var assembly = target.get_node_or_null("AutonomousAssembly") if target != null else null
+		if assembly != null:
+			assembly.remember_harvest(unit)
+	var append = (
+		not rally
+		and (
+			Globals.options.selection_modifier_pressed()
+			if append_override == null
+			else bool(append_override)
+		)
+	)
 	var accepted = unit.manual_orders.submit(order, append, not rally)
 	if (
 		not accepted

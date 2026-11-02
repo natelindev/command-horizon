@@ -2,8 +2,8 @@
 
 ## Battle voices and interface sounds
 
-The offline battle bank contains 759 clips: 365 crew/command lines (24 of them camp
-mercenaries), 97 robot lines and 297 structure console cues. Three male Kokoro voices are
+The offline battle bank contains 872 clips: 439 crew/command lines (30 of them camp
+mercenaries), 103 robot lines and 330 structure console cues. Three male Kokoro voices are
 reserved for faction announcements. The 37 speaking faction/unit roles, the three camp
 mercenaries and the 11 robots each clone their own reference voice with Chatterbox. Crew are
 native English speakers with one accent family per army — Bastion North American, Helix
@@ -17,6 +17,13 @@ Selection, movement, attack, ready and stop responses stay with the same voice. 
 spoiling for a fight: the script is battle-hungry, delivery runs hot (Chatterbox
 exaggeration 0.65–1.0, most intense on attack) and Frontier's scrapper also speaks for
 gathering, building and repair orders. All speech has matching captions.
+
+`combat_barks.py` adds 80 original English/Chinese critical-hull and kill reactions for
+every armed faction and mercenary role. The cast, accepted order recordings, radio channel
+and robot processing stay stable. Critical hull reports trigger below 25%, rearm after
+40% recovery, and interrupt lesser danger reports. Kill confirmations follow actual enemy
+damage credited by veterancy, with per-unit and shared cooldowns. Hidden passengers,
+enemy radio activity and save reconstruction remain silent.
 
 Every spoken line is the best of up to nine seeded takes: Whisper `medium.en` must hear the
 written words, the take must still sound like its cast voice (ECAPA similarity) and must not
@@ -62,6 +69,8 @@ cd art/audio
 ../../tmp/voice-venv/bin/python verify_voice_cast.py
 ../../tmp/voice-venv/bin/python verify_battle_audio.py
 ../../tmp/voice-venv/bin/python verify_voice_identity.py
+# Audit only newly authored event transcripts while retaining full-bank cast comparisons:
+../../tmp/voice-venv/bin/python verify_voice_identity.py --events low_health,kill
 ../../tmp/voice-venv/bin/python verify_clean_mix.py
 ```
 
@@ -81,6 +90,10 @@ the encoded clip hash and recognizer configuration, so interrupted audits resume
 Contractions, exact compound-word spacing and a known joined-word transcription are
 normalized before scoring; raw recognized text is cached, and the report retains
 inexact text while still counting changed or missing words.
+Filtered audits write `voice-combat-verification.json`; the original full audit remains
+separate. Every shipped file is hash-checked, and identity comparisons still use all
+speakers and the complete bank. `--cpu-threads` limits local build/audit workers;
+separate `--shard` workers must use separate checkpoint files before their final merge.
 
 The shared battle channel coalesces simultaneous production, groups selection/order
 chatter behind a 1.5-second cooldown, never queues acknowledgements, and limits
@@ -126,6 +139,11 @@ intro/outro pacing; these are not beat-spliced seamless loops.
 `source/audio/MusicDirector.gd` selects the human faction's music in battle and
 the menu track elsewhere. Two players crossfade over 2.5 seconds, including during
 tactical pause. Music has a separate persisted volume slider.
+Each faction recording has three source-derived, synchronized ambient, tension
+and combat layers, built by `tools/audio/build_music_stems.py`. Observed weapon
+fire, damage, artillery and movement near hostile forces drive their mix, with
+exponential release and a per-participant event budget. See the current
+[integration measurements](../../docs/playtests/2026-11-02/music-stems/README.md).
 `tests/headless/MusicRegression.gd` covers decode, full-length
 assets, looping, crossfades, rapid switching, pause, mute and gain.
 
@@ -162,3 +180,46 @@ headless editor before running the campaign dialogue regressions.
 Portraits are original SVGs produced by `tools/ui/generate_campaign_portraits.py`.
 The campaign distribution credits are `assets/audio/campaign/LICENSES.md`. Listening
 and rendered review remain separate from these automated checks.
+
+## Motion-comic briefing narration
+
+`briefing-script.json` authors four bilingual paragraphs for each of the 16 operations.
+`build_briefing_audio.py` uses the same Aegis, Nyx and Rook voices and campaign take
+selection, then audits the final paced Oggs before installing `briefings.json`.
+Sentence and comma breath marks keep individual model takes short; every authored word
+and punctuation mark is preserved when the paragraph is assembled. One-second paragraph
+breaths are already encoded in each clip. The runtime uses actual clip durations.
+Accepted takes and completed missions are cached by input and output hash; changing
+Chinese captions does not regenerate English speech. Pacing updates reuse accepted takes.
+
+```sh
+tmp/voice-venv/bin/python art/audio/build_briefing_audio.py
+tmp/voice-venv/bin/python art/audio/build_briefing_audio.py build --cpu-threads 4
+tmp/voice-venv/bin/python art/audio/build_briefing_audio.py verify --cpu-threads 4
+tmp/voice-venv/bin/python art/audio/build_briefing_audio.py install
+python3 -m unittest discover -s art/audio -p test_briefing_audio.py
+```
+
+`--mission <id>` resumes one mission during a build. `--script <path>` permits an
+independently audited pilot; the default install requires all 16 complete briefings.
+`--report <path>` keeps an incremental pilot audit separate from the full-bank report.
+New briefing cues retain separate IDs so existing conversation and saved intro lines
+remain available. The installed duration is 45–60 seconds, including paragraph breaths;
+playback must retain the final words and the encoded pause instead of adding another hold.
+
+`build_battle_audio.py --facilities-only` supplements the deterministic facility
+telemetry bank while speech shards are still rendering. It preserves every accepted
+speech recording and never publishes incomplete combat replies. The Forward Refinery
+uses its own mechanical extractor, tool and telemetry sounds, with explicit captions,
+matching the existing noncombat building controls.
+
+
+## Original faction instrument arrangements
+
+The synchronized licensed stems include sparse orchestral horn/trombone parts for
+Bastion, sampled slide guitar and blues harp for Frontier, and original arpeggio/sub
+synthesis for Helix. [Music credits](../../assets/audio/music/LICENSES.md) retain the
+source works and CC0 sample authors. The offline pipeline records exact input hashes,
+beat/local-chord grids and every note/slide trajectory. See the [orchestration audit](../../docs/playtests/2026-11-02/faction-score-arrangements/README.md)
+for isolated instruments, full auditions, encoded sample-count/seam/headroom checks and
+rebuild commands. Runtime remains three synchronized streams per faction.

@@ -267,6 +267,9 @@ func can_observe_point(observer, point: Vector3, ignored_target = null) -> bool:
 		or observer.is_queued_for_deletion()
 	):
 		return false
+	if is_instance_valid(ignored_target) and "optical_cloak" in ignored_target and ignored_target.optical_cloak != null:
+		if not ignored_target.optical_cloak.detected_by(observer):
+			return false
 	if _native_visibility != null:
 		return _native_visibility.can_observe_point(observer, point, ignored_target)
 	if observer is Unit:
@@ -359,6 +362,9 @@ func is_observed(player, target):
 		return get_parent().engineering.observed_by(player, target)
 	if "player" in target and Players.allied(target.player, player):
 		return true
+	if "optical_cloak" in target and target.optical_cloak != null:
+		if not target.optical_cloak.detected_by_player(player, self):
+			return false
 	_refresh()
 	if _native_visibility != null:
 		return _native_visibility.observed(player, target, _observers, _max_sight, _max_body_step)
@@ -413,6 +419,8 @@ func _cell(point: Vector3) -> Vector2i:
 
 func can_fire(source, target):
 	if not is_instance_valid(source) or not is_instance_valid(target):
+		return false
+	if "optical_cloak" in target and target.optical_cloak != null and not target.optical_cloak.detected_by_player(source.player, self):
 		return false
 	if native_combat_queries:
 		_refresh()

@@ -1,0 +1,313 @@
+{
+  "engine": "Godot 4.7.2 official release template",
+  "hardware": "Apple M1 Pro",
+  "renderer": "Metal Forward+",
+  "raster": [
+    1280,
+    720
+  ],
+  "physics_hz": 30,
+  "frames_per_profile": 240,
+  "vsync": false,
+  "frame_cap": 0,
+  "isolation": "No other Godot/compiler/synthesis/audit workers active; root, macro and faction agents acknowledged holds. Source frozen through all three runs.",
+  "measurement": "First wall/CPU span begins before actual terrain_targeted emission; includes intent checks, all activation and QA observer costs. No cost subtracted.",
+  "native_library_sha256": "f862526d2565f163aeea09ec5f9cc16442fe14ececab1c3734cd86897071628c",
+  "qualification": "All complete-command samples <=16.6ms; every maximum-frame sample fails. One first-frame surface/specialization compilation remains in this frozen stage.",
+  "profiles": [
+    {
+      "profile": "low-default",
+      "coverage": {
+        "battle_rect": "[P: (384.0, 78.0), S: (880.0, 388.0)]",
+        "camera_size": 59.6656913757324,
+        "capture": "/Users/linlilu/Library/Application Support/Godot/app_userdata/Open RTS/tactical-performance/low-default.png",
+        "focused_frames": 240,
+        "initial_focus": true,
+        "moving_max": 200,
+        "moving_mean": 105.591666666667,
+        "moving_min": 38,
+        "selected_min": 200,
+        "visible_min": 200
+      },
+      "backends": {
+        "batched_units": 0,
+        "native_crowd": false,
+        "native_exploration": false,
+        "native_presentation": false,
+        "native_surface": false,
+        "native_unit_state": false,
+        "native_visibility": false,
+        "physics_hz": 30,
+        "release": true,
+        "resident_rigs": 0
+      },
+      "activation": {
+        "activated_total": 200,
+        "maximum_batch": 96,
+        "maximum_batch_us": 2423,
+        "maximum_wait_ms": 100.0,
+        "maximum_wait_ticks": 3,
+        "queued": 0,
+        "queued_at_dispatch": 200,
+        "queued_total": 200
+      },
+      "cpu_and_scene": {
+        "cpu_usage": {
+          "main_thread_ms_per_frame": 21.5925083333333,
+          "process_ms_per_frame": 25.2809875
+        },
+        "draw_calls_mean": 2421.95416666667,
+        "frames": 240,
+        "gpu_timing_available": false,
+        "maximum_frame_index": 0,
+        "maximum_frame_physics_ticks": 1,
+        "observer_max_us": 871,
+        "observer_mean_us": 558.245833333333,
+        "observer_total_us": 133979,
+        "render_cpu_mean_ms": 1.91642917295297,
+        "render_gpu_max_ms": 0.0,
+        "render_gpu_mean_ms": 0.0,
+        "renderer_stage_us": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "scene_dispatch_us": [
+          714940,
+          2078432,
+          712244,
+          2067444,
+          157,
+          240
+        ],
+        "scene_timing": {
+          "physics_cpu_ms_per_tick": 4.53658598726115,
+          "physics_elapsed_ms_per_tick": 4.55375796178344,
+          "process_cpu_ms_per_frame": 8.61435,
+          "process_elapsed_ms_per_frame": 8.66013333333333
+        }
+      },
+      "pipeline_changes": [
+        [
+          0,
+          38.755,
+          [
+            8,
+            27,
+            105,
+            20,
+            100
+          ]
+        ]
+      ],
+      "performance": "TACTICAL PERFORMANCE units=200 assignment_ms=1.534 projected_plan_ms=9.33 complete_dispatch_ms=12.899 frame_p50_ms=22.139 frame_p95_ms=28.923 frame_max_ms=38.755"
+    },
+    {
+      "profile": "low-native",
+      "coverage": {
+        "battle_rect": "[P: (384.0, 134.0), S: (880.0, 332.0)]",
+        "camera_size": 69.7297821044922,
+        "capture": "/Users/linlilu/Library/Application Support/Godot/app_userdata/Open RTS/tactical-performance/low-native.png",
+        "focused_frames": 240,
+        "initial_focus": true,
+        "moving_max": 200,
+        "moving_mean": 127.441666666667,
+        "moving_min": 62,
+        "selected_min": 200,
+        "visible_min": 200
+      },
+      "backends": {
+        "batched_units": 230,
+        "native_crowd": true,
+        "native_exploration": true,
+        "native_presentation": true,
+        "native_surface": true,
+        "native_unit_state": true,
+        "native_visibility": true,
+        "physics_hz": 30,
+        "release": true,
+        "resident_rigs": 230
+      },
+      "activation": {
+        "activated_total": 200,
+        "maximum_batch": 96,
+        "maximum_batch_us": 2676,
+        "maximum_wait_ms": 100.0,
+        "maximum_wait_ticks": 3,
+        "queued": 0,
+        "queued_at_dispatch": 200,
+        "queued_total": 200
+      },
+      "cpu_and_scene": {
+        "cpu_usage": {
+          "main_thread_ms_per_frame": 14.2842833333333,
+          "process_ms_per_frame": 18.0169291666667
+        },
+        "draw_calls_mean": 2083.6375,
+        "frames": 240,
+        "gpu_timing_available": false,
+        "maximum_frame_index": 0,
+        "maximum_frame_physics_ticks": 1,
+        "observer_max_us": 901,
+        "observer_mean_us": 553.0875,
+        "observer_total_us": 132741,
+        "render_cpu_mean_ms": 1.35640833228827,
+        "render_gpu_max_ms": 0.0,
+        "render_gpu_mean_ms": 0.0,
+        "renderer_stage_us": [
+          1516,
+          138370,
+          38192,
+          282968,
+          1356,
+          45086,
+          38845,
+          116,
+          115,
+          115,
+          115,
+          115,
+          115,
+          115
+        ],
+        "scene_dispatch_us": [
+          356673,
+          1267599,
+          355068,
+          1228753,
+          116,
+          240
+        ],
+        "scene_timing": {
+          "physics_cpu_ms_per_tick": 3.06093103448276,
+          "physics_elapsed_ms_per_tick": 3.07476724137931,
+          "process_cpu_ms_per_frame": 5.11980416666667,
+          "process_elapsed_ms_per_frame": 5.2816625
+        }
+      },
+      "pipeline_changes": [
+        [
+          0,
+          33.597,
+          [
+            8,
+            27,
+            150,
+            36,
+            133
+          ]
+        ]
+      ],
+      "performance": "TACTICAL PERFORMANCE units=200 assignment_ms=1.41 projected_plan_ms=7.322 complete_dispatch_ms=12.306 frame_p50_ms=16.114 frame_p95_ms=18.865 frame_max_ms=33.597"
+    },
+    {
+      "profile": "high-native",
+      "coverage": {
+        "battle_rect": "[P: (384.0, 134.0), S: (880.0, 332.0)]",
+        "camera_size": 69.7297821044922,
+        "capture": "/Users/linlilu/Library/Application Support/Godot/app_userdata/Open RTS/tactical-performance/high-native.png",
+        "focused_frames": 240,
+        "initial_focus": true,
+        "moving_max": 200,
+        "moving_mean": 109.258333333333,
+        "moving_min": 40,
+        "selected_min": 200,
+        "visible_min": 200
+      },
+      "backends": {
+        "batched_units": 230,
+        "native_crowd": true,
+        "native_exploration": true,
+        "native_presentation": true,
+        "native_surface": true,
+        "native_unit_state": true,
+        "native_visibility": true,
+        "physics_hz": 30,
+        "release": true,
+        "resident_rigs": 230
+      },
+      "activation": {
+        "activated_total": 200,
+        "maximum_batch": 96,
+        "maximum_batch_us": 2178,
+        "maximum_wait_ms": 100.0,
+        "maximum_wait_ticks": 3,
+        "queued": 0,
+        "queued_at_dispatch": 200,
+        "queued_total": 200
+      },
+      "cpu_and_scene": {
+        "cpu_usage": {
+          "main_thread_ms_per_frame": 17.7043583333333,
+          "process_ms_per_frame": 22.2160583333333
+        },
+        "draw_calls_mean": 3227.04166666667,
+        "frames": 240,
+        "gpu_timing_available": false,
+        "maximum_frame_index": 0,
+        "maximum_frame_physics_ticks": 1,
+        "observer_max_us": 853,
+        "observer_mean_us": 559.945833333333,
+        "observer_total_us": 134387,
+        "render_cpu_mean_ms": 2.00323333740234,
+        "render_gpu_max_ms": 0.0,
+        "render_gpu_mean_ms": 0.0,
+        "renderer_stage_us": [
+          1682,
+          169549,
+          45375,
+          352730,
+          3314,
+          65798,
+          57883,
+          153,
+          153,
+          153,
+          153,
+          153,
+          153,
+          153
+        ],
+        "scene_dispatch_us": [
+          452752,
+          1552495,
+          450865,
+          1508280,
+          153,
+          240
+        ],
+        "scene_timing": {
+          "physics_cpu_ms_per_tick": 2.94683006535948,
+          "physics_elapsed_ms_per_tick": 2.95916339869281,
+          "process_cpu_ms_per_frame": 6.2845,
+          "process_elapsed_ms_per_frame": 6.46872916666667
+        }
+      },
+      "pipeline_changes": [
+        [
+          0,
+          39.026,
+          [
+            8,
+            27,
+            196,
+            103,
+            136
+          ]
+        ]
+      ],
+      "performance": "TACTICAL PERFORMANCE units=200 assignment_ms=1.352 projected_plan_ms=7.453 complete_dispatch_ms=11.231 frame_p50_ms=22.011 frame_p95_ms=25.842 frame_max_ms=39.026"
+    }
+  ]
+}

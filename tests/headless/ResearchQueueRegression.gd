@@ -49,63 +49,60 @@ func _ids():
 
 func _purchases_and_refunds():
 	var funds = _funds()
-	_check(not research.enqueue("weapons_2", lab), "Unplanned prerequisites were accepted")
-	_check(not research.enqueue("doctrine", lab), "Unplanned Coordination was accepted")
+	_check(not research.enqueue("phase_overload", lab), "Unplanned Coordination was accepted")
+	_check(not research.enqueue("weapons_1", lab), "Retired mirrored technology was accepted")
 	for id in [
-		"weapons_1",
 		"coordination",
-		"weapons_2",
-		"armor_1",
-		"armor_2",
-		"service",
-		"doctrine",
-		"dual_purpose_aa"
+		"plasma_shields",
+		"beam_amplification",
+		"flux_capacitors",
+		"phase_thrusters",
+		"phase_overload"
 	]:
 		_check(research.enqueue(id, lab), "Paid queue rejected " + id)
 	_check(
-		research.active == "weapons_1" and research.queued.size() == 7, "Research ran concurrently"
+		research.active == "" and human.coordination_left > 0 and research.queued.size() == 5,
+		"Research ran concurrently with Coordination"
 	)
-	_check(_funds() == funds - Vector2i(320, 215), "Queue did not reserve every exact price")
-	_check(not research.enqueue("coordination", lab), "Duplicate queued Coordination was charged")
-	_check(not research.enqueue("weapons_1", lab), "Duplicate active research was charged")
-	_check(not research.enqueue("service", lab), "Duplicate queued technology was charged")
-	_check(_funds() == funds - Vector2i(320, 215), "Rejected duplicate changed resources")
+	_check(_funds() == funds - Vector2i(250, 185), "Queue did not reserve exact faction prices")
+	for id in ["coordination", "plasma_shields", "phase_overload", "continuous_coherence"]:
+		_check(not research.enqueue(id, lab), "Duplicate or excluded project was charged: " + id)
+	_check(_funds() == funds - Vector2i(250, 185), "Rejected project changed resources")
 	var state = research.capture()
 	await _frames(8)
-	_check(research.capture() == state, "Tactical pause advanced or reordered queued research")
-	_check(research.cancel_queued(0), "Queued Coordination could not be cancelled")
+	_check(research.capture() == state, "Pause advanced or reordered queued research")
+	_check(research.cancel_queued(2), "Queued Flux Capacitors could not be cancelled")
 	_check(
-		_ids() == ["armor_1", "service", "dual_purpose_aa"], "Dependent queue cancellation differs"
+		_ids() == ["plasma_shields", "beam_amplification", "phase_thrusters", "phase_overload"],
+		"Independent cancellation changed FIFO order"
 	)
-	_check(_funds() == funds - Vector2i(135, 90), "Dependent queued prices were not refunded")
+	_check(_funds() == funds - Vector2i(205, 150), "Queued price was not refunded exactly")
 	_check(not research.cancel_queued(8), "Invalid queue index was accepted")
-	while not research.queued.is_empty():
-		research.cancel_queued(0)
-	_check(research.cancel() and not research.cancel(), "Active cancellation refunded twice")
-	_check(_funds() == funds, "Queue cancellation did not conserve resources")
-	_check(research.enqueue("weapons_1", lab), "Weapon retry refused")
-	_check(research.enqueue("dual_purpose_aa", lab), "Active prerequisite did not support queue")
-	research.cancel()
-	_check(
-		research.queued.is_empty() and _funds() == funds,
-		"Active prerequisite cancellation lost funds"
-	)
-	_check(research.enqueue("coordination", lab), "Direct Coordination queue purchase refused")
-	_check(research.enqueue("doctrine", lab), "Doctrine could not follow Coordination")
 	_check(human.cancel_coordination(), "Active Coordination cancellation refused")
 	_check(
 		research.queued.is_empty() and _funds() == funds,
 		"Coordination cancellation lost dependent funds"
 	)
+	_check(not human.cancel_coordination(), "Coordination cancellation refunded twice")
+	human.coordination_unlocked = true
+	_check(research.enqueue("plasma_shields", lab), "Resonator retry refused")
+	_check(research.enqueue("flux_capacitors", lab), "Independent follow-up refused")
+	_check(
+		research.cancel() and research.active == "flux_capacitors",
+		"Cancellation did not advance independent work"
+	)
+	_check(research.cancel() and not research.cancel(), "Active cancellation refunded twice")
+	_check(_funds() == funds, "Independent cancellations did not conserve resources")
+	human.coordination_unlocked = false
 	human.resource_a = 0
-	_check(not research.enqueue("weapons_1", lab), "Queue accepted an unpaid project")
+	_check(not research.enqueue("coordination", lab), "Queue accepted an unpaid project")
 	human.resource_a = funds.x
-	print("PASS research queue exact payments, unique projects, pause and cascading refunds")
+	print("PASS faction queue exact payments, exclusions, pause and cascading refunds")
 
 
 func _ordered_completion_and_restore():
 	var funds = _funds()
-	for id in ["weapons_1", "coordination", "weapons_2", "armor_1"]:
+	for id in ["coordination", "plasma_shields", "beam_amplification", "phase_overload"]:
 		_check(research.enqueue(id, lab), "Ordered queue rejected " + id)
 	var paid_funds = _funds()
 	var prior = research.capture()
@@ -120,18 +117,19 @@ func _ordered_completion_and_restore():
 	game._setup_and_spawn_unit(replacement, lab_position, human, false)
 	lab = replacement
 	await _frames(12)
-	research.left = .01
+	human.coordination_left = .01
 	paused = false
 	for frame in 8:
 		await physics_frame
-		if human.coordination_left > 0:
+		if research.active == "plasma_shields":
 			break
 	paused = true
-	_check("weapons_1" in research.completed, "First queued research did not complete")
+	_check(human.coordination_unlocked, "Queued Coordination did not complete")
+	_check(research.active == "plasma_shields", "First branch did not take the research slot")
 	_check(
-		research.active == "" and human.coordination_left > 0, "Coordination did not take the slot"
+		_ids() == ["beam_amplification", "phase_overload"],
+		"Coordination handoff changed queue order"
 	)
-	_check(_ids() == ["weapons_2", "armor_1"], "Coordination handoff changed queue order")
 	_check(_funds() == paid_funds, "Starting queued Coordination charged twice")
 	var before = research.capture()
 	var coordination_before = human.coordination_left
@@ -164,26 +162,27 @@ func _ordered_completion_and_restore():
 	_check(_funds() == paid_funds, "Restore lost prepaid queue resources")
 	await _frames(6)
 	_check(research.capture() == before, "Restored queue advanced while paused")
-	human.coordination_left = .01
+	research.left = .01
 	paused = false
 	for frame in 8:
 		await physics_frame
-		if research.active == "weapons_2":
+		if research.active == "beam_amplification":
 			break
 	paused = true
-	_check(human.coordination_unlocked, "Restored Coordination did not complete")
+	_check("plasma_shields" in research.completed, "Restored resonator research did not complete")
 	_check(
-		research.active == "weapons_2" and _ids() == ["armor_1"], "Dependent FIFO handoff failed"
+		research.active == "beam_amplification" and _ids() == ["phase_overload"],
+		"Dependent FIFO handoff failed"
 	)
 	_check(_funds() == paid_funds, "Starting a dependent queued upgrade charged twice")
 	research.cancel()
 	_check(
-		research.active == "armor_1" and research.queued.is_empty(),
+		research.active == "phase_overload" and research.queued.is_empty(),
 		"Cancellation did not advance independent work"
 	)
 	research.cancel()
 	_check(
-		_funds() == funds - Vector2i(50, 40),
+		_funds() == funds - Vector2i(60, 45),
 		"Completed work or cancelled work was refunded incorrectly"
 	)
 	print("PASS ordered research completion, lab loss/rebuild and paid disk restore")
@@ -193,10 +192,19 @@ func _invalid_queues():
 	var snapshot = Snapshot.new().capture(game)
 	var schema = schema_script.new()
 	_check(schema.validate(snapshot), "Post-queue snapshot invalid: " + schema.error)
-	for kind in ["unknown", "duplicate", "underpaid", "dependency", "active", "coordination"]:
+	for kind in [
+		"unknown",
+		"duplicate",
+		"underpaid",
+		"dependency",
+		"active",
+		"coordination",
+		"doctrines",
+		"foreign"
+	]:
 		var bad = snapshot.duplicate(true)
 		var state = bad.players[0].technology
-		state.queued = [{"id": "armor_1", "paid": {"resource_a": 30, "resource_b": 15}}]
+		state.queued = [{"id": "beam_amplification", "paid": {"resource_a": 50, "resource_b": 35}}]
 		match kind:
 			"unknown":
 				state.queued[0].id = "free_damage"
@@ -205,14 +213,23 @@ func _invalid_queues():
 			"underpaid":
 				state.queued[0].paid.resource_a = 0
 			"dependency":
-				state.queued = [{"id": "armor_2", "paid": {"resource_a": 60, "resource_b": 30}}]
+				bad.players[0].coordination_unlocked = false
 			"active":
-				state.active = "armor_1"
+				state.active = "beam_amplification"
 				state.left = 10.0
 				state.paid = state.queued[0].paid.duplicate()
 			"coordination":
 				state.queued = [
 					{"id": "coordination", "paid": {"resource_a": 20, "resource_b": 20}}
+				]
+			"doctrines":
+				state.queued = [
+					{"id": "phase_overload", "paid": {"resource_a": 55, "resource_b": 40}},
+					{"id": "continuous_coherence", "paid": {"resource_a": 55, "resource_b": 40}}
+				]
+			"foreign":
+				state.queued = [
+					{"id": "reactive_armor", "paid": {"resource_a": 40, "resource_b": 20}}
 				]
 		_check(not schema.validate(bad), "Malformed research queue accepted: " + kind)
 	print("PASS research queue schema rejects invalid order, duplicates and unpaid projects")

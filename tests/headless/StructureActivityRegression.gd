@@ -21,7 +21,8 @@ func _run():
 			["VehicleFactory", "RepairRobot"],
 			["AircraftFactory", "Helicopter"]
 		]:
-			await _departure(pair[0], pair[1])
+			if factions.roster(faction).allows(pair[0], true):
+				await _departure(pair[0], pair[1])
 		await _blocked_exit()
 		await _archive_and_pause()
 		game.queue_free()
@@ -45,7 +46,7 @@ func _fixture(faction):
 
 
 func _spawn(role, point, foundation = false):
-	var unit = load(factions.Bastion.scene_path(role)).instantiate()
+	var unit = load(factions.scene_path(human.faction, role)).instantiate()
 	game._setup_and_spawn_unit(unit, Transform3D(Basis(), point), human, foundation)
 	unit.process_mode = Node.PROCESS_MODE_DISABLED
 	return unit
@@ -53,6 +54,8 @@ func _spawn(role, point, foundation = false):
 
 func _construction():
 	for role in factions.Bastion.STRUCTURES:
+		if not factions.roster(human.faction).allows(role, true):
+			continue
 		var building = _spawn(role, Vector3(40, 0, 12), true)
 		await _frames(2)
 		var activity = building.get_node("StructureActivity")
@@ -86,7 +89,10 @@ func _construction():
 func _research():
 	var lab = _units(human, "CommandLab")[0]
 	var activity = lab.get_node("StructureActivity")
-	_check(human.technology.start("weapons_1", lab), "Research did not start")
+	human.coordination_unlocked = true
+	var catalog = load("res://source/match/research/TechnologyCatalog.gd")
+	var technology = catalog.FACTION_TECHNOLOGIES[human.faction][0]
+	_check(human.technology.start(technology, lab), "Research did not start: " + technology)
 	activity.refresh(.1)
 	_check(activity.state == "research", "Lab lacks researching state")
 	human.technology._physics_process(2.0)
@@ -135,7 +141,7 @@ func _departure(producer_role, role):
 	await _frames(30)
 	var queue = building.production_queue
 	var before = _units(human, role)
-	var element = queue.produce(load(factions.Bastion.scene_path(role)))
+	var element = queue.produce(load(factions.scene_path(human.faction, role)))
 	_check(element != null, "Could not enqueue " + role)
 	if element == null:
 		building.queue_free()
@@ -151,6 +157,8 @@ func _departure(producer_role, role):
 		return
 	var start = queue.departure.global_position
 	var endpoint = queue.departure.endpoint
+	if role == "Worker" and human.faction == "helix":
+		_check(queue.departure.hovering, "Flux Skimmer departure uses ground navigation")
 	_check(
 		_units(human, role).size() == before.size(), "Live unit appeared before departure finished"
 	)
@@ -163,12 +171,19 @@ func _departure(producer_role, role):
 	var departure_gait = queue.departure._walker
 	queue._process(100)
 	var produced = _units(human, role).filter(func(unit): return unit not in before)
-	_check(produced.size() == 1 and queue.size() == 0, "Completion duplicates or loses unit")
-	if produced.size() == 1:
-		produced[0].process_mode = Node.PROCESS_MODE_DISABLED
+	_check(
+		produced.size() == element.batch_count and queue.size() == 0,
+		"Completion duplicates or loses %s %s batch" % [human.faction, role]
+	)
+	for unit in produced:
+		unit.process_mode = Node.PROCESS_MODE_DISABLED
+	if not produced.is_empty():
 		_check(
 			produced[0].global_position.distance_to(endpoint) < .05,
-			"Unit teleports at departure handoff"
+			(
+				"%s %s teleports at handoff: %s -> %s"
+				% [human.faction, role, endpoint, produced[0].global_position]
+			)
 		)
 		if departure_gait != null:
 			var gait = produced[0].get_node("BastionVisuals")._walker
@@ -183,7 +198,8 @@ func _departure(producer_role, role):
 						gait.legs[index].foot.is_equal_approx(departure_gait.legs[index].foot),
 						"Walker exit loses foot placement"
 					)
-		produced[0].queue_free()
+	for unit in produced:
+		unit.queue_free()
 	building.queue_free()
 	await _frames(4)
 
@@ -192,7 +208,7 @@ func _blocked_exit():
 	var building = _spawn("VehicleFactory", Vector3(40, 0, 12))
 	await _frames(30)
 	var queue = building.production_queue
-	var element = queue.produce(load(factions.Bastion.scene_path("Tank")))
+	var element = queue.produce(load(factions.scene_path(human.faction, "Tank")))
 	var seconds = departure_type.seconds(element)
 	queue._process((element.time_total - seconds * .95) / human.production_factor())
 	_check(not queue.exit_blocked, "Blocking fixture starts obstructed")
@@ -233,7 +249,7 @@ func _archive_and_pause():
 	var building = _spawn("Barracks", Vector3(40, 0, 12))
 	await _frames(30)
 	var queue = building.production_queue
-	var job = queue.produce(load(factions.Bastion.scene_path("Infantry")))
+	var job = queue.produce(load(factions.scene_path(human.faction, "Infantry")))
 	queue._process((job.time_total - departure_type.seconds(job) * .5) / human.production_factor())
 	if queue.exit_blocked:
 		_check(false, "Archive fixture exit blocked")
@@ -285,17 +301,19 @@ func _archive_and_pause():
 	for power in _units(human, "PowerPlant") + _units(human, "CommandCenter"):
 		power.queue_free()
 	await _frames(3)
-	_check(human.production_factor() == .35, "Low-power fixture still powered")
+	_check(human.production_factor() == .25, "Low-power fixture still powered")
 	queue._process(.2)
-	_check(is_equal_approx(left - job.time_left, .07), "Low power departure has wrong speed")
+	_check(is_equal_approx(left - job.time_left, .05), "Low power departure has wrong speed")
 	var before = _units(human, "Infantry")
 	queue._process(100)
 	var produced = _units(human, "Infantry").filter(func(unit): return unit not in before)
-	_check(produced.size() == 1, "Restored departure lost unit")
-	if produced.size() == 1:
-		_check(produced[0].action != null, "Departure lost rally order")
-		produced[0].process_mode = Node.PROCESS_MODE_DISABLED
-	var next = queue.produce(load(factions.Bastion.scene_path("Infantry")))
+	_check(produced.size() == job.batch_count, "Restored departure lost batch members")
+	for unit in produced:
+		_check(unit.action != null, "Departure lost rally order")
+		unit.process_mode = Node.PROCESS_MODE_DISABLED
+		unit.queue_free()
+	await _frames(3)
+	var next = queue.produce(load(factions.scene_path(human.faction, "Infantry")))
 	queue._process((next.time_total - .8) / human.production_factor())
 	var proxy = weakref(queue.departure)
 	building.queue_free()

@@ -23,7 +23,7 @@ func _run():
 	preferences.restore(original)
 	DirAccess.remove_absolute(save_path)
 	print("Battle alerts: %d failures" % errors.size())
-	quit(0 if errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
 
 
 func _kind(kind, active_only = false):
@@ -62,7 +62,7 @@ func _idle_and_navigation():
 	_check(workers[0].action == action, "Inspection changed engineer orders")
 	_check(
 		(
-			camera.unproject_position(workers[0].global_position_yless).distance_to(
+			camera.unproject_position(workers[0].global_position).distance_to(
 				root.get_visible_rect().size / 2
 			)
 			< 1
@@ -113,6 +113,7 @@ func _combat_events():
 	var incoming = _kind("attack", true)[0]
 	_check(incoming.title == "Units under attack", "Incoming fire has the wrong title")
 	for victim in victims:
+		victim.shields = 0
 		victim.hp = 1
 		victim.receive_weapon_hit(attacker)
 	await _frames(3)
@@ -311,7 +312,7 @@ func _economy_conditions():
 	await _frames(160)
 	_check(_kind("power", true).size() == 1, "Low power lacks grouped alert")
 	var power = _kind("power", true)[0]
-	_check(power.detail.contains("35%"), "Low power alert claims a full production block")
+	_check(power.detail.contains("25%"), "Low power alert omits the current production rate")
 	# A full base with an airfield needs two generators (HQ 8 + 2 x 12 supply).
 	var plants = []
 	for point in [Vector3(25, 0, 32), Vector3(25, 0, 38)]:

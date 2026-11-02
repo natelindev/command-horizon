@@ -59,7 +59,7 @@ func _run():
 	for message in errors:
 		push_error(message)
 	print("Campaign story rendered: %d failures" % errors.size())
-	quit(0 if errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
 
 
 func _horizon_match():
@@ -99,12 +99,12 @@ func _result_cases(mission):
 		_check(overlay != null, "Result overlay failed to build: " + mission + locale)
 		if overlay == null:
 			return
-		var details = overlay.find_child("DebriefScroll", true, false).get_child(0)
-		var ending = load("res://source/match/campaign/CampaignNarration.gd").record(
+		var details = overlay.find_child("StoryDebrief", true, false)
+		var ending = load("res://source/match/campaign/CampaignNarration.gd").scene(
 			mission + ".victory", locale
 		)
 		_check(
-			details.text.contains(ending.text),
+			not ending.is_empty() and details.text.contains(ending[0].text),
 			"Result debrief lost spoken story outro: " + mission + locale
 		)
 		var panel = overlay.find_children("*", "PanelContainer", true, false)[0]

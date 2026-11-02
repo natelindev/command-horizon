@@ -268,8 +268,12 @@ func _review_contract(_stage):
 					label + ": visual assembly disagrees with saved construction progress"
 				)
 		var refund = foundation.construction_refund()
-		var quote = "%d M / %d E back" % [refund.resource_a, refund.resource_b]
-		_check(quote in menus._stop_button.text, "Cancellation button hides the live refund")
+		var quote = (
+			str(TranslationServer.translate("%d M / %d E")) % [refund.resource_a, refund.resource_b]
+		)
+		_check(
+			quote in menus._stop_button.tooltip_text, "Cancellation tooltip hides the live refund"
+		)
 		_check(
 			(
 				str(
@@ -296,9 +300,10 @@ func _legacy_contract():
 	await _frames(60)
 	game.hud.pause_after_load()
 	var speed = root.get_node("Constants").Match.Units.STRUCTURE_CONSTRUCTING_SPEED
+	var builders = 1 if owner.faction == "helix" else crew.size()
 	_check(
-		absf(site._construction_progress - speed * crew.size()) < .01,
-		"Legacy construction lost additive worker rate"
+		absf(site._construction_progress - speed * builders) < .01,
+		"Legacy construction changed faction worker rate"
 	)
 	var cost = faction_catalog.cost(owner, "CommandCenter", true)
 	var funds = Vector2i(owner.resource_a, owner.resource_b)

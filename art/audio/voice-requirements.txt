@@ -16,7 +16,8 @@ librosa==0.11.0
 soundfile==0.14.0
 pyloudnorm==0.2.0
 openai-whisper==20250625
-speechbrain==1.1.2
+# 1.1.2 requires torchaudio >=2.7.1, conflicting with Chatterbox's torch 2.6 pins.
+speechbrain==1.1.1
 onnxruntime==1.23.2
 phonemizer-fork==3.3.2
 espeakng-loader==0.2.4

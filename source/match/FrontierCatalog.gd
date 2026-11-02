@@ -5,13 +5,13 @@ const MODELS = {
 	"Infantry": "RidgeRanger",
 	"Tank": "Outrider",
 	"RepairRobot": "PatchCrawler",
-	"CombatRobot": "JackalRig",
-	"AdvancedTank": "Ironback",
+	"CombatRobot": "DemolitionBuggy",
+	"AdvancedTank": "BattleRig",
 	"Drone": "LookoutDrone",
 	"Helicopter": "KestrelGunship",
 	"Fighter": "HornetFighter",
 	"Bomber": "BuzzardBomber",
-	"AntiAirVehicle": "RipsawTruck",
+	"AntiAirVehicle": "SAMTechnical",
 	"CommandCenter": "ConvoyHQ",
 	"Barracks": "RangerCamp",
 	"VehicleFactory": "MotorPool",
@@ -30,19 +30,19 @@ const NAMES = {
 	"SniperInfantry": "Frontier marksman",
 	"Tank": "Outrider",
 	"RepairRobot": "Patch crawler",
-	"CombatRobot": "Jackal rig",
-	"AdvancedTank": "Ironback",
+	"CombatRobot": "Demolition Buggy",
+	"AdvancedTank": "Battle Rig",
 	"Drone": "Lookout drone",
 	"Helicopter": "Kestrel gunship",
 	"Fighter": "Hornet fighter",
 	"Bomber": "Buzzard bomber",
-	"AntiAirVehicle": "Ripsaw AA truck",
+	"AntiAirVehicle": "SAM Technical",
 	"CommandCenter": "Convoy HQ",
 	"Barracks": "Ranger camp",
 	"VehicleFactory": "Motor pool",
 	"AircraftFactory": "Bush airstrip",
 	"PowerPlant": "Diesel array",
-	"CommandLab": "Relay workshop",
+	"CommandLab": "Scrap Yard",
 	"RepairDepot": "Field workshop",
 	"AntiGroundTurret": "Roadblock gun",
 	"AntiAirTurret": "Watchtower AA",
@@ -65,10 +65,11 @@ const COSTS = {
 	"AntiAirVehicle": [18, 6],
 }
 const DESCRIPTIONS = {
+	"AntiAirVehicle": "Fast SAM technical firing high-velocity unguided rocket swarms. Deadly against low aircraft from ambush.",
 	"RepairRobot": "Field repair support. Services damaged ground machines.",
 	"Worker":
 	(
-		"Unarmed engineer. Harvest fields, construct buildings and recover "
+		"Armed scrapper with a 20 mm defensive cannon. Harvest fields, construct buildings and recover "
 		+ "35% of a ground machine’s material cost from its wreck within 3 "
 		+ "minutes. Dismantle wrecks into materials on-site."
 	),
@@ -95,13 +96,14 @@ const DESCRIPTIONS = {
 	"Tank": "Fast wheeled technical with twin autocannons. Flank enemy armor and screen lines.",
 	"CombatRobot":
 	(
-		"Shielded autocannon against infantry and light machines. "
-		+ "Short-range anti-air shares its reload. Avoid heavy armor."
+		"Fast demolition buggy packed with volatile munitions. Charges a ground target "
+		+ "and detonates on contact, devastating structures and tightly packed columns."
 	),
 	"AdvancedTank":
 	(
-		"12 m heavy cannon against armor. Fires without a preparation "
-		+ "charge; lighter protection demands scouting and repair support."
+		"Armored flatbed with twin forward autocannons and four infantry firing ports. "
+		+ "Passengers remain protected inside and fire while moving. Select infantry and "
+		+ "right-click the Battle Rig to board; use Unload infantry to disembark."
 	),
 	"Drone":
 	(
@@ -110,17 +112,19 @@ const DESCRIPTIONS = {
 	),
 	"Helicopter":
 	(
-		"Attack helicopter. Rockets against ground forces while hovering in place; reloads on "
-		+ "cooldown in the field. Vulnerable to rocket infantry and anti-air."
+		"Mercenary rocket helicopter hired through the Scrap Yard's Black Market. "
+		+ "One loaded sortie; departs when its rockets or 90-second fuel supply runs out."
 	),
+	"Fighter": "Light mercenary fighter hired through the Black Market. Nose-mounted cannon and missiles; one finite-ammunition, 90-second sortie without an airfield.",
+	"Bomber": "Improvised mercenary bomber hired through the Black Market. One fuel-air bombing sortie, then departs; no on-map rearming.",
 	"CommandCenter":
 	"Produces scrapper rigs, accepts harvested and salvaged materials, and supplies 8 power.",
 	"Barracks":
 	(
-		"Trains four infantry classes and a unique hero. Two infantry recovery "
-		+ "slots within 5 m. Uses 3 power."
+		"Trains militia in triplets and specialists in pairs, plus a unique hero. Two infantry recovery "
+		+ "slots within 5 m. Uses 2 power."
 	),
-	"VehicleFactory": "Produces refurbished armor and service rigs. Uses 6 power.",
+	"VehicleFactory": "Builds Outrider pairs, demolition buggies, mobile Battle Rigs and Lookout drones. Uses little power.",
 	"AircraftFactory":
 	(
 		"Runway airfield. Builds drones, helicopters, fighters and bombers; jets park, rearm "
@@ -128,15 +132,15 @@ const DESCRIPTIONS = {
 	),
 	"CommandLab":
 	(
-		"Unlocks heroes and Kestrels. Research Coordination for Maneuver Burst. "
-		+ "Jackals need a motor pool; Ironbacks need a field workshop. Uses 5 power."
+		"Hosts faction research, heroes and the Black Market. Exchange resources or hire "
+		+ "Kestrel, Hornet and Buzzard sorties without an airfield. Uses 3 power."
 	),
 	"PowerPlant": "Supplies 12 power to keep production and research running.",
-	"RepairDepot": "Unlocks Ironbacks without Coordination. Repairs ground machines. Uses 3 power.",
-	"AntiGroundTurret": "Fixed ground cannon; protect against infantry and aircraft. Uses 2 power.",
+	"RepairDepot": "Unlocks Battle Rigs without Coordination. Repairs ground machines. Uses 2 power.",
+	"AntiGroundTurret": "Fixed ground cannon; protect against infantry and aircraft. Uses 1 power.",
 	"AntiAirTurret":
 	(
 		"Dedicated air defense that prioritizes aircraft. Ground damage: 33% "
-		+ "(100% with Dual-purpose AA). Uses 2 power."
+		+ "Uses 1 power."
 	),
 }

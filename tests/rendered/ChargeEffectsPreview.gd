@@ -93,7 +93,7 @@ func _run():
 		await _clean_match()
 	options.restore(original)
 	print("Charge effects preview: %d failures" % errors.size())
-	quit(0 if errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
 
 
 func _capture_charge(title):
@@ -102,6 +102,14 @@ func _capture_charge(title):
 	var image = root.get_texture().get_image()
 	image.save_png(OUTPUT + title + ".png")
 	return image
+
+
+func _spawn_weapon(role, side, point):
+	var factions = load("res://source/match/FactionCatalog.gd")
+	var unit = load(factions.scene_path(side.faction, role)).instantiate()
+	game._setup_and_spawn_unit(unit, Transform3D(Basis(), point), side, true)
+	unit.process_mode = Node.PROCESS_MODE_DISABLED
+	return unit
 
 
 func _changed_pixels(before, after):

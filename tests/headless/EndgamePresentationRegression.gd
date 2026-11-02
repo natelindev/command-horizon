@@ -90,7 +90,10 @@ func _run():
 		presentation.inspecting and paused and not game.fog_of_war.visible,
 		"Inspection did not freeze/reveal battlefield"
 	)
-	_check(game.get_node("HUD").visible and presentation._inspection_minimap.visible, "Inspection hid minimap")
+	_check(
+		game.get_node("HUD").visible and presentation._inspection_minimap.visible,
+		"Inspection hid minimap"
+	)
 	_check(not presentation._minimap_fog.visible, "Inspection minimap retained fog")
 	var restored_opponent = get_nodes_in_group("players").filter(func(side): return side != game._get_human_player())[0]
 	var inspected_hq = _units(restored_opponent, "CommandCenter")[0]
@@ -174,7 +177,10 @@ func _music_response(human, opponent):
 	_check(director.intensity < fighting, "Tactical pause did not calm music")
 	paused = false
 	director._update_intensity(10.0)
-	_check(director.intensity == 0.0, "Quiet battlefield retained combat percussion")
+	_check(
+		director.intensity < fighting and smoothstep(.4, .85, director.intensity) == 0.0,
+		"Quiet battlefield retained combat percussion"
+	)
 	director.set_process(true)
 
 

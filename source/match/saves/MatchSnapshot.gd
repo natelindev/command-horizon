@@ -4,7 +4,8 @@ extends RefCounted
 const Campaigns = preload("res://source/match/campaign/CampaignCatalog.gd")
 const Values = preload("res://source/match/saves/SaveValue.gd")
 # Saves from any other version are rejected; there is no migration.
-const VERSION = 21
+const VERSION = 22
+const Benchmark = preload("res://source/match/saves/BenchmarkState.gd")
 const ACTION_FIELDS = {
 	"EngineeringAction":
 	[
@@ -46,7 +47,7 @@ const ACTION_FIELDS = {
 	"Following": ["_last_known_target_unit_position"],
 	"FollowingToReachDistance": ["_distance_to_reach", "_last_known_target_unit_position"],
 	"CollectingResourcesSequentially":
-	["_state", "_kind", "_field_origin", "_waiting_reason", "_retry_left"],
+	["_state", "_kind", "_field_origin", "_waiting_reason", "_retry_left", "_phase_left"],
 	"CollectingResourcesWhileInRange": [],
 	"Constructing": [],
 	"ConstructingWhileInRange": [],
@@ -67,11 +68,12 @@ var _ids = {}
 var _game
 
 
-func capture(game):
+func capture(game, at_fixed_boundary = false):
 	error = ""
 	_ids.clear()
 	_game = game
-	if not game.get_tree().paused or not game.is_node_ready():
+	var authority_boundary = at_fixed_boundary and game.get_meta("network_fixed_boundary", false)
+	if (not game.get_tree().paused and not authority_boundary) or not game.is_node_ready():
 		return _fail("Pause at a simulation boundary before capturing the match.")
 	var presentation = game.get_node_or_null("BattlePresentation")
 	if presentation != null:
@@ -81,6 +83,11 @@ func capture(game):
 	var maps = game.get_node("/root/Constants").Match.MAPS.keys()
 	for operation in Campaigns.operations().values():
 		maps.append(operation.map)
+	if not game.settings.scenario.is_empty():
+		var document = load("res://source/scenario/ScenarioDocument.gd").new()
+		if game.settings.map_path != document.MAP or not document.validate(game.settings.scenario):
+			return _fail("Invalid custom battlefield.")
+		maps.append(document.MAP)
 	if (
 		game.settings.map_path not in maps
 		or game.settings.mission_id not in [""] + Campaigns.operations().keys()
@@ -109,6 +116,9 @@ func capture(game):
 		_ids[target] = target.neutral_id
 	for site in load("res://source/match/world/PointOfInterestCatalog.gd").sites(game):
 		_ids[site] = site.site_id
+	for entity in game.get_tree().get_nodes_in_group("engineering_entities"):
+		if _live(entity):
+			_ids[entity] = entity.neutral_id
 	var settings = _properties(
 		game.settings,
 		[
@@ -124,6 +134,8 @@ func capture(game):
 		]
 	)
 	settings.players = []
+	if not game.settings.scenario.is_empty():
+		settings.scenario = game.settings.scenario.duplicate(true)
 	for player in game.settings.players:
 		settings.players.append(
 			_properties(
@@ -196,6 +208,9 @@ func capture(game):
 			)
 			saved.id = _reference(obstacle)
 			saved.role = "DestructibleObstacle"
+			if obstacle.is_in_group("structure_ruins"):
+				saved.role = "StructureRuin"
+				saved.ruin = obstacle.capture_state()
 			result.obstacles.append(saved)
 	for player in players:
 		result.players.append(_player(player))
@@ -318,6 +333,10 @@ func capture(game):
 			result.mission.opposition = game.opposition.capture_state(_reference)
 	if not error.is_empty():
 		return null
+	# The authority detaches containers here, then validates and encodes the inert
+	# copy on its worker. Ordinary saves keep the complete synchronous safeguard.
+	if authority_boundary:
+		return result.duplicate(true)
 	# Detach every nested container, reject engine objects, NaN and unsupported types.
 	var values = Values.new()
 	var encoded = values.encode(result)
@@ -333,6 +352,7 @@ func _player(player):
 	)
 	result.technology = player.technology.capture()
 	result.id = _reference(player)
+	result.economy = Benchmark.player_state(player, _reference)
 	result.signatures = player.signatures.capture(_reference)
 	result.command_left = _game._defeat_timers.get(player, 60.0)
 	result.ai = {}
@@ -367,7 +387,7 @@ func _unit(unit):
 		"deployment":
 		(
 			_properties(unit, ["deployment_left", "deployment_position"])
-			if unit.type == "AdvancedTank" and unit.player.faction == "helix"
+			if unit.type == "AdvancedTank" and unit.player.faction == "bastion"
 			else {}
 		),
 		"weapon_mode":
@@ -390,6 +410,7 @@ func _unit(unit):
 		"cargo": _properties(unit, ["resource_a", "resource_b"]) if unit.type == "Worker" else {},
 		"action": _action(unit.action),
 		"orders": {},
+		"benchmark": Benchmark.unit_state(unit, _reference),
 		"production": {},
 		"rally": {},
 		"movement": {},
@@ -401,6 +422,8 @@ func _unit(unit):
 		result.scrap_hardened = {
 			"tiers": unit.scrap_hardened_tiers, "left": unit.scrap_hardened_left
 		}
+	if unit.garrison_mount != null:
+		result.garrison_mount = unit.garrison_mount.capture(_reference)
 	if unit.shields_max > 0:
 		result.plasma_shield = {
 			"charge": unit.shields,
@@ -446,10 +469,13 @@ func _unit(unit):
 					"paid_cost",
 					"departure_endpoint",
 					"assembly_started",
-					"assembly_bonus"
+					"assembly_bonus",
+					"batch_count"
 				]
 			)
-			item.role = job.unit_prototype.resource_path.get_file().get_basename()
+			item.role = load("res://source/match/BastionCatalog.gd").type_from_path(
+				job.unit_prototype.resource_path
+			)
 			result.production.jobs.append(item)
 	var rally = unit.get_node_or_null("RallyPoint")
 	if rally != null:
@@ -461,9 +487,19 @@ func _order(order):
 	if order.is_empty():
 		return {}
 	var result = {"kind": order.kind}
-	for key in ["engineering_kind", "angle", "reservation"]:
+	for key in [
+		"engineering_kind",
+		"angle",
+		"reservation",
+		"formation",
+		"group_center",
+		"formation_width",
+		"waypoints"
+	]:
 		if order.has(key):
 			result[key] = order[key]
+	if order.has("cohort") and order.cohort != null:
+		result.cohesion_members = order.cohort.references(_reference)
 	if order.has("point"):
 		result.point = order.point
 	if order.has("target"):

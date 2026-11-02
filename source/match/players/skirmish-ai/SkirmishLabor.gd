@@ -49,6 +49,9 @@ static func awaiting_construction(worker):
 
 
 static func assign_construction(worker, building):
+	var assembly = building.get_node_or_null("AutonomousAssembly")
+	if assembly != null:
+		assembly.remember_harvest(worker)
 	if (
 		worker.resource_a + worker.resource_b > 0
 		and worker.action is Harvest
@@ -82,7 +85,7 @@ static func handoff_ready(worker):
 	return (
 		worker.action is Harvest
 		and worker.action._kind > 0
-		and worker.action._state == Harvest.State.MOVING_TO_CC
+		and worker.action._state in [Harvest.State.MOVING_TO_CC, Harvest.State.PHASE_RETURN]
 		and worker.resource_a + worker.resource_b > 0
 	)
 

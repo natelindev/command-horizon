@@ -1,6 +1,7 @@
 /* Resident presentation coordination. Main-thread node reads, owned rig refs,
  * weak scene IDs, and no scene/dictionary traversal for individual palette rows.
  * Simulation roots are captured before each physics tick, not each draw. */
+#include <float.h>
 #define PB_LIMIT 2048
 typedef struct {
     uint32_t generation;
@@ -12,6 +13,7 @@ typedef struct {
     IpV previous;
     float radius, low, high;
     double elapsed;
+    float *track_travel;
 } PbSlot;
 typedef struct {
     PbSlot *slots;
@@ -19,7 +21,7 @@ typedef struct {
     Value last;
     uint64_t statistics[7]; /* bound, captures, roots, packs, parts, checks, changes */
 } PbBatch;
-static Value pb_class, pb_methods[11], pb_args[9], pb_pulse_names[2];
+static Value pb_class, pb_methods[12], pb_args[12], pb_pulse_names[2];
 static GDExtensionMethodBindPtr pb_parent, pb_shader_parameter;
 static void *pb_shader_tag;
 static GDExtensionPtrBuiltInMethod pb_inverse, pb_linear;
@@ -40,6 +42,8 @@ static void pb_release(PbBatch *b, PbSlot *s) {
         return;
     variant_destroy(&s->rig_owner);
     free(s->anchors);
+    free(s->track_travel);
+    s->track_travel = 0;
     s->anchors = 0;
     s->live = 0;
     b->live--;
@@ -58,6 +62,20 @@ static void pb_resize(void *bytes, int capacity) {
         memset(bytes_index(bytes, 0), 0, (size_t)length);
 }
 static void pb_identity_row(float *pixels) { pixels[0] = pixels[5] = pixels[10] = 1; }
+static void pb_publish_root(PbSlot *s, void *geometry, IpT root) {
+    IpT posed = rp_multiply(root, s->geometry_pose);
+    if (s->scene_geometry) {
+        IpT shown;
+        ptrcall(global_transform, geometry, 0, &shown);
+        if (memcmp(&shown, &posed, sizeof(IpT)))
+            ptrcall(cr_bind[CR_SET_TRANSFORM], geometry, (const void *[]){&posed}, 0);
+    }
+    if (s->rig->count > 0 && memcmp(&s->rig->poses[0].local, &posed, sizeof(IpT))) {
+        s->rig->poses[0].local = posed;
+        s->rig->poses[0].local_revision = ++s->rig->revision;
+        s->rig->writes++;
+    }
+}
 static int64_t pb_bind(PbBatch *b, void *unit, void *geometry, const void *anchors, void *rig_owner,
                        int64_t offset, double radius) {
     if (!b->capacity || !unit || !geometry || !rig_owner || !object_cast(unit, node_tag) ||
@@ -107,6 +125,15 @@ static int64_t pb_bind(PbBatch *b, void *unit, void *geometry, const void *ancho
     s->offset = (int)offset;
     s->count = (int)count;
     s->anchors = ids;
+    s->track_travel = malloc((size_t)count * sizeof(float));
+    if (!s->track_travel) {
+        free(ids);
+        s->anchors = 0;
+        s->live = 0;
+        return -1;
+    }
+    for (int part = 0; part < count; part++)
+        s->track_travel[part] = NAN;
     s->unit = rp_object_id(unit);
     s->geometry = rp_object_id(geometry);
     void *parent = 0;
@@ -224,18 +251,7 @@ static void pb_pack(PbBatch *b, int paused, void *output) {
             pb_inverse(&s->sampled, 0, &inverse, 0);
             rebase = rp_multiply(s->physics, inverse);
         }
-        IpT geometry_root = rp_multiply(root, s->geometry_pose);
-        if (s->scene_geometry) {
-            IpT shown_root;
-            ptrcall(global_transform, geometry, 0, &shown_root);
-            if (memcmp(&shown_root, &geometry_root, sizeof(IpT)))
-                ptrcall(cr_bind[CR_SET_TRANSFORM], geometry, (const void *[]){&geometry_root}, 0);
-        }
-        if (s->rig->count > 0 && memcmp(&s->rig->poses[0].local, &geometry_root, sizeof(IpT))) {
-            s->rig->poses[0].local = geometry_root;
-            s->rig->poses[0].local_revision = ++s->rig->revision;
-            s->rig->writes++;
-        }
+        pb_publish_root(s, geometry, root);
         rp_worlds(s->rig, s->rig->count - 1);
         for (int part = 0; part < s->count; part++) {
             float *row = pixels + (s->offset + part) * 16;
@@ -248,6 +264,10 @@ static void pb_pack(PbBatch *b, int paused, void *output) {
             if (visible && resident_rig_pose(s->rig, part, transform)) {
                 pb_write(row, transform);
                 memcpy(row + 12, pulse, sizeof(pulse));
+                /* Root row retains the shared hit pulse. Non-root belt rows
+                 * carry exact current travel; compute never interpolates col3. */
+                if (part > 0 && isfinite(s->track_travel[part]))
+                    row[12] = s->track_travel[part];
                 b->statistics[4]++;
             }
             if (!paused) {
@@ -389,7 +409,23 @@ static void pb_call(void *userdata, void *instance, const GDExtensionConstVarian
             GDExtensionBool publish;
             to_type(TYPE(BOOL))(&publish, (void *)args[2]);
             s->scene_geometry = publish;
+            void *unit = object_from_id(s->unit), *geometry = object_from_id(s->geometry);
+            if (unit && geometry) {
+                IpT root;
+                ptrcall(global_transform, unit, 0, &root);
+                /* Aim and weapon sockets read the rig before palette packing.
+                 * Publish their authoritative root during this same call. */
+                pb_publish_root(s, geometry, root);
+            }
         }
+    } else if (method == 11 && count == 3 && get_type(args[1]) == TYPE(INT)) {
+        int64_t part;
+        double travel;
+        to_type(TYPE(INT))(&part, (void *)args[1]);
+        if (!s || part <= 0 || part >= s->count || !index_number(args[2], &travel) ||
+            !isfinite(travel) || fabs(travel) > FLT_MAX)
+            return;
+        s->track_travel[part] = (float)travel;
     } else
         return;
     error->error = GDEXTENSION_CALL_OK;
@@ -398,12 +434,12 @@ static void presentation_initialize(void) {
     name_new(&pb_class, "CopperfinPresentationBatch");
     const char *methods[] = {"configure", "bind_unit",   "unbind",      "capture",
                              "elapsed",   "set_elapsed", "set_pulse",   "changes",
-                             "pack",      "statistics",  "set_geometry"};
+                             "pack",      "statistics",  "set_geometry", "set_track"};
     const char *arguments[] = {"capacity", "unit",   "geometry", "anchors", "rig",
-                               "offset",   "radius", "handle",   "value"};
-    for (int i = 0; i < 11; i++)
+                               "offset",   "radius", "handle",   "value", "part", "travel", "scene_geometry"};
+    for (int i = 0; i < 12; i++)
         name_new(&pb_methods[i], methods[i]);
-    for (int i = 0; i < 9; i++)
+    for (int i = 0; i < 12; i++)
         name_new(&pb_args[i], arguments[i]);
     name_new(&pb_pulse_names[0], "hit_color");
     name_new(&pb_pulse_names[1], "hit_strength");
@@ -432,8 +468,8 @@ static void presentation_initialize(void) {
     info.free_instance_func = pb_free;
     register_class(library, &pb_class, &parent_name, &info);
     pb_registered = 1;
-    const int counts[] = {1, 6, 1, 1, 1, 2, 2, 0, 1, 0, 3};
-    const GDExtensionVariantType types[11][6] = {
+    const int counts[] = {1, 6, 1, 1, 1, 2, 2, 0, 1, 0, 3, 3};
+    const GDExtensionVariantType types[12][6] = {
         {TYPE(INT)},
         {TYPE(OBJECT), TYPE(OBJECT), TYPE(ARRAY), TYPE(OBJECT), TYPE(INT), TYPE(FLOAT)},
         {TYPE(INT)},
@@ -444,13 +480,14 @@ static void presentation_initialize(void) {
         {},
         {TYPE(BOOL)},
         {},
-        {TYPE(INT), TYPE(TRANSFORM3D), TYPE(BOOL)}};
+        {TYPE(INT), TYPE(TRANSFORM3D), TYPE(BOOL)},
+        {TYPE(INT), TYPE(INT), TYPE(FLOAT)}};
     const GDExtensionVariantType outputs[] = {TYPE(BOOL),  TYPE(INT),   TYPE(BOOL), TYPE(NIL),
                                               TYPE(FLOAT), TYPE(NIL),   TYPE(NIL),  TYPE(ARRAY),
-                                              TYPE(ARRAY), TYPE(ARRAY), TYPE(NIL)};
-    const int names[11][6] = {{0},   {1, 2, 3, 4, 5, 6}, {7}, {8}, {7}, {7, 8}, {7, 8}, {}, {8}, {},
-                              {7, 8}};
-    for (int i = 0; i < 11; i++) {
+                                              TYPE(ARRAY), TYPE(ARRAY), TYPE(NIL), TYPE(NIL)};
+    const int names[12][6] = {{0},   {1, 2, 3, 4, 5, 6}, {7}, {8}, {7}, {7, 8}, {7, 8}, {}, {8}, {},
+                              {7, 2, 11}, {7, 9, 10}};
+    for (int i = 0; i < 12; i++) {
         GDExtensionPropertyInfo parameters[6];
         GDExtensionClassMethodArgumentMetadata metadata[6] = {0};
         for (int j = 0; j < counts[i]; j++)
@@ -476,9 +513,9 @@ static void presentation_deinitialize(void) {
         return;
     if (pb_registered)
         unregister_class(library, &pb_class);
-    for (int i = 0; i < 11; i++)
+    for (int i = 0; i < 12; i++)
         get_dtor(TYPE(STRING_NAME))(&pb_methods[i]);
-    for (int i = 0; i < 9; i++)
+    for (int i = 0; i < 12; i++)
         get_dtor(TYPE(STRING_NAME))(&pb_args[i]);
     for (int i = 0; i < 2; i++)
         get_dtor(TYPE(STRING_NAME))(&pb_pulse_names[i]);

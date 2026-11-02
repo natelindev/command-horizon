@@ -28,6 +28,7 @@ var _focus_before
 var _layer: CanvasLayer
 var _modal: Control
 var _briefing: PanelContainer
+var _illustration
 var _title: Label
 var _subtitle
 var _skip: Button
@@ -45,6 +46,7 @@ func _ready():
 	_voice = _game._get_human_player().get_node_or_null("BattleVoice")
 	_audio = AudioStreamPlayer.new()
 	_audio.bus = "Voice"
+	_audio.add_to_group("narration_audio")
 	add_child(_audio)
 	var captions = load("res://source/match/hud/BattleSubtitles.gd").new()
 	captions.name = "CampaignSubtitles"
@@ -53,6 +55,7 @@ func _ready():
 	_game.add_child(captions)
 	_build_briefing()
 	Globals.options.changed.connect(_refresh_language)
+	load("res://source/match/campaign/CampaignHubState.gd").new().apply_to_campaign(_game)
 
 
 func snapshot():
@@ -86,11 +89,18 @@ func cue(id):
 	return true
 
 
-func start_briefing(force_cinematic = false):
+func start_briefing(force_cinematic = false, cue_override = ""):
 	if cinematic or _game.restoring or _game.finished:
 		return false
 	_started = true
 	var id = _game.settings.mission_id + ".intro"
+	_mark_seen(id)
+	var authored = _game.settings.mission_id + ".briefing"
+	if force_cinematic or DisplayServer.get_name() != "headless":
+		if Narration.lines().has(authored):
+			id = authored
+	if not cue_override.is_empty():
+		id = cue_override
 	_mark_seen(id)
 	# Headless replays have no camera presentation. Tests can explicitly exercise
 	# the cinematic path; all narrated gameplay cues still use the same observer.
@@ -105,6 +115,9 @@ func start_briefing(force_cinematic = false):
 	for line in Narration.scene(id):
 		var stream = load(line.stream) if ResourceLoader.exists(line.stream) else null
 		_scene_length += _line_duration(line, stream)
+	_scene_length = maxf(_scene_length, 45.0)
+	_illustration.duration = _scene_length
+	_illustration.seek(0)
 	return true
 
 
@@ -149,6 +162,8 @@ func _process(delta):
 	if cinematic:
 		_scene_time += elapsed
 		_animate_camera()
+		if current.is_empty() and _scene_time >= _scene_length:
+			_end_cinematic()
 	else:
 		_observe()
 	if not current.is_empty():
@@ -171,6 +186,7 @@ func _observe():
 			)
 		)
 		if id not in seen:
+			load("res://source/match/campaign/CampaignHubState.gd").new().record_debrief(_game)
 			_pending.clear()
 			_clear()
 			cue(id)
@@ -255,6 +271,8 @@ func _play(id, index = 0, position = 0.0, remaining = -1.0):
 
 
 func _line_duration(line, stream):
+	if line.get("duration", -1.0) > 0:
+		return maxf(line.duration, stream.get_length() if stream != null else 0.0)
 	if stream != null:
 		return maxf(stream.get_length() + .4, 2.2)
 	# A missing asset must not trap the player in a briefing.
@@ -274,7 +292,7 @@ func _advance_line():
 	if _line_index >= 0 and _line_index + 1 < Narration.scene(_active_cue).size():
 		_play(_active_cue, _line_index + 1)
 		return
-	if cinematic:
+	if cinematic and _scene_time >= _scene_length:
 		_end_cinematic()
 	_clear()
 
@@ -328,6 +346,7 @@ func _begin_cinematic():
 		if hud != _layer:
 			_hud_state.append({"node": weakref(hud), "visible": hud.visible})
 			hud.hide()
+	_illustration.configure(_game.settings.mission_id)
 	_modal.show()
 	_skip.grab_focus()
 	_title.text = (
@@ -396,6 +415,7 @@ func _end_cinematic():
 
 
 func _animate_camera():
+	_illustration.seek(_scene_time)
 	if Globals.options.reduced_flashes or not Globals.options.menu_motion:
 		return
 	var camera = _game.get_node("IsometricCamera3D")
@@ -446,36 +466,26 @@ func _build_briefing():
 	_modal.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_modal.mouse_filter = Control.MOUSE_FILTER_STOP
 	_layer.add_child(_modal)
-	_briefing = PanelContainer.new()
-	UiTheme.apply(_briefing, 22, 16)
-	_modal.add_child(_briefing)
-	var column = VBoxContainer.new()
-	column.add_theme_constant_override("separation", 10)
-	_briefing.add_child(column)
-	_title = Label.new()
-	_title.add_theme_font_size_override("font_size", 22)
-	column.add_child(_title)
-	_subtitle = load("res://source/match/hud/SubtitleCard.gd").new()
-	column.add_child(_subtitle)
-	_skip = Button.new()
-	_skip.text = "Continue / skip briefing"
-	_skip.size_flags_horizontal = Control.SIZE_SHRINK_END
+	_illustration = load("res://source/match/campaign/CampaignBriefing.tscn").instantiate()
+	_modal.add_child(_illustration)
+	_briefing = _illustration.dialogue_panel
+	_title = _illustration.title_label
+	_subtitle = _illustration.caption
+	_skip = _illustration.skip_button
 	_skip.pressed.connect(skip_briefing)
-	column.add_child(_skip)
 	_modal.hide()
 	get_viewport().size_changed.connect(_update_layout)
 
 
 func _update_layout():
-	if not is_instance_valid(_briefing):
-		return
-	var viewport = get_viewport().get_visible_rect().size
-	_briefing.size.x = minf(760, maxf(1, viewport.x - 48))
-	_briefing.size.y = _briefing.get_combined_minimum_size().y
-	_briefing.position = Vector2((viewport.x - _briefing.size.x) / 2, 24)
+	if is_instance_valid(_illustration):
+		_illustration._layout()
 
 
 func _refresh_language():
+	if is_instance_valid(_illustration):
+		_illustration.configure(_game.settings.mission_id)
+		_illustration.seek(_scene_time)
 	if not current.is_empty():
 		var localized = Narration.record(current.id, Globals.options.language)
 		current.text = localized.text

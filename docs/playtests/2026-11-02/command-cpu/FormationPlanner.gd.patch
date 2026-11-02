@@ -1,0 +1,84 @@
+--- source/match/orders/FormationPlanner.gd (before)
++++ source/match/orders/FormationPlanner.gd (final)
+@@ -33,15 +33,20 @@
+ 	return 0 if kind in HEAVY else 1
+ 
+ 
+-static func spacing(units, formation: String, custom = 0.0) -> float:
++static func spacing(units, formation: String, custom = 0.0, maximum_radius = -1.0) -> float:
+ 	if custom > 0:
+ 		return custom
++	var radius = maximum_radius if maximum_radius >= 0.0 else _maximum_radius(units)
++	return radius * 2.0 + (SPREAD_BUFFER if formation == "staggered" else BOX_BUFFER)
++
++
++static func _maximum_radius(units) -> float:
+ 	var radius = 0.0
+ 	for unit in units:
+ 		var value = unit.get("radius")
+ 		if value != null:
+ 			radius = maxf(radius, float(value))
+-	return radius * 2.0 + (SPREAD_BUFFER if formation == "staggered" else BOX_BUFFER)
++	return radius
+ 
+ 
+ static func offsets(count: int, step: float, formation: String, radius = 0.0) -> Array:
+@@ -93,24 +98,28 @@
+ 
+ 
+ static func positions(
+-	units, center: Vector3, heading: Vector3, formation = "line", custom = 0.0
++	units,
++	center: Vector3,
++	heading: Vector3,
++	formation = "line",
++	custom = 0.0,
++	maximum_radius = -1.0
+ ) -> Array:
+ 	var forward = (heading * Vector3(1, 0, 1)).normalized()
+ 	if forward.is_zero_approx():
+ 		forward = Vector3.FORWARD
+ 	var right = Vector3(-forward.z, 0, forward.x)
+-	var step = spacing(units, formation, custom)
+-	var radius = 0.0
+-	for unit in units:
+-		if unit.get("radius") != null:
+-			radius = maxf(radius, unit.radius)
++	var radius = maximum_radius if maximum_radius >= 0.0 else _maximum_radius(units)
++	var step = spacing(units, formation, custom, radius)
+ 	var result = []
+ 	for point in offsets(units.size(), step, formation, radius):
+ 		result.append(center + right * point.x + forward * point.y)
+ 	return result
+ 
+ 
+-static func assign(units, points: Array, formation = "line") -> Array:
++static func assign(
++	units, points: Array, formation = "line", captured_origins = PackedVector3Array()
++) -> Array:
+ 	# Partition role bands, then solve each band optimally. Reversed selection
+ 	# order therefore cannot send every rear unit through the frontline.
+ 	var indices = range(points.size())
+@@ -134,7 +143,12 @@
+ 		var origins = PackedVector3Array()
+ 		var targets = PackedVector3Array()
+ 		for index in group:
+-			origins.append(units[index].global_position * Vector3(1, 0, 1))
++			var origin = (
++				captured_origins[index]
++				if captured_origins.size() == units.size()
++				else units[index].global_position
++			)
++			origins.append(origin * Vector3(1, 0, 1))
+ 		for index in group.size():
+ 			targets.append(points[indices[cursor + index]] * Vector3(1, 0, 1))
+ 		var columns = hungarian(origins, targets)
+@@ -293,7 +307,7 @@
+ 	var path = NavigationServer3D.map_get_path(nav, center, destination, true)
+ 	if path.size() < 2:
+ 		return result
+-	var raw = positions(units, Vector3.ZERO, heading, formation)
++	var raw = positions(units, Vector3.ZERO, heading, formation, 0.0, radius)
+ 	var full_width = 0.0
+ 	var right = Vector3(-heading.z, 0, heading.x).normalized()
+ 	if right.is_zero_approx():

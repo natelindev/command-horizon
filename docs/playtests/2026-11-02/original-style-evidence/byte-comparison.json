@@ -1,0 +1,135 @@
+{
+  "created_utc": "2026-11-02T06:45:18.938143+00:00",
+  "head_commit": "c623dfa943dff9c509cd650f25967aec0a098f26",
+  "scope": "Static comparison only; no engine launches or visual assertions. GLB attributes compare multisets ignoring generated mesh names; UV0 changes are retained explicitly.",
+  "files": {
+    "project.godot": {
+      "head_sha256": "101506d51e90dfbae6020daa53fbf9568fa6a4ef3f04fa4726c00661f36c20d7",
+      "working_sha256": "101506d51e90dfbae6020daa53fbf9568fa6a4ef3f04fa4726c00661f36c20d7",
+      "byte_identical": true
+    },
+    "art/common/weathering.py": {
+      "head_sha256": "7cacfbf06172f6c495391261eb5143230eff6032db5bcc10a5ffcaf232ea0749",
+      "working_sha256": "7cacfbf06172f6c495391261eb5143230eff6032db5bcc10a5ffcaf232ea0749",
+      "byte_identical": true
+    },
+    "source/shaders/3d/surface_detail.gdshaderinc": {
+      "head_sha256": "f165dbef420350ab7f626c9585888c4264ea116347fbe7d8f0ee692f79ed2cb6",
+      "working_sha256": "f165dbef420350ab7f626c9585888c4264ea116347fbe7d8f0ee692f79ed2cb6",
+      "byte_identical": true
+    },
+    "source/shaders/3d/terrain_layers.gdshaderinc": {
+      "head_sha256": "b2c21076987c4b05868dd18ebb504f71c542a4263630be5ce7c8918e9913d06e",
+      "working_sha256": "b2c21076987c4b05868dd18ebb504f71c542a4263630be5ce7c8918e9913d06e",
+      "byte_identical": true
+    },
+    "source/shaders/3d/armor_surface.gdshader": {
+      "head_sha256": "7849f0d177f33b4ac272fd56a0bdeae68336cbc01139f7bd20e4fd8237f59296",
+      "working_sha256": "7849f0d177f33b4ac272fd56a0bdeae68336cbc01139f7bd20e4fd8237f59296",
+      "byte_identical": true
+    },
+    "source/shaders/3d/frontier_surface.gdshader": {
+      "head_sha256": "04b86962d83497a550055bfdb99e6892298e06cb10f196a4dd95d6d618701cba",
+      "working_sha256": "04b86962d83497a550055bfdb99e6892298e06cb10f196a4dd95d6d618701cba",
+      "byte_identical": true
+    },
+    "tools/ui/generate_hud_kit.py": {
+      "head_sha256": "09305d711779c646c03c4ea32ea31149913af1529d3abec583b9f20fa3e169d1",
+      "working_sha256": "09305d711779c646c03c4ea32ea31149913af1529d3abec583b9f20fa3e169d1",
+      "byte_identical": true
+    },
+    "tools/textures/build_terrain_textures.py": {
+      "head_sha256": "5eeace222870dfd28c5a35349b323435bae8f605cc44a7a46564a554413a5ad4",
+      "working_sha256": "5eeace222870dfd28c5a35349b323435bae8f605cc44a7a46564a554413a5ad4",
+      "byte_identical": true
+    }
+  },
+  "particle_shared_code": {
+    "head_shader_sha256": "4ae4093e40a4bf415e2016a41643b46b583ac6b954cdbedff72779f9c9236b22",
+    "working_include_sha256": "2d6603d96cb0849edb932309442d28a251527430240e6565fa9a03cc16f3826d",
+    "uniforms_noise_fragment_identical_ignoring_final_newline": true
+  },
+  "glb_attribute_comparisons": {
+    "assets/models/frontier/v1/Ironback.glb": {
+      "head_sha256": "fdf8e71d7aa450f4587ce2fffc17c7d565b7a874c30b966fe2e67d7a027870be",
+      "working_sha256": "0e6393b7ecd40342843d459c6f46b700d60aa984f757a1a88b233cd30213c669",
+      "byte_identical": false,
+      "head_mesh_count": 14,
+      "working_mesh_count": 14,
+      "attribute_multisets_equal": {
+        "POSITION": true,
+        "NORMAL": true,
+        "TEXCOORD_0": false,
+        "TEXCOORD_1": true,
+        "COLOR_0": true
+      },
+      "pbr_material_definitions_equal": true
+    },
+    "assets/models/frontier/v1/JackalRig.glb": {
+      "head_sha256": "17fbacc742e42b8d0e951d837f94623155c42c60e6c565d042592bf7b42af235",
+      "working_sha256": "a7ac2aa5b2741d869e903b7688346cc2c85c9e990c8da2793f3f6277e113ef54",
+      "byte_identical": false,
+      "head_mesh_count": 8,
+      "working_mesh_count": 8,
+      "attribute_multisets_equal": {
+        "POSITION": true,
+        "NORMAL": true,
+        "TEXCOORD_0": false,
+        "TEXCOORD_1": true,
+        "COLOR_0": true
+      },
+      "pbr_material_definitions_equal": true
+    },
+    "assets/models/frontier/v1/Outrider.glb": {
+      "head_sha256": "60af7400227dc0f1549eee59057db4aacfbd25e20df804a3b11f160a442e9ace",
+      "working_sha256": "0d2ae484e6579a95f79b2ac46ac6a073f03a7db15f63c9e7138655f5927563bd",
+      "byte_identical": false,
+      "head_mesh_count": 12,
+      "working_mesh_count": 12,
+      "attribute_multisets_equal": {
+        "POSITION": true,
+        "NORMAL": true,
+        "TEXCOORD_0": false,
+        "TEXCOORD_1": true,
+        "COLOR_0": true
+      },
+      "pbr_material_definitions_equal": true
+    },
+    "assets/models/helix/v1/NeedleSkimmer.glb": {
+      "head_sha256": "37c19ac914a1cfa7dbc2c987bf0440c5bbd8f45481ed9ecfe0d6403300751266",
+      "working_sha256": "5e5706dbb88449e91d49e1145a094a836c0dc6d7c8e7045dd39a4bfbc210a8a4",
+      "byte_identical": false,
+      "head_mesh_count": 3,
+      "working_mesh_count": 3,
+      "attribute_multisets_equal": {
+        "POSITION": true,
+        "NORMAL": true,
+        "TEXCOORD_0": false,
+        "TEXCOORD_1": true,
+        "COLOR_0": true
+      },
+      "pbr_material_definitions_equal": true
+    },
+    "assets/models/helix/v1/PrismArtillery.glb": {
+      "head_sha256": "9111d7ff8fd341c63828c2ef61d377bc974e7ea1cef978ceef7fa8e4d204c241",
+      "working_sha256": "9e33c9aeec701db49129f736c83fc3bc85c0b89e3048cc65c046e8fd9f2c9d86",
+      "byte_identical": false,
+      "head_mesh_count": 13,
+      "working_mesh_count": 13,
+      "attribute_multisets_equal": {
+        "POSITION": true,
+        "NORMAL": true,
+        "TEXCOORD_0": false,
+        "TEXCOORD_1": true,
+        "COLOR_0": true
+      },
+      "pbr_material_definitions_equal": true
+    }
+  },
+  "unmodified_directories": [],
+  "notes": [
+    "unmodified_directories lists changed tracked paths (empty means no tracked changes); untracked style shaders were audited separately.",
+    "Nearest pose/material/depth/emission-point texture reads are numeric data lookups, not color pixelation.",
+    "Benchmark Low explicitly disables MSAA/shadows/AO/glow/ground detail and renders1280x720 atcamera70; ordinary Skirmish starts at24 with unchanged1920x1080 project settings. This is an aliasing/zoom hypothesis, not proof of the user's unseen view."
+  ]
+}

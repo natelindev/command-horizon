@@ -1,0 +1,7 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://source/match/Map.tscn" id="map"]
+[ext_resource type="Script" path="res://source/match/maps/ScenarioMap.gd" id="script"]
+
+[node name="Map" instance=ExtResource("map")]
+script = ExtResource("script")

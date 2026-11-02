@@ -216,22 +216,22 @@ func _process(delta):
 
 
 func _refresh_refinery_income():
-	var payment = Vector2i.ZERO
+	var payment = Vector2.ZERO
 	var owned = 0
 	var active = 0
 	for site in get_tree().get_nodes_in_group("points_of_interest"):
-		if site.kind != "refinery" or site.player != player:
+		if site.kind not in ["refinery", "data_relay"] or site.player != player:
 			continue
 		owned += 1
 		if site.operational() and site.income_payment() != Vector2i.ZERO:
 			active += 1
-			payment += site.income_payment()
+			payment += Vector2(site.income_payment()) * 60.0 / site.income_interval()
 	for kind in _income_labels:
 		var label = _income_labels[kind]
 		var amount = payment.x if kind == 1 else payment.y
 		label.visible = owned > 0
-		label.text = tr("+%d / 10s") % amount
-		label.tooltip_text = tr("Refinery income · %d / %d active") % [active, owned]
+		label.text = tr("+%d / min") % roundi(amount)
+		label.tooltip_text = tr("Economic sites · %d / %d active") % [active, owned]
 		label.accessibility_name = label.tooltip_text + ": " + label.text
 
 
@@ -286,7 +286,7 @@ func _refresh():
 	elif near_capacity:
 		color = BattleTheme.SIGNAL_WARN
 	_power_icon.modulate = color
-	_power_title.text = "POWER   %d used / %d supply" % [power.y, power.x]
+	_power_title.text = tr("POWER   %d used / %d supply") % [power.y, power.x]
 	_power_meter.max_value = maxi(1, power.x)
 	_power_meter.value = mini(power.y, power.x)
 	# A deficit with no generators still needs a visible warning meter.
@@ -296,22 +296,31 @@ func _refresh():
 	_power_meter.queue_redraw()
 	_power_status.add_theme_color_override("font_color", color)
 	if low:
-		_power_status.text = "LOW POWER · %d deficit · 35%% speed" % -spare
+		_power_status.text = tr("BROWNOUT · %d deficit · 25%% speed") % -spare
 	elif power.x == 0:
-		_power_status.text = "No generation · build a power plant"
+		_power_status.text = tr("No generation · build a power plant")
 	elif spare == 0:
-		_power_status.text = "At capacity · build more power"
+		_power_status.text = tr("At capacity · build more power")
 	elif near_capacity:
-		_power_status.text = "%d available · build power soon" % spare
+		_power_status.text = tr("%d available · build power soon") % spare
 	else:
 		# Spare power is supply minus demand, already on the meter: say nothing.
-		_power_status.text = ""
+		_power_status.text = tr("Logistics · %d / 100") % floori(player.logistics)
 	_power_status.visible = not _power_status.text.is_empty()
 	tooltip_text = (
-		"Power meter: demand / supply. Only completed structures supply or consume power. "
-		+ "Low power runs production, research and depot repair at 35% speed. "
+		tr("Power meter: demand / supply. Only completed structures supply or consume power.")
+		+ " "
+		+ tr(
+			(
+				"Brownouts stop defense turrets, halve shield recharge and slow production, "
+				+ "research and depot repair to 25%."
+			)
+		)
+		+ " "
+		+ tr("Logistics · %d / 100") % floori(player.logistics)
+		+ ". "
 		+ (
-			"Queued units reserve population. Structures: %d / 40 (includes foundations)."
+			tr("Queued units reserve population. Structures: %d / 40 (includes foundations).")
 			% player.structure_count()
 		)
 	)

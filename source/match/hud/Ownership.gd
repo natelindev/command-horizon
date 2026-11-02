@@ -27,7 +27,7 @@ static func kind(unit, game):
 	)
 
 
-static func known_now(unit, game):
+static func known_now(unit, game, observers = null):
 	if game.restoring or unit.is_queued_for_deletion() or not unit.is_visible_in_tree():
 		return false
 	if unit.is_in_group("resource_units"):
@@ -36,7 +36,17 @@ static func known_now(unit, game):
 		return false
 	if game.settings.visibility == game.settings.Visibility.FULL:
 		return true
-	for observer in game.visible_players:
+	if observers == null:
+		observers = game.visible_players
+	# Ownership always grants sight before cloak checks in Battlefield. Mines
+	# instead use engineering's detection rules, even for their owning player.
+	if (
+		not unit.is_in_group("field_mines")
+		and is_instance_valid(unit.player)
+		and unit.player in observers
+	):
+		return true
+	for observer in observers:
 		if is_instance_valid(observer) and game.battlefield.is_observed(observer, unit):
 			return true
 	return false

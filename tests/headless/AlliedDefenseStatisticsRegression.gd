@@ -11,6 +11,7 @@ func _run():
 		player.set_process(false)
 	game.hud.pause_after_load()
 	await _defense()
+	await _busy_cohort()
 	await _statistics()
 	for error in errors:
 		push_error(error)
@@ -107,6 +108,79 @@ func _defense():
 	_check(
 		not is_instance_of(responder.action, auto_attack_script),
 		"Manual retreat could not override defense"
+	)
+
+
+func _busy_cohort():
+	var owner = game._get_human_player()
+	var enemy = get_nodes_in_group("players").filter(func(p): return p != owner)[0]
+	var moving = load("res://source/match/units/actions/Moving.gd")
+	var origin = Vector3(30, 0, 48)
+	for index in 64:
+		_spawn_test("Tank", owner, Vector3(15 + index % 8 * 2, 0, 20 + index / 8 * 2))
+	for unit in game.get_units():
+		if unit.get_node_or_null("Movement") != null:
+			unit.manual_orders.cancel()
+			unit.action = moving.new(origin + Vector3(0, 0, 20))
+	var victim = _spawn_test("PowerPlant", owner, origin)
+	var responder = _spawn_test("Tank", owner, origin + Vector3(0, 0, 4))
+	var held = _spawn_test("Tank", owner, origin + Vector3(2, 0, 4))
+	var attacker = _spawn_test("Tank", enemy, origin + Vector3(6, 0, 0))
+	attacker.action = moving.new(origin + Vector3(20, 0, 0))
+	responder.action = waiting_script.new()
+	held.action = waiting_script.new()
+	held.stance = held.Stance.HOLD_FIRE
+	var defense_script = load("res://source/match/combat/AlliedDefense.gd")
+	var defense = game.get_children().filter(func(node): return node.get_script() == defense_script)[0]
+	_check(
+		defense._candidates.size() <= defense.SMALL_COHORT,
+		"Busy-cohort fixture missed small idle path"
+	)
+	game.battlefield.invalidate()
+	victim.receive_weapon_hit(attacker)
+	_check(
+		is_instance_of(responder.action, auto_attack_script),
+		"Small idle cohort lost local assistance"
+	)
+	_check(is_instance_of(held.action, waiting_script), "Small cohort bypassed same-tick Hold fire")
+	held.stance = held.Stance.AGGRESSIVE
+	victim.receive_weapon_hit(attacker)
+	_check(
+		is_instance_of(held.action, auto_attack_script), "Same-tick stance change missed assistance"
+	)
+	responder.action = null
+	responder.stance = responder.Stance.HOLD_POSITION
+	var held_action = responder.action
+	victim.receive_weapon_hit(attacker)
+	_check(responder.action == held_action, "Action index bypassed Hold position")
+	responder.stance = responder.Stance.AGGRESSIVE
+	victim.receive_weapon_hit(attacker)
+	_check(
+		is_instance_of(responder.action, auto_attack_script),
+		"Same-tick released action missed assistance"
+	)
+	var indexed = defense._action_changed.bind(responder)
+	responder.action_changed.disconnect(indexed)
+	var substituted = {"done": false}
+	var substitute = func(action):
+		if not substituted.done and is_instance_of(action, moving):
+			substituted.done = true
+			responder.action = waiting_script.new()
+	responder.action_changed.connect(substitute)
+	responder.action_changed.connect(indexed)
+	responder.action = moving.new(origin + Vector3(0, 0, 20))
+	responder.action_changed.disconnect(substitute)
+	victim.receive_weapon_hit(attacker)
+	_check(
+		substituted.done and is_instance_of(responder.action, auto_attack_script),
+		"Reentrant action replacement lost local assistance"
+	)
+	held.action = null
+	held.queue_free()
+	await _frames(2)
+	_check(
+		defense._candidates.keys().all(func(unit): return is_instance_valid(unit)),
+		"Defense retained a freed body"
 	)
 
 

@@ -10,31 +10,47 @@ func _run():
 			side.set_process(false)
 		paused = true
 		var human = game._get_human_player()
+		human.resource_a = 1000
+		human.resource_b = 1000
+		var decentralized = faction == "frontier"
 		_check(human.power_totals() == Vector2i(8, 0), "HQ should only bootstrap the opening")
 		_spawn("Barracks", human, Vector3(30, 0, 20))
 		_spawn("VehicleFactory", human, Vector3(30, 0, 30))
-		_check(human.production_factor() == 0.35, "Opening factory no longer needs a generator")
+		_check(
+			human.production_factor() == (1.0 if decentralized else .25),
+			"Opening grid ignored the faction's infrastructure demand"
+		)
 		_spawn("PowerPlant", human, Vector3(18, 0, 20))
 		_spawn("CommandLab", human, Vector3(30, 0, 40))
 		_check(human.production_factor() == 1.0, "One plant cannot support early ground tech")
-		_spawn("AircraftFactory", human, Vector3(40, 0, 20))
+		if not decentralized:
+			_spawn("AircraftFactory", human, Vector3(40, 0, 20))
 		_spawn("RepairDepot", human, Vector3(40, 0, 30))
 		_spawn("AntiGroundTurret", human, Vector3(40, 0, 40))
 		_spawn("AntiAirTurret", human, Vector3(40, 0, 50))
-		_check(human.power_totals() == Vector2i(20, 29), "Full base should outgrow one plant")
-		_check(human.production_factor() == 0.35, "Full base ignored insufficient power")
+		if decentralized:
+			_check(
+				human.power_totals() == Vector2i(20, 12), "Frontier infrastructure lost low draw"
+			)
+			for index in 3:
+				_spawn("VehicleFactory", human, Vector3(60 + index * 8, 0, 20))
+		_check(
+			human.power_totals() == Vector2i(20, 21 if decentralized else 29),
+			"Full production base should outgrow one plant"
+		)
+		_check(human.production_factor() == .25, "Full base ignored insufficient power")
 		var queue = _units(human, "VehicleFactory")[0].production_queue
 		var job = queue.produce(load(catalog.scene_path("Tank")))
 		_check(job != null, "Power fixture could not pay for a tank")
 		var time_before = job.time_left
 		queue._process(1.0)
 		_check(
-			is_equal_approx(time_before - job.time_left, 0.35),
+			is_equal_approx(time_before - job.time_left, 0.25),
 			"Low power did not slow real production"
 		)
 		var second = _spawn("PowerPlant", human, Vector3(18, 0, 30))
 		second._construction_progress = 0.0
-		_check(human.production_factor() == 0.35, "Unfinished generator supplied power")
+		_check(human.production_factor() == .25, "Unfinished generator supplied power")
 		second._construction_progress = 1.0
 		_check(human.production_factor() == 1.0, "Second generator did not restore full speed")
 		time_before = job.time_left
@@ -44,14 +60,21 @@ func _run():
 			"Restored power did not resume production"
 		)
 		queue.cancel_all()
-		_spawn("VehicleFactory", human, Vector3(50, 0, 20))
-		_spawn("AircraftFactory", human, Vector3(50, 0, 30))
-		_check(human.power_totals() == Vector2i(32, 43), "Expanded production demand is wrong")
-		_check(human.production_factor() == 0.35, "Expanded base did not require a third plant")
+		if decentralized:
+			for index in 4:
+				_spawn("VehicleFactory", human, Vector3(60 + index * 8, 0, 40))
+		else:
+			_spawn("VehicleFactory", human, Vector3(50, 0, 20))
+			_spawn("AircraftFactory", human, Vector3(50, 0, 30))
+		_check(
+			human.power_totals() == Vector2i(32, 33 if decentralized else 43),
+			"Expanded production demand is wrong"
+		)
+		_check(human.production_factor() == .25, "Expanded base did not require a third plant")
 		var third = _spawn("PowerPlant", human, Vector3(18, 0, 40))
 		_check(human.production_factor() == 1.0, "Third generator did not support expansion")
 		third.queue_free()
-		_check(human.production_factor() == 0.35, "Destroyed generator still supplies power")
+		_check(human.production_factor() == .25, "Destroyed generator still supplies power")
 		await _frames(2)
 		await _ai_power()
 		print("POWER ", faction, " opening / full base / expansion / generator loss verified")
@@ -61,12 +84,13 @@ func _run():
 	for message in errors:
 		push_error(message)
 	print("Power balance: %d failures" % errors.size())
-	quit(0 if errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
 
 
 func _ai_power():
 	var human = game._get_human_player()
 	var opponent = get_nodes_in_group("players").filter(func(p): return p != human)[0]
+	opponent.faction = human.faction
 	_spawn("Barracks", opponent, Vector3(100, 0, 60))
 	_spawn("VehicleFactory", opponent, Vector3(100, 0, 70))
 	_spawn("CommandLab", opponent, Vector3(100, 0, 80))
@@ -79,6 +103,15 @@ func _ai_power():
 	for index in 15:
 		_spawn("Infantry", opponent, Vector3(90 + index, 0, 90))
 	game.simulation_time = 170
+	if human.faction == "frontier":
+		_check(
+			opponent.power_totals() == Vector2i(20, 10), "Frontier AI infrastructure draw changed"
+		)
+		_check(
+			opponent._next_building(opponent._units()) != "AircraftFactory",
+			"Frontier AI planned an excluded aerospace factory"
+		)
+		return
 	_check(opponent.power_totals() == Vector2i(20, 17), "AI expansion fixture has wrong power")
 	_check(
 		opponent._next_building(opponent._units()) == "PowerPlant",

@@ -14,6 +14,8 @@ var _finish_when_repaired = false
 static func is_applicable(source_unit, target_unit):
 	if not is_instance_valid(source_unit) or not is_instance_valid(target_unit):
 		return false
+	if target_unit.has_method("can_field_repair") and target_unit.can_field_repair(source_unit):
+		return true
 	return source_unit is RepairRobot and Repairs.mobile_eligible(source_unit, target_unit)
 
 
@@ -51,6 +53,9 @@ func _physics_process(delta):
 		_movement.move(_target.global_position)
 	else:
 		_movement.stop()
+		if _target.has_method("repair_ruin"):
+			if not _target.repair_ruin(_unit) or _target.hp >= _target.hp_max:
+				queue_free()
 
 
 func _exit_tree():

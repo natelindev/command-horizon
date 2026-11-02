@@ -123,6 +123,7 @@ func enter(unit, saved_slot = -1):
 	unit.get_node("Geometry").hide()
 	unit.collision_layer = 0
 	unit.global_position = global_position + Vector3(0, 1.8, 0)
+	movement._ground_motion_budget(0.0, 0.0, true)
 	unit.get_node("Selection").deselect()
 	_match.battlefield.invalidate()
 	update_label()
@@ -157,6 +158,7 @@ func leave(unit, reserved_exit = Vector3.INF):
 	)
 	unit.reset_physics_interpolation()
 	movement.stop()
+	movement._ground_motion_budget(0.0, 0.0, true)
 	movement.set_velocity_forced(Vector3.ZERO)
 	movement.set_physics_process(true)
 	movement.avoidance_enabled = true

@@ -290,7 +290,7 @@ func scan():
 	if power.y > power.x:
 		var draft = _draft("power", "power", Vector3.ZERO)
 		draft.title = "Low power"
-		draft.detail = "%d used / %d supply · production at 35%% speed." % [power.y, power.x]
+		draft.detail = "%d used / %d supply · production at 25%% speed." % [power.y, power.x]
 		draft.priority = 70
 		draft.delay = 2.0
 		for unit in own:

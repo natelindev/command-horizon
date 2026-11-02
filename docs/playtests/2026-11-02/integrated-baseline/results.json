@@ -1,0 +1,991 @@
+{
+  "project": "/tmp/copperfin-integration-project",
+  "user_data_isolated": true,
+  "archives_copied": true,
+  "total": 91,
+  "completed": 91,
+  "results": [
+    {
+      "suite": "BehaviorRegression",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 17.003,
+      "errors": [
+        "ERROR: Attack did not fire"
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "UnitAnimationRegression",
+      "status": "review",
+      "exit_code": 0,
+      "seconds": 10.75,
+      "errors": [
+        "SCRIPT ERROR: Invalid assignment of property or key '_headless' with value of type 'bool' on a base object of type 'GDScript'.",
+        "SCRIPT ERROR: Invalid assignment of property or key '_headless' with value of type 'bool' on a base object of type 'GDScript'.",
+        "SCRIPT ERROR: Invalid assignment of property or key '_headless' with value of type 'bool' on a base object of type 'GDScript'."
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "ChassisSpringRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 1.367,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "ParallelPoseRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 1.264,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "InfantryPoseWorkerRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 6.312,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "DecoupledPoseRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 5.88,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "UnitRegistryRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 3.008,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "PlayerRosterRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 4.278,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "VisibilityRefreshRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 1.272,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "InfantryRedesignRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 2.059,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "InfantryMeshBatchRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 1.952,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "InfantryDeathGroundRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 5.093,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "InfantryMotionRegression",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 15.022,
+      "errors": [
+        "ERROR: Cannot fire near new range edge: AdvancedTank",
+        "ERROR: Target scan truncates new range: AdvancedTank",
+        "ERROR: Squad stopped without firing",
+        "ERROR: Squad stopped without firing",
+        "ERROR: Cannot fire near new range edge: CombatRobot",
+        "ERROR: Target scan truncates new range: CombatRobot"
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "TerrainGroundingRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 7.954,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "CombatRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 4.897,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "AntiAirPriorityRegression",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 5.262,
+      "errors": [
+        "ERROR: Retargeted turret did not hit the aircraft",
+        "ERROR: AA turret archive failed: Invalid technology research.",
+        "ERROR: AA turret archive failed: Invalid technology research.",
+        "ERROR: AA turret archive failed: Invalid technology research."
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "TechnologyRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 18.784,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "TechnologyAIRegression",
+      "status": "review",
+      "exit_code": 0,
+      "seconds": 0.275,
+      "errors": [
+        "SCRIPT ERROR: Parse Error: Identifier \"rules\" not declared in the current scope.",
+        "SCRIPT ERROR: Parse Error: Identifier \"enemy\" not declared in the current scope.",
+        "SCRIPT ERROR: Parse Error: Function \"_spawn_tech()\" not found in base self.",
+        "ERROR: Failed to load script \"res://tests/headless/TechnologyAIRegression.gd\" with error \"Parse error\"."
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "WeaponModeRegression",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 6.972,
+      "errors": [
+        "ERROR: Walker autocannon armor profile",
+        "ERROR: Walker AA profile did not fire after shared reload",
+        "ERROR: Lancer did not actually intercept aircraft"
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "ResearchTilesRegression",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 5.137,
+      "errors": [
+        "SCRIPT ERROR: Parse Error: Identifier \"player\" not declared in the current scope.",
+        "ERROR: Failed to load script \"res://source/match/economy/FrontierAirContracts.gd\" with error \"Parse error\".",
+        "SCRIPT ERROR: Invalid call. Nonexistent function 'get_for' in base 'GDScript'.",
+        "SCRIPT ERROR: Invalid call. Nonexistent function 'get_for' in base 'GDScript'.",
+        "ERROR: res://source/match/economy/FrontierAirContracts.gd: Parse Error: Identifier \"player\" not declared in the current scope. ",
+        "ERROR: modules/gdscript/gdscript_resource_format.cpp: Failed to load script \"res://source/match/economy/FrontierAirContracts.gd\" with error \"Parse error\". ",
+        "ERROR: res://source/match/hud/MarketPanel.gd: Invalid call. Nonexistent function 'get_for' in base 'GDScript'. ",
+        "ERROR: res://source/match/hud/MarketPanel.gd: Invalid call. Nonexistent function 'get_for' in base 'GDScript'. "
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "ResearchQueueRegression",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 7.063,
+      "errors": [
+        "ERROR: Paid queue rejected weapons_1",
+        "ERROR: Paid queue rejected weapons_2",
+        "ERROR: Paid queue rejected armor_1",
+        "ERROR: Paid queue rejected armor_2",
+        "ERROR: Paid queue rejected service",
+        "ERROR: Paid queue rejected doctrine",
+        "ERROR: Paid queue rejected dual_purpose_aa",
+        "ERROR: Research ran concurrently",
+        "ERROR: Queue did not reserve every exact price",
+        "ERROR: Rejected duplicate changed resources",
+        "ERROR: Queued Coordination could not be cancelled",
+        "ERROR: Dependent queue cancellation differs",
+        "ERROR: Dependent queued prices were not refunded",
+        "ERROR: Active cancellation refunded twice",
+        "ERROR: Queue cancellation did not conserve resources",
+        "ERROR: Weapon retry refused",
+        "ERROR: Active prerequisite did not support queue",
+        "ERROR: Active prerequisite cancellation lost funds",
+        "ERROR: Direct Coordination queue purchase refused",
+        "ERROR: Doctrine could not follow Coordination",
+        "ERROR: Ordered queue rejected weapons_1",
+        "ERROR: Ordered queue rejected weapons_2",
+        "ERROR: Ordered queue rejected armor_1",
+        "ERROR: First queued research did not complete",
+        "ERROR: Coordination handoff changed queue order",
+        "ERROR: Queued research snapshot invalid: Invalid technology research.",
+        "ERROR: Queued research restore failed: Invalid technology research.",
+        "ERROR: Post-queue snapshot invalid: Invalid technology research."
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "StructureActivityRegression",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 9.632,
+      "errors": [
+        "ERROR: Research did not start",
+        "ERROR: Lab lacks researching state",
+        "ERROR: Research progress is frozen",
+        "ERROR: Research sensor does not turn",
+        "ERROR: Task lighting switches off abruptly",
+        "ERROR: Low-power fixture still powered",
+        "ERROR: Low power departure has wrong speed",
+        "ERROR: Research did not start",
+        "ERROR: Lab lacks researching state",
+        "ERROR: Research progress is frozen",
+        "ERROR: Research sensor does not turn",
+        "ERROR: Task lighting switches off abruptly",
+        "ERROR: Unit teleports at departure handoff",
+        "ERROR: Low-power fixture still powered",
+        "ERROR: Low power departure has wrong speed",
+        "ERROR: Research did not start",
+        "ERROR: Lab lacks researching state",
+        "ERROR: Research progress is frozen",
+        "ERROR: Research sensor does not turn",
+        "ERROR: Task lighting switches off abruptly",
+        "ERROR: Completion duplicates or loses unit",
+        "ERROR: Clear test exit reported blocked: Worker",
+        "ERROR: Completion duplicates or loses unit",
+        "ERROR: Clear test exit reported blocked: CombatRobot",
+        "ERROR: Could not enqueue Helicopter",
+        "ERROR: Blocking fixture starts obstructed",
+        "ERROR: Low-power fixture still powered",
+        "ERROR: Low power departure has wrong speed",
+        "ERROR: Restored departure lost unit"
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "PersistentCaptureRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 13.825,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "CampaignInteriorRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 27.35,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "HeroCampaignRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 59.953,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "SkirmishPickerRegression",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 4.745,
+      "errors": [
+        "ERROR: Preview omits facilities: res://source/match/maps/battlefields/DesertFrontierMap.tscn",
+        "ERROR: Preview omits facilities: res://source/match/maps/battlefields/AlpineRelayMap.tscn",
+        "ERROR: Preview omits facilities: res://source/match/maps/battlefields/CoastalFoundryMap.tscn",
+        "ERROR: Preview omits facilities: res://source/match/maps/battlefields/RedrockDivideMap.tscn",
+        "ERROR: Preview omits facilities: res://source/match/maps/battlefields/SaltwindBasinMap.tscn",
+        "ERROR: Preview omits facilities: res://source/match/maps/battlefields/PinebreakValleyMap.tscn",
+        "ERROR: Preview omits facilities: res://source/match/maps/battlefields/GlacierNarrowsMap.tscn",
+        "ERROR: Preview omits facilities: res://source/match/maps/battlefields/EmberworksMap.tscn",
+        "ERROR: Preview omits facilities: res://source/match/maps/battlefields/CinderRingMap.tscn",
+        "ERROR: Preview omits facilities: res://source/match/maps/battlefields/FourRiversMap.tscn",
+        "ERROR: Preview omits facilities: res://source/match/maps/battlefields/SunkenExchangeMap.tscn",
+        "ERROR: Preview omits facilities: res://source/match/maps/battlefields/FrostboundCrownMap.tscn",
+        "ERROR: Preview omits facilities: res://source/match/maps/battlefields/CopperBadlandsMap.tscn",
+        "ERROR: Preview omits facilities: res://source/match/maps/battlefields/VerdantCommonsMap.tscn",
+        "ERROR: Preview omits facilities: res://source/match/maps/battlefields/RailspireJunctionMap.tscn",
+        "ERROR: Preview omits facilities: res://source/match/maps/battlefields/ShatteredOasisMap.tscn"
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "WorkerDistributionRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 18.196,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "CargoReturnRegression",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 27.211,
+      "errors": [
+        "ERROR: Worker still shows unusable attack button"
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "ResourceFieldRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 13.934,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "GarrisonCombatExitRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 1.893,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "PointOfInterestRegression",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 24.584,
+      "errors": [
+        "ERROR: Mercenary weapon did not deal damage: MercenaryLancer"
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "MapMetricsRegression",
+      "status": "review",
+      "exit_code": 0,
+      "seconds": 54.972,
+      "errors": [
+        "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "GlacierHarvestRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 7.602,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "TerrainSightRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 5.33,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "CliffMeshRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 1.572,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "AuthoredRelayRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 12.758,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "AuthoredGarrisonRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 8.018,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "SaveNavigationTimingRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 1.189,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "ContactApproachRegression",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 42.103,
+      "errors": [
+        "ERROR: Contact recovery teleported the engineer",
+        "ERROR: Contact recovery teleported the engineer",
+        "ERROR: Contact recovery teleported the engineer",
+        "ERROR: Building work started beyond contact range"
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "NavigationRegression",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 47.551,
+      "errors": [
+        "ERROR: Unit did not repath after a building was placed",
+        "ERROR: Unit did not route through a removed building"
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "NavigationProjectionRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 13.109,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "MapPlayabilityRegression",
+      "status": "review",
+      "exit_code": 0,
+      "seconds": 44.173,
+      "errors": [
+        "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "MapPreviewRegression",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 18.148,
+      "errors": [
+        "ERROR: Stale preview metadata: Desert Frontier points_of_interest",
+        "ERROR: Stale preview metadata: Alpine Relay points_of_interest",
+        "ERROR: Stale preview metadata: Coastal Foundry points_of_interest",
+        "ERROR: Stale preview metadata: Redrock Divide points_of_interest",
+        "ERROR: Stale preview metadata: Saltwind Basin points_of_interest",
+        "ERROR: Stale preview metadata: Pinebreak Valley points_of_interest",
+        "ERROR: Stale preview metadata: Glacier Narrows points_of_interest",
+        "ERROR: Stale preview metadata: Emberworks points_of_interest",
+        "ERROR: Stale preview metadata: Cinder Ring points_of_interest",
+        "ERROR: Stale preview metadata: Four Rivers points_of_interest",
+        "ERROR: Stale preview metadata: Sunken Exchange points_of_interest",
+        "ERROR: Stale preview metadata: Frostbound Crown points_of_interest",
+        "ERROR: Stale preview metadata: Copper Badlands points_of_interest",
+        "ERROR: Stale preview metadata: Verdant Commons points_of_interest",
+        "ERROR: Stale preview metadata: Railspire Junction points_of_interest",
+        "ERROR: Stale preview metadata: Shattered Oasis points_of_interest"
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "MusicRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 3.587,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "SelectionBatchRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 4.806,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "ProjectileSystemRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 3.702,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "ProjectilePhysicsRegression",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 6.457,
+      "errors": [
+        "ERROR: bastion AntiAirVehicle damage has the wrong domain multiplier against Barracks",
+        "ERROR: bastion AntiAirVehicle projectile damage differs against Barracks",
+        "ERROR: bastion AntiAirTurret damage has the wrong domain multiplier against Barracks",
+        "ERROR: bastion AntiAirTurret projectile damage differs against Barracks",
+        "ERROR: bastion bomb did not deal double damage to a building",
+        "ERROR: helix AntiAirTurret damage has the wrong domain multiplier against Barracks",
+        "ERROR: helix AntiAirTurret projectile damage differs against Barracks",
+        "ERROR: helix bomb did not deal double damage to a building",
+        "ERROR: frontier AntiAirVehicle damage has the wrong domain multiplier against Barracks",
+        "ERROR: frontier AntiAirVehicle projectile damage differs against Barracks",
+        "ERROR: frontier AntiAirTurret damage has the wrong domain multiplier against Barracks",
+        "ERROR: frontier AntiAirTurret projectile damage differs against Barracks",
+        "ERROR: frontier bomb did not deal double damage to a building"
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "FixedWingFlightRegression",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 10.858,
+      "errors": [
+        "ERROR: Bomber lacks its double-damage building bonus",
+        "ERROR: Released bomb lost the building bonus"
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "FixedWingSaveRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 5.941,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "AirSaveContinuityRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 4.727,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "RotorcraftCombatRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 4.95,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "FrontierCombatRegression",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 3.857,
+      "errors": [
+        "ERROR: Frontier Tank health",
+        "ERROR: Frontier Tank damage",
+        "ERROR: Frontier Tank speed",
+        "ERROR: Real heavy cannon hit differs vs Tank",
+        "ERROR: Real heavy cannon hit differs vs Infantry",
+        "ERROR: Jackal cannot acquire nearby aircraft",
+        "ERROR: Real Jackal AA hit differs"
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "AirfieldOperationsRegression",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 17.46,
+      "errors": [
+        "ERROR: Can't take value from empty array.",
+        "SCRIPT ERROR: Invalid access to property or key 'paid_cost' on a base object of type 'Nil'.",
+        "ERROR: Airfield rejected an available stand",
+        "ERROR: Airfield rejected an available stand",
+        "ERROR: Airfield rejected an available stand",
+        "ERROR: Airfield rejected an available stand"
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "GroundHeightAlignmentRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 7.05,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "GroundCrowdRecoveryRegression",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 45.782,
+      "errors": [
+        "ERROR: Recovery preferred centimetres of side clearance over a clear backward escape",
+        "ERROR: Crowd fixture did not select the open backward escape",
+        "ERROR: Tank did not escape the settled crowd and reach its destination",
+        "ERROR: Worker kept returning to a corner inside a settled tank",
+        "ERROR: Corner recovery exceeded movement speed",
+        "ERROR: Unit did not repath after a building was placed",
+        "ERROR: Unit did not route through a removed building"
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "SkirmishBuildReadinessRegression",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 14.064,
+      "errors": [
+        "ERROR: Bank balance fixture still had an expense",
+        "ERROR: Bank balance fixture still had an expense",
+        "ERROR: Bank balance fixture still had an expense"
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "SkirmishCompositionRegression",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 41.133,
+      "errors": [
+        "ERROR: Emergency AA created income or charged twice",
+        "ERROR: Scouted armor did not select faction-appropriate counter"
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "SkirmishDepositSelectionRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 6.675,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "UnitAbilitiesRegression",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 4.828,
+      "errors": [
+        "ERROR: HUD W did not activate all instant abilities"
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "AlliedDefenseStatisticsRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 13.339,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "PresentationFeaturesRegression",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 4.324,
+      "errors": [
+        "ERROR: Chinese tooltip fixture has no translation"
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "SettingsRegression",
+      "status": "review",
+      "exit_code": 0,
+      "seconds": 3.973,
+      "errors": [
+        "ERROR: Cannot save file 'user://settings-missing-4358/options.tres.pending.tres'."
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "UnitInfoTextRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 6.705,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "BattleHudProductionRegression",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 25.676,
+      "errors": [
+        "ERROR: helix ForwardRefinery borrows another faction's portrait",
+        "ERROR: frontier ForwardRefinery borrows another faction's portrait",
+        "ERROR: helix en Worker: roster is incomplete",
+        "ERROR: helix zh_CN Worker: roster is incomplete",
+        "ERROR: frontier en Barracks: tooltip omits its price",
+        "ERROR: frontier en Barracks: tooltip omits its price",
+        "ERROR: frontier en VehicleFactory: roster is incomplete",
+        "ERROR: frontier en VehicleFactory: tooltip omits its price",
+        "ERROR: frontier en Worker: roster is incomplete",
+        "ERROR: frontier zh_CN Barracks: tooltip omits its price",
+        "ERROR: frontier zh_CN Barracks: tooltip omits its price",
+        "ERROR: frontier zh_CN VehicleFactory: roster is incomplete",
+        "ERROR: frontier zh_CN VehicleFactory: tooltip omits its price",
+        "ERROR: frontier zh_CN Worker: roster is incomplete"
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "ProductionBatchRegression",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 14.52,
+      "errors": [
+        "ERROR: frontier: Shift-click did not queue five",
+        "ERROR: frontier: batch charged incorrect costs",
+        "ERROR: frontier: plain click retained the batch modifier",
+        "ERROR: frontier: full queue charged for unqueued jobs",
+        "ERROR: frontier: batch ignored available resources",
+        "ERROR: frontier: selected factories did not share the five jobs"
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "BattleAftermathRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 1.578,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "MapPassageRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 1.494,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "ObjectMaterialsRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 14.087,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "RuntimeShutdownRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 1.579,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "EnvironmentEffectsRegression",
+      "status": "review",
+      "exit_code": 0,
+      "seconds": 11.736,
+      "errors": [
+        "ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit."
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "WaterFlowRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 1.587,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "WaterHybridRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 1.672,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "StrategicPolishRegression",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 6.898,
+      "errors": [
+        "ERROR: Damage contribution is not normalized to victim HP: 0.00, expected 50.00"
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "MicroControlsRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 10.835,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "CameraFeelRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 1.39,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "BattleFeedbackRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 10.374,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "SpatialQueryRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 1.848,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "GroundVehicleMotionRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 12.527,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "MixedArmyMovementRegression",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 91.558,
+      "errors": [
+        "ERROR: mixed advance: stranded mixed-army units",
+        "ERROR: mixed retreat through allies: stranded mixed-army units",
+        "ERROR: mixed retreat through allies: unit exceeded its movement speed",
+        "ERROR: Unit did not repath after a building was placed",
+        "ERROR: Unit did not route through a removed building"
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "CombatPresentationRegression",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 1.466,
+      "errors": [
+        "ERROR: Beam saturation leaked tracer nodes",
+        "ERROR: Saturated beam pool did not retire cleanly"
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "CombatAudioRegression",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 6.713,
+      "errors": [
+        "ERROR: Actual attack did not hit",
+        "ERROR: Actual hit lacks impact",
+        "ERROR: Actual death lacks infantry_fall",
+        "ERROR: Actual death lacks vehicle_destroy",
+        "ERROR: Incorrect store impact cue: jet_cannon []",
+        "ERROR: Audio metadata changed projectile damage: jet_cannon",
+        "ERROR: Incorrect store impact cue: air_to_air []",
+        "ERROR: Audio metadata changed projectile damage: air_to_air",
+        "ERROR: Audio metadata changed projectile damage: gravity_bomb",
+        "ERROR: Incorrect store impact cue: flak [\"weapon_charge\"]",
+        "ERROR: Audio metadata changed projectile damage: flak",
+        "ERROR: Incorrect store impact cue: interceptor [\"weapon_charge\"]",
+        "ERROR: Audio metadata changed projectile damage: interceptor",
+        "ERROR: Incorrect store impact cue: aa_autocannon [\"weapon_charge\"]",
+        "ERROR: Audio metadata changed projectile damage: aa_autocannon",
+        "ERROR: Actual hit lacks impact"
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "EndgamePresentationRegression",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 192.392,
+      "errors": [
+        "ERROR: Quiet battlefield retained combat percussion"
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "CommanderEliminationRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 5.35,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "OpeningGuidanceRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 7.134,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "PlacementFeedbackRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 6.631,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "DirectOrdersRegression",
+      "status": "failed",
+      "exit_code": 1,
+      "seconds": 18.482,
+      "errors": [
+        "ERROR: Attack-move passed an enemy without firing"
+      ],
+      "warnings": []
+    },
+    {
+      "suite": "KeyBindingsRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 7.471,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "SelectionRosterRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 27.731,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "RallyRetargetRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 37.276,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "RallyControlsRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 22.179,
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "suite": "LocalizationRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "seconds": 5.617,
+      "errors": [],
+      "warnings": []
+    }
+  ]
+}

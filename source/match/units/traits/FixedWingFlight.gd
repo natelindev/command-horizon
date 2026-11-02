@@ -157,6 +157,9 @@ func strike(target):
 
 
 func return_to_base():
+	var contract = _unit.get_node_or_null("MercenarySortie")
+	if contract != null:
+		contract.withdraw()
 	_command_revision += 1
 	mode = "return"
 	strike_target = null
@@ -195,7 +198,12 @@ func height_above_ground():
 
 
 func flight_velocity():
-	return _forward() * airspeed + Vector3.UP * vertical_speed
+	var commanded = _forward() * airspeed + Vector3.UP * vertical_speed
+	# Opt-in formation cruise follows the shared march pace. Dedicated runway,
+	# takeoff and landing phases retain their own safe flight envelopes.
+	if phase == Phase.AIRBORNE and cohesion_limit >= 0:
+		commanded = commanded.limit_length(cohesion_limit)
+	return commanded
 
 
 func cancel_exit_clearance():
@@ -215,6 +223,21 @@ func has_occupied_endpoint(_require_short_route = true):
 
 func _physics_process(delta):
 	_physics_delta = delta
+	refresh_cohesion()
+	if ion_stall_left > 0:
+		ion_stall_left = maxf(0.0, ion_stall_left - delta)
+		if is_airborne():
+			# An ion hit spoils thrust and lift, without changing the flight order.
+			airspeed = move_toward(airspeed, stall_speed * .45, braking * 2.0 * delta)
+			bank = move_toward(bank, sin(_match.simulation_time * 5.0) * .28, roll_rate * delta)
+			heading = wrapf(heading + sin(_match.simulation_time * 3.0) * .12 * delta, -PI, PI)
+			vertical_speed = move_toward(vertical_speed, -sink_rate * .6, climb_rate * 2.0 * delta)
+			_advance(delta)
+			_unit.global_position.y = maxf(
+				_unit.global_position.y, _ground_height(_unit.global_position) + .8
+			)
+			_publish()
+			return
 	if not _synchronized:
 		return
 	match phase:
@@ -346,6 +369,9 @@ func _fly(delta):
 
 func _airborne_goal(delta):
 	var position = _unit.global_position
+	var contract = _unit.get_node_or_null("MercenarySortie")
+	if contract != null and contract.departing:
+		return {"heading": _bearing(position, contract.exit), "speed": cruise_speed}
 	if _outside_map(position):
 		return {"heading": _bearing(position, _map_center()), "speed": cruise_speed}
 	match mode:
@@ -547,7 +573,7 @@ func _turn_toward_heading(desired, delta):
 
 
 func _advance(delta):
-	_unit.global_position += _forward() * airspeed * delta + Vector3.UP * vertical_speed * delta
+	_unit.global_position += flight_velocity() * delta
 	var wanted_pitch = atan2(vertical_speed, maxf(airspeed, 1.0))
 	pitch = move_toward(pitch, wanted_pitch, roll_rate * delta)
 

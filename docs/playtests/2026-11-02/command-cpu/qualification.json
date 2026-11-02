@@ -1,0 +1,87 @@
+{
+  "focused": [
+    {
+      "test": "OrderActivationRegression",
+      "mode": "native",
+      "exit_code": 0,
+      "log": "OrderActivationRegression-native-final.log"
+    },
+    {
+      "test": "ImmediatePointOrderRegression",
+      "mode": "native",
+      "exit_code": 0,
+      "log": "ImmediatePointOrderRegression-native-final.log"
+    },
+    {
+      "test": "FormationPlanningRegression",
+      "mode": "native",
+      "exit_code": 0,
+      "log": "FormationPlanningRegression-native-final.log"
+    },
+    {
+      "test": "NetworkFoundationRegression",
+      "mode": "native",
+      "exit_code": 0,
+      "log": "NetworkFoundationRegression-native-final.log"
+    },
+    {
+      "test": "TacticalFormationsRegression",
+      "mode": "native",
+      "exit_code": 0,
+      "log": "TacticalFormationsRegression-native-final.log"
+    },
+    {
+      "test": "OrderActivationRegression",
+      "mode": "fallback",
+      "exit_code": 0,
+      "log": "OrderActivationRegression-fallback-final.log"
+    },
+    {
+      "test": "ImmediatePointOrderRegression",
+      "mode": "fallback",
+      "exit_code": 0,
+      "log": "ImmediatePointOrderRegression-fallback-final.log"
+    },
+    {
+      "test": "FormationPlanningRegression",
+      "mode": "fallback",
+      "exit_code": 0,
+      "log": "FormationPlanningRegression-fallback-final.log"
+    },
+    {
+      "test": "NetworkFoundationRegression",
+      "mode": "fallback",
+      "exit_code": 0,
+      "log": "NetworkFoundationRegression-fallback-final.log"
+    },
+    {
+      "test": "TacticalFormationsRegression",
+      "mode": "fallback",
+      "exit_code": 0,
+      "log": "TacticalFormationsRegression-fallback-final.log"
+    }
+  ],
+  "checks_passed": 10,
+  "total_checks": 10,
+  "native_comparison": {
+    "mode": "native",
+    "exit_code": 0,
+    "original200_endpoint_order_serialized_parity": true,
+    "exact_original_endpoint_vector_parity": true,
+    "before_wall_median_us": 10926,
+    "after_wall_median_us": 11749,
+    "before_main_cpu_median_us": 10934,
+    "after_main_cpu_median_us": 11744
+  },
+  "fallback_comparison": {
+    "mode": "fallback",
+    "exit_code": 0,
+    "original200_endpoint_order_serialized_parity": true,
+    "exact_original_endpoint_vector_parity": true,
+    "before_wall_median_us": 12419,
+    "after_wall_median_us": 13043,
+    "before_main_cpu_median_us": 12425,
+    "after_main_cpu_median_us": 13050
+  },
+  "graphics": "Deferred by renewed user instruction; no normal/graphical engines launched this stage."
+}

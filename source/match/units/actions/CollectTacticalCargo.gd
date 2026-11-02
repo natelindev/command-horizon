@@ -33,4 +33,6 @@ func _on_movement_finished():
 
 
 func _to_string():
+	if is_instance_valid(_target_unit) and _target_unit.is_in_group("structure_ruins"):
+		return "Salvage ruins" if _unit.type == "Worker" else "Clear ruins"
 	return "Collect supplies"

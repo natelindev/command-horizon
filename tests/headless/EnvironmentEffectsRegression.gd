@@ -71,6 +71,21 @@ func _run():
 		_check(effects.weather_material.get_shader_parameter("mist") > .5, "Mist is not visible")
 		if map_name == "CinderRingMap":
 			_check(effects.embers != null and effects.embers.amount == 96, "Lava budget missing")
+			_check(effects.embers.lifetime == 4.0, "Embers lost their four-second lifetime")
+			var processor = effects.embers.process_material
+			_check(processor is ShaderMaterial, "Embers require an owned particle processor")
+			var points = processor.get_shader_parameter("emission_points").get_image()
+			_check(points.get_width() == 96, "Ember emission points were lost")
+			var pools = game.map.layout.water.filter(func(pool): return pool.get("lava", false))
+			for index in points.get_width():
+				var point = points.get_pixel(index, 0)
+				var inside_lava = false
+				for pool in pools:
+					inside_lava = inside_lava or (
+						Geometry2D.is_point_in_polygon(Vector2(point.r, point.b), pool.polygon)
+						and is_equal_approx(point.g, pool.get("level", 0.0) - .2)
+					)
+				_check(inside_lava, "Ember emission escaped authored lava")
 			_check(
 				effects.embers.emitting and effects.embers.amount_ratio == 1.0,
 				"High detail lava budget"

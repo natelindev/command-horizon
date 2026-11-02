@@ -25,7 +25,8 @@ func _ready():
 	super()
 	get_node("Menu").queue_free()
 	_camera.process_mode = Node.PROCESS_MODE_ALWAYS
-	_camera.size_max = 45
+	# Whole-army formations need an overview above the dense bottom console.
+	_camera.size_max = Constants.Match.SKIRMISH_CAMERA_MAX_SIZE
 	_camera.set_size_safely(24)
 	_get_human_player().get_node("StructurePlacementHandler").process_mode = (
 		Node.PROCESS_MODE_ALWAYS

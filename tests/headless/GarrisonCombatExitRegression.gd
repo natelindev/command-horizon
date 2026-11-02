@@ -5,19 +5,24 @@ func _run():
 	Manual = load("res://source/match/orders/ManualOrders.gd")
 	root.get_node("SaveManager").autosaves_enabled = false
 	path = "user://garrison-combat-exit-%d.json" % OS.get_process_id()
-	for map_name in ["battlefields/EmberworksMap", "IndustrialCrossroads", "CoastalFoundry"]:
-		if not OS.get_cmdline_user_args().is_empty() and map_name not in OS.get_cmdline_user_args():
+	var maps = ["battlefields/EmberworksMap", "IndustrialCrossroads", "CoastalFoundry"]
+	var selected = maps.filter(func(map_name): return map_name in OS.get_cmdline_user_args())
+	var checked_maps = 0
+	for map_name in maps:
+		if not selected.is_empty() and map_name not in selected:
 			continue
 		await _create(map_name)
+		checked_maps += 1
 		game.settings.visibility = game.settings.Visibility.FULL
 		for building in game.get_node("NeutralWorld").buildings:
 			if building.habitable:
 				await _exercise(building)
 		await _restored_shot_and_exit()
 		await _close()
+	_check(checked_maps > 0, "Garrison combat fixture did not exercise a map")
 	for message in errors:
 		push_error(message)
-	print("Garrison combat and exits: %d failures" % errors.size())
+	print("Garrison combat and exits: %d maps, %d failures" % [checked_maps, errors.size()])
 	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
 
 
@@ -32,6 +37,11 @@ func _exercise(building):
 		)
 		troops.append(soldier)
 	await _frames(20)
+	if "--native-crowd-runtime" in OS.get_cmdline_user_args():
+		_check(
+			troops.all(func(soldier): return soldier.get_node("Movement")._native_handle >= 0),
+			"Garrison movement did not bind the requested native runtime"
+		)
 	# Establish ownership before the other seven approach. Their avoidance
 	# can otherwise push the capturer outside range and restart its channel;
 	# this fixture tests eight firing slots and exits, not contested capture.
@@ -155,9 +165,24 @@ func _restored_shot_and_exit():
 	human = game._get_human_player()
 	enemy = get_nodes_in_group("players").filter(func(side): return side != human)[0]
 	target = _units(enemy, "Tank")[0]
-	var hp = target.hp
+	var durability = Vector2(target.hp, target.shields)
 	await _frames(90)
-	_check(target.hp < hp, "Saved direct shot did not resume from inside shelter")
+	print(
+		"Garrison restored fire ",
+		game.settings.map_path.get_file(),
+		" hull=",
+		durability.x,
+		"->",
+		target.hp,
+		" shields=",
+		durability.y,
+		"->",
+		target.shields
+	)
+	_check(
+		target.hp + target.shields < durability.x + durability.y,
+		"Saved direct shot did not resume from inside shelter"
+	)
 	soldier.manual_orders.submit(
 		Manual.point_order("move", building.global_position + Vector3(building.radius + 7, 0, 0))
 	)

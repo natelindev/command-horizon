@@ -80,31 +80,13 @@ func consume_by(unit) -> bool:
 	):
 		return false
 	resource_a = 0
+	if not game.settings.mission_id.is_empty() and unit.player.faction == "frontier":
+		load("res://source/match/campaign/CampaignHubState.gd").new().record_recovered_wreck(unit)
 	return true
 
 
 func dismantle(worker) -> bool:
-	if not can_harvest(worker) or not Utils.Match.Unit.Movement.units_adhere(worker, self):
-		return false
-	var amount = resource_a
-	if not consume_by(worker):
-		return false
-	if (
-		worker.player != null
-		and worker.player.technology != null
-		and "scrap_cannibalization" in worker.player.technology.completed
-	):
-		amount = floori(amount * 1.43)
-		var center = global_position
-		for ally in worker.player.get_children():
-			if (
-				ally.is_in_group("units")
-				and ally.hp != null
-				and ally.hp_max != null
-				and ally.hp > 0
-				and ally.global_position.distance_squared_to(center) <= 64.0
-			):
-				ally.hp = minf(ally.hp_max, ally.hp + 25.0)
-	worker.player.resource_a += amount
-	MatchSignals.resources_mined.emit(worker, "materials", amount)
-	return true
+	var component = (
+		worker.get_node_or_null("BattlefieldSalvage") if is_instance_valid(worker) else null
+	)
+	return component != null and component.dismantle(self)

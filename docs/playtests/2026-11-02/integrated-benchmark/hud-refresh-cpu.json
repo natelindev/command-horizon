@@ -1,0 +1,94 @@
+{
+  "kind": "repeated synchronous HUD path CPU diagnostic; not end-to-end frame gate",
+  "selected": 200,
+  "samples_per_function": 40,
+  "clock": "CLOCK_THREAD_CPUTIME_ID",
+  "cases": [
+    {
+      "wounded": 0,
+      "coordination": false,
+      "before": {
+        "abilities": 1.113,
+        "buttons": 7.474,
+        "recovery": 0.35
+      },
+      "after": {
+        "abilities": 1.177,
+        "buttons": 4.677,
+        "recovery": 0.302
+      }
+    },
+    {
+      "wounded": 0,
+      "coordination": true,
+      "before": {
+        "abilities": 1.591,
+        "buttons": 7.649,
+        "recovery": 0.369
+      },
+      "after": {
+        "abilities": 1.8,
+        "buttons": 4.849,
+        "recovery": 0.328
+      }
+    },
+    {
+      "wounded": 100,
+      "coordination": false,
+      "before": {
+        "abilities": 1.146,
+        "buttons": 8.685,
+        "recovery": 1.32
+      },
+      "after": {
+        "abilities": 1.148,
+        "buttons": 4.884,
+        "recovery": 0.788
+      }
+    },
+    {
+      "wounded": 100,
+      "coordination": true,
+      "before": {
+        "abilities": 1.732,
+        "buttons": 8.717,
+        "command_card": 4.403,
+        "recovery": 1.254
+      },
+      "after": {
+        "abilities": 1.619,
+        "buttons": 5.361,
+        "command_card": 3.138,
+        "recovery": 0.762
+      }
+    },
+    {
+      "wounded": 200,
+      "coordination": false,
+      "before": {
+        "abilities": 1.141,
+        "buttons": 9.629,
+        "recovery": 2.145
+      },
+      "after": {
+        "abilities": 1.173,
+        "buttons": 5.918,
+        "recovery": 1.199
+      }
+    },
+    {
+      "wounded": 200,
+      "coordination": true,
+      "before": {
+        "abilities": 1.998,
+        "buttons": 10.382,
+        "recovery": 2.576
+      },
+      "after": {
+        "abilities": 1.599,
+        "buttons": 5.733,
+        "recovery": 1.07
+      }
+    }
+  ]
+}

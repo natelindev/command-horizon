@@ -8,6 +8,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import numpy as np
 from build_battle_audio import clip_source_hash, mechanical, transcript_error
+from combat_barks import COMBAT_BARKS, combat_text
 from radio_voice import UNIT_CLASS, radio
 from robot_voice import ROBOT_VOICES, robot_voice
 from verify_voice_cast import validate_cast
@@ -29,6 +30,27 @@ def speechlike(seconds=1.2):
 
 
 class CastRegression(unittest.TestCase):
+    def test_all_armed_roles_have_authored_combat_reactions(self):
+        for faction, roles in CAST.items():
+            expected = (set(roles) - {'SupplyTruck'}) | {'CombatRobot'}
+            self.assertEqual(set(COMBAT_BARKS[faction]), expected)
+        self.assertEqual(set(COMBAT_BARKS['mercenary']), set(MERCENARY_CAST))
+        captions = {}
+        for line in (Path(__file__).parents[1] / 'localization/combat-barks.tsv').read_text().splitlines():
+            if line and not line.startswith('#'):
+                english, chinese = line.split('\t', 1)
+                captions[english] = chinese
+        texts = []
+        for faction, roles in COMBAT_BARKS.items():
+            for role, (low, low_zh, kill, kill_zh) in roles.items():
+                self.assertEqual(combat_text(faction, role), {'low_health': low, 'kill': kill})
+                self.assertEqual(captions[low], low_zh)
+                self.assertEqual(captions[kill], kill_zh)
+                texts.extend([low, kill])
+        self.assertEqual(len(texts), len(set(texts)))
+        self.assertEqual(len(texts), 80)
+        self.assertEqual(combat_text('helix', 'SupplyTruck'), {})
+
     def test_announcer_cannot_voice_unit(self):
         profiles = copy.deepcopy(PROFILES)
         profiles['bastion/Infantry'] = profiles['bastion/Command'].copy()

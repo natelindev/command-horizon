@@ -36,6 +36,12 @@ func _traverse(units, destination, label):
 	var elapsed = 0.0
 	var excess_steps = 0
 	for pair in pairs:
+		var movement = pair[0].get_node("Movement")
+		var projected = movement._navigation_position(pair[1]) * Vector3(1, 0, 1)
+		_check(
+			projected.distance_to(pair[1]) < .02,
+			label + ": slot is not on its assigned unit's navigation surface"
+		)
 		pair[0].manual_orders.submit(order_type.point_order("move", pair[1]))
 		previous[pair[0]] = pair[0].global_position
 	for frame in 2700:
@@ -47,6 +53,23 @@ func _traverse(units, destination, label):
 			max_step = maxf(max_step, step)
 			if step > unit.get_node("Movement").speed / Engine.physics_ticks_per_second + 0.003:
 				excess_steps += 1
+				if excess_steps <= 5:
+					print(
+						"MIXED SPEED ",
+						label,
+						" role=",
+						unit.type,
+						" frame=",
+						frame,
+						" from=",
+						previous[unit],
+						" to=",
+						unit.global_position,
+						" step=",
+						step,
+						" speed=",
+						unit.get_node("Movement").speed
+					)
 			previous[unit] = unit.global_position
 			if _formation_arrived(unit, pair[1], units):
 				arrived[unit] = true

@@ -5,7 +5,20 @@ var factions
 var status
 
 
+class FeedbackErrorLog:
+	extends Logger
+	var messages = []
+	var mutex = Mutex.new()
+
+	func _log_error(_function, file, _line, code, rationale, _notify, _type, _backtraces):
+		mutex.lock()
+		messages.append(file + ": " + code + " " + rationale)
+		mutex.unlock()
+
+
 func _run():
+	var logger = FeedbackErrorLog.new()
+	OS.add_logger(logger)
 	root.get_node("SaveManager").autosaves_enabled = false
 	factions = load("res://source/match/FactionCatalog.gd")
 	for faction in factions.IDS:
@@ -21,10 +34,12 @@ func _run():
 		paused = false
 		game.queue_free()
 		await _frames(5)
+	OS.remove_logger(logger)
+	errors.append_array(logger.messages)
 	for message in errors:
 		push_error(message)
 	print("Research feedback: %d failures" % errors.size())
-	quit(0 if errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
 
 
 func _feedback_fixture(faction):
@@ -47,7 +62,7 @@ func _freeze_actors():
 func _availability():
 	status.refresh()
 	_check(status.visible, "Funded advanced base has no research choices")
-	_check("4 choices" in status._button.text, "Research choices ignore money or prerequisites")
+	_check("1 choice" in status._button.text, "Faction research choices bypass Coordination")
 	_check(not status._progress.visible, "Idle choices show a running progress bar")
 	_check("Coordination · 20 M / 20 E" in status._button.tooltip_text, "Choice price is missing")
 	var funds = Vector2i(human.resource_a, human.resource_b)
@@ -127,17 +142,17 @@ func _power_and_lab_loss():
 	var plants = _units(human, "PowerPlant") + _units(human, "CommandCenter")
 	for plant in plants:
 		plant.mark_as_under_construction()
-	_check(human.production_factor() == .35, "Low-power fixture still has full supply")
+	_check(human.production_factor() == .25, "Low-power fixture still has full supply")
 	status.refresh()
 	_check(
-		str(ceili(human.coordination_left / .35)) + " s" in status._button.text,
+		str(ceili(human.coordination_left / .25)) + " s" in status._button.text,
 		"Paused low-power ETA is not scaled to current speed"
 	)
-	_check("35%" in status._button.tooltip_text, "Low-power explanation is missing")
+	_check("25%" in status._button.tooltip_text, "Low-power explanation is missing")
 	var remaining = human.coordination_left
 	var elapsed = await _advance(Engine.physics_ticks_per_second * 2)
 	_check(
-		is_equal_approx(remaining - human.coordination_left, elapsed * .35),
+		is_equal_approx(remaining - human.coordination_left, elapsed * .25),
 		"Research low-power timing was changed"
 	)
 	for plant in plants:
@@ -192,7 +207,11 @@ func _cancel_and_rebuild():
 	status._button.pressed.emit()
 	await _frames(3)
 	_check(is_instance_valid(game.hud.technology_panel), "Research status did not open Tech")
-	_check(status._button.disabled, "Covered research button remains active behind Tech")
+	_check(game.hud._overlay == null, "Research review opened a floating overlay")
+	_check(
+		game.find_child("UnitMenus").is_ancestor_of(game.hud.technology_panel),
+		"Research status opened outside the bottom console"
+	)
 	game.hud.technology_panel._cancel.pressed.emit()
 	_check(human.coordination_left == -1.0, "Status review could not cancel stalled Coordination")
 	_check(
@@ -212,7 +231,7 @@ func _cancel_and_rebuild():
 	lab.construct(1.0)
 	await _frames(20)
 	_check(
-		status.visible and "4 choices" in status._button.text,
+		status.visible and "1 choice" in status._button.text,
 		"Completed lab did not restore choices"
 	)
 
@@ -237,24 +256,47 @@ func _completions():
 	var enemy = get_nodes_in_group("players").filter(func(side): return side != human)[0]
 	var enemy_lab = _units(enemy, "CommandLab")[0]
 	_check(enemy.start_coordination(enemy_lab), "Enemy research fixture refused payment")
-	_check(human.technology.start("weapons_1", lab), "Ordinary weapon research refused payment")
+	var catalog = load("res://source/match/research/TechnologyCatalog.gd")
+	var branch = catalog.FACTION_TECHNOLOGIES[human.faction][0]
+	var title = catalog.title(branch, human.faction)
+	var item = catalog.ITEMS[branch]
+	human.resource_a = 1000
+	human.resource_b = 1000
+	_check(human.technology.start(branch, lab), "Ordinary faction research refused payment")
 	await _frames(20)
-	_check("Weapon systems I" in status._button.text, "Unit research is missing from live HUD")
-	await _unchanged("paid weapon research")
+	_check(title in status._button.text, "Faction research is missing from live HUD")
+	await _unchanged("paid faction research")
 	await _complete_within(func(): return enemy.coordination_unlocked, 30.0)
 	_check(enemy.coordination_unlocked, "Enemy research did not complete")
 	_check(not game.hud._assignment_hint.visible, "Enemy research leaked a completion notice")
-	_check(status.visible and status._progress.value > 85, "Weapon research progress was lost")
+	_check(
+		status.visible and absf(status._progress.value - 100.0 * 30.0 / item.seconds) < 1.0,
+		"Faction research progress was lost"
+	)
 	var remaining = human.technology.left
 	await _complete_within(func(): return human.technology.active == "", remaining)
-	_check("weapons_1" in human.technology.completed, "Weapon research did not complete")
+	_check(branch in human.technology.completed, "Faction research did not complete")
 	_check(
-		game.hud._assignment_hint.text == "Research complete · Weapon systems I",
+		game.hud._assignment_hint.text == "Research complete · " + title,
 		"Existing unit-research completion notice regressed"
 	)
 	await _frames(370)
-	_check("1 choice" in status._button.text, "Completed/unaffordable branches counted as choices")
-	_check("Combat armor I" in status._button.tooltip_text, "Remaining affordable upgrade is wrong")
+	var remaining_branches = catalog.FACTION_TECHNOLOGIES[human.faction].filter(
+		func(id): return id not in human.technology.completed
+	)
+	_check(
+		"%d choices" % remaining_branches.size() in status._button.text,
+		"Completed or excluded branches counted as choices"
+	)
+	for id in remaining_branches:
+		_check(
+			catalog.title(id, human.faction) in status._button.tooltip_text,
+			"Remaining faction upgrade is missing: " + id
+		)
+	human.resource_a = 0
+	human.resource_b = 0
+	status.refresh()
+	_check(not status.visible, "Unaffordable faction branches remain advertised")
 	print("RESEARCH FEEDBACK CLOCK ", human.faction, " ", game.simulation_time)
 
 

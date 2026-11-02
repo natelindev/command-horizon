@@ -58,6 +58,12 @@ func _recalculate_unit_visibility(unit, _revealed_units = null, observers = null
 
 
 func _update_unit_visibility(unit, should_be_visible):
+	# Mobile passengers keep simulation vision and weapons, without rendering
+	# their model, health bars, selection circles or other child presentation.
+	if unit.has_meta("garrison_host"):
+		var host = unit.get_meta("garrison_host")
+		if is_instance_valid(host) and "garrison_mount" in host and host.garrison_mount != null:
+			should_be_visible = false
 	if (
 		unit in _units_processed_at_least_once
 		and unit is Structure
@@ -69,6 +75,8 @@ func _update_unit_visibility(unit, should_be_visible):
 			_try_removing_dummy_structure(unit)
 	if unit.visible != should_be_visible:
 		unit.visible = should_be_visible
+	if "optical_cloak" in unit and unit.optical_cloak != null:
+		unit.input_ray_pickable = should_be_visible
 	_units_processed_at_least_once[unit] = true
 
 

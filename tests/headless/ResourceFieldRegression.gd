@@ -21,7 +21,7 @@ func _run():
 		workers = get_nodes_in_group("units").filter(
 			func(unit): return unit.player == human and unit.type == "Worker"
 		)
-		while workers.size() < 3:
+		while workers.size() < 4:
 			var worker = load(Catalog.scene_path("Worker")).instantiate()
 			game._setup_and_spawn_unit(
 				worker, Transform3D(Basis(), Vector3(25, 0, 20)), human, false
@@ -69,49 +69,54 @@ func _slots_and_type():
 	var origin = Vector3(30, 0, 25)
 	var deposit = _deposit("B", origin)
 	var wrong = _deposit("A", origin + Vector3(0, 0, 3))
-	for index in range(3):
+	for index in range(4):
 		_reset_worker(
 			workers[index],
 			origin + Vector3(1.2 if index == 0 else (-1.2 if index == 1 else 5.0), 0, 0)
 		)
 		workers[index].issue_manual_order(harvest.new(deposit))
 	_check(
-		workers[2].action._waiting_reason == harvest.Wait.SLOT, "Third worker overbooked deposit"
+		workers[3].action._waiting_reason == harvest.Wait.SLOT, "Fourth worker overbooked deposit"
 	)
 	await _frames(130)
 	_check(
 		workers[0].resource_b > 0 and workers[1].resource_b > 0, "Reserved workers did not gather"
 	)
 	_check(
-		workers[2].resource_b == 0 and wrong.resource_a == 100,
+		workers[3].resource_b == 0 and wrong.resource_a == 100,
 		"Waiting worker gathered or switched type"
 	)
 	paused = true
-	var retry = workers[2].action._retry_left
+	var retry = workers[3].action._retry_left
 	var quantity = deposit.resource_b
 	await _frames(45)
 	_check(
-		workers[2].action._retry_left == retry and deposit.resource_b == quantity,
+		workers[3].action._retry_left == retry and deposit.resource_b == quantity,
 		"Pause advanced field work"
 	)
 	paused = false
 	workers[0].issue_manual_order(null)
 	await _frames(40)
 	_check(
-		workers[2].action.holds_harvest_slot(deposit), "Cancelled order did not release its slot"
+		workers[3].action.holds_harvest_slot(deposit), "Cancelled order did not release its slot"
 	)
-	# Capture two reservations and a waiter, then reconstruct from their saved actions.
-	workers[0].resource_b = 0
-	workers[0].issue_manual_order(harvest.new(deposit))
+	# Start a fresh reservation set: a fast skimmer can already have returned a
+	# full load, so cycling harvesters are not a reliable proxy for slot owners.
+	for worker in workers:
+		worker.issue_manual_order(null)
+		worker.resource_b = 0
+	for worker in workers:
+		worker.issue_manual_order(harvest.new(deposit))
 	await _roundtrip()
+	deposit = workers[0].action.get_resource_unit()
 	var holding = (
-		workers.filter(func(w): return w.action != null and not w.action.is_waiting()).size()
+		workers.filter(func(w): return w.action.holds_harvest_slot(deposit)).size()
 	)
-	_check(holding == 2 and workers[0].action.is_waiting(), "Archive lost slot ownership or waiter")
+	_check(holding == 3 and workers[3].action.is_waiting(), "Archive lost slot ownership or waiter")
 	workers[1].queue_free()
 	workers.remove_at(1)
 	await _frames(40)
-	_check(not workers[0].action.is_waiting(), "Dead worker retained a work slot")
+	_check(not workers[2].action.is_waiting(), "Dead worker retained a work slot")
 	var replacement = load(Catalog.scene_path("Worker")).instantiate()
 	game._setup_and_spawn_unit(replacement, Transform3D(Basis(), origin), human, false)
 	workers.append(replacement)

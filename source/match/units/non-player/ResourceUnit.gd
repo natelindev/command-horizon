@@ -84,9 +84,20 @@ func _animate_decay():
 		or ("resource_b" in self and get("resource_b") > 0)
 	):
 		return
+	_spawn_decay.call_deferred(get_parent(), global_transform)
+
+
+static func _spawn_decay(parent, a_transform):
+	# A wreck can be consumed in the same frame that the match closes. Delay
+	# creation as well as attachment, so a destroyed parent cannot orphan it.
+	if not is_instance_valid(parent) or not parent.is_inside_tree():
+		return
+	var game = parent.find_parent("Match")
+	if game == null or game.is_queued_for_deletion():
+		return
 	var decay_animation = ResourceDecayAnimation.instantiate()
-	decay_animation.global_transform = global_transform
-	get_parent().add_child.call_deferred(decay_animation)
+	parent.add_child(decay_animation)
+	decay_animation.global_transform = a_transform
 
 
 func _setup_salvage(kind):
@@ -95,6 +106,15 @@ func _setup_salvage(kind):
 	_salvage_key = absi(int(round(global_position.x * 31)) + int(round(global_position.z * 73)))
 	get_node("Geometry").rotation.y = float(_salvage_key % 16) * TAU / 16.0
 	_update_salvage(get("resource_a") if kind == "materials" else get("resource_b"))
+
+
+func relocate_field(point: Vector3, origin: Vector3):
+	global_position = point
+	harvest_origin = origin
+	if not _salvage_kind.is_empty():
+		_salvage_stage = -1
+		_setup_salvage(_salvage_kind)
+	reset_physics_interpolation()
 
 
 func _update_salvage(amount):
@@ -128,3 +148,33 @@ func _update_salvage(amount):
 
 func can_harvest(_worker):
 	return not is_queued_for_deletion()
+
+
+func saturation_info(observer = null) -> Dictionary:
+	var deposits = get_tree().get_nodes_in_group("resource_units").filter(
+		func(deposit):
+			return (
+				not deposit.is_queued_for_deletion()
+				and not deposit.is_in_group("salvage_wrecks")
+				and ("resource_a" in deposit) == ("resource_a" in self)
+				and (
+					deposit.harvest_origin.is_equal_approx(harvest_origin)
+					if harvest_origin.is_finite()
+					else (
+						deposit.global_position_yless.distance_squared_to(global_position_yless)
+						<= 100.0
+					)
+				)
+			)
+	)
+	var workers = 0
+	for assignment in get_tree().get_nodes_in_group("harvest_assignments"):
+		if assignment.is_queued_for_deletion():
+			continue
+		var worker = assignment.get_parent()
+		if observer != null and worker.player != observer:
+			continue
+		if assignment.get_resource_unit() in deposits:
+			workers += 1
+	var optimal = deposits.size() * 2
+	return {"workers": workers, "optimal": optimal, "maximum": deposits.size() * 3}

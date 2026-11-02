@@ -1,0 +1,261 @@
+[
+  {
+    "name": "final-foundation-False",
+    "argv": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/release-project",
+      "--script",
+      "res://tests/headless/NetworkFoundationRegression.gd",
+      "--",
+      "--enable-native-kernels",
+      "--native-unit-state",
+      "--native-crowd-runtime"
+    ],
+    "exit": 0,
+    "log": "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/final-foundation-False.log"
+  },
+  {
+    "name": "final-foundation-True",
+    "argv": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/release-project",
+      "--script",
+      "res://tests/headless/NetworkFoundationRegression.gd",
+      "--"
+    ],
+    "exit": 0,
+    "log": "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/final-foundation-True.log"
+  },
+  {
+    "name": "final-source-0-outcome",
+    "argv": [
+      "python3",
+      "/Users/linlilu/godot-open-rts/tools/tests/run_network_regressions.py",
+      "--engine",
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--project",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/release-project",
+      "--runtime-dir",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/release-project",
+      "--case",
+      "outcome",
+      "--output",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/final-source-network"
+    ],
+    "exit": 0,
+    "log": "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/final-source-0-outcome.log"
+  },
+  {
+    "name": "final-source-1-outcome",
+    "argv": [
+      "python3",
+      "/Users/linlilu/godot-open-rts/tools/tests/run_network_regressions.py",
+      "--engine",
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--project",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/release-project",
+      "--runtime-dir",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/release-project",
+      "--case",
+      "outcome",
+      "--output",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/final-source-network"
+    ],
+    "exit": 0,
+    "log": "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/final-source-1-outcome.log"
+  },
+  {
+    "name": "final-source-2-outcome",
+    "argv": [
+      "python3",
+      "/Users/linlilu/godot-open-rts/tools/tests/run_network_regressions.py",
+      "--engine",
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--project",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/release-project",
+      "--runtime-dir",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/release-project",
+      "--case",
+      "outcome",
+      "--output",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/final-source-network",
+      "--no-native"
+    ],
+    "exit": 0,
+    "log": "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/final-source-2-outcome.log"
+  },
+  {
+    "name": "final-source-3-terminal-drop",
+    "argv": [
+      "python3",
+      "/Users/linlilu/godot-open-rts/tools/tests/run_network_regressions.py",
+      "--engine",
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--project",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/release-project",
+      "--runtime-dir",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/release-project",
+      "--case",
+      "terminal-drop",
+      "--output",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/final-source-network"
+    ],
+    "exit": 0,
+    "log": "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/final-source-3-terminal-drop.log"
+  },
+  {
+    "name": "final-source-4-terminal-drop",
+    "argv": [
+      "python3",
+      "/Users/linlilu/godot-open-rts/tools/tests/run_network_regressions.py",
+      "--engine",
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--project",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/release-project",
+      "--runtime-dir",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/release-project",
+      "--case",
+      "terminal-drop",
+      "--output",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/final-source-network",
+      "--no-native"
+    ],
+    "exit": 0,
+    "log": "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/final-source-4-terminal-drop.log"
+  },
+  {
+    "name": "final-probe-export",
+    "argv": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/release-project",
+      "--editor",
+      "--export-pack",
+      "macOS",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/terminal-fixed-final.pck"
+    ],
+    "exit": 0,
+    "log": "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/final-probe-export.log"
+  },
+  {
+    "name": "final-pack-0-outcome",
+    "argv": [
+      "python3",
+      "/Users/linlilu/godot-open-rts/tools/tests/run_network_regressions.py",
+      "--engine",
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--main-pack",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/terminal-fixed-final.pck",
+      "--runtime-dir",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/release-project",
+      "--case",
+      "outcome",
+      "--output",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/final-pack-network"
+    ],
+    "exit": 0,
+    "log": "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/final-pack-0-outcome.log"
+  },
+  {
+    "name": "final-pack-1-outcome",
+    "argv": [
+      "python3",
+      "/Users/linlilu/godot-open-rts/tools/tests/run_network_regressions.py",
+      "--engine",
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--main-pack",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/terminal-fixed-final.pck",
+      "--runtime-dir",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/release-project",
+      "--case",
+      "outcome",
+      "--output",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/final-pack-network"
+    ],
+    "exit": 0,
+    "log": "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/final-pack-1-outcome.log"
+  },
+  {
+    "name": "final-pack-2-outcome",
+    "argv": [
+      "python3",
+      "/Users/linlilu/godot-open-rts/tools/tests/run_network_regressions.py",
+      "--engine",
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--main-pack",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/terminal-fixed-final.pck",
+      "--runtime-dir",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/release-project",
+      "--case",
+      "outcome",
+      "--output",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/final-pack-network",
+      "--no-native"
+    ],
+    "exit": 0,
+    "log": "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/final-pack-2-outcome.log"
+  },
+  {
+    "name": "final-pack-3-terminal-drop",
+    "argv": [
+      "python3",
+      "/Users/linlilu/godot-open-rts/tools/tests/run_network_regressions.py",
+      "--engine",
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--main-pack",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/terminal-fixed-final.pck",
+      "--runtime-dir",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/release-project",
+      "--case",
+      "terminal-drop",
+      "--output",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/final-pack-network"
+    ],
+    "exit": 0,
+    "log": "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/final-pack-3-terminal-drop.log"
+  },
+  {
+    "name": "final-pack-4-terminal-drop",
+    "argv": [
+      "python3",
+      "/Users/linlilu/godot-open-rts/tools/tests/run_network_regressions.py",
+      "--engine",
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--main-pack",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/terminal-fixed-final.pck",
+      "--runtime-dir",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/release-project",
+      "--case",
+      "terminal-drop",
+      "--output",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/final-pack-network",
+      "--no-native"
+    ],
+    "exit": 0,
+    "log": "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/final-pack-4-terminal-drop.log"
+  },
+  {
+    "name": "final-pack-5-disconnect",
+    "argv": [
+      "python3",
+      "/Users/linlilu/godot-open-rts/tools/tests/run_network_regressions.py",
+      "--engine",
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--main-pack",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/terminal-fixed-final.pck",
+      "--runtime-dir",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/release-project",
+      "--case",
+      "disconnect",
+      "--output",
+      "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/final-pack-network"
+    ],
+    "exit": 0,
+    "log": "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/terminal-probe/final-pack-5-disconnect.log"
+  }
+]

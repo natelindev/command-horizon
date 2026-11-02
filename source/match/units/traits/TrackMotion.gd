@@ -1,6 +1,6 @@
 extends RefCounted
 
-## Two deforming belt meshes per tracked vehicle; rigid hulls remain GPU batched.
+## Authored deforming belts, sharing articulated GPU batches when available.
 ## Moving the authored raised shoes in the vertex shader avoids dozens of bones.
 const SHADER = preload("res://source/shaders/3d/track_motion.gdshader")
 const Wheel = preload("res://source/match/units/traits/WheelMotion.gd")
@@ -19,8 +19,9 @@ func setup(unit):
 			var local: Transform3D = Wheel._transform_to(mesh, unit)
 			var bounds: AABB = mesh.get_aabb()
 			var center: Vector3 = local * bounds.get_center()
-			# Skinned capsule deformation is intentionally outside rigid batching.
+			# Retain the authored source-local capsule deformation in both render paths.
 			mesh.set_meta("animated_track", true)
+			mesh.set_meta("track_belt_index", belts.size())
 			for surface in mesh.mesh.get_surface_count():
 				var original = mesh.get_active_material(surface)
 				var color = Color("20262a")
@@ -46,6 +47,9 @@ func setup(unit):
 					materials[key] = material
 				mesh.set_surface_override_material(surface, materials[key])
 			mesh.material_override = null
+			# Allocate the instance-uniform path while the model is prepared. Its
+			# first nonzero travel must not compile a new pipeline during an order.
+			mesh.set_instance_shader_parameter("track_travel", 0.0)
 			var arrays = mesh.mesh.surface_get_arrays(0)
 			var uv: Vector2 = arrays[Mesh.ARRAY_TEX_UV][0]
 			var uv2: Vector2 = arrays[Mesh.ARRAY_TEX_UV2][0]
@@ -64,13 +68,12 @@ func advance(delta: float):
 	var current: Transform3D = _unit.global_transform
 	var previous := _previous
 	_previous = current
-	if (
-		delta <= 0.0
-		or (
-			current.origin.distance_to(previous.origin)
-			> maxf(1.0, _unit.movement_speed * delta * 4.0)
-		)
-	):
+	if delta <= 0.0:
+		return
+	var distance := current.origin.distance_to(previous.origin)
+	# The teleport threshold is at least one metre. Ordinary short steps never
+	# need the live speed getter, which can cross the native/script boundary.
+	if distance > 1.0 and distance > maxf(1.0, _unit.movement_speed * delta * 4.0):
 		return
 	var old_facing := previous.basis.z.normalized()
 	var facing := current.basis.z.normalized()
@@ -84,10 +87,49 @@ func advance(delta: float):
 		belt.travel += (translation + turn * belt.offset) / belt.scale
 		# Keep precision for long games without a visually discontinuous reset.
 		belt.travel = fposmod(belt.travel, belt.perimeter)
-		belt.mesh.set_instance_shader_parameter("track_travel", belt.travel)
+		_publish_belt(belt)
 
 
 func copy_from(other):
 	for index in mini(belts.size(), other.belts.size()):
 		belts[index].travel = other.belts[index].travel
-		belts[index].mesh.set_instance_shader_parameter("track_travel", belts[index].travel)
+		_publish_belt(belts[index])
+
+
+func bind_palette(mesh: MeshInstance3D, batch: RefCounted, handle: int, part: int):
+	for belt in belts:
+		if belt.mesh == mesh:
+			belt.palette_bound = true
+			belt.batch = batch
+			belt.handle = handle
+			belt.part = part
+			_publish_belt(belt)
+			return
+
+
+func unbind_palette():
+	for belt in belts:
+		belt.palette_bound = false
+		belt.batch = null
+		_publish_belt(belt)
+
+
+func sync_originals():
+	# Wreck/fog duplication and renderer fallback need the current posed belt.
+	for belt in belts:
+		belt.mesh.set_instance_shader_parameter("track_travel", belt.travel)
+
+
+func has_unbatched_belts() -> bool:
+	for belt in belts:
+		if not belt.get("palette_bound", false):
+			return true
+	return false
+
+
+func _publish_belt(belt: Dictionary):
+	if belt.get("palette_bound", false):
+		if belt.batch != null:
+			belt.batch.set_track(belt.handle, belt.part, belt.travel)
+	else:
+		belt.mesh.set_instance_shader_parameter("track_travel", belt.travel)

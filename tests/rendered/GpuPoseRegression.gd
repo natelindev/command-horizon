@@ -27,6 +27,8 @@ func _run():
 			Image.create_from_data(4, 8, false, Image.FORMAT_RGBAF, packer.pack_poses(entries, 8))
 		)
 		anchor.transform = new_pose
+		# Hit/belt-state column is discrete, including at interpolation fraction0.
+		entries[0].pulse = Color(.001, .4, .8, .2)
 		var current := ImageTexture.create_from_image(
 			Image.create_from_data(4, 8, false, Image.FORMAT_RGBAF, packer.pack_poses(entries, 8))
 		)

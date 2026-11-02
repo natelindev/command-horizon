@@ -1,0 +1,1814 @@
+{
+  "native": {
+    "before": {
+      "source/match/players/human/UnitActionsController.gd::_on_terrain_targeted": {
+        "inclusive_ms": 13.574,
+        "self_ms": 0.0,
+        "calls": 1
+      },
+      "source/match/players/human/UnitActionsController.gd::_try_navigating_selected_units_towards_position": {
+        "inclusive_ms": 13.446,
+        "self_ms": 0.525,
+        "calls": 1
+      },
+      "source/match/players/human/UnitActionsController.gd::_group_destinations": {
+        "inclusive_ms": 5.9639999999999995,
+        "self_ms": 0.005,
+        "calls": 1
+      },
+      "source/match/players/human/UnitActionsController.gd::_submit": {
+        "inclusive_ms": 5.938,
+        "self_ms": 0.09899999999999999,
+        "calls": 200
+      },
+      "source/match/utils/UnitMovementUtils.gd::crowd_moved_to_new_pivot": {
+        "inclusive_ms": 5.773000000000001,
+        "self_ms": 0.248,
+        "calls": 2
+      },
+      "source/match/orders/ManualOrders.gd::submit": {
+        "inclusive_ms": 5.744,
+        "self_ms": 0.5810000000000001,
+        "calls": 200
+      },
+      "source/match/utils/UnitMovementUtils.gd::_resolve_group_destinations": {
+        "inclusive_ms": 2.906,
+        "self_ms": 1.213,
+        "calls": 1
+      },
+      "source/match/orders/ManualOrders.gd::resume_waiting_activation": {
+        "inclusive_ms": 2.104,
+        "self_ms": 0.416,
+        "calls": 200
+      },
+      "source/match/utils/UnitMovementUtils.gd::_reachable_point": {
+        "inclusive_ms": 1.897,
+        "self_ms": 0.266,
+        "calls": 434
+      },
+      "source/match/orders/FormationPlanner.gd::assign": {
+        "inclusive_ms": 1.501,
+        "self_ms": 0.11,
+        "calls": 1
+      },
+      "source/match/orders/FormationPlanner.gd::hungarian": {
+        "inclusive_ms": 1.368,
+        "self_ms": 0.04,
+        "calls": 1
+      },
+      "source/match/players/human/UnitVoicesController.gd::_on_order_issued": {
+        "inclusive_ms": 0.9470000000000001,
+        "self_ms": 0.049,
+        "calls": 200
+      },
+      "source/match/audio/BattleVoice.gd::say_unit": {
+        "inclusive_ms": 0.882,
+        "self_ms": 0.14200000000000002,
+        "calls": 200
+      },
+      "source/match/orders/ManualOrders.gd::_deferred_point": {
+        "inclusive_ms": 0.8400000000000001,
+        "self_ms": 0.359,
+        "calls": 400
+      },
+      "source/match/network/NetworkGate.gd::session_for": {
+        "inclusive_ms": 0.766,
+        "self_ms": 0.279,
+        "calls": 400
+      },
+      "source/match/orders/FormationPlanner.gd::funnel_routes": {
+        "inclusive_ms": 0.734,
+        "self_ms": 0.187,
+        "calls": 1
+      },
+      "source/match/utils/UnitMovementUtils.gd::_indexed_disc_collision": {
+        "inclusive_ms": 0.731,
+        "self_ms": 0.508,
+        "calls": 276
+      },
+      "source/match/audio/BattleVoice.gd::_accept": {
+        "inclusive_ms": 0.691,
+        "self_ms": 0.002,
+        "calls": 1
+      },
+      "source/match/audio/BattleVoice.gd::_start": {
+        "inclusive_ms": 0.687,
+        "self_ms": 0.395,
+        "calls": 1
+      },
+      "source/match/orders/FormationPlanner.gd::positions": {
+        "inclusive_ms": 0.6629999999999999,
+        "self_ms": 0.202,
+        "calls": 2
+      },
+      "source/match/orders/ManualOrders.gd::cancel": {
+        "inclusive_ms": 0.611,
+        "self_ms": 0.187,
+        "calls": 200
+      },
+      "source/match/units/traits/Movement.gd::stop": {
+        "inclusive_ms": 0.5630000000000001,
+        "self_ms": 0.132,
+        "calls": 200
+      },
+      "source/match/orders/NavigationConnectivity.gd::can_reach": {
+        "inclusive_ms": 0.532,
+        "self_ms": 0.371,
+        "calls": 436
+      },
+      "source/match/network/NetworkGate.gd::intercept_order": {
+        "inclusive_ms": 0.434,
+        "self_ms": 0.024,
+        "calls": 200
+      },
+      "source/match/units/traits/Movement.gd::_native_refresh_facts": {
+        "inclusive_ms": 0.40900000000000003,
+        "self_ms": 0.013,
+        "calls": 200
+      },
+      "source/match/units/Unit.gd::_get_radius": {
+        "inclusive_ms": 0.373,
+        "self_ms": 0.176,
+        "calls": 1400
+      },
+      "source/match/orders/ManualOrders.gd::_feedback": {
+        "inclusive_ms": 0.354,
+        "self_ms": 0.079,
+        "calls": 200
+      },
+      "source/match/orders/ManualOrders.gd::_action_can_wait": {
+        "inclusive_ms": 0.33599999999999997,
+        "self_ms": 0.14100000000000001,
+        "calls": 400
+      },
+      "source/match/utils/UnitMovementUtils.gd::formation_positions": {
+        "inclusive_ms": 0.328,
+        "self_ms": 0.0,
+        "calls": 1
+      },
+      "source/match/units/Unit.gd::_get_movement_domain": {
+        "inclusive_ms": 0.29500000000000004,
+        "self_ms": 0.11699999999999999,
+        "calls": 1000
+      },
+      "source/match/units/traits/Movement.gd::project_command_point": {
+        "inclusive_ms": 0.29,
+        "self_ms": 0.032,
+        "calls": 234
+      },
+      "source/match/utils/UnitMovementUtils.gd::calculate_aabb_crowd_pivot_yless": {
+        "inclusive_ms": 0.289,
+        "self_ms": 0.067,
+        "calls": 2
+      },
+      "source/match/hud/BattleSubtitles.gd::_on_line": {
+        "inclusive_ms": 0.28400000000000003,
+        "self_ms": 0.0,
+        "calls": 1
+      },
+      "source/match/hud/BattleSubtitles.gd::_refresh": {
+        "inclusive_ms": 0.283,
+        "self_ms": 0.009000000000000001,
+        "calls": 1
+      },
+      "source/match/hud/SubtitleCard.gd::set_line": {
+        "inclusive_ms": 0.259,
+        "self_ms": 0.259,
+        "calls": 1
+      },
+      "source/match/players/human/UnitActionsController.gd::<anonymous lambda>(lambda)": {
+        "inclusive_ms": 0.066,
+        "self_ms": 0.066,
+        "calls": 200
+      },
+      "source/match/utils/UnitMovementUtils.gd::_calculate_extremum": {
+        "inclusive_ms": 0.212,
+        "self_ms": 0.212,
+        "calls": 8
+      },
+      "source/match/orders/FormationPlanner.gd::spacing": {
+        "inclusive_ms": 0.21000000000000002,
+        "self_ms": 0.036000000000000004,
+        "calls": 2
+      },
+      "source/match/orders/FormationPlanner.gd::<anonymous lambda>(lambda)": {
+        "inclusive_ms": 0.19,
+        "self_ms": 0.147,
+        "calls": 200
+      },
+      "source/match/hud/CommandFeedback.gd::_on_order": {
+        "inclusive_ms": 0.186,
+        "self_ms": 0.15,
+        "calls": 200
+      },
+      "source/match/units/Unit.gd::_get_navigation_trait": {
+        "inclusive_ms": 0.146,
+        "self_ms": 0.146,
+        "calls": 2400
+      },
+      "source/match/players/human/UnitActionsController.gd::_try_setting_rally_points": {
+        "inclusive_ms": 0.11900000000000001,
+        "self_ms": 0.11900000000000001,
+        "calls": 1
+      },
+      "source/match/units/actions/Moving.gd::is_applicable": {
+        "inclusive_ms": 0.118,
+        "self_ms": 0.011,
+        "calls": 200
+      },
+      "source/match/orders/OrderActivationQueue.gd::enqueue": {
+        "inclusive_ms": 0.107,
+        "self_ms": 0.082,
+        "calls": 200
+      },
+      "source/match/units/Unit.gd::movement_technology_factor": {
+        "inclusive_ms": 0.104,
+        "self_ms": 0.06999999999999999,
+        "calls": 200
+      },
+      "source/match/orders/OrderActivationQueue.gd::acquire": {
+        "inclusive_ms": 0.098,
+        "self_ms": 0.019,
+        "calls": 200
+      },
+      "source/match/orders/FormationPlanner.gd::offsets": {
+        "inclusive_ms": 0.077,
+        "self_ms": 0.066,
+        "calls": 2
+      },
+      "source/match/orders/ManualOrders.gd::point_order": {
+        "inclusive_ms": 0.068,
+        "self_ms": 0.068,
+        "calls": 200
+      },
+      "source/match/orders/ManualOrders.gd::_cancel_activation": {
+        "inclusive_ms": 0.058,
+        "self_ms": 0.013,
+        "calls": 200
+      },
+      "source/match/utils/UnitMovementUtils.gd::_calculate_min_x": {
+        "inclusive_ms": 0.055,
+        "self_ms": 0.0,
+        "calls": 2
+      },
+      "source/match/utils/UnitMovementUtils.gd::_calculate_min_z": {
+        "inclusive_ms": 0.053,
+        "self_ms": 0.0,
+        "calls": 2
+      },
+      "source/match/utils/UnitMovementUtils.gd::_calculate_max_x": {
+        "inclusive_ms": 0.053,
+        "self_ms": 0.0,
+        "calls": 2
+      },
+      "source/match/utils/UnitMovementUtils.gd::_calculate_max_z": {
+        "inclusive_ms": 0.053,
+        "self_ms": 0.0,
+        "calls": 2
+      },
+      "source/match/units/traits/Movement.gd::cancel_exit_clearance": {
+        "inclusive_ms": 0.05,
+        "self_ms": 0.05,
+        "calls": 200
+      },
+      "source/match/orders/CohesionGroup.gd::_init": {
+        "inclusive_ms": 0.046,
+        "self_ms": 0.036000000000000004,
+        "calls": 1
+      },
+      "source/match/units/Unit.gd::@player_getter": {
+        "inclusive_ms": 0.046,
+        "self_ms": 0.046,
+        "calls": 601
+      },
+      "source/match/orders/NavigationConnectivity.gd::_root": {
+        "inclusive_ms": 0.032,
+        "self_ms": 0.032,
+        "calls": 872
+      },
+      "source/match/world/FieldEngineering.gd::cancel_orders": {
+        "inclusive_ms": 0.026,
+        "self_ms": 0.015000000000000001,
+        "calls": 200
+      },
+      "source/match/utils/UnitMovementUtils.gd::_disc_collides_with_others": {
+        "inclusive_ms": 0.019,
+        "self_ms": 0.019,
+        "calls": 200
+      },
+      "source/match/orders/ManualOrders.gd::_resume_suspended_action": {
+        "inclusive_ms": 0.018000000000000002,
+        "self_ms": 0.018000000000000002,
+        "calls": 200
+      },
+      "source/match/orders/NavigationConnectivity.gd::context": {
+        "inclusive_ms": 0.014,
+        "self_ms": 0.002,
+        "calls": 1
+      },
+      "tests/headless/TacticalFormationsRegression.gd::TacticalFormationsMainLoop._profile_snapshot": {
+        "inclusive_ms": 0.014,
+        "self_ms": 0.004,
+        "calls": 1
+      },
+      "source/match/audio/UnitVoiceBank.gd::unit_line": {
+        "inclusive_ms": 0.014,
+        "self_ms": 0.007,
+        "calls": 1
+      },
+      "source/data-model/Options.gd::selection_modifier_pressed": {
+        "inclusive_ms": 0.009000000000000001,
+        "self_ms": 0.0,
+        "calls": 1
+      },
+      "source/input/KeyBindings.gd::held": {
+        "inclusive_ms": 0.008,
+        "self_ms": 0.006,
+        "calls": 1
+      },
+      "source/match/hud/BattleSubtitles.gd::_horizontal_space": {
+        "inclusive_ms": 0.007,
+        "self_ms": 0.005,
+        "calls": 2
+      },
+      "source/match/hud/BattleSubtitles.gd::_fit_card": {
+        "inclusive_ms": 0.006,
+        "self_ms": 0.001,
+        "calls": 1
+      },
+      "source/match/orders/NavigationConnectivity.gd::warm": {
+        "inclusive_ms": 0.005,
+        "self_ms": 0.003,
+        "calls": 1
+      },
+      "source/match/utils/UnitMovementUtils.gd::<anonymous lambda>(lambda)": {
+        "inclusive_ms": 0.005,
+        "self_ms": 0.005,
+        "calls": 200
+      },
+      "source/match/rendering/RuntimePhaseProfiler.gd::cpu_sample": {
+        "inclusive_ms": 0.005,
+        "self_ms": 0.001,
+        "calls": 1
+      },
+      "source/match/orders/FormationPlanner.gd::posture": {
+        "inclusive_ms": 0.004,
+        "self_ms": 0.004,
+        "calls": 3
+      },
+      "source/match/hud/BattleSubtitles.gd::_position_card": {
+        "inclusive_ms": 0.004,
+        "self_ms": 0.002,
+        "calls": 1
+      },
+      "source/match/utils/UnitMovementUtils.gd::_fallback_ring": {
+        "inclusive_ms": 0.004,
+        "self_ms": 0.003,
+        "calls": 2
+      },
+      "source/match/handlers/MouseClickAnimationsHandler.gd::_on_terrain_targeted": {
+        "inclusive_ms": 0.003,
+        "self_ms": 0.003,
+        "calls": 1
+      },
+      "source/match/audio/UnitVoiceBank.gd::role_lines": {
+        "inclusive_ms": 0.002,
+        "self_ms": 0.001,
+        "calls": 1
+      },
+      "source/match/orders/OrderActivationQueue.gd::_ready": {
+        "inclusive_ms": 0.002,
+        "self_ms": 0.002,
+        "calls": 1
+      },
+      "source/input/KeyBindings.gd::from_event": {
+        "inclusive_ms": 0.002,
+        "self_ms": 0.002,
+        "calls": 1
+      },
+      "source/match/hud/BattleSubtitles.gd::_caption_top": {
+        "inclusive_ms": 0.002,
+        "self_ms": 0.002,
+        "calls": 3
+      },
+      "source/match/FactionCatalog.gd::title": {
+        "inclusive_ms": 0.002,
+        "self_ms": 0.001,
+        "calls": 1
+      },
+      "source/match/orders/FormationPlanner.gd::warm_native_solver": {
+        "inclusive_ms": 0.002,
+        "self_ms": 0.002,
+        "calls": 1
+      },
+      "source/match/hud/SubtitleCard.gd::set_portrait": {
+        "inclusive_ms": 0.002,
+        "self_ms": 0.002,
+        "calls": 1
+      },
+      "source/match/audio/UnitVoiceBank.gd::accepted": {
+        "inclusive_ms": 0.001,
+        "self_ms": 0.001,
+        "calls": 1
+      },
+      "source/match/audio/VoiceLines.gd::priority": {
+        "inclusive_ms": 0.001,
+        "self_ms": 0.001,
+        "calls": 1
+      },
+      "source/audio/UIAudio.gd::_watch": {
+        "inclusive_ms": 0.001,
+        "self_ms": 0.001,
+        "calls": 1
+      },
+      "source/match/TerrainNavigation.gd::is_synchronized": {
+        "inclusive_ms": 0.001,
+        "self_ms": 0.0,
+        "calls": 1
+      },
+      "source/match/Navigation.gd::get_navigation_map_rid_by_domain": {
+        "inclusive_ms": 0.001,
+        "self_ms": 0.001,
+        "calls": 1
+      },
+      "source/match/audio/BattleVoice.gd::_radioed": {
+        "inclusive_ms": 0.001,
+        "self_ms": 0.001,
+        "calls": 1
+      },
+      "source/match/Match.gd::_notification": {
+        "inclusive_ms": 0.0,
+        "self_ms": 0.0,
+        "calls": 1
+      },
+      "source/match/units/Unit.gd::_get_type": {
+        "inclusive_ms": 0.0,
+        "self_ms": 0.0,
+        "calls": 3
+      },
+      "source/match/orders/OrderActivationQueue.gd::@implicit_new": {
+        "inclusive_ms": 0.0,
+        "self_ms": 0.0,
+        "calls": 1
+      },
+      "source/match/orders/CohesionGroup.gd::@implicit_new": {
+        "inclusive_ms": 0.0,
+        "self_ms": 0.0,
+        "calls": 1
+      },
+      "source/match/hud/SubtitleCard.gd::set_caption_visible": {
+        "inclusive_ms": 0.0,
+        "self_ms": 0.0,
+        "calls": 1
+      }
+    },
+    "after": {
+      "source/match/players/human/UnitActionsController.gd::_on_terrain_targeted": {
+        "inclusive_ms": 12.943,
+        "self_ms": 0.0,
+        "calls": 1
+      },
+      "source/match/players/human/UnitActionsController.gd::_try_navigating_selected_units_towards_position": {
+        "inclusive_ms": 12.815999999999999,
+        "self_ms": 0.579,
+        "calls": 1
+      },
+      "source/match/players/human/UnitActionsController.gd::_submit": {
+        "inclusive_ms": 5.898,
+        "self_ms": 0.096,
+        "calls": 200
+      },
+      "source/match/players/human/UnitActionsController.gd::_group_destinations": {
+        "inclusive_ms": 5.675999999999999,
+        "self_ms": 0.009000000000000001,
+        "calls": 1
+      },
+      "source/match/orders/ManualOrders.gd::submit": {
+        "inclusive_ms": 5.675000000000001,
+        "self_ms": 0.5429999999999999,
+        "calls": 200
+      },
+      "source/match/utils/UnitMovementUtils.gd::crowd_moved_to_new_pivot": {
+        "inclusive_ms": 5.478000000000001,
+        "self_ms": 0.313,
+        "calls": 2
+      },
+      "source/match/utils/UnitMovementUtils.gd::_resolve_group_destinations": {
+        "inclusive_ms": 2.969,
+        "self_ms": 1.238,
+        "calls": 1
+      },
+      "source/match/orders/ManualOrders.gd::resume_waiting_activation": {
+        "inclusive_ms": 2.048,
+        "self_ms": 0.34299999999999997,
+        "calls": 200
+      },
+      "source/match/utils/UnitMovementUtils.gd::_reachable_point": {
+        "inclusive_ms": 1.931,
+        "self_ms": 0.28600000000000003,
+        "calls": 434
+      },
+      "source/match/orders/FormationPlanner.gd::assign": {
+        "inclusive_ms": 1.5299999999999998,
+        "self_ms": 0.106,
+        "calls": 1
+      },
+      "source/match/orders/FormationPlanner.gd::hungarian": {
+        "inclusive_ms": 1.3960000000000001,
+        "self_ms": 0.020999999999999998,
+        "calls": 1
+      },
+      "source/match/players/human/UnitVoicesController.gd::_on_order_issued": {
+        "inclusive_ms": 0.9790000000000001,
+        "self_ms": 0.061,
+        "calls": 200
+      },
+      "source/match/audio/BattleVoice.gd::say_unit": {
+        "inclusive_ms": 0.886,
+        "self_ms": 0.114,
+        "calls": 200
+      },
+      "source/match/orders/ManualOrders.gd::_deferred_point": {
+        "inclusive_ms": 0.805,
+        "self_ms": 0.36900000000000005,
+        "calls": 400
+      },
+      "source/match/network/NetworkGate.gd::session_for": {
+        "inclusive_ms": 0.756,
+        "self_ms": 0.297,
+        "calls": 400
+      },
+      "source/match/utils/UnitMovementUtils.gd::_indexed_disc_collision": {
+        "inclusive_ms": 0.75,
+        "self_ms": 0.5419999999999999,
+        "calls": 276
+      },
+      "source/match/audio/BattleVoice.gd::_accept": {
+        "inclusive_ms": 0.704,
+        "self_ms": 0.005,
+        "calls": 1
+      },
+      "source/match/audio/BattleVoice.gd::_start": {
+        "inclusive_ms": 0.695,
+        "self_ms": 0.402,
+        "calls": 1
+      },
+      "source/match/orders/ManualOrders.gd::cancel": {
+        "inclusive_ms": 0.587,
+        "self_ms": 0.235,
+        "calls": 200
+      },
+      "source/match/units/traits/Movement.gd::stop": {
+        "inclusive_ms": 0.546,
+        "self_ms": 0.148,
+        "calls": 200
+      },
+      "source/match/orders/NavigationConnectivity.gd::can_reach": {
+        "inclusive_ms": 0.5429999999999999,
+        "self_ms": 0.378,
+        "calls": 436
+      },
+      "source/match/orders/FormationPlanner.gd::funnel_routes": {
+        "inclusive_ms": 0.467,
+        "self_ms": 0.19,
+        "calls": 1
+      },
+      "source/match/network/NetworkGate.gd::intercept_order": {
+        "inclusive_ms": 0.432,
+        "self_ms": 0.025,
+        "calls": 200
+      },
+      "source/match/units/traits/Movement.gd::_native_refresh_facts": {
+        "inclusive_ms": 0.374,
+        "self_ms": 0.022,
+        "calls": 200
+      },
+      "source/match/orders/ManualOrders.gd::_feedback": {
+        "inclusive_ms": 0.345,
+        "self_ms": 0.052,
+        "calls": 200
+      },
+      "source/match/units/Unit.gd::_get_movement_domain": {
+        "inclusive_ms": 0.31,
+        "self_ms": 0.14200000000000002,
+        "calls": 1000
+      },
+      "source/match/units/traits/Movement.gd::project_command_point": {
+        "inclusive_ms": 0.29300000000000004,
+        "self_ms": 0.034999999999999996,
+        "calls": 234
+      },
+      "source/match/hud/BattleSubtitles.gd::_on_line": {
+        "inclusive_ms": 0.285,
+        "self_ms": 0.0,
+        "calls": 1
+      },
+      "source/match/hud/BattleSubtitles.gd::_refresh": {
+        "inclusive_ms": 0.28400000000000003,
+        "self_ms": 0.008,
+        "calls": 1
+      },
+      "source/match/players/human/UnitActionsController.gd::<anonymous lambda>(lambda)": {
+        "inclusive_ms": 0.07100000000000001,
+        "self_ms": 0.07100000000000001,
+        "calls": 200
+      },
+      "source/match/hud/SubtitleCard.gd::set_line": {
+        "inclusive_ms": 0.257,
+        "self_ms": 0.257,
+        "calls": 1
+      },
+      "source/match/orders/ManualOrders.gd::_action_can_wait": {
+        "inclusive_ms": 0.256,
+        "self_ms": 0.114,
+        "calls": 400
+      },
+      "source/match/orders/FormationPlanner.gd::<anonymous lambda>(lambda)": {
+        "inclusive_ms": 0.19,
+        "self_ms": 0.13799999999999998,
+        "calls": 200
+      },
+      "source/match/hud/CommandFeedback.gd::_on_order": {
+        "inclusive_ms": 0.186,
+        "self_ms": 0.11,
+        "calls": 200
+      },
+      "source/match/orders/ManualOrders.gd::_cancel_activation": {
+        "inclusive_ms": 0.17300000000000001,
+        "self_ms": 0.016,
+        "calls": 200
+      },
+      "source/match/orders/OrderActivationQueue.gd::enqueue": {
+        "inclusive_ms": 0.132,
+        "self_ms": 0.09899999999999999,
+        "calls": 200
+      },
+      "source/match/orders/FormationPlanner.gd::positions": {
+        "inclusive_ms": 0.126,
+        "self_ms": 0.034,
+        "calls": 2
+      },
+      "source/match/units/actions/Moving.gd::is_applicable": {
+        "inclusive_ms": 0.121,
+        "self_ms": 0.003,
+        "calls": 200
+      },
+      "source/match/players/human/UnitActionsController.gd::_try_setting_rally_points": {
+        "inclusive_ms": 0.11699999999999999,
+        "self_ms": 0.11699999999999999,
+        "calls": 1
+      },
+      "source/match/units/Unit.gd::movement_technology_factor": {
+        "inclusive_ms": 0.092,
+        "self_ms": 0.061,
+        "calls": 200
+      },
+      "source/match/orders/OrderActivationQueue.gd::acquire": {
+        "inclusive_ms": 0.089,
+        "self_ms": 0.011,
+        "calls": 200
+      },
+      "source/match/units/Unit.gd::_get_navigation_trait": {
+        "inclusive_ms": 0.088,
+        "self_ms": 0.088,
+        "calls": 1200
+      },
+      "source/match/orders/FormationPlanner.gd::offsets": {
+        "inclusive_ms": 0.079,
+        "self_ms": 0.07100000000000001,
+        "calls": 2
+      },
+      "source/match/utils/UnitMovementUtils.gd::calculate_aabb_crowd_pivot_yless": {
+        "inclusive_ms": 0.078,
+        "self_ms": 0.034999999999999996,
+        "calls": 1
+      },
+      "source/match/units/Unit.gd::_get_radius": {
+        "inclusive_ms": 0.07100000000000001,
+        "self_ms": 0.044,
+        "calls": 200
+      },
+      "source/match/orders/CohesionGroup.gd::_init": {
+        "inclusive_ms": 0.043000000000000003,
+        "self_ms": 0.025,
+        "calls": 1
+      },
+      "source/match/utils/UnitMovementUtils.gd::_positions_pivot_yless": {
+        "inclusive_ms": 0.037,
+        "self_ms": 0.037,
+        "calls": 1
+      },
+      "source/match/orders/ManualOrders.gd::point_order": {
+        "inclusive_ms": 0.034,
+        "self_ms": 0.034,
+        "calls": 200
+      },
+      "source/match/units/Unit.gd::@player_getter": {
+        "inclusive_ms": 0.033,
+        "self_ms": 0.033,
+        "calls": 601
+      },
+      "source/match/orders/NavigationConnectivity.gd::_root": {
+        "inclusive_ms": 0.027,
+        "self_ms": 0.027,
+        "calls": 872
+      },
+      "tests/headless/TacticalFormationsRegression.gd::TacticalFormationsMainLoop._profile_snapshot": {
+        "inclusive_ms": 0.025,
+        "self_ms": 0.009000000000000001,
+        "calls": 1
+      },
+      "source/match/utils/UnitMovementUtils.gd::_disc_collides_with_others": {
+        "inclusive_ms": 0.019,
+        "self_ms": 0.019,
+        "calls": 200
+      },
+      "source/match/audio/UnitVoiceBank.gd::unit_line": {
+        "inclusive_ms": 0.018000000000000002,
+        "self_ms": 0.009000000000000001,
+        "calls": 1
+      },
+      "source/match/world/FieldEngineering.gd::cancel_orders": {
+        "inclusive_ms": 0.017,
+        "self_ms": 0.007,
+        "calls": 200
+      },
+      "source/match/orders/NavigationConnectivity.gd::context": {
+        "inclusive_ms": 0.013,
+        "self_ms": 0.002,
+        "calls": 1
+      },
+      "source/match/rendering/RuntimePhaseProfiler.gd::cpu_sample": {
+        "inclusive_ms": 0.011,
+        "self_ms": 0.002,
+        "calls": 1
+      },
+      "source/match/units/traits/Movement.gd::cancel_exit_clearance": {
+        "inclusive_ms": 0.011,
+        "self_ms": 0.011,
+        "calls": 200
+      },
+      "source/data-model/Options.gd::selection_modifier_pressed": {
+        "inclusive_ms": 0.009000000000000001,
+        "self_ms": 0.0,
+        "calls": 1
+      },
+      "source/match/hud/BattleSubtitles.gd::_horizontal_space": {
+        "inclusive_ms": 0.009000000000000001,
+        "self_ms": 0.007,
+        "calls": 2
+      },
+      "source/input/KeyBindings.gd::held": {
+        "inclusive_ms": 0.008,
+        "self_ms": 0.005,
+        "calls": 1
+      },
+      "source/match/utils/UnitMovementUtils.gd::<anonymous lambda>(lambda)": {
+        "inclusive_ms": 0.008,
+        "self_ms": 0.008,
+        "calls": 200
+      },
+      "source/match/orders/NavigationConnectivity.gd::warm": {
+        "inclusive_ms": 0.007,
+        "self_ms": 0.002,
+        "calls": 1
+      },
+      "source/match/orders/ManualOrders.gd::_resume_suspended_action": {
+        "inclusive_ms": 0.007,
+        "self_ms": 0.007,
+        "calls": 200
+      },
+      "source/match/hud/BattleSubtitles.gd::_fit_card": {
+        "inclusive_ms": 0.006,
+        "self_ms": 0.0,
+        "calls": 1
+      },
+      "source/match/hud/BattleSubtitles.gd::_position_card": {
+        "inclusive_ms": 0.005,
+        "self_ms": 0.003,
+        "calls": 1
+      },
+      "source/match/utils/UnitMovementUtils.gd::_fallback_ring": {
+        "inclusive_ms": 0.004,
+        "self_ms": 0.004,
+        "calls": 2
+      },
+      "source/match/handlers/MouseClickAnimationsHandler.gd::_on_terrain_targeted": {
+        "inclusive_ms": 0.004,
+        "self_ms": 0.004,
+        "calls": 1
+      },
+      "source/match/orders/FormationPlanner.gd::warm_native_solver": {
+        "inclusive_ms": 0.003,
+        "self_ms": 0.003,
+        "calls": 1
+      },
+      "source/match/orders/FormationPlanner.gd::posture": {
+        "inclusive_ms": 0.003,
+        "self_ms": 0.003,
+        "calls": 3
+      },
+      "source/match/FactionCatalog.gd::title": {
+        "inclusive_ms": 0.002,
+        "self_ms": 0.002,
+        "calls": 1
+      },
+      "source/match/audio/UnitVoiceBank.gd::role_lines": {
+        "inclusive_ms": 0.002,
+        "self_ms": 0.001,
+        "calls": 1
+      },
+      "source/match/Navigation.gd::get_navigation_map_rid_by_domain": {
+        "inclusive_ms": 0.002,
+        "self_ms": 0.002,
+        "calls": 1
+      },
+      "source/match/TerrainNavigation.gd::is_synchronized": {
+        "inclusive_ms": 0.002,
+        "self_ms": 0.001,
+        "calls": 1
+      },
+      "source/input/KeyBindings.gd::from_event": {
+        "inclusive_ms": 0.002,
+        "self_ms": 0.002,
+        "calls": 1
+      },
+      "source/match/orders/OrderActivationQueue.gd::_ready": {
+        "inclusive_ms": 0.002,
+        "self_ms": 0.002,
+        "calls": 1
+      },
+      "source/match/hud/SubtitleCard.gd::set_portrait": {
+        "inclusive_ms": 0.002,
+        "self_ms": 0.002,
+        "calls": 1
+      },
+      "source/audio/UIAudio.gd::_watch": {
+        "inclusive_ms": 0.001,
+        "self_ms": 0.001,
+        "calls": 1
+      },
+      "source/match/orders/FormationPlanner.gd::spacing": {
+        "inclusive_ms": 0.001,
+        "self_ms": 0.001,
+        "calls": 2
+      },
+      "source/match/hud/BattleSubtitles.gd::_caption_top": {
+        "inclusive_ms": 0.001,
+        "self_ms": 0.001,
+        "calls": 3
+      },
+      "source/match/units/Unit.gd::_get_type": {
+        "inclusive_ms": 0.001,
+        "self_ms": 0.001,
+        "calls": 3
+      },
+      "source/match/audio/BattleVoice.gd::_radioed": {
+        "inclusive_ms": 0.001,
+        "self_ms": 0.001,
+        "calls": 1
+      },
+      "source/match/audio/VoiceLines.gd::priority": {
+        "inclusive_ms": 0.001,
+        "self_ms": 0.001,
+        "calls": 1
+      },
+      "source/match/Match.gd::_notification": {
+        "inclusive_ms": 0.0,
+        "self_ms": 0.0,
+        "calls": 1
+      },
+      "source/match/orders/OrderActivationQueue.gd::@implicit_new": {
+        "inclusive_ms": 0.0,
+        "self_ms": 0.0,
+        "calls": 1
+      },
+      "source/match/orders/CohesionGroup.gd::@implicit_new": {
+        "inclusive_ms": 0.0,
+        "self_ms": 0.0,
+        "calls": 1
+      },
+      "source/match/audio/UnitVoiceBank.gd::accepted": {
+        "inclusive_ms": 0.0,
+        "self_ms": 0.0,
+        "calls": 1
+      },
+      "source/match/hud/SubtitleCard.gd::set_caption_visible": {
+        "inclusive_ms": 0.0,
+        "self_ms": 0.0,
+        "calls": 1
+      }
+    }
+  },
+  "fallback": {
+    "before": {
+      "source/match/players/human/UnitActionsController.gd::_on_terrain_targeted": {
+        "inclusive_ms": 14.860999999999999,
+        "self_ms": 0.001,
+        "calls": 1
+      },
+      "source/match/players/human/UnitActionsController.gd::_try_navigating_selected_units_towards_position": {
+        "inclusive_ms": 14.725999999999999,
+        "self_ms": 0.5109999999999999,
+        "calls": 1
+      },
+      "source/match/players/human/UnitActionsController.gd::_group_destinations": {
+        "inclusive_ms": 7.975,
+        "self_ms": 0.006,
+        "calls": 1
+      },
+      "source/match/utils/UnitMovementUtils.gd::crowd_moved_to_new_pivot": {
+        "inclusive_ms": 7.779999999999999,
+        "self_ms": 0.272,
+        "calls": 2
+      },
+      "source/match/players/human/UnitActionsController.gd::_submit": {
+        "inclusive_ms": 5.253,
+        "self_ms": 0.074,
+        "calls": 200
+      },
+      "source/match/orders/ManualOrders.gd::submit": {
+        "inclusive_ms": 5.124,
+        "self_ms": 0.5109999999999999,
+        "calls": 200
+      },
+      "source/match/utils/UnitMovementUtils.gd::_resolve_group_destinations": {
+        "inclusive_ms": 4.925,
+        "self_ms": 1.2429999999999999,
+        "calls": 1
+      },
+      "source/match/utils/UnitMovementUtils.gd::_reachable_point": {
+        "inclusive_ms": 3.881,
+        "self_ms": 0.29500000000000004,
+        "calls": 434
+      },
+      "source/match/units/traits/Movement.gd::project_command_point": {
+        "inclusive_ms": 2.2039999999999997,
+        "self_ms": 0.017,
+        "calls": 234
+      },
+      "source/match/units/traits/Movement.gd::_closest_navigation_point": {
+        "inclusive_ms": 2.163,
+        "self_ms": 0.028,
+        "calls": 234
+      },
+      "source/match/TerrainNavigation.gd::closest_point": {
+        "inclusive_ms": 1.9780000000000002,
+        "self_ms": 1.932,
+        "calls": 234
+      },
+      "source/match/orders/ManualOrders.gd::resume_waiting_activation": {
+        "inclusive_ms": 1.6199999999999999,
+        "self_ms": 0.356,
+        "calls": 200
+      },
+      "source/match/orders/FormationPlanner.gd::assign": {
+        "inclusive_ms": 1.516,
+        "self_ms": 0.122,
+        "calls": 1
+      },
+      "source/match/orders/FormationPlanner.gd::hungarian": {
+        "inclusive_ms": 1.374,
+        "self_ms": 0.026,
+        "calls": 1
+      },
+      "source/match/players/human/UnitVoicesController.gd::_on_order_issued": {
+        "inclusive_ms": 0.9319999999999999,
+        "self_ms": 0.055,
+        "calls": 200
+      },
+      "source/match/orders/ManualOrders.gd::_deferred_point": {
+        "inclusive_ms": 0.858,
+        "self_ms": 0.373,
+        "calls": 400
+      },
+      "source/match/audio/BattleVoice.gd::say_unit": {
+        "inclusive_ms": 0.851,
+        "self_ms": 0.122,
+        "calls": 200
+      },
+      "source/match/network/NetworkGate.gd::session_for": {
+        "inclusive_ms": 0.754,
+        "self_ms": 0.29500000000000004,
+        "calls": 400
+      },
+      "source/match/utils/UnitMovementUtils.gd::_indexed_disc_collision": {
+        "inclusive_ms": 0.7380000000000001,
+        "self_ms": 0.527,
+        "calls": 276
+      },
+      "source/match/orders/FormationPlanner.gd::funnel_routes": {
+        "inclusive_ms": 0.6980000000000001,
+        "self_ms": 0.185,
+        "calls": 1
+      },
+      "source/match/orders/FormationPlanner.gd::positions": {
+        "inclusive_ms": 0.6589999999999999,
+        "self_ms": 0.19,
+        "calls": 2
+      },
+      "source/match/audio/BattleVoice.gd::_accept": {
+        "inclusive_ms": 0.6579999999999999,
+        "self_ms": 0.001,
+        "calls": 1
+      },
+      "source/match/audio/BattleVoice.gd::_start": {
+        "inclusive_ms": 0.653,
+        "self_ms": 0.376,
+        "calls": 1
+      },
+      "source/match/orders/NavigationConnectivity.gd::can_reach": {
+        "inclusive_ms": 0.541,
+        "self_ms": 0.40299999999999997,
+        "calls": 436
+      },
+      "source/match/orders/ManualOrders.gd::cancel": {
+        "inclusive_ms": 0.533,
+        "self_ms": 0.296,
+        "calls": 200
+      },
+      "source/match/network/NetworkGate.gd::intercept_order": {
+        "inclusive_ms": 0.422,
+        "self_ms": 0.014,
+        "calls": 200
+      },
+      "source/match/units/Unit.gd::_get_radius": {
+        "inclusive_ms": 0.367,
+        "self_ms": 0.166,
+        "calls": 1400
+      },
+      "source/match/orders/ManualOrders.gd::_feedback": {
+        "inclusive_ms": 0.342,
+        "self_ms": 0.053,
+        "calls": 200
+      },
+      "source/match/utils/UnitMovementUtils.gd::formation_positions": {
+        "inclusive_ms": 0.328,
+        "self_ms": 0.001,
+        "calls": 1
+      },
+      "source/match/orders/ManualOrders.gd::_action_can_wait": {
+        "inclusive_ms": 0.309,
+        "self_ms": 0.135,
+        "calls": 400
+      },
+      "source/match/units/Unit.gd::_get_movement_domain": {
+        "inclusive_ms": 0.29500000000000004,
+        "self_ms": 0.13999999999999999,
+        "calls": 1000
+      },
+      "source/match/utils/UnitMovementUtils.gd::calculate_aabb_crowd_pivot_yless": {
+        "inclusive_ms": 0.28600000000000003,
+        "self_ms": 0.052,
+        "calls": 2
+      },
+      "source/match/hud/BattleSubtitles.gd::_on_line": {
+        "inclusive_ms": 0.26899999999999996,
+        "self_ms": 0.0,
+        "calls": 1
+      },
+      "source/match/hud/BattleSubtitles.gd::_refresh": {
+        "inclusive_ms": 0.268,
+        "self_ms": 0.009000000000000001,
+        "calls": 1
+      },
+      "source/match/hud/SubtitleCard.gd::set_line": {
+        "inclusive_ms": 0.242,
+        "self_ms": 0.242,
+        "calls": 1
+      },
+      "source/match/players/human/UnitActionsController.gd::<anonymous lambda>(lambda)": {
+        "inclusive_ms": 0.067,
+        "self_ms": 0.067,
+        "calls": 200
+      },
+      "source/match/utils/UnitMovementUtils.gd::_calculate_extremum": {
+        "inclusive_ms": 0.212,
+        "self_ms": 0.212,
+        "calls": 8
+      },
+      "source/match/orders/FormationPlanner.gd::spacing": {
+        "inclusive_ms": 0.208,
+        "self_ms": 0.038,
+        "calls": 2
+      },
+      "source/match/hud/CommandFeedback.gd::_on_order": {
+        "inclusive_ms": 0.177,
+        "self_ms": 0.121,
+        "calls": 200
+      },
+      "source/match/orders/FormationPlanner.gd::<anonymous lambda>(lambda)": {
+        "inclusive_ms": 0.164,
+        "self_ms": 0.115,
+        "calls": 200
+      },
+      "source/match/units/Unit.gd::_get_navigation_trait": {
+        "inclusive_ms": 0.14300000000000002,
+        "self_ms": 0.14300000000000002,
+        "calls": 2400
+      },
+      "source/match/units/traits/Movement.gd::stop": {
+        "inclusive_ms": 0.132,
+        "self_ms": 0.095,
+        "calls": 200
+      },
+      "source/match/players/human/UnitActionsController.gd::_try_setting_rally_points": {
+        "inclusive_ms": 0.126,
+        "self_ms": 0.126,
+        "calls": 1
+      },
+      "source/match/orders/OrderActivationQueue.gd::enqueue": {
+        "inclusive_ms": 0.111,
+        "self_ms": 0.089,
+        "calls": 200
+      },
+      "source/match/units/actions/Moving.gd::is_applicable": {
+        "inclusive_ms": 0.11,
+        "self_ms": 0.007,
+        "calls": 200
+      },
+      "source/match/orders/OrderActivationQueue.gd::acquire": {
+        "inclusive_ms": 0.091,
+        "self_ms": 0.018000000000000002,
+        "calls": 200
+      },
+      "source/match/orders/FormationPlanner.gd::offsets": {
+        "inclusive_ms": 0.078,
+        "self_ms": 0.068,
+        "calls": 2
+      },
+      "source/match/orders/ManualOrders.gd::_cancel_activation": {
+        "inclusive_ms": 0.06899999999999999,
+        "self_ms": 0.012,
+        "calls": 200
+      },
+      "source/match/orders/ManualOrders.gd::point_order": {
+        "inclusive_ms": 0.058,
+        "self_ms": 0.058,
+        "calls": 200
+      },
+      "source/match/utils/UnitMovementUtils.gd::_calculate_min_z": {
+        "inclusive_ms": 0.054,
+        "self_ms": 0.001,
+        "calls": 2
+      },
+      "source/match/utils/UnitMovementUtils.gd::_calculate_min_x": {
+        "inclusive_ms": 0.054,
+        "self_ms": 0.0,
+        "calls": 2
+      },
+      "source/match/utils/UnitMovementUtils.gd::_calculate_max_x": {
+        "inclusive_ms": 0.053,
+        "self_ms": 0.0,
+        "calls": 2
+      },
+      "source/match/utils/UnitMovementUtils.gd::_calculate_max_z": {
+        "inclusive_ms": 0.052,
+        "self_ms": 0.0,
+        "calls": 2
+      },
+      "source/match/orders/CohesionGroup.gd::_init": {
+        "inclusive_ms": 0.051,
+        "self_ms": 0.033,
+        "calls": 1
+      },
+      "source/match/orders/NavigationConnectivity.gd::_root": {
+        "inclusive_ms": 0.031,
+        "self_ms": 0.031,
+        "calls": 872
+      },
+      "source/match/units/traits/Movement.gd::_native_refresh_facts": {
+        "inclusive_ms": 0.020999999999999998,
+        "self_ms": 0.020999999999999998,
+        "calls": 200
+      },
+      "source/match/units/Unit.gd::@player_getter": {
+        "inclusive_ms": 0.02,
+        "self_ms": 0.02,
+        "calls": 401
+      },
+      "source/match/audio/UnitVoiceBank.gd::unit_line": {
+        "inclusive_ms": 0.02,
+        "self_ms": 0.01,
+        "calls": 1
+      },
+      "source/match/utils/UnitMovementUtils.gd::_disc_collides_with_others": {
+        "inclusive_ms": 0.019,
+        "self_ms": 0.019,
+        "calls": 200
+      },
+      "source/match/units/traits/Movement.gd::cancel_exit_clearance": {
+        "inclusive_ms": 0.019,
+        "self_ms": 0.019,
+        "calls": 200
+      },
+      "source/match/world/FieldEngineering.gd::cancel_orders": {
+        "inclusive_ms": 0.019,
+        "self_ms": 0.006,
+        "calls": 200
+      },
+      "source/match/orders/ManualOrders.gd::_resume_suspended_action": {
+        "inclusive_ms": 0.016,
+        "self_ms": 0.016,
+        "calls": 200
+      },
+      "tests/headless/TacticalFormationsRegression.gd::TacticalFormationsMainLoop._profile_snapshot": {
+        "inclusive_ms": 0.011,
+        "self_ms": 0.004,
+        "calls": 1
+      },
+      "source/match/orders/NavigationConnectivity.gd::context": {
+        "inclusive_ms": 0.01,
+        "self_ms": 0.003,
+        "calls": 1
+      },
+      "source/match/utils/UnitMovementUtils.gd::<anonymous lambda>(lambda)": {
+        "inclusive_ms": 0.008,
+        "self_ms": 0.008,
+        "calls": 200
+      },
+      "source/data-model/Options.gd::selection_modifier_pressed": {
+        "inclusive_ms": 0.008,
+        "self_ms": 0.0,
+        "calls": 1
+      },
+      "source/match/hud/BattleSubtitles.gd::_horizontal_space": {
+        "inclusive_ms": 0.007,
+        "self_ms": 0.006,
+        "calls": 2
+      },
+      "source/input/KeyBindings.gd::held": {
+        "inclusive_ms": 0.007,
+        "self_ms": 0.005,
+        "calls": 1
+      },
+      "source/match/audio/UnitVoiceBank.gd::role_lines": {
+        "inclusive_ms": 0.006,
+        "self_ms": 0.002,
+        "calls": 1
+      },
+      "source/match/hud/BattleSubtitles.gd::_fit_card": {
+        "inclusive_ms": 0.006,
+        "self_ms": 0.0,
+        "calls": 1
+      },
+      "source/match/utils/UnitMovementUtils.gd::_fallback_ring": {
+        "inclusive_ms": 0.005,
+        "self_ms": 0.003,
+        "calls": 2
+      },
+      "source/match/hud/BattleSubtitles.gd::_position_card": {
+        "inclusive_ms": 0.004,
+        "self_ms": 0.003,
+        "calls": 1
+      },
+      "source/match/rendering/RuntimePhaseProfiler.gd::cpu_sample": {
+        "inclusive_ms": 0.004,
+        "self_ms": 0.0,
+        "calls": 1
+      },
+      "source/match/orders/NavigationConnectivity.gd::warm": {
+        "inclusive_ms": 0.004,
+        "self_ms": 0.001,
+        "calls": 1
+      },
+      "source/match/handlers/MouseClickAnimationsHandler.gd::_on_terrain_targeted": {
+        "inclusive_ms": 0.004,
+        "self_ms": 0.004,
+        "calls": 1
+      },
+      "source/match/orders/FormationPlanner.gd::posture": {
+        "inclusive_ms": 0.003,
+        "self_ms": 0.003,
+        "calls": 3
+      },
+      "source/match/hud/SubtitleCard.gd::set_portrait": {
+        "inclusive_ms": 0.003,
+        "self_ms": 0.003,
+        "calls": 1
+      },
+      "source/match/orders/FormationPlanner.gd::warm_native_solver": {
+        "inclusive_ms": 0.002,
+        "self_ms": 0.002,
+        "calls": 1
+      },
+      "source/input/KeyBindings.gd::from_event": {
+        "inclusive_ms": 0.002,
+        "self_ms": 0.002,
+        "calls": 1
+      },
+      "source/match/audio/VoiceLines.gd::priority": {
+        "inclusive_ms": 0.001,
+        "self_ms": 0.001,
+        "calls": 1
+      },
+      "source/match/hud/SubtitleCard.gd::set_caption_visible": {
+        "inclusive_ms": 0.001,
+        "self_ms": 0.001,
+        "calls": 1
+      },
+      "source/match/hud/BattleSubtitles.gd::_caption_top": {
+        "inclusive_ms": 0.001,
+        "self_ms": 0.001,
+        "calls": 3
+      },
+      "source/match/Navigation.gd::get_navigation_map_rid_by_domain": {
+        "inclusive_ms": 0.001,
+        "self_ms": 0.001,
+        "calls": 1
+      },
+      "source/match/FactionCatalog.gd::title": {
+        "inclusive_ms": 0.001,
+        "self_ms": 0.001,
+        "calls": 1
+      },
+      "source/match/audio/UnitVoiceBank.gd::accepted": {
+        "inclusive_ms": 0.001,
+        "self_ms": 0.0,
+        "calls": 1
+      },
+      "source/match/orders/OrderActivationQueue.gd::@implicit_new": {
+        "inclusive_ms": 0.001,
+        "self_ms": 0.001,
+        "calls": 1
+      },
+      "source/match/units/Unit.gd::_get_type": {
+        "inclusive_ms": 0.001,
+        "self_ms": 0.001,
+        "calls": 3
+      },
+      "source/match/orders/OrderActivationQueue.gd::_ready": {
+        "inclusive_ms": 0.001,
+        "self_ms": 0.001,
+        "calls": 1
+      },
+      "source/audio/UIAudio.gd::_watch": {
+        "inclusive_ms": 0.001,
+        "self_ms": 0.001,
+        "calls": 1
+      },
+      "source/match/TerrainNavigation.gd::is_synchronized": {
+        "inclusive_ms": 0.001,
+        "self_ms": 0.0,
+        "calls": 1
+      },
+      "source/match/Match.gd::_notification": {
+        "inclusive_ms": 0.0,
+        "self_ms": 0.0,
+        "calls": 1
+      },
+      "source/match/orders/CohesionGroup.gd::@implicit_new": {
+        "inclusive_ms": 0.0,
+        "self_ms": 0.0,
+        "calls": 1
+      },
+      "source/match/audio/BattleVoice.gd::_radioed": {
+        "inclusive_ms": 0.0,
+        "self_ms": 0.0,
+        "calls": 1
+      }
+    },
+    "after": {
+      "source/match/players/human/UnitActionsController.gd::_on_terrain_targeted": {
+        "inclusive_ms": 14.907,
+        "self_ms": 0.001,
+        "calls": 1
+      },
+      "source/match/players/human/UnitActionsController.gd::_try_navigating_selected_units_towards_position": {
+        "inclusive_ms": 14.775,
+        "self_ms": 0.5950000000000001,
+        "calls": 1
+      },
+      "source/match/players/human/UnitActionsController.gd::_group_destinations": {
+        "inclusive_ms": 7.929,
+        "self_ms": 0.009000000000000001,
+        "calls": 1
+      },
+      "source/match/utils/UnitMovementUtils.gd::crowd_moved_to_new_pivot": {
+        "inclusive_ms": 7.705,
+        "self_ms": 0.34600000000000003,
+        "calls": 2
+      },
+      "source/match/players/human/UnitActionsController.gd::_submit": {
+        "inclusive_ms": 5.466,
+        "self_ms": 0.115,
+        "calls": 200
+      },
+      "source/match/orders/ManualOrders.gd::submit": {
+        "inclusive_ms": 5.303999999999999,
+        "self_ms": 0.631,
+        "calls": 200
+      },
+      "source/match/utils/UnitMovementUtils.gd::_resolve_group_destinations": {
+        "inclusive_ms": 5.109,
+        "self_ms": 1.399,
+        "calls": 1
+      },
+      "source/match/utils/UnitMovementUtils.gd::_reachable_point": {
+        "inclusive_ms": 3.915,
+        "self_ms": 0.31,
+        "calls": 434
+      },
+      "source/match/units/traits/Movement.gd::project_command_point": {
+        "inclusive_ms": 2.154,
+        "self_ms": 0.043000000000000003,
+        "calls": 234
+      },
+      "source/match/units/traits/Movement.gd::_closest_navigation_point": {
+        "inclusive_ms": 2.0820000000000003,
+        "self_ms": 0.030000000000000002,
+        "calls": 234
+      },
+      "source/match/TerrainNavigation.gd::closest_point": {
+        "inclusive_ms": 2.009,
+        "self_ms": 1.9629999999999999,
+        "calls": 234
+      },
+      "source/match/orders/ManualOrders.gd::resume_waiting_activation": {
+        "inclusive_ms": 1.633,
+        "self_ms": 0.311,
+        "calls": 200
+      },
+      "source/match/orders/FormationPlanner.gd::assign": {
+        "inclusive_ms": 1.5230000000000001,
+        "self_ms": 0.098,
+        "calls": 1
+      },
+      "source/match/orders/FormationPlanner.gd::hungarian": {
+        "inclusive_ms": 1.391,
+        "self_ms": 0.038,
+        "calls": 1
+      },
+      "source/match/players/human/UnitVoicesController.gd::_on_order_issued": {
+        "inclusive_ms": 1.013,
+        "self_ms": 0.075,
+        "calls": 200
+      },
+      "source/match/audio/BattleVoice.gd::say_unit": {
+        "inclusive_ms": 0.906,
+        "self_ms": 0.135,
+        "calls": 200
+      },
+      "source/match/orders/ManualOrders.gd::_deferred_point": {
+        "inclusive_ms": 0.837,
+        "self_ms": 0.417,
+        "calls": 400
+      },
+      "source/match/network/NetworkGate.gd::session_for": {
+        "inclusive_ms": 0.825,
+        "self_ms": 0.29,
+        "calls": 400
+      },
+      "source/match/utils/UnitMovementUtils.gd::_indexed_disc_collision": {
+        "inclusive_ms": 0.785,
+        "self_ms": 0.5820000000000001,
+        "calls": 276
+      },
+      "source/match/audio/BattleVoice.gd::_accept": {
+        "inclusive_ms": 0.6970000000000001,
+        "self_ms": 0.002,
+        "calls": 1
+      },
+      "source/match/audio/BattleVoice.gd::_start": {
+        "inclusive_ms": 0.6920000000000001,
+        "self_ms": 0.391,
+        "calls": 1
+      },
+      "source/match/orders/NavigationConnectivity.gd::can_reach": {
+        "inclusive_ms": 0.57,
+        "self_ms": 0.399,
+        "calls": 436
+      },
+      "source/match/orders/FormationPlanner.gd::funnel_routes": {
+        "inclusive_ms": 0.5289999999999999,
+        "self_ms": 0.20900000000000002,
+        "calls": 1
+      },
+      "source/match/network/NetworkGate.gd::intercept_order": {
+        "inclusive_ms": 0.495,
+        "self_ms": 0.026,
+        "calls": 200
+      },
+      "source/match/orders/ManualOrders.gd::_feedback": {
+        "inclusive_ms": 0.383,
+        "self_ms": 0.067,
+        "calls": 200
+      },
+      "source/match/orders/ManualOrders.gd::cancel": {
+        "inclusive_ms": 0.381,
+        "self_ms": 0.14300000000000002,
+        "calls": 200
+      },
+      "source/match/units/Unit.gd::_get_movement_domain": {
+        "inclusive_ms": 0.368,
+        "self_ms": 0.187,
+        "calls": 1000
+      },
+      "source/match/hud/BattleSubtitles.gd::_on_line": {
+        "inclusive_ms": 0.29100000000000004,
+        "self_ms": 0.0,
+        "calls": 1
+      },
+      "source/match/hud/BattleSubtitles.gd::_refresh": {
+        "inclusive_ms": 0.29,
+        "self_ms": 0.01,
+        "calls": 1
+      },
+      "source/match/players/human/UnitActionsController.gd::<anonymous lambda>(lambda)": {
+        "inclusive_ms": 0.076,
+        "self_ms": 0.076,
+        "calls": 200
+      },
+      "source/match/hud/SubtitleCard.gd::set_line": {
+        "inclusive_ms": 0.262,
+        "self_ms": 0.262,
+        "calls": 1
+      },
+      "source/match/orders/ManualOrders.gd::_action_can_wait": {
+        "inclusive_ms": 0.231,
+        "self_ms": 0.1,
+        "calls": 400
+      },
+      "source/match/orders/FormationPlanner.gd::<anonymous lambda>(lambda)": {
+        "inclusive_ms": 0.21800000000000003,
+        "self_ms": 0.17,
+        "calls": 200
+      },
+      "source/match/hud/CommandFeedback.gd::_on_order": {
+        "inclusive_ms": 0.205,
+        "self_ms": 0.14400000000000002,
+        "calls": 200
+      },
+      "source/match/units/traits/Movement.gd::stop": {
+        "inclusive_ms": 0.14100000000000001,
+        "self_ms": 0.107,
+        "calls": 200
+      },
+      "source/match/orders/FormationPlanner.gd::positions": {
+        "inclusive_ms": 0.13699999999999998,
+        "self_ms": 0.036000000000000004,
+        "calls": 2
+      },
+      "source/match/units/actions/Moving.gd::is_applicable": {
+        "inclusive_ms": 0.132,
+        "self_ms": 0.008,
+        "calls": 200
+      },
+      "source/match/orders/OrderActivationQueue.gd::enqueue": {
+        "inclusive_ms": 0.128,
+        "self_ms": 0.103,
+        "calls": 200
+      },
+      "source/match/players/human/UnitActionsController.gd::_try_setting_rally_points": {
+        "inclusive_ms": 0.122,
+        "self_ms": 0.122,
+        "calls": 1
+      },
+      "source/match/orders/OrderActivationQueue.gd::acquire": {
+        "inclusive_ms": 0.112,
+        "self_ms": 0.030000000000000002,
+        "calls": 200
+      },
+      "source/match/utils/UnitMovementUtils.gd::calculate_aabb_crowd_pivot_yless": {
+        "inclusive_ms": 0.102,
+        "self_ms": 0.051,
+        "calls": 1
+      },
+      "source/match/units/Unit.gd::_get_navigation_trait": {
+        "inclusive_ms": 0.087,
+        "self_ms": 0.087,
+        "calls": 1200
+      },
+      "source/match/orders/FormationPlanner.gd::offsets": {
+        "inclusive_ms": 0.08399999999999999,
+        "self_ms": 0.068,
+        "calls": 2
+      },
+      "source/match/units/Unit.gd::_get_radius": {
+        "inclusive_ms": 0.077,
+        "self_ms": 0.05,
+        "calls": 200
+      },
+      "source/match/orders/ManualOrders.gd::point_order": {
+        "inclusive_ms": 0.067,
+        "self_ms": 0.067,
+        "calls": 200
+      },
+      "source/match/orders/CohesionGroup.gd::_init": {
+        "inclusive_ms": 0.05,
+        "self_ms": 0.037,
+        "calls": 1
+      },
+      "source/match/orders/ManualOrders.gd::_cancel_activation": {
+        "inclusive_ms": 0.041999999999999996,
+        "self_ms": 0.015000000000000001,
+        "calls": 200
+      },
+      "source/match/utils/UnitMovementUtils.gd::_positions_pivot_yless": {
+        "inclusive_ms": 0.041,
+        "self_ms": 0.041,
+        "calls": 1
+      },
+      "source/match/orders/NavigationConnectivity.gd::_root": {
+        "inclusive_ms": 0.036000000000000004,
+        "self_ms": 0.036000000000000004,
+        "calls": 872
+      },
+      "source/match/units/Unit.gd::@player_getter": {
+        "inclusive_ms": 0.024,
+        "self_ms": 0.024,
+        "calls": 401
+      },
+      "source/match/audio/UnitVoiceBank.gd::unit_line": {
+        "inclusive_ms": 0.022,
+        "self_ms": 0.014,
+        "calls": 1
+      },
+      "source/match/world/FieldEngineering.gd::cancel_orders": {
+        "inclusive_ms": 0.02,
+        "self_ms": 0.01,
+        "calls": 200
+      },
+      "source/match/utils/UnitMovementUtils.gd::_disc_collides_with_others": {
+        "inclusive_ms": 0.019,
+        "self_ms": 0.019,
+        "calls": 200
+      },
+      "source/match/orders/NavigationConnectivity.gd::context": {
+        "inclusive_ms": 0.015000000000000001,
+        "self_ms": 0.003,
+        "calls": 1
+      },
+      "source/match/orders/ManualOrders.gd::_resume_suspended_action": {
+        "inclusive_ms": 0.014,
+        "self_ms": 0.014,
+        "calls": 200
+      },
+      "source/data-model/Options.gd::selection_modifier_pressed": {
+        "inclusive_ms": 0.013,
+        "self_ms": 0.0,
+        "calls": 1
+      },
+      "tests/headless/TacticalFormationsRegression.gd::TacticalFormationsMainLoop._profile_snapshot": {
+        "inclusive_ms": 0.013,
+        "self_ms": 0.004,
+        "calls": 1
+      },
+      "source/input/KeyBindings.gd::held": {
+        "inclusive_ms": 0.012,
+        "self_ms": 0.007,
+        "calls": 1
+      },
+      "source/match/units/traits/Movement.gd::_native_refresh_facts": {
+        "inclusive_ms": 0.009000000000000001,
+        "self_ms": 0.009000000000000001,
+        "calls": 200
+      },
+      "source/match/utils/UnitMovementUtils.gd::<anonymous lambda>(lambda)": {
+        "inclusive_ms": 0.008,
+        "self_ms": 0.008,
+        "calls": 200
+      },
+      "source/match/hud/BattleSubtitles.gd::_horizontal_space": {
+        "inclusive_ms": 0.008,
+        "self_ms": 0.007,
+        "calls": 2
+      },
+      "source/match/orders/NavigationConnectivity.gd::warm": {
+        "inclusive_ms": 0.007,
+        "self_ms": 0.003,
+        "calls": 1
+      },
+      "source/match/utils/UnitMovementUtils.gd::_fallback_ring": {
+        "inclusive_ms": 0.006,
+        "self_ms": 0.002,
+        "calls": 2
+      },
+      "source/match/rendering/RuntimePhaseProfiler.gd::cpu_sample": {
+        "inclusive_ms": 0.006,
+        "self_ms": 0.001,
+        "calls": 1
+      },
+      "source/match/hud/BattleSubtitles.gd::_fit_card": {
+        "inclusive_ms": 0.006,
+        "self_ms": 0.0,
+        "calls": 1
+      },
+      "source/match/units/traits/Movement.gd::cancel_exit_clearance": {
+        "inclusive_ms": 0.006,
+        "self_ms": 0.006,
+        "calls": 200
+      },
+      "source/match/orders/FormationPlanner.gd::posture": {
+        "inclusive_ms": 0.005,
+        "self_ms": 0.005,
+        "calls": 3
+      },
+      "source/input/KeyBindings.gd::from_event": {
+        "inclusive_ms": 0.005,
+        "self_ms": 0.005,
+        "calls": 1
+      },
+      "source/match/handlers/MouseClickAnimationsHandler.gd::_on_terrain_targeted": {
+        "inclusive_ms": 0.004,
+        "self_ms": 0.004,
+        "calls": 1
+      },
+      "source/match/hud/BattleSubtitles.gd::_position_card": {
+        "inclusive_ms": 0.004,
+        "self_ms": 0.002,
+        "calls": 1
+      },
+      "source/match/orders/FormationPlanner.gd::warm_native_solver": {
+        "inclusive_ms": 0.003,
+        "self_ms": 0.003,
+        "calls": 1
+      },
+      "source/match/hud/SubtitleCard.gd::set_portrait": {
+        "inclusive_ms": 0.003,
+        "self_ms": 0.003,
+        "calls": 1
+      },
+      "source/match/orders/FormationPlanner.gd::spacing": {
+        "inclusive_ms": 0.002,
+        "self_ms": 0.002,
+        "calls": 2
+      },
+      "source/match/TerrainNavigation.gd::is_synchronized": {
+        "inclusive_ms": 0.002,
+        "self_ms": 0.001,
+        "calls": 1
+      },
+      "source/match/orders/OrderActivationQueue.gd::_ready": {
+        "inclusive_ms": 0.002,
+        "self_ms": 0.002,
+        "calls": 1
+      },
+      "source/match/FactionCatalog.gd::title": {
+        "inclusive_ms": 0.002,
+        "self_ms": 0.001,
+        "calls": 1
+      },
+      "source/match/audio/UnitVoiceBank.gd::role_lines": {
+        "inclusive_ms": 0.002,
+        "self_ms": 0.002,
+        "calls": 1
+      },
+      "source/match/hud/BattleSubtitles.gd::_caption_top": {
+        "inclusive_ms": 0.001,
+        "self_ms": 0.001,
+        "calls": 3
+      },
+      "source/match/audio/UnitVoiceBank.gd::accepted": {
+        "inclusive_ms": 0.001,
+        "self_ms": 0.001,
+        "calls": 1
+      },
+      "source/match/audio/VoiceLines.gd::priority": {
+        "inclusive_ms": 0.001,
+        "self_ms": 0.001,
+        "calls": 1
+      },
+      "source/match/audio/BattleVoice.gd::_radioed": {
+        "inclusive_ms": 0.001,
+        "self_ms": 0.0,
+        "calls": 1
+      },
+      "source/audio/UIAudio.gd::_watch": {
+        "inclusive_ms": 0.001,
+        "self_ms": 0.001,
+        "calls": 1
+      },
+      "source/match/orders/OrderActivationQueue.gd::@implicit_new": {
+        "inclusive_ms": 0.001,
+        "self_ms": 0.001,
+        "calls": 1
+      },
+      "source/match/Navigation.gd::get_navigation_map_rid_by_domain": {
+        "inclusive_ms": 0.001,
+        "self_ms": 0.001,
+        "calls": 1
+      },
+      "source/match/Match.gd::_notification": {
+        "inclusive_ms": 0.0,
+        "self_ms": 0.0,
+        "calls": 1
+      },
+      "source/match/units/Unit.gd::_get_type": {
+        "inclusive_ms": 0.0,
+        "self_ms": 0.0,
+        "calls": 3
+      },
+      "source/match/orders/CohesionGroup.gd::@implicit_new": {
+        "inclusive_ms": 0.0,
+        "self_ms": 0.0,
+        "calls": 1
+      },
+      "source/match/hud/SubtitleCard.gd::set_caption_visible": {
+        "inclusive_ms": 0.0,
+        "self_ms": 0.0,
+        "calls": 1
+      }
+    }
+  }
+}

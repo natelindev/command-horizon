@@ -1,0 +1,52 @@
+{
+  "prepared_utc": "2026-11-02T06:59:22.307599+00:00",
+  "state": "waiting_for_explicit_root_final_freeze",
+  "snapshot_not_created": true,
+  "argv": [
+    "python3",
+    "-u",
+    "/Users/linlilu/godot-open-rts/tools/release/build.py",
+    "--headless-only",
+    "--native-backend",
+    "--godot",
+    "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+    "--source-root",
+    "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/inputs-retry-5",
+    "--verification-output",
+    "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/qualified-run-5"
+  ],
+  "cwd": "/Users/linlilu/godot-open-rts",
+  "console_log": "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/builder-console-5.log",
+  "checkpoint_report": "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/qualified-run-5/report.json",
+  "expected_scope": {
+    "packaged_standalone": 140,
+    "source_contracts": [
+      "RichTexturesRegression"
+    ],
+    "archives": 811,
+    "recorded_checksums": 389,
+    "briefing_layouts": 1152,
+    "network": 14,
+    "dummy_instances": 6,
+    "actual_template_startup": [
+      "ordinary_menu120frames",
+      "native_numerical_solver"
+    ],
+    "graphics": false,
+    "performance": false
+  },
+  "preserve_previous": [
+    "inputs-retry-4",
+    "qualified-run-4",
+    "builder-console-4.log",
+    "docs/playtests/2026-11-02/headless-continuation/final",
+    "build/headless-review/macos/20261102T052232Z-41540"
+  ],
+  "pending_actions": [
+    "receive explicit root freeze",
+    "copy exact finalized current inputs with independent inodes, retain import cache but omit private derived export cache",
+    "hash source/test/tools/assets/native sources and compare snapshot versus workspace",
+    "launch headless workflow with bounded durable numbered logs and private profile",
+    "retain original report bytes plus executable/signed-native/PCK/archive hashes"
+  ]
+}

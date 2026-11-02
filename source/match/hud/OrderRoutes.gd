@@ -1,6 +1,7 @@
 extends Control
 
 var _phase := 0.0
+var _preparing := false
 
 
 func _ready():
@@ -14,7 +15,18 @@ func _process(delta):
 	queue_redraw()
 
 
+func prepare_for_loading():
+	_preparing = true
+	_phase = .5
+
+
 func _draw():
+	if _preparing:
+		# Draw the same immediate/deferred route primitives behind Loading,
+		# without manufacturing a live unit order or changing selection.
+		_draw_segment(Vector2(8, 8), Vector2(80, 8), 0, true)
+		_draw_segment(Vector2(8, 32), Vector2(80, 32), 1, false)
+		return
 	var camera = get_viewport().get_camera_3d()
 	if camera == null:
 		return
@@ -51,25 +63,29 @@ func _draw():
 		for index in range(points.size()):
 			var point = camera.unproject_position(points[index].point)
 			var active = index == 0 and orders.current.has("point")
-			var color = Color(1, 1, 1, 0.9 if active else 0.65)
-			if active:
-				draw_line(previous, point, color, 2, true)
-			else:
-				draw_dashed_line(previous, point, color, 1.5, 6, true)
-			_route_pulse(previous, point, color)
-			draw_circle(point, 9, Color("172330e8"))
-			draw_string(
-				ThemeDB.fallback_font,
-				point + Vector2(-4, 4),
-				str(index + 1),
-				HORIZONTAL_ALIGNMENT_LEFT,
-				-1,
-				12,
-				color
-			)
+			_draw_segment(previous, point, index, active)
 			previous = point
 		# Show a representative route, avoiding hundreds of overlapping group lines.
 		break
+
+
+func _draw_segment(previous: Vector2, point: Vector2, index: int, active: bool):
+	var color = Color(1, 1, 1, 0.9 if active else 0.65)
+	if active:
+		draw_line(previous, point, color, 2, true)
+	else:
+		draw_dashed_line(previous, point, color, 1.5, 6, true)
+	_route_pulse(previous, point, color)
+	draw_circle(point, 9, Color("172330e8"))
+	draw_string(
+		ThemeDB.fallback_font,
+		point + Vector2(-4, 4),
+		str(index + 1),
+		HORIZONTAL_ALIGNMENT_LEFT,
+		-1,
+		12,
+		color
+	)
 
 
 func _draw_rallies(camera):

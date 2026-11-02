@@ -2,20 +2,39 @@ extends "res://source/match/units/Structure.gd"
 
 
 func ability_definitions() -> Array:
-	if player.faction != "helix":
-		return []
-	return [
+	var result = [
 		{
-			"id": "power_overdrive",
-			"name": "Grid Overdrive",
-			"key": "E",
+			"id": "grid_surge",
+			"name": "Generator Surge",
+			"key": "Q",
 			"description":
 			(
-				"Use 3 extra power to increase nearby shield recharge by 50%. "
-				+ "Requires Plasma Shields. Suspends during low power."
+				"Increase this generator's power output by 50% for 30 seconds, "
+				+ "followed by a 10 second cooldown."
 			),
-			"target_type": "toggle",
-			"cooldown": 0.0,
-			"radius": 12.0,
+			"target_type": "instant",
+			"cooldown": 40.0,
+			"duration": 30.0,
 		}
 	]
+	if player.faction != "helix":
+		return result
+	(
+		result
+		. append(
+			{
+				"id": "power_overdrive",
+				"name": "Grid Overdrive",
+				"key": "E",
+				"description":
+				(
+					"Use 3 extra power to double nearby shield recharge and speed nearby factories by 50%. "
+					+ "Suspends during brownouts."
+				),
+				"target_type": "toggle",
+				"cooldown": 0.0,
+				"radius": 12.0,
+			}
+		)
+	)
+	return result

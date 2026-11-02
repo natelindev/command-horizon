@@ -9,6 +9,7 @@ import hashlib
 import json
 import re
 import subprocess
+import sys
 import tempfile
 import wave
 from difflib import SequenceMatcher
@@ -16,6 +17,7 @@ from importlib.metadata import version
 from pathlib import Path
 
 import numpy as np
+from combat_barks import combat_text
 from voice_cast import (ANNOUNCERS, ANNOUNCER_TEXT, CAST, EVENTS, MACHINES, MERCENARY,
                         MERCENARY_CAST, POOL, PROFILES, ROBOT_CAST, STOP_TEXT, STRUCTURES,
                         WORKER_TASKS, delivery)
@@ -113,7 +115,8 @@ def mechanical(identity, event, variant, role, faction, duration=None, rate=RATE
     env = np.minimum(t / .018, 1) * np.minimum((duration - t) / .1, 1)
     tuning = {'bastion': 1.0, 'helix': 1.32, 'frontier': .81}[faction]
     gesture = {'select': 1., 'move': 1.12, 'attack': 1.26, 'ready': .92,
-               'gather': .85, 'construct': 1.05, 'repair': 1.18, 'stop': .75}[event]
+               'gather': .85, 'construct': 1.05, 'repair': 1.18, 'stop': .75,
+               'low_health': .8, 'kill': 1.35}[event]
     base = tuning * gesture * (1 + .07 * variant)
     noise = rng.normal(0, 1, len(t))
 
@@ -248,6 +251,7 @@ class Voices:
         from kokoro_onnx import Kokoro
         from speechbrain.inference.speaker import EncoderClassifier
         self.torch = torch
+        torch.set_num_threads(getattr(args, 'cpu_threads', 4))
         cuda = torch.cuda.is_available()
         device = 'cuda' if cuda else 'mps' if torch.backends.mps.is_available() else 'cpu'
         self.kokoro = Kokoro(str(args.model), str(args.voices))
@@ -392,6 +396,62 @@ def robot_take(audio, speaker, faction, role, event, index):
     return mix
 
 
+def publish_facilities(args):
+    """Supplement mechanical facility replies without publishing incomplete speech."""
+    manifest_path = ROOT / 'art/audio/battle-audio-manifest.json'
+    catalog_path = OUT / 'catalog.json'
+    catalog = json.loads(catalog_path.read_text())
+    records = {entry['file']: entry for entry in json.loads(manifest_path.read_text())}
+    provenance = {
+        'kokoro': {'model': args.model.name, 'model_sha256': hashlib.sha256(args.model.read_bytes()).hexdigest()},
+        'chatterbox': {'engine': 'chatterbox-tts ' + version('chatterbox-tts')},
+    }
+    texts = {'select': '[Telemetry chirp]', 'move': '[Drive engaged]',
+             'attack': '[Targeting pulse]', 'ready': '[Systems online]',
+             'gather': '[Extractor engaged]', 'construct': '[Tools engaged]',
+             'repair': '[Repair servo engaged]', 'stop': '[Drive disengaged]'}
+    generated = 0
+    with tempfile.TemporaryDirectory() as work:
+        raw = Path(work) / 'facility.wav'
+        for faction_index, faction in enumerate(CAST):
+            for role_index, role in enumerate(STRUCTURES):
+                identity = faction_index * 17 + len(MACHINES) + role_index
+                lines = {}
+                for event, text in texts.items():
+                    variants = []
+                    for index in range(2 if event in ['select', 'move', 'attack'] else 1):
+                        relative = f'{faction}/{role}/{event}_{index}.ogg'
+                        path = OUT / relative
+                        source_hash = clip_source_hash(text, None, identity, event, index, faction,
+                            {'profiles': PROFILES, 'models': provenance})
+                        previous = records.get(relative, {})
+                        if not (path.is_file() and previous.get('source_hash') == source_hash
+                                and previous.get('sha256') == hashlib.sha256(path.read_bytes()).hexdigest()):
+                            path.parent.mkdir(parents=True, exist_ok=True)
+                            write_wave(raw, mechanical(identity, event, index, role, faction))
+                            band = {'bastion': 'highpass=f=180,lowpass=f=4300',
+                                    'helix': 'highpass=f=260,lowpass=f=5100',
+                                    'frontier': 'highpass=f=330,lowpass=f=3300'}[faction]
+                            subprocess.run(['ffmpeg','-v','error','-y','-i',str(raw),'-af',
+                                band + f',loudnorm=I={MACHINE_LUFS}:TP=-3:LRA=7,afade=t=in:d=0.008',
+                                '-ar',str(RATE),'-ac','2','-c:a','vorbis','-strict','-2',
+                                '-q:a','4',str(path)],check=True)
+                            generated += 1
+                        records[relative] = dict(file=relative, sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
+                            speaker_id=None, text=text, source_hash=source_hash)
+                        variants.append(dict(stream='res://assets/audio/voices/' + relative,
+                            text=text, mechanical=True, robotic=False,
+                            speaker_id=f'machine:{faction}/{role}'))
+                    lines[event] = variants
+                catalog['factions'][faction]['units'][role] = lines
+    # Both files remain complete: only the deterministic facility bank changes.
+    for path, data in [(manifest_path,list(records.values())),(catalog_path,catalog)]:
+        pending = path.with_suffix('.tmp')
+        pending.write_text(json.dumps(data,indent=2) + '\n')
+        pending.replace(path)
+    print(f'clips: {len(records)}\nfacilities_generated: {generated}\nspeech_changed: 0')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--model', type=Path, required=True)
@@ -400,10 +460,22 @@ def main():
     parser.add_argument('--shard', help='Comma-separated path prefixes: render only their cloned '
                         'speech into the checkpoint (for another machine); no catalog/manifest')
     parser.add_argument('--checkpoint', type=Path, default=ROOT / 'tmp/voice-work/build-checkpoint.json')
+    parser.add_argument('--facilities-only', action='store_true',
+                        help='Publish deterministic facility replies while speech is still rendering')
+    parser.add_argument('--cpu-threads', type=int, default=4,
+                        help='CPU quality-check threads per worker (default: 4)')
     args = parser.parse_args()
+    if args.cpu_threads < 1:
+        parser.error('--cpu-threads must be at least 1')
+    for path in [args.model, args.voices]:
+        if not path.is_file():
+            parser.error(f'Build input does not exist: {path}')
     shard = tuple(args.shard.split(',')) if args.shard else None
     validate_cast(PROFILES)
     OUT.mkdir(parents=True, exist_ok=True)
+    if args.facilities_only:
+        publish_facilities(args)
+        return
     engines = None
     manifest_path = ROOT / 'art/audio/battle-audio-manifest.json'
     previous = {entry['file']: entry for entry in json.loads(manifest_path.read_text())} if manifest_path.exists() else {}
@@ -477,7 +549,7 @@ def main():
                             rejected.append(str(error))
                             audio, qc = error.best[1], dict(error.best[2], rejected=True)
                     encode(path, master(audio, SPEECH_RATE, SPEECH_LUFS), SPEECH_RATE)
-                print(f'  {relative}', qc or '', flush=True)
+                print(f'  {relative}', qc or '', flush=True, file=sys.stderr)
             entry = {'file': relative, 'sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
                      'speaker_id': speaker, 'text': text, 'source_hash': source_hash}
             if qc:
@@ -486,7 +558,9 @@ def main():
             if not valid_cache:
                 checkpoint[relative] = entry
                 checkpoint_path.parent.mkdir(parents=True, exist_ok=True)
-                checkpoint_path.write_text(json.dumps(checkpoint))
+                pending_checkpoint = checkpoint_path.with_suffix('.tmp')
+                pending_checkpoint.write_text(json.dumps(checkpoint))
+                pending_checkpoint.replace(checkpoint_path)
             return {'stream': 'res://assets/audio/voices/' + relative, 'text': text,
                     'mechanical': speaker is None, 'robotic': robotic,
                     'speaker_id': speaker if speaker else f'machine:{faction}/{role}'}
@@ -505,11 +579,11 @@ def main():
                 if role == 'Worker' and role in roles:
                     extra = WORKER_TASKS
                 stop_text = texts['stop'] if isinstance(texts, dict) else STOP_TEXT[faction]
-                extra = {**extra, 'stop': stop_text}
+                extra = {**extra, 'stop': stop_text, **combat_text(faction, role)}
                 for event, text in extra.items():
                     lines[event] = [asset(faction, role, event, 0, text, speaker)]
                 entry['units'][role] = lines
-                print(f'{faction}/{role} voiced', flush=True)
+                print(f'{faction}/{role} voiced', flush=True, file=sys.stderr)
             for role_index, role in enumerate(STRUCTURES):
                 identity = faction_index * 17 + len(MACHINES) + role_index
                 lines = {}
@@ -528,10 +602,13 @@ def main():
                 variants = lines.setdefault(event, [])
                 variants.append(asset(MERCENARY, role, event, len(variants), text, speaker))
             lines['stop'] = [asset(MERCENARY, role, 'stop', 0, STOP_TEXT[MERCENARY], speaker)]
+            for event, text in combat_text(MERCENARY, role).items():
+                lines[event] = [asset(MERCENARY, role, event, 0, text, speaker)]
             catalog['mercenaries'][role] = lines
-            print(f'{MERCENARY}/{role} voiced', flush=True)
+            print(f'{MERCENARY}/{role} voiced', flush=True, file=sys.stderr)
         if shard:
-            print(f'Shard rendered; checkpoint {checkpoint_path}', flush=True)
+            print(f'checkpoint: {checkpoint_path}\nclips: {len(checkpoint)}\nrejected: {len(rejected)}',
+                  flush=True)
             if rejected:
                 raise SystemExit('Rejected:\n' + '\n'.join(rejected))
             return
@@ -549,7 +626,7 @@ def main():
     (OUT / 'catalog.json').write_text(json.dumps(catalog, indent=2) + '\n')
     manifest_path.write_text(json.dumps(audit, indent=2) + '\n')
     checkpoint_path.unlink(missing_ok=True)
-    print(f'Built {len(audit)} battle clips and 4 UI cues.', flush=True)
+    print(f'clips: {len(audit)}\nui_cues: 4\nrejected: {len(rejected)}', flush=True)
     if rejected:
         raise SystemExit('Lines without an acceptable take (rewrite or recast, then rebuild):\n'
                          + '\n'.join(rejected))

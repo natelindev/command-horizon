@@ -59,7 +59,23 @@ func _portraits():
 			if role not in roles:
 				roles.append(role)
 	for faction in ["bastion", "helix", "frontier"]:
+		var roster = factions.roster(faction)
+		_check(
+			roster.allows("ForwardRefinery", true) == (faction == "bastion"),
+			"%s: authored refinery exclusion was lost" % faction
+		)
+		_check(
+			roster.allows("AircraftFactory", true) == (faction != "frontier"),
+			"%s: authored aerospace structure exclusion was lost" % faction
+		)
+		for aircraft in ["Helicopter", "Fighter", "Bomber"]:
+			_check(
+				roster.allows(aircraft) == (faction != "frontier"),
+				"%s: authored %s exclusion was lost" % [faction, aircraft]
+			)
 		for role in roles:
+			if not roster.allows(role, role in catalog.STRUCTURES):
+				continue
 			var texture = factions.portrait(faction, role)
 			_check(texture != null, "%s %s has no portrait" % [faction, role])
 			if texture != null:
@@ -83,7 +99,16 @@ func _portraits():
 
 func _tiles(faction):
 	var human = game._get_human_player()
-	if _units(human, "AircraftFactory").is_empty():
+	var worker = _units(human, "Worker")[0]
+	var flags = OS.get_cmdline_user_args()
+	if "--native-unit-state" in flags:
+		_check(worker._native_state != null, faction + ": native unit state was not bound")
+	if "--native-crowd-runtime" in flags:
+		_check(
+			worker.get_node("Movement")._native_runtime != null,
+			faction + ": native movement was not bound"
+		)
+	if faction != "frontier" and _units(human, "AircraftFactory").is_empty():
 		var hq = _units(human, "CommandCenter")[0]
 		_spawn("AircraftFactory", human, hq.global_position + Vector3(-9, 0, 9), false)
 	var menus = game.find_child("UnitMenus")
@@ -92,14 +117,32 @@ func _tiles(faction):
 		for producer in [
 			"CommandCenter", "Barracks", "VehicleFactory", "AircraftFactory", "Worker"
 		]:
+			if producer == "AircraftFactory" and faction == "frontier":
+				continue
 			_select([_units(human, producer)[0]])
 			await _frames(4)
 			if producer == "Worker":
 				menus.open_page("Build")
 				await _frames(4)
-			var roles = catalog.STRUCTURES if producer == "Worker" else catalog.PRODUCES[producer]
+			var roles = (
+				catalog.STRUCTURES.filter(
+					func(role): return factions.roster(faction).allows(role, true)
+				)
+				if producer == "Worker"
+				else factions.production_options(faction, producer)
+			)
 			var label = "%s %s %s" % [faction, locale, producer]
 			_check(menus._buttons.size() == roles.size(), label + ": roster is incomplete")
+			if producer == "Worker":
+				var displayed = menus._buttons.map(func(entry): return entry.type)
+				_check(
+					("ForwardRefinery" in displayed) == (faction == "bastion"),
+					label + ": build menu violates refinery exclusivity"
+				)
+				_check(
+					("AircraftFactory" in displayed) == (faction != "frontier"),
+					label + ": build menu violates aerospace exclusivity"
+				)
 			for entry in menus._buttons:
 				var tile = entry.button
 				var expected = factions.portrait(faction, entry.type)
@@ -111,7 +154,11 @@ func _tiles(faction):
 				_check(tile.text.is_empty(), "%s: %s tile draws button text" % [label, entry.type])
 				_check(tile._title.is_visible_in_tree(), label + ": tile hides its name")
 				_check(tile.tooltip_text.begins_with(tile.title()), label + ": tooltip has no name")
-				var cost = factions.cost(human, entry.type, entry.construction)
+				var cost = (
+					factions.cost(human, entry.type, true)
+					if entry.construction
+					else factions.production_cost(human, entry.type)
+				)
 				var expected_price = "%d M / %d E" % [cost.resource_a, cost.resource_b]
 				_check(expected_price in tile.tooltip_text, label + ": tooltip omits its price")
 				_check(

@@ -21,8 +21,7 @@ func _ready():
 func _on_damage(unit):
 	if unit == _unit and _capture_elapsed > 0 and not _unit.has_meta("garrison_host"):
 		_capture_elapsed = 0.0
-		if is_instance_valid(_target_unit):
-			_target_unit.clear_capture(_unit)
+		_clear_capture()
 		queue_free()
 
 
@@ -55,20 +54,24 @@ func _physics_process(delta):
 	var distance = _unit.global_position_yless.distance_to(_target_unit.global_position_yless)
 	if distance <= _target_unit.radius + _unit.radius + 1.0:
 		_unit.get_node("Movement").stop()
-		if _target_unit.capture_busy(_unit):
+		if _target_unit.has_method("capture_busy") and _target_unit.capture_busy(_unit):
 			return
 		if not load("res://source/match/Players.gd").allied(_unit.player, _target_unit.player):
+			if _target_unit.has_method("capture_blocked") and _target_unit.capture_blocked(_unit):
+				_capture_elapsed = 0.0
+				_clear_capture()
+				return
 			_capture_elapsed += elapsed
 			_target_unit.show_capture(_unit, _capture_elapsed)
-			if _capture_elapsed < CAPTURE_DURATION:
+			if _capture_elapsed < _capture_duration():
 				return
-		_target_unit.clear_capture(_unit)
+		_clear_capture()
 		_target_unit.enter(_unit)
 		if not _unit.has_meta("garrison_host"):
 			queue_free()
 	else:
 		_capture_elapsed = 0.0
-		_target_unit.clear_capture(_unit)
+		_clear_capture()
 		_unit.get_node("Movement").move(
 			_target_unit.global_position + direction * (_target_unit.radius + .7)
 		)
@@ -76,9 +79,14 @@ func _physics_process(delta):
 
 func _exit_tree():
 	if is_instance_valid(_target_unit) and is_instance_valid(_unit):
-		_target_unit.clear_capture(_unit)
+		_clear_capture()
 		_target_unit.leave(_unit)
 		_unit.get_node("Movement").stop()
+
+
+func _clear_capture():
+	if is_instance_valid(_target_unit) and _target_unit.has_method("clear_capture"):
+		_target_unit.clear_capture(_unit)
 
 
 func attack_from_building(target):
@@ -95,8 +103,16 @@ func attack_from_building(target):
 func _to_string():
 	if not _unit.has_meta("garrison_host"):
 		return (
-			tr("Capturing · %d / %d s") % [floori(_capture_elapsed), 15]
+			tr("Capturing · %d / %d s") % [floori(_capture_elapsed), int(_capture_duration())]
 			if _capture_elapsed > 0
 			else tr("Moving to capture")
 		)
 	return tr("Garrisoned · Move to leave")
+
+
+func _capture_duration() -> float:
+	return (
+		_target_unit.capture_duration()
+		if is_instance_valid(_target_unit) and _target_unit.has_method("capture_duration")
+		else CAPTURE_DURATION
+	)

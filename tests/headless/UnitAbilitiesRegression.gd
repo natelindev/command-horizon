@@ -312,7 +312,9 @@ func _test_ability_orders():
 		"Targeted cast consumed all selected cooldowns"
 	)
 	commands.arm_ability("guided_salvo")
-	_check(commands.commit(enemy.global_position, enemy, true), "Next ready caster was not selected")
+	_check(
+		commands.commit(enemy.global_position, enemy, true), "Next ready caster was not selected"
+	)
 	r1.queue_free()
 	r2.queue_free()
 	await _frames(2)
@@ -322,10 +324,21 @@ func _test_ability_orders():
 	_game.hud._unhandled_input(_ability_key(KEY_W))
 	_check(
 		(
+			(
+				int(assault.abilities.is_active("combat_sprint"))
+				+ int(other_assault.abilities.is_active("combat_sprint"))
+			)
+			== 1
+		),
+		"HUD W did not smart-cast exactly one instant ability"
+	)
+	_game.hud._unhandled_input(_ability_key(KEY_W))
+	_check(
+		(
 			assault.abilities.is_active("combat_sprint")
 			and other_assault.abilities.is_active("combat_sprint")
 		),
-		"HUD W did not activate all instant abilities"
+		"Repeated W did not select the remaining ready caster"
 	)
 	assault.abilities.restore({})
 	_game.hud._open_menu()

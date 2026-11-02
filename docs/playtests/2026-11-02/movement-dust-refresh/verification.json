@@ -1,0 +1,48 @@
+{
+  "scope": "Same-process alternating caller-thread CPU diagnostic; GPU emission is observed as exact puff arguments rather than executed. No rendered-frame speedup or isolated timing qualification is claimed.",
+  "results": {
+    "native": {
+      "cases": 675,
+      "failures": 0,
+      "caller_us_per_500_calls_median": {
+        "bastion": {
+          "after": 2611.0,
+          "before": 3737.5
+        },
+        "helix": {
+          "after": 2546.0,
+          "before": 3741.5
+        },
+        "frontier": {
+          "after": 2609.0,
+          "before": 3784.0
+        }
+      }
+    },
+    "fallback": {
+      "cases": 675,
+      "failures": 0,
+      "caller_us_per_500_calls_median": {
+        "bastion": {
+          "after": 2496.5,
+          "before": 3685.5
+        },
+        "helix": {
+          "after": 2651.0,
+          "before": 3750.5
+        },
+        "frontier": {
+          "after": 2503.0,
+          "before": 3619.0
+        }
+      }
+    }
+  },
+  "files_sha256": {
+    "docs/playtests/2026-11-02/movement-dust-refresh/MovementDustParity.gd": "ac9e2099ad16d91f92eb5be40c7a634e2290868a3b41a6ca46ea47a1c6d55315",
+    "docs/playtests/2026-11-02/movement-dust-refresh/movement-dust-before.gd.txt": "f55e116d28e7bec2e392805639fb1e8305a93210152e78068af341c5589dea36",
+    "docs/playtests/2026-11-02/movement-dust-refresh/parity-native.log": "08d6fffe90d4bfa3d26893ee1b995d7c00ea561841aaeab7d319792820d5c3b5",
+    "docs/playtests/2026-11-02/movement-dust-refresh/parity-fallback.log": "a279236d1fb8dedae20c6f5366c63acd6e18b3b4895a9e26677fbf80ea647222",
+    "source/match/effects/CombatEffects.gd": "12234119598e322dc091c31748affb2d76a0acd545e3807db2732e4df2090d1a"
+  }
+}

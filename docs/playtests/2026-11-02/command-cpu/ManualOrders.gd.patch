@@ -1,0 +1,37 @@
+--- source/match/orders/ManualOrders.gd (before)
++++ source/match/orders/ManualOrders.gd (final)
+@@ -3,9 +3,13 @@
+ 
+ const LIMIT = 16
+ const ACTIONS = "res://source/match/units/actions/"
+-const DEFERRED_ACTIONS = [
+-	"WaitingForTargets", "Moving", "AttackMoving", "Patrolling", "AutoAttacking"
+-]
++const DEFERRED_ACTIONS = {
++	ACTIONS + "WaitingForTargets.gd": true,
++	ACTIONS + "Moving.gd": true,
++	ACTIONS + "AttackMoving.gd": true,
++	ACTIONS + "Patrolling.gd": true,
++	ACTIONS + "AutoAttacking.gd": true
++}
+ const ActivationQueue = preload("res://source/match/orders/OrderActivationQueue.gd")
+ const CohesionGroup = preload("res://source/match/orders/CohesionGroup.gd")
+ const NetworkGate = preload("res://source/match/network/NetworkGate.gd")
+@@ -215,13 +219,10 @@
+ 	# Operational actions release cargo channels, service jobs and reservations
+ 	# during teardown. Keep their replacement synchronous.
+ 	var action = unit.action
+-	return (
+-		not is_instance_valid(action)
+-		or (
+-			action.get_script() != null
+-			and action.get_script().resource_path.get_file().get_basename() in DEFERRED_ACTIONS
+-		)
+-	)
++	if not is_instance_valid(action):
++		return true
++	var action_script = action.get_script()
++	return action_script != null and DEFERRED_ACTIONS.has(action_script.resource_path)
+ 
+ 
+ func resume_waiting_activation():

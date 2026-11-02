@@ -1,0 +1,100 @@
+{
+	"adapter": "Apple M1 Pro (Apple7)",
+	"arguments": [
+		"--enable-native-kernels",
+		"--native-unit-state",
+		"--native-crowd-runtime",
+		"--native-presentation",
+		"--native-infantry-poses",
+		"--native-visibility-runtime",
+		"--native-combat-queries",
+		"--native-battlefield-index",
+		"--indexed-player-rosters",
+		"--av-faction=bastion",
+		"--av-quality=low",
+		"--av-samples=60",
+		"--av-output=/Users/linlilu/godot-open-rts/art/benchmark-battle/native-diagnostic"
+	],
+	"combatants": 200,
+	"diagnostic": false,
+	"failures": [],
+	"quality": [
+		{
+			"batch_groups": 26,
+			"batched_units": 202,
+			"cpu_usage": {},
+			"draw_calls": {
+				"max": 1148.0,
+				"mean": 1081.43333333333,
+				"median": 1088.0,
+				"p95": 1132.0
+			},
+			"faction": "bastion",
+			"frame_ms": {
+				"max": 101.156,
+				"mean": 60.2636333333333,
+				"median": 58.954,
+				"p95": 90.54
+			},
+			"frames": 60,
+			"gpu_ms": {
+				"max": 0.0,
+				"mean": 0.0,
+				"median": 0.0,
+				"p95": 0.0
+			},
+			"music_intensity": 0.997520365414143,
+			"native_infantry_solves": 79,
+			"native_visibility": true,
+			"particle_capacities": {
+				"clod": 128,
+				"debris": 192,
+				"dust": 512,
+				"exhaust": 768,
+				"fire": 256,
+				"flash": 128,
+				"mote": 192,
+				"smoke": 384,
+				"spark": 768,
+				"trail_smoke": 2048
+			},
+			"quality": "low",
+			"raster": [
+				1280.0,
+				720.0
+			],
+			"render_cpu_ms": {
+				"max": 1.39199995994568,
+				"mean": 1.0037166595459,
+				"median": 0.990000009536743,
+				"p95": 1.23699998855591
+			},
+			"resident_rigs": 202,
+			"sampled_1s_physics_max_ms": {
+				"max": 43.438,
+				"mean": 40.6653333333334,
+				"median": 39.365,
+				"p95": 43.438
+			},
+			"sampled_1s_process_max_ms": {
+				"max": 23.207,
+				"mean": 21.2506,
+				"median": 21.095,
+				"p95": 23.207
+			},
+			"scene_dispatch_us": [],
+			"shocks": 1,
+			"shots": 421,
+			"simulation_seconds": 3.60000000000018,
+			"wall_seconds": 3.615818
+		}
+	],
+	"raster": [
+		1280,
+		720
+	],
+	"release": false,
+	"samples": 60,
+	"scope": "Real live combat and damage presentation; no fixed-fps, paused simulation, or disabled effects.",
+	"status": "valid"
+}

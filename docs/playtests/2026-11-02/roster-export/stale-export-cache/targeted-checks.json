@@ -1,0 +1,133 @@
+{
+  "pack_sha256": "105ff4e1b563e5186973801941ad6313d9fa484e7d8d2eb32d8d6ad947532c99",
+  "checks": [
+    {
+      "mode": "fallback",
+      "test": "BattleHudProductionRegression",
+      "argv": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--main-pack",
+        "/tmp/rts-roster-fixed.pck",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "res://tests/headless/BattleHudProductionRegression.gd"
+      ],
+      "cwd": "/tmp/rts-roster-targeted-project",
+      "exit_code": 1,
+      "errors": true,
+      "seconds": 17.392,
+      "log": "fallback-BattleHudProductionRegression.log"
+    },
+    {
+      "mode": "native",
+      "test": "BattleHudProductionRegression",
+      "argv": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--main-pack",
+        "/tmp/rts-roster-fixed.pck",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "res://tests/headless/BattleHudProductionRegression.gd",
+        "--",
+        "--enable-native-kernels",
+        "--native-unit-state",
+        "--native-crowd-runtime"
+      ],
+      "cwd": "/tmp/rts-roster-targeted-project",
+      "exit_code": 1,
+      "errors": true,
+      "seconds": 17.447,
+      "log": "native-BattleHudProductionRegression.log"
+    },
+    {
+      "mode": "fallback",
+      "test": "FactionAsymmetryRegression",
+      "argv": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--main-pack",
+        "/tmp/rts-roster-fixed.pck",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "res://tests/headless/FactionAsymmetryRegression.gd"
+      ],
+      "cwd": "/tmp/rts-roster-targeted-project",
+      "exit_code": 1,
+      "errors": true,
+      "seconds": 4.091,
+      "log": "fallback-FactionAsymmetryRegression.log"
+    },
+    {
+      "mode": "native",
+      "test": "FactionAsymmetryRegression",
+      "argv": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--main-pack",
+        "/tmp/rts-roster-fixed.pck",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "res://tests/headless/FactionAsymmetryRegression.gd",
+        "--",
+        "--enable-native-kernels",
+        "--native-unit-state",
+        "--native-crowd-runtime"
+      ],
+      "cwd": "/tmp/rts-roster-targeted-project",
+      "exit_code": 1,
+      "errors": true,
+      "seconds": 4.155,
+      "log": "native-FactionAsymmetryRegression.log"
+    },
+    {
+      "mode": "fallback",
+      "test": "FrontierAirContractsRegression",
+      "argv": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--main-pack",
+        "/tmp/rts-roster-fixed.pck",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "res://tests/headless/FrontierAirContractsRegression.gd"
+      ],
+      "cwd": "/tmp/rts-roster-targeted-project",
+      "exit_code": 1,
+      "errors": true,
+      "seconds": 3.527,
+      "log": "fallback-FrontierAirContractsRegression.log"
+    },
+    {
+      "mode": "native",
+      "test": "FrontierAirContractsRegression",
+      "argv": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--main-pack",
+        "/tmp/rts-roster-fixed.pck",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "res://tests/headless/FrontierAirContractsRegression.gd",
+        "--",
+        "--enable-native-kernels",
+        "--native-unit-state",
+        "--native-crowd-runtime"
+      ],
+      "cwd": "/tmp/rts-roster-targeted-project",
+      "exit_code": 1,
+      "errors": true,
+      "seconds": 3.647,
+      "log": "native-FrontierAirContractsRegression.log"
+    }
+  ],
+  "source/match/factions/FactionRoster.gd": "820bdeceb70f9c3702cf9f7dbbcc2f5ba0eae69cbd1760f041a7e8d7b5c20448",
+  "tests/headless/BattleHudProductionRegression.gd": "0f7b2b8d6ca8aeebb774da230a4ebe6ee20bdd5bc127b6dd9d9e5fd01275003c"
+}

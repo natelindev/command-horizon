@@ -65,7 +65,7 @@ func _barricades():
 	var barriers = get_nodes_in_group("engineering_entities")
 	_check(barriers.size() == 1, "Instant barrier was not deployed")
 	_check(_human.resource_a == resources - 10, "Barricade payment not atomic")
-	_check(_manager.cooldown_left(worker) == 15.0, "Barricade cooldown not committed")
+	_check(_manager.cooldown_left(worker) == 0.0, "Instant barricade acquired a timed cooldown")
 	if barriers.is_empty():
 		return
 	var barrier = barriers[0]
@@ -157,6 +157,9 @@ func _barricade_right_click():
 	_check(barrier.hp == 70.0, "Damaged barricade right-click did not perform paid repair")
 	_check(_human.resource_a == 999, "Contextual barricade repair changed its resource cost")
 	barrier.hp = barrier.hp_max
+	# Building R acts on the visible Build tab; tactical R belongs to Orders.
+	_game.find_child("UnitMenus").open_page("Orders")
+	await _frames(3)
 	for down in [true, false]:
 		var key = InputEventKey.new()
 		key.keycode = KEY_R

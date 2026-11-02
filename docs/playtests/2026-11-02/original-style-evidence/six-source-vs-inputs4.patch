@@ -1,0 +1,172 @@
+--- inputs4/source/match/units/traits/TrackMotion.gd
++++ current/source/match/units/traits/TrackMotion.gd
+@@ -68,13 +68,12 @@
+ 	var current: Transform3D = _unit.global_transform
+ 	var previous := _previous
+ 	_previous = current
+-	if (
+-		delta <= 0.0
+-		or (
+-			current.origin.distance_to(previous.origin)
+-			> maxf(1.0, _unit.movement_speed * delta * 4.0)
+-		)
+-	):
++	if delta <= 0.0:
++		return
++	var distance := current.origin.distance_to(previous.origin)
++	# The teleport threshold is at least one metre. Ordinary short steps never
++	# need the live speed getter, which can cross the native/script boundary.
++	if distance > 1.0 and distance > maxf(1.0, _unit.movement_speed * delta * 4.0):
+ 		return
+ 	var old_facing := previous.basis.z.normalized()
+ 	var facing := current.basis.z.normalized()
+--- inputs4/source/match/units/traits/WheelMotion.gd
++++ current/source/match/units/traits/WheelMotion.gd
+@@ -58,7 +58,10 @@
+ 	var previous: Transform3D = _previous
+ 	_previous = current
+ 	# Spawns, restores and editor/test relocations must not spin through a jump.
+-	if current.origin.distance_to(previous.origin) > maxf(1.0, _unit.movement_speed * delta * 4.0):
++	var distance := current.origin.distance_to(previous.origin)
++	# Keep the exact distance/threshold comparison, querying live speed only
++	# when the one-metre minimum could actually classify this as a teleport.
++	if distance > 1.0 and distance > maxf(1.0, _unit.movement_speed * delta * 4.0):
+ 		return
+ 	var old_facing: Vector3 = previous.basis.z.normalized()
+ 	var new_facing: Vector3 = current.basis.z.normalized()
+--- inputs4/source/match/effects/CombatEffects.gd
++++ current/source/match/effects/CombatEffects.gd
+@@ -883,19 +883,20 @@
+ 	var movement = unit.get_node_or_null("Movement")
+ 	var velocity: Vector3 = movement.velocity if movement != null else -unit.global_basis.z
+ 	var backward := -velocity.normalized()
+-	var size = unit.radius * (.7 if _dust_biome == "alpine" else .9)
++	# These facts cannot change while this synchronous emission is assembled.
++	var radius = unit.radius
++	var right: Vector3 = unit.global_basis.x
++	var contact_base = point + backward * radius * .65
++	var size = radius * (.7 if _dust_biome == "alpine" else .9)
+ 	var color = dust_color(_dust_biome)
++	var clods = (
++		_dust_biome in ["temperate", "coastal"] and radius > .65 and velocity.length_squared() > 2.0
++	)
+ 	for side in [-1, 1]:
+-		var contact = (
+-			point + backward * unit.radius * .65 + unit.global_basis.x * side * unit.radius * .55
+-		)
++		var contact = contact_base + right * side * radius * .55
+ 		contact.y = _ground_height(contact) + .1
+ 		_puff("dust", contact, backward * .55 + Vector3.UP * .16, color, size)
+-		if (
+-			_dust_biome in ["temperate", "coastal"]
+-			and unit.radius > .65
+-			and velocity.length_squared() > 2.0
+-		):
++		if clods:
+ 			_puff("clod", contact, backward * 1.2 + Vector3.UP * .8, Color(.4, .32, .22), .65)
+ 
+ 
+--- inputs4/source/match/hud/Ownership.gd
++++ current/source/match/hud/Ownership.gd
+@@ -27,7 +27,7 @@
+ 	)
+ 
+ 
+-static func known_now(unit, game):
++static func known_now(unit, game, observers = null):
+ 	if game.restoring or unit.is_queued_for_deletion() or not unit.is_visible_in_tree():
+ 		return false
+ 	if unit.is_in_group("resource_units"):
+@@ -36,7 +36,17 @@
+ 		return false
+ 	if game.settings.visibility == game.settings.Visibility.FULL:
+ 		return true
+-	for observer in game.visible_players:
++	if observers == null:
++		observers = game.visible_players
++	# Ownership always grants sight before cloak checks in Battlefield. Mines
++	# instead use engineering's detection rules, even for their owning player.
++	if (
++		not unit.is_in_group("field_mines")
++		and is_instance_valid(unit.player)
++		and unit.player in observers
++	):
++		return true
++	for observer in observers:
+ 		if is_instance_valid(observer) and game.battlefield.is_observed(observer, unit):
+ 			return true
+ 	return false
+--- inputs4/source/match/hud/Minimap.gd
++++ current/source/match/hud/Minimap.gd
+@@ -187,6 +187,13 @@
+ 	var observer = _match._get_human_player()
+ 	if observer == null:
+ 		observer = _match.visible_player
++	# This is a refresh-local view, not a cached visibility result. Selection,
++	# capture and spectator-side changes take effect on the next normal refresh.
++	var observers = []
++	if _match.settings.visibility != _match.settings.Visibility.FULL:
++		for side in _match.visible_players:
++			if is_instance_valid(side):
++				observers.append(side)
+ 	var units_to_sync = _match.get_units() + _match.get_cached_group("resource_units")
+ 	for unit in units_to_sync:
+ 		if phase >= 0 and unit.get_instance_id() % MARKER_PHASES != phase:
+@@ -196,7 +203,7 @@
+ 				var alive = not unit.is_queued_for_deletion() and unit.is_visible_in_tree()
+ 				_unit_to_corresponding_node_mapping[unit].visible = alive and not _match.restoring
+ 			continue
+-		if not Ownership.known_now(unit, _match):
++		if not Ownership.known_now(unit, _match, observers):
+ 			continue
+ 		units_synced[unit] = 1
+ 		if not _unit_is_mapped(unit):
+--- inputs4/source/match/units/traits/Selection.gd
++++ current/source/match/units/traits/Selection.gd
+@@ -23,6 +23,8 @@
+ 
+ @onready var _unit = get_parent()
+ @onready var _circle = find_child("FadedCircle3D")
++# A parent's script properties are fixed; their values remain live below.
++@onready var _ground_capable = "movement_domain" in _unit and "_match" in _unit
+ 
+ 
+ func _ready():
+@@ -168,27 +170,28 @@
+ 
+ 
+ func _on_elevated_ground() -> bool:
+-	if not ("movement_domain" in _unit and "_match" in _unit):
++	if not _ground_capable:
+ 		return false
+ 	if _unit.movement_domain != Constants.Match.Navigation.Domain.TERRAIN:
+ 		return false
+ 	var game = _unit._match
+-	if not is_instance_valid(game) or not is_instance_valid(game.map):
+-		return false
+-	if not game.map.is_elevated():
++	if not is_instance_valid(game):
++		return false
++	var map = game.map
++	if not is_instance_valid(map) or not map.is_elevated():
+ 		return false
+ 	var point = Vector2(_unit.global_position.x, _unit.global_position.z)
+-	var terrain = game.map.get("terrain")
++	var terrain = map.get("terrain")
+ 	# Authored terrain is immutable during a match. Editor/map rebuilds replace
+ 	# its model; custom dynamic height providers remain uncached.
+ 	if terrain != null:
+-		if _ground_map != game.map or _ground_terrain != terrain or _ground_point != point:
+-			_ground_map = game.map
++		if _ground_map != map or _ground_terrain != terrain or _ground_point != point:
++			_ground_map = map
+ 			_ground_terrain = terrain
+ 			_ground_point = point
+-			_ground_elevated = game.map.height_at(point) > 0.1
++			_ground_elevated = map.height_at(point) > 0.1
+ 		return _ground_elevated
+-	return game.map.height_at(point) > 0.1
++	return map.height_at(point) > 0.1
+ 
+ 
+ func _update_ground_indicator_visibility():

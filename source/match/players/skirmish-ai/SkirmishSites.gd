@@ -31,7 +31,8 @@ static func command(game, player, units, available, observed):
 			_order(unit, target)
 			return [unit]
 	var choices = sites.filter(
-		func(site): return not player.is_allied_with(site.player) and _safe(site, observed)
+		func(site):
+			return site.hp > 0 and not player.is_allied_with(site.player) and _safe(site, observed)
 	)
 	var best = null
 	var chosen = null
@@ -39,7 +40,10 @@ static func command(game, player, units, available, observed):
 	for site in choices:
 		for unit in soldiers:
 			var route = Utils.Match.Unit.Movement.path_distance_to(unit, site.position, 5.0)
-			var value = route + {"refinery": 0.0, "mercenary": 8.0, "repair": 16.0}[site.kind]
+			var value = (
+				route
+				+ {"refinery": 0.0, "data_relay": 4.0, "mercenary": 8.0, "repair": 16.0}[site.kind]
+			)
 			if value < score:
 				best = site
 				chosen = unit

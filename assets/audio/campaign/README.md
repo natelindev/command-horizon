@@ -29,3 +29,18 @@ uv pip install --python /tmp/rts-campaign-tts/bin/python -r tools/audio/requirem
 ```
 
 FFmpeg must be available on PATH. `--output <directory>` selects a staging directory (default `tmp/tooling/campaign-narration-hf`). `verify` checks model provenance, all source/file hashes, sample format, duration, silence and clipping. `install` rejects a partial sample batch and is idempotent. Run the Godot editor import after installing changed WAVs, then `CampaignStoryRegression.gd` and `CampaignStoryMissionsRegression.gd`.
+
+
+## Illustrated mission briefings
+
+`briefings.json` contains all16 illustrated mission introductions:64 authored
+English recordings with English/Simplified Chinese captions, each complete mission
+45–60seconds. Aegis, Nyx and Rook use their established commander voices. The distinct
+`.briefing` cues leave all160 older conversation recordings and `.intro` cue IDs intact.
+
+`art/audio/build_briefing_audio.py` supports status, build, verify and install.
+Accepted sentence takes resume from a hash-checked cache; paragraph assembly preserves
+every word, with pitch-preserving pacing and authored paragraph rests. Publication
+requires an independent complete encoded-file audit. The runtime needs no synthesis
+models or network. Source scripts, input/reference hashes, transcripts, cast comparisons,
+levels and actual durations are retained under `art/audio/`.

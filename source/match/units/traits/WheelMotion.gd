@@ -58,7 +58,10 @@ func advance(delta: float):
 	var previous: Transform3D = _previous
 	_previous = current
 	# Spawns, restores and editor/test relocations must not spin through a jump.
-	if current.origin.distance_to(previous.origin) > maxf(1.0, _unit.movement_speed * delta * 4.0):
+	var distance := current.origin.distance_to(previous.origin)
+	# Keep the exact distance/threshold comparison, querying live speed only
+	# when the one-metre minimum could actually classify this as a teleport.
+	if distance > 1.0 and distance > maxf(1.0, _unit.movement_speed * delta * 4.0):
 		return
 	var old_facing: Vector3 = previous.basis.z.normalized()
 	var new_facing: Vector3 = current.basis.z.normalized()

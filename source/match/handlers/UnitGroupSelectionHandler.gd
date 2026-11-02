@@ -167,7 +167,7 @@ func select_all_combat_units():
 	)
 	if combat_units.is_empty():
 		return
-	Utils.Match.select_units(combat_units)
+	Utils.Match.select_units(Utils.Set.from_array(combat_units))
 	var now = Time.get_ticks_msec()
 	if now - _last_combat_select_time < 400:
 		_snap_camera_to_units(combat_units)

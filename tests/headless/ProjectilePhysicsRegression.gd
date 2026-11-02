@@ -190,13 +190,13 @@ func _test_guidance():
 
 
 func _test_rail_and_determinism():
-	_check(_human.faction == "bastion", "Fixture expected the Bastion rail tank")
+	_check(_human.faction == "bastion", "Fixture expected the Bastion siege tank")
 	var rail = _spawn("AdvancedTank", _human, Vector3(30, 0, 43))
 	var target = _spawn("Tank", _enemy, Vector3(39, 0, 43))
 	await _ticks(5)
 	var before = target.hp
 	_face(rail, target)
-	var slug = _system.launch(rail, target)
+	var slug = _system.launch(rail, target, Weapons.RAIL)
 	_check(target.hp < before, "Rail slug did not resolve along its line in one tick")
 	_check(not _system._rounds.has(slug), "Rail slug stayed in flight")
 	var rifle = _spawn("Infantry", _human, Vector3(30, 0, 48))
@@ -285,6 +285,12 @@ func _test_anti_air_ground(role):
 			flight.phase = flight.Phase.PARKED
 		_check(_rules.can_target(shooter, target), label + " cannot target " + target_role)
 		var expected = shooter.attack_damage * (1.0 if target_role == "Helicopter" else 0.33)
+		if (
+			target_role == "Barracks"
+			and _enemy.faction == "bastion"
+			and _rules._ballistic_weapon(shooter)
+		):
+			expected *= .85
 		_check(
 			is_equal_approx(_rules.damage(shooter, target), expected),
 			label + " damage has the wrong domain multiplier against " + target_role
@@ -328,8 +334,11 @@ func _test_bomb_building_damage():
 		await _ticks(1)
 		if building.hp < before:
 			break
+	var expected = bomber.attack_damage * 2.0
+	if _enemy.faction == "bastion":
+		expected *= .85
 	_check(
-		is_equal_approx(before - building.hp, bomber.attack_damage * 2.0),
+		is_equal_approx(before - building.hp, expected),
 		_human.faction + " bomb did not deal double damage to a building"
 	)
 	await _clear()

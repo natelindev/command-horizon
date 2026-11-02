@@ -138,6 +138,17 @@ func _command_rings():
 		_check(
 			not marker.node.material_override.no_depth_test, "Command rings draw through terrain"
 		)
+	var first = feedback.markers[0].node
+	var second = feedback.markers[1].node
+	first.fade(.25)
+	_check(
+		first.material_override != second.material_override,
+		"Command rings share mutable fade state"
+	)
+	_check(
+		is_equal_approx(second.material_override.albedo_color.a, 1.0),
+		"Fading one ring changed another marker"
+	)
 	game.hud._open_menu()
 	feedback._process(0)
 	_check(

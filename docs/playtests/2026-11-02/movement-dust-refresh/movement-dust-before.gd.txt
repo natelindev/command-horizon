@@ -1,0 +1,27 @@
+func movement_dust(unit):
+	if not _can_show(unit):
+		return
+	var map = get_parent().map
+	var point: Vector3 = unit.global_position
+	# Existing water simulation owns wakes and splashes; never blow dry dust over it.
+	if "water_flow" in map and map.water_flow != null:
+		if map.water_flow.sample(Vector2(point.x, point.z)).a > .1:
+			return
+	var movement = unit.get_node_or_null("Movement")
+	var velocity: Vector3 = movement.velocity if movement != null else -unit.global_basis.z
+	var backward := -velocity.normalized()
+	var size = unit.radius * (.7 if _dust_biome == "alpine" else .9)
+	var color = dust_color(_dust_biome)
+	for side in [-1, 1]:
+		var contact = (
+			point + backward * unit.radius * .65 + unit.global_basis.x * side * unit.radius * .55
+		)
+		contact.y = _ground_height(contact) + .1
+		_puff("dust", contact, backward * .55 + Vector3.UP * .16, color, size)
+		if (
+			_dust_biome in ["temperate", "coastal"]
+			and unit.radius > .65
+			and velocity.length_squared() > 2.0
+		):
+			_puff("clod", contact, backward * 1.2 + Vector3.UP * .8, Color(.4, .32, .22), .65)
+

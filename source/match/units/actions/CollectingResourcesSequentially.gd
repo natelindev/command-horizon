@@ -1,11 +1,13 @@
 extends "res://source/match/units/actions/Action.gd"
 
-enum State { NULL, MOVING_TO_RESOURCE, COLLECTING, MOVING_TO_CC, WAITING }
+enum State { NULL, MOVING_TO_RESOURCE, COLLECTING, MOVING_TO_CC, WAITING, PHASE_RETURN }
 enum Wait { NONE, SLOT, DEPLETED, HQ, DELIVERED }
 const FIELD_RADIUS = 13.0
 # Deposits without an authored field origin group around the engineer's first deposit.
 const UNANCHORED_FIELD_RADIUS = 10.0
-const WORK_SLOTS = 2
+const WORK_SLOTS = 3
+const OPTIMAL_WORK_SLOTS = 2
+const Harvesting = preload("res://source/match/economy/HarvestingProfile.gd")
 const ASSIGNMENTS = &"harvest_assignments"
 const CommandCenter = preload("res://source/match/units/CommandCenter.gd")
 const CollectingResourcesWhileInRange = preload(
@@ -20,6 +22,7 @@ var _kind = 0
 var _field_origin = Vector3.ZERO
 var _waiting_reason = Wait.NONE
 var _retry_left = 0.0
+var _phase_left = 0.0
 var _resource_unit = null
 var _cc_unit = null
 var _sub_action = null
@@ -33,11 +36,7 @@ static func is_applicable(source_unit, target_unit):
 		source_unit is Worker
 		and (
 			(target_unit is ResourceUnit and target_unit.can_harvest(source_unit))
-			or (
-				target_unit is CommandCenter
-				and target_unit.is_constructed()
-				and target_unit.player == source_unit.player
-			)
+			or (Harvesting.valid_dropoff(source_unit, target_unit))
 		)
 	)
 
@@ -51,7 +50,7 @@ func _init(unit):
 			unit.harvest_origin if unit.harvest_origin.is_finite() else unit.global_position_yless
 		)
 		_set_resource_unit(unit)
-	elif unit is CommandCenter:
+	elif "type" in unit and unit.type in ["CommandCenter", "ForwardRefinery"]:
 		_set_cc_unit(unit)
 
 
@@ -81,6 +80,9 @@ func _exit_tree():
 
 
 func _process(delta):
+	if _state == State.PHASE_RETURN:
+		_tick_phase_delivery(delta)
+		return
 	if needs_assignment() and _has_pending_orders():
 		queue_free()
 		return
@@ -105,7 +107,8 @@ func _sync_ghost():
 	var movement = _unit.get_node_or_null("Movement")
 	if movement != null:
 		movement.ghosted = (
-			_state in [State.MOVING_TO_RESOURCE, State.COLLECTING, State.MOVING_TO_CC]
+			_state
+			in [State.MOVING_TO_RESOURCE, State.COLLECTING, State.MOVING_TO_CC, State.PHASE_RETURN]
 		)
 
 
@@ -133,13 +136,15 @@ func harvest_status():
 		State.COLLECTING:
 			return name + " · collecting"
 		State.MOVING_TO_CC:
-			return "Returning cargo to HQ"
+			return "Returning cargo to drop-off"
+		State.PHASE_RETURN:
+			return tr("Phase delivery · %.1fs") % _phase_left
 		State.WAITING:
 			return (
 				{
 					Wait.SLOT: name + " · waiting for a work slot",
 					Wait.DEPLETED: name + " field depleted · choose a new field",
-					Wait.HQ: "No drop-off · right-click a friendly HQ",
+					Wait.HQ: "No drop-off · choose a friendly HQ or refinery",
 					Wait.DELIVERED: "Cargo delivered · choose a resource field"
 				}
 				. get(_waiting_reason, "Waiting for assignment")
@@ -168,6 +173,16 @@ func can_work(deposit):
 				return index < WORK_SLOTS
 			index += 1
 	return false
+
+
+func gathering_efficiency(deposit) -> float:
+	var index = 0
+	for assignment in get_tree().get_nodes_in_group(ASSIGNMENTS):
+		if assignment.holds_harvest_slot(deposit):
+			if assignment == self:
+				return 1.0 if index < OPTIMAL_WORK_SLOTS else (0.6 if index < WORK_SLOTS else 0.0)
+			index += 1
+	return 0.0
 
 
 func _slot_counts():
@@ -237,6 +252,11 @@ func _start_resource_leg():
 			_unit, deposit.global_position_yless, contact
 		)
 		var cost: float = route / maxf(.01, _unit.movement_speed) + occupied * congestion_cost
+		# Drain the field evenly instead of repeatedly emptying its closest piles.
+		# Remaining work per reserved slot predicts the end-of-field backlog;
+		# travel and the third slot's congestion still resolve comparable nodes.
+		var amount: int = deposit.get("resource_a" if _kind == 1 else "resource_b")
+		cost -= amount * collecting_time / float(occupied + 1)
 		if cost < best_cost:
 			best_cost = cost
 			best = deposit
@@ -252,16 +272,96 @@ func _start_resource_leg():
 func _start_return():
 	_waiting_reason = Wait.NONE
 	_state = State.MOVING_TO_CC  # Release the work slot during the return trip.
-	if (
-		not is_instance_valid(_cc_unit)
-		or _cc_unit.is_queued_for_deletion()
-		or not _cc_unit.is_constructed()
-	):
-		_set_cc_unit(_find_cc_closest_to_unit(_unit))
+	var phase = _unit.player.faction == "helix" and _unit.is_full()
+	# Field work chooses the best receiver on every trip, so a newly completed
+	# forward refinery immediately shortens the haul. An explicit return order
+	# continues to honor its chosen destination.
+	if _kind != 0 or not Harvesting.valid_dropoff(_unit, _cc_unit, phase):
+		_set_cc_unit(_find_cc_closest_to_unit(_unit, phase))
 	if _cc_unit == null:
 		_wait(Wait.HQ)
 		return
-	_child(MovingToUnit.new(_cc_unit))
+	if phase:
+		_state = State.PHASE_RETURN
+		_phase_left = Harvesting.PHASE_CHANNEL
+		_unit.get_node("Movement").stop()
+		_unit.action_updated.emit()
+	else:
+		_child(MovingToUnit.new(_cc_unit))
+
+
+func _tick_phase_delivery(delta):
+	if not Harvesting.valid_dropoff(_unit, _cc_unit, true):
+		_phase_left = 0.0
+		_wait(Wait.HQ)
+		return
+	_phase_left = maxf(0.0, _phase_left - delta)
+	if _phase_left > 0.0:
+		return
+	var arrival = _phase_arrival_point()
+	# A packed landing zone waits without losing cargo or restarting its cast.
+	if not arrival.is_finite():
+		return
+	var movement = _unit.get_node("Movement")
+	movement.stop()
+	movement.relocate(arrival)
+	_finish_delivery()
+
+
+func _phase_arrival_point() -> Vector3:
+	var movement = _unit.get_node("Movement")
+	if not movement._synchronized:
+		return Vector3.INF
+	var placement = load("res://source/match/utils/UnitPlacementUtils.gd")
+	var nav = movement.get_navigation_map()
+	var direction = (_unit.global_position_yless - _cc_unit.global_position_yless).normalized()
+	if direction.is_zero_approx():
+		direction = Vector3.FORWARD
+	var blockers = get_tree().get_nodes_in_group("units").filter(
+		func(other):
+			return (
+				other != _unit
+				and not other.has_meta("garrison_host")
+				and other.movement_domain == _unit.movement_domain
+			)
+	)
+	blockers.append_array(get_tree().get_nodes_in_group("resource_units"))
+	blockers.append_array(_unit._match.battlefield.nearby_obstacles(_cc_unit.global_position, 12.0))
+	# Try the field-facing landing lane before rotating around the headquarters.
+	# A slightly wider clear ring avoids choosing the far side solely because
+	# rasterization blocked one inner-ring sample.
+	for slot in 32:
+		var radial = direction.rotated(Vector3.UP, slot * TAU / 32.0)
+		for ring in 4:
+			var desired = (
+				_cc_unit.global_position
+				+ radial * (_cc_unit.radius + _unit.radius + .3 + ring * .8)
+			)
+			desired.y = _unit._match.map.height_at(Vector2(desired.x, desired.z))
+			var projected = NavigationServer3D.map_get_closest_point(
+				nav, desired + Vector3.UP * movement.path_height_offset
+			)
+			var point = movement._navigation_position(projected)
+			if Vector2(point.x - desired.x, point.z - desired.z).length() > .3:
+				continue
+
+			if (
+				placement.validate_agent_placement_position(
+					point, _unit.radius + .02, blockers, nav, _unit._match.map
+				)
+				== placement.VALID
+			):
+				return point
+
+	return Vector3.INF
+
+
+func _finish_delivery():
+	Harvesting.deliver(_unit, _cc_unit)
+	if _unit.manual_orders != null and not _unit.manual_orders.pending.is_empty():
+		queue_free()
+	else:
+		_start_resource_leg()
 
 
 func _child(action):
@@ -312,25 +412,27 @@ func _set_cc_unit(cc):
 		cc.tree_exited.connect(_on_cc_unit_removed)
 
 
-static func _find_cc_closest_to_unit(unit):
+static func _find_cc_closest_to_unit(unit, hq_only = false):
 	var choices = unit.get_tree().get_nodes_in_group("units").filter(
-		func(cc):
-			return (
-				cc is CommandCenter
-				and cc.player == unit.player
-				and cc.is_constructed()
-				and not cc.is_queued_for_deletion()
-			)
+		func(receiver): return Harvesting.valid_dropoff(unit, receiver, hq_only)
 	)
 	var best = null
 	var distance = INF
-	for cc in choices:
-		var contact = unit.radius + cc.radius + Utils.Match.Unit.Movement.adherence_margin(unit, cc)
-		var route = Utils.Match.Unit.Movement.path_distance_to(
-			unit, cc.global_position_yless, contact
+	for receiver in choices:
+		var contact = (
+			unit.radius
+			+ receiver.radius
+			+ Utils.Match.Unit.Movement.adherence_margin(unit, receiver)
+		)
+		var route = (
+			unit.global_position_yless.distance_to(receiver.global_position_yless)
+			if hq_only
+			else Utils.Match.Unit.Movement.path_distance_to(
+				unit, receiver.global_position_yless, contact
+			)
 		)
 		if route < distance:
-			best = cc
+			best = receiver
 			distance = route
 	return best
 
@@ -374,14 +476,7 @@ func _on_sub_action_finished():
 			):
 				_wait(Wait.HQ)
 				return
-			_unit.player.resource_a += _unit.resource_a
-			_unit.player.resource_b += _unit.resource_b
-			_unit.resource_a = 0
-			_unit.resource_b = 0
-			if _unit.manual_orders != null and not _unit.manual_orders.pending.is_empty():
-				queue_free()
-			else:
-				_start_resource_leg()
+			_finish_delivery()
 
 
 func _on_resource_unit_removed():

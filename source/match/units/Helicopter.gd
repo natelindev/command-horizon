@@ -41,6 +41,9 @@ func _on_action_changed(new_action):
 
 
 func armed():
+	var contract = get_node_or_null("MercenarySortie")
+	if contract != null:
+		return rockets > 0 and not contract.departing
 	return true
 
 
@@ -49,6 +52,9 @@ func weapon_delay():
 
 
 func weapon_status():
+	var contract = get_node_or_null("MercenarySortie")
+	if contract != null:
+		return contract.status_text() + " · " + tr("Rockets · %d/%d") % [rockets, ROCKET_CAPACITY]
 	if reload_cooldown_left > 0.0:
 		return "Reloading · %.1f s" % reload_cooldown_left
 	return "Rockets · %d/%d" % [rockets, ROCKET_CAPACITY]
@@ -69,6 +75,8 @@ func needs_rearm():
 func _physics_process(delta):
 	super(delta)
 	if _match == null:
+		return
+	if has_node("MercenarySortie"):
 		return
 	_time_since_last_shot += delta
 	if reload_cooldown_left > 0.0:

@@ -122,7 +122,7 @@ func _gather_commander_support(game, player, entries: Array):
 			"description": CommanderPanel.DESCRIPTIONS.get(power, ""),
 			"glyph": BattleTheme.icon(glyph_name),
 			"hotkey": hotkey_lbl,
-			"cost_text": "%dM/%dE" % [cost.resource_a, cost.resource_b],
+			"cost_text": "%dM/%dE/25L" % [cost.resource_a, cost.resource_b],
 			"cooldown_left": cooldown,
 			"cooldown_total": game.commander_support.COOLDOWNS.get(power, 120.0),
 			"is_armed": armed,
@@ -146,19 +146,23 @@ func _gather_faction_signature(hud_ref, player, entries: Array):
 	var sig_title = Factions.signature_title(player.faction)
 	var armed = hud_ref._assignment_kind == "signature"
 	var controlled = hud_ref.get_tree().get_nodes_in_group("controlled_units")
-	var members = controlled.filter(
-		func(u):
-			return is_instance_valid(u) and u.player == player and player.signatures.eligible(u)
-	)
-
+	# This index belongs to this synchronous refresh only. A unit can belong to
+	# several retained groups; only its longest remaining cooldown matters.
+	var group_cooldowns = {}
+	for group in player.signatures.groups:
+		for member in group.members:
+			if is_instance_valid(member):
+				group_cooldowns[member] = maxf(group_cooldowns.get(member, 0.0), group.left)
+	var members = []
 	var recharge = INF
 	var active_left = 0.0
 	for u in controlled:
-		if is_instance_valid(u) and u.player == player and u.signature != null and u.hp > 0:
-			var left = u.signature.cooldown
-			for group in player.signatures.groups:
-				if u in group.members:
-					left = maxf(left, group.left)
+		if not is_instance_valid(u) or u.player != player:
+			continue
+		if player.signatures.eligible(u):
+			members.append(u)
+		if u.signature != null and u.hp > 0:
+			var left = maxf(u.signature.cooldown, group_cooldowns.get(u, 0.0))
 			if left > 0 and u.signature.kind != "anchor":
 				recharge = minf(recharge, left)
 			if u.signature.kind == "maneuver" and u.signature.window_left > 0:
@@ -177,6 +181,9 @@ func _gather_faction_signature(hud_ref, player, entries: Array):
 		issue_text = "Needs ready units"
 	elif not is_inf(recharge) and recharge > 0.0:
 		issue_text = "Recharging"
+	elif player.faction == "frontier" and player.logistics < 5.0:
+		issue_text = "Requires 5 Logistics."
+		ready = false
 
 	entries.append(
 		{
@@ -185,25 +192,32 @@ func _gather_faction_signature(hud_ref, player, entries: Array):
 			"name": sig_title,
 			"description": Factions.signature_title(player.faction),
 			"glyph": BattleTheme.icon(glyph_name),
-			"hotkey": "Z",
-			"cost_text": "",
+			"hotkey": "",
+			"cost_text": "5 L" if player.faction == "frontier" else "",
 			"cooldown_left": 0.0 if is_inf(recharge) else recharge,
 			"cooldown_total": 25.0,
 			"is_armed": armed,
 			"is_active": active_left > 0.0,
 			"is_ready": ready,
 			"issue": issue_text,
-			"action": func(): _trigger_signature(player, members)
+			"action": func(): _trigger_signature(player)
 		}
 	)
 
 
-func _trigger_signature(player, eligible_members: Array):
+func _trigger_signature(player):
+	if not is_instance_valid(player) or player.signatures == null:
+		return
 	var selected = hud.get_tree().get_nodes_in_group("selected_units").filter(
 		func(u):
 			return is_instance_valid(u) and u.player == player and player.signatures.eligible(u)
 	)
-	var units_to_use = selected if not selected.is_empty() else eligible_members
+	var units_to_use = selected
+	if units_to_use.is_empty():
+		units_to_use = hud.get_tree().get_nodes_in_group("controlled_units").filter(
+			func(u):
+				return is_instance_valid(u) and u.player == player and player.signatures.eligible(u)
+		)
 	if units_to_use.is_empty():
 		hud.show_notice("No ready units for faction signature.")
 		return
@@ -230,72 +244,108 @@ func _gather_unit_abilities(hud_ref, entries: Array):
 	if not is_instance_valid(hud_ref.direct_orders):
 		return
 	var candidates = hud_ref.direct_orders.ability_units()
-	var seen_ids = []
+	var groups = {}
 	for unit in candidates:
 		if not is_instance_valid(unit) or unit.abilities == null:
 			continue
 		for ability in unit.abilities.abilities:
-			if ability.id in seen_ids:
-				continue
-			seen_ids.append(ability.id)
-			var units_with_ability = candidates.filter(
-				func(u):
-					return (
-						is_instance_valid(u)
-						and u.abilities != null
-						and u.abilities.get_ability(ability.id) != null
-					)
-			)
-			var issues = []
-			for u in units_with_ability:
-				issues.append(u.abilities.availability_issue(ability.id))
-			var any_ready = issues.any(func(iss): return iss.is_empty())
-			var any_active = units_with_ability.any(
-				func(u): return u.abilities.get_ability(ability.id).is_active
-			)
-			var min_cd = INF
-			for u in units_with_ability:
-				var ab = u.abilities.get_ability(ability.id)
-				min_cd = minf(min_cd, ab.cooldown_left)
-			if ability.id == "field_barricade":
-				min_cd = INF
-				for u in units_with_ability:
-					if u.type == "Worker" and u.player.faction == "bastion":
-						min_cd = minf(min_cd, u._match.engineering.cooldown_left(u))
-			var cost_desc = ""
-			if ability.id == "field_barricade":
-				cost_desc = "10M"
-			elif ability.id == "scrap_mine":
-				cost_desc = "8M"
-
-			var armed = (
-				hud_ref.direct_orders.kind == "ability"
-				and hud_ref.direct_orders.ability_id == ability.id
-			)
-			var glyph_id = CommandCard.ABILITY_GLYPHS.get(ability.id, "attack")
-			var extra_str = ""
-			if ability.range > 0 and ability.range < 1000:
-				extra_str = "Range: %.1f m · Radius: %.1f m" % [ability.range, ability.radius]
-
-			entries.append(
-				{
-					"id": "unit_" + ability.id,
-					"kind": "unit",
-					"name": ability.name,
-					"description": ability.description,
-					"glyph": BattleTheme.icon(glyph_id),
-					"hotkey": ability.key,
-					"cost_text": cost_desc,
-					"cooldown_left": 0.0 if is_inf(min_cd) else min_cd,
-					"cooldown_total": ability.cooldown,
-					"is_armed": armed,
-					"is_active": any_active,
-					"is_ready": any_ready,
-					"issue": issues[0] if not issues.is_empty() else "",
-					"extra": extra_str,
-					"action": func(): hud_ref.direct_orders.activate_ability(ability.id)
+			if not groups.has(ability.id):
+				groups[ability.id] = {
+					"ability": ability,
+					"units": [],
+					"issues": [],
+					"ready": 0,
+					"active": false,
+					"cooldown": INF,
 				}
+			var group = groups[ability.id]
+			var issue = unit.abilities.availability_issue(ability.id)
+			group.units.append(unit)
+			group.issues.append(issue)
+			group.ready += int(issue.is_empty())
+			group.active = group.active or ability.is_active
+			group.cooldown = minf(group.cooldown, ability.cooldown_left)
+	for id in groups:
+		var group = groups[id]
+		var ability = group.ability
+		var units_with_ability = group.units
+		var issues = group.issues
+		var any_ready = group.ready > 0
+		var any_active = group.active
+		var min_cd = group.cooldown
+		if ability.id == "field_barricade":
+			min_cd = INF
+			for u in units_with_ability:
+				if u.type == "Worker" and u.player.faction == "bastion":
+					min_cd = minf(min_cd, u._match.engineering.cooldown_left(u))
+		var cost_desc = ""
+		if ability.id == "field_barricade":
+			cost_desc = "10M"
+		elif ability.id == "scrap_mine":
+			cost_desc = "8M"
+		elif ability.id == "scrap_barricade":
+			cost_desc = "6M"
+		elif ability.id == "field_bunker":
+			cost_desc = "35M/10E"
+		elif ability.id == "field_tank_trap":
+			cost_desc = "8M"
+		elif ability.id == "flux_resonance":
+			cost_desc = tr("25 Energy")
+
+		var armed = (
+			hud_ref.direct_orders.kind == "ability"
+			and hud_ref.direct_orders.ability_id == ability.id
+		)
+		var glyph_id = CommandCard.ABILITY_GLYPHS.get(ability.id, "attack")
+		var extra_str = ""
+		if ability.range > 0 and ability.range < 1000:
+			extra_str = "Range: %.1f m · Radius: %.1f m" % [ability.range, ability.radius]
+
+		var ready_count = group.ready
+		var charges_text = (
+			"%d/%d" % [ready_count, units_with_ability.size()]
+			if units_with_ability.size() > 1
+			else ""
+		)
+		if not charges_text.is_empty():
+			extra_str += (
+				("\n" if not extra_str.is_empty() else "")
+				+ tr("%d of %d ready") % [ready_count, units_with_ability.size()]
 			)
+		var last = hud_ref.direct_orders.last_cast
+		if last.get("ability", "") == ability.id:
+			var caster = last.unit.get_ref()
+			if is_instance_valid(caster) and caster in units_with_ability:
+				var remaining = caster.abilities.get_ability(ability.id).cooldown_left
+				if remaining > 0:
+					extra_str += (
+						"\n"
+						+ (
+							tr("Last caster: %s · %.1fs")
+							% [tr(Factions.title(caster.player.faction, caster.type)), remaining]
+						)
+					)
+
+		entries.append(
+			{
+				"id": "unit_" + ability.id,
+				"kind": "unit",
+				"name": ability.name,
+				"description": ability.description,
+				"glyph": BattleTheme.icon(glyph_id),
+				"hotkey": ability.key,
+				"cost_text": cost_desc,
+				"charges_text": charges_text,
+				"cooldown_left": 0.0 if is_inf(min_cd) else min_cd,
+				"cooldown_total": ability.cooldown,
+				"is_armed": armed,
+				"is_active": any_active,
+				"is_ready": any_ready,
+				"issue": issues[0] if not issues.is_empty() else "",
+				"extra": extra_str,
+				"action": func(): hud_ref.direct_orders.activate_ability(ability.id)
+			}
+		)
 
 
 func _gather_campaign_hero(game, entries: Array):

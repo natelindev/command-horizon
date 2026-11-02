@@ -1,0 +1,78 @@
+{
+  "checked_utc": "2026-11-02T07:42:55.711875+00:00",
+  "headless_only": true,
+  "scope": "macOS ARM64 executed; universal x86_64 slice built and structurally checked. No graphical appearance, OpenGL resource lifetime, strict frame timing or Windows/Linux execution qualification.",
+  "original_report": "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/qualified-run-5/report.json",
+  "original_report_sha256": "bf57694b5fdea46610620047300a5b5e517a38a1619ee843294adee61fe9b47c",
+  "retained_report_sha256": "bf57694b5fdea46610620047300a5b5e517a38a1619ee843294adee61fe9b47c",
+  "workflow_rows": 162,
+  "all_workflow_rows_passed": true,
+  "packaged_standalone": {
+    "passed": 140,
+    "total": 140
+  },
+  "network": {
+    "passed": 14,
+    "total": 14,
+    "native_requested": true,
+    "results": "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/qualified-run-5/network-regressions/run-20261102T073707Z-66592/results.json"
+  },
+  "input_sha256": "bba072d8117dc096851e412e25fd10d479c3102730fccf6f587c9b280ad8bd19",
+  "completion_workspace_sha256": "bba072d8117dc096851e412e25fd10d479c3102730fccf6f587c9b280ad8bd19",
+  "remaining_source_test_tool_native_asset_differences": [],
+  "archive": "/Users/linlilu/godot-open-rts/build/headless-review/macos/20261102T071352Z-45037/headless-review-artifacts/Open_RTS_macOS.zip",
+  "archive_sha256": "d569e86e90dd471099324be30116ef406b2a2121ad7e84f3f908ce717dc3ce58",
+  "installed_and_archive_entries": {
+    "Open RTS Headless Review.app/Contents/MacOS/Open RTS Headless Review": {
+      "installed_sha256": "6e0711e5c6deba2a585228169b59074a0fad85ad6266690851a241a511b3fd05",
+      "archive_sha256": "6e0711e5c6deba2a585228169b59074a0fad85ad6266690851a241a511b3fd05",
+      "recorded_sha256": "6e0711e5c6deba2a585228169b59074a0fad85ad6266690851a241a511b3fd05",
+      "matches": true
+    },
+    "Open RTS Headless Review.app/Contents/Resources/Open RTS Headless Review.pck": {
+      "installed_sha256": "c4dd135d59be4ca082bacf978fb541bf743db3cff4e1275410254bbcdf795365",
+      "archive_sha256": "c4dd135d59be4ca082bacf978fb541bf743db3cff4e1275410254bbcdf795365",
+      "recorded_sha256": "c4dd135d59be4ca082bacf978fb541bf743db3cff4e1275410254bbcdf795365",
+      "matches": true
+    },
+    "Open RTS Headless Review.app/Contents/MacOS/native/bin/copperfin.gdextension": {
+      "installed_sha256": "8c372b6efb94587d8f7a5902a77692ac957a2a58fe146ca8e3db75083da82bad",
+      "archive_sha256": "8c372b6efb94587d8f7a5902a77692ac957a2a58fe146ca8e3db75083da82bad",
+      "recorded_sha256": "8c372b6efb94587d8f7a5902a77692ac957a2a58fe146ca8e3db75083da82bad",
+      "matches": true
+    },
+    "Open RTS Headless Review.app/Contents/MacOS/native/bin/copperfin.macos.universal.dylib": {
+      "installed_sha256": "114c087b24ddad1959ca440b2c36bde1781160a4a6ef2ca22994929fcc8133df",
+      "archive_sha256": "114c087b24ddad1959ca440b2c36bde1781160a4a6ef2ca22994929fcc8133df",
+      "recorded_sha256": "114c087b24ddad1959ca440b2c36bde1781160a4a6ef2ca22994929fcc8133df",
+      "matches": true
+    }
+  },
+  "compiled_native_sha256": {
+    "copperfin.gdextension": "8c372b6efb94587d8f7a5902a77692ac957a2a58fe146ca8e3db75083da82bad",
+    "copperfin.macos.universal.dylib": "f252a121af45137e66d8b3266e6299d5bb5fa54e261d521f42a3b4c90d2d6d95"
+  },
+  "prior_candidate4": {
+    "archive": "/Users/linlilu/godot-open-rts/build/headless-review/macos/20261102T052232Z-41540/headless-review-artifacts/Open_RTS_macOS.zip",
+    "archive_sha256": "2be8b1f71ebe5b658b3957a5dedd3ea99960c36b40bbed4146c0b2623c19a729",
+    "retained_report_sha256": "b4f827fa24e80445b780d6b9016f88bc55ca672a02f7d850bcb3951614396ed9",
+    "preserved": true,
+    "report_hash_matches_prior_metadata": true
+  },
+  "evidence_directory": "/Users/linlilu/godot-open-rts/docs/playtests/2026-11-02/headless-continuation/candidate5",
+  "retained_replay_sha256": {
+    "user-evidence/replays/battle-1793605034-6295072.rtsreplay": "bad01f9f005f740a5fcd586c2fc8ee51b7e9652cb5354aef9c37fc78c4f77e13",
+    "user-evidence/replays/battle-1793605115-6953478.rtsreplay": "67a28c6f1302a6c04bc24d0307017949c4de003b4e017133e36bdda2fc741eff",
+    "user-evidence/replays/battle-1793605180-5755718.rtsreplay": "e5fc91e45dbef08c62d4c494c765066e060509b16d88ec318728738b3ccc5b14",
+    "user-evidence/replays/battle-1793605190-5770243.rtsreplay": "823d266c3dbf009919c3f8e25e8f23f569d3a5a403bf2c84cb2ba5eda71564e8",
+    "user-evidence/replays/battle-1793605200-5708243.rtsreplay": "0dd497ff82c58a7bf8abd1058f58ace6b2470ccf463a82e8058bc5690a995b62"
+  },
+  "source_contracts": [
+    "RichTexturesRegression"
+  ],
+  "archive_count": 811,
+  "recorded_checksums": 389,
+  "layout_cases": 1152,
+  "dummy_lifetime_instances": 6,
+  "tooling_contracts": 22
+}

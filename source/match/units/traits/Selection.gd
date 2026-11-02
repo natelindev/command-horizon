@@ -16,9 +16,15 @@ var _range_ring = null
 var _show_range = false
 var _animation_time = 0.0
 var _faction_style = -1
+var _ground_map = null
+var _ground_terrain = null
+var _ground_point = Vector2.INF
+var _ground_elevated = false
 
 @onready var _unit = get_parent()
 @onready var _circle = find_child("FadedCircle3D")
+# A parent's script properties are fixed; their values remain live below.
+@onready var _ground_capable = "movement_domain" in _unit and "_match" in _unit
 
 
 func _ready():
@@ -37,6 +43,25 @@ func _ready():
 
 
 func select():
+	if _unit.has_meta("garrison_host"):
+		var host = _unit.get_meta("garrison_host")
+		if not is_instance_valid(host):
+			deselect()
+			return
+		# Vehicle cargo retains its control groups, but commands select the carrier.
+		# Shelters and field bunkers keep their existing occupant selection behavior.
+		if host.is_in_group("units") and "garrison_mount" in host and host.garrison_mount != null:
+			deselect()
+			if (
+				host != _unit
+				and host.player == _unit.player
+				and host.hp > 0
+				and not host.is_queued_for_deletion()
+			):
+				var selection = host.get_node_or_null("Selection")
+				if selection != null:
+					selection.select()
+			return
 	if _selected:
 		return
 	_selected = true
@@ -99,7 +124,9 @@ func _refresh_selected_ranges():
 			selection._setup_range_ring()
 		selection._show_range = selected.size() == 1
 		if selection._range_ring != null:
-			selection._range_ring.visible = selection._show_range and not selection._on_elevated_ground()
+			selection._range_ring.visible = (
+				selection._show_range and not selection._on_elevated_ground()
+			)
 
 
 func _setup_range_ring():
@@ -136,20 +163,35 @@ func _set_team_footprint_visible(value):
 	var footprint = _unit.get_node_or_null("TeamFootprint")
 	if footprint != null:
 		footprint.visible = value
+		if value and footprint.has_method("_process"):
+			# Deselecting an aircraft must publish its current ground position
+			# before the previously hidden ownership mark becomes visible.
+			footprint._process(0.0)
 
 
 func _on_elevated_ground() -> bool:
-	if not ("movement_domain" in _unit and "_match" in _unit):
+	if not _ground_capable:
 		return false
 	if _unit.movement_domain != Constants.Match.Navigation.Domain.TERRAIN:
 		return false
 	var game = _unit._match
-	if not is_instance_valid(game) or not is_instance_valid(game.map):
+	if not is_instance_valid(game):
 		return false
-	if not game.map.is_elevated():
+	var map = game.map
+	if not is_instance_valid(map) or not map.is_elevated():
 		return false
 	var point = Vector2(_unit.global_position.x, _unit.global_position.z)
-	return game.map.height_at(point) > 0.1
+	var terrain = map.get("terrain")
+	# Authored terrain is immutable during a match. Editor/map rebuilds replace
+	# its model; custom dynamic height providers remain uncached.
+	if terrain != null:
+		if _ground_map != map or _ground_terrain != terrain or _ground_point != point:
+			_ground_map = map
+			_ground_terrain = terrain
+			_ground_point = point
+			_ground_elevated = map.height_at(point) > 0.1
+		return _ground_elevated
+	return map.height_at(point) > 0.1
 
 
 func _update_ground_indicator_visibility():

@@ -16,10 +16,10 @@ class Probe:
 		profiler.mark(0, begin)
 
 
-var _started := PackedInt64Array([0, 0])
-var _started_cpu := PackedInt64Array([0, 0])
 var totals := PackedInt64Array([0, 0, 0, 0, 0, 0])
 var native: RefCounted
+var _started := PackedInt64Array([0, 0])
+var _started_cpu := PackedInt64Array([0, 0])
 
 
 func _ready():
@@ -36,6 +36,10 @@ func _ready():
 
 
 func cpu_sample() -> Array:
+	# The ordinary formation solver can register the extension after this probe
+	# becomes ready. Reading its clocks must not enable any optional runtime.
+	if native == null and ClassDB.class_exists("CopperfinPosePacker"):
+		native = ClassDB.instantiate("CopperfinPosePacker")
 	return native.cpu_sample() if native != null and native.has_method("cpu_sample") else []
 
 
@@ -48,6 +52,7 @@ func mark(index: int, begin: bool):
 		_started_cpu[index] = thread_us
 	elif _started[index] > 0:
 		totals[index] += now - _started[index]
-		totals[index + 2] += thread_us - _started_cpu[index]
+		if thread_us > 0 and _started_cpu[index] > 0:
+			totals[index + 2] += thread_us - _started_cpu[index]
 		totals[index + 4] += 1
 		_started[index] = 0

@@ -124,10 +124,12 @@ func _check_experience():
 	_base_speed = _veteran.movement_speed
 	var base_damage = _veteran.attack_damage
 	var hp = victim.hp_max
-	victim.receive_damage(_veteran, hp * .5)
+	# This fixture measures hull-normalized veterancy. Shield absorption is
+	# verified separately, and must not silently turn this into a shield hit.
+	victim.receive_damage(_veteran, hp * .5, null, {"shield_pierce": true})
 	_near(_veteran.experience, 50.0, "Damage contribution is not normalized to victim HP")
 	_check(_veteran.veterancy_rank == 0, "Half a tank grants premature veterancy")
-	victim.receive_damage(_veteran, hp * 20)
+	victim.receive_damage(_veteran, hp * 20, null, {"shield_pierce": true})
 	_near(_veteran.experience, 125.0, "Overkill produces excess experience")
 	_check(_veteran.veterancy_rank == 1, "Surviving attacker did not earn Bronze")
 	_check(_veteran.get_node("VeteranBadge").visible, "Promoted unit has no rank chevrons")

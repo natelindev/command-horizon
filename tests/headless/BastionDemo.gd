@@ -84,7 +84,7 @@ func _run():
 	else:
 		for failure in _failures:
 			push_error(failure)
-	quit(0 if _failures.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if _failures.is_empty() else 1)
 
 
 func _test_production():
@@ -139,7 +139,7 @@ func _test_production():
 	var before = element.time_left
 	queue._process(1.0)
 	_check(
-		is_equal_approx(element.time_left, before - 0.35), "Low power must reduce production to 35%"
+		is_equal_approx(element.time_left, before - 0.25), "Low power must reduce production to 25%"
 	)
 	power._construction_progress = 1.0
 	queue.cancel_all()
@@ -154,12 +154,13 @@ func _test_production():
 	_human.resource_b = 10000
 	_check(queue.produce(load(Catalog.scene_path("Worker"))) == null, "Wrong producer accepted")
 	# A frame spanning two completions must consume each job's time exactly once.
+	queue._reset_streak()
 	var first = queue.produce(tank)
 	var second = queue.produce(tank)
 	var duration = first.time_total
 	queue._process(duration + 1.0)
 	_check(
-		queue.size() == 1 and is_equal_approx(second.time_left, duration - 1.0),
+		queue.size() == 1 and is_equal_approx(second.time_left, duration - 1.08),
 		"Queue double-spent elapsed time"
 	)
 	queue.cancel_all()
@@ -197,17 +198,20 @@ func _test_building_and_repairs():
 	tank.global_position = Vector3(20.5, 0, 31)
 	robot.get_node("Movement").stop()
 	tank.get_node("Movement").stop()
+	await _frames(2)
 	tank.hp = 20
 	_game.repair_service.service(1.0)
-	_check(is_equal_approx(tank.hp, 22.0), "Idle robot did not repair")
+	_check(is_equal_approx(tank.hp, 20 + tank.hp_max * .025), "Idle robot did not repair")
 	robot.action = load("res://source/match/units/actions/Repairing.gd").new(tank)
 	robot.action._physics_process(0.6)
 	_game.repair_service.service(1.0)
-	_check(is_equal_approx(tank.hp, 24.0), "Manual repair did not heal")
+	_check(is_equal_approx(tank.hp, 20 + tank.hp_max * .05), "Manual repair did not heal")
 	robot.action = null
-	tank.global_position = _unit("RepairDepot").global_position + Vector3(0, 0, 3)
+	tank.global_position = _unit("RepairDepot").service_point(tank)
+	await _frames(2)
+	var before = tank.hp
 	_game.repair_service.service(1.0)
-	_check(is_equal_approx(tank.hp, 27.2), "Depot did not heal")
+	_check(is_equal_approx(tank.hp, before + tank.hp_max * .04), "Depot did not heal")
 
 
 func _test_movement_and_combat():

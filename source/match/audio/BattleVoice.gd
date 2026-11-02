@@ -9,6 +9,7 @@ const MAX_PENDING = 4
 const MAX_WAIT = 6.0
 const CHATTER_GAP = 1.5
 const DANGER_GAP = 4.0
+const KILL_GAP = 4.0
 
 var current = {}
 var _pending = []
@@ -23,6 +24,7 @@ var _chirp_in: AudioStream
 var _chirp_out: AudioStream
 var _game
 var _bank = Bank.new()
+var _order_streams = {}
 
 
 func _ready():
@@ -38,6 +40,10 @@ func _ready():
 		_chirp_in = load("res://assets/audio/voices/radio_chirp_in.wav")
 	if ResourceLoader.exists("res://assets/audio/voices/radio_chirp_out.wav"):
 		_chirp_out = load("res://assets/audio/voices/radio_chirp_out.wav")
+	# Hold this army's compressed reply streams before the first input command.
+	# ResourceLoader's cache is weak; an unreferenced warm-up would load them again.
+	for path in _bank.order_streams(get_parent().faction):
+		_order_streams[path] = load(path)
 
 
 func say(event):
@@ -65,16 +71,31 @@ func say_unit(unit, kind):
 		or unit.player != get_parent()
 	):
 		return false
+	# Group orders reach this once per member; spend the shared chatter budget
+	# before resolving a recording or advancing any voice-bank lookup work.
+	if (
+		kind in Bank.ORDER_KINDS
+		and _clock - _spoken_at.get("chatter", -INF) < CHATTER_GAP
+	):
+		return false
 	var line = _bank.unit_line(unit, kind)
 	if line.is_empty():
 		return false
 	line.event = (
-		Lines.EVENTS.UNIT_PRODUCTION_FINISHED
-		if kind == "ready"
-		else (Lines.EVENTS.UNIT_HELLO if kind == "select" else Lines.EVENTS.UNIT_ACK_1)
+		{
+			"ready": Lines.EVENTS.UNIT_PRODUCTION_FINISHED,
+			"select": Lines.EVENTS.UNIT_HELLO,
+			"low_health": Lines.EVENTS.UNIT_LOW_HEALTH,
+			"kill": Lines.EVENTS.UNIT_KILL_CONFIRMED,
+		}
+		. get(kind, Lines.EVENTS.UNIT_ACK_1)
 	)
-	line.priority = 30 if kind == "ready" else 10
+	line.priority = 30 if kind == "ready" else Lines.priority(line.event)
 	line.source = weakref(unit)
+	if line.event in Lines.COMBAT_EVENTS:
+		if unit.hp <= 0 or unit.has_meta("garrison_host"):
+			return false
+		line.combat_key = "%s:%d" % [kind, unit.get_instance_id()]
 	return _accept(line)
 
 
@@ -89,9 +110,18 @@ func _accept(line):
 		or ("finished" in _game and _game.finished and event not in Lines.TERMINAL)
 	):
 		return false
-	# Base warnings always get through; lesser danger reports share one budget.
-	if event in [Lines.EVENTS.UNIT_LOST, Lines.EVENTS.UNIT_UNDER_ATTACK]:
-		if _clock - _spoken_at.get("danger", -INF) < DANGER_GAP:
+	# Reports share a budget, while worsening danger can interrupt a lesser alert.
+	if (
+		event
+		in [Lines.EVENTS.UNIT_LOST, Lines.EVENTS.UNIT_UNDER_ATTACK, Lines.EVENTS.UNIT_LOW_HEALTH]
+	):
+		if (
+			_clock - _spoken_at.get("danger", -INF) < DANGER_GAP
+			and line.priority <= _spoken_at.get("danger_priority", 0)
+		):
+			return false
+	if event == Lines.EVENTS.UNIT_KILL_CONFIRMED:
+		if _clock - _spoken_at.get("kill", -INF) < KILL_GAP or current.get("priority", 0) >= 70:
 			return false
 	if event in [Lines.EVENTS.LOW_POWER, Lines.EVENTS.POWER_RESTORED]:
 		# A recovered power state invalidates an unheard low-power report, and vice versa.
@@ -99,8 +129,8 @@ func _accept(line):
 			func(item):
 				return item.event not in [Lines.EVENTS.LOW_POWER, Lines.EVENTS.POWER_RESTORED]
 		)
-	var chatter = event in Lines.UNIT_EVENTS
-	var key = "chatter" if chatter else str(event)
+	var chatter = event in Lines.ORDER_EVENTS
+	var key = line.get("combat_key", "chatter" if chatter else str(event))
 	var cooldown = CHATTER_GAP if chatter else Lines.cooldown(event)
 	if _clock - _spoken_at.get(key, -INF) < cooldown:
 		return false
@@ -154,11 +184,15 @@ func _start(line):
 	current = line.duplicate()
 	current.erase("expires")
 	_spoken_at[line.key] = _clock
+	if line.event == Lines.EVENTS.UNIT_KILL_CONFIRMED:
+		_spoken_at["kill"] = _clock
 	if line.priority >= 70 and line.event not in Lines.TERMINAL:
 		_spoken_at["danger"] = _clock
+		_spoken_at["danger_priority"] = line.priority
 	_bank.accepted(line)
 	_audio.stop()
-	_audio.stream = load(line.stream)
+	var recording = _order_streams.get(line.stream)
+	_audio.stream = recording if recording != null else load(line.stream)
 	var mechanical = line.get("mechanical", false)
 	_audio.bus = "Effects" if mechanical else "Voice"
 	_audio.volume_db = -5.0 if mechanical else 0.0
@@ -193,6 +227,8 @@ func _process(delta):
 		if line.has("source"):
 			var unit = line.source.get_ref()
 			if not is_instance_valid(unit) or unit.is_queued_for_deletion() or unit.hp <= 0:
+				continue
+			if line.event == Lines.EVENTS.UNIT_LOW_HEALTH and unit.hp >= unit.hp_max * .4:
 				continue
 		if line.expires > _clock:
 			_start(line)
@@ -230,3 +266,4 @@ func _exit_tree():
 		_chirp_audio.stream = null
 	_pending.clear()
 	current.clear()
+	_order_streams.clear()

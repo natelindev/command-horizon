@@ -471,10 +471,66 @@ def cliff():
         attach(obj,"Sandstone",ROCK)
 
 
+
+def siege_colossus():
+    begin("SiegeColossus"); tracks(3.0,4.6)
+    wedge("SiegeHull",0,0,.72,3.3,4.65,.66)
+    for side in (-1,1):
+        for front in (-1,1):
+            arm=pivot("Stabilizer_%d_%d"%(side,front),(side*1.4,front*1.6,1.0))
+            rod("HydraulicRam",(side*1.4,front*1.6,1.0),(side*2.05,front*2.10,.2),.13,STEEL,arm)
+            box("AnchorSpade",(side*2.05,front*2.1,.16),(.75,.60,.25),PANEL,arm)
+        box("CompositePlate",(side*1.4,0,1.25),(.5,2.6,.34),PANEL)
+    turret=pivot("TurretPivot",(0,-.35,1.44))
+    wedge("SiegeTurret",0,-.35,1.44,2.4,2.1,.67,PANEL,turret)
+    barrel=pivot("BarrelPivot",(0,.65,1.96),turret)
+    cyl("155mmBarrel",(0,2.0,1.96),.19,2.8,STEEL,barrel,axis="Y")
+    box("MuzzleBrake",(0,3.4,1.96),(.6,.45,.45),DARK,barrel)
+    pivot("Muzzle",(0,3.68,1.96),barrel)
+    box("TeamStripe",(0,-.6,2.15),(1.25,.9,.04),TEAM,turret)
+
+
+def bulwark_walker():
+    begin("BulwarkWalker")
+    for side in (-1,1):
+        hip=pivot("LegLeft" if side<0 else "LegRight",(side*.64,0,1.35))
+        rod("HydraulicThigh",(side*.64,0,1.35),(side*.75,-.25,.65),.22,PANEL,hip)
+        knee=pivot("KneePivot",(side*.75,-.25,.65),hip)
+        rod("ArmoredShin",(side*.75,-.25,.65),(side*.8,.18,.18),.20,ARMOR,knee)
+        ankle=pivot("AnklePivot",(side*.8,.18,.18),knee)
+        box("Foot",(side*.8,.18,.16),(.67,.9,.3),DARK,ankle)
+    wedge("Torso",0,0,1.3,1.65,1.8,.91)
+    turret=pivot("TurretPivot",(0,.1,2.28))
+    cyl("Autocannon",(.7,1.01,2.29),.1,1.5,STEEL,turret,axis="Y")
+    pivot("Muzzle",(.7,1.8,2.29),turret)
+    shield=pivot("DirectionalShield",(0,1.0,1.44))
+    box("KineticShield",(0,1.0,1.44),(2.6,.32,2.3),PANEL,shield,.12)
+    for side in (-1,1):
+        box("ShieldFlange",(side*1.24,.78,1.44),(.18,.7,2.15),ARMOR,shield)
+    box("ShieldInsignia",(0,1.18,1.56),(.38,.025,1.2),TEAM,shield)
+    lens(0,1.21,2.39,.58,shield)
+
+
+def flak_halftrack():
+    begin("FlakHalftrack"); tracks(2.5,2.5)
+    wedge("HalftrackHull",0,.6,.65,2.65,4.1,.55)
+    for side in (-1,1):
+        cyl("FrontWheel",(side*1.24,1.65,.5),.48,.32,RUBBER,axis="X")
+    box("ArmoredCab",(0,1.2,1.45),(2.1,1.3,.85),PANEL)
+    lens(0,1.87,1.63,1.33)
+    turret=pivot("TurretPivot",(0,-.75,1.51))
+    box("FlakShield",(0,-.2,1.95),(1.92,.16,1.05),ARMOR,turret)
+    for side in (-1,1):
+        cyl("FlakBarrel",(side*.5,.55,2.0),.11,1.65,STEEL,turret,axis="Y")
+    pivot("Muzzle",(-.5,1.4,2.0),turret)
+
+
 # Fast, reproducible rig-only export; full catalogue builds remain the default.
 walkers_only = "--walkers-only" in sys.argv
 motion_only = "--motion-only" in sys.argv
-if motion_only:
+if "--signature-only" in sys.argv:
+    siege_colossus(); bulwark_walker(); flak_halftrack()
+elif motion_only:
     rover("Worker"); rover("RepairRobot",True); import_tank("Tank"); import_tank("AdvancedTank",True)
 elif walkers_only:
     combat_robot()
@@ -484,6 +540,7 @@ else:
     headquarters(); barracks(); factory("VehicleFactory"); factory("AircraftFactory",True)
     generator(); lab(); depot(); defense("AntiGroundTurret"); defense("AntiAirTurret",True)
     resources("ResourceA"); resources("ResourceB",True); cliff()
+    siege_colossus(); bulwark_walker(); flak_halftrack()
 
 # Export evaluated copies, joining objects that share a rigid parent.
 manifest=[]
@@ -579,6 +636,10 @@ for name,collection,asset_root in assets:
     scene.render.filepath=str(ICONS/(name+".png")); bpy.ops.render.render(write_still=True)
     collection.hide_render=True
     manifest[next(i for i,item in enumerate(manifest) if item["name"]==name)]["bounds"]={"min":list(lo),"max":list(hi)}
+
+if "--signature-only" in sys.argv:
+    (SOURCE/"signature-manifest.json").write_text(json.dumps(manifest,indent=2)+"\n")
+    raise SystemExit(0)
 
 # Editable catalogue: all source components retained, neatly spaced on a grid.
 for i,(name,collection,asset_root) in enumerate(assets):

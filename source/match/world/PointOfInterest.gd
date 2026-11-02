@@ -7,7 +7,8 @@ signal hp_changed
 const Sites = preload("res://source/match/world/PointOfInterestCatalog.gd")
 const Factions = preload("res://source/match/FactionCatalog.gd")
 const CAPTURE_RADIUS = 5.0
-const INCOME_INTERVAL = 10.0
+const INCOME_INTERVAL = 4.0
+const ECONOMIC_CAPTURE_SECONDS = 12.0
 const QUEUE_LIMIT = 3
 const REFINERY = preload("res://assets/models/environment/neutral/OilRefinery.glb")
 const OWNERSHIP_MATERIAL = "Ownership band"
@@ -23,6 +24,9 @@ var stock_a = 600
 var stock_b = 300
 var income_left = INCOME_INTERVAL
 var machinery = null
+var radar_left = 0.0
+var radar_points = []
+var last_enemy_damage_time = -INF
 var hp_max = 300.0
 var signature = null
 var type:
@@ -74,6 +78,8 @@ func _ready():
 func _build_model():
 	if kind == "refinery":
 		_build_refinery()
+	elif kind == "data_relay":
+		_build_data_relay()
 	else:
 		_build_faction_building()
 	_label = Label3D.new()
@@ -135,7 +141,12 @@ func _capture_presence():
 	if _match == null or _match.battlefield == null:
 		return {"infantry": infantry, "combatants": combatants}
 	for unit in _match.battlefield.nearby_units(global_position, CAPTURE_RADIUS):
-		if unit.hp <= 0 or unit.is_queued_for_deletion() or unit.movement_domain != 1:
+		if (
+			unit.hp <= 0
+			or unit.is_queued_for_deletion()
+			or unit.movement_domain != 1
+			or unit.has_meta("garrison_host")
+		):
 			continue
 		if unit.movement_speed <= 0 or unit.attack_range == null:
 			continue
@@ -153,13 +164,24 @@ func _clear_owners(node):
 
 
 func capture_help(_viewer):
-	return tr(
-		(
-			"Right-click with infantry to capture at the building for 15 seconds. "
-			+ "Any damage to the infantry interrupts capture. "
-			+ "Use Force Attack to destroy the building."
+	return (
+		tr(
+			(
+				"Right-click with infantry to capture at the building for %d seconds. "
+				+ "Any damage to the infantry interrupts capture. "
+				+ "Use Force Attack to destroy the building."
+			)
 		)
+		% int(capture_duration())
 	)
+
+
+func capture_duration() -> float:
+	return ECONOMIC_CAPTURE_SECONDS if kind in ["refinery", "data_relay"] else 15.0
+
+
+func capture_blocked(unit) -> bool:
+	return _capture_presence().infantry.any(func(side): return not unit.player.is_allied_with(side))
 
 
 func can_garrison(unit):
@@ -180,7 +202,7 @@ func show_capture(unit, elapsed):
 	_capturer = unit
 	candidate = unit.player
 	progress = elapsed
-	_capture_indicator.display(elapsed, 15.0, unit.player.color)
+	_capture_indicator.display(elapsed, capture_duration(), unit.player.color)
 	_update_presentation()
 
 
@@ -216,7 +238,7 @@ func capture_status(viewer):
 	if hp <= 0:
 		return tr("Destroyed")
 	if candidate != null:
-		return tr("Capturing · %d / %d s") % [floori(progress), 15]
+		return tr("Capturing · %d / %d s") % [floori(progress), int(capture_duration())]
 	if captured_by != null and viewer != null and viewer.is_allied_with(captured_by):
 		return tr("Secured")
 	return tr("Enemy owned") if captured_by != null else tr("Unclaimed")
@@ -241,6 +263,7 @@ func receive_shot(shot, _point = null, share = 1.0, _weapon = {}):
 func _take_damage(amount):
 	if amount <= 0 or hp <= 0:
 		return
+	last_enemy_damage_time = _match.simulation_time
 	hp = maxf(0, hp - amount)
 	hp_changed.emit()
 	if hp <= 0:
@@ -251,7 +274,7 @@ func _take_damage(amount):
 		progress = 0.0
 		_ownership_changed(null)
 		get_node("Geometry").scale.y = 0.15
-		collision_layer = 0
+		collision_layer = 2
 		_match.battlefield.invalidate()
 		_update_presentation()
 
@@ -288,8 +311,12 @@ func operational():
 	return hp > 0 and captured_by != null and not contested and capture_side() == null
 
 
+func income_interval() -> float:
+	return 5.0 if kind == "data_relay" else INCOME_INTERVAL
+
+
 func income_payment():
-	return Vector2i(mini(2, stock_a), mini(1, stock_b)) if kind == "refinery" else Vector2i.ZERO
+	return {"refinery": Vector2i(3, 1), "data_relay": Vector2i(0, 2)}.get(kind, Vector2i.ZERO)
 
 
 func income_status():
@@ -298,14 +325,17 @@ func income_status():
 		return tr("Depleted")
 	if not operational():
 		return tr("Income paused")
-	return tr("+%d M / +%d E every 10 s · next in %ds") % [payment.x, payment.y, ceili(income_left)]
+	return (
+		tr("+%d M / +%d E every %d s · next in %ds")
+		% [payment.x, payment.y, int(income_interval()), ceili(income_left)]
+	)
 
 
 func _update_presentation():
 	super()
 	if candidate != null:
 		_label.text = tr(label_title)
-	if kind == "refinery" and captured_by != null:
+	if kind in ["refinery", "data_relay"] and captured_by != null:
 		_label.text += "\n" + income_status()
 
 
@@ -317,6 +347,9 @@ func _physics_process(delta):
 		or get_tree().paused
 	):
 		return
+	radar_left = maxf(0.0, radar_left - delta)
+	if radar_left == 0.0:
+		radar_points.clear()
 	var previous_owner = captured_by
 	if hp <= 0:
 		return
@@ -324,25 +357,27 @@ func _physics_process(delta):
 	var defending = captured_by if captured_by != null else candidate
 	contested = (
 		defending != null
-		and presence.combatants.any(func(side): return not defending.is_allied_with(side))
+		and presence.infantry.any(func(side): return not defending.is_allied_with(side))
 	)
 	_update_presentation()
 	if machinery != null:
 		machinery.advance(delta, operational() and income_payment() != Vector2i.ZERO)
 	if previous_owner != captured_by or not operational():
 		return
-	if kind == "refinery":
+	if kind in ["refinery", "data_relay"]:
 		income_left -= delta
-		if income_left <= 0:
-			var deliveries = floori(-income_left / INCOME_INTERVAL) + 1
-			income_left += deliveries * INCOME_INTERVAL
-			var materials = mini(2 * deliveries, stock_a)
-			var electronics = mini(deliveries, stock_b)
-			stock_a -= materials
-			stock_b -= electronics
-			captured_by.add_resources({"resource_a": materials, "resource_b": electronics})
-			MatchSignals.resources_mined.emit(self, "materials", materials)
-			MatchSignals.resources_mined.emit(self, "electronics", electronics)
+		if income_left <= 0.000001:
+			var interval = income_interval()
+			var deliveries = floori(maxf(0.0, -income_left) / interval) + 1
+			income_left += deliveries * interval
+			var payment = income_payment() * deliveries
+			captured_by.add_resources({"resource_a": payment.x, "resource_b": payment.y})
+			if kind == "refinery" and captured_by.has_method("add_logistics"):
+				captured_by.add_logistics(2.0 * deliveries)
+			if kind == "data_relay":
+				_radar_sweep()
+			MatchSignals.resources_mined.emit(self, "materials", payment.x)
+			MatchSignals.resources_mined.emit(self, "electronics", payment.y)
 		_update_presentation()
 	elif kind == "mercenary" and not jobs.is_empty():
 		jobs[0].left = maxf(0, jobs[0].left - delta)
@@ -363,6 +398,9 @@ func _physics_process(delta):
 
 
 func hire(requester, role):
+	var gate = load("res://source/match/network/NetworkGate.gd")
+	if gate.intercept(requester, {"kind": "hire_mercenary", "target": gate.id_for(self), "role": role}):
+		return true
 	if (
 		kind != "mercenary"
 		or requester != captured_by
@@ -387,6 +425,9 @@ func hire(requester, role):
 
 
 func cancel_hire(requester, index = 0):
+	var gate = load("res://source/match/network/NetworkGate.gd")
+	if gate.intercept(requester, {"kind": "cancel_mercenary", "target": gate.id_for(self), "index": index}):
+		return true
 	if index < 0 or index >= jobs.size() or requester != _payer:
 		return false
 	requester.add_resources(jobs[index].paid_cost)
@@ -397,13 +438,17 @@ func cancel_hire(requester, index = 0):
 	return true
 
 
-func _ownership_changed(_side):
+func _ownership_changed(side):
+	radar_left = 0.0
+	radar_points.clear()
+	if side != null and kind == "refinery":
+		side.add_resources({"resource_a": 50, "resource_b": 25})
 	while not jobs.is_empty():
 		if is_instance_valid(_payer):
 			_payer.add_resources(jobs[0].paid_cost)
 		jobs.pop_front()
 	_payer = null
-	income_left = INCOME_INTERVAL
+	income_left = income_interval()
 	recruitment_changed.emit()
 
 
@@ -450,6 +495,8 @@ func capture_state(reference):
 		"income_left": income_left,
 		"stock_a": stock_a,
 		"stock_b": stock_b,
+		"radar_left": radar_left,
+		"radar_points": radar_points.duplicate(),
 		"jobs": jobs.duplicate(true)
 	}
 
@@ -463,11 +510,13 @@ func restore_state(saved, entities):
 	income_left = saved.income_left
 	stock_a = saved.stock_a
 	stock_b = saved.stock_b
+	radar_left = saved.radar_left
+	radar_points = saved.radar_points.duplicate()
 	jobs = saved.jobs.duplicate(true)
 	_payer = captured_by if not jobs.is_empty() else null
 	if hp <= 0:
 		get_node("Geometry").scale.y = 0.15
-		collision_layer = 0
+		collision_layer = 2
 	_update_presentation()
 
 
@@ -482,3 +531,86 @@ func open_recruitment():
 		return false
 	_match.hud.open_camp(self)
 	return true
+
+
+func _radar_sweep():
+	radar_points.clear()
+	for unit in _match.get_units():
+		if (
+			unit.hp != null
+			and unit.hp > 0
+			and unit.movement_speed > 0
+			and not unit.has_meta("garrison_host")
+			and not captured_by.is_allied_with(unit.player)
+		):
+			radar_points.append(unit.global_position)
+	radar_left = 3.0
+
+
+func radar_blips(viewer) -> Array:
+	return (
+		radar_points
+		if (
+			radar_left > 0
+			and operational()
+			and viewer != null
+			and viewer.is_allied_with(captured_by)
+		)
+		else []
+	)
+
+
+func can_field_repair(unit) -> bool:
+	return (
+		kind in ["refinery", "data_relay"]
+		and hp < hp_max
+		and is_instance_valid(unit)
+		and unit.type in ["Worker", "RepairRobot"]
+		and (captured_by == null or unit.player.is_allied_with(captured_by))
+	)
+
+
+func repair_ruin(unit) -> bool:
+	if not can_field_repair(unit) or unit.player.resource_a < 1:
+		return false
+	unit.player.resource_a -= 1
+	hp = minf(hp_max, hp + 10.0)
+	get_node("Geometry").scale.y = 1.0
+	collision_layer = 2
+	hp_changed.emit()
+	_update_presentation()
+	return true
+
+
+func _build_data_relay():
+	var geometry = Node3D.new()
+	geometry.name = "Geometry"
+	add_child(geometry)
+	var steel = StandardMaterial3D.new()
+	steel.albedo_color = Color("566369")
+	steel.metallic = .6
+	_lamp = StandardMaterial3D.new()
+	_lamp.albedo_color = Color("d0baa0")
+	_lamp.emission_enabled = true
+	for part in [
+		[Vector3(2.7, .25, 2.7), Vector3(0, .13, 0)],
+		[Vector3(1.2, 1.6, 1.2), Vector3(0, .95, 0)],
+		[Vector3(.22, 2.6, .22), Vector3(0, 2.8, 0)],
+		[Vector3(2.0, .2, .65), Vector3(0, 3.7, 0)],
+		[Vector3(.12, 1.2, .12), Vector3(-.75, 4.1, 0)],
+		[Vector3(.12, 1.2, .12), Vector3(.75, 4.1, 0)],
+	]:
+		var mesh = MeshInstance3D.new()
+		var box = BoxMesh.new()
+		box.size = part[0]
+		mesh.mesh = box
+		mesh.position = part[1]
+		mesh.material_override = steel
+		geometry.add_child(mesh)
+	var panel = MeshInstance3D.new()
+	var box = BoxMesh.new()
+	box.size = Vector3(.9, .32, .1)
+	panel.mesh = box
+	panel.position = Vector3(0, 1.3, -.66)
+	panel.material_override = _lamp
+	geometry.add_child(panel)

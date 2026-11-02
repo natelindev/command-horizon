@@ -13,6 +13,7 @@ var action: Callable = Callable()
 
 var _glyph: TextureRect
 var _badge: Label
+var _charges: Label
 var _cost: Label
 var _cooldown_overlay: ColorRect
 var _cooldown_label: Label
@@ -42,6 +43,15 @@ func _init():
 	_badge.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
 	_badge.position = Vector2(4, 2)
 	add_child(_badge, false, Node.INTERNAL_MODE_FRONT)
+
+	_charges = Label.new()
+	_charges.name = "ReadyCasters"
+	_charges.add_theme_font_override("font", BattleTheme.numeral_font())
+	_charges.add_theme_font_size_override("font_size", 10)
+	_charges.add_theme_color_override("font_color", BattleTheme.IVORY)
+	_charges.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_charges.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	add_child(_charges, false, Node.INTERNAL_MODE_FRONT)
 
 	_cost = Label.new()
 	_cost.name = "CostBadge"
@@ -93,6 +103,8 @@ func _layout_components():
 	var side = clampf(minf(room.x, room.y), 16.0, 24.0)
 	_glyph.size = Vector2(side, side)
 	_glyph.position = Vector2((size.x - side) / 2.0, (size.y - side) / 2.0 + 1.0)
+	_charges.position = Vector2(20, 2)
+	_charges.size = Vector2(size.x - 24, 13)
 	_cost.position = Vector2(2, size.y - 15)
 	_cost.size = Vector2(size.x - 6, 13)
 
@@ -113,6 +125,8 @@ func update_data(data: Dictionary):
 	var cost_text = data.get("cost_text", "")
 	_cost.text = cost_text
 	_cost.visible = not cost_text.is_empty()
+	_charges.text = data.get("charges_text", "")
+	_charges.visible = not _charges.text.is_empty()
 
 	var is_armed = bool(data.get("is_armed", false))
 	var is_active = bool(data.get("is_active", false))

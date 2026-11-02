@@ -16,6 +16,7 @@ class ProductionQueueElement:
 	var unit_prototype = null
 	var time_total = null
 	var paid_cost = {}
+	var batch_count: int = 1
 	var departure_endpoint = null
 	var assembly_started := false
 	var assembly_bonus := 0.0
@@ -40,15 +41,27 @@ var _queue = []
 
 func _ready():
 	set_process(false)
+	set_physics_process(true)
 
 
 func _process(delta):
+	if load("res://source/match/network/NetworkGate.gd").session_for(_unit) == null:
+		_advance(delta)
+
+
+func _physics_process(delta):
+	var network = load("res://source/match/network/NetworkGate.gd").session_for(_unit)
+	if network != null and network.authority:
+		_advance(delta)
+
+
+func _advance(delta):
 	if _queue.is_empty():
 		_advance_idle(delta)
 		return
 	if not _unit.is_constructed():
 		return
-	delta *= _unit.player.production_factor()
+	delta *= _unit.player.production_factor(_unit)
 	while _queue.size() > 0 and delta > 0.0:
 		var element = _queue.front()
 		if not blocked_reason(false).is_empty():
@@ -90,12 +103,16 @@ func _process(delta):
 		departure.update_pose(elapsed)
 		if element.time_left == 0.0:
 			var launch = departure
+			var placements = _batch_placements(element, launch)
+			if placements.size() < element.batch_count:
+				exit_blocked = true
+				return
 			departure = null
 			_remove_element(element)
-			_finalize_production(element, launch)
+			_finalize_production(element, launch, placements)
 			launch.queue_free()
 	if _queue.is_empty() and delta > 0.0:
-		_advance_idle(delta / maxf(.001, _unit.player.production_factor()))
+		_advance_idle(delta / maxf(.001, _unit.player.production_factor(_unit)))
 
 
 func has_assembly_line() -> bool:
@@ -211,27 +228,34 @@ func blocked_reason(include_exit = true):
 
 
 func produce(unit_prototype, ignore_limit = false):
+	var gate = load("res://source/match/network/NetworkGate.gd")
+	if gate.intercept(_unit, {"kind": "produce", "unit": gate.id_for(_unit), "role": BastionCatalog.type_from_path(unit_prototype.resource_path)}):
+		# UI callers only test admission truthiness. The authoritative job arrives
+		# through replication; this inert marker lets Shift queue all five attempts.
+		return {"network_pending": true}
 	var unit_type = BastionCatalog.type_from_path(unit_prototype.resource_path)
 	if not _unit.is_constructed():
 		return null
-	if not unit_type in BastionCatalog.PRODUCES.get(_unit.type, []):
+	if not unit_type in Factions.production_options(_unit.player.faction, _unit.type):
 		return null
 	if not Factions.available(_unit.player, unit_type):
 		return null
-	if _unit.player.population(true) >= BastionCatalog.POPULATION_LIMIT:
+	var batch = Factions.batch_size(_unit.player.faction, unit_type) if _unit.player.get_meta("skirmish", false) else 1
+	if _unit.player.population(true) + batch > BastionCatalog.POPULATION_LIMIT:
 		return null
 	if not ignore_limit and _queue.size() >= Constants.Match.Units.PRODUCTION_QUEUE_LIMIT:
 		return null
 	# Every jet needs a stand to park and rearm on; it is promised at queue time.
 	if BastionCatalog.is_fixed_wing(unit_type) and _unit.stands_for_production() <= 0:
 		return null
-	var production_cost = Factions.cost(_unit.player, unit_type).duplicate()
+	var production_cost = Factions.production_cost(_unit.player, unit_type)
 	if not _unit.player.has_resources(production_cost):
 		MatchSignals.not_enough_resources_for_production.emit(_unit.player)
 		return null
 	_unit.player.subtract_resources(production_cost)
 	var queue_element = ProductionQueueElement.new()
-	queue_element.unit_prototype = unit_prototype
+	queue_element.unit_prototype = load(Factions.scene_path(_unit.player.faction, unit_type))
+	queue_element.batch_count = batch
 	queue_element.paid_cost = production_cost.duplicate()
 	queue_element.time_total = Factions.duration(_unit.player, unit_type)
 	queue_element.time_left = queue_element.time_total
@@ -246,6 +270,9 @@ func cancel_all():
 
 
 func cancel(element):
+	var gate = load("res://source/match/network/NetworkGate.gd")
+	if gate.intercept(_unit, {"kind": "cancel_production", "unit": gate.id_for(_unit), "index": _queue.find(element)}):
+		return
 	if not element in _queue:
 		return
 	if element == _queue.front():
@@ -285,14 +312,42 @@ func _finalize_parked(former_queue_element):
 		MatchSignals.navigate_unit_to_rally_point.emit(produced_unit, rally_point)
 
 
-func _finalize_production(former_queue_element, launch):
+func _finalize_production(former_queue_element, launch, placements = []):
 	_completed(former_queue_element)
-	var produced_unit = former_queue_element.unit_prototype.instantiate()
-	var placement = launch.global_transform
-	MatchSignals.setup_and_spawn_unit.emit(produced_unit, placement, _unit.player)
-	launch.handoff(produced_unit)
-	MatchSignals.unit_production_finished.emit(produced_unit, _unit)
+	if placements.is_empty():
+		placements = [launch.global_transform]
+	for index in former_queue_element.batch_count:
+		var produced_unit = former_queue_element.unit_prototype.instantiate()
+		MatchSignals.setup_and_spawn_unit.emit(produced_unit, placements[index], _unit.player)
+		if index == 0:
+			launch.handoff(produced_unit)
+		MatchSignals.unit_production_finished.emit(produced_unit, _unit)
+		var rally_point = _unit.find_child("RallyPoint")
+		if rally_point != null:
+			MatchSignals.navigate_unit_to_rally_point.emit(produced_unit, rally_point)
 
-	var rally_point = _unit.find_child("RallyPoint")
-	if rally_point != null:
-		MatchSignals.navigate_unit_to_rally_point.emit(produced_unit, rally_point)
+
+func _batch_placements(element, launch) -> Array:
+	var placements = [launch.global_transform]
+	if element.batch_count == 1:
+		return placements
+	var prototype = element.unit_prototype.instantiate()
+	var radius = prototype.radius
+	var domain = prototype.movement_domain
+	prototype.free()
+	var game = _unit._match
+	var navigation = game.navigation.get_navigation_map_rid_by_domain(domain)
+	var obstacles = get_tree().get_nodes_in_group("units") + get_tree().get_nodes_in_group("resource_units")
+	var placement_rules = load("res://source/match/utils/UnitPlacementUtils.gd")
+	for distance in [radius * 2.4 + 0.4, radius * 4.8 + 0.8, radius * 7.2 + 1.2]:
+		for side in 12:
+			var point = launch.global_position + Vector3(cos(side * TAU / 12), 0.0, sin(side * TAU / 12)) * distance
+			point = game.map.ground_point(Vector2(point.x, point.z))
+			if placements.any(func(other): return other.origin.distance_to(point) < radius * 2.1):
+				continue
+			if placement_rules.validate_agent_placement_position(point, radius, obstacles, navigation, game.map) != placement_rules.VALID:
+				continue
+			placements.append(Transform3D(launch.global_basis, point))
+			if placements.size() == element.batch_count:
+				return placements
+	return placements

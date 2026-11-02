@@ -1,0 +1,14 @@
+# Original 3D style: static audit
+
+The user wants the original 3D presentation. Static inspection found no global pixel-art conversion and no saved benchmark graphics overrides. This audit did not inspect the image the user was referring to and does not establish the cause of its appearance. No engine, compiler or graphical process was launched; source and assets were left unchanged. Normal and graphical launches are currently prohibited, while headless work remains authorized.
+
+[Recorded hashes and comparisons](original-style-audit.json) establish:
+
+- [project.godot](../../../project.godot) is byte-identical to `HEAD`: normal 1920×1080 viewport, `canvas_items` stretch and no reduced 3D resolution or nearest-neighbor rendering override.
+- [Options.gd](../../../source/data-model/Options.gd) declarations/defaults match `HEAD`: 2× MSAA, shadows, ambient occlusion, glow, fog and ground detail enabled. Its only current diff is an options-save directory error guard. [Globals.gd](../../../source/Globals.gd) is byte-identical to `HEAD`; normal startup loads the existing options resource and applies it.
+- The normal `user://options.tres`, last modified on 15 October, contains language and key bindings, with no graphics/raster overrides. `save_user_files_in_tmp` is false and `tmp/options.tres` does not exist. Benchmark fixtures restore options in memory and do not write this normal preferences file.
+- Object, terrain and metal texture includes are byte-identical to `HEAD` and retain linear, mipmapped, anisotropic image filtering. `filter_nearest` in [RigidBatchMesh.gd](../../../source/match/rendering/RigidBatchMesh.gd) reads numeric pose/material palettes; it does not set nearest filtering on the visible scene images. Particle surface uniforms, noise and fragment code extracted to the shared include are exactly equal to their `HEAD` definitions.
+
+The [tactical fixture](../../../tests/headless/TacticalFormationsRegression.gd) explicitly uses a 1280×720 viewport; its Low profile disables MSAA, shadows and several detail effects. The [AV fixture](../../../tests/rendered/BenchmarkBattlePerformance.gd) also selects a fixed 720p raster and High/Low options, with `scaling_3d_scale = 1.0`. A separate older scale diagnostic permits half resolution only when its explicit diagnostic flag is supplied. These are test configurations, not changes to normal defaults, and they do not establish the appearance of the user's unseen image.
+
+The independent [asset byte/attribute comparison](original-style-evidence/byte-comparison.json) also retains unchanged weathering, terrain/HUD generators and faction surface shaders. Five previously re-exported GLBs retain equal mesh counts, position/normal/secondary-UV/vertex-color attribute multisets and PBR material definitions. Their primary UVs and generated names differ, and the files are not byte-identical. This is a bounded attribute comparison, not a claim of complete visual parity.

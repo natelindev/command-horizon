@@ -235,7 +235,9 @@ func _generate_authored(path):
 	starts = layout.bases.map(func(base): return Vector3(base.start.x, 0, base.start.y))
 	deposits = layout.bases.map(func(base): return base.field)
 	deposits.append_array(layout.expansions.map(func(expansion): return expansion.field))
-	points_of_interest = layout.sites.duplicate()
+	points_of_interest = (
+		load("res://source/match/world/PointOfInterestCatalog.gd").definitions(path).duplicate()
+	)
 	for list in [rocks, relays, roads, buildings, land, water]:
 		list.clear()
 	water_radius = 0.0
@@ -370,7 +372,8 @@ func _draw():
 			{
 				"refinery": tr("R", "map_refinery"),
 				"mercenary": tr("M", "map_mercenary"),
-				"repair": tr("S", "map_repair")
+				"repair": tr("S", "map_repair"),
+				"data_relay": tr("D", "map_data_relay")
 			}
 			. get(site.kind, "·")
 		)

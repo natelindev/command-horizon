@@ -119,6 +119,8 @@ func _run():
 			agent._uses_platform_height = false
 			agent._exit_clearance_target = origin + recovery if iteration % 17 == 0 else Vector3.INF
 			agent._exit_clearance_until = _game.simulation_time + 2.0
+			# Each synthetic teleport starts an independent physics case.
+			agent._ground_motion_budget(0.0, 0.0, true)
 		for index in neighbors.size():
 			var unit = neighbors[index]
 			unit.position = (
@@ -129,6 +131,7 @@ func _run():
 			agent.ghosted = (iteration + index) % 7 == 0
 			agent._has_destination = (iteration + index) % 3 == 0
 			agent.velocity = Vector3.ZERO
+			agent._ground_motion_budget(0.0, 0.0, true)
 		var handle: int = runtime.bind_agent(
 			candidate_agent, candidate, candidate.type in candidate_agent.VEHICLE_ROLES
 		)

@@ -12,7 +12,7 @@ func _run():
 	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
 	root.content_scale_size = Vector2i(1920, 1080)
 	root.get_node("SaveManager").autosaves_enabled = false
-	for faction in ["bastion", "helix"]:
+	for faction in ["bastion", "helix", "frontier"]:
 		for map_name in ["DesertFrontier", "AlpineRelay", "IndustrialCrossroads", "CoastalFoundry"]:
 			await _skirmish(faction, "res://source/match/maps/%s.tscn" % map_name)
 			game.hud._toggle_pause()
@@ -55,7 +55,7 @@ func _run():
 	for message in errors:
 		push_error(message)
 	print("Subtitle layout: %d failures" % errors.size())
-	quit(0 if errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
 
 
 func _clearance():

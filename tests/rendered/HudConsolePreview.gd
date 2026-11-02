@@ -14,10 +14,13 @@ const HudLayout = preload("res://source/match/hud/HudLayout.gd")
 const OUTPUT = "res://art/hud-console/"
 var _full_visibility_only = false
 var _research_only = false
+var _formations_only = false
+var _passengers_only = false
 var _roster_cases = 0
 var _elimination_cases = 0
 var _match_settings_script
 var _player_settings_script
+var _capture_resolution = Vector2i.ZERO
 
 
 class RenderErrorLog:
@@ -41,8 +44,19 @@ func _run():
 	_match_settings_script = load("res://source/data-model/MatchSettings.gd")
 	_player_settings_script = load("res://source/data-model/PlayerSettings.gd")
 	var factions = Array(OS.get_cmdline_user_args())
+	for flag in [
+		"--enable-native-kernels",
+		"--native-unit-state",
+		"--native-crowd-runtime",
+		"--native-visibility-runtime"
+	]:
+		factions.erase(flag)
 	_full_visibility_only = factions.has("--full-visibility")
 	factions.erase("--full-visibility")
+	_passengers_only = factions.has("--passengers")
+	factions.erase("--passengers")
+	_formations_only = factions.has("--formations")
+	factions.erase("--formations")
 	_research_only = factions.has("--research")
 	factions.erase("--research")
 	var console_only = factions.has("--console-only")
@@ -57,6 +71,7 @@ func _run():
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT))
 	var logger = RenderErrorLog.new()
 	OS.add_logger(logger)
+	var console_cases = 0
 	for setup in [
 		["bastion", "battlefields/DesertFrontierMap", Vector2i(1280, 720), 1.5, "720p", "en"],
 		["helix", "battlefields/AlpineRelayMap", Vector2i(1920, 1080), 1.0, "1080p", "en"],
@@ -77,6 +92,9 @@ func _run():
 		else:
 			await _configure(preferences, setup[2], setup[3], setup[5])
 			await _battle(setup[0], setup[1], setup[4])
+			console_cases += 1
+	if not rosters_only and not elimination_only:
+		_check(console_cases > 0, "No faction console review cases completed")
 	var expected_rosters = 0
 	if (
 		rosters_only
@@ -218,9 +236,29 @@ func _configure(preferences, resolution, scale_value, language):
 	)
 	await create_timer(2).timeout
 	root.mode = Window.MODE_WINDOWED
+	# A fullscreen-to-windowed transition is asynchronous on macOS. Let it
+	# settle before assigning the requested capture size.
+	await _frames(2)
 	root.size = resolution
 	root.content_scale_size = Vector2i(1920, 1080)
 	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	_capture_resolution = resolution
+	await _frames(2)
+	_check(root.size == resolution, "HUD review did not adopt its requested resolution")
+
+
+func _settle_capture_size():
+	var deadline = Time.get_ticks_msec() + 5000
+	var stable_since = Time.get_ticks_msec()
+	while Time.get_ticks_msec() < deadline:
+		if root.mode != Window.MODE_WINDOWED or root.size != _capture_resolution:
+			root.mode = Window.MODE_WINDOWED
+			root.size = _capture_resolution
+			stable_since = Time.get_ticks_msec()
+		if Time.get_ticks_msec() - stable_since >= 500:
+			return
+		await process_frame
+	_check(false, "HUD capture window did not stabilize at its requested resolution")
 
 
 func _battle(faction, map_name, suffix):
@@ -236,6 +274,57 @@ func _battle(faction, map_name, suffix):
 	game.subtitles._on_line({"speaker": "Command", "text": "Battle control online."})
 	await _frames(40)
 	var label = "%s-%s" % [faction, suffix]
+	if _passengers_only:
+		var factions = load("res://source/match/FactionCatalog.gd")
+		var rig = load(factions.scene_path(faction, "AdvancedTank")).instantiate()
+		game._setup_and_spawn_unit(
+			rig, Transform3D(Basis.IDENTITY, tank.global_position + Vector3(5, 0, 0)), human, false
+		)
+		rig.process_mode = Node.PROCESS_MODE_DISABLED
+		var passengers = []
+		for index in 4:
+			var passenger = load(factions.scene_path(faction, "Infantry")).instantiate()
+			game._setup_and_spawn_unit(
+				passenger,
+				Transform3D(Basis.IDENTITY, rig.global_position + Vector3(0, 0, 3)),
+				human,
+				false
+			)
+			passenger.process_mode = Node.PROCESS_MODE_DISABLED
+			passengers.append(passenger)
+		await _frames(20)
+		for index in passengers.size():
+			passengers[index].action = load("res://source/match/units/actions/Garrisoning.gd").new(
+				rig
+			)
+			_check(rig.enter(passengers[index], index), "Passenger capture could not fill carrier")
+		paused = true
+		camera.set_position_safely(rig.global_position)
+		await _select([rig])
+		game.find_child("UnitMenus").open_page("Passengers")
+		await _frames(12)
+		if TranslationServer.get_locale() == "zh_CN":
+			var panel = game.find_child("UnitMenus")._pages.get_node("Passengers").get_child(0)
+			_check(
+				panel.unload_all.text == "全部卸载", "Passenger Chinese translation was not imported"
+			)
+			_check(panel.cards[0].unload.text == "卸载", "Passenger unload label is not Chinese")
+		await _shot(label + "-passengers")
+		paused = false
+		game.queue_free()
+		await _frames(5)
+		return
+	if _formations_only:
+		paused = true
+		await _select(_units(human, "Tank") + _units(human, "Worker"))
+		var menus = game.find_child("UnitMenus")
+		menus.open_page("Formations")
+		await _frames(12)
+		await _shot(label + "-formations")
+		paused = false
+		game.queue_free()
+		await _frames(5)
+		return
 	if _research_only:
 		human.resource_a += 2000
 		human.resource_b += 2000
@@ -416,10 +505,19 @@ func _review_commander(human, label):
 func _review_research(human, label):
 	var was_paused = paused
 	paused = true
+	human.coordination_unlocked = true
+	var catalog = load("res://source/match/research/TechnologyCatalog.gd")
+	var branch = catalog.FACTION_TECHNOLOGIES[human.faction][0]
 	await _select([_units(human, "CommandLab")[0]])
 	await _shot(label + "-research")
 	var research = game.find_child("UnitMenus")._research_panel
-	var research_tile = research._branches.weapons.button
+	var research_tile = research._branches[branch].button
+	_check(
+		research._branches.size() == catalog.FACTION_TECHNOLOGIES[human.faction].size(),
+		"Research panel omitted an authored faction branch"
+	)
+	for id in catalog.FACTION_TECHNOLOGIES[human.faction]:
+		_check(research.ICONS.has(id), "Research branch has no authored icon: " + id)
 	var motion = InputEventMouseMotion.new()
 	motion.position = root.get_final_transform() * research_tile.get_global_rect().get_center()
 	motion.global_position = motion.position
@@ -439,7 +537,7 @@ func _review_research(human, label):
 	game.hud._close_menu()
 	await _frames(8)
 	research = game.find_child("UnitMenus")._research_panel
-	research_tile = research._branches.weapons.button
+	research_tile = research._branches[branch].button
 	var funds = Vector2i(human.resource_a, human.resource_b)
 	research_tile.grab_focus()
 	for pressed in [true, false]:
@@ -449,12 +547,35 @@ func _review_research(human, label):
 		event.pressed = pressed
 		root.push_input(event, false)
 		await _frames(2)
-	_check(human.technology.active == "weapons_1", "Enter did not start research")
+	_check(human.technology.active == branch, "Enter did not start faction research")
 	_check(
-		Vector2i(human.resource_a, human.resource_b) == funds - Vector2i(30, 20),
+		Vector2i(human.resource_a, human.resource_b) == funds - catalog.cost(branch),
 		"Keyboard research charged the wrong price"
 	)
 	await _shot(label + "-research-active")
+	var pair = catalog.EXCLUSIVE_PAIRS[catalog.FACTION_TECHNOLOGIES.keys().find(human.faction)]
+	research._branches[pair[0]].button.pressed.emit()
+	research.refresh()
+	_check(
+		human.technology.queued.size() == 1 and human.technology.queued[0].id == pair[0],
+		"Doctrine was not reserved in research queue"
+	)
+	_check(
+		(
+			research._branches[pair[1]].button.disabled
+			and research._branches[pair[1]].button.tooltip_text.contains(
+				tr(human.technology.queue_reason(pair[1], research.lab))
+			)
+		),
+		"Queued doctrine did not explain its exclusion"
+	)
+	await _shot(label + "-research-queued-doctrine")
+	_check(
+		game.find_child("UnitMenus").get_global_rect().size.y <= HudLayout.CONSOLE_HEIGHT + .5,
+		"Research with a paid queue exceeds the baseline console height"
+	)
+	research._queue_rows[0].cancel.pressed.emit()
+	_check(human.technology.queued.is_empty(), "Queued doctrine cancellation failed")
 	research._cancel.pressed.emit()
 	_check(Vector2i(human.resource_a, human.resource_b) == funds, "Research refund differs")
 	if human.faction == "helix":
@@ -471,13 +592,25 @@ func _review_plasma_shields(human, label):
 	await _select([tank])
 	var menus = game.find_child("UnitMenus")
 	_check(menus._shields.is_visible_in_tree(), "Shield gauge is missing")
-	_check(menus._shields.value == 30.0, "Full shield gauge differs")
+	_check(
+		absf(menus._shields.value - tank.shields) <= maxf(.001, menus._shields.step * 0.5 + .0001),
+		(
+			"Full shield gauge differs: shown %.3f actual %.3f max %.3f step %.3f"
+			% [menus._shields.value, tank.shields, tank.shields_max, menus._shields.step]
+		)
+	)
 	await _shot(label + "-shields-full")
 	# Damage changes the gauge while the selection stays in place.
-	tank.shields = 18.0
+	tank.shields = tank.shields_max * 0.6
 	tank.shields_changed.emit()
 	await _frames(8)
-	_check(menus._shields.value == 18.0, "Shield gauge did not refresh")
+	_check(
+		absf(menus._shields.value - tank.shields) <= maxf(.001, menus._shields.step * 0.5 + .0001),
+		(
+			"Shield gauge did not refresh: shown %.3f actual %.3f max %.3f step %.3f"
+			% [menus._shields.value, tank.shields, tank.shields_max, menus._shields.step]
+		)
+	)
 	await _shot(label + "-shields-partial")
 	var enemy = get_nodes_in_group("players").filter(func(side): return side != human)[0]
 	var impacts = game.combat_effects.shield_impacts_emitted
@@ -502,7 +635,7 @@ func _review_plasma_shields(human, label):
 	_check(menus._shields.is_visible_in_tree(), "Depleted shield gauge disappeared")
 	await _shot(label + "-shields-depleted")
 	await _select([_units(human, "Worker")[0]])
-	_check(not menus._shields.is_visible_in_tree(), "Worker shows a shield gauge")
+	_check(menus._shields.is_visible_in_tree(), "Innate Helix worker shield gauge is missing")
 	await _shot(label + "-shields-worker")
 
 
@@ -637,6 +770,9 @@ func _capture_roster(label, spectator):
 
 
 func _shot(label, spectator = false):
+	if root.size != _capture_resolution:
+		await _settle_capture_size()
+	_check(root.size == _capture_resolution, "HUD review resolution changed: " + label)
 	var resources = game.get_node("HUD/MarginContainer2/Resources").get_global_rect()
 	var mini = game.find_child("Minimap", true, false).get_global_rect()
 	_check(
@@ -681,6 +817,11 @@ func _shot(label, spectator = false):
 	Input.warp_mouse(root.get_visible_rect().size - Vector2(16, 280))
 	await _frames(2)
 	RenderingServer.force_draw(false)
-	var saved = root.get_texture().get_image().save_png(OUTPUT + label + ".png")
+	var capture = root.get_texture().get_image()
+	_check(
+		capture.get_size() == _capture_resolution,
+		"HUD capture image has wrong dimensions: " + label
+	)
+	var saved = capture.save_png(OUTPUT + label + ".png")
 	_check(saved == OK, "Could not save HUD capture: " + label)
 	print("Captured ", label)

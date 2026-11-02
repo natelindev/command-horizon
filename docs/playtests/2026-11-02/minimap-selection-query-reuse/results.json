@@ -1,0 +1,172 @@
+{
+  "checks": [
+    {
+      "suite": "BattleFeedbackRegression",
+      "mode": "fallback",
+      "exit_code": 0,
+      "seconds": 8.416,
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "res://tests/headless/BattleFeedbackRegression.gd"
+      ],
+      "log": "BattleFeedbackRegression-fallback.log"
+    },
+    {
+      "suite": "BattleFeedbackRegression",
+      "mode": "native",
+      "exit_code": 0,
+      "seconds": 8.399,
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "res://tests/headless/BattleFeedbackRegression.gd",
+        "--",
+        "--enable-native-kernels",
+        "--native-unit-state",
+        "--native-crowd-runtime",
+        "--native-visibility-runtime"
+      ],
+      "log": "BattleFeedbackRegression-native.log"
+    },
+    {
+      "suite": "CombatPresentationRegression",
+      "mode": "fallback",
+      "exit_code": 0,
+      "seconds": 1.235,
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "res://tests/headless/CombatPresentationRegression.gd"
+      ],
+      "log": "CombatPresentationRegression-fallback.log"
+    },
+    {
+      "suite": "CombatPresentationRegression",
+      "mode": "native",
+      "exit_code": 0,
+      "seconds": 1.25,
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "res://tests/headless/CombatPresentationRegression.gd",
+        "--",
+        "--enable-native-kernels",
+        "--native-unit-state",
+        "--native-crowd-runtime",
+        "--native-visibility-runtime"
+      ],
+      "log": "CombatPresentationRegression-native.log"
+    },
+    {
+      "suite": "MobileGarrisonRegression",
+      "mode": "fallback",
+      "exit_code": 0,
+      "seconds": 5.261,
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "res://tests/headless/MobileGarrisonRegression.gd"
+      ],
+      "log": "MobileGarrisonRegression-fallback.log"
+    },
+    {
+      "suite": "MobileGarrisonRegression",
+      "mode": "native",
+      "exit_code": 0,
+      "seconds": 5.353,
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "res://tests/headless/MobileGarrisonRegression.gd",
+        "--",
+        "--enable-native-kernels",
+        "--native-unit-state",
+        "--native-crowd-runtime",
+        "--native-visibility-runtime"
+      ],
+      "log": "MobileGarrisonRegression-native.log"
+    },
+    {
+      "suite": "OwnershipRegression",
+      "mode": "fallback",
+      "exit_code": 0,
+      "seconds": 13.865,
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "res://tests/headless/OwnershipRegression.gd"
+      ],
+      "log": "OwnershipRegression-fallback.log"
+    },
+    {
+      "suite": "OwnershipRegression",
+      "mode": "native",
+      "exit_code": 0,
+      "seconds": 13.914,
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "res://tests/headless/OwnershipRegression.gd",
+        "--",
+        "--enable-native-kernels",
+        "--native-unit-state",
+        "--native-crowd-runtime",
+        "--native-visibility-runtime"
+      ],
+      "log": "OwnershipRegression-native.log"
+    }
+  ],
+  "recorded_utc": "2026-11-02T06:26:09.722726+00:00",
+  "owned_files": {
+    "source/match/hud/Ownership.gd": "3036ec53036d21576ba6ece5190ea82731c43086c151cb6e27071375054dd995",
+    "source/match/hud/Minimap.gd": "ddd22255e2404de45bc61606e4df5b6e1ec963b6dffdd61f038ff14e9d079893",
+    "source/match/units/traits/Selection.gd": "2b306d66c539fa06bb13e951fed01b1e68faeea3962c1ab807341de69ae04303",
+    "tests/headless/OwnershipRegression.gd": "c2c254e75b57975ce87aa5638b506130a7d32fc631bd02d6287e543c62ab6985"
+  },
+  "log_scan": {
+    "errors": 0,
+    "warnings": 0,
+    "leaks": 0
+  }
+}

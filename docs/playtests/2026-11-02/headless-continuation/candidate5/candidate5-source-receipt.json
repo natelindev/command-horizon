@@ -1,0 +1,37 @@
+{
+  "created_utc": "2026-11-02T07:13:26.855859+00:00",
+  "source": "/Users/linlilu/godot-open-rts",
+  "snapshot": "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/inputs-retry-5",
+  "input_sha256": "bba072d8117dc096851e412e25fd10d479c3102730fccf6f587c9b280ad8bd19",
+  "workspace_sha256": "bba072d8117dc096851e412e25fd10d479c3102730fccf6f587c9b280ad8bd19",
+  "remaining_source_test_tool_native_asset_differences": [],
+  "expected_final_paths": {
+    "source/match/orders/FormationPlanner.gd": "e0d2ac3a38f31b3379b24da43ca45c37eabfb5b346c3be03667a973971b42eed",
+    "source/match/utils/UnitMovementUtils.gd": "9f0713f4579ea05605bf1edf86674d3191ad0828620ab38a7da3b42aeaf0c575",
+    "source/match/players/human/UnitActionsController.gd": "8561d05f9287cf83ba2369b0db92b43177d5af1a3da841702b31c95c411a4bf8",
+    "source/match/orders/ManualOrders.gd": "4f8bd5f973979c25647f020ff3879fa5f8658be5af81e6b55381aa5a412c87a1",
+    "tests/headless/FormationPlanningRegression.gd": "35a1daf22397d166f99984430d33edebca42d239eb9336dde210629403ac5896",
+    "tests/headless/OrderActivationRegression.gd": "79e3003f75d9a0fe13df0e987e4dac84716c75ce99af9c94ebe31a649a1fa227",
+    "native/pose_packer/crowd_runtime.h": "28784a1b4be42d3b6ce5a533fb1a434ad095baff11196eb0f6f0574fb74cda0f"
+  },
+  "independent_inode_samples": {
+    "source/match/orders/FormationPlanner.gd": true,
+    "source/match/utils/UnitMovementUtils.gd": true,
+    "source/match/players/human/UnitActionsController.gd": true,
+    "source/match/orders/ManualOrders.gd": true,
+    "tests/headless/FormationPlanningRegression.gd": true,
+    "tests/headless/OrderActivationRegression.gd": true,
+    "native/pose_packer/crowd_runtime.h": true
+  },
+  "excluded_derived_cache": [
+    ".godot/editor",
+    ".godot/shader_cache",
+    ".godot/exported"
+  ],
+  "workspace_native_bin_excluded": true,
+  "headless_only": true,
+  "planned_packaged_checks": 140,
+  "source_contracts": [
+    "RichTexturesRegression"
+  ]
+}

@@ -1,0 +1,55 @@
+--- tests/headless/OrderActivationRegression.gd (before)
++++ tests/headless/OrderActivationRegression.gd (final)
+@@ -93,6 +93,7 @@
+ 		await _partially_started_disk()
+ 		_replica_guard()
+ 		_operational_cleanup()
++		_reentrant_eligibility()
+ 	paused = false
+ 	_game.queue_free()
+ 	await _frames(5)
+@@ -226,6 +227,44 @@
+ 	)
+ 
+ 
++func _reentrant_eligibility():
++	var was_paused = paused
++	paused = true
++	var unit = _members[0]
++	var orders = unit.manual_orders
++	var movement = unit.get_node("Movement")
++	var signals = root.get_node("MatchSignals")
++	var order = _manual.point_order("move", unit.global_position + Vector3(3, 0, 0))
++	order.cohort = _cohort_script.new(_members)
++	orders.cancel()
++	unit.action = null
++	var changed_domain = func(source, _kind, _point, accepted, _queued, _reason):
++		if source == unit and accepted:
++			movement.domain = 0
++	signals.order_feedback.connect(changed_domain)
++	orders.submit(order)
++	signals.order_feedback.disconnect(changed_domain)
++	_check(not orders._activation_queued, "Feedback domain change used stale eligibility")
++	movement.domain = 1
++	orders.cancel()
++	unit.action = null
++	var calls = []
++	var changed_action = func(source, _kind, _point, accepted, _queued, _reason):
++		if source == unit and accepted:
++			var probe = CancellationProbe.new()
++			probe.calls = calls
++			unit.action = probe
++	signals.order_feedback.connect(changed_action)
++	orders.submit(order)
++	signals.order_feedback.disconnect(changed_action)
++	_check(not orders._activation_queued, "Feedback action change used stale eligibility")
++	# Paused operational replacement must remain available for the usual retry.
++	_check(calls.is_empty(), "Paused operational action was torn down before resume")
++	orders.cancel()
++	unit.action = null
++	paused = was_paused
++
++
+ func _cancellation_and_activation():
+ 	var stopped = _members[0]
+ 	stopped.issue_manual_order(null)

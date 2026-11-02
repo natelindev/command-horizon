@@ -3,6 +3,7 @@ extends Node3D
 # Presentation only: one weather draw, up to 96 embers across the entire map,
 # and local uniforms on existing liquid surfaces. No gameplay RNG or physics.
 const WEATHER = preload("res://source/shaders/3d/battlefield_atmosphere.gdshader")
+const EMBERS = preload("res://source/shaders/3d/lava_embers.gdshader")
 const LIQUID_SHADERS = [
 	"authored_water.gdshader",
 	"authored_lava.gdshader",
@@ -130,23 +131,12 @@ func _create_embers(lava):
 	for index in points.size():
 		var point = points[index]
 		image.set_pixel(index, 0, Color(point.x, point.y, point.z))
-	var process = ParticleProcessMaterial.new()
-	process.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_POINTS
-	process.emission_point_texture = ImageTexture.create_from_image(image)
-	process.emission_point_count = points.size()
-	process.direction = Vector3(.15, 1, .08)
-	process.spread = 18
-	process.initial_velocity_min = .5
-	process.initial_velocity_max = 1.3
-	process.gravity = Vector3(.05, .1, .02)
-	var gradient = Gradient.new()
-	gradient.colors = PackedColorArray(
-		[Color(1, .35, .035, 0), Color(1, .6, .12, .9), Color(.7, .1, .01, 0)]
-	)
-	gradient.offsets = PackedFloat32Array([0, .15, 1])
-	var ramp = GradientTexture1D.new()
-	ramp.gradient = gradient
-	process.color_ramp = ramp
+	# A fixed processor owns its shader normally, avoiding the generated
+	# ParticleProcessMaterial color-ramp shader retained by the dummy backend.
+	var process = ShaderMaterial.new()
+	process.shader = EMBERS
+	process.set_shader_parameter("emission_points", ImageTexture.create_from_image(image))
+	process.set_shader_parameter("point_count", points.size())
 	var material = StandardMaterial3D.new()
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA

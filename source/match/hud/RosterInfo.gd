@@ -7,7 +7,14 @@ const UnitCounters = preload("res://source/match/combat/UnitCounters.gd")
 
 static func inspect(producer, role, construction):
 	var player = producer.player
-	var cost = Factions.cost(player, role, construction)
+	var cost = (
+		Factions.cost(player, role, true)
+		if construction
+		else Factions.production_cost(player, role)
+	)
+	var batch = 1
+	if not construction and player.get_meta("skirmish", false):
+		batch = Factions.batch_size(player.faction, role)
 	var lines = PackedStringArray(
 		[
 			Factions.title(player.faction, role),
@@ -23,14 +30,19 @@ static func inspect(producer, role, construction):
 		)
 		lines.append("%d s construction with one engineer; travel extra." % ceili(seconds))
 	else:
+		if batch > 1:
+			lines.append("%d units per production cycle." % batch)
 		var counter_info = UnitCounters.format_tooltip(role, player.faction)
 		if not counter_info.is_empty():
 			lines.append(counter_info)
-		var seconds = Factions.duration(player, role) / player.production_factor()
+		var seconds = Factions.duration(player, role) / player.production_factor(producer)
 		lines.append(
 			(
 				"%d s production%s; queue wait extra."
-				% [ceili(seconds), " at low power" if player.production_factor() < 1.0 else ""]
+				% [
+					ceili(seconds),
+					" at low power" if player.production_factor(producer) < 1.0 else ""
+				]
 			)
 		)
 	if player.technology != null:
@@ -63,7 +75,7 @@ static func inspect(producer, role, construction):
 		):
 			reasons.append("Structure limit reached (%d)." % Catalog.STRUCTURE_LIMIT)
 	else:
-		if player.population(true) >= Catalog.POPULATION_LIMIT:
+		if player.population(true) + batch > Catalog.POPULATION_LIMIT:
 			reasons.append(
 				"Unit limit reached (%d, including paid queues)." % Catalog.POPULATION_LIMIT
 			)

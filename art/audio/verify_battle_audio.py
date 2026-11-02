@@ -1,5 +1,6 @@
 """Decode every shipped battle clip; write a measurement report and listening reel."""
 import concurrent.futures
+import argparse
 import hashlib
 import json
 import subprocess
@@ -44,12 +45,18 @@ def inspect(entry):
 
 
 def main():
-    DEST.mkdir(parents=True, exist_ok=True)
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--output', type=Path, default=DEST,
+                        help='Directory for the listening reel and cue sheet')
+    args = parser.parse_args()
+    dest = args.output
+    dest.mkdir(parents=True, exist_ok=True)
     manifest = json.loads((ROOT / 'art/audio/battle-audio-manifest.json').read_text())
     with concurrent.futures.ThreadPoolExecutor(max_workers=6) as pool:
         report = list(pool.map(inspect, manifest))
     speakers = {entry['speaker_id'] for entry in manifest if entry['speaker_id'] is not None}
     from voice_cast import CAST, MERCENARY, MERCENARY_CAST, PROFILES, ROBOT_CAST
+    from combat_barks import combat_text
     from verify_voice_cast import verify_catalog
     verify_catalog()
     assert speakers == set(PROFILES)
@@ -66,6 +73,7 @@ def main():
         parts = ['Command/MATCH_STARTED_0', 'Command/BASE_UNDER_ATTACK_0']
         for role in [*CAST[faction], *ROBOT_CAST[faction]]:
             parts += [role + '/select_0', role + '/attack_0']
+            parts += [role + '/' + event + '_0' for event in combat_text(faction, role)]
         parts += ['CommandCenter/select_0', 'Command/RESEARCH_COMPLETED_0']
         for part in parts:
             relative = f'{faction}/{part}.ogg'
@@ -77,17 +85,19 @@ def main():
         reel.append(np.zeros(RATE, dtype='<f4'))
         offset += 1
     for role in MERCENARY_CAST:
-        for part in ['select_0', 'attack_0']:
+        for part in ['select_0', 'attack_0', 'low_health_0', 'kill_0']:
             relative = f'{MERCENARY}/{role}/{part}.ogg'
             clip = decode(ROOT / 'assets/audio/voices' / relative)
             entry = next(item for item in manifest if item['file'] == relative)
             cue_sheet.append({'seconds': round(offset, 2), 'clip': relative, 'text': entry['text']})
             reel.extend([clip, np.zeros(int(.45 * RATE), dtype='<f4')])
             offset += len(clip) / RATE + .45
-    (DEST / 'audition-cues.json').write_text(json.dumps(cue_sheet, indent=2) + '\n')
+    (dest / 'audition-cues.json').write_text(json.dumps(cue_sheet, indent=2) + '\n')
+    # Keep the audit reel lossless. FFmpeg's experimental native Vorbis encoder
+    # can assert in floor_encode on concatenated speech/silence at this quality.
     subprocess.run(['ffmpeg', '-v', 'error', '-y', '-f', 'f32le', '-ar', str(RATE), '-ac', '1',
-                    '-i', '-', '-ac', '2', '-c:a', 'vorbis', '-strict', '-2', '-q:a', '5',
-                    str(DEST / 'faction-voice-audition.ogg')], input=np.concatenate(reel).astype('<f4').tobytes(), check=True)
+                    '-i', '-', '-ac', '2', '-c:a', 'flac',
+                    str(dest / 'faction-voice-audition.flac')], input=np.concatenate(reel).astype('<f4').tobytes(), check=True)
     print(json.dumps({key: value for key, value in summary.items() if key != 'assets'}, indent=2))
 
 

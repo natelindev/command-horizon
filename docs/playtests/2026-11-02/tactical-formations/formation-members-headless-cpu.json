@@ -1,0 +1,32 @@
+{
+  "diagnostic": true,
+  "headless": true,
+  "rendered_frame_qualification": false,
+  "fixture": {
+    "map": "BigArena",
+    "faction": "bastion",
+    "role": "Tank",
+    "count": 200,
+    "formation": "staggered",
+    "point": [
+      50,
+      0,
+      60
+    ],
+    "paused_during_calls": true
+  },
+  "method": "15 alternating before/after samples in the same process; exact member/endpoint equality for all200",
+  "wall_median_ms": {
+    "baseline": 46.319,
+    "member_facts": 41.128
+  },
+  "caller_thread_cpu_median_ms": {
+    "baseline": 46.145,
+    "member_facts": 40.981
+  },
+  "cpu_reduction_percent": 11.190811572218012,
+  "native_binary_sha256_during_profile": "f862526d2565f163aeea09ec5f9cc16442fe14ececab1c3734cd86897071628c",
+  "note": "Captured before the subsequent ground travel-budget correctness fix; pure planner samples are not complete commands or rendered frames.",
+  "baseline_source_sha256": "2d6a1554b4381529da64bb9466fbb0692415bab2d670505cfdbb202ba2432cac",
+  "current_planner_source_sha256": "e6d60a53117fca08a6b6b8044895931b68c8064e49292cc9a3ce7bd7132182a8"
+}

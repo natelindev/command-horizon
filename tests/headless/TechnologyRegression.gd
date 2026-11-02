@@ -2,41 +2,23 @@ extends "res://tests/headless/SaveRestoreEdges.gd"
 
 var tech_catalog
 var factions
-var rules
 var human
 var lab
-var tank
-var enemy
-var base_health
-
-
-func _initialize():
-	# Three full research trees, including the 45 s AA upgrade, exceed 1000 s.
-	create_timer(1200).timeout.connect(
-		func():
-			push_error("Technology regression timed out")
-			quit(1)
-	)
-	_run.call_deferred()
 
 
 func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
 	tech_catalog = load("res://source/match/research/TechnologyCatalog.gd")
 	factions = load("res://source/match/FactionCatalog.gd")
-	rules = load("res://source/match/combat/CombatRules.gd")
 	for faction in factions.IDS:
 		await _fixture(faction)
-		if not "technology" in human or human.technology == null:
-			_check(false, faction + ": classic RTS technology research is missing")
-		else:
-			await _research(faction)
+		await _research(faction)
 		paused = false
 		game.queue_free()
 		await _frames(5)
-	for error in errors:
-		push_error(error)
-	print("Classic RTS technology: %d failures" % errors.size())
+	for message in errors:
+		push_error(message)
+	print("Faction-exclusive technology runtime and archives: %d failures" % errors.size())
 	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
 
 
@@ -45,401 +27,200 @@ func _fixture(faction):
 	human = game._get_human_player()
 	for player in get_nodes_in_group("players"):
 		player.set_process(false)
+	for unit in get_nodes_in_group("units"):
+		unit.process_mode = Node.PROCESS_MODE_DISABLED
 	game.repair_service.set_physics_process(false)
 	lab = _units(human, "CommandLab")[0]
-	tank = _units(human, "Tank")[0]
-	base_health = tank.hp_max
-	enemy = get_nodes_in_group("players").filter(func(player): return player != human)[0]
 	human.resource_a = 1000
 	human.resource_b = 1000
-	game.hud._toggle_pause()
+	paused = true
 
 
 func _research(faction):
 	var research = human.technology
+	var branch = tech_catalog.FACTION_TECHNOLOGIES[faction][0]
+	var enemy = get_nodes_in_group("players").filter(func(side): return side != human)[0]
 	var enemy_lab = _units(enemy, "CommandLab")[0]
+	_check(not research.enqueue(branch, enemy_lab), "Enemy lab accepted research")
+	_check(not research.enqueue(branch, lab), "Faction branch bypassed Coordination")
+	for retired in ["weapons_1", "armor_1", "service", "doctrine", "dual_purpose_aa"]:
+		_check(
+			not research.enqueue(retired, lab),
+			"Retired mirrored branch remained purchasable: " + retired
+		)
+	_check(human.start_coordination(lab), "Coordination purchase refused")
 	var funds = Vector2i(human.resource_a, human.resource_b)
-	_check(not research.start("weapons_1", enemy_lab), "Enemy lab accepted friendly research")
-	_check(not research.start("weapons_2", lab), "Tier II bypassed its prerequisites")
-	_check(not research.start("dual_purpose_aa", lab), "Dual-purpose AA bypassed its prerequisite")
+	var left = human.coordination_left
+	await _frames(30)
+	_check(human.coordination_left == left, "Tactical pause advanced Coordination")
+	paused = false
+	human._physics_process(10.0)
+	paused = true
+	_check(
+		is_equal_approx(human.coordination_left, left - 10.0),
+		"Coordination clock ignored production factor"
+	)
+	_check(human.cancel_coordination(), "Coordination cancellation failed")
+	_check(
+		Vector2i(human.resource_a, human.resource_b) == funds + Vector2i(20, 20),
+		"Coordination refund differs"
+	)
+	_check(not human.cancel_coordination(), "Coordination refunded twice")
+	_check(human.start_coordination(lab), "Coordination retry refused")
+	paused = false
+	human._physics_process(30.0)
+	paused = true
+	_check(human.coordination_unlocked, "Coordination clock never unlocked prerequisites")
+	funds = Vector2i(human.resource_a, human.resource_b)
 	human.resource_a = 0
-	_check(not research.start("weapons_1", lab), "Research started without payment")
+	_check(not research.enqueue(branch, lab), "Faction research started without payment")
 	human.resource_a = funds.x
-	var target = _units(enemy, "Tank")[0]
-	var base_damage = rules.damage(tank, target)
-	_check(research.start("weapons_1", lab), "Weapon systems I refused")
+	_check(research.enqueue(branch, lab), "Legal faction branch refused: " + branch)
 	_check(
-		Vector2i(human.resource_a, human.resource_b) == funds - tech_catalog.ITEMS.weapons_1.cost,
-		"Research price differs"
+		Vector2i(human.resource_a, human.resource_b) == funds - tech_catalog.cost(branch),
+		"Faction research charged the wrong price"
 	)
+	left = research.left
+	await _frames(30)
+	_check(research.left == left, "Tactical pause advanced faction research")
 	_check(
-		not research.start("armor_1", lab) and not human.start_coordination(lab),
-		"Shared research slot accepted concurrent work"
+		research.cancel() and not research.cancel(),
+		"Faction research cancellation allowed double refund"
 	)
-	var left = research.left
-	await _frames(60)
-	_check(research.left == left, "Tactical pause advanced research")
-	_check(research.cancel() and not research.cancel(), "Research cancellation is not single-use")
+	_check(Vector2i(human.resource_a, human.resource_b) == funds, "Faction research refund differs")
+	_check(research.enqueue(branch, lab), "Faction research retry refused")
+	await _brownout_and_archive(branch)
+	_check(branch in human.technology.completed, "Restored faction branch did not complete")
+	_effect(faction)
+	var pair = tech_catalog.EXCLUSIVE_PAIRS[factions.IDS.find(faction)]
+	_check(human.technology.enqueue(pair[0], lab), "Doctrine reservation refused")
+	_check(not human.technology.enqueue(pair[1], lab), "Active rival doctrine was not excluded")
+	_complete()
 	_check(
-		Vector2i(human.resource_a, human.resource_b) == funds,
-		"Research cancellation refund differs"
+		not human.technology.enqueue(pair[1], lab),
+		"Completed rival doctrine was not permanently excluded"
 	)
-	_check(research.start("weapons_1", lab), "Weapon research retry refused")
-	await _complete()
-	_check(
-		is_equal_approx(rules.damage(tank, target), base_damage * 1.1),
-		"Weapon upgrade did not change real damage"
-	)
-	var before_hp = target.hp
-	target.receive_weapon_hit(tank)
-	_check(
-		is_equal_approx(before_hp - target.hp, base_damage * 1.1),
-		"Upgraded weapon hit used stale damage"
-	)
-	_check(not research.start("weapons_1", lab), "Completed technology could be bought twice")
-	await _anti_air_upgrade(faction, target)
-	tank.hp = base_health * .4
-	var worker = _units(human, "Worker")[0]
-	var worker_hp = worker.hp_max
-	_check(research.start("armor_1", lab), "Combat armor I refused")
-	var factory = _units(human, "VehicleFactory")[0]
-	var queued = factory.production_queue.produce(load("res://source/match/units/Tank.tscn"))
-	_check(queued != null, "Future upgraded tank could not be paid")
-	await _complete()
-	_check(
-		is_equal_approx(tank.hp_max, base_health * 1.1),
-		"Existing tank maximum health was not upgraded"
-	)
-	_check(
-		is_equal_approx(tank.hp / tank.hp_max, .4),
-		"Armor research changed the existing health percentage"
-	)
-	_check(worker.hp_max == worker_hp, "Combat armor changed a noncombat engineer")
-	var produced = _units(human, "Tank")[-1]
-	_check(
-		is_equal_approx(produced.hp_max, base_health * 1.1),
-		"Newly produced tank lost the army upgrade"
-	)
-	_check(
-		is_equal_approx(rules.damage(produced, target), base_damage * 1.1),
-		"Newly produced tank lost weapon research"
-	)
-	_check(human.start_coordination(lab), "Coordination refused its ordinary research slot")
-	_check(not research.start("service", lab), "Technology bypassed active Coordination")
-	game.hud._toggle_pause()
-	for frame in 2400:
-		await physics_frame
-		if human.coordination_unlocked:
-			break
-	game.hud._toggle_pause()
-	_check(human.coordination_unlocked, "Paid Coordination never completed")
-	_check(research.start("weapons_2", lab), "Unlocked Weapon systems II refused")
-	await _complete()
-	_check(
-		is_equal_approx(rules.damage(tank, target), base_damage * 1.2),
-		"Weapon levels compounded instead of totaling 20%"
-	)
-	if not await _power_and_archive():
-		return
-	research = human.technology
-	_check(is_equal_approx(tank.hp_max, base_health * 1.2), "Restored armor II did not complete")
-	_check("dual_purpose_aa" in research.completed, "Save/restore lost Dual-purpose AA")
-	var restored_aa = _units(human, "AntiAirVehicle")[0]
-	_check(
-		is_equal_approx(
-			rules.damage(restored_aa, _units(enemy, "Tank")[0]), restored_aa.attack_damage
-		),
-		"Restored AA lost full ground damage"
-	)
-	await _service()
-	await _doctrine(faction)
-	_invalid_archives()
+	_invalid_archives(branch, pair)
 	print(
 		"TECHNOLOGY VERIFIED ",
 		faction,
-		" weapon, armor, service, doctrine, production, costs and archives"
+		" paid clocks, 25% brownout, lab-loss, archive, doctrine exclusion, real effect"
 	)
 
 
-func _complete():
-	_check(paused, "Research completion fixture was not paused")
-	game.hud._toggle_pause()
-	for frame in 4200:
-		await physics_frame
-		if human.technology.active == "":
-			break
-	game.hud._toggle_pause()
-	_check(human.technology.active == "", "Paid research never completed")
-
-
-func _anti_air_upgrade(faction, target):
-	var shooters = []
-	for role in ["AntiAirVehicle", "AntiAirTurret", "CombatRobot"]:
-		var shooter = _spawn_tech(role, human, Vector3(30 + shooters.size() * 4, 0, 35))
-		shooter.process_mode = Node.PROCESS_MODE_DISABLED
-		if role == "CombatRobot":
-			if faction != "helix":
-				shooter.queue_free()
-				continue
-			shooter.weapon_mode = "interception"
-			shooter.configure_weapon()
-		shooters.append(shooter)
-	var air = _spawn_tech("Helicopter", enemy, Vector3(80, 3, 60))
-	air.process_mode = Node.PROCESS_MODE_DISABLED
-	var ordinary_damage = rules.damage(tank, target)
-	var air_damage = []
-	for shooter in shooters:
-		var full = shooter.attack_damage * human.technology.damage_factor(shooter.type)
-		_check(is_equal_approx(rules.damage(shooter, target), full * .33), "AA base damage differs")
-		air_damage.append(rules.damage(shooter, air))
-	var funds = Vector2i(human.resource_a, human.resource_b)
-	_check(human.technology.start("dual_purpose_aa", lab), "Dual-purpose AA research refused")
-	_check(
-		Vector2i(human.resource_a, human.resource_b) == funds - Vector2i(40, 30),
-		"Dual-purpose AA price differs"
-	)
-	_check(
-		tech_catalog.valid_state(human.technology.capture(), human.coordination_unlocked),
-		"Active Dual-purpose AA cannot be saved"
-	)
-	await _complete()
-	_check(not human.technology.start("dual_purpose_aa", lab), "Dual-purpose AA bought twice")
-	for index in shooters.size():
-		var shooter = shooters[index]
-		var full = shooter.attack_damage * human.technology.damage_factor(shooter.type)
-		_check(
-			is_equal_approx(rules.damage(shooter, target), full),
-			"AA research did not remove penalty"
-		)
-		_check(rules.damage(shooter, air) == air_damage[index], "AA research changed air damage")
-		var before = target.hp
-		target.receive_weapon_hit(shooter)
-		_check(is_equal_approx(before - target.hp, full), "Upgraded AA hit used stale damage")
-		_check(
-			"100% ground damage" in human.technology.summary(shooter.type),
-			"Unit details omit the AA upgrade"
-		)
-	_check(
-		rules.damage(tank, target) == ordinary_damage, "AA research changed ordinary ground weapons"
-	)
-	var new_aa = _spawn_tech("AntiAirVehicle", human, Vector3(30, 0, 42))
-	new_aa.process_mode = Node.PROCESS_MODE_DISABLED
-	_check(
-		is_equal_approx(rules.damage(new_aa, target), new_aa.attack_damage),
-		"New AA vehicle did not inherit full ground damage"
-	)
-	air.queue_free()
-
-
-func _power_and_archive():
+func _brownout_and_archive(branch):
 	var research = human.technology
-	_check(research.start("armor_2", lab), "Unlocked Combat armor II refused")
-	var supplies = plan_units().filter(
+	var supplies = human.live_units().filter(
 		func(unit): return unit.type in ["CommandCenter", "PowerPlant"]
 	)
-	for unit in supplies:
-		unit._construction_progress = .99
-	_check(human.production_factor() == .35, "Low-power fixture still has full supply")
+	for supply in supplies:
+		supply._construction_progress = .99
+	_check(human.production_factor(lab) == .25, "Brownout factor differs from 25%")
 	var before = research.left
-	game.hud._toggle_pause()
-	await _frames(60)
-	game.hud._toggle_pause()
-	_check(absf(before - research.left - .35) < .04, "Low-power research did not run at 35% speed")
-	for unit in supplies:
-		unit._construction_progress = 1
+	paused = false
+	research._physics_process(4.0)
+	paused = true
+	_check(
+		is_equal_approx(before - research.left, 1.0),
+		"Brownout research clock did not advance at 25%"
+	)
+	for supply in supplies:
+		supply._construction_progress = 1.0
 	lab.queue_free()
 	await _frames(3)
 	before = research.left
-	game.hud._toggle_pause()
-	await _frames(120)
-	game.hud._toggle_pause()
-	_check(research.left == before, "Research advanced without a lab")
-	_check("paused" in research.status(), "Lost lab is not explained")
-	var builder = Snapshot.new()
-	var saved = builder.capture(game)
-	var tank_id = builder._reference(tank)
-	var health = tank.hp
-	var file = "user://technology-%d.json" % OS.get_process_id()
-	_check(FileStore.new().write_file(file, saved), "Technology disk save failed")
-	var restore = Restore.new()
-	var loaded = await restore.restore(self, FileStore.new().read_file(file))
-	DirAccess.remove_absolute(file)
-	_check(loaded.ok, "Technology disk restore failed: " + loaded.get("error", ""))
-	if not loaded.ok:
-		return false
-	game = loaded.game
+	paused = false
+	research._physics_process(10.0)
+	paused = true
+	_check(
+		research.left == before and "paused" in research.status(),
+		"Lab loss advanced or lost research"
+	)
+	var saved = Snapshot.new().capture(game)
+	var restored = await Restore.new().restore(self, saved)
+	_check(restored.ok, "Faction research archive restore failed: " + restored.get("error", ""))
+	if not restored.ok:
+		return
+	game = restored.game
 	human = game._get_human_player()
-	enemy = get_nodes_in_group("players").filter(func(player): return player != human)[0]
-	tank = restore.entities[tank_id]
-	for player in get_nodes_in_group("players"):
-		player.set_process(false)
-	game.repair_service.set_physics_process(false)
-	_check(paused and human.technology.left == before, "Restored research lost its remaining time")
+	for side in get_nodes_in_group("players"):
+		side.set_process(false)
+	for unit in get_nodes_in_group("units"):
+		unit.process_mode = Node.PROCESS_MODE_DISABLED
 	_check(
-		is_equal_approx(tank.hp, health) and is_equal_approx(tank.hp_max, base_health * 1.1),
-		"Restored upgrade stacked or healed the tank"
+		paused and human.technology.active == branch and human.technology.left == before,
+		"Archive changed active research or remaining time"
 	)
-	lab = _spawn_tech("CommandLab", human, Vector3(25, 0, 23))
-	await _complete()
-	return true
+	lab = load(factions.scene_path(human.faction, "CommandLab")).instantiate()
+	game._setup_and_spawn_unit(lab, Transform3D(Basis(), Vector3(25, 0, 23)), human, false)
+	_complete()
 
 
-func _service():
-	var depot = _units(human, "RepairDepot")[0]
-	for robot in _units(human, "RepairRobot"):
-		robot.queue_free()
-	await _frames(3)
-	# Depot recovery requires the vehicle on its platform, not just within range.
-	tank.global_position = depot.service_point(tank)
-	tank.issue_manual_order(null)
-	tank.get_node("Movement").stop()
-	tank.last_enemy_damage_time = -INF
-	tank.hp = tank.hp_max * .3
-	var health = tank.hp
+func _complete():
+	var research = human.technology
 	paused = false
-	game.repair_service.service(1.0)
+	research._physics_process(research.left + 1.0)
 	paused = true
-	var ordinary = tank.hp - health
-	_check(ordinary > 0, "Service fixture did not heal")
-	_check(human.technology.start("service", lab), "Field service research refused")
-	await _complete()
-	tank.hp = tank.hp_max * .3
-	health = tank.hp
-	paused = false
-	game.repair_service.service(1.0)
-	paused = true
-	_check(
-		is_equal_approx(tank.hp - health, ordinary * 1.25),
-		"Field service did not change actual healing"
-	)
-	var upgraded = tank.hp - health
-	var normal_power = human.production_factor()
-	_check(normal_power == 1.0, "Service recovery fixture needs full power initially")
-	var supplies = plan_units().filter(
-		func(unit): return unit.type in ["CommandCenter", "PowerPlant"] and unit.is_constructed()
-	)
-	for unit in supplies:
-		unit._construction_progress = .99
-	_check(human.production_factor() == .35, "Service low-power fixture still has full supply")
-	tank.hp = tank.hp_max * .3
-	health = tank.hp
-	paused = false
-	game.repair_service.service(1.0)
-	paused = true
-	_check(
-		is_equal_approx(tank.hp - health, upgraded * .35 / normal_power),
-		"Service retained a previous call's power supply"
-	)
-	for unit in supplies:
-		unit._construction_progress = 1.0
-	tank.hp = tank.hp_max * .3
-	health = tank.hp
-	paused = false
-	game.repair_service.service(1.0)
-	paused = true
-	_check(
-		is_equal_approx(tank.hp - health, upgraded),
-		"Service did not immediately recover when power returned"
-	)
+	_check(research.active == "", "Paid faction research did not complete")
 
 
-func _doctrine(faction):
-	var unit = (
-		tank if faction == "bastion" else _spawn_tech("CombatRobot", human, Vector3(30, 0, 40))
-	)
-	unit.issue_manual_order(null)
-	unit.get_node("Movement").velocity = Vector3.ZERO
-	# Hold weapons during the timed research comparison; signatures keep ticking.
-	for friendly in plan_units():
-		if friendly.action != null:
-			friendly.action.process_mode = Node.PROCESS_MODE_DISABLED
-	var target = _spawn_tech("Tank", enemy, unit.position + Vector3(3, 0, 0))
-	target.process_mode = Node.PROCESS_MODE_DISABLED
-	game.battlefield.invalidate()
-	_check(
-		human.signatures.activate([unit], unit.position) == 1,
-		"Coordination did not unlock the faction ability"
-	)
+func _effect(faction):
+	var tank = _units(human, "Tank")[0]
+	var enemy = get_nodes_in_group("players").filter(func(side): return side != human)[0]
+	var rules = load("res://source/match/combat/CombatRules.gd")
 	if faction == "bastion":
-		game.hud._toggle_pause()
-		await _frames(180)
-		game.hud._toggle_pause()
+		var shooter = _units(enemy, "Infantry")[0]
+		var upgraded = rules.damage(shooter, tank)
+		human.technology.completed.erase("reactive_armor")
+		var ordinary = rules.damage(shooter, tank)
+		human.technology.completed.append("reactive_armor")
 		_check(
-			is_equal_approx(unit.signature.damage_factor(), .85),
-			"Ordinary Anchor reduction differs"
+			is_equal_approx(upgraded, ordinary * .75),
+			"Reactive armor did not deflect real small-arms damage"
 		)
-	elif faction == "frontier":
-		_check(
-			is_equal_approx(unit.signature.speed_factor(), 1.35), "Ordinary Maneuver speed differs"
-		)
+	elif faction == "helix":
+		_check(tank.shields_max > tank.hp_max, "Helix lost its innate majority shield envelope")
+		tank.shields = 0
+		var shield = tank.shield_component
+		shield.last_damage_time = -INF
+		var before = tank.shields
+		shield.tick(.5, game.simulation_time, 1.0)
+		_check(tank.shields > before, "Harmonic resonators did not restore real shield charge")
 	else:
+		var salvage = tank.get_node_or_null("BattlefieldSalvage")
 		_check(
-			is_equal_approx(unit.signature.preparation_time(.75), .6),
-			"Ordinary Precision preparation differs"
-		)
-	_check(human.technology.start("doctrine", lab), "Faction doctrine research refused")
-	await _complete()
-	if faction == "bastion":
-		_check(
-			is_equal_approx(unit.signature.damage_factor(), .75),
-			"Fortified Anchor did not strengthen the active ability"
-		)
-		var hp_before = unit.hp
-		unit.receive_weapon_hit(target)
-		_check(unit.hp < hp_before, "Fortified Anchor incorrectly makes its unit invulnerable")
-	elif faction == "frontier":
-		_check(human.signatures.activate([unit]) == 1, "Researched Maneuver could not reactivate")
-		_check(
-			is_equal_approx(unit.signature.speed_factor(), 1.5),
-			"Rapid redeployment did not strengthen actual mobility"
-		)
-	else:
-		game.battlefield.invalidate()
-		_check(
-			human.signatures.activate([unit], unit.position) == 1,
-			"Upgraded Precision could not activate"
-		)
-		_check(
-			is_equal_approx(unit.signature.preparation_time(.75), .375),
-			"Accelerated Precision did not strengthen the ability"
-		)
-		_check(
-			unit.signature.preparation_time(.75) == .75,
-			"Precision bonus was reused for a second shot"
+			salvage != null and "scrap_cannibalization" in human.technology.completed,
+			"Frontier salvage trait or researched upgrade missing"
 		)
 
 
-func _invalid_archives():
+func _invalid_archives(branch, pair):
 	var saved = Snapshot.new().capture(game)
 	var schema = load("res://source/match/saves/SnapshotSchema.gd").new()
-	_check(schema.validate(saved), "Completed technology snapshot is invalid: " + schema.error)
-	for change in ["unknown", "duplicate", "prerequisite", "paid", "time", "concurrent"]:
+	_check(
+		saved != null and schema.validate(saved),
+		"Completed faction technology snapshot is invalid: " + schema.error
+	)
+	if saved == null:
+		return
+	for change in ["unknown", "duplicate", "excluded", "paid", "time", "concurrent"]:
 		var bad = saved.duplicate(true)
 		var state = tech_catalog.empty_state()
 		match change:
 			"unknown":
 				state.completed = ["free_damage"]
 			"duplicate":
-				state.completed = ["weapons_1", "weapons_1"]
-			"prerequisite":
-				state.completed = ["armor_2"]
+				state.completed = [branch, branch]
+			"excluded":
+				state.completed = pair.duplicate()
 			"paid", "time", "concurrent":
-				state.active = "weapons_1"
-				state.left = 36 if change == "time" else 20
-				state.paid = {"resource_a": 300 if change == "paid" else 30, "resource_b": 20}
+				state.active = branch
+				state.left = tech_catalog.ITEMS[branch].seconds + 1.0 if change == "time" else 20.0
+				var cost = tech_catalog.cost(branch)
+				state.paid = {
+					"resource_a": cost.x + (1 if change == "paid" else 0), "resource_b": cost.y
+				}
 				if change == "concurrent":
-					bad.players[0].coordination_left = 10
+					bad.players[0].coordination_left = 10.0
 		bad.players[0].technology = state
-		_check(not schema.validate(bad), "Malformed technology accepted: " + change)
-
-
-func plan_units():
-	return human.get_children().filter(
-		func(unit): return unit.is_in_group("units") and not unit.is_queued_for_deletion()
-	)
-
-
-func _spawn_tech(role, player, point):
-	var unit = load("res://source/match/units/%s.tscn" % role).instantiate()
-	game._setup_and_spawn_unit(unit, Transform3D(Basis(), point), player, false)
-	return unit
+		_check(not schema.validate(bad), "Malformed faction technology was accepted: " + change)

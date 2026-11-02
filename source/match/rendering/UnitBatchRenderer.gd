@@ -70,7 +70,7 @@ func _ready():
 		and ClassDB.class_exists("CopperfinPresentationBatch")
 	):
 		_presentation = ClassDB.instantiate("CopperfinPresentationBatch")
-		if not _presentation.configure(POSE_CAPACITY):
+		if not _presentation.has_method("set_track") or not _presentation.configure(POSE_CAPACITY):
 			_presentation = null
 	if _render_pose_updates:
 		get_tree().physics_frame.connect(_capture_physics_roots)
@@ -218,6 +218,10 @@ func _add_unit(unit):
 	if visuals == null:
 		return
 	var anchors: Array[Node3D] = []
+	if visuals._track_motion != null:
+		# Reserve row zero for the unit hit pulse. Each belt owns a separate
+		# articulated row whose fourth column carries its signed travel.
+		anchors.append(geometry)
 	var pieces := []
 	var signature := []
 	for source: MeshInstance3D in geometry.find_children("*", "MeshInstance3D", true, false):
@@ -267,6 +271,7 @@ func _add_unit(unit):
 		"group": null,
 		"slot": -1,
 		"previous_position": Vector3.INF,
+		"tracks": [],
 		"detached": [],
 		"pulse_material": null,
 		"visuals": visuals,
@@ -280,6 +285,10 @@ func _add_unit(unit):
 	}
 	for piece in pieces:
 		var source: MeshInstance3D = piece[0]
+		if source.has_meta("animated_track"):
+			for belt in visuals._track_motion.belts:
+				if belt.mesh == source:
+					entry.tracks.append([belt, piece[2]])
 		entry.sources.append(source)
 		RenderingServer.instance_set_base(source.get_instance(), RID())
 		# A selectively hidden/replaced part must immediately regain native rendering.
@@ -329,12 +338,25 @@ func _add_unit(unit):
 			_presentation_entries[handle] = entry
 			visuals.set_native_presentation(_presentation, handle)
 			_update_native_pulse(entry)
+	_bind_tracks(entry)
+
+
+func _bind_tracks(entry):
+	for track in entry.tracks:
+		entry.visuals._track_motion.bind_palette(
+			track[0].mesh, _presentation, entry.get("presentation_handle", -1), track[1]
+		)
+	# Track bindings can remove the last native scene-geometry dependency.
+	if entry.has("presentation_handle"):
+		entry.visuals.set_native_presentation(_presentation, entry.presentation_handle)
 
 
 func _disable_native_presentation():
 	for entry in _presentation_entries.values():
 		entry.visuals.set_native_presentation(null, -1)
 		entry.erase("presentation_handle")
+		for track in entry.tracks:
+			entry.visuals._track_motion.bind_palette(track[0].mesh, null, -1, track[1])
 	_presentation_entries.clear()
 	_presentation = null
 
@@ -362,6 +384,8 @@ func _detach_sources(entry):
 
 
 func _restore_sources(entry):
+	if entry.visuals._track_motion != null:
+		entry.visuals._track_motion.sync_originals()
 	for part in entry.detached:
 		var source: Node3D = part[0]
 		if is_instance_valid(source) and is_instance_valid(part[1]):
@@ -386,6 +410,15 @@ static func duplicate_geometry(geometry: Node3D, flags: int = 15) -> Node3D:
 	# Reparented leaves cannot be reconstructed from the imported scene's owner
 	# table. Copy the current posed tree, including runtime-generated meshes.
 	var copy = geometry.duplicate(flags & ~Node.DUPLICATE_USE_INSTANTIATION)
+	# Freeze each belt at its current travel in wrecks and fog memories.
+	# Generated mesh names may change on duplication; belt indices stay stable.
+	if entry.visuals._track_motion != null:
+		for cloned_belt in copy.find_children("*", "MeshInstance3D", true, false):
+			if cloned_belt.has_meta("track_belt_index"):
+				var belt = entry.visuals._track_motion.belts[cloned_belt.get_meta(
+					"track_belt_index"
+				)]
+				cloned_belt.set_instance_shader_parameter("track_travel", belt.travel)
 	copy.remove_meta("gpu_batch_renderer")
 	if copy.has_meta("hit_flash_surfaces"):
 		copy.remove_meta("hit_flash_surfaces")
@@ -420,8 +453,7 @@ func _source_visibility_changed(source, unit):
 
 func _eligible(source: MeshInstance3D) -> bool:
 	if (
-		source.has_meta("animated_track")
-		or source.has_meta("dynamic_presentation")
+		source.has_meta("dynamic_presentation")
 		or source.mesh == null
 		or source.skin != null
 		or not source.visible
@@ -521,6 +553,8 @@ func _invalidate(unit, exiting := false):
 	if not _units.has(unit):
 		return
 	var entry: Dictionary = _units[unit]
+	if entry.visuals._track_motion != null:
+		entry.visuals._track_motion.unbind_palette()
 	if entry.has("presentation_handle"):
 		entry.visuals.set_native_presentation(null, -1)
 		_presentation.unbind(entry.presentation_handle)
@@ -702,6 +736,9 @@ func _upload_poses():
 	# Activation requires the native uploader; otherwise the ordinary renderer
 	# stays active. Avoid allocating a second, unused CPU packing buffer here.
 	var pixels: PackedByteArray = _native.pack_poses(_entries, POSE_CAPACITY)
+	for entry in _entries:
+		for track in entry.tracks:
+			pixels.encode_float((entry.offset + track[1]) * 64 + 48, track[0].travel)
 	for diagonal in [0, 5, 10]:
 		pixels.encode_float(diagonal * 4, 1.0)
 	var previous = (

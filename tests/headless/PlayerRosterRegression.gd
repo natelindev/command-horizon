@@ -64,6 +64,7 @@ func _run():
 
 
 func _compare_all():
+	var factions = load("res://source/match/FactionCatalog.gd")
 	for player in _players:
 		var live := []
 		var structures := 0
@@ -80,8 +81,8 @@ func _compare_all():
 			structures += 1
 			if child.is_constructed():
 				completed[child.type] = true
-				supply += Catalog.POWER_SUPPLY.get(child.type, 0)
-				demand += Catalog.POWER_USAGE.get(child.type, 0)
+				supply += factions.power_supply(player.faction, child.type)
+				demand += factions.power_usage(player.faction, child.type)
 				if player.faction == "helix" and child.type == "PowerPlant":
 					var support = load("res://source/match/combat/HelixSupport.gd")
 					if support.requested(child):

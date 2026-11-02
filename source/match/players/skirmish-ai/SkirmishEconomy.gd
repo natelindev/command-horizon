@@ -26,7 +26,8 @@ static func contacts(game, player):
 
 static func headquarters(units, point):
 	var choices = units.filter(
-		func(unit): return unit.type == "CommandCenter" and unit.is_constructed()
+		func(unit):
+			return unit.type in ["CommandCenter", "ForwardRefinery"] and unit.is_constructed()
 	)
 	choices.sort_custom(
 		func(a, b):

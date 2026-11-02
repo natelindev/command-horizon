@@ -21,7 +21,8 @@ const TerrainDressing = preload("res://source/match/maps/terrain/TerrainDressing
 const TerrainBackdrop = preload("res://source/match/maps/terrain/TerrainBackdrop.gd")
 const IndustrialLandmarks = preload("res://source/match/maps/IndustrialLandmarks.gd")
 # Materials and electronics stock per deposit for each kind of field.
-const STOCKS = {"home": [400, 720], "expansion": [600, 1200], "rich": [900, 1800]}
+const STOCKS = preload("res://source/match/economy/ResourceFieldStocks.gd").STOCKS
+const CAMPAIGN_STOCKS = {"home": [400, 720], "expansion": [600, 1200], "rich": [900, 1800]}
 # Five material piles then two electronics nodes on an arc around the site
 # where a headquarters stands (or can be built).
 const PILE_SPACING = 2.6
@@ -267,7 +268,7 @@ func _fields() -> Array:
 
 func _place_fields():
 	for field in _fields():
-		var stocks = STOCKS[field.kind]
+		var stocks = field_stocks()[field.kind]
 		var points = field_points(field.site, field.centre)
 		for index in points.size():
 			var electronics = index >= MATERIAL_PILES
@@ -278,6 +279,11 @@ func _place_fields():
 			deposit.position = ground_point(points[index])
 			deposit.harvest_origin = ground_point(field.centre)
 			$Resources.add_child(deposit)
+
+
+func field_stocks() -> Dictionary:
+	var game = find_parent("Match")
+	return CAMPAIGN_STOCKS if game != null and not game.settings.mission_id.is_empty() else STOCKS
 
 
 # Piles curve around the site at the field's distance, materials in the

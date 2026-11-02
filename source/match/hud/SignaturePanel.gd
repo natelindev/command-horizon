@@ -64,7 +64,7 @@ func refresh():
 		return
 	var player = units[0].player
 	var count = units.filter(func(unit): return player.signatures.eligible(unit)).size()
-	_activate.disabled = count == 0
+	_activate.disabled = count == 0 or (player.faction == "frontier" and player.logistics < 5.0)
 	var state = _feedback(units, player, count)
 	_summary.text = state.summary
 	var help = _help(player)
@@ -115,6 +115,10 @@ func _feedback(units, player, ready):
 			)
 		)
 	var lines = summary.duplicate()
+	if player.faction == "frontier":
+		lines.append(tr("Cost: 5 Logistics"))
+		if player.logistics < 5.0:
+			lines.append(tr("Requires 5 Logistics."))
 	if recharge < INF:
 		lines.append(tr("Recharging · %.1f s") % recharge)
 	if lines.is_empty():

@@ -1,6 +1,8 @@
 extends SceneTree
 
 const Catalog = preload("res://source/match/BastionCatalog.gd")
+var fixture_faction = "helix"
+var _orders
 var _game
 var _moving
 var _human
@@ -13,6 +15,7 @@ func _initialize():
 
 func _run():
 	_moving = load("res://source/match/units/actions/Moving.gd")
+	_orders = load("res://source/match/orders/ManualOrders.gd")
 	if DisplayServer.get_name() != "headless":
 		root.mode = Window.MODE_WINDOWED
 		root.size = Vector2i(1440, 900)
@@ -24,7 +27,7 @@ func _run():
 		var config = load("res://source/data-model/PlayerSettings.gd").new()
 		config.controller = 1 if index == 0 else 2
 		config.spawn_index_offset = index
-		config.faction = "helix" if index == 0 else "bastion"
+		config.faction = fixture_faction if index == 0 else "bastion"
 		settings.players.append(config)
 	_game = load("res://source/match/Skirmish.tscn").instantiate()
 	_game.settings = settings
@@ -41,11 +44,19 @@ func _run():
 		if unit.movement_speed > 0:
 			unit.queue_free()
 	await _frames(90)
-	await _test_obstacle_route()
-	await _test_group_route()
-	await _test_harvesting()
-	await _test_new_obstacle()
-	await _test_construction_and_rocks()
+	var focus = ""
+	for argument in OS.get_cmdline_user_args():
+		if argument.begins_with("--navigation-focus="):
+			focus = argument.trim_prefix("--navigation-focus=")
+	if focus != "dynamic":
+		await _test_obstacle_route()
+		await _test_group_route()
+	if focus.is_empty():
+		await _test_harvesting()
+	if focus != "group":
+		await _test_new_obstacle()
+	if focus.is_empty():
+		await _test_construction_and_rocks()
 	if "--native-crowd-runtime" in OS.get_cmdline_user_args():
 		_check(
 			_game.crowd_runtime != null and _game.crowd_runtime.active,
@@ -235,22 +246,66 @@ func _test_new_obstacle():
 		if "type" in unit and unit.type != "CommandCenter":
 			unit.queue_free()
 	await _frames(90)
-	var tank = _spawn("Tank", Vector3(16, 0, 23))
-	# An order issued immediately on creation must survive navigation initialization.
-	tank.action = _moving.new(Vector3(35, 0, 23))
-	await _frames(50)
-	var obstacle = _spawn("CommandCenter", Vector3(25, 0, 23))
-	await _frames(1200)
+	var terrain = _game.navigation.terrain
+	var start = Vector3.INF
+	var destination = Vector3.INF
+	var site = Vector3.INF
+	# Home fields and neutral structures evolve with the map. Prove an open
+	# corridor before placing the blocker instead of aiming inside a deposit.
+	for row in [35.0, 32.0, 20.0, 14.0]:
+		var points = [Vector3(16, 0, row), Vector3(35, 0, row), Vector3(25, 0, row)]
+		if points.all(
+			func(point):
+				return ((terrain.closest_point(point) - point) * Vector3(1, 0, 1)).length() < .05
+		):
+			start = points[0]
+			destination = points[1]
+			site = points[2]
+			break
+	_check(start.is_finite(), "Dynamic building fixture has no open corridor")
+	if not start.is_finite():
+		return
+	var tank = _spawn("Tank", start)
+	# An ordinary order issued on creation must survive navigation initialization.
+	tank.manual_orders.submit(_orders.point_order("move", destination))
+	await _frames(20)
+	var obstacle = _spawn("CommandCenter", site)
+	var minimum_gap = INF
+	for frame in 1200:
+		await physics_frame
+		minimum_gap = minf(minimum_gap, tank.global_position_yless.distance_to(site))
+		if tank.global_position_yless.distance_to(destination) < .6:
+			break
 	_check(
-		tank.global_position_yless.distance_to(Vector3(35, 0, 23)) < 1,
+		tank.global_position_yless.distance_to(destination) < 1,
 		"Unit did not repath after a building was placed"
 	)
+	_check(minimum_gap >= obstacle.radius, "Dynamic repath crossed the new building")
+	var footprint = obstacle.radius
 	obstacle.queue_free()
-	tank.action = _moving.new(Vector3(16, 0, 23))
-	await _frames(1200)
+	tank.manual_orders.submit(_orders.point_order("move", start))
+	var removed_gap = INF
+	for frame in 1200:
+		await physics_frame
+		removed_gap = minf(removed_gap, tank.global_position_yless.distance_to(site))
+		if tank.global_position_yless.distance_to(start) < .6:
+			break
 	_check(
-		tank.global_position_yless.distance_to(Vector3(16, 0, 23)) < 1,
+		tank.global_position_yless.distance_to(start) < 1,
 		"Unit did not route through a removed building"
+	)
+	_check(removed_gap < footprint, "Removed footprint remained blocked in navigation")
+	print(
+		"DYNAMIC ROUTE start=",
+		start,
+		" goal=",
+		destination,
+		" added_minimum=",
+		minimum_gap,
+		" removed_minimum=",
+		removed_gap,
+		" remaining=",
+		tank.global_position_yless.distance_to(start)
 	)
 
 

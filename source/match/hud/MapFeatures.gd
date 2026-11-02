@@ -36,7 +36,8 @@ func _draw():
 			var glyph = {
 				"refinery": tr("R", "map_refinery"),
 				"mercenary": tr("M", "map_mercenary"),
-				"repair": tr("S", "map_repair")
+				"repair": tr("S", "map_repair"),
+				"data_relay": tr("D", "map_data_relay")
 			}[site.kind]
 			draw_string(
 				load("res://assets/fonts/NotoSansSC.ttf"),
@@ -103,5 +104,12 @@ func _draw_operations():
 			)
 	if events.has_method("radar_blips"):
 		for location in events.radar_blips(player):
+			var point = Vector2(location.x, location.z) * pixel_scale
+			draw_rect(Rect2(point - Vector2(2, 2), Vector2(4, 4)), Color("eecf91"))
+
+	for site in load("res://source/match/world/PointOfInterestCatalog.gd").sites(
+		map.find_parent("Match")
+	):
+		for location in site.radar_blips(player):
 			var point = Vector2(location.x, location.z) * pixel_scale
 			draw_rect(Rect2(point - Vector2(2, 2), Vector2(4, 4)), Color("eecf91"))

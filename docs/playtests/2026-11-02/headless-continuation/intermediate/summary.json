@@ -1,0 +1,34 @@
+{
+  "status": "failed-intermediate",
+  "headless_only": true,
+  "standalone_total": 139,
+  "standalone_passed": 135,
+  "standalone_failed": [
+    "UnitInfoTextRegression",
+    "BattleHudProductionRegression",
+    "FactionAsymmetryRegression",
+    "FrontierAirContractsRegression"
+  ],
+  "failed_checks": [
+    "Open RTS Headless Review",
+    "UnitInfoTextRegression",
+    "BattleHudProductionRegression",
+    "FactionAsymmetryRegression",
+    "FrontierAirContractsRegression"
+  ],
+  "network_passed": 12,
+  "network_total": 12,
+  "source_input_sha256": "30a52816944bba93c9fb1ad19c427cd1dd6fecee9bfdcf4dc6a8e93ae0384f9a",
+  "pack_sha256": "0d7053c63ef19032384d50060dc9e27ef69bcaa99a6f0ce368e19826284a6617",
+  "executable_sha256": "533b47a34f944165803d1a47a5b0c5b71623b090deb2ad2945a20b949d0e81b0",
+  "installed_native_sha256": {
+    "copperfin.gdextension": "8c372b6efb94587d8f7a5902a77692ac957a2a58fe146ca8e3db75083da82bad",
+    "copperfin.macos.universal.dylib": "114c087b24ddad1959ca440b2c36bde1781160a4a6ef2ca22994929fcc8133df"
+  },
+  "retained_failure_profile": "/Users/linlilu/godot-open-rts/build/verification/macos/headless-20261102-resume/qualified-run-2/failed-user-profile",
+  "deferred": [
+    "graphical_resource_lifetime",
+    "visual_review",
+    "strict_performance"
+  ]
+}

@@ -10,6 +10,9 @@ const BACKING = Color("0a0f12")
 const DAMAGE_CHUNK = Color("f2d5a0")
 const DAMAGE_HOLD = .24
 const DAMAGE_DECAY = .6
+const SHIELD = Color("68cee8")
+const SHIELD_HEIGHT = 6
+const SHIELD_GAP = 3
 # Dark frame thickness in bar pixels on every side, for contrast against bright ground.
 const FRAME = 2
 
@@ -35,6 +38,8 @@ var _damage_speed = 0.0
 var _drawn_damage_pixels = -1
 var _drawn_health_pixels = -1
 var _drawn_health_color = Color.TRANSPARENT
+var _drawn_shield_pixels = -1
+var _drawn_shield_enabled = false
 var _selected = false
 var _image: Image
 var _texture: ImageTexture
@@ -53,6 +58,8 @@ func _ready():
 	_unit.selected.connect(_on_unit_selected)
 	_unit.deselected.connect(_on_unit_deselected)
 	_unit.hp_changed.connect(_on_hp_changed)
+	if _unit.has_signal("shields_changed"):
+		_unit.shields_changed.connect(_on_shields_changed)
 	_visibility_timer.timeout.connect(_on_visibility_timer_timeout)
 	var globals = get_node_or_null("/root/Globals")
 	if globals != null and "options" in globals and globals.options != null:
@@ -89,11 +96,7 @@ func _update_mode_visibility():
 			_draw_bar()
 			show()
 		2:  # Damaged only
-			var damaged = (
-				_unit.hp != null
-				and _unit.hp_max != null
-				and _unit.hp < _unit.hp_max
-			)
+			var damaged = _is_damaged()
 			if _selected or damaged:
 				_visibility_timer.stop()
 				_draw_bar()
@@ -111,6 +114,15 @@ func _update_mode_visibility():
 
 func _track_width() -> int:
 	return int(size.x)
+
+
+func _is_damaged() -> bool:
+	return (
+		(_unit.hp != null and _unit.hp_max != null and _unit.hp < _unit.hp_max)
+		or (
+			"shields_max" in _unit and _unit.shields_max > 0.0 and _unit.shields < _unit.shields_max
+		)
+	)
 
 
 func _recalulate_bar_value():
@@ -144,6 +156,14 @@ func _draw_bar():
 	var track_x = FRAME
 	var track_width = width
 	var hp_height = height
+	var shield_enabled = "shields_max" in _unit and _unit.shields_max > 0.0
+	var shield_pixels = (
+		roundi(track_width * clampf(_unit.shields / _unit.shields_max, 0.0, 1.0))
+		if shield_enabled
+		else 0
+	)
+	var health_y = FRAME + (SHIELD_HEIGHT + SHIELD_GAP if shield_enabled else 0)
+	var image_height = health_y + hp_height + FRAME
 	var damage_filled = roundi(track_width * _damage_value)
 	var filled = roundi(track_width * _value)
 	var health_color = _health_color(_value)
@@ -154,20 +174,29 @@ func _draw_bar():
 		and _drawn_damage_pixels == damage_filled
 		and _drawn_health_pixels == filled
 		and _drawn_health_color == health_color
+		and _drawn_shield_pixels == shield_pixels
+		and _drawn_shield_enabled == shield_enabled
 	):
 		return
-	if _image == null:
-		_image = Image.create(width + FRAME * 2, height + FRAME * 2, false, Image.FORMAT_RGBA8)
+	if _image == null or _image.get_height() != image_height:
+		_image = Image.create(width + FRAME * 2, image_height, false, Image.FORMAT_RGBA8)
+		_texture = null
 	_image.fill(BACKING)
 	_drawn_damage_pixels = damage_filled
 	_drawn_health_pixels = filled
 	_drawn_health_color = health_color
+	_drawn_shield_pixels = shield_pixels
+	_drawn_shield_enabled = shield_enabled
 
-	_image.fill_rect(Rect2i(track_x, FRAME, track_width, hp_height), MISSING)
+	if shield_enabled:
+		_image.fill_rect(Rect2i(track_x, FRAME, track_width, SHIELD_HEIGHT), MISSING)
+		if shield_pixels > 0:
+			_image.fill_rect(Rect2i(track_x, FRAME, shield_pixels, SHIELD_HEIGHT), SHIELD)
+	_image.fill_rect(Rect2i(track_x, health_y, track_width, hp_height), MISSING)
 	if damage_filled > 0:
-		_image.fill_rect(Rect2i(track_x, FRAME, damage_filled, hp_height), DAMAGE_CHUNK)
+		_image.fill_rect(Rect2i(track_x, health_y, damage_filled, hp_height), DAMAGE_CHUNK)
 	if filled > 0:
-		_image.fill_rect(Rect2i(track_x, FRAME, filled, hp_height), health_color)
+		_image.fill_rect(Rect2i(track_x, health_y, filled, hp_height), health_color)
 	_upload_bar()
 
 
@@ -192,11 +221,7 @@ func _show_for_a_while():
 		show()
 		return
 	if mode == 2:
-		var damaged = (
-			_unit.hp != null
-			and _unit.hp_max != null
-			and _unit.hp < _unit.hp_max
-		)
+		var damaged = _is_damaged()
 		if _selected or damaged:
 			_draw_bar()
 			show()
@@ -240,6 +265,12 @@ func _on_unit_deselected():
 
 func _on_hp_changed():
 	_recalulate_bar_value()
+	_update_mode_visibility()
+
+
+func _on_shields_changed():
+	_draw_bar()
+	_show_for_a_while()
 	_update_mode_visibility()
 
 

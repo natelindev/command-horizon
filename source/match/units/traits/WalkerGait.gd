@@ -1,7 +1,7 @@
 extends RefCounted
 
-# Articulated four-legged robots. Stance feet stay in world space; diagonal
-# pairs lift, transfer and plant with a short overlap of all four supports.
+# Articulated bipeds and quadrupeds. Stance feet stay in world space; opposite
+# feet or diagonal pairs transfer with an overlap of all planted supports.
 # IK bends the knees and counter-rotates the ankles, including hull suspension.
 # Only model pivots are written. Navigation and collision remain authoritative.
 const STANCE = .6

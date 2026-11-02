@@ -1,0 +1,79 @@
+{
+  "engine": "Godot4.7.2 actual release",
+  "native_sha256": "732fbe971860f004a163cf4f82cdfdb6e178b0280bf68871cebc7f23c1e94de0",
+  "runs": [
+    {
+      "quality": "low",
+      "backend": "default",
+      "exit_code": 1,
+      "wall_seconds": 13.497,
+      "command": [
+        "/tmp/copperfin-godot-release",
+        "--log-file",
+        "/tmp/selected-v2-low-default-release.log",
+        "--",
+        "--performance-only",
+        "--profile-runtime",
+        "--profile-formation",
+        "--tactical-quality=low"
+      ],
+      "log": "selected-v2-low-default-release.log"
+    },
+    {
+      "quality": "low",
+      "backend": "native",
+      "exit_code": 1,
+      "wall_seconds": 13.494,
+      "command": [
+        "/tmp/copperfin-godot-release",
+        "--log-file",
+        "/tmp/selected-v2-low-native-release.log",
+        "--",
+        "--performance-only",
+        "--profile-runtime",
+        "--profile-formation",
+        "--tactical-quality=low",
+        "--enable-native-kernels",
+        "--native-crowd-runtime",
+        "--native-unit-state",
+        "--native-visibility-runtime",
+        "--native-battlefield-index",
+        "--native-combat-queries",
+        "--native-pose-rigs",
+        "--native-presentation",
+        "--native-infantry-poses",
+        "--native-nearest-surface",
+        "--native-exploration"
+      ],
+      "log": "selected-v2-low-native-release.log"
+    },
+    {
+      "quality": "high",
+      "backend": "native",
+      "exit_code": 1,
+      "wall_seconds": 15.894,
+      "command": [
+        "/tmp/copperfin-godot-release",
+        "--log-file",
+        "/tmp/selected-v2-high-native-release.log",
+        "--",
+        "--performance-only",
+        "--profile-runtime",
+        "--profile-formation",
+        "--tactical-quality=high",
+        "--enable-native-kernels",
+        "--native-crowd-runtime",
+        "--native-unit-state",
+        "--native-visibility-runtime",
+        "--native-battlefield-index",
+        "--native-combat-queries",
+        "--native-pose-rigs",
+        "--native-presentation",
+        "--native-infantry-poses",
+        "--native-nearest-surface",
+        "--native-exploration"
+      ],
+      "log": "selected-v2-high-native-release.log"
+    }
+  ]
+}

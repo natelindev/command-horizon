@@ -286,13 +286,14 @@ func _test_bombing():
 	)
 	var building = _spawn("Barracks", _enemy, Vector3(22, 0, 55))
 	building.process_mode = Node.PROCESS_MODE_DISABLED
+	var building_damage = 80.0 * (.85 if _enemy.faction == "bastion" else 1.0)
 	_check(
-		is_equal_approx(_combat_rules.damage(bomber, building), 80.0),
+		is_equal_approx(_combat_rules.damage(bomber, building), building_damage),
 		"Bomber lacks its double-damage building bonus"
 	)
 	var shot = load("res://source/match/combat/Shot.gd").from(bomber, bomber.global_position)
 	_check(
-		is_equal_approx(_combat_rules.damage_from(shot, building), 80.0),
+		is_equal_approx(_combat_rules.damage_from(shot, building), building_damage),
 		"Released bomb lost the building bonus"
 	)
 	building.queue_free()

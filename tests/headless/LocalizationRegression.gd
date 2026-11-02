@@ -12,6 +12,11 @@ func _run():
 	)
 	await _loading_translations()
 	for pair in [
+		["25 Energy", "25 能量"],
+		["Armed · Select target on map", "已准备 · 在地图上选择目标"],
+		["Destroyed", "已摧毁"],
+		["Rockets · %d/%d", "火箭弹 · %d/%d"],
+		["Start %d · %s", "出生点 %d · %s"],
 		["Settings", "设置"],
 		["NORTH RELAY", "北侧中继站"],
 		["SOUTH RELAY", "南侧中继站"],

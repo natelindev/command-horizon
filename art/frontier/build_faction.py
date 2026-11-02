@@ -16,6 +16,7 @@ from mathutils import Vector
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "common"))
 import weathering  # noqa: E402
 import trim_sheet  # noqa: E402
+import export_manifest  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "assets/models/frontier/v1"
@@ -264,6 +265,14 @@ def engineer():
     beam("Boom",(.9,.4,2.65),(.9,1.82,1.8),.14,.17,STEEL,arm)
     for x in (.78,1.02): rod("Grab",(x,1.82,1.8),(x,2.07,1.5),.045,DARK,arm)
     antenna(-.72,-.33,1.52)
+    turret=pivot("TurretPivot",(-.17,.72,2.03))
+    cyl("DefenseGunRing",(-.17,.72,2.05),.28,.13,STEEL,turret)
+    box("20mmGunShield",(-.17,.89,2.2),(.69,.15,.4),ARMOR,turret)
+    box("DefenseAmmoBox",(-.51,.55,2.14),(.3,.42,.26),TEAM,turret)
+    barrel=pivot("BarrelPivot",(-.17,.86,2.22),turret)
+    cyl("20mmBarrel",(-.17,1.43,2.22),.035,1.15,STEEL,barrel,axis="Y")
+    cyl("20mmMuzzleBrake",(-.17,2.02,2.22),.065,.17,DARK,barrel,axis="Y")
+    pivot("Muzzle",(-.17,2.13,2.22),barrel)
 
 
 def ranger():
@@ -520,14 +529,59 @@ def sentry(aa=False):
         crate(-.9,-1.34,.51)
 
 
+
+def battle_rig():
+    chassis("BattleRig",2.7,5.1,4)
+    box("Flatbed",(0,-.65,1.18),(2.45,3.3,.25),PANEL)
+    box("ArmoredCab",(0,1.27,1.65),(2.25,1.45,.95),ARMOR,bevel=.14)
+    lens(0,2.03,1.84,1.62)
+    for side in (-1,1):
+        box("BedRail",(side*1.18,-.75,1.67),(.12,3.35,.65),STEEL)
+        for front in (-1,1):
+            mount=pivot("GarrisonMount_%s_%s"%(side,front),(side*.72,-.7+front*.9,1.59))
+            cyl("FiringRing",(side*.72,-.7+front*.9,1.59),.28,.10,DARK,mount)
+            box("MountShield",(side*.91,-.7+front*.9,1.95),(.09,.58,.49),ARMOR,mount)
+        turret=pivot("TurretPivot" if side<0 else "AutocannonRight",(side*.65,1.33,2.18))
+        box("AutocannonBreech",(side*.65,1.45,2.18),(.38,.7,.38),TEAM,turret)
+        cyl("AutocannonBarrel",(side*.65,2.2,2.18),.08,1.2,STEEL,turret,axis="Y")
+        pivot("Muzzle" if side<0 else "MuzzleRight",(side*.65,2.83,2.18),turret)
+    antenna(-1.02,-2.02,1.77)
+    scrap_armor(2.7,5.1)
+
+
+def demolition_buggy():
+    chassis("DemolitionBuggy",1.65,2.6,2)
+    for y in (-.64,.05,.74):
+        cyl("VolatileDrum",(0,y,1.38),.39,1.24,ORANGE,axis="X")
+        for side in (-1,1):
+            box("Detonator",(side*.62,y,1.55),(.12,.32,.22),TEAM)
+    cage(0,0,1.31,1.50,1.92,.55)
+    antenna(-.65,-.94,1.62)
+
+
+def sam_technical():
+    chassis("SAMTechnical",2.05,3.55,3)
+    turret=pivot("TurretPivot",(0,-.25,1.40))
+    for side in (-1,1):
+        box("RocketPod",(side*.6,-.25,1.73),(.8,1.65,.68),PANEL,turret)
+        for dx in (-.2,.2):
+            for z in (1.57,1.9):
+                cyl("UnguidedRocket",(side*.6+dx,.58,z),.12,.16,DARK,turret,axis="Y")
+    pivot("Muzzle",(.6,.7,1.73),turret)
+    antenna(-.78,-1.2,1.63,turret)
+
+
 damage_only = "--damage-only" in sys.argv
 motion_only = "--motion-only" in sys.argv
-if damage_only:
+if "--signature-only" in sys.argv:
+    battle_rig(); demolition_buggy(); sam_technical()
+elif damage_only:
     engineer(); armor(); crawler(True); crawler(); armor(True)
 elif motion_only:
     engineer(); armor(); crawler(); armor(True)
 else:
     engineer(); ranger(); armor(); crawler(True); crawler(); armor(True); scout(); aircraft()
+    battle_rig(); demolition_buggy(); sam_technical()
     command(); barracks(); garage(); airfield(); power(); signals(); garage(True); sentry(); sentry(True)
 
 # Export evaluated copies, joining objects that share a rigid parent.
@@ -569,8 +623,14 @@ for name,collection,asset_root in assets:
         export_animations=False,export_yup=True,export_cameras=False,export_lights=False,
         export_vertex_color="ACTIVE")
     for obj in live: bpy.data.objects.remove(obj,do_unlink=True)
-    manifest.append({"name":name,"triangles":triangles,"file":name+".glb"})
+    points=[obj.matrix_world@Vector(p) for obj in collection.objects if obj.type=="MESH" for p in obj.bound_box]
+    lo=[min(point[i] for point in points) for i in range(3)]
+    hi=[max(point[i] for point in points) for i in range(3)]
+    manifest.append({"name":name,"triangles":triangles,"file":name+".glb","bounds":{"min":lo,"max":hi}})
     collection.hide_render=True
+
+if "--damage-only" in sys.argv or "--motion-only" in sys.argv or "--walkers-only" in sys.argv:
+    export_manifest.merge_partial(SOURCE/"manifest.json",manifest)
 
 if damage_only or motion_only or "--models-only" in sys.argv:
     print("Frontier motion rigs exported" if motion_only else "Material-ready faction models exported")
@@ -607,6 +667,10 @@ for name,collection,asset_root in assets:
     scene.render.film_transparent=True
     collection.hide_render=True
     manifest[next(i for i,item in enumerate(manifest) if item["name"]==name)]["bounds"]={"min":list(lo),"max":list(hi)}
+
+if "--signature-only" in sys.argv:
+    (SOURCE/"signature-manifest.json").write_text(json.dumps(manifest,indent=2)+"\n")
+    raise SystemExit(0)
 
 # Catalogue display transforms normalize each subject for readable review.
 # Exported models above retain their native metre scale and upright orientation.

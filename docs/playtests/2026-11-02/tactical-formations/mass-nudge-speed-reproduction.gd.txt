@@ -1,0 +1,34 @@
+extends "res://tests/headless/MechanicsRegression.gd"
+
+func _run():
+	root.get_node("SaveManager").autosaves_enabled = false
+	await _open("bastion")
+	var tank = _spawn("Tank", _human, Vector3(39, 0, 40))
+	var ally = _spawn("Infantry", _human, Vector3(40, 0, 40))
+	await _frames(20)
+	var heavy = tank.get_node("Movement")
+	var light = ally.get_node("Movement")
+	var delta = 1.0 / Engine.physics_ticks_per_second
+	heavy._has_destination = true
+	heavy.velocity = Vector3.RIGHT * heavy.speed
+	light._has_destination = true
+	light._physics_delta = delta
+	var origin = ally.global_position
+	heavy._update_mass_contacts(delta)
+	var nudged = ally.global_position
+	var velocity = (nudged - origin).normalized() * light.speed
+	if light._native_runtime != null:
+		light._native_runtime.receive_velocity(velocity, light._native_handle)
+	else:
+		light._on_velocity_computed(velocity)
+	var final = ally.global_position
+	var distance = origin.distance_to(final)
+	print("MASS_NUDGE_SPEED origin=", origin, " nudged=", nudged, " final=", final, " nudge=", origin.distance_to(nudged), " total=", distance, " limit=", light.speed * delta)
+	_check(origin.distance_to(nudged) > .04, "Fixture did not apply an actual allied mass nudge")
+	_check(distance <= light.speed * delta + .003, "Combined nudge and own movement exceeded the speed bound")
+	_game.queue_free()
+	await _frames(5)
+	for message in _errors:
+		push_error(message)
+	print("Mass nudge speed: ", _errors.size(), " failures")
+	await root.get_node("Globals").quit_game(0 if _errors.is_empty() else 1)

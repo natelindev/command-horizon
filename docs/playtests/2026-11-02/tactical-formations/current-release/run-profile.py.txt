@@ -1,0 +1,39 @@
+import datetime,hashlib,json,os,re,shutil,signal,subprocess,sys,time
+from pathlib import Path
+root=Path('/Users/linlilu/godot-open-rts')
+manifest_path=Path(json.loads((root/'build/verification/macos/tactical-current-latest.json').read_text())['manifest'])
+manifest=json.loads(manifest_path.read_text()); work=manifest_path.parent
+name=sys.argv[1]; quality=sys.argv[2]; native=sys.argv[3]=='native'; profiled='--profile-runtime' in sys.argv[4:]
+assert quality in ('high','low')
+assert not (work/(name+'-result.json')).exists()
+for key in ('pack','executable'):
+ assert hashlib.sha256(Path(manifest[key]).read_bytes()).hexdigest()==manifest[key+'_sha256']
+other=subprocess.run(['pgrep','-alf','Godot|clang|g\\+\\+'],capture_output=True,text=True)
+assert other.returncode==1,other.stdout
+flags=['--enable-native-kernels','--native-unit-state','--native-crowd-runtime','--native-visibility-runtime','--native-pose-rigs','--native-presentation','--native-infantry-poses','--native-combat-queries','--native-battlefield-index','--native-nearest-surface','--native-exploration'] if native else []
+argv=[manifest['executable'],'--','--performance-only','--tactical-quality='+quality,'--tactical-pipeline-trace',*flags,*(['--profile-runtime'] if profiled else []),*(['--tactical-native-sample'] if '--tactical-native-sample' in sys.argv[4:] else [])]
+result={'name':name,'argv':argv,'cwd':str(work),'started_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'manifest_sha256':hashlib.sha256(manifest_path.read_bytes()).hexdigest(),'prelaunch_engine_compiler_processes':other.stdout}
+start=time.monotonic()
+with (work/(name+'.log')).open('w') as log:
+ p=subprocess.Popen(argv,cwd=work,stdout=log,stderr=subprocess.STDOUT,start_new_session=True)
+ print('Actual release-template launched:',name,'pid',p.pid,flush=True)
+ try:result['exit_code']=p.wait(timeout=180)
+ except subprocess.TimeoutExpired:
+  os.killpg(p.pid,signal.SIGTERM);p.wait(timeout=10);result.update(exit_code=p.returncode,timed_out=True)
+result['elapsed_seconds']=time.monotonic()-start
+output=(work/(name+'.log')).read_text(errors='replace')
+for line in output.splitlines():
+ if line.startswith(('TACTICAL','ERROR:','SCRIPT ERROR:','Tactical formations')):print(line)
+result['fatal_lines']=[line for line in output.splitlines() if re.search(r'(?:SCRIPT ERROR:|ERROR:|instances (?:were )?leaked|[0-9]+ RID allocations.*leaked)',line)]
+for label in ('BACKENDS','ACTIVATION','COVERAGE','PHASE PROFILE','PIPELINE CHANGES'):
+ prefix='TACTICAL '+label+' '
+ lines=[line[len(prefix):] for line in output.splitlines() if line.startswith(prefix)]
+ if lines:
+  try:result[label.lower().replace(' ','_')]=json.loads(lines[-1])
+  except ValueError:result[label.lower().replace(' ','_')]=lines[-1]
+result['performance']=[line for line in output.splitlines() if line.startswith('TACTICAL PERFORMANCE')]
+image=Path(manifest['profile'])/'tactical-performance'/(quality+('-native' if native else '-default')+'.png')
+if image.exists():
+ target=work/(name+'.png');shutil.copy2(image,target);result['capture']=str(target);result['capture_sha256']=hashlib.sha256(target.read_bytes()).hexdigest()
+(work/(name+'-result.json')).write_text(json.dumps(result,indent=2)+'\n')
+print('result:',work/(name+'-result.json'))

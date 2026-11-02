@@ -1,0 +1,8 @@
+Running outcome: UDP 55301
+bin: "~/godot-open-rts/tools/tests/run_network_regressions.py"
+description: "Run real localhost multiplayer and binary replay regression processes."
+checks[2]{case,role,status,log}:
+  "outcome","host","passed","/Users/linlilu/godot-open-rts/tmp/network-native-terminal-qualified/run-20261102T022124Z-53840/outcome-host.log"
+  "outcome","guest","passed","/Users/linlilu/godot-open-rts/tmp/network-native-terminal-qualified/run-20261102T022124Z-53840/outcome-guest.log"
+passed: 2/2
+report: "/Users/linlilu/godot-open-rts/tmp/network-native-terminal-qualified/run-20261102T022124Z-53840/results.json"

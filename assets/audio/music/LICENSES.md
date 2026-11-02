@@ -27,11 +27,31 @@ Source download URLs and verified hashes: `art/audio/licensed-score.json`.
 
 ## Adaptive faction stems
 
-`tools/audio/build_music_stems.py` derives each faction's `*-calm.ogg` and
-`*-combat.ogg` from the corresponding recording listed above. Median-filter
-harmonic/percussive separation retains 45% of transient percussion in the calm
-bed; the combat layer restores the remaining 55%. Both preserve stereo timing,
-sample count, tempo and original arrangement, and sum to the source before
-Ogg encoding. They are adaptations under the same respective licenses and
-attributions as their source recordings (CC BY-SA 3.0 for both Rock of War
-stems; CC BY 3.0 for the other four stems). No additional recordings are used.
+`tools/audio/build_music_stems.py` derives each faction's `*-calm.ogg`,
+`*-tension.ogg` and `*-combat.ogg` from the corresponding recording listed above.
+Median-filter harmonic/percussive separation and complementary smooth frequency
+masks produce an atmospheric bed, a rhythm/transient layer and an upper harmonic
+lead layer. The complementary base stems reconstruct the complete source arrangement.
+Original faction-specific instrument parts are then added on the measured beat
+grid before Ogg encoding. All three retain stereo timing and exact sample counts. They are adaptations under
+the same respective licenses and attributions as their source recordings
+(CC BY-SA 3.0 for all three Rock of War stems; CC BY 3.0 for the other six stems).
+The added Bastion low orchestral brass uses recorded F horn and tenor trombone
+from [VSCO 2 Community Edition](https://github.com/sgossner/VSCO-2-CE), recorded
+by Sam Gossner and Simon Dalzell, with sample cutting by Elan Hickler/Soundemote.
+Frontier uses recorded Hohner Special 20 diatonic harmonica from the
+[Versilian Community Sample Library](https://github.com/sgossner/VCSL) by
+Versilian Studios LLC, plus recorded Gretsch hollowbody electric guitar from
+[Black And Green Guitars](https://github.com/sfzinstruments/karoryfer.black-and-green-guitars)
+by Karoryfer Lecolds, recorded by Brian Wood. The guitar notes have continuous
+pitch-slide articulation and saturation; harmonica phrases use note bends.
+All these instrument samples carry CC0 1.0. The Helix arpeggio and sine-sub parts
+are original deterministic synthesis, with no instrument recordings.
+
+Pinned source commits, download URLs, per-file hashes and pitch mapping are in
+`art/audio/faction-instruments.json`; unmodified CC0 texts are retained under
+`art/audio/licenses/`. Beat/local-chord analysis is in
+`art/audio/faction-arrangements.json`, and generated per-note timing/instrument
+manifests accompany the audition artifacts. Only the three existing faction
+stems are used at runtime; no extra streams or sample downloads are required.
+The combined stem adaptations keep the respective source-work licenses above.

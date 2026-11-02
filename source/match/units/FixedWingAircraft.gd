@@ -165,9 +165,22 @@ func _rearm(delta):
 
 
 func weapons_free():
+	var contract = get_node_or_null("MercenarySortie")
+	if contract != null and contract.departing:
+		return false
 	if stance == Stance.HOLD_FIRE:
 		return action is AirStrike
 	return action != null and action.has_method("weapons_free") and action.weapons_free()
+
+
+func weapon_status():
+	var contract = get_node_or_null("MercenarySortie")
+	if contract != null:
+		return contract.status_text()
+	var remaining = 0
+	for count in stores.values():
+		remaining += count
+	return tr("Aircraft stores · %d") % remaining
 
 
 func _fire_control():

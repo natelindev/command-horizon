@@ -64,6 +64,11 @@ func _run():
 				visual._process(1.0 / 60)
 			_check(geometry.transform.is_equal_approx(rest), "Structure foundation moved: " + role)
 	_test_group_variation(players[0])
+	_test_group_variation(players[1])
+	# The same canonical Tank scene receives each faction's own visual profile.
+	players[1].faction = "frontier"
+	_test_group_variation(players[1])
+	players[1].faction = "helix"
 	await _test_pause(_units[0])
 	_game.queue_free()
 	for frame in range(8):
@@ -77,7 +82,7 @@ func _run():
 				+ "attack/death variety; RNG isolation; foundations fixed; pause"
 			)
 		)
-	quit(0 if _errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if _errors.is_empty() else 1)
 
 
 func _spawn(role, player, point):
@@ -178,6 +183,8 @@ func _test_group_variation(player):
 	var poses = {}
 	var deaths = {}
 	var timings = {}
+	var strengths = {}
+	var rolls = {}
 	for index in range(24):
 		var unit = _spawn("Tank", player, Vector3(20 + index, 0, 22))
 		var visual = unit.get_node("BastionVisuals")
@@ -186,6 +193,8 @@ func _test_group_variation(player):
 		poses[str(unit.get_node("Geometry").transform)] = true
 		visual.fire_recoil()
 		timings[snappedf(visual.motion.recoil_duration, 0.001)] = true
+		strengths[snappedf(visual.motion.recoil_strength, 0.001)] = true
+		rolls[snappedf(visual.motion.recoil_roll, 0.0001)] = true
 		var recipe = visual.death_motion()
 		deaths[str(recipe.tilt)] = true
 		_check(
@@ -206,9 +215,20 @@ func _test_group_variation(player):
 			_game.combat_effects._update_wreck(entry)
 			_check(proxy.position.is_finite() and proxy.rotation.is_finite(), "Invalid wreck pose")
 		proxy.queue_free()
+	var faction = player.faction
+	_check(poses.size() > 20, faction + " large group idle poses synchronized")
+	_check(deaths.size() > 20, faction + " large group deaths synchronized")
 	_check(
-		poses.size() > 20 and timings.size() > 10 and deaths.size() > 20, "Large group synchronized"
+		strengths.size() > 10 and rolls.size() > 10,
+		faction + " large group recoil strength/roll synchronized"
 	)
+	if faction == "bastion":
+		_check(
+			timings.size() == 1 and timings.has(0.4),
+			"Bastion cannon recovery must remain exactly 0.4 seconds"
+		)
+	else:
+		_check(timings.size() > 10, faction + " large group recoil timings synchronized")
 	# Target acquisition wins over idle scanning immediately at shot time.
 	var shooter = _units[-1]
 	var visual = shooter.get_node("BastionVisuals")

@@ -27,7 +27,8 @@ func _destroyed(unit):
 			"role": unit.type,
 			"faction": unit.player.faction,
 			"amount": amount,
-			"position": unit.global_position_yless
+			"position":
+			game.map.ground_point(Vector2(unit.global_position.x, unit.global_position.z))
 		}
 	)
 	flush.call_deferred()

@@ -1984,17 +1984,17 @@ In the baseline design, Bastion, Helix, and Frontier all construct identical fac
 - **Strategic Weakness:** Sluggish tactical redeployment, high material costs, and vulnerability to long-range harassment and energy kiting.
 
 #### 2.2 Helix Systems — Cybernetic Directed-Energy Swarm (Protoss / Allied Archetype)
-- **Macro Engine:** Autonomous nanite construction. Mule engineers drop a nanite beacon and return to gathering immediately; buildings synthesize themselves automatically.
-- **Plasma Shield Matrix:** Units possess low physical hull HP, but 40–50% of their effective durability is a rapidly recharging Plasma Shield envelope. Shields regenerate at 8 HP/s after 5 seconds out of combat.
+- **Macro Engine:** Autonomous nanite construction. Flux Skimmers drop a nanite beacon and return to gathering immediately; buildings synthesize themselves automatically.
+- **Plasma Shield Matrix:** Physical hull provides 40–50% of effective durability; the remaining 50–60% is a rapidly recharging Plasma Shield envelope. Shields regenerate at 8 HP/s after 5 seconds out of combat.
 - **Energy Weaponry & Refraction:** Prism Skimmers project continuous focused beam lasers that chain to adjacent hostile units or link through friendly Helix emitter towers to multiply focused damage.
 - **Phase Mobility:** Specialist walkers and skimmers possess tactical short-range Phase Shift (teleporting across terrain gaps, cliffs, and anti-tank barricades on cooldown).
-- **Flux Power Overdrive:** Flux generators can be temporarily overcharged to grant +50% shield recharge rates and faster unit production in a localized radius.
+- **Flux Power Overdrive:** Local generators double shield recharge to 16 HP/s and multiply factory production by 1.5, drawing 3 additional power. Overlapping fields do not stack.
 - **Strategic Weakness:** Fragile physical hulls; vulnerable to sustained kinetic suppressive fire and anti-shield EMP weaponry; steep electronics/energy costs.
 
 #### 2.3 Free Frontier Coalition — Scavenger Swarms & Guerrilla Raiders (Zerg / Yuri / Scrap Raider Archetype)
 - **Macro Engine:** Low-tier decentralized production. Light technicals and militia infantry produce in rapid pairs/batches.
 - **Frontline Salvage & Field Retrofitting:** Battlefield wreckage is not just returned to HQ for cash; Frontier engineers can "cannibalize" destroyed vehicle hulls on the front line to instantly assemble improvised buggies or reinforce surviving armor with permanent scrap plating.
-- **Mobile Garrison Battle Rigs:** Heavy flatbed trucks and technicals feature open garrison mounts; up to 4 infantry units (riflemen, rocket specialists) can fire on the move while embarked.
+- **Mobile Garrison Battle Rigs:** Heavy flatbed trucks and technicals mount up to 4 infantry units (riflemen, rocket specialists) who can fire on the move. Embarked infantry are hidden in the world; unloading restores their visibility.
 - **Ambush & Demolition Traps:** Concealed proximity IEDs and landmines laid along resource choke points, accompanied by high-speed suicide demolition drones.
 - **Strategic Weakness:** Total lack of heavy Tier-3 armor; struggles in direct head-on brawls against entrenched Bastion siege lines; heavily dependent on aggressive map control and economic raiding.
 
@@ -2013,4 +2013,3 @@ To advance beyond a single-player Godot prototype toward the benchmarks establis
 3. **In-Engine Scenario & Map Editor:** Exposing a user-facing map designer within Godot exports to allow custom community maps and mission creation without Godot Editor dependencies.
 4. **Deterministic Input Replay Engine:** Saving compact sequential command streams (`.rtsreplay`) for frame-by-frame analysis, casting, and competitive balance review.
 5. **Narrative & Audiovisual Immersion:** Interactive between-mission command hubs, motion comic illustrated briefings, charismatic unit personality barks, multi-stem dynamic soundtrack, and multi-stage building collapse (see [the narrative and audiovisual presentation specification](NARRATIVE_AND_PRESENTATION.md)).
-

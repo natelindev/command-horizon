@@ -7,6 +7,8 @@ const InfantryMotion = preload("res://source/match/units/traits/InfantryMotion.g
 const ObjectMaterials = preload("res://source/match/ObjectMaterials.gd")
 const SHOCKWAVE_SHADER = preload("res://source/shaders/3d/explosion_shockwave.gdshader")
 const SHOCKWAVE_FALLBACK = preload("res://source/shaders/3d/explosion_shockwave_fallback.gdshader")
+const MUZZLE_SHADER = preload("res://source/shaders/3d/cannon_muzzle.gdshader")
+const MUZZLE_FALLBACK = preload("res://source/shaders/3d/cannon_muzzle_fallback.gdshader")
 const RAY_BEAM_SHADER = preload("res://source/shaders/3d/ray_beam.gdshader")
 
 # Shared GPU particle buffers and bounded tracer/wreck pools, independent of combat authority.
@@ -55,6 +57,7 @@ var _paused = false
 var _camera = null
 var _ability_effects = []
 var _grenades = []
+var _ground_map
 
 
 func watch_abilities(unit):
@@ -233,6 +236,11 @@ func _ready():
 	_random.seed = 73819  # Cosmetic randomness never changes the gameplay RNG.
 	_tracer_mesh.size = Vector3.ONE
 	if get_parent() != null and "map" in get_parent():
+		var map = get_parent().map
+		if map is Object and map.has_method("height_at"):
+			_ground_map = map
+			if map.has_method("is_elevated") and not map.is_elevated():
+				_ground_map = null
 		_dust_biome = load("res://source/match/environment/AtmosphereProfiles.gd").biome(
 			get_parent().map
 		)
@@ -265,6 +273,21 @@ func _ready():
 
 
 func _debris_emitter(kind = "debris", metalness = .45):
+	if RenderingServer.get_current_rendering_method() == "gl_compatibility":
+		var fallback = load("res://source/match/effects/ManualParticleBuffer.gd").new()
+		fallback.name = "Shards" if kind == "debris" else "SoilClods"
+		fallback.setup(
+			kind,
+			192 if kind == "debris" else 128,
+			1.1 if kind == "debris" else .55,
+			Vector3(0, -9.8, 0),
+			0,
+			0,
+			metalness
+		)
+		add_child(fallback)
+		_emitters[kind] = fallback
+		return
 	var particles = GPUParticles3D.new()
 	particles.name = "Shards" if kind == "debris" else "SoilClods"
 	particles.emitting = false
@@ -308,6 +331,13 @@ func _debris_emitter(kind = "debris", metalness = .45):
 
 
 func _emitter(kind, amount, lifetime, gravity, glow, roughness):
+	if RenderingServer.get_current_rendering_method() == "gl_compatibility":
+		var fallback = load("res://source/match/effects/ManualParticleBuffer.gd").new()
+		fallback.name = kind.capitalize()
+		fallback.setup(kind, amount, lifetime, gravity, glow, roughness)
+		add_child(fallback)
+		_emitters[kind] = fallback
+		return
 	var particles = GPUParticles3D.new()
 	particles.name = kind.capitalize()
 	particles.emitting = false
@@ -361,15 +391,16 @@ func _puff(kind, point, velocity, color, size):
 	):
 		return
 	var transform_here = Transform3D(Basis.IDENTITY.scaled(Vector3.ONE * size), point)
-	var ground = _ground_height(point)
+	# Only grounded sparks and dust sample terrain; smoke, fire and trails do
+	# not read the ground custom value in their processor.
+	var ground = _ground_height(point) if kind in ["dust", "spark"] else 0.0
 	_emitters[kind].emit_particle(
 		transform_here, velocity, color, Color(ground, 0, 0, 0), 1 | 2 | 4 | 8 | 16
 	)
 
 
 func _ground_height(point):
-	var game = get_parent()
-	return game.map.height_at(Vector2(point.x, point.z)) if game != null and "map" in game else 0.0
+	return _ground_map.height_at(Vector2(point.x, point.z)) if _ground_map != null else 0.0
 
 
 # Muzzle presentation and sound for one shot. Physical rounds draw themselves
@@ -398,6 +429,8 @@ func shot(
 		color = PRISM_FIRE if prism else RAIL_FIRE
 	var heavy = unit.type in ["Tank", "AdvancedTank", "AntiGroundTurret"]
 	if heavy:
+		if not rail and not missile and weapon.get("kind", "shell") == "shell":
+			_muzzle_shockwave(origin, origin.direction_to(target_point))
 		if foliage != null and _camera_sees(origin):
 			foliage.impulse(origin, 6.0)
 		if _weapon_heat != null and not missile and _camera_sees(origin):
@@ -758,7 +791,57 @@ func destruction(unit):
 			Color(0.5, 0.43, 0.33, 0.45),
 			size * 1.4
 		)
-	_wreck(unit, infantry)
+	# Structures retain a persistent, interactable ruin with its own collapse.
+	if unit.type not in InfantryRoster.STRUCTURES:
+		_wreck(unit, infantry)
+
+
+func structural_failure(ruin, settled: bool):
+	if _headless or not _can_show(ruin):
+		return
+	var point = ruin.global_position
+	var color = FACTION_FIRE.get(ruin.source_faction, Color("ffd9a0"))
+	for index in 12:
+		var direction = Vector3.RIGHT.rotated(Vector3.UP, index * TAU / 12.0)
+		_puff(
+			"dust",
+			point + direction * ruin.radius * .6,
+			direction * (2.5 if settled else 1.2) + Vector3.UP * .5,
+			Color(.48, .43, .36, .5),
+			ruin.radius * (.9 if settled else .45)
+		)
+		if not settled and index % 2 == 0:
+			_puff(
+				"spark",
+				point + Vector3.UP * .7,
+				direction * 2.0 + Vector3.UP * 2.0,
+				color,
+				ruin.radius * .3
+			)
+			_puff(
+				"fire",
+				point + direction * ruin.radius * .5,
+				Vector3.UP * .6,
+				color,
+				ruin.radius * .4
+			)
+	if settled and aftermath != null:
+		aftermath.scar(point, ruin.radius * 1.2)
+
+
+func ruin_smoke(ruin):
+	if _headless or not _can_show(ruin):
+		return
+	var color = Color(.16, .16, .15, .3)
+	if ruin.source_faction == "helix":
+		color = Color(.14, .35, .39, .22)
+	_puff(
+		"smoke",
+		ruin.global_position + Vector3.UP * .5,
+		Vector3(.1, .65, .04),
+		color,
+		ruin.radius * .7
+	)
 
 
 func obstacle_destruction(obstacle):
@@ -800,19 +883,20 @@ func movement_dust(unit):
 	var movement = unit.get_node_or_null("Movement")
 	var velocity: Vector3 = movement.velocity if movement != null else -unit.global_basis.z
 	var backward := -velocity.normalized()
-	var size = unit.radius * (.7 if _dust_biome == "alpine" else .9)
+	# These facts cannot change while this synchronous emission is assembled.
+	var radius = unit.radius
+	var right: Vector3 = unit.global_basis.x
+	var contact_base = point + backward * radius * .65
+	var size = radius * (.7 if _dust_biome == "alpine" else .9)
 	var color = dust_color(_dust_biome)
+	var clods = (
+		_dust_biome in ["temperate", "coastal"] and radius > .65 and velocity.length_squared() > 2.0
+	)
 	for side in [-1, 1]:
-		var contact = (
-			point + backward * unit.radius * .65 + unit.global_basis.x * side * unit.radius * .55
-		)
+		var contact = contact_base + right * side * radius * .55
 		contact.y = _ground_height(contact) + .1
 		_puff("dust", contact, backward * .55 + Vector3.UP * .16, color, size)
-		if (
-			_dust_biome in ["temperate", "coastal"]
-			and unit.radius > .65
-			and velocity.length_squared() > 2.0
-		):
+		if clods:
 			_puff("clod", contact, backward * 1.2 + Vector3.UP * .8, Color(.4, .32, .22), .65)
 
 
@@ -910,6 +994,31 @@ func _shockwave(point, strength):
 	_shockwaves.append({"node": ring, "age": 0.0})
 
 
+func _muzzle_shockwave(point: Vector3, direction: Vector3):
+	if _headless or Globals.options.reduced_flashes or not _camera_sees(point):
+		return
+	while _shockwaves.size() >= MAX_SHOCKWAVES:
+		var old = _shockwaves.pop_front().node
+		old.hide()
+		old.queue_free()
+	var ring := MeshInstance3D.new()
+	ring.name = "CannonMuzzleShockwave"
+	ring.mesh = QuadMesh.new()
+	ring.mesh.size = Vector2.ONE * 3.2
+	ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var material := ShaderMaterial.new()
+	material.shader = (
+		MUZZLE_FALLBACK
+		if RenderingServer.get_current_rendering_method() == "gl_compatibility"
+		else MUZZLE_SHADER
+	)
+	ring.material_override = material
+	add_child(ring)
+	var up := Vector3.RIGHT if absf(direction.dot(Vector3.UP)) > .95 else Vector3.UP
+	ring.global_transform = Transform3D(Basis.looking_at(direction, up), point + direction * .05)
+	_shockwaves.append({"node": ring, "age": 0.0, "duration": .25})
+
+
 static func create_shockwave(strength):
 	var ring = MeshInstance3D.new()
 	ring.name = "ExplosionShockwave"
@@ -968,13 +1077,12 @@ func _advance_hit_flashes(delta):
 	for index in range(_shockwaves.size() - 1, -1, -1):
 		var entry = _shockwaves[index]
 		entry.age += delta
-		if entry.age >= SHOCKWAVE_DURATION or Globals.options.reduced_flashes:
+		var duration: float = entry.get("duration", SHOCKWAVE_DURATION)
+		if entry.age >= duration or Globals.options.reduced_flashes:
 			entry.node.queue_free()
 			_shockwaves.remove_at(index)
 		else:
-			entry.node.material_override.set_shader_parameter(
-				"progress", entry.age / SHOCKWAVE_DURATION
-			)
+			entry.node.material_override.set_shader_parameter("progress", entry.age / duration)
 
 
 func _advance_wreck_fire(entry, delta):

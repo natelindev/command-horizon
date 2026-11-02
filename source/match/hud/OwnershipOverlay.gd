@@ -96,6 +96,8 @@ func hover_card():
 		position_3d = (
 			health.global_position if health != null else target.global_position + Vector3.UP * 2
 		)
+	elif target.has_method("pickup_description") and target.is_visible_in_tree():
+		lines = target.pickup_description()
 	if lines.is_empty() or camera.is_position_behind(position_3d):
 		return {}
 	var font = get_theme_default_font()
@@ -130,13 +132,16 @@ func _resource_lines(resource):
 			)
 		]
 	var materials = "resource_a" in resource
+	var saturation = resource.saturation_info(game._get_human_player())
+	var status = "Optimal" if saturation.workers <= saturation.optimal else "Saturated"
 	return [
 		(
 			"Materials · %d M" % resource.resource_a
 			if materials
 			else "Electronics · %d E" % resource.resource_b
 		),
-		"%d work slots · right-click with engineers." % Harvest.WORK_SLOTS
+		tr("Workers: %d / %d (%s)") % [saturation.workers, saturation.optimal, tr(status)],
+		tr("2 workers per node at full rate · third at 60% · excess wait")
 	]
 
 
@@ -151,6 +156,10 @@ func caption_rect(point, dimensions):
 		for control in game.hud.get_children():
 			if not control is Control or not control.is_visible_in_tree():
 				continue
+			if control.mouse_filter == Control.MOUSE_FILTER_IGNORE:
+				for button in control.find_children("*", "BaseButton", true, false):
+					if button.is_visible_in_tree():
+						occupied.append(button.get_global_rect().grow(6))
 			# Full-screen pass-through layers (command feedback) occupy no panel space.
 			if (
 				control.mouse_filter == Control.MOUSE_FILTER_IGNORE
@@ -160,7 +169,27 @@ func caption_rect(point, dimensions):
 			occupied.append(control.get_global_rect().grow(6))
 	if game.subtitles != null and game.subtitles._card.is_visible_in_tree():
 		occupied.append(game.subtitles._card.get_global_rect().grow(6))
-	for y in [point.y - dimensions.y - 10, point.y + 12]:
+	var nearby = _caption_in_rows(
+		point, dimensions, [point.y - dimensions.y - 10, point.y + 12], occupied, viewport
+	)
+	if nearby.has_area():
+		return nearby
+	# A cargo beside an edge pointer can have both nearest rows obstructed.
+	# Try the closest free rows around real panels before suppressing its card.
+	var rows = []
+	for block in occupied:
+		for y in [block.position.y - dimensions.y - 6, block.end.y + 6]:
+			if y >= viewport.position.y and y + dimensions.y <= viewport.end.y and y not in rows:
+				rows.append(y)
+	rows.sort_custom(
+		func(a, b):
+			return absf(a + dimensions.y * .5 - point.y) < absf(b + dimensions.y * .5 - point.y)
+	)
+	return _caption_in_rows(point, dimensions, rows, occupied, viewport)
+
+
+func _caption_in_rows(point, dimensions, rows, occupied, viewport):
+	for y in rows:
 		for x in [point.x - dimensions.x / 2, point.x - dimensions.x, point.x]:
 			var rect = Rect2(
 				Vector2(clampf(x, 4, maxf(4, viewport.end.x - dimensions.x)), y), dimensions

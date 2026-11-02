@@ -1,0 +1,21 @@
+Running session: UDP 60974
+Running groups: UDP 61885
+Running outcome: UDP 49260
+Running disconnect: UDP 53011
+bin: "~/godot-open-rts/tools/tests/run_network_regressions.py"
+description: "Run real localhost multiplayer and binary replay regression processes."
+checks[12]{case,role,status,log}:
+  "session","host","passed","/Users/linlilu/godot-open-rts/tmp/network-export60-final/run-20261102T022125Z-53862/session-host.log"
+  "session","spectator","passed","/Users/linlilu/godot-open-rts/tmp/network-export60-final/run-20261102T022125Z-53862/session-spectator.log"
+  "session","guest","passed","/Users/linlilu/godot-open-rts/tmp/network-export60-final/run-20261102T022125Z-53862/session-guest.log"
+  "replay","verifier","passed","/Users/linlilu/godot-open-rts/tmp/network-export60-final/run-20261102T022125Z-53862/replay-verifier.log"
+  "groups","host","passed","/Users/linlilu/godot-open-rts/tmp/network-export60-final/run-20261102T022125Z-53862/groups-host.log"
+  "groups","spectator","passed","/Users/linlilu/godot-open-rts/tmp/network-export60-final/run-20261102T022125Z-53862/groups-spectator.log"
+  "groups","guest","passed","/Users/linlilu/godot-open-rts/tmp/network-export60-final/run-20261102T022125Z-53862/groups-guest.log"
+  "group-replay","verifier","passed","/Users/linlilu/godot-open-rts/tmp/network-export60-final/run-20261102T022125Z-53862/group-replay-verifier.log"
+  "outcome","host","passed","/Users/linlilu/godot-open-rts/tmp/network-export60-final/run-20261102T022125Z-53862/outcome-host.log"
+  "outcome","guest","passed","/Users/linlilu/godot-open-rts/tmp/network-export60-final/run-20261102T022125Z-53862/outcome-guest.log"
+  "disconnect","host","passed","/Users/linlilu/godot-open-rts/tmp/network-export60-final/run-20261102T022125Z-53862/disconnect-host.log"
+  "disconnect","guest","passed","/Users/linlilu/godot-open-rts/tmp/network-export60-final/run-20261102T022125Z-53862/disconnect-guest.log"
+passed: 12/12
+report: "/Users/linlilu/godot-open-rts/tmp/network-export60-final/run-20261102T022125Z-53862/results.json"

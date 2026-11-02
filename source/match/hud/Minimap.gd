@@ -28,6 +28,7 @@ var _presented_tick = -1
 var _commander_button: Button
 var _event_button: Button
 var _event_point = null
+var _brownout_overlay: ColorRect
 
 @onready var _match = find_parent("Match")
 @onready var _camera_indicator = find_child("CameraIndicator")
@@ -85,9 +86,24 @@ func _ready():
 		_camera_indicator.default_color = BattleTheme.accent()
 		_camera_indicator.width = 2.0
 	MatchSignals.tactical_ping.connect(_on_tactical_ping)
+	_brownout_overlay = ColorRect.new()
+	_brownout_overlay.name = "RadarInterference"
+	_brownout_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var interference = ShaderMaterial.new()
+	interference.shader = load("res://source/shaders/2d/radar_brownout.gdshader")
+	_brownout_overlay.material = interference
+	_texture_rect.add_child(_brownout_overlay)
+	_brownout_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_brownout_overlay.hide()
 
 
 func _process(_delta):
+	if _brownout_overlay != null:
+		var player = _match._get_human_player()
+		_brownout_overlay.visible = is_instance_valid(player) and player.is_brownout()
+		_brownout_overlay.material.set_shader_parameter(
+			"reduced_motion", Globals.options.reduced_flashes or not Globals.options.hud_motion
+		)
 	var tick = Engine.get_physics_frames()
 	if tick != _presented_tick:
 		_presented_tick = tick
@@ -171,6 +187,13 @@ func _sync_real_units_with_minimap_representations(phase = -1):
 	var observer = _match._get_human_player()
 	if observer == null:
 		observer = _match.visible_player
+	# This is a refresh-local view, not a cached visibility result. Selection,
+	# capture and spectator-side changes take effect on the next normal refresh.
+	var observers = []
+	if _match.settings.visibility != _match.settings.Visibility.FULL:
+		for side in _match.visible_players:
+			if is_instance_valid(side):
+				observers.append(side)
 	var units_to_sync = _match.get_units() + _match.get_cached_group("resource_units")
 	for unit in units_to_sync:
 		if phase >= 0 and unit.get_instance_id() % MARKER_PHASES != phase:
@@ -180,7 +203,7 @@ func _sync_real_units_with_minimap_representations(phase = -1):
 				var alive = not unit.is_queued_for_deletion() and unit.is_visible_in_tree()
 				_unit_to_corresponding_node_mapping[unit].visible = alive and not _match.restoring
 			continue
-		if not Ownership.known_now(unit, _match):
+		if not Ownership.known_now(unit, _match, observers):
 			continue
 		units_synced[unit] = 1
 		if not _unit_is_mapped(unit):

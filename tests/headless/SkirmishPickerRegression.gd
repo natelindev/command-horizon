@@ -35,7 +35,14 @@ func _menu():
 				"Preview omits resource fields: " + path
 			)
 			_check(
-				setup._preview.points_of_interest.size() == layout.sites.size(),
+				(
+					setup._preview.points_of_interest.size()
+					== (
+						load("res://source/match/world/PointOfInterestCatalog.gd")
+						. definitions(path)
+						. size()
+					)
+				),
 				"Preview omits facilities: " + path
 			)
 		setup._save_preferences()

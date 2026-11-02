@@ -138,6 +138,7 @@ To elevate the game to the caliber of timeless RTS titles, we apply three proven
 1. **Battle Rig** *(Replaces generic Heavy Tank)*:
    * Heavily armored flatbed technical equipped with twin forward autocannons and **4 Open Garrison Mounts**.
    * Embarked infantry units (such as Rocket Hunters and Marksmen) fire their weapons freely while the Battle Rig maneuvers at high speed.
+   * Garrisoned infantry bodies and world selection markers remain hidden inside vehicles. The bottom HUD shows their passenger portraits and firing status; unloading restores their world visibility.
 2. **Scrap Demolition Buggy** *(Light Specialist)*:
    * High-speed, unarmored buggy packed with volatile munitions.
    * Charges into enemy fortifications, artillery batteries, or clustered columns, detonating on impact to inflict devastating point-blank burst damage.

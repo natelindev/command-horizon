@@ -17,11 +17,6 @@ func ability_issue(unit, id: String) -> String:
 		var ability = unit.abilities.get_ability(id)
 		if ability != null and ability.is_active:
 			return ""
-		if (
-			unit.player.technology == null
-			or "plasma_shields" not in unit.player.technology.completed
-		):
-			return "Requires Plasma Shields research."
 		var power = unit.player.power_totals()
 		if power.x < power.y + OVERDRIVE_DEMAND:
 			return "Requires 3 spare power."
@@ -77,14 +72,29 @@ func shield_factor(unit) -> float:
 		return 1.0
 	var power = unit.player.power_totals()
 	if power.x < power.y:
-		return 1.0
-	for generator in game.battlefield.nearby_units(unit.global_position_yless, OVERDRIVE_RADIUS):
-		if generator.player == unit.player and requested(generator):
+		return 0.5
+	for generator in unit.player.structure_candidates("PowerPlant"):
+		if requested(generator):
 			if (
-				generator.global_position_yless.distance_to(unit.global_position_yless)
-				<= OVERDRIVE_RADIUS
+				generator.global_position_yless.distance_squared_to(unit.global_position_yless)
+				<= OVERDRIVE_RADIUS * OVERDRIVE_RADIUS
 			):
-				return 1.5
+				return 2.0
+	return 1.0
+
+
+func production_factor(facility) -> float:
+	if facility.player.faction != "helix" or facility.player.is_brownout():
+		return 1.0
+	for generator in facility.player.structure_candidates("PowerPlant"):
+		if (
+			requested(generator)
+			and (
+				generator.global_position_yless.distance_squared_to(facility.global_position_yless)
+				<= OVERDRIVE_RADIUS * OVERDRIVE_RADIUS
+			)
+		):
+			return 1.5
 	return 1.0
 
 

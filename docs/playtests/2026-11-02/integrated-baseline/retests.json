@@ -1,0 +1,103 @@
+{
+  "note": "Fresh current-workspace retests supersede individual baseline failures; original baseline results are retained.",
+  "results": [
+    {
+      "suite": "TechnologyAIRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "errors": [],
+      "warnings": [],
+      "native_flags": [
+        "--enable-native-kernels",
+        "--native-unit-state",
+        "--native-crowd-runtime"
+      ],
+      "factions": [
+        "bastion",
+        "helix",
+        "frontier"
+      ],
+      "evidence": "TechnologyAIRegression.retest.log",
+      "verified": [
+        "healthy guard gate",
+        "building resource reservation",
+        "exclusive opening and progression",
+        "exact payment",
+        "real completion",
+        "final specialized technology"
+      ]
+    },
+    {
+      "suite": "AirfieldOperationsRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "errors": [],
+      "warnings": [],
+      "native_flags": [
+        "--enable-native-kernels",
+        "--native-unit-state",
+        "--native-crowd-runtime"
+      ],
+      "evidence": "AirfieldOperationsRegression.retest.log",
+      "verified": [
+        "Bastion and Helix four paid stand reservations",
+        "exact refund",
+        "queued and parked stand save/restore",
+        "displaced sorties return and rearm",
+        "Frontier aerospace facility excluded, three paid contracts retained"
+      ]
+    },
+    {
+      "suite": "FrontierCombatRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "errors": [],
+      "warnings": [],
+      "native_flags": [
+        "--enable-native-kernels",
+        "--native-unit-state",
+        "--native-crowd-runtime"
+      ],
+      "evidence": "FrontierCombatRegression.retest.log"
+    },
+    {
+      "suite": "BattleHudProductionRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "errors": [],
+      "warnings": [],
+      "native_flags": [
+        "--enable-native-kernels",
+        "--native-unit-state",
+        "--native-crowd-runtime"
+      ],
+      "evidence": "BattleHudProductionRegression.retest.log"
+    },
+    {
+      "suite": "PresentationFeaturesRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "errors": [],
+      "warnings": [],
+      "native_flags": [
+        "--enable-native-kernels",
+        "--native-unit-state",
+        "--native-crowd-runtime"
+      ],
+      "evidence": "PresentationFeaturesRegression.retest.log"
+    },
+    {
+      "suite": "FactionLocalizationRegression",
+      "status": "pass",
+      "exit_code": 0,
+      "errors": [],
+      "warnings": [],
+      "native_flags": [
+        "--enable-native-kernels",
+        "--native-unit-state",
+        "--native-crowd-runtime"
+      ],
+      "evidence": "FactionLocalizationRegression.retest.log"
+    }
+  ]
+}

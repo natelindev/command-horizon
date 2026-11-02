@@ -1,0 +1,10 @@
+Running groups: UDP 50158
+bin: "~/godot-open-rts/tools/tests/run_network_regressions.py"
+description: "Run real localhost multiplayer and binary replay regression processes."
+checks[4]{case,role,status,log}:
+  "groups","host","passed","/Users/linlilu/godot-open-rts/tmp/network-group-ack-qualified/run-20261101T225828Z-44812/groups-host.log"
+  "groups","spectator","passed","/Users/linlilu/godot-open-rts/tmp/network-group-ack-qualified/run-20261101T225828Z-44812/groups-spectator.log"
+  "groups","guest","passed","/Users/linlilu/godot-open-rts/tmp/network-group-ack-qualified/run-20261101T225828Z-44812/groups-guest.log"
+  "group-replay","verifier","passed","/Users/linlilu/godot-open-rts/tmp/network-group-ack-qualified/run-20261101T225828Z-44812/group-replay-verifier.log"
+passed: 4/4
+report: "/Users/linlilu/godot-open-rts/tmp/network-group-ack-qualified/run-20261101T225828Z-44812/results.json"

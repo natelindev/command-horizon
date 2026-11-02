@@ -174,19 +174,23 @@ func _run():
 		bar._power_title.text == "POWER   %d used / %d supply" % [power.y, power.x],
 		"Paused power HUD is stale"
 	)
-	var health = victim.hp
+	var health = victim.hp + victim.shields
 	var time = game.simulation_time
 	var position = manual.position
 	await _frames(40)
 	_check(
-		victim.hp == health and game.simulation_time == time and manual.position == position,
+		(
+			victim.hp + victim.shields == health
+			and game.simulation_time == time
+			and manual.position == position
+		),
 		"Paused restore caused damage/movement"
 	)
 	var construction = building._construction_progress
 	await _resume_from_hud()
 	_check(not paused, "Loaded battle could not resume through its HUD")
 	await _frames(35)
-	_check(victim.hp < health, "Saved in-flight shot did not resolve")
+	_check(victim.hp + victim.shields < health, "Saved in-flight shot did not resolve")
 	_check(manual.position.distance_to(position) > 0.2, "Manual movement did not resume")
 	_check(building._construction_progress > construction, "Construction did not resume")
 	await _frames(150)

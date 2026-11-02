@@ -57,7 +57,7 @@ func _deploy(delta):
 		if not is_instance_valid(_target):
 			queue_free()
 			return
-		if operation == "barricade":
+		if operation in ["barricade", "bunker", "tank_trap"]:
 			reservation = ""
 			queue_free()
 			return

@@ -8,6 +8,15 @@ var announcer_paths = []
 var mercenary_identities = {}
 
 
+class CountingBank:
+	extends "res://source/match/audio/UnitVoiceBank.gd"
+	var lookups = 0
+
+	func unit_line(unit, kind):
+		lookups += 1
+		return super(unit, kind)
+
+
 func _run():
 	preferences = root.get_node("Globals").options
 	original = preferences.capture()
@@ -18,6 +27,11 @@ func _run():
 		await _setup(faction)
 		_attach_voice()
 		voice.set_process(false)
+		for path in voice._bank.order_streams(faction):
+			_check(
+				voice._order_streams.get(path) is AudioStreamOggVorbis,
+				"Order reply was not loaded before input: " + path
+			)
 		announcer_paths.append(voice._audio.stream.resource_path)
 		_check(voice.current.speaker != "Command", "Faction announcer lacks identity")
 		await _identity_and_bursts(faction)
@@ -38,7 +52,7 @@ func _run():
 	await _ui_events()
 	preferences.restore(original)
 	print("Audio enhancement regression: %d failures" % errors.size())
-	quit(0 if errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
 
 
 func _catalog_coverage():
@@ -160,6 +174,7 @@ func _all_unit_speakers(faction):
 
 func _identity_and_bursts(faction):
 	_reset_speech()
+	voice._bank = CountingBank.new()
 	var human = game._get_human_player()
 	var tank = _units(human, "Tank")[0]
 	var infantry = _units(human, "Infantry")[0]
@@ -175,6 +190,7 @@ func _identity_and_bursts(faction):
 		heard.size() == 1 and voice._pending.is_empty(),
 		"Mixed selection/order burst flooded speech"
 	)
+	_check(voice._bank.lookups == 1, "A rejected200-reply burst still resolves voice banks")
 	voice._process(5)
 	signals.unit_selected.emit(tank)
 	_check(
@@ -252,11 +268,16 @@ func _research_events():
 	var lab = _units(human, "CommandLab")[0]
 	human.resource_a = 500
 	human.resource_b = 500
-	_check(human.technology.start("weapons_1", lab), "Could not start paid research")
-	human.technology._physics_process(1000)
+	human.coordination_unlocked = true
+	var catalog = load("res://source/match/research/TechnologyCatalog.gd")
+	var branch = catalog.FACTION_TECHNOLOGIES[human.faction][0]
+	_check(human.technology.start(branch, lab), "Could not start paid faction research")
+	human.technology._physics_process(
+		catalog.ITEMS[branch].seconds / human.production_factor() + .1
+	)
 	_check(
 		(
-			"weapons_1" in human.technology.completed
+			branch in human.technology.completed
 			and voice.current.get("event") == EVENTS.RESEARCH_COMPLETED
 		),
 		"Actual research completion was silent"
@@ -275,10 +296,10 @@ func _research_events():
 		"Coordination completion was silent"
 	)
 	_reset_speech()
-	root.get_node("MatchSignals").research_completed.emit(enemy, "weapons_1")
+	root.get_node("MatchSignals").research_completed.emit(enemy, branch)
 	_check(heard.is_empty(), "Enemy research leaked to player")
 	game.restoring = true
-	root.get_node("MatchSignals").research_completed.emit(human, "weapons_1")
+	root.get_node("MatchSignals").research_completed.emit(human, branch)
 	root.get_node("MatchSignals").unit_selected.emit(lab)
 	_check(heard.is_empty(), "Restore reconstruction generated audio")
 	game.restoring = false

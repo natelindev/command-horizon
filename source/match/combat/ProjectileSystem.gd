@@ -14,7 +14,7 @@ const Shot = preload("res://source/match/combat/Shot.gd")
 const Rules = preload("res://source/match/combat/CombatRules.gd")
 const Weapons = preload("res://source/match/combat/WeaponCatalog.gd")
 const Battlefield = preload("res://source/match/combat/Battlefield.gd")
-const KINDS = ["bullet", "shell", "rocket", "missile", "bomb"]
+const KINDS = ["bullet", "shell", "rocket", "missile", "bomb", "cloud"]
 const MAX_FLIGHT = 4.0
 const SIGHT_HEIGHT = 0.8
 # A near miss delivers at most this share of a direct hit, falling linearly to
@@ -83,6 +83,8 @@ func launch(
 	carrier_velocity = Vector3.ZERO,
 	target_point: Vector3 = Vector3.INF
 ):
+	if "optical_cloak" in unit and unit.optical_cloak != null:
+		unit.optical_cloak.reveal()
 	var aimed = is_instance_valid(target)
 	if not aimed and not target_point.is_finite() and (weapon == null or weapon.kind != "bomb"):
 		return null
@@ -91,6 +93,21 @@ func launch(
 		visuals.fire_recoil()
 	if weapon == null:
 		weapon = Weapons.profile(unit, target)
+	if weapon.get("barrels", 1) > 1:
+		var fired = null
+		for index in weapon.barrels:
+			var single = weapon.duplicate()
+			single.erase("barrels")
+			single["muzzle_side"] = -0.35 if index == 0 else 0.35
+			fired = launch(unit, target, single, carrier_velocity, target_point)
+		return fired
+	MatchSignals.weapon_fired.emit(unit, target, weapon)
+	if weapon.get("id") == "demolition_charge":
+		detonate(unit, target, unit.global_position, weapon)
+		unit.hp = 0
+		return null
+	if weapon.get("prism", false):
+		return _fire_prism(unit, target, weapon)
 	var aim = center_of(target) if aimed else unit.global_position + Vector3.DOWN
 	if not aimed and target_point.is_finite():
 		aim = target_point
@@ -103,6 +120,9 @@ func launch(
 		and not _match.battlefield.first_blocker(muzzle, aim, unit, target).is_empty()
 	):
 		muzzle = unit.global_position + Vector3.UP * SIGHT_HEIGHT
+	if weapon.has("muzzle_side"):
+		var side = (aim - muzzle).normalized().cross(Vector3.UP).normalized()
+		muzzle += side * weapon.muzzle_side * unit.radius
 	var round = Round.new()
 	round.weapon = weapon
 	round.kind = weapon.kind
@@ -194,6 +214,8 @@ func _launch_velocity(weapon, muzzle, aim, target_velocity):
 	for _index in range(3):
 		point = aim + target_velocity * (muzzle.distance_to(point) / maxf(average, 0.1))
 	var direction = ballistic_direction(muzzle, point, average, gravity)
+	if weapon.get("high_arc", false):
+		direction = high_arc_direction(muzzle, point, average, gravity)
 	var spread = weapon.get("spread", 0.0)
 	if spread > 0.0:
 		var side = direction.cross(Vector3.UP)
@@ -221,6 +243,24 @@ static func ballistic_direction(origin, point, speed, gravity):
 	var angle = PI / 4.0
 	if discriminant >= 0.0:
 		angle = atan((speed_squared - sqrt(discriminant)) / (gravity * distance))
+	return (flat / distance * cos(angle) + Vector3.UP * sin(angle)).normalized()
+
+
+static func high_arc_direction(
+	origin: Vector3, point: Vector3, speed: float, gravity: float
+) -> Vector3:
+	var offset = point - origin
+	var flat = Vector3(offset.x, 0.0, offset.z)
+	var distance = flat.length()
+	if gravity <= 0.0 or distance < 0.001:
+		return offset.normalized()
+	var squared = speed * speed
+	var discriminant = (
+		squared * squared - gravity * (gravity * distance * distance + 2.0 * offset.y * squared)
+	)
+	if discriminant < 0.0:
+		return ballistic_direction(origin, point, speed, gravity)
+	var angle = atan((squared + sqrt(discriminant)) / (gravity * distance))
 	return (flat / distance * cos(angle) + Vector3.UP * sin(angle)).normalized()
 
 
@@ -259,12 +299,20 @@ func _physics_process(delta):
 
 
 func _step(round, delta):
+	if round.kind == "cloud":
+		_step_cloud(round, delta)
+		return
 	var start = round.position
 	var burn = round.burn
 	_integrate(round, delta)
 	round.age += delta
 	var end = round.position
 	var contact = _sweep(round, start, end)
+	if contact.get("shield", false):
+		if round.shown:
+			_match.combat_effects.shield_impact(contact.body, contact.point)
+		_remove(round)
+		return
 	_suppress_nearby(round, start, contact.point if not contact.is_empty() else end)
 	if _tick % VISIBILITY_TICKS == round.serial % VISIBILITY_TICKS:
 		round.shown = _shown(round)
@@ -350,6 +398,32 @@ func _sweep(round, start, end):
 	var best = {}
 	var target = round.target
 	var shooter = round.shot.shooter()
+	# A physical shield intercepts the corridor before a protected ally's body.
+	# Bombs and indirect high-arc artillery descend outside its direct-fire arc.
+	if round.kind != "bomb" and not round.weapon.get("high_arc", false):
+		for walker in _match.battlefield.nearby_units(
+			(start + end) * 0.5, start.distance_to(end) * 0.5 + 2.5
+		):
+			if (
+				walker.type != "CombatRobot"
+				or walker.player.faction != "bastion"
+				or Players.allied(walker.player, round.shot.player)
+			):
+				continue
+			var incoming = round.shot.origin - walker.global_position
+			incoming.y = 0.0
+			var forward = -walker.global_basis.z
+			forward.y = 0.0
+			if (
+				incoming.length_squared() < 0.01
+				or forward.normalized().dot(incoming.normalized()) < cos(PI / 6.0)
+			):
+				continue
+			var base = walker.global_position + forward.normalized() * 0.65
+			var shield_t = _body_entry(start, end, base, Vector3(1.4, 0.0, 2.3))
+			if shield_t >= 0.0 and shield_t < best_t:
+				best_t = shield_t
+				best = {"body": walker, "shield": true}
 	if _live(target):
 		var box = hitbox(target)
 		var base = target.global_position
@@ -359,7 +433,7 @@ func _sweep(round, start, end):
 		var relative_end = end - (base - previous)
 		if Rules.can_receive(round.shot, target):
 			var t = _body_entry(start, relative_end, previous, box)
-			if t >= 0.0:
+			if t >= 0.0 and t < best_t:
 				best_t = t
 				best = {"body": target}
 			var fuse = round.weapon.get("fuse", 0.0)
@@ -411,6 +485,8 @@ static func _body_entry(start, end, base, box):
 
 
 func _detonate(round, point, body, ground):
+	if round.weapon.get("splash", 0.0) >= 2.0 or round.weapon.get("high_arc", false):
+		MatchSignals.artillery_impact.emit(point, round.shot.player)
 	var hit = (
 		body
 		if (
@@ -422,6 +498,22 @@ func _detonate(round, point, body, ground):
 	if hit != null:
 		_suppress_hit(round, hit)
 		hit.receive_shot(round.shot, point, 1.0, round.weapon)
+		if round.weapon.has("ion_stall"):
+			if "shields_max" in hit and hit.shields_max > 0.0:
+				hit.shield_component.drain(round.shot.attack_damage, _match.simulation_time)
+			var movement = hit.get_node_or_null("Movement")
+			if movement != null and movement.has_method("apply_ion_stall"):
+				movement.apply_ion_stall(round.weapon.ion_stall)
+	if round.weapon.has("cloud_seconds"):
+		var cloud = Round.new()
+		cloud.weapon = Weapons.FLAK_CLOUD
+		cloud.kind = "cloud"
+		cloud.shot = round.shot
+		cloud.position = point
+		cloud.life = round.weapon.cloud_seconds
+		cloud.serial = rounds_fired
+		rounds_fired += 1
+		_add(cloud)
 	var splash = round.weapon.get("splash", 0.0)
 	if splash > 0.0:
 		var flat = Vector3(point.x, 0, point.z)
@@ -490,6 +582,10 @@ func _fly_rail(round, unit):
 	var end = round.position + round.velocity.normalized() * reach
 	var contact = _sweep(round, round.position, end)
 	if not contact.is_empty():
+		if contact.get("shield", false):
+			if round.shown:
+				_match.combat_effects.shield_impact(contact.body, contact.point)
+			return
 		_detonate(round, contact.point, contact.get("body"), contact.get("ground", false))
 
 
@@ -652,6 +748,78 @@ func clear():
 		_remove(round)
 	_rounds.clear()
 	_by_target.clear()
+
+
+func _step_cloud(round, delta: float):
+	var elapsed = minf(delta, round.life - round.age)
+	round.age += elapsed
+	var splash: float = round.weapon.splash
+	for target in _match.battlefield.nearby_units(
+		round.position, splash + 2.0, null, round.shot.player
+	):
+		if target.combat_domain() != 0 or not Rules.can_receive(round.shot, target):
+			continue
+		var gap = _gap(round.position, target)
+		if gap < splash:
+			target.receive_shot(
+				round.shot, round.position, elapsed * (1.0 - gap / splash), round.weapon
+			)
+	if round.shown and floori(round.age * 5.0) != floori((round.age - elapsed) * 5.0):
+		_match.combat_effects.airburst(round.position, splash, Color("e8b16b"))
+	if round.age >= round.life:
+		_remove(round)
+
+
+func _fire_prism(unit, target, weapon):
+	if not _live(target) or not _match.battlefield.has_line_of_fire(unit, target):
+		return null
+	var shot = Shot.from(unit, unit.global_position)
+	var completed = unit.player.technology.completed if unit.player.technology != null else []
+	var link_range = 12.0 if "continuous_coherence" in completed else 8.0
+	var links = 0
+	for ally in _match.battlefield.nearby_units(unit.global_position, link_range, unit.player):
+		if ally == unit or ally.hp <= 0.0 or ally.type not in ["AdvancedTank", "AntiGroundTurret"]:
+			continue
+		if _match.battlefield.line_clear(center_of(ally), center_of(unit), ally, unit):
+			links += 1
+			_match.combat_effects.shot(
+				ally, center_of(ally), center_of(unit), 0.22, false, unit, true, weapon
+			)
+	shot.attack_damage *= 1.0 + minf(links, 4) * 0.25
+	if "beam_amplification" in completed and "prism_lock_seconds" in unit:
+		shot.attack_damage *= 1.0 + minf(4.0, unit.prism_lock_seconds) * 0.15
+	var count = 4 if "continuous_coherence" in completed else 2
+	var previous = unit
+	var visited = [target]
+	var current = target
+	for index in range(count + 1):
+		var start = muzzle_of(unit, center_of(current)) if index == 0 else center_of(previous)
+		_match.combat_effects.shot(
+			unit, start, center_of(current), 0.22, false, current, true, weapon
+		)
+		current.receive_shot(shot, center_of(current), pow(0.7, index), weapon)
+		previous = current
+		var candidates = _match.battlefield.nearby_units(current.global_position, 4.0, null, unit.player).filter(
+			func(enemy): return enemy not in visited and Rules.can_receive(shot, enemy)
+		)
+		candidates.sort_custom(
+			func(a, b):
+				var da = a.global_position.distance_squared_to(previous.global_position)
+				var db = b.global_position.distance_squared_to(previous.global_position)
+				return da < db if not is_equal_approx(da, db) else a.get_index() < b.get_index()
+		)
+		current = null
+		for candidate in candidates:
+			if _match.battlefield.line_clear(
+				center_of(previous), center_of(candidate), previous, candidate
+			):
+				current = candidate
+				break
+		if current == null:
+			break
+		visited.append(current)
+	rounds_fired += 1
+	return shot
 
 
 func _suppress_hit(round, victim):

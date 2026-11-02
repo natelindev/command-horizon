@@ -31,6 +31,18 @@ func _material(material: Material) -> Material:
 		material.shader.code if material is ShaderMaterial else _standard(material, result)
 	)
 	original = original.replace("\r\n", "\n").replace("void vertex()\n{", "void vertex() {")
+	# Belt deformation is authored in source-local coordinates. Extract that
+	# unchanged vertex body before injecting the articulated pose transform.
+	var track_body := ""
+	if (
+		material is ShaderMaterial
+		and material.shader.resource_path.ends_with("track_motion.gdshader")
+	):
+		var start := original.find("void vertex() {") + "void vertex() {".length()
+		var finish := original.find("\n}", start)
+		track_body = original.substr(start, finish - start)
+		original = original.erase(start, finish - start)
+		original = original.replace("instance uniform float track_travel = 0.0;", "")
 	var code: String = original.replace(
 		'#include "res://source/shaders/3d/object_surface.gdshaderinc"',
 		FileAccess.get_file_as_string("res://source/shaders/3d/object_surface.gdshaderinc")
@@ -59,8 +71,8 @@ void vertex() {
 	vec4 row1 = texelFetch(pose_palette, ivec2(1, pose_index), 0);
 	vec4 row2 = texelFetch(pose_palette, ivec2(2, pose_index), 0);
 	mat3 pose_basis = transpose(mat3(row0.xyz, row1.xyz, row2.xyz));
-	vec3 posed = pose_basis * VERTEX + vec3(row0.w, row1.w, row2.w);
 	mat3 source_basis = mat3(CUSTOM2.xyz, CUSTOM3.xyz, vec3(CUSTOM0.w, CUSTOM1.w, CUSTOM2.w));
+	vec3 posed = pose_basis * VERTEX + vec3(row0.w, row1.w, row2.w);
 	mat3 original_model = mat3(MODEL_MATRIX) * pose_basis * source_basis;
 	mat3 original_view = mat3(VIEW_MATRIX) * original_model;
 	VERTEX = posed;
@@ -70,6 +82,27 @@ void vertex() {
 """
 		)
 	)
+	if not track_body.is_empty():
+		code = (
+			code
+			. replace(
+				"vec3 posed = pose_basis * VERTEX + vec3(row0.w, row1.w, row2.w);",
+				(
+					"""vec3 source_origin = VERTEX - source_basis * CUSTOM0.xyz;
+	VERTEX = CUSTOM0.xyz;
+	NORMAL = CUSTOM1.xyz;
+	// Column 3 is copied without interpolation, matching the original belt's
+	// discrete travel cadence even when its wrapped distance crosses zero.
+	float track_travel = texelFetch(pose_palette, ivec2(3, pose_index), 0).x;
+"""
+					+ track_body
+					+ """
+	VERTEX = source_basis * VERTEX + source_origin;
+	NORMAL = normalize(transpose(inverse(source_basis)) * NORMAL);
+	vec3 posed = pose_basis * VERTEX + vec3(row0.w, row1.w, row2.w);"""
+				)
+			)
+		)
 	code = (
 		code
 		. replace("length(MODEL_MATRIX[0].xyz)", "length(original_model[0])")
@@ -385,7 +418,8 @@ func supports(material: Material) -> bool:
 				in [
 					"armor_surface.gdshader",
 					"frontier_surface.gdshader",
-					"infantry_fabric.gdshader"
+					"infantry_fabric.gdshader",
+					"track_motion.gdshader"
 				]
 			)
 		)

@@ -5,11 +5,11 @@ extends "res://tests/headless/NavigationRegression.gd"
 # observed after settling a crowd beside the eastern settlement. The mover has
 # a two-metre backward escape but only centimetres of room on either side.
 const MOVER = 3
-const GOAL = Vector3(35.14706, 0, 23.58824)
+const GOAL = Vector3(44.0, 0, 24.0)
 const POSITIONS = [
 	Vector3(34.5, 0, 21.25),
 	Vector3(37.45, 0, 21.7),
-	Vector3(34.55, 0, 27.45),
+	Vector3(34.55, 0, 28.15),
 	Vector3(31.42166, 0, 28.24897),
 	Vector3(37.0, 0, 27.45),
 	Vector3(39.5, 0, 23.75),
@@ -20,6 +20,13 @@ const POSITIONS = [
 	Vector3(41.50225, 0, 20.36661),
 	Vector3(41.47224, 0, 29.63395),
 ]
+
+
+func _initialize():
+	# Recorded contacts use Bastion ground units, including its ground hauler,
+	# rather than the newly hovering Helix worker.
+	fixture_faction = "bastion"
+	super()
 
 
 func _test_group_route():
@@ -46,6 +53,22 @@ func _test_group_route():
 	var direction = ((path[1] - mover.global_position) * Vector3(1, 0, 1)).normalized()
 	var neighbors = units.filter(func(unit): return unit != mover)
 	var chosen = movement._ground_recovery_direction(direction)
+	print("RECOVERY FIXTURE path=", path, " direction=", direction, " chosen=", chosen)
+	for angle in [PI / 2.0, -PI / 2.0, PI / 4.0, -PI / 4.0, 3 * PI / 4.0, -3 * PI / 4.0, PI]:
+		var candidate = direction.rotated(Vector3.UP, angle)
+		var reach = movement._recovery_clearance(candidate)
+		var hit = movement._ground_step_contact(
+			mover.global_position, mover.global_position + candidate * reach, neighbors
+		)
+		print(
+			"RECOVERY CANDIDATE angle=", angle, " terrain=", reach, " free=", reach * hit.fraction
+		)
+	for point in POSITIONS + [GOAL]:
+		var projected = movement._navigation_position(point)
+		_check(
+			projected.distance_to(point) < .05,
+			"Crowd recovery fixture places a body or goal off its navigation surface"
+		)
 	var distance = movement._recovery_clearance(chosen)
 	var contact = movement._ground_step_contact(
 		mover.global_position, mover.global_position + chosen * distance, neighbors
@@ -55,7 +78,7 @@ func _test_group_route():
 		"Recovery preferred centimetres of side clearance over a clear backward escape"
 	)
 	_check(chosen.dot(direction) < -0.5, "Crowd fixture did not select the open backward escape")
-	mover.action = _moving.new(GOAL)
+	mover.manual_orders.submit(_orders.point_order("move", GOAL))
 	var arrived = false
 	var largest_step = 0.0
 	var minimum_separation = INF
@@ -121,7 +144,7 @@ func _test_blocked_corner():
 	_game.battlefield.invalidate()
 	var mover = units[2]
 	var goal = Vector3(8.08073, 0, 22.67416)
-	mover.action = _moving.new(goal)
+	mover.manual_orders.submit(_orders.point_order("move", goal))
 	var arrived = false
 	var max_step = 0.0
 	var minimum_gap = INF

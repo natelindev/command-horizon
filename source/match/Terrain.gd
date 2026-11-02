@@ -226,7 +226,12 @@ func _update_formation_preview(pointer):
 		Constants.Match.Navigation.Domain.TERRAIN, Constants.Match.Navigation.Domain.AIR
 	]:
 		var cohort = units.filter(func(unit): return unit.movement_domain == domain)
-		var slots = Movement.formation_positions(cohort, _rmb_start_world, heading)
+		var slots = Movement.formation_positions(
+			cohort,
+			_rmb_start_world,
+			heading,
+			load("res://source/match/orders/FormationPlanner.gd").posture(units)
+		)
 		for index in slots.size():
 			_formation_preview.slot(slots[index], heading, color)
 			if index % 8 != 0:

@@ -1,0 +1,1021 @@
+# gdlint: disable=max-file-lines
+class_name TacticalFormationsMainLoop
+extends "res://tests/headless/MechanicsRegression.gd"
+
+var planner
+var cohort_script
+var _saved_options = {}
+var _saved_vsync = DisplayServer.VSYNC_ENABLED
+var _saved_max_fps = 0
+var _quality = "current"
+
+
+func _run():
+	root.get_node("SaveManager").autosaves_enabled = false
+	var options = root.get_node("Globals").options
+	_saved_options = options.capture()
+	var measured_options = _saved_options.duplicate(true)
+	measured_options.screen = options.Screen.WINDOW
+	measured_options.interface_scale = 1.0
+	for argument in OS.get_cmdline_user_args():
+		if argument.begins_with("--tactical-quality="):
+			_quality = argument.trim_prefix("--tactical-quality=")
+	_check(_quality in ["current", "high", "low"], "Unknown tactical graphics profile")
+	if _quality in ["high", "low"]:
+		var enabled = _quality == "high"
+		for key in [
+			"graphics_shadows",
+			"graphics_ao",
+			"graphics_glow",
+			"graphics_fog",
+			"graphics_liquids",
+			"graphics_clouds",
+			"graphics_dust",
+			"graphics_ground_detail"
+		]:
+			measured_options[key] = enabled
+		measured_options.graphics_msaa = 1 if enabled else 0
+		measured_options.environment_quality = 1 if enabled else 0
+	options.restore(measured_options)
+	_saved_vsync = DisplayServer.window_get_vsync_mode()
+	_saved_max_fps = Engine.max_fps
+	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_DISABLED)
+	Engine.max_fps = 0
+	root.size = Vector2i(1280, 720)
+	root.content_scale_size = root.size
+	root.content_scale_mode = Window.CONTENT_SCALE_MODE_VIEWPORT
+	RenderingServer.viewport_set_measure_render_time(root.get_viewport_rid(), true)
+	planner = load("res://source/match/orders/FormationPlanner.gd")
+	cohort_script = load("res://source/match/orders/CohesionGroup.gd")
+	await _open("bastion")
+	if "--performance-only" not in OS.get_cmdline_user_args():
+		_geometry()
+		await _runtime_cohesion()
+		await _clear()
+		await _smart_cast()
+		await _clear()
+		await _stutter_step()
+		await _clear()
+		await _turret_and_focus()
+		await _clear()
+		await _flight_cohesion()
+		await _clear()
+		await _mass_contacts()
+		await _clear()
+		await _choke_funneling()
+		await _clear()
+	if "--functional-only" not in OS.get_cmdline_user_args():
+		await _benchmark()
+		await _clear()
+	_game.queue_free()
+	await _frames(5)
+	# Restore resource values without starting a fullscreen animation as the
+	# process closes; no options file is written by this fixture.
+	var restored_options = _saved_options.duplicate(true)
+	restored_options.screen = options.Screen.WINDOW
+	options.restore(restored_options)
+	options.screen = _saved_options.screen
+	DisplayServer.window_set_vsync_mode(_saved_vsync)
+	Engine.max_fps = _saved_max_fps
+	for message in _errors:
+		push_error(message)
+	print("Tactical formations regression: %d failures" % _errors.size())
+	await root.get_node("Globals").quit_game(0 if _errors.is_empty() else 1)
+
+
+func _geometry():
+	var members = []
+	for index in 24:
+		members.append(
+			_spawn(
+				"Tank" if index < 8 else ("Infantry" if index < 16 else "Worker"),
+				_human,
+				Vector3(25 + index % 8, 0, 25 + index / 8)
+			)
+		)
+	var center = Vector3(50, 0, 50)
+	var heading = Vector3.FORWARD
+	for posture in planner.POSTURES:
+		var raw = planner.positions(members, center, heading, posture)
+		var pairs = planner.assign(members, raw, posture)
+		_check(pairs.size() == members.size(), posture + " lost members")
+		var seen = []
+		for pair in pairs:
+			_check(pair[1] not in seen, posture + " duplicated slots")
+			seen.append(pair[1])
+			if posture == "flank":
+				_check(
+					absf(pair[1].x - center.x) - pair[0].radius >= 3.0 - .001,
+					"Flank blocks the six-metre corridor"
+				)
+		if posture == "line":
+			var front = (
+				pairs
+				. filter(func(pair): return pair[0].type == "Tank")
+				. map(func(pair): return pair[1].z)
+			)
+			var rear = (
+				pairs
+				. filter(func(pair): return pair[0].type == "Worker")
+				. map(func(pair): return pair[1].z)
+			)
+			_check(front.max() <= rear.min(), "Support leads the line instead of armored vanguard")
+		if posture == "box":
+			var armor = (
+				pairs
+				. filter(func(pair): return pair[0].type == "Tank")
+				. map(func(pair): return pair[1].distance_to(center))
+			)
+			var support = (
+				pairs
+				. filter(func(pair): return pair[0].type == "Worker")
+				. map(func(pair): return pair[1].distance_to(center))
+			)
+			_check(armor.min() >= support.max(), "Box exposed fragile support outside its escort")
+		if posture == "staggered":
+			for index in pairs.size():
+				for previous in index:
+					_check(
+						(
+							pairs[index][1].distance_to(pairs[previous][1])
+							>= pairs[index][0].radius + pairs[previous][0].radius + 2.5 - .001
+						),
+						"Staggered spacing fails splash buffer"
+					)
+	var from = PackedVector3Array()
+	var to = PackedVector3Array()
+	for index in 40:
+		from.append(Vector3(40 - index, 0, 0))
+		to.append(Vector3(index, 0, 40))
+	var columns = planner.hungarian(from, to)
+	for index in 39:
+		_check(
+			to[columns[index]].x > to[columns[index + 1]].x,
+			"Hungarian assignment crosses approach paths"
+		)
+
+
+func _runtime_cohesion():
+	await _clear()
+	var fast = _spawn("Tank", _human, Vector3(38, 0, 45))
+	var slow = _spawn("AdvancedTank", _human, Vector3(38, 0, 51))
+	await _frames(12)
+	fast.get_node("Movement").speed = 5.0
+	slow.get_node("Movement").speed = 2.0
+	var members = [fast, slow]
+	var group = cohort_script.new(members)
+	var order_script = load("res://source/match/orders/ManualOrders.gd")
+	for index in members.size():
+		var member = members[index]
+		member.manual_orders.configure_cohesion(true, group)
+		var order = order_script.point_order("move", Vector3(60, 0, 45 + index * 6))
+		order.cohort = group
+		member.manual_orders.submit(order)
+		member.process_mode = Node.PROCESS_MODE_INHERIT
+	var start_fast = fast.position
+	var start_slow = slow.position
+	await _frames(120)
+	var fast_travel = fast.position.distance_to(start_fast)
+	var slow_travel = slow.position.distance_to(start_slow)
+	_check(absf(fast_travel - slow_travel) < .4, "Group did not march at slowest pace")
+	if "--native-crowd-runtime" in OS.get_cmdline_user_args():
+		_check(
+			fast.get_node("Movement")._native_handle >= 0, "Cohesion disabled native crowd binding"
+		)
+	slow.get_node("Movement").speed = 1.0
+	await _frames(4)
+	_check(
+		is_equal_approx(fast.get_node("Movement").cohesion_limit, 1.0),
+		"Cohesion ignored a live speed change"
+	)
+	slow.hp = 0
+	await _frames(4)
+	_check(
+		is_equal_approx(fast.get_node("Movement").cohesion_limit, 5.0),
+		"Dead slow member still limits march speed"
+	)
+
+
+func _smart_cast():
+	var far = _spawn("RocketInfantry", _human, Vector3(40, 0, 45))
+	var near = _spawn("RocketInfantry", _human, Vector3(46, 0, 45))
+	await _frames(12)
+	_game.hud.select_units([far, near])
+	await _frames(3)
+	var direct = _game.hud.direct_orders
+	_check(direct.arm_ability("guided_salvo"), "Could not arm shared tactical ability")
+	far.manual_orders.submit(
+		load("res://source/match/orders/ManualOrders.gd").point_order("move", Vector3(34, 0, 45))
+	)
+	var continuing = far.action
+	var queued = far.manual_orders.pending.duplicate(true)
+	var point = Vector3(48, 0, 45)
+	_check(direct._commit_ability(point, null), "Smart-cast failed valid shared target")
+	_check(
+		far.abilities.get_ability("guided_salvo").cooldown_left == 0.0,
+		"Smart-cast consumed farther caster"
+	)
+	_check(
+		near.abilities.get_ability("guided_salvo").cooldown_left > 0.0,
+		"Smart-cast did not consume nearest caster"
+	)
+	_check(
+		far.action == continuing and far.manual_orders.pending == queued,
+		"Smart-cast interrupted the noncasting unit orders"
+	)
+	_check(direct.arm_ability("guided_salvo"), "Repeated cast failed to arm remaining ready caster")
+	_check(direct._commit_ability(point, null), "Repeated smart-cast failed remaining caster")
+	_check(
+		far.abilities.get_ability("guided_salvo").cooldown_left > 0.0,
+		"Repeated cast reused cooling-down unit"
+	)
+
+
+func _stutter_step():
+	var tank = _spawn("Tank", _human, Vector3(42, 0, 42))
+	var enemy = _spawn("Tank", _enemy, Vector3(46, 0, 42))
+	await _frames(12)
+	var attacking = load("res://source/match/units/actions/AutoAttacking.gd")
+	var moving = load("res://source/match/units/actions/Moving.gd")
+	tank.process_mode = Node.PROCESS_MODE_INHERIT
+	tank.action = attacking.new(enemy)
+	await _frames(24)
+	var next = tank.get_meta("next_attack_availability_time", 0)
+	_check(next > _game.simulation_time * 1000.0, "Weapon never finished short aim windup")
+	tank.action = moving.new(Vector3(38, 0, 42))
+	_check(
+		tank.get_meta("next_attack_availability_time", -1) == next,
+		"Moving reset preserved reload clock"
+	)
+	await _frames(6)
+	tank.action = attacking.new(enemy)
+	_check(
+		tank.get_meta("next_attack_availability_time", -1) == next,
+		"Re-aim reset preserved reload clock"
+	)
+	# Gyro-stabilized turret can maintain aim while hull retreats.
+	_human.technology.completed.append("tank_stabilizers")
+	tank.set_meta("next_attack_availability_time", 0)
+	tank.action = moving.new(Vector3(38, 0, 42))
+	var origin = tank.position
+	await _frames(24)
+	_check(tank.position.distance_to(origin) > .2, "Gyro firing stopped chassis travel")
+	_check(
+		tank.get_meta("next_attack_availability_time", 0) > _game.simulation_time * 1000.0,
+		"Gyro turret did not fire while moving"
+	)
+
+
+func _mass_contacts():
+	var tank = _spawn("Tank", _human, Vector3(42, 0, 42))
+	var ally = _spawn("Infantry", _human, Vector3(43, 0, 42))
+	var pinned = _spawn("Infantry", _enemy, Vector3(45, 0, 42))
+	await _frames(12)
+	pinned.suppression.add_pressure(100)
+	pinned.suppression.set_physics_process(false)
+	var origin = ally.position
+	tank.process_mode = Node.PROCESS_MODE_INHERIT
+	tank.manual_orders.submit(
+		load("res://source/match/orders/ManualOrders.gd").point_order("move", Vector3(50, 0, 42))
+	)
+	await _frames(220)
+	_check(
+		absf(ally.position.z - origin.z) > .1, "Heavy vehicle did not nudge light ally laterally"
+	)
+	_check(
+		not is_instance_valid(pinned) or pinned.hp <= 0,
+		"Heavy vehicle did not crush pinned enemy infantry"
+	)
+	_check(
+		tank.position.x > 45.5, "Heavy vehicle remained blocked behind nudged/crushed light units"
+	)
+
+
+func _choke_funneling():
+	var walls = []
+	for bounds in [Vector2(0, 46.5), Vector2(53.5, 100)]:
+		var obstacle = NavigationObstacle3D.new()
+		obstacle.affect_navigation_mesh = true
+		obstacle.carve_navigation_mesh = false
+		obstacle.avoidance_enabled = false
+		obstacle.height = 3.0
+		obstacle.vertices = PackedVector3Array(
+			[
+				Vector3(48, 0, bounds.x),
+				Vector3(52, 0, bounds.x),
+				Vector3(52, 0, bounds.y),
+				Vector3(48, 0, bounds.y)
+			]
+		)
+		obstacle.add_to_group("terrain_navigation_input")
+		_game.add_child(obstacle)
+		walls.append(obstacle)
+	root.get_node("MatchSignals").schedule_navigation_rebake.emit(1)
+	await _frames(90)
+	var units = []
+	for index in 8:
+		units.append(_spawn("Tank", _human, Vector3(36, 0, 39 + index * 3.1)))
+	await _frames(20)
+	_game.hud.select_units(units)
+	await _frames(3)
+	var controller = _human.get_node("UnitActionsController")
+	controller._try_navigating_selected_units_towards_position(Vector3(66, 0, 50))
+	_check(
+		units.all(
+			func(unit): return not unit.manual_orders.current.get("waypoints", []).is_empty()
+		),
+		"Narrow portal did not compress a wide line into columns"
+	)
+	for unit in units:
+		unit.process_mode = Node.PROCESS_MODE_INHERIT
+	await _frames(900)
+
+	_check(
+		units.all(func(unit): return unit.position.x > 62.0),
+		"Formation failed to clear narrow portal"
+	)
+	var lateral = units.map(func(unit): return unit.position.z)
+	_check(
+		lateral.max() - lateral.min() > 15.0,
+		"Formation did not expand after clearing narrow portal"
+	)
+	for wall in walls:
+		wall.queue_free()
+	await _frames(4)
+	root.get_node("MatchSignals").schedule_navigation_rebake.emit(1)
+	await _frames(60)
+
+
+func _benchmark():
+	var framing_only = "--framing-only" in OS.get_cmdline_user_args()
+	if DisplayServer.get_name() != "headless":
+		root.mode = Window.MODE_WINDOWED
+		await _frames(12)
+	root.size = Vector2i(1280, 720)
+	var options = root.get_node("Globals").options
+	print(
+		"TACTICAL QUALITY profile=",
+		_quality,
+		" msaa=",
+		options.graphics_msaa,
+		" shadows=",
+		options.graphics_shadows,
+		" ao=",
+		options.graphics_ao,
+		" glow=",
+		options.graphics_glow,
+		" environment=",
+		options.environment_quality,
+		" day_cycle=",
+		options.day_cycle
+	)
+	print(
+		"TACTICAL VIEWPORT pixels=",
+		root.get_texture().get_size(),
+		" window=",
+		DisplayServer.window_get_size()
+	)
+	if DisplayServer.get_name() != "headless":
+		_check(
+			root.get_texture().get_image().get_size() == Vector2i(1280, 720),
+			"Formation measurement must render actual1280x720 pixels"
+		)
+	var units = []
+	var nav = _game.navigation.terrain.navigation_map_rid
+	var anchor = NavigationServer3D.map_get_closest_point(nav, Vector3(45, 0, 30))
+	var vertices = _game.navigation.terrain._navigation_region.navigation_mesh.get_vertices()
+	var floor_height = INF
+	for vertex in vertices:
+		floor_height = minf(floor_height, vertex.y)
+	# A compact, symmetric cohort fits alongside the real selection HUD at the
+	# normal maximum zoom. Every mirrored site is proved on connected ground.
+	var quads = []
+	for row in 8:
+		for column in 13:
+			quads.append(Vector2(1.25 + column * 2.5, 1.25 + row * 2.5))
+	quads.sort_custom(func(a, b): return a.length_squared() < b.length_squared())
+	for offset in quads:
+		var sites = []
+		for x_sign in [-1, 1]:
+			for z_sign in [-1, 1]:
+				var point = Vector3(50 + offset.x * x_sign, 0, 64 + offset.y * z_sign)
+				var projected = NavigationServer3D.map_get_closest_point(nav, point)
+				if (
+					absf(projected.y - floor_height) > .05
+					or ((projected - point) * Vector3(1, 0, 1)).length() > .05
+				):
+					continue
+				var path = NavigationServer3D.map_get_path(nav, anchor, projected, true)
+				if not path.is_empty() and path[-1].distance_to(projected) <= .05:
+					sites.append(point)
+		if sites.size() != 4:
+			continue
+		for point in sites:
+			units.append(_spawn("Tank", _human, point))
+		if units.size() == 200:
+			break
+	_check(units.size() == 200, "Benchmark could not place 200 units on connected ground")
+	if units.size() != 200:
+		return
+	for unit in units:
+		unit.manual_orders.formation = "staggered"
+	_game.fog_of_war.reveal()
+	_check(_game.hud.select_units(units, Vector3(50, 0, 64)), "Cannot select formation cohort")
+	await _frames(12)
+	_check(
+		get_nodes_in_group("selected_units").size() == 200,
+		"Formation benchmark must retain all200 selected units"
+	)
+	if "--native-crowd-runtime" in OS.get_cmdline_user_args():
+		_check(
+			units.all(func(unit): return unit.get_node("Movement")._native_handle >= 0),
+			"Formation benchmark lost a native crowd binding"
+		)
+	var renderer = _game.get_node_or_null("UnitBatchRenderer")
+	if "--native-exploration" in OS.get_cmdline_user_args():
+		_check(
+			_game.battlefield.native_exploration and _game.battlefield._native_visibility != null,
+			"Formation benchmark lost native exploration"
+		)
+	if (
+		"--native-presentation" in OS.get_cmdline_user_args()
+		and DisplayServer.get_name() != "headless"
+	):
+		_check(
+			(
+				renderer != null
+				and renderer._presentation != null
+				and renderer._resident_rigs == renderer._units.size()
+			),
+			"Formation benchmark lost native presentation"
+		)
+	print(
+		"TACTICAL BACKENDS ",
+		JSON.stringify(
+			{
+				"release": not OS.has_feature("debug"),
+				"physics_hz": Engine.physics_ticks_per_second,
+				"native_exploration": _game.battlefield.native_exploration,
+				"native_visibility": _game.battlefield._native_visibility != null,
+				"native_crowd": _game.crowd_runtime != null,
+				"native_unit_state": _game.unit_state_store != null,
+				"native_presentation": renderer != null and renderer._presentation != null,
+				"resident_rigs": renderer._resident_rigs if renderer != null else 0,
+				"batched_units": renderer._units.size() if renderer != null else 0,
+				"native_surface":
+				_game.crowd_runtime.surface_active if _game.crowd_runtime != null else false
+			}
+		)
+	)
+	var origins = PackedVector3Array(units.map(func(unit): return unit.position))
+	var points = PackedVector3Array()
+	for unit in units:
+		points.append(unit.position + Vector3(0, 0, 15))
+	var before = Time.get_ticks_usec()
+	var assignment = planner.hungarian(origins, points)
+	var assignment_ms = (Time.get_ticks_usec() - before) / 1000.0
+	_check(assignment.size() == 200, "200-unit Hungarian assignment lost units")
+	if not framing_only:
+		_check(assignment_ms <= 16.6, "200-unit Hungarian exceeded 16.6 ms command budget")
+	before = Time.get_ticks_usec()
+	var utility = load("res://source/match/utils/UnitMovementUtils.gd")
+	var planned = utility.crowd_moved_to_new_pivot(
+		units, Vector3(50, 0, 60), Vector3.FORWARD, "staggered"
+	)
+	var planning_ms = (Time.get_ticks_usec() - before) / 1000.0
+	_check(planned.size() == 200, "200-unit projected plan lost members")
+	if not framing_only:
+		_check(planning_ms <= 16.6, "200-unit projected plan exceeded 16.6 ms command budget")
+	# Warm the actual overview, selection HUD and resident poses before input.
+	# Warming after input would time a cohort that has already mostly arrived.
+	var battle_rect = _frame_benchmark(units, planned)
+	if framing_only:
+		_check(
+			is_equal_approx(_game.get_node("IsometricCamera3D").size, 70.0),
+			"Headless framing did not use the fixed normal overview"
+		)
+		_check(battle_rect.position.y >= 134.0, "Framing did not reserve both ability rows")
+		print(
+			"Headless formation geometry: selected=200 visible_nodes=200 overview=70 bounds=",
+			battle_rect
+		)
+		return
+	for unit in units:
+		unit.process_mode = Node.PROCESS_MODE_INHERIT
+	if DisplayServer.get_name() != "headless":
+		_check(
+			await load("res://source/match/effects/CombatPrewarm.gd").prepare(_game),
+			"Normal production effect preparation failed"
+		)
+	await _frames(180)
+	if "--tactical-draw-inventory" in OS.get_cmdline_user_args():
+		_draw_inventory(renderer)
+	if not await _admit_benchmark_focus():
+		_check(false, "Formation benchmark did not acquire stable foreground focus")
+		return
+	if "--dispatch-only" in OS.get_cmdline_user_args() and OS.has_feature("debug"):
+		EngineDebugger.profiler_enable("scripts", true)
+	var measured_start = _profile_snapshot()
+	var trace_pipelines = "--tactical-pipeline-trace" in OS.get_cmdline_user_args()
+	var pipeline_probe = load("res://source/match/effects/CombatPrewarm.gd")
+	var pipelines = pipeline_probe._pipelines() if trace_pipelines else {}
+	var pipeline_changes = []
+	if trace_pipelines:
+		print("TACTICAL PIPELINE BASELINE ", JSON.stringify(pipelines))
+	before = Time.get_ticks_usec()
+	var command_started = before
+	root.get_node("MatchSignals").terrain_targeted.emit(Vector3(50, 0, 60))
+	var dispatch_ms = (Time.get_ticks_usec() - before) / 1000.0
+	if "--dispatch-only" in OS.get_cmdline_user_args():
+		if OS.has_feature("debug"):
+			EngineDebugger.profiler_enable("scripts", false)
+		print("TACTICAL DISPATCH DIAGNOSTIC ms=", dispatch_ms)
+		return
+	var pre_await_qa_started = Time.get_ticks_usec()
+	var actual = []
+	for unit in units:
+		var intent = (
+			unit.manual_orders.current
+			if not unit.manual_orders.current.is_empty()
+			else unit.manual_orders.pending[0] if not unit.manual_orders.pending.is_empty() else {}
+		)
+		_check(
+			intent.get("kind", "") == "move",
+			"Formation input did not issue a real selected-group move"
+		)
+		actual.append([unit, intent.get("point", Vector3.INF)])
+	_check(dispatch_ms <= 16.6, "200-unit complete command dispatch exceeded 16.6ms")
+	_check(_visible_benchmark_units(units, battle_rect) == 200, "Input changed army framing")
+	var view_camera = _game.get_node("IsometricCamera3D")
+	var view_pixels = root.get_visible_rect().size.y / view_camera.size
+	for pair in actual:
+		var inner = battle_rect.grow(-pair[0].radius * 1.2 * view_pixels)
+		_check(
+			(
+				inner.has_point(view_camera.unproject_position(pair[1]))
+				and inner.has_point(view_camera.unproject_position(pair[1] + Vector3.UP * 2))
+			),
+			"Accepted formation endpoint left the visible world area"
+		)
+	var activation_queue = _game.get_node_or_null("OrderActivationQueue")
+	var queued_at_dispatch = activation_queue.statistics().queued if activation_queue != null else 0
+	var initial_focus = DisplayServer.get_name() == "headless" or root.has_focus()
+	var focused_frames = 0
+	var minimum_visible = 200
+	var minimum_selected = 200
+	var minimum_moving = 200
+	var maximum_moving = 0
+	var moving_samples_total = 0
+	var observer_total_us = 0
+	var observer_max_us = 0
+	var native_profile_before = []
+	if _game.crowd_runtime != null:
+		native_profile_before = _game.crowd_runtime.native.profile(true)
+	var frame_times = []
+	var render_cpu_ms = 0.0
+	var render_gpu_ms = 0.0
+	var maximum_gpu_ms = 0.0
+	var maximum_frame_ms = 0.0
+	var maximum_frame_index = -1
+	var maximum_frame_physics_ticks = 0
+	var frame_details = []
+	var previous_physics_frame = Engine.get_physics_frames()
+	var draws = 0.0
+	if "--tactical-native-sample" in OS.get_cmdline_user_args():
+		# An external sampler cannot use the buffered file logger as a start
+		# signal. Publish an explicit diagnostic marker before measurement.
+		DirAccess.make_dir_recursive_absolute("user://tactical-performance")
+		var marker = FileAccess.open(
+			"user://tactical-performance/sample-ready.json", FileAccess.WRITE
+		)
+		marker.store_string(JSON.stringify({"pid": OS.get_process_id()}))
+		marker.close()
+	# Include the synchronous command and all deferred activation in frame0/onward.
+	var last = command_started
+	var pre_await_qa_us = Time.get_ticks_usec() - pre_await_qa_started
+	for frame in 240:
+		if frame == 0:
+			if "--tactical-script-profile" in OS.get_cmdline_user_args():
+				EngineDebugger.profiler_enable("scripts", true)
+		elif frame == 12 and "--tactical-script-profile" in OS.get_cmdline_user_args():
+			EngineDebugger.profiler_enable("scripts", false)
+		await process_frame
+		var now = Time.get_ticks_usec()
+		if DisplayServer.get_name() == "headless" or root.has_focus():
+			focused_frames += 1
+		var visible = _visible_benchmark_units(units, battle_rect)
+		minimum_visible = mini(minimum_visible, visible)
+		minimum_selected = mini(minimum_selected, get_nodes_in_group("selected_units").size())
+		var moving = 0
+		for unit in units:
+			if unit.get_node("Movement").velocity.length_squared() > .01:
+				moving += 1
+		minimum_moving = mini(minimum_moving, moving)
+		maximum_moving = maxi(maximum_moving, moving)
+		moving_samples_total += moving
+		var frame_ms = (now - last) / 1000.0
+		if trace_pipelines:
+			var current_pipelines = pipeline_probe._pipelines()
+			if current_pipelines != pipelines:
+				pipeline_changes.append([frame, frame_ms, current_pipelines])
+				pipelines = current_pipelines
+		var physics_ticks = Engine.get_physics_frames() - previous_physics_frame
+		previous_physics_frame = Engine.get_physics_frames()
+		frame_times.append(frame_ms)
+		if frame_ms > maximum_frame_ms:
+			maximum_frame_ms = frame_ms
+			maximum_frame_index = frame
+			maximum_frame_physics_ticks = physics_ticks
+		var gpu_ms = RenderingServer.viewport_get_measured_render_time_gpu(root.get_viewport_rid())
+		render_gpu_ms += gpu_ms
+		maximum_gpu_ms = maxf(maximum_gpu_ms, gpu_ms)
+		render_cpu_ms += RenderingServer.viewport_get_measured_render_time_cpu(
+			root.get_viewport_rid()
+		)
+		draws += Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME)
+		# Observer work remains inside the following frame's wall measurement.
+		# Report it separately; never subtract QA cost from the strict gate.
+		var observer_us = Time.get_ticks_usec() - now
+		observer_total_us += observer_us
+		observer_max_us = maxi(observer_max_us, observer_us)
+		frame_details.append([frame, frame_ms, physics_ticks, observer_us])
+		last = now
+	var measured_end = _profile_snapshot()
+	if trace_pipelines:
+		print("TACTICAL PIPELINE CHANGES ", JSON.stringify(pipeline_changes))
+	_check(minimum_visible == 200, "Formation bodies left the visible battle area")
+	_check(minimum_selected == 200, "Formation selection changed during measurement")
+	_check(initial_focus and focused_frames == 240, "Formation benchmark lost foreground focus")
+	if activation_queue != null:
+		var activation_stats = activation_queue.statistics()
+		activation_stats.queued_at_dispatch = queued_at_dispatch
+		print("TACTICAL ACTIVATION ", JSON.stringify(activation_stats))
+		_check(activation_stats.queued == 0, "Formation activation retained waiting units")
+		_check(activation_stats.maximum_wait_ms <= 100.001, "Formation activation exceeded100ms")
+	var backend = "native" if _game.crowd_runtime != null else "default"
+	var capture_path = "user://tactical-performance/%s-%s.png" % [_quality, backend]
+	if DisplayServer.get_name() != "headless":
+		DirAccess.make_dir_recursive_absolute("user://tactical-performance")
+		await RenderingServer.frame_post_draw
+		_check(
+			root.get_texture().get_image().save_png(capture_path) == OK,
+			"Cannot save visible formation capture"
+		)
+	print(
+		"TACTICAL COVERAGE ",
+		JSON.stringify(
+			{
+				"selected_min": minimum_selected,
+				"initial_focus": initial_focus,
+				"focused_frames": focused_frames,
+				"visible_min": minimum_visible,
+				"moving_min": minimum_moving,
+				"moving_max": maximum_moving,
+				"moving_mean": float(moving_samples_total) / frame_times.size(),
+				"camera_size": _game.get_node("IsometricCamera3D").size,
+				"battle_rect": str(battle_rect),
+				"capture": ProjectSettings.globalize_path(capture_path)
+			}
+		)
+	)
+	var profile = {
+		"frames": frame_times.size(),
+		"pre_await_qa_us": pre_await_qa_us,
+		"observer_total_us": observer_total_us,
+		"observer_mean_us": float(observer_total_us) / frame_times.size(),
+		"observer_max_us": observer_max_us,
+		"maximum_frame_index": maximum_frame_index,
+		"maximum_frame_physics_ticks": maximum_frame_physics_ticks,
+		"render_gpu_mean_ms": render_gpu_ms / frame_times.size(),
+		"render_gpu_max_ms": maximum_gpu_ms,
+		"gpu_timing_available": maximum_gpu_ms > 0.0,
+		"scene_dispatch_us": [],
+		"renderer_stage_us": [],
+		"render_cpu_mean_ms": render_cpu_ms / frame_times.size(),
+		"draw_calls_mean": draws / frame_times.size()
+	}
+	for key in ["scene", "renderer"]:
+		var differences = []
+		for index in measured_end[key].size():
+			differences.append(measured_end[key][index] - measured_start[key][index])
+		profile["scene_dispatch_us" if key == "scene" else "renderer_stage_us"] = differences
+	var cpu_before = measured_start.cpu
+	var cpu_after = measured_end.cpu
+	if (
+		cpu_before.size() == 4
+		and cpu_after.size() == 4
+		and cpu_before[0] == 1
+		and cpu_after[0] == 1
+	):
+		profile.cpu_usage = {
+			"process_ms_per_frame": (cpu_after[1] - cpu_before[1]) / 1000.0 / frame_times.size(),
+			"main_thread_ms_per_frame": (cpu_after[2] - cpu_before[2]) / 1000.0 / frame_times.size()
+		}
+		var spans = profile.scene_dispatch_us
+		if spans.size() == 6 and spans[4] > 0 and spans[5] > 0:
+			profile.scene_timing = {
+				"physics_elapsed_ms_per_tick": float(spans[0]) / spans[4] / 1000.0,
+				"physics_cpu_ms_per_tick": float(spans[2]) / spans[4] / 1000.0,
+				"process_elapsed_ms_per_frame": float(spans[1]) / spans[5] / 1000.0,
+				"process_cpu_ms_per_frame": float(spans[3]) / spans[5] / 1000.0,
+			}
+	print("TACTICAL PHASE PROFILE ", JSON.stringify(profile))
+	frame_details.sort_custom(func(a, b): return a[1] > b[1])
+	print(
+		"TACTICAL SLOW FRAMES [frame,wall_ms,physics_ticks,observer_us] ",
+		JSON.stringify(frame_details.slice(0, 8))
+	)
+	frame_times.sort()
+	var p95 = frame_times[floori(frame_times.size() * .95)]
+	if _game.crowd_runtime != null:
+		var native_profile = _game.crowd_runtime.native.profile(false)
+		for index in native_profile.size():
+			native_profile[index] -= native_profile_before[index]
+		print("TACTICAL NATIVE PROFILE ", native_profile)
+	print(
+		"TACTICAL PERFORMANCE units=200 assignment_ms=",
+		assignment_ms,
+		" projected_plan_ms=",
+		planning_ms,
+		" complete_dispatch_ms=",
+		dispatch_ms,
+		" frame_p50_ms=",
+		frame_times[frame_times.size() / 2],
+		" frame_p95_ms=",
+		p95,
+		" frame_max_ms=",
+		frame_times[-1]
+	)
+	_check(
+		frame_times[-1] <= 16.6, "200-unit formation exceeded strict 16.6 ms maximum frame budget"
+	)
+
+
+func _admit_benchmark_focus() -> bool:
+	if DisplayServer.get_name() == "headless":
+		return true
+	# Request the existing window once after all loading/warmup work. A later
+	# focus loss still invalidates the sample; never steal focus during it.
+	DisplayServer.window_move_to_foreground()
+	var deadline = Time.get_ticks_usec() + 5_000_000
+	var stable_frames = 0
+	while Time.get_ticks_usec() < deadline:
+		await process_frame
+		stable_frames = stable_frames + 1 if root.has_focus() else 0
+		if stable_frames >= 5:
+			return true
+	return false
+
+
+func _frame_benchmark(units: Array, destinations: Array) -> Rect2:
+	var camera = _game.get_node("IsometricCamera3D")
+	var viewport = root.get_visible_rect().size
+	var menus = _game.find_child("UnitMenus", true, false)
+	var minimap = _game.find_child("Minimap", true, false)
+	var bottom = minf(menus.get_global_rect().position.y, minimap.get_global_rect().position.y) - 8
+	var top = _game.hud.system_plate.get_global_rect().end.y
+	if _game.hud.ability_tray.visible:
+		top = maxf(top, _game.hud.ability_tray.get_global_rect().end.y)
+	# The tray can collapse while idle. Reserve the same full two-row space
+	# and normal whole-army zoom for every backend/quality comparison.
+	top = maxf(top + 8, 134.0)
+	var choices = [
+		Rect2(Vector2(384, top), Vector2(viewport.x - 400, bottom - top)),
+		Rect2(
+			Vector2(12, maxf(top, _game.hud._briefing.get_global_rect().end.y + 8)),
+			Vector2(
+				viewport.x - 24, bottom - maxf(top, _game.hud._briefing.get_global_rect().end.y + 8)
+			)
+		)
+	]
+	var low = Vector2(INF, INF)
+	var high = Vector2(-INF, -INF)
+	var inverse = camera.global_basis.inverse()
+	var positions = []
+	for index in units.size():
+		for position in [
+			units[index].global_position,
+			_game.map.ground_point(Vector2(destinations[index][1].x, destinations[index][1].z))
+		]:
+			positions.append(position)
+			for height in [0.0, 2.0]:
+				var local = inverse * (position + Vector3.UP * height)
+				var point = Vector2(local.x, local.y)
+				var radius = units[index].radius * 1.2
+				low = low.min(point - Vector2.ONE * radius)
+				high = high.max(point + Vector2.ONE * radius)
+	var world_size = high - low + Vector2.ONE * .2
+	var chosen = choices[0]
+	var required = INF
+	for rectangle in choices:
+		if rectangle.size.x <= 0 or rectangle.size.y <= 0:
+			continue
+		var size = (
+			maxf(world_size.x / rectangle.size.x, world_size.y / rectangle.size.y)
+			* viewport.y
+			* 1.01
+		)
+		if size < required:
+			required = size
+			chosen = rectangle
+	_check(
+		required <= camera.size_max,
+		(
+			"200-unit fixture cannot fit at the legal camera zoom: %s > %s"
+			% [required, camera.size_max]
+		)
+	)
+	camera.set_size_safely(camera.size_max)
+	var centre = Vector3(50, 1, 60)
+	camera.set_position_safely(centre)
+	var screen_low = Vector2(INF, INF)
+	var screen_high = Vector2(-INF, -INF)
+	for position in positions:
+		for height in [0.0, 2.0]:
+			var point = camera.unproject_position(position + Vector3.UP * height)
+			screen_low = screen_low.min(point)
+			screen_high = screen_high.max(point)
+	var offset = chosen.get_center() - (screen_low + screen_high) * .5
+	var up_flat = (camera.global_basis.y * Vector3(1, 0, 1)).normalized()
+	var scale = camera.size / viewport.y
+	centre += camera.global_basis.x * -offset.x * scale
+	centre += up_flat * offset.y * scale / up_flat.dot(camera.global_basis.y)
+	camera.set_position_safely(centre)
+	_check(
+		_visible_benchmark_units(units, chosen) == 200,
+		"Initial cohort is not completely visible alongside the real HUD"
+	)
+	return chosen
+
+
+func _visible_benchmark_units(units: Array, rectangle: Rect2) -> int:
+	var camera = _game.get_node("IsometricCamera3D")
+	var pixels = root.get_visible_rect().size.y / camera.size
+	var count = 0
+	for unit in units:
+		if not unit.is_visible_in_tree() or not unit.get_node("Geometry").is_visible_in_tree():
+			continue
+		var inner = rectangle.grow(-unit.radius * 1.2 * pixels)
+		if (
+			not camera.is_position_behind(unit.global_position)
+			and inner.has_point(camera.unproject_position(unit.global_position))
+			and inner.has_point(camera.unproject_position(unit.global_position + Vector3.UP * 2.0))
+		):
+			count += 1
+	return count
+
+
+func _profile_snapshot() -> Dictionary:
+	var renderer = _game.get_node_or_null("UnitBatchRenderer")
+	return {
+		"scene": Array(_game.runtime_profiler.totals) if _game.runtime_profiler != null else [],
+		"renderer": Array(renderer._profile_us) if renderer != null else [],
+		"cpu": _game.runtime_profiler.cpu_sample() if _game.runtime_profiler != null else []
+	}
+
+
+func _draw_inventory(renderer):
+	var batched = {}
+	if renderer != null:
+		for entry in renderer._entries:
+			for source in entry.sources:
+				batched[source] = true
+		for group in renderer._static_batches:
+			if not group.restored:
+				for source in group.sources:
+					batched[source] = true
+	var inventory = {}
+	var frustum = _game.get_node("IsometricCamera3D").get_frustum()
+	for visual in _game.find_children("*", "GeometryInstance3D", true, false):
+		if not visual.is_visible_in_tree() or batched.has(visual):
+			continue
+		var bounds: AABB = visual.global_transform * visual.get_aabb()
+		var outside = false
+		for plane in frustum:
+			if plane.distance_to(bounds.get_support(-plane.normal)) > 0:
+				outside = true
+				break
+		if outside:
+			continue
+		var unit = visual.get_parent()
+		while unit != null and not unit.is_in_group("units"):
+			unit = unit.get_parent()
+		var key = "unit/" + unit.type if unit != null else "world"
+		if unit == null:
+			var path = _game.get_path_to(visual)
+			for index in mini(2, path.get_name_count()):
+				key += "/" + str(path.get_name(index))
+		key += "/" + visual.get_class()
+		if visual.has_meta("animated_track"):
+			key += "/track"
+		var data = inventory.get_or_add(key, {"nodes": 0, "surfaces": 0, "instances": 0})
+		data.nodes += 1
+		var surface_count = (
+			visual.mesh.get_surface_count()
+			if visual is MeshInstance3D and visual.mesh != null
+			else 1
+		)
+		var instances = 1
+		if visual is MultiMeshInstance3D and visual.multimesh != null:
+			surface_count = (
+				visual.multimesh.mesh.get_surface_count() if visual.multimesh.mesh != null else 0
+			)
+			instances = visual.multimesh.visible_instance_count
+			if instances < 0:
+				instances = visual.multimesh.instance_count
+		data.surfaces += surface_count
+		data.instances += instances
+	print(
+		"TACTICAL DRAW INVENTORY ",
+		JSON.stringify(
+			{
+				"batched_sources": batched.size(),
+				"groups": renderer._groups.size() if renderer != null else 0,
+				"models": renderer._models.size() if renderer != null else 0,
+				"frustum_visible_geometry": inventory,
+				"batched_tracks":
+				(
+					renderer._entries.reduce(
+						func(count, entry): return count + entry.tracks.size(), 0
+					)
+					if renderer != null
+					else 0
+				)
+			}
+		)
+	)
+
+
+func _turret_and_focus():
+	var tank = _spawn("Tank", _human, Vector3(40, 0, 40))
+	var other = _spawn("Tank", _human, Vector3(40, 0, 44))
+	var target = _spawn("Tank", _enemy, Vector3(48, 0, 42))
+	var ambusher = _spawn("Infantry", _enemy, Vector3(41, 0, 40))
+	await _frames(12)
+	tank.aim_target = target
+	var visual = tank.get_node("BastionVisuals")
+	for hull_heading in [0.0, PI * .7, -PI * .6]:
+		tank.rotation.y = hull_heading
+		visual._aim(1.0)
+		var direction = (
+			((target.global_position - visual._turret.global_position) * Vector3(1, 0, 1))
+			. normalized()
+		)
+		var facing = ((-visual._turret.global_basis.z) * Vector3(1, 0, 1)).normalized()
+		_check(direction.dot(facing) > .99, "Hull rotation pulled world turret aim off target")
+	var aim = load("res://source/match/units/traits/TurretAim.gd")
+	_check(
+		is_equal_approx(aim.elevation(Vector3(0, 100, -1)), .65),
+		"Turret elevation exceeded authored arc"
+	)
+	_game.hud.select_units([tank, other])
+	var alt = InputEventKey.new()
+	alt.keycode = KEY_ALT
+	alt.physical_keycode = KEY_ALT
+	alt.pressed = true
+	Input.parse_input_event(alt)
+	_human.get_node("UnitActionsController")._on_unit_targeted(target)
+	alt = alt.duplicate()
+	alt.pressed = false
+	Input.parse_input_event(alt)
+	await _frames(3)
+	for shooter in [tank, other]:
+		_check(
+			shooter.action != null and shooter.action.get("_target_unit") == target,
+			"Alt-right-click did not focus chosen target"
+		)
+	tank.receive_damage(ambusher, 1.0)
+	await _frames(3)
+	_check(
+		tank.action != null and tank.action.get("_target_unit") == target,
+		"Incoming fire replaced exclusive manual focus"
+	)
+
+
+func _flight_cohesion():
+	var plane = _spawn("Fighter", _human, Vector3(50, 5, 50))
+	var escort = _spawn("Tank", _human, Vector3(47, 0, 50))
+	await _frames(12)
+	var flight = plane.get_node("Movement")
+	var group = cohort_script.new([plane, escort])
+	plane.manual_orders.configure_cohesion(true, group)
+	escort.manual_orders.configure_cohesion(true, group)
+	flight.phase = flight.Phase.AIRBORNE
+	flight.airspeed = flight.cruise_speed
+	flight.refresh_cohesion()
+	_check(
+		flight.flight_velocity().length() <= escort.get_node("Movement").unclamped_speed() + .01,
+		"Fixed-wing formation cruise ignored live slowest-member speed"
+	)
+	var origin = plane.global_position
+	flight._advance(.1)
+	_check(
+		plane.global_position.distance_to(origin) <= flight.cohesion_limit * .1 + .01,
+		"Fixed-wing formation velocity cap did not reach world motion"
+	)
+	plane.manual_orders.configure_cohesion(false)
+	flight.refresh_cohesion()
+	_check(
+		flight.flight_velocity().length() > escort.movement_speed,
+		"Disabling cohesion kept fixed-wing cruise clamped"
+	)

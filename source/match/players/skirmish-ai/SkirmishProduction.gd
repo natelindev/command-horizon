@@ -59,10 +59,10 @@ static func requests(game, player, units, include_busy = false):
 				"producer": producer,
 				"role": choice.role,
 				"priority": choice.priority,
-				"cost": Factions.cost(player, choice.role).duplicate()
+				"cost": Factions.production_cost(player, choice.role)
 			}
 		)
-		counts[choice.role] = counts.get(choice.role, 0) + 1
+		counts[choice.role] = counts.get(choice.role, 0) + Factions.batch_size(player.faction, choice.role)
 		if producer.type == "VehicleFactory":
 			sequence += 1
 	result.sort_custom(

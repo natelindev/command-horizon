@@ -35,7 +35,7 @@ func _behaviors():
 	var opponent = get_nodes_in_group("players").filter(func(side): return side != player)[0]
 	var target = _units(opponent, "Tank")[0]
 	target.position = Vector3(42, 0, 43)
-	var initial_health = target.hp
+	var initial_health = target.hp + target.shields
 	Behavior.set_stance(target, "hold_fire")
 	game.battlefield.invalidate()
 	var temporary = load("res://source/match/units/Infantry.tscn").instantiate()
@@ -71,7 +71,10 @@ func _behaviors():
 	)
 	Behavior.set_stance(tank, "attack")
 	await _frames(120)
-	_check(target.hp < initial_health, "Attack did not fire")
+	_check(
+		target.hp + target.shields < initial_health,
+		player.faction + ": Attack did not damage hull or shields"
+	)
 	Behavior.set_stance(tank, "hold_fire")
 	await _frames(120)  # Allow shots already in flight to resolve.
 	var health = target.hp

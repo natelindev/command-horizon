@@ -85,8 +85,9 @@ func _project(active):
 			% title
 		)
 		return
-	var low_power = player.production_factor() < 1.0
-	var seconds = ceili(remaining / player.production_factor())
+	var factor = player.research_factor()
+	var low_power = factor < 1.0
+	var seconds = ceili(remaining / factor)
 	var state = " · paused" if get_tree().paused else (" · low power" if low_power else "")
 	_button.text = "%s · %d s%s" % [title, seconds, state]
 	_button.tooltip_text = (
@@ -94,7 +95,7 @@ func _project(active):
 		% [
 			title,
 			seconds,
-			" Low power runs research at 35% speed." if low_power else "",
+			(tr(" Research rate: %d%%.") % roundi(factor * 100)) if low_power else "",
 			" Resume battle to continue." if get_tree().paused else ""
 		]
 	)
