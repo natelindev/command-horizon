@@ -27,7 +27,7 @@ def records(script):
                 lines.append(dict(id=line['id'], speaker={'en': actor['name'], 'zh_CN': actor['zh_CN']},
                                   en=line['en'], zh_CN=line['zh_CN'],
                                   voice='res://assets/audio/campaign/dialogue/'+line['id']+'.ogg',
-                                  portrait='res://assets/ui/campaign/'+line['speaker']+'.svg'))
+                                  portrait='res://assets/ui/campaign/portraits/'+line['speaker']+'.png'))
             result[mid+'.'+trigger] = {'dialogue': lines}
     return result
 

@@ -5,6 +5,12 @@ const BattleTheme = preload("res://source/match/hud/BattleTheme.gd")
 
 func _ready():
 	hide()
+	var backdrop = load("res://source/main-menu/ArtBackdrop.gd").new()
+	backdrop.name = "PauseArtwork"
+	backdrop.dim = .28
+	backdrop.motion = false
+	add_child(backdrop)
+	move_child(backdrop, 1)
 	var panel = find_child("PanelContainer")
 	if panel != null:
 		BattleTheme.apply(panel, 20, 16)
@@ -13,10 +19,12 @@ func _ready():
 		resume.theme = BattleTheme.create()
 		resume.theme_type_variation = "BattlePrimaryButton"
 		resume.custom_minimum_size.y = 40
+		resume.focus_mode = Control.FOCUS_ALL
 	var exit_btn = find_child("ExitButton")
 	if exit_btn != null:
 		exit_btn.theme = BattleTheme.create()
 		exit_btn.custom_minimum_size.y = 40
+		exit_btn.focus_mode = Control.FOCUS_ALL
 
 
 func _unhandled_input(event):
@@ -30,6 +38,8 @@ func _unhandled_input(event):
 func _toggle():
 	visible = not visible
 	get_tree().paused = visible
+	if visible:
+		find_child("ResumeButton").grab_focus()
 
 
 func _on_resume_button_pressed():

@@ -16,7 +16,7 @@ func _ready():
 	row.add_theme_constant_override("separation", 12)
 	add_child(row)
 	_portrait = TextureRect.new()
-	_portrait.custom_minimum_size = Vector2(48, 48)
+	_portrait.custom_minimum_size = Vector2(80, 80)
 	_portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_portrait.size_flags_vertical = Control.SIZE_SHRINK_CENTER

@@ -1,0 +1,135 @@
+{
+  "engine": "Godot 4.7.2.stable.official.ed1daf0bf",
+  "generated_with": "built-in image_gen",
+  "assets": [
+    {
+      "file": "assets/ui/art/bastion-foundry-dawn.png",
+      "sha256": "3d416d6bffbb493b8acce099a527c3f67f4d3809060bd966e9dc91c3ee5d33de"
+    },
+    {
+      "file": "assets/ui/art/helix-relay-night.png",
+      "sha256": "ace300dda31aa6b347d18da5d2bd9a657f87db93aa527b908bd59cf8b8c7105f"
+    },
+    {
+      "file": "assets/ui/art/frontier-convoy-sunset.png",
+      "sha256": "adc891d145e9c135ec6f6dac636f88c81ac9f1bfd68f73332085422f97c89cbd"
+    },
+    {
+      "file": "assets/ui/campaign/portraits/aegis.png",
+      "sha256": "5f4beb5399e7e573ea02be0439519ee1d094b72ec3d89f4735e16c2766af3945"
+    },
+    {
+      "file": "assets/ui/campaign/portraits/nyx.png",
+      "sha256": "c860190ace6cb8c4c6d9e3c538c8d2400f6e2e608f31f3bdbc5880910e0c891b"
+    },
+    {
+      "file": "assets/ui/campaign/portraits/rook.png",
+      "sha256": "5d39fb9d7c47fdf6623da3dafbf7da1be4b21694fb5665ebf4e37f2cb8a20ca2"
+    },
+    {
+      "file": "assets/ui/campaign/portraits/voss.png",
+      "sha256": "971a013496359a83320166ab3e7195ca7e5365046e374f99daf9b5e170098090"
+    },
+    {
+      "file": "assets/ui/campaign/portraits/kerrigan.png",
+      "sha256": "43e034f8aeb1e622913831a6170b8579dcfd47f00b4c95b6daebddacb4548ea6"
+    },
+    {
+      "file": "assets/ui/campaign/portraits/elias.png",
+      "sha256": "f40812f8d011ee107b6c06ec869665b805118c59413daaf581df9e391c5273c0"
+    },
+    {
+      "file": "assets/ui/campaign/portraits/cantor.png",
+      "sha256": "27301d771996ec11e9d817d4bf8b0503939c3f1b34fe82e5f203d4eff35197ec"
+    },
+    {
+      "file": "assets/ui/campaign/portraits/arden.png",
+      "sha256": "06c47e3f31c21c93e42eeefe8674ebb7d0fdd4ac7640b488af77def1028a5a1a"
+    },
+    {
+      "file": "assets/ui/campaign/portraits/ren.png",
+      "sha256": "4a5c85c7dd075b4db8d66808a63e47da5ff2baeb8fb40c7ee943f9cf1a2541d8"
+    },
+    {
+      "file": "assets/ui/campaign/portraits/ilan.png",
+      "sha256": "2c8b6f01aaee01519fe8fb16fd5d7c74afe0e98b81da190b94987b62a14f83e4"
+    },
+    {
+      "file": "assets/ui/campaign/portraits/wren.png",
+      "sha256": "3c1b5df3f802a14b896ddd31f3b49bad5a44d5556ae8ea5bdae52628c28285b1"
+    },
+    {
+      "file": "assets/ui/campaign/portraits/hask.png",
+      "sha256": "1e3226444f1212ac39c947218e65010213c5b2c00999e904b8f0b1b627c33ed1"
+    },
+    {
+      "file": "assets/ui/campaign/portraits/jory.png",
+      "sha256": "e0d30089f5c49b550c8524eac9cc231bab2d4305f5096e73d86147c046d73c95"
+    }
+  ],
+  "checks": [
+    {
+      "check": "MenuArtworkRegression",
+      "exit_code": 0,
+      "summary": "Menu artwork regression: 0 failures",
+      "shutdown_warnings": []
+    },
+    {
+      "check": "HeroCampaignMenuRegression",
+      "exit_code": 0,
+      "summary": "Hero campaign menu: 0 failures",
+      "shutdown_warnings": []
+    },
+    {
+      "check": "CampaignDialogueRegression",
+      "exit_code": 0,
+      "summary": "Campaign conversations: 0 failures",
+      "shutdown_warnings": []
+    },
+    {
+      "check": "CampaignHubRegression",
+      "exit_code": 0,
+      "summary": "Campaign command hubs: 0 failures",
+      "shutdown_warnings": []
+    },
+    {
+      "check": "MenuConsoleRegression",
+      "exit_code": 0,
+      "summary": "Menu console: 0 failures",
+      "shutdown_warnings": []
+    },
+    {
+      "check": "MenuArtRegression",
+      "exit_code": 0,
+      "summary": "Menu art regression: 0 failures",
+      "shutdown_warnings": [
+        "WARNING: 4 ObjectDB instances were leaked at exit (run with `--verbose` for details).",
+        "ERROR: 2 resources still in use at exit (run with --verbose for details)."
+      ]
+    },
+    {
+      "check": "CampaignBriefingCatalogPreview --layout-only --layout-matrix",
+      "exit_code": 0,
+      "summary": "Briefing catalog headless layout: 1152 paragraphs, 0 failures",
+      "shutdown_warnings": []
+    },
+    {
+      "check": "HudConsolePreview --console-only (rendered)",
+      "exit_code": 0,
+      "summary": "HUD console preview: 0 failures",
+      "shutdown_warnings": []
+    },
+    {
+      "check": "MenuCampaignArtPreview (rendered)",
+      "exit_code": 0,
+      "summary": "Menu campaign art preview: 0 failures",
+      "shutdown_warnings": []
+    }
+  ],
+  "rendered_capture_count": 31,
+  "review_directory": "art/menu-campaign-art/review",
+  "limitations": [
+    "MenuArtRegression exits successfully after reporting ObjectDB/resource shutdown warnings; other listed final runs report no errors or warnings.",
+    "Full packaged-export acceptance was outside this art/UI pass."
+  ]
+}

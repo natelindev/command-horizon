@@ -3,6 +3,7 @@ extends Control
 const Progress = preload("res://source/match/campaign/CampaignProgress.gd")
 const Catalog = preload("res://source/match/campaign/CampaignCatalog.gd")
 const ArtTheme = preload("res://source/main-menu/ArtTheme.gd")
+const Artwork = preload("res://source/main-menu/ArtworkCatalog.gd")
 var progress_path = Progress.PATH
 var _difficulty: OptionButton
 var _challenge: OptionButton
@@ -24,6 +25,7 @@ var _faction_picker: OptionButton
 var _operation_list: VBoxContainer
 var _heading: Label
 var _body: GridContainer
+var _hero_art: TextureRect
 
 
 func _ready():
@@ -73,6 +75,14 @@ func _ready():
 	var dossier = VBoxContainer.new()
 	dossier.add_theme_constant_override("separation", 12)
 	panel.add_child(dossier)
+	_hero_art = TextureRect.new()
+	_hero_art.name = "CommanderPortrait"
+	_hero_art.custom_minimum_size = Vector2(112, 112)
+	_hero_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_hero_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_hero_art.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	_hero_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	dossier.add_child(_hero_art)
 	_completion = _label(dossier, "", 14)
 	_hero_story = _label(dossier, "", 16)
 	_hero_story.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -111,7 +121,11 @@ func _ready():
 		"Main menu",
 		func(): get_tree().change_scene_to_file("res://source/main-menu/Main.tscn")
 	)
-	_button(actions, "Command hub", func(): get_tree().change_scene_to_file("res://source/main-menu/CampaignHub.tscn"))
+	_button(
+		actions,
+		"Command hub",
+		func(): get_tree().change_scene_to_file("res://source/main-menu/CampaignHub.tscn")
+	)
 	var spacer = Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	actions.add_child(spacer)
@@ -131,6 +145,7 @@ func _layout():
 
 func _select_faction(index):
 	_faction = ["bastion", "helix", "frontier"][index]
+	_hero_art.texture = Artwork.commander(_faction)
 	ArtTheme.Console.use_faction(_faction)
 	theme = ArtTheme.create()
 	for panel in _body.get_children():
@@ -406,5 +421,7 @@ func _start():
 	_starting = true
 	_start_button.disabled = true
 	var launch = load("res://source/main-menu/CampaignLaunch.gd")
-	var challenge = ["", "lean", "reinforced"][_challenge.selected] if _mission_id == "command_horizon" else ""
+	var challenge = (
+		["", "lean", "reinforced"][_challenge.selected] if _mission_id == "command_horizon" else ""
+	)
 	launch.deploy(self, launch.settings_for(_mission_id, _difficulty.selected, challenge))

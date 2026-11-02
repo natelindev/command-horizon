@@ -5,6 +5,7 @@ const Campaigns = preload("res://source/match/campaign/CampaignCatalog.gd")
 const BRIEFINGS = "res://assets/audio/campaign/briefings.json"
 const CONVERSATIONS = "res://assets/audio/campaign/conversations.json"
 const Cache = preload("res://source/utils/RuntimeCache.gd")
+const Artwork = preload("res://source/main-menu/ArtworkCatalog.gd")
 
 
 static func lines():
@@ -32,7 +33,8 @@ static func lines():
 							"en": segment.en,
 							"zh_CN": segment.zh,
 							"voice": segment.stream,
-							"duration": segment.duration
+							"duration": segment.duration,
+							"portrait": Artwork.portrait_path(Artwork.COMMANDERS[faction])
 						}
 					)
 				cache.lines[mission + ".briefing"] = {"dialogue": dialogue}

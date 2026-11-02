@@ -1,9 +1,13 @@
 extends Control
 
+const Artwork = preload("res://source/main-menu/ArtworkCatalog.gd")
+
 @export var dim = .25
+@export var motion = true
 
 var _art: TextureRect
 var _time = 0.0
+var artwork_path = ""
 
 
 func _ready():
@@ -11,7 +15,6 @@ func _ready():
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	clip_contents = true
 	_art = TextureRect.new()
-	_art.texture = preload("res://assets/ui/art/hangar-battlefield-menu.png")
 	_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -25,6 +28,25 @@ func _ready():
 	veil.material = material
 	add_child(veil)
 	resized.connect(_layout)
+	visibility_changed.connect(_on_visibility_changed)
+	if is_visible_in_tree():
+		reroll()
+	_layout()
+
+
+func _on_visibility_changed():
+	if is_node_ready() and is_visible_in_tree():
+		reroll()
+
+
+func reroll():
+	show_art(Artwork.next_background())
+
+
+func show_art(path: String):
+	artwork_path = path
+	_art.texture = load(path)
+	_time = 0.0
 	_layout()
 
 
@@ -34,6 +56,6 @@ func _layout():
 
 
 func _process(delta):
-	if Globals.options.menu_motion:
+	if motion and is_visible_in_tree() and Globals.options.menu_motion:
 		_time += delta
 		_art.position = -size * .025 + Vector2(sin(_time * .06) * 8, cos(_time * .045) * 5)

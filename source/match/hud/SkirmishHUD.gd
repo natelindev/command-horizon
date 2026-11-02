@@ -470,10 +470,17 @@ func _make_overlay(title_text, cinematic = false):
 	var overlay_canvas = CanvasLayer.new()
 	overlay_canvas.layer = 9
 	_overlay.add_child(overlay_canvas)
-	var shade = ColorRect.new()
-	shade.color = Color(0.025, 0.04, 0.07, 0.84)
-	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	overlay_canvas.add_child(shade)
+	if cinematic:
+		var backdrop = load("res://source/main-menu/ArtBackdrop.gd").new()
+		backdrop.name = "PauseArtwork"
+		backdrop.dim = .28
+		backdrop.motion = false
+		overlay_canvas.add_child(backdrop)
+	else:
+		var shade = ColorRect.new()
+		shade.color = Color(0.025, 0.04, 0.07, 0.84)
+		shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		overlay_canvas.add_child(shade)
 	var center = CenterContainer.new()
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	overlay_canvas.add_child(center)
@@ -484,8 +491,6 @@ func _make_overlay(title_text, cinematic = false):
 	var layout = HBoxContainer.new()
 	layout.add_theme_constant_override("separation", 28)
 	panel.add_child(layout)
-	if cinematic:
-		BattleTheme.artwork(layout, 270)
 	var box = VBoxContainer.new()
 	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	if cinematic:

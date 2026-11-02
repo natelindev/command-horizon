@@ -328,6 +328,8 @@ static func selection_portrait(faction, role) -> Texture2D:
 
 
 static func portrait(faction, role) -> Texture2D:
+	if role == "Hero":
+		return load("res://source/main-menu/ArtworkCatalog.gd").commander(faction)
 	if role in Mercenaries.ROLES:
 		return load(icon(faction, role))
 	# Pre-rendered model portraits, shared by the selection bay, rosters and queues.

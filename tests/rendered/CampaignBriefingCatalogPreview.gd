@@ -112,6 +112,7 @@ func _review_mission(id: String, locale: String, factor: float, font_size: int):
 	for index in lines.size():
 		var line = lines[index]
 		briefing.caption.set_line(line.speaker, line.text, font_size)
+		briefing.caption.set_portrait(line.get("portrait", ""))
 		briefing.caption.set_caption_visible(true)
 		briefing.seek(elapsed + _catalog[id].segments[index].duration * .5)
 		await _frames(4)

@@ -4,6 +4,7 @@ const Catalog = preload("res://source/match/campaign/CampaignCatalog.gd")
 const Progress = preload("res://source/match/campaign/CampaignProgress.gd")
 const HubState = preload("res://source/match/campaign/CampaignHubState.gd")
 const ArtTheme = preload("res://source/main-menu/ArtTheme.gd")
+const Artwork = preload("res://source/main-menu/ArtworkCatalog.gd")
 const FACTIONS = ["bastion", "helix", "frontier"]
 const WORLDS = {
 	"bastion": "BastionWarTrain", "helix": "HelixNexusCore", "frontier": "FrontierOutpost"
@@ -41,6 +42,8 @@ var _audio: AudioStreamPlayer
 var _transmission = []
 var _transmission_index = 0
 var _caption: Label
+var _commander_art: TextureRect
+var _archive_art: TextureRect
 var _starting = false
 var _preview = null
 var _preview_clock = 0.0
@@ -75,6 +78,7 @@ func _ready():
 	var row = HBoxContainer.new()
 	row.add_theme_constant_override("separation", 16)
 	header.add_child(row)
+	_commander_art = _portrait(row, 52)
 	_heading = _label(row, "", 22)
 	_heading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_faction_picker = OptionButton.new()
@@ -130,6 +134,17 @@ func _label(parent: Node, value: String, font_size = 16) -> Label:
 	return label
 
 
+func _portrait(parent: Node, side: int) -> TextureRect:
+	var portrait = TextureRect.new()
+	portrait.custom_minimum_size = Vector2(side, side)
+	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	portrait.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	parent.add_child(portrait)
+	return portrait
+
+
 func _button(parent: Node, value: String, callback: Callable) -> Button:
 	var button = Button.new()
 	button.text = tr(value)
@@ -144,6 +159,7 @@ func _select_faction(index: int):
 	_audio.stop()
 	_transmission.clear()
 	faction = FACTIONS[index]
+	_commander_art.texture = Artwork.commander(faction)
 	_faction_picker.select(index)
 	music_faction = faction
 	ArtTheme.Console.use_faction(faction)
@@ -336,7 +352,13 @@ func _archive():
 		func(): _play_transmission(Catalog.ORDER[faction][picker.selected])
 	)
 	_button(row, "Replay briefing", func(): _start_preview(Catalog.ORDER[faction][picker.selected]))
-	_caption = _label(_body, "", 16)
+	var transmission = HBoxContainer.new()
+	transmission.add_theme_constant_override("separation", 12)
+	_body.add_child(transmission)
+	_archive_art = _portrait(transmission, 80)
+	_archive_art.texture = Artwork.commander(faction)
+	_caption = _label(transmission, "", 16)
+	_caption.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_caption.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_caption.max_lines_visible = 4
 	_caption.text = tr(
@@ -394,6 +416,7 @@ func _talk_mercenary(role: String):
 	var line = lines.get("select", [])[0]
 	var title = load("res://source/match/world/MercenaryCatalog.gd").UNITS[role].title
 	_caption.text = tr(title) + "\n" + tr(line.text)
+	_archive_art.texture = load("res://source/match/FactionCatalog.gd").portrait("frontier", role)
 	_audio.stream = load(line.stream)
 	_audio.play()
 
@@ -406,6 +429,8 @@ func _next_transmission():
 		return
 	var line = _transmission[_transmission_index]
 	_caption.text = "%s\n%s" % [line.speaker, line.text]
+	var portrait = line.get("portrait", "")
+	_archive_art.texture = load(portrait) if not portrait.is_empty() else Artwork.commander(faction)
 	_audio.stream = load(line.stream)
 	_audio.play()
 

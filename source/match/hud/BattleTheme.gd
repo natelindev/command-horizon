@@ -8,7 +8,7 @@ extends RefCounted
 
 const HudStyle = preload("res://source/match/hud/HudStyle.gd")
 const Cache = preload("res://source/utils/RuntimeCache.gd")
-const PANORAMA = preload("res://assets/ui/art/battle/frontier-pause-v2.png")
+const Artwork = preload("res://source/main-menu/ArtworkCatalog.gd")
 const KIT = "res://assets/ui/hud/"
 const BODY_FONT = preload("res://assets/fonts/NotoSansSC.ttf")
 const DISPLAY_FACE = preload("res://assets/fonts/BarlowCondensed-SemiBold.ttf")
@@ -481,7 +481,7 @@ static func artwork(parent: Control, width = 270):
 	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	parent.add_child(frame)
 	var art = TextureRect.new()
-	art.texture = PANORAMA
+	art.texture = load(Artwork.next_background())
 	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
