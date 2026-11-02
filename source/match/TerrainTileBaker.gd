@@ -17,6 +17,7 @@ var _source: NavigationMeshSourceGeometryData3D
 var _pending: Array[int] = []
 var _active := 0
 var _finished: Callable
+var _seam_planes := {}
 
 
 func setup(template: NavigationMesh, source: NavigationMeshSourceGeometryData3D):
@@ -28,11 +29,17 @@ func setup(template: NavigationMesh, source: NavigationMeshSourceGeometryData3D)
 		* template.cell_size
 	)
 	var area := template.filter_baking_aabb
-	var count := Vector2i(ceili(area.size.x / _step), ceili(area.size.z / _step))
+	var columns := _axis_boundaries(area.position.x, area.size.x)
+	var rows := _axis_boundaries(area.position.z, area.size.z)
+	var count := Vector2i(columns.size() - 1, rows.size() - 1)
+	for x in columns:
+		_seam_planes[Vector2i(0, roundi(x / WELD))] = true
+	for z in rows:
+		_seam_planes[Vector2i(2, roundi(z / WELD))] = true
 	for z in count.y:
 		for x in count.x:
-			var origin := Vector2(area.position.x, area.position.z) + Vector2(x, z) * _step
-			var end := Vector2(area.end.x, area.end.z).min(origin + Vector2.ONE * _step)
+			var origin := Vector2(columns[x], rows[z])
+			var end := Vector2(columns[x + 1], rows[z + 1])
 			bounds.append(Rect2(origin, end - origin))
 			var tile: NavigationMesh = _template.duplicate()
 			tile.border_size = _border
@@ -47,6 +54,23 @@ func setup(template: NavigationMesh, source: NavigationMeshSourceGeometryData3D)
 			NavigationServer3D.bake_from_source_geometry_data(tile, source)
 			meshes.append(tile)
 	last_baked_tiles = meshes.size()
+
+
+func _axis_boundaries(origin: float, length: float) -> PackedFloat32Array:
+	var count := ceili(length / _step)
+	var result := PackedFloat32Array([origin])
+	# Put the remainder at both edges. A short final tile alone makes mirrored
+	# starts see different seam geometry and can bias otherwise symmetric routes.
+	# NavigationMesh stores cell_size as a float32. Integer voxel arithmetic
+	# avoids losing an entire boundary cell to rounding just below an integer.
+	var cells := roundi(length / _template.cell_size)
+	var tile_cells := roundi(_step / _template.cell_size)
+	var outer_cells: int = (cells - maxi(0, count - 2) * tile_cells) / 2
+	var outer := outer_cells * _template.cell_size
+	for index in range(1, count):
+		result.append(origin + outer + (index - 1) * _step)
+	result.append(origin + length)
+	return result
 
 
 func rebake(nodes: Array, source: NavigationMeshSourceGeometryData3D, finished: Callable):
@@ -172,13 +196,11 @@ func combined() -> NavigationMesh:
 
 func _seam_vertices(vertices: PackedVector3Array) -> Dictionary:
 	var result := {}
-	var origin := _template.filter_baking_aabb.position
 	for index in vertices.size():
 		var vertex := vertices[index]
 		for axis in [0, 2]:
-			var steps: float = (vertex[axis] - origin[axis]) / _step
-			if absf(steps - roundf(steps)) * _step <= WELD * 2.0:
-				var key := Vector2i(axis, roundi(vertex[axis] / WELD))
+			var key := Vector2i(axis, roundi(vertex[axis] / WELD))
+			if _seam_planes.has(key):
 				result.get_or_add(key, []).append(index)
 	return result
 

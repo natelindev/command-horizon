@@ -1,0 +1,181 @@
+[
+  {
+    "stage": "baseline",
+    "name": "ResourceNavigationRegression",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      "/Users/linlilu/godot-open-rts/tmp/engine-verification/baseline",
+      "--fixed-fps",
+      "60",
+      "--max-fps",
+      "240",
+      "--script",
+      "tests/headless/ResourceNavigationRegression.gd"
+    ],
+    "exit_code": 1,
+    "seconds": 71.24,
+    "errors": [
+      "ERROR: Worker crossed resource avoidance footprint",
+      "ERROR: Worker crossed resource avoidance footprint",
+      "ERROR: Engineer delivered beyond bounded building contact range"
+    ]
+  },
+  {
+    "stage": "baseline",
+    "name": "HarvestTrafficRegression",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      "/Users/linlilu/godot-open-rts/tmp/engine-verification/baseline",
+      "--fixed-fps",
+      "60",
+      "--max-fps",
+      "240",
+      "--script",
+      "tests/headless/HarvestTrafficRegression.gd"
+    ],
+    "exit_code": 1,
+    "seconds": 1.264,
+    "errors": [
+      "ERROR: bastion: traffic archive failed to restore",
+      "ERROR: helix: traffic archive failed to restore",
+      "ERROR: helix: traffic archive failed to restore",
+      "ERROR: helix-residual: traffic archive failed to restore"
+    ]
+  },
+  {
+    "stage": "baseline",
+    "name": "ArealSelectionRegression",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      "/Users/linlilu/godot-open-rts/tmp/engine-verification/baseline",
+      "--fixed-fps",
+      "60",
+      "--max-fps",
+      "240",
+      "--script",
+      "tests/headless/ArealSelectionRegression.gd"
+    ],
+    "exit_code": 0,
+    "seconds": 3.958,
+    "errors": [
+      "ERROR: 6 resources still in use at exit (run with --verbose for details)."
+    ]
+  },
+  {
+    "stage": "baseline",
+    "name": "FormationCapRegression",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      "/Users/linlilu/godot-open-rts/tmp/engine-verification/baseline",
+      "--fixed-fps",
+      "60",
+      "--max-fps",
+      "240",
+      "--script",
+      "tests/headless/FormationCapRegression.gd"
+    ],
+    "exit_code": 0,
+    "seconds": 7.686,
+    "errors": [
+      "ERROR: 12 resources still in use at exit (run with --verbose for details)."
+    ]
+  },
+  {
+    "stage": "current",
+    "name": "ResourceNavigationRegression",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      "/Users/linlilu/godot-open-rts",
+      "--fixed-fps",
+      "60",
+      "--max-fps",
+      "240",
+      "--script",
+      "tests/headless/ResourceNavigationRegression.gd"
+    ],
+    "exit_code": 1,
+    "seconds": 76.757,
+    "errors": [
+      "ERROR: Worker crossed resource avoidance footprint",
+      "ERROR: Worker crossed resource avoidance footprint",
+      "ERROR: Engineer delivered beyond bounded building contact range",
+      "ERROR: 6 resources still in use at exit (run with --verbose for details)."
+    ]
+  },
+  {
+    "stage": "current",
+    "name": "HarvestTrafficRegression",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      "/Users/linlilu/godot-open-rts",
+      "--fixed-fps",
+      "60",
+      "--max-fps",
+      "240",
+      "--script",
+      "tests/headless/HarvestTrafficRegression.gd"
+    ],
+    "exit_code": 1,
+    "seconds": 53.086,
+    "errors": [
+      "ERROR: helix: recovery exceeded movement speed",
+      "ERROR: Residual traffic exceeded movement speed",
+      "ERROR: Residual traffic missed real deliveries",
+      "ERROR: 6 resources still in use at exit (run with --verbose for details)."
+    ]
+  },
+  {
+    "stage": "current",
+    "name": "ArealSelectionRegression",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      "/Users/linlilu/godot-open-rts",
+      "--fixed-fps",
+      "60",
+      "--max-fps",
+      "240",
+      "--script",
+      "tests/headless/ArealSelectionRegression.gd"
+    ],
+    "exit_code": 0,
+    "seconds": 4.373,
+    "errors": [
+      "ERROR: 8 resources still in use at exit (run with --verbose for details)."
+    ]
+  },
+  {
+    "stage": "current",
+    "name": "FormationCapRegression",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      "/Users/linlilu/godot-open-rts",
+      "--fixed-fps",
+      "60",
+      "--max-fps",
+      "240",
+      "--script",
+      "tests/headless/FormationCapRegression.gd"
+    ],
+    "exit_code": 0,
+    "seconds": 7.964,
+    "errors": [
+      "ERROR: 12 resources still in use at exit (run with --verbose for details)."
+    ]
+  }
+]

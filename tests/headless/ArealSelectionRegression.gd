@@ -1,6 +1,11 @@
 extends "res://tests/headless/SaveRestoreEdges.gd"
 
 
+class SelectionBody:
+	extends Area3D
+	var movement_domain := 0
+
+
 func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
 	for map_name in ["BastionDesert", "AlpineRelay"]:
@@ -22,12 +27,83 @@ func _run():
 				camera.set_position_safely(Vector3(30, 0, 30))
 				_selection_checks(camera, worker, aircraft, "%s/%s/%s" % [map_name, zoom, yaw])
 		await _physics_selection_checks(camera, worker, aircraft, map_name)
+		await _dense_selection_checks(camera, map_name)
 		game.queue_free()
 		await _frames(5)
 	for message in errors:
 		push_error(message)
 	print("Areal selection: %d failures" % errors.size())
 	quit(0 if errors.is_empty() else 1)
+
+
+func _dense_selection_checks(camera, label):
+	var selector = game.get_node("Handlers/ArealUnitSelectionHandler")
+	var rect3d = game.get_node("RectangularSelection3D")
+	var bodies: Array = []
+	var shape := BoxShape3D.new()
+	shape.size = Vector3(1, 2, 1)
+	var center := root.get_visible_rect().size * .5
+	for index in 520:
+		var body := SelectionBody.new()
+		body.collision_layer = 2
+		body.collision_mask = 0
+		var collider := CollisionShape3D.new()
+		collider.name = "CollisionShape3D"
+		collider.shape = shape
+		collider.position.y = 1.0
+		body.add_child(collider)
+		game.add_child(body)
+		body.add_to_group("controlled_units")
+		bodies.append(body)
+	for yaw in [0.0, .9]:
+		camera.rotation.y = yaw
+		for index in bodies.size():
+			var screen := center + Vector2(index % 26 - 13, index / 26 - 10) * 12
+			bodies[index].global_position = camera.project_position(screen, 20.0)
+		await physics_frame
+		await physics_frame
+		for immediate in [false, true]:
+			if immediate:
+				# Input can query a unit immediately after a teleport, before a tick.
+				for index in range(0, bodies.size(), 7):
+					bodies[index].global_position = camera.project_position(center, 10.0)
+			for rect in [
+				Rect2(center - Vector2.ONE * 50, Vector2.ONE * 100),
+				Rect2(center - Vector2.ONE * 8, Vector2.ONE * 16),
+				Rect2(Vector2.ZERO, root.get_visible_rect().size),
+			]:
+				var polygon = rect3d._screen_rect_2d_to_topdown_polygon_2d(rect)
+				selector._physics_candidates_enabled = false
+				var expected = (
+					selector
+					. _get_controlled_units_from_navigation_domain_within_topdown_polygon_2d(
+						-1, polygon
+					)
+				)
+				selector._physics_candidates_enabled = true
+				var actual = (
+					selector
+					. _get_controlled_units_from_navigation_domain_within_topdown_polygon_2d(
+						-1, polygon
+					)
+				)
+				_check(
+					actual.iterate() == expected.iterate(),
+					(
+						"%s: dense selection differs yaw=%s immediate=%s rect=%s expected=%d actual=%d"
+						% [
+							label,
+							yaw,
+							immediate,
+							rect,
+							expected.iterate().size(),
+							actual.iterate().size()
+						]
+					)
+				)
+	for body in bodies:
+		body.free()
+	print("Dense selection parity: ", label, " 520 bodies, rotations and immediate teleports")
 
 
 func _physics_selection_checks(camera, worker, aircraft, label):
@@ -38,6 +114,15 @@ func _physics_selection_checks(camera, worker, aircraft, label):
 	camera.set_position_safely(Vector3(30, 0, 30))
 	var center = root.get_visible_rect().size * .5
 	var enabled = selector._physics_candidates_enabled
+	_check(
+		(
+			selector._selection_candidates(
+				camera, PackedVector2Array([center, center, center, center])
+			)
+			== get_nodes_in_group("controlled_units")
+		),
+		label + ": degenerate marquee did not retain the screen scan"
+	)
 	# Keep the Area3Ds queryable while freezing simulation below their roots.
 	for unit in [worker, aircraft]:
 		for child in unit.get_children():

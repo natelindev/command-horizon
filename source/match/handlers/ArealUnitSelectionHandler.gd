@@ -16,6 +16,7 @@ func _selection_candidates(camera: Camera3D, polygon: PackedVector2Array) -> Arr
 	if (
 		not _physics_candidates_enabled
 		or polygon.size() != 4
+		or absf((polygon[1] - polygon[0]).cross(polygon[3] - polygon[0])) < 1.0
 		or (
 			not Engine.is_in_physics_frame()
 			and ProjectSettings.get_setting("physics/3d/run_on_separate_thread", false)
@@ -34,6 +35,10 @@ func _selection_candidates(camera: Camera3D, polygon: PackedVector2Array) -> Arr
 	_selection_query.collide_with_areas = true
 	_selection_query.collide_with_bodies = false
 	_selection_query.margin = 4.0
+	# Input may arrive after a teleport but before Node3D's deferred transform
+	# notifications. Flush those notifications before consulting physics proxies.
+	for unit in controlled:
+		unit.force_update_transform()
 	# A saturated result cannot prove completeness; retain the exact scan then.
 	var capacity := maxi(64, controlled.size() * 2 + 1)
 	var hits := get_world_3d().direct_space_state.intersect_shape(_selection_query, capacity)

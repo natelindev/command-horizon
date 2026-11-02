@@ -1,6 +1,7 @@
 extends Node3D
 
 ## A filled, footprint-sized placement ghost; simulation remains authoritative.
+var kind := "barricade"
 var _mesh: MeshInstance3D
 var _material: StandardMaterial3D
 
@@ -21,7 +22,7 @@ func _ready():
 	add_child(_mesh)
 
 
-func update_placement(unit, angle, kind = "barricade"):
+func update_placement(unit, angle):
 	var camera = get_viewport().get_camera_3d()
 	var point = camera.get_ray_intersection(get_viewport().get_mouse_position())
 	visible = point is Vector3 and point.is_finite()
@@ -29,9 +30,11 @@ func update_placement(unit, angle, kind = "barricade"):
 		return
 	position = unit._match.map.ground_point(Vector2(point.x, point.z))
 	rotation.y = angle
-	_mesh.mesh.size = Vector3(4.0, 1.7, 4.0) if kind == "bunker" else (Vector3(2.5, 1.2, 1.2) if kind == "tank_trap" else Vector3(2.5, 0.8, 0.55))
-	_mesh.position.y = _mesh.mesh.size.y * 0.5
-	var legal = (
-		unit._match.engineering.placement_error(unit, kind, position, angle).is_empty()
+	_mesh.mesh.size = (
+		Vector3(4.0, 1.7, 4.0)
+		if kind == "bunker"
+		else (Vector3(2.5, 1.2, 1.2) if kind == "tank_trap" else Vector3(2.5, 0.8, 0.55))
 	)
+	_mesh.position.y = _mesh.mesh.size.y * 0.5
+	var legal = unit._match.engineering.placement_error(unit, kind, position, angle).is_empty()
 	_material.albedo_color = Color(.9, .93, .88, .4) if legal else Color(.75, .35, .27, .3)

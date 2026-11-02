@@ -1,0 +1,25 @@
+[
+  {
+    "name": "ArealSelectionRegression",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      "/Users/linlilu/godot-open-rts",
+      "--script",
+      "tests/headless/ArealSelectionRegression.gd"
+    ],
+    "exit_code": 0,
+    "seconds": 4.576,
+    "errors": [
+      "SCRIPT ERROR: Parse Error: Cannot infer the type of \"position_2d\" variable because the value doesn't have a set type.",
+      "ERROR: Failed to load script \"res://source/match/FogOfWar.gd\" with error \"Parse error\".",
+      "SCRIPT ERROR: Parse Error: Cannot infer the type of \"ability_id\" variable because the value doesn't have a set type.",
+      "SCRIPT ERROR: Parse Error: The variable type is being inferred from a Variant value, so it will be typed as Variant. (Warning treated as error.)",
+      "ERROR: Failed to load script \"res://source/match/hud/UnitMenus.gd\" with error \"Parse error\".",
+      "SCRIPT ERROR: Invalid call. Nonexistent function 'resize' in base 'Node3D'.",
+      "SCRIPT ERROR: Invalid call. Nonexistent function 'resize' in base 'Node3D'.",
+      "ERROR: 8 resources still in use at exit (run with --verbose for details)."
+    ]
+  }
+]

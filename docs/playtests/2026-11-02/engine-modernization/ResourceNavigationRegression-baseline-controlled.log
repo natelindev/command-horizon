@@ -1,0 +1,30 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+RESOURCE GAP bastion spacing=2.0 complete
+RESOURCE GAP bastion spacing=2.5 complete
+RESOURCE GAP bastion spacing=3.0 complete
+RESOURCE GAP bastion spacing=3.5 complete
+RESOURCE APPROACHES bastion materials/electronics four sides complete
+RESOURCE ARCHIVE bastion exact paused state, cargo return and depletion complete
+RESOURCE GAP helix spacing=2.0 complete
+RESOURCE GAP helix spacing=2.5 complete
+RESOURCE GAP helix spacing=3.0 complete
+RESOURCE GAP helix spacing=3.5 complete
+RESOURCE APPROACHES helix materials/electronics four sides complete
+RESOURCE ARCHIVE helix exact paused state, cargo return and depletion complete
+ERROR: Worker crossed resource avoidance footprint
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/ResourceNavigationRegression.gd:33)
+       [1] _frames (res://tests/headless/Skirmish.gd:314)
+ERROR: Worker crossed resource avoidance footprint
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/ResourceNavigationRegression.gd:33)
+       [1] _frames (res://tests/headless/Skirmish.gd:314)
+ERROR: Engineer delivered beyond bounded building contact range
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/ResourceNavigationRegression.gd:33)
+       [1] _frames (res://tests/headless/Skirmish.gd:314)
+Resource navigation: 3 failures

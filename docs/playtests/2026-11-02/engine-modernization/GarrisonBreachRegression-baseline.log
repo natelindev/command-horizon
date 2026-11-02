@@ -1,0 +1,9 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Breach did not deal 15 exactly once
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/headless/GarrisonBreachRegression.gd:18)
+       [1] _close (res://tests/headless/SupplyLineRegression.gd:89)
+       [2] _frames (res://tests/headless/SupplyLineRegression.gd:323)
+Garrison breach: 1 failures

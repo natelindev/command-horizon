@@ -17,6 +17,10 @@ func _run():
 	var behavior = load("res://source/match/orders/UnitBehavior.gd")
 	var guard_point = Vector3(25, 0, 28)
 	await _make_match()
+	# A graphical campaign starts in its modal briefing. Exercise gameplay before
+	# capturing; a pending briefing would otherwise keep this whole fixture paused.
+	if is_instance_valid(game.campaign_story) and game.campaign_story.cinematic:
+		game.campaign_story.skip_briefing()
 	var human = game._get_human_player()
 	human.resource_a = 500
 	human.resource_b = 500

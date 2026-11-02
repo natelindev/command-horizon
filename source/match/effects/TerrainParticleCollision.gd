@@ -51,4 +51,4 @@ func _topology_changed(_domain: int):
 func _process(_delta: float):
 	if _dirty and _enabled:
 		_dirty = false
-		RenderingServer.particles_collision_height_field_update(_heightfield.get_rid())
+		RenderingServer.particles_collision_height_field_update(_heightfield.get_base())

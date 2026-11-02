@@ -25,6 +25,7 @@ func _init():
 	clip_text = true
 	custom_minimum_size = Vector2(50, 44)
 	focus_mode = Control.FOCUS_NONE
+	toggle_mode = true
 
 	_glyph = TextureRect.new()
 	_glyph.name = "Glyph"
@@ -176,7 +177,7 @@ func update_data(data: Dictionary):
 	if not is_ready and not issue.is_empty():
 		tooltip_lines.append(tr(issue))
 	elif is_active:
-		tooltip_lines.append(tr("Active"))
+		tooltip_lines.append(tr(data.get("active_status", "Active")))
 	elif is_armed:
 		tooltip_lines.append(tr("Armed · Select target on map"))
 

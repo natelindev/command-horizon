@@ -69,12 +69,14 @@ func _exit_tree():
 		_compute.close()
 
 
-func _activate_compute():
+func _activate_compute(exploration: Image = null):
 	if _compute_active or _restoring_exploration or _compute == null or not _compute.ready:
 		return
 	# Copy accumulated exploration once when switching backends. No regular
 	# GPU readback is needed; gameplay sight remains entirely CPU authoritative.
-	var image: Image = _fog_viewport.get_texture().get_image()
+	var image: Image = exploration
+	if image == null:
+		image = _fog_viewport.get_texture().get_image()
 	if image == null or image.is_empty():
 		return
 	_compute.restore(image)
@@ -102,6 +104,14 @@ func exploration_image() -> Image:
 
 
 func restore_exploration(image: Image):
+	# Restore into the selected backend directly. Rasterizing compute history
+	# through viewport circles can expand it before the backend handoff completes.
+	_restoring_exploration = true
+	if _compute != null:
+		while not _compute.ready and not _compute.failed:
+			await get_tree().process_frame
+	_restoring_exploration = false
+	_activate_compute(image)
 	if _compute_active:
 		_compute.restore(image)
 		_submitted_revision = -1
@@ -208,7 +218,7 @@ func _sync_circles_to_unit(unit):
 		entry.radius = radius
 		_fog_revision += 1
 	var point: Vector3 = unit.global_position
-	var position_2d := Vector2(point.x, point.z) * texture_units_per_world_unit
+	var position_2d: Vector2 = Vector2(point.x, point.z) * texture_units_per_world_unit
 	if position_2d.distance_squared_to(entry.position) > .0001:
 		entry.position = position_2d
 		_fog_revision += 1

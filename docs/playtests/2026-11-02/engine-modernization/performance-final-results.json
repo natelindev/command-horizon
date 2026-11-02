@@ -1,0 +1,111 @@
+[
+  {
+    "name": "tactical-final",
+    "command": [
+      "/Users/linlilu/godot-open-rts/tmp/engine-verification/release/tactical-final/Engine Modernization Verification.app/Contents/MacOS/Engine Modernization Verification",
+      "--",
+      "--performance-only",
+      "--tactical-quality=low",
+      "--tactical-pipeline-trace",
+      "--enable-native-kernels",
+      "--native-unit-state",
+      "--native-crowd-runtime",
+      "--native-visibility-runtime",
+      "--native-pose-rigs",
+      "--native-presentation",
+      "--native-infantry-poses",
+      "--native-combat-queries",
+      "--native-battlefield-index",
+      "--native-nearest-surface",
+      "--native-exploration"
+    ],
+    "exit_code": 1,
+    "seconds": 16.564,
+    "pack_sha256": "7275b6720d9767cb314d96cdaeb35fd886959b763ae32c13c0e2477e72bde8e6",
+    "executable_sha256": "00321c98012f6731f458e07183524e73e25e26e0b767b792b9fadebd5c37e80a",
+    "errors": [
+      "ERROR: 200-unit formation exceeded strict 16.6 ms maximum frame budget"
+    ]
+  },
+  {
+    "name": "ordinary-final",
+    "command": [
+      "/Users/linlilu/godot-open-rts/tmp/engine-verification/release/ordinary-final/Engine Modernization Verification.app/Contents/MacOS/Engine Modernization Verification",
+      "--",
+      "--behaviors",
+      "--realtime",
+      "--no-capture",
+      "--enable-native-kernels",
+      "--native-unit-state",
+      "--native-crowd-runtime",
+      "--native-visibility-runtime",
+      "--native-pose-rigs",
+      "--native-presentation",
+      "--native-infantry-poses",
+      "--native-combat-queries",
+      "--native-battlefield-index",
+      "--native-nearest-surface",
+      "--native-exploration"
+    ],
+    "exit_code": 0,
+    "seconds": 32.156,
+    "pack_sha256": "56d6b620aca6ff782e7c5af6a4331363998ee11810e232df22dce4b64f0daeed",
+    "executable_sha256": "00321c98012f6731f458e07183524e73e25e26e0b767b792b9fadebd5c37e80a",
+    "errors": []
+  },
+  {
+    "name": "heavy-final",
+    "command": [
+      "/Users/linlilu/godot-open-rts/tmp/engine-verification/release/heavy-final/Engine Modernization Verification.app/Contents/MacOS/Engine Modernization Verification",
+      "--",
+      "--output=/Users/linlilu/godot-open-rts/docs/playtests/2026-11-02/engine-modernization/heavy-final.json",
+      "--seconds=8",
+      "--enable-native-kernels",
+      "--native-unit-state",
+      "--native-crowd-runtime",
+      "--native-visibility-runtime",
+      "--native-pose-rigs",
+      "--native-presentation",
+      "--native-infantry-poses",
+      "--native-combat-queries",
+      "--native-battlefield-index",
+      "--native-nearest-surface",
+      "--native-exploration"
+    ],
+    "exit_code": 1,
+    "seconds": 83.106,
+    "pack_sha256": "aa24136039e8a92b4a6d51f22cf9abf0957473180bff8ec76f157805820d8744",
+    "executable_sha256": "00321c98012f6731f458e07183524e73e25e26e0b767b792b9fadebd5c37e80a",
+    "errors": [
+      "ERROR: Runtime errors invalidate the benchmark"
+    ]
+  },
+  {
+    "name": "heavy-viewport-final",
+    "command": [
+      "/Users/linlilu/godot-open-rts/tmp/engine-verification/release/heavy-viewport-final/Engine Modernization Verification.app/Contents/MacOS/Engine Modernization Verification",
+      "--",
+      "--output=/Users/linlilu/godot-open-rts/docs/playtests/2026-11-02/engine-modernization/heavy-viewport-final.json",
+      "--seconds=8",
+      "--viewport-fog",
+      "--enable-native-kernels",
+      "--native-unit-state",
+      "--native-crowd-runtime",
+      "--native-visibility-runtime",
+      "--native-pose-rigs",
+      "--native-presentation",
+      "--native-infantry-poses",
+      "--native-combat-queries",
+      "--native-battlefield-index",
+      "--native-nearest-surface",
+      "--native-exploration"
+    ],
+    "exit_code": 1,
+    "seconds": 117.532,
+    "pack_sha256": "aa24136039e8a92b4a6d51f22cf9abf0957473180bff8ec76f157805820d8744",
+    "executable_sha256": "00321c98012f6731f458e07183524e73e25e26e0b767b792b9fadebd5c37e80a",
+    "errors": [
+      "ERROR: Runtime errors invalidate the benchmark"
+    ]
+  }
+]

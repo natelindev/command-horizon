@@ -1,0 +1,64 @@
+[
+  {
+    "name": "ProjectileVisualRegression",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      "/Users/linlilu/godot-open-rts/tmp/engine-verification/baseline",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/headless/ProjectileVisualRegression.gd"
+    ],
+    "exit_code": 1,
+    "seconds": 1.261,
+    "errors": [
+      "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+      "SCRIPT ERROR: Invalid call. Nonexistent function 'get' in base 'Nil'.",
+      "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+      "SCRIPT ERROR: Invalid call. Nonexistent function 'get' in base 'Nil'.",
+      "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+      "SCRIPT ERROR: Invalid call. Nonexistent function 'get' in base 'Nil'.",
+      "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+      "SCRIPT ERROR: Invalid call. Nonexistent function 'get' in base 'Nil'.",
+      "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+      "SCRIPT ERROR: Invalid call. Nonexistent function 'get' in base 'Nil'.",
+      "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+      "SCRIPT ERROR: Invalid call. Nonexistent function 'get' in base 'Nil'.",
+      "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+      "SCRIPT ERROR: Invalid call. Nonexistent function 'get' in base 'Nil'.",
+      "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+      "SCRIPT ERROR: Invalid call. Nonexistent function 'get' in base 'Nil'.",
+      "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+      "SCRIPT ERROR: Invalid call. Nonexistent function 'get' in base 'Nil'.",
+      "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+      "SCRIPT ERROR: Invalid call. Nonexistent function 'get' in base 'Nil'.",
+      "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+      "SCRIPT ERROR: Invalid call. Nonexistent function 'get' in base 'Nil'.",
+      "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+      "SCRIPT ERROR: Invalid call. Nonexistent function 'get' in base 'Nil'.",
+      "SCRIPT ERROR: Invalid access of index '0' on a base object of type: 'Array'.",
+      "ERROR: 35 m/s missile retained dotted 0.05s exhaust"
+    ]
+  },
+  {
+    "name": "InfantrySuppressionRegression",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      "/Users/linlilu/godot-open-rts/tmp/engine-verification/baseline",
+      "--fixed-fps",
+      "60",
+      "--script",
+      "tests/headless/InfantrySuppressionRegression.gd"
+    ],
+    "exit_code": 1,
+    "seconds": 3.242,
+    "errors": [
+      "ERROR: Timed expiration removed permanent armor",
+      "ERROR: Permanent armor did not reduce damage once"
+    ]
+  }
+]

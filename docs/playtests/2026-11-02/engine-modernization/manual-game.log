@@ -1,0 +1,11 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Metal 4.0 - Forward+ - Using Device #0: Apple - Apple M1 Pro (Apple7)
+
+WARNING: Too few vertices per face.
+     at: convex_hull (core/math/convex_hull.cpp:2335)
+     GDScript backtrace (most recent call first):
+         [0] _selection_candidates (res://source/match/handlers/ArealUnitSelectionHandler.gd:30)
+         [1] _get_controlled_units_from_navigation_domain_within_topdown_polygon_2d (res://source/match/handlers/ArealUnitSelectionHandler.gd:133)
+         [2] _on_selection_finished (res://source/match/handlers/ArealUnitSelectionHandler.gd:230)
+         [3] _finish (res://source/generic-scenes-and-nodes/3d/RectangularSelection3D.gd:84)
+         [4] _unhandled_input (res://source/generic-scenes-and-nodes/3d/RectangularSelection3D.gd:37)

@@ -1,0 +1,80 @@
+[
+  {
+    "name": "TerrainNavRegression",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      "/Users/linlilu/godot-open-rts",
+      "--fixed-fps",
+      "60",
+      "--max-fps",
+      "240",
+      "--script",
+      "tests/headless/TerrainNavRegression.gd"
+    ],
+    "exit_code": 0,
+    "seconds": 14.59,
+    "errors": []
+  },
+  {
+    "name": "NativeCrowdProjectionRegression",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      "/Users/linlilu/godot-open-rts",
+      "--fixed-fps",
+      "60",
+      "--max-fps",
+      "240",
+      "--script",
+      "tests/headless/NativeCrowdProjectionRegression.gd",
+      "--",
+      "--enable-native-kernels",
+      "--native-unit-state",
+      "--native-crowd-runtime",
+      "--native-visibility-runtime",
+      "--native-pose-rigs",
+      "--native-presentation",
+      "--native-infantry-poses",
+      "--native-combat-queries",
+      "--native-battlefield-index",
+      "--native-nearest-surface",
+      "--native-exploration"
+    ],
+    "exit_code": 0,
+    "seconds": 10.932,
+    "errors": []
+  },
+  {
+    "name": "NativeNavigationSurfaceRegression",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      "/Users/linlilu/godot-open-rts",
+      "--fixed-fps",
+      "60",
+      "--max-fps",
+      "240",
+      "--script",
+      "tests/headless/NativeNavigationSurfaceRegression.gd",
+      "--",
+      "--enable-native-kernels",
+      "--native-unit-state",
+      "--native-crowd-runtime",
+      "--native-visibility-runtime",
+      "--native-pose-rigs",
+      "--native-presentation",
+      "--native-infantry-poses",
+      "--native-combat-queries",
+      "--native-battlefield-index",
+      "--native-nearest-surface",
+      "--native-exploration"
+    ],
+    "exit_code": 0,
+    "seconds": 51.766,
+    "errors": []
+  }
+]

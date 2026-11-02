@@ -1,0 +1,48 @@
+[
+  {
+    "name": "baseline",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      "/Users/linlilu/godot-open-rts/tmp/engine-verification/baseline",
+      "--fixed-fps",
+      "60",
+      "--max-fps",
+      "240",
+      "--script",
+      "tests/headless/HarvestTrafficRegression.gd"
+    ],
+    "exit_code": 1,
+    "seconds": 49.903,
+    "errors": [
+      "ERROR: helix: recovery exceeded movement speed",
+      "ERROR: Residual traffic exceeded movement speed",
+      "ERROR: Residual traffic missed real deliveries",
+      "ERROR: 6 resources still in use at exit (run with --verbose for details)."
+    ]
+  },
+  {
+    "name": "current-centered",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      "/Users/linlilu/godot-open-rts",
+      "--fixed-fps",
+      "60",
+      "--max-fps",
+      "240",
+      "--script",
+      "tests/headless/HarvestTrafficRegression.gd"
+    ],
+    "exit_code": 1,
+    "seconds": 50.502,
+    "errors": [
+      "ERROR: helix: recovery exceeded movement speed",
+      "ERROR: Residual traffic exceeded movement speed",
+      "ERROR: Residual traffic missed real deliveries",
+      "ERROR: 6 resources still in use at exit (run with --verbose for details)."
+    ]
+  }
+]

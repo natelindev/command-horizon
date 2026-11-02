@@ -1,0 +1,453 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Space state is inaccessible right now, wait for iteration or physics process notification.
+   at: space_get_direct_state (modules/godot_physics_3d/godot_physics_server_3d.cpp:194)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://source/match/effects/BaseApron.gd:54)
+       [1] _ready (res://source/match/units/Structure.gd:25)
+       [2] _ready (res://source/match/units/CommandCenter.gd:10)
+       [3] _setup_and_spawn_unit (res://source/match/Match.gd:382)
+       [4] _spawn_player_units (res://source/match/Skirmish.gd:96)
+       [5] _setup_player_units (res://source/match/Match.gd:351)
+       [6] _ready (res://source/match/Match.gd:135)
+       [7] _ready (res://source/match/Skirmish.gd:25)
+       [8] _skirmish (res://tests/headless/SaveRestoreEdges.gd:47)
+       [9] _run (res://tests/headless/ArealSelectionRegression.gd:12)
+SCRIPT ERROR: Attempt to call function 'intersect_ray' in base 'null instance' on a null instance.
+          at: _ready (res://source/match/effects/BaseApron.gd:63)
+          GDScript backtrace (most recent call first):
+              [0] _ready (res://source/match/effects/BaseApron.gd:63)
+              [1] _ready (res://source/match/units/Structure.gd:25)
+              [2] _ready (res://source/match/units/CommandCenter.gd:10)
+              [3] _setup_and_spawn_unit (res://source/match/Match.gd:382)
+              [4] _spawn_player_units (res://source/match/Skirmish.gd:96)
+              [5] _setup_player_units (res://source/match/Match.gd:351)
+              [6] _ready (res://source/match/Match.gd:135)
+              [7] _ready (res://source/match/Skirmish.gd:25)
+              [8] _skirmish (res://tests/headless/SaveRestoreEdges.gd:47)
+              [9] _run (res://tests/headless/ArealSelectionRegression.gd:12)
+ERROR: Space state is inaccessible right now, wait for iteration or physics process notification.
+   at: space_get_direct_state (modules/godot_physics_3d/godot_physics_server_3d.cpp:194)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://source/match/effects/BaseApron.gd:54)
+       [1] _ready (res://source/match/units/Structure.gd:25)
+       [2] _ready (res://source/match/units/CommandCenter.gd:10)
+       [3] _setup_and_spawn_unit (res://source/match/Match.gd:382)
+       [4] _spawn_player_units (res://source/match/Skirmish.gd:96)
+       [5] _setup_player_units (res://source/match/Match.gd:351)
+       [6] _ready (res://source/match/Match.gd:135)
+       [7] _ready (res://source/match/Skirmish.gd:25)
+       [8] _skirmish (res://tests/headless/SaveRestoreEdges.gd:47)
+       [9] _run (res://tests/headless/ArealSelectionRegression.gd:12)
+SCRIPT ERROR: Attempt to call function 'intersect_ray' in base 'null instance' on a null instance.
+          at: _ready (res://source/match/effects/BaseApron.gd:63)
+          GDScript backtrace (most recent call first):
+              [0] _ready (res://source/match/effects/BaseApron.gd:63)
+              [1] _ready (res://source/match/units/Structure.gd:25)
+              [2] _ready (res://source/match/units/CommandCenter.gd:10)
+              [3] _setup_and_spawn_unit (res://source/match/Match.gd:382)
+              [4] _spawn_player_units (res://source/match/Skirmish.gd:96)
+              [5] _setup_player_units (res://source/match/Match.gd:351)
+              [6] _ready (res://source/match/Match.gd:135)
+              [7] _ready (res://source/match/Skirmish.gd:25)
+              [8] _skirmish (res://tests/headless/SaveRestoreEdges.gd:47)
+              [9] _run (res://tests/headless/ArealSelectionRegression.gd:12)
+ERROR: Space state is inaccessible right now, wait for iteration or physics process notification.
+   at: space_get_direct_state (modules/godot_physics_3d/godot_physics_server_3d.cpp:194)
+   GDScript backtrace (most recent call first):
+       [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+       [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+       [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+SCRIPT ERROR: Cannot call method 'intersect_ray' on a null value.
+          at: _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+          GDScript backtrace (most recent call first):
+              [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+              [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+              [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+ERROR: Space state is inaccessible right now, wait for iteration or physics process notification.
+   at: space_get_direct_state (modules/godot_physics_3d/godot_physics_server_3d.cpp:194)
+   GDScript backtrace (most recent call first):
+       [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+       [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+       [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+SCRIPT ERROR: Cannot call method 'intersect_ray' on a null value.
+          at: _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+          GDScript backtrace (most recent call first):
+              [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+              [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+              [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+ERROR: Space state is inaccessible right now, wait for iteration or physics process notification.
+   at: space_get_direct_state (modules/godot_physics_3d/godot_physics_server_3d.cpp:194)
+   GDScript backtrace (most recent call first):
+       [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+       [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+       [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+SCRIPT ERROR: Cannot call method 'intersect_ray' on a null value.
+          at: _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+          GDScript backtrace (most recent call first):
+              [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+              [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+              [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+ERROR: Space state is inaccessible right now, wait for iteration or physics process notification.
+   at: space_get_direct_state (modules/godot_physics_3d/godot_physics_server_3d.cpp:194)
+   GDScript backtrace (most recent call first):
+       [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+       [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+       [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+SCRIPT ERROR: Cannot call method 'intersect_ray' on a null value.
+          at: _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+          GDScript backtrace (most recent call first):
+              [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+              [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+              [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+ERROR: Space state is inaccessible right now, wait for iteration or physics process notification.
+   at: space_get_direct_state (modules/godot_physics_3d/godot_physics_server_3d.cpp:194)
+   GDScript backtrace (most recent call first):
+       [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+       [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+       [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+SCRIPT ERROR: Cannot call method 'intersect_ray' on a null value.
+          at: _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+          GDScript backtrace (most recent call first):
+              [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+              [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+              [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+ERROR: Space state is inaccessible right now, wait for iteration or physics process notification.
+   at: space_get_direct_state (modules/godot_physics_3d/godot_physics_server_3d.cpp:194)
+   GDScript backtrace (most recent call first):
+       [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+       [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+       [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+SCRIPT ERROR: Cannot call method 'intersect_ray' on a null value.
+          at: _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+          GDScript backtrace (most recent call first):
+              [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+              [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+              [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+ERROR: Space state is inaccessible right now, wait for iteration or physics process notification.
+   at: space_get_direct_state (modules/godot_physics_3d/godot_physics_server_3d.cpp:194)
+   GDScript backtrace (most recent call first):
+       [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+       [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+       [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+SCRIPT ERROR: Cannot call method 'intersect_ray' on a null value.
+          at: _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+          GDScript backtrace (most recent call first):
+              [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+              [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+              [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+ERROR: Space state is inaccessible right now, wait for iteration or physics process notification.
+   at: space_get_direct_state (modules/godot_physics_3d/godot_physics_server_3d.cpp:194)
+   GDScript backtrace (most recent call first):
+       [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+       [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+       [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+SCRIPT ERROR: Cannot call method 'intersect_ray' on a null value.
+          at: _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+          GDScript backtrace (most recent call first):
+              [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+              [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+              [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+ERROR: Space state is inaccessible right now, wait for iteration or physics process notification.
+   at: space_get_direct_state (modules/godot_physics_3d/godot_physics_server_3d.cpp:194)
+   GDScript backtrace (most recent call first):
+       [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+       [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+       [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+SCRIPT ERROR: Cannot call method 'intersect_ray' on a null value.
+          at: _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+          GDScript backtrace (most recent call first):
+              [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+              [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+              [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+ERROR: Space state is inaccessible right now, wait for iteration or physics process notification.
+   at: space_get_direct_state (modules/godot_physics_3d/godot_physics_server_3d.cpp:194)
+   GDScript backtrace (most recent call first):
+       [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+       [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+       [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+SCRIPT ERROR: Cannot call method 'intersect_ray' on a null value.
+          at: _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+          GDScript backtrace (most recent call first):
+              [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+              [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+              [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+ERROR: Space state is inaccessible right now, wait for iteration or physics process notification.
+   at: space_get_direct_state (modules/godot_physics_3d/godot_physics_server_3d.cpp:194)
+   GDScript backtrace (most recent call first):
+       [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+       [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+       [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+SCRIPT ERROR: Cannot call method 'intersect_ray' on a null value.
+          at: _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+          GDScript backtrace (most recent call first):
+              [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+              [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+              [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+ERROR: Space state is inaccessible right now, wait for iteration or physics process notification.
+   at: space_get_direct_state (modules/godot_physics_3d/godot_physics_server_3d.cpp:194)
+   GDScript backtrace (most recent call first):
+       [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+       [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+       [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+SCRIPT ERROR: Cannot call method 'intersect_ray' on a null value.
+          at: _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+          GDScript backtrace (most recent call first):
+              [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+              [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+              [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+ERROR: Space state is inaccessible right now, wait for iteration or physics process notification.
+   at: space_get_direct_state (modules/godot_physics_3d/godot_physics_server_3d.cpp:194)
+   GDScript backtrace (most recent call first):
+       [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+       [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+       [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+SCRIPT ERROR: Cannot call method 'intersect_ray' on a null value.
+          at: _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+          GDScript backtrace (most recent call first):
+              [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+              [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+              [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+ERROR: Space state is inaccessible right now, wait for iteration or physics process notification.
+   at: space_get_direct_state (modules/godot_physics_3d/godot_physics_server_3d.cpp:194)
+   GDScript backtrace (most recent call first):
+       [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+       [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+       [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+SCRIPT ERROR: Cannot call method 'intersect_ray' on a null value.
+          at: _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+          GDScript backtrace (most recent call first):
+              [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+              [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+              [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+Dense selection parity: BastionDesert 520 bodies, rotations and immediate teleports
+ERROR: Space state is inaccessible right now, wait for iteration or physics process notification.
+   at: space_get_direct_state (modules/godot_physics_3d/godot_physics_server_3d.cpp:194)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://source/match/effects/BaseApron.gd:54)
+       [1] _ready (res://source/match/units/Structure.gd:25)
+       [2] _ready (res://source/match/units/CommandCenter.gd:10)
+       [3] _setup_and_spawn_unit (res://source/match/Match.gd:382)
+       [4] _spawn_player_units (res://source/match/Skirmish.gd:96)
+       [5] _setup_player_units (res://source/match/Match.gd:351)
+       [6] _ready (res://source/match/Match.gd:135)
+       [7] _ready (res://source/match/Skirmish.gd:25)
+       [8] _skirmish (res://tests/headless/SaveRestoreEdges.gd:47)
+       [9] _run (res://tests/headless/ArealSelectionRegression.gd:12)
+       [10] _frames (res://tests/headless/CampaignRegression.gd:254)
+SCRIPT ERROR: Attempt to call function 'intersect_ray' in base 'null instance' on a null instance.
+          at: _ready (res://source/match/effects/BaseApron.gd:63)
+          GDScript backtrace (most recent call first):
+              [0] _ready (res://source/match/effects/BaseApron.gd:63)
+              [1] _ready (res://source/match/units/Structure.gd:25)
+              [2] _ready (res://source/match/units/CommandCenter.gd:10)
+              [3] _setup_and_spawn_unit (res://source/match/Match.gd:382)
+              [4] _spawn_player_units (res://source/match/Skirmish.gd:96)
+              [5] _setup_player_units (res://source/match/Match.gd:351)
+              [6] _ready (res://source/match/Match.gd:135)
+              [7] _ready (res://source/match/Skirmish.gd:25)
+              [8] _skirmish (res://tests/headless/SaveRestoreEdges.gd:47)
+              [9] _run (res://tests/headless/ArealSelectionRegression.gd:12)
+              [10] _frames (res://tests/headless/CampaignRegression.gd:254)
+ERROR: Space state is inaccessible right now, wait for iteration or physics process notification.
+   at: space_get_direct_state (modules/godot_physics_3d/godot_physics_server_3d.cpp:194)
+   GDScript backtrace (most recent call first):
+       [0] _ready (res://source/match/effects/BaseApron.gd:54)
+       [1] _ready (res://source/match/units/Structure.gd:25)
+       [2] _ready (res://source/match/units/CommandCenter.gd:10)
+       [3] _setup_and_spawn_unit (res://source/match/Match.gd:382)
+       [4] _spawn_player_units (res://source/match/Skirmish.gd:96)
+       [5] _setup_player_units (res://source/match/Match.gd:351)
+       [6] _ready (res://source/match/Match.gd:135)
+       [7] _ready (res://source/match/Skirmish.gd:25)
+       [8] _skirmish (res://tests/headless/SaveRestoreEdges.gd:47)
+       [9] _run (res://tests/headless/ArealSelectionRegression.gd:12)
+       [10] _frames (res://tests/headless/CampaignRegression.gd:254)
+SCRIPT ERROR: Attempt to call function 'intersect_ray' in base 'null instance' on a null instance.
+          at: _ready (res://source/match/effects/BaseApron.gd:63)
+          GDScript backtrace (most recent call first):
+              [0] _ready (res://source/match/effects/BaseApron.gd:63)
+              [1] _ready (res://source/match/units/Structure.gd:25)
+              [2] _ready (res://source/match/units/CommandCenter.gd:10)
+              [3] _setup_and_spawn_unit (res://source/match/Match.gd:382)
+              [4] _spawn_player_units (res://source/match/Skirmish.gd:96)
+              [5] _setup_player_units (res://source/match/Match.gd:351)
+              [6] _ready (res://source/match/Match.gd:135)
+              [7] _ready (res://source/match/Skirmish.gd:25)
+              [8] _skirmish (res://tests/headless/SaveRestoreEdges.gd:47)
+              [9] _run (res://tests/headless/ArealSelectionRegression.gd:12)
+              [10] _frames (res://tests/headless/CampaignRegression.gd:254)
+ERROR: Space state is inaccessible right now, wait for iteration or physics process notification.
+   at: space_get_direct_state (modules/godot_physics_3d/godot_physics_server_3d.cpp:194)
+   GDScript backtrace (most recent call first):
+       [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+       [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+       [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+SCRIPT ERROR: Cannot call method 'intersect_ray' on a null value.
+          at: _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+          GDScript backtrace (most recent call first):
+              [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+              [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+              [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+ERROR: Space state is inaccessible right now, wait for iteration or physics process notification.
+   at: space_get_direct_state (modules/godot_physics_3d/godot_physics_server_3d.cpp:194)
+   GDScript backtrace (most recent call first):
+       [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+       [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+       [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+SCRIPT ERROR: Cannot call method 'intersect_ray' on a null value.
+          at: _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+          GDScript backtrace (most recent call first):
+              [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+              [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+              [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+ERROR: Space state is inaccessible right now, wait for iteration or physics process notification.
+   at: space_get_direct_state (modules/godot_physics_3d/godot_physics_server_3d.cpp:194)
+   GDScript backtrace (most recent call first):
+       [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+       [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+       [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+SCRIPT ERROR: Cannot call method 'intersect_ray' on a null value.
+          at: _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+          GDScript backtrace (most recent call first):
+              [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+              [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+              [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+ERROR: Space state is inaccessible right now, wait for iteration or physics process notification.
+   at: space_get_direct_state (modules/godot_physics_3d/godot_physics_server_3d.cpp:194)
+   GDScript backtrace (most recent call first):
+       [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+       [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+       [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+SCRIPT ERROR: Cannot call method 'intersect_ray' on a null value.
+          at: _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+          GDScript backtrace (most recent call first):
+              [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+              [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+              [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+ERROR: Space state is inaccessible right now, wait for iteration or physics process notification.
+   at: space_get_direct_state (modules/godot_physics_3d/godot_physics_server_3d.cpp:194)
+   GDScript backtrace (most recent call first):
+       [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+       [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+       [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+SCRIPT ERROR: Cannot call method 'intersect_ray' on a null value.
+          at: _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+          GDScript backtrace (most recent call first):
+              [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+              [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+              [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+ERROR: Space state is inaccessible right now, wait for iteration or physics process notification.
+   at: space_get_direct_state (modules/godot_physics_3d/godot_physics_server_3d.cpp:194)
+   GDScript backtrace (most recent call first):
+       [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+       [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+       [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+SCRIPT ERROR: Cannot call method 'intersect_ray' on a null value.
+          at: _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+          GDScript backtrace (most recent call first):
+              [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+              [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+              [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+ERROR: Space state is inaccessible right now, wait for iteration or physics process notification.
+   at: space_get_direct_state (modules/godot_physics_3d/godot_physics_server_3d.cpp:194)
+   GDScript backtrace (most recent call first):
+       [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+       [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+       [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+SCRIPT ERROR: Cannot call method 'intersect_ray' on a null value.
+          at: _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+          GDScript backtrace (most recent call first):
+              [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+              [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+              [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+ERROR: Space state is inaccessible right now, wait for iteration or physics process notification.
+   at: space_get_direct_state (modules/godot_physics_3d/godot_physics_server_3d.cpp:194)
+   GDScript backtrace (most recent call first):
+       [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+       [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+       [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+SCRIPT ERROR: Cannot call method 'intersect_ray' on a null value.
+          at: _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+          GDScript backtrace (most recent call first):
+              [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+              [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+              [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+ERROR: Space state is inaccessible right now, wait for iteration or physics process notification.
+   at: space_get_direct_state (modules/godot_physics_3d/godot_physics_server_3d.cpp:194)
+   GDScript backtrace (most recent call first):
+       [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+       [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+       [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+SCRIPT ERROR: Cannot call method 'intersect_ray' on a null value.
+          at: _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+          GDScript backtrace (most recent call first):
+              [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+              [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+              [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+ERROR: Space state is inaccessible right now, wait for iteration or physics process notification.
+   at: space_get_direct_state (modules/godot_physics_3d/godot_physics_server_3d.cpp:194)
+   GDScript backtrace (most recent call first):
+       [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+       [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+       [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+SCRIPT ERROR: Cannot call method 'intersect_ray' on a null value.
+          at: _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+          GDScript backtrace (most recent call first):
+              [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+              [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+              [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+ERROR: Space state is inaccessible right now, wait for iteration or physics process notification.
+   at: space_get_direct_state (modules/godot_physics_3d/godot_physics_server_3d.cpp:194)
+   GDScript backtrace (most recent call first):
+       [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+       [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+       [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+SCRIPT ERROR: Cannot call method 'intersect_ray' on a null value.
+          at: _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+          GDScript backtrace (most recent call first):
+              [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+              [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+              [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+ERROR: Space state is inaccessible right now, wait for iteration or physics process notification.
+   at: space_get_direct_state (modules/godot_physics_3d/godot_physics_server_3d.cpp:194)
+   GDScript backtrace (most recent call first):
+       [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+       [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+       [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+SCRIPT ERROR: Cannot call method 'intersect_ray' on a null value.
+          at: _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+          GDScript backtrace (most recent call first):
+              [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+              [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+              [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+ERROR: Space state is inaccessible right now, wait for iteration or physics process notification.
+   at: space_get_direct_state (modules/godot_physics_3d/godot_physics_server_3d.cpp:194)
+   GDScript backtrace (most recent call first):
+       [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+       [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+       [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+SCRIPT ERROR: Cannot call method 'intersect_ray' on a null value.
+          at: _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+          GDScript backtrace (most recent call first):
+              [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+              [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+              [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+ERROR: Space state is inaccessible right now, wait for iteration or physics process notification.
+   at: space_get_direct_state (modules/godot_physics_3d/godot_physics_server_3d.cpp:194)
+   GDScript backtrace (most recent call first):
+       [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+       [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+       [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+SCRIPT ERROR: Cannot call method 'intersect_ray' on a null value.
+          at: _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+          GDScript backtrace (most recent call first):
+              [0] _pick_unit (res://source/match/hud/BastionDemoHUD.gd:98)
+              [1] _context_at (res://source/match/hud/CommandFeedback.gd:122)
+              [2] _process (res://source/match/hud/CommandFeedback.gd:92)
+Dense selection parity: AlpineRelay 520 bodies, rotations and immediate teleports
+Areal selection: 0 failures
+WARNING: 14 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)
+ERROR: 6 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:822)

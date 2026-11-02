@@ -298,6 +298,12 @@ func _gather_unit_abilities(hud_ref, entries: Array):
 		)
 		var glyph_id = CommandCard.ABILITY_GLYPHS.get(ability.id, "attack")
 		var extra_str = ""
+		var active_status = "Active"
+		if ability.id == "power_overdrive" and any_active:
+			for member in units_with_ability:
+				if member._match.helix_support.overdrive_status(member) == "suspended":
+					active_status = "Suspended: low power"
+					break
 		if ability.range > 0 and ability.range < 1000:
 			extra_str = "Range: %.1f m · Radius: %.1f m" % [ability.range, ability.radius]
 
@@ -340,6 +346,7 @@ func _gather_unit_abilities(hud_ref, entries: Array):
 				"cooldown_total": ability.cooldown,
 				"is_armed": armed,
 				"is_active": any_active,
+				"active_status": active_status,
 				"is_ready": any_ready,
 				"issue": issues[0] if not issues.is_empty() else "",
 				"extra": extra_str,

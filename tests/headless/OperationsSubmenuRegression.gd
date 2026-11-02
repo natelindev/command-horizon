@@ -96,8 +96,8 @@ func _run():
 		paused = true
 		game.hud.open_technology()
 		var panel = game.hud.technology_panel
-		panel._branches.weapons.button.pressed.emit()
 		panel._start.pressed.emit()
+		panel._branches[panel._branches.keys()[0]].button.pressed.emit()
 		_check(panel._queue_rows.size() == 1, "Docked research omitted its queued icon")
 		panel._queue_rows[0].cancel.pressed.emit()
 		panel._cancel.pressed.emit()
@@ -111,9 +111,9 @@ func _run():
 		game.hud.open_technology()
 		await _frames(5)
 		panel = game.hud.technology_panel
-		panel._branches.weapons.button.pressed.emit()
 		panel._start.pressed.emit()
-		panel._branches.armor.button.pressed.emit()
+		panel._branches[panel._branches.keys()[0]].button.pressed.emit()
+		panel._branches[panel._branches.keys()[1]].button.pressed.emit()
 		panel._queue_rows[0].cancel.grab_focus()
 		var last = panel._queue_rows[1].cancel
 		await _key(KEY_TAB)
@@ -270,9 +270,7 @@ func _engineering_controls(player, worker, menus):
 		"Build T did not target a field bunker"
 	)
 	await _key(KEY_ESCAPE)
-	_check(
-		commands.kind.is_empty() and game.hud._overlay == null, "Escape did not cancel bunker"
-	)
+	_check(commands.kind.is_empty() and game.hud._overlay == null, "Escape did not cancel bunker")
 
 
 func _overdrive_controls(player, menus):
@@ -280,28 +278,17 @@ func _overdrive_controls(player, menus):
 	var generator = _units(player, "PowerPlant")[0]
 	game.hud.select_units([generator])
 	await _frames(8)
-	var card = menus._command_card
-	_check(is_instance_valid(card), "A selected generator omitted its support ability card")
-	if not is_instance_valid(card):
-		return
-	var buttons = card.get_children().filter(
-		func(button): return button is BaseButton and button.is_visible_in_tree()
+	var tray = game.hud.ability_tray
+	tray._refresh(0.0)
+	var buttons = tray._blocks.filter(
+		func(button): return button.visible and button.ability_id == "unit_power_overdrive"
 	)
-	_check(buttons.size() == 1, "Generator card exposes blank or movement command rows")
+	_check(buttons.size() == 1, "Generator tray omitted its unique support ability")
 	if buttons.size() != 1:
 		return
 	var overdrive = buttons[0]
-	_check(overdrive.badge == "E", "Generator support ability has the wrong shortcut")
-	_check(
-		(
-			overdrive.disabled
-			and overdrive.tooltip_text.contains(tr("Requires Plasma Shields research."))
-		),
-		"Unavailable Overdrive does not explain its research prerequisite"
-	)
-	player.technology.completed.append("plasma_shields")
-	card._refresh_abilities()
-	_check(not overdrive.disabled, "Exactly 3 spare power did not enable researched Overdrive")
+	_check(overdrive._badge.text == "E", "Generator support ability has the wrong shortcut")
+	_check(not overdrive.disabled, "Innate Overdrive requires obsolete shield research")
 	var consumer = load("res://source/match/units/AntiGroundTurret.tscn").instantiate()
 	game._setup_and_spawn_unit(
 		consumer,
@@ -310,7 +297,7 @@ func _overdrive_controls(player, menus):
 		false
 	)
 	consumer.process_mode = Node.PROCESS_MODE_DISABLED
-	card._refresh_abilities()
+	tray._refresh(0.0)
 	_check(
 		overdrive.disabled and overdrive.tooltip_text.contains(tr("Requires 3 spare power.")),
 		"Overdrive does not explain its power requirement below 3 spare power"
@@ -322,11 +309,10 @@ func _overdrive_controls(player, menus):
 		player,
 		false
 	)
-	card._refresh_abilities()
+	tray._refresh(0.0)
 	_check(not overdrive.disabled, "Additional power did not enable researched Overdrive")
 	_check(
-		card.size.y < overdrive.size.y * 1.5,
-		"The support-only ability occupies a full command-card grid"
+		tray.size.y < overdrive.size.y * 1.5, "The support-only ability exceeds its compact tray"
 	)
 	await _key(KEY_E)
 	_check(not game.helix_support.requested(generator), "Paused E activated Overdrive")
@@ -334,7 +320,7 @@ func _overdrive_controls(player, menus):
 	var power = player.power_totals()
 	paused = false
 	await _key(KEY_E)
-	card._refresh_abilities()
+	tray._refresh(0.0)
 	_check(
 		game.helix_support.requested(generator) and player.power_totals().y == power.y + 3,
 		"Generator E did not enable Overdrive with its power demand"
@@ -349,7 +335,7 @@ func _overdrive_controls(player, menus):
 	var core_meshes = cores.map(func(core): return core.mesh)
 	var core_surfaces = cores.map(func(core): return core.surface)
 	reserve._construction_progress = 0.0
-	card._refresh_abilities()
+	tray._refresh(0.0)
 	menus._refresh_buttons()
 	support._refresh_generator_visuals(generator)
 	_check(support.overdrive_status(generator) == "suspended", "Fixture did not suspend Overdrive")
@@ -370,7 +356,7 @@ func _overdrive_controls(player, menus):
 			"Low power left the generator cores at operating brightness"
 		)
 	reserve._construction_progress = 1.0
-	card._refresh_abilities()
+	tray._refresh(0.0)
 	menus._refresh_buttons()
 	support._refresh_generator_visuals(generator)
 	_check(support.operating(generator), "Restored power did not resume the Overdrive presentation")

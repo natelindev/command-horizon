@@ -1308,17 +1308,20 @@ func handle_menu_input(event):
 		close_research()
 	elif not is_visible_in_tree() or not is_instance_valid(_pages):
 		return false
-	elif _pages.get_current_tab_control().name == "Build" and (
-		code in [KEY_Q, KEY_W]
-		or (
-			code == KEY_T
-			and is_instance_valid(hud.direct_orders)
-			and hud.direct_orders.ability_for_key("T") != ""
+	elif (
+		_pages.get_current_tab_control().name == "Build"
+		and (
+			code in [KEY_Q, KEY_W]
+			or (
+				code == KEY_T
+				and is_instance_valid(hud.direct_orders)
+				and hud.direct_orders.ability_for_key("T") != ""
+			)
 		)
 	):
 		if is_instance_valid(hud.direct_orders):
-			var ability_key := {KEY_Q: "Q", KEY_W: "W", KEY_T: "T"}.get(code, "")
-			var ability_id := hud.direct_orders.ability_for_key(ability_key)
+			var ability_key: String = {KEY_Q: "Q", KEY_W: "W", KEY_T: "T"}.get(code, "")
+			var ability_id: String = hud.direct_orders.ability_for_key(ability_key)
 			if ability_id.is_empty():
 				ability_id = (
 					"field_barricade"

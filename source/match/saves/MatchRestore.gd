@@ -71,6 +71,9 @@ func restore(tree, snapshot):
 	if is_instance_valid(previous):
 		previous.queue_free()
 		await previous.tree_exited
+		# A departing campaign cinematic releases its own pause during teardown.
+		# Loading owns the pause until all saved state and presentation are ready.
+		tree.paused = true
 		await tree.process_frame
 	tree.root.add_child(game)
 	tree.current_scene = game

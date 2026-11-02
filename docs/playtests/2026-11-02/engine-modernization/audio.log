@@ -1,0 +1,14 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Metal 4.0 - Forward+ - Using Device #0: Apple - Apple M1 Pro (Apple7)
+
+PASS actual bastion projectile, hit, infantry/vehicle/structure destruction
+MIX bastion_actual { "peak": 0.18962314724922, "effects_peak": 0.25283086299896, "left": 64.385055201456, "right": 68.3892902616927, "frames": 60928 }
+MIX left { "peak": 0.06771121919155, "effects_peak": 0.09028162062168, "left": 9.75032119191648, "right": 5.32673595542377, "frames": 39936 }
+MIX right { "peak": 0.07341082394123, "effects_peak": 0.09788110107183, "left": 6.04905176805537, "right": 11.0724838217508, "frames": 40448 }
+MIX settings_sample { "peak": 0.16723494231701, "effects_peak": 0.22297991812229, "left": 57.0856567406823, "right": 57.0856567406823, "frames": 35328 }
+PASS measured left/right stereo, real-time pause/settings freeze/resume and live fog loss
+MIX crowd_with_voice { "peak": 0.78255450725555, "effects_peak": 0.63096088171005, "left": 1209.98045335924, "right": 1204.66762810772, "frames": 110592 }
+PASS rendered 24-voice saturation with speech ducking and bounded measured mix
+PASS actual helix projectile, hit, infantry/vehicle/structure destruction
+MIX helix_actual { "peak": 0.17341056466103, "effects_peak": 0.23121409118176, "left": 28.5731589252363, "right": 30.8800631689601, "frames": 59392 }
+Combat audio rendered: 0 failures

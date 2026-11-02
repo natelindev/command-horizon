@@ -1,0 +1,49 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Parse Error: Cannot infer the type of "position_2d" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://source/match/FogOfWar.gd:211)
+          GDScript backtrace (most recent call first):
+              [0] _skirmish (res://tests/headless/SaveRestoreEdges.gd:44)
+              [1] _run (res://tests/headless/ArealSelectionRegression.gd:7)
+ERROR: Failed to load script "res://source/match/FogOfWar.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+   GDScript backtrace (most recent call first):
+       [0] _skirmish (res://tests/headless/SaveRestoreEdges.gd:44)
+       [1] _run (res://tests/headless/ArealSelectionRegression.gd:7)
+SCRIPT ERROR: Parse Error: Cannot infer the type of "ability_id" variable because the value doesn't have a set type.
+          at: GDScript::reload (res://source/match/hud/UnitMenus.gd:1321)
+          GDScript backtrace (most recent call first):
+              [0] _skirmish (res://tests/headless/SaveRestoreEdges.gd:44)
+              [1] _run (res://tests/headless/ArealSelectionRegression.gd:7)
+SCRIPT ERROR: Parse Error: The variable type is being inferred from a Variant value, so it will be typed as Variant. (Warning treated as error.)
+          at: GDScript::reload (res://source/match/hud/UnitMenus.gd:1320)
+          GDScript backtrace (most recent call first):
+              [0] _skirmish (res://tests/headless/SaveRestoreEdges.gd:44)
+              [1] _run (res://tests/headless/ArealSelectionRegression.gd:7)
+ERROR: Failed to load script "res://source/match/hud/UnitMenus.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+   GDScript backtrace (most recent call first):
+       [0] _skirmish (res://tests/headless/SaveRestoreEdges.gd:44)
+       [1] _run (res://tests/headless/ArealSelectionRegression.gd:7)
+SCRIPT ERROR: Invalid call. Nonexistent function 'resize' in base 'Node3D'.
+          at: _setup_subsystems_dependent_on_map (res://source/match/Match.gd:290)
+          GDScript backtrace (most recent call first):
+              [0] _setup_subsystems_dependent_on_map (res://source/match/Match.gd:290)
+              [1] _ready (res://source/match/Match.gd:125)
+              [2] _ready (res://source/match/Skirmish.gd:25)
+              [3] _skirmish (res://tests/headless/SaveRestoreEdges.gd:47)
+              [4] _run (res://tests/headless/ArealSelectionRegression.gd:7)
+SCRIPT ERROR: Invalid call. Nonexistent function 'resize' in base 'Node3D'.
+          at: _setup_subsystems_dependent_on_map (res://source/match/Match.gd:290)
+          GDScript backtrace (most recent call first):
+              [0] _setup_subsystems_dependent_on_map (res://source/match/Match.gd:290)
+              [1] _ready (res://source/match/Match.gd:125)
+              [2] _ready (res://source/match/Skirmish.gd:25)
+              [3] _skirmish (res://tests/headless/SaveRestoreEdges.gd:47)
+              [4] _run (res://tests/headless/ArealSelectionRegression.gd:7)
+              [5] _frames (res://tests/headless/CampaignRegression.gd:254)
+Areal selection: 0 failures
+WARNING: 20 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)
+ERROR: 8 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:822)

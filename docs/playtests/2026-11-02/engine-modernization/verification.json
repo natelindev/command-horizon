@@ -1,0 +1,1492 @@
+{
+  "status": "verification_completed_with_open_failures",
+  "all_project_checks_passed": false,
+  "head_commit": "e72fee2ae43dfd7eaa56d29232406909aa73f011",
+  "baseline_commit": "8201aeb61c28acefd1de7393c134569da9bc846e",
+  "engine": "4.7.2-stable official",
+  "platform": "macOS ARM64 / Apple M1 Pro / Metal Forward+ and actual OpenGL Compatibility",
+  "source_receipt": "source-receipt.json",
+  "final_staged_source_differences": [],
+  "original_3d_assets_changed": false,
+  "fixed": [
+    "FogOfWar and UnitMenus runtime type checking",
+    "Engineering placement ghost kind, shape and cancellation",
+    "Stale physics proxies after immediate teleports and degenerate marquee hulls",
+    "Exact compute exploration restore without viewport expansion",
+    "Campaign cinematic teardown releasing the loader-owned pause",
+    "Active and suspended top ability-tray toggle feedback",
+    "High-detail terrain particle heightfield resource RID",
+    "Centered voxel-aligned tile edges, including float32 rounding"
+  ],
+  "verification_fixture_fixes": [
+    "Current faction-specific research and innate Overdrive controls",
+    "Dismiss opening briefing before save/gameplay assertions",
+    "Synchronously publish the server-only navigation fixture",
+    "520-body rotation/teleport selection parity",
+    "Cancel an in-flight tile batch without stale publication; mirrored boundary checks"
+  ],
+  "standalone_checks": [
+    {
+      "name": "OperationsSubmenuRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--max-fps",
+        "240",
+        "--script",
+        "tests/headless/OperationsSubmenuRegression.gd"
+      ],
+      "exit_code": 0,
+      "seconds": 13.117,
+      "errors": [],
+      "results_file": "final-focused-results.json",
+      "shutdown_errors": [],
+      "status": "passed"
+    },
+    {
+      "name": "TerrainNavRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--max-fps",
+        "240",
+        "--script",
+        "tests/headless/TerrainNavRegression.gd"
+      ],
+      "exit_code": 0,
+      "seconds": 14.59,
+      "errors": [],
+      "results_file": "voxel-final-results.json",
+      "shutdown_errors": [],
+      "status": "passed"
+    },
+    {
+      "name": "NavigationProjectionRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--max-fps",
+        "240",
+        "--script",
+        "tests/headless/NavigationProjectionRegression.gd"
+      ],
+      "exit_code": 0,
+      "seconds": 10.871,
+      "errors": [],
+      "results_file": "final-focused-results.json",
+      "shutdown_errors": [],
+      "status": "passed"
+    },
+    {
+      "name": "NavigationConnectivityRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--max-fps",
+        "240",
+        "--script",
+        "tests/headless/NavigationConnectivityRegression.gd"
+      ],
+      "exit_code": 0,
+      "seconds": 51.824,
+      "errors": [],
+      "results_file": "final-focused-results.json",
+      "shutdown_errors": [],
+      "status": "passed"
+    },
+    {
+      "name": "ProjectileSystemRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--script",
+        "tests/headless/ProjectileSystemRegression.gd"
+      ],
+      "exit_code": 0,
+      "seconds": 4.955,
+      "errors": [],
+      "results_file": "focused-runtime-results.json",
+      "shutdown_errors": [],
+      "status": "passed"
+    },
+    {
+      "name": "TerrainSightRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--script",
+        "tests/headless/TerrainSightRegression.gd"
+      ],
+      "exit_code": 0,
+      "seconds": 8.192,
+      "errors": [],
+      "results_file": "focused-runtime-results.json",
+      "shutdown_errors": [],
+      "status": "passed"
+    },
+    {
+      "name": "StrategicPolishRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--script",
+        "tests/headless/StrategicPolishRegression.gd"
+      ],
+      "exit_code": 0,
+      "seconds": 8.641,
+      "errors": [],
+      "results_file": "focused-runtime-results.json",
+      "shutdown_errors": [],
+      "status": "passed"
+    },
+    {
+      "name": "NeutralPolishRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--script",
+        "tests/headless/NeutralPolishRegression.gd"
+      ],
+      "exit_code": 0,
+      "seconds": 36.839,
+      "errors": [],
+      "results_file": "focused-runtime-results.json",
+      "shutdown_errors": [],
+      "status": "passed"
+    },
+    {
+      "name": "SaveRestoreRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--max-fps",
+        "240",
+        "--script",
+        "tests/headless/SaveRestoreRegression.gd"
+      ],
+      "exit_code": 0,
+      "seconds": 4.571,
+      "errors": [],
+      "results_file": "final-focused-results.json",
+      "shutdown_errors": [],
+      "status": "passed"
+    },
+    {
+      "name": "ArealSelectionRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--script",
+        "tests/headless/ArealSelectionRegression.gd",
+        "--fixed-fps",
+        "60",
+        "--max-fps",
+        "240"
+      ],
+      "exit_code": 0,
+      "log": "selection-final.log",
+      "errors": [
+        "ERROR: 6 resources still in use at exit (run with --verbose for details)."
+      ],
+      "shutdown_errors": [
+        "ERROR: 6 resources still in use at exit (run with --verbose for details)."
+      ],
+      "status": "assertions_passed_with_shutdown_errors"
+    },
+    {
+      "name": "FormationPlanningRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "tests/headless/FormationPlanningRegression.gd"
+      ],
+      "exit_code": 0,
+      "seconds": 5.251,
+      "errors": [],
+      "results_file": "extended-results.json",
+      "shutdown_errors": [],
+      "status": "passed"
+    },
+    {
+      "name": "FormationAssignmentRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "tests/headless/FormationAssignmentRegression.gd"
+      ],
+      "exit_code": 0,
+      "seconds": 3.876,
+      "errors": [],
+      "results_file": "extended-results.json",
+      "shutdown_errors": [],
+      "status": "passed"
+    },
+    {
+      "name": "FormationCapRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "tests/headless/FormationCapRegression.gd"
+      ],
+      "exit_code": 0,
+      "seconds": 7.449,
+      "errors": [
+        "ERROR: 14 resources still in use at exit (run with --verbose for details)."
+      ],
+      "results_file": "extended-results.json",
+      "shutdown_errors": [
+        "ERROR: 14 resources still in use at exit (run with --verbose for details)."
+      ],
+      "status": "assertions_passed_with_shutdown_errors"
+    },
+    {
+      "name": "HoverNavigationRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--max-fps",
+        "240",
+        "--script",
+        "tests/headless/HoverNavigationRegression.gd"
+      ],
+      "exit_code": 0,
+      "seconds": 5.713,
+      "errors": [],
+      "results_file": "final-focused-results.json",
+      "shutdown_errors": [],
+      "status": "passed"
+    },
+    {
+      "name": "ResourceNavigationRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "tests/headless/ResourceNavigationRegression.gd"
+      ],
+      "exit_code": 1,
+      "seconds": 74.208,
+      "errors": [
+        "ERROR: Worker crossed resource avoidance footprint",
+        "ERROR: Worker crossed resource avoidance footprint",
+        "ERROR: Engineer delivered beyond bounded building contact range",
+        "ERROR: 6 resources still in use at exit (run with --verbose for details)."
+      ],
+      "results_file": "extended-results.json",
+      "shutdown_errors": [
+        "ERROR: 6 resources still in use at exit (run with --verbose for details)."
+      ],
+      "status": "failed"
+    },
+    {
+      "name": "HarvestTrafficRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--max-fps",
+        "240",
+        "--script",
+        "tests/headless/HarvestTrafficRegression.gd"
+      ],
+      "exit_code": 1,
+      "seconds": 50.502,
+      "errors": [
+        "ERROR: helix: recovery exceeded movement speed",
+        "ERROR: Residual traffic exceeded movement speed",
+        "ERROR: Residual traffic missed real deliveries",
+        "ERROR: 6 resources still in use at exit (run with --verbose for details)."
+      ],
+      "results_file": "harvest-mounted-results.json",
+      "shutdown_errors": [
+        "ERROR: 6 resources still in use at exit (run with --verbose for details)."
+      ],
+      "status": "failed"
+    },
+    {
+      "name": "FieldEngineeringRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "tests/headless/FieldEngineeringRegression.gd"
+      ],
+      "exit_code": 0,
+      "seconds": 3.199,
+      "errors": [],
+      "results_file": "extended-results.json",
+      "shutdown_errors": [],
+      "status": "passed"
+    },
+    {
+      "name": "EconomicAIRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "tests/headless/EconomicAIRegression.gd"
+      ],
+      "exit_code": 0,
+      "seconds": 6.108,
+      "errors": [],
+      "results_file": "extended-results.json",
+      "shutdown_errors": [],
+      "status": "passed"
+    },
+    {
+      "name": "BattlefieldSalvageRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "tests/headless/BattlefieldSalvageRegression.gd"
+      ],
+      "exit_code": 0,
+      "seconds": 3.031,
+      "errors": [],
+      "results_file": "extended-results.json",
+      "shutdown_errors": [],
+      "status": "passed"
+    },
+    {
+      "name": "MobileGarrisonRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "tests/headless/MobileGarrisonRegression.gd"
+      ],
+      "exit_code": 0,
+      "seconds": 4.61,
+      "errors": [],
+      "results_file": "extended-results.json",
+      "shutdown_errors": [],
+      "status": "passed"
+    },
+    {
+      "name": "GarrisonCombatExitRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "tests/headless/GarrisonCombatExitRegression.gd"
+      ],
+      "exit_code": 0,
+      "seconds": 43.898,
+      "errors": [],
+      "results_file": "extended-results.json",
+      "shutdown_errors": [],
+      "status": "passed"
+    },
+    {
+      "name": "GarrisonBreachRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "tests/headless/GarrisonBreachRegression.gd"
+      ],
+      "exit_code": 1,
+      "seconds": 6.532,
+      "errors": [
+        "ERROR: Breach did not deal 15 exactly once"
+      ],
+      "results_file": "extended-results.json",
+      "shutdown_errors": [],
+      "status": "failed"
+    },
+    {
+      "name": "BattlefieldEventsRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--script",
+        "tests/headless/BattlefieldEventsRegression.gd",
+        "--fixed-fps",
+        "60",
+        "--max-fps",
+        "240"
+      ],
+      "exit_code": 0,
+      "log": "events-voxel-verified.log",
+      "errors": [],
+      "shutdown_errors": [],
+      "status": "passed"
+    },
+    {
+      "name": "CommanderCallInsRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "tests/headless/CommanderCallInsRegression.gd"
+      ],
+      "exit_code": -15,
+      "seconds": 315.051,
+      "errors": [
+        "SCRIPT ERROR: Invalid access of index '0' on a base object of type: 'Array'.",
+        "SCRIPT ERROR: Invalid access of index '0' on a base object of type: 'Array'."
+      ],
+      "results_file": "extended-results.json",
+      "shutdown_errors": [],
+      "status": "failed"
+    },
+    {
+      "name": "ProjectilePhysicsRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "tests/headless/ProjectilePhysicsRegression.gd"
+      ],
+      "exit_code": 0,
+      "seconds": 5.594,
+      "errors": [],
+      "results_file": "extended-results.json",
+      "shutdown_errors": [],
+      "status": "passed"
+    },
+    {
+      "name": "ProjectileVisualRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "tests/headless/ProjectileVisualRegression.gd"
+      ],
+      "exit_code": 1,
+      "seconds": 1.16,
+      "errors": [
+        "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+        "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+        "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+        "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+        "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+        "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+        "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+        "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+        "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+        "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+        "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+        "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+        "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+        "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+        "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+        "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+        "ERROR: Trail extended past ground contact"
+      ],
+      "results_file": "extended-results.json",
+      "shutdown_errors": [],
+      "status": "failed"
+    },
+    {
+      "name": "InfantrySuppressionRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "tests/headless/InfantrySuppressionRegression.gd"
+      ],
+      "exit_code": 1,
+      "seconds": 2.943,
+      "errors": [
+        "ERROR: Timed expiration removed permanent armor",
+        "ERROR: Permanent armor did not reduce damage once"
+      ],
+      "results_file": "extended-results.json",
+      "shutdown_errors": [],
+      "status": "failed"
+    },
+    {
+      "name": "FactionAsymmetryRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "tests/headless/FactionAsymmetryRegression.gd"
+      ],
+      "exit_code": 0,
+      "seconds": 4.589,
+      "errors": [],
+      "results_file": "extended-results.json",
+      "shutdown_errors": [],
+      "status": "passed"
+    },
+    {
+      "name": "NativeCrowdProjectionRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--max-fps",
+        "240",
+        "--script",
+        "tests/headless/NativeCrowdProjectionRegression.gd",
+        "--",
+        "--enable-native-kernels",
+        "--native-unit-state",
+        "--native-crowd-runtime",
+        "--native-visibility-runtime",
+        "--native-pose-rigs",
+        "--native-presentation",
+        "--native-infantry-poses",
+        "--native-combat-queries",
+        "--native-battlefield-index",
+        "--native-nearest-surface",
+        "--native-exploration"
+      ],
+      "exit_code": 0,
+      "seconds": 10.932,
+      "errors": [],
+      "results_file": "voxel-final-results.json",
+      "shutdown_errors": [],
+      "status": "passed"
+    },
+    {
+      "name": "NativeCrowdMovementRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "tests/headless/NativeCrowdMovementRegression.gd",
+        "--",
+        "--enable-native-kernels",
+        "--native-unit-state",
+        "--native-crowd-runtime",
+        "--native-visibility-runtime",
+        "--native-nearest-surface",
+        "--native-battlefield-index"
+      ],
+      "exit_code": 0,
+      "seconds": 2.908,
+      "errors": [],
+      "results_file": "extended-results.json",
+      "shutdown_errors": [],
+      "status": "passed"
+    },
+    {
+      "name": "NativeNavigationSurfaceRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--max-fps",
+        "240",
+        "--script",
+        "tests/headless/NativeNavigationSurfaceRegression.gd",
+        "--",
+        "--enable-native-kernels",
+        "--native-unit-state",
+        "--native-crowd-runtime",
+        "--native-visibility-runtime",
+        "--native-pose-rigs",
+        "--native-presentation",
+        "--native-infantry-poses",
+        "--native-combat-queries",
+        "--native-battlefield-index",
+        "--native-nearest-surface",
+        "--native-exploration"
+      ],
+      "exit_code": 0,
+      "seconds": 51.766,
+      "errors": [],
+      "results_file": "voxel-final-results.json",
+      "shutdown_errors": [],
+      "status": "passed"
+    },
+    {
+      "name": "NativeUnitStateRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "tests/headless/NativeUnitStateRegression.gd",
+        "--",
+        "--enable-native-kernels",
+        "--native-unit-state",
+        "--native-crowd-runtime",
+        "--native-visibility-runtime",
+        "--native-nearest-surface",
+        "--native-battlefield-index"
+      ],
+      "exit_code": 0,
+      "seconds": 4.59,
+      "errors": [],
+      "results_file": "extended-results.json",
+      "shutdown_errors": [],
+      "status": "passed"
+    },
+    {
+      "name": "NativeBattlefieldIndexRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--script",
+        "tests/headless/NativeBattlefieldIndexRegression.gd",
+        "--",
+        "--enable-native-kernels",
+        "--native-unit-state",
+        "--native-crowd-runtime",
+        "--native-visibility-runtime",
+        "--native-nearest-surface",
+        "--native-battlefield-index"
+      ],
+      "exit_code": 0,
+      "seconds": 8.551,
+      "errors": [],
+      "results_file": "extended-results.json",
+      "shutdown_errors": [],
+      "status": "passed"
+    },
+    {
+      "name": "EngineModernizationRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--script",
+        "tests/headless/EngineModernizationRegression.gd"
+      ],
+      "exit_code": 0,
+      "log": "engine-lifecycle-verified.log",
+      "errors": [],
+      "shutdown_errors": [],
+      "status": "passed"
+    },
+    {
+      "name": "SaveNavigationTimingRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--max-fps",
+        "240",
+        "--script",
+        "tests/headless/SaveNavigationTimingRegression.gd"
+      ],
+      "exit_code": 0,
+      "seconds": 1.273,
+      "errors": [],
+      "results_file": "final-focused-results.json",
+      "shutdown_errors": [],
+      "status": "passed"
+    }
+  ],
+  "rendered_checks": [
+    {
+      "name": "fog-metal",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--script",
+        "tests/rendered/FogComputeRegression.gd"
+      ],
+      "exit_code": 0,
+      "seconds": 1.79,
+      "errors": []
+    },
+    {
+      "name": "save-viewport",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--max-fps",
+        "60",
+        "--script",
+        "tests/headless/SaveRestoreRegression.gd",
+        "--",
+        "--viewport-fog"
+      ],
+      "exit_code": 0,
+      "seconds": 16.206,
+      "errors": []
+    },
+    {
+      "name": "save-opengl",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--rendering-method",
+        "gl_compatibility",
+        "--fixed-fps",
+        "60",
+        "--max-fps",
+        "60",
+        "--script",
+        "tests/headless/SaveRestoreRegression.gd"
+      ],
+      "exit_code": 0,
+      "seconds": 26.085,
+      "errors": []
+    },
+    {
+      "name": "terrain",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--script",
+        "tests/rendered/TerrainLayersPreview.gd",
+        "--",
+        "BastionDesert",
+        "AlpineRelayMap",
+        "CopperBadlandsMap",
+        "CoastalFoundryMap"
+      ],
+      "exit_code": 0,
+      "seconds": 36.487,
+      "errors": []
+    },
+    {
+      "name": "environment",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--script",
+        "tests/rendered/EnvironmentEffectsPreview.gd"
+      ],
+      "exit_code": 0,
+      "seconds": 104.34,
+      "errors": [],
+      "final_log": "environment-fixed.log",
+      "initial_failure_preserved_in": "environment.log"
+    },
+    {
+      "name": "audio",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--script",
+        "tests/rendered/CombatAudioPreview.gd"
+      ],
+      "exit_code": 0,
+      "seconds": 18.383,
+      "errors": []
+    },
+    {
+      "name": "hud",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--script",
+        "tests/rendered/HudConsolePreview.gd",
+        "--",
+        "--console-only"
+      ],
+      "exit_code": 0,
+      "seconds": 117.181,
+      "errors": []
+    },
+    {
+      "name": "lifetime-metal",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--script",
+        "tests/rendered/SceneResourceLifetimeRegression.gd"
+      ],
+      "exit_code": 0,
+      "seconds": 2.791,
+      "errors": []
+    },
+    {
+      "name": "lifetime-opengl",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--rendering-method",
+        "gl_compatibility",
+        "--script",
+        "tests/rendered/SceneResourceLifetimeRegression.gd"
+      ],
+      "exit_code": 0,
+      "seconds": 2.771,
+      "errors": []
+    },
+    {
+      "name": "save-compute-metal",
+      "exit_code": 0,
+      "errors": [],
+      "final_log": "SaveRestoreRegression-rendered-direct.log",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--fixed-fps",
+        "60",
+        "--max-fps",
+        "60",
+        "--script",
+        "tests/headless/SaveRestoreRegression.gd"
+      ]
+    }
+  ],
+  "manual_native_ui": [
+    "Normal menu to standard Helix skirmish",
+    "Worker selection and B opens Operator hub placement immediately",
+    "Cancel placement, right-click movement, tactical pause and menu",
+    "Return to menu and quit"
+  ],
+  "performance": {
+    "runs": "performance-final-results.json",
+    "artifacts": "performance-packs-final.json",
+    "isolated_serial_release_template_runs": true,
+    "tactical": {
+      "raster": [
+        1280,
+        720
+      ],
+      "quality": "low",
+      "units": 200,
+      "selected_min": 200,
+      "visible_min": 200,
+      "focused_frames": 240,
+      "timed_pipeline_changes": 0,
+      "dispatch_ms": 10.26,
+      "frame_median_ms": 14.133,
+      "frame_p95_ms": 17.285,
+      "frame_max_ms": 23.081,
+      "strict_max_ms_budget": 16.6,
+      "passed": false
+    },
+    "ordinary": {
+      "raster": [
+        1920,
+        1080
+      ],
+      "mobile": 200,
+      "structures": 80,
+      "functional_passed": true,
+      "movement_p95_ms": 24.77,
+      "combat_p95_ms": 26.69,
+      "log": "ordinary-final.log",
+      "comparison_log": "ordinary-before.log",
+      "note": "Single runs; shader/cache state and trajectories differ. Earlier cold runs contain >1-second stalls. No general speedup is established."
+    },
+    "heavy": {
+      "heavy-before": {
+        "status": "rejected",
+        "failures": 4,
+        "resolution": [
+          3840,
+          2160
+        ],
+        "release": true,
+        "engine_errors": [
+          "core/variant/variant_utility.cpp: Mobile population dropped ",
+          "core/variant/variant_utility.cpp: Mobile population dropped ",
+          "core/variant/variant_utility.cpp: Mobile population dropped "
+        ],
+        "phases": [
+          {
+            "name": "day_movement",
+            "mean_fps": 9.37493874329798,
+            "frame_p95_ms": 260.166,
+            "frame_max_ms": 1033.87,
+            "mobile": 400,
+            "structures": 160,
+            "raster": [
+              3840,
+              2160
+            ],
+            "focused_samples": 77,
+            "samples": 77,
+            "real_time_ratio": 0.864415671441391
+          },
+          {
+            "name": "day_combat",
+            "mean_fps": 8.06494939492407,
+            "frame_p95_ms": 220.923,
+            "frame_max_ms": 624.63,
+            "mobile": 400,
+            "structures": 160,
+            "raster": [
+              3840,
+              2160
+            ],
+            "focused_samples": 65,
+            "samples": 65,
+            "real_time_ratio": 0.967761626910635
+          },
+          {
+            "name": "night_combat",
+            "mean_fps": 7.52850845797569,
+            "frame_p95_ms": 258.464,
+            "frame_max_ms": 657.236,
+            "mobile": 397,
+            "structures": 160,
+            "raster": [
+              3840,
+              2160
+            ],
+            "focused_samples": 62,
+            "samples": 62,
+            "real_time_ratio": 0.951152722220487
+          },
+          {
+            "name": "night_base",
+            "mean_fps": 11.8560790563351,
+            "frame_p95_ms": 198.853,
+            "frame_max_ms": 251.372,
+            "mobile": 398,
+            "structures": 160,
+            "raster": [
+              3840,
+              2160
+            ],
+            "focused_samples": 96,
+            "samples": 96,
+            "real_time_ratio": 0.992093876285238
+          },
+          {
+            "name": "cycling_weather_combat",
+            "mean_fps": 7.97208077661022,
+            "frame_p95_ms": 239.194,
+            "frame_max_ms": 296.845,
+            "mobile": 397,
+            "structures": 160,
+            "raster": [
+              3840,
+              2160
+            ],
+            "focused_samples": 64,
+            "samples": 64,
+            "real_time_ratio": 1.00063405322012
+          }
+        ]
+      },
+      "heavy-final": {
+        "status": "rejected",
+        "failures": 4,
+        "resolution": [
+          3840,
+          2160
+        ],
+        "release": true,
+        "engine_errors": [
+          "core/variant/variant_utility.cpp: Mobile population dropped ",
+          "core/variant/variant_utility.cpp: Mobile population dropped ",
+          "core/variant/variant_utility.cpp: Mobile population dropped "
+        ],
+        "phases": [
+          {
+            "name": "day_movement",
+            "mean_fps": 9.3192325475315,
+            "frame_p95_ms": 186.197,
+            "frame_max_ms": 368.106,
+            "mobile": 400,
+            "structures": 160,
+            "raster": [
+              3840,
+              2160
+            ],
+            "focused_samples": 75,
+            "samples": 75,
+            "real_time_ratio": 0.994023681122263
+          },
+          {
+            "name": "day_combat",
+            "mean_fps": 7.48343541570733,
+            "frame_p95_ms": 220.948,
+            "frame_max_ms": 225.473,
+            "mobile": 400,
+            "structures": 160,
+            "raster": [
+              3840,
+              2160
+            ],
+            "focused_samples": 60,
+            "samples": 60,
+            "real_time_ratio": 0.997761273142477
+          },
+          {
+            "name": "night_combat",
+            "mean_fps": 7.37261775360761,
+            "frame_p95_ms": 266.96,
+            "frame_max_ms": 276.63,
+            "mobile": 397,
+            "structures": 160,
+            "raster": [
+              3840,
+              2160
+            ],
+            "focused_samples": 60,
+            "samples": 60,
+            "real_time_ratio": 1.01575393393624
+          },
+          {
+            "name": "night_base",
+            "mean_fps": 9.8320890762379,
+            "frame_p95_ms": 240.318,
+            "frame_max_ms": 271.712,
+            "mobile": 398,
+            "structures": 160,
+            "raster": [
+              3840,
+              2160
+            ],
+            "focused_samples": 79,
+            "samples": 79,
+            "real_time_ratio": 0.999770550583519
+          },
+          {
+            "name": "cycling_weather_combat",
+            "mean_fps": 7.36659747475536,
+            "frame_p95_ms": 253.998,
+            "frame_max_ms": 274.74,
+            "mobile": 396,
+            "structures": 160,
+            "raster": [
+              3840,
+              2160
+            ],
+            "focused_samples": 59,
+            "samples": 59,
+            "real_time_ratio": 0.998823261344319
+          }
+        ]
+      },
+      "heavy-viewport-final": {
+        "status": "rejected",
+        "failures": 2,
+        "resolution": [
+          3840,
+          2160
+        ],
+        "release": true,
+        "engine_errors": [
+          "core/variant/variant_utility.cpp: Mobile population dropped "
+        ],
+        "phases": [
+          {
+            "name": "day_movement",
+            "mean_fps": 8.95262160737606,
+            "frame_p95_ms": 339.318,
+            "frame_max_ms": 684.074,
+            "mobile": 400,
+            "structures": 160,
+            "raster": [
+              3840,
+              2160
+            ],
+            "focused_samples": 72,
+            "samples": 72,
+            "real_time_ratio": 0.928387580593766
+          },
+          {
+            "name": "day_combat",
+            "mean_fps": 9.15776414425954,
+            "frame_p95_ms": 200.487,
+            "frame_max_ms": 632.102,
+            "mobile": 400,
+            "structures": 160,
+            "raster": [
+              3840,
+              2160
+            ],
+            "focused_samples": 74,
+            "samples": 74,
+            "real_time_ratio": 0.973498925499676
+          },
+          {
+            "name": "night_combat",
+            "mean_fps": 10.183556115182,
+            "frame_p95_ms": 181.851,
+            "frame_max_ms": 217.04,
+            "mobile": 400,
+            "structures": 160,
+            "raster": [
+              3840,
+              2160
+            ],
+            "focused_samples": 82,
+            "samples": 82,
+            "real_time_ratio": 0.997626352998787
+          },
+          {
+            "name": "night_base",
+            "mean_fps": 15.5195369864089,
+            "frame_p95_ms": 87.373,
+            "frame_max_ms": 179.764,
+            "mobile": 400,
+            "structures": 160,
+            "raster": [
+              3840,
+              2160
+            ],
+            "focused_samples": 125,
+            "samples": 125,
+            "real_time_ratio": 0.997352257367291
+          },
+          {
+            "name": "cycling_weather_combat",
+            "mean_fps": 8.59320514097838,
+            "frame_p95_ms": 227.292,
+            "frame_max_ms": 577.383,
+            "mobile": 398,
+            "structures": 160,
+            "raster": [
+              3840,
+              2160
+            ],
+            "focused_samples": 69,
+            "samples": 69,
+            "real_time_ratio": 0.958923455241936
+          }
+        ]
+      }
+    },
+    "gpu_timestamp_limit": "GPU timings are unavailable on this macOS backend; zero timestamps are not zero GPU cost."
+  },
+  "open_failures": {
+    "six_preexisting_suites": [
+      "ResourceNavigationRegression",
+      "HarvestTrafficRegression",
+      "GarrisonBreachRegression",
+      "ProjectileVisualRegression",
+      "InfantrySuppressionRegression",
+      "CommanderCallInsRegression"
+    ],
+    "baseline_evidence": {
+      "ResourceNavigationRegression": {
+        "stage": "baseline",
+        "name": "ResourceNavigationRegression",
+        "command": [
+          "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+          "--headless",
+          "--path",
+          "/Users/linlilu/godot-open-rts/tmp/engine-verification/baseline",
+          "--fixed-fps",
+          "60",
+          "--max-fps",
+          "240",
+          "--script",
+          "tests/headless/ResourceNavigationRegression.gd"
+        ],
+        "exit_code": 1,
+        "seconds": 71.24,
+        "errors": [
+          "ERROR: Worker crossed resource avoidance footprint",
+          "ERROR: Worker crossed resource avoidance footprint",
+          "ERROR: Engineer delivered beyond bounded building contact range"
+        ]
+      },
+      "ArealSelectionRegression": {
+        "stage": "baseline",
+        "name": "ArealSelectionRegression",
+        "command": [
+          "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+          "--headless",
+          "--path",
+          "/Users/linlilu/godot-open-rts/tmp/engine-verification/baseline",
+          "--fixed-fps",
+          "60",
+          "--max-fps",
+          "240",
+          "--script",
+          "tests/headless/ArealSelectionRegression.gd"
+        ],
+        "exit_code": 0,
+        "seconds": 3.958,
+        "errors": [
+          "ERROR: 6 resources still in use at exit (run with --verbose for details)."
+        ]
+      },
+      "FormationCapRegression": {
+        "stage": "baseline",
+        "name": "FormationCapRegression",
+        "command": [
+          "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+          "--headless",
+          "--path",
+          "/Users/linlilu/godot-open-rts/tmp/engine-verification/baseline",
+          "--fixed-fps",
+          "60",
+          "--max-fps",
+          "240",
+          "--script",
+          "tests/headless/FormationCapRegression.gd"
+        ],
+        "exit_code": 0,
+        "seconds": 7.686,
+        "errors": [
+          "ERROR: 12 resources still in use at exit (run with --verbose for details)."
+        ]
+      },
+      "GarrisonBreachRegression": {
+        "name": "GarrisonBreachRegression",
+        "command": [
+          "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+          "--headless",
+          "--path",
+          "/Users/linlilu/godot-open-rts/tmp/engine-verification/baseline",
+          "--fixed-fps",
+          "60",
+          "--max-fps",
+          "240",
+          "--script",
+          "tests/headless/GarrisonBreachRegression.gd"
+        ],
+        "exit_code": 1,
+        "seconds": 7.484,
+        "errors": [
+          "ERROR: Breach did not deal 15 exactly once"
+        ]
+      },
+      "CommanderCallInsRegression": {
+        "name": "CommanderCallInsRegression",
+        "command": [
+          "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+          "--headless",
+          "--path",
+          "/Users/linlilu/godot-open-rts/tmp/engine-verification/baseline",
+          "--fixed-fps",
+          "60",
+          "--max-fps",
+          "240",
+          "--script",
+          "tests/headless/CommanderCallInsRegression.gd"
+        ],
+        "exit_code": -15,
+        "seconds": 100.931,
+        "errors": [
+          "SCRIPT ERROR: Invalid access of index '0' on a base object of type: 'Array'.",
+          "SCRIPT ERROR: Invalid access of index '0' on a base object of type: 'Array'."
+        ]
+      },
+      "ProjectileVisualRegression": {
+        "name": "ProjectileVisualRegression",
+        "command": [
+          "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+          "--headless",
+          "--path",
+          "/Users/linlilu/godot-open-rts/tmp/engine-verification/baseline",
+          "--fixed-fps",
+          "60",
+          "--script",
+          "tests/headless/ProjectileVisualRegression.gd"
+        ],
+        "exit_code": 1,
+        "seconds": 1.261,
+        "errors": [
+          "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+          "SCRIPT ERROR: Invalid call. Nonexistent function 'get' in base 'Nil'.",
+          "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+          "SCRIPT ERROR: Invalid call. Nonexistent function 'get' in base 'Nil'.",
+          "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+          "SCRIPT ERROR: Invalid call. Nonexistent function 'get' in base 'Nil'.",
+          "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+          "SCRIPT ERROR: Invalid call. Nonexistent function 'get' in base 'Nil'.",
+          "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+          "SCRIPT ERROR: Invalid call. Nonexistent function 'get' in base 'Nil'.",
+          "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+          "SCRIPT ERROR: Invalid call. Nonexistent function 'get' in base 'Nil'.",
+          "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+          "SCRIPT ERROR: Invalid call. Nonexistent function 'get' in base 'Nil'.",
+          "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+          "SCRIPT ERROR: Invalid call. Nonexistent function 'get' in base 'Nil'.",
+          "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+          "SCRIPT ERROR: Invalid call. Nonexistent function 'get' in base 'Nil'.",
+          "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+          "SCRIPT ERROR: Invalid call. Nonexistent function 'get' in base 'Nil'.",
+          "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+          "SCRIPT ERROR: Invalid call. Nonexistent function 'get' in base 'Nil'.",
+          "SCRIPT ERROR: Invalid call to function 'nearby_units' in base 'RefCounted (EmptyField)'. Expected 4 argument(s).",
+          "SCRIPT ERROR: Invalid call. Nonexistent function 'get' in base 'Nil'.",
+          "SCRIPT ERROR: Invalid access of index '0' on a base object of type: 'Array'.",
+          "ERROR: 35 m/s missile retained dotted 0.05s exhaust"
+        ]
+      },
+      "InfantrySuppressionRegression": {
+        "name": "InfantrySuppressionRegression",
+        "command": [
+          "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+          "--headless",
+          "--path",
+          "/Users/linlilu/godot-open-rts/tmp/engine-verification/baseline",
+          "--fixed-fps",
+          "60",
+          "--script",
+          "tests/headless/InfantrySuppressionRegression.gd"
+        ],
+        "exit_code": 1,
+        "seconds": 3.242,
+        "errors": [
+          "ERROR: Timed expiration removed permanent armor",
+          "ERROR: Permanent armor did not reduce damage once"
+        ]
+      },
+      "HarvestTrafficRegression": {
+        "name": "baseline",
+        "command": [
+          "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+          "--headless",
+          "--path",
+          "/Users/linlilu/godot-open-rts/tmp/engine-verification/baseline",
+          "--fixed-fps",
+          "60",
+          "--max-fps",
+          "240",
+          "--script",
+          "tests/headless/HarvestTrafficRegression.gd"
+        ],
+        "exit_code": 1,
+        "seconds": 49.903,
+        "errors": [
+          "ERROR: helix: recovery exceeded movement speed",
+          "ERROR: Residual traffic exceeded movement speed",
+          "ERROR: Residual traffic missed real deliveries",
+          "ERROR: 6 resources still in use at exit (run with --verbose for details)."
+        ]
+      }
+    },
+    "shutdown_retention": "Some accelerated scripts report ObjectDB/resource retention on both source revisions. Exit 0 is not treated as an entirely clean pass.",
+    "threaded_physics": "Selection parity passes; enabling separate-thread physics exposes HUD raycasts outside allowed physics access. The ordinary project does not enable this mode. See selection-threaded.log.",
+    "strict_performance": "MI12 maximum-frame gate fails. All five full 4K phases execute, but population loss rejects both fog-backend fixtures and throughput is far below 60 fps. These runs cannot establish a valid performance improvement.",
+    "platform_scope": "Windows/Linux and the macOS x86-64 slice were not executed in this continuation. Full package/release acceptance is not claimed."
+  },
+  "static_checks": {
+    "format": "format-final.log",
+    "lint": "lint-final.log",
+    "whitespace": "diff-final.log",
+    "passed": true
+  },
+  "captures": "captures/",
+  "artifact_hashes": "artifact-manifest.json",
+  "historical_failed_attempts": "All initial logs/results remain intact. The original harvest baseline lacked the docs mount; harvest-mounted-results.json supersedes that invalid archive comparison.",
+  "owned_engine_processes_remaining": []
+}

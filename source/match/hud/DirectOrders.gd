@@ -562,7 +562,8 @@ func cancel():
 	_ability_selection.clear()
 	if is_instance_valid(_ability_range):
 		_ability_range.hide()
-		_ability_range.get_parent().remove_child(_ability_range)
+		if _ability_range.get_parent() != null:
+			_ability_range.get_parent().remove_child(_ability_range)
 		_ability_range.queue_free()
 	_ability_range = null
 	set_process(false)

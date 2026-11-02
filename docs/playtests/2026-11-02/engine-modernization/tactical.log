@@ -1,0 +1,17 @@
+ERROR: 200-unit formation exceeded strict 16.6 ms maximum frame budget
+   at: push_error (core/variant/variant_utility.cpp:1023)
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Metal 4.0 - Forward+ - Using Device #0: Apple - Apple M1 Pro (Apple7)
+
+TACTICAL QUALITY profile=low msaa=0 shadows=false ao=false glow=false environment=0 day_cycle=true
+TACTICAL VIEWPORT pixels=(1280.0, 720.0) window=(1280, 720)
+TACTICAL BACKENDS {"batched_units":230,"native_crowd":true,"native_exploration":true,"native_presentation":true,"native_surface":true,"native_unit_state":true,"native_visibility":true,"physics_hz":30,"release":true,"resident_rigs":230}
+TACTICAL PIPELINE BASELINE [7,27,149,36,160]
+TACTICAL PIPELINE CHANGES []
+TACTICAL ACTIVATION {"activated_total":200,"maximum_batch":96,"maximum_batch_us":2304,"maximum_wait_ms":100.0,"maximum_wait_ticks":3,"queued":0,"queued_at_dispatch":200,"queued_total":200}
+TACTICAL COVERAGE {"battle_rect":"[P: (384.0, 134.0), S: (880.0, 332.0)]","camera_size":70.0,"capture":"/Users/linlilu/Library/Application Support/EngineModernizationVerification-20261102/tactical-performance/low-native.png","focused_frames":240,"initial_focus":true,"moving_max":200,"moving_mean":131.991666666667,"moving_min":70,"selected_min":200,"visible_min":200}
+TACTICAL PHASE PROFILE {"draw_calls_mean":1657.09166666667,"frames":240,"gpu_timing_available":false,"maximum_frame_index":0,"maximum_frame_physics_ticks":1,"observer_max_us":927,"observer_mean_us":557.1625,"observer_total_us":133719,"pre_await_qa_us":616,"render_cpu_mean_ms":1.36372916797797,"render_gpu_max_ms":0.0,"render_gpu_mean_ms":0.0,"renderer_stage_us":[0,0,0,0,0,0,0,0,0,0,0,0,0,0],"scene_dispatch_us":[]}
+TACTICAL SLOW FRAMES [frame,wall_ms,physics_ticks,observer_us] [[0,36.393,1,443],[2,24.166,1,455],[58,18.766,1,577],[42,18.538,0,609],[134,18.479,0,522],[93,18.449,1,445],[82,18.261,1,562],[128,18.174,1,623]]
+TACTICAL NATIVE PROFILE [75892, 42430, 87777, 0, 109, 109, 21800, 0]
+TACTICAL PERFORMANCE units=200 assignment_ms=1.406 projected_plan_ms=6.527 complete_dispatch_ms=10.699 frame_p50_ms=15.189 frame_p95_ms=17.712 frame_max_ms=36.393
+Tactical formations regression: 1 failures

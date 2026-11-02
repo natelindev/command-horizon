@@ -1,0 +1,94 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 4.1 Metal - 91.7 - Compatibility - Using Device: Apple - Apple M1 Pro
+
+WARNING: Image format BPTC_RGBA not supported by hardware, converting to RGBA8.
+     at: _get_gl_image_and_format (drivers/gles3/storage/texture_storage.cpp:987)
+WARNING: Image format BPTC_RGBA not supported by hardware, converting to RGBA8.
+     at: _get_gl_image_and_format (drivers/gles3/storage/texture_storage.cpp:987)
+WARNING: Image format BPTC_RGBA not supported by hardware, converting to RGBA8.
+     at: _get_gl_image_and_format (drivers/gles3/storage/texture_storage.cpp:987)
+WARNING: Image format BPTC_RGBA not supported by hardware, converting to RGBA8.
+     at: _get_gl_image_and_format (drivers/gles3/storage/texture_storage.cpp:987)
+WARNING: Image format BPTC_RGBA not supported by hardware, converting to RGBA8.
+     at: _get_gl_image_and_format (drivers/gles3/storage/texture_storage.cpp:987)
+WARNING: Image format BPTC_RGBA not supported by hardware, converting to RGBA8.
+     at: _get_gl_image_and_format (drivers/gles3/storage/texture_storage.cpp:987)
+     GDScript backtrace (most recent call first):
+         [0] configure (res://source/match/TerrainTextures.gd:120)
+         [1] apply (res://source/match/TerrainTextures.gd:109)
+         [2] _enter_tree (res://source/match/Map.gd:31)
+         [3] _make_match (res://tests/headless/CampaignRegression.gd:38)
+         [4] _run (res://tests/headless/SaveRestoreRegression.gd:19)
+WARNING: Image format BPTC_RGBA not supported by hardware, converting to RGBA8.
+     at: _get_gl_image_and_format (drivers/gles3/storage/texture_storage.cpp:987)
+     GDScript backtrace (most recent call first):
+         [0] configure (res://source/match/TerrainTextures.gd:120)
+         [1] apply (res://source/match/TerrainTextures.gd:109)
+         [2] _enter_tree (res://source/match/Map.gd:31)
+         [3] _make_match (res://tests/headless/CampaignRegression.gd:38)
+         [4] _run (res://tests/headless/SaveRestoreRegression.gd:19)
+WARNING: Image format BPTC_RGBA not supported by hardware, converting to RGBA8.
+     at: _get_gl_image_and_format (drivers/gles3/storage/texture_storage.cpp:987)
+     GDScript backtrace (most recent call first):
+         [0] configure (res://source/match/TerrainTextures.gd:120)
+         [1] apply (res://source/match/TerrainTextures.gd:109)
+         [2] _enter_tree (res://source/match/Map.gd:31)
+         [3] _make_match (res://tests/headless/CampaignRegression.gd:38)
+         [4] _run (res://tests/headless/SaveRestoreRegression.gd:19)
+WARNING: Image format BPTC_RGBA not supported by hardware, converting to RGBA8.
+     at: _get_gl_image_and_format (drivers/gles3/storage/texture_storage.cpp:987)
+     GDScript backtrace (most recent call first):
+         [0] textured (res://source/match/ObjectMaterials.gd:355)
+         [1] apply (res://source/match/ObjectMaterials.gd:373)
+         [2] apply (res://source/match/ObjectMaterials.gd:411)
+         [3] setup (res://source/match/ambient/AmbientActor.gd:38)
+         [4] _ready (res://source/match/ambient/CampaignInteriorLife.gd:37)
+         [5] populate (res://source/match/maps/CampaignInteriors.gd:109)
+         [6] _ready (res://source/match/Match.gd:123)
+         [7] _ready (res://source/match/Skirmish.gd:25)
+         [8] _ready (res://source/match/campaign/FirstOrders.gd:21)
+         [9] _make_match (res://tests/headless/CampaignRegression.gd:38)
+         [10] _run (res://tests/headless/SaveRestoreRegression.gd:19)
+WARNING: Image format BPTC_RGBA not supported by hardware, converting to RGBA8.
+     at: _get_gl_image_and_format (drivers/gles3/storage/texture_storage.cpp:987)
+     GDScript backtrace (most recent call first):
+         [0] textured (res://source/match/ObjectMaterials.gd:355)
+         [1] apply (res://source/match/ObjectMaterials.gd:373)
+         [2] apply (res://source/match/ObjectMaterials.gd:411)
+         [3] apply (res://source/match/ObjectMaterials.gd:411)
+         [4] apply (res://source/match/ObjectMaterials.gd:411)
+         [5] prepare_model (res://source/match/FactionCatalog.gd:561)
+         [6] _setup_and_spawn_unit (res://source/match/Match.gd:377)
+         [7] _spawn (res://source/match/campaign/FirstOrders.gd:68)
+         [8] _spawn_player_units (res://source/match/campaign/FirstOrders.gd:61)
+         [9] _setup_player_units (res://source/match/Match.gd:351)
+         [10] _ready (res://source/match/Match.gd:135)
+         [11] _ready (res://source/match/Skirmish.gd:25)
+         [12] _ready (res://source/match/campaign/FirstOrders.gd:21)
+         [13] _make_match (res://tests/headless/CampaignRegression.gd:38)
+         [14] _run (res://tests/headless/SaveRestoreRegression.gd:19)
+WARNING: Image format BPTC_RGBA not supported by hardware, converting to RGBA8.
+     at: _get_gl_image_and_format (drivers/gles3/storage/texture_storage.cpp:987)
+     GDScript backtrace (most recent call first):
+         [0] textured (res://source/match/ObjectMaterials.gd:355)
+         [1] apply (res://source/match/ObjectMaterials.gd:386)
+         [2] apply (res://source/match/ObjectMaterials.gd:411)
+         [3] apply (res://source/match/ObjectMaterials.gd:411)
+         [4] _ready (res://source/match/Match.gd:167)
+         [5] _ready (res://source/match/Skirmish.gd:25)
+         [6] _ready (res://source/match/campaign/FirstOrders.gd:21)
+         [7] _make_match (res://tests/headless/CampaignRegression.gd:38)
+         [8] _run (res://tests/headless/SaveRestoreRegression.gd:19)
+WARNING: Image format BPTC_RGBA not supported by hardware, converting to RGBA8.
+     at: _get_gl_image_and_format (drivers/gles3/storage/texture_storage.cpp:987)
+     GDScript backtrace (most recent call first):
+         [0] textured (res://source/match/ObjectMaterials.gd:355)
+         [1] apply (res://source/match/ObjectMaterials.gd:386)
+         [2] apply (res://source/match/ObjectMaterials.gd:411)
+         [3] apply (res://source/match/ObjectMaterials.gd:411)
+         [4] _ready (res://source/match/Match.gd:167)
+         [5] _ready (res://source/match/Skirmish.gd:25)
+         [6] _ready (res://source/match/campaign/FirstOrders.gd:21)
+         [7] _make_match (res://tests/headless/CampaignRegression.gd:38)
+         [8] _run (res://tests/headless/SaveRestoreRegression.gd:19)
+PASS: actual reload preserves jobs, actions, guard/follow orders, cargo, cooldowns and mission; resume works

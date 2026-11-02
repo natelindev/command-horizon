@@ -1,0 +1,14 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Metal 4.0 - Forward+ - Using Device #0: Apple - Apple M1 Pro (Apple7)
+
+BENCHMARK avoidance_threads=true
+SCALE BEGIN movement paused=false simulation_time=3.26666666666666
+SCALE movement renderer=macOS mean_frame_ms=18.92 p95_frame_ms=24.77 p99_frame_ms=27.2 frames_over_33ms=0 samples=530 simulation_seconds=10.03 wall_seconds=10.03 realtime=true baseline_field=false baseline_targets=false avg_sampled_1s_process_max_ms=18.17 avg_sampled_1s_physics_max_ms=10.46 physics_ticks=301 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false
+RENDER movement gpu_ms=0.0 render_cpu_ms=1.99 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=530
+TAIL movement max_frame_ms=32.3 frames_over_100ms=0
+SCALE BEGIN combat paused=false simulation_time=13.3
+SCALE combat renderer=macOS mean_frame_ms=21.19 p95_frame_ms=26.69 p99_frame_ms=28.08 frames_over_33ms=1 samples=471 simulation_seconds=10.0 wall_seconds=9.98 realtime=true baseline_field=false baseline_targets=false avg_sampled_1s_process_max_ms=20.16 avg_sampled_1s_physics_max_ms=11.77 physics_ticks=300 physics_hz=30 interpolation=true diagnostic_no_motion=false diagnostic_no_queues=false
+RENDER combat gpu_ms=0.0 render_cpu_ms=2.21 pixels=(1920.0, 1080.0) scale_3d=1.0 adapter=Apple M1 Pro (Apple7) rendered_frames=471
+TAIL combat max_frame_ms=35.7 frames_over_100ms=0
+SCALE behaviors=true air_combat=false moved=200/200 travelled=200/200 fired=112 peak_live_projectiles=21 resources=62 sampled_peak_tracers=0 viewport_pixels=(1920.0, 1080.0)
+PASS: 200 mobile units + 80 structures; behaviors=true release=true failures=0

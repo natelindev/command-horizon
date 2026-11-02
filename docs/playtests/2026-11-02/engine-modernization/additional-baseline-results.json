@@ -1,0 +1,61 @@
+[
+  {
+    "name": "GarrisonBreachRegression",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      "/Users/linlilu/godot-open-rts/tmp/engine-verification/baseline",
+      "--fixed-fps",
+      "60",
+      "--max-fps",
+      "240",
+      "--script",
+      "tests/headless/GarrisonBreachRegression.gd"
+    ],
+    "exit_code": 1,
+    "seconds": 7.484,
+    "errors": [
+      "ERROR: Breach did not deal 15 exactly once"
+    ]
+  },
+  {
+    "name": "BattlefieldEventsRegression",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      "/Users/linlilu/godot-open-rts/tmp/engine-verification/baseline",
+      "--fixed-fps",
+      "60",
+      "--max-fps",
+      "240",
+      "--script",
+      "tests/headless/BattlefieldEventsRegression.gd"
+    ],
+    "exit_code": 0,
+    "seconds": 28.559,
+    "errors": []
+  },
+  {
+    "name": "CommanderCallInsRegression",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      "/Users/linlilu/godot-open-rts/tmp/engine-verification/baseline",
+      "--fixed-fps",
+      "60",
+      "--max-fps",
+      "240",
+      "--script",
+      "tests/headless/CommanderCallInsRegression.gd"
+    ],
+    "exit_code": -15,
+    "seconds": 100.931,
+    "errors": [
+      "SCRIPT ERROR: Invalid access of index '0' on a base object of type: 'Array'.",
+      "SCRIPT ERROR: Invalid access of index '0' on a base object of type: 'Array'."
+    ]
+  }
+]

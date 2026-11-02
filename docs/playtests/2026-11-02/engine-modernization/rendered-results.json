@@ -1,0 +1,181 @@
+[
+  {
+    "name": "fog-metal",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--path",
+      "/Users/linlilu/godot-open-rts",
+      "--script",
+      "tests/rendered/FogComputeRegression.gd"
+    ],
+    "exit_code": 0,
+    "seconds": 1.79,
+    "errors": []
+  },
+  {
+    "name": "save-viewport",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--path",
+      "/Users/linlilu/godot-open-rts",
+      "--fixed-fps",
+      "60",
+      "--max-fps",
+      "60",
+      "--script",
+      "tests/headless/SaveRestoreRegression.gd",
+      "--",
+      "--viewport-fog"
+    ],
+    "exit_code": 0,
+    "seconds": 16.206,
+    "errors": []
+  },
+  {
+    "name": "save-opengl",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--path",
+      "/Users/linlilu/godot-open-rts",
+      "--rendering-method",
+      "gl_compatibility",
+      "--fixed-fps",
+      "60",
+      "--max-fps",
+      "60",
+      "--script",
+      "tests/headless/SaveRestoreRegression.gd"
+    ],
+    "exit_code": 0,
+    "seconds": 26.085,
+    "errors": []
+  },
+  {
+    "name": "terrain",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--path",
+      "/Users/linlilu/godot-open-rts",
+      "--script",
+      "tests/rendered/TerrainLayersPreview.gd",
+      "--",
+      "BastionDesert",
+      "AlpineRelayMap",
+      "CopperBadlandsMap",
+      "CoastalFoundryMap"
+    ],
+    "exit_code": 0,
+    "seconds": 36.487,
+    "errors": []
+  },
+  {
+    "name": "environment",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--path",
+      "/Users/linlilu/godot-open-rts",
+      "--script",
+      "tests/rendered/EnvironmentEffectsPreview.gd"
+    ],
+    "exit_code": 1,
+    "seconds": 104.34,
+    "errors": [
+      "SCRIPT ERROR: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'.",
+      "SCRIPT ERROR: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'.",
+      "SCRIPT ERROR: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'.",
+      "SCRIPT ERROR: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'.",
+      "SCRIPT ERROR: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'.",
+      "SCRIPT ERROR: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'.",
+      "SCRIPT ERROR: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'.",
+      "SCRIPT ERROR: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'.",
+      "SCRIPT ERROR: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'.",
+      "SCRIPT ERROR: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'.",
+      "SCRIPT ERROR: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'.",
+      "SCRIPT ERROR: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'.",
+      "SCRIPT ERROR: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'.",
+      "SCRIPT ERROR: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'.",
+      "SCRIPT ERROR: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'.",
+      "SCRIPT ERROR: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'.",
+      "SCRIPT ERROR: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'.",
+      "SCRIPT ERROR: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'.",
+      "SCRIPT ERROR: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'.",
+      "SCRIPT ERROR: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'.",
+      "ERROR: res://source/match/effects/TerrainParticleCollision.gd: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'. ",
+      "ERROR: res://source/match/effects/TerrainParticleCollision.gd: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'. ",
+      "ERROR: res://source/match/effects/TerrainParticleCollision.gd: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'. ",
+      "ERROR: res://source/match/effects/TerrainParticleCollision.gd: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'. ",
+      "ERROR: res://source/match/effects/TerrainParticleCollision.gd: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'. ",
+      "ERROR: res://source/match/effects/TerrainParticleCollision.gd: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'. ",
+      "ERROR: res://source/match/effects/TerrainParticleCollision.gd: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'. ",
+      "ERROR: res://source/match/effects/TerrainParticleCollision.gd: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'. ",
+      "ERROR: res://source/match/effects/TerrainParticleCollision.gd: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'. ",
+      "ERROR: res://source/match/effects/TerrainParticleCollision.gd: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'. ",
+      "ERROR: res://source/match/effects/TerrainParticleCollision.gd: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'. ",
+      "ERROR: res://source/match/effects/TerrainParticleCollision.gd: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'. ",
+      "ERROR: res://source/match/effects/TerrainParticleCollision.gd: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'. ",
+      "ERROR: res://source/match/effects/TerrainParticleCollision.gd: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'. ",
+      "ERROR: res://source/match/effects/TerrainParticleCollision.gd: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'. ",
+      "ERROR: res://source/match/effects/TerrainParticleCollision.gd: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'. ",
+      "ERROR: res://source/match/effects/TerrainParticleCollision.gd: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'. ",
+      "ERROR: res://source/match/effects/TerrainParticleCollision.gd: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'. ",
+      "ERROR: res://source/match/effects/TerrainParticleCollision.gd: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'. ",
+      "ERROR: res://source/match/effects/TerrainParticleCollision.gd: Invalid call. Nonexistent function 'get_rid' in base 'GPUParticlesCollisionHeightField3D'. "
+    ]
+  },
+  {
+    "name": "audio",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--path",
+      "/Users/linlilu/godot-open-rts",
+      "--script",
+      "tests/rendered/CombatAudioPreview.gd"
+    ],
+    "exit_code": 0,
+    "seconds": 18.383,
+    "errors": []
+  },
+  {
+    "name": "hud",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--path",
+      "/Users/linlilu/godot-open-rts",
+      "--script",
+      "tests/rendered/HudConsolePreview.gd",
+      "--",
+      "--console-only"
+    ],
+    "exit_code": 0,
+    "seconds": 117.181,
+    "errors": []
+  },
+  {
+    "name": "lifetime-metal",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--path",
+      "/Users/linlilu/godot-open-rts",
+      "--script",
+      "tests/rendered/SceneResourceLifetimeRegression.gd"
+    ],
+    "exit_code": 0,
+    "seconds": 2.791,
+    "errors": []
+  },
+  {
+    "name": "lifetime-opengl",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--path",
+      "/Users/linlilu/godot-open-rts",
+      "--rendering-method",
+      "gl_compatibility",
+      "--script",
+      "tests/rendered/SceneResourceLifetimeRegression.gd"
+    ],
+    "exit_code": 0,
+    "seconds": 2.771,
+    "errors": []
+  }
+]

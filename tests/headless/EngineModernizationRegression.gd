@@ -1,6 +1,6 @@
 extends SceneTree
 
-## Authored for future execution. This task must not launch Godot, even headless.
+## Reusable queries, stitched tile publication and bounded obstacle rebakes.
 var _errors: Array[String] = []
 var _nav: RID
 var _region: RID
@@ -85,22 +85,23 @@ func _check_seam_splitting():
 
 func _open_map(mesh: NavigationMesh):
 	_nav = NavigationServer3D.map_create()
+	NavigationServer3D.map_set_use_async_iterations(_nav, false)
 	NavigationServer3D.map_set_cell_size(_nav, mesh.cell_size)
 	NavigationServer3D.map_set_cell_height(_nav, mesh.cell_height)
 	NavigationServer3D.map_set_active(_nav, true)
 	_region = NavigationServer3D.region_create()
+	NavigationServer3D.region_set_use_async_iterations(_region, false)
 	NavigationServer3D.region_set_map(_region, _nav)
 	await _publish(mesh)
 
 
 func _publish(mesh: NavigationMesh):
-	var before := NavigationServer3D.map_get_iteration_id(_nav)
 	NavigationServer3D.region_set_navigation_mesh(_region, mesh)
-	for frame in 180:
-		await physics_frame
-		if NavigationServer3D.map_get_iteration_id(_nav) > before:
-			return
-	_check(false, "Navigation publication timed out")
+	# An initial empty-map synchronization can advance its iteration before this
+	# region is included. This server-only fixture needs the exact submitted mesh,
+	# rather than accepting an unrelated asynchronous iteration as publication.
+	NavigationServer3D.map_force_update(_nav)
+	await physics_frame
 
 
 func _close_map():
@@ -212,7 +213,36 @@ func _check_local_baking():
 		"Destruction left stale blocked geometry"
 	)
 	_close_map()
+	# Cancelling a match with work in flight must drain the owned workers without
+	# invoking the old match's publication callback or scheduling queued tiles.
+	var unknown_geometry := Node3D.new()
+	var cancelled := {"published": false}
+	baker.rebake([unknown_geometry], base, func(): cancelled.published = true)
+	_check(
+		baker._active > 0 and not baker._pending.is_empty(),
+		"Cancellation fixture has no queued work"
+	)
 	baker.cancel()
+	for frame in 600:
+		if baker._active == 0:
+			break
+		await physics_frame
+	_check(
+		baker._active == 0 and baker._pending.is_empty() and baker._source == null,
+		"Cancelled tile workers did not drain"
+	)
+	_check(not cancelled.published, "Cancelled match received an old bake publication")
+	unknown_geometry.free()
+	# A nonmultiple map extent must not put the entire short remainder at one edge.
+	baker._template.cell_size = .3
+	baker._step = 32.1
+	for length in [144.0, 192.0]:
+		var edges: PackedFloat32Array = baker._axis_boundaries(0, length)
+		for index in edges.size():
+			_check(
+				absf(edges[index] + edges[-1 - index] - length) < .301,
+				"Tile edges bias mirrored starts"
+			)
 
 
 func _bake_obstacle(baker, base, obstacle):

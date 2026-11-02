@@ -1,9 +1,10 @@
 # Engine modernization
 
-Implement the valid opportunities from the engine review without launching Godot.
+Implement the valid opportunities from the engine review. The initial phase ran
+without Godot; the user authorized runtime and graphical verification on 2026-11-02.
 Preserve navigation authority, selection semantics, fog occlusion, independent
 audio positioning, save formats and existing native crowd batching. Performance
-improvements remain hypotheses until the deferred measurements are completed.
+measurements below retain failed gates; no general performance gain is established.
 
 ## Stage 1 — Navigation and commands
 
@@ -36,12 +37,13 @@ improvements remain hypotheses until the deferred measurements are completed.
 - Record regression commands and required visual/performance comparisons below.
   Do not describe unexecuted tests or anticipated speedups as verified.
 
-## Future verification
+## Verification procedure
 
-All Godot execution, including headless tests, is deferred at the user's request.
-None of the checks below has been executed. Import the new compute shader with
-the project's Godot build before running them. Static parsing does not establish
-Godot type checking, shader compilation, correct gameplay or a performance gain.
+The following procedure was deferred during implementation and is now being
+executed with Godot 4.7.2 on macOS ARM64. Logs, failed attempts, baseline
+comparisons and final results are retained under
+`docs/playtests/2026-11-02/engine-modernization/`. Runtime passes do not establish
+a performance improvement; release measurements remain separate.
 
 ### 1. Import, compile and headless regressions
 
@@ -151,15 +153,68 @@ godot --path . --script tests/rendered/TerrainLayersPreview.gd
 
 ## Agent progress
 
+- Verification continuation: the user authorized game launches on 2026-11-02.
+  Execute import/compilation and focused regressions first, correct discovered
+  failures, then run rendered fog/environment/save/audio checks and matched
+  performance diagnostics. Retain commands, logs, captures and measured limits in
+  `docs/playtests/2026-11-02/engine-modernization/`. Earlier deferred statements
+  below describe the original implementation phase.
+- Runtime verification found and corrected fog/HUD type errors, engineering
+  preview state, immediate-teleport selection proxies, degenerate marquee hulls,
+  exploration restoration during compute initialization, cinematic pause handoff,
+  active/suspended ability-tray feedback and the terrain heightfield RID accessor.
+  Updated obsolete HUD/research fixtures and the server-only publication fixture.
+- Centered the tiled-bake remainder at both map edges after the new topology
+  exceeded the Desert Frontier event-access fairness limit. All eight event maps
+  now pass. Navigation, projection, connectivity, hover, save/navigation timing,
+  save restoration and operation controls pass their final focused assertions.
+- Dense selection compares 520 overlapping bodies, rotations and immediate
+  teleports on flat/elevated maps. Native projection, 750 complete movement/contact
+  cases and 57,672 nearest-surface comparisons across all 24 maps pass; native unit
+  state and battlefield indexes also pass. Some accelerated fixtures still report
+  shutdown resource retention, including on the pre-modernization revision.
+- Metal compute output, rendered saves using compute/viewport/OpenGL, six-instance
+  Metal/OpenGL lifetime checks, four representative terrain previews, all faction
+  English/Chinese HUD captures, environment quality/weather controls and measured
+  combat stereo/ducking pass. Normal menu → skirmish → worker/Barracks shortcut →
+  movement/pause → menu/quit was exercised through native computer use.
+- Broader contact, grenade, projectile-test-double, suppression and commander
+  fixture failures were retained and compared against revision 8201aeb6. With the
+  archive mount corrected, both revisions reproduce the same three harvest-traffic
+  movement/delivery failures. These failures prevent an unconditional whole-project
+  pass. Threaded selection parity
+  passes, but unrelated HUD raycasts access physics outside its allowed thread.
+- Isolated release-template performance comparisons run serially with
+  frozen packs, original 3D assets and a separate user profile. No timing claim
+  will be based on concurrent functional/rendered jobs.
+- Final voxel arithmetic removes a float32 boundary-rounding error. Cancellation
+  during a queued bake drains both workers without publishing into the departed
+  match. The final terrain, native projection and all-map surface reruns pass.
+- The final release-template formation gate fails: 10.260 ms complete dispatch,
+  14.133 ms median, 17.285 ms p95 and 23.081 ms maximum frame. All 200 units stay
+  selected/visible through 240 focused samples, with no timed pipeline changes.
+  The final ordinary 200-mobile/80-structure release run passes functional checks;
+  movement/combat p95 is 24.77/26.69 ms. Earlier cold runs retain large first-use
+  stalls; cache state prevents attributing their difference to a source change.
+- Verification execution is complete. The [consolidated report](../playtests/2026-11-02/engine-modernization/verification.json)
+  records 35 distinct standalone suites: 27 clean passes, two assertion passes
+  with shutdown resource retention, and six failures also reproduced before
+  modernization. Ten final rendered checks pass. Earlier failing attempts remain
+  intact, and final performance packs match all production source hashes.
+- Full 3840×2160 release workloads execute all five phases with both fog backends.
+  The compute run measures 7.37–9.83 mean fps and the viewport run 8.59–15.52;
+  both lose mobile units and are rejected by the fixture. The baseline also loses
+  units. These are failed qualification diagnostics, not valid speedup evidence.
+  Strict MI12, whole-project regression success and release acceptance remain open.
 - Initial source and engine-documentation review complete. Working tree was clean.
 - Stages 1–3 implemented, including all production path-query call sites, tiled
   ground/hover baking, selection broadphase, typed projectile helpers, compute fog,
   save/minimap integration, and optional High environment visuals.
-- Added two regression scripts and expanded existing selection/fog assertions;
-  they are authored but unexecuted.
+- Initial implementation added two regression scripts and expanded existing
+  selection/fog assertions; they were unexecuted at that checkpoint.
 - Static-only review: GDScript files formatted; literal script/shader paths resolve;
   `git diff --check` passed. GDScript lint reports existing diagnostics in modified
   files; comparison against HEAD found no new diagnostic messages. These checks
   do not invoke Godot.
-- Runtime, rendered, save compatibility, engine type/shader compilation and
-  performance verification remain future work above. No Godot process was launched.
+- At the original static-only checkpoint, no Godot process had been launched;
+  runtime, rendering, saves, shader compilation and performance were still deferred.

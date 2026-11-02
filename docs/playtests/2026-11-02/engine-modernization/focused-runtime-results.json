@@ -1,0 +1,135 @@
+[
+  {
+    "name": "OperationsSubmenuRegression",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      "/Users/linlilu/godot-open-rts",
+      "--script",
+      "tests/headless/OperationsSubmenuRegression.gd"
+    ],
+    "exit_code": -15,
+    "seconds": 60.762,
+    "errors": [
+      "SCRIPT ERROR: Invalid access to property or key 'weapons' on a base object of type 'Dictionary'."
+    ]
+  },
+  {
+    "name": "TerrainNavRegression",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      "/Users/linlilu/godot-open-rts",
+      "--script",
+      "tests/headless/TerrainNavRegression.gd"
+    ],
+    "exit_code": 0,
+    "seconds": 128.227,
+    "errors": []
+  },
+  {
+    "name": "NavigationProjectionRegression",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      "/Users/linlilu/godot-open-rts",
+      "--script",
+      "tests/headless/NavigationProjectionRegression.gd"
+    ],
+    "exit_code": 0,
+    "seconds": 32.607,
+    "errors": []
+  },
+  {
+    "name": "NavigationConnectivityRegression",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      "/Users/linlilu/godot-open-rts",
+      "--script",
+      "tests/headless/NavigationConnectivityRegression.gd"
+    ],
+    "exit_code": 0,
+    "seconds": 97.788,
+    "errors": []
+  },
+  {
+    "name": "ProjectileSystemRegression",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      "/Users/linlilu/godot-open-rts",
+      "--script",
+      "tests/headless/ProjectileSystemRegression.gd"
+    ],
+    "exit_code": 0,
+    "seconds": 4.955,
+    "errors": []
+  },
+  {
+    "name": "TerrainSightRegression",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      "/Users/linlilu/godot-open-rts",
+      "--script",
+      "tests/headless/TerrainSightRegression.gd"
+    ],
+    "exit_code": 0,
+    "seconds": 8.192,
+    "errors": []
+  },
+  {
+    "name": "StrategicPolishRegression",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      "/Users/linlilu/godot-open-rts",
+      "--script",
+      "tests/headless/StrategicPolishRegression.gd"
+    ],
+    "exit_code": 0,
+    "seconds": 8.641,
+    "errors": []
+  },
+  {
+    "name": "NeutralPolishRegression",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      "/Users/linlilu/godot-open-rts",
+      "--script",
+      "tests/headless/NeutralPolishRegression.gd"
+    ],
+    "exit_code": 0,
+    "seconds": 36.839,
+    "errors": []
+  },
+  {
+    "name": "SaveRestoreRegression",
+    "command": [
+      "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+      "--headless",
+      "--path",
+      "/Users/linlilu/godot-open-rts",
+      "--script",
+      "tests/headless/SaveRestoreRegression.gd"
+    ],
+    "exit_code": 1,
+    "seconds": 8.248,
+    "errors": [
+      "ERROR: Cargo lost",
+      "ERROR: Construction did not resume",
+      "ERROR: Paid production did not complete",
+      "ERROR: Paid production did not deliver its tank"
+    ]
+  }
+]
