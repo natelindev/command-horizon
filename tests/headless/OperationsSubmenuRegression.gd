@@ -264,6 +264,15 @@ func _engineering_controls(player, worker, menus):
 		paused and get_nodes_in_group("selected_units") == [worker],
 		"Barricade targeting lost context"
 	)
+	await _key(KEY_T)
+	_check(
+		commands.kind == "ability" and commands.ability_id == "field_bunker",
+		"Build T did not target a field bunker"
+	)
+	await _key(KEY_ESCAPE)
+	_check(
+		commands.kind.is_empty() and game.hud._overlay == null, "Escape did not cancel bunker"
+	)
 
 
 func _overdrive_controls(player, menus):

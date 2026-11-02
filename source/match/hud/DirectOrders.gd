@@ -665,6 +665,23 @@ func handle_input(event):
 			and not event.meta_pressed
 		):
 			var code = event.physical_keycode if event.physical_keycode != 0 else event.keycode
+			if code == KEY_G:
+				var game = hud.get_parent()
+				if (
+					game != null
+					and game.get("campaign_hero") != null
+					and is_instance_valid(game.campaign_hero)
+					and game.campaign_hero.alive()
+				):
+					if get_tree().paused:
+						hud.show_notice("Resume the battle to use abilities.")
+					elif game.campaign_hero.cooldown > 0.0:
+						hud.show_notice("Cooling down")
+					else:
+						game.campaign_hero.activate()
+						hud.show_notice(tr(game.campaign_hero.title()))
+					get_viewport().set_input_as_handled()
+					return true
 			var key = {KEY_Q: "Q", KEY_W: "W", KEY_E: "E", KEY_R: "R", KEY_T: "T", KEY_Y: "Y"}.get(
 				code, ""
 			)

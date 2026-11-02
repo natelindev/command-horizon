@@ -1308,9 +1308,24 @@ func handle_menu_input(event):
 		close_research()
 	elif not is_visible_in_tree() or not is_instance_valid(_pages):
 		return false
-	elif _pages.get_current_tab_control().name == "Build" and code in [KEY_Q, KEY_W]:
+	elif _pages.get_current_tab_control().name == "Build" and (
+		code in [KEY_Q, KEY_W]
+		or (
+			code == KEY_T
+			and is_instance_valid(hud.direct_orders)
+			and hud.direct_orders.ability_for_key("T") != ""
+		)
+	):
 		if is_instance_valid(hud.direct_orders):
-			hud.direct_orders.activate_ability("field_barricade" if code == KEY_Q else "scrap_mine")
+			var ability_key := {KEY_Q: "Q", KEY_W: "W", KEY_T: "T"}.get(code, "")
+			var ability_id := hud.direct_orders.ability_for_key(ability_key)
+			if ability_id.is_empty():
+				ability_id = (
+					"field_barricade"
+					if code == KEY_Q
+					else ("scrap_mine" if code == KEY_W else "field_bunker")
+				)
+			hud.direct_orders.activate_ability(ability_id)
 	elif _pages.get_current_tab_control().name == "Build" and BUILD_KEYS.has(code):
 		for entry in _buttons:
 			if entry.construction and entry.type == BUILD_KEYS[code]:

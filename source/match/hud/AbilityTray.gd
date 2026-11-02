@@ -360,7 +360,7 @@ func _gather_campaign_hero(game, entries: Array):
 			"name": "Hero Ability",
 			"description": "Activate campaign hero tactical ability.",
 			"glyph": BattleTheme.icon("attack"),
-			"hotkey": "H",
+			"hotkey": "G",
 			"cost_text": "",
 			"cooldown_left": hero.cooldown,
 			"cooldown_total": 30.0,

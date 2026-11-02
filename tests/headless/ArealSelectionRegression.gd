@@ -120,6 +120,11 @@ func _selection_checks(camera, worker, aircraft, label):
 	_check(
 		not _air_units(selector, polygon).has(worker), label + ": wrong movement domain included"
 	)
+	rect3d._start(center)
+	rect3d._mouse_position = Vector2.ZERO
+	rect3d._physics_process(0.1)
+	_check(rect3d._selecting(), label + ": hitting screen edge interrupted marquee selection")
+	rect3d._finish(Vector2.ZERO)
 	aircraft.global_position = camera.project_position(center, 5.0)
 	rect3d._start(rect.position)
 	rect3d._mouse_position = rect.end
