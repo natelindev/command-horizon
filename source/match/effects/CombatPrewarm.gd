@@ -70,6 +70,7 @@ static func prepare(game) -> bool:
 	if not Globals.options.reduced_flashes:
 		var light = OmniLight3D.new()
 		light.shadow_enabled = false
+		light.light_volumetric_fog_energy = 0.0
 		light.omni_range = 5.0
 		holder.add_child(light)
 		light.global_position = point + Vector3.UP

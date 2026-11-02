@@ -23,6 +23,8 @@ var _sky: ProceduralSkyMaterial
 var _wet_materials = []
 var _last_wetness = -1.0
 var _lighting_key: Array = []
+var _mist_volumes: Array[FogVolume] = []
+var _mist_material: FogMaterial
 
 
 func _ready():
@@ -83,6 +85,7 @@ func _ready():
 	environment.fog_sun_scatter = .15
 	_collect_weather_materials(_game.map)
 	_create_rain()
+	_create_local_mist()
 	effects = load("res://source/match/environment/BattlefieldEffects.gd").new()
 	add_child(effects)
 	effects.setup(_game, camera, AtmosphereProfiles.biome(_game.map))
@@ -97,6 +100,12 @@ func apply_options():
 	environment.glow_enabled = _options.graphics_glow
 	GroundDecals.set_detail(_game.map, _options.graphics_ground_detail)
 	environment.fog_enabled = _options.graphics_fog
+	environment.volumetric_fog_enabled = (
+		forward and _options.graphics_fog and _options.environment_quality == 1
+	)
+	environment.volumetric_fog_density = 0.0
+	for volume in _mist_volumes:
+		volume.visible = environment.volumetric_fog_enabled
 	attributes.dof_blur_far_enabled = _options.graphics_dof and forward
 	attributes.dof_blur_near_enabled = false
 	attributes.dof_blur_amount = .12
@@ -149,7 +158,12 @@ func _update(_delta):
 		.8 if weather == 4 else .08 * cloud_levels[weather],
 		blend
 	)
-	effects.update(elapsed, cloud_cover, wetness, mist, daylight, environment.fog_light_color)
+	if _mist_material != null:
+		_mist_material.density = mist * .018
+		_mist_material.albedo = environment.fog_light_color
+	# High detail uses local light-scattering mist instead of doubling its veil.
+	var veil_mist: float = 0.0 if environment.volumetric_fog_enabled else mist
+	effects.update(elapsed, cloud_cover, wetness, veil_mist, daylight, environment.fog_light_color)
 	var focus_distance = camera.global_position.y / maxf(.1, camera.global_basis.z.y)
 	attributes.dof_blur_far_distance = focus_distance + camera.size * .6
 	attributes.dof_blur_far_transition = maxf(12.0, camera.size * .7)
@@ -195,6 +209,46 @@ func _apply_lighting(altitude, daylight, golden, weather, previous_weather, blen
 		)
 		_sky.sky_horizon_color = environment.fog_light_color
 		_sky.ground_horizon_color = environment.fog_light_color
+
+
+func _create_local_mist():
+	if RenderingServer.get_current_rendering_method() != "forward_plus":
+		return
+	_mist_material = FogMaterial.new()
+	_mist_material.density = 0.0
+	_mist_material.edge_fade = .5
+	var map = _game.map
+	var candidates: Array[Vector3] = []
+	for z in range(1, 5):
+		for x in range(1, 5):
+			var point := Vector2(map.size.x * x / 5.0, map.size.y * z / 5.0)
+			candidates.append(Vector3(point.x, map.height_at(point), point.y))
+	candidates.sort_custom(func(a: Vector3, b: Vector3): return a.y < b.y)
+	var separation: float = minf(map.size.x, map.size.y) * .25
+	for point in candidates:
+		var nearby := false
+		for volume in _mist_volumes:
+			if (
+				(volume.position * Vector3(1, 0, 1)).distance_to(point * Vector3(1, 0, 1))
+				< separation
+			):
+				nearby = true
+		if nearby:
+			continue
+		var volume := FogVolume.new()
+		volume.name = "ValleyMist%d" % _mist_volumes.size()
+		volume.shape = RenderingServer.FOG_VOLUME_SHAPE_ELLIPSOID
+		volume.size = Vector3(separation * 1.5, 3.0, separation)
+		volume.position = point + Vector3.UP * .8
+		volume.material = _mist_material
+		add_child(volume)
+		_mist_volumes.append(volume)
+		if _mist_volumes.size() == 3:
+			break
+	environment.volumetric_fog_length = minf(camera.far, 160.0)
+	environment.volumetric_fog_temporal_reprojection_enabled = true
+	# Brief muzzle flashes should not leave temporal light trails in the mist.
+	# Transient combat lights disable their volumetric contribution.
 
 
 func _create_rain():

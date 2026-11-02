@@ -412,8 +412,8 @@ func _evacuation_position(unit, reserved: Array) -> Vector3:
 					overlaps = true
 			if overlaps:
 				continue
-			var path = NavigationServer3D.map_get_path(
-				nav, anchor, point + Vector3.UP * movement.path_height_offset, true
+			var path = _match.navigation.path_query.path(
+				nav, anchor, point + Vector3.UP * movement.path_height_offset
 			)
 			if (
 				path.is_empty()

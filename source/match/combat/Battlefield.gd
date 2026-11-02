@@ -14,17 +14,17 @@ const EMPTY_CELLS = {}
 const EMPTY_UNITS = []
 const TerrainSight = preload("res://source/match/maps/terrain/TerrainSight.gd")
 const AIR = Constants.Match.Navigation.Domain.AIR
-var _frame = -1
-var _observers = {}
-var _bodies = {}
-var _platforms = {}
-var _units = {}
+var _frame: int = -1
+var _observers: Dictionary = {}
+var _bodies: Dictionary = {}
+var _platforms: Dictionary = {}
+var _units: Dictionary = {}
 var _max_sight: float = 0.0
 var _max_unit_radius: float = 0.0
 var _max_body_step: float = 0.0
-var _blockers = {}
-var _blockers_dirty = true
-var _observer_hints = {}
+var _blockers: Dictionary = {}
+var _blockers_dirty: bool = true
+var _observer_hints: Dictionary = {}
 var _vision_keys: Dictionary = {}
 # Authored elevated maps: their TerrainModel adds ground, formation, forest
 # and high-ground occlusion to every sight and fire check.
@@ -171,8 +171,8 @@ func _refresh():
 				"radius": obstacle.radius,
 				"height": obstacle.sight_height
 			}
-			var low = _cell(center - Vector3.ONE * obstacle.radius)
-			var high = _cell(center + Vector3.ONE * obstacle.radius)
+			var low: Vector2i = _cell(center - Vector3.ONE * obstacle.radius)
+			var high: Vector2i = _cell(center + Vector3.ONE * obstacle.radius)
 			for x in range(low.x, high.x + 1):
 				for y in range(low.y, high.y + 1):
 					var cell = Vector2i(x, y)
@@ -267,7 +267,11 @@ func can_observe_point(observer, point: Vector3, ignored_target = null) -> bool:
 		or observer.is_queued_for_deletion()
 	):
 		return false
-	if is_instance_valid(ignored_target) and "optical_cloak" in ignored_target and ignored_target.optical_cloak != null:
+	if (
+		is_instance_valid(ignored_target)
+		and "optical_cloak" in ignored_target
+		and ignored_target.optical_cloak != null
+	):
 		if not ignored_target.optical_cloak.detected_by(observer):
 			return false
 	if _native_visibility != null:
@@ -420,7 +424,11 @@ func _cell(point: Vector3) -> Vector2i:
 func can_fire(source, target):
 	if not is_instance_valid(source) or not is_instance_valid(target):
 		return false
-	if "optical_cloak" in target and target.optical_cloak != null and not target.optical_cloak.detected_by_player(source.player, self):
+	if (
+		"optical_cloak" in target
+		and target.optical_cloak != null
+		and not target.optical_cloak.detected_by_player(source.player, self)
+	):
 		return false
 	if native_combat_queries:
 		_refresh()

@@ -2,12 +2,17 @@ extends Node3D
 
 ## Ground-combat hover surface: low rocks, shallow streams and rough ground are
 ## traversable, while large cliffs, solid formations and built footprints remain.
+const TileBaker = preload("res://source/match/TerrainTileBaker.gd")
+
 const Terrain = preload("res://source/match/maps/terrain/TerrainModel.gd")
 var navigation_map_rid: RID
 var region: NavigationRegion3D
 var _map = null
 var _faces = PackedVector3Array()
 var _dirty = false
+var _is_baking := false
+var _tile_baker := TileBaker.new()
+var _tiles_ready := false
 var _iteration_before_publication = -1
 
 
@@ -35,6 +40,7 @@ func _ready():
 
 
 func _exit_tree():
+	_tile_baker.cancel()
 	if navigation_map_rid.is_valid():
 		NavigationServer3D.free_rid(navigation_map_rid)
 
@@ -89,6 +95,7 @@ func _quad(left: float, right: float, top: float, bottom: float):
 func is_synchronized() -> bool:
 	return (
 		not _dirty
+		and not _is_baking
 		and (
 			NavigationServer3D.map_get_iteration_id(navigation_map_rid)
 			> _iteration_before_publication
@@ -97,7 +104,7 @@ func is_synchronized() -> bool:
 
 
 func _process(_delta):
-	if _dirty and _map != null:
+	if _dirty and not _is_baking and _map != null:
 		_dirty = false
 		_rebake()
 
@@ -105,12 +112,14 @@ func _process(_delta):
 func _rebake():
 	var source = NavigationMeshSourceGeometryData3D.new()
 	source.add_faces(_faces, Transform3D.IDENTITY)
+	var obstacles: Array = []
 	for unit in get_tree().get_nodes_in_group("units"):
 		if not is_instance_valid(unit) or unit.is_queued_for_deletion():
 			continue
 		var obstacle = unit.get_node_or_null("MovementObstacle")
 		if obstacle == null or not obstacle.affect_navigation_mesh:
 			continue
+		obstacles.append(obstacle)
 		var outline = PackedVector3Array()
 		if obstacle.footprint.is_empty():
 			for index in 16:
@@ -130,6 +139,20 @@ func _rebake():
 					)
 				)
 		source.add_projected_obstruction(outline, -.5, 3.0, false)
-	NavigationServer3D.bake_from_source_geometry_data(region.navigation_mesh, source)
+	if not _tiles_ready:
+		region.navigation_mesh.filter_baking_aabb = AABB(
+			Vector3(0, -1, 0), Vector3(_map.size.x, 5, _map.size.y)
+		)
+		_tile_baker.setup(region.navigation_mesh, source)
+		_tiles_ready = true
+		_finish_bake()
+	else:
+		_is_baking = true
+		_tile_baker.rebake(obstacles, source, _finish_bake)
+
+
+func _finish_bake():
+	region.navigation_mesh = _tile_baker.combined()
+	_is_baking = false
 	_iteration_before_publication = NavigationServer3D.map_get_iteration_id(navigation_map_rid)
 	region.navigation_mesh = region.navigation_mesh

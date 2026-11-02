@@ -155,7 +155,7 @@ func _check_aircraft_fog(fighter):
 		flight.phase = phase
 		fog._outline_deadline = Time.get_ticks_usec() + 1000000
 		fog._sync_outline(fighter, centre, fighter.sight_range)
-		for circle in fog._unit_to_circles_mapping[fighter]:
+		for circle in fog._unit_to_circles_mapping[fighter].circles:
 			_check(
 				circle.triangles.is_empty() == (phase == flight.Phase.AIRBORNE),
 				"Aircraft fog outline ignores grounded/airborne transition"

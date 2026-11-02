@@ -164,7 +164,7 @@ static func _reachable_wreck(wreck, worker):
 		var point = NavigationServer3D.map_get_closest_point(nav, target)
 		if (point * Vector3(1, 0, 1)).distance_to(center) > contact:
 			continue
-		var path = NavigationServer3D.map_get_path(nav, worker.global_position, point, true)
+		var path = movement._match.navigation.path_query.path(nav, worker.global_position, point)
 		if not path.is_empty() and (path[-1] * Vector3(1, 0, 1)).distance_to(center) <= contact:
 			return true
 	return false

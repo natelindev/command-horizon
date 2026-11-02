@@ -21,7 +21,7 @@ const InfantrySuppression = preload("res://source/match/units/traits/InfantrySup
 const Bastion = preload("res://source/match/BastionCatalog.gd")
 const ShieldComponent = preload("res://source/match/units/traits/ShieldComponent.gd")
 
-var experience = 0.0:
+var experience: float = 0.0:
 	set(value):
 		var previous_rank = veterancy_rank
 		experience = clampf(value, 0.0, Veterancy.MAX_EXPERIENCE) if is_finite(value) else 0.0
@@ -33,7 +33,7 @@ var experience = 0.0:
 			if badge != null:
 				badge.refresh()
 			veterancy_changed.emit()
-var veterancy_rank:
+var veterancy_rank: int:
 	get:
 		return _veterancy_rank
 # Derived only from experience; movement and weapon queries read them directly.
@@ -56,8 +56,8 @@ var hp = null:
 var base_hp_max = null
 var hp_max = null:
 	set = _set_hp_max
-var last_enemy_damage_time = -INF
-var shield_component = ShieldComponent.new()
+var last_enemy_damage_time: float = -INF
+var shield_component: ShieldComponent = ShieldComponent.new()
 # Keep the public unit/save/HUD interface while the trait owns shield state.
 var shields: float:
 	get:
@@ -145,7 +145,7 @@ var attack_domains = []:
 		if _native_state != null:
 			_native_state.domains = value
 var aim_target = null
-var weapon_charge_progress = -1.0
+var weapon_charge_progress: float = -1.0
 var weapon_charge_owner = null
 var signature: SignatureState:
 	set(value):
@@ -183,14 +183,14 @@ var type: String:
 	get = _get_type
 
 var manual_orders = null
-var _action_locked = false
+var _action_locked: bool = false
 var _cached_type: String = ""
 var _navigation_trait = null
-var _veterancy_rank = 0
+var _veterancy_rank: int = 0
 var _terrain_navigation = null
-var _has_elevated_terrain = false
-var _terrain_position = Vector2.INF
-var _plateau_advantage = false
+var _has_elevated_terrain: bool = false
+var _terrain_position: Vector2 = Vector2.INF
+var _plateau_advantage: bool = false
 var _native_state: RefCounted
 # Preserve unmodified inputs for cold binding/rebinding. Native queries read
 # resident values; setters publish changes before gameplay signals fire.

@@ -1,11 +1,14 @@
 extends Node3D
 
+const PathQuery = preload("res://source/match/orders/PathQuery.gd")
+
+var path_query := PathQuery.new()
 var hover = null
-var _static_obstacles = []
 # Exact route estimates shared within one simulation tick, owned by this match.
 var distance_frame = -1
 var distance_cache = {}
 var connectivity_cache = {}
+var _static_obstacles = []
 
 @onready var air = find_child("Air")
 @onready var terrain = find_child("Terrain")

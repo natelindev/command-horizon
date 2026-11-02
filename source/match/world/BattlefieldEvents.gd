@@ -184,7 +184,7 @@ func legal_point(point: Vector3) -> bool:
 	# multi-start maps. Merely being close to one polygon is insufficient.
 	for base in game.map.layout.bases:
 		var start = nav.closest_point(_ground_point(base.start))
-		var path = NavigationServer3D.map_get_path(nav.navigation_map_rid, start, closest, true)
+		var path = game.navigation.path_query.path(nav.navigation_map_rid, start, closest)
 		if path.is_empty() or path[-1].distance_to(closest) > 1.0:
 			return false
 	var occupants = get_tree().get_nodes_in_group("units")

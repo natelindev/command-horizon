@@ -1,5 +1,7 @@
 extends Node3D
 
+const TileBaker = preload("res://source/match/TerrainTileBaker.gd")
+
 const DOMAIN = Constants.Match.Navigation.Domain.TERRAIN
 const ELEVATED_MAX_CLIMB = 0.6
 # Baked walkable surfaces sit about one voxel step above the authored ground.
@@ -11,6 +13,7 @@ const TerrainModel = preload("res://source/match/maps/terrain/TerrainModel.gd")
 
 var _earliest_frame_to_perform_next_rebake = null
 var _is_baking = false
+var _tile_baker := TileBaker.new()
 var _iteration_before_publication = -1
 var _region_before_publication = -1
 var _projection_cells = {}
@@ -85,6 +88,7 @@ func _ready():
 
 
 func _exit_tree():
+	_tile_baker.cancel()
 	NavigationServer3D.free_rid(navigation_map_rid)
 
 
@@ -137,9 +141,8 @@ func bake(map):
 	)
 	for node in get_tree().get_nodes_in_group("terrain_navigation_input"):
 		node.remove_from_group("terrain_navigation_input")
-	NavigationServer3D.bake_from_source_geometry_data(
-		_navigation_region.navigation_mesh, _map_geometry
-	)
+	_tile_baker.setup(_navigation_region.navigation_mesh, _map_geometry)
+	_navigation_region.navigation_mesh = _tile_baker.combined()
 	_sync_navmesh_changes()
 
 
@@ -152,8 +155,8 @@ func _rebake():
 	# add pre-parsed map geometry
 	full_geometry.merge(_map_geometry)
 
-	NavigationServer3D.bake_from_source_geometry_data_async(
-		_navigation_region.navigation_mesh, full_geometry, _on_bake_finished
+	_tile_baker.rebake(
+		get_tree().get_nodes_in_group("terrain_navigation_input"), full_geometry, _on_bake_finished
 	)
 
 
@@ -215,6 +218,7 @@ func _on_schedule_navigation_rebake(domain):
 
 
 func _on_bake_finished():
+	_navigation_region.navigation_mesh = _tile_baker.combined()
 	_sync_navmesh_changes()
 	_is_baking = false
 

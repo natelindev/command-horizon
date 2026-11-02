@@ -270,6 +270,11 @@ func _ready():
 	_emitter("exhaust", 768, .1, Vector3.ZERO, 2.8, .38)
 	_debris_emitter()
 	_debris_emitter("clod", 0.0)
+	if RenderingServer.get_current_rendering_method() != "gl_compatibility":
+		var collisions = load("res://source/match/effects/TerrainParticleCollision.gd").new()
+		collisions.name = "TerrainParticleCollision"
+		add_child(collisions)
+		collisions.setup(get_parent().map, _emitters)
 
 
 func _debris_emitter(kind = "debris", metalness = .45):

@@ -18,13 +18,14 @@ static func choose(game, members, goal: Vector3, wave: int):
 		return null
 	var origin = _centre(members)
 	var nav = game.navigation.terrain.navigation_map_rid
-	var direct = _length(nav, origin, goal)
+	var query = game.navigation.path_query
+	var direct = _length(nav, origin, goal, query)
 	if not is_finite(direct):
 		return null
 	var usable = []
 	for lane in lanes:
 		var point = game.map.ground_point(lane)
-		var through = _length(nav, origin, point) + _length(nav, point, goal)
+		var through = _length(nav, origin, point, query) + _length(nav, point, goal, query)
 		if through <= direct * MAX_DETOUR:
 			usable.append(point)
 	if usable.is_empty():
@@ -54,8 +55,8 @@ static func _centre(members) -> Vector3:
 	return centre / members.size()
 
 
-static func _length(nav, from: Vector3, to: Vector3) -> float:
-	var path = NavigationServer3D.map_get_path(nav, from, to, true)
+static func _length(nav, from: Vector3, to: Vector3, query) -> float:
+	var path = query.path(nav, from, to)
 	if path.is_empty():
 		return INF
 	var length = 0.0

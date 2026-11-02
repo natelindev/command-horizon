@@ -546,7 +546,7 @@ func _action(action, depth = 0):
 func _fog():
 	if DisplayServer.get_name() == "headless":
 		return {"available": false}  # Headless verification fixtures have no render history.
-	var image = _game.fog_of_war._fog_viewport.get_texture().get_image()
+	var image = _game.fog_of_war.exploration_image()
 	if image == null or image.is_empty():
 		_fail("Exploration image is not ready; retry after the next rendered frame.")
 		return {}

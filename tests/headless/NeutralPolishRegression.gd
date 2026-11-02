@@ -101,7 +101,7 @@ func _relay_vision():
 	relay._update_presentation()
 	_check(relay.is_revealing(), "Owned relay does not reveal terrain")
 	game.fog_of_war._physics_process(0)
-	var circles = game.fog_of_war._unit_to_circles_mapping.get(relay, [])
+	var circles = game.fog_of_war._unit_to_circles_mapping.get(relay, {"circles": []}).circles
 	_check(circles.size() == 2, "Relay did not create fog and shroud vision")
 	for circle in circles:
 		_check(

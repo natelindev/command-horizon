@@ -115,7 +115,7 @@ static func _resolve_group_destinations(unit_positions, contexts: Dictionary, me
 				if Connectivity.can_reach(movement, origin, projected, context):
 					center = projected * Vector3(1, 0, 1)
 				else:
-					var path = NavigationServer3D.map_get_path(nav, origin, projected, true)
+					var path = movement._match.navigation.path_query.path(nav, origin, projected)
 					# A partial route ends on the unit's own reachable component.
 					center = (
 						(
@@ -240,13 +240,15 @@ static func path_distance_to(unit, point, arrival_range):
 	var key = [nav, iteration, unit.global_position, point, arrival_range]
 	if cache.has(key):
 		return cache[key]
-	var distance = _path_distance(nav, unit.global_position, point, arrival_range)
+	var distance = _path_distance(
+		nav, unit.global_position, point, arrival_range, navigation.path_query
+	)
 	cache[key] = distance
 	return distance
 
 
-static func _path_distance(nav: RID, origin: Vector3, point: Vector3, arrival_range: float):
-	var path = NavigationServer3D.map_get_path(nav, origin, point, true)
+static func _path_distance(nav: RID, origin: Vector3, point: Vector3, arrival_range: float, query):
+	var path = query.path(nav, origin, point)
 	if (
 		path.is_empty()
 		or (path[-1] * Vector3(1, 0, 1)).distance_to(point * Vector3(1, 0, 1)) > arrival_range

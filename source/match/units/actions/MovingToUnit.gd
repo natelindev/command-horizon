@@ -1,10 +1,22 @@
 # gdlint: disable=max-returns
 extends "res://source/match/units/actions/Moving.gd"
 
+const PathQuery = preload("res://source/match/orders/PathQuery.gd")
+
 const SEARCH_USEC_PER_FRAME = 2000
 const SEARCH_QUERIES_PER_FRAME = 24
 const SearchBudget = preload("res://source/match/orders/MovementSearchBudget.gd")
 const RuntimeCache = preload("res://source/utils/RuntimeCache.gd")
+var _target_unit = null
+var _contact_elapsed = 0.0
+var _contact_progress = null
+var _orbit_windows = 0
+var _searching = false
+var _slice_started = 0
+var _blocker_frame = -1
+var _blocker_geometry: Array[Vector4] = []
+var _path_query := PathQuery.new()
+
 @onready var _search_allowance: SearchBudget = _shared_search_budget()
 
 
@@ -13,16 +25,6 @@ func _shared_search_budget() -> SearchBudget:
 	if not cache.has("state"):
 		cache.state = SearchBudget.new()
 	return cache.state
-
-
-var _target_unit = null
-var _contact_elapsed = 0.0
-var _contact_progress = null
-var _orbit_windows = 0
-var _searching = false
-var _slice_started = 0
-var _blocker_frame = -1
-var _blocker_geometry = []
 
 
 func _init(target_unit):
@@ -225,7 +227,7 @@ func _search_approach(preserve_clear_route):
 	)
 	var navmap = _movement_trait.get_navigation_map()
 	if preserve_clear_route:
-		var ordinary_path = NavigationServer3D.map_get_path(navmap, origin, _target_position, true)
+		var ordinary_path = _path_query.path(navmap, origin, _target_position)
 		var settled = blockers.filter(
 			func(other):
 				var movement = other.get_node_or_null("Movement")
@@ -258,7 +260,7 @@ func _search_approach(preserve_clear_route):
 				break
 		if occupied:
 			continue
-		var path = NavigationServer3D.map_get_path(navmap, origin, point, true)
+		var path = _path_query.path(navmap, origin, point)
 		if path.size() < 2 or (path[-1] * Vector3(1, 0, 1)).distance_to(point) > 0.1:
 			continue
 		faces.append(point)
@@ -289,7 +291,7 @@ func _search_approach(preserve_clear_route):
 				projected *= Vector3(1, 0, 1)
 				if projected.distance_to(waypoint) > .15:
 					continue
-				var first = NavigationServer3D.map_get_path(navmap, origin, projected, true)
+				var first = _path_query.path(navmap, origin, projected)
 				if (
 					first.size() < 2
 					or (first[-1] * Vector3(1, 0, 1)).distance_to(projected) > .1
@@ -299,7 +301,7 @@ func _search_approach(preserve_clear_route):
 				for face in faces:
 					if not await _search_budget():
 						return false
-					var second = NavigationServer3D.map_get_path(navmap, projected, face, true)
+					var second = _path_query.path(navmap, projected, face)
 					if (
 						second.size() < 2
 						or (second[-1] * Vector3(1, 0, 1)).distance_to(face) > .1
@@ -317,9 +319,7 @@ func _search_approach(preserve_clear_route):
 	if not await _search_budget():
 		return false
 	# The worker and nearby agents may move while the search yields.
-	var current_path = NavigationServer3D.map_get_path(
-		navmap, _unit.global_position_yless, best, true
-	)
+	var current_path = _path_query.path(navmap, _unit.global_position_yless, best)
 	if (
 		current_path.size() < 2
 		or (current_path[-1] * Vector3(1, 0, 1)).distance_to(best) > .1
@@ -373,7 +373,7 @@ func _two_corner_approach(navmap, origin, center, contact, faces, blockers):
 func _clear_path_length(navmap, start, end, blockers):
 	if not await _search_budget():
 		return INF
-	var path = NavigationServer3D.map_get_path(navmap, start, end, true)
+	var path = _path_query.path(navmap, start, end)
 	if (
 		path.size() < 2
 		or (path[-1] * Vector3(1, 0, 1)).distance_to(end) > .1

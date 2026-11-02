@@ -256,7 +256,7 @@ func _verify_fog(snapshot):
 	await RenderingServer.frame_post_draw
 	var expected = Image.new()
 	expected.load_png_from_buffer(Marshalls.base64_to_raw(snapshot.fog.png))
-	var actual = game.fog_of_war._fog_viewport.get_texture().get_image()
+	var actual = game.fog_of_war.exploration_image()
 	_check(actual.get_size() == expected.get_size(), "Restored exploration dimensions changed")
 	var changed = 0
 	for y in range(actual.get_height()):

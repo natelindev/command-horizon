@@ -304,7 +304,7 @@ static func funnel_routes(
 		center += unit.global_position
 		radius = maxf(radius, unit.radius)
 	center /= units.size()
-	var path = NavigationServer3D.map_get_path(nav, center, destination, true)
+	var path = movement._match.navigation.path_query.path(nav, center, destination)
 	if path.size() < 2:
 		return result
 	var raw = positions(units, Vector3.ZERO, heading, formation, 0.0, radius)

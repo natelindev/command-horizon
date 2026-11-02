@@ -24,38 +24,38 @@ const HEAVY_VISUALS = ["slug", "rocket", "missile", "bomb"]
 const VISIBILITY_TICKS = 6
 const TRAIL_SPACING = 0.4
 
-var rounds_fired = 0
+var rounds_fired: int = 0
 var renderer = null
-var _rounds = []
-var _by_target = {}
-var _hitboxes = {}
+var _rounds: Array[Round] = []
+var _by_target: Dictionary = {}
+var _hitboxes: Dictionary = {}
 var _random = RandomNumberGenerator.new()
 var _human = null
-var _tick = 0
-var _mine_index_tick = -1
-var _mine_cells = {}
+var _tick: int = 0
+var _mine_index_tick: int = -1
+var _mine_cells: Dictionary = {}
 
 @onready var _match = get_parent()
 
 
 class Round:
 	extends RefCounted
-	var kind = ""
-	var weapon = {}
+	var kind: String = ""
+	var weapon: Dictionary = {}
 	var shot = null
 	var target = null
-	var target_id = 0
-	var target_base = Vector3.INF
-	var position = Vector3.ZERO
-	var velocity = Vector3.ZERO
-	var age = 0.0
-	var life = 0.0
-	var burn = 0.0
-	var serial = 0
-	var shown = false
-	var trail_distance = 0.0
-	var slot = -1
-	var suppression = {}
+	var target_id: int = 0
+	var target_base: Vector3 = Vector3.INF
+	var position: Vector3 = Vector3.ZERO
+	var velocity: Vector3 = Vector3.ZERO
+	var age: float = 0.0
+	var life: float = 0.0
+	var burn: float = 0.0
+	var serial: int = 0
+	var shown: bool = false
+	var trail_distance: float = 0.0
+	var slot: int = -1
+	var suppression: Dictionary = {}
 
 
 func _ready():
@@ -268,7 +268,7 @@ static func _gravity_scale(weapon):
 	return weapon.get("gravity", 1.0 if weapon.kind in ["bullet", "shell", "bomb"] else 0.0)
 
 
-func _add(round):
+func _add(round: Round):
 	_rounds.append(round)
 	if round.target_id != 0:
 		if not _by_target.has(round.target_id):
@@ -279,7 +279,7 @@ func _add(round):
 		renderer.add(round)
 
 
-func _remove(round):
+func _remove(round: Round):
 	_rounds.erase(round)
 	var aimed = _by_target.get(round.target_id, [])
 	aimed.erase(round)
@@ -289,7 +289,7 @@ func _remove(round):
 		renderer.remove(round)
 
 
-func _physics_process(delta):
+func _physics_process(delta: float):
 	_tick += 1
 	if _tick % 300 == 0:
 		_hitboxes.clear()
@@ -298,7 +298,7 @@ func _physics_process(delta):
 		_step(round, delta)
 
 
-func _step(round, delta):
+func _step(round: Round, delta: float):
 	if round.kind == "cloud":
 		_step_cloud(round, delta)
 		return
@@ -340,7 +340,7 @@ func _step(round, delta):
 		renderer.update(round)
 
 
-func _trail_segment(round, start, end):
+func _trail_segment(round: Round, start: Vector3, end: Vector3):
 	var distance = start.distance_to(end)
 	if distance < .0001:
 		return
@@ -354,11 +354,11 @@ func _trail_segment(round, start, end):
 	round.trail_distance = maxf(0.0, sample - distance)
 
 
-func _integrate(round, delta):
-	var weapon = round.weapon
-	var velocity = round.velocity
-	var speed = velocity.length()
-	var direction = velocity / maxf(speed, 0.0001)
+func _integrate(round: Round, delta: float):
+	var weapon: Dictionary = round.weapon
+	var velocity: Vector3 = round.velocity
+	var speed: float = velocity.length()
+	var direction: Vector3 = velocity / maxf(speed, 0.0001)
 	if (
 		round.kind == "missile"
 		and _live(round.target)
@@ -381,7 +381,7 @@ func _integrate(round, delta):
 
 # Lead pursuit: turn toward the predicted intercept by at most the missile's
 # turn rate. A target that out-turns or outruns it is missed.
-func _steer(round, direction, speed, delta):
+func _steer(round: Round, direction: Vector3, speed: float, delta: float) -> Vector3:
 	var aim = center_of(round.target)
 	var closing = maxf(speed, 1.0)
 	var predicted = aim + velocity_of(round.target) * (round.position.distance_to(aim) / closing)
@@ -393,7 +393,7 @@ func _steer(round, direction, speed, delta):
 	return direction.slerp(desired, step).normalized()
 
 
-func _sweep(round, start, end):
+func _sweep(round: Round, start: Vector3, end: Vector3) -> Dictionary:
 	var best_t = INF
 	var best = {}
 	var target = round.target
@@ -484,7 +484,7 @@ static func _body_entry(start, end, base, box):
 	return Battlefield.segment_cylinder_entry(start, end, base + Vector3.UP * box.y, box.x, box.z)
 
 
-func _detonate(round, point, body, ground):
+func _detonate(round: Round, point: Vector3, body, ground: bool):
 	if round.weapon.get("splash", 0.0) >= 2.0 or round.weapon.get("high_arc", false):
 		MatchSignals.artillery_impact.emit(point, round.shot.player)
 	var hit = (
@@ -577,7 +577,7 @@ func detonate(unit, target, point, weapon):
 
 
 # Hypervelocity slugs cross their range within a tick: resolve the whole line.
-func _fly_rail(round, unit):
+func _fly_rail(round: Round, unit):
 	var reach = Rules.range_for(unit, round.target) + 2.0
 	var end = round.position + round.velocity.normalized() * reach
 	var contact = _sweep(round, round.position, end)
@@ -589,7 +589,7 @@ func _fly_rail(round, unit):
 		_detonate(round, contact.point, contact.get("body"), contact.get("ground", false))
 
 
-func _line_of_fire(round):
+func _line_of_fire(round: Round):
 	var shooter = round.shot.shooter()
 	var battlefield = _match.battlefield
 	if shooter != null:
@@ -622,7 +622,7 @@ func _inside_map(point):
 	)
 
 
-func _shown(round):
+func _shown(round: Round):
 	if renderer == null and DisplayServer.get_name() == "headless":
 		return false
 	var audio = _match.combat_audio
@@ -750,7 +750,7 @@ func clear():
 	_by_target.clear()
 
 
-func _step_cloud(round, delta: float):
+func _step_cloud(round: Round, delta: float):
 	var elapsed = minf(delta, round.life - round.age)
 	round.age += elapsed
 	var splash: float = round.weapon.splash
@@ -822,7 +822,7 @@ func _fire_prism(unit, target, weapon):
 	return shot
 
 
-func _suppress_hit(round, victim):
+func _suppress_hit(round: Round, victim):
 	if not "suppression" in victim or victim.suppression == null:
 		return
 	if Players.allied(round.shot.player, victim.player):
@@ -832,7 +832,7 @@ func _suppress_hit(round, victim):
 	victim.suppression.add_pressure(maxf(0.0, total - previous))
 
 
-func _suppress_nearby(round, start: Vector3, end: Vector3):
+func _suppress_nearby(round: Round, start: Vector3, end: Vector3):
 	if not Weapons.suppresses_nearby(round.weapon):
 		return
 	var radius = 1.5
@@ -862,7 +862,7 @@ func _suppress_nearby(round, start: Vector3, end: Vector3):
 		round.suppression[victim.get_instance_id()] = {"unit": weakref(victim), "amount": amount}
 
 
-func _capture_suppression(round, reference) -> Array:
+func _capture_suppression(round: Round, reference) -> Array:
 	var records = []
 	for contribution in round.suppression.values():
 		var id = reference.call(contribution.unit.get_ref())
@@ -887,7 +887,7 @@ func _pressure_terrain_clear(terrain, start: Vector3, end: Vector3) -> bool:
 	return true
 
 
-func _physical_mine_target(round, target) -> bool:
+func _physical_mine_target(round: Round, target) -> bool:
 	return (
 		is_instance_valid(target)
 		and target.is_in_group("field_mines")

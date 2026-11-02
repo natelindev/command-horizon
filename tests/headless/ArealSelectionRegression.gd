@@ -21,12 +21,57 @@ func _run():
 				camera.rotation.y = yaw
 				camera.set_position_safely(Vector3(30, 0, 30))
 				_selection_checks(camera, worker, aircraft, "%s/%s/%s" % [map_name, zoom, yaw])
+		await _physics_selection_checks(camera, worker, aircraft, map_name)
 		game.queue_free()
 		await _frames(5)
 	for message in errors:
 		push_error(message)
 	print("Areal selection: %d failures" % errors.size())
 	quit(0 if errors.is_empty() else 1)
+
+
+func _physics_selection_checks(camera, worker, aircraft, label):
+	var selector = game.get_node("Handlers/ArealUnitSelectionHandler")
+	var rect3d = game.get_node("RectangularSelection3D")
+	camera.set_size_safely(15.0)
+	camera.rotation.y = 0.0
+	camera.set_position_safely(Vector3(30, 0, 30))
+	var center = root.get_visible_rect().size * .5
+	var enabled = selector._physics_candidates_enabled
+	# Keep the Area3Ds queryable while freezing simulation below their roots.
+	for unit in [worker, aircraft]:
+		for child in unit.get_children():
+			child.process_mode = Node.PROCESS_MODE_DISABLED
+		unit.process_mode = Node.PROCESS_MODE_ALWAYS
+		unit.set_physics_process(false)
+		unit.set_process(false)
+		unit.show()
+	worker.global_position = camera.project_position(center, 12.0)
+	aircraft.global_position = camera.project_position(center + Vector2(40, -20), 6.0)
+	await _frames(2)
+	for rect in [
+		Rect2(center - Vector2(8, 8), Vector2(16, 16)),
+		Rect2(center - Vector2(100, 100), Vector2(200, 200)),
+		Rect2(center + Vector2(300, 200), Vector2(20, 20))
+	]:
+		var polygon = rect3d._screen_rect_2d_to_topdown_polygon_2d(rect)
+		selector._physics_candidates_enabled = false
+		var expected = (
+			selector
+			. _get_controlled_units_from_navigation_domain_within_topdown_polygon_2d(-1, polygon)
+		)
+		selector._physics_candidates_enabled = true
+		var actual = (
+			selector
+			. _get_controlled_units_from_navigation_domain_within_topdown_polygon_2d(-1, polygon)
+		)
+		_check(
+			actual.iterate() == expected.iterate(),
+			label + ": physics broadphase changed exact screen selection"
+		)
+	selector._physics_candidates_enabled = enabled
+	for unit in [worker, aircraft]:
+		unit.process_mode = Node.PROCESS_MODE_DISABLED
 
 
 func _selection_checks(camera, worker, aircraft, label):

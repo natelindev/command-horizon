@@ -203,7 +203,7 @@ func _exit_position(unit) -> Vector3:
 				== Placement.VALID
 			):
 				var endpoint = point + Vector3.UP * movement.path_height_offset
-				var path = NavigationServer3D.map_get_path(navigation_map, anchor, endpoint, true)
+				var path = game.navigation.path_query.path(navigation_map, anchor, endpoint)
 				if path.is_empty() or path[-1].distance_to(endpoint) > 0.4:
 					continue
 				var distance = 0.0

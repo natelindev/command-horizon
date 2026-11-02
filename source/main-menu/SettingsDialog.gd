@@ -462,7 +462,10 @@ func _build_graphics():
 	_check(column, "Animated water and lava", "graphics_liquids")
 	_choice(column, "Environment detail", "environment_quality", ["Low", "High"])
 	controls.environment_quality.tooltip_text = tr(
-		"Low uses simpler clouds and fewer embers. Disable individual effects for more performance."
+		(
+			"High adds local mist and terrain collisions for sparks and debris. "
+			+ "Low uses simpler clouds and fewer embers."
+		)
 	)
 	_heading(column, "Rendering")
 	_check(column, "Soft sun and moon shadows", "graphics_shadows")

@@ -122,6 +122,7 @@ func flash(point, strength, color, optional = false):
 	else:
 		light = OmniLight3D.new()
 		light.shadow_enabled = false
+		light.light_volumetric_fog_energy = 0.0
 		add_child(light)
 	light.name = "MuzzleLight" if optional else "BlastLight"
 	light.light_color = color

@@ -83,7 +83,7 @@ func _check_plateau_bonuses():
 		fog._map_unit_to_new_circles(tank)
 	fog._outline_deadline = Time.get_ticks_usec() + 1000000
 	fog._sync_circles_to_unit(tank)
-	for circle in fog._unit_to_circles_mapping[tank]:
+	for circle in fog._unit_to_circles_mapping[tank].circles:
 		_near(
 			circle.radius,
 			tank.effective_sight_range() * fog.texture_units_per_world_unit,

@@ -328,7 +328,7 @@ func landing_positions(point: Vector3) -> Array:
 				continue
 			if result.any(func(other): return other.distance_to(candidate) < 2.0):
 				continue
-			var path = NavigationServer3D.map_get_path(rid, center, candidate, true)
+			var path = game.navigation.path_query.path(rid, center, candidate)
 			if (
 				path.is_empty()
 				or path[-1].distance_to(candidate + Vector3.UP * Placement.SURFACE_LIFT) > 1.0

@@ -148,6 +148,7 @@ static func context(movement) -> Dictionary:
 	var nav = movement.get_navigation_map()
 	return {
 		"map": nav,
+		"query": navigation.path_query,
 		"cache": warm(navigation, movement.domain, movement._hovering) if expected == nav else null,
 		"projected": {}
 	}
@@ -181,7 +182,7 @@ static func can_reach(movement, origin: Vector3, projected: Vector3, context_val
 			var pair = Vector2i(mini(first, second), maxi(first, second))
 			if cache.links.has(pair):
 				return cache.links[pair]
-			var path = NavigationServer3D.map_get_path(nav, origin, projected, true)
+			var path = value.query.path(nav, origin, projected)
 			cache.server_queries += 1
 			var reachable = not path.is_empty() and path[-1].distance_to(projected) <= .1
 			cache.links[pair] = reachable
@@ -190,5 +191,5 @@ static func can_reach(movement, origin: Vector3, projected: Vector3, context_val
 			return reachable
 	if cache != null:
 		cache.server_queries += 1
-	var fallback = NavigationServer3D.map_get_path(nav, origin, projected, true)
+	var fallback = value.query.path(nav, origin, projected)
 	return not fallback.is_empty() and fallback[-1].distance_to(projected) <= .1

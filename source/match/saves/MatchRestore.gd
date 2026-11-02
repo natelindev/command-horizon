@@ -532,16 +532,10 @@ func _structure_memory(_game, handler):
 			handler._orphaned_dummies.append(geometry)
 
 
-func _fog(tree, game):
+func _fog(_tree, game):
 	if _schema.fog_image == null or DisplayServer.get_name() == "headless":
 		return
-	var history = TextureRect.new()
-	history.texture = ImageTexture.create_from_image(_schema.fog_image)
-	history.size = _schema.fog_image.get_size()
-	game.fog_of_war._fog_viewport.add_child(history)
-	await RenderingServer.frame_post_draw
-	history.queue_free()
-	await tree.process_frame
+	await game.fog_of_war.restore_exploration(_schema.fog_image)
 
 
 func _copy(object, data, keys):
