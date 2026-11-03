@@ -1583,6 +1583,9 @@ func vehicle_damage(unit, band: int, point: Vector3):
 
 
 func _exit_tree():
+	var signals = get_node_or_null("/root/MatchSignals")
+	if signals != null and signals.tactical_ping.is_connected(_on_tactical_ping):
+		signals.tactical_ping.disconnect(_on_tactical_ping)
 	for entry in _hit_flashes:
 		ObjectMaterials.clear_hit_flash(entry)
 	_hit_flashes.clear()

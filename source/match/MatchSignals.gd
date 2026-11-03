@@ -15,6 +15,7 @@ signal match_finished_with_defeat
 signal terrain_targeted(position)
 signal terrain_target_heading_set(position, heading)
 signal tactical_ping(world_position)
+signal combat_danger_ping(world_position)
 signal unit_spawned(unit)
 signal unit_targeted(unit)
 signal unit_selected(unit)

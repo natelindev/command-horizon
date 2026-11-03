@@ -86,6 +86,7 @@ func _ready():
 		_camera_indicator.default_color = BattleTheme.accent()
 		_camera_indicator.width = 2.0
 	MatchSignals.tactical_ping.connect(_on_tactical_ping)
+	MatchSignals.combat_danger_ping.connect(_on_combat_danger_ping)
 	_brownout_overlay = ColorRect.new()
 	_brownout_overlay.name = "RadarInterference"
 	_brownout_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -367,10 +368,26 @@ func _on_gui_input(event):
 		_try_teleporting_camera_based_on_local_texture_rect_position(event.position)
 
 
+func _exit_tree():
+	if is_instance_valid(MatchSignals):
+		if MatchSignals.tactical_ping.is_connected(_on_tactical_ping):
+			MatchSignals.tactical_ping.disconnect(_on_tactical_ping)
+		if MatchSignals.combat_danger_ping.is_connected(_on_combat_danger_ping):
+			MatchSignals.combat_danger_ping.disconnect(_on_combat_danger_ping)
+
+
 func _on_tactical_ping(world_position: Vector3):
+	_spawn_minimap_ping(world_position, BattleTheme.accent())
+
+
+func _on_combat_danger_ping(world_position: Vector3):
+	_spawn_minimap_ping(world_position, Color("ff3b30"))
+
+
+func _spawn_minimap_ping(world_position: Vector3, color: Color):
 	var ping_node = Line2D.new()
 	ping_node.width = 2.0
-	ping_node.default_color = BattleTheme.accent()
+	ping_node.default_color = color
 	var pts = PackedVector2Array()
 	var segs = 16
 	for i in range(segs + 1):

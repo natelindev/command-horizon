@@ -110,7 +110,19 @@ func _test_tactical_ping_signal():
 	var ping_stream = load("res://assets/audio/combat/tactical_ping.wav")
 	_check(ping_stream is AudioStream, "tactical_ping.wav is not a valid AudioStream")
 	_check(ping_stream.get_length() > 0.1, "tactical_ping.wav duration too short")
-	print("PASS Tactical alert ping signal dispatch and acoustic asset availability")
+
+	# Verify combat danger ping signal dispatch
+	var danger_state = {"received": false, "pos": Vector3.ZERO}
+	var danger_cb = func(pos):
+		danger_state["received"] = true
+		danger_state["pos"] = pos
+	match_signals.combat_danger_ping.connect(danger_cb)
+	match_signals.combat_danger_ping.emit(Vector3(12, 0, 16))
+	_check(danger_state.received, "combat_danger_ping signal failed to dispatch")
+	_check(danger_state.pos == Vector3(12, 0, 16), "combat_danger_ping position corrupted")
+	match_signals.combat_danger_ping.disconnect(danger_cb)
+
+	print("PASS Tactical ping and combat danger ping signals dispatch and cue availability")
 
 
 func _check(condition: bool, message: String):
