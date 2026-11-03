@@ -76,8 +76,9 @@ func initialize(
 	if slot < 0:
 		game.hud.ability_tray.hide()
 	game.visible_player = players[maxi(0, slot)]
-	game.settings.visibility = settings.Visibility.FULL
-	game.fog_of_war.reveal()
+	game.settings.visibility = settings.visibility
+	if settings.visibility == settings.Visibility.FULL:
+		game.fog_of_war.reveal()
 	game._move_camera_to_player_units_crowd_pivot(players[maxi(0, slot)])
 	game.restoring = false
 	initialization_stage = "ready"

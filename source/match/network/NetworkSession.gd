@@ -98,18 +98,22 @@ func _ready():
 	router.session = self
 
 
-func host(match_settings, listen_port: int = PORT) -> bool:
+func host(match_settings, listen_port: int = PORT, dedicated: bool = false) -> bool:
 	if listen_port < 1024 or listen_port > 65535:
 		return _fail("Choose a port from 1024 to 65535.")
 	authority = true
-	local_slot = 0
+	local_slot = -1 if dedicated else 0
 	settings = match_settings
 	port = listen_port
 	peer = ENetMultiplayerPeer.new()
-	if peer.create_server(port, 8, 3) != OK:
+	if peer.create_server(port, 16, 3) != OK:
 		return _fail("Could not host on this port. Choose another port.")
 	peer.peer_disconnected.connect(_disconnected)
-	status = tr("Hosting on port %d · waiting for a commander") % port
+	status = (
+		tr("Dedicated server hosting on port %d") % port
+		if dedicated
+		else tr("Hosting on port %d · waiting for a commander") % port
+	)
 	changed.emit()
 	return true
 
@@ -378,14 +382,13 @@ func _hello(sender: int, packet: Dictionary):
 			return
 		slot = _tokens[token].slot
 	elif not packet.spectator:
-		var occupied = peers.values().any(func(entry): return entry.slot == 1)
-		var reserved = _tokens.values().any(
-			func(entry): return entry.slot == 1 and not entry.expired
-		)
-		if occupied or reserved or is_instance_valid(game):
+		if is_instance_valid(game):
+			_reject(sender, "Battle is already running. Join as a spectator.")
+			return
+		slot = _next_available_slot()
+		if slot < 0:
 			_reject(sender, "The commander slot is occupied. Join as a spectator.")
 			return
-		slot = 1
 	if token.is_empty():
 		token = Crypto.new().generate_random_bytes(32).hex_encode()
 	_tokens[token] = {"slot": slot, "peer": sender, "until": 0, "expired": false}
@@ -400,10 +403,13 @@ func _hello(sender: int, packet: Dictionary):
 			"seq": boundary.last_sequences.get(slot, 0)
 		}
 	)
+	var total_commanders = peers.values().filter(func(entry): return entry.slot >= 0).size()
+	if local_slot >= 0:
+		total_commanders += 1
 	status = (
 		tr("%d commander connected · %d spectators")
 		% [
-			peers.values().filter(func(entry): return entry.slot >= 0).size(),
+			total_commanders,
 			peers.values().filter(func(entry): return entry.slot < 0).size()
 		]
 	)
@@ -414,14 +420,40 @@ func _hello(sender: int, packet: Dictionary):
 		_send(sender, {"type": "lobby", "status": "Connected · waiting for the host to start"})
 
 
+func _next_available_slot() -> int:
+	if settings == null:
+		return -1
+	var start_slot = 0 if local_slot < 0 else 1
+	for candidate in range(start_slot, settings.players.size()):
+		if settings.players[candidate].get_meta("ai_commander", false):
+			continue
+		var occupied = peers.values().any(func(entry): return entry.slot == candidate)
+		var reserved = _tokens.values().any(
+			func(entry): return entry.slot == candidate and not entry.expired
+		)
+		if not occupied and not reserved:
+			return candidate
+	return -1
+
+
+func is_ready_to_start() -> bool:
+	if not authority or is_instance_valid(game) or settings == null:
+		return false
+	var start_slot = 0 if local_slot < 0 else 1
+	var required_slots = 0
+	for index in range(start_slot, settings.players.size()):
+		if settings.players[index].get_meta("ai_commander", false):
+			continue
+		required_slots += 1
+		var filled = peers.values().any(func(entry): return entry.slot == index)
+		if not filled:
+			return false
+	return required_slots > 0 or local_slot >= 0
+
+
 func start_battle(setup: Callable = Callable()) -> bool:
-	if (
-		not authority
-		or is_instance_valid(game)
-		or settings == null
-		or not peers.values().any(func(entry): return entry.slot == 1)
-	):
-		return _fail("Connect a second commander before starting.")
+	if not is_ready_to_start():
+		return _fail("Connect all required commanders before starting.")
 	use_fixed_clock()
 	var map = load(settings.map_path).instantiate()
 	if not settings.scenario.is_empty():
@@ -429,6 +461,7 @@ func start_battle(setup: Callable = Callable()) -> bool:
 	game = load("res://source/match/Skirmish.tscn").instantiate()
 	game.settings = settings
 	game.map = map
+	game.set_meta("network_local_slot", local_slot)
 	game.set_meta("network_session", self)
 	var tree = get_tree()
 	var previous = tree.current_scene
@@ -438,9 +471,17 @@ func start_battle(setup: Callable = Callable()) -> bool:
 		await previous.tree_exited
 	tree.root.add_child(game)
 	tree.current_scene = game
-	for player in game.get_cached_group("players"):
-		if player != game._get_human_player():
+	var cached_players = game.get_cached_group("players")
+	for index in cached_players.size():
+		var player = cached_players[index]
+		var is_local_human = (local_slot >= 0 and index == local_slot)
+		var is_ai = (
+			index < settings.players.size()
+			and settings.players[index].get_meta("ai_commander", false)
+		)
+		if not is_local_human and not is_ai:
 			player.set_process(false)
+			player.set_physics_process(false)
 	if setup.is_valid():
 		applying = true
 		setup.call(game)

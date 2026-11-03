@@ -315,13 +315,17 @@ func _setup_players():
 func _create_players_from_settings():
 	for side_index in settings.players.size():
 		var player_settings = settings.players[side_index]
-		var player_scene = Constants.Match.Player.CONTROLLER_SCENES[player_settings.controller]
+		var player_scene = Constants.Match.Player.CONTROLLER_SCENES.get(
+			player_settings.controller,
+			Constants.Match.Player.CONTROLLER_SCENES[Constants.PlayerType.HUMAN]
+		)
 		if settings.skirmish and player_settings.controller != Constants.PlayerType.HUMAN:
 			player_scene = load("res://source/match/players/skirmish-ai/SkirmishAI.tscn")
 		if has_meta("network_local_slot"):
+			var network_slot = get_meta("network_local_slot")
 			player_scene = load(
 				"res://source/match/players/human/Human.tscn"
-				if side_index == get_meta("network_local_slot")
+				if (network_slot == side_index or (network_slot < 0 and side_index == 0))
 				else "res://source/match/players/skirmish-ai/SkirmishAI.tscn"
 			)
 		var player = player_scene.instantiate()

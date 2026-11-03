@@ -28,9 +28,11 @@ func _ready():
 	# Whole-army formations need an overview above the dense bottom console.
 	_camera.size_max = Constants.Match.SKIRMISH_CAMERA_MAX_SIZE
 	_camera.set_size_safely(24)
-	_get_human_player().get_node("StructurePlacementHandler").process_mode = (
-		Node.PROCESS_MODE_ALWAYS
-	)
+	var human = _get_human_player()
+	if human != null:
+		human.get_node("StructurePlacementHandler").process_mode = (
+			Node.PROCESS_MODE_ALWAYS
+		)
 	get_node("Handlers/UnitGroupSelectionHandler").process_mode = Node.PROCESS_MODE_ALWAYS
 	find_child("Minimap").process_mode = Node.PROCESS_MODE_ALWAYS
 	alerts = load("res://source/match/alerts/BattleAlerts.gd").new()
@@ -135,14 +137,25 @@ func _check_outcome(delta):
 		else:
 			survivors.append(player)
 	var human = _get_human_player()
-	var allies = survivors.filter(func(side): return human.is_allied_with(side))
-	var enemies = survivors.filter(func(side): return not human.is_allied_with(side))
-	if enemies.is_empty() or allies.is_empty():
-		finished = true
-		result = (
-			"Draw" if survivors.is_empty() else ("Victory" if not allies.is_empty() else "Defeat")
-		)
-		hud.show_result(result)
+	if human != null:
+		var allies = survivors.filter(func(side): return human.is_allied_with(side))
+		var enemies = survivors.filter(func(side): return not human.is_allied_with(side))
+		if enemies.is_empty() or allies.is_empty():
+			finished = true
+			result = (
+				"Draw" if survivors.is_empty() else ("Victory" if not allies.is_empty() else "Defeat")
+			)
+			if hud != null and hud.has_method("show_result"):
+				hud.show_result(result)
+	else:
+		var teams_alive = {}
+		for survivor in survivors:
+			teams_alive[survivor.team] = true
+		if survivors.is_empty() or teams_alive.size() <= 1:
+			finished = true
+			result = "Draw" if survivors.is_empty() else "Finished"
+			if hud != null and hud.has_method("show_result"):
+				hud.show_result(result)
 
 
 func surrender(player):
@@ -176,10 +189,12 @@ func _eliminate(player, units):
 
 func result_summary():
 	var seconds = int(simulation_time)
+	var human = _get_human_player()
+	var pop_count = human.population() if human != null else 0
 	return (
 		(
 			"Battle time %02d:%02d\nYour surviving units: %d / 100"
-			% [seconds / 60, seconds % 60, _get_human_player().population()]
+			% [seconds / 60, seconds % 60, pop_count]
 		)
 		+ "\n\n"
 		+ battle_record.summary()
@@ -188,6 +203,8 @@ func result_summary():
 
 func objective_text():
 	var human = _get_human_player()
+	if human == null:
+		return "Eliminate rival commanders."
 	var players = _defeat_timers.keys()
 	players.erase(human)
 	players.push_front(human)
