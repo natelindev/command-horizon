@@ -191,16 +191,24 @@ func _open_station(index: int):
 		_body.remove_child(child)
 		child.queue_free()
 	_progress.read_progress(progress_path)
+	_state.read_state(hub_state_path)
+	var pts_avail = _state.points_available(faction, _progress)
 	_status.text = (
-		"%s · %d / %d"
+		"%s · %d / %d · %s"
 		% [
 			tr("Operations completed"),
 			_progress.completed_count(faction),
-			Catalog.ORDER[faction].size()
+			Catalog.ORDER[faction].size(),
+			tr("%d Tech Points Available") % pts_avail
 		]
 	)
 	if not _state.error.is_empty():
 		_status.text = tr(_state.error)
+	for slot in 3:
+		var tab_name = tr(STATIONS[faction][slot])
+		if slot == 1 and pts_avail > 0:
+			tab_name += " (★)"
+		_station_buttons[slot].text = tab_name
 	match index:
 		0:
 			_deployment()
@@ -219,8 +227,15 @@ func _deployment():
 	_mission_picker.fit_to_longest_item = false
 	for id in Catalog.ORDER[faction]:
 		var entry = Catalog.operations()[id]
+		var mark = ""
+		if _progress.completed(id):
+			mark = " ✓"
+		elif not _progress.is_operation_unlocked(id, faction):
+			mark = " 🔒"
+		else:
+			mark = " ►"
 		_mission_picker.add_item(
-			"%s · %s%s" % [entry.number, tr(entry.title), " ✓" if _progress.completed(id) else ""]
+			"%s · %s%s" % [entry.number, tr(entry.title), mark]
 		)
 	_mission_picker.item_selected.connect(_select_mission)
 	row.add_child(_mission_picker)
@@ -245,14 +260,29 @@ func _deployment():
 		"Full mission board",
 		func(): get_tree().change_scene_to_file("res://source/main-menu/Campaign.tscn")
 	)
-	_select_mission(0)
+	var next_id = _progress.next_uncompleted_operation(faction)
+	var default_index = Catalog.ORDER[faction].find(next_id)
+	if default_index < 0:
+		default_index = 0
+	_mission_picker.select(default_index)
+	_select_mission(default_index)
 
 
 func _select_mission(index: int):
 	var id = Catalog.ORDER[faction][index]
 	var entry = Catalog.operations()[id]
+	var unlocked = _progress.is_operation_unlocked(id, faction)
+	var prefix = ""
+	if not unlocked:
+		prefix = tr("LOCKED · Complete previous operation to deploy.") + "\n\n"
+		_start_button.disabled = true
+		_start_button.tooltip_text = tr("Complete previous operation to unlock.")
+	else:
+		_start_button.disabled = false
+		_start_button.tooltip_text = ""
 	_summary.text = (
-		(entry.summary_zh if Globals.options.language == "zh_CN" else entry.summary)
+		prefix
+		+ (entry.summary_zh if Globals.options.language == "zh_CN" else entry.summary)
 		+ "\n"
 		+ tr("Secondary objective: return your hero with at least half hull intact.")
 	)
@@ -278,7 +308,25 @@ func _deploy():
 func _workshop():
 	var tech = load("res://source/match/research/TechnologyCatalog.gd")
 	var chosen = _state.doctrines.get(faction, "")
-	var description = _label(_body, "Permanent campaign doctrine", 17)
+	var pts_avail = _state.points_available(faction, _progress)
+	var pts_earned = _state.total_points_earned(faction, _progress)
+	var pts_spent = _state.points_spent(faction)
+
+	var header_row = HBoxContainer.new()
+	header_row.add_theme_constant_override("separation", 12)
+	_body.add_child(header_row)
+
+	var pts_label = _label(
+		header_row,
+		tr("%d Tech Points Available") % pts_avail + " · " + (tr("Earned: %d · Spent: %d") % [pts_earned, pts_spent]),
+		15
+	)
+	pts_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+	var reset_btn = _button(header_row, "Reset upgrades", _reset_upgrades)
+	reset_btn.disabled = pts_spent <= 0
+
+	var description = _label(_body, "Permanent campaign doctrine", 16)
 	description.tooltip_text = tr(
 		"Choose once for this faction. The doctrine applies to new campaign operations."
 	)
@@ -299,6 +347,44 @@ func _workshop():
 		detail.max_lines_visible = 3
 	if _progress.completed_count(faction) < 1:
 		_label(_body, "Complete one operation to unlock a permanent doctrine.", 13)
+
+	_label(_body, "Permanent campaign upgrades (applies to all operations)", 16)
+	var scroll = ScrollContainer.new()
+	scroll.custom_minimum_size.y = 110
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.follow_focus = true
+	_body.add_child(scroll)
+
+	var up_grid = GridContainer.new()
+	up_grid.columns = 3
+	up_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	up_grid.add_theme_constant_override("h_separation", 8)
+	up_grid.add_theme_constant_override("v_separation", 6)
+	scroll.add_child(up_grid)
+
+	for id in HubState.FACTION_UPGRADES[faction]:
+		var has = _state.has_upgrade(faction, id)
+		var cost = HubState.UPGRADE_COSTS.get(id, 100)
+		var can = _state.can_purchase_upgrade(faction, id, _progress)
+		var btn_text = tech.title(id, faction)
+		if has:
+			btn_text += " ✓"
+		else:
+			btn_text += " · %d pts" % cost
+		var btn = _button(up_grid, btn_text, _buy_upgrade.bind(id))
+		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		btn.disabled = has or not can
+		var desc = tech.description(id, faction)
+		if has:
+			btn.tooltip_text = tr(desc) + "\n" + tr("Purchased")
+		elif not can:
+			if HubState.UPGRADE_REQUIREMENTS.has(id) and not _state.has_upgrade(faction, HubState.UPGRADE_REQUIREMENTS[id]):
+				btn.tooltip_text = tr(desc) + "\n" + (tr("Requires %s") % tech.title(HubState.UPGRADE_REQUIREMENTS[id], faction))
+			else:
+				btn.tooltip_text = tr(desc) + "\n" + tr("Need more Tech Points")
+		else:
+			btn.tooltip_text = tr(desc)
+
 	if faction == "frontier":
 		_label(
 			_body,
@@ -320,6 +406,16 @@ func _workshop():
 			)
 			if id in _state.insignia:
 				button.text += " ✓"
+
+
+func _buy_upgrade(id: String):
+	_state.purchase_upgrade(faction, id, hub_state_path, _progress)
+	_open_station(1)
+
+
+func _reset_upgrades():
+	_state.reset_upgrades(faction, hub_state_path)
+	_open_station(1)
 
 
 func _choose_doctrine(id: String):
@@ -502,7 +598,7 @@ func _layout():
 		return
 	_panel.position = Vector2(16, 0)
 	_panel.size.x = maxf(1, size.x - 32)
-	_panel.size.y = _panel.get_combined_minimum_size().y
+	_panel.size.y = minf(size.y - 80, _panel.get_combined_minimum_size().y)
 	_panel.position.y = size.y - _panel.size.y - 14
 	_world_container.offset_bottom = -maxf(0, _panel.size.y * .45)
 

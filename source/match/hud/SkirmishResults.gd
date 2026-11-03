@@ -190,11 +190,38 @@ static func build(hud, result):
 			_stat(box, hud.tr(entry[0]), entry[1], entry[2])
 	_debrief(body, hud, game)
 
+	var next_op = ""
+	var next_title = ""
+	if hud._is_campaign() and victory:
+		var catalog = load("res://source/match/campaign/CampaignCatalog.gd")
+		next_op = catalog.next_operation(game.settings.mission_id)
+		if not next_op.is_empty():
+			next_title = catalog.operations()[next_op].title
+
 	var actions = GridContainer.new()
 	actions.columns = 3
 	actions.add_theme_constant_override("h_separation", 10)
 	actions.add_theme_constant_override("v_separation", 10)
 	content.add_child(actions)
+	var next_btn = null
+	if not next_op.is_empty():
+		next_btn = _button(
+			actions,
+			"NextOperationButton",
+			hud.tr("Next operation: %s") % hud.tr(next_title),
+			"plan",
+			func(): hud.continue_campaign_to(next_op)
+		)
+		next_btn.theme_type_variation = "BattlePrimaryButton"
+	elif hud._is_campaign() and victory:
+		var victory_btn = _button(
+			actions,
+			"CampaignVictoryButton",
+			hud.tr("Campaign Completed! Return to Hub"),
+			"stance",
+			hud._back_to_setup
+		)
+		victory_btn.theme_type_variation = "BattlePrimaryButton"
 	var replay = _button(
 		actions, "PlayAgainButton", hud.tr("Play again"), "reverse", func(): game.restart()
 	)
@@ -213,9 +240,15 @@ static func build(hud, result):
 		"return",
 		func(): hud.get_node("/root/SaveManager").open_dialog()
 	)
-	_button(actions, "SetupButton", hud.tr(hud._setup_title()), "plan", hud._back_to_setup)
+	var setup_label = hud._setup_title()
+	if hud._is_campaign() and victory:
+		setup_label = hud.tr("Command hub (Workshop)")
+	_button(actions, "SetupButton", hud.tr(setup_label), "plan", hud._back_to_setup)
 	_button(actions, "MainMenuButton", hud.tr("Main menu"), "menu", hud._back_to_menu)
-	replay.grab_focus()
+	if is_instance_valid(next_btn):
+		next_btn.grab_focus()
+	else:
+		replay.grab_focus()
 	var viewport = hud.get_viewport()
 	var fit = func():
 		var available = viewport.get_visible_rect().size
@@ -336,6 +369,17 @@ static func _debrief(parent, hud, game):
 		hub_state.read_state(hub_state.path_for(game))
 		if game.settings.mission_id in hub_state.commendations:
 			summary += "\n\n" + hud.tr("Preservation commendation earned")
+		if game.result == "Victory":
+			var progress = load("res://source/match/campaign/CampaignProgress.gd").new()
+			var ppath = game.progress_path if "progress_path" in game else progress.PATH
+			progress.read_progress(ppath)
+			var fac = game._get_human_player().faction
+			var avail = hub_state.points_available(fac, progress)
+			var pts_text = "\n\n" + (hud.tr("Campaign Upgrade Points earned: +%d") % 100)
+			if game.settings.mission_id in hub_state.commendations:
+				pts_text += " " + hud.tr("(+50 Preservation Bonus)")
+			pts_text += "\n" + (hud.tr("Total Upgrade Points available: %d") % avail)
+			summary += pts_text
 		var details = _label(box, hud.tr(summary), 14, BattleTheme.MUTED)
 		details.name = "StoryDebrief"
 		details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART

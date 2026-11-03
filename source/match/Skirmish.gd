@@ -58,6 +58,8 @@ func _attach_campaign_story():
 		campaign_story = story.new()
 		campaign_story.name = "CampaignStory"
 		add_child(campaign_story)
+	elif not settings.mission_id.is_empty():
+		load("res://source/match/campaign/CampaignHubState.gd").new().apply_to_campaign(self)
 
 
 func _spawn_player_units(player, spawn_transform):

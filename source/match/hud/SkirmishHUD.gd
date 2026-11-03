@@ -578,6 +578,21 @@ func _back_to_setup():
 		get_tree().change_scene_to_file("res://source/main-menu/Play.tscn")
 
 
+func continue_campaign_to(next_op: String):
+	get_tree().paused = false
+	var game = get_parent()
+	var launch = load("res://source/main-menu/CampaignLaunch.gd")
+	var difficulty = 1
+	var opponents = get_tree().get_nodes_in_group("players").filter(func(p): return p != game._get_human_player())
+	if not opponents.is_empty():
+		difficulty = opponents[0].difficulty
+	var settings = launch.settings_for(next_op, difficulty)
+	if settings != null:
+		var root = get_tree().root
+		game.queue_free()
+		launch.deploy(root, settings)
+
+
 func _is_campaign():
 	return not get_parent().settings.mission_id.is_empty()
 

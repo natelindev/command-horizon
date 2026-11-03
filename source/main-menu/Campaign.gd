@@ -167,19 +167,29 @@ func _select_faction(index):
 		button.button_group = group
 		button.custom_minimum_size = Vector2(0, 40)
 		_operation_buttons.append(button)
+	var hub_state = load("res://source/match/campaign/CampaignHubState.gd").new()
+	var state_path = hub_state.path_for(self)
+	hub_state.read_state(state_path)
+	var pts_avail = hub_state.points_available(_faction, _progress)
 	_heading.text = (
-		"%s · %d / %d"
+		"%s · %d / %d · %s"
 		% [
 			tr("Campaign"),
 			_ids.filter(func(id): return _progress.completed(id)).size(),
-			_ids.size()
+			_ids.size(),
+			tr("%d Tech Points Available") % pts_avail
 		]
 	)
-	_select_operation(0)
+	var next_op = _progress.next_uncompleted_operation(_faction)
+	var def_slot = _ids.find(next_op)
+	if def_slot < 0:
+		def_slot = 0
+	_select_operation(def_slot)
 
 
 func _select_operation(index):
 	_mission_id = _ids[index]
+	var unlocked = _progress.is_operation_unlocked(_mission_id, _faction)
 	_challenge.visible = _mission_id == "command_horizon"
 	if is_instance_valid(_challenge_box):
 		_challenge_box.visible = _challenge.visible
@@ -200,7 +210,7 @@ func _select_operation(index):
 	)
 	if Catalog.is_story(_mission_id):
 		var operation = Catalog.operations()[_mission_id]
-		_completion.text = tr("Completed") if _progress.completed(_mission_id) else tr("Available")
+		_completion.text = tr("Completed") if _progress.completed(_mission_id) else (tr("Available") if unlocked else tr("Locked"))
 		_briefing.text = (
 			operation.summary_zh if Globals.options.language == "zh_CN" else operation.summary
 		)
@@ -210,20 +220,32 @@ func _select_operation(index):
 				objective.zh_CN if Globals.options.language == "zh_CN" else objective.title
 			)
 		_note.text = "\n".join(objectives)
+		if not unlocked:
+			_note.text += "\n" + tr("Complete previous operation to unlock.")
 		_response.text = tr("Finite enemy responses. Escort losses mean defeat.")
 		_difficulty.clear()
 		for title in ["Story", "Standard", "Veteran"]:
 			_difficulty.add_item(tr(title))
 		_difficulty.select(1)
 		_start_button.text = tr("Start %s") % tr(operation.title)
+		_start_button.disabled = not unlocked
+		_start_button.tooltip_text = "" if unlocked else tr("Complete previous operation to unlock.")
 		return
 	var split = _ids[index] == "split_signal"
 	var supply = _ids[index] == "supply_line"
 	if _mission_id == "command_horizon":
 		_horizon_briefing()
+		_start_button.disabled = not unlocked
+		_start_button.tooltip_text = "" if unlocked else tr("Complete previous operation to unlock.")
+		if not unlocked:
+			_completion.text = tr("Locked")
 		return
 	if _mission_id == "broken_foundry":
 		_foundry_briefing()
+		_start_button.disabled = not unlocked
+		_start_button.tooltip_text = "" if unlocked else tr("Complete previous operation to unlock.")
+		if not unlocked:
+			_completion.text = tr("Locked")
 		return
 	_completion.text = (
 		tr("Completed")
@@ -232,8 +254,10 @@ func _select_operation(index):
 			if supply
 			else (_progress.split_complete if split else _progress.complete)
 		)
-		else tr("Available")
+		else (tr("Available") if unlocked else tr("Locked"))
 	)
+	_start_button.disabled = not unlocked
+	_start_button.tooltip_text = "" if unlocked else tr("Complete previous operation to unlock.")
 	_difficulty.clear()
 	for title in (
 		[

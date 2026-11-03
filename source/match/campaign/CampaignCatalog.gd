@@ -140,6 +140,34 @@ static func is_story(id):
 	return stories().has(id)
 
 
+static func faction_for(id: String) -> String:
+	var ops = operations()
+	if ops.has(id):
+		return ops[id].get("faction", "bastion")
+	for fac in ORDER:
+		if id in ORDER[fac]:
+			return fac
+	return "bastion"
+
+
+static func next_operation(current_id: String) -> String:
+	var faction = faction_for(current_id)
+	var order = ORDER.get(faction, [])
+	var idx = order.find(current_id)
+	if idx >= 0 and idx + 1 < order.size():
+		return order[idx + 1]
+	return ""
+
+
+static func previous_operation(current_id: String) -> String:
+	var faction = faction_for(current_id)
+	var order = ORDER.get(faction, [])
+	var idx = order.find(current_id)
+	if idx > 0:
+		return order[idx - 1]
+	return ""
+
+
 static func story_key(id):
 	if id in LEGACY:
 		return "bastion." + id

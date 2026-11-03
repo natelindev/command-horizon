@@ -223,3 +223,36 @@ func completed(id):
 
 func foundry_support():
 	return air_support or "bastion_cinder_ford" in operations
+
+
+func is_operation_unlocked(id: String, faction: String = "") -> bool:
+	if id.is_empty():
+		return false
+	if completed(id):
+		return true
+	if faction.is_empty():
+		faction = Campaigns.faction_for(id)
+	var order = Campaigns.ORDER.get(faction, [])
+	var idx = order.find(id)
+	if idx <= 0:
+		return true
+	var prev_id = order[idx - 1]
+	return completed(prev_id)
+
+
+func next_uncompleted_operation(faction: String = "bastion") -> String:
+	var order = Campaigns.ORDER.get(faction, [])
+	for id in order:
+		if not completed(id):
+			return id
+	return order[0] if not order.is_empty() else ""
+
+
+func next_operation_after(id: String, faction: String = "") -> String:
+	if faction.is_empty():
+		faction = Campaigns.faction_for(id)
+	var order = Campaigns.ORDER.get(faction, [])
+	var idx = order.find(id)
+	if idx >= 0 and idx + 1 < order.size():
+		return order[idx + 1]
+	return ""
