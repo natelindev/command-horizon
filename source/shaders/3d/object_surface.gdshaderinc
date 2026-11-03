@@ -72,24 +72,39 @@ void fragment() {
 		float rough = surface_sample(surface_roughness, surface_position, weights).r;
 		ROUGHNESS = clamp(base_roughness + (rough - 0.7) * 0.25 * object_detail, 0.12, 1.0);
 	}
+	vec3 slope = vec3(0.0);
 	if (has_normal) {
 		vec2 x = texture(surface_normal, surface_position.zy).xy * 2.0 - 1.0;
 		vec2 y = texture(surface_normal, surface_position.xz).xy * 2.0 - 1.0;
 		vec2 z = texture(surface_normal, surface_position.xy).xy * 2.0 - 1.0;
-		vec3 slope = vec3(0.0, x.y, x.x) * weights.x
+		slope = vec3(0.0, x.y, x.x) * weights.x
 			+ vec3(y.x, 0.0, y.y) * weights.y + vec3(z.x, z.y, 0.0) * weights.z;
 		slope -= n * dot(slope, n);
 		vec3 perturbed = normalize(n + slope * normal_strength * object_detail);
 		NORMAL = normalize(surface_to_view * perturbed) * (FRONT_FACING ? 1.0 : -1.0);
 	}
+	float surface_ao = 1.0;
 	if (metal_finish_enabled) {
 		MetalFinish finish = metal_finish(metal_position, surface_geometric_normal,
 			surface_to_view, VERTEX, NORMAL, UV2);
 		NORMAL = normalize(mix(NORMAL, finish.normal, object_detail));
 		ALBEDO *= mix(1.0, finish.color, object_detail);
-		AO = mix(1.0, finish.occlusion, object_detail);
+		surface_ao = mix(1.0, finish.occlusion, object_detail);
 		ROUGHNESS = clamp(ROUGHNESS + finish.roughness_delta * object_detail, 0.12, 1.0);
 	}
+	// Geometric underside and surface cavity ambient occlusion
+	float underside_ao = clamp(n.y * 0.40 + 0.60, 0.35, 1.0);
+	float slope_cavity = 1.0;
+	if (has_normal) {
+		slope_cavity = clamp(1.0 - length(slope) * 0.32 * normal_strength, 0.65, 1.0);
+	}
+	AO = clamp(surface_ao * underside_ao * slope_cavity, 0.22, 1.0);
+	AO_LIGHT_AFFECT = 0.42;
+
+	// Tactical silhouette rim highlight for RTS unit readability
+	RIM = 0.26 * object_detail;
+	RIM_TINT = 0.40;
+
 	// Leaves remain lit and shadowed; a little transmitted light softens backlit crowns.
 	BACKLIGHT = base_color.rgb * leaf_transmission;
 }

@@ -296,6 +296,7 @@ func _refresh():
 	for key in [
 		"graphics_shadows",
 		"graphics_ao",
+		"graphics_gi",
 		"graphics_glow",
 		"graphics_fog",
 		"graphics_liquids",
@@ -470,6 +471,7 @@ func _build_graphics():
 	_heading(column, "Rendering")
 	_check(column, "Soft sun and moon shadows", "graphics_shadows")
 	_check(column, "Ambient occlusion (contact shading)", "graphics_ao")
+	_check(column, "Global illumination (indirect light)", "graphics_gi")
 	_check(column, "Bloom / light glow", "graphics_glow")
 	_check(column, "Ground detail", "graphics_ground_detail")
 	_check(column, "Persistent tracks and blast marks", "battlefield_wear")
@@ -489,7 +491,7 @@ func _build_graphics():
 	)
 	_choice(column, "Anti-aliasing", "graphics_msaa", ["Off", "2× MSAA", "4× MSAA"])
 	var forward = RenderingServer.get_current_rendering_method() == "forward_plus"
-	for key in ["graphics_ao", "graphics_dof", "area_lighting"]:
+	for key in ["graphics_ao", "graphics_gi", "graphics_dof", "area_lighting"]:
 		controls[key].disabled = not forward
 		if not forward:
 			controls[key].tooltip_text = tr("Available with the Forward+ renderer.")

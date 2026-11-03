@@ -223,6 +223,8 @@ func _ready():
 		_setup_color()
 		if has_node("Movement"):
 			add_child(load("res://source/match/units/traits/TeamFootprint.gd").new(self))
+			if movement_domain != Constants.Match.Navigation.Domain.AIR:
+				add_child(load("res://source/match/units/traits/UnitContactShadow.gd").new(self))
 	_setup_default_properties_from_constants()
 	load("res://source/match/FactionCatalog.gd").apply_stats(self)
 	base_hp_max = hp_max

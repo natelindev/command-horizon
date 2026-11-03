@@ -51,8 +51,8 @@ func _ready():
 	var fog = _game.get_node_or_null("Fog")
 	if fog != null:
 		fog.hide()
-	sun.shadow_bias = .025
-	sun.shadow_normal_bias = .35
+	sun.shadow_bias = .015
+	sun.shadow_normal_bias = .20
 	sun.shadow_blur = 1.0
 	# Orthographic projection has no perspective size falloff. Use the complete
 	# shadow atlas for one map instead of submitting the scene to four cascades.
@@ -73,11 +73,15 @@ func _ready():
 	environment.adjustment_contrast = profile.contrast
 	environment.adjustment_saturation = profile.saturation
 	environment.adjustment_color_correction = AtmosphereProfiles.grade(profile)
-	environment.ssao_radius = 1.6
-	environment.ssao_intensity = 1.5
-	environment.ssao_power = 1.25
-	environment.ssao_detail = .65
-	environment.ssao_light_affect = .12
+	environment.ssao_radius = 2.8
+	environment.ssao_intensity = 2.0
+	environment.ssao_power = 1.45
+	environment.ssao_detail = .70
+	environment.ssao_light_affect = .40
+	environment.ssil_radius = 4.5
+	environment.ssil_intensity = .85
+	environment.ssil_sharpness = .90
+	environment.ssil_normal_rejection = 1.0
 	environment.glow_intensity = .45
 	environment.glow_bloom = .035
 	environment.fog_height_density = 0.0
@@ -97,6 +101,7 @@ func apply_options():
 	var forward = RenderingServer.get_current_rendering_method() == "forward_plus"
 	sun.shadow_enabled = _options.graphics_shadows
 	environment.ssao_enabled = _options.graphics_ao and forward
+	environment.ssil_enabled = _options.graphics_gi and forward
 	environment.glow_enabled = _options.graphics_glow
 	GroundDecals.set_detail(_game.map, _options.graphics_ground_detail)
 	environment.fog_enabled = _options.graphics_fog

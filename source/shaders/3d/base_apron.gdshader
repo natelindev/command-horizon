@@ -40,7 +40,14 @@ void fragment() {
 	float tracks = (1.0 - smoothstep(0.12, 0.3, abs(abs(p.x) - pad_half.x * 0.42))) * approach;
 	float yard = (1.0 - smoothstep(pad_half.x * 0.7, pad_half.x + 0.2, abs(p.x))) * approach;
 	float alpha = max(pad * 0.94, max(verge, yard * 0.18 + tracks * 0.35));
+
+	// Foundation contact ambient occlusion where the structure walls meet the pad
+	float contact_occ = smoothstep(-1.1, 0.1, edge);
+	surface *= mix(0.40, 1.0, contact_occ);
+
 	ALBEDO = mix(soil * (0.88 + n * 0.18), surface, pad);
 	ROUGHNESS = 0.95;
+	AO = mix(0.35, 1.0, contact_occ);
+	AO_LIGHT_AFFECT = 0.48;
 	ALPHA = alpha;
 }

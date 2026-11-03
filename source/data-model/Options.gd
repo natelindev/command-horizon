@@ -23,6 +23,7 @@ const DEFAULTS = {
 	"key_bindings": {},
 	"graphics_shadows": true,
 	"graphics_ao": true,
+	"graphics_gi": true,
 	"graphics_glow": true,
 	"graphics_fog": true,
 	"graphics_liquids": true,
@@ -66,6 +67,7 @@ const DEFAULTS = {
 @export var key_bindings = {}
 @export var graphics_shadows = true
 @export var graphics_ao = true
+@export var graphics_gi = true
 @export var graphics_glow = true
 @export var graphics_fog = true
 @export var graphics_liquids = true
