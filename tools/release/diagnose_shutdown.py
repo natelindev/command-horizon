@@ -37,9 +37,13 @@ with tempfile.TemporaryDirectory(prefix="shutdown-diagnostic-") as temporary:
         [engine, "--headless", "--verbose", "--main-pack", pack, "--fixed-fps", "60", "--script", "res://tests/headless/PlayerRosterRegression.gd"],
         [engine, "--headless", "--verbose", "--path", project, "--fixed-fps", "60", "--script", "res://tests/headless/PlayerRosterRegression.gd"],
     ]
+    commands += [[engine, "--headless", "--main-pack", pack, "--fixed-fps", "60", "--script", "res://tests/headless/PlayerRosterRegression.gd"] for _ in range(8)]
+    commands += [[engine, "--headless", "--main-pack", pack, "--fixed-fps", "60", "--script", "res://tests/headless/RuntimeShutdownRegression.gd"]]
     for command in commands:
         try:
             b.run(command, cwd=isolated, timeout=180)
         except RuntimeError as error:
             print(error)
-b.RECORDER.finish("diagnosed")
+failed = any(row["status"] != "passed" for row in b.RECORDER.report["checks"])
+b.RECORDER.finish("failed" if failed else "passed")
+raise SystemExit(1 if failed else 0)

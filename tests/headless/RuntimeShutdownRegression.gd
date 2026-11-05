@@ -61,10 +61,17 @@ func _run():
 	# Quit during playback with another threaded load outstanding. Include the
 	# positional players used by scene effects, and quit while already paused.
 	director.play_track("frontier")
+	var playbacks: Array[WeakRef] = []
+	for player in director.players:
+		if player.has_stream_playback():
+			playbacks.append(weakref(player.get_stream_playback()))
 	for player in [AudioStreamPlayer.new(), AudioStreamPlayer2D.new(), AudioStreamPlayer3D.new()]:
 		root.add_child(player)
 		player.stream = load("res://assets/audio/ui/click.wav")
 		player.play()
+		if player.has_stream_playback():
+			playbacks.append(weakref(player.get_stream_playback()))
+	_check(not playbacks.is_empty(), "Shutdown fixture did not start audio playback")
 	paused = true
 	Engine.time_scale = 0.0
 	for message in errors:
@@ -76,7 +83,12 @@ func _run():
 		root.propagate_notification(Node.NOTIFICATION_WM_CLOSE_REQUEST)
 		return
 	await globals.quit_game(0 if errors.is_empty() else 1)
+	for playback in playbacks:
+		_check(playback.get_ref() == null, "Shutdown returned before audio playback was released")
+	for message in errors:
+		push_error(message)
 	print("Runtime shutdown: %d failures" % errors.size())
+	quit(0 if errors.is_empty() else 1)
 
 
 func _set_factories():

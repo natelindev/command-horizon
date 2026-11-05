@@ -40,25 +40,37 @@ func quit_game(exit_code = 0):
 	await tree.process_frame
 	# Stop before SceneTree teardown: the audio server releases playback on
 	# subsequent mix/update cycles, after AudioStreamPlayer.stop() returns.
-	_stop_audio(tree.root)
+	var playbacks: Array[WeakRef] = []
+	_stop_audio(tree.root, playbacks)
 	get_node("/root/MusicDirector").shutdown()
 	# Allow two output buffers and main-loop updates to drain stopped voices.
 	# A paused tree or zero time scale must not prevent the drain.
 	var drain_seconds = maxf(.1, AudioServer.get_output_latency() * 2.0)
 	var drain_until = Time.get_ticks_usec() + int(drain_seconds * 1000000.0)
-	while Time.get_ticks_usec() < drain_until:
+	var deadline = Time.get_ticks_usec() + int(maxf(2.0, drain_seconds) * 1000000.0)
+	# A busy audio thread can outlive the nominal buffer latency. Wait for its
+	# actual playback references to drain, with a bound for unavailable devices.
+	while (
+		Time.get_ticks_usec() < deadline
+		and (
+			Time.get_ticks_usec() < drain_until
+			or playbacks.any(func(playback): return playback.get_ref() != null)
+		)
+	):
 		# Avoid a busy loop (and accelerated test timers under --fixed-fps).
 		OS.delay_msec(1)
 		await tree.process_frame
 	tree.quit(exit_code)
 
 
-func _stop_audio(node):
+func _stop_audio(node, playbacks: Array[WeakRef]):
 	if node is AudioStreamPlayer or node is AudioStreamPlayer2D or node is AudioStreamPlayer3D:
+		if node.has_stream_playback():
+			playbacks.append(weakref(node.get_stream_playback()))
 		node.stop()
 		node.stream = null
 	for child in node.get_children():
-		_stop_audio(child)
+		_stop_audio(child, playbacks)
 
 
 func _process(_delta):
