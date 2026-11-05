@@ -52,6 +52,7 @@ class HeadlessWorkflowTests(unittest.TestCase):
         self.assertEqual(run.call_count, len(BUILD.RENDERED_TESTS) * 2)
         self.assertNotIn("--headless", run.call_args_list[-1].args[0])
         self.assertIn("--require-renderer", run.call_args_list[-1].args[0])
+        self.assertIn("--audio-driver", run.call_args_list[-1].args[0])
 
     def test_virtual_display_uses_real_renderer_without_a_physical_audio_device(self):
         with (patch.object(BUILD, "PLATFORM", "linux"), patch.object(BUILD, "run") as run,

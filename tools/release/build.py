@@ -370,15 +370,14 @@ def check_rendered_resources(engine, pack, isolated, headless_only=False, flags=
              "--script", script, *(["--", *flags] if flags else [])], cwd=isolated, timeout=120)
         if headless_only:
             continue
-        command = [engine, "--main-pack", pack, "--rendering-method", "gl_compatibility",
+        # This gate checks real GPU allocations. Hosted runners have no audio
+        # device, so select silent audio explicitly instead of logging a driver error.
+        command = [engine, "--audio-driver", "Dummy", "--main-pack", pack, "--rendering-method", "gl_compatibility",
                    "--fixed-fps", "60", "--script", script, "--", "--require-renderer", *(flags or [])]
         if PLATFORM == "linux" and not os.environ.get("DISPLAY"):
             display = shutil.which("xvfb-run")
             if display is None:
                 raise RuntimeError("Rendered release checks require Xvfb/Mesa or a working DISPLAY")
-            # Hosted display runners have no ALSA device. Keep the real GL
-            # renderer while selecting the engine's supported silent audio driver.
-            command[1:1] = ["--audio-driver", "Dummy"]
             command = [display, "-a", "-s", "-screen 0 1280x720x24", *command]
         run(command, cwd=isolated, timeout=120)
 
