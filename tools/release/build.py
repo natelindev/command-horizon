@@ -351,6 +351,9 @@ def import_release_project(engine, project):
         # A checkout has import remaps and CSVs but no generated resources yet.
         # Only the private staging copy uses default startup resources during
         # this first pass; all diagnostics remain fatal.
+        # Godot 4.7.2's parallel CSV importer can race when generating several
+        # translation resources on a clean checkout. Serialize this first pass.
+        bootstrap += b'\n[editor]\nimport/use_multiple_threads=false\n'
         try:
             config.write_bytes(bootstrap)
             run(command)

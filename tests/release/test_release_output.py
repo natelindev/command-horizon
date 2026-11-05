@@ -24,7 +24,7 @@ class ReleaseOutputTests(unittest.TestCase):
             seen = []
             with patch.object(BUILD, "run", side_effect=lambda args: seen.append(config.read_bytes())):
                 BUILD.import_release_project("godot", project)
-            self.assertEqual(seen, [b'[gui]\n', original])
+            self.assertEqual(seen, [b'[gui]\n\n[editor]\nimport/use_multiple_threads=false\n', original])
             self.assertEqual(config.read_bytes(), original)
 
     def test_failed_bootstrap_restores_settings_and_does_not_hide_errors(self):
@@ -49,7 +49,8 @@ class ReleaseOutputTests(unittest.TestCase):
             seen = []
             with patch.object(BUILD, "run", side_effect=lambda args: seen.append(config.read_bytes())):
                 BUILD.import_release_project("godot", project)
-            self.assertEqual(seen, [b'[internationalization]\r\n', original])
+            self.assertEqual(seen, [b'[internationalization]\r\n\n[editor]\n'
+                                    b'import/use_multiple_threads=false\n', original])
             self.assertEqual(config.read_bytes(), original)
 
     def _run(self, output, code=0):

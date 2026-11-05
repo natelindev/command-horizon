@@ -26,8 +26,9 @@ files with the workspace. Derived `.godot/exported` resources are discarded;
 asset imports are retained. This prevents stale converted resources from
 surviving script-only default changes. The importer first uses default startup
 resources in the staging copy so a clean checkout can generate its imported font
-and translation resources. It restores the exact project settings and performs a second strict
-import before verification. Both passes reject engine errors. GitHub Actions
+and translation resources. This first pass imports serially to avoid concurrent
+CSV generation. It restores the exact project settings and performs a second
+strict import before verification. Both passes reject engine errors. GitHub Actions
 retains verification reports and logs even when a build fails.
 The native solver's actual release-template startup
 check uses a registered fixture main loop because release templates ignore

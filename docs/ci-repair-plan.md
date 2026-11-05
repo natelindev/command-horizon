@@ -18,4 +18,6 @@ Run relevant local checks, push main, and verify the new GitHub runs.
 - Release workflows retain failure logs and support explicit headless manual verification.
 - Main pushed; GitHub static checks passed: https://github.com/natelindev/copperfin/actions/runs/42058112118
 - The first remote release verification exposed missing generated translations in addition to the startup font. Bootstrap coverage now includes both settings; 25 release-runner tests pass.
-- Rechecking fresh imports without cached translations and rerunning headless release verification.
+- The fully uncached font/translation import now passes both strict passes. Serializing the bootstrap avoids a reproduced native crash in parallel CSV generation.
+- The updated static workflow is green: https://github.com/natelindev/copperfin/actions/runs/42059136865
+- Cross-platform headless release verification is running: https://github.com/natelindev/copperfin/actions/runs/42059143382
