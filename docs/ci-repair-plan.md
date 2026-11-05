@@ -24,4 +24,7 @@ Run relevant local checks, push main, and verify the new GitHub runs.
 - Windows verification reached native combat tests and exposed an inherited fixture signature mismatch. The fixture now accepts the parent's optional map argument while keeping its terrain-test default.
 - Native combat comparisons then reproduced bypassed power-grid and harvester eligibility. Native firing now applies the shared eligibility rules; both query modes pass 7,299 comparisons each using a freshly built native library.
 - All 140 packaged regression scripts compile locally. The 25 release-runner unit tests and changed-file formatting/lint checks pass.
-- A publishable release requires graphical checks; remote graphical verification is awaiting clarification of the earlier headless-only instruction. Headless release retries remain authorized.
+- The user has authorized full graphical release verification, both remotely and locally.
+- The macOS packaged sweep completed all 162 checks and exposed repeated shutdown leaks plus stale portrait/mist expectations and a hover test sampling before the first resumed physics step. Corrected portrait, volumetric/fallback mist, and completed-step hover checks pass locally.
+- The actual OpenGL resource-lifetime check passes with all six temporary scene instances freed.
+- Focused clean-runner shutdown diagnostics are running on an isolated diagnostic branch. Release job/step budgets now leave time to finish the complete platform sweep and retain evidence.

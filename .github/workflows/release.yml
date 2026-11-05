@@ -27,7 +27,7 @@ jobs:
           - platform: macos
             runner: macos-14
     runs-on: ${{ matrix.runner }}
-    timeout-minutes: 45
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
         with:
@@ -39,6 +39,7 @@ jobs:
         if: matrix.platform == 'linux' && !inputs.headless_only
         run: sudo apt-get update && sudo apt-get install -y xvfb libgl1-mesa-dri libglx-mesa0
       - name: Export and check packaged resources
+        timeout-minutes: 80
         env:
           RTS_RELEASE_PLATFORM: ${{ matrix.platform }}
         run: python tools/release/build.py ${{ inputs.headless_only && '--headless-only' || '' }}
