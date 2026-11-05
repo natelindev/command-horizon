@@ -70,6 +70,7 @@ var _incoming = []
 var _needs_full = false
 var _ingress = {}
 var _pause_epoch = 0
+var _pause_snapshot_pending = false
 var _local_intents = []
 var _flush_scheduled = false
 var _previous_physics_ticks = -1
@@ -161,6 +162,10 @@ func _process(delta):
 	_collect_incoming()
 	if _closing or peer == null:
 		return
+	# Physics publication stops while paused. Once an older encoder job drains,
+	# publish the current pause epoch and pending commands for slow/rejoining peers.
+	if authority and _pause_snapshot_pending and _task < 0:
+		_publish()
 	if peer.get_connection_status() != MultiplayerPeer.CONNECTION_DISCONNECTED:
 		peer.poll()
 	if (
@@ -601,6 +606,7 @@ func _publish():
 		return
 	if _builder == null:
 		_builder = Builder.new()
+	_pause_snapshot_pending = false
 	_task = WorkerThreadPool.add_task(
 		_builder.prepare.bind(
 			_packet_job(captured, game.finished or boundary.tick - _last_full_tick >= 120)
@@ -808,6 +814,7 @@ func _queue(slot: int, sequence: int, intent: Dictionary, sender: int) -> bool:
 			return false
 		_pause_epoch += 1
 		_set_pause(intent.value)
+		_pause_snapshot_pending = true
 		for id in peers:
 			_send(id, {"type": "pause", "value": intent.value, "epoch": _pause_epoch})
 		return true
