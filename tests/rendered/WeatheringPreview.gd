@@ -17,6 +17,8 @@ const AIR_MODELS = {
 	},
 	"helix":
 	{
+		"Tank": "NeedleSkimmer",
+		"AntiGroundTurret": "LanceSentry",
 		"Fighter": "TalonInterceptor",
 		"Bomber": "ShrikeBomber",
 		"Helicopter": "WraithTiltrotor",

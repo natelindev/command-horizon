@@ -65,6 +65,11 @@ const HELIX_NAMES = {
 	"AntiAirTurret": "Skyward array",
 }
 const HELIX_DESCRIPTIONS = {
+	"AntiGroundTurret":
+	(
+		"Focused prism beam against ground targets. Links with nearby allied prism pylons "
+		+ "and skimmers to amplify damage. Uses 2 power."
+	),
 	"Worker":
 	(
 		"Unarmed Flux Skimmer: hover across rough ground and gather electronics 25% faster. "

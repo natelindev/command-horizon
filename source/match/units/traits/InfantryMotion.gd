@@ -19,6 +19,7 @@ const SETTLE_SECONDS = .2
 const STOP_GRACE_SECONDS = .06
 # Weapon and grip targets move together; the arms solve from fixed shoulders.
 const CARRIED = [
+	"ServiceWeapon",
 	"GripLeft",
 	"GripRight",
 	"RifleStock",

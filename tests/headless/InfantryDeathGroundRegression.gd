@@ -151,7 +151,7 @@ func _check_rocket_support(geometry, effects):
 	for child in chest.get_children():
 		if child is MeshInstance3D and child.is_visible_in_tree():
 			torso_lowest = minf(torso_lowest, _mesh_lowest(child))
-	var optic_lowest = _mesh_lowest(chest.get_node("WeaponCarry/Optic"))
+	var optic_lowest = _mesh_lowest(chest.get_node("WeaponCarry/ServiceWeapon/IonLauncher/Optic"))
 	_check(torso_lowest < .1, "Rocket corpse torso floats above supporting arm")
 	_check(optic_lowest >= torso_lowest, "Rocket corpse is propped up by optic")
 	print("Rocket corpse support: torso=%.3f optic=%.3f" % [torso_lowest, optic_lowest])

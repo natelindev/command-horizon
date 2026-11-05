@@ -2,7 +2,7 @@ extends RefCounted
 
 
 static func equip(unit, faction):
-	if unit.type == "Infantry":
+	if unit.type == "Infantry" and faction != "helix":
 		return
 	var geometry = unit.get_node("Geometry")
 	var gear = Node3D.new()
@@ -30,6 +30,20 @@ static func equip(unit, faction):
 		),
 		0
 	)
+	# Faction weapons are complete assemblies: geometry, emitter and both grips
+	# follow WeaponCarry together instead of leaving individual attachments behind.
+	var weapons = load("res://source/match/units/traits/InfantryWeapons.gd")
+	if not is_mercenary and faction == "helix" and unit.type != "Hero":
+		weapons.equip(chest, unit.type, faction)
+		if unit.type == "AssaultInfantry":
+			_armor(gear, dark, accent)
+		elif unit.type == "RocketInfantry":
+			_box(gear, "IonPowerPack", Vector3(0, .73, .17), Vector3(.22, .28, .15), dark)
+			for x in [-.065, .065]:
+				_tube(gear, "IonReserveCell", Vector3(x, .74, .27), .035, .24, accent).rotation.x = 0
+		elif unit.type == "SniperInfantry":
+			_box(gear, "OpticMantle", Vector3(0, .83, .10), Vector3(.30, .06, .18), cloth)
+		return
 	if unit.type in ["RocketInfantry", "SniperInfantry", "MercenaryRanger", "MercenaryLancer"]:
 		chest.get_node("RifleReceiver").hide()
 		for mesh in geometry.find_children("*", "MeshInstance3D", true, false):
@@ -82,9 +96,14 @@ static func equip(unit, faction):
 			)
 		"AssaultInfantry":
 			_armor(gear, dark, accent)
-			_box(gear, "BreachingShield", Vector3(-.28, .53, -.14), Vector3(.28, .64, .09), metal)
-			_box(gear, "ShieldMark", Vector3(-.28, .58, -.19), Vector3(.055, .09, .012), accent)
-			_tube(gear, "DrumMagazine", Vector3(.12, .52, -.26), .09, .15, dark)
+			if faction == "frontier" or unit.type == "MercenaryWarden":
+				weapons.equip(chest, unit.type, faction)
+			else:
+				_box(
+					gear, "BreachingShield", Vector3(-.28, .53, -.14), Vector3(.28, .64, .09), metal
+				)
+				_box(gear, "ShieldMark", Vector3(-.28, .58, -.19), Vector3(.055, .09, .012), accent)
+				_tube(gear, "DrumMagazine", Vector3(.12, .52, -.26), .09, .15, dark)
 		"Hero":
 			if faction == "helix":
 				geometry.get_child(0).scale = Vector3(0.94, 0.98, 0.94)
@@ -98,18 +117,7 @@ static func equip(unit, faction):
 				_tube(gear, "CapacitorLeft", Vector3(-.06, .77, .13), .02, .20, accent)
 				_tube(gear, "CapacitorRight", Vector3(.06, .77, .13), .02, .20, accent)
 				_box(gear, "PhaseCoil", Vector3(0, .85, .15), Vector3(.08, .03, .03), accent)
-				_box(gear, "LanceReceiver", Vector3(.10, .68, -.32), Vector3(.045, .07, .26), dark)
-				_tube(gear, "LanceCore", Vector3(.10, .68, -.70), .022, .62, accent)
-				_box(gear, "LanceRailTop", Vector3(.10, .71, -.70), Vector3(.012, .015, .50), metal)
-				_box(
-					gear,
-					"LanceRailBottom",
-					Vector3(.10, .65, -.70),
-					Vector3(.012, .015, .50),
-					metal
-				)
-				_tube(gear, "LanceEmitter", Vector3(.10, .68, -1.02), .016, .06, accent)
-				chest.get_node("RifleMuzzle").position = Vector3(.10, .06, -1.06)
+				weapons.equip(chest, "Hero", faction)
 			else:
 				geometry.get_child(0).scale *= 1.12
 				_armor(gear, metal, accent)

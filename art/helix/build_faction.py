@@ -2,6 +2,7 @@
 
 blender --background --factory-startup --python-exit-code 1 --python art/helix/build_faction.py
 Append -- --walkers-only to export just the articulated walker GLBs.
+Append -- --alignment-only to rebuild the prism pylon and twin-pulse skimmer, including portraits.
 """
 import json
 import math
@@ -309,7 +310,17 @@ def needle():
     turret=pivot("TurretPivot",(0,-.38,1.39))
     shell("Turret",0,-.34,1.35,1.39,1.55,.51,ARMOR,turret)
     box("TurretID",(0,-.44,1.89),(.49,.67,.035),TEAM,turret)
-    gun(1.66,2.05,turret); lens(.43,.26,1.72,.16,turret); antenna(-.45,-.83,1.86,turret)
+    barrel=pivot("BarrelPivot",(0,.45,1.66),turret)
+    for side in (-1,1):
+        emitter=pivot("PulseEmitterLeft" if side<0 else "PulseEmitterRight",(side*.36,.9,1.66),barrel)
+        shell("PulseHousing",side*.36,.90,1.53,.37,1.38,.29,ARMOR,emitter)
+        box("PulseCapacitor",(side*.36,.68,1.70),(.16,.62,.12),DARK,emitter)
+        for y in (.47,.65,.83):
+            box("PulseChargeBand",(side*.36,y,1.78),(.18,.055,.035),GLASS,emitter,.008)
+        cyl("EmitterCollar",(side*.36,1.58,1.68),.145,.16,STEEL,emitter,axis="Y")
+        cyl("PulseLens",(side*.36,1.67,1.68),.112,.025,GLASS,emitter,axis="Y")
+        pivot("LeftMuzzle" if side<0 else "RightMuzzle",(side*.36,1.70,1.68),emitter)
+    lens(0,.49,1.90,.22,turret); antenna(-.52,-.83,1.86,turret)
 
 
 def walker(repair=False):
@@ -508,17 +519,30 @@ def service():
 
 
 def lance():
+    # Stable asset ID; the production identity is now a prism emitter pylon.
     foundation("LanceSentry",3.9,3.9)
-    cyl("CentralPillar",(0,0,.89),.65,1.12,DARK,vertices=12)
+    cyl("CentralPillar",(0,0,1.26),.48,1.85,DARK,vertices=12)
     for angle in (math.pi/2,math.pi*7/6,math.pi*11/6):
         foot=Vector((math.cos(angle)*1.63,math.sin(angle)*1.63,.42))
-        beam("Outrigger",(math.cos(angle)*.48,math.sin(angle)*.48,1.23),foot,.34,.38,ARMOR)
+        beam("Outrigger",(math.cos(angle)*.43,math.sin(angle)*.43,1.80),foot,.34,.38,ARMOR)
         box("OutriggerFoot",foot,(.51,.51,.12),DARK)
-    cyl("TurretRing",(0,0,1.48),.69,.20,STEEL,vertices=20)
-    turret=pivot("TurretPivot",(0,0,1.61))
-    shell("SentryHead",0,0,1.59,1.38,1.61,.56,ARMOR,turret)
-    box("SideMark",(.67,0,1.91),(.04,.57,.26),TEAM,turret)
-    gun(1.91,1.21,turret); lens(-.43,.63,1.96,.19,turret)
+        beam("PowerConduit",(math.cos(angle)*.5,math.sin(angle)*.5,.62),
+             (math.cos(angle)*.5,math.sin(angle)*.5,1.98),.07,.07,GLASS)
+    cyl("TurretRing",(0,0,2.12),.72,.20,STEEL,vertices=12)
+    turret=pivot("TurretPivot",(0,0,2.27))
+    cyl("PrismCradle",(0,0,2.31),.62,.22,ARMOR,turret,vertices=6)
+    crystal=pivot("PrismCrystal",(0,0,2.99),turret)
+    shape("FacetedCrystal",[(0,0,3.75),(-.32,-.32,3.13),(.32,-.32,3.13),
+          (.32,.32,3.13),(-.32,.32,3.13),(0,0,2.45)],
+          [(0,1,2),(0,2,3),(0,3,4),(0,4,1),(5,2,1),(5,3,2),(5,4,3),(5,1,4)],GLASS,crystal)
+    for side in (-1,1):
+        beam("CrownArm",(side*.63,-.12,2.34),(side*.67,-.12,3.32),.18,.24,ARMOR,turret)
+        box("CrownID",(side*.67,.015,3.0),(.10,.028,.36),TEAM,turret,.008)
+        rod("FocusBrace",(side*.67,-.12,3.32),(side*.35,.45,3.07),.055,STEEL,turret)
+    focus=pivot("PrismFocus",(0,.48,3.07),turret)
+    cyl("FocusCollar",(0,.48,3.07),.24,.18,DARK,focus,axis="Y",vertices=6)
+    cyl("FocusLens",(0,.58,3.07),.18,.025,GLASS,focus,axis="Y",vertices=6)
+    pivot("Muzzle",(0,.61,3.07),focus)
 
 
 def skyward():
@@ -583,7 +607,10 @@ def skyward_interceptor():
 
 # Fast, reproducible rig-only export; full catalogue builds remain the default.
 walkers_only = "--walkers-only" in sys.argv
-if "--signature-only" in sys.argv:
+alignment_only = "--alignment-only" in sys.argv
+if alignment_only:
+    needle(); lance()
+elif "--signature-only" in sys.argv:
     prism_skimmer(); phase_lancer(); skyward_interceptor()
 elif walkers_only:
     walker(); walker(True)
@@ -650,7 +677,7 @@ for name,collection,asset_root in assets:
     manifest.append({"name":name,"triangles":triangles,"file":name+".glb","bounds":{"min":lo,"max":hi}})
     collection.hide_render=True
 
-if "--damage-only" in sys.argv or "--motion-only" in sys.argv or "--walkers-only" in sys.argv:
+if alignment_only or "--damage-only" in sys.argv or "--motion-only" in sys.argv or "--walkers-only" in sys.argv:
     export_manifest.merge_partial(SOURCE/"manifest.json",manifest)
 
 if walkers_only:
@@ -694,6 +721,11 @@ for name,collection,asset_root in assets:
     scene.render.film_transparent=True
     collection.hide_render=True
     manifest[next(i for i,item in enumerate(manifest) if item["name"]==name)]["bounds"]={"min":list(lo),"max":list(hi)}
+
+if alignment_only:
+    export_manifest.merge_partial(SOURCE/"manifest.json",manifest)
+    bpy.ops.wm.save_as_mainfile(filepath=str(SOURCE/"aligned-defense.blend"))
+    raise SystemExit(0)
 
 if "--signature-only" in sys.argv:
     (SOURCE/"signature-manifest.json").write_text(json.dumps(manifest,indent=2)+"\n")

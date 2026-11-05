@@ -33,6 +33,8 @@ var _walker = null
 var _turret
 var _barrel
 var _muzzle: Node3D
+var _paired_muzzles := []
+var _next_muzzle := 0
 var _legs := []
 var _rotors := []
 var _rotor_angles := []
@@ -155,6 +157,10 @@ func _ready():
 	_turret = _unit.find_child("*TurretPivot", true, false)
 	_barrel = _unit.find_child("*BarrelPivot", true, false)
 	_muzzle = _unit.find_child("*Muzzle", true, false)
+	var left_muzzle = _unit.find_child("*LeftMuzzle", true, false)
+	var right_muzzle = _unit.find_child("*RightMuzzle", true, false)
+	if left_muzzle != null and right_muzzle != null:
+		_paired_muzzles = [left_muzzle, right_muzzle]
 	_legs = _unit.find_children("*LegLeft*", "Node3D", true, false).filter(_is_pivot)
 	_legs += _unit.find_children("*LegRight*", "Node3D", true, false).filter(_is_pivot)
 	_rotors = _unit.find_children("*RotorLeft", "Node3D", true, false)
@@ -364,6 +370,9 @@ func fire_recoil():
 	if _infantry_motion != null:
 		_infantry_motion.raise_for_shot()
 	_aim(1.0)
+	if not _paired_muzzles.is_empty():
+		_muzzle = _paired_muzzles[_next_muzzle]
+		_next_muzzle = (_next_muzzle + 1) % _paired_muzzles.size()
 	_sync_muzzle()
 	motion.next_shot()
 	_recoil = 1.0

@@ -32,7 +32,7 @@ TESTS = [
     "ChassisSpringRegression", "ParallelPoseRegression",
     "InfantryPoseWorkerRegression", "DecoupledPoseRegression",
     "UnitRegistryRegression", "PlayerRosterRegression", "VisibilityRefreshRegression",
-    "InfantryRedesignRegression", "InfantryMeshBatchRegression",
+    "InfantryRedesignRegression", "InfantryMeshBatchRegression", "ModelDesignRegression",
     "InfantryDeathGroundRegression", "InfantryMotionRegression",
     "TerrainGroundingRegression", "CombatRegression", "AntiAirPriorityRegression",
     "TechnologyRegression", "TechnologyAIRegression", "WeaponModeRegression",

@@ -55,6 +55,8 @@ func _run():
 			)
 			unit.position = Vector3(40 + index * 1.1, 0, 10)
 			unit.rotation.y = PI + .2
+			# Frozen fixtures still need the render root to follow the review pose.
+			unit.get_node("BastionVisuals")._publish_simulation_pose()
 			soldiers.append(unit)
 		camera.size = 6.5
 		camera.position = Vector3(42.2, 2.6, 16)
@@ -92,7 +94,7 @@ func _run():
 		await _close()
 	options.restore(original)
 	print("Infantry redesign preview complete")
-	quit()
+	await root.get_node("Globals").quit_game(0)
 
 
 func _pose(speed_value, aiming):

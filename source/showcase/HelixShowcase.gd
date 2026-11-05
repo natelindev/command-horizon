@@ -1,28 +1,31 @@
 extends Node3D
 
-const UNITS = {
-	"VectorOperator": ["Vector operator", "Armored human infantry · compact rifle"],
-	"MuleEngineer": ["Mule engineer", "Six-wheel logistics rover · paired tool arms"],
-	"NeedleSkimmer":
-	["Needle skimmer", "Split-pontoon armor · four lift housings · precision cannon"],
-	"LancerWalker": ["Lancer walker", "Four-legged precision platform · elevated gun mount"],
-	"MenderRobot": ["Mender robot", "Compact maintenance walker · paired repair manipulators"],
-	"KiteScout": ["Kite scout", "Unarmed reconnaissance drone · three ducted fans"],
-	"WraithStriker": ["Wraith striker", "Swept-wing strike drone · twin engines · missile pods"],
-	"PrismArtillery":
-	["Prism artillery", "Six-wheel artillery · elevating twin rails · stabilizers"],
-}
-const STRUCTURES = {
-	"NexusHQ": ["Nexus HQ", "Hexagonal command hub · paired communications fins"],
-	"OperatorHub": ["Operator hub", "Split barracks wings · central entrance bridge"],
-	"RoboticsFoundry": ["Robotics foundry", "Open fabrication bay · overhead tool arms"],
-	"FlightDeck": ["Flight deck", "Hexagonal landing pad · rear service pylons"],
-	"FluxGenerator": ["Flux generator", "Three power cores · triangular support frame"],
-	"SignalLab": ["Signal lab", "Server block · tilted open sensor ring"],
-	"ServiceCradle": ["Service cradle", "Drive-through maintenance pad · articulated repair arms"],
-	"LanceSentry": ["Lance sentry", "Precision gun · three support legs"],
-	"SkywardArray": ["Skyward array", "Angled missile banks · central radar"],
-}
+# Canonical role IDs resolve through the same model/equipment path as battle.
+const INFANTRY = ["Infantry", "AssaultInfantry", "RocketInfantry", "SniperInfantry", "Hero"]
+const UNITS = [
+	"Worker",
+	"Tank",
+	"CombatRobot",
+	"AdvancedTank",
+	"AntiAirVehicle",
+	"RepairRobot",
+	"Drone",
+	"Helicopter",
+	"Fighter",
+	"Bomber"
+]
+const STRUCTURES = [
+	"CommandCenter",
+	"Barracks",
+	"VehicleFactory",
+	"AircraftFactory",
+	"PowerPlant",
+	"CommandLab",
+	"RepairDepot",
+	"AntiGroundTurret",
+	"AntiAirTurret"
+]
+var _factions
 
 var _model = null
 var _camera = null
@@ -36,6 +39,7 @@ var _team_material = StandardMaterial3D.new()
 
 
 func _ready():
+	_factions = load("res://source/match/FactionCatalog.gd")
 	var environment = WorldEnvironment.new()
 	environment.environment = Environment.new()
 	environment.environment.background_mode = Environment.BG_COLOR
@@ -64,14 +68,14 @@ func _ready():
 	_camera.size = 10.5
 	_camera.position = Vector3(9, 7, -12)
 	add_child(_camera)
-	_camera.look_at(Vector3(0, 1.4, 0))
+	_camera.look_at(Vector3(0, 2.6, 0))
 	_camera.h_offset = -1.4
 	_team_material.albedo_color = Color("146f78")
 	_team_material.metallic = 0.25
 	_team_material.roughness = 0.42
 	_build_ui()
 	_show_roster(UNITS)
-	_select("NeedleSkimmer")
+	_select("Tank")
 
 
 func _build_ui():
@@ -97,18 +101,18 @@ func _build_ui():
 	heading.add_theme_font_size_override("font_size", 25)
 	content.add_child(heading)
 	var subtitle = Label.new()
-	subtitle.text = "Faction model review · 17 assets"
+	subtitle.text = "Faction model review"
 	content.add_child(subtitle)
 	var tabs = HBoxContainer.new()
 	content.add_child(tabs)
-	for entry in [["Units", UNITS], ["Structures", STRUCTURES]]:
+	for entry in [["Infantry", INFANTRY], ["Vehicles", UNITS], ["Structures", STRUCTURES]]:
 		var button = Button.new()
 		button.text = entry[0]
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		button.pressed.connect(_show_roster.bind(entry[1]))
 		tabs.add_child(button)
 	_roster = VBoxContainer.new()
-	_roster.add_theme_constant_override("separation", 5)
+	_roster.add_theme_constant_override("separation", 4)
 	content.add_child(_roster)
 	var rotate = Button.new()
 	rotate.text = "Pause / rotate model  [Space]"
@@ -130,6 +134,8 @@ func _build_ui():
 	details.add_child(_title)
 	_description = Label.new()
 	_description.add_theme_font_size_override("font_size", 17)
+	_description.custom_minimum_size.x = 650
+	_description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	details.add_child(_description)
 	var hint = Label.new()
 	hint.text = "Wheel: zoom    Q / E: turn    Space: pause rotation"
@@ -144,32 +150,40 @@ func _show_roster(entries):
 	for asset in entries:
 		var button = Button.new()
 		button.name = asset
-		button.text = entries[asset][0]
-		button.icon = load("res://assets/ui/helix/%s.png" % asset)
+		button.text = _factions.title("helix", asset)
+		button.icon = load(_factions.icon("helix", asset))
 		button.expand_icon = true
-		button.add_theme_constant_override("icon_max_width", 43)
-		button.custom_minimum_size = Vector2(320, 55)
+		button.add_theme_constant_override("icon_max_width", 28)
+		button.custom_minimum_size = Vector2(320, 36)
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.pressed.connect(_select.bind(asset))
 		_roster.add_child(button)
-	_select(entries.keys()[0])
+	_select(entries[0])
 
 
 func _select(asset):
 	if _model != null:
 		remove_child(_model)
 		_model.queue_free()
-	_model = load("res://assets/models/helix/v1/%s.glb" % asset).instantiate()
+	var unit = load(_factions.scene_path("helix", asset)).instantiate()
+	_factions.prepare_model(unit, "helix")
+	if asset in INFANTRY:
+		load("res://source/match/units/traits/InfantryMotion.gd").new().setup(unit, 0, asset)
+	_model = unit.get_node("Geometry")
+	unit.remove_child(_model)
+	unit.free()
 	add_child(_model)
 	var bounds = AABB()
 	var first = true
 	for mesh in _model.find_children("*", "MeshInstance3D", true, false):
+		if not mesh.is_visible_in_tree():
+			continue
 		var box = mesh.global_transform * mesh.get_aabb()
 		bounds = box if first else bounds.merge(box)
 		first = false
 		for index in range(mesh.mesh.get_surface_count()):
-			var material = mesh.mesh.surface_get_material(index)
-			if material.resource_name.begins_with("TeamColor"):
+			var material = mesh.get_active_material(index)
+			if material != null and material.resource_name.begins_with("TeamColor"):
 				mesh.set_surface_override_material(index, _team_material)
 	var factor = 5.8 / max(bounds.size.x, bounds.size.y, bounds.size.z)
 	_model.scale = Vector3.ONE * factor
@@ -178,9 +192,8 @@ func _select(asset):
 	)
 	_model.rotation.y = 0.0
 	_camera.size = 10.5
-	var data = UNITS.get(asset, STRUCTURES.get(asset))
-	_title.text = data[0]
-	_description.text = data[1]
+	_title.text = _factions.title("helix", asset)
+	_description.text = _factions.description("helix", asset)
 
 
 func _process(delta):

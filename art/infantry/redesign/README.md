@@ -7,7 +7,7 @@ The production interpretation follows the reference's adult proportions, subdued
 ## Production implementation
 
 - `source/match/units/traits/InfantryModel.gd` authors shared contoured ArrayMeshes for the body, tailored sleeves/trousers, helmet, face, soft packs and pouches. These are the actual battle models, including heroes and mercenaries; the legacy infantry GLBs are not used by `FactionCatalog.prepare_model`.
-- `InfantryEquipment.gd` adds fitted class armor, launcher, precision rifle, shields and command equipment.
+- `InfantryEquipment.gd` adds fitted class armor, shields and command equipment. `InfantryWeapons.gd` builds complete carried faction weapons: Helix plasma carbines, twin pulse repeaters, ion launchers, thermal/phase lances, and Frontier/Warden shotguns. Grips and muzzle markers travel with each assembly; obsolete rifles are hidden.
 - `source/shaders/3d/infantry_fabric.gdshader` gives uniforms and canvas restrained fading, fine irregular fibers and matte relief, filtered at battle distance. Other finishes keep the existing object-material pipeline.
 - `InfantryMotion.gd` solves shoulders/elbows/wrists separately from the weapon. Grip markers drive both hands through low ready, shoulder raise, recoil and death. Existing travel-driven leg IK, recovery steps, kneeling, role differences and gameplay transforms are preserved.
 - Death poses buckle first and extend at rest. Axis-angle falls reach a horizontal resting body, with the weapon relaxing along it. `CombatEffects.gd` resolves infantry ground contact from cached mesh vertices before the existing delayed sinking, avoiding both penetration and the excess clearance of rotated bounding boxes.
@@ -34,6 +34,7 @@ ffmpeg -y -framerate 30 -i tmp/infantry-animation-frames/%04d.png -c:v libx264 -
 godot --headless --path . --script tests/headless/InfantryRedesignRegression.gd
 godot --headless --path . --script tests/headless/InfantryMeshBatchRegression.gd
 godot --headless --path . --script tests/headless/InfantryDeathGroundRegression.gd
+godot --headless --fixed-fps 60 --path . --script tests/headless/ModelDesignRegression.gd
 ```
 
 Run graphical previews sequentially on macOS. Concurrent native Godot windows can stop one preview's `frame_post_draw` capture loop when occluded.
