@@ -16,9 +16,9 @@ import urllib.request
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = "0.17.1"
-ARCHIVE = f"zig-x86_64-windows-{VERSION}.zip"
-URL = f"https://ziglang.org/download/{VERSION}/{ARCHIVE}"
+ZIG_VERSION = "0.17.0"
+ARCHIVE = f"zig-x86_64-windows-{ZIG_VERSION}.zip"
+URL = f"https://ziglang.org/download/{ZIG_VERSION}/{ARCHIVE}"
 SHA256 = "b5663f69581dcf391293fbf16c06cb80d81d806545ce618b4d0bab7f0eb8c428"
 
 
@@ -30,7 +30,7 @@ def toolchain():
         urllib.request.urlretrieve(URL, archive)
     if hashlib.sha256(archive.read_bytes()).hexdigest() != SHA256:
         raise RuntimeError("Zig archive SHA-256 does not match the pinned official release")
-    executable = cache / f"zig-x86_64-windows-{VERSION}" / "zig.exe"
+    executable = cache / f"zig-x86_64-windows-{ZIG_VERSION}" / "zig.exe"
     if not executable.exists():
         with zipfile.ZipFile(archive) as package:
             for member in package.infolist():

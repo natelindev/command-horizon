@@ -118,10 +118,10 @@ func _result_cases(mission):
 				root.get_visible_rect().encloses(button.get_global_rect()),
 				"Result action clipped: " + mission + locale + name
 			)
-		_check(
-			overlay.find_child("PlayAgainButton", true, false).has_focus(),
-			"Result action did not retain keyboard focus"
-		)
+		var primary = overlay.find_child("NextOperationButton", true, false)
+		if primary == null:
+			primary = overlay.find_child("PlayAgainButton", true, false)
+		_check(primary.has_focus(), "Primary result action did not retain keyboard focus")
 		var scroll = overlay.find_child("ResultBodyScroll", true, false)
 		var bar = scroll.get_v_scroll_bar()
 		_check(bar.visible, "Long campaign debrief cannot scroll: " + mission + locale)
