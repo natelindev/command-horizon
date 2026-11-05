@@ -108,6 +108,7 @@ func host(match_settings, listen_port: int = PORT, dedicated: bool = false) -> b
 	peer = ENetMultiplayerPeer.new()
 	if peer.create_server(port, 16, 3) != OK:
 		return _fail("Could not host on this port. Choose another port.")
+	peer.peer_connected.connect(_connected)
 	peer.peer_disconnected.connect(_disconnected)
 	status = (
 		tr("Dedicated server hosting on port %d") % port
@@ -135,11 +136,24 @@ func join(host_address: String, listen_port: int = PORT, watch: bool = false) ->
 	peer = ENetMultiplayerPeer.new()
 	if peer.create_client(address, port, 3) != OK:
 		return _fail("Could not connect to this host.")
+	peer.peer_connected.connect(_connected)
 	_hello_sent = false
 	_connect_started_ms = Time.get_ticks_msec()
 	status = "Connecting…"
 	changed.emit()
 	return true
+
+
+func _connected(id: int):
+	# Building a large battlefield briefly blocks polling on slower machines.
+	# ENet's ordinary five-second minimum can drop a healthy loading peer.
+	# Keep this grace bounded; the first applied frame restores normal timeouts.
+	peer.get_peer(id).set_timeout(32, 30000, 60000)
+
+
+func _finish_loading_peer(id: int):
+	if peer != null and peer.get_connection_status() == MultiplayerPeer.CONNECTION_CONNECTED:
+		peer.get_peer(id).set_timeout(32, 5000, 30000)
 
 
 func _process(delta):
@@ -281,6 +295,10 @@ func _receive_decoded(sender: int, packet: Dictionary):
 					_reject(sender, "Invalid or spectator command.")
 					return
 				_queue(peers[sender].slot, packet.seq, packet.intent, sender)
+			"ready":
+				if peers.has(sender) and packet.keys().size() == 1:
+					peers[sender].ready = true
+					_finish_loading_peer(sender)
 			"terminal_ack":
 				if (
 					peers.has(sender)
@@ -674,6 +692,12 @@ func _apply_frame(packet: Dictionary, snapshot: Dictionary):
 			_fail(replica.error)
 			return
 		game = replica.game
+		# Service acknowledgements accumulated during synchronous scene setup
+		# before returning to the shorter live-match timeout.
+		if peer != null:
+			peer.poll()
+		_send(1, {"type": "ready"})
+		_finish_loading_peer(1)
 		battle_started.emit()
 	else:
 		if not replica.apply(snapshot, true):

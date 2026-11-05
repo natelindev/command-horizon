@@ -23,8 +23,8 @@ CASES = {
     "outcome": ("NetworkOutcomeRegression", ("host", "guest"), 45),
     "terminal-drop": ("NetworkOutcomeRegression", ("host", "guest"), 45),
     "disconnect": ("NetworkDisconnectRegression", ("host", "guest"), 70),
-    "two-vs-two": ("Network2v2Regression", ("host", "guest1", "guest2"), 60),
-    "dedicated": ("NetworkDedicatedRegression", ("server", "guest1", "guest2"), 60),
+    "two-vs-two": ("Network2v2Regression", ("host", "guest1", "guest2"), 150),
+    "dedicated": ("NetworkDedicatedRegression", ("server", "guest1", "guest2"), 150),
 }
 MARKERS = {
     "session": "Network session {role}: 0 failures",
@@ -72,7 +72,7 @@ def help_view():
         {"flag": "--main-pack PATH", "default": "none", "purpose": "Exported PCK instead of source project"},
         {"flag": "--runtime-dir PATH", "default": "project or pack directory", "purpose": "Runtime cwd containing matching external native support"},
         {"flag": "--output PATH", "default": "tmp/network-regressions", "purpose": "Parent for a new retained run directory"},
-        {"flag": "--case NAME", "default": "all", "purpose": "all, session, groups, outcome, terminal-drop or disconnect"},
+        {"flag": "--case NAME", "default": "all", "purpose": "all, session, groups, outcome, terminal-drop, disconnect, two-vs-two or dedicated"},
         {"flag": "--no-native", "default": "false", "purpose": "Explicit scripted fallback run"},
         {"flag": "--startup-timeout SECONDS", "default": "20", "purpose": "Host readiness deadline; range1..60"},
     ], ("flag", "default", "purpose"))
@@ -157,7 +157,9 @@ def stop(process):
 
 
 def command(args, script, flags):
-    result = [str(args.engine), "--headless"]
+    # Idle headless peers otherwise spin unbounded process frames and compete
+    # with the authority and replica loaders on small CI runners.
+    result = [str(args.engine), "--headless", "--max-fps", "60"]
     result += (["--main-pack", str(args.main_pack)] if args.main_pack
                else ["--path", str(args.project)])
     # Real wall time is essential to disconnect expiry; never use --fixed-fps.

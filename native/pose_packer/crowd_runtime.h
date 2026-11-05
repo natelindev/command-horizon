@@ -45,7 +45,7 @@ typedef struct {
     uint64_t profile[8]; /* begin/step/callback/projection us, then their call counts */
     NsSurface surface;
 } CrRuntime;
-static Value cr_class, cr_method[14], cr_args[25], cr_field[24], cr_helpers[8];
+static Value cr_class, cr_method[14], cr_args[25], cr_field[24], cr_helpers[9];
 static Value cr_engine_name, cr_navigation_name, cr_geometry_name, cr_tree_name, cr_scene_name;
 static GDExtensionMethodBindPtr cr_bind[30];
 static GDExtensionPtrBuiltInMethod cr_keys, cr_vectors_size;
@@ -119,7 +119,8 @@ enum {
     CR_IS_CONSTRUCTED,
     CR_DECK_HEIGHT,
     CR_TYPE,
-    CR_HOVER_HEIGHT
+    CR_HOVER_HEIGHT,
+    CR_CONTINUE_RECOVERY
 };
 static Value cr_garrison, cr_breach, cr_movement_done, cr_passive_start, cr_passive_stop;
 
@@ -791,8 +792,15 @@ static void cr_tick_slot(CrRuntime *r, CrSlot *s, double delta) {
                 }
                 s->recovery_checked = 1;
             }
-            if (iplen(ips(s->position, s->progress_position)) >= 2)
+            if (iplen(ips(s->position, s->progress_position)) >= 2) {
                 s->recovery_left = 0;
+                /* Rare detours share the scripted route/body check so both
+                 * backends keep rounding the same obstruction. */
+                cr_publish(s, agent);
+                Value result = cr_call(agent, CR_CONTINUE_RECOVERY, NULL, 0);
+                variant_destroy(&result);
+                cr_import(s, agent);
+            }
             if (s->recovery_left <= 0)
                 cr_set_vector(agent, CR_SET_TARGET, cr_vector(agent, CR_TARGET));
             else
@@ -852,7 +860,7 @@ static void cr_velocity(CrRuntime *r, CrSlot *s, IpV safe) {
     s->position = origin;
     int platform = cr_number(agent, CR_PLATFORM) != 0;
     int changing = isfinite(s->alignment) && fabs((double)origin.y - s->alignment) > .005;
-    if (cr_zero(safe) && s->previous_valid &&
+    if (cr_zero(safe) && s->recovery_left <= 0 && s->previous_valid &&
         memcmp(&s->previous.p, &origin, sizeof(origin)) == 0 && iteration == s->last_iteration &&
         !changing) {
         cr_passive(s, agent, ipv(0, 0, 0));
@@ -870,9 +878,8 @@ static void cr_velocity(CrRuntime *r, CrSlot *s, IpV safe) {
     IpV next = cr_clip(r, s, agent, origin,
                       cr_bounded_ground_step(origin, navigable, speed * s->delta, maximum),
                       speed, maximum, platform);
-    IpV projection_delta = cr_flat(ips(navigable, candidate)), traveled = ips(next, origin);
+    IpV traveled = ips(next, origin);
     if (s->has_destination && s->recovery_left > 0 &&
-        ipdot(projection_delta, projection_delta) > .000001 &&
         ipdot(traveled, traveled) < .000001 && !cr_occupied(r, s, agent, 0)) {
         IpV recovery =
             ipa(origin, ipm(cr_limit(cr_vector(agent, CR_GET_VELOCITY), speed), s->delta));
@@ -1546,7 +1553,7 @@ static void crowd_initialize(void) {
                             ""};
     const char *helpers[] = {
         "_finish_command", "call_deferred", "emit_signal", "_abilities_prevent_movement",
-        "is_constructed",  "deck_height",   "type", "_hover_height"};
+        "is_constructed",  "deck_height",   "type", "_hover_height", "_continue_ground_recovery"};
     const char *arguments[] = {"agent",     "unit",     "vehicle",          "units",    "platforms",
                                "delta",     "time",     "projection_valid", "point",    "handle",
                                "cells",     "heights",  "columns",          "rows",     "elevated",
@@ -1556,7 +1563,7 @@ static void crowd_initialize(void) {
         name_new(&cr_method[i], methods[i]);
     for (int i = 0; i < 24; i++)
         name_new(&cr_field[i], fields[i]);
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < 9; i++)
         name_new(&cr_helpers[i], helpers[i]);
     for (int i = 0; i < 25; i++)
         name_new(&cr_args[i], arguments[i]);
@@ -1695,7 +1702,7 @@ static void crowd_deinitialize(void) {
         get_dtor(TYPE(STRING_NAME))(&cr_method[i]);
     for (int i = 0; i < 24; i++)
         get_dtor(TYPE(STRING_NAME))(&cr_field[i]);
-    for (int i = 0; i < 8; i++)
+    for (int i = 0; i < 9; i++)
         get_dtor(TYPE(STRING_NAME))(&cr_helpers[i]);
     for (int i = 0; i < 25; i++)
         get_dtor(TYPE(STRING_NAME))(&cr_args[i]);

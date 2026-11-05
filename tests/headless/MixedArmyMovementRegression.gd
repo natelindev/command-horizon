@@ -24,6 +24,7 @@ func _test_group_route():
 	for unit in units + screen:
 		unit.queue_free()
 	await _frames(6)
+	await _test_retreat_corner()
 
 
 func _traverse(units, destination, label):
@@ -147,3 +148,54 @@ func _capture_mixed_failure(pairs, arrived):
 			)
 		)
 	_capture_crowd_failure()
+
+
+func _test_retreat_corner():
+	# Recorded five-body reproduction from the packaged macOS release sweep.
+	# A backward escape must continue around the repair robot rather than
+	# repeatedly returning to the same body-covered navigation corner.
+	var roles = ["AdvancedTank", "Infantry", "RepairRobot", "Worker", "RepairRobot"]
+	var points = [
+		Vector3(14.33093, 0, 29.45624),
+		Vector3(12.42829, 0, 28.28434),
+		Vector3(14.02555, 0, 27.91253),
+		Vector3(15.72164, .16, 33.17982),
+		Vector3(14.95917, 0, 31.25661)
+	]
+	await _recorded_crowd(roles, points, Vector3(9.013735, 0, 28.29997), "captured retreat corner")
+	# Native avoidance can return zero despite a clear, body-constrained escape.
+	await _recorded_crowd(
+		["AdvancedTank", "Worker", "Tank", "RepairRobot", "Worker", "RepairRobot", "Tank"],
+		[
+			Vector3(13.40566, 0, 16.14168),
+			Vector3(15.62024, .16, 14.26009),
+			Vector3(9.132807, 0, 15.19159),
+			Vector3(13.89044, 0, 17.61392),
+			Vector3(12.29156, .16, 15.09303),
+			Vector3(11.4, 0, 18.585),
+			Vector3(18.01582, 0, 16.52679)
+		],
+		Vector3(6.520481, 0, 14.95),
+		"captured zero-avoidance escape"
+	)
+
+
+func _recorded_crowd(roles, points, goal, label):
+	var units = []
+	for index in roles.size():
+		var unit = _spawn(roles[index], points[index])
+		unit.stance = unit.Stance.HOLD_FIRE
+		units.append(unit)
+	await _frames(60)
+	for index in units.size():
+		var unit = units[index]
+		unit.global_position = points[index]
+		unit.action = null
+		unit.reset_physics_interpolation()
+		unit.get_node("Movement").stop()
+		unit.get_node("Movement").set_velocity_forced(Vector3.ZERO)
+	_game.battlefield.invalidate()
+	await _traverse([units[0]], goal, label)
+	for unit in units:
+		unit.queue_free()
+	await _frames(6)

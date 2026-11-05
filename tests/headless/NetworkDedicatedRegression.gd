@@ -7,7 +7,8 @@ func _run():
 	var logger = RuntimeErrors.new()
 	OS.add_logger(logger)
 	root.get_node("SaveManager").autosaves_enabled = false
-	_deadline = Time.get_ticks_msec() + 45000
+	# Match the 2v2 startup budget for concurrent full-battlefield replicas.
+	_deadline = Time.get_ticks_msec() + 120000
 	_is_host = "--network-host" in OS.get_cmdline_user_args()
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--network-role="):
@@ -44,11 +45,19 @@ func _run():
 		while not session.is_ready_to_start() and _waiting():
 			await process_frame
 
-		_check(await session.start_battle(), "Dedicated server could not start battle: " + session.error)
+		_check(
+			await session.start_battle(),
+			"Dedicated server could not start battle: " + session.error
+		)
 		var p0 = session.game.get_cached_group("players")[0]
-		_check(not p0.is_processing(), "Dedicated server must not process local human inputs on player 0")
+		_check(
+			not p0.is_processing(),
+			"Dedicated server must not process local human inputs on player 0"
+		)
 
-		while session.boundary.tick < 500 and not session.peers.is_empty() and _waiting():
+		# Keep serving until both guests have checked their received state and
+		# disconnected; host ticks alone do not prove replica readiness.
+		while not session.peers.is_empty() and _waiting():
 			await process_frame
 
 		_check(session.boundary.tick >= 60, "Dedicated server did not advance 60 ticks")
@@ -71,6 +80,7 @@ func _run():
 		_check(session.received_tick >= 60, "%s: Expected >= 60 received ticks" % _role_name)
 
 	var close_started = Time.get_ticks_msec()
+	print("Network dedicated progress: ", _network_progress())
 	session.shutdown()
 	_check(Time.get_ticks_msec() - close_started < 2000, "Dedicated teardown exceeded time limit")
 

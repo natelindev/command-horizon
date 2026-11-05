@@ -376,6 +376,9 @@ def check_rendered_resources(engine, pack, isolated, headless_only=False, flags=
             display = shutil.which("xvfb-run")
             if display is None:
                 raise RuntimeError("Rendered release checks require Xvfb/Mesa or a working DISPLAY")
+            # Hosted display runners have no ALSA device. Keep the real GL
+            # renderer while selecting the engine's supported silent audio driver.
+            command[1:1] = ["--audio-driver", "Dummy"]
             command = [display, "-a", "-s", "-screen 0 1280x720x24", *command]
         run(command, cwd=isolated, timeout=120)
 
@@ -727,7 +730,7 @@ def main():
                  "--runtime-dir", isolated,
                  "--output", verification / "network-regressions",
                  *([] if PLATFORM == "windows" or args.native_backend else ["--no-native"])],
-                cwd=isolated, timeout=640)
+                cwd=isolated, timeout=1000)
         except RuntimeError as error:
             failed.append(str(error))
         RECORDER.report["pack_sha256"] = hashlib.sha256(pack.read_bytes()).hexdigest()

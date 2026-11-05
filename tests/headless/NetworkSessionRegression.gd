@@ -73,14 +73,28 @@ func _run():
 						> int(session.game.simulation_time * 1000)
 					)
 				)
-			if not paused_once and session.boundary.tick >= 180:
+			if (
+				not paused_once
+				and session.boundary.tick >= 180
+				and accepted.any(func(command): return _accepted_kind(command, "ability"))
+				and session.rejected_commands > 0
+			):
 				paused_once = true
+				var rejected_before_pause = session.rejected_commands
 				session.submit({"kind": "pause", "value": true})
 				var before = session.game.simulation_time
 				await create_timer(.4, true, false, true).timeout
 				_check(
 					session.game.simulation_time == before and paused,
 					"Host pause advanced authority time"
+				)
+				# The guest attempts an unauthorized resume after observing pause.
+				# Keep the pause visible until that real request reaches the host.
+				while session.rejected_commands == rejected_before_pause and _waiting():
+					await process_frame
+				_check(
+					session.rejected_commands > rejected_before_pause,
+					"Guest did not acknowledge the host pause with its rejected resume"
 				)
 				session.submit({"kind": "pause", "value": false})
 			await process_frame
@@ -349,6 +363,19 @@ func _waiting():
 		_check(false, "Network test exceeded wall-clock deadline: " + session.error)
 		return false
 	return true
+
+
+func _network_progress() -> Dictionary:
+	return {
+		"authority_tick": session.boundary.tick if session.boundary != null else -1,
+		"received_tick": session.received_tick,
+		"initializing": session._initializing,
+		"incoming": session._incoming.size(),
+		"read_task": session._read_task,
+		"replica_stage":
+		session.replica.initialization_stage if session.replica != null else "none",
+		"paused": paused,
+	}
 
 
 func _transport_fixture(game):

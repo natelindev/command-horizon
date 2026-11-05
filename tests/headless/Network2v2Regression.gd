@@ -7,7 +7,9 @@ func _run():
 	var logger = RuntimeErrors.new()
 	OS.add_logger(logger)
 	root.get_node("SaveManager").autosaves_enabled = false
-	_deadline = Time.get_ticks_msec() + 45000
+	# Three processes import a full battlefield concurrently on shared runners.
+	# Keep the simulation assertion independent of that startup wall time.
+	_deadline = Time.get_ticks_msec() + 120000
 	_is_host = "--network-host" in OS.get_cmdline_user_args()
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--network-role="):
@@ -50,9 +52,27 @@ func _run():
 		_check(players.size() == 4, "Expected 4 players in 2v2 battle, found %d" % players.size())
 		_check(Players.allied(players[0], players[1]), "Slots 0 and 1 must be allied in Team 0")
 		_check(Players.allied(players[2], players[3]), "Slots 2 and 3 must be allied in Team 1")
-		_check(not Players.allied(players[0], players[2]), "Slots 0 and 2 must not be allied across teams")
+		_check(
+			not Players.allied(players[0], players[2]),
+			"Slots 0 and 2 must not be allied across teams"
+		)
 
-		while session.boundary.tick < 500 and not session.peers.is_empty() and _waiting():
+		while (
+			session.peers.values().any(func(entry): return not entry.get("ready", false))
+			and _waiting()
+		):
+			await process_frame
+		_check(
+			(
+				session.peers.size() == 2
+				and session.peers.values().all(func(entry): return entry.get("ready", false))
+			),
+			"Both guests must complete their loading handshake"
+		)
+
+		# Guests close only after validating their replica. A fixed authority
+		# tick cutoff can expire while a slower peer is still loading its map.
+		while not session.peers.is_empty() and _waiting():
 			await process_frame
 
 		_check(session.boundary.tick >= 60, "2v2 Host did not advance 60 ticks")
@@ -66,6 +86,10 @@ func _run():
 			"Expected guest slot in [1, 2] for %s, got %d" % [_role_name, session.local_slot]
 		)
 
+		if _role_name == "guest2":
+			# Reproduce a synchronous battlefield setup exceeding ENet's normal
+			# five-second minimum even on fast developer machines.
+			OS.delay_msec(6500)
 		while not is_instance_valid(session.game) and _waiting():
 			await process_frame
 
@@ -77,6 +101,7 @@ func _run():
 		_check(session.received_tick >= 60, "%s: Expected >= 60 received ticks" % _role_name)
 
 	var close_started = Time.get_ticks_msec()
+	print("Network 2v2 progress: ", _network_progress())
 	session.shutdown()
 	_check(Time.get_ticks_msec() - close_started < 2000, "2v2 Teardown exceeded time limit")
 

@@ -168,6 +168,7 @@ func _test_squad(attack_move):
 			_attack_move_type.new(Vector3(58, 0, 10)) if attack_move else _attack_type.new(target)
 		)
 	await _frames(300)
+	await process_frame
 	var closest = INF
 	var firing = 0
 	var holding_range = 0
@@ -195,9 +196,12 @@ func _test_squad(attack_move):
 	)
 	var move_order = load("res://source/match/units/actions/Moving.gd")
 	for soldier in squad:
-		if is_instance_valid(soldier.aim_target):
+		var movement = soldier.get_node("Movement")
+		# A soldier can acquire a target while still approaching its firing
+		# position. Only settled shooters receive the holding priority.
+		if is_instance_valid(soldier.aim_target) and not movement._has_destination:
 			_check(
-				is_equal_approx(soldier.get_node("Movement").avoidance_priority, .8),
+				is_equal_approx(movement.avoidance_priority, .8),
 				"Settled shooter yields to incoming ranks"
 			)
 		soldier.issue_manual_order(move_order.new(Vector3(40, 0, 16)))

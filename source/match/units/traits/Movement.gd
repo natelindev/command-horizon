@@ -18,6 +18,7 @@ const MINIMUM_PROGRESS = 0.2
 const RECOVERY_DURATION = 0.6
 const GROUND_RECOVERY_DURATION = 2.0
 const GROUND_RECOVERY_DISTANCE = 2.0
+const GROUND_RECOVERY_LOOKAHEAD = 8.0
 const GROUND_CONTACT_MARGIN = .02
 # Vertical speed of rotorcraft settling onto or lifting off a helipad.
 const SETTLE_RATE = 1.2
@@ -399,6 +400,7 @@ func _physics_process(delta):
 				_recovery_checked = true
 			if _unit.global_position.distance_to(_progress_position) >= GROUND_RECOVERY_DISTANCE:
 				_recovery_left = 0.0
+				_continue_ground_recovery()
 			if _recovery_left <= 0:
 				# The escape can bypass a corner covered by a settled body. Rebuild
 				# from here instead of returning to that unreachable old waypoint.
@@ -551,7 +553,41 @@ func has_occupied_endpoint(require_short_route = true):
 	return false
 
 
-func _ground_recovery_direction(path_direction):
+func _continue_ground_recovery():
+	# A backward escape can leave the next corner covered by the same body.
+	# Look through short polygon-edge waypoints before resuming the route;
+	# continue with another bounded, collision-constrained side step if needed.
+	if _battlefield == null or ghosted:
+		return
+	var origin = _unit.global_position
+	var path = NavigationServer3D.map_get_path(get_navigation_map(), origin, target_position, true)
+	if path.size() < 2:
+		return
+	var neighbors = _battlefield.nearby_units(
+		origin,
+		GROUND_RECOVERY_LOOKAHEAD + radius + Constants.Match.Terrain.Navmesh.MAX_AGENT_RADIUS + .25
+	)
+	var blocked = false
+	var distance = 0.0
+	for index in range(1, path.size()):
+		var previous = path[index - 1]
+		var next = previous.move_toward(path[index], GROUND_RECOVERY_LOOKAHEAD - distance)
+		if _ground_contact(previous, next, neighbors).w < 1.0:
+			blocked = true
+			break
+		distance += previous.distance_to(next)
+		if distance >= GROUND_RECOVERY_LOOKAHEAD - .001:
+			break
+	if not blocked:
+		return
+	_recovery_direction = _ground_recovery_direction(
+		((path[1] - origin) * Vector3(1, 0, 1)).normalized(), true
+	)
+	_recovery_left = GROUND_RECOVERY_DURATION
+	_progress_position = origin
+
+
+func _ground_recovery_direction(path_direction, continuing = false):
 	var best = path_direction.rotated(Vector3.UP, PI / 2.0)
 	var clearance = -1.0
 	var free_distance = -1.0
@@ -567,11 +603,17 @@ func _ground_recovery_direction(path_direction):
 				+ .25
 			)
 		)
-	for angle in [PI / 2.0, -PI / 2.0, PI / 4.0, -PI / 4.0, 3 * PI / 4.0, -3 * PI / 4.0, PI]:
-		# Prefer a side route when the whole escape is clear. A terrain-clear
-		# ray with only centimetres before body contact must not hide a usable
-		# backward escape.
-		if absf(angle) > PI / 2.0 and free_distance >= GROUND_RECOVERY_DISTANCE:
+	var angles = [PI / 2.0, -PI / 2.0, PI / 4.0, -PI / 4.0, 3 * PI / 4.0, -3 * PI / 4.0, PI]
+	var side = signf(path_direction.cross(_recovery_direction).y)
+	if continuing:
+		# Keep rounding the same side of the obstruction. Choosing the longest
+		# opposite ray at every step oscillates between two open pockets.
+		angles.sort_custom(func(a, b): return signf(a) * side > signf(b) * side)
+	for angle in angles:
+		if continuing:
+			if signf(angle) != side and free_distance >= MINIMUM_PROGRESS * 2.0:
+				break
+		elif absf(angle) > PI / 2.0 and free_distance >= GROUND_RECOVERY_DISTANCE:
 			break
 		var candidate = path_direction.rotated(Vector3.UP, angle)
 		var distance = _recovery_clearance(candidate)
@@ -840,6 +882,7 @@ func _on_velocity_computed(safe_velocity: Vector3):
 	var navigation_iteration = NavigationServer3D.map_get_iteration_id(get_navigation_map())
 	if (
 		safe_velocity.is_zero_approx()
+		and _recovery_left <= 0
 		and _previously_set_global_transform_of_unit != null
 		and _previously_set_global_transform_of_unit.origin == _unit.global_position
 		and navigation_iteration == _last_navigation_iteration
@@ -892,12 +935,11 @@ func _on_velocity_computed(safe_velocity: Vector3):
 		)
 	if domain == Constants.Match.Navigation.Domain.TERRAIN:
 		next = _clip_ground_step(next, current_speed, maximum_step)
-		# Only retry when mesh projection displaced avoidance and the final
-		# step was under one millimetre; ordinary body yielding stays intact.
+		# A fully stalled avoidance result must not cancel a committed escape.
+		# The retry retains the same navigation, body and speed constraints.
 		if (
 			_has_destination
 			and _recovery_left > 0
-			and ((navigable - candidate) * Vector3(1, 0, 1)).length_squared() > 0.000001
 			and next.distance_squared_to(origin) < 0.000001
 			and not has_occupied_endpoint(false)
 		):
