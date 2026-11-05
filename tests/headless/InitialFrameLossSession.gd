@@ -5,6 +5,13 @@ extends "res://source/match/network/NetworkSession.gd"
 var dropped_initial = false
 var recovered_after_ms = -1
 var _dropped_at = 0
+var welcome_count = 0
+
+
+func _receive_decoded(sender: int, packet: Dictionary):
+	super._receive_decoded(sender, packet)
+	if sender == 1 and packet.get("type") == "welcome":
+		welcome_count += 1
 
 
 func _receive(sender: int, bytes: PackedByteArray):

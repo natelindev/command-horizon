@@ -69,6 +69,11 @@ func _run():
 			),
 			"Both guests must complete their loading handshake"
 		)
+		while session.boundary.tick < 60 and _waiting():
+			await process_frame
+		# Acknowledge both handshakes before either guest exits. Otherwise the
+		# faster replica can disconnect while the deliberately delayed one loads.
+		session.submit({"kind": "pause", "value": true})
 
 		# Guests close only after validating their replica. A fixed authority
 		# tick cutoff can expire while a slower peer is still loading its map.
@@ -93,12 +98,13 @@ func _run():
 		while not is_instance_valid(session.game) and _waiting():
 			await process_frame
 
-		while session.received_tick < 60 and _waiting():
+		while (session.received_tick < 60 or not paused) and _waiting():
 			await process_frame
 
 		var players = session.game.get_cached_group("players")
 		_check(players.size() == 4, "%s: Expected 4 replicated players" % _role_name)
 		_check(session.received_tick >= 60, "%s: Expected >= 60 received ticks" % _role_name)
+		_check(paused, "%s: Host did not acknowledge both loading handshakes" % _role_name)
 
 	var close_started = Time.get_ticks_msec()
 	print("Network 2v2 progress: ", _network_progress())

@@ -361,13 +361,14 @@ func _guest_group():
 	)
 	var game = session.game
 	var token = session.reconnect_token
-	var frames_before = _frames_received
+	var welcomes_before = session.welcome_count
 	session.peer.close()
-	while (
-		_frames_received <= frames_before
-		or session.peer == null
-		or session.peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED
-	):
+	# Decoding an old queued frame is not proof of a new connection. Wait for
+	# the new welcome, then a frame received after that handshake.
+	while session.welcome_count <= welcomes_before and _waiting():
+		await process_frame
+	var frames_before = _frames_received
+	while _frames_received <= frames_before:
 		if not _waiting():
 			return
 		await process_frame
