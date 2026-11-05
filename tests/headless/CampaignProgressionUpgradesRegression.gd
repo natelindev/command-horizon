@@ -12,27 +12,27 @@ func _run():
 	var progress = Progress.new()
 	progress.read_progress(path)
 	_check(
-		progress.is_operation_unlocked("supply_line", "bastion"),
+		progress.is_operation_unlocked("first_orders", "bastion"),
 		"First Bastion mission should be unlocked by default"
 	)
 	_check(
-		not progress.is_operation_unlocked("first_orders", "bastion"),
+		not progress.is_operation_unlocked("supply_line", "bastion"),
 		"Second Bastion mission should be locked initially"
 	)
 	_check(
-		progress.next_uncompleted_operation("bastion") == "supply_line",
-		"Next uncompleted operation should be supply_line"
+		progress.next_uncompleted_operation("bastion") == "first_orders",
+		"Next uncompleted operation should be first_orders"
 	)
 
-	# Complete supply_line
-	_check(progress.record_supply_victory(path), "Failed to record supply line victory")
+	# Complete first_orders
+	_check(progress.record_victory(false, path), "Failed to record first orders victory")
 	_check(
-		progress.is_operation_unlocked("first_orders", "bastion"),
+		progress.is_operation_unlocked("supply_line", "bastion"),
 		"Second Bastion mission should unlock after completing first"
 	)
 	_check(
-		progress.next_uncompleted_operation("bastion") == "first_orders",
-		"Next uncompleted operation should advance to first_orders"
+		progress.next_uncompleted_operation("bastion") == "supply_line",
+		"Next uncompleted operation should advance to supply_line"
 	)
 	_check(
 		not progress.is_operation_unlocked("split_signal", "bastion"),
@@ -41,12 +41,12 @@ func _run():
 
 	# 2. Test Catalog next_operation
 	_check(
-		Catalog.next_operation("supply_line") == "first_orders",
-		"next_operation from supply_line should be first_orders"
+		Catalog.next_operation("first_orders") == "supply_line",
+		"next_operation from first_orders should be supply_line"
 	)
 	_check(
-		Catalog.next_operation("first_orders") == "split_signal",
-		"next_operation from first_orders should be split_signal"
+		Catalog.next_operation("supply_line") == "split_signal",
+		"next_operation from supply_line should be split_signal"
 	)
 	_check(
 		Catalog.next_operation("command_horizon") == "",
@@ -122,8 +122,8 @@ func _run():
 		"All points should be refunded after reset"
 	)
 
-	# Re-buy weapons_1 and tandem_rockets (after adding split_signal victory for more points)
-	_check(progress.record_victory(false, path), "Failed to record first orders victory")
+	# Re-buy weapons_1 and tandem_rockets (after adding supply_line victory for more points)
+	_check(progress.record_supply_victory(path), "Failed to record supply line victory")
 	_check(
 		state.total_points_earned("bastion", progress) == 250,
 		"2 completed operations + 1 commendation should equal 250 pts"
@@ -171,8 +171,8 @@ func _run():
 		"Victory overlay must include NextOperationButton"
 	)
 	_check(
-		next_btn.text.contains("Split Signal"),
-		"NextOperationButton text should contain next operation name (Split Signal)"
+		next_btn.text.contains("Supply Line"),
+		"NextOperationButton text should contain next operation name (Supply Line)"
 	)
 
 	var debrief = game.hud._overlay.find_child("StoryDebrief", true, false)

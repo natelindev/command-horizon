@@ -32,9 +32,14 @@ def validate_cast(profiles):
             info = references[profile['reference_sha256']]
             assert info['english'] >= .9 and info['snr_db'] >= 30, key
             if key in units:
-                # Native male crew: reported/classified accent and the reference's median pitch.
+                # Native crew: reported/classified accent and the reference's median pitch.
                 assert native_accent(info), f'{key} is not a native English speaker'
-                assert 75 <= info['f0_median_hz'] <= 160, key
+                if key == 'helix/Hero':
+                    assert info.get('gender') == 'F', 'Nyx requires a female reference voice'
+                if info.get('gender') == 'F':
+                    assert 160 <= info['f0_median_hz'] <= 260, key
+                else:
+                    assert 75 <= info['f0_median_hz'] <= 160, key
             else:
                 assert key in ROBOT_VOICES, f'{key} has no robot voice design'
             identity = ('reference', profile['reference_sha256'])
@@ -113,7 +118,7 @@ def verify_catalog():
                 combat_hashes.add(entry['sha256'])
     assert len(combat_hashes) == 80
     assert len(stop_hashes) == UNIT_ROLES + ROBOT_ROLES and robots == ROBOT_ROLES
-    print(f'PASS {UNIT_ROLES} distinct male unit voices ({len(MERCENARY_CAST)} shared mercenaries), '
+    print(f'PASS {UNIT_ROLES} distinct unit voices ({len(MERCENARY_CAST)} shared mercenaries), '
           f'{ROBOT_ROLES} distinct robot voices, three exclusive announcers, '
           f'every spoken clip transcription-checked')
 

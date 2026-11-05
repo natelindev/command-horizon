@@ -309,6 +309,9 @@ static func build(faction, role):
 		right_hand = Vector3(.12, .035, -.17)
 	elif role == "AssaultInfantry" or (role == "Hero" and faction == "bastion"):
 		left_hand = Vector3(-.25, .025, -.11)
+	elif role == "Hero" and faction == "helix":
+		left_hand = Vector3(.10, .08, -.45)
+		right_hand = Vector3(.10, .05, -.18)
 	_arm(
 		chest,
 		"Left",

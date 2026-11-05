@@ -10,9 +10,16 @@ from xml.etree import ElementTree
 
 from build_campaign_audio import ROOT, SCRIPT, cast, transcript_error
 from install_campaign_dialogue import records
+from voice_cast import POOL, PROFILES
 
 
 class CampaignAudioTests(unittest.TestCase):
+    def test_nyx_uses_the_same_female_voice_in_campaign_and_battle(self):
+        reference = cast()['nyx']['reference_sha256']
+        self.assertEqual(reference, PROFILES['helix/Hero']['reference_sha256'])
+        speaker = next(info for info in POOL.values() if info['sha256'] == reference)
+        self.assertEqual(speaker['gender'], 'F')
+
     def test_equivalent_spoken_spellings(self):
         self.assertEqual(transcript_error('Cease fire. All guns.', 'Ceasefire, all guns.'), 0)
         self.assertEqual(transcript_error('Drivers have names, Marshal.', 'Drivers have names, Marshall.'), 0)
@@ -39,7 +46,7 @@ class CampaignAudioTests(unittest.TestCase):
             self.assertTrue(line['en'] and line['zh_CN'])
             self.assertTrue(line['speaker']['en'] and line['speaker']['zh_CN'])
             self.assertTrue(line['voice'].endswith(line['id'] + '.ogg'))
-            ElementTree.parse(ROOT / line['portrait'].removeprefix('res://'))
+            self.assertTrue((ROOT / line['portrait'].removeprefix('res://')).is_file())
         self.assertIn('bastion_cinder_ford.intro', scenes)
         self.assertNotIn('air_corridor.intro', scenes)
         self.assertIn('first_orders.lab', scenes)

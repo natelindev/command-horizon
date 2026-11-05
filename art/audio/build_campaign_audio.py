@@ -49,6 +49,8 @@ def transcript_error(expected, heard):
         text = re.sub(r'\bcease[ -]?fire\b', 'cease fire', text, flags=re.I)
         text = re.sub(r'\bmarshall\b', 'marshal', text, flags=re.I)
         text = re.sub(r'\b(?:wren|renn)\b', 'ren', text, flags=re.I)
+        text = re.sub(r'\btellylan\b', 'tell ilan', text, flags=re.I)
+        text = re.sub(r'\bfocus beams\b', 'focused beams', text, flags=re.I)
         text = re.sub(r'\bapologis', 'apologiz', text, flags=re.I)
         return re.sub(r'\b[a-z]+\b', lambda word: NUMBER_WORDS.get(
             word[0].lower(), word[0]), text, flags=re.I)

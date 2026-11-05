@@ -29,6 +29,13 @@ func _make_operation(id):
 	current_scene = game
 	game.get_node("IsometricCamera3D").set_physics_process(false)
 	await _frames(8)
+	if game.get_script().resource_path == "res://source/match/campaign/HeroOperation.gd":
+		var factions = load("res://source/match/FactionCatalog.gd")
+		for unit in get_nodes_in_group("units"):
+			_check(
+				unit.scene_file_path == factions.scene_path(unit.player.faction, unit.type),
+				"Wrong faction scene for %s in %s" % [unit.type, id]
+			)
 	game.set_physics_process(false)
 
 

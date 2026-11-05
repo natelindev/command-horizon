@@ -194,6 +194,7 @@ func _combat_and_garrison():
 		# Fire actual projectiles, not only the damage formula.
 		soldier.position = Vector3(50, 0, 16)
 		game.battlefield.invalidate()
+		armor.shields = 0
 		var before = armor.hp
 		game.projectile_system.launch(soldier, armor)
 		await _frames(50)

@@ -39,7 +39,7 @@ const LEGACY = {
 		),
 		"summary_zh": "埃吉斯带领救援车队离开子午城。一段截获的声音，让他再次想起弟弟失踪的那一夜。",
 		"title": "Supply Line",
-		"number": "01",
+		"number": "02",
 		"scene": "res://source/match/campaign/SupplyLine.tscn",
 		"map": "res://source/match/maps/SupplyLineMap.tscn",
 		"size": Vector2(192, 128)
@@ -53,7 +53,7 @@ const LEGACY = {
 		),
 		"summary_zh": "沃斯训练新兵，埃吉斯则追踪尼克斯的信号。他身边的人需要一位指挥官，而不是伤亡名单上的又一个名字。",
 		"title": "First Orders",
-		"number": "02",
+		"number": "01",
 		"scene": "res://source/match/campaign/FirstOrders.tscn",
 		"map": "res://source/match/maps/FirstOrdersMap.tscn",
 		"size": Vector2(80, 64)
@@ -77,8 +77,8 @@ const LEGACY = {
 const ORDER = {
 	"bastion":
 	[
-		"supply_line",
 		"first_orders",
+		"supply_line",
 		"split_signal",
 		"bastion_cinder_ford",
 		"broken_foundry",

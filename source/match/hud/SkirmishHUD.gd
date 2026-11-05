@@ -110,7 +110,9 @@ func _ready():
 	_notice_slot = ScrollContainer.new()
 	_notice_slot.custom_minimum_size = Vector2(HudLayout.COLUMN_WIDTH - 32, 42)
 	_notice_slot.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	_notice_slot.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	# Reserve the scrollbar gutter so wrapped notices cannot oscillate between
+	# widths during container sorting and exhaust the deferred message queue.
+	_notice_slot.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_RESERVE
 	_notice_slot.get_v_scroll_bar().focus_mode = Control.FOCUS_ALL
 	_notice_slot.get_v_scroll_bar().custom_step = 21
 	content.add_child(_notice_slot)

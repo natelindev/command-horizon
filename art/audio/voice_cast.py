@@ -194,7 +194,7 @@ UNIT_VOICES = {
         'Fighter': 'Gonzalo-1',
     },
     'helix': {
-        'Hero': 'vctk/p254', 'AdvancedTank': 'vctk/p274', 'Tank': 'vctk/p287',
+        'Hero': 'Nyx', 'AdvancedTank': 'vctk/p274', 'Tank': 'vctk/p287',
         'AssaultInfantry': 'vctk/p232', 'SniperInfantry': 'vctk/p258', 'RocketInfantry': 'vctk/p243',
         'Infantry': 'vctk/p279', 'SupplyTruck': 'vctk/p227',
         'Helicopter': 'vctk/p273', 'Bomber': 'Midlands_Bedfordshire_Dialect', 'AntiAirVehicle': '29da',

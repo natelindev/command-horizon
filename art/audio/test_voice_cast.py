@@ -12,7 +12,7 @@ from combat_barks import COMBAT_BARKS, combat_text
 from radio_voice import UNIT_CLASS, radio
 from robot_voice import ROBOT_VOICES, robot_voice
 from verify_voice_cast import validate_cast
-from voice_cast import CAST, MERCENARY_CAST, PROFILES
+from voice_cast import CAST, MERCENARY_CAST, POOL, PROFILES
 
 RATE = 24000
 
@@ -30,6 +30,12 @@ def speechlike(seconds=1.2):
 
 
 class CastRegression(unittest.TestCase):
+    def test_nyx_rejects_the_previous_male_reference(self):
+        profiles = copy.deepcopy(PROFILES)
+        profiles['helix/Hero']['reference_sha256'] = POOL['vctk/p254']['sha256']
+        with self.assertRaisesRegex(AssertionError, 'Nyx requires a female'):
+            validate_cast(profiles)
+
     def test_all_armed_roles_have_authored_combat_reactions(self):
         for faction, roles in CAST.items():
             expected = (set(roles) - {'SupplyTruck'}) | {'CombatRobot'}
