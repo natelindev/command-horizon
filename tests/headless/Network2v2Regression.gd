@@ -57,6 +57,19 @@ func _run():
 			"Slots 0 and 2 must not be allied across teams"
 		)
 
+		while (
+			session.peers.values().any(func(entry): return not entry.get("ready", false))
+			and _waiting()
+		):
+			await process_frame
+		_check(
+			(
+				session.peers.size() == 2
+				and session.peers.values().all(func(entry): return entry.get("ready", false))
+			),
+			"Both guests must complete their loading handshake"
+		)
+
 		# Guests close only after validating their replica. A fixed authority
 		# tick cutoff can expire while a slower peer is still loading its map.
 		while not session.peers.is_empty() and _waiting():
@@ -73,6 +86,10 @@ func _run():
 			"Expected guest slot in [1, 2] for %s, got %d" % [_role_name, session.local_slot]
 		)
 
+		if _role_name == "guest2":
+			# Reproduce a synchronous battlefield setup exceeding ENet's normal
+			# five-second minimum even on fast developer machines.
+			OS.delay_msec(6500)
 		while not is_instance_valid(session.game) and _waiting():
 			await process_frame
 

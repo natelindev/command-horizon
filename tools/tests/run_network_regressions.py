@@ -72,7 +72,7 @@ def help_view():
         {"flag": "--main-pack PATH", "default": "none", "purpose": "Exported PCK instead of source project"},
         {"flag": "--runtime-dir PATH", "default": "project or pack directory", "purpose": "Runtime cwd containing matching external native support"},
         {"flag": "--output PATH", "default": "tmp/network-regressions", "purpose": "Parent for a new retained run directory"},
-        {"flag": "--case NAME", "default": "all", "purpose": "all, session, groups, outcome, terminal-drop or disconnect"},
+        {"flag": "--case NAME", "default": "all", "purpose": "all, session, groups, outcome, terminal-drop, disconnect, two-vs-two or dedicated"},
         {"flag": "--no-native", "default": "false", "purpose": "Explicit scripted fallback run"},
         {"flag": "--startup-timeout SECONDS", "default": "20", "purpose": "Host readiness deadline; range1..60"},
     ], ("flag", "default", "purpose"))

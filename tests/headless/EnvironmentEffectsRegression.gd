@@ -68,7 +68,25 @@ func _run():
 		options.weather = 4
 		options.apply()
 		_check(effects.overlay.visible, "Weather did not resume")
-		_check(effects.weather_material.get_shader_parameter("mist") > .5, "Mist is not visible")
+		if atmosphere.environment.volumetric_fog_enabled:
+			_check(atmosphere._mist_material.density > .01, "Volumetric mist has no density")
+			_check(not atmosphere._mist_volumes.is_empty(), "Volumetric mist has no volumes")
+			for volume in atmosphere._mist_volumes:
+				_check(volume.visible, "Volumetric mist is hidden")
+			_check(
+				effects.weather_material.get_shader_parameter("mist") == 0.0,
+				"Volumetric mist is doubled by the screen veil"
+			)
+		else:
+			_check(
+				effects.weather_material.get_shader_parameter("mist") > .5, "Mist is not visible"
+			)
+		options.environment_quality = 0
+		options.apply()
+		_check(not atmosphere.environment.volumetric_fog_enabled, "Low detail kept volumetric fog")
+		_check(effects.weather_material.get_shader_parameter("mist") > .5, "Low detail lost mist")
+		options.environment_quality = 1
+		options.apply()
 		if map_name == "CinderRingMap":
 			_check(effects.embers != null and effects.embers.amount == 96, "Lava budget missing")
 			_check(effects.embers.lifetime == 4.0, "Embers lost their four-second lifetime")
@@ -81,9 +99,12 @@ func _run():
 				var point = points.get_pixel(index, 0)
 				var inside_lava = false
 				for pool in pools:
-					inside_lava = inside_lava or (
-						Geometry2D.is_point_in_polygon(Vector2(point.r, point.b), pool.polygon)
-						and is_equal_approx(point.g, pool.get("level", 0.0) - .2)
+					inside_lava = (
+						inside_lava
+						or (
+							Geometry2D.is_point_in_polygon(Vector2(point.r, point.b), pool.polygon)
+							and is_equal_approx(point.g, pool.get("level", 0.0) - .2)
+						)
 					)
 				_check(inside_lava, "Ember emission escaped authored lava")
 			_check(

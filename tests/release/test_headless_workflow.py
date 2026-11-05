@@ -52,6 +52,18 @@ class HeadlessWorkflowTests(unittest.TestCase):
         self.assertEqual(run.call_count, len(BUILD.RENDERED_TESTS) * 2)
         self.assertNotIn("--headless", run.call_args_list[-1].args[0])
         self.assertIn("--require-renderer", run.call_args_list[-1].args[0])
+        self.assertIn("--audio-driver", run.call_args_list[-1].args[0])
+
+    def test_virtual_display_uses_real_renderer_without_a_physical_audio_device(self):
+        with (patch.object(BUILD, "PLATFORM", "linux"), patch.object(BUILD, "run") as run,
+              patch.dict(BUILD.os.environ, {}, clear=True),
+              patch.object(BUILD.shutil, "which", return_value="/usr/bin/xvfb-run")):
+            BUILD.check_rendered_resources("godot", "game.pck", ROOT)
+        command = run.call_args_list[-1].args[0]
+        self.assertEqual(command[0], "/usr/bin/xvfb-run")
+        self.assertNotIn("--headless", command)
+        self.assertIn("--require-renderer", command)
+        self.assertEqual(command[command.index("--audio-driver") + 1], "Dummy")
 
     def test_headless_guard_blocks_engine_and_xvfb_before_launch(self):
         with tempfile.TemporaryDirectory(prefix="headless-guard-") as temporary:

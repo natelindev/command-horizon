@@ -167,7 +167,19 @@ func _test_squad(attack_move):
 		soldier.issue_manual_order(
 			_attack_move_type.new(Vector3(58, 0, 10)) if attack_move else _attack_type.new(target)
 		)
-	await _frames(300)
+	# Acquisition/avoidance scheduling can briefly clear aim_target. Require
+	# a sustained firing line instead of sampling one arbitrary physics tick.
+	var stable_frames = 0
+	var settling_frames = 0
+	for frame in 450:
+		await physics_frame
+		await process_frame
+		settling_frames = frame + 1
+		var ready = squad.filter(func(unit): return is_instance_valid(unit.aim_target)).size()
+		stable_frames = stable_frames + 1 if ready >= 6 else 0
+		if stable_frames >= 15:
+			break
+	_check(stable_frames >= 15, "Squad did not sustain six firing positions")
 	var closest = INF
 	var firing = 0
 	var holding_range = 0
@@ -190,14 +202,18 @@ func _test_squad(attack_move):
 			"attack_move": attack_move,
 			"closest": closest,
 			"firing": firing,
-			"holding_range": holding_range
+			"holding_range": holding_range,
+			"settling_seconds": float(settling_frames) / Engine.physics_ticks_per_second
 		}
 	)
 	var move_order = load("res://source/match/units/actions/Moving.gd")
 	for soldier in squad:
-		if is_instance_valid(soldier.aim_target):
+		var movement = soldier.get_node("Movement")
+		# A soldier can acquire a target while still approaching its firing
+		# position. Only settled shooters receive the holding priority.
+		if is_instance_valid(soldier.aim_target) and not movement._has_destination:
 			_check(
-				is_equal_approx(soldier.get_node("Movement").avoidance_priority, .8),
+				is_equal_approx(movement.avoidance_priority, .8),
 				"Settled shooter yields to incoming ranks"
 			)
 		soldier.issue_manual_order(move_order.new(Vector3(40, 0, 16)))

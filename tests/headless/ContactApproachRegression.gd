@@ -59,6 +59,9 @@ func _captured_approach(repetition):
 	paused = false
 	for frame in 480:
 		await physics_frame
+		# physics_frame fires before movement. Sample the completed step so the
+		# first check follows reconciliation of the preserved archived height.
+		await process_frame
 		maximum_step = maxf(
 			maximum_step, ((worker.position - previous) * Vector3(1, 0, 1)).length()
 		)
@@ -66,7 +69,15 @@ func _captured_approach(repetition):
 		if movement._hovering:
 			_check(
 				absf(worker.position.y - movement._hover_height(worker.position)) < .01,
-				"Hover contact recovery left the authored surface height"
+				(
+					"Hover contact recovery left the authored surface height: frame=%d y=%f expected=%f synchronized=%s"
+					% [
+						frame,
+						worker.position.y,
+						movement._hover_height(worker.position),
+						movement._synchronized
+					]
+				)
 			)
 		previous = worker.position
 		# A harvest run ghosts through units. Once solid again (here: no HQ to

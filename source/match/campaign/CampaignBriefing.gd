@@ -145,7 +145,7 @@ func _layout():
 	backdrop.size = size * 1.1
 	foreground.position = Vector2(-size.x * .04 + pan * size.x * .02, size.y * .035)
 	foreground.size = Vector2(size.x * .46, size.y * .9)
-	dialogue_panel.size.x = minf(900, maxf(1, size.x - 48))
+	var panel_width = minf(900, maxf(1, size.x - 48))
 	var panel_style = dialogue_panel.get_theme_stylebox("panel")
 	# Keep wrapped captions at their real container width when set_line resets
 	# their size. A temporary nameplate-width reflow otherwise expands the
@@ -153,11 +153,14 @@ func _layout():
 	caption.custom_minimum_size.x = maxf(
 		1,
 		(
-			dialogue_panel.size.x
+			panel_width
 			- panel_style.get_content_margin(SIDE_LEFT)
 			- panel_style.get_content_margin(SIDE_RIGHT)
 		)
 	)
+	# Lower the caption minimum before shrinking its parent; otherwise the
+	# old minimum clamps the panel to its previous, wider viewport size.
+	dialogue_panel.size.x = panel_width
 	dialogue_panel.size.y = dialogue_panel.get_combined_minimum_size().y
 	dialogue_panel.position = Vector2(
 		(size.x - dialogue_panel.size.x) / 2, size.y - dialogue_panel.size.y - 20

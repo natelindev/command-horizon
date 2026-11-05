@@ -370,7 +370,9 @@ def check_rendered_resources(engine, pack, isolated, headless_only=False, flags=
              "--script", script, *(["--", *flags] if flags else [])], cwd=isolated, timeout=120)
         if headless_only:
             continue
-        command = [engine, "--main-pack", pack, "--rendering-method", "gl_compatibility",
+        # This gate checks real GPU allocations. Hosted runners have no audio
+        # device, so select silent audio explicitly instead of logging a driver error.
+        command = [engine, "--audio-driver", "Dummy", "--main-pack", pack, "--rendering-method", "gl_compatibility",
                    "--fixed-fps", "60", "--script", script, "--", "--require-renderer", *(flags or [])]
         if PLATFORM == "linux" and not os.environ.get("DISPLAY"):
             display = shutil.which("xvfb-run")

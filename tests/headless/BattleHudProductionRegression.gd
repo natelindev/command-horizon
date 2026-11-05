@@ -79,8 +79,19 @@ func _portraits():
 			var texture = factions.portrait(faction, role)
 			_check(texture != null, "%s %s has no portrait" % [faction, role])
 			if texture != null:
+				var expected_path = (
+					load("res://source/main-menu/ArtworkCatalog.gd").portrait_path(
+						{"bastion": "aegis", "helix": "nyx", "frontier": "rook"}[faction]
+					)
+					if role == "Hero"
+					else ""
+				)
 				_check(
-					texture.resource_path.contains("/%s/" % faction),
+					(
+						texture.resource_path == expected_path
+						if role == "Hero"
+						else texture.resource_path.contains("/%s/" % faction)
+					),
 					"%s %s borrows another faction's portrait" % [faction, role]
 				)
 	# Roles without art degrade to an empty portrait instead of failing.

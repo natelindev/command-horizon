@@ -60,6 +60,7 @@ func _run():
 		"Cannot create briefing output directory: " + _directory
 	)
 	_check(_catalog.size() == 16, "Briefing review requires all16 missions")
+	await _review_resize()
 	var scales := [1.0, 1.25, 1.5] if matrix else [1.5]
 	var sizes := [18, 22, 26] if matrix else [26]
 	for factor in scales:
@@ -94,6 +95,29 @@ func _run():
 	globals.options.restore(restored)
 	globals.options.screen = original.screen
 	await globals.quit_game(0 if failures.is_empty() else 1)
+
+
+func _review_resize():
+	var options = root.get_node("Globals").options
+	options.interface_scale = 1.0
+	options.apply()
+	await _frames(4)
+	var briefing = _scene.instantiate()
+	root.add_child(briefing)
+	briefing.configure("first_orders")
+	var line = _narration.scene("first_orders.briefing", "zh_CN")[0]
+	briefing.caption.set_line(line.speaker, line.text, 26)
+	briefing.caption.set_portrait(line.get("portrait", ""))
+	await _frames(4)
+	options.interface_scale = 1.5
+	options.apply()
+	await _frames(8)
+	_check(
+		root.get_visible_rect().encloses(briefing.dialogue_panel.get_global_rect()),
+		"Existing dialogue did not shrink after increasing interface scale"
+	)
+	briefing.queue_free()
+	await _frames(2)
 
 
 func _review_mission(id: String, locale: String, factor: float, font_size: int):
