@@ -37,12 +37,14 @@ func initialize(
 		var player_settings = load("res://source/data-model/PlayerSettings.gd").new()
 		_copy(player_settings, side, side.keys())
 		settings.players.append(player_settings)
+	print("REPLICA PHASE game = load('res://source/match/Skirmish.tscn').instantiate() ", Time.get_ticks_msec())
 	game = load("res://source/match/Skirmish.tscn").instantiate()
 	game.restoring = true
 	game.settings = settings
 	game.set_meta("network_local_slot", maxi(0, slot))
 	game.set_meta("network_session", session)
 	game.set_meta("network_replica", true)
+	print("REPLICA PHASE var map = load(settings.map_path).instantiate() ", Time.get_ticks_msec())
 	var map = load(settings.map_path).instantiate()
 	if not settings.scenario.is_empty():
 		map.scenario = settings.scenario.duplicate(true)
@@ -54,10 +56,12 @@ func initialize(
 		previous.queue_free()
 		await previous.tree_exited
 	initialization_stage = "scene_ready"
+	print("REPLICA PHASE tree.root.add_child(game) ", Time.get_ticks_msec())
 	tree.root.add_child(game)
 	tree.current_scene = game
 	# Disable authority before a single physics frame can run on this peer.
 	initialization_stage = "freeze_simulation"
+	print("REPLICA PHASE _freeze_simulation() ", Time.get_ticks_msec())
 	_freeze_simulation()
 	for deposit in tree.get_nodes_in_group("resource_units"):
 		deposit.free()
@@ -71,6 +75,7 @@ func initialize(
 	for site in load("res://source/match/world/PointOfInterestCatalog.gd").sites(game):
 		entities[site.site_id] = site
 	initialization_stage = "initial_state"
+	print("REPLICA PHASE if not apply(snapshot, validated): ", Time.get_ticks_msec())
 	if not apply(snapshot, validated):
 		return false
 	if slot < 0:
@@ -81,6 +86,7 @@ func initialize(
 		game.fog_of_war.reveal()
 	game._move_camera_to_player_units_crowd_pivot(players[maxi(0, slot)])
 	game.restoring = false
+	print("REPLICA PHASE initialization_stage = 'ready' ", Time.get_ticks_msec())
 	initialization_stage = "ready"
 	tree.paused = false
 	return true
