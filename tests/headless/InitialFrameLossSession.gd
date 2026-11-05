@@ -4,8 +4,8 @@ extends "res://source/match/network/NetworkSession.gd"
 ## bootstrap full-frame retry arrives. All gameplay still uses the real server.
 var dropped_initial = false
 var recovered_after_ms = -1
-var _dropped_at = 0
 var welcome_count = 0
+var _dropped_at = 0
 
 
 func _receive_decoded(sender: int, packet: Dictionary):

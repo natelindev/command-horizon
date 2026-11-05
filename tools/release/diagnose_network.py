@@ -27,7 +27,7 @@ with tempfile.TemporaryDirectory(prefix="network-diagnostic-") as temporary:
     isolated.mkdir()
     shutil.copytree(native, isolated / "native/bin")
     b.check_rendered_resources(engine, executable, isolated, False)
-    for case in ["all"]:
+    for case in ["session", "groups", "two-vs-two"]:
         try:
             b.run([sys.executable, b.ROOT / "tools/tests/run_network_regressions.py", "--engine", engine,
                    "--main-pack", executable, "--runtime-dir", isolated, *([] if b.PLATFORM == "windows" else ["--no-native"]), "--case", case,

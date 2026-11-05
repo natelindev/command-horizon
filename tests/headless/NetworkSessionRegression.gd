@@ -66,6 +66,7 @@ func _run():
 				if not mounted_seen:
 					_transport_hidden(rider, "host")
 					mounted_seen = true
+					rider.stance = rider.Stance.AGGRESSIVE
 				passenger_fired = (
 					passenger_fired
 					or (
@@ -141,7 +142,7 @@ func _run():
 				not session.submit({"kind": "surrender"}), "Spectator accepted a gameplay intent"
 			)
 			var saw_mounted = false
-			while session.received_tick < 600 and _waiting():
+			while (session.received_tick < 600 or not saw_mounted) and _waiting():
 				var rider = _unit("RocketInfantry", "player-1")
 				if rider != null and rider.has_meta("garrison_host") and not saw_mounted:
 					_transport_hidden(rider, "spectator")
@@ -205,6 +206,7 @@ func _run():
 			var saw_pause = false
 			var pause_epoch = -1
 			var saw_mounted = false
+			var mounted_tick = -1
 			var unloaded = false
 			var rig_origin = rig.position
 			var reconnected = false
@@ -214,6 +216,7 @@ func _run():
 				if rider.has_meta("garrison_host") and not saw_mounted:
 					_transport_hidden(rider, "guest")
 					saw_mounted = true
+					mounted_tick = session.received_tick
 					rig.manual_orders.submit(
 						{"kind": "move", "point": rig.position + Vector3(4, 0, 0)}
 					)
@@ -221,7 +224,11 @@ func _run():
 					desync_checked = true
 					human.resource_a += 1
 					_check(not session.verify_replica(), "Live replica tampering was not detected")
-				if session.received_tick >= 600 and not unloaded:
+				if (
+					mounted_tick >= 0
+					and session.received_tick >= mounted_tick + 240
+					and not unloaded
+				):
 					unloaded = true
 					session.submit(
 						{
@@ -399,8 +406,9 @@ func _transport_fixture(game):
 	]:
 		var unit = load(catalog.scene_path(entry[1].faction, entry[0])).instantiate()
 		game._setup_and_spawn_unit(unit, Transform3D(Basis(), entry[2]), entry[1], false)
-		if entry[0] != "RocketInfantry":
-			unit.stance = unit.Stance.HOLD_FIRE
+		# Loading time must not let the passenger kill its target before mounting.
+		# The host enables its weapon only after observing the mounted state.
+		unit.stance = unit.Stance.HOLD_FIRE
 
 	var plant = load(catalog.scene_path(players[0].faction, "PowerPlant")).instantiate()
 	game._setup_and_spawn_unit(plant, Transform3D(Basis(), Vector3(25, 0, 25)), players[0], false)
