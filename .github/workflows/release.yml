@@ -1,33 +1,16 @@
-name: Publish Release
-
+name: Release shutdown diagnostics
 on:
-  push:
-    tags: ['v*']
   workflow_dispatch:
     inputs:
       headless_only:
-        description: 'Verify review packages without launching a graphical game'
         type: boolean
         default: true
-
 permissions:
   contents: read
-
 jobs:
-  build:
-    name: Build and verify ${{ matrix.platform }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - platform: linux
-            runner: ubuntu-24.04
-          - platform: windows
-            runner: windows-2022
-          - platform: macos
-            runner: macos-14
-    runs-on: ${{ matrix.runner }}
-    timeout-minutes: 45
+  diagnose:
+    runs-on: macos-14
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
@@ -35,46 +18,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install graphical verification dependencies
-        if: matrix.platform == 'linux' && !inputs.headless_only
-        run: sudo apt-get update && sudo apt-get install -y xvfb libgl1-mesa-dri libglx-mesa0
-      - name: Export and check packaged resources
-        env:
-          RTS_RELEASE_PLATFORM: ${{ matrix.platform }}
-        run: python tools/release/build.py ${{ inputs.headless_only && '--headless-only' || '' }}
-      - name: Retain verification diagnostics
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: verification-${{ matrix.platform }}
-          path: build/verification/
-          if-no-files-found: ignore
-          retention-days: 7
+      - run: python tools/release/diagnose_shutdown.py
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: release-${{ matrix.platform }}
-          path: ${{ inputs.headless_only && 'build/headless-review/**/headless-review-artifacts/*' || 'build/release-assets/*' }}
-          if-no-files-found: error
-          retention-days: 1
-
-  publish:
-    name: Publish verified desktop packages
-    needs: build
-    if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          pattern: release-*
-          merge-multiple: true
-          path: release-assets
-      - uses: softprops/action-gh-release@v2
-        with:
-          name: Release ${{ github.ref_name }}
-          draft: false
-          prerelease: false
-          generate_release_notes: true
-          fail_on_unmatched_files: true
-          files: release-assets/*
+          name: shutdown-diagnostics
+          path: build/shutdown-diagnostics/
