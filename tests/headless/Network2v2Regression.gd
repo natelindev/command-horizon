@@ -17,7 +17,12 @@ func _run():
 	if _role_name.is_empty():
 		_role_name = "host" if _is_host else "guest"
 
-	session = load("res://source/match/network/NetworkSession.gd").create(self)
+	if not _is_host and _role_name == "guest2":
+		session = load("res://tests/headless/PausedFrameSession.gd").new()
+		session.name = "NetworkSession"
+		root.add_child(session)
+	else:
+		session = load("res://source/match/network/NetworkSession.gd").create(self)
 	session.changed.connect(func(): print("STATUS ", session.status))
 
 	var port = _port(29201)
