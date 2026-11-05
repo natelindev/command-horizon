@@ -41,10 +41,11 @@ func _ready():
 		mesh.material_override = part[2]
 		geometry.add_child(mesh)
 	super()
-	selected.connect(func():
-		for unit in occupants:
-			if unit.is_in_group("controlled_units"):
-				unit.get_node("Selection").select()
+	selected.connect(
+		func():
+			for unit in occupants:
+				if unit.is_in_group("controlled_units"):
+					unit.get_node("Selection").select()
 	)
 	garrison_mount = load("res://source/match/units/traits/GarrisonMount.gd").new()
 	garrison_mount.name = "GarrisonMount"
@@ -57,7 +58,11 @@ func _ready():
 
 func refresh_doctrine():
 	var completed = player.technology.completed if player.technology != null else []
-	var maximum = 320.0 * (1.5 if "bunker_reinforcements" in completed else 1.0) * (1.3 if "fortress_doctrine" in completed else 1.0)
+	var maximum = (
+		320.0
+		* (1.5 if "bunker_reinforcements" in completed else 1.0)
+		* (1.3 if "fortress_doctrine" in completed else 1.0)
+	)
 	if not is_equal_approx(_maximum, maximum):
 		var ratio = hp / hp_max
 		hp_max = maximum
@@ -68,7 +73,11 @@ func refresh_doctrine():
 func _physics_process(delta):
 	super(delta)
 	refresh_doctrine()
-	if player.technology != null and "fortress_doctrine" in player.technology.completed and hp > 0.0:
+	if (
+		player.technology != null
+		and "fortress_doctrine" in player.technology.completed
+		and hp > 0.0
+	):
 		hp = minf(hp_max, hp + 4.0 * delta)
 
 

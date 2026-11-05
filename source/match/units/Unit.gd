@@ -1,4 +1,5 @@
-# gdlint: disable=max-public-methods
+# gdlint: disable=duplicated-load,max-public-methods
+# Runtime loading avoids autoload-dependent preload cycles.
 extends Area3D
 
 signal selected

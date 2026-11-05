@@ -14,11 +14,17 @@ var _badge_elapsed = 0.0
 func ability_definitions() -> Array:
 	if player.faction != "helix":
 		return []
-	return [{
-		"id": "phase_shift", "name": "Phase Shift", "key": "E",
-		"description": "Teleport 8 m in the target direction, crossing cliffs and tank traps.",
-		"target_type": "target_point", "cooldown": 15.0, "range": 8.0,
-	}]
+	return [
+		{
+			"id": "phase_shift",
+			"name": "Phase Shift",
+			"key": "E",
+			"description": "Teleport 8 m in the target direction, crossing cliffs and tank traps.",
+			"target_type": "target_point",
+			"cooldown": 15.0,
+			"range": 8.0,
+		}
+	]
 
 
 func _ready():

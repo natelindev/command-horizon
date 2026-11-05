@@ -353,12 +353,12 @@ static func description(faction, role):
 		return (
 			TranslationServer.translate(text)
 			+ "\n"
-			+ (
-				TranslationServer
-				. translate(
-					"Bastion bulkheads: +25% structure health and 15% less damage from ballistic guns and rockets. Energy weapons ignore this protection."
+			+ (TranslationServer.translate(
+				(
+					"Bastion bulkheads: +25% structure health and 15% less damage from "
+					+ "ballistic guns and rockets. Energy weapons ignore this protection."
 				)
-			)
+			))
 		)
 	return text
 

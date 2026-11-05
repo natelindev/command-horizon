@@ -304,7 +304,15 @@ func _cancel_structure_placement():
 
 func _finish_structure_placement():
 	var gate = load("res://source/match/network/NetworkGate.gd")
-	if gate.intercept(_player, {"kind": "build", "role": _pending_structure_prototype.resource_path.get_file().get_basename(), "point": gate.Protocol.quantize(_active_blueprint_node.global_position), "angle": roundi(rad_to_deg(_active_blueprint_node.global_rotation.y) * 1000.0)}):
+	if gate.intercept(
+		_player,
+		{
+			"kind": "build",
+			"role": _pending_structure_prototype.resource_path.get_file().get_basename(),
+			"point": gate.Protocol.quantize(_active_blueprint_node.global_position),
+			"angle": roundi(rad_to_deg(_active_blueprint_node.global_rotation.y) * 1000.0)
+		}
+	):
 		_cancel_structure_placement()
 		return
 	if _player_has_enough_resources():

@@ -18,8 +18,12 @@ func _ready():
 
 func _update_tooltip():
 	tooltip_text = (
-		tr("Idle Harvesters") + " [%s]\n" % Bindings.label("cycle_idle_worker")
-		+ tr("Click to cycle · Shift/Ctrl+Click to select all [%s]") % Bindings.label("select_all_idle_workers")
+		tr("Idle Harvesters")
+		+ " [%s]\n" % Bindings.label("cycle_idle_worker")
+		+ (
+			tr("Click to cycle · Shift/Ctrl+Click to select all [%s]")
+			% Bindings.label("select_all_idle_workers")
+		)
 	)
 
 

@@ -74,7 +74,11 @@ const DESCRIPTIONS = {
 		"Unique faction hero. One alive or in training per player; can retrain "
 		+ "after death. Requires a command lab."
 	),
-	"Worker": "Armored bulk hauler. Collect eight materials per load, construct and repair structures; self-repairs when idle.",
+	"Worker":
+	(
+		"Armored bulk hauler. Collect eight materials per load, construct and "
+		+ "repair structures; self-repairs when idle."
+	),
 	"Infantry":
 	(
 		"Inexpensive troops against infantry and light machines; weak against heavy armor. "
@@ -106,7 +110,8 @@ const DESCRIPTIONS = {
 		"Attack helicopter. Rockets against ground forces while hovering in place; reloads on "
 		+ "cooldown in the field. Vulnerable to rocket infantry and anti-air."
 	),
-	"ForwardRefinery": "Forward materials drop-off. Build near ore to shorten Mule Hauler delivery routes.",
+	"ForwardRefinery":
+	"Forward materials drop-off. Build near ore to shorten Mule Hauler delivery routes.",
 	"CommandCenter": "Produces Mule Haulers. Receives harvested resources. Supplies 8 power.",
 	"Barracks":
 	(
@@ -130,10 +135,7 @@ const DESCRIPTIONS = {
 	"AntiGroundTurret":
 	"Defensive cannon against ground targets; cannot engage aircraft. Uses 2 power.",
 	"AntiAirTurret":
-	(
-		"Missile air defense that prioritizes aircraft. Ground damage: 33% "
-		+ "Uses 2 power."
-	),
+	"Missile air defense that prioritizes aircraft. Ground damage: 33% " + "Uses 2 power.",
 }
 const PRODUCES = {
 	"CommandCenter": ["Worker"],
@@ -191,7 +193,14 @@ static func is_fixed_wing(role):
 
 static func icon_path(unit_type):
 	if unit_type in ["AdvancedTank", "CombatRobot", "AntiAirVehicle"]:
-		return "res://assets/ui/bastion/%s.png" % {"AdvancedTank":"SiegeColossus", "CombatRobot":"BulwarkWalker", "AntiAirVehicle":"FlakHalftrack"}[unit_type]
+		return (
+			"res://assets/ui/bastion/%s.png"
+			% {
+				"AdvancedTank": "SiegeColossus",
+				"CombatRobot": "BulwarkWalker",
+				"AntiAirVehicle": "FlakHalftrack"
+			}[unit_type]
+		)
 	if unit_type in INFANTRY_ROLES:
 		return "res://assets/ui/infantry/bastion/%s.png" % unit_type
 	if unit_type in STRUCTURES:
@@ -201,11 +210,20 @@ static func icon_path(unit_type):
 
 static func type_from_path(path):
 	var filename = path.get_file().get_basename()
-	return {
-		"SiegeColossus": "AdvancedTank", "PrismSkimmer": "AdvancedTank", "BattleRig": "AdvancedTank",
-		"BulwarkWalker": "CombatRobot", "PhaseLancer": "CombatRobot", "DemolitionBuggy": "CombatRobot",
-		"FlakHalftrack": "AntiAirVehicle", "SkywardInterceptor": "AntiAirVehicle", "SAMTechnical": "AntiAirVehicle",
-	}.get(filename, filename)
+	return (
+		{
+			"SiegeColossus": "AdvancedTank",
+			"PrismSkimmer": "AdvancedTank",
+			"BattleRig": "AdvancedTank",
+			"BulwarkWalker": "CombatRobot",
+			"PhaseLancer": "CombatRobot",
+			"DemolitionBuggy": "CombatRobot",
+			"FlakHalftrack": "AntiAirVehicle",
+			"SkywardInterceptor": "AntiAirVehicle",
+			"SAMTechnical": "AntiAirVehicle",
+		}
+		. get(filename, filename)
+	)
 
 
 static func requirement_met(player, unit_type):

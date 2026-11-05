@@ -19,11 +19,10 @@ const FIDGETS = 4
 
 const FrameBudget = preload("res://source/match/units/traits/VisualFrameBudget.gd")
 const RuntimeCache = preload("res://source/utils/RuntimeCache.gd")
-var _shared: FrameBudget
-
 var motion: MotionProfile
 var chassis: Chassis
 var gpu_interpolated := false
+var _shared: FrameBudget
 var _track_motion = null
 var _antennas := []
 var _antenna_lean := Vector2.ZERO

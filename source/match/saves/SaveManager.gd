@@ -258,6 +258,8 @@ func _notice(message):
 
 func _network_save_blocked(game) -> bool:
 	if is_instance_valid(game) and game.has_meta("network_session"):
-		_notice("Network battles are recorded as replays. Leave the session before loading a local save.")
+		_notice(
+			"Network battles are recorded as replays. Leave the session before loading a local save."
+		)
 		return true
 	return false

@@ -51,7 +51,14 @@ func eligible(unit):
 
 func activate(selection, point = Vector3.ZERO):
 	var gate = load("res://source/match/network/NetworkGate.gd")
-	if gate.intercept(player, {"kind": "signature", "units": selection.map(gate.id_for), "point": gate.Protocol.quantize(point)}):
+	if gate.intercept(
+		player,
+		{
+			"kind": "signature",
+			"units": selection.map(gate.id_for),
+			"point": gate.Protocol.quantize(point)
+		}
+	):
 		return 0
 	error = ""
 	if not player.coordination_unlocked:

@@ -21,16 +21,51 @@ const COORDINATION_DURATION = 30.0
 # Historical mirrored research remains readable only for archived snapshots.
 # New matches expose these faction-specific branches and exclusive doctrines.
 const BRANCHES = [
-	"reactive_armor", "tandem_rockets", "siege_logistics", "bunker_reinforcements",
-	"fortress_doctrine", "iron_blitz", "plasma_shields", "beam_amplification",
-	"flux_capacitors", "phase_thrusters", "phase_overload", "continuous_coherence",
-	"scrap_cannibalization", "high_octane", "concealed_claymores",
-	"guerrilla_insurgency", "salvage_war_machine",
+	"reactive_armor",
+	"tandem_rockets",
+	"siege_logistics",
+	"bunker_reinforcements",
+	"fortress_doctrine",
+	"iron_blitz",
+	"plasma_shields",
+	"beam_amplification",
+	"flux_capacitors",
+	"phase_thrusters",
+	"phase_overload",
+	"continuous_coherence",
+	"scrap_cannibalization",
+	"high_octane",
+	"concealed_claymores",
+	"guerrilla_insurgency",
+	"salvage_war_machine",
 ]
 const FACTION_TECHNOLOGIES = {
-	"bastion": ["reactive_armor", "tandem_rockets", "siege_logistics", "bunker_reinforcements", "fortress_doctrine", "iron_blitz"],
-	"helix": ["plasma_shields", "beam_amplification", "flux_capacitors", "phase_thrusters", "phase_overload", "continuous_coherence"],
-	"frontier": ["scrap_cannibalization", "high_octane", "concealed_claymores", "guerrilla_insurgency", "salvage_war_machine"],
+	"bastion":
+	[
+		"reactive_armor",
+		"tandem_rockets",
+		"siege_logistics",
+		"bunker_reinforcements",
+		"fortress_doctrine",
+		"iron_blitz"
+	],
+	"helix":
+	[
+		"plasma_shields",
+		"beam_amplification",
+		"flux_capacitors",
+		"phase_thrusters",
+		"phase_overload",
+		"continuous_coherence"
+	],
+	"frontier":
+	[
+		"scrap_cannibalization",
+		"high_octane",
+		"concealed_claymores",
+		"guerrilla_insurgency",
+		"salvage_war_machine"
+	],
 }
 const EXCLUSIVE_PAIRS = [
 	["fortress_doctrine", "iron_blitz"],
@@ -39,11 +74,21 @@ const EXCLUSIVE_PAIRS = [
 ]
 # Innate 55% shield envelope; hull is the complementary 45% of each role.
 const PLASMA_SHIELDS = {
-	"Worker": 66.0, "Infantry": 12.1, "RocketInfantry": 17.6,
-	"SniperInfantry": 11.0, "AssaultInfantry": 20.9, "Hero": 60.5,
-	"Tank": 63.25, "CombatRobot": 71.5, "AdvancedTank": 79.75,
-	"RepairRobot": 24.75, "Helicopter": 27.5, "Fighter": 24.75,
-	"Bomber": 49.5, "AntiAirVehicle": 38.5, "Drone": 13.75,
+	"Worker": 66.0,
+	"Infantry": 12.1,
+	"RocketInfantry": 17.6,
+	"SniperInfantry": 11.0,
+	"AssaultInfantry": 20.9,
+	"Hero": 60.5,
+	"Tank": 63.25,
+	"CombatRobot": 71.5,
+	"AdvancedTank": 79.75,
+	"RepairRobot": 24.75,
+	"Helicopter": 27.5,
+	"Fighter": 24.75,
+	"Bomber": 49.5,
+	"AntiAirVehicle": 38.5,
+	"Drone": 13.75,
 }
 const ITEMS = {
 	"plasma_shields":
@@ -150,17 +195,76 @@ const ITEMS = {
 		"seconds": 40.0,
 		"requires": ["coordination"]
 	},
-	"beam_amplification": {"title": "Coherent Beam Amplification", "cost": Vector2i(50, 35), "seconds": 45.0, "requires": ["coordination"]},
-	"phase_thrusters": {"title": "Instant Hover Thrusters", "cost": Vector2i(40, 30), "seconds": 40.0, "requires": ["coordination"]},
-	"bunker_reinforcements": {"title": "Bunker Reinforcements", "cost": Vector2i(40, 15), "seconds": 35.0, "requires": ["coordination"]},
-	"concealed_claymores": {"title": "Concealed Claymores", "cost": Vector2i(35, 20), "seconds": 35.0, "requires": ["coordination"]},
-	"fortress_doctrine": {"title": "Fortress Doctrine", "cost": Vector2i(55, 35), "seconds": 50.0, "requires": ["coordination"]},
-	"iron_blitz": {"title": "Iron Blitz", "cost": Vector2i(55, 35), "seconds": 50.0, "requires": ["coordination"]},
-	"phase_overload": {"title": "Phase Overload", "cost": Vector2i(55, 40), "seconds": 50.0, "requires": ["coordination"]},
-	"continuous_coherence": {"title": "Continuous Coherence", "cost": Vector2i(55, 40), "seconds": 50.0, "requires": ["coordination"]},
-	"guerrilla_insurgency": {"title": "Guerrilla Insurgency", "cost": Vector2i(45, 25), "seconds": 45.0, "requires": ["coordination"]},
-	"salvage_war_machine": {"title": "Salvage War Machine", "cost": Vector2i(45, 25), "seconds": 45.0, "requires": ["coordination"]},
-
+	"beam_amplification":
+	{
+		"title": "Coherent Beam Amplification",
+		"cost": Vector2i(50, 35),
+		"seconds": 45.0,
+		"requires": ["coordination"]
+	},
+	"phase_thrusters":
+	{
+		"title": "Instant Hover Thrusters",
+		"cost": Vector2i(40, 30),
+		"seconds": 40.0,
+		"requires": ["coordination"]
+	},
+	"bunker_reinforcements":
+	{
+		"title": "Bunker Reinforcements",
+		"cost": Vector2i(40, 15),
+		"seconds": 35.0,
+		"requires": ["coordination"]
+	},
+	"concealed_claymores":
+	{
+		"title": "Concealed Claymores",
+		"cost": Vector2i(35, 20),
+		"seconds": 35.0,
+		"requires": ["coordination"]
+	},
+	"fortress_doctrine":
+	{
+		"title": "Fortress Doctrine",
+		"cost": Vector2i(55, 35),
+		"seconds": 50.0,
+		"requires": ["coordination"]
+	},
+	"iron_blitz":
+	{
+		"title": "Iron Blitz",
+		"cost": Vector2i(55, 35),
+		"seconds": 50.0,
+		"requires": ["coordination"]
+	},
+	"phase_overload":
+	{
+		"title": "Phase Overload",
+		"cost": Vector2i(55, 40),
+		"seconds": 50.0,
+		"requires": ["coordination"]
+	},
+	"continuous_coherence":
+	{
+		"title": "Continuous Coherence",
+		"cost": Vector2i(55, 40),
+		"seconds": 50.0,
+		"requires": ["coordination"]
+	},
+	"guerrilla_insurgency":
+	{
+		"title": "Guerrilla Insurgency",
+		"cost": Vector2i(45, 25),
+		"seconds": 45.0,
+		"requires": ["coordination"]
+	},
+	"salvage_war_machine":
+	{
+		"title": "Salvage War Machine",
+		"cost": Vector2i(45, 25),
+		"seconds": 45.0,
+		"requires": ["coordination"]
+	},
 }
 
 
@@ -198,17 +302,35 @@ static func description(id, faction):
 		"concealed_claymores":
 			return "Hidden proximity mines deal double damage over double the explosion radius."
 		"fortress_doctrine":
-			return "Permanent doctrine: structures gain 30% maximum HP, bunkers auto-repair and sandbag durability doubles. Excludes Iron Blitz."
+			return (
+				"Permanent doctrine: structures gain 30% maximum HP, bunkers auto-repair "
+				+ "and sandbag durability doubles. Excludes Iron Blitz."
+			)
 		"iron_blitz":
-			return "Permanent doctrine: tanks gain 20% movement speed and stabilized fire on the move. Excludes Fortress Doctrine."
+			return (
+				"Permanent doctrine: tanks gain 20% movement speed and stabilized fire on "
+				+ "the move. Excludes Fortress Doctrine."
+			)
 		"phase_overload":
-			return "Permanent doctrine: shield breaks emit an EMP flash and Phase Shift cooldown is halved. Excludes Continuous Coherence."
+			return (
+				"Permanent doctrine: shield breaks emit an EMP flash and Phase Shift "
+				+ "cooldown is halved. Excludes Continuous Coherence."
+			)
 		"continuous_coherence":
-			return "Permanent doctrine: Prism beams chain to two more targets and link range increases 50%. Excludes Phase Overload."
+			return (
+				"Permanent doctrine: Prism beams chain to two more targets and link range "
+				+ "increases 50%. Excludes Phase Overload."
+			)
 		"guerrilla_insurgency":
-			return "Permanent doctrine: destroyed structures release militia and the mine limit doubles. Excludes Salvage War Machine."
+			return (
+				"Permanent doctrine: destroyed structures release militia and the mine "
+				+ "limit doubles. Excludes Salvage War Machine."
+			)
 		"salvage_war_machine":
-			return "Permanent doctrine: destroyed enemy tanks can be salvaged directly into Outrider buggies. Excludes Guerrilla Insurgency."
+			return (
+				"Permanent doctrine: destroyed enemy tanks can be salvaged directly into "
+				+ "Outrider buggies. Excludes Guerrilla Insurgency."
+			)
 		"plasma_shields":
 			return (
 				"Increase innate plasma shield capacity by 30% and reduce the out-of-combat "
@@ -313,7 +435,10 @@ static func damage_factor(role, completed):
 
 
 static func health_factor(role, completed):
-	if "fortress_doctrine" in completed and role in preload("res://source/match/BastionCatalog.gd").STRUCTURES:
+	if (
+		"fortress_doctrine" in completed
+		and role in preload("res://source/match/BastionCatalog.gd").STRUCTURES
+	):
 		return 1.3
 	return 1.0 + .1 * rank("armor", completed) if role in COMBAT_ROLES else 1.0
 

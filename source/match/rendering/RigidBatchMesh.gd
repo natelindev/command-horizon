@@ -1,4 +1,13 @@
+# Independent guard clauses keep validation and eligibility paths explicit.
+# gdlint: disable=max-returns
 extends RefCounted
+const CUSTOM_FLAGS = (
+	(Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT)
+	| (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM1_SHIFT)
+	| (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM2_SHIFT)
+	| (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM3_SHIFT)
+)
+
 # Per-match caches: model materials must not retain a previous match's pose texture.
 var _buckets := {}
 
@@ -9,14 +18,6 @@ func _bucket(key: String) -> Dictionary:
 
 func setup(poses: Texture2D):
 	_bucket("gpu_pose_texture").texture = poses
-
-
-const CUSTOM_FLAGS = (
-	(Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT)
-	| (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM1_SHIFT)
-	| (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM2_SHIFT)
-	| (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM3_SHIFT)
-)
 
 
 func _material(material: Material) -> Material:
@@ -76,7 +77,8 @@ void vertex() {
 	mat3 original_model = mat3(MODEL_MATRIX) * pose_basis * source_basis;
 	mat3 original_view = mat3(VIEW_MATRIX) * original_model;
 	VERTEX = posed;
-	NORMAL = abs(determinant(pose_basis)) > 0.000001 ? normalize(transpose(inverse(pose_basis)) * NORMAL) : vec3(0.0, 1.0, 0.0);
+	NORMAL = abs(determinant(pose_basis)) > 0.000001
+		? normalize(transpose(inverse(pose_basis)) * NORMAL) : vec3(0.0, 1.0, 0.0);
 	TANGENT = normalize(pose_basis * TANGENT);
 	BINORMAL = normalize(pose_basis * BINORMAL);
 """
@@ -126,7 +128,11 @@ void vertex() {
 	)
 	for column in 3:
 		code = code.replace("MODELVIEW_MATRIX[%d].xyz" % column, "original_view[%d]" % column)
-	var declarations := "uniform sampler2D pose_palette : filter_nearest, repeat_disable;\nuniform sampler2D material_palette : filter_nearest, repeat_disable;\nvarying flat int gpu_material_row;"
+	var declarations := (
+		"uniform sampler2D pose_palette : filter_nearest, "
+		+ "repeat_disable;\nuniform sampler2D material_palette : filter_nearest, "
+		+ "repeat_disable;\nvarying flat int gpu_material_row;"
+	)
 	code = code.replace("\r\n", "\n").replace(declarations, "").replace(
 		"shader_type spatial;", "shader_type spatial;\n" + declarations
 	)
@@ -135,13 +141,13 @@ void vertex() {
 		"varying flat int gpu_material_row;",
 		"varying flat int gpu_material_row;\nvarying flat vec4 gpu_pulse;"
 	)
-	code = (
-		code
-		. replace(
-			"gpu_material_row = int(floor(CUSTOM3.w / 8192.0));",
-			"gpu_material_row = int(floor(CUSTOM3.w / 8192.0));\n gpu_pulse = texelFetch(pose_palette, ivec2(3, int(INSTANCE_CUSTOM.x + 0.5)), 0);"
+	code = (code.replace(
+		"gpu_material_row = int(floor(CUSTOM3.w / 8192.0));",
+		(
+			"gpu_material_row = int(floor(CUSTOM3.w / 8192.0));\n gpu_pulse = "
+			+ "texelFetch(pose_palette, ivec2(3, int(INSTANCE_CUSTOM.x + 0.5)), 0);"
 		)
-	)
+	))
 	var end := code.rfind("}")
 	code = code.insert(end, "\n EMISSION += gpu_pulse.rgb * gpu_pulse.a * gpu_pulse.a * 0.546;\n")
 	var groups = _bucket("gpu_palette_groups")

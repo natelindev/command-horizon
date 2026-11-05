@@ -1,4 +1,5 @@
-# gdlint: disable=max-returns
+# gdlint: disable=duplicated-load,max-returns
+# Runtime loading avoids autoload-dependent preload cycles.
 extends "res://source/match/hud/BastionDemoHUD.gd"
 
 const CampaignCatalog = preload("res://source/match/campaign/CampaignCatalog.gd")
@@ -457,7 +458,9 @@ func pause_after_load():
 
 
 func _toggle_pause():
-	if load("res://source/match/network/NetworkGate.gd").intercept(get_parent(), {"kind": "pause", "value": not get_tree().paused}):
+	if load("res://source/match/network/NetworkGate.gd").intercept(
+		get_parent(), {"kind": "pause", "value": not get_tree().paused}
+	):
 		return
 	if _overlay != null or get_parent().finished:
 		return
@@ -555,7 +558,11 @@ func show_result(result):
 func _back_to_setup():
 	var network = load("res://source/match/network/NetworkGate.gd").session_for(get_parent())
 	if network != null:
-		var destination = "res://source/main-menu/Replays.tscn" if network.has_method("seek") else "res://source/main-menu/Multiplayer.tscn"
+		var destination = (
+			"res://source/main-menu/Replays.tscn"
+			if network.has_method("seek")
+			else "res://source/main-menu/Multiplayer.tscn"
+		)
 		network.shutdown()
 		network.queue_free()
 		get_tree().paused = false
@@ -585,7 +592,9 @@ func continue_campaign_to(next_op: String):
 	var game = get_parent()
 	var launch = load("res://source/main-menu/CampaignLaunch.gd")
 	var difficulty = 1
-	var opponents = get_tree().get_nodes_in_group("players").filter(func(p): return p != game._get_human_player())
+	var opponents = get_tree().get_nodes_in_group("players").filter(
+		func(p): return p != game._get_human_player()
+	)
 	if not opponents.is_empty():
 		difficulty = opponents[0].difficulty
 	var settings = launch.settings_for(next_op, difficulty)

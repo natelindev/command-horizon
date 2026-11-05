@@ -88,10 +88,7 @@ func _ready():
 	if "--dedicated-server" in user_args or "--server" in user_args:
 		_start_dedicated_server.call_deferred()
 		return
-	if (
-		DisplayServer.get_name() == "headless"
-		and "--headless-startup-smoke" in user_args
-	):
+	if DisplayServer.get_name() == "headless" and "--headless-startup-smoke" in user_args:
 		_finish_headless_smoke.call_deferred()
 
 

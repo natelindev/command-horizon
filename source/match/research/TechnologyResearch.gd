@@ -1,4 +1,5 @@
-# gdlint: disable=max-returns
+# gdlint: disable=duplicated-load,max-returns
+# Runtime loading avoids autoload-dependent preload cycles.
 extends Node
 
 const Catalog = preload("res://source/match/research/TechnologyCatalog.gd")
@@ -7,9 +8,9 @@ var active = ""
 var left = -1.0
 var paid = {}
 var queued = []
+var doctrine_effects = null
 var _advanced_frame = -1
 @onready var player = get_parent()
-var doctrine_effects = null
 
 
 func _ready():
@@ -129,7 +130,9 @@ func advance_queue():
 
 
 func cancel():
-	if load("res://source/match/network/NetworkGate.gd").intercept(player, {"kind": "cancel_research", "index": -1}):
+	if load("res://source/match/network/NetworkGate.gd").intercept(
+		player, {"kind": "cancel_research", "index": -1}
+	):
 		return true
 	if active == "":
 		return false
@@ -145,7 +148,9 @@ func cancel():
 
 
 func cancel_queued(index):
-	if load("res://source/match/network/NetworkGate.gd").intercept(player, {"kind": "cancel_research", "index": index}):
+	if load("res://source/match/network/NetworkGate.gd").intercept(
+		player, {"kind": "cancel_research", "index": index}
+	):
 		return true
 	if index < 0 or index >= queued.size():
 		return false
@@ -240,7 +245,12 @@ func service_factor():
 
 
 func has_doctrine():
-	return "doctrine" in completed or Catalog.EXCLUSIVE_PAIRS.any(func(pair): return pair.any(func(id): return id in completed))
+	return (
+		"doctrine" in completed
+		or Catalog.EXCLUSIVE_PAIRS.any(
+			func(pair): return pair.any(func(id): return id in completed)
+		)
+	)
 
 
 func status():
@@ -251,7 +261,10 @@ func status():
 		suffix = " · paused, rebuild a lab"
 	elif player.is_brownout():
 		suffix = tr(" · low power, %d%% speed") % roundi(player.research_factor() * 100)
-	return "%s · %.1f s remaining%s" % [Catalog.title(active, player.faction), left / player.research_factor(), suffix]
+	return (
+		"%s · %.1f s remaining%s"
+		% [Catalog.title(active, player.faction), left / player.research_factor(), suffix]
+	)
 
 
 func capture():

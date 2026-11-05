@@ -20,9 +20,9 @@ class Job:
 				chassis.advance(delta, root)
 
 
+var last_worker_count := 0
 var _jobs: Array = []
 var _lanes := 1
-var last_worker_count := 0
 
 
 func solve(jobs: Array, parallel := true, minimum_batch := 64):

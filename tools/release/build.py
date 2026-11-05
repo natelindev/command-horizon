@@ -339,6 +339,24 @@ def stage_archive_validation(work, project=None, source_root=None):
     return stage, profile
 
 
+def import_release_project(engine, project):
+    """Import startup fonts before loading the original staged project settings."""
+    config = project / "project.godot"
+    original = config.read_bytes()
+    bootstrap, count = re.subn(rb'(?m)^theme/custom_font=[^\r\n]*\r?\n', b'', original)
+    command = [engine, "--headless", "--path", project, "--editor", "--quit"]
+    if count:
+        # Godot loads this font before the editor importer runs. A fresh checkout
+        # has the .import remap but no fontdata yet. Only the private staging copy
+        # uses the default font for this first pass; all diagnostics remain fatal.
+        try:
+            config.write_bytes(bootstrap)
+            run(command)
+        finally:
+            config.write_bytes(original)
+    run(command)
+
+
 def check_rendered_resources(engine, pack, isolated, headless_only=False, flags=None):
     """Exercise actual compatibility allocations as well as the dummy server."""
     for test in RENDERED_TESTS:
@@ -598,7 +616,7 @@ def main():
             RECORDER.report["isolated_user_profile"] = str(profile)
             RECORDER.save()
             cleanup.callback(retain_review_evidence, profile, verification)
-        run([engine, "--headless", "--path", project, "--editor", "--quit"])
+        import_release_project(engine, project)
         failed = []
         flags = NATIVE_FLAGS if args.native_backend else []
         failed.extend(check_source_contracts(engine, project, flags))

@@ -87,8 +87,7 @@ static func field_depleted(game, bases) -> bool:
 			{
 				"site": expansion.site,
 				"field": expansion.field,
-				"stocks":
-				stocks.rich if expansion.get("rich", false) else stocks.expansion
+				"stocks": stocks.rich if expansion.get("rich", false) else stocks.expansion
 			}
 		)
 	var closest = null

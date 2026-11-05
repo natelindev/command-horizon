@@ -1,4 +1,5 @@
-# gdlint: disable=max-returns,max-file-lines
+# gdlint: disable=duplicated-load,max-returns,max-file-lines
+# Runtime loading avoids autoload-dependent preload cycles.
 extends Node3D
 
 const Players = preload("res://source/match/Players.gd")

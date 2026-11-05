@@ -22,8 +22,15 @@ func _physics_process(delta):
 
 func advance(delta: float):
 	var movement = unit.get_node_or_null("Movement")
-	var moving = movement != null and (movement._has_destination or movement.velocity.length_squared() > 0.01)
-	if moving or unit.global_position.distance_squared_to(_previous) > 0.0025 or unit.has_meta("garrison_host"):
+	var moving = (
+		movement != null
+		and (movement._has_destination or movement.velocity.length_squared() > 0.01)
+	)
+	if (
+		moving
+		or unit.global_position.distance_squared_to(_previous) > 0.0025
+		or unit.has_meta("garrison_host")
+	):
 		reveal()
 	else:
 		idle_left = maxf(0.0, idle_left - delta)
@@ -43,7 +50,10 @@ func detected_by(observer) -> bool:
 		return false
 	if Players.allied(observer.player, unit.player) or _flare_reveals(observer.player):
 		return true
-	return observer.global_position_yless.distance_squared_to(unit.global_position_yless) <= DETECTION_RANGE * DETECTION_RANGE
+	return (
+		observer.global_position_yless.distance_squared_to(unit.global_position_yless)
+		<= DETECTION_RANGE * DETECTION_RANGE
+	)
 
 
 func detected_by_player(player, battlefield) -> bool:
@@ -62,6 +72,9 @@ func _flare_reveals(player) -> bool:
 		if not Players.allied(manager.unit.player, player) or not manager.is_active("target_flare"):
 			continue
 		var flare = manager.get_ability("target_flare")
-		if unit.global_position_yless.distance_squared_to(flare.effect_position * Vector3(1, 0, 1)) <= flare.radius * flare.radius:
+		if (
+			unit.global_position_yless.distance_squared_to(flare.effect_position * Vector3(1, 0, 1))
+			<= flare.radius * flare.radius
+		):
 			return true
 	return false

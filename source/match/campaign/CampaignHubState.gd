@@ -1,3 +1,6 @@
+# gdlint: disable=max-returns,duplicated-load
+# Independent guard clauses keep validation and eligibility paths explicit.
+# Runtime loading avoids autoload-dependent preload cycles.
 extends RefCounted
 
 ## Campaign hub choices are separate from both operation completion and battle
@@ -41,23 +44,51 @@ const UPGRADE_REQUIREMENTS = {
 }
 
 const FACTION_UPGRADES = {
-	"bastion": [
-		"weapons_1", "weapons_2", "weapons_3",
-		"armor_1", "armor_2", "armor_3",
-		"tank_stabilizers", "tandem_rockets", "reactive_armor",
-		"siege_logistics", "bunker_reinforcements", "service", "dual_purpose_aa"
+	"bastion":
+	[
+		"weapons_1",
+		"weapons_2",
+		"weapons_3",
+		"armor_1",
+		"armor_2",
+		"armor_3",
+		"tank_stabilizers",
+		"tandem_rockets",
+		"reactive_armor",
+		"siege_logistics",
+		"bunker_reinforcements",
+		"service",
+		"dual_purpose_aa"
 	],
-	"helix": [
-		"weapons_1", "weapons_2", "weapons_3",
-		"armor_1", "armor_2", "armor_3",
-		"plasma_shields", "beam_amplification", "flux_capacitors",
-		"phase_thrusters", "service", "dual_purpose_aa"
+	"helix":
+	[
+		"weapons_1",
+		"weapons_2",
+		"weapons_3",
+		"armor_1",
+		"armor_2",
+		"armor_3",
+		"plasma_shields",
+		"beam_amplification",
+		"flux_capacitors",
+		"phase_thrusters",
+		"service",
+		"dual_purpose_aa"
 	],
-	"frontier": [
-		"weapons_1", "weapons_2", "weapons_3",
-		"armor_1", "armor_2", "armor_3",
-		"scrap_cannibalization", "high_octane", "concealed_claymores",
-		"bunker_reinforcements", "service", "dual_purpose_aa"
+	"frontier":
+	[
+		"weapons_1",
+		"weapons_2",
+		"weapons_3",
+		"armor_1",
+		"armor_2",
+		"armor_3",
+		"scrap_cannibalization",
+		"high_octane",
+		"concealed_claymores",
+		"bunker_reinforcements",
+		"service",
+		"dual_purpose_aa"
 	]
 }
 
@@ -104,7 +135,12 @@ func _valid(value) -> bool:
 			or (value.get("schema") == 2 and value.size() != 5)
 			or (value.get("schema") == 3 and value.size() != 6)
 			or (value.get("schema") == 4 and value.size() != 7)
-			or (value.get("schema") != 1 and value.get("schema") != 2 and value.get("schema") != 3 and value.get("schema") != 4)
+			or (
+				value.get("schema") != 1
+				and value.get("schema") != 2
+				and value.get("schema") != 3
+				and value.get("schema") != 4
+			)
 		)
 	):
 		return false

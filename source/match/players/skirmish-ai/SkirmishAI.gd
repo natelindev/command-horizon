@@ -1,3 +1,5 @@
+# Independent guard clauses keep validation and eligibility paths explicit.
+# gdlint: disable=max-returns
 extends "res://source/match/players/Player.gd"
 
 const Factions = preload("res://source/match/FactionCatalog.gd")
@@ -260,7 +262,9 @@ func _build(units, desired):
 	if not position_to_build.is_finite():
 		building.free()
 		return
-	var builder = Labor.builder(workers, position_to_build, desired in ["CommandCenter", "ForwardRefinery"])
+	var builder = Labor.builder(
+		workers, position_to_build, desired in ["CommandCenter", "ForwardRefinery"]
+	)
 	if builder == null:
 		building.free()
 		return
@@ -491,7 +495,10 @@ func _train(units, desired):
 			# producers, instead of spending its next delivery on cheaper armor.
 			reserve += price
 			continue
-		if job.producer.production_queue.produce(load(Factions.scene_path(faction, job.role))) != null:
+		if (
+			job.producer.production_queue.produce(load(Factions.scene_path(faction, job.role)))
+			!= null
+		):
 			if job.producer.type == "VehicleFactory":
 				_production_index += 1
 
@@ -499,7 +506,11 @@ func _train(units, desired):
 func _command_army(units):
 	var enemies = Economy.contacts(_match, self)
 	var tactical = STRATEGIES.get(faction, STRATEGIES.bastion).command(_match, self, units, enemies)
-	tactical.append_array(Tactics.command(_match, self, units.filter(func(unit): return unit not in tactical), enemies))
+	tactical.append_array(
+		Tactics.command(
+			_match, self, units.filter(func(unit): return unit not in tactical), enemies
+		)
+	)
 	var free = units.filter(func(unit): return unit not in tactical)
 	var recovering = Recovery.command(_match, free, enemies, profile().retreat_health)
 	var available = free.filter(func(unit): return unit not in recovering)
@@ -661,7 +672,11 @@ func _research_candidate(units):
 			return {}
 		id = ""
 		for option in profile().research:
-			if option not in technology.completed and Technologies.available(option, faction) and Technologies.exclusion(option, technology.planned_technologies()) == "":
+			if (
+				option not in technology.completed
+				and Technologies.available(option, faction)
+				and Technologies.exclusion(option, technology.planned_technologies()) == ""
+			):
 				id = option
 				cost = Technologies.ITEMS[id].cost
 				break

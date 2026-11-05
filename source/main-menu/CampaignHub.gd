@@ -1,3 +1,5 @@
+# Runtime loading avoids autoload-dependent preload cycles.
+# gdlint: disable=duplicated-load
 extends Control
 
 const Catalog = preload("res://source/match/campaign/CampaignCatalog.gd")
@@ -234,9 +236,7 @@ func _deployment():
 			mark = " 🔒"
 		else:
 			mark = " ►"
-		_mission_picker.add_item(
-			"%s · %s%s" % [entry.number, tr(entry.title), mark]
-		)
+		_mission_picker.add_item("%s · %s%s" % [entry.number, tr(entry.title), mark])
 	_mission_picker.item_selected.connect(_select_mission)
 	row.add_child(_mission_picker)
 	_difficulty = OptionButton.new()
@@ -318,7 +318,11 @@ func _workshop():
 
 	var pts_label = _label(
 		header_row,
-		tr("%d Tech Points Available") % pts_avail + " · " + (tr("Earned: %d · Spent: %d") % [pts_earned, pts_spent]),
+		(
+			tr("%d Tech Points Available") % pts_avail
+			+ " · "
+			+ (tr("Earned: %d · Spent: %d") % [pts_earned, pts_spent])
+		),
 		15
 	)
 	pts_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -378,8 +382,15 @@ func _workshop():
 		if has:
 			btn.tooltip_text = tr(desc) + "\n" + tr("Purchased")
 		elif not can:
-			if HubState.UPGRADE_REQUIREMENTS.has(id) and not _state.has_upgrade(faction, HubState.UPGRADE_REQUIREMENTS[id]):
-				btn.tooltip_text = tr(desc) + "\n" + (tr("Requires %s") % tech.title(HubState.UPGRADE_REQUIREMENTS[id], faction))
+			if (
+				HubState.UPGRADE_REQUIREMENTS.has(id)
+				and not _state.has_upgrade(faction, HubState.UPGRADE_REQUIREMENTS[id])
+			):
+				btn.tooltip_text = (
+					tr(desc)
+					+ "\n"
+					+ (tr("Requires %s") % tech.title(HubState.UPGRADE_REQUIREMENTS[id], faction))
+				)
 			else:
 				btn.tooltip_text = tr(desc) + "\n" + tr("Need more Tech Points")
 		else:

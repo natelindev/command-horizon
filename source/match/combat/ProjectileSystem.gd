@@ -799,7 +799,10 @@ func _fire_prism(unit, target, weapon):
 		)
 		current.receive_shot(shot, center_of(current), pow(0.7, index), weapon)
 		previous = current
-		var candidates = _match.battlefield.nearby_units(current.global_position, 4.0, null, unit.player).filter(
+		var nearby = _match.battlefield.nearby_units(
+			current.global_position, 4.0, null, unit.player
+		)
+		var candidates = nearby.filter(
 			func(enemy): return enemy not in visited and Rules.can_receive(shot, enemy)
 		)
 		candidates.sort_custom(

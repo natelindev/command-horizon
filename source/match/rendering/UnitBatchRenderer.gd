@@ -1,3 +1,5 @@
+# Independent guard clauses keep validation and eligibility paths explicit.
+# gdlint: disable=max-returns
 extends Node3D
 
 ## Render articulated models through shared meshes and a GPU pose palette.

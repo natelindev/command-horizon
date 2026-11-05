@@ -73,10 +73,7 @@ func say_unit(unit, kind):
 		return false
 	# Group orders reach this once per member; spend the shared chatter budget
 	# before resolving a recording or advancing any voice-bank lookup work.
-	if (
-		kind in Bank.ORDER_KINDS
-		and _clock - _spoken_at.get("chatter", -INF) < CHATTER_GAP
-	):
+	if kind in Bank.ORDER_KINDS and _clock - _spoken_at.get("chatter", -INF) < CHATTER_GAP:
 		return false
 	var line = _bank.unit_line(unit, kind)
 	if line.is_empty():

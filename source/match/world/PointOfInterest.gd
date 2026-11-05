@@ -1,4 +1,5 @@
-# gdlint: disable=max-public-methods
+# gdlint: disable=duplicated-load,max-public-methods
+# Runtime loading avoids autoload-dependent preload cycles.
 extends "res://source/match/objectives/CaptureRelay.gd"
 
 signal recruitment_changed
@@ -399,7 +400,9 @@ func _physics_process(delta):
 
 func hire(requester, role):
 	var gate = load("res://source/match/network/NetworkGate.gd")
-	if gate.intercept(requester, {"kind": "hire_mercenary", "target": gate.id_for(self), "role": role}):
+	if gate.intercept(
+		requester, {"kind": "hire_mercenary", "target": gate.id_for(self), "role": role}
+	):
 		return true
 	if (
 		kind != "mercenary"
@@ -426,7 +429,9 @@ func hire(requester, role):
 
 func cancel_hire(requester, index = 0):
 	var gate = load("res://source/match/network/NetworkGate.gd")
-	if gate.intercept(requester, {"kind": "cancel_mercenary", "target": gate.id_for(self), "index": index}):
+	if gate.intercept(
+		requester, {"kind": "cancel_mercenary", "target": gate.id_for(self), "index": index}
+	):
 		return true
 	if index < 0 or index >= jobs.size() or requester != _payer:
 		return false

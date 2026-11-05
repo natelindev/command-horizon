@@ -41,22 +41,35 @@ func _shield_broken(reference: WeakRef):
 
 func _on_destroying(unit):
 	if (
-		game == null or unit.player != player or "guerrilla_insurgency" not in technology.completed
-		or not unit.has_method("is_constructed") or not unit.is_constructed()
+		game == null
+		or unit.player != player
+		or "guerrilla_insurgency" not in technology.completed
+		or not unit.has_method("is_constructed")
+		or not unit.is_constructed()
 	):
 		return
 	var catalog = load("res://source/match/FactionCatalog.gd")
 	var placement = load("res://source/match/utils/UnitPlacementUtils.gd")
 	var navigation = game.navigation.get_navigation_map_rid_by_domain(1)
-	var obstacles = get_tree().get_nodes_in_group("units") + get_tree().get_nodes_in_group("resource_units")
+	var obstacles = (
+		get_tree().get_nodes_in_group("units") + get_tree().get_nodes_in_group("resource_units")
+	)
 	var remaining = mini(3, 100 - player.population(true))
 	for ring in [unit.radius + 1.5, unit.radius + 3.0, unit.radius + 4.5]:
 		for index in 12:
 			if remaining <= 0:
 				return
-			var point = unit.global_position + Vector3(cos(index * TAU / 12), 0.0, sin(index * TAU / 12)) * ring
+			var point = (
+				unit.global_position
+				+ Vector3(cos(index * TAU / 12), 0.0, sin(index * TAU / 12)) * ring
+			)
 			point = game.map.ground_point(Vector2(point.x, point.z))
-			if placement.validate_agent_placement_position(point, 0.4, obstacles, navigation, game.map) != placement.VALID:
+			if (
+				placement.validate_agent_placement_position(
+					point, 0.4, obstacles, navigation, game.map
+				)
+				!= placement.VALID
+			):
 				continue
 			var militia = load(catalog.scene_path(player.faction, "Infantry")).instantiate()
 			MatchSignals.setup_and_spawn_unit.emit(militia, Transform3D(Basis(), point), player)

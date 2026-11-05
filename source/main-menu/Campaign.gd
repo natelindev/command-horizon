@@ -210,7 +210,11 @@ func _select_operation(index):
 	)
 	if Catalog.is_story(_mission_id):
 		var operation = Catalog.operations()[_mission_id]
-		_completion.text = tr("Completed") if _progress.completed(_mission_id) else (tr("Available") if unlocked else tr("Locked"))
+		_completion.text = (
+			tr("Completed")
+			if _progress.completed(_mission_id)
+			else (tr("Available") if unlocked else tr("Locked"))
+		)
 		_briefing.text = (
 			operation.summary_zh if Globals.options.language == "zh_CN" else operation.summary
 		)
@@ -229,21 +233,27 @@ func _select_operation(index):
 		_difficulty.select(1)
 		_start_button.text = tr("Start %s") % tr(operation.title)
 		_start_button.disabled = not unlocked
-		_start_button.tooltip_text = "" if unlocked else tr("Complete previous operation to unlock.")
+		_start_button.tooltip_text = (
+			"" if unlocked else tr("Complete previous operation to unlock.")
+		)
 		return
 	var split = _ids[index] == "split_signal"
 	var supply = _ids[index] == "supply_line"
 	if _mission_id == "command_horizon":
 		_horizon_briefing()
 		_start_button.disabled = not unlocked
-		_start_button.tooltip_text = "" if unlocked else tr("Complete previous operation to unlock.")
+		_start_button.tooltip_text = (
+			"" if unlocked else tr("Complete previous operation to unlock.")
+		)
 		if not unlocked:
 			_completion.text = tr("Locked")
 		return
 	if _mission_id == "broken_foundry":
 		_foundry_briefing()
 		_start_button.disabled = not unlocked
-		_start_button.tooltip_text = "" if unlocked else tr("Complete previous operation to unlock.")
+		_start_button.tooltip_text = (
+			"" if unlocked else tr("Complete previous operation to unlock.")
+		)
 		if not unlocked:
 			_completion.text = tr("Locked")
 		return

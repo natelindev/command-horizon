@@ -5,9 +5,9 @@ const Artwork = preload("res://source/main-menu/ArtworkCatalog.gd")
 @export var dim = .25
 @export var motion = true
 
+var artwork_path = ""
 var _art: TextureRect
 var _time = 0.0
-var artwork_path = ""
 
 
 func _ready():

@@ -324,9 +324,11 @@ func _create_players_from_settings():
 		if has_meta("network_local_slot"):
 			var network_slot = get_meta("network_local_slot")
 			player_scene = load(
-				"res://source/match/players/human/Human.tscn"
-				if (network_slot == side_index or (network_slot < 0 and side_index == 0))
-				else "res://source/match/players/skirmish-ai/SkirmishAI.tscn"
+				(
+					"res://source/match/players/human/Human.tscn"
+					if (network_slot == side_index or (network_slot < 0 and side_index == 0))
+					else "res://source/match/players/skirmish-ai/SkirmishAI.tscn"
+				)
 			)
 		var player = player_scene.instantiate()
 		player.color = player_settings.color

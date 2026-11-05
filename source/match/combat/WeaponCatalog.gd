@@ -48,25 +48,48 @@ const HEAVY_SHELL = {
 	"splash": 1.3
 }
 const SIEGE_SHELL = {
-	"id": "siege_shell", "kind": "shell", "speed": 19.0,
-	"spread": 0.004, "visual": "slug", "splash": 3.8, "high_arc": true, "life": 4.0,
+	"id": "siege_shell",
+	"kind": "shell",
+	"speed": 19.0,
+	"spread": 0.004,
+	"visual": "slug",
+	"splash": 3.8,
+	"high_arc": true,
+	"life": 4.0,
 }
 const PRISM_BEAM = {
-	"id": "prism_beam", "kind": "rail", "speed": 400.0,
-	"spread": 0.0, "visual": "rail", "prism": true,
+	"id": "prism_beam",
+	"kind": "rail",
+	"speed": 400.0,
+	"spread": 0.0,
+	"visual": "rail",
+	"prism": true,
 }
 const THERMAL_BEAM = {
-	"id": "thermal_beam", "kind": "rail", "speed": 400.0,
-	"spread": 0.0, "visual": "rail",
+	"id": "thermal_beam",
+	"kind": "rail",
+	"speed": 400.0,
+	"spread": 0.0,
+	"visual": "rail",
 }
 const ION_DISRUPTOR = {
-	"id": "ion_disruptor", "kind": "missile", "speed": 22.0,
-	"turn": 7.0, "spread": 0.0, "visual": "rocket", "gravity": 0.0,
-	"shield_pierce": true, "ion_stall": 1.0, "life": 2.0,
+	"id": "ion_disruptor",
+	"kind": "missile",
+	"speed": 22.0,
+	"turn": 7.0,
+	"spread": 0.0,
+	"visual": "rocket",
+	"gravity": 0.0,
+	"shield_pierce": true,
+	"ion_stall": 1.0,
+	"life": 2.0,
 }
 const DEMOLITION_CHARGE = {
-	"id": "demolition_charge", "kind": "warhead", "speed": 0.0,
-	"visual": "bomb", "splash": 4.0,
+	"id": "demolition_charge",
+	"kind": "warhead",
+	"speed": 0.0,
+	"visual": "bomb",
+	"splash": 4.0,
 }
 const RAIL = {"id": "rail", "kind": "rail", "speed": 400.0, "spread": 0.001, "visual": "rail"}
 const INFANTRY_ROCKET = {
@@ -182,8 +205,12 @@ const FLAK = {
 	"cloud_seconds": 2.0,
 }
 const FLAK_CLOUD = {
-	"id": "flak_cloud", "kind": "cloud", "speed": 0.0,
-	"visual": "flak_cloud", "splash": 2.1, "life": 2.0,
+	"id": "flak_cloud",
+	"kind": "cloud",
+	"speed": 0.0,
+	"visual": "flak_cloud",
+	"splash": 2.1,
+	"life": 2.0,
 }
 const INTERCEPTOR = {
 	"id": "interceptor",
@@ -209,9 +236,17 @@ const AA_AUTOCANNON = {
 	"visual": "heavy_tracer"
 }
 const SAM_SWARM = {
-	"id": "sam_swarm", "kind": "rocket", "speed": 40.0,
-	"thrust": 35.0, "burn": 0.35, "max_speed": 52.0, "gravity": 0.0,
-	"spread": 0.012, "visual": "rocket", "splash": 0.8, "life": 1.0,
+	"id": "sam_swarm",
+	"kind": "rocket",
+	"speed": 40.0,
+	"thrust": 35.0,
+	"burn": 0.35,
+	"max_speed": 52.0,
+	"gravity": 0.0,
+	"spread": 0.012,
+	"visual": "rocket",
+	"splash": 0.8,
+	"life": 1.0,
 }
 const PULSE_LASER = {
 	"id": "pulse_laser",

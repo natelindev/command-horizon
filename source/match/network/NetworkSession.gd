@@ -408,10 +408,7 @@ func _hello(sender: int, packet: Dictionary):
 		total_commanders += 1
 	status = (
 		tr("%d commander connected · %d spectators")
-		% [
-			total_commanders,
-			peers.values().filter(func(entry): return entry.slot < 0).size()
-		]
+		% [total_commanders, peers.values().filter(func(entry): return entry.slot < 0).size()]
 	)
 	changed.emit()
 	if not _last_state.is_empty():
@@ -474,7 +471,7 @@ func start_battle(setup: Callable = Callable()) -> bool:
 	var cached_players = game.get_cached_group("players")
 	for index in cached_players.size():
 		var player = cached_players[index]
-		var is_local_human = (local_slot >= 0 and index == local_slot)
+		var is_local_human = local_slot >= 0 and index == local_slot
 		var is_ai = (
 			index < settings.players.size()
 			and settings.players[index].get_meta("ai_commander", false)

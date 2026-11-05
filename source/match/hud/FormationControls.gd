@@ -1,3 +1,5 @@
+# Runtime loading avoids autoload-dependent preload cycles.
+# gdlint: disable=duplicated-load
 extends VBoxContainer
 
 const Bindings = preload("res://source/input/KeyBindings.gd")
@@ -11,7 +13,10 @@ const CHOICES = {
 	"flank":
 	[
 		"Flank",
-		"Split into two wings with a clear six-metre center corridor. Reforms immediately to evade artillery.",
+		(
+			"Split into two wings with a clear six-metre center corridor. Reforms "
+			+ "immediately to evade artillery."
+		),
 		"move"
 	],
 	"staggered":
@@ -51,7 +56,10 @@ func _ready():
 	cohesion_button.name = "Cohesion"
 	cohesion_button.text = Bindings.hint(tr("Match march speed"), "cohesion_mode")
 	cohesion_button.tooltip_text = tr(
-		"March at the slowest surviving group member's current speed. Includes suppression and temporary speed effects. Off by default."
+		(
+			"March at the slowest surviving group member's current speed. Includes "
+			+ "suppression and temporary speed effects. Off by default."
+		)
 	)
 	cohesion_button.accessibility_description = cohesion_button.tooltip_text
 	cohesion_button.custom_minimum_size.y = 36
@@ -79,7 +87,9 @@ func choose(posture: String):
 		return
 	var units = members()
 	var gate = load("res://source/match/network/NetworkGate.gd")
-	if gate.intercept(hud.get_parent(), {"kind": "formation", "units": units.map(gate.id_for), "value": posture}):
+	if gate.intercept(
+		hud.get_parent(), {"kind": "formation", "units": units.map(gate.id_for), "value": posture}
+	):
 		return
 	for unit in units:
 		unit.manual_orders.formation = posture
@@ -98,7 +108,9 @@ func toggle_cohesion():
 	var units = members()
 	var enable = not units.all(func(unit): return unit.manual_orders.cohesion_enabled)
 	var gate = load("res://source/match/network/NetworkGate.gd")
-	if gate.intercept(hud.get_parent(), {"kind": "cohesion", "units": units.map(gate.id_for), "value": enable}):
+	if gate.intercept(
+		hud.get_parent(), {"kind": "cohesion", "units": units.map(gate.id_for), "value": enable}
+	):
 		return
 	var group = Cohesion.new(units)
 	for unit in units:

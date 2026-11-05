@@ -3,6 +3,7 @@ from contextlib import redirect_stderr, redirect_stdout
 import importlib.util
 import io
 from pathlib import Path
+import tempfile
 from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
@@ -14,6 +15,30 @@ SPEC.loader.exec_module(BUILD)
 
 
 class ReleaseOutputTests(unittest.TestCase):
+    def test_clean_import_bootstraps_font_then_verifies_original_settings(self):
+        original = b'[gui]\ntheme/custom_font="res://font.ttf"\n'
+        with tempfile.TemporaryDirectory() as directory:
+            project = Path(directory)
+            config = project / "project.godot"
+            config.write_bytes(original)
+            seen = []
+            with patch.object(BUILD, "run", side_effect=lambda args: seen.append(config.read_bytes())):
+                BUILD.import_release_project("godot", project)
+            self.assertEqual(seen, [b'[gui]\n', original])
+            self.assertEqual(config.read_bytes(), original)
+
+    def test_failed_bootstrap_restores_settings_and_does_not_hide_errors(self):
+        original = b'[gui]\ntheme/custom_font="res://font.ttf"\n'
+        with tempfile.TemporaryDirectory() as directory:
+            project = Path(directory)
+            config = project / "project.godot"
+            config.write_bytes(original)
+            with patch.object(BUILD, "run", side_effect=RuntimeError("Import failed")) as run:
+                with self.assertRaisesRegex(RuntimeError, "Import failed"):
+                    BUILD.import_release_project("godot", project)
+            self.assertEqual(run.call_count, 1)
+            self.assertEqual(config.read_bytes(), original)
+
     def _run(self, output, code=0):
         result = SimpleNamespace(returncode=code, stdout=output)
         with (patch.object(BUILD.subprocess, "run", return_value=result),

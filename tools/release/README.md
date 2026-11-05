@@ -24,7 +24,12 @@ The project is copied into a private staging directory before import. Source,
 assets, imported resources and freshly built native support do not share mutable
 files with the workspace. Derived `.godot/exported` resources are discarded;
 asset imports are retained. This prevents stale converted resources from
-surviving script-only default changes. The native solver's actual release-template startup
+surviving script-only default changes. The importer first uses the default font
+in the staging copy so a clean checkout can generate the custom font's imported
+resource. It restores the exact project settings and performs a second strict
+import before verification. Both passes reject engine errors. GitHub Actions
+retains verification reports and logs even when a build fails.
+The native solver's actual release-template startup
 check uses a registered fixture main loop because release templates ignore
 `--script`. The ordinary application separately reaches its real menu, observes
 120 frames and exits through production cleanup; engine `--quit-after` bypasses

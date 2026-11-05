@@ -15,7 +15,10 @@ var _accent = Color("dab47a")
 
 
 func _ready():
-	_accent = {"bastion": Color("dab47a"), "helix": Color("57ddeb"), "frontier": Color("f09d55")}[faction]
+	var accents = {
+		"bastion": Color("dab47a"), "helix": Color("57ddeb"), "frontier": Color("f09d55")
+	}
+	_accent = accents[faction]
 	var environment = WorldEnvironment.new()
 	var sky = Environment.new()
 	sky.background_mode = Environment.BG_COLOR

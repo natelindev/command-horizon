@@ -175,7 +175,17 @@ func _network_unload(slot: int) -> bool:
 	var gate = load("res://source/match/network/NetworkGate.gd")
 	if not is_instance_valid(host):
 		return false
-	var passengers = host.garrison_mount.occupants.filter(func(unit): return slot < 0 or unit.get_meta("garrison_slot", -1) == slot)
+	var passengers = host.garrison_mount.occupants.filter(
+		func(unit): return slot < 0 or unit.get_meta("garrison_slot", -1) == slot
+	)
 	if passengers.is_empty():
 		return false
-	return gate.intercept(host, {"kind": "order", "units": passengers.map(gate.id_for), "order": "stop", "point": gate.Protocol.quantize(host.global_position)})
+	return gate.intercept(
+		host,
+		{
+			"kind": "order",
+			"units": passengers.map(gate.id_for),
+			"order": "stop",
+			"point": gate.Protocol.quantize(host.global_position)
+		}
+	)

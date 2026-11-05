@@ -1,3 +1,5 @@
+# Runtime loading avoids autoload-dependent preload cycles.
+# gdlint: disable=duplicated-load
 extends Node
 
 const Planner = preload("res://source/match/orders/FormationPlanner.gd")

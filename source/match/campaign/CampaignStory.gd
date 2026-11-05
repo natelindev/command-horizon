@@ -1,4 +1,5 @@
-# gdlint: disable=max-returns
+# gdlint: disable=duplicated-load,max-returns
+# Runtime loading avoids autoload-dependent preload cycles.
 extends Node
 
 signal caption_changed(line)

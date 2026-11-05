@@ -96,17 +96,33 @@ static func vehicle_choice(player, counts, threats, sequence):
 	var walkers = mini(4, ground_counters)
 	if counts.get("CombatRobot", 0) < walkers and Factions.available(player, "CombatRobot"):
 		return {"role": "CombatRobot", "priority": 1}
-	var repair_target = mini(6, ceili(machinery / (3.0 if player.faction == "bastion" else 5.0))) if machinery >= 3 else 0
+	var repair_target = (
+		mini(6, ceili(machinery / (3.0 if player.faction == "bastion" else 5.0)))
+		if machinery >= 3
+		else 0
+	)
 	if counts.get("RepairRobot", 0) < repair_target:
 		return {"role": "RepairRobot", "priority": 3}
-	var heavy_counters = (mini(4, maxi(1, ceili(threats.structures / 3.0))) if machinery >= 3 else 0) if player.faction == "bastion" else (mini(3, ceili(threats.armor / 2.0)) if player.faction != "helix" else (mini(4, ceili(machinery / 3.0)) if machinery >= 3 else 0))
+	var heavy_counters = (
+		(mini(4, maxi(1, ceili(threats.structures / 3.0))) if machinery >= 3 else 0)
+		if player.faction == "bastion"
+		else (
+			mini(3, ceili(threats.armor / 2.0))
+			if player.faction != "helix"
+			else (mini(4, ceili(machinery / 3.0)) if machinery >= 3 else 0)
+		)
+	)
 	if (
 		player.faction in ["bastion", "helix", "frontier"]
 		and counts.get("AdvancedTank", 0) < heavy_counters
 		and Factions.available(player, "AdvancedTank")
 	):
 		return {"role": "AdvancedTank", "priority": 1}
-	if player.faction == "frontier" and machinery >= 2 and counts.get("Drone", 0) < mini(3, 1 + ceili(threats.armor / 4.0)):
+	if (
+		player.faction == "frontier"
+		and machinery >= 2
+		and counts.get("Drone", 0) < mini(3, 1 + ceili(threats.armor / 4.0))
+	):
 		return {"role": "Drone", "priority": 4}
 	var role = VEHICLE_ROSTER[sequence % VEHICLE_ROSTER.size()]
 	# Baseline slots are composition goals too: a second factory must count a

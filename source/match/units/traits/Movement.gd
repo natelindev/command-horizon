@@ -1,3 +1,5 @@
+# Movement keeps its shared navigation and native-state lifecycle in one trait.
+# gdlint: disable=max-file-lines
 extends NavigationAgent3D
 
 signal movement_finished
@@ -52,30 +54,6 @@ const PASSIVE_MOVEMENT_TRACKING_ENABLED = true
 		var value = unclamped_speed()
 		return minf(value, cohesion_limit) if cohesion_limit >= 0 else value
 
-
-func unclamped_speed() -> float:
-	if not is_instance_valid(_unit):
-		return _native_base_speed
-	if _unit._native_state != null:
-		return _unit._native_state.speed()
-	var factor: float = _unit.signature.speed_factor() if _unit.signature != null else 1.0
-	if _unit.abilities != null:
-		factor *= _unit.abilities.speed_factor()
-	if _unit.suppression != null:
-		factor *= _unit.suppression.speed_factor()
-	if _commander_support != null:
-		factor *= _commander_support.speed_factor(_unit)
-	return (
-		_native_base_speed
-		* factor
-		* _unit.veterancy_speed_factor
-		* (1.0 + 0.1 * _unit.scrap_hardened_tiers)
-		* _unit.movement_technology_factor()
-	)
-
-
-# Rotorcraft settle onto a helipad deck at this height, then climb back out.
-var _hovering = false
 var ion_stall_left = 0.0
 var cohesion_group = null
 # A negative value disables the clamp; native crowd reads this cached value.
@@ -86,6 +64,8 @@ var settle_height = INF
 var ghosted = false:
 	set = set_ghosted
 
+# Rotorcraft settle onto a helipad deck at this height, then climb back out.
+var _hovering = false
 var _exit_clearance_target = Vector3.INF
 var _native_base_speed: float = 4.0
 var _exit_clearance_until = 0.0
@@ -127,6 +107,27 @@ var _ground_travel_distance := 0.0
 @onready var _battlefield: Battlefield = _match.battlefield
 @onready var _terrain_navigation: TerrainNavigation = _match.navigation.terrain
 @onready var _commander_support = _match.commander_support
+
+
+func unclamped_speed() -> float:
+	if not is_instance_valid(_unit):
+		return _native_base_speed
+	if _unit._native_state != null:
+		return _unit._native_state.speed()
+	var factor: float = _unit.signature.speed_factor() if _unit.signature != null else 1.0
+	if _unit.abilities != null:
+		factor *= _unit.abilities.speed_factor()
+	if _unit.suppression != null:
+		factor *= _unit.suppression.speed_factor()
+	if _commander_support != null:
+		factor *= _commander_support.speed_factor(_unit)
+	return (
+		_native_base_speed
+		* factor
+		* _unit.veterancy_speed_factor
+		* (1.0 + 0.1 * _unit.scrap_hardened_tiers)
+		* _unit.movement_technology_factor()
+	)
 
 
 func phase_destination(point: Vector3, maximum_distance = 8.0) -> Vector3:

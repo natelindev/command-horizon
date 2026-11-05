@@ -1,3 +1,5 @@
+# Runtime loading avoids autoload-dependent preload cycles.
+# gdlint: disable=duplicated-load
 extends Node
 
 const COLLAPSE_SECONDS = 2.5
@@ -130,9 +132,16 @@ func _input(event):
 		)
 	):
 		end_collapse()
-	if inspecting and event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+	if (
+		inspecting
+		and event is InputEventMouseButton
+		and event.pressed
+		and event.button_index == MOUSE_BUTTON_LEFT
+	):
 		if get_viewport().gui_get_hovered_control() == null:
-			_inspect_unit(Utils.Match.find_unit_at_screen_point(get_tree(), _camera, event.position))
+			_inspect_unit(
+				Utils.Match.find_unit_at_screen_point(get_tree(), _camera, event.position)
+			)
 			get_viewport().set_input_as_handled()
 	if inspecting and event.is_action_pressed("toggle_match_menu", false, true):
 		show_results()

@@ -265,16 +265,17 @@ func _update_tile(button, branch, title, cost, description, seconds, reason, pro
 		(
 			"✓"
 			if progress.complete
-			else "…" if progress.queued else str(ceili(progress.left / player.research_factor())) if progress.active else ""
+			else (
+				"…"
+				if progress.queued
+				else str(ceili(progress.left / player.research_factor())) if progress.active else ""
+			)
 		)
 	)
-	var timing = (
-		tr("%d s research at current power.") % ceili(seconds / player.research_factor())
-	)
+	var timing = tr("%d s research at current power.") % ceili(seconds / player.research_factor())
 	if progress.active:
 		timing = (
-			tr("Researching · %d s remaining")
-			% ceili(progress.left / player.research_factor())
+			tr("Researching · %d s remaining") % ceili(progress.left / player.research_factor())
 		)
 		reason = ""
 	elif progress.complete:

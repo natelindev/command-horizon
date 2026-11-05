@@ -1,4 +1,5 @@
-# gdlint: disable=max-file-lines,max-public-methods
+# gdlint: disable=duplicated-load,max-file-lines,max-public-methods
+# Runtime loading avoids autoload-dependent preload cycles.
 extends Node3D
 
 const CombatRules = preload("res://source/match/combat/CombatRules.gd")

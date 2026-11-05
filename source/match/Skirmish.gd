@@ -30,9 +30,7 @@ func _ready():
 	_camera.set_size_safely(24)
 	var human = _get_human_player()
 	if human != null:
-		human.get_node("StructurePlacementHandler").process_mode = (
-			Node.PROCESS_MODE_ALWAYS
-		)
+		human.get_node("StructurePlacementHandler").process_mode = (Node.PROCESS_MODE_ALWAYS)
 	get_node("Handlers/UnitGroupSelectionHandler").process_mode = Node.PROCESS_MODE_ALWAYS
 	find_child("Minimap").process_mode = Node.PROCESS_MODE_ALWAYS
 	alerts = load("res://source/match/alerts/BattleAlerts.gd").new()
@@ -143,7 +141,9 @@ func _check_outcome(delta):
 		if enemies.is_empty() or allies.is_empty():
 			finished = true
 			result = (
-				"Draw" if survivors.is_empty() else ("Victory" if not allies.is_empty() else "Defeat")
+				"Draw"
+				if survivors.is_empty()
+				else ("Victory" if not allies.is_empty() else "Defeat")
 			)
 			if hud != null and hud.has_method("show_result"):
 				hud.show_result(result)

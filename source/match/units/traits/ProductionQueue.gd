@@ -1,3 +1,6 @@
+# gdlint: disable=max-returns,duplicated-load
+# Independent guard clauses keep validation and eligibility paths explicit.
+# Runtime loading avoids autoload-dependent preload cycles.
 extends Node
 
 signal element_enqueued(element)
@@ -229,7 +232,14 @@ func blocked_reason(include_exit = true):
 
 func produce(unit_prototype, ignore_limit = false):
 	var gate = load("res://source/match/network/NetworkGate.gd")
-	if gate.intercept(_unit, {"kind": "produce", "unit": gate.id_for(_unit), "role": BastionCatalog.type_from_path(unit_prototype.resource_path)}):
+	if gate.intercept(
+		_unit,
+		{
+			"kind": "produce",
+			"unit": gate.id_for(_unit),
+			"role": BastionCatalog.type_from_path(unit_prototype.resource_path)
+		}
+	):
 		# UI callers only test admission truthiness. The authoritative job arrives
 		# through replication; this inert marker lets Shift queue all five attempts.
 		return {"network_pending": true}
@@ -240,7 +250,11 @@ func produce(unit_prototype, ignore_limit = false):
 		return null
 	if not Factions.available(_unit.player, unit_type):
 		return null
-	var batch = Factions.batch_size(_unit.player.faction, unit_type) if _unit.player.get_meta("skirmish", false) else 1
+	var batch = (
+		Factions.batch_size(_unit.player.faction, unit_type)
+		if _unit.player.get_meta("skirmish", false)
+		else 1
+	)
 	if _unit.player.population(true) + batch > BastionCatalog.POPULATION_LIMIT:
 		return null
 	if not ignore_limit and _queue.size() >= Constants.Match.Units.PRODUCTION_QUEUE_LIMIT:
@@ -271,7 +285,10 @@ func cancel_all():
 
 func cancel(element):
 	var gate = load("res://source/match/network/NetworkGate.gd")
-	if gate.intercept(_unit, {"kind": "cancel_production", "unit": gate.id_for(_unit), "index": _queue.find(element)}):
+	if gate.intercept(
+		_unit,
+		{"kind": "cancel_production", "unit": gate.id_for(_unit), "index": _queue.find(element)}
+	):
 		return
 	if not element in _queue:
 		return
@@ -337,15 +354,25 @@ func _batch_placements(element, launch) -> Array:
 	prototype.free()
 	var game = _unit._match
 	var navigation = game.navigation.get_navigation_map_rid_by_domain(domain)
-	var obstacles = get_tree().get_nodes_in_group("units") + get_tree().get_nodes_in_group("resource_units")
+	var obstacles = (
+		get_tree().get_nodes_in_group("units") + get_tree().get_nodes_in_group("resource_units")
+	)
 	var placement_rules = load("res://source/match/utils/UnitPlacementUtils.gd")
 	for distance in [radius * 2.4 + 0.4, radius * 4.8 + 0.8, radius * 7.2 + 1.2]:
 		for side in 12:
-			var point = launch.global_position + Vector3(cos(side * TAU / 12), 0.0, sin(side * TAU / 12)) * distance
+			var point = (
+				launch.global_position
+				+ Vector3(cos(side * TAU / 12), 0.0, sin(side * TAU / 12)) * distance
+			)
 			point = game.map.ground_point(Vector2(point.x, point.z))
 			if placements.any(func(other): return other.origin.distance_to(point) < radius * 2.1):
 				continue
-			if placement_rules.validate_agent_placement_position(point, radius, obstacles, navigation, game.map) != placement_rules.VALID:
+			if (
+				placement_rules.validate_agent_placement_position(
+					point, radius, obstacles, navigation, game.map
+				)
+				!= placement_rules.VALID
+			):
 				continue
 			placements.append(Transform3D(launch.global_basis, point))
 			if placements.size() == element.batch_count:

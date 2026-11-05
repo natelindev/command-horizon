@@ -65,7 +65,11 @@ const COSTS = {
 	"AntiAirVehicle": [18, 6],
 }
 const DESCRIPTIONS = {
-	"AntiAirVehicle": "Fast SAM technical firing high-velocity unguided rocket swarms. Deadly against low aircraft from ambush.",
+	"AntiAirVehicle":
+	(
+		"Fast SAM technical firing high-velocity unguided rocket swarms. Deadly "
+		+ "against low aircraft from ambush."
+	),
 	"RepairRobot": "Field repair support. Services damaged ground machines.",
 	"Worker":
 	(
@@ -115,8 +119,17 @@ const DESCRIPTIONS = {
 		"Mercenary rocket helicopter hired through the Scrap Yard's Black Market. "
 		+ "One loaded sortie; departs when its rockets or 90-second fuel supply runs out."
 	),
-	"Fighter": "Light mercenary fighter hired through the Black Market. Nose-mounted cannon and missiles; one finite-ammunition, 90-second sortie without an airfield.",
-	"Bomber": "Improvised mercenary bomber hired through the Black Market. One fuel-air bombing sortie, then departs; no on-map rearming.",
+	"Fighter":
+	(
+		"Light mercenary fighter hired through the Black Market. Nose-mounted "
+		+ "cannon and missiles; one finite-ammunition, 90-second sortie without an "
+		+ "airfield."
+	),
+	"Bomber":
+	(
+		"Improvised mercenary bomber hired through the Black Market. One fuel-air "
+		+ "bombing sortie, then departs; no on-map rearming."
+	),
 	"CommandCenter":
 	"Produces scrapper rigs, accepts harvested and salvaged materials, and supplies 8 power.",
 	"Barracks":
@@ -124,7 +137,11 @@ const DESCRIPTIONS = {
 		"Trains militia in triplets and specialists in pairs, plus a unique hero. Two infantry recovery "
 		+ "slots within 5 m. Uses 2 power."
 	),
-	"VehicleFactory": "Builds Outrider pairs, demolition buggies, mobile Battle Rigs and Lookout drones. Uses little power.",
+	"VehicleFactory":
+	(
+		"Builds Outrider pairs, demolition buggies, mobile Battle Rigs and "
+		+ "Lookout drones. Uses little power."
+	),
 	"AircraftFactory":
 	(
 		"Runway airfield. Builds drones, helicopters, fighters and bombers; jets park, rearm "
@@ -136,11 +153,9 @@ const DESCRIPTIONS = {
 		+ "Kestrel, Hornet and Buzzard sorties without an airfield. Uses 3 power."
 	),
 	"PowerPlant": "Supplies 12 power to keep production and research running.",
-	"RepairDepot": "Unlocks Battle Rigs without Coordination. Repairs ground machines. Uses 2 power.",
+	"RepairDepot":
+	"Unlocks Battle Rigs without Coordination. Repairs ground machines. Uses 2 power.",
 	"AntiGroundTurret": "Fixed ground cannon; protect against infantry and aircraft. Uses 1 power.",
 	"AntiAirTurret":
-	(
-		"Dedicated air defense that prioritizes aircraft. Ground damage: 33% "
-		+ "Uses 1 power."
-	),
+	"Dedicated air defense that prioritizes aircraft. Ground damage: 33% " + "Uses 1 power.",
 }

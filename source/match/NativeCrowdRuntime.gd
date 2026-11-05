@@ -4,9 +4,9 @@ extends Node
 ## NavigationServer; native arrays own steering, contacts and pose publication.
 var active := false
 var native: RefCounted
+var surface_active := false
 var _configured_iteration := -1
 var _projection_valid := false
-var surface_active := false
 var _nearest_surface := "--native-nearest-surface" in OS.get_cmdline_user_args()
 @onready var _game = get_parent()
 

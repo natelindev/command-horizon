@@ -90,7 +90,9 @@ func _start_hosting():
 		side.controller = 1 if index == 0 else 2
 		side.color = Constants.Player.COLORS[index % Constants.Player.COLORS.size()]
 		var faction_name = (
-			factions[index] if index < factions.size() else default_factions[index % default_factions.size()]
+			factions[index]
+			if index < factions.size()
+			else default_factions[index % default_factions.size()]
 		)
 		side.faction = faction_name
 		side.spawn_index = index
@@ -136,14 +138,21 @@ func _launch_battle():
 func _process(delta):
 	_elapsed_time += delta
 	if not _started and timeout_seconds > 0.0 and _elapsed_time > timeout_seconds:
-		print("[DEDICATED SERVER] Connection timeout reached (%ds). Exiting." % int(timeout_seconds))
+		print(
+			"[DEDICATED SERVER] Connection timeout reached (%ds). Exiting." % int(timeout_seconds)
+		)
 		if is_instance_valid(session):
 			session.shutdown()
 			session.queue_free()
 		get_tree().quit(0)
 		return
 
-	if _started and not _finished and is_instance_valid(session) and is_instance_valid(session.game):
+	if (
+		_started
+		and not _finished
+		and is_instance_valid(session)
+		and is_instance_valid(session.game)
+	):
 		if session.game.finished:
 			_finished = true
 			print("[DEDICATED SERVER] Battle completed. Result: %s" % session.game.result)

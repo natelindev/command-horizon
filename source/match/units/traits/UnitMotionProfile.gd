@@ -6,19 +6,6 @@ const LIGHT_TYPES = [
 	"Infantry", "RocketInfantry", "AntiAirInfantry", "Commando", "Hero", "Drone", "ReconDrone"
 ]
 
-
-static func mass_tier(unit) -> int:
-	if unit.type in HEAVY_TYPES:
-		return Mass.HEAVY
-	if (
-		unit.type in LIGHT_TYPES
-		or unit.type.ends_with("Infantry")
-		or unit.type.begins_with("Mercenary")
-	):
-		return Mass.LIGHT
-	return Mass.MEDIUM
-
-
 # A private random stream: cosmetics never consume the simulation's global RNG.
 var random = RandomNumberGenerator.new()
 var phase: float
@@ -34,6 +21,18 @@ var drift_rates: Vector3
 var recoil_duration := 0.24
 var recoil_strength := 1.0
 var recoil_roll := 0.0
+
+
+static func mass_tier(unit) -> int:
+	if unit.type in HEAVY_TYPES:
+		return Mass.HEAVY
+	if (
+		unit.type in LIGHT_TYPES
+		or unit.type.ends_with("Infantry")
+		or unit.type.begins_with("Mercenary")
+	):
+		return Mass.LIGHT
+	return Mass.MEDIUM
 
 
 func _init(identity: int):

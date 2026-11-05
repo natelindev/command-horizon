@@ -101,18 +101,32 @@ static func equip(unit, faction):
 				_box(gear, "LanceReceiver", Vector3(.10, .68, -.32), Vector3(.045, .07, .26), dark)
 				_tube(gear, "LanceCore", Vector3(.10, .68, -.70), .022, .62, accent)
 				_box(gear, "LanceRailTop", Vector3(.10, .71, -.70), Vector3(.012, .015, .50), metal)
-				_box(gear, "LanceRailBottom", Vector3(.10, .65, -.70), Vector3(.012, .015, .50), metal)
+				_box(
+					gear,
+					"LanceRailBottom",
+					Vector3(.10, .65, -.70),
+					Vector3(.012, .015, .50),
+					metal
+				)
 				_tube(gear, "LanceEmitter", Vector3(.10, .68, -1.02), .016, .06, accent)
 				chest.get_node("RifleMuzzle").position = Vector3(.10, .06, -1.06)
 			else:
 				geometry.get_child(0).scale *= 1.12
 				_armor(gear, metal, accent)
 				_box(gear, "CommandPack", Vector3(0, .76, .16), Vector3(.22, .28, .12), dark)
-				_box(gear, "CommandAntenna", Vector3(.17, .99, .25), Vector3(.018, .48, .018), accent)
+				_box(
+					gear, "CommandAntenna", Vector3(.17, .99, .25), Vector3(.018, .48, .018), accent
+				)
 				if faction == "frontier":
 					_box(gear, "ScoutMantle", Vector3(0, .8, .12), Vector3(.32, .075, .23), cloth)
 				else:
-					_box(gear, "MarshalShield", Vector3(-.29, .57, -.13), Vector3(.22, .59, .13), dark)
+					_box(
+						gear,
+						"MarshalShield",
+						Vector3(-.29, .57, -.13),
+						Vector3(.22, .59, .13),
+						dark
+					)
 			var aura = load("res://source/match/units/traits/HeroAura.gd").new()
 			aura.name = "HeroAura"
 			unit.add_child(aura)

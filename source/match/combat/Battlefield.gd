@@ -1,3 +1,5 @@
+# Independent guard clauses keep validation and eligibility paths explicit.
+# gdlint: disable=max-returns
 extends Node
 
 const Players = preload("res://source/match/Players.gd")
@@ -14,6 +16,9 @@ const EMPTY_CELLS = {}
 const EMPTY_UNITS = []
 const TerrainSight = preload("res://source/match/maps/terrain/TerrainSight.gd")
 const AIR = Constants.Match.Navigation.Domain.AIR
+var native_exploration := false
+var native_combat_queries := false
+var native_battlefield_index := false
 var _frame: int = -1
 var _observers: Dictionary = {}
 var _bodies: Dictionary = {}
@@ -33,9 +38,6 @@ var _native_queries: RefCounted
 var _native_index = false
 var _native_index_used = false
 var _native_visibility: RefCounted
-var native_exploration := false
-var native_combat_queries := false
-var native_battlefield_index := false
 var _resident_index_used := false
 var _match_registry: Node
 var _owner_bits := {}
