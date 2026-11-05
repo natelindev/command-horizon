@@ -168,12 +168,12 @@ func _air_range_cases(faction: String):
 		source.remove_meta("garrison_host")
 
 
-func _fixture(faction):
+func _fixture(faction, map_name = "battlefields/TerrainTestMap"):
 	var constants = root.get_node("Constants")
 	var settings = load("res://source/data-model/MatchSettings.gd").new()
 	settings.skirmish = true
 	settings.visibility = settings.Visibility.FULL
-	settings.map_path = "res://source/match/maps/battlefields/TerrainTestMap.tscn"
+	settings.map_path = "res://source/match/maps/%s.tscn" % map_name
 	for side in 2:
 		var player = load("res://source/data-model/PlayerSettings.gd").new()
 		player.controller = (

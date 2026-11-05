@@ -438,7 +438,8 @@ func can_fire(source, target):
 			source, target, _observers, _max_sight, _max_body_step
 		)
 		if answer >= 0:
-			return answer != 0
+			# Live power-grid and harvester restrictions are shared with scripted firing.
+			return answer != 0 and Rules.can_target(source, target)
 	if not Rules.can_target(source, target):
 		return false
 	if Footprint.reach_distance(target, source.global_position) > Rules.range_for(source, target):
