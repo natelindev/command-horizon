@@ -23,8 +23,8 @@ CASES = {
     "outcome": ("NetworkOutcomeRegression", ("host", "guest"), 45),
     "terminal-drop": ("NetworkOutcomeRegression", ("host", "guest"), 45),
     "disconnect": ("NetworkDisconnectRegression", ("host", "guest"), 70),
-    "two-vs-two": ("Network2v2Regression", ("host", "guest1", "guest2"), 60),
-    "dedicated": ("NetworkDedicatedRegression", ("server", "guest1", "guest2"), 60),
+    "two-vs-two": ("Network2v2Regression", ("host", "guest1", "guest2"), 150),
+    "dedicated": ("NetworkDedicatedRegression", ("server", "guest1", "guest2"), 150),
 }
 MARKERS = {
     "session": "Network session {role}: 0 failures",

@@ -25,10 +25,13 @@ with tempfile.TemporaryDirectory(prefix="network-diagnostic-") as temporary:
     isolated = work / "isolated"
     isolated.mkdir()
     shutil.copytree(native, isolated / "native/bin")
-    try:
-        b.run([sys.executable, b.ROOT / "tools/tests/run_network_regressions.py", "--engine", engine,
-               "--main-pack", executable, "--runtime-dir", isolated, "--no-native", "--output",
-               b.RECORDER.directory / "peers"], cwd=isolated, timeout=640)
-    except RuntimeError as error:
-        print(error)
-b.RECORDER.finish("diagnosed")
+    for case in ["two-vs-two", "dedicated"]:
+        try:
+            b.run([sys.executable, b.ROOT / "tools/tests/run_network_regressions.py", "--engine", engine,
+                   "--main-pack", executable, "--runtime-dir", isolated, "--no-native", "--case", case,
+                   "--output", b.RECORDER.directory / "peers"], cwd=isolated, timeout=200)
+        except RuntimeError as error:
+            print(error)
+failed = any(row["status"] != "passed" for row in b.RECORDER.report["checks"])
+b.RECORDER.finish("failed" if failed else "passed")
+raise SystemExit(1 if failed else 0)

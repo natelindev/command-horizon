@@ -1,4 +1,4 @@
-name: Release shutdown diagnostics
+name: Release network diagnostics
 on:
   workflow_dispatch:
     inputs:
@@ -9,7 +9,7 @@ permissions:
   contents: read
 jobs:
   diagnose:
-    runs-on: macos-14
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
@@ -18,9 +18,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: python tools/release/diagnose_shutdown.py
+      - run: python tools/release/diagnose_network.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: shutdown-diagnostics
-          path: build/shutdown-diagnostics/
+          name: network-diagnostics
+          path: build/network-diagnostics/

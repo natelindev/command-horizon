@@ -727,7 +727,7 @@ def main():
                  "--runtime-dir", isolated,
                  "--output", verification / "network-regressions",
                  *([] if PLATFORM == "windows" or args.native_backend else ["--no-native"])],
-                cwd=isolated, timeout=640)
+                cwd=isolated, timeout=1000)
         except RuntimeError as error:
             failed.append(str(error))
         RECORDER.report["pack_sha256"] = hashlib.sha256(pack.read_bytes()).hexdigest()

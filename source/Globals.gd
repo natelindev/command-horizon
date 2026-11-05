@@ -66,7 +66,11 @@ func quit_game(exit_code = 0):
 func _stop_audio(node, playbacks: Array[WeakRef]):
 	if node is AudioStreamPlayer or node is AudioStreamPlayer2D or node is AudioStreamPlayer3D:
 		if node.has_stream_playback():
-			playbacks.append(weakref(node.get_stream_playback()))
+			var playback = node.get_stream_playback()
+			# Positional players can own a prepared playback until their next
+			# physics tick; only started voices belong to the audio thread.
+			if playback.is_playing():
+				playbacks.append(weakref(playback))
 		node.stop()
 		node.stream = null
 	for child in node.get_children():

@@ -72,10 +72,12 @@ func _run():
 		if player.has_stream_playback():
 			playbacks.append(weakref(player.get_stream_playback()))
 	_check(not playbacks.is_empty(), "Shutdown fixture did not start audio playback")
+	# Positional voices start on the next physics step. Exercise actual audio
+	# playback, rather than prepared objects still owned by their player nodes.
+	await physics_frame
+	await process_frame
 	paused = true
 	Engine.time_scale = 0.0
-	for message in errors:
-		push_error(message)
 	if errors.is_empty() and "--window-close" in OS.get_cmdline_user_args():
 		print("Runtime shutdown: native close requested with 0 failures")
 		root.propagate_notification(Node.NOTIFICATION_WM_CLOSE_REQUEST)

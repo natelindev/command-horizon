@@ -365,6 +365,19 @@ func _waiting():
 	return true
 
 
+func _network_progress() -> Dictionary:
+	return {
+		"authority_tick": session.boundary.tick if session.boundary != null else -1,
+		"received_tick": session.received_tick,
+		"initializing": session._initializing,
+		"incoming": session._incoming.size(),
+		"read_task": session._read_task,
+		"replica_stage":
+		session.replica.initialization_stage if session.replica != null else "none",
+		"paused": paused,
+	}
+
+
 func _transport_fixture(game):
 	var catalog = load("res://source/match/FactionCatalog.gd")
 	var players = game.get_cached_group("players")

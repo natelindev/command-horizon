@@ -7,7 +7,9 @@ func _run():
 	var logger = RuntimeErrors.new()
 	OS.add_logger(logger)
 	root.get_node("SaveManager").autosaves_enabled = false
-	_deadline = Time.get_ticks_msec() + 45000
+	# Three processes import a full battlefield concurrently on shared runners.
+	# Keep the simulation assertion independent of that startup wall time.
+	_deadline = Time.get_ticks_msec() + 120000
 	_is_host = "--network-host" in OS.get_cmdline_user_args()
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("--network-role="):
@@ -82,6 +84,7 @@ func _run():
 		_check(session.received_tick >= 60, "%s: Expected >= 60 received ticks" % _role_name)
 
 	var close_started = Time.get_ticks_msec()
+	print("Network 2v2 progress: ", _network_progress())
 	session.shutdown()
 	_check(Time.get_ticks_msec() - close_started < 2000, "2v2 Teardown exceeded time limit")
 
