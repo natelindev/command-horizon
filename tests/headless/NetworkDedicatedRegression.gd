@@ -44,11 +44,19 @@ func _run():
 		while not session.is_ready_to_start() and _waiting():
 			await process_frame
 
-		_check(await session.start_battle(), "Dedicated server could not start battle: " + session.error)
+		_check(
+			await session.start_battle(),
+			"Dedicated server could not start battle: " + session.error
+		)
 		var p0 = session.game.get_cached_group("players")[0]
-		_check(not p0.is_processing(), "Dedicated server must not process local human inputs on player 0")
+		_check(
+			not p0.is_processing(),
+			"Dedicated server must not process local human inputs on player 0"
+		)
 
-		while session.boundary.tick < 500 and not session.peers.is_empty() and _waiting():
+		# Keep serving until both guests have checked their received state and
+		# disconnected; host ticks alone do not prove replica readiness.
+		while not session.peers.is_empty() and _waiting():
 			await process_frame
 
 		_check(session.boundary.tick >= 60, "Dedicated server did not advance 60 ticks")

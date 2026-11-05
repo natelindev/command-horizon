@@ -157,7 +157,9 @@ def stop(process):
 
 
 def command(args, script, flags):
-    result = [str(args.engine), "--headless"]
+    # Idle headless peers otherwise spin unbounded process frames and compete
+    # with the authority and replica loaders on small CI runners.
+    result = [str(args.engine), "--headless", "--max-fps", "60"]
     result += (["--main-pack", str(args.main_pack)] if args.main_pack
                else ["--path", str(args.project)])
     # Real wall time is essential to disconnect expiry; never use --fixed-fps.

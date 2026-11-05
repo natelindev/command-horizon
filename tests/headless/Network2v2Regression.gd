@@ -50,9 +50,14 @@ func _run():
 		_check(players.size() == 4, "Expected 4 players in 2v2 battle, found %d" % players.size())
 		_check(Players.allied(players[0], players[1]), "Slots 0 and 1 must be allied in Team 0")
 		_check(Players.allied(players[2], players[3]), "Slots 2 and 3 must be allied in Team 1")
-		_check(not Players.allied(players[0], players[2]), "Slots 0 and 2 must not be allied across teams")
+		_check(
+			not Players.allied(players[0], players[2]),
+			"Slots 0 and 2 must not be allied across teams"
+		)
 
-		while session.boundary.tick < 500 and not session.peers.is_empty() and _waiting():
+		# Guests close only after validating their replica. A fixed authority
+		# tick cutoff can expire while a slower peer is still loading its map.
+		while not session.peers.is_empty() and _waiting():
 			await process_frame
 
 		_check(session.boundary.tick >= 60, "2v2 Host did not advance 60 ticks")
