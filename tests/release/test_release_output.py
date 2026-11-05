@@ -39,6 +39,19 @@ class ReleaseOutputTests(unittest.TestCase):
             self.assertEqual(run.call_count, 1)
             self.assertEqual(config.read_bytes(), original)
 
+    def test_translations_bootstrap_even_without_a_custom_font(self):
+        original = (b'[internationalization]\r\n'
+                    b'locale/translations=PackedStringArray("res://ui.en.translation")\r\n')
+        with tempfile.TemporaryDirectory() as directory:
+            project = Path(directory)
+            config = project / "project.godot"
+            config.write_bytes(original)
+            seen = []
+            with patch.object(BUILD, "run", side_effect=lambda args: seen.append(config.read_bytes())):
+                BUILD.import_release_project("godot", project)
+            self.assertEqual(seen, [b'[internationalization]\r\n', original])
+            self.assertEqual(config.read_bytes(), original)
+
     def _run(self, output, code=0):
         result = SimpleNamespace(returncode=code, stdout=output)
         with (patch.object(BUILD.subprocess, "run", return_value=result),

@@ -340,15 +340,17 @@ def stage_archive_validation(work, project=None, source_root=None):
 
 
 def import_release_project(engine, project):
-    """Import startup fonts before loading the original staged project settings."""
+    """Import startup resources before loading the original staged settings."""
     config = project / "project.godot"
     original = config.read_bytes()
-    bootstrap, count = re.subn(rb'(?m)^theme/custom_font=[^\r\n]*\r?\n', b'', original)
+    bootstrap, count = re.subn(
+        rb'(?m)^(?:theme/custom_font|locale/translations)=[^\r\n]*\r?\n', b'', original)
     command = [engine, "--headless", "--path", project, "--editor", "--quit"]
     if count:
-        # Godot loads this font before the editor importer runs. A fresh checkout
-        # has the .import remap but no fontdata yet. Only the private staging copy
-        # uses the default font for this first pass; all diagnostics remain fatal.
+        # Godot loads the font and generated translations before its importer.
+        # A checkout has import remaps and CSVs but no generated resources yet.
+        # Only the private staging copy uses default startup resources during
+        # this first pass; all diagnostics remain fatal.
         try:
             config.write_bytes(bootstrap)
             run(command)

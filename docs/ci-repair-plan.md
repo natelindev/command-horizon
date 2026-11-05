@@ -16,4 +16,6 @@ Run relevant local checks, push main, and verify the new GitHub runs.
 - Reproduced the custom-font startup failure on a clean import; the staged bootstrap and restored-settings import both pass with strict diagnostics.
 - All 24 release-runner unit tests pass, including bootstrap failure/restoration tests.
 - Release workflows retain failure logs and support explicit headless manual verification.
-- Main push and GitHub verification pending.
+- Main pushed; GitHub static checks passed: https://github.com/natelindev/copperfin/actions/runs/42058112118
+- The first remote release verification exposed missing generated translations in addition to the startup font. Bootstrap coverage now includes both settings; 25 release-runner tests pass.
+- Rechecking fresh imports without cached translations and rerunning headless release verification.
