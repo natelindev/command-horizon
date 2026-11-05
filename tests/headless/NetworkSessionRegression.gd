@@ -237,7 +237,18 @@ func _run():
 					session.submit({"kind": "pause", "value": false})
 				if saw_pause and session._pause_epoch == pause_epoch:
 					_check(paused, "An older state frame overrode the host pause")
-				if session.received_tick >= 300 and not reconnected:
+				if (
+					session.received_tick >= 300
+					and not reconnected
+					and saw_pause
+					and session._pause_epoch > pause_epoch
+					and not paused
+					and max_jobs > 0
+					and saw_batch
+					and saw_ability
+				):
+					# Wait for the host's resume response before closing ENet;
+					# close() discards a just-queued pause acknowledgement.
 					reconnected = true
 					session.peer.close()
 				max_jobs = maxi(max_jobs, hq.production_queue._queue.size())
