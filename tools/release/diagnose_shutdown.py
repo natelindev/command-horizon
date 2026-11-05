@@ -31,6 +31,8 @@ with tempfile.TemporaryDirectory(prefix="shutdown-diagnostic-") as temporary:
     isolated.mkdir()
     shutil.copytree(native, isolated / "native/bin")
     commands = [
+        [executable, "--headless", "--", "--headless-startup-smoke"],
+        [engine, "--headless", "--main-pack", pack, "--fixed-fps", "60", "--script", "res://tests/headless/PlayerRosterRegression.gd"],
         [executable, "--headless", "--verbose", "--", "--headless-startup-smoke"],
         [engine, "--headless", "--verbose", "--main-pack", pack, "--fixed-fps", "60", "--script", "res://tests/headless/PlayerRosterRegression.gd"],
         [engine, "--headless", "--verbose", "--path", project, "--fixed-fps", "60", "--script", "res://tests/headless/PlayerRosterRegression.gd"],
