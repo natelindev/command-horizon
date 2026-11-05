@@ -16,7 +16,7 @@ import urllib.request
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = "0.17.0"
+VERSION = "0.17.1"
 ARCHIVE = f"zig-x86_64-windows-{VERSION}.zip"
 URL = f"https://ziglang.org/download/{VERSION}/{ARCHIVE}"
 SHA256 = "b5663f69581dcf391293fbf16c06cb80d81d806545ce618b4d0bab7f0eb8c428"

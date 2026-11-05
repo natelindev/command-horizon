@@ -35,3 +35,4 @@ Run relevant local checks, push main, and verify the new GitHub runs.
 - Infantry firing-priority verification now samples completed frames and distinguishes approaching units from settled shooters; all three factions pass.
 - Full Linux graphical verification exposed the runner's absent ALSA device. Xvfb checks explicitly select silent audio while still requiring actual OpenGL; all 26 release-runner tests pass.
 - The full local static checks pass for all 518 source scripts. Five network-runner tests pass; a one-second subprocess startup test was rerun successfully after concurrent runtime checks completed.
+- Main commit f8d14671 contains the verified fixes. The next release is v0.17.1; application/export/native metadata is aligned while preserving the older v0.17.0 draft and tag. Full release qualification runs on the versioned commit.
