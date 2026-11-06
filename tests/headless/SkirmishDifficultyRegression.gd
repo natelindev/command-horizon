@@ -43,13 +43,13 @@ func _profiles():
 	# Normal is the reference commander; existing balance and regressions rely on it.
 	var normal = Difficulty.PROFILES[Difficulty.NORMAL]
 	_check(normal.decision_interval == 1.5, "Normal decision interval changed")
-	_check(normal.first_wave == 120.0 and normal.wave_interval == 65.0, "Normal waves changed")
+	_check(normal.first_wave == 90.0 and normal.wave_interval == 45.0, "Normal waves changed")
 	_check(normal.task_groups == 2, "Normal task budget changed")
-	_check(normal.workers == 6, "Normal engineer target changed")
+	_check(normal.workers == 8, "Normal engineer target changed")
 	_check(normal.retreat_health == 0.3, "Normal retreat threshold changed")
 	_check(normal.timing_scale == 1.0, "Normal build timings changed")
 	_check(normal.assault_limit == 0 and normal.army_limit == 0, "Normal gained army caps")
-	_check(normal.extra_factories == 0, "Normal gained extra production")
+	_check(normal.extra_factories == 1, "Normal lost additional production")
 	_check(
 		normal.research_guards == 6 and normal.research == Difficulty.FULL_RESEARCH,
 		"Normal research path changed"
@@ -101,7 +101,7 @@ func _setup_screen():
 		_check(settings.players[0].difficulty == 1, "Human side received an AI difficulty")
 		_check(settings.players[1].difficulty == index, "Setup lost the selected AI level")
 		_check(
-			setup._difficulty.tooltip_text == Difficulty.DESCRIPTIONS[index],
+			setup._difficulty.tooltip_text == setup.tr(Difficulty.DESCRIPTIONS[index]),
 			"Setup description does not follow the selected level"
 		)
 	setup._save_preferences()

@@ -141,6 +141,10 @@ func _next_building(units):
 
 
 func _expansion_building(units):
+	# Paid production capacity must not wait for late support facilities, whose
+	# army requirements can otherwise strand a growing economy on one factory.
+	if difficulty != Difficulty.EASY and _extra_factory_ready(units):
+		return "VehicleFactory"
 	var expansion = {
 		"CommandLab": 100.0,
 		"AircraftFactory": 150.0,
@@ -177,14 +181,15 @@ func _expansion_building(units):
 		order += 1
 		if _match.simulation_time >= expansion[role] * scale and _of_type(units, role).is_empty():
 			return role if _army_supports_optional(units, order) else ""
-	# Additional capacity must not compete with the army it should produce.
-	if (
+	return "VehicleFactory" if _extra_factory_ready(units) else ""
+
+
+func _extra_factory_ready(units):
+	return (
 		_match.simulation_time >= Difficulty.EXTRA_FACTORY_TIME
 		and _of_type(units, "VehicleFactory").size() < 1 + profile().extra_factories
 		and _can_fund_extra_factory(units)
-	):
-		return "VehicleFactory"
-	return ""
+	)
 
 
 func _army_supports_optional(units, order):

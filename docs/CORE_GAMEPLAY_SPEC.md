@@ -349,16 +349,22 @@ Skirmish setup offers Easy / Normal / Hard commanders (`SkirmishDifficulty.gd`);
 | | Easy | Normal | Hard |
 | --- | --- | --- | --- |
 | Decision interval | 3 s | 1.5 s | 0.75 s |
-| First wave / wave interval | 180 s / 100 s | 120 s / 65 s | 75 s / 40 s |
+| First wave / wave interval | 180 s / 100 s | 90 s / 45 s | 60 s / 30 s |
 | Task and raid-response groups | 1 | 2 | 3 |
 | Defenders per raid | 4 | 6 | 8 |
-| Engineers | 5 | 6 | 8 |
+| Engineers | 5 | 8 | 10 |
 | Optional building timings | ×1.35 | ×1 | ×1 |
-| Vehicle factories | 1 | 1 | 2 (from 210 s) |
+| Vehicle factories | 1 | 2 (from 210 s) | 3 (from 210 s) |
 | Army | 3 units, +1 per 30 s, at most 14; waves of at most 6 | population limit | population limit |
 | Research | Coordination, Weapons I, Armor I after 8 guards | full path after 6 guards | full path after 4 guards |
 | Retreat for repair | never | below 30% health | below 40% health |
 | Unit programs / signature abilities | off | on | on |
+
+These are base profiles; faction strategies adjust wave timings and Frontier retains
+at least two vehicle factories. Normal and Hard consider additional factories before
+optional support buildings once 210 seconds have elapsed, only when they can also
+fund the existing producers' next jobs. Optional-building army requirements cannot
+block that funded production capacity. Each completed expansion adds five engineers.
 
 `tests/headless/SkirmishDifficultyRegression.gd` plays ten-minute standard openings at each level against a stationary commander and requires Hard > Normal > Easy for first-attack timing, army value at 7 and 10 minutes, materials mined and engineers, plus setup, archive and reload of the chosen level.
 

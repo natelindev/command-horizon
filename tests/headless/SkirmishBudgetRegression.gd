@@ -34,7 +34,7 @@ func _budget(faction):
 	for unit in get_nodes_in_group("units"):
 		unit.process_mode = Node.PROCESS_MODE_DISABLED
 	game.hud._toggle_pause()
-	while _units(player, "Worker").size() < 6:
+	while _units(player, "Worker").size() < player.profile().workers:
 		_spawn("Worker", player, Vector3(100, 0, 72))
 	while _units(player, "Infantry").size() < 6:
 		_spawn("Infantry", player, Vector3(100, 0, 76))

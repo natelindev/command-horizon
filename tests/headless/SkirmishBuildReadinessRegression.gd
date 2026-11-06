@@ -47,6 +47,16 @@ func _growth(faction):
 		player._expansion_building(player._units()) == "",
 		faction + ": cancelled army production still unlocked an optional facility"
 	)
+	# A small army must not prevent an affordable factory from producing the
+	# reinforcements needed to unlock optional facilities in the first place.
+	game.simulation_time = 210
+	for level in [1, 2]:
+		player.difficulty = level
+		_check(
+			player._expansion_building(player._units()) == "VehicleFactory",
+			faction + ": support-building readiness blocked funded production capacity"
+		)
+	_spawn("VehicleFactory", player, Vector3(80, 0, 70))
 	for role in ["RepairDepot", "CommandLab", "AircraftFactory", "AntiAirTurret"]:
 		if factions.roster(faction).allows(role, true):
 			_spawn(role, player, Vector3(90, 0, 80))
@@ -91,10 +101,6 @@ func _check_balanced_bank(player, production):
 	var labor = load("res://source/match/players/skirmish-ai/SkirmishLabor.gd")
 	# A capped, fully researched commander has no pending expenses.
 	player.difficulty = 0
-	if player.faction == "frontier":
-		# Frontier's decentralized engine includes a second Motor Pool even
-		# after the Easy army cap; fulfill that remaining infrastructure goal.
-		_spawn("VehicleFactory", player, Vector3(80, 0, 70))
 	player.coordination_unlocked = true
 	var technologies = load("res://source/match/research/TechnologyCatalog.gd")
 	player.technology.completed = []

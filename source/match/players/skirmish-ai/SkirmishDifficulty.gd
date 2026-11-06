@@ -11,7 +11,7 @@ const TAGS = ["Easy AI", "Normal AI", "Hard AI"]
 const DESCRIPTIONS = [
 	"Builds slowly, attacks late with small groups and seldom retreats or uses abilities.",
 	"Steady economy, regular attack waves, field repairs and faction abilities.",
-	"More engineers, a second factory, early coordinated waves and disciplined retreats.",
+	"More engineers, additional factories, early coordinated waves and disciplined retreats.",
 ]
 const FULL_RESEARCH = [
 	"weapons_1",
@@ -60,27 +60,9 @@ const PROFILES = [
 	},
 	{
 		"decision_interval": 1.5,
-		"first_wave": 120.0,
-		"wave_interval": 65.0,
+		"first_wave": 90.0,
+		"wave_interval": 45.0,
 		"task_groups": 2,
-		"workers": 6,
-		"timing_scale": 1.0,
-		"assault_limit": 0,
-		"army_limit": 0,
-		"army_start": 0,
-		"army_ramp": 1.0,
-		"extra_factories": 0,
-		"research": FULL_RESEARCH,
-		"research_guards": 6,
-		"retreat_health": 0.3,
-		"defense_responders": 6,
-		"signatures": true,
-	},
-	{
-		"decision_interval": 0.75,
-		"first_wave": 75.0,
-		"wave_interval": 40.0,
-		"task_groups": 3,
 		"workers": 8,
 		"timing_scale": 1.0,
 		"assault_limit": 0,
@@ -89,13 +71,31 @@ const PROFILES = [
 		"army_ramp": 1.0,
 		"extra_factories": 1,
 		"research": FULL_RESEARCH,
+		"research_guards": 6,
+		"retreat_health": 0.3,
+		"defense_responders": 6,
+		"signatures": true,
+	},
+	{
+		"decision_interval": 0.75,
+		"first_wave": 60.0,
+		"wave_interval": 30.0,
+		"task_groups": 3,
+		"workers": 10,
+		"timing_scale": 1.0,
+		"assault_limit": 0,
+		"army_limit": 0,
+		"army_start": 0,
+		"army_ramp": 1.0,
+		"extra_factories": 2,
+		"research": FULL_RESEARCH,
 		"research_guards": 4,
 		"retreat_health": 0.4,
 		"defense_responders": 8,
 		"signatures": true,
 	},
 ]
-# A second factory is not useful before the first production cycle is paid for.
+# Additional factories follow the paid opening production cycle.
 const EXTRA_FACTORY_TIME = 210.0
 
 

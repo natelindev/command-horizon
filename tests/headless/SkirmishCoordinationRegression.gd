@@ -423,13 +423,14 @@ func _engaged_response():
 	var local_target = _actor("Worker", human, Vector3(80, 0, 24))
 	var threat = _actor("Tank", human, Vector3(88, 0, 30))
 	await _frames(60)
+	var durability = local_target.hp + local_target.shields
 	counter.issue_manual_order(
 		load("res://source/match/units/actions/AttackMoving.gd").new(Vector3(15, 0, 30))
 	)
 	counter.process_mode = Node.PROCESS_MODE_INHERIT
 	await _frames(100)
 	_check(
-		is_instance_valid(local_target) and local_target.hp < local_target.hp_max,
+		is_instance_valid(local_target) and local_target.hp + local_target.shields < durability,
 		"Engaged fixture never fired at the local target"
 	)
 	_check(
