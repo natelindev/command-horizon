@@ -1,49 +1,67 @@
 {
   "asset": "Bastion tank v1",
   "blender": "5.2.1 LTS",
-  "source_components": 407,
+  "source_components": 175,
   "rigid_meshes": {
     "Hull": {
-      "triangles": 8816,
-      "vertices": 5184,
+      "triangles": 1432,
+      "vertices": 902,
       "materials": 10
     },
     "Turret": {
-      "triangles": 2528,
-      "vertices": 1362,
+      "triangles": 660,
+      "vertices": 396,
       "materials": 6
     },
     "Barrel": {
-      "triangles": 1296,
-      "vertices": 744,
+      "triangles": 480,
+      "vertices": 280,
       "materials": 5
+    },
+    "TrackLeft": {
+      "triangles": 288,
+      "vertices": 192,
+      "materials": 1
+    },
+    "AntennaLeft": {
+      "triangles": 20,
+      "vertices": 12,
+      "materials": 1
+    },
+    "TrackRight": {
+      "triangles": 288,
+      "vertices": 192,
+      "materials": 1
+    },
+    "AntennaRight": {
+      "triangles": 20,
+      "vertices": 12,
+      "materials": 1
     }
   },
-  "triangles": 12640,
+  "triangles": 3188,
   "bounds_blender": {
     "min": [
-      -2.1875,
+      -2.1710000038146973,
       -2.80049991607666,
-      0.007499994710087776
+      0.034999966621398926
     ],
     "max": [
-      2.1875,
-      5.044666290283203,
+      2.1710000038146973,
+      5.045000076293945,
       3.210634231567383
     ]
   },
   "dimensions_m": [
-    4.375,
-    7.845166206359863,
-    3.203134236857295
+    4.3420000076293945,
+    7.8454999923706055,
+    3.175634264945984
   ],
   "godot_forward": "-Z",
   "godot_up": "+Y",
   "glb": "assets/models/bastion/tank-v1/bastion_tank_v1.glb",
   "notes": [
-    "Review asset: no movement/track animation or collision included.",
-    "Solid PBR materials; no texture atlas or authored UV layout.",
-    "Separate yaw/elevation pivots and muzzle marker exported.",
-    "Source components retained; GLB joins meshes by rigid articulation."
+    "Battle-scale geometry with articulated tracks and antennas.",
+    "Run art/bastion/build_faction.py to bake weathering and export game models."
   ]
 }

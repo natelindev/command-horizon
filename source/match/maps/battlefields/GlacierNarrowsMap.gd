@@ -187,7 +187,7 @@ const DEFINITION = {
 			"position": Vector2(63, 56),
 			"heading": 0.0,
 			"solid": 3.0,
-			"sight_height": 4.5
+			"sight_height": 3.4
 		},
 		{
 			"name": "Farmhouse",
@@ -195,7 +195,7 @@ const DEFINITION = {
 			"position": Vector2(10, 122),
 			"heading": 90.0,
 			"solid": 3.6,
-			"sight_height": 7.0
+			"sight_height": 3.8
 		},
 		{
 			"name": "Farmhouse",
@@ -203,7 +203,7 @@ const DEFINITION = {
 			"position": Vector2(32, 116),
 			"heading": 10.0,
 			"solid": 3.6,
-			"sight_height": 7.0
+			"sight_height": 3.8
 		},
 		{
 			"name": "Farmhouse",
@@ -211,7 +211,7 @@ const DEFINITION = {
 			"position": Vector2(12, 152),
 			"heading": 0.0,
 			"solid": 3.6,
-			"sight_height": 7.0
+			"sight_height": 3.8
 		},
 		{
 			"name": "Chapel",
@@ -219,7 +219,7 @@ const DEFINITION = {
 			"position": Vector2(36, 152),
 			"heading": 90.0,
 			"solid": 4.6,
-			"sight_height": 12.0
+			"sight_height": 4.5
 		},
 		{
 			"name": "Line pylon",

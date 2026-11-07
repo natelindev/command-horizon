@@ -14,6 +14,14 @@ from mathutils import Vector
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "common"))
 import foliage
+import scenery_scale
+
+# Keep the existing navigation footprint while matching military architecture.
+BUILDING_HEIGHTS = {
+    "Farmhouse": 3.8, "Barn": 4.2, "Sawmill": 4.2, "WaterMill": 4.2,
+    "CottageA": 3.2, "CottageB": 3.2, "VillageChurch": 4.5,
+    "GrainElevator": 4.5, "MetalSilos": 3.8,
+}
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "assets/models/environment/temperate"
@@ -259,8 +267,7 @@ def boulder(seed, size, index):
 
 def sawmill():
     box("Mill shed", (0, 0, 2.6), (10, 6, 5.2), TIMBER_DARK)
-    gable_roof("Mill roof", (0, 0, 5.2), 6, 10, 2.0, TIN)
-    bpy.context.object.rotation_euler.z = math.pi / 2
+    gable_roof("Mill roof", (0, 0, 5.2), 6, 10, 2.0, TIN).rotation_euler.z = math.pi / 2
     box("Saw floor", (-6.5, 0, 1.4), (3.0, 4.0, .3), TIMBER)
     for x in [-7.8, -5.2]:
         for y in [-1.8, 1.8]:
@@ -308,8 +315,7 @@ def stone_bridge():
 
 def farmhouse():
     box("House", (0, 0, 2.6), (8.0, 6.0, 5.2), WHITE_TRIM)
-    gable_roof("Roof", (0, 0, 5.2), 6.0, 8.0, 2.6, SLATE)
-    bpy.context.object.rotation_euler.z = math.pi / 2
+    gable_roof("Roof", (0, 0, 5.2), 6.0, 8.0, 2.6, SLATE).rotation_euler.z = math.pi / 2
     box("Porch", (0, -3.6, 1.4), (6.0, 1.4, .15), TIMBER)
     for x in [-2.6, 0, 2.6]:
         limb((x, -4.1, 0), (x, -4.1, 1.4), .07, WHITE_TRIM, 1, 6)
@@ -319,8 +325,7 @@ def farmhouse():
 
 def barn():
     box("Barn", (0, 0, 3.0), (10.0, 7.0, 6.0), RED_BARN)
-    gable_roof("Barn roof", (0, 0, 6.0), 7.0, 10.0, 3.4, TIN)
-    bpy.context.object.rotation_euler.z = math.pi / 2
+    gable_roof("Barn roof", (0, 0, 6.0), 7.0, 10.0, 3.4, TIN).rotation_euler.z = math.pi / 2
     box("Barn door", (0, -3.52, 2.2), (3.6, .05, 4.4), TIMBER_DARK)
     for angle in [.6, -.6]:
         box("Door brace", (0, -3.56, 2.2), (4.0, .04, .2), WHITE_TRIM, 0, (0, angle))
@@ -378,8 +383,7 @@ def church():
 def cottage(seed, length, mat_roof):
     rng = random.Random(seed)
     box("Cottage", (0, 0, 1.6), (length, 4.6, 3.2), rng.choice([STONE, WHITE_TRIM]))
-    gable_roof("Cottage roof", (0, 0, 3.2), 4.6, length, 2.4, mat_roof, .45)
-    bpy.context.object.rotation_euler.z = math.pi / 2
+    gable_roof("Cottage roof", (0, 0, 3.2), 4.6, length, 2.4, mat_roof, .45).rotation_euler.z = math.pi / 2
     cylinder("Chimney", (length / 2 - .4, 0, 5.4), .3, 1.6, STONE_DARK, 8)
     box("Door", (0, -2.32, 1.0), (.9, .05, 2.0), TIMBER_DARK)
     for x in [-length / 4, length / 4]:
@@ -388,8 +392,7 @@ def cottage(seed, length, mat_roof):
 
 def water_mill():
     box("Mill house", (0, 0, 3.0), (7.0, 6.0, 6.0), STONE)
-    gable_roof("Mill roof", (0, 0, 6.0), 6.0, 7.0, 2.8, SLATE)
-    bpy.context.object.rotation_euler.z = math.pi / 2
+    gable_roof("Mill roof", (0, 0, 6.0), 6.0, 7.0, 2.8, SLATE).rotation_euler.z = math.pi / 2
     cylinder("Wheel", (0, 3.6, 2.4), 2.4, .6, TIMBER_DARK, 20, "y")
     for index in range(10):
         angle = index * math.tau / 10
@@ -456,8 +459,13 @@ builders = [
     ("PicketFence", 3.2, 1.2, picket_fence),
 ]
 for name, radius, height, build in builders:
+    if "--buildings-only" in sys.argv and name not in BUILDING_HEIGHTS:
+        continue
+    height = BUILDING_HEIGHTS.get(name, height)
     begin(name, radius, height)
     build()
+    if name in BUILDING_HEIGHTS:
+        scenery_scale.fit_height(collection, height)
 
 manifest = {}
 violations = []
@@ -471,13 +479,17 @@ for name, asset, radius_limit, height_limit in assets:
               for evaluated in [obj.evaluated_get(deps)] for vertex in evaluated.data.vertices]
     radius = max(math.hypot(p.x, p.y) for p in points)
     height = max(p.z for p in points)
-    if radius > radius_limit or height > height_limit:
+    if radius > radius_limit + .001 or height > height_limit + .001:
         violations.append((name, round(radius, 2), round(height, 2)))
     manifest[name] = {"radius": round(radius, 4), "height": round(height, 4),
                       "radius_limit": radius_limit, "height_limit": height_limit}
     bpy.ops.export_scene.gltf(filepath=str(OUT / (name + ".glb")), export_format="GLB",
                               use_selection=True, export_apply=True)
 assert not violations, violations
-bpy.ops.wm.save_as_mainfile(filepath=str(ROOT / "art/environment/TemperateKit.blend"))
-(ROOT / "art/environment/temperate-manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
+manifest_path = ROOT / "art/environment/temperate-manifest.json"
+if "--buildings-only" in sys.argv:
+    manifest = {**json.loads(manifest_path.read_text()), **manifest}
+else:
+    bpy.ops.wm.save_as_mainfile(filepath=str(ROOT / "art/environment/TemperateKit.blend"))
+manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
 print(json.dumps(manifest))

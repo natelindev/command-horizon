@@ -148,7 +148,7 @@ const DEFINITION = {
 			"position": Vector2(79.67, 90.19),
 			"heading": -56.0,
 			"solid": 3.6,
-			"sight_height": 5.5
+			"sight_height": 3.2
 		},
 		{
 			"name": "Cottage",
@@ -156,7 +156,7 @@ const DEFINITION = {
 			"position": Vector2(86.30, 85.38),
 			"heading": -44.0,
 			"solid": 3.6,
-			"sight_height": 5.5
+			"sight_height": 3.2
 		},
 		{
 			"name": "Cottage",
@@ -164,7 +164,7 @@ const DEFINITION = {
 			"position": Vector2(90.80, 78.08),
 			"heading": -32.0,
 			"solid": 3.6,
-			"sight_height": 5.5
+			"sight_height": 3.2
 		},
 		{
 			"name": "Field wall",
@@ -211,7 +211,7 @@ const DEFINITION = {
 			"position": Vector2(98, 30),
 			"heading": 0.0,
 			"solid": 5.6,
-			"sight_height": 9.0
+			"sight_height": 4.2
 		},
 	],
 	"bases": [{"start": Vector2(26, 26), "field": Vector2(19.6, 19.6)}],
@@ -261,7 +261,7 @@ const DEFINITION = {
 				"position": Vector2(112, 112),
 				"heading": 0.0,
 				"solid": 8.0,
-				"sight_height": 12.0
+				"sight_height": 4.5
 			},
 		],
 	},

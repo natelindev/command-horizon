@@ -1,5 +1,5 @@
 shader_type spatial;
-render_mode unshaded, blend_mul, depth_draw_never, fog_disabled;
+render_mode unshaded, blend_mix, depth_draw_never, fog_disabled;
 uniform sampler2D wear_map : source_color, filter_linear, repeat_disable;
 uniform vec2 map_size = vec2(200.0);
 varying vec2 ground_uv;
@@ -13,7 +13,8 @@ void vertex() {
 
 void fragment() {
 	vec4 mark = texture(wear_map, ground_uv);
-	// Multiply the already-lit terrain: soot must never glow under a dark sky.
-	ALBEDO = mix(vec3(1.0), vec3(0.25, 0.23, 0.21), mark.a);
-	ALPHA = 1.0;
+	// Alpha-composited black attenuates the existing terrain without a lit
+	// multiply pass affecting clean ground in Compatibility. It cannot glow.
+	ALBEDO = vec3(0.0);
+	ALPHA = mark.a * 0.75;
 }

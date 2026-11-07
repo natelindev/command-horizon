@@ -17,6 +17,18 @@ const RUNWAY_AIRFIELD = "res://source/match/units/structure-geometries/RunwayAir
 const Rules = preload("res://source/match/FactionRules.gd")
 const IDS = Rules.IDS
 const NAMES = Rules.NAMES
+const BASTION_MODELS = {
+	"Worker": "demo/Worker",
+	"Tank": "demo/Tank",
+	"RepairRobot": "demo/RepairRobot",
+	"CombatRobot": "demo/BulwarkWalker",
+	"AdvancedTank": "demo/SiegeColossus",
+	"AntiAirVehicle": "demo/FlakHalftrack",
+	"Drone": "demo/Drone",
+	"Helicopter": "air-v1/Helicopter",
+	"Fighter": "air-v1/Fighter",
+	"Bomber": "air-v1/Bomber",
+}
 const HELIX_MODELS = {
 	"Worker": "MuleEngineer",
 	"Infantry": "VectorOperator",
@@ -519,23 +531,6 @@ static func available(player, role, building = false, ignore_job = null):
 
 static func prepare_model(unit, faction):
 	var geometry = unit.get_node("Geometry")
-	if faction == "bastion" and unit.type in ["AdvancedTank", "CombatRobot", "AntiAirVehicle"]:
-		var model_id = {
-			"AdvancedTank": "SiegeColossus",
-			"CombatRobot": "BulwarkWalker",
-			"AntiAirVehicle": "FlakHalftrack"
-		}[unit.type]
-		for child in geometry.get_children():
-			child.free()
-		var model = load("res://assets/models/bastion/demo/%s.glb" % model_id).instantiate()
-		var bounds = _bounds(model, Transform3D.IDENTITY)
-		var factor = unit.radius * 1.85 / maxf(bounds.size.x, bounds.size.z)
-		model.scale = Vector3.ONE * factor
-		model.position = (
-			-Vector3(bounds.get_center().x, bounds.position.y, bounds.get_center().z) * factor
-		)
-		geometry.add_child(model)
-		unit.set_meta("model_faction", faction)
 	if unit.type == "AircraftFactory":
 		# The runway airfield is composed for its faction, not swapped and rescaled.
 		for child in geometry.get_children():
@@ -555,7 +550,8 @@ static func prepare_model(unit, faction):
 		)
 		unit.set_meta("model_faction", faction)
 	elif (
-		(faction == "helix" and HELIX_MODELS.has(unit.type))
+		(faction == "bastion" and BASTION_MODELS.has(unit.type))
+		or (faction == "helix" and HELIX_MODELS.has(unit.type))
 		or (faction == "frontier" and Frontier.MODELS.has(unit.type))
 	):
 		for child in geometry.get_children():
@@ -580,13 +576,18 @@ static func model_geometry(faction, role, radius):
 	if role == "AircraftFactory":
 		return load(RUNWAY_AIRFIELD).create(faction)
 	var models = Frontier.MODELS if faction == "frontier" else HELIX_MODELS
-	var model = load("res://assets/models/%s/v1/%s.glb" % [faction, models[role]]).instantiate()
+	var path = (
+		"res://assets/models/bastion/%s.glb" % BASTION_MODELS[role]
+		if faction == "bastion"
+		else "res://assets/models/%s/v1/%s.glb" % [faction, models[role]]
+	)
+	var model = load(path).instantiate()
 	if faction == "frontier":
 		FrontierSurfaces.apply(model)
 	else:
 		SurfaceTextures.apply_armor(model)
 	var bounds = _bounds(model, Transform3D.IDENTITY)
-	var factor = radius * 1.85 / max(bounds.size.x, bounds.size.z)
+	var factor = radius * 1.85 / maxf(.001, maxf(bounds.size.x, bounds.size.z))
 	if role == "Infantry":
 		factor = 1.15 / bounds.size.y
 	elif Bastion.is_aircraft(role):
@@ -602,9 +603,13 @@ static func model_geometry(faction, role, radius):
 
 static func _bounds(node, parent_transform):
 	var transform_here = parent_transform * node.transform if node is Node3D else parent_transform
-	var result = transform_here * node.get_aabb() if node is MeshInstance3D else AABB()
+	var result = (
+		transform_here * node.get_aabb() if node is MeshInstance3D and node.mesh != null else AABB()
+	)
 	for child in node.get_children():
-		result = result.merge(_bounds(child, transform_here))
+		var child_bounds = _bounds(child, transform_here)
+		if child_bounds.size != Vector3.ZERO:
+			result = child_bounds if result.size == Vector3.ZERO else result.merge(child_bounds)
 	return result
 
 

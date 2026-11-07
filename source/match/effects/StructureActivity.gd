@@ -183,20 +183,30 @@ func _task_light(parent, point):
 	_lamps.append(lamp)
 
 
+static func portal_layout(role: String, faction: String, bounds: AABB) -> Dictionary:
+	var position = Vector3(0, 0, -bounds.size.z * .40)
+	var direction = Vector3.FORWARD
+	if role == "Barracks":
+		position = Vector3(
+			-bounds.size.x * .235 if faction != "helix" else 0, 0, -bounds.size.z * .46
+		)
+	elif role == "AircraftFactory":
+		position = Layout.PAD_POINTS[0] + Vector3.UP * Layout.pad_height(faction, 0)
+		direction = Vector3.RIGHT
+	return {"position": position, "direction": direction}
+
+
 func _build_portal():
 	_portal_root = Node3D.new()
 	_portal_root.name = "ProductionPortal"
 	add_child(_portal_root)
 	var infantry = _unit.type == "Barracks"
 	var airborne = _unit.type == "AircraftFactory"
-	portal = Vector3(0, 0, -_bounds.size.z * .40)
-	if infantry:
-		portal.z = -_bounds.size.z * .46
-		portal.x = -_bounds.size.x * .235 if _unit.player.faction != "helix" else 0.0
+	var layout = portal_layout(_unit.type, _unit.player.faction, _bounds)
+	portal = layout.position
+	portal_direction = layout.direction
 	if airborne:
 		# Rotorcraft lift off the tower's helipad and leave away from the runway.
-		portal = Layout.PAD_POINTS[0] + Vector3.UP * Layout.pad_height(_unit.player.faction, 0)
-		portal_direction = Vector3.RIGHT
 		for side in [-1, 1]:
 			_task_light(_portal_root, portal + Vector3(side * .75, .04, -.4))
 		return

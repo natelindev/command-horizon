@@ -28,6 +28,9 @@ var _pending_structure_prototype = null
 var _blueprint_rotating = false
 var _placement_range = null
 var _feedback
+var _footprint
+var _blueprint_materials = []
+var _phase = 0.0
 
 @onready var _player = get_parent()
 @onready var _match = find_parent("Match")
@@ -40,6 +43,19 @@ func _ready():
 	_feedback = load("res://source/match/hud/PlacementFeedback.gd").new()
 	feedback_layer.add_child(_feedback)
 	MatchSignals.place_structure.connect(_on_structure_placement_request)
+	_blueprint_materials = [
+		preload(BLUEPRINT_INVALID_PATH).duplicate(), preload(BLUEPRINT_VALID_PATH).duplicate()
+	]
+
+
+func _process(delta):
+	if not _structure_placement_started():
+		return
+	if not get_tree().paused:
+		_phase += delta
+	for material in _blueprint_materials:
+		material.set_shader_parameter("phase", _phase)
+		material.set_shader_parameter("steady", Globals.options.reduced_flashes)
 
 
 func _input(event):
@@ -248,6 +264,23 @@ func _start_structure_placement(structure_prototype):
 	var temporary_structure_instance = _pending_structure_prototype.instantiate()
 	_pending_structure_radius = temporary_structure_instance.radius
 	_pending_structure_outline = Footprint.local_outline(temporary_structure_instance)
+	_footprint = load("res://source/match/effects/BlueprintFootprint.gd").new()
+	_footprint.name = "BlueprintFootprint"
+	_footprint.map = _match.map
+	_footprint.radius = _pending_structure_radius
+	_footprint.outline = _pending_structure_outline
+	add_child(_footprint)
+	var role = temporary_structure_instance.type
+	_footprint.has_portal = (
+		role in ["CommandCenter", "Barracks", "VehicleFactory", "AircraftFactory"]
+	)
+	var geometry = _active_blueprint_node
+	var bounds = Factions._bounds(geometry, geometry.transform.affine_inverse())
+	var portal = preload("res://source/match/effects/StructureActivity.gd").portal_layout(
+		role, _player.faction, bounds
+	)
+	_footprint.portal = portal.position
+	_footprint.portal_direction = portal.direction
 	_pending_structure_navmap_rid = (
 		find_parent("Match")
 		. navigation
@@ -280,16 +313,14 @@ func _set_blueprint_position(mouse_pos_2d):
 
 
 func _update_blueprint_color(blueprint_position_is_valid):
-	var material_to_set = (
-		preload(BLUEPRINT_VALID_PATH)
-		if blueprint_position_is_valid
-		else preload(BLUEPRINT_INVALID_PATH)
-	)
+	var material_to_set = _blueprint_materials[1 if blueprint_position_is_valid else 0]
 	if "material_override" in _active_blueprint_node:
 		_active_blueprint_node.material_override = material_to_set
 	for child in _active_blueprint_node.find_children("*", "", true, false):
 		if "material_override" in child:
 			child.material_override = material_to_set
+	if is_instance_valid(_footprint):
+		_footprint.refresh(_active_blueprint_node.global_transform, blueprint_position_is_valid)
 
 
 func _cancel_structure_placement():
@@ -300,6 +331,9 @@ func _cancel_structure_placement():
 		if is_instance_valid(_placement_range):
 			_placement_range.queue_free()
 		_placement_range = null
+		if is_instance_valid(_footprint):
+			_footprint.queue_free()
+		_footprint = null
 
 
 func _finish_structure_placement():
@@ -340,6 +374,9 @@ func _try_rotating_blueprint_by(degrees):
 	_active_blueprint_node.global_transform.basis = (
 		_active_blueprint_node.global_transform.basis.rotated(Vector3.UP, deg_to_rad(degrees))
 	)
+	var validity = _calculate_blueprint_position_validity()
+	_update_feedback_label(validity)
+	_update_blueprint_color(validity == BlueprintPositionValidity.VALID)
 
 
 func _rotate_blueprint_towards_mouse_pos():

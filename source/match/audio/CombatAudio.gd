@@ -40,6 +40,9 @@ const LEVELS = {
 	"damage_backfire": -29.0,
 	"commander_warning": -18.0,
 	"commander_emp": -15.0,
+	"complete_bastion": -24.0,
+	"complete_helix": -26.0,
+	"complete_frontier": -27.0,
 }
 var played_count = 0
 var dropped_count = 0
@@ -57,7 +60,6 @@ var _charge_stream
 var _damage_candidates := {}
 var _damage_streams := {}
 var _damage_refresh := 0.0
-var _backfire_next := {}
 
 
 func _ready():
@@ -283,7 +285,6 @@ func _refresh_damage_loops():
 			or not _audible(unit, unit.global_position)
 		):
 			_damage_candidates.erase(id)
-			_backfire_next.erase(id)
 			continue
 		candidates.append(unit)
 	candidates.sort_custom(
@@ -339,14 +340,6 @@ func _refresh_damage_loops():
 			played_count += 1
 			cue_started.emit(cue, voice.point)
 		voice.point = unit.global_position
-		var id = unit.get_instance_id()
-		if (
-			unit.player.faction == "frontier"
-			and _damage_candidates[id].band == 2
-			and _clock >= _backfire_next.get(id, 0.0)
-		):
-			_backfire_next[id] = _clock + 4.0
-			_play("damage_backfire", unit, unit.global_position, 0, .65)
 
 
 static func _make_damage_stream(faction: String) -> AudioStreamWAV:
@@ -388,6 +381,20 @@ func ability(unit, id, point):
 		"frag_grenade":
 			return _play("impact_heavy", unit, point, 2)
 	return false
+
+
+func vehicle_backfire(unit, point):
+	return _play("damage_backfire", unit, point, 0, .65)
+
+
+func construction_completed(unit):
+	var kind = "complete_" + unit.player.faction
+	if not _streams.has(kind):
+		var stream = load("res://source/match/audio/CompletionAudio.gd").make_stream(
+			unit.player.faction
+		)
+		_streams[kind] = [stream, stream, stream]
+	return _play(kind, unit, unit.global_position, 1)
 
 
 func destruction(unit):
@@ -612,5 +619,4 @@ func _exit_tree():
 	_charge_stream = null
 	_damage_candidates.clear()
 	_damage_streams.clear()
-	_backfire_next.clear()
 	_recent.clear()

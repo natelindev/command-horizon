@@ -1,0 +1,338 @@
+{
+  "date": "2026-11-07",
+  "engine": "Godot 4.7.2 stable ed1daf0bf",
+  "host": "macOS / Apple M1 Pro",
+  "baseline_commit": "2ce00183a1c05717cb1e1924b2eacc08099f5f77",
+  "static_checks": {
+    "gdformat": "25 changed/new GDScript files pass",
+    "gdlint": "25 changed/new GDScript files pass",
+    "git_diff_check": "pass",
+    "editor_import": "pass"
+  },
+  "headless": [
+    {
+      "test": "WorldFeedbackRegression",
+      "passed": true,
+      "exit": 0,
+      "summary": [
+        "World feedback regression: 0 failures"
+      ],
+      "errors": [],
+      "command": "Godot --headless --path . --script tests/headless/WorldFeedbackRegression.gd"
+    },
+    {
+      "test": "AbilityFeedbackIntegration",
+      "passed": true,
+      "exit": 0,
+      "summary": [
+        "Ability feedback integration: 0 failures"
+      ],
+      "errors": [],
+      "command": "Godot --headless --path . --script tests/headless/AbilityFeedbackIntegration.gd"
+    },
+    {
+      "test": "ShieldComponentRegression",
+      "passed": true,
+      "exit": 0,
+      "summary": [
+        "Shield component: 0 failures"
+      ],
+      "errors": [],
+      "command": "Godot --headless --path . --script tests/headless/ShieldComponentRegression.gd"
+    },
+    {
+      "test": "PlasmaShieldsRegression",
+      "passed": true,
+      "exit": 0,
+      "summary": [
+        "Innate faction shields, resonators and archives: 0 failures"
+      ],
+      "errors": [],
+      "command": "Godot --headless --path . --script tests/headless/PlasmaShieldsRegression.gd"
+    },
+    {
+      "test": "OpticalCloakRegression",
+      "passed": true,
+      "exit": 0,
+      "summary": [
+        "Stationary optical cloak and native targeting: 0 failures"
+      ],
+      "errors": [],
+      "command": "Godot --headless --path . --script tests/headless/OpticalCloakRegression.gd"
+    },
+    {
+      "test": "UnitAbilitiesRegression",
+      "passed": true,
+      "exit": 0,
+      "summary": [
+        "Unit abilities: 0 failures"
+      ],
+      "errors": [],
+      "command": "Godot --headless --path . --script tests/headless/UnitAbilitiesRegression.gd"
+    },
+    {
+      "test": "HelixSupportRegression",
+      "passed": true,
+      "exit": 0,
+      "summary": [
+        "Helix support and scrap expiry: 0 failures"
+      ],
+      "errors": [],
+      "command": "Godot --headless --path . --script tests/headless/HelixSupportRegression.gd"
+    },
+    {
+      "test": "MacroEconomyRegression",
+      "passed": true,
+      "exit": 0,
+      "summary": [
+        "Macro economy: 0 failures"
+      ],
+      "errors": [],
+      "command": "Godot --headless --path . --script tests/headless/MacroEconomyRegression.gd"
+    },
+    {
+      "test": "VehicleDamageVisualsRegression",
+      "passed": false,
+      "exit": 1,
+      "summary": [
+        "Vehicle damage visuals regression: 1 failures"
+      ],
+      "errors": [
+        "ERROR: AntiAirVehicle missing generated permanent plate ranks"
+      ],
+      "command": "Godot --headless --path . --script tests/headless/VehicleDamageVisualsRegression.gd",
+      "baseline": {
+        "exit": 1,
+        "errors": [
+          "ERROR: AntiAirVehicle missing generated permanent plate ranks"
+        ]
+      }
+    },
+    {
+      "test": "VehicleDamageAudioRegression",
+      "passed": true,
+      "exit": 0,
+      "summary": [
+        "Vehicle damage audio regression: 0 failures"
+      ],
+      "errors": [],
+      "command": "Godot --headless --path . --script tests/headless/VehicleDamageAudioRegression.gd"
+    },
+    {
+      "test": "PlacementFeedbackRegression",
+      "passed": true,
+      "exit": 0,
+      "summary": [
+        "Placement feedback: 0 failures"
+      ],
+      "errors": [],
+      "command": "Godot --headless --path . --script tests/headless/PlacementFeedbackRegression.gd"
+    },
+    {
+      "test": "PresentationFeaturesRegression",
+      "passed": true,
+      "exit": 0,
+      "summary": [
+        "Presentation features: 0 failures over 3 sections"
+      ],
+      "errors": [],
+      "command": "Godot --headless --path . --script tests/headless/PresentationFeaturesRegression.gd"
+    },
+    {
+      "test": "StructureActivityRegression",
+      "passed": true,
+      "exit": 0,
+      "summary": [
+        "Structure activity and departures: 0 failures"
+      ],
+      "errors": [],
+      "command": "Godot --headless --path . --script tests/headless/StructureActivityRegression.gd"
+    },
+    {
+      "test": "ImpactEffectsRegression",
+      "passed": true,
+      "exit": 0,
+      "summary": [
+        "Impact effects regression: 0 failures"
+      ],
+      "errors": [],
+      "command": "Godot --headless --path . --script tests/headless/ImpactEffectsRegression.gd"
+    },
+    {
+      "test": "ContactEffectsRegression",
+      "passed": true,
+      "exit": 0,
+      "summary": [
+        "Contact effects regression: 0 failures"
+      ],
+      "errors": [],
+      "command": "Godot --headless --path . --script tests/headless/ContactEffectsRegression.gd"
+    },
+    {
+      "test": "RichTexturesRegression",
+      "passed": true,
+      "exit": 0,
+      "summary": [
+        "Rich textures: 0 failures"
+      ],
+      "errors": [],
+      "command": "Godot --headless --path . --script tests/headless/RichTexturesRegression.gd"
+    },
+    {
+      "test": "ManualParticlesRegression",
+      "passed": true,
+      "exit": 0,
+      "summary": [
+        "Manual particle buffers: 0 failures"
+      ],
+      "errors": [],
+      "command": "Godot --headless --path . --script tests/headless/ManualParticlesRegression.gd"
+    },
+    {
+      "test": "UnitAnimationRegression",
+      "passed": false,
+      "exit": 1,
+      "summary": [
+        "Unit animation regression: 4 failures"
+      ],
+      "errors": [
+        "ERROR: On-screen unit never resumed animating",
+        "ERROR: Infantry wreck stays curled after impact",
+        "ERROR: Infantry wreck keeps re-posing after it landed",
+        "ERROR: Infantry wreck never reaches the ground"
+      ],
+      "command": "Godot --headless --path . --script tests/headless/UnitAnimationRegression.gd",
+      "baseline": {
+        "test": "UnitAnimationRegression",
+        "exit": 1,
+        "summary": [
+          "Unit animation regression: 4 failures"
+        ],
+        "errors": [
+          "ERROR: On-screen unit never resumed animating",
+          "ERROR: Infantry wreck stays curled after impact",
+          "ERROR: Infantry wreck keeps re-posing after it landed",
+          "ERROR: Infantry wreck never reaches the ground"
+        ]
+      }
+    },
+    {
+      "test": "AnimationPolishRegression",
+      "passed": false,
+      "exit": 1,
+      "summary": [
+        "Animation polish regression: 4 failures"
+      ],
+      "errors": [
+        "ERROR: AdvancedTank: exported antenna pivot missing",
+        "ERROR: Antenna ignores braking inertia",
+        "ERROR: Frontier AdvancedTank: antenna missing",
+        "ERROR: Frontier CombatRobot: antenna missing",
+        "ERROR: 12 resources still in use at exit (run with --verbose for details)."
+      ],
+      "command": "Godot --headless --path . --script tests/headless/AnimationPolishRegression.gd",
+      "baseline": {
+        "test": "AnimationPolishRegression",
+        "exit": 1,
+        "summary": [
+          "Animation polish regression: 4 failures"
+        ],
+        "errors": [
+          "ERROR: AdvancedTank: exported antenna pivot missing",
+          "ERROR: Antenna ignores braking inertia",
+          "ERROR: Frontier AdvancedTank: antenna missing",
+          "ERROR: Frontier CombatRobot: antenna missing",
+          "ERROR: 14 resources still in use at exit (run with --verbose for details)."
+        ]
+      }
+    },
+    {
+      "test": "FoundryBatchRegression",
+      "passed": false,
+      "exit": 0,
+      "summary": [
+        "Foundry batch regression: 0 failures"
+      ],
+      "errors": [
+        "ERROR: 6 resources still in use at exit (run with --verbose for details)."
+      ],
+      "command": "Godot --headless --path . --script tests/headless/FoundryBatchRegression.gd",
+      "baseline": {
+        "test": "FoundryBatchRegression",
+        "exit": 0,
+        "summary": [
+          "Foundry batch regression: 0 failures"
+        ],
+        "errors": [
+          "ERROR: 6 resources still in use at exit (run with --verbose for details)."
+        ]
+      }
+    }
+  ],
+  "rendered": [
+    {
+      "test": "WorldFeedbackPreview (Forward+)",
+      "passed": true,
+      "command": "Godot --path . --rendering-method forward_plus --script tests/rendered/WorldFeedbackPreview.gd",
+      "summary": [
+        "World feedback preview (forward_plus): 0 failures"
+      ],
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "test": "WorldFeedbackPreview (Compatibility)",
+      "passed": true,
+      "command": "Godot --path . --rendering-method gl_compatibility --script tests/rendered/WorldFeedbackPreview.gd",
+      "summary": [
+        "World feedback preview (gl_compatibility): 0 failures"
+      ],
+      "errors": [],
+      "warnings": [
+        "WARNING: Image format BPTC_RGBA not supported by hardware, converting to RGBA8."
+      ]
+    },
+    {
+      "test": "CombatPrewarmRegression",
+      "passed": true,
+      "command": "Godot --path . --rendering-method forward_plus --script tests/rendered/CombatPrewarmRegression.gd",
+      "summary": [
+        "Combat prewarm regression: 0 failures"
+      ],
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "test": "UnitBatchRegression",
+      "passed": true,
+      "command": "Godot --path . --rendering-method forward_plus --script tests/rendered/UnitBatchRegression.gd -- --enable-native-kernels",
+      "summary": [
+        "Unit batch regression: 0 failures"
+      ],
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "test": "TerrainLayersPreview",
+      "passed": true,
+      "command": "Godot --path . --rendering-method forward_plus --script tests/rendered/TerrainLayersPreview.gd -- IndustrialCrossroads RedrockDivide",
+      "summary": [
+        "Terrain layer rendered preview: 0 failures"
+      ],
+      "errors": [],
+      "warnings": []
+    }
+  ],
+  "regressions": {
+    "paused_cloak_load": "Reproduced opaque concealed sniper on paused load; fixed and covered by AbilityFeedbackIntegration.",
+    "compatibility_ground_wear": "Untouched corner changed from RGB (74,88,95) to (14,19,20) after a wear mark. Alpha darkening preserves (74,88,95); WorldFeedbackPreview now checks this after phase shift.",
+    "captures": "art/world-feedback/forward_plus and art/world-feedback/gl_compatibility; neutral floor and scene weather/grading disabled to isolate effects."
+  },
+  "limitations": [
+    "VehicleDamageVisualsRegression: same missing Frontier AntiAirVehicle plate ranks on baseline.",
+    "UnitAnimationRegression: same four animation/corpse assertions on baseline.",
+    "AnimationPolishRegression: same four missing antenna/inertia assertions and resource-teardown warnings on baseline.",
+    "FoundryBatchRegression: assertions pass, but same six-resource teardown warning on baseline.",
+    "Compatibility preview reports existing BPTC-to-RGBA8 conversion warnings."
+  ]
+}

@@ -230,7 +230,7 @@ const DEFINITION = {
 			"position": Vector2(104, 8),
 			"heading": 0.0,
 			"solid": 5.0,
-			"sight_height": 8.0
+			"sight_height": 4.2
 		},
 		{
 			"name": "Snow fence",

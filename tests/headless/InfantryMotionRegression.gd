@@ -57,8 +57,14 @@ func _test_articulation(unit):
 	if motion == null:
 		return
 	var badge = unit.find_child("UnitMark", true, false)
+	var finish = badge.get_active_material(0)
 	_check(
-		badge.get_surface_override_material(0) == unit.player.get_color_material(),
+		(
+			finish is StandardMaterial3D
+			and finish.albedo_color == unit.player.color
+			and finish.vertex_color_use_as_albedo
+			and finish.emission == unit.player.color
+		),
 		"Human model lost player color"
 	)
 	var authority = unit.transform

@@ -7,10 +7,19 @@ Run: blender --background --python art/environment/build_cold.py
 import json
 import math
 import random
+import sys
 from pathlib import Path
 
 import bpy
 from mathutils import Vector
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "common"))
+import scenery_scale
+
+BUILDING_HEIGHTS = {
+    "FjordHouseRed": 3.8, "FjordHouseOchre": 3.8, "MountainHut": 4.2,
+    "Boathouse": 3.4, "FjordChapel": 4.5,
+}
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "assets/models/environment/cold"
@@ -576,8 +585,13 @@ builders = [
     ("MountainHut", 8.2, 8.8, mountain_hut),
 ]
 for name, radius, height, build in builders:
+    if "--buildings-only" in sys.argv and name not in BUILDING_HEIGHTS:
+        continue
+    height = BUILDING_HEIGHTS.get(name, height)
     begin(name, radius, height)
     build()
+    if name in BUILDING_HEIGHTS:
+        scenery_scale.fit_height(collection, height)
 
 manifest = {}
 violations = []
@@ -591,13 +605,17 @@ for name, asset, radius_limit, height_limit in assets:
               for evaluated in [obj.evaluated_get(deps)] for vertex in evaluated.data.vertices]
     radius = max(math.hypot(p.x, p.y) for p in points)
     height = max(p.z for p in points)
-    if radius > radius_limit or height > height_limit:
+    if radius > radius_limit + .001 or height > height_limit + .001:
         violations.append((name, round(radius, 2), round(height, 2)))
     manifest[name] = {"radius": round(radius, 4), "height": round(height, 4),
                       "radius_limit": radius_limit, "height_limit": height_limit}
     bpy.ops.export_scene.gltf(filepath=str(OUT / (name + ".glb")), export_format="GLB",
                               use_selection=True, export_apply=True)
 assert not violations, violations
-bpy.ops.wm.save_as_mainfile(filepath=str(ROOT / "art/environment/ColdKit.blend"))
-(ROOT / "art/environment/cold-manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
+manifest_path = ROOT / "art/environment/cold-manifest.json"
+if "--buildings-only" in sys.argv:
+    manifest = {**json.loads(manifest_path.read_text()), **manifest}
+else:
+    bpy.ops.wm.save_as_mainfile(filepath=str(ROOT / "art/environment/ColdKit.blend"))
+manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
 print(json.dumps(manifest))

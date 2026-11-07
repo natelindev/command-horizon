@@ -5,6 +5,7 @@ extends NavigationAgent3D
 signal movement_finished
 signal passive_movement_started
 signal passive_movement_finished
+signal phase_shifted(origin, destination)
 
 const MassContacts = preload("res://source/match/orders/MassContactIndex.gd")
 const MotionProfile = preload("res://source/match/units/traits/UnitMotionProfile.gd")
@@ -167,7 +168,11 @@ func phase_shift(point: Vector3) -> bool:
 	var destination = phase_destination(point)
 	if not destination.is_finite():
 		return false
-	return relocate(destination)
+	var origin = _unit.global_position
+	if not relocate(destination):
+		return false
+	phase_shifted.emit(origin, destination)
+	return true
 
 
 func relocate(destination: Vector3) -> bool:

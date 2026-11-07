@@ -133,7 +133,14 @@ func _check_units():
 				var active = mesh.get_active_material(surface)
 				if original.resource_name.begins_with("TeamColor"):
 					team_parts += 1
-					_check(active == human.get_color_material(), "Texture replaced player color")
+					_check(
+						(
+							active is StandardMaterial3D
+							and active.albedo_color == human.color
+							and active.vertex_color_use_as_albedo
+						),
+						"Texture replaced player color"
+					)
 				if _has_armor(active):
 					armored += 1
 					_check(

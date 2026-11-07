@@ -1,0 +1,1035 @@
+{
+  "date": "2026-11-07",
+  "engine": "Godot 4.7.2 stable",
+  "hardware": "Apple M1 Pro",
+  "baseline_commit": "2ce00183a1c05717cb1e1924b2eacc08099f5f77",
+  "audits": [
+    "Neutral Structures & Terrain Occlusion Design Audit",
+    "Unit Modeling Design Review & Technical Audit"
+  ],
+  "summary": {
+    "passing_headless_suites": 19,
+    "passing_rendered_checks": 6,
+    "known_failing_broad_suite": "Skirmish"
+  },
+  "tests": [
+    {
+      "test": "ModelReadabilityRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--script",
+        "res://tests/headless/ModelReadabilityRegression.gd",
+        "--headless"
+      ],
+      "exit": 0,
+      "seconds": 3.1,
+      "summary": [
+        "Model readability regression: 0 failures, 14 batched LOD surfaces"
+      ],
+      "errors": [],
+      "passed": true,
+      "kind": "headless",
+      "log": "ModelReadabilityRegression-post-helicopter.log"
+    },
+    {
+      "test": "UnitAnimationRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--script",
+        "res://tests/headless/UnitAnimationRegression.gd",
+        "--headless"
+      ],
+      "exit": 0,
+      "seconds": 33.1,
+      "summary": [
+        "Unit animation regression: 0 failures"
+      ],
+      "errors": [],
+      "passed": true,
+      "kind": "headless",
+      "log": "UnitAnimationRegression-post-helicopter.log"
+    },
+    {
+      "test": "AnimationPolishRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--script",
+        "res://tests/headless/AnimationPolishRegression.gd",
+        "--headless"
+      ],
+      "exit": 0,
+      "seconds": 3.5,
+      "summary": [
+        "Animation polish regression: 0 failures"
+      ],
+      "errors": [],
+      "passed": true,
+      "kind": "headless",
+      "log": "AnimationPolishRegression-final.log"
+    },
+    {
+      "test": "VehicleDamageVisualsRegression",
+      "exit": 0,
+      "summary": [
+        "Vehicle damage visuals regression: 0 failures"
+      ],
+      "errors": [],
+      "passed": true,
+      "command": [
+        "Godot",
+        "--path",
+        ".",
+        "--headless",
+        "--script",
+        "res://tests/headless/VehicleDamageVisualsRegression.gd"
+      ],
+      "kind": "headless",
+      "log": "VehicleDamageVisualsRegression.log"
+    },
+    {
+      "test": "RichTexturesRegression",
+      "exit": 0,
+      "summary": [
+        "Rich textures: 0 failures"
+      ],
+      "errors": [],
+      "passed": true,
+      "command": [
+        "Godot",
+        "--path",
+        ".",
+        "--headless",
+        "--script",
+        "res://tests/headless/RichTexturesRegression.gd"
+      ],
+      "kind": "headless",
+      "log": "RichTexturesRegression.log"
+    },
+    {
+      "test": "ModelDesignRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--script",
+        "res://tests/headless/ModelDesignRegression.gd",
+        "--headless"
+      ],
+      "exit": 0,
+      "seconds": 7.7,
+      "summary": [
+        "Model design alignment: 0 failures"
+      ],
+      "errors": [],
+      "passed": true,
+      "kind": "headless",
+      "log": "ModelDesignRegression.log"
+    },
+    {
+      "test": "FactionAsymmetryRegression",
+      "exit": 0,
+      "summary": [
+        "Faction asymmetry signatures, exclusion and batch production: 0 failures"
+      ],
+      "errors": [],
+      "passed": true,
+      "command": [
+        "Godot",
+        "--path",
+        ".",
+        "--headless",
+        "--script",
+        "res://tests/headless/FactionAsymmetryRegression.gd"
+      ],
+      "kind": "headless",
+      "log": "FactionAsymmetryRegression.log"
+    },
+    {
+      "test": "TerrainSightRegression",
+      "exit": 0,
+      "summary": [
+        "Terrain sight: 0 failures"
+      ],
+      "errors": [],
+      "passed": true,
+      "command": [
+        "Godot",
+        "--path",
+        ".",
+        "--headless",
+        "--script",
+        "res://tests/headless/TerrainSightRegression.gd"
+      ],
+      "kind": "headless",
+      "log": "TerrainSightRegression.log"
+    },
+    {
+      "test": "TerrainGroundingRegression",
+      "exit": 0,
+      "summary": [
+        "Terrain grounding: 0 failures"
+      ],
+      "errors": [],
+      "passed": true,
+      "command": [
+        "Godot",
+        "--path",
+        ".",
+        "--headless",
+        "--script",
+        "res://tests/headless/TerrainGroundingRegression.gd"
+      ],
+      "kind": "headless",
+      "log": "TerrainGroundingRegression.log"
+    },
+    {
+      "test": "OccludedSelectionRegression",
+      "exit": 0,
+      "summary": [
+        "Occluded selection: 0 failures"
+      ],
+      "errors": [],
+      "passed": true,
+      "command": [
+        "Godot",
+        "--path",
+        ".",
+        "--headless",
+        "--script",
+        "res://tests/headless/OccludedSelectionRegression.gd"
+      ],
+      "kind": "headless",
+      "log": "OccludedSelectionRegression.log"
+    },
+    {
+      "test": "WorldFeedbackRegression",
+      "exit": 0,
+      "summary": [
+        "World feedback regression: 0 failures"
+      ],
+      "errors": [],
+      "passed": true,
+      "command": [
+        "Godot",
+        "--path",
+        ".",
+        "--headless",
+        "--script",
+        "res://tests/headless/WorldFeedbackRegression.gd"
+      ],
+      "kind": "headless",
+      "log": "WorldFeedbackRegression.log"
+    },
+    {
+      "test": "AbilityFeedbackIntegration",
+      "exit": 0,
+      "summary": [
+        "Ability feedback integration: 0 failures"
+      ],
+      "errors": [],
+      "passed": true,
+      "command": [
+        "Godot",
+        "--path",
+        ".",
+        "--headless",
+        "--script",
+        "res://tests/headless/AbilityFeedbackIntegration.gd"
+      ],
+      "kind": "headless",
+      "log": "AbilityFeedbackIntegration.log"
+    },
+    {
+      "test": "OpticalCloakRegression",
+      "exit": 0,
+      "summary": [
+        "Stationary optical cloak and native targeting: 0 failures"
+      ],
+      "errors": [],
+      "passed": true,
+      "command": [
+        "Godot",
+        "--path",
+        ".",
+        "--headless",
+        "--script",
+        "res://tests/headless/OpticalCloakRegression.gd"
+      ],
+      "kind": "headless",
+      "log": "OpticalCloakRegression.log"
+    },
+    {
+      "test": "InfantryMotionRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--script",
+        "res://tests/headless/InfantryMotionRegression.gd",
+        "--headless"
+      ],
+      "exit": 0,
+      "seconds": 43.1,
+      "summary": [
+        "Infantry motion and ranges: 0 failures"
+      ],
+      "errors": [],
+      "passed": true,
+      "kind": "headless",
+      "log": "InfantryMotionRegression.log"
+    },
+    {
+      "test": "SaveRestoreRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--script",
+        "res://tests/headless/SaveRestoreRegression.gd",
+        "--headless",
+        "--fixed-fps",
+        "60"
+      ],
+      "exit": 0,
+      "seconds": 4.8,
+      "summary": [],
+      "errors": [],
+      "passed": true,
+      "kind": "headless",
+      "log": "SaveRestoreRegression-final.log"
+    },
+    {
+      "test": "FixedWingSaveRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--script",
+        "res://tests/headless/FixedWingSaveRegression.gd",
+        "--headless",
+        "--fixed-fps",
+        "60"
+      ],
+      "exit": 0,
+      "seconds": 4.4,
+      "summary": [],
+      "errors": [],
+      "passed": true,
+      "kind": "headless",
+      "log": "FixedWingSaveRegression-final.log"
+    },
+    {
+      "test": "AirSaveContinuityRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--script",
+        "res://tests/headless/AirSaveContinuityRegression.gd",
+        "--headless",
+        "--fixed-fps",
+        "60"
+      ],
+      "exit": 0,
+      "seconds": 3.4,
+      "summary": [],
+      "errors": [],
+      "passed": true,
+      "kind": "headless",
+      "log": "AirSaveContinuityRegression-final.log"
+    },
+    {
+      "test": "OcclusionPreview-forward_plus",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--script",
+        "res://tests/rendered/OcclusionPreview.gd",
+        "--rendering-method",
+        "forward_plus",
+        "--",
+        "--enable-native-kernels"
+      ],
+      "exit": 0,
+      "seconds": 28.0,
+      "summary": [
+        "World feedback preview (forward_plus): 0 failures"
+      ],
+      "errors": [],
+      "passed": true,
+      "kind": "rendered",
+      "log": "OcclusionPreview-forward_plus.log"
+    },
+    {
+      "test": "OcclusionPreview-gl_compatibility",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--script",
+        "res://tests/rendered/OcclusionPreview.gd",
+        "--rendering-method",
+        "gl_compatibility",
+        "--",
+        "--enable-native-kernels"
+      ],
+      "exit": 0,
+      "seconds": 28.9,
+      "summary": [
+        "World feedback preview (gl_compatibility): 0 failures"
+      ],
+      "errors": [],
+      "passed": true,
+      "kind": "rendered",
+      "log": "OcclusionPreview-gl_compatibility.log"
+    },
+    {
+      "test": "UnitBatchRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--script",
+        "res://tests/rendered/UnitBatchRegression.gd",
+        "--",
+        "--enable-native-kernels"
+      ],
+      "exit": 0,
+      "seconds": 30.5,
+      "summary": [
+        "Unit batch regression: 0 failures"
+      ],
+      "errors": [],
+      "passed": true,
+      "kind": "rendered",
+      "log": "UnitBatchRegression.log"
+    },
+    {
+      "test": "WeatheringPreview",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--script",
+        "res://tests/rendered/WeatheringPreview.gd",
+        "--",
+        "bastion"
+      ],
+      "exit": 0,
+      "seconds": 16.3,
+      "summary": [
+        "Weathering rendered preview: 0 failures, 4 new models, 12 captures"
+      ],
+      "errors": [],
+      "passed": true,
+      "kind": "rendered",
+      "log": "WeatheringPreview-post-helicopter.log",
+      "coverage": [
+        "bastion",
+        "helix",
+        "frontier"
+      ],
+      "coverage_note": "Initial all-faction run captured 42 images and failed only the Bastion helicopter asset-path assertion. After correcting the normalizer to retain air-v1/Helicopter, the complete Bastion preview passed with 12 captures. Helix and Frontier were unchanged after their successful checks."
+    },
+    {
+      "test": "TerrainLayersPreview",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--script",
+        "res://tests/rendered/TerrainLayersPreview.gd",
+        "--",
+        "FourRivers",
+        "GlacierNarrows",
+        "PinebreakValley",
+        "AlpineRelay",
+        "VerdantCommons"
+      ],
+      "exit": 0,
+      "seconds": 53.3,
+      "summary": [
+        "Terrain layer rendered preview: 0 failures"
+      ],
+      "errors": [],
+      "passed": true,
+      "kind": "rendered",
+      "log": "TerrainLayersPreview.log"
+    },
+    {
+      "test": "SurfaceTexturesRegression",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--script",
+        "res://tests/headless/SurfaceTexturesRegression.gd",
+        "--headless"
+      ],
+      "exit": 0,
+      "seconds": 14.3,
+      "summary": [
+        "Surface textures: 0 failures"
+      ],
+      "errors": [],
+      "passed": true,
+      "kind": "headless",
+      "log": "SurfaceTexturesRegression-final.log"
+    },
+    {
+      "test": "BastionDemo",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--script",
+        "res://tests/headless/BastionDemo.gd",
+        "--headless",
+        "--fixed-fps",
+        "60"
+      ],
+      "exit": 0,
+      "seconds": 11.2,
+      "summary": [],
+      "errors": [],
+      "passed": true,
+      "kind": "headless",
+      "log": "BastionDemo-final.log"
+    },
+    {
+      "test": "Skirmish",
+      "command": [
+        "/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot",
+        "--path",
+        "/Users/linlilu/godot-open-rts",
+        "--script",
+        "res://tests/headless/Skirmish.gd",
+        "--headless",
+        "--fixed-fps",
+        "60"
+      ],
+      "exit": 1,
+      "seconds": 28.5,
+      "summary": [],
+      "errors": [
+        "Existing fixture requests the Bastion-only ForwardRefinery for other factions and does not recover from the missing-model error."
+      ],
+      "passed": false,
+      "kind": "headless",
+      "baseline_reproduction": "Skirmish-baseline.log",
+      "log": null
+    },
+    {
+      "test": "UnitLodRegression",
+      "kind": "rendered",
+      "exit": 0,
+      "passed": true,
+      "errors": [],
+      "log": "UnitLodRegression.log",
+      "command": [
+        "Godot",
+        "--path",
+        ".",
+        "--script",
+        "res://tests/rendered/UnitLodRegression.gd",
+        "--",
+        "--enable-native-kernels"
+      ],
+      "measurement": {
+        "camera_size": 48,
+        "vehicles": 6,
+        "full_detail_frame_primitives": 65524,
+        "automatic_lod_frame_primitives": 49324,
+        "frame_time_benchmark": false
+      }
+    }
+  ],
+  "asset_metrics": {
+    "assets/models/bastion/demo/AdvancedTank.glb": {
+      "before": {
+        "triangles": 11636,
+        "surfaces": 26,
+        "bytes": 1326664
+      },
+      "after": {
+        "triangles": 3000,
+        "surfaces": 24,
+        "bytes": 374948
+      }
+    },
+    "assets/models/bastion/demo/BulwarkWalker.glb": {
+      "before": {
+        "triangles": 536,
+        "surfaces": 13,
+        "bytes": 84752
+      },
+      "after": {
+        "triangles": 536,
+        "surfaces": 13,
+        "bytes": 84752
+      }
+    },
+    "assets/models/bastion/demo/FlakHalftrack.glb": {
+      "before": {
+        "triangles": 1964,
+        "surfaces": 10,
+        "bytes": 267152
+      },
+      "after": {
+        "triangles": 1964,
+        "surfaces": 10,
+        "bytes": 267152
+      }
+    },
+    "assets/models/bastion/demo/RepairRobot.glb": {
+      "before": {
+        "triangles": 2540,
+        "surfaces": 17,
+        "bytes": 344944
+      },
+      "after": {
+        "triangles": 2540,
+        "surfaces": 17,
+        "bytes": 344944
+      }
+    },
+    "assets/models/bastion/demo/SiegeColossus.glb": {
+      "before": {
+        "triangles": 2148,
+        "surfaces": 18,
+        "bytes": 290044
+      },
+      "after": {
+        "triangles": 2168,
+        "surfaces": 19,
+        "bytes": 293308
+      }
+    },
+    "assets/models/bastion/demo/Tank.glb": {
+      "before": {
+        "triangles": 12640,
+        "surfaces": 27,
+        "bytes": 1440732
+      },
+      "after": {
+        "triangles": 3188,
+        "surfaces": 25,
+        "bytes": 394548
+      }
+    },
+    "assets/models/bastion/demo/Worker.glb": {
+      "before": {
+        "triangles": 2164,
+        "surfaces": 11,
+        "bytes": 293936
+      },
+      "after": {
+        "triangles": 2164,
+        "surfaces": 11,
+        "bytes": 293936
+      }
+    },
+    "assets/models/bastion/tank-v1/bastion_tank_v1.glb": {
+      "before": {
+        "triangles": 12640,
+        "surfaces": 27,
+        "bytes": 909936
+      },
+      "after": {
+        "triangles": 3188,
+        "surfaces": 25,
+        "bytes": 242472
+      }
+    },
+    "assets/models/frontier/v1/BattleRig.glb": {
+      "before": {
+        "triangles": 7508,
+        "surfaces": 54,
+        "bytes": 1007816
+      },
+      "after": {
+        "triangles": 3732,
+        "surfaces": 47,
+        "bytes": 526308
+      }
+    },
+    "assets/models/frontier/v1/DemolitionBuggy.glb": {
+      "before": {
+        "triangles": 4200,
+        "surfaces": 23,
+        "bytes": 575764
+      },
+      "after": {
+        "triangles": 2312,
+        "surfaces": 20,
+        "bytes": 327420
+      }
+    },
+    "assets/models/frontier/v1/Ironback.glb": {
+      "before": {
+        "triangles": 8096,
+        "surfaces": 51,
+        "bytes": 1083992
+      },
+      "after": {
+        "triangles": 4320,
+        "surfaces": 43,
+        "bytes": 599064
+      }
+    },
+    "assets/models/frontier/v1/JackalRig.glb": {
+      "before": {
+        "triangles": 3976,
+        "surfaces": 28,
+        "bytes": 542640
+      },
+      "after": {
+        "triangles": 2088,
+        "surfaces": 24,
+        "bytes": 295176
+      }
+    },
+    "assets/models/frontier/v1/Outrider.glb": {
+      "before": {
+        "triangles": 5944,
+        "surfaces": 42,
+        "bytes": 810368
+      },
+      "after": {
+        "triangles": 3112,
+        "surfaces": 36,
+        "bytes": 440676
+      }
+    },
+    "assets/models/frontier/v1/PatchCrawler.glb": {
+      "before": {
+        "triangles": 4144,
+        "surfaces": 25,
+        "bytes": 564144
+      },
+      "after": {
+        "triangles": 2256,
+        "surfaces": 21,
+        "bytes": 314096
+      }
+    },
+    "assets/models/frontier/v1/SAMTechnical.glb": {
+      "before": {
+        "triangles": 5400,
+        "surfaces": 32,
+        "bytes": 732812
+      },
+      "after": {
+        "triangles": 2948,
+        "surfaces": 31,
+        "bytes": 415896
+      }
+    },
+    "assets/models/frontier/v1/ScrapperRig.glb": {
+      "before": {
+        "triangles": 6200,
+        "surfaces": 39,
+        "bytes": 837932
+      },
+      "after": {
+        "triangles": 3368,
+        "surfaces": 33,
+        "bytes": 467580
+      }
+    }
+  },
+  "civilian_rooflines": {
+    "temperate/Sawmill": {
+      "radius": 11.1581,
+      "height": 4.2,
+      "radius_limit": 11.4,
+      "height_limit": 4.2
+    },
+    "temperate/Farmhouse": {
+      "radius": 5.4203,
+      "height": 3.8,
+      "radius_limit": 5.6,
+      "height_limit": 3.8
+    },
+    "temperate/Barn": {
+      "radius": 6.5215,
+      "height": 4.2,
+      "radius_limit": 6.6,
+      "height_limit": 4.2
+    },
+    "temperate/GrainElevator": {
+      "radius": 9.244,
+      "height": 4.5,
+      "radius_limit": 9.8,
+      "height_limit": 4.5
+    },
+    "temperate/MetalSilos": {
+      "radius": 4.2836,
+      "height": 3.8,
+      "radius_limit": 4.6,
+      "height_limit": 3.8
+    },
+    "temperate/VillageChurch": {
+      "radius": 9.5854,
+      "height": 4.5,
+      "radius_limit": 9.8,
+      "height_limit": 4.5
+    },
+    "temperate/CottageA": {
+      "radius": 4.813,
+      "height": 3.2,
+      "radius_limit": 4.9,
+      "height_limit": 3.2
+    },
+    "temperate/CottageB": {
+      "radius": 4.4119,
+      "height": 3.2,
+      "radius_limit": 4.5,
+      "height_limit": 3.2
+    },
+    "temperate/WaterMill": {
+      "radius": 7.0456,
+      "height": 4.2,
+      "radius_limit": 7.2,
+      "height_limit": 4.2
+    },
+    "cold/FjordHouseRed": {
+      "radius": 5.2175,
+      "height": 3.8,
+      "radius_limit": 5.4,
+      "height_limit": 3.8
+    },
+    "cold/FjordHouseOchre": {
+      "radius": 5.2175,
+      "height": 3.8,
+      "radius_limit": 5.4,
+      "height_limit": 3.8
+    },
+    "cold/Boathouse": {
+      "radius": 9.6519,
+      "height": 3.4,
+      "radius_limit": 9.8,
+      "height_limit": 3.4
+    },
+    "cold/FjordChapel": {
+      "radius": 7.2007,
+      "height": 4.5,
+      "radius_limit": 7.4,
+      "height_limit": 4.5
+    },
+    "cold/MountainHut": {
+      "radius": 8.0856,
+      "height": 4.2,
+      "radius_limit": 8.2,
+      "height_limit": 4.2
+    }
+  },
+  "validation_notes": [
+    "SaveRestoreRegression, FixedWingSaveRegression and AirSaveContinuityRegression require fixed simulation stepping for their frame-count-based waits. They pass with --fixed-fps 60; unthrottled failures are not model-save failures.",
+    "Animation failures reproduced by the audit came from interpolated camera teleports and assuming rendered frames were simulation ticks. The corrected fixture verifies settled wreck poses without changing production infantry motion.",
+    "Native LOD regression counts isolated rendered primitives, not frame time. Compatibility does not support the native pose path and keeps the ordinary imported LODs.",
+    "All modified/new GDScripts pass gdformat --check and gdlint; Python generators parse; git diff --check passes."
+  ],
+  "audit_decisions": [
+    "Keep the existing smooth -30 degree camera and opaque scenery; visibility-owned silhouettes passed real building/mountain/cliff occlusion checks without changing navigation footprints.",
+    "Use generated index-only mesh LODs to retain articulated poses. Imported GLBs already had LODs; the native batch merge was dropping them.",
+    "Reduce Frontier wheel primitives from four material surfaces to three. Preserve metal/rubber finishes, team materials and baked weathering; no whole-roster atlas rewrite.",
+    "Keep already-readable low-poly walkers; triangle-count differences alone are not a visual defect."
+  ],
+  "limitations": [
+    "The broad Skirmish fixture has pre-existing unsupported-faction model requests and cleanup failures. The first error was reproduced on the unchanged baseline.",
+    "Compatibility reports pre-existing BPTC-to-RGBA8 texture conversion warnings. Occlusion and scenery are checked on a neutral floor in both renderers; full-map Compatibility rendering is not certified.",
+    "No frame-time performance claim: topology and rendered primitive reductions are measured, but no representative 70-100-unit benchmark was run."
+  ],
+  "captures": [
+    "art/occlusion/forward_plus/",
+    "art/occlusion/gl_compatibility/",
+    "art/occlusion/lod/",
+    "art/weathering/",
+    "art/terrain-layers/"
+  ],
+  "source_sha256": {
+    "art/bastion/build_faction.py": "f985c79515e344df341b1d57b70c33c17ab4f5acbbc74d054ca07516c06556a3",
+    "art/bastion/demo/manifest.json": "4d64919b922c2879bf4f154678cb55d47ebe9f3b8b28010af9c98eb98d2cd9af",
+    "art/bastion/demo/signature-manifest.json": "2750b3ef3fd3e4dc732d0f17fde9b71a68ba3c55cc17f2cd682a93e12f09ca5c",
+    "art/bastion/tank-v1/build-report.json": "3d63441ce5c16dfab4e1cfd354dd18e7b0696ace0856983cc230fe94605f9674",
+    "art/bastion/tank-v1/build.py": "6147a1ead28c751b83e0ce6bd7f677b3d5f291c2586bce5d9f8d69a78db4e442",
+    "art/common/scenery_scale.py": "6d6cb19cdfaf8468ae2978e124dfc97a63f2f2d47c9aad8a26d266032a1db4b9",
+    "art/environment/build_cold.py": "99a6070774072d8624b40ffa0ff37f3f7a4cb27fae96d7e528406a2aa246922f",
+    "art/environment/build_temperate.py": "121ec59f64b220d086284858099500b59e4cbf653bc88809320dfddae5e7a4a2",
+    "art/environment/cold-manifest.json": "1a2def986c116726f66ea01560b13048ac8585ec31e856fb2c59b477eb6cdeda",
+    "art/environment/temperate-manifest.json": "c8d3bea28154f4c5eaa68e37bafb55e4f475b5e32513e87d63858c00105b0d74",
+    "art/frontier/build_faction.py": "87fe31a973e3af62aca93c157745b04febfd659af938ec9e49966edd8023066d",
+    "art/frontier/v1/manifest.json": "8ebbbf7785483d67ab91ba5dc8e64527c19556078846aacfffe521c45ac4a0d2",
+    "art/frontier/v1/signature-manifest.json": "693d3c6987178f8a10b1fb0ec614141f8fc20bdc48b611e5bd48a4c42672335c",
+    "assets/models/bastion/demo/AdvancedTank.glb": "c6276f520146fd196fdde201f082e5265522e24ebbb559c111d9d585feb11c53",
+    "assets/models/bastion/demo/BulwarkWalker.glb": "1c4d70a59d5ffa1afa743f22f1a16ae2823717b69063014ed6b58fcb1af620b8",
+    "assets/models/bastion/demo/FlakHalftrack.glb": "bf4af15486d0fa8473d7a58277cbbceb9963a08924aee5daab3386f4549f752b",
+    "assets/models/bastion/demo/RepairRobot.glb": "b4ed9853cf877810f225a547dea5b5fa05bb41b21bb6526d0762f1aa4796b76d",
+    "assets/models/bastion/demo/SiegeColossus.glb": "fe2041b8244918635299e76cc8f1672c810830eaf3b068c16c39ef392c543fc4",
+    "assets/models/bastion/demo/Tank.glb": "aa754b4e0a13ce4b40e15a3f013f83769ba0ff2e96df3be4f190063f03f97d2f",
+    "assets/models/bastion/demo/Worker.glb": "5cad8fcf4c6bb884f7538a0cd998a94607eb91be9dc38dd0a4ece414728ebdd3",
+    "assets/models/bastion/tank-v1/bastion_tank_v1.glb": "bf35b46ab9809e667dfbbfc490e775eebcf326a6395820698c7a1fb24aa693fe",
+    "assets/models/environment/cold/Boathouse.glb": "422ece9ad0af72bfb70090570676610a227328fbe59ae1dce988a8e377016de7",
+    "assets/models/environment/cold/FjordChapel.glb": "0ec253239bd3c2a5f2e785c9fa06e1e82211ca1308021c121c3d396e45142a4f",
+    "assets/models/environment/cold/FjordHouseOchre.glb": "49eff5cdbbad9a571b07f8cae5b58deeed16848c4d47709f5e998d5968bd74e2",
+    "assets/models/environment/cold/FjordHouseRed.glb": "4d28c7b5d2b270eee4b3a3c1187be2179fbcd78bf6a95f246afd7a090f5ccea4",
+    "assets/models/environment/cold/MountainHut.glb": "3a97c22861c70cc87e31cc684cf6c3fc8e3b5749e888bcd8a6243ef1ef3bdd0d",
+    "assets/models/environment/temperate/Barn.glb": "3966dd43c215da7d173d5593f10e913e24a295f079d282d2c41fe324eff64c70",
+    "assets/models/environment/temperate/CottageA.glb": "68cf719be0aad5ce483bcc8abe0517c704db7b4e673811f626ed2b2f0b25a696",
+    "assets/models/environment/temperate/CottageB.glb": "4daf25159dca895d1cef5621bfb7892d0dab564dc9211550c884a52880382089",
+    "assets/models/environment/temperate/Farmhouse.glb": "0ee4e33e92733b2592abaff64a8d463606a61fa3740fb29693fc4bd85826d01d",
+    "assets/models/environment/temperate/GrainElevator.glb": "d304a4e2e52ecf1a690efc4f246d85e9ac5bb17051944b5924b0b8cd8b1ddc35",
+    "assets/models/environment/temperate/MetalSilos.glb": "134aea009952ab8baf300df948cd666a320b0c84fba9761124c38e63a972bce0",
+    "assets/models/environment/temperate/Sawmill.glb": "38e709d0f37d4b3463fa3ae983c3ca01b0d299a26b5d9d8b7f68a2356f7557ea",
+    "assets/models/environment/temperate/VillageChurch.glb": "74e3fc034ae08113f7c5b62dc389106d936ad2ae60f91719b6b46ad0ec760d7e",
+    "assets/models/environment/temperate/WaterMill.glb": "cb1a9c66079c5aee4ee31980f8768fe83b9cd134db0b8198fe014be681e86765",
+    "assets/models/frontier/v1/BattleRig.glb": "a13bc902acc82a814ecd805f02cad707c8a0410597a2d82ce2744938c67c77b4",
+    "assets/models/frontier/v1/DemolitionBuggy.glb": "77aa138b6785a938aa6fe5bf279c7ccf3b06d0263c0b6c36a0eb441cebdbbed3",
+    "assets/models/frontier/v1/Ironback.glb": "0e3e05b5bc2182f42c8d7d02f018099dd83edd5beb6b19f691394b93caa11de4",
+    "assets/models/frontier/v1/JackalRig.glb": "3e6f76a7bbd4750eba7ae7dae24472b0e0bf0f800a19732e75706bb7db2041fa",
+    "assets/models/frontier/v1/Outrider.glb": "d0bdab4447d8ef2830f1dbbbd667697367991c59f6049ec887c377d3ff087511",
+    "assets/models/frontier/v1/PatchCrawler.glb": "6361147e5b1f47d80a79273deda58cadcd241139007c814028de682a7b529bbc",
+    "assets/models/frontier/v1/SAMTechnical.glb": "12efec04a62ee940104e6da11dc82d40540663833899219671c1eb23a1223e6a",
+    "assets/models/frontier/v1/ScrapperRig.glb": "64b606ef6e3e8af402cb98aa803ebea490fa862905fae93c03f24e7384bd2dd7",
+    "docs/visuals/ability-world-feedback-plan.md": "f0d5ad6ac0abefb1138c05ee3a5aedf38065d1cc55beac9f2d582ce163122109",
+    "docs/visuals/modeling-readability-plan.md": "faa660036df33328f912f6fb7d08f038cc6fff630fd50b42b96873a756ee1490",
+    "source/match/FactionCatalog.gd": "cf415049e6368b86123d0bb89169cd69d7889630f36b264d4775aa78adc683f0",
+    "source/match/audio/CombatAudio.gd": "094b2658b624aeeacee6d5d5c717eb9ae8ac07bf2795793e9bfff1289eb32edd",
+    "source/match/audio/CompletionAudio.gd": "82eccc1a780557c4edde847e236d0f9ee3bae88d3739d3b9de2cfc3a3f700153",
+    "source/match/audio/CompletionAudio.gd.uid": "9ce6843c7141e683261f9393dfa3b49a6cba17017d9af4e4d32427d7be723c7a",
+    "source/match/effects/AbilityAura.gd": "a690db632e8414757480d4db94c5fae68f3fb6fe991ce84a1be5263f757c2543",
+    "source/match/effects/AbilityAura.gd.uid": "72259ebfd900687df0bb800b9a4a4f26fb3de51f553a87dad04ca0077d9819fc",
+    "source/match/effects/AbilityWorldVisuals.gd": "c2534b826ceb7b5e01d504d97bd21d7aa1c47e7bb23d312fcfad3b9db9530ffc",
+    "source/match/effects/AbilityWorldVisuals.gd.uid": "16e42b4b6d039ac84c8ca16959688951624b4e8888a3aaa7e4d49f884bf51bdc",
+    "source/match/effects/BattlefieldWear.gd": "67043cf8e1b626e5f06ef40d153f5998f57ce3605676f1bdcbb51e993b2b32b6",
+    "source/match/effects/BlueprintFootprint.gd": "4e2d25357ae8738af33aa4d22a43fbf2b5a8d9f7082c64aae8de41fae9acb642",
+    "source/match/effects/BlueprintFootprint.gd.uid": "72f5c0ab56026216b37decb92a65ef22a8c2188dd943f0ca3886ed8530de2b4e",
+    "source/match/effects/CombatEffects.gd": "a1f0423bf15b2983aee0b698623e4ae1832347235626b34db982a7e809ae8d69",
+    "source/match/effects/CombatPrewarm.gd": "b871a046a834a9c6ddf982226e162225381765d65f591fae86725b6236cd3a3d",
+    "source/match/effects/ConstructionVisual.gd": "af56bceda47127399757695917af62bddcc8f2ad25b157352b4bdc4e6dbfd0fb",
+    "source/match/effects/GroundContactProfile.gd": "5bfc6769b13a01a03cc6c399885faa7ca39ea24f30cc6ddec198f03167993163",
+    "source/match/effects/GroundContactProfile.gd.uid": "123191df8fc99047caff2366e8d9d5fbd6f65f55e873f43f9647b0c735e1210f",
+    "source/match/effects/ManualParticleBuffer.gd": "054f3cb3b908548ab09b98ef98479d82aac266302cfcbfe9a894a6447b06635f",
+    "source/match/effects/OpticalCloakVisual.gd": "5d51f41f2fc73287ee2e2cb44251961343783b09223af3848661c0d159c6c9b7",
+    "source/match/effects/OpticalCloakVisual.gd.uid": "9739cd37e54a3a2a33d2a5a0ea843ea257edadab595888de444a8b6aeec86665",
+    "source/match/effects/PhaseShiftVisual.gd": "c468c80c6eac49a61afcca6aafa20ad0c46d31010a1a48386af6faece3ab0917",
+    "source/match/effects/PhaseShiftVisual.gd.uid": "1fac3883111789b04a616c2a54e0c965304efbfde0b457492b854c79201eea06",
+    "source/match/effects/ShieldImpactVisual.gd": "107f490b65d058cf5b384ebfff0d39027f67a7e1ea9dd6dcb6a7980f6ec38291",
+    "source/match/effects/StructureActivity.gd": "c20605539c0cf4366425b000dc32789bb61a83dfab34ffe48cafbc0fd44f4540",
+    "source/match/maps/battlefields/AlpineRelayMap.gd": "b2102f7182ed5e330503d0a7fb933309644c7544505df46ec5efe999f015f2f5",
+    "source/match/maps/battlefields/FourRiversMap.gd": "fff488143715b35bde87ab7345f9423d4d485320ed172d3a4bec78de6e2240a8",
+    "source/match/maps/battlefields/GlacierNarrowsMap.gd": "4275ca6e37be02ceada52ce9a4558e0b78ee949213fefe1608fd1dee4c2a0e55",
+    "source/match/maps/battlefields/PinebreakValleyMap.gd": "ce06ccf7eddd830a6ebdcc13045cbcd2958bf38c8003932133be14ae46487757",
+    "source/match/maps/battlefields/VerdantCommonsMap.gd": "c9642f54da274182755cc1ca762a12a7400523c723e75a067d446a341af89597",
+    "source/match/players/human/StructurePlacementHandler.gd": "d7236fd2709364fcde787f7506b30b88e492ec5cbb4382ab48185c1f22071246",
+    "source/match/rendering/RigidBatchMesh.gd": "9f717d92dd6237679c4063867d4dea34237983fa8b427cf27c480a555a5379b6",
+    "source/match/rendering/RigidMeshLods.gd": "deb6bf3a1a2c38156f9ccaa2375da22769dc08bded0f7e4c0b5043d48074ba42",
+    "source/match/rendering/RigidMeshLods.gd.uid": "be89f68895cb3a80b05ae19c6a0c8361353f3a386b787c5033bbb15138014b78",
+    "source/match/rendering/UnitBatchRenderer.gd": "accf04a2ff575ed9ab01d926160b50c409e5d55d3a9a754844fb32e9bbf84392",
+    "source/match/resources/materials/blueprint_invalid.material.tres": "041ccb853a36591046b76135d46ff7284595053c86e304ccd8269a3abcfd910c",
+    "source/match/resources/materials/blueprint_valid.material.tres": "825648619d6a0810172216daefa53fd3a84055e94f64f467e08f8ebe01d2a12e",
+    "source/match/units/AdvancedTank.tscn": "528e9f928dfbbfe3665323b071901d7c7c7f8d9c071aeb94e4b5bf409304ab8a",
+    "source/match/units/AircraftFactory.tscn": "641489e5b192ed051f2617f75bf4b87ae3fb7637fc1ad1864bacb80678d3463e",
+    "source/match/units/AntiAirTurret.tscn": "15fbfb6f0bccd0ea8143e0d6d7358480c436fbd05cb5a73ba3f1c0dc39fd9990",
+    "source/match/units/AntiAirVehicle.tscn": "1ad6d4c207d08e1df8dbb47b7b9ba54f8d97f945aa3af8714d041cdd696c5364",
+    "source/match/units/AntiGroundTurret.tscn": "655708898181e408c455cfec1412cb24ffe6221bfadc07f8a48d91e761b3c240",
+    "source/match/units/Barracks.tscn": "c87cf66c22713a3874fa089f27880a9c34b2c58a5be287847bb90e28a643dfe3",
+    "source/match/units/Bomber.tscn": "113ef57a80ecb2bf4668876f1aa44568a602095858eb7e233dc2ff660e54ef0d",
+    "source/match/units/CombatRobot.tscn": "357dd9b5d3e53774bbe9a69b945ec2d2053a671b2b7d1b7130d3dcee2b291caf",
+    "source/match/units/CommandCenter.tscn": "21bb0490cd8d1aabac3527b562a8067a310e1b2cd89ba3d8d721196efbd8a55a",
+    "source/match/units/CommandLab.tscn": "322f5680e6adddb230320ce8c9ecdaca5b3325752323b141965fbb8ec2a3b390",
+    "source/match/units/Drone.tscn": "b9c4b58dd1f5745d0aee532e8aec545dccfba2b676d4d9bf447c09ac486ffd17",
+    "source/match/units/Fighter.tscn": "70496c69c53d4960f06568e7797a14fc623fea377b24f7ba1505bfed7adbffba",
+    "source/match/units/ForwardRefinery.tscn": "ff86d24702dbbf3597da5d7aec81c547b41f63f5a6ae927c3c95e241816470eb",
+    "source/match/units/Helicopter.tscn": "dd98f1c67f53eaaef3e724112f3231471051413300a27d8e98a8c0275792dba2",
+    "source/match/units/Infantry.tscn": "5e7792a76c46e85ddb5a9f68d8fbca1a83f7696c693bd462548e50bf904e1e0b",
+    "source/match/units/PowerPlant.tscn": "1c0c3d78177cfbc378b2624e3edf7b0338b940f10e4ec45945bdec1f5603669e",
+    "source/match/units/RepairDepot.tscn": "138fd010c165a3fddb8dcdbdaac4402b98243dd4c5c4295650ceef3417f7064a",
+    "source/match/units/RepairRobot.tscn": "4f230463bfe6bf78b2b3dfe6f2d1815852d0744d5d395cd150c0df9cad480cf3",
+    "source/match/units/SupplyTruck.tscn": "304e7f9b4d6db106e944f88487fef2dbdf6479654666f03af20c23d397801396",
+    "source/match/units/Tank.tscn": "766fe13a9e928de97cde4fa80050bc8959253574836be014dad73f63fa339ec7",
+    "source/match/units/Unit.gd": "516e4fb1a2320874dd5eb641d32a15b7510a3021042b9d3688fca0334fe90009",
+    "source/match/units/VehicleFactory.tscn": "265e059fc8f4d0806a537b7c55c26ab8d4e6a4b7b9366841ef3f2c0e8743e52e",
+    "source/match/units/Worker.tscn": "8d449d477542fa9e9bf40d6fab590836ac234f83e5a4f8011ae809d9c04422b1",
+    "source/match/units/faction/BattleRig.tscn": "bb8c65616a9b7013b88c2907c172443fe3eca25bccc4f6dcda93f16bc64c1d29",
+    "source/match/units/faction/BulwarkWalker.tscn": "5b67bc86262b44f0846ae5a51c7df79d12532e197e78b7d3ba54659a0e7e2970",
+    "source/match/units/faction/DemolitionBuggy.tscn": "efca041321418730cc3b9e966628f991094593f263c3463ff6b960c182103ca5",
+    "source/match/units/faction/FlakHalftrack.tscn": "579ed01462107d050b2ed7276ca330ae22186e76218f37a2d825576cccd1cee3",
+    "source/match/units/faction/PhaseLancer.tscn": "2930793b184b44a848c9a4a958346b82b91b37ee515a8b5cf8aaefa773f9de08",
+    "source/match/units/faction/PrismSkimmer.tscn": "5263352c11fee1e3973d301eb0699812d173dafb49610a9222e56132731b029b",
+    "source/match/units/faction/SAMTechnical.tscn": "83e3ce72eef698819f6c83bef1137b432a83b564ca9e69e07c1b5476ebf3cbcb",
+    "source/match/units/faction/SiegeColossus.tscn": "2c8a7c99553ec92bd140003c1f5b65064d85f687afa12e09ecfa022b719f5a1a",
+    "source/match/units/faction/SkywardInterceptor.tscn": "d91f5cfc2220d0fd2e0111383856ffed68a4f9b1b0dc275ea1d3056823dd24c0",
+    "source/match/units/traits/BastionVisuals.gd": "941d69084480b86cf62f4af2ccdfb082d4bdcd4d9bdb8a6decd8a46b67bbc3e0",
+    "source/match/units/traits/BastionVisuals.gd.uid": "d8fb71a0d9ff09b6681a13b01c4f6357eec9b7d49d2e66a4a113b412f0af1967",
+    "source/match/units/traits/Movement.gd": "5b5671de8b0576fa0572d0fb58637ad494affa4c9093d0a5605eb3c71a0cb007",
+    "source/match/units/traits/UnitContactShadow.gd.uid": "2d6bb1ff47652ba1eddfebbd60cf2e254d924c16a13ec4374254f815689cb1d5",
+    "source/match/units/traits/UnitOcclusion.gd": "5bd7720d382d8421e8f72964708249a991abca72aef60f6dd40bb486629e3c41",
+    "source/match/units/traits/UnitOcclusion.gd.uid": "498f2e75f3e36d8bc23eb24ee0e934c4533368add32b88cdc64d30994b0dfe5e",
+    "source/match/units/traits/UnitVisuals.gd": "7d6da5dc7b16f59ea75a88c33adb11dcf082a715a0008793f20929a1161b7a31",
+    "source/match/units/traits/UnitVisuals.gd.uid": "6ab8681e832dda3fdac994a94c633b8e1e1e7d348838a89c025457bbb3811f3d",
+    "source/match/units/traits/VehicleDamageProfile.gd": "55713e9245d3d1d0c97aaba1a232d5e8c149b91d5059223d86cd71e4bd7804b9",
+    "source/shaders/3d/ability_aura.gdshader": "a2618968a2f36ed647ccbb13d2cbbb30e6a9fe9acc223f14354e3d895b3b1105",
+    "source/shaders/3d/ability_aura.gdshader.uid": "5090df75a4a816c98c74d1bad8e8d6b24aec2a6443f8ccd04f562a2819878444",
+    "source/shaders/3d/battlefield_wear.gdshader": "b0606a91abe7298cc27fd42b99b99f9c4b9bf9ac3340873772b7598c84006492",
+    "source/shaders/3d/blueprint.gdshader": "88992e5bbaaa2c15329a003ba89d625326eedd933211e1bb96414cc9786b67dd",
+    "source/shaders/3d/blueprint.gdshader.uid": "d334e69ffafd0bdfb1fa87ccd9e120eae7593a6f2b6e265c2e951b03ec096aa2",
+    "source/shaders/3d/chaff_foil.gdshader": "f7f069801a320af06affb5be69666511ee4bc5d8df860db5466d2cf95ea8b3a3",
+    "source/shaders/3d/chaff_foil.gdshader.uid": "eb953f4ba2a452629422b8817db8c123a434d0ce862d0caaad93225627194eee",
+    "source/shaders/3d/optical_cloak.gdshader": "3bb344a50326d673b87b1d35498a5a4f2958e1b9afaa37bf289f06d751444ae3",
+    "source/shaders/3d/optical_cloak.gdshader.uid": "e474a9850580c8dfcffd5b7f30daaa7ffc08718e143097e86518809508263a53",
+    "source/shaders/3d/phase_shift.gdshader": "f01de84f69172c275be073fe1adfd669d12b140dd16838b35b441d1739da2a05",
+    "source/shaders/3d/phase_shift.gdshader.uid": "c5d2a24d92d3cd9744c5697c3afdbf672f37aef33808ffa87653ff3d12fae545",
+    "source/shaders/3d/shield_lifecycle.gdshader": "079e43c6b254b814068c9bd7c2b4c343a9bf2dd5511ab6efc7993f6e6d111a8c",
+    "source/shaders/3d/shield_lifecycle.gdshader.uid": "88b8123294300698483598c560caf7c84a46e66a5589b59c7c2f878f9fe9d55a",
+    "source/shaders/3d/unit_contact_shadow.gdshader.uid": "fcc71aa49bfd12e275d1aeb381359452e3acd9e393895dfe5391ed9db8c5fdf9",
+    "source/shaders/3d/unit_occlusion.gdshader": "f62947cbef8795a71f7adaace25e3211de3070f04a003acafccd73db1aeb80ce",
+    "source/shaders/3d/unit_occlusion.gdshader.uid": "2b7542bc31f487c0d9757c52e66ab106cd2ef5d0be765be72a6177bd69c9490e",
+    "tests/headless/AbilityFeedbackIntegration.gd": "3e5c531f59795563a5f7e5294b183c202236166fedc4b33f987fb4b126a1d5cb",
+    "tests/headless/AbilityFeedbackIntegration.gd.uid": "beeb59f3d5227d8723fd5873e815e48735041fe5b529217d4fdde54d5dc9f700",
+    "tests/headless/AnimationPolishRegression.gd": "09303465d36915e980ab19a77af2295b8610aaecd5df37f10540e424e83436ee",
+    "tests/headless/BastionDemo.gd": "29c5bc46b3abab5eb3ea806b7295a0f4d67b42b9b150942a89cf1db4b034f8f4",
+    "tests/headless/InfantryMotionRegression.gd": "cdcf43484b3083612ca218b0b30eb518c07c39e8005f37b94fd6f7516dda8ddd",
+    "tests/headless/ModelReadabilityRegression.gd": "aaa312987cb14dd7c691fd77d82782baedf27bb7bc7b62188ab6a920b7917b38",
+    "tests/headless/ModelReadabilityRegression.gd.uid": "6a77e66376e34f258e8337ea3c791ce62d7658c5d4ac95a022c8ab4ec97cceb6",
+    "tests/headless/PausedFrameSession.gd.uid": "9a642a3d3daa0a5f7744eb6ffbf27bf0357279a0b44c4ab7c152a744c78ed2b1",
+    "tests/headless/Skirmish.gd": "c580817be5a9a3124acdbbe6b3c8fa72f79573015fd83b13ff098bb77987aa15",
+    "tests/headless/SurfaceTexturesRegression.gd": "c488d28a7264fed5fa695ed777a41ac7e0a435b88435112207d0692d820aab02",
+    "tests/headless/UnitAnimationRegression.gd": "b489625a15569b5c394ad182400584e1734832822aac65aa44dc137ca4a2fce0",
+    "tests/headless/WorldFeedbackRegression.gd": "b62e1687b388d6fc80d412a435c0151b8afd51be38d6a6dcec72c19673b5cedb",
+    "tests/headless/WorldFeedbackRegression.gd.uid": "93bcb21a7db44bb1a7d69b26b2b3c3e5d5d8134d035c7f868ed23924ea91f0f1",
+    "tests/rendered/OcclusionPreview.gd": "95db9c9bd67d7bd0dfbf619c201f501a771f05bc4b097cafd78797544f58baf2",
+    "tests/rendered/OcclusionPreview.gd.uid": "c929d24c8901b43eba25e23cbd0674e73a1f0322fba59521f2ff1cd640763436",
+    "tests/rendered/UnitLodRegression.gd": "ba87cfaa75e4edc825e4a84d7dfcd4af5ec31687870a24176de21344fa4d6c73",
+    "tests/rendered/UnitLodRegression.gd.uid": "973328118df17ad4abcea1820fb78c665026f0e1a39cf44a09862c303d81c95d",
+    "tests/rendered/WorldFeedbackMap.gd": "7f40e3ee5328330bfddc7c6d67234915822675e6f74d0727c6dbc0e1a014c979",
+    "tests/rendered/WorldFeedbackMap.gd.uid": "7c3f9873a34dea5525de2f41079b06e1d7ecbad008fd7ab2879d0398657c8d76",
+    "tests/rendered/WorldFeedbackPreview.gd": "f8ae3935890f3922a51ed50cb13ce1c94bfd4eea65a02d4237872751ac649a29",
+    "tests/rendered/WorldFeedbackPreview.gd.uid": "26562c1d2c0a93c94677086f673d0defe225195402f44a988caf49bada324de0"
+  },
+  "static_checks": {
+    "gdscript_files": 44,
+    "checks": [
+      {
+        "tool": "gdformat",
+        "exit": 0,
+        "output": "44 files would be left unchanged"
+      },
+      {
+        "tool": "gdlint",
+        "exit": 0,
+        "output": "Success: no problems found"
+      }
+    ],
+    "editor_import_errors": [],
+    "diff_check_exit": 0
+  }
+}

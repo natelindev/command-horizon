@@ -37,6 +37,7 @@ var _since_progress = INF
 var _emit_clock = 0.0
 var _random = RandomNumberGenerator.new()
 var _footprint_target: CollisionShape3D
+var _finished = false
 
 
 func _ready():
@@ -182,6 +183,13 @@ func _emit(delta):
 
 
 func finish():
+	if _finished:
+		return
+	_finished = true
+	if _unit.hp > 0 and _unit.is_constructed() and _unit._match != null:
+		var effects = _unit._match.combat_effects
+		if effects != null:
+			effects.construction_completed(_unit, rig.bounds if rig != null else AABB())
 	for entry in _surfaces:
 		if is_instance_valid(entry[0]):
 			entry[0].set_surface_override_material(entry[1], entry[2])

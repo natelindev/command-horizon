@@ -35,8 +35,12 @@ func setup(kind, capacity, seconds, gravity, glow = 0.0, roughness = 0.0, metaln
 		_surface.set_shader_parameter("rough_edge", roughness)
 		_surface.set_shader_parameter("flame", kind == "fire")
 		_surface.set_shader_parameter("exhaust", kind == "exhaust")
-		_surface.set_shader_parameter("vapor", kind in ["smoke", "dust", "trail_smoke"])
-		_surface.set_shader_parameter("billow", kind in ["smoke", "dust", "trail_smoke"])
+		_surface.set_shader_parameter(
+			"vapor", kind in ["smoke", "dust", "trail_smoke", "foam", "mist"]
+		)
+		_surface.set_shader_parameter(
+			"billow", kind in ["smoke", "dust", "trail_smoke", "foam", "mist"]
+		)
 		_surface.set_shader_parameter(
 			"fade_in",
 			.06 if kind == "smoke" else (.025 if kind in ["dust", "trail_smoke"] else 0.0)
@@ -46,14 +50,22 @@ func setup(kind, capacity, seconds, gravity, glow = 0.0, roughness = 0.0, metaln
 		_surface.set_shader_parameter("damping", 1.1 if kind == "dust" else .45)
 		_surface.set_shader_parameter(
 			"growth_start",
-			.85 if kind == "trail_smoke" else (.35 if kind in ["smoke", "dust"] else 1.0)
+			(
+				.85
+				if kind == "trail_smoke"
+				else (.35 if kind in ["smoke", "dust", "foam", "mist"] else 1.0)
+			)
 		)
 		_surface.set_shader_parameter(
 			"growth_end",
 			(
 				2.8
 				if kind == "trail_smoke"
-				else (1.15 if kind == "smoke" else (1.65 if kind in ["dust", "flash"] else .35))
+				else (
+					1.15
+					if kind in ["smoke", "foam", "mist"]
+					else (1.65 if kind in ["dust", "flash"] else .35)
+				)
 			)
 		)
 		_surface.set_shader_parameter(

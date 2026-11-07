@@ -144,7 +144,7 @@ const DEFINITION = {
 			"position": Vector2(66, 32),
 			"heading": 0.0,
 			"solid": 4.6,
-			"sight_height": 7.5
+			"sight_height": 3.8
 		},
 		{
 			"name": "Barn",
@@ -152,7 +152,7 @@ const DEFINITION = {
 			"position": Vector2(84, 40),
 			"heading": 90.0,
 			"solid": 5.6,
-			"sight_height": 9.0
+			"sight_height": 4.2
 		},
 		{
 			"name": "Grain bins",
@@ -160,7 +160,7 @@ const DEFINITION = {
 			"position": Vector2(76, 58),
 			"heading": 0.0,
 			"solid": 4.2,
-			"sight_height": 7.5
+			"sight_height": 3.8
 		},
 		{
 			"name": "Hay",
@@ -181,7 +181,7 @@ const DEFINITION = {
 			"position": Vector2(95.0, 92.0),
 			"heading": 45.0,
 			"solid": 5.0,
-			"sight_height": 8.0
+			"sight_height": 4.2
 		},
 		{
 			"name": "Paddock fence",

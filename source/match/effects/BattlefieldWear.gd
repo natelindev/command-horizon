@@ -7,7 +7,8 @@ const RETIRE_BATCH = 128
 const DRAW_BUDGET = 32
 const RESOLUTION = 2048
 const SCAR_LIFETIME = 180.0
-const VEHICLES = ["Tank", "AdvancedTank", "AntiAirVehicle", "CombatRobot"]
+const Contact = preload("res://source/match/effects/GroundContactProfile.gd")
+const VEHICLES = Contact.VEHICLES
 var marks = []
 var texture: DrawableTexture2D
 var material: ShaderMaterial
@@ -114,22 +115,37 @@ func _sample_vehicles():
 
 func sample_vehicle(unit):
 	var id = unit.get_instance_id()
-	if not enabled() or not unit.visible or not _game.combat_audio._observed(unit):
+	if (
+		not enabled()
+		or not Contact.leaves_marks(unit)
+		or not unit.visible
+		or not _game.combat_audio._observed(unit)
+	):
 		_last.erase(id)
 		return
 	var point = Vector2(unit.global_position.x, unit.global_position.z)
+	if "water_flow" in _game.map and _game.map.water_flow != null:
+		if _game.map.water_flow.sample(point).a > .1:
+			_last.erase(id)
+			return
 	if not _last.has(id):
 		_last[id] = point
 		return
 	var distance = point.distance_to(_last[id])
-	if distance < .7:
+	var wheels = Contact.wheeled(unit)
+	var spacing = clampf(unit.radius * .6, .35, .65) if wheels else .7
+	if distance < spacing:
 		return
 	var direction = point - _last[id]
 	_last[id] = point
 	# Don't draw a trail across teleports, unseen travel, or long sampling gaps.
 	if distance > 4.0:
 		return
-	add_mark(point, clampf(unit.radius * 1.4, .65, 1.8), direction.angle(), 0)
+	if wheels:
+		# Tire contact follows the wheelbase through turns; the shorter, closer
+		# stamps share the existing persistent two-rail mark format.
+		direction = Vector2(unit.global_basis.z.x, unit.global_basis.z.z)
+	add_mark(point, clampf(unit.radius * (1.05 if wheels else 1.4), .5, 1.8), direction.angle(), 0)
 
 
 func scar(point: Vector3, radius: float):

@@ -20,3 +20,7 @@ static func band_for(ratio: float, previous: int) -> int:
 
 static func profile(faction: String) -> Dictionary:
 	return PROFILES.get(faction, PROFILES.bastion)
+
+
+static func backfire_stress(faction: String, band: int, speed: float, acceleration: float) -> bool:
+	return faction == "frontier" and band > 0 and absf(speed) > .4 and speed * acceleration > .8

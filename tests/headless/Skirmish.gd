@@ -170,7 +170,12 @@ func _test_roster(faction, opponent):
 		var team_surfaces = 0
 		for mesh in unit.get_node("Geometry").find_children("*", "MeshInstance3D", true, false):
 			for surface in range(mesh.mesh.get_surface_count()):
-				if mesh.get_surface_override_material(surface) == human.get_color_material():
+				var finish = mesh.get_active_material(surface)
+				if (
+					finish is StandardMaterial3D
+					and finish.resource_name == "TeamColor_Player"
+					and finish.albedo_color == human.color
+				):
 					team_surfaces += 1
 		_check(team_surfaces > 0, "Team color missing: " + faction + " " + unit.type)
 	var placement = human.get_node("StructurePlacementHandler")

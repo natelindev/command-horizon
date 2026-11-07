@@ -1,0 +1,12 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+ERROR: Restored bomber abandoned its committed stick after losing its target
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _finish (res://tests/headless/SaveRestoreRegression.gd:217)
+       [1] _frames (res://tests/headless/CampaignRegression.gd:254)
+ERROR: Restored stick repeated or lost bombs: 3
+   at: push_error (core/variant/variant_utility.cpp:1023)
+   GDScript backtrace (most recent call first):
+       [0] _finish (res://tests/headless/SaveRestoreRegression.gd:217)
+       [1] _frames (res://tests/headless/CampaignRegression.gd:254)

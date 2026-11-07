@@ -160,7 +160,7 @@ const DEFINITION = {
 			"position": Vector2(98, 60),
 			"heading": 30.0,
 			"solid": 6.0,
-			"sight_height": 7.0
+			"sight_height": 4.2
 		},
 		{
 			"name": "Log deck",

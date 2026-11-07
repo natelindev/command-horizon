@@ -183,7 +183,10 @@ def vent(x,y,z,width=.8,length=.6):
 
 def antenna(x,y,z,parent=None):
     cyl("AntennaBase",(x,y,z+.06),.09,.12,DARK,parent)
-    mast = pivot("AntennaPivot",(x,y,z),parent) if current.name in {"ScrapperRig", "Outrider", "Ironback", "JackalRig"} else parent
+    mast = pivot("AntennaPivot",(x,y,z),parent) if current.name in {
+        "ScrapperRig", "Outrider", "Ironback", "JackalRig", "PatchCrawler",
+        "BattleRig", "DemolitionBuggy", "SAMTechnical"
+    } else parent
     rod("Antenna",(x,y,z),(x,y,z+.72),.018,STEEL,mast)
 
 
@@ -201,13 +204,13 @@ def plate(name, xyz, size, parent=None, material=PANEL):
 
 def tire(x,y,r,parent=None):
     wheel=pivot("WheelPivot",(x,y,r+.04),parent)
-    cyl("Tire",(x,y,r+.04),r,.32,RUBBER,wheel,axis="X",vertices=16)
+    cyl("Tire",(x,y,r+.04),r,.32,RUBBER,wheel,axis="X",vertices=10)
     side=1 if x>0 else -1
-    cyl("Rim",(x+side*.17,y,r+.04),r*.62,.04,STEEL,wheel,axis="X")
-    cyl("Hub",(x+side*.21,y,r+.04),r*.25,.07,TEAM,wheel,axis="X")
-    for i in range(12):
-        a=i*math.tau/12
-        box("Tread",(x,y+math.sin(a)*r,r+.04+math.cos(a)*r),(.35,.13,.065),DARK,wheel,.005,rot=(-a,0,0))
+    cyl("Rim",(x+side*.17,y,r+.04),r*.62,.04,STEEL,wheel,axis="X",vertices=8)
+    cyl("Hub",(x+side*.21,y,r+.04),r*.25,.07,TEAM,wheel,axis="X",vertices=6)
+    for i in range(10):
+        a=i*math.tau/10
+        box("Tread",(x,y+math.sin(a)*r,r+.04+math.cos(a)*r),(.35,.16,.065),RUBBER,wheel,0,rot=(-a,0,0))
 
 
 def chassis(name, width=2.2,length=3.5,axles=3):
@@ -569,11 +572,15 @@ def sam_technical():
                 cyl("UnguidedRocket",(side*.6+dx,.58,z),.12,.16,DARK,turret,axis="Y")
     pivot("Muzzle",(.6,.7,1.73),turret)
     antenna(-.78,-1.2,1.63,turret)
+    scrap_armor(2.05,3.55)
 
 
 damage_only = "--damage-only" in sys.argv
 motion_only = "--motion-only" in sys.argv
-if "--signature-only" in sys.argv:
+if "--vehicles-only" in sys.argv:
+    engineer(); armor(); crawler(True); crawler(); armor(True)
+    battle_rig(); demolition_buggy(); sam_technical()
+elif "--signature-only" in sys.argv:
     battle_rig(); demolition_buggy(); sam_technical()
 elif damage_only:
     engineer(); armor(); crawler(True); crawler(); armor(True)
@@ -629,10 +636,11 @@ for name,collection,asset_root in assets:
     manifest.append({"name":name,"triangles":triangles,"file":name+".glb","bounds":{"min":lo,"max":hi}})
     collection.hide_render=True
 
-if "--damage-only" in sys.argv or "--motion-only" in sys.argv or "--walkers-only" in sys.argv:
+if any(flag in sys.argv for flag in ["--damage-only", "--motion-only", "--walkers-only", "--vehicles-only"]):
     export_manifest.merge_partial(SOURCE/"manifest.json",manifest)
+    export_manifest.merge_partial(SOURCE/"signature-manifest.json",manifest)
 
-if damage_only or motion_only or "--models-only" in sys.argv:
+if damage_only or motion_only or "--models-only" in sys.argv or "--vehicles-only" in sys.argv:
     print("Frontier motion rigs exported" if motion_only else "Material-ready faction models exported")
     raise SystemExit(0)
 

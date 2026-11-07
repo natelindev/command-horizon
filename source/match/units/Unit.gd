@@ -228,6 +228,8 @@ func _ready():
 				add_child(load("res://source/match/units/traits/UnitContactShadow.gd").new(self))
 	_setup_default_properties_from_constants()
 	load("res://source/match/FactionCatalog.gd").apply_stats(self)
+	if _match != null and _match.combat_effects != null:
+		_match.combat_effects.watch_unit(self)
 	base_hp_max = hp_max
 	var salvage_trait = load("res://source/match/units/traits/BattlefieldSalvage.gd")
 	if salvage_trait.eligible(self):
@@ -243,6 +245,10 @@ func _ready():
 		optical_cloak = load("res://source/match/units/traits/OpticalCloak.gd").new()
 		optical_cloak.name = "OpticalCloak"
 		add_child(optical_cloak)
+		var cloak_visual = load("res://source/match/effects/OpticalCloakVisual.gd").new()
+		cloak_visual.name = "OpticalCloakVisual"
+		add_child(cloak_visual)
+	load("res://source/match/units/traits/UnitOcclusion.gd").apply(self)
 	# Completed armor research scales the final base stats, so apply it last.
 	if player != null and player.technology != null:
 		player.technology.apply_unit(self)

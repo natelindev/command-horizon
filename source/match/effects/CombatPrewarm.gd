@@ -35,6 +35,7 @@ static func prepare(game) -> bool:
 	_beams(holder, point, effects)
 	_projectiles(holder, point)
 	_particle_buffers(holder, point, effects)
+	_world_feedback(game, holder, point, effects)
 	if not Globals.options.reduced_flashes:
 		_hit_meshes(game, holder, point)
 		var ring = effects.create_shockwave(2.0)
@@ -195,6 +196,8 @@ static func _particle_buffers(holder, point, effects):
 		["dust", 512, 2.1, Vector3(0, -.15, 0), 0, .95],
 		["fire", 256, .65, Vector3(0, .8, 0), 2.0, .85],
 		["mote", 192, 1.2, Vector3(0, .25, 0), 2.2, .2],
+		["foam", 384, 1.8, Vector3(0, -7.5, 0), 0, .9],
+		["mist", 192, 1.5, Vector3(.05, -.2, .02), 0, .8],
 		["trail_smoke", 2048, 1.25, Vector3(.06, .22, .025), 0, .72],
 		["exhaust", 768, .1, Vector3.ZERO, 2.8, .38],
 	]:
@@ -213,6 +216,37 @@ static func _particle_buffers(holder, point, effects):
 			31
 		)
 	temporary.free()
+
+
+static func _world_feedback(game, holder, point, effects):
+	var aura_type = load("res://source/match/effects/AbilityAura.gd")
+	for kind in ["flux", "chaff", "overhaul"]:
+		var aura = aura_type.new()
+		holder.add_child(aura)
+		aura.setup(kind, 1.0, null, game.map)
+		aura.position = point
+		aura.advance(.25, Globals.options.reduced_flashes)
+	var shaders = [
+		load("res://source/shaders/3d/blueprint.gdshader"),
+		load("res://source/shaders/3d/optical_cloak.gdshader")
+	]
+	if not Globals.options.reduced_flashes:
+		shaders.append(effects.ShieldImpactVisual.LIFECYCLE_SHADER)
+		var phase = effects.PhaseShiftVisual.new()
+		holder.add_child(phase)
+		phase.setup(point, true, null)
+		phase.advance(.2)
+	for shader in shaders:
+		var mesh = MeshInstance3D.new()
+		mesh.mesh = SphereMesh.new()
+		mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		var material = ShaderMaterial.new()
+		material.shader = shader
+		material.set_shader_parameter("progress", .3)
+		material.set_shader_parameter("concealment", .8)
+		mesh.material_override = material
+		holder.add_child(mesh)
+		mesh.position = point
 
 
 static func _muzzle(holder, point, effects):

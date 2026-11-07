@@ -213,6 +213,10 @@ func _flush_units():
 func _add_unit(unit):
 	if _units.has(unit):
 		return
+	# Concealment replaces each articulated surface while keeping its animation.
+	# The shared opaque palette cannot represent per-unit transparent materials.
+	if unit.optical_cloak != null:
+		return
 	if unit.has_method("is_under_construction") and unit.is_under_construction():
 		return
 	var geometry: Node3D = unit.get_node("Geometry")
@@ -497,7 +501,8 @@ func _join_group(entry):
 	if entry.group != null and entry.group.cell == cell:
 		_grow_group_bounds(entry.group, position.y, entry.bounds_radius)
 		return
-	var key := [entry.mesh, cell]
+	var mobile: bool = entry.unit.has_node("Movement")
+	var key := [entry.mesh, cell, entry.owner.color, entry.unit.radius, mobile]
 	_leave_group(entry)
 	if not _groups.has(key):
 		var mm := MultiMesh.new()
@@ -508,6 +513,11 @@ func _join_group(entry):
 		mm.visible_instance_count = 0
 		var node := MultiMeshInstance3D.new()
 		node.multimesh = mm
+		if mobile:
+			node.material_overlay = (
+				load("res://source/match/units/traits/UnitOcclusion.gd")
+				. material(entry.owner.color, entry.unit.radius, _compute.texture)
+			)
 		add_child(node)
 		_groups[key] = {
 			"cell": cell, "mm": mm, "entries": [], "padding": 0.0, "low": INF, "high": -INF

@@ -13,6 +13,8 @@ const MUZZLE_FALLBACK = preload("res://source/shaders/3d/cannon_muzzle_fallback.
 const RAY_BEAM_SHADER = preload("res://source/shaders/3d/ray_beam.gdshader")
 const BeamAppearance = preload("res://source/match/effects/BeamAppearance.gd")
 const ShieldImpactVisual = preload("res://source/match/effects/ShieldImpactVisual.gd")
+const PhaseShiftVisual = preload("res://source/match/effects/PhaseShiftVisual.gd")
+const GroundContact = preload("res://source/match/effects/GroundContactProfile.gd")
 
 # Shared GPU particle buffers and bounded tracer/wreck pools, independent of combat authority.
 const MAX_TRACERS = 96
@@ -28,6 +30,7 @@ const MAX_ABILITY_EFFECTS = 64
 const MAX_GRENADES = 32
 const MAX_BLAST_TAILS = 32
 const MAX_SHIELD_RIPPLES = 24
+const MAX_PHASE_REMNANTS = 16
 # Faction-tinted fire so a crossfire reads by owner; rail shots keep a cold charge color.
 const FACTION_FIRE = {
 	"bastion": Color("ffd9a0"),
@@ -42,6 +45,7 @@ var shield_impacts_emitted = 0
 var deaths_emitted = 0
 var aftermath
 var foliage
+var world_abilities
 var _weapon_heat
 var _dust_biome := "desert"
 var _emitters = {}
@@ -64,9 +68,86 @@ var _grenades = []
 var _blast_tails = []
 var _shield_ripples = []
 var _ground_map
+var _phase_remnants = []
+
+
+func watch_unit(unit):
+	var watcher = (
+		unit.get_meta("combat_effects_watcher") if unit.has_meta("combat_effects_watcher") else null
+	)
+	if watcher != null and watcher.get_ref() == self:
+		return
+	unit.set_meta("combat_effects_watcher", weakref(self))
+	for pair in [
+		[unit.shield_component.broken, ShieldImpactVisual.Mode.BREAK],
+		[unit.shield_component.recharge_started, ShieldImpactVisual.Mode.RECHARGE],
+		[unit.shield_component.recharged, ShieldImpactVisual.Mode.RESTORED]
+	]:
+		var callback = _shield_lifecycle.bind(weakref(unit), pair[1])
+		if not pair[0].is_connected(callback):
+			pair[0].connect(callback)
+	var movement = unit.get_node_or_null("Movement")
+	if movement != null and movement.has_signal("phase_shifted"):
+		var callback = _phase_shifted.bind(weakref(unit))
+		if not movement.phase_shifted.is_connected(callback):
+			movement.phase_shifted.connect(callback)
+
+
+func _phase_shifted(origin: Vector3, destination: Vector3, reference: WeakRef):
+	var unit = reference.get_ref()
+	if is_instance_valid(unit):
+		phase_shift(origin, destination, unit.player, unit)
+
+
+func phase_shift(origin: Vector3, destination: Vector3, owner = null, unit = null):
+	for point in [origin, destination]:
+		if not can_show_point(point) or not get_parent().combat_audio.point_observed(point, owner):
+			continue
+		var arriving = point == destination
+		if not Globals.options.reduced_flashes:
+			while _phase_remnants.size() >= MAX_PHASE_REMNANTS:
+				var old = _phase_remnants.pop_front()
+				old.hide()
+				old.queue_free()
+			var remnant = PhaseShiftVisual.new()
+			add_child(remnant)
+			remnant.setup(point, arriving, owner, unit if not arriving else null)
+			_phase_remnants.append(remnant)
+		for index in 12:
+			var radial = Vector3.RIGHT.rotated(Vector3.UP, index * TAU / 12.0)
+			var velocity = radial * (2.5 if arriving else -1.8) + Vector3.UP * .4
+			_puff("spark", point + Vector3.UP * .7 + radial * .8, velocity, Color("69ddff"), .055)
+			if index % 3 == 0:
+				_puff(
+					"smoke",
+					point + radial * .5 + Vector3.UP * .3,
+					velocity * .12,
+					Color(.25, .65, .75, .25),
+					.45
+				)
+		if arriving and foliage != null:
+			foliage.impulse(point, 2.4)
+
+
+func _advance_phase_remnants(delta):
+	for index in range(_phase_remnants.size() - 1, -1, -1):
+		var remnant = _phase_remnants[index]
+		if (
+			Globals.options.reduced_flashes
+			or get_parent().restoring
+			or not get_parent().combat_audio.point_observed(remnant.point, remnant.player)
+			or remnant.advance(delta)
+		):
+			remnant.hide()
+			remnant.queue_free()
+			_phase_remnants.remove_at(index)
+		else:
+			remnant.visible = _camera_sees(remnant.point)
 
 
 func watch_abilities(unit):
+	if world_abilities != null:
+		world_abilities.watch(unit)
 	var callback = _ability_triggered.bind(unit)
 	if not unit.abilities.ability_triggered.is_connected(callback):
 		unit.abilities.ability_triggered.connect(callback)
@@ -250,6 +331,9 @@ func _advance_abilities(delta):
 func _ready():
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_headless = DisplayServer.get_name() == "headless"
+	world_abilities = load("res://source/match/effects/AbilityWorldVisuals.gd").new()
+	world_abilities.name = "AbilityWorldVisuals"
+	add_child(world_abilities)
 	_random.seed = 73819  # Cosmetic randomness never changes the gameplay RNG.
 	_tracer_mesh.size = Vector3.ONE
 	if get_parent() != null and "map" in get_parent():
@@ -282,6 +366,8 @@ func _ready():
 	_emitter("dust", 512, 2.1, Vector3(0, -0.15, 0), 0.0, 0.95)
 	_emitter("fire", 256, 0.65, Vector3(0, 0.8, 0), 2.0, 0.85)
 	_emitter("mote", 192, 1.2, Vector3(0, 0.25, 0), 2.2, 0.2)
+	_emitter("foam", 384, 1.8, Vector3(0, -7.5, 0), 0.0, .9)
+	_emitter("mist", 192, 1.5, Vector3(.05, -.2, .02), 0.0, .8)
 	# Separate bounded buffers keep dense missile trails from starving impact smoke.
 	_emitter("trail_smoke", 2048, 1.25, Vector3(.06, .22, .025), 0.0, .72)
 	_emitter("exhaust", 768, .1, Vector3.ZERO, 2.8, .38)
@@ -373,8 +459,10 @@ func _emitter(kind, amount, lifetime, gravity, glow, roughness):
 	var material = ShaderMaterial.new()
 	material.shader = load("res://source/shaders/3d/combat_particle_process.gdshader")
 	material.set_shader_parameter("gravity", gravity)
-	var growth_start = .35 if kind in ["smoke", "dust"] else 1.0
-	var growth_end = 1.15 if kind == "smoke" else (1.65 if kind in ["dust", "flash"] else .35)
+	var growth_start = .35 if kind in ["smoke", "dust", "foam", "mist"] else 1.0
+	var growth_end = (
+		1.15 if kind in ["smoke", "foam", "mist"] else (1.65 if kind in ["dust", "flash"] else .35)
+	)
 	if kind == "trail_smoke":
 		growth_start = .85
 		growth_end = 2.8
@@ -383,7 +471,9 @@ func _emitter(kind, amount, lifetime, gravity, glow, roughness):
 	material.set_shader_parameter("damping", 1.1 if kind == "dust" else 0.45)
 	material.set_shader_parameter("grounded", kind in ["dust", "spark"])
 	material.set_shader_parameter("directional", kind in ["dust", "exhaust", "spark"])
-	material.set_shader_parameter("billow", kind in ["smoke", "dust", "trail_smoke"])
+	material.set_shader_parameter(
+		"billow", kind in ["smoke", "dust", "trail_smoke", "foam", "mist"]
+	)
 	material.set_shader_parameter(
 		"fade_in", .06 if kind == "smoke" else (.025 if kind in ["dust", "trail_smoke"] else 0.0)
 	)
@@ -395,7 +485,7 @@ func _emitter(kind, amount, lifetime, gravity, glow, roughness):
 
 	shader.set_shader_parameter("flame", kind == "fire")
 	shader.set_shader_parameter("exhaust", kind == "exhaust")
-	shader.set_shader_parameter("vapor", kind in ["smoke", "dust", "trail_smoke"])
+	shader.set_shader_parameter("vapor", kind in ["smoke", "dust", "trail_smoke", "foam", "mist"])
 	shader.set_shader_parameter("glow", glow)
 	shader.set_shader_parameter("rough_edge", roughness)
 	shader.set_shader_parameter(
@@ -565,17 +655,42 @@ func shield_impact(unit, point):
 	shield_impacts_emitted += 1
 	if not _can_show(unit) or not _camera_sees(point) or Globals.options.reduced_flashes:
 		return
+	_add_shield_visual(unit, point, ShieldImpactVisual.Mode.CONTACT)
+	# The wave stays on the shield surface; the hull is not lit like damaged armor.
+	var cyan = Color(.35, .78, 1.0, .65)
+	_puff("flash", point, Vector3.ZERO, cyan, .18)
+
+
+func _shield_lifecycle(reference: WeakRef, mode):
+	var unit = reference.get_ref()
+	if (
+		not _can_show(unit)
+		or not _camera_sees(unit.global_position)
+		or Globals.options.reduced_flashes
+	):
+		return
+	_add_shield_visual(unit, unit.global_position, mode)
+	if mode == ShieldImpactVisual.Mode.BREAK:
+		for index in 12:
+			var direction = Vector3.RIGHT.rotated(Vector3.UP, index * TAU / 12.0)
+			_puff(
+				"spark",
+				unit.global_position + Vector3.UP * .7 + direction * unit.radius,
+				direction * 2.2 + Vector3.UP * .8,
+				Color("78e5ff"),
+				.065
+			)
+
+
+func _add_shield_visual(unit, point, mode):
 	while _shield_ripples.size() >= MAX_SHIELD_RIPPLES:
 		var old = _shield_ripples.pop_front()
 		old.hide()
 		old.queue_free()
 	var ripple = ShieldImpactVisual.new()
 	add_child(ripple)
-	ripple.setup(unit, point)
+	ripple.setup(unit, point, mode)
 	_shield_ripples.append(ripple)
-	# The wave stays on the shield surface; the hull is not lit like damaged armor.
-	var cyan = Color(.35, .78, 1.0, .65)
-	_puff("flash", point, Vector3.ZERO, cyan, .18)
 
 
 func _advance_shield_ripples(delta):
@@ -590,6 +705,10 @@ func _advance_shield_ripples(delta):
 			or not unit.is_visible_in_tree()
 			or get_parent().restoring
 			or not get_parent().combat_audio._observed(unit)
+			or (
+				ripple.mode == ShieldImpactVisual.Mode.RECHARGE
+				and not unit.shield_component._recharging
+			)
 			or ripple.advance(delta)
 		):
 			ripple.hide()
@@ -606,7 +725,8 @@ func impact(unit, source, point, weapon = {}):
 		return
 	_material_hit(unit)
 	var heavy = get_parent().combat_audio.heavy_impact(source, weapon)
-	_water_impact(point, 1.0 if heavy else .3)
+	if not heavy or not explosive_impact(source, weapon):
+		_water_impact(point, 1.0 if heavy else .3)
 	var ground_hit = point.y - _ground_height(point) < 1.6
 	var direction = source.global_position.direction_to(point)
 	var armor = CombatRules.armor_for(unit.type)
@@ -674,10 +794,10 @@ func trail(point, direction):
 
 # A round that struck the ground, a wreck-free obstacle, or expired in the air.
 func miss(point, ground, heavy, color):
-	_water_impact(point, .8 if heavy else .25)
 	if heavy:
 		_explosion(point, 0.75, ground)
 		return
+	_water_impact(point, .25)
 	_puff("flash", point, Vector3.ZERO, color, 0.16)
 	for _index in range(3):
 		_puff("spark", point, _jitter(1.6) + Vector3.UP * 1.2, color, 0.04)
@@ -695,7 +815,6 @@ func miss(point, ground, heavy, color):
 func warhead(point, radius, ground):
 	if not can_show_point(point):
 		return
-	_water_impact(point, clampf(radius * .4, .5, 2.0))
 	_explosion(point, clampf(radius * 0.7, 1.0, 2.2), ground, true)
 
 
@@ -757,6 +876,31 @@ func construction_puff(kind, point, velocity, color, size):
 	_puff(kind, point, velocity, color, size)
 
 
+func construction_completed(unit, bounds = AABB()):
+	if not can_show_construction(unit):
+		return
+	get_parent().combat_audio.construction_completed(unit)
+	var faction = unit.player.faction
+	var height = maxf(1.0, bounds.end.y)
+	for index in 8:
+		var direction = Vector3.RIGHT.rotated(Vector3.UP, index * TAU / 8.0)
+		var point = unit.global_position + direction * unit.radius * .7
+		point.y += height * .65
+		if faction == "helix":
+			_puff("spark", point, direction * .8 + Vector3.UP * 1.8, Color("91eaff"), .06)
+			if not Globals.options.reduced_flashes:
+				_puff("mote", point, Vector3.UP * .7, Color(.3, .85, 1, .65), .12)
+		else:
+			var steam = (
+				Color(.8, .84, .82, .45) if faction == "bastion" else Color(.65, .62, .53, .3)
+			)
+			_puff("smoke", point, direction * 1.0 + Vector3.UP * 1.5, steam, .9)
+			if faction == "frontier" and index % 2 == 0:
+				_puff("spark", point, direction + Vector3.UP * 2.0, Color("ffb857"), .07)
+	if faction == "helix" and not Globals.options.reduced_flashes:
+		_add_shield_visual(unit, unit.global_position, ShieldImpactVisual.Mode.RESTORED)
+
+
 func _camera_sees(point):
 	if not is_instance_valid(_camera):
 		return true
@@ -771,7 +915,7 @@ func _can_show(unit):
 	return (
 		not _headless
 		and is_instance_valid(unit)
-		and unit.visible
+		and unit.is_visible_in_tree()
 		and not get_tree().paused
 		and not get_parent().restoring
 		and get_parent().combat_audio._observed(unit)
@@ -821,6 +965,12 @@ func _armor_impact(point, direction, ground_hit, color):
 
 func _explosion(point, strength, ground_hit, destructive = false):
 	if not can_show_point(point):
+		return
+	var water_level = _water_surface(point)
+	if is_finite(water_level):
+		point.y = water_level + .08
+		_water_impact(point, strength)
+		_water_geyser(point, strength)
 		return
 	if destructive and strength >= 1.5 and ground_hit:
 		_shockwave(point, strength)
@@ -998,7 +1148,7 @@ static func dust_color(biome: String) -> Color:
 
 
 func movement_dust(unit):
-	if not _can_show(unit):
+	if not _can_show(unit) or not _camera_sees(unit.global_position):
 		return
 	var map = get_parent().map
 	var point: Vector3 = unit.global_position
@@ -1008,6 +1158,9 @@ func movement_dust(unit):
 			return
 	var movement = unit.get_node_or_null("Movement")
 	var velocity: Vector3 = movement.velocity if movement != null else -unit.global_basis.z
+	if GroundContact.is_hover(unit):
+		_repulsor_wash(unit, velocity)
+		return
 	var backward := -velocity.normalized()
 	# These facts cannot change while this synchronous emission is assembled.
 	var radius = unit.radius
@@ -1024,6 +1177,23 @@ func movement_dust(unit):
 		_puff("dust", contact, backward * .55 + Vector3.UP * .16, color, size)
 		if clods:
 			_puff("clod", contact, backward * 1.2 + Vector3.UP * .8, Color(.4, .32, .22), .65)
+
+
+func _repulsor_wash(unit, velocity: Vector3):
+	var point: Vector3 = unit.global_position
+	var color = dust_color(_dust_biome)
+	color.a *= .55
+	for index in 8:
+		var radial = Vector3.RIGHT.rotated(Vector3.UP, index * TAU / 8.0)
+		var contact = point + radial * unit.radius * .85
+		contact.y = _ground_height(contact) + .1
+		_puff(
+			"dust",
+			contact,
+			radial * 1.4 - velocity * .08 + Vector3.UP * .24,
+			color,
+			clampf(unit.radius * .7, .35, 1.0)
+		)
 
 
 func _wreck(unit, infantry):
@@ -1397,6 +1567,9 @@ func _glowing_material(color):
 
 
 func _process(delta):
+	_advance_phase_remnants(0.0 if get_tree().paused else delta)
+	if world_abilities != null and not _headless:
+		world_abilities.advance(0.0 if get_tree().paused else delta)
 	# Cosmetic lifetimes use render-frame updates to avoid 60 Hz stepping
 	# on fast displays, while the explicit age clock still respects tactical pause.
 	if not get_tree().paused:
@@ -1718,14 +1891,23 @@ func vehicle_damage(unit, band: int, point: Vector3):
 					_puff("spark", point + _jitter(.15), _jitter(1.2), Color(.5, .95, 1), .045)
 		"frontier":
 			_puff("smoke", point, Vector3(.07, .65, .05), Color(.83, .87, .84, .65), size)
-			if band == 2 and _random.randf() < .3:
-				_puff("smoke", point, Vector3(.12, .38, .2), Color(.22, .2, .16, .25), size * .65)
-				_puff("fire", point, Vector3(.05, .2, .15), Color(1, .45, .15, .45), .16)
 		_:
 			_puff("smoke", point, Vector3(.12, .65, .04), Color(.09, .1, .09, .7), size)
 			if band == 2:
 				_puff("fire", point, Vector3.UP * .3, Color(1, .4, .1, .6), size * .7)
 				_puff("spark", point, _jitter(.6) + Vector3.UP * .5, Color(1, .65, .2), .035)
+
+
+func vehicle_backfire(unit, point: Vector3) -> bool:
+	if unit.player.faction != "frontier" or unit.hp <= 0 or not can_show_construction(unit):
+		return false
+	var exhaust = unit.global_basis.z * .8 + Vector3.UP * .3
+	_puff("smoke", point, exhaust * .5, Color(.12, .11, .1, .55), .4)
+	_puff("flash", point, exhaust, Color(1, .22, .055, .75), .23)
+	for index in 3:
+		_puff("spark", point, exhaust + _jitter(.5), Color(1, .38, .08), .045)
+	get_parent().combat_audio.vehicle_backfire(unit, point)
+	return true
 
 
 func _exit_tree():
@@ -1783,6 +1965,45 @@ func _water_impact(point: Vector3, strength: float):
 	var atmosphere = get_parent().get_node_or_null("WorldAtmosphere")
 	if atmosphere != null and atmosphere.effects != null:
 		atmosphere.effects.water_interactions.impact(point, strength)
+
+
+func _water_surface(point: Vector3) -> float:
+	var map = get_parent().map
+	if not "water_flow" in map or map.water_flow == null:
+		return -INF
+	var flat = Vector2(point.x, point.z)
+	if map.water_flow.sample(flat).a <= .1:
+		return -INF
+	var level = map.water_flow.level_at(flat)
+	return level if absf(point.y - level) < 1.6 else -INF
+
+
+func _water_geyser(point: Vector3, strength: float):
+	if not can_show_point(point) or not get_parent().combat_audio.point_observed(point):
+		return
+	var force = sqrt(clampf(strength, .5, 2.2))
+	# A narrow fast core, slower frothy shoulders, then a low collapsing mist skirt.
+	# Gravity is shared by GPU and Compatibility particle buffers.
+	for index in 24:
+		var radial = Vector3.RIGHT.rotated(Vector3.UP, index * TAU / 24.0)
+		var core = index < 8
+		var velocity = radial * (.4 if core else 1.7) * force
+		velocity.y = (8.0 if core else 4.8) * force + _random.randf_range(-.5, .5)
+		_puff(
+			"foam",
+			point + radial * .2,
+			velocity,
+			Color(.85, .94, .97, .85),
+			(.75 if core else .6) * force
+		)
+		if index % 3 == 0:
+			_puff(
+				"mist",
+				point + radial * .5 + Vector3.UP * .3,
+				radial * 1.7 * force + Vector3.DOWN * .12,
+				Color(.8, .9, .94, .3),
+				1.2 * force
+			)
 
 
 func rotor_downwash(unit):

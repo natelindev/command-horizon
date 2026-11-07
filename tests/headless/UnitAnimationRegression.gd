@@ -752,23 +752,29 @@ func _test_hidden_and_settled():
 	var previous_headless: bool = visual._shared.headless
 	visual._shared.headless = false
 	var camera = Camera3D.new()
+	# This fixture teleports its camera between views. Inherited interpolation
+	# can keep the old frustum until a physics tick, unrelated to rig culling.
+	camera.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	_game.add_child(camera)
 	camera.projection = Camera3D.PROJECTION_ORTHOGONAL
 	camera.size = 10.0
 	camera.global_position = unit.global_position + Vector3(400, 30, 0)
 	camera.look_at(unit.global_position + Vector3(400, 0, -1))
 	camera.make_current()
-	# The shared frustum refreshes once per physics tick.
-	await physics_frame
+	# The shared frustum refreshes once per rendered frame, not physics tick.
+	await _frames(2)
 	_drive(unit, Vector3.FORWARD * 3.0, 20)
 	poses = _part_poses(unit)
 	_drive(unit, Vector3.FORWARD * 3.0, 20)
 	_check(_same_part_poses(unit, poses), "Off-screen unit kept posing its rig")
 	camera.global_position = unit.global_position + Vector3(0, 12, 12)
 	camera.look_at(unit.global_position)
-	await physics_frame
+	await _frames(2)
 	_drive(unit, Vector3.FORWARD * 3.0, 4)
-	_check(not _same_part_poses(unit, poses), "On-screen unit never resumed animating")
+	_check(
+		not _same_part_poses(unit, poses),
+		"On-screen unit never resumed animating: " + _players[0].faction
+	)
 	visual._shared.headless = previous_headless
 	camera.queue_free()
 	unit.queue_free()
@@ -923,8 +929,11 @@ func _test_destruction():
 	var hips = infantry_wreck.node.get_node("InfantryRig/Hips")
 	var standing = InfantryMotionScript.HIP_HEIGHT
 	var lowest_hips = hips.position.y
+	# Wreck age advances on the physics clock. Render frames are not seconds,
+	# especially in a headless run where several can occur between physics ticks.
+	effects.set_physics_process(false)
 	for frame in range(int(infantry_wreck.motion.duration * 60) + 10):
-		await _frames(1)
+		effects._advance_aftermath(STEP)
 		lowest_hips = minf(lowest_hips, hips.position.y)
 	_check(lowest_hips < standing - .1, "Infantry wreck never buckles at the knees")
 	_check(hips.position.y > lowest_hips + .07, "Infantry wreck stays curled after impact")
@@ -932,6 +941,16 @@ func _test_destruction():
 	_check(infantry_wreck.has("posed"), "Infantry wreck keeps re-posing after it landed")
 	var tilted = infantry_wreck.node.rotation - infantry_wreck.rotation
 	_check(Vector2(tilted.x, tilted.z).length() > 1.0, "Infantry wreck never reaches the ground")
+	var resting_hips = hips.transform
+	var resting_body = infantry_wreck.node.transform
+	for frame in 30:
+		effects._advance_aftermath(STEP)
+	_check(hips.transform == resting_hips, "Landed infantry keeps changing its hip pose")
+	_check(
+		infantry_wreck.node.transform.is_equal_approx(resting_body),
+		"Landed infantry continues to slide or tilt"
+	)
+	effects.set_physics_process(true)
 	# Wrecks are inert copies: no animation script or processing survives.
 	for node in [infantry_wreck.node, air_wreck.node]:
 		_check(node.get_script() == null, "Wreck kept an animation script")

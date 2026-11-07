@@ -1,6 +1,7 @@
 # Independent guard clauses keep validation and eligibility paths explicit.
 # gdlint: disable=max-returns
 extends RefCounted
+const Lods = preload("res://source/match/rendering/RigidMeshLods.gd")
 const CUSTOM_FLAGS = (
 	(Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM0_SHIFT)
 	| (Mesh.ARRAY_CUSTOM_RGBA_FLOAT << Mesh.ARRAY_FORMAT_CUSTOM1_SHIFT)
@@ -27,6 +28,9 @@ func _material(material: Material) -> Material:
 	var result: ShaderMaterial = (
 		material.duplicate() if material is ShaderMaterial else ShaderMaterial.new()
 	)
+	# The complete articulated batch has one posed occlusion overlay. A source
+	# pass uses ordinary mesh coordinates and must not be copied into the batch.
+	result.next_pass = null
 	var shader := Shader.new()
 	var original: String = (
 		material.shader.code if material is ShaderMaterial else _standard(material, result)
@@ -207,6 +211,7 @@ func merge(pieces: Array) -> ArrayMesh:
 		for channel in range(Mesh.ARRAY_CUSTOM0, Mesh.ARRAY_CUSTOM3 + 1):
 			result[channel] = PackedFloat32Array()
 		var offset := 0
+		var lod_parts := []
 		for entry in groups[material]:
 			var source: MeshInstance3D = entry[0]
 			var arrays := source.mesh.surface_get_arrays(entry[1])
@@ -287,12 +292,35 @@ func merge(pieces: Array) -> ArrayMesh:
 			)
 			if indices.is_empty():
 				indices = PackedInt32Array(range(vertices.size()))
+			var levels := {}
+			if source.mesh is ArrayMesh:
+				var cached = _bucket("source_mesh_lods")
+				var key = [source.mesh, entry[1]]
+				if not cached.has(key):
+					cached[key] = Lods.read(source.mesh, entry[1])
+				levels = cached[key]
+			var world_basis := source.global_basis if source.is_inside_tree() else source.basis
+			var scale := world_basis.get_scale().abs()
+			(
+				lod_parts
+				. append(
+					{
+						"indices": indices,
+						"levels": levels,
+						"offset": offset,
+						"reflected": reflected,
+						"scale": maxf(scale.x, maxf(scale.y, scale.z)),
+					}
+				)
+			)
 			for index in range(0, indices.size(), 3):
 				result[Mesh.ARRAY_INDEX].append(indices[index] + offset)
 				result[Mesh.ARRAY_INDEX].append(indices[index + (2 if reflected else 1)] + offset)
 				result[Mesh.ARRAY_INDEX].append(indices[index + (1 if reflected else 2)] + offset)
 			offset += vertices.size()
-		output.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, result, [], {}, CUSTOM_FLAGS)
+		output.add_surface_from_arrays(
+			Mesh.PRIMITIVE_TRIANGLES, result, [], Lods.combine(lod_parts), CUSTOM_FLAGS
+		)
 		output.surface_set_material(output.get_surface_count() - 1, material)
 	return output
 
@@ -414,7 +442,9 @@ func _palette_code(code: String, original: Material, values: ShaderMaterial) -> 
 
 
 func supports(material: Material) -> bool:
-	if material == null or material.next_pass != null:
+	if material == null:
+		return false
+	if material.next_pass != null and not material.next_pass.has_meta("unit_occlusion"):
 		return false
 	if material is ShaderMaterial:
 		return (

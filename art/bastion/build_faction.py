@@ -19,6 +19,7 @@ import weathering  # noqa: E402
 import trim_sheet  # noqa: E402
 import markings  # noqa: E402
 import track_rig
+import export_manifest
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "assets/models/bastion/demo"
@@ -488,6 +489,8 @@ def siege_colossus():
     box("MuzzleBrake",(0,3.4,1.96),(.6,.45,.45),DARK,barrel)
     pivot("Muzzle",(0,3.68,1.96),barrel)
     box("TeamStripe",(0,-.6,2.15),(1.25,.9,.04),TEAM,turret)
+    antenna = pivot("AntennaPivot",(-.85,-1.05,2.0),turret)
+    rod("RadioAntenna",(-.85,-1.05,2.0),(-.85,-1.05,2.85),.025,STEEL,antenna,vertices=6)
 
 
 def bulwark_walker():
@@ -601,6 +604,10 @@ for name,collection,asset_root in assets:
     for obj in live: bpy.data.objects.remove(obj,do_unlink=True)
     manifest.append({"name":name,"triangles":triangles,"file":name+".glb"})
     collection.hide_render=True
+
+if walkers_only or motion_only or "--signature-only" in sys.argv or "--damage-only" in sys.argv:
+    export_manifest.merge_partial(SOURCE/"manifest.json",manifest)
+    export_manifest.merge_partial(SOURCE/"signature-manifest.json",manifest)
 
 if walkers_only or motion_only:
     print("Bastion motion rigs exported" if motion_only else "Bastion walker rig exported")

@@ -1,7 +1,8 @@
-[gd_resource type="StandardMaterial3D" format=3 uid="uid://cd6jl5bjkuo07"]
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://cd6jl5bjkuo07"]
+
+[ext_resource type="Shader" path="res://source/shaders/3d/blueprint.gdshader" id="1"]
 
 [resource]
-transparency = 1
 render_priority = 10
-shading_mode = 0
-albedo_color = Color(0.75, 0.08, 0.07, 0.8)
+shader = ExtResource("1")
+shader_parameter/tint = Color(1, 0.24, 0.13, 1)

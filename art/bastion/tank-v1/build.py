@@ -81,6 +81,9 @@ def finish(obj, name, mat, group="Hull", bevel=0.0, smooth=False):
     move_collection(obj, source if group else studio)
     if mat:
         obj.data.materials.append(mat)
+    # At battle scale sub-centimetre chamfers are subpixel. Reserve geometry
+    # for the cast hull, turret and large fender edges, not every latch or slat.
+    bevel = bevel if bevel >= .06 else 0.0
     if bevel:
         modifier = obj.modifiers.new("Manufactured edge chamfer", "BEVEL")
         modifier.width = bevel
@@ -124,7 +127,8 @@ def mesh(name, verts, faces, mat, group="Hull", bevel=0.0):
     return finish(obj, name, mat, group, bevel)
 
 
-def cylinder(name, loc, radius, depth, mat, group="Hull", axis="Z", vertices=16, bevel=0.015):
+def cylinder(name, loc, radius, depth, mat, group="Hull", axis="Z", vertices=10, bevel=0.0):
+    vertices = min(vertices, 12 if radius >= .5 else 8)
     bpy.ops.mesh.primitive_cylinder_add(vertices=vertices, radius=radius, depth=depth, location=loc)
     obj = bpy.context.object
     if axis == "X":
@@ -192,7 +196,7 @@ def capsule(distance, radius=0.64, half=2.02, center_z=0.73):
 def track_belt(side):
     x = side * 1.66
     group = "TrackLeft" if side < 0 else "TrackRight"
-    steps = 64
+    steps = 16
     perimeter = 8.08 + 2*math.pi*.64
     verts = []
     # Cross-section ring edges: outer/inner surfaces at both X ends.
@@ -208,24 +212,28 @@ def track_belt(side):
             j=(i+1)%steps
             faces.append((a*steps+i,a*steps+j,b*steps+j,b*steps+i))
     mesh(f"Track {side} / continuous belt", verts, faces, rubber)
-    count=52
+    count=24
     for i in range(count):
         y,z,ty,tz=capsule(perimeter*i/count)
         angle=math.atan2(tz,ty)
         # Local Z is outward when following the loop clockwise in Y/Z.
-        shoe = box(f"Track {side} / shoe {i:02}", (x,y,z), (.9,.205,.11), dark,
+        shoe = box(f"Track {side} / shoe {i:02}", (x,y,z), (.9,.32,.11), dark,
             group=group, bevel=0, rotation=(angle,0,0))
         track_rig.encode(shoe, perimeter*i/count, 2.02, .64, .73)
-        normal=Vector((0,-tz,ty))
-        pos=Vector((x,y,z))+normal*.065
-        pad = box(f"Track {side} / traction pad {i:02}", pos, (.62,.145,.035), rubber,
-            group=group, bevel=0, rotation=(angle,0,0))
-        track_rig.encode(pad, perimeter*i/count, 2.02, .64, .73)
-    for i,y in enumerate((-2.02,-1.34,-.67,0,.67,1.34,2.02)):
-        radius=.47 if i in (0,6) else .43
-        cylinder(f"Track {side} / road wheel {i}",(x,y,.73),radius,.7,rubber,axis="X",vertices=16,bevel=0)
-        cylinder(f"Track {side} / wheel face {i}",(x+side*.365,y,.73),radius*.77,.065,edge,axis="X",vertices=12,bevel=0)
-        cylinder(f"Track {side} / hub {i}",(x+side*.41,y,.73),.125,.085,steel,axis="X",vertices=8,bevel=0)
+    for i,y in enumerate((-2.02,-1.01,0,1.01,2.02)):
+        radius=.47 if i in (0,4) else .48
+        # The belt and skirt cover the wheel barrel. One concentric face keeps
+        # the tire/rim silhouette without two hidden, capped cylinders per wheel.
+        vertices = [(x+side*depth, y+math.sin(a*math.tau/8)*r,
+                     .73+math.cos(a*math.tau/8)*r)
+                    for depth,r in [(.365,radius),(.395,radius*.72)] for a in range(8)]
+        vertices.append((x+side*.405,y,.73))
+        faces = [(a,(a+1)%8,(a+1)%8+8,a+8) for a in range(8)]
+        faces += [(a+8,(a+1)%8+8,16) for a in range(8)]
+        wheel = mesh(f"Track {side} / road wheel {i}",vertices,faces,rubber)
+        wheel.data.materials.append(edge)
+        for polygon in wheel.data.polygons:
+            polygon.material_index = 1 if polygon.index >= 8 else 0
 
 
 # Hull: a deliberately broad, sloping chassis rather than stacked cubes.
@@ -243,8 +251,6 @@ for side in (-1,1):
     for i,y in enumerate((-1.85,-.94,-.03,.88,1.79)):
         plate=box(f"Skirt {side} / panel {i}",(side*2.08,y,1.02),(.17,.86,.66),
                   yellow if i==3 else armor,bevel=.05)
-        for zz in (.79,1.25):
-            cylinder(f"Skirt {side} / latch {i} {zz}",(side*2.175,y-.26,zz),.04,.025,steel,axis="X",vertices=6,bevel=0)
         if i==1:
             chevron_side(f"Skirt {side} / insignia",side*2.171,y,1.02,.55,ivory)
     box(f"Front fender {side} / bumper",(side*1.7,2.62,1.25),(.92,.20,.28),dark,bevel=.05)
@@ -264,11 +270,9 @@ for side in (-1,1):
 # Rear engine bay, cooling grilles, maintenance lids and front driver periscope.
 for side in (-1,1):
     box(f"Engine grille {side} / recess",(side*.77,-1.64,1.558),(.95,1.12,.045),dark,bevel=.025)
-    for i in range(9):
-        box(f"Engine grille {side} / slat {i}",(side*.77,-2.08+i*.11,1.591),(.82,.036,.045),steel,bevel=.005)
+    for i in range(4):
+        box(f"Engine grille {side} / slat {i}",(side*.77,-2.08+i*.29,1.591),(.82,.06,.045),steel,bevel=0)
     box(f"Engine hatch {side}",(side*1.49,-1.66,1.535),(.32,1.13,.085),edge,bevel=.02)
-    for yy in (-2.08,-1.2):
-        box(f"Engine hinge {side} {yy}",(side*1.49,yy,1.598),(.25,.09,.035),steel,bevel=.005)
 box("Driver / hatch",(0,1.6,1.565),(.85,.62,.08),armor,bevel=.08)
 box("Driver / periscope",(0,1.87,1.654),(.52,.16,.17),dark,bevel=.018)
 box("Driver / glass",(0,1.96,1.668),(.38,.022,.085),glass,bevel=.01)
@@ -276,8 +280,6 @@ for side in (-1,1):
     box(f"Glacis {side} / inset composite panel",(side*.67,2.26,1.40),(.84,.72,.045),
         armor,bevel=.025,rotation=(math.radians(-35),0,0))
 for side in (-1,1):
-    rod(f"Rear handrail {side} A",(side*1.40,-2.21,1.55),(side*1.40,-2.21,1.69),.022,steel)
-    rod(f"Rear handrail {side} B",(side*1.40,-1.85,1.55),(side*1.40,-1.85,1.69),.022,steel)
     rod(f"Rear handrail {side} C",(side*1.40,-2.21,1.69),(side*1.40,-1.85,1.69),.022,steel)
 
 # Turret yaw pivot at the center of the ring; barrel elevation at the mantlet.
@@ -300,7 +302,7 @@ for side in (-1,1):
     box(f"Turret {side} / rear stowage",(side*.82,-1.31,2.01),(.79,.49,.44),edge,"Turret",.05)
     box(f"Turret {side} / stowage latch",(side*.82,-1.571,2.03),(.15,.025,.17),steel,"Turret",.015)
     # Discrete smoke-launcher cluster.
-    for j in range(3):
+    for j in range(2):
         obj=cylinder(f"Turret {side} / smoke tube {j}",(side*1.32,.08-j*.17,2.24),.065,.27,dark,"Turret",vertices=8,bevel=.01)
         obj.rotation_euler=(0,side*math.radians(34),0)
     cylinder(f"Antenna {side} / mount",(side*.92,-.98,2.31),.08,.13,dark,"Turret",vertices=8)
@@ -465,6 +467,20 @@ bpy.ops.export_scene.gltf(filepath=str(glb),export_format="GLB",use_selection=Tr
                          export_cameras=False,export_lights=False,export_apply=True)
 
 if "--export-only" in sys.argv:
+    points = [obj.matrix_world @ Vector(point) for obj in export_collection.objects
+              if obj.type == "MESH" for point in obj.bound_box]
+    low = [min(point[i] for point in points) for i in range(3)]
+    high = [max(point[i] for point in points) for i in range(3)]
+    report = {"asset": "Bastion tank v1", "blender": bpy.app.version_string,
+              "source_components": sum(len(group) for group in parts.values()),
+              "rigid_meshes": stats, "triangles": sum(group["triangles"] for group in stats.values()),
+              "bounds_blender": {"min": low, "max": high},
+              "dimensions_m": [b-a for a,b in zip(low,high)],
+              "godot_forward": "-Z", "godot_up": "+Y", "glb": str(glb.relative_to(ROOT)),
+              "notes": ["Battle-scale geometry with articulated tracks and antennas.",
+                        "Run art/bastion/build_faction.py to bake weathering and export game models."]}
+    (HERE/"build-report.json").write_text(json.dumps(report, indent=2)+"\n")
+    print("Tank triangles:", report["triangles"])
     raise SystemExit(0)
 
 export_collection.hide_render=True
