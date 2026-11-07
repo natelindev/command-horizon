@@ -27,6 +27,14 @@ func _run():
 		is_equal_approx(menus._shields.value, before_shields - 300),
 		"Aggregate shield total is stale"
 	)
+	var maximum = menus._health.max_value
+	units[0].hp_max += 7.0
+	menus._refresh_buttons()
+	_check(
+		is_equal_approx(menus._health.max_value, maximum + 7.0),
+		"Maximum-health change did not invalidate the aggregate"
+	)
+	_check(not menus._health_dirty, "Button refresh left dirty health pending")
 	paused = true
 	units[0].hp -= 2.0
 	await _frames(2)

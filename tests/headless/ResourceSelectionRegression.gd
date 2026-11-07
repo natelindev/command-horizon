@@ -21,6 +21,10 @@ func _run():
 		signals.deselect_all_units.emit()
 		deposit.input_event.emit(camera, click, deposit.global_position, Vector3.UP, 0)
 		_check(deposit.is_in_group("selected_units"), role + " click failed to select")
+		var commands = game.hud.direct_orders
+		_check(not commands.has_eligible("move"), role + " exposed a movement command")
+		_check(commands.cargo_return_state().orders.is_empty(), role + " exposed cargo return")
+		_check(commands.recovery_state().orders.is_empty(), role + " exposed recovery")
 		_check(voice.say_unit(deposit, "select") == false, role + " voice request was not rejected")
 		signals.unit_order_issued.emit(deposit, "move")
 		_check(heard.is_empty() and voice._pending.is_empty(), role + " generated unit speech")
@@ -43,4 +47,4 @@ func _run():
 	await _clean_match()
 	preferences.restore(original)
 	print("Resource selection regression: %d failures" % errors.size())
-	quit(0 if errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)

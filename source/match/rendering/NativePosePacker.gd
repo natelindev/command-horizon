@@ -13,8 +13,24 @@ static func create():
 		return null
 	if "--disable-native-kernels" in OS.get_cmdline_user_args():
 		return null
+	return _load()
+
+
+## Pure value serialization is independent of the experimental render/simulation
+## backends. Load extensions only on the main thread; workers may instantiate an
+## already registered class, otherwise they retain the portable hash path.
+static func create_state_hasher():
+	if OS.has_feature("double") or "--disable-native-kernels" in OS.get_cmdline_user_args():
+		return null
+	var native = _load()
+	return native if native != null and native.has_method("hash_state") else null
+
+
+static func _load():
 	if ClassDB.class_exists("CopperfinPosePacker"):
 		return _instantiate()
+	if OS.get_thread_caller_id() != OS.get_main_thread_id():
+		return null
 	var relative := "native/bin/copperfin.gdextension"
 	var candidates := [
 		OS.get_executable_path().get_base_dir().path_join(relative),

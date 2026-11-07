@@ -9,6 +9,7 @@ var result = {}
 var validator = Frame.new()
 var codec = Protocol.new()
 var values = Values.new()
+var _native_hasher = Frame.Native.create_state_hasher()
 
 
 func _init():
@@ -55,7 +56,7 @@ func decode(job: Dictionary):
 	var snapshot = data if packet.full else Frame.apply_delta(job.previous, data)
 	if (
 		not validator.validate(snapshot, job.definitions)
-		or Frame.hash_state(snapshot, values) != packet.hash
+		or Frame.hash_state(snapshot, values, _native_hasher) != packet.hash
 	):
 		result = {"error": "State checksum mismatch: " + validator.error, "resync": true}
 		return

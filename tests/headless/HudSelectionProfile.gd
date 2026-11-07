@@ -42,6 +42,7 @@ func _run():
 			results.health = _measure(menus._refresh_health)
 			results.abilities = _measure(tray._refresh.bind(.1))
 			results.eligible_move = _measure(direct.eligible.bind("move"))
+			results.has_move = _measure(direct.has_eligible.bind("move"))
 			if wounded == 0 and coordinated:
 				var card = menus._command_card
 				results.card_clear = _measure_prepared(

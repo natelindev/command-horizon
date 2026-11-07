@@ -545,6 +545,7 @@ func _build_info(portrait):
 	_status.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	_status.custom_minimum_size.x = _info_bay.custom_minimum_size.x - 12
 	_info.add_child(_status)
+	_health_dirty = true
 
 
 func _queue_health_refresh():
@@ -809,7 +810,7 @@ func _refresh_buttons():
 			var button = _command_buttons[kind]
 			var spec = _direct_orders.COMMANDS[kind]
 			button.set_pressed_no_signal(_direct_orders.kind == kind)
-			button.disabled = _direct_orders.eligible(kind, eligibility).is_empty()
+			button.disabled = not _direct_orders.has_eligible(kind, eligibility)
 			# The badge and tooltip both follow the player's configured binding.
 			var badge = Bindings.label(spec.action)
 			if button.badge != badge:
@@ -991,7 +992,8 @@ func _refresh_buttons():
 			[tr(_title.text), tr(health)] + facts.map(func(fact): return tr(fact))
 		)
 		identity.accessibility_description = identity.tooltip_text
-	_refresh_health()
+	if _health_dirty:
+		_refresh_health()
 	for entry in _buttons:
 		var producer = unit if entry.construction else _production_target(entry.type)
 		if producer == null:

@@ -10,6 +10,9 @@ var result = {}
 var validator = Frame.new()
 var values = Values.new()
 var codec = Protocol.new()
+# Constructed by the main thread before scheduling jobs. Workers never load an
+# extension or access scene objects; they use this stateless value-only helper.
+var _native_hasher = Frame.Native.create_state_hasher()
 
 
 func _init():
@@ -31,7 +34,7 @@ func prepare(job: Dictionary):
 		"base": job.base,
 		"full": true,
 		"state": encoded,
-		"hash": Frame.hash_state(snapshot, values),
+		"hash": Frame.hash_state(snapshot, values, _native_hasher),
 		"view_hash": Digest.expected(snapshot),
 		"paused": job.paused,
 		"pause_epoch": job.get("pause_epoch", 0),

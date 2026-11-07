@@ -130,7 +130,7 @@ func update_layout(selected_units: Array, direct_orders = null, eligibility: Dic
 		"Move",
 		bindings.move_order,
 		_on_move,
-		direct_orders != null and not direct_orders.eligible("move", eligibility).is_empty()
+		direct_orders != null and direct_orders.has_eligible("move", eligibility)
 	)
 	_setup_slot(0, 1, "Stop", bindings.stop_order, _on_stop, true)
 	_setup_slot(0, 2, "Hold", bindings.hold_order, _on_hold, true)
@@ -146,7 +146,7 @@ func update_layout(selected_units: Array, direct_orders = null, eligibility: Dic
 			"Patrol",
 			bindings.patrol_order,
 			_on_patrol,
-			not direct_orders.eligible("patrol", eligibility).is_empty()
+			direct_orders.has_eligible("patrol", eligibility)
 		)
 	# The command deck carries its own Return cargo key beside this grid, with
 	# queueing and delivery feedback. Standalone cards keep their Return slot.
@@ -167,7 +167,7 @@ func update_layout(selected_units: Array, direct_orders = null, eligibility: Dic
 		(
 			has_attack
 			and direct_orders != null
-			and not direct_orders.eligible("attack_move", eligibility).is_empty()
+			and direct_orders.has_eligible("attack_move", eligibility)
 		)
 	)
 	_setup_slot(
@@ -176,11 +176,7 @@ func update_layout(selected_units: Array, direct_orders = null, eligibility: Dic
 		"Target",
 		bindings.attack_target,
 		_on_attack_target,
-		(
-			has_attack
-			and direct_orders != null
-			and not direct_orders.eligible("attack", eligibility).is_empty()
-		)
+		has_attack and direct_orders != null and direct_orders.has_eligible("attack", eligibility)
 	)
 	_setup_slot(1, 3, "Reverse", "", _on_reverse_move, is_armored)
 	_setup_slot(
@@ -192,7 +188,7 @@ func update_layout(selected_units: Array, direct_orders = null, eligibility: Dic
 		(
 			has_attack
 			and direct_orders != null
-			and not direct_orders.eligible("force_attack", eligibility).is_empty()
+			and direct_orders.has_eligible("force_attack", eligibility)
 		)
 	)
 	_restore_focus(focused_action)
@@ -202,15 +198,15 @@ func _refresh_orders(eligibility: Dictionary, has_attack: bool, is_armored: bool
 	if abilities_only or _selection.is_empty():
 		return
 	var direct = is_instance_valid(_direct_orders)
-	_slots[0][0].disabled = not direct or _direct_orders.eligible("move", eligibility).is_empty()
+	_slots[0][0].disabled = not direct or not _direct_orders.has_eligible("move", eligibility)
 	_slots[0][3].disabled = (
-		_direct_orders.eligible("patrol", eligibility).is_empty() if direct else not has_cargo
+		not _direct_orders.has_eligible("patrol", eligibility) if direct else not has_cargo
 	)
 	if not has_attack and not is_armored:
 		return
 	for command in ["attack_move", "attack", "force_attack"]:
 		order_slot(command).disabled = (
-			not has_attack or not direct or _direct_orders.eligible(command, eligibility).is_empty()
+			not has_attack or not direct or not _direct_orders.has_eligible(command, eligibility)
 		)
 	_slots[1][3].disabled = not is_armored
 

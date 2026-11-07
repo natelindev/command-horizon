@@ -86,7 +86,7 @@ TESTS = [
     "CampaignHubRegression", "CampaignHubLoopRegression", "CampaignHubSalvageRegression",
     "CampaignBriefingRegression", "CombatVoiceRegression",
     "StructureCollapseRegression", "ScorchLifetimeRegression",
-    "NetworkFoundationRegression", "AuthoritativeFrameRegression",
+    "NetworkFoundationRegression", "AuthoritativeFrameRegression", "StateHashRegression",
     "ScenarioEditorRegression",
 ]
 SOURCE_TESTS = ["RichTexturesRegression"]

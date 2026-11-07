@@ -15,6 +15,14 @@ func encode(value):
 	return _encode(value, 0)
 
 
+## Sort record keys while tagging values, avoiding a second recursive copy.
+## Only the root exclusion is omitted; nested camera fields remain authoritative.
+func encode_canonical(value, excluded_root_key = ""):
+	error = ""
+	_left = MAX_NODES
+	return _encode(value, 0, true, excluded_root_key)
+
+
 func decode(value):
 	error = ""
 	_left = MAX_NODES
@@ -36,7 +44,7 @@ func _fail():
 	return null
 
 
-func _encode(value, depth):
+func _encode(value, depth, canonical = false, excluded_root_key = ""):
 	if not _visit(depth):
 		return null
 	match typeof(value):
@@ -66,19 +74,28 @@ func _encode(value, depth):
 		TYPE_ARRAY:
 			var result = []
 			for item in value:
-				result.append(_encode(item, depth + 1))
+				result.append(_encode(item, depth + 1, canonical))
 				if not error.is_empty():
 					return null
 			return ["list", result]
 		TYPE_DICTIONARY:
 			var result = []
-			for key in value:
+			var keys = value.keys() if canonical else value
+			if canonical:
+				for key in keys:
+					if not (key is String or key is StringName):
+						return _fail()
+				keys = keys.map(func(key): return str(key))
+				keys.sort()
+			for key in keys:
+				if depth == 0 and not excluded_root_key.is_empty() and key == excluded_root_key:
+					continue
 				if not (key is String or key is StringName):
 					return _fail()
 				var text_key = str(key)
 				if text_key.to_utf8_buffer().size() > MAX_STRING_BYTES:
 					return _fail()
-				result.append([text_key, _encode(value[key], depth + 1)])
+				result.append([text_key, _encode(value[key], depth + 1, canonical)])
 				if not error.is_empty():
 					error = "%s: %s" % [text_key.left(48), error]
 					return null

@@ -5,6 +5,7 @@ extends RefCounted
 ## does not reload the game. Entity IDs survive deaths and later productions.
 const Protocol = preload("res://source/match/network/NetworkProtocol.gd")
 const Values = preload("res://source/match/saves/SaveValue.gd")
+const Native = preload("res://source/match/rendering/NativePosePacker.gd")
 const TABLES = ["players", "units", "resources", "obstacles"]
 var error = ""
 var entities = {}
@@ -89,13 +90,19 @@ func validate(snapshot: Dictionary, ability_definitions: Dictionary = {}) -> boo
 	return true
 
 
-static func hash_state(snapshot: Dictionary, values = null) -> String:
-	var comparable = snapshot.duplicate(true)
-	comparable.erase("camera")
+static func hash_state(snapshot: Dictionary, values = null, native = null) -> String:
+	if native == null:
+		native = Native.create_state_hasher()
+	if native != null:
+		var digest: String = native.hash_state(snapshot)
+		if not digest.is_empty():
+			if values != null:
+				values.error = ""
+			return digest
 	if values == null:
 		values = Values.new()
-	var encoded = values.encode(_canonical(comparable))
-	return Protocol.canonical_hash(encoded)
+	var encoded = values.encode_canonical(snapshot, "camera")
+	return Protocol.canonical_hash(encoded) if values.error.is_empty() else ""
 
 
 static func delta(previous: Dictionary, current: Dictionary) -> Dictionary:
@@ -144,21 +151,6 @@ static func _index(rows: Array) -> Dictionary:
 	for row in rows:
 		result[row.id] = row
 	return result
-
-
-static func _canonical(value):
-	if value is Dictionary:
-		# Dictionary dot assignment uses StringName keys; wire decoding uses
-		# String keys. Sort their text, so both representations hash identically.
-		var keys = value.keys().map(func(key): return str(key))
-		keys.sort()
-		var result = {}
-		for key in keys:
-			result[key] = _canonical(value[key])
-		return result
-	if value is Array:
-		return value.map(_canonical)
-	return value
 
 
 static func valid_delta(changes: Dictionary) -> bool:

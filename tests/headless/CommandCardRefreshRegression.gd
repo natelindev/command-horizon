@@ -22,6 +22,7 @@ func _run():
 	var card = load("res://source/match/hud/CommandCard.gd").new()
 	root.add_child(card)
 	var direct = _game.hud.direct_orders
+	_check_order_presence(direct, [worker, tank, drone])
 	_game.hud.select_units([first])
 	card.update_layout([first], direct)
 	var focused = card._slots[0][1]
@@ -162,6 +163,8 @@ func _run():
 	card.update_layout([drone], direct)
 	_check(not card.order_slot("attack").disabled, "Armed drone lacked attack controls")
 	_human.faction = "helix"
+	_check_order_presence(direct, [worker, drone])
+	_game.hud.select_units([drone])
 	card.update_layout([drone], direct)
 	_check(card.order_slot("attack").disabled, "Weapon eligibility remained cached")
 	card.order_slot("attack").pressed.emit()
@@ -170,9 +173,11 @@ func _run():
 	var movement = drone.get_node("Movement")
 	var speed = movement.speed
 	movement.speed = 0.0
+	_check_order_presence(direct, [drone])
 	card.update_layout([drone], direct)
 	_check(card.order_slot("move").disabled, "Immobilized unit retained move eligibility")
 	movement.speed = speed
+	_check_order_presence(direct, [drone])
 	card.update_layout([drone], direct)
 	_check(not card.order_slot("move").disabled, "Recovered mobility remained cached")
 	_game.hud.select_units([worker])
@@ -210,6 +215,7 @@ func _run():
 	removed.queue_free()
 	await _frames(2)
 	first.remove_from_group("controlled_units")
+	_check_order_presence(direct, [first, tank, headquarters])
 	first.stance = first.Stance.AGGRESSIVE
 	tank.stance = tank.Stance.AGGRESSIVE
 	card._on_stop()
@@ -231,3 +237,14 @@ func _run():
 		push_error(message)
 	print("Command card live refresh: %d failures" % _errors.size())
 	await root.get_node("Globals").quit_game(0 if _errors.is_empty() else 1)
+
+
+func _check_order_presence(direct, units):
+	_game.hud.select_units(units)
+	var state = direct.eligibility_state()
+	for command in direct.COMMANDS:
+		_check(
+			direct.has_eligible(command, state) == (not direct.eligible(command).is_empty()),
+			"HUD presence differs from live recipients for " + command
+		)
+	_check(not state.has("mobile"), "Button presence unnecessarily materialized the whole army")

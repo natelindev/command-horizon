@@ -577,6 +577,7 @@ static void global_pose_ptrcall(void *userdata, void *instance, const GDExtensio
 #include "combat_query.h"
 #include "battlefield_index.h"
 #include "presentation_batch.h"
+#include "state_hash.h"
 
 static GDExtensionObjectPtr create_instance(void *userdata, GDExtensionBool notify) {
     (void)userdata; (void)notify;
@@ -739,6 +740,7 @@ static void initialize(void *userdata, GDExtensionInitializationLevel level) {
     visibility_initialize();
     unit_state_initialize();
     presentation_initialize();
+    state_hash_initialize();
 }
 
 static void deinitialize(void *userdata, GDExtensionInitializationLevel level) {
@@ -814,6 +816,7 @@ EXPORT GDExtensionBool copperfin_library_init(GDExtensionInterfaceGetProcAddress
     if (!pose_rig_load(proc)) return 0;
     if (!crowd_load(proc)) return 0;
     if (!visibility_load(proc)) return 0;
+    if (!state_hash_load(proc)) return 0;
     init->minimum_initialization_level = GDEXTENSION_INITIALIZATION_SCENE;
     init->userdata = 0;
     init->initialize = initialize;

@@ -98,6 +98,13 @@ func availability_issue(id: String) -> String:
 	var ability = get_ability(id)
 	if ability == null or not unit_available():
 		return "No selected unit has that ability ready."
+	return available_ability_issue(ability)
+
+
+## A synchronous HUD scan can validate the unit once for all its abilities.
+## Execution still uses availability_issue/_target_for to revalidate live state.
+func available_ability_issue(ability: Ability) -> String:
+	var id = ability.id
 	if ability.cooldown_left > 0.0:
 		return "Ability is cooling down."
 	if id == "flux_resonance" and unit.energy < 25.0:

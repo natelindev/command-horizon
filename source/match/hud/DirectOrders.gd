@@ -342,23 +342,47 @@ func _commit_ability(point, target) -> bool:
 ## One synchronous HUD refresh may share this state. Action handlers always
 ## request a new state so selection, deaths and weapon changes are read live.
 func eligibility_state() -> Dictionary:
-	var mobile = get_tree().get_nodes_in_group("selected_units").filter(
-		func(unit):
-			return (
-				is_instance_valid(unit)
-				and not unit.is_queued_for_deletion()
-				and unit.is_in_group("controlled_units")
-				and unit.hp > 0
-				and unit.manual_orders != null
-				and unit.movement_speed > 0
-			)
+	return {"selected": get_tree().get_nodes_in_group("selected_units")}
+
+
+func _mobile_eligible(unit) -> bool:
+	return (
+		is_instance_valid(unit)
+		and not unit.is_queued_for_deletion()
+		and unit.is_in_group("controlled_units")
+		and unit.hp > 0
+		and unit.manual_orders != null
+		and unit.movement_speed > 0
 	)
-	return {"mobile": mobile}
+
+
+## Buttons need existence, not a complete army/order list. In particular, avoid
+## evaluating every selected unit's movement modifiers just to enable Move.
+func has_eligible(command, state: Dictionary = {}) -> bool:
+	if state.is_empty():
+		state = eligibility_state()
+	var combat = command not in ["move", "guard", "follow", "patrol"]
+	var key = "has_armed" if combat else "has_mobile"
+	if not state.has(key):
+		state[key] = false
+		for unit in state.selected:
+			if not _mobile_eligible(unit):
+				continue
+			if (
+				combat
+				and (unit.attack_range == null or (unit.has_method("armed") and not unit.armed()))
+			):
+				continue
+			state[key] = true
+			break
+	return state[key]
 
 
 func eligible(command, state: Dictionary = {}):
 	if state.is_empty():
 		state = eligibility_state()
+	if not state.has("mobile"):
+		state.mobile = state.selected.filter(_mobile_eligible)
 	var mobile = state.mobile
 	if command in ["move", "guard", "follow", "patrol"]:
 		return mobile
@@ -402,8 +426,18 @@ func arm(command):
 
 
 func cargo_return_state(eligibility: Dictionary = {}):
-	var workers = eligible("move", eligibility).filter(func(unit): return unit.type == "Worker")
-	var loaded = workers.filter(func(unit): return unit.resource_a + unit.resource_b > 0)
+	if eligibility.is_empty():
+		eligibility = eligibility_state()
+	var loaded = eligibility.selected.filter(
+		func(unit):
+			return (
+				is_instance_valid(unit)
+				and unit.is_in_group("controlled_units")
+				and unit.type == "Worker"
+				and unit.resource_a + unit.resource_b > 0
+				and _mobile_eligible(unit)
+			)
+	)
 	var orders = []
 	for worker in loaded:
 		var hq = Harvest._find_cc_closest_to_unit(worker)
@@ -457,7 +491,17 @@ func return_cargo(append = false):
 
 
 func recovery_state(eligibility: Dictionary = {}):
-	var wounded = eligible("move", eligibility).filter(func(unit): return unit.hp < unit.hp_max)
+	if eligibility.is_empty():
+		eligibility = eligibility_state()
+	var wounded = eligibility.selected.filter(
+		func(unit):
+			return (
+				is_instance_valid(unit)
+				and unit.is_in_group("controlled_units")
+				and unit.hp < unit.hp_max
+				and _mobile_eligible(unit)
+			)
+	)
 	var orders = []
 	var missing = {}
 	var services = {}

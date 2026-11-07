@@ -21,6 +21,12 @@ func _run():
 	var survivor = _units(human, "Worker")[1]
 	var survivor_id = frame.id_for(survivor)
 	var initial_hash = frame.hash_state(baseline)
+	var legacy = baseline.duplicate(true)
+	legacy.erase("camera")
+	_check(
+		initial_hash == protocol.canonical_hash(values.encode(_legacy_canonical(legacy))),
+		"Full captured match changed its pre-optimization checksum"
+	)
 	var view = baseline.duplicate(true)
 	view.camera.position += Vector3(3, 0, 0)
 	_check(frame.hash_state(view) == initial_hash, "View-only camera changed simulation hash")
@@ -123,3 +129,16 @@ func _worker_roundtrip(snapshot):
 	WorkerThreadPool.wait_for_task_completion(task)
 	_check(builder.result.has("error"), "Worker accepted malformed state")
 	session.free()
+
+
+func _legacy_canonical(value):
+	if value is Dictionary:
+		var keys = value.keys().map(func(key): return str(key))
+		keys.sort()
+		var result = {}
+		for key in keys:
+			result[key] = _legacy_canonical(value[key])
+		return result
+	if value is Array:
+		return value.map(_legacy_canonical)
+	return value

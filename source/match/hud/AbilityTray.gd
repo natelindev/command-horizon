@@ -245,23 +245,24 @@ func _gather_unit_abilities(hud_ref, entries: Array):
 		return
 	var candidates = hud_ref.direct_orders.ability_units()
 	var groups = {}
+	# ability_units validates each manager once for this synchronous pass.
 	for unit in candidates:
-		if not is_instance_valid(unit) or unit.abilities == null:
-			continue
-		for ability in unit.abilities.abilities:
+		var manager = unit.abilities
+		for ability in manager.abilities:
 			if not groups.has(ability.id):
 				groups[ability.id] = {
 					"ability": ability,
 					"units": [],
-					"issues": [],
+					"issue": "",
 					"ready": 0,
 					"active": false,
 					"cooldown": INF,
 				}
 			var group = groups[ability.id]
-			var issue = unit.abilities.availability_issue(ability.id)
+			var issue = manager.available_ability_issue(ability)
+			if group.units.is_empty():
+				group.issue = issue
 			group.units.append(unit)
-			group.issues.append(issue)
 			group.ready += int(issue.is_empty())
 			group.active = group.active or ability.is_active
 			group.cooldown = minf(group.cooldown, ability.cooldown_left)
@@ -269,7 +270,6 @@ func _gather_unit_abilities(hud_ref, entries: Array):
 		var group = groups[id]
 		var ability = group.ability
 		var units_with_ability = group.units
-		var issues = group.issues
 		var any_ready = group.ready > 0
 		var any_active = group.active
 		var min_cd = group.cooldown
@@ -348,7 +348,7 @@ func _gather_unit_abilities(hud_ref, entries: Array):
 				"is_active": any_active,
 				"active_status": active_status,
 				"is_ready": any_ready,
-				"issue": issues[0] if not issues.is_empty() else "",
+				"issue": group.issue,
 				"extra": extra_str,
 				"action": func(): hud_ref.direct_orders.activate_ability(ability.id)
 			}
