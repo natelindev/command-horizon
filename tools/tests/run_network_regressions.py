@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 import json
 import os
 from pathlib import Path
+import random
 import re
 import shutil
 import signal
@@ -25,6 +26,7 @@ CASES = {
     "disconnect": ("NetworkDisconnectRegression", ("host", "guest"), 70),
     "two-vs-two": ("Network2v2Regression", ("host", "guest1", "guest2"), 150),
     "dedicated": ("NetworkDedicatedRegression", ("server", "guest1", "guest2"), 150),
+    "rooms": ("NetworkRoomsRegression", ("server", "owner", "guest"), 150),
 }
 MARKERS = {
     "session": "Network session {role}: 0 failures",
@@ -36,6 +38,7 @@ MARKERS = {
     "group-replay": "Network group replay: 0 failures",
     "two-vs-two": "Network 2v2 {role}: 0 failures",
     "dedicated": "Network dedicated {role}: 0 failures",
+    "rooms": "Network rooms {role}: 0 failures",
 }
 MAX_LOG_BYTES = 16 * 1024 * 1024
 
@@ -72,7 +75,7 @@ def help_view():
         {"flag": "--main-pack PATH", "default": "none", "purpose": "Exported PCK instead of source project"},
         {"flag": "--runtime-dir PATH", "default": "project or pack directory", "purpose": "Runtime cwd containing matching external native support"},
         {"flag": "--output PATH", "default": "tmp/network-regressions", "purpose": "Parent for a new retained run directory"},
-        {"flag": "--case NAME", "default": "all", "purpose": "all, session, groups, outcome, terminal-drop, disconnect, two-vs-two or dedicated"},
+        {"flag": "--case NAME", "default": "all", "purpose": "all, session, groups, outcome, terminal-drop, disconnect, two-vs-two, dedicated or rooms"},
         {"flag": "--no-native", "default": "false", "purpose": "Explicit scripted fallback run"},
         {"flag": "--startup-timeout SECONDS", "default": "20", "purpose": "Host readiness deadline; range1..60"},
     ], ("flag", "default", "purpose"))
@@ -124,7 +127,23 @@ def read_log(path):
         return source.read(MAX_LOG_BYTES + 1).decode("utf-8", errors="replace")
 
 
-def free_port():
+def free_port(room_server=False):
+    if room_server:
+        # Keep the whole battle range below the ephemeral client ports.
+        for _ in range(100):
+            base = random.randint(16000, 30000)
+            probes = []
+            try:
+                for port in range(base, base + 5):
+                    probes.append(socket.socket(socket.AF_INET, socket.SOCK_DGRAM))
+                    probes[-1].bind(("127.0.0.1", port))
+                return base
+            except OSError:
+                continue
+            finally:
+                for probe in probes:
+                    probe.close()
+        raise OSError("No free UDP port range for the room server")
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as probe:
         probe.bind(("127.0.0.1", 0))
         return probe.getsockname()[1]
@@ -184,7 +203,7 @@ def spawn(args, directory, case, role, script, flags):
 def verify(case, entry, problem=""):
     content = read_log(entry["log"])
     # Session fixture uses the same client completion marker for spectators.
-    role = (entry["role"] if case in ("groups", "two-vs-two", "dedicated") else
+    role = (entry["role"] if case in ("groups", "two-vs-two", "dedicated", "rooms") else
             "host" if entry["role"] == "host" else "client" if case == "session" else "guest")
     marker = MARKERS[case].format(role=role)
     if not problem and entry["process"].returncode != 0:
@@ -201,11 +220,13 @@ def verify(case, entry, problem=""):
 
 def run_case(args, directory, case):
     script, roles, timeout = CASES[case]
-    port = free_port()
+    port = free_port(case == "rooms")
     shared = [f"--network-port={port}"]
     if case == "terminal-drop":
         shared.append("--terminal-drop-host")
     host_flags = shared + ["--network-host"]
+    if case == "rooms" and args.main_pack:
+        host_flags.append(f"--room-pack={args.main_pack}")
     if case in ("session", "groups"):
         host_flags += ["--network-expect-spectator"]
     entries = []

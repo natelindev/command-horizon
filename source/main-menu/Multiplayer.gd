@@ -11,6 +11,8 @@ var factions_container: Control
 var map_choice: OptionButton
 var status_label: Label
 var start_button: Button
+var direct_menu: VBoxContainer
+var room_browser
 
 var _faction_selectors = []
 var _ai_toggles = []
@@ -39,6 +41,7 @@ func _ready():
 	center.add_child(panel)
 
 	var box = VBoxContainer.new()
+	direct_menu = box
 	box.add_theme_constant_override("separation", 14)
 	panel.add_child(box)
 
@@ -96,6 +99,7 @@ func _ready():
 	_button(buttons, "Host", _host)
 	_button(buttons, "Join", _join.bind(false))
 	_button(buttons, "Spectate", _join.bind(true))
+	_button(buttons, "Server rooms", _browse_rooms)
 
 	status_label = Label.new()
 	status_label.name = "ConnectionStatus"
@@ -261,10 +265,46 @@ func _join(watch: bool):
 	_status()
 
 
+func _browse_rooms():
+	_clear_session()
+	room_browser = load("res://source/main-menu/RoomBrowser.gd").new()
+	direct_menu.hide()
+	direct_menu.get_parent().add_child(room_browser)
+	room_browser.back.connect(_close_browser)
+	room_browser.enter_battle.connect(_join_room)
+	room_browser.browse(host_address.text.strip_edges(), int(listen_port.value))
+	room_browser.title_input.grab_focus()
+
+
+func _join_room(port: int, ticket: String):
+	_new_session()
+	session.join(host_address.text, port, false, ticket)
+	_status()
+
+
+func _close_browser():
+	_clear_session()
+	room_browser.queue_free()
+	room_browser = null
+	direct_menu.show()
+	status_label.text = tr("Host a battle, or enter a host address to join.")
+	start_button.disabled = true
+	host_address.grab_focus()
+
+
+func _clear_session():
+	if is_instance_valid(session):
+		session.shutdown()
+		session.queue_free()
+		session = null
+
+
 func _status():
 	if not is_instance_valid(session):
 		return
 	status_label.text = tr(session.status)
+	if is_instance_valid(room_browser) and room_browser.handed_off:
+		room_browser.status.text = tr(session.status)
 	start_button.disabled = not session.is_ready_to_start()
 
 
@@ -274,7 +314,5 @@ func _start():
 
 
 func _back():
-	if is_instance_valid(session):
-		session.shutdown()
-		session.queue_free()
+	_clear_session()
 	get_tree().change_scene_to_file("res://source/main-menu/Main.tscn")

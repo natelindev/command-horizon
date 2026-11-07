@@ -49,6 +49,37 @@ sounds. A shared priority queue, cooldowns and duplicate suppression keep battle
 notifications from overlapping. Speech follows **Voice volume**; machine and UI
 sounds follow **Effects volume**.
 
+## Run a multiplayer room server
+
+From the project directory, start a persistent headless server with Godot 4.7.2:
+
+```sh
+godot --headless --path . -- --room-server --port=28761 --max-rooms=4
+```
+
+A desktop export accepts the same flags after its executable name, starting
+with `--headless`. If launching Godot with a separate `--main-pack` file, also
+pass `--room-pack=/absolute/path/to/game.pck` after `--` so each battle loads
+that pack.
+
+Players open **Multiplayer**, enter the server's address and port, then choose
+**Server rooms**. One player names a room and chooses **1v1 Duel** or **2v2 Teams**.
+Others select it and choose **Join room**. When all seats are filled, the room
+owner selects **Start battle**. Everyone in the room connects to its dedicated
+battle automatically. If the owner leaves before launch, the next player becomes
+the owner. Empty waiting rooms close automatically.
+
+Allow UDP **28761–28765** through the host firewall and forward that range when
+hosting behind NAT. The first port serves the directory. The following ports
+serve one battle each. `--max-rooms` counts waiting and active rooms together,
+defaults to four, and accepts 1–16. Each active match uses a separate headless
+game process. Finished matches release their port, and abandoned matches close
+after the reconnect window. The directory stays available for the next game.
+
+For a single preconfigured battle, use
+`godot --headless --path . -- --dedicated-server --mode=1v1 --port=28761`
+and connect using **Multiplayer → Join**.
+
 ## Play skirmish
 
 Run `project.godot` in **Godot 4.7.2** and choose **SKIRMISH**, or double-click [`play-skirmish.command`](play-skirmish.command) on this Mac.

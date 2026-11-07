@@ -14,6 +14,9 @@ var timeout_seconds: float = 0.0
 var _elapsed_time: float = 0.0
 var _started: bool = false
 var _finished: bool = false
+var _room_key = ""
+var _room_lobby = 0
+var _empty_since = 0
 
 
 func _ready():
@@ -30,6 +33,10 @@ func _parse_arguments():
 			port = int(arg.trim_prefix("--port="))
 		elif arg.begins_with("--mode="):
 			mode = arg.trim_prefix("--mode=").to_lower()
+		elif arg.begins_with("--room-lobby="):
+			_room_lobby = int(arg.trim_prefix("--room-lobby="))
+		elif arg.begins_with("--room-key="):
+			_room_key = arg.trim_prefix("--room-key=")
 		elif arg.begins_with("--map="):
 			map_path = arg.trim_prefix("--map=")
 		elif arg.begins_with("--timeout="):
@@ -104,6 +111,8 @@ func _start_hosting():
 			side.set_meta("ai_commander", true)
 		settings.players.append(side)
 
+	if not _room_key.is_empty():
+		session.reserve_room_slots(_room_key, total_players)
 	if not session.host(settings, port, true):
 		push_error("[DEDICATED SERVER] Failed to host on port %d: %s" % [port, session.error])
 		get_tree().quit(1)
@@ -112,6 +121,23 @@ func _start_hosting():
 	print("[DEDICATED SERVER] Dedicated server listening on UDP port %d" % port)
 	print("[DEDICATED SERVER] Mode: %s · Map: %s" % [mode, map_path])
 	print("[DEDICATED SERVER] Slots: %d commanders (AI slots: %s)" % [total_players, str(ai_slots)])
+	if not _room_key.is_empty():
+		var link = load("res://source/match/network/RoomLink.gd").new()
+		add_child(link)
+		link.connected.connect(
+			func():
+				link.peer.get_peer(1).set_timeout(32, 60000, 120000)
+				link.send(1, {"type": "worker", "key": _room_key})
+		)
+		link.lost.connect(_directory_lost)
+		if not link.dial("127.0.0.1", _room_lobby):
+			get_tree().quit(1)
+
+
+func _directory_lost():
+	print("[DEDICATED SERVER] Room directory disconnected.")
+	session.shutdown()
+	get_tree().quit()
 
 
 func _on_session_changed():
@@ -137,6 +163,15 @@ func _launch_battle():
 
 func _process(delta):
 	_elapsed_time += delta
+	if not _room_key.is_empty() and _started and not _finished and session.peers.is_empty():
+		if _empty_since == 0:
+			_empty_since = Time.get_ticks_msec()
+		elif Time.get_ticks_msec() - _empty_since > Session.RECONNECT_SECONDS * 1000:
+			session.shutdown()
+			get_tree().quit()
+			return
+	else:
+		_empty_since = 0
 	if not _started and timeout_seconds > 0.0 and _elapsed_time > timeout_seconds:
 		print(
 			"[DEDICATED SERVER] Connection timeout reached (%ds). Exiting." % int(timeout_seconds)
@@ -162,7 +197,8 @@ func _process(delta):
 
 
 func _shutdown_after_drain():
-	for _frame in 60:
+	var deadline = Time.get_ticks_msec() + 15000
+	while Time.get_ticks_msec() < deadline and not session.terminal_delivered():
 		await get_tree().process_frame
 	if is_instance_valid(session):
 		session.shutdown()

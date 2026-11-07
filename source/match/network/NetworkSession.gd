@@ -43,6 +43,8 @@ var desyncs = 0
 var peers = {}
 var terminal_receipts = {}
 var terminal_confirmed = false
+var _room_ticket = ""
+var _room_only = false
 var _view_hash = ""
 var _tokens = {}
 var _last_state = {}
@@ -99,6 +101,18 @@ func _ready():
 	router.session = self
 
 
+static func room_ticket(key: String, slot: int) -> String:
+	return ("%s/%d" % [key, slot]).sha256_text()
+
+
+func reserve_room_slots(key: String, count: int):
+	_room_only = true
+	for slot in count:
+		_tokens[room_ticket(key, slot)] = {
+			"slot": slot, "peer": 0, "until": Time.get_ticks_msec() + 90000, "expired": false
+		}
+
+
 func host(match_settings, listen_port: int = PORT, dedicated: bool = false) -> bool:
 	if listen_port < 1024 or listen_port > 65535:
 		return _fail("Choose a port from 1024 to 65535.")
@@ -120,7 +134,9 @@ func host(match_settings, listen_port: int = PORT, dedicated: bool = false) -> b
 	return true
 
 
-func join(host_address: String, listen_port: int = PORT, watch: bool = false) -> bool:
+func join(
+	host_address: String, listen_port: int = PORT, watch: bool = false, ticket: String = ""
+) -> bool:
 	if (
 		host_address.length() > 253
 		or host_address.strip_edges().is_empty()
@@ -134,6 +150,7 @@ func join(host_address: String, listen_port: int = PORT, watch: bool = false) ->
 	address = host_address.strip_edges()
 	port = listen_port
 	spectator = watch
+	_room_ticket = ticket
 	peer = ENetMultiplayerPeer.new()
 	if peer.create_client(address, port, 3) != OK:
 		return _fail("Could not connect to this host.")
@@ -179,7 +196,7 @@ func _process(delta):
 				"type": "hello",
 				"version": Protocol.VERSION,
 				"spectator": spectator,
-				"token": reconnect_token
+				"token": reconnect_token if not reconnect_token.is_empty() else _room_ticket
 			}
 		)
 		_hello_sent = true
@@ -399,6 +416,9 @@ func _hello(sender: int, packet: Dictionary):
 		return
 	var token = packet.token
 	var slot = -1
+	if _room_only and token.is_empty():
+		_reject(sender, "Join this battle through its server room.")
+		return
 	if not token.is_empty():
 		if not _tokens.has(token) or _tokens[token].expired or _tokens[token].peer != 0:
 			_reject(sender, "Reconnect token is unavailable.")
@@ -920,6 +940,12 @@ func _terminal_waiting() -> bool:
 		# simultaneous result-view exits. The drain still has a hard deadline.
 		return _finished_sent and is_instance_valid(game) and game.finished and not peers.is_empty()
 	return not _terminal_ack.is_empty() and not terminal_confirmed
+
+
+func terminal_delivered() -> bool:
+	return (
+		_finished_sent and peers.values().all(func(entry): return entry.get("terminal_ack", false))
+	)
 
 
 func _drain_terminal():

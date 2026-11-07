@@ -85,17 +85,8 @@ func _ready():
 	credits.custom_minimum_size.y = 32
 	skirmish.grab_focus()
 	var user_args = OS.get_cmdline_user_args()
-	if "--dedicated-server" in user_args or "--server" in user_args:
-		_start_dedicated_server.call_deferred()
-		return
 	if DisplayServer.get_name() == "headless" and "--headless-startup-smoke" in user_args:
 		_finish_headless_smoke.call_deferred()
-
-
-func _start_dedicated_server():
-	var server = load("res://source/match/network/DedicatedServer.gd").new()
-	server.name = "DedicatedServer"
-	get_tree().root.add_child(server)
 
 
 func _finish_headless_smoke():
