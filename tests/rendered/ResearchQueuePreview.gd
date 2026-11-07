@@ -70,24 +70,28 @@ func _queue_interface(faction, language):
 	human.resource_b = 1000
 	panel.refresh()
 	var funds = Vector2i(human.resource_a, human.resource_b)
-	for button in [
-		panel._branches.weapons.button,
-		panel._start,
-		panel._branches.weapons.button,
-		panel._branches.armor.button,
-		panel._branches.armor.button,
-		panel._branches.service.button,
-		panel._branches.doctrine.button,
-		panel._branches.dual_purpose_aa.button,
-	]:
-		await _activate(button)
-	_check(human.technology.active == "weapons_1", "Queue changed its active project")
-	_check(panel._queue_rows.size() == 7, "Full paid queue is not visible")
+	var catalog = load("res://source/match/research/TechnologyCatalog.gd")
+	var branches = catalog.FACTION_TECHNOLOGIES[faction]
+	var pair = catalog.EXCLUSIVE_PAIRS[catalog.FACTION_TECHNOLOGIES.keys().find(faction)]
+	var queued_ids = branches.filter(func(id): return id != pair[1])
+	var spent = catalog.cost("coordination")
+	await _activate(panel._start)
+	for id in queued_ids:
+		await _activate(panel._branches[id].button)
+		spent += catalog.cost(id)
 	_check(
-		Vector2i(human.resource_a, human.resource_b) == funds - Vector2i(320, 215),
+		human.coordination_left > 0 and human.technology.active == "", "Coordination lost its slot"
+	)
+	_check(panel._queue_rows.size() == queued_ids.size(), "Full paid queue is not visible")
+	_check(
+		human.technology.queued.map(func(entry): return entry.id) == queued_ids,
+		"FIFO order differs"
+	)
+	_check(
+		Vector2i(human.resource_a, human.resource_b) == funds - spent,
 		"Keyboard queue purchase charged wrong prices"
 	)
-	if panel._queue_rows.size() != 7:
+	if panel._queue_rows.size() != queued_ids.size():
 		return
 	for row in panel._queue_rows:
 		_check(
@@ -118,7 +122,11 @@ func _queue_interface(faction, language):
 	hud.research_status.refresh()
 	var status = str(TranslationServer.translate(hud.research_status._button.text))
 	_check(
-		"7项排队中" in status if language == "zh_CN" else "7 queued" in status,
+		(
+			(str(queued_ids.size()) + "项排队中") in status
+			if language == "zh_CN"
+			else (str(queued_ids.size()) + " queued") in status
+		),
 		"Queue count did not follow the selected language: " + status
 	)
 	await _select([lab])
@@ -126,42 +134,60 @@ func _queue_interface(faction, language):
 	var lab_panel = menus._research_panel
 	_check(is_instance_valid(lab_panel), "Selected lab omitted research queue")
 	if is_instance_valid(lab_panel):
-		_check(lab_panel._queue_rows.size() == 7, "Bottom research queue omits paid projects")
+		_check(
+			lab_panel._queue_rows.size() == queued_ids.size(),
+			"Bottom research queue omits paid projects"
+		)
 		_check(
 			menus._command_bay.get_global_rect().encloses(lab_panel.get_global_rect()),
 			"Selected lab research does not fit in the console"
 		)
 		await _shot(label + "-lab")
 	panel = lab_panel
+	# A cancelled reservation releases the rival immediately, before any completion.
+	await _activate(panel._queue_rows[-1].cancel)
+	_check(
+		not panel._branches[pair[1]].button.disabled, "Cancelled doctrine kept its rival reserved"
+	)
+	await _activate(panel._branches[pair[0]].button)
+	# An independent cancellation removes only its own prepaid project.
+	await _activate(panel._queue_rows[0].cancel)
+	spent -= catalog.cost(queued_ids[0])
+	_check(
+		human.technology.queued.map(func(entry): return entry.id) == queued_ids.slice(1),
+		"Independent cancellation changed FIFO order"
+	)
+	_check(Vector2i(human.resource_a, human.resource_b) == funds - spent, "Queued refund differs")
+	_check(
+		root.gui_get_focus_owner() == panel._queue_rows[0].cancel, "Queue cancellation lost focus"
+	)
+	_overlay_inside(hud, panel._queue_rows[0].cancel, label)
+	# Coordination is the actual shared prerequisite in the current catalog.
+	await _activate(panel._cancel)
+	_check(
+		human.coordination_left == -1 and human.technology.queued.is_empty(),
+		"Cascade retained dependencies"
+	)
+	_check(Vector2i(human.resource_a, human.resource_b) == funds, "Prerequisite refunds differ")
+	await _shot(label + "-cascade")
+	human.coordination_unlocked = true
+	panel.refresh()
+	await _activate(panel._branches[branches[0]].button)
+	await _activate(panel._branches[branches[1]].button)
+	await _activate(panel._branches[pair[0]].button)
+	await _activate(panel._cancel)
+	_check(
+		human.technology.active == branches[1] and human.technology.queued[0].id == pair[0],
+		"Active cancellation failed to advance independent work"
+	)
 	await _activate(panel._queue_rows[0].cancel)
 	_check(
-		(
-			human.technology.queued.map(func(entry): return entry.id)
-			== ["armor_1", "service", "dual_purpose_aa"]
-		),
-		"Keyboard prerequisite cancellation did not cascade in order"
+		not panel._branches[pair[1]].button.disabled, "Queued doctrine refund did not release rival"
 	)
-	_check(
-		Vector2i(human.resource_a, human.resource_b) == funds - Vector2i(135, 90),
-		"Keyboard cascade lost prepaid resources"
-	)
-	_check(root.gui_get_focus_owner() == panel._queue_rows[0].cancel, "Cascade lost focus")
-	_overlay_inside(hud, panel._queue_rows[0].cancel, label)
-	await _shot(label + "-cascade")
-	await _activate(panel._cancel)
-	_check(
-		(
-			human.technology.active == "armor_1"
-			and human.technology.queued.map(func(entry): return entry.id) == ["service"]
-		),
-		"Active keyboard cancellation did not preserve independent queued work"
-	)
-	await _activate(panel._cancel)
-	_check(human.technology.active == "service", "Independent queue did not advance")
 	await _activate(panel._cancel)
 	_check(
 		human.technology.active == "" and human.technology.queued.is_empty(),
-		"Keyboard cancellation retained work"
+		"Cancellation retained work"
 	)
 	_check(
 		Vector2i(human.resource_a, human.resource_b) == funds, "GUI refunds did not conserve funds"

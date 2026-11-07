@@ -1,5 +1,7 @@
 extends VBoxContainer
 
+const Presentation = preload("res://source/match/hud/ResearchPresentation.gd")
+const BattleTheme = preload("res://source/match/hud/BattleTheme.gd")
 const Technologies = preload("res://source/match/research/TechnologyCatalog.gd")
 var hud
 var _button
@@ -17,9 +19,14 @@ func _ready():
 	_button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 	_button.custom_minimum_size.y = 28
 	_button.add_theme_font_size_override("font_size", 12)
+	_button.add_theme_constant_override("icon_max_width", 20)
+	_button.expand_icon = true
+	_button.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	_button.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	_progress = ProgressBar.new()
 	_progress.custom_minimum_size.y = 6
 	_progress.show_percentage = false
+	_progress.add_theme_stylebox_override("fill", BattleTheme.bar_fill(BattleTheme.accent()))
 	_progress.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_progress)
 	get_node("/root/MatchSignals").research_completed.connect(_completed)
@@ -41,7 +48,7 @@ func refresh():
 	var active = player.technology.active
 	var running = active != "" or player.coordination_left > 0
 	if running:
-		_project(active)
+		_project()
 		var queued = player.technology.queued
 		if not queued.is_empty():
 			_button.text += tr(" · %d queued") % queued.size()
@@ -68,40 +75,16 @@ func _sync_visibility():
 	)
 
 
-func _project(active):
-	var title = Technologies.title(active, player.faction)
-	var remaining = player.technology.left if active != "" else player.coordination_left
-	var duration = (
-		Technologies.ITEMS[active].seconds if active != "" else player.COORDINATION_DURATION
-	)
-	_progress.value = 100.0 * (1.0 - remaining / duration)
-	if not player.has_completed_structure("CommandLab"):
-		_button.text = title + " · rebuild lab"
-		_button.tooltip_text = (
-			(
-				"%s is paused until a friendly lab completes. The project is already paid for. "
-				+ "Open Tech to review it or cancel for a refund."
-			)
-			% title
-		)
-		return
-	var factor = player.research_factor()
-	var low_power = factor < 1.0
-	var seconds = ceili(remaining / factor)
-	var state = " · paused" if get_tree().paused else (" · low power" if low_power else "")
-	_button.text = "%s · %d s%s" % [title, seconds, state]
-	_button.tooltip_text = (
-		"%s: about %d seconds remaining at current power.%s%s Open Tech to review research."
-		% [
-			title,
-			seconds,
-			(tr(" Research rate: %d%%.") % roundi(factor * 100)) if low_power else "",
-			" Resume battle to continue." if get_tree().paused else ""
-		]
-	)
+func _project():
+	var project = Presentation.project(player, get_tree().paused)
+	_button.icon = Presentation.icon_for(project.id)
+	_progress.value = project.progress
+	_button.text = project.summary
+	_button.tooltip_text = project.detail + "\n" + tr("Open Tech to review research.")
 
 
 func _choices():
+	_button.icon = null
 	_button.text = ""
 	_button.tooltip_text = ""
 	var labs = player.get_children().filter(
@@ -118,21 +101,31 @@ func _choices():
 		return
 	var choices = PackedStringArray()
 	if not player.coordination_unlocked and player.has_resources(player.COORDINATION_COST):
-		choices.append("Coordination · 20 M / 20 E")
+		choices.append(tr("Coordination · 20 M / 20 E"))
 	for branch in Technologies.BRANCHES:
 		var id = Technologies.next_in_branch(branch, player.technology.completed)
 		if id != "" and player.technology.reason(id, labs[0]) == "":
 			var cost = Technologies.ITEMS[id].cost
 			choices.append(
-				"%s · %d M / %d E" % [Technologies.title(id, player.faction), cost.x, cost.y]
+				(
+					tr("%s · %d M / %d E")
+					% [tr(Technologies.title(id, player.faction)), cost.x, cost.y]
+				)
 			)
 	if choices.is_empty():
 		return
 	_button.text = (
-		"Research available · %d choice%s" % [choices.size(), "" if choices.size() == 1 else "s"]
+		(
+			tr("Research available · %d choice")
+			if choices.size() == 1
+			else tr("Research available · %d choices")
+		)
+		% choices.size()
 	)
 	_button.tooltip_text = (
-		"Open Tech to choose research. Each project is paid separately.\n" + "\n".join(choices)
+		tr("Open Tech to choose research. Each project is paid separately.")
+		+ "\n"
+		+ "\n".join(choices)
 	)
 
 

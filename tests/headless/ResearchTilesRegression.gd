@@ -11,6 +11,7 @@ func _run():
 	factions = load("res://source/match/FactionCatalog.gd")
 	for faction in factions.IDS:
 		await _fixture(faction)
+		await _standalone_health()
 		paused = true
 		var lab = _units(human, "CommandLab")[0]
 		root.get_node("MatchSignals").deselect_all_units.emit()
@@ -34,6 +35,33 @@ func _run():
 		push_error(message)
 	print("Research tiles: %d failures over %d cases" % [errors.size(), _cases])
 	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
+
+
+func _standalone_health():
+	var tank = _units(human, "Tank")[0]
+	var menus = game.find_child("UnitMenus")
+	root.get_node("MatchSignals").deselect_all_units.emit()
+	tank.get_node("Selection").select()
+	await _frames(5)
+	var original_hp = tank.hp
+	for pause_state in [false, true]:
+		paused = pause_state
+		game.hud.open_technology()
+		await _frames(5)
+		_check(not menus._health.visible, "Standalone Technology shows selection health")
+		_check(not menus._shields.visible, "Standalone Technology shows selection shields")
+		tank.hp = original_hp - 1
+		menus._queue_health_refresh()
+		await _frames(3)
+		_check(not menus._health.visible, "Health refresh leaked into Technology")
+		_check(not menus._shields.visible, "Shield refresh leaked into Technology")
+		_check(tank in get_nodes_in_group("selected_units"), "Technology cleared selection")
+		game.hud._close_menu()
+		await _frames(5)
+		_check(paused == pause_state, "Technology changed tactical pause")
+		_check(menus._health.visible and menus._health.value == tank.hp, "Health did not return")
+		_check(menus._shields.visible == (tank.shields_max > 0), "Shields did not return")
+		tank.hp = original_hp
 
 
 func _exercise(panel, overlay):
@@ -84,6 +112,8 @@ func _exercise(panel, overlay):
 		choice.disabled and choice.tooltip_text.contains("Requires Coordination"),
 		"Faction branch bypassed Coordination"
 	)
+	_check(choice.research_state == "locked", "Missing prerequisite has no distinct state")
+	_check(panel._start._marker.text == "Core", "Coordination has no gateway cue")
 	var funds = Vector2i(human.resource_a, human.resource_b)
 	panel._start.pressed.emit()
 	_check(human.coordination_left > 0.0, "Coordination tile did not start")
@@ -103,9 +133,21 @@ func _exercise(panel, overlay):
 		"Doctrine reservation lacks queue controls or exclusion"
 	)
 	_check(
-		panel._branches[pair[1]].button.tooltip_text.contains("Permanently excluded"),
+		panel._branches[pair[1]].button.tooltip_text.contains("Reserved by"),
 		"Excluded doctrine lacks explanation"
 	)
+	_check(
+		panel._branches[pair[1]].button.research_state == "reserved", "Reservation looks permanent"
+	)
+	_check(choice._marker.text == "Q1", "Queued choice lacks its FIFO position")
+	_check(
+		panel._queue_rows[1].cancel._marker.text == "Q2", "Queue position disagrees with choices"
+	)
+	var focused = panel._queue_rows[1].cancel
+	focused.grab_focus()
+	panel._queue_rows[0].cancel.pressed.emit()
+	_check(root.gui_get_focus_owner() == focused, "Earlier cancellation stole project focus")
+	_check(focused._marker.text == "Q1", "Surviving project position did not update")
 	# Fill the remaining legal projects, exercising the widest paid queue while
 	# retaining the opposing-doctrine exclusion.
 	for id in branches:
@@ -119,6 +161,21 @@ func _exercise(panel, overlay):
 		_check(
 			panel.get_global_rect().encloses(queued.row.get_global_rect()),
 			"Full paid queue escapes research panel"
+		)
+	_check(
+		panel._active_title.is_visible_in_tree() and panel._status.is_visible_in_tree(),
+		"Active details hidden"
+	)
+	_check("Paused" in panel._status.text, "Paused research has no visible pause state")
+	for tile in panel._grid.get_children():
+		for part in [tile._marker, tile._title, tile._materials, tile._electronics]:
+			_check(
+				tile.get_global_rect().grow(.5).encloses(part.get_global_rect()),
+				"Tile content escapes its card"
+			)
+		_check(
+			not tile._marker.get_global_rect().intersects(tile._title.get_global_rect()),
+			"State covers title"
 		)
 	if not overlay:
 		var height = game.find_child("UnitMenus").get_global_rect().size.y
@@ -139,6 +196,29 @@ func _exercise(panel, overlay):
 	_check(
 		Vector2i(human.resource_a, human.resource_b) == funds - item.cost,
 		"Faction branch charged the wrong price"
+	)
+	research.left = item.seconds * .5
+	panel.refresh()
+	var previous_boosts = human.production_boosts.duplicate()
+	human.production_boosts.append({"target": weakref(panel.lab), "left": 10.0})
+	panel.refresh()
+	_check(
+		(
+			panel._project.seconds == ceili(item.seconds * .5 / 1.5)
+			and panel._progress.value == 50
+			and panel._project.detail.contains("150%")
+		),
+		"Boosted research ETA or progress is incorrect"
+	)
+	human.production_boosts = previous_boosts
+	panel.refresh()
+	game.hud.research_status.refresh()
+	_check(panel._progress.value == 50, "Footer progress is not research completion")
+	_check(choice._research_progress.value == 50, "Active tile progress disagrees with footer")
+	_check(panel._active_title.text == catalog.title(branch, human.faction), "Active title missing")
+	_check(
+		panel._status.text in game.hud.research_status._button.text,
+		"Top and footer states disagree"
 	)
 	_check(
 		(
@@ -170,6 +250,17 @@ func _exercise(panel, overlay):
 	_check(
 		choice._materials.is_visible_in_tree() and choice._electronics.is_visible_in_tree(),
 		"Completed branch hides its authored price"
+	)
+	research.completed.clear()
+	research.completed.append(pair[0])
+	panel.refresh()
+	_check(
+		panel._branches[pair[1]].button.research_state == "excluded",
+		"Completed doctrine looks reversible"
+	)
+	_check(
+		panel._branches[pair[1]].button.tooltip_text.contains("Permanently excluded"),
+		"Permanent exclusion unexplained"
 	)
 	research.completed.clear()
 	human.resource_a = 0

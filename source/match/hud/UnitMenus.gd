@@ -558,6 +558,11 @@ func _refresh_health():
 	_health_dirty = false
 	if not is_instance_valid(_health):
 		return
+	# Tech retains the army selection, but its identity is not a selected unit.
+	if is_instance_valid(_research_player):
+		_health.hide()
+		_shields.hide()
+		return
 	var hp = 0.0
 	var hp_max = 0.0
 	var shields = 0.0
@@ -1367,9 +1372,10 @@ func _build_research():
 	modulate.a = 1.0
 	_title = Label.new()
 	_title.text = tr("Technology")
-	_build_info(BattleTheme.icon("tech"))
+	_build_info(_research_script.Presentation.icon_for("coordination"))
 	_health.hide()
-	_status.hide()
+	_status.text = tr(Factions.NAMES[_research_player.faction])
+	_status.show()
 	var back = Button.new()
 	back.icon = BattleTheme.icon("return")
 	back.add_theme_constant_override("icon_max_width", 18)

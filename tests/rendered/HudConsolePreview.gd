@@ -6,6 +6,7 @@ extends "res://tests/headless/SaveRestoreEdges.gd"
 # alerts beacon, pause menu and technology; eight-player and true spectator
 # resource rosters at 720p with large UI, including both scroll endpoints.
 # Run without --headless: Godot --path . --script tests/rendered/HudConsolePreview.gd
+# Use -- --research for the all-faction, bilingual 720p/1080p/4K research matrix.
 # Use -- --console-only to skip the independent eight-player resource matrix.
 # Use -- --rosters [bastion helix frontier] for only the eight-player matrix.
 # Use -- --elimination [bastion helix frontier] for commander status and announcement review.
@@ -72,14 +73,17 @@ func _run():
 	var logger = RenderErrorLog.new()
 	OS.add_logger(logger)
 	var console_cases = 0
-	for setup in [
+	var setups = [
 		["bastion", "battlefields/DesertFrontierMap", Vector2i(1280, 720), 1.5, "720p", "en"],
 		["helix", "battlefields/AlpineRelayMap", Vector2i(1920, 1080), 1.0, "1080p", "en"],
 		["frontier", "CoastalFoundry", Vector2i(1280, 720), 1.5, "720p", "en"],
 		["bastion", "battlefields/DesertFrontierMap", Vector2i(1280, 720), 1.5, "720p-zh", "zh_CN"],
 		["helix", "battlefields/AlpineRelayMap", Vector2i(1920, 1080), 1.0, "1080p-zh", "zh_CN"],
 		["frontier", "CoastalFoundry", Vector2i(1280, 720), 1.5, "720p-zh", "zh_CN"],
-	]:
+	]
+	if _research_only:
+		setups = _research_setups()
+	for setup in setups:
 		if rosters_only or (not factions.is_empty() and setup[0] not in factions):
 			continue
 		if elimination_only:
@@ -93,8 +97,15 @@ func _run():
 			await _configure(preferences, setup[2], setup[3], setup[5])
 			await _battle(setup[0], setup[1], setup[4])
 			console_cases += 1
+			if _research_only:
+				print("RESEARCH REVIEW ", setup[0], " ", setup[4], " failures=", errors.size())
 	if not rosters_only and not elimination_only:
 		_check(console_cases > 0, "No faction console review cases completed")
+		if _research_only:
+			_check(
+				console_cases == (24 if factions.is_empty() else factions.size() * 8),
+				"Research matrix did not complete"
+			)
 	var expected_rosters = 0
 	if (
 		rosters_only
@@ -128,6 +139,34 @@ func _run():
 		push_error(message)
 	print("HUD console preview: %d failures" % errors.size())
 	quit(0 if errors.is_empty() else 1)
+
+
+func _research_setups():
+	var setups = []
+	var maps = {
+		"bastion": "battlefields/DesertFrontierMap",
+		"helix": "battlefields/AlpineRelayMap",
+		"frontier": "CoastalFoundry"
+	}
+	for faction in maps:
+		for geometry in [
+			[Vector2i(1280, 720), 1.5, "720p-150"],
+			[Vector2i(1920, 1080), 1.0, "1080p-100"],
+			[Vector2i(3840, 2160), 1.0, "4k-100"],
+			[Vector2i(3840, 2160), 1.5, "4k-150"],
+		]:
+			for language in ["en", "zh_CN"]:
+				setups.append(
+					[
+						faction,
+						maps[faction],
+						geometry[0],
+						geometry[1],
+						geometry[2] + "-" + language,
+						language
+					]
+				)
+	return setups
 
 
 func _elimination_review(faction, language):
@@ -243,7 +282,7 @@ func _configure(preferences, resolution, scale_value, language):
 	root.content_scale_size = Vector2i(1920, 1080)
 	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
 	_capture_resolution = resolution
-	await _frames(2)
+	await _settle_capture_size()
 	_check(root.size == resolution, "HUD review did not adopt its requested resolution")
 
 
@@ -518,19 +557,13 @@ func _review_research(human, label):
 	)
 	for id in catalog.FACTION_TECHNOLOGIES[human.faction]:
 		_check(research.ICONS.has(id), "Research branch has no authored icon: " + id)
-	var motion = InputEventMouseMotion.new()
-	motion.position = root.get_final_transform() * research_tile.get_global_rect().get_center()
-	motion.global_position = motion.position
-	root.push_input(motion, false)
+	_move_review_pointer(research_tile.get_global_rect().get_center())
 	await create_timer(.9, true).timeout
 	_check(
 		_research_tooltip(root, research_tile.tooltip_text) != null, "Research hover has no tooltip"
 	)
 	await _shot(label + "-research-tooltip")
-	motion = InputEventMouseMotion.new()
-	motion.position = Vector2(640, 350)
-	motion.global_position = motion.position
-	root.push_input(motion, false)
+	_move_review_pointer(Vector2(640, 350))
 	game.hud.open_technology()
 	await _frames(20)
 	await _shot(label + "-technology")
@@ -564,7 +597,10 @@ func _review_research(human, label):
 		(
 			research._branches[pair[1]].button.disabled
 			and research._branches[pair[1]].button.tooltip_text.contains(
-				tr(human.technology.queue_reason(pair[1], research.lab))
+				(
+					tr("Reserved by %s. Cancel that project to choose this doctrine.")
+					% tr(catalog.title(pair[0], human.faction))
+				)
 			)
 		),
 		"Queued doctrine did not explain its exclusion"
@@ -578,9 +614,115 @@ func _review_research(human, label):
 	_check(human.technology.queued.is_empty(), "Queued doctrine cancellation failed")
 	research._cancel.pressed.emit()
 	_check(Vector2i(human.resource_a, human.resource_b) == funds, "Research refund differs")
+	if _research_only:
+		await _review_research_states(human, label, catalog)
 	if human.faction == "helix":
 		await _review_plasma_shields(human, label)
 	paused = was_paused
+
+
+func _review_research_states(human, label, catalog):
+	var branches = catalog.FACTION_TECHNOLOGIES[human.faction]
+	var pair = catalog.EXCLUSIVE_PAIRS[catalog.FACTION_TECHNOLOGIES.keys().find(human.faction)]
+	var menus = game.find_child("UnitMenus")
+	var panel = menus._research_panel
+	var lab = panel.lab
+	human.coordination_unlocked = false
+	panel.refresh()
+	panel._start.pressed.emit()
+	for id in branches:
+		if id != pair[1]:
+			panel._branches[id].button.pressed.emit()
+	human.coordination_left = 18.0
+	panel.refresh()
+	await _frames(5)
+	await _frames(8)
+	_research_geometry(panel)
+	await _shot(label + "-research-full-lab")
+	game.hud.open_technology()
+	await _frames(5)
+	panel = game.hud.technology_panel
+	await _frames(8)
+	_research_geometry(panel)
+	_check(
+		not menus._health.visible and not menus._shields.visible, "Technology leaked selection bars"
+	)
+	await _shot(label + "-research-full-standalone")
+	paused = false
+	panel.refresh()
+	game.hud.research_status.refresh()
+	await _shot(label + "-research-running")
+	var sources = _units(human, "PowerPlant") + _units(human, "CommandCenter")
+	for source in sources:
+		source.mark_as_under_construction()
+	panel.refresh()
+	game.hud.research_status.refresh()
+	await _frames(8)
+	_research_geometry(panel)
+	await _shot(label + "-research-low-power")
+	paused = true
+	for source in sources:
+		source.construct(1.0)
+	lab.mark_as_under_construction()
+	panel.refresh()
+	game.hud.research_status.refresh()
+	await _frames(8)
+	_research_geometry(panel)
+	await _shot(label + "-research-rebuild-lab")
+	lab.construct(1.0)
+	panel.refresh()
+	await _shot(label + "-research-resumed")
+	panel._cancel.pressed.emit()
+	human.coordination_unlocked = true
+	human.technology.completed.append(pair[0])
+	panel.refresh()
+	await _frames(3)
+	await _frames(8)
+	_research_geometry(panel)
+	await _shot(label + "-research-completed-doctrine")
+	game.hud._close_menu()
+	await _frames(5)
+	await _shot(label + "-research-completed-lab")
+	human.technology.completed.clear()
+	var funds = human.resource_a
+	human.resource_a = 0
+	menus._research_panel.refresh()
+	await _shot(label + "-research-unaffordable")
+	human.resource_a = funds
+
+
+func _research_geometry(panel):
+	var menus = game.find_child("UnitMenus")
+	_check(menus.size.y <= HudLayout.CONSOLE_HEIGHT + .5, "Research exceeds console height")
+	_check(
+		menus._command_bay.get_global_rect().grow(.5).encloses(panel.get_global_rect()),
+		"Research exceeds command bay"
+	)
+	for tile in panel._grid.get_children():
+		_check(
+			panel.get_global_rect().grow(.5).encloses(tile.get_global_rect()),
+			"Research tile escapes panel"
+		)
+		for part in [tile._marker, tile._title, tile._materials, tile._electronics]:
+			_check(
+				tile.get_global_rect().grow(.5).encloses(part.get_global_rect()),
+				"Research tile content is clipped"
+			)
+		_check(
+			not tile._marker.get_global_rect().intersects(tile._title.get_global_rect()),
+			"State overlaps title"
+		)
+	for row in panel._queue_rows:
+		_check(
+			panel.get_global_rect().grow(.5).encloses(row.row.get_global_rect()),
+			"Queue escapes panel"
+		)
+	if panel._active_row.visible:
+		for part in [panel._active_title, panel._status, panel._progress, panel._cancel]:
+			_check(
+				panel._active_row.get_global_rect().grow(.5).encloses(part.get_global_rect()),
+				"Active details escape footer"
+			)
 
 
 func _review_plasma_shields(human, label):
@@ -620,12 +762,12 @@ func _review_plasma_shields(human, label):
 	paused = false
 	tank.receive_damage(_units(enemy, "Tank")[0], 6.0)
 	paused = true
-	_check(
-		game.combat_effects._hit_flashes.any(
-			func(entry): return entry.unit.get_ref() == tank and entry.color == Color("68cee8")
-		),
-		"Shield impact omitted its blue material shimmer"
-	)
+	var contact = false
+	var shield_effect = load("res://source/match/effects/ShieldImpactVisual.gd")
+	for ripple in game.combat_effects._shield_ripples:
+		if ripple.target.get_ref() == tank and ripple.mode == shield_effect.Mode.CONTACT:
+			contact = true
+	_check(contact, "Shield impact omitted its shield-surface contact wave")
 	await _shot(label + "-shields-impact")
 	options.reduced_flashes = reduced_flashes
 	_check(game.combat_effects.shield_impacts_emitted == impacts + 1, "Shield impact missing")
@@ -769,6 +911,13 @@ func _capture_roster(label, spectator):
 		await _shot(label + ("-bottom" if bottom else "-top"), spectator)
 
 
+func _move_review_pointer(point: Vector2):
+	var motion = InputEventMouseMotion.new()
+	motion.position = point
+	motion.global_position = point
+	root.push_input(motion, true)
+
+
 func _shot(label, spectator = false):
 	if root.size != _capture_resolution:
 		await _settle_capture_size()
@@ -813,8 +962,10 @@ func _shot(label, spectator = false):
 			absf(rect.end.y - root.get_visible_rect().end.y) < .5,
 			"Console does not sit at bottom: " + label
 		)
-	# Keep an unrelated OS cursor hover from leaving a tooltip over the capture.
-	Input.warp_mouse(root.get_visible_rect().size - Vector2(16, 280))
+	# Synthetic viewport coordinates work at every UI scale, including an oversized
+	# native 4K window. Keep intentional tooltip captures under their target.
+	if not label.ends_with("tooltip"):
+		_move_review_pointer(root.get_visible_rect().size * Vector2(.65, .4))
 	await _frames(2)
 	RenderingServer.force_draw(false)
 	var capture = root.get_texture().get_image()

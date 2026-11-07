@@ -60,6 +60,7 @@ func _run():
 			await _frames(3)
 			_scan(game)
 		_production_text(game._get_human_player())
+		await _research_states()
 		for panel in ["open_technology", "open_relays", "open_sites", "_open_menu"]:
 			game.hud.call(panel)
 			await _frames(3)
@@ -97,6 +98,56 @@ func _run():
 		)
 	)
 	quit(0 if errors.is_empty() else 1)
+
+
+func _research_states():
+	var failures_before = errors.size()
+	paused = true
+	var human = game._get_human_player()
+	var catalog = load("res://source/match/research/TechnologyCatalog.gd")
+	var branches = catalog.FACTION_TECHNOLOGIES[human.faction]
+	var pair = catalog.EXCLUSIVE_PAIRS[catalog.FACTION_TECHNOLOGIES.keys().find(human.faction)]
+	human.resource_a = 1000
+	human.resource_b = 1000
+	game.hud.open_technology()
+	await _frames(3)
+	var panel = game.hud.technology_panel
+	panel._start.pressed.emit()
+	panel._branches[branches[0]].button.pressed.emit()
+	panel._branches[pair[0]].button.pressed.emit()
+	game.hud.research_status.refresh()
+	_scan(panel)
+	_scan(game.hud.research_status)
+	for tile in panel._grid.get_children():
+		_check_text(tile._marker.text, "research state badge")
+	var lab = panel.lab
+	lab.mark_as_under_construction()
+	panel.refresh()
+	game.hud.research_status.refresh()
+	_scan(panel)
+	_scan(game.hud.research_status)
+	lab.construct(1.0)
+	panel._cancel.pressed.emit()
+	human.coordination_unlocked = true
+	human.technology.completed.append(pair[0])
+	game.hud.research_status.refresh()
+	_check(
+		(
+			game.hud.research_status._button.text
+			== tr("Research available · %d choices") % (branches.size() - 2)
+		),
+		"Chinese research count retained an English plural suffix"
+	)
+	_scan(game.hud.research_status)
+	human.resource_a = 0
+	panel.refresh()
+	_scan(panel)
+	human.technology.completed.clear()
+	game.hud._close_menu()
+	paused = false
+	print(
+		"Research localization ", human.faction, ": ", errors.size() - failures_before, " failures"
+	)
 
 
 func _production_text(human):

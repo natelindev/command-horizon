@@ -64,6 +64,7 @@ func _availability():
 	_check(status.visible, "Funded advanced base has no research choices")
 	_check("1 choice" in status._button.text, "Faction research choices bypass Coordination")
 	_check(not status._progress.visible, "Idle choices show a running progress bar")
+	_check(status._button.icon == null, "Idle choices retain an active project icon")
 	_check("Coordination · 20 M / 20 E" in status._button.tooltip_text, "Choice price is missing")
 	var funds = Vector2i(human.resource_a, human.resource_b)
 	human.resource_a = 0
@@ -91,9 +92,16 @@ func _coordination():
 		"Coordination" in _visible_text(game.hud),
 		human.faction + ": paid Coordination has no visible feedback after closing Tech"
 	)
-	_check("30 s" in status._button.text and "paused" in status._button.text, "Paused ETA missing")
+	_check(
+		"30 s" in status._button.text and "paused" in status._button.text.to_lower(),
+		"Paused ETA missing"
+	)
 	_check(
 		status._progress.visible and status._progress.value == 0, "New research progress differs"
+	)
+	_check(
+		status._button.icon == load("res://assets/ui/research/generated/coordination.png"),
+		"Coordination has the wrong live icon"
 	)
 	_check(
 		Vector2i(human.resource_a, human.resource_b) == funds - Vector2i(20, 20),
@@ -161,7 +169,7 @@ func _power_and_lab_loss():
 		lab.queue_free()
 	await _frames(5)
 	status.refresh()
-	_check("rebuild lab" in status._button.text, "Lost-lab research stall is invisible")
+	_check("rebuild lab" in status._button.text.to_lower(), "Lost-lab research stall is invisible")
 	_check("already paid" in status._button.tooltip_text, "Paid stalled project looks unpaid")
 	remaining = human.coordination_left
 	await _advance(120)
@@ -199,7 +207,10 @@ func _lost_lab_archive():
 		"Restored pending research announced completion"
 	)
 	await _frames(370)
-	_check(status.visible and "rebuild lab" in status._button.text, "Loaded stall has no feedback")
+	_check(
+		status.visible and "rebuild lab" in status._button.text.to_lower(),
+		"Loaded stall has no feedback"
+	)
 
 
 func _cancel_and_rebuild():
@@ -265,6 +276,13 @@ func _completions():
 	_check(human.technology.start(branch, lab), "Ordinary faction research refused payment")
 	await _frames(20)
 	_check(title in status._button.text, "Faction research is missing from live HUD")
+	_check(
+		(
+			status._button.icon
+			== load("res://source/match/hud/ResearchPresentation.gd").icon_for(branch)
+		),
+		"Active faction project has a stale icon"
+	)
 	await _unchanged("paid faction research")
 	await _complete_within(func(): return enemy.coordination_unlocked, 30.0)
 	_check(enemy.coordination_unlocked, "Enemy research did not complete")
