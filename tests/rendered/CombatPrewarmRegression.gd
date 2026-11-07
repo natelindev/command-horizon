@@ -102,6 +102,11 @@ func _seed_live_presentation():
 	fx._material_hit(tank)
 	fx._advance_hit_flashes(.3)
 	fx._shockwave(tank.global_position, 2.0)
+	var contact = fx.ShieldImpactVisual.new()
+	fx.add_child(contact)
+	contact.setup(tank, tank.global_position + Vector3(0, .7, 1))
+	contact.advance(.1)
+	fx._shield_ripples.append(contact)
 	game.projectile_system.launch(tank, target)
 	game.battlefield_wear.add_mark(Vector2(tank.position.x, tank.position.z), 1.0, 0.0, 1)
 	game.battlefield_wear._paint()
@@ -180,7 +185,17 @@ func _cosmetic_state():
 		"unit_rng": {},
 		"pools": {},
 		"projectile_pools": {},
+		"shield_contacts": [],
 	}
+	for contact in fx._shield_ripples:
+		result.shield_contacts.append(
+			{
+				"id": contact.get_instance_id(),
+				"age": contact.age,
+				"pose": contact.global_transform,
+				"progress": contact.material_override.get_shader_parameter("progress")
+			}
+		)
 	for key in [
 		"_tracers",
 		"_free_tracers",

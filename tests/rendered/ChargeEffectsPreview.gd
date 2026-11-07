@@ -24,6 +24,7 @@ func _run():
 				"graphics_dof": false,
 				"living_world": false,
 				"reduced_flashes": false,
+				"health_bars": 0,
 			}
 		)
 	)
@@ -62,6 +63,7 @@ func _run():
 		rocket.global_position = CENTER
 		# Frozen fixtures still need their posed model and muzzle synchronized.
 		for fixture in [unit, rocket]:
+			fixture.get_node("HealthBar").hide()
 			var visuals = fixture.get_node("BastionVisuals")
 			visuals._advance_pose(1.0 / 60.0)
 			visuals._publish_simulation_pose()
@@ -72,9 +74,11 @@ func _run():
 		for stage in [["early", 0.1, 0.05], ["half", 0.5, 0.26], ["full", 0.98, 0.48]]:
 			unit.weapon_charge_progress = stage[1]
 			display._phase = stage[2]
+			display._spark_phase = stage[2] * 1.8
 			display.refresh()
 			var image = await _capture_charge(faction + "-" + stage[0])
 			_check(_changed_pixels(baseline, image) > 80, faction + " charge is not visible")
+		await _charge_motion(unit, display, faction)
 		options.reduced_flashes = true
 		display.refresh()
 		await _capture_charge(faction + "-reduced")
@@ -90,15 +94,43 @@ func _run():
 			rocket.weapon_charge_progress = stage[1]
 			lock_display.refresh()
 			await _capture_charge(faction + "-" + stage[0])
+		if faction == "helix":
+			rocket.hide()
+			var precision = _spawn_weapon("CombatRobot", game._get_human_player(), CENTER)
+			precision.rotation.y = -PI * .5
+			await _frames(3)
+			var visuals = precision.get_node("BastionVisuals")
+			visuals._advance_pose(1.0 / 60.0)
+			visuals._publish_simulation_pose()
+			visuals._sync_muzzle()
+			precision.get_node("HealthBar").hide()
+			precision.weapon_charge_progress = .8
+			var precision_display = precision.get_node("WeaponPreparationVisual")
+			precision_display.refresh()
+			await _capture_charge("helix-precision")
 		await _clean_match()
 	options.restore(original)
 	print("Charge effects preview: %d failures" % errors.size())
 	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
 
 
+func _charge_motion(unit, display, faction):
+	unit.weapon_charge_progress = -1.0
+	display.refresh()
+	for frame in 60:
+		unit.weapon_charge_progress = float(frame + 1) / 60.0
+		display.refresh()
+		paused = false
+		display._process(1.0 / 60.0)
+		paused = true
+		await process_frame
+		RenderingServer.force_draw()
+		root.get_texture().get_image().save_png(OUTPUT + "%s-motion-%02d.png" % [faction, frame])
+
+
 func _capture_charge(title):
 	await _frames(3)
-	await RenderingServer.frame_post_draw
+	RenderingServer.force_draw()
 	var image = root.get_texture().get_image()
 	image.save_png(OUTPUT + title + ".png")
 	return image

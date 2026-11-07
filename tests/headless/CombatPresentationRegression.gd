@@ -4,6 +4,7 @@ const HEALTH_BAR_SCENE = preload("res://source/match/units/traits/HealthBar.tscn
 var errors = []
 var options
 var effects_script
+var aftermath_script
 
 
 class Side:
@@ -81,9 +82,10 @@ class Stage:
 
 class SilentAudio:
 	extends RefCounted
+	var reports = 0
 
 	func shot(_unit, _origin, _weapon):
-		pass
+		reports += 1
 
 	func _observed(_unit):
 		return true
@@ -104,6 +106,7 @@ func _initialize():
 
 func _run():
 	effects_script = load("res://source/match/effects/CombatEffects.gd")
+	aftermath_script = load("res://source/match/effects/BattleAftermath.gd")
 	options = root.get_node("Globals").options
 	var original_reduced = options.reduced_flashes
 	options.reduced_flashes = false
@@ -115,6 +118,7 @@ func _run():
 	_single_health_track()
 	_effect_budgets()
 	_beam_lifecycle()
+	_beam_roles()
 	_impact_families()
 	await _particle_material_lifetime()
 	options.reduced_flashes = original_reduced
@@ -596,7 +600,7 @@ func _beam_lifecycle():
 	effects.set_physics_process(false)
 	effects.set_process(false)
 	# Exercise the real shot path with dummy rendering and bounded GPU emitters.
-	effects.aftermath = load("res://source/match/effects/BattleAftermath.gd").new()
+	effects.aftermath = aftermath_script.new()
 	effects.add_child(effects.aftermath)
 	for kind in ["flash", "spark", "smoke", "mote"]:
 		effects._emitter(kind, 32, .3, Vector3.ZERO, 1.0, .2)
@@ -625,6 +629,7 @@ func _beam_lifecycle():
 	effects._material_hit(target)
 	target.position += Vector3(4, 0, 0)
 	effects._physics_process(.1)
+	effects._process(.1)
 	_check(effects._tracers.size() == 1 and rail.node.visible, "Rail died at the old 0.075s cutoff")
 	_check(
 		rail.target == endpoint and rail.target_ref == null, "Instant beam followed a moving target"
@@ -653,15 +658,17 @@ func _beam_lifecycle():
 	effects._process(0.0)
 	_check(material.get_shader_parameter("intensity") == .65, "Paused beam ignored reduced flashes")
 	effects._physics_process(.1)
+	effects._process(.1)
 	_check(rail.age == .1 and prism.age == 0.0, "Beam advanced during tactical pause")
 	paused = false
 	effects._physics_process(.05)
+	effects._process(.05)
 	_check(effects._hit_flashes.is_empty(), "Beam activity prevented hit-flash cleanup")
 	_check(
 		material.get_shader_parameter("intensity") == .65, "Reduced flashes left a full-power beam"
 	)
 	options.reduced_flashes = false
-	effects._advance_tracers(.2)
+	effects._advance_tracers(.3)
 	_check(
 		(
 			effects._tracers.is_empty()
@@ -735,3 +742,87 @@ func _beam_lifecycle():
 		),
 		"Destroyed combat effects retained pooled beam materials or geometry"
 	)
+
+
+func _beam_roles():
+	var stage = Stage.new()
+	root.add_child(stage)
+	var effects = effects_script.new()
+	stage.add_child(effects)
+	effects.set_process(false)
+	effects.set_physics_process(false)
+	effects.aftermath = aftermath_script.new()
+	effects.add_child(effects.aftermath)
+	for kind in ["flash", "spark", "smoke", "mote"]:
+		effects._emitter(kind, 32, .3, Vector3.ZERO, 1.0, .2)
+	effects._headless = false
+	var side = Side.new()
+	side.faction = "helix"
+	stage.add_child(side)
+	var unit = _subject(side)
+	unit.type = "AdvancedTank"
+	var weapon = {"id": "prism_beam", "kind": "rail", "prism": true}
+	for role in ["primary", "link", "refraction"]:
+		effects.shot(
+			unit,
+			Vector3.UP,
+			Vector3(6, 1, 0),
+			.22,
+			false,
+			null,
+			true,
+			weapon.merged({"beam_role": role})
+		)
+	var primary = effects._tracers[0]
+	var link = effects._tracers[1]
+	var branch = effects._tracers[2]
+	_check(stage.combat_audio.reports == 1, "Prism links/branches replayed the firing report")
+	_check(effects.aftermath.lights.size() == 2, "Secondary beams added full-power endpoint bursts")
+	_check(
+		link.width < primary.width * .4 and branch.width < primary.width * .5,
+		"Prism links/branches retained the primary silhouette"
+	)
+	_check(
+		branch.duration < primary.duration and link.duration > primary.duration,
+		"Prism roles retained identical timing"
+	)
+	_check(
+		(
+			link.beam_material.get_shader_parameter("beam_role") == 1
+			and branch.beam_material.get_shader_parameter("beam_role") == 2
+		),
+		"Secondary roles did not reach the shader"
+	)
+	# Sub-physics-tick advancement must be visible, and physics must not double it.
+	effects._process(1.0 / 144.0)
+	var age = primary.age
+	_check(age > 0.0 and age < 1.0 / 60.0, "Beam animation is quantized to physics ticks")
+	effects._physics_process(1.0 / 60.0)
+	_check(primary.age == age, "Physics double-advanced the render-frame beam clock")
+	paused = true
+	effects._process(.1)
+	_check(primary.age == age, "Paused render-frame beam advanced")
+	paused = false
+	effects._advance_tracers(1.0)
+	unit.type = "SniperInfantry"
+	effects.shot(
+		unit,
+		Vector3.UP,
+		Vector3(6, 1, 0),
+		.22,
+		false,
+		null,
+		true,
+		{"id": "thermal_beam", "kind": "rail"}
+	)
+	var thermal = effects._tracers[0]
+	_check(
+		(
+			not thermal.prism
+			and thermal.width < branch.width
+			and thermal.beam_material.get_shader_parameter("beam_role") == 3
+		),
+		"Thermal sniper inherited prism dispersion or a heavy beam width"
+	)
+	_check(not weapon.has("beam_role"), "Cosmetic role changed the shared weapon definition")
+	stage.free()

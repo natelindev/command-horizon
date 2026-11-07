@@ -22,6 +22,12 @@ func _run():
 			_check(display != null, faction + " " + role + " has no preparation display")
 			if display == null:
 				continue
+			if not display._lock:
+				var style = 0 if faction == "bastion" else (1 if role == "AdvancedTank" else 2)
+				_check(
+					display._focus_material.get_shader_parameter("focus_style") == style,
+					"Capacitor, prism and precision focus silhouettes are not routed distinctly"
+				)
 			if faction == "helix" and role == "AdvancedTank":
 				_check(
 					(
@@ -42,15 +48,18 @@ func _run():
 				display._phase = stage[1]
 				display.refresh()
 				if not display._lock:
-					_spark_parity(display, stage[0], stage[1])
+					_spark_continuity(display, stage[0])
 			options.reduced_flashes = true
-			display.refresh()
+			paused = true
+			options.changed.emit()
 			_check(display._orb.visible, "Reduced flashes removed the charge cue")
 			_check(
 				display._sparks == null or not display._sparks.visible,
 				"Reduced flashes kept sparks"
 			)
 			options.reduced_flashes = false
+			options.changed.emit()
+			paused = false
 			unit.weapon_charge_progress = -1.0
 			display.refresh()
 			_check(not display._orb.visible, "Cancelled preparation retained its charge cue")
@@ -62,46 +71,47 @@ func _run():
 	options.reduced_flashes = reduced
 	for message in _errors:
 		push_error(message)
-	print("Charge geometry exact parity: %d failures" % _errors.size())
+	print("Charge motion continuity: %d failures" % _errors.size())
 	await root.get_node("Globals").quit_game(0 if _errors.is_empty() else 1)
 
 
-func _spark_parity(display, progress: float, phase: float):
+func _spark_continuity(display, progress: float):
 	_check(
 		display._spark_directions.size() == display.SPARK_COUNT,
 		"Spark directions were not prepared"
 	)
-	for index in display._sparks.multimesh.visible_instance_count:
-		var angle = index * 2.399963
-		var y = 1.0 - 2.0 * (index + .5) / display.SPARK_COUNT
-		var radial = sqrt(1.0 - y * y)
-		var direction = Vector3(cos(angle) * radial, y, sin(angle) * radial)
-		var travel = fposmod(phase * (1.4 + progress) + index * .618034, 1.0)
-		var radius = .07 + (1.0 - travel) * (1.0 - travel) * (.85 + progress * .3)
-		var size = sin(travel * PI) * (.65 + progress * .55)
-		var expected = Transform3D(
-			Basis.looking_at(-direction).scaled(Vector3.ONE * size), direction * radius
-		)
-		_check(
-			display._spark_directions[index].is_equal_approx(direction), "Spark direction changed"
-		)
-		_check(
-			display._spark_bases[index].is_equal_approx(Basis.looking_at(-direction)),
-			"Spark orientation changed"
-		)
-		# DummyRenderingServer does not retain MultiMesh instance transforms.
-		# The same suite with a real renderer also checks the published result.
-		if DisplayServer.get_name() == "headless":
-			continue
-		var actual = display._sparks.multimesh.get_instance_transform(index)
-		var difference = maxf(
-			actual.origin.distance_to(expected.origin),
-			maxf(
-				(actual.basis.x - expected.basis.x).length(),
-				maxf(
-					(actual.basis.y - expected.basis.y).length(),
-					(actual.basis.z - expected.basis.z).length()
-				)
-			)
-		)
-		_check(difference < .00001, "Prepared spark pose changed by %.9f" % difference)
+	for direction in display._spark_directions:
+		_check(is_equal_approx(direction.length(), 1.0), "Spark direction is not normalized")
+	# A progress refresh used to move every particle immediately because elapsed
+	# time was multiplied by the new speed (and its orbit radius grew as well).
+	var phase = display._spark_phase
+	var before = display._sparks.multimesh.get_instance_transform(0)
+	display._unit.weapon_charge_progress = minf(1.0, progress + .02)
+	display.refresh()
+	_check(display._spark_phase == phase, "Progress refresh jumped the particle clock")
+	if DisplayServer.get_name() != "headless":
+		var after = display._sparks.multimesh.get_instance_transform(0)
+		_check(after.origin.is_equal_approx(before.origin), "Progress refresh teleported a spark")
+	# Equal real time and charge ramps must converge at 30 and 144 render fps.
+	var phases = []
+	for fps in [30, 144]:
+		display._unit.weapon_charge_progress = -1.0
+		display.refresh()
+		for frame in fps:
+			display._unit.weapon_charge_progress = float(frame + 1) / fps
+			display._process(1.0 / fps)
+		phases.append(display._spark_phase)
+	_check(is_equal_approx(phases[0], phases[1]), "Charge motion depends on render frame rate")
+	paused = true
+	phase = display._spark_phase
+	display._process(.2)
+	_check(display._spark_phase == phase, "Pause advanced charge particles")
+	paused = false
+	if DisplayServer.get_name() == "headless":
+		return
+	# The first spark wraps at phase 1. Both sides must disappear rather than pop.
+	for edge in [.99999, 1.00001]:
+		display._spark_phase = edge
+		display.refresh()
+		var pose = display._sparks.multimesh.get_instance_transform(0)
+		_check(pose.basis.x.length() < .0001, "Spark reset is visible")

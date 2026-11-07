@@ -6,6 +6,7 @@ func _run():
 	await _fixture("bastion")
 	var effects = _game.combat_effects
 	effects.set_physics_process(false)
+	effects.set_process(false)
 	effects._headless = false  # Exercise the bounded mesh presentation without GPU particles.
 	_game.grenade_system.set_physics_process(false)
 	var soldier = _spawn("Infantry", 0, Vector3(35, 0, 30))
@@ -20,7 +21,7 @@ func _run():
 	_check(effects._grenades.size() == 1, "Normal throw has missing or duplicate flight")
 	soldier.queue_free()
 	await _frames(1)
-	effects._advance_abilities(.25)
+	effects._process(.25)
 	_check(
 		effects._grenades.size() == 1 and effects._grenades[0].node.visible,
 		"Thrower death hid committed flight"
@@ -44,7 +45,33 @@ func _run():
 		"Paused restore hid or advanced grenade"
 	)
 	paused = false
-	effects._advance_abilities(.36)
+	var origin = Vector3(35, .9, 30)
+	_check(
+		effects.grenade_position(origin, target, 0.0).is_equal_approx(origin),
+		"Ballistic grenade did not start at the hand"
+	)
+	_check(
+		effects.grenade_position(origin, target, 1.0).is_equal_approx(target),
+		"Ballistic grenade did not reach the authoritative impact point"
+	)
+	var samples = []
+	for time in [.1, .2, .3, .4]:
+		samples.append(effects.grenade_position(origin, target, time))
+	var first_acceleration = samples[2] - samples[1] * 2.0 + samples[0]
+	var second_acceleration = samples[3] - samples[2] * 2.0 + samples[1]
+	_check(
+		first_acceleration.is_equal_approx(second_acceleration) and first_acceleration.y < 0,
+		"Grenade arc does not have constant downward acceleration"
+	)
+	effects._process(.001)
+	_check(
+		not effects._grenades[0].node.position.is_equal_approx(expected),
+		"Grenade presentation waited for a physics tick"
+	)
+	var age = effects._grenades[0].age
+	effects._physics_process(.1)
+	_check(effects._grenades[0].age == age, "Grenade age advanced twice")
+	effects._process(.36)
 	_check(effects._grenades.is_empty(), "Finished grenade retained its warning mesh")
 	_check(_game.grenade_system.pending.size() == 1, "Presentation consumed authoritative fuse")
 	effects._headless = true

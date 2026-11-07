@@ -42,6 +42,10 @@ static func prepare(game) -> bool:
 		ring.global_position = point
 		ring.material_override.set_shader_parameter("progress", .35)
 		_muzzle(holder, point, effects)
+		var shield = effects.ShieldImpactVisual.new()
+		holder.add_child(shield)
+		shield.global_position = point
+		shield.material_override.set_shader_parameter("progress", .25)
 	if Globals.options.battlefield_wear and Globals.options.graphics_ground_detail:
 		_wear(game, holder, point)
 	# Command rings/ribbons and local muzzle lighting must compile behind the
@@ -165,13 +169,14 @@ static func _projectiles(holder, point):
 
 static func _beams(holder, point, effects):
 	var mesh = effects.create_beam_mesh()
-	for prism in [false, true]:
+	for appearance in effects.BeamAppearance.ALL:
 		var beam = MeshInstance3D.new()
 		beam.mesh = mesh
 		beam.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		var material = ShaderMaterial.new()
 		material.shader = effects.RAY_BEAM_SHADER
-		material.set_shader_parameter("is_prism", prism)
+		material.set_shader_parameter("is_prism", appearance.prism)
+		material.set_shader_parameter("beam_role", appearance.role)
 		material.set_shader_parameter("progress", .2)
 		beam.material_override = material
 		holder.add_child(beam)
@@ -211,18 +216,8 @@ static func _particle_buffers(holder, point, effects):
 
 
 static func _muzzle(holder, point, effects):
-	var ring = MeshInstance3D.new()
-	ring.mesh = QuadMesh.new()
-	ring.mesh.size = Vector2.ONE * 3.2
-	ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	var material = ShaderMaterial.new()
-	material.shader = (
-		effects.MUZZLE_FALLBACK
-		if RenderingServer.get_current_rendering_method() == "gl_compatibility"
-		else effects.MUZZLE_SHADER
-	)
-	material.set_shader_parameter("progress", .35)
-	ring.material_override = material
+	var ring = effects.create_muzzle_wave()
+	ring.material_override.set_shader_parameter("progress", .35)
 	holder.add_child(ring)
 	ring.global_transform = Transform3D(Basis.looking_at(Vector3.FORWARD), point)
 

@@ -11,8 +11,15 @@ var errors = []
 
 class Ground:
 	extends RefCounted
+	var size = Vector2(100, 100)
 
 	func height_at(_point):
+		return 0.0
+
+	func min_height():
+		return 0.0
+
+	func max_height():
 		return 0.0
 
 

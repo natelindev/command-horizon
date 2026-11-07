@@ -11,7 +11,7 @@ func _run():
 	var original = root.get_node("Globals").options.reduced_flashes
 	root.get_node("Globals").options.reduced_flashes = false
 	var script = load("res://source/match/effects/ManualParticleBuffer.gd")
-	for kind in ["spark", "dust", "smoke", "debris", "clod"]:
+	for kind in ["spark", "dust", "smoke", "trail_smoke", "fire", "debris", "clod"]:
 		var buffer = script.new()
 		buffer.setup(
 			kind,
@@ -23,6 +23,23 @@ func _run():
 			.45 if kind == "debris" else (0.0 if kind == "clod" else -1.0)
 		)
 		root.add_child(buffer)
+		if kind in ["smoke", "dust", "trail_smoke"]:
+			_check(
+				(
+					buffer._surface.get_shader_parameter("billow")
+					and buffer._surface.get_shader_parameter("vapor")
+					and buffer._surface.get_shader_parameter("fade_in") > 0.0
+				),
+				"Vapor lacks decelerating growth and a soft birth: " + kind
+			)
+		elif kind in ["spark", "fire"]:
+			_check(
+				(
+					not buffer._surface.get_shader_parameter("billow")
+					and buffer._surface.get_shader_parameter("fade_in") == 0.0
+				),
+				"Instant hot particles inherited slow smoke timing: " + kind
+			)
 		_check(buffer.is_inactive() and not buffer.visible, "An empty particle pool draws")
 		# Birth metadata must keep sub-second resolution after hours of gameplay.
 		buffer._clock = 14400.125

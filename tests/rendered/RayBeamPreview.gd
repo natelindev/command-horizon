@@ -77,6 +77,7 @@ func _run():
 		camera.set_position_safely(ORIGIN + Vector3(0, .4, 0))
 		var effects = game.combat_effects
 		effects.set_physics_process(false)
+		effects.set_process(false)
 		await _frames(15)
 		paused = true
 		var baseline = await _capture(faction + "-baseline")
@@ -107,7 +108,7 @@ func _run():
 			_hot_core_pixels(sheath, midpoint) < core_pixels * .3,
 			faction + " optical core did not snap off before its sheath"
 		)
-		effects._advance_tracers(.08)
+		effects._advance_tracers(.12)
 		await _capture(faction + "-dissipation")
 		effects._advance_tracers(.08)
 		var expired = await _capture(faction + "-expired")
@@ -136,7 +137,8 @@ func _run():
 
 
 func _spawn(role, side, point):
-	var unit = load("res://source/match/units/%s.tscn" % role).instantiate()
+	var catalog = load("res://source/match/FactionCatalog.gd")
+	var unit = load(catalog.scene_path(side.faction, role)).instantiate()
 	game._setup_and_spawn_unit(unit, Transform3D(Basis(), point), side, false)
 	unit.process_mode = Node.PROCESS_MODE_DISABLED
 	return unit

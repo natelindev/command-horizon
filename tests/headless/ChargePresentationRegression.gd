@@ -9,10 +9,10 @@ func _run():
 	options.restore({"screen": 1, "effects_volume": 0.75, "master_volume": 1.0})
 	await _setup("bastion")
 	await _presentation_contracts()
-	await _attack_lifecycle()
 	await _voice_limits()
 	await _clean_match()
 	await _setup("helix")
+	await _attack_lifecycle()
 	await _lock_and_mode_switch()
 	await _clean_match()
 	options.restore(original)
@@ -58,8 +58,8 @@ func _presentation_contracts():
 	display.refresh()
 	_check(display._orb.scale == scale, "Charge focus inflates with progress")
 	_check(
-		display._orb.global_position.distance_to(display._marker.global_position) > 0.001,
-		"Late charge has no focus vibration"
+		display._orb.global_position.is_equal_approx(display._marker.global_position),
+		"Late charge jitters away from its optical focus"
 	)
 	options.reduced_flashes = true
 	display.refresh()
@@ -86,12 +86,14 @@ func _presentation_contracts():
 	unit.queue_free()
 	rocket.queue_free()
 	await _frames(3)
-	print("PASS compact core, inward sparks, late vibration, reduced flashes and tactical lock")
+	print("PASS compact core, inward sparks, anchored focus, reduced flashes and tactical lock")
 
 
 func _attack_lifecycle():
 	var sides = _sides()
-	var unit = _spawn_weapon("AdvancedTank", sides[0], Vector3(40, 0, 10))
+	# Siege tanks now deploy and fire shells; Precision Lancers still have the
+	# sustained charge whose audio/cancellation lifecycle this test exercises.
+	var unit = _spawn_weapon("CombatRobot", sides[0], Vector3(40, 0, 10))
 	var target = _spawn_weapon("Tank", sides[1], Vector3(46, 0, 10))
 	var camera = game.get_node("IsometricCamera3D")
 	camera.set_position_safely(Vector3(42, 0, 10))

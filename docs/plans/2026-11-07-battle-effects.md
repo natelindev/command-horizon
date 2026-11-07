@@ -1,0 +1,17 @@
+# Battle effect clarity and motion
+
+## Stages
+
+1. Inspect the production beam/charge paths and capture the existing rendered appearance.
+2. Differentiate primary prism shots, allied energy links, chained refractions, and thermal shots. Smooth charge motion and give optical charging its own silhouette without changing combat rules.
+3. Add regression coverage for role routing, visual lifecycle, smooth motion, pause, cancellation, reduced flashes, and bounded reuse. Review native rendered sequences and run relevant combat checks.
+
+## Agent progress
+
+- Initial checkout was clean. Found identical full-power prism visuals/audio for support links and secondary refractions, thermal weapons incorrectly classified by faction, and charge animation discontinuities from progress-dependent clocks, quantized noise, and rapid jitter.
+- Completed all three stages. Primary prisms now split into cyan/violet optical strands, allied links carry a restrained mint transfer pulse, refractions use short thin filaments, and thermal sniper shots leave amber needles. Links originate/terminate at optical emitters and no longer replay weapon reports or full muzzle bursts. Weapon definitions, damage, targeting and chain counts are unchanged.
+- Beam fades advance at render cadence. Charge particles integrate their speed, retain position when progress changes, fade smoothly at cycle boundaries, and enter gradually. Removed quantized corona noise and muzzle jitter; mechanical coils, prism apertures and precision lenses have separate silhouettes. Reduced-flash changes refresh even during pause.
+- Headless passes: CombatPresentationRegression, ChargeGeometryRegression, ChargePresentationRegression, FactionAsymmetryRegression, ProjectileSystemRegression and BattleFeedbackRegression. Native ChargeGeometryRegression additionally checked actual MultiMesh transforms, 30/144 fps continuity, cycle resets, pause and live reduced-flash settings. ChargePresentationRegression now uses the current Phase Lancer for its sustained charge lifecycle; its former siege-tank fixture assumed retired charging behavior.
+- Native Metal Forward+ passes: RayBeamPreview (12 captures), PrismRolesPreview (39 captures, including the actual one-primary/one-link/two-refraction attack and immediate damage assertions), ChargeEffectsPreview (17 stills and 120 motion frames), and CombatPrewarmRegression (all state-preservation/loading/cancellation cases). Reviewed the resulting images and sequences. Clips: [prism network](../../art/prism-roles/prism-network.mp4), [prism charge motion study](../../art/weapon-charge/prism-charge.mp4). Captures remain under `art/ray-beams/`, `art/prism-roles/`, and `art/weapon-charge/`.
+- Godot editor import, changed-script gdformat/gdlint and whitespace checks passed. Import regenerated three unrelated missing UID files; those unrelated generated files were removed. The two new scripts retain their generated UIDs.
+- Broader CombatJuiceRegression reports two legacy suspension-field assertions. Both failures were reproduced on an isolated, unmodified archive of HEAD `74d1049f`; they are outside this change. Some graphical runs retain the baseline particle-shader/RID shutdown diagnostics, and ChargePresentationRegression retains ObjectDB/resource shutdown warnings. Focused geometry, combat presentation, faction and projectile checks exit cleanly. Logs, the baseline comparison and original captures are retained in `tmp/battle-effects/`.

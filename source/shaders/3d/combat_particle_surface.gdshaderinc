@@ -2,6 +2,7 @@ uniform float glow = 0.0;
 uniform float rough_edge = 0.45;
 uniform bool flame = false;
 uniform bool exhaust = false;
+uniform bool vapor = false;
 uniform float elongation = 1.0;
 varying vec2 life_seed;
 
@@ -21,6 +22,14 @@ void fragment() {
 	float edge = length(p) + (cloud - 0.48) * rough_edge;
 	float density = (1.0 - smoothstep(0.2, 1.0, edge)) * mix(1.0, cloud * 1.5, rough_edge * 0.65);
 	vec3 tint = COLOR.rgb * mix(0.48, 1.18, cloud);
+	if (vapor) {
+		// Broad rolling lobes retain volume as the wispy outer edge dissolves.
+		float body = exp(-dot(p, p) * 1.9);
+		float lobes = noise(flow * 0.65 + vec2(life_seed.x * 0.45, 0.0));
+		density *= mix(0.65, 1.15, lobes) * (0.65 + body * 0.35);
+		float light = 0.72 + cloud * 0.35 + clamp(-p.y, -0.6, 0.6) * 0.18;
+		tint = COLOR.rgb * light;
+	}
 	if (flame) {
 		tint = mix(vec3(1.0, 0.75, 0.3), vec3(0.3, 0.065, 0.018), clamp(life_seed.x * 1.3 + (1.0 - cloud) * 0.4, 0.0, 1.0));
 	}

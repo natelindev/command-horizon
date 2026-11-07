@@ -7,6 +7,8 @@ uniform float progress : hint_range(0.0, 1.0) = 0.0;
 uniform float intensity : hint_range(0.0, 10.0) = 2.5;
 uniform float scroll_speed = 6.0;
 uniform bool is_prism = false;
+// 0: fired beam, 1: allied transfer, 2: refraction, 3: thermal needle.
+uniform int beam_role = 0;
 
 float noise(vec2 p)
 {
@@ -25,7 +27,8 @@ float noise(vec2 p)
 
 void fragment()
 {
-  float d = abs(UV.y - 0.5) * 2.0;
+  float across = (UV.y - 0.5) * 2.0;
+  float d = abs(across);
   float core = exp(-d * d * 24.0);
   float sheath = exp(-d * d * 3.5);
   // Driven entirely by age: pausing also freezes the optical turbulence.
@@ -41,19 +44,53 @@ void fragment()
   float edge = 1.0 - smoothstep(0.68, 1.0, d);
   float ends = smoothstep(0.0, 0.025, UV.x) * (1.0 - smoothstep(0.975, 1.0, UV.x));
   vec3 tint = beam_color.rgb;
+  vec3 split_light = vec3(0.0);
   if (is_prism)
   {
-    // Dispersion lives mostly outside the white core, with restrained axial bands.
-    float wavelength = UV.y * 0.8 + UV.x * 1.6 - progress * 0.35;
-    vec3 spectrum = 0.5 + 0.5 * cos(6.283185 * (wavelength + vec3(0.0, 0.33, 0.67)));
-    tint = mix(tint, spectrum, 0.62 + d * 0.2);
+    // Optical dispersion separates into two fine ribbons, focused at both ends.
+    // Keep a stable axis: light refracts instead of writhing like electricity.
+    float focus = sin(UV.x * 3.141593);
+    float separation = focus * (0.25 + smoothstep(0.0, 0.7, progress) * 0.22);
+    float blue = exp(-pow((across - separation) / 0.10, 2.0));
+    float violet = exp(-pow((across + separation) / 0.10, 2.0));
+    split_light = (vec3(0.2, 0.85, 1.0) * blue + vec3(0.78, 0.35, 1.0) * violet)
+        * (1.0 - smoothstep(0.05, 1.0, progress));
+    core = exp(-d * d * 120.0);
+    sheath *= 0.3;
   }
   float ion = 0.8 + 0.2 * turbulence;
   float hot = core * core_life;
   float halo = sheath * sheath_life * ion;
-  vec3 energy = core_color.rgb * hot * 1.8 + tint * halo * 0.75;
+  vec3 energy = core_color.rgb * hot * (is_prism ? 0.85 : 1.8)
+      + tint * halo * 0.75 + split_light * 0.85;
+  float opacity = hot + halo * 0.65 + length(split_light) * 0.55;
+  if (beam_role == 1)
+  {
+    // A calm, narrow feeder carries a single packet toward the firing crystal.
+    float envelope = (0.2 + 0.8 * smoothstep(0.0, 0.16, progress))
+        * (1.0 - smoothstep(0.55, 1.0, progress));
+    float packet = exp(-pow((UV.x - mix(-0.12, 1.12, progress)) / 0.16, 2.0));
+    float thread = exp(-d * d * 42.0);
+    opacity = thread * envelope * (0.5 + packet * 0.5);
+    energy = (tint * 0.9 + core_color.rgb * packet * 0.45) * thread;
+  }
+  else if (beam_role == 2)
+  {
+    // Refracted branches collapse quickly into a fine violet filament.
+    float life = 1.0 - smoothstep(0.0, 1.0, progress);
+    float filament = exp(-d * d * mix(35.0, 120.0, progress));
+    opacity = filament * life;
+    energy = (core_color.rgb * 0.7 + tint * 0.4) * opacity;
+  }
+  else if (beam_role == 3)
+  {
+    // Thermal optics leave a straight amber heat trace, without prism splitting.
+    float life = 1.0 - smoothstep(0.02, 1.0, progress);
+    opacity = (core * core_life + sheath * life * 0.25);
+    energy = core_color.rgb * core * core_life + tint * sheath * life * 0.45;
+  }
   // Carry the white-hot core in the unshaded color output as well as emission.
   ALBEDO = energy * intensity;
   EMISSION = energy * intensity;
-  ALPHA = clamp((hot + halo * 0.65) * edge * ends * beam_color.a, 0.0, 1.0);
+  ALPHA = clamp(opacity * edge * ends * beam_color.a, 0.0, 1.0);
 }

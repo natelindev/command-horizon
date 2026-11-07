@@ -8,6 +8,8 @@ var _label
 var _sparks
 var _focus_material
 var _phase = 0.0
+var _spark_phase = 0.0
+var _last_progress = 0.0
 var _spark_directions = PackedVector3Array()
 var _spark_bases: Array[Basis] = []
 var _spark_offsets: Array[float] = []
@@ -30,6 +32,11 @@ func _ready():
 	var tint = Color("72dfff") if _unit.player.faction == "helix" else Color("ffc16a")
 	_focus_material.set_shader_parameter("tint", tint)
 	_focus_material.set_shader_parameter("lock_on", _lock)
+	var optical = _unit.player.faction == "helix"
+	_focus_material.set_shader_parameter(
+		"focus_style",
+		(1 if _unit.type in ["AdvancedTank", "AntiGroundTurret"] else 2) if optical else 0
+	)
 	_orb.material_override = _focus_material
 	add_child(_orb)
 	if not _lock:
@@ -43,6 +50,7 @@ func _ready():
 	add_child(_label)
 	_unit.selected.connect(refresh)
 	_unit.deselected.connect(refresh)
+	Globals.options.changed.connect(refresh)
 	refresh()
 
 
@@ -52,6 +60,8 @@ func refresh():
 	set_process(progress >= 0)
 	if progress < 0:
 		_phase = 0.0
+		_spark_phase = 0.0
+		_last_progress = 0.0
 	_update_focus(maxf(0.0, progress))
 	var show_info = _label.diagnostics_enabled()
 	if show_info:
@@ -101,8 +111,15 @@ func _setup_sparks(tint):
 
 
 func _process(delta):
+	if get_tree().paused:
+		return
+	var progress = clampf(_unit.weapon_charge_progress, 0.0, 1.0)
 	_phase += delta
-	_update_focus(clampf(_unit.weapon_charge_progress, 0.0, 1.0))
+	# Integrate speed instead of multiplying the entire elapsed time by the
+	# latest charge. Progress updates must never teleport a spark along its path.
+	_spark_phase += delta * (1.4 + (_last_progress + progress) * .5)
+	_last_progress = progress
+	_update_focus(progress)
 
 
 func _update_focus(progress):
@@ -110,23 +127,24 @@ func _update_focus(progress):
 	_focus_material.set_shader_parameter("charge", progress)
 	_focus_material.set_shader_parameter("phase", _phase)
 	_focus_material.set_shader_parameter("reduced_motion", reduced)
-	var jitter = Vector3.ZERO
-	if not _lock and progress > 0.75 and not reduced:
-		var strength = (progress - 0.75) * 0.12
-		jitter = Vector3(sin(_phase * 173), sin(_phase * 211), cos(_phase * 157)) * strength
-	_orb.global_position = _marker.global_position + jitter
+	# Keep the focus attached to the lens; energy breathes inside the shader.
+	_orb.global_position = _marker.global_position
 	if _sparks == null:
 		return
 	_sparks.visible = _orb.visible and not reduced
 	if not _sparks.visible:
 		return
 	_sparks.global_transform = Transform3D(Basis.IDENTITY, _marker.global_position)
-	_sparks.multimesh.visible_instance_count = 8 + roundi(progress * (SPARK_COUNT - 8))
+	_sparks.multimesh.visible_instance_count = SPARK_COUNT
 	for index in _sparks.multimesh.visible_instance_count:
 		# Golden-angle distribution and independent cycles avoid a rotating dotted ball.
 		var direction = _spark_directions[index]
-		var travel = fposmod(_phase * (1.4 + progress) + _spark_offsets[index], 1.0)
-		var radius = 0.07 + (1.0 - travel) * (1.0 - travel) * (0.85 + progress * 0.3)
-		var size = sin(travel * PI) * (0.65 + progress * 0.55)
+		var travel = fposmod(_spark_phase + _spark_offsets[index], 1.0)
+		var radius = 0.07 + (1.0 - travel) * (1.0 - travel) * .95
+		var activation = (
+			1.0 if index < 8 else smoothstep(0.0, 1.0, progress * (SPARK_COUNT - 8) - (index - 8))
+		)
+		# Both ends have zero size and zero size derivative, hiding cycle resets.
+		var size = pow(sin(travel * PI), 2.0) * (0.65 + progress * 0.55) * activation
 		var basis = _spark_bases[index].scaled(Vector3.ONE * size)
 		_sparks.multimesh.set_instance_transform(index, Transform3D(basis, direction * radius))

@@ -35,6 +35,12 @@ func setup(kind, capacity, seconds, gravity, glow = 0.0, roughness = 0.0, metaln
 		_surface.set_shader_parameter("rough_edge", roughness)
 		_surface.set_shader_parameter("flame", kind == "fire")
 		_surface.set_shader_parameter("exhaust", kind == "exhaust")
+		_surface.set_shader_parameter("vapor", kind in ["smoke", "dust", "trail_smoke"])
+		_surface.set_shader_parameter("billow", kind in ["smoke", "dust", "trail_smoke"])
+		_surface.set_shader_parameter(
+			"fade_in",
+			.06 if kind == "smoke" else (.025 if kind in ["dust", "trail_smoke"] else 0.0)
+		)
 		_surface.set_shader_parameter("grounded", kind in ["dust", "spark"])
 		_surface.set_shader_parameter("directional", kind in ["dust", "exhaust", "spark"])
 		_surface.set_shader_parameter("damping", 1.1 if kind == "dust" else .45)

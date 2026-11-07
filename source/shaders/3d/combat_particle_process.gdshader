@@ -1,5 +1,6 @@
 shader_type particles;
 render_mode disable_force, collision_use_scale;
+#include "res://source/shaders/3d/particle_envelope.gdshaderinc"
 uniform vec3 gravity = vec3(0.0);
 uniform float growth_start = 1.0;
 uniform float growth_end = 0.2;
@@ -13,6 +14,16 @@ void start() {
 	// Per-emission seed decorrelates shape, rotation and turbulence.
 	float seed = fract(sin(dot(TRANSFORM[3].xyz + VELOCITY, vec3(12.9898, 78.233, 39.425))) * 43758.5453);
 	CUSTOM = vec4(0.0, COLOR.a, length(TRANSFORM[0].xyz), seed);
+	// Apply the birth pose immediately; smoke must not appear full-size for
+	// one draw and then shrink to its initial growth size on the next tick.
+	float size = CUSTOM.z * growth_start;
+	TRANSFORM[0].xyz = vec3(size, 0.0, 0.0);
+	TRANSFORM[1].xyz = vec3(0.0, size, 0.0);
+	TRANSFORM[2].xyz = vec3(0.0, 0.0, size);
+	if (directional && length(VELOCITY) > 0.01) {
+		TRANSFORM[0].xyz = normalize(VELOCITY) * size;
+	}
+	COLOR.a = CUSTOM.y * particle_opacity(0.0);
 }
 
 void process() {
@@ -33,12 +44,12 @@ void process() {
 		VELOCITY.y = abs(VELOCITY.y) * 0.22;
 		VELOCITY.xz *= 0.65;
 	}
-	float size = CUSTOM.z * mix(growth_start, growth_end, CUSTOM.x);
+	float size = CUSTOM.z * mix(growth_start, growth_end, particle_growth(CUSTOM.x));
 	TRANSFORM[0].xyz = vec3(size, 0.0, 0.0);
 	TRANSFORM[1].xyz = vec3(0.0, size, 0.0);
 	TRANSFORM[2].xyz = vec3(0.0, 0.0, size);
 	if (directional && length(VELOCITY) > 0.01) {
 		TRANSFORM[0].xyz = normalize(VELOCITY) * size;
 	}
-	COLOR.a = CUSTOM.y * (1.0 - smoothstep(0.1, 1.0, CUSTOM.x));
+	COLOR.a = CUSTOM.y * particle_opacity(CUSTOM.x);
 }

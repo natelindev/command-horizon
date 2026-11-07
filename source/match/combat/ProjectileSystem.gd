@@ -776,6 +776,8 @@ func _fire_prism(unit, target, weapon):
 	var shot = Shot.from(unit, unit.global_position)
 	var completed = unit.player.technology.completed if unit.player.technology != null else []
 	var link_range = 12.0 if "continuous_coherence" in completed else 8.0
+	var link_visual = weapon.merged({"beam_role": "link"}, true)
+	var refraction_visual = weapon.merged({"beam_role": "refraction"}, true)
 	var links = 0
 	for ally in _match.battlefield.nearby_units(unit.global_position, link_range, unit.player):
 		if ally == unit or ally.hp <= 0.0 or ally.type not in ["AdvancedTank", "AntiGroundTurret"]:
@@ -783,7 +785,14 @@ func _fire_prism(unit, target, weapon):
 		if _match.battlefield.line_clear(center_of(ally), center_of(unit), ally, unit):
 			links += 1
 			_match.combat_effects.shot(
-				ally, center_of(ally), center_of(unit), 0.22, false, unit, true, weapon
+				ally,
+				muzzle_of(ally, center_of(unit)),
+				muzzle_of(unit, center_of(target)),
+				0.22,
+				false,
+				unit,
+				true,
+				link_visual
 			)
 	shot.attack_damage *= 1.0 + minf(links, 4) * 0.25
 	if "beam_amplification" in completed and "prism_lock_seconds" in unit:
@@ -795,7 +804,14 @@ func _fire_prism(unit, target, weapon):
 	for index in range(count + 1):
 		var start = muzzle_of(unit, center_of(current)) if index == 0 else center_of(previous)
 		_match.combat_effects.shot(
-			unit, start, center_of(current), 0.22, false, current, true, weapon
+			unit,
+			start,
+			center_of(current),
+			0.22,
+			false,
+			current,
+			true,
+			weapon if index == 0 else refraction_visual
 		)
 		current.receive_shot(shot, center_of(current), pow(0.7, index), weapon)
 		previous = current

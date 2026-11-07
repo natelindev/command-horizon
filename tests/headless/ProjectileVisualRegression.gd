@@ -27,7 +27,7 @@ class TransformCapture:
 class EmptyField:
 	extends RefCounted
 
-	func nearby_units(_point, _reach, _unit, _player):
+	func nearby_units(_point, _reach, _unit = null, _player = null):
 		return []
 
 	func first_blocker(_start, _end, _shooter, _target):
@@ -60,6 +60,7 @@ class Stage:
 class TestShot:
 	extends RefCounted
 	var player = {"faction": "helix"}
+	var raw_damage = false
 
 	func shooter():
 		return null

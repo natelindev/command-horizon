@@ -11,6 +11,8 @@ const SHOCKWAVE_FALLBACK = preload("res://source/shaders/3d/explosion_shockwave_
 const MUZZLE_SHADER = preload("res://source/shaders/3d/cannon_muzzle.gdshader")
 const MUZZLE_FALLBACK = preload("res://source/shaders/3d/cannon_muzzle_fallback.gdshader")
 const RAY_BEAM_SHADER = preload("res://source/shaders/3d/ray_beam.gdshader")
+const BeamAppearance = preload("res://source/match/effects/BeamAppearance.gd")
+const ShieldImpactVisual = preload("res://source/match/effects/ShieldImpactVisual.gd")
 
 # Shared GPU particle buffers and bounded tracer/wreck pools, independent of combat authority.
 const MAX_TRACERS = 96
@@ -20,11 +22,12 @@ const MAX_HIT_FLASHES = 32
 const MAX_SHOCKWAVES = 6
 const MAX_WRECK_LIGHTS = 4
 const HIT_DURATION = .14
-const BEAM_DURATION = .24
 const SHOCKWAVE_DURATION = .65
 const WRECK_BURN_DURATION = 12.0
 const MAX_ABILITY_EFFECTS = 64
 const MAX_GRENADES = 32
+const MAX_BLAST_TAILS = 32
+const MAX_SHIELD_RIPPLES = 24
 # Faction-tinted fire so a crossfire reads by owner; rail shots keep a cold charge color.
 const FACTION_FIRE = {
 	"bastion": Color("ffd9a0"),
@@ -58,6 +61,8 @@ var _paused = false
 var _camera = null
 var _ability_effects = []
 var _grenades = []
+var _blast_tails = []
+var _shield_ripples = []
 var _ground_map
 
 
@@ -108,6 +113,7 @@ func grenade_flight(origin: Vector3, point: Vector3, left: float, owner):
 		_grenades.pop_front().node.queue_free()
 	var grenade = MeshInstance3D.new()
 	grenade.name = "FragGrenade"
+	grenade.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	var mesh = SphereMesh.new()
 	mesh.radius = .09
 	mesh.height = .18
@@ -131,8 +137,7 @@ func grenade_flight(origin: Vector3, point: Vector3, left: float, owner):
 
 func _pose_grenade(entry):
 	var progress = minf(1.0, entry.age / entry.duration)
-	entry.node.position = entry.origin.lerp(entry.point, progress)
-	entry.node.position.y += sin(progress * PI) * 2.2
+	entry.node.position = grenade_position(entry.origin, entry.point, progress)
 	entry.node.visible = (
 		not _headless
 		and _camera_sees(entry.node.position)
@@ -172,7 +177,15 @@ func _discard_ability_effect(entry):
 		entry.node.queue_free()
 
 
-func _advance_abilities(delta):
+static func grenade_position(origin: Vector3, point: Vector3, progress: float) -> Vector3:
+	var t = clampf(progress, 0.0, 1.0)
+	# Constant vertical acceleration, with a lower arc for nearby throws.
+	var distance = Vector2(point.x - origin.x, point.z - origin.z).length()
+	var lift = clampf(distance * .28, .45, 2.2)
+	return origin.lerp(point, t) + Vector3.UP * (4.0 * lift * t * (1.0 - t))
+
+
+func _advance_grenades(delta):
 	for index in range(_grenades.size() - 1, -1, -1):
 		var entry = _grenades[index]
 		entry.age += delta
@@ -181,6 +194,9 @@ func _advance_abilities(delta):
 			# GrenadeSystem owns the fuse and emits its impact even if the thrower dies.
 			entry.node.queue_free()
 			_grenades.remove_at(index)
+
+
+func _advance_abilities(delta):
 	for index in range(_ability_effects.size() - 1, -1, -1):
 		var entry = _ability_effects[index]
 		var unit = entry.unit.get_ref()
@@ -367,6 +383,10 @@ func _emitter(kind, amount, lifetime, gravity, glow, roughness):
 	material.set_shader_parameter("damping", 1.1 if kind == "dust" else 0.45)
 	material.set_shader_parameter("grounded", kind in ["dust", "spark"])
 	material.set_shader_parameter("directional", kind in ["dust", "exhaust", "spark"])
+	material.set_shader_parameter("billow", kind in ["smoke", "dust", "trail_smoke"])
+	material.set_shader_parameter(
+		"fade_in", .06 if kind == "smoke" else (.025 if kind in ["dust", "trail_smoke"] else 0.0)
+	)
 	particles.process_material = material
 	var mesh = QuadMesh.new()
 	mesh.size = Vector2.ONE
@@ -375,6 +395,7 @@ func _emitter(kind, amount, lifetime, gravity, glow, roughness):
 
 	shader.set_shader_parameter("flame", kind == "fire")
 	shader.set_shader_parameter("exhaust", kind == "exhaust")
+	shader.set_shader_parameter("vapor", kind in ["smoke", "dust", "trail_smoke"])
 	shader.set_shader_parameter("glow", glow)
 	shader.set_shader_parameter("rough_edge", roughness)
 	shader.set_shader_parameter(
@@ -421,7 +442,9 @@ func shot(
 	tracer = true,
 	weapon = {}
 ):
-	get_parent().combat_audio.shot(unit, origin, weapon)
+	var secondary = weapon.get("beam_role", "primary") in ["link", "refraction"]
+	if not secondary:
+		get_parent().combat_audio.shot(unit, origin, weapon)
 	shots_emitted += 1
 	if not _can_show(unit):
 		return
@@ -430,18 +453,20 @@ func shot(
 		weapon.get("kind", "") == "rail"
 		or (weapon.is_empty() and unit.type == "AdvancedTank" and unit.player.faction != "frontier")
 	)
-	var prism = rail and unit.player.faction == "helix"
+	var appearance = BeamAppearance.for_weapon(unit.player.faction, unit.type, weapon)
+	var prism = rail and appearance.prism
 	if rail:
-		color = PRISM_FIRE if prism else RAIL_FIRE
-	var heavy = unit.type in ["Tank", "AdvancedTank", "AntiGroundTurret"]
-	if heavy:
-		if not rail and not missile and weapon.get("kind", "shell") == "shell":
+		color = appearance.color
+	var heavy = not secondary and unit.type in ["Tank", "AdvancedTank", "AntiGroundTurret"]
+	var cannon = heavy and not rail and not missile and weapon.get("kind", "shell") == "shell"
+	if heavy and not rail:
+		if cannon:
 			_muzzle_shockwave(origin, origin.direction_to(target_point))
 		if foliage != null and _camera_sees(origin):
 			foliage.impulse(origin, 6.0)
 		if _weapon_heat != null and not missile and _camera_sees(origin):
 			_weapon_heat.shot(unit)
-		if aftermath != null and not rail and not missile and _camera_sees(origin):
+		if aftermath != null and not missile and _camera_sees(origin):
 			aftermath.casing(origin + unit.global_basis.z * .55, unit.global_basis.x)
 		var ground = Vector3(origin.x, _ground_height(origin) + .1, origin.z)
 		if origin.y - ground.y < 3.0:
@@ -459,15 +484,27 @@ func shot(
 	if not rail and _camera_sees(origin):
 		aftermath.flash(origin, .5 if heavy else .18, color, true)
 	var direction = origin.direction_to(target_point)
-	_puff("flash", origin, direction * 0.2, color, 0.65 if heavy else 0.3)
-	for _index in range(5 if heavy else 2):
-		_puff(
-			"spark", origin, direction * _random.randf_range(2.0, 5.0) + _jitter(0.5), color, 0.12
-		)
-	if heavy:
-		_puff(
-			"smoke", origin, direction * 0.8 + Vector3.UP * 0.2, Color(0.48, 0.46, 0.41, 0.2), 0.55
-		)
+	if not rail:
+		if cannon:
+			_cannon_gas(origin, direction, color)
+		else:
+			_puff("flash", origin, direction * 0.2, color, 0.65 if heavy else 0.3)
+		for _index in range(5 if heavy else 2):
+			_puff(
+				"spark",
+				origin,
+				direction * _random.randf_range(2.0, 5.0) + _jitter(0.5),
+				color,
+				0.12
+			)
+		if heavy:
+			_puff(
+				"smoke",
+				origin,
+				direction * 0.8 + Vector3.UP * 0.2,
+				Color(0.48, 0.46, 0.41, 0.2),
+				0.55
+			)
 	if not tracer or (is_instance_valid(unit.aim_target) and not unit.aim_target.visible):
 		return
 	var entry = _take_tracer()
@@ -477,12 +514,13 @@ func shot(
 	entry.target = target_point
 	# Instant hits leave an afterimage along the original firing line.
 	entry.target_ref = weakref(target_unit) if target_unit != null and not rail else null
-	entry.duration = BEAM_DURATION if rail else maxf(0.05, duration)
+	entry.duration = appearance.duration if rail else maxf(0.05, duration)
 	entry.age = 0.0
 	entry.missile = missile
 	entry.rail = rail
 	entry.prism = prism
-	entry.width = (.62 if prism else .38) if rail else (.045 if heavy or missile else .018)
+	entry.width = appearance.width if rail else (.045 if heavy or missile else .018)
+	entry.power = appearance.power
 	entry.trail_clock = 0.0
 	if rail:
 		if _beam_mesh == null:
@@ -493,13 +531,13 @@ func shot(
 			entry.beam_material.shader = RAY_BEAM_SHADER
 		entry.node.material_override = entry.beam_material
 		entry.beam_material.set_shader_parameter("beam_color", color)
-		entry.beam_material.set_shader_parameter(
-			"core_color", Color("f1eaff") if prism else Color("edfcff")
-		)
+		entry.beam_material.set_shader_parameter("core_color", appearance.core)
 		entry.beam_material.set_shader_parameter("is_prism", prism)
+		entry.beam_material.set_shader_parameter("beam_role", appearance.role)
 		entry.beam_material.set_shader_parameter("scroll_speed", 4.0 if prism else 9.0)
-		_beam_burst(origin, direction, color, prism)
-		_beam_burst(target_point, -direction, color, prism)
+		if not secondary:
+			_beam_burst(origin, direction, color, prism)
+			_beam_burst(target_point, -direction, color, prism)
 	else:
 		entry.node.mesh = _tracer_mesh
 		entry.node.material_override = _glowing_material(color)
@@ -511,8 +549,8 @@ func shot(
 func _beam_burst(point, direction, color, prism):
 	if Globals.options.reduced_flashes or not _camera_sees(point):
 		return
-	aftermath.flash(point, .85 if prism else .7, color, true)
-	_puff("flash", point, Vector3.ZERO, color.lerp(Color.WHITE, .65), 1.05 if prism else .8)
+	aftermath.flash(point, .4 if prism else .7, color, true)
+	_puff("flash", point, Vector3.ZERO, color.lerp(Color.WHITE, .4), .45 if prism else .8)
 	for index in 8:
 		var ion_color = color
 		if prism:
@@ -525,16 +563,40 @@ func _beam_burst(point, direction, color, prism):
 
 func shield_impact(unit, point):
 	shield_impacts_emitted += 1
-	if not _can_show(unit) or Globals.options.reduced_flashes:
+	if not _can_show(unit) or not _camera_sees(point) or Globals.options.reduced_flashes:
 		return
-	# Reuse the bounded GPU particle pools for a brief, cool shimmer.
+	while _shield_ripples.size() >= MAX_SHIELD_RIPPLES:
+		var old = _shield_ripples.pop_front()
+		old.hide()
+		old.queue_free()
+	var ripple = ShieldImpactVisual.new()
+	add_child(ripple)
+	ripple.setup(unit, point)
+	_shield_ripples.append(ripple)
+	# The wave stays on the shield surface; the hull is not lit like damaged armor.
 	var cyan = Color(.35, .78, 1.0, .65)
-	_material_hit(unit, Color("68cee8"))
-	_puff("flash", point, Vector3.ZERO, cyan, .45)
-	for index in 6:
-		var angle = index * TAU / 6
-		var outward = Vector3(cos(angle), .3, sin(angle))
-		_puff("mote", point + outward * .15, outward * .65, cyan, .07)
+	_puff("flash", point, Vector3.ZERO, cyan, .18)
+
+
+func _advance_shield_ripples(delta):
+	for index in range(_shield_ripples.size() - 1, -1, -1):
+		var ripple = _shield_ripples[index]
+		var unit = ripple.target.get_ref()
+		if (
+			Globals.options.reduced_flashes
+			or not is_instance_valid(unit)
+			or unit.is_queued_for_deletion()
+			or unit.hp <= 0
+			or not unit.is_visible_in_tree()
+			or get_parent().restoring
+			or not get_parent().combat_audio._observed(unit)
+			or ripple.advance(delta)
+		):
+			ripple.hide()
+			ripple.queue_free()
+			_shield_ripples.remove_at(index)
+		else:
+			ripple.visible = _camera_sees(ripple.global_position)
 
 
 func impact(unit, source, point, weapon = {}):
@@ -640,17 +702,50 @@ func warhead(point, radius, ground):
 func grenade_impact(point: Vector3, radius: float, owner):
 	if not can_show_point(point) or not get_parent().combat_audio.point_observed(point, owner):
 		return
-	warhead(point, radius, true)
-	_shockwave(point, 1.3)
+	# Fragmentation is a tight pressure snap and low dirt fan, not a fuel blast.
+	var strength = clampf(radius * .35, .55, 1.1)
+	_water_impact(point, strength)
+	_puff("flash", point + Vector3.UP * .12, Vector3.ZERO, Color("ffe8b9"), strength * .8)
+	for index in 12:
+		var angle = index * TAU / 12.0 + _random.randf_range(-.12, .12)
+		var outward = Vector3(cos(angle), 0, sin(angle))
+		_puff(
+			"spark",
+			point + Vector3.UP * .12,
+			outward * _random.randf_range(3.5, 6.0) + Vector3.UP * _random.randf_range(.4, 2.0),
+			Color("f7cc8b"),
+			.035
+		)
+		if index % 2 == 0:
+			_puff(
+				"dust",
+				point + outward * .15 + Vector3.UP * .08,
+				outward * _random.randf_range(1.2, 2.4) + Vector3.UP * .2,
+				dust_color(_dust_biome),
+				strength * .8
+			)
+	_shockwave(point, .9)
+	aftermath.scar(Vector3(point.x, 0, point.z), strength * .6)
+	aftermath.flash(point + Vector3.UP * .2, .25, Color("ffe1a0"), true)
 	get_parent().combat_audio.point_impact(point, owner)
 
 
 # Proximity-fused detonation in the air (flak, missiles).
 func airburst(point, strength, color):
-	_puff("flash", point, Vector3.ZERO, color, strength * 1.2)
-	for _index in range(6):
-		_puff("spark", point, _jitter(3.0) * strength, Color("ffd9a0"), 0.05)
-	_puff("smoke", point, Vector3.UP * 0.15, Color(0.18, 0.17, 0.16, 0.5), strength * 0.9)
+	if not can_show_point(point):
+		return
+	_puff("flash", point, Vector3.ZERO, color, strength * .75)
+	for index in 6:
+		var outward = _jitter(1.0).normalized()
+		_puff("spark", point, outward * 3.5 * strength, Color("ffd9a0"), .04)
+		if index < 3:
+			_puff(
+				"smoke",
+				point + outward * .18 * strength,
+				outward * .45 + Vector3.UP * .22,
+				Color(.24, .25, .27, .36),
+				strength * .65
+			)
 
 
 func can_show_construction(unit):
@@ -725,6 +820,8 @@ func _armor_impact(point, direction, ground_hit, color):
 
 
 func _explosion(point, strength, ground_hit, destructive = false):
+	if not can_show_point(point):
+		return
 	if destructive and strength >= 1.5 and ground_hit:
 		_shockwave(point, strength)
 	if destructive:
@@ -749,15 +846,12 @@ func _explosion(point, strength, ground_hit, destructive = false):
 			Color(1, 0.5, 0.15, 0.9),
 			strength * _random.randf_range(0.7, 1.3)
 		)
-		# Two compact wisps keep repeated impacts from blanketing the firing line.
-		if _index < 2:
-			_puff(
-				"smoke",
-				point + offset,
-				offset + Vector3.UP * _random.randf_range(0.6, 1.0),
-				Color(0.22, 0.21, 0.20, 0.42),
-				strength * _random.randf_range(0.7, 1.15)
-			)
+	# A bounded cosmetic tail lets ignition precede the slower buoyant smoke.
+	if _blast_tails.size() >= MAX_BLAST_TAILS:
+		_blast_tails.pop_front()
+	_blast_tails.append(
+		{"point": point, "strength": strength, "age": 0.0, "stage": 0, "destructive": destructive}
+	)
 	if ground_hit:
 		# Uneven radial dirt jets, not a uniform expanding ring.
 		var jets = 12 if destructive else 4
@@ -770,13 +864,39 @@ func _explosion(point, strength, ground_hit, destructive = false):
 				"dust",
 				Vector3(point.x, _ground_height(point) + 0.15, point.z) + outward * 0.2,
 				velocity,
-				Color(0.48, 0.40, 0.30, 0.65),
+				dust_color(_dust_biome),
 				strength * _random.randf_range(0.8, 1.5)
 			)
 	if destructive:
 		aftermath.burst(point, strength, ground_hit)
 	elif ground_hit:
 		aftermath.scar(Vector3(point.x, 0, point.z), strength * .7)
+
+
+func _advance_blast_tails(delta):
+	for index in range(_blast_tails.size() - 1, -1, -1):
+		var entry = _blast_tails[index]
+		entry.age += delta
+		# Do not replay stale plumes after a long suspended/minimized frame.
+		if entry.age > .6 or not can_show_point(entry.point):
+			_blast_tails.remove_at(index)
+			continue
+		while entry.stage < 2 and entry.age >= [.09, .24][entry.stage]:
+			var late = entry.stage == 1
+			var count = 2 if entry.destructive else 1
+			for puff in count:
+				var offset = _jitter(entry.strength * .16)
+				offset.y = absf(offset.y) + (.3 if late else .1)
+				_puff(
+					"smoke",
+					entry.point + offset,
+					Vector3(offset.x * .5, .85 if late else .6, offset.z * .5),
+					Color(.26, .25, .24, .28 if late else .38),
+					entry.strength * (.9 if late else .65)
+				)
+			entry.stage += 1
+		if entry.stage == 2:
+			_blast_tails.remove_at(index)
 
 
 func destruction(unit):
@@ -1007,10 +1127,31 @@ func _muzzle_shockwave(point: Vector3, direction: Vector3):
 		var old = _shockwaves.pop_front().node
 		old.hide()
 		old.queue_free()
+	var ring = create_muzzle_wave()
+	add_child(ring)
+	var up := Vector3.RIGHT if absf(direction.dot(Vector3.UP)) > .95 else Vector3.UP
+	ring.global_transform = Transform3D(Basis.looking_at(direction, up), point + direction * .05)
+	_shockwaves.append({"node": ring, "age": 0.0, "duration": .18})
+
+
+func _cannon_gas(point: Vector3, direction: Vector3, color: Color):
+	_puff("flash", point, direction * .2, color, .32)
+	# Overlapping, tapered jets push out along the bore and cool within 0.1 s.
+	for index in 3:
+		_puff(
+			"exhaust",
+			point + direction * (.05 + index * .16),
+			direction * (3.2 + index * .6),
+			color,
+			.22 - index * .05
+		)
+
+
+static func create_muzzle_wave():
 	var ring := MeshInstance3D.new()
 	ring.name = "CannonMuzzleShockwave"
 	ring.mesh = QuadMesh.new()
-	ring.mesh.size = Vector2.ONE * 3.2
+	ring.mesh.size = Vector2.ONE * 2.4
 	ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	var material := ShaderMaterial.new()
 	material.shader = (
@@ -1019,10 +1160,7 @@ func _muzzle_shockwave(point: Vector3, direction: Vector3):
 		else MUZZLE_SHADER
 	)
 	ring.material_override = material
-	add_child(ring)
-	var up := Vector3.RIGHT if absf(direction.dot(Vector3.UP)) > .95 else Vector3.UP
-	ring.global_transform = Transform3D(Basis.looking_at(direction, up), point + direction * .05)
-	_shockwaves.append({"node": ring, "age": 0.0, "duration": .25})
+	return ring
 
 
 static func create_shockwave(strength):
@@ -1203,6 +1341,7 @@ func _take_tracer():
 	if _tracers.size() >= MAX_TRACERS:
 		return null
 	var node = MeshInstance3D.new()
+	node.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	node.mesh = _tracer_mesh
 	node.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(node)
@@ -1257,7 +1396,15 @@ func _glowing_material(color):
 	return _materials[color]
 
 
-func _process(_delta):
+func _process(delta):
+	# Cosmetic lifetimes use render-frame updates to avoid 60 Hz stepping
+	# on fast displays, while the explicit age clock still respects tactical pause.
+	if not get_tree().paused:
+		_advance_tracers(delta)
+		_advance_grenades(delta)
+		_advance_hit_flashes(delta)
+		_advance_blast_tails(delta)
+	_advance_shield_ripples(0.0 if get_tree().paused else delta)
 	# A loaded, paused throw retains its exact warning pose without advancing the fuse.
 	if get_tree().paused:
 		for entry in _grenades:
@@ -1289,8 +1436,6 @@ func _physics_process(delta):
 	if get_tree().paused:
 		return
 	_advance_abilities(delta)
-	_advance_hit_flashes(delta)
-	_advance_tracers(delta)
 	_advance_aftermath(delta)
 
 
@@ -1330,7 +1475,7 @@ func _update_tracer(entry):
 	if entry.rail:
 		entry.beam_material.set_shader_parameter("progress", progress)
 		entry.beam_material.set_shader_parameter(
-			"intensity", .65 if Globals.options.reduced_flashes else (3.0 if entry.prism else 2.5)
+			"intensity", .65 if Globals.options.reduced_flashes else entry.power
 		)
 	var direction = entry.origin.direction_to(entry.target)
 	entry.node.visible = not direction.is_zero_approx()
@@ -1645,17 +1790,28 @@ func rotor_downwash(unit):
 		return
 	var point: Vector3 = unit.global_position
 	var ground = _ground_height(point)
-	if point.y - ground > 5.0:
+	var height = maxf(0.0, point.y - ground)
+	var strength = 1.0 - smoothstep(.8, 5.0, height)
+	if strength <= 0.0:
 		return
 	point.y = ground
-	foliage.impulse(point, 4.0)
-	_puff(
-		"dust",
-		point + unit.global_basis.x * unit.radius,
-		unit.global_basis.x * 1.2,
-		dust_color(_dust_biome),
-		unit.radius
-	)
+	foliage.impulse(point, 4.0 * strength)
+	var color = dust_color(_dust_biome)
+	color.a *= strength * 1.3
+	var phase = _random.randf() * TAU
+	for index in 5:
+		var angle = phase + index * TAU / 5.0 + _random.randf_range(-.16, .16)
+		var outward = Vector3(cos(angle), 0, sin(angle))
+		var offset = outward * unit.radius * (.55 + height * .1)
+		var origin = point + offset
+		origin.y = _ground_height(origin) + .07
+		_puff(
+			"dust",
+			origin,
+			outward * _random.randf_range(1.2, 2.4) * strength + Vector3.UP * .16,
+			color,
+			unit.radius * _random.randf_range(.4, .6)
+		)
 
 
 # Fixed-wing flight presentation: jet exhaust trails, afterburner flames, wingtip
