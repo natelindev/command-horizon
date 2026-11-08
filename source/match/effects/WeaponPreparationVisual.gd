@@ -2,17 +2,17 @@ extends Node3D
 
 const SPARK_COUNT = 24
 const CHARGE_SHADER = preload("res://source/shaders/3d/weapon_charge.gdshader")
+const SPARK_SHADER = preload("res://source/shaders/3d/weapon_charge_sparks.gdshader")
 
 var _orb
 var _label
 var _sparks
 var _focus_material
+var _spark_material: ShaderMaterial
 var _phase = 0.0
 var _spark_phase = 0.0
 var _last_progress = 0.0
 var _spark_directions = PackedVector3Array()
-var _spark_bases: Array[Basis] = []
-var _spark_offsets: Array[float] = []
 # Rocket infantry lock onto aircraft instead of charging a heavy weapon.
 var _lock = false
 @onready var _unit = get_parent()
@@ -86,18 +86,17 @@ func _setup_sparks(tint):
 	_sparks.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	var mesh = BoxMesh.new()
 	mesh.size = Vector3(0.022, 0.022, 0.11)
-	var glow = StandardMaterial3D.new()
-	glow.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	glow.albedo_color = tint
-	glow.emission_enabled = true
-	glow.emission = tint
-	glow.emission_energy_multiplier = 1.5
-	mesh.material = glow
+	_spark_material = ShaderMaterial.new()
+	_spark_material.shader = SPARK_SHADER
+	_spark_material.set_shader_parameter("tint", tint)
+	mesh.material = _spark_material
 	var batch = MultiMesh.new()
 	batch.transform_format = MultiMesh.TRANSFORM_3D
 	batch.mesh = mesh
 	batch.instance_count = SPARK_COUNT
 	_sparks.multimesh = batch
+	# Shader displacement must remain inside the CPU culling bounds at every phase.
+	_sparks.custom_aabb = AABB(-Vector3.ONE * 1.2, Vector3.ONE * 2.4)
 	add_child(_sparks)
 	for index in SPARK_COUNT:
 		# Angular directions and orientation do not depend on charge or time.
@@ -106,8 +105,7 @@ func _setup_sparks(tint):
 		var radial = sqrt(1.0 - y * y)
 		var direction = Vector3(cos(angle) * radial, y, sin(angle) * radial)
 		_spark_directions.append(direction)
-		_spark_bases.append(Basis.looking_at(-direction))
-		_spark_offsets.append(index * 0.618034)
+		batch.set_instance_transform(index, Transform3D(Basis.looking_at(-direction), Vector3.ZERO))
 
 
 func _process(delta):
@@ -135,16 +133,5 @@ func _update_focus(progress):
 	if not _sparks.visible:
 		return
 	_sparks.global_transform = Transform3D(Basis.IDENTITY, _marker.global_position)
-	_sparks.multimesh.visible_instance_count = SPARK_COUNT
-	for index in _sparks.multimesh.visible_instance_count:
-		# Golden-angle distribution and independent cycles avoid a rotating dotted ball.
-		var direction = _spark_directions[index]
-		var travel = fposmod(_spark_phase + _spark_offsets[index], 1.0)
-		var radius = 0.07 + (1.0 - travel) * (1.0 - travel) * .95
-		var activation = (
-			1.0 if index < 8 else smoothstep(0.0, 1.0, progress * (SPARK_COUNT - 8) - (index - 8))
-		)
-		# Both ends have zero size and zero size derivative, hiding cycle resets.
-		var size = pow(sin(travel * PI), 2.0) * (0.65 + progress * 0.55) * activation
-		var basis = _spark_bases[index].scaled(Vector3.ONE * size)
-		_sparks.multimesh.set_instance_transform(index, Transform3D(basis, direction * radius))
+	_spark_material.set_shader_parameter("phase", _spark_phase)
+	_spark_material.set_shader_parameter("charge", progress)

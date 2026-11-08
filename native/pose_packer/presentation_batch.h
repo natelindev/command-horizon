@@ -6,22 +6,25 @@
 typedef struct {
     uint32_t generation;
     int live, offset, count, cell_x, cell_z, first, scene_geometry;
-    uint64_t unit, geometry, owner, pulse, *anchors;
+    uint64_t unit, geometry, owner, pulse, visual, worker, *anchors;
     Value rig_owner;
     RpRig *rig;
     IpT physics, sampled, geometry_pose;
     IpV previous;
     float radius, low, high;
-    double elapsed;
+    double elapsed, step_delta;
+    int pose_stage;
     float *track_travel;
 } PbSlot;
 typedef struct {
     PbSlot *slots;
     int high_water, live, capacity;
+    int order[PB_LIMIT], order_count, frame_count;
+    int64_t frame[PB_LIMIT];
     Value last;
     uint64_t statistics[7]; /* bound, captures, roots, packs, parts, checks, changes */
 } PbBatch;
-static Value pb_class, pb_methods[12], pb_args[12], pb_pulse_names[2];
+static Value pb_class, pb_methods[16], pb_args[15], pb_pulse_names[2], pb_pose_names[7];
 static GDExtensionMethodBindPtr pb_parent, pb_shader_parameter;
 static void *pb_shader_tag;
 static GDExtensionPtrBuiltInMethod pb_inverse, pb_linear;
@@ -47,6 +50,12 @@ static void pb_release(PbBatch *b, PbSlot *s) {
     s->anchors = 0;
     s->live = 0;
     b->live--;
+    for (int i = 0; i < b->order_count; i++)
+        if (b->order[i] == s - b->slots) {
+            memmove(b->order + i, b->order + i + 1,
+                    sizeof(int) * (size_t)(--b->order_count - i));
+            break;
+        }
 }
 static void pb_append(void *array, int64_t n) {
     Value value;
@@ -151,7 +160,113 @@ static int64_t pb_bind(PbBatch *b, void *unit, void *geometry, const void *ancho
     s->low = s->physics.p.y - s->radius - 1;
     s->high = s->physics.p.y + s->radius + 1;
     b->live++;
+    b->order[b->order_count++] = index;
     return pb_handle(b, s);
+}
+/* The same script animation/effect callbacks run in insertion order. Only the
+ * coordinator is native: elapsed state and weak bindings stay resident instead
+ * of crossing several script/dictionary/property boundaries per unit. Snapshot
+ * generation handles protect every phase against deletion/rebinding callbacks. */
+static Value pb_pose_call(uint64_t id, int method, const void **args, int count) {
+    Value result;
+    void *object = object_from_id(id);
+    if (!object) {
+        variant_nil(&result);
+        return result;
+    }
+    Value value;
+    cr_variant(object, &value);
+    GDExtensionCallError error = {0};
+    variant_call(&value, &pb_pose_names[method], args, count, &result, &error);
+    variant_destroy(&value);
+    return result;
+}
+static void pb_prepare(PbBatch *b, void *output) {
+    get_ctor(TYPE(ARRAY), 0)(output, 0);
+    b->frame_count = b->order_count;
+    for (int i = 0; i < b->frame_count; i++)
+        b->frame[i] = pb_handle(b, &b->slots[b->order[i]]);
+    for (int i = 0; i < b->frame_count; i++) {
+        int64_t handle = b->frame[i];
+        PbSlot *s = pb_slot(b, handle);
+        if (!s || !object_from_id(s->visual))
+            continue;
+        s->step_delta = s->elapsed;
+        s->elapsed = 0;
+        s->pose_stage = 1;
+        Value delta;
+        from_type(TYPE(FLOAT))(&delta, &s->step_delta);
+        Value job = pb_pose_call(s->visual, 0, (const void *[]){&delta}, 1);
+        if (pb_slot(b, handle) && get_type(&job) == TYPE(OBJECT))
+            array_append(output, (const void *[]){&job}, 0, 1);
+        variant_destroy(&job);
+        variant_destroy(&delta);
+    }
+}
+static void pb_finish(PbBatch *b, int workers, void *output) {
+    get_ctor(TYPE(ARRAY), 0)(output, 0);
+    for (int i = 0; i < b->frame_count; i++) {
+        int64_t handle = b->frame[i];
+        PbSlot *s = pb_slot(b, handle);
+        if (!s || s->pose_stage != 1 || !object_from_id(s->visual))
+            continue;
+        s->pose_stage = 2;
+        if (workers && s->worker) {
+            Value result = pb_pose_call(s->worker, 3, 0, 0);
+            variant_destroy(&result);
+        }
+        s = pb_slot(b, handle);
+        if (!s)
+            continue;
+        Value delta, finalize;
+        GDExtensionBool no = 0;
+        from_type(TYPE(FLOAT))(&delta, &s->step_delta);
+        from_type(TYPE(BOOL))(&finalize, &no);
+        Value result = pb_pose_call(s->visual, 1, (const void *[]){&delta, &finalize}, 2);
+        variant_destroy(&result);
+        variant_destroy(&delta);
+        variant_destroy(&finalize);
+        s = pb_slot(b, handle);
+        void *worker = s && workers ? object_from_id(s->worker) : 0;
+        if (!worker)
+            continue;
+        Value value, job, pending;
+        cr_variant(worker, &value);
+        GDExtensionBool valid = 0, ready = 0;
+        get_named(&value, &pb_pose_names[5], &job, &valid);
+        if (valid && get_type(&job) == TYPE(OBJECT)) {
+            get_named(&job, &pb_pose_names[6], &pending, &valid);
+            if (valid && get_type(&pending) == TYPE(BOOL))
+                to_type(TYPE(BOOL))(&ready, &pending);
+            variant_destroy(&pending);
+        }
+        if (ready)
+            array_append(output, (const void *[]){&job}, 0, 1);
+        variant_destroy(&job);
+        variant_destroy(&value);
+    }
+}
+static void pb_publish(PbBatch *b) {
+    for (int i = 0; i < b->frame_count; i++) {
+        int64_t handle = b->frame[i];
+        PbSlot *s = pb_slot(b, handle);
+        if (!s || s->pose_stage != 2 || !object_from_id(s->visual))
+            continue;
+        s->pose_stage = 3;
+        if (s->worker) {
+            Value result = pb_pose_call(s->worker, 4, 0, 0);
+            variant_destroy(&result);
+        }
+        s = pb_slot(b, handle);
+        if (!s)
+            continue;
+        Value delta;
+        from_type(TYPE(FLOAT))(&delta, &s->step_delta);
+        Value result = pb_pose_call(s->visual, 2, (const void *[]){&delta}, 1);
+        variant_destroy(&result);
+        variant_destroy(&delta);
+    }
+    b->frame_count = 0;
 }
 static void pb_capture(PbBatch *b, double delta) {
     if (!isfinite(delta) || delta < 0)
@@ -426,6 +541,27 @@ static void pb_call(void *userdata, void *instance, const GDExtensionConstVarian
             !isfinite(travel) || fabs(travel) > FLT_MAX)
             return;
         s->track_travel[part] = (float)travel;
+    } else if (method == 12 && count == 3 && cv_object_argument(args[1]) &&
+               cv_object_argument(args[2])) {
+        if (s) {
+            s->visual = object_id(args[1]);
+            s->worker = object_id(args[2]);
+        }
+    } else if ((method == 13 && count == 0) ||
+               (method == 14 && count == 1 && get_type(args[0]) == TYPE(BOOL))) {
+        Value array;
+        if (method == 13)
+            pb_prepare(b, &array);
+        else {
+            GDExtensionBool workers;
+            to_type(TYPE(BOOL))(&workers, (void *)args[0]);
+            pb_finish(b, workers, &array);
+        }
+        variant_destroy(ret);
+        from_type(TYPE(ARRAY))(ret, &array);
+        get_dtor(TYPE(ARRAY))(&array);
+    } else if (method == 15 && count == 0) {
+        pb_publish(b);
     } else
         return;
     error->error = GDEXTENSION_CALL_OK;
@@ -434,13 +570,19 @@ static void presentation_initialize(void) {
     name_new(&pb_class, "CopperfinPresentationBatch");
     const char *methods[] = {"configure", "bind_unit",   "unbind",      "capture",
                              "elapsed",   "set_elapsed", "set_pulse",   "changes",
-                             "pack",      "statistics",  "set_geometry", "set_track"};
+                             "pack",      "statistics",  "set_geometry", "set_track",
+                             "set_pose_owner", "prepare_poses", "finish_poses", "publish_poses"};
     const char *arguments[] = {"capacity", "unit",   "geometry", "anchors", "rig",
-                               "offset",   "radius", "handle",   "value", "part", "travel", "scene_geometry"};
-    for (int i = 0; i < 12; i++)
+                               "offset",   "radius", "handle",   "value", "part", "travel", "scene_geometry",
+                               "visual", "worker", "workers"};
+    for (int i = 0; i < 16; i++)
         name_new(&pb_methods[i], methods[i]);
-    for (int i = 0; i < 12; i++)
+    for (int i = 0; i < 15; i++)
         name_new(&pb_args[i], arguments[i]);
+    const char *pose_names[] = {"prepare_gpu_pose", "finish_gpu_pose", "publish_gpu_pose",
+                                "begin", "end", "job", "pending"};
+    for (int i = 0; i < 7; i++)
+        name_new(&pb_pose_names[i], pose_names[i]);
     name_new(&pb_pulse_names[0], "hit_color");
     name_new(&pb_pulse_names[1], "hit_strength");
     pb_initialized = 1;
@@ -468,8 +610,8 @@ static void presentation_initialize(void) {
     info.free_instance_func = pb_free;
     register_class(library, &pb_class, &parent_name, &info);
     pb_registered = 1;
-    const int counts[] = {1, 6, 1, 1, 1, 2, 2, 0, 1, 0, 3, 3};
-    const GDExtensionVariantType types[12][6] = {
+    const int counts[] = {1, 6, 1, 1, 1, 2, 2, 0, 1, 0, 3, 3, 3, 0, 1, 0};
+    const GDExtensionVariantType types[16][6] = {
         {TYPE(INT)},
         {TYPE(OBJECT), TYPE(OBJECT), TYPE(ARRAY), TYPE(OBJECT), TYPE(INT), TYPE(FLOAT)},
         {TYPE(INT)},
@@ -481,13 +623,15 @@ static void presentation_initialize(void) {
         {TYPE(BOOL)},
         {},
         {TYPE(INT), TYPE(TRANSFORM3D), TYPE(BOOL)},
-        {TYPE(INT), TYPE(INT), TYPE(FLOAT)}};
+        {TYPE(INT), TYPE(INT), TYPE(FLOAT)},
+        {TYPE(INT), TYPE(OBJECT), TYPE(OBJECT)}, {}, {TYPE(BOOL)}, {}};
     const GDExtensionVariantType outputs[] = {TYPE(BOOL),  TYPE(INT),   TYPE(BOOL), TYPE(NIL),
                                               TYPE(FLOAT), TYPE(NIL),   TYPE(NIL),  TYPE(ARRAY),
-                                              TYPE(ARRAY), TYPE(ARRAY), TYPE(NIL), TYPE(NIL)};
-    const int names[12][6] = {{0},   {1, 2, 3, 4, 5, 6}, {7}, {8}, {7}, {7, 8}, {7, 8}, {}, {8}, {},
-                              {7, 2, 11}, {7, 9, 10}};
-    for (int i = 0; i < 12; i++) {
+                                              TYPE(ARRAY), TYPE(ARRAY), TYPE(NIL), TYPE(NIL),
+                                              TYPE(NIL), TYPE(ARRAY), TYPE(ARRAY), TYPE(NIL)};
+    const int names[16][6] = {{0},   {1, 2, 3, 4, 5, 6}, {7}, {8}, {7}, {7, 8}, {7, 8}, {}, {8}, {},
+                              {7, 2, 11}, {7, 9, 10}, {7, 12, 13}, {}, {14}, {}};
+    for (int i = 0; i < 16; i++) {
         GDExtensionPropertyInfo parameters[6];
         GDExtensionClassMethodArgumentMetadata metadata[6] = {0};
         for (int j = 0; j < counts[i]; j++)
@@ -513,10 +657,12 @@ static void presentation_deinitialize(void) {
         return;
     if (pb_registered)
         unregister_class(library, &pb_class);
-    for (int i = 0; i < 12; i++)
+    for (int i = 0; i < 16; i++)
         get_dtor(TYPE(STRING_NAME))(&pb_methods[i]);
-    for (int i = 0; i < 12; i++)
+    for (int i = 0; i < 15; i++)
         get_dtor(TYPE(STRING_NAME))(&pb_args[i]);
+    for (int i = 0; i < 7; i++)
+        get_dtor(TYPE(STRING_NAME))(&pb_pose_names[i]);
     for (int i = 0; i < 2; i++)
         get_dtor(TYPE(STRING_NAME))(&pb_pulse_names[i]);
     get_dtor(TYPE(STRING_NAME))(&pb_class);

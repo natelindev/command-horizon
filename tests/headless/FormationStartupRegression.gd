@@ -7,6 +7,13 @@ func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
 	await _open("bastion")
 	var planner = load("res://source/match/orders/FormationPlanner.gd")
+	var loader = load("res://source/match/rendering/NativePosePacker.gd")
+	if "--require-optimized-runtime" in OS.get_cmdline_user_args():
+		_check(OS.has_feature("copperfin_optimized_macos"), "Optimized engine feature is missing")
+		_check(
+			ProjectSettings.get_setting_with_override("rendering/driver/threads/thread_model") == 2,
+			"Optimized release did not select the patched renderer"
+		)
 	_test_descriptor_preflight(planner)
 	var native_expected = (
 		not OS.has_feature("double")
@@ -35,11 +42,30 @@ func _run():
 	_check(assignment.size() == 200, "First input lost formation members")
 	if native_expected:
 		_check(elapsed <= 16.6, "First formation input performed deferred extension loading")
-	if "--native-crowd-runtime" not in OS.get_cmdline_user_args():
+	if not loader.runtime_enabled("--native-crowd-runtime"):
 		_check(_game.crowd_runtime == null, "Numerical warm-up enabled native crowd")
-	if "--native-unit-state" not in OS.get_cmdline_user_args():
+	elif native_expected:
+		_check(
+			_game.crowd_runtime != null and _game.crowd_runtime.active,
+			"Configured native crowd did not activate"
+		)
+	if not loader.runtime_enabled("--native-unit-state"):
 		_check(_game.unit_state_store == null, "Numerical warm-up enabled native unit state")
-	if OS.get_name() != "Windows" and "--enable-native-kernels" not in OS.get_cmdline_user_args():
+	elif native_expected:
+		_check(_game.unit_state_store != null, "Configured native unit state did not activate")
+	if OS.has_feature("copperfin_optimized_macos") and native_expected:
+		_check(_game.battlefield._native_visibility != null, "Optimized visibility is inactive")
+		_check(_game.battlefield.native_combat_queries, "Optimized combat queries are inactive")
+		_check(
+			_game.battlefield.native_battlefield_index, "Optimized battlefield index is inactive"
+		)
+		_check(_game.battlefield.native_exploration, "Optimized exploration is inactive")
+		for player in get_nodes_in_group("players"):
+			_check(player.indexed_rosters, "Optimized roster is inactive")
+	if (
+		OS.get_name() not in ["Windows", "macOS"]
+		and "--enable-native-kernels" not in OS.get_cmdline_user_args()
+	):
 		_check(
 			_game.battlefield._native_queries == null, "Numerical warm-up enabled native queries"
 		)

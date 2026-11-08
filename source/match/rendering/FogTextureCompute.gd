@@ -17,10 +17,14 @@ var _textures: Array[RID] = []
 var _buffers: Array[RID] = [RID(), RID(), RID()]
 var _capacities: Array[int] = [0, 0, 0]
 var _uniforms: RID
+var _packer: RefCounted
 
 
 func initialize(dimensions: Vector2i):
 	size = dimensions
+	_packer = load("res://source/match/rendering/NativePosePacker.gd").create()
+	if _packer != null and not _packer.has_method("pack_fog"):
+		_packer = null
 	var shader_file := load(SHADER_PATH) as RDShaderFile
 	if shader_file == null:
 		failed = true
@@ -102,7 +106,11 @@ static func _add_primitive(
 func update(reveals: Array, reveal_all: bool, explored: Color, visible: Color):
 	if not ready or _closed:
 		return
-	var buffers := pack(reveals, size)
+	var buffers: Array[PackedByteArray] = []
+	if _packer != null:
+		buffers.assign(_packer.pack_fog(reveals, size))
+	if buffers.size() != 3:
+		buffers = pack(reveals, size)
 	var constants := PackedByteArray()
 	constants.resize(48)
 	constants.encode_s32(0, size.x)
@@ -137,7 +145,9 @@ func close():
 		history.texture_rd_rid = RID()
 	texture = null
 	history = null
-	RenderingServer.call_on_render_thread(_release_render)
+	# A queued method does not own its receiver; teardown may drop the last
+	# scene reference before the rendering thread drains the queue.
+	RenderingServer.call_on_render_thread(_release_render.bind(self))
 
 
 func _initialize_render(dimensions: Vector2i, spirv: RDShaderSPIRV):
@@ -191,8 +201,10 @@ func _initialized(output: RID, exploration: RID):
 		failed = true
 		return
 	texture = Texture2DRD.new()
+	texture.get_rid()
 	texture.texture_rd_rid = output
 	history = Texture2DRD.new()
+	history.get_rid()
 	history.texture_rd_rid = exploration
 	ready = true
 
@@ -242,7 +254,7 @@ func _restore_render(bytes: PackedByteArray):
 		_rd.texture_update(_textures[0], 0, bytes)
 
 
-func _release_render():
+func _release_render(_keep_alive: RefCounted = null):
 	if _rd == null:
 		return
 	if _uniforms.is_valid() and _rd.uniform_set_is_valid(_uniforms):

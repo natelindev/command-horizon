@@ -1628,7 +1628,13 @@ func _advance_tracers(delta):
 			var target = entry.target_ref.get_ref()
 			if target != null and not target.is_queued_for_deletion() and target.visible:
 				entry.target = target.global_position + Vector3.UP * 0.5
-		var tail = _update_tracer(entry)
+		var tail = entry.origin
+		if entry.rail:
+			# Beams are fixed firing-line afterimages. Their transform was
+			# published at launch; only optical age and accessibility vary.
+			_update_beam(entry)
+		else:
+			tail = _update_tracer(entry)
 		if not entry.node.visible:
 			continue
 		entry.trail_clock += delta
@@ -1646,10 +1652,7 @@ func _advance_tracers(delta):
 func _update_tracer(entry):
 	var progress = clampf(entry.age / entry.duration, 0.0, 1.0)
 	if entry.rail:
-		entry.beam_material.set_shader_parameter("progress", progress)
-		entry.beam_material.set_shader_parameter(
-			"intensity", .65 if Globals.options.reduced_flashes else entry.power
-		)
+		_update_beam(entry)
 	var direction = entry.origin.direction_to(entry.target)
 	entry.node.visible = not direction.is_zero_approx()
 	if not entry.node.visible:
@@ -1680,6 +1683,13 @@ func _update_tracer(entry):
 		(head + tail) * .5
 	)
 	return tail
+
+
+func _update_beam(entry):
+	entry.beam_material.set_shader_parameter("progress", clampf(entry.age / entry.duration, 0, 1))
+	entry.beam_material.set_shader_parameter(
+		"intensity", .65 if Globals.options.reduced_flashes else entry.power
+	)
 
 
 func _advance_aftermath(delta):

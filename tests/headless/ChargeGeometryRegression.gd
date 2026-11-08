@@ -85,13 +85,12 @@ func _spark_continuity(display, progress: float):
 	# A progress refresh used to move every particle immediately because elapsed
 	# time was multiplied by the new speed (and its orbit radius grew as well).
 	var phase = display._spark_phase
-	var before = display._sparks.multimesh.get_instance_transform(0)
+	var before = display._spark_material.get_shader_parameter("phase")
 	display._unit.weapon_charge_progress = minf(1.0, progress + .02)
 	display.refresh()
 	_check(display._spark_phase == phase, "Progress refresh jumped the particle clock")
-	if DisplayServer.get_name() != "headless":
-		var after = display._sparks.multimesh.get_instance_transform(0)
-		_check(after.origin.is_equal_approx(before.origin), "Progress refresh teleported a spark")
+	var after = display._spark_material.get_shader_parameter("phase")
+	_check(is_equal_approx(before, after), "Progress refresh teleported a spark")
 	# Equal real time and charge ramps must converge at 30 and 144 render fps.
 	var phases = []
 	for fps in [30, 144]:
@@ -107,11 +106,5 @@ func _spark_continuity(display, progress: float):
 	display._process(.2)
 	_check(display._spark_phase == phase, "Pause advanced charge particles")
 	paused = false
-	if DisplayServer.get_name() == "headless":
-		return
-	# The first spark wraps at phase 1. Both sides must disappear rather than pop.
-	for edge in [.99999, 1.00001]:
-		display._spark_phase = edge
-		display.refresh()
-		var pose = display._sparks.multimesh.get_instance_transform(0)
-		_check(pose.basis.x.length() < .0001, "Spark reset is visible")
+	# Shader geometry, including both sides of a cycle reset, is compared with
+	# the original CPU transforms by rendered/ChargeSparkRegression.gd.

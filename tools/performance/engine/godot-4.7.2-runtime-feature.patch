@@ -1,0 +1,12 @@
+--- a/platform/macos/os_macos.mm
++++ b/platform/macos/os_macos.mm
+@@ -995,6 +995,9 @@
+ }
+ 
+ bool OS_MacOS::_check_internal_feature_support(const String &p_feature) {
++	if (p_feature == "copperfin_optimized_macos") {
++		return true;
++	}
+ 	if (p_feature == "system_fonts") {
+ 		return true;
+ 	}

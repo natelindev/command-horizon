@@ -1,0 +1,32 @@
+--- a/scene/3d/visual_instance_3d.cpp
++++ b/scene/3d/visual_instance_3d.cpp
+@@ -81,7 +81,7 @@
+ }
+ 
+ void VisualInstance3D::fti_update_servers_xform() {
+-	if (!_is_using_identity_transform()) {
++	if (base.is_valid() && !_is_using_identity_transform()) {
+ 		RS::get_singleton()->instance_set_transform(get_instance(), _get_cached_global_transform_interpolated());
+ 	}
+ }
+@@ -96,7 +96,7 @@
+ 
+ 		case NOTIFICATION_TRANSFORM_CHANGED: {
+ 			// ToDo : Can we turn off notify transform for physics interpolated cases?
+-			if (_is_vi_visible() && !(is_inside_tree() && get_tree()->is_physics_interpolation_enabled()) && !_is_using_identity_transform()) {
++			if (base.is_valid() && _is_vi_visible() && !(is_inside_tree() && get_tree()->is_physics_interpolation_enabled()) && !_is_using_identity_transform()) {
+ 				// Physics interpolation global off, always send.
+ 				RenderingServer::get_singleton()->instance_set_transform(instance, get_global_transform());
+ 			}
+@@ -196,6 +196,11 @@
+ void VisualInstance3D::set_base(const RID &p_base) {
+ 	RenderingServer::get_singleton()->instance_set_base(instance, p_base);
+ 	base = p_base;
++	// Empty instances retain their scene transform and children, but skip server
++	// transform uploads. Restoring a base must publish the current placement.
++	if (base.is_valid() && is_inside_tree() && !_is_using_identity_transform()) {
++		RenderingServer::get_singleton()->instance_set_transform(instance, get_global_transform());
++	}
+ }
+ 
+ RID VisualInstance3D::get_base() const {

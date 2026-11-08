@@ -7,12 +7,13 @@ var native: RefCounted
 var surface_active := false
 var _configured_iteration := -1
 var _projection_valid := false
-var _nearest_surface := "--native-nearest-surface" in OS.get_cmdline_user_args()
+var _native_loader = load("res://source/match/rendering/NativePosePacker.gd")
+var _nearest_surface: bool = _native_loader.runtime_enabled("--native-nearest-surface")
 @onready var _game = get_parent()
 
 
 func _ready():
-	var loader = load("res://source/match/rendering/NativePosePacker.gd").create()
+	var loader = _native_loader.create()
 	if loader == null or not ClassDB.class_exists("CopperfinCrowdRuntime"):
 		return
 	native = ClassDB.instantiate("CopperfinCrowdRuntime")

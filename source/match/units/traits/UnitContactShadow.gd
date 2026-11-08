@@ -28,16 +28,23 @@ func _init(unit):
 	cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	var diameter = maxf(0.5, unit.radius * SPREAD)
 	scale = Vector3(diameter, 1.0, diameter)
-	set_process(true)
 
 
-func _process(_delta):
+func _ready():
+	# The mark inherits unit visibility and root interpolation. Only a changed
+	# simulation transform can change its height relative to the terrain.
+	set_notify_transform(true)
+	_update_ground_height()
+
+
+func _notification(what):
+	if what == NOTIFICATION_TRANSFORM_CHANGED and is_node_ready():
+		_update_ground_height()
+
+
+func _update_ground_height():
 	if not is_instance_valid(_unit) or _unit.is_queued_for_deletion():
 		return
-	if not _unit.visible:
-		visible = false
-		return
-	visible = true
 	var current_pos = _unit.global_position
 	if current_pos.distance_squared_to(_last_position) > 0.001:
 		_last_position = current_pos

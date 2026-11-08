@@ -24,13 +24,10 @@ var recoil_roll := 0.0
 
 
 static func mass_tier(unit) -> int:
-	if unit.type in HEAVY_TYPES:
+	var role = unit.type
+	if role in HEAVY_TYPES:
 		return Mass.HEAVY
-	if (
-		unit.type in LIGHT_TYPES
-		or unit.type.ends_with("Infantry")
-		or unit.type.begins_with("Mercenary")
-	):
+	if role in LIGHT_TYPES or role.ends_with("Infantry") or role.begins_with("Mercenary"):
 		return Mass.LIGHT
 	return Mass.MEDIUM
 

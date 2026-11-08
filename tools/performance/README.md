@@ -1,5 +1,11 @@
 # Heavy 2v2 benchmark
 
+The basic native pose batching, spatial index and contact kernels now activate
+automatically on macOS as well as Windows when a compatible library is installed.
+`--disable-native-kernels` forces the portable fallback. Missing libraries fall
+back quietly. The additional experimental runtime flags documented below remain
+opt-in; basic kernel activation does not enable them.
+
 This Windows benchmark exports the actual release template with a dedicated
 SceneTree entry point. Godot release templates do not implement `--script`.
 The stage uses junctions to the current project and an isolated user directory;
@@ -227,3 +233,26 @@ compiler. This is a local profiler build fix, not a game engine behavior change.
 The official production template remains the source of FPS acceptance evidence.
 See the official [Godot native profiling guide](https://docs.godotengine.org/en/stable/engine_details/development/profiling/index.html)
 and [Tracy integration guide](https://docs.godotengine.org/en/stable/engine_details/development/profiling/tracy.html).
+
+## Live audiovisual battle fixture
+
+`tests/rendered/BenchmarkBattlePerformance.gd` measures 200 visible live
+combatants with selection, weapons, effects and audio. It requires graphical
+wall-clock rendering. Select a faction and quality with `--av-faction=bastion`
+and `--av-quality=high`, and a sample count with `--av-samples=240`. Pass
+`--av-output=ABSOLUTE_DIRECTORY` to retain JSON and a capture.
+
+Windowed rendering is the default. `--av-fullscreen` selects exclusive fullscreen
+while retaining the verified 1280×720 viewport. Reports include the requested
+mode and actual window mode for every sample. Compare like modes; changing the
+window presentation mode can materially change frame pacing on macOS. Raw
+frame times and physics-tick counts are retained for diagnosing tick-related
+spikes. Profiling or cold-effects runs are diagnostic, and failed visibility,
+focus, workload or real-time progression checks invalidate any timing result.
+
+`--av-no-driver-timings` omits per-frame GPU and render-CPU timing queries, which
+synchronously wait for the rendering command queue. Use paired runs to measure
+their overhead, especially with a separate rendering thread. Reports set
+`driver_timing_probe` to false and leave those two timing summaries empty; frame
+times, draw counts, pipeline counts and every workload check remain present.
+The default retains driver timing probes for comparison with earlier reports.

@@ -46,7 +46,8 @@ var _owner_bits := {}
 func _ready():
 	if get_parent().has_method("get_units"):
 		_match_registry = get_parent()
-	_native_queries = load("res://source/match/rendering/NativePosePacker.gd").create()
+	var native_loader = load("res://source/match/rendering/NativePosePacker.gd")
+	_native_queries = native_loader.create()
 	if _native_queries != null and not _native_queries.has_method("nearby_units_filtered"):
 		_native_queries = null
 	_native_index = (
@@ -58,7 +59,7 @@ func _ready():
 	if map != null and map.is_elevated() and "terrain" in map:
 		_terrain = map.terrain
 	if (
-		"--native-visibility-runtime" in OS.get_cmdline_user_args()
+		native_loader.runtime_enabled("--native-visibility-runtime")
 		and ClassDB.class_exists("CopperfinVisibilityRuntime")
 	):
 		_native_visibility = ClassDB.instantiate("CopperfinVisibilityRuntime")
@@ -67,17 +68,17 @@ func _ready():
 		elif "--profile-runtime" in OS.get_cmdline_user_args():
 			_native_visibility.profile(true)
 	native_exploration = (
-		"--native-exploration" in OS.get_cmdline_user_args()
+		native_loader.runtime_enabled("--native-exploration")
 		and _native_visibility != null
 		and _native_visibility.has_method("explore_cells")
 	)
 	native_combat_queries = (
-		"--native-combat-queries" in OS.get_cmdline_user_args()
+		native_loader.runtime_enabled("--native-combat-queries")
 		and _native_visibility != null
 		and _native_visibility.has_method("can_fire")
 	)
 	native_battlefield_index = (
-		"--native-battlefield-index" in OS.get_cmdline_user_args()
+		native_loader.runtime_enabled("--native-battlefield-index")
 		and _native_visibility != null
 		and _native_visibility.has_method("rebuild_index")
 	)

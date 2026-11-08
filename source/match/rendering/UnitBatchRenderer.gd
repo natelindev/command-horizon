@@ -16,8 +16,6 @@ const GROUP_CAPACITY := 128
 var _builder: RefCounted
 var _compute: RefCounted
 var _native: RefCounted
-var _texture: ImageTexture
-var _previous_texture: ImageTexture
 var _last_pixels := PackedByteArray()
 var _world_jobs := []
 var _chassis_jobs := []
@@ -39,14 +37,16 @@ var _infantry_jobs_enabled := not "--no-infantry-workers" in OS.get_cmdline_user
 var _decoupled_poses := "--enable-decoupled-poses" in OS.get_cmdline_user_args()
 var _render_pose_updates := not "--physics-pose-updates" in OS.get_cmdline_user_args()
 var _pending_pose_delta := 0.0
-var _native_infantry_poses := "--native-infantry-poses" in OS.get_cmdline_user_args()
+var _native_loader = load("res://source/match/rendering/NativePosePacker.gd")
+var _native_infantry_poses: bool = _native_loader.runtime_enabled("--native-infantry-poses")
 var _native_infantry_solved := 0
 var _native_infantry_fallbacks := 0
-var _native_pose_rigs := (
-	"--native-pose-rigs" in OS.get_cmdline_user_args()
-	or "--native-presentation" in OS.get_cmdline_user_args()
+var _native_pose_rigs: bool = (
+	_native_loader.runtime_enabled("--native-pose-rigs")
+	or _native_loader.runtime_enabled("--native-presentation")
 )
 var _presentation: RefCounted
+var _native_pose_coordinator := false
 var _presentation_entries := {}
 var _resident_rigs := 0
 var _profile_runtime := "--profile-runtime" in OS.get_cmdline_user_args()
@@ -57,7 +57,7 @@ var _profile_us := PackedInt64Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 
 func _ready():
 	if DisplayServer.get_name() != "headless" and RenderingServer.get_rendering_device() != null:
-		_native = load("res://source/match/rendering/NativePosePacker.gd").create()
+		_native = _native_loader.create()
 	if _native == null or "--disable-unit-batching" in OS.get_cmdline_user_args():
 		set_process(false)
 		set_physics_process(false)
@@ -66,7 +66,7 @@ func _ready():
 	_native_infantry_poses = (_native_infantry_poses and _native.has_method("solve_infantry_batch"))
 	_native_pose_rigs = _native_pose_rigs and ClassDB.class_exists("CopperfinPoseRig")
 	if (
-		"--native-presentation" in OS.get_cmdline_user_args()
+		_native_loader.runtime_enabled("--native-presentation")
 		and _render_pose_updates
 		and _native_pose_rigs
 		and ClassDB.class_exists("CopperfinPresentationBatch")
@@ -74,6 +74,11 @@ func _ready():
 		_presentation = ClassDB.instantiate("CopperfinPresentationBatch")
 		if not _presentation.has_method("set_track") or not _presentation.configure(POSE_CAPACITY):
 			_presentation = null
+		_native_pose_coordinator = (
+			_presentation != null
+			and _presentation.has_method("publish_poses")
+			and not "--script-pose-coordinator" in OS.get_cmdline_user_args()
+		)
 	if _render_pose_updates:
 		get_tree().physics_frame.connect(_capture_physics_roots)
 	_orphans = Node3D.new()
@@ -86,15 +91,13 @@ func _ready():
 	physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	top_level = true
 	global_transform = Transform3D.IDENTITY
-	var image := Image.create(4, POSE_CAPACITY, false, Image.FORMAT_RGBAF)
-	_texture = ImageTexture.create_from_image(image)
-	_previous_texture = ImageTexture.create_from_image(image)
 	_last_pixels.resize(POSE_CAPACITY * 64)
 	for diagonal in [0, 5, 10]:
 		_last_pixels.encode_float(diagonal * 4, 1.0)
 	_builder = Builder.new()
 	_compute = load("res://source/match/rendering/ComputePosePalette.gd").new()
-	_compute.setup(_previous_texture, _texture, POSE_CAPACITY)
+	_compute.setup(POSE_CAPACITY)
+	_compute.upload(_last_pixels, _last_pixels)
 	_builder.setup(_compute.texture)
 	MatchSignals.unit_spawned.connect(_queue_unit)
 	MatchSignals.unit_construction_finished.connect(_queue_unit)
@@ -150,7 +153,7 @@ func _batch_static_map():
 			for piece in pieces:
 				var source: MeshInstance3D = piece[0]
 				group.sources.append(source)
-				RenderingServer.instance_set_base(source.get_instance(), RID())
+				_suppress_mesh(source)
 				source.visibility_changed.connect(_static_visibility_changed.bind(source, group))
 			_static_batches.append(group)
 
@@ -171,9 +174,21 @@ func _restore_static(group):
 			_restore_mesh(source)
 
 
+func _suppress_mesh(source: MeshInstance3D):
+	source.set_base(RID())
+	# Plain source meshes have no transform work while their rendering base is
+	# empty. Keep scripted notifications and descendant interpolation intact.
+	if source.get_script() == null and source.is_transform_notification_enabled():
+		source.set_meta("gpu_transform_notify", true)
+		source.set_notify_transform(false)
+
+
 func _restore_mesh(source: MeshInstance3D):
+	if source.has_meta("gpu_transform_notify"):
+		source.set_notify_transform(true)
+		source.remove_meta("gpu_transform_notify")
 	var instance = source.get_instance()
-	RenderingServer.instance_set_base(instance, source.mesh.get_rid())
+	source.set_base(source.mesh.get_rid())
 	# Clearing a rendering instance's base also clears its surface overrides in
 	# the server. MeshInstance3D still retains those resources, so rebind them
 	# when leaving a batch (fog, construction, hidden parts and damage effects).
@@ -296,7 +311,7 @@ func _add_unit(unit):
 				if belt.mesh == source:
 					entry.tracks.append([belt, piece[2]])
 		entry.sources.append(source)
-		RenderingServer.instance_set_base(source.get_instance(), RID())
+		_suppress_mesh(source)
 		# A selectively hidden/replaced part must immediately regain native rendering.
 		source.visibility_changed.connect(_source_visibility_changed.bind(source, unit))
 		if (
@@ -343,6 +358,8 @@ func _add_unit(unit):
 			entry.presentation_handle = handle
 			_presentation_entries[handle] = entry
 			visuals.set_native_presentation(_presentation, handle)
+			if _native_pose_coordinator:
+				_presentation.set_pose_owner(handle, visuals, visuals._pose_worker)
 			_update_native_pulse(entry)
 	_bind_tracks(entry)
 
@@ -365,6 +382,7 @@ func _disable_native_presentation():
 			entry.visuals._track_motion.bind_palette(track[0].mesh, null, -1, track[1])
 	_presentation_entries.clear()
 	_presentation = null
+	_native_pose_coordinator = false
 
 
 func _update_native_pulse(entry):
@@ -416,6 +434,10 @@ static func duplicate_geometry(geometry: Node3D, flags: int = 15) -> Node3D:
 	# Reparented leaves cannot be reconstructed from the imported scene's owner
 	# table. Copy the current posed tree, including runtime-generated meshes.
 	var copy = geometry.duplicate(flags & ~Node.DUPLICATE_USE_INSTANTIATION)
+	for cloned_source in copy.find_children("*", "MeshInstance3D", true, false):
+		if cloned_source.has_meta("gpu_transform_notify"):
+			cloned_source.set_notify_transform(true)
+			cloned_source.remove_meta("gpu_transform_notify")
 	# Freeze each belt at its current travel in wrecks and fog memories.
 	# Generated mesh names may change on duplication; belt indices stay stable.
 	if entry.visuals._track_motion != null:
@@ -652,23 +674,29 @@ func _profile_stage(index: int, began: int) -> int:
 func _advance_poses(delta: float):
 	if not get_tree().paused:
 		var profile_start := Time.get_ticks_usec() if _profile_runtime else 0
-		_chassis_jobs.clear()
-		for entry in _entries:
-			entry.step_delta = entry.visuals._pose_elapsed if _render_pose_updates else delta
-			if _render_pose_updates:
-				entry.visuals._pose_elapsed = 0.0
-			_chassis_jobs.append(entry.visuals.prepare_gpu_pose(entry.step_delta))
+		if _native_pose_coordinator:
+			_chassis_jobs = _presentation.prepare_poses()
+		else:
+			_chassis_jobs.clear()
+			for entry in _entries:
+				entry.step_delta = entry.visuals._pose_elapsed if _render_pose_updates else delta
+				if _render_pose_updates:
+					entry.visuals._pose_elapsed = 0.0
+				_chassis_jobs.append(entry.visuals.prepare_gpu_pose(entry.step_delta))
 		profile_start = _profile_stage(1, profile_start)
 		_pose_workers.solve(_chassis_jobs, _parallel_poses)
 		profile_start = _profile_stage(2, profile_start)
-		_infantry_jobs.clear()
-		for entry in _entries:
-			var worker = entry.visuals._pose_worker
-			if worker != null and _infantry_jobs_enabled:
-				worker.begin()
-			entry.visuals.finish_gpu_pose(entry.step_delta, false)
-			if worker != null and _infantry_jobs_enabled and worker.job.pending:
-				_infantry_jobs.append(worker.job)
+		if _native_pose_coordinator:
+			_infantry_jobs = _presentation.finish_poses(_infantry_jobs_enabled)
+		else:
+			_infantry_jobs.clear()
+			for entry in _entries:
+				var worker = entry.visuals._pose_worker
+				if worker != null and _infantry_jobs_enabled:
+					worker.begin()
+				entry.visuals.finish_gpu_pose(entry.step_delta, false)
+				if worker != null and _infantry_jobs_enabled and worker.job.pending:
+					_infantry_jobs.append(worker.job)
 		profile_start = _profile_stage(3, profile_start)
 		if _native_infantry_poses and _native.has_method("solve_infantry_batch"):
 			_native_infantry_solved = _native.solve_infantry_batch(_infantry_jobs)
@@ -679,11 +707,14 @@ func _advance_poses(delta: float):
 		else:
 			_pose_workers.solve(_infantry_jobs, _parallel_poses, 16)
 		profile_start = _profile_stage(4, profile_start)
-		for entry in _entries:
-			var worker = entry.visuals._pose_worker
-			if worker != null:
-				worker.end()
-			entry.visuals.publish_gpu_pose(entry.step_delta)
+		if _native_pose_coordinator:
+			_presentation.publish_poses()
+		else:
+			for entry in _entries:
+				var worker = entry.visuals._pose_worker
+				if worker != null:
+					worker.end()
+				entry.visuals.publish_gpu_pose(entry.step_delta)
 		_profile_stage(5, profile_start)
 		_upload_poses()
 
@@ -702,13 +733,8 @@ func _upload_poses():
 				continue
 			_join_group(entry)
 		var palettes: Array = _presentation.pack(get_tree().paused)
-		_previous_texture.update(
-			Image.create_from_data(4, POSE_CAPACITY, false, Image.FORMAT_RGBAF, palettes[1])
-		)
 		_last_pixels = palettes[0]
-		_texture.update(
-			Image.create_from_data(4, POSE_CAPACITY, false, Image.FORMAT_RGBAF, palettes[0])
-		)
+		_compute.upload(palettes[1], palettes[0])
 		_profile_stage(6, profile_start)
 		return
 	var cursor := 0
@@ -761,11 +787,8 @@ func _upload_poses():
 			for index in range(entry.offset * 64, (entry.offset + entry.anchors.size()) * 64, 4):
 				previous.encode_float(index, pixels.decode_float(index))
 		entry.sampled_root = entry.unit.global_transform
-	_previous_texture.update(
-		Image.create_from_data(4, POSE_CAPACITY, false, Image.FORMAT_RGBAF, previous)
-	)
 	_last_pixels = pixels
-	_texture.update(Image.create_from_data(4, POSE_CAPACITY, false, Image.FORMAT_RGBAF, pixels))
+	_compute.upload(previous, pixels)
 	_profile_stage(6, profile_start)
 
 

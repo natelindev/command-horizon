@@ -1,6 +1,7 @@
 extends "res://tests/headless/UnitAnimationRegression.gd"
 
 var _rules
+var _probe_script
 var _comparisons := 0
 var _actors := []
 
@@ -8,6 +9,7 @@ var _actors := []
 func _run():
 	root.get_node("SaveManager").autosaves_enabled = false
 	_rules = load("res://source/match/combat/CombatRules.gd")
+	_probe_script = load("res://tests/fixtures/NativeUnitStateProbe.gd")
 	for faction in ["bastion", "helix", "frontier"]:
 		await _fixture(faction)
 		if _game.unit_state_store == null:
@@ -26,7 +28,8 @@ func _run():
 					"Domain override detection differs: " + role
 				)
 		await _frames(3)
-		var custom = load("res://tests/fixtures/NativeUnitStateProbe.gd").new()
+		_movement_technologies()
+		var custom = _probe_script.new()
 		_players[1].add_child(custom)
 		_actors.append(custom)
 		_check(
@@ -94,6 +97,57 @@ func _run():
 		push_error(message)
 	print("Native unit state: %d failures across %d comparisons" % [_errors.size(), _comparisons])
 	await root.get_node("Globals").quit_game(0 if _errors.is_empty() else 1)
+
+
+func _movement_technologies():
+	var owner = _players[0]
+	var original_faction = owner.faction
+	var original_completed = owner.technology.completed
+	for faction in ["bastion", "helix", "frontier"]:
+		owner.faction = faction
+		for technology in ["", "high_octane", "phase_thrusters", "iron_blitz"]:
+			owner.technology.completed = []
+			if technology != "":
+				owner.technology.completed.append(technology)
+			for actor in _actors:
+				if actor.player != owner:
+					continue
+				_check(
+					bool(actor._native_state.metadata()[0] & 8192),
+					"Standard movement technology was not bound: " + actor.type
+				)
+				_compare_values(actor, 1000)
+				# Capture, array mutation and owner faction changes have no tick delay.
+				actor.reparent(_players[1])
+				_compare_values(actor, 1001)
+				actor.reparent(owner)
+			owner.technology.completed.clear()
+			for actor in _actors:
+				if actor.player == owner:
+					_compare_values(actor, 1002)
+	# Alternate public property types retain the script path's semantics.
+	owner.faction = &"frontier"
+	owner.technology.completed = PackedStringArray(["high_octane"])
+	for actor in _actors:
+		if actor.player == owner:
+			_compare_values(actor, 1003)
+	owner.faction = original_faction
+	owner.technology.completed = original_completed
+	var custom = load("res://tests/fixtures/NativeMovementFactorProbe.gd").new()
+	owner.add_child(custom)
+	_check(
+		not bool(custom._native_state.metadata()[0] & 8192),
+		"Custom movement technology override was cached"
+	)
+	for factor in [1.25, 0.0, 2.0]:
+		custom.movement_factor = factor
+		custom.movement_factor_reads = 0
+		_check(
+			is_equal_approx(custom._native_state.speed(), 4.0 * factor),
+			"Custom movement technology lost its live modifier"
+		)
+		_check(custom.movement_factor_reads == 1, "Custom speed query bypassed its script")
+	custom.free()
 
 
 func _mutate(unit, step: int):
@@ -219,7 +273,7 @@ func _oracle(units: Array, callback: Callable):
 func _custom_player(target):
 	var player = load("res://tests/fixtures/NativeUnitStatePlayer.gd").new()
 	_game.get_node("Players").add_child(player)
-	var source = load("res://tests/fixtures/NativeUnitStateProbe.gd").new()
+	var source = _probe_script.new()
 	player.add_child(source)
 	for allowed in [true, false]:
 		player.allow_alliance = allowed

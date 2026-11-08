@@ -24,13 +24,20 @@ static func uses_base_method(object: Object, base_path: String, method: StringNa
 
 static func bind(unit, store: RefCounted):
 	var navigation_trait = unit._get_navigation_trait()
+	var catalog = load("res://source/match/BastionCatalog.gd")
 	var flags := 0
 	if uses_base_method(unit, "res://source/match/units/Unit.gd", &"combat_domain"):
 		flags |= 1
 	if uses_base_method(unit, "res://source/match/units/Structure.gd", &"is_constructed"):
 		flags |= 2
-	if load("res://source/match/BastionCatalog.gd").is_infantry(unit.type):
+	if catalog.is_infantry(unit.type):
 		flags |= 4
+	if uses_base_method(unit, "res://source/match/units/Unit.gd", &"movement_technology_factor"):
+		flags |= 8192
+	if catalog.is_aircraft(unit.type):
+		flags |= 16384
+	if unit.type == "Tank":
+		flags |= 32768
 	if unit.type in ["AntiGroundTurret", "AntiAirTurret"]:
 		flags |= 8
 	if (

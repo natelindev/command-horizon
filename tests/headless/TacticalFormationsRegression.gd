@@ -157,8 +157,10 @@ func _geometry():
 
 func _runtime_cohesion():
 	await _clear()
-	var fast = _spawn("Tank", _human, Vector3(38, 0, 45))
-	var slow = _spawn("AdvancedTank", _human, Vector3(38, 0, 51))
+	# The central point of interest occupies the old (38, 45) start. A speed
+	# comparison needs equally straight lanes, not net displacement around a wall.
+	var fast = _spawn("Tank", _human, Vector3(40, 0, 70))
+	var slow = _spawn("AdvancedTank", _human, Vector3(40, 0, 76))
 	await _frames(12)
 	fast.get_node("Movement").speed = 5.0
 	slow.get_node("Movement").speed = 2.0
@@ -168,7 +170,20 @@ func _runtime_cohesion():
 	for index in members.size():
 		var member = members[index]
 		member.manual_orders.configure_cohesion(true, group)
-		var order = order_script.point_order("move", Vector3(60, 0, 45 + index * 6))
+		var destination = Vector3(49, 0, 70 + index * 6)
+		var route = NavigationServer3D.map_get_path(
+			member.get_node("Movement").get_navigation_map(), member.position, destination, true
+		)
+		_check(
+			(
+				route.size() >= 2
+				and absf(route[0].x - 40.0) < .01
+				and absf(route[-1].x - destination.x) < .01
+				and Array(route).all(func(point): return absf(point.z - destination.z) < .01)
+			),
+			"Cohesion speed fixture does not have a clear straight lane"
+		)
+		var order = order_script.point_order("move", destination)
 		order.cohort = group
 		member.manual_orders.submit(order)
 		member.process_mode = Node.PROCESS_MODE_INHERIT
@@ -177,6 +192,7 @@ func _runtime_cohesion():
 	await _frames(120)
 	var fast_travel = fast.position.distance_to(start_fast)
 	var slow_travel = slow.position.distance_to(start_slow)
+	_check(minf(fast_travel, slow_travel) > 3.0, "Cohesion speed fixture did not advance")
 	_check(absf(fast_travel - slow_travel) < .4, "Group did not march at slowest pace")
 	if "--native-crowd-runtime" in OS.get_cmdline_user_args():
 		_check(
@@ -316,6 +332,17 @@ func _choke_funneling():
 	for index in 8:
 		units.append(_spawn("Tank", _human, Vector3(36, 0, 39 + index * 3.1)))
 	await _frames(20)
+	var routes = planner.funnel_routes(units, Vector3(66, 0, 50), Vector3.RIGHT, "line")
+	_check(routes.size() == units.size(), "Portal routing lost formation members")
+	if routes.size() == units.size():
+		var original = routes.duplicate(true)
+		_check(not routes[units[0]].is_empty(), "Portal route has no waypoints")
+		routes[units[0]].pop_front()
+		for unit in units.slice(1):
+			_check(
+				routes[unit] == original[unit],
+				"One unit consuming a shared lane changed another unit's route"
+			)
 	_game.hud.select_units(units)
 	await _frames(3)
 	var controller = _human.get_node("UnitActionsController")

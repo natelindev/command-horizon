@@ -39,7 +39,10 @@ var harvesting_boosts: Array = []
 var production_boosts: Array = []
 var market_pressure: float = 0.0
 
-var indexed_rosters := "--indexed-player-rosters" in OS.get_cmdline_user_args()
+var indexed_rosters: bool = (
+	load("res://source/match/rendering/NativePosePacker.gd")
+	. runtime_enabled("--indexed-player-rosters")
+)
 var roster_rebuilds := 0
 var roster_queries := 0
 

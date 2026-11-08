@@ -220,20 +220,25 @@ func _update_mass_contacts(delta: float):
 	var origin = _unit.global_position
 	var reach = radius + 1.2
 	for other in MassContacts.nearby(_match, origin, reach):
-		if (
-			other == _unit
-			or other.hp <= 0
-			or other.has_meta("garrison_host")
-			or MotionProfile.mass_tier(other) != MotionProfile.Mass.LIGHT
-		):
+		if other == _unit:
+			continue
+		# Most indexed neighbors are behind or beyond the actual contact arc.
+		# Reject geometry before reading their derived role and eligibility.
+		var offset = (other.global_position - origin) * Vector3(1, 0, 1)
+		var forward = offset.dot(direction)
+		if forward < -.05:
 			continue
 		var movement = other.get_node_or_null("Movement")
 		if movement == null or movement.domain != domain:
 			continue
-		var offset = (other.global_position - origin) * Vector3(1, 0, 1)
-		var forward = offset.dot(direction)
 		var contact = radius + movement.radius
-		if forward < -.05 or forward > contact + .35 or offset.length() > contact + .35:
+		if forward > contact + .35 or offset.length() > contact + .35:
+			continue
+		if (
+			other.hp <= 0
+			or other.has_meta("garrison_host")
+			or MotionProfile.mass_tier(other) != MotionProfile.Mass.LIGHT
+		):
 			continue
 		if other.player != _unit.player:
 			if (
@@ -1088,12 +1093,7 @@ func _ground_contact_script(origin: Vector3, next: Vector3, neighbors: Array) ->
 		# Read the neighbor's trait once instead of resolving radius, speed and
 		# domain through three separate unit property getters for every contact.
 		var movement = other._get_navigation_trait()
-		if (
-			not movement is NavigationAgent3D
-			or movement.domain != domain
-			or movement.speed <= 0
-			or movement.ghosted
-		):
+		if not movement is NavigationAgent3D:
 			continue
 		var separation: float = own_radius + movement.radius - GROUND_CONTACT_MARGIN
 		var outside := offset.length_squared() - separation * separation
@@ -1103,7 +1103,16 @@ func _ground_contact_script(origin: Vector3, next: Vector3, neighbors: Array) ->
 			if discriminant < 0:
 				continue
 			fraction = (-toward - sqrt(discriminant)) / length_squared
-		if fraction >= 0 and fraction < best_fraction:
+		# Most nearby bodies cannot intersect this short step. Check geometry
+		# before evaluating their full live movement modifiers, as the native
+		# contact kernel does. Real contacts still read current eligibility.
+		if (
+			fraction >= 0
+			and fraction < best_fraction
+			and movement.domain == domain
+			and not movement.ghosted
+			and movement.speed > 0
+		):
 			best_fraction = fraction
 			best_normal = offset.normalized()
 	return Vector4(best_normal.x, best_normal.y, best_normal.z, best_fraction)

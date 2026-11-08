@@ -8,7 +8,7 @@ uniform float inner_edge_width_pixels = 1.5;
 uniform float outer_edge_width_pixels = 1.0;
 uniform vec2 half_extents = vec2(0.0);
 uniform int faction_style = 0;
-uniform float animation_time = 0.0;
+instance uniform float animation_time = 0.0;
 
 void fragment() {
 	vec2 p = UV * 2.0 - 1.0;
@@ -53,4 +53,3 @@ void fragment() {
 		ALPHA = line * segments * color.a * 0.9;
 	}
 }
-

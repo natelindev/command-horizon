@@ -41,15 +41,38 @@ class HeadlessWorkflowTests(unittest.TestCase):
     def test_headless_resource_gate_never_constructs_graphical_or_xvfb_call(self):
         with patch.object(BUILD, "run") as run:
             BUILD.check_rendered_resources("godot", "game.pck", ROOT, True, BUILD.NATIVE_FLAGS)
-        self.assertEqual(run.call_count, len(BUILD.RENDERED_TESTS))
+        self.assertEqual(run.call_count, sum(headless for _, headless in BUILD.RENDERED_TESTS.values()))
         for call in run.call_args_list:
             self.assertIn("--headless", call.args[0])
             self.assertNotIn("--require-renderer", call.args[0])
+            self.assertNotIn("res://tests/rendered/ChargeSparkRegression.gd", call.args[0])
+            self.assertNotIn("res://tests/rendered/PosePaletteRegression.gd", call.args[0])
+            self.assertNotIn("res://tests/rendered/SelectionShaderRegression.gd", call.args[0])
+            self.assertNotIn("res://tests/rendered/EmptyMeshTransformRegression.gd", call.args[0])
 
     def test_normal_resource_gate_retains_actual_rendering_requirement(self):
         with patch.object(BUILD, "PLATFORM", "macos"), patch.object(BUILD, "run") as run:
             BUILD.check_rendered_resources("godot", "game.pck", ROOT)
-        self.assertEqual(run.call_count, len(BUILD.RENDERED_TESTS) * 2)
+        self.assertEqual(run.call_count, len(BUILD.RENDERED_TESTS)
+                         + sum(headless for _, headless in BUILD.RENDERED_TESTS.values()))
+        spark_calls = [call for call in run.call_args_list
+                       if "res://tests/rendered/ChargeSparkRegression.gd" in call.args[0]]
+        self.assertEqual(len(spark_calls), 1)
+        self.assertNotIn("--headless", spark_calls[0].args[0])
+        selection_calls = [call for call in run.call_args_list
+                           if "res://tests/rendered/SelectionShaderRegression.gd" in call.args[0]]
+        self.assertEqual(len(selection_calls), 1)
+        self.assertNotIn("--headless", selection_calls[0].args[0])
+        empty_calls = [call for call in run.call_args_list
+                       if "res://tests/rendered/EmptyMeshTransformRegression.gd" in call.args[0]]
+        self.assertEqual(len(empty_calls), 1)
+        self.assertNotIn("--headless", empty_calls[0].args[0])
+        pose_calls = [call for call in run.call_args_list
+                      if "res://tests/rendered/PosePaletteRegression.gd" in call.args[0]]
+        self.assertEqual(len(pose_calls), 1)
+        pose_command = pose_calls[0].args[0]
+        self.assertEqual(pose_command[pose_command.index("--rendering-method") + 1], "forward_plus")
+        self.assertNotIn("--headless", pose_command)
         self.assertNotIn("--headless", run.call_args_list[-1].args[0])
         self.assertIn("--require-renderer", run.call_args_list[-1].args[0])
         self.assertIn("--audio-driver", run.call_args_list[-1].args[0])

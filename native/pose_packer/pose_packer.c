@@ -77,6 +77,7 @@ static int64_t count_array(void *array) {
 
 #include "terrain_sight.h"
 #include "terrain_outline.h"
+#include "fog_pack.h"
 #include "spatial_index.h"
 
 static void pack_core(const void *entries, int64_t capacity, void *output) {
@@ -576,6 +577,7 @@ static void global_pose_ptrcall(void *userdata, void *instance, const GDExtensio
 #include "unit_state.h"
 #include "combat_query.h"
 #include "battlefield_index.h"
+#include "chassis_motion.h"
 #include "presentation_batch.h"
 #include "state_hash.h"
 
@@ -731,6 +733,7 @@ static void initialize(void *userdata, GDExtensionInitializationLevel level) {
     register_method(library, &class_name, &method);
     terrain_sight_initialize();
     terrain_outline_initialize();
+    fog_pack_initialize();
     spatial_index_initialize();
     rebase_initialize();
     infantry_initialize();
@@ -739,6 +742,7 @@ static void initialize(void *userdata, GDExtensionInitializationLevel level) {
     crowd_initialize();
     visibility_initialize();
     unit_state_initialize();
+    chassis_initialize();
     presentation_initialize();
     state_hash_initialize();
 }
@@ -747,11 +751,13 @@ static void deinitialize(void *userdata, GDExtensionInitializationLevel level) {
     (void)userdata;
     if (level != GDEXTENSION_INITIALIZATION_SCENE) return;
     presentation_deinitialize();
+    chassis_deinitialize();
     unit_state_deinitialize();
     visibility_deinitialize();
     pose_rig_deinitialize();
     terrain_sight_deinitialize();
     terrain_outline_deinitialize();
+    fog_pack_deinitialize();
     spatial_index_deinitialize();
     rebase_deinitialize();
     crowd_deinitialize();
@@ -787,6 +793,7 @@ EXPORT GDExtensionBool copperfin_library_init(GDExtensionInterfaceGetProcAddress
     LOAD(get_dtor, VariantGetPtrDestructor, "variant_get_ptr_destructor");
     LOAD(get_builtin, VariantGetPtrBuiltinMethod, "variant_get_ptr_builtin_method");
     LOAD(get_type, VariantGetType, "variant_get_type");
+    LOAD(fp_vector_read, PackedVector2ArrayOperatorIndexConst, "packed_vector2_array_operator_index_const");
     LOAD(variant_destroy, VariantDestroy, "variant_destroy");
     LOAD(variant_nil, VariantNewNil, "variant_new_nil");
     LOAD(get_named, VariantGetNamed, "variant_get_named");
@@ -817,6 +824,7 @@ EXPORT GDExtensionBool copperfin_library_init(GDExtensionInterfaceGetProcAddress
     if (!crowd_load(proc)) return 0;
     if (!visibility_load(proc)) return 0;
     if (!state_hash_load(proc)) return 0;
+    if (!chassis_load(proc)) return 0;
     init->minimum_initialization_level = GDEXTENSION_INITIALIZATION_SCENE;
     init->userdata = 0;
     init->initialize = initialize;

@@ -1,6 +1,7 @@
 extends SceneTree
 
-## Future rendered check: exercises the GPU kernel without constructing a match.
+## Exercises the GPU kernel and queued cleanup without constructing a match.
+signal render_drained
 var _errors: Array[String] = []
 
 
@@ -18,12 +19,20 @@ func _run():
 	_check(backend.ready, "Compute fog did not initialize; use an RD renderer and import shaders")
 	if backend.ready:
 		await _check_visibility(backend)
+	var released := weakref(backend)
 	backend.close()
-	await RenderingServer.frame_post_draw
+	backend = null
+	RenderingServer.call_on_render_thread(_render_barrier)
+	await render_drained
+	_check(released.get_ref() == null, "Queued fog cleanup retained its owner")
 	for message in _errors:
 		push_error(message)
 	print("Compute fog: %d failures" % _errors.size())
 	quit(0 if _errors.is_empty() else 1)
+
+
+func _render_barrier():
+	render_drained.emit.call_deferred()
 
 
 func _check_visibility(backend):

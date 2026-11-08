@@ -17,7 +17,7 @@ func _run():
 	await _clean_match()
 	options.restore(original)
 	print("Charge presentation regression: %d failures" % errors.size())
-	quit(0 if errors.is_empty() else 1)
+	await root.get_node("Globals").quit_game(0 if errors.is_empty() else 1)
 
 
 func _voices(unit):
@@ -44,16 +44,11 @@ func _presentation_contracts():
 	var scale = display._orb.scale
 	display._process(0.05)
 	await _frames(2)
-	var before = display._sparks.multimesh.get_instance_transform(0).origin.length()
+	var before = display._spark_material.get_shader_parameter("phase")
 	display._process(0.05)
 	await _frames(2)
-	var after = display._sparks.multimesh.get_instance_transform(0).origin.length()
-	# Dummy rendering does not retain MultiMesh transforms; exercise direction
-	# against the real renderer when this suite runs without --headless.
-	if DisplayServer.get_name() != "headless":
-		_check(
-			after < before, "Energy sparks move away from the muzzle: %f -> %f" % [before, after]
-		)
+	var after = display._spark_material.get_shader_parameter("phase")
+	_check(after > before, "Charge clock did not reach the spark shader")
 	unit.weapon_charge_progress = 0.95
 	display.refresh()
 	_check(display._orb.scale == scale, "Charge focus inflates with progress")

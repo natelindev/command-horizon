@@ -17,7 +17,10 @@ enum {
     US_FORCE_ONLY = 512,
     US_AGENT = 1024,
     US_OBSTACLE = 2048,
-    US_STANDARD_SIGHT = 4096
+    US_STANDARD_SIGHT = 4096,
+    US_STANDARD_MOVEMENT_TECHNOLOGY = 8192,
+    US_AIRCRAFT = 16384,
+    US_TANK = 32768
 };
 typedef struct {
     uint64_t unit, trait, view, abilities, signature, suppression;
@@ -53,7 +56,8 @@ typedef struct {
     uint64_t view;
 } UsLink;
 static Value us_classes[2], us_properties[22], us_store_methods[4], us_view_methods[4];
-static Value us_args[11], us_names[21], us_doctrine, us_maneuver, us_movement_factor;
+static Value us_args[11], us_names[22], us_doctrine, us_maneuver, us_movement_factor;
+static Value us_speed_factions[3], us_speed_upgrades[3];
 static GDExtensionPtrOperatorEvaluator us_equal, us_string_equal;
 static GDExtensionPtrBuiltInMethod us_array_has;
 static GDExtensionMethodBindPtr us_obstacle_radius;
@@ -81,7 +85,8 @@ enum {
     US_DAMAGE_METHOD,
     US_FORCE_METHOD,
     US_ABILITIES,
-    US_SIGNATURE
+    US_SIGNATURE,
+    US_FACTION
 };
 static void *us_binding_create(void *token, void *owner) {
     (void)token;
@@ -232,6 +237,61 @@ static int us_upgraded(void *unit) {
     variant_destroy(&completed);
     return yes;
 }
+static double us_script_technology_factor(void *unit) {
+    Value owner, multiplier;
+    cr_variant(unit, &owner);
+    GDExtensionCallError error = {0};
+    variant_call(&owner, &us_movement_factor, 0, 0, &multiplier, &error);
+    double factor = 1;
+    if (error.error == GDEXTENSION_CALL_OK)
+        index_number(&multiplier, &factor);
+    variant_destroy(&multiplier);
+    variant_destroy(&owner);
+    return factor;
+}
+static double us_technology_factor(UsSlot *slot, void *unit) {
+    if (!(slot->flags & US_STANDARD_MOVEMENT_TECHNOLOGY))
+        return us_script_technology_factor(unit);
+    if (slot->flags & (US_INFANTRY | US_AIRCRAFT))
+        return 1;
+    /* Technology arrays and ownership can change within the same physics tick.
+     * Read them live, without entering the script VM for the standard rules. */
+    void *owner = us_parent(unit);
+    void *technology = us_object(owner, US_TECHNOLOGY);
+    Value completed;
+    int valid = us_read(technology, US_COMPLETED, &completed);
+    int fallback = valid && get_type(&completed) != TYPE(ARRAY);
+    double factor = 1;
+    if (valid && get_type(&completed) == TYPE(ARRAY)) {
+        Value array;
+        to_type(TYPE(ARRAY))(&array, &completed);
+        if (count_array(&array)) {
+            Value faction;
+            int has_faction = us_read(owner, US_FACTION, &faction);
+            if (has_faction && get_type(&faction) == TYPE(STRING)) {
+                Value text;
+                to_type(TYPE(STRING))(&text, &faction);
+                const double factors[] = {1.18, 1.15, 1.2};
+                for (int i = 0; i < 3; i++) {
+                    GDExtensionBool same = 0, upgraded = 0;
+                    us_string_equal(&text, &us_speed_factions[i], &same);
+                    if (same && (i != 2 || (slot->flags & US_TANK))) {
+                        us_array_has(&array, (const void *[]){&us_speed_upgrades[i]}, &upgraded, 1);
+                        if (upgraded)
+                            factor = factors[i];
+                        break;
+                    }
+                }
+                get_dtor(TYPE(STRING))(&text);
+            } else if (has_faction)
+                fallback = 1;
+            variant_destroy(&faction);
+        }
+        get_dtor(TYPE(ARRAY))(&array);
+    }
+    variant_destroy(&completed);
+    return fallback ? us_script_technology_factor(unit) : factor;
+}
 static double us_speed(UsView *view, UsSlot *slot) {
     view->store->statistics[4]++;
     if (!(slot->flags & US_AGENT))
@@ -266,16 +326,7 @@ static double us_speed(UsView *view, UsSlot *slot) {
     factor *= band == 2 ? .4 : (band == 1 ? .7 : 1);
     if (!(slot->flags & US_INFANTRY) && us_emp(view->store, unit))
         factor *= .6;
-    Value owner, multiplier;
-    cr_variant(unit, &owner);
-    GDExtensionCallError factor_error = {0};
-    variant_call(&owner, &us_movement_factor, 0, 0, &multiplier, &factor_error);
-    double technology_factor = 1;
-    if (factor_error.error == GDEXTENSION_CALL_OK)
-        index_number(&multiplier, &technology_factor);
-    variant_destroy(&multiplier);
-    variant_destroy(&owner);
-    factor *= technology_factor;
+    factor *= us_technology_factor(slot, unit);
     return slot->scalar[US_BASE_SPEED] * factor * slot->scalar[US_VETERAN_SPEED] *
            (1 + .1 * slot->scalar[US_SCRAP]);
 }
@@ -654,7 +705,8 @@ static void *us_bind(UsStore *store, void *unit, void *trait, const void *scalar
     slot->live = 1;
     slot->unit = rp_object_id(unit);
     slot->trait = trait ? rp_object_id(trait) : 0;
-    slot->flags = (uint32_t)flags & (15 | US_STANDARD_SIGHT);
+    slot->flags = (uint32_t)flags & (15 | US_STANDARD_SIGHT | US_STANDARD_MOVEMENT_TECHNOLOGY |
+                                    US_AIRCRAFT | US_TANK);
     if (trait && object_cast(trait, agent_tag))
         slot->flags |= US_AGENT;
     else if (trait && object_cast(trait, us_obstacle_tag))
@@ -809,14 +861,15 @@ static void unit_state_initialize(void) {
                            "can_take_damage",
                            "force_attack_only",
                            "abilities",
-                           "signature"};
+                           "signature",
+                           "faction"};
     const char *arguments[] = {"unit",  "trait",     "scalars", "domains", "flags",   "forced",
                                "match", "commander", "player",  "team",    "standard"};
     for (int i = 0; i < 2; i++)
         name_new(&us_classes[i], classes[i]);
     for (int i = 0; i < 22; i++)
         name_new(&us_properties[i], properties[i]);
-    for (int i = 0; i < 21; i++)
+    for (int i = 0; i < 22; i++)
         name_new(&us_names[i], names[i]);
     for (int i = 0; i < 11; i++)
         name_new(&us_args[i], arguments[i]);
@@ -829,6 +882,14 @@ static void unit_state_initialize(void) {
     from_type(TYPE(STRING))(&us_doctrine, &text);
     get_dtor(TYPE(STRING))(&text);
     string_new(&us_maneuver, "maneuver");
+    const char *factions[] = {"frontier", "helix", "bastion"};
+    const char *upgrades[] = {"high_octane", "phase_thrusters", "iron_blitz"};
+    for (int i = 0; i < 3; i++) {
+        string_new(&us_speed_factions[i], factions[i]);
+        string_new(&text, upgrades[i]);
+        from_type(TYPE(STRING))(&us_speed_upgrades[i], &text);
+        get_dtor(TYPE(STRING))(&text);
+    }
     name_new(&has, "has");
     us_array_has = get_builtin(TYPE(ARRAY), &has, 3680194679);
     get_dtor(TYPE(STRING_NAME))(&has);
@@ -913,7 +974,7 @@ static void unit_state_deinitialize(void) {
         get_dtor(TYPE(STRING_NAME))(&us_classes[i]);
     for (int i = 0; i < 22; i++)
         get_dtor(TYPE(STRING_NAME))(&us_properties[i]);
-    for (int i = 0; i < 21; i++)
+    for (int i = 0; i < 22; i++)
         get_dtor(TYPE(STRING_NAME))(&us_names[i]);
     for (int i = 0; i < 11; i++)
         get_dtor(TYPE(STRING_NAME))(&us_args[i]);
@@ -924,5 +985,9 @@ static void unit_state_deinitialize(void) {
     get_dtor(TYPE(STRING_NAME))(&us_movement_factor);
     variant_destroy(&us_doctrine);
     get_dtor(TYPE(STRING))(&us_maneuver);
+    for (int i = 0; i < 3; i++) {
+        get_dtor(TYPE(STRING))(&us_speed_factions[i]);
+        variant_destroy(&us_speed_upgrades[i]);
+    }
     us_initialized = 0;
 }

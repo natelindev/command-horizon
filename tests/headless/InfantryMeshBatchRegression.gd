@@ -84,6 +84,7 @@ func _check_roster(batching):
 	for faction in ["bastion", "helix", "frontier"]:
 		for role in roster.INFANTRY_ROLES + mercenaries.ROLES:
 			var rig = _unbatched_model(faction, role)
+			_check_weapon_materials(faction, role, rig)
 			var before = _geometry(rig)
 			var protected = {}
 			for node in rig.find_children("*", "Node3D", true, false):
@@ -100,6 +101,35 @@ func _check_roster(batching):
 					rig.get_node_or_null(path) == protected[path], label + ": removed " + str(path)
 				)
 			rig.free()
+
+
+func _check_weapon_materials(faction, role, rig):
+	var optics := []
+	for mesh in rig.find_children("*", "MeshInstance3D", true, false):
+		if mesh.get_active_material(0).resource_name == "Energy optic":
+			optics.append(mesh)
+	if optics.is_empty():
+		return
+	var other = _unbatched_model(faction, role)
+	var matching: Material
+	for mesh in other.find_children("*", "MeshInstance3D", true, false):
+		if mesh.get_active_material(0).resource_name == "Energy optic":
+			matching = mesh.get_active_material(0)
+			break
+	for mesh in optics:
+		var material = mesh.get_active_material(0)
+		_check(material == matching, "Identical energy optics split model batches: " + role)
+		_check(
+			(
+				material is StandardMaterial3D
+				and material.albedo_color.is_equal_approx(Color("42dce4"))
+				and material.emission_enabled
+				and material.emission.is_equal_approx(Color("25bccb"))
+				and is_equal_approx(material.emission_energy_multiplier, .65)
+			),
+			"Shared optic changed its finish: " + role
+		)
+	other.free()
 
 
 func _geometry(parent):

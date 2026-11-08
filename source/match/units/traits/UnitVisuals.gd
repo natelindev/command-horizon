@@ -20,7 +20,7 @@ const FIDGETS = 4
 const FrameBudget = preload("res://source/match/units/traits/VisualFrameBudget.gd")
 const RuntimeCache = preload("res://source/utils/RuntimeCache.gd")
 var motion: MotionProfile
-var chassis: Chassis
+var chassis: RefCounted
 var gpu_interpolated := false
 var _shared: FrameBudget
 var _track_motion = null
@@ -136,7 +136,7 @@ var _suspension_velocity:
 
 
 func _init():
-	chassis = Chassis.new()
+	chassis = Chassis.create()
 
 
 func _ready():

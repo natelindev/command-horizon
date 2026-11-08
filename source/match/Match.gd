@@ -104,8 +104,9 @@ func _ready():
 	commander_support = load("res://source/match/combat/CommanderSupport.gd").new()
 	commander_support.name = "CommanderSupport"
 	add_child(commander_support)
-	if "--native-unit-state" in OS.get_cmdline_user_args():
-		var native = load("res://source/match/rendering/NativePosePacker.gd").create()
+	var native_loader = load("res://source/match/rendering/NativePosePacker.gd")
+	if native_loader.runtime_enabled("--native-unit-state"):
+		var native = native_loader.create()
 		if native != null and ClassDB.class_exists("CopperfinUnitStore"):
 			unit_state_store = ClassDB.instantiate("CopperfinUnitStore")
 			unit_state_store.configure(self, commander_support)
@@ -123,7 +124,7 @@ func _ready():
 	load("res://source/match/maps/CampaignInteriors.gd").populate(map, settings.mission_id)
 	load("res://source/match/economy/LegacyHomeFields.gd").standardize(self)
 	_setup_subsystems_dependent_on_map()
-	if "--native-crowd-runtime" in OS.get_cmdline_user_args():
+	if native_loader.runtime_enabled("--native-crowd-runtime"):
 		crowd_runtime = load("res://source/match/NativeCrowdRuntime.gd").new()
 		crowd_runtime.name = "NativeCrowdRuntime"
 		add_child(crowd_runtime)

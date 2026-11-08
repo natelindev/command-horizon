@@ -2,6 +2,8 @@ extends "res://source/match/units/actions/Action.gd"
 
 const Shooting = preload("res://source/match/units/actions/AttackingWhileInRange.gd")
 const Rules = preload("res://source/match/combat/CombatRules.gd")
+const Phase = preload("res://source/match/utils/UpdatePhase.gd")
+const REFRESH_INTERVAL = .15
 var force_attack = false
 var _defense_origin = Vector3.ZERO
 var _defense_radius = 0.0
@@ -28,12 +30,16 @@ func _init(target_unit, forced = false):
 func _ready():
 	if restoring:
 		return
+	# Group orders still respond immediately. Spread their later perception
+	# checks within the existing interval instead of revisiting the whole army
+	# on one physics tick. Restored actions retain their saved phase.
+	_elapsed = REFRESH_INTERVAL - Phase.first_delay(_unit, REFRESH_INTERVAL)
 	_refresh()
 
 
 func _physics_process(delta):
 	_elapsed += delta
-	if _elapsed >= 0.15:
+	if _elapsed >= REFRESH_INTERVAL:
 		_elapsed = 0.0
 		_refresh()
 

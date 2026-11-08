@@ -7,6 +7,7 @@ func _run():
 	var native = load("res://source/match/rendering/NativePosePacker.gd").create()
 	for faction in ["bastion", "helix", "frontier"]:
 		await _fixture(faction)
+		_sparse_muzzles(native)
 		var target = _spawn("Tank", 1, Vector3(45, 0, 35))
 		var pairs := []
 		var presentations := []
@@ -158,3 +159,38 @@ func _run():
 		push_error(message)
 	print("Decoupled pose regression: %d failures across 3 factions and 15 roles" % _errors.size())
 	await root.get_node("Globals").quit_game(0 if _errors.is_empty() else 1)
+
+
+func _sparse_muzzles(native):
+	# Production palettes contain mesh anchors, not every descendant socket.
+	# Alternating weapons must bind both sockets even when neither is an anchor.
+	for role in MOBILE_ROLES:
+		var reference = _spawn(role, 0, Vector3(30, 0, 30))
+		var candidate = _spawn(role, 0, Vector3(30, 0, 30))
+		var direct = reference.get_node("BastionVisuals")
+		var visual = candidate.get_node("BastionVisuals")
+		if visual._paired_muzzles.is_empty():
+			reference.free()
+			candidate.free()
+			continue
+		var anchors: Array[Node3D] = [candidate.get_node("Geometry")]
+		visual.set_gpu_interpolation(true, anchors, native)
+		var bound := true
+		for muzzle in visual._paired_muzzles:
+			bound = bound and visual._pose_hierarchy._bindings.has(muzzle)
+		_check(bound, "Sparse palette omitted an alternating muzzle: " + role)
+		if bound:
+			for shot in 4:
+				reference.rotation.y = shot * .3
+				candidate.rotation.y = reference.rotation.y
+				direct.fire_recoil()
+				visual.fire_recoil()
+				_check(
+					visual._projectile_origin.global_transform.is_equal_approx(
+						direct._projectile_origin.global_transform
+					),
+					"Sparse palette changed an alternating shot origin: " + role
+				)
+		visual.set_gpu_interpolation(false)
+		reference.free()
+		candidate.free()

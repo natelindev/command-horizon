@@ -1,5 +1,58 @@
 extends SceneTree
 
+
+class PoseJob:
+	extends RefCounted
+	var pending := false
+
+
+class PoseWorker:
+	extends RefCounted
+	var job := PoseJob.new()
+	var events: Array
+	var label: String
+	var active := false
+
+	func begin():
+		active = true
+		job.pending = false
+		events.append(label + ":begin")
+
+	func end():
+		active = false
+		events.append(label + ":end")
+
+
+class PoseVisual:
+	extends RefCounted
+	var worker: PoseWorker
+	var job := PoseJob.new()
+	var events: Array
+	var label: String
+	var deltas := []
+	var callback := Callable()
+	var deferred := true
+	var scheduled := true
+
+	func prepare_gpu_pose(delta):
+		events.append(label + ":prepare")
+		deltas.append(delta)
+		if callback.is_valid():
+			callback.call()
+		return job
+
+	func finish_gpu_pose(delta, finalize):
+		events.append(label + ":finish")
+		deltas.append(delta)
+		deferred = deferred and not finalize
+		if worker != null:
+			worker.job.pending = scheduled and worker.active
+
+	func publish_gpu_pose(delta):
+		events.append(label + ":publish")
+		deltas.append(delta)
+
+
 var failures := []
 var comparisons := 0
 
@@ -19,6 +72,7 @@ func _run():
 		_check(false, "Native presentation batch is required")
 	else:
 		_compare(packer)
+		_coordinator()
 	for message in failures:
 		push_error(message)
 	print(
@@ -28,6 +82,116 @@ func _run():
 		)
 	)
 	await root.get_node("Globals").quit_game(0 if failures.is_empty() else 1)
+
+
+func _coordinator():
+	var batch = ClassDB.instantiate("CopperfinPresentationBatch")
+	_check(batch.has_method("publish_poses"), "Native pose coordinator is missing")
+	if not batch.has_method("publish_poses"):
+		return
+	batch.configure(8)
+	var events := []
+	var units := []
+	var visuals := []
+	var handles := []
+	for index in 3:
+		var unit := Node3D.new()
+		root.add_child(unit)
+		var geometry := Node3D.new()
+		unit.add_child(geometry)
+		var rig = ClassDB.instantiate("CopperfinPoseRig")
+		rig.add_part(-1, Transform3D.IDENTITY)
+		rig.configure_anchors(PackedInt32Array([0]))
+		var handle: int = batch.bind_unit(unit, geometry, [geometry], rig, index + 1, 1.0)
+		var visual := PoseVisual.new()
+		visual.events = events
+		visual.label = str(index)
+		if index != 1:
+			visual.worker = PoseWorker.new()
+			visual.worker.events = events
+			visual.worker.label = str(index)
+		visual.scheduled = index != 2
+		batch.set_pose_owner(handle, visual, visual.worker)
+		units.append(unit)
+		visuals.append(visual)
+		handles.append(handle)
+	batch.capture(.03)
+	batch.capture(.04)
+	# A shot may consume a pending pose before the display update.
+	batch.set_elapsed(handles[1], 0.0)
+	var jobs: Array = batch.prepare_poses()
+	_check(jobs == [visuals[0].job, visuals[1].job, visuals[2].job], "Chassis jobs/order differ")
+	_check(batch.elapsed(handles[0]) == 0.0, "Prepared elapsed time was not consumed")
+	jobs = batch.finish_poses(true)
+	_check(jobs == [visuals[0].worker.job], "Pending infantry job selection differs")
+	batch.publish_poses()
+	_check(
+		(
+			events
+			== [
+				"0:prepare",
+				"1:prepare",
+				"2:prepare",
+				"0:begin",
+				"0:finish",
+				"1:finish",
+				"2:begin",
+				"2:finish",
+				"0:end",
+				"0:publish",
+				"1:publish",
+				"2:end",
+				"2:publish"
+			]
+		),
+		"Pose callbacks/order differ"
+	)
+	for index in 3:
+		for delta in visuals[index].deltas:
+			_check(is_equal_approx(delta, 0.0 if index == 1 else .07), "Pose phase delta differs")
+		_check(visuals[index].deferred, "Finish published before the infantry solve")
+		visuals[index].deltas.clear()
+	events.clear()
+	batch.capture(.02)
+	batch.prepare_poses()
+	_check(batch.finish_poses(false).is_empty(), "Disabled workers received deferred jobs")
+	batch.publish_poses()
+	_check(not "0:begin" in events and "0:end" in events, "Disabled-worker phase behavior differs")
+	events.clear()
+	# A prepare callback removes a later entry. Its recycled slot must neither run
+	# in this frame nor move ahead of older entries on the next frame.
+	visuals[0].callback = func(): batch.unbind(handles[1])
+	batch.capture(.01)
+	batch.prepare_poses()
+	visuals[0].callback = Callable()
+	var replacement = ClassDB.instantiate("CopperfinPoseRig")
+	replacement.add_part(-1, Transform3D.IDENTITY)
+	replacement.configure_anchors(PackedInt32Array([0]))
+	var geometry = units[1].get_child(0)
+	handles[1] = batch.bind_unit(units[1], geometry, [geometry], replacement, 2, 1.0)
+	batch.set_pose_owner(handles[1], visuals[1], null)
+	batch.finish_poses(true)
+	batch.publish_poses()
+	_check(not "1:prepare" in events and not "1:finish" in events, "Recycled slot ran mid-frame")
+	events.clear()
+	batch.capture(.01)
+	batch.prepare_poses()
+	_check(events == ["0:prepare", "2:prepare", "1:prepare"], "Slot reuse changed insertion order")
+	# Bindings must not keep visuals alive, and phase dispatch must tolerate their
+	# release between prepare and finish.
+	var retained: WeakRef = weakref(visuals[1])
+	visuals[1] = null
+	_check(retained.get_ref() == null, "Coordinator retained a visual owner")
+	batch.finish_poses(true)
+	batch.publish_poses()
+	_check(not "1:finish" in events, "Released visual was dispatched")
+	events.clear()
+	batch.publish_poses()
+	_check(events.is_empty(), "Completed pose was published twice")
+	for unit in units:
+		unit.free()
+	for handle in handles:
+		batch.unbind(handle)
 
 
 func _compare(packer):

@@ -58,10 +58,11 @@ var _originals := {}
 
 func _init(geometry: Node3D, anchors: Array, native = null):
 	job.native = native
+	var native_loader = load("res://source/match/rendering/NativePosePacker.gd")
 	if (
 		(
-			"--native-pose-rigs" in OS.get_cmdline_user_args()
-			or "--native-presentation" in OS.get_cmdline_user_args()
+			native_loader.runtime_enabled("--native-pose-rigs")
+			or native_loader.runtime_enabled("--native-presentation")
 		)
 		and ClassDB.class_exists("CopperfinPoseRig")
 		and geometry.find_children("*", "Node3D", true, false).size() < 4096
@@ -123,6 +124,8 @@ func remap(visual, enabled: bool):
 				leg.set(part, _map(leg.get(part), enabled))
 	if visual._muzzle != null:
 		bind_node(visual._muzzle)
+	for muzzle in visual._paired_muzzles:
+		bind_node(muzzle)
 	# Research animation shares the authored sensor with BastionVisuals. Both
 	# writers must target the same pose; its scene node remains parked as well.
 	var activity = visual.get_parent().get_node_or_null("StructureActivity")

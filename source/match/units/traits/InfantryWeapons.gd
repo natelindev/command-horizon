@@ -3,6 +3,7 @@ extends RefCounted
 ## Faction equipment on the production infantry rig. Coordinates are chest-local;
 ## one carried root keeps every lens, stock and muzzle attached through all poses.
 const Kit = preload("res://source/match/units/traits/InfantryEquipment.gd")
+const Cache = preload("res://source/utils/RuntimeCache.gd")
 
 
 static func equip(chest: Node3D, role: String, faction: String):
@@ -12,10 +13,7 @@ static func equip(chest: Node3D, role: String, faction: String):
 	var dark = _material("Weapon graphite", "293638", .6)
 	var metal = _material("Weapon titanium", "717b79", .55)
 	var ceramic = _material("Weapon ceramic", "a2b5b8", .2)
-	var cyan = _material("Energy optic", "42dce4", .25)
-	cyan.emission_enabled = true
-	cyan.emission = Color("25bccb")
-	cyan.emission_energy_multiplier = .65
+	var cyan = _material("Energy optic", "42dce4", .25, Color("25bccb"), .65)
 	match role:
 		"Infantry":
 			_plasma_carbine(weapon, dark, ceramic, cyan)
@@ -173,10 +171,21 @@ static func _muzzle(parent, label, point):
 	parent.add_child(node)
 
 
-static func _material(label, color, metallic):
+static func _material(label, color, metallic, emission := Color.BLACK, energy := 0.0):
+	# These authored finishes are immutable. Sharing the emissive optics also
+	# lets identical soldiers share their complete articulated model batch.
+	var materials = Cache.bucket("infantry_weapon_materials")
+	var key = [label, color, metallic, emission, energy]
+	if materials.has(key):
+		return materials[key]
 	var material = StandardMaterial3D.new()
 	material.resource_name = label
 	material.albedo_color = Color(color)
 	material.metallic = metallic
 	material.roughness = .55
+	if energy > 0.0:
+		material.emission_enabled = true
+		material.emission = emission
+		material.emission_energy_multiplier = energy
+	materials[key] = material
 	return material

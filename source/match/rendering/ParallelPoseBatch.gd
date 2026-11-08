@@ -27,6 +27,15 @@ var _lanes := 1
 
 func solve(jobs: Array, parallel := true, minimum_batch := 64):
 	last_worker_count = 0
+	if (
+		not jobs.is_empty()
+		and jobs[0] is Job
+		and jobs[0].chassis != null
+		and jobs[0].chassis.get_class() == "CopperfinChassisMotion"
+	):
+		jobs = jobs[0].chassis.solve_batch(jobs)
+		if jobs.is_empty():
+			return
 	if jobs.size() < minimum_batch or not parallel or OS.get_processor_count() < 4:
 		for job in jobs:
 			job.solve()

@@ -1,3 +1,4 @@
+class_name BattlePerformanceMainLoop
 extends "res://tests/headless/SaveRestoreEdges.gd"
 
 const COMBATANTS = 200
@@ -12,6 +13,9 @@ var _output := "user://benchmark-battle/"
 var _battle_units: Array = []
 var _battle_view := Rect2()
 var _first_use_trace = null
+var _fullscreen := false
+var _driver_timings := true
+var _native_loader
 
 
 func _run():
@@ -25,6 +29,7 @@ func _run():
 		quit(1)
 		return
 	_rosters = load("res://source/match/FactionCatalog.gd")
+	_native_loader = load("res://source/match/rendering/NativePosePacker.gd")
 	for argument in OS.get_cmdline_user_args():
 		if argument.begins_with("--av-faction="):
 			_only_faction = argument.trim_prefix("--av-faction=")
@@ -32,6 +37,10 @@ func _run():
 			_only_quality = argument.trim_prefix("--av-quality=")
 		elif argument.begins_with("--av-samples="):
 			_samples = clampi(argument.trim_prefix("--av-samples=").to_int(), 60, 3600)
+		elif argument == "--av-fullscreen":
+			_fullscreen = true
+		elif argument == "--av-no-driver-timings":
+			_driver_timings = false
 		elif argument.begins_with("--av-output="):
 			_output = argument.trim_prefix("--av-output=").trim_suffix("/") + "/"
 	root.get_node("SaveManager").autosaves_enabled = false
@@ -63,13 +72,23 @@ func _run():
 	root.content_scale_size = Vector2i(1280, 720)
 	root.content_scale_mode = Window.CONTENT_SCALE_MODE_VIEWPORT
 	root.scaling_3d_scale = 1.0
-	RenderingServer.viewport_set_measure_render_time(root.get_viewport_rid(), true)
+	RenderingServer.viewport_set_measure_render_time(root.get_viewport_rid(), _driver_timings)
 	_check(DirAccess.make_dir_recursive_absolute(_output) == OK, "Cannot create AV output folder")
 	_report = {
 		"adapter": RenderingServer.get_video_adapter_name(),
 		"arguments": OS.get_cmdline_user_args(),
 		"raster": [1280, 720],
+		"window_mode": "exclusive_fullscreen" if _fullscreen else "windowed",
+		"driver_timing_probe": _driver_timings,
+		"worker_thread_limit": ProjectSettings.get_setting("threading/worker_pool/max_threads"),
+		"threaded_cull_threshold":
+		ProjectSettings.get_setting(
+			"rendering/limits/spatial_indexer/threaded_cull_minimum_instances"
+		),
 		"release": not OS.has_feature("debug"),
+		"optimized_engine": OS.has_feature("copperfin_optimized_macos"),
+		"configured_render_thread_model":
+		ProjectSettings.get_setting_with_override("rendering/driver/threads/thread_model"),
 		"combatants": COMBATANTS,
 		"physics_ticks_per_second": Engine.physics_ticks_per_second,
 		"samples": _samples,
@@ -189,9 +208,9 @@ func _skirmish(faction, _map_path = "", _advanced = false):
 			armies[side].append(unit)
 			_battle_units.append(unit)
 	await _frames(8)
-	if "--native-unit-state" in OS.get_cmdline_user_args():
+	if _native_loader.runtime_enabled("--native-unit-state"):
 		_check(armies[0][0]._native_state != null, "AV benchmark silently used script unit state")
-	if "--native-crowd-runtime" in OS.get_cmdline_user_args():
+	if _native_loader.runtime_enabled("--native-crowd-runtime"):
 		_check(
 			armies[0][0].get_node("Movement")._native_runtime != null,
 			"AV benchmark silently used script movement"
@@ -326,6 +345,7 @@ func _measure(faction: String, quality: String):
 	var simulation_start = game.simulation_time
 	var shots = game.projectile_system.rounds_fired
 	var times := []
+	var physics_steps := PackedInt32Array()
 	var draws := []
 	var gpu := []
 	var render_cpu := []
@@ -337,9 +357,12 @@ func _measure(faction: String, quality: String):
 	var pipelines_previous := pipelines_begin
 	var physics_previous := Engine.get_physics_frames()
 	var phase_begin := _phase_totals()
+	var runtime_begin := _runtime_profile()
 	var cpu_begin: Array = (
 		game.runtime_profiler.cpu_sample() if game.runtime_profiler != null else []
 	)
+	var frame_clock = load("res://tests/fixtures/RenderFrameClock.gd").new()
+	frame_clock.start()
 	for frame in _samples:
 		await RenderingServer.frame_post_draw
 		if root.has_focus():
@@ -349,14 +372,20 @@ func _measure(faction: String, quality: String):
 		times.append(frame_ms)
 		last = now
 		draws.append(Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME))
-		gpu.append(RenderingServer.viewport_get_measured_render_time_gpu(root.get_viewport_rid()))
-		render_cpu.append(
-			RenderingServer.viewport_get_measured_render_time_cpu(root.get_viewport_rid())
-		)
+		# These getters synchronously drain the rendering command queue. Keep them
+		# optional when measuring a renderer running on a separate thread.
+		if _driver_timings:
+			gpu.append(
+				RenderingServer.viewport_get_measured_render_time_gpu(root.get_viewport_rid())
+			)
+			render_cpu.append(
+				RenderingServer.viewport_get_measured_render_time_cpu(root.get_viewport_rid())
+			)
 		physics.append(Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0)
 		process.append(Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0)
 		var pipelines := _pipeline_counts()
 		var physics_now := Engine.get_physics_frames()
+		physics_steps.append(physics_now - physics_previous)
 		if frame_ms > 100.0:
 			var compiled := []
 			for index in pipelines.size():
@@ -371,7 +400,7 @@ func _measure(faction: String, quality: String):
 					"simulation_seconds": game.simulation_time - simulation_start,
 					"physics_ticks": physics_now - physics_previous,
 					"shots": game.projectile_system.rounds_fired - shots,
-					"render_cpu_ms": render_cpu.back(),
+					"render_cpu_ms": render_cpu.back() if _driver_timings else null,
 					"pipeline_compilations": compiled
 				}
 			)
@@ -381,6 +410,10 @@ func _measure(faction: String, quality: String):
 	if script_profile:
 		EngineDebugger.profiler_enable("scripts", false)
 	var phase_end := _phase_totals()
+	var runtime_end := _runtime_profile()
+	for system in runtime_end:
+		for index in runtime_end[system].size():
+			runtime_end[system][index] -= runtime_begin[system][index]
 	var phases := []
 	for index in phase_end.size():
 		phases.append(phase_end[index] - phase_begin[index])
@@ -416,20 +449,20 @@ func _measure(faction: String, quality: String):
 	for kind in game.combat_effects._emitters:
 		pools[kind] = game.combat_effects._emitters[kind].amount
 	var renderer = game.get_node("UnitBatchRenderer")
-	if "--native-presentation" in OS.get_cmdline_user_args():
+	if _native_loader.runtime_enabled("--native-presentation"):
 		_check(
 			renderer._presentation != null and renderer._resident_rigs == renderer._units.size(),
 			"AV benchmark silently used script presentation"
 		)
-	if "--native-combat-queries" in OS.get_cmdline_user_args():
+	if _native_loader.runtime_enabled("--native-combat-queries"):
 		_check(game.battlefield.native_combat_queries, "AV native combat queries did not activate")
-	if "--native-exploration" in OS.get_cmdline_user_args():
+	if _native_loader.runtime_enabled("--native-exploration"):
 		_check(game.battlefield.native_exploration, "AV native exploration did not activate")
-	if "--native-battlefield-index" in OS.get_cmdline_user_args():
+	if _native_loader.runtime_enabled("--native-battlefield-index"):
 		_check(game.battlefield.native_battlefield_index, "AV native index did not activate")
-	if "--native-visibility-runtime" in OS.get_cmdline_user_args():
+	if _native_loader.runtime_enabled("--native-visibility-runtime"):
 		_check(game.battlefield._native_visibility != null, "AV native visibility did not activate")
-	if "--native-infantry-poses" in OS.get_cmdline_user_args():
+	if _native_loader.runtime_enabled("--native-infantry-poses"):
 		_check(renderer._native_infantry_solved > 0, "AV native infantry poses did not execute")
 	var entry = {
 		"faction": faction,
@@ -439,13 +472,16 @@ func _measure(faction: String, quality: String):
 		"selected_units": get_nodes_in_group("selected_units").size(),
 		"visible_start": visible_start,
 		"visible_end": visible_end,
+		"frame_samples_ms": times.duplicate(),
+		"physics_steps_per_frame": physics_steps,
 		"frame_ms": _statistics(times),
-		"gpu_ms": _statistics(gpu),
+		"gpu_ms": _statistics(gpu) if _driver_timings else {},
 		"gpu_timing_available": gpu.any(func(value): return value > 0.0),
-		"render_cpu_ms": _statistics(render_cpu),
+		"render_cpu_ms": _statistics(render_cpu) if _driver_timings else {},
 		"sampled_1s_physics_max_ms": _statistics(physics),
 		"sampled_1s_process_max_ms": _statistics(process),
 		"scene_dispatch_us": phases,
+		"runtime_profile_us": runtime_end,
 		"cpu_usage": cpu_usage,
 		"slow_frames_over_100ms": slow_frames,
 		"pipeline_counts_begin": pipelines_begin,
@@ -462,6 +498,7 @@ func _measure(faction: String, quality: String):
 		"native_exploration": game.battlefield.native_exploration,
 		"native_battlefield_index": game.battlefield.native_battlefield_index,
 		"raster": [root.get_texture().get_size().x, root.get_texture().get_size().y],
+		"window_mode": int(root.mode),
 		"draw_calls": _statistics(draws),
 		"wall_seconds": wall,
 		"wall_start_usec": start,
@@ -472,6 +509,23 @@ func _measure(faction: String, quality: String):
 		"particle_capacities": pools,
 		"shocks": game.combat_effects._shockwaves.size()
 	}
+	await frame_clock.stop()
+	entry.separate_render_thread = frame_clock.render_thread_id != OS.get_main_thread_id()
+	var main_intervals: Array = frame_clock.intervals(frame_clock.main_ticks)
+	var render_intervals: Array = frame_clock.intervals(frame_clock.render_ticks)
+	_check(
+		frame_clock.main_ticks.size() == frame_clock.render_ticks.size(),
+		"AV rendering clock lost submitted draws"
+	)
+	_check(absi(main_intervals.size() - times.size()) <= 2, "AV draw clocks missed measured frames")
+	entry.submission_frame_samples_ms = main_intervals.duplicate()
+	entry.render_submission_frame_samples_ms = render_intervals.duplicate()
+	entry.submission_frame_ms = _statistics(main_intervals)
+	entry.render_submission_frame_ms = _statistics(render_intervals)
+	var queue_ms := []
+	for usec in frame_clock.queue_us:
+		queue_ms.append(usec / 1000.0)
+	entry.render_queue_ms = _statistics(queue_ms)
 	_report.quality.append(entry)
 	_write_report()
 	print("AV200 ", JSON.stringify(entry))
@@ -483,10 +537,11 @@ func _measure(faction: String, quality: String):
 
 
 func _raster():
-	root.mode = Window.MODE_WINDOWED
+	root.mode = Window.MODE_EXCLUSIVE_FULLSCREEN if _fullscreen else Window.MODE_WINDOWED
 	await _frames(3)
 	root.size = Vector2i(1280, 720)
 	root.content_scale_size = Vector2i(1280, 720)
+	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_IGNORE
 	DisplayServer.window_move_to_foreground()
 	await _frames(12)
 	_check(root.get_texture().get_size() == Vector2(1280, 720), "AV raster initialization failed")
@@ -494,6 +549,26 @@ func _raster():
 
 func _phase_totals() -> Array:
 	return Array(game.runtime_profiler.totals) if game.runtime_profiler != null else []
+
+
+func _runtime_profile() -> Dictionary:
+	if not "--profile-runtime" in OS.get_cmdline_user_args():
+		return {}
+	return {
+		"poses": Array(game.get_node("UnitBatchRenderer")._profile_us),
+		"movement":
+		(
+			game.crowd_runtime.native.profile(true)
+			if game.crowd_runtime != null and game.crowd_runtime.active
+			else []
+		),
+		"visibility":
+		(
+			game.battlefield._native_visibility.profile(true)
+			if game.battlefield._native_visibility != null
+			else []
+		)
+	}
 
 
 func _pipeline_counts() -> Array:
@@ -519,6 +594,8 @@ func _write_report():
 
 
 func _statistics(values: Array) -> Dictionary:
+	if values.is_empty():
+		return {}
 	values.sort()
 	var total: float = values.reduce(func(sum, value): return sum + value, 0.0)
 	return {

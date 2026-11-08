@@ -1,13 +1,40 @@
 extends RefCounted
 
+const OPTIMIZED_FLAGS = [
+	"--native-unit-state",
+	"--native-crowd-runtime",
+	"--native-nearest-surface",
+	"--native-visibility-runtime",
+	"--native-exploration",
+	"--native-combat-queries",
+	"--native-battlefield-index",
+	"--native-infantry-poses",
+	"--native-presentation",
+	"--indexed-player-rosters",
+]
+
+
+static func runtime_enabled(flag: String) -> bool:
+	var arguments := OS.get_cmdline_user_args()
+	if "--disable-native-kernels" in arguments:
+		return false
+	# Only the patched release engine advertises this feature. Ordinary Godot
+	# builds retain explicit opt-in; new experimental flags are not opted in.
+	return (
+		flag in arguments
+		or (OS.has_feature("copperfin_optimized_macos") and flag in OPTIMIZED_FLAGS)
+	)
+
 
 ## Optional native pose serialization and spatial-query kernels. Missing binaries
 ## retain the ordinary renderer and GDScript queries with the same semantics.
 static func create():
-	# Windows enables these optional simulation/render kernels by default.
-	# Other hosts require explicit opt-in even when the package includes the
-	# independent numerical formation helper beside the executable.
-	if OS.get_name() != "Windows" and not "--enable-native-kernels" in OS.get_cmdline_user_args():
+	# Desktop builds with verified native kernels use batching and spatial
+	# queries automatically. Missing libraries retain the portable paths.
+	if (
+		OS.get_name() not in ["Windows", "macOS"]
+		and not "--enable-native-kernels" in OS.get_cmdline_user_args()
+	):
 		return null
 	if OS.has_feature("double") or (OS.get_name() == "Windows" and not OS.has_feature("x86_64")):
 		return null
@@ -37,7 +64,12 @@ static func _load():
 		ProjectSettings.globalize_path("res://" + relative),
 	]
 	for path in candidates:
-		if path.is_absolute_path() and FileAccess.file_exists(path):
+		if (
+			path.is_absolute_path()
+			and preload("res://source/match/orders/FormationPlanner.gd")._native_library_available(
+				path
+			)
+		):
 			GDExtensionManager.load_extension(path)
 			if ClassDB.class_exists("CopperfinPosePacker"):
 				return _instantiate()

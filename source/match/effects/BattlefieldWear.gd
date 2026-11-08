@@ -219,7 +219,9 @@ func _paint():
 		_create_texture()
 	if texture == null:
 		return
-	_terrain.material_overlay = material if enabled() and not marks.is_empty() else null
+	var overlay = material if enabled() and not marks.is_empty() else null
+	if _terrain.material_overlay != overlay:
+		_terrain.material_overlay = overlay
 	var end = mini(marks.size(), _drawn + DRAW_BUDGET)
 	while _drawn < end:
 		var mark = marks[_drawn]

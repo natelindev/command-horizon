@@ -353,6 +353,17 @@ static func funnel_routes(
 		travelled += length
 	if gates.is_empty():
 		return result
+	# Every member uses one of the same one/two lanes at a gate. Project each
+	# lane once per command, rather than repeating an identical navmesh search
+	# for every unit. Keep the route arrays below independent: units consume
+	# their own waypoints as they cross each portal.
+	for gate in gates:
+		var lanes = []
+		for column in gate.columns:
+			var offset = (float(column) - (gate.columns - 1) * .5) * (radius * 2.0 + .35)
+			var point = gate.point + gate.right * offset
+			lanes.append(NavigationServer3D.map_get_closest_point(nav, point) * Vector3(1, 0, 1))
+		gate.lanes = lanes
 	# Sort by route-relative position so the nearest units enter the portal first.
 	var ordered = units.duplicate()
 	ordered.sort_custom(
@@ -365,11 +376,6 @@ static func funnel_routes(
 	for index in ordered.size():
 		var route = []
 		for gate in gates:
-			var offset = (
-				(float(index % gate.columns) - (gate.columns - 1) * .5) * (radius * 2.0 + .35)
-			)
-			var point = gate.point + gate.right * offset
-			var projected = NavigationServer3D.map_get_closest_point(nav, point)
-			route.append(projected * Vector3(1, 0, 1))
+			route.append(gate.lanes[index % gate.columns])
 		result[ordered[index]] = route
 	return result

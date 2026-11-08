@@ -115,6 +115,7 @@ func _run():
 	_selection_designs()
 	_elevated_selection()
 	_cached_elevated_selection()
+	await _contact_shadows()
 	_single_health_track()
 	_effect_budgets()
 	_beam_lifecycle()
@@ -317,13 +318,13 @@ func _selection_designs():
 		)
 		selection._process(.5)
 		_check(
-			material.get_shader_parameter("animation_time") > 0.0,
+			selection._circle._plane.get_instance_shader_parameter("animation_time") > 0.0,
 			"Selected faction marker is not animated"
 		)
 		options.reduced_flashes = true
 		selection._process(.1)
 		_check(
-			material.get_shader_parameter("animation_time") == 0.0,
+			selection._circle._plane.get_instance_shader_parameter("animation_time") == 0.0,
 			"Reduced flashes did not steady the marker"
 		)
 		options.reduced_flashes = false
@@ -401,6 +402,7 @@ func _cached_elevated_selection():
 		_check(not selection._on_elevated_ground(), "Flat sample changed its elevation meaning")
 	_check(stage.map.terrain.reads == 1, "Stationary selection repeated authored height queries")
 	selection.select()
+	_check(not footprint.is_processing(), "Hidden ownership footprint retained a render callback")
 	for index in 10:
 		footprint._process(0.016)
 	_check(stage.map.terrain.reads == 1, "Hidden ownership footprint queried selected terrain")
@@ -409,6 +411,7 @@ func _cached_elevated_selection():
 	_check(not selection._circle.visible, "Same-tick teleport retained a flat selection mark")
 	_check(stage.map.terrain.reads == 2, "Movement did not invalidate the exact height sample")
 	selection.deselect()
+	_check(footprint.is_processing(), "Deselect did not resume ownership marker updates")
 	_check(not footprint.visible, "Deselect briefly displayed an elevated ownership mark")
 	var replacement = AuthoredGround.new()
 	replacement.terrain.height = -3.0
@@ -428,6 +431,40 @@ func _new_selection():
 
 func _new_footprint(unit):
 	return load("res://source/match/units/traits/TeamFootprint.gd").new(unit)
+
+
+func _contact_shadows():
+	var side = Side.new()
+	root.add_child(side)
+	var unit = _subject(side)
+	var stage = Stage.new()
+	stage.map = AuthoredGround.new()
+	unit._match = stage
+	unit.position = Vector3(2, 4, 3)
+	var shadow = load("res://source/match/units/traits/UnitContactShadow.gd").new(unit)
+	unit.add_child(shadow)
+	await process_frame
+	_check(is_equal_approx(shadow.global_position.y, 0.012), "Initial contact shadow missed ground")
+	_check(not shadow.is_processing(), "Stationary contact shadow retained a render callback")
+	var reads = stage.map.terrain.reads
+	for index in 4:
+		await process_frame
+	_check(stage.map.terrain.reads == reads, "Stationary contact shadow repeated height queries")
+	unit.position = Vector3(6, 7, 3)
+	await process_frame
+	await process_frame
+	_check(is_equal_approx(shadow.global_position.y, 3.012), "Moving shadow missed elevated ground")
+	unit.hide()
+	await process_frame
+	_check(not shadow.is_visible_in_tree(), "Hidden unit retained a visible contact shadow")
+	unit.position = Vector3(2, 5, 3)
+	unit.show()
+	await process_frame
+	await process_frame
+	_check(shadow.is_visible_in_tree(), "Revealed unit lost its contact shadow")
+	_check(is_equal_approx(shadow.global_position.y, 0.012), "Revealed shadow retained old height")
+	side.free()
+	stage.free()
 
 
 func _single_health_track():
@@ -614,6 +651,7 @@ func _beam_lifecycle():
 	var endpoint = Vector3(9, 2, -5)
 	effects.shot(unit, origin, endpoint, .16, false, target, true, {"kind": "rail"})
 	var rail = effects._tracers[0]
+	var launch_pose: Transform3D = rail.node.transform
 	var material = rail.node.material_override
 	_check(rail.node.visible and rail.duration == .24, "Rail did not start a full-duration beam")
 	_check(rail.node.mesh is ArrayMesh, "Rail retained box geometry")
@@ -634,6 +672,7 @@ func _beam_lifecycle():
 	_check(
 		rail.target == endpoint and rail.target_ref == null, "Instant beam followed a moving target"
 	)
+	_check(rail.node.transform == launch_pose, "Beam afterimage changed its firing-line pose")
 	_check(
 		is_equal_approx(material.get_shader_parameter("progress"), .1 / .24),
 		"Beam dissipation did not follow its age"

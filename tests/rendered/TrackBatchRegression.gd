@@ -13,6 +13,7 @@ func _run():
 	root.size = Vector2i(1280, 720)
 	root.content_scale_mode = Window.CONTENT_SCALE_MODE_VIEWPORT
 	root.content_scale_size = root.size
+	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_IGNORE
 	var options = root.get_node("Globals").options.capture()
 	options.screen = 1
 	options.graphics_shadows = true
@@ -174,9 +175,18 @@ func _check_tracks(renderer, unit, label: String):
 				body_pixels > 100, "Rendered comparison did not contain the tracked body: " + label
 			)
 			unit.show()
-		DirAccess.make_dir_recursive_absolute("res://tmp/track-batch-review")
-		batched.save_png("res://tmp/track-batch-review/%s-%d-gpu.png" % [label, step])
-		ordinary.save_png("res://tmp/track-batch-review/%s-%d-ordinary.png" % [label, step])
+		_check(
+			DirAccess.make_dir_recursive_absolute("user://track-batch-review") == OK,
+			"Cannot create track review directory"
+		)
+		_check(
+			batched.save_png("user://track-batch-review/%s-%d-gpu.png" % [label, step]) == OK,
+			"Cannot save batched track capture: " + label
+		)
+		_check(
+			ordinary.save_png("user://track-batch-review/%s-%d-ordinary.png" % [label, step]) == OK,
+			"Cannot save ordinary track capture: " + label
+		)
 		_check_material_parity(
 			camera, unit.get_node("Geometry"), batched, ordinary, label + " pose " + str(step)
 		)

@@ -28,6 +28,7 @@ VERSION = "4.7.2-stable"
 PRESETS = {"linux": "Linux/X11", "windows": "Windows Desktop", "macos": "macOS"}
 ENGINE_SUFFIX = {"linux": "linux.x86_64", "windows": "win64.exe", "macos": "macos.universal"}
 TESTS = [
+    "NativeKernelStartupRegression", "GroundContactFilteringRegression",
     "BehaviorRegression", "UnitAnimationRegression",
     "ChassisSpringRegression", "ParallelPoseRegression",
     "InfantryPoseWorkerRegression", "DecoupledPoseRegression",
@@ -62,8 +63,9 @@ TESTS = [
     "StrategicPolishRegression", "MicroControlsRegression",
     "CameraFeelRegression", "BattleFeedbackRegression", "OwnershipRegression", "SpatialQueryRegression",
     "GroundVehicleMotionRegression", "MixedArmyMovementRegression",
-    "CombatPresentationRegression", "ChargeGeometryRegression", "ManualParticlesRegression",
+    "CombatPresentationRegression", "AttackPhaseRegression", "ChargeGeometryRegression", "ManualParticlesRegression",
     "CombatAudioRegression",
+    "VehicleDamageVisualsRegression", "VehicleDamageAudioRegression",
     "EndgamePresentationRegression", "CommanderEliminationRegression",
     "OpeningGuidanceRegression", "PlacementFeedbackRegression",
     "DirectOrdersRegression", "HudRecoveryRoutesRegression", "CommandCardRefreshRegression", "AbilityTrayRegression",
@@ -95,7 +97,14 @@ TEST_ARGUMENTS = {
     "TacticalFormationsRegression": ["--functional-only"],
     "CampaignBriefingRegression": ["--require-complete"],
 }
-RENDERED_TESTS = ["SceneResourceLifetimeRegression"]
+# Whether a dummy-server pass is meaningful before the actual GPU check.
+RENDERED_TESTS = {
+    "SceneResourceLifetimeRegression": ("gl_compatibility", True),
+    "ChargeSparkRegression": ("gl_compatibility", False),
+    "SelectionShaderRegression": ("gl_compatibility", False),
+    "EmptyMeshTransformRegression": ("gl_compatibility", False),
+    "PosePaletteRegression": ("forward_plus", False),
+}
 NATIVE_FLAGS = ["--enable-native-kernels", "--native-unit-state", "--native-crowd-runtime"]
 MAX_LOG_BYTES = 16 * 1024 * 1024
 RECORDER = None
@@ -363,16 +372,17 @@ def import_release_project(engine, project):
 
 
 def check_rendered_resources(engine, pack, isolated, headless_only=False, flags=None):
-    """Exercise actual compatibility allocations as well as the dummy server."""
-    for test in RENDERED_TESTS:
+    """Exercise GPU allocations and pose compute, plus supported dummy-server checks."""
+    for test, (renderer, supports_headless) in RENDERED_TESTS.items():
         script = f"res://tests/rendered/{test}.gd"
-        run([engine, "--headless", "--main-pack", pack, "--fixed-fps", "60",
-             "--script", script, *(["--", *flags] if flags else [])], cwd=isolated, timeout=120)
+        if supports_headless:
+            run([engine, "--headless", "--main-pack", pack, "--fixed-fps", "60",
+                 "--script", script, *(["--", *flags] if flags else [])], cwd=isolated, timeout=120)
         if headless_only:
             continue
         # This gate checks real GPU allocations. Hosted runners have no audio
         # device, so select silent audio explicitly instead of logging a driver error.
-        command = [engine, "--audio-driver", "Dummy", "--main-pack", pack, "--rendering-method", "gl_compatibility",
+        command = [engine, "--audio-driver", "Dummy", "--main-pack", pack, "--rendering-method", renderer,
                    "--fixed-fps", "60", "--script", script, "--", "--require-renderer", *(flags or [])]
         if PLATFORM == "linux" and not os.environ.get("DISPLAY"):
             display = shutil.which("xvfb-run")
@@ -644,8 +654,8 @@ def main():
                  "--", "--enable-native-kernels"])
         except RuntimeError as error:
             failed.append(str(error))
-        if PLATFORM == "windows":
-            for test in ("NativePoseRegression", "NativeContactRegression", "SpatialQueryRegression", "NativeTerrainSightRegression", "NativePoseRebaseRegression", "NativeInfantryPoseRegression", "NativePoseRigRegression", "NativePresentationRegression", "NativeCrowdMovementRegression", "NativeCrowdProjectionRegression", "NativeNavigationSurfaceRegression"):
+        if PLATFORM in ("windows", "macos"):
+            for test in ("NativePoseRegression", "NativeContactRegression", "SpatialQueryRegression", "NativeTerrainSightRegression", "FogPackingRegression", "NativePoseRebaseRegression", "NativeInfantryPoseRegression", "NativeChassisRegression", "NativePoseRigRegression", "NativePresentationRegression", "NativeCrowdMovementRegression", "NativeCrowdProjectionRegression", "NativeNavigationSurfaceRegression"):
                 run([engine, "--headless", "--path", project, "--fixed-fps", "60",
                      "--script", f"res://tests/headless/{test}.gd"])
             for test in ("NativeCrowdMovementRegression", "NativeCrowdProjectionRegression"):

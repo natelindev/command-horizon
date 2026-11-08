@@ -154,7 +154,7 @@ func _setup_faction_ring():
 	material.shader = FACTION_SHADER
 	_faction_style = FACTION_STYLES.get(_unit.player.faction, 0)
 	material.set_shader_parameter("faction_style", _faction_style)
-	material.set_shader_parameter("animation_time", 0.0)
+	_circle._plane.set_instance_shader_parameter("animation_time", 0.0)
 	_circle._plane.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_update_circle_params()
 
@@ -163,6 +163,7 @@ func _set_team_footprint_visible(value):
 	var footprint = _unit.get_node_or_null("TeamFootprint")
 	if footprint != null:
 		footprint.visible = value
+		footprint.set_process(value)
 		if value and footprint.has_method("_process"):
 			# Deselecting an aircraft must publish its current ground position
 			# before the previously hidden ownership mark becomes visible.
@@ -172,13 +173,13 @@ func _set_team_footprint_visible(value):
 func _on_elevated_ground() -> bool:
 	if not _ground_capable:
 		return false
-	if _unit.movement_domain != Constants.Match.Navigation.Domain.TERRAIN:
-		return false
 	var game = _unit._match
 	if not is_instance_valid(game):
 		return false
 	var map = game.map
 	if not is_instance_valid(map) or not map.is_elevated():
+		return false
+	if _unit.movement_domain != Constants.Match.Navigation.Domain.TERRAIN:
 		return false
 	var point = Vector2(_unit.global_position.x, _unit.global_position.z)
 	var terrain = map.get("terrain")
@@ -212,8 +213,10 @@ func _process(delta):
 		if Globals.options.reduced_flashes
 		else 1.0 + .15 * pow(1.0 - clampf(_animation_time / .18, 0.0, 1.0), 3)
 	)
-	_circle.scale = Vector3.ONE * entrance
-	_circle._plane.material_override.set_shader_parameter(
+	var entrance_scale: Vector3 = Vector3.ONE * entrance
+	if _circle.scale != entrance_scale:
+		_circle.scale = entrance_scale
+	_circle._plane.set_instance_shader_parameter(
 		"animation_time", 0.0 if Globals.options.reduced_flashes else _animation_time
 	)
 

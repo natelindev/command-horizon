@@ -68,6 +68,22 @@ var _heave_cos := 0.0
 var _heave_sin := 0.0
 
 
+static func create():
+	var args := OS.get_cmdline_user_args()
+	var native_loader = load("res://source/match/rendering/NativePosePacker.gd")
+	if (
+		(
+			native_loader.runtime_enabled("--native-chassis-poses")
+			or native_loader.runtime_enabled("--native-presentation")
+		)
+		and not "--script-chassis-poses" in args
+	):
+		var loader = native_loader.create()
+		if loader != null and ClassDB.class_exists("CopperfinChassisMotion"):
+			return ClassDB.instantiate("CopperfinChassisMotion")
+	return new()
+
+
 func configure(motion_kind, profile, top_speed, body_length):
 	kind = motion_kind
 	_tuning = PackedFloat64Array(TUNING[kind])
