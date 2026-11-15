@@ -261,7 +261,7 @@ These stay on hover `Movement` with acceleration and deceleration limits. Tilt a
 Headless command:
 
 ```
-/Users/linlilu/godot-open-rts/tmp/tooling/godot-4.6/Godot.app/Contents/MacOS/Godot --headless --path . --fixed-fps 60 --script tests/headless/X.gd
+godot --headless --path . --fixed-fps 60 --script tests/headless/X.gd
 ```
 
 **New regressions:**

@@ -1,6 +1,6 @@
 # Illustrated campaign layer manifest
 
-Generated with the built-in image generation tool after applying the imagegen skill. Project copies are under `assets/ui/campaign/briefings/`; the transparent foregrounds retain their alpha. The original tool output directory was `/Users/linlilu/.codex/generated_images/01a1982e-3c07-7081-954b-f1f80c38e115/`.
+Project copies are located under `assets/ui/campaign/briefings/`; the transparent foregrounds retain their alpha.
 
 The generation brief for every asset required original military science-fiction graphic-novel art, painterly ink and gouache, readable silhouettes, restrained weathering and no lettering, logos, UI or borrowed characters. The following per-asset briefs document the subject and composition used for the separate layers.
 

@@ -15,7 +15,7 @@ Revised 2026-11-07 against the current repository. Improve research readability 
 | Keyboard claims need correction | Queue digits are drawn with `show_hotkey()` but the reviewed research path has no numeric cancellation handler. Do not advertise them as shortcuts. `T` is used by building/ability commands; do not introduce a global Tech binding. |
 | Rendering coverage is incomplete | `HudConsolePreview.gd` currently captures Bastion/Frontier at 720p/150% and Helix at 1080p/100%, in English and Chinese. It does not establish all-faction coverage at every resolution or any 4K coverage. |
 
-Primary implementation sources: [ResearchPanel.gd](/Users/linlilu/godot-open-rts/source/match/hud/ResearchPanel.gd), [ResearchButton.gd](/Users/linlilu/godot-open-rts/source/match/hud/ResearchButton.gd), [ResearchStatus.gd](/Users/linlilu/godot-open-rts/source/match/hud/ResearchStatus.gd), [UnitMenus.gd](/Users/linlilu/godot-open-rts/source/match/hud/UnitMenus.gd), [TechnologyCatalog.gd](/Users/linlilu/godot-open-rts/source/match/research/TechnologyCatalog.gd), [TechnologyResearch.gd](/Users/linlilu/godot-open-rts/source/match/research/TechnologyResearch.gd).
+Primary implementation sources: [ResearchPanel.gd](source/match/hud/ResearchPanel.gd), [ResearchButton.gd](source/match/hud/ResearchButton.gd), [ResearchStatus.gd](source/match/hud/ResearchStatus.gd), [UnitMenus.gd](source/match/hud/UnitMenus.gd), [TechnologyCatalog.gd](source/match/research/TechnologyCatalog.gd), [TechnologyResearch.gd](source/match/research/TechnologyResearch.gd).
 
 ## 2. Constraints and chosen design
 
@@ -157,19 +157,17 @@ The rendered commands currently run only the harnesses' built-in matrices; expan
 
 ## Verification evidence
 
-Environment: Godot 4.7.2 stable (`ed1daf0bf`), macOS, Apple M1 Pro, Metal 4.0 Forward+. Executable: `/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot`.
-
-All commands run from `/Users/linlilu/godot-open-rts`:
+Environment: Godot 4.7.2 stable (`ed1daf0bf`), macOS, Apple M1 Pro, Metal 4.0 Forward+.
 
 ```sh
-/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot --headless --path . --fixed-fps 60 --script tests/headless/ResearchTilesRegression.gd
-/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot --headless --path . --fixed-fps 60 --script tests/headless/ResearchQueueRegression.gd
-/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot --headless --path . --fixed-fps 60 --script tests/headless/ResearchFeedbackRegression.gd
-/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot --headless --path . --fixed-fps 60 --script tests/headless/HudConsoleRegression.gd
-/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot --headless --path . --fixed-fps 60 --script tests/headless/ChineseUIRegression.gd
-/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot --headless --path . --fixed-fps 60 --script tests/headless/FrontierAirContractsRegression.gd
-/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot --path . --script tests/rendered/HudConsolePreview.gd -- --research
-/Users/linlilu/.cache/godot/4.7.2/Godot.app/Contents/MacOS/Godot --path . --script tests/rendered/ResearchQueuePreview.gd
+godot --headless --path . --fixed-fps 60 --script tests/headless/ResearchTilesRegression.gd
+godot --headless --path . --fixed-fps 60 --script tests/headless/ResearchQueueRegression.gd
+godot --headless --path . --fixed-fps 60 --script tests/headless/ResearchFeedbackRegression.gd
+godot --headless --path . --fixed-fps 60 --script tests/headless/HudConsoleRegression.gd
+godot --headless --path . --fixed-fps 60 --script tests/headless/ChineseUIRegression.gd
+godot --headless --path . --fixed-fps 60 --script tests/headless/FrontierAirContractsRegression.gd
+godot --path . --script tests/rendered/HudConsolePreview.gd -- --research
+godot --path . --script tests/rendered/ResearchQueuePreview.gd
 ```
 
 | Check | Result / evidence |

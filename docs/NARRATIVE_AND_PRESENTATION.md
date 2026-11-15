@@ -52,7 +52,7 @@ This document establishes the plan to elevate **Godot Open RTS** from a function
 
 ## 3. Narrative Architecture & Campaign Command Hubs
 
-Currently, the campaign in [`source/match/campaign/`](file:///Users/linlilu/godot-open-rts/source/match/campaign/) transitions between operations via bare text menus, while story dialogue is delivered through fleeting in-game text prompts. We will introduce two major narrative layers:
+Currently, the campaign in [`source/match/campaign/`](../source/match/campaign/) transitions between operations via bare text menus, while story dialogue is delivered through fleeting in-game text prompts. We will introduce two major narrative layers:
 
 ```
                   ┌──────────────────────────────────────────────┐
@@ -161,7 +161,7 @@ Generic responses (`"Sir?"`, `"Yes, sir"`, `"Acknowledged"`) will be overhauled 
 
 ## 5. Dynamic Soundtrack & Layered Combat Stems
 
-Currently, [`source/audio/MusicDirector.gd`](file:///Users/linlilu/godot-open-rts/source/audio/MusicDirector.gd) uses a single stereo track with volume ducking. We will upgrade the music engine to **dynamic vertical layering (stems)**:
+Currently, [`source/audio/MusicDirector.gd`](../source/audio/MusicDirector.gd) uses a single stereo track with volume ducking. We will upgrade the music engine to **dynamic vertical layering (stems)**:
 
 ```
                                 [ MUSIC DIRECTOR INTENSITY ENGINE ]
