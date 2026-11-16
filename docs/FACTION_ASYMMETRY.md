@@ -2,7 +2,7 @@
 
 Status: **Active Design Direction**  
 Date: **2026-11-01**  
-Foundation: Synthesized from RTS genre benchmarks (**StarCraft II**, **Command & Conquer: Red Alert 2**, and **Age of Empires II**) for **Godot Open RTS**.  
+Foundation: Synthesized from RTS genre benchmarks (**StarCraft II**, **Command & Conquer: Red Alert 2**, and **Age of Empires II**) for **Command Horizon**.  
 Supersedes: The historical 1:1 mirrored roster and uniform tech tree where factions differed only by percentage stat multipliers (`-20%` HP, `+20%` speed) and cosmetic materials.
 
 ---
@@ -10,7 +10,7 @@ Supersedes: The historical 1:1 mirrored roster and uniform tech tree where facti
 ## 1. Vision & Core Philosophy
 
 ### 1.1 The "Symmetrical Trap" in RTS Design
-In early prototypes of Godot Open RTS, all three factions (Bastion, Helix, Frontier) shared an identical structural foundation:
+In early prototypes of Command Horizon, all three factions (Bastion, Helix, Frontier) shared an identical structural foundation:
 - 15 identical unit roles (`Worker`, `Infantry`, `RocketInfantry`, `Tank`, `AdvancedTank`, `AntiAirVehicle`, `Fighter`, etc.)
 - 9 identical buildings (`CommandCenter`, `Barracks`, `VehicleFactory`, `AircraftFactory`, `PowerPlant`, `CommandLab`, `RepairDepot`, `Turrets`)
 - Identical upgrade queues (`weapons_1/2/3`, `armor_1/2/3`)

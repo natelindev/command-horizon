@@ -26,7 +26,7 @@ func _ready():
 	page.add_theme_constant_override("separation", 12)
 	scroll.add_child(page)
 	var title = Label.new()
-	title.text = "OPEN RTS"
+	title.text = "COMMAND HORIZON"
 	title.theme_type_variation = "HudHeading"
 	title.add_theme_font_size_override("font_size", 30)
 	page.add_child(title)

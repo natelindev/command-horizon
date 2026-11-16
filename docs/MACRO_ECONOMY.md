@@ -2,14 +2,14 @@
 
 Status: **Active Design Direction**  
 Date: **2026-11-01**  
-Foundation: Synthesized from RTS genre benchmarks (**StarCraft II**, **Age of Empires II**, and **Command & Conquer: Red Alert 2**) for **Godot Open RTS**.  
+Foundation: Synthesized from RTS genre benchmarks (**StarCraft II**, **Age of Empires II**, and **Command & Conquer: Red Alert 2**) for **Command Horizon**.  
 Supersedes: The static two-resource, single-drop-off economic loop where all factions used identical workers, identical haul routines, and passive power penalties.
 
 ---
 
 ## 1. Executive Summary & The Problem with the Baseline Economy
 
-In the baseline implementation of **Godot Open RTS**:
+In the baseline implementation of **Command Horizon**:
 - **Homogeneous Gathering:** All three factions train identical workers (`Worker.gd`). Every worker drives to a deposit, waits for a fixed collection interval, loads 4 units of cargo into `WorkerCargo.gd`, and drives back to the `CommandCenter`.
 - **Single Universal Drop-off Point:** Resources can only be returned to a completed `CommandCenter`. There are no forward drop-off depots, refineries, or specialized mining structures. Expanding to a distant resource field requires building an entire expensive HQ.
 - **Passive Power Penalty:** Power is purely an aggregate capacity meter. If demand exceeds supply, production and research globally slow to 35%. There are no localized power outages, no defensive structure shutdowns, and no power grid interactivity.
@@ -25,7 +25,7 @@ This specification redesigns the macro-economy into an active, strategic pillar 
 ┌──────────────────────────────────────────────────────────────────────────────────────┐
 │                            BENCHMARK LESSONS MATRIX                                  │
 ├─────────────────┬──────────────────────────────────┬─────────────────────────────────┤
-│ BENCHMARK GAME  │ CORE ECONOMIC MECHANICS          │ LESSON FOR GODOT OPEN RTS       │
+│ BENCHMARK GAME  │ CORE ECONOMIC MECHANICS          │ LESSON FOR COMMAND HORIZON      │
 ├─────────────────┼──────────────────────────────────┼─────────────────────────────────┤
 │ StarCraft II    │ • Strict saturation curves (16/16│ • Add visible field saturation. │
 │                 │   on minerals, 3/3 on gas).      │ • Give each faction an active   │
@@ -243,5 +243,5 @@ Each faction will feature a completely distinct economic operation:
 ## Agent Progress
 
 - **Deep Benchmark Analysis Completed**: Evaluated economic pacing and harvesting mechanics from StarCraft II (saturation curves, macro injections), Age of Empires II (multi-resource interdependence, forward drop-offs, commodity markets), and Red Alert 2 (combat miners, teleporter miners, tech oil derricks, power blackouts).
-- **Core Diagnosis Established**: Identified existing limitations in Godot Open RTS (homogeneous workers, single HQ drop-off, passive power penalties, lack of secondary income).
+- **Core Diagnosis Established**: Identified existing limitations in Command Horizon (homogeneous workers, single HQ drop-off, passive power penalties, lack of secondary income).
 - **Comprehensive Specification Authored**: Created `docs/MACRO_ECONOMY.md` laying down the complete multi-tiered resource architecture, active power grid mechanics, faction-specific harvester identities, neutral contested captures, and a 6-stage engineering plan.

@@ -36,7 +36,7 @@ func _ready():
 		header_box.add_child(title_lbl)
 
 		var sub_lbl = Label.new()
-		sub_lbl.text = tr("OPEN RTS ARCHITECTURE & ASSETS")
+		sub_lbl.text = tr("COMMAND HORIZON ARCHITECTURE & ASSETS")
 		sub_lbl.add_theme_font_size_override("font_size", 11)
 		sub_lbl.add_theme_color_override("font_color", Color("8ea0a8"))
 		sub_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

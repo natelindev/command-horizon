@@ -148,7 +148,7 @@ class Score:
                                     + f"afade=t=out:st={self.seconds-.032:.6f}:d=0.02"),
                             "-ar", str(RATE),
                             "-c:a", "vorbis", "-strict", "-2", "-q:a", "5", "-metadata", "title="+self.title,
-                            "-metadata", "artist=Open RTS Original Score", str(OUT/(self.name+".ogg"))], check=True)
+                            "-metadata", "artist=Command Horizon Original Score", str(OUT/(self.name+".ogg"))], check=True)
         return {"file": self.name+".ogg", "title": self.title, "bpm": self.bpm,
                 "bars": self.bars, "seconds": self.seconds, "events": self.events,
                 "description": self.description, "sample_rate": RATE}

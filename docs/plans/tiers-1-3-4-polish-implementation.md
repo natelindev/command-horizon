@@ -1,6 +1,6 @@
 # Tiers 1, 3, and 4 RTS Polish Implementation Plan
 
-A comprehensive overhaul implementing **Tier 1 (Input, Micro & Controls)**, **Tier 3 (Standard UI & HUD)**, and **Tier 4 (Programmable RTS USP)** to transform Godot Open RTS into a responsive, tactical, and readable RTS experience.
+A comprehensive overhaul implementing **Tier 1 (Input, Micro & Controls)**, **Tier 3 (Standard UI & HUD)**, and **Tier 4 (Programmable RTS USP)** to transform Command Horizon into a responsive, tactical, and readable RTS experience.
 
 ---
 

@@ -12,8 +12,8 @@ The stage uses junctions to the current project and an isolated user directory;
 the ordinary game entry point and user options are preserved.
 
 ```powershell
-python tools/performance/build_benchmark.py --godot PATH_TO_GODOT_CONSOLE.exe --output tmp/heavy-2v2/Open_RTS_Heavy2v2.exe
-python tools/performance/run_benchmark.py --executable tmp/heavy-2v2/Open_RTS_Heavy2v2.exe --output docs/playtests/2026-10-26/2v2-performance/result.json
+python tools/performance/build_benchmark.py --godot PATH_TO_GODOT_CONSOLE.exe --output tmp/heavy-2v2/Command_Horizon_Heavy2v2.exe
+python tools/performance/run_benchmark.py --executable tmp/heavy-2v2/Command_Horizon_Heavy2v2.exe --output docs/playtests/2026-10-26/2v2-performance/result.json
 ```
 
 Keep the exported game focused and run it alone. Do not edit sources during

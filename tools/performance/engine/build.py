@@ -247,7 +247,7 @@ def package(args):
             staged = release.stage_release_project(work, native, source)
             release.import_release_project(str(args.editor.resolve()), staged)
             config = (staged / "project.godot").read_text()
-            isolated = "OpenRTSBuildValidation/" + output.name
+            isolated = "CommandHorizonBuildValidation/" + output.name
             (staged / "project.godot").write_text(set_entry(config, "startup", isolated))
             exported = work / "startup.zip"
             run([args.editor.resolve(), "--headless", "--path", staged,
@@ -273,7 +273,7 @@ def package(args):
                 raise UsageError("Exported application has an ambiguous game pack")
             shutil.copy2(game_pack, packs[0])
             release.install_native_support(executable, native, app)
-            archive = output / f"OpenRTS-{args.entry}-optimized-macos-arm64.zip"
+            archive = output / f"CommandHorizon-{args.entry}-optimized-macos-arm64.zip"
             run(["ditto", "-c", "-k", "--sequesterRsrc", "--keepParent", app, archive], log)
             receipt = {"signature": signature, "application": str(app), "archive": str(archive),
                        "signed_engine_sha256": sha256(executable),

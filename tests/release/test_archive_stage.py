@@ -115,7 +115,7 @@ class ArchiveStageTests(unittest.TestCase):
             self.assertTrue((stage / "docs/playtests/example/SHA256SUMS").is_file())
             self.assertEqual((stage / "source").resolve(), (project / "source").resolve())
             config = (stage / "project.godot").read_text()
-            self.assertIn("OpenRTSReleaseArchive/" + work.name, config)
+            self.assertIn("CommandHorizonReleaseArchive/" + work.name, config)
             self.assertEqual(config.count("config/use_custom_user_dir="), 1)
             self.assertNotIn("ExistingProfile", config)
             self.assertFalse(profile.exists())

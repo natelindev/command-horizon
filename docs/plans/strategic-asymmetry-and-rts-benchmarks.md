@@ -2,7 +2,7 @@
 
 ## Status and Design Intent
 
-Design and implementation roadmap, 2026-11-01. This plan establishes the strategic evolution of **Godot Open RTS**, bridging the architectural gap between an open-source engine prototype and genre-defining RTS masterworks: **StarCraft II**, **Command & Conquer: Red Alert 2**, and **Age of Empires II**.
+Design and implementation roadmap, 2026-11-01. This plan establishes the strategic evolution of **Command Horizon**, bridging the architectural gap between an open-source engine prototype and genre-defining RTS masterworks: **StarCraft II**, **Command & Conquer: Red Alert 2**, and **Age of Empires II**.
 
 Current implementation, 2026-11-02: faction components, dedicated rosters, exclusive research, strategic AI, macro economy, tactical controls, command hubs, building collapse, scenario editing and authoritative multiplayer/replay have requirement-specific implementation and verification evidence. The complete combat voice bank, runtime faction mixes and briefing publication are audited. The frozen macOS `qualified-run-5` passes all 162 headless workflow rows: 140/140 packaged scripts, strict source texture validation, 811 archived saves/389 recorded checksums, 1,152 layouts/zero failures, six dummy lifetime instances, startup/clock checks and 14/14 actual multiplayer/replay checks. The [current report](../playtests/2026-11-02/headless-continuation/candidate5/report.json) includes the final command and six CPU query changes; [artifact verification](../playtests/2026-11-02/headless-continuation/candidate5/artifact-verification.json) confirms matching package hashes and zero source drift. ARM64 executed on macOS; the universal x86-64 slice was structurally checked only, without Windows/Linux execution claims. Candidate 4's pass and all failed workflows remain preserved. Normal and graphical launches remain prohibited under the renewed headless-only restriction. MI12 and final release acceptance remain open. The original 3D style remains the target; [static inspection](../playtests/2026-11-02/original-style-audit.md) found no global pixel-art conversion or saved benchmark graphics leakage. The [completion audit](benchmark-completion-audit.md) records each requirement and its evidence.
 
@@ -15,7 +15,7 @@ The core objective is to replace the historical 1:1 mirrored roster and uniform 
 
 ## Architectural Principles Learned from Benchmark Titles
 
-| Benchmark | Core System Mechanism | Application to Godot Open RTS |
+| Benchmark | Core System Mechanism | Application to Command Horizon |
 | :--- | :--- | :--- |
 | **StarCraft II** | **Macro Asymmetry & Distinct Production Engines** | Bastion uses dedicated worker construction; Helix uses "fire-and-forget" nanite projection; Frontier uses batch/pair unit production and frontline wreck cannibalization. |
 | **StarCraft II** | **Shield vs. Hull Health Dynamics** | Helix units receive rapidly regenerating Plasma Shields (8 HP/s out of combat), forcing distinct hit-and-run kiting counterplay compared to Bastion's permanent hull attrition. |

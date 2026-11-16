@@ -2,7 +2,7 @@
 
 Status: **Active Design Direction**  
 Date: **2026-11-01**  
-Foundation: Synthesized from RTS genre benchmarks (**StarCraft II**, **Age of Empires II**, and **Command & Conquer: Red Alert 2**) for **Godot Open RTS**.  
+Foundation: Synthesized from RTS genre benchmarks (**StarCraft II**, **Age of Empires II**, and **Command & Conquer: Red Alert 2**) for **Command Horizon**.  
 Supersedes: Single-point destination clustering, lack of tactical formations, desynchronized group march speeds, and clunky weapon wind-up stops during movement.
 
 ---
@@ -13,7 +13,7 @@ In classical competitive and high-skill real-time strategy, **combat is won in t
 * A player who manually dodges splash artillery or kites melee units with stutter-stepping can defeat an army twice their size.
 * An army marching through a narrow canyon in a disciplined column survives, whereas an army clustering into a disorganized blob gets trapped and annihilated.
 
-### 1.1 The Baseline Shortcomings in Godot Open RTS
+### 1.1 The Baseline Shortcomings in Command Horizon
 1. **Blob Pathfinding (Deathballs):** Issuing a move order to a mixed group sends all units toward a tight cluster around the target coordinate. Units collide, circle each other via `RVO` avoidance, and clump into dense targets for artillery and bombers.
 2. **Absence of Tactical Formations:** The player has no native buttons for **Line**, **Box**, **Flank**, or **Staggered** formations. Spreading units manually requires labor-intensive individual unit drag-selection.
 3. **Speed Desynchronization:** Grouped units travel at their individual base speeds. Fast reconnaissance buggies and scout drones ($3.5\text{ m/s}$) race ahead into enemy fire, while heavy tanks ($2.9\text{ m/s}$) and siege artillery ($2.2\text{ m/s}$) trail far behind, destroying army cohesion.
@@ -28,7 +28,7 @@ In classical competitive and high-skill real-time strategy, **combat is won in t
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
 │                               BENCHMARK LESSONS MATRIX                                 │
 ├─────────────────┬────────────────────────────────────┬─────────────────────────────────┤
-│ BENCHMARK GAME  │ CORE MECHANICS                     │ APPLICATION TO GODOT OPEN RTS   │
+│ BENCHMARK GAME  │ CORE MECHANICS                     │ APPLICATION TO COMMAND HORIZON  │
 ├─────────────────┼────────────────────────────────────┼─────────────────────────────────┤
 │ StarCraft II    │ • Instant turning & acceleration.  │ • Decouple turret aiming from   │
 │                 │ • Fluid Stutter-Stepping (kiting). │   hull motion for smooth kiting.│
@@ -221,7 +221,7 @@ When approaching a narrow corridor (bridge, canyon, gate) whose width is narrowe
 ## Agent Progress
 
 - **Benchmark Synthesis Completed**: Evaluated micro-control and movement mechanics from StarCraft II (stutter-stepping, smart-casting, local nudging), Age of Empires II (Line/Box/Flank/Staggered formations, speed cohesion, dodging), and Red Alert 2 (turret decoupling, deploy delays, vehicle crushing).
-- **Core Diagnosis Established**: Identified existing limitations in Godot Open RTS (deathball clustering, absence of formations, speed desync, lack of smart-cast, clunky weapon wind-ups).
+- **Core Diagnosis Established**: Identified existing limitations in Command Horizon (deathball clustering, absence of formations, speed desync, lack of smart-cast, clunky weapon wind-ups).
 - **Comprehensive Specification Authored**: Created `docs/MICRO_AND_NAVIGATION.md` defining the 4 tactical formation geometries, Hungarian slot assignment, decoupled turret aiming, fluid stutter-step cooldowns, smart-cast dispatching, and a 6-stage engineering plan.
 
 - **2026-11-02 — Runtime implementation verified:** All four geometries, projected Hungarian assignment, direct HUD controls, live cohesion (including formation cruise), turret decoupling,0.12s aim/reload preservation, one-unit smartcasting, Tab/Alt focus, mass contacts and actual choke compression/re-expansion pass current native runtime checks. C is reserved for cohesion; Flank uses configurable Alt+C so the specification’s two C commands remain directly accessible. Evidence: [runtime and bilingual review](playtests/2026-11-02/tactical-formations/). The strict200-unit16.6ms command/maximum-frame performance gate remains open and is being optimized; p95 is not substituted for that requirement.

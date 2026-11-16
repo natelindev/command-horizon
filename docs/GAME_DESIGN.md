@@ -4,8 +4,8 @@
 
 Status: playable two-faction skirmish, programmable units and six Bastion campaign prototypes, version 0.7  
 Last updated: 2026-10-04  
-Working title: undecided  
-Foundation: the existing Godot Open RTS repository
+Working title: Command Horizon  
+Foundation: the existing Command Horizon repository
 
 This document records the design discussion and delivered prototypes. The [core gameplay specification](CORE_GAMEPLAY_SPEC.md) now supplies concrete design defaults and acceptance gates for the next two-faction milestone. The [2026-10-01 playtest review](playtests/2026-10-01/REVIEW.md) records the evidence and its limits. Later implementation sections supersede the earlier planning snapshots: bounded custom Lua, visual authoring, reusable programs, battle archives and all six Bastion mission loops are now present. Final environments, broader faction/map content, novice/balance acceptance and full-release requirements remain unfinished. The latest finale evidence is in section 50.
 

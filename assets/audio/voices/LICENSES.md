@@ -38,7 +38,7 @@ SHA-256, license, language, accent, pitch and recording metrics are in
   SpeechBrain ECAPA-TDNN (Apache 2.0) speaker similarity, CommonAccent ECAPA accent ID by
   Juan Zuluaga-Gomez (MIT).
 
-The recordings are newly synthesized Open RTS dialogue; no reference recording is shipped.
+The recordings are newly synthesized Command Horizon dialogue; no reference recording is shipped.
 Changes: silence trimming, equalization, light field-radio colouring for crew (parallel
 band limit, presence, saturation/codec grit and speech-gated static; `art/audio/radio_voice.py`),
 exact loudness normalization, peak limiting and Ogg encoding at 24 kHz. Robot lines are

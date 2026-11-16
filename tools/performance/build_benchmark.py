@@ -50,15 +50,21 @@ def main():
     project = project.replace('run/main_scene="res://source/Main.tscn"',
                               'run/main_scene="res://tests/rendered/HeavyTeamBootstrap.tscn"\n'
                               'run/main_loop_type="HeavyTeamPerformanceMainLoop"')
-    project = project.replace('config/name="Open RTS"',
-                              'config/name="Copperfin Heavy 2v2 Benchmark"\n'
-                              'config/use_custom_user_dir=true\n'
-                              'config/custom_user_dir_name="CopperfinHeavy2v2Benchmark"')
+    project = re.sub(
+        r'config/name="[^"\n]+"',
+        'config/name="Copperfin Heavy 2v2 Benchmark"\n'
+        'config/use_custom_user_dir=true\n'
+        'config/custom_user_dir_name="CopperfinHeavy2v2Benchmark"',
+        project,
+        count=1,
+    )
     (stage / "project.godot").write_text(project, encoding="utf-8")
     user_data = Path(os.environ["APPDATA"]) / "Godot/app_userdata"
     profile = Path(os.environ["APPDATA"]) / "CopperfinHeavy2v2Benchmark"
     profile.mkdir(parents=True, exist_ok=True)
-    original_options = user_data / "Open RTS/options.tres"
+    original_options = user_data / "Command Horizon/options.tres"
+    if not original_options.exists():
+        original_options = user_data / "Open RTS/options.tres"
     if original_options.exists():
         shutil.copy2(original_options, profile / "options.tres")
     manifest = source_manifest()

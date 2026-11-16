@@ -1,6 +1,6 @@
 # Polish program (2026-10-16)
 
-Goal: make Open RTS extremely polished and well developed. Each workstream is reviewed
+Goal: make Command Horizon extremely polished and well developed. Each workstream is reviewed
 against shipped quality (rendered captures, measured audio, clean UI, complete Chinese
 localization, regressions) before it is merged.
 

@@ -17,12 +17,12 @@ todo:
 	ack ' todo' -i source/
 
 release-linux:
-	godot4 --export-release "Linux/X11" "build/Open_RTS_$(version)_linux64.bin"
+	godot4 --export-release "Linux/X11" "build/Command_Horizon_$(version)_linux64.bin"
 
 release-macos:
-	godot4 --export-release "macOS" "build/Open_RTS_$(version)_osx64.zip"
+	godot4 --export-release "macOS" "build/Command_Horizon_$(version)_osx64.zip"
 
 release-windows:
-	godot4 --export-release "Windows Desktop" "build/Open_RTS_$(version)_windows64.exe"
+	godot4 --export-release "Windows Desktop" "build/Command_Horizon_$(version)_windows64.exe"
 
 release: release-linux release-macos release-windows

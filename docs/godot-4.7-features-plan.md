@@ -75,7 +75,7 @@ All four stages are complete.
 Verification logs and captures are in `tmp/godot-features/`,
 `art/presentation-features/`, `art/hud-console/`, `art/terrain-layers/`, and
 `art/game-polish/combat/normal/`. The release archive is
-`build/release-assets/Open_RTS_macOS.zip`.
+`build/release-assets/Command_Horizon_macOS.zip`.
 
 API references: [Godot 4.7 release](https://godotengine.org/releases/4.7/),
 [drawable textures](https://docs.godotengine.org/en/4.7/classes/class_drawabletexture2d.html),

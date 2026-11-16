@@ -329,12 +329,12 @@ def stage_archive_validation(work, project=None, source_root=None):
     for name in ("icon.svg", "icon.svg.import"):
         if (source_root / name).is_file():
             shutil.copy2(source_root / name, stage / name)
-    directory = "OpenRTSReleaseArchive/" + work.name
+    directory = "CommandHorizonReleaseArchive/" + work.name
     config = (project / "project.godot").read_text(encoding="utf-8")
     config = re.sub(r'(?m)^config/(?:use_custom_user_dir|custom_user_dir_name)=.*\n', "", config)
     config, count = re.subn(
         r'(?m)^config/name="[^"\n]*"$',
-        'config/name="Open RTS Archive Verification"\nconfig/use_custom_user_dir=true\n'
+        'config/name="Command Horizon Archive Verification"\nconfig/use_custom_user_dir=true\n'
         f'config/custom_user_dir_name="{directory}"', config, count=1)
     if count != 1:
         raise RuntimeError("Could not isolate the archive-validation user profile")
@@ -508,9 +508,9 @@ def isolate_review_profile(project, stamp):
     config_path = project / "project.godot"
     config = config_path.read_text(encoding="utf-8")
     config = re.sub(r'(?m)^config/(?:use_custom_user_dir|custom_user_dir_name)=.*\n', "", config)
-    directory = "OpenRTSHeadlessReview/" + stamp
+    directory = "CommandHorizonHeadlessReview/" + stamp
     config, count = re.subn(r'(?m)^config/name="[^"\n]*"$',
-                            'config/name="Open RTS Headless Review"\n'
+                            'config/name="Command Horizon Headless Review"\n'
                             'config/use_custom_user_dir=true\n'
                             f'config/custom_user_dir_name="{directory}"', config, count=1)
     if count != 1:
@@ -682,8 +682,8 @@ def main():
                  "--script", "res://tests/headless/NativeUnitStateRegression.gd",
                  "--", "--native-unit-state", "--native-crowd-runtime",
                  "--native-visibility-runtime", "--native-nearest-surface"])
-        filename = {"linux": "Open_RTS_Linux.x86_64", "windows": "Open_RTS_Windows.exe",
-                    "macos": "Open_RTS_macOS.zip"}[PLATFORM]
+        filename = {"linux": "Command_Horizon_Linux.x86_64", "windows": "Command_Horizon_Windows.exe",
+                    "macos": "Command_Horizon_macOS.zip"}[PLATFORM]
         exported = output / filename
         run([engine, "--headless", "--path", project, "--export-release", preset, exported])
         if PLATFORM == "macos":
@@ -751,11 +751,11 @@ def main():
             run(["ditto", "-c", "-k", "--sequesterRsrc", "--keepParent", app, exported])
             shutil.copy2(exported, artifacts / filename)
         elif PLATFORM == "linux":
-            with tarfile.open(artifacts / "Open_RTS_Linux.tar.gz", "w:gz") as package:
+            with tarfile.open(artifacts / "Command_Horizon_Linux.tar.gz", "w:gz") as package:
                 for path in output.iterdir():
                     package.add(path, arcname=path.name)
         else:
-            shutil.make_archive(str(artifacts / "Open_RTS_Windows"), "zip", output)
+            shutil.make_archive(str(artifacts / "Command_Horizon_Windows"), "zip", output)
         print("platform: " + json.dumps(PLATFORM))
         print("artifacts: " + json.dumps(str(artifacts)))
         print("standalone: " + str(len(TESTS)))

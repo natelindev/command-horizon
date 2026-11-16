@@ -1,6 +1,6 @@
 # Campaign voice and portrait credits
 
-The hero conversations are original Open RTS dialogue, synthesized offline with
+The hero conversations are original Command Horizon dialogue, synthesized offline with
 Chatterbox TTS by Resemble AI (MIT). English recordings carry the model's Perth
 watermark. Chinese text is provided as captions; all playback is local.
 

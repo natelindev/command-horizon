@@ -1,4 +1,4 @@
-# Open RTS audio
+# Command Horizon audio
 
 ## Battle voices and interface sounds
 

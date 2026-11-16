@@ -2,7 +2,7 @@
 
 Status: **Active Design Direction**  
 Date: **2026-11-01**  
-Foundation: Synthesized from RTS genre benchmarks (**StarCraft II**, **Command & Conquer: Red Alert 2**, and **Age of Empires II**) for **Godot Open RTS**.  
+Foundation: Synthesized from RTS genre benchmarks (**StarCraft II**, **Command & Conquer: Red Alert 2**, and **Age of Empires II**) for **Command Horizon**.  
 Supersedes: Generic synthetic voice lines, text-only campaign briefings, non-interactive mission menus, and flat building destruction animations.
 
 ---
@@ -14,7 +14,7 @@ A legendary real-time strategy game is remembered as much for its **soul, voice,
 * The between-mission storytelling aboard the *Hyperion* or through Red Alert's bombastic live-action briefings created deep emotional attachment to the factions.
 * The visceral sound of a heavy siege tank shell detonating or Frank Klepacki’s pounding industrial soundtrack (*Hell March*) converted mundane clicking into thrilling spectacle.
 
-This document establishes the plan to elevate **Godot Open RTS** from a functional technical engine demo into an immersive, charismatic RTS experience.
+This document establishes the plan to elevate **Command Horizon** from a functional technical engine demo into an immersive, charismatic RTS experience.
 
 ---
 
@@ -24,7 +24,7 @@ This document establishes the plan to elevate **Godot Open RTS** from a function
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
 │                              BENCHMARK LESSONS MATRIX                                  │
 ├─────────────────┬────────────────────────────────────┬─────────────────────────────────┤
-│ BENCHMARK GAME  │ CORE PRESENTATION MECHANICS        │ APPLICATION TO GODOT OPEN RTS   │
+│ BENCHMARK GAME  │ CORE PRESENTATION MECHANICS        │ APPLICATION TO COMMAND HORIZON  │
 ├─────────────────┼────────────────────────────────────┼─────────────────────────────────┤
 │ StarCraft II    │ • Interactive 3D Campaign Hubs     │ • Add Between-Mission Faction   │
 │                 │   (Hyperion Bridge/Armory/Lab).    │   Command Hubs for campaign.    │
@@ -232,5 +232,5 @@ Buildings will no longer vanish into an instantaneous puff of smoke. Instead, de
 ## Agent Progress
 
 - **Benchmark Synthesis Completed**: Evaluated narrative presentation and audiovisual polish across StarCraft II (interactive 3D hubs, cinematic setpieces), Red Alert 2 (charismatic FMV storytelling, Frank Klepacki industrial metal, iconic unit quotes), and Age of Empires II (illustrated storybook briefings, authentic historical voice barks).
-- **Core Diagnosis Established**: Identified existing limitations in Godot Open RTS (generic synthetic voices, text-only briefings, non-interactive mission menus, flat building destruction).
+- **Core Diagnosis Established**: Identified existing limitations in Command Horizon (generic synthetic voices, text-only briefings, non-interactive mission menus, flat building destruction).
 - **Comprehensive Specification Authored**: Created `docs/NARRATIVE_AND_PRESENTATION.md` detailing the interactive Between-Mission Command Hubs, 2.5D motion comic briefings, charismatic faction voice lines, multi-stem dynamic soundtrack, kinetic muzzle shockwaves, and multi-stage building collapse.

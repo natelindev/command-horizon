@@ -16,7 +16,7 @@ func _run():
 	_latin.compile("[A-Za-z]{3,}")
 	# Product/language names and the actual printed keyboard keys remain recognizable.
 	_allowed.compile(
-		"\\b(OPEN RTS|English|MSAA|Shift|Ctrl|Space|Esc|Escape|Tab|Alt|Enter|Backspace|Delete)\\b"
+		"\\b(COMMAND HORIZON|OPEN RTS|English|MSAA|Shift|Ctrl|Space|Esc|Escape|Tab|Alt|Enter|Backspace|Delete)\\b"
 	)
 	for scene_name in ["Main", "World", "Play", "Campaign"]:
 		var scene = load("res://source/main-menu/%s.tscn" % scene_name).instantiate()
