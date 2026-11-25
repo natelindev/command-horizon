@@ -20,17 +20,19 @@ func _run():
 			bounds.size.x > 0 and bounds.size.y > 0 and bounds.size.z > 0, role + ": empty model"
 		)
 		var unit = load("res://source/match/units/%s.tscn" % role).instantiate()
-		var factor = unit.radius * 1.85 / max(bounds.size.x, bounds.size.z)
+		var normalized = catalog.model_geometry("frontier", role, unit.radius)
+		var final_bounds = catalog._bounds(normalized, Transform3D.IDENTITY)
+		_check(absf(final_bounds.position.y) < .001, role + ": model floats below/above ground")
+		normalized.free()
+		var factor = (
+			catalog.target_span("frontier", role, unit.radius) / maxf(bounds.size.x, bounds.size.z)
+		)
 		if role == "Infantry":
 			factor = 1.15 / bounds.size.y
-		elif role in ["Drone", "Helicopter"]:
-			factor *= 1.35
 		model.scale = Vector3.ONE * factor
 		model.position = (
 			-Vector3(bounds.get_center().x, bounds.position.y, bounds.get_center().z) * factor
 		)
-		var final_bounds = catalog._bounds(model, Transform3D.IDENTITY)
-		_check(absf(final_bounds.position.y) < .001, role + ": model floats below/above ground")
 		var muzzle = model.find_child("*Muzzle", true, false)
 		if (
 			role

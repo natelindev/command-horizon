@@ -27,6 +27,16 @@ const BUILDINGS = {
 	],
 	"cold": ["FjordHouseRed", "FjordHouseOchre", "MountainHut", "Boathouse", "FjordChapel"]
 }
+const STRUCTURE_ROLES = [
+	"CommandCenter",
+	"Barracks",
+	"VehicleFactory",
+	"PowerPlant",
+	"CommandLab",
+	"RepairDepot",
+	"AntiGroundTurret",
+	"AntiAirTurret",
+]
 var _lod_surfaces = 0
 var _batch_mesh_script
 var _mesh_lods_script
@@ -39,31 +49,34 @@ func _run():
 	_check_lod_transforms()
 	var catalog = load("res://source/match/FactionCatalog.gd")
 	for faction in ["bastion", "helix", "frontier"]:
-		for role in ROLES:
+		var spans = {}
+		var heights = {}
+		for role in ROLES + STRUCTURE_ROLES:
 			var unit = load(Catalog.scene_path(role)).instantiate()
 			var original_path = unit.get_node("Geometry").get_child(0).scene_file_path
 			var collision = unit.get_node("CollisionShape3D").shape
 			var radius = unit.radius
-			var nav_radius = unit.get_node("Movement").radius
+			var movement = unit.get_node_or_null("Movement")
+			var nav_radius = movement.radius if movement != null else null
 			catalog.prepare_model(unit, faction)
 			var geometry = unit.get_node("Geometry")
 			var bounds = catalog._bounds(geometry, Transform3D.IDENTITY)
-			var maximum = radius * 1.85
-			if Catalog.is_aircraft(role):
-				maximum *= 1.35
-			if faction == "frontier" and role == "AdvancedTank":
-				maximum *= 1.1
+			var span_bounds = catalog._bounds(geometry, Transform3D.IDENTITY, true)
+			if span_bounds.size == Vector3.ZERO:
+				span_bounds = bounds
+			var expected = catalog.target_span(faction, role, radius)
 			var label = faction + "/" + role
 			if (
 				faction == "bastion"
 				and role not in ["AdvancedTank", "CombatRobot", "AntiAirVehicle"]
+				and role in ROLES
 			):
 				_check(
 					geometry.get_child(0).scene_file_path == original_path,
 					label + ": normalization replaced the current asset with a legacy model"
 				)
 			_check(
-				absf(maxf(bounds.size.x, bounds.size.z) - maximum) < .002,
+				absf(maxf(span_bounds.size.x, span_bounds.size.z) - expected) < .002,
 				label + ": model bypasses the shared sizing policy"
 			)
 			_check(absf(bounds.position.y) < .002, label + ": model is not grounded")
@@ -74,11 +87,13 @@ func _run():
 			_check(
 				(
 					unit.radius == radius
-					and unit.get_node("Movement").radius == nav_radius
+					and (movement == null or movement.radius == nav_radius)
 					and unit.get_node("CollisionShape3D").shape == collision
 				),
 				label + ": model normalization changed gameplay collision"
 			)
+			spans[role] = maxf(span_bounds.size.x, span_bounds.size.z)
+			heights[role] = bounds.size.y
 			if role == "Tank" and faction == "bastion":
 				_check(
 					_triangles(geometry) <= 14000,
@@ -92,6 +107,19 @@ func _run():
 			if role in ["Tank", "AdvancedTank"]:
 				_check_lods(geometry, label)
 			unit.free()
+		_check(
+			spans.Drone < spans.Fighter and spans.Fighter < spans.Bomber,
+			faction + ": aircraft size hierarchy inverted"
+		)
+		_check(
+			spans.Tank > spans.Worker and spans.AdvancedTank >= spans.Tank,
+			faction + ": ground armor size hierarchy inverted"
+		)
+		_check(heights.Tank > 1.15, faction + ": tank is shorter than infantry")
+		_check(
+			spans.CommandCenter > spans.AdvancedTank,
+			faction + ": command center is smaller than heavy tank"
+		)
 	_check(_lod_surfaces >= 6, "Imported vehicle LODs were lost during batching")
 	for kit in BUILDINGS:
 		for name in BUILDINGS[kit]:

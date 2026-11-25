@@ -56,24 +56,14 @@ func _run():
 			)
 			if mobile != (category == "units"):
 				continue
-			var model = load("res://assets/models/frontier/v1/%s.glb" % roster[role]).instantiate()
 			var unit = load("res://source/match/units/%s.tscn" % role).instantiate()
-			var bounds = catalog._bounds(model, Transform3D.IDENTITY)
-			var factor = unit.radius * 1.85 / max(bounds.size.x, bounds.size.z)
-			if role == "Infantry":
-				factor = 1.15 / bounds.size.y
-			elif role in ["Drone", "Helicopter"]:
-				factor *= 1.35
+			var model = catalog.model_geometry("frontier", role, unit.radius)
 			var center = Vector3(
 				(index % columns - (columns - 1) * .5) * spacing,
 				0,
 				(index / columns - .5) * spacing
 			)
-			model.scale = Vector3.ONE * factor
-			model.position = (
-				center
-				- Vector3(bounds.get_center().x, bounds.position.y, bounds.get_center().z) * factor
-			)
+			model.position += center
 			if role in ["Drone", "Helicopter"]:
 				model.position.y += .65
 			display.add_child(model)

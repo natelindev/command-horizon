@@ -28,6 +28,30 @@ const BASTION_MODELS = {
 	"Helicopter": "air-v1/Helicopter",
 	"Fighter": "air-v1/Fighter",
 	"Bomber": "air-v1/Bomber",
+	"CommandCenter": "structures-v2/CommandCenter",
+	"Barracks": "structures-v2/Barracks",
+	"VehicleFactory": "structures-v2/VehicleFactory",
+	"PowerPlant": "structures-v2/PowerPlant",
+	"CommandLab": "structures-v2/CommandLab",
+	"RepairDepot": "structures-v2/RepairDepot",
+	"AntiGroundTurret": "structures-v2/AntiGroundTurret",
+	"AntiAirTurret": "structures-v2/AntiAirTurret",
+}
+const ROLE_SPANS = {
+	"Drone": 1.10,
+	"RepairRobot": 1.30,
+	"Worker": 1.40,
+	"CombatRobot": 1.55,
+	"AntiAirVehicle": 2.05,
+	"Tank": 2.25,
+	"AdvancedTank": 2.50,
+	"Helicopter": 2.15,
+	"Fighter": 2.25,
+	"Bomber": 2.85,
+}
+const FACTION_ROLE_SPANS = {
+	"frontier": {"Tank": 1.85, "AdvancedTank": 2.70},
+	"helix": {"CombatRobot": 1.45, "Helicopter": 1.90},
 }
 const HELIX_MODELS = {
 	"Worker": "MuleEngineer",
@@ -566,10 +590,25 @@ static func prepare_model(unit, faction):
 		load("res://source/match/units/traits/InfantryMeshBatch.gd").apply(
 			geometry.get_node("InfantryRig")
 		)
+	else:
+		var bar = unit.get_node_or_null("HealthBar")
+		if bar != null:
+			var model_bounds = _bounds(geometry, Transform3D.IDENTITY)
+			if model_bounds.size != Vector3.ZERO and bar.position.y < model_bounds.end.y + 0.15:
+				bar.position.y = model_bounds.end.y + 0.15
 
 
 static func helix_geometry(role, radius):
 	return model_geometry("helix", role, radius)
+
+
+static func target_span(faction: String, role: String, radius: float) -> float:
+	var faction_spans = FACTION_ROLE_SPANS.get(faction, {})
+	if faction_spans.has(role):
+		return faction_spans[role]
+	if ROLE_SPANS.has(role):
+		return ROLE_SPANS[role]
+	return radius * 1.85
 
 
 static func model_geometry(faction, role, radius):
@@ -592,13 +631,17 @@ static func model_geometry(faction, role, radius):
 	else:
 		SurfaceTextures.apply_armor(model)
 	var bounds = _bounds(model, Transform3D.IDENTITY)
-	var factor = radius * 1.85 / maxf(.001, maxf(bounds.size.x, bounds.size.z))
-	if role == "Infantry":
-		factor = 1.15 / bounds.size.y
-	elif Bastion.is_aircraft(role):
-		factor *= 1.35
-	if faction == "frontier" and role == "AdvancedTank":
-		factor *= 1.1
+	var span_bounds = _bounds(model, Transform3D.IDENTITY, true)
+	if span_bounds.size == Vector3.ZERO:
+		span_bounds = bounds
+	var factor = (
+		1.15 / bounds.size.y
+		if role == "Infantry"
+		else (
+			target_span(faction, role, radius)
+			/ maxf(.001, maxf(span_bounds.size.x, span_bounds.size.z))
+		)
+	)
 	model.scale = Vector3.ONE * factor
 	model.position = (
 		-Vector3(bounds.get_center().x, bounds.position.y, bounds.get_center().z) * factor
@@ -606,13 +649,23 @@ static func model_geometry(faction, role, radius):
 	return model
 
 
-static func _bounds(node, parent_transform):
+static func _bounds(node, parent_transform, hull_only := false):
+	if (
+		hull_only
+		and (
+			"Barrel" in node.name
+			or "Rotor" in node.name
+			or "Antenna" in node.name
+			or "Muzzle" in node.name
+		)
+	):
+		return AABB()
 	var transform_here = parent_transform * node.transform if node is Node3D else parent_transform
 	var result = (
 		transform_here * node.get_aabb() if node is MeshInstance3D and node.mesh != null else AABB()
 	)
 	for child in node.get_children():
-		var child_bounds = _bounds(child, transform_here)
+		var child_bounds = _bounds(child, transform_here, hull_only)
 		if child_bounds.size != Vector3.ZERO:
 			result = child_bounds if result.size == Vector3.ZERO else result.merge(child_bounds)
 	return result

@@ -243,7 +243,7 @@ func _start_structure_placement(structure_prototype):
 		load(Constants.Match.Units.STRUCTURE_BLUEPRINTS[structure_prototype.resource_path])
 		. instantiate()
 	)
-	if _player.faction in ["helix", "frontier"]:
+	if _player.faction in Factions.IDS:
 		var reference = structure_prototype.instantiate()
 		var faction_model = Factions.model_geometry(
 			_player.faction, reference.type, reference.radius
