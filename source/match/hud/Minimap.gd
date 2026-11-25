@@ -129,6 +129,7 @@ func _build_operations():
 	overlay.add_child(row)
 	_commander_button = Button.new()
 	_commander_button.name = "OpenCommanderSupport"
+	_commander_button.theme_type_variation = "BattleCardButton"
 	_commander_button.icon = BattleTheme.icon("attack")
 	_commander_button.add_theme_constant_override("icon_max_width", 17)
 	_commander_button.add_theme_font_size_override("font_size", 11)
@@ -137,6 +138,7 @@ func _build_operations():
 	row.add_child(_commander_button)
 	_event_button = Button.new()
 	_event_button.name = "BattlefieldEvent"
+	_event_button.theme_type_variation = "BattleCardButton"
 	_event_button.clip_text = true
 	_event_button.custom_minimum_size = Vector2(130, 26)
 	_event_button.add_theme_font_size_override("font_size", 11)

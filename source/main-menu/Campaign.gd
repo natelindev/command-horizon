@@ -4,6 +4,7 @@ const Progress = preload("res://source/match/campaign/CampaignProgress.gd")
 const Catalog = preload("res://source/match/campaign/CampaignCatalog.gd")
 const ArtTheme = preload("res://source/main-menu/ArtTheme.gd")
 const Artwork = preload("res://source/main-menu/ArtworkCatalog.gd")
+const MenuChrome = preload("res://source/main-menu/MenuChrome.gd")
 var progress_path = Progress.PATH
 var _difficulty: OptionButton
 var _challenge: OptionButton
@@ -26,6 +27,8 @@ var _operation_list: VBoxContainer
 var _heading: Label
 var _body: GridContainer
 var _hero_art: TextureRect
+var _backdrop = null
+var _header = {}
 
 
 func _ready():
@@ -33,25 +36,32 @@ func _ready():
 	theme = ArtTheme.create()
 	_progress = Progress.new()
 	_progress.read_progress(progress_path)
-	var background = load("res://source/main-menu/ArtBackdrop.gd").new()
-	background.dim = .48
-	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(background)
+	_backdrop = load("res://source/main-menu/ArtBackdrop.gd").new()
+	_backdrop.dim = .50
+	_backdrop.left_focus = 0.35
+	_backdrop.set_accent(ArtTheme.accent())
+	add_child(_backdrop)
 	var margin = MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	for side in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + side, 24)
+	for side in ["left", "right"]:
+		margin.add_theme_constant_override("margin_" + side, 22)
+	for side in ["top", "bottom"]:
+		margin.add_theme_constant_override("margin_" + side, 12)
 	add_child(margin)
 	var column = VBoxContainer.new()
-	column.add_theme_constant_override("separation", 12)
+	column.add_theme_constant_override("separation", 10)
 	margin.add_child(column)
-	_heading = _label(column, "Campaign", 24)
+
 	_faction_picker = OptionButton.new()
 	for title in ["Bastion Directorate", "Helix Systems", "Free Frontier Coalition"]:
 		_faction_picker.add_item(tr(title))
 	_faction_picker.fit_to_longest_item = false
+	_faction_picker.custom_minimum_size = Vector2(210, 32)
 	_faction_picker.item_selected.connect(_select_faction)
-	column.add_child(_faction_picker)
+
+	_header = MenuChrome.screen_header(column, tr("CAMPAIGN"), "", _faction_picker)
+	_heading = _header.title
+
 	var scroll = ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -59,51 +69,101 @@ func _ready():
 	column.add_child(scroll)
 	_body = GridContainer.new()
 	_body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_body.add_theme_constant_override("h_separation", 16)
-	_body.add_theme_constant_override("v_separation", 16)
+	_body.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_body.add_theme_constant_override("h_separation", 14)
+	_body.add_theme_constant_override("v_separation", 12)
 	scroll.add_child(_body)
 	var operations = PanelContainer.new()
 	operations.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	operations.add_theme_stylebox_override("panel", ArtTheme.panel())
+	operations.size_flags_stretch_ratio = 0.88
+	operations.theme_type_variation = "HudHousing"
+	operations.add_theme_stylebox_override("panel", ArtTheme.panel(12))
 	_body.add_child(operations)
+	var ops_col = VBoxContainer.new()
+	ops_col.add_theme_constant_override("separation", 8)
+	operations.add_child(ops_col)
+	MenuChrome.nameplate_heading(ops_col, tr("Operations"))
 	_operation_list = VBoxContainer.new()
-	operations.add_child(_operation_list)
+	_operation_list.add_theme_constant_override("separation", 6)
+	ops_col.add_child(_operation_list)
+
 	var panel = PanelContainer.new()
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	panel.add_theme_stylebox_override("panel", ArtTheme.panel())
+	panel.size_flags_stretch_ratio = 1.25
+	panel.theme_type_variation = "HudHousing"
+	panel.add_theme_stylebox_override("panel", ArtTheme.panel(14))
 	_body.add_child(panel)
 	var dossier = VBoxContainer.new()
-	dossier.add_theme_constant_override("separation", 12)
+	dossier.add_theme_constant_override("separation", 8)
 	panel.add_child(dossier)
+
+	var top_card = HBoxContainer.new()
+	top_card.add_theme_constant_override("separation", 12)
+	dossier.add_child(top_card)
+
+	var portrait_frame = PanelContainer.new()
+	portrait_frame.theme_type_variation = "HudSocket"
+	portrait_frame.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	top_card.add_child(portrait_frame)
+
 	_hero_art = TextureRect.new()
 	_hero_art.name = "CommanderPortrait"
-	_hero_art.custom_minimum_size = Vector2(112, 112)
+	_hero_art.custom_minimum_size = Vector2(72, 72)
 	_hero_art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_hero_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_hero_art.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	_hero_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	dossier.add_child(_hero_art)
-	_completion = _label(dossier, "", 14)
-	_hero_story = _label(dossier, "", 16)
+	portrait_frame.add_child(_hero_art)
+
+	var dossier_head = VBoxContainer.new()
+	dossier_head.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	dossier_head.alignment = BoxContainer.ALIGNMENT_CENTER
+	dossier_head.add_theme_constant_override("separation", 4)
+	top_card.add_child(dossier_head)
+
+	_completion = _label(dossier_head, "", 13, ArtTheme.accent())
+	_completion.add_theme_font_override("font", ArtTheme.heading_font())
+	_hero_story = _label(dossier_head, "", 14, ArtTheme.IVORY)
 	_hero_story.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_briefing = _label(dossier, "", 16)
-	_briefing.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_note = _label(dossier, "", 13)
-	_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_response = _label(dossier, "", 13)
-	_response.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_theater_intel = _label(dossier, "Your hero must survive.", 14)
+	_theater_intel = _label(dossier_head, "Your hero must survive.", 12, ArtTheme.MUTED)
 	_theater_intel.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_label(dossier, "Difficulty", 14)
+
+	var intel_socket = PanelContainer.new()
+	intel_socket.theme_type_variation = "HudSocket"
+	intel_socket.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	dossier.add_child(intel_socket)
+
+	var intel_col = VBoxContainer.new()
+	intel_col.add_theme_constant_override("separation", 6)
+	intel_socket.add_child(intel_col)
+	_briefing = _label(intel_col, "", 14, ArtTheme.IVORY)
+	_briefing.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_note = _label(intel_col, "", 12, ArtTheme.MUTED)
+	_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_response = _label(intel_col, "", 12, ArtTheme.MUTED)
+	_response.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+
+	var opts_row = HBoxContainer.new()
+	opts_row.add_theme_constant_override("separation", 12)
+	dossier.add_child(opts_row)
+	var diff_col = VBoxContainer.new()
+	diff_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	diff_col.add_theme_constant_override("separation", 3)
+	opts_row.add_child(diff_col)
+	_label(diff_col, "Difficulty", 12, ArtTheme.MUTED)
 	_difficulty = OptionButton.new()
 	_difficulty.fit_to_longest_item = false
+	_difficulty.custom_minimum_size.y = 30
 	_difficulty.item_selected.connect(func(_index): _refresh_horizon_response())
-	dossier.add_child(_difficulty)
+	diff_col.add_child(_difficulty)
+
 	_challenge_box = VBoxContainer.new()
-	dossier.add_child(_challenge_box)
-	_label(_challenge_box, "Replay challenge", 14)
+	_challenge_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_challenge_box.add_theme_constant_override("separation", 3)
+	opts_row.add_child(_challenge_box)
+	_label(_challenge_box, "Replay challenge", 12, ArtTheme.MUTED)
 	_challenge = OptionButton.new()
 	_challenge.fit_to_longest_item = false
+	_challenge.custom_minimum_size.y = 30
 	for title in [
 		"Standard mission",
 		"Lean deployment · fewer reserves and funds",
@@ -113,26 +173,29 @@ func _ready():
 	_challenge.item_selected.connect(func(_index): _refresh_horizon_response())
 	_challenge_box.add_child(_challenge)
 	if not _progress.error.is_empty():
-		_label(dossier, _progress.error, 13)
+		_label(dossier, _progress.error, 12)
+
 	var actions = HBoxContainer.new()
+	actions.add_theme_constant_override("separation", 12)
 	column.add_child(actions)
-	_button(
+	var main_btn = _button(
 		actions,
 		"Main menu",
 		func(): get_tree().change_scene_to_file("res://source/main-menu/Main.tscn")
 	)
-	_button(
+	main_btn.custom_minimum_size = Vector2(130, 38)
+	var hub_btn = _button(
 		actions,
 		"Command hub",
 		func(): get_tree().change_scene_to_file("res://source/main-menu/CampaignHub.tscn")
 	)
+	hub_btn.custom_minimum_size = Vector2(140, 38)
 	var spacer = Control.new()
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	actions.add_child(spacer)
 	_start_button = _button(actions, "Start", _start)
-	_start_button.add_theme_stylebox_override("normal", ArtTheme.primary_button_style())
-	_start_button.add_theme_stylebox_override("hover", ArtTheme.primary_button_hover_style())
-	_start_button.add_theme_stylebox_override("pressed", ArtTheme.primary_button_pressed_style())
+	_start_button.theme_type_variation = "BattlePrimaryButton"
+	_start_button.custom_minimum_size = Vector2(210, 38)
 	get_viewport().size_changed.connect(_layout)
 	_layout()
 	_select_faction(0)
@@ -140,7 +203,7 @@ func _ready():
 
 
 func _layout():
-	_body.columns = 2 if get_viewport_rect().size.x >= 1100 else 1
+	_body.columns = 2 if get_viewport_rect().size.x >= 800 else 1
 
 
 func _select_faction(index):
@@ -148,8 +211,11 @@ func _select_faction(index):
 	_hero_art.texture = Artwork.commander(_faction)
 	ArtTheme.Console.use_faction(_faction)
 	theme = ArtTheme.create()
+	if _backdrop != null:
+		_backdrop.set_accent(ArtTheme.accent())
+	MenuChrome.sync_header_accent(_header, ArtTheme.accent())
 	for panel in _body.get_children():
-		panel.add_theme_stylebox_override("panel", ArtTheme.panel())
+		panel.add_theme_stylebox_override("panel", ArtTheme.panel(12))
 	_ids = Catalog.ORDER[_faction].duplicate()
 	for child in _operation_list.get_children():
 		_operation_list.remove_child(child)
@@ -163,9 +229,11 @@ func _select_faction(index):
 			operation.number + " · " + tr(operation.title),
 			_select_operation.bind(slot)
 		)
+		button.theme_type_variation = "BattleCardButton"
+		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.toggle_mode = true
 		button.button_group = group
-		button.custom_minimum_size = Vector2(0, 40)
+		button.custom_minimum_size = Vector2(0, 36)
 		_operation_buttons.append(button)
 	var hub_state = load("res://source/match/campaign/CampaignHubState.gd").new()
 	var state_path = hub_state.path_for(self)
@@ -174,7 +242,7 @@ func _select_faction(index):
 	_heading.text = (
 		"%s · %d / %d · %s"
 		% [
-			tr("Campaign"),
+			tr("CAMPAIGN"),
 			_ids.filter(func(id): return _progress.completed(id)).size(),
 			_ids.size(),
 			tr("%d Tech Points Available") % pts_avail
@@ -200,7 +268,11 @@ func _select_operation(index):
 		else "Challenges preserve tactical pause, manual orders and required counters."
 	)
 	_challenge.select(0)
-	_operation_buttons[index].set_pressed_no_signal(true)
+	for i in _operation_buttons.size():
+		var op_btn: Button = _operation_buttons[i]
+		var active = i == index
+		op_btn.set_pressed_no_signal(active)
+		op_btn.theme_type_variation = "BattlePrimaryButton" if active else "BattleCardButton"
 
 	_theater_intel.text = tr("Your hero must survive.")
 	var entry = Catalog.operations()[_mission_id]

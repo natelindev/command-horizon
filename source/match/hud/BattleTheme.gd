@@ -19,9 +19,9 @@ const MUTED = Color("b0b9ba")
 const COPPER = Color("d8bc80")
 ## Accent and ink (text on accent fills) per faction kit.
 const PALETTES = {
-	"bastion": {"accent": Color("e8b04a"), "ink": Color("1d1609")},
-	"helix": {"accent": Color("5fd8e8"), "ink": Color("06171c")},
-	"frontier": {"accent": Color("f08c3e"), "ink": Color("1f1007")},
+	"bastion": {"accent": Color("e8b04a"), "ink": Color("fff7e6")},
+	"helix": {"accent": Color("5fd8e8"), "ink": Color("eefcff")},
+	"frontier": {"accent": Color("f08c3e"), "ink": Color("fff5eb")},
 }
 const SIGNAL_OK = Color("79d3c5")
 const SIGNAL_WARN = Color("e7c578")
@@ -297,6 +297,8 @@ static func _keys(theme: Theme):
 	theme.set_stylebox("hover", "BattlePrimaryButton", key("primary_hover"))
 	theme.set_stylebox("pressed", "BattlePrimaryButton", key("primary_pressed"))
 	theme.set_stylebox("hover_pressed", "BattlePrimaryButton", key("primary_pressed"))
+	theme.set_constant("outline_size", "BattlePrimaryButton", 1)
+	theme.set_color("font_outline_color", "BattlePrimaryButton", Color(0, 0, 0, 0.72))
 	for state in [
 		"font_color",
 		"font_hover_color",

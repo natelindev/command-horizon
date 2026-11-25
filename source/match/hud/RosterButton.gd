@@ -11,7 +11,7 @@ const FALLBACK_ICON = preload("res://assets/ui/economy/units.svg")
 const MATERIALS_TINT = Color("e3c48a")
 const ELECTRONICS_TINT = Color("8fd3c6")
 const InlineIcons = preload("res://source/match/hud/InlineIcons.gd")
-const PORTRAIT_SIZE = 36.0
+const PORTRAIT_SIZE = 42.0
 
 var _compact = false
 var _icon_size = 64.0
@@ -58,7 +58,7 @@ func _init():
 	_title = Label.new()
 	_title.name = "Title"
 	_title.add_theme_font_override("font", BattleTheme.display_font())
-	_title.add_theme_font_size_override("font_size", 13)
+	_title.add_theme_font_size_override("font_size", 14)
 	_title.add_theme_constant_override("line_spacing", -3)
 	# Stable one-line names keep full mixed rosters inside the console. The full
 	# name and description remain available in the tooltip at narrow UI sizes.

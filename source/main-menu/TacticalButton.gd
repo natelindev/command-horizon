@@ -6,7 +6,7 @@ const Console = preload("res://source/match/hud/BattleTheme.gd")
 @export var index_code: String = ""
 @export var subtitle_text: String = ""
 @export var cut_size: float = 10.0
-@export var button_height: int = 46
+@export var button_height: int = 44
 @export var is_primary: bool = false
 
 var _bg: ColorRect
@@ -56,7 +56,8 @@ func _ready():
 		"rect_size", size if size != Vector2.ZERO else custom_minimum_size
 	)
 	_material.set_shader_parameter("hover_glow", 0.0)
-	_material.set_shader_parameter("scanline_strength", 0.025)
+	_material.set_shader_parameter("scanline_strength", 0.022)
+	_material.set_shader_parameter("is_primary", is_primary)
 
 	_bg = ColorRect.new()
 	_bg.material = _material
@@ -67,7 +68,7 @@ func _ready():
 	_content = MarginContainer.new()
 	_content.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_content.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_content.add_theme_constant_override("margin_left", 14)
+	_content.add_theme_constant_override("margin_left", 16)
 	_content.add_theme_constant_override("margin_right", 14)
 	_content.add_theme_constant_override("margin_top", 4)
 	_content.add_theme_constant_override("margin_bottom", 4)
@@ -82,7 +83,7 @@ func _ready():
 	_index_label.text = index_code
 	_index_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_index_label.add_theme_font_override("font", Console.numeral_font())
-	_index_label.add_theme_font_size_override("font_size", 13)
+	_index_label.add_theme_font_size_override("font_size", 12)
 	_index_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_index_label.visible = not index_code.is_empty()
 	hbox.add_child(_index_label)
@@ -107,8 +108,11 @@ func _ready():
 	_title_label = Label.new()
 	_title_label.text = tr(text)
 	_title_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_title_label.add_theme_font_override("font", Console.display_font())
-	_title_label.add_theme_font_size_override("font_size", 17 if is_primary else 16)
+	_title_label.add_theme_font_override("font", Console.heading_font())
+	_title_label.add_theme_font_size_override("font_size", 18 if is_primary else 16)
+	_title_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.78))
+	_title_label.add_theme_constant_override("shadow_offset_x", 0)
+	_title_label.add_theme_constant_override("shadow_offset_y", 1)
 	_title_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	vbox.add_child(_title_label)
 
@@ -143,24 +147,27 @@ func sync_theme(accent_col: Color, ink_col: Color):
 	if not is_node_ready():
 		return
 	_material.set_shader_parameter("accent_color", _accent)
+	_material.set_shader_parameter("is_primary", is_primary)
 	if is_primary:
-		_material.set_shader_parameter("bg_color", Color(_accent * 0.85, 0.96))
-		_material.set_shader_parameter("border_color", Color(_accent.lightened(0.28), 0.95))
+		_material.set_shader_parameter("bg_color", _accent * Color(0.58, 0.48, 0.36, 0.96))
+		_material.set_shader_parameter("bg_bottom", _accent * Color(0.28, 0.22, 0.16, 0.96))
+		_material.set_shader_parameter("border_color", Color(_accent.lightened(0.32), 0.95))
 		_material.set_shader_parameter("left_accent_width", 0.0)
 		_title_label.add_theme_color_override("font_color", _ink)
-		_subtitle_label.add_theme_color_override("font_color", Color(_ink, 0.78))
+		_subtitle_label.add_theme_color_override("font_color", Color(_ink, 0.85))
 		_index_label.add_theme_color_override("font_color", _ink)
 		_chevron.add_theme_color_override("font_color", _ink)
 		if _icon_rect:
 			_icon_rect.modulate = _ink
 	else:
-		_material.set_shader_parameter("bg_color", Color(0.05, 0.08, 0.11, 0.84))
-		_material.set_shader_parameter("border_color", Color(0.22, 0.30, 0.36, 0.82))
+		_material.set_shader_parameter("bg_color", Color(0.11, 0.15, 0.19, 0.90))
+		_material.set_shader_parameter("bg_bottom", Color(0.05, 0.07, 0.10, 0.94))
+		_material.set_shader_parameter("border_color", Color(0.30, 0.38, 0.45, 0.88))
 		_material.set_shader_parameter("left_accent_width", 3.5)
 		_title_label.add_theme_color_override("font_color", Console.IVORY)
 		_subtitle_label.add_theme_color_override("font_color", Console.MUTED)
 		_index_label.add_theme_color_override("font_color", _accent)
-		_chevron.add_theme_color_override("font_color", Color(_accent, 0.65))
+		_chevron.add_theme_color_override("font_color", Color(_accent, 0.72))
 		if _icon_rect:
 			_icon_rect.modulate = Color(_accent.lerp(Console.IVORY, 0.55))
 	queue_redraw()
@@ -191,7 +198,9 @@ func _on_highlight(active: bool):
 	var target_glow = 1.0 if active else 0.0
 	var target_margin = 6.0 if active else 0.0
 	var title_col = _ink if is_primary else (Color("ffffff") if active else Console.IVORY)
-	var icon_col = _ink if is_primary else (Console.IVORY if active else _accent.lerp(Console.IVORY, 0.55))
+	var icon_col = (
+		_ink if is_primary else (Console.IVORY if active else _accent.lerp(Console.IVORY, 0.55))
+	)
 
 	_tween.tween_method(
 		func(val): _material.set_shader_parameter("hover_glow", val),
@@ -200,10 +209,10 @@ func _on_highlight(active: bool):
 		dur
 	)
 	_tween.tween_property(
-		_content, "theme_override_constants/margin_left", int(14 + target_margin), dur
+		_content, "theme_override_constants/margin_left", int(16 + target_margin), dur
 	)
 	_tween.tween_property(
-		_chevron, "modulate", Color.WHITE if active else Color(1, 1, 1, 0.65), dur
+		_chevron, "modulate", Color.WHITE if active else Color(1, 1, 1, 0.72), dur
 	)
 	_tween.tween_property(_title_label, "theme_override_colors/font_color", title_col, dur)
 	if _icon_rect:

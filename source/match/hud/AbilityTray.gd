@@ -92,6 +92,7 @@ func _refresh(_delta: float):
 		else:
 			block.visible = false
 
+	reset_size()
 	_update_position(hud)
 
 
@@ -382,9 +383,8 @@ func _gather_campaign_hero(game, entries: Array):
 
 func _update_position(hud_ref: CanvasLayer):
 	var viewport = get_viewport().get_visible_rect().size
+	custom_minimum_size = Vector2.ZERO
 	var tray_size = get_combined_minimum_size()
-	if custom_minimum_size != tray_size:
-		custom_minimum_size = tray_size
 	if size != tray_size:
 		size = tray_size
 

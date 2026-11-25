@@ -200,6 +200,8 @@ var _body_grid: HBoxContainer
 var _game_mode
 var _mode_label
 var _slots = []
+var _faction_tiles = []
+var _panel_boxes = []
 
 
 func _ready():
@@ -223,31 +225,27 @@ func _build_ui():
 	var margin = MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	for edge in ["left", "right"]:
-		margin.add_theme_constant_override("margin_" + edge, 22)
+		margin.add_theme_constant_override("margin_" + edge, 20)
 	for edge in ["top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + edge, 14)
+		margin.add_theme_constant_override("margin_" + edge, 10)
 	add_child(margin)
 
 	var page = VBoxContainer.new()
-	page.add_theme_constant_override("separation", 10)
+	page.add_theme_constant_override("separation", 8)
 	margin.add_child(page)
 
-	_header = MenuChrome.screen_header(
-		page,
-		tr("SKIRMISH"),
-		tr("Choose a starting location · click or arrow keys")
-	)
+	_header = MenuChrome.screen_header(page, tr("SKIRMISH"), "")
 
 	_body_grid = HBoxContainer.new()
 	_body_grid.name = "SetupBody"
 	_body_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_body_grid.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_body_grid.add_theme_constant_override("separation", 14)
+	_body_grid.add_theme_constant_override("separation", 12)
 	page.add_child(_body_grid)
 
 	var map_column = _panel(_body_grid)
-	map_column.get_parent().size_flags_stretch_ratio = 1.35
-	map_column.get_parent().custom_minimum_size.x = 320
+	map_column.get_parent().size_flags_stretch_ratio = 1.25
+	map_column.get_parent().custom_minimum_size.x = 300
 	MenuChrome.nameplate_heading(map_column, tr("Battlefield"))
 
 	var map_row = HBoxContainer.new()
@@ -271,12 +269,14 @@ func _build_ui():
 	preview_frame.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	map_column.add_child(preview_frame)
 	_preview = load("res://source/main-menu/SkirmishMapPreview.gd").new()
-	_preview.custom_minimum_size = Vector2(0, 176)
+	_preview.custom_minimum_size = Vector2(0, 96)
 	_preview.start_selected.connect(_on_preview_start_selected)
 	preview_frame.add_child(_preview)
 
-	_map_details = _label(map_column, "", 12, ArtTheme.MUTED)
+	_map_details = _label(map_column, "", 11, ArtTheme.MUTED)
 	_map_details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_map_details.max_lines_visible = 2
+	_map_details.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	_map_details.tooltip_text = (
 		tr("Dots: resources · Small squares: relays")
 		+ "\n"
@@ -287,42 +287,59 @@ func _build_ui():
 
 	var right = VBoxContainer.new()
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	right.size_flags_stretch_ratio = 1.0
-	right.add_theme_constant_override("separation", 10)
+	right.size_flags_stretch_ratio = 1.05
+	right.add_theme_constant_override("separation", 6)
 	_body_grid.add_child(right)
-	_player_faction = _faction_card(right, "Your faction", 0)
-	_enemy_faction = _faction_card(right, "AI factions", 1)
+
+	var commanders = _panel(right)
+	MenuChrome.nameplate_heading(commanders, tr("Commanders"))
+	var strip_row = HBoxContainer.new()
+	strip_row.add_theme_constant_override("separation", 5)
+	commanders.add_child(strip_row)
+	for i in range(4):
+		var tile = _make_commander_tile(i)
+		strip_row.add_child(tile)
+		_faction_tiles.append(tile)
+
+	var factions_row = HBoxContainer.new()
+	factions_row.add_theme_constant_override("separation", 8)
+	commanders.add_child(factions_row)
+	_player_faction = _faction_card(factions_row, "Your faction", 0)
+	_enemy_faction = _faction_card(factions_row, "AI factions", 1)
 
 	var rules = _panel(right)
 	var grid = GridContainer.new()
 	grid.columns = 2
-	grid.add_theme_constant_override("h_separation", 12)
-	grid.add_theme_constant_override("v_separation", 8)
+	grid.add_theme_constant_override("h_separation", 8)
+	grid.add_theme_constant_override("v_separation", 4)
 	rules.add_child(grid)
-	_label(grid, "AI difficulty", 14, ArtTheme.MUTED)
+	_label(grid, "AI difficulty", 12, ArtTheme.MUTED)
 	_difficulty = _option(grid, "Difficulty", Difficulty.NAMES)
-	_label(grid, "Starting forces", 14, ArtTheme.MUTED)
+	_label(grid, "Starting forces", 12, ArtTheme.MUTED)
 	_start_mode = _option(
 		grid, "StartMode", ["Standard — build your base", "Advanced — armor and technology"]
 	)
 	_difficulty.item_selected.connect(func(_index): _update_summary())
 	_start_mode.item_selected.connect(func(_index): _update_summary())
-	_mode_label = _label(grid, "Game mode", 14, ArtTheme.MUTED)
+	_mode_label = _label(grid, "Game mode", 12, ArtTheme.MUTED)
 	_game_mode = _option(grid, "GameMode", ["Free-for-all", "Teams · 2 vs 2", "Teams · 1 vs 3"])
 	_game_mode.item_selected.connect(_apply_teams)
 
 	var brief_socket = PanelContainer.new()
 	brief_socket.theme_type_variation = "HudSocket"
+	brief_socket.add_theme_stylebox_override("panel", ArtTheme.socket(8, 4))
 	rules.add_child(brief_socket)
-	_brief_label = _label(brief_socket, "", 12, ArtTheme.MUTED)
+	_brief_label = _label(brief_socket, "", 11, ArtTheme.MUTED)
 	_brief_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_brief_label.max_lines_visible = 2
+	_brief_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 
 	var footer = HBoxContainer.new()
-	footer.add_theme_constant_override("separation", 16)
+	footer.add_theme_constant_override("separation", 14)
 	page.add_child(footer)
 	var back = Button.new()
 	back.text = "Back"
-	back.custom_minimum_size = Vector2(110, 40)
+	back.custom_minimum_size = Vector2(110, 36)
 	back.pressed.connect(_on_back_button_pressed)
 	footer.add_child(back)
 	var space = Control.new()
@@ -332,17 +349,58 @@ func _build_ui():
 	_start_button.name = "StartButton"
 	_start_button.text = "START BATTLE  →"
 	_start_button.theme_type_variation = "BattlePrimaryButton"
-	_start_button.custom_minimum_size = Vector2(220, 40)
+	_start_button.custom_minimum_size = Vector2(210, 38)
 	_start_button.pressed.connect(_on_start_button_pressed)
 	footer.add_child(_start_button)
 	MenuChrome.animate_entrance(_body_grid, 8.0, 0.2)
+
+
+func _make_commander_tile(index: int) -> Button:
+	var btn = Button.new()
+	btn.toggle_mode = true
+	btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	btn.custom_minimum_size = Vector2(0, 36)
+	btn.theme_type_variation = "BattleCardButton"
+	var hbox = HBoxContainer.new()
+	hbox.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	hbox.offset_left = 4
+	hbox.offset_right = -4
+	hbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hbox.add_theme_constant_override("separation", 5)
+	btn.add_child(hbox)
+	var tex = TextureRect.new()
+	tex.custom_minimum_size = Vector2(26, 26)
+	tex.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	tex.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	tex.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	tex.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if index < Factions.IDS.size():
+		tex.texture = Artwork.commander(Factions.IDS[index])
+	else:
+		tex.texture = load(Factions.icon("helix", "Drone"))
+	hbox.add_child(tex)
+	var lbl = Label.new()
+	lbl.text = tr(["Bastion", "Helix", "Frontier", "Random"][index])
+	lbl.add_theme_font_override("font", ArtTheme.display_font())
+	lbl.add_theme_font_size_override("font_size", 13)
+	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	lbl.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	lbl.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hbox.add_child(lbl)
+	btn.pressed.connect(
+		func():
+			_player_faction.select(index)
+			_update_faction(0, index)
+	)
+	return btn
 
 
 func _step_button(parent: Control, glyph: String, a11y_name: String, callback: Callable) -> Button:
 	var btn = Button.new()
 	btn.text = glyph
 	btn.accessibility_name = tr(a11y_name)
-	btn.custom_minimum_size = Vector2(34, 32)
+	btn.custom_minimum_size = Vector2(32, 30)
 	btn.add_theme_font_size_override("font_size", 16)
 	btn.pressed.connect(callback)
 	parent.add_child(btn)
@@ -361,11 +419,12 @@ func _step_map(delta: int):
 func _panel(parent):
 	var panel = PanelContainer.new()
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	panel.theme_type_variation = "HudHousing"
-	panel.add_theme_stylebox_override("panel", ArtTheme.section(14, 10))
+	panel.theme_type_variation = "HudPanel"
+	panel.add_theme_stylebox_override("panel", ArtTheme.panel(10))
 	parent.add_child(panel)
+	_panel_boxes.append(panel)
 	var box = VBoxContainer.new()
-	box.add_theme_constant_override("separation", 6)
+	box.add_theme_constant_override("separation", 4)
 	panel.add_child(box)
 	return box
 
@@ -383,10 +442,10 @@ func _option(parent, node_name, items):
 	var choice = OptionButton.new()
 	choice.name = node_name
 	choice.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	choice.custom_minimum_size = Vector2(148, 32)
+	choice.custom_minimum_size = Vector2(132, 28)
 	choice.fit_to_longest_item = false
 	choice.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	choice.add_theme_font_size_override("font_size", 14)
+	choice.add_theme_font_size_override("font_size", 13)
 	for item in items:
 		choice.add_item(tr(item))
 	parent.add_child(choice)
@@ -394,10 +453,10 @@ func _option(parent, node_name, items):
 
 
 func _faction_card(parent, heading, index):
-	var box = _panel(parent)
 	var row = HBoxContainer.new()
-	row.add_theme_constant_override("separation", 10)
-	box.add_child(row)
+	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_theme_constant_override("separation", 8)
+	parent.add_child(row)
 
 	var portrait_frame = PanelContainer.new()
 	portrait_frame.theme_type_variation = "HudSocket"
@@ -407,24 +466,24 @@ func _faction_card(parent, heading, index):
 	var portrait = TextureRect.new()
 	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	portrait.custom_minimum_size = Vector2(54, 54)
+	portrait.custom_minimum_size = Vector2(34, 34)
 	portrait_frame.add_child(portrait)
 
 	var details = VBoxContainer.new()
 	details.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	details.add_theme_constant_override("separation", 4)
+	details.add_theme_constant_override("separation", 2)
 	row.add_child(details)
 
 	var top_line = HBoxContainer.new()
-	top_line.add_theme_constant_override("separation", 8)
+	top_line.add_theme_constant_override("separation", 6)
 	details.add_child(top_line)
-	var head = _label(top_line, tr(heading), 12, ArtTheme.MUTED)
+	var head = _label(top_line, tr(heading), 11, ArtTheme.MUTED)
 	head.add_theme_font_override("font", ArtTheme.heading_font())
 	head.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var unit_badge = TextureRect.new()
 	unit_badge.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	unit_badge.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	unit_badge.custom_minimum_size = Vector2(22, 22)
+	unit_badge.custom_minimum_size = Vector2(18, 18)
 	top_line.add_child(unit_badge)
 
 	var choice = _option(
@@ -432,8 +491,10 @@ func _faction_card(parent, heading, index):
 		"PlayerFaction" if index == 0 else "EnemyFaction",
 		["Bastion", "Helix", "Frontier", "Random"]
 	)
-	var summary = _label(details, "", 12, ArtTheme.MUTED)
+	var summary = _label(details, "", 10, ArtTheme.MUTED)
 	summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	summary.max_lines_visible = 1
+	summary.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 
 	_cards.append({"portrait": portrait, "unit": unit_badge, "choice": choice, "summary": summary})
 	choice.item_selected.connect(func(selected): _update_faction(index, selected))
@@ -445,20 +506,21 @@ func _update_faction(index, selected):
 	if index == 0:
 		ArtTheme.Console.use_faction(faction_id if not faction_id.is_empty() else "bastion")
 		theme = ArtTheme.create()
+		for p in _panel_boxes:
+			if is_instance_valid(p):
+				p.add_theme_stylebox_override("panel", ArtTheme.panel(10))
 		if _backdrop != null:
 			_backdrop.set_accent(ArtTheme.accent())
-		if _header.has("crest"):
-			_header.crest.accent = ArtTheme.accent()
-			_header.crest.queue_redraw()
-		if _header.has("stripe"):
-			_header.stripe.add_theme_stylebox_override("panel", ArtTheme.stripe())
+		MenuChrome.sync_header_accent(_header, ArtTheme.accent())
+		for i in _faction_tiles.size():
+			var tile: Button = _faction_tiles[i]
+			tile.set_pressed_no_signal(i == selected)
+			tile.theme_type_variation = (
+				"BattlePrimaryButton" if i == selected else "BattleCardButton"
+			)
 	_cards[index].choice.tooltip_text = (
 		tr(FACTION_DESCRIPTIONS[selected])
-		+ (
-			"\n\n" + tr(Factions.TECH_SUMMARY[faction_id])
-			if not faction_id.is_empty()
-			else ""
-		)
+		+ ("\n\n" + tr(Factions.TECH_SUMMARY[faction_id]) if not faction_id.is_empty() else "")
 	)
 	_cards[index].choice.accessibility_description = _cards[index].choice.tooltip_text
 	_cards[index].summary.text = tr(FACTION_DESCRIPTIONS[selected])
@@ -485,7 +547,9 @@ func _update_summary():
 	_difficulty.tooltip_text = tr(Difficulty.DESCRIPTIONS[_difficulty.selected])
 	_difficulty.accessibility_description = _difficulty.tooltip_text
 	if _brief_label != null:
-		_brief_label.text = "%s\n%s" % [tr(opening), tr(Difficulty.DESCRIPTIONS[_difficulty.selected])]
+		_brief_label.text = (
+			"%s\n%s" % [tr(opening), tr(Difficulty.DESCRIPTIONS[_difficulty.selected])]
+		)
 
 
 func _on_map_list_item_selected(index):

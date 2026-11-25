@@ -10,7 +10,11 @@ const TABS = [
 	{"id": "split", "label": "The Split", "art": "res://assets/ui/art/river-city-menu.png"},
 	{"id": "bastion", "label": "Bastion", "art": "res://assets/ui/art/bastion-foundry-dawn.png"},
 	{"id": "helix", "label": "Helix", "art": "res://assets/ui/art/helix-relay-night.png"},
-	{"id": "frontier", "label": "Frontier", "art": "res://assets/ui/art/frontier-convoy-sunset.png"},
+	{
+		"id": "frontier",
+		"label": "Frontier",
+		"art": "res://assets/ui/art/frontier-convoy-sunset.png"
+	},
 ]
 
 var _backdrop
@@ -175,11 +179,7 @@ func _select_tab(idx: int):
 	theme = ArtTheme.create()
 	_backdrop.set_accent(ArtTheme.accent())
 	_backdrop.show_art(entry.art)
-	if _header.has("crest"):
-		_header.crest.accent = ArtTheme.accent()
-		_header.crest.queue_redraw()
-	if _header.has("stripe"):
-		_header.stripe.add_theme_stylebox_override("panel", ArtTheme.stripe())
+	MenuChrome.sync_header_accent(_header, ArtTheme.accent())
 
 	for i in _tab_buttons.size():
 		var btn: Button = _tab_buttons[i]
@@ -237,7 +237,12 @@ func _select_tab(idx: int):
 		var tech_card = PanelContainer.new()
 		tech_card.theme_type_variation = "HudCard"
 		_dossier_body.add_child(tech_card)
-		_label(tech_card, Factions.TECH_SUMMARY[entry.id], 14, ArtTheme.accent().lerp(ArtTheme.IVORY, 0.35))
+		_label(
+			tech_card,
+			Factions.TECH_SUMMARY[entry.id],
+			14,
+			ArtTheme.accent().lerp(ArtTheme.IVORY, 0.35)
+		)
 
 		var story_card = PanelContainer.new()
 		story_card.theme_type_variation = "HudSocket"

@@ -29,8 +29,8 @@ static func deck_width(viewport_width: float) -> float:
 	return maxf(680.0, viewport_width - (MINIMAP_SCREEN * MINIMAP_ASPECT_LIMIT + 50.0))
 
 
-static func info_bay(_viewport_width: float) -> float:
-	return 236.0
+static func info_bay(viewport_width: float) -> float:
+	return clampf(viewport_width * 0.19, 224.0, 316.0)
 
 
 static func roster_columns(viewport_width: float) -> int:

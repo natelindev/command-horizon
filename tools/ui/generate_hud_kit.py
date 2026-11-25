@@ -1,24 +1,20 @@
 """Generate the battle-console texture kits, one per faction.
 
-Every faction shares a futuristic console language (asymmetric chamfers, thin
-luminous edge lines with brighter corner ticks, glass screens with fine grids,
-slim keys with a soft light strip) and carries its own material and accent:
+Every faction shares a sculpted sci-fi console language (asymmetric 45-degree
+chamfers, high-contrast machined bevels, recessed dark glass screens with lower-lip
+catchlights, corner armor gussets, luminous edge filaments, and 3D physical keycaps)
+and carries its own material and accent:
 
-    bastion   armoured gunmetal, flush bolts, amber accent, chevron stripes
-    helix     graphite-blue glass, hex micro-pattern, cyan accent, data dashes
-    frontier  salvaged warm metal, rivets, diamond plate, orange accent, hazard
+    bastion   armoured gunmetal, hex bolts, warm gold-amber accent, chevron stripes
+    helix     anodized sapphire-titanium, hex glass, ice-cyan accent, data dashes
+    frontier  weathered olive-iron, copper rivets, diamond tread, orange accent, hazard
 
 Textures are authored at 2x logical resolution and drawn at half scale by
 `source/match/hud/HudStyle.gd`; slice sizes in `BattleTheme.gd` are logical.
-State changes (hover, pressed, selected) are fills and glows, never coloured
-borders. Accent lines are decorative and identical across states.
+State changes (hover, pressed, selected) are fills, specular lifts and glows.
 
 Usage:
     python tools/ui/generate_hud_kit.py [output_dir]
-
-Requires Pillow and NumPy. Output defaults to assets/ui/hud/. Each faction gets
-a subfolder; state overlays (glow, focus, bar cells) are shared and white so the
-theme can tint them. Noise seeds are fixed, so output is reproducible.
 """
 
 import math
@@ -31,7 +27,7 @@ from PIL import Image, ImageDraw, ImageFilter
 SUPERSAMPLE = 4
 LIGHT = np.array([-0.55, -0.83])
 LIGHT = LIGHT / np.linalg.norm(LIGHT)
-RIM = np.array([5, 7, 9], np.float32)
+RIM = np.array([4, 6, 8], np.float32)
 
 
 def rgb(hex_value):
@@ -40,74 +36,75 @@ def rgb(hex_value):
 
 PROFILES = {
     "bastion": {
-        "frame_top": rgb("4a5157"),
-        "frame_bottom": rgb("2a2f33"),
-        "field_top": rgb("1a2025"),
-        "field_bottom": rgb("12171b"),
-        "screen": rgb("0a1013"),
+        "frame_top": rgb("5c6670"),
+        "frame_bottom": rgb("262c33"),
+        "field_top": rgb("12181e"),
+        "field_bottom": rgb("0a0e12"),
+        "screen": rgb("060a0e"),
         "accent": rgb("e8b04a"),
-        "glass": 0.92,
-        "edge": 0.30,
-        "bevel_light": 0.55,
-        "cut": 1.2,
-        "frame": 0.9,
+        "spec": rgb("dde5ed"),
+        "glass": 0.94,
+        "edge": 0.62,
+        "bevel_light": 0.95,
+        "cut": 1.15,
+        "frame": 0.95,
         "bolts": "bolt",
         "frame_pattern": "brushed",
         "field_pattern": "grid",
         "stripe": "chevron",
-        "key_top": rgb("3f464c"),
-        "key_bottom": rgb("262b30"),
-        "paint_top": rgb("e9b450"),
-        "paint_bottom": rgb("b9842c"),
+        "key_top": rgb("454f59"),
+        "key_bottom": rgb("21272d"),
+        "paint_top": rgb("a86314"),
+        "paint_bottom": rgb("5c2f07"),
         "seed": 11,
     },
     "helix": {
-        "frame_top": rgb("33404a"),
-        "frame_bottom": rgb("1b242c"),
-        "field_top": rgb("0f1d26"),
-        "field_bottom": rgb("0a141b"),
-        "screen": rgb("06121a"),
-        "accent": rgb("54d6e6"),
-        "glass": 0.86,
-        "edge": 0.38,
-        "bevel_light": 0.48,
-        "cut": 1.45,
-        "frame": 0.6,
+        "frame_top": rgb("3b5163"),
+        "frame_bottom": rgb("17222d"),
+        "field_top": rgb("0a1721"),
+        "field_bottom": rgb("050c12"),
+        "screen": rgb("040a10"),
+        "accent": rgb("5fd8e8"),
+        "spec": rgb("cff3ff"),
+        "glass": 0.90,
+        "edge": 0.72,
+        "bevel_light": 0.90,
+        "cut": 1.35,
+        "frame": 0.75,
         "bolts": None,
         "frame_pattern": "smooth",
         "field_pattern": "hex",
         "stripe": "dashes",
-        "key_top": rgb("2c3a45"),
-        "key_bottom": rgb("18222a"),
-        "paint_top": rgb("6fe2ef"),
-        "paint_bottom": rgb("2ea9bd"),
+        "key_top": rgb("2f4252"),
+        "key_bottom": rgb("14202b"),
+        "paint_top": rgb("19788f"),
+        "paint_bottom": rgb("0a3c4f"),
         "seed": 23,
     },
     "frontier": {
-        "frame_top": rgb("57493a"),
-        "frame_bottom": rgb("2f2720"),
-        "field_top": rgb("201c17"),
-        "field_bottom": rgb("161310"),
-        "screen": rgb("0b110c"),
-        "accent": rgb("ef8a3c"),
+        "frame_top": rgb("665645"),
+        "frame_bottom": rgb("2c241c"),
+        "field_top": rgb("16120e"),
+        "field_bottom": rgb("0c0a07"),
+        "screen": rgb("080a07"),
+        "accent": rgb("f08c3e"),
+        "spec": rgb("f0dfc8"),
         "glass": 0.95,
-        "edge": 0.28,
-        "bevel_light": 0.58,
-        "cut": 0.9,
-        "frame": 1.1,
+        "edge": 0.58,
+        "bevel_light": 0.98,
+        "cut": 0.92,
+        "frame": 1.05,
         "bolts": "rivet",
         "frame_pattern": "diamond",
         "field_pattern": "scan",
         "stripe": "hazard",
-        "key_top": rgb("4a3f33"),
-        "key_bottom": rgb("2a231c"),
-        "paint_top": rgb("f19a4c"),
-        "paint_bottom": rgb("c06526"),
+        "key_top": rgb("504437"),
+        "key_bottom": rgb("262019"),
+        "paint_top": rgb("a84c14"),
+        "paint_bottom": rgb("5c2307"),
         "seed": 37,
     },
 }
-
-RNG = np.random.default_rng(7)
 
 
 # --- geometry -----------------------------------------------------------------
@@ -144,9 +141,9 @@ def mask(w, h, cuts, inset=0.0):
 
 
 def tech_cuts(cut, profile):
-    """Asymmetric sci-fi silhouette: large cuts top-left and bottom-right."""
+    """Asymmetric sci-fi silhouette: prominent cuts top-left and bottom-right."""
     c = cut * profile["cut"]
-    return (c, c * 0.35, c, c * 0.35)
+    return (c, c * 0.38, c, c * 0.38)
 
 
 def inside_distance(coverage, limit, open_edges=()):
@@ -159,7 +156,7 @@ def inside_distance(coverage, limit, open_edges=()):
     for _ in range(limit):
         distance += np.asarray(current, np.float32) / 255.0
         current = current.filter(ImageFilter.MinFilter(3))
-    return gaussian(distance[1:-1, 1:-1], 0.8).astype(np.float32)
+    return gaussian(distance[1:-1, 1:-1], 0.7).astype(np.float32)
 
 
 def bevel(coverage, width, raised=True, open_edges=()):
@@ -170,7 +167,7 @@ def bevel(coverage, width, raised=True, open_edges=()):
     if not raised:
         nx, ny = -nx, -ny
     facing = nx * LIGHT[0] + ny * LIGHT[1]
-    band = np.clip(1.0 - (distance - 1.0) / width, 0.0, 1.0) ** 0.8
+    band = np.clip(1.0 - (distance - 1.0) / width, 0.0, 1.0) ** 0.72
     return facing * band * (distance > 0)
 
 
@@ -188,27 +185,26 @@ def noise(w, h, rng, strength=1.0, streak=18.0):
     grain = gaussian(base, 0.6)
     broad = rng.normal(0.0, 1.0, (max(2, h // 24), max(2, w // 24))).astype(np.float32)
     broad = np.asarray(Image.fromarray(broad, mode="F").resize((w, h), Image.BICUBIC), np.float32)
-    return (streaks * 0.5 + grain * 0.25 + broad * 0.5) * strength
+    return (streaks * 0.52 + grain * 0.22 + broad * 0.48) * strength
 
 
 def pattern(kind, w, h, rng):
     """Surface detail in -1..1, added to a material's brightness."""
     yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
     if kind == "brushed":
-        return noise(w, h, rng, 0.9)
+        return noise(w, h, rng, 0.95, 22.0)
     if kind == "smooth":
-        return noise(w, h, rng, 0.35, 40.0)
+        return noise(w, h, rng, 0.35, 42.0)
     if kind == "diamond":
-        # Raised diamond tread plate, lit from the top-left.
         u = (xx + yy) / 14.0
         v = (xx - yy) / 14.0
         bump = np.cos(u * math.pi * 2) * np.cos(v * math.pi * 2)
         ridge = np.clip((bump - 0.55) * 4, 0, 1)
         shade = np.roll(ridge, 1, axis=0) - np.roll(ridge, -1, axis=0)
-        return ridge * 0.6 + shade * 0.8 + noise(w, h, rng, 0.8, 6.0)
+        return ridge * 0.55 + shade * 0.75 + noise(w, h, rng, 0.75, 6.0)
     if kind == "grid":
         lines = ((xx % 16) < 1) | ((yy % 16) < 1)
-        return lines.astype(np.float32) * 1.0 + noise(w, h, rng, 0.3)
+        return lines.astype(np.float32) * 0.65 + noise(w, h, rng, 0.25)
     if kind == "hex":
         s = 9.0
         q = xx / (s * 1.732)
@@ -218,9 +214,9 @@ def pattern(kind, w, h, rng):
         fx = q - np.floor(q) - 0.5
         fy = r - row - 0.5
         edge = np.maximum(np.abs(fx) * 1.732, np.abs(fy) * 2.0 + np.abs(fx) * 0.577)
-        return np.clip((edge - 0.86) * 9, 0, 1) * 1.2 + noise(w, h, rng, 0.2)
+        return np.clip((edge - 0.87) * 9, 0, 1) * 0.85 + noise(w, h, rng, 0.18)
     if kind == "scan":
-        return ((yy // 2) % 2 == 0).astype(np.float32) * 0.8 + noise(w, h, rng, 0.5, 4.0)
+        return ((yy // 2) % 2 == 0).astype(np.float32) * 0.65 + noise(w, h, rng, 0.45, 4.0)
     return np.zeros((h, w), np.float32)
 
 
@@ -246,32 +242,45 @@ def edge_line(w, h, cuts, inset, width=1.6):
     return np.clip(mask(w, h, cuts, inset) - mask(w, h, cuts, inset + width), 0, 1)
 
 
-def corner_ticks(w, h, cuts, inset, reach):
-    """Brighter accent segments around the two large cuts."""
-    line = edge_line(w, h, cuts, inset, 2.0)
+def corner_ticks(w, h, cuts, inset, reach, width=2.2):
+    """Brighter accent segments around all four corners, stronger on major cuts."""
+    line = edge_line(w, h, cuts, inset, width)
     yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
     near_tl = np.clip(1 - (xx + yy) / (cuts[0] + reach), 0, 1) > 0
     near_br = np.clip(1 - ((w - xx) + (h - yy)) / (cuts[2] + reach), 0, 1) > 0
-    return line * (near_tl | near_br)
+    near_tr = np.clip(1 - ((w - xx) + yy) / (cuts[1] + reach * 0.65), 0, 1) > 0
+    near_bl = np.clip(1 - (xx + (h - yy)) / (cuts[3] + reach * 0.65), 0, 1) > 0
+    return line * np.maximum(near_tl | near_br, (near_tr | near_bl) * 0.55)
 
 
-def fasteners(colour, alpha, w, h, offset, radius, kind):
+def fasteners(colour, alpha, w, h, offset, radius, kind, cuts=None):
     yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
-    for cx, cy in [(offset, offset), (w - offset, offset), (w - offset, h - offset), (offset, h - offset)]:
+    if cuts is not None:
+        tl_off = max(offset, cuts[0] * 0.55 + radius + 3.5)
+        br_off = max(offset, cuts[2] * 0.55 + radius + 3.5)
+        points = [
+            (tl_off * 0.72 + 4.0, tl_off * 0.72 + 4.0),
+            (w - offset, offset),
+            (w - br_off * 0.72 - 4.0, h - br_off * 0.72 - 4.0),
+            (offset, h - offset),
+        ]
+    else:
+        points = [(offset, offset), (w - offset, offset), (w - offset, h - offset), (offset, h - offset)]
+    for cx, cy in points:
         dx, dy = xx - cx, yy - cy
         r = np.sqrt(dx * dx + dy * dy)
         head = np.clip(radius + 0.5 - r, 0, 1)
-        shadow = np.clip(radius + 1.8 - np.sqrt((dx - 1.2) ** 2 + (dy - 1.6) ** 2), 0, 1)
-        colour = colour * (1 - shadow[..., None] * 0.5)
+        shadow = np.clip(radius + 2.0 - np.sqrt((dx - 1.2) ** 2 + (dy - 1.6) ** 2), 0, 1)
+        colour = colour * (1 - shadow[..., None] * 0.62)
         facing = np.clip((dx * LIGHT[0] + dy * LIGHT[1]) / radius, -1, 1)
-        tone = 64 + 52 * facing
-        face = np.stack([tone * 1.02, tone, tone * 0.95], -1)
+        tone = 78 + 64 * facing
+        face = np.stack([tone * 1.03, tone, tone * 0.94], -1)
         if kind == "bolt":
             hexagon = np.zeros_like(r)
             for k in range(6):
                 a = math.pi / 3 * k + math.pi / 6
                 hexagon = np.maximum(hexagon, dx * math.cos(a) + dy * math.sin(a))
-            face = face * (1 - np.clip(radius * 0.45 - hexagon, 0, 1)[..., None] * 0.7)
+            face = face * (1 - np.clip(radius * 0.45 - hexagon, 0, 1)[..., None] * 0.72)
         colour = blend(colour, face, head)
         alpha = np.maximum(alpha, head)
     return colour, alpha
@@ -281,123 +290,205 @@ def fasteners(colour, alpha, w, h, offset, radius, kind):
 
 
 def plate(p, rng, w, h, cut, frame, bevel_width, fastener=0.0, glass=True):
-    """A framed console plate: lit frame material around a glass field."""
+    """A sculpted console plate: machined metallic frame around a deep recessed cavity."""
     cuts = tech_cuts(cut, p)
     coverage = mask(w, h, cuts)
-    body = mask(w, h, cuts, 2)
+    body = mask(w, h, cuts, 2.0)
     colour = gradient(h, p["frame_top"], p["frame_bottom"])
-    colour = colour + (pattern(p["frame_pattern"], w, h, rng) * 7.0)[..., None]
-    light = bevel(body, max(3, bevel_width - 2))
-    colour = colour + np.where(light > 0, light * 58.0, light * 42.0)[..., None] * p["bevel_light"]
-    # A crisp machined hairline where the face meets the top-left bevel.
-    hairline = edge_line(w, h, cuts, 2, 1.0) * (light > 0.2)
-    colour = colour + (hairline * 40.0 * p["bevel_light"])[..., None]
+    colour = colour + (pattern(p["frame_pattern"], w, h, rng) * 7.5)[..., None]
+
+    # Machined armor bevel with crisp upper specular catchlight & dark lower drop.
+    light = bevel(body, max(4, bevel_width))
+    colour = colour + np.where(light > 0, light * 74.0, light * 54.0)[..., None] * p["bevel_light"]
+
+    # Crisp specular ridge right inside the outer rim on lit edges.
+    ridge = edge_line(w, h, cuts, 2.0, 1.5) * np.clip(light + 0.15, 0, 1)
+    colour = blend(colour, p["spec"], ridge * 0.42 * p["bevel_light"])
+
+    # Corner armor gussets (kept strictly within corner slice regions).
+    frame_px = frame * p["frame"]
+    if frame_px >= 10:
+        yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+        gusset_r = min(frame_px * 1.15, min(w, h) * 0.22)
+        in_corner = (
+            ((xx < gusset_r) & (yy < gusset_r))
+            | ((xx > w - gusset_r) & (yy < gusset_r))
+            | ((xx > w - gusset_r) & (yy > h - gusset_r))
+            | ((xx < gusset_r) & (yy > h - gusset_r))
+        ).astype(np.float32)
+        gusset_seam = edge_line(w, h, cuts, frame_px * 0.42, 1.4) * in_corner
+        colour = colour * (1.0 - gusset_seam[..., None] * 0.35)
+        colour = blend(colour, p["frame_top"] * 1.12, in_corner * body * 0.16)
+
+    # Outer dark outline.
     colour = blend(colour, RIM, np.clip(coverage - body, 0, 1))
     alpha = coverage.copy()
-    frame_px = frame * p["frame"]
+
     if frame_px > 0:
         field = mask(w, h, cuts, frame_px)
         field_colour = gradient(h, p["field_top"], p["field_bottom"])
-        field_colour = field_colour + (pattern(p["field_pattern"], w, h, rng) * 3.2)[..., None]
-        step = bevel(field, 4, raised=False)
-        field_colour = field_colour + np.where(step > 0, step * 26.0, step * 12.0)[..., None]
-        distance = inside_distance(field, 10)
+        field_colour = field_colour + (pattern(p["field_pattern"], w, h, rng) * 2.8)[..., None]
+
+        # Subtle upper ambient accent tint inside the dark glass cavity.
         yy = np.arange(h, dtype=np.float32)[:, None]
-        cast = np.clip(1.0 - distance / 10.0, 0, 1) ** 1.5 * np.clip(1.3 - yy / h, 0.3, 1.0)
-        field_colour = field_colour * (1 - cast[..., None] * 0.5)
+        top_wash = np.exp(-np.maximum(0.0, yy - frame_px) / max(10.0, h * 0.18)) * 0.10
+        field_colour = blend(field_colour, p["accent"], top_wash)
+
+        # Deep sunken cavity bevel + bottom-right inner catchlight lip.
+        step = bevel(field, 5, raised=False)
+        field_colour = field_colour + np.where(step > 0, step * 34.0, step * 18.0)[..., None]
+        distance = inside_distance(field, 14)
+        cast = np.clip(1.0 - distance / 14.0, 0, 1) ** 1.4 * np.clip(1.35 - yy / h, 0.25, 1.0)
+        field_colour = field_colour * (1 - cast[..., None] * 0.68)
+
+        # Crisp lower-right inner metallic rim around the sunken cavity.
+        inner_rim = edge_line(w, h, cuts, frame_px - 1.5, 1.6)
+        field_rim_lit = inner_rim * np.clip(step + 0.35, 0.0, 1.0)
         colour = blend(colour, field_colour, field)
+        colour = blend(colour, p["spec"], field_rim_lit * 0.24)
+
         if glass:
             alpha = alpha * (1 - field * (1 - p["glass"]))
-        accent_inset = frame_px - 2.5
+        accent_inset = frame_px - 3.0
     else:
         accent_inset = 5.0
-    # Decorative luminous edge, brighter at the large cuts.
-    line = edge_line(w, h, cuts, accent_inset) * p["edge"] * 0.45
-    reach = min(w, h) * 0.5 - cuts[0] - 6
-    ticks = corner_ticks(w, h, cuts, accent_inset, max(10, reach)) * p["edge"]
+
+    # Luminous optical edge line + corner glow ticks.
+    line = edge_line(w, h, cuts, accent_inset, 1.5) * p["edge"] * 0.36
+    reach = min(w, h) * 0.45 - cuts[0] - 4
+    ticks = corner_ticks(w, h, cuts, accent_inset, max(10, reach), 2.2) * p["edge"]
     lit = np.clip(np.maximum(line, ticks), 0, 1)
-    halo = gaussian(lit, 2.0) * 0.9
-    colour = blend(colour, p["accent"], np.clip(lit + halo * 0.5, 0, 1))
+    halo = gaussian(lit, 2.2) * 0.85
+    colour = blend(colour, p["accent"], np.clip(lit * 0.85 + halo * 0.48, 0, 1))
+
     if fastener and p["bolts"]:
-        offset = cuts[1] * 0.4 + fastener + 4
-        colour, alpha = fasteners(colour, alpha, w, h, offset, fastener, p["bolts"])
+        offset = max(cuts[1] * 0.5 + fastener + 4, frame_px * 0.48 if frame_px > 0 else fastener + 7)
+        colour, alpha = fasteners(colour, alpha, w, h, offset, fastener, p["bolts"], cuts)
     return compose(colour, alpha)
 
 
-def socket(p, rng, w, h, cut, depth=9, centre=True):
+def socket(p, rng, w, h, cut, depth=10, centre=True):
     cuts = tech_cuts(cut, p)
     coverage = mask(w, h, cuts)
     colour = np.broadcast_to(p["screen"], (h, w, 3)).astype(np.float32).copy()
     grid = pattern("grid" if p["field_pattern"] != "scan" else "scan", w, h, rng)
-    colour = colour + (grid * 2.5)[..., None]
+    colour = colour + (grid * 2.2)[..., None]
+
+    # Deep recessed monitor well with crisp top/left shadow and lit lower-right bezel lip.
     shade = bevel(coverage, depth, raised=False)
-    colour = colour + np.where(shade > 0, shade * 34.0, shade * 8.0)[..., None]
-    distance = inside_distance(coverage, depth + 6)
-    inner = np.clip(1.0 - distance / (depth + 6), 0, 1) ** 1.6
-    yy = np.arange(h, dtype=np.float32)[:, None]
-    colour = colour * (1 - (inner * np.clip(1.25 - yy / (h * 0.55), 0.35, 1.0))[..., None] * 0.65)
-    # A faint lit hairline along the lower lip of the screen.
-    lip = edge_line(w, h, cuts, 1.5, 1.2) * (yy > h * 0.5)
-    colour = blend(colour, p["accent"], lip * p["edge"] * 0.45)
+    colour = colour + np.where(shade > 0, shade * 40.0, shade * 12.0)[..., None]
+    distance = inside_distance(coverage, depth + 7)
+    inner = np.clip(1.0 - distance / (depth + 7), 0, 1) ** 1.5
+    yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
+    colour = colour * (1 - (inner * np.clip(1.3 - yy / (h * 0.55), 0.35, 1.0))[..., None] * 0.72)
+
+    # Diagonal subtle monitor glass reflection in upper half.
+    glare = np.clip(1.0 - (xx * 0.65 + yy) / (min(w, h) * 0.72), 0.0, 1.0) ** 2.0 * 0.06
+    colour = blend(colour, p["spec"], glare * coverage)
+
+    # Crisp corner ticks and bottom luminous lip.
+    lip = edge_line(w, h, cuts, 1.5, 1.4) * (yy > h * 0.55)
+    ticks = corner_ticks(w, h, cuts, 1.5, min(w, h) * 0.24, 1.8)
+    colour = blend(colour, p["accent"], np.maximum(lip * p["edge"] * 0.55, ticks * p["edge"] * 0.7))
+
     alpha = coverage.copy()
     if not centre:
-        alpha = coverage * np.clip(1.0 - distance / (depth + 4), 0, 1) ** 0.9 * 0.92
-        colour = colour * 0.6
+        # Bezel overlay over live viewport/minimap: crisp metallic inner edge + corner ticks.
+        ring = np.clip(1.0 - distance / (depth + 3), 0, 1) ** 1.15
+        alpha = coverage * np.maximum(ring * 0.94, ticks * 0.85)
+        colour = colour * 0.75
+        colour = blend(colour, p["accent"], ticks * p["edge"] * 0.85)
     return compose(colour, alpha)
 
 
 def key(p, rng, w, h, cut, state):
-    """A slim console key. States change the face fill and glow; the light strip is constant."""
+    """A sculpted tactile console switch with 3D physical lip, specular edge, and radiant hover."""
     cuts = tech_cuts(cut, p)
     coverage = mask(w, h, cuts)
     pressed = state in ("pressed", "primary_pressed")
+    hover = state in ("hover", "primary_hover")
+    disabled = state == "disabled"
+    primary = state.startswith("primary")
+
     lip = 2 if pressed else 5
     face = np.pad(mask(w, h - lip, cuts), ((0, lip), (0, 0)))
     if pressed:
         face = np.roll(face, 2, axis=0)
-    primary = state.startswith("primary")
+
     top, bottom = (p["paint_top"], p["paint_bottom"]) if primary else (p["key_top"], p["key_bottom"])
-    if state in ("hover", "primary_hover"):
-        top, bottom = top * 1.14, bottom * 1.12
+    if hover:
+        top, bottom = top * 1.18, bottom * 1.15
     elif pressed:
-        top, bottom = top * 0.82, bottom * 0.84
-    elif state == "disabled":
-        top, bottom = top * 0.66, bottom * 0.72
-    colour = gradient(h, bottom * 0.4, bottom * 0.28)
-    face_colour = gradient(h, top, bottom) + (pattern(p["frame_pattern"], w, h, rng) * 4.0)[..., None]
-    light = bevel(face, 5)
-    face_colour = face_colour + np.where(light > 0, light * (22 if state == "disabled" else 52), light * 26)[..., None]
+        top, bottom = top * 0.80, bottom * 0.85
+    elif disabled:
+        top, bottom = top * 0.60, bottom * 0.66
+
+    # Recessed key well / lower physical switch lip.
+    colour = gradient(h, bottom * 0.36, bottom * 0.22)
+    face_colour = gradient(h, top, bottom) + (pattern(p["frame_pattern"], w, h, rng) * 4.5)[..., None]
+
+    # Sharp sculpted bevels + top specular edge catchlight.
+    light = bevel(face, 6)
+    face_colour = face_colour + np.where(
+        light > 0, light * (24 if disabled else 68), light * 34
+    )[..., None]
+
     yy = np.arange(h, dtype=np.float32)[:, None]
-    if state in ("hover", "pressed") and not primary:
-        rise = np.clip((yy - h * 0.25) / (h * 0.75), 0, 1) ** 1.6
-        face_colour = face_colour + p["accent"][None, None, :] * rise[..., None] * (0.3 if state == "hover" else 0.42)
-    if not primary and state != "disabled":
-        # Decorative light strip just above the key's lower edge.
+    # Inner bright specular hairline along upper face edge.
+    upper_mask = np.clip(1.0 - (yy - (4 if pressed else 2)) / 12.0, 0.0, 1.0)
+    top_edge = np.clip(face - np.roll(face, 2, axis=0), 0.0, 1.0) * upper_mask
+    face_colour = blend(face_colour, p["spec"], top_edge * (0.18 if disabled else 0.45))
+
+    # Primary & hover luminous accent radiance.
+    if primary:
+        rim = edge_line(w, h, cuts, 2.5, 2.0) * face
+        face_colour = blend(face_colour, p["accent"] * 1.15, rim * (0.75 if hover else 0.55))
+        rise = np.clip(1.0 - yy / (h * 0.65), 0.0, 1.0) ** 1.4
+        face_colour = face_colour + p["accent"][None, None, :] * rise[..., None] * (0.22 if hover else 0.10)
+    elif hover or pressed:
+        rim = edge_line(w, h, cuts, 2.5, 1.8) * face
+        face_colour = blend(face_colour, p["accent"], rim * (0.65 if hover else 0.80))
+        rise = np.clip((yy - h * 0.2) / (h * 0.8), 0, 1) ** 1.5
+        face_colour = face_colour + p["accent"][None, None, :] * rise[..., None] * (0.28 if hover else 0.38)
+
+    if not primary and not disabled:
+        # Crisp glowing LED bar just above the key's lower edge.
         strip_y = (h - lip - 7) + (2 if pressed else 0)
-        strip = (np.abs(yy - strip_y) < 0.9).astype(np.float32) * np.ones((1, w), np.float32)
-        strip = strip * mask(w, h, cuts, 9)
-        face_colour = blend(face_colour, p["accent"], strip * 0.35)
-    face_colour = face_colour * (1 - np.clip(face - mask(w, h, cuts, 2) * face, 0, 1)[..., None] * 0.5)
+        strip = (np.abs(yy - strip_y) < 1.0).astype(np.float32) * np.ones((1, w), np.float32)
+        strip = strip * mask(w, h, cuts, 10)
+        glow_strip = gaussian(strip, 1.6)
+        strength = 0.78 if (hover or pressed) else 0.42
+        face_colour = blend(face_colour, p["accent"], np.clip(strip * strength + glow_strip * strength * 0.5, 0, 1))
+
+    # Crisp dark bevel border around face, then outer housing rim.
+    face_colour = face_colour * (1 - np.clip(face - mask(w, h, cuts, 2.5) * face, 0, 1)[..., None] * 0.55)
     colour = blend(colour, face_colour, face)
-    colour = blend(colour, RIM, np.clip(coverage - mask(w, h, cuts, 1), 0, 1) * 0.8)
+    colour = blend(colour, RIM, np.clip(coverage - mask(w, h, cuts, 1.5), 0, 1) * 0.88)
     return compose(colour, coverage)
 
 
 def tab(p, rng, w, h, state):
-    cuts = (12 * p["cut"], 4 * p["cut"], 0, 0)
+    cuts = (12 * p["cut"], 5 * p["cut"], 0, 0)
     coverage = mask(w, h + 12, cuts)[:h]
     body = mask(w, h + 12, cuts, 2)[:h]
     top, bottom = {
-        "selected": (p["frame_top"] * 0.95, p["field_top"] * 1.25),
-        "hover": (p["key_top"] * 0.95, p["key_bottom"]),
-        "unselected": (p["key_bottom"] * 0.95, p["key_bottom"] * 0.7),
+        "selected": (p["frame_top"] * 1.02, p["field_top"] * 1.35),
+        "hover": (p["key_top"] * 1.0, p["key_bottom"]),
+        "unselected": (p["key_bottom"] * 0.9, p["key_bottom"] * 0.62),
     }[state]
     colour = gradient(h, top, bottom) + (pattern(p["frame_pattern"], w, h, rng) * 4.0)[..., None]
     light = bevel(body, 4, open_edges=("bottom",))
-    colour = colour + np.where(light > 0, light * 48.0, light * 24.0)[..., None]
-    if state != "selected":
-        yy = np.arange(h, dtype=np.float32)[:, None]
-        colour = colour * (1 - np.clip((yy - h * 0.55) / (h * 0.45), 0, 1)[..., None] * 0.4)
+    colour = colour + np.where(light > 0, light * 56.0, light * 28.0)[..., None]
+
+    yy = np.arange(h, dtype=np.float32)[:, None]
+    if state == "selected":
+        # Bright glowing faction crown along the top bevel of the active tab.
+        top_bar = np.clip(1.0 - np.abs(yy - 3.5) / 2.0, 0.0, 1.0) * body
+        wash = np.exp(-np.maximum(0.0, yy - 3.5) / 14.0) * 0.25 * body
+        colour = blend(colour, p["accent"], np.clip(top_bar * 0.92 + wash, 0.0, 1.0))
+    else:
+        colour = colour * (1 - np.clip((yy - h * 0.50) / (h * 0.50), 0, 1)[..., None] * 0.45)
+
     rim = np.clip(coverage - body, 0, 1)
     rim[-4:] = 0
     colour = blend(colour, RIM, rim)
@@ -405,20 +496,19 @@ def tab(p, rng, w, h, state):
 
 
 def rail(p, rng, w, h):
-    colour = gradient(h, p["frame_top"] * 0.9, p["frame_bottom"] * 0.8)
-    colour = colour + (pattern(p["frame_pattern"], w, h, rng) * 6.0)[..., None]
+    colour = gradient(h, p["frame_top"] * 0.95, p["frame_bottom"] * 0.78)
+    colour = colour + (pattern(p["frame_pattern"], w, h, rng) * 6.5)[..., None]
     yy = np.arange(h, dtype=np.float32)[:, None]
-    colour = colour + (np.clip(1 - (yy - 2) / 4.0, 0, 1) * 36.0)[..., None]
-    colour = colour - (np.clip((yy - (h - 6)) / 4.0, 0, 1) * 24.0)[..., None]
+    colour = colour + (np.clip(1 - (yy - 2) / 4.5, 0, 1) * 48.0)[..., None]
+    colour = colour - (np.clip((yy - (h - 6)) / 4.5, 0, 1) * 28.0)[..., None]
     colour[0:2] = RIM
     colour[h - 2 :] = RIM
-    # A recessed channel with a light segment in the middle of each tile.
     mid = h // 2
-    colour[mid - 1 : mid + 2] = colour[mid - 1 : mid + 2] * 0.45
+    colour[mid - 2 : mid + 2] = colour[mid - 2 : mid + 2] * 0.42
     xx = np.arange(w, dtype=np.float32)[None, :]
-    segment = (np.abs(xx - w / 2) < w * 0.18).astype(np.float32) * (np.abs(yy - mid) < 1.0)
-    glow = gaussian(segment, 1.4)
-    colour = blend(colour, p["accent"], np.clip(segment * p["edge"] + glow * 0.5, 0, 1))
+    segment = (np.abs(xx - w / 2) < w * 0.22).astype(np.float32) * (np.abs(yy - mid) < 1.1)
+    glow = gaussian(segment, 1.6)
+    colour = blend(colour, p["accent"], np.clip(segment * p["edge"] * 0.9 + glow * 0.55, 0, 1))
     alpha = np.ones((h, w), np.float32)
     if p["bolts"]:
         colour, alpha = fasteners(colour, alpha, w, h, h / 2, h * 0.16, p["bolts"])
@@ -427,7 +517,7 @@ def rail(p, rng, w, h):
 
 def stripe(p, rng, w, h):
     yy, xx = np.mgrid[0:h, 0:w].astype(np.float32)
-    dark = rgb("141618")
+    dark = rgb("111417")
     if p["stripe"] == "hazard":
         band = ((xx + yy) // 16) % 2 == 0
         colour = np.where(band[..., None], rgb("d9a33a"), dark)
@@ -437,8 +527,8 @@ def stripe(p, rng, w, h):
     else:
         band = ((xx // 10) % 2 == 0) & (np.abs(yy - h / 2) < h * 0.22)
         colour = np.where(band[..., None], p["accent"], dark)
-        colour = colour + (gaussian(band.astype(np.float32), 1.5) * 60)[..., None] * (p["accent"] / 255.0)
-    colour = colour + (noise(w, h, rng, 4.0, 3.0))[..., None]
+        colour = colour + (gaussian(band.astype(np.float32), 1.5) * 64)[..., None] * (p["accent"] / 255.0)
+    colour = colour + (noise(w, h, rng, 3.5, 3.0))[..., None]
     colour[0:2] = RIM
     colour[h - 2 :] = RIM
     return compose(colour, np.ones((h, w), np.float32))
@@ -447,13 +537,15 @@ def stripe(p, rng, w, h):
 def nameplate(p, rng, w, h):
     cuts = (6 * p["cut"], 0, 6 * p["cut"], 0)
     coverage = mask(w, h, cuts)
-    colour = gradient(h, p["field_bottom"] * 0.95, p["field_bottom"] * 0.75)
+    colour = gradient(h, p["field_top"] * 0.95, p["field_bottom"] * 0.78)
     colour = colour + (pattern(p["field_pattern"], w, h, rng) * 2.0)[..., None]
     shade = bevel(coverage, 4, raised=False)
-    colour = colour + np.where(shade > 0, shade * 26.0, shade * 10.0)[..., None]
+    colour = colour + np.where(shade > 0, shade * 30.0, shade * 12.0)[..., None]
     notch = np.zeros((h, w), np.float32)
-    notch[6 : h - 6, 6:12] = 1.0
-    colour = blend(colour, p["accent"], notch + gaussian(notch, 1.5) * 0.4 * (1 - notch))
+    notch[6 : h - 6, 6:11] = 1.0
+    colour = blend(colour, p["accent"], notch + gaussian(notch, 1.8) * 0.5 * (1 - notch))
+    lip = edge_line(w, h, cuts, 1.2, 1.2)
+    colour = blend(colour, p["accent"], lip * 0.25)
     return compose(colour, coverage)
 
 
@@ -461,7 +553,9 @@ def segment(w, h, gap):
     alpha = np.zeros((h, w), np.float32)
     alpha[2 : h - 2, : w - gap] = 1.0
     yy = np.arange(h, dtype=np.float32)[:, None]
-    tone = 255 - np.clip(yy / h, 0, 1) * 70.0
+    # Crisp bright upper highlight + gentle shade so health/power cells read like LEDs.
+    tone = 255 - np.clip((yy - 2) / max(1, h - 4), 0, 1) * 78.0
+    tone[2:4, :] = 255.0
     return compose(np.broadcast_to(np.minimum(tone, 255)[..., None], (h, w, 3)).astype(np.float32), alpha)
 
 
@@ -481,18 +575,15 @@ def brackets(w, h, length, thickness):
 def glow(w, h, cut, reach=16):
     coverage = mask(w, h, (cut, cut * 0.35, cut, cut * 0.35))
     distance = inside_distance(coverage, reach)
-    alpha = (np.clip(1.0 - distance / reach, 0, 1) ** 2.0 * 0.8 + 0.12) * coverage
+    alpha = (np.clip(1.0 - distance / reach, 0, 1) ** 1.85 * 0.85 + 0.14) * coverage
     return compose(np.full((h, w, 3), 255, np.float32), alpha)
 
 
 def faction_kit(p):
     rng = np.random.default_rng(p["seed"])
     return {
-        # Console housings (minimap, deck): 24 px logical slices.
         "plate_heavy": plate(p, rng, 192, 192, 26, 20, 6, fastener=4.5),
-        # Floating briefings, dialogs: 16 px logical slices.
         "plate_panel": plate(p, rng, 128, 128, 16, 11, 5, fastener=3.2),
-        # Frameless strips hanging from the top rail.
         "plate_strip": plate(p, rng, 128, 128, 16, 0, 5, fastener=3.2, glass=False),
         "plate_card": plate(p, rng, 96, 96, 10, 4, 3),
         "socket": socket(p, rng, 96, 96, 10),
@@ -516,7 +607,7 @@ def faction_kit(p):
 def build(out):
     out.mkdir(parents=True, exist_ok=True)
     shared = {
-        "bar_segment": segment(16, 24, 4),
+        "bar_segment": segment(16, 24, 3),
         "focus": brackets(64, 64, 16, 3),
         "glow": glow(96, 96, 14),
     }

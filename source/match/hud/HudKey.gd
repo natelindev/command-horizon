@@ -43,11 +43,14 @@ func _init():
 	_badge = Label.new()
 	_badge.name = "Badge"
 	_badge.theme_type_variation = "HudCaption"
+	_badge.add_theme_font_override("font", BattleTheme.numeral_font())
 	_badge.add_theme_font_size_override("font_size", 10)
 	_badge.add_theme_color_override("font_color", BattleTheme.accent())
+	_badge.add_theme_constant_override("outline_size", 2)
+	_badge.add_theme_color_override("font_outline_color", Color("050709"))
 	_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_badge.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
-	_badge.position = Vector2(5, 1)
+	_badge.position = Vector2(5, 2)
 	_badge.visible = false
 	add_child(_badge, false, Node.INTERNAL_MODE_FRONT)
 	_caption = Label.new()

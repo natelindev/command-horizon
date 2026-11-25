@@ -35,7 +35,7 @@ func _ready():
 	var plate = BattleTheme.strip(18, 0)
 	# Hang below the top rail; the plate's own bevel carries the bottom edge.
 	plate.content_margin_top = HudLayout.TOP_RAIL + 2
-	plate.content_margin_bottom = 6
+	plate.content_margin_bottom = 5
 	plate.content_margin_right = 22
 	add_theme_stylebox_override("panel", plate)
 	custom_minimum_size.y = HudLayout.TOP_PLATE

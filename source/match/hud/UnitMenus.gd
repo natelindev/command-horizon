@@ -70,7 +70,9 @@ var _info: VBoxContainer
 var _info_bay: MarginContainer
 var _health: ProgressBar
 var _health_fill: StyleBox
+var _health_label: Label
 var _shields: ProgressBar
+var _orders_spacer: Control
 
 
 func _ready():
@@ -130,9 +132,35 @@ func _fit_menu():
 	)
 	if is_instance_valid(_selection_roster):
 		_selection_roster.visible = showing_orders
-	_info_bay.custom_minimum_size.x = (
-		371 if _selection.size() > 1 and showing_orders else HudLayout.info_bay(viewport.x)
-	)
+	var wide_deck = width >= 1100.0
+	if showing_orders and wide_deck:
+		_info_bay.custom_minimum_size.x = (
+			clampf(width * 0.32, 380.0, 480.0)
+			if _selection.size() > 1
+			else clampf(width * 0.25, 300.0, 380.0)
+		)
+	else:
+		_info_bay.custom_minimum_size.x = (
+			371 if _selection.size() > 1 and showing_orders else HudLayout.info_bay(viewport.x)
+		)
+	if is_instance_valid(_commands):
+		_commands.custom_minimum_size.x = 278 if wide_deck else 252
+		_commands.size_flags_horizontal = (
+			Control.SIZE_SHRINK_END if wide_deck else Control.SIZE_EXPAND_FILL
+		)
+	if is_instance_valid(_support):
+		_support.custom_minimum_size.x = 264 if wide_deck else 200
+		_support.size_flags_horizontal = (
+			Control.SIZE_SHRINK_BEGIN if wide_deck else Control.SIZE_EXPAND_FILL
+		)
+	if is_instance_valid(_orders_spacer):
+		_orders_spacer.visible = (
+			wide_deck
+			and is_instance_valid(_commands)
+			and _commands.visible
+			and is_instance_valid(_support)
+			and _support.visible
+		)
 	for grid in _content.find_children("Roster", "GridContainer", true, false):
 		var available_width = width - _info_bay.custom_minimum_size.x - 54
 		grid.columns = clampi(
@@ -243,7 +271,9 @@ func _reset_menus():
 			container.remove_child(child)
 			child.queue_free()
 	_health = null
+	_health_label = null
 	_shields = null
+	_orders_spacer = null
 	_buttons.clear()
 	_command_buttons.clear()
 	_engineering_buttons.clear()
@@ -357,19 +387,23 @@ func _reset_menus():
 	columns.name = "OrderColumns"
 	columns.add_theme_constant_override("separation", 12)
 	orders_page.add_child(columns)
-	_commands = VBoxContainer.new()
-	_commands.name = "DirectCommands"
-	_commands.custom_minimum_size.x = 266
-	_commands.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_commands.add_theme_constant_override("separation", 2)
-	columns.add_child(_commands)
-	columns.add_child(VSeparator.new())
 	_support = VBoxContainer.new()
 	_support.name = "UnitBehaviorAndOrders"
-	_support.custom_minimum_size.x = 210
-	_support.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_support.custom_minimum_size.x = 240
+	_support.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	_support.add_theme_constant_override("separation", 6)
 	columns.add_child(_support)
+	columns.add_child(VSeparator.new())
+	_orders_spacer = Control.new()
+	_orders_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_orders_spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	columns.add_child(_orders_spacer)
+	_commands = VBoxContainer.new()
+	_commands.name = "DirectCommands"
+	_commands.custom_minimum_size.x = 278
+	_commands.size_flags_horizontal = Control.SIZE_SHRINK_END
+	_commands.add_theme_constant_override("separation", 3)
+	columns.add_child(_commands)
 	if builds and roster_page == null:
 		roster_page = _page(roster_title)
 	if _selection.size() > 1:
@@ -498,7 +532,7 @@ func _build_info(portrait):
 	if portrait != null and (_selection.size() == 1 or is_instance_valid(_research_player)):
 		var frame = PanelContainer.new()
 		frame.name = "Portrait"
-		frame.custom_minimum_size = Vector2(64, 64)
+		frame.custom_minimum_size = Vector2(74, 74)
 		frame.add_theme_stylebox_override("panel", BattleTheme.socket(4, 4))
 		frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		header.add_child(frame)
@@ -511,7 +545,7 @@ func _build_info(portrait):
 	var names = VBoxContainer.new()
 	names.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	names.alignment = BoxContainer.ALIGNMENT_CENTER
-	names.add_theme_constant_override("separation", 6)
+	names.add_theme_constant_override("separation", 4)
 	header.add_child(names)
 	_title.theme_type_variation = "HudHeading"
 	_title.uppercase = true
@@ -529,14 +563,27 @@ func _build_info(portrait):
 	_shields.mouse_filter = Control.MOUSE_FILTER_PASS
 	_shields.hide()
 	names.add_child(_shields)
+	var health_row = HBoxContainer.new()
+	health_row.add_theme_constant_override("separation", 6)
+	health_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	names.add_child(health_row)
 	_health = ProgressBar.new()
 	_health.name = "Health"
+	_health.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_health.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_health.custom_minimum_size.y = 8
 	_health.show_percentage = false
 	_health_fill = BattleTheme.bar_fill(BattleTheme.HEALTH_OK)
 	_health.add_theme_stylebox_override("fill", _health_fill)
 	_health.mouse_filter = Control.MOUSE_FILTER_PASS
-	names.add_child(_health)
+	health_row.add_child(_health)
+	_health_label = Label.new()
+	_health_label.name = "HealthNumeric"
+	_health_label.add_theme_font_override("font", BattleTheme.numeral_font())
+	_health_label.add_theme_font_size_override("font_size", 12)
+	_health_label.add_theme_color_override("font_color", BattleTheme.HEALTH_OK)
+	_health_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	health_row.add_child(_health_label)
 	_status = Label.new()
 	_status.add_theme_font_size_override("font_size", 12)
 	_status.add_theme_color_override("font_color", Color("b9bfba"))
@@ -561,6 +608,8 @@ func _refresh_health():
 	# Tech retains the army selection, but its identity is not a selected unit.
 	if is_instance_valid(_research_player):
 		_health.hide()
+		if is_instance_valid(_health_label):
+			_health_label.hide()
 		_shields.hide()
 		return
 	var hp = 0.0
@@ -583,11 +632,16 @@ func _refresh_health():
 	_health.max_value = maxf(1.0, hp_max)
 	_health.value = hp
 	var ratio = hp / maxf(1.0, hp_max)
-	_health_fill.modulate = (
+	var hp_col = (
 		BattleTheme.HEALTH_OK
 		if ratio > .6
 		else (BattleTheme.SIGNAL_WARN if ratio > .3 else BattleTheme.SIGNAL_BAD)
 	)
+	_health_fill.modulate = hp_col
+	if is_instance_valid(_health_label):
+		_health_label.visible = hp_max > 0
+		_health_label.text = "%d / %d" % [ceili(hp), ceili(hp_max)]
+		_health_label.add_theme_color_override("font_color", hp_col)
 	_health.queue_redraw()
 
 

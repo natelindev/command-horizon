@@ -32,11 +32,11 @@ func _ready():
 		var button = Button.new()
 		button.name = Behavior.TITLES[index].replace(" ", "")
 		button.text = Behavior.TITLES[index]
-		button.add_theme_font_size_override("font_size", 13)
+		button.add_theme_font_size_override("font_size", 12)
 		button.toggle_mode = true
 		_buttons[Behavior.CHOICES[index]] = button
 		button.tooltip_text = descriptions[index]
-		button.custom_minimum_size = Vector2(76, 30)
+		button.custom_minimum_size = Vector2(64, 28)
 		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		button.pressed.connect(_choose.bind(Behavior.CHOICES[index]))
 		grid.add_child(button)
