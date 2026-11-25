@@ -7,9 +7,9 @@ uniform sampler2D trim_normal : hint_normal, filter_linear_mipmap_anisotropic, r
 uniform sampler2D trim_orm : filter_linear_mipmap_anisotropic, repeat_disable;
 uniform bool trim_enabled = false;
 uniform float metal_detail_strength : hint_range(0.0, 1.0) = 1.0;
-uniform float micro_normal_strength = 0.10;
-uniform float micro_tile = 0.22;
-uniform float trim_normal_strength = 0.55;
+uniform float micro_normal_strength = 0.24;
+uniform float micro_tile = 0.18;
+uniform float trim_normal_strength = 0.88;
 
 struct MetalFinish {
 	vec3 normal;
@@ -36,10 +36,10 @@ MetalFinish metal_finish(vec3 point, vec3 local_normal, mat3 to_view,
 		+ texture(metal_micro_orm, p.xz).rgb * w.y
 		+ texture(metal_micro_orm, p.xy).rgb * w.z;
 	result.normal = normalize(view_normal + to_view * slope * micro_normal_strength * metal_detail_strength);
-	result.roughness_delta = (data.g - 0.61) * 0.55 * metal_detail_strength;
-	result.color = 1.0;
-	result.occlusion = 1.0;
-	result.exposure = 0.0;
+	result.roughness_delta = (data.g - 0.56) * 0.65 * metal_detail_strength;
+	result.color = mix(1.0, 0.88 + data.r * 0.15, metal_detail_strength);
+	result.occlusion = mix(1.0, data.r, 0.45 * metal_detail_strength);
+	result.exposure = data.b * 0.25 * metal_detail_strength;
 	// Derivatives must be evaluated before the per-fragment trim branch.
 	vec3 dx = dFdx(view_position);
 	vec3 dy = dFdy(view_position);
@@ -57,9 +57,9 @@ MetalFinish metal_finish(vec3 point, vec3 local_normal, mat3 to_view,
 		vec3 perturbation = (tangent * relief.x - bitangent * relief.y) * frame_scale;
 		result.normal = normalize(result.normal + perturbation * trim_normal_strength * metal_detail_strength);
 		result.color = mix(1.0, texture(trim_color, trim_uv).r, metal_detail_strength);
-		result.occlusion = mix(1.0, orm.r, metal_detail_strength * 0.6);
-		result.roughness_delta += (orm.g - 0.6) * 0.5 * metal_detail_strength;
-		result.exposure = orm.b * metal_detail_strength;
+		result.occlusion = mix(result.occlusion, orm.r, metal_detail_strength * 0.85);
+		result.roughness_delta += (orm.g - 0.55) * 0.65 * metal_detail_strength;
+		result.exposure = max(result.exposure, orm.b * metal_detail_strength);
 	}
 	return result;
 }

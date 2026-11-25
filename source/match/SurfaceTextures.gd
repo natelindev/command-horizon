@@ -93,8 +93,9 @@ static func apply_armor(model):
 				material.set_shader_parameter("metalness", original.metallic)
 				material.set_shader_parameter("base_roughness", original.roughness)
 				configure_armor(material)
-				# Ceramic Helix panels stay smoother than Bastion cast armor.
+				# Ceramic Helix panels stay cleaner than Bastion cast armor while keeping crisp seams.
 				if original.resource_name.begins_with("Helix"):
-					material.set_shader_parameter("micro_normal_strength", 0.07)
+					material.set_shader_parameter("micro_normal_strength", 0.16)
+					material.set_shader_parameter("armor_strength", 0.62)
 				materials[key] = material
 			mesh.set_surface_override_material(surface, materials[key])

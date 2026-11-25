@@ -47,10 +47,10 @@ const PROFILES = {
 	"foliage": ["foliage", Vector3(2.5, 2.5, 2.5), .8, 0.0, .12],
 	"needles": ["needles", Vector3(1.8, 1.8, 1.8), .65, 0.0, .1],
 	"grass": ["needles", Vector3(.45, 1.2, .45), .55, 0.0, .08],
-	"fabric": ["fabric", Vector3(.65, .65, .65), .5, 0.0, 0.0],
-	"rubber": ["fabric", Vector3(.18, .18, .18), .18, 0.0, 0.0],
+	"fabric": ["fabric", Vector3(.48, .48, .48), .62, 0.0, 0.0],
+	"rubber": ["fabric", Vector3(.15, .15, .15), .28, 0.0, 0.0],
 	"skin": ["concrete", Vector3(.12, .12, .12), .055, .06, 0.0],
-	"metal": ["metal", Vector3(2, 2, 2), .32, 0.0, 0.0],
+	"metal": ["metal", Vector3(1.4, 1.4, 1.4), .52, 0.0, 0.0],
 	"asphalt": ["asphalt", Vector3(3, 3, 3), .5, .4, 0.0],
 	"snow": ["concrete", Vector3(3, 3, 3), .12, .18, 0.0],
 }

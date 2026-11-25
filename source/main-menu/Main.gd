@@ -75,6 +75,7 @@ func _ready():
 	var utilities = HBoxContainer.new()
 	utilities.add_theme_constant_override("separation", 10)
 	menu.add_child(utilities)
+	_action(utilities, "ModelGallery", "MODEL GALLERY", func(): _open("res://source/showcase/ModelGalleryMatch.tscn"))
 	_action(utilities, "Settings", "SETTINGS", _on_options_button_pressed)
 	_action(utilities, "Exit", "EXIT", _on_quit_button_pressed)
 	var footer = HBoxContainer.new()

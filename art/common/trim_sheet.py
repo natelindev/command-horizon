@@ -75,10 +75,12 @@ def prepare(obj):
             continue
         name = obj.name.lower()
         band = 1 if "vent" in name or "grille" in name else 2 if "strap" in name or "rail" in name else 3 if "tread" in name or "track" in name else 0
+        columns = max(1, min(4, round(span[0] / max(span[1], .3)))) if band == 0 else 4
+        col_offset = (len(chart) + int(round((low[0] + low[1]) * 10.0))) % 4 if (band == 0 and columns == 1) else 0
         for index, point in zip(face.loop_indices, projected):
             u = (point[0]-low[0])/span[0]
             v = (point[1]-low[1])/span[1]
             # Choose a single complete plate and inset by 4 px to avoid bleeding.
             # Broad parts repeat across the four plates in the horizontal strip.
-            columns = max(1, min(4, round(span[0] / max(span[1], .3)))) if band == 0 else 4
-            uv.data[index].uv = (.002 + u*(columns*.25-.004), 1-(band*.25+.002+v*.246))
+            u_coord = col_offset * .25 + .002 + u * (.246 if columns == 1 else (columns * .25 - .004))
+            uv.data[index].uv = (u_coord, 1-(band*.25+.002+v*.246))

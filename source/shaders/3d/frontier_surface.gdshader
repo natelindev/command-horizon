@@ -48,34 +48,46 @@ void fragment()
   vec3 p = local_position;
   float wear = noise(p * 5.0);
   float dust = noise(p * 1.7 + vec3(8.0));
-  vec3 color = base_color.rgb * (0.78 + wear * 0.25);
+  vec3 color = base_color.rgb * (0.76 + wear * 0.28);
   float roughness;
-  color = mix(color, vec3(0.30, 0.255, 0.17), smoothstep(0.48, 0.85, dust) * 0.24);
+  float metal_out = metalness;
+  color = mix(color, vec3(0.30, 0.255, 0.17), smoothstep(0.45, 0.85, dust) * 0.26);
   if (fabric)
   {
     float folds = sin(p.z * 8.0 + noise(p * 2.0) * 2.0);
     float seams = 1.0 - smoothstep(0.025, 0.07, abs(fract(p.z * 0.8) - 0.5));
-    color *= 0.90 + folds * 0.018 - seams * 0.08;
-    roughness = 0.96;
+    color *= 0.88 + folds * 0.03 - seams * 0.12;
+    roughness = 0.94;
   }
   else
   {
-    float chips = smoothstep(0.76, 0.88, noise(p * 42.0));
-    color = mix(color, vec3(0.12, 0.105, 0.08), chips * 0.25);
-    roughness = mix(0.68, 0.91, dust);
+    float chips = smoothstep(0.74, 0.88, noise(p * 42.0));
+    color = mix(color, vec3(0.14, 0.125, 0.10), chips * 0.28);
+    roughness = mix(0.62, 0.89, dust);
   }
   bool trimmed = trim_enabled && UV2.x > 0.0001 && UV2.y > 0.0001;
-  float panels = armor_panels && !trimmed ? armor_detail(local_position, local_normal) : 1.0;
+  float panel_mask = armor_panels ? armor_detail(local_position, local_normal) : 1.0;
+  float panels = panel_mask;
   // A uniform material branch avoids metal sampling on cloth and concrete.
   if (armor_panels && !fabric) {
     MetalFinish finish = metal_finish(metal_position, local_normal, metal_to_view, VERTEX, NORMAL, UV2);
-    NORMAL = finish.normal;
-    AO = finish.occlusion;
-    roughness += finish.roughness_delta;
-    if (trimmed) { panels = finish.color; }
+    vec3 n = finish.normal;
+    if (!trimmed) {
+      n = armor_relief_normal(local_position, local_normal, metal_to_view, n, 1.0);
+    }
+    NORMAL = n;
+    float seam_ao = mix(0.68, 1.0, smoothstep(0.55, 0.95, panel_mask));
+    AO = clamp(finish.occlusion * seam_ao, 0.22, 1.0);
+    AO_LIGHT_AFFECT = 0.50;
+    roughness += finish.roughness_delta + clamp((1.0 - panel_mask) * 0.35, -0.05, 0.30);
+    panels = trimmed ? mix(finish.color, finish.color * panel_mask, 0.38) : panel_mask * finish.color;
+    metal_out = mix(metalness, 0.72, max((1.0 - local_weathering.a) * 0.55, finish.exposure * 0.50));
   }
   color *= panels;
   ALBEDO = weathered(ground_dust(color, world_height), local_weathering, !fabric);
   ROUGHNESS = weathered_roughness(roughness, local_weathering);
-  METALLIC = metalness;
+  METALLIC = metal_out;
+  SPECULAR = fabric ? 0.25 : 0.54;
+  RIM = fabric ? 0.10 : 0.20;
+  RIM_TINT = 0.32;
 }

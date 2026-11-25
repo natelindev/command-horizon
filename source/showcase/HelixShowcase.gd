@@ -27,6 +27,9 @@ const STRUCTURES = [
 ]
 var _factions
 
+var _faction := "helix"
+var _current_asset := "Tank"
+var _heading: Label = null
 var _model = null
 var _camera = null
 var _roster = null
@@ -96,13 +99,21 @@ func _build_ui():
 	var content = VBoxContainer.new()
 	content.add_theme_constant_override("separation", 9)
 	panel.add_child(content)
-	var heading = Label.new()
-	heading.text = "HELIX SYSTEMS"
-	heading.add_theme_font_size_override("font_size", 25)
-	content.add_child(heading)
+	_heading = Label.new()
+	_heading.text = "HELIX SYSTEMS"
+	_heading.add_theme_font_size_override("font_size", 25)
+	content.add_child(_heading)
 	var subtitle = Label.new()
 	subtitle.text = "Faction model review"
 	content.add_child(subtitle)
+	var faction_tabs = HBoxContainer.new()
+	content.add_child(faction_tabs)
+	for f_id in ["bastion", "helix", "frontier"]:
+		var fbtn = Button.new()
+		fbtn.text = f_id.capitalize()
+		fbtn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		fbtn.pressed.connect(_set_faction.bind(f_id))
+		faction_tabs.add_child(fbtn)
 	var tabs = HBoxContainer.new()
 	content.add_child(tabs)
 	for entry in [["Infantry", INFANTRY], ["Vehicles", UNITS], ["Structures", STRUCTURES]]:
@@ -122,6 +133,10 @@ func _build_ui():
 	color.text = "Change team markings"
 	color.pressed.connect(_change_team)
 	content.add_child(color)
+	var gallery = Button.new()
+	gallery.text = "Battlefield Gallery (all units)"
+	gallery.pressed.connect(func(): get_tree().change_scene_to_file("res://source/showcase/ModelGalleryMatch.tscn"))
+	content.add_child(gallery)
 	var back = Button.new()
 	back.text = "Back to menu  [Esc]"
 	back.pressed.connect(_back)
@@ -143,30 +158,46 @@ func _build_ui():
 	details.add_child(hint)
 
 
-func _show_roster(entries):
+var _current_entries := UNITS
+
+
+func _set_faction(faction_id: String):
+	_faction = faction_id
+	if _heading != null:
+		_heading.text = {
+			"bastion": "BASTION DIRECTORATE",
+			"helix": "HELIX SYSTEMS",
+			"frontier": "FREE FRONTIER",
+		}.get(faction_id, faction_id.to_upper())
+	_show_roster(_current_entries, _current_asset)
+
+
+func _show_roster(entries, preferred_asset := ""):
+	_current_entries = entries
 	for child in _roster.get_children():
 		_roster.remove_child(child)
 		child.queue_free()
 	for asset in entries:
 		var button = Button.new()
 		button.name = asset
-		button.text = _factions.title("helix", asset)
-		button.icon = load(_factions.icon("helix", asset))
+		button.text = _factions.title(_faction, asset)
+		button.icon = load(_factions.icon(_faction, asset))
 		button.expand_icon = true
 		button.add_theme_constant_override("icon_max_width", 28)
 		button.custom_minimum_size = Vector2(320, 36)
 		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		button.pressed.connect(_select.bind(asset))
 		_roster.add_child(button)
-	_select(entries[0])
+	_select(preferred_asset if preferred_asset in entries else entries[0])
 
 
 func _select(asset):
+	_current_asset = asset
 	if _model != null:
 		remove_child(_model)
 		_model.queue_free()
-	var unit = load(_factions.scene_path("helix", asset)).instantiate()
-	_factions.prepare_model(unit, "helix")
+	var unit = load(_factions.scene_path(_faction, asset)).instantiate()
+	_factions.prepare_model(unit, _faction)
 	if asset in INFANTRY:
 		load("res://source/match/units/traits/InfantryMotion.gd").new().setup(unit, 0, asset)
 	_model = unit.get_node("Geometry")
@@ -192,8 +223,8 @@ func _select(asset):
 	)
 	_model.rotation.y = 0.0
 	_camera.size = 10.5
-	_title.text = _factions.title("helix", asset)
-	_description.text = _factions.description("helix", asset)
+	_title.text = _factions.title(_faction, asset)
+	_description.text = _factions.description(_faction, asset)
 
 
 func _process(delta):

@@ -299,6 +299,29 @@ static func build(faction, role):
 	)
 	_team_box(head, "HelmetStripe", Vector3(0, .193, .015), Vector3(.027, .007, .043), trim)
 	_box(head, "HelmetMount", Vector3(0, .143, -.068), Vector3(.03, .029, .018), steel)
+	if faction == "helix":
+		var visor = _material("2ad4e0", "Helix visor", .2, .3)
+		_box(head, "CyberVisor", Vector3(0, .072, -.058), Vector3(.105, .046, .028), visor)
+		_box(head, "ChinGuard", Vector3(0, .032, -.046), Vector3(.098, .036, .038), armor)
+		for side in [-1, 1]:
+			var fin = _box(chest, "PackFin" + str(side), Vector3(side * .09, .24, .18), Vector3(.02, .12, .06), armor)
+			fin.rotation.z = side * -.28
+	elif faction == "frontier":
+		_profile(
+			head,
+			"BoonieBrim",
+			Vector3(0, .105, 0),
+			[Vector4(-.01, .112, .112, .006), Vector4(.008, .108, .108, .006)],
+			canvas,
+			.06
+		)
+		_profile(
+			chest,
+			"Bedroll",
+			Vector3(0, .29, .15),
+			[Vector4(-.02, .038, .038, 0), Vector4(.02, .038, .038, 0)],
+			canvas
+		)
 	var left_hand = Vector3(.08, .08, -.34)
 	var right_hand = Vector3(.10, .06, -.16)
 	if role == "RocketInfantry":

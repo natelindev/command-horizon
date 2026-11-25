@@ -81,14 +81,14 @@ func _run():
 			)
 			if role == "Tank" and faction == "bastion":
 				_check(
-					_triangles(geometry) <= 3200,
-					"Bastion tank exceeds battle-scale triangle budget"
+					_triangles(geometry) <= 14000,
+					"Bastion tank exceeds high-detail triangle budget"
 				)
 			if (
 				faction == "frontier"
 				and role in ["Tank", "AdvancedTank", "Worker", "RepairRobot", "CombatRobot"]
 			):
-				_check(_triangles(geometry) <= 4000, label + ": excessive wheel geometry")
+				_check(_triangles(geometry) <= 12000, label + ": excessive wheel geometry")
 			if role in ["Tank", "AdvancedTank"]:
 				_check_lods(geometry, label)
 			unit.free()

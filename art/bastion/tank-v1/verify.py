@@ -22,16 +22,23 @@ assert magic == b"glTF" and version == 2 and length == len(data)
 chunk_length, chunk_type = struct.unpack_from("<II", data, 12)
 assert chunk_type == 0x4E4F534A
 gltf = json.loads(data[20:20 + chunk_length])
-assert len(gltf["meshes"]) == 3, "Expected three rigid meshes"
+assert len(gltf["meshes"]) == 7, f"Expected seven rigid meshes, got {len(gltf['meshes'])}"
 assert not gltf.get("images"), "Asset must not depend on external textures"
 assert not gltf.get("cameras") and not gltf.get("animations")
 assert all("uri" not in buffer for buffer in gltf.get("buffers", []))
 nodes = {node["name"]: (i, node) for i, node in enumerate(gltf["nodes"])}
-for name in ("BastionTank", "TurretPivot", "BarrelPivot", "Muzzle", "HullMesh", "TurretMesh", "BarrelMesh"):
+for name in ("BastionTank", "TurretPivot", "BarrelPivot", "Muzzle",
+             "HullMesh", "TurretMesh", "BarrelMesh",
+             "TrackPivotLeft", "TrackPivotRight", "TrackLeftMesh", "TrackRightMesh",
+             "AntennaPivotLeft", "AntennaPivotRight", "AntennaLeftMesh", "AntennaRightMesh"):
     assert name in nodes, name
 for parent, child in (("BastionTank", "TurretPivot"), ("TurretPivot", "BarrelPivot"),
                       ("BarrelPivot", "Muzzle"), ("BastionTank", "HullMesh"),
-                      ("TurretPivot", "TurretMesh"), ("BarrelPivot", "BarrelMesh")):
+                      ("TurretPivot", "TurretMesh"), ("BarrelPivot", "BarrelMesh"),
+                      ("BastionTank", "TrackPivotLeft"), ("TrackPivotLeft", "TrackLeftMesh"),
+                      ("BastionTank", "TrackPivotRight"), ("TrackPivotRight", "TrackRightMesh"),
+                      ("TurretPivot", "AntennaPivotLeft"), ("AntennaPivotLeft", "AntennaLeftMesh"),
+                      ("TurretPivot", "AntennaPivotRight"), ("AntennaPivotRight", "AntennaRightMesh")):
     assert nodes[child][0] in nodes[parent][1].get("children", []), (parent, child)
 
 primitive_count = sum(len(mesh["primitives"]) for mesh in gltf["meshes"])
@@ -44,7 +51,7 @@ bpy.ops.object.delete(use_global=False)
 bpy.ops.import_scene.gltf(filepath=str(ASSET))
 bpy.context.view_layer.update()
 mesh_objects = [obj for obj in bpy.context.scene.objects if obj.type == "MESH"]
-assert len(mesh_objects) == 3
+assert len(mesh_objects) == 7
 for obj in mesh_objects:
     assert all(math.isfinite(value) for v in obj.data.vertices for value in v.co)
     obj.data.calc_loop_triangles()

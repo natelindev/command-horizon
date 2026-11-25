@@ -1,21 +1,21 @@
 {
-  "asset": "Bastion tank v1",
+  "asset": "Bastion tank v2",
   "blender": "5.2.1 LTS",
-  "source_components": 175,
+  "source_components": 188,
   "rigid_meshes": {
     "Hull": {
-      "triangles": 1432,
-      "vertices": 902,
+      "triangles": 7902,
+      "vertices": 4194,
       "materials": 10
     },
     "Turret": {
-      "triangles": 660,
-      "vertices": 396,
+      "triangles": 2144,
+      "vertices": 1146,
       "materials": 6
     },
     "Barrel": {
-      "triangles": 480,
-      "vertices": 280,
+      "triangles": 1356,
+      "vertices": 712,
       "materials": 5
     },
     "TrackLeft": {
@@ -24,8 +24,8 @@
       "materials": 1
     },
     "AntennaLeft": {
-      "triangles": 20,
-      "vertices": 12,
+      "triangles": 52,
+      "vertices": 28,
       "materials": 1
     },
     "TrackRight": {
@@ -34,34 +34,30 @@
       "materials": 1
     },
     "AntennaRight": {
-      "triangles": 20,
-      "vertices": 12,
+      "triangles": 52,
+      "vertices": 28,
       "materials": 1
     }
   },
-  "triangles": 3188,
+  "triangles": 12082,
   "bounds_blender": {
     "min": [
-      -2.1710000038146973,
-      -2.80049991607666,
-      0.034999966621398926
+      -2.194999933242798,
+      -2.8505125045776367,
+      0.039999980479478836
     ],
     "max": [
-      2.1710000038146973,
+      2.194999933242798,
       5.045000076293945,
-      3.210634231567383
+      3.210740089416504
     ]
   },
   "dimensions_m": [
-    4.3420000076293945,
-    7.8454999923706055,
-    3.175634264945984
+    4.389999866485596,
+    7.895512580871582,
+    3.170740108937025
   ],
   "godot_forward": "-Z",
   "godot_up": "+Y",
-  "glb": "assets/models/bastion/tank-v1/bastion_tank_v1.glb",
-  "notes": [
-    "Battle-scale geometry with articulated tracks and antennas.",
-    "Run art/bastion/build_faction.py to bake weathering and export game models."
-  ]
+  "glb": "assets/models/bastion/tank-v1/bastion_tank_v1.glb"
 }
