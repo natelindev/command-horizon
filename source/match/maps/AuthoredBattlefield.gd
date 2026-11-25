@@ -224,8 +224,8 @@ func _build_ground():
 	material.set_shader_parameter("map_size", size)
 	material.set_shader_parameter("tier_step", terrain.tier_step)
 	ground.mesh.surface_set_material(0, material)
-	# Cliff and formation meshes cast the shadows; the ground only receives them.
-	ground.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	# Ground and cliffs cast shadows so hills, dunes and ridges sculpt the map.
+	ground.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 	var backdrop = MeshInstance3D.new()
 	backdrop.name = "Backdrop"
 	backdrop.mesh = TerrainBackdrop.build(terrain, layout.get("backdrop", {}), layout.id)

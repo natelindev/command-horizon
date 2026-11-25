@@ -18,9 +18,9 @@ import scenery_scale
 
 # Keep the existing navigation footprint while matching military architecture.
 BUILDING_HEIGHTS = {
-    "Farmhouse": 3.8, "Barn": 4.2, "Sawmill": 4.2, "WaterMill": 4.2,
-    "CottageA": 3.2, "CottageB": 3.2, "VillageChurch": 4.5,
-    "GrainElevator": 4.5, "MetalSilos": 3.8,
+    "Farmhouse": 5.8, "Barn": 6.4, "Sawmill": 6.0, "WaterMill": 6.0,
+    "CottageA": 4.8, "CottageB": 4.8, "VillageChurch": 7.2,
+    "GrainElevator": 8.2, "MetalSilos": 5.6,
 }
 
 ROOT = Path(__file__).resolve().parents[2]

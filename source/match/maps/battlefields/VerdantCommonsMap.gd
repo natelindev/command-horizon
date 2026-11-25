@@ -33,6 +33,22 @@ const DEFINITION = {
 				Vector2(0, 62)
 			]
 		},
+		{
+			"name": "Grove knoll",
+			"height": 2.0,
+			"falloff": 7.0,
+			"natural": true,
+			"polygon":
+			[Vector2(62, 76), Vector2(74, 72), Vector2(76, 86), Vector2(64, 92)]
+		},
+		{
+			"name": "Meadow rise",
+			"height": 1.4,
+			"falloff": 7.0,
+			"natural": true,
+			"polygon":
+			[Vector2(41, 68), Vector2(51, 68), Vector2(52, 76), Vector2(42, 76)]
+		},
 	],
 	"ramps":
 	[

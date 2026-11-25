@@ -19,6 +19,12 @@ var player:
 		return captured_by
 var _lamp: StandardMaterial3D
 var _label: Label3D
+var _rotor: Node3D
+var _halo: MeshInstance3D
+var _halo_material: StandardMaterial3D
+var _capture_ring
+var _vision_ring
+var _anim_phase = 0.0
 @onready var _match = find_parent("Match")
 
 
@@ -192,24 +198,88 @@ func _update_presentation():
 		_match.invalidate_group_registry("revealed_units")
 	_lamp.albedo_color = captured_by.color if captured_by != null else Color("d0baa0")
 	_lamp.emission = _lamp.albedo_color * 0.7
+	if _halo_material != null:
+		_halo_material.albedo_color = _lamp.albedo_color
+		_halo_material.emission = _lamp.albedo_color * (1.2 if captured_by != null else 0.45)
+	if is_instance_valid(_capture_ring):
+		_capture_ring.visible = captured_by == null or candidate != null or contested
+		_capture_ring.color = (
+			candidate.color if candidate != null else Color(0.88, 0.80, 0.56, 0.65)
+		)
+	if is_instance_valid(_vision_ring):
+		var human = _match._get_human_player() if _match != null else null
+		_vision_ring.visible = captured_by != null and human != null and captured_by.is_allied_with(human)
+		if _vision_ring.visible:
+			_vision_ring.color = Color(captured_by.color.r, captured_by.color.g, captured_by.color.b, 0.28)
 	_label.text = tr(label_title) + " · " + capture_status(_match._get_human_player()).to_upper()
 
 
+func _process(delta: float):
+	if get_tree().paused:
+		return
+	var speed = 1.8 if captured_by != null else 0.7
+	_anim_phase = fmod(_anim_phase + delta * speed, TAU)
+	if is_instance_valid(_rotor):
+		_rotor.rotation.y = _anim_phase
+	if is_instance_valid(_halo):
+		var pulse = 1.0 + 0.08 * sin(_anim_phase * 2.0)
+		_halo.scale = Vector3(pulse, 1.0, pulse)
+
+
 func _build_model():
+	var concrete = StandardMaterial3D.new()
+	concrete.albedo_color = Color("646864")
+	concrete.roughness = 0.85
 	var steel = StandardMaterial3D.new()
 	steel.albedo_color = Color("46525a")
 	steel.metallic = 0.65
 	steel.roughness = 0.45
+	var dish_mat = StandardMaterial3D.new()
+	dish_mat.albedo_color = Color("cfd4d6")
+	dish_mat.metallic = 0.35
+	dish_mat.roughness = 0.35
 	_lamp = StandardMaterial3D.new()
 	_lamp.emission_enabled = true
-	_box(Vector3(1.4, 0.25, 1.4), Vector3(0, 0.13, 0), steel)
-	_box(Vector3(0.45, 2.4, 0.45), Vector3(0, 1.3, 0), steel)
-	_box(Vector3(1.6, 0.25, 0.5), Vector3(0, 2.5, 0), _lamp)
-	for x in [-0.5, 0.5]:
-		_box(Vector3(0.08, 1.1, 0.08), Vector3(x, 3.05, 0), steel)
+	_halo_material = StandardMaterial3D.new()
+	_halo_material.emission_enabled = true
+	_halo_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	# Concrete base pad + armored plinth + mast.
+	_cyl(0.95, 0.22, Vector3(0, 0.11, 0), concrete, 8)
+	_box(Vector3(1.15, 0.65, 1.15), Vector3(0, 0.52, 0), steel)
+	_cyl(0.28, 2.3, Vector3(0, 1.9, 0), steel, 8)
+	_cyl(0.36, 0.28, Vector3(0, 1.65, 0), _lamp, 12)
+	# Rotating twin-wing surveillance radar head.
+	_rotor = Node3D.new()
+	_rotor.name = "RelayRotor"
+	_rotor.position = Vector3(0, 3.15, 0)
+	add_child(_rotor)
+	_box_into(_rotor, Vector3(1.75, 0.26, 0.48), Vector3(0, 0, 0), dish_mat)
+	_box_into(_rotor, Vector3(1.82, 0.10, 0.54), Vector3(0, 0, 0), _lamp)
+	for x in [-0.62, 0.62]:
+		_box_into(_rotor, Vector3(0.08, 0.95, 0.08), Vector3(x, 0.55, 0), steel)
+	_halo = MeshInstance3D.new()
+	var torus = TorusMesh.new()
+	torus.inner_radius = 0.48
+	torus.outer_radius = 0.58
+	_halo.mesh = torus
+	_halo.position = Vector3(0, 3.55, 0)
+	_halo.material_override = _halo_material
+	add_child(_halo)
+	var circle_scene = load("res://source/generic-scenes-and-nodes/3d/Circle3D.tscn")
+	_capture_ring = circle_scene.instantiate()
+	_capture_ring.radius = RADIUS
+	_capture_ring.width = 0.08
+	_capture_ring.position = Vector3(0, 0.06, 0)
+	add_child(_capture_ring)
+	_vision_ring = circle_scene.instantiate()
+	_vision_ring.radius = sight_range
+	_vision_ring.width = 0.05
+	_vision_ring.position = Vector3(0, 0.05, 0)
+	_vision_ring.visible = false
+	add_child(_vision_ring)
 	_label = Label3D.new()
 	_label.font = load("res://assets/fonts/NotoSansSC.ttf")
-	_label.position = Vector3(0, 4.0, 0)
+	_label.position = Vector3(0, 4.4, 0)
 	_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	_label.font_size = 48
 	_label.outline_size = 10
@@ -217,6 +287,31 @@ func _build_model():
 	_label.pixel_size = 0.015
 	add_child(_label)
 	_update_presentation()
+
+
+func _cyl(radius_val, height_val, point, material, sides = 12):
+	var node = MeshInstance3D.new()
+	var mesh = CylinderMesh.new()
+	mesh.top_radius = radius_val
+	mesh.bottom_radius = radius_val
+	mesh.height = height_val
+	mesh.radial_segments = sides
+	node.mesh = mesh
+	node.position = point
+	node.material_override = material
+	add_child(node)
+	return node
+
+
+func _box_into(parent, size, point, material):
+	var node = MeshInstance3D.new()
+	var mesh = BoxMesh.new()
+	mesh.size = size
+	node.mesh = mesh
+	node.position = point
+	node.material_override = material
+	parent.add_child(node)
+	return node
 
 
 func _box(size, point, material):

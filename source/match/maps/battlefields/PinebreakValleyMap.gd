@@ -43,6 +43,22 @@ const DEFINITION = {
 			"polygon":
 			[Vector2(72, 0), Vector2(130, 0), Vector2(126, 9), Vector2(102, 14), Vector2(78, 10)]
 		},
+		{
+			"name": "East timber knoll",
+			"height": 1.9,
+			"falloff": 8.0,
+			"natural": true,
+			"polygon":
+			[Vector2(76, 25), Vector2(91, 24), Vector2(95, 39), Vector2(84, 46), Vector2(74, 39)]
+		},
+		{
+			"name": "West timber knoll",
+			"height": 1.8,
+			"falloff": 6.5,
+			"natural": true,
+			"polygon":
+			[Vector2(6, 65), Vector2(21, 66), Vector2(23, 77), Vector2(14, 82), Vector2(5, 79)]
+		},
 	],
 	"ramps":
 	[
@@ -133,7 +149,7 @@ const DEFINITION = {
 			"width": 5.0,
 			"line":
 			[
-				Vector2(24, 24),
+				Vector2(22, 22),
 				Vector2(29.0, 40.0),
 				Vector2(31.4, 56.5),
 				Vector2(52, 64),
@@ -179,7 +195,7 @@ const DEFINITION = {
 			"sight_height": 2.2
 		},
 	],
-	"bases": [{"start": Vector2(24, 24), "field": Vector2(17.6, 17.6)}],
+	"bases": [{"start": Vector2(22, 22), "field": Vector2(15.6, 15.6)}],
 	"expansions":
 	[
 		{"name": "Mill flat", "site": Vector2(52, 64), "field": Vector2(60.5, 61)},

@@ -33,6 +33,22 @@ const DEFINITION = {
 				Vector2(0, 58)
 			]
 		},
+		{
+			"name": "Copse knoll",
+			"height": 1.6,
+			"falloff": 8.0,
+			"natural": true,
+			"polygon":
+			[Vector2(91, 43), Vector2(100, 46), Vector2(99, 57), Vector2(91, 55), Vector2(90, 47)]
+		},
+		{
+			"name": "Pasture rise",
+			"height": 1.3,
+			"falloff": 8.0,
+			"natural": true,
+			"polygon":
+			[Vector2(45, 64), Vector2(58, 63), Vector2(59, 74), Vector2(46, 75)]
+		},
 	],
 	"ramps":
 	[

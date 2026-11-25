@@ -37,7 +37,8 @@ void vertex() {
 		vec3 push = foliage_push(world, foliage_impulse_0, foliage_strengths.x)
 			+ foliage_push(world, foliage_impulse_1, foliage_strengths.y)
 			+ foliage_push(world, foliage_impulse_2, foliage_strengths.z)
-			+ foliage_push(world, foliage_impulse_3, foliage_strengths.w);
+			+ foliage_push(world, foliage_impulse_3, foliage_strengths.w)
+			+ foliage_wind(world, max(VERTEX.y, 0.0) * scale.y);
 		VERTEX += inverse(mat3(MODEL_MATRIX)) * push;
 	}
 	surface_to_view = mat3(MODELVIEW_MATRIX[0].xyz / scale.x,

@@ -53,8 +53,13 @@ static func populate(map):
 			batch.asset.get_file(),
 			true
 		)
+	var motion = load("res://source/match/maps/terrain/LandmarkMotion.gd").new()
+	motion.name = "LandmarkMotion"
+	map.add_child(motion)
 	for landmark in layout.get("landmarks", []):
-		_landmark(map, layout, landmark)
+		var body = _landmark(map, layout, landmark)
+		if body != null:
+			motion.register(body, landmark)
 
 
 # Cosmetic grass uses its own seed, so adding it never changes existing trees,
@@ -64,6 +69,9 @@ static func _grass(map, batches, clear):
 		return
 	var rng = RandomNumberGenerator.new()
 	rng.seed = ("%s-meadow-grass" % map.layout.id).hash()
+	var patch_noise = FastNoiseLite.new()
+	patch_noise.seed = ("%s-meadow-patches" % map.layout.id).hash()
+	patch_noise.frequency = 0.055
 	var placed = 0
 	for x in range(2, int(map.size.x) - 2, 3):
 		for z in range(2, int(map.size.y) - 2, 3):
@@ -88,13 +96,18 @@ static func _grass(map, batches, clear):
 				if point.distance_to(closest) < segment[2] + 4.5:
 					verge = true
 					break
-			if not verge and not flags & TerrainModel.FOREST:
+			var meadow = patch_noise.get_noise_2dv(point) > 0.14
+			if not verge and not (flags & TerrainModel.FOREST) and not meadow:
 				continue
-			if rng.randf() > 0.7:
+			if rng.randf() > (0.72 if verge or (flags & TerrainModel.FOREST) else 0.45):
 				continue
-			_add(batches, ["temperate/MeadowGrass", 0.38], _placement(map, point, rng))
+			_add(
+				batches,
+				["temperate/MeadowGrass", 0.24],
+				_placement(map, point, rng, Vector2(0.75, 1.3))
+			)
 			placed += 1
-			if placed >= 1800:
+			if placed >= 2400:
 				return
 
 
@@ -105,7 +118,7 @@ static func _add(batches, entry: Array, transform: Transform3D):
 	batches[key].transforms.append(transform)
 
 
-static func _placement(map, point: Vector2, rng, scale_range := Vector2(0.8, 1.2)) -> Transform3D:
+static func _placement(map, point: Vector2, rng, scale_range := Vector2(0.75, 1.25)) -> Transform3D:
 	var scale = rng.randf_range(scale_range.x, scale_range.y)
 	return Transform3D(
 		Basis(Vector3.UP, rng.randf() * TAU).scaled(Vector3.ONE * scale), map.ground_point(point)
@@ -113,31 +126,57 @@ static func _placement(map, point: Vector2, rng, scale_range := Vector2(0.8, 1.2
 
 
 static func _forest(map, forest: Dictionary, kit: Dictionary, rng, batches):
-	var species = kit.get(forest.get("flora", "trees"), kit.trees)
-	var spacing = 3.4 / sqrt(clampf(forest.get("density", 0.5), 0.1, 1.0))
+	var flora_key = forest.get("flora", "trees")
+	var species = kit.get(flora_key, kit.trees)
+	var density = clampf(forest.get("density", 0.5), 0.1, 1.0)
+	var spacing = 3.2 / sqrt(density)
 	var polygon: PackedVector2Array = forest.polygon
 	var bounds = Rect2(polygon[0], Vector2.ZERO)
 	for point in polygon:
 		bounds = bounds.expand(point)
+	var grove_noise = FastNoiseLite.new()
+	grove_noise.seed = ("%s-grove-%s" % [map.layout.id, forest.get("name", "grove")]).hash()
+	grove_noise.frequency = 0.08
+	var is_hedge = flora_key == "hedges"
 	for x in range(int(bounds.size.x / spacing) + 1):
 		for z in range(int(bounds.size.y / spacing) + 1):
+			var jitter = 0.35 if is_hedge else 0.95
 			var point = (
 				bounds.position
 				+ Vector2(x, z) * spacing
-				+ Vector2(rng.randf() - 0.5, rng.randf() - 0.5) * spacing * 0.8
+				+ Vector2(rng.randf() - 0.5, rng.randf() - 0.5) * spacing * jitter
 			)
 			if not Geometry2D.is_point_in_polygon(point, polygon):
 				continue
-			_add(batches, species[rng.randi() % species.size()], _placement(map, point, rng))
+			# Natural groves thin into glades instead of staying a uniform grid.
+			if not is_hedge and grove_noise.get_noise_2dv(point) < -0.32 and rng.randf() < 0.72:
+				continue
+			var edge_dist = _edge_distance(point, polygon)
+			var size_range = (
+				Vector2(0.85, 1.15)
+				if is_hedge
+				else (Vector2(0.68, 0.95) if edge_dist < 2.8 else Vector2(0.82, 1.28))
+			)
+			_add(batches, species[rng.randi() % species.size()], _placement(map, point, rng, size_range))
 			# An understorey of shrubs fills between trunks.
-			if rng.randf() < 0.6:
+			if not is_hedge and rng.randf() < 0.68:
 				var under = point + Vector2(rng.randf() - 0.5, rng.randf() - 0.5) * spacing
 				if Geometry2D.is_point_in_polygon(under, polygon):
 					_add(
 						batches,
 						kit.shrubs[rng.randi() % kit.shrubs.size()],
-						_placement(map, under, rng)
+						_placement(map, under, rng, Vector2(0.7, 1.35))
 					)
+
+
+static func _edge_distance(point: Vector2, polygon: PackedVector2Array) -> float:
+	var best = INF
+	for index in polygon.size():
+		var closest = Geometry2D.get_closest_point_to_segment(
+			point, polygon[index], polygon[(index + 1) % polygon.size()]
+		)
+		best = minf(best, point.distance_to(closest))
+	return best
 
 
 # `low_share` thins scatter on ground at or below 1 m (salt pans, mud flats).
@@ -146,11 +185,18 @@ static func _scatter(
 ):
 	if entries.is_empty() or density <= 0.0:
 		return
+	var clump_noise = FastNoiseLite.new()
+	clump_noise.seed = ("%s-scatter-clump" % map.layout.id).hash()
+	clump_noise.frequency = 0.065
 	var spacing = 1.0 / sqrt(density)
 	for x in range(int(map.size.x / spacing) + 1):
 		for z in range(int(map.size.y / spacing) + 1):
 			var point = (Vector2(x, z) + Vector2(rng.randf(), rng.randf())) * spacing
 			if point.x < 1 or point.y < 1 or point.x > map.size.x - 1 or point.y > map.size.y - 1:
+				continue
+			# Clump scatter into natural outcrops and scrub patches rather than uniform dots.
+			var clump = clump_noise.get_noise_2dv(point)
+			if clump < -0.22 and rng.randf() < 0.78:
 				continue
 			var cell = model.flag_at(point)
 			if (
@@ -175,7 +221,11 @@ static func _scatter(
 				continue
 			if low_share < 1.0 and model.height_at(point) < 1.0 and rng.randf() > low_share:
 				continue
-			_add(batches, entries[rng.randi() % entries.size()], _placement(map, point, rng))
+			_add(
+				batches,
+				entries[rng.randi() % entries.size()],
+				_placement(map, point, rng, Vector2(0.72, 1.32))
+			)
 
 
 static func _talus(map, layout: Dictionary, model, kit: Dictionary, rng, batches):
@@ -274,6 +324,7 @@ static func _landmark(map, layout: Dictionary, landmark: Dictionary):
 	# Walls with openings: local outlines that turn with the landmark.
 	for outline in landmark.get("footprints", []):
 		_obstacle(body, 0.5, landmark.get("sight_height", 3.0), PackedVector2Array(outline))
+	return body
 
 
 static func _obstacle(

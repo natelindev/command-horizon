@@ -3,6 +3,7 @@ extends Node
 ## Constant GPU cost regardless of foliage count; simulation time freezes on pause.
 var _ages := Vector4(10, 10, 10, 10)
 var _next := 0
+var _wind_time := 0.0
 
 
 func _ready():
@@ -32,13 +33,16 @@ func _physics_process(delta):
 	if Globals.options.reduced_flashes:
 		_ages = Vector4(10, 10, 10, 10)
 	else:
+		_wind_time += delta
 		for index in 4:
 			_ages[index] = minf(10.0, _ages[index] + delta)
 	_publish()
 
 
 func _clear():
+	_wind_time = 0.0
 	RenderingServer.global_shader_parameter_set("foliage_strengths", Vector4.ZERO)
+	RenderingServer.global_shader_parameter_set("foliage_wind_time", 0.0)
 	for index in 4:
 		RenderingServer.global_shader_parameter_set("foliage_impulse_%d" % index, Vector4.ZERO)
 
@@ -54,3 +58,4 @@ func _publish():
 		if age < .85:
 			strengths[index] = sin(age / .85 * PI) * exp(-age * 2.0)
 	RenderingServer.global_shader_parameter_set("foliage_strengths", strengths)
+	RenderingServer.global_shader_parameter_set("foliage_wind_time", _wind_time)

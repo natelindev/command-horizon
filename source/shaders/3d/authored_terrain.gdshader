@@ -100,13 +100,15 @@ void fragment()
   float inside = step(0.0, uv.x) * step(uv.x, 1.0) * step(0.0, uv.y) * step(uv.y, 1.0);
   mask *= inside;
   soft *= inside;
-  float macro = noise(p * .06) * .6 + noise(p * .19) * .4;
+  float macro = noise(p * .035) * .45 + noise(p * .09) * .35 + noise(p * .24) * .20;
   float grain = noise(p * 3.1);
   vec3 color = mix(ground_low.rgb, ground_high.rgb, macro);
-  color = mix(color, accent.rgb, smoothstep(.55, .8, noise(p * .11 + 7.3)) * accent_amount);
-  // Higher tiers read lighter; a darker band hugs each tier's foot.
+  color = mix(color, accent.rgb, smoothstep(.50, .78, noise(p * .095 + 7.3)) * accent_amount);
+  // Higher tiers read warmer and lighter; lower basins and slope feet read deeper.
   float level = world_point.y / max(tier_step, .1);
-  color *= .93 + clamp(level, -1.0, 2.0) * .045;
+  color *= .90 + clamp(level, -1.5, 2.5) * .065;
+  float slope = 1.0 - clamp(world_normal.y, 0.0, 1.0);
+  color *= 1.0 - smoothstep(.04, .26, slope) * .12;
   // Bare, cross-bedded slickrock exposures on open ground.
   float slick = smoothstep(.64, .74, noise(p * .055 + 11.7) * .7 + noise(p * .17) * .3)
                 * slickrock_amount;
@@ -157,8 +159,7 @@ void fragment()
   color = mix(color, bed.rgb, wet * .55);
   color = mix(color, bed.rgb * .8, mask.g * .9);
   // Cliffs: banded rock with strata following elevation.
-  float slope = 1.0 - clamp(world_normal.y, 0.0, 1.0);
-  float cliff = smoothstep(.28, .55, slope + (grain - .5) * .12);
+  float cliff = smoothstep(.26, .52, slope + (grain - .5) * .12);
   float band = noise(vec2(world_point.y * 1.7, p.x * .05 + p.y * .05)) * strata;
   vec3 stone = rock.rgb * (.78 + band * .35 + grain * .08);
   // Scanned ground detail on walkable surfaces: roads take the path layer,

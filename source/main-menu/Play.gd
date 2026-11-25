@@ -117,6 +117,24 @@ const MAPS = [
 		"A palm-grove oasis split by dry wadis · caravanserai camps · 16 resource fields",
 		"224 × 224"
 	],
+	[
+		"res://source/match/maps/battlefields/TripointBasinMap.tscn",
+		"Tripoint Basin",
+		"A three-way canyon basin · elevated mesas over rolling dunes · 15 resource fields",
+		"224 × 224"
+	],
+	[
+		"res://source/match/maps/battlefields/HighlandCrownMap.tscn",
+		"Highland Crown",
+		"Three wooded ridges around a moated watchtower island · bridges and fords · 15 resource fields",
+		"224 × 224"
+	],
+	[
+		"res://source/match/maps/battlefields/IronTriadMap.tscn",
+		"Iron Triad",
+		"Three foundry terraces above a Y-shaped canal and rail spurs · 15 resource fields",
+		"224 × 224"
+	],
 ]
 # Old numeric preferences used this order. Resolve them before selecting a new index.
 const LEGACY_MAP_NAMES = [
@@ -385,18 +403,14 @@ func _update_summary():
 
 func _on_map_list_item_selected(index):
 	_preview.set_map(MAPS[index][0])
-	_rebuild_slots(Constants.Match.MAPS[MAPS[index][0]].players)
-	_map_details.text = (
-		tr(MAPS[index][2])
-		+ "\n"
-		+ MAPS[index][3]
-		+ " · "
-		+ (
-			tr("4 players · Free-for-all or teams")
-			if Constants.Match.MAPS[MAPS[index][0]].players == 4
-			else tr("2 players · Head-to-head")
-		)
-	)
+	var players: int = Constants.Match.MAPS[MAPS[index][0]].players
+	_rebuild_slots(players)
+	var player_summary := tr("2 players · Head-to-head")
+	if players == 3:
+		player_summary = tr("3 players · Free-for-all or 1 vs 2")
+	elif players == 4:
+		player_summary = tr("4 players · Free-for-all or teams")
+	_map_details.text = tr(MAPS[index][2]) + "\n" + MAPS[index][3] + " · " + player_summary
 	_sync_preview_slots()
 
 
@@ -405,10 +419,18 @@ func _rebuild_slots(count):
 		_slots.clear()
 		for index in count:
 			_slots.append({"location": index})
-	_game_mode.visible = count == 4
-	_mode_label.visible = count == 4
-	if count != 4:
-		_game_mode.select(0)
+	var modes := ["Free-for-all"]
+	if count == 3:
+		modes = ["Free-for-all", "Teams · 1 vs 2"]
+	elif count == 4:
+		modes = ["Free-for-all", "Teams · 2 vs 2", "Teams · 1 vs 3"]
+	var previous = _game_mode.selected
+	_game_mode.clear()
+	for label in modes:
+		_game_mode.add_item(tr(label))
+	_game_mode.visible = count >= 3
+	_mode_label.visible = count >= 3
+	_game_mode.select(clampi(previous, 0, modes.size() - 1) if count >= 3 else 0)
 	_sync_preview_slots()
 
 
@@ -455,6 +477,8 @@ func _sync_preview_slots():
 func _team_for_slot(index):
 	if _game_mode.selected == 0:
 		return -1
+	if _slots.size() == 3:
+		return 0 if index == 0 else 1
 	return index / 2 if _game_mode.selected == 1 else mini(index, 1)
 
 

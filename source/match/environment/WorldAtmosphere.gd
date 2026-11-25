@@ -65,7 +65,7 @@ func _ready():
 	sun.directional_shadow_split_1 = .15
 	sun.directional_shadow_split_2 = .35
 	sun.directional_shadow_split_3 = .65
-	sun.directional_shadow_max_distance = 120
+	sun.directional_shadow_max_distance = 140
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	environment.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	environment.tonemap_exposure = profile.exposure
@@ -192,7 +192,7 @@ func _apply_lighting(altitude, daylight, golden, weather, previous_weather, blen
 	# saved-clock/weather inputs change (including between physics ticks).
 	# A lower key keeps cast shadows readable at midday; a cool moon key takes over at night
 	# to retain tactical silhouettes.
-	sun.rotation_degrees = Vector3(-maxf(12.0, absf(altitude) * 54.0), -35.0 + hour * 15.0, 0)
+	sun.rotation_degrees = Vector3(-maxf(12.0, absf(altitude) * 42.0), -35.0 + hour * 15.0, 0)
 	sun.light_color = Color("9ebae5").lerp(_base_sun.lerp(Color("ffb56a"), golden), daylight)
 	# Keep the moon key and sky fill readable under overcast skies. Daylight
 	# keeps the existing weather attenuation; tactical visibility is unchanged.

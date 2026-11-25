@@ -352,7 +352,7 @@ func _tree(point, size_factor):
 		"alpine" if _alpine else ("desert" if _desert else ("coastal" if _coastal else "urban"))
 	)
 	var model = load("res://source/match/maps/Vegetation.gd").tree(
-		biome, _tree_serial, 7.5 * maxf(1.0, size_factor)
+		biome, _tree_serial, 5.2 * maxf(0.85, size_factor)
 	)
 	_tree_serial += 1
 	model.position = point

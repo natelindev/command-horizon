@@ -42,6 +42,22 @@ const DEFINITION = {
 				Vector2(0, 46)
 			]
 		},
+		{
+			"name": "South dune swell",
+			"height": 1.6,
+			"falloff": 9.0,
+			"natural": true,
+			"polygon":
+			[Vector2(34, 96), Vector2(44, 95), Vector2(46, 103), Vector2(35, 104)]
+		},
+		{
+			"name": "Pass ridge",
+			"height": 1.4,
+			"falloff": 8.0,
+			"natural": true,
+			"polygon":
+			[Vector2(86, 46), Vector2(97, 47), Vector2(96, 54), Vector2(85, 53)]
+		},
 	],
 	"ramps":
 	[

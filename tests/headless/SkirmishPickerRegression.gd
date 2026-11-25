@@ -22,7 +22,7 @@ func _menu():
 	setup.preferences_path = preferences
 	root.add_child(setup)
 	_check(setup._get_selected_map_path() == setup.MAPS[0][0], "Fresh setup skips the default map")
-	_check(setup._map_paths.size() == 16, "Skirmish roster must offer sixteen maps")
+	_check(setup._map_paths.size() == 19, "Skirmish roster must offer nineteen maps")
 	var registry = load("res://source/match/maps/terrain/BattlefieldRegistry.gd")
 	for path in setup._map_paths:
 		var index = setup._map_paths.find(path)
@@ -106,6 +106,22 @@ func _menu():
 	click_event.position = screen_pos0
 	setup._preview._gui_input(click_event)
 	_check(setup._slots[0].location == 0, "GUI input click on circle 1 failed to select position 0")
+
+	# Test 3-player map circle clicks and mode toggle
+	var three_player_index = -1
+	for idx in setup.MAPS.size():
+		if constants.Match.MAPS[setup.MAPS[idx][0]].players == 3:
+			three_player_index = idx
+			break
+	_check(three_player_index >= 0, "Expected at least one 3-player map")
+	if three_player_index >= 0:
+		setup._map_list.select(three_player_index)
+		setup._on_map_list_item_selected(three_player_index)
+		_check(setup._slots.size() == 3, "Expected 3 slots for 3-player map")
+		_check(setup._game_mode.visible, "Game mode hidden on 3-player map")
+		setup._preview.start_selected.emit(2)
+		_check(setup._slots[0].location == 2, "Player did not move to start 3 on 3-player map")
+		_check(setup._slots[2].location == 0, "AI 2 did not swap to start 1 on 3-player map")
 
 	# Test 4-player map circle clicks
 	var four_player_index = -1

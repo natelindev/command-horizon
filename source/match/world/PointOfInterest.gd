@@ -40,11 +40,16 @@ var global_position_yless:
 var _payer = null
 var _capturer = null
 var _capture_indicator
+var _site_rotor: Node3D = null
+var _site_halo: MeshInstance3D = null
+var _site_halo_mat: StandardMaterial3D = null
+var _site_anim_phase = 0.0
+var _payout_flash = 0.0
 
 
 func _ready():
 	hp = hp_max
-	sight_range = 9.0
+	sight_range = 22.0 if kind == "data_relay" else 9.0
 	add_to_group("vision_sources")
 	_invalidate_registry()
 	add_to_group("points_of_interest")
@@ -83,8 +88,23 @@ func _build_model():
 		_build_data_relay()
 	else:
 		_build_faction_building()
+	var circle_scene = load("res://source/generic-scenes-and-nodes/3d/Circle3D.tscn")
+	_capture_ring = circle_scene.instantiate()
+	_capture_ring.radius = CAPTURE_RADIUS
+	_capture_ring.width = 0.08
+	_capture_ring.position = Vector3(0, 0.06, 0)
+	add_child(_capture_ring)
+	if kind == "data_relay":
+		_vision_ring = circle_scene.instantiate()
+		_vision_ring.radius = sight_range
+		_vision_ring.width = 0.05
+		_vision_ring.position = Vector3(0, 0.05, 0)
+		_vision_ring.visible = false
+		add_child(_vision_ring)
 	_label = Label3D.new()
-	_label.position = Vector3(0, 5.5 if kind == "refinery" else 3.4, 0)
+	_label.position = Vector3(
+		0, 5.5 if kind == "refinery" else 4.9 if kind == "data_relay" else 3.6, 0
+	)
 	_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	_label.font = load("res://assets/fonts/NotoSansSC.ttf")
 	_label.font_size = 28
@@ -113,6 +133,17 @@ func _build_refinery():
 	machinery.rotation.y = PI / 2
 	machinery.scale = Vector3.ONE * .5
 	add_child(machinery)
+	_site_halo_mat = StandardMaterial3D.new()
+	_site_halo_mat.emission_enabled = true
+	_site_halo_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	_site_halo = MeshInstance3D.new()
+	var torus = TorusMesh.new()
+	torus.inner_radius = 2.25
+	torus.outer_radius = 2.38
+	_site_halo.mesh = torus
+	_site_halo.position = Vector3(0, 0.10, 0)
+	_site_halo.material_override = _site_halo_mat
+	add_child(_site_halo)
 
 
 func _build_faction_building():
@@ -134,6 +165,27 @@ func _build_faction_building():
 		true
 	)
 	prototype.free()
+	_site_rotor = Node3D.new()
+	_site_rotor.name = "FacilityAntenna"
+	_site_rotor.position = Vector3(0.55, 2.35 if kind == "mercenary" else 2.55, 0)
+	add_child(_site_rotor)
+	var steel = StandardMaterial3D.new()
+	steel.albedo_color = Color("46525a")
+	steel.metallic = 0.65
+	_box_into(_site_rotor, Vector3(0.10, 0.55, 0.10), Vector3(0, 0.25, 0), steel)
+	_box_into(_site_rotor, Vector3(0.85, 0.18, 0.18), Vector3(0, 0.52, 0), steel)
+	_box_into(_site_rotor, Vector3(0.24, 0.10, 0.24), Vector3(0, 0.64, 0), _lamp)
+	_site_halo_mat = StandardMaterial3D.new()
+	_site_halo_mat.emission_enabled = true
+	_site_halo_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	_site_halo = MeshInstance3D.new()
+	var torus = TorusMesh.new()
+	torus.inner_radius = 2.05
+	torus.outer_radius = 2.18
+	_site_halo.mesh = torus
+	_site_halo.position = Vector3(0, 0.10, 0)
+	_site_halo.material_override = _site_halo_mat
+	add_child(_site_halo)
 
 
 func _capture_presence():
@@ -338,6 +390,31 @@ func _update_presentation():
 		_label.text = tr(label_title)
 	if kind in ["refinery", "data_relay"] and captured_by != null:
 		_label.text += "\n" + income_status()
+	if _site_halo_mat != null:
+		var base = captured_by.color if captured_by != null else Color("d0baa0")
+		_site_halo_mat.albedo_color = Color(
+			base.r, base.g, base.b, 0.55 if captured_by != null else 0.25
+		)
+		_site_halo_mat.emission = base * (0.95 if operational() else 0.25)
+
+
+func _animate_facility(delta: float):
+	if hp <= 0:
+		return
+	var active = operational()
+	var speed = 2.1 if active else 0.55
+	if kind == "mercenary" and not jobs.is_empty():
+		speed = 3.6
+	_site_anim_phase = fmod(_site_anim_phase + delta * speed, TAU)
+	_payout_flash = maxf(0.0, _payout_flash - delta * 2.2)
+	if is_instance_valid(_site_rotor):
+		_site_rotor.rotation.y = _site_anim_phase
+	if is_instance_valid(_site_halo):
+		var pulse = 1.0 + 0.045 * sin(_site_anim_phase * 2.0) + _payout_flash * 0.12
+		_site_halo.scale = Vector3(pulse, 1.0, pulse)
+		if _site_halo_mat != null:
+			var base = captured_by.color if captured_by != null else Color("d0baa0")
+			_site_halo_mat.emission = base * ((0.95 if active else 0.25) + _payout_flash * 1.4)
 
 
 func _physics_process(delta):
@@ -349,6 +426,7 @@ func _physics_process(delta):
 		or get_tree().paused
 	):
 		return
+	_animate_facility(delta)
 	radar_left = maxf(0.0, radar_left - delta)
 	if radar_left == 0.0:
 		radar_points.clear()
@@ -378,6 +456,7 @@ func _physics_process(delta):
 				captured_by.add_logistics(2.0 * deliveries)
 			if kind == "data_relay":
 				_radar_sweep()
+			_payout_flash = 1.0
 			MatchSignals.resources_mined.emit(self, "materials", payment.x)
 			MatchSignals.resources_mined.emit(self, "electronics", payment.y)
 		_update_presentation()
@@ -447,6 +526,7 @@ func cancel_hire(requester, index = 0):
 func _ownership_changed(side):
 	radar_left = 0.0
 	radar_points.clear()
+	_payout_flash = 1.0 if side != null else 0.0
 	if side != null and kind == "refinery":
 		side.add_resources({"resource_a": 50, "resource_b": 25})
 	while not jobs.is_empty():
@@ -592,31 +672,70 @@ func _build_data_relay():
 	var geometry = Node3D.new()
 	geometry.name = "Geometry"
 	add_child(geometry)
+	var concrete = StandardMaterial3D.new()
+	concrete.albedo_color = Color("646862")
+	concrete.roughness = 0.85
 	var steel = StandardMaterial3D.new()
-	steel.albedo_color = Color("566369")
-	steel.metallic = .6
+	steel.albedo_color = Color("4c5960")
+	steel.metallic = 0.65
+	steel.roughness = 0.42
+	var dish_mat = StandardMaterial3D.new()
+	dish_mat.albedo_color = Color("d8dde0")
+	dish_mat.metallic = 0.35
+	dish_mat.roughness = 0.3
 	_lamp = StandardMaterial3D.new()
 	_lamp.albedo_color = Color("d0baa0")
 	_lamp.emission_enabled = true
-	for part in [
-		[Vector3(2.7, .25, 2.7), Vector3(0, .13, 0)],
-		[Vector3(1.2, 1.6, 1.2), Vector3(0, .95, 0)],
-		[Vector3(.22, 2.6, .22), Vector3(0, 2.8, 0)],
-		[Vector3(2.0, .2, .65), Vector3(0, 3.7, 0)],
-		[Vector3(.12, 1.2, .12), Vector3(-.75, 4.1, 0)],
-		[Vector3(.12, 1.2, .12), Vector3(.75, 4.1, 0)],
-	]:
-		var mesh = MeshInstance3D.new()
-		var box = BoxMesh.new()
-		box.size = part[0]
-		mesh.mesh = box
-		mesh.position = part[1]
-		mesh.material_override = steel
-		geometry.add_child(mesh)
-	var panel = MeshInstance3D.new()
-	var box = BoxMesh.new()
-	box.size = Vector3(.9, .32, .1)
-	panel.mesh = box
-	panel.position = Vector3(0, 1.3, -.66)
-	panel.material_override = _lamp
-	geometry.add_child(panel)
+	_site_halo_mat = StandardMaterial3D.new()
+	_site_halo_mat.emission_enabled = true
+	_site_halo_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	# Stepped octagonal foundation, armored transceiver core, and braced spire.
+	_cyl_into(geometry, 1.85, 0.22, Vector3(0, 0.11, 0), concrete, 8)
+	_cyl_into(geometry, 1.35, 0.24, Vector3(0, 0.34, 0), steel, 8)
+	_box_into(geometry, Vector3(1.45, 1.35, 1.45), Vector3(0, 1.12, 0), steel)
+	_cyl_into(geometry, 0.32, 2.3, Vector3(0, 2.75, 0), steel, 8)
+	_cyl_into(geometry, 0.78, 0.18, Vector3(0, 1.95, 0), _lamp, 12)
+	for angle in [0.0, PI * 0.5, PI, PI * 1.5]:
+		var strut = _box_into(
+			geometry,
+			Vector3(0.14, 1.65, 0.14),
+			Vector3(cos(angle) * 0.72, 1.75, sin(angle) * 0.72),
+			steel
+		)
+		strut.rotation.z = cos(angle) * 0.38
+		strut.rotation.x = -sin(angle) * 0.38
+	for z_side in [-0.74, 0.74]:
+		_box_into(geometry, Vector3(1.05, 0.34, 0.08), Vector3(0, 1.25, z_side), _lamp)
+	# Rotating phased-array radar dish assembly on top.
+	_site_rotor = Node3D.new()
+	_site_rotor.name = "RelayDishPivot"
+	_site_rotor.position = Vector3(0, 3.85, 0)
+	geometry.add_child(_site_rotor)
+	_box_into(_site_rotor, Vector3(2.2, 0.26, 0.55), Vector3(0, 0, 0), dish_mat)
+	_box_into(_site_rotor, Vector3(2.28, 0.10, 0.62), Vector3(0, 0, 0), _lamp)
+	_box_into(_site_rotor, Vector3(1.55, 0.85, 0.16), Vector3(0, 0.42, -0.22), dish_mat)
+	_box_into(_site_rotor, Vector3(0.20, 0.95, 0.20), Vector3(0, 0.45, 0.12), steel)
+	for x in [-0.88, 0.88]:
+		_box_into(_site_rotor, Vector3(0.10, 1.05, 0.10), Vector3(x, 0.52, 0), steel)
+	_site_halo = MeshInstance3D.new()
+	var torus = TorusMesh.new()
+	torus.inner_radius = 0.62
+	torus.outer_radius = 0.74
+	_site_halo.mesh = torus
+	_site_halo.position = Vector3(0, 4.55, 0)
+	_site_halo.material_override = _site_halo_mat
+	geometry.add_child(_site_halo)
+
+
+func _cyl_into(parent, radius_val, height_val, point, material, sides = 12):
+	var node = MeshInstance3D.new()
+	var mesh = CylinderMesh.new()
+	mesh.top_radius = radius_val
+	mesh.bottom_radius = radius_val
+	mesh.height = height_val
+	mesh.radial_segments = sides
+	node.mesh = mesh
+	node.position = point
+	node.material_override = material
+	parent.add_child(node)
+	return node

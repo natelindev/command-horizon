@@ -30,8 +30,8 @@ const PRESETS = {
 		"base": "ground_rock",
 		"path": "dirt",
 		"accent": "snow",
-		"base_strength": .45,
-		"accent_strength": .55,
+		"base_strength": .55,
+		"accent_strength": .60,
 	},
 	# Snow throughout: tracks are packed snow and the accent is blue ice.
 	"polar":
@@ -39,9 +39,9 @@ const PRESETS = {
 		"base": "snow",
 		"path": "snow",
 		"accent": "sand",
-		"base_strength": .5,
-		"path_strength": .4,
-		"accent_strength": .3,
+		"base_strength": .55,
+		"path_strength": .45,
+		"accent_strength": .38,
 	},
 	# Authored works: cinder ground, asphalt roads, bare earth patches.
 	"works":
@@ -49,8 +49,8 @@ const PRESETS = {
 		"base": "ground_rock",
 		"path": "asphalt",
 		"accent": "dirt",
-		"chroma": .3,
-		"base_strength": .6,
+		"chroma": .35,
+		"base_strength": .68,
 	},
 	# Catalog urban and coastal maps are paved throughout (4 m joints). Concrete
 	# fills the whole view there, so its repeating stains stay faint.
@@ -59,16 +59,16 @@ const PRESETS = {
 		"base": "concrete",
 		"path": "asphalt",
 		"accent": "dirt",
-		"chroma": .2,
-		"base_strength": .32,
+		"chroma": .26,
+		"base_strength": .45,
 	},
 	"coastal":
 	{
 		"base": "concrete",
 		"path": "dirt",
 		"accent": "coast_sand",
-		"chroma": .3,
-		"base_strength": .32,
+		"chroma": .35,
+		"base_strength": .45,
 	},
 }
 const SHADER_ROOT = "res://source/shaders/3d/"

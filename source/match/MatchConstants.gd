@@ -58,6 +58,12 @@ const MAPS = {
 	{"name": "Sunken Exchange", "players": 4, "size": Vector2i(224, 224)},
 	"res://source/match/maps/battlefields/CinderRingMap.tscn":
 	{"name": "Cinder Ring", "players": 4, "size": Vector2i(224, 224)},
+	"res://source/match/maps/battlefields/TripointBasinMap.tscn":
+	{"name": "Tripoint Basin", "players": 3, "size": Vector2i(224, 224)},
+	"res://source/match/maps/battlefields/HighlandCrownMap.tscn":
+	{"name": "Highland Crown", "players": 3, "size": Vector2i(224, 224)},
+	"res://source/match/maps/battlefields/IronTriadMap.tscn":
+	{"name": "Iron Triad", "players": 3, "size": Vector2i(224, 224)},
 	# Engine verification only; never offered in the skirmish picker.
 	"res://source/match/maps/battlefields/TerrainTestMap.tscn":
 	{"name": "Terrain Test", "players": 2, "size": Vector2i(192, 160)},

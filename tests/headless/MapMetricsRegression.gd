@@ -12,6 +12,7 @@ const HQ_CLEARANCE = 4.5
 const TARGETS = {
 	# Corner bases of four-player maps sit closer together in free-for-all.
 	"base_to_base": [75.0, 110.0],
+	"base_to_base_3p": [60.0, 110.0],
 	"base_to_base_4p": [65.0, 100.0],
 	"natural": [0.0, 25.0],
 	"home_field": [7.0, 11.0],
@@ -19,6 +20,7 @@ const TARGETS = {
 	"build_sites": 40,
 	"fairness": 0.05,
 	"fields_2p": 12,
+	"fields_3p": 15,
 	"fields_4p": 16,
 }
 var report_only = false
@@ -125,7 +127,11 @@ func _travel(id, starts):
 		return
 	times.sort()
 	var nearest = times[0]
-	var band = TARGETS.base_to_base if starts.size() == 2 else TARGETS.base_to_base_4p
+	var band = (
+		TARGETS.base_to_base
+		if starts.size() == 2
+		else (TARGETS.base_to_base_3p if starts.size() == 3 else TARGETS.base_to_base_4p)
+	)
 	_metric(
 		nearest >= band[0] and nearest <= band[1],
 		"%s nearest rival base %.1f s outside %s" % [id, nearest, band]
@@ -229,7 +235,11 @@ func _resources(id, layout, starts):
 			unreachable += 1
 	_metric(unreachable == 0, "%s has %d unreachable deposits" % [id, unreachable])
 	var fields = layout.bases.size() + layout.expansions.size()
-	var required = TARGETS.fields_2p if layout.players == 2 else TARGETS.fields_4p
+	var required = (
+		TARGETS.fields_2p
+		if layout.players == 2
+		else (TARGETS.fields_3p if layout.players == 3 else TARGETS.fields_4p)
+	)
 	print("  fields: %d; per-player stock: %s" % [fields, totals])
 	_metric(fields >= required, "%s has %d fields (need %d)" % [id, fields, required])
 	var materials = []

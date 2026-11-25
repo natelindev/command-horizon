@@ -17,8 +17,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "common"))
 import scenery_scale
 
 BUILDING_HEIGHTS = {
-    "FjordHouseRed": 3.8, "FjordHouseOchre": 3.8, "MountainHut": 4.2,
-    "Boathouse": 3.4, "FjordChapel": 4.5,
+    "FjordHouseRed": 5.4, "FjordHouseOchre": 5.4, "MountainHut": 5.8,
+    "Boathouse": 4.8, "FjordChapel": 7.2,
 }
 
 ROOT = Path(__file__).resolve().parents[2]

@@ -26,6 +26,10 @@ var _settled_idle = false
 var _vented := false
 var _beacon: MeshInstance3D
 var _beacon_material: StandardMaterial3D
+var _idle_phase = 0.0
+var _idle_vent_timer = 0.0
+var _rooftop_beacon: MeshInstance3D
+var _rooftop_material: StandardMaterial3D
 
 
 func _ready():
@@ -44,6 +48,42 @@ func _ready():
 
 func _process(delta):
 	refresh(delta)
+	_advance_idle_life(delta)
+
+
+func _advance_idle_life(delta: float):
+	if not is_instance_valid(_unit) or _unit.hp == null or not _unit.is_constructed():
+		return
+	if get_tree().paused:
+		return
+	_idle_phase = fmod(_idle_phase + delta, TAU * 100.0)
+	if _sensor != null and state != "research":
+		_sensor.rotation = _sensor_rest + Vector3(0, _idle_phase * 0.24, 0)
+	if _rooftop_material != null and _rooftop_beacon != null:
+		_rooftop_beacon.visible = _unit.is_constructed()
+		var pulse = 0.4 + 0.6 * (0.5 + 0.5 * sin(_idle_phase * 2.4))
+		_rooftop_material.emission_energy_multiplier = (
+			0.45 if Globals.options.reduced_flashes else 0.35 + pulse * 0.75
+		)
+	if (
+		_unit.type in ["PowerPlant", "VehicleFactory", "ForwardRefinery"]
+		and DisplayServer.get_name() != "headless"
+		and _unit._match != null
+		and _unit._match.combat_effects != null
+	):
+		_idle_vent_timer += delta
+		if _idle_vent_timer >= 2.2:
+			_idle_vent_timer = 0.0
+			var effects = _unit._match.combat_effects
+			if effects.can_show_construction(_unit):
+				var vent_point = to_global(Vector3(_unit.radius * 0.3, _bounds.end.y * 0.88, 0))
+				effects.construction_puff(
+					"smoke",
+					vent_point,
+					Vector3(0.08, 0.55, 0.05),
+					Color(0.80, 0.84, 0.86, 0.16),
+					0.42
+				)
 
 
 func refresh(delta = 0.0):
@@ -173,6 +213,21 @@ func _build_machinery():
 		Kit._box(_work_head, "Carriage", Vector3.ZERO, Vector3(.35, .2, .3), _metal)
 		Kit._box(_work_head, "Tool", Vector3(0, -.28, 0), Vector3(.06, .48, .06), _metal)
 		_task_light(_work_head, Vector3(0, -.04, -.18))
+	if (
+		_unit.type
+		in ["CommandCenter", "PowerPlant", "VehicleFactory", "AircraftFactory", "CommandLab"]
+	):
+		_rooftop_material = Kit._material(Color("e6b05c"), .2)
+		_rooftop_material.emission_enabled = true
+		_rooftop_material.emission = Color("f0a94f")
+		_rooftop_beacon = Kit._box(
+			self,
+			"StatusBeacon",
+			Vector3(_bounds.size.x * 0.28, _bounds.end.y + 0.08, _bounds.size.z * 0.24),
+			Vector3(.11, .09, .11),
+			_rooftop_material
+		)
+		_rooftop_beacon.visible = _unit.is_constructed()
 
 
 func _task_light(parent, point):

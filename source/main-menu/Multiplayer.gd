@@ -79,6 +79,7 @@ func _ready():
 	mode_choice.custom_minimum_size.y = 36
 	mode_choice.add_item(tr("1v1 Duel"))
 	mode_choice.add_item(tr("2v2 Teams"))
+	mode_choice.add_item(tr("1v1v1 Trio"))
 	mode_choice.item_selected.connect(func(_idx): _on_format_changed())
 	box.add_child(mode_choice)
 
@@ -117,17 +118,17 @@ func _ready():
 
 
 func _on_format_changed():
-	_rebuild_roster_ui(mode_choice.selected == 1)
-	_rebuild_maps(mode_choice.selected == 1)
+	_rebuild_roster_ui(mode_choice.selected)
+	_rebuild_maps(mode_choice.selected)
 
 
-func _rebuild_roster_ui(is_2v2: bool):
+func _rebuild_roster_ui(format_index: int):
 	for child in factions_container.get_children():
 		child.queue_free()
 	_faction_selectors.clear()
 	_ai_toggles.clear()
 
-	if not is_2v2:
+	if format_index == 0:
 		var row = HBoxContainer.new()
 		row.add_theme_constant_override("separation", 12)
 		factions_container.add_child(row)
@@ -135,6 +136,24 @@ func _rebuild_roster_ui(is_2v2: bool):
 		var guest_f = _factions(row, "Guest faction")
 		guest_f.select(1)
 		_faction_selectors = [host_f, guest_f]
+	elif format_index == 2:
+		var row = HBoxContainer.new()
+		row.add_theme_constant_override("separation", 12)
+		factions_container.add_child(row)
+		var host_f = _factions(row, "Host faction")
+		var g1_box = VBoxContainer.new()
+		g1_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(g1_box)
+		var guest1 = _factions(g1_box, "Rival A")
+		guest1.select(1)
+		var g2_box = VBoxContainer.new()
+		g2_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(g2_box)
+		var guest2 = _factions(g2_box, "Rival B")
+		guest2.select(2)
+		var ai2 = _toggle_ai(g2_box, false)
+		_faction_selectors = [host_f, guest1, guest2]
+		_ai_toggles = [null, null, ai2]
 	else:
 		var t1_header = Label.new()
 		t1_header.text = tr("Team 1")
@@ -185,10 +204,10 @@ func _toggle_ai(parent, default_ai: bool):
 	return choice
 
 
-func _rebuild_maps(is_2v2: bool):
+func _rebuild_maps(format_index: int):
 	map_choice.clear()
 	_maps.clear()
-	var target_players = 4 if is_2v2 else 2
+	var target_players = 4 if format_index == 1 else (3 if format_index == 2 else 2)
 	for path in Constants.Match.MAPS:
 		var info = Constants.Match.MAPS[path]
 		if info.players != target_players or "TerrainTestMap" in path:
@@ -237,8 +256,9 @@ func _host():
 	settings.map_path = _maps[map_choice.selected]
 	settings.match_seed = int(Time.get_unix_time_from_system()) % 1000000000
 
-	var is_2v2 = mode_choice.selected == 1
-	var total_slots = 4 if is_2v2 else 2
+	var format_index = mode_choice.selected
+	var is_2v2 = format_index == 1
+	var total_slots = 4 if is_2v2 else (3 if format_index == 2 else 2)
 
 	for index in total_slots:
 		var side = load("res://source/data-model/PlayerSettings.gd").new()
@@ -253,6 +273,14 @@ func _host():
 				side.set_meta("ai_commander", true)
 		else:
 			side.team = index
+			if (
+				format_index == 2
+				and index == 2
+				and _ai_toggles.size() > 2
+				and _ai_toggles[2] != null
+				and _ai_toggles[2].selected == 1
+			):
+				side.set_meta("ai_commander", true)
 		settings.players.append(side)
 
 	session.host(settings, int(listen_port.value))

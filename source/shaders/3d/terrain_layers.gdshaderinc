@@ -23,8 +23,8 @@ uniform float terrain_detail : hint_range(0.0, 1.0) = 1.0;
 // The "Ground detail" graphics setting (project shader global); 0 skips all sampling.
 global uniform float ground_detail;
 // Share of each scan's own hue variation kept on top of its luminance detail.
-uniform float terrain_chroma : hint_range(0.0, 1.0) = 0.45;
-uniform float terrain_bump = 0.8;
+uniform float terrain_chroma : hint_range(0.0, 1.0) = 0.48;
+uniform float terrain_bump = 1.05;
 
 struct TerrainLayer {
 	vec3 detail;
@@ -94,7 +94,7 @@ TerrainLayer terrain_layer(sampler2D color_map, sampler2D normal_map, sampler2D 
 	// Preserve close-up scan detail, but compress its contrast at tactical zoom.
 	// A pixel's ground footprint is stable across camera angle and display scale.
 	float footprint = max(length(dpdx), length(dpdy));
-	float readability = mix(1.0, 0.62, smoothstep(0.025, 0.09, footprint));
+	float readability = mix(1.0, 0.82, smoothstep(0.025, 0.09, footprint));
 	float amount = strength * terrain_detail * ground_detail * readability;
 	TerrainLayer layer;
 	layer.detail = mix(vec3(1.0), detail, amount);
