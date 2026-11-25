@@ -71,7 +71,11 @@ func _ready():
 	title.text = (
 		tr("Free-for-all · %d commanders") % players.size()
 		if players.size() > 2
-		else "%s  vs  %s" % [Factions.NAMES[players[0].faction], Factions.NAMES[players[1].faction]]
+		else (
+			"%s  vs  %s" % [Factions.NAMES[players[0].faction], Factions.NAMES[players[1].faction]]
+			if players.size() == 2
+			else (Factions.NAMES[players[0].faction] if players.size() == 1 else "")
+		)
 	)
 	title.add_theme_font_size_override("font_size", 15)
 	var header = BattleTheme.heading(content, title, 30)

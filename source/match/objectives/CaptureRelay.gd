@@ -56,6 +56,8 @@ func _ready():
 
 
 func _physics_process(delta):
+	if _match == null or not _match.is_node_ready():
+		return
 	var presence = _capture_presence()
 	var infantry = presence.infantry
 	var combatants = presence.combatants
@@ -86,7 +88,7 @@ func _physics_process(delta):
 
 
 func _capture_presence():
-	if _match.battlefield == null:
+	if _match == null or _match.battlefield == null:
 		return {"infantry": [], "combatants": []}
 	var nearby = _match.battlefield.nearby_units(global_position, RADIUS)
 	var infantry = []

@@ -33,7 +33,7 @@ static int fp_add(FpPrimitive **items, int *count, int *capacity, const float *v
 
 static int fp_reveal(const void *reveal, FpPrimitive **items, int *count, int *capacity,
                      int columns, int rows) {
-    Value fields[3], triangles;
+    Value fields[3] = {{0}}, triangles = {0};
     int read = 0, borrowed = 0, success = 0;
     const GDExtensionVariantType types[] = {TYPE(VECTOR2), TYPE(FLOAT), TYPE(PACKED_VECTOR2_ARRAY)};
     for (int i = 0; i < 3; ++i) {

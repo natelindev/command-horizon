@@ -62,7 +62,7 @@ func _hide_all_bars():
 func _setup_all_bars():
 	var bar_nodes = _bars.get_children()
 	var players = get_tree().get_nodes_in_group("players")
-	for i in range(players.size()):
+	for i in range(mini(players.size(), bar_nodes.size())):
 		bar_nodes[i].setup(players[i])
 
 

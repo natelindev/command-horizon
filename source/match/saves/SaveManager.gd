@@ -64,8 +64,9 @@ func close_dialog(loaded = false):
 		_frozen.clear()
 		_frozen_scene = null
 		var game = active_game()
-		if game != null:
-			game.hud._pause_button.grab_focus()
+		if game != null and "hud" in game and is_instance_valid(game.hud):
+			if "_pause_button" in game.hud and is_instance_valid(game.hud._pause_button):
+				game.hud._pause_button.grab_focus()
 	else:
 		_thaw()
 
@@ -118,9 +119,17 @@ func save_slot(id):
 		dialog.set_busy("Saving battle…")
 	await get_tree().process_frame
 	# Settle presentation at this simulation boundary before capturing rendered history.
-	game.fog_of_war._physics_process(0.0)
+	if is_instance_valid(game):
+		game.fog_of_war._physics_process(0.0)
 	if DisplayServer.get_name() != "headless":
 		await RenderingServer.frame_post_draw
+	if not is_instance_valid(game) or game.finished:
+		busy = false
+		if not modal:
+			_thaw()
+		elif is_instance_valid(dialog):
+			await dialog.refresh()
+		return false
 	var snapshotter = Snapshot.new()
 	var data = snapshotter.capture(game)
 	var ok = data != null and slots.write_slot(id, data)
@@ -147,6 +156,8 @@ func load_slot(id):
 	if not is_instance_valid(dialog):
 		busy = false
 		await open_dialog("load", id)
+		if not is_instance_valid(dialog) or busy:
+			return false
 		busy = true
 	dialog.set_busy("Loading battle…")
 	await get_tree().process_frame
@@ -252,7 +263,7 @@ func _notice(message):
 		dialog.show_notice(message)
 	else:
 		var game = active_game()
-		if game != null:
+		if game != null and "hud" in game and is_instance_valid(game.hud):
 			game.hud.show_notice(message)
 
 

@@ -80,6 +80,8 @@ func _move_inward(unit, point: Vector3):
 		return
 	if not unit.is_node_ready():
 		await unit.ready
+	if not is_instance_valid(unit) or unit.is_queued_for_deletion():
+		return
 	unit.action = load("res://source/match/units/actions/Moving.gd").new(point)
 
 

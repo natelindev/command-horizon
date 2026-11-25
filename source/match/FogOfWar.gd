@@ -148,7 +148,7 @@ func _physics_process(_delta):
 		if not _unit_is_mapped(unit):
 			_map_unit_to_new_circles(unit)
 		_sync_circles_to_unit(unit)
-	for mapped_unit in _unit_to_circles_mapping:
+	for mapped_unit in _unit_to_circles_mapping.keys():
 		if not mapped_unit in units_synced:
 			_cleanup_mapping(mapped_unit)
 	_submit_compute()

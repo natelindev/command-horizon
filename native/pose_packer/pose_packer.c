@@ -468,7 +468,7 @@ static void hierarchy_core(const void *poses, const void *parents, const void *a
     float *world = malloc((size_t)count * 12 * sizeof(float));
     if (!world) return;
     for (int64_t i = 0; i < count; ++i) {
-        Value value;
+        Value value = {0};
         GDExtensionBool valid = 0;
         get_named(array_index(poses, i), &local_name, &value, &valid);
         if (!valid || get_type(&value) != TYPE(TRANSFORM3D) || parent[i] < -1 || parent[i] >= i) {
@@ -532,7 +532,7 @@ static void global_pose_core(const void *poses, const void *parents, int64_t ind
         index = parent[index];
     }
     while (depth) {
-        Value value;
+        Value value = {0};
         GDExtensionBool valid = 0;
         get_named(array_index(poses, chain[--depth]), &local_name, &value, &valid);
         if (!valid || get_type(&value) != TYPE(TRANSFORM3D)) { variant_destroy(&value); break; }

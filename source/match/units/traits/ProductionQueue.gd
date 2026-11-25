@@ -335,7 +335,8 @@ func _finalize_production(former_queue_element, launch, placements = []):
 		placements = [launch.global_transform]
 	for index in former_queue_element.batch_count:
 		var produced_unit = former_queue_element.unit_prototype.instantiate()
-		MatchSignals.setup_and_spawn_unit.emit(produced_unit, placements[index], _unit.player)
+		var placement = placements[mini(index, placements.size() - 1)]
+		MatchSignals.setup_and_spawn_unit.emit(produced_unit, placement, _unit.player)
 		if index == 0:
 			launch.handoff(produced_unit)
 		MatchSignals.unit_production_finished.emit(produced_unit, _unit)

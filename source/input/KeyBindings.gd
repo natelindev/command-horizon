@@ -276,14 +276,25 @@ static func pressed(event, action):
 	return _queue_chord_matches(from_event(event), action)
 
 
+static func _action_code(action) -> int:
+	if not InputMap.has_action(action):
+		return -1
+	var events = InputMap.action_get_events(action)
+	if events.is_empty() or not events[0] is InputEventKey:
+		return -1
+	return from_event(events[0])
+
+
 static func _queue_chord_matches(code, action):
 	if not held("shift_selecting"):
 		return false
 	# An explicitly assigned chord always wins over the queue modifier fallback.
 	for other in definitions():
-		if from_event(InputMap.action_get_events(other)[0]) == code:
+		if _action_code(other) == code:
 			return false
-	var queue_code = from_event(InputMap.action_get_events("shift_selecting")[0])
+	var queue_code = _action_code("shift_selecting")
+	if queue_code < 0:
+		return false
 	var mask = queue_code & MODIFIERS
 	for pair in [
 		[KEY_SHIFT, KEY_MASK_SHIFT],
@@ -293,13 +304,17 @@ static func _queue_chord_matches(code, action):
 	]:
 		if queue_code == pair[0]:
 			mask = pair[1]
-	var wanted = from_event(InputMap.action_get_events(action)[0])
+	var wanted = _action_code(action)
+	if wanted < 0:
+		return false
 	# Keep modifiers required by the command itself.
 	return mask != 0 and (code & ~(mask & ~wanted)) == wanted
 
 
 static func held(action):
-	var code = from_event(InputMap.action_get_events(action)[0])
+	var code = _action_code(action)
+	if code < 0:
+		return false
 	var key = code & ~MODIFIERS
 	if not Input.is_physical_key_pressed(key):
 		return false

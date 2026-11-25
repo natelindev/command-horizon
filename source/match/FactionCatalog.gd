@@ -576,6 +576,11 @@ static func model_geometry(faction, role, radius):
 	if role == "AircraftFactory":
 		return load(RUNWAY_AIRFIELD).create(faction)
 	var models = Frontier.MODELS if faction == "frontier" else HELIX_MODELS
+	if faction == "bastion":
+		if not BASTION_MODELS.has(role):
+			return null
+	elif not models.has(role):
+		return null
 	var path = (
 		"res://assets/models/bastion/%s.glb" % BASTION_MODELS[role]
 		if faction == "bastion"

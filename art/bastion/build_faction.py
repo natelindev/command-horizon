@@ -520,6 +520,7 @@ def flak_halftrack():
     for side in (-1,1):
         cyl("FrontWheel",(side*1.24,1.65,.5),.48,.32,RUBBER,axis="X")
     box("ArmoredCab",(0,1.2,1.45),(2.1,1.3,.85),PANEL)
+    box("CabStripe",(0,1.2,1.89),(1.3,.55,.04),TEAM)
     lens(0,1.87,1.63,1.33)
     turret=pivot("TurretPivot",(0,-.75,1.51))
     box("FlakShield",(0,-.2,1.95),(1.92,.16,1.05),ARMOR,turret)

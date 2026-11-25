@@ -101,11 +101,7 @@ func _test_roster(faction, opponent):
 	enemy.process_mode = Node.PROCESS_MODE_DISABLED
 	_check(enemy.faction == opponent, "Opponent faction")
 	var tank = _unit(human, "Tank")
-	var base_hp = constants.Match.Units.DEFAULT_PROPERTIES[Catalog.scene_path("Tank")].hp_max
-	_check(
-		tank.hp_max == roundi(base_hp * {"bastion": 1.0, "helix": 0.8, "frontier": 0.85}[faction]),
-		"Faction HP distinction"
-	)
+	_check(tank.hp_max == roundi(factions.base_health(faction, "Tank")), "Faction HP distinction")
 	if faction in ["helix", "frontier"]:
 		_check(tank.get_meta("model_faction", "") == faction, "Faction tank model")
 	_check(game.find_child("Minimap").can_process(), "Minimap active")
@@ -121,10 +117,11 @@ func _test_roster(faction, opponent):
 	game.hud._toggle_pause()
 	human.resource_a = 10000
 	human.resource_b = 10000
-	var air = load(Catalog.scene_path("AircraftFactory")).instantiate()
-	game._setup_and_spawn_unit(air, Transform3D(Basis(), Vector3(32, 0, 12)), human, false)
+	if factions.roster(faction).allows("AircraftFactory", true):
+		var air = load(factions.scene_path(faction, "AircraftFactory")).instantiate()
+		game._setup_and_spawn_unit(air, Transform3D(Basis(), Vector3(32, 0, 12)), human, false)
 	# HQs supply 8 power and generators 12: the airfield needs a second generator.
-	var generator = load(Catalog.scene_path("PowerPlant")).instantiate()
+	var generator = load(factions.scene_path(faction, "PowerPlant")).instantiate()
 	game._setup_and_spawn_unit(generator, Transform3D(Basis(), Vector3(26, 0, 12)), human, false)
 	await _frames(2)
 	_check(human.start_coordination(_unit(human, "CommandLab")), "Could not start Coordination")
@@ -132,11 +129,14 @@ func _test_roster(faction, opponent):
 	_check(human.coordination_unlocked, "Coordination did not unlock")
 	var parked = 0
 	for producer_type in Catalog.PRODUCES:
+		if not factions.roster(faction).allows(producer_type, true):
+			continue
 		var producer = _unit(human, producer_type)
-		for role in Catalog.PRODUCES[producer_type]:
+		for role in factions.production_options(faction, producer_type):
 			var funds = Vector2i(human.resource_a, human.resource_b)
-			var price = factions.cost(human, role)
-			var job = producer.production_queue.produce(load(Catalog.scene_path(role)))
+			var price = factions.production_cost(human, role)
+			var scene = load(factions.scene_path(faction, role))
+			var job = producer.production_queue.produce(scene)
 			_check(job != null, "Could not queue " + faction + " " + role)
 			_check(
 				(
@@ -151,17 +151,18 @@ func _test_roster(faction, opponent):
 				"Cancellation refund mismatch"
 			)
 			var existing = human.get_children()
-			producer.production_queue.produce(load(Catalog.scene_path(role)))
+			producer.production_queue.produce(scene)
 			producer.production_queue._process(1000)
-			_check(_unit(human, role) != null, "Production failed " + role)
+			var spawned = _unit(human, role)
+			_check(spawned != null, "Production failed " + role)
 			# No frames pass here, so move each new unit off the exit for the next job.
 			for unit in human.get_children():
 				if not unit in existing and "type" in unit:
 					unit.global_position = Vector3(8 + parked * 2.5, unit.global_position.y, 34)
 					parked += 1
-			if faction in ["helix", "frontier"]:
+			if spawned != null and faction in ["helix", "frontier"]:
 				_check(
-					_unit(human, role).get_meta("model_faction", "") == faction,
+					spawned.get_meta("model_faction", "") == faction,
 					"Wrong faction produced " + role
 				)
 	for unit in human.get_children():
@@ -180,7 +181,9 @@ func _test_roster(faction, opponent):
 		_check(team_surfaces > 0, "Team color missing: " + faction + " " + unit.type)
 	var placement = human.get_node("StructurePlacementHandler")
 	for role in Catalog.STRUCTURES:
-		placement._start_structure_placement(load(Catalog.scene_path(role)))
+		if not factions.roster(faction).allows(role, true):
+			continue
+		placement._start_structure_placement(load(factions.scene_path(faction, role)))
 		_check(placement._active_blueprint_node != null, "Missing construction preview")
 		placement._cancel_structure_placement()
 	var building = load(Catalog.scene_path("AntiAirTurret")).instantiate()
@@ -188,11 +191,11 @@ func _test_roster(faction, opponent):
 	_check(building.is_under_construction(), "Building starts completed")
 	building.construct(1.0)
 	_check(building.is_constructed(), "Construction did not finish")
-	var walker = _unit(human, "CombatRobot")
+	var mobile_aa = _unit(human, "AntiAirVehicle" if faction == "frontier" else "CombatRobot")
 	if faction == "helix":
-		_check(walker.request_weapon_mode("interception"), "Missing mobile AA stance")
+		_check(mobile_aa.request_weapon_mode("interception"), "Missing mobile AA stance")
 		await _frames(125)
-	_check(walker.attack_domains.has(constants.Match.Navigation.Domain.AIR), "Missing mobile AA")
+	_check(mobile_aa.attack_domains.has(constants.Match.Navigation.Domain.AIR), "Missing mobile AA")
 	# Frontier's heavy tank needs a field workshop; the others need the lab.
 	var gate = _unit(human, factions.requirement(human, "AdvancedTank"))
 	gate._construction_progress = 0.0

@@ -237,6 +237,8 @@ func _update_proximity():
 	if game == null:
 		return
 	var human = game._get_human_player()
+	if not is_instance_valid(human):
+		return
 	for unit in human.live_units():
 		var movement = unit.get_node_or_null("Movement")
 		if movement == null or movement.velocity.length_squared() < .04:

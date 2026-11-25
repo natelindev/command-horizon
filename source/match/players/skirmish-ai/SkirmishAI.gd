@@ -48,12 +48,14 @@ var _hopeless_seconds = 0.0
 # Authored expansion site chosen for the next headquarters, if any.
 var _expansion_site = null
 var _strategy_outpost = {}
+var _profile_key = []
+var _cached_profile = {}
 @onready var _match = find_parent("Match")
 
 
 func _process(delta):
 	_elapsed += delta
-	if _elapsed < profile().decision_interval or not _match.is_node_ready():
+	if _match == null or not _match.is_node_ready() or _elapsed < profile().decision_interval:
 		return
 	var step = _elapsed
 	_elapsed = 0.0
@@ -78,7 +80,13 @@ func _process(delta):
 
 
 func profile():
-	return STRATEGIES.get(faction, STRATEGIES.bastion).profile(Difficulty.of(difficulty))
+	var key = [faction, difficulty]
+	if _profile_key != key:
+		_profile_key = key
+		_cached_profile = STRATEGIES.get(faction, STRATEGIES.bastion).profile(
+			Difficulty.of(difficulty)
+		)
+	return _cached_profile
 
 
 func _units():

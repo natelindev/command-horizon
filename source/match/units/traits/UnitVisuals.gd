@@ -150,7 +150,11 @@ func _ready():
 	# Compose the interpolated root with the local pose explicitly in _process.
 	_geometry.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	if not _unit.has_meta("visual_seed"):
-		_unit.set_meta("visual_seed", _unit.find_parent("Match").allocate_visual_seed())
+		var parent_match = _unit.find_parent("Match")
+		_unit.set_meta(
+			"visual_seed",
+			parent_match.allocate_visual_seed() if parent_match != null else _unit.get_instance_id()
+		)
 	motion = MotionProfile.new(_unit.get_meta("visual_seed"))
 	_pose_remaining = fposmod(motion.phase, 1.0) / 15.0
 	_clock = motion.phase
@@ -618,6 +622,8 @@ func _advance_pose(delta: float):
 
 
 func _prepare_pose(delta: float):
+	if motion == null:
+		return
 	var root: Transform3D = (
 		_unit.get_global_transform_interpolated()
 		if not gpu_interpolated and get_tree().physics_interpolation and _unit.can_process()

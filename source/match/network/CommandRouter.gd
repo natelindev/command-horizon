@@ -243,19 +243,31 @@ func _build(player, point, intent) -> bool:
 		return false
 	var prototype = load(_factions.scene_path(player.faction, intent.role)).instantiate()
 	var radius = prototype.radius
+	var site = Transform3D(Basis(Vector3.UP, deg_to_rad(intent.get("angle", 0) / 1000.0)), point)
 	var placement = load("res://source/match/utils/UnitPlacementUtils.gd")
+	var footprint = load("res://source/match/utils/Footprint.gd")
 	var existing = (
 		session.game.get_cached_group("units") + session.game.get_cached_group("resource_units")
 	)
-	var valid = placement.validate_agent_placement_position(
-		point,
-		radius,
-		existing,
-		session.game.navigation.get_navigation_map_rid_by_domain(
-			Constants.Match.Navigation.Domain.TERRAIN
-		),
-		session.game.map
+	var nav_rid = session.game.navigation.get_navigation_map_rid_by_domain(
+		Constants.Match.Navigation.Domain.TERRAIN
 	)
+	var valid = placement.VALID
+	if session.game.field_position_reserved(point, radius):
+		valid = placement.COLLIDES_WITH_AGENT
+	elif footprint.has_outline(prototype):
+		var polygon = footprint.outline_at(footprint.local_outline(prototype), site)
+		var map_polygon = session.game.map.get_topdown_polygon_2d()
+		if not Array(polygon).all(func(p): return Geometry2D.is_point_in_polygon(p, map_polygon)):
+			valid = placement.NOT_NAVIGABLE
+		else:
+			valid = placement.validate_footprint_placement(
+				polygon, existing, nav_rid, session.game.map
+			)
+	else:
+		valid = placement.validate_agent_placement_position(
+			point, radius, existing, nav_rid, session.game.map
+		)
 	if valid != placement.VALID:
 		prototype.free()
 		return _fail("Building foundation is blocked or cannot be reached.")
@@ -264,11 +276,7 @@ func _build(player, point, intent) -> bool:
 		prototype.free()
 		return false
 	player.subtract_resources(price)
-	session.game._setup_and_spawn_unit(
-		prototype,
-		Transform3D(Basis(Vector3.UP, deg_to_rad(intent.get("angle", 0) / 1000.0)), point),
-		player
-	)
+	session.game._setup_and_spawn_unit(prototype, site, player)
 	workers.sort_custom(
 		func(a, b):
 			return (

@@ -74,7 +74,8 @@ class NetworkRunnerTests(unittest.TestCase):
             engine = directory / "silent-engine"
             engine.write_text(
                 f"#!{sys.executable} -S\nimport os, time\n"
-                f"open({str(marker)!r}, 'w').write(str(os.getpid()))\n"
+                f"with open({str(marker)!r}, 'w', encoding='utf-8') as f:\n"
+                "    f.write(str(os.getpid()))\n"
                 "time.sleep(60)\n", encoding="utf-8")
             engine.chmod(0o700)
             output = io.StringIO()
@@ -82,7 +83,7 @@ class NetworkRunnerTests(unittest.TestCase):
             with redirect_stdout(output):
                 result = RUNNER.main([
                     "--engine", str(engine), "--case", "outcome",
-                    "--startup-timeout", "1", "--output", str(directory / "logs")])
+                    "--startup-timeout", "2", "--output", str(directory / "logs")])
             self.assertEqual(result, 1)
             self.assertLess(time.monotonic() - started, 8)
             self.assertIn("readiness deadline", output.getvalue())

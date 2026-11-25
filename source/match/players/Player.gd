@@ -422,18 +422,21 @@ func _advance_economy(delta):
 	logistics_left -= delta
 	while logistics_left <= 0.0:
 		logistics_left += 5.0
-		var generators = get_children().filter(
-			func(unit):
-				return (
-					"type" in unit
-					and unit.type == "PowerPlant"
-					and unit.is_constructed()
-					and unit.hp > 0
-					and not unit.is_queued_for_deletion()
-				)
+		var candidates: Array = (
+			structure_candidates("PowerPlant") if indexed_rosters else get_children()
 		)
-		if not generators.is_empty():
-			add_logistics(generators.size())
+		var generator_count = 0
+		for unit in candidates:
+			if (
+				"type" in unit
+				and unit.type == "PowerPlant"
+				and unit.is_constructed()
+				and unit.hp > 0
+				and not unit.is_queued_for_deletion()
+			):
+				generator_count += 1
+		if generator_count > 0:
+			add_logistics(generator_count)
 
 
 func start_coordination(lab):
@@ -457,13 +460,14 @@ func cancel_coordination():
 	if load("res://source/match/network/NetworkGate.gd").intercept(
 		self, {"kind": "cancel_research", "index": -1}
 	):
-		return
+		return true
 	if coordination_left <= 0.0 or coordination_unlocked:
 		return false
 	coordination_left = -1.0
 	if technology != null:
 		technology.coordination_cancelled()
 	add_resources(COORDINATION_COST)
+	emit_changed()
 	return true
 
 

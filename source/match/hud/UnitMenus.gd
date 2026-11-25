@@ -1298,8 +1298,13 @@ func handle_menu_input(event):
 	# remapped battle, camera or control-group key for a fixed building shortcut.
 	var defaults = Bindings.definitions()
 	for action in defaults:
-		var binding = InputMap.action_get_events(action)[0]
-		if Bindings.from_event(binding) != defaults[action][2] and Bindings.pressed(event, action):
+		var events = InputMap.action_get_events(action) if InputMap.has_action(action) else []
+		if events.is_empty() or not events[0] is InputEventKey:
+			continue
+		if (
+			Bindings.from_event(events[0]) != defaults[action][2]
+			and Bindings.pressed(event, action)
+		):
 			return false
 	if is_instance_valid(hud.direct_orders) and not hud.direct_orders.kind.is_empty():
 		return false
@@ -1410,6 +1415,9 @@ func open_camp(site):
 
 
 func _build_camp():
+	if not is_instance_valid(_camp) or _camp.player == null:
+		_camp = null
+		return
 	visible = true
 	modulate.a = 1.0
 	_camp_buttons.clear()

@@ -65,9 +65,9 @@ static void pb_append(void *array, int64_t n) {
 }
 static void pb_resize(void *bytes, int capacity) {
     get_ctor(TYPE(PACKED_BYTE_ARRAY), 0)(bytes, 0);
-    int64_t length = (int64_t)capacity * 64, result;
+    int64_t length = (int64_t)capacity * 64, result = 0;
     bytes_resize(bytes, (const void *[]){&length}, &result, 1);
-    if (length)
+    if (result == 0 && length)
         memset(bytes_index(bytes, 0), 0, (size_t)length);
 }
 static void pb_identity_row(float *pixels) { pixels[0] = pixels[5] = pixels[10] = 1; }

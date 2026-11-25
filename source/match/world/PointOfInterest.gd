@@ -342,7 +342,8 @@ func _update_presentation():
 
 func _physics_process(delta):
 	if (
-		not _match.is_node_ready()
+		_match == null
+		or not _match.is_node_ready()
 		or _match.restoring
 		or ("finished" in _match and _match.finished)
 		or get_tree().paused

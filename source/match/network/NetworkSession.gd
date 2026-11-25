@@ -246,7 +246,7 @@ func _process(delta):
 			changed.emit()
 			_retry_left = 2.0
 			peer.close()
-			join(address, port, spectator)
+			join(address, port, spectator, _room_ticket)
 	if (
 		not authority
 		and reconnect_token.is_empty()

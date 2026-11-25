@@ -111,12 +111,14 @@ func _check_outcome(delta):
 	var objective = current_objective()
 	var human = _get_human_player()
 	var complete = false
-	var relay = map.relays[stage]
+	var relay = (
+		map.relays[mini(stage, map.relays.size() - 1)] if not map.relays.is_empty() else null
+	)
 	match objective.kind:
 		"capture":
-			complete = relay.captured_by == human and not relay.contested
+			complete = relay != null and relay.captured_by == human and not relay.contested
 		"hold":
-			if relay.captured_by == human and not relay.contested:
+			if relay != null and relay.captured_by == human and not relay.contested:
 				elapsed = minf(objective.seconds, elapsed + delta)
 			complete = elapsed >= objective.seconds
 		"destroy":

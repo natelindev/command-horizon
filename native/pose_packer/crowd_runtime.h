@@ -133,7 +133,7 @@ static int cr_zero(IpV a) {
 }
 static int cr_teq(IpT a, IpT b) {
     const float *x = (const float *)&a, *y = (const float *)&b;
-    for (int i = 0; i < 13; i++)
+    for (int i = 0; i < 12; i++)
         if (!cr_eq(x[i], y[i]))
             return 0;
     return 1;

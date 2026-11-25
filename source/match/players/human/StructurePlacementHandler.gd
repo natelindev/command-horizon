@@ -244,13 +244,15 @@ func _start_structure_placement(structure_prototype):
 		. instantiate()
 	)
 	if _player.faction in ["helix", "frontier"]:
-		_active_blueprint_node.free()
 		var reference = structure_prototype.instantiate()
-		_active_blueprint_node = Node3D.new()
-		_active_blueprint_node.add_child(
-			Factions.model_geometry(_player.faction, reference.type, reference.radius)
+		var faction_model = Factions.model_geometry(
+			_player.faction, reference.type, reference.radius
 		)
 		reference.free()
+		if faction_model != null:
+			_active_blueprint_node.free()
+			_active_blueprint_node = Node3D.new()
+			_active_blueprint_node.add_child(faction_model)
 	var blueprint_origin = Vector3(-999, 0, -999)
 	var camera_direction_yless = (
 		(get_viewport().get_camera_3d().project_ray_normal(Vector2(0, 0)) * Vector3(1, 0, 1))
