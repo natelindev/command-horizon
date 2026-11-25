@@ -2,6 +2,7 @@ extends Control
 
 signal start_selected(start_index)
 
+const ArtTheme = preload("res://source/main-menu/ArtTheme.gd")
 const MAP_FONT = preload("res://assets/fonts/NotoSansSC.ttf")
 const PreviewData = preload("res://source/main-menu/MapPreviewData.gd")
 const Registry = preload("res://source/match/maps/terrain/BattlefieldRegistry.gd")
@@ -258,8 +259,13 @@ func _generate_authored(path):
 func _make_terrain():
 	var noise = FastNoiseLite.new()
 	noise.seed = 481
-	noise.frequency = .025
-	var image = Image.create(384, 384, false, Image.FORMAT_RGB8)
+	noise.frequency = .02
+	noise.fractal_octaves = 3
+	var grain = FastNoiseLite.new()
+	grain.seed = 919
+	grain.frequency = .09
+	var tex_size = 512
+	var image = Image.create(tex_size, tex_size, false, Image.FORMAT_RGB8)
 	var low = terrain_low
 	var high = terrain_high
 	if _biome == "alpine":
@@ -268,19 +274,31 @@ func _make_terrain():
 	elif _biome == "urban":
 		low = Color("354648")
 		high = Color("607271")
-	for y in 384:
-		for x in 384:
-			var value = noise.get_noise_2d(x, y) * .5 + .5
-			var contour = .035 if fposmod(value, .105) < .008 else 0.0
-			var color = low.lerp(high, value + contour)
-			var point = Vector2(x, y) / 383.0 * map_size
+	var light = Vector2(-0.6, -0.8)
+	for y in tex_size:
+		for x in tex_size:
+			var value = noise.get_noise_2d(x * 0.75, y * 0.75) * .5 + .5
+			var gx = (
+				(noise.get_noise_2d((x + 2.0) * 0.75, y * 0.75) - noise.get_noise_2d((x - 2.0) * 0.75, y * 0.75))
+				* 3.2
+			)
+			var gy = (
+				(noise.get_noise_2d(x * 0.75, (y + 2.0) * 0.75) - noise.get_noise_2d(x * 0.75, (y - 2.0) * 0.75))
+				* 3.2
+			)
+			var fine = grain.get_noise_2d(x * 0.75, y * 0.75) * 0.03
+			var contour = -0.025 if fposmod(value, .12) < .008 else 0.0
+			var color = low.lerp(high, clampf(value + fine, 0.0, 1.0))
+			var shade = clampf(Vector2(gx, gy).dot(light) * 0.25 + contour, -0.14, 0.14)
+			color = color.lightened(shade) if shade > 0.0 else color.darkened(-shade)
+			var point = Vector2(x, y) / float(tex_size - 1) * map_size
 			var distance = INF
 			for road in roads:
 				var closest = Geometry2D.get_closest_point_to_segment(
 					point, Vector2(road.x, road.y), Vector2(road.z, road.w)
 				)
 				distance = minf(distance, point.distance_to(closest))
-			var edge = distance + noise.get_noise_2d(x * 4.0, y * 4.0) * .45
+			var edge = distance + noise.get_noise_2d(x * 3.0, y * 3.0) * .45
 			var track = 1.0 - smoothstep(road_width * .36, road_width * .62, edge)
 			color = color.lerp(high.lerp(low, .12 + value * .16), track * .85)
 			image.set_pixel(x, y, color)
@@ -292,9 +310,16 @@ func _draw():
 	var scale_factor = minf(available.x / map_size.x, available.y / map_size.y)
 	var extent = map_size * scale_factor
 	var origin = (size - extent) / 2
+	var accent = ArtTheme.accent()
+	var display_font = ArtTheme.display_font()
+	var num_font = ArtTheme.numeral_font()
+
 	draw_style_box(_background(), Rect2(Vector2.ZERO, size))
 	if _terrain == null:
 		return
+
+	# Subtle tactical map drop shadow + crisp framed terrain canvas.
+	draw_rect(Rect2(origin + Vector2(3, 4), extent), Color(0, 0, 0, 0.45))
 	draw_texture_rect(_terrain, Rect2(origin, extent), false)
 	if not land.is_empty():
 		draw_rect(Rect2(origin, extent), Color("233e4b"))
@@ -306,22 +331,18 @@ func _draw():
 			uv.append(point / map_size)
 		draw_polygon(polygon, PackedColorArray([Color.WHITE]), uv, _terrain)
 		draw_polyline(polygon + PackedVector2Array([polygon[0]]), Color("9caaa57a"), 2, true)
+
+	# Cartographic grid overlay + perimeter tick marks.
 	for index in range(1, 8):
 		var offset = extent * index / 8.0
-		draw_line(
-			origin + Vector2(offset.x, 0),
-			origin + Vector2(offset.x, extent.y),
-			Color("ffffff09"),
-			1,
-			true
-		)
-		draw_line(
-			origin + Vector2(0, offset.y),
-			origin + Vector2(extent.x, offset.y),
-			Color("ffffff09"),
-			1,
-			true
-		)
+		var line_col = Color(1, 1, 1, 0.055 if index % 2 == 0 else 0.028)
+		draw_line(origin + Vector2(offset.x, 0), origin + Vector2(offset.x, extent.y), line_col, 1, true)
+		draw_line(origin + Vector2(0, offset.y), origin + Vector2(extent.x, offset.y), line_col, 1, true)
+		draw_line(origin + Vector2(offset.x, -3), origin + Vector2(offset.x, 0), Color(accent, 0.45), 1, true)
+		draw_line(origin + Vector2(-3, offset.y), origin + Vector2(0, offset.y), Color(accent, 0.45), 1, true)
+
+	draw_rect(Rect2(origin, extent), Color(accent, 0.35), false, 1.2)
+
 	for pool in water:
 		draw_circle(
 			origin + pool * scale_factor, water_radius * scale_factor, water_color, true, -1, true
@@ -353,7 +374,8 @@ func _draw():
 			draw_polyline(contour + PackedVector2Array([contour[0]]), Color("d8d4b32a"), 1, true)
 	for relay in relays:
 		var point = origin + relay * scale_factor
-		draw_circle(point, 10, Color("111e29cc"), true, -1, true)
+		draw_circle(point, 9, Color("0b141bd8"), true, -1, true)
+		draw_arc(point, 9, 0, TAU, 20, Color("7cc6d488"), 1.2, true)
 		draw_colored_polygon(
 			PackedVector2Array(
 				[
@@ -363,11 +385,13 @@ func _draw():
 					point + Vector2(-5, 0)
 				]
 			),
-			Color("e4e6dc")
+			Color("e8efe6")
 		)
 	for site in points_of_interest:
 		var point = origin + site.position * scale_factor
-		draw_circle(point, 8, Color("111e29cc"), true, -1, true)
+		draw_circle(point + Vector2(0, 1), 9, Color(0, 0, 0, 0.5), true, -1, true)
+		draw_circle(point, 8.5, Color("0d161ee6"), true, -1, true)
+		draw_arc(point, 8.5, 0, TAU, 20, Color(accent, 0.72), 1.2, true)
 		var symbol = (
 			{
 				"refinery": tr("R", "map_refinery"),
@@ -377,20 +401,22 @@ func _draw():
 			}
 			. get(site.kind, "·")
 		)
+		var glyph_size = display_font.get_string_size(symbol, HORIZONTAL_ALIGNMENT_LEFT, -1, 12)
 		draw_string(
-			MAP_FONT,
-			point + Vector2(-4, 4),
+			display_font,
+			point + Vector2(-glyph_size.x * 0.5, 4.5),
 			symbol,
 			HORIZONTAL_ALIGNMENT_LEFT,
 			-1,
 			12,
-			Color("e4e6dc")
+			Color("f1eee4")
 		)
 	for deposit in deposits:
 		var point = origin + deposit * scale_factor
-		draw_circle(point, 8, Color("16262aaa"), true, -1, true)
-		for offset in [Vector2(-3, 1), Vector2(2, -3), Vector2(4, 3)]:
-			draw_circle(point + offset, 2.5, Color("bed1a2"), true, -1, true)
+		draw_circle(point, 7.5, Color("0c1518c8"), true, -1, true)
+		draw_arc(point, 7.5, 0, TAU, 16, Color("9fc88a88"), 1.0, true)
+		for offset in [Vector2(-2.6, 1.2), Vector2(1.8, -2.5), Vector2(3.2, 2.5)]:
+			draw_circle(point + offset, 2.2, Color("cbe39e"), true, -1, true)
 	for index in starts.size():
 		var point = origin + Vector2(starts[index].x, starts[index].z) * scale_factor
 		var color = [Color("e2c180"), Color("dd8d81"), Color("88bad4"), Color("b5a1d4")][index % 4]
@@ -401,62 +427,75 @@ func _draw():
 				caption = assignment.get("name", "")
 				break
 		var is_hovered = index == _hovered_start
-		var halo_radius = 27.0 if is_hovered else 24.0
-		var halo_alpha = 0.28 if is_hovered else 0.12
+		var halo_radius = 27.0 if is_hovered else 22.0
+		var halo_alpha = 0.30 if is_hovered else 0.14
 		draw_circle(point, halo_radius, Color(color, halo_alpha), true, -1, true)
-		draw_circle(point + Vector2(0, 2), 15, Color("0d191ecc"), true, -1, true)
-		draw_circle(point, 13, color, true, -1, true)
+		if is_hovered:
+			draw_arc(point, 20.0, 0, TAU, 32, Color(color, 0.85), 1.5, true)
+		draw_circle(point + Vector2(0, 2), 15.0, Color(0, 0, 0, 0.65), true, -1, true)
+		draw_circle(point, 13.5, color, true, -1, true)
+		draw_arc(point, 13.5, 0, TAU, 28, Color("fff8e8bb"), 1.4, true)
+		var num_text = str(index + 1)
+		var num_w = num_font.get_string_size(num_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 15).x
 		draw_string(
-			MAP_FONT,
-			point + Vector2(-4, 5),
-			str(index + 1),
+			num_font,
+			point + Vector2(-num_w * 0.5, 5.5),
+			num_text,
 			HORIZONTAL_ALIGNMENT_LEFT,
 			-1,
-			14,
+			15,
 			Color("101b25")
 		)
-		var caption_width = MAP_FONT.get_string_size(caption, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
+		var caption_width = display_font.get_string_size(caption, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
 		if not caption.is_empty():
-			draw_rect(
-				Rect2(point + Vector2(-caption_width / 2 - 4, 18), Vector2(caption_width + 8, 19)),
-				Color("081016dd")
-			)
+			var pill = Rect2(point + Vector2(-caption_width / 2 - 7, 17), Vector2(caption_width + 14, 20))
+			draw_rect(pill, Color("091118ea"))
+			draw_rect(pill, Color(color, 0.55), false, 1.0)
+			draw_rect(Rect2(pill.position, Vector2(3, pill.size.y)), color)
 		draw_string(
-			MAP_FONT,
-			point + Vector2(-caption_width / 2, 32),
+			display_font,
+			point + Vector2(-caption_width / 2, 31.5),
 			caption,
 			HORIZONTAL_ALIGNMENT_LEFT,
 			-1,
-			12,
+			13,
 			Color("f1eee4")
 		)
 	draw_string(
-		MAP_FONT,
-		origin + Vector2(0, -9),
+		display_font,
+		origin + Vector2(0, -8),
 		tr("N ↑"),
 		HORIZONTAL_ALIGNMENT_LEFT,
 		-1,
-		11,
-		Color("a7b6bc")
+		12,
+		Color("b0b9ba")
 	)
 	if has_focus():
 		draw_style_box(get_theme_stylebox("focus", "Button"), Rect2(Vector2.ZERO, size))
 	var ruler = origin + Vector2(extent.x - 20 * scale_factor, extent.y + 12)
-	draw_line(ruler, ruler + Vector2(20 * scale_factor, 0), Color("a7b6bc"), 2, true)
+	draw_line(ruler, ruler + Vector2(20 * scale_factor, 0), Color("b0b9ba"), 2, true)
+	draw_line(ruler + Vector2(0, -3), ruler + Vector2(0, 3), Color("b0b9ba"), 1.5, true)
+	draw_line(
+		ruler + Vector2(20 * scale_factor, -3),
+		ruler + Vector2(20 * scale_factor, 3),
+		Color("b0b9ba"),
+		1.5,
+		true
+	)
 	draw_string(
-		MAP_FONT,
+		num_font,
 		ruler - Vector2(36, -4),
 		tr("%d m") % 20,
 		HORIZONTAL_ALIGNMENT_LEFT,
 		-1,
-		10,
-		Color("a7b6bc")
+		11,
+		Color("b0b9ba")
 	)
 
 
 func _background():
 	var box = StyleBoxFlat.new()
-	box.bg_color = Color("081016")
+	box.bg_color = Color("070e13")
 	box.set_corner_radius_all(0)
 	box.set_border_width_all(1)
 	box.border_color = Color("1e2f3bc0")

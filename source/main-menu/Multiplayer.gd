@@ -1,6 +1,8 @@
 extends Control
 
 const ArtTheme = preload("res://source/main-menu/ArtTheme.gd")
+const MenuChrome = preload("res://source/main-menu/MenuChrome.gd")
+const Factions = preload("res://source/match/FactionCatalog.gd")
 const Session = preload("res://source/match/network/NetworkSession.gd")
 
 var session
@@ -17,6 +19,9 @@ var room_browser
 var _faction_selectors = []
 var _ai_toggles = []
 var _maps = []
+var _preview = null
+var _map_meta: Label = null
+var _workspace: HBoxContainer = null
 
 
 func _ready():
@@ -28,43 +33,34 @@ func _ready():
 	session = null
 
 	var backdrop = load("res://source/main-menu/ArtBackdrop.gd").new()
-	backdrop.dim = .65
+	backdrop.dim = .56
+	backdrop.left_focus = 0.35
+	backdrop.set_accent(ArtTheme.accent())
 	add_child(backdrop)
 
-	var center = CenterContainer.new()
-	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(center)
+	var margin = MarginContainer.new()
+	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	for edge in ["left", "right"]:
+		margin.add_theme_constant_override("margin_" + edge, 24)
+	for edge in ["top", "bottom"]:
+		margin.add_theme_constant_override("margin_" + edge, 16)
+	add_child(margin)
 
-	var panel = PanelContainer.new()
-	panel.theme_type_variation = "HudHousing"
-	panel.custom_minimum_size.x = 720
-	center.add_child(panel)
+	var page = VBoxContainer.new()
+	page.add_theme_constant_override("separation", 12)
+	margin.add_child(page)
 
-	var box = VBoxContainer.new()
-	direct_menu = box
-	box.add_theme_constant_override("separation", 14)
-	panel.add_child(box)
-
-	var title = Label.new()
-	title.text = tr("MULTIPLAYER")
-	title.add_theme_font_size_override("font_size", 30)
-	box.add_child(title)
-
-	var subtitle = Label.new()
-	subtitle.text = tr("Two to four commanders · LAN, localhost or dedicated server")
-	box.add_child(subtitle)
-
-	var row = HBoxContainer.new()
-	row.add_theme_constant_override("separation", 12)
-	box.add_child(row)
+	# Compact connection bar embedded in the top command header.
+	var net_bar = HBoxContainer.new()
+	net_bar.add_theme_constant_override("separation", 8)
 
 	host_address = LineEdit.new()
 	host_address.name = "HostAddress"
 	host_address.text = "127.0.0.1"
 	host_address.placeholder_text = tr("Host IP address")
 	host_address.accessibility_name = tr("Host IP address")
-	host_address.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_child(host_address)
+	host_address.custom_minimum_size = Vector2(180, 34)
+	net_bar.add_child(host_address)
 
 	listen_port = SpinBox.new()
 	listen_port.name = "Port"
@@ -72,49 +68,139 @@ func _ready():
 	listen_port.max_value = 65535
 	listen_port.value = Session.PORT
 	listen_port.accessibility_name = tr("Port")
-	row.add_child(listen_port)
+	listen_port.custom_minimum_size = Vector2(96, 34)
+	net_bar.add_child(listen_port)
+
+	var rooms_btn = _button(net_bar, "Server rooms", _browse_rooms)
+	rooms_btn.size_flags_horizontal = Control.SIZE_SHRINK_END
+	rooms_btn.custom_minimum_size = Vector2(140, 34)
+
+	MenuChrome.screen_header(
+		page,
+		tr("MULTIPLAYER"),
+		tr("Two to four commanders · LAN, localhost or dedicated server"),
+		net_bar
+	)
+
+	var host_shell = Control.new()
+	host_shell.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	host_shell.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	page.add_child(host_shell)
+
+	direct_menu = VBoxContainer.new()
+	direct_menu.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	direct_menu.add_theme_constant_override("separation", 12)
+	host_shell.add_child(direct_menu)
+
+	_workspace = HBoxContainer.new()
+	_workspace.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_workspace.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_workspace.add_theme_constant_override("separation", 16)
+	direct_menu.add_child(_workspace)
+
+	# Left column: format, faction roster, connection actions & live telemetry.
+	var roster_panel = PanelContainer.new()
+	roster_panel.theme_type_variation = "HudHousing"
+	roster_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	roster_panel.size_flags_stretch_ratio = 1.2
+	_workspace.add_child(roster_panel)
+
+	var left_col = VBoxContainer.new()
+	left_col.add_theme_constant_override("separation", 10)
+	roster_panel.add_child(left_col)
+
+	MenuChrome.nameplate_heading(left_col, tr("Battle"))
 
 	mode_choice = OptionButton.new()
 	mode_choice.name = "BattleFormat"
-	mode_choice.custom_minimum_size.y = 36
+	mode_choice.custom_minimum_size.y = 34
 	mode_choice.add_item(tr("1v1 Duel"))
 	mode_choice.add_item(tr("2v2 Teams"))
 	mode_choice.add_item(tr("1v1v1 Trio"))
 	mode_choice.item_selected.connect(func(_idx): _on_format_changed())
-	box.add_child(mode_choice)
+	left_col.add_child(mode_choice)
 
 	factions_container = VBoxContainer.new()
 	factions_container.name = "FactionsContainer"
+	factions_container.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	factions_container.add_theme_constant_override("separation", 8)
-	box.add_child(factions_container)
-
-	map_choice = OptionButton.new()
-	map_choice.name = "Battlefield"
-	map_choice.custom_minimum_size.y = 40
-	box.add_child(map_choice)
+	left_col.add_child(factions_container)
 
 	var buttons = HBoxContainer.new()
-	buttons.add_theme_constant_override("separation", 12)
-	box.add_child(buttons)
+	buttons.add_theme_constant_override("separation", 10)
+	left_col.add_child(buttons)
 
 	_button(buttons, "Host", _host)
 	_button(buttons, "Join", _join.bind(false))
 	_button(buttons, "Spectate", _join.bind(true))
-	_button(buttons, "Server rooms", _browse_rooms)
 
+	var status_socket = PanelContainer.new()
+	status_socket.theme_type_variation = "HudSocket"
+	left_col.add_child(status_socket)
 	status_label = Label.new()
 	status_label.name = "ConnectionStatus"
 	status_label.text = tr("Host a battle, or enter a host address to join.")
 	status_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	box.add_child(status_label)
+	status_label.add_theme_font_size_override("font_size", 13)
+	status_label.add_theme_color_override("font_color", ArtTheme.MUTED)
+	status_socket.add_child(status_label)
 
-	start_button = _button(box, "Start battle", _start)
+	# Right column: live tactical map preview.
+	var map_panel = PanelContainer.new()
+	map_panel.theme_type_variation = "HudHousing"
+	map_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	map_panel.size_flags_stretch_ratio = 1.0
+	_workspace.add_child(map_panel)
+
+	var right_col = VBoxContainer.new()
+	right_col.add_theme_constant_override("separation", 10)
+	map_panel.add_child(right_col)
+
+	MenuChrome.nameplate_heading(right_col, tr("Battlefield"))
+
+	map_choice = OptionButton.new()
+	map_choice.name = "Battlefield"
+	map_choice.custom_minimum_size.y = 36
+	map_choice.item_selected.connect(func(_idx): _update_map_preview())
+	right_col.add_child(map_choice)
+
+	var preview_frame = PanelContainer.new()
+	preview_frame.theme_type_variation = "HudSocket"
+	preview_frame.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	right_col.add_child(preview_frame)
+
+	_preview = load("res://source/main-menu/SkirmishMapPreview.gd").new()
+	_preview.custom_minimum_size = Vector2(0, 180)
+	preview_frame.add_child(_preview)
+
+	_map_meta = Label.new()
+	_map_meta.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_map_meta.add_theme_font_size_override("font_size", 12)
+	_map_meta.add_theme_color_override("font_color", ArtTheme.MUTED)
+	right_col.add_child(_map_meta)
+
+	var footer = HBoxContainer.new()
+	footer.add_theme_constant_override("separation", 14)
+	direct_menu.add_child(footer)
+
+	var back_btn = _button(footer, "Main menu", _back)
+	back_btn.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	back_btn.custom_minimum_size = Vector2(140, 40)
+
+	var footer_spacer = Control.new()
+	footer_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	footer.add_child(footer_spacer)
+
+	start_button = _button(footer, "Start battle", _start)
 	start_button.name = "StartBattle"
+	start_button.theme_type_variation = "BattlePrimaryButton"
+	start_button.size_flags_horizontal = Control.SIZE_SHRINK_END
+	start_button.custom_minimum_size = Vector2(220, 40)
 	start_button.disabled = true
 
-	_button(box, "Main menu", _back)
 	_on_format_changed()
 	host_address.grab_focus()
+	MenuChrome.animate_entrance(direct_menu, 8.0, 0.2)
 
 
 func _on_format_changed():
@@ -130,7 +216,7 @@ func _rebuild_roster_ui(format_index: int):
 
 	if format_index == 0:
 		var row = HBoxContainer.new()
-		row.add_theme_constant_override("separation", 12)
+		row.add_theme_constant_override("separation", 10)
 		factions_container.add_child(row)
 		var host_f = _factions(row, "Host faction")
 		var guest_f = _factions(row, "Guest faction")
@@ -138,16 +224,18 @@ func _rebuild_roster_ui(format_index: int):
 		_faction_selectors = [host_f, guest_f]
 	elif format_index == 2:
 		var row = HBoxContainer.new()
-		row.add_theme_constant_override("separation", 12)
+		row.add_theme_constant_override("separation", 10)
 		factions_container.add_child(row)
 		var host_f = _factions(row, "Host faction")
 		var g1_box = VBoxContainer.new()
 		g1_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		g1_box.add_theme_constant_override("separation", 6)
 		row.add_child(g1_box)
 		var guest1 = _factions(g1_box, "Rival A")
 		guest1.select(1)
 		var g2_box = VBoxContainer.new()
 		g2_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		g2_box.add_theme_constant_override("separation", 6)
 		row.add_child(g2_box)
 		var guest2 = _factions(g2_box, "Rival B")
 		guest2.select(2)
@@ -157,11 +245,13 @@ func _rebuild_roster_ui(format_index: int):
 	else:
 		var t1_header = Label.new()
 		t1_header.text = tr("Team 1")
-		t1_header.add_theme_font_size_override("font_size", 14)
+		t1_header.add_theme_font_override("font", ArtTheme.heading_font())
+		t1_header.add_theme_font_size_override("font_size", 13)
+		t1_header.add_theme_color_override("font_color", ArtTheme.accent())
 		factions_container.add_child(t1_header)
 
 		var t1_row = HBoxContainer.new()
-		t1_row.add_theme_constant_override("separation", 12)
+		t1_row.add_theme_constant_override("separation", 10)
 		factions_container.add_child(t1_row)
 		var s0 = _factions(t1_row, "Host faction (Team 1)")
 		var s1 = _factions(t1_row, "Guest faction (Team 1)")
@@ -169,15 +259,18 @@ func _rebuild_roster_ui(format_index: int):
 
 		var t2_header = Label.new()
 		t2_header.text = tr("Team 2")
-		t2_header.add_theme_font_size_override("font_size", 14)
+		t2_header.add_theme_font_override("font", ArtTheme.heading_font())
+		t2_header.add_theme_font_size_override("font_size", 13)
+		t2_header.add_theme_color_override("font_color", ArtTheme.MUTED)
 		factions_container.add_child(t2_header)
 
 		var t2_row = HBoxContainer.new()
-		t2_row.add_theme_constant_override("separation", 12)
+		t2_row.add_theme_constant_override("separation", 10)
 		factions_container.add_child(t2_row)
 
 		var s2_box = VBoxContainer.new()
 		s2_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		s2_box.add_theme_constant_override("separation", 6)
 		t2_row.add_child(s2_box)
 		var s2 = _factions(s2_box, "Enemy faction A (Team 2)")
 		s2.select(1)
@@ -185,6 +278,7 @@ func _rebuild_roster_ui(format_index: int):
 
 		var s3_box = VBoxContainer.new()
 		s3_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		s3_box.add_theme_constant_override("separation", 6)
 		t2_row.add_child(s3_box)
 		var s3 = _factions(s3_box, "Enemy faction B (Team 2)")
 		s3.select(2)
@@ -196,7 +290,8 @@ func _rebuild_roster_ui(format_index: int):
 
 func _toggle_ai(parent, default_ai: bool):
 	var choice = OptionButton.new()
-	choice.custom_minimum_size.y = 32
+	choice.custom_minimum_size.y = 30
+	choice.add_theme_font_size_override("font_size", 13)
 	choice.add_item(tr("Human (Network)"))
 	choice.add_item(tr("AI Commander"))
 	choice.select(1 if default_ai else 0)
@@ -216,19 +311,58 @@ func _rebuild_maps(format_index: int):
 		map_choice.add_item(tr(info.name))
 	if map_choice.item_count > 0:
 		map_choice.select(0)
+	_update_map_preview()
+
+
+func _update_map_preview():
+	if _preview == null or _maps.is_empty():
+		return
+	var idx = clampi(map_choice.selected, 0, _maps.size() - 1)
+	var path = _maps[idx]
+	_preview.set_map(path)
+	var info = Constants.Match.MAPS[path]
+	if _map_meta != null:
+		_map_meta.text = "%s · %s" % [tr(info.name), tr("%d players") % info.players]
 
 
 func _factions(parent, caption):
+	var card = PanelContainer.new()
+	card.theme_type_variation = "HudCard"
+	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	parent.add_child(card)
+
 	var column = VBoxContainer.new()
-	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	parent.add_child(column)
+	column.add_theme_constant_override("separation", 6)
+	card.add_child(column)
+
+	var top = HBoxContainer.new()
+	top.add_theme_constant_override("separation", 8)
+	column.add_child(top)
+
+	var badge = TextureRect.new()
+	badge.custom_minimum_size = Vector2(24, 24)
+	badge.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	badge.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	top.add_child(badge)
+
 	var label = Label.new()
 	label.text = tr(caption)
-	column.add_child(label)
+	label.add_theme_font_size_override("font_size", 13)
+	label.add_theme_color_override("font_color", ArtTheme.MUTED)
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	top.add_child(label)
+
 	var choice = OptionButton.new()
-	choice.custom_minimum_size.y = 40
+	choice.custom_minimum_size.y = 34
+	choice.fit_to_longest_item = false
+	choice.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	for faction in ["Bastion Directorate", "Helix Systems", "Free Frontier Coalition"]:
 		choice.add_item(tr(faction))
+	var sync_badge = func(idx: int):
+		var fid = ["bastion", "helix", "frontier"][clampi(idx, 0, 2)]
+		badge.texture = load(Factions.icon(fid, "Tank"))
+	choice.item_selected.connect(sync_badge)
+	sync_badge.call(0)
 	column.add_child(choice)
 	return choice
 
@@ -236,7 +370,7 @@ func _factions(parent, caption):
 func _button(parent, caption, callback):
 	var button = Button.new()
 	button.text = tr(caption)
-	button.custom_minimum_size.y = 40
+	button.custom_minimum_size.y = 38
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.pressed.connect(callback)
 	parent.add_child(button)

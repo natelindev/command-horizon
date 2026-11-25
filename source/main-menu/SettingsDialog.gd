@@ -3,6 +3,7 @@ extends CanvasLayer
 signal closed
 
 const ArtTheme = preload("res://source/main-menu/ArtTheme.gd")
+const MenuChrome = preload("res://source/main-menu/MenuChrome.gd")
 
 var options
 var save_path = ""
@@ -50,26 +51,27 @@ func _ready():
 	add_child(center)
 	_panel = PanelContainer.new()
 	_panel.theme = ArtTheme.create()
+	_panel.theme_type_variation = "HudHousing"
 	_panel.custom_minimum_size.x = 680
-	var style = StyleBoxFlat.new()
-	style.bg_color = Color("0a1216f8")
-	style.set_corner_radius_all(0)
-	style.set_border_width_all(1)
-	style.border_color = Color("1e2f3bc8")
-	for side in ["left", "right"]:
-		style.set("content_margin_" + side, 22)
-	for side in ["top", "bottom"]:
-		style.set("content_margin_" + side, 16)
-	_panel.add_theme_stylebox_override("panel", style)
+	_panel.add_theme_stylebox_override("panel", ArtTheme.housing(20, 14))
 	center.add_child(_panel)
 	var column = VBoxContainer.new()
 	column.add_theme_constant_override("separation", 6)
 	_panel.add_child(column)
 
-	_label(column, tr("SETTINGS"), 22)
+	var header_row = HBoxContainer.new()
+	header_row.add_theme_constant_override("separation", 10)
+	column.add_child(header_row)
+	var crest = MenuChrome.TacticalCrest.new(26.0)
+	crest.accent = ArtTheme.accent()
+	crest.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	header_row.add_child(crest)
+	var title_lbl = _label(header_row, tr("SETTINGS"), 22)
+	title_lbl.add_theme_font_override("font", ArtTheme.heading_font())
+	column.add_child(MenuChrome.stripe_bar(3.0))
 
 	_tabs = TabContainer.new()
-	_tabs.custom_minimum_size = Vector2(680, 480)
+	_tabs.custom_minimum_size = Vector2(680, 440)
 	_tabs.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	column.add_child(_tabs)
 	var general_scroll = ScrollContainer.new()
@@ -186,12 +188,7 @@ func _ready():
 	actions.add_theme_constant_override("separation", 12)
 	column.add_child(actions)
 	_save = _button(actions, tr("Save & back"), func(): _finish(true))
-	_save.add_theme_stylebox_override("normal", ArtTheme.primary_button_style())
-	_save.add_theme_stylebox_override("hover", ArtTheme.primary_button_hover_style())
-	_save.add_theme_stylebox_override("pressed", ArtTheme.primary_button_pressed_style())
-	_save.add_theme_color_override("font_color", Color("142130"))
-	_save.add_theme_color_override("font_hover_color", Color("142130"))
-	_save.add_theme_color_override("font_pressed_color", Color("142130"))
+	_save.theme_type_variation = "BattlePrimaryButton"
 	_cancel = _button(actions, tr("Cancel [Esc]"), func(): _finish(false))
 	_button(actions, tr("Reset defaults"), _defaults)
 	_refresh()
@@ -203,7 +200,8 @@ func _ready():
 
 func _heading(parent, title):
 	parent.add_child(HSeparator.new())
-	_label(parent, "// " + tr(title).to_upper(), 12, Color("d8af67"))
+	var lbl = _label(parent, tr(title).to_upper(), 13, ArtTheme.accent())
+	lbl.add_theme_font_override("font", ArtTheme.heading_font())
 
 
 func _test_ambience():
@@ -257,8 +255,6 @@ func _button(parent, title, callback):
 	button.text = tr(title)
 	button.custom_minimum_size.y = 34
 	button.add_theme_font_size_override("font_size", 14)
-	button.add_theme_stylebox_override("normal", ArtTheme.secondary_button_style())
-	button.add_theme_stylebox_override("hover", ArtTheme.secondary_button_hover_style())
 	button.pressed.connect(callback)
 	parent.add_child(button)
 	return button

@@ -1,6 +1,7 @@
 extends Control
 
 const ArtTheme = preload("res://source/main-menu/ArtTheme.gd")
+const MenuChrome = preload("res://source/main-menu/MenuChrome.gd")
 
 @onready var _rich_text_label = find_child("RichTextLabel")
 @onready var _button = find_child("Button")
@@ -10,37 +11,38 @@ func _ready():
 	theme = ArtTheme.create()
 	var backdrop = find_child("Background")
 	if is_instance_valid(backdrop) and "dim" in backdrop:
-		backdrop.dim = 0.45
+		backdrop.dim = 0.52
+		if "left_focus" in backdrop:
+			backdrop.left_focus = 0.35
 
 	var panel = find_child("PanelContainer")
 	if is_instance_valid(panel):
-		panel.add_theme_stylebox_override(
-			"panel", ArtTheme.panel(Color("0a1216f8"), 24, 0, Color("1e2f3bc8"), 1)
-		)
+		panel.theme_type_variation = "HudHousing"
+		panel.add_theme_stylebox_override("panel", ArtTheme.housing(22, 18))
 
 	var vbox = find_child("VBoxContainer")
 	if is_instance_valid(vbox):
 		var header_box = VBoxContainer.new()
-		header_box.add_theme_constant_override("separation", 2)
-		var tag = Label.new()
-		tag.text = tr("// PROJECT ARCHIVE //")
-		tag.add_theme_font_size_override("font_size", 11)
-		tag.add_theme_color_override("font_color", Color("d8af67"))
-		tag.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		header_box.add_child(tag)
+		header_box.add_theme_constant_override("separation", 6)
+
+		var title_row = HBoxContainer.new()
+		title_row.alignment = BoxContainer.ALIGNMENT_CENTER
+		title_row.add_theme_constant_override("separation", 10)
+		header_box.add_child(title_row)
+
+		var crest = MenuChrome.TacticalCrest.new(28.0)
+		crest.accent = ArtTheme.accent()
+		crest.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		title_row.add_child(crest)
 
 		var title_lbl = Label.new()
 		title_lbl.text = tr("CREDITS")
-		title_lbl.add_theme_font_size_override("font_size", 22)
-		title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		header_box.add_child(title_lbl)
+		title_lbl.add_theme_font_override("font", ArtTheme.heading_font())
+		title_lbl.add_theme_font_size_override("font_size", 24)
+		title_lbl.add_theme_color_override("font_color", ArtTheme.IVORY)
+		title_row.add_child(title_lbl)
 
-		var sub_lbl = Label.new()
-		sub_lbl.text = tr("COMMAND HORIZON ARCHITECTURE & ASSETS")
-		sub_lbl.add_theme_font_size_override("font_size", 11)
-		sub_lbl.add_theme_color_override("font_color", Color("8ea0a8"))
-		sub_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		header_box.add_child(sub_lbl)
+		header_box.add_child(MenuChrome.stripe_bar(3.0))
 
 		vbox.add_child(header_box)
 		vbox.move_child(header_box, 1)
@@ -48,15 +50,12 @@ func _ready():
 	if is_instance_valid(panel):
 		for sub_panel in panel.find_children("*", "PanelContainer", true, false):
 			if sub_panel != panel:
-				sub_panel.add_theme_stylebox_override(
-					"panel", ArtTheme.panel(Color("070d13b3"), 14, 0, Color("1e2f3bc0"), 1)
-				)
+				sub_panel.theme_type_variation = "HudSocket"
+				sub_panel.add_theme_stylebox_override("panel", ArtTheme.socket(16, 12))
 
 	if is_instance_valid(_button):
 		_button.text = tr("BACK")
-		_button.custom_minimum_size = Vector2(160, 44)
-		_button.add_theme_stylebox_override("normal", ArtTheme.secondary_button_style())
-		_button.add_theme_stylebox_override("hover", ArtTheme.secondary_button_hover_style())
+		_button.custom_minimum_size = Vector2(160, 40)
 		_button.grab_focus()
 
 	if is_instance_valid(_rich_text_label):

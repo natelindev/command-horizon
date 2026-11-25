@@ -2,6 +2,8 @@ extends VBoxContainer
 
 signal back
 signal enter_battle(port: int, ticket: String)
+const ArtTheme = preload("res://source/main-menu/ArtTheme.gd")
+const MenuChrome = preload("res://source/main-menu/MenuChrome.gd")
 const Link = preload("res://source/match/network/RoomLink.gd")
 var link = Link.new()
 var rooms = ItemList.new()
@@ -22,16 +24,33 @@ var _hello_deadline = 0
 
 
 func _ready():
-	add_theme_constant_override("separation", 12)
-	var heading = Label.new()
-	heading.text = tr("Server rooms")
-	heading.add_theme_font_size_override("font_size", 30)
-	add_child(heading)
-	rooms.custom_minimum_size = Vector2(660, 180)
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_theme_constant_override("separation", 10)
+
+	var housing = PanelContainer.new()
+	housing.theme_type_variation = "HudHousing"
+	housing.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	add_child(housing)
+
+	var col = VBoxContainer.new()
+	col.add_theme_constant_override("separation", 10)
+	housing.add_child(col)
+
+	MenuChrome.nameplate_heading(col, tr("Server rooms"))
+
+	var list_socket = PanelContainer.new()
+	list_socket.theme_type_variation = "HudSocket"
+	list_socket.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	col.add_child(list_socket)
+
+	rooms.custom_minimum_size = Vector2(400, 160)
+	rooms.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	rooms.accessibility_name = tr("Server rooms")
 	rooms.item_selected.connect(func(_index): _buttons())
-	add_child(rooms)
-	add_child(create_row)
+	list_socket.add_child(rooms)
+
+	create_row.add_theme_constant_override("separation", 8)
+	col.add_child(create_row)
 	title_input.placeholder_text = tr("Room name")
 	title_input.accessibility_name = tr("Room name")
 	title_input.max_length = 32
@@ -42,14 +61,38 @@ func _ready():
 	format.add_item(tr("2v2 Teams"), 4)
 	create_row.add_child(format)
 	create_button = _button(create_row, "Create room", _create)
-	var actions = HBoxContainer.new()
-	add_child(actions)
-	join_button = _button(actions, "Join room", _join)
-	leave_button = _button(actions, "Leave room", func(): link.send(1, {"type": "leave"}))
-	start_button = _button(actions, "Start battle", func(): link.send(1, {"type": "start"}))
+	create_button.theme_type_variation = "BattlePrimaryButton"
+	create_button.size_flags_horizontal = Control.SIZE_SHRINK_END
+	create_button.custom_minimum_size.x = 150
+
+	var status_socket = PanelContainer.new()
+	status_socket.theme_type_variation = "HudSocket"
+	col.add_child(status_socket)
 	status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	add_child(status)
-	_button(self, "Back", func(): back.emit())
+	status.add_theme_font_size_override("font_size", 13)
+	status.add_theme_color_override("font_color", ArtTheme.MUTED)
+	status_socket.add_child(status)
+
+	var actions = HBoxContainer.new()
+	actions.add_theme_constant_override("separation", 10)
+	add_child(actions)
+	var back_btn = _button(actions, "Back", func(): back.emit())
+	back_btn.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	back_btn.custom_minimum_size.x = 120
+	var spacer = Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	actions.add_child(spacer)
+	join_button = _button(actions, "Join room", _join)
+	join_button.size_flags_horizontal = Control.SIZE_SHRINK_END
+	join_button.custom_minimum_size.x = 150
+	leave_button = _button(actions, "Leave room", func(): link.send(1, {"type": "leave"}))
+	leave_button.size_flags_horizontal = Control.SIZE_SHRINK_END
+	leave_button.custom_minimum_size.x = 150
+	start_button = _button(actions, "Start battle", func(): link.send(1, {"type": "start"}))
+	start_button.theme_type_variation = "BattlePrimaryButton"
+	start_button.size_flags_horizontal = Control.SIZE_SHRINK_END
+	start_button.custom_minimum_size.x = 200
+
 	_buttons()
 	add_child(link)
 	link.connected.connect(func(): link.send(1, {"type": "browse"}))
@@ -60,7 +103,7 @@ func _ready():
 func _button(parent, caption: String, action: Callable) -> Button:
 	var button = Button.new()
 	button.text = tr(caption)
-	button.custom_minimum_size.y = 40
+	button.custom_minimum_size.y = 38
 	button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	button.pressed.connect(action)
 	parent.add_child(button)
