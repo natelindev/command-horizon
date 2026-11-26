@@ -156,8 +156,14 @@ void fragment()
   color = mix(color, road.rgb * (.9 + macro * .18), lane * .85);
   color *= 1.0 - (1.0 - smoothstep(.0, .12, abs(lane - .55))) * .06;
   float wet = clamp(soft.g * 1.6, 0.0, 1.0);
-  color = mix(color, bed.rgb, wet * .55);
-  color = mix(color, bed.rgb * .8, mask.g * .9);
+  float submerged = smoothstep(0.12, 0.45, mask.g);
+  float ford = smoothstep(0.32, 0.48, mask.g) * (1.0 - smoothstep(0.55, 0.85, mask.g));
+  // Darken damp shoreline margins, and paint both river beds and shallow cobble
+  // fords completely so grass never shows through as a rectangular patch.
+  color = mix(color, bed.rgb * 0.82, wet * 0.52);
+  vec3 ford_gravel = mix(bed.rgb * 0.78, road.rgb * 0.65 + (grain - 0.5) * 0.06, 0.35);
+  vec3 bed_color = mix(bed.rgb * 0.72, ford_gravel, ford);
+  color = mix(color, bed_color, submerged * 0.92);
   // Cliffs: banded rock with strata following elevation.
   float cliff = smoothstep(.26, .52, slope + (grain - .5) * .12);
   float band = noise(vec2(world_point.y * 1.7, p.x * .05 + p.y * .05)) * strata;
@@ -167,6 +173,8 @@ void fragment()
   // procedural rock, which top-down projection would smear.
   float feature = clamp(max(max(slick, sandy * .8), max(crust_amount * .7, snowed * .9)), 0.0, 1.0);
   TerrainSurface ground = terrain_surface(p, color + (grain - .5) * .03, lane, feature, .95);
+  float damp_bank = wet * (1.0 - submerged);
+  ground.roughness = mix(ground.roughness, 0.28, damp_bank * 0.65);
   ALBEDO = mix(ground.albedo, stone, cliff);
   ROUGHNESS = mix(ground.roughness, .82, cliff);
   AO = mix(ground.occlusion, 1.0, cliff);

@@ -63,6 +63,8 @@ static func build_mesh(model, seed_text: String) -> ArrayMesh:
 				relief = relief / WALKABLE_RELIEF * ROUGH_RELIEF
 			heights[row * width + column] = height + relief
 
+	_taper_ford_beds(model, heights, width, depth, margin_cells)
+
 	var vertices = PackedVector3Array()
 	var normals = PackedVector3Array()
 	vertices.resize(width * depth)
@@ -158,12 +160,35 @@ static func build_control(model, layout: Dictionary) -> Image:
 					var strength = 1.0 - smoothstep(half - ROAD_SOFTNESS, half, distance)
 					var cell = j * model.columns + i
 					roads[cell] = maxf(roads[cell], strength)
+	var rivers: Array = []
+	for water in layout.get("water", []):
+		if not water.get("ford", false) and not water.get("lava", false):
+			rivers.append(water.polygon)
+	var standalone_fords: Array = []
+	for water in layout.get("water", []):
+		if water.get("ford", false):
+			var overlaps_river := false
+			for river_poly in rivers:
+				if not Geometry2D.intersect_polygons(water.polygon, river_poly).is_empty():
+					overlaps_river = true
+					break
+			if not overlaps_river:
+				standalone_fords.append(water.polygon)
 	for j in model.rows:
 		for i in model.columns:
 			var cell = model.flags[j * model.columns + i]
-			var water = (
-				1.0 if cell & TerrainModel.WATER else (0.5 if cell & TerrainModel.FORD else 0.0)
-			)
+			var water = 0.0
+			if cell & TerrainModel.WATER:
+				water = 1.0
+			elif cell & TerrainModel.FORD:
+				var center = (Vector2(i, j) + Vector2(0.5, 0.5)) * resolution
+				var wet_ford := false
+				for poly in rivers + standalone_fords:
+					if Geometry2D.is_point_in_polygon(center, poly):
+						wet_ford = true
+						break
+				if wet_ford:
+					water = 0.5
 			image.set_pixel(
 				i,
 				j,
@@ -184,3 +209,46 @@ static func _inside(point: Vector2, size: Vector2) -> bool:
 static func _solid_corner(model, i: int, j: int) -> bool:
 	var cell = mini(j, model.rows - 1) * model.columns + mini(i, model.columns - 1)
 	return model.flags[cell] & TerrainModel.SOLID != 0
+
+
+# Gently taper visual riverbed height into adjacent shallow fords without altering
+# the authoritative TerrainModel lattice used by hover navigation.
+static func _taper_ford_beds(
+	model, heights: PackedFloat32Array, width: int, depth: int, margin_cells: int
+):
+	var margin_px: int = int(3.0 / TerrainModel.RESOLUTION)
+	var has_ford := false
+	for j in model.rows:
+		for i in model.columns:
+			if model.flags[j * model.columns + i] & TerrainModel.FORD != 0:
+				has_ford = true
+				break
+		if has_ford:
+			break
+	if not has_ford:
+		return
+	for row in depth:
+		var j: int = clampi(row - margin_cells, 0, model.rows - 1)
+		for column in width:
+			var i: int = clampi(column - margin_cells, 0, model.columns - 1)
+			if model.flags[j * model.columns + i] & TerrainModel.WATER == 0:
+				continue
+			var best_sq: int = margin_px * margin_px + 1
+			var ford_height: float = heights[row * width + column]
+			for offset_y in range(-margin_px, margin_px + 1):
+				var fy = j + offset_y
+				if fy < 0 or fy >= model.rows:
+					continue
+				for offset_x in range(-margin_px, margin_px + 1):
+					var fx = i + offset_x
+					if fx < 0 or fx >= model.columns:
+						continue
+					if model.flags[fy * model.columns + fx] & TerrainModel.FORD != 0:
+						var d2 = offset_x * offset_x + offset_y * offset_y
+						if d2 < best_sq:
+							best_sq = d2
+							ford_height = model.heights[fy * (model.columns + 1) + fx]
+			if best_sq <= margin_px * margin_px:
+				var weight = 1.0 - smoothstep(0.0, float(margin_px), sqrt(float(best_sq)))
+				var idx = row * width + column
+				heights[idx] = lerpf(heights[idx], ford_height, weight)

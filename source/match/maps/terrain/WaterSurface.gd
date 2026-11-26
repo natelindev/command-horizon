@@ -4,6 +4,7 @@ extends RefCounted
 # across the channel. Bends and mirrored map sectors carry the current with
 # them. A small indexed mesh lets the water itself rise and fall as it flows.
 const SPACING = 3.0
+const FORD_BLEND_MARGIN = 4.0
 var speed = .25
 var _vertices = PackedVector3Array()
 var _uv = PackedVector2Array()
@@ -110,11 +111,28 @@ func _vertex(point: Vector2) -> int:
 	var surface_level = _level
 	var amplitude = 1.0
 	for ford in _fords:
+		var ford_level = maxf(surface_level, ford.get("level", 0.0) - .08)
 		if Geometry2D.is_point_in_polygon(point, ford.polygon):
-			surface_level = maxf(surface_level, ford.get("level", 0.0) - .08)
+			surface_level = ford_level
 			amplitude = .18
+		else:
+			var dist = _distance_to_polygon(point, ford.polygon)
+			if dist < FORD_BLEND_MARGIN:
+				var blend = 1.0 - smoothstep(0.0, FORD_BLEND_MARGIN, dist)
+				surface_level = maxf(surface_level, lerpf(_level, ford_level, blend))
+				amplitude = minf(amplitude, lerpf(1.0, .18, blend))
 	_vertices.append(Vector3(point.x, surface_level, point.y))
 	_amplitudes.append(Color(amplitude, 1, 1))
 	_uv.append(coordinates)
 	_directions.append(direction)
 	return result
+
+
+static func _distance_to_polygon(point: Vector2, polygon: PackedVector2Array) -> float:
+	var best = INF
+	for index in polygon.size():
+		var closest = Geometry2D.get_closest_point_to_segment(
+			point, polygon[index], polygon[(index + 1) % polygon.size()]
+		)
+		best = minf(best, point.distance_squared_to(closest))
+	return sqrt(best)
