@@ -7,6 +7,7 @@ var settings_dialog = null
 var god_mode = false
 var cache = {}
 var _quitting = false
+var _last_viewport_size := Vector2i.ZERO
 
 
 func _load_options():
@@ -14,7 +15,10 @@ func _load_options():
 		var stored = load(Constants.OPTIONS_FILE_PATH)
 		if stored is Options:
 			return stored
-	return Options.new()
+	var created = Options.new()
+	if DisplayServer.get_name() != "headless":
+		created.apply_hardware_defaults()
+	return created
 
 
 func _ready():
@@ -22,6 +26,8 @@ func _ready():
 	get_tree().auto_accept_quit = false
 	options.changed.connect(_apply_interface_scale)
 	options.apply()
+	_last_viewport_size = get_tree().root.size
+	get_tree().root.size_changed.connect(_on_root_size_changed)
 
 
 func _notification(what):
@@ -111,3 +117,12 @@ func _toggle_god_mode():
 
 func _apply_interface_scale():
 	get_tree().root.content_scale_factor = options.interface_scale
+
+
+func _on_root_size_changed():
+	var current_size := get_tree().root.size
+	if current_size == _last_viewport_size:
+		return
+	_last_viewport_size = current_size
+	if options.graphics_render_scale <= 0.0:
+		options.apply_render_scale()

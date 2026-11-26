@@ -15,16 +15,29 @@ vec2 mirrored_surface_uv(vec2 uv) {
 	return 1.0 - abs(mod(uv, 2.0) - 1.0);
 }
 
-float armor_height_sample(vec2 uv) {
-	return texture(armor_texture, mirrored_surface_uv(uv)).r;
+float armor_height_grad(vec2 uv, vec2 ddx, vec2 ddy) {
+	return textureGrad(armor_texture, mirrored_surface_uv(uv), ddx, ddy).r;
 }
 
 float armor_detail(vec3 point, vec3 normal) {
 	vec3 p = point * armor_scale;
 	vec3 weights = surface_weights(normal);
-	float value = armor_height_sample(p.zy) * weights.x;
-	value += armor_height_sample(p.xz) * weights.y;
-	value += armor_height_sample(p.xy) * weights.z;
+	vec2 px = dFdx(p.zy);
+	vec2 py = dFdy(p.zy);
+	vec2 qx = dFdx(p.xz);
+	vec2 qy = dFdy(p.xz);
+	vec2 rx = dFdx(p.xy);
+	vec2 ry = dFdy(p.xy);
+	float value = 0.0;
+	if (weights.x > 0.04) {
+		value += armor_height_grad(p.zy, px, py) * weights.x;
+	}
+	if (weights.y > 0.04) {
+		value += armor_height_grad(p.xz, qx, qy) * weights.y;
+	}
+	if (weights.z > 0.04) {
+		value += armor_height_grad(p.xy, rx, ry) * weights.z;
+	}
 	// Retain authored brightness on open plate centers while darkening panel joints sharply.
 	float norm = clamp(value / 0.75, 0.35, 1.15);
 	float seam = smoothstep(0.55, 0.88, norm);
@@ -36,17 +49,33 @@ vec3 armor_relief_normal(vec3 point, vec3 local_normal, mat3 to_view, vec3 view_
 	vec3 n = normalize(local_normal);
 	vec3 weights = surface_weights(n);
 	vec3 p = point * armor_scale;
-	float eps = 0.006;
-	float dx_z = (armor_height_sample(p.zy + vec2(eps, 0.0)) - armor_height_sample(p.zy - vec2(eps, 0.0)));
-	float dy_z = (armor_height_sample(p.zy + vec2(0.0, eps)) - armor_height_sample(p.zy - vec2(0.0, eps)));
-	float dx_y = (armor_height_sample(p.xz + vec2(eps, 0.0)) - armor_height_sample(p.xz - vec2(eps, 0.0)));
-	float dy_y = (armor_height_sample(p.xz + vec2(0.0, eps)) - armor_height_sample(p.xz - vec2(0.0, eps)));
-	float dx_x = (armor_height_sample(p.xy + vec2(eps, 0.0)) - armor_height_sample(p.xy - vec2(eps, 0.0)));
-	float dy_x = (armor_height_sample(p.xy + vec2(0.0, eps)) - armor_height_sample(p.xy - vec2(0.0, eps)));
-	vec3 slope = vec3(0.0, -dy_z, -dx_z) * weights.x
-		+ vec3(-dx_y, 0.0, -dy_y) * weights.y
-		+ vec3(-dx_x, -dy_x, 0.0) * weights.z;
-	slope = (slope / (2.0 * eps)) * 0.045 * strength;
+	float eps = 0.008;
+	vec2 px = dFdx(p.zy);
+	vec2 py = dFdy(p.zy);
+	vec2 qx = dFdx(p.xz);
+	vec2 qy = dFdy(p.xz);
+	vec2 rx = dFdx(p.xy);
+	vec2 ry = dFdy(p.xy);
+	vec3 slope = vec3(0.0);
+	if (weights.x > 0.04) {
+		float h0 = armor_height_grad(p.zy, px, py);
+		float dx = armor_height_grad(p.zy + vec2(eps, 0.0), px, py) - h0;
+		float dy = armor_height_grad(p.zy + vec2(0.0, eps), px, py) - h0;
+		slope += vec3(0.0, -dy, -dx) * weights.x;
+	}
+	if (weights.y > 0.04) {
+		float h0 = armor_height_grad(p.xz, qx, qy);
+		float dx = armor_height_grad(p.xz + vec2(eps, 0.0), qx, qy) - h0;
+		float dy = armor_height_grad(p.xz + vec2(0.0, eps), qx, qy) - h0;
+		slope += vec3(-dx, 0.0, -dy) * weights.y;
+	}
+	if (weights.z > 0.04) {
+		float h0 = armor_height_grad(p.xy, rx, ry);
+		float dx = armor_height_grad(p.xy + vec2(eps, 0.0), rx, ry) - h0;
+		float dy = armor_height_grad(p.xy + vec2(0.0, eps), rx, ry) - h0;
+		slope += vec3(-dx, -dy, 0.0) * weights.z;
+	}
+	slope = (slope / eps) * 0.045 * strength;
 	slope -= n * dot(n, slope);
 	return normalize(view_normal + to_view * slope);
 }

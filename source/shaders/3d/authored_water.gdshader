@@ -32,7 +32,6 @@ vec2 grad(vec2 i)
   return vec2(cos(angle), sin(angle));
 }
 
-// Gradient noise: smooth C1 contours with zero grid-aligned blockiness.
 float gnoise(vec2 p)
 {
   vec2 i = floor(p);
@@ -43,6 +42,30 @@ float gnoise(vec2 p)
   float c = dot(grad(i + vec2(0.0, 1.0)), f - vec2(0.0, 1.0));
   float d = dot(grad(i + vec2(1.0, 1.0)), f - vec2(1.0, 1.0));
   return mix(mix(a, b, u.x), mix(c, d, u.x), u.y) * 0.5 + 0.5;
+}
+
+// Value and analytical gradient (val, d/dx, d/dy) in one noise evaluation.
+vec3 gnoise_d(vec2 p)
+{
+  vec2 i = floor(p);
+  vec2 f = fract(p);
+  vec2 u = f * f * f * (f * (f * 6.0 - 15.0) + 10.0);
+  vec2 du = 30.0 * f * f * (f * (f - 2.0) + 1.0);
+  vec2 ga = grad(i);
+  vec2 gb = grad(i + vec2(1.0, 0.0));
+  vec2 gc = grad(i + vec2(0.0, 1.0));
+  vec2 gd = grad(i + vec2(1.0, 1.0));
+  float va = dot(ga, f);
+  float vb = dot(gb, f - vec2(1.0, 0.0));
+  float vc = dot(gc, f - vec2(0.0, 1.0));
+  float vd = dot(gd, f - vec2(1.0, 1.0));
+  float k1 = vb - va;
+  float k2 = vc - va;
+  float k3 = va - vb - vc + vd;
+  float val = (va + k1 * u.x + k2 * u.y + k3 * u.x * u.y) * 0.5 + 0.5;
+  vec2 dval = 0.5 * (ga + (gb - ga) * u.x + (gc - ga) * u.y + (ga - gb - gc + gd) * u.x * u.y +
+                     du * vec2(k1 + k3 * u.y, k2 + k3 * u.x));
+  return vec3(val, dval);
 }
 
 float ripple_height(vec2 uv)
@@ -56,34 +79,40 @@ float ripple_fade(vec2 uv)
   return smoothstep(0.0, .08, min(edge.x, edge.y));
 }
 
-// Dual-phase advection along the flow field without visible phase-reset pops.
-float flowing_noise(vec2 world, vec2 velocity, vec2 scale, float phase)
+// Analytical wave gradient in advected channel space (replaces 18 gnoise calls with 6).
+vec2 surface_gradient(vec2 p, vec2 flow_vel, float t, float detail_fade)
 {
-  vec2 a = (world - velocity * phase * 6.0) * scale;
-  vec2 b = (world - velocity * fract(phase + 0.5) * 6.0) * scale;
-  return mix(gnoise(a), gnoise(b), abs(phase * 2.0 - 1.0));
+  vec2 g = vec2(0.0);
+  vec3 n1 = gnoise_d(p * 0.28);
+  vec3 n2 = gnoise_d(p * 0.41 + 4.3);
+  float s1 = cos(p.x * 1.15 + p.y * 0.45 + n1.x * 2.2) * 0.42;
+  float s2 = cos(p.x * 1.65 - p.y * 1.25 + n2.x * 1.8) * 0.28;
+  g += s1 * (vec2(1.15, 0.45) + n1.yz * (0.28 * 2.2));
+  g += s2 * (vec2(1.65, -1.25) + n2.yz * (0.41 * 1.8));
+
+  mat2 r1 = mat2(vec2(0.86, -0.51), vec2(0.51, 0.86));
+  vec2 w1 = r1 * p;
+  vec3 n3 = gnoise_d(w1 * 1.45 - vec2(t * 0.55, t * 0.22));
+  g += (transpose(r1) * n3.yz) * (1.45 * 0.55);
+
+  if (detail_fade > 0.01)
+  {
+    mat2 r2 = mat2(vec2(0.68, 0.73), vec2(-0.73, 0.68));
+    vec2 w2 = r2 * p;
+    vec3 n4 = gnoise_d(w2 * 2.35 + vec2(t * 0.42, -t * 0.35));
+    g += (transpose(r2) * n4.yz) * (2.35 * 0.38 * detail_fade);
+
+    float phase = fract(t * 0.16);
+    vec2 scale = vec2(3.8, 3.2);
+    vec2 a = (p - flow_vel * 0.35 * phase * 6.0) * scale;
+    vec2 b = (p - flow_vel * 0.35 * fract(phase + 0.5) * 6.0) * scale;
+    float w = abs(phase * 2.0 - 1.0);
+    vec2 micro_g = mix(gnoise_d(a).yz, gnoise_d(b).yz, w) * scale;
+    g += micro_g * (0.24 * detail_fade);
+  }
+  return g;
 }
 
-// Multi-octave wave height field in advected world/channel space.
-float surface_height(vec2 p, vec2 flow_vel, float t, float detail_fade)
-{
-  float h = 0.0;
-  // Broad gentle swells aligned slightly across the channel.
-  h += sin(p.x * 1.15 + p.y * 0.45 + gnoise(p * 0.28) * 2.2) * 0.42;
-  h += sin(p.x * 1.65 - p.y * 1.25 + gnoise(p * 0.41 + 4.3) * 1.8) * 0.28;
-  // Cross-angled wind wavelets.
-  vec2 w1 = vec2(p.x * 0.86 + p.y * 0.51, -p.x * 0.51 + p.y * 0.86);
-  vec2 w2 = vec2(p.x * 0.68 - p.y * 0.73, p.x * 0.73 + p.y * 0.68);
-  h += (gnoise(w1 * 1.45 - vec2(t * 0.55, t * 0.22)) - 0.5) * 0.55;
-  h += (gnoise(w2 * 2.35 + vec2(t * 0.42, -t * 0.35)) - 0.5) * 0.38 * detail_fade;
-  // Fine capillary micro-ripples that give crisp glints at battle zoom.
-  float phase = fract(t * 0.16);
-  float micro = flowing_noise(p, flow_vel * 0.35, vec2(3.8, 3.2), phase) - 0.5;
-  h += micro * 0.24 * detail_fade;
-  return h;
-}
-
-// Intersecting wavelet filaments for shallow-bed sunlight caustics.
 float caustic_pattern(vec2 p, float t)
 {
   vec2 a = vec2(p.x * 0.85 + p.y * 0.52, -p.x * 0.52 + p.y * 0.85) * 1.35;
@@ -129,10 +158,8 @@ void fragment()
   float depth_raw = textureLod(depth_texture, SCREEN_UV, 0.0).r;
   vec3 behind_world = reconstruct_world(SCREEN_UV, depth_raw, INV_PROJECTION_MATRIX, INV_VIEW_MATRIX);
   float water_depth = max(0.0, world_y - behind_world.y);
-  // Feather the very 0..12cm meniscus so polygons meet terrain without a hard cut.
   float edge_alpha = smoothstep(0.0, 0.12, water_depth);
 
-  // Beer-Lambert absorption: shallow banks and fords stay clear; deep channels turn rich.
   float optical_depth = water_depth / max(clarity, 0.4);
   float absorb = 1.0 - exp(-optical_depth * 2.35);
   vec3 water_tint = mix(shallow.rgb, deep.rgb, smoothstep(0.08, 0.85, absorb));
@@ -153,17 +180,11 @@ void fragment()
 
   if (surface_effects)
   {
-    // Attenuate fine capillary ripples smoothly when zoomed far out to avoid pixel shimmer.
     float pixel_footprint = max(length(dFdx(world_position)), length(dFdy(world_position)));
     float detail_fade = 1.0 - smoothstep(0.08, 0.28, pixel_footprint);
 
     vec2 flow_coords = vec2(UV.x - t * flow_speed * 0.65, UV.y);
-    float eps = 0.16;
-    float h0 = surface_height(flow_coords, velocity, t, detail_fade);
-    float hx = surface_height(flow_coords + vec2(eps, 0.0), velocity, t, detail_fade);
-    float hy = surface_height(flow_coords + vec2(0.0, eps), velocity, t, detail_fade);
-    vec2 local_grad = vec2(hx - h0, hy - h0) / eps;
-    // Transform channel-space gradient into world XZ slope.
+    vec2 local_grad = surface_gradient(flow_coords, velocity, t, detail_fade);
     slope = (direction * local_grad.x + across * local_grad.y) * 0.105;
 
     if (interactive_water)
@@ -178,18 +199,15 @@ void fragment()
       local_foam = texture(ripple_state, local_uv).b * fade;
     }
 
-    // Subtle caustics over the submerged bed in shallow/mid water.
     float caustic_fade = exp(-water_depth * 2.0) * smoothstep(0.02, 0.14, water_depth);
     caustics = caustic_pattern(world_position - velocity * t * 0.25, t) * caustic_fade * 0.22;
 
-    // Delicate, broken shoreline lap right along banks, piers, and ship hulls.
     float shore_band = (1.0 - smoothstep(0.02, 0.24, water_depth)) * smoothstep(0.0, 0.03, water_depth);
     float lap_wave = sin(water_depth * 24.0 - t * 2.1 + gnoise(world_position * 1.3) * 4.2);
     float lacy = smoothstep(0.38, 0.72, gnoise(world_position * 2.8 - velocity * t * 0.4));
     shore_foam = shore_band * smoothstep(0.1, 0.85, lap_wave) * lacy * 0.55;
   }
 
-  // Screen-space refraction of the submerged riverbed, guarded against above-water objects.
   vec2 refract_uv = clamp(SCREEN_UV + slope * clamp(water_depth, 0.05, 0.75) * 0.35, vec2(0.001), vec2(0.999));
   float refracted_depth_raw = textureLod(depth_texture, refract_uv, 0.0).r;
   vec3 refracted_world = reconstruct_world(refract_uv, refracted_depth_raw, INV_PROJECTION_MATRIX, INV_VIEW_MATRIX);
@@ -198,7 +216,6 @@ void fragment()
     refract_uv = SCREEN_UV;
   }
   vec3 bed_sample = textureLod(screen_texture, refract_uv, 0.0).rgb;
-  // Blend the refracted bed with Beer-Lambert water absorption.
   float water_opacity = clamp(0.18 + absorb * 0.76, 0.0, 0.94);
   vec3 underwater = bed_sample * mix(vec3(1.0), shallow.rgb * 1.15, clamp(water_depth * 0.9, 0.0, 0.55));
   underwater += shallow.rgb * caustics;
@@ -206,7 +223,6 @@ void fragment()
   vec3 view_normal = normalize((VIEW_MATRIX * vec4(normalize(vec3(-slope.x, 1.0, -slope.y)), 0.0)).xyz);
   NORMAL = view_normal;
 
-  // Schlick Fresnel for water (F0 = 0.02): grazing angles pick up cool sky sheen.
   float ndotv = clamp(dot(view_normal, VIEW), 0.0, 1.0);
   float fresnel = 0.02 + 0.98 * pow(1.0 - ndotv, 5.0);
   vec3 sky_sheen = mix(shallow.rgb * 0.85 + vec3(0.08, 0.14, 0.18), vec3(0.56, 0.68, 0.75), 0.55);
@@ -215,7 +231,6 @@ void fragment()
   vec3 surface_color = mix(water_tint, sky_sheen, fresnel * (surface_effects ? 0.36 : 0.18));
   surface_color = mix(surface_color, foam.rgb, foam_amount);
 
-  // Separate lit surface scatter from already-lit refracted bed so underwater shadows stay crisp.
   ALBEDO = mix(surface_color * water_opacity, foam.rgb, foam_amount);
   EMISSION = underwater * (1.0 - water_opacity) * (1.0 - foam_amount);
   ALPHA = edge_alpha;

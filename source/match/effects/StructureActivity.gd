@@ -30,6 +30,7 @@ var _idle_phase = 0.0
 var _idle_vent_timer = 0.0
 var _rooftop_beacon: MeshInstance3D
 var _rooftop_material: StandardMaterial3D
+var _last_rooftop_energy = -1.0
 
 
 func _ready():
@@ -54,17 +55,22 @@ func _process(delta):
 func _advance_idle_life(delta: float):
 	if not is_instance_valid(_unit) or _unit.hp == null or not _unit.is_constructed():
 		return
-	if get_tree().paused:
+	if get_tree().paused or not _unit.visible:
 		return
 	_idle_phase = fmod(_idle_phase + delta, TAU * 100.0)
 	if _sensor != null and state != "research":
 		_sensor.rotation = _sensor_rest + Vector3(0, _idle_phase * 0.24, 0)
 	if _rooftop_material != null and _rooftop_beacon != null:
-		_rooftop_beacon.visible = _unit.is_constructed()
-		var pulse = 0.4 + 0.6 * (0.5 + 0.5 * sin(_idle_phase * 2.4))
-		_rooftop_material.emission_energy_multiplier = (
-			0.45 if Globals.options.reduced_flashes else 0.35 + pulse * 0.75
+		if not _rooftop_beacon.visible:
+			_rooftop_beacon.visible = true
+		var energy: float = (
+			0.45
+			if Globals.options.reduced_flashes
+			else 0.35 + (0.4 + 0.6 * (0.5 + 0.5 * sin(_idle_phase * 2.4))) * 0.75
 		)
+		if absf(energy - _last_rooftop_energy) > 0.01:
+			_last_rooftop_energy = energy
+			_rooftop_material.emission_energy_multiplier = energy
 	if (
 		_unit.type in ["PowerPlant", "VehicleFactory", "ForwardRefinery"]
 		and DisplayServer.get_name() != "headless"

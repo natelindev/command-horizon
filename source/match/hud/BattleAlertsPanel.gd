@@ -16,6 +16,8 @@ var _dirty = true
 var _elapsed = 0.0
 var _open_order = []
 var _last_unread = 0
+var _last_layout_size := Vector2.ZERO
+var _last_slot_pos := Vector2.INF
 
 
 func _ready():
@@ -81,10 +83,19 @@ func _ready():
 
 
 func _process(delta):
-	_layout()
+	var vp_size := get_viewport().get_visible_rect().size
+	var slot = hud.get("alert_slot")
+	var slot_pos: Vector2 = (
+		slot.get_global_rect().position if is_instance_valid(slot) else Vector2.INF
+	)
+	if vp_size != _last_layout_size or slot_pos != _last_slot_pos:
+		_last_layout_size = vp_size
+		_last_slot_pos = slot_pos
+		_layout()
 	var available = _available()
-	toggle.visible = available
-	if not available:
+	if toggle.visible != available:
+		toggle.visible = available
+	if not available and panel.visible:
 		panel.hide()
 	_elapsed += delta / maxf(Engine.time_scale, 0.001)
 	if _dirty and _elapsed >= 0.2:

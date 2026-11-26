@@ -26,15 +26,30 @@ MetalFinish metal_finish(vec3 point, vec3 local_normal, mat3 to_view,
 	vec3 w = pow(abs(n), vec3(4.0));
 	w /= max(dot(w, vec3(1.0)), 0.0001);
 	vec3 p = point / micro_tile;
-	vec2 nx = texture(metal_micro_normal, p.zy).xy * 2.0 - 1.0;
-	vec2 ny = texture(metal_micro_normal, p.xz).xy * 2.0 - 1.0;
-	vec2 nz = texture(metal_micro_normal, p.xy).xy * 2.0 - 1.0;
-	vec3 slope = vec3(0.0, -nx.y, nx.x) * w.x
-		+ vec3(ny.x, 0.0, -ny.y) * w.y + vec3(nz.x, -nz.y, 0.0) * w.z;
+	vec2 px = dFdx(p.zy);
+	vec2 py = dFdy(p.zy);
+	vec2 qx = dFdx(p.xz);
+	vec2 qy = dFdy(p.xz);
+	vec2 rx = dFdx(p.xy);
+	vec2 ry = dFdy(p.xy);
+	vec3 slope = vec3(0.0);
+	vec3 data = vec3(0.0);
+	if (w.x > 0.04) {
+		vec2 nx = textureGrad(metal_micro_normal, p.zy, px, py).xy * 2.0 - 1.0;
+		slope += vec3(0.0, -nx.y, nx.x) * w.x;
+		data += textureGrad(metal_micro_orm, p.zy, px, py).rgb * w.x;
+	}
+	if (w.y > 0.04) {
+		vec2 ny = textureGrad(metal_micro_normal, p.xz, qx, qy).xy * 2.0 - 1.0;
+		slope += vec3(ny.x, 0.0, -ny.y) * w.y;
+		data += textureGrad(metal_micro_orm, p.xz, qx, qy).rgb * w.y;
+	}
+	if (w.z > 0.04) {
+		vec2 nz = textureGrad(metal_micro_normal, p.xy, rx, ry).xy * 2.0 - 1.0;
+		slope += vec3(nz.x, -nz.y, 0.0) * w.z;
+		data += textureGrad(metal_micro_orm, p.xy, rx, ry).rgb * w.z;
+	}
 	slope -= n * dot(n, slope);
-	vec3 data = texture(metal_micro_orm, p.zy).rgb * w.x
-		+ texture(metal_micro_orm, p.xz).rgb * w.y
-		+ texture(metal_micro_orm, p.xy).rgb * w.z;
 	result.normal = normalize(view_normal + to_view * slope * micro_normal_strength * metal_detail_strength);
 	result.roughness_delta = (data.g - 0.56) * 0.65 * metal_detail_strength;
 	result.color = mix(1.0, 0.88 + data.r * 0.15, metal_detail_strength);

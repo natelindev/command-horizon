@@ -46,9 +46,23 @@ void vertex() {
 }
 
 vec3 surface_sample(sampler2D image, vec3 p, vec3 weights) {
-	return texture(image, p.zy).rgb * weights.x
-		+ texture(image, p.xz).rgb * weights.y
-		+ texture(image, p.xy).rgb * weights.z;
+	vec2 px = dFdx(p.zy);
+	vec2 py = dFdy(p.zy);
+	vec2 qx = dFdx(p.xz);
+	vec2 qy = dFdy(p.xz);
+	vec2 rx = dFdx(p.xy);
+	vec2 ry = dFdy(p.xy);
+	vec3 sum = vec3(0.0);
+	if (weights.x > 0.04) {
+		sum += textureGrad(image, p.zy, px, py).rgb * weights.x;
+	}
+	if (weights.y > 0.04) {
+		sum += textureGrad(image, p.xz, qx, qy).rgb * weights.y;
+	}
+	if (weights.z > 0.04) {
+		sum += textureGrad(image, p.xy, rx, ry).rgb * weights.z;
+	}
+	return sum;
 }
 
 void fragment() {

@@ -3,6 +3,7 @@ extends Resource
 enum Screen { FULL = 0, WINDOW = 1 }
 
 const Bindings = preload("res://source/input/KeyBindings.gd")
+const HardwareProfile = preload("res://source/data-model/HardwareProfile.gd")
 const DEFAULTS = {
 	"screen": Screen.FULL,
 	"mouse_restricted": false,
@@ -22,11 +23,13 @@ const DEFAULTS = {
 	"reduced_flashes": false,
 	"key_bindings": {},
 	"graphics_shadows": true,
+	"graphics_shadow_quality": 1,
 	"graphics_ao": true,
-	"graphics_gi": true,
+	"graphics_gi": false,
 	"graphics_glow": true,
 	"graphics_fog": true,
 	"graphics_liquids": true,
+	"graphics_water_refraction": true,
 	"graphics_clouds": true,
 	"graphics_dust": true,
 	"environment_quality": 0,
@@ -35,6 +38,8 @@ const DEFAULTS = {
 	"graphics_ground_detail": true,
 	"battlefield_wear": true,
 	"area_lighting": false,
+	"graphics_render_scale": 0.0,
+	"graphics_upscaling": 1,
 	"hud_motion": true,
 	"hdr_output": false,
 	"hdr_peak_nits": 0.0,
@@ -66,11 +71,13 @@ const DEFAULTS = {
 @export var reduced_flashes = false
 @export var key_bindings = {}
 @export var graphics_shadows = true
+@export var graphics_shadow_quality = 1
 @export var graphics_ao = true
-@export var graphics_gi = true
+@export var graphics_gi = false
 @export var graphics_glow = true
 @export var graphics_fog = true
 @export var graphics_liquids = true
+@export var graphics_water_refraction = true
 @export var graphics_clouds = true
 @export var graphics_dust = true
 @export var environment_quality = 0
@@ -79,6 +86,8 @@ const DEFAULTS = {
 @export var graphics_ground_detail = true
 @export var battlefield_wear = true
 @export var area_lighting = false
+@export var graphics_render_scale = 0.0
+@export var graphics_upscaling = 1
 @export var hud_motion = true
 @export var hdr_output = false
 @export var hdr_peak_nits = 0.0
@@ -120,10 +129,17 @@ func apply():
 	hdr_paper_white = _bounded(hdr_paper_white, 0, 400, 0)
 	apply_hdr()
 	graphics_msaa = clampi(graphics_msaa, 0, 2)
+	graphics_shadow_quality = clampi(graphics_shadow_quality, 0, 2)
+	graphics_upscaling = clampi(graphics_upscaling, 0, 1)
+	if not is_finite(graphics_render_scale) or graphics_render_scale <= 0.0:
+		graphics_render_scale = 0.0
+	else:
+		graphics_render_scale = clampf(graphics_render_scale, 0.25, 1.0)
 	time_of_day = clampi(time_of_day, 0, 3)
 	weather = clampi(weather, 0, 4)
 	environment_quality = clampi(environment_quality, 0, 1)
 	health_bars = clampi(health_bars, 0, 2)
+	apply_graphics_quality()
 	key_bindings = Bindings.normalize(key_bindings)
 	Bindings.apply(key_bindings)
 	if screen not in [Screen.FULL, Screen.WINDOW]:
@@ -276,6 +292,68 @@ func hdr_supported():
 		and DisplayServer.has_feature(DisplayServer.FEATURE_HDR_OUTPUT)
 		and DisplayServer.window_is_hdr_output_supported()
 	)
+
+
+func apply_preset(preset: int):
+	var values: Dictionary = HardwareProfile.PRESETS.get(preset, {})
+	if values.is_empty():
+		return
+	for key in values:
+		set(key, values[key])
+	apply()
+
+
+func apply_hardware_defaults() -> Dictionary:
+	var info := HardwareProfile.detect()
+	apply_preset(info.tier)
+	return info
+
+
+func current_preset() -> int:
+	return HardwareProfile.matching_preset(self)
+
+
+func effective_render_scale(pixel_size := Vector2.ZERO) -> float:
+	if graphics_render_scale > 0.0:
+		return clampf(graphics_render_scale, 0.25, 1.0)
+	var size := pixel_size
+	if size.x <= 0.0 or size.y <= 0.0:
+		size = _viewport_pixel_size()
+	var info := HardwareProfile.detect()
+	return HardwareProfile.recommended_render_scale(size, info.tier)
+
+
+func apply_graphics_quality():
+	if DisplayServer.get_name() == "headless":
+		return
+	RenderingServer.directional_shadow_atlas_set_size(
+		[1024, 2048, 4096][graphics_shadow_quality], true
+	)
+	apply_render_scale()
+
+
+func apply_render_scale():
+	if DisplayServer.get_name() == "headless":
+		return
+	var tree := Engine.get_main_loop() as SceneTree
+	if tree == null or tree.root == null:
+		return
+	var scale := effective_render_scale(_viewport_pixel_size())
+	tree.root.scaling_3d_scale = scale
+	tree.root.scaling_3d_mode = (
+		Viewport.SCALING_3D_MODE_FSR
+		if scale < 0.999 and graphics_upscaling == 1
+		else Viewport.SCALING_3D_MODE_BILINEAR
+	)
+
+
+func _viewport_pixel_size() -> Vector2:
+	var tree := Engine.get_main_loop() as SceneTree
+	if tree != null and tree.root != null and tree.root.get_texture() != null:
+		var tex_size := tree.root.get_texture().get_size()
+		if tex_size.x > 0 and tex_size.y > 0:
+			return Vector2(tex_size)
+	return Vector2(DisplayServer.window_get_size())
 
 
 func apply_hdr():

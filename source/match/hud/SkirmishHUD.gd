@@ -47,6 +47,13 @@ var _hint_left = 0.0
 var _pending_notice = ""
 var _briefing: PanelContainer
 var _resources: Control
+var _last_clock_seconds := -1
+var _last_clock_paused := false
+var _last_clock_state := ""
+var _last_objective_text := ""
+var _last_campaign_help := ""
+var _last_plate_viewport := Vector2.ZERO
+var _last_plate_width := -1.0
 
 
 func _ready():
@@ -301,37 +308,60 @@ func _process(_delta):
 		var notice = _pending_notice
 		_pending_notice = ""
 		show_notice(notice)
-	_objective.text = get_parent().objective_text()
+	var objective: String = get_parent().objective_text()
+	if objective != _last_objective_text:
+		_last_objective_text = objective
+		_objective.text = objective
 	# Campaign controls below this card must stay still during held clicks.
-	_notice_slot.visible = _is_campaign() or _assignment_hint.visible or research_status.visible
-	_notice_slot.custom_minimum_size.y = 42 if _is_campaign() or _assignment_hint.visible else 34
-	_briefing.size.y = _briefing.get_combined_minimum_size().y
+	var show_notice_slot: bool = (
+		_is_campaign() or _assignment_hint.visible or research_status.visible
+	)
+	if _notice_slot.visible != show_notice_slot:
+		_notice_slot.visible = show_notice_slot
+	var notice_height := 42 if _is_campaign() or _assignment_hint.visible else 34
+	if _notice_slot.custom_minimum_size.y != notice_height:
+		_notice_slot.custom_minimum_size.y = notice_height
+	var briefing_height := _briefing.get_combined_minimum_size().y
+	if _briefing.size.y != briefing_height:
+		_briefing.size.y = briefing_height
 	# Full visibility and spectators show every player's resource plate.
 	_resources.fit_height(_briefing.size.y + HudLayout.COLUMN_TOP - HudLayout.TOP_PLATE)
-	_briefing.position.y = maxf(
+	var target_y := maxf(
 		HudLayout.COLUMN_TOP,
 		_resources.get_global_rect().end.y + HudLayout.COLUMN_TOP - HudLayout.TOP_PLATE
 	)
+	if _briefing.position.y != target_y:
+		_briefing.position.y = target_y
 	if _is_campaign():
 		var help = CampaignObjectives.instructions(get_parent())
-		_objective.tooltip_text = help
-		_objective.accessibility_description = help
-		_view_objective.tooltip_text = help
-		if _objective_hint != null:
-			_objective_hint.text = help
+		if help != _last_campaign_help:
+			_last_campaign_help = help
+			_objective.tooltip_text = help
+			_objective.accessibility_description = help
+			_view_objective.tooltip_text = help
+			if _objective_hint != null:
+				_objective_hint.text = help
 	var seconds = int(get_parent().simulation_time)
-	_clock.text = "%02d:%02d" % [seconds / 60, seconds % 60]
+	if seconds != _last_clock_seconds:
+		_last_clock_seconds = seconds
+		_clock.text = "%02d:%02d" % [seconds / 60, seconds % 60]
 	var paused = get_tree().paused
 	# The caption names a campaign operation or a pause; a skirmish clock needs no label.
-	_clock_state.text = "Paused" if paused else (_match_label() if _is_campaign() else "")
-	_clock_state.visible = not _clock_state.text.is_empty()
-	_clock_state.add_theme_color_override(
-		"font_color", BattleTheme.accent() if paused else BattleTheme.MUTED
-	)
-	_clock_state.tooltip_text = "PAUSED — orders ready on resume" if paused else ""
-	system_plate.position = Vector2(
-		get_viewport().get_visible_rect().size.x - system_plate.size.x, 0
-	)
+	var state_text: String = "Paused" if paused else (_match_label() if _is_campaign() else "")
+	if state_text != _last_clock_state or paused != _last_clock_paused or _last_clock_seconds == -1:
+		_last_clock_state = state_text
+		_last_clock_paused = paused
+		_clock_state.text = state_text
+		_clock_state.visible = not state_text.is_empty()
+		_clock_state.add_theme_color_override(
+			"font_color", BattleTheme.accent() if paused else BattleTheme.MUTED
+		)
+		_clock_state.tooltip_text = "PAUSED — orders ready on resume" if paused else ""
+	var vp_size := get_viewport().get_visible_rect().size
+	if vp_size != _last_plate_viewport or system_plate.size.x != _last_plate_width:
+		_last_plate_viewport = vp_size
+		_last_plate_width = system_plate.size.x
+		system_plate.position = Vector2(vp_size.x - system_plate.size.x, 0)
 
 
 func _input(event):

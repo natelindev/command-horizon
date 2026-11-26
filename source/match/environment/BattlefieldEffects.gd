@@ -4,8 +4,12 @@ extends Node3D
 # and local uniforms on existing liquid surfaces. No gameplay RNG or physics.
 const WEATHER = preload("res://source/shaders/3d/battlefield_atmosphere.gdshader")
 const EMBERS = preload("res://source/shaders/3d/lava_embers.gdshader")
+const WATER_REFRACT = preload("res://source/shaders/3d/authored_water.gdshader")
+const WATER_FAST = preload("res://source/shaders/3d/authored_water_fast.gdshader")
+const WATER_SHADERS = ["authored_water.gdshader", "authored_water_fast.gdshader"]
 const LIQUID_SHADERS = [
 	"authored_water.gdshader",
+	"authored_water_fast.gdshader",
 	"authored_lava.gdshader",
 	"coastal_water.gdshader",
 	"living_river.gdshader"
@@ -34,9 +38,7 @@ func setup(game, camera, biome):
 	water_interactions.setup(
 		game,
 		camera,
-		liquids.filter(
-			func(m): return m.shader.resource_path.get_file() == "authored_water.gdshader"
-		)
+		liquids.filter(func(m): return m.shader.resource_path.get_file() in WATER_SHADERS)
 	)
 	var layout = Registry.layout(game.map.scene_file_path)
 	var lava = layout.get("water", []).filter(func(w): return w.get("lava", false))
@@ -64,9 +66,18 @@ func setup(game, camera, biome):
 
 
 func apply_options():
-	water_interactions.apply_options()
 	for material in liquids:
+		var file: String = material.shader.resource_path.get_file()
+		if file in WATER_SHADERS:
+			var target: Shader = (
+				WATER_REFRACT
+				if (_options.graphics_liquids and _options.graphics_water_refraction)
+				else WATER_FAST
+			)
+			if material.shader != target:
+				material.shader = target
 		material.set_shader_parameter("surface_effects", _options.graphics_liquids)
+	water_interactions.apply_options()
 	weather_material.set_shader_parameter("high_quality", _options.environment_quality == 1)
 	if embers:
 		embers.visible = _options.graphics_liquids

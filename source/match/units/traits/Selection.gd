@@ -20,6 +20,8 @@ var _ground_map = null
 var _ground_terrain = null
 var _ground_point = Vector2.INF
 var _ground_elevated = false
+var _last_indicator_pos := Vector3.INF
+var _last_reduced_flashes := false
 
 @onready var _unit = get_parent()
 @onready var _circle = find_child("FadedCircle3D")
@@ -66,6 +68,8 @@ func select():
 		return
 	_selected = true
 	_animation_time = 0.0
+	_last_indicator_pos = Vector3.INF
+	_last_reduced_flashes = false
 	set_process(true)
 	if not _unit.is_in_group("selected_units"):
 		_unit.add_to_group("selected_units")
@@ -204,21 +208,27 @@ func _update_ground_indicator_visibility():
 
 
 func _process(delta):
-	_update_ground_indicator_visibility()
+	var unit_pos: Vector3 = _unit.global_position
+	if unit_pos != _last_indicator_pos:
+		_last_indicator_pos = unit_pos
+		_update_ground_indicator_visibility()
 	if _circle == null or _circle._plane == null:
 		return
+	var reduced: bool = Globals.options.reduced_flashes
+	if reduced:
+		if _circle.scale != Vector3.ONE:
+			_circle.scale = Vector3.ONE
+		if not _last_reduced_flashes:
+			_last_reduced_flashes = true
+			_circle._plane.set_instance_shader_parameter("animation_time", 0.0)
+		return
+	_last_reduced_flashes = false
 	_animation_time += delta
-	var entrance = (
-		1.0
-		if Globals.options.reduced_flashes
-		else 1.0 + .15 * pow(1.0 - clampf(_animation_time / .18, 0.0, 1.0), 3)
-	)
+	var entrance = 1.0 + .15 * pow(1.0 - clampf(_animation_time / .18, 0.0, 1.0), 3)
 	var entrance_scale: Vector3 = Vector3.ONE * entrance
 	if _circle.scale != entrance_scale:
 		_circle.scale = entrance_scale
-	_circle._plane.set_instance_shader_parameter(
-		"animation_time", 0.0 if Globals.options.reduced_flashes else _animation_time
-	)
+	_circle._plane.set_instance_shader_parameter("animation_time", _animation_time)
 
 
 func _set_width(a_width):

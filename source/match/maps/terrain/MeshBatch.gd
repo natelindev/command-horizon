@@ -60,3 +60,23 @@ static func add(parent: Node, mesh: Mesh, transforms: Array, name: String, shado
 	)
 	parent.add_child(instance)
 	return instance
+
+
+## Partition large world dressing into spatial MultiMesh chunks so Godot
+## frustum-culls off-camera vegetation and rocks in both main and shadow passes.
+static func add_chunked(
+	parent: Node, mesh: Mesh, transforms: Array, name: String, shadows = false, chunk_size := 32.0
+):
+	if transforms.is_empty():
+		return
+	var cells := {}
+	for placement: Transform3D in transforms:
+		var cell := Vector2i(
+			floori(placement.origin.x / chunk_size), floori(placement.origin.z / chunk_size)
+		)
+		cells.get_or_add(cell, []).append(placement)
+	var keys := cells.keys()
+	keys.sort_custom(func(a: Vector2i, b: Vector2i): return a.y < b.y if a.y != b.y else a.x < b.x)
+	for index in keys.size():
+		var chunk_name := name if index == 0 else "%s_%d" % [name, index]
+		add(parent, mesh, cells[keys[index]], chunk_name, shadows)

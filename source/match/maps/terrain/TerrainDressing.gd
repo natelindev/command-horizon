@@ -46,7 +46,7 @@ static func populate(map):
 	map.add_child(parent)
 	for key in batches:
 		var batch = batches[key]
-		MeshBatch.add(
+		MeshBatch.add_chunked(
 			parent,
 			MeshBatch.merged_mesh(batch.asset, batch.height),
 			batch.transforms,
@@ -157,7 +157,11 @@ static func _forest(map, forest: Dictionary, kit: Dictionary, rng, batches):
 				if is_hedge
 				else (Vector2(0.68, 0.95) if edge_dist < 2.8 else Vector2(0.82, 1.28))
 			)
-			_add(batches, species[rng.randi() % species.size()], _placement(map, point, rng, size_range))
+			_add(
+				batches,
+				species[rng.randi() % species.size()],
+				_placement(map, point, rng, size_range)
+			)
 			# An understorey of shrubs fills between trunks.
 			if not is_hedge and rng.randf() < 0.68:
 				var under = point + Vector2(rng.randf() - 0.5, rng.randf() - 0.5) * spacing

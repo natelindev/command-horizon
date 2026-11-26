@@ -3,7 +3,9 @@ extends CanvasLayer
 signal closed
 
 const ArtTheme = preload("res://source/main-menu/ArtTheme.gd")
+const HardwareProfile = preload("res://source/data-model/HardwareProfile.gd")
 const MenuChrome = preload("res://source/main-menu/MenuChrome.gd")
+const RENDER_SCALES = [0.0, 0.5, 0.67, 0.75, 0.85, 1.0]
 
 var options
 var save_path = ""
@@ -287,7 +289,28 @@ func _refresh():
 	if is_instance_valid(key_panel):
 		key_panel.refresh()
 	controls.language.select(["en", "zh_CN"].find(options.language))
-	for key in ["graphics_msaa", "time_of_day", "weather", "environment_quality"]:
+	controls.graphics_preset.select(options.current_preset())
+	var scale_index := 0
+	var best_diff := INF
+	for i in RENDER_SCALES.size():
+		var diff := absf(options.graphics_render_scale - RENDER_SCALES[i])
+		if diff < best_diff:
+			best_diff = diff
+			scale_index = i
+	controls.graphics_render_scale.select(scale_index)
+	var px: Vector2 = options._viewport_pixel_size()
+	var eff: float = options.effective_render_scale(px)
+	controls.render_scale_info.text = (
+		"%d×%d (%d%%)" % [roundi(px.x * eff), roundi(px.y * eff), roundi(eff * 100.0)]
+	)
+	for key in [
+		"graphics_msaa",
+		"graphics_shadow_quality",
+		"graphics_upscaling",
+		"time_of_day",
+		"weather",
+		"environment_quality"
+	]:
 		controls[key].select(options.get(key))
 	for key in [
 		"graphics_shadows",
@@ -296,6 +319,7 @@ func _refresh():
 		"graphics_glow",
 		"graphics_fog",
 		"graphics_liquids",
+		"graphics_water_refraction",
 		"graphics_clouds",
 		"graphics_dust",
 		"graphics_dof",
@@ -310,6 +334,8 @@ func _refresh():
 		"menu_motion"
 	]:
 		controls[key].set_pressed_no_signal(options.get(key))
+	controls.graphics_water_refraction.disabled = not options.graphics_liquids
+	controls.graphics_shadow_quality.disabled = not options.graphics_shadows
 	_refresh_hdr_status()
 	for key in ["hdr_peak_nits", "hdr_paper_white"]:
 		controls[key].set_value_no_signal(options.get(key))
@@ -448,6 +474,62 @@ func _build_graphics():
 	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	column.add_theme_constant_override("separation", 8)
 	scroll.add_child(column)
+	_heading(column, "Hardware & preset")
+	var hw := HardwareProfile.detect()
+	var hw_label = _label(
+		column,
+		(
+			"%s: %s · %s: %s"
+			% [tr("Detected GPU"), hw.adapter_name, tr("Recommended"), tr(hw.tier_name)]
+		),
+		12,
+		Color("a9b4b3")
+	)
+	hw_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	var preset_row = _row(column, "Quality preset")
+	var preset_choice = OptionButton.new()
+	for title in HardwareProfile.PRESET_NAMES:
+		preset_choice.add_item(tr(title))
+	preset_choice.set_item_disabled(HardwareProfile.PRESET_CUSTOM, true)
+	preset_choice.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	preset_choice.item_selected.connect(
+		func(index):
+			if index < HardwareProfile.PRESET_CUSTOM:
+				options.apply_preset(index)
+				_status.text = tr("Preset previewed — not saved yet.")
+				_refresh()
+	)
+	preset_row.add_child(preset_choice)
+	controls.graphics_preset = preset_choice
+	_button(
+		column,
+		"Auto-detect hardware",
+		func():
+			var detected: Dictionary = options.apply_hardware_defaults()
+			_status.text = (
+				"%s: %s (%s)"
+				% [tr("Applied recommended preset"), tr(detected.tier_name), detected.adapter_name]
+			)
+			_refresh()
+	)
+	var scale_row = _row(column, "3D resolution scale")
+	var scale_choice = OptionButton.new()
+	for title in ["Auto", "50%", "67%", "75%", "85%", "100% (Native)"]:
+		scale_choice.add_item(tr(title))
+	scale_choice.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scale_choice.tooltip_text = tr(
+		"Auto scales 3D rendering for your GPU and display while keeping the HUD crisp."
+	)
+	scale_choice.item_selected.connect(
+		func(index): _preview("graphics_render_scale", RENDER_SCALES[index])
+	)
+	scale_row.add_child(scale_choice)
+	var scale_info = _label(scale_row, "", 12, Color("d8af67"))
+	scale_info.custom_minimum_size.x = 120
+	scale_info.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	controls.graphics_render_scale = scale_choice
+	controls.render_scale_info = scale_info
+	_choice(column, "Upscaling filter", "graphics_upscaling", ["Bilinear", "FSR 1.0"])
 	_heading(column, "Light & atmosphere")
 	_choice(column, "Time of day", "time_of_day", ["Afternoon", "Golden hour", "Night", "Dawn"])
 	_check(column, "Day / night cycle (24 minutes)", "day_cycle")
@@ -457,6 +539,7 @@ func _build_graphics():
 	_check(column, "Clouds and cloud shadows", "graphics_clouds")
 	_check(column, "Windblown dust and ash", "graphics_dust")
 	_check(column, "Animated water and lava", "graphics_liquids")
+	_check(column, "Water refraction & shoreline caustics", "graphics_water_refraction")
 	_choice(column, "Environment detail", "environment_quality", ["Low", "High"])
 	controls.environment_quality.tooltip_text = tr(
 		(
@@ -466,6 +549,12 @@ func _build_graphics():
 	)
 	_heading(column, "Rendering")
 	_check(column, "Soft sun and moon shadows", "graphics_shadows")
+	_choice(
+		column,
+		"Shadow resolution",
+		"graphics_shadow_quality",
+		["Low (1024)", "High (2048)", "Ultra (4096)"]
+	)
 	_check(column, "Ambient occlusion (contact shading)", "graphics_ao")
 	_check(column, "Global illumination (indirect light)", "graphics_gi")
 	_check(column, "Bloom / light glow", "graphics_glow")
