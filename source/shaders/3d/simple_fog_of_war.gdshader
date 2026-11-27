@@ -16,6 +16,24 @@ uniform sampler2D screen_texture : hint_screen_texture, filter_linear;
 uniform vec3 memory_tint : source_color = vec3(0.78, 0.84, 0.92);
 uniform float memory_brightness : hint_range(0.0, 1.0) = 0.55;
 uniform float explored_level = 0.25;
+uniform vec3 shroud_tint : source_color = vec3(0.025, 0.038, 0.055);
+
+float shroud_hash(vec2 p)
+{
+  return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+}
+
+float shroud_noise(vec2 p)
+{
+  vec2 cell = floor(p);
+  vec2 f = fract(p);
+  f = f * f * (3.0 - 2.0 * f);
+  float a = shroud_hash(cell);
+  float b = shroud_hash(cell + vec2(1.0, 0.0));
+  float c = shroud_hash(cell + vec2(0.0, 1.0));
+  float d = shroud_hash(cell + vec2(1.0, 1.0));
+  return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+}
 
 void vertex()
 {
@@ -60,21 +78,40 @@ void fragment()
         world_visibility_texture_uv.y >= 0.0 && world_visibility_texture_uv.y <= 1.0)
     {
       float visibility = textureLod(world_visibility_texture, world_visibility_texture_uv, 0.0).r;
-      float memory = clamp(visibility / explored_level, 0.0, 1.0);
-      float current = clamp((visibility - explored_level) / (1.0 - explored_level), 0.0, 1.0);
+      vec2 fog_uv = world_position.xz * 0.045;
+      float wisp =
+          shroud_noise(fog_uv) * 0.65 + shroud_noise(fog_uv * 2.15 + vec2(3.7, 1.9)) * 0.35;
+      // Softly break up the circular shroud rim without altering full-vision edges.
+      float rim_mask =
+          smoothstep(0.0, 0.08, visibility) * (1.0 - smoothstep(explored_level, 0.65, visibility));
+      float organic_vis = clamp(visibility + (wisp - 0.5) * 0.085 * rim_mask, 0.0, 1.0);
+      float memory = clamp(organic_vis / explored_level, 0.0, 1.0);
+      float current = clamp((organic_vis - explored_level) / (1.0 - explored_level), 0.0, 1.0);
       vec3 scene = textureLod(screen_texture, SCREEN_UV, 0.0).rgb;
       float luminance = dot(scene, vec3(0.2126, 0.7152, 0.0722));
       vec3 remembered = mix(vec3(luminance), scene, 0.45) * memory_brightness * memory_tint;
-      ALBEDO = mix(ALBEDO, remembered, memory);
+      vec3 shroud_color = mix(color.rgb, shroud_tint, 0.85) * (0.85 + 0.30 * wisp);
+      ALBEDO = mix(shroud_color, remembered, memory);
       ALPHA = max(ALPHA, 1.0 - current);
     }
     else if (max(exterior_visibility, living_world_visibility) > 0.0)
     {
-      float outside = max(max(-world_position.x, world_position.x - world_visibility_texture_size_scaled.x),
-                          max(-world_position.z, world_position.z - world_visibility_texture_size_scaled.y));
-      float edge = textureLod(world_visibility_texture, clamp(world_visibility_texture_uv, vec2(0.0), vec2(1.0)), 0.0).r;
-      float public_scenery = max(exterior_visibility, living_world_visibility) * smoothstep(0.0, 6.0, outside);
-      float visibility = max(public_scenery, edge) * (1.0 - smoothstep(living_world_visibility > 0.0 ? 95.0 : 32.0, living_world_visibility > 0.0 ? 115.0 : 46.0, outside));
+      float outside =
+          max(max(-world_position.x, world_position.x - world_visibility_texture_size_scaled.x),
+              max(-world_position.z, world_position.z - world_visibility_texture_size_scaled.y));
+      float edge = textureLod(
+                       world_visibility_texture,
+                       clamp(world_visibility_texture_uv, vec2(0.0), vec2(1.0)),
+                       0.0)
+                       .r;
+      float public_scenery =
+          max(exterior_visibility, living_world_visibility) * smoothstep(0.0, 6.0, outside);
+      float visibility = max(public_scenery, edge) *
+          (1.0 -
+           smoothstep(
+               living_world_visibility > 0.0 ? 95.0 : 32.0,
+               living_world_visibility > 0.0 ? 115.0 : 46.0,
+               outside));
       ALPHA = 1.0 - visibility;
     }
     else if (

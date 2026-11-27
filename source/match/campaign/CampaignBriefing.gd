@@ -5,6 +5,16 @@ extends Control
 const Catalog = preload("res://source/match/campaign/CampaignCatalog.gd")
 const BattleTheme = preload("res://source/match/hud/BattleTheme.gd")
 const COMMANDERS = {"bastion": "aegis", "helix": "nyx", "frontier": "rook"}
+const THEATER_PREVIEWS = {
+	"bastion": "res://assets/ui/map-previews/DesertFrontierMap.res",
+	"helix": "res://assets/ui/map-previews/AlpineRelayMap.res",
+	"frontier": "res://assets/ui/map-previews/CopperBadlandsMap.res",
+}
+const FACTION_SCHEMATIC = {
+	"bastion": Color("e7c989"),
+	"helix": Color("7fe0ec"),
+	"frontier": Color("e39f59"),
+}
 const DURATION = 48.0
 var mission_id = "supply_line"
 var elapsed = 0.0
@@ -21,6 +31,7 @@ var progress: ProgressBar
 var _map_points = PackedVector2Array()
 var _faction = "bastion"
 var _objective_lines = []
+var _theater_preview: Texture2D = null
 
 
 func _ready():
@@ -92,6 +103,12 @@ func configure(id: String):
 	backdrop.texture = load("res://assets/ui/campaign/briefings/%s-environment.png" % _faction)
 	foreground.texture = load("res://assets/ui/campaign/briefings/%s.png" % COMMANDERS[_faction])
 	foreground.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	var preview_path = THEATER_PREVIEWS.get(_faction, "")
+	_theater_preview = null
+	if not preview_path.is_empty() and ResourceLoader.exists(preview_path):
+		var baked = load(preview_path)
+		if baked != null and "terrain" in baked and baked.terrain is Texture2D:
+			_theater_preview = baked.terrain
 	title_label.text = "%s · %s" % [operation.number, tr(operation.title)]
 	var points = operation.get("objectives", [])
 	_map_points.clear()
@@ -192,31 +209,115 @@ func _layout():
 func _draw_theater():
 	var rect = Rect2(Vector2.ZERO, theater.size)
 	theater.draw_style_box(BattleTheme.socket(12, 10), rect)
-	var inset = Vector2(20, minf(20, theater.size.y * .2))
+	var inset = Vector2(18, minf(18, theater.size.y * .18))
 	var span = theater.size - inset * 2
+	if span.x <= 4.0 or span.y <= 4.0:
+		return
+	var map_rect = Rect2(inset, span)
+	var accent = FACTION_SCHEMATIC.get(_faction, Color("e7c989"))
+	var grid_tint = accent.lerp(Color("6fa3ad"), 0.55)
+	# Subtle tactical map underlay with a dark scan wash so routes read sharply.
+	if _theater_preview != null:
+		theater.draw_texture_rect(_theater_preview, map_rect, false, Color(0.65, 0.74, 0.80, 0.34))
+	theater.draw_rect(map_rect, Color(0.03, 0.06, 0.08, 0.32), true)
+	theater.draw_rect(map_rect, Color(grid_tint.r, grid_tint.g, grid_tint.b, 0.28), false, 1.0)
 	for index in 7:
 		var x = inset.x + span.x * index / 6.0
-		theater.draw_line(Vector2(x, inset.y), Vector2(x, inset.y + span.y), Color(.5, .7, .7, .14))
+		var alpha = 0.22 if index % 2 == 0 else 0.10
+		theater.draw_line(
+			Vector2(x, inset.y),
+			Vector2(x, inset.y + span.y),
+			Color(grid_tint.r, grid_tint.g, grid_tint.b, alpha)
+		)
 	for index in 5:
 		var y = inset.y + span.y * index / 4.0
-		theater.draw_line(Vector2(inset.x, y), Vector2(inset.x + span.x, y), Color(.5, .7, .7, .14))
+		var alpha = 0.22 if index % 2 == 0 else 0.10
+		theater.draw_line(
+			Vector2(inset.x, y),
+			Vector2(inset.x + span.x, y),
+			Color(grid_tint.r, grid_tint.g, grid_tint.b, alpha)
+		)
+	# Corner tactical reticles
+	var arm = minf(12.0, minf(span.x, span.y) * 0.22)
+	var bracket = Color(accent.r, accent.g, accent.b, 0.72)
+	for corner in [
+		[map_rect.position, Vector2(1, 0), Vector2(0, 1)],
+		[Vector2(map_rect.end.x, map_rect.position.y), Vector2(-1, 0), Vector2(0, 1)],
+		[Vector2(map_rect.position.x, map_rect.end.y), Vector2(1, 0), Vector2(0, -1)],
+		[map_rect.end, Vector2(-1, 0), Vector2(0, -1)],
+	]:
+		theater.draw_line(corner[0], corner[0] + corner[1] * arm, bracket, 1.5)
+		theater.draw_line(corner[0], corner[0] + corner[2] * arm, bracket, 1.5)
+	var font = BattleTheme.numeral_font()
 	var amount = clampf(elapsed / (duration * .6), 0, 1) if Globals.options.menu_motion else 1.0
+	var motion = Globals.options.menu_motion and not Globals.options.reduced_flashes
+	var pulse = 0.5 + 0.5 * sin(elapsed * 3.4) if motion else 0.65
+	# Draw faint planned legs first so the entire operation corridor is legible immediately.
+	for index in range(1, _map_points.size()):
+		var prev_plan = inset + _map_points[index - 1] * span
+		var next_plan = inset + _map_points[index] * span
+		theater.draw_dashed_line(
+			prev_plan, next_plan, Color(accent.r, accent.g, accent.b, 0.24), 1.5, 6.0
+		)
+	# Group overlapping waypoint coordinates so stacked labels never collide.
+	var label_groups = []
 	for index in _map_points.size():
 		var point = inset + _map_points[index] * span
-		theater.draw_circle(point, 5, Color("e7c989"))
-		if index == 0:
-			continue
-		var previous = inset + _map_points[index - 1] * span
-		var segment = clampf(amount * (_map_points.size() - 1) - index + 1, 0, 1)
-		var end = previous.lerp(point, segment)
-		theater.draw_line(previous, end, Color("e7c989"), 3, true)
-		if segment > .98:
-			var direction = (previous - end).normalized()
-			theater.draw_line(end, end + direction.rotated(.55) * 13, Color("e7c989"), 3, true)
-			theater.draw_line(end, end + direction.rotated(-.55) * 13, Color("e7c989"), 3, true)
-	# A small, deterministic atmosphere layer moves independently of both paints.
-	if Globals.options.menu_motion and not Globals.options.reduced_flashes:
-		for index in 28:
-			var x = fposmod(index * 71.3 + elapsed * (5 + index % 3), theater.size.x)
-			var y = fposmod(index * 29.9 - elapsed * 2, theater.size.y)
-			theater.draw_circle(Vector2(x, y), 1 + index % 2, Color(.9, .8, .6, .15))
+		if index > 0:
+			var previous = inset + _map_points[index - 1] * span
+			var segment = clampf(amount * (_map_points.size() - 1) - index + 1, 0, 1)
+			if segment > 0.0:
+				var end = previous.lerp(point, segment)
+				theater.draw_line(
+					previous, end, Color(accent.r, accent.g, accent.b, 0.24), 7.0, true
+				)
+				theater.draw_line(previous, end, accent, 2.5, true)
+				if segment > .98 and previous.distance_to(point) > 16.0:
+					var direction = (previous - end).normalized()
+					theater.draw_line(end, end + direction.rotated(.52) * 12, accent, 2.5, true)
+					theater.draw_line(end, end + direction.rotated(-.52) * 12, accent, 2.5, true)
+		var ring_radius = 10.0 + (pulse * 4.0 if index == _map_points.size() - 1 else 0.0)
+		theater.draw_arc(
+			point, ring_radius, 0.0, TAU, 24, Color(accent.r, accent.g, accent.b, 0.42), 1.2, true
+		)
+		theater.draw_circle(point, 5.5, Color(0.05, 0.08, 0.10, 0.92))
+		theater.draw_circle(point, 3.8, accent)
+		var merged = false
+		for group in label_groups:
+			if group.point.distance_to(point) < 16.0:
+				group.indices.append(index + 1)
+				merged = true
+				break
+		if not merged:
+			label_groups.append({"point": point, "indices": [index + 1]})
+	if font != null and span.y >= 60.0:
+		for group in label_groups:
+			var first_idx = group.indices[0]
+			var last_idx = group.indices[group.indices.size() - 1]
+			var tag = (
+				"%02d" % first_idx
+				if group.indices.size() == 1
+				else "%02d-%02d" % [first_idx, last_idx]
+			)
+			var tag_pos = group.point + Vector2(8.0, -6.0)
+			var tag_w = 18.0 if group.indices.size() == 1 else 36.0
+			if tag_pos.x > map_rect.end.x - tag_w:
+				tag_pos.x = group.point.x - tag_w - 6.0
+			if tag_pos.y < map_rect.position.y + 12.0:
+				tag_pos.y = group.point.y + 14.0
+			theater.draw_string(
+				font, tag_pos, tag, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color("f2ece0")
+			)
+	# Subtle radar sweep line across the tactical display
+	if motion:
+		var sweep_x = inset.x + fposmod(elapsed * 26.0, span.x)
+		theater.draw_line(
+			Vector2(sweep_x, inset.y),
+			Vector2(sweep_x, inset.y + span.y),
+			Color(accent.r, accent.g, accent.b, 0.16),
+			2.0
+		)
+		for index in 18:
+			var x = inset.x + fposmod(index * 71.3 + elapsed * (5 + index % 3), span.x)
+			var y = inset.y + fposmod(index * 29.9 - elapsed * 2, span.y)
+			theater.draw_circle(Vector2(x, y), 1 + index % 2, Color(.9, .8, .6, .14))

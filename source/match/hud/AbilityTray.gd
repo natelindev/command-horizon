@@ -191,7 +191,7 @@ func _gather_faction_signature(hud_ref, player, entries: Array):
 			"id": "signature_" + player.faction,
 			"kind": "signature",
 			"name": sig_title,
-			"description": Factions.signature_title(player.faction),
+			"description": "",
 			"glyph": BattleTheme.icon(glyph_name),
 			"hotkey": "",
 			"cost_text": "5 L" if player.faction == "frontier" else "",
@@ -306,7 +306,7 @@ func _gather_unit_abilities(hud_ref, entries: Array):
 					active_status = "Suspended: low power"
 					break
 		if ability.range > 0 and ability.range < 1000:
-			extra_str = "Range: %.1f m · Radius: %.1f m" % [ability.range, ability.radius]
+			extra_str = tr("Range: %.1f m · Radius: %.1f m") % [ability.range, ability.radius]
 
 		var ready_count = group.ready
 		var charges_text = (

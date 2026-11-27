@@ -50,7 +50,7 @@ func _refresh():
 		)
 	)
 	var space = _horizontal_space()
-	_card.custom_minimum_size.x = minf(560, maxf(1, space.y - space.x))
+	_card.custom_minimum_size.x = minf(460.0, maxf(1.0, space.y - space.x))
 	_card.size.x = _card.custom_minimum_size.x
 	if not _line.is_empty():
 		_card.set_line(_line.speaker, _line.text, Globals.options.subtitle_size)
@@ -68,23 +68,23 @@ func _position_card():
 	var space = _horizontal_space()
 	# Wrapping can move a new line into or out of the roster's vertical band.
 	# Refit its width once the container reports the actual caption height.
-	var width = minf(560, space.y - space.x)
+	var width = minf(460.0, maxf(1.0, space.y - space.x))
 	if not is_equal_approx(_card.custom_minimum_size.x, width):
 		_card.custom_minimum_size.x = width
 		_card.size.x = width
-	_card.position = Vector2(
-		space.x + (space.y - space.x - _card.size.x) / 2, _caption_top(_card.size.y)
-	)
+	# Dock beside the minimap instead of covering the center of the battlefield.
+	var x = minf(space.x + 8.0, maxf(space.x, space.y - _card.size.x))
+	_card.position = Vector2(x, _caption_top(_card.size.y))
 
 
 func _caption_top(height):
 	var viewport = get_viewport().get_visible_rect().size
-	# The bottom console now spans the width. Keep captions above its queue rack,
-	# with the same reservation for empty and selected states to avoid jumping text.
+	# Keep captions tucked neatly above the compact queue rack, with a constant
+	# reservation across empty and selected states so captions never jump.
 	var top = viewport.y - HudLayout.CONSOLE_HEIGHT
 	if is_instance_valid(_minimap) and _minimap.is_visible_in_tree():
 		top = _minimap.get_global_rect().position.y
-	return maxf(HudLayout.TOP_PLATE + 8, top - 96 - height)
+	return maxf(HudLayout.TOP_PLATE + 8, top - 72.0 - height)
 
 
 func _horizontal_space():

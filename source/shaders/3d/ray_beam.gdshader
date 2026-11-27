@@ -53,22 +53,22 @@ void fragment()
     float separation = focus * (0.25 + smoothstep(0.0, 0.7, progress) * 0.22);
     float blue = exp(-pow((across - separation) / 0.10, 2.0));
     float violet = exp(-pow((across + separation) / 0.10, 2.0));
-    split_light = (vec3(0.2, 0.85, 1.0) * blue + vec3(0.78, 0.35, 1.0) * violet)
-        * (1.0 - smoothstep(0.05, 1.0, progress));
+    split_light = (vec3(0.2, 0.85, 1.0) * blue + vec3(0.78, 0.35, 1.0) * violet) *
+        (1.0 - smoothstep(0.05, 1.0, progress));
     core = exp(-d * d * 120.0);
     sheath *= 0.3;
   }
   float ion = 0.8 + 0.2 * turbulence;
   float hot = core * core_life;
   float halo = sheath * sheath_life * ion;
-  vec3 energy = core_color.rgb * hot * (is_prism ? 0.85 : 1.8)
-      + tint * halo * 0.75 + split_light * 0.85;
+  vec3 energy =
+      core_color.rgb * hot * (is_prism ? 0.85 : 1.8) + tint * halo * 0.75 + split_light * 0.85;
   float opacity = hot + halo * 0.65 + length(split_light) * 0.55;
   if (beam_role == 1)
   {
     // A calm, narrow feeder carries a single packet toward the firing crystal.
-    float envelope = (0.2 + 0.8 * smoothstep(0.0, 0.16, progress))
-        * (1.0 - smoothstep(0.55, 1.0, progress));
+    float envelope =
+        (0.2 + 0.8 * smoothstep(0.0, 0.16, progress)) * (1.0 - smoothstep(0.55, 1.0, progress));
     float packet = exp(-pow((UV.x - mix(-0.12, 1.12, progress)) / 0.16, 2.0));
     float thread = exp(-d * d * 42.0);
     opacity = thread * envelope * (0.5 + packet * 0.5);
@@ -89,8 +89,11 @@ void fragment()
     opacity = (core * core_life + sheath * life * 0.25);
     energy = core_color.rgb * core * core_life + tint * sheath * life * 0.45;
   }
-  // Carry the white-hot core in the unshaded color output as well as emission.
-  ALBEDO = energy * intensity;
-  EMISSION = energy * intensity;
-  ALPHA = clamp(opacity * edge * ends * beam_color.a, 0.0, 1.0);
+  // Soft HDR shoulder keeps single beams crisp while preventing stacked volleys
+  // from blowing out into an opaque white block under additive bloom.
+  vec3 raw_energy = energy * intensity;
+  vec3 toned_energy = raw_energy / (vec3(1.0) + raw_energy * 0.22);
+  ALBEDO = toned_energy;
+  EMISSION = toned_energy * 0.85;
+  ALPHA = clamp(opacity * edge * ends * beam_color.a, 0.0, 0.96);
 }

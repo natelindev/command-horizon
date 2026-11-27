@@ -7,14 +7,14 @@ process_mode = 3
 script = ExtResource("1_iis45")
 
 [node name="QueueRow" type="HBoxContainer" parent="."]
-custom_minimum_size = Vector2(0, 64)
+custom_minimum_size = Vector2(0, 46)
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 6
 
 [node name="QueueElements" type="HBoxContainer" parent="QueueRow"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 5
+theme_override_constants/separation = 4
 alignment = 2
 
 [node name="Overflow" type="Label" parent="QueueRow"]

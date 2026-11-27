@@ -18,9 +18,13 @@ func _ready():
 		else catalog.type_from_path(queue_element.unit_prototype.resource_path)
 	)
 	var faction = "bastion" if camp != null else queue.get_parent().player.faction
+	theme_type_variation = "HudSlotButton"
+	custom_minimum_size = Vector2(44, 44)
 	text = ""
 	icon = Factions.portrait(faction, role)
 	expand_icon = true
+	icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	add_theme_constant_override("icon_max_width", 36)
 	tooltip_text = tr(Factions.title(faction, role)) + tr(" — click to cancel and refund")
 	tooltip_text += (
 		"\n"

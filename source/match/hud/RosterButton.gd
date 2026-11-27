@@ -140,7 +140,7 @@ func _price(parent, texture, tint):
 ## neutral unit glyph instead of leaving the socket empty.
 func show_role(portrait: Texture2D, title: String, cost: Dictionary):
 	_portrait.texture = portrait if portrait != null else FALLBACK_ICON
-	_portrait.modulate = Color.WHITE if portrait != null else BattleTheme.MUTED
+	_portrait.modulate = Color(1.08, 1.08, 1.08) if portrait != null else BattleTheme.MUTED
 	_title.text = title
 	_materials.text = str(cost.get("resource_a", 0))
 	_electronics.text = str(cost.get("resource_b", 0))

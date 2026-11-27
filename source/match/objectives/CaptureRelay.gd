@@ -208,10 +208,20 @@ func _update_presentation():
 		)
 	if is_instance_valid(_vision_ring):
 		var human = _match._get_human_player() if _match != null else null
-		_vision_ring.visible = captured_by != null and human != null and captured_by.is_allied_with(human)
+		_vision_ring.visible = (
+			captured_by != null and human != null and captured_by.is_allied_with(human)
+		)
 		if _vision_ring.visible:
-			_vision_ring.color = Color(captured_by.color.r, captured_by.color.g, captured_by.color.b, 0.28)
+			_vision_ring.color = Color(
+				captured_by.color.r, captured_by.color.g, captured_by.color.b, 0.28
+			)
 	_label.text = tr(label_title) + " · " + capture_status(_match._get_human_player()).to_upper()
+	if contested or candidate != null:
+		_label.modulate = Color("f5cf7d")
+	elif captured_by != null:
+		_label.modulate = Color("f2ecd8").lerp(captured_by.color, 0.45)
+	else:
+		_label.modulate = Color("f2ecd8")
 
 
 func _process(delta: float):
@@ -279,12 +289,16 @@ func _build_model():
 	add_child(_vision_ring)
 	_label = Label3D.new()
 	_label.font = load("res://assets/fonts/NotoSansSC.ttf")
-	_label.position = Vector3(0, 4.4, 0)
+	_label.position = Vector3(0, 5.1, 0)
 	_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	_label.font_size = 48
+	_label.no_depth_test = true
+	_label.render_priority = 12
+	_label.outline_render_priority = 11
+	_label.font_size = 42
 	_label.outline_size = 10
-	_label.outline_modulate = Color("15232c")
-	_label.pixel_size = 0.015
+	_label.outline_modulate = Color("0b1318")
+	_label.modulate = Color("f2ecd8")
+	_label.pixel_size = 0.013
 	add_child(_label)
 	_update_presentation()
 

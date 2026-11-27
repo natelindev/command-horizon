@@ -103,12 +103,18 @@ func _build_model():
 		add_child(_vision_ring)
 	_label = Label3D.new()
 	_label.position = Vector3(
-		0, 5.5 if kind == "refinery" else 4.9 if kind == "data_relay" else 3.6, 0
+		0, 6.4 if kind == "refinery" else 6.1 if kind == "data_relay" else 4.4, 0
 	)
 	_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	_label.no_depth_test = true
+	_label.render_priority = 12
+	_label.outline_render_priority = 11
 	_label.font = load("res://assets/fonts/NotoSansSC.ttf")
-	_label.font_size = 28
-	_label.pixel_size = .012
+	_label.font_size = 26
+	_label.outline_size = 10
+	_label.outline_modulate = Color("0b1318")
+	_label.modulate = Color("f2ecd8")
+	_label.pixel_size = .011
 	add_child(_label)
 	_update_presentation()
 

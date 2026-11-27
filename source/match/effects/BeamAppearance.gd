@@ -7,16 +7,16 @@ const RAIL = {
 	"prism": false,
 	"width": .38,
 	"duration": .24,
-	"power": 2.5,
+	"power": 2.1,
 	"color": Color("b6d9e1"),
 	"core": Color("edfcff")
 }
 const PRISM = {
 	"role": 0,
 	"prism": true,
-	"width": .72,
+	"width": .68,
 	"duration": .28,
-	"power": 1.65,
+	"power": 1.35,
 	"color": Color("a08aff"),
 	"core": Color("e6edff")
 }

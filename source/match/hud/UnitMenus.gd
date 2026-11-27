@@ -585,11 +585,13 @@ func _build_info(portrait):
 	_health_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	health_row.add_child(_health_label)
 	_status = Label.new()
-	_status.add_theme_font_size_override("font_size", 12)
-	_status.add_theme_color_override("font_color", Color("b9bfba"))
+	_status.add_theme_font_size_override("font_size", 11)
+	_status.add_theme_constant_override("line_spacing", -1)
+	_status.add_theme_color_override("font_color", Color("c8cec9"))
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_status.max_lines_visible = 3
+	_status.max_lines_visible = 4
 	_status.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	_status.mouse_filter = Control.MOUSE_FILTER_PASS
 	_status.custom_minimum_size.x = _info_bay.custom_minimum_size.x - 12
 	_info.add_child(_status)
 	_health_dirty = true

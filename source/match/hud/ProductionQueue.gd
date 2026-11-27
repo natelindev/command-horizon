@@ -15,8 +15,8 @@ func _ready():
 	theme = Kit.create()
 	# The rack hugs its jobs at the right end of the deck instead of spanning it.
 	size_flags_horizontal = Control.SIZE_SHRINK_END
-	# A queue rack sitting on top of the command deck; it only shows while it holds jobs.
-	_tray = Kit.strip(14, 7)
+	# A compact queue rack sitting flush above the command deck while holding jobs.
+	_tray = Kit.strip(8, 4)
 	_fit_queue()
 	_queue_elements.minimum_size_changed.connect(_fit_queue)
 	get_viewport().size_changed.connect(_fit_queue)
