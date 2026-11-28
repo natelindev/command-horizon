@@ -109,7 +109,8 @@ The towering industrial metropolis of **Meridian** has fallen silent. Following 
    ```sh
    godot --path . res://source/main-menu/Play.tscn
    ```
-   *(On macOS, you can also double-click [`play-skirmish.command`](play-skirmish.command) or [`play-bastion.command`](play-bastion.command)).*
+   - **Windows:** Double-click [`play.bat`](play.bat) (Main Menu), [`play-skirmish.bat`](play-skirmish.bat) (Skirmish), or [`play-bastion.bat`](play-bastion.bat) (Bastion Demo).
+   - **macOS:** Double-click [`play-skirmish.command`](play-skirmish.command) or [`play-bastion.command`](play-bastion.command).
 
 ### Running a Dedicated Headless Multiplayer Server
 Launch a persistent server supporting up to 4 concurrent match rooms:
