@@ -85,6 +85,16 @@ func apply_options():
 		embers.amount_ratio = .5 if _options.environment_quality == 0 else 1.0
 
 
+func set_rt_water_reflection(enabled: bool, texture: Texture2D):
+	for material in liquids:
+		if (
+			material.shader
+			and material.shader.resource_path.get_file() == "authored_water.gdshader"
+		):
+			material.set_shader_parameter("rt_water_reflection_enabled", enabled)
+			material.set_shader_parameter("rt_water_reflection", texture if enabled else null)
+
+
 func update(elapsed, cloud_cover, wetness, mist, daylight, haze):
 	water_interactions.update(elapsed)
 	for material in liquids:

@@ -79,14 +79,14 @@ void fragment() {
 	markings*=1.0-smoothstep(1.15,1.65,crossing);
 	asphalt=mix(asphalt,vec3(.58,.49,.30),max(markings,side_line*.5)*(.55+wear*.35));
 	ground=mix(ground,vec3(.31,.32,.30),shoulder*.7);
-	float puddle=smoothstep(.38,.68,noise(p*.38+3.0))*wetness*max(road,paved*.6);
+	float puddle=smoothstep(.30,.58,noise(p*.34+3.0))*wetness*max(road,paved*.65);
 	float dry_roughness = mix(.95, .72 + texture(concrete_roughness, concrete_uv).r*.26, paved);
 	dry_roughness = mix(dry_roughness, .72 + texture(asphalt_roughness, asphalt_uv).r*.26, road);
 	// Large scans add yard stains and road wear; the 2 m maps below keep close-up grain.
 	TerrainSurface terrain=terrain_surface(p,mix(ground,asphalt,road)+curb*.065,road,paved,dry_roughness);
-	terrain.slope*=1.0-puddle*.65;
-	ALBEDO=terrain.albedo*(1.0-wetness*.22);
-	ROUGHNESS=mix(terrain.roughness,.55,puddle);
+	terrain.slope*=1.0-puddle*.78;
+	ALBEDO=terrain.albedo*(1.0-wetness*.24);
+	ROUGHNESS=mix(terrain.roughness*mix(1.0,.52,wetness),.05,puddle);
 	AO=terrain.occlusion;
 	NORMAL=terrain_normal(terrain,NORMAL,VIEW_MATRIX,INV_VIEW_MATRIX);
 	// World-projected UVs need the matching tangent basis, independent of the plane's UVs.
@@ -95,6 +95,6 @@ void fragment() {
 	BINORMAL = normalize(cross(NORMAL, TANGENT));
 	NORMAL_MAP = mix(vec3(.5,.5,1.0), texture(concrete_normal, concrete_uv).rgb, paved);
 	NORMAL_MAP = mix(NORMAL_MAP, texture(asphalt_normal, asphalt_uv).rgb, road);
-	NORMAL_MAP_DEPTH = .4 * (1.0 - puddle*.65);
-	SPECULAR=.22+wetness*.08;
+	NORMAL_MAP_DEPTH = .4 * (1.0 - puddle*.82);
+	SPECULAR=.24+wetness*.28;
 }

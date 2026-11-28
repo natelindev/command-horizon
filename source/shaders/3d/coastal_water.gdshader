@@ -127,7 +127,7 @@ void fragment()
   color = mix(color, vec3(0.38, 0.54, 0.64), fresnel * (surface_effects ? 0.30 : 0.16));
 
   ALBEDO = mix(color, vec3(0.76, 0.84, 0.82), foam);
-  ROUGHNESS = surface_effects ? mix(0.33 + shallows * 0.04, 0.48, foam) : 0.46;
-  SPECULAR = surface_effects ? 0.18 : 0.14;
+  ROUGHNESS = surface_effects ? mix(0.07 + shallows * 0.03, 0.52, foam) : 0.36;
+  SPECULAR = surface_effects ? 0.55 : 0.24;
   METALLIC = 0.0;
 }

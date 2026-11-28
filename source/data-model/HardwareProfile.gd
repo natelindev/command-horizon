@@ -21,8 +21,12 @@ const PRESETS = {
 	{
 		"graphics_shadows": false,
 		"graphics_shadow_quality": 0,
+		"graphics_extreme_shadows": false,
 		"graphics_ao": false,
 		"graphics_gi": false,
+		"graphics_rt_gi": false,
+		"graphics_reflections": 0,
+		"graphics_rt_quality": 0,
 		"graphics_glow": false,
 		"graphics_fog": false,
 		"graphics_liquids": false,
@@ -32,6 +36,9 @@ const PRESETS = {
 		"environment_quality": 0,
 		"graphics_dof": false,
 		"graphics_msaa": 0,
+		"graphics_post_aa": 0,
+		"graphics_anisotropy": 0,
+		"graphics_tonemap": 0,
 		"graphics_ground_detail": false,
 		"battlefield_wear": false,
 		"area_lighting": false,
@@ -44,8 +51,12 @@ const PRESETS = {
 	{
 		"graphics_shadows": true,
 		"graphics_shadow_quality": 1,
+		"graphics_extreme_shadows": false,
 		"graphics_ao": false,
 		"graphics_gi": false,
+		"graphics_rt_gi": false,
+		"graphics_reflections": 0,
+		"graphics_rt_quality": 0,
 		"graphics_glow": true,
 		"graphics_fog": true,
 		"graphics_liquids": true,
@@ -55,6 +66,9 @@ const PRESETS = {
 		"environment_quality": 0,
 		"graphics_dof": false,
 		"graphics_msaa": 0,
+		"graphics_post_aa": 0,
+		"graphics_anisotropy": 1,
+		"graphics_tonemap": 0,
 		"graphics_ground_detail": true,
 		"battlefield_wear": true,
 		"area_lighting": false,
@@ -67,8 +81,12 @@ const PRESETS = {
 	{
 		"graphics_shadows": true,
 		"graphics_shadow_quality": 1,
+		"graphics_extreme_shadows": false,
 		"graphics_ao": true,
 		"graphics_gi": false,
+		"graphics_rt_gi": false,
+		"graphics_reflections": 1,
+		"graphics_rt_quality": 0,
 		"graphics_glow": true,
 		"graphics_fog": true,
 		"graphics_liquids": true,
@@ -78,6 +96,9 @@ const PRESETS = {
 		"environment_quality": 1,
 		"graphics_dof": false,
 		"graphics_msaa": 1,
+		"graphics_post_aa": 2,
+		"graphics_anisotropy": 2,
+		"graphics_tonemap": 1,
 		"graphics_ground_detail": true,
 		"battlefield_wear": true,
 		"area_lighting": false,
@@ -90,8 +111,12 @@ const PRESETS = {
 	{
 		"graphics_shadows": true,
 		"graphics_shadow_quality": 2,
+		"graphics_extreme_shadows": true,
 		"graphics_ao": true,
 		"graphics_gi": true,
+		"graphics_rt_gi": true,
+		"graphics_reflections": 2,
+		"graphics_rt_quality": 1,
 		"graphics_glow": true,
 		"graphics_fog": true,
 		"graphics_liquids": true,
@@ -101,6 +126,9 @@ const PRESETS = {
 		"environment_quality": 1,
 		"graphics_dof": false,
 		"graphics_msaa": 2,
+		"graphics_post_aa": 2,
+		"graphics_anisotropy": 3,
+		"graphics_tonemap": 1,
 		"graphics_ground_detail": true,
 		"battlefield_wear": true,
 		"area_lighting": true,
@@ -113,8 +141,12 @@ const PRESETS = {
 const PRESET_COMPARE_KEYS = [
 	"graphics_shadows",
 	"graphics_shadow_quality",
+	"graphics_extreme_shadows",
 	"graphics_ao",
 	"graphics_gi",
+	"graphics_rt_gi",
+	"graphics_reflections",
+	"graphics_rt_quality",
 	"graphics_glow",
 	"graphics_fog",
 	"graphics_liquids",
@@ -124,6 +156,9 @@ const PRESET_COMPARE_KEYS = [
 	"environment_quality",
 	"graphics_dof",
 	"graphics_msaa",
+	"graphics_post_aa",
+	"graphics_anisotropy",
+	"graphics_tonemap",
 	"graphics_ground_detail",
 	"battlefield_wear",
 	"area_lighting",
@@ -132,12 +167,22 @@ const PRESET_COMPARE_KEYS = [
 ]
 
 
+static func supports_raytracing() -> bool:
+	if DisplayServer.get_name() == "headless":
+		return false
+	if RenderingServer.get_current_rendering_method() != "forward_plus":
+		return false
+	var rd := RenderingServer.get_rendering_device()
+	return rd != null and rd.has_feature(RenderingDevice.SUPPORTS_RAYTRACING_PIPELINE)
+
+
 static func detect() -> Dictionary:
 	var headless := DisplayServer.get_name() == "headless"
 	var method := RenderingServer.get_current_rendering_method()
 	var adapter_name := ""
 	var adapter_vendor := ""
 	var adapter_type := RenderingDevice.DEVICE_TYPE_OTHER
+	var rt_supported := supports_raytracing()
 	if not headless and RenderingServer.get_rendering_device() != null:
 		adapter_name = RenderingServer.get_video_adapter_name()
 		adapter_vendor = RenderingServer.get_video_adapter_vendor()
@@ -153,6 +198,7 @@ static func detect() -> Dictionary:
 		"adapter_type": adapter_type,
 		"cpu_cores": cpu_cores,
 		"rendering_method": method,
+		"supports_raytracing": rt_supported,
 		"tier": tier,
 		"tier_name": TIER_NAMES[tier],
 	}

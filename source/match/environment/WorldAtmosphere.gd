@@ -2,6 +2,7 @@ extends Node3D
 
 const AtmosphereProfiles = preload("res://source/match/environment/AtmosphereProfiles.gd")
 const GroundDecals = preload("res://source/match/effects/GroundDecals.gd")
+const HardwareProfile = preload("res://source/data-model/HardwareProfile.gd")
 
 # Presentation is derived from the saved match clock; no gameplay or global RNG changes.
 var environment: Environment
@@ -10,6 +11,7 @@ var camera: Camera3D
 var attributes: CameraAttributesPractical
 var rain: GPUParticles3D
 var effects
+var rt_system = null
 var cloud_cover = 0.0
 var wetness = 0.0
 var hour = 14.0
@@ -25,6 +27,7 @@ var _last_wetness = -1.0
 var _lighting_key: Array = []
 var _mist_volumes: Array[FogVolume] = []
 var _mist_material: FogMaterial
+var _last_rt_water_ready := false
 
 
 func _ready():
@@ -82,26 +85,94 @@ func _ready():
 	environment.ssil_intensity = .85
 	environment.ssil_sharpness = .90
 	environment.ssil_normal_rejection = 1.0
-	environment.glow_intensity = .45
-	environment.glow_bloom = .035
+	environment.ssr_max_steps = 64
+	environment.ssr_fade_in = 0.12
+	environment.ssr_fade_out = 1.8
+	environment.ssr_depth_tolerance = 0.25
+	environment.sdfgi_use_occlusion = true
+	environment.sdfgi_read_sky_light = true
+	environment.sdfgi_bounce_feedback = 0.65
+	environment.sdfgi_cascades = 4
+	environment.sdfgi_min_cell_size = 0.4
+	environment.sdfgi_energy = 1.0
+	environment.sdfgi_y_scale = Environment.SDFGI_Y_SCALE_75_PERCENT
+	environment.glow_normalized = true
+	environment.glow_hdr_threshold = 1.05
+	environment.glow_intensity = .50
+	environment.glow_bloom = .04
 	environment.fog_height_density = 0.0
 	environment.fog_aerial_perspective = .22
-	environment.fog_sun_scatter = .15
+	environment.fog_sun_scatter = .18
 	_collect_weather_materials(_game.map)
 	_create_rain()
 	_create_local_mist()
 	effects = load("res://source/match/environment/BattlefieldEffects.gd").new()
 	add_child(effects)
 	effects.setup(_game, camera, AtmosphereProfiles.biome(_game.map))
+	if HardwareProfile.supports_raytracing():
+		var rt_candidate = load("res://source/match/rendering/RaytracingCompositorEffect.gd").new()
+		if rt_candidate.initialize(camera, _game):
+			rt_system = rt_candidate
 	_options.changed.connect(apply_options)
 	apply_options()
 
 
+func _exit_tree():
+	if rt_system != null:
+		rt_system.close(camera)
+		rt_system = null
+
+
 func apply_options():
 	var forward = RenderingServer.get_current_rendering_method() == "forward_plus"
+	var rt_available: bool = rt_system != null and forward
+	var use_rt_gi: bool = rt_available and _options.graphics_gi and _options.graphics_rt_gi
+	var use_rt_refl: bool = rt_available and _options.graphics_reflections == 2
+	var use_sdfgi: bool = (
+		forward and _options.graphics_gi and _options.graphics_rt_gi and not rt_available
+	)
+	var use_ssr: bool = (
+		forward
+		and (
+			_options.graphics_reflections == 1
+			or (_options.graphics_reflections == 2 and not rt_available)
+		)
+	)
+	var agx: bool = _options.graphics_tonemap == 1
+	environment.tonemap_mode = (
+		Environment.TONE_MAPPER_AGX if agx else Environment.TONE_MAPPER_FILMIC
+	)
+	if agx:
+		environment.tonemap_agx_white = 4.0
+		environment.tonemap_agx_contrast = 1.18
+		environment.tonemap_exposure = profile.exposure * 1.08
+		environment.glow_blend_mode = Environment.GLOW_BLEND_MODE_SCREEN
+	else:
+		environment.tonemap_exposure = profile.exposure
+		environment.glow_blend_mode = Environment.GLOW_BLEND_MODE_SOFTLIGHT
+	var sky_lighting: bool = (
+		agx or _options.graphics_reflections > 0 or _options.graphics_gi or use_rt_gi
+	)
+	environment.ambient_light_source = (
+		Environment.AMBIENT_SOURCE_SKY if sky_lighting else Environment.AMBIENT_SOURCE_COLOR
+	)
+	environment.ambient_light_sky_contribution = 0.65 if sky_lighting else 0.0
+	environment.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
+
 	sun.shadow_enabled = _options.graphics_shadows
+	if _options.graphics_extreme_shadows:
+		sun.shadow_bias = .012
+		sun.shadow_normal_bias = .14
+		sun.shadow_blur = .85
+	else:
+		sun.shadow_bias = .015
+		sun.shadow_normal_bias = .20
+		sun.shadow_blur = 1.0
 	environment.ssao_enabled = _options.graphics_ao and forward
-	environment.ssil_enabled = _options.graphics_gi and forward
+	environment.ssao_intensity = 1.65 if use_rt_gi else 2.0
+	environment.ssil_enabled = _options.graphics_gi and forward and not use_rt_gi
+	environment.sdfgi_enabled = use_sdfgi
+	environment.ssr_enabled = use_ssr
 	environment.glow_enabled = _options.graphics_glow
 	GroundDecals.set_detail(_game.map, _options.graphics_ground_detail)
 	environment.fog_enabled = _options.graphics_fog
@@ -109,19 +180,33 @@ func apply_options():
 		forward and _options.graphics_fog and _options.environment_quality == 1
 	)
 	environment.volumetric_fog_density = 0.0
+	environment.volumetric_fog_gi_inject = 1.25 if (use_rt_gi or use_sdfgi) else 1.0
+	environment.volumetric_fog_anisotropy = 0.55 if _options.graphics_extreme_shadows else 0.2
 	for volume in _mist_volumes:
 		volume.visible = environment.volumetric_fog_enabled
 	attributes.dof_blur_far_enabled = _options.graphics_dof and forward
 	attributes.dof_blur_near_enabled = false
 	attributes.dof_blur_amount = .12
-	get_viewport().msaa_3d = [Viewport.MSAA_DISABLED, Viewport.MSAA_2X, Viewport.MSAA_4X][
-		_options.graphics_msaa
-	]
+	get_viewport().msaa_3d = [
+		Viewport.MSAA_DISABLED, Viewport.MSAA_2X, Viewport.MSAA_4X, Viewport.MSAA_8X
+	][clampi(_options.graphics_msaa, 0, 3)]
+	if rt_system != null:
+		rt_system.configure(use_rt_gi, use_rt_refl, _options.graphics_rt_quality)
 	effects.apply_options()
+	_sync_rt_water()
 	# Preview edits even while settings pause the scene.
 	_lighting_key.clear()
 	_update(0.0)
 	_game.base_area_lighting.refresh()
+
+
+func _sync_rt_water():
+	var water_ready: bool = rt_system != null and rt_system.has_water_reflections()
+	_last_rt_water_ready = water_ready
+	if effects != null and effects.has_method("set_rt_water_reflection"):
+		effects.set_rt_water_reflection(
+			water_ready, rt_system.water_reflection_texture if water_ready else null
+		)
 
 
 func _process(delta):
@@ -184,6 +269,11 @@ func _update(_delta):
 	# Local material parameters avoid coupling concurrently loaded viewports/matches.
 	if _game.map.has_node("LivingWorld"):
 		_game.map.get_node("LivingWorld").set_atmosphere(daylight, wetness)
+	if rt_system != null:
+		rt_system.sync_scene(_game)
+		var water_ready: bool = rt_system.has_water_reflections()
+		if water_ready != _last_rt_water_ready:
+			_sync_rt_water()
 
 
 func _apply_lighting(altitude, daylight, golden, weather, previous_weather, blend, cloud_levels):
@@ -208,12 +298,30 @@ func _apply_lighting(altitude, daylight, golden, weather, previous_weather, blen
 		.0005 if previous_weather == 4 else lerpf(.00008, .00025, cloud_levels[previous_weather])
 	)
 	environment.fog_density = lerpf(previous_fog, target_fog, blend)
+	var sky_top := Color("0a162b").lerp(Color("2d5e87"), daylight).lerp(
+		Color("677984"), cloud_cover * .7
+	)
+	var ground_bottom := Color("121822").lerp(_base_ambient.lerp(_haze, 0.45) * 0.48, daylight)
 	if _sky:
-		_sky.sky_top_color = Color("0a162b").lerp(Color("376585"), daylight).lerp(
-			Color("677984"), cloud_cover * .7
-		)
+		_sky.sky_top_color = sky_top
 		_sky.sky_horizon_color = environment.fog_light_color
-		_sky.ground_horizon_color = environment.fog_light_color
+		_sky.ground_horizon_color = environment.fog_light_color.lerp(ground_bottom, 0.35)
+		_sky.ground_bottom_color = ground_bottom
+		_sky.sky_curve = 0.18
+		_sky.ground_curve = 0.08
+	if rt_system != null:
+		rt_system.set_lighting(
+			sun.global_basis.z,
+			sun.light_color,
+			sun.light_energy,
+			daylight,
+			sky_top,
+			environment.fog_light_color,
+			ground_bottom,
+			environment.ambient_light_energy,
+			cloud_cover
+		)
+		rt_system.reset_history()
 
 
 func _create_local_mist():

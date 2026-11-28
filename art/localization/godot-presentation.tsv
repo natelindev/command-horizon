@@ -18,3 +18,32 @@ HUD event animations	战斗界面事件动画
 %d nit	%d 尼特
 SDR active · enable HDR output to use this display's HDR range.	当前为 SDR · 开启 HDR 输出以使用此显示器的 HDR 亮度范围。
 Auto	自动
+Hardware RT	硬件光追
+Fallback GI/SSR	常规 GI/SSR
+PC Extreme shadows & detail (8K)	PC 极致阴影与细节（8K）
+8192×8192 shadow atlas, Ultra soft shadow filtering, shadowed base lights, high-resolution volumetric fog, and maximum mesh detail.	8192×8192 阴影贴图、极致柔化阴影过滤、带阴影基地灯光、高分辨率体积雾与最高模型细节。
+Raytraced global illumination (RTGI)	光线追踪全局光照（RTGI）
+Hardware multi-bounce indirect light and sky occlusion on RTX GPUs; uses 3D SDFGI on other Forward+ GPUs.	在 RTX 显卡上启用硬件多反弹间接光照与天空遮蔽；其他 Forward+ 显卡自动回退为 3D SDFGI。
+Reflections	反射质量
+Screen-Space (SSR)	屏幕空间反射（SSR）
+Raytraced (RTX)	光线追踪反射（RTX）
+Real-time reflections on water, wet pavement, and metallic armor. Uses hardware ray tracing when supported, falling back to full-res SSR.	水面、湿润路面与金属装甲的实时反射。支持时启用硬件光线追踪，否则回退为全分辨率 SSR。
+Ray tracing quality	光线追踪质量
+Balanced (50%)	均衡（50%）
+High (75%)	高（75%）
+Ultra (100%)	极致（100%）
+Internal ray tracing resolution for RTGI and Raytraced reflections.	RTGI 与光追反射的内部追踪分辨率。
+Color grading	色彩映射
+Filmic (Classic)	Filmic（经典）
+AgX (Cinematic)	AgX（电影级）
+AgX preserves rich color and highlight detail in bright sunlight and explosions.	AgX 可在强光与爆炸中保留丰富的色彩与高光层次。
+Texture filtering	纹理过滤
+2× Anisotropic	2× 各向异性
+4× Anisotropic	4× 各向异性
+8× Anisotropic	8× 各向异性
+16× Anisotropic	16× 各向异性
+8× MSAA	8× MSAA
+Post anti-aliasing	后处理抗锯齿
+FXAA	FXAA
+SMAA	SMAA
+TAA	TAA

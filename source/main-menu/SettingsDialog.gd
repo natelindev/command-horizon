@@ -305,7 +305,12 @@ func _refresh():
 	)
 	for key in [
 		"graphics_msaa",
+		"graphics_post_aa",
+		"graphics_anisotropy",
+		"graphics_tonemap",
 		"graphics_shadow_quality",
+		"graphics_reflections",
+		"graphics_rt_quality",
 		"graphics_upscaling",
 		"time_of_day",
 		"weather",
@@ -314,8 +319,10 @@ func _refresh():
 		controls[key].select(options.get(key))
 	for key in [
 		"graphics_shadows",
+		"graphics_extreme_shadows",
 		"graphics_ao",
 		"graphics_gi",
+		"graphics_rt_gi",
 		"graphics_glow",
 		"graphics_fog",
 		"graphics_liquids",
@@ -334,8 +341,19 @@ func _refresh():
 		"menu_motion"
 	]:
 		controls[key].set_pressed_no_signal(options.get(key))
+	var forward = RenderingServer.get_current_rendering_method() == "forward_plus"
 	controls.graphics_water_refraction.disabled = not options.graphics_liquids
 	controls.graphics_shadow_quality.disabled = not options.graphics_shadows
+	controls.graphics_extreme_shadows.disabled = not options.graphics_shadows or not forward
+	controls.graphics_rt_gi.disabled = not options.graphics_gi or not forward
+	controls.graphics_rt_quality.disabled = (
+		not forward
+		or not HardwareProfile.supports_raytracing()
+		or (
+			not (options.graphics_gi and options.graphics_rt_gi)
+			and options.graphics_reflections != 2
+		)
+	)
 	_refresh_hdr_status()
 	for key in ["hdr_peak_nits", "hdr_paper_white"]:
 		controls[key].set_value_no_signal(options.get(key))
@@ -476,11 +494,14 @@ func _build_graphics():
 	scroll.add_child(column)
 	_heading(column, "Hardware & preset")
 	var hw := HardwareProfile.detect()
+	var rt_badge := (
+		tr("Hardware RT") if hw.get("supports_raytracing", false) else tr("Fallback GI/SSR")
+	)
 	var hw_label = _label(
 		column,
 		(
-			"%s: %s · %s: %s"
-			% [tr("Detected GPU"), hw.adapter_name, tr("Recommended"), tr(hw.tier_name)]
+			"%s: %s (%s) · %s: %s"
+			% [tr("Detected GPU"), hw.adapter_name, rt_badge, tr("Recommended"), tr(hw.tier_name)]
 		),
 		12,
 		Color("a9b4b3")
@@ -555,9 +576,54 @@ func _build_graphics():
 		"graphics_shadow_quality",
 		["Low (1024)", "High (2048)", "Ultra (4096)"]
 	)
+	_check(column, "PC Extreme shadows & detail (8K)", "graphics_extreme_shadows")
+	controls.graphics_extreme_shadows.tooltip_text = tr(
+		(
+			"8192×8192 shadow atlas, Ultra soft shadow filtering, shadowed base lights, "
+			+ "high-resolution volumetric fog, and maximum mesh detail."
+		)
+	)
 	_check(column, "Ambient occlusion (contact shading)", "graphics_ao")
 	_check(column, "Global illumination (indirect light)", "graphics_gi")
+	_check(column, "Raytraced global illumination (RTGI)", "graphics_rt_gi")
+	controls.graphics_rt_gi.tooltip_text = tr(
+		(
+			"Hardware multi-bounce indirect light and sky occlusion on RTX GPUs; "
+			+ "uses 3D SDFGI on other Forward+ GPUs."
+		)
+	)
+	_choice(
+		column,
+		"Reflections",
+		"graphics_reflections",
+		["Off", "Screen-Space (SSR)", "Raytraced (RTX)"]
+	)
+	controls.graphics_reflections.tooltip_text = tr(
+		(
+			"Real-time reflections on water, wet pavement, and metallic armor. "
+			+ "Uses hardware ray tracing when supported, falling back to full-res SSR."
+		)
+	)
+	_choice(
+		column,
+		"Ray tracing quality",
+		"graphics_rt_quality",
+		["Balanced (50%)", "High (75%)", "Ultra (100%)"]
+	)
+	controls.graphics_rt_quality.tooltip_text = tr(
+		"Internal ray tracing resolution for RTGI and Raytraced reflections."
+	)
 	_check(column, "Bloom / light glow", "graphics_glow")
+	_choice(column, "Color grading", "graphics_tonemap", ["Filmic (Classic)", "AgX (Cinematic)"])
+	controls.graphics_tonemap.tooltip_text = tr(
+		"AgX preserves rich color and highlight detail in bright sunlight and explosions."
+	)
+	_choice(
+		column,
+		"Texture filtering",
+		"graphics_anisotropy",
+		["2× Anisotropic", "4× Anisotropic", "8× Anisotropic", "16× Anisotropic"]
+	)
 	_check(column, "Ground detail", "graphics_ground_detail")
 	_check(column, "Persistent tracks and blast marks", "battlefield_wear")
 	controls.battlefield_wear.tooltip_text = tr(
@@ -574,9 +640,19 @@ func _build_graphics():
 	controls.graphics_dof.tooltip_text = tr(
 		"Keep the camera focus sharp; softly blur distant scenery."
 	)
-	_choice(column, "Anti-aliasing", "graphics_msaa", ["Off", "2× MSAA", "4× MSAA"])
+	_choice(column, "Anti-aliasing", "graphics_msaa", ["Off", "2× MSAA", "4× MSAA", "8× MSAA"])
+	_choice(column, "Post anti-aliasing", "graphics_post_aa", ["Off", "FXAA", "SMAA", "TAA"])
 	var forward = RenderingServer.get_current_rendering_method() == "forward_plus"
-	for key in ["graphics_ao", "graphics_gi", "graphics_dof", "area_lighting"]:
+	for key in [
+		"graphics_ao",
+		"graphics_gi",
+		"graphics_rt_gi",
+		"graphics_reflections",
+		"graphics_rt_quality",
+		"graphics_extreme_shadows",
+		"graphics_dof",
+		"area_lighting"
+	]:
 		controls[key].disabled = not forward
 		if not forward:
 			controls[key].tooltip_text = tr("Available with the Forward+ renderer.")

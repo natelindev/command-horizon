@@ -17,6 +17,8 @@ uniform sampler2D ripple_state : filter_linear, repeat_disable;
 uniform vec4 ripple_region = vec4(0.0, 0.0, 64.0, .5);
 uniform sampler2D depth_texture : hint_depth_texture, filter_nearest;
 uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
+uniform bool rt_water_reflection_enabled = false;
+uniform sampler2D rt_water_reflection : filter_linear, repeat_disable;
 
 varying vec2 world_position;
 varying float world_y;
@@ -228,13 +230,28 @@ void fragment()
   vec3 sky_sheen = mix(shallow.rgb * 0.85 + vec3(0.08, 0.14, 0.18), vec3(0.56, 0.68, 0.75), 0.55);
 
   float foam_amount = clamp(shore_foam + local_foam * 0.75, 0.0, 0.85);
+  vec3 rt_refl = vec3(0.0);
+  float rt_weight = 0.0;
+  if (rt_water_reflection_enabled)
+  {
+    vec2 refl_uv = clamp(SCREEN_UV + slope * 0.10, vec2(0.002), vec2(0.998));
+    vec4 rt_sample = textureLod(rt_water_reflection, refl_uv, 0.0);
+    if (rt_sample.a > 0.01)
+    {
+      // Crisp physical grazing Fresnel calibrated for isometric water clarity
+      float water_fresnel = clamp(0.24 + 0.76 * pow(1.0 - ndotv, 2.8), 0.24, 0.88);
+      rt_refl = rt_sample.rgb;
+      rt_weight = water_fresnel * (1.0 - foam_amount) * 0.86;
+    }
+  }
   vec3 surface_color = mix(water_tint, sky_sheen, fresnel * (surface_effects ? 0.36 : 0.18));
   surface_color = mix(surface_color, foam.rgb, foam_amount);
 
-  ALBEDO = mix(surface_color * water_opacity, foam.rgb, foam_amount);
-  EMISSION = underwater * (1.0 - water_opacity) * (1.0 - foam_amount);
+  ALBEDO = mix(surface_color * water_opacity, foam.rgb, foam_amount) * (1.0 - rt_weight * 0.82);
+  EMISSION = underwater * (1.0 - water_opacity) * (1.0 - foam_amount) * (1.0 - rt_weight * 0.55) +
+      rt_refl * rt_weight;
   ALPHA = edge_alpha;
-  ROUGHNESS = surface_effects ? mix(0.32, 0.50, foam_amount) : 0.46;
-  SPECULAR = surface_effects ? 0.18 : 0.14;
+  ROUGHNESS = surface_effects ? mix(0.08, 0.52, foam_amount) : 0.36;
+  SPECULAR = surface_effects ? 0.54 : 0.26;
   METALLIC = 0.0;
 }

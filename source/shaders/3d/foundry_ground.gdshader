@@ -82,13 +82,13 @@ void fragment() {
 		surface=mix(surface,apron,inside);
 		paved=max(paved,inside);
 	}
-	float puddle=smoothstep(.38,.68,noise(p*.38+3.0))*wetness*max(road,paved*.6);
+	float puddle=smoothstep(.30,.58,noise(p*.34+3.0))*wetness*max(road,paved*.65);
 	// Yards and aprons take concrete, roads the asphalt scan; puddles flatten both.
 	TerrainSurface terrain=terrain_surface(p,surface,road,paved,.95);
-	terrain.slope*=1.0-puddle*.65;
-	ALBEDO=terrain.albedo*(1.0-wetness*.22);
-	ROUGHNESS=mix(terrain.roughness,.55,puddle);
+	terrain.slope*=1.0-puddle*.78;
+	ALBEDO=terrain.albedo*(1.0-wetness*.24);
+	ROUGHNESS=mix(terrain.roughness*mix(1.0,.52,wetness),.05,puddle);
 	AO=terrain.occlusion;
 	NORMAL=terrain_normal(terrain,NORMAL,VIEW_MATRIX,INV_VIEW_MATRIX);
-	SPECULAR=.22+wetness*.08;
+	SPECULAR=.24+wetness*.28;
 }

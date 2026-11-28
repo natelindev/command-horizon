@@ -24,8 +24,12 @@ const DEFAULTS = {
 	"key_bindings": {},
 	"graphics_shadows": true,
 	"graphics_shadow_quality": 1,
+	"graphics_extreme_shadows": false,
 	"graphics_ao": true,
 	"graphics_gi": false,
+	"graphics_rt_gi": false,
+	"graphics_reflections": 1,
+	"graphics_rt_quality": 1,
 	"graphics_glow": true,
 	"graphics_fog": true,
 	"graphics_liquids": true,
@@ -35,6 +39,9 @@ const DEFAULTS = {
 	"environment_quality": 0,
 	"graphics_dof": false,
 	"graphics_msaa": 1,
+	"graphics_post_aa": 2,
+	"graphics_anisotropy": 2,
+	"graphics_tonemap": 1,
 	"graphics_ground_detail": true,
 	"battlefield_wear": true,
 	"area_lighting": false,
@@ -72,8 +79,12 @@ const DEFAULTS = {
 @export var key_bindings = {}
 @export var graphics_shadows = true
 @export var graphics_shadow_quality = 1
+@export var graphics_extreme_shadows = false
 @export var graphics_ao = true
 @export var graphics_gi = false
+@export var graphics_rt_gi = false
+@export var graphics_reflections = 1
+@export var graphics_rt_quality = 1
 @export var graphics_glow = true
 @export var graphics_fog = true
 @export var graphics_liquids = true
@@ -83,6 +94,9 @@ const DEFAULTS = {
 @export var environment_quality = 0
 @export var graphics_dof = false
 @export var graphics_msaa = 1
+@export var graphics_post_aa = 2
+@export var graphics_anisotropy = 2
+@export var graphics_tonemap = 1
 @export var graphics_ground_detail = true
 @export var battlefield_wear = true
 @export var area_lighting = false
@@ -128,8 +142,13 @@ func apply():
 	hdr_peak_nits = _bounded(hdr_peak_nits, 0, 2000, 0)
 	hdr_paper_white = _bounded(hdr_paper_white, 0, 400, 0)
 	apply_hdr()
-	graphics_msaa = clampi(graphics_msaa, 0, 2)
+	graphics_msaa = clampi(graphics_msaa, 0, 3)
+	graphics_post_aa = clampi(graphics_post_aa, 0, 3)
+	graphics_anisotropy = clampi(graphics_anisotropy, 0, 3)
+	graphics_tonemap = clampi(graphics_tonemap, 0, 1)
 	graphics_shadow_quality = clampi(graphics_shadow_quality, 0, 2)
+	graphics_reflections = clampi(graphics_reflections, 0, 2)
+	graphics_rt_quality = clampi(graphics_rt_quality, 0, 2)
 	graphics_upscaling = clampi(graphics_upscaling, 0, 1)
 	if not is_finite(graphics_render_scale) or graphics_render_scale <= 0.0:
 		graphics_render_scale = 0.0
@@ -326,9 +345,94 @@ func effective_render_scale(pixel_size := Vector2.ZERO) -> float:
 func apply_graphics_quality():
 	if DisplayServer.get_name() == "headless":
 		return
-	RenderingServer.directional_shadow_atlas_set_size(
-		[1024, 2048, 4096][graphics_shadow_quality], true
+	var shadow_size: int = (
+		8192
+		if (graphics_extreme_shadows and graphics_shadow_quality == 2)
+		else [1024, 2048, 4096][graphics_shadow_quality]
 	)
+	RenderingServer.directional_shadow_atlas_set_size(shadow_size, true)
+	var soft_quality: int = (
+		RenderingServer.SHADOW_QUALITY_SOFT_ULTRA
+		if graphics_extreme_shadows
+		else [
+			RenderingServer.SHADOW_QUALITY_SOFT_LOW,
+			RenderingServer.SHADOW_QUALITY_SOFT_MEDIUM,
+			RenderingServer.SHADOW_QUALITY_SOFT_HIGH
+		][graphics_shadow_quality]
+	)
+	RenderingServer.directional_soft_shadow_filter_set_quality(soft_quality)
+	RenderingServer.positional_soft_shadow_filter_set_quality(soft_quality)
+	var forward := RenderingServer.get_current_rendering_method() == "forward_plus"
+	var ultra_passes := graphics_extreme_shadows or graphics_rt_gi or graphics_reflections == 2
+	if forward:
+		# When Hardware RTGI + RTAO is active, keep SSAO at half-res contact quality
+		# so 4K stays comfortably above 60 FPS without double-paying full-res AO.
+		var rt_ao_active := graphics_gi and graphics_rt_gi and HardwareProfile.supports_raytracing()
+		var full_res_ao := ultra_passes and not rt_ao_active
+		RenderingServer.environment_set_ssao_quality(
+			(
+				RenderingServer.ENV_SSAO_QUALITY_ULTRA
+				if full_res_ao
+				else RenderingServer.ENV_SSAO_QUALITY_MEDIUM
+			),
+			not full_res_ao,
+			0.5,
+			2,
+			50.0,
+			300.0
+		)
+		RenderingServer.environment_set_ssil_quality(
+			(
+				RenderingServer.ENV_SSIL_QUALITY_ULTRA
+				if ultra_passes
+				else RenderingServer.ENV_SSIL_QUALITY_MEDIUM
+			),
+			not ultra_passes,
+			0.5,
+			4,
+			50.0,
+			300.0
+		)
+		RenderingServer.environment_set_ssr_half_size(not ultra_passes)
+		RenderingServer.environment_set_volumetric_fog_volume_size(
+			128 if ultra_passes else 64, 128 if ultra_passes else 64
+		)
+		RenderingServer.environment_set_volumetric_fog_filter_active(true)
+		RenderingServer.environment_glow_set_use_bicubic_upscale(true)
+		RenderingServer.environment_set_sdfgi_ray_count(
+			(
+				RenderingServer.ENV_SDFGI_RAY_COUNT_32
+				if ultra_passes
+				else RenderingServer.ENV_SDFGI_RAY_COUNT_16
+			)
+		)
+		RenderingServer.environment_set_sdfgi_frames_to_converge(
+			RenderingServer.ENV_SDFGI_CONVERGE_IN_10_FRAMES
+		)
+		RenderingServer.environment_set_sdfgi_frames_to_update_light(
+			RenderingServer.ENV_SDFGI_UPDATE_LIGHT_IN_2_FRAMES
+		)
+		RenderingServer.gi_set_use_half_resolution(not ultra_passes)
+	var tree := Engine.get_main_loop() as SceneTree
+	if tree != null and tree.root != null:
+		tree.root.anisotropic_filtering_level = [
+			Viewport.ANISOTROPY_2X,
+			Viewport.ANISOTROPY_4X,
+			Viewport.ANISOTROPY_8X,
+			Viewport.ANISOTROPY_16X
+		][graphics_anisotropy]
+		tree.root.use_debanding = ultra_passes or graphics_tonemap == 1
+		tree.root.mesh_lod_threshold = 0.0 if graphics_extreme_shadows else 1.0
+		tree.root.screen_space_aa = (
+			Viewport.SCREEN_SPACE_AA_FXAA
+			if graphics_post_aa == 1
+			else (
+				Viewport.SCREEN_SPACE_AA_SMAA
+				if graphics_post_aa == 2
+				else Viewport.SCREEN_SPACE_AA_DISABLED
+			)
+		)
+		tree.root.use_taa = (graphics_post_aa == 3)
 	apply_render_scale()
 
 

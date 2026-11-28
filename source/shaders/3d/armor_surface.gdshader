@@ -46,6 +46,8 @@ void fragment() {
 	RIM_TINT = 0.34;
 	// Roughness follows authored paint relief, recessed seams, and fine cast-metal grain.
 	float seam_rough = clamp((1.0 - panel_mask) * 0.45, -0.08, 0.35);
-	float roughness = clamp(base_roughness + finish.roughness_delta + seam_rough, 0.16, 0.96);
+	float bare_steel = max(edge_wear * 0.65, finish.exposure * 0.55);
+	float roughness = clamp(
+			base_roughness + finish.roughness_delta + seam_rough - bare_steel * 0.16, 0.12, 0.96);
 	ROUGHNESS = weathered_roughness(roughness, armor_weathering);
 }

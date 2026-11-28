@@ -65,7 +65,7 @@ void fragment()
   float fresnel = 0.02 + 0.98 * pow(1.0 - ndotv, 5.0);
   vec3 base = vec3(0.052, 0.165, 0.185);
   ALBEDO = mix(base, vec3(0.32, 0.48, 0.54), fresnel * (surface_effects ? 0.30 : 0.16));
-  ROUGHNESS = surface_effects ? (0.32 + wetness * 0.06) : 0.46;
-  SPECULAR = surface_effects ? 0.18 : 0.14;
+  ROUGHNESS = surface_effects ? (0.08 + wetness * 0.05) : 0.36;
+  SPECULAR = surface_effects ? 0.55 : 0.24;
   METALLIC = 0.0;
 }

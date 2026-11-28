@@ -93,24 +93,83 @@ func _run():
 	_check(
 		(
 			opts.graphics_gi
+			and opts.graphics_rt_gi
+			and opts.graphics_reflections == 2
+			and opts.graphics_rt_quality == 1
+			and opts.graphics_extreme_shadows
 			and opts.graphics_ao
 			and opts.graphics_water_refraction
 			and opts.graphics_msaa == 2
+			and opts.graphics_post_aa == 2
+			and opts.graphics_anisotropy == 3
+			and opts.graphics_tonemap == 1
 			and opts.graphics_shadow_quality == 2
 			and opts.area_lighting
 		),
-		"Ultra preset missing max-fidelity options"
+		"Ultra preset missing max-fidelity PC/RT options"
+	)
+
+	opts.apply_preset(profile.Tier.HIGH)
+	_check(opts.current_preset() == profile.Tier.HIGH, "High preset did not match")
+	_check(
+		(
+			not opts.graphics_rt_gi
+			and opts.graphics_reflections == 1
+			and not opts.graphics_extreme_shadows
+			and opts.graphics_anisotropy == 2
+			and opts.graphics_tonemap == 1
+		),
+		"High preset has unexpected RT or shadow defaults"
 	)
 
 	opts.apply_preset(profile.Tier.MEDIUM)
 	_check(opts.current_preset() == profile.Tier.MEDIUM, "Medium preset did not match")
 	_check(
-		not opts.graphics_gi and not opts.graphics_water_refraction and opts.graphics_msaa == 0,
+		(
+			not opts.graphics_gi
+			and not opts.graphics_rt_gi
+			and opts.graphics_reflections == 0
+			and not opts.graphics_extreme_shadows
+			and not opts.graphics_water_refraction
+			and opts.graphics_msaa == 0
+		),
 		"Medium preset kept expensive GPU passes enabled"
 	)
 
 	opts.graphics_ao = true
 	_check(opts.current_preset() == profile.PRESET_CUSTOM, "Tweaking preset did not report Custom")
+
+	# Clamping of new PC fidelity options and headless RT capability contract.
+	(
+		opts
+		. restore(
+			{
+				"screen": 1,
+				"graphics_msaa": 99,
+				"graphics_post_aa": -4,
+				"graphics_anisotropy": 12,
+				"graphics_tonemap": 5,
+				"graphics_reflections": 7,
+				"graphics_rt_quality": -2,
+			}
+		)
+	)
+	_check(
+		(
+			opts.graphics_msaa == 3
+			and opts.graphics_post_aa == 0
+			and opts.graphics_anisotropy == 3
+			and opts.graphics_tonemap == 1
+			and opts.graphics_reflections == 2
+			and opts.graphics_rt_quality == 0
+		),
+		"New PC graphics options were not clamped to valid ranges"
+	)
+	var detected: Dictionary = profile.detect()
+	_check(
+		detected.has("supports_raytracing") and detected.supports_raytracing == false,
+		"Headless detection should report supports_raytracing == false"
+	)
 
 	for message in _errors:
 		push_error(message)

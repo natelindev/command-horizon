@@ -72,7 +72,30 @@ func _run():
 	preferences.day_cycle = true
 	preferences.time_of_day = 0
 	preferences.weather = 0
+	preferences.graphics_tonemap = 1
+	preferences.graphics_extreme_shadows = true
+	preferences.graphics_rt_gi = true
+	preferences.graphics_reflections = 2
+	preferences.graphics_rt_quality = 2
+	preferences.graphics_anisotropy = 3
+	preferences.graphics_post_aa = 2
 	preferences.apply()
+	_check(
+		atmosphere.environment.tonemap_mode == Environment.TONE_MAPPER_AGX,
+		"AgX tonemapping not applied"
+	)
+	_check(
+		atmosphere.environment.ambient_light_source == Environment.AMBIENT_SOURCE_SKY,
+		"Sky hemisphere ambient lighting not applied"
+	)
+	_check(atmosphere.sun.shadow_bias < .014, "Extreme shadows bias tuning not applied")
+	preferences.graphics_tonemap = 0
+	preferences.graphics_extreme_shadows = false
+	preferences.apply()
+	_check(
+		atmosphere.environment.tonemap_mode == Environment.TONE_MAPPER_FILMIC,
+		"Filmic tonemapping switch did not apply"
+	)
 	game.simulation_time = 240.0
 	atmosphere._update(120)
 	_check(absf(atmosphere.hour - 18) < .01, "Cycle not derived from saved clock")
